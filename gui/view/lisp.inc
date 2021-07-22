@@ -98,8 +98,35 @@
 	(deffimethod :ctx_blit "gui/ctx/lisp_blit")
 		; (. view :ctx_filled_box tid col x y width height) -> view
 
-	(deffimethod :ctx_panel "gui/ctx/lisp_panel")
+	(defmethod :ctx_panel (this col flags depth x y width height)
 		; (. view :ctx_panel col flags depth x y width height) -> view
+		(defq abs_depth (abs depth))
+		(when (/= flags 0)
+			;fill middle
+			(.-> this
+				(:ctx_set_color col)
+				(:ctx_filled_box (+ x abs_depth) (+ y abs_depth)
+					(- width abs_depth abs_depth) (- height abs_depth abs_depth))))
+		(cond
+			((< depth 0)
+				;suncken
+				(.-> this
+					(:ctx_set_color (canvas-darker col))
+					(:ctx_filled_box x y (- width abs_depth) abs_depth)
+					(:ctx_filled_box x (+ y abs_depth) abs_depth (- height abs_depth abs_depth))
+					(:ctx_set_color (canvas-brighter col))
+					(:ctx_filled_box x (+ y height depth) width abs_depth)
+					(:ctx_filled_box (+ x width depth) y abs_depth (- height abs_depth))))
+			((> depth 0)
+				;raised
+				(.-> this
+					(:ctx_set_color (canvas-brighter col))
+					(:ctx_filled_box x y width abs_depth)
+					(:ctx_filled_box x (+ y abs_depth) abs_depth (- height abs_depth))
+					(:ctx_set_color (canvas-darker col))
+					(:ctx_filled_box (+ x abs_depth) (- (+ y height) abs_depth) (- width abs_depth) abs_depth)
+					(:ctx_filled_box (- (+ x width) abs_depth) (+ y abs_depth) abs_depth (- height abs_depth abs_depth)))))
+		this)
 
 	(defmethod :get_id (this)
 		; (. view :get_id) -> id

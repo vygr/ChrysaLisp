@@ -1758,12 +1758,6 @@
 (ctx-filled-box view x y w h)
 ```
 
-### ctx-panel
-
-```code
-(ctx-panel view col flags depth x y w h)
-```
-
 ### ctx-set-color
 
 ```code

@@ -1063,19 +1063,6 @@ trashes
 r1-r14
 ```
 
-### ctx :lisp_panel -> gui/ctx/lisp_panel
-
-```code
-inputs
-r0 = lisp object (ptr)
-r1 = args list object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-trashes
-r1-r14
-```
-
 ### ctx :lisp_set_color -> gui/ctx/lisp_set_color
 
 ```code
@@ -1087,22 +1074,6 @@ r0 = lisp object (ptr)
 r1 = return value object (ptr)
 trashes
 r1-r14
-```
-
-### ctx :panel -> gui/ctx/panel
-
-```code
-inputs
-r0 = view object (ptr)
-r1 = color (argb)
-r2 = flags (ulong)
-r3 = depth (int)
-r7 = x (pixels)
-r8 = y (pixels)
-r9 = width (pixels)
-r10 = height (pixels)
-trashes
-r0-r14
 ```
 
 ### ctx :set_color -> gui/ctx/set_color

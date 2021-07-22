@@ -109,41 +109,6 @@
 
 (def-func-end)
 
-(def-method 'ctx :lisp_panel)
-	;inputs
-	;r0 = lisp object (ptr)
-	;r1 = args list object (ptr)
-	;outputs
-	;r0 = lisp object (ptr)
-	;r1 = return value object (ptr)
-	;trashes
-	;r1-r14
-
-	(entry 'ctx :lisp_panel '(r0 r1))
-
-(errorcases
-	(call 'lisp :env_args_sig '(r1 ($ sig) 8) '(r2))
-	(gotoif '(r2 = 0) 'error1))
-
-	(vp-push r0)
-	(defq in (method-input 'ctx :panel))
-	(list-bind-args r1 in '(:view :num :num :num :num :num :num :num))
-	(vp-push (elem 0 in))
-	(call 'ctx :panel in)
-	(vp-pop r1)
-	(class/obj/ref r1 r2)
-	(vp-pop r0)
-
-	(exit 'ctx :lisp_panel '(r0 r1))
-	(vp-ret)
-
-(errorcases
-(vp-label 'error1)
-	(jump 'lisp :repl_error '(r0 "(ctx-panel view col flags depth x y w h)" error_msg_wrong_types r1))
-	(signature '(view num num num num num num num)))
-
-(def-func-end)
-
 (def-method 'ctx :lisp_blit)
 	;inputs
 	;r0 = lisp object (ptr)
