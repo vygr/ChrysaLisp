@@ -13,8 +13,6 @@
 	(dec-method :to_argb gui/pixmap/to_argb :static (r1) (r1))
 	(dec-method :as_argb gui/pixmap/as_argb :static (r0 r1) (r0))
 	(dec-method :as_premul gui/pixmap/as_premul :static (r0 r1) (r0))
-	(dec-method :brighter gui/pixmap/brighter :static (r1) (r1))
-	(dec-method :darker gui/pixmap/darker :static (r1) (r1))
 	(dec-method :info gui/pixmap/info :static (r0) (r0 r1 r2))
 	(dec-method :info_file gui/pixmap/info_file :static (r4 r5) (r0 r1 r2))
 	(dec-method :info_cpm gui/pixmap/info_cpm :static (r5) (r0 r1 r2))

@@ -10,8 +10,6 @@
 (ffi canvas-info "gui/canvas/lisp_info" 0)
 (ffi canvas-to-argb32 "gui/canvas/lisp_to_argb32" 0)
 (ffi canvas-from-argb32 "gui/canvas/lisp_from_argb32" 0)
-(ffi canvas-darker "gui/canvas/lisp_darker" 0)
-(ffi canvas-brighter "gui/canvas/lisp_brighter" 0)
 
 (structure +canvas +view_size
 	(ptr pixmap edges texture)
@@ -27,6 +25,14 @@
 
 (enums +winding 0
 	(enum odd_even none_zero))
+
+(defun canvas-darker (col)
+	; (canvas-darker col) -> col
+	(+ (logand col 0xff000000) (>> (logand col 0xfefefe) 1)))
+
+(defun canvas-brighter (col)
+	; (canvas-brighter col) -> col
+	(+ (logand col 0xff000000) (>> (logand col 0xfefefe) 1) 0x808080))
 
 (defclass Canvas-base () (View)
 	(def this :color 0)

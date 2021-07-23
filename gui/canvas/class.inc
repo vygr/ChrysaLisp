@@ -28,9 +28,7 @@
 	(dec-method :lisp_fpoly gui/canvas/lisp_fpoly :static (r0 r1) (r0 r1))
 	(dec-method :lisp_resize gui/canvas/lisp_resize :static (r0 r1) (r0 r1))
 	(dec-method :lisp_to_argb32 gui/canvas/lisp_to_argb32 :static (r0 r1) (r0 r1))
-	(dec-method :lisp_from_argb32 gui/canvas/lisp_from_argb32 :static (r0 r1) (r0 r1))
-	(dec-method :lisp_darker gui/canvas/lisp_darker :static (r0 r1) (r0 r1))
-	(dec-method :lisp_brighter gui/canvas/lisp_brighter :static (r0 r1) (r0 r1)))
+	(dec-method :lisp_from_argb32 gui/canvas/lisp_from_argb32 :static (r0 r1) (r0 r1)))
 
 (def-struct canvas view_size
 	(ptr pixmap edges texture)

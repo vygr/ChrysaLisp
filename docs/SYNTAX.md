@@ -1533,13 +1533,13 @@
 ### canvas-brighter
 
 ```code
-(canvas-brighter col)
+(canvas-brighter col) -> col
 ```
 
 ### canvas-darker
 
 ```code
-(canvas-darker col)
+(canvas-darker col) -> col
 ```
 
 ### canvas-fbox
