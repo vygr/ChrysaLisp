@@ -8663,17 +8663,6 @@ r1
 
 Super Class: view
 
-### vdu :configure -> gui/vdu/configure
-
-```code
-inputs
-r0 = vdu object (ptr)
-outputs
-r0 = vdu object (ptr)
-trashes
-r1-r14
-```
-
 ### vdu :create -> gui/vdu/create
 
 ### vdu :deinit -> gui/vdu/deinit

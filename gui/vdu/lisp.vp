@@ -1,6 +1,7 @@
 (include "sys/func.inc")
 (include "gui/vdu/class.inc")
 (include "gui/pixmap/class.inc")
+(include "gui/font/class.inc")
 (include "class/sym/class.inc")
 (include "class/num/class.inc")
 (include "class/lisp/class.inc")
@@ -145,21 +146,45 @@
 	;trashes
 	;r1-r14
 
+	(def-vars
+		(ptr vdu font this)
+		(uint w h size))
+
 	(entry 'vdu :lisp_configure '(r0 r1))
 
 (errorcases
 	(call 'lisp :env_args_sig '(r1 ($ sig) 1) '(r2))
 	(gotoif '(r2 = 0) 'error))
 
-	(vp-push r0)
-	(defq in (method-input 'vdu :configure))
-	(list-bind-args r1 in '(:vdu))
-	(call 'vdu :configure in '(r1))
-	(class/obj/ref r1 r2)
-	(vp-pop r0)
+	(push-scope)
+	(assign '(r0) {this})
 
-	(exit 'vdu :lisp_configure '(r0 r1))
-	(vp-ret)
+	(list-bind-args r1 '(r0) '(:vdu))
+	(assign '(r0) {vdu})
+	(call 'vdu :get_long_prop {vdu, static_sym_vdu_width} {_, w})
+	(call 'vdu :get_long_prop {vdu, static_sym_vdu_height} {_, h})
+	(call 'vdu :ref_prop {vdu, static_sym_font} {_, font})
+	(vpif {font && font /= vdu->vdu_font})
+		(assign {font} {vdu->vdu_font})
+		;set char size
+		(call 'font :get_metrics {font} {_, _, _, vdu->vdu_char_height})
+		(assign {vdu->vdu_char_height * 9 >> 4} {vdu->vdu_char_width})
+		;ref char textures
+		(call 'list :deref_if {vdu->vdu_textures})
+		(call 'font :ascii_textures {font} {_, vdu->vdu_textures})
+	(endif)
+	(vpif {w /= vdu->vdu_width || h /= vdu->vdu_height})
+		(assign {w, h} {vdu->vdu_width, vdu->vdu_height})
+		(call 'sys_mem :free {vdu->vdu_chars})
+		(call 'sys_mem :alloc {vdu->vdu_width * h * +long_size} {vdu->vdu_chars, size})
+		(call 'sys_mem :fill {vdu->vdu_chars, size, +char_space})
+	(endif)
+	(call 'font :deref_if {font})
+	(call 'obj :ref {vdu})
+
+	(exit 'vdu :lisp_configure {this, vdu})
+	(pop-scope)
+	(return)
 
 (errorcases
 (vp-label 'error)
