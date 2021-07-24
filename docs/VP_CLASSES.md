@@ -8841,29 +8841,6 @@ trashes
 r1-r4
 ```
 
-### view :forward -> gui/view/forward
-
-```code
-inputs
-r0 = view object (ptr)
-r1 = user data pointer (ptr)
-r2 = callback (ptr)
-outputs
-r0 = view object (ptr)
-trashes
-...
-callback api
-inputs
-r0 = child view object (ptr)
-r1 = user data pointer (ptr)
-outputs
-r0 = child view object (ptr)
-trashes
-...
-```
-
-### view :forward_callback -> class/obj/null
-
 ### view :forward_tree -> gui/view/forward_tree
 
 ```code

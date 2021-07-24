@@ -264,50 +264,6 @@
 
 (def-func-end)
 
-(def-method 'view :forward)
-	;inputs
-	;r0 = view object (ptr)
-	;r1 = user data pointer (ptr)
-	;r2 = callback (ptr)
-	;outputs
-	;r0 = view object (ptr)
-	;trashes
-	;...
-		;callback api
-		;inputs
-		;r0 = child view object (ptr)
-		;r1 = user data pointer (ptr)
-		;outputs
-		;r0 = child view object (ptr)
-		;trashes
-		;...
-
-	(def-struct local 0
-		(ptr this data callback))
-
-	(vp-alloc local_size)
-	(assign '(r0 r1 r2) '((rsp local_this) (rsp local_data) (rsp local_callback)))
-
-	(lh-get-head r0 view_list r0)
-	(loop-start)
-		(ln-get-succ r0 0 r1)
-		(breakif '(r1 = 0))
-
-		;callback
-		(vp-sub-cr view_node r0)
-		(assign '((rsp local_data)) '(r1))
-		(vp-call-i rsp local_callback)
-
-		;across to sibling
-		(ln-get-succ r0 view_node r0)
-	(loop-end)
-
-	(assign '((rsp local_this)) '(r0))
-	(vp-free local_size)
-	(vp-ret)
-
-(def-func-end)
-
 (def-method 'view :forward_tree)
 	;inputs
 	;r0 = view object (ptr)
