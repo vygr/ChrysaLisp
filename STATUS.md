@@ -25,6 +25,9 @@ View class :ctx_panel method moved to Lisp code.
 
 (canvas-lighter) and (canvas-darker) functions moved to Lisp.
 
+Removal of redundant VP class methods. A lot of code has moved over to Lisp
+recently and so these methods are no longer referenced.
+
 ------
 
 Editor now has line number display.
