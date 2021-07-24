@@ -8889,21 +8889,6 @@ trashes
 
 ### view :forward_tree_callback -> class/obj/null
 
-### view :get_bounds -> gui/view/get_bounds
-
-```code
-inputs
-r0 = view object (ptr)
-outputs
-r0 = view object (ptr)
-r7 = x (pixels)
-r8 = y (pixels)
-r9 = width (pixels)
-r10 = height (pixels)
-trashes
-r7-r10
-```
-
 ### view :get_long_prop -> gui/view/get_long_prop
 
 ```code
@@ -9203,21 +9188,6 @@ r0 = view object (ptr)
 r1 = 0 else, property object (ptr)
 trashes
 r1-r14
-```
-
-### view :set_bounds -> gui/view/set_bounds
-
-```code
-inputs
-r0 = view object (ptr)
-r7 = x (pixels)
-r8 = y (pixels)
-r9 = width (pixels)
-r10 = height (pixels)
-outputs
-r0 = view object (ptr)
-trashes
-none
 ```
 
 ### view :set_flags -> gui/view/set_flags

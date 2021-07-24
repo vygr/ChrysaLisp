@@ -621,40 +621,6 @@
 
 (def-func-end)
 
-(def-method 'view :get_bounds)
-	;inputs
-	;r0 = view object (ptr)
-	;outputs
-	;r0 = view object (ptr)
-	;r7 = x (pixels)
-	;r8 = y (pixels)
-	;r9 = width (pixels)
-	;r10 = height (pixels)
-	;trashes
-	;r7-r10
-
-	(assign '((r0 view_x) (r0 view_y) (r0 view_w) (r0 view_h)) '(r7 r8 r9 r10))
-	(vp-ret)
-
-(def-func-end)
-
-(def-method 'view :set_bounds)
-	;inputs
-	;r0 = view object (ptr)
-	;r7 = x (pixels)
-	;r8 = y (pixels)
-	;r9 = width (pixels)
-	;r10 = height (pixels)
-	;outputs
-	;r0 = view object (ptr)
-	;trashes
-	;none
-
-	(assign '(r7 r8 r9 r10) '((r0 view_x) (r0 view_y) (r0 view_w) (r0 view_h)))
-	(vp-ret)
-
-(def-func-end)
-
 (def-method 'view :set_flags)
 	;inputs
 	;r0 = view object (ptr)

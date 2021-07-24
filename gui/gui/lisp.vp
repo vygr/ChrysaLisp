@@ -258,8 +258,8 @@
 		(assign '(0 0 0 0) '(r7 r8 r9 r10))
 		(vpif '(r1 /= 0))
 			;have screen
-			(call 'view :get_bounds '(r1) '(r0 _ _ r9 r10))
 			(fn-bind 'sys/statics/statics r0)
+			(assign '((r1 view_w) (r1 view_h)) '(r9 r10))
 			(assign '((r0 statics_gui_mouse_x) (r0 statics_gui_mouse_y)) '(r7 r8))
 		(endif)
 		(call 'list :create nil '(r11))
