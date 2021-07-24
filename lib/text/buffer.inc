@@ -95,7 +95,7 @@
 
 	(defmethod :next_mark (this)
 		; (. buffer :next_mark) -> mark
-		(set this :next_mark (inc (get :next_mark this))))
+		(lower (:next_mark (inc (get :next_mark this)))))
 
 	(defmethod :push_undo (this &rest records)
 		; (. buffer :push_undo record ...) -> buffer

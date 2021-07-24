@@ -23,6 +23,8 @@ Addition of `(let* ...)` macro to `boot.inc`.
 
 View class :ctx_panel method moved to Lisp code.
 
+(canvas-lighter) and (canvas-darker) functions moved to Lisp.
+
 ------
 
 Editor now has line number display.

@@ -381,13 +381,13 @@
 
 (defun main ()
 	(defq select (alloc-select +select_size)
-		edit_service (mail-declare (task-mailbox) "EDIT_SERVICE" "Edit Service 0.1"))
+		edit_service (mail-declare (task-mailbox) "EDIT_SERVICE" "Edit Service 0.1")
+		*cursor_x* 0 *cursor_y* 0 *anchor_x* 0 *anchor_y* 0 *scroll_x* 0 *scroll_y* 0
+		*current_buffer* nil *running* t mouse_state :u)
 	;load up the base Syntax keywords and boot.inc words for matching
 	(each (lambda ((key val)) (. dictionary :insert_word (str key)))
 		(tolist (get :keywords *syntax* )))
 	(each-line populate-dictionary (file-stream "class/lisp/boot.inc"))
-	(defq *cursor_x* 0 *cursor_y* 0 *anchor_x* 0 *anchor_y* 0 *scroll_x* 0 *scroll_y* 0
-		*current_buffer* nil *running* t mouse_state :u)
 	(populate-file-tree)
 	(load-open-files)
 	(populate-open-tree)
