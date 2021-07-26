@@ -325,9 +325,7 @@
 	(entry 'real :sqrt '(r0))
 
 	(vp-push r0)
-	(call 'sys_math :r_r2f '((r0 num_value)) '(r0))
-	(call 'sys_math :f_sqrt '(r0) '(r0))
-	(call 'sys_math :r_f2r '(r0) '(r0))
+	(call 'sys_math :r_sqrt '((r0 num_value)) '(r0))
 	(call 'real :create '(r0) '(r1))
 	(vp-pop r0)
 

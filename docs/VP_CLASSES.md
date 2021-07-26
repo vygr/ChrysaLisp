@@ -7852,6 +7852,17 @@ trashes
 r12-r14
 ```
 
+### sys_math :r_sqrt -> sys/math/r_sqrt
+
+```code
+inputs
+r13 = real (32:32)
+outputs
+r13 = real (32:32)
+trashes
+r6-r14
+```
+
 ### sys_math :r_sub -> sys/math/r_sub
 
 ```code
