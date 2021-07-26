@@ -5363,6 +5363,18 @@ trashes
 r1-r14
 ```
 
+### real :cos -> class/real/cos
+
+```code
+inputs
+r0 = real object (ptr)
+outputs
+r0 = real object (ptr)
+r1 = result real object (ptr)
+trashes
+r1-r14
+```
+
 ### real :create -> class/real/create
 
 ### real :div -> class/real/div
@@ -5543,6 +5555,18 @@ r1-r14
 ```
 
 ### real :sign -> class/real/sign
+
+```code
+inputs
+r0 = real object (ptr)
+outputs
+r0 = real object (ptr)
+r1 = result real object (ptr)
+trashes
+r1-r14
+```
+
+### real :sin -> class/real/sin
 
 ```code
 inputs
@@ -7738,6 +7762,17 @@ trashes
 r11-r14
 ```
 
+### sys_math :r_cos -> sys/math/r_cos
+
+```code
+inputs
+r13 = real (32:32)
+outputs
+r13 = real (32:32)
+trashes
+all
+```
+
 ### sys_math :r_div -> sys/math/r_div
 
 ```code
@@ -7850,6 +7885,17 @@ outputs
 r14 = num (long)
 trashes
 r12-r14
+```
+
+### sys_math :r_sin -> sys/math/r_sin
+
+```code
+inputs
+r13 = real (32:32)
+outputs
+r13 = real (32:32)
+trashes
+all
 ```
 
 ### sys_math :r_sqrt -> sys/math/r_sqrt

@@ -241,7 +241,7 @@
 	;trashes
 	;r1-r14
 
-	(mathop :sin
+	(mathop :cos
 		'(call 'sys_math :f_cos '(r0) '(r0)))
 
 (def-func-end)

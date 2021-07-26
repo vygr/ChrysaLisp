@@ -21,6 +21,8 @@
 	(dec-method :r_frac sys/math/r_frac :static (r13) (r13))
 	(dec-method :r_floor sys/math/r_floor :static (r13) (r13))
 	(dec-method :r_sqrt sys/math/r_sqrt :static (r13) (r13))
+	(dec-method :r_sin sys/math/r_sin :static (r13) (r13))
+	(dec-method :r_cos sys/math/r_cos :static (r13) (r13))
 	(dec-method :r_i2r sys/math/r_i2r :static (r14) (r13))
 	(dec-method :r_f2r sys/math/r_f2r :static (r14) (r13))
 	(dec-method :r_r2i sys/math/r_r2i :static (r13) (r14))

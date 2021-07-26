@@ -16,6 +16,8 @@
 	(dec-method :sign class/real/sign :override)
 	(dec-method :neg class/real/neg :override)
 	(dec-method :sqrt class/real/sqrt :override)
+	(dec-method :sin class/real/sin :override)
+	(dec-method :cos class/real/cos :override)
 	(dec-method :frac class/real/frac :override)
 	(dec-method :floor class/real/floor :override)
 	(dec-method :recip class/real/recip :override)

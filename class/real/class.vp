@@ -313,6 +313,17 @@
 
 (def-func-end)
 
+;generic real math op
+(defun mathop (_ p)
+	(entry 'real _ '(r0))
+	(vp-push r0)
+	(assign '((r0 num_value)) '(r13))
+	(exec p)
+	(call 'real :create '(r0) '(r1))
+	(vp-pop r0)
+	(exit 'real _ '(r0 r1))
+	(vp-ret))
+
 (def-method 'real :sqrt)
 	;inputs
 	;r0 = real object (ptr)
@@ -322,15 +333,36 @@
 	;trashes
 	;r1-r14
 
-	(entry 'real :sqrt '(r0))
+	(mathop :sqrt
+		'(call 'sys_math :r_sqrt '(r13) '(r0)))
 
-	(vp-push r0)
-	(call 'sys_math :r_sqrt '((r0 num_value)) '(r0))
-	(call 'real :create '(r0) '(r1))
-	(vp-pop r0)
+(def-func-end)
 
-	(exit 'real :sqrt '(r0 r1))
-	(vp-ret)
+(def-method 'real :sin)
+	;inputs
+	;r0 = real object (ptr)
+	;outputs
+	;r0 = real object (ptr)
+	;r1 = result real object (ptr)
+	;trashes
+	;r1-r14
+
+	(mathop :sin
+		'(call 'sys_math :r_sin '(r13) '(r0)))
+
+(def-func-end)
+
+(def-method 'real :cos)
+	;inputs
+	;r0 = real object (ptr)
+	;outputs
+	;r0 = real object (ptr)
+	;r1 = result real object (ptr)
+	;trashes
+	;r1-r14
+
+	(mathop :cos
+		'(call 'sys_math :r_cos '(r13) '(r0)))
 
 (def-func-end)
 
@@ -343,15 +375,8 @@
 	;trashes
 	;r1-r14
 
-	(entry 'real :frac '(r0))
-
-	(vp-push r0)
-	(call 'sys_math :r_frac '((r0 num_value)) '(r0))
-	(call 'real :create '(r0) '(r1))
-	(vp-pop r0)
-
-	(exit 'real :frac '(r0 r1))
-	(vp-ret)
+	(mathop :frac
+		'(call 'sys_math :r_frac '(r13) '(r0)))
 
 (def-func-end)
 
@@ -364,15 +389,8 @@
 	;trashes
 	;r1-r14
 
-	(entry 'real :floor '(r0))
-
-	(vp-push r0)
-	(call 'sys_math :r_floor '((r0 num_value)) '(r0))
-	(call 'real :create '(r0) '(r1))
-	(vp-pop r0)
-
-	(exit 'real :floor '(r0 r1))
-	(vp-ret)
+	(mathop :floor
+		'(call 'sys_math :r_floor '(r13) '(r0)))
 
 (def-func-end)
 
@@ -385,16 +403,8 @@
 	;trashes
 	;r1-r14
 
-	(entry 'real :recip '(r0))
-
-	(vp-push r0)
-	; (i2r 1) for the sake of the C++ version
-	(call 'sys_math :r_div '(0x4000000000000001 (r0 num_value)) '(r0))
-	(call 'real :create '(r0) '(r1))
-	(vp-pop r0)
-
-	(exit 'real :recip '(r0 r1))
-	(vp-ret)
+	(mathop :recip
+		'(call 'sys_math :r_div '(0x4000000000000001 r13) '(r0)))
 
 (def-func-end)
 
@@ -435,16 +445,8 @@
 	;trashes
 	;r1-r14
 
-	(entry 'real :neg '(r0))
-
-	(vp-push r0)
-	; (i2r -1) for the sake of the C++ version
-	(call 'sys_math :r_mul '(-0x3FFFFFFFFFFFFFFF (r0 num_value)) '(r0))
-	(call 'real :create '(r0) '(r1))
-	(vp-pop r0)
-
-	(exit 'real :neg '(r0 r1))
-	(vp-ret)
+	(mathop :neg
+		'(call 'sys_math :r_mul '(r13 -0x3FFFFFFFFFFFFFFF) '(r0)))
 
 (def-func-end)
 
@@ -457,21 +459,15 @@
 	;trashes
 	;r1-r14
 
-	(entry 'real :sign '(r0))
-
-	(vp-push r0)
-	(assign '((r0 num_value)) '(r0))
-	(vpif '(r0 < 0))
-		; (i2r -1) for the sake of the C++ version
-		(assign '(-0x3FFFFFFFFFFFFFFF) '(r0))
-	(elseif '(r0 > 0))
-		; (i2r 1) for the sake of the C++ version
-		(assign '(0x4000000000000001) '(r0))
-	(endif)
-	(call 'real :create '(r0) '(r1))
-	(vp-pop r0)
-
-	(exit 'real :sign '(r0 r1))
-	(vp-ret)
+	(mathop :sign
+		'(progn
+			(vp-xor-rr r0 r0)
+			(vpif '(r13 < 0))
+				; (i2r -1) for the sake of the C++ version
+				(assign '(-0x3FFFFFFFFFFFFFFF) '(r0))
+			(elseif '(r13 > 0))
+				; (i2r 1) for the sake of the C++ version
+				(assign '(0x4000000000000001) '(r0))
+			(endif)))
 
 (def-func-end)

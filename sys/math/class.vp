@@ -751,6 +751,44 @@
 
 (def-func-end)
 
+(def-method 'sys_math :r_sin)
+	;inputs
+	;r13 = real (32:32)
+	;outputs
+	;r13 = real (32:32)
+	;trashes
+	;all
+
+	(entry 'sys_math :r_sin '(r13))
+
+	(call 'sys_math :r_r2f '(r13) '(r0))
+	(call 'sys_math :f_sin '(r0) '(r0))
+	(call 'sys_math :r_f2r '(r0) '(r13))
+
+	(exit 'sys_math :r_sin '(r13))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'sys_math :r_cos)
+	;inputs
+	;r13 = real (32:32)
+	;outputs
+	;r13 = real (32:32)
+	;trashes
+	;all
+
+	(entry 'sys_math :r_sin '(r13))
+
+	(call 'sys_math :r_r2f '(r13) '(r0))
+	(call 'sys_math :f_cos '(r0) '(r0))
+	(call 'sys_math :r_f2r '(r0) '(r13))
+
+	(exit 'sys_math :r_sin '(r13))
+	(vp-ret)
+
+(def-func-end)
+
 (def-method 'sys_math :r_i2r)
 	;inputs
 	;r14 = num (long)
