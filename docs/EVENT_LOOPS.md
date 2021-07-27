@@ -4,7 +4,7 @@ In this document we cover how applications and libraries go about using
 mailboxes and messages to create communications structures and what techniques
 are used and why.
 
-Each task on creation is allocated a main mailbox. you can create more if
+Each task on creation is allocated a main mailbox. You can create more if
 desired but why would you do that ? What advantage is there ?
 
 The first advantage is that it allows you to partition your application and its
@@ -50,7 +50,7 @@ This simply creates the symbols and bound values:
 We place the `main` mailbox as the first element in order to use built in
 helper functions to allocate and free our mailbox selection list. These
 functions will always have element 0 as the `(task-mailbox)`, all remaining
-they will allocate and free for us using the `(mail-alloc-mbox)` and
+will be allocated and freed for us using the `(mail-alloc-mbox)` and
 `(mail-free-mbox)` functions.
 
 At the start of the Boing demo `(main)` function the selection list is created
@@ -78,9 +78,9 @@ code.
 
 We distinguish between the two possible types of message by using the index
 that the `(mail-select)` function returns to us. This function will block until
-one of the mailboxes has mail. This first to do so will unblock the call and
-return the index of the mailbox that has mail. The mail is not read, just the
-index is returned so we can know what has happened.
+one of the mailboxes has mail. The first to do so will unblock the call and
+return the index of the mailbox that has mail. The mail message is not read,
+just the index is returned so we can know what has happened.
 
 We read the message from that selection index mailbox and then decide what
 action to take based on the index value:
@@ -148,7 +148,7 @@ reasons to destroy an existing mailbox and recreate it as we will cover later.
 ## Coping with failure
 
 Let's say we have spawned a task out on the network and are waiting for some
-reply from a job we posted to it. t may be that we can't be sure that it will
+reply from a job we posted to it. It may be that we can't be sure that it will
 ever reply back to us if somebody is allowed to pull out the link between our
 node and that other node ! An application that wished to survive such a failure
 event will need to restart the task and retry the job.
