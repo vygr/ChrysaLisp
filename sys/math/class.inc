@@ -42,6 +42,16 @@
 	(vp-shl-cr +fp_shift r0)
 	(call 'sys_math :i_sqrt '(r0) '(r0)))
 
+(defun sys/math/f_cos ()
+	;inputs
+	;r0 = angle in radians (fixed)
+	;outputs
+	;r0 = cosine (fixed)
+	;trashes
+	;r0-r4
+	(vp-add-cr +fp_hpi r0)
+	(call 'sys_math :f_sin '(r0) '(r0)))
+
 ;;;;;;;;;;;;;;;;;;;;;
 ; vector math codegen
 ;;;;;;;;;;;;;;;;;;;;;
