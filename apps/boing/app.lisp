@@ -65,5 +65,5 @@
 				(.-> mybackdrop (:add_back sframe) (:add_front frame))
 				(. sframe :dirty)
 				(. frame :dirty))))
-	(free-select select)
-	(gui-sub *window*))
+	(gui-sub *window*)
+	(free-select select))

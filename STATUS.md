@@ -28,6 +28,8 @@ View class :ctx_panel method moved to Lisp code.
 Removal of redundant VP class methods. A lot of code has moved over to Lisp
 recently and so these methods are no longer referenced.
 
+New EVENT_LOOPS.md doc.
+
 ------
 
 Editor now has line number display.
