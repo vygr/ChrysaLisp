@@ -21,6 +21,12 @@ send your application GUI events via the main mailbox and you will need to
 create additional mailboxes in order to keep them separate from your other
 activities.
 
+Most applications in ChrysaLisp, like Taos before it, are asynchronous
+distributed state machines. ChrysLisp provides the tools (tasks, mailboxes and
+messages) for you to create such applications, it does not dictate how you do
+them. "The Tao does not do, but
+nothing is not done !"
+
 ## Allocating and freeing multiple mailboxes
 
 The mailbox selection function `(mail-select)` takes a list of local mailbox
@@ -195,7 +201,7 @@ every so often to pump our retry calls. In this case we will be calling a
 method on the Farm library to restart any child tasks that are overdue.
 
 Let's not get bogged down in all the specifics of this application but
-concentrate on what happen when we get the callbacks from the library and how
+concentrate on what happens when we get the callbacks from the library and how
 to send off a job.
 
 ```vdu
