@@ -165,7 +165,7 @@ Each time a job result comes back the que is drained and a new job is sent out
 to that child. Repeat till the job que is empty.
 
 This demo makes use of the `lib/task/farm.inc` library. This library holds a
-map of mailbox ID to child task. We expect to receive a reply from a task
+map of task id to child task records. We expect to receive a reply from a task
 within a certain amount of time and if we don't get one then we destroy that
 child tasks record and restart.
 
@@ -186,16 +186,17 @@ message of the child task ID to this mailbox when we start a new child. But
 note that the action of starting a task takes time, we send off the task start
 request and sometime later, maybe never, we get a reply of the ID !
 
-* `+select_reply` will be out job reply mailbox. After we send off a job the
+* `+select_reply` will be our job reply mailbox. After we send off a job the
 child task will reply to this mailbox with a result. Not all job replies are
 guaranteed to happen !
 
 * `+select_timer` will be our timeout mailbox. We will have this event happen
 every so often to pump our retry calls. In this case we will be calling a
-method on the Farm library to restart any child task that are overdue.
+method on the Farm library to restart any child tasks that are overdue.
 
-Let's not get bogged down in all the specifics but concentrate on what happen
-when we get the callbacks from the library and how to send off a job.
+Let's not get bogged down in all the specifics of this application but
+concentrate on what happen when we get the callbacks from the library and how
+to send off a job.
 
 ```vdu
 (defun dispatch-job (key val)
@@ -250,8 +251,8 @@ The `(dispatch-job)` function will be used below in the event loop to dispatch
 a new job to any newly started child task, as they report in, or issue a new
 job as we receive a result.
 
-The farm is created that is twice as big as the known number of network nodes.
-Roughly two child tasks will exist per node, remember that ChrysaLisp does the
+A farm is created that is twice as big as the known number of network nodes.
+Roughly two child tasks will exist per node. Remember that ChrysaLisp does the
 final task distribution, in this demo we only suggest the node to start the
 task.
 
@@ -359,12 +360,14 @@ ID and any message sent to an old destroyed mailbox with a destination ID that
 can't be validated to exist is discarded.
 
 The Raymarch demo didn't have this problem because it runs once to create the
-scene display. But the Mandelbrot demo also uses a farm and the user CAN restart
-the calculations for a new position, too zoom in and out, at any point !
+scene display. But the Mandelbrot demo also uses a farm and the user CAN
+restart the calculations for a new position, in order to zoom in and out, at
+any point !
 
 The Mandelbrot demo `apps/mandelbrot/app.lisp` has a `(reset)` function defined
-that recreates the farm, job que and the reply mailbox of the selection in
-order to safely ignore any `in flight` messages to the old mailbox.
+that recreates the farm, job que and the `+select_reply` mailbox of the
+selection in order to safely ignore any `in flight` messages to the old
+mailbox.
 
 ```vdu
 (defun reset ()
