@@ -15,7 +15,7 @@ for handling the events that come to the `main` mailbox from the GUI.
 
 Each GUI event message has a common header format which contains a `type` field
 so your code can tell what to do with it. But there are various ways you can
-handle how you to pick what to do.
+handle how to pick what to do.
 
 Some ways are more flexible than others and can help with code reuse and
 maintenance, others while not so flexible, may be fine for applications with
@@ -31,7 +31,7 @@ There are various GUI event types, listed in `gui/gui/lisp.inc`:
 ```
 
 These event messages follow a standard format, have a common header that they
-inherit from, and extebnded fields for each individual event type.
+inherit from, and extended fields for each individual event type.
 
 ```vdu
 (structure +ev_msg 0
@@ -62,8 +62,8 @@ When an event is received, it will be targeted at a particular target object,
 one of the buttons, or a scroll bar, or a textfield etc. The
 `+ev_msg_target_id` field contains the id of that target UI widget.
 
-For an action event, this target id, will depend on whatever the user code
-decided it should be by use of the View class `:connect` method.
+For an action event, this target id, will depend on what the user code decided
+it should be by use of the View class `:connect` method.
 
 A negative target id, will be used for internal widget events, positive for the
 user action events.
@@ -130,6 +130,7 @@ event handling.
 		(cond
 			((= idx +select_timer)
 				;timer event
+				(mail-timeout (elem +select_timer select) rate 0)
 				...
 				)
 			((= idx +select_tip)
@@ -165,3 +166,173 @@ event handling.
 In the default case we pass the event to our windows `:event` method. This
 method deals with all internal UI event traffic, mainly the negative target ids
 we mentioned earlier.
+
+While this works fine as a way of dispatching it's not very flexible. Once we
+start having a LOT of UI widgets plus may want to handle key press actions and
+so forth, this `(cond)` statement is going to very long and untidy. We are
+going to end up not being able to see the wood for the trees !
+
+## The `xmap` event action dispatch loop
+
+The Editor application takes this approach and it has started to become the `go
+to` way to arrange things. I encourage folks to adopt this way apart from the
+very simplest or throw away code.
+
+It's still a simple idea though. We have separate functions for each action we
+wish to perform and we hold them in a set of files for that type of action. We
+then have a `module` that includes all the handler action files and enters the
+action functions into an event id to action function `xmap`.
+
+Likewise we do the same for keyboard event actions !
+
+The module only exports these mapping objects to the application and it
+searches them to find the `binding` for the event or key.
+
+Here is the Editor applications action bindings, `apps/editor/actions.inc`:
+
+```vdu
+;module
+(env-push)
+
+;;;;;;;;;
+; actions
+;;;;;;;;;
+
+(import "./utils.inc")
+(import "./undo.inc")
+(import "./cursor.inc")
+(import "./block.inc")
+(import "./edit.inc")
+(import "./file.inc")
+(import "./select.inc")
+(import "./clipboard.inc")
+(import "./search.inc")
+(import "./macros.inc")
+(import "./ui.inc")
+
+(defq
+event_map (xmap-kv
+	...
+	+event_close action-close
+	+event_min action-minimise
+	+event_max action-maximise)
+
+key_map (xmap-kv
+	0x40000050 action-left
+	...
+	+char_tab action-tab)
+
+key_map_shift (xmap-kv
+	0x40000050 action-left-select
+	...
+	+char_tab action-left-tab)
+
+key_map_control (xmap-kv
+	(ascii-code "M") action-macro-record
+	...
+	(ascii-code "O") action-ordered-unique)
+
+	...
+)
+
+...
+
+;module
+(export (penv)
+	event_map key_map key_map_shift key_map_control
+	...
+	)
+(env-pop)
+```
+
+In the `(main)` function event loop, for the `+select_main` mailbox we then
+search for the binding and call it if we find it. This is stripped down to just
+the event and key dispatching code.
+
+```vdu
+(enums +select 0
+	(enum main tip))
+
+;import actions and bindings
+(import "./actions.inc")
+
+(defun dispatch-action (&rest action)
+	...
+	(catch (eval action) (progn (print _)(print) t)))
+
+(defun main ()
+	(defq select (alloc-select +select_size))
+	...
+	(while *running*
+		(defq *msg* (mail-read (elem (defq idx (mail-select select)) select)))
+		(cond
+			((= idx +select_tip)
+				;tip time mail
+				...
+				)
+			((defq id (getf *msg* +ev_msg_target_id) action (. event_map :find id))
+				;call bound event action
+				(dispatch-action action))
+			...
+			((and (not (Textfield? (. *window* :find_id id)))
+					(= (getf *msg* +ev_msg_type) +ev_type_key)
+					(> (getf *msg* +ev_msg_key_keycode) 0))
+				;key event
+				(defq key (getf *msg* +ev_msg_key_key) mod (getf *msg* +ev_msg_key_mod))
+				(cond
+					...
+					((/= 0 (logand mod (const
+							(+ +ev_key_mod_control +ev_key_mod_option +ev_key_mod_command))))
+						;call bound control/command key action
+						(when (defq action (. key_map_control :find key))
+							...
+							(dispatch-action action)))
+					((/= 0 (logand mod +ev_key_mod_shift))
+						;call bound shift key action, else insert
+						(cond
+							((defq action (. key_map_shift :find key))
+								...
+								(dispatch-action action))
+							((<= +char_space key +char_tilda)
+								(dispatch-action action-insert (char key))
+								...
+								)))
+					((defq action (. key_map :find key))
+						;call bound key action
+						...
+						(dispatch-action action))
+					((<= +char_space key +char_tilda)
+						;insert the char
+						(dispatch-action action-insert (char key))
+						...
+						)))
+			(t  ;gui event
+				...
+				(. *window* :event *msg*)))
+		...
+		)
+	...
+	(free-select select))
+```
+
+Once we find an action binding within the `event_map` or the `key_map` (we have
+several key action maps, for each key modifier state) we call the action
+function via the `(dispatch-action)` helper. This is just using a `(catch)`
+statement to make things a bit more robust in case we have actions that throw
+errors. Don't really want to crash out of the Editor application and loose all
+our editing !
+
+If you look at the full code for this `(dispatch-action)` function you will see
+another reason why this method of event dispatch is so useful. When we are in
+`macro record` mode we can keep a list of everything we call along with all the
+parameters ! This lets us `playback` this recording at a later date, voila we
+have Editor macro record and playback with hardly any effort.
+
+One subtly with the key case is that we check to see if the key event was
+targeted at a Textfield object, if it was then we let it go to the default case,
+only if not do we try to dispatch the key action.
+
+Another advantage of this method of dispatching is that we can reuse the
+actions within other applications. If you look at the Viewer application,
+`apps/viewer/app.lisp`, you can see that its `actions` module imports several
+of the Editor action files as the functionality required is identical.
