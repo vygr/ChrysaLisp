@@ -22,7 +22,7 @@ create additional mailboxes in order to keep them separate from your other
 activities.
 
 Most applications in ChrysaLisp, like Taos before it, are asynchronous
-distributed state machines. ChrysLisp provides the tools (tasks, mailboxes and
+distributed state machines. ChrysaLisp provides the tools (tasks, mailboxes and
 messages) for you to create such applications, it does not dictate how you do
 them. "The Tao does not do, but
 nothing is not done !"
@@ -393,4 +393,62 @@ mailbox.
 				(+job_z zoom)))
 			(range (dec (* canvas_height canvas_scale)) -1))
 		farm (Farm create destroy (* 2 (length (mail-nodes))))))
+```
+
+## Delayed actions with `(mail-timeout)`
+
+So far we have only used `(mail-timeout)` to pump animation and retry code. But
+we can use it for more than that.
+
+The GUI tooltips use this function to pop up a `tip` bubble for toolbar
+buttons. Properties are set on the application window object that will be used
+by the tooltip code.
+
+This example is from the `apps/bubbles/app.lisp`, Bubbles application:
+
+```vdu
+(enums +select 0
+	(enum main timer tip))
+
+...
+
+(defun tooltips ()
+	(def *window* :tip_mbox (elem +select_tip select))
+	(each (# (def %0 :tip_text %1)) (. main_toolbar :children)
+		'("refresh"))
+	(each (# (def %0 :tip_text %1)) (. style_toolbar :children)
+		'("plain" "grid" "axis")))
+```
+
+We declare an extra selection mailbox to be used by the tip events, create a
+`:tip_mbox` property on the root window and add `:tip_text` properties to each
+of the toolbar buttons.
+
+The `:mouse_enter` method of the Button class uses `(mail-timeout)` to create a
+delayed message to the `:tip_mbox`, ie. our `+select_tip` mailbox. It uses the
+id parameter of the timed mail event to hold the button object id, this is so
+when the event is processed in the event loop of the application we can use
+this to find which button wants the tip shown.
+
+Here is the Button class `:mouse_enter` method:
+
+```vdu
+(defmethod :mouse_enter (this event)
+	; (. button :mouse_enter event) -> button
+	(and (def? :tip_text this) (defq tip_mbox (get :tip_mbox this))
+		(mail-timeout tip_mbox 1000000 (. this :get_id)))
+	this)
+```
+
+As the mouse enters a button instance it tests to see if a `:tip_text` property
+is defined on the instance. If so AND `:tip_mbox` is defined in the UI tree,
+remember we added this to our root window, it creates the timed mail event.
+
+And here is the event loop case in the Bubbles `(main)` function:
+
+```vdu
+((= idx +select_tip)
+	;tip time mail
+	(if (defq view (. *window* :find_id (getf *msg* +mail_timeout_id)))
+		(. view :show_tip)))
 ```
