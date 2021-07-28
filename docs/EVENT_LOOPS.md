@@ -19,7 +19,7 @@ out child tasks.
 GUI events via the main mailbox and you will need to create additional
 mailboxes in order to keep them separate from your other activities.
 
-* Prioritizing messages by using an ordered selection list of mailboxes with
+* Prioritising messages by using an ordered selection list of mailboxes with
 the higher priority messages going to the earlier entries in that selection
 list.
 
