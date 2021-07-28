@@ -7,19 +7,21 @@ are used and why.
 Each task on creation is allocated a main mailbox. You can create more if
 desired but why would you do that ? What advantage is there ?
 
-The first advantage is that it allows you to partition your application and its
-messaging in a way that makes it easier to understand what event just occurred.
-You don't have to rely on some way of typing your messages so you can
-distinguish between them.
+* It allows you to partition your application and its messaging in a way that
+makes it easier to understand what event just occurred. You don't have to rely
+on some way of typing your messages so you can distinguish between them.
 
-A good second reason is that you need, in certain fault tolerant situations, to
-be able to retry an action without needing to worry about any replies that may
-come to you from failed or timed out child tasks.
+* In certain fault tolerant situations, to be able to retry an action without
+needing to worry about any replies that may come to you from failed or timed
+out child tasks.
 
-A third reason is that for a GUI application event loop the GUI process will
-send your application GUI events via the main mailbox and you will need to
-create additional mailboxes in order to keep them separate from your other
-activities.
+* In a GUI application event loop the GUI process will send your application
+GUI events via the main mailbox and you will need to create additional
+mailboxes in order to keep them separate from your other activities.
+
+* Prioritizing messages by using an ordered selection list of mailboxes with
+the higher priority messages going to the earlier entries in that selection
+list.
 
 Most applications in ChrysaLisp, like Taos before it, are asynchronous
 distributed state machines. ChrysaLisp provides the tools (tasks, mailboxes and
@@ -324,8 +326,8 @@ lib/task/farm.inc
 ```
 
 The `:refresh` method scans through the farm and any child task that has an
-outstanding job that is overdue is restarted, ie `(destroy)` and `(create)` are
-called.
+outstanding job that is overdue is restarted, ie. `(destroy)` and `(create)`
+are called.
 
 In this way, the application will have all the jobs processed, any that die for
 whatever reason will be restarted and the outstanding jobs won't be lost.
