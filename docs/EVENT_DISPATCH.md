@@ -108,7 +108,7 @@ these three event blocks for each of the 3 button bars in this UI tree.
 
 The UI macros build our widget tree for us and automates calling the View class
 `:connect` methods for the buttons on the button bars. When these buttons are
-clicked we will receive an `+ev_msg_action` typed event with the
+clicked we will receive an `+ev_type_action` typed event with the
 `+ev_msg_target_id` field containing our declared constants.
 
 ## The `(cond)` dispatch event loop
@@ -188,7 +188,7 @@ Likewise we do the same for keyboard event actions !
 The module only exports these mapping objects to the application and it
 searches them to find the `binding` for the event or key.
 
-Here is the Editor applications action bindings, `apps/editor/actions.inc`:
+Here is the Editor application action bindings, `apps/editor/actions.inc`:
 
 ```vdu
 ;module
@@ -336,3 +336,70 @@ Another advantage of this method of dispatching is that we can reuse the
 actions within other applications. If you look at the Viewer application,
 `apps/viewer/app.lisp`, you can see that its `actions` module imports several
 of the Editor action files as the functionality required is identical.
+
+## Dynamic dispatch
+
+This example is not about the dispatching of GUI events but illustrates an
+important technique that applications may find useful.
+
+The Docs application, `apps/docs/app.lisp`, uses the idea of a current state
+and searches an `emap` of state to handler function in order to process each
+line of the document being scanned. If the state is not found in the `emap`
+then it uses the state to create a module name and dynamically loads that
+module, entering it into the `emap`.
+
+In this way the Docs application has the ability to be extended in
+functionality at runtime. The addition of a new document section handler
+involves providing a new module and does not require changing the Docs
+application itself.
+
+Here is the entire Docs application, it's very short:
+
+```file
+apps/docs/app.lisp
+```
+
+In the `(populate-page)` function, the document file is processed by scanning
+with an `(each-line)` call. It first of all create a new page widget, just a UI
+Flow object, and the job of a handler module is to be given the current line of
+text and the page instance and to do whatever that handler does.
+
+The relevant part of this function that does the dynamic module loading is:
+
+```vdu
+(defun handler-func (state)
+	(unless (defq handler (. handlers :find state))
+		(defq module (cat "apps/docs/" (slice 1 -1 state) ".inc"))
+		(repl (file-stream module) module)
+		(. handlers :insert state handler))
+	handler)
+
+(defun populate-page (file)
+	...
+	(defq state :text)
+	(each-line (lambda (line)
+			(task-sleep 0)
+			(setq state ((handler-func state) state page (trim-end line (ascii-char 13)))))
+		(file-stream (cat "docs/" file ".md")))
+	((handler-func state) state page "")
+	...)
+```
+
+Each module takes the current line of the file and decides what other UI
+widgets need to be created to populate the page widget. In general these
+modules build up their own widget sub tree and when they see the section close
+line, "```", they add that sub tree to the page and switch the state back to
+`:text` state.
+
+Here is the `:image` handler module:
+
+```file
+apps/docs/image.inc
+```
+
+This is the `:vdu` handler module, the very same module that is displaying the
+syntax highlighted source code section that you are looking at now:
+
+```file
+apps/docs/vdu.inc
+```
