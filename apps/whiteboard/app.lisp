@@ -63,7 +63,7 @@
 			(. (ui-button __ (:ink_color col :text
 				(if (< _ 8) (const (num-to-utf8 0xe982)) (const (num-to-utf8 0xea04))))) :connect
 					(+ _ +event_black))) *palette*))
-	(ui-scroll *image_scroll* (logior +scroll_flag_vertical +scroll_flag_horizontal)
+	(ui-scroll *image_scroll* +scroll_flag_both
 			(:min_width +canvas_width :min_height +canvas_height)
 		(ui-backdrop mybackdrop (:color 0xffF8F8FF :ink_color 0xffADD8E6)
 			(ui-canvas overlay_canvas +canvas_width +canvas_height 1)

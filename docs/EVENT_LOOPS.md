@@ -279,7 +279,8 @@ task.
 				)
 			((= idx +select_task)
 				;child launch responce
-				(defq key (getf msg +kn_msg_key) child (getf msg +kn_msg_reply_id))
+				(defq key (getf msg +kn_msg_key)
+					  child (getf msg +kn_msg_reply_id))
 				(when (defq val (. farm :find key))
 					(. val :insert :child child)
 					(dispatch-job key val)))

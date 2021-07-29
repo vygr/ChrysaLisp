@@ -24,7 +24,7 @@
 	(ui-title-bar window_title "" (0xea19) +event_close)
 	(ui-tool-bar main_toolbar ()
 		(ui-buttons (0xe91d 0xe91e) +event_prev))
-	(ui-scroll image_scroll (logior +scroll_flag_vertical +scroll_flag_horizontal)))
+	(ui-scroll image_scroll +scroll_flag_both))
 
 (defun win-refresh (_)
 	(bind '(w h) (. (defq canvas (Canvas-from-file (elem (setq index _) images) 0)) :pref_size))

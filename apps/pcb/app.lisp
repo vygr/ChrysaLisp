@@ -27,7 +27,7 @@
 		(ui-buttons (0xe91d 0xe91e 0xea00 0xea01 0xe9ac 0xe9ad) +event_prev)
 		(ui-buttons ("0" "1" "2" "3" "4") +event_show_all
 			(:color (const *env_toolbar2_col*) :font (const (create-font "fonts/OpenSans-Regular.ctf" 20)))))
-	(ui-scroll pcb_scroll (logior +scroll_flag_vertical +scroll_flag_horizontal) (:min_width 512 :min_height 256)))
+	(ui-scroll pcb_scroll +scroll_flag_both (:min_width 512 :min_height 256)))
 
 (defun trans (_)
 	(+ (logand 0xffffff _) 0xa0000000))

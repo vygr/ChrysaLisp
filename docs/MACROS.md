@@ -202,7 +202,7 @@ ui macros, for example the Pcb app UI:
 		(ui-buttons ("0" "1" "2" "3" "4") +event_show_all
 			(:color (const *env_toolbar2_col*)
 			:font (const (create-font "fonts/OpenSans-Regular.ctf" 20)))))
-	(ui-scroll pcb_scroll (logior +scroll_flag_vertical +scroll_flag_horizontal)
+	(ui-scroll pcb_scroll +scroll_flag_both
 			(:min_width 512 :min_height 256)))
 ```
 

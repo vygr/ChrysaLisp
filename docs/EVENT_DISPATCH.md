@@ -98,9 +98,11 @@ these three event blocks for each of the 3 button bars in this UI tree.
 (ui-window *window* ()
 	(ui-title-bar _ "Bubbles" (0xea19 0xea1b 0xea1a) +event_close)
 	(ui-flow _ (:flow_flags +flow_right_fill)
-		(ui-tool-bar main_toolbar () (ui-buttons (0xe938) +event_reset))
-		(ui-tool-bar style_toolbar () (ui-buttons (0xe976 0xe9a3 0xe9f0) +event_grid)))
-	(ui-scroll image_scroll (logior +scroll_flag_vertical +scroll_flag_horizontal)
+		(ui-tool-bar main_toolbar ()
+			(ui-buttons (0xe938) +event_reset))
+		(ui-tool-bar style_toolbar ()
+			(ui-buttons (0xe976 0xe9a3 0xe9f0) +event_grid)))
+	(ui-scroll image_scroll +scroll_flag_both
 			(:min_width canvas_width :min_height canvas_height)
 		(ui-backdrop mybackdrop (:color +argb_black :ink_color +argb_grey8)
 			(ui-canvas layer1_canvas canvas_width canvas_height 1))))
@@ -270,7 +272,8 @@ the event and key dispatching code.
 				;tip time mail
 				...
 				)
-			((defq id (getf *msg* +ev_msg_target_id) action (. event_map :find id))
+			((defq id (getf *msg* +ev_msg_target_id)
+				   action (. event_map :find id))
 				;call bound event action
 				(dispatch-action action))
 			...
@@ -278,7 +281,8 @@ the event and key dispatching code.
 					(= (getf *msg* +ev_msg_type) +ev_type_key)
 					(> (getf *msg* +ev_msg_key_keycode) 0))
 				;key event
-				(defq key (getf *msg* +ev_msg_key_key) mod (getf *msg* +ev_msg_key_mod))
+				(defq key (getf *msg* +ev_msg_key_key)
+					  mod (getf *msg* +ev_msg_key_mod))
 				(cond
 					...
 					((/= 0 (logand mod (const
@@ -360,9 +364,9 @@ apps/docs/app.lisp
 ```
 
 In the `(populate-page)` function, the document file is processed by scanning
-with an `(each-line)` call. It first of all create a new page widget, just a UI
-Flow object, and the job of a handler module is to be given the current line of
-text and the page instance and to do whatever that handler does.
+with an `(each-line)` call. It first of all creates a new page widget, just a
+UI Flow object, and the job of a handler module is to be given the current line
+of text and the page instance and to do whatever that handler does.
 
 The relevant part of this function that does the dynamic module loading is:
 
