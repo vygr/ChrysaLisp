@@ -6,12 +6,12 @@
 
 (defclass Backdrop () (View)
 	; (Backdrop) -> backdrop
-	(def this :style nil :spaceing 32)
+	(def this :style nil :spacing 32)
 
 	(defmethod :draw (this)
 		; (. backdrop :draw) -> backdrop
 		(bind '(w h) (. this :get_size))
-		(defq spaceing (get :spaceing this))
+		(defq spaceing (get :spacing this))
 		(.-> this
 			(:ctx_set_color (get :color this))
 			(:ctx_filled_box 0 0 w h)
@@ -30,11 +30,13 @@
 				(.-> this
 					(:ctx_filled_box (>> w 1) 0 1 h)
 					(:ctx_filled_box 0 (>> h 1) w 1))
-				(defq x (- (% (>> w 1) spaceing) spaceing) y (- (>> h 1) (/ spaceing 2)))
+				(defq x (- (% (>> w 1) spaceing) spaceing)
+					y (- (>> h 1) (/ spaceing 2)))
 				(while (< x w)
 					(. this :ctx_filled_box x y 1 spaceing)
 					(setq x (+ x spaceing)))
-				(setq y (- (% (>> h 1) spaceing) spaceing) x (- (>> w 1) (/ spaceing 2)))
+				(setq y (- (% (>> h 1) spaceing) spaceing)
+					x (- (>> w 1) (/ spaceing 2)))
 				(while (< y h)
 					(. this :ctx_filled_box x y spaceing 1)
 					(setq y (+ y spaceing))))

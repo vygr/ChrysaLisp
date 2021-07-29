@@ -18,7 +18,8 @@
 	(defmethod :layout (this)
 		; (. grid :layout) -> grid
 		(bind '(w h) (. this :get_size))
-		(raise :grid_width :grid_height (w (<< w +fp_shift) h (<< h +fp_shift)))
+		(raise :grid_width :grid_height
+			(w (<< w +fp_shift) h (<< h +fp_shift)))
 		(each (lambda (child)
 			(defq row (/ _ grid_width) col (% _ grid_width)
 				x (>> (/ (* col w) grid_width) +fp_shift)
