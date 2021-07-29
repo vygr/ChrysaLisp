@@ -87,7 +87,7 @@ construction, these are normally set useing the UI builder macros, more to come
 on those later in this document.
 
 Layout widgets override the `:layout` method to do the positioning, calling
-`:change` on the child widget as required. This Grid class gives each child an
+`:change` on the child widgets as required. This Grid class gives each child an
 equal width and height in a regular grid spaceing.
 
 These layout widgets also override the `:pref_size` method as they gather
