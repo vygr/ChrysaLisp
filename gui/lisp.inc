@@ -140,7 +140,7 @@
 	`(ui-element ,n (Slider) ,p))
 
 (defmacro ui-scroll (n f &optional p &rest x)
-	; (ui-scroll name [props] [body]) -> scroll
+	; (ui-scroll name flags [props] [body]) -> scroll
 	(ui-props p
 		:color *env_slider_col*)
 	`(ui-element ,n (Scroll ,f) ,p ~x))

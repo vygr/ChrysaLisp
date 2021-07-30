@@ -349,9 +349,10 @@ Creates a Slider instance, with name and optional property list.
 	`(ui-element ,n (Slider) ,p))
 ```
 
-### (ui-scroll name [props] [body]) -> scroll
+### (ui-scroll name flags [props] [body]) -> scroll
 
-Creates a Scroll instance, with name, optional property list and nested forms.
+Creates a Scroll instance, with name, flags, optional property list and nested
+forms.
 
 #### Properties
 
@@ -359,7 +360,7 @@ Creates a Scroll instance, with name, optional property list and nested forms.
 
 ```vdu
 (defmacro ui-scroll (n f &optional p &rest x)
-	; (ui-scroll name [props] [body]) -> scroll
+	; (ui-scroll name flags [props] [body]) -> scroll
 	(ui-props p
 		:color *env_slider_col*)
 	`(ui-element ,n (Scroll ,f) ,p ~x))
