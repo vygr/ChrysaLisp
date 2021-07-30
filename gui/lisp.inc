@@ -58,9 +58,14 @@
 
 (defmacro ui-window (n &optional p &rest x)
 	; (ui-window name [props] [body]) -> window
-	(ui-props p :font *env_window_font* :ink_color *env_ink_col* :color *env_window_col*
-		:hint_color *env_hint_col* :no_hint_color *env_no_hint_col*
-		:border *env_window_border* :shadow *env_window_shadow*)
+	(ui-props p
+		:font *env_window_font*
+		:ink_color *env_ink_col*
+		:color *env_window_col*
+		:hint_color *env_hint_col*
+		:no_hint_color *env_no_hint_col*
+		:border *env_window_border*
+		:shadow *env_window_shadow*)
 	`(ui-root ,n (Window) ,p
 		(ui-flow _ (:flow_flags +flow_down_fill) ~x)))
 
@@ -78,59 +83,73 @@
 
 (defmacro ui-title (n &optional p)
 	; (ui-title name [props]) -> title
-	(ui-props p :font *env_title_font* :border *env_title_border*)
+	(ui-props p
+		:font *env_title_font*
+		:border *env_title_border*)
 	`(ui-element ,n (Title) ,p))
 
 (defmacro ui-title-bar (n s b e &optional p)
 	; (ui-title-bar name title symbols event [props]) -> flow
-	(ui-props p :flow_flags +flow_left_fill :color *env_title_col* :font *env_title_buttons_font*)
+	(ui-props p
+		:flow_flags +flow_left_fill
+		:color *env_title_col*
+		:font *env_title_buttons_font*)
 	`(ui-flow _ ,p
 		(ui-buttons ,b ,e (:border *env_title_buttons_border*))
 		(ui-title ,n (:text ,s))))
 
 (defmacro ui-label (n &optional p &rest x)
 	; (ui-label name [props] [body]) -> label
-	(ui-props p :flow_flags (num-intern (logior +flow_flag_right +flow_flag_align_vcenter))
+	(ui-props p
+		:flow_flags (num-intern (logior +flow_flag_right +flow_flag_align_vcenter))
 		:border *env_label_border*)
 	`(ui-element ,n (Label) ,p ~x))
 
 (defmacro ui-button (n &optional p &rest x)
 	; (ui-button name [props] [body]) -> button
-	(ui-props p :flow_flags (num-intern (logior +flow_flag_down +flow_flag_align_hcenter +flow_flag_align_vcenter))
+	(ui-props p
+		:flow_flags (num-intern (logior +flow_flag_down +flow_flag_align_hcenter +flow_flag_align_vcenter))
 		:border *env_button_border*)
 	`(ui-element ,n (Button) ,p ~x))
 
 (defmacro ui-buttons (s e &optional p)
 	; (ui-buttons symbols event [props])
 	(setq s (map (lambda (_) (if (num? _) (num-to-utf8 _) _)) s))
-	(ui-props p :text _s)
+	(ui-props p
+		:text _s)
 	`(each (lambda (_s) (. (ui-button __ ,p) :connect (+ _ ,e))) '(~s)))
 
 (defmacro ui-tool-bar (n &optional p &rest x)
 	; (ui-tool-bar name [props] [body]) -> flow
-	(ui-props p :flow_flags (num-intern (logior +flow_flag_right +flow_flag_fillh))
+	(ui-props p
+		:flow_flags (num-intern (logior +flow_flag_right +flow_flag_fillh))
 		:color *env_toolbar_col* :font *env_toolbar_font*)
 	`(ui-flow ,n ,p ~x))
 
 (defmacro ui-textfield (n &optional p)
 	; (ui-textfield name [props]) -> textfield
-	(ui-props p :flow_flags (num-intern (logior +flow_flag_right +flow_flag_align_vcenter))
+	(ui-props p
+		:flow_flags (num-intern (logior +flow_flag_right +flow_flag_align_vcenter))
 		:border *env_textfield_border*)
 	`(ui-element ,n (Textfield) ,p))
 
 (defmacro ui-slider (n &optional p)
 	; (ui-slider name [props]) -> slider
-	(ui-props p :color *env_slider_col*)
+	(ui-props p
+		:color *env_slider_col*)
 	`(ui-element ,n (Slider) ,p))
 
 (defmacro ui-scroll (n f &optional p &rest x)
 	; (ui-scroll name [props] [body]) -> scroll
-	(ui-props p :color *env_slider_col*)
+	(ui-props p
+		:color *env_slider_col*)
 	`(ui-element ,n (Scroll ,f) ,p ~x))
 
 (defmacro ui-backdrop (n &optional p &rest x)
 	; (ui-backdrop name [props] [body]) -> backdrop
-	(ui-props p :color *env_backdrop_col* :ink_color *env_backdrop_ink_col*)
+	(ui-props p
+		:color *env_backdrop_col*
+		:ink_color *env_backdrop_ink_col*)
 	`(ui-element ,n (Backdrop) ,p ~x))
 
 (defmacro ui-progress (n &optional p)
@@ -139,12 +158,15 @@
 
 (defmacro ui-canvas (n w h s &optional p)
 	; (ui-canvas name width height scale [props]) -> canvas
-	(ui-props p :color 0)
+	(ui-props p
+		:color 0)
 	`(ui-element ,n (Canvas ,w ,h ,s) ,p))
 
 (defmacro ui-vdu (n &optional p)
 	; (ui-vdu name [props]) -> vdu
-	(ui-props p :font *env_terminal_font* :color 0)
+	(ui-props p
+		:font *env_terminal_font*
+		:color 0)
 	`(ui-element ,n (Vdu) ,p))
 
 (defmacro ui-view (n &optional p &rest x)
