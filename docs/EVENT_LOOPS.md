@@ -1,44 +1,43 @@
 # Event loops, mailbox selection and strategies
 
 In this document we cover how applications and libraries go about using
-mailboxes and messages to create communications structures and what techniques
-are used and why.
+mailboxes and messages to create communications structures, what techniques are
+used and why.
 
 Each task on creation is allocated a main mailbox. You can create more if
-desired but why would you do that ? What advantage is there ?
+desired, but why would you do that ? What advantage is there ?
 
 * It allows you to partition your application and its messaging in a way that
 makes it easier to understand what event just occurred. You don't have to rely
 on some way of typing your messages so you can distinguish between them.
 
 * In certain fault tolerant situations, to be able to retry an action without
-needing to worry about any replies that may come to you from failed or timed
-out child tasks.
+needing to worry about replies that may come to you from failed or timed out
+child tasks.
 
 * In a GUI application event loop the GUI process will send your application
 GUI events via the main mailbox and you will need to create additional
-mailboxes in order to keep them separate from your other activities.
+mailboxes in order to keep those separate from your other activities.
 
-* Prioritising messages by using an ordered selection list of mailboxes with
+* Prioritizing messages by using an ordered selection list of mailboxes with
 the higher priority messages going to the earlier entries in that selection
 list.
 
 Most applications in ChrysaLisp, like Taos before it, are asynchronous
 distributed state machines. ChrysaLisp provides the tools (tasks, mailboxes and
 messages) for you to create such applications, it does not dictate how you do
-them. "The Tao does not do, but
-nothing is not done !"
+them. "The Tao does not do, but nothing is not done !"
 
 ## Allocating and freeing multiple mailboxes
 
 The mailbox selection function `(mail-select)` takes a list of local mailbox
-network IDs, for each mailbox, to monitor for incoming messages.
+network IDs, one for each mailbox, to monitor for incoming messages.
 
 So the first thing we need to do is give them some sensible names. That is
-normally done by use of the `(enums)` macro. We are simply creating some
-constants that are the list element index for each mailbox. Just lets us use a
-readable symbol, rather than an opaque number, in our source code, and makes it
-easier to change later on if we want to add more.
+normally done by using the `(enums)` macro. We are simply creating some
+constants for the list element index of each mailbox. This just lets us use a
+readable symbol, rather than an opaque number, in our source code, which makes
+it easier to change later if we want to add more.
 
 Let's look at an example from the `apps/boing/app.lisp` demo to get us started:
 
@@ -47,7 +46,7 @@ Let's look at an example from the `apps/boing/app.lisp` demo to get us started:
 	(enum main timer))
 ```
 
-This simply creates the symbols and bound values:
+This creates these symbols and bound values:
 
 ```vdu
 +select_main 0
@@ -57,7 +56,7 @@ This simply creates the symbols and bound values:
 
 We place the `main` mailbox as the first element in order to use built in
 helper functions to allocate and free our mailbox selection list. These
-functions will always have element 0 as the `(task-mailbox)`, all remaining
+functions will always have element 0 as the `(task-mailbox)`, all the remaining
 will be allocated and freed for us using the `(mail-alloc-mbox)` and
 `(mail-free-mbox)` functions.
 
@@ -76,19 +75,19 @@ and at the end it is destroyed:
 ## Waiting on multiple mailboxes, the event loop
 
 In the Boing demo we have two types of messages possible. We will receive GUI
-messages on our `main` mailbox plus we will use the declared `timer` mailbox to
+messages in our `main` mailbox plus we will use the declared `timer` mailbox to
 pump our animation routine.
 
 After the mailbox selection is created we ask the system to send us a message,
-to the `timer` mailbox !, after a certain time period has passed, each time we
+to the `timer` mailbox !, after a certain time period has passed. Each time we
 receive this `frame` time event, we restart the timer and run our animation
 code.
 
-We distinguish between the two possible types of message by using the index
+We distinguish between the two possible types of message by use of the index
 that the `(mail-select)` function returns to us. This function will block until
 one of the mailboxes has mail. The first to do so will unblock the call and
-return the index of the mailbox that has mail. The mail message is not read,
-just the index is returned so we can know what has happened.
+return the index of the first mailbox that has mail. The mail message is not
+read, just the index is returned so we know what has happened.
 
 We read the message from that selection index mailbox and then decide what
 action to take based on the index value:
@@ -148,7 +147,7 @@ Don't worry about the service lookup code, just the RPC part:
 ```
 
 A temp mailbox is allocated, we send off the request to the GUI service, and
-tell it to reply to the temp mailbox. Once we have the reply message we free
+tell it to reply to the temp mailbox. Once we receive the reply message we free
 the temp mailbox. The act of creating and destroying a temp mailbox is very
 fast, no need to worry that this is thrashing the system. There are also other
 reasons to destroy an existing mailbox and recreate it as we will cover later.
@@ -175,10 +174,10 @@ to that child. Repeat till the job que is empty.
 This demo makes use of the `lib/task/farm.inc` library. This library holds a
 map of task id to child task records. We expect to receive a reply from a task
 within a certain amount of time and if we don't get one then we destroy that
-child tasks record and restart.
+child's task record and restart.
 
-The library handles some housework for us and calls back to a `(create)` and
-`(destroy)` function provided by the application.
+The library handles some housework for us and calls back to `(create)` and
+`(destroy)` functions provided by the application.
 
 As before we allocate multiple mailboxes:
 

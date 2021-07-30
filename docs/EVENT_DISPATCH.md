@@ -4,22 +4,23 @@ This document covers how events sent to the event loop of an application are
 handled, or dispatched, so that the correct action is performed for each event
 received.
 
-When a GUI application receives an event message in its `main` mailbox these
+When a GUI application receives an event message on its `main` mailbox these
 come from the GUI process. They consist of various types, mouse events,
 keyboard presses and UI widget notifications when objects like buttons are
-clicked on etc.
+clicked etc.
 
 In the `EVENT_LOOPS` document we talked about applications allocating multiple
-mailboxes to differentiate between type of messages. But not covered techniques
-for handling the events that come to the `main` mailbox from the GUI.
+mailboxes to differentiate between type of messages. But did not cover
+techniques for handling the events that come to the `main` mailbox from the
+GUI.
 
 Each GUI event message has a common header format which contains a `type` field
 so your code can tell what to do with it. But there are various ways you can
-handle how to pick what to do.
+handle how to decide what to do.
 
 Some ways are more flexible than others and can help with code reuse and
 maintenance, others while not so flexible, may be fine for applications with
-not many events to handle.
+not many event types to handle.
 
 ## GUI events
 
@@ -65,8 +66,8 @@ one of the buttons, or a scroll bar, or a textfield etc. The
 For an action event, this target id, will depend on what the user code decided
 it should be by use of the View class `:connect` method.
 
-A negative target id, will be used for internal widget events, positive for the
-user action events.
+A negative target id, will be used for internal widget events, positive for
+these user action events.
 
 ## Defining your UI event IDs
 
@@ -108,15 +109,15 @@ these three event blocks for each of the 3 button bars in this UI tree.
 			(ui-canvas layer1_canvas canvas_width canvas_height 1))))
 ```
 
-The UI macros build our widget tree for us and automates calling the View class
+The UI macros build our widget tree for us and automate calling the View class
 `:connect` methods for the buttons on the button bars. When these buttons are
 clicked we will receive an `+ev_type_action` typed event with the
 `+ev_msg_target_id` field containing our declared constants.
 
 ## The `(cond)` dispatch event loop
 
-The simplest way to deal with the GUI event handling is to have a `(cond)`
-statement, each case of which checks the target id to see what the event was.
+The simplest way to deal with the GUI event handling is to use a `(cond)`
+statement, each clause of which checks the target id to see what the event was.
 
 Here is the Bubbles `(main)` function, stripped down to just the select mailbox
 event handling.
@@ -165,30 +166,30 @@ event handling.
 	(free-select select))
 ```
 
-In the default case we pass the event to our windows `:event` method. This
+In the default clause we pass the event to our windows `:event` method. This
 method deals with all internal UI event traffic, mainly the negative target ids
 we mentioned earlier.
 
 While this works fine as a way of dispatching it's not very flexible. Once we
-start having a LOT of UI widgets plus may want to handle key press actions and
-so forth, this `(cond)` statement is going to very long and untidy. We are
+start having a LOT of UI widgets and may want to handle key press actions and
+so forth, this `(cond)` statement is going to get very long and untidy. We are
 going to end up not being able to see the wood for the trees !
 
 ## The `xmap` event action dispatch loop
 
 The Editor application takes this approach and it has started to become the `go
-to` way to arrange things. I encourage folks to adopt this way apart from the
+to` way to arrange things. I encourage folks to adopt this style apart from the
 very simplest or throw away code.
 
 It's still a simple idea though. We have separate functions for each action we
-wish to perform and we hold them in a set of files for that type of action. We
+wish to perform and hold them in a set of files for that type of action. We
 then have a `module` that includes all the handler action files and enters the
 action functions into an event id to action function `xmap`.
 
 Likewise we do the same for keyboard event actions !
 
 The module only exports these mapping objects to the application and it
-searches them to find the `binding` for the event or key.
+searches these maps to find the `binding` for the event or key.
 
 Here is the Editor application action bindings, `apps/editor/actions.inc`:
 
@@ -247,9 +248,9 @@ key_map_control (xmap-kv
 (env-pop)
 ```
 
-In the `(main)` function event loop, for the `+select_main` mailbox we then
-search for the binding and call it if we find it. This is stripped down to just
-the event and key dispatching code.
+In the `(main)` function event loop, for the `+select_main` mailbox we search
+for the binding and call it if we find it. This is stripped down to just the
+event and key dispatching code.
 
 ```vdu
 (enums +select 0
@@ -327,14 +328,14 @@ errors. Don't really want to crash out of the Editor application and loose all
 our editing !
 
 If you look at the full code for this `(dispatch-action)` function you will see
-another reason why this method of event dispatch is so useful. When we are in
-`macro record` mode we can keep a list of everything we call along with all the
-parameters ! This lets us `playback` this recording at a later date, voila we
-have Editor macro record and playback with hardly any effort.
+another reason why this method of event dispatch is so useful. When the Editor
+is in `macro record` mode we can keep a list of everything we call along with
+all the parameters ! This lets us `playback` this recording at a later date,
+voila we have Editor macro record and playback with hardly any effort.
 
-One subtly with the key case is that we check to see if the key event was
-targeted at a Textfield object, if it was then we let it go to the default case,
-only if not do we try to dispatch the key action.
+One subtly with the key clause is that we check to see if the key event was
+targeted at a Textfield object, if it was then we let it go to the default
+clause, only if not do we try to dispatch the key action.
 
 Another advantage of this method of dispatching is that we can reuse the
 actions within other applications. If you look at the Viewer application,
@@ -368,7 +369,7 @@ with an `(each-line)` call. It first of all creates a new page widget, just a
 UI Flow object, and the job of a handler module is to be given the current line
 of text and the page instance and to do whatever that handler does.
 
-The relevant part of this function that does the dynamic module loading is:
+The relevant parts of this function that do the dynamic module loading are:
 
 ```vdu
 (defun handler-func (state)

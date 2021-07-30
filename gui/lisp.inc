@@ -34,7 +34,7 @@
 		(cond
 			((defq i (find-rev s ps))
 				(elem-set i ps s) (elem-set i pv v))
-			(t	(push ps s) (push pv v))))
+			(t  (push ps s) (push pv v))))
 		(unzip (opt p '()) (list (list) (list))))
 	(zip ps pv))
 
@@ -68,13 +68,13 @@
 	; (ui-flow name [props] [body]) -> flow
 	`(ui-element ,n (Flow) ,p ~x))
 
-(defmacro ui-tree (n e &optional p)
-	; (ui-tree name event [props]) -> tree
-	`(ui-element ,n (Tree ,e) ,p))
-
 (defmacro ui-grid (n &optional p &rest x)
 	; (ui-grid name [props] [body]) -> grid
 	`(ui-element ,n (Grid) ,p ~x))
+
+(defmacro ui-tree (n e &optional p)
+	; (ui-tree name event [props]) -> tree
+	`(ui-element ,n (Tree ,e) ,p))
 
 (defmacro ui-title (n &optional p)
 	; (ui-title name [props]) -> title
@@ -82,7 +82,7 @@
 	`(ui-element ,n (Title) ,p))
 
 (defmacro ui-title-bar (n s b e &optional p)
-	; (ui-title-bar name title symbols events [props]) -> flow
+	; (ui-title-bar name title symbols event [props]) -> flow
 	(ui-props p :flow_flags +flow_left_fill :color *env_title_col* :font *env_title_buttons_font*)
 	`(ui-flow _ ,p
 		(ui-buttons ,b ,e (:border *env_title_buttons_border*))
@@ -101,7 +101,7 @@
 	`(ui-element ,n (Button) ,p ~x))
 
 (defmacro ui-buttons (s e &optional p)
-	; (ui-buttons symbols events [props] [group])
+	; (ui-buttons symbols event [props])
 	(setq s (map (lambda (_) (if (num? _) (num-to-utf8 _) _)) s))
 	(ui-props p :text _s)
 	`(each (lambda (_s) (. (ui-button __ ,p) :connect (+ _ ,e))) '(~s)))
@@ -138,7 +138,7 @@
 	`(ui-element ,n (Progress) ,p))
 
 (defmacro ui-canvas (n w h s &optional p)
-	; (ui-canvas name width height scale) -> canvas
+	; (ui-canvas name width height scale [props]) -> canvas
 	(ui-props p :color 0)
 	`(ui-element ,n (Canvas ,w ,h ,s) ,p))
 

@@ -6,7 +6,8 @@
 
 (defclass Window () (View)
 	; (Window) -> window
-	(def this :child nil :last_buttons 0 :is_window t :drag_mode 0)
+	(def this :child nil :last_buttons 0 :is_window t
+		:drag_mode 0 :drag_offx 0 :drag_offy 0)
 
 	(defmethod :draw (this)
 		; (. window :draw) -> window
@@ -25,25 +26,23 @@
 		; (. window :add_child child) -> window
 		(if (defq old_child (get :child this))
 			(. old_child :sub))
-		(set this :child child)
+		(lower :child)
 		(. this :add_back child))
 
 	(defmethod :pref_size (this)
 		; (. window :pref_size) -> (width height)
-		(defq child (get :child this) border (get :border this) shadow
-			(get :shadow this))
+		(raise :border :shadow :child)
 		(bind '(w h) (. child :pref_size))
 		(list (+ (* (+ shadow border) 2) w) (+ (* (+ shadow border) 2) h)))
 
 	(defmethod :layout (this)
 		; (. window :layout) -> window
-		(defq border (get :border this) shadow (get :shadow this) child (get :child this))
+		(raise :border :shadow :child)
 		;position any child
 		(bind '(w h) (. this :get_size))
 		(when child
 			(. child :change (+ border shadow) (+ border shadow)
 				(- w (* 2 (+ border shadow))) (- h (* 2 (+ border shadow)))))
-
 		;adjust window transparetncy details based on color and shadow
 		(when (= (>> (get :color this) 24) 0xff)
 			(cond
@@ -56,8 +55,7 @@
 	(defmethod :drag_mode (this rx ry)
 		; (. window :drag_mode rx ry) -> (drag_mode drag_offx drag_offy)
 		(bind '(w h) (. this :get_size))
-		(defq border (get :border this) shadow (get :shadow this)
-			drag_mode 0 drag_offx 0 drag_offy 0)
+		(raise :border :shadow (drag_mode 0 drag_offx 0 drag_offy 0))
 		(if (< rx (+ border shadow))
 			(setq drag_mode (+ drag_mode 1) drag_offx rx))
 		(if (< ry (+ border shadow))
@@ -72,14 +70,13 @@
 		; (. window :mouse_down event) -> window
 		(bind '(drag_mode drag_offx drag_offy)
 			(. this :drag_mode (getf event +ev_msg_mouse_rx) (getf event +ev_msg_mouse_ry)))
-		(def this :drag_mode drag_mode :drag_offx drag_offx :drag_offy drag_offy)
+		(lower :drag_mode :drag_offx :drag_offy)
 		this)
 
 	(defmethod :mouse_move (this event)
 		; (. window :mouse_move event) -> window
-		(defq ax (getf event +ev_msg_mouse_x) ay (getf event +ev_msg_mouse_y)
-			drag_mode (get :drag_mode this) drag_offx (get :drag_offx this)
-			drag_offy (get :drag_offy this))
+		(raise :drag_mode :drag_offx :drag_offy
+			(ax (getf event +ev_msg_mouse_x) ay (getf event +ev_msg_mouse_y)))
 		(bind '(x y x1 y1) (. this :get_bounds))
 		(bind '(w h) (. this :pref_size))
 		(setq x1 (+ x x1) y1 (+ y y1))
@@ -109,16 +106,16 @@
 								((/= 0 buttons)
 									;is down now, so move
 									(if (.? target :mouse_move) (. target :mouse_move event)))
-								(t	;is not down now, so release
+								(t  ;is not down now, so release
 									(set this :last_buttons 0)
 									(if (.? target :mouse_up) (. target :mouse_up event)))))
-						(t	;was not down previously
+						(t  ;was not down previously
 							(cond
 								((/= 0 buttons)
 									;is down now, so first down
 									(set this :last_buttons buttons)
 									(if (.? target :mouse_down) (. target :mouse_down event)))
-								(t	;is not down now, so hover
+								(t  ;is not down now, so hover
 									(if (.? target :mouse_hover) (. target :mouse_hover event)))))))
 				((= type +ev_type_key)
 					(if (>= (getf event +ev_msg_key_keycode) 0)
