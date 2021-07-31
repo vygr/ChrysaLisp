@@ -237,6 +237,9 @@ Creates a Title instance, with name and optional property list.
 Creates a title bar, consiting of a Flow instance that contains Buttons and a
 named Title instance.
 
+The symbols list consists of unicode symbol values. You can use the Fonts
+application to find a unicode symbol value.
+
 ```vdu
 (defmacro ui-title-bar (n s b e &optional p)
 	; (ui-title-bar name title symbols event [props]) -> flow
@@ -287,6 +290,9 @@ Creates a Button instance, with name, optional property list and nested forms.
 
 Creates a set of Button instances, with symbols list, event base and optional
 property list.
+
+The symbols list consists of UTF8 encoded strings or unicode symbol values. You
+can use the Fonts application to find a unicode symbol value.
 
 #### Properties
 
