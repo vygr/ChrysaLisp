@@ -66,13 +66,14 @@
 							((defq action (. key_map_shift :find key))
 								(dispatch-action action))
 							((<= +char_space key +char_tilda)
-								(dispatch-action action-insert (char key)))))
+								;insert char etc ...
+								(char key))))
 					((defq action (. key_map :find key))
 						;call bound key action
 						(dispatch-action action))
 					((<= +char_space key +char_tilda)
-						;insert the char
-						(dispatch-action action-insert (char key)))))
+						;insert char etc ...
+						(char key))))
 			(t  ;gui event
 				(. *window* :event *msg*))))
 	(gui-sub *window*)
