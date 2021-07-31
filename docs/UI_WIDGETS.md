@@ -373,7 +373,7 @@ forms.
 
 #### Properties
 
-`:style :spacing`
+`:color :ink_color :style :spacing`
 
 ```vdu
 (defmacro ui-backdrop (n &optional p &rest x)

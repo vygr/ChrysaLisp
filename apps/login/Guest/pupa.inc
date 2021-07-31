@@ -4,7 +4,7 @@
 ;launcher apps
 (defq *env_launcher_apps* '(
 	"terminal" "edit" "viewer" "services" "debug" "profile" "docs" "help" "netmon"
-	"files" "clock" "calculator" "fonts" "chat" "images" "films" "whiteboard" "pcb"
+	"template" "clock" "calculator" "fonts" "chat" "images" "films" "whiteboard" "pcb"
 	"boing" "freeball" "bubbles" "canvas" "raymarch" "mandelbrot" "chess"
 	"minefield")
 	*env_launcher_auto_apps* '("terminal"))

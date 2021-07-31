@@ -3483,13 +3483,13 @@
 ### ui-buttons
 
 ```code
-(ui-buttons symbols events [props] [group])
+(ui-buttons symbols event [props])
 ```
 
 ### ui-canvas
 
 ```code
-(ui-canvas name width height scale) -> canvas
+(ui-canvas name width height scale [props]) -> canvas
 ```
 
 ### ui-element
@@ -3543,7 +3543,7 @@
 ### ui-scroll
 
 ```code
-(ui-scroll name [props] [body]) -> scroll
+(ui-scroll name flags [props] [body]) -> scroll
 ```
 
 ### ui-slider
@@ -3567,7 +3567,7 @@
 ### ui-title-bar
 
 ```code
-(ui-title-bar name title symbols events [props]) -> flow
+(ui-title-bar name title symbols event [props]) -> flow
 ```
 
 ### ui-tool-bar

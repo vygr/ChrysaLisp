@@ -30,6 +30,13 @@ recently and so these methods are no longer referenced.
 
 New EVENT_LOOPS.md doc.
 
+New EVENT_DISPATCH.md doc.
+
+New UI_WIDGETS.md doc.
+
+New application Template. Copy to new folder to get the framework for your new
+app.
+
 ------
 
 Editor now has line number display.

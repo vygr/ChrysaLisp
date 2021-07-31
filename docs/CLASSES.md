@@ -4,11 +4,11 @@ Lisp level Classes are implanted via a macro set in the `lib/class/class.inc`
 file. This is included via `boot.inc` so is available to all applications
 without need to import the library.
 
-A class and it's object instances consist of two VP level hmap objects. One
+A class and it's object instances consist of two VP level `hmap` objects. One
 holds the virtual function references for that class, and each instance is
-itself a single VP hmap object that holds the instance property data for that
+itself a single VP `hmap` object that holds the instance property data for that
 object plus a `:vtable` property that holds a reference to the shared virtual
-function hmap for that class.
+function `hmap` for that class.
 
 The idea of this structure is to indirect the method calls of an object through
 the object instance itself. The object class knows what the named methods do.
