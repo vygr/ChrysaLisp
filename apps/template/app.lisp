@@ -21,7 +21,7 @@
 		(ui-tool-bar main_toolbar ()
 			(ui-buttons (0xe9fe 0xe99d 0xe9ff 0xea08 0xe9ca 0xe9c9) +event_undo))
 		(ui-backdrop _ (:color (const *env_toolbar_col*))))
-	(ui-backdrop _ (:color +argb_black :min_width 512 :min_height 256
+	(ui-backdrop main_widget (:color +argb_black :min_width 512 :min_height 256
 			:ink_color +argb_white :spacing 16 :style :grid)))
 
 (defun tooltips ()
@@ -36,7 +36,7 @@
 	(catch (eval action) (progn (print _)(print) t)))
 
 (defun main ()
-	(defq select (alloc-select +select_size) *running* t)
+	(defq select (alloc-select +select_size) *running* t mouse_state :u)
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(gui-add-front (. *window* :change x y w h))
 	(tooltips)
@@ -80,6 +80,27 @@
 					((<= +char_space key +char_tilda)
 						;insert char etc ...
 						(char key))))
+			((and (= id (. main_widget :get_id))
+				(= (getf *msg* +ev_msg_type) +ev_type_mouse))
+					;mouse event in main widget
+					(defq rx (getf *msg* +ev_msg_mouse_rx)
+						ry (getf *msg* +ev_msg_mouse_ry))
+					(cond
+						((/= (getf *msg* +ev_msg_mouse_buttons) 0)
+							;mouse button is down
+							(case mouse_state
+								(:d ;was down last time
+									)
+								(:u ;was up last time
+									(setq mouse_state :d)))
+							;use rx, ry ...
+							)
+						(t  ;mouse button is up
+							(case mouse_state
+								(:d ;was down last time
+									(setq mouse_state :u))
+								(:u ;was up last time, so we are hovering
+									)))))
 			(t  ;gui event
 				(. *window* :event *msg*))))
 	(gui-sub *window*)
