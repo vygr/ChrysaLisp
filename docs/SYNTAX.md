@@ -834,16 +834,16 @@
 (. view :connect id) -> view
 ```
 
+### view :ctx_blit
+
+```code
+(. view :ctx_blit tid col x y width height) -> view
+```
+
 ### view :ctx_box
 
 ```code
 (. view :ctx_box x y width height) -> view
-```
-
-### view :ctx_filled_box
-
-```code
-(. view :ctx_filled_box tid col x y width height) -> view
 ```
 
 ### view :ctx_filled_box

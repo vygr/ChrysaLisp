@@ -96,7 +96,7 @@
 		; (. view :ctx_filled_box x y width height) -> view
 
 	(deffimethod :ctx_blit "gui/ctx/lisp_blit")
-		; (. view :ctx_filled_box tid col x y width height) -> view
+		; (. view :ctx_blit tid col x y width height) -> view
 
 	(defmethod :ctx_panel (this col flags depth x y width height)
 		; (. view :ctx_panel col flags depth x y width height) -> view
