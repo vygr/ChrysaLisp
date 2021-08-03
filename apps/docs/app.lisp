@@ -45,7 +45,8 @@
 		(ui-flow index (:flow_flags (logior +flow_flag_down +flow_flag_fillw))
 			(each (lambda (p)
 				(. (ui-button _
-					(:text p :flow_flags (logior +flow_flag_align_vcenter +flow_flag_align_hleft))) :connect +event_button)) doc_list))
+					(:text p :flow_flags (logior +flow_flag_align_vcenter +flow_flag_align_hleft)))
+						:connect +event_button)) doc_list))
 		(ui-scroll page_scroll +scroll_flag_vertical (:min_height 900))))
 
 (defun main ()

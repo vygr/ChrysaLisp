@@ -34,6 +34,9 @@
 (defmacro vec-dot (p1 p2 &optional _)
 	(if _ `(nums-sum (vec-mul ,p1 ,p2 ,_)) `(nums-sum (vec-mul ,p1 ,p2))))
 
+(defmacro vec-sum (p)
+	`(nums-sum ,p))
+
 (defun vec-reflect (p n &optional _)
 	(vec-scale n (* (nums-sum (if _ (vec-mul p n _) (defq _ (vec-mul p n)))) 2.0) _)
 	(vec-sub p _ _))

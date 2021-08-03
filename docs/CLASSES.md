@@ -223,7 +223,7 @@ expectation will be thrown, at run time, if called.
 
 Allows you to define a VP level implemented method.
 
-An exmaple from the `View` class:
+An example from the `View` class:
 
 ```vdu
 ...
