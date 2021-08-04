@@ -14,8 +14,10 @@
 (enums +select 0
 	(enum main tip timer))
 
-(defq timer_rate (/ 1000000 30) canvas_width 600 canvas_height 600 canvas_scale 1
-	rotx (f2r 0.0) roty (f2r 0.0) rotz (f2r 0.0) verts '())
+(defq anti_alias nil timer_rate (/ 1000000 30)
+	canvas_width 600 canvas_height 600 canvas_scale (if anti_alias 1 2)
+	rotx (f2r 0.0) roty (f2r 0.0) rotz (f2r 0.0) +focal_dist (f2r 1.0) verts '()
+	+canvas_mode (if anti_alias +canvas_flag_antialias 0))
 
 (ui-window *window* ()
 	(ui-title-bar *title* "Cubes" (0xea19 0xea1b 0xea1a) +event_close)
@@ -32,7 +34,7 @@
 
 (defun circle (r)
 	;cached circle generation, quantised to 1/4 pixel
-	(defq r (* (floor (* r 4.0)) 0.25) i (% (logior r) 13)
+	(defq r (r2f r) r (* (floor (* r 4.0)) 0.25) i (% (logior r) 13)
 		k (elem i '(()()()()()()()()()()()()())) p (elem i '(()()()()()()()()()()()()())))
 	(cond ((defq i (some (lambda (i) (if (= i r) _)) k)) (elem i p))
 		(t (push k r) (elem -2 (push p (list
@@ -40,11 +42,11 @@
 
 (defun fpoly (canvas col x y _)
 	;draw a polygon on a canvas
-	(.-> canvas (:set_color col) (:fpoly x y +winding_odd_even _)))
+	(.-> canvas (:set_color col) (:fpoly (r2f x) (r2f y) +winding_odd_even _)))
 
-(defun lighting (r g b z)
+(defun lighting (r g b s)
 	;very basic attenuation
-	(defq at (r2f (recip z)) r (* r at) g (* g at) b (* b at))
+	(defq at (r2f s) r (* r at) g (* g at) b (* b at))
 	(+ 0xff000000
 		(<< (f2i (* r (const (i2f 0xff)))) 16)
 		(<< (f2i (* g (const (i2f 0xff)))) 8)
@@ -52,35 +54,47 @@
 
 (defun render-verts (canvas verts)
 	;render circular verts
-	(defq sx (const (* (i2r (* canvas_width canvas_scale)) +real_1/2))
-		sy (const (* (i2r (* canvas_height canvas_scale)) +real_1/2)))
+	(defq sw (const (* +real_1/2 (i2r (dec (* canvas_width canvas_scale)))))
+		sh (const (* +real_1/2 (i2r (dec (* canvas_height canvas_scale))))))
 	(each (lambda ((x y z w))
 		(task-sleep 0)
-		(fpoly canvas (lighting 1.0 0.0 0.0 z)
-			(r2f (+ sx (* x sx))) (r2f (+ sy (* y sy)))
-			(circle (r2f (/ (const (i2r (* 25 canvas_scale))) z))))) verts))
+		(defq w (recip w) x (* x w) y (* y w) s (recip z))
+		(fpoly canvas (lighting 1.0 0.0 0.0 s)
+			(* (+ x +real_1) sw)
+			(* (+ y +real_1) sh)
+			(circle (* (const (i2r (* 25 canvas_scale))) s)))) verts))
 
 (defun sort-verts (verts)
 	(sort (lambda (v1 v2)
 		(if (<= (elem +vertex_z v1) (elem +vertex_z v2)) 1 -1)) verts))
 
+(defun vertex-cloud (num)
+	;array of random verts
+	(defq out (cap num (list)))
+	(while (> (setq num (dec num)) -1)
+		(push out (vertex-f
+			(- (random 2.0) 1.0)
+			(- (random 2.0) 1.0)
+			(- (random 2.0) 1.0)))) out)
+
+(defun vertex-clip (vs)
+	;clip verts
+	(filter (lambda ((x y z w))
+		(defq nw (- +real_0 w))
+		(and (< +real_0 w) (< +focal_dist z) (<= nw x w) (<= nw y w))) vs))
+
 (defun render ()
-	(defq matrix (matrix-unity)
-		mrx (matrix-rotx rotx)
-		mry (matrix-roty roty)
-		mrz (matrix-rotz rotz)
+	(defq mrx (matrix-rotx rotx) mry (matrix-roty roty) mrz (matrix-rotz rotz)
 		mrot (matrix-mul (matrix-mul mrx mry) mrz)
-		mtrans (matrix-translate +real_0 +real_0 +real_3)
-		mfrust (matrix-frustrum
-			(const (f2r -1.1)) (const (f2r 1.1))
-			(const (f2r -1.1)) (const (f2r 1.1))
-			(f2r 1.0) (f2r 5.0))
-		matrix (matrix-mul mfrust (matrix-mul mtrans (matrix-mul matrix mrot)))
-		new_verts (vertex-mul matrix verts)
-		new_verts (vertex-clip new_verts)
-		new_verts (sort-verts new_verts))
+		mtrans (matrix-translate +real_0 +real_0 (const (+ +focal_dist +real_2)))
+		mfrust (matrix-frustum
+			(const (f2r -0.25)) (const (f2r 0.25))
+			(const (f2r -0.25)) (const (f2r 0.25))
+			+focal_dist (const (+ +focal_dist +real_4)))
+		verts (sort-verts (vertex-clip (vertex-mul
+			(matrix-mul mfrust (matrix-mul mtrans mrot)) verts))))
 	(. main_widget :fill +argb_black)
-	(render-verts main_widget new_verts)
+	(render-verts main_widget verts)
 	(. main_widget :swap))
 
 (defun reset ()
@@ -96,10 +110,9 @@
 (defun main ()
 	(defq select (alloc-select +select_size) *running* t mouse_state :u)
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
-	(.-> main_widget (:fill +argb_black) :swap)
+	(.-> main_widget (:set_canvas_flags +canvas_mode) (:fill +argb_black) :swap)
 	(gui-add-front (. *window* :change x y w h))
 	(tooltips)
-	(. main_widget :set_canvas_flags +canvas_flag_antialias)
 	(reset)
 	(mail-timeout (elem +select_timer select) timer_rate 0)
 	(while *running*
