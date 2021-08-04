@@ -52,11 +52,10 @@
 		(reals +real_0 +real_0 +real_0 +real_1)))
 
 (defun matrix-frustum (left right top bottom near far)
-	(list (reals (/ (* +real_2 near) (- right left)) +real_0 +real_0 +real_0)
-		(reals +real_0 (/ (* +real_2 near) (- bottom top)) +real_0 +real_0)
-		(reals (/ (+ left right) (- right left)) (/ (+ top bottom) (- bottom top))
-			(/ (+ near far) (- far near)) +real_-1)
-		(reals +real_0 +real_0 (/ (* +real_2 near far) (- far near)) +real_0)))
+	(list (reals (/ (* +real_2 near) (- right left)) +real_0 (/ (+ left right) (- right left)) +real_0)
+		(reals +real_0 (/ (* +real_2 near) (- top bottom)) (/ (+ top bottom) (- top bottom)) +real_0)
+		(reals +real_0 +real_0 (/ (+ near far) (- near far)) (/ (* +real_2 near far) (- near far)))
+		(reals +real_0 +real_0 +real_-1 +real_0)))
 
 (defun vertex-mul (m vs)
 	(map (lambda (v)

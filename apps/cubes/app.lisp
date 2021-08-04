@@ -1,4 +1,4 @@
-(import "lib/debug/frames.inc")
+;(import "lib/debug/frames.inc")
 ;(import "lib/debug/profile.inc")
 
 (import "sys/lisp.inc")
@@ -16,8 +16,9 @@
 
 (defq anti_alias nil timer_rate (/ 1000000 30)
 	canvas_width 600 canvas_height 600 canvas_scale (if anti_alias 1 2)
-	rotx (f2r 0.0) roty (f2r 0.0) rotz (f2r 0.0) +focal_dist (f2r 1.0) verts '()
-	+canvas_mode (if anti_alias +canvas_flag_antialias 0))
+	rotx (f2r 0.0) roty (f2r 0.0) rotz (f2r 0.0) +focal_dist (f2r 4.0)
+	+near +focal_dist +far (+ +near +real_4)
+	verts '() +canvas_mode (if anti_alias +canvas_flag_antialias 0))
 
 (ui-window *window* ()
 	(ui-title-bar *title* "Cubes" (0xea19 0xea1b 0xea1a) +event_close)
@@ -58,11 +59,16 @@
 		sh (const (* +real_1/2 (i2r (dec (* canvas_height canvas_scale))))))
 	(each (lambda ((x y z w))
 		(task-sleep 0)
-		(defq w (recip w) x (* x w) y (* y w) s (recip z))
+		(defq w (recip w) x (* x w) y (* y w) z (* z w) s (recip (+ z +real_2)))
 		(fpoly canvas (lighting 1.0 0.0 0.0 s)
 			(* (+ x +real_1) sw)
 			(* (+ y +real_1) sh)
 			(circle (* (const (i2r (* 25 canvas_scale))) s)))) verts))
+
+(defun print-verts (vs)
+	(each (lambda ((x y z w))
+		(print (r2f (/ x w)) " " (r2f (/ y w)) " " (r2f (/ z w)) " " (r2f w))) vs)
+	(print))
 
 (defun sort-verts (verts)
 	(sort (lambda (v1 v2)
@@ -75,25 +81,27 @@
 		(push out (vertex-f
 			(- (random 2.0) 1.0)
 			(- (random 2.0) 1.0)
-			(- (random 2.0) 1.0)))) out)
+			(- (random 2.0) 1.0))))
+	out)
 
 (defun vertex-clip (vs)
 	;clip verts
 	(filter (lambda ((x y z w))
 		(defq nw (- +real_0 w))
-		(and (< +real_0 w) (< +focal_dist z) (<= nw x w) (<= nw y w))) vs))
+		(and (< +real_0 w) (<= +near w +far) (<= nw x w) (<= nw y w))) vs))
 
 (defun render ()
 	(defq mrx (matrix-rotx rotx) mry (matrix-roty roty) mrz (matrix-rotz rotz)
 		mrot (matrix-mul (matrix-mul mrx mry) mrz)
-		mtrans (matrix-translate +real_0 +real_0 (const (+ +focal_dist +real_2)))
+		mtrans (matrix-translate +real_0 +real_0 (const (- +real_0 +focal_dist +real_2)))
 		mfrust (matrix-frustum
-			(const (f2r -0.25)) (const (f2r 0.25))
-			(const (f2r -0.25)) (const (f2r 0.25))
-			+focal_dist (const (+ +focal_dist +real_4)))
+			(const (f2r -1.0)) (const (f2r 1.0))
+			(const (f2r 1.0)) (const (f2r -1.0))
+			+near +far)
 		verts (sort-verts (vertex-clip (vertex-mul
 			(matrix-mul mfrust (matrix-mul mtrans mrot)) verts))))
 	(. main_widget :fill +argb_black)
+;   (print-verts verts)
 	(render-verts main_widget verts)
 	(. main_widget :swap))
 
@@ -126,9 +134,9 @@
 				;timer event
 				(mail-timeout (elem +select_timer select) timer_rate 0)
 				(setq
-					rotx (% (+ rotx (const (f2r 0.001))) (const (f2r +fp_2pi)))
-					roty (% (+ roty (const (f2r 0.02))) (const (f2r +fp_2pi)))
-					rotz (% (+ rotz (const (f2r 0.002))) (const (f2r +fp_2pi))))
+					rotx (% (+ rotx (const (f2r 0.01))) (const (f2r +fp_2pi)))
+					roty (% (+ roty (const (f2r 0.03))) (const (f2r +fp_2pi)))
+					rotz (% (+ rotz (const (f2r 0.02))) (const (f2r +fp_2pi))))
 				(render))
 			((defq id (getf *msg* +ev_msg_target_id) action (. event_map :find id))
 				;call bound event action
