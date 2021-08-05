@@ -19,7 +19,10 @@ event_map (xmap-kv
 	+event_min action-minimise
 	+event_max action-maximise)
 
-key_map (xmap-kv)
+key_map (xmap-kv
+	(ascii-code "a") action-auto
+	(ascii-code "n") action-next
+	(ascii-code "p") action-prev)
 
 key_map_shift (xmap-kv)
 

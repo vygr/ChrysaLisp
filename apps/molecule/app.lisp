@@ -27,7 +27,7 @@
 		(unzip (split (pii-dirlist p) ",") (list (list) (list))))
 	(sort cmp out))
 
-(defq anti_alias nil timer_rate (/ 1000000 30)
+(defq anti_alias t timer_rate (/ 1000000 30)
 	canvas_width 600 canvas_height 600 canvas_scale (if anti_alias 1 2)
 	*rotx* (f2r 0.0) *roty* (f2r 0.0) *rotz* (f2r 0.0) +focal_dist (f2r 4.0)
 	+near +focal_dist +far (+ +near +real_4) balls (list)
@@ -64,7 +64,7 @@
 (defun tooltips ()
 	(def *window* :tip_mbox (elem +select_tip select))
 	(each (# (def %0 :tip_text %1)) (. main_toolbar :children)
-		'("prev" "next")))
+		'("prev" "next" "auto")))
 
 (defun circle (r)
 	;cached circle generation, quantised to 1/4 pixel
