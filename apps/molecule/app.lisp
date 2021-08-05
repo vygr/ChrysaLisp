@@ -20,7 +20,7 @@
 (enums +col 0
 	(enum red green blue))
 
-(defq anti_alias nil timer_rate (/ 1000000 30)
+(defq anti_alias t timer_rate (/ 1000000 30)
 	canvas_width 600 canvas_height 600 canvas_scale (if anti_alias 1 2)
 	*rotx* (f2r 0.0) *roty* (f2r 0.0) *rotz* (f2r 0.0) +focal_dist (f2r 4.0)
 	+near +focal_dist +far (+ +near +real_4) balls (list)
@@ -85,10 +85,16 @@
 		sh (const (* +real_1/2 (i2r (dec (* canvas_height canvas_scale))))))
 	(each (lambda (((x y z w) r c))
 		(task-sleep 0)
-		(defq w (recip w) x (* x w) y (* y w) z (* z w) s (recip (+ z +real_2)))
+		(defq w (recip w) x (* x w) y (* y w) z (* z w)
+			s (recip (+ z +real_2))
+			r (* r s) r4 (* r +real_1/4) r16 (* r +real_1/16)
+			sx (* (+ x +real_1) sw) sy (* (+ y +real_1) sh))
+		(fpoly canvas (lighting (vec-scale c 0.75 (const (fixeds 0.0 0.0 0.0))) s)
+			sx sy (circle r))
 		(fpoly canvas (lighting c s)
-			(* (+ x +real_1) sw) (* (+ y +real_1) sh)
-			(circle (* r s)))) balls))
+			(- sx r16) (- sy r16) (circle (- r r16)))
+		(fpoly canvas (lighting (const (fixeds 1.0 1.0 1.0)) s)
+			(- sx r4) (- sy r4) (circle r4))) balls))
 
 (defun print-verts (balls)
 	(each (lambda (((x y z w) _ _))
@@ -122,10 +128,10 @@
 	(while (> (setq num (dec num)) -1)
 		(push balls (list
 			(vertex-f
-				(- (random 2.0) 1.0)
-				(- (random 2.0) 1.0)
-				(- (random 2.0) 1.0))
-			(i2r (+ (* 20 canvas_scale) (random 20)))
+				(- (random 2.5) 1.25)
+				(- (random 2.5) 1.25)
+				(- (random 2.5) 1.25))
+			(i2r (+ (* 30 canvas_scale) (random 10)))
 			(elem (random (length palette)) palette)))))
 
 (defun reset ()

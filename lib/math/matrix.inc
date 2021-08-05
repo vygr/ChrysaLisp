@@ -9,7 +9,8 @@
 	+real_6 (i2r 6) +real_7 (i2r 7) +real_8 (i2r 8)
 	+real_9 (i2r 9) +real_10 (i2r 10)
 	+real_-1 (i2r -1) +real_-2 (i2r -2) +real_-3 (i2r -3)
-	+real_1/2 (f2r 0.5) +real_1/4 (f2r 0.25) +real_3/4 (f2r 0.75)
+	+real_1/2 (f2r 0.5) +real_1/4 (f2r 0.25) +real_1/8 (f2r 0.125)
+	+real_1/16 (f2r 0.0625) +real_3/4 (f2r 0.75)
 	+real_pi (f2r +fp_pi) +real_2pi (f2r +fp_2pi)
 	+reals_tmp (reals +real_0 +real_0 +real_0 +real_0))
 
