@@ -25,23 +25,28 @@
 (defun action-close ()
 	(setq *running* nil))
 
+(defun get-rot (slider)
+	(/ (* (i2r (get :value slider)) +real_2pi) (const (i2r 1000))))
+
 (defun action-auto ()
 	(defq button (elem 2 (. main_toolbar :children)))
 	(undef (. button :dirty) :color)
-	(if (setq *auto_mode* (not *auto_mode*))
-		(def button :color *env_radio_col*)))
+	(cond
+		((setq *auto_mode* (not *auto_mode*))
+			(def button :color *env_radio_col*))
+		(t  (setq *rotx* (get-rot xrot_slider)
+				*roty* (get-rot yrot_slider)
+				*rotz* (get-rot zrot_slider)
+				*dirty* t))))
 
 (defun action-xrot ()
 	(if *auto_mode* (action-auto))
-	(setq *rotx* (/ (* (i2r (get :value xrot_slider)) +real_2pi) (const (i2r 1000)))
-		*dirty* t))
+	(setq *rotx* (get-rot xrot_slider) *dirty* t))
 
 (defun action-yrot ()
 	(if *auto_mode* (action-auto))
-	(setq *roty* (/ (* (i2r (get :value yrot_slider)) +real_2pi) (const (i2r 1000)))
-		*dirty* t))
+	(setq *roty* (get-rot yrot_slider) *dirty* t))
 
 (defun action-zrot ()
 	(if *auto_mode* (action-auto))
-	(setq *rotz* (/ (* (i2r (get :value zrot_slider)) +real_2pi) (const (i2r 1000)))
-		*dirty* t))
+	(setq *rotz* (get-rot zrot_slider) *dirty* t))
