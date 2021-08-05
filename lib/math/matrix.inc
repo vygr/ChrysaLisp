@@ -20,6 +20,9 @@
 (enums +matrix 0
 	(enum r0 r1 r2 r3))
 
+(defun vertex-r (x y z)
+	(reals x y z +real_1))
+
 (defun vertex-f (x y z)
 	(reals (f2r x) (f2r y) (f2r z) +real_1))
 

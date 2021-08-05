@@ -3,10 +3,14 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun action-prev ()
-	(reset))
+	(setq *mol_index* (% (+ *mol_index* -1 (length mol_files)) (length mol_files))
+		*dirty* t)
+	(ball-file *mol_index*))
 
 (defun action-next ()
-	(reset))
+	(setq *mol_index* (% (+ *mol_index* 1 (length mol_files)) (length mol_files))
+		*dirty* t)
+	(ball-file *mol_index*))
 
 (defun action-minimise ()
 	(bind '(x y w h) (apply view-fit
@@ -32,3 +36,9 @@
 (defun action-zrot ()
 	(setq *rotz* (/ (* (i2r (get :value zrot_slider)) +real_2pi) (const (i2r 1000)))
 		*dirty* t))
+
+(defun action-auto ()
+	(defq button (elem 2 (. main_toolbar :children)))
+	(undef (. button :dirty) :color)
+	(if (setq *auto_mode* (not *auto_mode*))
+		(def button :color *env_radio_col*)))
