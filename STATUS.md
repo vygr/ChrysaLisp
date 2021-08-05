@@ -4,6 +4,11 @@
 
 ------
 
+Start of new Cubes demo. Along with a new `lib/math/matrix.inc` library.
+Renamed the `lib/math/math.inc` library to `lib/math/vector.inc`.
+
+------
+
 Optimized versions of the bracket matching methods on the Buffer class. 25%
 faster, but these functions are a good candidate for a VP string method !
 

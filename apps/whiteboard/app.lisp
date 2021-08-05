@@ -1,7 +1,7 @@
 (import "sys/lisp.inc")
 (import "class/lisp.inc")
 (import "gui/lisp.inc")
-(import "lib/math/math.inc")
+(import "lib/math/vector.inc")
 
 ;quick stack frame switch
 (if nil   ;t for stack frame recording

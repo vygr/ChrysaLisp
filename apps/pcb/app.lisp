@@ -1,7 +1,7 @@
 (import "sys/lisp.inc")
 (import "class/lisp.inc")
 (import "gui/lisp.inc")
-(import "lib/math/math.inc")
+(import "lib/math/vector.inc")
 
 (enums +event 0
 	(enum close)
