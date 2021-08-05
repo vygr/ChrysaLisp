@@ -20,7 +20,7 @@
 (enums +col 0
 	(enum red green blue))
 
-(defq anti_alias t timer_rate (/ 1000000 30)
+(defq anti_alias nil timer_rate (/ 1000000 30)
 	canvas_width 600 canvas_height 600 canvas_scale (if anti_alias 1 2)
 	*rotx* (f2r 0.0) *roty* (f2r 0.0) *rotz* (f2r 0.0) +focal_dist (f2r 4.0)
 	+near +focal_dist +far (+ +near +real_4) balls (list)
@@ -128,15 +128,15 @@
 	(while (> (setq num (dec num)) -1)
 		(push balls (list
 			(vertex-f
-				(- (random 2.5) 1.25)
-				(- (random 2.5) 1.25)
-				(- (random 2.5) 1.25))
+				(- (random 2.3) 1.15)
+				(- (random 2.3) 1.15)
+				(- (random 2.3) 1.15))
 			(i2r (+ (* 30 canvas_scale) (random 10)))
 			(elem (random (length palette)) palette)))))
 
 (defun reset ()
 	(ball-cloud 1000)
-	(render))
+	(setq *dirty* t))
 
 ;import actions and bindings
 (import "./actions.inc")
