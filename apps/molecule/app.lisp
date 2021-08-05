@@ -29,7 +29,7 @@
 
 (defq anti_alias t timer_rate (/ 1000000 30)
 	canvas_width 600 canvas_height 600 canvas_scale (if anti_alias 1 2)
-	*rotx* (f2r 0.0) *roty* (f2r 0.0) *rotz* (f2r 0.0) +focal_dist (f2r 4.0)
+	*rotx* +real_0 *roty* +real_0 *rotz* +real_0 +focal_dist +real_4
 	+near +focal_dist +far (+ +near +real_4) balls (list)
 	+canvas_mode (if anti_alias +canvas_flag_antialias 0)
 	*mol_index* 0 *auto_mode* nil *dirty* t
@@ -173,12 +173,11 @@
 		(defq width_x (- max_x min_x) width_y (- max_y min_y) width_z (- max_z min_z)
 			scale (/ (const (f2r 2.3)) (max width_x width_y width_z)))
 		(each (lambda (ball)
-			(bind '((x y z w) _ _) ball)
-			(elem-set +ball_vertex ball (reals
-				(* scale (- x min_x (/ width_x (i2r 2))))
-				(* scale (- y min_y (/ width_y (i2r 2))))
-				(* scale (- z min_z (/ width_z (i2r 2))))
-				w))) balls)))
+			(bind '((x y z _) _ _) ball)
+			(elem-set +ball_vertex ball (vertex-r
+				(* scale (- x min_x (/ width_x +real_2)))
+				(* scale (- y min_y (/ width_y +real_2)))
+				(* scale (- z min_z (/ width_z +real_2)))))) balls)))
 
 (defun reset ()
 	(ball-file 0)
@@ -211,8 +210,8 @@
 				(when *auto_mode*
 					(setq *rotx* (% (+ *rotx* (f2r 0.01)) +real_2pi)
 						*roty* (% (+ *roty* (f2r 0.02)) +real_2pi)
-						*rotz* (% (+ *rotz* (f2r 0.03)) +real_2pi))
-					(setq *dirty* t))
+						*rotz* (% (+ *rotz* (f2r 0.03)) +real_2pi)
+						*dirty* t))
 				(when *dirty*
 					(setq *dirty* nil)
 					(render)))
