@@ -9,7 +9,9 @@
 (enums +event 0
 	(enum close max min)
 	(enum prev next auto)
-	(enum xrot yrot zrot))
+	(enum xrot yrot zrot)
+	(enum layout)
+	(enum plain grid axis))
 
 (enums +select 0
 	(enum main tip timer))
@@ -27,8 +29,8 @@
 		(unzip (split (pii-dirlist p) ",") (list (list) (list))))
 	(sort cmp out))
 
-(defq anti_alias t timer_rate (/ 1000000 30)
-	canvas_width 600 canvas_height 600 canvas_scale (if anti_alias 1 2)
+(defq anti_alias t timer_rate (/ 1000000 30) +min_size 450 +max_size 650
+	canvas_size +min_size canvas_scale (if anti_alias 1 2)
 	*rotx* +real_0 *roty* +real_0 *rotz* +real_0 +focal_dist +real_4
 	+near +focal_dist +far (+ +near +real_4) balls (list)
 	+canvas_mode (if anti_alias +canvas_flag_antialias 0)
@@ -46,6 +48,8 @@
 	(ui-flow _ (:flow_flags +flow_right_fill)
 		(ui-tool-bar main_toolbar ()
 			(ui-buttons (0xe91d 0xe91e 0xea43) +event_prev))
+		(ui-tool-bar style_toolbar ()
+			(ui-buttons (0xe976 0xe9a3 0xe9f0) +event_plain))
 		(ui-backdrop _ (:color (const *env_toolbar_col*))))
 	(ui-flow _ (:flow_flags +flow_right_fill)
 		(ui-grid _ (:grid_width 1 :grid_height 3 :font *env_body_font*)
@@ -59,12 +63,22 @@
 				:connect +event_yrot)
 			(. (ui-slider zrot_slider (:value 0 :maximum 1000 :portion 10 :color +argb_green))
 				:connect +event_zrot)))
-	(ui-canvas main_widget canvas_width canvas_height canvas_scale))
+	(ui-backdrop main_backdrop (:style :plain :color +argb_black :ink_color +argb_grey8
+			:min_width +min_size :min_height +min_size)
+		(ui-canvas main_widget canvas_size canvas_size canvas_scale)))
 
 (defun tooltips ()
 	(def *window* :tip_mbox (elem +select_tip select))
 	(each (# (def %0 :tip_text %1)) (. main_toolbar :children)
-		'("prev" "next" "auto")))
+		'("prev" "next" "auto"))
+	(each (# (def %0 :tip_text %1)) (. style_toolbar :children)
+		'("plain" "grid" "axis")))
+
+(defun radio-select (toolbar idx)
+	(each (lambda (button)
+			(undef (. button :dirty) :color)
+			(if (= _ idx) (def button :color *env_radio_col*)))
+		(. toolbar :children)) idx)
 
 (defun circle (r)
 	;cached circle generation, quantised to 1/4 pixel
@@ -90,13 +104,12 @@
 			(f2i (min (* (+ b 0.2) 256.0) 255.0))))
 
 (defun render-balls (canvas balls)
-	(defq sw (const (* +real_1/2 (i2r (dec (* canvas_width canvas_scale)))))
-		sh (const (* +real_1/2 (i2r (dec (* canvas_height canvas_scale))))))
+	(defq sp (* +real_1/2 (i2r (dec (* canvas_size canvas_scale)))))
 	(each (lambda (((x y z w) r c))
 		(task-sleep 0)
 		(defq w (recip w) x (* x w) y (* y w) z (* z w) s (recip (+ z +real_2))
-			r (* r s) r4 (* r +real_1/4) r8 (* r +real_1/8) r16 (* r +real_1/16)
-			sx (* (+ x +real_1) sw) sy (* (+ y +real_1) sh))
+			r (* r s sp) r4 (* r +real_1/4) r8 (* r +real_1/8) r16 (* r +real_1/16)
+			sx (* (+ x +real_1) sp) sy (* (+ y +real_1) sp))
 		(fpoly canvas (lighting (vec-scale c 0.5 (const (fixeds 0.0 0.0 0.0))) s)
 			sx sy (circle r))
 		(fpoly canvas (lighting c s) (- sx r16) (- sy r16) (circle (- r r16)))
@@ -124,7 +137,7 @@
 		matrix (matrix-mul mfrust (matrix-mul mtrans mrot))
 		balls (sort-balls (clip-balls (map (lambda ((v r c))
 			(list (vertex-mul matrix v) r c)) balls))))
-	(. main_widget :fill +argb_black)
+	(. main_widget :fill 0)
 	(render-balls main_widget balls)
 ;   (print-verts balls)
 	(. main_widget :swap))
@@ -170,7 +183,7 @@
 		(defq width_x (- max_x min_x) width_y (- max_y min_y) width_z (- max_z min_z)
 			width_max (max width_x width_y width_z)
 			scale_p (/ (const (f2r 2.3)) width_max)
-			scale_r (/ (const (i2r 13)) width_max))
+			scale_r (/ (const (f2r 0.04)) width_max))
 		(each (lambda (ball)
 			(bind '((x y z _) r _) ball)
 			(elem-set +ball_vertex ball (vertex-r
@@ -191,8 +204,9 @@
 
 (defun main ()
 	(defq select (alloc-select +select_size) *running* t mouse_state :u)
-	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
+	(bind '(x y w h) (apply view-locate (.-> *window* (:connect +event_layout) :pref_size)))
 	(.-> main_widget (:set_canvas_flags +canvas_mode) (:fill +argb_black) :swap)
+	(radio-select style_toolbar 0)
 	(gui-add-front (. *window* :change x y w h))
 	(tooltips)
 	(reset)

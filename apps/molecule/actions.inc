@@ -15,7 +15,11 @@ event_map (xmap-kv
 	+event_prev action-prev
 	+event_next action-next
 	+event_auto action-auto
+	+event_grid action-style-grid
+	+event_plain action-style-plain
+	+event_axis action-style-axis
 	+event_close action-close
+	+event_layout action-layout
 	+event_min action-minimise
 	+event_max action-maximise)
 
