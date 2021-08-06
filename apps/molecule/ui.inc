@@ -42,19 +42,11 @@
 (defun action-close ()
 	(setq *running* nil))
 
-(defun get-rot (slider)
-	(/ (* (i2r (get :value slider)) +real_2pi) (const (i2r 1000))))
-
 (defun action-auto ()
 	(defq button (elem 2 (. main_toolbar :children)))
 	(undef (. button :dirty) :color)
-	(cond
-		((setq *auto_mode* (not *auto_mode*))
-			(def button :color *env_radio_col*))
-		(t  (setq *rotx* (get-rot xrot_slider)
-				*roty* (get-rot yrot_slider)
-				*rotz* (get-rot zrot_slider)
-				*dirty* t))))
+	(if (setq *auto_mode* (not *auto_mode*))
+		(def button :color *env_radio_col*)))
 
 (defun action-xrot ()
 	(if *auto_mode* (action-auto))

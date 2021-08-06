@@ -80,6 +80,13 @@
 			(if (= _ idx) (def button :color *env_radio_col*)))
 		(. toolbar :children)) idx)
 
+(defun set-rot (slider angle)
+	(set (. slider :dirty) :value
+		(r2i (/ (* angle (const (i2r 1000))) +real_2pi))))
+
+(defun get-rot (slider)
+	(/ (* (i2r (get :value slider)) +real_2pi) (const (i2r 1000))))
+
 (defun circle (r)
 	;cached circle generation, quantised to 1/4 pixel
 	(defq r (* (floor (* (r2f r) 4.0)) 0.25) i (% (logior r) 13)
@@ -225,7 +232,10 @@
 					(setq *rotx* (% (+ *rotx* (f2r 0.01)) +real_2pi)
 						*roty* (% (+ *roty* (f2r 0.02)) +real_2pi)
 						*rotz* (% (+ *rotz* (f2r 0.03)) +real_2pi)
-						*dirty* t))
+						*dirty* t)
+					(set-rot xrot_slider *rotx*)
+					(set-rot yrot_slider *roty*)
+					(set-rot zrot_slider *rotz*))
 				(when *dirty*
 					(setq *dirty* nil)
 					(render)))
