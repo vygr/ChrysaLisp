@@ -419,7 +419,7 @@ property list.
 
 ### (ui-vdu name [props]) -> vdu
 
-Creates a Vdu instance, with name optional property list.
+Creates a Vdu instance, with name and optional property list.
 
 #### Properties
 
@@ -436,7 +436,7 @@ Creates a Vdu instance, with name optional property list.
 
 ### (ui-view name [props]) -> view
 
-Creates a raw View instance, with name optional property list.
+Creates a raw View instance, with name and optional property list.
 
 #### Properties
 

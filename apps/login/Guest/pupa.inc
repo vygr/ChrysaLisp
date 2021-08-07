@@ -3,10 +3,20 @@
 
 ;launcher apps
 (defq *env_launcher_apps* '(
-	"terminal" "edit" "viewer" "services" "debug" "profile" "docs" "help" "netmon"
-	"template" "clock" "calculator" "fonts" "chat" "images" "films" "whiteboard" "pcb"
-	"boing" "freeball" "bubbles" "canvas" "raymarch" "mandelbrot" "chess"
-	"minefield" "molecule" "files")
+	"terminal" "edit"
+	"viewer" "services"
+	"debug" "profile"
+	"docs" "help"
+	"netmon" "fonts"
+	"clock" "calculator"
+	"images" "films"
+	"whiteboard" "chat"
+	"boing" "freeball"
+	"bubbles" "molecule"
+	"canvas" "pcb"
+	"raymarch" "mandelbrot"
+	"chess" "minefield"
+	"template" "files")
 	*env_launcher_auto_apps* '("terminal"))
 
 ;launcher placement from xy :center :top :bottom :left :right)
