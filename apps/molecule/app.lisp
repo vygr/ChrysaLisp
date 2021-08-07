@@ -134,7 +134,8 @@
 (defun clip-balls (balls)
 	(filter (lambda (((x y z w) _ _))
 		(defq nw (- +real_0 w))
-		(and (<= +near w +far) (<= nw x w) (<= nw y w))) balls))
+;        (and (<= +near w +far) (<= nw x w) (<= nw y w))) balls))
+		(and (<= +near w +far))) balls))
 
 (defun render ()
 	(defq mrx (matrix-rotx *rotx*) mry (matrix-roty *roty*) mrz (matrix-rotz *rotz*)
