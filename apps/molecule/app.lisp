@@ -29,7 +29,7 @@
 		(unzip (split (pii-dirlist p) ",") (list (list) (list))))
 	(sort cmp out))
 
-(defq anti_alias t timer_rate (/ 1000000 30) +min_size 450 +max_size 650
+(defq anti_alias t timer_rate (/ 1000000 30) +min_size 450 +max_size 800
 	canvas_size +min_size canvas_scale (if anti_alias 1 2)
 	*rotx* +real_0 *roty* +real_0 *rotz* +real_0 +focal_dist +real_4
 	+near +focal_dist +far (+ +near +real_4) balls (list)

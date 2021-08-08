@@ -7,6 +7,10 @@
 Start of new Cubes demo. Along with a new `lib/math/matrix.inc` library.
 Renamed the `lib/math/math.inc` library to `lib/math/vector.inc`.
 
+New Molecule demo. Renders standard SDF Mol files. Some SDF files have an issue
+with no space between the number of atoms and the numbewr of bonds, so add a
+space if required.
+
 ------
 
 Optimized versions of the bracket matching methods on the Buffer class. 25%

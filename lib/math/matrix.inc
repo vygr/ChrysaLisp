@@ -4,14 +4,17 @@
 
 (import "lib/math/vector.inc")
 
-(defq +real_0 (i2r 0) +real_1 (i2r 1) +real_2 (i2r 2)
-	+real_3 (i2r 3) +real_4 (i2r 4) +real_5 (i2r 5)
-	+real_6 (i2r 6) +real_7 (i2r 7) +real_8 (i2r 8)
-	+real_9 (i2r 9) +real_10 (i2r 10)
-	+real_-1 (i2r -1) +real_-2 (i2r -2) +real_-3 (i2r -3)
-	+real_1/2 (f2r 0.5) +real_1/4 (f2r 0.25) +real_1/8 (f2r 0.125)
-	+real_1/16 (f2r 0.0625) +real_3/4 (f2r 0.75)
-	+real_pi (f2r +fp_pi) +real_2pi (f2r +fp_2pi)
+;useful real constants
+(defmacro def_real (c s e f)
+	`(bind (map (# (sym (str ,c %0))) (range ,s ,e)) (map ,f (range ,s ,e))))
+;[0:10]
+(def_real "+real_" 0 11 (# (i2r %0)))
+;[-1:-10]
+(def_real "+real_" -10 0 (# (i2r %0)))
+;[1/2:1/20]
+(def_real "+real_1/" 1 21 (# (/ (const (i2r 1)) (i2r %0))))
+;pi and temp vec4
+(defq +real_pi (f2r +fp_pi) +real_2pi (f2r +fp_2pi)
 	+reals_tmp (reals +real_0 +real_0 +real_0 +real_0))
 
 (enums +vertex 0
