@@ -66,6 +66,50 @@
 
 (def-func-end)
 
+(def-method 'reals :min)
+	;inputs
+	;r0 = reals object (ptr)
+	;r1 = source1 reals object, can be same (ptr)
+	;r2 = source2 reals object, can be same (ptr)
+	;outputs
+	;r0 = reals object (ptr)
+	;trashes
+	;r1-r14
+
+	(addop :min
+		'(progn
+			(call 'sys_math :r_sub `((,src1 0) (,src2 0)) '(r13))
+			(vpif '(r13 < 0))
+				(assign `((,src1 0)) '(r13))
+			(else)
+				(assign `((,src2 0)) '(r13))
+			(endif)
+			(assign '(r13) `((,iter_begin 0)))))
+
+(def-func-end)
+
+(def-method 'reals :max)
+	;inputs
+	;r0 = reals object (ptr)
+	;r1 = source1 reals object, can be same (ptr)
+	;r2 = source2 reals object, can be same (ptr)
+	;outputs
+	;r0 = reals object (ptr)
+	;trashes
+	;r1-r14
+
+	(addop :max
+		'(progn
+			(call 'sys_math :r_sub `((,src1 0) (,src2 0)) '(r13))
+			(vpif '(r13 > 0))
+				(assign `((,src1 0)) '(r13))
+			(else)
+				(assign `((,src2 0)) '(r13))
+			(endif)
+			(assign '(r13) `((,iter_begin 0)))))
+
+(def-func-end)
+
 (def-method 'reals :mul)
 	;inputs
 	;r0 = reals object (ptr)

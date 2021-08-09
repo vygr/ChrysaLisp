@@ -13,6 +13,8 @@
 	(dec-method :abs class/reals/abs :override)
 	(dec-method :sum class/reals/sum :override)
 	(dec-method :scale class/reals/scale :override)
+	(dec-method :min class/reals/min :override)
+	(dec-method :max class/reals/max :override)
 	(dec-method :frac class/reals/frac :override)
 	(dec-method :floor class/reals/floor :override))
 

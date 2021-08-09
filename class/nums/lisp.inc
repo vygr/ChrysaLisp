@@ -7,3 +7,5 @@
 (ffi nums-mul "class/nums/lisp_mul" 0)
 (ffi nums-sub "class/nums/lisp_sub" 0)
 (ffi nums-sum "class/nums/lisp_sum" 0)
+(ffi nums-min "class/nums/lisp_min" 0)
+(ffi nums-max "class/nums/lisp_max" 0)

@@ -96,6 +96,34 @@
 
 (def-func-end)
 
+(def-method 'nums :min)
+	;inputs
+	;r0 = nums object (ptr)
+	;r1 = source1 nums object, can be same (ptr)
+	;r2 = source2 nums object, can be same (ptr)
+	;outputs
+	;r0 = nums object (ptr)
+	;trashes
+	;r1-r6
+
+	(addop :min)
+
+(def-func-end)
+
+(def-method 'nums :max)
+	;inputs
+	;r0 = nums object (ptr)
+	;r1 = source1 nums object, can be same (ptr)
+	;r2 = source2 nums object, can be same (ptr)
+	;outputs
+	;r0 = nums object (ptr)
+	;trashes
+	;r1-r6
+
+	(addop :max)
+
+(def-func-end)
+
 (def-method 'nums :mul)
 	;inputs
 	;r0 = nums object (ptr)

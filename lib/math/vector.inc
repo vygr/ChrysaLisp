@@ -10,6 +10,12 @@
 (defmacro vec-sub (p1 p2 &optional _)
 	(if _ `(nums-sub ,p1 ,p2 ,_) `(nums-sub ,p1 ,p2)))
 
+(defmacro vec-min (p1 p2 &optional _)
+	(if _ `(nums-min ,p1 ,p2 ,_) `(nums-min ,p1 ,p2)))
+
+(defmacro vec-max (p1 p2 &optional _)
+	(if _ `(nums-max ,p1 ,p2 ,_) `(nums-max ,p1 ,p2)))
+
 (defmacro vec-mul (p1 p2 &optional _)
 	(if _ `(nums-mul ,p1 ,p2 ,_) `(nums-mul ,p1 ,p2)))
 
