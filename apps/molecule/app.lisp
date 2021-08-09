@@ -103,14 +103,10 @@
 
 (defun lighting (col s)
 	;very basic attenuation and diffuse
-	(defq at (r2f s)
-		r (* (elem +col_red col) at)
-		g (* (elem +col_green col) at)
-		b (* (elem +col_blue col) at))
-	(+ 0xff000000
-		(<< (f2i (min (* (+ r 0.15) 256.0) 255.0)) 16)
-		(<< (f2i (min (* (+ g 0.15) 256.0) 255.0)) 8)
-			(f2i (min (* (+ b 0.15) 256.0) 255.0))))
+	(bind '(r g b) (vec-min (vec-add (vec-scale col (* (r2f s) 255.0) +fixeds_tmp3)
+		(const (fixeds 32.0 32.0 32.0)) +fixeds_tmp3)
+		(const (fixeds 255.0 255.0 255.0)) +fixeds_tmp3))
+	(+ 0xff000000 (<< (f2i r) 16) (<< (f2i g) 8) (f2i b)))
 
 (defun render-balls (canvas balls)
 	(defq sp (* +real_1/2 (i2r (dec (* canvas_size canvas_scale)))))
@@ -146,7 +142,7 @@
 		mfrust (mat4x4-frustum +left +right +top +bottom +near +far)
 		matrix (mat4x4-mul mfrust (mat4x4-mul mtrans mrot))
 		balls (sort-balls (clip-balls (map (lambda ((v r c))
-			(list (vec4-mul matrix v) r c)) balls))))
+			(list (mat4x4-vec4-mul matrix v) r c)) balls))))
 	(. main_widget :fill 0)
 	(render-balls main_widget balls)
 ;   (print-verts balls)
@@ -174,7 +170,7 @@
 				("Si" (list (const (i2r (* 111 canvas_scale))) (elem 6 palette)))
 				("P" (list (const (i2r (* 98 canvas_scale))) (elem 7 palette)))
 				(t (list (const (i2r (* 100 canvas_scale))) (const (fixeds 1.0 1.0 0.0))))))
-			(push balls (list (vec4-r x y z) radius col)))
+			(push balls (list (vec4-r x y z +real_1) radius col)))
 		(bind '(center radius) (bounding-sphere balls (# (slice 0 3 (elem +ball_vertex %0)))))
 		(defq scale_p (/ (const (f2r 2.0)) radius) scale_r (/ (const (f2r 0.025)) radius))
 		(each (lambda (ball)

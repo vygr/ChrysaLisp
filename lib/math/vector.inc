@@ -43,6 +43,9 @@
 (defmacro vec-sum (p)
 	`(nums-sum ,p))
 
+(defmacro vec-clamp (p1 p2 p3 &optional _)
+	(if _ `(nums-min (nums-max ,p1 ,p2 ,_) ,p3 ,_) `(nums-min (nums-max ,p1 ,p2) ,p3)))
+
 (defun vec-reflect (p n &optional _)
 	(vec-scale n (* (nums-sum (if _ (vec-mul p n _) (defq _ (vec-mul p n)))) 2.0) _)
 	(vec-sub p _ _))
@@ -99,9 +102,6 @@
 
 (defun vec-chebyshev-distance (p1 p2)
 	(reduce max (nums-abs (defq _ (nums-sub p1 p2)) _)))
-
-(defun vec-clamp (p i j)
-	(apply (const nums) (map (lambda (_) (max i (min j _))) p)))
 
 ;specific vector stuff
 

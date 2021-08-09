@@ -103,7 +103,8 @@
 						color (vec-add (vec-scale color (- 1.0 r))
 								(vec-scale (lighting surface_pos surface_norm ray_origin) r))
 						r (* r +ref_coef)))
-			(vec-clamp color 0.0 0.999))))
+			(vec-clamp color (const (fixeds 0.0 0.0 0.0))
+				(const (fixeds 0.999 0.999 0.999))))))
 
 (defun rect (key mbox x y x1 y1 w h)
 	(write-int (defq reply (string-stream (cat ""))) (list x y x1 y1))

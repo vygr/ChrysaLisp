@@ -51,7 +51,7 @@
 		(vec-load 2 {bvx, bvy})
 		(vec-flength 2)
 		(vec-load 1 {1})
-		(vec-max 2)
+		(vec-high 2)
 		(vec-dup 1)
 		(vec-div 2)
 		(vec-store 2 {bvx, bvy})

@@ -17,6 +17,8 @@
 (def_real "+real_-1/" 2 21 (# (/ (const (i2r -1)) (i2r %0))))
 ;pi and temp vec3, vec4
 (defq +real_pi (f2r +fp_pi) +real_2pi (f2r +fp_2pi)
+	+fixeds_tmp3 (fixeds 0.0 0.0 0.0)
+	+fixeds_tmp4 (fixeds 0.0 0.0 0.0 0.0)
 	+reals_tmp3 (reals +real_0 +real_0 +real_0)
 	+reals_tmp4 (reals +real_0 +real_0 +real_0 +real_0))
 
@@ -32,11 +34,17 @@
 (enums +mat4x4 0
 	(enum r0 r1 r2 r3))
 
-(defun vec4-r (x y z)
-	(reals x y z +real_1))
+(defun vec3-r (x y z)
+	(reals x y z))
 
-(defun vec4-f (x y z)
-	(reals (f2r x) (f2r y) (f2r z) +real_1))
+(defun vec3-f (x y z)
+	(reals (f2r x) (f2r y) (f2r z)))
+
+(defun vec4-r (x y z w)
+	(reals x y z w))
+
+(defun vec4-f (x y z w)
+	(reals (f2r x) (f2r y) (f2r z) w))
 
 (defun mat3x3-unity ()
 	(list (reals +real_1 +real_0 +real_0)
@@ -94,12 +102,12 @@
 		(reals +real_0 +real_0 (/ (+ near far) (- near far)) (/ (* +real_2 near far) (- near far)))
 		(reals +real_0 +real_0 +real_-1 +real_0)))
 
-(defun vec3-mul (m v)
+(defun mat3x3-vec3-mul (m v)
 	(reals (vec-dot (elem +mat3x3_r0 m) v +reals_tmp3)
 		(vec-dot (elem +mat3x3_r1 m) v +reals_tmp3)
 		(vec-dot (elem +mat3x3_r2 m) v +reals_tmp3)))
 
-(defun vec4-mul (m v)
+(defun mat4x4-vec4-mul (m v)
 	(reals (vec-dot (elem +mat4x4_r0 m) v +reals_tmp4)
 		(vec-dot (elem +mat4x4_r1 m) v +reals_tmp4)
 		(vec-dot (elem +mat4x4_r2 m) v +reals_tmp4)
