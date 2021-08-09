@@ -32,10 +32,12 @@
 (defq anti_alias t timer_rate (/ 1000000 30) +min_size 450 +max_size 800
 	canvas_size +min_size canvas_scale (if anti_alias 1 2)
 	*rotx* +real_0 *roty* +real_0 *rotz* +real_0 +focal_dist +real_4
-	+near +focal_dist +far (+ +near +real_4) balls (list)
+	+near +focal_dist +far (+ +near +real_4)
+	+top (* +focal_dist +real_1/3) +bottom (* +focal_dist +real_-1/3)
+	+left (* +focal_dist +real_1/3) +right (* +focal_dist +real_-1/3)
 	+canvas_mode (if anti_alias +canvas_flag_antialias 0)
 	*mol_index* 0 *auto_mode* nil *dirty* t
-	mol_files (all-mol-files "apps/molecule/")
+	balls (list) mol_files (all-mol-files "apps/molecule/")
 	palette (map (lambda (_) (fixeds
 			(i2f (/ (logand (>> _ 16) 0xff) 0xff))
 			(i2f (/ (logand (>> _ 8) 0xff) 0xff))
@@ -106,9 +108,9 @@
 		g (* (elem +col_green col) at)
 		b (* (elem +col_blue col) at))
 	(+ 0xff000000
-		(<< (f2i (min (* (+ r 0.2) 256.0) 255.0)) 16)
-		(<< (f2i (min (* (+ g 0.2) 256.0) 255.0)) 8)
-			(f2i (min (* (+ b 0.2) 256.0) 255.0))))
+		(<< (f2i (min (* (+ r 0.15) 256.0) 255.0)) 16)
+		(<< (f2i (min (* (+ g 0.15) 256.0) 255.0)) 8)
+			(f2i (min (* (+ b 0.15) 256.0) 255.0))))
 
 (defun render-balls (canvas balls)
 	(defq sp (* +real_1/2 (i2r (dec (* canvas_size canvas_scale)))))
@@ -129,7 +131,7 @@
 
 (defun sort-balls (balls)
 	(sort (lambda ((v1 _ _) (v2 _ _))
-		(if (<= (elem +vertex_z v1) (elem +vertex_z v2)) 1 -1)) balls))
+		(if (<= (elem +vec4_z v1) (elem +vec4_z v2)) 1 -1)) balls))
 
 (defun clip-balls (balls)
 	(filter (lambda (((x y z w) _ _))
@@ -138,28 +140,17 @@
 		(and (<= +near w +far))) balls))
 
 (defun render ()
-	(defq mrx (matrix-rotx *rotx*) mry (matrix-roty *roty*) mrz (matrix-rotz *rotz*)
-		mrot (matrix-mul (matrix-mul mrx mry) mrz)
-		mtrans (matrix-translate +real_0 +real_0 (const (- +real_0 +focal_dist +real_2)))
-		mfrust (matrix-frustum +real_-1 +real_1 +real_1 +real_-1 +near +far)
-		matrix (matrix-mul mfrust (matrix-mul mtrans mrot))
+	(defq mrx (mat4x4-rotx *rotx*) mry (mat4x4-roty *roty*) mrz (mat4x4-rotz *rotz*)
+		mrot (mat4x4-mul (mat4x4-mul mrx mry) mrz)
+		mtrans (mat4x4-translate +real_0 +real_0 (const (- +real_0 +focal_dist +real_2)))
+		mfrust (mat4x4-frustum +left +right +top +bottom +near +far)
+		matrix (mat4x4-mul mfrust (mat4x4-mul mtrans mrot))
 		balls (sort-balls (clip-balls (map (lambda ((v r c))
-			(list (vertex-mul matrix v) r c)) balls))))
+			(list (vec4-mul matrix v) r c)) balls))))
 	(. main_widget :fill 0)
 	(render-balls main_widget balls)
 ;   (print-verts balls)
 	(. main_widget :swap))
-
-(defun ball-cloud (num)
-	(clear balls)
-	(while (> (setq num (dec num)) -1)
-		(push balls (list
-			(vertex-f
-				(- (random 2.3) 1.15)
-				(- (random 2.3) 1.15)
-				(- (random 2.3) 1.15))
-			(i2r (+ (* 30 canvas_scale) (random 10)))
-			(elem (random (length palette)) palette)))))
 
 (defun ball-file (index)
 	(when (defq stream (file-stream (elem index mol_files)))
@@ -183,24 +174,12 @@
 				("Si" (list (const (i2r (* 111 canvas_scale))) (elem 6 palette)))
 				("P" (list (const (i2r (* 98 canvas_scale))) (elem 7 palette)))
 				(t (list (const (i2r (* 100 canvas_scale))) (const (fixeds 1.0 1.0 0.0))))))
-			(push balls (list (vertex-r x y z) radius col)))
-		(defq min_x (i2r 1000) max_x (i2r -1000)
-			min_y (i2r 1000) max_y (i2r -1000)
-			min_z (i2r 1000) max_z (i2r -1000))
-		(each (lambda (((x y z w) _ _))
-			(setq min_x (min min_x x) max_x (max max_x x)
-				min_y (min min_y y) max_y (max max_y y)
-				min_z (min min_z z) max_z (max max_z z))) balls)
-		(defq width_x (- max_x min_x) width_y (- max_y min_y) width_z (- max_z min_z)
-			width_max (max width_x width_y width_z)
-			scale_p (/ (const (f2r 2.3)) width_max)
-			scale_r (/ (const (f2r 0.04)) width_max))
+			(push balls (list (vec4-r x y z) radius col)))
+		(bind '(center radius) (bounding-sphere balls (# (slice 0 3 (elem +ball_vertex %0)))))
+		(defq scale_p (/ (const (f2r 2.0)) radius) scale_r (/ (const (f2r 0.025)) radius))
 		(each (lambda (ball)
-			(bind '((x y z _) r _) ball)
-			(elem-set +ball_vertex ball (vertex-r
-				(* scale_p (- x min_x (/ width_x +real_2)))
-				(* scale_p (- y min_y (/ width_y +real_2)))
-				(* scale_p (- z min_z (/ width_z +real_2)))))
+			(bind '(v r _) ball)
+			(pop v) (push (vec-scale (vec-sub v center v) scale_p v) +real_1)
 			(elem-set +ball_radius ball (* scale_r r))) balls)))
 
 (defun reset ()

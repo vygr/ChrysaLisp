@@ -4254,6 +4254,32 @@ trashes
 r1-r14
 ```
 
+### nums :lisp_max -> class/nums/lisp_max
+
+```code
+inputs
+r0 = lisp object (ptr)
+r1 = args list object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
+### nums :lisp_min -> class/nums/lisp_min
+
+```code
+inputs
+r0 = lisp object (ptr)
+r1 = args list object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
 ### nums :lisp_mod -> class/nums/lisp_mod
 
 ```code
@@ -4345,6 +4371,32 @@ r0 = lisp object (ptr)
 r1 = 0 if error, else value object (ptr)
 trashes
 r1-r14
+```
+
+### nums :max -> class/nums/max
+
+```code
+inputs
+r0 = nums object (ptr)
+r1 = source1 nums object, can be same (ptr)
+r2 = source2 nums object, can be same (ptr)
+outputs
+r0 = nums object (ptr)
+trashes
+r1-r6
+```
+
+### nums :min -> class/nums/min
+
+```code
+inputs
+r0 = nums object (ptr)
+r1 = source1 nums object, can be same (ptr)
+r2 = source2 nums object, can be same (ptr)
+outputs
+r0 = nums object (ptr)
+trashes
+r1-r6
 ```
 
 ### nums :mod -> class/nums/mod
@@ -5669,6 +5721,32 @@ r1-r14
 inputs
 r0 = reals object (ptr)
 r1 = source reals object, can be same (ptr)
+outputs
+r0 = reals object (ptr)
+trashes
+r1-r14
+```
+
+### reals :max -> class/reals/max
+
+```code
+inputs
+r0 = reals object (ptr)
+r1 = source1 reals object, can be same (ptr)
+r2 = source2 reals object, can be same (ptr)
+outputs
+r0 = reals object (ptr)
+trashes
+r1-r14
+```
+
+### reals :min -> class/reals/min
+
+```code
+inputs
+r0 = reals object (ptr)
+r1 = source1 reals object, can be same (ptr)
+r2 = source2 reals object, can be same (ptr)
 outputs
 r0 = reals object (ptr)
 trashes

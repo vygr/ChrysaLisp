@@ -2736,6 +2736,18 @@
 (nums-frac fixeds [fixeds])
 ```
 
+### nums-max
+
+```code
+(nums-max nums nums [nums])
+```
+
+### nums-min
+
+```code
+(nums-min nums nums [nums])
+```
+
 ### nums-mod
 
 ```code
