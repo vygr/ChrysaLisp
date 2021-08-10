@@ -1,7 +1,7 @@
 # Diary of a new feature
 
 ```image
-apps/images/molecule.cpm
+apps/images/data/molecule.cpm
 ```
 
 This is an example of adding a new feature to ChrysaLisp. From the VP assembler

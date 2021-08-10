@@ -1,7 +1,7 @@
 # Lisp
 
 ```image
-apps/images/chrysalisp.cpm
+apps/images/data/chrysalisp.cpm
 ```
 
 It's probably worth a few words specifically about the included Lisp and how it

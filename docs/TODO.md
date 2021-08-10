@@ -1,7 +1,7 @@
 # TODO
 
 ```image
-apps/images/magicbox.cpm
+apps/images/data/magicbox.cpm
 ```
 
 In no particular order but to just to ensure I get thoughts down. I'll keep
