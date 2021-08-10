@@ -101,9 +101,9 @@
 	;draw a polygon on a canvas
 	(.-> canvas (:set_color col) (:fpoly (r2f x) (r2f y) +winding_odd_even _)))
 
-(defun lighting (col s)
+(defun lighting (col at)
 	;very basic attenuation and diffuse
-	(bind '(r g b) (vec-min (vec-add (vec-scale col (* (r2f s) 255.0) +fixeds_tmp3)
+	(bind '(r g b) (vec-min (vec-add (vec-scale col (* (r2f at) 255.0) +fixeds_tmp3)
 		(const (fixeds 32.0 32.0 32.0)) +fixeds_tmp3)
 		(const (fixeds 255.0 255.0 255.0)) +fixeds_tmp3))
 	(+ 0xff000000 (<< (f2i r) 16) (<< (f2i g) 8) (f2i b)))
@@ -112,13 +112,12 @@
 	(defq sp (* +real_1/2 (i2r (dec (* canvas_size canvas_scale)))))
 	(each (lambda (((x y z w) r c))
 		(task-sleep 0)
-		(defq w (recip w) x (* x w) y (* y w) z (* z w) s (recip (+ z +real_2))
-			r (* r s sp) r4 (* r +real_1/4) r8 (* r +real_1/8) r16 (* r +real_1/16)
+		(defq w (recip w) x (* x w) y (* y w) z (* z w) at (recip (+ z +real_2))
+			r (* r sp w) r4 (* r +real_1/4) r8 (* r +real_1/8) r16 (* r +real_1/16)
 			sx (* (+ x +real_1) sp) sy (* (+ y +real_1) sp))
-		(fpoly canvas (lighting (vec-scale c 0.5 (const (fixeds 0.0 0.0 0.0))) s)
-			sx sy (circle r))
-		(fpoly canvas (lighting c s) (- sx r16) (- sy r16) (circle (- r r16)))
-		(fpoly canvas +argb_white (- sx r4) (- sy r4) (circle r8))) balls))
+		(fpoly canvas (lighting c (* at +real_1/2)) sx sy (circle r))
+		(fpoly canvas (lighting c at) (- sx r16) (- sy r16) (circle (- r r16)))
+		(fpoly canvas (lighting (const (fixeds 1.5 1.5 1.5)) at) (- sx r4) (- sy r4) (circle r8))) balls))
 
 (defun print-verts (balls)
 	(each (lambda (((x y z w) _ _))
@@ -127,7 +126,7 @@
 
 (defun sort-balls (balls)
 	(sort (lambda ((v1 _ _) (v2 _ _))
-		(if (<= (elem +vec4_z v1) (elem +vec4_z v2)) 1 -1)) balls))
+		(if (<= (elem +vec4_w v1) (elem +vec4_w v2)) 1 -1)) balls))
 
 (defun clip-balls (balls)
 	(filter (lambda (((x y z w) _ _))
@@ -170,12 +169,12 @@
 				("Si" (list (const (i2r (* 111 canvas_scale))) (elem 6 palette)))
 				("P" (list (const (i2r (* 98 canvas_scale))) (elem 7 palette)))
 				(t (list (const (i2r (* 100 canvas_scale))) (const (fixeds 1.0 1.0 0.0))))))
-			(push balls (list (vec4-r x y z +real_1) radius col)))
-		(bind '(center radius) (bounding-sphere balls (# (slice 0 3 (elem +ball_vertex %0)))))
-		(defq scale_p (/ (const (f2r 2.0)) radius) scale_r (/ (const (f2r 0.025)) radius))
+			(push balls (list (vec3-r x y z) radius col)))
+		(bind '(center radius) (bounding-sphere balls (# (elem +ball_vertex %0))))
+		(defq scale_p (/ (const (f2r 2.0)) radius) scale_r (/ (const (f2r 0.0625)) radius))
 		(each (lambda (ball)
 			(bind '(v r _) ball)
-			(pop v) (push (vec-scale (vec-sub v center v) scale_p v) +real_1)
+			(push (vec-scale (vec-sub v center v) scale_p v) +real_1)
 			(elem-set +ball_radius ball (* scale_r r))) balls)))
 
 (defun reset ()
