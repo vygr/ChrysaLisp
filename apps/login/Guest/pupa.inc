@@ -23,8 +23,8 @@
 (defq *env_launcher_position* :center)
 
 ;wallpaper images
-(defq *env_wallpaper_images* '("apps/wallpaper/wallpaper640x480.cpm"
-	"apps/wallpaper/wallpaper1280x1024.cpm" "apps/wallpaper/wallpaper1920x1080.cpm"))
+(defq *env_wallpaper_images* '("apps/wallpaper/data/wallpaper640x480.cpm"
+	"apps/wallpaper/data/wallpaper1280x1024.cpm" "apps/wallpaper/data/wallpaper1920x1080.cpm"))
 
 ;terminal prompt and scroll back
 (defq *env_terminal_prompt* (cat *env_user* "> ") *env_terminal_lines* 1000)

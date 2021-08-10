@@ -15,7 +15,7 @@
 		(unzip (split (pii-dirlist p) ",") (list (list) (list))))
 	(sort cmp out))
 
-(defq films (all-films "apps/films/") index 0 canvas nil id t
+(defq films (all-films "apps/films/data/") index 0 canvas nil id t
 	rate (/ 1000000 30))
 
 (ui-window *window* ()
@@ -25,9 +25,10 @@
 	(ui-scroll image_scroll +scroll_flag_both))
 
 (defun win-refresh (_)
-	(bind '(w h) (. (setq canvas (Canvas-from-file (elem (setq index _) films) +load_flag_film)) :pref_size))
+	(defq file (elem (setq index _) films))
+	(bind '(w h) (. (setq canvas (Canvas-from-file file +load_flag_film)) :pref_size))
 	(def image_scroll :min_width w :min_height h)
-	(def window_title :text (elem _ films))
+	(def window_title :text (cat "Films -> " (slice (inc (find-rev "/" file)) -1 file)))
 	(. image_scroll :add_child canvas)
 	(. window_title :layout)
 	(bind '(x y w h) (apply view-fit (cat (. *window* :get_pos) (. *window* :pref_size))))

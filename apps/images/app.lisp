@@ -16,8 +16,8 @@
 		(unzip (split (pii-dirlist p) ",") (list (list) (list))))
 	(sort cmp out))
 
-(defq images (all-images "apps/images/")
-	index (some (# (if (eql "apps/images/logo.cpm" %0) _)) images)
+(defq images (all-images "apps/images/data/")
+	index (some (# (if (eql "apps/images/data/logo.cpm" %0) _)) images)
 	id t)
 
 (ui-window *window* ()
@@ -27,9 +27,10 @@
 	(ui-scroll image_scroll +scroll_flag_both))
 
 (defun win-refresh (_)
-	(bind '(w h) (. (defq canvas (Canvas-from-file (elem (setq index _) images) 0)) :pref_size))
+	(defq file (elem (setq index _) images))
+	(bind '(w h) (. (defq canvas (Canvas-from-file file 0)) :pref_size))
 	(def image_scroll :min_width w :min_height h)
-	(def window_title :text (elem _ images))
+	(def window_title :text (cat "Images -> " (slice (inc (find-rev "/" file)) -1 file)))
 	(. image_scroll :add_child canvas)
 	(. window_title :layout)
 	(bind '(x y w h) (apply view-fit (cat (. *window* :get_pos) (. *window* :pref_size))))

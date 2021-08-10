@@ -37,7 +37,7 @@
 	+left (* +focal_dist +real_1/3) +right (* +focal_dist +real_-1/3)
 	+canvas_mode (if anti_alias +canvas_flag_antialias 0)
 	*mol_index* 0 *auto_mode* nil *dirty* t
-	balls (list) mol_files (all-mol-files "apps/molecule/")
+	balls (list) mol_files (all-mol-files "apps/molecule/data/")
 	palette (map (lambda (_) (fixeds
 			(i2f (/ (logand (>> _ 16) 0xff) 0xff))
 			(i2f (/ (logand (>> _ 8) 0xff) 0xff))
@@ -46,7 +46,7 @@
 			+argb_cyan +argb_blue +argb_yellow +argb_magenta)))
 
 (ui-window *window* ()
-	(ui-title-bar *title* "Molecule" (0xea19 0xea1b 0xea1a) +event_close)
+	(ui-title-bar *title* "" (0xea19 0xea1b 0xea1a) +event_close)
 	(ui-flow _ (:flow_flags +flow_right_fill)
 		(ui-tool-bar main_toolbar ()
 			(ui-buttons (0xe91d 0xe91e 0xea43) +event_prev))
@@ -119,20 +119,12 @@
 		(fpoly canvas (lighting c at) (- sx r16) (- sy r16) (circle (- r r16)))
 		(fpoly canvas (lighting (const (fixeds 1.5 1.5 1.5)) at) (- sx r4) (- sy r4) (circle r8))) balls))
 
-(defun print-verts (balls)
-	(each (lambda (((x y z w) _ _))
-		(print (r2f (/ x w)) " " (r2f (/ y w)) " " (r2f (/ z w)) " " (r2f w))) balls)
-	(print))
-
 (defun sort-balls (balls)
 	(sort (lambda ((v1 _ _) (v2 _ _))
 		(if (<= (elem +vec4_w v1) (elem +vec4_w v2)) 1 -1)) balls))
 
 (defun clip-balls (balls)
-	(filter (lambda (((x y z w) _ _))
-		(defq nw (- +real_0 w))
-;        (and (<= +near w +far) (<= nw x w) (<= nw y w))) balls))
-		(and (<= +near w +far))) balls))
+	(filter (lambda (((_ _ _ w) _ _)) (<= +near w +far)) balls))
 
 (defun render ()
 	(defq mrx (mat4x4-rotx *rotx*) mry (mat4x4-roty *roty*) mrz (mat4x4-rotz *rotz*)
@@ -144,13 +136,12 @@
 			(list (mat4x4-vec4-mul matrix v) r c)) balls))))
 	(. main_widget :fill 0)
 	(render-balls main_widget balls)
-;   (print-verts balls)
 	(. main_widget :swap))
 
 (defun ball-file (index)
-	(when (defq stream (file-stream (elem index mol_files)))
-		(set (.-> *title* :layout :dirty) :text
-			(cat "Molecule -> " (elem -2 (split (elem index mol_files) "/"))))
+	(when (defq stream (file-stream (defq file (elem index mol_files))))
+		(def (.-> *title* :layout :dirty) :text
+			(cat "Molecule -> " (slice (inc (find-rev "/" file)) -1 file)))
 		(clear balls)
 		(times 3 (read-line stream))
 		(defq num_atoms (str-to-num (elem 0 (split (read-line stream) " "))))
@@ -188,7 +179,7 @@
 	(catch (eval action) (progn (print _)(print) t)))
 
 (defun main ()
-	(defq select (alloc-select +select_size) *running* t mouse_state :u)
+	(defq select (alloc-select +select_size) *running* t)
 	(bind '(x y w h) (apply view-locate (.-> *window* (:connect +event_layout) :pref_size)))
 	(.-> main_widget (:set_canvas_flags +canvas_mode) (:fill +argb_black) :swap)
 	(radio-select style_toolbar 0)
@@ -246,27 +237,6 @@
 					((<= +char_space key +char_tilda)
 						;insert char etc ...
 						(char key))))
-			((and (= id (. main_widget :get_id))
-				(= (getf *msg* +ev_msg_type) +ev_type_mouse))
-					;mouse event in main widget
-					(defq rx (getf *msg* +ev_msg_mouse_rx)
-						ry (getf *msg* +ev_msg_mouse_ry))
-					(cond
-						((/= (getf *msg* +ev_msg_mouse_buttons) 0)
-							;mouse button is down
-							(case mouse_state
-								(:d ;was down last time
-									)
-								(:u ;was up last time
-									(setq mouse_state :d)))
-							;use rx, ry ...
-							)
-						(t  ;mouse button is up
-							(case mouse_state
-								(:d ;was down last time
-									(setq mouse_state :u))
-								(:u ;was up last time, so we are hovering
-									)))))
 			(t  ;gui event
 				(. *window* :event *msg*))))
 	(gui-sub *window*)

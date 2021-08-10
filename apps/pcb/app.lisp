@@ -17,7 +17,7 @@
 		(unzip (split (pii-dirlist p) ",") (list (list) (list))))
 	(sort cmp out))
 
-(defq pcbs (all-pcbs "apps/pcb/") index 1 canvas_scale 1 mode 0 show -1
+(defq pcbs (all-pcbs "apps/pcb/data/") index 1 canvas_scale 1 mode 0 show -1
 	+max_zoom 15.0 +min_zoom 5.0 zoom (/ (+ +min_zoom +max_zoom) 2.0) +eps 0.25
 	*running* t)
 
@@ -178,7 +178,8 @@
 		) (list pcb)))
 
 (defun win-refresh (_)
-	(def window_title :text (elem _ pcbs))
+	(defq file (elem _ pcbs))
+	(def window_title :text (cat "Pcb -> " (slice (inc (find-rev "/" file)) -1 file)))
 	(. window_title :layout)
 	(.-> pcb_scroll (:add_child (defq canvas (pcb-load (elem (setq index _) pcbs)))) :layout)
 	(. canvas :swap)

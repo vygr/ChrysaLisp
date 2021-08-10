@@ -49,7 +49,7 @@
 	(gui-init *screen*)
 	(gui-update 0 0 0)
 	;init mouse widget
-	(defq *mouse* (Canvas-from-file "apps/images/mice.cpm" 0))
+	(defq *mouse* (Canvas-from-file "apps/images/data/mice.cpm" 0))
 	(setf *mouse* +view_owner_id (elem +select_mouse select) 0)
 	(. *mouse* :set_flags +view_flag_at_front (const (+ +view_flag_solid +view_flag_at_front)))
 	(. *screen* :add_front *mouse*)
