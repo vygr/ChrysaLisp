@@ -30,7 +30,7 @@
 (errorcases
 	(gotoif (list len1 '= 0) 'error)
 	(assign `((,nums2 array_length)) `(,len2))
-	(gotoif (list len1 '/= len2) 'error))
+	(gotoif (list len1 '> len2) 'error))
 	(vpif (list argc '= 2))
 		(v-call 'nums :vcreate `(,dst) `(,dst) nums1 iter_begin)
 		(call 'nums :set_capacity `(,dst ,len1) `(,dst))
@@ -39,7 +39,7 @@
 		(vp-cpy-ir iter_begin (* +ptr_size 2) dst)
 	(errorcases
 		(assign `((,dst array_length)) `(,len2))
-		(gotoif (list len1 '/= len2) 'error))
+		(gotoif (list len1 '> len2) 'error))
 		(call 'obj :ref `(,dst) `(,dst))
 	(endif)
 	(r-call 'nums :add `(,dst ,nums1 ,nums2 ,func) `(,dst ,iter_begin))
@@ -90,7 +90,7 @@
 		(vp-cpy-ir iter_begin (* +ptr_size 1) dst)
 	(errorcases
 		(assign `((,dst array_length)) `(,len2))
-		(gotoif (list len1 '/= len2) 'error))
+		(gotoif (list len1 '> len2) 'error))
 		(call 'obj :ref `(,dst) `(,dst))
 	(endif)
 	(r-call 'nums :abs `(,dst ,nums1 ,func) `(,dst))
@@ -366,7 +366,7 @@
 		(vp-cpy-ir iter_begin (* +ptr_size 2) dst)
 	(errorcases
 		(assign `((,dst array_length)) `(,len2))
-		(gotoif (list len1 '/= len2) 'error))
+		(gotoif (list len1 '> len2) 'error))
 		(call 'obj :ref `(,dst) `(,dst))
 	(endif)
 	(call 'nums :scale `(,dst ,nums1 (,scale num_value)) `(,dst))

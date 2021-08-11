@@ -8,41 +8,41 @@
 (defun addop (_)
 	;trashes
 	;r1-r6+
-	(vp-def (dst src1 src2 iter_begin iter_end))
+	(vp-def (dst src1 src2 dst1 src_end))
 	(entry 'nums _ `(,dst ,src1 ,src2))
-	(class/array/get_both dst iter_begin iter_end)
-	(assign `((,src1 array_begin) (,src2 array_begin)) `(,src1 ,src2))
+	(class/array/get_both src1 src1 src_end)
+	(assign `((,dst array_begin) (,src2 array_begin)) `(,dst1 ,src2))
 	(vec-set 5)
 	(loop-start)
 		(vec-load-long 1 src1)
 		(vec-load-long 1 src2)
 		((eval (sym (cat "vec-" (slice 1 -1 _)))) 1)
-		(vec-store-long 1 iter_begin)
-		(vp-add-cr +long_size iter_begin)
+		(vec-store-long 1 dst1)
+		(vp-add-cr +long_size dst1)
 		(vp-add-cr +long_size src1)
 		(vp-add-cr +long_size src2)
-	(loop-until (list iter_begin '= iter_end))
+	(loop-until (list src1 '= src_end))
 	(exit 'nums _ `(,dst -1))
 	(vp-ret))
 
 (defun divop (_)
 	;trashes
 	;r1-r8+
-	(vp-def (s1 s2 dst src1 src2 iter_begin iter_end) '(r1 r2 r4 r5 r6 r7 r8))
+	(vp-def (s1 s2 dst src1 src2 dst1 src_end) '(r1 r2 r4 r5 r6 r7 r8))
 	(entry 'nums _ `(,dst ,s1 ,s2))
-	(class/array/get_both dst iter_begin iter_end)
-	(assign `((,s1 array_begin) (,s2 array_begin)) `(,src1 ,src2))
+	(class/array/get_both s1 src1 src_end)
+	(assign `((,dst array_begin) (,s2 array_begin)) `(,dst1 ,src2))
 	(vec-set 0)
 	(loop-start)
 		(vec-load-long 1 src1)
 		(vec-load-long 1 src2)
 		(errorif (list (elem 0 (vec-top 1)) '= 0) 'error)
 		((eval (sym (cat "vec-" (slice 1 -1 _)))) 1)
-		(vec-store-long 1 iter_begin)
-		(vp-add-cr +long_size iter_begin)
+		(vec-store-long 1 dst1)
+		(vp-add-cr +long_size dst1)
 		(vp-add-cr +long_size src1)
 		(vp-add-cr +long_size src2)
-	(loop-until (list iter_begin '= iter_end))
+	(loop-until (list src1 '= src_end))
 	(exit 'nums _ `(,dst -1))
 	(vp-ret)
 (errorcases
@@ -53,18 +53,18 @@
 (defun absop (_)
 	;trashes
 	;r1-r4+
-	(vp-def (dst src iter_begin iter_end))
+	(vp-def (dst src dst1 src_end))
 	(entry 'nums _ `(,dst ,src))
-	(class/array/get_both dst iter_begin iter_end)
-	(assign `((,src array_begin)) `(,src))
+	(class/array/get_both src src src_end)
+	(assign `((,dst array_begin)) `(,dst1))
 	(vec-set 4)
 	(loop-start)
 		(vec-load-long 1 src)
 		((eval (sym (cat "vec-" (slice 1 -1 _)))) 1)
-		(vec-store-long 1 iter_begin)
-		(vp-add-cr +long_size iter_begin)
+		(vec-store-long 1 dst1)
 		(vp-add-cr +long_size src)
-	(loop-until (list iter_begin '= iter_end))
+		(vp-add-cr +long_size dst1)
+	(loop-until (list src '= src_end))
 	(exit 'nums _ `(,dst))
 	(vp-ret))
 
@@ -188,15 +188,15 @@
 	;trashes
 	;r1-r4
 
-	(vp-def (dst iter_begin iter_end sum val))
+	(vp-def (dst dst1 src_end sum val))
 
 	(entry 'nums :sum `(,dst))
 
-	(call 'nums :get_both `(,dst) `(,dst ,iter_begin ,iter_end))
+	(call 'nums :get_both `(,dst) `(,dst ,dst1 ,src_end))
 	(vp-xor-rr sum sum)
-	(loop-while (list iter_begin '/= iter_end))
-		(assign `((,iter_begin 0)) `(,val))
-		(vp-add-cr +long_size iter_begin)
+	(loop-while (list dst1 '/= src_end))
+		(assign `((,dst1 0)) `(,val))
+		(vp-add-cr +long_size dst1)
 		(vp-add-rr val sum)
 	(loop-end)
 
@@ -215,20 +215,20 @@
 	;trashes
 	;r1-r5
 
-	(vp-def (dst src scale iter_begin iter_end))
+	(vp-def (dst src scale dst1 src_end))
 
 	(entry 'nums :scale `(,dst ,src ,scale))
 
-	(class/array/get_both dst iter_begin iter_end)
-	(assign `((,src array_begin)) `(,src))
+	(class/array/get_both src src src_end)
+	(assign `((,dst array_begin)) `(,dst1))
 	(vec-set 5)
 	(loop-start)
 		(vec-load-long 1 src)
 		(vec-mul 1 `(,scale))
-		(vec-store-long 1 iter_begin)
-		(vp-add-cr +long_size iter_begin)
+		(vec-store-long 1 dst1)
 		(vp-add-cr +long_size src)
-	(loop-until (list iter_begin '= iter_end))
+		(vp-add-cr +long_size dst1)
+	(loop-until (list src '= src_end))
 
 	(exit 'nums :scale `(,dst))
 	(vp-ret)

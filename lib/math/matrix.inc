@@ -103,15 +103,20 @@
 		(reals +real_0 +real_0 +real_-1 +real_0)))
 
 (defun mat3x3-vec3-mul (m v)
-	(reals (vec-dot (elem +mat3x3_r0 m) v +reals_tmp3)
-		(vec-dot (elem +mat3x3_r1 m) v +reals_tmp3)
-		(vec-dot (elem +mat3x3_r2 m) v +reals_tmp3)))
+	(reals (vec-dot v (elem +mat3x3_r0 m) +reals_tmp3)
+		(vec-dot v (elem +mat3x3_r1 m) +reals_tmp3)
+		(vec-dot v (elem +mat3x3_r2 m) +reals_tmp3)))
+
+(defun mat4x4-vec3-mul (m v)
+	(reals (vec-dot v (elem +mat4x4_r0 m) +reals_tmp3)
+		(vec-dot v (elem +mat4x4_r1 m) +reals_tmp3)
+		(vec-dot v (elem +mat4x4_r2 m) +reals_tmp3)))
 
 (defun mat4x4-vec4-mul (m v)
-	(reals (vec-dot (elem +mat4x4_r0 m) v +reals_tmp4)
-		(vec-dot (elem +mat4x4_r1 m) v +reals_tmp4)
-		(vec-dot (elem +mat4x4_r2 m) v +reals_tmp4)
-		(vec-dot (elem +mat4x4_r3 m) v +reals_tmp4)))
+	(reals (vec-dot v (elem +mat4x4_r0 m) +reals_tmp4)
+		(vec-dot v (elem +mat4x4_r1 m) +reals_tmp4)
+		(vec-dot v (elem +mat4x4_r2 m) +reals_tmp4)
+		(vec-dot v (elem +mat4x4_r3 m) +reals_tmp4)))
 
 (defun mat3x3-mul (ma mb)
 	; (mat3x3-mul mat3x3_a mat3x3_b) -> mat3x3
@@ -119,7 +124,7 @@
 		mbr0 (elem +mat3x3_r0 mb) mbr1 (elem +mat3x3_r1 mb) mbr2 (elem +mat3x3_r2 mb)
 		mbc0 (reals (elem 0 mbr0) (elem 0 mbr1) (elem 0 mbr2))
 		mbc1 (reals (elem 1 mbr0) (elem 1 mbr1) (elem 1 mbr2))
-		mbc2 (reals (elem 2 mbr0) (elem 2 mbr1) (elem 2 mbr2))
+		mbc2 (reals (elem 2 mbr0) (elem 2 mbr1) (elem 2 mbr2)))
 	(list (reals (vec-dot mar0 mbc0 +reals_tmp3)
 			 (vec-dot mar0 mbc1 +reals_tmp3)
 			 (vec-dot mar0 mbc2 +reals_tmp3))
@@ -128,7 +133,7 @@
 			 (vec-dot mar1 mbc2 +reals_tmp3))
 		(reals (vec-dot mar2 mbc0 +reals_tmp3)
 			 (vec-dot mar2 mbc1 +reals_tmp3)
-			 (vec-dot mar2 mbc2 +reals_tmp3)))))
+			 (vec-dot mar2 mbc2 +reals_tmp3))))
 
 (defun mat4x4-mul (ma mb)
 	; (mat4x4-mul mat4x4_a mat4x4_b) -> mat4x4

@@ -19,9 +19,6 @@
 (enums +ball 0
 	(enum vertex radius col))
 
-(enums +col 0
-	(enum red green blue))
-
 (defun all-mol-files (p)
 	(defq out (list))
 	(each! 0 -1 (lambda (f m)
