@@ -3117,7 +3117,7 @@
 ### recip
 
 ```code
-(recip num)
+(recip fixed)
 ```
 
 ### reduce
