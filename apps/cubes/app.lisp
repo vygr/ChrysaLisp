@@ -92,19 +92,19 @@
 	;draw a polygon on a canvas
 	(.-> canvas (:set_color col) (:fpoly 0.0 0.0 +winding_odd_even _)))
 
-(defun lighting (col at)
+(defun lighting (alpha col at)
 	;very basic attenuation and diffuse
 	(bind '(r g b) (vec-min (vec-add (vec-scale col (* (r2f at) 255.0) +fixeds_tmp3)
 		(const (fixeds 32.0 32.0 32.0)) +fixeds_tmp3)
 		(const (fixeds 255.0 255.0 255.0)) +fixeds_tmp3))
-	(+ 0xff000000 (<< (f2i r) 16) (<< (f2i g) 8) (f2i b)))
+	(+ (<< (f2i (* alpha 255.0)) 24) (<< (f2i r) 16) (<< (f2i g) 8) (f2i b)))
 
-(defun lighting-at3 (col at)
+(defun lighting-at3 (alpha col at)
 	;very basic attenuation and diffuse
 	(bind '(r g b) (vec-min (vec-add (vec-scale col (* (r2f at) (const (/ 255.0 3.0))) +fixeds_tmp3)
 		(const (fixeds 32.0 32.0 32.0)) +fixeds_tmp3)
 		(const (fixeds 255.0 255.0 255.0)) +fixeds_tmp3))
-	(+ 0xc0000000 (<< (f2i r) 16) (<< (f2i g) 8) (f2i b)))
+	(+ (<< (f2i (* alpha 255.0)) 24) (<< (f2i r) 16) (<< (f2i g) 8) (f2i b)))
 
 (enums +object 0
 	(enum mesh color))
@@ -128,7 +128,7 @@
 	(each (lambda ((x y z w))
 			(defq w (recip w) x (* x w) y (* y w) z (* z w) at (recip (+ z +real_2))
 				r (* (const (f2r 0.0125)) sp w) sx (* (+ x +real_1) sp) sy (* (+ y +real_1) sp))
-			(fpoly canvas (lighting (const (fixeds 1.0 1.0 1.0)) at) sx sy (circle r)))
+			(fpoly canvas (lighting 1.0 (const (fixeds 1.0 1.0 1.0)) at) sx sy (circle r)))
 		(sort-verts prog_verts)))
 
 (defun render-object-tris (canvas mat4x4_obj mat4x4_proj object)
@@ -152,7 +152,7 @@
 				v2 (elem i2 obj_verts) n (elem in obj_norms)
 				at (+ (elem i0 ats) (elem i1 ats) (elem i2 ats)))
 			(when (> (vec-dot n v0) +real_0)
-				(fpoly_zero canvas (lighting-at3 (elem +object_color object) at)
+				(fpoly_zero canvas (lighting-at3 0.9 (elem +object_color object) at)
 					(list (cat (elem i0 screen_verts) (elem i1 screen_verts) (elem i2 screen_verts))))))
 		(elem +mesh_tris (elem +object_mesh object))))
 
@@ -169,7 +169,7 @@
 	(. main_widget :swap))
 
 (defun reset ()
-	(setq object (list (gen-sphere +radius 20) (fixeds 1.0 0.0 0.0))
+	(setq object (list (gen-sphere +radius 8) (fixeds 1.0 0.0 0.0))
 		*dirty* t))
 
 ;import actions and bindings
