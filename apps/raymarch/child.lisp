@@ -33,7 +33,7 @@
 		(const (fixeds 0.5 0.5 0.5)) _)) 0.35))
 
 (defun ray-march (ray_origin ray_dir l max_l +min_distance +march_factor)
-	(defq i -1 d 1.0 _ (fixeds 0 0 0))
+	(defq i -1 d 1.0 _ (fixeds 0.0 0.0 0.0))
 	(while (and (< (setq i (inc i)) 1000)
 				(> d +min_distance)
 				(< l max_l))
@@ -67,7 +67,7 @@
 	(max s 0.1))
 
 (defun lighting (surface_pos surface_norm cam_pos)
-	(defq _ (fixeds 0 0 0)
+	(defq _ (fixeds 0.0 0.0 0.0)
 		obj_color (vec-floor (vec-mod surface_pos (const (fixeds 2.0 2.0 2.0))))
 		light_vec (vec-sub +light_pos surface_pos)
 		light_dis (vec-length light_vec)
@@ -112,8 +112,8 @@
 	(while (/= (setq y (inc y)) y1)
 		(defq xp (dec x))
 		(while (/= (setq xp (inc xp)) x1)
-			(defq ray_origin (const (fixeds 0 0 -3.0)) ray_dir (vec-norm (vec-sub
-				(fixeds (/ (* (- xp w2) (const (<< 1 +fp_shift))) w2) (/ (* (- y h2) (const (<< 1 +fp_shift))) h2) 0.0)
+			(defq ray_origin (const (fixeds 0.0 0.0 -3.0)) ray_dir (vec-norm (vec-sub
+				(fixeds (/ (* (- xp w2) (const (<< 1 +fp_shift))) w2) (/ (* (- y h2) (const (<< 1 +fp_shift))) h2) 0)
 				ray_origin)))
 			(bind '(r g b) (scene-ray ray_origin ray_dir))
 			(write-int reply (+ +argb_black (>> b 8) (logand g 0xff00) (<< (logand r 0xff00) 8)))

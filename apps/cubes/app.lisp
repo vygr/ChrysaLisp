@@ -16,14 +16,14 @@
 (enums +select 0
 	(enum main tip timer))
 
-(defq anti_alias nil timer_rate (/ 1000000 30) +min_size 450 +max_size 800
-	canvas_size +min_size canvas_scale (if anti_alias 1 2) +radius +real_1
+(defq timer_rate (/ 1000000 30) +min_size 450 +max_size 800
+	canvas_size +min_size canvas_scale 2 +radius +real_1
 	*rotx* +real_0 *roty* +real_0 *rotz* +real_0
 	+focal_dist (* +radius +real_2)
 	+near +focal_dist +far (+ +near (* +radius +real_2))
 	+top +radius +bottom (* +radius +real_-1)
 	+left (* +radius +real_-1) +right +radius
-	+canvas_mode (if anti_alias +canvas_flag_antialias 0)
+	+canvas_mode 0
 	*mol_index* 0 *auto_mode* nil *dirty* t object (list (list) (list) (list) (list))
 	palette (map (lambda (_) (fixeds
 			(i2f (/ (logand (>> _ 16) 0xff) 0xff))

@@ -1467,7 +1467,7 @@
 ### array
 
 ```code
-(array [form ...])
+(array [num ...])
 ```
 
 ### array?
@@ -2073,7 +2073,7 @@
 ### fixeds
 
 ```code
-(fixeds [form ...])
+(fixeds [num ...])
 ```
 
 ### floor
@@ -2703,7 +2703,7 @@
 ### nums
 
 ```code
-(nums [form ...])
+(nums [num ...])
 ```
 
 ### nums-abs
@@ -2853,7 +2853,7 @@
 ### path
 
 ```code
-(path [form ...])
+(path [num ...])
 ```
 
 ### path-filter
@@ -3111,7 +3111,7 @@
 ### reals
 
 ```code
-(reals [form ...])
+(reals [num ...])
 ```
 
 ### recip

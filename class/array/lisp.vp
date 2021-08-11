@@ -5,12 +5,24 @@
 (include "gui/path/class.inc")
 
 (defun to-array (_)
-	(entry 'array (sym (cat :lisp_ _)) '(r6 r8))
+	(entry 'array (sym (cat :lisp_ _)) '(r0 r1))
+(errorcases
+	(call 'lisp :env_args_match `(r1 (@ ,(f-path 'num :vtable)) (r1 array_length)) '(r2))
+	(gotoif '(r2 = 0) 'error))
+	(assign '(r0 r1) '(r6 r8))
 	(call _ :create nil '(r7))
 	(assign '((r8 array_length)) '(r1))
 	(assign '(r1) '((r7 array_length)))
 	(call _ :set_capacity '(r7 r1))
-	(call 'lisp :env_args_set '(r8 0 (r7 array_begin)))
+	(assign '((r7 array_begin)) '(r5))
+	(class/array/get_both r8 r3 r4)
+	(loop-while '(r3 /= r4))
+		(assign '((r3 0)) '(r0))
+		(vp-add-cr +ptr_size r3)
+		(vp-add-cr +ptr_size r5)
+		(assign '((r0 num_value)) '(r0))
+		(assign '(r0) `((r5 ,(neg +ptr_size))))
+	(loop-end)
 	(exit 'array (sym (cat :lisp_ _)) '(r6 r7))
 	(vp-ret))
 
@@ -26,6 +38,10 @@
 
 	(to-array 'array)
 
+(errorcases
+(vp-label 'error)
+	(jump 'lisp :repl_error '(r0 "(array [num ...])" error_msg_wrong_types r1)))
+
 (def-func-end)
 
 (def-method 'array :lisp_nums)
@@ -39,6 +55,10 @@
 	;r1-r14
 
 	(to-array 'nums)
+
+(errorcases
+(vp-label 'error)
+	(jump 'lisp :repl_error '(r0 "(nums [num ...])" error_msg_wrong_types r1)))
 
 (def-func-end)
 
@@ -54,6 +74,10 @@
 
 	(to-array 'fixeds)
 
+(errorcases
+(vp-label 'error)
+	(jump 'lisp :repl_error '(r0 "(fixeds [num ...])" error_msg_wrong_types r1)))
+
 (def-func-end)
 
 (def-method 'array :lisp_reals)
@@ -68,6 +92,10 @@
 
 	(to-array 'reals)
 
+(errorcases
+(vp-label 'error)
+	(jump 'lisp :repl_error '(r0 "(reals [num ...])" error_msg_wrong_types r1)))
+
 (def-func-end)
 
 (def-method 'array :lisp_path)
@@ -81,6 +109,10 @@
 	;r1-r14
 
 	(to-array 'path)
+
+(errorcases
+(vp-label 'error)
+	(jump 'lisp :repl_error '(r0 "(path [num ...])" error_msg_wrong_types r1)))
 
 (def-func-end)
 
