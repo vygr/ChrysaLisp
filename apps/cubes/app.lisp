@@ -19,12 +19,11 @@
 (defq timer_rate (/ 1000000 30) +min_size 450 +max_size 800
 	canvas_size +min_size canvas_scale 2 +radius +real_1
 	*rotx* +real_0 *roty* +real_0 *rotz* +real_0
-	+focal_dist (* +radius +real_2)
+	+focal_dist (* +radius +real_2) +canvas_mode 0
 	+near +focal_dist +far (+ +near (* +radius +real_2))
 	+top +radius +bottom (* +radius +real_-1)
 	+left (* +radius +real_-1) +right +radius
-	+canvas_mode 0
-	*mol_index* 0 *auto_mode* nil *dirty* t object (list (list) (list) (list) (list))
+	*mol_index* 0 *auto_mode* nil *dirty* t object nil
 	palette (map (lambda (_) (fixeds
 			(i2f (/ (logand (>> _ 16) 0xff) 0xff))
 			(i2f (/ (logand (>> _ 8) 0xff) 0xff))
@@ -109,14 +108,6 @@
 (enums +object 0
 	(enum mesh color))
 
-(defun print-vec (v)
-	(each! 0 -2 (# (prin (pad (r2f %0) 8) " ")) (list v))
-	(prin (pad (r2f (elem -2 v)) 8))
-	(print))
-
-(defun print-mat (m)
-	(each (# (print-vec %0)) m))
-
 (defun sort-verts (verts)
 	(sort (lambda (v1 v2)
 		(if (<= (elem +vec4_w v1) (elem +vec4_w v2)) 1 -1)) verts))
@@ -160,8 +151,9 @@
 	(defq mat4x4_rot (mat4x4-mul (mat4x4-mul
 			(mat4x4-rotx *rotx*) (mat4x4-roty *roty*)) (mat4x4-rotz *rotz*))
 		mat4x4_trans (mat4x4-translate +real_0 +real_0 (const (- +real_0 +focal_dist +radius)))
+		mat4x4_scale (mat4x4-scale +real_1)
 		mat4x4_frust (mat4x4-frustum +left +right +top +bottom +near +far)
-		mat4x4_obj (mat4x4-mul mat4x4_trans mat4x4_rot)
+		mat4x4_obj (mat4x4-mul mat4x4_trans (mat4x4-mul mat4x4_rot mat4x4_scale))
 		mat4x4_proj (mat4x4-mul mat4x4_frust mat4x4_obj))
 	(. main_widget :fill 0)
 	(render-object-verts main_widget mat4x4_obj mat4x4_proj object)
@@ -169,7 +161,7 @@
 	(. main_widget :swap))
 
 (defun reset ()
-	(setq object (list (gen-sphere +radius 8) (fixeds 1.0 0.0 0.0))
+	(setq object (list (gen-sphere +radius 10) (fixeds 1.0 0.0 0.0))
 		*dirty* t))
 
 ;import actions and bindings
@@ -240,4 +232,6 @@
 			(t  ;gui event
 				(. *window* :event *msg*))))
 	(gui-sub *window*)
-	(free-select select))
+	(free-select select)
+	(if (get 'profile-report)
+		(profile-report "Cubes")))

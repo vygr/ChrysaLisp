@@ -1,6 +1,6 @@
-;;;;;;
-; math
-;;;;;;
+;;;;;;;;;;;;;
+; matrix math
+;;;;;;;;;;;;;
 
 (import "lib/math/vector.inc")
 
@@ -72,6 +72,11 @@
 		(reals (sin a) (cos a) +real_0)
 		(reals +real_0 +real_0 +real_1)))
 
+(defun mat3x3-scale (s)
+	(list (reals s +real_0 +real_0)
+		(reals +real_0 s +real_0)
+		(reals +real_0 +real_0 s)))
+
 (defun mat4x4-rotx (a)
 	(list (reals +real_1 +real_0 +real_0 +real_0)
 		(reals +real_0 (cos a) (* (sin a) +real_-1) +real_0)
@@ -94,6 +99,12 @@
 	(list (reals +real_1 +real_0 +real_0 x)
 		(reals +real_0 +real_1 +real_0 y)
 		(reals +real_0 +real_0 +real_1 z)
+		(reals +real_0 +real_0 +real_0 +real_1)))
+
+(defun mat4x4-scale (s)
+	(list (reals s +real_0 +real_0 +real_0)
+		(reals +real_0 s +real_0 +real_0)
+		(reals +real_0 +real_0 s +real_0)
 		(reals +real_0 +real_0 +real_0 +real_1)))
 
 (defun mat4x4-frustum (left right top bottom near far)
@@ -181,3 +192,11 @@
 			(setq radius (* (+ radius rv) +real_1/2))
 			(vec-sub p (vec-scale (vec-norm pv) radius +reals_tmp3) center))) verts)
 	(list center radius))
+
+(defun print-vec (v)
+	(each! 0 -2 (# (prin (pad (r2f %0) 8) " ")) (list v))
+	(prin (pad (r2f (elem -2 v)) 8))
+	(print))
+
+(defun print-mat (m)
+	(each (# (print-vec %0)) m))

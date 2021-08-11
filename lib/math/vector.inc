@@ -1,8 +1,10 @@
+;;;;;;;;;;;;;
+; vector math
+;;;;;;;;;;;;;
+
 (import "class/num/lisp.inc")
 (import "class/nums/lisp.inc")
 (import "class/fixeds/lisp.inc")
-
-;generic vector stuff
 
 (defmacro vec-add (p1 p2 &optional _)
 	(if _ `(nums-add ,p1 ,p2 ,_) `(nums-add ,p1 ,p2)))

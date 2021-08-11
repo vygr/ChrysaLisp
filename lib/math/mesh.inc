@@ -1,3 +1,7 @@
+;;;;;;;;;;
+; tri mesh
+;;;;;;;;;;
+
 (import "lib/math/matrix.inc")
 
 (enums +tri 0
@@ -37,9 +41,8 @@
 				v0 (elem i0 verts) v1 (elem i1 verts)
 				v2 (elem i2 verts) v3 (elem i3 verts))
 			(push tris (tri i0 i2 i1 (length norms)))
-			(push norms (vec-norm (apply reals (vec-cross-3d (vec-sub v0 v1) (vec-sub v0 v2)))))
 			(push tris (tri i1 i2 i3 (length norms)))
-			(push norms (vec-norm (apply reals (vec-cross-3d (vec-sub v2 v1) (vec-sub v2 v3)))))
+			(push norms (vec-norm (apply reals (vec-cross-3d (vec-sub v0 v1) (vec-sub v0 v2)))))
 			(setq x (inc x)))
 		(setq y (inc y)))
 	;gen verts, norms and tris for end cap fans

@@ -237,4 +237,6 @@
 			(t  ;gui event
 				(. *window* :event *msg*))))
 	(gui-sub *window*)
-	(free-select select))
+	(free-select select)
+	(if (get 'profile-report)
+		(profile-report "Molecule")))
