@@ -18,8 +18,10 @@
 
 (defun gen-sphere (radius eps)
 	; (gen-sphere radius eps) -> mesh
-	(defq verts (list) norms (list) tris (list)
-		y 1 eps2 (* eps 2) eps2_r (i2r eps2))
+	(defq y 1 eps2 (* eps 2) eps2_r (i2r eps2)
+		verts (cap (+ (* eps2 (dec eps)) 2) (list))
+		norms (cap (* eps eps2) (list))
+		tris (cap (+ (* eps2 (- eps 2) 2) (* eps2 2)) (list)))
 	;gen verts
 	(while (< y eps)
 		(defq x 0 ya (/ (* (i2r y) +real_2pi) eps2_r)
@@ -30,6 +32,7 @@
 			(push verts (vec3-r xv yv zv))
 			(setq x (inc x)))
 		(setq y (inc y)))
+	(push verts (vec3-r +real_0 radius +real_0) (vec3-r +real_0 (neg radius) +real_0))
 	;gen norms and tris for mid section strips
 	(defq y 1)
 	(while (< y (dec eps))
@@ -45,8 +48,7 @@
 			(push norms (vec-norm (apply reals (vec-cross-3d (vec-sub v0 v1) (vec-sub v0 v2)))))
 			(setq x (inc x)))
 		(setq y (inc y)))
-	;gen verts, norms and tris for end cap fans
-	(push verts (vec3-r +real_0 radius +real_0) (vec3-r +real_0 (neg radius) +real_0))
+	;gen norms and tris for end cap fans
 	(defq x 0 y (* eps2 (- eps 2)))
 	(while (< x eps2)
 		(defq i0 (+ x y) i1 (+ (% (inc x) eps2) y) i2 (dec (length verts))

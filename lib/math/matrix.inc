@@ -194,8 +194,7 @@
 	(list center radius))
 
 (defun print-vec (v)
-	(each! 0 -2 (# (prin (pad (r2f %0) 8) " ")) (list v))
-	(prin (pad (r2f (elem -2 v)) 8))
+	(prin (join (map (# (pad (r2f %0) 8)) v) " "))
 	(print))
 
 (defun print-mat (m)

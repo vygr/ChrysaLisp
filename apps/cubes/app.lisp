@@ -62,6 +62,12 @@
 	(each (# (def %0 :tip_text %1)) (. style_toolbar :children)
 		'("plain" "grid" "axis")))
 
+(defun timeslice ()
+	(defq then '(0) now (pii-time))
+	(when (> (- now (elem 0 then)) 1000)
+		(elem-set 0 then now)
+		(task-sleep 0)))
+
 (defun radio-select (toolbar idx)
 	(each (lambda (button)
 			(undef (. button :dirty) :color)
@@ -87,7 +93,7 @@
 	;draw a polygon on a canvas
 	(.-> canvas (:set_color col) (:fpoly (r2f x) (r2f y) +winding_odd_even _)))
 
-(defun fpoly_zero (canvas col _)
+(defun fpoly-zero (canvas col _)
 	;draw a polygon on a canvas
 	(.-> canvas (:set_color col) (:fpoly 0.0 0.0 +winding_odd_even _)))
 
@@ -143,7 +149,7 @@
 				v2 (elem i2 obj_verts) n (elem in obj_norms)
 				at (+ (elem i0 ats) (elem i1 ats) (elem i2 ats)))
 			(when (> (vec-dot n v0) +real_0)
-				(fpoly_zero canvas (lighting-at3 0.9 (elem +object_color object) at)
+				(fpoly-zero canvas (lighting-at3 0.9 (elem +object_color object) at)
 					(list (cat (elem i0 screen_verts) (elem i1 screen_verts) (elem i2 screen_verts))))))
 		(elem +mesh_tris (elem +object_mesh object))))
 
