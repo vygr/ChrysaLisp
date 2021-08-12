@@ -3,7 +3,7 @@
 In this document we cover the ChrysaLisp conditional statements. The types
 available, plus the tricks you can pull with them.
 
-Note that true means *not nil* and that is significant. Any value other than
+Note that true means *not nil* and that's significant. Any value other than
 `nil` is *not nil* !
 
 ### if
@@ -108,7 +108,7 @@ the final clause will happen if no other clause.
 
 Here if `a` is true then return `nil` else return `t`. So a simple logical not.
 
-It is possible to evaluate a test and bind the result to a symbol that is then
+It is possible to evaluate a test and bind the result to a symbol that's then
 used in the remaining clauses ! These are not static tests based on the value
 of the symbols used at the entry to the `(cond ...)` !
 

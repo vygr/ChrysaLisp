@@ -38,7 +38,7 @@
 		(defq xp (dec x))
 		(while (/= (setq xp (inc xp)) x1)
 			(.-> canvas (:set_color (read-int data)) (:plot xp yp)))
-		(task-sleep 0))
+		(timeslice))
 	(* (- x1 x) (- y1 y)))
 
 ;native versions

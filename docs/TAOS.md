@@ -228,7 +228,7 @@ flexibility to improve hardware design and not become locked into historical
 decisions for the sake of software compatibility.
 
 The key to Taos' applicability to so many areas lies in its compact kernel.
-This is all that is needed for a processor to provide all of the Taos services.
+This is all that's needed for a processor to provide all of the Taos services.
 The Taos kernel provides all the facilities needed to support its simple
 execution model, yet the whole kernel is only 12K. The kernel executes on every
 processor in the network from boot, and its facilities include memory

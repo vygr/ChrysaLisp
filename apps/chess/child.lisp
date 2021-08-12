@@ -304,7 +304,7 @@
 		(unless (eql piece " ")
 			(when (eql (< (code piece) (ascii-code "Z")) is_black)
 				;one of our pieces ! so gather all boards from possible moves of this piece
-				(task-sleep 0)
+				(timeslice)
 				(piece-moves yield brd _ color (piece-map moves_map piece))))) (list brd)) yield)
 
 ;pvs search

@@ -7,7 +7,7 @@ function environments, plus custom properties.
 
 ## Symbols
 
-A symbol is a ChrysaLisp object that is a sequence of characters, similar to
+A symbol is a ChrysaLisp object that's a sequence of characters, similar to
 string objects, but the difference is that a symbol has been 'interned'. What
 this means is that during the `(read)` part of the REPL, when symbols are read,
 a test is made to see if this symbol already exists. If it does then the symbol
@@ -144,7 +144,7 @@ It certainly makes using `(def)`, `(set)`, `(get)` and `(undef)` easier, due to
 not having to quote the symbol ! But that's not the only reason.
 
 As these symbols always evaluate to themselves, they pass up/down through
-layers of evaluation without changing and that is a VERY useful property.
+layers of evaluation without changing and that's a VERY useful property.
 
 They can still be bound to values like standard symbols but `(eval)` will never
 see the value they are bound to, but your own properties system will be able to
@@ -170,13 +170,13 @@ in this case the 'lisp' application you happen to be inside.
 
 If you want to look up the parent of an environment you can use `(penv)`, try
 typing `(tolist (penv (env)))` at the REPL prompt. I'm not going to print that
-here as it's way too big, but that is the boot environment that all Lisp
+here as it's way too big, but that's the boot environment that all Lisp
 processes have as their shared parent environment. It's populated via the
 `class/lisp/boot.inc` file that's evaluated for every Lisp process launched.
 
 ### Function environments
 
-Every function, ie. lambda or macro, that is called is provided with it's own
+Every function, ie. lambda or macro, that's called is provided with it's own
 empty environment, the parent of that environment is the current environment
 present at invocation.
 

@@ -1,7 +1,7 @@
 # Event loops, mailbox selection and strategies
 
 In this document we cover how applications and libraries go about using
-mailboxes and messages to create communications structures, what techniques are
+mailboxes and messages to create communication structures, what techniques are
 used and why.
 
 Each task on creation is allocated a main mailbox. You can create more if
@@ -33,7 +33,7 @@ them. "The Tao does not do, but nothing is not done !"
 The mailbox selection function `(mail-select)` takes a list of local mailbox
 network IDs, one for each mailbox, to monitor for incoming messages.
 
-So the first thing we need to do is give them some sensible names. That is
+So the first thing we need to do is give them some sensible names. That's
 normally done by using the `(enums)` macro. We are simply creating some
 constants for the list element index of each mailbox. This just lets us use a
 readable symbol, rather than an opaque number, in our source code, which makes
@@ -167,7 +167,7 @@ layer or whatever. Here we will show how to make the application immune to the
 problem no matter what layer caused the issue.
 
 If we look at the Raymarch demo `apps/raymarch/apps.lisp` this consists of a
-parent GUI app and a child task that is spawned multiple times to fill the
+parent GUI app and a child task that's spawned multiple times to fill the
 available nodes. Those child tasks are then `farmed` with jobs from a job que.
 Each time a job result comes back the que is drained and a new job is sent out
 to that child. Repeat till the job que is empty.
@@ -259,7 +259,7 @@ The `(dispatch-job)` function will be used below in the event loop to dispatch
 a new job to any newly started child task, as they report in, or issue a new
 job as we receive a result.
 
-A farm is created that is twice as big as the known number of network nodes.
+A farm is created that's twice as big as the known number of network nodes.
 Roughly two child tasks will exist per node. Remember that ChrysaLisp does the
 final task distribution, in this demo we only suggest the node to start the
 task.
@@ -327,8 +327,8 @@ lib/task/farm.inc
 ```
 
 The `:refresh` method scans through the farm and any child task that has an
-outstanding job that is overdue is restarted, ie. `(destroy)` and `(create)`
-are called.
+outstanding job that's overdue is restarted, ie. `(destroy)` and `(create)` are
+called.
 
 In this way, the application will have all the jobs processed, any that die for
 whatever reason will be restarted and the outstanding jobs won't be lost.

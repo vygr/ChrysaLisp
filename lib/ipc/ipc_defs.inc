@@ -9,7 +9,7 @@
 
 (setq _found_nodes (mail-nodes))
 
-; If only have 1 it may be valid if that is the
+; If only have 1 it may be valid if that's the
 ; true number of nodes created
 (when (<= (length _found_nodes) 1)
   (defq

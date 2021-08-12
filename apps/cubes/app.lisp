@@ -62,12 +62,6 @@
 	(each (# (def %0 :tip_text %1)) (. style_toolbar :children)
 		'("plain" "grid" "axis")))
 
-(defun timeslice ()
-	(defq then '(0) now (pii-time))
-	(when (> (- now (elem 0 then)) 1000)
-		(elem-set 0 then now)
-		(task-sleep 0)))
-
 (defun radio-select (toolbar idx)
 	(each (lambda (button)
 			(undef (. button :dirty) :color)

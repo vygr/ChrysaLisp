@@ -205,7 +205,7 @@
 		(each (lambda (word)
 			(cond
 				((> (setq cnt (+ cnt (length word) 1)) line_width)
-					(task-sleep 0)
+					(timeslice)
 					(push lines (join line " "))
 					(push (clear line) word)
 					(setq cnt (+ (length word) 1)))

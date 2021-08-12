@@ -75,3 +75,29 @@
 	(return)
 
 (def-func-end)
+
+(def-func 'class/lisp/lisp_timeslice)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args list object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+	;trashes
+	;r1-r14
+
+	(entry 'lisp :lisp_timeslice '(r3 r4))
+
+	(call 'sys_pii :time nil '(r0))
+	(assign '((r3 lisp_then)) '(r1))
+	(vp-sub-rr r0 r1)
+	(vpif '(r1 < -1000))
+		(assign '(r0) '((r3 lisp_then)))
+		(call 'sys_task :sleep '(0))
+	(endif)
+	(class/obj/ref r4 r1)
+
+	(exit 'lisp :lisp_timeslice '(r3 r4))
+	(vp-ret)
+
+(def-func-end)

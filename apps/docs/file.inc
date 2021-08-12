@@ -7,7 +7,7 @@
 		((starts-with "```" line)
 			:text)
 		(t	(each-line (lambda (line)
-					(task-sleep 0)
+					(timeslice)
 					((handler-func :vdu) :vdu page (trim-end line (ascii-char 13))))
 				(file-stream line))
 			((handler-func :vdu) :vdu page "```")

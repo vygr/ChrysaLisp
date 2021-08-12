@@ -71,8 +71,8 @@ byte, of the offset from the code section to the string start.
 You do not normally need to use these low level features, but higher level
 calling and binding operations do. These are the Lisp functions that create
 entries in the local Vtable, add strings to the local string pool etc. They
-de-duplicate and in special situations allow duplication where that is
-essential to create a class Vtable correctly.
+de-duplicate and in special situations allow duplication where that's essential
+to create a class Vtable correctly.
 
 ### fn-add-string
 

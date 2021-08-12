@@ -383,7 +383,7 @@ The relevant parts of this function that do the dynamic module loading are:
 	...
 	(defq state :text)
 	(each-line (lambda (line)
-			(task-sleep 0)
+			(timeslice)
 			(setq state ((handler-func state) state page (trim-end line (ascii-char 13)))))
 		(file-stream (cat "docs/" file ".md")))
 	((handler-func state) state page "")
@@ -402,7 +402,7 @@ Here is the `:image` handler module:
 apps/docs/image.inc
 ```
 
-This is the `:vdu` handler module, the very same module that is displaying the
+This is the `:vdu` handler module, the very same module that's displaying the
 syntax highlighted source code section that you are looking at now:
 
 ```file

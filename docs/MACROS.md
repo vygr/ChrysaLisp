@@ -27,7 +27,7 @@ macro is called automatically during the act of reading in your source code.
 After your source code is read in by the `(read)` function, the resulting tree
 is scanned by the `(macroexpand)` phase of the REPL.
 
-Any symbol that is the first item in a list, that is bound within the current
+Any symbol that's the first item in a list, that's bound within the current
 environment, to a `macro` defined function rather than a `lambda`, has that
 list substituted for the result of calling that macro function with the
 parameters of the rest of the list.
@@ -272,7 +272,7 @@ And an example of the macro in use:
 	(undoable
 		(bind '(y y1) (select-paragraph))
 		(each (lambda (line)
-				(task-sleep 0)
+				(timeslice)
 				(.-> buffer (:insert line) :break))
 			(. (. buffer :get_syntax) :text_flow
 				(split (.-> buffer (:set_cursor 0 y) (:cut 0 y1))

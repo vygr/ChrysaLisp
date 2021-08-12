@@ -28,7 +28,7 @@
 		(ui-label _ (:min_width +margin_width)))
 	(defq state :text)
 	(each-line (lambda (line)
-			(task-sleep 0)
+			(timeslice)
 			(setq state ((handler-func state) state page (trim-end line (ascii-char 13)))))
 		(file-stream (cat "docs/" file ".md")))
 	((handler-func state) state page "")

@@ -117,7 +117,7 @@ you want, try launching the GUI on more than CPU 0, look in *funcs.sh* at the
 `boot_cpu_gui` function ! :)
 
 The `-l` command line option creates a link, currently up to 1000 CPU's are
-allowed but that is easy to adjust. The shared memory link files are created in
+allowed but that's easy to adjust. The shared memory link files are created in
 the tmp folder */tmp*, so for example */tmp/000-001* would be the link file for
 the link between CPU 000 and 001.
 

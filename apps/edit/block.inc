@@ -9,7 +9,7 @@
 		(defq tab_width (. buffer :get_tab_width))
 		(bind '(y y1) (select-lines))
 		(each! y y1 (lambda (line)
-				(task-sleep 0)
+				(timeslice)
 				(defq idx -1)
 				(while (and
 					(< (setq idx (inc idx)) (length line))
@@ -26,7 +26,7 @@
 		(defq tab (pad "" (. buffer :get_tab_width) "        "))
 		(bind '(y y1) (select-lines))
 		(each! y y1 (lambda (line)
-				(task-sleep 0)
+				(timeslice)
 				(unless (eql line "")
 					(.-> buffer (:set_cursor 0 _) (:insert tab))))
 			(list (. buffer :get_text_lines)))
@@ -37,7 +37,7 @@
 	(undoable
 		(bind '(y y1) (select-paragraph))
 		(each (lambda (line)
-				(task-sleep 0)
+				(timeslice)
 				(.-> buffer (:insert line) :break))
 			(. (. buffer :get_syntax) :text_flow
 				(split (.-> buffer (:set_cursor 0 y) (:cut 0 y1))
@@ -87,7 +87,7 @@
 		(bind '(y y1) (select-lines))
 		(setq *anchor_x* 0 *anchor_y* y)
 		(each! y y1 (lambda (line)
-				(task-sleep 0)
+				(timeslice)
 				(cond
 					((blank-line? line))
 					((starts-with +block_comment line)

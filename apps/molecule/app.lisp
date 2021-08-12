@@ -62,7 +62,7 @@
 				:connect +event_yrot)
 			(. (ui-slider zrot_slider (:value 0 :maximum 1000 :portion 10 :color +argb_green))
 				:connect +event_zrot)))
-	(ui-backdrop main_backdrop (:style :plain :color +argb_black :ink_color +argb_grey8
+	(ui-backdrop main_backdrop (:style :grid :color +argb_black :ink_color +argb_grey8
 			:min_width +min_size :min_height +min_size)
 		(ui-canvas main_widget canvas_size canvas_size canvas_scale)))
 
@@ -108,7 +108,7 @@
 (defun render-balls (canvas balls)
 	(defq sp (* +real_1/2 (i2r (dec (* canvas_size canvas_scale)))))
 	(each (lambda (((x y z w) r c))
-		(task-sleep 0)
+		(timeslice)
 		(defq w (recip w) x (* x w) y (* y w) z (* z w) at (recip (+ z +real_2))
 			r (* r sp w) r4 (* r +real_1/4) r8 (* r +real_1/8) r16 (* r +real_1/16)
 			sx (* (+ x +real_1) sp) sy (* (+ y +real_1) sp))
@@ -179,7 +179,7 @@
 	(defq select (alloc-select +select_size) *running* t)
 	(bind '(x y w h) (apply view-locate (.-> *window* (:connect +event_layout) :pref_size)))
 	(.-> main_widget (:set_canvas_flags +canvas_mode) (:fill +argb_black) :swap)
-	(radio-select style_toolbar 0)
+	(radio-select style_toolbar 1)
 	(gui-add-front (. *window* :change x y w h))
 	(tooltips)
 	(reset)

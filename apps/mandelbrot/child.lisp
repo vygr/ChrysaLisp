@@ -23,7 +23,7 @@
 		(defq xp (dec x))
 		(while (/= (setq xp (inc xp)) x1)
 			(write-char reply (depth (+ (mbfp-offset xp w z) cx) (+ (mbfp-offset y h z) cy))))
-		(task-sleep 0))
+		(timeslice))
 	(write-long reply key)
 	(mail-send mbox (str reply)))
 

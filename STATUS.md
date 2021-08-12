@@ -11,6 +11,10 @@ New Molecule demo. Renders standard SDF Mol files. Some SDF files have an issue
 with no space between the number of atoms and the numbewr of bonds, so add a
 space if required.
 
+New Lisp level co-op `(timeslice)` function. Will do a deschedule if the
+current thread has been running for over a millisecond. More flexible strategy
+for a co-op system than just calling deschedule.
+
 ------
 
 Optimized versions of the bracket matching methods on the Buffer class. 25%
@@ -927,7 +931,7 @@ GUI terminal app. Thank you.
 
 Moved the object tracking node into the mem block header. This means that there
 is no requirement to use cross compilation to switch build types. You do need
-to restart after you switch the *debug_mode* setting as that is in the cached
+to restart after you switch the *debug_mode* setting as that's in the cached
 and shared boot environment ! So remember to restart before doing the 'make
 boot'.
 
@@ -1277,7 +1281,7 @@ time won't allow anything more substantial.
 I decide to change the 'sys_mem 'realloc to not trash r6-r7. Thoughts on this
 are that if your going to end up doing the memory copy then the 2 registers
 push/pop is no big deal, but the functions that use this can benefit from
-having there iterators held in registers and not stack variables and that is a
+having there iterators held in registers and not stack variables and that's a
 far better situation.
 
 ------
