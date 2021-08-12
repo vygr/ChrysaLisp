@@ -28,7 +28,7 @@ It's not a lot of source for the entire thing:
 lib/class/class.inc
 ```
 
-So let go through each of these macros and cover what they do.
+Let's go through each of these macros and cover what they do.
 
 ## (defclass name ([arg ...]) (super ...) body)
 

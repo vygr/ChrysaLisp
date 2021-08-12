@@ -112,6 +112,12 @@
 	(sort (lambda (v1 v2)
 		(if (<= (elem +vec4_w v1) (elem +vec4_w v2)) 1 -1)) verts))
 
+(defun sorted-tris (tris prog_verts)
+	(sorted (lambda (t1 t2)
+		(if (<= (elem +vec4_w (elem (elem +tri_i_v0 t1) prog_verts))
+				(elem +vec4_w (elem (elem +tri_i_v0 t2) prog_verts)))
+			1 -1)) tris))
+
 (defun render-object-verts (canvas mat4x4_obj mat4x4_proj object)
 	(defq sp (* +real_1/2 (i2r (dec (* canvas_size canvas_scale))))
 		prog_verts (map (# (mat4x4-vec4-mul mat4x4_proj %0))
@@ -145,7 +151,7 @@
 			(when (> (vec-dot n v0) +real_0)
 				(fpoly-zero canvas (lighting-at3 0.9 (elem +object_color object) at)
 					(list (cat (elem i0 screen_verts) (elem i1 screen_verts) (elem i2 screen_verts))))))
-		(elem +mesh_tris (elem +object_mesh object))))
+		(sorted-tris (elem +mesh_tris (elem +object_mesh object)) prog_verts)))
 
 (defun render ()
 	(defq mat4x4_rot (mat4x4-mul (mat4x4-mul
@@ -161,7 +167,7 @@
 	(. main_widget :swap))
 
 (defun reset ()
-	(setq object (list (gen-sphere +radius 10) (fixeds 1.0 0.0 0.0))
+	(setq object (list (gen-torus (- +radius +real_1/3) +real_1/3 15) (fixeds 1.0 0.0 0.0))
 		*dirty* t))
 
 ;import actions and bindings
