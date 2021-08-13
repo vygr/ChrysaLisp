@@ -2946,19 +2946,6 @@ trashes
 r1-r14
 ```
 
-### lisp :lisp_timeslice -> class/lisp/lisp_timeslice
-
-```code
-inputs
-r0 = lisp object (ptr)
-r1 = args list object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-trashes
-r1-r14
-```
-
 ### lisp :lisp_while -> class/lisp/lisp_while
 
 ```code
@@ -8638,6 +8625,19 @@ r1-r14
 ```
 
 ### sys_task :lisp_sleep -> sys/task/lisp_sleep
+
+```code
+inputs
+r0 = lisp object (ptr)
+r1 = args list object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
+### sys_task :lisp_timeslice -> sys/task/lisp_timeslice
 
 ```code
 inputs

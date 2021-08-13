@@ -10,6 +10,7 @@
 	;sys_task statics
 	(struct sys_task_kernel_node_id node_id_size)
 	(ptr sys_task_current_tcb sys_task_kernel_tcb)
+	(ulong sys_task_then)
 	(uint sys_task_task_count)
 	(align)
 	;keep these together

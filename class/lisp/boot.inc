@@ -121,7 +121,6 @@
 (ffi . "class/lisp/lisp_mcall" 0)
 (ffi env-push "class/lisp/lisp_env_push" 0)
 (ffi env-pop "class/lisp/lisp_env_pop" 0)
-(ffi timeslice "class/lisp/lisp_timeslice" 0)
 
 (ffi pii-dirlist "sys/pii/lisp_dirlist" 0)
 (ffi pii-fstat "sys/pii/lisp_fstat" 0) ; -> (array filetime filesize filemode)

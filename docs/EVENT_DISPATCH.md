@@ -383,7 +383,7 @@ The relevant parts of this function that do the dynamic module loading are:
 	...
 	(defq state :text)
 	(each-line (lambda (line)
-			(timeslice)
+			(task-slice)
 			(setq state ((handler-func state) state page (trim-end line (ascii-char 13)))))
 		(file-stream (cat "docs/" file ".md")))
 	((handler-func state) state page "")

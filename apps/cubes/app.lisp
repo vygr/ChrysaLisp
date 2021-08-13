@@ -1,10 +1,10 @@
-;(import "lib/debug/frames.inc")
+(import "lib/debug/frames.inc")
 ;(import "lib/debug/profile.inc")
 
 (import "sys/lisp.inc")
 (import "class/lisp.inc")
 (import "gui/lisp.inc")
-(import "lib/math/mesh.inc")
+(import "lib/math/scene.inc")
 
 (enums +event 0
 	(enum close max min)
@@ -23,7 +23,7 @@
 	+near +focal_dist +far (+ +near (* +radius +real_2))
 	+top +radius +bottom (* +radius +real_-1)
 	+left (* +radius +real_-1) +right +radius
-	*mol_index* 0 *auto_mode* nil *dirty* t object nil
+	*mol_index* 0 *auto_mode* nil *dirty* t scene nil
 	palette (map (lambda (_) (fixeds
 			(i2f (/ (logand (>> _ 16) 0xff) 0xff))
 			(i2f (/ (logand (>> _ 8) 0xff) 0xff))
@@ -105,9 +105,6 @@
 		(const (fixeds 255.0 255.0 255.0)) +fixeds_tmp3))
 	(+ (<< (f2i (* alpha 255.0)) 24) (<< (f2i r) 16) (<< (f2i g) 8) (f2i b)))
 
-(enums +object 0
-	(enum mesh color))
-
 (defun sort-verts (verts)
 	(sort (lambda (v1 v2)
 		(if (<= (elem +vec4_w v1) (elem +vec4_w v2)) 1 -1)) verts))
@@ -120,22 +117,18 @@
 
 (defun render-object-verts (canvas mat4x4_obj mat4x4_proj object)
 	(defq sp (* +real_1/2 (i2r (dec (* canvas_size canvas_scale))))
-		prog_verts (map (# (mat4x4-vec4-mul mat4x4_proj %0))
-			(elem +mesh_verts (elem +object_mesh object))))
+		prog_verts (map (# (mat4x4-vec4-mul mat4x4_proj %0)) (. object :get_verts)))
 	(each (lambda ((x y z w))
 			(defq w (recip w) x (* x w) y (* y w) z (* z w) at (recip (+ z +real_2))
-				r (* (const (f2r 0.0125)) sp w) sx (* (+ x +real_1) sp) sy (* (+ y +real_1) sp))
+				r (* (const (f2r 0.02)) sp w) sx (* (+ x +real_1) sp) sy (* (+ y +real_1) sp))
 			(fpoly canvas (lighting 1.0 (const (fixeds 1.0 1.0 1.0)) at) sx sy (circle r)))
 		(sort-verts prog_verts)))
 
 (defun render-object-tris (canvas mat4x4_obj mat4x4_proj object)
 	(defq sp (* +real_1/2 (i2r (dec (* canvas_size canvas_scale))))
-		obj_verts (map (# (mat4x4-vec4-mul mat4x4_obj %0))
-			(elem +mesh_verts (elem +object_mesh object)))
-		obj_norms (map (# (mat4x4-vec3-mul mat4x4_obj %0))
-			(elem +mesh_norms (elem +object_mesh object)))
-		prog_verts (map (# (mat4x4-vec4-mul mat4x4_proj %0))
-			(elem +mesh_verts (elem +object_mesh object)))
+		obj_verts (map (# (mat4x4-vec4-mul mat4x4_obj %0)) (. object :get_verts))
+		obj_norms (map (# (mat4x4-vec3-mul mat4x4_obj %0)) (. object :get_norms))
+		prog_verts (map (# (mat4x4-vec4-mul mat4x4_proj %0)) (. object :get_verts))
 		screen_verts (cap (length obj_verts) (list))
 		ats (cap (length obj_verts) (list)))
 	(each (lambda ((x y z w))
@@ -149,26 +142,34 @@
 				v2 (elem i2 obj_verts) n (elem in obj_norms)
 				at (+ (elem i0 ats) (elem i1 ats) (elem i2 ats)))
 			(when (> (vec-dot n v0) +real_0)
-				(fpoly-zero canvas (lighting-at3 0.9 (elem +object_color object) at)
+				(fpoly-zero canvas (lighting-at3 1.0 (. object :get_color) at)
 					(list (cat (elem i0 screen_verts) (elem i1 screen_verts) (elem i2 screen_verts))))))
-		(sorted-tris (elem +mesh_tris (elem +object_mesh object)) prog_verts)))
+		(sorted-tris (elem +mesh_tris (. object :get_mesh)) prog_verts)))
 
 (defun render ()
-	(defq mat4x4_rot (mat4x4-mul (mat4x4-mul
-			(mat4x4-rotx *rotx*) (mat4x4-roty *roty*)) (mat4x4-rotz *rotz*))
-		mat4x4_trans (mat4x4-translate +real_0 +real_0 (const (- +real_0 +focal_dist +radius)))
-		mat4x4_scale (mat4x4-scale +real_1)
-		mat4x4_frust (mat4x4-frustum +left +right +top +bottom +near +far)
-		mat4x4_obj (mat4x4-mul mat4x4_trans (mat4x4-mul mat4x4_rot mat4x4_scale))
-		mat4x4_proj (mat4x4-mul mat4x4_frust mat4x4_obj))
 	(. main_widget :fill 0)
-	(render-object-verts main_widget mat4x4_obj mat4x4_proj object)
-	(render-object-tris main_widget mat4x4_obj mat4x4_proj object)
+	(defq mat4x4_frust (Mat4x4-frustum +left +right +top +bottom +near +far)
+		matrix_stack (list (Mat4x4-unity)))
+	(. scene :walk_nodes
+		(lambda (object children)
+			(push matrix_stack (defq mat4x4_obj (mat4x4-mul
+				(elem -2 matrix_stack) (. object :get_matrix))))
+			(when (def? :mesh object)
+				(defq mat4x4_proj (mat4x4-mul mat4x4_frust mat4x4_obj))
+;				(render-object-verts main_widget mat4x4_obj mat4x4_proj object)
+				(render-object-tris main_widget mat4x4_obj mat4x4_proj object))
+			nil)
+		(lambda (object children)
+			(pop matrix_stack)))
 	(. main_widget :swap))
 
 (defun reset ()
-	(setq object (list (gen-torus (- +radius +real_1/3) +real_1/3 15) (fixeds 1.0 0.0 0.0))
-		*dirty* t))
+	(setq scene (Scene-node "root") *dirty* t)
+	(.-> scene
+		(:add_node (defq sphere (Scene-object (gen-sphere +radius 10) (fixeds 1.0 0.0 0.0) "sphere")))
+		(:add_node (defq torus (Scene-object (gen-torus (- +radius +real_1/3) +real_1/3 15) (fixeds 1.0 0.0 0.0) "torus"))))
+	(. torus :set_translation +real_1/2 +real_1/2 (- +real_0 +focal_dist +radius +real_1/20))
+	(. sphere :set_translation +real_-1/2 +real_-1/2 (- +real_0 +focal_dist +radius +real_1/20)))
 
 ;import actions and bindings
 (import "./actions.inc")
@@ -205,6 +206,8 @@
 					(set-rot zrot_slider *rotz*))
 				(when *dirty*
 					(setq *dirty* nil)
+					(. scene :set_rotation +real_0 +real_0 *rotz*)
+					(each (# (. %0 :set_rotation *rotx* *roty* +real_0)) (. scene :children))
 					(render)))
 			((defq id (getf *msg* +ev_msg_target_id) action (. event_map :find id))
 				;call bound event action

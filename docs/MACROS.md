@@ -272,7 +272,7 @@ And an example of the macro in use:
 	(undoable
 		(bind '(y y1) (select-paragraph))
 		(each (lambda (line)
-				(timeslice)
+				(task-slice)
 				(.-> buffer (:insert line) :break))
 			(. (. buffer :get_syntax) :text_flow
 				(split (.-> buffer (:set_cursor 0 y) (:cut 0 y1))

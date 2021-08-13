@@ -11,7 +11,7 @@ New Molecule demo. Renders standard SDF Mol files. Some SDF files have an issue
 with no space between the number of atoms and the numbewr of bonds, so add a
 space if required.
 
-New Lisp level co-op `(timeslice)` function. Will do a deschedule if the
+New Lisp level co-op `(task-slice)` function. Will do a deschedule if the
 current thread has been running for over a millisecond. More flexible strategy
 for a co-op system than just calling deschedule.
 

@@ -3,6 +3,7 @@
 (include "class/num/class.inc")
 (include "class/str/class.inc")
 (include "class/lisp/class.inc")
+(include "sys/statics/class.inc")
 
 (def-method 'sys_task :lisp_sleep)
 	;inputs
@@ -35,6 +36,33 @@
 (vp-label 'error)
 	(jump 'lisp :repl_error '(r0 "(task-sleep usec)" error_msg_wrong_types r1))
 	(signature '(num)))
+
+(def-func-end)
+
+(def-method 'sys_task :lisp_timeslice)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args list object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+	;trashes
+	;r1-r14
+
+	(entry 'sys_task :lisp_timeslice '(r3 r4))
+
+	(call 'sys_pii :time nil '(r0))
+	(fn-bind 'sys/statics/statics r2)
+	(assign '((r2 statics_sys_task_then)) '(r1))
+	(vp-sub-rr r0 r1)
+	(vpif '(r1 < -1000))
+		(assign '(r0) '((r2 statics_sys_task_then)))
+		(call 'sys_task :sleep '(0))
+	(endif)
+	(class/obj/ref r4 r1)
+
+	(exit 'sys_task :lisp_timeslice '(r3 r4))
+	(vp-ret)
 
 (def-func-end)
 

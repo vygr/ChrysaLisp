@@ -50,7 +50,6 @@
 		(call 'obj :ref {stdout} {this->lisp_stdout})
 		(call 'obj :ref {stderr} {this->lisp_stderr})
 		(assign {0} {this->lisp_nextsym})
-		(call 'sys_pii :time nil {this->lisp_then})
 		;tls stack
 		(assign {@sys/statics/statics.statics_sys_task_current_tcb->tk_node_tls} {this->lisp_stack})
 

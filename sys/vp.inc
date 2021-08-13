@@ -15,7 +15,7 @@
 	(eval (prebind *emit_list*) *compile_env*)
 	(setq *out_buffer* (str *out_stream*) *pass* (inc *pass*))
 	(until (eql *out_buffer* *old_out_buffer*)
-		(timeslice)
+		(task-slice)
 		(setq b *old_out_buffer* *old_out_buffer* *out_buffer* *out_stream* (string-stream b) *pc* 0)
 		(eval *emit_list* *compile_env*)
 		(setq *out_buffer* (str *out_stream*) *pass* (inc *pass*))))

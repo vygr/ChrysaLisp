@@ -208,7 +208,7 @@
 
 (defun populate-dictionary (line)
 	;populate dictionary with this lines words
-	(timeslice)
+	(task-slice)
 	(each (lambda (word)
 			(if (>= (length word) +min_word_size)
 				(. dictionary :insert_word word)))
