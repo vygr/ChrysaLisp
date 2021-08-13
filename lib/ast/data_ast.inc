@@ -28,7 +28,7 @@
     ; encoded list tree
     (reduce
       (#(push %0 (. %1 :tolist)))
-      (values (get :children_nodes this))
+      (values (get :children this))
       (cat (list (. this :type)) _)))
 
   (defmethod :to_object (this)
@@ -38,7 +38,7 @@
     ; the AST
     (reduce
       (#(push %0 (. %1 :to_object)))
-      (values (get :children_nodes this)) (list)))
+      (values (get :children this)) (list)))
 
   (defmethod :show_tree (this &optional indent)
     ; (. ast :show_tree) -> ast
@@ -50,7 +50,7 @@
     (each
       (lambda (_c)
         (. _c :show_tree (+ indent 2)))
-      (values (get :children_nodes this))))
+      (values (get :children this))))
   )
 
 ; Scalar data
@@ -96,7 +96,7 @@
     (each
       (lambda (_c)
         (. _c :show_tree (+ indent 2)))
-      (values (get :children_nodes this))))
+      (values (get :children this))))
 
   (defmethod :tolist (this &rest _)
     (.super this :tolist (get :clz this)))
@@ -104,7 +104,7 @@
   (defmethod :to_object (this)
     (reduce
       (#(push %0 (. %1 :to_object)))
-      (values (get :children_nodes this))
+      (values (get :children this))
       (if (eql (get :clz this) :list)
         (list)
         (array))))
@@ -130,7 +130,7 @@
     (each
       (lambda (_c)
         (. _c :show_tree (+ indent 2)))
-      (values (get :children_nodes this))))
+      (values (get :children this))))
 
   (defmethod :tolist (this &rest _)
     (.super this :tolist (get :clz this)))
@@ -156,7 +156,7 @@
    (defmethod :to_object (this)
     (import (get :path this))
     (defq
-      dmap  (entries (. (first (values (get :children_nodes this))) :to_object)))
+      dmap  (entries (. (first (values (get :children this))) :to_object)))
     (reduce
       (lambda (acc (_k _v))
         (set acc _k _v) acc) dmap ((eval (get :clz_name this)))))

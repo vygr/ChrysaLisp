@@ -9,7 +9,7 @@
 (defclass xnode () nil
 	; Base tree node abstraction
 	(def this
-		:children_nodes (xmap)
+		:children (xmap)
 		:parent nil)
 
 	(defmethod :get_parent (this)
@@ -37,10 +37,10 @@
 	(defmethod :children (this)
 		; (. xnode :children) -> list
 		; Return childrenlist of unique_id / value tuples
-		(entries (get :children_nodes this)))
+		(entries (get :children this)))
 
 	(defmethod :has_child? (this csym)
-		(gets (get :children_nodes this) csym))
+		(gets (get :children this) csym))
 
 	(defmethod :siblings (this)
 		; (. xnode :siblings) -> list
@@ -50,7 +50,7 @@
 		(cond
 			((. this :get_parent)
 				(filter (#(not (eql (first %0) uid)))
-					(entries (get :children_nodes (. this :get_parent)))))
+					(entries (get :children (. this :get_parent)))))
 			(t '())))
 
 	(defmethod :has_sibling? (this uid)
@@ -59,7 +59,7 @@
 			par	(. this :get_parent))
 		(cond
 			(par
-				(gets (get :children_nodes par) uid))
+				(gets (get :children par) uid))
 			(t
 				nil)))
 
@@ -76,18 +76,18 @@
 			((nil? child) this)
 			(t
 				(defq hsh (. child :unique_id))
-				(when (nil? (gets (get :children_nodes this) hsh))
+				(when (nil? (gets (get :children this) hsh))
 					(. child :set_parent this)
-					(sets! (get :children_nodes this) hsh child))
+					(sets! (get :children this) hsh child))
 				child)))
 
 	(defmethod :drop_node (this child)
 		; (. xnode :drop_node child) -> xnode
 		; Removes a child node if unique id in children
 		(defq hsh (. child :unique_id))
-		(when (gets (get :children_nodes this) hsh)
+		(when (gets (get :children this) hsh)
 			(. child :set_parent nil)
-			(drop! (get :children_nodes this) hsh))
+			(drop! (get :children this) hsh))
 		child)
 
 	(defmethod :move (this new_parent)
@@ -134,5 +134,5 @@
 				(str nm suffix))))
 
 	(defmethod :child_node (this namestr)
-		(gets (get :children_nodes this) namestr))
+		(gets (get :children this) namestr))
 	)
