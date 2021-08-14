@@ -30,7 +30,7 @@ level code.
 
 ## Low level VP method
 
-In the `obj` base class there exists this virtual method definition:
+In the `obj` base class there exists this virtual method declaration:
 
 ```vdu
 (dec-method :hash class/obj/hash :virtual (r0) (r0 r1))
@@ -69,7 +69,7 @@ Subclasses `:override` this method to provide better support for the type of
 object of the subclass. For example a very important one is for `str` and `sym`
 objects, the core of the ChrysaLisp environment system.
 
-The method override, which happens to be `:final` in this case, is defined in
+The method override, which happens to be `:final` in this case, is declared in
 the `class/str/class.inc` file.
 
 ```vdu
