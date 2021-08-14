@@ -13,6 +13,7 @@ event_map (xmap-kv
 	+event_yrot action-yrot
 	+event_zrot action-zrot
 	+event_auto action-auto
+	+event_mode action-mode
 	+event_grid action-style-grid
 	+event_plain action-style-plain
 	+event_axis action-style-axis
@@ -22,7 +23,8 @@ event_map (xmap-kv
 	+event_max action-maximise)
 
 key_map (xmap-kv
-	(ascii-code "a") action-auto)
+	(ascii-code "a") action-auto
+	(ascii-code "m") action-mode)
 
 key_map_shift (xmap-kv)
 
