@@ -13,6 +13,7 @@ more...
 ![](./screen_shot_5.png)
 ![](./screen_shot_6.png)
 ![](./screen_shot_7.png)
+![](./screen_shot_8.png)
 
 
 It runs on MacOS, Windows or Linux for x64, MacOS or Linux for Aarch64. Will
