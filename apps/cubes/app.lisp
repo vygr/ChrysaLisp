@@ -78,10 +78,10 @@
 (defun reset ()
 	(setq scene (Scene "root") *dirty* t)
 	(.-> scene
-		(:add_node (defq sphere (Scene-object (gen-sphere +radius 10) (fixeds 1.0 0.0 0.0) "sphere1")))
+		(:add_node (defq sphere (Scene-object (gen-sphere (* +radius (+ +real_1/3 +real_1/3)) 10) (fixeds 1.0 0.0 0.0) "sphere1")))
 		(:add_node (defq torus (Scene-object (gen-torus (- +radius +real_1/3) +real_1/3 15) (fixeds 0.0 1.0 0.0) "torus1"))))
-	(. torus :set_translation +real_1/2 +real_1/2 (- +real_0 +focal_dist +radius +real_1/20))
-	(. sphere :set_translation +real_-1/2 +real_-1/2 (- +real_0 +focal_dist +radius +real_1/20))
+	(. torus :set_translation +real_1/2 +real_1/2 (- +real_0 +focal_dist +radius))
+	(. sphere :set_translation (+ +real_-1/3 +real_-1/3) (+ +real_-1/3 +real_-1/3) (- +real_0 +focal_dist +radius))
 	(defq mesh (gen-sphere +real_1/4 8))
 	(.-> torus
 		(:add_node (defq sphere2 (Scene-object mesh (fixeds 1.0 0.0 1.0) "sphere2")))
