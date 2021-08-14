@@ -181,7 +181,7 @@
 
 	(defmethod :render (this canvas size left right top bottom near far mode)
 		; (. scene_node :render canvas size left right top bottom near far) -> tris
-		(. main_widget :fill 0)
+		(. canvas :fill 0)
 		(defq mat4x4_frust (Mat4x4-frustum left right top bottom near far)
 			matrix_stack (list (Mat4x4-unity)) poly_list (list))
 		(. scene :walk_nodes
@@ -200,7 +200,7 @@
 				(.-> canvas (:set_color col) (:fpoly sx sy +winding_odd_even poly)))
 			(sort (# (if (< (elem +vec3_z (elem +poly_pos %0))
 							(elem +vec3_z (elem +poly_pos %1))) 1 -1)) poly_list))
-		(. main_widget :swap))
+		(. canvas :swap))
 	)
 
 ;module
