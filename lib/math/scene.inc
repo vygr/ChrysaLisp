@@ -36,8 +36,8 @@
 	(defq sp (* +real_1/2 (i2r (dec size)))
 		proj_verts (map (# (mat4x4-vec4-mul mat4x4_proj %0)) (. object :get_verts)))
 	(each (lambda ((x y z w))
-			(defq w (recip w) x (* x w) y (* y w) z (* z w) at (recip (+ z +real_2))
-				r (* (const (f2r 0.02)) sp w) sx (* (+ x +real_1) sp) sy (* (+ y +real_1) sp))
+			(defq rw (recip w) x (* x rw) y (* y rw) z (* z rw) at (recip (+ z +real_2))
+				r (* (const (f2r 0.02)) sp rw) sx (* (+ x +real_1) sp) sy (* (+ y +real_1) sp))
 			(push poly_list (list
 				(circle r)
 				(lighting 1.0 (const (fixeds 1.0 1.0 1.0)) at)

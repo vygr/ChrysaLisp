@@ -23,13 +23,7 @@
 	+near +focal_dist +far (+ +near (* +radius +real_2))
 	+top +radius +bottom (* +radius +real_-1)
 	+left (* +radius +real_-1) +right +radius
-	*mol_index* 0 *auto_mode* nil *render_mode* nil *dirty* t scene nil
-	palette (map (lambda (_) (fixeds
-			(i2f (/ (logand (>> _ 16) 0xff) 0xff))
-			(i2f (/ (logand (>> _ 8) 0xff) 0xff))
-			(i2f (/ (logand _ 0xff) 0xff))))
-		(list +argb_black +argb_white +argb_red +argb_green
-			+argb_cyan +argb_blue +argb_yellow +argb_magenta)))
+	*mol_index* 0 *auto_mode* nil *render_mode* nil *dirty* t scene nil)
 
 (ui-window *window* ()
 	(ui-title-bar *title* "Cubes" (0xea19 0xea1b 0xea1a) +event_close)
