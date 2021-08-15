@@ -25,10 +25,16 @@
 		(const (fixeds 255.0 255.0 255.0)) +fixeds_tmp3))
 	(+ (<< (f2i (* alpha 255.0)) 24) (<< (f2i r) 16) (<< (f2i g) 8) (f2i b)))
 
-(defun lighting-at3 (alpha col at)
-	;very basic attenuation and diffuse
-	(bind '(r g b) (vec-min (vec-add (vec-scale col (* (r2f at) (const (/ 255.0 3.0))) +fixeds_tmp3)
+(defun lighting-at3 (alpha col at sp)
+	;very basic attenuation, diffuse and specular
+	(bind '(r g b) (vec-min (vec-add (vec-add
+		;attenuation
+		(vec-scale col (* (r2f at) (const (/ 255.0 3.0))) +fixeds_tmp3)
+		;difuse
 		(const (fixeds 32.0 32.0 32.0)) +fixeds_tmp3)
+		;specular
+		(vec-scale (const (fixeds 255.0 255.0 255.0)) (r2f sp) (const (fixeds 0.0 0.0 0.0))) +fixeds_tmp3)
+		;clamp
 		(const (fixeds 255.0 255.0 255.0)) +fixeds_tmp3))
 	(+ (<< (f2i (* alpha 255.0)) 24) (<< (f2i r) 16) (<< (f2i g) 8) (f2i b)))
 
@@ -58,13 +64,15 @@
 			(push ats at))
 		proj_verts)
 	(each (lambda ((i0 i1 i2 in))
-			(defq v0 (elem i0 obj_verts) v1 (elem i1 obj_verts)
-				v2 (elem i2 obj_verts) n (elem in obj_norms)
-				at (+ (elem i0 ats) (elem i1 ats) (elem i2 ats)))
-			(if (> (vec-dot n v0) +real_0)
+			(defq v0 (elem i0 obj_verts) v1 (elem i1 obj_verts) v2 (elem i2 obj_verts)
+				n (elem in obj_norms))
+			(when (> (vec-dot n v0) +real_0)
+				(defq sp (max +real_1/10 (vec-dot n (const (reals (f2r 0.55) (f2r 0.55) (f2r -0.55)))))
+					sp (* sp sp sp sp)
+					at (+ (elem i0 ats) (elem i1 ats) (elem i2 ats)))
 				(push poly_list (list
 					(list (cat (elem i0 screen_verts) (elem i1 screen_verts) (elem i2 screen_verts)))
-					(lighting-at3 1.0 (. object :get_color) at)
+					(lighting-at3 1.0 (. object :get_color) at sp)
 					(list 0.0 0.0 (elem +vec4_w (elem i0 proj_verts)))))))
 		(. object :get_tris)))
 

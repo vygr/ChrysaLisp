@@ -21,6 +21,7 @@
 	+fixeds_tmp4 (fixeds 0.0 0.0 0.0 0.0)
 	+reals_tmp3 (reals +real_0 +real_0 +real_0)
 	+reals_tmp4 (reals +real_0 +real_0 +real_0 +real_0))
+(undef (env) 'def_real)
 
 (enums +vec3 0
 	(enum x y z))
