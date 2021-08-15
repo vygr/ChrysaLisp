@@ -29,7 +29,7 @@
 ;the scene
 (defun scene (p)
 	(- (vec-length (nums-sub
-		(defq _ (nums-frac p))
+		(defq _ (fixeds-frac p))
 		(const (fixeds 0.5 0.5 0.5)) _)) 0.35))
 
 (defun ray-march (ray_origin ray_dir l max_l +min_distance +march_factor)

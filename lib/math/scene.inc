@@ -44,10 +44,10 @@
 	(each (lambda ((x y z w))
 			(defq rw (recip w) x (* x rw) y (* y rw) z (* z rw) at (recip (+ z +real_2))
 				r (* (const (f2r 0.02)) sp rw) sx (* (+ x +real_1) sp) sy (* (+ y +real_1) sp))
-			(push poly_list (list
+			(push (elem (r2i (* (+ z +real_1) (const (i2r 50)))) poly_buckets) (list
 				(circle r)
 				(lighting 1.0 (const (fixeds 1.0 1.0 1.0)) at)
-				(list (r2f sx) (r2f sy) w))))
+				(list (r2f sx) (r2f sy)))))
 		proj_verts))
 
 (defun render-object-tris (size mat4x4_obj mat4x4_proj object)
@@ -56,7 +56,8 @@
 		obj_norms (map (# (mat4x4-vec3-mul mat4x4_obj %0)) (. object :get_norms))
 		proj_verts (map (# (mat4x4-vec4-mul mat4x4_proj %0)) (. object :get_verts))
 		screen_verts (cap (length obj_verts) (list))
-		ats (cap (length obj_verts) (list)))
+		ats (cap (length obj_verts) (list))
+		col (. object :get_color))
 	(each (lambda ((x y z w))
 			(defq w (recip w) x (* x w) y (* y w) z (* z w) at (recip (+ z +real_2))
 				sx (* (+ x +real_1) sp) sy (* (+ y +real_1) sp))
@@ -69,11 +70,13 @@
 			(when (> (vec-dot n v0) +real_0)
 				(defq sp (max +real_0 (vec-dot n (const (reals (f2r 0.55) (f2r 0.55) (f2r -0.55)))))
 					sp (* sp sp sp sp sp sp)
-					at (+ (elem i0 ats) (elem i1 ats) (elem i2 ats)))
-				(push poly_list (list
+					at (+ (elem i0 ats) (elem i1 ats) (elem i2 ats))
+					v (elem i0 proj_verts)
+					sz (r2i (* (+ (/ (elem +vec4_z v) (elem +vec4_w v)) +real_1) (const (i2r 50)))))
+				(push (elem sz poly_buckets) (list
 					(list (cat (elem i0 screen_verts) (elem i1 screen_verts) (elem i2 screen_verts)))
-					(lighting-at3 1.0 (. object :get_color) at sp)
-					(list 0.0 0.0 (elem +vec4_w (elem i0 proj_verts)))))))
+					(lighting-at3 1.0 col at sp)
+					(list 0.0 0.0)))))
 		(. object :get_tris)))
 
 (defclass Scene-node (&optional name) nil
@@ -191,7 +194,11 @@
 		; (. scene_node :render canvas size left right top bottom near far) -> tris
 		(. canvas :fill 0)
 		(defq mat4x4_frust (Mat4x4-frustum left right top bottom near far)
-			matrix_stack (list (Mat4x4-unity)) poly_list (list))
+			matrix_stack (list (Mat4x4-unity))
+			poly_buckets '(()()()()()()()()()()()()()()()()()()()()()()()()()
+							()()()()()()()()()()()()()()()()()()()()()()()()()
+							()()()()()()()()()()()()()()()()()()()()()()()()()
+							()()()()()()()()()()()()()()()()()()()()()()()()()))
 		(. scene :walk_nodes
 			(lambda (object children)
 				(push matrix_stack (defq mat4x4_obj (mat4x4-mul
@@ -204,10 +211,10 @@
 				nil)
 			(lambda (object children)
 				(pop matrix_stack)))
-		(each (lambda ((poly col (sx sy sz)))
-				(.-> canvas (:set_color col) (:fpoly sx sy +winding_odd_even poly)))
-			(sort (# (if (< (elem +vec3_z (elem +poly_pos %0))
-							(elem +vec3_z (elem +poly_pos %1))) 1 -1)) poly_list))
+		(each-rev (lambda (poly_list)
+			(each (lambda ((poly col (sx sy)))
+					(.-> canvas (:set_color col) (:fpoly sx sy +winding_odd_even poly))) poly_list)) poly_buckets)
+		(each (# (clear %0)) poly_buckets)
 		(. canvas :swap))
 	)
 
