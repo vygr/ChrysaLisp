@@ -4,20 +4,31 @@
 
 (import "lib/math/matrix.inc")
 
-(enums +tri 0
-	(enum i_v0 i_v1 i_v2 i_n))
+;module
+(env-push)
 
-(enums +mesh 0
-	(enum verts norms tris))
+(defun Tri (i0 i1 i2 in)
+	(list i0 i1 i2 in))
 
-(defun Tri (i_v0 i_v1 i_v2 i_n)
-	(list i_v0 i_v1 i_v2 i_n))
+(defclass Mesh () nil
+	; (Mesh) -> mesh
+	(def this :verts (list) :norms (list) :tris (list))
 
-(defun Mesh (verts norms tris)
-	(list verts norms tris))
+	(defmethod :get_verts (this)
+		; (. mesh :get_verts) -> verts
+		(get :verts this))
 
-(defun gen-sphere (radius eps)
-	; (gen-sphere radius eps) -> mesh
+	(defmethod :get_norms (this)
+		; (. mesh :get_norms) -> norms
+		(get :norms this))
+
+	(defmethod :get_tris (this)
+		; (. mesh :get_tris) -> tris
+		(get :tris this))
+	)
+
+(defclass Mesh-sphere (radius eps) (Mesh)
+	; (Mesh-sphere radius eps) -> mesh
 	(defq y 1 eps2 (* eps 2) eps2_r (i2r eps2)
 		verts (cap (+ (* eps2 (dec eps)) 2) (list))
 		norms (cap (* eps eps2) (list))
@@ -61,10 +72,10 @@
 		(push norms (vec-norm (apply reals (vec-cross-3d (vec-sub v2 v1) (vec-sub v2 v0)))))
 		(setq x (inc x)))
 	(each (# (push %0 +real_1)) verts)
-	(Mesh verts norms (shuffle tris)))
+	(lower :verts :norms :tris))
 
-(defun gen-torus (radius_ring radius_body eps)
-	; (gen-torus radius_ring radius_body eps) -> mesh
+(defclass Mesh-torus (radius_ring radius_body eps) (Mesh)
+	; (Mesh-torus radius_ring radius_body eps) -> mesh
 	(defq y 0 eps2 (* eps 2) eps_r (i2r eps) eps2_r (i2r eps2)
 		verts (cap (* eps eps2) (list))
 		norms (cap (* eps eps2) (list))
@@ -97,4 +108,11 @@
 			(setq x (inc x)))
 		(setq y (inc y)))
 	(each (# (push %0 +real_1)) verts)
-	(Mesh verts norms (shuffle tris)))
+	(lower :verts :norms :tris))
+
+;module
+(export (penv)
+	*class_Mesh* Mesh Mesh?
+	*class_Mesh-torus* Mesh-torus Mesh-torus?
+	*class_Mesh-sphere* Mesh-sphere Mesh-sphere?)
+(env-pop)

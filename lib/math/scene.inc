@@ -66,7 +66,7 @@
 					(list (cat (elem i0 screen_verts) (elem i1 screen_verts) (elem i2 screen_verts)))
 					(lighting-at3 1.0 (. object :get_color) at)
 					(list 0.0 0.0 (elem +vec4_w (elem i0 proj_verts)))))))
-		(elem +mesh_tris (. object :get_mesh))))
+		(. object :get_tris)))
 
 (defclass Scene-node (&optional name) nil
 	; (Scene-node &optional name) -> scene_node
@@ -161,15 +161,15 @@
 
 	(defmethod :get_verts (this)
 		; (. scene_node :get_verts) -> verts
-		(elem +mesh_verts (get :mesh this)))
+		(. (get :mesh this) :get_verts))
 
 	(defmethod :get_norms (this)
 		; (. scene_node :get_norms) -> norms
-		(elem +mesh_norms (get :mesh this)))
+		(. (get :mesh this) :get_norms))
 
 	(defmethod :get_tris (this)
 		; (. scene_node :get_tris) -> tris
-		(elem +mesh_tris (get :mesh this)))
+		(. (get :mesh this) :get_tris))
 
 	(defmethod :get_color (this)
 		; (. scene_node :get_color) -> color
