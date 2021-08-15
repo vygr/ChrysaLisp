@@ -17,7 +17,7 @@
 	(each (lambda ((k v))
 		(write s (cat
 			(pad k m)
-			" cnt: " (pad (elem +prof_cnt v) 6)
+			" cnt: " (pad (elem +prof_cnt v) 8)
 			" ns: " (pad (elem +prof_acc v) 8)
 			(ascii-char 10))))
 		(sort (lambda ((k1 v1) (k2 v2))

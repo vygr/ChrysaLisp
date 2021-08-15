@@ -72,6 +72,7 @@
 		(push norms (vec-norm (apply reals (vec-cross-3d (vec-sub v2 v1) (vec-sub v2 v0)))))
 		(setq x (inc x)))
 	(each (# (push %0 +real_1)) verts)
+	(shuffle tris)
 	(lower :verts :norms :tris))
 
 (defclass Mesh-torus (radius_ring radius_body eps) (Mesh)
@@ -108,6 +109,7 @@
 			(setq x (inc x)))
 		(setq y (inc y)))
 	(each (# (push %0 +real_1)) verts)
+	(shuffle tris)
 	(lower :verts :norms :tris))
 
 ;module

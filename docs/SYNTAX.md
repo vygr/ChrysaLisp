@@ -2724,16 +2724,16 @@
 (nums-div nums nums [nums])
 ```
 
-### nums-floor
+### fixeds-floor
 
 ```code
-(nums-floor fixeds [fixeds])
+(fixeds-floor fixeds [fixeds])
 ```
 
-### nums-frac
+### fixeds-frac
 
 ```code
-(nums-frac fixeds [fixeds])
+(fixeds-frac fixeds [fixeds])
 ```
 
 ### nums-max

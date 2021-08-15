@@ -28,10 +28,10 @@
 	(if _ `(nums-mod ,p1 ,p2 ,_) `(nums-mod ,p1 ,p2)))
 
 (defmacro vec-frac (p &optional _)
-	(if _ `(nums-frac ,p ,_) `(nums-frac ,p)))
+	(if _ `(fixeds-frac ,p ,_) `(fixeds-frac ,p)))
 
 (defmacro vec-floor (p &optional _)
-	(if _ `(nums-floor ,p ,_) `(nums-floor ,p)))
+	(if _ `(fixeds-floor ,p ,_) `(fixeds-floor ,p)))
 
 (defmacro vec-abs (p &optional _)
 	(if _ `(nums-abs ,p ,_) `(nums-abs ,p)))
