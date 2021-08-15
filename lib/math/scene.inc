@@ -67,8 +67,8 @@
 			(defq v0 (elem i0 obj_verts) v1 (elem i1 obj_verts) v2 (elem i2 obj_verts)
 				n (elem in obj_norms))
 			(when (> (vec-dot n v0) +real_0)
-				(defq sp (max +real_1/10 (vec-dot n (const (reals (f2r 0.55) (f2r 0.55) (f2r -0.55)))))
-					sp (* sp sp sp sp)
+				(defq sp (max +real_0 (vec-dot n (const (reals (f2r 0.55) (f2r 0.55) (f2r -0.55)))))
+					sp (* sp sp sp sp sp sp)
 					at (+ (elem i0 ats) (elem i1 ats) (elem i2 ats)))
 				(push poly_list (list
 					(list (cat (elem i0 screen_verts) (elem i1 screen_verts) (elem i2 screen_verts)))

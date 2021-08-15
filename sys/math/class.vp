@@ -631,14 +631,20 @@
 		(vpif (list e '< mbits))
 			(vp-mul-cr -1 e)
 			(vp-add-cr mbits e)
+			(gotoif (list e '>= mbits) 'overflow)
 			(vp-asr-rr e m)
 		(else)
 			(vp-sub-cr mbits e)
+			(gotoif (list e '>= mbits) 'overflow)
 			(vp-shl-rr e m)
 		(endif)
 	(endif)
 
 	(exit 'sys_math :r_r2i `(,m))
+	(vp-ret)
+
+(vp-label 'overflow)
+	(exit 'sys_math :r_r2i '(0))
 	(vp-ret)
 
 (def-func-end)
@@ -660,14 +666,20 @@
 		(vpif (list e '< (- mbits +fp_shift)))
 			(vp-mul-cr -1 e)
 			(vp-add-cr (- mbits +fp_shift) e)
+			(gotoif (list e '>= mbits) 'overflow)
 			(vp-asr-rr e m)
 		(else)
 			(vp-sub-cr (- mbits +fp_shift) e)
+			(gotoif (list e '>= mbits) 'overflow)
 			(vp-shl-rr e m)
 		(endif)
 	(endif)
 
 	(exit 'sys_math :r_r2f `(,m))
+	(vp-ret)
+
+(vp-label 'overflow)
+	(exit 'sys_math :r_r2f '(0))
 	(vp-ret)
 
 (def-func-end)
