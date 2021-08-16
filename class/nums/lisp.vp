@@ -408,3 +408,47 @@
 	(jump 'lisp :repl_error '(r0 "(nums-abs nums [nums])" error_msg_wrong_types r3)))
 
 (def-func-end)
+
+(def-method 'nums :lisp_dot)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args list object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+	;trashes
+	;r1-r14
+
+	(entry 'nums :lisp_dot '(r0 r1))
+
+(errorcases
+	(assign '((r1 array_length)) '(r2))
+	(gotoif '(r2 /= 2) 'error)
+	(call 'lisp :env_args_match `(r1 (@ ,(f-path 'nums :vtable)) 2) '(r2))
+	(gotoif '(r2 = 0) 'error))
+
+	(vp-push r0 r1)
+	(array-bind-args r1 '(r0 r1))
+
+(errorcases
+	(assign '((r0 array_length)) '(r2))
+	(assign '((r1 array_length)) '(r3))
+	(gotoif '(r2 = 0) 'error1)
+	(gotoif '(r2 > r3) 'error1))
+
+	(vp-push r0)
+	(call 'nums :dot '(r0 r1) '(_ r0))
+	(vp-pop r1)
+	(v-call 'nums :velement '(r0) '(r1) r1 r1)
+	(vp-pop r0 r2)
+
+	(exit 'nums :lisp_dot '(r0 r1))
+	(vp-ret)
+
+(errorcases
+(vp-label 'error1)
+	(vp-pop r0 r1)
+(vp-label 'error)
+	(jump 'lisp :repl_error '(r0 "(nums-dot nums nums)" error_msg_wrong_types r1)))
+
+(def-func-end)

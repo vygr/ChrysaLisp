@@ -8,6 +8,7 @@
 	(dec-method :add class/reals/add :override)
 	(dec-method :sub class/reals/sub :override)
 	(dec-method :mul class/reals/mul :override)
+	(dec-method :dot class/reals/dot :override)
 	(dec-method :div class/reals/div :override)
 	(dec-method :mod class/reals/mod :override)
 	(dec-method :abs class/reals/abs :override)

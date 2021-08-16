@@ -39,11 +39,9 @@
 (defmacro vec-scale (p s &optional _)
 	(if _ `(nums-scale ,p ,s ,_) `(nums-scale ,p ,s)))
 
-(defmacro vec-dot (p1 p2 &optional _)
-	(if _ `(nums-sum (vec-mul ,p1 ,p2 ,_)) `(nums-sum (vec-mul ,p1 ,p2))))
+(defmacro vec-dot (p1 p2) `(nums-dot ,p1 ,p2))
 
-(defmacro vec-sum (p)
-	`(nums-sum ,p))
+(defmacro vec-sum (p) `(nums-sum ,p))
 
 (defmacro vec-clamp (p1 p2 p3 &optional _)
 	(if _ `(nums-min (nums-max ,p1 ,p2 ,_) ,p3 ,_) `(nums-min (nums-max ,p1 ,p2) ,p3)))
@@ -52,22 +50,20 @@
 	(vec-scale n (* (nums-sum (if _ (vec-mul p n _) (defq _ (vec-mul p n)))) 2.0) _)
 	(vec-sub p _ _))
 
-(defmacro vec-length (p &optional _)
-	(if _ `(sqrt (vec-dot ,p ,p ,_)) `(sqrt (vec-dot ,p ,p))))
+(defun vec-length (p)
+	(sqrt (vec-dot p p)))
 
-(defmacro vec-length-squared (p &optional _)
-	(if _ `(vec-dot ,p ,p ,_) `(vec-dot ,p ,p)))
+(defun vec-length-squared (p)
+	(vec-dot p p))
 
 (defun vec-norm (p &optional _)
-	(vec-scale p (recip (if _
-		(vec-length p _)
-		(sqrt (nums-sum (defq _ (vec-mul p p)))))) _))
+	(if _ (vec-scale p (recip (vec-length p)) _) (vec-scale p (recip (vec-length p)))))
 
-(defun vec-distance (p1 p2)
-	(vec-length (defq _ (vec-sub p1 p2)) _ _))
+(defun vec-distance (p1 p2 &optional _)
+	(if _ (vec-length (vec-sub p1 p2 _)) (vec-length (vec-sub p1 p2))))
 
 (defun vec-distance-squared (p1 p2)
-	(vec-length-squared (defq _ (vec-sub p1 p2)) _ _))
+	(if _ (vec-length-squared (vec-sub p1 p2 _)) (vec-length-squared (vec-sub p1 p2))))
 
 (defun vec-distance-to-line (p p1 p2)
 	(defq lv (vec-sub p2 p1)

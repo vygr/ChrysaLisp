@@ -204,6 +204,7 @@
 				(push matrix_stack (defq mat4x4_obj (mat4x4-mul
 					(elem -2 matrix_stack) (. object :get_matrix))))
 				(when (def? :mesh object)
+					(task-slice)
 					(defq mat4x4_proj (mat4x4-mul mat4x4_frust mat4x4_obj))
 					(if mode
 						(render-object-tris size mat4x4_obj mat4x4_proj object)
@@ -212,6 +213,7 @@
 			(lambda (object children)
 				(pop matrix_stack)))
 		(each-rev (lambda (poly_list)
+			(task-slice)
 			(each (lambda ((poly col (sx sy)))
 					(.-> canvas (:set_color col) (:fpoly sx sy +winding_odd_even poly))) poly_list)) poly_buckets)
 		(each (# (clear %0)) poly_buckets)

@@ -283,3 +283,38 @@
 	(vp-ret)
 
 (def-func-end)
+
+(def-method 'reals :dot)
+	;inputs
+	;r0 = reals object (ptr)
+	;r1 = reals object, can be same (ptr)
+	;outputs
+	;r0 = reals object (ptr)
+	;r1 = dot product (real)
+	;trashes
+	;r1-r14
+
+	(vp-def (val1 val2 this sum src2 src1 src_end) '(r13 r14))
+
+	(entry 'reals :dot `(,this r1))
+
+	(class/array/get_both this src1 src_end)
+	(assign '((r1 array_begin) 0) `(,src2 ,sum))
+	(vpif (list src1 '/= src_end))
+		(assign `((,src1 0) (,src2 0)) `(,val1 ,val2))
+		(vp-add-cr +long_size src1)
+		(vp-add-cr +long_size src2)
+		(call 'sys_math :r_mul `(,val1 ,val2) `(,sum))
+		(loop-while (list src1 '/= src_end))
+			(assign `((,src1 0) (,src2 0)) `(,val1 ,val2))
+			(vp-add-cr +long_size src1)
+			(vp-add-cr +long_size src2)
+			(call 'sys_math :r_mul `(,val1 ,val2) `(,val1))
+			(call 'sys_math :r_add `(,val1 ,sum) `(,sum))
+		(loop-end)
+	(endif)
+
+	(exit 'reals :dot `(,this ,sum))
+	(vp-ret)
+
+(def-func-end)

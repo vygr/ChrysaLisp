@@ -6,6 +6,7 @@
 	(dec-method :vcreate class/fixeds/create :override)
 	(dec-method :velement class/fixed/create :override)
 	(dec-method :mul class/fixeds/mul :override)
+	(dec-method :dot class/fixeds/dot :override)
 	(dec-method :div class/fixeds/div :override)
 	(dec-method :mod class/fixeds/mod :override)
 	(dec-method :scale class/fixeds/scale :override)

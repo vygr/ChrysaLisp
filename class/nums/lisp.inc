@@ -9,3 +9,4 @@
 (ffi nums-sum "class/nums/lisp_sum" 0)
 (ffi nums-min "class/nums/lisp_min" 0)
 (ffi nums-max "class/nums/lisp_max" 0)
+(ffi nums-dot "class/nums/lisp_dot" 0)

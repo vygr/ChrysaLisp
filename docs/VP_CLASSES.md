@@ -1411,6 +1411,19 @@ trashes
 r1-r8
 ```
 
+### fixeds :dot -> class/fixeds/dot
+
+```code
+inputs
+r0 = fixeds object (ptr)
+r1 = fixeds object, can be same (ptr)
+outputs
+r0 = fixeds object (ptr)
+r1 = dot product (fixed)
+trashes
+r1-r6
+```
+
 ### fixeds :floor -> class/fixeds/floor
 
 ```code
@@ -4215,6 +4228,19 @@ trashes
 r1-r8
 ```
 
+### nums :dot -> class/nums/dot
+
+```code
+inputs
+r0 = nums object (ptr)
+r1 = nums object, can be same (ptr)
+outputs
+r0 = nums object (ptr)
+r1 = dot product (long)
+trashes
+r1-r6
+```
+
 ### nums :lisp_abs -> class/nums/lisp_abs
 
 ```code
@@ -4242,6 +4268,19 @@ r1-r14
 ```
 
 ### nums :lisp_div -> class/nums/lisp_div
+
+```code
+inputs
+r0 = lisp object (ptr)
+r1 = args list object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
+### nums :lisp_dot -> class/nums/lisp_dot
 
 ```code
 inputs
@@ -5699,6 +5738,19 @@ r1 = source1 reals object, can be same (ptr)
 r2 = source2 reals object, can be same (ptr)
 outputs
 r0 = reals object (ptr)
+trashes
+r1-r14
+```
+
+### reals :dot -> class/reals/dot
+
+```code
+inputs
+r0 = reals object (ptr)
+r1 = reals object, can be same (ptr)
+outputs
+r0 = reals object (ptr)
+r1 = dot product (real)
 trashes
 r1-r14
 ```

@@ -166,3 +166,34 @@
 	(vp-ret)
 
 (def-func-end)
+
+(def-method 'fixeds :dot)
+	;inputs
+	;r0 = fixeds object (ptr)
+	;r1 = fixeds object, can be same (ptr)
+	;outputs
+	;r0 = fixeds object (ptr)
+	;r1 = dot product (fixed)
+	;trashes
+	;r1-r6
+
+	(vp-def (this sum src2 src1 src_end val1 val2))
+
+	(entry 'fixeds :dot `(,this r1))
+
+	(class/array/get_both this src1 src_end)
+	(assign '((r1 array_begin)) `(,src2))
+	(vp-xor-rr sum sum)
+	(loop-while (list src1 '/= src_end))
+		(assign `((,src1 0) (,src2 0)) `(,val1 ,val2))
+		(vp-add-cr +long_size src1)
+		(vp-add-cr +long_size src2)
+		(vp-mul-rr val1 val2)
+		(vp-asr-cr +fp_shift val2)
+		(vp-add-rr val2 sum)
+	(loop-end)
+
+	(exit 'fixeds :dot `(,this ,sum))
+	(vp-ret)
+
+(def-func-end)
