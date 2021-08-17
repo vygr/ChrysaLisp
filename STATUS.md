@@ -15,6 +15,8 @@ New Lisp level co-op `(task-slice)` function. Will do a deschedule if the
 current thread has been running for over a millisecond. More flexible strategy
 for a co-op system than just calling deschedule.
 
+VP versions of dot product `(nums-dot)`.
+
 ------
 
 Optimized versions of the bracket matching methods on the Buffer class. 25%

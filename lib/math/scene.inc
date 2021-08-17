@@ -11,12 +11,11 @@
 	(enum poly col pos))
 
 (defun circle (r)
-	;cached circle generation, quantised to 1/4 pixel
+	;cached circle path generation, quantised to 1/4 pixel
 	(defq r (* (floor (* (r2f r) 4.0)) 0.25) i (% (logior r) 13)
 		k (elem i '(()()()()()()()()()()()()())) p (elem i '(()()()()()()()()()()()()())))
 	(cond ((defq i (some (lambda (i) (if (= i r) _)) k)) (elem i p))
-		(t (push k r) (elem -2 (push p (list
-			(path-gen-arc 0.0 0.0 0.0 +fp_2pi r 0.25 (path))))))))
+		(t (push k r) (elem -2 (push p (path-gen-arc 0.0 0.0 0.0 +fp_2pi r 0.25 (path)))))))
 
 (defun lighting (alpha col at)
 	;very basic attenuation and diffuse
@@ -74,7 +73,7 @@
 					v (elem i0 proj_verts)
 					sz (r2i (* (+ (/ (elem +vec4_z v) (elem +vec4_w v)) +real_1) (const (i2r 50)))))
 				(push (elem sz poly_buckets) (list
-					(list (cat (elem i0 screen_verts) (elem i1 screen_verts) (elem i2 screen_verts)))
+					(cat (elem i0 screen_verts) (elem i1 screen_verts) (elem i2 screen_verts))
 					(lighting-at3 1.0 col at sp)
 					(list 0.0 0.0)))))
 		(. object :get_tris)))
@@ -212,11 +211,12 @@
 				nil)
 			(lambda (object children)
 				(pop matrix_stack)))
-		(each-rev (lambda (poly_list)
-			(task-slice)
-			(each (lambda ((poly col (sx sy)))
-					(.-> canvas (:set_color col) (:fpoly sx sy +winding_odd_even poly))) poly_list)) poly_buckets)
-		(each (# (clear %0)) poly_buckets)
+		(each-rev (lambda (path_list)
+				(task-slice)
+				(while (defq p (pop path_list))
+					(bind '(p col (sx sy)) p)
+					(.-> canvas (:set_color col) (:fpoly sx sy +winding_odd_even (list p)))))
+			poly_buckets)
 		(. canvas :swap))
 	)
 

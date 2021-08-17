@@ -75,12 +75,11 @@
 	(.-> canvas (:set_color col) (:fpoly x y +winding_odd_even _)))
 
 (defun circle (r)
-	;cached circle generation, quantised to 1/4 pixel
+	;cached circle path generation, quantised to 1/4 pixel
 	(defq r (* (floor (* r 4.0)) 0.25) i (% (logior r) 13)
 		k (elem i '(()()()()()()()()()()()()())) p (elem i '(()()()()()()()()()()()()())))
 	(cond ((defq i (some (lambda (i) (if (= i r) _)) k)) (elem i p))
-		(t (push k r) (elem -2 (push p (list
-			(path-gen-arc 0.0 0.0 0.0 +fp_2pi r 0.25 (path))))))))
+		(t (push k r) (elem -2 (push p (path-gen-arc 0.0 0.0 0.0 +fp_2pi r 0.25 (path)))))))
 
 (defun lighting ((r g b) z)
 	;very basic attenuation
@@ -107,8 +106,8 @@
 (defun render-verts (canvas verts)
 	;render circular verts
 	(each (lambda (((x y z) (sx sy) r c sc))
-		(fpoly canvas c x y (circle r))
-		(fpoly canvas sc sx sy (circle (* r 0.2)))) verts))
+		(fpoly canvas c x y (list (circle r)))
+		(fpoly canvas sc sx sy (list (circle (* r 0.2))))) verts))
 
 (defun redraw (dlist)
 	;redraw layer/s
