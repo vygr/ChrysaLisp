@@ -132,9 +132,9 @@
 
 (defun mat3x3-mul (ma mb)
 	; (mat3x3-mul mat3x3_a mat3x3_b) -> mat3x3
-	(defq mar0 (elem +mat3x3_r0 ma) mar1 (elem +mat3x3_r1 ma) mar2 (elem +mat3x3_r2 ma)
-		mbr0 (elem +mat3x3_r0 mb) mbr1 (elem +mat3x3_r1 mb) mbr2 (elem +mat3x3_r2 mb)
-		mbc0 (reals (elem 0 mbr0) (elem 0 mbr1) (elem 0 mbr2))
+	(bind '(mar0 mar1 mar2) ma)
+	(bind '(mbr0 mbr1 mbr2) mb)
+	(defq mbc0 (reals (elem 0 mbr0) (elem 0 mbr1) (elem 0 mbr2))
 		mbc1 (reals (elem 1 mbr0) (elem 1 mbr1) (elem 1 mbr2))
 		mbc2 (reals (elem 2 mbr0) (elem 2 mbr1) (elem 2 mbr2)))
 	(list (reals (vec-dot mar0 mbc0) (vec-dot mar0 mbc1) (vec-dot mar0 mbc2))
@@ -143,11 +143,9 @@
 
 (defun mat4x4-mul (ma mb)
 	; (mat4x4-mul mat4x4_a mat4x4_b) -> mat4x4
-	(defq mar0 (elem +mat4x4_r0 ma) mar1 (elem +mat4x4_r1 ma)
-		mar2 (elem +mat4x4_r2 ma) mar3 (elem +mat4x4_r3 ma)
-		mbr0 (elem +mat4x4_r0 mb) mbr1 (elem +mat4x4_r1 mb)
-		mbr2 (elem +mat4x4_r2 mb) mbr3 (elem +mat4x4_r3 mb)
-		mbc0 (reals (elem 0 mbr0) (elem 0 mbr1) (elem 0 mbr2) (elem 0 mbr3))
+	(bind '(mar0 mar1 mar2 mar3) ma)
+	(bind '(mbr0 mbr1 mbr2 mbr3) mb)
+	(defq mbc0 (reals (elem 0 mbr0) (elem 0 mbr1) (elem 0 mbr2) (elem 0 mbr3))
 		mbc1 (reals (elem 1 mbr0) (elem 1 mbr1) (elem 1 mbr2) (elem 1 mbr3))
 		mbc2 (reals (elem 2 mbr0) (elem 2 mbr1) (elem 2 mbr2) (elem 2 mbr3))
 		mbc3 (reals (elem 3 mbr0) (elem 3 mbr1) (elem 3 mbr2) (elem 3 mbr3)))
