@@ -266,6 +266,7 @@
 
 (def-func-end)
 
+;1 bit reserved for mantisa sign !
 (defq mbits 31 ebits (- 63 mbits))
 
 (defun real-unpack (rn re rm)
