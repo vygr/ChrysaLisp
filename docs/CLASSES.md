@@ -155,6 +155,10 @@ to avoid throwing any errors due to a method not found.
 	this)
 ```
 
+Another use of the `(.?)` function is that you can use it before a tight loop
+to lift the `lambda` for the method/s you are calling into local variable/s.
+Thus avoiding the `:vtable` and method lookup during that loop !
+
 ## (.super this :method [arg ...])
 
 When defining a subclass, of a class, you may need to invoke the functionality
