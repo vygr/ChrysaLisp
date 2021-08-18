@@ -7,9 +7,6 @@
 ;module
 (env-push)
 
-(enums +poly 0
-	(enum poly col pos))
-
 (defun circle (r)
 	;cached circle path generation, quantised to 1/4 pixel
 	(defq r (* (floor (* (r2f r) 4.0)) 0.25) i (% (logior r) 13)
@@ -37,7 +34,7 @@
 		(const (fixeds 255.0 255.0 255.0)) +fixeds_tmp3))
 	(+ (<< (f2i (* alpha 255.0)) 24) (<< (f2i r) 16) (<< (f2i g) 8) (f2i b)))
 
-(defun render-object-verts (size mat4x4_obj mat4x4_proj object)
+(defun render-object-verts (size mat4x4_proj object)
 	(defq sp (* +real_1/2 (i2r (dec size)))
 		proj_verts (map (# (mat4x4-vec4-mul mat4x4_proj %0)) (. object :get_verts)))
 	(each (lambda ((x y z w))
@@ -64,9 +61,7 @@
 			(push ats at))
 		proj_verts)
 	(each (lambda ((i0 i1 i2 in))
-			(defq v0 (elem i0 obj_verts) v1 (elem i1 obj_verts) v2 (elem i2 obj_verts)
-				n (elem in obj_norms))
-			(when (> (vec-dot n v0) +real_0)
+			(when (> (vec-dot (defq n (elem in obj_norms)) (elem i0 obj_verts)) +real_0)
 				(defq sp (max +real_0 (vec-dot n (const (reals (f2r 0.55) (f2r 0.55) (f2r -0.55)))))
 					sp (* sp sp sp sp sp sp)
 					at (+ (elem i0 ats) (elem i1 ats) (elem i2 ats))
@@ -75,7 +70,7 @@
 				(push (elem sz poly_buckets) (list
 					(cat (elem i0 screen_verts) (elem i1 screen_verts) (elem i2 screen_verts))
 					(lighting-at3 1.0 col at sp)
-					(list 0.0 0.0)))))
+					'(0.0 0.0)))))
 		(. object :get_tris)))
 
 (defclass Scene-node (&optional name) nil
@@ -203,19 +198,19 @@
 				(push matrix_stack (defq mat4x4_obj (mat4x4-mul
 					(elem -2 matrix_stack) (. object :get_matrix))))
 				(when (def? :mesh object)
-					(task-slice)
 					(defq mat4x4_proj (mat4x4-mul mat4x4_frust mat4x4_obj))
 					(if mode
 						(render-object-tris size mat4x4_obj mat4x4_proj object)
-						(render-object-verts size mat4x4_obj mat4x4_proj object)))
+						(render-object-verts size mat4x4_proj object))
+					(task-slice))
 				nil)
 			(lambda (object children)
 				(pop matrix_stack)))
 		(each-rev (lambda (path_list)
-				(task-slice)
 				(while (defq p (pop path_list))
 					(bind '(p col (sx sy)) p)
-					(.-> canvas (:set_color col) (:fpoly sx sy +winding_odd_even (list p)))))
+					(.-> canvas (:set_color col) (:fpoly sx sy +winding_odd_even (list p))))
+				(task-slice))
 			poly_buckets)
 		(. canvas :swap))
 	)

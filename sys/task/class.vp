@@ -10,8 +10,8 @@
 	;init task statics
 
 	;init timer/task lists
-	(vp-xor-rr r1 r1)
 	(fn-bind 'sys/statics/statics r0)
+	(vp-xor-rr r1 r1)
 	(vp-cpy-ri r1 r0 statics_sys_task_then)
 	(vp-add-cr statics_sys_task_timer_list r0)
 	(vp-lea-i r0 (* (+ num_task_lists 1) lh_list_size) r1)
