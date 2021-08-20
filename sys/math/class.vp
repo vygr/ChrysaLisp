@@ -346,19 +346,22 @@
 	(real-unpack n2 e2 m2)
 	(real-unpack n1 e1 m1)
 	(vp-sub-rr e1 e2)
-	(vpif (list e2 '= 0))
-		(vp-add-rr m2 m1)
-	(elseif (list e2 '> 0))
-		(vp-asr-rr e2 m1)
+	(vpif (list e2 '> 0))
 		(vp-add-rr e2 e1)
-		(vp-add-rr m2 m1)
-	(else)
+		(gotoif `(,e2 >= mbits) 'overflow1)
+		(vp-asr-rr e2 m1)
+	(elseif (list e2 '< 0))
+		(gotoif `(,e2 <= ,(neg mbits)) 'overflow)
 		(vp-mul-cr -1 e2)
 		(vp-asr-rr e2 m2)
-		(vp-add-rr m2 m1)
 	(endif)
+	(vp-add-rr m2 m1)
 
+(vp-label 'overflow)
 	(jump 'sys_math :r_pack `(,e1 ,m1))
+
+(vp-label 'overflow1)
+	(jump 'sys_math :r_pack `(,e1 ,m2))
 
 (def-func-end)
 
@@ -378,19 +381,22 @@
 	(real-unpack n2 e2 m2)
 	(real-unpack n1 e1 m1)
 	(vp-sub-rr e1 e2)
-	(vpif (list e2 '= 0))
-		(vp-sub-rr m2 m1)
-	(elseif (list e2 '> 0))
-		(vp-asr-rr e2 m1)
+	(vpif (list e2 '> 0))
 		(vp-add-rr e2 e1)
-		(vp-sub-rr m2 m1)
-	(else)
+		(gotoif `(,e2 >= mbits) 'overflow1)
+		(vp-asr-rr e2 m1)
+	(elseif (list e2 '< 0))
+		(gotoif `(,e2 <= ,(neg mbits)) 'overflow)
 		(vp-mul-cr -1 e2)
 		(vp-asr-rr e2 m2)
-		(vp-sub-rr m2 m1)
 	(endif)
+	(vp-sub-rr m2 m1)
 
+(vp-label 'overflow)
 	(jump 'sys_math :r_pack `(,e1 ,m1))
+
+(vp-label 'overflow1)
+	(jump 'sys_math :r_pack `(,e1 ,m2))
 
 (def-func-end)
 
@@ -411,7 +417,7 @@
 	(real-unpack n1 e1 m1)
 	(vp-mul-rr m2 m1)
 	(vp-add-rr e2 e1)
-	(vp-sub-cr mbits e1)
+	(vp-asr-cr mbits m1)
 
 	(jump 'sys_math :r_pack `(,e1 ,m1))
 
@@ -435,8 +441,8 @@
 	(vp-shl-cr (- 63 mbits) m1)
 	(vp-sub-rr e2 e1)
 	(vp-ext-rr m1 e2)
-	(vp-sub-cr (inc (* (- 31 mbits) 2)) e1)
 	(vp-div-rrr m2 e2 m1)
+	(vp-add-cr (- mbits (- 63 mbits)) e1)
 
 	(jump 'sys_math :r_pack `(,e1 ,m1))
 
