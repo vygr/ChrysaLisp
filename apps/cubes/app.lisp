@@ -94,9 +94,9 @@
 	(defun time-in-seconds (_)
 		(str (/ _ 1000000) "." (pad (% _ 1000000) 6 "00000")))
 	(defq tests (list
-			(nums 2 2 2)
-			(fixeds 2.0 2.0 2.0)
-			(reals (f2r 23.069) (f2r 20000.56240) (f2r 819.45098))))
+			(nums 2 2 2 2)
+			(fixeds 2.0 2.0 2.0 2.0)
+			(reals (f2r 23.069) (f2r 20000.56240) (f2r 819.45098) (f2r 1.0))))
 	(each (lambda (v)
 		(defq then (pii-time))
 		(times 10000000 (nums-dot v v) (nums-dot v v) (nums-dot v v) (nums-dot v v) (nums-dot v v))

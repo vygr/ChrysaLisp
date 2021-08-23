@@ -17,6 +17,9 @@ for a co-op system than just calling deschedule.
 
 VP versions of dot product `(nums-dot)`.
 
+Real format fixes to overflow conditions and some optimisations to multiply and
+conversions to fixed and integer.
+
 ------
 
 Optimized versions of the bracket matching methods on the Buffer class. 25%
