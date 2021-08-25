@@ -28,7 +28,7 @@
 		0xdfc 0xcf5 0xfff 0xef6 0x9fa 0x8f3 0xbf9 0xaf0
 		0x650 0x759 0x453 0x55a 0x256 0x35f 0x55  0x15c
 		0xe5c 0xf55 0xc5f 0xd56 0xa5a 0xb53 0x859 0x950
-		0x7c0 0x6c9 0x5c3 0x4ca 0x3c6 0x2cf 0x1c5 0xcc 
+		0x7c0 0x6c9 0x5c3 0x4ca 0x3c6 0x2cf 0x1c5 0xcc
 		0xfcc 0xec5 0xdcf 0xcc6 0xbca 0xac3 0x9c9 0x8c0
 		0x8c0 0x9c9 0xac3 0xbca 0xcc6 0xdcf 0xec5 0xfcc
 		0xcc  0x1c5 0x2cf 0x3c6 0x4ca 0x5c3 0x6c9 0x7c0
@@ -304,7 +304,7 @@
 		((0 3 8))
 		(())))
 
-;Linearly interpolate the position where an isosurface cuts
+;linearly interpolate the position where an isosurface cuts
 ;an edge between two vertices, each with their own scalar value
 
 (defun vertex-interp (isolevel p1 p2 valp1 valp2)
@@ -313,84 +313,49 @@
 		((< (abs (- isolevel valp1)) (const (f2r 0.0001))) p1)
 		((< (abs (- isolevel valp2)) (const (f2r 0.0001))) p2)
 		((< (abs (- valp1 valp2)) (const (f2r 0.0001))) p1)
-		(t	(defq mu (/ (- isolevel valp1) (- valp2 valp1)))
-			(vec-add p1 (vec-scale (vec-sub p1 p2 +reals_tmp3) mu +reals_tmp3)))))
+		(t  (vec-add p1 (vec-scale (vec-sub p1 p2 +reals_tmp3)
+				(/ (- isolevel valp1) (- valp2 valp1)) +reals_tmp3)))))
 
-;Given a grid cell and an isolevel, calculate the triangular
+;given a grid cell and an isolevel, calculate the triangular
 ;facets required to represent the isosurface through the cell.
-;Return the list of triangular facets, at most 5 triangular facets.
-;An empty list will be returned if the grid cell is either totally above
+;return the list of triangular facets, at most 5 triangular facets.
+;an empty list will be returned if the grid cell is either totally above
 ;or totally below the isolevel.
 
 (defun iso-surface (grid isolevel)
 	; (iso-surface grid isolevel) -> tris
-
-	;Determine the index into the edge table which
+	;determine the index into the edge table which
 	;tells us which vertices are inside the surface
-	(defq cubeindex 0)
-	(if (< (elem +gridcell_v0 grid) isolevel) (setq cubeindex (logior cubeindex 1)))
-	(if (< (elem +gridcell_v1 grid) isolevel) (setq cubeindex (logior cubeindex 2)))
-	(if (< (elem +gridcell_v2 grid) isolevel) (setq cubeindex (logior cubeindex 4)))
-	(if (< (elem +gridcell_v3 grid) isolevel) (setq cubeindex (logior cubeindex 8)))
-	(if (< (elem +gridcell_v4 grid) isolevel) (setq cubeindex (logior cubeindex 16)))
-	(if (< (elem +gridcell_v5 grid) isolevel) (setq cubeindex (logior cubeindex 32)))
-	(if (< (elem +gridcell_v6 grid) isolevel) (setq cubeindex (logior cubeindex 64)))
-	(if (< (elem +gridcell_v7 grid) isolevel) (setq cubeindex (logior cubeindex 128)))
-
+	(defq cubeindex (reduce (lambda (cubeindex b v)
+				(+ cubeindex (if (< (elem v grid) isolevel) b 0)))
+			(const (cat (list quote) (prebind '(
+			(1 +gridcell_v0) (2 +gridcell_v1)
+			(4 +gridcell_v2) (8 +gridcell_v3)
+			(16 +gridcell_v4) (32 +gridcell_v5)
+			(64 +gridcell_v6) (128 +gridcell_v7))))) 0))
 	(cond
-		((= (elem cubeindex +edge_table) 0)
-			;Cube is entirely in/out of the surface
+		((= (defq cube (elem cubeindex +edge_table) 0)
+			;cube is entirely in/out of the surface
 			'())
-		(t	;Find the vertices where the surface intersects the cube
-			(defq vertlist (list t t t t t t t t t t t t))
-			(if (/= (logand (elem cubeindex +edge_table) 1) 0)
-				(elem-set 0 vertlist (vertex-interp isolevel
-					(elem +gridcell_p0 grid) (elem +gridcell_p1 grid)
-					(elem +gridcell_v0 grid) (elem +gridcell_v1 grid))))
-			(if (/= (logand (elem cubeindex +edge_table) 2) 0)
-				(elem-set 1 vertlist (vertex-interp isolevel
-					(elem +gridcell_p1 grid) (elem +gridcell_p2 grid)
-					(elem +gridcell_v1 grid) (elem +gridcell_v2 grid))))
-			(if (/= (logand (elem cubeindex +edge_table) 4) 0)
-				(elem-set 2 vertlist (vertex-interp isolevel
-					(elem +gridcell_p2 grid) (elem +gridcell_p3 grid)
-					(elem +gridcell_v2 grid) (elem +gridcell_v3 grid))))
-			(if (/= (logand (elem cubeindex +edge_table) 8) 0)
-				(elem-set 3 vertlist (vertex-interp isolevel
-					(elem +gridcell_p3 grid) (elem +gridcell_p0 grid)
-					(elem +gridcell_v3 grid) (elem +gridcell_v0 grid))))
-			(if (/= (logand (elem cubeindex +edge_table) 16) 0)
-				(elem-set 4 vertlist (vertex-interp isolevel
-					(elem +gridcell_p4 grid) (elem +gridcell_p5 grid)
-					(elem +gridcell_v4 grid) (elem +gridcell_v5 grid))))
-			(if (/= (logand (elem cubeindex +edge_table) 32) 0)
-				(elem-set 5 vertlist (vertex-interp isolevel
-					(elem +gridcell_p5 grid) (elem +gridcell_p6 grid)
-					(elem +gridcell_v5 grid) (elem +gridcell_v6 grid))))
-			(if (/= (logand (elem cubeindex +edge_table) 64) 0)
-				(elem-set 6 vertlist (vertex-interp isolevel
-					(elem +gridcell_p6 grid) (elem +gridcell_p7 grid)
-					(elem +gridcell_v6 grid) (elem +gridcell_v7 grid))))
-			(if (/= (logand (elem cubeindex +edge_table) 128) 0)
-				(elem-set 7 vertlist (vertex-interp isolevel
-					(elem +gridcell_p7 grid) (elem +gridcell_p4 grid)
-					(elem +gridcell_v7 grid) (elem +gridcell_v4 grid))))
-			(if (/= (logand (elem cubeindex +edge_table) 256) 0)
-				(elem-set 8 vertlist (vertex-interp isolevel
-					(elem +gridcell_p0 grid) (elem +gridcell_p4 grid)
-					(elem +gridcell_v0 grid) (elem +gridcell_v4 grid))))
-			(if (/= (logand (elem cubeindex +edge_table) 512) 0)
-				(elem-set 9 vertlist (vertex-interp isolevel
-					(elem +gridcell_p1 grid) (elem +gridcell_p5 grid)
-					(elem +gridcell_v1 grid) (elem +gridcell_v5 grid))))
-			(if (/= (logand (elem cubeindex +edge_table) 1024) 0)
-				(elem-set 10 vertlist (vertex-interp isolevel
-					(elem +gridcell_p2 grid) (elem +gridcell_p6 grid)
-					(elem +gridcell_v2 grid) (elem +gridcell_v6 grid))))
-			(if (/= (logand (elem cubeindex +edge_table) 2048) 0)
-				(elem-set 11 vertlist (vertex-interp isolevel
-					(elem +gridcell_p3 grid) (elem +gridcell_p7 grid)
-					(elem +gridcell_v3 grid) (elem +gridcell_v7 grid))))
+		(t  ;find the vertices where the surface intersects the cube
+			(defq vertlist (reduce (lambda (vertlist (i p0 p1 v0 v1))
+						(push vertlist (if (= (logand cube i) 0) nil
+							(vertex-interp isolevel
+								(elem p0 grid) (elem p1 grid)
+								(elem v0 grid) (elem v1 grid)))))
+					(const (cat (list quote) (prebind '(
+					(1 +gridcell_p0 +gridcell_p1 +gridcell_v0 +gridcell_v1)
+					(2 +gridcell_p1 +gridcell_p2 +gridcell_v1 +gridcell_v2)
+					(4 +gridcell_p2 +gridcell_p3 +gridcell_v2 +gridcell_v3)
+					(8 +gridcell_p3 +gridcell_p0 +gridcell_v3 +gridcell_v0)
+					(16 +gridcell_p4 +gridcell_p5 +gridcell_v4 +gridcell_v5)
+					(32 +gridcell_p5 +gridcell_p6 +gridcell_v5 +gridcell_v6)
+					(64 +gridcell_p6 +gridcell_p7 +gridcell_v6 +gridcell_v7)
+					(128 +gridcell_p7 +gridcell_p4 +gridcell_v7 +gridcell_v4)
+					(256 +gridcell_p0 +gridcell_p4 +gridcell_v0 +gridcell_v4)
+					(512 +gridcell_p1 +gridcell_p5 +gridcell_v1 +gridcell_v5)
+					(1024 +gridcell_p2 +gridcell_p6 +gridcell_v2 +gridcell_v6)
+					(2048 +gridcell_p3 +gridcell_p7 +gridcell_v3 +gridcell_v7))))) (list)))
 			;return the triangles verts
 			(map (lambda ((p0 p1 p2)
 					(list (elem p0 vertlist) (elem p1 vertlist) (elem p2 vertlist))))
