@@ -27,6 +27,7 @@
 	(dec-method :lisp_scale class/nums/lisp_scale :static (r0 r1) (r0 r1))
 	(dec-method :lisp_min class/nums/lisp_min :static (r0 r1) (r0 r1))
 	(dec-method :lisp_max class/nums/lisp_max :static (r0 r1) (r0 r1))
-	(dec-method :lisp_abs class/nums/lisp_abs :static (r0 r1) (r0 r1)))
+	(dec-method :lisp_abs class/nums/lisp_abs :static (r0 r1) (r0 r1))
+	(dec-method :hash class/nums/hash :override (r0) (r0 r1)))
 
 (def-struct nums array_size)

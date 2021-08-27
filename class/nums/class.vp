@@ -264,3 +264,32 @@
 	(vp-ret)
 
 (def-func-end)
+
+(def-method 'nums :hash)
+	;inputs
+	;r0 = nums object (ptr)
+	;outputs
+	;r0 = nums object (ptr)
+	;r1 = hash code (long)
+	;trashes
+	;r1-r4
+
+	(vp-def (dst dst1 src_end hcode val))
+
+	(entry 'nums :hash `(,dst))
+
+	(call 'nums :get_both `(,dst) `(,dst ,dst1 ,src_end))
+	(vp-xor-rr hcode hcode)
+	(loop-while (list dst1 '/= src_end))
+		(assign `((,dst1 0)) `(,val))
+		(vp-add-cr +long_size dst1)
+		(vp-xor-rr val hcode)
+	(loop-end)
+	(vpif (list hcode '< 0))
+		(vp-mul-cr -1 hcode)
+	(endif)
+
+	(exit 'nums :hash `(,dst ,hcode))
+	(vp-ret)
+
+(def-func-end)
