@@ -4241,6 +4241,18 @@ trashes
 r1-r6
 ```
 
+### nums :hash -> class/nums/hash
+
+```code
+inputs
+r0 = nums object (ptr)
+outputs
+r0 = nums object (ptr)
+r1 = hash code (long)
+trashes
+r1-r4
+```
+
 ### nums :lisp_abs -> class/nums/lisp_abs
 
 ```code

@@ -72,11 +72,12 @@
 
 (defun reset ()
 	(setq scene (Scene "root") *dirty* t)
-	(defq mesh (Mesh-sphere +real_1/4 8)
-		sphere (Scene-object (Mesh-sphere (* +radius (+ +real_1/3 +real_1/3)) 16) (fixeds 1.0 0.0 0.0) "sphere1")
+	(defq
+		sphere_mesh (Mesh-sphere +real_1/4 8)
+		sphere (Scene-object (Mesh-iso (Iso-sphere 15 15 15) (f2r 0.65)) (fixeds 1.0 0.0 0.0) "sphere1")
 		torus (Scene-object (Mesh-torus (- +radius +real_1/3) +real_1/3 18) (fixeds 0.0 1.0 0.0) "torus1")
-		sphere2 (Scene-object mesh (fixeds 1.0 0.0 1.0) "sphere2")
-		sphere3 (Scene-object mesh (fixeds 1.0 1.0 0.0) "sphere2"))
+		sphere2 (Scene-object sphere_mesh (fixeds 1.0 0.0 1.0) "sphere2")
+		sphere3 (Scene-object sphere_mesh (fixeds 1.0 1.0 0.0) "sphere3"))
 	(. torus :set_translation +real_1/2 +real_1/2 (- +real_0 +focal_dist +radius))
 	(. sphere :set_translation (+ +real_-1/3 +real_-1/3) (+ +real_-1/3 +real_-1/3) (- +real_0 +focal_dist +radius))
 	(. sphere2 :set_translation +real_0 +real_1/2 +real_0)
