@@ -6,6 +6,8 @@
 (import "class/nums/lisp.inc")
 (import "class/fixeds/lisp.inc")
 
+(defun vec-eql (v1 v2) (every = v1 v2))
+
 (defmacro vec-add (p1 p2 &optional _)
 	(if _ `(nums-add ,p1 ,p2 ,_) `(nums-add ,p1 ,p2)))
 

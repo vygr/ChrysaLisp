@@ -10,9 +10,6 @@
 (defun Tri (i0 i1 i2 in)
 	(list i0 i1 i2 in))
 
-(defun vec-eql (v1 v2)
-	(every = v1 v2))
-
 (defun opt-vectors (vectors)
 	; (opt-vectors vectors) -> (new_vectors vector_map)
 	(defq vec_xmap (xmap 101 (const vec-eql))
