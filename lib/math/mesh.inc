@@ -2,13 +2,35 @@
 ; tri mesh
 ;;;;;;;;;;
 
-(import "lib/math/matrix.inc")
+(import "lib/math/surface.inc")
 
 ;module
 (env-push)
 
 (defun Tri (i0 i1 i2 in)
 	(list i0 i1 i2 in))
+
+(defun vec-eql (v1 v2)
+	(every = v1 v2))
+
+(defun opt-vectors (vectors)
+	; (opt-vectors vectors) -> (new_vectors vector_map)
+	(defq vec_xmap (xmap 101 (const vec-eql))
+		vec_imap (list) new_vecs (list))
+	(each (lambda (v)
+		(unless (defq i (. vec_xmap :find v))
+			(setq i (length new_vecs))
+			(. vec_xmap :insert v i)
+			(push new_vecs v))
+		(push vec_imap i)) vectors)
+	(list new_vecs vec_imap))
+
+(defun opt-mesh (verts norms tris)
+	; (opt-mesh verts norms tris) -> (verts norms tris)
+	(bind '(new_verts vert_map) (opt-vectors verts))
+	(bind '(new_norms norm_map) (opt-vectors norms))
+	(list new_verts new_norms (map (lambda ((i0 i1 i2 in))
+		(Tri (elem i0 vert_map) (elem i1 vert_map) (elem i2 vert_map) (elem in norm_map))) tris)))
 
 (defclass Mesh () nil
 	; (Mesh) -> mesh
@@ -112,9 +134,31 @@
 	(shuffle tris)
 	(lower :verts :norms :tris))
 
+(defclass Mesh-iso (iso isolevel) (Mesh)
+	; (Mesh-iso iso isolevel) -> mesh
+	(bind '(width height depth) (. iso :get_metrics))
+	(defq verts (list) norms (list) tris (list)
+		width (dec width) height (dec height) depth (dec depth) z -1)
+	(while (< (setq z (inc z)) depth)
+		(defq y -1)
+		(while (< (setq y (inc y)) height)
+			(defq x -1)
+			(while (< (setq x (inc x)) width)
+				(each (lambda ((v0 v1 v2))
+						(defq i (length verts))
+						(push tris (Tri i (inc i) (+ i 2) (length norms)))
+						(push verts (cat v0) (cat v1) (cat v2))
+						(push norms (vec-norm (apply reals (vec-cross-3d (vec-sub v0 v1) (vec-sub v0 v2))))))
+					(. iso :get_surface x y z isolevel)))))
+	(bind '(verts norms tris) (opt-mesh verts norms tris))
+	(each (# (push %0 +real_1)) verts)
+	(shuffle tris)
+	(lower :verts :norms :tris))
+
 ;module
 (export (penv)
 	*class_Mesh* Mesh Mesh?
 	*class_Mesh-torus* Mesh-torus Mesh-torus?
-	*class_Mesh-sphere* Mesh-sphere Mesh-sphere?)
+	*class_Mesh-sphere* Mesh-sphere Mesh-sphere?
+	*class_Mesh-iso* Mesh-iso Mesh-iso?)
 (env-pop)
