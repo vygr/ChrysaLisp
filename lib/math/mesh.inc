@@ -148,7 +148,7 @@
 						(defq i (length verts))
 						(push tris (Tri i (inc i) (+ i 2) (length norms)))
 						(push verts (cat v0) (cat v1) (cat v2))
-						(push norms (vec-norm (apply reals (vec-cross-3d (vec-sub v1 v2) (vec-sub v1 v0)))))))
+						(push norms (vec-norm (apply reals (vec-cross-3d (vec-sub v0 v1) (vec-sub v0 v2)))))))
 					(. iso :get_surface x y z isolevel)))))
 	(lower :verts :norms :tris)
 	(. this :optimise)

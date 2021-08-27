@@ -396,6 +396,7 @@
 	(jump 'sys_math :r_pack `(,e1 ,m1))
 
 (vp-label 'overflow1)
+	(vp-mul-cr -1 m2)
 	(jump 'sys_math :r_pack `(,e1 ,m2))
 
 (def-func-end)
