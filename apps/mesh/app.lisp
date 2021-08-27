@@ -27,7 +27,7 @@
 	*mol_index* 0 *auto_mode* nil *render_mode* nil *dirty* t scene nil)
 
 (ui-window *window* ()
-	(ui-title-bar *title* "Cubes" (0xea19 0xea1b 0xea1a) +event_close)
+	(ui-title-bar *title* "Mesh" (0xea19 0xea1b 0xea1a) +event_close)
 	(ui-flow _ (:flow_flags +flow_right_fill)
 		(ui-tool-bar main_toolbar ()
 			(ui-buttons (0xe962 0xea43) +event_mode))
@@ -178,4 +178,4 @@
 	(gui-sub *window*)
 	(free-select select)
 	(if (get 'profile-report)
-		(profile-report "Cubes")))
+		(profile-report "Mesh")))

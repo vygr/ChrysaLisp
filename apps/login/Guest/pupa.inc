@@ -16,7 +16,7 @@
 	"canvas" "pcb"
 	"raymarch" "mandelbrot"
 	"chess" "minefield"
-	"cubes" "template")
+	"mesh" "template")
 	*env_launcher_auto_apps* '("terminal"))
 
 ;launcher placement from xy :center :top :bottom :left :right)
