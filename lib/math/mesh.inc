@@ -22,6 +22,14 @@
 		(push vec_imap i)) vectors)
 	(list new_vecs vec_imap))
 
+(defun opt-mesh (verts norms tris)
+	; (opt-mesh verts norms tris) -> (new_verts new_norms new_tris)
+	(bind '(new_verts vert_map) (opt-vectors verts))
+	(bind '(new_norms norm_map) (opt-vectors norms))
+	(setq verts new_verts norms new_norms tris (map (lambda ((i0 i1 i2 in))
+		(Tri (elem i0 vert_map) (elem i1 vert_map) (elem i2 vert_map) (elem in norm_map))) tris))
+	(list verts norms tris))
+
 (defclass Mesh () nil
 	; (Mesh) -> mesh
 	(def this :verts (list) :norms (list) :tris (list))
@@ -41,10 +49,7 @@
 	(defmethod :optimise (this)
 		; (. mesh :optimise) -> this
 		(raise :verts :norms :tris)
-		(bind '(new_verts vert_map) (opt-vectors verts))
-		(bind '(new_norms norm_map) (opt-vectors norms))
-		(setq verts new_verts norms new_norms tris (map (lambda ((i0 i1 i2 in))
-			(Tri (elem i0 vert_map) (elem i1 vert_map) (elem i2 vert_map) (elem in norm_map))) tris))
+		(bind '(verts norms tris) (opt-mesh verts norms tris))
 		(lower :verts :norms :tris))
 	)
 
@@ -56,6 +61,7 @@
 		tris (cap (+ (* eps2 (- eps 2) 2) (* eps2 2)) (list)))
 	;gen verts
 	(while (< y eps)
+		(task-slice)
 		(defq x 0 ya (/ (* (i2r y) +real_2pi) eps2_r)
 			yv (* radius (cos ya)) r (* radius (sin ya)))
 		(while (< x eps2)
@@ -68,6 +74,7 @@
 	;gen norms and tris for mid section strips
 	(defq y 1)
 	(while (< y (dec eps))
+		(task-slice)
 		(defq x 0)
 		(while (< x eps2)
 			(defq i0 (+ x (* (dec y) eps2))
@@ -104,6 +111,7 @@
 		tris (cap (* eps eps2 2) (list)))
 	;gen verts
 	(while (< y eps)
+		(task-slice)
 		(defq x 0 ya (/ (* (i2r y) +real_2pi) eps_r)
 			yv (* radius_body (cos ya))
 			r (+ radius_ring (* radius_body (sin ya))))
@@ -116,6 +124,7 @@
 	;gen norms and tris
 	(defq y 0)
 	(while (< y eps)
+		(task-slice)
 		(defq x 0)
 		(while (< x eps2)
 			(defq i0 (+ x (* y eps2))
@@ -141,20 +150,19 @@
 	(while (< (setq z (inc z)) depth)
 		(defq y -1)
 		(while (< (setq y (inc y)) height)
+			(task-slice)
 			(defq x -1)
 			(while (< (setq x (inc x)) width)
 				(each (lambda ((v0 v1 v2))
-					(unless (or (vec-eql v0 v1) (vec-eql v0 v2) (vec-eql v1 v2))
 						(defq i (length verts))
 						(push tris (Tri i (inc i) (+ i 2) (length norms)))
 						(push verts (cat v0) (cat v1) (cat v2))
-						(push norms (vec-norm (apply reals (vec-cross-3d (vec-sub v0 v1) (vec-sub v0 v2)))))))
+						(push norms (vec-norm (apply reals (vec-cross-3d (vec-sub v0 v1) (vec-sub v0 v2))))))
 					(. iso :get_surface x y z isolevel)))))
-	(lower :verts :norms :tris)
-	(. this :optimise)
-	(raise :verts :tris)
+	(bind '(verts norms tris) (opt-mesh verts norms tris))
 	(each (# (push %0 +real_1)) verts)
-	(shuffle tris))
+	(shuffle tris)
+	(lower :verts :norms :tris))
 
 ;module
 (export (penv)

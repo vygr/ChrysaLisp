@@ -361,26 +361,24 @@
 					(list (elem p0 vertlist) (elem p1 vertlist) (elem p2 vertlist)))
 				(elem cubeindex +tri_table)))))
 
-(defclass Iso () nil
+(defclass Iso (width height depth) nil
 	; (Iso) -> iso
-	(def this :scalars (list) :width 0 :height 0 :depth 0)
+	(def this :width width :height height :depth depth
+		:center (vec-scale (reals (i2r (dec width)) (i2r (dec height)) (i2r (dec depth))) +real_1/2)
+		:scale (vec-div (reals +real_2 +real_2 +real_2) (reals (i2r width) (i2r height) (i2r depth))))
+
+	(defabstractmethod :get_scalar (this x y z))
+		; (. iso :get_scalar x y z) -> scalar
 
 	(defmethod :get_metrics (this)
 		; (. iso :get_metrics) -> (width height depth)
 		(list (get :width this) (get :height this) (get :depth this)))
 
-	(defmethod :get_scalar (this x y z)
-		; (. iso :get_scalar x y z) -> scalar
-		(raise :scalars :width :height :depth)
-		(elem (+ x (* y width) (* z (* width height))) scalars))
-
 	(defmethod :get_gridcell (this x y z)
 		; (. iso :get_gridcell x y z) -> gridcell
-		(raise :width :height :depth)
+		(raise :width :height :depth :center :scale)
 		(defq ix (inc x) iy (inc y) iz (inc z)
 			rx (i2r x) ry (i2r y) rz (i2r z) rix (i2r ix) riy (i2r iy) riz (i2r iz)
-			center (vec-scale (reals (i2r (dec width)) (i2r (dec height)) (i2r (dec depth))) +real_1/2)
-			scale (vec-div (reals +real_2 +real_2 +real_2) (reals (i2r width) (i2r height) (i2r depth)))
 			get_scalar_fnc (.? this :get_scalar))
 		(Gridcell
 			(vec-mul scale (vec-sub (reals rx ry riz) center))
@@ -405,35 +403,17 @@
 		(iso-surface (. this :get_gridcell x y z) isolevel))
 	)
 
-(defclass Iso-random (width height depth) (Iso)
-	; (Iso-random) -> iso
-	(defq width (inc width) height (inc height) depth (inc depth)
-		scalars (cap (* width height depth) (list)) z -1)
-	(while (< (setq z (inc z)) depth)
-		(defq y -1)
-		(while (< (setq y (inc y)) height)
-			(defq x -1)
-			(while (< (setq x (inc x)) width)
-				(push scalars (f2r (random 1.0))))))
-	(lower :scalars :width :height :depth))
+(defclass Iso-sphere (width height depth) (Iso width height depth)
+	; (Iso-sphere width height depth) -> iso
 
-(defclass Iso-sphere (width height depth) (Iso)
-	; (Iso-sphere) -> iso
-	(defq center (vec-scale (reals (i2r width) (i2r height) (i2r depth)) +real_1/2)
-		width (inc width) height (inc height) depth (inc depth) z -1
-		scale (vec-div (reals +real_2 +real_2 +real_2) (reals (i2r width) (i2r height) (i2r depth)))
-		scalars (cap (* width height depth) (list)))
-	(while (< (setq z (inc z)) depth)
-		(defq y -1)
-		(while (< (setq y (inc y)) height)
-			(defq x -1)
-			(while (< (setq x (inc x)) width)
-				(push scalars (vec-length (vec-mul (vec-sub (reals (i2r x) (i2r y) (i2r z)) center) scale))))))
-	(lower :scalars :width :height :depth))
+	(defmethod :get_scalar (this x y z)
+		; (. iso :get_scalar x y z) -> scalar
+		(raise :width :height :depth :center :scale)
+		(vec-length (vec-mul (vec-sub (reals (i2r x) (i2r y) (i2r z)) center) scale)))
+	)
 
 ;module
 (export (penv)
 	*class_Iso* Iso Iso?
-	*class_Iso-random* Iso-random Iso-random?
 	*class_Iso-sphere* Iso-sphere Iso-sphere?)
 (env-pop)
