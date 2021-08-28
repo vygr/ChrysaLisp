@@ -11,9 +11,9 @@
 	(list i0 i1 i2 in))
 
 (defun opt-vectors (vectors)
-	; (opt-vectors vectors) -> (new_vectors vector_map)
+	; (opt-vectors vectors) -> (new_vectors new_indexs)
 	(defq vec_xmap (xmap 101 (const vec-eql))
-		vec_imap (list) new_vecs (list))
+		vec_imap (cap (length vectors) (list)) new_vecs (list))
 	(each (lambda (v)
 		(unless (defq i (. vec_xmap :find v))
 			(setq i (length new_vecs))
@@ -26,9 +26,8 @@
 	; (opt-mesh verts norms tris) -> (new_verts new_norms new_tris)
 	(bind '(new_verts vert_map) (opt-vectors verts))
 	(bind '(new_norms norm_map) (opt-vectors norms))
-	(setq verts new_verts norms new_norms tris (map (lambda ((i0 i1 i2 in))
-		(Tri (elem i0 vert_map) (elem i1 vert_map) (elem i2 vert_map) (elem in norm_map))) tris))
-	(list verts norms tris))
+	(list new_verts new_norms (map (lambda ((i0 i1 i2 in))
+		(Tri (elem i0 vert_map) (elem i1 vert_map) (elem i2 vert_map) (elem in norm_map))) tris)))
 
 (defclass Mesh () nil
 	; (Mesh) -> mesh

@@ -16,8 +16,11 @@
 
 (defun lighting (alpha col at)
 	;very basic attenuation and diffuse
-	(bind '(r g b) (vec-min (vec-add (vec-scale col (* (r2f at) 255.0) +fixeds_tmp3)
-		(const (fixeds 32.0 32.0 32.0)) +fixeds_tmp3)
+	(bind '(r g b) (vec-min (vec-add
+		;attenuation
+		(vec-scale col (* (r2f at) 255.0) (const (fixeds 0.0 0.0 0.0)))
+		;difuse
+		(vec-scale col 64.0 +fixeds_tmp3))
 		(const (fixeds 255.0 255.0 255.0)) +fixeds_tmp3))
 	(+ (<< (f2i (* alpha 255.0)) 24) (<< (f2i r) 16) (<< (f2i g) 8) (f2i b)))
 
@@ -25,9 +28,9 @@
 	;very basic attenuation, diffuse and specular
 	(bind '(r g b) (vec-min (vec-add (vec-add
 		;attenuation
-		(vec-scale col (* (r2f at) (const (/ 255.0 3.0))) +fixeds_tmp3)
+		(vec-scale col (* (r2f at) (const (/ 255.0 3.0))) (const (fixeds 0.0 0.0 0.0)))
 		;difuse
-		(const (fixeds 32.0 32.0 32.0)) +fixeds_tmp3)
+		(vec-scale col 64.0 (const (fixeds 0.0 0.0 0.0))) (const (fixeds 0.0 0.0 0.0)))
 		;specular
 		(vec-scale (const (fixeds 255.0 255.0 255.0)) (r2f sp) (const (fixeds 0.0 0.0 0.0))) +fixeds_tmp3)
 		;clamp
@@ -38,12 +41,14 @@
 	(defq sp (* +real_1/2 (i2r (dec size)))
 		proj_verts (map (# (mat4x4-vec4-mul mat4x4_proj %0)) (. object :get_verts)))
 	(each (lambda ((x y z w))
-			(defq rw (recip w) x (* x rw) y (* y rw) z (* z rw) at (recip (+ z +real_2))
-				r (* (const (f2r 0.02)) sp rw) sx (* (+ x +real_1) sp) sy (* (+ y +real_1) sp))
-			(push (elem (r2i (* (+ z +real_1) (const (i2r 50)))) poly_buckets) (list
-				(circle r)
-				(lighting 1.0 (const (fixeds 1.0 1.0 1.0)) at)
-				(list (r2f sx) (r2f sy)))))
+			(defq rw (recip w) z (* z rw))
+			(when (<= +real_-1 z +real_1)
+				(defq x (* x rw) y (* y rw) at (recip (+ z +real_2)) r (* (const (f2r 0.02)) sp rw)
+					sx (* (+ x +real_1) sp) sy (* (+ y +real_1) sp))
+				(push (elem (r2i (* (+ z +real_1) (const (i2r 50)))) poly_buckets) (list
+					(circle r)
+					(lighting 1.0 (const (fixeds 1.0 1.0 1.0)) at)
+					(list (r2f sx) (r2f sy))))))
 		proj_verts))
 
 (defun render-object-tris (size mat4x4_obj mat4x4_proj object)
@@ -52,22 +57,26 @@
 		obj_norms (map (# (mat4x4-vec3-mul mat4x4_obj %0)) (. object :get_norms))
 		proj_verts (map (# (mat4x4-vec4-mul mat4x4_proj %0)) (. object :get_verts))
 		screen_verts (cap (length obj_verts) (list))
+		screen_zs (cap (length obj_verts) (list))
 		ats (cap (length obj_verts) (list))
 		col (. object :get_color))
 	(each (lambda ((x y z w))
 			(defq w (recip w) x (* x w) y (* y w) z (* z w) at (recip (+ z +real_2))
 				sx (* (+ x +real_1) sp) sy (* (+ y +real_1) sp))
+			(push screen_zs z)
 			(push screen_verts (path (r2f sx) (r2f sy)))
 			(push ats at))
 		proj_verts)
 	(each (lambda ((i0 i1 i2 in))
-			(when (> (vec-dot (defq n (elem in obj_norms)) (elem i0 obj_verts)) +real_0)
+			(when (and (> (vec-dot (defq n (elem in obj_norms)) (elem i0 obj_verts)) +real_0)
+					(<= +real_-1 (elem i1 screen_zs) +real_1)
+					(<= +real_-1 (elem i2 screen_zs) +real_1)
+					(<= +real_-1 (defq z0 (elem i0 screen_zs)) +real_1))
 				(defq sp (max +real_0 (vec-dot n (const (reals (f2r 0.55) (f2r 0.55) (f2r -0.55)))))
 					sp (* sp sp sp sp sp sp)
 					at (+ (elem i0 ats) (elem i1 ats) (elem i2 ats))
-					v (elem i0 proj_verts)
-					sz (r2i (* (+ (/ (elem +vec4_z v) (elem +vec4_w v)) +real_1) (const (i2r 50)))))
-				(push (elem sz poly_buckets) (list
+					bucket (r2i (* (+ z0 +real_1) (const (i2r 50)))))
+				(push (elem bucket poly_buckets) (list
 					(cat (elem i0 screen_verts) (elem i1 screen_verts) (elem i2 screen_verts))
 					(lighting-at3 1.0 col at sp)
 					'(0.0 0.0)))))

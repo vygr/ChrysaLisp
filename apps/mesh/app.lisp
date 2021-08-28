@@ -19,11 +19,11 @@
 (defq anti_alias nil timer_rate (/ 1000000 30) +min_size 450 +max_size 800
 	canvas_size +min_size canvas_scale (if anti_alias 1 2)
 	+canvas_mode (if anti_alias +canvas_flag_antialias 0)
-	+radius +real_1 +focal_dist (* +radius +real_2)
+	+stage_depth +real_3 +focal_dist +real_2
 	*rotx* +real_0 *roty* +real_0 *rotz* +real_0
-	+near +focal_dist +far (+ +near (* +radius +real_2))
-	+top +radius +bottom (* +radius +real_-1)
-	+left (* +radius +real_-1) +right +radius
+	+near +focal_dist +far (+ +near +stage_depth)
+	+top (* +focal_dist +real_1/2) +bottom (* +focal_dist +real_-1/2)
+	+left (* +focal_dist +real_-1/2) +right (* +focal_dist +real_1/2)
 	*mol_index* 0 *auto_mode* nil *render_mode* nil *dirty* t scene nil)
 
 (ui-window *window* ()
@@ -73,13 +73,13 @@
 (defun reset ()
 	(setq scene (Scene "root") *dirty* t)
 	(defq
-		sphere_mesh (Mesh-sphere +real_1/4 8)
-		sphere (Scene-object (Mesh-iso (Iso-sphere 15 15 15) (f2r 0.65)) (fixeds 1.0 0.0 0.0) "sphere1")
-		torus (Scene-object (Mesh-torus (- +radius +real_1/3) +real_1/3 18) (fixeds 0.0 1.0 0.0) "torus1")
+		sphere_mesh (Mesh-sphere +real_1/2 8)
+		sphere (Scene-object (Mesh-iso (Iso-sphere 15 15 15) (f2r 0.75)) (fixeds 1.0 0.0 0.0) "sphere1")
+		torus (Scene-object (Mesh-torus +real_1 +real_1/3 20) (fixeds 0.0 1.0 0.0) "torus1")
 		sphere2 (Scene-object sphere_mesh (fixeds 1.0 0.0 1.0) "sphere2")
 		sphere3 (Scene-object sphere_mesh (fixeds 1.0 1.0 0.0) "sphere3"))
-	(. torus :set_translation +real_1/2 +real_1/2 (- +real_0 +focal_dist +radius))
-	(. sphere :set_translation (+ +real_-1/3 +real_-1/3) (+ +real_-1/3 +real_-1/3) (- +real_0 +focal_dist +radius))
+	(. torus :set_translation (+ +real_1/3 +real_1/3) (+ +real_1/3 +real_1/3) (- +real_0 +focal_dist +real_2))
+	(. sphere :set_translation (+ +real_-1/3 +real_-1/3) (+ +real_-1/3 +real_-1/3) (- +real_0 +focal_dist +real_1))
 	(. sphere2 :set_translation +real_0 +real_1/2 +real_0)
 	(. sphere3 :set_translation +real_0 +real_-1/2 +real_0)
 	(.-> torus (:add_node sphere2) (:add_node sphere3))
