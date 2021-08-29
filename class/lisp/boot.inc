@@ -152,6 +152,10 @@
 	; (const form)
 	(eval (macroexpand _)))
 
+(defmacro const-quoted (_)
+	; (const-quoted form)
+	`(const (cat (list quote) (list (prebind ,_)))))
+
 (defun identity (_)
 	; (identity any) -> any
 	; function that returns it's argument

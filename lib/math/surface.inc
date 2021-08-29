@@ -328,11 +328,11 @@
 	;tells us which vertices are inside the surface
 	(defq cubeindex (reduce (lambda (cubeindex (b v))
 				(+ cubeindex (if (<= (elem v grid) isolevel) b 0)))
-			(const (cat (list quote) (list (prebind '(
+			(const-quoted `(
 			(1 +gridcell_v0) (2 +gridcell_v1)
 			(4 +gridcell_v2) (8 +gridcell_v3)
 			(16 +gridcell_v4) (32 +gridcell_v5)
-			(64 +gridcell_v6) (128 +gridcell_v7)))))) 0))
+			(64 +gridcell_v6) (128 +gridcell_v7))) 0))
 	(cond
 		((= (defq cube (elem cubeindex +edge_table)) 0)
 			;cube is entirely in/out of the surface
@@ -343,7 +343,7 @@
 							(vertex-interp isolevel
 								(elem p0 grid) (elem p1 grid)
 								(elem v0 grid) (elem v1 grid)))))
-					(const (cat (list quote) (list (prebind '(
+					(const-quoted '(
 					(1 +gridcell_p0 +gridcell_p1 +gridcell_v0 +gridcell_v1)
 					(2 +gridcell_p1 +gridcell_p2 +gridcell_v1 +gridcell_v2)
 					(4 +gridcell_p2 +gridcell_p3 +gridcell_v2 +gridcell_v3)
@@ -355,7 +355,7 @@
 					(256 +gridcell_p0 +gridcell_p4 +gridcell_v0 +gridcell_v4)
 					(512 +gridcell_p1 +gridcell_p5 +gridcell_v1 +gridcell_v5)
 					(1024 +gridcell_p2 +gridcell_p6 +gridcell_v2 +gridcell_v6)
-					(2048 +gridcell_p3 +gridcell_p7 +gridcell_v3 +gridcell_v7)))))) (list)))
+					(2048 +gridcell_p3 +gridcell_p7 +gridcell_v3 +gridcell_v7))) (list)))
 			;return the triangles
 			(map (lambda ((p0 p1 p2))
 					(list (elem p0 vertlist) (elem p1 vertlist) (elem p2 vertlist)))
@@ -408,7 +408,7 @@
 
 	(defmethod :get_scalar (this x y z)
 		; (. iso :get_scalar x y z) -> scalar
-		(raise :width :height :depth :center :scale)
+		(raise :center :scale)
 		(vec-length (vec-mul (vec-sub (reals (i2r x) (i2r y) (i2r z)) center) scale)))
 	)
 

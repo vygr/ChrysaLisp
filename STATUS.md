@@ -20,6 +20,9 @@ VP versions of dot product `(nums-dot)`.
 Real format fixes to overflow conditions and some optimisations to multiply and
 conversions to fixed and integer.
 
+Addition of `(const-quoted form)` macro to `boot.inc`. Performs a macro and
+prebind expantion of the given form and then wraps it in a quote for runtime.
+
 ------
 
 Optimized versions of the bracket matching methods on the Buffer class. 25%
