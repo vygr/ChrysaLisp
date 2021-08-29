@@ -166,7 +166,7 @@ to decide, "it's not coming". That might be in the link layer or the library
 layer or whatever. Here we will show how to make the application immune to the
 problem no matter what layer caused the issue.
 
-If we look at the Raymarch demo `apps/raymarch/apps.lisp` this consists of a
+If we look at the Raymarch demo `apps/raymarch/app.lisp` this consists of a
 parent GUI app and a child task that's spawned multiple times to fill the
 available nodes. Those child tasks are then `farmed` with jobs from a job que.
 Each time a job result comes back the que is drained and a new job is sent out
