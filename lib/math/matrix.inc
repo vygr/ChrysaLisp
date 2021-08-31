@@ -19,6 +19,8 @@
 (defq +real_pi (f2r +fp_pi) +real_2pi (f2r +fp_2pi)
 	+fixeds_tmp3 (fixeds 0.0 0.0 0.0)
 	+fixeds_tmp4 (fixeds 0.0 0.0 0.0 0.0)
+	+reals_zero3 (reals +real_0 +real_0 +real_0)
+	+reals_zero4 (reals +real_0 +real_0 +real_0 +real_0)
 	+reals_tmp3 (reals +real_0 +real_0 +real_0)
 	+reals_tmp4 (reals +real_0 +real_0 +real_0 +real_0))
 (undef (env) 'def_real)
