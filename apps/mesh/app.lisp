@@ -73,16 +73,15 @@
 (defun reset ()
 	(setq scene (Scene "root") *dirty* t)
 	(defq
-		sphere_mesh (Mesh-sphere +real_1/2 8)
 		sphere (Scene-object (Mesh-iso (Iso-sphere 15 15 15) (f2r 0.75)) (fixeds 1.0 0.0 0.0) "sphere1")
+		cube (Scene-object (Mesh-iso (Iso-cube 8 8 8) (f2r 0.45)) (fixeds 1.0 1.0 0.0) "cube")
 		torus (Scene-object (Mesh-torus +real_1 +real_1/3 20) (fixeds 0.0 1.0 0.0) "torus1")
-		sphere2 (Scene-object sphere_mesh (fixeds 1.0 0.0 1.0) "sphere2")
-		sphere3 (Scene-object sphere_mesh (fixeds 1.0 1.0 0.0) "sphere3"))
-	(. torus :set_translation (+ +real_1/3 +real_1/3) (+ +real_1/3 +real_1/3) (- +real_0 +focal_dist +real_2))
+		sphere2 (Scene-object (Mesh-sphere +real_1/2 8) (fixeds 1.0 0.0 1.0) "sphere2"))
 	(. sphere :set_translation (+ +real_-1/3 +real_-1/3) (+ +real_-1/3 +real_-1/3) (- +real_0 +focal_dist +real_1))
+	(. torus :set_translation (+ +real_1/3 +real_1/3) (+ +real_1/3 +real_1/3) (- +real_0 +focal_dist +real_2))
 	(. sphere2 :set_translation +real_0 +real_1/2 +real_0)
-	(. sphere3 :set_translation +real_0 +real_-1/2 +real_0)
-	(.-> torus (:add_node sphere2) (:add_node sphere3))
+	(. cube :set_translation +real_0 +real_-1/2 +real_0)
+	(.-> torus (:add_node sphere2) (:add_node cube))
 	(.-> scene (:add_node sphere) (:add_node torus)))
 
 ;import actions and bindings

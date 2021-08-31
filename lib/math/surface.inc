@@ -409,11 +409,21 @@
 	(defmethod :get_scalar (this x y z)
 		; (. iso :get_scalar x y z) -> scalar
 		(raise :center :scale)
-		(vec-length (vec-mul (vec-sub (reals (i2r x) (i2r y) (i2r z)) center) scale)))
+		(vec-length (vec-mul (vec-sub (Vec3-r (i2r x) (i2r y) (i2r z)) center) scale)))
+	)
+
+(defclass Iso-cube (width height depth) (Iso width height depth)
+	; (Iso-cube width height depth) -> iso
+
+	(defmethod :get_scalar (this x y z)
+		; (. iso :get_scalar x y z) -> scalar
+		(raise :center :scale)
+		(reduce max (vec-abs (vec-mul (vec-sub (Vec3-r (i2r x) (i2r y) (i2r z)) center) scale))))
 	)
 
 ;module
 (export (penv)
 	*class_Iso* Iso Iso?
-	*class_Iso-sphere* Iso-sphere Iso-sphere?)
+	*class_Iso-sphere* Iso-sphere Iso-sphere?
+	*class_Iso-cube* Iso-cube Iso-cube?)
 (env-pop)
