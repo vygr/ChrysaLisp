@@ -421,9 +421,19 @@
 		(reduce max (vec-abs (vec-mul (vec-sub (Vec3-r (i2r x) (i2r y) (i2r z)) center) scale))))
 	)
 
+(defclass Iso-tetra (width height depth) (Iso width height depth)
+	; (Iso-tetra width height depth) -> iso
+
+	(defmethod :get_scalar (this x y z)
+		; (. iso :get_scalar x y z) -> scalar
+		(raise :center :scale)
+		(vec-sum (vec-abs (vec-mul (vec-sub (Vec3-r (i2r x) (i2r y) (i2r z)) center) scale))))
+	)
+
 ;module
 (export (penv)
 	*class_Iso* Iso Iso?
 	*class_Iso-sphere* Iso-sphere Iso-sphere?
+	*class_Iso-tetra* Iso-tetra Iso-tetra?
 	*class_Iso-cube* Iso-cube Iso-cube?)
 (env-pop)
