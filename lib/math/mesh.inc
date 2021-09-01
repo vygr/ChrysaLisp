@@ -12,11 +12,11 @@
 
 (defun Normal (p0 p1 p2)
 	(defq n (apply reals (vec-cross-3d (vec-sub v0 v1) (vec-sub v0 v2))))
-	(if (vec-eql n +reals_zero3) +reals_zero3 (vec-norm n)))
+	(if (eql n +reals_zero3) +reals_zero3 (vec-norm n)))
 
 (defun opt-vectors (vectors)
 	; (opt-vectors vectors) -> (new_vectors new_indexs)
-	(defq vec_xmap (xmap 101 (const vec-eql))
+	(defq vec_xmap (xmap 101)
 		vec_imap (cap (length vectors) (list)) new_vecs (list))
 	(each (lambda (v)
 		(unless (defq i (. vec_xmap :find v))
@@ -31,7 +31,7 @@
 	(bind '(new_verts vert_map) (opt-vectors verts))
 	(bind '(new_norms norm_map) (opt-vectors norms))
 	(defq new_tris (reduce (lambda (tris (i0 i1 i2 in))
-			(if (vec-eql (elem in norms) +reals_zero3) tris
+			(if (eql (elem in norms) +reals_zero3) tris
 				(push tris (Tri (elem i0 vert_map) (elem i1 vert_map) (elem i2 vert_map) (elem in norm_map)))))
 			tris (cap (length tris) (list))))
 	(list new_verts new_norms new_tris))

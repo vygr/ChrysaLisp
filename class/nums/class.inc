@@ -15,6 +15,7 @@
 	(dec-method :min class/nums/min :virtual (r0 r1 r2) (r0 r1))
 	(dec-method :max class/nums/max :virtual (r0 r1 r2) (r0 r1))
 	(dec-method :dot class/nums/dot :virtual (r0 r1) (r0 r1))
+	(dec-method :eql class/nums/eql :virtual (r0 r1) (r0 r1))
 	(dec-method :lisp_vecop1 class/nums/lisp_vecop1 :static (r0 r1 r2) (r0 r1))
 	(dec-method :lisp_vecop2 class/nums/lisp_vecop2 :static (r0 r1 r2) (r0 r1))
 	(dec-method :lisp_add class/nums/lisp_add :static (r0 r1) (r0 r1))

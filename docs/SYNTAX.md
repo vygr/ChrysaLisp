@@ -1692,6 +1692,12 @@
 (const form)
 ```
 
+### const-quoted
+
+```code
+(const-quoted form)
+```
+
 ### copy
 
 ```code

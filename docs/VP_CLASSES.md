@@ -4241,6 +4241,19 @@ trashes
 r1-r6
 ```
 
+### nums :eql -> class/nums/eql
+
+```code
+inputs
+r0 = nums object (ptr)
+r1 = nums object, can be same (ptr)
+outputs
+r0 = nums object (ptr)
+r1 = 0 if eql, else not (long)
+trashes
+r1-r6
+```
+
 ### nums :hash -> class/nums/hash
 
 ```code
