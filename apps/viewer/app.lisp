@@ -15,7 +15,7 @@
 
 (defq +vdu_min_width 32 +vdu_min_height 16
 	+vdu_max_width 100 +vdu_max_height 48
-	*current_buffer* (Buffer) *meta_map* (xmap 31) *underlay* (list)
+	*current_buffer* (Buffer) *meta_map* (fmap 31) *underlay* (list)
 	*current_file* nil *selected_file_node* nil +margin 2
 	+selected (apply nums (map (lambda (_)
 		(const (<< (canvas-from-argb32 +argb_grey6 15) 48))) (str-alloc 8192)))

@@ -14,7 +14,7 @@
 
 (defq +vdu_min_width 60 +vdu_min_height 40
 	+vdu_max_width 120 +vdu_max_height 40
-	*current_buffer* (Buffer t) *meta_map* (xmap 31) *underlay* (list)
+	*current_buffer* (Buffer t) *meta_map* (fmap 31) *underlay* (list)
 	+selected (apply nums (map (lambda (_)
 		(const (<< (canvas-from-argb32 +argb_green6 15) 48))) (str-alloc 8192)))
 	+not_selected (nums-sub +selected +selected)

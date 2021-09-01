@@ -3,6 +3,7 @@
 (include "class/sym/class.inc")
 (include "class/node/class.inc")
 (include "class/num/class.inc")
+(include "class/nums/class.inc")
 (include "class/stream/class.inc")
 (include "lib/consts/chars.inc")
 
@@ -294,6 +295,25 @@
 		(exit 'list :find `(,this ,el -1))
 		(vp-ret)
 	(endif)
+	(call 'obj :inst_of `(,el (@ ,(f-path 'nums :vtable))))
+	(vpif (list (method-output 'obj :inst_of 1) '/= 0))
+		;vector
+		(class/array/get_both this iter_begin iter_end)
+		(gotoif (list iter_begin '= iter_end) 'notfound)
+		(assign `((,el num_value)) `(,ovt))
+		(loop-start)
+			(assign `((,iter_begin 0)) `(,evt))
+			(call 'obj :inst_of `(,evt (@ ,(f-path 'nums :vtable))))
+			(vpif (list (method-output 'obj :inst_of 1) '/= 0))
+				(call 'nums :eql `(,evt ,el))
+				(gotoif (list (method-output 'nums :eql 1) '= 0) 'found)
+			(endif)
+			(vp-add-cr +long_size iter_begin)
+		(loop-until (list iter_begin '= iter_end))
+
+		(exit 'list :find `(,this ,el -1))
+		(vp-ret)
+	(endif)
 	;treat as address
 	(s-jump 'list :find `(,this ,el))
 
@@ -365,6 +385,24 @@
 			(continueif (list (method-output 'obj :inst_of 1) '= 0))
 			(assign `((,evt num_value)) '(r0))
 		(loop-until (list r0 '= ovt))
+		(vp-sub-rr iter_end iter_begin)
+		(vp-asr-cr (log2 +long_size) iter_begin)
+
+		(exit 'list :rfind `(,this ,el ,iter_begin))
+		(vp-ret)
+	(endif)
+	(call 'obj :inst_of `(,el (@ ,(f-path 'nums :vtable))))
+	(vpif (list (method-output 'obj :inst_of 1) '/= 0))
+		;vector
+		(class/array/get_both this iter_end iter_begin)
+		(loop-start)
+			(assign `((,iter_begin ,(neg +long_size))) `(,evt))
+			(vp-sub-cr +long_size iter_begin)
+			(breakif (list iter_begin '< iter_end))
+			(call 'obj :inst_of `(,evt (@ ,(f-path 'nums :vtable))))
+			(continueif (list (method-output 'obj :inst_of 1) '= 0))
+			(call 'nums :eql `(,evt ,el))
+		(loop-until (list (method-output 'nums :eql 1) '= 0))
 		(vp-sub-rr iter_end iter_begin)
 		(vp-asr-cr (log2 +long_size) iter_begin)
 

@@ -8,7 +8,7 @@ Start of new Cubes demo. Along with a new `lib/math/matrix.inc` library.
 Renamed the `lib/math/math.inc` library to `lib/math/vector.inc`.
 
 New Molecule demo. Renders standard SDF Mol files. Some SDF files have an issue
-with no space between the number of atoms and the numbewr of bonds, so add a
+with no space between the number of atoms and the number of bonds, so add a
 space if required.
 
 New Lisp level co-op `(task-slice)` function. Will do a deschedule if the
@@ -21,7 +21,11 @@ Real format fixes to overflow conditions and some optimisations to multiply and
 conversions to fixed and integer.
 
 Addition of `(const-quoted form)` macro to `boot.inc`. Performs a macro and
-prebind expantion of the given form and then wraps it in a quote for runtime.
+prebind expansion of the given form and then wraps it in a quote for runtime.
+
+`(eql)` and `(find)` can now be used on vectors. As a result a new `(fmap
+[num_buckets])` class is available as standard from `boot.inc`. This map type
+uses the `(find)` call to search the buckets.
 
 ------
 

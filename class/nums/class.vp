@@ -277,10 +277,12 @@
 
 	(vp-def (this val src2 src1 src_end val1 val2))
 
-	(entry 'nums :eql `(,this r1))
+	(entry 'nums :eql `(,this ,val))
+
+	(gotoif (list this '= val) 'same)
 
 	(class/array/get_both this src1 src_end)
-	(assign '((r1 array_begin)) `(,src2))
+	(assign `((,val array_begin)) `(,src2))
 	(vp-xor-rr val val)
 	(loop-while (list src1 '/= src_end))
 		(assign `((,src1 0) (,src2 0)) `(,val1 ,val2))
@@ -291,6 +293,10 @@
 	(endswitch)
 
 	(exit 'nums :eql `(,this ,val))
+	(vp-ret)
+
+(vp-label 'same)
+	(exit 'nums :eql `(,this 0))
 	(vp-ret)
 
 (def-func-end)

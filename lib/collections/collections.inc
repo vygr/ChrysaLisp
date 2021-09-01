@@ -3,6 +3,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (import "./emap.inc")
+(import "./fmap.inc")
 (import "./xmap.inc")
 (import "./xset.inc")
 (import "./xnode.inc")
@@ -10,7 +11,7 @@
 (defun map? (_)
 	; (map? object) -> t | nil
 	; Returns true if argument is a map type
-	(or (emap? _) (xmap? _)))
+	(or (emap? _) (xmap? _) (fmap? _)))
 
 (defun set? (_)
 	(xset? _))
@@ -128,6 +129,7 @@
 				((emap? _coll) (emap))
 				((xmap? _coll) (xmap))
 				((xset? _coll) (xset))
+				((fmap? _coll) (fmap))
 				((list? _coll) (list))))
 		(t nil)))
 
@@ -148,6 +150,6 @@
 	; Returns the 'into' function for the collection
 	; type
 	(cond
-		((or (emap? a) (xmap? a)) into-map)
+		((or (emap? a) (xmap? a) (fmap? a)) into-map)
 		((xset? a) into-set)
 		(t (lambda (&rest _) _))))
