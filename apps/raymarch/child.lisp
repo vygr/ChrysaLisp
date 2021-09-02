@@ -32,14 +32,14 @@
 		(defq _ (fixeds-frac p))
 		(const (fixeds 0.5 0.5 0.5)) _)) 0.35))
 
-(defun ray-march (ray_origin ray_dir l max_l +min_distance +march_factor)
+(defun ray-march (ray_origin ray_dir l max_l min_distance march_factor)
 	(defq i -1 d 1.0 _ (fixeds 0.0 0.0 0.0))
 	(while (and (< (setq i (inc i)) 1000)
-				(> d +min_distance)
+				(> d min_distance)
 				(< l max_l))
 		(defq d (scene (vec-add ray_origin (vec-scale ray_dir l _) _))
-			l (+ l (* d +march_factor))))
-	(if (> d +min_distance) max_l l))
+			l (+ l (* d march_factor))))
+	(if (> d min_distance) max_l l))
 
 ;native versions
 (ffi scene "apps/raymarch/scene" 0)
