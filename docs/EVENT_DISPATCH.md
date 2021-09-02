@@ -214,23 +214,23 @@ Here is the Editor application action bindings, `apps/editor/actions.inc`:
 (import "./ui.inc")
 
 (defq
-event_map (xmap-kv
+event_map (fmap-kv
 	...
 	+event_close action-close
 	+event_min action-minimise
 	+event_max action-maximise)
 
-key_map (xmap-kv
+key_map (fmap-kv
 	0x40000050 action-left
 	...
 	+char_tab action-tab)
 
-key_map_shift (xmap-kv
+key_map_shift (fmap-kv
 	0x40000050 action-left-select
 	...
 	+char_tab action-left-tab)
 
-key_map_control (xmap-kv
+key_map_control (fmap-kv
 	(ascii-code "M") action-macro-record
 	...
 	(ascii-code "O") action-ordered-unique)

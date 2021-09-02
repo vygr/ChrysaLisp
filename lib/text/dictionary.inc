@@ -7,7 +7,7 @@
 
 (defclass Dictionary (&optional num_buckets) nil
 	; (Dictionary [num_buckets]) -> dictionary
-	(def this :word_set (xset num_buckets) :word_list (list) :dirty nil)
+	(def this :word_set (fset num_buckets) :word_list (list) :dirty nil)
 
 	(defmethod :insert_word (this word)
 		; (. dictionary :insert_word word) -> dictionary

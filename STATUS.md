@@ -29,6 +29,8 @@ uses the `(find)` call to search the buckets.
 
 `(find)` now follows strict behavior of `(eql)` for element tests.
 
+New `(fset [num_buckets])` class.
+
 ------
 
 Optimized versions of the bracket matching methods on the Buffer class. 25%

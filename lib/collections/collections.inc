@@ -4,6 +4,7 @@
 
 (import "./emap.inc")
 (import "./fmap.inc")
+(import "./fset.inc")
 (import "./xmap.inc")
 (import "./xset.inc")
 (import "./xnode.inc")
@@ -14,7 +15,7 @@
 	(or (emap? _) (xmap? _) (fmap? _)))
 
 (defun set? (_)
-	(xset? _))
+	(or (xset? _) (fset? _)))
 
 (defun collection? (_)
 	; (collection? obj) -> t | nil
@@ -129,6 +130,7 @@
 				((emap? _coll) (emap))
 				((xmap? _coll) (xmap))
 				((xset? _coll) (xset))
+				((fset? _coll) (fset))
 				((fmap? _coll) (fmap))
 				((list? _coll) (list))))
 		(t nil)))
@@ -151,5 +153,5 @@
 	; type
 	(cond
 		((or (emap? a) (xmap? a) (fmap? a)) into-map)
-		((xset? a) into-set)
+		((or (xset? a) (fset? a)) into-set)
 		(t (lambda (&rest _) _))))

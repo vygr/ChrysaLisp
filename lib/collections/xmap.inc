@@ -5,7 +5,7 @@
 ;module
 (env-push)
 
-(defmacro xmap-slot ()
+(defmacro slot ()
 	`(defq x (get :buckets this)
 		b (* (% ((get :hash_fnc this) key) (get :num_buckets this)) 2)
 		e (some (# (if ((get :cmp_fnc this) %0 key) _)) (elem b x))))
@@ -19,12 +19,12 @@
 
 	(defmethod :find (this key)
 		; (. xmap :find key) -> nil | val
-		(xmap-slot)
+		(slot)
 		(if e (elem e (elem (inc b) x))))
 
 	(defmethod :insert (this key val)
 		; (. xmap :insert key val) -> xmap
-		(xmap-slot)
+		(slot)
 		(cond
 			(e (elem-set e (elem (inc b) x) val))
 			(t (push (elem b x) key) (push (elem (inc b) x) val)))
@@ -32,7 +32,7 @@
 
 	(defmethod :erase (this key)
 		; (. xmap :erase key) -> xmap
-		(xmap-slot)
+		(slot)
 		(when e
 			(defq bv (elem (inc b) x) b (elem b x))
 			(elem-set e b (elem -2 b))

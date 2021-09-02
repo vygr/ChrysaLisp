@@ -125,7 +125,7 @@
 	;nil soon...
 	(setq *running* t))
 
-(defq event_map (xmap-kv
+(defq event_map (fmap-kv
 	+SDL_MOUSEWHEEL action-mouse-wheel
 	+SDL_MOUSEMOTION action-mouse-motion
 	+SDL_MOUSEBUTTONDOWN action-mouse-button-down
