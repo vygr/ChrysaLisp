@@ -146,8 +146,8 @@
 	(when (and
 			(defq stdio (create-stdio))
 			(defq args (options stdio usage)))
-		(defq args (map sym args) all (find-rev 'all args) boot (find-rev 'boot args)
-			platforms (find-rev 'platforms args) docs (find-rev 'docs args) it (find-rev 'it args))
+		(defq all (find-rev "all" args) boot (find-rev "boot" args)
+			platforms (find-rev "platforms" args) docs (find-rev "docs" args) it (find-rev "it" args))
 		(cond
 			(it (make-docs) (remake-all-platforms))
 			((and boot all platforms) (remake-all-platforms))
