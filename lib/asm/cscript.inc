@@ -392,7 +392,7 @@
 (defun compile-operator (_)
 	(cond
 		((not (defq s (get-sym _)))
-			(throw "Operator not defined !" _))
+			(throw "Compile op not defined !" _))
 		((not (eql 'op (elem 1 s)))
 			(throw "Not an operator !" _))
 		(t	((elem 4 s) _))))

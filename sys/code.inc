@@ -319,7 +319,7 @@
 
 (defun get-sym (_1)
 	;_1 symbol
-	(defq a (some! -2 0 nil (lambda (s)
+	(defq _1 (sym _1) a (some! -2 0 nil (lambda (s)
 		(if (defq _ (find-rev _1 (elem 1 s)))
 			(elem _ (elem 2 s)))) (list *syms*)))
 	(when a (elem-set -2 a t)) a)
