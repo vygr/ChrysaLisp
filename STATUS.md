@@ -27,6 +27,8 @@ prebind expansion of the given form and then wraps it in a quote for runtime.
 [num_buckets])` class is available as standard from `boot.inc`. This map type
 uses the `(find)` call to search the buckets.
 
+`(find)` now follows strict behavior of `(eql)` for element tests.
+
 ------
 
 Optimized versions of the bracket matching methods on the Buffer class. 25%
