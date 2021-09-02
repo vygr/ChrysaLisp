@@ -78,7 +78,7 @@
 
 ;jit helper, lock file is not very effective here...
 (defun jit (prefix file products)
-	(bind '(_ *cpu* *abi*) (split (load-path) "/"))
+	(bind '(_ *cpu* *abi*) (map sym (split (load-path) "/")))
 	(defq obj_prefix (cat "obj/" *cpu* "/" *abi* "/" prefix)
 		lock_file (cat obj_prefix "lock") file (cat prefix file))
 	(while (/= (age lock_file) 0) (task-sleep 1000))
