@@ -381,14 +381,14 @@
 			rx (i2r x) ry (i2r y) rz (i2r z) rix (i2r ix) riy (i2r iy) riz (i2r iz)
 			get_scalar_fnc (.? this :get_scalar))
 		(Gridcell
-			(vec-mul scale (vec-sub (reals rx ry riz) center))
-			(vec-mul scale (vec-sub (reals rix ry riz) center))
-			(vec-mul scale (vec-sub (reals rix ry rz) center))
-			(vec-mul scale (vec-sub (reals rx ry rz) center))
-			(vec-mul scale (vec-sub (reals rx riy riz) center))
-			(vec-mul scale (vec-sub (reals rix riy riz) center))
-			(vec-mul scale (vec-sub (reals rix riy rz) center))
-			(vec-mul scale (vec-sub (reals rx riy rz) center))
+			(vec-mul scale (vec-sub (reals rx ry riz) center +reals_tmp3))
+			(vec-mul scale (vec-sub (reals rix ry riz) center +reals_tmp3))
+			(vec-mul scale (vec-sub (reals rix ry rz) center +reals_tmp3))
+			(vec-mul scale (vec-sub (reals rx ry rz) center +reals_tmp3))
+			(vec-mul scale (vec-sub (reals rx riy riz) center +reals_tmp3))
+			(vec-mul scale (vec-sub (reals rix riy riz) center +reals_tmp3))
+			(vec-mul scale (vec-sub (reals rix riy rz) center +reals_tmp3))
+			(vec-mul scale (vec-sub (reals rx riy rz) center +reals_tmp3))
 			(get_scalar_fnc this x y iz)
 			(get_scalar_fnc this ix y iz)
 			(get_scalar_fnc this ix y z)
@@ -409,7 +409,8 @@
 	(defmethod :get_scalar (this x y z)
 		; (. iso :get_scalar x y z) -> scalar
 		(raise :center :scale)
-		(vec-length (vec-mul (vec-sub (Vec3-r (i2r x) (i2r y) (i2r z)) center) scale)))
+		(vec-length (vec-mul (vec-sub
+			(Vec3-r (i2r x) (i2r y) (i2r z)) center +reals_tmp3) scale +reals_tmp3)))
 	)
 
 (defclass Iso-cube (width height depth) (Iso width height depth)
@@ -418,7 +419,8 @@
 	(defmethod :get_scalar (this x y z)
 		; (. iso :get_scalar x y z) -> scalar
 		(raise :center :scale)
-		(reduce max (vec-abs (vec-mul (vec-sub (Vec3-r (i2r x) (i2r y) (i2r z)) center) scale))))
+		(reduce max (vec-abs (vec-mul (vec-sub
+			(Vec3-r (i2r x) (i2r y) (i2r z)) center +reals_tmp3) scale +reals_tmp3) +reals_tmp3)))
 	)
 
 (defclass Iso-tetra (width height depth) (Iso width height depth)
@@ -427,7 +429,8 @@
 	(defmethod :get_scalar (this x y z)
 		; (. iso :get_scalar x y z) -> scalar
 		(raise :center :scale)
-		(vec-sum (vec-abs (vec-mul (vec-sub (Vec3-r (i2r x) (i2r y) (i2r z)) center) scale))))
+		(vec-sum (vec-abs (vec-mul (vec-sub
+			(Vec3-r (i2r x) (i2r y) (i2r z)) center +reals_tmp3) scale +reals_tmp3) +reals_tmp3)))
 	)
 
 ;module

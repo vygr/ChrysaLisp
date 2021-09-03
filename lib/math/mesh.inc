@@ -11,7 +11,9 @@
 	(list i0 i1 i2 in))
 
 (defun Normal (p0 p1 p2)
-	(defq n (apply reals (vec-cross-3d (vec-sub v0 v1) (vec-sub v0 v2))))
+	(defq n (apply reals (vec-cross-3d
+		(vec-sub v0 v1 +reals_tmp3)
+		(vec-sub v0 v2 (const (cat +reals_tmp3))))))
 	(if (eql n +reals_zero3) +reals_zero3 (vec-norm n)))
 
 (defun opt-vectors (vectors)
