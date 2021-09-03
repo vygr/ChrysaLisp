@@ -639,7 +639,7 @@
 ### syntax :set_colors
 
 ```code
-(. syntax :set_colors xmap) -> syntax
+(. syntax :set_colors fmap) -> syntax
 ```
 
 ### syntax :set_state
