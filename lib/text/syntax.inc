@@ -72,7 +72,7 @@
 		(get :state this))
 
 	(defmethod :set_colors (this colors)
-		; (. syntax :set_colors xmap) -> syntax
+		; (. syntax :set_colors fmap) -> syntax
 		(. colors :each (# (set this %0 (<< (canvas-from-argb32 %1 15) 32))))
 		this)
 

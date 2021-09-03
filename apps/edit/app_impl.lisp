@@ -31,7 +31,7 @@
 
 (defq +vdu_min_width 80 +vdu_min_height 40 +vdu_max_width 100 +vdu_max_height 46
 	+vdu_line_width 5 *current_file* nil *selected_file_node* nil
-	*selected_open_node* nil *meta_map* (xmap) *underlay* (list) *open_files* (list)
+	*selected_open_node* nil *meta_map* (fmap) *underlay* (list) *open_files* (list)
 	*syntax* (Syntax) *whole_words* nil *macro_record* nil *macro_actions* (list)
 	+min_word_size 3 +max_matches 20 dictionary (Dictionary 1021) +margin 2
 	match_window nil match_flow nil match_index -1

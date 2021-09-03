@@ -366,6 +366,12 @@
 (. dictionary :find_matches prefix) -> (word ...)
 ```
 
+### dictionary :find_matches_case
+
+```code
+(. dictionary :find_matches_case prefix) -> (word ...)
+```
+
 ### dictionary :insert_word
 
 ```code

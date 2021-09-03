@@ -4,7 +4,7 @@
 
 (import "sys/lisp.inc")
 
-(defclass Farm (fnc_create fnc_destroy size) (xmap)
+(defclass Farm (fnc_create fnc_destroy size) (fmap)
 	; (Farm fnc_create fnc_destroy size) -> farm
 	(def this :create fnc_create :destroy fnc_destroy :key -1)
 	(defq _nodes (mail-nodes) _now (pii-time))
