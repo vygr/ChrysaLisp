@@ -55,7 +55,8 @@
 			upper_matches (. this :find_matches (to-upper prefix)))
 		(each (# (unless (find %0 matches) (push matches %0))) lower_matches)
 		(each (# (unless (find %0 matches) (push matches %0))) upper_matches)
-		(map (# (cat prefix (slice (length prefix) -1 %0))) matches))
+		(reduce (# (if (find %1 %0) %0 (push %0 %1)))
+			(map (# (cat prefix (slice (length prefix) -1 %0))) matches) (list)))
 	)
 
 ;module
