@@ -50,8 +50,12 @@
 
 	(defmethod :find_matches_case (this prefix)
 		; (. dictionary :find_matches_case prefix) -> (word ...)
-		(map (# (cat prefix (slice (length prefix) -1 %0)))
-			(. this :find_matches (to-lower prefix))))
+		(defq matches (. this :find_matches prefix)
+			lower_matches (. this :find_matches (to-lower prefix))
+			upper_matches (. this :find_matches (to-upper prefix)))
+		(each (# (unless (find %0 matches) (push matches %0))) lower_matches)
+		(each (# (unless (find %0 matches) (push matches %0))) upper_matches)
+		(map (# (cat prefix (slice (length prefix) -1 %0))) matches))
 	)
 
 ;module
