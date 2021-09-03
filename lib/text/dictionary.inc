@@ -47,6 +47,11 @@
 				(unless k (setq k (length word_list)))
 				(slice j k word_list))
 			((list))))
+
+	(defmethod :find_matches_case (this prefix)
+		; (. dictionary :find_matches_case prefix) -> (word ...)
+		(map (# (cat prefix (slice (length prefix) -1 %0)))
+			(. this :find_matches (to-lower prefix))))
 	)
 
 ;module

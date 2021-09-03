@@ -343,7 +343,7 @@
 	(bind '(*cursor_x* *cursor_y*) (. *current_buffer* :get_cursor))
 	(bind '(x x1) (select-word))
 	(when (>= (- x1 x) +min_word_size)
-		(defq match_words (. dictionary :find_matches
+		(defq match_words (. dictionary :find_matches_case
 			(slice x x1 (. *current_buffer* :get_text_line *cursor_y*))))
 		(when (> (length match_words) 0)
 			(if (> (length match_words) +max_matches)
