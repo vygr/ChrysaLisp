@@ -43,7 +43,7 @@
 						(bind '(w h) (. *window* :pref_size))
 						(bind '(x y w h) (view-fit x y (/ (* w 5) 3) (/ (* h 5) 3)))
 						(. *window* :change_dirty x y w h))
-					(t (. *window* :event msg))))
+					(t	(. *window* :event msg))))
 			((= idx +select_timer)
 				;timer event
 				(mail-timeout (elem +select_timer select) rate 0)

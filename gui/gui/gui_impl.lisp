@@ -1,3 +1,4 @@
+;(import "lib/debug/frames.inc")
 ;import into the shared root env of this node !
 (defq _ (env))
 ;comment next two lines out if need to...
@@ -20,16 +21,18 @@
 	rate (/ 1000000 60) *running* t)
 
 (defun mouse-type (view rx ry)
-	(defq mouse_type (case (pop (. view :type_of))
-		(:Title 13)
-		((:Vdu :Textfield) 2)
-		(:Slider 12)
-		(:Window
-			(case (if (= *mouse_buttons* 0)
-					(elem 0 (. view :drag_mode rx ry))
-					(get :drag_mode view))
-				(1 10) (2 8) (3 5) (4 10) (6 4) (8 8) (9 4) (12 5) (t 0)))
-		(t 0)))
+	(if view
+		(defq mouse_type (case (pop (. view :type_of))
+			(:Title 13)
+			((:Vdu :Textfield) 2)
+			(:Slider 12)
+			(:Window
+				(case (if (= *mouse_buttons* 0)
+						(elem 0 (. view :drag_mode rx ry))
+						(get :drag_mode view))
+					(1 10) (2 8) (3 5) (4 10) (6 4) (8 8) (9 4) (12 5) (t 0)))
+			(t 0)))
+		(defq mouse_type 0))
 	(when (or (/= *mouse_x* *old_mouse_x*)
 			(/= *mouse_y* *old_mouse_y*)
 			(/= *mouse_type* mouse_type))

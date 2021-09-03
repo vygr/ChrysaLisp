@@ -48,8 +48,7 @@
 			(cond
 				((= shadow 0)
 					(. this :set_flags +view_flag_opaque +view_flag_opaque))
-				(t
-					(.-> this :clr_opaque (:add_opaque (+ border shadow) (+ border shadow)
+				(t	(.-> this :clr_opaque (:add_opaque (+ border shadow) (+ border shadow)
 						(- w (* 2 (+ border shadow))) (- h (* 2 (+ border shadow)))))))))
 
 	(defmethod :drag_mode (this rx ry)
