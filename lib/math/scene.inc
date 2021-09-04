@@ -18,7 +18,7 @@
 	;very basic attenuation and diffuse
 	(bind '(r g b) (vec-min (vec-add
 		;attenuation
-		(vec-scale col (* (r2f at) 255.0) (const (fixeds 0.0 0.0 0.0)))
+		(vec-scale col (* (r2f at) 255.0) (const (cat +fixeds_tmp3)))
 		;difuse
 		(vec-scale col 64.0 +fixeds_tmp3))
 		(const (fixeds 255.0 255.0 255.0)) +fixeds_tmp3))
@@ -28,11 +28,11 @@
 	;very basic attenuation, diffuse and specular
 	(bind '(r g b) (vec-min (vec-add (vec-add
 		;attenuation
-		(vec-scale col (* (r2f at) (const (/ 255.0 3.0))) (const (fixeds 0.0 0.0 0.0)))
+		(vec-scale col (* (r2f at) (const (/ 255.0 3.0))) (const (cat +fixeds_tmp3)))
 		;difuse
-		(vec-scale col 64.0 (const (fixeds 0.0 0.0 0.0))) (const (fixeds 0.0 0.0 0.0)))
+		(vec-scale col 64.0 (const (cat +fixeds_tmp3))) (const (cat +fixeds_tmp3)))
 		;specular
-		(vec-scale (const (fixeds 255.0 255.0 255.0)) (r2f sp) (const (fixeds 0.0 0.0 0.0))) +fixeds_tmp3)
+		(vec-scale (const (fixeds 255.0 255.0 255.0)) (r2f sp) (const (cat +fixeds_tmp3))) +fixeds_tmp3)
 		;clamp
 		(const (fixeds 255.0 255.0 255.0)) +fixeds_tmp3))
 	(+ (<< (f2i (* alpha 255.0)) 24) (<< (f2i r) 16) (<< (f2i g) 8) (f2i b)))
