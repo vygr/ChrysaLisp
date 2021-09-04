@@ -39,7 +39,8 @@
 
 (defun render-object-verts (size mat4x4_proj object)
 	(defq sp (* +real_1/2 (i2r (dec size)))
-		proj_verts (map (# (mat4x4-vec4-mul mat4x4_proj %0)) (. object :get_verts)))
+		proj_verts (map (# (mat4x4-vec4-mul mat4x4_proj %0)) (. object :get_verts))
+		col (. object :get_color))
 	(each (lambda ((x y z w))
 			(defq rw (recip w) z (* z rw))
 			(when (<= +real_-1 z +real_1)
@@ -47,7 +48,7 @@
 					sx (* (+ x +real_1) sp) sy (* (+ y +real_1) sp))
 				(push (elem (r2i (* (+ z +real_1) (const (i2r 50)))) poly_buckets) (list
 					(circle r)
-					(lighting 1.0 (const (fixeds 1.0 1.0 1.0)) at)
+					(lighting 1.0 col at)
 					(list (r2f sx) (r2f sy))))))
 		proj_verts))
 

@@ -7,12 +7,12 @@
 (import "class/fixeds/lisp.inc")
 
 ;useful vector constants
-(defq +fixeds_tmp3 (fixeds 0.0 0.0 0.0)
-	+fixeds_tmp4 (fixeds 0.0 0.0 0.0 0.0)
-	+reals_tmp3 (reals (i2r 0) (i2r 0) (i2r 0))
-	+reals_tmp4 (reals (i2r 0) (i2r 0) (i2r 0) (i2r 0))
+(defq +fixeds_zero3 (fixeds 0.0 0.0 0.0)
+	+fixeds_zero4 (fixeds 0.0 0.0 0.0 0.0)
 	+reals_zero3 (reals (i2r 0) (i2r 0) (i2r 0))
-	+reals_zero4 (reals (i2r 0) (i2r 0) (i2r 0) (i2r 0)))
+	+reals_zero4 (reals (i2r 0) (i2r 0) (i2r 0) (i2r 0))
+	+fixeds_tmp3 (cat +fixeds_zero3) +fixeds_tmp4 (cat +fixeds_zero4)
+	+reals_tmp3 (cat +reals_zero3) +reals_tmp4 (cat +reals_zero4))
 
 (defmacro vec-add (p1 p2 &optional _)
 	(if _ `(nums-add ,p1 ,p2 ,_) `(nums-add ,p1 ,p2)))
