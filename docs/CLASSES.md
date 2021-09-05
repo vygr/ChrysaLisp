@@ -159,6 +159,35 @@ Another use of the `(.?)` function is that you can use it before a tight loop
 to lift the `lambda` for the method/s you are calling into local variable/s.
 Thus avoiding the `:vtable` and method lookup during that loop !
 
+This is the `lib/math/surface.inc` Iso class `:get_gridcell` method, it caches
+the `:get_scalar` method.
+
+```vdu
+	(defmethod :get_gridcell (this x y z)
+		; (. iso :get_gridcell x y z) -> gridcell
+		(raise :width :height :depth :center :scale)
+		(defq ix (inc x) iy (inc y) iz (inc z)
+			rx (i2r x) ry (i2r y) rz (i2r z) rix (i2r ix) riy (i2r iy) riz (i2r iz)
+			get_scalar_fnc (.? this :get_scalar))
+		(Gridcell
+			(vec-mul scale (vec-sub (reals rx ry riz) center +reals_tmp3))
+			(vec-mul scale (vec-sub (reals rix ry riz) center +reals_tmp3))
+			(vec-mul scale (vec-sub (reals rix ry rz) center +reals_tmp3))
+			(vec-mul scale (vec-sub (reals rx ry rz) center +reals_tmp3))
+			(vec-mul scale (vec-sub (reals rx riy riz) center +reals_tmp3))
+			(vec-mul scale (vec-sub (reals rix riy riz) center +reals_tmp3))
+			(vec-mul scale (vec-sub (reals rix riy rz) center +reals_tmp3))
+			(vec-mul scale (vec-sub (reals rx riy rz) center +reals_tmp3))
+			(get_scalar_fnc this x y iz)
+			(get_scalar_fnc this ix y iz)
+			(get_scalar_fnc this ix y z)
+			(get_scalar_fnc this x y z)
+			(get_scalar_fnc this x iy iz)
+			(get_scalar_fnc this ix iy iz)
+			(get_scalar_fnc this ix iy z)
+			(get_scalar_fnc this x iy z)))
+```
+
 ## (.super this :method [arg ...])
 
 When defining a subclass, of a class, you may need to invoke the functionality

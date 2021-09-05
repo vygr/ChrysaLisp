@@ -7,7 +7,7 @@
 (defclass Farm (fnc_create fnc_destroy size) (fmap)
 	; (Farm fnc_create fnc_destroy size) -> farm
 	(def this :create fnc_create :destroy fnc_destroy :key -1)
-	(defq _nodes (mail-nodes) _now (pii-time))
+	(defq _nodes (map (# (cat %0)) (mail-nodes)) _now (pii-time))
 	(times size
 		(defq _key (def this :key (inc (get :key this))) _val (emap))
 		(. this :insert _key _val)

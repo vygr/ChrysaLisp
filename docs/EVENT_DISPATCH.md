@@ -175,7 +175,7 @@ start having a LOT of UI widgets and may want to handle key press actions and
 so forth, this `(cond)` statement is going to get very long and untidy. We are
 going to end up not being able to see the wood for the trees !
 
-## The `xmap` event action dispatch loop
+## The `fmap` or `xmap` event action dispatch loop
 
 The Editor application takes this approach and it has started to become the `go
 to` way to arrange things. I encourage folks to adopt this style apart from the
@@ -184,7 +184,7 @@ very simplest or throw away code.
 It's still a simple idea though. We have separate functions for each action we
 wish to perform and hold them in a set of files for that type of action. We
 then have a `module` that includes all the handler action files and enters the
-action functions into an event id to action function `xmap`.
+action functions into an event id to action function `fmap`.
 
 Likewise we do the same for keyboard event actions !
 
