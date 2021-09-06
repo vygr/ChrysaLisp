@@ -30,10 +30,9 @@
 (vec-macro "nums-scale" v s)
 (vec-macro "fixeds-frac" v)
 (vec-macro "fixeds-floor" v)
-
-(defmacro vec-dot (p1 p2) `(nums-dot ,p1 ,p2))
-
-(defmacro vec-sum (p) `(nums-sum ,p))
+;these don't take an optional output but...
+(vec-macro "nums-dot" v0 v1)
+(vec-macro "nums-sum" v)
 
 (defmacro vec-clamp (p1 p2 p3 &optional _)
 	(if _ `(nums-min (nums-max ,p1 ,p2 ,_) ,p3 ,_) `(nums-min (nums-max ,p1 ,p2) ,p3)))
