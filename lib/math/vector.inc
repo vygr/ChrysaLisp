@@ -14,38 +14,22 @@
 	+fixeds_tmp3 (cat +fixeds_zero3) +fixeds_tmp4 (cat +fixeds_zero4)
 	+reals_tmp3 (cat +reals_zero3) +reals_tmp4 (cat +reals_zero4))
 
-(defmacro vec-add (p1 p2 &optional _)
-	(if _ `(nums-add ,p1 ,p2 ,_) `(nums-add ,p1 ,p2)))
+;macro to define macros that take optional output vector
+(defmacro vec-macro (op &rest v)
+	`(defmacro ,(sym (cat "vec" (slice (find "-" op) -1 op))) (~v &optional _)
+		(if _ `(,,(sym op) ~(list ~v) ,_) `(,,(sym op) ~(list ~v)))))
 
-(defmacro vec-sub (p1 p2 &optional _)
-	(if _ `(nums-sub ,p1 ,p2 ,_) `(nums-sub ,p1 ,p2)))
-
-(defmacro vec-min (p1 p2 &optional _)
-	(if _ `(nums-min ,p1 ,p2 ,_) `(nums-min ,p1 ,p2)))
-
-(defmacro vec-max (p1 p2 &optional _)
-	(if _ `(nums-max ,p1 ,p2 ,_) `(nums-max ,p1 ,p2)))
-
-(defmacro vec-mul (p1 p2 &optional _)
-	(if _ `(nums-mul ,p1 ,p2 ,_) `(nums-mul ,p1 ,p2)))
-
-(defmacro vec-div (p1 p2 &optional _)
-	(if _ `(nums-div ,p1 ,p2 ,_) `(nums-div ,p1 ,p2)))
-
-(defmacro vec-mod (p1 p2 &optional _)
-	(if _ `(nums-mod ,p1 ,p2 ,_) `(nums-mod ,p1 ,p2)))
-
-(defmacro vec-frac (p &optional _)
-	(if _ `(fixeds-frac ,p ,_) `(fixeds-frac ,p)))
-
-(defmacro vec-floor (p &optional _)
-	(if _ `(fixeds-floor ,p ,_) `(fixeds-floor ,p)))
-
-(defmacro vec-abs (p &optional _)
-	(if _ `(nums-abs ,p ,_) `(nums-abs ,p)))
-
-(defmacro vec-scale (p s &optional _)
-	(if _ `(nums-scale ,p ,s ,_) `(nums-scale ,p ,s)))
+(vec-macro "nums-add" v0 v1)
+(vec-macro "nums-sub" v0 v1)
+(vec-macro "nums-min" v0 v1)
+(vec-macro "nums-max" v0 v1)
+(vec-macro "nums-mul" v0 v1)
+(vec-macro "nums-div" v0 v1)
+(vec-macro "nums-mod" v0 v1)
+(vec-macro "nums-abs" v)
+(vec-macro "nums-scale" v s)
+(vec-macro "fixeds-frac" v)
+(vec-macro "fixeds-floor" v)
 
 (defmacro vec-dot (p1 p2) `(nums-dot ,p1 ,p2))
 
