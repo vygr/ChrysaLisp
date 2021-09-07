@@ -325,3 +325,67 @@ lighting function:
 		(<< (n2i (* g (const (i2n 0xff)))) 8)
 		(n2i (* b (const (i2n 0xff))))))
 ```
+
+## Macros can define macros
+
+It is possible to create a macro that creates other macros ! This is more a use
+case for nested `quasi-quote` than most other macro types. I only use this
+rarely myself as it can be quite tricky to get correct.
+
+This example is from the `lib/math/vector.inc` library:
+
+```vdu
+;macro to define macros that take optional output vector
+(defmacro vec-macro (op &rest v)
+	`(defmacro ,(sym (cat "vec" (slice (find "-" op) -1 op))) (~v &optional _)
+		(if _ `(,,(sym op) ~(list ~v) ,_) `(,,(sym op) ~(list ~v)))))
+
+(vec-macro "nums-add" v0 v1)
+(vec-macro "nums-sub" v0 v1)
+(vec-macro "nums-min" v0 v1)
+(vec-macro "nums-max" v0 v1)
+(vec-macro "nums-mul" v0 v1)
+(vec-macro "nums-div" v0 v1)
+(vec-macro "nums-mod" v0 v1)
+(vec-macro "nums-abs" v)
+(vec-macro "nums-scale" v s)
+(vec-macro "fixeds-frac" v)
+(vec-macro "fixeds-floor" v)
+```
+
+What we are trying to achieve is a set of macros along the lines of:
+
+```vdu
+(defmacro vec-xyz ([p1] ... &optional _)
+	(if _
+		`(nums-xyz [,p1] ... ,_)
+		`(nums-xyz [,p1] ...)))
+```
+
+This macro itself allows us to use the vector functions like so:
+
+```vdu
+(vec-add a b)
+	-> (nums-add a b)
+(vec-sub a b c)
+	-> (nums-sub a b c)
+(vec-floor a b c)
+	-> (fixeds-floor a b c)
+(vec-frac a b)
+	-> (fixeds-frac a b)
+(vec-add (vec-sub a b) (vec-sub c d) e)
+	-> (nums-add (nums-sub a b) (nums-sub c d) e)
+```
+
+This use of the macro generator:
+
+```vdu
+(vec-macro "nums-add" v0 v1)
+```
+
+Produces the following macro:
+
+```vdu
+(defmacro vec-add (v0 v1 &optional _)
+	(if _ `(,nums-add ~(list v0 v1) ,_) `(,nums-add ~(list v0 v1))))
+```
