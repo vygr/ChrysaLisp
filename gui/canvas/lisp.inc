@@ -76,6 +76,10 @@
 		; (. canvas :set_color argb) -> canvas
 		(setf this +canvas_color argb 0))
 
+	(defmethod :get_color (this)
+		; (. canvas :get_color) -> argb
+		(getf this +canvas_color 0))
+
 	(defmethod :plot (this x y)
 		; (. canvas :plot x y) -> canvas
 		((const (ffi _ "gui/canvas/lisp_plot" 0)) this x y))
@@ -88,12 +92,21 @@
 		; (. canvas :fpoly x y winding_mode paths) -> canvas
 		((const (ffi _ "gui/canvas/lisp_fpoly" 0)) this x y winding_mode paths))
 
+	;; (defmethod :ftri (this tri_path)
+	;; 	; (. canvas :ftri tri) -> canvas
+	;; 	((const (ffi _ "gui/canvas/lisp_ftri" 0)) this tri_path))
+
 	(defmethod :pref_size (this)
 		; (. canvas :pref_size) -> (width height)
 		(defq canvas_scale (getf this +canvas_scale 0)
 			pixmap (getf this +canvas_pixmap 0))
 		(list (/ (getf pixmap +pixmap_width 0) canvas_scale)
 			(/ (getf pixmap +pixmap_height 0) canvas_scale)))
+
+	(defmethod :get_clip (this)
+		; (. canvas :get_clip) -> (cx cy cx1 cy1)
+		(list (getf this +canvas_cx 0) (getf this +canvas_cy 0)
+			 (getf this +canvas_cx1 0) (getf this +canvas_cy1 0)))
 	)
 
 (defclass Canvas (width height scale) (Canvas-base)
