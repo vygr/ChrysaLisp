@@ -79,7 +79,7 @@
 					bucket (r2i (* (+ z0 +real_1) (const (i2r 50)))))
 				(push (elem bucket poly_buckets) (list
 					(cat (elem i0 screen_verts) (elem i1 screen_verts) (elem i2 screen_verts))
-					(lighting-at3 0.9 col at sp)))))
+					(lighting-at3 0.75 col at sp)))))
 		(. object :get_tris)))
 
 (defclass Scene-node (&optional name) nil
