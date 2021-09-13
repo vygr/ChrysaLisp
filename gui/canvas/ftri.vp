@@ -1,0 +1,248 @@
+(include "sys/func.inc")
+(include "gui/canvas/class.inc")
+
+;choose iterative of analytic version
+(cond (nil
+
+(def-method 'canvas :ftri)
+	;inputs
+	;r0 = canvas object (ptr)
+	;r1 = x0 (fixed)
+	;r2 = y0 (fixed)
+	;r3 = x1 (fixed)
+	;r4 = y1 (fixed)
+	;r5 = x2 (fixed)
+	;r6 = y2 (fixed)
+	;outputs
+	;r0 = canvas object (ptr)
+	;trashes
+	;r1-r14
+
+	(defun op3 (op a b c x y z) (op a x) (op b y) (op c z))
+	(defun op2 (op a b x y) (op a x) (op b y))
+	(defun opmin (a b) (vpif (list a '< b)) (vp-cpy-rr a b) (endif))
+	(defun opmax (a b) (vpif (list a '> b)) (vp-cpy-rr a b) (endif))
+
+	(def-vars
+		(ptr this)
+		(int a0 a1 a2 b0 b1 b2)
+		(int x0 x1 x2)
+		(long y0 y1 y2)
+		(int bx by bx1 by1 bxf byf))
+
+	(push-scope)
+	(entry 'canvas :ftri {this, x0, y0, x1, y1, x2, y2})
+
+	(vp-def (this bx by x1 y1 x2 y2 bx1 by1 cx cy cx1 cy1 bxf byf) (method-input 'canvas :ftri))
+	(assign {x0, y0, x0, y0, x1, y1, x2, y2,
+			this->canvas_cx, this->canvas_cy, this->canvas_cx1, this->canvas_cy1}
+		(list bx by bx1 by1 x1 y1 x2 y2 cx cy cx1 cy1))
+	(opmin x1 bx) (opmax x1 bx1)
+	(opmin x2 bx) (opmax x2 bx1)
+	(opmin y1 by) (opmax y1 by1)
+	(opmin y2 by) (opmax y2 by1)
+	(op2 vp-asr-cr +fp_shift +fp_shift bx by)
+	(op2 vp-asr-cr +fp_shift +fp_shift bx1 by1)
+	(op2 vp-add-cr 1 1 bx1 by1)
+
+	(vpif (list bx '< cx1) (list by '< cy1) (list bx1 '> cx) (list by1 '> cy))
+		(opmax cx bx) (opmax cy by)
+		(opmin cx1 bx1) (opmin cy1 by1)
+		(op2 vp-cpy-rr bx by bxf byf)
+		(op2 vp-shl-cr +fp_shift +fp_shift bxf byf)
+		(op2 vp-add-cr (<< 1 (dec +fp_shift)) (<< 1 (dec +fp_shift)) bxf byf)
+		(assign (list bx by bx1 by1 bxf byf) {bx, by, bx1, by1, bxf, byf})
+
+		; aX + bY + c = 0. a, b terms
+		(vp-def (a0 a1 a2 c0 c1 c2 b0 b1 b2 x0 x1 x2 y0 y1 y2))
+		(assign {x0, x1, x2, y0, y1 ,y2} (list x0 x1 x2 y0 y1 y2))
+		(op3 vp-cpy-rr y1 y2 y0 a0 a1 a2)
+		(op3 vp-cpy-rr x0 x1 x2 b0 b1 b2)
+		(op3 vp-sub-rr y0 y1 y2 a0 a1 a2)
+		(op3 vp-sub-rr x1 x2 x0 b0 b1 b2)
+		(assign (list a0 a1 a2 b0 b1 b2) {a0, a1, a2, b0, b1, b2})
+
+		; aX + bY + c = 0. c terms
+		(op3 vp-mul-rr a0 a1 a2 x0 x1 x2)
+		(op3 vp-mul-rr b0 b1 b2 y0 y1 y2)
+		(op3 vp-cpy-rr x0 x1 x2 c0 c1 c2)
+		(op3 vp-add-rr y0 y1 y2 c0 c1 c2)
+		(op3 vp-mul-cr -1 -1 -1 c0 c1 c2)
+
+		; aX + bY + c = 0. starting c values
+		(vp-def (a0 a1 a2 c0 c1 c2 b0 b1 b2 bxf byf))
+		(assign {bxf, byf} (list bxf byf))
+		(op3 vp-mul-rr bxf bxf bxf a0 a1 a2)
+		(op3 vp-mul-rr byf byf byf b0 b1 b2)
+		(op3 vp-add-rr a0 a1 a2 c0 c1 c2)
+		(op3 vp-add-rr b0 b1 b2 c0 c1 c2)
+		(op3 vp-asr-cr +fp_shift +fp_shift +fp_shift c0 c1 c2)
+		(assign (list c0 c1 c2) {y0, y1, y2})
+
+		(vp-def (this bx1 bx by cx by1 c0 c1 c2 i0 i1 i2) (method-input 'canvas :span_noclip))
+		(assign {this, y0, y1, y2, bx, by, bx1} (list this c0 c1 c2 bx by bx1))
+		(loop-start)
+			(assign {a0, a1, a2} (list i0 i1 i2))
+			(loop-start 'bxloop)
+				(vpif (list c0 '>= 0) (list c1 '>= 0))
+					(breakif (list c2 '>= 0) 'bxloop)
+				(endif)
+				(vp-add-cr 1 bx)
+				(op3 vp-add-rr i0 i1 i2 c0 c1 c2)
+			(loop-until (list bx '>= bx1))
+			(vp-cpy-rr bx cx)
+			(loop-while (list c0 '>= 0) (list c1 '>= 0) (list c2 '>= 0))
+				(vp-add-cr 1 cx)
+				(op3 vp-add-rr i0 i1 i2 c0 c1 c2)
+			(loop-until (list cx '>= bx1))
+			(vpif (list bx '< cx))
+				(call 'canvas :span_noclip (list this 0x80 bx by cx) (list this))
+			(endif)
+			(assign {b0, b1, b2, y0, y1, y2, bx, by, bx1, by1} (list i0 i1 i2 c0 c1 c2 bx by bx1 by1))
+			(op3 vp-add-rr i0 i1 i2 c0 c1 c2)
+			(vp-add-cr 1 by)
+			(assign (list c0 c1 c2 by) {y0, y1, y2, by})
+		(loop-until (list by '>= by1))
+	(endif)
+
+	(exit 'canvas :ftri {this})
+	(pop-scope)
+	(return)
+
+(def-func-end)
+
+)(t
+
+(def-method 'canvas :ftri)
+	;inputs
+	;r0 = canvas object (ptr)
+	;r1 = x0 (fixed)
+	;r2 = y0 (fixed)
+	;r3 = x1 (fixed)
+	;r4 = y1 (fixed)
+	;r5 = x2 (fixed)
+	;r6 = y2 (fixed)
+	;outputs
+	;r0 = canvas object (ptr)
+	;trashes
+	;r1-r14
+
+	(defun op3 (op a b c x y z) (op a x) (op b y) (op c z))
+	(defun op2 (op a b x y) (op a x) (op b y))
+	(defun opmin (a b) (vpif (list a '< b)) (vp-cpy-rr a b) (endif))
+	(defun opmax (a b) (vpif (list a '> b)) (vp-cpy-rr a b) (endif))
+
+	(def-vars
+		(ptr this)
+		(int a0 a1 a2 b0 b1 b2)
+		(int x0 x1 x2)
+		(long y0 y1 y2)
+		(int bx by bx1 by1))
+
+	(push-scope)
+	(entry 'canvas :ftri {this, x0, y0, x1, y1, x2, y2})
+
+	(vp-def (this bx by x1 y1 x2 y2 bx1 by1 cx cy cx1 cy1 bxf byf) (method-input 'canvas :ftri))
+	(assign {x0, y0, x0, y0, x1, y1, x2, y2,
+			this->canvas_cx, this->canvas_cy, this->canvas_cx1, this->canvas_cy1}
+		(list bx by bx1 by1 x1 y1 x2 y2 cx cy cx1 cy1))
+	(opmin x1 bx) (opmax x1 bx1)
+	(opmin x2 bx) (opmax x2 bx1)
+	(opmin y1 by) (opmax y1 by1)
+	(opmin y2 by) (opmax y2 by1)
+	(op2 vp-shl-cr +fp_shift +fp_shift cx cy)
+	(op2 vp-shl-cr +fp_shift +fp_shift cx1 cy1)
+
+	(vpif (list bx1 '> cx) (list by1 '> cy) (list bx '< cx1) (list by '< cy1))
+		(op2 vp-and-cr (<< -1 +fp_shift) (<< -1 +fp_shift) by by1)
+		(opmax cy by)
+		(op2 vp-add-cr (<< 1 (dec +fp_shift)) (>> -1 (- 64 +fp_shift)) by by1)
+ 		(opmin cy1 by1)
+ 		(vp-sub-rr cx cx1)
+		(assign (list cx by cx1 by1) {bx, by, bx1, by1})
+
+		; aX + bY + c = 0. a, b terms
+		(vp-def (a0 a1 a2 c0 c1 c2 b0 b1 b2 x0 x1 x2 y0 y1 y2))
+		(assign {x0, x1, x2, y0, y1 ,y2} (list x0 x1 x2 y0 y1 y2))
+		(op3 vp-cpy-rr y1 y2 y0 a0 a1 a2)
+		(op3 vp-cpy-rr x0 x1 x2 b0 b1 b2)
+		(op3 vp-sub-rr y0 y1 y2 a0 a1 a2)
+		(op3 vp-sub-rr x1 x2 x0 b0 b1 b2)
+		(assign (list a0 a1 a2 b0 b1 b2) {a0, a1, a2, b0, b1, b2})
+
+		; aX + bY + c = 0. c terms
+		(op3 vp-mul-rr a0 a1 a2 x0 x1 x2)
+		(op3 vp-mul-rr b0 b1 b2 y0 y1 y2)
+		(op3 vp-cpy-rr x0 x1 x2 c0 c1 c2)
+		(op3 vp-add-rr y0 y1 y2 c0 c1 c2)
+		(op3 vp-mul-cr -1 -1 -1 c0 c1 c2)
+
+		; aX + bY + c = 0. starting c values
+		(vp-def (a0 a1 a2 c0 c1 c2 b0 b1 b2 bx by))
+		(assign {bx, by} (list bx by))
+		(op3 vp-mul-rr bx bx bx a0 a1 a2)
+		(op3 vp-mul-rr by by by b0 b1 b2)
+		(op3 vp-add-rr a0 a1 a2 c0 c1 c2)
+		(op3 vp-add-rr b0 b1 b2 c0 c1 c2)
+		(op3 vp-asr-cr +fp_shift +fp_shift +fp_shift c0 c1 c2)
+		(assign (list c0 c1 c2) {y0, y1, y2})
+
+		;recip of a terms
+		(vp-def (a0 a1 a2) '(r3 r4 r5))
+		(assign {a0, a1, a2} (list a0 a1 a2))
+		(vpif (list a0 '/= 0))
+			(vp-cpy-cr (<< -1 (* +fp_shift 2)) r0)
+			(vp-cpy-cr -1 r2)
+			(vp-div-rrr a0 r2 r0)
+			(assign '(r0) {a0})
+		(endif)
+		(vpif (list a1 '/= 0))
+			(vp-cpy-cr (<< -1 (* +fp_shift 2)) r0)
+			(vp-cpy-cr -1 r2)
+			(vp-div-rrr a1 r2 r0)
+			(assign '(r0) {a1})
+		(endif)
+		(vpif (list a2 '/= 0))
+			(vp-cpy-cr (<< -1 (* +fp_shift 2)) r0)
+			(vp-cpy-cr -1 r2)
+			(vp-div-rrr a2 r2 r0)
+			(assign '(r0) {a2})
+		(endif)
+
+		(vp-def (this bx1 x0 by y0 bx by1 x1 x2 y1 y2 i0 i1 i2) (method-input 'canvas :span_noclip))
+		(assign {this, y0, y1, y2, bx, by, bx1, by1} (list this y0 y1 y2 bx by bx1 by1))
+		(loop-start)
+			(assign {a0, a1, a2} (list i0 i1 i2))
+			(op3 vp-xor-rr x0 x1 x2 x0 x1 x2)
+			(op3 vp-mul-rr i0 i1 i2 y0 y1 y2)
+			(op3 vp-asr-cr +fp_shift +fp_shift +fp_shift y0 y1 y2)
+			(vpif (list i0 '<= 0))
+				(op2 vp-cpy-rr y0 bx1 x0 y0)
+			(endif)
+			(vpif (list i1 '<= 0))
+				(op2 vp-cpy-rr y1 bx1 x1 y1)
+			(endif)
+			(vpif (list i2 '<= 0))
+				(op2 vp-cpy-rr y2 bx1 x2 y2)
+			(endif)
+			(opmax x1 x0) (opmin y1 y0)
+			(opmax x2 x0) (opmin y2 y0)
+			(op2 vp-add-rr bx bx x0 y0)
+			(op3 vp-asr-cr +fp_shift +fp_shift +fp_shift x0 y0 by)
+			(vpif (list x0 '< y0))
+				(call 'canvas :span_noclip (list this 0x80 x0 by y0) (list this))
+			(endif)
+			(assign {b0, b1, b2, y0, y1, y2, bx, by, bx1, by1} (list i0 i1 i2 y0 y1 y2 bx by bx1 by1))
+			(op3 vp-add-rr i0 i1 i2 y0 y1 y2)
+			(vp-add-cr (<< 1 +fp_shift) by)
+			(assign (list y0 y1 y2 by) {y0, y1, y2, by})
+		(loop-until (list by '>= by1))
+	(endif)
+
+	(exit 'canvas :ftri {this})
+	(pop-scope)
+	(return)
+
+(def-func-end)
+
+))

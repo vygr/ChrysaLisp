@@ -34,6 +34,8 @@ New `(fset [num_buckets])` class.
 New `:find_matches_case` method on Dictionary class. Editor now uses this for
 word matching.
 
+New Canvas class `:tri` method.
+
 ------
 
 Optimized versions of the bracket matching methods on the Buffer class. 25%

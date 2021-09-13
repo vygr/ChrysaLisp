@@ -312,6 +312,24 @@
 (. canvas :fpoly x y winding_mode paths) -> canvas
 ```
 
+### canvas :ftri
+
+```code
+(. canvas :ftri tri) -> canvas
+```
+
+### canvas :get_clip
+
+```code
+(. canvas :get_clip) -> (cx cy cx1 cy1)
+```
+
+### canvas :get_color
+
+```code
+(. canvas :get_color) -> argb
+```
+
 ### canvas :next_frame
 
 ```code
@@ -1570,6 +1588,12 @@
 
 ```code
 (canvas-from-argb32 pixel type)
+```
+
+### canvas-ftri
+
+```code
+(canvas-ftri canvas path)
 ```
 
 ### canvas-info

@@ -646,6 +646,23 @@ trashes
 r1-r14
 ```
 
+### canvas :ftri -> gui/canvas/ftri
+
+```code
+inputs
+r0 = canvas object (ptr)
+r1 = x0 (fixed)
+r2 = y0 (fixed)
+r3 = x1 (fixed)
+r4 = y1 (fixed)
+r5 = x2 (fixed)
+r6 = y2 (fixed)
+outputs
+r0 = canvas object (ptr)
+trashes
+r1-r14
+```
+
 ### canvas :init -> gui/canvas/init
 
 ```code
@@ -729,6 +746,19 @@ r1-r14
 ```
 
 ### canvas :lisp_from_argb32 -> gui/canvas/lisp_from_argb32
+
+```code
+inputs
+r0 = lisp object (ptr)
+r1 = args list object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
+### canvas :lisp_ftri -> gui/canvas/lisp_ftri
 
 ```code
 inputs

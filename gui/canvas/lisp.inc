@@ -92,9 +92,9 @@
 		; (. canvas :fpoly x y winding_mode paths) -> canvas
 		((const (ffi _ "gui/canvas/lisp_fpoly" 0)) this x y winding_mode paths))
 
-	;; (defmethod :ftri (this tri_path)
-	;; 	; (. canvas :ftri tri) -> canvas
-	;; 	((const (ffi _ "gui/canvas/lisp_ftri" 0)) this tri_path))
+	(defmethod :ftri (this tri_path)
+		; (. canvas :ftri tri) -> canvas
+		((const (ffi _ "gui/canvas/lisp_ftri" 0)) this tri_path))
 
 	(defmethod :pref_size (this)
 		; (. canvas :pref_size) -> (width height)
