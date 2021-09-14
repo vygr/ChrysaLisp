@@ -529,7 +529,7 @@
 	;trashes
 	;r6-r14
 
-	(vp-def (xd2 xm2 x x1 x2 m) '(r13 r14 r6 r7 r8 r9 r10))
+	(vp-def (xd2 xm2 cnt x x1 x2 m) '(r13 r14 r5 r6 r7 r8 r9 r10))
 
 	(entry 'sys_math :r_sqrt `(,x2))
 
@@ -538,6 +538,7 @@
 		(real-unpack x2 x2 m)
 		(vp-sub-cr 1 x2)
 		(real-pack x2 m x2)
+		(vp-cpy-cr 0 cnt)
 		(loop-while (list x1 '/= x2))
 			(assign `(,x2) `(,x1))
 			(real-unpack x2 xm2 m)
@@ -549,7 +550,8 @@
 			(vp-sub-cr 1 xd2)
 			(real-pack xd2 m xd2)
 			(call 'sys_math :r_add `(,xd2 ,xm2) `(,x2))
-		(loop-end)
+			(vp-add-cr 1 cnt)
+		(loop-until (list cnt '> mbits))
 	(endif)
 
 	(exit 'sys_math :r_sqrt `(,x2))
