@@ -73,7 +73,10 @@
 (defun reset ()
 	(setq scene (Scene "root") *dirty* t)
 	(defq
-		sphere (Scene-object (Mesh-iso (Iso-sphere 15 15 15) (f2r 0.75)) (fixeds 1.0 0.0 0.0) "sphere1")
+		capsule (Mesh-iso (Iso-capsule 20 20 20) (f2r 0.25))
+		sphere (Scene-object (Mesh-iso (Iso-sphere 20 20 20) (f2r 0.25)) (fixeds 1.0 1.0 1.0) "sphere1")
+		capsule1 (Scene-object capsule (fixeds 1.0 0.0 0.0) "capsule1")
+		capsule2 (Scene-object capsule (fixeds 0.0 1.0 1.0) "capsule2")
 		cube (Scene-object (Mesh-iso (Iso-cube 8 8 8) (f2r 0.45)) (fixeds 1.0 1.0 0.0) "cube")
 		torus (Scene-object (Mesh-torus +real_1 +real_1/3 20) (fixeds 0.0 1.0 0.0) "torus1")
 		sphere2 (Scene-object (Mesh-sphere +real_1/2 8) (fixeds 1.0 0.0 1.0) "sphere2"))
@@ -81,7 +84,11 @@
 	(. torus :set_translation (+ +real_1/3 +real_1/3) (+ +real_1/3 +real_1/3) (- +real_0 +focal_dist +real_2))
 	(. sphere2 :set_translation +real_0 +real_1/2 +real_0)
 	(. cube :set_translation +real_0 +real_-1/2 +real_0)
+	(. capsule1 :set_translation +real_0 +real_1/2 +real_0)
+	(. capsule1 :set_rotation +real_0 +real_hpi +real_0)
+	(. capsule2 :set_translation +real_0 +real_-1/2 +real_0)
 	(.-> torus (:add_node sphere2) (:add_node cube))
+	(.-> sphere (:add_node capsule1) (:add_node capsule2))
 	(.-> scene (:add_node sphere) (:add_node torus)))
 
 ;import actions and bindings

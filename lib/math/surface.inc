@@ -433,10 +433,22 @@
 			(Vec3-r (i2r x) (i2r y) (i2r z)) center +reals_tmp3) scale +reals_tmp3) +reals_tmp3)))
 	)
 
+(defclass Iso-capsule (width height depth) (Iso width height depth)
+	; (Iso-capsule width height depth) -> iso
+
+	(defmethod :get_scalar (this x y z)
+		; (. iso :get_scalar x y z) -> scalar
+		(raise :center :scale)
+		(vec-distance-to-line (vec-mul (vec-sub
+			(Vec3-r (i2r x) (i2r y) (i2r z)) center +reals_tmp3) scale +reals_tmp3)
+			(const (Vec3-f -0.5 0.0 0.0)) (const (Vec3-f 0.5 0.0 0.0))))
+	)
+
 ;module
 (export (penv)
 	*class_Iso* Iso Iso?
 	*class_Iso-sphere* Iso-sphere Iso-sphere?
 	*class_Iso-tetra* Iso-tetra Iso-tetra?
+	*class_Iso-capsule* Iso-capsule Iso-capsule?
 	*class_Iso-cube* Iso-cube Iso-cube?)
 (env-pop)

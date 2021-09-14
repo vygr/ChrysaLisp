@@ -16,7 +16,7 @@
 ;[-1/2:-1/20]
 (def_real "+real_-1/" 2 21 (# (/ (const (i2r -1)) (i2r %0))))
 ;pi and temp vec3, vec4
-(defq +real_pi (f2r +fp_pi) +real_2pi (f2r +fp_2pi))
+(defq +real_pi (f2r +fp_pi) +real_hpi (f2r +fp_hpi) +real_2pi (f2r +fp_2pi))
 (undef (env) 'def_real)
 
 (enums +vec3 0
