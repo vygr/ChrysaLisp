@@ -52,8 +52,7 @@
 		(- d (scene (vec-add p
 			(const (fixeds 0.0 (neg +eps) 0.0)) +fixeds_tmp3)))
 		(- d (scene (vec-add p
-			(const (fixeds 0.0 0.0 (neg +eps))) +fixeds_tmp3))))
-			(const (cat +fixeds_tmp3))))
+			(const (fixeds 0.0 0.0 (neg +eps))) +fixeds_tmp3))))))
 
 (defun shadow (ray_origin ray_dir l max_l k)
 	(defq s 1.0 i 1000)
@@ -76,7 +75,7 @@
 		ss (shadow surface_pos light_norm +min_distance light_dis +shadow_softness)
 		light_col (vec-scale (const (fixeds 1.0 1.0 1.0)) (* light_atten ss))
 		diffuse (max 0.0 (vec-dot surface_norm light_norm))
-		specular (max 0.0 (vec-dot ref (vec-norm (vec-sub cam_pos surface_pos) +fixeds_tmp3)))
+		specular (max 0.0 (vec-dot ref (vec-norm (vec-sub cam_pos surface_pos))))
 		specular (* specular specular specular specular)
 		obj_color (vec-scale obj_color (+ (* diffuse (const (- 1.0 +ambient))) +ambient) +fixeds_tmp3)
 		obj_color (vec-add obj_color (fixeds specular specular specular) +fixeds_tmp3))
