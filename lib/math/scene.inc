@@ -14,8 +14,9 @@
 	(cond ((defq i (some (lambda (i) (if (= i r) _)) k)) (elem i p))
 		(t (push k r) (elem -2 (push p (path-gen-arc 0.0 0.0 0.0 +fp_2pi r 0.25 (path)))))))
 
-(defun lighting (alpha col at)
+(defun lighting (col at)
 	;very basic attenuation and diffuse
+	(defq alpha (elem 0 col) col (slice 1 -1 col))
 	(bind '(r g b) (vec-min (vec-add
 		;attenuation
 		(vec-scale col (* (r2f at) 255.0) (const (cat +fixeds_tmp3)))
@@ -24,8 +25,9 @@
 		(const (fixeds 255.0 255.0 255.0)) +fixeds_tmp3))
 	(+ (<< (f2i (* alpha 255.0)) 24) (<< (f2i r) 16) (<< (f2i g) 8) (f2i b)))
 
-(defun lighting-at3 (alpha col at sp)
+(defun lighting-at3 (col at sp)
 	;very basic attenuation, diffuse and specular
+	(defq alpha (elem 0 col) col (slice 1 -1 col))
 	(bind '(r g b) (vec-min (vec-add (vec-add
 		;attenuation
 		(vec-scale col (* (r2f at) (const (/ 255.0 3.0))) (const (cat +fixeds_tmp3)))
@@ -48,7 +50,7 @@
 					sx (* (+ x +real_1) sp) sy (* (+ y +real_1) sp))
 				(push (elem (r2i (* (+ z +real_1) (const (i2r 50)))) poly_buckets) (list
 					(circle r)
-					(lighting 1.0 col at)
+					(lighting col at)
 					(r2f sx) (r2f sy)))))
 		proj_verts))
 
@@ -79,7 +81,7 @@
 					bucket (r2i (* (+ z0 +real_1) (const (i2r 50)))))
 				(push (elem bucket poly_buckets) (list
 					(cat (elem i0 screen_verts) (elem i1 screen_verts) (elem i2 screen_verts))
-					(lighting-at3 0.75 col at sp)))))
+					(lighting-at3 col at sp)))))
 		(. object :get_tris)))
 
 (defclass Scene-node (&optional name) nil
