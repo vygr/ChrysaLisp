@@ -76,16 +76,16 @@
 				(vec-distance-squared p (vec-add p1 (vec-scale lv (/ c1 c2)) lv) lv)))))
 
 (defun vec-manhattan-distance (p1 p2)
-	(nums-sum (nums-abs (defq _ (nums-sub p1 p2)) _)))
+	(nums-sum (nums-abs (nums-sub p1 p2))))
 
 (defun vec-euclidean-distance (p1 p2)
-	(sqrt (nums-sum (nums-mul (defq _ (nums-sub p1 p2)) _ _))))
+	(sqrt (nums-sum (nums-mul (defq _ (nums-sub p1 p2)) _))))
 
 (defun vec-squared-euclidean-distance (p1 p2)
-	(nums-sum (nums-mul (defq _ (nums-sub p1 p2)) _ _)))
+	(nums-sum (nums-mul (defq _ (nums-sub p1 p2)) _)))
 
 (defun vec-chebyshev-distance (p1 p2)
-	(reduce max (nums-abs (defq _ (nums-sub p1 p2)) _)))
+	(reduce max (nums-abs (nums-sub p1 p2))))
 
 ;specific vector stuff
 
