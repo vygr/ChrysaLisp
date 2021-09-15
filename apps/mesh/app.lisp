@@ -78,7 +78,7 @@
 		capsule2_obj (Scene-object capsule_mesh (fixeds 0.8 0.0 1.0 1.0) "capsule2")
 		cube_obj (Scene-object (Mesh-iso (Iso-cube 8 8 8) (f2r 0.45)) (fixeds 0.8 1.0 1.0 0.0) "cube")
 		torus_obj (Scene-object (Mesh-torus +real_1 +real_1/3 20) (fixeds 1.0 0.0 1.0 0.0) "torus1")
-		sphere2_obj (Scene-object (Mesh-sphere +real_1/2 8) (fixeds 0.8 1.0 0.0 1.0) "sphere2"))
+		sphere2_obj (Scene-object (Mesh-sphere +real_1/2 10) (fixeds 0.8 1.0 0.0 1.0) "sphere2"))
 	(. sphere_obj :set_translation (+ +real_-1/3 +real_-1/3) (+ +real_-1/3 +real_-1/3) (- +real_0 +focal_dist +real_1))
 	(. torus_obj :set_translation (+ +real_1/3 +real_1/3) (+ +real_1/3 +real_1/3) (- +real_0 +focal_dist +real_2))
 	(. sphere2_obj :set_translation +real_0 +real_1/2 +real_0)
