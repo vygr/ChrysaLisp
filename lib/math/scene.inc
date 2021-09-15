@@ -225,8 +225,8 @@
 			(lambda (object children)
 				(push matrix_stack (. object :get_matrix))
 				(push imatrix_stack (. object :get_imatrix))
-				(defq mat4x4_obj (reduce (# (mat4x4-mul %0 %1)) matrix_stack)
-					imat4x4_obj (reduce-rev (# (mat4x4-mul %0 %1)) imatrix_stack))
+				(defq mat4x4_obj (reduce mat4x4-mul matrix_stack)
+					imat4x4_obj (reduce-rev mat4x4-mul imatrix_stack))
 				(when (def? :mesh object)
 					(defq mat4x4_proj (mat4x4-mul mat4x4_frust mat4x4_obj))
 					(if mode
