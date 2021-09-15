@@ -54,14 +54,15 @@
 					(r2f sx) (r2f sy)))))
 		proj_verts))
 
-(defun render-object-tris (size mat4x4_obj mat4x4_proj object)
+(defun render-object-tris (size imat4x4_obj mat4x4_proj object)
 	(defq sp (* +real_1/2 (i2r (dec size)))
-		obj_verts (map (# (mat4x4-vec4-mul mat4x4_obj %0)) (. object :get_verts))
-		obj_norms (map (# (mat4x4-vec3-mul mat4x4_obj %0)) (. object :get_norms))
-		proj_verts (map (# (mat4x4-vec4-mul mat4x4_proj %0)) (. object :get_verts))
-		screen_verts (cap (length obj_verts) (list))
-		screen_zs (cap (length obj_verts) (list))
-		ats (cap (length obj_verts) (list))
+		cam_pos (mat4x4-vec4-mul imat4x4_obj (const (reals +real_0 +real_0 +real_0 +real_1)))
+		light_vec (mat4x4-vec3-mul imat4x4_obj (const (reals (f2r 0.55) (f2r 0.55) (f2r -0.55))))
+		verts (. object :get_verts) norms (. object :get_norms)
+		proj_verts (map (# (mat4x4-vec4-mul mat4x4_proj %0)) verts)
+		screen_verts (cap (length verts) (list))
+		screen_zs (cap (length verts) (list))
+		ats (cap (length verts) (list))
 		col (. object :get_color))
 	(each (lambda ((x y z w))
 			(defq w (recip w) x (* x w) y (* y w) z (* z w) at (recip (+ z +real_2))
@@ -71,11 +72,11 @@
 			(push ats at))
 		proj_verts)
 	(each (lambda ((i0 i1 i2 in))
-			(when (and (> (vec-dot (defq n (elem in obj_norms)) (elem i0 obj_verts)) +real_0)
+			(when (and (> (vec-dot (defq n (elem in norms)) (vec-sub (elem i0 verts) cam_pos)) +real_0)
 					(<= +real_-1 (elem i1 screen_zs) +real_1)
 					(<= +real_-1 (elem i2 screen_zs) +real_1)
 					(<= +real_-1 (defq z0 (elem i0 screen_zs)) +real_1))
-				(defq sp (max +real_0 (vec-dot n (const (reals (f2r 0.55) (f2r 0.55) (f2r -0.55)))))
+				(defq sp (max +real_0 (vec-dot n light_vec))
 					sp (* sp sp sp sp sp sp)
 					at (+ (elem i0 ats) (elem i1 ats) (elem i2 ats))
 					bucket (r2i (* (+ z0 +real_1) (const (i2r 50)))))
@@ -91,7 +92,8 @@
 		:rot_x +real_0 :rot_y +real_0 :rot_z +real_0
 		:trans_x +real_0 :trans_y +real_0 :trans_z +real_0
 		:scale_x +real_1 :scale_y +real_1 :scale_z +real_1
-		:matrix (Mat4x4-unity) :dirty nil :name (opt name ""))
+		:matrix (Mat4x4-unity) :imatrix (Mat4x4-unity)
+		:dirty_m nil :dirty_im nil :name (opt name ""))
 
 	(defmethod :get_parent (this)
 		; (. scene_node :get_parent) -> scene_node | nil
@@ -123,31 +125,46 @@
 
 	(defmethod :set_rotation (this x y z)
 		; (. scene_node :set_rotation x y z) -> scene_node
-		(set this :rot_x x :rot_y y :rot_z z :dirty t)
+		(set this :rot_x x :rot_y y :rot_z z :dirty_m t :dirty_im t)
 		this)
 
 	(defmethod :set_translation (this x y z)
 		; (. scene_node :set_translation x y z) -> scene_node
-		(set this :trans_x x :trans_y y :trans_z z :dirty t)
+		(set this :trans_x x :trans_y y :trans_z z :dirty_m t :dirty_im t)
 		this)
 
 	(defmethod :set_scale (this x y z)
 		; (. scene_node :set_scale x y z) -> scene_node
-		(set this :scale_x x :scale_y y :scale_z z :dirty t)
+		(set this :scale_x x :scale_y y :scale_z z :dirty_m t :dirty_im t)
 		this)
 
 	(defmethod :get_matrix (this)
 		; (. scene_node :get_matrix) -> matrix
-		(when (get :dirty this)
+		(when (get :dirty_m this)
 			(raise :rot_x :rot_y :rot_z
 				:trans_x :trans_y :trans_z
 				:scale_x :scale_y :scale_z)
-			(set this :dirty nil :matrix
+			(set this :dirty_m nil :matrix
 				(mat4x4-mul (Mat4x4-translate trans_x trans_y trans_z)
-					(mat4x4-mul (mat4x4-mul (mat4x4-mul
-						(Mat4x4-rotx rot_x) (Mat4x4-roty rot_y)) (Mat4x4-rotz rot_z))
-							(Mat4x4-scale scale_x scale_y scale_z)))))
+					(mat4x4-mul (Mat4x4-rotz rot_z)
+						(mat4x4-mul (Mat4x4-roty rot_y)
+							(mat4x4-mul (Mat4x4-rotx rot_x)
+								(Mat4x4-scale scale_x scale_y scale_z)))))))
 		(get :matrix this))
+
+	(defmethod :get_imatrix (this)
+		; (. scene_node :get_imatrix) -> imatrix
+		(when (get :dirty_im this)
+			(raise :rot_x :rot_y :rot_z
+				:trans_x :trans_y :trans_z
+				:scale_x :scale_y :scale_z)
+			(set this :dirty_im nil :imatrix
+				(mat4x4-mul (Mat4x4-scale (recip scale_x) (recip scale_y) (recip scale_z))
+					(mat4x4-mul (Mat4x4-rotx (neg rot_x))
+						(mat4x4-mul (Mat4x4-roty (neg rot_y))
+							(mat4x4-mul (Mat4x4-rotz (neg rot_z))
+								(Mat4x4-translate (neg trans_x) (neg trans_y) (neg trans_z))))))))
+		(get :imatrix this))
 
 	(defmethod :walk_nodes (_this _fi _fo)
 		; (. scene_node :walk_nodes fnc_in fnc_out)
@@ -199,24 +216,27 @@
 		; (. scene_node :render canvas size left right top bottom near far) -> tris
 		(. canvas :fill 0)
 		(defq mat4x4_frust (Mat4x4-frustum left right top bottom near far)
-			matrix_stack (list (Mat4x4-unity))
+			matrix_stack (list) imatrix_stack (list)
 			poly_buckets '(()()()()()()()()()()()()()()()()()()()()()()()()()
 							()()()()()()()()()()()()()()()()()()()()()()()()()
 							()()()()()()()()()()()()()()()()()()()()()()()()()
 							()()()()()()()()()()()()()()()()()()()()()()()()()))
 		(. scene :walk_nodes
 			(lambda (object children)
-				(push matrix_stack (defq mat4x4_obj (mat4x4-mul
-					(elem -2 matrix_stack) (. object :get_matrix))))
+				(push matrix_stack (. object :get_matrix))
+				(push imatrix_stack (. object :get_imatrix))
+				(defq mat4x4_obj (reduce (# (mat4x4-mul %0 %1)) matrix_stack)
+					imat4x4_obj (reduce-rev (# (mat4x4-mul %0 %1)) imatrix_stack))
 				(when (def? :mesh object)
 					(defq mat4x4_proj (mat4x4-mul mat4x4_frust mat4x4_obj))
 					(if mode
-						(render-object-tris size mat4x4_obj mat4x4_proj object)
+						(render-object-tris size imat4x4_obj mat4x4_proj object)
 						(render-object-verts size mat4x4_proj object))
 					(task-slice))
 				nil)
 			(lambda (object children)
-				(pop matrix_stack)))
+				(pop matrix_stack)
+				(pop imatrix_stack)))
 		(each-rev (lambda (path_list)
 				(while (defq p (pop path_list))
 					(bind '(p col &optional sx sy) p)
