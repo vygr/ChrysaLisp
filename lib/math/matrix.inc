@@ -151,6 +151,7 @@
 		(reals (vec-dot mar3 mbc0) (vec-dot mar3 mbc1) (vec-dot mar3 mbc2) (vec-dot mar3 mbc3))))
 
 (defun mat4x4-invert (m)
+	; (mat4x4-invert mat4x4) -> mat4x4
 	(bind '(mr0 mr1 mr2 mr3) m)
 	(bind '(m00 m01 m02 m03) mr0)
 	(bind '(m10 m11 m12 m13) mr1)

@@ -46,9 +46,6 @@
 				(elem-set -2 buf (cat (elem -2 buf) c))))) s)
 	(. vdu :load buf 0 0 (length (elem -2 buf)) (dec (length buf))) buf)
 
-(defun time-in-seconds (_)
-	(str (/ _ 1000000) "." (pad (% _ 1000000) 6 "00000")))
-
 (defun dispatch-job (key val)
 	;send job to child
 	(. val :insert :timestamp (pii-time))

@@ -805,6 +805,10 @@
 		progn)
 	`(lambda ,(sort cmp args) ~_))
 
+(defun time-in-seconds (_)
+	; (time-in-seconds time) -> str
+	(str (/ _ 1000000) "." (pad (% _ 1000000) 6 "00000")))
+
 ;;;;;;;;;
 ; Streams
 ;;;;;;;;;

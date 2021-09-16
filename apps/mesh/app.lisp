@@ -98,9 +98,7 @@
 	(catch (eval action) (progn (print _)(print) t)))
 
 (defun benchmark ()
-	(defun time-in-seconds (_)
-		(str (/ _ 1000000) "." (pad (% _ 1000000) 6 "00000")))
-	(defq tests '((1 0) (2 0) (3 0)))
+	(defq tests '((1 0) (1 0) (1 0)))
 	(each (lambda ((s m))
 		(defq c (Canvas 512 512 s) then (pii-time))
 		(. c :set_canvas_flags m)

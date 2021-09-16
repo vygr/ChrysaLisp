@@ -289,8 +289,6 @@
 
 (defun make-test (&optional i *abi* *cpu*)
 	(setd *abi* (abi) *cpu* (cpu))
-	(defun time-in-seconds (_)
-		(str (/ _ 1000000) "." (pad (% _ 1000000) 6 "00000")))
 	(defq b 1000000000 w 0 a 0 c 0 files (all-vp-files))
 	(times (opt i 10)
 		(defq _ (pii-time))

@@ -4,6 +4,15 @@
 
 ------
 
+New `(mat4x4-invert)` function and Scene graph class updated to use this to
+perform lighting and back face culling in object space.
+
+New `(Iso-capsule)` surface class.
+
+`(time-in-seconds time)` promoted to `boot.inc`
+
+------
+
 Start of new Cubes demo. Along with a new `lib/math/matrix.inc` library.
 Renamed the `lib/math/math.inc` library to `lib/math/vector.inc`.
 
