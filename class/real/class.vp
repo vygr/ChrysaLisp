@@ -52,14 +52,14 @@
 	(class/array/get_both r1 r1 r2)
 	(vp-cpy-ir r1 0 r0)
 	(vp-add-cr +ptr_size r1)
-	(assign '((r0 num_value)) '(r0))
+	(assign '((r0 num_value)) '(r13))
 	(loop-start)
 		(vp-cpy-ir r1 0 r4)
 		(vp-add-cr +ptr_size r1)
-		(assign '((r4 num_value)) '(r3))
+		(assign '((r4 num_value)) '(r14))
 		(exec p)
 	(loop-until '(r1 = r2))
-	(v-call 'num :vcreate '(r0) '(r1) r4 r1)
+	(v-call 'num :vcreate '(r13) '(r1) r4 r1)
 	(vp-pop r0)
 	(exit 'real _ '(r0 r1))
 	(vp-ret))
@@ -75,7 +75,7 @@
 	;r1-r14
 
 	(addop :add
-		'(call 'sys_math :r_add '(r0 r3) '(r0)))
+		'(call 'sys_math :r_add '(r13 r14) '(r13)))
 
 (def-func-end)
 
@@ -90,7 +90,7 @@
 	;r1-r14
 
 	(addop :sub
-		'(call 'sys_math :r_sub '(r0 r3) '(r0)))
+		'(call 'sys_math :r_sub '(r13 r14) '(r13)))
 
 (def-func-end)
 
@@ -105,12 +105,12 @@
 	;r1-r14
 
 	(addop :mul
-		'(call 'sys_math :r_mul '(r0 r3) '(r0)))
+		'(call 'sys_math :r_mul '(r13 r14) '(r13)))
 
 (def-func-end)
 
 (defun minop (_ p)
-	(vp-def (this args obj iter_begin iter_end val new_val))
+	(vp-def (val this args obj iter_begin iter_end new_val) '(r14))
 	(entry 'num _ `(,this ,args))
 	(class/array/get_both args iter_begin iter_end)
 	(vp-cpy-ir iter_begin 0 args)
@@ -172,22 +172,22 @@
 	(class/array/get_both r1 r1 r4)
 	(vp-cpy-ir r1 0 r0)
 	(vp-add-cr +ptr_size r1)
-	(assign '((r0 num_value)) '(r0))
+	(assign '((r0 num_value)) '(r13))
 	(loop-start)
 		(vp-cpy-ir r1 0 r5)
 		(vp-add-cr +ptr_size r1)
-		(assign '((r5 num_value)) '(r3))
+		(assign '((r5 num_value)) '(r14))
 	(errorcases
-		(gotoif '(r3 = 0) 'error))
+		(gotoif '(r14 = 0) 'error))
 		(exec p)
 	(loop-until '(r1 = r4))
-	(v-call 'num :vcreate '(r0) '(r1) r5 r1)
+	(v-call 'num :vcreate '(r13) '(r1) r5 r1)
 	(vp-pop r0)
 	(exit 'real _ '(r0 r1))
 	(vp-ret)
 (vp-label 'error)
 	(vp-pop r0)
-	(exit 'real _ '(r0 r3))
+	(exit 'real _ '(r0 r14))
 	(vp-ret))
 
 (def-method 'real :div)
@@ -201,7 +201,7 @@
 	;r1-r14
 
 	(divop :div
-		'(call 'sys_math :r_div '(r0 r3) '(r0)))
+		'(call 'sys_math :r_div '(r13 r14) '(r13)))
 
 (def-func-end)
 
@@ -216,7 +216,7 @@
 	;r1-r14
 
 	(divop :mod
-		'(call 'sys_math :r_mod '(r0 r3) '(r0)))
+		'(call 'sys_math :r_mod '(r13 r14) '(r13)))
 
 (def-func-end)
 
@@ -226,7 +226,7 @@
 	(class/array/get_both r1 r1 r2)
 	(vp-cpy-ir r1 0 r0)
 	(vp-add-cr +ptr_size r1)
-	(assign '((r0 num_value)) '(r0))
+	(assign '((r0 num_value)) '(r14))
 	(loop-start)
 		(vp-cpy-ir r1 0 r3)
 		(vp-add-cr +ptr_size r1)
@@ -253,9 +253,9 @@
 
 	(compare :ge
 		'(progn
-			(call 'sys_math :r_sub '(r3 r0) '(r13))
+			(call 'sys_math :r_sub '(r3 r14) '(r13))
 			(gotoif '(r13 > 0) 'fail)
-			(vp-cpy-rr r3 r0)))
+			(vp-cpy-rr r3 r14)))
 
 (def-func-end)
 
@@ -271,9 +271,9 @@
 
 	(compare :gt
 		'(progn
-			(call 'sys_math :r_sub '(r3 r0) '(r13))
+			(call 'sys_math :r_sub '(r3 r14) '(r13))
 			(gotoif '(r13 >= 0) 'fail)
-			(vp-cpy-rr r3 r0)))
+			(vp-cpy-rr r3 r14)))
 
 (def-func-end)
 
@@ -289,9 +289,9 @@
 
 	(compare :le
 		'(progn
-			(call 'sys_math :r_sub '(r3 r0) '(r13))
+			(call 'sys_math :r_sub '(r3 r14) '(r13))
 			(gotoif '(r13 < 0) 'fail)
-			(vp-cpy-rr r3 r0)))
+			(vp-cpy-rr r3 r14)))
 
 (def-func-end)
 
@@ -307,19 +307,29 @@
 
 	(compare :lt
 		'(progn
-			(call 'sys_math :r_sub '(r3 r0) '(r13))
+			(call 'sys_math :r_sub '(r3 r14) '(r13))
 			(gotoif '(r13 <= 0) 'fail)
-			(vp-cpy-rr r3 r0)))
+			(vp-cpy-rr r3 r14)))
 
 (def-func-end)
 
-;generic real math op
+;generic real math ops
 (defun mathop (_ p)
 	(entry 'real _ '(r0))
 	(vp-push r0)
 	(assign '((r0 num_value)) '(r13))
 	(exec p)
-	(call 'real :create '(r0) '(r1))
+	(call 'real :create '(r13) '(r1))
+	(vp-pop r0)
+	(exit 'real _ '(r0 r1))
+	(vp-ret))
+
+(defun mathop1 (_ p)
+	(entry 'real _ '(r0))
+	(vp-push r0)
+	(assign '((r0 num_value)) '(r14))
+	(exec p)
+	(call 'real :create '(r13) '(r1))
 	(vp-pop r0)
 	(exit 'real _ '(r0 r1))
 	(vp-ret))
@@ -334,7 +344,7 @@
 	;r1-r14
 
 	(mathop :sqrt
-		'(call 'sys_math :r_sqrt '(r13) '(r0)))
+		'(call 'sys_math :r_sqrt '(r13) '(r13)))
 
 (def-func-end)
 
@@ -348,7 +358,7 @@
 	;r1-r14
 
 	(mathop :sin
-		'(call 'sys_math :r_sin '(r13) '(r0)))
+		'(call 'sys_math :r_sin '(r13) '(r13)))
 
 (def-func-end)
 
@@ -362,7 +372,7 @@
 	;r1-r14
 
 	(mathop :cos
-		'(call 'sys_math :r_cos '(r13) '(r0)))
+		'(call 'sys_math :r_cos '(r13) '(r13)))
 
 (def-func-end)
 
@@ -376,7 +386,7 @@
 	;r1-r14
 
 	(mathop :frac
-		'(call 'sys_math :r_frac '(r13) '(r0)))
+		'(call 'sys_math :r_frac '(r13) '(r13)))
 
 (def-func-end)
 
@@ -390,7 +400,7 @@
 	;r1-r14
 
 	(mathop :floor
-		'(call 'sys_math :r_floor '(r13) '(r0)))
+		'(call 'sys_math :r_floor '(r13) '(r13)))
 
 (def-func-end)
 
@@ -403,8 +413,8 @@
 	;trashes
 	;r1-r14
 
-	(mathop :recip
-		'(call 'sys_math :r_div '(0x4000000000000001 r13) '(r0)))
+	(mathop1 :recip
+		'(call 'sys_math :r_div '(0x4000000000000001 r14) '(r13)))
 
 (def-func-end)
 
@@ -420,11 +430,11 @@
 	(entry 'real :abs '(r0))
 
 	(vp-push r0)
-	(assign '((r0 num_value)) '(r0))
-	(vpif '(r0 < 0))
+	(assign '((r0 num_value)) '(r13))
+	(vpif '(r13 < 0))
 		; (i2r -1) for the sake of the C++ version
-		(call 'sys_math :r_mul '(-0x3FFFFFFFFFFFFFFF r0) '(r0))
-		(call 'real :create '(r0) '(r1))
+		(call 'sys_math :r_mul '(r13 -0x3FFFFFFFFFFFFFFF) '(r13))
+		(call 'real :create '(r13) '(r1))
 	(else)
 		(assign '((rsp 0)) '(r1))
 		(class/obj/ref r1 r0)
@@ -446,7 +456,7 @@
 	;r1-r14
 
 	(mathop :neg
-		'(call 'sys_math :r_mul '(r13 -0x3FFFFFFFFFFFFFFF) '(r0)))
+		'(call 'sys_math :r_mul '(r13 -0x3FFFFFFFFFFFFFFF) '(r13)))
 
 (def-func-end)
 
@@ -461,13 +471,14 @@
 
 	(mathop :sign
 		'(progn
-			(vp-xor-rr r0 r0)
 			(vpif '(r13 < 0))
 				; (i2r -1) for the sake of the C++ version
-				(assign '(-0x3FFFFFFFFFFFFFFF) '(r0))
+				(assign '(-0x3FFFFFFFFFFFFFFF) '(r13))
 			(elseif '(r13 > 0))
 				; (i2r 1) for the sake of the C++ version
-				(assign '(0x4000000000000001) '(r0))
+				(assign '(0x4000000000000001) '(r13))
+			(else)
+				(vp-xor-rr r13 r13)
 			(endif)))
 
 (def-func-end)
