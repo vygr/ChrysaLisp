@@ -7,6 +7,9 @@
 ;module
 (env-push)
 
+(enums +tri 0
+	(enum i0 i1 i2 in))
+
 (defun Tri (i0 i1 i2 in)
 	(list i0 i1 i2 in))
 
@@ -215,6 +218,7 @@
 
 ;module
 (export (penv)
+	+tri_size
 	*class_Mesh* Mesh Mesh?
 	*class_Mesh-data* Mesh-data Mesh-data?
 	*class_Mesh-torus* Mesh-torus Mesh-torus?

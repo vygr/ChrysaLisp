@@ -10,7 +10,10 @@
 (defun create-mesh (key mbox name command)
 	(defq mesh (exec (elem 0 (read (string-stream command) +char_space)))
 		verts (. mesh :get_verts) norms (. mesh :get_norms) tris (. mesh :get_tris)
-		reply_list (list))
+		reply_list (cap (+ +job_reply_size
+			(* (length verts) +vec4_size)
+			(* (length norms) +vec3_size)
+			(* (length tris) +tri_size)) (list)))
 	(push reply_list
 		(char key +long_size)
 		(char (length verts) +int_size)
