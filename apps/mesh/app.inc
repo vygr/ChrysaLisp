@@ -7,6 +7,7 @@
 	(offset command))
 
 (structure +job_reply 0
-	(long key num_verts num_norms num_tris)
+	(long key)
+	(uint num_verts num_norms num_tris)
 	(struct name 16)
 	(offset data))
