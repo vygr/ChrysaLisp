@@ -5,6 +5,8 @@
 (import "class/lisp.inc")
 (import "gui/lisp.inc")
 (import "lib/math/scene.inc")
+(import "lib/task/farm.inc")
+(import "./app.inc")
 
 (enums +event 0
 	(enum close max min)
@@ -14,9 +16,11 @@
 	(enum plain grid axis))
 
 (enums +select 0
-	(enum main tip timer))
+	(enum main task reply tip frame_timer retry_timer))
 
-(defq anti_alias nil timer_rate (/ 1000000 30) +min_size 450 +max_size 800
+(defq anti_alias nil frame_timer_rate (/ 1000000 30) retry_timer_rate 1000000
+	retry_timeout (if (starts-with "obj/vp64" (load-path)) 50000000 5000000)
+	+min_size 450 +max_size 800
 	canvas_size +min_size canvas_scale (if anti_alias 1 2)
 	+canvas_mode (if anti_alias +canvas_flag_antialias 0)
 	+stage_depth +real_3 +focal_dist +real_2
@@ -24,7 +28,7 @@
 	+near +focal_dist +far (+ +near +stage_depth)
 	+top (* +focal_dist +real_1/2) +bottom (* +focal_dist +real_-1/2)
 	+left (* +focal_dist +real_-1/2) +right (* +focal_dist +real_1/2)
-	*mol_index* 0 *auto_mode* nil *render_mode* nil *dirty* t scene nil)
+	*auto_mode* nil *render_mode* nil *dirty* t)
 
 (ui-window *window* ()
 	(ui-title-bar *title* "Mesh" (0xea19 0xea1b 0xea1a) +event_close)
@@ -70,15 +74,45 @@
 (defun get-rot (slider)
 	(/ (* (i2r (get :value slider)) +real_2pi) (const (i2r 1000))))
 
-(defun reset ()
-	(setq scene (Scene "root") *dirty* t)
-	(defq capsule_mesh (Mesh-iso (Iso-capsule 20 20 20) (f2r 0.25))
-		sphere_obj (Scene-object (Mesh-iso (Iso-sphere 20 20 20) (f2r 0.25)) (fixeds 1.0 1.0 1.0 1.0) "sphere1")
-		capsule1_obj (Scene-object capsule_mesh (fixeds 0.8 1.0 0.0 0.0) "capsule1")
-		capsule2_obj (Scene-object capsule_mesh (fixeds 0.8 0.0 1.0 1.0) "capsule2")
-		cube_obj (Scene-object (Mesh-iso (Iso-cube 8 8 8) (f2r 0.45)) (fixeds 0.8 1.0 1.0 0.0) "cube")
-		torus_obj (Scene-object (Mesh-torus +real_1 +real_1/3 20) (fixeds 1.0 0.0 1.0 0.0) "torus1")
-		sphere2_obj (Scene-object (Mesh-sphere +real_1/2 10) (fixeds 0.8 1.0 0.0 1.0) "sphere2"))
+(defun dispatch-job (key val)
+	;send another job to child
+	(cond
+		((defq job (pop jobs))
+			(.-> val
+				(:insert :job job)
+				(:insert :timestamp (pii-time)))
+			(mail-send (. val :find :child)
+				(setf-> job
+					(+job_key key)
+					(+job_reply (elem +select_reply select)))))
+		(t  ;no jobs in que
+			(.-> val
+				(:erase :job)
+				(:erase :timestamp)))))
+
+(defun create (key val nodes)
+	; (create key val nodes)
+	;function called when entry is created
+	(open-task "apps/mesh/child.lisp" (elem (random (length nodes)) nodes)
+		+kn_call_child key (elem +select_task select)))
+
+(defun destroy (key val)
+	; (destroy key val)
+	;function called when entry is destroyed
+	(when (defq child (. val :find :child))
+		(mail-send child ""))
+	(when (defq job (. val :find :job))
+		(push jobs job)
+		(. val :erase :job)))
+
+(defun create-scene ()
+	(defq scene (Scene "root")
+		sphere_obj (Scene-object nil (fixeds 1.0 1.0 1.0 1.0) "sphere1")
+		capsule1_obj (Scene-object nil (fixeds 0.8 1.0 0.0 0.0) "capsule1")
+		capsule2_obj (Scene-object nil (fixeds 0.8 0.0 1.0 1.0) "capsule2")
+		cube_obj (Scene-object nil (fixeds 0.8 1.0 1.0 0.0) "cube")
+		torus_obj (Scene-object nil (fixeds 1.0 0.0 1.0 0.0) "torus")
+		sphere2_obj (Scene-object nil (fixeds 0.8 1.0 0.0 1.0) "sphere2"))
 	(. sphere_obj :set_translation (+ +real_-1/3 +real_-1/3) (+ +real_-1/3 +real_-1/3) (- +real_0 +focal_dist +real_1))
 	(. torus_obj :set_translation (+ +real_1/3 +real_1/3) (+ +real_1/3 +real_1/3) (- +real_0 +focal_dist +real_2))
 	(. sphere2_obj :set_translation +real_0 +real_1/2 +real_0)
@@ -89,21 +123,22 @@
 	(. capsule2_obj :set_translation +real_0 +real_-1/2 +real_0)
 	(.-> torus_obj (:add_node sphere2_obj) (:add_node cube_obj))
 	(.-> sphere_obj (:add_node capsule1_obj) (:add_node capsule2_obj))
-	(.-> scene (:add_node sphere_obj) (:add_node torus_obj)))
+	(.-> scene (:add_node sphere_obj) (:add_node torus_obj))
+	;create mesh loader jobs
+	(each (lambda ((name command))
+			(push jobs (cat (str-alloc +job_name) (pad name 16) command)))
+		'(("sphere1" "(Mesh-iso (Iso-sphere 20 20 20) (f2r 0.25))")
+		("capsule" "(Mesh-iso (Iso-capsule 20 20 20) (f2r 0.25))")
+		("cube" "(Mesh-iso (Iso-cube 8 8 8) (f2r 0.45))")
+		("torus" "(Mesh-torus +real_1 +real_1/3 20)")
+		("sphere2" "(Mesh-sphere +real_1/2 10)")))
+	scene)
 
 ;import actions and bindings
 (import "./actions.inc")
 
 (defun dispatch-action (&rest action)
 	(catch (eval action) (progn (print _)(print) t)))
-
-(defun benchmark ()
-	(defq tests '((1 0) (1 0) (1 0)))
-	(each (lambda ((s m))
-		(defq c (Canvas 512 512 s) then (pii-time))
-		(. c :set_canvas_flags m)
-		(times 1000 (. scene :render c (* 512 s) +left +right +top +bottom +near +far t))
-		(prin "Scale: " s " Mode: " m " Time: " (time-in-seconds (- (pii-time) then)))(print)) tests))
 
 (defun main ()
 	(defq select (alloc-select +select_size) *running* t)
@@ -112,9 +147,9 @@
 	(radio-select style_toolbar 0)
 	(gui-add-front (. *window* :change x y w h))
 	(tooltips)
-	(reset)
-;	(benchmark)
-	(mail-timeout (elem +select_timer select) timer_rate 0)
+	(defq jobs (list) scene (create-scene) farm (Farm create destroy 8))
+	(mail-timeout (elem +select_frame_timer select) frame_timer_rate 0)
+	(mail-timeout (elem +select_retry_timer select) retry_timer_rate 0)
 	(while *running*
 		(defq *msg* (mail-read (elem (defq idx (mail-select select)) select)))
 		(cond
@@ -122,9 +157,39 @@
 				;tip event
 				(if (defq view (. *window* :find_id (getf *msg* +mail_timeout_id)))
 					(. view :show_tip)))
-			((= idx +select_timer)
-				;timer event
-				(mail-timeout (elem +select_timer select) timer_rate 0)
+			((= idx +select_task)
+				;child task launch responce
+				(defq key (getf *msg* +kn_msg_key) child (getf *msg* +kn_msg_reply_id))
+				(when (defq val (. farm :find key))
+					(. val :insert :child child)
+					(dispatch-job key val)))
+			((= idx +select_reply)
+				;child mesh responce
+				(defq key (getf *msg* +job_reply_key)
+					mesh_name (trim-start (slice +job_reply_name +job_reply_data *msg*))
+					mesh (Mesh-data
+							(getf *msg* +job_reply_num_verts)
+							(getf *msg* +job_reply_num_norms)
+							(getf *msg* +job_reply_num_tris)
+							(slice +job_reply_data -1 *msg*)))
+				(each (# (. %0 :set_mesh mesh)) (. scene :find_nodes mesh_name))
+				(setq *dirty* t)
+				(when (defq val (. farm :find key))
+					(dispatch-job key val)))
+			((= idx +select_retry_timer)
+				;retry timer event
+				(mail-timeout (elem +select_retry_timer select) retry_timer_rate 0)
+				(. farm :refresh retry_timeout)
+				(when (= 0 (length jobs))
+					(defq working nil)
+					(. farm :each (lambda (key val)
+						(setq working (or working (. val :find :job)))))
+					(unless working
+						(mail-timeout (elem +select_retry_timer select) 0 0)
+						(. farm :close))))
+			((= idx +select_frame_timer)
+				;frame timer event
+				(mail-timeout (elem +select_frame_timer select) frame_timer_rate 0)
 				(when *auto_mode*
 					(setq *rotx* (% (+ *rotx* (f2r 0.01)) +real_2pi)
 						*roty* (% (+ *roty* (f2r 0.02)) +real_2pi)
@@ -139,6 +204,7 @@
 					(each (# (. %0 :set_rotation *rotx* *roty* +real_0)) (. scene :children))
 					(. scene :render main_widget (* canvas_size canvas_scale)
 						+left +right +top +bottom +near +far *render_mode*)))
+			;must be gui event to main mailbox
 			((defq id (getf *msg* +ev_msg_target_id) action (. event_map :find id))
 				;call bound event action
 				(dispatch-action action))
@@ -170,6 +236,7 @@
 						(char key))))
 			(t  ;gui event
 				(. *window* :event *msg*))))
+	(. farm :close)
 	(gui-sub *window*)
 	(free-select select)
 	(if (get 'profile-report)

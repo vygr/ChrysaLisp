@@ -168,6 +168,17 @@
 				(t  ;step out
 					(_fo _this _children))))
 		this)
+
+	(defmethod :find_nodes (this name)
+		; (. scene_node :find_nodes name) -> nodes
+		(defq nodes (list))
+		(. this :walk_nodes
+			(lambda (object children)
+				(if (starts-with name (get :name object))
+					(push nodes object))
+				nil)
+			(lambda (object children)))
+		nodes)
 	)
 
 (defclass Scene-object (mesh color &optional name) (Scene-node name)
@@ -177,6 +188,10 @@
 	(defmethod :get_mesh (this)
 		; (. scene_node :get_mesh) -> mesh
 		(get :mesh this))
+
+	(defmethod :set_mesh (this mesh)
+		; (. scene_node :set_mesh mesh) -> this
+		(lower :mesh) this)
 
 	(defmethod :get_verts (this)
 		; (. scene_node :get_verts) -> verts

@@ -187,9 +187,38 @@
 	(shuffle tris)
 	(lower :verts :norms :tris))
 
+(defclass Mesh-data (num_verts num_norms num_tris data) (Mesh)
+	; (Mesh-data num_verts num_norms num_tris data) -> mesh
+	(defq verts (cap num_verts (list))
+		norms (cap num_norms (list))
+		tris (cap num_tris (list))
+		i 0)
+	(times num_verts
+		(push verts (Vec4-r
+			(get-long data i)
+			(get-long data (+ i +long_size))
+			(get-long data (+ i (const (* +long_size 2))))
+			(get-long data (+ i (const (* +long_size 3))))))
+		(setq i (+ i (const (* +long_size 4)))))
+	(times num_norms
+		(push norms (Vec3-r
+			(get-long data i)
+			(get-long data (+ i +long_size))
+			(get-long data (+ i (const (* +long_size 2))))))
+		(setq i (+ i (const (* +long_size 3)))))
+	(times num_tris
+		(push tris (Tri
+			(get-int data i)
+			(get-int data (+ i +int_size))
+			(get-int data (+ i (const (* +int_size 2))))
+			(get-int data (+ i (const (* +int_size 3))))))
+		(setq i (+ i (const (* +int_size 4)))))
+	(lower :verts :norms :tris))
+
 ;module
 (export (penv)
 	*class_Mesh* Mesh Mesh?
+	*class_Mesh-data* Mesh-data Mesh-data?
 	*class_Mesh-torus* Mesh-torus Mesh-torus?
 	*class_Mesh-sphere* Mesh-sphere Mesh-sphere?
 	*class_Mesh-iso* Mesh-iso Mesh-iso?)

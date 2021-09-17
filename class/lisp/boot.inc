@@ -163,7 +163,7 @@
 
 (defun exec (_)
 	; (exec form)
-	(eval (macroexpand _)))
+	(eval (prebind (macroexpand _))))
 
 (defmacro array? (_)
 	; (array? form) -> t | nil

@@ -312,12 +312,12 @@ task.
 I've cut out the specifics of what we do in this application with the job
 results to concentrate on the task management and job code.
 
-When we get a child task launch response the network ID is recorded and its
+* When we get a child task launch response the network ID is recorded and its
 first job is dispatched.
 
-When we get a child task job response, it has a new job dispatched.
+* When we get a child task job response, it has a new job dispatched.
 
-When the retry timer expires we reset the timer, call the farm `:refresh`
+* When the retry timer expires we reset the timer, call the farm `:refresh`
 method, details below, and close the farm if all the jobs are finished.
 
 The Farm class is listed here:
