@@ -1,6 +1,6 @@
 (import "sys/lisp.inc")
-(import "gui/lisp.inc")
 (import "class/lisp.inc")
+(import "lib/consts/chars.inc")
 (import "lib/math/mesh.inc")
 (import "./app.inc")
 
@@ -31,7 +31,7 @@
 				;timeout or quit
 				(setq running nil))
 			((= idx +select_main)
-				;main mailbox, reset timeout and reply with result
+				;main mailbox, reset timeout and reply with mesh data
 				(mail-timeout (elem +select_timeout select) 0 0)
 				(defq key (getf msg +job_key)
 					reply (getf msg +job_reply)

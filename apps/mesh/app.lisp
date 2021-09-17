@@ -105,7 +105,8 @@
 		(push jobs job)
 		(. val :erase :job)))
 
-(defun create-scene ()
+(defun create-scene (job_que)
+	; (create-scene job_que) -> scene_root
 	(defq scene (Scene "root")
 		sphere_obj (Scene-object nil (fixeds 1.0 1.0 1.0 1.0) "sphere1")
 		capsule1_obj (Scene-object nil (fixeds 0.8 1.0 0.0 0.0) "capsule1")
@@ -126,7 +127,7 @@
 	(.-> scene (:add_node sphere_obj) (:add_node torus_obj))
 	;create mesh loader jobs
 	(each (lambda ((name command))
-			(push jobs (cat (str-alloc +job_name) (pad name 16) command)))
+			(push job_que (cat (str-alloc +job_name) (pad name 16) command)))
 		'(("sphere1" "(Mesh-iso (Iso-sphere 20 20 20) (f2r 0.25))")
 		("capsule" "(Mesh-iso (Iso-capsule 20 20 20) (f2r 0.25))")
 		("cube" "(Mesh-iso (Iso-cube 8 8 8) (f2r 0.45))")
@@ -147,7 +148,7 @@
 	(radio-select style_toolbar 0)
 	(gui-add-front (. *window* :change x y w h))
 	(tooltips)
-	(defq jobs (list) scene (create-scene) farm (Farm create destroy 8))
+	(defq jobs (list) scene (create-scene jobs) farm (Farm create destroy 4))
 	(mail-timeout (elem +select_frame_timer select) frame_timer_rate 0)
 	(mail-timeout (elem +select_retry_timer select) retry_timer_rate 0)
 	(while *running*
