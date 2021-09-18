@@ -56,8 +56,8 @@
 
 (defun render-object-tris (size imat4x4_obj mat4x4_proj object)
 	(defq verts (. object :get_verts) norms (. object :get_norms) col (. object :get_color)
-		cam_pos (mat4x4-vec4-mul imat4x4_obj (const (reals +real_0 +real_0 +real_0 +real_1)))
-		light_vec (mat4x4-vec3-mul imat4x4_obj (const (reals (f2r 0.55) (f2r 0.55) (f2r -0.55))))
+		cam_pos (mat4x4-vec4-mul imat4x4_obj (const (Vec4-r +real_0 +real_0 +real_0 +real_1)))
+		light_vec (mat4x4-vec3-mul imat4x4_obj (const (Vec3-r (f2r 0.55) (f2r 0.55) (f2r -0.55))))
 		proj_verts (map (# (mat4x4-vec4-mul mat4x4_proj %0)) verts)
 		screen_verts (cap (length verts) (list))
 		screen_zs (cap (length verts) (list))

@@ -364,8 +364,8 @@
 (defclass Iso (width height depth) nil
 	; (Iso) -> iso
 	(def this :width width :height height :depth depth
-		:center (vec-scale (reals (i2r (dec width)) (i2r (dec height)) (i2r (dec depth))) +real_1/2)
-		:scale (vec-div (reals +real_2 +real_2 +real_2) (reals (i2r width) (i2r height) (i2r depth))))
+		:center (vec-scale (Vec3-r (i2r (dec width)) (i2r (dec height)) (i2r (dec depth))) +real_1/2)
+		:scale (vec-div (Vec3-r +real_2 +real_2 +real_2) (Vec3-r (i2r width) (i2r height) (i2r depth))))
 
 	(defabstractmethod :get_scalar (this x y z))
 		; (. iso :get_scalar x y z) -> scalar
@@ -381,14 +381,14 @@
 			rx (i2r x) ry (i2r y) rz (i2r z) rix (i2r ix) riy (i2r iy) riz (i2r iz)
 			get_scalar_fnc (.? this :get_scalar))
 		(Gridcell
-			(vec-mul scale (vec-sub (reals rx ry riz) center +reals_tmp3))
-			(vec-mul scale (vec-sub (reals rix ry riz) center +reals_tmp3))
-			(vec-mul scale (vec-sub (reals rix ry rz) center +reals_tmp3))
-			(vec-mul scale (vec-sub (reals rx ry rz) center +reals_tmp3))
-			(vec-mul scale (vec-sub (reals rx riy riz) center +reals_tmp3))
-			(vec-mul scale (vec-sub (reals rix riy riz) center +reals_tmp3))
-			(vec-mul scale (vec-sub (reals rix riy rz) center +reals_tmp3))
-			(vec-mul scale (vec-sub (reals rx riy rz) center +reals_tmp3))
+			(vec-mul scale (vec-sub (Vec3-r rx ry riz) center +reals_tmp3))
+			(vec-mul scale (vec-sub (Vec3-r rix ry riz) center +reals_tmp3))
+			(vec-mul scale (vec-sub (Vec3-r rix ry rz) center +reals_tmp3))
+			(vec-mul scale (vec-sub (Vec3-r rx ry rz) center +reals_tmp3))
+			(vec-mul scale (vec-sub (Vec3-r rx riy riz) center +reals_tmp3))
+			(vec-mul scale (vec-sub (Vec3-r rix riy riz) center +reals_tmp3))
+			(vec-mul scale (vec-sub (Vec3-r rix riy rz) center +reals_tmp3))
+			(vec-mul scale (vec-sub (Vec3-r rx riy rz) center +reals_tmp3))
 			(get_scalar_fnc this x y iz)
 			(get_scalar_fnc this ix y iz)
 			(get_scalar_fnc this ix y z)
