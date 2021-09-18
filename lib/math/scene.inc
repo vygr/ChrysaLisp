@@ -190,7 +190,7 @@
 		(get :mesh this))
 
 	(defmethod :set_mesh (this mesh)
-		; (. scene_node :set_mesh mesh) -> this
+		; (. scene_node :set_mesh mesh) -> scene_node
 		(lower :mesh) this)
 
 	(defmethod :get_verts (this)

@@ -19,7 +19,7 @@
 	(enum main task reply tip frame_timer retry_timer))
 
 (defq anti_alias nil frame_timer_rate (/ 1000000 30) retry_timer_rate 1000000
-	retry_timeout (if (starts-with "obj/vp64" (load-path)) 50000000 5000000)
+	retry_timeout (if (starts-with "obj/vp64" (load-path)) 100000000 10000000)
 	+min_size 450 +max_size 800
 	canvas_size +min_size canvas_scale (if anti_alias 1 2)
 	+canvas_mode (if anti_alias +canvas_flag_antialias 0)
@@ -54,8 +54,8 @@
 			:min_width +min_size :min_height +min_size)
 		(ui-canvas main_widget canvas_size canvas_size canvas_scale)))
 
-(defun tooltips ()
-	(def *window* :tip_mbox (elem +select_tip select))
+(defun tooltips (mbox)
+	(def *window* :tip_mbox mbox)
 	(each (# (def %0 :tip_text %1)) (. main_toolbar :children)
 		'("mode" "auto"))
 	(each (# (def %0 :tip_text %1)) (. style_toolbar :children)
@@ -107,6 +107,15 @@
 
 (defun create-scene (job_que)
 	; (create-scene job_que) -> scene_root
+	;create mesh loader jobs
+	(each (lambda ((name command))
+			(push job_que (cat (str-alloc +job_name) (pad name 16) command)))
+		'(("sphere.1" "(Mesh-iso (Iso-sphere 20 20 20) (f2r 0.25))")
+		("capsule" "(Mesh-iso (Iso-capsule 20 20 20) (f2r 0.25))")
+		("cube.1" "(Mesh-iso (Iso-cube 8 8 8) (f2r 0.45))")
+		("torus.1" "(Mesh-torus +real_1 +real_1/3 20)")
+		("sphere.2" "(Mesh-sphere +real_1/2 10)")))
+	;create scene graph
 	(defq scene (Scene "root")
 		sphere_obj (Scene-object nil (fixeds 1.0 1.0 1.0 1.0) "sphere.1")
 		capsule1_obj (Scene-object nil (fixeds 0.8 1.0 0.0 0.0) "capsule.1")
@@ -124,16 +133,7 @@
 	(. capsule2_obj :set_translation +real_0 +real_-1/2 +real_0)
 	(.-> torus_obj (:add_node sphere2_obj) (:add_node cube_obj))
 	(.-> sphere_obj (:add_node capsule1_obj) (:add_node capsule2_obj))
-	(.-> scene (:add_node sphere_obj) (:add_node torus_obj))
-	;create mesh loader jobs
-	(each (lambda ((name command))
-			(push job_que (cat (str-alloc +job_name) (pad name 16) command)))
-		'(("sphere.1" "(Mesh-iso (Iso-sphere 20 20 20) (f2r 0.25))")
-		("capsule" "(Mesh-iso (Iso-capsule 20 20 20) (f2r 0.25))")
-		("cube.1" "(Mesh-iso (Iso-cube 8 8 8) (f2r 0.45))")
-		("torus.1" "(Mesh-torus +real_1 +real_1/3 20)")
-		("sphere.2" "(Mesh-sphere +real_1/2 10)")))
-	scene)
+	(.-> scene (:add_node sphere_obj) (:add_node torus_obj)))
 
 ;import actions and bindings
 (import "./actions.inc")
@@ -142,13 +142,13 @@
 	(catch (eval action) (progn (print _)(print) t)))
 
 (defun main ()
-	(defq select (alloc-select +select_size) *running* t)
 	(bind '(x y w h) (apply view-locate (.-> *window* (:connect +event_layout) :pref_size)))
 	(.-> main_widget (:set_canvas_flags +canvas_mode) (:fill +argb_black) :swap)
 	(radio-select style_toolbar 0)
 	(gui-add-front (. *window* :change x y w h))
-	(tooltips)
-	(defq jobs (list) scene (create-scene jobs) farm (Farm create destroy 4))
+	(defq select (alloc-select +select_size) *running* t
+		jobs (list) scene (create-scene jobs) farm (Farm create destroy 4))
+	(tooltips (elem +select_tip select))
 	(mail-timeout (elem +select_frame_timer select) frame_timer_rate 0)
 	(mail-timeout (elem +select_retry_timer select) retry_timer_rate 0)
 	(while *running*
