@@ -28,7 +28,7 @@
 	+near +focal_dist +far (+ +near +stage_depth)
 	+top (* +focal_dist +real_1/2) +bottom (* +focal_dist +real_-1/2)
 	+left (* +focal_dist +real_-1/2) +right (* +focal_dist +real_1/2)
-	*auto_mode* nil *render_mode* nil *dirty* t)
+	*auto_mode* nil *render_mode* nil)
 
 (ui-window *window* ()
 	(ui-title-bar *title* "Mesh" (0xea19 0xea1b 0xea1a) +event_close)
@@ -142,11 +142,14 @@
 	(catch (eval action) (progn (print _)(print) t)))
 
 (defun main ()
+	;; (defq then (pii-time))
+	;; (times 10 (Mesh-iso (Iso-capsule 30 30 30) (f2r 0.25)))
+	;; (prin (time-in-seconds (- (pii-time) then)))(print)
 	(bind '(x y w h) (apply view-locate (.-> *window* (:connect +event_layout) :pref_size)))
 	(.-> main_widget (:set_canvas_flags +canvas_mode) (:fill +argb_black) :swap)
 	(radio-select style_toolbar 0)
 	(gui-add-front (. *window* :change x y w h))
-	(defq select (alloc-select +select_size) *running* t
+	(defq select (alloc-select +select_size) *running* t *dirty* t
 		jobs (list) scene (create-scene jobs) farm (Farm create destroy 4))
 	(tooltips (elem +select_tip select))
 	(mail-timeout (elem +select_frame_timer select) frame_timer_rate 0)

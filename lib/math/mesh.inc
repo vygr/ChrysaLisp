@@ -10,8 +10,8 @@
 (enums +tri 0
 	(enum i0 i1 i2 in))
 
-(defun Tri (i0 i1 i2 in)
-	(list i0 i1 i2 in))
+(defmacro Tri (i0 i1 i2 in)
+	`(list ,i0 ,i1 ,i2 ,in))
 
 (defun Normal (p0 p1 p2)
 	(defq n (apply reals (vec-cross-3d
@@ -200,20 +200,20 @@
 			(get-long data (+ i +long_size))
 			(get-long data (+ i (const (* +long_size 2))))
 			(get-long data (+ i (const (* +long_size 3))))))
-		(setq i (+ i (const (* +long_size 4)))))
+		(setq i (+ i (const (* +long_size +vec4_size)))))
 	(times num_norms
 		(push norms (Vec3-r
 			(get-long data i)
 			(get-long data (+ i +long_size))
 			(get-long data (+ i (const (* +long_size 2))))))
-		(setq i (+ i (const (* +long_size 3)))))
+		(setq i (+ i (const (* +long_size +vec3_size)))))
 	(times num_tris
 		(push tris (Tri
 			(get-uint data i)
 			(get-uint data (+ i +int_size))
 			(get-uint data (+ i (const (* +int_size 2))))
 			(get-uint data (+ i (const (* +int_size 3))))))
-		(setq i (+ i (const (* +int_size 4)))))
+		(setq i (+ i (const (* +int_size +tri_size)))))
 	(lower :verts :norms :tris))
 
 ;module

@@ -31,17 +31,17 @@
 (enums +mat4x4 0
 	(enum r0 r1 r2 r3))
 
-(defun Vec3-r (x y z)
-	(reals x y z))
+(defmacro Vec3-r (x y z)
+	`(reals ,x ,y ,z))
 
-(defun Vec3-f (x y z)
-	(reals (f2r x) (f2r y) (f2r z)))
+(defmacro Vec3-f (x y z)
+	`(reals (f2r ,x) (f2r ,y) (f2r ,z)))
 
-(defun Vec4-r (x y z w)
-	(reals x y z w))
+(defmacro Vec4-r (x y z w)
+	`(reals ,x ,y ,z ,w))
 
-(defun Vec4-f (x y z w)
-	(reals (f2r x) (f2r y) (f2r z) w))
+(defmacro Vec4-f (x y z w)
+	`(reals (f2r ,x) (f2r ,y) (f2r z) ,w))
 
 (defun Mat3x3-unity ()
 	(list (reals +real_1 +real_0 +real_0)

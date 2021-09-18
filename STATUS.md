@@ -11,6 +11,9 @@ New `(Iso-capsule)` surface class.
 
 `(time-in-seconds time)` promoted to `boot.inc`
 
+Mesh demo now streams mesh data for the scene graph nodes via a Mesh loader
+Farm.
+
 ------
 
 Start of new Cubes demo. Along with a new `lib/math/matrix.inc` library.

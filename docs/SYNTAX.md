@@ -3456,6 +3456,12 @@
 (throw str form)
 ```
 
+### time-in-seconds
+
+```code
+(time-in-seconds time) -> str
+```
+
 ### times
 
 ```code
