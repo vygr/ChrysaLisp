@@ -14,6 +14,8 @@ New `(Iso-capsule)` surface class.
 Mesh demo now streams mesh data for the scene graph nodes via a Mesh loader
 Farm.
 
+Multi register ops promoted to `vp.inc` file.
+
 ------
 
 Start of new Cubes demo. Along with a new `lib/math/matrix.inc` library.
