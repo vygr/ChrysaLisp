@@ -181,6 +181,12 @@
 (vp-op-rr or) (vp-op-rr xor) (vp-op-rr shl) (vp-op-rr shr) (vp-op-rr asr)
 (vp-op-rr lnot) (vp-op-rr land) (vp-op-rr swp) (vp-op-rr ext)
 
+(defun vp-op4 (op a b c d x y z w) (op a x) (op b y) (op c z) (op d w))
+(defun vp-op3 (op a b c x y z) (op a x) (op b y) (op c z))
+(defun vp-op2 (op a b x y) (op a x) (op b y))
+(defun vp-min (a b) (vpif (list a '< b)) (vp-cpy-rr a b) (endif))
+(defun vp-max (a b) (vpif (list a '> b)) (vp-cpy-rr a b) (endif))
+
 ;;;;;;;;;;;;;;;;;;;;;
 ; Arch Emit Functions
 ;;;;;;;;;;;;;;;;;;;;;
