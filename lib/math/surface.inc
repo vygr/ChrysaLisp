@@ -310,9 +310,9 @@
 (defun vertex-interp (isolevel p1 p2 valp1 valp2)
 	; (vertex-interp isolevel p1 p2 valp1 valp2) -> p
 	(cond
-		((< (abs (- isolevel valp1)) (const (f2r 0.0001))) p1)
-		((< (abs (- isolevel valp2)) (const (f2r 0.0001))) p2)
-		((< (abs (- valp1 valp2)) (const (f2r 0.0001))) p1)
+		((< (abs (- isolevel valp1)) (const (n2r 0.0001))) p1)
+		((< (abs (- isolevel valp2)) (const (n2r 0.0001))) p2)
+		((< (abs (- valp1 valp2)) (const (n2r 0.0001))) p1)
 		(t  (vec-add p1 (vec-scale (vec-sub p2 p1 +reals_tmp3)
 				(/ (- isolevel valp1) (- valp2 valp1)) +reals_tmp3)))))
 
@@ -364,8 +364,8 @@
 (defclass Iso (width height depth) nil
 	; (Iso) -> iso
 	(def this :width width :height height :depth depth
-		:center (vec-scale (Vec3-r (i2r (dec width)) (i2r (dec height)) (i2r (dec depth))) +real_1/2)
-		:scale (vec-div (Vec3-r +real_2 +real_2 +real_2) (Vec3-r (i2r width) (i2r height) (i2r depth))))
+		:center (vec-scale (Vec3-r (n2r (dec width)) (n2r (dec height)) (n2r (dec depth))) +real_1/2)
+		:scale (vec-div (Vec3-r +real_2 +real_2 +real_2) (Vec3-r (n2r width) (n2r height) (n2r depth))))
 
 	(defabstractmethod :get_scalar (this x y z))
 		; (. iso :get_scalar x y z) -> scalar
@@ -378,7 +378,7 @@
 		; (. iso :get_gridcell x y z) -> gridcell
 		(raise :width :height :depth :center :scale)
 		(defq ix (inc x) iy (inc y) iz (inc z)
-			rx (i2r x) ry (i2r y) rz (i2r z) rix (i2r ix) riy (i2r iy) riz (i2r iz)
+			rx (n2r x) ry (n2r y) rz (n2r z) rix (n2r ix) riy (n2r iy) riz (n2r iz)
 			get_scalar_fnc (.? this :get_scalar))
 		(Gridcell
 			(vec-mul scale (vec-sub (Vec3-r rx ry riz) center +reals_tmp3))
@@ -410,7 +410,7 @@
 		; (. iso :get_scalar x y z) -> scalar
 		(raise :center :scale)
 		(vec-length (vec-mul (vec-sub
-			(Vec3-r (i2r x) (i2r y) (i2r z)) center +reals_tmp3) scale +reals_tmp3)))
+			(Vec3-r (n2r x) (n2r y) (n2r z)) center +reals_tmp3) scale +reals_tmp3)))
 	)
 
 (defclass Iso-cube (width height depth) (Iso width height depth)
@@ -420,7 +420,7 @@
 		; (. iso :get_scalar x y z) -> scalar
 		(raise :center :scale)
 		(reduce max (vec-abs (vec-mul (vec-sub
-			(Vec3-r (i2r x) (i2r y) (i2r z)) center +reals_tmp3) scale +reals_tmp3) +reals_tmp3)))
+			(Vec3-r (n2r x) (n2r y) (n2r z)) center +reals_tmp3) scale +reals_tmp3) +reals_tmp3)))
 	)
 
 (defclass Iso-tetra (width height depth) (Iso width height depth)
@@ -430,7 +430,7 @@
 		; (. iso :get_scalar x y z) -> scalar
 		(raise :center :scale)
 		(vec-sum (vec-abs (vec-mul (vec-sub
-			(Vec3-r (i2r x) (i2r y) (i2r z)) center +reals_tmp3) scale +reals_tmp3) +reals_tmp3)))
+			(Vec3-r (n2r x) (n2r y) (n2r z)) center +reals_tmp3) scale +reals_tmp3) +reals_tmp3)))
 	)
 
 (defclass Iso-capsule (width height depth) (Iso width height depth)
@@ -440,8 +440,9 @@
 		; (. iso :get_scalar x y z) -> scalar
 		(raise :center :scale)
 		(vec-distance-to-line (vec-mul (vec-sub
-			(Vec3-r (i2r x) (i2r y) (i2r z)) center +reals_tmp3) scale +reals_tmp3)
-			(const (Vec3-f -0.5 0.0 0.0)) (const (Vec3-f 0.5 0.0 0.0))))
+			(Vec3-r (n2r x) (n2r y) (n2r z)) center +reals_tmp3) scale +reals_tmp3)
+			(const (Vec3-r (n2r -0.5) (n2r 0.0) (n2r 0.0)))
+			(const (Vec3-r (n2r 0.5) (n2r 0.0) (n2r 0.0)))))
 	)
 
 ;module

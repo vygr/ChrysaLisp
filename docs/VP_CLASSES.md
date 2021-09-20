@@ -3719,32 +3719,6 @@ trashes
 r1-r14
 ```
 
-### num :lisp_f2i -> class/num/lisp_f2i
-
-```code
-inputs
-r0 = lisp object (ptr)
-r1 = args list object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-trashes
-r1-r14
-```
-
-### num :lisp_f2r -> class/num/lisp_f2r
-
-```code
-inputs
-r0 = lisp object (ptr)
-r1 = args list object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-trashes
-r1-r14
-```
-
 ### num :lisp_ge -> class/num/lisp_ge
 
 ```code
@@ -3759,32 +3733,6 @@ r1-r14
 ```
 
 ### num :lisp_gt -> class/num/lisp_gt
-
-```code
-inputs
-r0 = lisp object (ptr)
-r1 = args list object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-trashes
-r1-r14
-```
-
-### num :lisp_i2f -> class/num/lisp_i2f
-
-```code
-inputs
-r0 = lisp object (ptr)
-r1 = args list object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-trashes
-r1-r14
-```
-
-### num :lisp_i2r -> class/num/lisp_i2r
 
 ```code
 inputs
@@ -3888,6 +3836,45 @@ trashes
 r1-r14
 ```
 
+### num :lisp_n2f -> class/num/lisp_n2f
+
+```code
+inputs
+r0 = lisp object (ptr)
+r1 = args list object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
+### num :lisp_n2i -> class/num/lisp_n2i
+
+```code
+inputs
+r0 = lisp object (ptr)
+r1 = args list object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
+### num :lisp_n2r -> class/num/lisp_n2r
+
+```code
+inputs
+r0 = lisp object (ptr)
+r1 = args list object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
 ### num :lisp_ne -> class/num/lisp_ne
 
 ```code
@@ -3915,32 +3902,6 @@ r1-r14
 ```
 
 ### num :lisp_or -> class/num/lisp_or
-
-```code
-inputs
-r0 = lisp object (ptr)
-r1 = args list object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-trashes
-r1-r14
-```
-
-### num :lisp_r2f -> class/num/lisp_r2f
-
-```code
-inputs
-r0 = lisp object (ptr)
-r1 = args list object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-trashes
-r1-r14
-```
-
-### num :lisp_r2i -> class/num/lisp_r2i
 
 ```code
 inputs

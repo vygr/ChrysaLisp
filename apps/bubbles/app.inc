@@ -10,16 +10,12 @@
 (cond	;pick number format t/nil
 	(t	;reals
 		(defmacro vec (&rest _) `(reals ~_))
-		(defmacro i2n (_) `(i2r ,_))
-		(defmacro n2i (_) `(r2i ,_))
-		(defmacro f2n (_) `(f2r ,_))
-		(defmacro n2f (_) `(r2f ,_)))
+		(defmacro i2n (_) `(n2r ,_))
+		(defmacro f2n (_) `(n2r ,_)))
 	(t	;fixed point
 		(defmacro vec (&rest _) `(fixeds ~_))
-		(defmacro i2n (_) `(i2f ,_))
-		(defmacro n2i (_) `(f2i ,_))
-		(defmacro f2n (_) _)
-		(defmacro n2f (_) _)))
+		(defmacro i2n (_) `(n2f ,_))
+		(defmacro f2n (_) _)))
 
 (defmacro vec-n2f (&rest _)
 	`(fixeds ~(map (lambda (_) (list 'n2f _)) _)))

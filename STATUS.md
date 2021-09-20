@@ -16,6 +16,9 @@ Farm.
 
 Multi register ops promoted to `vp.inc` file.
 
+Polymorphic number conversions. `(n2i)` `(n2f)` and `(n2r)`. These replace the
+old functions.
+
 ------
 
 Start of new Cubes demo. Along with a new `lib/math/matrix.inc` library.

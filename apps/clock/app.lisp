@@ -52,10 +52,10 @@
 		(list (path-gen-arc (* scale 0.5) (* scale 0.5) 0.0 +fp_2pi (* scale 0.48) eps (path))))
 	(path-stroke-polylines face (* scale 0.03) eps +join_miter +cap_butt +cap_butt
 		(reduce (lambda (l a)
-			(push l (transform (path 0.0 0.35 0.0 0.44) (* (i2f a) +fp_hpi) scale))) (range 0 4) (list)))
+			(push l (transform (path 0.0 0.35 0.0 0.44) (* (n2f a) +fp_hpi) scale))) (range 0 4) (list)))
 	(path-stroke-polylines face (* scale 0.01) eps +join_miter +cap_butt +cap_butt
 		(reduce (lambda (l a)
-			(push l (transform (path 0.0 0.35 0.0 0.44) (/ (* (i2f a) +fp_2pi) 12.0) scale))) (range 0 12) (list))))
+			(push l (transform (path 0.0 0.35 0.0 0.44) (/ (* (n2f a) +fp_2pi) 12.0) scale))) (range 0 12) (list))))
 
 (defun view-analog-time (scale)
 	(.-> clock
@@ -88,7 +88,7 @@
 	(defq select (alloc-select +select_size))
 	(when clock
 		(.-> clock (:fill 0) (:set_canvas_flags +canvas_flag_antialias))
-		(create-clockface (* (i2f clock_size) (i2f clock_scale))))
+		(create-clockface (* (n2f clock_size) (n2f clock_scale))))
 	(bind '(w h) (. *window* :pref_size))
 	(gui-add-front (. *window* :change 0 0 w h))
 	(mail-timeout (elem +select_timer select) 1 0)
@@ -106,7 +106,7 @@
 				(mail-timeout (elem +select_timer select) rate 0)
 				(when clock
 					(make-analog-time)
-					(view-analog-time (* (i2f clock_size) (i2f clock_scale)))
+					(view-analog-time (* (n2f clock_size) (n2f clock_scale)))
 					(. clock :swap))
 				(when display
 					(make-digital-time)

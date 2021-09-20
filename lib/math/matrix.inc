@@ -8,40 +8,22 @@
 (defmacro def_real (c s e f)
 	`(bind (map (# (sym (str ,c %0))) (range ,s ,e)) (map ,f (range ,s ,e))))
 ;[0:10]
-(def_real "+real_" 0 11 (# (i2r %0)))
+(def_real "+real_" 0 11 (# (n2r %0)))
 ;[-1:-10]
-(def_real "+real_" -10 0 (# (i2r %0)))
+(def_real "+real_" -10 0 (# (n2r %0)))
 ;[1/2:1/20]
-(def_real "+real_1/" 2 21 (# (/ (const (i2r 1)) (i2r %0))))
+(def_real "+real_1/" 2 21 (# (/ (const (n2r 1)) (n2r %0))))
 ;[-1/2:-1/20]
-(def_real "+real_-1/" 2 21 (# (/ (const (i2r -1)) (i2r %0))))
+(def_real "+real_-1/" 2 21 (# (/ (const (n2r -1)) (n2r %0))))
 ;pi and temp vec3, vec4
-(defq +real_pi (f2r +fp_pi) +real_hpi (f2r +fp_hpi) +real_2pi (f2r +fp_2pi))
+(defq +real_pi (n2r +fp_pi) +real_hpi (n2r +fp_hpi) +real_2pi (n2r +fp_2pi))
 (undef (env) 'def_real)
-
-(enums +vec3 0
-	(enum x y z))
-
-(enums +vec4 0
-	(enum x y z w))
 
 (enums +mat3x3 0
 	(enum r0 r1 r2))
 
 (enums +mat4x4 0
 	(enum r0 r1 r2 r3))
-
-(defmacro Vec3-r (x y z)
-	`(reals ,x ,y ,z))
-
-(defmacro Vec3-f (x y z)
-	`(reals (f2r ,x) (f2r ,y) (f2r ,z)))
-
-(defmacro Vec4-r (x y z w)
-	`(reals ,x ,y ,z ,w))
-
-(defmacro Vec4-f (x y z w)
-	`(reals (f2r ,x) (f2r ,y) (f2r z) ,w))
 
 (defun Mat3x3-unity ()
 	(list (Vec3-r +real_1 +real_0 +real_0)
@@ -224,7 +206,7 @@
 	(list center radius))
 
 (defun print-vec (v)
-	(prin (join (map (# (pad (r2f %0) 8)) v) " "))
+	(prin (join (map (# (pad (n2f %0) 8)) v) " "))
 	(print))
 
 (defun print-mat (m)

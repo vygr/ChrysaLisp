@@ -19,12 +19,9 @@
 (ffi neg "class/num/lisp_neg" 0)
 (ffi abs "class/num/lisp_abs" 0)
 
-(ffi i2r "class/num/lisp_i2r" 0)
-(ffi i2f "class/num/lisp_i2f" 0)
-(ffi f2i "class/num/lisp_f2i" 0)
-(ffi f2r "class/num/lisp_f2r" 0)
-(ffi r2i "class/num/lisp_r2i" 0)
-(ffi r2f "class/num/lisp_r2f" 0)
+(ffi n2i "class/num/lisp_n2i" 0)
+(ffi n2f "class/num/lisp_n2f" 0)
+(ffi n2r "class/num/lisp_n2r" 0)
 (ffi random "class/num/lisp_random" 0)
 (ffi num-intern "class/num/lisp_intern" 0)
 

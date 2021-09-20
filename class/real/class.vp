@@ -432,7 +432,7 @@
 	(vp-push r0)
 	(assign '((r0 num_value)) '(r13))
 	(vpif '(r13 < 0))
-		; (i2r -1) for the sake of the C++ version
+		; (n2r -1) for the sake of the C++ version
 		(call 'sys_math :r_mul '(r13 -0x3FFFFFFFFFFFFFFF) '(r13))
 		(call 'real :create '(r13) '(r1))
 	(else)
@@ -472,10 +472,10 @@
 	(mathop :sign
 		'(progn
 			(vpif '(r13 < 0))
-				; (i2r -1) for the sake of the C++ version
+				; (n2r -1) for the sake of the C++ version
 				(assign '(-0x3FFFFFFFFFFFFFFF) '(r13))
 			(elseif '(r13 > 0))
-				; (i2r 1) for the sake of the C++ version
+				; (n2r 1) for the sake of the C++ version
 				(assign '(0x4000000000000001) '(r13))
 			(else)
 				(vp-xor-rr r13 r13)

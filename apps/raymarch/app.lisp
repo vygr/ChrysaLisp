@@ -55,7 +55,7 @@
 				(setf-> job
 					(+job_key key)
 					(+job_reply (elem +select_reply select)))))
-		(t	;no jobs in que
+		(t  ;no jobs in que
 			(.-> val
 				(:erase :job)
 				(:erase :timestamp)))))
@@ -105,7 +105,7 @@
 					(dispatch-job key val))
 				(setq dirty t)
 				(tile canvas msg))
-			(t	;timer event
+			(t  ;timer event
 				(mail-timeout (elem +select_timer select) timer_rate 0)
 				(. farm :refresh retry_timeout)
 				(when dirty
@@ -115,7 +115,9 @@
 						(defq working nil)
 						(. farm :each (lambda (key val)
 							(setq working (or working (. val :find :job)))))
-						(unless working (. farm :close)))))))
+						(unless working
+							(mail-timeout (elem +select_timer select) 0 0)
+							(. farm :close)))))))
 	;close window and children
 	(. farm :close)
 	(free-select select)

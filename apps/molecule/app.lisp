@@ -36,9 +36,9 @@
 	*mol_index* 0 *auto_mode* nil *dirty* t
 	balls (list) mol_files (all-mol-files "apps/molecule/data/")
 	palette (map (lambda (_) (fixeds
-			(i2f (/ (logand (>> _ 16) 0xff) 0xff))
-			(i2f (/ (logand (>> _ 8) 0xff) 0xff))
-			(i2f (/ (logand _ 0xff) 0xff))))
+			(n2f (/ (logand (>> _ 16) 0xff) 0xff))
+			(n2f (/ (logand (>> _ 8) 0xff) 0xff))
+			(n2f (/ (logand _ 0xff) 0xff))))
 		(list +argb_black +argb_white +argb_red +argb_green
 			+argb_cyan +argb_blue +argb_yellow +argb_magenta)))
 
@@ -81,14 +81,14 @@
 
 (defun set-rot (slider angle)
 	(set (. slider :dirty) :value
-		(r2i (/ (* angle (const (i2r 1000))) +real_2pi))))
+		(n2i (/ (* angle (const (n2r 1000))) +real_2pi))))
 
 (defun get-rot (slider)
-	(/ (* (i2r (get :value slider)) +real_2pi) (const (i2r 1000))))
+	(/ (* (n2r (get :value slider)) +real_2pi) (const (n2r 1000))))
 
 (defun circle (r)
 	;cached circle generation, quantised to 1/4 pixel
-	(defq r (* (floor (* (r2f r) 4.0)) 0.25) i (% (logior r) 13)
+	(defq r (* (floor (* (n2f r) 4.0)) 0.25) i (% (logior r) 13)
 		k (elem i '(()()()()()()()()()()()()())) p (elem i '(()()()()()()()()()()()()())))
 	(cond ((defq i (some (lambda (i) (if (= i r) _)) k)) (elem i p))
 		(t (push k r) (elem -2 (push p (list
@@ -96,17 +96,17 @@
 
 (defun fpoly (canvas col x y _)
 	;draw a polygon on a canvas
-	(.-> canvas (:set_color col) (:fpoly (r2f x) (r2f y) +winding_odd_even _)))
+	(.-> canvas (:set_color col) (:fpoly (n2f x) (n2f y) +winding_odd_even _)))
 
 (defun lighting (col at)
 	;very basic attenuation and diffuse
-	(bind '(r g b) (vec-min (vec-add (vec-scale col (* (r2f at) 255.0) +fixeds_tmp3)
+	(bind '(r g b) (vec-min (vec-add (vec-scale col (* (n2f at) 255.0) +fixeds_tmp3)
 		(const (fixeds 32.0 32.0 32.0)) +fixeds_tmp3)
 		(const (fixeds 255.0 255.0 255.0)) +fixeds_tmp3))
-	(+ 0xff000000 (<< (f2i r) 16) (<< (f2i g) 8) (f2i b)))
+	(+ 0xff000000 (<< (n2i r) 16) (<< (n2i g) 8) (n2i b)))
 
 (defun render-balls (canvas balls)
-	(defq sp (* +real_1/2 (i2r (dec (* canvas_size canvas_scale)))))
+	(defq sp (* +real_1/2 (n2r (dec (* canvas_size canvas_scale)))))
 	(each (lambda (((x y z w) r c))
 		(defq w (recip w) x (* x w) y (* y w) z (* z w) at (recip (+ z +real_2))
 			r (* r sp w) r4 (* r +real_1/4) r8 (* r +real_1/8) r16 (* r +real_1/16)
@@ -145,21 +145,21 @@
 		(times num_atoms
 			(defq line (split (read-line stream) " "))
 			(bind '(x y z) (map
-					(# (/ (i2r (str-to-num %0)) (const (i2r 65536))))
+					(# (/ (n2r (str-to-num %0)) (const (n2r 65536))))
 				(slice 0 3 line)))
 			(bind '(radius col) (case (elem 3 line)
-				("C" (list (const (i2r (* 70 canvas_scale))) (elem 0 palette)))
-				("H" (list (const (i2r (* 25 canvas_scale))) (elem 1 palette)))
-				("O" (list (const (i2r (* 60 canvas_scale))) (elem 2 palette)))
-				("N" (list (const (i2r (* 65 canvas_scale))) (elem 3 palette)))
-				("F" (list (const (i2r (* 50 canvas_scale))) (elem 4 palette)))
-				("S" (list (const (i2r (* 88 canvas_scale))) (elem 6 palette)))
-				("Si" (list (const (i2r (* 111 canvas_scale))) (elem 6 palette)))
-				("P" (list (const (i2r (* 98 canvas_scale))) (elem 7 palette)))
-				(t (list (const (i2r (* 100 canvas_scale))) (const (fixeds 1.0 1.0 0.0))))))
+				("C" (list (const (n2r (* 70 canvas_scale))) (elem 0 palette)))
+				("H" (list (const (n2r (* 25 canvas_scale))) (elem 1 palette)))
+				("O" (list (const (n2r (* 60 canvas_scale))) (elem 2 palette)))
+				("N" (list (const (n2r (* 65 canvas_scale))) (elem 3 palette)))
+				("F" (list (const (n2r (* 50 canvas_scale))) (elem 4 palette)))
+				("S" (list (const (n2r (* 88 canvas_scale))) (elem 6 palette)))
+				("Si" (list (const (n2r (* 111 canvas_scale))) (elem 6 palette)))
+				("P" (list (const (n2r (* 98 canvas_scale))) (elem 7 palette)))
+				(t (list (const (n2r (* 100 canvas_scale))) (const (fixeds 1.0 1.0 0.0))))))
 			(push balls (list (Vec3-r x y z) radius col)))
 		(bind '(center radius) (bounding-sphere balls (# (elem +ball_vertex %0))))
-		(defq scale_p (/ (const (f2r 2.0)) radius) scale_r (/ (const (f2r 0.0625)) radius))
+		(defq scale_p (/ (const (n2r 2.0)) radius) scale_r (/ (const (n2r 0.0625)) radius))
 		(each (lambda (ball)
 			(bind '(v r _) ball)
 			(push (vec-scale (vec-sub v center v) scale_p v) +real_1)
@@ -195,9 +195,9 @@
 				;timer event
 				(mail-timeout (elem +select_timer select) timer_rate 0)
 				(when *auto_mode*
-					(setq *rotx* (% (+ *rotx* (f2r 0.01)) +real_2pi)
-						*roty* (% (+ *roty* (f2r 0.02)) +real_2pi)
-						*rotz* (% (+ *rotz* (f2r 0.03)) +real_2pi)
+					(setq *rotx* (% (+ *rotx* (n2r 0.01)) +real_2pi)
+						*roty* (% (+ *roty* (n2r 0.02)) +real_2pi)
+						*rotz* (% (+ *rotz* (n2r 0.03)) +real_2pi)
 						*dirty* t)
 					(set-rot xrot_slider *rotx*)
 					(set-rot yrot_slider *roty*)

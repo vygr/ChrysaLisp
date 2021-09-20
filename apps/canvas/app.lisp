@@ -10,7 +10,7 @@
 	(enum close))
 
 (defq canvas_width 600 canvas_height 600 canvas_scale 1 id t
-	f_canvas_width (i2f canvas_width) f_canvas_height (i2f canvas_height) f_canvas_scale (i2f canvas_scale)
+	f_canvas_width (n2f canvas_width) f_canvas_height (n2f canvas_height) f_canvas_scale (n2f canvas_scale)
 	rate (/ 1000000 30)
 	+eps 0.25 angle 0.0 font (create-font "fonts/OpenSans-Regular.ctf" 36)
 	fp1 (font-glyph-paths font "    Glyphs!")
@@ -54,7 +54,7 @@
 
 (defun redraw ()
 	(. canvas :fill 0)
-	(fpoly +argb_red +winding_odd_even (transform-norm (* angle (i2f 2)) (list
+	(fpoly +argb_red +winding_odd_even (transform-norm (* angle (n2f 2)) (list
 		(path -0.5 -0.5 -0.25 0.5 0.0 -0.5 0.25 0.5 0.5 -0.5 -0.05 0.5))))
 	(fpoly 0xff0ff0ff +winding_odd_even (transform (* angle -1.0)
 		(path-stroke-polylines (list) (* f_canvas_width 0.05) +eps +join_bevel +cap_square +cap_square
@@ -68,7 +68,7 @@
 			(list (path (* f_canvas_width -0.4) (* f_canvas_height -0.4)
 				(* f_canvas_width 0.3) (* f_canvas_height -0.3)
 				(* f_canvas_width 0.4) (* f_canvas_height 0.4))))))
-	(fpoly +argb_yellow +winding_odd_even (defq p (transform (* angle (i2f -2))
+	(fpoly +argb_yellow +winding_odd_even (defq p (transform (* angle (n2f -2))
 		(path-stroke-polygons (list) (* f_canvas_width 0.011) +eps +join_miter
 			(path-stroke-polylines (list) (* f_canvas_width 0.033) +eps +join_bevel +cap_round +cap_arrow
 				(list (path-gen-cubic

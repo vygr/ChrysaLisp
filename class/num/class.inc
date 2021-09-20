@@ -53,12 +53,9 @@
 	(dec-method :lisp_shr class/num/lisp_shr :static (r0 r1) (r0 r1))
 	(dec-method :lisp_asr class/num/lisp_asr :static (r0 r1) (r0 r1))
 	(dec-method :lisp_shl class/num/lisp_shl :static (r0 r1) (r0 r1))
-	(dec-method :lisp_i2f class/num/lisp_i2f :static (r0 r1) (r0 r1))
-	(dec-method :lisp_i2r class/num/lisp_i2r :static (r0 r1) (r0 r1))
-	(dec-method :lisp_f2i class/num/lisp_f2i :static (r0 r1) (r0 r1))
-	(dec-method :lisp_f2r class/num/lisp_f2r :static (r0 r1) (r0 r1))
-	(dec-method :lisp_r2i class/num/lisp_r2i :static (r0 r1) (r0 r1))
-	(dec-method :lisp_r2f class/num/lisp_r2f :static (r0 r1) (r0 r1))
+	(dec-method :lisp_n2i class/num/lisp_n2i :static (r0 r1) (r0 r1))
+	(dec-method :lisp_n2f class/num/lisp_n2f :static (r0 r1) (r0 r1))
+	(dec-method :lisp_n2r class/num/lisp_n2r :static (r0 r1) (r0 r1))
 	(dec-method :hash class/num/hash :override (r0) (r0 r1)))
 
 (def-struct num obj_size

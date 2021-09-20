@@ -167,7 +167,7 @@ the `:get_scalar` method.
 		; (. iso :get_gridcell x y z) -> gridcell
 		(raise :width :height :depth :center :scale)
 		(defq ix (inc x) iy (inc y) iz (inc z)
-			rx (i2r x) ry (i2r y) rz (i2r z) rix (i2r ix) riy (i2r iy) riz (i2r iz)
+			rx (n2r x) ry (n2r y) rz (n2r z) rix (n2r ix) riy (n2r iy) riz (n2r iz)
 			get_scalar_fnc (.? this :get_scalar))
 		(Gridcell
 			(vec-mul scale (vec-sub (reals rx ry riz) center +reals_tmp3))

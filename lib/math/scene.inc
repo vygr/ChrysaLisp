@@ -9,7 +9,7 @@
 
 (defun circle (r)
 	;cached circle path generation, quantised to 1/4 pixel
-	(defq r (* (floor (* (r2f r) 4.0)) 0.25) i (% (logior r) 13)
+	(defq r (* (floor (* (n2f r) 4.0)) 0.25) i (% (logior r) 13)
 		k (elem i '(()()()()()()()()()()()()())) p (elem i '(()()()()()()()()()()()()())))
 	(cond ((defq i (some (lambda (i) (if (= i r) _)) k)) (elem i p))
 		(t (push k r) (elem -2 (push p (path-gen-arc 0.0 0.0 0.0 +fp_2pi r 0.25 (path)))))))
@@ -19,55 +19,55 @@
 	(defq alpha (elem 0 col) col (slice 1 -1 col))
 	(bind '(r g b) (vec-min (vec-add
 		;attenuation
-		(vec-scale col (* (r2f at) 255.0) (const (cat +fixeds_tmp3)))
+		(vec-scale col (* (n2f at) 255.0) (const (cat +fixeds_tmp3)))
 		;difuse
 		(vec-scale col 64.0 +fixeds_tmp3))
 		(const (fixeds 255.0 255.0 255.0)) +fixeds_tmp3))
-	(+ (<< (f2i (* alpha 255.0)) 24) (<< (f2i r) 16) (<< (f2i g) 8) (f2i b)))
+	(+ (<< (n2i (* alpha 255.0)) 24) (<< (n2i r) 16) (<< (n2i g) 8) (n2i b)))
 
 (defun lighting-at3 (col at sp)
 	;very basic attenuation, diffuse and specular
 	(defq alpha (elem 0 col) col (slice 1 -1 col))
 	(bind '(r g b) (vec-min (vec-add (vec-add
 		;attenuation
-		(vec-scale col (* (r2f at) (const (/ 255.0 3.0))) (const (cat +fixeds_tmp3)))
+		(vec-scale col (* (n2f at) (const (/ 255.0 3.0))) (const (cat +fixeds_tmp3)))
 		;difuse
 		(vec-scale col 64.0 (const (cat +fixeds_tmp3))) (const (cat +fixeds_tmp3)))
 		;specular
-		(vec-scale (const (fixeds 255.0 255.0 255.0)) (r2f sp) (const (cat +fixeds_tmp3))) +fixeds_tmp3)
+		(vec-scale (const (fixeds 255.0 255.0 255.0)) (n2f sp) (const (cat +fixeds_tmp3))) +fixeds_tmp3)
 		;clamp
 		(const (fixeds 255.0 255.0 255.0)) +fixeds_tmp3))
-	(+ (<< (f2i (* alpha 255.0)) 24) (<< (f2i r) 16) (<< (f2i g) 8) (f2i b)))
+	(+ (<< (n2i (* alpha 255.0)) 24) (<< (n2i r) 16) (<< (n2i g) 8) (n2i b)))
 
 (defun render-object-verts (size mat4x4_proj object)
-	(defq sp (* +real_1/2 (i2r (dec size)))
+	(defq sp (* +real_1/2 (n2r (dec size)))
 		proj_verts (map (# (mat4x4-vec4-mul mat4x4_proj %0)) (. object :get_verts))
 		col (. object :get_color))
 	(each (lambda ((x y z w))
 			(defq rw (recip w) z (* z rw))
 			(when (<= +real_-1 z +real_1)
-				(defq x (* x rw) y (* y rw) at (recip (+ z +real_2)) r (* (const (f2r 0.02)) sp rw)
+				(defq x (* x rw) y (* y rw) at (recip (+ z +real_2)) r (* (const (n2r 0.02)) sp rw)
 					sx (* (+ x +real_1) sp) sy (* (+ y +real_1) sp))
-				(push (elem (r2i (* (+ z +real_1) (const (i2r 50)))) poly_buckets) (list
+				(push (elem (n2i (* (+ z +real_1) (const (n2r 50)))) poly_buckets) (list
 					(circle r)
 					(lighting col at)
-					(r2f sx) (r2f sy)))))
+					(n2f sx) (n2f sy)))))
 		proj_verts))
 
 (defun render-object-tris (size imat4x4_obj mat4x4_proj object)
 	(defq verts (. object :get_verts) norms (. object :get_norms) col (. object :get_color)
 		cam_pos (mat4x4-vec4-mul imat4x4_obj (const (Vec4-r +real_0 +real_0 +real_0 +real_1)))
-		light_vec (mat4x4-vec3-mul imat4x4_obj (const (Vec3-r (f2r 0.55) (f2r 0.55) (f2r -0.55))))
+		light_vec (mat4x4-vec3-mul imat4x4_obj (const (Vec3-r (n2r 0.55) (n2r 0.55) (n2r -0.55))))
 		proj_verts (map (# (mat4x4-vec4-mul mat4x4_proj %0)) verts)
 		screen_verts (cap (length verts) (list))
 		screen_zs (cap (length verts) (list))
 		ats (cap (length verts) (list))
-		sp (* +real_1/2 (i2r (dec size))))
+		sp (* +real_1/2 (n2r (dec size))))
 	(each (lambda ((x y z w))
 			(defq w (recip w) x (* x w) y (* y w) z (* z w) at (recip (+ z +real_2))
 				sx (* (+ x +real_1) sp) sy (* (+ y +real_1) sp))
 			(push screen_zs z)
-			(push screen_verts (path (r2f sx) (r2f sy)))
+			(push screen_verts (path (n2f sx) (n2f sy)))
 			(push ats at))
 		proj_verts)
 	(each (lambda ((i0 i1 i2 in))
@@ -78,7 +78,7 @@
 				(defq sp (max +real_0 (vec-dot n light_vec))
 					sp (* sp sp sp sp sp sp)
 					at (+ (elem i0 ats) (elem i1 ats) (elem i2 ats))
-					bucket (r2i (* (+ z0 +real_1) (const (i2r 50)))))
+					bucket (n2i (* (+ z0 +real_1) (const (n2r 50)))))
 				(push (elem bucket poly_buckets) (list
 					(cat (elem i0 screen_verts) (elem i1 screen_verts) (elem i2 screen_verts))
 					(lighting-at3 col at sp)))))

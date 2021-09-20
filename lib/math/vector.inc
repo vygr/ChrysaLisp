@@ -6,11 +6,32 @@
 (import "class/nums/lisp.inc")
 (import "class/fixeds/lisp.inc")
 
+(enums +vec2 0
+	(enum x y))
+
+(enums +vec3 0
+	(enum x y z))
+
+(enums +vec4 0
+	(enum x y z w))
+
+(defmacro Vec3-f (x y z)
+	`(fixeds ,x ,y ,z))
+
+(defmacro Vec4-f (x y z w)
+	`(fixeds ,x ,y ,z ,w))
+
+(defmacro Vec3-r (x y z)
+	`(reals ,x ,y ,z))
+
+(defmacro Vec4-r (x y z w)
+	`(reals ,x ,y ,z ,w))
+
 ;useful vector constants
 (defq +fixeds_zero3 (fixeds 0.0 0.0 0.0)
 	+fixeds_zero4 (fixeds 0.0 0.0 0.0 0.0)
-	+reals_zero3 (reals (i2r 0) (i2r 0) (i2r 0))
-	+reals_zero4 (reals (i2r 0) (i2r 0) (i2r 0) (i2r 0))
+	+reals_zero3 (reals (n2r 0) (n2r 0) (n2r 0))
+	+reals_zero4 (reals (n2r 0) (n2r 0) (n2r 0) (n2r 0))
 	+fixeds_tmp3 (cat +fixeds_zero3) +fixeds_tmp4 (cat +fixeds_zero4)
 	+reals_tmp3 (cat +reals_zero3) +reals_tmp4 (cat +reals_zero4))
 

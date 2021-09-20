@@ -81,17 +81,17 @@
 
 (defclass Mesh-sphere (radius eps) (Mesh)
 	; (Mesh-sphere radius eps) -> mesh
-	(defq y 1 eps2 (* eps 2) eps2_r (i2r eps2)
+	(defq y 1 eps2 (* eps 2) eps2_r (n2r eps2)
 		verts (cap (+ (* eps2 (dec eps)) 2) (list))
 		norms (cap (* eps eps2) (list))
 		tris (cap (+ (* eps2 (- eps 2) 2) (* eps2 2)) (list)))
 	;gen verts
 	(while (< y eps)
 		(task-slice)
-		(defq x 0 ya (/ (* (i2r y) +real_2pi) eps2_r)
+		(defq x 0 ya (/ (* (n2r y) +real_2pi) eps2_r)
 			yv (* radius (cos ya)) r (* radius (sin ya)))
 		(while (< x eps2)
-			(defq xa (/ (* (i2r x) +real_2pi) eps2_r)
+			(defq xa (/ (* (n2r x) +real_2pi) eps2_r)
 				xv (* r (sin xa)) zv (* r (cos xa)))
 			(push verts (Vec3-r xv yv zv))
 			(setq x (inc x)))
@@ -131,18 +131,18 @@
 
 (defclass Mesh-torus (radius_ring radius_body eps) (Mesh)
 	; (Mesh-torus radius_ring radius_body eps) -> mesh
-	(defq y 0 eps2 (* eps 2) eps_r (i2r eps) eps2_r (i2r eps2)
+	(defq y 0 eps2 (* eps 2) eps_r (n2r eps) eps2_r (n2r eps2)
 		verts (cap (* eps eps2) (list))
 		norms (cap (* eps eps2) (list))
 		tris (cap (* eps eps2 2) (list)))
 	;gen verts
 	(while (< y eps)
 		(task-slice)
-		(defq x 0 ya (/ (* (i2r y) +real_2pi) eps_r)
+		(defq x 0 ya (/ (* (n2r y) +real_2pi) eps_r)
 			yv (* radius_body (cos ya))
 			r (+ radius_ring (* radius_body (sin ya))))
 		(while (< x eps2)
-			(defq xa (/ (* (i2r x) +real_2pi) eps2_r)
+			(defq xa (/ (* (n2r x) +real_2pi) eps2_r)
 				xv (* r (sin xa)) zv (* r (cos xa)))
 			(push verts (Vec3-r xv yv zv))
 			(setq x (inc x)))

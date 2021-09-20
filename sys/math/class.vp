@@ -492,7 +492,7 @@
 	(call 'sys_math :r_i2r `(,n1) `(,n1))
 	(call 'sys_math :r_sub `(,n2 ,n1) `(,n1))
 	(vpif (list n2 '< 0))
-		; (i2r 1) for the sake of the C++ version
+		; (n2r 1) for the sake of the C++ version
 		(call 'sys_math :r_sub `(0x4000000000000001 ,n1) `(,n1))
 	(endif)
 
