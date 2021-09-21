@@ -8,7 +8,7 @@ every member of the array in one call.
 
 ## Numbers
 
-### Integers
+### Num
 
 These are 64 bit integer numbers. They are the same bit size as a VP register.
 The VP class, `class/num/`, holds an integer value in the `num_value` field.
@@ -22,7 +22,12 @@ registers being 64 bits in size they are actually `48.16` format. Most of the
 Canvas class drawing operations take Fixed numbers for coordinates, plus their
 internal operations are conducted in Fixed format.
 
-### Reals
+The CScript compiler can operate on this format directly using the `*>` and
+`</` operators. These operators represent a multiply folowed by an arithmetic
+shift right by `+fp_shift` bits and a shift left by `+fp_shift` bits followed
+by a divide.
+
+### Real
 
 These are a floating point number format. The VP class, `class/real/`, holds an
 real value in the `num_value` field. Not IEEE, but a compromise format for fast
@@ -37,7 +42,7 @@ signed 32 bit twos compliment value.
 ## Conversions
 
 There are three conversion functions built in. `(n2i)`, `(n2f)` and `(n2r)`.
-These pass through without change any same type number. Otherwise they convert
+These pass through without change any same type number, otherwise they convert
 the input into the requested output.
 
 Conversion to a format with lower precision will loose fractional bits, they
