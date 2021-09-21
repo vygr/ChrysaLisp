@@ -35,7 +35,7 @@
 	+canvas_mode (if anti_alias +canvas_flag_antialias 0)
 	*mol_index* 0 *auto_mode* nil *dirty* t
 	balls (list) mol_files (all-mol-files "apps/molecule/data/")
-	palette (map (lambda (_) (fixeds
+	palette (map (lambda (_) (Vec3-f
 			(n2f (/ (logand (>> _ 16) 0xff) 0xff))
 			(n2f (/ (logand (>> _ 8) 0xff) 0xff))
 			(n2f (/ (logand _ 0xff) 0xff))))
@@ -101,8 +101,8 @@
 (defun lighting (col at)
 	;very basic attenuation and diffuse
 	(bind '(r g b) (vec-min (vec-add (vec-scale col (* (n2f at) 255.0) +fixeds_tmp3)
-		(const (fixeds 32.0 32.0 32.0)) +fixeds_tmp3)
-		(const (fixeds 255.0 255.0 255.0)) +fixeds_tmp3))
+		(const (Vec3-f 32.0 32.0 32.0)) +fixeds_tmp3)
+		(const (Vec3-f 255.0 255.0 255.0)) +fixeds_tmp3))
 	(+ 0xff000000 (<< (n2i r) 16) (<< (n2i g) 8) (n2i b)))
 
 (defun render-balls (canvas balls)
@@ -113,7 +113,7 @@
 			sx (* (+ x +real_1) sp) sy (* (+ y +real_1) sp))
 		(fpoly canvas (lighting c (* at +real_1/2)) sx sy (circle r))
 		(fpoly canvas (lighting c at) (- sx r16) (- sy r16) (circle (- r r16)))
-		(fpoly canvas (lighting (const (fixeds 1.5 1.5 1.5)) at) (- sx r4) (- sy r4) (circle r8))
+		(fpoly canvas (lighting (const (Vec3-f 1.5 1.5 1.5)) at) (- sx r4) (- sy r4) (circle r8))
 		(task-slice)) balls))
 
 (defun sort-balls (balls)
@@ -156,7 +156,7 @@
 				("S" (list (const (n2r (* 88 canvas_scale))) (elem 6 palette)))
 				("Si" (list (const (n2r (* 111 canvas_scale))) (elem 6 palette)))
 				("P" (list (const (n2r (* 98 canvas_scale))) (elem 7 palette)))
-				(t (list (const (n2r (* 100 canvas_scale))) (const (fixeds 1.0 1.0 0.0))))))
+				(t (list (const (n2r (* 100 canvas_scale))) (const (Vec3-f 1.0 1.0 0.0))))))
 			(push balls (list (Vec3-r x y z) radius col)))
 		(bind '(center radius) (bounding-sphere balls (# (elem +ball_vertex %0))))
 		(defq scale_p (/ (const (n2r 2.0)) radius) scale_r (/ (const (n2r 0.0625)) radius))

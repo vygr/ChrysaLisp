@@ -10,8 +10,8 @@
 	(enum p0 p1 p2 p3 p4 p5 p6 p7)
 	(enum v0 v1 v2 v3 v4 v5 v6 v7))
 
-(defun Gridcell (p0 p1 p2 p3 p4 p5 p6 p7 v0 v1 v2 v3 v4 v5 v6 v7)
-	(list p0 p1 p2 p3 p4 p5 p6 p7 v0 v1 v2 v3 v4 v5 v6 v7))
+(defmacro Gridcell (p0 p1 p2 p3 p4 p5 p6 p7 v0 v1 v2 v3 v4 v5 v6 v7)
+	`(list ,p0 ,p1 ,p2 ,p3 ,p4 ,p5 ,p6 ,p7 ,v0 ,v1 ,v2 ,v3 ,v4 ,v5 ,v6 ,v7))
 
 (defq +edge_table ''(
 		0x0   0x109 0x203 0x30a 0x406 0x50f 0x605 0x70c
