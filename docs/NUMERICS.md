@@ -14,22 +14,42 @@ These are 64 bit integer numbers. They are the same bit size as a VP register.
 The VP class, `class/num/`, holds an integer value in the `num_value` field.
 These are referred to as `boxed` integers in other languages.
 
+During `(read)` any symbol beginning with a numeral and having no `.` will be
+parsed to a num object. You can specify the base with a prefix of `0b`, `0x` or
+`0o` for binary, hex or octal. Num's parsed during `(read)` are interned in a
+similar manner to symbols.
+
+Useful contants defined in `boot.inc`.
+
+`+min_long +max_long +min_int +max_int`
+
 ### Fixed
 
-These are `16.16` fixed point numbers. The VP class, `class/fixed/`, holds a
-fixed value in the `num_value` field. In certain operations due to the VP
-registers being 64 bits in size they are actually `48.16` format. Most of the
-Canvas class drawing operations take Fixed numbers for coordinates, plus their
-internal operations are conducted in Fixed format.
+These are `48.16` fixed point numbers. The VP class, `class/fixed/`, holds a
+fixed value in the `num_value` field. Most of the Canvas class drawing
+operations take Fixed numbers for coordinates, plus their internal operations
+are conducted in Fixed format.
+
+During `(read)` any symbol beginning with a numeral and having a `.` will be
+parsed to a fixed object. Fixed's parsed during `(read)` are interned in a
+similar manner to symbols.
 
 The CScript compiler can operate on this format directly using the `*>` and
-`</` operators. These operators represent a multiply folowed by an arithmetic
+`</` operators. These operators represent a multiply followed by an arithmetic
 shift right by `+fp_shift` bits and a shift left by `+fp_shift` bits followed
 by a divide.
 
+There is an extensive VP level DSL macro/function set for fixed format vectors
+in the `sys/math/class.inc` file. For examples of there use take a look at the
+`gui/canvas/` drawing functions.
+
+Useful contants defined in `boot.inc`.
+
+`+fp_shift +fp_int_mask +fp_frac_mask +fp_2pi +fp_pi +fp_hpi +fp_rpi`
+
 ### Real
 
-These are a floating point number format. The VP class, `class/real/`, holds an
+These are a floating point number format. The VP class, `class/real/`, holds a
 real value in the `num_value` field. Not IEEE, but a compromise format for fast
 operations on integer only machines. They are a `32.32` mantisa.exp format.
 
@@ -38,6 +58,10 @@ same tests as integers do.
 
 The mantissa is a signed 32 bit twos compliment value. The exponent is also a
 signed 32 bit twos compliment value.
+
+Look in `sys/math/class.inc` and `sys/math/class.vp` for the specifics of the
+implementation. The basic operation is, `unpack, align mantissas, operate,
+normalise, repack.`
 
 ## Conversions
 
@@ -60,19 +84,19 @@ These operate on any number type and return the same number type.
 
 These operate on any number type and return the same number type.
 
-`(abs) (max) (min) (neg)`
+`(abs) (max) (min) (neg) (sqrt) (sign)`
 
 These operate on any fractional type and return the same number type.
 
 `(recip) (sin) (cos) (frac) (floor)`
 
-### Bitwise Logical
+### Bitwise logical
 
 These operate on any number type and return a num integer.
 
 `(logand) (logior) (logxor)`
 
-### Bitwise Shifts
+### Bitwise shifts
 
 These operate on any number type and return a num integer.
 
@@ -83,6 +107,10 @@ These operate on any number type and return a num integer.
 These operate on any number type and return `t | nil`.
 
 `(/=) (<) (<=) (=) (>) (>=)`
+
+### `boot.inc` extras
+
+`(neg?) (pos?) (odd?) (even?) (lognot) (log2) (pow) (ntz) (nto) (nlz) (nlo)`
 
 ## Vectors
 
