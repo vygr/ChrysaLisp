@@ -60,7 +60,11 @@ These operate on any number type and return the same number type.
 
 These operate on any number type and return the same number type.
 
-`(abs) (max) (min) (neg) (recip) (sin) (cos) (frac) (floor)`
+`(abs) (max) (min) (neg)`
+
+These operate on any fractional type and return the same number type.
+
+`(recip) (sin) (cos) (frac) (floor)`
 
 ### Bitwise Logical
 
