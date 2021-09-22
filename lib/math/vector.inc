@@ -176,3 +176,27 @@
 		((<= (distance-squared-to-line-2d l2_p2 l1_p1 l1_p2) r))
 		((<= (distance-squared-to-line-2d l2_p1 l1_p1 l1_p2) r))
 		((<= (distance-squared-to-line-2d l2_p2 l1_p1 l1_p2) r))))
+
+(defun bounding-box (verts fnc)
+	; (bounding-box verts vec3-extract-fnc) -> (min_v3 max_v3)
+	(defq min_v (cat (fnc (elem 0 verts))) max_v (cat min_v))
+	(each! 1 -1 (#
+		(vec-min (defq v (fnc %0)) min_v min_v)
+		(vec-max v max_v max_v)) (list verts))
+	(list min_v max_v))
+
+(defun bounding-sphere (verts fnc)
+	; (bounding-sphere verts vec3-extract-fnc) -> (center_v3 radius)
+	(bind '(min_v max_v) (bounding-box verts fnc))
+	(defq center (vec-scale (vec-add min_v max_v) +real_1/2)
+		radius (* (reduce max (vec-sub max_v min_v)) +real_1/2))
+	(each (#
+		(defq p (fnc %0) pv (vec-sub p center) rv (vec-length pv))
+		(when (> rv radius)
+			(setq radius (* (+ radius rv) +real_1/2))
+			(vec-sub p (vec-scale (vec-norm pv) radius +reals_tmp3) center))) verts)
+	(list center radius))
+
+(defun print-vec (v)
+	(prin (join (map (# (pad (n2f %0) 8)) v) " "))
+	(print))

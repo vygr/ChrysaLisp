@@ -185,29 +185,5 @@
 			(- (* m01 a0213) (* m00 a1213) (* m02 a0113))
 			(+ (* m00 a1212) (neg (* m01 a0212)) (* m02 a0112))) det)))
 
-(defun bounding-box (verts fnc)
-	; (bounding-box verts vec3-extract-fnc) -> (min_v3 max_v3)
-	(defq min_v (cat (fnc (elem 0 verts))) max_v (cat min_v))
-	(each! 1 -1 (#
-		(vec-min (defq v (fnc %0)) min_v min_v)
-		(vec-max v max_v max_v)) (list verts))
-	(list min_v max_v))
-
-(defun bounding-sphere (verts fnc)
-	; (bounding-sphere verts vec3-extract-fnc) -> (center_v3 radius)
-	(bind '(min_v max_v) (bounding-box verts fnc))
-	(defq center (vec-scale (vec-add min_v max_v) +real_1/2)
-		radius (* (reduce max (vec-sub max_v min_v)) +real_1/2))
-	(each (#
-		(defq p (fnc %0) pv (vec-sub p center) rv (vec-length pv))
-		(when (> rv radius)
-			(setq radius (* (+ radius rv) +real_1/2))
-			(vec-sub p (vec-scale (vec-norm pv) radius +reals_tmp3) center))) verts)
-	(list center radius))
-
-(defun print-vec (v)
-	(prin (join (map (# (pad (n2f %0) 8)) v) " "))
-	(print))
-
 (defun print-mat (m)
 	(each (# (print-vec %0)) m))
