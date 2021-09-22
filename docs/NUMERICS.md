@@ -42,11 +42,43 @@ signed 32 bit twos compliment value.
 ## Conversions
 
 There are three conversion functions built in. `(n2i)`, `(n2f)` and `(n2r)`.
-These pass through without change any same type number, otherwise they convert
-the input into the requested output.
+These pass through, without change, the same type number, otherwise they
+convert the input into the requested output.
 
 Conversion to a format with lower precision will loose fractional bits, they
 will be discarded and not rounded.
+
+## Numeric functions
+
+### Basic arithmetic
+
+These operate on any number type and return the same number type.
+
+`(+) (-) (*) (/) (%)`
+
+### Extended arithmetic
+
+These operate on any number type and return the same number type.
+
+`(abs) (max) (min) (neg) (recip) (sin) (cos) (frac) (floor)`
+
+### Bitwise Logical
+
+These operate on any number type and return a num integer.
+
+`(logand) (logior) (logxor)`
+
+### Bitwise Shifts
+
+These operate on any number type and return a num integer.
+
+`(>>) (>>>) (<<)`
+
+### Comparison
+
+These operate on any number type and return `t | nil`.
+
+`(/=) (<) (<=) (=) (>) (>=)`
 
 ## Vectors
 
