@@ -4,7 +4,7 @@ ChrysaLisp supports a variety of number formats. Integers, fixed point and
 reals. Functions are provided to convert between these formats.
 
 Vectors are arrays of these primitives. There are functions that operate on
-every member of the array in one call.
+every member of the array with a single call.
 
 ## Numbers
 
@@ -19,7 +19,7 @@ parsed to a num object. You can specify the base with a prefix of `0b`, `0x` or
 `0o` for binary, hex or octal. Num's parsed during `(read)` are interned in a
 similar manner to symbols.
 
-Useful contants defined in `boot.inc`.
+Useful constants defined in `boot.inc`.
 
 `+min_long +max_long +min_int +max_int`
 
@@ -31,8 +31,9 @@ operations take Fixed numbers for coordinates, plus their internal operations
 are conducted in Fixed format.
 
 During `(read)` any symbol beginning with a numeral and having a `.` will be
-parsed to a fixed object. Fixed's parsed during `(read)` are interned in a
-similar manner to symbols.
+parsed to a fixed object. You can specify the base with a prefix of `0b`, `0x`
+or `0o` for binary, hex or octal. Fixed's parsed during `(read)` are interned
+in a similar manner to symbols.
 
 The CScript compiler can operate on this format directly using the `*>` and
 `</` operators. These operators represent a multiply followed by an arithmetic
@@ -43,7 +44,7 @@ There is an extensive VP level DSL macro/function set for fixed format vectors
 in the `sys/math/class.inc` file. For examples of there use take a look at the
 `gui/canvas/` drawing functions.
 
-Useful contants defined in `boot.inc`.
+Useful constants defined in `boot.inc`.
 
 `+fp_shift +fp_int_mask +fp_frac_mask +fp_2pi +fp_pi +fp_hpi +fp_rpi`
 
