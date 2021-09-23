@@ -64,6 +64,11 @@ Look in `sys/math/class.inc` and `sys/math/class.vp` for the specifics of the
 implementation. The basic operation is, `unpack, align mantissas, operate,
 normalise, repack.`
 
+Useful constants defined in `lib/math/vector.inc`.
+
+`+real_0 to +real_10 +real_-1 to +real_-10 +real_1/2 to +real_1/20 +real_-1/2
+to +real_-1/20 +real_pi +real_hpi +real_2pi`
+
 ## Conversions
 
 There are three conversion functions built in. `(n2i)`, `(n2f)` and `(n2r)`.
