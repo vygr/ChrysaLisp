@@ -4,21 +4,6 @@
 
 (import "lib/math/vector.inc")
 
-;useful real constants
-(defmacro def_real (c s e f)
-	`(bind (map (# (sym (str ,c %0))) (range ,s ,e)) (map ,f (range ,s ,e))))
-;[0:10]
-(def_real "+real_" 0 11 (# (n2r %0)))
-;[-1:-10]
-(def_real "+real_" -10 0 (# (n2r %0)))
-;[1/2:1/20]
-(def_real "+real_1/" 2 21 (# (/ (const (n2r 1)) (n2r %0))))
-;[-1/2:-1/20]
-(def_real "+real_-1/" 2 21 (# (/ (const (n2r -1)) (n2r %0))))
-;pi and temp vec3, vec4
-(defq +real_pi (n2r +fp_pi) +real_hpi (n2r +fp_hpi) +real_2pi (n2r +fp_2pi))
-(undef (env) 'def_real)
-
 (enums +mat3x3 0
 	(enum r0 r1 r2))
 

@@ -35,6 +35,20 @@
 	+fixeds_tmp3 (cat +fixeds_zero3) +fixeds_tmp4 (cat +fixeds_zero4)
 	+reals_tmp3 (cat +reals_zero3) +reals_tmp4 (cat +reals_zero4))
 
+;useful real constants
+(defmacro def_real (c s e f)
+	`(bind (map (# (sym (str ,c %0))) (range ,s ,e)) (map ,f (range ,s ,e))))
+;[0:10]
+(def_real "+real_" 0 11 (# (n2r %0)))
+;[-1:-10]
+(def_real "+real_" -10 0 (# (n2r %0)))
+;[1/2:1/20]
+(def_real "+real_1/" 2 21 (# (/ (const (n2r 1)) (n2r %0))))
+;[-1/2:-1/20]
+(def_real "+real_-1/" 2 21 (# (/ (const (n2r -1)) (n2r %0))))
+;pi and temp vec3, vec4
+(defq +real_pi (n2r +fp_pi) +real_hpi (n2r +fp_hpi) +real_2pi (n2r +fp_2pi))
+
 ;macro to define macros that take optional output vector
 (defmacro vec-macro (op &rest v)
 	`(defmacro ,(sym (cat "vec" (slice (find "-" op) -1 op))) (~v &optional _)
@@ -54,6 +68,8 @@
 ;these don't take an optional output but...
 (vec-macro "nums-dot" v0 v1)
 (vec-macro "nums-sum" v)
+
+(undef (env) 'def_real 'vec-macro)
 
 (defmacro vec-clamp (p1 p2 p3 &optional _)
 	(if _ `(nums-min (nums-max ,p1 ,p2 ,_) ,p3 ,_) `(nums-min (nums-max ,p1 ,p2) ,p3)))
