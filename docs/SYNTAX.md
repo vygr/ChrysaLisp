@@ -2058,6 +2058,18 @@
 (export env sym ...)
 ```
 
+### export-classes
+
+```code
+(export-classes class ...)
+```
+
+### export-symbols
+
+```code
+(export-symbols sym ...)
+```
+
 ### ffi
 
 ```code
