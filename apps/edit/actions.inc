@@ -138,6 +138,7 @@ recorded_actions_list (list
 ;module
 (export (penv)
 	event_map key_map key_map_shift key_map_control recorded_actions_list
-	action-insert action-select-word action-select-line action-select-paragraph
-	action-save-all action-maximise select-word)
+	action-insert action-save-all action-maximise
+	select-word action-select-word action-insert
+	*class_Edit-vdu* Edit-vdu Edit-vdu?)
 (env-pop)

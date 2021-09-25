@@ -39,13 +39,9 @@
 			(. (ui-slider *yslider*) :connect +event_yscroll)
 			(ui-flow _ (:flow_flags +flow_up_fill)
 				(. (ui-slider *xslider*) :connect +event_xscroll)
-				(ui-flow _ (:flow_flags +flow_stack_fill :font *env_terminal_font*)
-					(ui-vdu *vdu* (:min_width +vdu_min_width :min_height +vdu_min_height
-							:vdu_width +vdu_max_width :vdu_height +vdu_max_height
-							:ink_color +argb_white))
+				(ui-flow stack_flow (:flow_flags +flow_stack_fill :font *env_terminal_font*)
 					(ui-vdu *vdu_underlay* (:vdu_width +vdu_max_width :vdu_height +vdu_max_height
-							:min_width 0 :min_height 0 :font (get :font *vdu*)
-							:ink_color (get :ink_color *vdu*))))))))
+							:min_width 0 :min_height 0 :ink_color +argb_white)))))))
 
 (defun all-src-files (root)
 	;all source files from root downwards, none recursive
@@ -144,10 +140,10 @@
 	(. *meta_map* :insert *current_file* (list x y ax ay sx sy))
 	(set-sliders) (load-display))
 
-(defun populate-file (file x y ax ay sx sy)
+(defun populate-file (file)
 	;create new file buffer
 	(unless (. *meta_map* :find file)
-		(. *meta_map* :insert file (list x y ax ay sx sy)))
+		(. *meta_map* :insert file (list 0 0 0 0 0 0)))
 	(when file
 		(defq mode (if (or (ends-with ".md" file)
 						   (ends-with ".txt" file)) t nil))
@@ -155,7 +151,7 @@
 
 (defun populate-vdu (file)
 	;load up the vdu widget from this file
-	(populate-file file 0 0 0 0 0 0)
+	(populate-file file)
 	(bind '(x y ax ay sx sy) (. *meta_map* :find file))
 	(setq *cursor_x* x *cursor_y* y *anchor_x* ax *anchor_y* ay *current_file* file)
 	(. *current_buffer* :set_cursor x y)
@@ -213,13 +209,14 @@
 	(each (# (def %0 :tip_text %1)) (. main_toolbar :children)
 		'("copy" "select paragraph" "select form" "start form" "end form")))
 
-;import actions and bindings
+;import actions, bindings and app ui classes
 (import "./actions.inc")
 
 (defun main ()
 	(defq select (alloc-select +select_size)
 		*cursor_x* 0 *cursor_y* 0 *anchor_x* 0 *anchor_y* 0 *scroll_x* 0 *scroll_y* 0
-		*running* t mouse_state :u)
+		*running* t *vdu* (Viewer-vdu))
+	(. stack_flow :add_front *vdu*)
 	(populate-file-tree)
 	(populate-vdu nil)
 	(select-node nil)
@@ -238,47 +235,6 @@
 			((defq id (getf *msg* +ev_msg_target_id) action (. event_map :find id))
 				;call bound event action
 				(action))
-			((and (= id (. *vdu* :get_id)) (= (getf *msg* +ev_msg_type) +ev_type_mouse))
-				;mouse event on display
-				(bind '(w h) (. *vdu* :char_size))
-				(defq x (getf *msg* +ev_msg_mouse_rx) y (getf *msg* +ev_msg_mouse_ry))
-				(setq x (if (>= x 0) x (- x w)) y (if (>= y 0) y (- y h)))
-				(setq x (+ *scroll_x* (/ x w)) y (+ *scroll_y* (/ y h)))
-				(cond
-					((/= (getf *msg* +ev_msg_mouse_buttons) 0)
-						;mouse button is down
-						(case mouse_state
-							(:d ;mouse drag event
-								(bind '(x y) (. *current_buffer* :constrain x y))
-								(. *current_buffer* :set_cursor x y)
-								(refresh))
-							(:u ;mouse down event
-								(bind '(x y) (. *current_buffer* :constrain x y))
-								(. *current_buffer* :set_cursor x y)
-								(setq *anchor_x* x *anchor_y* y mouse_state :d)
-								(refresh))))
-					(t  ;mouse button is up
-						(case mouse_state
-							(:d ;mouse up event
-								(defq click_count (getf *msg* +ev_msg_mouse_count))
-								(cond
-									((= click_count 2)
-										(action-select-word))
-									((= click_count 3)
-										(action-select-line))
-									((= click_count 4)
-										(action-select-paragraph)))
-								(setq mouse_state :u)
-								(refresh))
-							(:u ;mouse hover event
-								)))))
-			((and (= id (. *vdu* :get_id)) (= (getf *msg* +ev_msg_type) +ev_type_wheel))
-				;wheel event on display area
-				(bind '(x y ax ay sx sy) (. *meta_map* :find *current_file*))
-				(setq sx (+ *scroll_x* (getf *msg* +ev_msg_wheel_x))
-					sy (- *scroll_y* (getf *msg* +ev_msg_wheel_y)))
-				(. *meta_map* :insert *current_file* (list x y ax ay sx sy))
-				(set-sliders) (load-display))
 			((and (not (Textfield? (. *window* :find_id id)))
 					(= (getf *msg* +ev_msg_type) +ev_type_key)
 					(> (getf *msg* +ev_msg_key_keycode) 0))

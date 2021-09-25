@@ -19,6 +19,10 @@ Multi register ops promoted to `vp.inc` file.
 Polymorphic number conversions. `(n2i)` `(n2f)` and `(n2r)`. These replace the
 old functions.
 
+Simplify Edit, Viewer and Terminal apps by having a main vdu subclass. The
+event loop code can then be shared, plus better partitioning of the
+application.
+
 ------
 
 Start of new Cubes demo. Along with a new `lib/math/matrix.inc` library.

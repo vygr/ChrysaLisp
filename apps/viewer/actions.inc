@@ -63,5 +63,6 @@ key_map_control (fmap-kv
 ;module
 (export (penv)
 	event_map key_map key_map_shift key_map_control action-maximise
-	action-select-word action-select-line action-select-paragraph)
+	*class_Edit-vdu* Edit-vdu Edit-vdu?
+	*class_Viewer-vdu* Viewer-vdu Viewer-vdu?)
 (env-pop)
