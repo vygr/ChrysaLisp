@@ -137,6 +137,6 @@
 		(list emit_list)))
 
 ;module
-(export (penv)
+(export-symbols
 	opt-emit-list)
 (env-pop)

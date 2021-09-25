@@ -23,6 +23,8 @@ Simplify Edit, Viewer and Terminal apps by having a main vdu subclass. The
 event loop code can then be shared, plus better partitioning of the
 application.
 
+New `(export-symbols)` and `(export-classes` macros in `boot.inc`.
+
 ------
 
 Start of new Cubes demo. Along with a new `lib/math/matrix.inc` library.

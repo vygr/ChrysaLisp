@@ -53,9 +53,8 @@ key_map_control (fmap-kv
 	(ascii-code "-") action-minimise))
 
 ;module
-(export (penv)
-	event_map key_map key_map_shift key_map_control action-insert
-	*class_Edit-vdu* Edit-vdu Edit-vdu?
-	*class_Viewer-vdu* Viewer-vdu Viewer-vdu?
-	*class_Terminal-vdu* Terminal-vdu Terminal-vdu?)
+(export-symbols
+	event_map key_map key_map_shift key_map_control action-insert)
+(export-classes
+	Edit-vdu Viewer-vdu Terminal-vdu)
 (env-pop)

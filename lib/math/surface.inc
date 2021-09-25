@@ -446,10 +446,6 @@
 	)
 
 ;module
-(export (penv)
-	*class_Iso* Iso Iso?
-	*class_Iso-sphere* Iso-sphere Iso-sphere?
-	*class_Iso-tetra* Iso-tetra Iso-tetra?
-	*class_Iso-capsule* Iso-capsule Iso-capsule?
-	*class_Iso-cube* Iso-cube Iso-cube?)
+(export-classes
+	Iso Iso-sphere Iso-tetra Iso-capsule Iso-cube)
 (env-pop)

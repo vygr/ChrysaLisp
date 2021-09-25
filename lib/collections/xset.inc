@@ -115,8 +115,8 @@
 	)
 
 ;module
-(export (penv)
-	*class_xset* xset xset?)
+(export-classes
+	xset)
 (env-pop)
 
 (defun xset-k (&rest _)

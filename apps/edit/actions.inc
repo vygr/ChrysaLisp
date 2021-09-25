@@ -136,9 +136,10 @@ recorded_actions_list (list
 	action-whole-words))
 
 ;module
-(export (penv)
+(export-symbols
 	event_map key_map key_map_shift key_map_control recorded_actions_list
 	action-insert action-save-all action-maximise
-	select-word action-select-word action-insert
-	*class_Edit-vdu* Edit-vdu Edit-vdu?)
+	select-word action-select-word action-insert)
+(export-classes
+	Edit-vdu)
 (env-pop)

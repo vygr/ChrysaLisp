@@ -147,6 +147,6 @@
 	`(bind ',syms ',values))
 
 ;module
-(export (penv)
+(export-symbols
 	structure _structure getf setf setf-> enums bits)
 (env-pop)

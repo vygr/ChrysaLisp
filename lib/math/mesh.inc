@@ -217,11 +217,8 @@
 	(lower :verts :norms :tris))
 
 ;module
-(export (penv)
-	+tri_size
-	*class_Mesh* Mesh Mesh?
-	*class_Mesh-data* Mesh-data Mesh-data?
-	*class_Mesh-torus* Mesh-torus Mesh-torus?
-	*class_Mesh-sphere* Mesh-sphere Mesh-sphere?
-	*class_Mesh-iso* Mesh-iso Mesh-iso?)
+(export-symbols
+	+tri_size)
+(export-classes
+	Mesh Mesh-data Mesh-torus Mesh-sphere Mesh-iso)
 (env-pop)

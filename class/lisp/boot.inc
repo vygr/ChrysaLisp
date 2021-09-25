@@ -577,6 +577,17 @@
 	`(def ,e ~(reduce (lambda (l _)
 		(push l (list 'quote _) _)) syms (list))))
 
+(defmacro export-symbols (&rest syms)
+	; (export-symbols sym ...)
+	`(export (penv) ~syms))
+
+(defmacro export-classes (&rest syms)
+	; (export-classes class ...)
+	`(export (penv) ~(reduce (lambda (l _)
+		(push l _
+			(sym (cat "*class_" _ "*"))
+			(sym (cat _ "?")))) syms (list))))
+
 (defmacro ascii-code (_)
 	; (ascii-code char) -> num
 	(code _))

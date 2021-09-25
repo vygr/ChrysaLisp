@@ -241,7 +241,7 @@ key_map_control (fmap-kv
 ...
 
 ;module
-(export (penv)
+(export-symbols
 	event_map key_map key_map_shift key_map_control
 	...
 	)

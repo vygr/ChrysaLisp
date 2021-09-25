@@ -114,8 +114,8 @@
 	)
 
 ;module
-(export (penv)
-	*class_fset* fset fset?)
+(export-classes
+	fset)
 (env-pop)
 
 (defun fset-k (&rest _)

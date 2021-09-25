@@ -250,8 +250,6 @@
 	)
 
 ;module
-(export (penv)
-	*class_Scene-node* Scene-node Scene-node?
-	*class_Scene-object* Scene-object Scene-object?
-	*class_Scene* Scene Scene?)
+(export-classes
+	Scene-node Scene-object Scene)
 (env-pop)

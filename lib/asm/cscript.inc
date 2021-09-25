@@ -470,7 +470,7 @@
 (new-scope)
 
 ;module
-(export (penv)
+(export-symbols
 	cscript
 	reset-reg-stack set-reg-map
 	compile-deref? compile-arrow)

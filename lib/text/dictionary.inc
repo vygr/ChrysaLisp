@@ -58,6 +58,6 @@
 	)
 
 ;module
-(export (penv)
-	*class_Dictionary* Dictionary Dictionary?)
+(export-classes
+	Dictionary)
 (env-pop)

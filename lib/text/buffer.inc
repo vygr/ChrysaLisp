@@ -457,6 +457,6 @@
 	)
 
 ;module
-(export (penv)
-	*class_Buffer* Buffer Buffer?)
+(export-classes
+	Buffer)
 (env-pop)

@@ -14,6 +14,5 @@
 			state)))
 
 ;module
-(export (penv)
-	handler)
+(export-symbols handler)
 (env-pop)

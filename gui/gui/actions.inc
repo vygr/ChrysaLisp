@@ -135,6 +135,6 @@
 	+SDL_QUIT action-quit))
 
 ;module
-(export (penv)
+(export-symbols
 	event_map)
 (env-pop)

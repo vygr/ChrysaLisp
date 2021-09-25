@@ -33,6 +33,6 @@ key_map_control (fmap-kv
 	(ascii-code "-") action-minimise))
 
 ;module
-(export (penv)
+(export-symbols
 	event_map key_map key_map_shift key_map_control)
 (env-pop)

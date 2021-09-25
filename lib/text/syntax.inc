@@ -215,6 +215,6 @@
 	)
 
 ;module
-(export (penv)
-	*class_Syntax* Syntax Syntax?)
+(export-classes
+	Syntax)
 (env-pop)

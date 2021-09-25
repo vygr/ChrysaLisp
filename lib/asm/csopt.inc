@@ -112,6 +112,6 @@
 			)))
 
 ;module
-(export (penv)
+(export-symbols
 	opt-inst-list)
 (env-pop)

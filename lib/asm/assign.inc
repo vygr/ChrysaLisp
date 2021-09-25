@@ -152,6 +152,6 @@
 			(assign-asm-to-asm src dst))))
 
 ;module
-(export (penv)
+(export-symbols
 	assign)
 (env-pop)

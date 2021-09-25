@@ -40,6 +40,6 @@
 			(push out_args arg))) out_args)
 
 ;module
-(export (penv)
+(export-symbols
 	options)
 (env-pop)
