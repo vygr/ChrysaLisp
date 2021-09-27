@@ -5,7 +5,6 @@
 ; actions
 ;;;;;;;;;
 
-(import "././edit/utils.inc")
 (import "././edit/cursor.inc")
 (import "././edit/block.inc")
 (import "././edit/select.inc")

@@ -25,6 +25,7 @@
 (import "gui/vdu/lisp.inc")
 (import "gui/font/lisp.inc")
 (import "gui/pixmap/lisp.inc")
+(import "gui/edit/lisp.inc")
 
 ;ui tree helper macros
 (defun ui-merge-props (p)

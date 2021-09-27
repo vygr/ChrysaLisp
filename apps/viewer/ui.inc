@@ -18,17 +18,22 @@
 
 (defclass Viewer-vdu () (Edit-vdu)
 	(defmethod :mouse_move (this event)
-		; (. vdu :mouse_move event) -> vdu
-		(bind '(x y) (vdu-char-pos this event))
-		(bind '(x y) (. *current_buffer* :constrain x y))
-		(. *current_buffer* :set_cursor x y)
+		; (. edit :mouse_move event) -> edit
+		(raise :buffer)
+		(bind '(x y) (. this :char_pos event))
+		(bind '(x y) (. buffer :constrain x y))
+		(. buffer :set_cursor x y)
 		(refresh) this)
 
 	(defmethod :mouse_wheel (this event)
-		; (. vdu :mouse_wheel event) -> vdu
+		; (. edit :mouse_wheel event) -> edit
+		(raise :scroll_x :scroll_y)
+		(setq scroll_x (+ scroll_x (getf event +ev_msg_wheel_x))
+			scroll_y (- scroll_y (getf event +ev_msg_wheel_y)))
+		(lower :scroll_x :scroll_y)
 		(bind '(x y ax ay sx sy) (. *meta_map* :find *current_file*))
-		(setq sx (+ *scroll_x* (getf event +ev_msg_wheel_x))
-			sy (- *scroll_y* (getf event +ev_msg_wheel_y)))
+		(setq sx (+ sx (getf event +ev_msg_wheel_x))
+			sy (- sy (getf event +ev_msg_wheel_y)))
 		(. *meta_map* :insert *current_file* (list x y ax ay sx sy))
 		(set-sliders) (load-display) this)
 	)

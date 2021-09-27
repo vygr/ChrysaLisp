@@ -22,7 +22,7 @@
 									(not-whole-word-char? (elem x1 line))))
 							(push out_xs x))) xs)
 					(push out out_xs))
-				(. *current_buffer* :get_text_lines) found)
+				(. (. *edit* :get_buffer) :get_text_lines) found)
 			  out)
 		(found)))
 
@@ -35,8 +35,8 @@
 						((> y *cursor_y*) (list x y))
 						((>= x *cursor_x*) (list x y)))) xs)) (list found)))
 				(bind '(x y) next)
-				(setq *anchor_x* x *anchor_y* y)
-				(. *current_buffer* :set_cursor (+ x (length pattern)) y)
+				(. *edit* :set_anchor x y)
+				(. (. *edit* :get_buffer) :set_cursor (+ x (length pattern)) y)
 				(refresh)))))
 
 (defun action-find-up ()
@@ -48,15 +48,15 @@
 						((< y *cursor_y*) (list x y))
 						((< x *cursor_x*) (list x y)))) xs)) (list found)))
 				(bind '(x y) next)
-				(setq *anchor_x* (+ x (length pattern)) *anchor_y* y)
-				(. *current_buffer* :set_cursor x y)
+				(. *edit* :set_anchor (+ x (length pattern)) y)
+				(. (. *edit* :get_buffer) :set_cursor x y)
 				(refresh)))))
 
 (defun action-set-find-text ()
 	(if (selection?)
+		(bind '(ax ay) (. *edit* :get_anchor))
 		(when (> (length (defq text
-				(split (. *current_buffer* :copy *anchor_x* *anchor_y*)
-					(ascii-char +char_lf)))) 0)
+				(split (. (. *edit* :get_buffer) :copy ax ay) (ascii-char +char_lf)))) 0)
 			(setq text (elem 0 text))
 			(set *find_text* :clear_text text :cursor (length text) :anchor 0)
 			(.-> *find_text* :layout :dirty))))
@@ -64,8 +64,9 @@
 (defun action-replace ()
 	(unless (or (eql (defq pattern (get :clear_text *find_text*)) "")
 				(eql (defq replace (get :clear_text *replace_text*)) pattern))
-		(when (eql (. *current_buffer* :copy *anchor_x* *anchor_y*) pattern)
-			(undoable
+		(bind '(ax ay) (. *edit* :get_anchor))
+		(when (eql (. (. *edit* :get_buffer) :copy ax ay) pattern)
+			(undoable nil
 				(. buffer :cut *anchor_x* *anchor_y*)
 				(. buffer :insert replace))
 			(refresh))
@@ -74,8 +75,8 @@
 (defun action-replace-all ()
 	(unless (or (eql (defq pattern (get :clear_text *find_text*)) "")
 				(eql (defq replace (get :clear_text *replace_text*)) pattern))
-		(when (> (length (defq found (filter-whole-words (. *current_buffer* :find pattern) pattern))) 0)
-			(undoable
+		(when (> (length (defq found (filter-whole-words (. (. *edit* :get_buffer) :find pattern) pattern))) 0)
+			(undoable nil
 				(each-rev (lambda (xs)
 					(defq y _)
 					(each-rev (lambda (x)

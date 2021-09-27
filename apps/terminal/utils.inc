@@ -2,59 +2,10 @@
 ; utils
 ;;;;;;;
 
-(defq +not_whole_word_chars " .,;'`(){}[]/")
-
-(defmacro not-whole-word-char? (_)
-	`(find ,_ +not_whole_word_chars))
-
-(defun blank-line? (line)
-	(every (# (eql " " %0)) line))
-
-(defun selection? ()
-	(bind '(x y) (. *current_buffer* :get_cursor))
-	(or (/= *anchor_x* x) (/= *anchor_y* x)))
-
-(defun sort-selection ()
-	(bind '(sx sy) (. *current_buffer* :get_cursor))
-	(defq sx1 *anchor_x* sy1 *anchor_y*)
-	(if (> sy sy1) (defq st sx sx sx1 sx1 st st sy sy sy1 sy1 st))
-	(and (= sy sy1) (> sx sx1) (defq st sx sx sx1 sx1 st))
-	(list sx sy sx1 sy1))
-
-(defun select-lines ()
-	(bind '(sx sy sx1 sy1) (sort-selection))
-	(if (or (> sx1 0) (= sy sy1)) (setq sy1 (inc sy1)))
-	(list sy sy1))
-
-(defun select-line ()
-	(bind '(x y) (. *current_buffer* :get_cursor))
-	(list y (inc y)))
-
-(defun select-word ()
-	(bind '(cx y) (. *current_buffer* :get_cursor))
-	(defq line (. *current_buffer* :get_text_line y)
-		x (some! cx 0 nil (# (if (not-whole-word-char? %0) (inc _))) (list line))
-		x1 (some! cx -1 nil (# (if (not-whole-word-char? %0) _)) (list line)))
-	(unless x (setq x 0))
-	(unless x1 (setq x1 (length line)))
-	(list x x1 y))
-
-(defun select-paragraph ()
-	(bind '(x cy) (. *current_buffer* :get_cursor))
-	(defq y (some! cy 0 nil
-				(# (if (blank-line? %0) (inc _)))
-			(list (. *current_buffer* :get_text_lines)))
-		y1 (some! cy (bind '(w h) (. *current_buffer* :get_size)) nil
-				(# (if (blank-line? %0) _))
-			(list (. *current_buffer* :get_text_lines))))
-	(unless y (setq y 0))
-	(unless y1 (setq y1 h))
-	(list y y1))
-
 (defmacro input-cursor (&rest _)
 	`(progn
-		(defq x *cursor_x* y *cursor_y*)
-		(. (defq buffer *current_buffer*) :set_cursor x y)
+		(defq x *cursor_x* y *cursor_y* buffer (. *edit* :get_buffer))
+		(. buffer :set_cursor x y)
 		~_
 		(bind '(x y) (. buffer :get_cursor))
 		(setq *cursor_x* x *cursor_y* y)))

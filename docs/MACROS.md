@@ -256,11 +256,13 @@ Another example of wrapping code in a decorator macro is the Editor application
 text to ensure its effects can be undone.
 
 ```vdu
-(defmacro undoable (&rest _)
+(defmacro undoable (buffer &rest _)
 	`(progn
-		(. (defq buffer *current_buffer*) :push_undo
+		(unless buffer (setq buffer (. *edit* :get_buffer)))
+		(bind '(cx cy) (. *edit* :get_cursor))
+		(. buffer :push_undo
 			(list :mark (defq mark (. buffer :next_mark)))
-			(list :cursor *cursor_x* *cursor_y*))
+			(list :cursor cx cy))
 		~_
 		(. buffer :push_undo (list :mark mark))))
 ```
@@ -269,7 +271,7 @@ And an example of the macro in use:
 
 ```vdu
 (defun action-reflow ()
-	(undoable
+	(undoable nil
 		(bind '(y y1) (select-paragraph))
 		(each (lambda (line)
 				(task-slice)

@@ -17,12 +17,14 @@
 
 (defun action-xscroll ()
 	;user xscroll bar
-	(setq *scroll_x* (get :value *xslider*))
+	(bind '(sx sy) (. *edit* :get_scroll))
+	(. *edit* :set_scroll (get :value *xslider*) sy)
 	(load-display))
 
 (defun action-yscroll ()
 	;user yscroll bar
-	(setq *scroll_y* (get :value *yslider*))
+	(bind '(sx sy) (. *edit* :get_scroll))
+	(. *edit* :set_scroll sx (get :value *yslider*))
 	(load-display))
 
 (defun action-tree-action ()
@@ -48,14 +50,7 @@
 ; main vdu subclass
 ;;;;;;;;;;;;;;;;;;;
 
-(defun vdu-char-pos (this event)
-	(bind '(w h) (. this :char_size))
-	(defq x (getf event +ev_msg_mouse_rx) y (getf event +ev_msg_mouse_ry))
-	(setq x (if (>= x 0) x (- x w)) y (if (>= y 0) y (- y h)))
-	(setq x (+ *scroll_x* (/ x w)) y (+ *scroll_y* (/ y h)))
-	(list x y))
-
-(defclass Edit-vdu () (Vdu)
+(defclass Edit-vdu () (Edit)
 	(def this :min_width +vdu_min_width :min_height +vdu_min_height
 		:vdu_width +vdu_min_width :vdu_height +vdu_min_height
 		:font (get :font *vdu_underlay*)
@@ -63,10 +58,7 @@
 
 	(defmethod :mouse_down (this event)
 		; (. vdu :mouse_down event) -> vdu
-		(bind '(x y) (vdu-char-pos this event))
-		(bind '(x y) (. *current_buffer* :constrain x y))
-		(. *current_buffer* :set_cursor x y)
-		(setq *anchor_x* x *anchor_y* y)
+		(.super this :mouse_down event)
 		(refresh) this)
 
 	(defmethod :mouse_up (this event)
@@ -79,18 +71,16 @@
 
 	(defmethod :mouse_move (this event)
 		; (. vdu :mouse_move event) -> vdu
+		(.super this :mouse_move event)
 		(clear-matches)
-		(bind '(x y) (vdu-char-pos this event))
-		(bind '(x y) (. *current_buffer* :constrain x y))
-		(. *current_buffer* :set_cursor x y)
 		(refresh) this)
 
 	(defmethod :mouse_wheel (this event)
 		; (. vdu :mouse_wheel event) -> vdu
+		(.super this :mouse_wheel event)
 		(clear-matches)
 		(bind '(x y ax ay sx sy _ buffer) (. *meta_map* :find *current_file*))
-		(setq sx (+ *scroll_x* (getf event +ev_msg_wheel_x))
-			sy (- *scroll_y* (getf event +ev_msg_wheel_y)))
+		(bind '(sx sy) (. this :get_scroll))
 		(. *meta_map* :insert *current_file* (list x y ax ay sx sy _ buffer))
 		(set-sliders) (load-display) this)
 	)

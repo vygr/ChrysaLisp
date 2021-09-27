@@ -3,7 +3,8 @@
 ;;;;;;;;;;;;;;;;;;;
 
 (defun action-copy ()
-	(clipboard-put (. *current_buffer* :copy *anchor_x* *anchor_y*))
+	(bind '(ax ay) (. *edit* :get_anchor))
+	(clipboard-put (. (. *edit* :get_buffer) :copy ax ay))
 	(refresh))
 
 (defun action-paste ()

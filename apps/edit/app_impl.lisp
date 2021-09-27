@@ -1,4 +1,4 @@
-;(import "lib/debug/frames.inc")
+(import "lib/debug/frames.inc")
 ;(import "lib/debug/profile.inc")
 
 (import "sys/lisp.inc")
@@ -31,13 +31,10 @@
 
 (defq +vdu_min_width 80 +vdu_min_height 40 +vdu_max_width 100 +vdu_max_height 46
 	+vdu_line_width 5 *current_file* nil *selected_file_node* nil
-	*selected_open_node* nil *meta_map* (fmap) *underlay* (list) *open_files* (list)
+	*selected_open_node* nil *meta_map* (fmap) *open_files* (list)
 	*syntax* (Syntax) *whole_words* nil *macro_record* nil *macro_actions* (list)
 	+min_word_size 3 +max_matches 20 dictionary (Dictionary 1021) +margin 2
 	match_window nil match_flow nil match_index -1
-	+selected (apply nums (map (lambda (_)
-		(const (<< (canvas-from-argb32 +argb_grey6 15) 48))) (str-alloc 8192)))
-	+not_selected (nums-sub +selected +selected) +bracket_char (nums 0x7f)
 	+state_filename "editor_open_files" +not_whole_word_chars " .,;'`(){}[]/")
 
 (ui-window *window* (:color +argb_grey1)
@@ -121,85 +118,53 @@
 
 (defun clear-selection ()
 	;clear the selection
-	(bind '(x y) (. *current_buffer* :get_cursor))
-	(bind '(x y) (. *current_buffer* :constrain x y))
-	(setq *anchor_x* x *anchor_y* y))
-
-(defun create-selection ()
-	;create the underlay for block selection
-	(bind '(x y) (. *current_buffer* :get_cursor))
-	(defq x1 *anchor_x* y1 *anchor_y*)
-	(if (> y y1) (defq st x x x1 x1 st st y y y1 y1 st))
-	(and (= y y1) (> x x1) (defq st x x x1 x1 st))
-	(cap (inc y1) (clear *underlay*))
-	(defq uy -1 buffer (. *current_buffer* :get_text_lines))
-	(while (< (setq uy (inc uy)) y) (push *underlay* ""))
-	(cond
-		((= y y1)
-			(push *underlay* (cat (slice 0 x +not_selected) (slice x x1 +selected))))
-		(t  (push *underlay* (cat
-				(slice 0 x +not_selected)
-				(slice x (inc (length (elem y buffer))) +selected)))
-			(while (< (setq y (inc y)) y1)
-				(push *underlay* (slice 0 (inc (length (elem y buffer))) +selected)))
-			(push *underlay* (slice 0 x1 +selected)))))
-
-(defun create-brackets ()
-	;create the underlay for just bracket indicators
-	(clear *underlay*)
-	(when (bind '(x y) (. *current_buffer* :left_bracket))
-		(when (bind '(x1 y1) (. *current_buffer* :right_bracket))
-			(cap (inc y1) *underlay*)
-			(defq uy -1)
-			(while (< (setq uy (inc uy)) y) (push *underlay* ""))
-			(cond
-				((= y y1)
-					(push *underlay* (cat
-						(slice 0 x +not_selected) +bracket_char
-						(slice x (dec x1) +not_selected) +bracket_char)))
-				(t  (push *underlay* (cat (slice 0 x +not_selected) +bracket_char))
-					(while (< (setq y (inc y)) y1) (push *underlay* ""))
-					(push *underlay* (cat (slice 0 x1 +not_selected) +bracket_char)))))))
+	(bind '(cx cy) (. *edit* :get_cursor))
+	(bind '(cx cy) (. (. *edit* :get_buffer) :constrain cx cy))
+	(. *edit* :set_anchor cx cy))
 
 (defun load-display ()
 	;load the vdu widgets with the text, selection and line numbers
-	(. *current_buffer* :vdu_load *vdu* *scroll_x* *scroll_y*)
-	(bind '(x y) (. *current_buffer* :get_cursor))
-	(if (and (= x *anchor_x*) (= y *anchor_y*))
-		(create-brackets) (create-selection))
-	(defq lines (clear '()) start_line *scroll_y*
+	(defq buffer (. *edit* :get_buffer))
+	(bind '(cx cy) (. *edit* :get_cursor))
+	(bind '(ax ay) (. *edit* :get_anchor))
+	(bind '(sx sy) (. *edit* :get_scroll))
+	(defq lines (clear '()) start_line sy
 		end_line (inc (min
-			(elem 1 (. *current_buffer* :get_size))
-			(+ start_line (get :vdu_height *vdu*)))))
+			(elem 1 (. buffer :get_size))
+			(+ start_line (get :vdu_height *edit*)))))
 	(while (< (setq start_line (inc start_line)) end_line)
 		(push lines (pad (str start_line) (const (dec +vdu_line_width)) "    ")))
+	(. buffer :vdu_load *edit* sx sy)
 	(. *vdu_lines* :load lines 0 0 -1 -1)
-	(. *vdu_underlay* :load *underlay* *scroll_x* *scroll_y* -1 -1))
+	(. *vdu_underlay* :load
+		(if (and (= cx ax) (= cy ay))
+			(. *edit* :create_underlay_brackets)
+			(. *edit* :create_underlay_selection))
+		sx sy -1 -1))
 
 (defun set-sliders ()
 	;set slider values for current file
-	(bind '(x y ax ay sx sy _ buffer) (. *meta_map* :find *current_file*))
+	(bind '(cx cy ax ay sx sy _ buffer) (. *meta_map* :find *current_file*))
 	(bind '(w h) (. buffer :get_size))
-	(bind '(vw vh) (. *vdu* :vdu_size))
-	(defq smaxx (max 0 (- w vw -1))
-		smaxy (max 0 (- h vh -1))
+	(bind '(vw vh) (. *edit* :vdu_size))
+	(defq smaxx (max 0 (- w vw -1)) smaxy (max 0 (- h vh -1))
 		sx (max 0 (min sx smaxx)) sy (max 0 (min sy smaxy)))
 	(def (. *xslider* :dirty) :maximum smaxx :portion vw :value sx)
 	(def (. *yslider* :dirty) :maximum smaxy :portion vh :value sy)
-	(. *meta_map* :insert *current_file* (list x y ax ay sx sy _ buffer))
-	(setq *scroll_x* sx *scroll_y* sy))
+	(. *meta_map* :insert *current_file* (list cx cy ax ay sx sy _ buffer))
+	(. *edit* :set_scroll sx sy))
 
 (defun refresh ()
 	(unless (get :macro_playback)
 		;refresh display and ensure cursor is visible
-		(bind '(x y ax ay sx sy _ buffer) (. *meta_map* :find *current_file*))
-		(bind '(x y) (. buffer :get_cursor))
-		(bind '(w h) (. *vdu* :vdu_size))
-		(if (< (- x +margin) sx) (setq sx (- x +margin)))
-		(if (< (- y +margin) sy) (setq sy (- y +margin)))
-		(if (>= (+ x +margin) (+ sx w)) (setq sx (- (+ x +margin) w -1)))
-		(if (>= (+ y +margin) (+ sy h)) (setq sy (- (+ y +margin) h -1)))
-		(. *meta_map* :insert *current_file* (list x y ax ay sx sy _ buffer))
+		(bind '(cx cy ax ay sx sy _ buffer) (. *meta_map* :find *current_file*))
+		(bind '(cx cy) (. buffer :get_cursor))
+		(bind '(w h) (. *edit* :vdu_size))
+		(if (< (- cx +margin) sx) (setq sx (- cx +margin)))
+		(if (< (- cy +margin) sy) (setq sy (- cy +margin)))
+		(if (>= (+ cx +margin) (+ sx w)) (setq sx (- (+ cx +margin) w -1)))
+		(if (>= (+ cy +margin) (+ sy h)) (setq sy (- (+ cy +margin) h -1)))
+		(. *meta_map* :insert *current_file* (list cx cy ax ay sx sy _ buffer))
 		(set-sliders) (load-display)))
 
 (defun populate-dictionary (line)
@@ -225,10 +190,12 @@
 (defun populate-vdu (file)
 	;load up the vdu widget from this file
 	(populate-file file 0 0 0 0 0 0)
-	(bind '(x y ax ay sx sy _ buffer) (. *meta_map* :find file))
-	(setq *cursor_x* x *cursor_y* y *anchor_x* ax *anchor_y* ay
-		*current_buffer* buffer *current_file* file)
-	(. buffer :set_cursor x y)
+	(bind '(cx cy ax ay sx sy _ buffer) (. *meta_map* :find file))
+	(setq *current_file* file)
+	(. *edit* :set_buffer buffer)
+	(. *edit* :set_cursor cx cy)
+	(. *edit* :set_anchor ax ay)
+	(. *edit* :set_scroll sx sy)
 	(refresh)
 	(def *title* :text (cat "Edit -> " (if file file "<scratch pad>")))
 	(.-> *title* :layout :dirty))
@@ -273,23 +240,23 @@
 
 (defun window-resize ()
 	;layout the window and size the vdu to fit
-	(bind '(w h) (. *vdu* :max_size))
-	(set *vdu* :vdu_width w :vdu_height h)
+	(bind '(w h) (. *edit* :max_size))
+	(set *edit* :vdu_width w :vdu_height h)
 	(set *vdu_underlay* :vdu_width w :vdu_height h)
 	(set *vdu_lines* :vdu_height h)
-	(. *vdu* :layout)
+	(. *edit* :layout)
 	(. *vdu_underlay* :layout)
 	(. *vdu_lines* :layout)
 	(set-sliders) (load-display))
 
 (defun vdu-resize (w h)
 	;size the vdu and layout the window to fit
-	(set *vdu* :vdu_width w :vdu_height h :min_width w :min_height h)
+	(set *edit* :vdu_width w :vdu_height h :min_width w :min_height h)
 	(set *vdu_underlay* :vdu_width w :vdu_height h :min_width w :min_height h)
 	(set *vdu_lines* :vdu_height h :min_height h)
 	(bind '(x y w h) (apply view-fit
 		(cat (. *window* :get_pos) (. *window* :pref_size))))
-	(set *vdu* :min_width +vdu_min_width :min_height +vdu_min_height)
+	(set *edit* :min_width +vdu_min_width :min_height +vdu_min_height)
 	(set *vdu_underlay* :min_width +vdu_min_width :min_height +vdu_min_height)
 	(set *vdu_lines* :min_height +vdu_min_height)
 	(. *window* :change_dirty x y w h)
@@ -319,8 +286,8 @@
 	(def *window* :tip_mbox (elem +select_tip select))
 	(each (# (def %0 :tip_text %1)) (. main_toolbar :children)
 		'("undo" "redo" "rewind" "cut" "copy" "paste" "reflow" "select paragraph"
-			"outdent" "indent" "select form" "start form" "end form" "upper case"
-			"lower case" "sort" "unique" "comment"))
+		"outdent" "indent" "select form" "start form" "end form" "upper case"
+		"lower case" "sort" "unique" "comment"))
 	(each (# (def %0 :tip_text %1)) (. buffer_toolbar :children)
 		'("previous" "next" "scratchpad" "close" "save all" "save" "new"))
 	(each (# (def %0 :tip_text %1)) (. find_toolbar :children)
@@ -336,21 +303,23 @@
 
 (defun show-matches ()
 	(clear-matches)
-	(bind '(*cursor_x* *cursor_y*) (. *current_buffer* :get_cursor))
+	(defq buffer (. *edit* :get_buffer))
+	(bind '(cx cy) (. *edit* :get_cursor))
+	(bind '(sx sy) (. *edit* :get_scroll))
 	(bind '(x x1) (select-word))
 	(when (>= (- x1 x) +min_word_size)
 		(defq match_words (. dictionary :find_matches_case
-			(slice x x1 (. *current_buffer* :get_text_line *cursor_y*))))
+			(slice x x1 (. buffer :get_text_line cy))))
 		(when (> (length match_words) 0)
 			(if (> (length match_words) +max_matches)
 				(setq match_words (slice 0 +max_matches match_words)))
 			(ui-window window (:color (get :color *window*)
-					:ink_color (get :ink_color *vdu*) :font (get :font *vdu*))
+					:ink_color (get :ink_color *edit*) :font (get :font *edit*))
 				(ui-flow flow (:flow_flags +flow_down_fill)
 					(each (# (ui-label _ (:text %0))) match_words)))
-			(bind '(cw ch) (. *vdu* :char_size))
-			(defq x (+ (getf *vdu* +view_ctx_x 0) (- (* *cursor_x* cw) (* *scroll_x* cw)))
-				y (+ (getf *vdu* +view_ctx_y 0) (- (* (inc *cursor_y*) ch) (* *scroll_y* ch))))
+			(bind '(cw ch) (. *edit* :char_size))
+			(defq x (+ (getf *edit* +view_ctx_x 0) (- (* cx cw) (* sx cw)))
+				y (+ (getf *edit* +view_ctx_y 0) (- (* (inc cy) ch) (* sy ch))))
 			(bind '(w h) (.-> window (:set_flags 0 +view_flag_solid) :pref_size))
 			(bind '(cx cy sw sh) (gui-info))
 			(if (> (+ x w) sw) (setq x (+ (- x w) cw)))
@@ -378,9 +347,9 @@
 (defun main ()
 	(defq select (alloc-select +select_size)
 		edit_service (mail-declare (task-mailbox) "EDIT_SERVICE" "Edit Service 0.1")
-		*cursor_x* 0 *cursor_y* 0 *anchor_x* 0 *anchor_y* 0 *scroll_x* 0 *scroll_y* 0
-		*current_buffer* nil *running* t *vdu* (Edit-vdu))
-	(. stack_flow :add_front *vdu*)
+		*running* t *edit* (Edit-vdu))
+	(.-> *edit* (:set_buffer (Buffer)) (:set_underlay_color +argb_grey6))
+	(. stack_flow :add_front *edit*)
 	;load up the base Syntax keywords and boot.inc words for matching
 	(each (lambda ((key val)) (. dictionary :insert_word (str key)))
 		(tolist (get :keywords *syntax* )))
@@ -451,10 +420,11 @@
 				(clear-matches)
 				(. *window* :event *msg*)))
 		;update meta data
-		(bind '(*cursor_x* *cursor_y*) (. *current_buffer* :get_cursor))
-		(. *meta_map* :insert *current_file*
-			(list *cursor_x* *cursor_y* *anchor_x* *anchor_y* *scroll_x* *scroll_y*
-				nil *current_buffer*)))
+		(defq buffer (. *edit* :get_buffer))
+		(bind '(cx cy) (. *edit* :get_cursor))
+		(bind '(ax ay) (. *edit* :get_anchor))
+		(bind '(sx sy) (. *edit* :get_scroll))
+		(. *meta_map* :insert *current_file* (list cx cy ax ay sx sy nil buffer)))
 	(free-select select)
 	(clear-matches)
 	(gui-sub *window*)
