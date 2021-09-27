@@ -14,9 +14,11 @@
 (enums +select 0
 	(enum main timer mouse))
 
-;profiling callbacks on the GUI thread from :draw method !!!
+;profiling and stack frame callbacks on the GUI thread from :draw method etc !!!
 (defq *profile_meta_map* (env -1) *profile_return_vals* (list)
-	*old_mouse_x* -1 *old_mouse_y* -1 *mouse_type* 0
+	*stack_frame* (list) *stack_return_vals* (list))
+
+(defq *old_mouse_x* -1 *old_mouse_y* -1 *mouse_type* 0
 	*mouse_x* 0 *mouse_y* 0 *mouse_buttons* 0 *mouse_id* 0
 	rate (/ 1000000 60) *running* t)
 
