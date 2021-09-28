@@ -113,7 +113,6 @@
 	(defq *select* (alloc-select +select_size)
 		*cursor_x* 0 *cursor_y* 0 *running* t *pipe* nil
 		*history* (list) *history_idx* 0 *edit* (Terminal-edit))
-	(. *edit* :set_buffer (Buffer t))
 	(. *edit* :set_underlay_color +argb_green6)
 	(. main_flow :add_back *edit*)
 	(tooltips)

@@ -74,7 +74,7 @@
 
 (defclass Edit () (View)
 	(def this :vdu_text (defq vdu_text (Vdu))
-		:vdu_underlay (defq vdu_underlay (Vdu)) 
+		:vdu_underlay (defq vdu_underlay (Vdu))
 		:anchor_x 0 :anchor_y 0
 		:scroll_x 0 :scroll_y 0
 		:buffer (Buffer t) :underlay (list)
@@ -160,7 +160,7 @@
 		(raise :buffer)
 		(bind '(cx cy) (. buffer :get_cursor))
 		(bind '(cx cy) (. buffer :constrain +max_int cy))
-		(.-> this (:set_cursor 0 cy) (:set_anchor 0 cy)))
+		(.-> this (:set_cursor cx cy) (:set_anchor cx cy)))
 
 	(defmethod :left (this)
 		; (. edit :left) -> edit
@@ -168,7 +168,7 @@
 			((selection? this)
 				(bind '(sx sy sx1 sy1) (sort-selection this))
 				(. this :set_cursor sx sy))
-			(t	(. (get :buffer this) :left)))
+			(t  (. (get :buffer this) :left)))
 		(. this :clear_selection))
 
 	(defmethod :right (this)
@@ -177,7 +177,7 @@
 			((selection? this)
 				(bind '(sx sy sx1 sy1) (sort-selection this))
 				(. this :set_cursor sx1 sy1))
-			(t	(. (get :buffer this) :right)))
+			(t  (. (get :buffer this) :right)))
 		(. this :clear_selection))
 
 	(defmethod :up (this)

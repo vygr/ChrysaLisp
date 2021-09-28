@@ -53,7 +53,7 @@
 					(def ,class :vtable ,super :module ,module)
 					~methods
 					(defmethod :type_of (this)
-						(push (.super this :type_of) ,(sym (cat : n)))))
+						(push (.super this :type_of) ,kwn)))
 				~inits this))
 		`(progn
 			(defq ,class (env -1))
@@ -64,7 +64,7 @@
 					(def ,class :vtable t :module ,module)
 					~methods
 					(defmethod :type_of (this)
-						(push (type-of this) ,(sym (cat : n)))))
+						(push (type-of this) ,kwn)))
 				~inits this))))
 
 (defmacro .-> (res &rest frm)
