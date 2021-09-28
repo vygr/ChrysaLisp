@@ -275,7 +275,7 @@
 		(bind '(ax ay) (. this :get_anchor))
 		(. buffer :cut ax ay)
 		(. buffer :insert string)
-		this)
+		(. this :clear_selection))
 
 	(defmethod :backspace (this)
 		; (. edit :backspace) -> edit
@@ -283,7 +283,7 @@
 		(bind '(ax ay) (. this :get_anchor))
 		(when (eql (. buffer :cut ax ay) "")
 			(. buffer :backspace))
-		this)
+		(. this :clear_selection))
 
 	(defmethod :delete (this)
 		; (. edit :delete) -> edit
@@ -291,7 +291,7 @@
 		(bind '(ax ay) (. this :get_anchor))
 		(when (eql (. buffer :cut ax ay) "")
 			(. buffer :delete))
-		this)
+		(. this :clear_selection))
 
 	(defmethod :break (this)
 		; (. edit :break) -> edit
@@ -303,7 +303,7 @@
 				indent (some (# (unless (eql %0 (ascii-char +char_space)) _)) line))
 			(unless indent (setq indent (length line)))
 			(if (> indent 0) (. buffer :insert (pad "" indent "        "))))
-		this)
+		(. this :clear_selection))
 
 	(defmethod :tab (this)
 		; (. edit :tab) -> edit
@@ -312,7 +312,7 @@
 			(. buffer :cut ax ay)
 			(bind '(cx cy) (. buffer :get_cursor))
 			(. buffer :insert (pad "" (- tab_width (% cx tab_width)) "        ")))
-		this)
+		(. this :clear_selection))
 
 	(defmethod :left_tab (this)
 		; (. edit :left_tab) -> edit
