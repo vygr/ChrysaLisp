@@ -25,6 +25,8 @@ application.
 
 New `(export-symbols)` and `(export-classes)` macros in `boot.inc`.
 
+New GUI Edit widget. Editor, Viewer and Terminal apps changed to use this.
+
 ------
 
 Start of new Cubes demo. Along with a new `lib/math/matrix.inc` library.

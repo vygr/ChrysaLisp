@@ -374,7 +374,7 @@
 					(. buffer :get_wrap_width)))
 			(bind '(x y) (. buffer :get_cursor))
 			(bind '(x y) (. buffer :constrain x (inc y)))
-			(. this :set_cursor x y))
+			(.-> this (:set_cursor x y) (:set_anchor x y)))
 		this)
 
 	(defmethod :ordered (this)

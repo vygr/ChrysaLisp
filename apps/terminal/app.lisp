@@ -50,12 +50,6 @@
 			(defq msg (mail-read (elem (defq idx (mail-select *select*)) *select*)))))
 	(list msg idx))
 
-(defun clear-selection ()
-	;clear the selection
-	(bind '(cx cy) (. *edit* :get_cursor))
-	(bind '(cx cy) (. (. *edit* :get_buffer) :constrain cx cy))
-	(. *edit* :set_anchor cx cy))
-
 (defun load-display ()
 	;load the vdu widgets with the text and selection
 	(defq buffer (. *edit* :get_buffer))
