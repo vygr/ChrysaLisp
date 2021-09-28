@@ -58,7 +58,7 @@
 						(push (.super this :type_of) ,kwn)))
 				~inits this))
 		`(progn
-			(defq ,class (env ,(- -1 (/ (length methods) vtmax))))
+			(defq ,class (env ,(- -1 (/ (+ (length methods) 1) vtmax))))
 			(defun ,predn (_o) (and (env? _o) (def? :vtable _o) (find ,kwn (. _o :type_of))))
 			(defun ,n ,a
 				(def (defq this (env -1)) :vtable ,class)
