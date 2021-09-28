@@ -1,4 +1,4 @@
-(import "lib/debug/frames.inc")
+;(import "lib/debug/frames.inc")
 ;(import "lib/debug/profile.inc")
 
 (import "sys/lisp.inc")
