@@ -402,6 +402,318 @@
 (. dictionary :sort) -> dictionary
 ```
 
+### edit :backspace
+
+```code
+(. edit :backspace) -> edit
+```
+
+### edit :break
+
+```code
+(. edit :break) -> edit
+```
+
+### edit :char_pos
+
+```code
+(. edit :char_pos event) -> (list x y)
+```
+
+### edit :clear_selection
+
+```code
+(. edit :clear_selection) -> edit
+```
+
+### edit :comment
+
+```code
+(. edit :comment) -> edit
+```
+
+### edit :delete
+
+```code
+(. edit :delete) -> edit
+```
+
+### edit :down
+
+```code
+(. edit :down) -> edit
+```
+
+### edit :down_select
+
+```code
+(. edit :down_select) -> edit
+```
+
+### edit :end
+
+```code
+(. edit :end) -> edit
+```
+
+### edit :end_select
+
+```code
+(. edit :end_select) -> edit
+```
+
+### edit :get_anchor
+
+```code
+(. edit :get_anchor) -> (list x y)
+```
+
+### edit :get_buffer
+
+```code
+(. edit :get_buffer) -> text_buffer
+```
+
+### edit :get_cursor
+
+```code
+(. edit :get_cursor) -> (list x y)
+```
+
+### edit :get_scroll
+
+```code
+(. edit :get_scroll) -> (list x y)
+```
+
+### edit :get_vdu_text
+
+```code
+(. edit :get_vdu_text) -> vdu_text
+```
+
+### edit :home
+
+```code
+(. edit :home) -> edit
+```
+
+### edit :home_select
+
+```code
+(. edit :home_select) -> edit
+```
+
+### edit :insert
+
+```code
+(. edit :insert string) -> edit
+```
+
+### edit :layout
+
+```code
+(. edit :layout) -> edit
+```
+
+### edit :left
+
+```code
+(. edit :left) -> edit
+```
+
+### edit :left_bracket
+
+```code
+(. edit :left_bracket) -> edit
+```
+
+### edit :left_select
+
+```code
+(. edit :left_select) -> edit
+```
+
+### edit :left_tab
+
+```code
+(. edit :left_tab) -> edit
+```
+
+### edit :mouse_down
+
+```code
+(. edit :mouse_down event) -> edit
+```
+
+### edit :mouse_move
+
+```code
+(. edit :mouse_move event) -> edit
+```
+
+### edit :mouse_wheel
+
+```code
+(. edit :mouse_wheel event) -> edit
+```
+
+### edit :ordered
+
+```code
+(. edit :ordered) -> edit
+```
+
+### edit :ordered_unique
+
+```code
+(. edit :ordered_unique) -> edit
+```
+
+### edit :pref_size
+
+```code
+(. edit :pref_size) -> (width height)
+```
+
+### edit :reflow
+
+```code
+(. edit :reflow) -> edit
+```
+
+### edit :right
+
+```code
+(. edit :right) -> edit
+```
+
+### edit :right_bracket
+
+```code
+(. edit :right_bracket) -> edit
+```
+
+### edit :right_select
+
+```code
+(. edit :right_select) -> edit
+```
+
+### edit :right_tab
+
+```code
+(. edit :right_tab) -> edit
+```
+
+### edit :select_all
+
+```code
+(. edit :select_all) -> edit
+```
+
+### edit :select_block
+
+```code
+(. edit :select_block) -> edit
+```
+
+### edit :select_line
+
+```code
+(. edit :select_line) -> edit
+```
+
+### edit :select_paragraph
+
+```code
+(. edit :select_paragraph) -> edit
+```
+
+### edit :select_word
+
+```code
+(. edit :select_word) -> edit
+```
+
+### edit :set_anchor
+
+```code
+(. edit :set_anchor x y) -> this
+```
+
+### edit :set_buffer
+
+```code
+(. edit :set_buffer text_buffer) -> this
+```
+
+### edit :set_cursor
+
+```code
+(. edit :set_cursor x y) -> this
+```
+
+### edit :set_scroll
+
+```code
+(. edit :set_scroll x y) -> this
+```
+
+### edit :set_underlay_color
+
+```code
+(. edit :set_underlay_color argb) -> edit
+```
+
+### edit :tab
+
+```code
+(. edit :tab) -> edit
+```
+
+### edit :to_lower
+
+```code
+(. edit :to_lower) -> edit
+```
+
+### edit :to_upper
+
+```code
+(. edit :to_upper) -> edit
+```
+
+### edit :underlay_brackets
+
+```code
+(. edit :underlay_brackets) -> edit
+```
+
+### edit :underlay_clear
+
+```code
+(. edit :underlay_clear) -> edit
+```
+
+### edit :underlay_selection
+
+```code
+(. edit :underlay_selection) -> edit
+```
+
+### edit :up
+
+```code
+(. edit :up) -> edit
+```
+
+### edit :up_select
+
+```code
+(. edit :up_select) -> edit
+```
+
 ### emap :copy
 
 ```code
