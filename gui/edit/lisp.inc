@@ -4,6 +4,7 @@
 
 (import "gui/vdu/lisp.inc")
 (import "gui/canvas/lisp.inc")
+(import "lib/text/buffer.inc")
 
 ;module
 (env-push)
@@ -71,16 +72,40 @@
 		~_
 		(. buffer :push_undo (list :mark mark))))
 
-(defclass Edit () (Vdu)
-	(def this
+(defclass Edit () (View)
+	(def this :vdu_text (defq vdu_text (Vdu))
+		:vdu_underlay (defq vdu_underlay (Vdu)) 
 		:anchor_x 0 :anchor_y 0
 		:scroll_x 0 :scroll_y 0
-		:buffer nil :underlay (list)
+		:buffer (Buffer t) :underlay (list)
 		:selected +not_selected)
+	(. vdu_text :set_flags 0 +view_flag_solid)
+	(. vdu_underlay :set_flags 0 +view_flag_solid)
+	(.-> this (:add_child vdu_text) (:add_child vdu_underlay))
+
+	(defmethod :pref_size (this)
+		; (. edit :pref_size) -> (width height)
+		(defq w 0 h 0 mw (def? :min_width this) mh (def? :min_height this))
+		(each (lambda (child)
+				(def child :min_width mw :min_height mh)
+				(bind '(cw ch) (. child :pref_size))
+				(setq w (max w cw) h (max h ch)))
+			(. this :children))
+		(list w h))
+
+	(defmethod :layout (this)
+		; (. edit :layout) -> edit
+		(bind '(w h) (. this :get_size))
+		(each (# (. %0 :change 0 0 w h)) (. this :children))
+		this)
 
 	(defmethod :get_buffer (this)
 		; (. edit :get_buffer) -> text_buffer
 		(get :buffer this))
+
+	(defmethod :get_vdu_text (this)
+		; (. edit :get_vdu_text) -> vdu_text
+		(get :vdu_text this))
 
 	(defmethod :get_cursor (this)
 		; (. edit :get_cursor) -> (list x y)
@@ -114,8 +139,8 @@
 
 	(defmethod :char_pos (this event)
 		; (. edit :char_pos event) -> (list x y)
-		(raise :scroll_x :scroll_y)
-		(bind '(w h) (. this :char_size))
+		(raise :scroll_x :scroll_y :vdu_text)
+		(bind '(w h) (. vdu_text :char_size))
 		(defq x (getf event +ev_msg_mouse_rx) y (getf event +ev_msg_mouse_ry))
 		(setq x (if (>= x 0) x (- x w)) y (if (>= y 0) y (- y h)))
 		(list (+ scroll_x (/ x w)) (+ scroll_y (/ y h))))
@@ -402,10 +427,9 @@
 			(<< (canvas-from-argb32 col 15) 48)) +not_selected))))
 		this)
 
-	(defmethod :create_underlay_selection (this)
-		; (. edit :create_underlay_selection) -> lines
-		;create the underlay for block selection
-		(raise :buffer :underlay :selected)
+	(defmethod :underlay_selection (this)
+		; (. edit :underlay_selection) -> edit
+		(raise :buffer :underlay :selected :vdu_underlay :scroll_x :scroll_y)
 		(bind '(cx cy) (. this :get_cursor))
 		(bind '(ax ay) (. this :get_anchor))
 		(defq x1 ax y1 ay)
@@ -423,12 +447,13 @@
 				(while (< (setq cy (inc cy)) y1)
 					(push underlay (slice 0 (inc (length (elem cy buffer))) selected)))
 				(push underlay (slice 0 x1 selected))))
-		underlay)
+		(. vdu_underlay :load underlay scroll_x scroll_y -1 -1)
+		this)
 
-	(defmethod :create_underlay_brackets (this)
-		; (. edit :create_underlay_brackets) -> lines
+	(defmethod :underlay_brackets (this)
+		; (. edit :underlay_brackets) -> edit
 		;create the underlay for just bracket indicators
-		(raise :buffer :underlay)
+		(raise :buffer :underlay :selected :vdu_underlay :scroll_x :scroll_y)
 		(clear underlay)
 		(when (bind '(x y) (. buffer :left_bracket))
 			(when (bind '(x1 y1) (. buffer :right_bracket))
@@ -443,7 +468,16 @@
 					(t  (push underlay (cat (slice 0 x +not_selected) +bracket_char))
 						(while (< (setq y (inc y)) y1) (push underlay ""))
 						(push underlay (cat (slice 0 x1 +not_selected) +bracket_char))))))
-		underlay)
+		(. vdu_underlay :load underlay scroll_x scroll_y -1 -1)
+		this)
+
+	(defmethod :underlay_clear (this)
+		; (. edit :underlay_clear) -> edit
+		;create the underlay for clear
+		(raise :underlay :vdu_underlay :scroll_x :scroll_y)
+		(clear underlay)
+		(. vdu_underlay :load underlay scroll_x scroll_y -1 -1)
+		this)
 
 	(defmethod :mouse_down (this event)
 		; (. edit :mouse_down event) -> edit

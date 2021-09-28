@@ -24,11 +24,8 @@
 		(ui-backdrop _ (:color (const *env_toolbar_col*))))
 	(ui-flow _ (:flow_flags +flow_left_fill)
 		(. (ui-slider *yslider*) :connect +event_yscroll)
-		(ui-flow _ (:flow_flags +flow_up_fill)
-			(. (ui-slider *xslider*) :connect +event_xscroll)
-			(ui-flow stack_flow (:flow_flags +flow_stack_fill :font *env_terminal_font*)
-				(ui-vdu *vdu_underlay* (:vdu_width +vdu_min_width :vdu_height +vdu_min_height
-						:min_width 0 :min_height 0 :ink_color +argb_green))))))
+		(ui-flow main_flow (:flow_flags +flow_up_fill)
+			(. (ui-slider *xslider*) :connect +event_xscroll))))
 
 (defun input-poll ()
 	(cond
@@ -65,16 +62,16 @@
 	(bind '(cx cy) (. *edit* :get_cursor))
 	(bind '(sx sy) (. *edit* :get_scroll))
 	(bind '(ax ay) (. *edit* :get_anchor))
-	(. buffer :vdu_load *edit* sx sy)
-	(. *vdu_underlay* :load
-		(if (and (= cx ax) (= cy ay)) '() (. *edit* :create_underlay_selection))
-		sx sy -1 -1))
+	(. buffer :vdu_load (. *edit* :get_vdu_text) sx sy)
+	(if (and (= cx ax) (= cy ay))
+		(. *edit* :underlay_clear)
+		(. *edit* :underlay_selection)))
 
 (defun set-sliders ()
 	;set slider values
 	(bind '(w h) (. (. *edit* :get_buffer) :get_size))
 	(bind '(sx sy) (. *edit* :get_scroll))
-	(bind '(vw vh) (. *edit* :vdu_size))
+	(bind '(vw vh) (. (. *edit* :get_vdu_text) :vdu_size))
 	(defq smaxx (max 0 (- w vw -1)) smaxy (max 0 (- h vh))
 		sx (max 0 (min sx smaxx)) sy (max 0 (min sy smaxy)))
 	(def (. *xslider* :dirty) :maximum smaxx :portion vw :value sx)
@@ -86,7 +83,7 @@
 		;refresh display and ensure cursor is visible
 		(bind '(cx cy) (. *edit* :get_cursor))
 		(bind '(sx sy) (. *edit* :get_scroll))
-		(bind '(w h) (. *edit* :vdu_size))
+		(bind '(w h) (. (. *edit* :get_vdu_text) :vdu_size))
 		(if (< cx sx) (setq sx cx))
 		(if (< cy sy) (setq sy cy))
 		(if (>= cx (+ sx w)) (setq sx (- cx w -1)))
@@ -96,21 +93,17 @@
 
 (defun window-resize ()
 	;layout the window and size the vdu to fit
-	(bind '(w h) (. *edit* :max_size))
+	(bind '(w h) (. (. *edit* :get_vdu_text) :max_size))
 	(set *edit* :vdu_width w :vdu_height h)
-	(set *vdu_underlay* :vdu_width w :vdu_height h)
 	(. *edit* :layout)
-	(. *vdu_underlay* :layout)
 	(set-sliders) (load-display))
 
 (defun vdu-resize (w h)
 	;size the vdu and layout the window to fit
 	(set *edit* :vdu_width w :vdu_height h :min_width w :min_height h)
-	(set *vdu_underlay* :vdu_width w :vdu_height h :min_width w :min_height h)
 	(bind '(x y w h) (apply view-fit
 		(cat (. *window* :get_pos) (. *window* :pref_size))))
 	(set *edit* :min_width +vdu_min_width :min_height +vdu_min_height)
-	(set *vdu_underlay* :min_width +vdu_min_width :min_height +vdu_min_height)
 	(. *window* :change_dirty x y w h)
 	(set-sliders) (load-display))
 
@@ -125,10 +118,10 @@
 (defun main ()
 	(defq *select* (alloc-select +select_size)
 		*cursor_x* 0 *cursor_y* 0 *running* t *pipe* nil
-		*history* (list) *history_idx* 0 *edit* (Terminal-vdu))
+		*history* (list) *history_idx* 0 *edit* (Terminal-edit))
 	(. *edit* :set_buffer (Buffer t))
 	(. *edit* :set_underlay_color +argb_green6)
-	(. stack_flow :add_front *edit*)
+	(. main_flow :add_back *edit*)
 	(tooltips)
 	(bind '(x y w h) (apply view-locate (.-> *window* (:connect +event_layout) :pref_size)))
 	(gui-add-front (. *window* :change x y w h))

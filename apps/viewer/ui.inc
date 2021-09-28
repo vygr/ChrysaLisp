@@ -16,7 +16,7 @@
 ; main vdu subclass
 ;;;;;;;;;;;;;;;;;;;
 
-(defclass Viewer-vdu () (Edit-vdu)
+(defclass Viewer-edit () (Editor-edit)
 	(defmethod :mouse_move (this event)
 		; (. edit :mouse_move event) -> edit
 		(raise :buffer)

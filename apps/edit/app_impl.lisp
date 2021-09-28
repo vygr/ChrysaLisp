@@ -88,11 +88,8 @@
 		(ui-backdrop _ (:color (get :ink_color *vdu_lines*) :min_width 1))
 		(ui-flow _ (:flow_flags +flow_left_fill)
 			(. (ui-slider *yslider*) :connect +event_yscroll)
-			(ui-flow _ (:flow_flags +flow_up_fill)
-				(. (ui-slider *xslider*) :connect +event_xscroll)
-				(ui-flow stack_flow (:flow_flags +flow_stack_fill :font *env_terminal_font*)
-					(ui-vdu *vdu_underlay* (:vdu_width +vdu_min_width :vdu_height +vdu_min_height
-							:min_width 0 :min_height 0 :ink_color +argb_white)))))))
+			(ui-flow main_flow (:flow_flags +flow_up_fill)
+				(. (ui-slider *xslider*) :connect +event_xscroll)))))
 
 (defun all-src-files (root)
 	;all source files from root downwards, none recursive
@@ -128,19 +125,17 @@
 			(+ start_line (get :vdu_height *edit*)))))
 	(while (< (setq start_line (inc start_line)) end_line)
 		(push lines (pad (str start_line) (const (dec +vdu_line_width)) "    ")))
-	(. buffer :vdu_load *edit* sx sy)
 	(. *vdu_lines* :load lines 0 0 -1 -1)
-	(. *vdu_underlay* :load
-		(if (and (= cx ax) (= cy ay))
-			(. *edit* :create_underlay_brackets)
-			(. *edit* :create_underlay_selection))
-		sx sy -1 -1))
+	(. buffer :vdu_load (. *edit* :get_vdu_text) sx sy)
+	(if (and (= cx ax) (= cy ay))
+		(. *edit* :underlay_brackets)
+		(. *edit* :underlay_selection)))
 
 (defun set-sliders ()
 	;set slider values for current file
 	(bind '(cx cy ax ay sx sy _ buffer) (. *meta_map* :find *current_file*))
 	(bind '(w h) (. buffer :get_size))
-	(bind '(vw vh) (. *edit* :vdu_size))
+	(bind '(vw vh) (. (. *edit* :get_vdu_text) :vdu_size))
 	(defq smaxx (max 0 (- w vw -1)) smaxy (max 0 (- h vh -1))
 		sx (max 0 (min sx smaxx)) sy (max 0 (min sy smaxy)))
 	(def (. *xslider* :dirty) :maximum smaxx :portion vw :value sx)
@@ -153,7 +148,7 @@
 		;refresh display and ensure cursor is visible
 		(bind '(cx cy ax ay sx sy _ buffer) (. *meta_map* :find *current_file*))
 		(bind '(cx cy) (. buffer :get_cursor))
-		(bind '(w h) (. *edit* :vdu_size))
+		(bind '(w h) (. (. *edit* :get_vdu_text) :vdu_size))
 		(if (< (- cx +margin) sx) (setq sx (- cx +margin)))
 		(if (< (- cy +margin) sy) (setq sy (- cy +margin)))
 		(if (>= (+ cx +margin) (+ sx w)) (setq sx (- (+ cx +margin) w -1)))
@@ -234,24 +229,20 @@
 
 (defun window-resize ()
 	;layout the window and size the vdu to fit
-	(bind '(w h) (. *edit* :max_size))
+	(bind '(w h) (. (. *edit* :get_vdu_text) :max_size))
 	(set *edit* :vdu_width w :vdu_height h)
-	(set *vdu_underlay* :vdu_width w :vdu_height h)
 	(set *vdu_lines* :vdu_height h)
 	(. *edit* :layout)
-	(. *vdu_underlay* :layout)
 	(. *vdu_lines* :layout)
 	(set-sliders) (load-display))
 
 (defun vdu-resize (w h)
 	;size the vdu and layout the window to fit
 	(set *edit* :vdu_width w :vdu_height h :min_width w :min_height h)
-	(set *vdu_underlay* :vdu_width w :vdu_height h :min_width w :min_height h)
 	(set *vdu_lines* :vdu_height h :min_height h)
 	(bind '(x y w h) (apply view-fit
 		(cat (. *window* :get_pos) (. *window* :pref_size))))
 	(set *edit* :min_width +vdu_min_width :min_height +vdu_min_height)
-	(set *vdu_underlay* :min_width +vdu_min_width :min_height +vdu_min_height)
 	(set *vdu_lines* :min_height +vdu_min_height)
 	(. *window* :change_dirty x y w h)
 	(set-sliders) (load-display))
@@ -311,7 +302,7 @@
 					:ink_color (get :ink_color *edit*) :font (get :font *edit*))
 				(ui-flow flow (:flow_flags +flow_down_fill)
 					(each (# (ui-label _ (:text %0))) match_words)))
-			(bind '(cw ch) (. *edit* :char_size))
+			(bind '(cw ch) (. (. *edit* :get_vdu_text) :char_size))
 			(defq x (+ (getf *edit* +view_ctx_x 0) (- (* cx cw) (* sx cw)))
 				y (+ (getf *edit* +view_ctx_y 0) (- (* (inc cy) ch) (* sy ch))))
 			(bind '(w h) (.-> window (:set_flags 0 +view_flag_solid) :pref_size))
@@ -341,9 +332,9 @@
 (defun main ()
 	(defq select (alloc-select +select_size)
 		edit_service (mail-declare (task-mailbox) "EDIT_SERVICE" "Edit Service 0.1")
-		*running* t *edit* (Edit-vdu))
+		*running* t *edit* (Editor-edit))
 	(.-> *edit* (:set_buffer (Buffer)) (:set_underlay_color +argb_grey6))
-	(. stack_flow :add_front *edit*)
+	(. main_flow :add_back *edit*)
 	;load up the base Syntax keywords and boot.inc words for matching
 	(each (lambda ((key val)) (. dictionary :insert_word (str key)))
 		(tolist (get :keywords *syntax* )))

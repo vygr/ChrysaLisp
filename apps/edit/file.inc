@@ -26,7 +26,7 @@
 							(:delete (- (length line) (length trimed_line))))))
 				(list (. buffer :get_text_lines)))
 			(bind '(cx cy) (. buffer :constrain cx cy))
-			(.-> buffer :set_cursor cx cy)))
+			(. buffer :set_cursor cx cy)))
 	buffer)
 
 (defun action-trim ()

@@ -141,5 +141,5 @@ recorded_actions_list (list
 	action-insert action-save-all action-maximise
 	select-word action-select-word action-insert)
 (export-classes
-	Edit-vdu)
+	Editor-edit)
 (env-pop)

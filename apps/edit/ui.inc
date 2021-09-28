@@ -50,11 +50,11 @@
 ; main vdu subclass
 ;;;;;;;;;;;;;;;;;;;
 
-(defclass Edit-vdu () (Edit)
+(defclass Editor-edit () (Edit)
 	(def this :min_width +vdu_min_width :min_height +vdu_min_height
 		:vdu_width +vdu_min_width :vdu_height +vdu_min_height
-		:font (get :font *vdu_underlay*)
-		:ink_color (get :ink_color *vdu_underlay*))
+		:font *env_terminal_font*
+		:ink_color +argb_white)
 
 	(defmethod :mouse_down (this event)
 		; (. vdu :mouse_down event) -> vdu

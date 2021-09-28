@@ -8,7 +8,9 @@
 ; main vdu subclass
 ;;;;;;;;;;;;;;;;;;;
 
-(defclass Terminal-vdu () (Viewer-vdu)
+(defclass Terminal-edit () (Viewer-edit)
+	(def this :ink_color +argb_green)
+
 	(defmethod :mouse_wheel (this event)
 		; (. edit :mouse_wheel event) -> edit
 		(raise :scroll_x :scroll_y)
