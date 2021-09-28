@@ -74,6 +74,7 @@
 (ffi undef "class/hmap/lisp_undef" 0)
 (ffi env "class/hmap/lisp_env" 0)
 (ffi penv "class/hmap/lisp_parent" 0)
+(ffi env-resize "class/hmap/lisp_resize" 0)
 (ffi tolist "class/hmap/lisp_list" 0)
 
 (ffi io-stream "class/stream/lisp_iostream" 0)

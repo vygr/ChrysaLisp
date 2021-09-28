@@ -50,9 +50,7 @@
 
 	(defmethod :resize (this num_buckets)
 		; (. emap :resize num_buckets) -> emap
-		(defq old_buckets (tolist (get :buckets this)))
-		(def this :num_buckets num_buckets :buckets (defq new_buckets (env (neg num_buckets))))
-		(each (lambda ((key val)) (def new_buckets key val)) old_buckets)
+		(env-resize (get :buckets this) num_buckets)
 		this)
 	)
 

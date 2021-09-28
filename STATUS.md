@@ -27,6 +27,9 @@ New `(export-symbols)` and `(export-classes)` macros in `boot.inc`.
 
 New GUI Edit widget. Editor, Viewer and Terminal apps changed to use this.
 
+New `(env-resize env num_buckets)` function. Resizes in place the `hmap`
+buckets. This works on subclasses of `hmap` as well ! ie Widgets.
+
 ------
 
 Start of new Cubes demo. Along with a new `lib/math/matrix.inc` library.

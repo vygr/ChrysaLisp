@@ -2176,6 +2176,19 @@ trashes
 r1-r14
 ```
 
+### hmap :lisp_resize -> class/hmap/lisp_resize
+
+```code
+inputs
+r0 = lisp object (ptr)
+r1 = args list object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = environment hmap object (ptr)
+trashes
+r1-r14
+```
+
 ### hmap :lisp_set -> class/hmap/lisp_set
 
 ```code
@@ -2223,6 +2236,18 @@ r0 = hmap object (ptr)
 outputs
 r0 = hmap object (ptr)
 r1 = list object (ptr)
+trashes
+r1-r14
+```
+
+### hmap :resize -> class/hmap/resize
+
+```code
+inputs
+r0 = hmap object (ptr)
+r1 = num buckets (uint)
+outputs
+r0 = hmap object (ptr)
 trashes
 r1-r14
 ```

@@ -2316,6 +2316,12 @@
 (env-push)
 ```
 
+### env-resize
+
+```code
+(env-resize env num)
+```
+
 ### env?
 
 ```code

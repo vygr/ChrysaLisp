@@ -29,12 +29,11 @@
 
 (defmacro defclass (n a s &rest _)
 	; (defclass name ([arg ...]) (super ...) body)
-	(defq
-		module  (str *stream_name*)
-		predn   (sym (cat n "?"))
-		kwn     (sym (cat : n))
-		super   (sym (cat "*class_" (if s (elem 0 s)) "*"))
-		class   (sym (cat "*class_" n "*")) inits (list) methods (list))
+	(defq vtmax 50 module (str *stream_name*)
+		predn (sym (cat n "?")) kwn (sym (cat : n))
+		super (sym (cat "*class_" (if s (elem 0 s)) "*"))
+		class (sym (cat "*class_" n "*"))
+		inits (list) methods (list))
 	(def (penv) '*class* n '*super_class* super)
 	(each (lambda (form)
 		(cond
@@ -48,15 +47,18 @@
 			(defun ,n ,a
 				(def (defq this ,s) :vtable ,class)
 				(unless (def? :vtable ,class)
+					(defq _smethods (tolist ,super)
+						_vtnum (+ (/ (+ ,(+ (length methods) 1) (length _smethods)) ,vtmax) 1))
+					(if (> _vtnum 1) (env-resize ,class _vtnum))
 					(def this :vtable (reduce (lambda (e (key val))
-						(def e key val) e) (tolist ,super) ,class))
+						(def e key val) e) _smethods ,class))
 					(def ,class :vtable ,super :module ,module)
 					~methods
 					(defmethod :type_of (this)
 						(push (.super this :type_of) ,kwn)))
 				~inits this))
 		`(progn
-			(defq ,class (env -1))
+			(defq ,class (env ,(- -1 (/ (length methods) vtmax))))
 			(defun ,predn (_o) (and (env? _o) (def? :vtable _o) (find ,kwn (. _o :type_of))))
 			(defun ,n ,a
 				(def (defq this (env -1)) :vtable ,class)

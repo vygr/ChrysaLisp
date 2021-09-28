@@ -414,3 +414,32 @@
 	(vp-ret)
 
 (def-func-end)
+
+(def-method 'hmap :resize)
+	;inputs
+	;r0 = hmap object (ptr)
+	;r1 = num buckets (uint)
+	;outputs
+	;r0 = hmap object (ptr)
+	;trashes
+	;r1-r14
+
+	(def-struct local 0
+		(ptr this that))
+
+	(vp-alloc local_size)
+	(entry 'hmap :resize '(r0 r1))
+
+	(call 'hmap :copy '(r0 r1) '(r0 r1))
+	(assign '(r0 r1) '((rsp local_this) (rsp local_that)))
+	(assign '((r1 hset_num_buckets) (r1 hset_buckets) (r0 hset_buckets)) '(r2 r3 r4))
+	(assign '(r2 r3) '((r0 hset_num_buckets) (r0 hset_buckets)))
+	(class/obj/ref r3 r0)
+	(call 'list :deref '(r4))
+	(call 'hmap :deref '((rsp local_that)))
+
+	(exit 'hmap :resize '((rsp local_this)))
+	(vp-free local_size)
+	(vp-ret)
+
+(def-func-end)
