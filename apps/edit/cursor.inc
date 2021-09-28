@@ -4,27 +4,27 @@
 
 (defun action-home ()
 	(. *edit* :home)
-	(clear-selection) (refresh))
+	(refresh))
 
 (defun action-end ()
 	(. *edit* :end)
-	(clear-selection) (refresh))
+	(refresh))
 
 (defun action-left ()
 	(. *edit* :left)
-	(clear-selection) (refresh))
+	(refresh))
 
 (defun action-right ()
 	(. *edit* :right)
-	(clear-selection) (refresh))
+	(refresh))
 
 (defun action-up ()
 	(. *edit* :up)
-	(clear-selection) (refresh))
+	(refresh))
 
 (defun action-down ()
 	(. *edit* :down)
-	(clear-selection) (refresh))
+	(refresh))
 
 (defun action-home-select ()
 	(. *edit* :home_select)
@@ -52,8 +52,8 @@
 
 (defun action-left-bracket ()
 	(. *edit* :left_bracket)
-	(clear-selection) (refresh))
+	(refresh))
 
 (defun action-right-bracket ()
 	(. *edit* :right_bracket)
-	(clear-selection) (refresh))
+	(refresh))

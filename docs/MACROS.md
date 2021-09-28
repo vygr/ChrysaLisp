@@ -283,7 +283,7 @@ And an example of the macro in use:
 		(bind '(x y) (. buffer :get_cursor))
 		(bind '(x y) (. buffer :constrain x (inc y)))
 		(. buffer :set_cursor x y))
-	(clear-selection) (refresh))
+	(refresh))
 ```
 
 Here the paragraph reflow action mutations can be undone in a single step.

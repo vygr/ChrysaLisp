@@ -116,12 +116,6 @@
 				(unzip (split (pii-dirlist root) ",") (list (list) (list))))))
 	files)
 
-(defun clear-selection ()
-	;clear the selection
-	(bind '(cx cy) (. *edit* :get_cursor))
-	(bind '(cx cy) (. (. *edit* :get_buffer) :constrain cx cy))
-	(. *edit* :set_anchor cx cy))
-
 (defun load-display ()
 	;load the vdu widgets with the text, selection and line numbers
 	(defq buffer (. *edit* :get_buffer))

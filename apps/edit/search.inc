@@ -86,4 +86,6 @@
 					(each-rev (lambda (x)
 						(.-> buffer (:set_cursor x y) (:cut (+ x (length pattern)) y))
 						(unless (eql replace "") (. buffer :insert replace))) xs)) found))
-			(clear-selection) (refresh))))
+			(bind '(cx cy) (. *edit* :get_cursor))
+			(.-> *edit* (:set_cursor cx cy) (:set_anchor cx cy))
+			(refresh))))

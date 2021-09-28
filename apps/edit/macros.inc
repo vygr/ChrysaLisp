@@ -9,14 +9,16 @@
 			(radio-select macro_toolbar 2)
 			(clear *macro_actions*))
 		(t  (radio-select macro_toolbar -1)))
-	(clear-selection) (refresh))
+	(. *edit* :clear_selection)
+	(refresh))
 
 (defun action-macro-playback ()
 	(when (> (length *macro_actions*) 0)
 		(let ((:macro_playback t))
 			(undoable nil
 				(each (# (eval %0)) *macro_actions*)))
-		(clear-selection) (refresh)))
+		(. *edit* :clear_selection)
+		(refresh)))
 
 (defun action-macro-to-eof ()
 	(when (> (length *macro_actions*) 0)
@@ -36,4 +38,5 @@
 					(setq old_eof_gap_x eof_gap_x old_eof_gap_y eof_gap_y
 						eof_gap_x (- (length (. buffer :get_text_line cy)) cx)
 						eof_gap_y (- (elem 1 (. buffer :get_size)) cy)))))
-		(clear-selection) (refresh)))
+		(. *edit* :clear_selection)
+		(refresh)))

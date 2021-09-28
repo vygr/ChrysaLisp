@@ -20,7 +20,7 @@
 
 (defun action-reflow ()
 	(. *edit* :reflow)
-	(clear-selection) (refresh))
+	(refresh))
 
 (defun action-ordered ()
 	(. *edit* :ordered)

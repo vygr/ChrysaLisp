@@ -120,17 +120,22 @@
 		(setq x (if (>= x 0) x (- x w)) y (if (>= y 0) y (- y h)))
 		(list (+ scroll_x (/ x w)) (+ scroll_y (/ y h))))
 
+	(defmethod :clear_selection (this)
+		; (. edit :clear_selection) -> edit
+		(bind '(cx cy) (. this :get_cursor))
+		(.-> this (:set_cursor cx cy) (:set_anchor cx cy)))
+
 	(defmethod :home (this)
 		; (. edit :home) -> edit
 		(bind '(cx cy) (. this :get_cursor))
-		(. this :set_cursor 0 cy))
+		(.-> this (:set_cursor 0 cy) (:set_anchor 0 cy)))
 
 	(defmethod :end (this)
 		; (. edit :end) -> edit
 		(raise :buffer)
 		(bind '(cx cy) (. buffer :get_cursor))
 		(bind '(cx cy) (. buffer :constrain +max_int cy))
-		(. this :set_cursor cx cy))
+		(.-> this (:set_cursor 0 cy) (:set_anchor 0 cy)))
 
 	(defmethod :left (this)
 		; (. edit :left) -> edit
@@ -139,7 +144,7 @@
 				(bind '(sx sy sx1 sy1) (sort-selection this))
 				(. this :set_cursor sx sy))
 			(t	(. (get :buffer this) :left)))
-		this)
+		(. this :clear_selection))
 
 	(defmethod :right (this)
 		; (. edit :right) -> edit
@@ -148,7 +153,7 @@
 				(bind '(sx sy sx1 sy1) (sort-selection this))
 				(. this :set_cursor sx1 sy1))
 			(t	(. (get :buffer this) :right)))
-		this)
+		(. this :clear_selection))
 
 	(defmethod :up (this)
 		; (. edit :up) -> edit
@@ -156,7 +161,7 @@
 			(bind '(sx sy sx1 sy1) (sort-selection this))
 			(. this :set_cursor sx sy))
 		(. (get :buffer this) :up)
-		this)
+		(. this :clear_selection))
 
 	(defmethod :down (this)
 		; (. edit :down) -> edit
@@ -164,7 +169,7 @@
 			(bind '(sx sy sx1 sy1) (sort-selection this))
 			(. this :set_cursor sx1 sy1))
 		(. (get :buffer this) :down)
-		this)
+		(. this :clear_selection))
 
 	(defmethod :home_select (this)
 		; (. edit :home_select) -> edit
@@ -202,46 +207,41 @@
 		; (. edit :left_bracket) -> edit
 		(if (bind '(cx cy) (. (get :buffer this) :left_bracket))
 			(. this :set_cursor cx cy))
-		this)
+		(. this :clear_selection))
 
 	(defmethod :right_bracket (this)
 		; (. edit :right_bracket) -> edit
 		(if (bind '(cx cy) (. (get :buffer this) :right_bracket))
 			(. this :set_cursor cx cy))
-		this)
+		(. this :clear_selection))
 
 	(defmethod :select_all (this)
 		; (. edit :select_all) -> edit
 		(bind '(w h) (. (get :buffer this) :get_size))
-		(. this :set_anchor 0 0)
-		(. this :set_cursor 0 h))
+		(.-> this (:set_cursor 0 h) (:set_anchor 0 0)))
 
 	(defmethod :select_word (this)
 		; (. edit :select_word) -> edit
 		(bind '(x x1) (select-word this))
 		(bind '(cx cy) (. this :get_cursor))
-		(. this :set_cursor x1 cy)
-		(. this :set_anchor x cy))
+		(.-> this (:set_cursor x1 cy) (:set_anchor x cy)))
 
 	(defmethod :select_line (this)
 		; (. edit :select_line) -> edit
 		(bind '(cx cy) (. this :get_cursor))
-		(. this :set_cursor 0 (inc cy))
-		(. this :set_anchor 0 cy))
+		(.-> this (:set_cursor 0 (inc cy)) (:set_anchor 0 cy)))
 
 	(defmethod :select_paragraph (this)
 		; (. edit :select_paragraph) -> edit
 		(bind '(y y1) (select-paragraph this))
-		(. this :set_anchor 0 y)
-		(. this :set_cursor 0 y1))
+		(.-> this (:set_cursor 0 y1) (:set_anchor 0 y)))
 
 	(defmethod :select_block (this)
 		; (. edit :select_block) -> edit
 		(raise :buffer)
 		(if (bind '(x y) (. buffer :left_bracket))
 			(when (bind '(x1 y1) (. buffer :right_bracket))
-				(. this :set_anchor x y)
-				(. this :set_cursor (inc x1) y1)))
+				(.-> this (:set_cursor (inc x1) y1) (:set_anchor x y))))
 		this)
 
 	(defmethod :insert (this string)
