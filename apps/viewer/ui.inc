@@ -12,9 +12,9 @@
 	(select-node file)
 	(populate-vdu file))
 
-;;;;;;;;;;;;;;;;;;;
-; main vdu subclass
-;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;
+; main edit subclass
+;;;;;;;;;;;;;;;;;;;;
 
 (defclass Viewer-edit () (Editor-edit)
 	(defmethod :mouse_move (this event)

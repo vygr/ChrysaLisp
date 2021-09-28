@@ -4,9 +4,9 @@
 
 (import "././viewer/ui.inc")
 
-;;;;;;;;;;;;;;;;;;;
-; main vdu subclass
-;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;
+; main edit subclass
+;;;;;;;;;;;;;;;;;;;;
 
 (defclass Terminal-edit () (Viewer-edit)
 	(def this :ink_color +argb_green)

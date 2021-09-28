@@ -46,9 +46,9 @@
 	(select-node file)
 	(populate-vdu file))
 
-;;;;;;;;;;;;;;;;;;;
-; main vdu subclass
-;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;
+; main edit subclass
+;;;;;;;;;;;;;;;;;;;;
 
 (defclass Editor-edit () (Edit)
 	(def this :min_width +vdu_min_width :min_height +vdu_min_height
