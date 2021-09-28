@@ -61,11 +61,10 @@
 
 (defun load-display ()
 	;load the vdu widgets with the text, selection and line numbers
-	(defq buffer (. *edit* :get_buffer))
 	(bind '(cx cy) (. *edit* :get_cursor))
 	(bind '(ax ay) (. *edit* :get_anchor))
 	(bind '(sx sy) (. *edit* :get_scroll))
-	(. buffer :vdu_load (. *edit* :get_vdu_text) sx sy)
+	(. (. *edit* :get_buffer) :vdu_load (. *edit* :get_vdu_text) sx sy)
 	(if (and (= cx ax) (= cy ay))
 		(. *edit* :underlay_brackets)
 		(. *edit* :underlay_selection)))
