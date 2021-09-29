@@ -233,7 +233,7 @@ nil
 
 The optional parameter, to `(env)`, is used to create a new isolated
 environment, ie. no parent. You can increase the number of buckets in the
-current environment by use of the `(env-resize num)` function.
+current environment by use of the `(env-resize e num)` function.
 
 You may wish to increase the number of buckets in the current environment,
 beyond the default of 1, if it's going to contain an extremely large number of

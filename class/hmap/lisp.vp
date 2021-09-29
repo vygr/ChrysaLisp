@@ -336,7 +336,6 @@
 		(vp-pop r0)
 	(else)
 		(assign '((r0 lisp_environment)) '(r1))
-	(vp-label 'refenv)
 		(class/obj/ref r1 r2)
 	(endif)
 
