@@ -31,7 +31,7 @@
 
 (defun select-word ()
 	(bind '(cx cy) (. *edit* :get_cursor))
-	(defq line (. (. *edit* :get_buffer) :get_text_line cy)
+	(defq line (.-> *edit* :get_buffer (:get_text_line cy))
 		x (some! cx 0 nil (#
 			(if (not-whole-word-char? %0) (inc _))) (list line))
 		x1 (some! cx -1 nil (#

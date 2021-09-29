@@ -61,9 +61,9 @@
 	;function called when entry is destroyed
 	(unless (eql (defq child (. val :find :child)) (const (pad "" +net_id_size)))
 		(mail-send child ""))
-	(. (. val :find :used_bar) :sub)
-	(. (. val :find :alloc_bar) :sub)
-	(. (. val :find :task_bar) :sub))
+	(.-> val (:find :used_bar) :sub)
+	(.-> val (:find :alloc_bar) :sub)
+	(.-> val (:find :task_bar) :sub))
 
 (defun poll (key val)
 	; (poll key val)

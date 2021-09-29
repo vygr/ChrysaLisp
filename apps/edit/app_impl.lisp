@@ -135,7 +135,7 @@
 	;set slider values for current file
 	(bind '(cx cy ax ay sx sy _ buffer) (. *meta_map* :find *current_file*))
 	(bind '(w h) (. buffer :get_size))
-	(bind '(vw vh) (. (. *edit* :get_vdu_text) :vdu_size))
+	(bind '(vw vh) (.-> *edit* :get_vdu_text :vdu_size))
 	(defq smaxx (max 0 (- w vw -1)) smaxy (max 0 (- h vh -1))
 		sx (max 0 (min sx smaxx)) sy (max 0 (min sy smaxy)))
 	(def (. *xslider* :dirty) :maximum smaxx :portion vw :value sx)
@@ -148,7 +148,7 @@
 		;refresh display and ensure cursor is visible
 		(bind '(cx cy ax ay sx sy _ buffer) (. *meta_map* :find *current_file*))
 		(bind '(cx cy) (. buffer :get_cursor))
-		(bind '(w h) (. (. *edit* :get_vdu_text) :vdu_size))
+		(bind '(w h) (.-> *edit* :get_vdu_text :vdu_size))
 		(if (< (- cx +margin) sx) (setq sx (- cx +margin)))
 		(if (< (- cy +margin) sy) (setq sy (- cy +margin)))
 		(if (>= (+ cx +margin) (+ sx w)) (setq sx (- (+ cx +margin) w -1)))
@@ -229,7 +229,7 @@
 
 (defun window-resize ()
 	;layout the window and size the vdu to fit
-	(bind '(w h) (. (. *edit* :get_vdu_text) :max_size))
+	(bind '(w h) (.-> *edit* :get_vdu_text :max_size))
 	(set *edit* :vdu_width w :vdu_height h)
 	(set *vdu_lines* :vdu_height h)
 	(. *edit* :layout)
@@ -302,7 +302,7 @@
 					:ink_color (get :ink_color *edit*) :font (get :font *edit*))
 				(ui-flow flow (:flow_flags +flow_down_fill)
 					(each (# (ui-label _ (:text %0))) match_words)))
-			(bind '(cw ch) (. (. *edit* :get_vdu_text) :char_size))
+			(bind '(cw ch) (.-> *edit* :get_vdu_text :char_size))
 			(defq x (+ (getf *edit* +view_ctx_x 0) (- (* cx cw) (* sx cw)))
 				y (+ (getf *edit* +view_ctx_y 0) (- (* (inc cy) ch) (* sy ch))))
 			(bind '(w h) (.-> window (:set_flags 0 +view_flag_solid) :pref_size))

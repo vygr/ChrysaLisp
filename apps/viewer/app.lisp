@@ -64,7 +64,7 @@
 	(bind '(cx cy) (. *edit* :get_cursor))
 	(bind '(ax ay) (. *edit* :get_anchor))
 	(bind '(sx sy) (. *edit* :get_scroll))
-	(. (. *edit* :get_buffer) :vdu_load (. *edit* :get_vdu_text) sx sy)
+	(.-> *edit* :get_buffer (:vdu_load (. *edit* :get_vdu_text) sx sy))
 	(if (and (= cx ax) (= cy ay))
 		(. *edit* :underlay_brackets)
 		(. *edit* :underlay_selection)))
@@ -72,8 +72,8 @@
 (defun set-sliders ()
 	;set slider values for current file
 	(bind '(cx cy ax ay sx sy) (. *meta_map* :find *current_file*))
-	(bind '(w h) (. (. *edit* :get_buffer) :get_size))
-	(bind '(vw vh) (. (. *edit* :get_vdu_text) :vdu_size))
+	(bind '(w h) (.-> *edit* :get_buffer :get_size))
+	(bind '(vw vh) (.-> *edit* :get_vdu_text :vdu_size))
 	(defq smaxx (max 0 (- w vw -1)) smaxy (max 0 (- h vh -1))
 		sx (max 0 (min sx smaxx)) sy (max 0 (min sy smaxy)))
 	(def (. *xslider* :dirty) :maximum smaxx :portion vw :value sx)
@@ -85,7 +85,7 @@
 	;refresh display and ensure cursor is visible
 	(bind '(cx cy ax ay sx sy) (. *meta_map* :find *current_file*))
 	(bind '(cx cy) (. *edit* :get_cursor))
-	(bind '(w h) (. (. *edit* :get_vdu_text) :vdu_size))
+	(bind '(w h) (.-> *edit* :get_vdu_text :vdu_size))
 	(if (< (- cx +margin) sx) (setq sx (- cx +margin)))
 	(if (< (- cy +margin) sy) (setq sy (- cy +margin)))
 	(if (>= (+ cx +margin) (+ sx w)) (setq sx (- (+ cx +margin) w -1)))
@@ -131,7 +131,7 @@
 
 (defun window-resize ()
 	;layout the window and size the vdu to fit
-	(bind '(w h) (. (. *edit* :get_vdu_text) :max_size))
+	(bind '(w h) (.-> *edit* :get_vdu_text :max_size))
 	(set *edit* :vdu_width w :vdu_height h)
 	(. *edit* :layout)
 	(set-sliders) (load-display))

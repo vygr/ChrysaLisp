@@ -270,20 +270,21 @@ text to ensure its effects can be undone.
 And an example of the macro in use:
 
 ```vdu
-(defun action-reflow ()
-	(undoable nil
-		(bind '(y y1) (select-paragraph))
+(defmethod :reflow (this)
+	; (. edit :reflow) -> edit
+	(undoable this nil
+		(bind '(y y1) (select-paragraph this))
 		(each (lambda (line)
 				(task-slice)
 				(.-> buffer (:insert line) :break))
-			(. (. buffer :get_syntax) :text_flow
+			(.-> buffer :get_syntax (:text_flow
 				(split (.-> buffer (:set_cursor 0 y) (:cut 0 y1))
 					(const (cat " " (ascii-char +char_lf))))
-				(. buffer :get_wrap_width)))
+				(. buffer :get_wrap_width))))
 		(bind '(x y) (. buffer :get_cursor))
 		(bind '(x y) (. buffer :constrain x (inc y)))
-		(. buffer :set_cursor x y))
-	(refresh))
+		(.-> this (:set_cursor x y) (:set_anchor x y)))
+	this)
 ```
 
 Here the paragraph reflow action mutations can be undone in a single step.

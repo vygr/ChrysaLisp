@@ -3,12 +3,12 @@
 ;;;;;;;;;;;;;;
 
 (defun action-undo ()
-	(. (. *edit* :get_buffer) :undo)
+	(.-> *edit* :get_buffer :undo)
 	(. *edit* :clear_selection)
 	(refresh))
 
 (defun action-redo ()
-	(. (. *edit* :get_buffer) :redo)
+	(.-> *edit* :get_buffer :redo)
 	(. *edit* :clear_selection)
 	(refresh))
 

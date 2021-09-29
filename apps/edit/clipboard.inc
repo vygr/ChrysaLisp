@@ -4,13 +4,13 @@
 
 (defun action-cut ()
 	(bind '(ax ay) (. *edit* :get_anchor))
-	(clipboard-put (. (. *edit* :get_buffer) :cut ax ay))
+	(clipboard-put (.-> *edit* :get_buffer (:cut ax ay)))
 	(. *edit* :clear_selection)
 	(refresh))
 
 (defun action-copy ()
 	(bind '(ax ay) (. *edit* :get_anchor))
-	(clipboard-put (. (. *edit* :get_buffer) :copy ax ay))
+	(clipboard-put (.-> *edit* :get_buffer (:copy ax ay)))
 	(refresh))
 
 (defun action-paste ()
