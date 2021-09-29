@@ -3,7 +3,7 @@
 (defq _ (env))
 ;comment next two lines out if need to...
 (while (penv _) (setq _ (penv _)))
-(eval '(env 307) _)
+(env-resize _ 307)
 (import "sys/lisp.inc" _)
 (import "class/lisp.inc" _)
 (import "gui/lisp.inc" _)
@@ -15,7 +15,7 @@
 	(enum main timer mouse))
 
 ;profiling and stack frame callbacks on the GUI thread from :draw method etc !!!
-(defq *profile_meta_map* (env -1) *profile_return_vals* (list)
+(defq *profile_meta_map* (env 1) *profile_return_vals* (list)
 	*stack_frame* (list) *stack_return_vals* (list))
 
 (defq *old_mouse_x* -1 *old_mouse_y* -1 *mouse_type* 0

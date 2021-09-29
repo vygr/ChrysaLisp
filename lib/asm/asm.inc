@@ -138,7 +138,7 @@
 (defun make (&optional files *abi* *cpu*)
 	(setd files (all-vp-files) *abi* (abi) *cpu* (cpu))
 	(compile ((lambda ()
-		(defq ages (env -31) info (env -31))
+		(defq ages (env 31) info (env 31))
 		(defun file-age (_)
 			;modification time of a file, cached
 			(or (get (setq _ (sym _)) ages) (def ages _ (age _))))
@@ -164,7 +164,7 @@
 (defun make-boot (&optional *funcs* *abi* *cpu*)
 	(within-compile-env (lambda ()
 		(setd *funcs* (list) *abi* (abi) *cpu* (cpu))
-		(defq *fsyms* (env -31) z (cat (char 0 8) (char 0 4)))
+		(defq *fsyms* (env 31) z (cat (char 0 8) (char 0 4)))
 		(include "sys/func.inc")
 		(defun read-paths (_)
 			(defq l (list) i (get-short _ fn_header_links) e (get-short _ fn_header_paths))

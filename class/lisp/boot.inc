@@ -920,7 +920,7 @@
 
 (defun within-compile-env (_f)
 	; (within-compile-env lambda)
-	(defq *compile_env* (env 503))
+	(defq *compile_env* (env-resize (env) 503))
 	(defmacro defcvar (&rest b)
 		`(def *compile_env* ~b))
 	(defmacro undefc (&rest b)

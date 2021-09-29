@@ -42,7 +42,7 @@
 			(t  (push inits form)))) _)
 	(if s
 		`(progn
-			(defq ,class (env -1))
+			(defq ,class (env 1))
 			(defun ,predn (_o) (and (env? _o) (def? :vtable _o) (find ,kwn (. _o :type_of))))
 			(defun ,n ,a
 				(def (defq this ,s) :vtable ,class)
@@ -58,10 +58,10 @@
 						(push (.super this :type_of) ,kwn)))
 				~inits this))
 		`(progn
-			(defq ,class (env ,(- -1 (/ (+ (length methods) 1) vtmax))))
+			(defq ,class (env ,(+ (/ (+ (length methods) 1) vtmax) 1)))
 			(defun ,predn (_o) (and (env? _o) (def? :vtable _o) (find ,kwn (. _o :type_of))))
 			(defun ,n ,a
-				(def (defq this (env -1)) :vtable ,class)
+				(def (defq this (env 1)) :vtable ,class)
 				(unless (def? :vtable ,class)
 					(def ,class :vtable t :module ,module)
 					~methods

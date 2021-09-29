@@ -5,7 +5,7 @@
 (defclass emap (&optional num_buckets) nil
 	; (emap [num_buckets]) -> emap
 	(def this :num_buckets (setq num_buckets (opt num_buckets 1))
-		:buckets (env (neg num_buckets)))
+		:buckets (env num_buckets))
 
 	(defmethod :find (this key)
 		; (. emap :find key) -> nil | val
@@ -39,7 +39,7 @@
 
 	(defmethod :empty (this)
 		; (. emap :empty) -> emap
-		(def this :buckets (env (neg (get :num_buckets this))))
+		(def this :buckets (env (get :num_buckets this)))
 		this)
 
 	(defmethod :move (this)

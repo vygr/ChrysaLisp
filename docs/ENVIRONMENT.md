@@ -211,13 +211,13 @@ Properties are just environments created and managed by user code. While they
 are free to use standard symbols they most often use keyword symbols.
 
 How do you create a user property environment ? By use of the optional
-parameters to the `(env)` function.
+parameter to the `(env)` function.
 
 You can use the `(tolist e)` function to convert an environment to a list of
 pairs in order to interface with other code.
 
 ```vdu
-(defq e (env -1))
+(defq e (env 1))
 (tolist (e))
 ()
 (def e :p1 78 :p2 89)
@@ -231,9 +231,9 @@ pairs in order to interface with other code.
 nil
 ```
 
-The optional parameter, to `(env)`, if positive, is used to change the number
-of hash buckets of the current environment, or create a new isolated
-environment, ie. no parent, if negative.
+The optional parameter, to `(env)`, is used to create a new isolated
+environment, ie. no parent. You can increase the number of buckets in the
+current environment by use of the `(env-resize num)` function.
 
 You may wish to increase the number of buckets in the current environment,
 beyond the default of 1, if it's going to contain an extremely large number of

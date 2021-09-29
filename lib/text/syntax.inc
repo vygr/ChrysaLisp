@@ -33,7 +33,7 @@
 (defclass Syntax () nil
 	; (Syntax) -> syntax
 	;default colours and state
-	(def this :keywords (defq keywords (env -101)) :state :text
+	(def this :keywords (defq keywords (env 101)) :state :text
 		:ink_keyword1 (<< (canvas-from-argb32 +argb_magenta 15) 32)
 		:ink_keyword2 (<< (canvas-from-argb32 +argb_red 15) 32)
 		:ink_keyword3 (<< (canvas-from-argb32 +argb_green 15) 32)

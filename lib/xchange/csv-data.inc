@@ -48,7 +48,7 @@
   (setd s "" delim ",")
   (defq
     fpos  0
-    row (env -101)
+    row (env 101)
     clpos (second (comma-indexes s delim)))
   (def row
       :clz        :clz_csv_row
@@ -101,7 +101,7 @@
   (setd options '())
   (defq
     delim   (opt (find :delimiter options) ",")
-    doc (env -101))
+    doc (env 101))
   (def doc
       :clz        :clz_csv_document
       :name       dname

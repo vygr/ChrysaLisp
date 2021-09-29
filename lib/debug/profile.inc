@@ -7,7 +7,7 @@
 (enums +prof 0
 	(enum cnt rcnt acc))
 
-(defq *profile_meta_map* (env -401) *profile_return_vals* (list))
+(defq *profile_meta_map* (env 401) *profile_return_vals* (list))
 
 (defun profile-print (n &optional s)
 	; (profile-print name [stream]) -> stdout | stream
@@ -28,7 +28,7 @@
    (when (/= 0 (length (defq services (mail-enquire "PROFILE_SERVICE"))))
 		(mail-send (to-net-id (elem 1 (split (pop services) ",")))
 			(str (profile-print n (string-stream (cat "")))))
-		(if reset (setq *profile_meta_map* (env -401)))))
+		(if reset (setq *profile_meta_map* (env 401)))))
 
 (defmacro profile-lambda (n a &rest _)
 	`(lambda ,a
