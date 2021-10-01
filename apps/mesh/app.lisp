@@ -23,7 +23,7 @@
 	+min_size 450 +max_size 800
 	canvas_size +min_size canvas_scale (if anti_alias 1 2)
 	+canvas_mode (if anti_alias +canvas_flag_antialias 0)
-	+stage_depth +real_3 +focal_dist +real_2
+	+stage_depth +real_4 +focal_dist +real_2
 	*rotx* +real_0 *roty* +real_0 *rotz* +real_0
 	+near +focal_dist +far (+ +near +stage_depth)
 	+top (* +focal_dist +real_1/2) +bottom (* +focal_dist +real_-1/2)

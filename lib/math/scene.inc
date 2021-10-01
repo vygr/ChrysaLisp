@@ -7,6 +7,8 @@
 ;module
 (env-push)
 
+(defq +num_poly_buckets 50)
+
 (defun circle (r)
 	;cached circle path generation, quantised to 1/4 pixel
 	(defq r (* (floor (* (n2f r) 4.0)) 0.25) i (% (logior r) 13)
@@ -48,10 +50,8 @@
 			(when (<= +real_-1 z +real_1)
 				(defq x (* x rw) y (* y rw) at (recip (+ z +real_2)) r (* (const (n2r 0.02)) sp rw)
 					sx (* (+ x +real_1) sp) sy (* (+ y +real_1) sp))
-				(push (elem (n2i (* (+ z +real_1) (const (n2r 50)))) poly_buckets) (list
-					(circle r)
-					(lighting col at)
-					(n2f sx) (n2f sy)))))
+				(push (elem (n2i (* (+ z +real_1) (const (n2r (/ +num_poly_buckets 2))))) poly_buckets)
+					(list (circle r) (lighting col at) (n2f sx) (n2f sy)))))
 		proj_verts))
 
 (defun render-object-tris (size imat4x4_obj mat4x4_proj object)
@@ -78,7 +78,7 @@
 				(defq sp (max +real_0 (vec-dot n light_vec))
 					sp (* sp sp sp sp sp sp)
 					at (+ (elem i0 ats) (elem i1 ats) (elem i2 ats))
-					bucket (n2i (* (+ z0 +real_1) (const (n2r 50)))))
+					bucket (n2i (* (+ z0 +real_1) (const (n2r (/ +num_poly_buckets 2))))))
 				(push (elem bucket poly_buckets) (list
 					(cat (elem i0 screen_verts) (elem i1 screen_verts) (elem i2 screen_verts))
 					(lighting-at3 col at sp)))))
@@ -212,16 +212,15 @@
 
 (defclass Scene (&optional name) (Scene-node name)
 	; (Scene &optional name) -> scene_node
+	(def this :poly_buckets (defq poly_buckets (cap +num_poly_buckets (list))))
+	(times +num_poly_buckets (push poly_buckets (list)))
 
 	(defmethod :render (this canvas size left right top bottom near far mode)
 		; (. scene_node :render canvas size left right top bottom near far) -> scene_node
 		(. canvas :fill 0)
 		(defq mat4x4_frust (Mat4x4-frustum left right top bottom near far)
-			matrix_stack (list (Mat4x4-unity))
-			poly_buckets '(()()()()()()()()()()()()()()()()()()()()()()()()()
-						()()()()()()()()()()()()()()()()()()()()()()()()()
-						()()()()()()()()()()()()()()()()()()()()()()()()()
-						()()()()()()()()()()()()()()()()()()()()()()()()()))
+			matrix_stack (list (Mat4x4-unity)))
+		(raise :poly_buckets)
 		(. scene :walk_nodes
 			(lambda (object children)
 				(defq mat4x4_obj (mat4x4-mul (elem -2 matrix_stack) (. object :get_matrix))
@@ -229,7 +228,7 @@
 				(push matrix_stack mat4x4_obj)
 				(when (def? :mesh object)
 					(defq mat4x4_proj (mat4x4-mul mat4x4_frust mat4x4_obj))
-					(if mode
+					(if t
 						(render-object-tris size imat4x4_obj mat4x4_proj object)
 						(render-object-verts size mat4x4_proj object))
 					(task-slice))
