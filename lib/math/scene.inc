@@ -228,7 +228,7 @@
 				(push matrix_stack mat4x4_obj)
 				(when (def? :mesh object)
 					(defq mat4x4_proj (mat4x4-mul mat4x4_frust mat4x4_obj))
-					(if t
+					(if mode
 						(render-object-tris size imat4x4_obj mat4x4_proj object)
 						(render-object-verts size mat4x4_proj object))
 					(task-slice))
