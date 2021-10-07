@@ -14,44 +14,6 @@
 	(uint height)		;image h
 	(uint trans))		;image transparent colour
 
-(def-method 'pixmap :info_cpm)
-	;inputs
-	;r5 = stream object (ptr)
-	;outputs
-	;r0 = -1 if error, else width (pixels)
-	;r1 = -1 if error, else height (pixels)
-	;r2 = -1 if error, else type (uint)
-	;trashes
-	;r0-r14
-
-	(def-struct local 0
-		(struct header cpm_size))
-
-	(vp-alloc local_size)
-	(entry 'pixmap :info_cpm '(r0))
-
-	;read header
-	(call 'stream :read '(r0 rsp cpm_size) '(_ r1))
-	(switch)
-	(breakif '(r1 /= cpm_size))
-	(assign '((rsp cpm_ident)) '(r0))
-	(vpcase (list r0 '= (code "MPC." 4)))
-	(vp-label 'okident)
-		;return info
-		(exit 'pixmap :info_cpm '((rsp cpm_width) (rsp cpm_height) (rsp cpm_type)))
-		(vp-free local_size)
-		(vp-ret)
-	(vpcase (list r0 '= (code "MLF." 4)))
-		(goto 'okident)
-	(endswitch)
-
-	;return error
-	(exit 'pixmap :info_cpm '(-1 -1 -1))
-	(vp-free local_size)
-	(vp-ret)
-
-(def-func-end)
-
 (def-method 'pixmap :load_cpm)
 	;inputs
 	;r5 = stream object (ptr)

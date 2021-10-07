@@ -7,7 +7,6 @@
 (import "gui/pixmap/lisp.inc")
 
 ;lisp bindings
-(ffi canvas-info "gui/canvas/lisp_info" 0)
 (ffi canvas-to-argb32 "gui/canvas/lisp_to_argb32" 0)
 (ffi canvas-from-argb32 "gui/canvas/lisp_from_argb32" 0)
 

@@ -771,19 +771,6 @@ trashes
 r1-r14
 ```
 
-### canvas :lisp_info -> gui/canvas/lisp_info
-
-```code
-inputs
-r0 = lisp object (ptr)
-r1 = args list object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-trashes
-r1-r14
-```
-
 ### canvas :lisp_load -> gui/canvas/lisp_load
 
 ```code
@@ -5216,59 +5203,6 @@ outputs
 r1 = col (uint)
 trashes
 r1-r5
-```
-
-### pixmap :info -> gui/pixmap/info
-
-```code
-inputs
-r0 = c string name (pubyte)
-outputs
-r0 = -1 if error, else width (pixels)
-r1 = -1 if error, else height (pixels)
-r2 = -1 if error, else type (uint)
-trashes
-r0-r14
-```
-
-### pixmap :info_cpm -> gui/pixmap/info_cpm
-
-```code
-inputs
-r5 = stream object (ptr)
-outputs
-r0 = -1 if error, else width (pixels)
-r1 = -1 if error, else height (pixels)
-r2 = -1 if error, else type (uint)
-trashes
-r0-r14
-```
-
-### pixmap :info_file -> gui/pixmap/info_file
-
-```code
-inputs
-r4 = c string name (pubyte)
-r5 = stream object (ptr)
-outputs
-r0 = -1 if error, else width (pixels)
-r1 = -1 if error, else height (pixels)
-r2 = -1 if error, else type (uint)
-trashes
-r0-r14
-```
-
-### pixmap :info_tga -> gui/pixmap/info_tga
-
-```code
-inputs
-r5 = stream object (ptr)
-outputs
-r0 = -1 if error, else width (pixels)
-r1 = -1 if error, else height (pixels)
-r2 = -1 if error, else type (uint)
-trashes
-r0-r14
 ```
 
 ### pixmap :init -> gui/pixmap/init

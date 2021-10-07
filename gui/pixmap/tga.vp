@@ -18,45 +18,6 @@
 	(ubyte depth)
 	(ubyte origin))
 
-(def-method 'pixmap :info_tga)
-	;inputs
-	;r5 = stream object (ptr)
-	;outputs
-	;r0 = -1 if error, else width (pixels)
-	;r1 = -1 if error, else height (pixels)
-	;r2 = -1 if error, else type (uint)
-	;trashes
-	;r0-r14
-
-	(def-struct local 0
-		(struct header tga_size))
-
-	(vp-alloc local_size)
-	(entry 'pixmap :info_tga '(r0))
-
-	;read header
-	(call 'stream :read '(r0 rsp tga_size) '(_ r1))
-	(switch)
-	(breakif '(r1 /= tga_size))
-	(assign '((rsp tga_depth) (rsp tga_type)) '(r2 r3))
-	(breakif '(r3 /= 2))
-	(vpcase '(r2 = 32))
-	(vp-label 'okdepth)
-		;return info
-		(exit 'pixmap :info_tga '((rsp tga_width) (rsp tga_height) r2))
-		(vp-free local_size)
-		(vp-ret)
-	(vpcase '(r2 = 24))
-		(goto 'okdepth)
-	(endswitch)
-
-	;return error
-	(exit 'pixmap :info_tga '(-1 -1 -1))
-	(vp-free local_size)
-	(vp-ret)
-
-(def-func-end)
-
 (def-method 'pixmap :load_tga)
 	;inputs
 	;r5 = stream object (ptr)

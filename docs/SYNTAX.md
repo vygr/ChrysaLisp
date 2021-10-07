@@ -1908,12 +1908,6 @@
 (canvas-ftri canvas path)
 ```
 
-### canvas-info
-
-```code
-(canvas-info path)
-```
-
 ### canvas-load
 
 ```code
@@ -3324,6 +3318,24 @@
 (pivot lambda list start end)
 ```
 
+### pixmap-cpm-info
+
+```code
+(pixmap-cpm-info stream) -> (width height type)
+```
+
+### pixmap-file-info
+
+```code
+(pixmap-file-info file) -> (width height type)
+```
+
+### pixmap-tga-info
+
+```code
+(pixmap-tga-info stream) -> (width height type)
+```
+
 ### pop
 
 ```code
@@ -3436,6 +3448,12 @@
 
 ```code
 (read-char stream [width])
+```
+
+### read-data
+
+```code
+(read-data stream bytes) -> str
 ```
 
 ### read-int

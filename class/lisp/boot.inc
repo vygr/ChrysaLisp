@@ -896,6 +896,13 @@
 	; (write-line stream str) -> stream
 	(write-char (write s _) 10))
 
+(defun read-data (s bytes)
+	; (read-data stream bytes) -> str
+	(defq data (cap bytes (list)))
+	(while (and (>= (setq bytes (dec bytes)) 0) (defq _ (read-char s)))
+		(push data (char _)))
+	(apply cat data))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Compilation environment
 ;;;;;;;;;;;;;;;;;;;;;;;;;
