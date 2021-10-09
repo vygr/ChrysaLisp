@@ -54,8 +54,7 @@
 						((is-num-mid-char? c)
 							(push token c)
 							(setq c nil))
-						(t	(push command_list (n2f (elem 0 (read
-								(string-stream (apply cat token)) +char_space))))
+						(t	(push command_list (n2f (read-num (apply cat token))))
 							(setq state :text))))
 			))) (cat d " "))
 	command_list)
@@ -171,7 +170,8 @@
 			(("width" "height")
 				(n2i (read-num val)))
 			("viewBox"
-				(map (# (n2i (read-num %0))) (split val ", ")))
+				(map (# (n2i (read-num %0)))
+					(split val ", ")))
 			("transform"
 				(map (# (n2f (read-num %0)))
 					(split (slice (inc (find "(" val)) (find-rev ")" val) val) ", ")))
@@ -191,6 +191,20 @@
 							((starts-with "#" val)
 								(col-to-num val))
 							(t	val)))))
+			(("stroke-linecap")
+				(case val
+					("butt" +cap_butt)
+					("round" +cap_round)
+					("square" +cap_square)
+					(t (throw "Unknown cap syle !" val))))
+			(("stroke-linejoin")
+				(case val
+					("miter" +join_miter)
+					("bevel" +join_bevel)
+					("round" +join_round)
+					("miter-clip" +join_miter)
+					("arcs" +join_miter)
+					(t (throw "Unknown join syle !" val))))
 			("d"
 				(gen-svg-path val))
 			(t	val)))
@@ -203,7 +217,7 @@
 		(. entry :each (# (print %0 " : " %1)))) stack)
 	(print))
 
-(defun draw-path (canvas transform d stroke fill stroke_width flag)
+(defun draw-path (canvas transform d stroke fill stroke_width stroke_linejoin stroke_linecap flag)
 	(apply (const path-transform) (cat transform (list (elem 0 d) (elem 0 d))))
 	(if (/= fill 0)
 		(.-> canvas (:set_color fill) (:fpoly 0.0 0.0 +winding_odd_even d)))
@@ -213,16 +227,17 @@
 			(.-> canvas (:set_color stroke)
 				(:fpoly 0.0 0.0 +winding_odd_even
 					(path-stroke-polygons (list) stroke_width +eps
-						+join_bevel d)))
+						stroke_linejoin d)))
 			;open
 			(.-> canvas (:set_color stroke)
 				(:fpoly 0.0 0.0 +winding_odd_even
 					(path-stroke-polylines (list) stroke_width +eps
-						+join_bevel +cap_tri +cap_tri d))))))
+						stroke_linejoin stroke_linecap stroke_linecap d))))))
 
 (defun SVG-Canvas (file flags)
 	(defq canvas nil count 0 attribute_stack
 		(list (fmap-kv "stroke" 0 "fill" 0 "stroke-width" 1.0
+			"stroke-linecap" +cap_butt "stroke-linejoin" +join_miter
 			"transform" '(1.0 0.0 0.0 1.0 0.0 0.0))))
 	(XML-parse (file-stream file)
 		(lambda (command syms vals)
@@ -244,16 +259,22 @@
 						cx (. entry :find "cx") cy (. entry :find "cy")
 						r (. entry :find "r") stroke_width (* 0.5 (. entry :find "stroke-width"))
 						fill (. entry :find "fill") stroke (. entry :find "stroke")
+						stroke_linecap (. entry :find "stroke-linecap")
+						stroke_linejoin (. entry :find "stroke-linejoin")
 						transform (. entry :find "transform")
 						d (list (path-gen-arc cx cy 0.0 +fp_2pi r +eps (path))))
-					(draw-path canvas transform d stroke fill stroke_width t))
+					(draw-path canvas transform d
+						stroke fill stroke_width stroke_linejoin stroke_linecap t))
 				("path"
 					(defq entry (push-attributes attribute_stack syms vals)
 						stroke_width (* 0.5 (. entry :find "stroke-width"))
 						fill (. entry :find "fill") stroke (. entry :find "stroke")
+						stroke_linecap (. entry :find "stroke-linecap")
+						stroke_linejoin (. entry :find "stroke-linejoin")
 						transform (. entry :find "transform")
 						d (list (. entry :find "d")))
-					(draw-path canvas transform d stroke fill stroke_width nil))
+					(draw-path canvas transform d
+						stroke fill stroke_width stroke_linejoin stroke_linecap nil))
 				))
 		(lambda (command)
 			(case command
