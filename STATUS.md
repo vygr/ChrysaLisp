@@ -4,6 +4,10 @@
 
 ------
 
+Start of XML, SVG import libs. Plenty more to do yet.
+
+------
+
 New `(mat4x4-invert)` function and Scene graph class updated to use this to
 perform lighting and back face culling in object space.
 

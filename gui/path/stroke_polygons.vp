@@ -26,7 +26,7 @@
 	(push-scope)
 	(entry 'path :stroke_polygons {this, stack, in_polygons, radius, eps, join_style})
 
-	(vpif {radius >= 0.5})
+	(vpif {radius > 0.0})
 		(call 'list :get_both {in_polygons} {_, iter_begin_polygons, iter_end_polygons})
 		(loop-while {iter_begin_polygons /= iter_end_polygons})
 			(call 'path :filter_polygon {*iter_begin_polygons, *iter_begin_polygons, 0.5})

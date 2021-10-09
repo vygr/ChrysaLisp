@@ -34,7 +34,7 @@
 	(used-syms l2_pv p3 p4)
 	(entry 'path :stroke_polylines {this, stack, iter_end_polylines, radius, eps, join_style, cap1_style, cap2_style})
 
-	(vpif {radius >= 0.5})
+	(vpif {radius > 0.0})
 		(vec-set 0)
 		(call 'list :get_both {iter_end_polylines} {_, iter_begin_polylines, iter_end_polylines})
 		(loop-while {iter_begin_polylines /= iter_end_polylines})
