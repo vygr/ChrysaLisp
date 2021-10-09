@@ -158,19 +158,19 @@
 						(:symbol
 							(push attrib_syms token)
 							(setq state :assign type nil))
-						(t (throw "Unknown attribute type !" type))))
+						(t (throw "Unknown symbol type !" type))))
 				(:assign
 					(case type
 						(:assign
 							(setq state :string))
-						(t (throw "Unknown attribute type !" type)))
+						(t (throw "Unknown assign type !" type)))
 					(setq type nil))
 				(:string
 					(case type
 						(:string
 							(push attrib_vals token)
 							(setq state :symbol))
-						(t (throw "Unknown attribute type !" type)))
+						(t (throw "Unknown string type !" type)))
 					(setq type nil))
 				(:close
 					(case type

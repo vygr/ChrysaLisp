@@ -169,9 +169,9 @@
 			(("cx" "cy" "r" "stroke-width")
 				(n2f (read-num val)))
 			(("width" "height")
-				(read-num val))
+				(n2i (read-num val)))
 			("viewBox"
-				(map (const read-num) (split val " ")))
+				(map (# (n2i (read-num %0))) (split val ", ")))
 			("transform"
 				(map (# (n2f (read-num %0)))
 					(split (slice (inc (find "(" val)) (find-rev ")" val) val) ", ")))

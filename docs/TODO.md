@@ -15,9 +15,6 @@ mixer service.
 
 * Create a regexp string search lib and add it to the Editor feature set.
 
-* Create a SVG import library. This should parse basic SVG files and convert
-them to ChrysaLisp vector format.
-
 * Add support for FPU to the VM. Scalar float/double support first of all maybe
 eventually create a FPU accelerated version of the vector math DSL.
 
