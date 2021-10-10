@@ -190,7 +190,7 @@
 			("viewBox"
 				(map (# (n2i (read-num %0))) (split val ", ")))
 			("points"
-				(apply path (map (# (n2f (read-num %0))) (split val ", "))))
+				(reduce (# (push %0 (n2f (read-num %1)))) (split val ", ") (path)))
 			("transform"
 				(map (# (n2f (read-num %0)))
 					(split (slice (inc (find "(" val)) (find-rev ")" val) val) ", ")))
@@ -268,7 +268,7 @@
 						paths (list)))))))
 
 (defun SVG-Canvas (file scale flags)
-	(defq canvas nil count 0 attribute_stack
+	(defq canvas nil count 0 stack
 		(list (fmap-kv
 			"stroke" 0
 			"fill" +argb_black
@@ -282,49 +282,49 @@
 ;			(prin "open: " command " " keys " " vals)(print)
 			(case command
 				("svg"
-					(defq entry (push-attributes attribute_stack keys vals) width 256 height 256)
+					(defq entry (push-attributes stack keys vals) width 256 height 256)
 					(if (defq val (. entry :find "viewBox")) (bind '(_ _ width height) val))
 					(if (defq val (. entry :find "width")) (setq width val))
 					(if (defq val (. entry :find "height")) (setq height val))
 					(. (setq canvas (Canvas (/ (inc (n2i width)) scale) (/ (inc (n2i height)) scale) scale))
 						:set_canvas_flags +canvas_flag_antialias))
 				("g"
-					(push-attributes attribute_stack keys vals))
+					(push-attributes stack keys vals))
 				("circle"
-					(defq entry (push-attributes attribute_stack keys vals)
+					(defq entry (push-attributes stack keys vals)
 						cx (. entry :find "cx") cy (. entry :find "cy") r (. entry :find "r")
 						d (path-gen-arc cx cy 0.0 +fp_2pi r +eps (path)))
 					(path-fill-and-stroke canvas entry (list (list t d))))
 				("line"
-					(defq entry (push-attributes attribute_stack keys vals)
+					(defq entry (push-attributes stack keys vals)
 						x1 (. entry :find "x1") y1 (. entry :find "y1")
 						x2 (. entry :find "x2") y2 (. entry :find "y2")
 						d (path x1 y1 x2 y2))
 					(path-fill-and-stroke canvas entry (list (list nil d))))
 				("rect"
-					(defq entry (push-attributes attribute_stack keys vals)
+					(defq entry (push-attributes stack keys vals)
 						x (. entry :find "x") y (. entry :find "y")
 						rx (. entry :find "rx") ry (. entry :find "ry")
 						x1 (+ x (. entry :find "width")) y1 (+ y (. entry :find "height"))
 						d (path x y x1 y x1 y1 x y1))
 					(path-fill-and-stroke canvas entry (list (list t d))))
 				("polygon"
-					(defq entry (push-attributes attribute_stack keys vals)
+					(defq entry (push-attributes stack keys vals)
 						d (. entry :find "points"))
 					(path-fill-and-stroke canvas entry (list (list t d))))
 				("polyline"
-					(defq entry (push-attributes attribute_stack keys vals)
+					(defq entry (push-attributes stack keys vals)
 						d (. entry :find "points"))
 					(path-fill-and-stroke canvas entry (list (list nil d))))
 				("path"
-					(defq entry (push-attributes attribute_stack keys vals)
+					(defq entry (push-attributes stack keys vals)
 						d (. entry :find "d"))
 					(path-fill-and-stroke canvas entry d))
 				))
 		(lambda (command)
 			(case command
 				(("svg" "g" "circle" "path" "polygon" "polyline" "line" "rect")
-					(pop attribute_stack))
+					(pop stack))
 				))
 		(lambda (text)))
 	(. canvas :swap))
