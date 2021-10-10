@@ -245,7 +245,7 @@
 					df (map (# (apply (const path-transform) (cat transform (list %0 %0)))) ds))))
 		(.-> canvas (:set_color stroke) (:fpoly 0.0 0.0 fill_rule df))))
 
-(defun SVG-Canvas (file flags)
+(defun SVG-Canvas (file scale flags)
 	(defq canvas nil count 0 attribute_stack
 		(list (fmap-kv
 			"stroke" 0
@@ -260,12 +260,12 @@
 ;			(prin "open: " command " " keys " " vals)(print)
 			(case command
 				("svg"
-					(defq entry (push-attributes attribute_stack keys vals)
-						width 256 height 256)
+					(defq entry (push-attributes attribute_stack keys vals) width 256 height 256)
 					(if (defq val (. entry :find "viewBox")) (bind '(_ _ width height) val))
 					(if (defq val (. entry :find "width")) (setq width val))
 					(if (defq val (. entry :find "height")) (setq height val))
-					(. (setq canvas (Canvas (n2i width) (n2i height) 3)) :set_canvas_flags +canvas_flag_antialias))
+					(. (setq canvas (Canvas (/ (inc (n2i width)) scale) (/ (inc (n2i height)) scale) scale))
+						:set_canvas_flags +canvas_flag_antialias))
 				("g"
 					(push-attributes attribute_stack keys vals))
 				("circle"
