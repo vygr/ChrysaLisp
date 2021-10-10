@@ -177,7 +177,7 @@
 				(bind '(cpx cpy) (slice 0 2 p))
 				(push p cpx cpy)
 				(elem-set 0 (elem -2 paths) t)))
-			(setq last_cmd cmd))
+		(setq last_cmd cmd))
 	paths)
 
 (defun push-attributes (stack keys vals)

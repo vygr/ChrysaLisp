@@ -191,7 +191,6 @@
 			(assign {-step} {step})
 			(assign {iter + step} {iter})
 		(loop-end)
-		(call 'list :push_back {this, path1})
 	(endif)
 
 	(exit 'path :stroke_polyline {this, path1})
