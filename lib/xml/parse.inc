@@ -9,7 +9,7 @@
 
 (defq +symbol_chars (cat
 		"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-		"0123456789-"
+		"0123456789-:"
 		"abcdefghijklmnopqrstuvwxyz")
 	+xml_open_chars "</?!-"
 	+xml_close_chars "-?/>")
@@ -26,8 +26,8 @@
 (defmacro is-whitespace-char? (_)
 	`(<= (code ,_) +char_space))
 
-(defun XML-parse (stream open_fnc close_fnc text_fnc)
-	; (XML-parse stream open_fnc close_fnc text_fnc)
+(defun XML-parse (stream fnc_in fnc_out fnc_text)
+	; (XML-parse stream fnc_in fnc_out fnc_text)
 
 	;break the steam into svg tokens, symbols, strings etc
 	(defq state :text1 token (list) token_list (list) state_list (list))
@@ -104,12 +104,9 @@
 							(push state_list state)
 							(setq token (list) state :text1))))
 			))) (cat l " "))) stream)
-	(when (> (length token) 0)
-		(push state_list state)
-		(push token_list token))
 
 	;parse the commands and attributes calling back to the user functions
-	(defq open_stack (list) attrib_syms (list) attrib_vals (list) state :text)
+	(defq stack (list) keys (list) vals (list) state :text)
 	(each (lambda (type token)
 		(if (> (length token) 0)
 			(setq token (apply cat token))
@@ -119,7 +116,7 @@
 				(:text
 					(case type
 						((:text1 :text2)
-							(unless (eql token "") (text_fnc token))
+							(unless (eql token "") (fnc_text token))
 							(setq type nil))
 						(t	(setq state :open))))
 				(:open
@@ -127,13 +124,13 @@
 						(:open
 							(case token
 								("<!--" (setq state :comment)
-									(push open_stack token))
+									(push stack token))
 								("<?" (setq state :command))
 								("<" (setq state :command))
 								("</" (setq state :command))
 								(t (throw "Unknown open token !" token))))
 						(t (throw "Unknown open type !" type)))
-					(push open_stack token)
+					(push stack token)
 					(setq type nil))
 				(:comment
 					(case type
@@ -144,19 +141,19 @@
 				(:command
 					(case type
 						(:symbol
-							(push open_stack token)
-							(clear attrib_syms attrib_vals)
+							(push stack token)
+							(clear keys vals)
 							(setq state :symbol))
 						(t (throw "Unknown command type !" type)))
 					(setq type nil))
 				(:symbol
 					(case type
 						(:close
-							(if (eql (elem -3 open_stack) "<")
-								(open_fnc (elem -2 open_stack) attrib_syms attrib_vals))
+							(if (eql (elem -3 stack) "<")
+								(fnc_in (elem -2 stack) keys vals))
 							(setq state :close))
 						(:symbol
-							(push attrib_syms token)
+							(push keys token)
 							(setq state :assign type nil))
 						(t (throw "Unknown symbol type !" type))))
 				(:assign
@@ -168,7 +165,7 @@
 				(:string
 					(case type
 						(:string
-							(push attrib_vals token)
+							(push vals token)
 							(setq state :symbol))
 						(t (throw "Unknown string type !" type)))
 					(setq type nil))
@@ -179,10 +176,10 @@
 								(("-->" "?>" ">" "/>"))
 								(t (throw "Unknown close token !" token))))
 						(t (throw "Unknown close type !" type)))
-					(if (or (eql token "/>") (eql (elem -3 open_stack) "</"))
-						(close_fnc (elem -2 open_stack)))
-					(pop open_stack)
-					(pop open_stack)
+					(if (or (eql token "/>") (eql (elem -3 stack) "</"))
+						(fnc_out (elem -2 stack)))
+					(pop stack)
+					(pop stack)
 					(setq type nil state :text))
 				))) state_list token_list))
 

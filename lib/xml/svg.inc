@@ -35,7 +35,7 @@
 		(t (throw "Unknown # val !" val))))
 
 (defun parse-svg-path (d)
-	(defq command_list (list) token nil state :text)
+	(defq commands (list) token nil state :text)
 	(each (lambda (c)
 		(while c
 			(case state
@@ -44,7 +44,7 @@
 						((is-whitespace-char? c))
 						((eql c (ascii-char +char_comma)))
 						((is-command-char? c)
-							(push command_list c))
+							(push commands c))
 						((is-num-start-char? c)
 							(setq token (list c) state :number))
 						(t (throw "Unknown path char !" c)))
@@ -54,10 +54,10 @@
 						((is-num-mid-char? c)
 							(push token c)
 							(setq c nil))
-						(t	(push command_list (n2f (read-num (apply cat token))))
+						(t	(push commands (n2f (read-num (apply cat token))))
 							(setq state :text))))
 			))) (cat d " "))
-	command_list)
+	commands)
 
 (defun gen-svg-path (d)
 	(defq i 0 p (path) d (parse-svg-path d)
@@ -161,17 +161,17 @@
 			(setq last_cmd cmd))
 	p)
 
-(defun push-attributes (stack syms vals)
+(defun push-attributes (stack keys vals)
 	(push stack (defq entry (. (elem -2 stack) :copy)))
 	(each (lambda (key val)
 		(setq val (case key
-			(("cx" "cy" "r" "stroke-width")
+			(("x" "y" "x1" "y1" "x2" "y2" "rx" "ry" "cx" "cy" "r"
+				"width" "height" "stroke-width")
 				(n2f (read-num val)))
-			(("width" "height")
-				(n2i (read-num val)))
 			("viewBox"
-				(map (# (n2i (read-num %0)))
-					(split val ", ")))
+				(map (# (n2i (read-num %0))) (split val ", ")))
+			("points"
+				(apply path (map (# (n2f (read-num %0))) (split val ", "))))
 			("transform"
 				(map (# (n2f (read-num %0)))
 					(split (slice (inc (find "(" val)) (find-rev ")" val) val) ", ")))
@@ -196,7 +196,7 @@
 					("butt" +cap_butt)
 					("round" +cap_round)
 					("square" +cap_square)
-					(t (throw "Unknown cap syle !" val))))
+					(t (throw "Unknown cap style !" val))))
 			(("stroke-linejoin")
 				(case val
 					("miter" +join_miter)
@@ -204,11 +204,16 @@
 					("round" +join_round)
 					("miter-clip" +join_miter)
 					("arcs" +join_miter)
-					(t (throw "Unknown join syle !" val))))
+					(t (throw "Unknown join style !" val))))
+			("line-rule"
+				(case val
+					("nonzero" +winding_none_zero)
+					("evenodd" +winding_odd_even)
+					(t (throw "Unknown winding !" val))))
 			("d"
 				(gen-svg-path val))
 			(t	val)))
-		(. entry :insert key val)) syms vals)
+		(. entry :insert key val)) keys vals)
 	entry)
 
 (defun print-attribute-stack (stack)
@@ -217,68 +222,86 @@
 		(. entry :each (# (print %0 " : " %1)))) stack)
 	(print))
 
-(defun draw-path (canvas transform d stroke fill stroke_width stroke_linejoin stroke_linecap flag)
-	(apply (const path-transform) (cat transform (list (elem 0 d) (elem 0 d))))
-	(if (/= fill 0)
-		(.-> canvas (:set_color fill) (:fpoly 0.0 0.0 +winding_odd_even d)))
-	(if (/= stroke 0)
-		(if flag
-			;closed
-			(.-> canvas (:set_color stroke)
-				(:fpoly 0.0 0.0 +winding_odd_even
-					(path-stroke-polygons (list) stroke_width +eps
-						stroke_linejoin d)))
-			;open
-			(.-> canvas (:set_color stroke)
-				(:fpoly 0.0 0.0 +winding_odd_even
-					(path-stroke-polylines (list) stroke_width +eps
-						stroke_linejoin stroke_linecap stroke_linecap d))))))
+(defun path-fill-and-stroke (canvas entry d flag)
+	(defq stroke_width (* 0.5 (. entry :find "stroke-width"))
+		fill (. entry :find "fill")
+		stroke (. entry :find "stroke")
+		stroke_linecap (. entry :find "stroke-linecap")
+		stroke_linejoin (. entry :find "stroke-linejoin")
+		fill_rule (. entry :find "fill-rule")
+		transform (. entry :find "transform"))
+	(when (/= fill 0)
+		(defq df (map (# (apply (const path-transform) (cat transform (list %0 (cat %0))))) d))
+		(.-> canvas (:set_color fill) (:fpoly 0.0 0.0 fill_rule df)))
+	(when (/= stroke 0)
+		(cond
+			(flag
+				;closed
+				(defq ds (path-stroke-polygons (list) stroke_width +eps stroke_linejoin d)
+					df (map (# (apply (const path-transform) (cat transform (list %0 %0)))) ds)))
+			(t	;open
+				(defq ds (path-stroke-polylines (list) stroke_width +eps
+							stroke_linejoin stroke_linecap stroke_linecap d)
+					df (map (# (apply (const path-transform) (cat transform (list %0 %0)))) ds))))
+		(.-> canvas (:set_color stroke) (:fpoly 0.0 0.0 fill_rule df))))
 
 (defun SVG-Canvas (file flags)
 	(defq canvas nil count 0 attribute_stack
-		(list (fmap-kv "stroke" 0 "fill" 0 "stroke-width" 1.0
-			"stroke-linecap" +cap_butt "stroke-linejoin" +join_miter
+		(list (fmap-kv
+			"stroke" 0
+			"fill" +argb_black
+			"stroke-width" 1.0
+			"stroke-linecap" +cap_butt
+			"stroke-linejoin" +join_miter
+			"fill-rule" +winding_none_zero
 			"transform" '(1.0 0.0 0.0 1.0 0.0 0.0))))
 	(XML-parse (file-stream file)
-		(lambda (command syms vals)
+		(lambda (command keys vals)
+;			(prin "open: " command " " keys " " vals)(print)
 			(case command
 				("svg"
-					(defq entry (push-attributes attribute_stack syms vals)
+					(defq entry (push-attributes attribute_stack keys vals)
 						width 256 height 256)
-					(if (defq val (. entry :find "viewBox"))
-						(bind '(_ _ width height) val))
-					(if (defq val (. entry :find "width"))
-						(setq width val))
-					(if (defq val (. entry :find "height"))
-						(setq height val))
-					(. (setq canvas (Canvas width height 1)) :set_canvas_flags +canvas_flag_antialias))
+					(if (defq val (. entry :find "viewBox")) (bind '(_ _ width height) val))
+					(if (defq val (. entry :find "width")) (setq width val))
+					(if (defq val (. entry :find "height")) (setq height val))
+					(. (setq canvas (Canvas (n2i width) (n2i height) 3)) :set_canvas_flags +canvas_flag_antialias))
 				("g"
-					(push-attributes attribute_stack syms vals))
+					(push-attributes attribute_stack keys vals))
 				("circle"
-					(defq entry (push-attributes attribute_stack syms vals)
-						cx (. entry :find "cx") cy (. entry :find "cy")
-						r (. entry :find "r") stroke_width (* 0.5 (. entry :find "stroke-width"))
-						fill (. entry :find "fill") stroke (. entry :find "stroke")
-						stroke_linecap (. entry :find "stroke-linecap")
-						stroke_linejoin (. entry :find "stroke-linejoin")
-						transform (. entry :find "transform")
-						d (list (path-gen-arc cx cy 0.0 +fp_2pi r +eps (path))))
-					(draw-path canvas transform d
-						stroke fill stroke_width stroke_linejoin stroke_linecap t))
+					(defq entry (push-attributes attribute_stack keys vals)
+						cx (. entry :find "cx") cy (. entry :find "cy") r (. entry :find "r")
+						d (path-gen-arc cx cy 0.0 +fp_2pi r +eps (path)))
+					(path-fill-and-stroke canvas entry (list d) t))
+				("line"
+					(defq entry (push-attributes attribute_stack keys vals)
+						x1 (. entry :find "x1") y1 (. entry :find "y1")
+						x2 (. entry :find "x2") y2 (. entry :find "y2")
+						d (path x1 y1 x2 y2))
+					(path-fill-and-stroke canvas entry (list d) nil))
+				("rect"
+					(defq entry (push-attributes attribute_stack keys vals)
+						x (. entry :find "x") y (. entry :find "y")
+						rx (. entry :find "rx") ry (. entry :find "ry")
+						x1 (+ x (. entry :find "width")) y1 (+ y (. entry :find "height"))
+						d (path x y x1 y x1 y1 x y1))
+					(path-fill-and-stroke canvas entry (list d) t))
+				("polygon"
+					(defq entry (push-attributes attribute_stack keys vals)
+						d (. entry :find "points"))
+					(path-fill-and-stroke canvas entry (list d) t))
+				("polyline"
+					(defq entry (push-attributes attribute_stack keys vals)
+						d (. entry :find "points"))
+					(path-fill-and-stroke canvas entry (list d) nil))
 				("path"
-					(defq entry (push-attributes attribute_stack syms vals)
-						stroke_width (* 0.5 (. entry :find "stroke-width"))
-						fill (. entry :find "fill") stroke (. entry :find "stroke")
-						stroke_linecap (. entry :find "stroke-linecap")
-						stroke_linejoin (. entry :find "stroke-linejoin")
-						transform (. entry :find "transform")
-						d (list (. entry :find "d")))
-					(draw-path canvas transform d
-						stroke fill stroke_width stroke_linejoin stroke_linecap nil))
+					(defq entry (push-attributes attribute_stack keys vals)
+						d (. entry :find "d"))
+					(path-fill-and-stroke canvas entry (list d) nil))
 				))
 		(lambda (command)
 			(case command
-				(("svg" "g" "circle" "path")
+				(("svg" "g" "circle" "path" "polygon" "polyline" "line" "rect")
 					(pop attribute_stack))
 				))
 		(lambda (text)))
