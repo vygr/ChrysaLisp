@@ -254,10 +254,10 @@
 	(defq _default_key nil _default_clause nil _atoms t
 		_map (reduce (lambda (_map (_keys &rest _clause_body))
 			(unless (list? _keys) (setq _keys (list _keys)))
-			(setq _clause_body (prebind (macroexpand
+			(setq _clause_body (pop (prebind (list (macroexpand
 				(if (= (length _clause_body) 1)
 					(elem 0 _clause_body)
-					(cat '(progn) _clause_body)))))
+					(cat '(progn) _clause_body)))))))
 			(or (eql :num (defq _clause_type (pop (type-of _clause_body))))
 				(eql :str _clause_type) (setq _atoms nil))
 			(each! 0 -1 (lambda (_key) (cond
