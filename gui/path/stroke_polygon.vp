@@ -1,0 +1,44 @@
+(include "sys/func.inc")
+(include "gui/path/class.inc")
+(include "class/list/class.inc")
+
+(def-method 'path :stroke_polygon)
+	;inputs
+	;r0 = path object (ptr)
+	;r1 = stack array object (ptr)
+	;r2 = radius (fixed)
+	;r3 = tolerance (fixed)
+	;r4 = join style (byte)
+	;outputs
+	;r0 = path object (ptr)
+	;r1 = output path1 object (ptr)
+	;r2 = output path2 object (ptr)
+	;trashes
+	;r1-r14
+
+	(def-vars
+		(ptr this stack path1 path2)
+		(plong iter_begin_polyline iter_end_polyline)
+		(int radius eps)
+		(byte join_style))
+
+	(push-scope)
+	(entry 'path :stroke_polygon {this, stack, radius, eps, join_style})
+
+	(call 'path :filter_polygon {this, this, 0.5})
+	(call 'path :get_both {this} {_, iter_begin_polyline, iter_end_polyline})
+	(call 'path :create nil {path1})
+	(call 'path :stroke_joints {path1, stack, iter_begin_polyline, iter_end_polyline,
+		iter_end_polyline[-+long_size * 4], iter_end_polyline[-+long_size * 3],
+		iter_end_polyline[-+long_size * 2], iter_end_polyline[-+long_size], radius, eps, join_style})
+	(call 'path :create nil {path2})
+	(call 'path :stroke_joints {path2, stack, iter_end_polyline - 2 * +long_size,
+		iter_begin_polyline - 2 * +long_size,
+		iter_begin_polyline[+long_size * 2], iter_begin_polyline[+long_size * 3],
+		iter_begin_polyline[0], iter_begin_polyline[+long_size], radius, eps, join_style})
+
+	(exit 'path :stroke_polygon {this, path1, path2})
+	(pop-scope)
+	(return)
+
+(def-func-end)

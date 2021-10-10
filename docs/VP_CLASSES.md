@@ -5000,7 +5000,33 @@ trashes
 r1-r14
 ```
 
+### path :lisp_stroke_polygon -> gui/path/lisp_stroke_polygon
+
+```code
+inputs
+r0 = lisp object (ptr)
+r1 = args list object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
 ### path :lisp_stroke_polygons -> gui/path/lisp_stroke_polygons
+
+```code
+inputs
+r0 = lisp object (ptr)
+r1 = args list object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
+### path :lisp_stroke_polyline -> gui/path/lisp_stroke_polyline
 
 ```code
 inputs
@@ -5074,6 +5100,23 @@ trashes
 r1-r14
 ```
 
+### path :stroke_polygon -> gui/path/stroke_polygon
+
+```code
+inputs
+r0 = path object (ptr)
+r1 = stack array object (ptr)
+r2 = radius (fixed)
+r3 = tolerance (fixed)
+r4 = join style (byte)
+outputs
+r0 = path object (ptr)
+r1 = output path1 object (ptr)
+r2 = output path2 object (ptr)
+trashes
+r1-r14
+```
+
 ### path :stroke_polygons -> gui/path/stroke_polygons
 
 ```code
@@ -5086,6 +5129,24 @@ r4 = tolerance (fixed)
 r5 = join style (byte)
 outputs
 r0 = output list of path objects (ptr)
+trashes
+r1-r14
+```
+
+### path :stroke_polyline -> gui/path/stroke_polyline
+
+```code
+inputs
+r0 = path object (ptr)
+r1 = stack array object (ptr)
+r2 = radius (fixed)
+r3 = tolerance (fixed)
+r4 = join style (byte)
+r5 = cap style1 (byte)
+r6 = cap style2 (byte)
+outputs
+r0 = path object (ptr)
+r1 = output path object (ptr)
 trashes
 r1-r14
 ```

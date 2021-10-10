@@ -213,6 +213,76 @@
 
 (def-func-end)
 
+(def-method 'path :lisp_stroke_polyline)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args list object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+	;trashes
+	;r1-r14
+
+	(entry 'path :lisp_stroke_polyline '(r0 r1))
+
+(errorcases
+	(call 'lisp :env_args_sig '(r1 ($ sig) 6) '(r2))
+	(gotoif '(r2 = 0) 'error))
+
+	(vp-push r0)
+	(defq in (method-input 'path :stroke_polyline))
+	(list-bind-args r1 in '(:path _ :fixed :fixed :num :num :num))
+	(assign '((rsp 0)) `(,(elem 1 in)))
+	(assign `((,(elem 1 in) lisp_stack)) `(,(elem 1 in)))
+	(call 'path :stroke_polyline in '(_ r1))
+	(vp-pop r0)
+
+	(exit 'path :lisp_stroke_polyline '(r0 r1))
+	(vp-ret)
+
+(errorcases
+(vp-label 'error)
+	(jump 'lisp :repl_error '(r0 "(path-stroke-polyline path radius tol join cap1 cap2) -> path" error_msg_wrong_types r1))
+	(signature '(path fixed fixed num num num)))
+
+(def-func-end)
+
+(def-method 'path :lisp_stroke_polygon)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args list object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+	;trashes
+	;r1-r14
+
+	(entry 'path :lisp_stroke_polygon '(r0 r1))
+
+(errorcases
+	(call 'lisp :env_args_sig '(r1 ($ sig) 4) '(r2))
+	(gotoif '(r2 = 0) 'error))
+
+	(vp-push r0)
+	(defq in (method-input 'path :stroke_polygon))
+	(list-bind-args r1 in '(:path _ :fixed :fixed :num))
+	(assign '((rsp 0)) `(,(elem 1 in)))
+	(assign `((,(elem 1 in) lisp_stack)) `(,(elem 1 in)))
+	(call 'path :stroke_polygon in '(_ r12 r13))
+	(call 'list :create nil '(r0))
+	(call 'list :push_back2 '(r0 r12 r13) '(r1 _ _ _ _))
+	(vp-pop r0)
+
+	(exit 'path :lisp_stroke_polygon '(r0 r1))
+	(vp-ret)
+
+(errorcases
+(vp-label 'error)
+	(jump 'lisp :repl_error '(r0 "(path-stroke-polygon path radius tol join) -> paths" error_msg_wrong_types r1))
+	(signature '(path fixed fixed num)))
+
+(def-func-end)
+
 (def-method 'path :lisp_stroke_polylines)
 	;inputs
 	;r0 = lisp object (ptr)

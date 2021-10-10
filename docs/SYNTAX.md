@@ -3246,10 +3246,22 @@
 (path-simplify tol src dst)
 ```
 
+### path-stroke-polygon
+
+```code
+(path-stroke-polygon path radius tol join) -> paths
+```
+
 ### path-stroke-polygons
 
 ```code
 (path-stroke-polygons dst radius tol join src) -> dst
+```
+
+### path-stroke-polyline
+
+```code
+(path-stroke-polyline path radius tol join cap1 cap2) -> path
 ```
 
 ### path-stroke-polylines
