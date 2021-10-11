@@ -31,7 +31,7 @@
 
 (defun win-refresh (_)
 	(defq file (elem (setq index _) svgs))
-	(bind '(w h) (. (defq canvas (SVG-Canvas file 2 0)) :pref_size))
+	(bind '(w h) (. (defq canvas (SVG-Canvas file 1 0)) :pref_size))
 	(def image_scroll :min_width w :min_height h)
 	(def window_title :text (cat "Svg -> " (slice (inc (find-rev "/" file)) -1 file)))
 	(. image_scroll :add_child canvas)

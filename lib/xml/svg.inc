@@ -185,7 +185,7 @@
 	(each (lambda (key val)
 		(setq val (case key
 			(("x" "y" "x1" "y1" "x2" "y2" "rx" "ry" "cx" "cy" "r"
-				"width" "height" "stroke-width")
+				"width" "height" "stroke-width" "fill-opacity" "stroke-opacity")
 				(n2f (read-num val)))
 			("viewBox"
 				(map (# (n2i (read-num %0))) (split val ", ")))
@@ -221,7 +221,7 @@
 					("miter-clip" +join_miter)
 					("arcs" +join_miter)
 					(t (throw "Unknown join style !" val))))
-			("line-rule"
+			("fill-rule"
 				(case val
 					("nonzero" +winding_none_zero)
 					("evenodd" +winding_odd_even)
@@ -235,28 +235,34 @@
 (defun path-fill-and-stroke (canvas entry paths)
 	(defq stroke_width (* 0.5 (. entry :find "stroke-width"))
 		fill (. entry :find "fill")
+		fill_rule (. entry :find "fill-rule")
+		fill_opacity (. entry :find "fill-opacity")
 		stroke (. entry :find "stroke")
+		stroke_opacity (. entry :find "stroke-opacity")
 		stroke_linecap (. entry :find "stroke-linecap")
 		stroke_linejoin (. entry :find "stroke-linejoin")
-		fill_rule (. entry :find "fill-rule")
 		transform (. entry :find "transform"))
-	(when (/= fill 0)
-		(.-> canvas (:set_color fill) (:fpoly 0.0 0.0 fill_rule
-			(map (lambda ((f p)) (apply (const path-transform) (cat transform (list p (cat p)))))
-				paths))))
-	(when (/= stroke 0)
-		(.-> canvas (:set_color stroke) (:fpoly 0.0 0.0 fill_rule
-			(map (lambda (p) (apply (const path-transform) (cat transform (list p p))))
-				(reduce (lambda (l (f p))
-					(cond
-						(f  ;closed
-							(bind '(p1 p2) (path-stroke-polygon p stroke_width +eps
-								stroke_linejoin))
-							(push l p1 p2))
-						(t  ;open
-							(push l (path-stroke-polyline p stroke_width +eps
-								stroke_linejoin stroke_linecap stroke_linecap)))))
-						paths (list)))))))
+	(when (and (/= fill 0) (/= fill_opacity 0.0))
+		(.-> canvas
+			(:set_color (+ (<< (n2i (* fill_opacity 0xff.0)) 24) (logand fill 0xffffff)))
+			(:fpoly 0.0 0.0 fill_rule
+				(map (lambda ((f p)) (apply (const path-transform) (cat transform (list p (cat p)))))
+					paths))))
+	(when (and (/= stroke 0) (/= stroke_opacity 0.0))
+		(.-> canvas
+			(:set_color (+ (<< (n2i (* stroke_opacity 0xff.0)) 24) (logand stroke 0xffffff)))
+			(:fpoly 0.0 0.0 fill_rule
+				(map (lambda (p) (apply (const path-transform) (cat transform (list p p))))
+					(reduce (lambda (l (f p))
+						(cond
+							(f  ;closed
+								(bind '(p1 p2) (path-stroke-polygon p stroke_width +eps
+									stroke_linejoin))
+								(push l p1 p2))
+							(t  ;open
+								(push l (path-stroke-polyline p stroke_width +eps
+									stroke_linejoin stroke_linecap stroke_linecap)))))
+							paths (list)))))))
 
 (defun SVG-Canvas (file scale flags)
 	(defq canvas nil count 0 stack
@@ -267,6 +273,8 @@
 			"stroke-linecap" +cap_butt
 			"stroke-linejoin" +join_miter
 			"fill-rule" +winding_none_zero
+			"fill-opacity" 1.0
+			"stroke-opacity" 1.0
 			"transform" '(1.0 0.0 0.0 1.0 0.0 0.0))))
 	(XML-parse (file-stream file)
 		(lambda (command keys vals)

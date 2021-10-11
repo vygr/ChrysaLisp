@@ -123,7 +123,9 @@
 					(case _type
 						(:open
 							(case _token
-								("<!--" (setq _state :comment)
+								("<!" (setq _state :line_comment)
+									(push _stack _token))
+								("<!--" (setq _state :block_comment)
 									(push _stack _token))
 								("<?" (setq _state :command))
 								("<" (setq _state :command))
@@ -132,7 +134,13 @@
 						(t (throw "Unknown open _type !" _type)))
 					(push _stack _token)
 					(setq _type nil))
-				(:comment
+				(:line_comment
+					(case _type
+						(:close
+							(case _token
+								(">" (setq _state :close))))
+						(t	(setq _type nil))))
+				(:block_comment
 					(case _type
 						(:close
 							(case _token
