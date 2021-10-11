@@ -13,7 +13,7 @@
 (defun map? (_)
 	; (map? object) -> t | nil
 	; Returns true if argument is a map type
-	(or (emap? _) (xmap? _) (fmap? _)))
+	(or (emap? _) (xmap? _) (fmap? _) (lmap? _)))
 
 (defun set? (_)
 	(or (xset? _) (fset? _)))
@@ -133,6 +133,7 @@
 				((xset? _coll) (xset))
 				((fset? _coll) (fset))
 				((fmap? _coll) (fmap))
+				((lmap? _coll) (lmap))
 				((list? _coll) (list))))
 		(t nil)))
 
@@ -153,6 +154,6 @@
 	; Returns the 'into' function for the collection
 	; type
 	(cond
-		((or (emap? a) (xmap? a) (fmap? a)) into-map)
+		((or (emap? a) (xmap? a) (fmap? a) (lmap? a)) into-map)
 		((or (xset? a) (fset? a)) into-set)
 		(t (lambda (&rest _) _))))
