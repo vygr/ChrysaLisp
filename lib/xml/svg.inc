@@ -214,11 +214,8 @@
 			(defq ma (Mat3x3-f m00 m01 tx m10 m11 ty 0.0 0.0 1.0))
 			(bind '(m00 m01 m10 m11 tx ty) (map (# (n2f (read-num %0)))
 				(split (slice (inc (find "(" val)) (find-rev ")" val) val) ", ")))
-			(defq mb (Mat3x3-f m00 m01 tx m10 m11 ty 0.0 0.0 1.0)
-				ma (mat3x3-mul-f ma mb))
-			(bind '(ma mb _) ma)
-			(bind '(m00 m01 tx) ma)
-			(bind '(m10 m11 ty) mb)
+			(bind '((m00 m01 tx) (m10 m11 ty) _)
+				(mat3x3-mul-f ma (Mat3x3-f m00 m01 tx m10 m11 ty 0.0 0.0 1.0)))
 			(list m00 m01 m10 m11 tx ty))
 		(("stroke" "fill")
 			(case val
@@ -233,10 +230,8 @@
 				("magenta" +argb_magenta)
 				("cyan" +argb_cyan)
 				(t (cond
-					((starts-with "#" val)
-						(col-to-num val))
-					((starts-with "rgb(" val)
-						(rgb-to-num val))
+					((starts-with "#" val) (col-to-num val))
+					((starts-with "rgb(" val) (rgb-to-num val))
 					(t val)))))
 		(("stroke-linecap")
 			(case val
@@ -268,8 +263,7 @@
 			((eql key "style")
 				(each (lambda ((k v))
 						(. entry :insert k (read-attribute entry k v)))
-					(map (# (split %0 ":")) (split val ";")))
-				val)
+					(map (# (split %0 ":")) (split val ";"))))
 			(t (setq val (read-attribute entry key val))))
 		(. entry :insert key val)) keys vals)
 	entry)
@@ -326,7 +320,6 @@
 			)))
 	(XML-parse stream
 		(lambda (command keys vals)
-			(task-slice)
 ;           (prin "open: " command " " keys " " vals)(print)
 			(case command
 				("svg"
@@ -385,11 +378,13 @@
 					(pop stack))
 				))
 		(lambda (text)))
-	(. canvas :swap))
+	;resize to final output
+	(bind '(w h) (. canvas :pref_size))
+	(.-> (Canvas w h 1) (:resize canvas) :swap))
 
 (defun SVG-info (stream)
 	; (SVG-info stream) -> (width height type) | (-1 -1 -1)
-	(defq stack (list (lmap)) width 256 height 256)
+	(defq stack (list (lmap)) width -1 height -1)
 	(XML-parse stream
 		(lambda (command keys vals)
 			(when (eql command "svg")

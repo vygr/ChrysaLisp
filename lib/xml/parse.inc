@@ -31,7 +31,7 @@
 	;calls back to user code, so _ used for vars that would be in scope
 	;break the steam into svg tokens, symbols, strings etc
 	(defq _state :text1 _token (list) _token_list (list) _state_list (list))
-	(each-line (lambda (l) (each (lambda (c)
+	(each-line (lambda (l) (task-slice) (each (lambda (c)
 		(while c
 			(case _state
 				(:text1
@@ -41,7 +41,7 @@
 							(push _token_list _token)
 							(push _state_list _state)
 							(setq _token (list c) _state :open))
-						(t	(push _token c)
+						(t  (push _token c)
 							(setq _state :text2)))
 					(setq c nil))
 				(:text2
@@ -53,14 +53,14 @@
 							(push _token_list _token)
 							(push _state_list _state)
 							(setq _token (list c) _state :open))
-						(t	(push _token c)))
+						(t  (push _token c)))
 					(setq c nil))
 				(:open
 					(cond
 						((is-xml-open-char? c)
 							(push _token c)
 							(setq c nil))
-						(t	(push _token_list _token)
+						(t  (push _token_list _token)
 							(push _state_list _state)
 							(setq _state :attribute?))))
 				(:attribute?
@@ -80,7 +80,7 @@
 						((is-symbol-char? c)
 							(push _token c)
 							(setq c nil))
-						(t	(push _token_list _token)
+						(t  (push _token_list _token)
 							(push _state_list _state)
 							(setq _token (list) _state :attribute?))))
 				(:assign
@@ -93,14 +93,14 @@
 							(push _token_list _token)
 							(push _state_list _state)
 							(setq _token (list) _state :attribute?))
-						(t	(push _token c)))
+						(t  (push _token c)))
 					(setq c nil))
 				(:close
 					(cond
 						((is-xml-close-char? c)
 							(push _token c)
 							(setq c nil))
-						(t	(push _token_list _token)
+						(t  (push _token_list _token)
 							(push _state_list _state)
 							(setq _token (list) _state :text1))))
 			))) (cat l " "))) _stream)
@@ -118,7 +118,7 @@
 						((:text1 :text2)
 							(unless (eql _token "") (_fnc_text _token))
 							(setq _type nil))
-						(t	(setq _state :open))))
+						(t  (setq _state :open))))
 				(:open
 					(case _type
 						(:open
@@ -139,13 +139,13 @@
 						(:close
 							(case _token
 								(">" (setq _state :close))))
-						(t	(setq _type nil))))
+						(t  (setq _type nil))))
 				(:block_comment
 					(case _type
 						(:close
 							(case _token
 								("-->" (setq _state :close))))
-						(t	(setq _type nil))))
+						(t  (setq _type nil))))
 				(:command
 					(case _type
 						(:symbol
@@ -157,7 +157,8 @@
 				(:symbol
 					(case _type
 						(:close
-							(if (eql (elem -3 _stack) "<")
+							(when (eql (elem -3 _stack) "<")
+								(task-slice)
 								(_fnc_in (elem -2 _stack) _keys _vals))
 							(setq _state :close))
 						(:symbol
