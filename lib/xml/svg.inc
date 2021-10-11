@@ -306,8 +306,9 @@
 									stroke_linejoin stroke_linecap stroke_linecap)))))
 							paths (list)))))))
 
-(defun SVG-Canvas (stream scale flags)
-	; (SVG-Canvas stream scale flags) -> nil | canvas
+(defun SVG-Canvas (stream &optional scale)
+	; (SVG-Canvas stream [scale]) -> nil | canvas
+	(setd scale 1)
 	(defq canvas nil stack
 		(list (lmap-kv
 			"stroke" 0
@@ -318,7 +319,7 @@
 			"fill-rule" +winding_none_zero
 			"fill-opacity" 1.0
 			"stroke-opacity" 1.0
-			"transform" '(1.0 0.0 0.0 1.0 0.0 0.0)
+			"transform" (list (n2f scale) 0.0 0.0 (n2f scale) 0.0 0.0)
 			"x" 0.0 "y" 0.0 "x1" 0.0 "y1" 0.0 "x2" 0.0 "y2" 0.0
 			"cx" 0.0 "cy" 0.0 "r" 0.0
 			"d" (path) "points" (path)
@@ -333,7 +334,7 @@
 					(if (defq val (. entry :find "viewBox")) (bind '(_ _ width height) val))
 					(if (defq val (. entry :find "width")) (setq width val))
 					(if (defq val (. entry :find "height")) (setq height val))
-					(. (setq canvas (Canvas (/ (inc (n2i width)) scale) (/ (inc (n2i height)) scale) scale))
+					(. (setq canvas (Canvas (n2i width) (n2i height) (n2i scale)))
 						:set_canvas_flags +canvas_flag_antialias))
 				("g"
 					(push-attributes stack keys vals))
