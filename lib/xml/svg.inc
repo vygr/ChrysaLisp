@@ -267,6 +267,7 @@
 (defun SVG-Canvas (file scale flags)
 	(defq canvas nil count 0 stack
 		(list (lmap-kv
+			"x" 0.0 "y" 0.0
 			"stroke" 0
 			"fill" +argb_black
 			"stroke-width" 1.0
@@ -305,8 +306,10 @@
 					(defq entry (push-attributes stack keys vals)
 						x (. entry :find "x") y (. entry :find "y")
 						rx (. entry :find "rx") ry (. entry :find "ry")
-						x1 (+ x (. entry :find "width")) y1 (+ y (. entry :find "height"))
-						d (path x y x1 y x1 y1))
+						x1 (+ x (. entry :find "width")) y1 (+ y (. entry :find "height")))
+					(unless rx (setq rx ry))
+					(unless ry (setq ry rx))
+					(defq d (path-gen-rect x y x1 y1 rx ry +eps (path)))
 					(path-fill-and-stroke canvas entry (list (list t d))))
 				("polygon"
 					(defq entry (push-attributes stack keys vals)

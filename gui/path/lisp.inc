@@ -14,6 +14,17 @@
 (enums +cap 0
 	(enum butt square tri arrow round))
 
+(defun path-gen-rect (x y x1 y1 rx ry tol dst)
+	; (path-gen-rect (x y x1 y1 rx ry tol dst) -> dst
+	(cond
+		((and rx ry)
+			(defq x (+ x rx) y (+ y ry) x1 (- x1 rx) y1 (- y1 ry))
+			(path-gen-arc x y +fp_pi +fp_hpi rx tol dst)
+			(path-gen-arc x y1 (const (+ +fp_pi +fp_hpi)) +fp_hpi rx tol dst)
+			(path-gen-arc x1 y1 0.0 +fp_hpi rx tol dst)
+			(path-gen-arc x1 y +fp_hpi +fp_hpi rx tol dst))
+		(t (defq d (path x y x y1 x1 y1 x1 y)))))
+
 (defun path-stroke-polylines (dst radius tol joint cap1 cap2 src)
 	; (path-stroke-polylines dst radius tol join cap1 cap2 src) -> dst
 	(each (lambda (p)
