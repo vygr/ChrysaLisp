@@ -260,7 +260,7 @@
 
 (defun SVG-Canvas (file scale flags)
 	(defq canvas nil count 0 stack
-		(list (fmap-kv
+		(list (lmap-kv
 			"stroke" 0
 			"fill" +argb_black
 			"stroke-width" 1.0
@@ -270,6 +270,7 @@
 			"transform" '(1.0 0.0 0.0 1.0 0.0 0.0))))
 	(XML-parse (file-stream file)
 		(lambda (command keys vals)
+			(task-slice)
 ;           (prin "open: " command " " keys " " vals)(print)
 			(case command
 				("svg"

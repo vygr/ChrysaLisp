@@ -7,6 +7,7 @@
 (import "./fset.inc")
 (import "./xmap.inc")
 (import "./xset.inc")
+(import "./lmap.inc")
 (import "./xnode.inc")
 
 (defun map? (_)

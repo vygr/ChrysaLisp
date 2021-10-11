@@ -6,6 +6,8 @@
 
 Start of XML, SVG import libs. Plenty more to do yet.
 
+New '(lmap)' linear map class.
+
 ------
 
 New `(mat4x4-invert)` function and Scene graph class updated to use this to
