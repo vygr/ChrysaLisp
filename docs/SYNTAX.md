@@ -3234,10 +3234,22 @@
 (path-gen-cubic p1x p1y p2x p2y p3x p3y p4x p4y tol dst) -> dst
 ```
 
+### path-gen-ellipse
+
+```code
+(path-gen-ellipse cx cy rx ry tol dst) -> dst
+```
+
 ### path-gen-quadratic
 
 ```code
 (path-gen-quadratic p1x p1y p2x p2y p3x p3y tol dst) -> dst
+```
+
+### path-gen-rect
+
+```code
+(path-gen-rect x y x1 y1 rx ry tol dst) -> dst
 ```
 
 ### path-simplify
@@ -3339,7 +3351,7 @@
 ### pixmap-file-info
 
 ```code
-(pixmap-file-info file) -> (width height type)
+(pixmap-file-info file) -> (width height type) | (-1 -1 -1)
 ```
 
 ### pixmap-tga-info

@@ -8,6 +8,22 @@
 ;module
 (env-push)
 
+(defun Mat3x3-f (m00 m01 m02 m10 m11 m12 m20 m21 m22)
+	(list (fixeds m00 m01 m02)
+		(fixeds m10 m11 m12)
+		(fixeds m20 m21 m22)))
+
+(defun mat3x3-mul-f (ma mb)
+	; (mat3x3-mul-f mat3x3_a mat3x3_b) -> mat3x3-f
+	(bind '(mar0 mar1 mar2) ma)
+	(bind '(mbr0 mbr1 mbr2) mb)
+	(defq mbc0 (fixeds (elem 0 mbr0) (elem 0 mbr1) (elem 0 mbr2))
+		mbc1 (fixeds (elem 1 mbr0) (elem 1 mbr1) (elem 1 mbr2))
+		mbc2 (fixeds (elem 2 mbr0) (elem 2 mbr1) (elem 2 mbr2)))
+	(list (fixeds (nums-dot mar0 mbc0) (nums-dot mar0 mbc1) (nums-dot mar0 mbc2))
+		(fixeds (nums-dot mar1 mbc0) (nums-dot mar1 mbc1) (nums-dot mar1 mbc2))
+		(fixeds (nums-dot mar2 mbc0) (nums-dot mar2 mbc1) (nums-dot mar2 mbc2))))
+
 (defq +eps 0.25
 	+command_chars "MLHVCSQTAZmlhvcsqtaz"
 	+num_start_chars "-+0123456789"
@@ -33,6 +49,10 @@
 		(4 (canvas-to-argb32 (read-num (cat "0xf" (slice 1 -1 val))) 12))
 		(7 (canvas-to-argb32 (read-num (cat "0x" (slice 1 -1 val))) 24))
 		(t (throw "Unknown # val !" val))))
+
+(defun rgb-to-num (val)
+	(bind '(r g b) (map (const read-num) (slice 1 -1 (split val "(), "))))
+	(+ +argb_black (<< r 16) (<< g 8) b))
 
 (defun parse-svg-path (d)
 	(defq commands (list) token nil state :text)
@@ -180,55 +200,77 @@
 		(setq last_cmd cmd))
 	paths)
 
+(defun read-attribute (entry key val)
+	(case key
+		(("x" "y" "x1" "y1" "x2" "y2" "rx" "ry" "cx" "cy" "r"
+			"width" "height" "stroke-width" "fill-opacity" "stroke-opacity")
+			(n2f (read-num val)))
+		("viewBox"
+			(map (# (n2i (read-num %0))) (split val ", ")))
+		("points"
+			(reduce (# (push %0 (n2f (read-num %1)))) (split val ", ") (path)))
+		("transform"
+			(bind '(m00 m01 m10 m11 tx ty) (. entry :find "transform"))
+			(defq ma (Mat3x3-f m00 m01 tx m10 m11 ty 0.0 0.0 1.0))
+			(bind '(m00 m01 m10 m11 tx ty) (map (# (n2f (read-num %0)))
+				(split (slice (inc (find "(" val)) (find-rev ")" val) val) ", ")))
+			(defq mb (Mat3x3-f m00 m01 tx m10 m11 ty 0.0 0.0 1.0)
+				ma (mat3x3-mul-f ma mb))
+			(bind '(ma mb _) ma)
+			(bind '(m00 m01 tx) ma)
+			(bind '(m10 m11 ty) mb)
+			(list m00 m01 m10 m11 tx ty))
+		(("stroke" "fill")
+			(case val
+				("none" 0)
+				("transparent" 0)
+				("black" +argb_black)
+				("white" +argb_white)
+				("red" +argb_red)
+				("green" +argb_green)
+				("blue" +argb_blue)
+				("yellow" +argb_yellow)
+				("magenta" +argb_magenta)
+				("cyan" +argb_cyan)
+				(t (cond
+					((starts-with "#" val)
+						(col-to-num val))
+					((starts-with "rgb(" val)
+						(rgb-to-num val))
+					(t val)))))
+		(("stroke-linecap")
+			(case val
+				("butt" +cap_butt)
+				("round" +cap_round)
+				("square" +cap_square)
+				(t (throw "Unknown cap style !" val))))
+		(("stroke-linejoin")
+			(case val
+				("miter" +join_miter)
+				("bevel" +join_bevel)
+				("round" +join_round)
+				("miter-clip" +join_miter)
+				("arcs" +join_miter)
+				(t (throw "Unknown join style !" val))))
+		("fill-rule"
+			(case val
+				("nonzero" +winding_none_zero)
+				("evenodd" +winding_odd_even)
+				(t (throw "Unknown winding !" val))))
+		("d"
+			(gen-svg-path val))
+		(t  val)))
+
 (defun push-attributes (stack keys vals)
 	(push stack (defq entry (. (elem -2 stack) :copy)))
 	(each (lambda (key val)
-		(setq val (case key
-			(("x" "y" "x1" "y1" "x2" "y2" "rx" "ry" "cx" "cy" "r"
-				"width" "height" "stroke-width" "fill-opacity" "stroke-opacity")
-				(n2f (read-num val)))
-			("viewBox"
-				(map (# (n2i (read-num %0))) (split val ", ")))
-			("points"
-				(reduce (# (push %0 (n2f (read-num %1)))) (split val ", ") (path)))
-			("transform"
-				(map (# (n2f (read-num %0)))
-					(split (slice (inc (find "(" val)) (find-rev ")" val) val) ", ")))
-			(("stroke" "fill")
-				(case val
-					("none" 0)
-					("transparent" 0)
-					("black" +argb_black)
-					("white" +argb_white)
-					("red" +argb_red)
-					("green" +argb_green)
-					("blue" +argb_blue)
-					("yellow" +argb_yellow)
-					("magenta" +argb_magenta)
-					("cyan" +argb_cyan)
-					(t (if (starts-with "#" val) (col-to-num val) val))))
-			(("stroke-linecap")
-				(case val
-					("butt" +cap_butt)
-					("round" +cap_round)
-					("square" +cap_square)
-					(t (throw "Unknown cap style !" val))))
-			(("stroke-linejoin")
-				(case val
-					("miter" +join_miter)
-					("bevel" +join_bevel)
-					("round" +join_round)
-					("miter-clip" +join_miter)
-					("arcs" +join_miter)
-					(t (throw "Unknown join style !" val))))
-			("fill-rule"
-				(case val
-					("nonzero" +winding_none_zero)
-					("evenodd" +winding_odd_even)
-					(t (throw "Unknown winding !" val))))
-			("d"
-				(gen-svg-path val))
-			(t  val)))
+		(cond
+			((eql key "style")
+				(each (lambda ((k v))
+						(. entry :insert k (read-attribute entry k v)))
+					(map (# (split %0 ":")) (split val ";")))
+				val)
+			(t (setq val (read-attribute entry key val))))
 		(. entry :insert key val)) keys vals)
 	entry)
 
@@ -264,8 +306,9 @@
 									stroke_linejoin stroke_linecap stroke_linecap)))))
 							paths (list)))))))
 
-(defun SVG-Canvas (file scale flags)
-	(defq canvas nil count 0 stack
+(defun SVG-Canvas (stream scale flags)
+	; (SVG-Canvas stream scale flags) -> nil | canvas
+	(defq canvas nil stack
 		(list (lmap-kv
 			"stroke" 0
 			"fill" +argb_black
@@ -280,7 +323,7 @@
 			"cx" 0.0 "cy" 0.0 "r" 0.0
 			"d" (path) "points" (path)
 			)))
-	(XML-parse (file-stream file)
+	(XML-parse stream
 		(lambda (command keys vals)
 			(task-slice)
 ;           (prin "open: " command " " keys " " vals)(print)
@@ -298,6 +341,14 @@
 					(defq entry (push-attributes stack keys vals)
 						cx (. entry :find "cx") cy (. entry :find "cy") r (. entry :find "r")
 						d (path-gen-arc cx cy 0.0 +fp_2pi r +eps (path)))
+					(path-fill-and-stroke canvas entry (list (list t d))))
+				("ellipse"
+					(defq entry (push-attributes stack keys vals)
+						cx (. entry :find "cx") cy (. entry :find "cy")
+						rx (. entry :find "rx") ry (. entry :find "ry"))
+					(unless rx (setq rx ry))
+					(unless ry (setq ry rx))
+					(defq d (path-gen-ellipse cx cy rx ry +eps (path)))
 					(path-fill-and-stroke canvas entry (list (list t d))))
 				("line"
 					(defq entry (push-attributes stack keys vals)
@@ -329,12 +380,28 @@
 				))
 		(lambda (command)
 			(case command
-				(("svg" "g" "circle" "path" "polygon" "polyline" "line" "rect")
+				(("svg" "g" "circle" "ellipse" "path" "polygon" "polyline" "line" "rect")
 					(pop stack))
 				))
 		(lambda (text)))
 	(. canvas :swap))
 
+(defun SVG-info (stream)
+	; (SVG-info stream) -> (width height type) | (-1 -1 -1)
+	(defq stack (list (lmap)) width 256 height 256)
+	(XML-parse stream
+		(lambda (command keys vals)
+			(when (eql command "svg")
+				(defq entry (push-attributes stack keys vals))
+				(when (defq val (. entry :find "viewBox"))
+					(bind '(_ _ w h) val)
+					(setq width w height h))
+				(if (defq val (. entry :find "width")) (setq width val))
+				(if (defq val (. entry :find "height")) (setq height val))))
+		(lambda (command))
+		(lambda (text)))
+	(list width height 32))
+
 ;module
-(export-symbols SVG-Canvas)
+(export-symbols SVG-Canvas SVG-info)
 (env-pop)

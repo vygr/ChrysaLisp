@@ -1,6 +1,7 @@
 ; Lisp (getf ...)
 
 (import "class/obj/lisp.inc")
+(import "lib/xml/svg.inc")
 
 (structure +pixmap +obj_size
 	(ptr texture stream bufp)
@@ -55,7 +56,7 @@
 		(list -1 -1 -1)))
 
 (defun pixmap-file-info (file)
-	; (pixmap-file-info file) -> (width height type)
+	; (pixmap-file-info file) -> (width height type) | (-1 -1 -1)
 	(if (defq stream (file-stream file))
 		(cond
 			((ends-with ".cpm" file)
@@ -64,6 +65,8 @@
 				(pixmap-cpm-info stream))
 			((ends-with ".tga" file)
 				(pixmap-tga-info stream))
+			((ends-with ".svg" file)
+				(SVG-info stream))
 			(t (list -1 -1 -1)))
 		(list -1 -1 -1)))
 

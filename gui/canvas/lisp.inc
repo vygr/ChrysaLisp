@@ -117,5 +117,8 @@
 (defclass Canvas-from-file (file flags) (Canvas-base)
 	; (Canvas-from-file file flags) -> nil | canvas
 	; overide the default 'this' env with a Canvas component
-	(defq super this this ((const (ffi _ "gui/canvas/lisp_load" 0)) file flags))
-	(if this (each (lambda ((key val)) (def this key val)) (tolist super))))
+	(cond
+		((ends-with ".svg" file)
+			(defq this (SVG-Canvas (file-stream file) 1 flags)))
+		(t	(defq super this this ((const (ffi _ "gui/canvas/lisp_load" 0)) file flags))
+			(if this (each (lambda ((key val)) (def this key val)) (tolist super))))))

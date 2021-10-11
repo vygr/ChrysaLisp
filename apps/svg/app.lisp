@@ -3,7 +3,6 @@
 (import "sys/lisp.inc")
 (import "class/lisp.inc")
 (import "gui/lisp.inc")
-(import "lib/xml/svg.inc")
 
 (enums +event 0
 	(enum close)
@@ -19,8 +18,8 @@
 		(unzip (split (pii-dirlist p) ",") (list (list) (list))))
 	(sort cmp out))
 
-(defq svgs (all-svgs "apps/svg/data/")
-	index (some (# (if (eql "apps/svg/data/tiger.svg" %0) _)) svgs)
+(defq svgs (all-svgs "apps/images/data/")
+	index (some (# (if (eql "apps/images/data/tiger.svg" %0) _)) svgs)
 	id t)
 
 (ui-window *window* ()
@@ -31,7 +30,7 @@
 
 (defun win-refresh (_)
 	(defq file (elem (setq index _) svgs))
-	(bind '(w h) (. (defq canvas (SVG-Canvas file 1 0)) :pref_size))
+	(bind '(w h) (. (defq canvas (Canvas-from-file file 0)) :pref_size))
 	(def image_scroll :min_width w :min_height h)
 	(def window_title :text (cat "Svg -> " (slice (inc (find-rev "/" file)) -1 file)))
 	(. image_scroll :add_child canvas)
