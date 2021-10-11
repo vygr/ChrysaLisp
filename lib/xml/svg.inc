@@ -54,24 +54,24 @@
 						((is-num-mid-char? c)
 							(push token c)
 							(setq c nil))
-						(t	(push commands (n2f (read-num (apply cat token))))
+						(t  (push commands (n2f (read-num (apply cat token))))
 							(setq state :text))))
 			))) (cat d " "))
 	(push commands "x"))
 
 (defun gen-svg-path (d)
-	(defq i 0 paths (list) p nil d (parse-svg-path d)
+	(defq i 0 paths (list) d (parse-svg-path d)
 		cx 0.0 cy 0.0 cpx 0.0 cpy 0.0 last_cmd " ")
 	(until (eql (defq cmd (elem i d)) "x")
 		(setq i (inc i))
 		(case cmd
 			("M"
-				(push paths (list nil (setq p (path))))
+				(push paths (list nil (defq p (path))))
 				(while (num? (elem i d))
 					(bind '(cpx cpy) (slice i (setq i (+ i 2)) d))
 					(push p cpx cpy)))
 			("m"
-				(push paths (list nil (setq p (path))))
+				(push paths (list nil (defq p (path))))
 				(while (num? (elem i d))
 					(bind '(x y) (slice i (setq i (+ i 2)) d))
 					(setq cpx (+ cpx x) cpy (+ cpy y))
@@ -163,7 +163,7 @@
 						(defq x1 cpx y1 cpy))
 					(path-gen-quadratic cpx cpy x1 y1 x y +eps p)
 					(setq cpx x cpy y cx x1 cy y1)))
- 			("A"
+			("A"
 				(while (num? (elem i d))
 					(throw "Not implemted path command !" cmd)
 					(bind '(rx ry x_axis_rotation large_arc_flag sweep_flag x y)
@@ -206,10 +206,7 @@
 					("yellow" +argb_yellow)
 					("magenta" +argb_magenta)
 					("cyan" +argb_cyan)
-					(t	(cond
-							((starts-with "#" val)
-								(col-to-num val))
-							(t	val)))))
+					(t (if (starts-with "#" val) (col-to-num val) val))))
 			(("stroke-linecap")
 				(case val
 					("butt" +cap_butt)
@@ -231,15 +228,9 @@
 					(t (throw "Unknown winding !" val))))
 			("d"
 				(gen-svg-path val))
-			(t	val)))
+			(t  val)))
 		(. entry :insert key val)) keys vals)
 	entry)
-
-(defun print-attribute-stack (stack)
-	(print "Attribute stack:")
-	(each (lambda (entry)
-		(. entry :each (# (print %0 " : " %1)))) stack)
-	(print))
 
 (defun path-fill-and-stroke (canvas entry paths)
 	(defq stroke_width (* 0.5 (. entry :find "stroke-width"))
@@ -258,11 +249,11 @@
 			(map (lambda (p) (apply (const path-transform) (cat transform (list p p))))
 				(reduce (lambda (l (f p))
 					(cond
-						(f	;closed
+						(f  ;closed
 							(bind '(p1 p2) (path-stroke-polygon p stroke_width +eps
 								stroke_linejoin))
 							(push l p1 p2))
-						(t	;open
+						(t  ;open
 							(push l (path-stroke-polyline p stroke_width +eps
 								stroke_linejoin stroke_linecap stroke_linecap)))))
 						paths (list)))))))
@@ -279,7 +270,7 @@
 			"transform" '(1.0 0.0 0.0 1.0 0.0 0.0))))
 	(XML-parse (file-stream file)
 		(lambda (command keys vals)
-;			(prin "open: " command " " keys " " vals)(print)
+;           (prin "open: " command " " keys " " vals)(print)
 			(case command
 				("svg"
 					(defq entry (push-attributes stack keys vals) width 256 height 256)
@@ -306,7 +297,7 @@
 						x (. entry :find "x") y (. entry :find "y")
 						rx (. entry :find "rx") ry (. entry :find "ry")
 						x1 (+ x (. entry :find "width")) y1 (+ y (. entry :find "height"))
-						d (path x y x1 y x1 y1 x y1))
+						d (path x y x1 y x1 y1))
 					(path-fill-and-stroke canvas entry (list (list t d))))
 				("polygon"
 					(defq entry (push-attributes stack keys vals)

@@ -24,9 +24,7 @@
 	(dec-method :lisp_gen_cubic gui/path/lisp_gen_cubic :static (r0 r1) (r0 r1))
 	(dec-method :lisp_gen_arc gui/path/lisp_gen_arc :static (r0 r1) (r0 r1))
 	(dec-method :lisp_stroke_polyline gui/path/lisp_stroke_polyline :static (r0 r1) (r0 r1))
-	(dec-method :lisp_stroke_polylines gui/path/lisp_stroke_polylines :static (r0 r1) (r0 r1))
-	(dec-method :lisp_stroke_polygon gui/path/lisp_stroke_polygon :static (r0 r1) (r0 r1))
-	(dec-method :lisp_stroke_polygons gui/path/lisp_stroke_polygons :static (r0 r1) (r0 r1)))
+	(dec-method :lisp_stroke_polygon gui/path/lisp_stroke_polygon :static (r0 r1) (r0 r1)))
 
 (def-struct path fixeds_size)
 
