@@ -267,7 +267,6 @@
 (defun SVG-Canvas (file scale flags)
 	(defq canvas nil count 0 stack
 		(list (lmap-kv
-			"x" 0.0 "y" 0.0
 			"stroke" 0
 			"fill" +argb_black
 			"stroke-width" 1.0
@@ -276,7 +275,11 @@
 			"fill-rule" +winding_none_zero
 			"fill-opacity" 1.0
 			"stroke-opacity" 1.0
-			"transform" '(1.0 0.0 0.0 1.0 0.0 0.0))))
+			"transform" '(1.0 0.0 0.0 1.0 0.0 0.0)
+			"x" 0.0 "y" 0.0 "x1" 0.0 "y1" 0.0 "x2" 0.0 "y2" 0.0
+			"cx" 0.0 "cy" 0.0 "r" 0.0
+			"d" (path) "points" (path)
+			)))
 	(XML-parse (file-stream file)
 		(lambda (command keys vals)
 			(task-slice)
