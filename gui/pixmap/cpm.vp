@@ -49,7 +49,7 @@
 		(assign {&this->pixmap_data} {data})
 		(assign {data + this->pixmap_height * this->pixmap_stride} {data_end})
 		(assign {0 => bit_pool} {bit_pool_size})
-		(vpif {bits = 15})
+		(vpif {bits = 12 || bits = 15})
 			(assign {16} {bits})
 		(endif)
 
@@ -153,7 +153,7 @@
 	(assign {&this->pixmap_data} {data})
 	(assign {this->pixmap_width * this->pixmap_height} {len})
 	(assign {0 => bit_pool => bit_pool_size => i} {state})
-	(vpif {bits = 15})
+	(vpif {bits = 12 || bits = 15})
 		(assign {16} {bits})
 	(endif)
 
