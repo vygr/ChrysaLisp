@@ -58,25 +58,24 @@
 	(defq commands (list) token nil state :text)
 	(each (lambda (c)
 		(while c
-			(case state
-				(:text
+			(cond
+				((eql state :text)
 					(cond
 						((is-whitespace-char? c))
 						((eql c (ascii-char +char_comma)))
 						((is-command-char? c)
 							(push commands c))
 						((is-num-start-char? c)
-							(setq token (list c) state :number))
+							(setq token c state :number))
 						(t (throw "Unknown path char !" c)))
 					(setq c nil))
-				(:number
+				(t  ; :number
 					(cond
 						((is-num-mid-char? c)
-							(push token c)
-							(setq c nil))
-						(t  (push commands (n2f (read-num (apply cat token))))
-							(setq state :text))))
-			))) (cat d " "))
+							(setq token (cat token c) c nil))
+						(t  (push commands (n2f (read-num token)))
+							(setq state :text)))))))
+		(cat d " "))
 	(push commands "x"))
 
 (defun gen-svg-path (d)
