@@ -104,6 +104,7 @@
 			(assign (list data) {data})
 		(loop-until (list data '= data_end))
 		(call 'pixmap :as_premul {this, this})
+		(assign {stream->stream_bufp} {this->pixmap_bufp})
 	(endif)
 
 	(exit 'pixmap :load_cpm {this})

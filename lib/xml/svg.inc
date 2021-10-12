@@ -380,7 +380,7 @@
 		(lambda (text)))
 	;resize to final output
 	(bind '(w h) (. canvas :pref_size))
-	(.-> (Canvas w h 1) (:resize canvas) :swap))
+	(. (Canvas w h 1) :resize canvas))
 
 (defun SVG-info (stream)
 	; (SVG-info stream) -> (width height type) | (-1 -1 -1)

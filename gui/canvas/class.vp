@@ -14,7 +14,7 @@
 
 (gen-vtable 'canvas)
 (gen-create 'canvas)
-(gen-create 'canvas 'with_pixmap)
+(gen-create 'canvas 'pixmap)
 
 (def-method 'canvas :init)
 	;inputs
@@ -62,7 +62,7 @@
 
 (def-func-end)
 
-(def-method 'canvas :init_with_pixmap)
+(def-method 'canvas :init_pixmap)
 	;inputs
 	;r0 = canvas object (ptr)
 	;r1 = vtable (pptr)
@@ -73,7 +73,7 @@
 	;trashes
 	;r1-r14
 
-	(entry 'canvas :init_with_pixmap '(r0 r1 r2))
+	(entry 'canvas :init_pixmap '(r0 r1 r2))
 	(assign '(r2) '((r0 canvas_pixmap)))
 
 	;init parent
@@ -93,13 +93,17 @@
 			(class/obj/ref r3 r1)
 		(endif)
 
+		;ref pixmap
+		(assign '((rsp 0)) '(r0))
+		(call 'canvas :ref '((r0 canvas_pixmap)))
+
 		;edge array
 		(call 'array :create nil '(r1))
 		(vp-pop r0)
 		(assign '(r1) '((r0 canvas_edges)))
 	(endif)
 
-	(exit 'canvas :init_with_pixmap '(r0 r1))
+	(exit 'canvas :init_pixmap '(r0 r1))
 	(vp-ret)
 
 (def-func-end)

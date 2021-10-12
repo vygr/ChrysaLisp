@@ -10,6 +10,11 @@
 (ffi canvas-to-argb32 "gui/canvas/lisp_to_argb32" 0)
 (ffi canvas-from-argb32 "gui/canvas/lisp_from_argb32" 0)
 
+;init pixmap shared cache map
+(defq _ (env))
+(while (penv _) (setq _ (penv _)))
+(def _ '*pixmap_cache* (lmap))
+
 (structure +canvas +view_size
 	(ptr pixmap edges texture)
 	(pptr edges_start)
@@ -49,7 +54,7 @@
 
 	(defmethod :save (this file format)
 		; (. canvas :save file format) -> nil | canvas
-		((const (ffi _ "gui/canvas/lisp_save" 0)) this file format))
+		(if (pixmap-save (getf this +canvas_pixmap 0) file format) this))
 
 	(defmethod :swap (this)
 		; (. canvas :swap) -> canvas
@@ -114,11 +119,39 @@
 	(defq super this this ((const (ffi _ "gui/canvas/lisp_create" 0)) width height scale))
 	(each (lambda ((key val)) (def this key val)) (tolist super)))
 
-(defclass Canvas-from-file (file flags) (Canvas-base)
-	; (Canvas-from-file file flags) -> nil | canvas
+(defclass Canvas-from-pixmap (pixmap) (Canvas-base)
+	; (Canvas-from-pixmap pixmap) -> canvas
 	; overide the default 'this' env with a Canvas component
-	(cond
-		((ends-with ".svg" file)
-			(defq this (SVG-Canvas (file-stream file) 2)))
-		(t	(defq super this this ((const (ffi _ "gui/canvas/lisp_load" 0)) file flags))
-			(if this (each (lambda ((key val)) (def this key val)) (tolist super))))))
+	(defq super this this ((const (ffi _ "gui/canvas/lisp_create_pixmap" 0)) pixmap))
+	(each (lambda ((key val)) (def this key val)) (tolist super)))
+
+(defun Canvas-from-file (file flags)
+	; (Canvas-from-file file flags) -> nil | canvas
+	(defq this nil)
+	(when (/= (logand flags +load_flag_shared) 0)
+		;check cache first
+		(when (defq this (. *pixmap_cache* :find file))
+			(defq this (Canvas-from-pixmap this))))
+	(when (and (not this)
+			(defq stream (if (= (logand flags +load_flag_film) 0)
+				(file-stream file) (string-stream (load file)))))
+		;load and maybe add to cache
+		(defq this
+			(cond
+				((ends-with ".svg" file)
+					(SVG-Canvas stream 2))
+				((or (ends-with ".cpm" file) (ends-with ".flm" file))
+					(if (defq this ((const (ffi _ "gui/pixmap/lisp_load_cpm" 0)) stream))
+						(Canvas-from-pixmap this)))
+				((ends-with ".tga" file)
+					(if (defq this ((const (ffi _ "gui/pixmap/lisp_load_tga" 0)) stream))
+						(Canvas-from-pixmap this)))))
+		(when this
+			(defq pixmap (getf this +canvas_pixmap 0))
+			(if (/= (logand flags +load_flag_shared) 0)
+				(. *pixmap_cache* :insert file pixmap))
+			(if (/= (logand flags +load_flag_film) 0)
+				(setf pixmap +pixmap_stream stream 0))
+			(if (= (logand flags +load_flag_noswap) 0)
+				(. this :swap))))
+	this)

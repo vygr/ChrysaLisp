@@ -75,10 +75,6 @@
 	(struct gui_old_regions (* num_old_regions +ptr_size))
 	(align)
 
-	;pixmap statics
-	(ptr pixmap_intern)
-	(align)
-
 	;lisp statics
 	(ptr lisp_boot_env)
 	(align))

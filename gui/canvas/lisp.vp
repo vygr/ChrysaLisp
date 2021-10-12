@@ -38,7 +38,7 @@
 
 (def-func-end)
 
-(def-method 'canvas :lisp_load)
+(def-method 'canvas :lisp_create_pixmap)
 	;inputs
 	;r0 = lisp object (ptr)
 	;r1 = args list object (ptr)
@@ -48,87 +48,25 @@
 	;trashes
 	;r1-r14
 
-	(def-struct local 0
-		(ptr this)
-		(uint flags))
-
-	(entry 'canvas :lisp_load '(r0 r1))
+	(entry 'canvas :lisp_create_pixmap '(r0 r1))
 
 (errorcases
-	(call 'lisp :env_args_sig '(r1 ($ sig) 2) '(r2))
+	(call 'lisp :env_args_sig '(r1 ($ sig) 1) '(r2))
 	(gotoif '(r2 = 0) 'error))
 
-	(vp-alloc local_size)
-	(assign '(r0) '((rsp local_this)))
+	(vp-push r0)
+	(defq in (method-input 'canvas :create_pixmap))
+	(list-bind-args r1 in '(:pixmap))
+	(call 'canvas :create_pixmap in '(r1))
+	(vp-pop r0)
 
-	(list-bind-args r1 '(r0 r1) '(:str :num))
-	(assign '(r1) '((rsp local_flags)))
-	(call 'pixmap :load '(r0 r1) '(r0))
-	(vpif '(r0 = 0))
-		(assign '((rsp local_this)) '(r1))
-		(assign '((r1 lisp_sym_nil)) '(r1))
-		(class/obj/ref r1 r2)
-	(else)
-		(call 'canvas :create_with_pixmap '(r0) '(r0))
-		(assign '((rsp local_flags)) '(r1))
-		(vp-and-cr load_flag_noswap r1)
-		(vpif '(r1 = 0))
-			(call 'canvas :swap '(r0) '(r0))
-		(endif)
-		(vp-cpy-rr r0 r1)
-	(endif)
-
-	(exit 'canvas :lisp_load '((rsp local_this) r1))
-	(vp-free local_size)
+	(exit 'canvas :lisp_create_pixmap '(r0 r1))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(r0 "(canvas-load path flags)" error_msg_wrong_types r1))
-	(signature '(str num)))
-
-(def-func-end)
-
-(def-method 'canvas :lisp_save)
-	;inputs
-	;r0 = lisp object (ptr)
-	;r1 = args list object (ptr)
-	;outputs
-	;r0 = lisp object (ptr)
-	;r1 = return value object (ptr)
-	;trashes
-	;r1-r14
-
-	(def-struct local 0
-		(ptr this canvas))
-
-	(entry 'canvas :lisp_save '(r0 r1))
-
-(errorcases
-	(call 'lisp :env_args_sig '(r1 ($ sig) 3) '(r2))
-	(gotoif '(r2 = 0) 'error))
-
-	(vp-alloc local_size)
-	(assign '(r0) '((rsp local_this)))
-	(list-bind-args r1 '(r0 r1 r2) '(:canvas :str :num))
-	(assign '(r0) '((rsp local_canvas)))
-	(call 'pixmap :save '((r0 canvas_pixmap) r1 r2) '(r0))
-	(vpif '(r0 = 0))
-		(assign '((rsp 0)) '(r0))
-		(assign '((r0 lisp_sym_nil)) '(r1))
-	(else)
-		(assign '((rsp local_canvas)) '(r1))
-	(endif)
-	(class/obj/ref r1 r2)
-
-	(exit 'canvas :lisp_save '((rsp local_this) r1))
-	(vp-free local_size)
-	(vp-ret)
-
-(errorcases
-(vp-label 'error)
-	(jump 'lisp :repl_error '(r0 "(canvas-save canvas path format)" error_msg_wrong_types r1))
-	(signature '(canvas str num)))
+	(jump 'lisp :repl_error '(r0 "(create-canvas-pixmap pixmap)" error_msg_wrong_types r1))
+	(signature '(pixmap)))
 
 (def-func-end)
 

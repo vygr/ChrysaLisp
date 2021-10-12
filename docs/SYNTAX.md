@@ -1620,6 +1620,12 @@
 (Canvas-from-file file flags) -> nil | canvas
 ```
 
+### Canvas-from-pixmap
+
+```code
+(Canvas-from-pixmap pixmap) -> canvas
+```
+
 ### Dictionary
 
 ```code
@@ -1908,12 +1914,6 @@
 (canvas-ftri canvas path)
 ```
 
-### canvas-load
-
-```code
-(canvas-load path flags)
-```
-
 ### canvas-next-frame
 
 ```code
@@ -1930,12 +1930,6 @@
 
 ```code
 (canvas-resize canvas canvas)
-```
-
-### canvas-save
-
-```code
-(canvas-save canvas path format)
 ```
 
 ### canvas-swap
@@ -2056,6 +2050,12 @@
 
 ```code
 (create-canvas width height scale)
+```
+
+### create-canvas-pixmap
+
+```code
+(create-canvas-pixmap pixmap)
 ```
 
 ### create-font
@@ -3348,10 +3348,40 @@
 (pixmap-cpm-info stream) -> (width height type) | (-1 -1 -1)
 ```
 
-### pixmap-file-info
+### pixmap-info
 
 ```code
-(pixmap-file-info file) -> (width height type) | (-1 -1 -1)
+(pixmap-info file) -> (width height type) | (-1 -1 -1)
+```
+
+### pixmap-load
+
+```code
+(pixmap-load file) -> nil | pixmap
+```
+
+### pixmap-load-cpm
+
+```code
+(pixmap-load-cpm stream)
+```
+
+### pixmap-load-tga
+
+```code
+(pixmap-load-tga stream)
+```
+
+### pixmap-save
+
+```code
+(pixmap-save pixmap file type) -> nil | pixmap
+```
+
+### pixmap-save-cpm
+
+```code
+(pixmap-save-cpm pixmap stream format)
 ```
 
 ### pixmap-tga-info

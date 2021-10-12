@@ -55,8 +55,8 @@
 			(t (list -1 -1 -1)))
 		(list -1 -1 -1)))
 
-(defun pixmap-file-info (file)
-	; (pixmap-file-info file) -> (width height type) | (-1 -1 -1)
+(defun pixmap-info (file)
+	; (pixmap-info file) -> (width height type) | (-1 -1 -1)
 	(if (defq stream (file-stream file))
 		(cond
 			((ends-with ".cpm" file)
@@ -70,7 +70,24 @@
 			(t (list -1 -1 -1)))
 		(list -1 -1 -1)))
 
+(defun pixmap-save (pixmap file type)
+	; (pixmap-save pixmap file type) -> nil | pixmap
+	(if (defq stream (file-stream file +file_open_write))
+		(cond
+			((ends-with ".cpm" file)
+				((const (ffi _ "gui/pixmap/lisp_save_cpm" 0)) pixmap stream type)))))
+
+(defun pixmap-load (file)
+	; (pixmap-load file) -> nil | pixmap
+	(if (defq stream (file-stream file))
+		(cond
+			((ends-with ".cpm" file)
+				((const (ffi _ "gui/pixmap/lisp_load_cpm" 0)) stream))
+			((ends-with ".tga" file)
+				((const (ffi _ "gui/pixmap/lisp_load_tga" 0)) stream)))))
+
 ;module
 (export-symbols
-	pixmap-file-info pixmap-tga-info pixmap-cpm-info)
+	pixmap-info pixmap-tga-info pixmap-cpm-info
+	pixmap-save pixmap-load)
 (env-pop)

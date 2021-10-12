@@ -603,7 +603,7 @@ Super Class: view
 
 ### canvas :create -> gui/canvas/create
 
-### canvas :create_with_pixmap -> gui/canvas/create_with_pixmap
+### canvas :create_pixmap -> gui/canvas/create_pixmap
 
 ### canvas :deinit -> gui/canvas/deinit
 
@@ -679,7 +679,7 @@ trashes
 r1-r14
 ```
 
-### canvas :init_with_pixmap -> gui/canvas/init_with_pixmap
+### canvas :init_pixmap -> gui/canvas/init_pixmap
 
 ```code
 inputs
@@ -694,6 +694,19 @@ r1-r14
 ```
 
 ### canvas :lisp_create -> gui/canvas/lisp_create
+
+```code
+inputs
+r0 = lisp object (ptr)
+r1 = args list object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
+### canvas :lisp_create_pixmap -> gui/canvas/lisp_create_pixmap
 
 ```code
 inputs
@@ -771,19 +784,6 @@ trashes
 r1-r14
 ```
 
-### canvas :lisp_load -> gui/canvas/lisp_load
-
-```code
-inputs
-r0 = lisp object (ptr)
-r1 = args list object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-trashes
-r1-r14
-```
-
 ### canvas :lisp_next_frame -> gui/canvas/lisp_next_frame
 
 ```code
@@ -811,19 +811,6 @@ r1-r14
 ```
 
 ### canvas :lisp_resize -> gui/canvas/lisp_resize
-
-```code
-inputs
-r0 = lisp object (ptr)
-r1 = args list object (ptr)
-outputs
-r0 = lisp object (ptr)
-r1 = return value object (ptr)
-trashes
-r1-r14
-```
-
-### canvas :lisp_save -> gui/canvas/lisp_save
 
 ```code
 inputs
@@ -5225,34 +5212,49 @@ trashes
 r1-r14
 ```
 
-### pixmap :load -> gui/pixmap/load
+### pixmap :lisp_load_cpm -> gui/pixmap/lisp_load_cpm
 
 ```code
 inputs
-r0 = c string name (pubyte)
-r1 = flags (uint)
+r0 = lisp object (ptr)
+r1 = args list object (ptr)
 outputs
-r0 = 0 if error, else shared pixmap object (ptr)
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
 trashes
-r0-r14
+r1-r14
+```
+
+### pixmap :lisp_load_tga -> gui/pixmap/lisp_load_tga
+
+```code
+inputs
+r0 = lisp object (ptr)
+r1 = args list object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
+### pixmap :lisp_save_cpm -> gui/pixmap/lisp_save_cpm
+
+```code
+inputs
+r0 = lisp object (ptr)
+r1 = args list object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
 ```
 
 ### pixmap :load_cpm -> gui/pixmap/load_cpm
 
 ```code
 inputs
-r5 = stream object (ptr)
-outputs
-r0 = 0 if error, else pixmap object (ptr)
-trashes
-r0-r14
-```
-
-### pixmap :load_file -> gui/pixmap/load_file
-
-```code
-inputs
-r4 = c string name (pubyte)
 r5 = stream object (ptr)
 outputs
 r0 = 0 if error, else pixmap object (ptr)
@@ -5318,19 +5320,6 @@ trashes
 r1-r14
 ```
 
-### pixmap :save -> gui/pixmap/save
-
-```code
-inputs
-r0 = pixmap object (ptr)
-r1 = c string name (pubyte)
-r2 = format (uint)
-outputs
-r0 = 0 if error, else pixmap object (ptr)
-trashes
-r0-r14
-```
-
 ### pixmap :save_cpm -> gui/pixmap/save_cpm
 
 ```code
@@ -5340,20 +5329,6 @@ r6 = stream object (ptr)
 r7 = format (uint)
 outputs
 r0 = pixmap object (ptr)
-trashes
-r0-r14
-```
-
-### pixmap :save_file -> gui/pixmap/save_file
-
-```code
-inputs
-r4 = pixmap object (ptr)
-r5 = c string name (pubyte)
-r6 = stream object (ptr)
-r7 = format (uint)
-outputs
-r0 = 0 if error, else pixmap object (ptr)
 trashes
 r0-r14
 ```
