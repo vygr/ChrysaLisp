@@ -35,7 +35,7 @@
 	(ubyte origin))
 
 (defun pixmap-cpm-info (stream)
-	; (pixmap-cpm-info stream) -> (width height type)
+	; (pixmap-cpm-info stream) -> (width height type) | (-1 -1 -1)
 	(if (= (length (defq header (read-data stream +cpm_size))) +cpm_size)
 		(case (char (getf header +cpm_ident) +int_size)
 			(("MPC." "MLF.")
@@ -46,7 +46,7 @@
 		(list -1 -1 -1)))
 
 (defun pixmap-tga-info (stream)
-	; (pixmap-tga-info stream) -> (width height type)
+	; (pixmap-tga-info stream) -> (width height type) | (-1 -1 -1)
 	(if (= (length (defq header (read-data stream +tga_size))) +tga_size)
 		(case (getf header +tga_type)
 			(2 (list (getf header +tga_width)

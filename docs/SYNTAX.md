@@ -3345,7 +3345,7 @@
 ### pixmap-cpm-info
 
 ```code
-(pixmap-cpm-info stream) -> (width height type)
+(pixmap-cpm-info stream) -> (width height type) | (-1 -1 -1)
 ```
 
 ### pixmap-file-info
@@ -3357,7 +3357,7 @@
 ### pixmap-tga-info
 
 ```code
-(pixmap-tga-info stream) -> (width height type)
+(pixmap-tga-info stream) -> (width height type) | (-1 -1 -1)
 ```
 
 ### pop
