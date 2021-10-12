@@ -254,7 +254,7 @@
 				(t (throw "Unknown fill-rule !" val))))
 		("d"
 			(gen-svg-path val))
-		(t  (throw "Unknown fill-rule !" val))))
+		(t  val)))
 
 (defun push-attributes (stack keys vals)
 	(push stack (defq entry (. (elem -2 stack) :copy)))
