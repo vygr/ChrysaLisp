@@ -69,8 +69,7 @@
 							(setq token c state :number))
 						(t (throw "Unknown path char !" c)))
 					(setq c nil))
-				(t  ; :number
-					(cond
+				((cond
 						((is-num-mid-char? c)
 							(setq token (cat token c) c nil))
 						(t  (push commands (n2f (read-num token)))
@@ -268,15 +267,8 @@
 	entry)
 
 (defun path-fill-and-stroke (canvas entry paths)
-	(defq stroke_width (* 0.5 (. entry :find "stroke-width"))
-		fill (. entry :find "fill")
-		fill_rule (. entry :find "fill-rule")
-		fill_opacity (. entry :find "fill-opacity")
-		stroke (. entry :find "stroke")
-		stroke_opacity (. entry :find "stroke-opacity")
-		stroke_linecap (. entry :find "stroke-linecap")
-		stroke_linejoin (. entry :find "stroke-linejoin")
-		transform (. entry :find "transform"))
+	(bind '(stroke fill stroke_width stroke_linecap stroke_linejoin
+			fill_rule fill_opacity stroke_opacity transform &rest _) (get :vals entry))
 	(when (and (/= fill 0) (/= fill_opacity 0.0))
 		(.-> canvas
 			(:set_color (+ (<< (n2i (* fill_opacity 0xff.0)) 24) (logand fill 0xffffff)))
@@ -291,11 +283,11 @@
 					(reduce (lambda (l (f p))
 						(cond
 							(f  ;closed
-								(bind '(p1 p2) (path-stroke-polygon p stroke_width +eps
+								(bind '(p1 p2) (path-stroke-polygon p (* 0.5 stroke_width) +eps
 									stroke_linejoin))
 								(push l p1 p2))
 							(t  ;open
-								(push l (path-stroke-polyline p stroke_width +eps
+								(push l (path-stroke-polyline p (* 0.5 stroke_width) +eps
 									stroke_linejoin stroke_linecap stroke_linecap)))))
 							paths (list)))))))
 
@@ -304,6 +296,7 @@
 	(setd scale 1)
 	(defq canvas nil stack
 		(list (lmap-kv
+			;this block of defaults are in order !
 			"stroke" 0
 			"fill" +argb_black
 			"stroke-width" 1.0
@@ -313,6 +306,7 @@
 			"fill-opacity" 1.0
 			"stroke-opacity" 1.0
 			"transform" (list (n2f scale) 0.0 0.0 (n2f scale) 0.0 0.0)
+			;this block can be any order
 			"x" 0.0 "y" 0.0 "x1" 0.0 "y1" 0.0 "x2" 0.0 "y2" 0.0
 			"cx" 0.0 "cy" 0.0 "r" 0.0
 			"d" (path) "points" (path)
