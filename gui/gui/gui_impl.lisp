@@ -1,8 +1,7 @@
-;(import "lib/debug/frames.inc")
-;import into the shared root env of this node !
 (defq _ (env))
+;import into the shared boot env of this node !
 ;comment next two lines out if need to...
-(while (penv _) (setq _ (penv _)))
+(defq _ *boot_env*)
 (env-resize _ 307)
 (import "sys/lisp.inc" _)
 (import "class/lisp.inc" _)

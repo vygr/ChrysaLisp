@@ -3282,6 +3282,12 @@
 (path-stroke-polylines dst radius tol join cap1 cap2 src) -> dst
 ```
 
+### path-svg
+
+```code
+(path-svg d) -> commands
+```
+
 ### path-transform
 
 ```code
@@ -3765,7 +3771,7 @@
 ### str-to-num
 
 ```code
-(str-to-num str) -> num | fixed
+(str-to-num str)
 ```
 
 ### str?

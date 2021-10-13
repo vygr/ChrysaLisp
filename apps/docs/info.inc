@@ -2,22 +2,16 @@
 (env-push)
 
 (defun boot-funcs ()
-	(defq e (penv))
-	(while (penv e) (setq e (penv e)))
 	(sort cmp (reduce (lambda (_ (k v))
-		(if (func? v) (push _ k) _)) (tolist e) (list))))
+		(if (func? v) (push _ k) _)) (tolist *boot_env*) (list))))
 
 (defun boot-lambdas ()
-	(defq e (penv))
-	(while (penv e) (setq e (penv e)))
 	(sort cmp (reduce (lambda (_ (k v))
-		(if (lambda? v) (push _ k) _)) (tolist e) (list))))
+		(if (lambda? v) (push _ k) _)) (tolist *boot_env*) (list))))
 
 (defun boot-macros ()
-	(defq e (penv))
-	(while (penv e) (setq e (penv e)))
 	(sort cmp (reduce (lambda (_ (k v))
-		(if (macro? v) (push _ k) _)) (tolist e) (list))))
+		(if (macro? v) (push _ k) _)) (tolist *boot_env*) (list))))
 
 (defun paragraph (words)
 	(each (lambda (line)

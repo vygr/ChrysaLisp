@@ -3,6 +3,8 @@
 (include "class/sym/class.inc")
 (include "class/sstream/class.inc")
 (include "class/lisp/class.inc")
+(include "sys/str/class.inc")
+(include "class/fixed/class.inc")
 
 (def-method 'str :lisp_split)
 	;inputs
@@ -418,5 +420,43 @@
 (vp-label 'error)
 	(jump 'lisp :repl_error '(r0 "(expand str tab_width)" error_msg_wrong_types r1))
 	(signature '(str num)))
+
+(def-func-end)
+
+(def-method 'str :lisp_to_num)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args list object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+	;trashes
+	;r1-r14
+
+	(entry 'str :lisp_to_num '(r0 r1))
+
+(errorcases
+	(call 'lisp :env_args_sig '(r1 ($ sig) 1) '(r2))
+	(gotoif '(r2 = 0) 'error))
+
+	(vp-push r0)
+	(defq in (method-input 'sys_str :to_num)
+		out (method-output 'sys_str :to_num))
+	(list-bind-args r1 in '(:str))
+	(call 'sys_str :to_num in out)
+	(vpif (list (elem 1 out) '= 0))
+		(call 'num :create (list (elem 0 out)) '(r1))
+	(else)
+		(call 'fixed :create (list (elem 0 out)) '(r1))
+	(endif)
+	(vp-pop r0)
+
+	(exit 'str :lisp_to_num '(r0 r1))
+	(vp-ret)
+
+(errorcases
+(vp-label 'error)
+	(jump 'lisp :repl_error '(r0 "(str-to-num str)" error_msg_wrong_types r1))
+	(signature '(str)))
 
 (def-func-end)

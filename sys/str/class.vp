@@ -63,9 +63,9 @@
 	(loop-start)
 		(vp-xor-rr r2 r2)
 		(vp-div-rrr-u r3 r2 r0)
-		(vp-add-cr (code "0") r2)
-		(vpif '(r2 > (code "9")))
-			(vp-add-cr (- (code "A") (code ":")) r2)
+		(vp-add-cr (ascii-code "0") r2)
+		(vpif '(r2 > (ascii-code "9")))
+			(vp-add-cr (- (ascii-code "A") (ascii-code ":")) r2)
 		(endif)
 		(vp-cpy-ri-b r2 r4 0)
 		(vp-add-cr +byte_size r4)
@@ -126,16 +126,16 @@
 	(loop-start)
 		(vp-cpy-ir-ub r2 0 r3)
 		(breakif '(r3 = 0))
-		(vpif '(r3 = (code ".")))
+		(vpif '(r3 = (ascii-code ".")))
 			(vp-cpy-cr 1 r4)
 		(else)
-			(vpif '(r3 >= (code "a")))
-				(vp-sub-cr (- (code "a") (code "A")) r3)
+			(vpif '(r3 >= (ascii-code "a")))
+				(vp-sub-cr (- (ascii-code "a") (ascii-code "A")) r3)
 			(endif)
-			(vpif '(r3 >= (code "A")))
-				(vp-sub-cr (- (code "A") (code "9") 1) r3)
+			(vpif '(r3 >= (ascii-code "A")))
+				(vp-sub-cr (- (ascii-code "A") (ascii-code "9") 1) r3)
 			(endif)
-			(vp-sub-cr (code "0") r3)
+			(vp-sub-cr (ascii-code "0") r3)
 			(vp-mul-rr r1 r0)
 			(vp-mul-rr r1 r4)
 			(vp-add-rr r3 r0)
@@ -150,6 +150,51 @@
 	(endif)
 
 	(exit 'sys_str :to_long '(r0 r4))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'sys_str :to_num)
+	;inputs
+	;r0 = c string (pubyte)
+	;outputs
+	;r0 = num | fixed (ulong)
+	;r4 = fixed point position (uint)
+	;trashes
+	;r0-r5
+
+	(vp-def (bufp base num dot minus) '(r0 r1 r0 r4 r5))
+
+	(entry 'sys_str :to_num `(,bufp))
+
+	;negative ?
+	(assign `((,bufp 0 ub)) `(,minus))
+	(vpif (list minus '= (ascii-code "-")))
+		(vp-add-cr +byte_size bufp)
+	(endif)
+
+	;pick the base
+	(assign `((,bufp 1 ub)) `(,base))
+	(vp-add-cr 2 bufp)
+	(vp-or-cr (- (ascii-code "a") (ascii-code "A")) base)
+	(vpif `(,base = (ascii-code "x")))
+		(vp-cpy-cr 16 base)
+	(elseif `(,base = (ascii-code "o")))
+		(vp-cpy-cr 8 base)
+	(elseif `(,base = (ascii-code "b")))
+		(vp-cpy-cr 2 base)
+	(else)
+		(vp-sub-cr 2 bufp)
+		(vp-cpy-cr 10 base)
+	(endif)
+
+	;create the number
+	(call 'sys_str :to_long `(,bufp ,base) `(,num ,dot))
+	(vpif (list minus '= (ascii-code "-")))
+		(vp-mul-cr -1 num)
+	(endif)
+
+	(exit 'sys_str :to_num `(,num ,dot))
 	(vp-ret)
 
 (def-func-end)

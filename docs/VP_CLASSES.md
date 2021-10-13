@@ -5013,6 +5013,19 @@ trashes
 r1-r14
 ```
 
+### path :lisp_svg -> gui/path/lisp_svg
+
+```code
+inputs
+r0 = lisp object (ptr)
+r1 = args list object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
 ### path :lisp_transform -> gui/path/lisp_transform
 
 ```code
@@ -6513,6 +6526,19 @@ r1-r14
 ```
 
 ### str :lisp_str -> class/str/lisp_str
+
+```code
+inputs
+r0 = lisp object (ptr)
+r1 = args list object (ptr)
+outputs
+r0 = lisp object (ptr)
+r1 = return value object (ptr)
+trashes
+r1-r14
+```
+
+### str :lisp_to_num -> class/str/lisp_to_num
 
 ```code
 inputs
@@ -8582,6 +8608,18 @@ r0 = number (ulong)
 r4 = fixed point position (uint)
 trashes
 r0-r4
+```
+
+### sys_str :to_num -> sys/str/to_num
+
+```code
+inputs
+r0 = c string (pubyte)
+outputs
+r0 = num | fixed (ulong)
+r4 = fixed point position (uint)
+trashes
+r0-r5
 ```
 
 ## sys_task

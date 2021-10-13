@@ -26,6 +26,7 @@
 	(dec-method :find class/str/find :final)
 	(dec-method :rfind class/str/rfind :final)
 	(dec-method :lisp_str class/str/lisp_str :static (r0 r1) (r0 r1))
+	(dec-method :lisp_to_num class/str/lisp_to_num :static (r0 r1) (r0 r1))
 	(dec-method :lisp_split class/str/lisp_split :static (r0 r1) (r0 r1))
 	(dec-method :lisp_code class/str/lisp_code :static (r0 r1) (r0 r1))
 	(dec-method :lisp_char class/str/lisp_char :static (r0 r1) (r0 r1))

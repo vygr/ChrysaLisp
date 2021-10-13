@@ -69,31 +69,31 @@
 	(bind '((m00 m01 tx) (m10 m11 ty) _) (mat3x3-mul-f ma mb))
 	(list m00 m01 m10 m11 tx ty))
 
-(defun parse-svg-path (d)
-	(defq commands (list) token nil state :text)
-	(each (lambda (c)
-		(while c
-			(cond
-				((eql state :text)
-					(cond
-						((is-whitespace-char? c))
-						((eql c (ascii-char +char_comma)))
-						((is-command-char? c)
-							(push commands c))
-						((is-num-start-char? c)
-							(setq token c state :number))
-						(t (throw "Unknown path char !" c)))
-					(setq c nil))
-				((cond
-						((is-num-mid-char? c)
-							(setq token (cat token c) c nil))
-						(t  (push commands (n2f (str-to-num token)))
-							(setq state :text)))))))
-		(cat d " "))
-	(push commands "x"))
+;; (defun path-svg (d)
+;; 	(defq token nil state :text commands (list))
+;; 	(each (lambda (c)
+;; 		(while c
+;; 			(cond
+;; 				((eql state :text)
+;; 					(cond
+;; 						((is-whitespace-char? c))
+;; 						((eql c (ascii-char +char_comma)))
+;; 						((is-num-start-char? c)
+;; 							(setq token c state :number))
+;; 						((is-command-char? c)
+;; 							(push commands c))
+;; 						((throw "Unknown path char !" c)))
+;; 					(setq c nil))
+;; 				((cond
+;; 						((is-num-mid-char? c)
+;; 							(setq token (cat token c) c nil))
+;; 						(t  (push commands (n2f (str-to-num token)))
+;; 							(setq state :text)))))))
+;; 		d)
+;; 	(push commands "x"))
 
 (defun read-path (d)
-	(defq i 0 paths (list) d (parse-svg-path d)
+	(defq i 0 paths (list) d (path-svg (cat d " "))
 		cx 0.0 cy 0.0 cpx 0.0 cpy 0.0 last_cmd " ")
 	(until (eql (defq cmd (elem i d)) "x")
 		(setq i (inc i))
@@ -239,13 +239,13 @@
 				(t (cond
 					((starts-with "#" val) (read-col val))
 					((starts-with "rgb(" val) (read-rgb val))
-					(t (throw "Unknown stroke/fill style !" val))))))
+					((throw "Unknown stroke/fill style !" val))))))
 		(("stroke-linecap")
 			(case val
 				("butt" +cap_butt)
 				("round" +cap_round)
 				("square" +cap_square)
-				(t (throw "Unknown stroke-linecap style !" val))))
+				((throw "Unknown stroke-linecap style !" val))))
 		(("stroke-linejoin")
 			(case val
 				("miter" +join_miter)
@@ -253,12 +253,12 @@
 				("round" +join_round)
 				("miter-clip" +join_miter)
 				("arcs" +join_miter)
-				(t (throw "Unknown stroke-linejoin style !" val))))
+				((throw "Unknown stroke-linejoin style !" val))))
 		("fill-rule"
 			(case val
 				("nonzero" +winding_none_zero)
 				("evenodd" +winding_odd_even)
-				(t (throw "Unknown fill-rule !" val))))
+				((throw "Unknown fill-rule !" val))))
 		("d"
 			(read-path val))
 		(t  val)))

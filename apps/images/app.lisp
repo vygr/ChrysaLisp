@@ -34,6 +34,7 @@
 
 (defun win-refresh (_)
 	(defq file (elem (setq index _) images))
+;	(defq file "apps/images/data/monroe.svg")
 	(bind '(w h) (. (defq canvas (Canvas-from-file file 0)) :pref_size))
 	(def image_scroll :min_width w :min_height h)
 	(def window_title :text (cat "Images -> " (slice (inc (find-rev "/" file)) -1 file)))

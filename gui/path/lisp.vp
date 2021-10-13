@@ -1,7 +1,12 @@
 (include "sys/func.inc")
 (include "gui/path/class.inc")
 (include "class/fixed/class.inc")
+(include "class/sym/class.inc")
+(include "sys/str/class.inc")
+(include "class/stream/class.inc")
+(include "class/list/class.inc")
 (include "class/lisp/class.inc")
+(include "lib/consts/chars.inc")
 
 (def-method 'path :lisp_transform)
 	;inputs
@@ -280,5 +285,94 @@
 (vp-label 'error)
 	(jump 'lisp :repl_error '(r0 "(path-stroke-polygon path radius tol join) -> paths" error_msg_wrong_types r1))
 	(signature '(path fixed fixed num)))
+
+(def-func-end)
+
+(def-method 'path :lisp_svg)
+	;inputs
+	;r0 = lisp object (ptr)
+	;r1 = args list object (ptr)
+	;outputs
+	;r0 = lisp object (ptr)
+	;r1 = return value object (ptr)
+	;trashes
+	;r1-r14
+
+	(def-vars
+		(ptr this args commands token command_chars num_start_chars num_mid_chars)
+		(pubyte d d_start)
+		(int state c))
+
+	(entry 'path :lisp_svg '(r0 r1))
+
+(errorcases
+	(call 'lisp :env_args_sig '(r1 ($ sig) 1) '(r2))
+	(gotoif '(r2 = 0) 'error))
+
+	(push-scope)
+	(assign '(r0 r1) {this, args})
+
+	(list-bind-args r1 '(r0) '(:str))
+	(vp-xor-rr r1 r1)
+	(assign '(r0 r1) {d, state})
+	(call 'list :create nil {commands})
+	(call 'str :create_from_buffer {"MLHVCSQTAZmlhvcsqtaz", 20} {command_chars})
+	(call 'str :create_from_buffer {"-+0123456789", 12} {num_start_chars})
+	(call 'str :create_from_buffer {".0123456789", 11} {num_mid_chars})
+
+	(loop-while {(*d) => c})
+		(vpif {state = 0} 'next_char)
+		(vp-label 'eat_char)
+			(breakif {c <= +char_space})
+			(breakif {c = +char_comma})
+			(call 'str :find {command_chars, c})
+			(vpif (list (method-output 'str :rfind 2) '/= -1))
+				;command
+				(call 'str :create_from_buffer {&c, 1} {token})
+				(call 'list :push_back {commands, token})
+				(break 'next_char)
+			(endif)
+		(errorcases
+			(call 'str :find {num_start_chars, c})
+			(gotoif (list (method-output 'str :rfind 2) '= -1) 'error1))
+			;number
+			(assign {d, 1} {d_start, state})
+		(else)
+			(call 'str :find {num_mid_chars, c})
+			(breakif (list (method-output 'str :rfind 2) '/= -1))
+			(assign {0} {*d})
+			(call 'sys_str :to_num {d_start} {token, state})
+			(vpifnot {state})
+				(assign {token << +fp_shift} {token})
+			(endif)
+			(call 'fixed :create {token} {token})
+			(call 'list :push_back {commands, token})
+			(assign {c, 0} {*d, state})
+			(goto 'eat_char)
+		(endif)
+		(assign {d + 1} {d})
+	(loop-end)
+	(call 'str :create_from_buffer {"x", 1} {token})
+	(call 'list :push_back {commands, token})
+
+	(call 'str :destroy {command_chars})
+	(call 'str :destroy {num_start_chars})
+	(call 'str :destroy {num_mid_chars})
+
+	(exit 'path :lisp_svg {this, commands})
+	(return)
+
+(errorcases
+(vp-label 'error1)
+	(call 'str :destroy {commands})
+	(call 'str :destroy {command_chars})
+	(call 'str :destroy {num_start_chars})
+	(call 'str :destroy {num_mid_chars})
+	(assign {this, args} '(r0 r1))
+(vp-label 'error)
+	(jump 'lisp :repl_error '(r0 "(path-svg d) -> commands" error_msg_wrong_types r1))
+	(signature '(str)))
+
+	(pop-scope-syms)
 
 (def-func-end)

@@ -46,14 +46,12 @@
 		:ink_comments (<< (canvas-from-argb32 +argb_grey12 15) 32)
 		:ink_text (<< (canvas-from-argb32 +argb_white 15) 32))
 	;defaults from boot environment
-	(defq e (penv))
-	(while (penv e) (setq e (penv e)))
 	(each (lambda ((k v))
 		(cond
 			((func? v) (def keywords k (get :ink_keyword1 this)))
 			((lambda? v) (def keywords k (get :ink_keyword2 this)))
 			((macro? v) (def keywords k (get :ink_keyword3 this)))))
-		(tolist e))
+		(tolist *boot_env*))
 	(each (lambda (k)
 			(def keywords k (get :ink_keyword4 this)))
 		'(t nil &rest &optional
