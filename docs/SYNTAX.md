@@ -3240,6 +3240,12 @@
 (path-gen-ellipse cx cy rx ry tol dst) -> dst
 ```
 
+### path-gen-paths
+
+```code
+(path-gen-paths svg_d) -> (list (nil|t path) ...)
+```
+
 ### path-gen-quadratic
 
 ```code
