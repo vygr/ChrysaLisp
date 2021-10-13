@@ -17,7 +17,7 @@
 		(slice 1 -1 args)))
 (("-e" "--elem")
 	,(lambda (args arg)
-		(setq sel (str-to-num (elem 0 args)))
+		(setq sel (str-as-num (elem 0 args)))
 		(slice 1 -1 args)))
 ))
 

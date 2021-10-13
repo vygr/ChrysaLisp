@@ -141,11 +141,11 @@
 			(cat "Molecule -> " (slice (inc (find-rev "/" file)) -1 file)))
 		(clear balls)
 		(times 3 (read-line stream))
-		(defq num_atoms (str-to-num (elem 0 (split (read-line stream) " "))))
+		(defq num_atoms (str-as-num (elem 0 (split (read-line stream) " "))))
 		(times num_atoms
 			(defq line (split (read-line stream) " "))
 			(bind '(x y z) (map
-					(# (/ (n2r (str-to-num %0)) (const (n2r 65536))))
+					(# (/ (n2r (str-as-num %0)) (const (n2r 65536))))
 				(slice 0 3 line)))
 			(bind '(radius col) (case (elem 3 line)
 				("C" (list (const (n2r (* 70 canvas_scale))) (elem 0 palette)))

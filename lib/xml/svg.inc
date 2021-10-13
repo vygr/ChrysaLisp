@@ -41,17 +41,14 @@
 (defmacro is-whitespace-char? (_)
 	`(<= (code ,_) +char_space))
 
-(defun read-num (s)
-	(elem 0 (read (string-stream s) +char_space)))
-
 (defun read-col (val)
 	(case (length val)
-		(4 (canvas-to-argb32 (read-num (cat "0xf" (slice 1 -1 val))) 12))
-		(7 (canvas-to-argb32 (read-num (cat "0x" (slice 1 -1 val))) 24))
+		(4 (canvas-to-argb32 (str-to-num (cat "0xf" (slice 1 -1 val))) 12))
+		(7 (canvas-to-argb32 (str-to-num (cat "0x" (slice 1 -1 val))) 24))
 		(t (throw "Unknown # val !" val))))
 
 (defun read-rgb (val)
-	(bind '(r g b) (map (const read-num) (slice 1 4 (split val "(), "))))
+	(bind '(r g b) (map (const str-to-num) (slice 1 4 (split val "(), "))))
 	(+ +argb_black (<< r 16) (<< g 8) b))
 
 (defun read-transform (entry val)
@@ -60,12 +57,12 @@
 	(cond
 		((starts-with "matrix(" val)
 			(bind '(m00 m01 m10 m11 tx ty)
-					(map (# (n2f (read-num %0)))
+					(map (# (n2f (str-to-num %0)))
 				 (slice 1 7 (split val "(), "))))
 			(defq mb (Mat3x3-f m00 m01 tx m10 m11 ty 0.0 0.0 1.0)))
 		((starts-with "translate(" val)
 			(bind '(tx ty)
-					(map (# (n2f (read-num %0)))
+					(map (# (n2f (str-to-num %0)))
 				(slice 1 3 (split val "(), "))))
 			(defq mb (Mat3x3-f 1.0 0.0 tx 0.0 1.0 ty 0.0 0.0 1.0)))
 		((throw "Unknown transform !" val)))
@@ -90,7 +87,7 @@
 				((cond
 						((is-num-mid-char? c)
 							(setq token (cat token c) c nil))
-						(t  (push commands (n2f (read-num token)))
+						(t  (push commands (n2f (str-to-num token)))
 							(setq state :text)))))))
 		(cat d " "))
 	(push commands "x"))
@@ -220,11 +217,11 @@
 	(case key
 		(("x" "y" "x1" "y1" "x2" "y2" "rx" "ry" "cx" "cy" "r"
 			"width" "height" "stroke-width" "fill-opacity" "stroke-opacity")
-			(n2f (read-num val)))
+			(n2f (str-to-num val)))
 		("viewBox"
-			(map (# (n2i (read-num %0))) (split val ", ")))
+			(map (# (n2i (str-to-num %0))) (split val ", ")))
 		("points"
-			(reduce (# (push %0 (n2f (read-num %1)))) (split val ", ") (path)))
+			(reduce (# (push %0 (n2f (str-to-num %1)))) (split val ", ") (path)))
 		("transform"
 			(read-transform entry val))
 		(("stroke" "fill")

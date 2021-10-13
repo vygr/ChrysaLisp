@@ -3756,10 +3756,16 @@
 (str-alloc size)
 ```
 
+### str-as-num
+
+```code
+(str-as-num str) -> num
+```
+
 ### str-to-num
 
 ```code
-(str-to-num str) -> num
+(str-to-num str) -> num | fixed
 ```
 
 ### str?

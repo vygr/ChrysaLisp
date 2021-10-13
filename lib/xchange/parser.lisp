@@ -92,7 +92,7 @@
     ((and
        (gets (gets cmd :in-args) :vals-to-num)
        (eql (str-is-ints? v) :true))
-     (setq v (str-to-num v)))
+     (setq v (str-as-num v)))
     ((and
        (eql (first (last (gets cmd :parents))) :value)
        (gets (gets cmd :in-args) :vals-to-kw)

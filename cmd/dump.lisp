@@ -41,7 +41,7 @@
 	then will dump stdin.")
 (("-c" "--chunk")
 	,(lambda (args arg)
-		(setq chunk_size (str-to-num (elem 0 args)))
+		(setq chunk_size (str-as-num (elem 0 args)))
 		(slice 1 -1 args)))
 ))
 

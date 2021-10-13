@@ -57,7 +57,7 @@
 						(dispatch-job key val)))
 				((= idx +select_reply)
 					;child worker responce
-					(defq key (str-to-num (pop (defq msg (split msg (ascii-char 10))))))
+					(defq key (str-as-num (pop (defq msg (split msg (ascii-char 10))))))
 					(when (defq val (. farm :find key))
 						(dispatch-job key val))
 					(each (# (if (starts-with "Error:" %0) (push errors %0) (print %0))) msg)

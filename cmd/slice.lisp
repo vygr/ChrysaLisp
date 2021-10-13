@@ -11,11 +11,11 @@
 	Slice the lines from stdin to stdout.")
 (("-s" "--start")
 	,(lambda (args arg)
-		(setq start (str-to-num (elem 0 args)))
+		(setq start (str-as-num (elem 0 args)))
 		(slice 1 -1 args)))
 (("-e" "--end")
 	,(lambda (args arg)
-		(setq end (str-to-num (elem 0 args)))
+		(setq end (str-as-num (elem 0 args)))
 		(slice 1 -1 args)))
 ))
 

@@ -11,7 +11,7 @@
 	Defaults to first 10 lines.")
 (("-c" "--count")
 	,(lambda (args arg)
-		(setq count (str-to-num (elem 0 args)))
+		(setq count (str-as-num (elem 0 args)))
 		(slice 1 -1 args)))
 ))
 

@@ -78,7 +78,7 @@
       (str-is-ints? wrk)))
   (when (eql good :false)
     (throw "Validation: expected positive integer, found" arg))
-  (str-to-num wrk))
+  (str-as-num wrk))
 
 (defun validate-integer-any (inst arg)
   ; (validate-integer-any arg-clz arg) -> integer | exception
@@ -96,8 +96,8 @@
   (when (eql good :false)
     (throw "Validation: expected integer, found" arg))
   (if negi
-    (str-to-num arg)
-    (str-to-num wrk)))
+    (str-as-num arg)
+    (str-as-num wrk)))
 
 (defun validate-float (inst arg)
   ; (validate-float arg-clz arg) -> float | exception

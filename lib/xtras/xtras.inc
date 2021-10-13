@@ -146,10 +146,10 @@
   (when (not (eql ty :nan))
     (case ty
       ((:integer)
-        (* (str-to-num wn) mu))
+        (* (str-as-num wn) mu))
       ((:decimal)
-        (* (n2f mu) (+ (n2f (str-to-num wn))
-          (/ (n2f (str-to-num dn)) (n2f (pow ba (length dn)))))))
+        (* (n2f mu) (+ (n2f (str-as-num wn))
+          (/ (n2f (str-as-num dn)) (n2f (pow ba (length dn)))))))
       ((:hexidecimal :octal :binary)
         (defq num 0)
         (each (# (setq num (+ (* num ba) (char-to-num %0)))) wn)

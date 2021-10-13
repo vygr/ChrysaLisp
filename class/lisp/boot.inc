@@ -649,20 +649,13 @@
 	; (num-to-char num) -> char
 	(elem _ "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"))
 
+(defun str-as-num (_)
+	; (str-as-num str) -> num
+	(pop (nums (elem 0 (read (string-stream _) (ascii-code " "))))))
+
 (defun str-to-num (_)
-	; (str-to-num str) -> num
-	(defq n 0 b 10 f 0 m 1)
-	(when (eql (elem 0 _) "-")
-		(setq m -1 _ (slice 1 -1 _)))
-	(when (> (length _) 1)
-		(case (elem 1 _)
-			(("x" "X") (setq b 16 _ (slice 2 -1 _)))
-			(("o" "O") (setq b 8 _ (slice 2 -1 _)))
-			(("b" "B") (setq b 2 _ (slice 2 -1 _)))))
-	(each (lambda (_) (if (eql _ ".")
-			(setq f 1)
-			(setq n (+ (* n b) (char-to-num _)) f (* f b)))) _)
-	(if (= f 0) (* n m) (/ (<< (* n m) +fp_shift) f)))
+	; (str-to-num str) -> num | fixed
+	(elem 0 (read (string-stream _) (ascii-code " "))))
 
 (defun num-to-utf8 (_)
 	; (num-to-utf8 num) -> str

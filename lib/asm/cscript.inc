@@ -410,7 +410,7 @@
 	(each! 0 -1 (lambda (token type)
 		(case type
 			(:operator (compile-operator (sym token)))
-			(:number (compile-const (str-to-num token)))
+			(:number (compile-const (str-as-num token)))
 			(:symbol (compile-ref (sym token)))
 			(:path (compile-bind (sym token)))
 			(:label (compile-label (sym token)))
