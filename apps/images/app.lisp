@@ -22,7 +22,7 @@
 		(unzip (split (pii-dirlist p) ",") (list (list) (list))))
 	(sort cmp out))
 
-(defq images (all-images "apps/images/data/")
+(defq images (filter (# (not (ends-with "monroe.svg" %0))) (all-images "apps/images/data/"))
 	index (some (# (if (eql "apps/images/data/tiger.svg" %0) _)) images)
 	id t)
 
