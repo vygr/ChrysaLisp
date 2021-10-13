@@ -68,4 +68,4 @@
 	(free-select select)
 	(gui-sub *window*)
 	(if (get 'profile-report)
-		(profile-report "Molecule")))
+		(profile-report "Images")))
