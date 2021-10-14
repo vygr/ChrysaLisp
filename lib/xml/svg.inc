@@ -116,7 +116,7 @@
 				("evenodd" +winding_odd_even)
 				((throw "Unknown fill-rule !" val))))
 		("d"
-			(path-gen-paths val))
+			(path-gen-paths val +eps))
 		(t  val)))
 
 (defun push-attributes (stack keys vals)
