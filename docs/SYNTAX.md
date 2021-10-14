@@ -3852,6 +3852,12 @@
 (texture-metrics texture) -> (handle width height)
 ```
 
+### third
+
+```code
+(third seq) -> el | nil
+```
+
 ### throw
 
 ```code
