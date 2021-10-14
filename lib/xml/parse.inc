@@ -31,55 +31,57 @@
 	;calls back to user code, so _ used for vars that would be in scope
 	;break the stream into svg tokens, symbols, strings etc
 	(defq _state :text1 _token (list) _token_list (list) _state_list (list))
-	(each-line (lambda (l) (task-slice) (each (lambda (c)
-		(while c
+	(while (defq _c (read-char _stream))
+		(setq _c (char _c))
+		(while _c
 			(case _state
 				(:text1
 					(cond
-						((is-whitespace-char? c))
-						((eql c (ascii-char +char_lt))
+						((is-whitespace-char? _c))
+						((eql _c (ascii-char +char_lt))
 							(push _token_list (if (= (length _token) 0) "" (apply cat _token)))
 							(push _state_list _state)
-							(setq _token (list c) _state :open))
-						(t  (push _token c)
+							(setq _token (list _c) _state :open))
+						(t  (push _token _c)
 							(setq _state :text2)))
-					(setq c nil))
+					(setq _c nil))
 				(:text2
 					(cond
-						((is-whitespace-char? c)
+						((is-whitespace-char? _c)
 							(push _token " ")
 							(setq _state :text1))
-						((eql c (ascii-char +char_lt))
+						((eql _c (ascii-char +char_lt))
 							(push _token_list (apply cat _token))
 							(push _state_list _state)
-							(setq _token (list c) _state :open))
-						(t  (push _token c)))
-					(setq c nil))
+							(setq _token (list _c) _state :open))
+						(t  (push _token _c)))
+					(setq _c nil))
 				(:open
 					(cond
-						((is-xml-open-char? c)
-							(push _token c)
-							(setq c nil))
+						((is-xml-open-char? _c)
+							(push _token _c)
+							(setq _c nil))
 						(t  (push _token_list (apply cat _token))
 							(push _state_list _state)
-							(setq _state :attribute?))))
+							(setq _state :attribute?)))
+					(task-slice))
 				(:attribute?
 					(cond
-						((is-whitespace-char? c))
-						((eql c (ascii-char +char_equal))
-							(setq _token (list c) _state :assign))
-						((eql c (ascii-char +char_double_quote))
+						((is-whitespace-char? _c))
+						((eql _c (ascii-char +char_equal))
+							(setq _token (list _c) _state :assign))
+						((eql _c (ascii-char +char_double_quote))
 							(setq _token (list) _state :string))
-						((is-xml-close-char? c)
-							(setq _token (list c) _state :close))
-						((is-symbol-char? c)
-							(setq _token (list c) _state :symbol)))
-					(setq c nil))
+						((is-xml-close-char? _c)
+							(setq _token (list _c) _state :close))
+						((is-symbol-char? _c)
+							(setq _token (list _c) _state :symbol)))
+					(setq _c nil))
 				(:symbol
 					(cond
-						((is-symbol-char? c)
-							(push _token c)
-							(setq c nil))
+						((is-symbol-char? _c)
+							(push _token _c)
+							(setq _c nil))
 						(t  (push _token_list (apply cat _token))
 							(push _state_list _state)
 							(setq _token (list) _state :attribute?))))
@@ -89,21 +91,21 @@
 					(setq _token (list) _state :attribute?))
 				(:string
 					(cond
-						((eql c (ascii-char +char_double_quote))
+						((eql _c (ascii-char +char_double_quote))
 							(push _token_list (apply cat _token))
 							(push _state_list _state)
 							(setq _token (list) _state :attribute?))
-						(t  (push _token c)))
-					(setq c nil))
+						(t  (push _token _c)))
+					(setq _c nil))
 				(:close
 					(cond
-						((is-xml-close-char? c)
-							(push _token c)
-							(setq c nil))
+						((is-xml-close-char? _c)
+							(push _token _c)
+							(setq _c nil))
 						(t  (push _token_list (apply cat _token))
 							(push _state_list _state)
 							(setq _token (list) _state :text1))))
-			))) (cat l " "))) _stream)
+			)))
 
 	;parse the commands and attributes calling back to the user functions
 	(defq _stack (list) _keys (list) _vals (list) _state :text)

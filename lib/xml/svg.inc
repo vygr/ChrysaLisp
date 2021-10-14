@@ -24,7 +24,7 @@
 		(fixeds (nums-dot mar1 mbc0) (nums-dot mar1 mbc1) (nums-dot mar1 mbc2))
 		(fixeds (nums-dot mar2 mbc0) (nums-dot mar2 mbc1) (nums-dot mar2 mbc2))))
 
-(defq +eps 0.25
+(defq +eps 1.0
 	+command_chars "MLHVCSQTAZmlhvcsqtaz"
 	+num_start_chars "-+0123456789"
 	+num_mid_chars ".0123456789")
