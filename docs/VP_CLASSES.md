@@ -8604,7 +8604,7 @@ inputs
 r0 = c string (pubyte)
 r1 = base (ulong)
 outputs
-r0 = number (ulong)
+r3 = num | fixed (ulong)
 r4 = fixed point position (uint)
 trashes
 r0-r4
@@ -8616,7 +8616,7 @@ r0-r4
 inputs
 r0 = c string (pubyte)
 outputs
-r0 = num | fixed (ulong)
+r3 = num | fixed (ulong)
 r4 = fixed point position (uint)
 trashes
 r0-r5
