@@ -449,6 +449,10 @@
 	; (second seq) -> el | nil
 	(if (and (not (nil? _)) (> (length _) 1)) (elem 1 _)))
 
+(defun third (_)
+	; (third seq) -> el | nil
+	(if (and (not (nil? _)) (> (length _) 2)) (elem 2 _)))
+
 (defun last (_)
 	; (last seq) -> el | nil
 	(if (and (not (nil? _)) (> (length _) 0)) (elem -2 _)))
