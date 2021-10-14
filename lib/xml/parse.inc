@@ -38,7 +38,7 @@
 					(cond
 						((is-whitespace-char? c))
 						((eql c (ascii-char +char_lt))
-							(push _token_list _token)
+							(push _token_list (if (= (length _token) 0) "" (apply cat _token)))
 							(push _state_list _state)
 							(setq _token (list c) _state :open))
 						(t  (push _token c)
@@ -50,7 +50,7 @@
 							(push _token " ")
 							(setq _state :text1))
 						((eql c (ascii-char +char_lt))
-							(push _token_list _token)
+							(push _token_list (apply cat _token))
 							(push _state_list _state)
 							(setq _token (list c) _state :open))
 						(t  (push _token c)))
@@ -60,7 +60,7 @@
 						((is-xml-open-char? c)
 							(push _token c)
 							(setq c nil))
-						(t  (push _token_list _token)
+						(t  (push _token_list (apply cat _token))
 							(push _state_list _state)
 							(setq _state :attribute?))))
 				(:attribute?
@@ -80,17 +80,17 @@
 						((is-symbol-char? c)
 							(push _token c)
 							(setq c nil))
-						(t  (push _token_list _token)
+						(t  (push _token_list (apply cat _token))
 							(push _state_list _state)
 							(setq _token (list) _state :attribute?))))
 				(:assign
-					(push _token_list _token)
+					(push _token_list (apply cat _token))
 					(push _state_list _state)
 					(setq _token (list) _state :attribute?))
 				(:string
 					(cond
 						((eql c (ascii-char +char_double_quote))
-							(push _token_list _token)
+							(push _token_list (apply cat _token))
 							(push _state_list _state)
 							(setq _token (list) _state :attribute?))
 						(t  (push _token c)))
@@ -100,7 +100,7 @@
 						((is-xml-close-char? c)
 							(push _token c)
 							(setq c nil))
-						(t  (push _token_list _token)
+						(t  (push _token_list (apply cat _token))
 							(push _state_list _state)
 							(setq _token (list) _state :text1))))
 			))) (cat l " "))) _stream)
@@ -108,9 +108,6 @@
 	;parse the commands and attributes calling back to the user functions
 	(defq _stack (list) _keys (list) _vals (list) _state :text)
 	(each (lambda (_type _token)
-		(if (> (length _token) 0)
-			(setq _token (apply cat _token))
-			(setq _token ""))
 		(while _type
 			(case _state
 				(:text
