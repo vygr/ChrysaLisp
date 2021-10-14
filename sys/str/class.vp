@@ -114,42 +114,41 @@
 	;r0 = c string (pubyte)
 	;r1 = base (ulong)
 	;outputs
-	;r0 = number (ulong)
+	;r3 = num | fixed (ulong)
 	;r4 = fixed point position (uint)
 	;trashes
 	;r0-r4
 
-	(entry 'sys_str :to_long '(r2 r1))
+	(vp-def (bufp base c num dot))
 
-	(vp-xor-rr r0 r0)
-	(vp-xor-rr r4 r4)
+	(entry 'sys_str :to_long `(,bufp ,base))
+
+	(vp-xor-rr num num)
+	(vp-xor-rr dot dot)
 	(loop-start)
-		(vp-cpy-ir-ub r2 0 r3)
-		(breakif '(r3 = 0))
-		(vpif '(r3 = (ascii-code ".")))
-			(vp-cpy-cr 1 r4)
+		(vp-cpy-ir-ub bufp 0 c)
+		(breakif (list c '= 0))
+		(vpif (list c '= (ascii-code ".")))
+			(vp-cpy-cr 1 dot)
 		(else)
-			(vpif '(r3 >= (ascii-code "a")))
-				(vp-sub-cr (- (ascii-code "a") (ascii-code "A")) r3)
+			(vp-or-cr (- (ascii-code "a") (ascii-code "A")) c)
+			(vpif (list c '>= (ascii-code "a")))
+				(vp-sub-cr (- (ascii-code "a") (ascii-code "9") 1) c)
 			(endif)
-			(vpif '(r3 >= (ascii-code "A")))
-				(vp-sub-cr (- (ascii-code "A") (ascii-code "9") 1) r3)
-			(endif)
-			(vp-sub-cr (ascii-code "0") r3)
-			(vp-mul-rr r1 r0)
-			(vp-mul-rr r1 r4)
-			(vp-add-rr r3 r0)
+			(vp-sub-cr (ascii-code "0") c)
+			(vp-mul-rr base num)
+			(vp-mul-rr base dot)
+			(vp-add-rr c num)
 		(endif)
-		(vp-add-cr +byte_size r2)
+		(vp-add-cr +byte_size bufp)
 	(loop-end)
-	(vpif '(r4 /= 0))
-		(vp-shl-cr 16 r0)
-		(vp-ext-rr r0 r2)
-		(vp-cpy-rr r4 r1)
-		(vp-div-rrr r1 r2 r0)
+	(vpif (list dot '/= 0))
+		(vp-shl-cr 16 num)
+		(vp-ext-rr num c)
+		(vp-div-rrr dot c num)
 	(endif)
 
-	(exit 'sys_str :to_long '(r0 r4))
+	(exit 'sys_str :to_long `(,num ,dot))
 	(vp-ret)
 
 (def-func-end)
@@ -158,22 +157,23 @@
 	;inputs
 	;r0 = c string (pubyte)
 	;outputs
-	;r0 = num | fixed (ulong)
+	;r3 = num | fixed (ulong)
 	;r4 = fixed point position (uint)
 	;trashes
 	;r0-r5
 
-	(vp-def (bufp base num dot minus) '(r0 r1 r0 r4 r5))
+	(vp-def (minus bufp base c num dot) '(r5))
 
 	(entry 'sys_str :to_num `(,bufp))
 
-	;negative ?
-	(assign `((,bufp 0 ub)) `(,minus))
-	(vpif (list minus '= (ascii-code "-")))
+	;negative/positive
+	(assign `((,bufp 0 ub) 1) `(,c ,minus))
+	(vpif (list c '= (ascii-code "-")))
 		(vp-add-cr +byte_size bufp)
+		(vp-cpy-cr -1 minus)
 	(endif)
 
-	;pick the base
+	;base
 	(assign `((,bufp 1 ub)) `(,base))
 	(vp-add-cr 2 bufp)
 	(vp-or-cr (- (ascii-code "a") (ascii-code "A")) base)
@@ -188,11 +188,9 @@
 		(vp-cpy-cr 10 base)
 	(endif)
 
-	;create the number
+	;number
 	(call 'sys_str :to_long `(,bufp ,base) `(,num ,dot))
-	(vpif (list minus '= (ascii-code "-")))
-		(vp-mul-cr -1 num)
-	(endif)
+	(vp-mul-rr minus num)
 
 	(exit 'sys_str :to_num `(,num ,dot))
 	(vp-ret)
