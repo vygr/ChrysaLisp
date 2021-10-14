@@ -29,7 +29,7 @@
 (defun XML-parse (_stream _fnc_in _fnc_out _fnc_text)
 	; (XML-parse stream fnc_in fnc_out fnc_text)
 	;calls back to user code, so _ used for vars that would be in scope
-	;break the steam into svg tokens, symbols, strings etc
+	;break the stream into svg tokens, symbols, strings etc
 	(defq _state :text1 _token (list) _token_list (list) _state_list (list))
 	(each-line (lambda (l) (task-slice) (each (lambda (c)
 		(while c
