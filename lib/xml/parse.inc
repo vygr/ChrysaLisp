@@ -24,20 +24,20 @@
 	(list 'find-rev _ +xml_close_chars))
 
 (defmacro is-whitespace-char? (_)
-	`(<= (code ,_) +char_space))
+	`(<= ,_ +char_space))
 
 (defun XML-parse (_stream _fnc_in _fnc_out _fnc_text)
 	; (XML-parse stream fnc_in fnc_out fnc_text)
 	;calls back to user code, so _ used for vars that would be in scope
 	;break the stream into svg tokens, symbols, strings etc
 	(defq _state :text1 _token (list) _token_list (list) _state_list (list))
-	(while (defq _c (read-char _stream))
-		(setq _c (char _c))
+	(while (defq _cc (read-char _stream))
+		(defq _c (char _cc))
 		(while _c
 			(case _state
 				(:text1
 					(cond
-						((is-whitespace-char? _c))
+						((is-whitespace-char? _cc))
 						((eql _c (ascii-char +char_lt))
 							(push _token_list (if (= (length _token) 0) "" (apply cat _token)))
 							(push _state_list _state)
@@ -47,7 +47,7 @@
 					(setq _c nil))
 				(:text2
 					(cond
-						((is-whitespace-char? _c)
+						((is-whitespace-char? _cc)
 							(push _token " ")
 							(setq _state :text1))
 						((eql _c (ascii-char +char_lt))
@@ -67,7 +67,7 @@
 					(task-slice))
 				(:attribute?
 					(cond
-						((is-whitespace-char? _c))
+						((is-whitespace-char? _cc))
 						((eql _c (ascii-char +char_equal))
 							(setq _token (list _c) _state :assign))
 						((eql _c (ascii-char +char_double_quote))
