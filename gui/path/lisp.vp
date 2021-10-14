@@ -331,7 +331,7 @@
 			(assign {num_start_chars, c} str_find_in)
 			(breakif (list (elem 1 str_find_in) '<= +char_space))
 			(breakif (list (elem 1 str_find_in) '= +char_comma))
-			(call 'str :find str_find_in str_find_out)
+			(d-call 'str :find str_find_in str_find_out)
 			(vpif (list (elem 2 str_find_out) '/= -1))
 				;number
 				(assign {d, 1} {d_start, state})
@@ -339,7 +339,7 @@
 			(endif)
 		(errorcases
 			(assign {command_chars, c} str_find_in)
-			(call 'str :find str_find_in str_find_out)
+			(d-call 'str :find str_find_in str_find_out)
 			(gotoif (list (elem 2 str_find_out) '= -1) 'error1))
 			;command
 			(call 'str :create_from_buffer {&c, 1} (list (elem 1 push_back_in)))
@@ -347,7 +347,7 @@
 			(call 'list :push_back push_back_in)
 		(else)
 			(assign {num_mid_chars, c} str_find_in)
-			(call 'str :find str_find_in str_find_out)
+			(d-call 'str :find str_find_in str_find_out)
 			(breakif (list (elem 2 str_find_out) '/= -1))
 			(assign {0} {*d})
 			(call 'sys_str :to_num {d_start} str_to_num_out)
@@ -373,6 +373,9 @@
 	(exit 'path :lisp_svg {this, commands})
 	(return)
 
+(noterrorcases
+	(pop-scope-syms))
+
 (errorcases
 (vp-label 'error1)
 	(call 'str :destroy {commands})
@@ -380,10 +383,9 @@
 	(call 'str :destroy {num_start_chars})
 	(call 'str :destroy {num_mid_chars})
 	(assign {this, args} '(r0 r1))
+	(pop-scope)
 (vp-label 'error)
 	(jump 'lisp :repl_error '(r0 "(path-svg d) -> commands" error_msg_wrong_types r1))
 	(signature '(str)))
-
-	(pop-scope-syms)
 
 (def-func-end)

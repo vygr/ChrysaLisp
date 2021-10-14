@@ -4284,6 +4284,12 @@
 (xmap-kv [key val ...]) -> xmap
 ```
 
+### xml-parse
+
+```code
+(xml-parse stream)
+```
+
 ### xset
 
 ```code

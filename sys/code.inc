@@ -31,6 +31,9 @@
 (defmacro errorcases (&rest e)
 	(if (> *debug_mode* 0) (cat '(progn) e)))
 
+(defmacro noterrorcases (&rest e)
+	(if (<= *debug_mode* 0) (cat '(progn) e)))
+
 (defun goto (l)
 	(vp-jmp l))
 

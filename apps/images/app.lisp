@@ -1,5 +1,3 @@
-;(import "lib/debug/profile.inc")
-
 (import "sys/lisp.inc")
 (import "class/lisp.inc")
 (import "gui/lisp.inc")
@@ -22,7 +20,7 @@
 		(unzip (split (pii-dirlist p) ",") (list (list) (list))))
 	(sort cmp out))
 
-(defq images (filter (# (not (ends-with "monroe.svg" %0))) (all-images "apps/images/data/"))
+(defq images (all-images "apps/images/data/")
 	index (some (# (if (eql "apps/images/data/tiger.svg" %0) _)) images)
 	id t)
 
@@ -34,7 +32,6 @@
 
 (defun win-refresh (_)
 	(defq file (elem (setq index _) images))
-;	(defq file "apps/images/data/monroe.svg")
 	(bind '(w h) (. (defq canvas (Canvas-from-file file 0)) :pref_size))
 	(def image_scroll :min_width w :min_height h)
 	(def window_title :text (cat "Images -> " (slice (inc (find-rev "/" file)) -1 file)))
@@ -67,6 +64,4 @@
 				(win-refresh (% (+ index (dec (* 2 (- id +event_prev))) (length images)) (length images))))
 			(t (. *window* :event *msg*))))
 	(free-select select)
-	(gui-sub *window*)
-	(if (get 'profile-report)
-		(profile-report "Images")))
+	(gui-sub *window*))
