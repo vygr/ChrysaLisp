@@ -19,11 +19,13 @@
 	(def-vars
 		(int c)
 		(ptr state)
-		(offset res_start)
-		(ptr states tokens ;must be first 2 resources !
-			sym_text sym_open sym_close sym_assign sym_string sym_symbol
-			not_symbol_chars open_chars close_chars sstoken)
-		(offset res_end)
+	(offset res_start)
+		(ptr states tokens) ;must be first 2 resources !
+	(offset syms_start)
+		(ptr sym_text sym_open sym_close sym_assign sym_string sym_symbol)
+	(offset syms_end)
+		(ptr not_symbol_chars open_chars close_chars sstoken)
+	(offset res_end)
 		(ptr stream resources this args))
 
 	(defq find_in (method-input 'str :find)
@@ -71,16 +73,21 @@
 	(call 'sstream :create '(r0) {sstoken})
 	(call 'list :create nil {states})
 	(call 'list :create nil {tokens})
-	(call 'sym :intern_cstr {":text"} {sym_text})
-	(call 'sym :intern_cstr {":open"} {sym_open})
-	(call 'sym :intern_cstr {":close"} {sym_close})
-	(call 'sym :intern_cstr {":assign"} {sym_assign})
-	(call 'sym :intern_cstr {":string"} {sym_string})
-	(call 'sym :intern_cstr {":symbol"} {sym_symbol})
 	(call 'str :create_from_buffer (list (cat (char +char_double_quote) {=<>}) 4) {not_symbol_chars})
 	(call 'str :create_from_buffer {"</!-?", 5} {open_chars})
 	(call 'str :create_from_buffer {">/-?", 4} {close_chars})
 
+	;create state symbols
+	(assign {$states, &syms_start, &syms_end} '(r11 r12 r13))
+	(loop-start)
+		(call 'sym :intern_cstr '(r11) '((r12 0)))
+		(call 'sys_str :length '(r11) '(_ r1))
+		(vp-add-cr +ptr_size r12)
+		(vp-add-rr r1 r11)
+		(vp-add-cr 1 r11)
+	(loop-until '(r12 = r13))
+
+	;create resource tracker list
 	(assign {resources, &res_start, &res_end} '(r0 r13 r14))
 	(loop-start)
 		(assign '(r0 (r13 0)) push_back_in)
@@ -150,6 +157,14 @@
 	(exit {this, args})
 	(pop-scope)
 	(return)
+
+(vp-label 'states)
+	(vp-string ":text")(vp-byte 0)
+	(vp-string ":open")(vp-byte 0)
+	(vp-string ":close")(vp-byte 0)
+	(vp-string ":assign")(vp-byte 0)
+	(vp-string ":string")(vp-byte 0)
+	(vp-string ":symbol")(vp-byte 0)
 
 (errorcases
 (vp-label 'error)
