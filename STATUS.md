@@ -10,6 +10,8 @@ New '(lmap)' linear map class.
 
 Moved all the Canvas loading and saving to Lisp.
 
+New 'sstream :claim_string method.
+
 ------
 
 New `(mat4x4-invert)` function and Scene graph class updated to use this to
