@@ -48,6 +48,39 @@
 
 (def-func-end)
 
+(def-method 'sstream :claim_string)
+	;inputs
+	;r0 = sstream object (ptr)
+	;outputs
+	;r0 = sstream object (ptr)
+	;r1 = str object (ptr)
+	;trashes
+	;r1-r2
+
+	(def-struct local 0
+		(ptr this string))
+
+	(vp-alloc local_size)
+	(entry 'sstream :claim_string '(r0))
+	(assign '(r0) '((rsp local_this)))
+
+	(assign '((r0 stream_bufp) (r0 stream_object)) '(r1 r0))
+	(vp-xor-rr r2 r2)
+	(assign '(r2 r2 (& r0 str_data)) '((r1 0 b) (r0 str_hashcode) r2))
+	(vp-sub-rr r2 r1)
+	(assign '(r0 r1) '((rsp local_string) (r0 str_length)))
+	(call 'str :create_from_buffer '(0 str_gap) '(r0))
+	(assign '((rsp local_this)) '(r1))
+	(assign '((& r0 str_data) (r0 str_length)) '(r2 r3))
+	(vp-add-rr r2 r3)
+	(assign '(r0 r2 r3) '((r1 stream_object) (r1 stream_bufp) (r1 stream_bufe)))
+
+	(exit 'sstream :claim_string '(r1 (rsp local_string)))
+	(vp-free local_size)
+	(vp-ret)
+
+(def-func-end)
+
 (def-method 'sstream :write_next)
 	;inputs
 	;r0 = sstream object (ptr)

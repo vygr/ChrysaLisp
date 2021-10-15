@@ -6140,6 +6140,18 @@ r1-r14
 
 Super Class: stream
 
+### sstream :claim_string -> class/sstream/claim_string
+
+```code
+inputs
+r0 = sstream object (ptr)
+outputs
+r0 = sstream object (ptr)
+r1 = str object (ptr)
+trashes
+r1-r2
+```
+
 ### sstream :create -> class/sstream/create
 
 ### sstream :flush -> class/sstream/flush
