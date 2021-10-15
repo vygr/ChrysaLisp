@@ -1,7 +1,7 @@
 (include "sys/func.inc")
 (include "class/sym/class.inc")
 (include "sys/str/class.inc")
-(include "class/stream/class.inc")
+(include "class/sstream/class.inc")
 (include "class/list/class.inc")
 (include "class/lisp/class.inc")
 (include "lib/consts/chars.inc")
@@ -18,30 +18,23 @@
 
 	(def-vars
 		(int c)
-		(ptr state token states tokens
+		(ptr state)
+		(offset res_start)
+		(ptr states tokens ;must be first 2 resources !
 			sym_text sym_open sym_close sym_assign sym_string sym_symbol
-			not_symbol_chars open_chars close_chars
-			stream resources this args))
+			not_symbol_chars open_chars close_chars sstoken)
+		(offset res_end)
+		(ptr stream resources this args))
 
 	(defq find_in (method-input 'str :find)
 		find_out (method-output 'str :find)
-		str_cat_in (method-input 'str :cat)
-		push_back_in (method-input 'list :push_back)
-		push_back2_in (method-input 'list :push_back2))
+		push_back_in (method-input 'list :push_back))
 
-	(defun push-token-c ()
-		(call 'str :create_from_buffer {&c, 1} `(,(second push_back_in)))
-		(assign {token} `(,(first push_back_in)))
-		(call 'list :push_back push_back_in))
-
-	(defun output-c ()
-		(call 'str :create_from_buffer {&c, 1} `(,(second push_back_in)))
-		(assign {tokens} `(,(first push_back_in)))
-		(call 'list :push_back push_back_in))
+	(defun write-token ()
+		(call 'sstream :write_char {sstoken, c}))
 
 	(defun output-token ()
-		(assign {token} `(,(second str_cat_in)))
-		(d-call 'str :cat str_cat_in `(,(second push_back_in)))
+		(call 'sstream :claim_string {sstoken} `(_ ,(second push_back_in)))
 		(assign {tokens} `(,(first push_back_in)))
 		(call 'list :push_back push_back_in))
 
@@ -69,7 +62,8 @@
 	(assign '(r0) {stream})
 
 	(call 'list :create nil {resources})
-	(call 'list :create nil {token})
+	(call 'str :create_from_buffer {0, str_gap} '(r0))
+	(call 'sstream :create '(r0) {sstoken})
 	(call 'list :create nil {states})
 	(call 'list :create nil {tokens})
 	(call 'sym :intern_cstr {":text"} {sym_text})
@@ -82,18 +76,12 @@
 	(call 'str :create_from_buffer {"</!-?", 5} {open_chars})
 	(call 'str :create_from_buffer {">/-?", 4} {close_chars})
 
-	(assign {resources, states, tokens} push_back2_in)
-	(call 'list :push_back2 push_back2_in)
-	(assign {sym_text, sym_open} (rest push_back2_in))
-	(call 'list :push_back2 push_back2_in)
-	(assign {sym_close, sym_assign} (rest push_back2_in))
-	(call 'list :push_back2 push_back2_in)
-	(assign {sym_string, sym_symbol} (rest push_back2_in))
-	(call 'list :push_back2 push_back2_in)
-	(assign {not_symbol_chars, open_chars} (rest push_back2_in))
-	(call 'list :push_back2 push_back2_in)
-	(assign {close_chars, token} (rest push_back2_in))
-	(call 'list :push_back2 push_back2_in)
+	(assign {resources, &res_start, &res_end} '(r0 r13 r14))
+	(loop-start)
+		(assign '(r0 (r13 0)) push_back_in)
+		(vp-add-cr +ptr_size r13)
+		(call 'list :push_back push_back_in)
+	(loop-until '(r13 = r14))
 
 	(assign {sym_text} {state})
 	(loop-start 'next_char)
@@ -104,7 +92,6 @@
 		(vpcase {state = sym_text})
 			(switch)
 			(continueif {c <= +char_space} 'next_char)
-			(call 'list :clear {token})
 			(vpcase {c = +char_lt})
 				(assign {sym_open} {state})
 				(goto 'push_token_then_next)
@@ -114,9 +101,9 @@
 				(assign {sym_close} {state})
 				(goto 'push_token_then_next)
 			(vpcase {c = +char_equal})
-				(output-c)
 				(output-state {sym_assign})
-				(assign {sym_text} {state})
+				(write-token)
+				(output-token)
 				(continue 'next_char)
 			(vpcase {c = +char_double_quote})
 				(assign {sym_string} {state})
@@ -153,7 +140,7 @@
 				(continue 'next_char)
 			(endif)
 		(vp-label 'push_token_then_next)
-			(push-token-c)
+			(write-token)
 		(endswitch)
 	(loop-end)
 
