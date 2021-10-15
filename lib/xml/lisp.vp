@@ -78,9 +78,9 @@
 	(call 'sym :intern_cstr {":assign"} {sym_assign})
 	(call 'sym :intern_cstr {":string"} {sym_string})
 	(call 'sym :intern_cstr {":symbol"} {sym_symbol})
-	(call 'str :create_from_buffer (list {""=<>} 5) {not_symbol_chars})
-	(call 'str :create_from_buffer {"</?!-", 5} {open_chars})
-	(call 'str :create_from_buffer {"-?/>", 4} {close_chars})
+	(call 'str :create_from_buffer (list (cat (char +char_double_quote) {=<>}) 4) {not_symbol_chars})
+	(call 'str :create_from_buffer {"</!-?", 5} {open_chars})
+	(call 'str :create_from_buffer {">/-?", 4} {close_chars})
 
 	(assign {resources, states, tokens} push_back2_in)
 	(call 'list :push_back2 push_back2_in)
