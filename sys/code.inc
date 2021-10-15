@@ -350,6 +350,9 @@
 				(if (> (length line) 1)
 					(push prog `(setq *sym_sp* (align *sym_sp* ,(eval (elem 1 line)))))
 					(push prog '(setq *sym_sp* (align *sym_sp* +long_size)))))
+			(offset
+				(push prog
+					`(def-sym ',(elem 1 line) 'var *sym_sp* 0 "")))
 			(struct
 				(push prog
 					`(def-sym ',(elem 1 line) 'var *sym_sp* 0 "")
