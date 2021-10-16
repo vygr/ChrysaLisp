@@ -8,12 +8,11 @@
 ;module
 (env-push)
 
-(defun assign-map-src-keys ()
-	(walk-list (defq s (copy src))
+(defun assign-map-reg-keys (s)
+	(walk-list (defq s (copy s))
 		(lambda (e) (and (sym? e) (eql (elem 0 e) ":") (elem-set _ _l (get e))))
 		(lambda (l) nil)
-		(lambda (l)))
-	(setq src s))
+		(lambda (l))) s)
 
 (defun assign-ignored-to-asm ()
 	(defq s (list) d (list))
@@ -49,7 +48,7 @@
 (defun assign-asm-to-asm (src dst)
 	(when (/= (length src) (length dst))
 		(throw "Mismatching number of src/dst parameters !" (list src dst)))
-	(assign-map-src-keys)
+	(setq src (assign-map-reg-keys src))
 	(assign-ignored-to-asm)
 	(when (> (length dst) 0)
 		(if (> (length dst) 1) (assign-topology-sort))
@@ -57,7 +56,7 @@
 			(case (vp-type x)
 				(:r (case (vp-type y)
 					(:r (vp-cpy-rr x y))
-					(:k (def *compile_env* y x))
+					(:k (push *func_syms* y) (def *compile_env* y x))
 					(:i (vp-cpy-ri x (elem 0 y) (elem 1 y)))
 					(:ii (vp-cpy-ri-i x (elem 0 y) (elem 1 y)))
 					(:is (vp-cpy-ri-s x (elem 0 y) (elem 1 y)))
@@ -101,7 +100,7 @@
 (defun assign-asm-to-script (src dst _)
 	(unless (= (length src) (length (setq dst (map trim (split dst ",")))))
 		(throw "Mismatching number of src/dst parameters !" (list src dst)))
-	(assign-map-src-keys)
+	(setq src (assign-map-reg-keys src))
 	(assign-ignored-to-script)
 	(when (/= 0 (length dst))
 		(reset-reg-stack (length src))
@@ -163,5 +162,5 @@
 
 ;module
 (export-symbols
-	assign)
+	assign assign-map-reg-keys)
 (env-pop)

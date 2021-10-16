@@ -38,10 +38,9 @@
 	(vp-jmp l))
 
 (defun gotoif (e l)
-	(when (str? e)
-		(assign e '(r0))
-		(setq e '(r0 /= 0)))
-	(bind '(d o s) e)
+	(bind '(d o s) (cond
+		((str? e) (assign e '(r0)) '(r0 /= 0))
+		((assign-map-reg-keys e))))
 	(defq e (find-rev o '(= /= <= >= > <)))
 	(case (vp-type s)
 		(:c (if e ((eval (elem e '(vp-beq-cr vp-bne-cr vp-ble-cr vp-bge-cr vp-bgt-cr vp-blt-cr))) s d l)
@@ -51,10 +50,9 @@
 		(t (throw "No such compare mode" (vp-type s)))))
 
 (defun gotoifnot (e l)
-	(when (str? e)
-		(assign e '(r0))
-		(setq e '(r0 /= 0)))
-	(bind '(d o s) e)
+	(bind '(d o s) (cond
+		((str? e) (assign e '(r0)) '(r0 /= 0))
+		((assign-map-reg-keys e))))
 	(defq e (find-rev o '(/= = > < <= >=)))
 	(case (vp-type s)
 		(:c (if e ((eval (elem e '(vp-beq-cr vp-bne-cr vp-ble-cr vp-bge-cr vp-bgt-cr vp-blt-cr))) s d l)
