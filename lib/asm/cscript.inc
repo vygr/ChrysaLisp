@@ -11,7 +11,7 @@
 ; tokenizer
 ;;;;;;;;;;;
 
-(defq +symbol_chars "+ABCDEFGHIJKLMNOPQRSTUVWXYZ_/0123456789abcdefghijklmnopqrstuvwxyz"
+(defq +symbol_chars "+:ABCDEFGHIJKLMNOPQRSTUVWXYZ_/0123456789abcdefghijklmnopqrstuvwxyz"
 	+path_chars "ABCDEFGHIJKLMNOPQRSTUVWXYZ_/0123456789abcdefghijklmnopqrstuvwxyz"
 	+label_chars "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_abcdefghijklmnopqrstuvwxyz"
 	+number_chars "0123456789"
@@ -191,10 +191,13 @@
 (each (lambda (_) (defcvar _ nil)) +vreg)
 
 (defmacro vreg-sym (_)
-	(list 'elem _ '+vreg))
+	`(elem ,_ +vreg))
 
 (defmacro add-inst (&rest b)
-	(cat '(push *inst*) b))
+	`(push *inst* ~b))
+
+(defmacro sub-inst (&rest b)
+	`(setq *inst* (insert *inst* 1 (list ~b))))
 
 (defmacro set-type (_)
 	(list 'elem-set -2 '*vregt* _))
@@ -214,7 +217,8 @@
 
 (defun set-reg-map (l &optional _)
 	(setd _ '(r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14))
-	(each (lambda (_ r) (set (env) _ r)) +vreg (if (/= 0 (length l)) (merge-obj l _) _)))
+	(each (lambda (_ r) (set (penv) _ r))
+		+vreg (if (/= 0 (length l)) (merge-obj (map get l) _) _)))
 
 (defun push-reg (_)
 	(vreg-sym (dec (length (push *vregt* _)))))
@@ -249,6 +253,9 @@
 (defun compile-null ()
 	(throw "Null operator !" nil))
 
+(defun compile-key (_)
+	(sub-inst (list 'vp-cpy-rr (get _) (push-reg nil))))
+
 (defun compile-const (_)
 	(add-inst (list 'vp-cpy-cr _ (push-reg nil))))
 
@@ -267,6 +274,9 @@
 				((get (sym (str _ "_t")))
 					;field/member
 					(add-inst (list 'vp-cpy-cr _ (push-reg (eval (sym (str _ "_t")))))))
+				((eql (elem 0 _) ":")
+					;key
+					(compile-key _))
 				((get _)
 					;equate
 					(compile-const _))

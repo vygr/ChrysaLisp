@@ -86,6 +86,7 @@
 		(:sym
 			(cond
 				((reg o) :r)
+				((eql (elem 0 o) ":") :k)
 				(t :c)))
 		(:num :c)
 		(:list
