@@ -345,7 +345,7 @@
 			(assign {0} {*d})
 			(call 'sys_str :to_num {d_start} '(:num :dot))
 			(vpif '(:dot = 0))
-				(vp-shl-cr +fp_shift (get :num))
+				(vp-shl-cr +fp_shift :num)
 			(endif)
 			(call 'fixed :create '(:num) '(:num))
 			(call 'list :push_back {commands, :num})
