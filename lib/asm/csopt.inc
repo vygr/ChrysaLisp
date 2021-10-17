@@ -49,10 +49,10 @@
 		(cond
 			;variable loading and offset folding
 			((find-rev (defq op (elem _ inst_list) o (elem 0 op)) +opt_read_ops)
-				(when (defq p (opt-find-2 _ (defq r (elem 1 op)) `(vp-lea-i rsp _ ,r) `(vp-add-cr _ ,r)))
+				(when (defq p (opt-find-2 _ (defq r (elem 1 op)) `(vp-lea-i :rsp _ ,r) `(vp-add-cr _ ,r)))
 					(cond
 						((= m 0)
-							(elem-set 1 op rsp)
+							(elem-set 1 op :rsp)
 							(elem-set 2 op `(+ ,(elem 2 (elem p inst_list)) ,(elem 2 op))))
 						((= m 1)
 							(elem-set 2 op `(+ ,(elem 1 (elem p inst_list)) ,(elem 2 op)))
@@ -60,10 +60,10 @@
 					(elem-set p inst_list (lambda))))
 			;variable writing and offset folding
 			((find-rev o +opt_write_ops)
-				(when (defq p (opt-find-2 _ (defq r (elem 2 op)) `(vp-lea-i rsp _ ,r) `(vp-add-cr _ ,r)))
+				(when (defq p (opt-find-2 _ (defq r (elem 2 op)) `(vp-lea-i :rsp _ ,r) `(vp-add-cr _ ,r)))
 					(cond
 						((= m 0)
-							(elem-set 2 op rsp)
+							(elem-set 2 op :rsp)
 							(elem-set 3 op `(+ ,(elem 2 (elem p inst_list)) ,(elem 3 op))))
 						((= m 1)
 							(elem-set 3 op `(+ ,(elem 1 (elem p inst_list)) ,(elem 3 op)))

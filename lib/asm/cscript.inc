@@ -187,7 +187,7 @@
 ; compilation
 ;;;;;;;;;;;;;
 
-(defq +vreg ''(_v0 _v1 _v2 _v3 _v4 _v5 _v6 _v7 _v8 _v9 _v10 _v11 _v12 _v13 _v14 _v15))
+(defq +vreg ''(:v0 :v1 :v2 :v3 :v4 :v5 :v6 :v7 :v8 :v9 :v10 :v11 :v12 :v13 :v14))
 (each (lambda (_) (defcvar _ nil)) +vreg)
 
 (defmacro vreg-sym (_)
@@ -216,7 +216,7 @@
 		*vregt* (slice 0 ,_ '(nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil))))
 
 (defun set-reg-map (l &optional _)
-	(setd _ '(r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14))
+	(setd _ '(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14))
 	(each (lambda (_ r) (set (penv) _ r))
 		+vreg (if (/= 0 (length l)) (merge-obj (map get l) _) _)))
 
@@ -283,7 +283,7 @@
 				(t (throw "Symbol not defined !" _))))
 		((eql 'var (elem 1 s))
 			;variable
-			(add-inst (list 'vp-lea-i rsp (+ (get-scope (elem 0 s)) (elem 2 s))
+			(add-inst (list 'vp-lea-i :rsp (+ (get-scope (elem 0 s)) (elem 2 s))
 									(push-reg (elem 3 s)))))
 		(t (throw "Symbol not a variable !" _))))
 

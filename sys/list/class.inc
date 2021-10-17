@@ -1,12 +1,12 @@
 (include "sys/class.inc")
 
 (def-class sys_list nil
-	(dec-method :init sys/list/init :static (r0)))
+	(dec-method :init sys/list/init :static (:r0)))
 
 (defun sys/list/init ()
 	;inputs
-	;r0 = list header (ptr)
-	(lh-init r0 r1))
+	;:r0 = list header (ptr)
+	(lh-init :r0 :r1))
 
 ;;;;;;;;;;;;;;;;;
 ; list structures

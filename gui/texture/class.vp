@@ -8,26 +8,26 @@
 
 (def-method 'texture :deinit)
 	;inputs
-	;r0 = texture object (ptr)
+	;:r0 = texture object (ptr)
 	;outputs
-	;r0 = texture object (ptr)
+	;:r0 = texture object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
-	(entry 'texture :deinit '(r0))
+	(entry 'texture :deinit '(:r0))
 
-	(vp-push r0)
-	(call 'sys_task :callback '((r0 texture_handle) ($ close_callback)))
-	(vp-pop r0)
-	(s-jump 'texture :deinit '(r0))
+	(vp-push :r0)
+	(call 'sys_task :callback '((:r0 texture_handle) ($ close_callback)))
+	(vp-pop :r0)
+	(s-jump 'texture :deinit '(:r0))
 
 (vp-label 'close_callback)
 	;inputs
-	;r0 = user data (ptr)
+	;:r0 = user data (ptr)
 
-	(entry 'sys_task :task_callback '(r0))
+	(entry 'sys_task :task_callback '(:r0))
 
-	(host-gui-call 'host_gui :sdl_destroy_texture '(r0))
+	(host-gui-call 'host_gui :sdl_destroy_texture '(:r0))
 	(vp-ret)
 
 (def-func-end)

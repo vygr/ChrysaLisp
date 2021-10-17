@@ -7,94 +7,94 @@
 
 (def-method 'sys_task :lisp_sleep)
 	;inputs
-	;r0 = lisp object (ptr)
-	;r1 = args list object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
 	;outputs
-	;r0 = lisp object (ptr)
-	;r1 = return value object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
-	(entry 'sys_task :lisp_sleep '(r0 r1))
+	(entry 'sys_task :lisp_sleep '(:r0 :r1))
 
 (errorcases
-	(call 'lisp :env_args_sig '(r1 ($ sig) 1) '(r2))
-	(gotoif '(r2 = 0) 'error))
+	(call 'lisp :env_args_sig '(:r1 ($ sig) 1) '(:r2))
+	(gotoif '(:r2 = 0) 'error))
 
-	(vp-push r0)
+	(vp-push :r0)
 	(defq in (method-input 'sys_task :sleep))
-	(list-bind-args r1 in '(:num))
+	(list-bind-args :r1 in '(:num))
 	(call 'sys_task :sleep in)
-	(vp-pop r0)
-	(assign '((r0 lisp_sym_t)) '(r1))
-	(class/obj/ref r1 r2)
+	(vp-pop :r0)
+	(assign '((:r0 lisp_sym_t)) '(:r1))
+	(class/obj/ref :r1 :r2)
 
-	(exit 'sys_task :lisp_sleep '(r0 r1))
+	(exit 'sys_task :lisp_sleep '(:r0 :r1))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(r0 "(task-sleep usec)" error_msg_wrong_types r1))
+	(jump 'lisp :repl_error '(:r0 "(task-sleep usec)" error_msg_wrong_types :r1))
 	(signature '(num)))
 
 (def-func-end)
 
 (def-method 'sys_task :lisp_timeslice)
 	;inputs
-	;r0 = lisp object (ptr)
-	;r1 = args list object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
 	;outputs
-	;r0 = lisp object (ptr)
-	;r1 = return value object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
-	(entry 'sys_task :lisp_timeslice '(r3 r4))
+	(entry 'sys_task :lisp_timeslice '(:r3 :r4))
 
-	(call 'sys_pii :time nil '(r0))
-	(fn-bind 'sys/statics/statics r2)
-	(assign '((r2 statics_sys_task_then)) '(r1))
-	(vp-sub-rr r0 r1)
-	(vpif '(r1 < -1000))
-		(assign '(r0) '((r2 statics_sys_task_then)))
+	(call 'sys_pii :time nil '(:r0))
+	(fn-bind 'sys/statics/statics :r2)
+	(assign '((:r2 statics_sys_task_then)) '(:r1))
+	(vp-sub-rr :r0 :r1)
+	(vpif '(:r1 < -1000))
+		(assign '(:r0) '((:r2 statics_sys_task_then)))
 		(call 'sys_task :sleep '(0))
 	(endif)
-	(class/obj/ref r4 r1)
+	(class/obj/ref :r4 :r1)
 
-	(exit 'sys_task :lisp_timeslice '(r3 r4))
+	(exit 'sys_task :lisp_timeslice '(:r3 :r4))
 	(vp-ret)
 
 (def-func-end)
 
 (def-method 'sys_task :lisp_mailbox)
 	;inputs
-	;r0 = lisp object (ptr)
-	;r1 = args list object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
 	;outputs
-	;r0 = lisp object (ptr)
-	;r1 = return value object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
-	(entry 'sys_task :lisp_mailbox '(r0 r1))
+	(entry 'sys_task :lisp_mailbox '(:r0 :r1))
 
 (errorcases
-	(assign '((r1 array_length)) '(r2))
-	(gotoif '(r2 /= 0) 'error))
+	(assign '((:r1 array_length)) '(:r2))
+	(gotoif '(:r2 /= 0) 'error))
 
-	(vp-push r0)
-	(call 'str :create_from_buffer '(0 +net_id_size) '(r3))
+	(vp-push :r0)
+	(call 'str :create_from_buffer '(0 +net_id_size) '(:r3))
 	(call 'sys_task :mailbox nil
-		`((r3 ,(+ str_data net_id_mbox_id))
-		(r3 ,(+ str_data net_id_node_id node_id_node1))
-		(r3 ,(+ str_data net_id_node_id node_id_node2))))
-	(vp-pop r0)
+		`((:r3 ,(+ str_data net_id_mbox_id))
+		(:r3 ,(+ str_data net_id_node_id node_id_node1))
+		(:r3 ,(+ str_data net_id_node_id node_id_node2))))
+	(vp-pop :r0)
 
-	(exit 'sys_task :lisp_mailbox '(r0 r3))
+	(exit 'sys_task :lisp_mailbox '(:r0 :r3))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(r0 "(task-mailbox)" error_msg_wrong_types r1)))
+	(jump 'lisp :repl_error '(:r0 "(task-mailbox)" error_msg_wrong_types :r1)))
 
 (def-func-end)

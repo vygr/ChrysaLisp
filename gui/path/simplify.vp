@@ -4,19 +4,19 @@
 
 (def-method 'path :simplify)
 	;inputs
-	;r0 = path object (ptr)
-	;r1 = source path object (ptr)
-	;r2 = stack array object (ptr)
-	;r3 = tolerance (fixed)
+	;:r0 = path object (ptr)
+	;:r1 = source path object (ptr)
+	;:r2 = stack array object (ptr)
+	;:r3 = tolerance (fixed)
 	;outputs
-	;r0 = path object (ptr)
+	;:r0 = path object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
 	(def-vars
 		(ptr this that stack)
 		(union
-			(ulong span rspan)
+			(ulong span :span)
 			(uint first last index rlast))
 		(int p1x p1y p2x p2y p3x p3y)
 		(uint start length)
@@ -58,7 +58,7 @@
 				(vpif {max > eps})
 					(assign {last} {rlast})
 					(assign {index} {last})
-					(call 'path :push_back2 {stack, rspan, span})
+					(call 'path :push_back2 {stack, :span, span})
 					(break 'out)
 				(endif)
 			(default)

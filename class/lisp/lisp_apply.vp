@@ -5,93 +5,93 @@
 
 (def-method 'lisp :lisp_apply)
 	;inputs
-	;r0 = lisp object (ptr)
-	;r1 = args list object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
 	;outputs
-	;r0 = lisp object (ptr)
-	;r1 = return value object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
-	(entry 'lisp :lisp_apply '(r0 r1))
+	(entry 'lisp :lisp_apply '(:r0 :r1))
 
 (errorcases
-	(call 'lisp :env_args_sig '(r1 ($ sig) 2) '(r2))
-	(gotoif '(r2 = 0) 'error))
+	(call 'lisp :env_args_sig '(:r1 ($ sig) 2) '(:r2))
+	(gotoif '(:r2 = 0) 'error))
 
-	(array-bind-args r1 '(r2 r1))
-	(jump 'lisp :repl_apply '(r0 r1 r2))
+	(array-bind-args :r1 '(:r2 :r1))
+	(jump 'lisp :repl_apply '(:r0 :r1 :r2))
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(r0 "(apply lambda list)" error_msg_wrong_types r1))
+	(jump 'lisp :repl_error '(:r0 "(apply lambda list)" error_msg_wrong_types :r1))
 	(signature '(obj list)))
 
 (def-func-end)
 
 (def-method 'lisp :lisp_mcall)
 	;inputs
-	;r0 = lisp object (ptr)
-	;r1 = args list object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
 	;outputs
-	;r0 = lisp object (ptr)
-	;r1 = return value object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
 	(def-struct local 0
 		(ptr this args))
 
 	(vp-alloc local_size)
-	(entry 'lisp :lisp_mcall '(r0 r1))
-	(assign '(r0 r1) '((rsp local_this) (rsp local_args)))
+	(entry 'lisp :lisp_mcall '(:r0 :r1))
+	(assign '(:r0 :r1) '((:rsp local_this) (:rsp local_args)))
 
 (errorcases
-	(assign '((r1 array_length)) '(r2))
-	(gotoif '(r2 < 2) 'error))
+	(assign '((:r1 array_length)) '(:r2))
+	(gotoif '(:r2 < 2) 'error))
 
-	(array-bind-args r1 '(r0 r13))
+	(array-bind-args :r1 '(:r0 :r13))
 
 (errorcases
-	(call 'obj :inst_of `(r0 (@ ,(f-path 'hmap :vtable))) '(r0 r1))
-	(assign `((r13 obj_vtable) (@ ,(f-path 'sym :vtable))) '(r4 r5))
-	(gotoif '(r1 = 0) 'error)
-	(gotoif '(r4 /= r5) 'error))
+	(call 'obj :inst_of `(:r0 (@ ,(f-path 'hmap :vtable))) '(:r0 :r1))
+	(assign `((:r13 obj_vtable) (@ ,(f-path 'sym :vtable))) '(:r4 :r5))
+	(gotoif '(:r1 = 0) 'error)
+	(gotoif '(:r4 /= :r5) 'error))
 
-	(call 'sym :get_static_sym '(static_sym_vtable) '(r1))
-	(call 'hmap :find '(r0 r1) '(_ r1 _))
-	(errorif '(r1 = 0) 'error1)
-	(call 'hmap :find '((r1 +ptr_size) r13) '(_ r1 _))
-	(errorif '(r1 = 0) 'error1)
+	(call 'sym :get_static_sym '(static_sym_vtable) '(:r1))
+	(call 'hmap :find '(:r0 :r1) '(_ :r1 _))
+	(errorif '(:r1 = 0) 'error1)
+	(call 'hmap :find '((:r1 +ptr_size) :r13) '(_ :r1 _))
+	(errorif '(:r1 = 0) 'error1)
 
-	(assign '((r1 +ptr_size) (rsp local_args)) '(r2 r1))
-	(assign '((r1 array_begin) (r1 array_length)) '(r5 r6))
-	(assign '((r5 0) (r5 +ptr_size)) '(r3 r4))
-	(assign '(r4 r3) '((r5 0) (r5 +ptr_size)))
-	(vp-add-cr +ptr_size r5)
-	(vp-sub-cr 1 r6)
-	(assign '(r5 r6) '((r1 array_begin) (r1 array_length)))
+	(assign '((:r1 +ptr_size) (:rsp local_args)) '(:r2 :r1))
+	(assign '((:r1 array_begin) (:r1 array_length)) '(:r5 :r6))
+	(assign '((:r5 0) (:r5 +ptr_size)) '(:r3 :r4))
+	(assign '(:r4 :r3) '((:r5 0) (:r5 +ptr_size)))
+	(vp-add-cr +ptr_size :r5)
+	(vp-sub-cr 1 :r6)
+	(assign '(:r5 :r6) '((:r1 array_begin) (:r1 array_length)))
 
-	(call 'lisp :repl_apply '((rsp local_this) r1 r2) '(_ r1))
+	(call 'lisp :repl_apply '((:rsp local_this) :r1 :r2) '(_ :r1))
 
-	(assign '((rsp local_args))  '(r4))
-	(assign '((r4 array_begin) (r4 array_length)) '(r3 r2))
-	(vp-sub-cr +ptr_size r3)
-	(vp-add-cr 1 r2)
-	(assign '(r3 r2) '((r4 array_begin) (r4 array_length)))
+	(assign '((:rsp local_args))  '(:r4))
+	(assign '((:r4 array_begin) (:r4 array_length)) '(:r3 :r2))
+	(vp-sub-cr +ptr_size :r3)
+	(vp-add-cr 1 :r2)
+	(assign '(:r3 :r2) '((:r4 array_begin) (:r4 array_length)))
 
-	(exit 'lisp :lisp_mcall '((rsp local_this) r1))
+	(exit 'lisp :lisp_mcall '((:rsp local_this) :r1))
 	(vp-free local_size)
 	(vp-ret)
 
 (errorcases
 (vp-label 'error)
-	(assign '((rsp local_this) (rsp local_args)) '(r0 r3))
+	(assign '((:rsp local_this) (:rsp local_args)) '(:r0 :r3))
 	(vp-free local_size)
-	(jump 'lisp :repl_error '(r0 "(. env sym [...])" error_msg_wrong_types r3))
+	(jump 'lisp :repl_error '(:r0 "(. env sym [...])" error_msg_wrong_types :r3))
 (vp-label 'error1)
-	(assign '((rsp local_this) (rsp local_args)) '(r0 r3))
+	(assign '((:rsp local_this) (:rsp local_args)) '(:r0 :r3))
 	(vp-free local_size)
-	(jump 'lisp :repl_error '(r0 "(. env sym [...])" error_msg_symbol_not_bound r3)))
+	(jump 'lisp :repl_error '(:r0 "(. env sym [...])" error_msg_symbol_not_bound :r3)))
 
 (def-func-end)

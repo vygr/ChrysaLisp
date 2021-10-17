@@ -5,460 +5,460 @@
 
 (def-method 'sys_pii :exit)
 	;inputs
-	;r0 = code (long)
+	;:r0 = code (long)
 
-	(entry 'sys_pii :exit '(r0))
-	(host-os-call 'host :exit '(r0))
+	(entry 'sys_pii :exit '(:r0))
+	(host-os-call 'host :exit '(:r0))
 
 (def-func-end)
 
 (def-method 'sys_pii :open)
 	;inputs
-	;r0 = c string filename (pubyte)
-	;r1 = mode (ulong)
+	;:r0 = c string filename (pubyte)
+	;:r1 = mode (ulong)
 	;outputs
-	;r0 = fd (ulong)
+	;:r0 = fd (ulong)
 	;trashes
-	;r0
+	;:r0
 
-	(entry 'sys_pii :open '(r0 r1))
-	(abi-push-trashed r1 r13 r14)
-	(host-os-call 'host :open '(r0 r1) '(r0))
-	(abi-pop-trashed r1 r13 r14)
-	(exit 'sys_pii :open '(r0))
+	(entry 'sys_pii :open '(:r0 :r1))
+	(abi-push-trashed :r1 :r13 :r14)
+	(host-os-call 'host :open '(:r0 :r1) '(:r0))
+	(abi-pop-trashed :r1 :r13 :r14)
+	(exit 'sys_pii :open '(:r0))
 	(vp-ret)
 
 (def-func-end)
 
 (def-method 'sys_pii :close)
 	;inputs
-	;r0 = fd (ulong)
+	;:r0 = fd (ulong)
 	;outputs
-	;r0 = error code (ulong)
+	;:r0 = error code (ulong)
 	;trashes
-	;r0
+	;:r0
 
-	(entry 'sys_pii :close '(r0))
-	(abi-push-trashed r13 r14)
-	(host-os-call 'host :close '(r0) '(r0))
-	(abi-pop-trashed r13 r14)
-	(exit 'sys_pii :close '(r0))
+	(entry 'sys_pii :close '(:r0))
+	(abi-push-trashed :r13 :r14)
+	(host-os-call 'host :close '(:r0) '(:r0))
+	(abi-pop-trashed :r13 :r14)
+	(exit 'sys_pii :close '(:r0))
 	(vp-ret)
 
 (def-func-end)
 
 (def-method 'sys_pii :seek)
 	;inputs
-	;r0 = fd (ulong)
-	;r1 = offset (long)
-	;r2 = pos (ulong)
+	;:r0 = fd (ulong)
+	;:r1 = offset (long)
+	;:r2 = pos (ulong)
 	;outputs
-	;r0 = -1 if error, else file position (ulong)
+	;:r0 = -1 if error, else file position (ulong)
 	;trashes
-	;r0
+	;:r0
 
-	(entry 'sys_pii :seek '(r0 r1 r2))
-	(abi-push-trashed r1 r2 r13 r14)
-	(host-os-call 'host :seek '(r0 r1 r2) '(r0))
-	(abi-pop-trashed r1 r2 r13 r14)
-	(exit 'sys_pii :seek '(r0))
+	(entry 'sys_pii :seek '(:r0 :r1 :r2))
+	(abi-push-trashed :r1 :r2 :r13 :r14)
+	(host-os-call 'host :seek '(:r0 :r1 :r2) '(:r0))
+	(abi-pop-trashed :r1 :r2 :r13 :r14)
+	(exit 'sys_pii :seek '(:r0))
 	(vp-ret)
 
 (def-func-end)
 
 (def-method 'sys_pii :remove)
 	;inputs
-	;r0 = c string filename (pubyte)
+	;:r0 = c string filename (pubyte)
 	;outputs
-	;r0 = error code (ulong)
+	;:r0 = error code (ulong)
 	;trashes
-	;r0
+	;:r0
 
-	(entry 'sys_pii :remove '(r0))
-	(abi-push-trashed r13 r14)
-	(host-os-call 'host :remove '(r0) '(r0))
-	(abi-pop-trashed r13 r14)
-	(exit 'sys_pii :remove '(r0))
+	(entry 'sys_pii :remove '(:r0))
+	(abi-push-trashed :r13 :r14)
+	(host-os-call 'host :remove '(:r0) '(:r0))
+	(abi-pop-trashed :r13 :r14)
+	(exit 'sys_pii :remove '(:r0))
 	(vp-ret)
 
 (def-func-end)
 
 (def-method 'sys_pii :open_shared)
 	;inputs
-	;r0 = c string filename (pubyte)
-	;r1 = length (ulong)
+	;:r0 = c string filename (pubyte)
+	;:r1 = length (ulong)
 	;outputs
-	;r0 = handle (long)
+	;:r0 = handle (long)
 	;trashes
-	;r0
+	;:r0
 
-	(entry 'sys_pii :open_shared '(r0 r1))
-	(abi-push-trashed r1 r13 r14)
-	(host-os-call 'host :open_shared '(r0 r1) '(r0))
-	(abi-pop-trashed r1 r13 r14)
-	(exit 'sys_pii :open_shared '(r0))
+	(entry 'sys_pii :open_shared '(:r0 :r1))
+	(abi-push-trashed :r1 :r13 :r14)
+	(host-os-call 'host :open_shared '(:r0 :r1) '(:r0))
+	(abi-pop-trashed :r1 :r13 :r14)
+	(exit 'sys_pii :open_shared '(:r0))
 	(vp-ret)
 
 (def-func-end)
 
 (def-method 'sys_pii :close_shared)
 	;inputs
-	;r0 = c string filename (pubyte)
-	;r1 = handle (long)
+	;:r0 = c string filename (pubyte)
+	;:r1 = handle (long)
 	;outputs
-	;r0 = error code (ulong)
+	;:r0 = error code (ulong)
 	;trashes
-	;r0
+	;:r0
 
-	(entry 'sys_pii :close_shared '(r0 r1))
-	(abi-push-trashed r1 r13 r14)
-	(host-os-call 'host :close_shared '(r0 r1) '(r0))
-	(abi-pop-trashed r1 r13 r14)
-	(exit 'sys_pii :close_shared '(r0))
+	(entry 'sys_pii :close_shared '(:r0 :r1))
+	(abi-push-trashed :r1 :r13 :r14)
+	(host-os-call 'host :close_shared '(:r0 :r1) '(:r0))
+	(abi-pop-trashed :r1 :r13 :r14)
+	(exit 'sys_pii :close_shared '(:r0))
 	(vp-ret)
 
 (def-func-end)
 
 (def-method 'sys_pii :dirlist)
 	;inputs
-	;r0 = c string pathname (pubyte)
-	;r1 = buffer pointer (ptr)
-	;r2 = buffer length (ulong)
+	;:r0 = c string pathname (pubyte)
+	;:r1 = buffer pointer (ptr)
+	;:r2 = buffer length (ulong)
 	;outputs
-	;r0 = buffer length (ulong)
+	;:r0 = buffer length (ulong)
 	;trashes
-	;r0
+	;:r0
 
-	(entry 'sys_pii :dirlist '(r0 r1 r2))
-	(abi-push-trashed r1 r2 r13 r14)
-	(host-os-call 'host :dirlist '(r0 r1 r2) '(r0))
-	(abi-pop-trashed r1 r2 r13 r14)
-	(exit 'sys_pii :dirlist '(r0))
+	(entry 'sys_pii :dirlist '(:r0 :r1 :r2))
+	(abi-push-trashed :r1 :r2 :r13 :r14)
+	(host-os-call 'host :dirlist '(:r0 :r1 :r2) '(:r0))
+	(abi-pop-trashed :r1 :r2 :r13 :r14)
+	(exit 'sys_pii :dirlist '(:r0))
 	(vp-ret)
 
 (def-func-end)
 
 (def-method 'sys_pii :write_num)
 	;inputs
-	;r0 = fd (ulong)
-	;r1 = number (ulong)
-	;r2 = base (ulong)
+	;:r0 = fd (ulong)
+	;:r1 = number (ulong)
+	;:r2 = base (ulong)
 	;outputs
-	;r0 = error code (ulong)
+	;:r0 = error code (ulong)
 	;trashes
-	;r0
+	;:r0
 
-	(entry 'sys_pii :write_num '(r0 r1 r2))
-	(abi-push-trashed r1 r2 r3 r4)
-	(vp-cpy-rr r2 r3)
-	(vp-swp-rr r0 r1)
-	(vp-cpy-rr rsp r4)	;stack location
+	(entry 'sys_pii :write_num '(:r0 :r1 :r2))
+	(abi-push-trashed :r1 :r2 :r3 :r4)
+	(vp-cpy-rr :r2 :r3)
+	(vp-swp-rr :r0 :r1)
+	(vp-cpy-rr :rsp :r4)	;stack location
 	(loop-start)
-		(vp-xor-rr r2 r2)
-		(vp-div-rrr r3 r2 r0)
-		(vp-push r2)
-	(loop-until '(r0 = 0))
+		(vp-xor-rr :r2 :r2)
+		(vp-div-rrr :r3 :r2 :r0)
+		(vp-push :r2)
+	(loop-until '(:r0 = 0))
 	(loop-start)
-		(vp-pop r0)
-		(vp-add-cr (code "0") r0)
-		(vpif '(r0 > (code "9")))
-			(vp-add-cr (- (code "A") (code ":")) r0)
+		(vp-pop :r0)
+		(vp-add-cr (code "0") :r0)
+		(vpif '(:r0 > (code "9")))
+			(vp-add-cr (- (code "A") (code ":")) :r0)
 		(endif)
-		(vp-push r1)
-		(vp-cpy-rr r0 r2)
-		(call 'sys_pii :write_char '(r1 r2) '(_))
-		(vp-pop r1)
-	(loop-until '(rsp = r4))
-	(abi-pop-trashed r1 r2 r3 r4)
+		(vp-push :r1)
+		(vp-cpy-rr :r0 :r2)
+		(call 'sys_pii :write_char '(:r1 :r2) '(_))
+		(vp-pop :r1)
+	(loop-until '(:rsp = :r4))
+	(abi-pop-trashed :r1 :r2 :r3 :r4)
 	(vp-ret)
 
 (def-func-end)
 
 (def-method 'sys_pii :write_char)
 	;inputs
-	;r0 = fd (ulong)
-	;r1 = char (ulong)
+	;:r0 = fd (ulong)
+	;:r1 = char (ulong)
 	;outputs
-	;r0 = error code (ulong)
+	;:r0 = error code (ulong)
 	;trashes
-	;r0
+	;:r0
 
-	(entry 'sys_pii :write_char '(r0 r1))
-	(abi-push-trashed r1 r13 r14)
-	(vp-push r1)
-	(host-os-call 'host :write '(r0 rsp 1) '(r0))
+	(entry 'sys_pii :write_char '(:r0 :r1))
+	(abi-push-trashed :r1 :r13 :r14)
+	(vp-push :r1)
+	(host-os-call 'host :write '(:r0 :rsp 1) '(:r0))
 	(vp-free +ptr_size)
-	(abi-pop-trashed r1 r13 r14)
-	(exit 'sys_pii :write_char '(r0))
+	(abi-pop-trashed :r1 :r13 :r14)
+	(exit 'sys_pii :write_char '(:r0))
 	(vp-ret)
 
 (def-func-end)
 
 (def-method 'sys_pii :write)
 	;inputs
-	;r0 = fd (ulong)
-	;r1 = buffer (pubyte)
-	;r2 = len (ulong)
+	;:r0 = fd (ulong)
+	;:r1 = buffer (pubyte)
+	;:r2 = len (ulong)
 	;outputs
-	;r0 = error code (ulong)
+	;:r0 = error code (ulong)
 	;trashes
-	;r0
+	;:r0
 
-	(entry 'sys_pii :write '(r0 r1 r2))
-	(abi-push-trashed r1 r2 r13 r14)
-	(host-os-call 'host :write '(r0 r1 r2) '(r0))
-	(abi-pop-trashed r1 r2 r13 r14)
-	(exit 'sys_pii :write '(r0))
+	(entry 'sys_pii :write '(:r0 :r1 :r2))
+	(abi-push-trashed :r1 :r2 :r13 :r14)
+	(host-os-call 'host :write '(:r0 :r1 :r2) '(:r0))
+	(abi-pop-trashed :r1 :r2 :r13 :r14)
+	(exit 'sys_pii :write '(:r0))
 	(vp-ret)
 
 (def-func-end)
 
 (def-method 'sys_pii :write_str)
 	;inputs
-	;r0 = fd (ulong)
-	;r1 = c string (pubyte)
+	;:r0 = fd (ulong)
+	;:r1 = c string (pubyte)
 	;outputs
-	;r0 = error code (ulong)
+	;:r0 = error code (ulong)
 	;trashes
-	;r0
+	;:r0
 
-	(entry 'sys_pii :write_str '(r0 r1))
-	(abi-push-trashed r1 r3 r13 r14)
-	(vp-cpy-rr r0 r3)
-	(call 'sys_str :length '(r1) '(r0 r1))
-	(host-os-call 'host :write '(r3 r0 r1) '(r0))
-	(abi-pop-trashed r1 r3 r13 r14)
-	(exit 'sys_pii :write_str '(r0))
+	(entry 'sys_pii :write_str '(:r0 :r1))
+	(abi-push-trashed :r1 :r3 :r13 :r14)
+	(vp-cpy-rr :r0 :r3)
+	(call 'sys_str :length '(:r1) '(:r0 :r1))
+	(host-os-call 'host :write '(:r3 :r0 :r1) '(:r0))
+	(abi-pop-trashed :r1 :r3 :r13 :r14)
+	(exit 'sys_pii :write_str '(:r0))
 	(vp-ret)
 
 (def-func-end)
 
 (def-method 'sys_pii :time)
 	;outputs
-	;r0 = time in usec (ulong)
+	;:r0 = time in usec (ulong)
 	;trashes
-	;r0
+	;:r0
 
-	(abi-push-trashed r13 r14)
-	(host-os-call 'host :gettime nil '(r0))
-	(abi-pop-trashed r13 r14)
-	(exit 'sys_pii :time '(r0))
+	(abi-push-trashed :r13 :r14)
+	(host-os-call 'host :gettime nil '(:r0))
+	(abi-pop-trashed :r13 :r14)
+	(exit 'sys_pii :time '(:r0))
 	(vp-ret)
 
 (def-func-end)
 
 (def-method 'sys_pii :rand)
 	;inputs
-	;r0 = data buffer pointer (pubyte)
-	;r1 = length (uint)
+	;:r0 = data buffer pointer (pubyte)
+	;:r1 = length (uint)
 	;trashes
-	;r0
+	;:r0
 
-	(entry 'sys_pii :rand '(r0 r1))
-	(abi-push-trashed r1 r13 r14)
-	(host-os-call 'host :rand '(r0 r1) '(r0))
-	(abi-pop-trashed r1 r13 r14)
-	(exit 'sys_pii :rand '(r0))
+	(entry 'sys_pii :rand '(:r0 :r1))
+	(abi-push-trashed :r1 :r13 :r14)
+	(host-os-call 'host :rand '(:r0 :r1) '(:r0))
+	(abi-pop-trashed :r1 :r13 :r14)
+	(exit 'sys_pii :rand '(:r0))
 	(vp-ret)
 
 (def-func-end)
 
 (def-method 'sys_pii :mmap)
 	;inputs
-	;r0 = len (ulong)
-	;r1 = fd (ulong)
-	;r2 = mode (ulong)
+	;:r0 = len (ulong)
+	;:r1 = fd (ulong)
+	;:r2 = mode (ulong)
 	;outputs
-	;r0 = buffer (ptr)
+	;:r0 = buffer (ptr)
 	;trashes
-	;r0
+	;:r0
 
-	(entry 'sys_pii :mmap '(r0 r1 r2))
-	(abi-push-trashed r1 r2 r13 r14)
-	(host-os-call 'host :mmap '(r0 r1 r2) '(r0))
-	(abi-pop-trashed r1 r2 r13 r14)
-	(exit 'sys_pii :mmap '(r0))
+	(entry 'sys_pii :mmap '(:r0 :r1 :r2))
+	(abi-push-trashed :r1 :r2 :r13 :r14)
+	(host-os-call 'host :mmap '(:r0 :r1 :r2) '(:r0))
+	(abi-pop-trashed :r1 :r2 :r13 :r14)
+	(exit 'sys_pii :mmap '(:r0))
 	(vp-ret)
 
 (def-func-end)
 
 (def-method 'sys_pii :munmap)
 	;inputs
-	;r0 = buffer (ptr)
-	;r1 = len (ulong)
-	;r2 = mode (ulong)
+	;:r0 = buffer (ptr)
+	;:r1 = len (ulong)
+	;:r2 = mode (ulong)
 	;outputs
-	;r0 = error code (ulong)
+	;:r0 = error code (ulong)
 	;trashes
-	;r0
+	;:r0
 
-	(entry 'sys_pii :munmap '(r0 r1 r2))
-	(abi-push-trashed r1 r2 r13 r14)
-	(host-os-call 'host :munmap '(r0 r1 r2) '(r0))
-	(abi-pop-trashed r1 r2 r13 r14)
-	(exit 'sys_pii :munmap '(r0))
+	(entry 'sys_pii :munmap '(:r0 :r1 :r2))
+	(abi-push-trashed :r1 :r2 :r13 :r14)
+	(host-os-call 'host :munmap '(:r0 :r1 :r2) '(:r0))
+	(abi-pop-trashed :r1 :r2 :r13 :r14)
+	(exit 'sys_pii :munmap '(:r0))
 	(vp-ret)
 
 (def-func-end)
 
 (def-method 'sys_pii :mprotect)
 	;inputs
-	;r0 = buffer (ptr)
-	;r1 = len (ulong)
-	;r2 = prot (ulong)
+	;:r0 = buffer (ptr)
+	;:r1 = len (ulong)
+	;:r2 = prot (ulong)
 	;outputs
-	;r0 = error code (ulong)
+	;:r0 = error code (ulong)
 	;trashes
-	;r0
+	;:r0
 
-	(entry 'sys_pii :mprotect '(r0 r1 r2))
-	(abi-push-trashed r1 r2 r13 r14)
-	(host-os-call 'host :mprotect '(r0 r1 r2) '(r0))
-	(abi-pop-trashed r1 r2 r13 r14)
-	(exit 'sys_pii :mprotect '(r0))
+	(entry 'sys_pii :mprotect '(:r0 :r1 :r2))
+	(abi-push-trashed :r1 :r2 :r13 :r14)
+	(host-os-call 'host :mprotect '(:r0 :r1 :r2) '(:r0))
+	(abi-pop-trashed :r1 :r2 :r13 :r14)
+	(exit 'sys_pii :mprotect '(:r0))
 	(vp-ret)
 
 (def-func-end)
 
 (def-method 'sys_pii :clear_icache)
 	;inputs
-	;r0 = address (pubyte)
-	;r1 = length (ulong)
+	;:r0 = address (pubyte)
+	;:r1 = length (ulong)
 	;outputs
-	;r0 = error code (ulong)
+	;:r0 = error code (ulong)
 	;trashes
-	;r0
+	;:r0
 
-	(entry 'sys_pii :clear_icache '(r0 r1))
-	(abi-push-trashed r1 r13 r14)
-	(host-os-call 'host :clear_icache '(r0 r1) '(r0))
-	(abi-pop-trashed r1 r13 r14)
-	(exit 'sys_pii :clear_icache '(r0))
+	(entry 'sys_pii :clear_icache '(:r0 :r1))
+	(abi-push-trashed :r1 :r13 :r14)
+	(host-os-call 'host :clear_icache '(:r0 :r1) '(:r0))
+	(abi-pop-trashed :r1 :r13 :r14)
+	(exit 'sys_pii :clear_icache '(:r0))
 	(vp-ret)
 
 (def-func-end)
 
 (def-method 'sys_pii :read)
 	;inputs
-	;r0 = fd (ulong)
-	;r1 = buffer (ptr)
-	;r2 = len (ulong)
+	;:r0 = fd (ulong)
+	;:r1 = buffer (ptr)
+	;:r2 = len (ulong)
 	;outputs
-	;r0 = error code (ulong)
+	;:r0 = error code (ulong)
 	;trashes
-	;r0
+	;:r0
 
-	(entry 'sys_pii :read '(r0 r1 r2))
-	(abi-push-trashed r1 r2 r13 r14)
-	(host-os-call 'host :read '(r0 r1 r2) '(r0))
-	(abi-pop-trashed r1 r2 r13 r14)
-	(exit 'sys_pii :read '(r0))
+	(entry 'sys_pii :read '(:r0 :r1 :r2))
+	(abi-push-trashed :r1 :r2 :r13 :r14)
+	(host-os-call 'host :read '(:r0 :r1 :r2) '(:r0))
+	(abi-pop-trashed :r1 :r2 :r13 :r14)
+	(exit 'sys_pii :read '(:r0))
 	(vp-ret)
 
 (def-func-end)
 
 (def-method 'sys_pii :read_char)
 	;inputs
-	;r0 = fd (ulong)
+	;:r0 = fd (ulong)
 	;outputs
-	;r0 = char (ulong)
+	;:r0 = char (ulong)
 	;trashes
-	;r0
+	;:r0
 
-	(entry 'sys_pii :read_char '(r0))
-	(abi-push-trashed r13 r14)
-	(vp-xor-rr r1 r1)
-	(vp-push r1)
-	(host-os-call 'host :read '(r0 rsp 1))
-	(vp-pop r0)
-	(abi-pop-trashed r13 r14)
-	(exit 'sys_pii :read_char '(r0))
+	(entry 'sys_pii :read_char '(:r0))
+	(abi-push-trashed :r13 :r14)
+	(vp-xor-rr :r1 :r1)
+	(vp-push :r1)
+	(host-os-call 'host :read '(:r0 :rsp 1))
+	(vp-pop :r0)
+	(abi-pop-trashed :r13 :r14)
+	(exit 'sys_pii :read_char '(:r0))
 	(vp-ret)
 
 (def-func-end)
 
 (def-method 'sys_pii :unlink)
 	;inputs
-	;r0 = c string filename (pubyte)
+	;:r0 = c string filename (pubyte)
 	;outputs
-	;r0 = error code (ulong)
+	;:r0 = error code (ulong)
 	;trashes
-	;r0
+	;:r0
 
-	(entry 'sys_pii :unlink '(r0))
-	(abi-push-trashed r13 r14)
-	(host-os-call 'host :unlink '(r0) '(r0))
-	(abi-pop-trashed r13 r14)
-	(exit 'sys_pii :unlink '(r0))
+	(entry 'sys_pii :unlink '(:r0))
+	(abi-push-trashed :r13 :r14)
+	(host-os-call 'host :unlink '(:r0) '(:r0))
+	(abi-pop-trashed :r13 :r14)
+	(exit 'sys_pii :unlink '(:r0))
 	(vp-ret)
 
 (def-func-end)
 
 (def-method 'sys_pii :stat)
 	;inputs
-	;r0 = c string filename (pubyte)
-	;r1 = stat buf (ptr)
+	;:r0 = c string filename (pubyte)
+	;:r1 = stat buf (ptr)
 	;outputs
-	;r0 = error code (ulong)
+	;:r0 = error code (ulong)
 	;trashes
-	;r0
+	;:r0
 
-	(entry 'sys_pii :stat '(r0 r1))
-	(abi-push-trashed r1 r13 r14)
-	(host-os-call 'host :stat '(r0 r1) '(r0))
-	(abi-pop-trashed r1 r13 r14)
-	(exit 'sys_pii :stat '(r0))
+	(entry 'sys_pii :stat '(:r0 :r1))
+	(abi-push-trashed :r1 :r13 :r14)
+	(host-os-call 'host :stat '(:r0 :r1) '(:r0))
+	(abi-pop-trashed :r1 :r13 :r14)
+	(exit 'sys_pii :stat '(:r0))
 	(vp-ret)
 
 (def-func-end)
 
 (def-method 'sys_pii :usb_start)
 	;inputs
-	;r0 = link buffer (pubyte)
+	;:r0 = link buffer (pubyte)
 	;outputs
-	;r0 = error code (ulong)
+	;:r0 = error code (ulong)
 	;trashes
-	;r0
+	;:r0
 
-	(entry 'sys_pii :usb_start '(r0))
-	(abi-push-trashed r13 r14)
-	(host-os-call 'host :usb_start '(r0) '(r0))
-	(abi-pop-trashed r13 r14)
-	(exit 'sys_pii :usb_start '(r0))
+	(entry 'sys_pii :usb_start '(:r0))
+	(abi-push-trashed :r13 :r14)
+	(host-os-call 'host :usb_start '(:r0) '(:r0))
+	(abi-pop-trashed :r13 :r14)
+	(exit 'sys_pii :usb_start '(:r0))
 	(vp-ret)
 
 (def-func-end)
 
 (def-method 'sys_pii :usb_stop)
 	;inputs
-	;r0 = link buffer (pubyte)
+	;:r0 = link buffer (pubyte)
 	;outputs
-	;r0 = error code (ulong)
+	;:r0 = error code (ulong)
 	;trashes
-	;r0
+	;:r0
 
-	(entry 'sys_pii :usb_stop '(r0))
-	(abi-push-trashed r13 r14)
-	(host-os-call 'host :usb_stop '(r0) '(r0))
-	(abi-pop-trashed r13 r14)
-	(exit 'sys_pii :usb_stop '(r0))
+	(entry 'sys_pii :usb_stop '(:r0))
+	(abi-push-trashed :r13 :r14)
+	(host-os-call 'host :usb_stop '(:r0) '(:r0))
+	(abi-pop-trashed :r13 :r14)
+	(exit 'sys_pii :usb_stop '(:r0))
 	(vp-ret)
 
 (def-func-end)
 
 (def-method 'sys_pii :usb_running)
 	;inputs
-	;r0 = link buffer (pubyte)
+	;:r0 = link buffer (pubyte)
 	;outputs
-	;r0 = error code (ulong)
+	;:r0 = error code (ulong)
 	;trashes
-	;r0
+	;:r0
 
-	(entry 'sys_pii :usb_running '(r0))
-	(abi-push-trashed r13 r14)
-	(host-os-call 'host :usb_running '(r0) '(r0))
-	(abi-pop-trashed r13 r14)
-	(exit 'sys_pii :usb_running '(r0))
+	(entry 'sys_pii :usb_running '(:r0))
+	(abi-push-trashed :r13 :r14)
+	(host-os-call 'host :usb_running '(:r0) '(:r0))
+	(abi-pop-trashed :r13 :r14)
+	(exit 'sys_pii :usb_running '(:r0))
 	(vp-ret)
 
 (def-func-end)

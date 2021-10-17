@@ -169,7 +169,7 @@ primitives that all the other structured coding functions are based upon.
 ```
 
 The switch name is optional and the case expression can be a VP list
-expression, eg `'(r0 >= r3)` or `'(r4 = 56)`, which is parsed to a VP branch
+expression, eg `'(:r0 >= :r3)` or `'(:r4 = 56)`, which is parsed to a VP branch
 instruction. Or a C-Script string that's evaluated, eg `{length + 23 >
 buf_len}`, with the result tested against 0 with a VP branch instruction.
 
@@ -331,14 +331,14 @@ This is an example of a 'pair class, first the `class.inc` file.
 
 (def-class pair obj
 	(dec-method :vtable class/pair/vtable)
-	(dec-method :create class/pair/create :static (r0 r1) (r0))
-	(dec-method :init class/pair/init :static (r0 r1 r2 r3))
-	(dec-method :ref_first class/pair/ref_first :static (r0) (r0 r1))
-	(dec-method :ref_second class/pair/ref_second :static (r0) (r0 r1))
-	(dec-method :get_first class/pair/get_first :static (r0) (r0 r1))
-	(dec-method :get_second class/pair/get_second :static (r0) (r0 r1))
-	(dec-method :set_first class/pair/set_first :static (r0 r1) (r0))
-	(dec-method :set_second class/pair/set_second :static (r0 r1) (r0))
+	(dec-method :create class/pair/create :static (:r0 :r1) (:r0))
+	(dec-method :init class/pair/init :static (:r0 :r1 :r2 :r3))
+	(dec-method :ref_first class/pair/ref_first :static (:r0) (:r0 :r1))
+	(dec-method :ref_second class/pair/ref_second :static (:r0) (:r0 :r1))
+	(dec-method :get_first class/pair/get_first :static (:r0) (:r0 :r1))
+	(dec-method :get_second class/pair/get_second :static (:r0) (:r0 :r1))
+	(dec-method :set_first class/pair/set_first :static (:r0 :r1) (:r0))
+	(dec-method :set_second class/pair/set_second :static (:r0 :r1) (:r0))
 	(dec-method :deinit class/pair/deinit :final))
 
 (def-struct pair obj_size
@@ -351,37 +351,37 @@ This is an example of a 'pair class, first the `class.inc` file.
 
 (defun class/pair/init ()
 	;inputs
-	;r0 = pair object (ptr)
-	;r1 = vtable (pptr)
-	;r2 = first object (ptr)
-	;r3 = second object (ptr)
+	;:r0 = pair object (ptr)
+	;:r1 = vtable (pptr)
+	;:r2 = first object (ptr)
+	;:r3 = second object (ptr)
 	;outputs
-	;r0 = pair object (ptr)
-	;r1 = 0 if error, else ok
+	;:r0 = pair object (ptr)
+	;:r1 = 0 if error, else ok
 	;trashes
-	;r1
-	(assign '(r2 r3) '((r0 pair_first) (r0 pair_second)))
-	(s-call 'pair :init '(r0 r1) '(r0 r1)))
+	;:r1
+	(assign '(:r2 :r3) '((:r0 pair_first) (:r0 pair_second)))
+	(s-call 'pair :init '(:r0 :r1) '(:r0 :r1)))
 
 (defun class/pair/get_first ()
 	;inputs
-	;r0 = pair object (ptr)
+	;:r0 = pair object (ptr)
 	;outputs
-	;r0 = pair object (ptr)
-	;r1 = object (ptr)
+	;:r0 = pair object (ptr)
+	;:r1 = object (ptr)
 	;trashes
-	;r1
-	(assign '((r0 pair_first)) '(r1)))
+	;:r1
+	(assign '((:r0 pair_first)) '(:r1)))
 
 (defun class/pair/get_second ()
 	;inputs
-	;r0 = pair object (ptr)
+	;:r0 = pair object (ptr)
 	;outputs
-	;r0 = pair object (ptr)
-	;r1 = object (ptr)
+	;:r0 = pair object (ptr)
+	;:r1 = object (ptr)
 	;trashes
-	;r1
-	(assign '((r0 pair_second)) '(r1)))
+	;:r1
+	(assign '((:r0 pair_second)) '(:r1)))
 ```
 
 The `(def-class)` declares the class name and which class it inherits its
@@ -393,11 +393,10 @@ declared matching the declared method path this is taken to mean, 'run this
 function' to emit the method call. They need to be declared in the `class.inc`
 file in order to be visible to all code that use those methods.
 
-The none inline methods are defined in the `class.vp` file. Note the
-use of the helper method generators `(gen-create 'pair)` and `(gen-vtable
-'pair)`. These helpers use the corresponding method declarations to generate
-the method code for you. Take a look in `sys/class.inc` for the implementation
-of these.
+The none inline methods are defined in the `class.vp` file. Note the use of the
+helper method generators `(gen-create 'pair)` and `(gen-vtable 'pair)`. These
+helpers use the corresponding method declarations to generate the method code
+for you. Take a look in `sys/class.inc` for the implementation of these.
 
 Second the `class.vp` file.
 
@@ -410,99 +409,99 @@ Second the `class.vp` file.
 
 (def-method 'pair :deinit)
 	;inputs
-	;r0 = pair object (ptr)
+	;:r0 = pair object (ptr)
 	;outputs
-	;r0 = pair object (ptr)
+	;:r0 = pair object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
-	(entry 'pair :deinit '(r0))
+	(entry 'pair :deinit '(:r0))
 
-	(vp-push r0)
-	(call 'obj :deref '((r0 pair_first)))
-	(assign '((rsp 0)) '(r0))
-	(call 'obj :deref '((r0 pair_second)))
-	(vp-pop r0)
-	(s-jump 'pair :deinit '(r0))
+	(vp-push :r0)
+	(call 'obj :deref '((:r0 pair_first)))
+	(assign '((:rsp 0)) '(:r0))
+	(call 'obj :deref '((:r0 pair_second)))
+	(vp-pop :r0)
+	(s-jump 'pair :deinit '(:r0))
 
 (def-func-end)
 
 (def-method 'pair :ref_first)
 	;inputs
-	;r0 = pair object (ptr)
+	;:r0 = pair object (ptr)
 	;outputs
-	;r0 = pair object (ptr)
-	;r1 = object (ptr)
+	;:r0 = pair object (ptr)
+	;:r1 = object (ptr)
 	;trashes
-	;r2
+	;:r2
 
-	(entry 'pair :ref_first '(r0))
+	(entry 'pair :ref_first '(:r0))
 
-	(assign '((r0 pair_first)) '(r1))
-	(class/obj/ref r1 r2)
+	(assign '((:r0 pair_first)) '(:r1))
+	(class/obj/ref :r1 :r2)
 
-	(exit 'pair :ref_first '(r0 r1))
+	(exit 'pair :ref_first '(:r0 :r1))
 	(vp-ret)
 
 (def-func-end)
 
 (def-method 'pair :ref_second)
 	;inputs
-	;r0 = pair object (ptr)
+	;:r0 = pair object (ptr)
 	;outputs
-	;r0 = pair object (ptr)
-	;r1 = object (ptr)
+	;:r0 = pair object (ptr)
+	;:r1 = object (ptr)
 	;trashes
-	;r2
+	;:r2
 
-	(entry 'pair :ref_second '(r0))
+	(entry 'pair :ref_second '(:r0))
 
-	(assign '((r0 pair_second)) '(r1))
-	(class/obj/ref r1 r2)
+	(assign '((:r0 pair_second)) '(:r1))
+	(class/obj/ref :r1 :r2)
 
-	(exit 'pair :ref_second '(r0 r1))
+	(exit 'pair :ref_second '(:r0 :r1))
 	(vp-ret)
 
 (def-func-end)
 
 (def-method 'pair :set_first)
 	;inputs
-	;r0 = pair object (ptr)
-	;r1 = object (ptr)
+	;:r0 = pair object (ptr)
+	;:r1 = object (ptr)
 	;outputs
-	;r0 = pair object (ptr)
+	;:r0 = pair object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
-	(entry 'pair :set_first '(r0 r1))
+	(entry 'pair :set_first '(:r0 :r1))
 
-	(vp-push r0)
-	(assign '((r0 pair_first) r1) '(r2 (r0 pair_first)))
-	(call 'obj :deref '(r2))
-	(vp-pop r0)
+	(vp-push :r0)
+	(assign '((:r0 pair_first) :r1) '(:r2 (:r0 pair_first)))
+	(call 'obj :deref '(:r2))
+	(vp-pop :r0)
 
-	(exit 'pair :set_first '(r0))
+	(exit 'pair :set_first '(:r0))
 	(vp-ret)
 
 (def-func-end)
 
 (def-method 'pair :set_second)
 	;inputs
-	;r0 = pair object (ptr)
-	;r1 = object (ptr)
+	;:r0 = pair object (ptr)
+	;:r1 = object (ptr)
 	;outputs
-	;r0 = pair object (ptr)
+	;:r0 = pair object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
-	(entry 'pair :set_second '(r0 r1))
+	(entry 'pair :set_second '(:r0 :r1))
 
-	(vp-push r0)
-	(assign '((r0 pair_second) r1) '(r2 (r0 pair_second)))
-	(call 'obj :deref '(r2))
-	(vp-pop r0)
+	(vp-push :r0)
+	(assign '((:r0 pair_second) :r1) '(:r2 (:r0 pair_second)))
+	(call 'obj :deref '(:r2))
+	(vp-pop :r0)
 
-	(exit 'pair :set_second '(r0))
+	(exit 'pair :set_second '(:r0))
 	(vp-ret)
 
 (def-func-end)

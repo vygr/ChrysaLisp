@@ -5,29 +5,29 @@
 
 (def-method 'sys_load :lisp_path)
 	;inputs
-	;r0 = lisp object (ptr)
-	;r1 = args list object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
 	;outputs
-	;r0 = lisp object (ptr)
-	;r1 = return value object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
-	(entry 'sys_load :lisp_path '(r0 r1))
+	(entry 'sys_load :lisp_path '(:r0 :r1))
 
 (errorcases
-	(assign '((r1 array_length)) '(r2))
-	(gotoif '(r2 /= 0) 'error))
+	(assign '((:r1 array_length)) '(:r2))
+	(gotoif '(:r2 /= 0) 'error))
 
-	(vp-push r0)
-	(call 'str :create_from_cstr `(,(cat "obj/" *cpu* "/" *abi* "/")) '(r1))
-	(vp-pop r0)
+	(vp-push :r0)
+	(call 'str :create_from_cstr `(,(cat "obj/" *cpu* "/" *abi* "/")) '(:r1))
+	(vp-pop :r0)
 
-	(exit 'sys_load :lisp_path '(r0 r1))
+	(exit 'sys_load :lisp_path '(:r0 :r1))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(r0 "(load-path)" error_msg_wrong_num_of_args r1)))
+	(jump 'lisp :repl_error '(:r0 "(load-path)" error_msg_wrong_num_of_args :r1)))
 
 (def-func-end)

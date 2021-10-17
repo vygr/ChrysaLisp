@@ -16,11 +16,11 @@
 
 (def-method 'pixmap :load_cpm)
 	;inputs
-	;r5 = stream object (ptr)
+	;:r5 = stream object (ptr)
 	;outputs
-	;r0 = 0 if error, else pixmap object (ptr)
+	;:r0 = 0 if error, else pixmap object (ptr)
 	;trashes
-	;r0-r14
+	;:r0-:r14
 
 	(def-vars
 		(ptr this stream)
@@ -121,13 +121,13 @@
 
 (def-method 'pixmap :save_cpm)
 	;inputs
-	;r4 = pixmap object (ptr)
-	;r6 = stream object (ptr)
-	;r7 = format (uint)
+	;:r4 = pixmap object (ptr)
+	;:r6 = stream object (ptr)
+	;:r7 = format (uint)
 	;outputs
-	;r0 = pixmap object (ptr)
+	;:r0 = pixmap object (ptr)
 	;trashes
-	;r0-r14
+	;:r0-:r14
 
 	(def-vars
 		(ptr this stream)
@@ -225,11 +225,11 @@
 
 (def-method 'pixmap :next_frame)
 	;inputs
-	;r0 = pixmap object (ptr)
+	;:r0 = pixmap object (ptr)
 	;outputs
-	;r0 = pixmap object (ptr)
+	;:r0 = pixmap object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
 	(def-vars
 		(ptr this)
@@ -290,14 +290,14 @@
 
 (def-method 'pixmap :to_argb32)
 	;inputs
-	;r1 = col (uint)
-	;r2 = pixel type (uint)
+	;:r1 = col (uint)
+	;:r2 = pixel type (uint)
 	;outputs
-	;r1 = col (uint)
+	;:r1 = col (uint)
 	;trashes
-	;r1-r8
+	;:r1-:r8
 
-	(vp-def (col pix rh rl gh gl bh bl) '(r1 r2 r3 r4 r5 r6 r7 r8))
+	(vp-def (col pix rh rl gh gl bh bl) '(:r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8))
 
 	(entry 'pixmap :to_argb32 (list col pix))
 
@@ -418,14 +418,14 @@
 
 (def-method 'pixmap :from_argb32)
 	;inputs
-	;r1 = col (uint)
-	;r2 = pixel type (uint)
+	;:r1 = col (uint)
+	;:r2 = pixel type (uint)
 	;outputs
-	;r1 = col (uint)
+	;:r1 = col (uint)
 	;trashes
-	;r1-r5
+	;:r1-:r5
 
-	(vp-def (col pix r g b) '(r1 r2 r3 r4 r5))
+	(vp-def (col pix r g b) '(:r1 :r2 :r3 :r4 :r5))
 
 	(entry 'pixmap :from_argb32 (list col pix))
 

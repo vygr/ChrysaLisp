@@ -11,7 +11,7 @@
 
 (def-method 'sym :statics_init)
 	;trashes
-	;r0-r14
+	;:r0-:r14
 
 	(def-vars
 		(ptr sym syms)
@@ -40,162 +40,162 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (vp-label 'props)
-	(each (lambda (_) (vp-string _) (vp-byte 0)) *static_syms*)
+	(each (lambda (_) (vp-cstr _)) *static_syms*)
 (vp-label 'props_end)
 
 (def-func-end)
 
 (def-method 'sym :get_static_sym)
 	;inputs
-	;r1 = static sym num (uint)
+	;:r1 = static sym num (uint)
 	;outputs
-	;r1 = sym object (ptr)
+	;:r1 = sym object (ptr)
 	;trashes
-	;r1, r3
+	;:r1, :r3
 
-	(entry 'sym :get_static_sym '(r1))
+	(entry 'sym :get_static_sym '(:r1))
 
-	(fn-bind 'sys/statics/statics r3)
-	(assign '((r3 statics_sym_syms)) '(r3))
-	(class/array/get_element r3 r1 r1 r3)
+	(fn-bind 'sys/statics/statics :r3)
+	(assign '((:r3 statics_sym_syms)) '(:r3))
+	(class/array/get_element :r3 :r1 :r1 :r3)
 
-	(exit 'sym :get_static_sym '(r1))
+	(exit 'sym :get_static_sym '(:r1))
 	(vp-ret)
 
 (def-func-end)
 
 (def-method 'sym :ref_static_sym)
 	;inputs
-	;r1 = static sym num (uint)
+	;:r1 = static sym num (uint)
 	;outputs
-	;r1 = sym object (ptr)
+	;:r1 = sym object (ptr)
 	;trashes
-	;r1, r3
+	;:r1, :r3
 
-	(entry 'sym :ref_static_sym '(r1))
+	(entry 'sym :ref_static_sym '(:r1))
 
-	(call 'sym :get_static_sym '(r1))
-	(class/obj/ref r1 r3)
+	(call 'sym :get_static_sym '(:r1))
+	(class/obj/ref :r1 :r3)
 
-	(exit 'sym :ref_static_sym '(r1))
+	(exit 'sym :ref_static_sym '(:r1))
 	(vp-ret)
 
 (def-func-end)
 
 (def-method 'sym :intern)
 	;inputs
-	;r0 = sym object (ptr)
+	;:r0 = sym object (ptr)
 	;outputs
-	;r0 = interned sym object (ptr)
+	;:r0 = interned sym object (ptr)
 	;trashes
-	;r0-r14
+	;:r0-:r14
 	;info
 	;input sym IS derefed
 	;vtable MUST be a sym
 
-	(entry 'sym :intern '(r0))
+	(entry 'sym :intern '(:r0))
 
-	(vp-push r0)
-	(fn-bind 'sys/statics/statics r0)
-	(assign '((r0 statics_sym_intern)) '(r0))
-	(vpif '(r0 = 0))
-		(call 'hset :create `((@ ,(f-path 'sym :same)) num_sym_buckets) '(r0))
-		(fn-bind 'sys/statics/statics r1)
-		(assign '(r0) '((r1 statics_sym_intern)))
+	(vp-push :r0)
+	(fn-bind 'sys/statics/statics :r0)
+	(assign '((:r0 statics_sym_intern)) '(:r0))
+	(vpif '(:r0 = 0))
+		(call 'hset :create `((@ ,(f-path 'sym :same)) num_sym_buckets) '(:r0))
+		(fn-bind 'sys/statics/statics :r1)
+		(assign '(:r0) '((:r1 statics_sym_intern)))
 	(endif)
-	(call 'hset :insert '(r0 (rsp 0)) '(_ r1 _))
-	(call 'obj :ref '((r1 0)) '(r3))
-	(f-bind 'sym :vtable r0)
-	(assign '(r0) '((r3 obj_vtable)))
-	(vp-pop r0)
-	(call 'obj :deref '(r0))
+	(call 'hset :insert '(:r0 (:rsp 0)) '(_ :r1 _))
+	(call 'obj :ref '((:r1 0)) '(:r3))
+	(f-bind 'sym :vtable :r0)
+	(assign '(:r0) '((:r3 obj_vtable)))
+	(vp-pop :r0)
+	(call 'obj :deref '(:r0))
 
-	(exit 'sym :intern '(r3))
+	(exit 'sym :intern '(:r3))
 	(vp-ret)
 
 (def-func-end)
 
 (def-method 'sym :intern_str)
 	;inputs
-	;r0 = str object (ptr)
+	;:r0 = str object (ptr)
 	;outputs
-	;r0 = interned sym object (ptr)
+	;:r0 = interned sym object (ptr)
 	;trashes
-	;r0-r14
+	;:r0-:r14
 	;info
 	;input str IS NOT derefed
 
-	(entry 'sym :intern_str '(r0))
+	(entry 'sym :intern_str '(:r0))
 
-	(vp-push r0)
-	(fn-bind 'sys/statics/statics r0)
-	(assign '((r0 statics_sym_intern)) '(r0))
-	(vpif '(r0 = 0))
-		(call 'hset :create `((@ ,(f-path 'sym :same)) num_sym_buckets) '(r0))
-		(fn-bind 'sys/statics/statics r1)
-		(assign '(r0) '((r1 statics_sym_intern)))
+	(vp-push :r0)
+	(fn-bind 'sys/statics/statics :r0)
+	(assign '((:r0 statics_sym_intern)) '(:r0))
+	(vpif '(:r0 = 0))
+		(call 'hset :create `((@ ,(f-path 'sym :same)) num_sym_buckets) '(:r0))
+		(fn-bind 'sys/statics/statics :r1)
+		(assign '(:r0) '((:r1 statics_sym_intern)))
 	(endif)
-	(call 'hset :find '(r0 (rsp 0)) '(_ r1 r2))
-	(vp-pop r0)
-	(vpif '(r1 = 0))
-		(vp-cpy-rr r2 r7)
-		(call 'sym :create_from_buffer '((& r0 str_data) (r0 str_length)) '(r0))
-		(assign `((@ ,(f-path 'sym :vtable)) r0 r7) '(r2 r1 r0))
-		(assign '(r2) '((r1 obj_vtable)))
-		(call 'list :push_back '(r0 r1) '(_ r1 _ _))
+	(call 'hset :find '(:r0 (:rsp 0)) '(_ :r1 :r2))
+	(vp-pop :r0)
+	(vpif '(:r1 = 0))
+		(vp-cpy-rr :r2 :r7)
+		(call 'sym :create_from_buffer '((& :r0 str_data) (:r0 str_length)) '(:r0))
+		(assign `((@ ,(f-path 'sym :vtable)) :r0 :r7) '(:r2 :r1 :r0))
+		(assign '(:r2) '((:r1 obj_vtable)))
+		(call 'list :push_back '(:r0 :r1) '(_ :r1 _ _))
 	(else)
-		(assign '((r1 0)) '(r1))
+		(assign '((:r1 0)) '(:r1))
 	(endif)
-	(class/obj/ref r1 r0)
+	(class/obj/ref :r1 :r0)
 
-	(exit 'sym :intern_str '(r1))
+	(exit 'sym :intern_str '(:r1))
 	(vp-ret)
 
 (def-func-end)
 
 (def-method 'sym :intern_cstr)
 	;inputs
-	;r0 = c string pointer (pubyte)
+	;:r0 = c string pointer (pubyte)
 	;outputs
-	;r0 = interned sym object (ptr)
+	;:r0 = interned sym object (ptr)
 	;trashes
-	;r0-r14
+	;:r0-:r14
 
-	(entry 'sym :intern_cstr '(r0))
-	(call 'sym :create_from_cstr '(r0) '(r0))
-	(jump 'sym :intern '(r0))
+	(entry 'sym :intern_cstr '(:r0))
+	(call 'sym :create_from_cstr '(:r0) '(:r0))
+	(jump 'sym :intern '(:r0))
 
 (def-func-end)
 
 (def-method 'sym :intern_strs)
 	;inputs
-	;r1 = list of string objects (ptr)
+	;:r1 = list of string objects (ptr)
 	;outputs
-	;r1 = list of sym objects (ptr)
+	;:r1 = list of sym objects (ptr)
 	;trashes
-	;r0-r14
+	;:r0-:r14
 
 	(def-struct local 0
 		(ptr this syms sym)
 		(pptr iter_begin iter_end))
 
 	(vp-alloc local_size)
-	(entry 'sym :intern_strs '(r1))
-	(assign '(r1) '((rsp local_syms)))
+	(entry 'sym :intern_strs '(:r1))
+	(assign '(:r1) '((:rsp local_syms)))
 
-	(class/array/get_both r1 r1 r2)
-	(assign '(r2) '((rsp local_iter_end)))
-	(loop-while '(r1 /= r2))
-		(assign '(r1) '((rsp local_iter_begin)))
-		(call 'sym :intern_str '((r1 0)) '((rsp local_sym)))
-		(assign '((rsp local_iter_begin)) '(r0))
-		(call 'str :deref '((r0 0)))
-		(assign '((rsp local_sym) (rsp local_iter_begin) (rsp local_iter_end)) '(r0 r1 r2))
-		(assign '(r0) '((r1 0)))
-		(vp-add-cr +ptr_size r1)
+	(class/array/get_both :r1 :r1 :r2)
+	(assign '(:r2) '((:rsp local_iter_end)))
+	(loop-while '(:r1 /= :r2))
+		(assign '(:r1) '((:rsp local_iter_begin)))
+		(call 'sym :intern_str '((:r1 0)) '((:rsp local_sym)))
+		(assign '((:rsp local_iter_begin)) '(:r0))
+		(call 'str :deref '((:r0 0)))
+		(assign '((:rsp local_sym) (:rsp local_iter_begin) (:rsp local_iter_end)) '(:r0 :r1 :r2))
+		(assign '(:r0) '((:r1 0)))
+		(vp-add-cr +ptr_size :r1)
 	(loop-end)
 
-	(exit 'sym :intern_strs '((rsp local_syms)))
+	(exit 'sym :intern_strs '((:rsp local_syms)))
 	(vp-free local_size)
 	(vp-ret)
 
@@ -203,21 +203,21 @@
 
 (def-method 'sym :print)
 	;inputs
-	;r0 = sym object (ptr)
-	;r1 = stream object (ptr)
+	;:r0 = sym object (ptr)
+	;:r1 = stream object (ptr)
 	;outputs
-	;r0 = sym object (ptr)
+	;:r0 = sym object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
-	(entry 'sym :print '(r0 r1))
+	(entry 'sym :print '(:r0 :r1))
 
-	(vp-push r0)
-	(vp-cpy-rr r1 r3)
-	(call 'stream :write '(r3 (& r0 str_data) (r0 str_length)))
-	(vp-pop r0)
+	(vp-push :r0)
+	(vp-cpy-rr :r1 :r3)
+	(call 'stream :write '(:r3 (& :r0 str_data) (:r0 str_length)))
+	(vp-pop :r0)
 
-	(exit 'sym :print '(r0))
+	(exit 'sym :print '(:r0))
 	(vp-ret)
 
 (def-func-end)

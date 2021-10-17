@@ -95,14 +95,14 @@
 					(fn-call (elem 0 m)))
 				;v-call
 				(t	(defq _ (elem 2 m))
-					(if (find-rev r14 _)
-						(throw "Dispatch register conflicts with arg !" (list r14 _)))
+					(if (find-rev :r14 _)
+						(throw "Dispatch register conflicts with arg !" (list :r14 _)))
 					(assign _3 _)
-					(vp-cpy-ir r0 obj_vtable r14)
-					(vp-call-i r14 (elem 4 m))))
+					(vp-cpy-ir :r0 obj_vtable :r14)
+					(vp-call-i :r14 (elem 4 m))))
 			(if _4 (assign (elem 3 m) _4)))
 		(t	;l-call
-			(defq _ '(r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14))
+			(defq _ '(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14))
 			(cond
 				((not _2))
 				((str? _2) (assign _2 (slice 0 (length (split _2 ",")) _)))
@@ -123,12 +123,12 @@
 			(unwind)
 			(fn-jump (elem 0 m)))
 		(t	(defq _ (elem 2 m))
-			(if (find-rev r14 _)
-				(throw "Dispatch register conflicts with arg !" (list r14 _)))
+			(if (find-rev :r14 _)
+				(throw "Dispatch register conflicts with arg !" (list :r14 _)))
 			(assign _3 _)
-			(vp-cpy-ir r0 obj_vtable r14)
+			(vp-cpy-ir :r0 obj_vtable :r14)
 			(unwind)
-			(vp-jmp-i r14 (elem 4 m)))))
+			(vp-jmp-i :r14 (elem 4 m)))))
 
 (defmacro entry (&rest _)
 	;either
@@ -199,7 +199,7 @@
 
 (defun l-entry (_1)
 	;_1 = in parameters
-	(defq _ '(r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14))
+	(defq _ '(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14))
 	(cond
 		((not _1))
 		((str? _1) (assign (slice 0 (length (split _1 ",")) _) _1))
@@ -207,7 +207,7 @@
 
 (defun l-exit (_1)
 	;_1 = out parameters
-	(defq _ '(r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14))
+	(defq _ '(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14))
 	(cond
 		((not _1))
 		((str? _1) (assign _1 (slice 0 (length (split _1 ",")) _)))
@@ -288,7 +288,7 @@
 	;_4 = out parameters
 	;_5 = obj reg
 	;_6 = dispatch reg
-	(setd _5 r0 _6 r14)
+	(setd _5 :r0 _6 :r14)
 	(if (eql (elem 1 (defq m (method-lookup _1 _2))) :static)
 		(throw "Method is static ! Use f-call ?" (list _1 _2)))
 	(if (find-rev _6 (defq _ (elem 2 m)))
@@ -303,13 +303,13 @@
 	;_2 = member name
 	;_3 = in parameters
 	;_4 = dispatch reg
-	(setd _4 r14)
+	(setd _4 :r14)
 	(if (eql (elem 1 (defq m (method-lookup _1 _2))) :static)
 		(throw "Method is static ! Use f-jmp ?" (list _1 _2)))
 	(if (find-rev _4 (defq _ (elem 2 m)))
 		(throw "Dispatch register conflicts with arg !" (list _4 _)))
 	(assign _3 _)
-	(vp-cpy-ir r0 obj_vtable _4)
+	(vp-cpy-ir :r0 obj_vtable _4)
 	(unwind)
 	(vp-jmp-i _4 (elem 4 m)))
 
@@ -318,7 +318,7 @@
 	;_2 = member name
 	;_3 = obj reg
 	;_4 = dispatch reg
-	(setd _3 r0 _4 r14)
+	(setd _3 :r0 _4 :r14)
 	(if (eql (elem 1 (defq m (method-lookup _1 _2))) :static)
 		(throw "Method is static ! Use f-bind ?" (list _1 _2)))
 	(vp-cpy-ir _3 obj_vtable _4)
@@ -359,7 +359,7 @@
 	;_3 = in parameters
 	;_4 = out parameters
 	;_5 = dispatch reg
-	(setd _5 r14)
+	(setd _5 :r14)
 	(defq m (method-lookup _1 _2) _ (elem 2 m))
 	(if (find-rev _5 _)
 		(throw "Dispatch register conflicts with arg !" (list _5 _)))
@@ -372,7 +372,7 @@
 	;_2 = member name
 	;_3 = in parameters
 	;_4 = dispatch reg
-	(setd _4 r14)
+	(setd _4 :r14)
 	(defq m (method-lookup _1 _2) _ (elem 2 m))
 	(if (find-rev _4 _)
 		(throw "Dispatch register conflicts with arg !" (list _4 _)))
@@ -384,7 +384,7 @@
 	;_1 = label
 	;_2 = in parameters
 	;_3 = out parameters
-	(defq _ '(r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14))
+	(defq _ '(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14))
 	(cond
 		((not _2))
 		((str? _2) (assign _2 (slice 0 (length (split _2 ",")) _)))
@@ -415,23 +415,23 @@
 	;_1 = class name
 	;_2 = create/init name
 	(defq m (method-lookup _1 (if _2 (sym (cat :create_ _2)) :create)) _3 (opt (elem 2 m) '())
-		_4 (slice 0 (length _3) '(r14 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13)))
+		_4 (slice 0 (length _3) '(:r14 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13)))
 	(def-func (f-path _1 (if _2 (sym (cat :create_ _2)) :create)))
 		;inputs
 		;...
 		;outputs
-		;r0 = 0 if error, else object (ptr)
+		;:r0 = 0 if error, else object (ptr)
 		;trashes
 		;...
 		(assign _3 _4)
-		(call 'sys_mem :alloc `(,(sym (cat _1 "_size"))) '(r0 _))
-		(vpif '(r0 /= 0))
+		(call 'sys_mem :alloc `(,(sym (cat _1 "_size"))) '(:r0 _))
+		(vpif '(:r0 /= 0))
 			;init the object
-			(call _1 (if _2 (sym (cat :init_ _2)) :init) `(r0 (@ ,(f-path _1 :vtable)) ~_4) '(r0 r1))
-			(vpif '(r1 = 0))
+			(call _1 (if _2 (sym (cat :init_ _2)) :init) `(:r0 (@ ,(f-path _1 :vtable)) ~_4) '(:r0 :r1))
+			(vpif '(:r1 = 0))
 				;error with init
-				(call 'sys_mem :free '(r0))
-				(vp-xor-rr r0 r0)
+				(call 'sys_mem :free '(:r0))
+				(vp-xor-rr :r0 :r0)
 			(endif)
 		(endif)
 		(vp-ret)
@@ -441,18 +441,18 @@
 	(def-func (f-path _1 :type))
 		;_1 = class name
 		;inputs
-		;r0 = ... object (ptr)
+		;:r0 = ... object (ptr)
 		;outputs
-		;r0 = ... object (ptr)
-		;r1 = type list object (ptr)
+		;:r0 = ... object (ptr)
+		;:r1 = type list object (ptr)
 		;trashes
-		;r1-r5
-		(entry _1 :type '(r0))
-		(s-call _1 :type '(r0) '(r0 r1))
-		(vp-push r0 r1)
-		(call 'sym :ref_static_sym `(,(sym (cat "static_sym_" _1))) '(r1))
-		(call 'list :push_back '((rsp 0) r1) '(r1 _ _ _))
-		(vp-pop r0 r1)
-		(exit _1 :type '(r0 r1))
+		;:r1-:r5
+		(entry _1 :type '(:r0))
+		(s-call _1 :type '(:r0) '(:r0 :r1))
+		(vp-push :r0 :r1)
+		(call 'sym :ref_static_sym `(,(sym (cat "static_sym_" _1))) '(:r1))
+		(call 'list :push_back '((:rsp 0) :r1) '(:r1 _ _ _))
+		(vp-pop :r0 :r1)
+		(exit _1 :type '(:r0 :r1))
 		(vp-ret)
 	(def-func-end))

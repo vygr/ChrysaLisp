@@ -6,730 +6,730 @@
 
 (def-method 'num :lisp_intern)
 	;inputs
-	;r0 = lisp object (ptr)
-	;r1 = args list object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
 	;outputs
-	;r0 = lisp object (ptr)
-	;r1 = return value object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
-	(entry 'num :lisp_intern '(r0 r1))
+	(entry 'num :lisp_intern '(:r0 :r1))
 
 (errorcases
-	(call 'lisp :env_args_sig '(r1 ($ sig) 1) '(r2))
-	(gotoif '(r2 = 0) 'error))
+	(call 'lisp :env_args_sig '(:r1 ($ sig) 1) '(:r2))
+	(gotoif '(:r2 = 0) 'error))
 
-	(vp-push r0)
-	(array-bind-args r1 '(r0))
-	(class/obj/ref r0 r1)
-	(call 'num :intern '(r0) '(r1))
-	(vp-pop r0)
+	(vp-push :r0)
+	(array-bind-args :r1 '(:r0))
+	(class/obj/ref :r0 :r1)
+	(call 'num :intern '(:r0) '(:r1))
+	(vp-pop :r0)
 
-	(exit 'num :lisp_intern '(r0 r1))
+	(exit 'num :lisp_intern '(:r0 :r1))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(r0 "(num-intern num)" error_msg_wrong_types r1))
+	(jump 'lisp :repl_error '(:r0 "(num-intern num)" error_msg_wrong_types :r1))
 	(signature '(num)))
 
 (def-func-end)
 
 (defun addop (_)
-	(entry 'num (sym (cat :lisp_ (slice 1 -1 _))) '(r0 r1))
+	(entry 'num (sym (cat :lisp_ (slice 1 -1 _))) '(:r0 :r1))
 (errorcases
-	(call 'lisp :env_args_match `(r1 (@ ,(f-path 'num :vtable)) 2) '(r2))
-	(gotoif '(r2 = 0) 'error))
-	(vp-push r0)
-	(assign '((r1 array_begin)) '(r2))
-	(call 'num _ '((r2 0) r1) '(_ r1))
-	(vp-pop r0)
-	(exit 'num (sym (cat :lisp_ (slice 1 -1 _))) '(r0 r1))
+	(call 'lisp :env_args_match `(:r1 (@ ,(f-path 'num :vtable)) 2) '(:r2))
+	(gotoif '(:r2 = 0) 'error))
+	(vp-push :r0)
+	(assign '((:r1 array_begin)) '(:r2))
+	(call 'num _ '((:r2 0) :r1) '(_ :r1))
+	(vp-pop :r0)
+	(exit 'num (sym (cat :lisp_ (slice 1 -1 _))) '(:r0 :r1))
 	(vp-ret))
 
 (def-method 'num :lisp_add)
 	;inputs
-	;r0 = lisp object (ptr)
-	;r1 = args list object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
 	;outputs
-	;r0 = lisp object (ptr)
-	;r1 = return value object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
 	(addop :add)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(r0 "(+ num num ...)" error_msg_wrong_types r1)))
+	(jump 'lisp :repl_error '(:r0 "(+ num num ...)" error_msg_wrong_types :r1)))
 
 (def-func-end)
 
 (def-method 'num :lisp_sub)
 	;inputs
-	;r0 = lisp object (ptr)
-	;r1 = args list object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
 	;outputs
-	;r0 = lisp object (ptr)
-	;r1 = return value object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
 	(addop :sub)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(r0 "(- num num ...)" error_msg_wrong_types r1)))
+	(jump 'lisp :repl_error '(:r0 "(- num num ...)" error_msg_wrong_types :r1)))
 
 (def-func-end)
 
 (def-method 'num :lisp_mul)
 	;inputs
-	;r0 = lisp object (ptr)
-	;r1 = args list object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
 	;outputs
-	;r0 = lisp object (ptr)
-	;r1 = return value object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
 	(addop :mul)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(r0 "(* num num ...)" error_msg_wrong_types r1)))
+	(jump 'lisp :repl_error '(:r0 "(* num num ...)" error_msg_wrong_types :r1)))
 
 (def-func-end)
 
 (def-method 'num :lisp_min)
 	;inputs
-	;r0 = lisp object (ptr)
-	;r1 = args list object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
 	;outputs
-	;r0 = lisp object (ptr)
-	;r1 = return value object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
 	(addop :min)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(r0 "(min num num ...)" error_msg_wrong_types r1)))
+	(jump 'lisp :repl_error '(:r0 "(min num num ...)" error_msg_wrong_types :r1)))
 
 (def-func-end)
 
 (def-method 'num :lisp_max)
 	;inputs
-	;r0 = lisp object (ptr)
-	;r1 = args list object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
 	;outputs
-	;r0 = lisp object (ptr)
-	;r1 = return value object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
 	(addop :max)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(r0 "(max num num ...)" error_msg_wrong_types r1)))
+	(jump 'lisp :repl_error '(:r0 "(max num num ...)" error_msg_wrong_types :r1)))
 
 (def-func-end)
 
 (defun divop (_)
-	(entry 'num (sym (cat :lisp_ (slice 1 -1 _))) '(r0 r1))
+	(entry 'num (sym (cat :lisp_ (slice 1 -1 _))) '(:r0 :r1))
 (errorcases
-	(call 'lisp :env_args_match `(r1 (@ ,(f-path 'num :vtable)) 2) '(r2))
-	(gotoif '(r2 = 0) 'error1))
-	(vp-push r0 r1)
-	(assign '((r1 array_begin)) '(r2))
-	(call 'num _ '((r2 0) r1) '(_ r1))
+	(call 'lisp :env_args_match `(:r1 (@ ,(f-path 'num :vtable)) 2) '(:r2))
+	(gotoif '(:r2 = 0) 'error1))
+	(vp-push :r0 :r1)
+	(assign '((:r1 array_begin)) '(:r2))
+	(call 'num _ '((:r2 0) :r1) '(_ :r1))
 (errorcases
-	(gotoif '(r1 = 0) 'error))
-	(vp-pop r0 r2)
-	(exit 'num (sym (cat :lisp_ (slice 1 -1 _))) '(r0 r1))
+	(gotoif '(:r1 = 0) 'error))
+	(vp-pop :r0 :r2)
+	(exit 'num (sym (cat :lisp_ (slice 1 -1 _))) '(:r0 :r1))
 	(vp-ret))
 
 (def-method 'num :lisp_div)
 	;inputs
-	;r0 = lisp object (ptr)
-	;r1 = args list object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
 	;outputs
-	;r0 = lisp object (ptr)
-	;r1 = return value object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
 	(divop :div)
 
 (errorcases
 (vp-label 'error)
-	(vp-pop r0 r1)
+	(vp-pop :r0 :r1)
 (vp-label 'error1)
-	(jump 'lisp :repl_error '(r0 "(/ num num ...)" error_msg_wrong_types r1)))
+	(jump 'lisp :repl_error '(:r0 "(/ num num ...)" error_msg_wrong_types :r1)))
 
 (def-func-end)
 
 (def-method 'num :lisp_mod)
 	;inputs
-	;r0 = lisp object (ptr)
-	;r1 = args list object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
 	;outputs
-	;r0 = lisp object (ptr)
-	;r1 = return value object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
 	(divop :mod)
 
 (errorcases
 (vp-label 'error)
-	(vp-pop r0 r1)
+	(vp-pop :r0 :r1)
 (vp-label 'error1)
-	(jump 'lisp :repl_error '(r0 "(% num num ...)" error_msg_wrong_types r1)))
+	(jump 'lisp :repl_error '(:r0 "(% num num ...)" error_msg_wrong_types :r1)))
 
 (def-func-end)
 
 (defun andop (_ i p)
-	(entry 'num (sym (cat :lisp_ (slice 1 -1 _))) '(r0 r1))
+	(entry 'num (sym (cat :lisp_ (slice 1 -1 _))) '(:r0 :r1))
 (errorcases
-	(call 'lisp :env_args_type `(r1 (@ ,(f-path 'num :vtable)) 0) '(r2))
-	(gotoif '(r2 = 0) 'error))
-	(vp-push r0)
-	(class/array/get_both r1 r1 r2)
-	(vp-cpy-cr i r0)
-	(vpif '(r1 /= r2))
+	(call 'lisp :env_args_type `(:r1 (@ ,(f-path 'num :vtable)) 0) '(:r2))
+	(gotoif '(:r2 = 0) 'error))
+	(vp-push :r0)
+	(class/array/get_both :r1 :r1 :r2)
+	(vp-cpy-cr i :r0)
+	(vpif '(:r1 /= :r2))
 		(loop-start)
-			(vp-cpy-ir r1 0 r3)
-			(vp-add-cr +ptr_size r1)
-			(assign '((r3 num_value)) '(r3))
+			(vp-cpy-ir :r1 0 :r3)
+			(vp-add-cr +ptr_size :r1)
+			(assign '((:r3 num_value)) '(:r3))
 			(exec p)
-		(loop-until '(r1 = r2))
+		(loop-until '(:r1 = :r2))
 	(endif)
-	(call 'num :create '(r0) '(r1))
-	(vp-pop r0)
-	(exit 'num (sym (cat :lisp_ (slice 1 -1 _))) '(r0 r1))
+	(call 'num :create '(:r0) '(:r1))
+	(vp-pop :r0)
+	(exit 'num (sym (cat :lisp_ (slice 1 -1 _))) '(:r0 :r1))
 	(vp-ret))
 
 (def-method 'num :lisp_and)
 	;inputs
-	;r0 = lisp object (ptr)
-	;r1 = args list object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
 	;outputs
-	;r0 = lisp object (ptr)
-	;r1 = return value object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
 	(andop :and -1
-		'(vp-and-rr r3 r0))
+		'(vp-and-rr :r3 :r0))
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(r0 "(logand [num] ...)" error_msg_wrong_types r1)))
+	(jump 'lisp :repl_error '(:r0 "(logand [num] ...)" error_msg_wrong_types :r1)))
 
 (def-func-end)
 
 (def-method 'num :lisp_or)
 	;inputs
-	;r0 = lisp object (ptr)
-	;r1 = args list object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
 	;outputs
-	;r0 = lisp object (ptr)
-	;r1 = return value object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
 	(andop :or 0
-		'(vp-or-rr r3 r0))
+		'(vp-or-rr :r3 :r0))
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(r0 "(logior [num] ...)" error_msg_wrong_types r1)))
+	(jump 'lisp :repl_error '(:r0 "(logior [num] ...)" error_msg_wrong_types :r1)))
 
 (def-func-end)
 
 (def-method 'num :lisp_xor)
 	;inputs
-	;r0 = lisp object (ptr)
-	;r1 = args list object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
 	;outputs
-	;r0 = lisp object (ptr)
-	;r1 = return value object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
 	(andop :xor 0
-		'(vp-xor-rr r3 r0))
+		'(vp-xor-rr :r3 :r0))
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(r0 "(logxor [num] ...)" error_msg_wrong_types r1)))
+	(jump 'lisp :repl_error '(:r0 "(logxor [num] ...)" error_msg_wrong_types :r1)))
 
 (def-func-end)
 
 (defun shift (_ p)
-	(entry 'num (sym (cat :lisp_ (slice 1 -1 _))) '(r0 r1))
+	(entry 'num (sym (cat :lisp_ (slice 1 -1 _))) '(:r0 :r1))
 (errorcases
-	(call 'lisp :env_args_sig '(r1 ($ sig) 2) '(r2))
-	(gotoif '(r2 = 0) 'error))
-	(vp-push r0)
-	(list-bind-args r1 '(r0 r1) '(:num :num))
+	(call 'lisp :env_args_sig '(:r1 ($ sig) 2) '(:r2))
+	(gotoif '(:r2 = 0) 'error))
+	(vp-push :r0)
+	(list-bind-args :r1 '(:r0 :r1) '(:num :num))
 	(exec p)
-	(call 'num :create '(r0) '(r1))
-	(vp-pop r0)
-	(exit 'num (sym (cat :lisp_ (slice 1 -1 _))) '(r0 r1))
+	(call 'num :create '(:r0) '(:r1))
+	(vp-pop :r0)
+	(exit 'num (sym (cat :lisp_ (slice 1 -1 _))) '(:r0 :r1))
 	(vp-ret))
 
 (def-method 'num :lisp_asr)
 	;inputs
-	;r0 = lisp object (ptr)
-	;r1 = args list object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
 	;outputs
-	;r0 = lisp object (ptr)
-	;r1 = return value object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
 	(shift :asr
-		'(vp-asr-rr r1 r0))
+		'(vp-asr-rr :r1 :r0))
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(r0 "(>>> num cnt)" error_msg_wrong_types r7))
+	(jump 'lisp :repl_error '(:r0 "(>>> num cnt)" error_msg_wrong_types :r7))
 	(signature '(num num)))
 
 (def-func-end)
 
 (def-method 'num :lisp_shl)
 	;inputs
-	;r0 = lisp object (ptr)
-	;r1 = args list object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
 	;outputs
-	;r0 = lisp object (ptr)
-	;r1 = return value object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
 	(shift :shl
-		'(vp-shl-rr r1 r0))
+		'(vp-shl-rr :r1 :r0))
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(r0 "(<< num cnt)" error_msg_wrong_types r7))
+	(jump 'lisp :repl_error '(:r0 "(<< num cnt)" error_msg_wrong_types :r7))
 	(signature '(num num)))
 
 (def-func-end)
 
 (def-method 'num :lisp_shr)
 	;inputs
-	;r0 = lisp object (ptr)
-	;r1 = args list object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
 	;outputs
-	;r0 = lisp object (ptr)
-	;r1 = return value object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
 	(shift :shr
-		'(vp-shr-rr r1 r0))
+		'(vp-shr-rr :r1 :r0))
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(r0 "(>> num cnt)" error_msg_wrong_types r7))
+	(jump 'lisp :repl_error '(:r0 "(>> num cnt)" error_msg_wrong_types :r7))
 	(signature '(num num)))
 
 (def-func-end)
 
 (defun compare (_)
-	(entry 'num (sym (cat :lisp_ (slice 1 -1 _))) '(r0 r1))
+	(entry 'num (sym (cat :lisp_ (slice 1 -1 _))) '(:r0 :r1))
 (errorcases
-	(call 'lisp :env_args_type `(r1 (@ ,(f-path 'num :vtable)) 2) '(r2))
-	(gotoif '(r2 = 0) 'error))
-	(vp-push r0)
-	(assign '((r1 array_begin)) '(r2))
-	(call 'num _ '((r2 0) r1) '(_ r1))
-	(vp-pop r0)
-	(vpif '(r1 = 0))
-		(assign '((r0 lisp_sym_nil)) '(r1))
+	(call 'lisp :env_args_type `(:r1 (@ ,(f-path 'num :vtable)) 2) '(:r2))
+	(gotoif '(:r2 = 0) 'error))
+	(vp-push :r0)
+	(assign '((:r1 array_begin)) '(:r2))
+	(call 'num _ '((:r2 0) :r1) '(_ :r1))
+	(vp-pop :r0)
+	(vpif '(:r1 = 0))
+		(assign '((:r0 lisp_sym_nil)) '(:r1))
 	(else)
-		(assign '((r0 lisp_sym_t)) '(r1))
+		(assign '((:r0 lisp_sym_t)) '(:r1))
 	(endif)
-	(class/obj/ref r1 r2)
-	(exit 'num (sym (cat :lisp_ (slice 1 -1 _))) '(r0 r1))
+	(class/obj/ref :r1 :r2)
+	(exit 'num (sym (cat :lisp_ (slice 1 -1 _))) '(:r0 :r1))
 	(vp-ret))
 
 (def-method 'num :lisp_eq)
 	;inputs
-	;r0 = lisp object (ptr)
-	;r1 = args list object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
 	;outputs
-	;r0 = lisp object (ptr)
-	;r1 = return value object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
 	(compare :eq)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(r0 "(= num num ...)" error_msg_wrong_types r1)))
+	(jump 'lisp :repl_error '(:r0 "(= num num ...)" error_msg_wrong_types :r1)))
 
 (def-func-end)
 
 (def-method 'num :lisp_ge)
 	;inputs
-	;r0 = lisp object (ptr)
-	;r1 = args list object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
 	;outputs
-	;r0 = lisp object (ptr)
-	;r1 = return value object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
 	(compare :ge)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(r0 "(>= num num ...)" error_msg_wrong_types r1)))
+	(jump 'lisp :repl_error '(:r0 "(>= num num ...)" error_msg_wrong_types :r1)))
 
 (def-func-end)
 
 (def-method 'num :lisp_gt)
 	;inputs
-	;r0 = lisp object (ptr)
-	;r1 = args list object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
 	;outputs
-	;r0 = lisp object (ptr)
-	;r1 = return value object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
 	(compare :gt)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(r0 "(> num num ...)" error_msg_wrong_types r1)))
+	(jump 'lisp :repl_error '(:r0 "(> num num ...)" error_msg_wrong_types :r1)))
 
 (def-func-end)
 
 (def-method 'num :lisp_le)
 	;inputs
-	;r0 = lisp object (ptr)
-	;r1 = args list object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
 	;outputs
-	;r0 = lisp object (ptr)
-	;r1 = return value object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
 	(compare :le)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(r0 "(<= num num ...)" error_msg_wrong_types r1)))
+	(jump 'lisp :repl_error '(:r0 "(<= num num ...)" error_msg_wrong_types :r1)))
 
 (def-func-end)
 
 (def-method 'num :lisp_lt)
 	;inputs
-	;r0 = lisp object (ptr)
-	;r1 = args list object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
 	;outputs
-	;r0 = lisp object (ptr)
-	;r1 = return value object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
 	(compare :lt)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(r0 "(< num num ...)" error_msg_wrong_types r1)))
+	(jump 'lisp :repl_error '(:r0 "(< num num ...)" error_msg_wrong_types :r1)))
 
 (def-func-end)
 
 (def-method 'num :lisp_ne)
 	;inputs
-	;r0 = lisp object (ptr)
-	;r1 = args list object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
 	;outputs
-	;r0 = lisp object (ptr)
-	;r1 = return value object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
 	(compare :ne)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(r0 "(/= num num ...)" error_msg_wrong_types r1)))
+	(jump 'lisp :repl_error '(:r0 "(/= num num ...)" error_msg_wrong_types :r1)))
 
 (def-func-end)
 
 ;generic math op
 (defun mathop (_)
-	(entry 'num (sym (cat :lisp_ (slice 1 -1 _))) '(r0 r1))
+	(entry 'num (sym (cat :lisp_ (slice 1 -1 _))) '(:r0 :r1))
 (errorcases
-	(call 'lisp :env_args_sig '(r1 ($ sig) 1) '(r2))
-	(gotoif '(r2 = 0) 'error))
-	(vp-push r0)
-	(assign '((r1 array_begin)) '(r2))
-	(call 'num _ '((r2 0)) '(_ r1))
-	(vp-pop r0)
-	(exit 'num (sym (cat :lisp_ (slice 1 -1 _))) '(r0 r1))
+	(call 'lisp :env_args_sig '(:r1 ($ sig) 1) '(:r2))
+	(gotoif '(:r2 = 0) 'error))
+	(vp-push :r0)
+	(assign '((:r1 array_begin)) '(:r2))
+	(call 'num _ '((:r2 0)) '(_ :r1))
+	(vp-pop :r0)
+	(exit 'num (sym (cat :lisp_ (slice 1 -1 _))) '(:r0 :r1))
 	(vp-ret))
 
 (def-method 'num :lisp_random)
 	;inputs
-	;r0 = lisp object (ptr)
-	;r1 = args list object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
 	;outputs
-	;r0 = lisp object (ptr)
-	;r1 = return value object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
 	(mathop :random)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(r0 "(random num)" error_msg_wrong_types r1))
+	(jump 'lisp :repl_error '(:r0 "(random num)" error_msg_wrong_types :r1))
 	(signature '(num)))
 
 (def-func-end)
 
 (def-method 'num :lisp_neg)
 	;inputs
-	;r0 = lisp object (ptr)
-	;r1 = args list object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
 	;outputs
-	;r0 = lisp object (ptr)
-	;r1 = return value object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
 	(mathop :neg)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(r0 "(neg num)" error_msg_wrong_types r1))
+	(jump 'lisp :repl_error '(:r0 "(neg num)" error_msg_wrong_types :r1))
 	(signature '(num)))
 
 (def-func-end)
 
 (def-method 'num :lisp_sign)
 	;inputs
-	;r0 = lisp object (ptr)
-	;r1 = args list object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
 	;outputs
-	;r0 = lisp object (ptr)
-	;r1 = return value object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
 	(mathop :sign)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(r0 "(sign num)" error_msg_wrong_types r1))
+	(jump 'lisp :repl_error '(:r0 "(sign num)" error_msg_wrong_types :r1))
 	(signature '(num)))
 
 (def-func-end)
 
 (def-method 'num :lisp_abs)
 	;inputs
-	;r0 = lisp object (ptr)
-	;r1 = args list object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
 	;outputs
-	;r0 = lisp object (ptr)
-	;r1 = return value object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
 	(mathop :abs)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(r0 "(abs num)" error_msg_wrong_types r1))
+	(jump 'lisp :repl_error '(:r0 "(abs num)" error_msg_wrong_types :r1))
 	(signature '(num)))
 
 (def-func-end)
 
 (def-method 'num :lisp_sqrt)
 	;inputs
-	;r0 = lisp object (ptr)
-	;r1 = args list object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
 	;outputs
-	;r0 = lisp object (ptr)
-	;r1 = return value object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
-	(entry 'num :lisp_sqrt '(r0 r1))
+	(entry 'num :lisp_sqrt '(:r0 :r1))
 
 (errorcases
-	(call 'lisp :env_args_sig '(r1 ($ sig) 1) '(r2))
-	(gotoif '(r2 = 0) 'error))
+	(call 'lisp :env_args_sig '(:r1 ($ sig) 1) '(:r2))
+	(gotoif '(:r2 = 0) 'error))
 
-	(vp-push r0)
-	(array-bind-args r1 '(r0))
+	(vp-push :r0)
+	(array-bind-args :r1 '(:r0))
 (errorcases
-	(assign '((r0 num_value)) '(r2))
-	(gotoif '(r2 < 0) 'error1))
-	(call 'num :sqrt '(r0) '(_ r1))
-	(vp-pop r0)
+	(assign '((:r0 num_value)) '(:r2))
+	(gotoif '(:r2 < 0) 'error1))
+	(call 'num :sqrt '(:r0) '(_ :r1))
+	(vp-pop :r0)
 
-	(exit 'num :lisp_sqrt '(r0 r1))
+	(exit 'num :lisp_sqrt '(:r0 :r1))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error1)
-	(vp-pop r0)
+	(vp-pop :r0)
 (vp-label 'error)
-	(jump 'lisp :repl_error '(r0 "(sqrt num)" error_msg_wrong_types r1))
+	(jump 'lisp :repl_error '(:r0 "(sqrt num)" error_msg_wrong_types :r1))
 	(signature '(num)))
 
 (def-func-end)
 
 (def-method 'num :lisp_n2i)
 	;inputs
-	;r0 = lisp object (ptr)
-	;r1 = args list object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
 	;outputs
-	;r0 = lisp object (ptr)
-	;r1 = return value object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
-	(entry 'num :lisp_n2i '(r0 r1))
+	(entry 'num :lisp_n2i '(:r0 :r1))
 
 (errorcases
-	(call 'lisp :env_args_sig `(r1 ($ sig) 1) '(r2))
-	(gotoif '(r2 = 0) 'error))
+	(call 'lisp :env_args_sig `(:r1 ($ sig) 1) '(:r2))
+	(gotoif '(:r2 = 0) 'error))
 
 	(defq in (method-input 'num :create))
-	(vp-push r0)
-	(array-bind-args r1 '(r1))
-	(f-bind 'real :vtable r0)
-	(f-bind 'fixed :vtable r2)
-	(assign '((r1 obj_vtable)) '(r3))
+	(vp-push :r0)
+	(array-bind-args :r1 '(:r1))
+	(f-bind 'real :vtable :r0)
+	(f-bind 'fixed :vtable :r2)
+	(assign '((:r1 obj_vtable)) '(:r3))
 	(switch)
-	(vpcase '(r3 = r0))
-		(call 'sys_math :r_r2i '((r1 num_value)) in)
-		(call 'num :create in '(r1))
+	(vpcase '(:r3 = :r0))
+		(call 'sys_math :r_r2i '((:r1 num_value)) in)
+		(call 'num :create in '(:r1))
 		(break)
-	(vpcase '(r3 = r2))
-		(assign '((r1 num_value)) in)
+	(vpcase '(:r3 = :r2))
+		(assign '((:r1 num_value)) in)
 		(vp-asr-cr +fp_shift (elem 0 in))
-		(call 'num :create in '(r1))
+		(call 'num :create in '(:r1))
 		(break)
 	(default)
-		(class/obj/ref r1 r2)
+		(class/obj/ref :r1 :r2)
 	(endswitch)
-	(vp-pop r0)
+	(vp-pop :r0)
 
-	(exit 'num :lisp_n2i '(r0 r1))
+	(exit 'num :lisp_n2i '(:r0 :r1))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(r0 "(n2i num)" error_msg_wrong_types r1))
+	(jump 'lisp :repl_error '(:r0 "(n2i num)" error_msg_wrong_types :r1))
 	(signature '(num)))
 
 (def-func-end)
 
 (def-method 'num :lisp_n2f)
 	;inputs
-	;r0 = lisp object (ptr)
-	;r1 = args list object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
 	;outputs
-	;r0 = lisp object (ptr)
-	;r1 = return value object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
-	(entry 'num :lisp_n2f '(r0 r1))
+	(entry 'num :lisp_n2f '(:r0 :r1))
 
 (errorcases
-	(call 'lisp :env_args_sig `(r1 ($ sig) 1) '(r2))
-	(gotoif '(r2 = 0) 'error))
+	(call 'lisp :env_args_sig `(:r1 ($ sig) 1) '(:r2))
+	(gotoif '(:r2 = 0) 'error))
 
 	(defq in (method-input 'fixed :create))
-	(vp-push r0)
-	(array-bind-args r1 '(r1))
-	(f-bind 'num :vtable r0)
-	(f-bind 'real :vtable r2)
-	(assign '((r1 obj_vtable)) '(r3))
+	(vp-push :r0)
+	(array-bind-args :r1 '(:r1))
+	(f-bind 'num :vtable :r0)
+	(f-bind 'real :vtable :r2)
+	(assign '((:r1 obj_vtable)) '(:r3))
 	(switch)
-	(vpcase '(r3 = r0))
-		(assign '((r1 num_value)) in)
+	(vpcase '(:r3 = :r0))
+		(assign '((:r1 num_value)) in)
 		(vp-shl-cr +fp_shift (elem 0 in))
-		(call 'fixed :create in '(r1))
+		(call 'fixed :create in '(:r1))
 		(break)
-	(vpcase '(r3 = r2))
-		(call 'sys_math :r_r2f '((r1 num_value)) in)
-		(call 'fixed :create in '(r1))
+	(vpcase '(:r3 = :r2))
+		(call 'sys_math :r_r2f '((:r1 num_value)) in)
+		(call 'fixed :create in '(:r1))
 		(break)
 	(default)
-		(class/obj/ref r1 r2)
+		(class/obj/ref :r1 :r2)
 	(endswitch)
-	(vp-pop r0)
+	(vp-pop :r0)
 
-	(exit 'num :lisp_n2f '(r0 r1))
+	(exit 'num :lisp_n2f '(:r0 :r1))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(r0 "(n2f num)" error_msg_wrong_types r1))
+	(jump 'lisp :repl_error '(:r0 "(n2f num)" error_msg_wrong_types :r1))
 	(signature '(num)))
 
 (def-func-end)
 
 (def-method 'num :lisp_n2r)
 	;inputs
-	;r0 = lisp object (ptr)
-	;r1 = args list object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
 	;outputs
-	;r0 = lisp object (ptr)
-	;r1 = return value object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
-	(entry 'num :lisp_n2r '(r0 r1))
+	(entry 'num :lisp_n2r '(:r0 :r1))
 
 (errorcases
-	(call 'lisp :env_args_sig `(r1 ($ sig) 1) '(r2))
-	(gotoif '(r2 = 0) 'error))
+	(call 'lisp :env_args_sig `(:r1 ($ sig) 1) '(:r2))
+	(gotoif '(:r2 = 0) 'error))
 
 	(defq in (method-input 'real :create))
-	(vp-push r0)
-	(array-bind-args r1 '(r1))
-	(f-bind 'num :vtable r0)
-	(f-bind 'fixed :vtable r2)
-	(assign '((r1 obj_vtable)) '(r3))
+	(vp-push :r0)
+	(array-bind-args :r1 '(:r1))
+	(f-bind 'num :vtable :r0)
+	(f-bind 'fixed :vtable :r2)
+	(assign '((:r1 obj_vtable)) '(:r3))
 	(switch)
-	(vpcase '(r3 = r0))
-		(call 'sys_math :r_i2r '((r1 num_value)) in)
-		(call 'real :create in '(r1))
+	(vpcase '(:r3 = :r0))
+		(call 'sys_math :r_i2r '((:r1 num_value)) in)
+		(call 'real :create in '(:r1))
 		(break)
-	(vpcase '(r3 = r2))
-		(call 'sys_math :r_f2r '((r1 num_value)) in)
-		(call 'real :create in '(r1))
+	(vpcase '(:r3 = :r2))
+		(call 'sys_math :r_f2r '((:r1 num_value)) in)
+		(call 'real :create in '(:r1))
 		(break)
 	(default)
-		(class/obj/ref r1 r2)
+		(class/obj/ref :r1 :r2)
 	(endswitch)
-	(vp-pop r0)
+	(vp-pop :r0)
 
-	(exit 'num :lisp_n2r '(r0 r1))
+	(exit 'num :lisp_n2r '(:r0 :r1))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(r0 "(n2r num)" error_msg_wrong_types r1))
+	(jump 'lisp :repl_error '(:r0 "(n2r num)" error_msg_wrong_types :r1))
 	(signature '(num)))
 
 (def-func-end)

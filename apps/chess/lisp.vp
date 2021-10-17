@@ -6,32 +6,32 @@
 
 (def-func 'apps/chess/piece_scans)
 	;inputs
-	;r0 = lisp object (ptr)
-	;r1 = args list object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
 	;outputs
-	;r0 = lisp object (ptr)
-	;r1 = return value object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
 	(def-struct local 0
 		(ptr this args yield))
 
 	(vp-def (x y cx cy dx dy len yield_data brd iter_begin iter_end vectors)
-		'(r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14))
+		'(:r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14))
 
-	(entry '(r0 r1))
+	(entry '(:r0 :r1))
 
 (errorcases
-	(call 'lisp :env_args_sig '(r1 ($ sig) 3) '(r2))
-	(gotoif '(r2 = 0) 'error))
+	(call 'lisp :env_args_sig '(:r1 ($ sig) 3) '(:r2))
+	(gotoif '(:r2 = 0) 'error))
 
 	(vp-alloc local_size)
-	(assign '(r0 r1) '((rsp local_this) (rsp local_args)))
+	(assign '(:r0 :r1) '((:rsp local_this) (:rsp local_args)))
 
-	(call 'str :create_from_buffer `(0 ,(* 8 16)) '(r0))
-	(assign '(r0 (& r0 str_data) (rsp local_args)) `((rsp local_yield) ,yield_data r0))
-	(list-bind-args r0 `(,brd ,cx ,vectors) '(:str :num :list))
+	(call 'str :create_from_buffer `(0 ,(* 8 16)) '(:r0))
+	(assign '(:r0 (& :r0 str_data) (:rsp local_args)) `((:rsp local_yield) ,yield_data :r0))
+	(list-bind-args :r0 `(,brd ,cx ,vectors) '(:str :num :list))
 
 	(assign `(,cx) `(,cy))
 	(vp-and-cr 7 cx)
@@ -39,8 +39,8 @@
 
 	(class/array/get_both vectors iter_begin iter_end)
 	(loop-start)
-		(assign `((,iter_begin 0)) '(r0))
-		(array-bind-args r0 `(,dx ,dy ,len))
+		(assign `((,iter_begin 0)) '(:r0))
+		(array-bind-args :r0 `(,dx ,dy ,len))
 		(assign `(,cx ,cy) `(,x ,y))
 		(loop-start)
 			(vp-sub-cr 1 len)
@@ -48,29 +48,29 @@
 			(vp-add-rr dx x)
 			(vp-add-rr dy y)
 			(breakif (list x '< 0) (list x '> 7) (list y '< 0) (list y '> 7))
-			(vp-cpy-rr y r0)
-			(vp-mul-cr 8 r0)
-			(vp-add-rr x r0)
-			(assign `((,brd r0 ub)) '(r0))
-			(continueif (list r0 '= +char_space))
-			(assign '(r0) `((,yield_data 0 ub)))
+			(vp-cpy-rr y :r0)
+			(vp-mul-cr 8 :r0)
+			(vp-add-rr x :r0)
+			(assign `((,brd :r0 ub)) '(:r0))
+			(continueif (list :r0 '= +char_space))
+			(assign '(:r0) `((,yield_data 0 ub)))
 			(vp-add-cr +byte_size yield_data)
 		(endswitch)
 		(vp-add-cr +ptr_size iter_begin)
 	(loop-until (list iter_begin '= iter_end))
 
-	(assign '((rsp local_yield) 0) '(r1 r0))
-	(assign `((& r1 str_data) r0) `(r2 (,yield_data 0 ub)))
-	(vp-sub-rr r2 yield_data)
-	(assign `(,yield_data) '((r1 str_length)))
+	(assign '((:rsp local_yield) 0) '(:r1 :r0))
+	(assign `((& :r1 str_data) :r0) `(:r2 (,yield_data 0 ub)))
+	(vp-sub-rr :r2 yield_data)
+	(assign `(,yield_data) '((:r1 str_length)))
 
-	(exit '((rsp local_this) r1))
+	(exit '((:rsp local_this) :r1))
 	(vp-free local_size)
 	(vp-ret)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(r0 "(piece-scans brd index vectors)" error_msg_wrong_types r1))
+	(jump 'lisp :repl_error '(:r0 "(piece-scans brd index vectors)" error_msg_wrong_types :r1))
 	(signature '(str num list)))
 
 (def-func-end)

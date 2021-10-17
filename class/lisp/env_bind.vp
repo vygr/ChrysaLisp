@@ -5,14 +5,14 @@
 
 (def-method 'lisp :env_bind)
 	;inputs
-	;r0 = lisp object (ptr)
-	;r1 = vars list object (ptr)
-	;r2 = vals seq object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = vars list object (ptr)
+	;:r2 = vals seq object (ptr)
 	;outputs
-	;r0 = lisp object (ptr)
-	;r1 = return value object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
 	(def-vars
 		(ptr this vars vals symbol value args)

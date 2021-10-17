@@ -5,33 +5,33 @@
 
 (def-method 'sys_kernel :lisp_stats)
 	;inputs
-	;r0 = lisp object (ptr)
-	;r1 = args list object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
 	;outputs
-	;r0 = lisp object (ptr)
-	;r1 = return value object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
-	(entry 'sys_kernel :lisp_stats '(r0 r1))
+	(entry 'sys_kernel :lisp_stats '(:r0 :r1))
 
 (errorcases
-	(assign '((r1 array_length)) '(r2))
-	(gotoif '(r2 /= 0) 'error))
+	(assign '((:r1 array_length)) '(:r2))
+	(gotoif '(:r2 /= 0) 'error))
 
-	(vp-push r0)
-	(call 'sys_mem :avail nil '(r10))
-	(call 'array :create nil '(r0))
-	(fn-bind 'sys/statics/statics r1)
-	(call 'array :push_back2 '(r0 (r1 statics_sys_task_task_count) (r1 statics_sys_mem_total)) '(r0 _ _ _ _))
-	(call 'array :push_back '(r0 r10) '(r1 _ _ _))
-	(vp-pop r0)
+	(vp-push :r0)
+	(call 'sys_mem :avail nil '(:r10))
+	(call 'array :create nil '(:r0))
+	(fn-bind 'sys/statics/statics :r1)
+	(call 'array :push_back2 '(:r0 (:r1 statics_sys_task_task_count) (:r1 statics_sys_mem_total)) '(:r0 _ _ _ _))
+	(call 'array :push_back '(:r0 :r10) '(:r1 _ _ _))
+	(vp-pop :r0)
 
-	(exit 'sys_kernel :lisp_stats '(r0 r1))
+	(exit 'sys_kernel :lisp_stats '(:r0 :r1))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(r0 "(kernel-stats)" error_msg_wrong_types r1)))
+	(jump 'lisp :repl_error '(:r0 "(kernel-stats)" error_msg_wrong_types :r1)))
 
 (def-func-end)

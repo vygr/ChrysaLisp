@@ -7,7 +7,7 @@
 
 (defun addop (_)
 	;trashes
-	;r1-r6+
+	;:r1-:r6+
 	(vp-def (dst src1 src2 dst1 src_end))
 	(entry 'nums _ `(,dst ,src1 ,src2))
 	(class/array/get_both src1 src1 src_end)
@@ -27,8 +27,8 @@
 
 (defun divop (_)
 	;trashes
-	;r1-r8+
-	(vp-def (s1 s2 dst src1 src2 dst1 src_end) '(r1 r2 r4 r5 r6 r7 r8))
+	;:r1-:r8+
+	(vp-def (s1 s2 dst src1 src2 dst1 src_end) '(:r1 :r2 :r4 :r5 :r6 :r7 :r8))
 	(entry 'nums _ `(,dst ,s1 ,s2))
 	(class/array/get_both s1 src1 src_end)
 	(assign `((,dst array_begin) (,s2 array_begin)) `(,dst1 ,src2))
@@ -52,7 +52,7 @@
 
 (defun absop (_)
 	;trashes
-	;r1-r4+
+	;:r1-:r4+
 	(vp-def (dst src dst1 src_end))
 	(entry 'nums _ `(,dst ,src))
 	(class/array/get_both src src src_end)
@@ -70,13 +70,13 @@
 
 (def-method 'nums :add)
 	;inputs
-	;r0 = nums object (ptr)
-	;r1 = source1 nums object, can be same (ptr)
-	;r2 = source2 nums object, can be same (ptr)
+	;:r0 = nums object (ptr)
+	;:r1 = source1 nums object, can be same (ptr)
+	;:r2 = source2 nums object, can be same (ptr)
 	;outputs
-	;r0 = nums object (ptr)
+	;:r0 = nums object (ptr)
 	;trashes
-	;r1-r6
+	;:r1-:r6
 
 	(addop :add)
 
@@ -84,13 +84,13 @@
 
 (def-method 'nums :sub)
 	;inputs
-	;r0 = nums object (ptr)
-	;r1 = source1 nums object, can be same (ptr)
-	;r2 = source2 nums object, can be same (ptr)
+	;:r0 = nums object (ptr)
+	;:r1 = source1 nums object, can be same (ptr)
+	;:r2 = source2 nums object, can be same (ptr)
 	;outputs
-	;r0 = nums object (ptr)
+	;:r0 = nums object (ptr)
 	;trashes
-	;r1-r6
+	;:r1-:r6
 
 	(addop :sub)
 
@@ -98,13 +98,13 @@
 
 (def-method 'nums :min)
 	;inputs
-	;r0 = nums object (ptr)
-	;r1 = source1 nums object, can be same (ptr)
-	;r2 = source2 nums object, can be same (ptr)
+	;:r0 = nums object (ptr)
+	;:r1 = source1 nums object, can be same (ptr)
+	;:r2 = source2 nums object, can be same (ptr)
 	;outputs
-	;r0 = nums object (ptr)
+	;:r0 = nums object (ptr)
 	;trashes
-	;r1-r6
+	;:r1-:r6
 
 	(addop :min)
 
@@ -112,13 +112,13 @@
 
 (def-method 'nums :max)
 	;inputs
-	;r0 = nums object (ptr)
-	;r1 = source1 nums object, can be same (ptr)
-	;r2 = source2 nums object, can be same (ptr)
+	;:r0 = nums object (ptr)
+	;:r1 = source1 nums object, can be same (ptr)
+	;:r2 = source2 nums object, can be same (ptr)
 	;outputs
-	;r0 = nums object (ptr)
+	;:r0 = nums object (ptr)
 	;trashes
-	;r1-r6
+	;:r1-:r6
 
 	(addop :max)
 
@@ -126,13 +126,13 @@
 
 (def-method 'nums :mul)
 	;inputs
-	;r0 = nums object (ptr)
-	;r1 = source1 nums object, can be same (ptr)
-	;r2 = source2 nums object, can be same (ptr)
+	;:r0 = nums object (ptr)
+	;:r1 = source1 nums object, can be same (ptr)
+	;:r2 = source2 nums object, can be same (ptr)
 	;outputs
-	;r0 = nums object (ptr)
+	;:r0 = nums object (ptr)
 	;trashes
-	;r1-r6
+	;:r1-:r6
 
 	(addop :mul)
 
@@ -140,13 +140,13 @@
 
 (def-method 'nums :div)
 	;inputs
-	;r0 = nums object (ptr)
-	;r1 = source1 nums object, can be same (ptr)
-	;r2 = source2 nums object, can be same (ptr)
+	;:r0 = nums object (ptr)
+	;:r1 = source1 nums object, can be same (ptr)
+	;:r2 = source2 nums object, can be same (ptr)
 	;outputs
-	;r0 = nums object (ptr)
+	;:r0 = nums object (ptr)
 	;trashes
-	;r1-r8
+	;:r1-:r8
 
 	(divop :div)
 
@@ -154,13 +154,13 @@
 
 (def-method 'nums :mod)
 	;inputs
-	;r0 = nums object (ptr)
-	;r1 = source1 nums object, can be same (ptr)
-	;r2 = source2 nums object, can be same (ptr)
+	;:r0 = nums object (ptr)
+	;:r1 = source1 nums object, can be same (ptr)
+	;:r2 = source2 nums object, can be same (ptr)
 	;outputs
-	;r0 = nums object (ptr)
+	;:r0 = nums object (ptr)
 	;trashes
-	;r1-r8
+	;:r1-:r8
 
 	(divop :mod)
 
@@ -168,12 +168,12 @@
 
 (def-method 'nums :abs)
 	;inputs
-	;r0 = nums object (ptr)
-	;r1 = source nums object, can be same (ptr)
+	;:r0 = nums object (ptr)
+	;:r1 = source nums object, can be same (ptr)
 	;outputs
-	;r0 = nums object (ptr)
+	;:r0 = nums object (ptr)
 	;trashes
-	;r1-r4
+	;:r1-:r4
 
 	(absop :abs)
 
@@ -181,12 +181,12 @@
 
 (def-method 'nums :sum)
 	;inputs
-	;r0 = nums object (ptr)
+	;:r0 = nums object (ptr)
 	;outputs
-	;r0 = nums object (ptr)
-	;r1 = sum (long)
+	;:r0 = nums object (ptr)
+	;:r1 = sum (long)
 	;trashes
-	;r1-r4
+	;:r1-:r4
 
 	(vp-def (dst dst1 src_end sum val))
 
@@ -207,13 +207,13 @@
 
 (def-method 'nums :scale)
 	;inputs
-	;r0 = nums object (ptr)
-	;r1 = source nums object, can be same (ptr)
-	;r2 = scale (int)
+	;:r0 = nums object (ptr)
+	;:r1 = source nums object, can be same (ptr)
+	;:r2 = scale (int)
 	;outputs
-	;r0 = nums object (ptr)
+	;:r0 = nums object (ptr)
 	;trashes
-	;r1-r5
+	;:r1-:r5
 
 	(vp-def (dst src scale dst1 src_end))
 
@@ -237,20 +237,20 @@
 
 (def-method 'nums :dot)
 	;inputs
-	;r0 = nums object (ptr)
-	;r1 = nums object, can be same (ptr)
+	;:r0 = nums object (ptr)
+	;:r1 = nums object, can be same (ptr)
 	;outputs
-	;r0 = nums object (ptr)
-	;r1 = dot product (long)
+	;:r0 = nums object (ptr)
+	;:r1 = dot product (long)
 	;trashes
-	;r1-r6
+	;:r1-:r6
 
 	(vp-def (this sum src2 src1 src_end val1 val2))
 
-	(entry 'nums :dot `(,this r1))
+	(entry 'nums :dot `(,this :r1))
 
 	(class/array/get_both this src1 src_end)
-	(assign '((r1 array_begin)) `(,src2))
+	(assign '((:r1 array_begin)) `(,src2))
 	(vp-xor-rr sum sum)
 	(loop-while (list src1 '/= src_end))
 		(assign `((,src1 0) (,src2 0)) `(,val1 ,val2))
@@ -267,13 +267,13 @@
 
 (def-method 'nums :eql)
 	;inputs
-	;r0 = nums object (ptr)
-	;r1 = nums object, can be same (ptr)
+	;:r0 = nums object (ptr)
+	;:r1 = nums object, can be same (ptr)
 	;outputs
-	;r0 = nums object (ptr)
-	;r1 = 0 if eql, else not (long)
+	;:r0 = nums object (ptr)
+	;:r1 = 0 if eql, else not (long)
 	;trashes
-	;r1-r6
+	;:r1-:r6
 
 	(vp-def (this val src2 src1 src_end val1 val2))
 
@@ -303,12 +303,12 @@
 
 (def-method 'nums :hash)
 	;inputs
-	;r0 = nums object (ptr)
+	;:r0 = nums object (ptr)
 	;outputs
-	;r0 = nums object (ptr)
-	;r1 = hash code (long)
+	;:r0 = nums object (ptr)
+	;:r1 = hash code (long)
 	;trashes
-	;r1-r4
+	;:r1-:r4
 
 	(vp-def (dst dst1 src_end hcode val))
 

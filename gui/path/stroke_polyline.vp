@@ -5,18 +5,18 @@
 
 (def-method 'path :stroke_polyline)
 	;inputs
-	;r0 = path object (ptr)
-	;r1 = stack array object (ptr)
-	;r2 = radius (fixed)
-	;r3 = tolerance (fixed)
-	;r4 = join style (byte)
-	;r5 = cap style1 (byte)
-	;r6 = cap style2 (byte)
+	;:r0 = path object (ptr)
+	;:r1 = stack array object (ptr)
+	;:r2 = radius (fixed)
+	;:r3 = tolerance (fixed)
+	;:r4 = join style (byte)
+	;:r5 = cap style1 (byte)
+	;:r6 = cap style2 (byte)
 	;outputs
-	;r0 = path object (ptr)
-	;r1 = output path object (ptr)
+	;:r0 = path object (ptr)
+	;:r1 = output path object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
 	(def-vars
 		(union

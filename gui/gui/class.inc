@@ -7,13 +7,13 @@
 ;;;;;;;;;;;;;;;;;;
 
 (def-class gui nil
-	(dec-method :update gui/gui/update :static (r0 r1 r2))
-	(dec-method :composit gui/gui/composit :static (r0))
-	(dec-method :lisp_init gui/gui/lisp_init :static (r0 r1) (r0 r1))
-	(dec-method :lisp_deinit gui/gui/lisp_deinit :static (r0 r1) (r0 r1))
-	(dec-method :lisp_update gui/gui/lisp_update :static (r0 r1) (r0 r1))
-	(dec-method :lisp_event gui/gui/lisp_event :static (r0 r1) (r0 r1))
-	(dec-method :lisp_info gui/gui/lisp_info :static (r0 r1) (r0 r1)))
+	(dec-method :update gui/gui/update :static (:r0 :r1 :r2))
+	(dec-method :composit gui/gui/composit :static (:r0))
+	(dec-method :lisp_init gui/gui/lisp_init :static (:r0 :r1) (:r0 :r1))
+	(dec-method :lisp_deinit gui/gui/lisp_deinit :static (:r0 :r1) (:r0 :r1))
+	(dec-method :lisp_update gui/gui/lisp_update :static (:r0 :r1) (:r0 :r1))
+	(dec-method :lisp_event gui/gui/lisp_event :static (:r0 :r1) (:r0 :r1))
+	(dec-method :lisp_info gui/gui/lisp_info :static (:r0 :r1) (:r0 :r1)))
 
 ;;;;;;;;;;;;;;;;
 ; gui structures

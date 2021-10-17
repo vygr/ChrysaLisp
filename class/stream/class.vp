@@ -11,155 +11,155 @@
 
 (def-method 'stream :init)
 	;inputs
-	;r0 = stream object (ptr)
-	;r1 = vtable (pptr)
-	;r2 = buffer object, 0 if none (ptr)
-	;r3 = buffer data, 0 if none (ptr)
-	;r4 = buffer start (pubyte)
-	;r5 = buffer length (uint)
+	;:r0 = stream object (ptr)
+	;:r1 = vtable (pptr)
+	;:r2 = buffer object, 0 if none (ptr)
+	;:r3 = buffer data, 0 if none (ptr)
+	;:r4 = buffer start (pubyte)
+	;:r5 = buffer length (uint)
 	;outputs
-	;r0 = stream object (ptr)
-	;r1 = 0 if error, else ok
+	;:r0 = stream object (ptr)
+	;:r1 = 0 if error, else ok
 	;trashes
-	;r1-r5
+	;:r1-:r5
 
-	(entry 'stream :init '(r0 r1 r2 r3 r4 r5))
+	(entry 'stream :init '(:r0 :r1 :r2 :r3 :r4 :r5))
 
 	;init parent
-	(vp-add-rr r4 r5)
-	(assign '(r2 r3 r4 r5) '((r0 stream_object) (r0 stream_buffer) (r0 stream_bufp) (r0 stream_bufe)))
-	(s-call 'stream :init '(r0 r1) '(r0 r1))
+	(vp-add-rr :r4 :r5)
+	(assign '(:r2 :r3 :r4 :r5) '((:r0 stream_object) (:r0 stream_buffer) (:r0 stream_bufp) (:r0 stream_bufe)))
+	(s-call 'stream :init '(:r0 :r1) '(:r0 :r1))
 
-	(exit 'stream :init '(r0 r1))
+	(exit 'stream :init '(:r0 :r1))
 	(vp-ret)
 
 (def-func-end)
 
 (def-method 'stream :deinit)
 	;inputs
-	;r0 = stream object (ptr)
+	;:r0 = stream object (ptr)
 	;outputs
-	;r0 = stream object (ptr)
+	;:r0 = stream object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
-	(entry 'stream :deinit '(r0))
+	(entry 'stream :deinit '(:r0))
 
 	;deref any buffer object
-	(vp-push r0)
-	(call 'obj :deref_if '((r0 stream_object)))
+	(vp-push :r0)
+	(call 'obj :deref_if '((:r0 stream_object)))
 
 	;free any buffer
-	(assign '((rsp 0)) '(r0))
-	(call 'sys_mem :free '((r0 stream_buffer)))
-	(vp-pop r0)
+	(assign '((:rsp 0)) '(:r0))
+	(call 'sys_mem :free '((:r0 stream_buffer)))
+	(vp-pop :r0)
 
 	;parent deinit
-	(s-jump 'stream :deinit '(r0))
+	(s-jump 'stream :deinit '(:r0))
 
 (def-func-end)
 
 (def-method 'stream :read)
 	;inputs
-	;r0 = stream object (ptr)
-	;r1 = buffer (pubyte)
-	;r2 = buffer length (uint)
+	;:r0 = stream object (ptr)
+	;:r1 = buffer (pubyte)
+	;:r2 = buffer length (uint)
 	;outputs
-	;r0 = stream object (ptr)
-	;r1 = -1 for EOF, else bytes read (int)
+	;:r0 = stream object (ptr)
+	;:r1 = -1 for EOF, else bytes read (int)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
-	(entry 'stream :read '(r0 r1 r2))
+	(entry 'stream :read '(:r0 :r1 :r2))
 
 	;check if < 1 char
-	(vpif '(r2 < 1))
+	(vpif '(:r2 < 1))
 		;check if 1 char
 		(switch)
-		(vpcase '(r2 = 1))
-			(vp-push r1)
-			(call 'stream :read_char '(r0) '(r0 r1))
-			(vp-pop r2)
-			(vpif '(r1 /= -1))
-				(vp-cpy-ri-b r1 r2 0)
-				(vp-cpy-cr 1 r1)
+		(vpcase '(:r2 = 1))
+			(vp-push :r1)
+			(call 'stream :read_char '(:r0) '(:r0 :r1))
+			(vp-pop :r2)
+			(vpif '(:r1 /= -1))
+				(vp-cpy-ri-b :r1 :r2 0)
+				(vp-cpy-cr 1 :r1)
 			(endif)
-			(exit 'stream :read '(r0 r1))
+			(exit 'stream :read '(:r0 :r1))
 			(vp-ret)
 		(default)
-			(exit 'stream :read '(r0 0))
+			(exit 'stream :read '(:r0 0))
 			(vp-ret)
 		(endswitch)
 	(endif)
 
-	(assign '(r0 r2 0) '(r5 r4 r6))
-	(assign '((r5 stream_bufp) (r5 stream_bufe)) '(r0 r2))
-	(loop-while '(r4 /= 0) 'exit)
-		(vpif '(r2 /= r0))
-			(vp-sub-rr r0 r2)
-			(vpif '(r2 > r4))
-				(vp-cpy-rr r4 r2)
+	(assign '(:r0 :r2 0) '(:r5 :r4 :r6))
+	(assign '((:r5 stream_bufp) (:r5 stream_bufe)) '(:r0 :r2))
+	(loop-while '(:r4 /= 0) 'exit)
+		(vpif '(:r2 /= :r0))
+			(vp-sub-rr :r0 :r2)
+			(vpif '(:r2 > :r4))
+				(vp-cpy-rr :r4 :r2)
 			(endif)
-			(vp-sub-rr r2 r4)
-			(vp-add-rr r2 r6)
-			(call 'sys_mem :copy '(r0 r1 r2) '(r0 r1))
-			(assign '(r0 (r5 stream_bufe)) '((r5 stream_bufp) r2))
+			(vp-sub-rr :r2 :r4)
+			(vp-add-rr :r2 :r6)
+			(call 'sys_mem :copy '(:r0 :r1 :r2) '(:r0 :r1))
+			(assign '(:r0 (:r5 stream_bufe)) '((:r5 stream_bufp) :r2))
 		(else)
-			(vp-push r1 r4 r6)
-			(call 'stream :read_next '(r5) '(r5 r0))
-			(vp-pop r1 r4 r6)
-			(vpif '(r0 = -1))
-				(breakif '(r6 /= 0) 'exit)
-				(vp-cpy-rr r0 r6)
+			(vp-push :r1 :r4 :r6)
+			(call 'stream :read_next '(:r5) '(:r5 :r0))
+			(vp-pop :r1 :r4 :r6)
+			(vpif '(:r0 = -1))
+				(breakif '(:r6 /= 0) 'exit)
+				(vp-cpy-rr :r0 :r6)
 				(break 'exit)
 			(endif)
-			(assign '((r5 stream_bufp) (r5 stream_bufe)) '(r0 r2))
-			(breakif '(r2 = r0) 'exit)
+			(assign '((:r5 stream_bufp) (:r5 stream_bufe)) '(:r0 :r2))
+			(breakif '(:r2 = :r0) 'exit)
 		(endif)
 	(loop-end)
 
-	(exit 'stream :read '(r5 r6))
+	(exit 'stream :read '(:r5 :r6))
 	(vp-ret)
 
 (def-func-end)
 
 (def-method 'stream :read_char)
 	;inputs
-	;r0 = stream object (ptr)
+	;:r0 = stream object (ptr)
 	;outputs
-	;r0 = stream object (ptr)
-	;r1 = -1 for EOF, else char read (int)
+	;:r0 = stream object (ptr)
+	;:r1 = -1 for EOF, else char read (int)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
-	(entry 'stream :read_char '(r0))
+	(entry 'stream :read_char '(:r0))
 
-	(assign '((r0 stream_bufp) (r0 stream_bufe)) '(r2 r1))
-	(vpif '(r1 = r2))
+	(assign '((:r0 stream_bufp) (:r0 stream_bufe)) '(:r2 :r1))
+	(vpif '(:r1 = :r2))
 		(loop-start)
-			(call 'stream :read_next '(r0) '(r0 r1))
-			(gotoif '(r1 = -1) 'eof)
-			(assign '((r0 stream_bufp) (r0 stream_bufe)) '(r2 r1))
-		(loop-until '(r1 /= r2))
+			(call 'stream :read_next '(:r0) '(:r0 :r1))
+			(gotoif '(:r1 = -1) 'eof)
+			(assign '((:r0 stream_bufp) (:r0 stream_bufe)) '(:r2 :r1))
+		(loop-until '(:r1 /= :r2))
 	(endif)
-	(vp-cpy-ir-ub r2 0 r1)
-	(vp-add-cr +byte_size r2)
-	(assign '(r2) '((r0 stream_bufp)))
+	(vp-cpy-ir-ub :r2 0 :r1)
+	(vp-add-cr +byte_size :r2)
+	(assign '(:r2) '((:r0 stream_bufp)))
 
 (vp-label 'eof)
-	(exit 'stream :read_char '(r0 r1))
+	(exit 'stream :read_char '(:r0 :r1))
 	(vp-ret)
 
 (def-func-end)
 
 (def-method 'stream :read_line)
 	;inputs
-	;r0 = stream object (ptr)
+	;:r0 = stream object (ptr)
 	;outputs
-	;r0 = stream object (ptr)
-	;r1 = 0 for EOF, else str object (ptr)
+	;:r0 = stream object (ptr)
+	;:r1 = 0 for EOF, else str object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
 	(def-vars
 		(ptr this str_stream value)
@@ -206,202 +206,202 @@
 
 (def-method 'stream :read_next)
 	;inputs
-	;r0 = stream object (ptr)
+	;:r0 = stream object (ptr)
 	;outputs
-	;r0 = stream object (ptr)
-	;r1 = -1 for EOF, else more data
+	;:r0 = stream object (ptr)
+	;:r1 = -1 for EOF, else more data
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
-	(entry 'stream :read_next '(r0))
-	(exit 'stream :read_next '(r0 -1))
+	(entry 'stream :read_next '(:r0))
+	(exit 'stream :read_next '(:r0 -1))
 	(vp-ret)
 
 (def-func-end)
 
 (def-method 'stream :skip)
 	;inputs
-	;r0 = stream object (ptr)
-	;r1 = char to skip (uint)
+	;:r0 = stream object (ptr)
+	;:r1 = char to skip (uint)
 	;outputs
-	;r0 = stream object (ptr)
+	;:r0 = stream object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
-	(entry 'stream :skip '(r0 r1))
+	(entry 'stream :skip '(:r0 :r1))
 
-	(assign '((r0 stream_bufp) (r0 stream_bufe)) '(r2 r3))
+	(assign '((:r0 stream_bufp) (:r0 stream_bufe)) '(:r2 :r3))
 	(loop-start)
-		(loop-while '(r2 = r3))
-			(vp-push r1)
-			(assign '(r2) '((r0 stream_bufp)))
-			(call 'stream :read_next '(r0) '(r0 r4))
-			(vp-pop r1)
-			(gotoif '(r4 = -1) 'funcexit)
-			(assign '((r0 stream_bufp) (r0 stream_bufe)) '(r2 r3))
+		(loop-while '(:r2 = :r3))
+			(vp-push :r1)
+			(assign '(:r2) '((:r0 stream_bufp)))
+			(call 'stream :read_next '(:r0) '(:r0 :r4))
+			(vp-pop :r1)
+			(gotoif '(:r4 = -1) 'funcexit)
+			(assign '((:r0 stream_bufp) (:r0 stream_bufe)) '(:r2 :r3))
 		(loop-end)
-		(vp-cpy-ir-ub r2 0 r4)
-		(breakif '(r4 /= r1))
-		(vp-add-cr +byte_size r2)
+		(vp-cpy-ir-ub :r2 0 :r4)
+		(breakif '(:r4 /= :r1))
+		(vp-add-cr +byte_size :r2)
 	(loop-end)
-	(assign '(r2) '((r0 stream_bufp)))
+	(assign '(:r2) '((:r0 stream_bufp)))
 
 (vp-label 'funcexit)
-	(exit 'stream :skip '(r0))
+	(exit 'stream :skip '(:r0))
 	(vp-ret)
 
 (def-func-end)
 
 (def-method 'stream :skip_not)
 	;inputs
-	;r0 = stream object (ptr)
-	;r1 = char to not skip (uint)
+	;:r0 = stream object (ptr)
+	;:r1 = char to not skip (uint)
 	;outputs
-	;r0 = stream object (ptr)
+	;:r0 = stream object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
-	(entry 'stream :skip_not '(r0 r1))
+	(entry 'stream :skip_not '(:r0 :r1))
 
-	(assign '((r0 stream_bufp) (r0 stream_bufe)) '(r2 r3))
+	(assign '((:r0 stream_bufp) (:r0 stream_bufe)) '(:r2 :r3))
 	(loop-start)
-		(loop-while '(r2 = r3))
-			(vp-push r1)
-			(assign '(r2) '((r0 stream_bufp)))
-			(call 'stream :read_next '(r0) '(r0 r4))
-			(vp-pop r1)
-			(gotoif '(r4 = -1) 'funcexit)
-			(assign '((r0 stream_bufp) (r0 stream_bufe)) '(r2 r3))
+		(loop-while '(:r2 = :r3))
+			(vp-push :r1)
+			(assign '(:r2) '((:r0 stream_bufp)))
+			(call 'stream :read_next '(:r0) '(:r0 :r4))
+			(vp-pop :r1)
+			(gotoif '(:r4 = -1) 'funcexit)
+			(assign '((:r0 stream_bufp) (:r0 stream_bufe)) '(:r2 :r3))
 		(loop-end)
-		(vp-cpy-ir-ub r2 0 r4)
-		(breakif '(r4 = r1))
-		(vp-add-cr +byte_size r2)
+		(vp-cpy-ir-ub :r2 0 :r4)
+		(breakif '(:r4 = :r1))
+		(vp-add-cr +byte_size :r2)
 	(loop-end)
-	(assign '(r2) '((r0 stream_bufp)))
+	(assign '(:r2) '((:r0 stream_bufp)))
 
 (vp-label 'funcexit)
-	(exit 'stream :skip_not '(r0))
+	(exit 'stream :skip_not '(:r0))
 	(vp-ret)
 
 (def-func-end)
 
 (def-method 'stream :write)
 	;inputs
-	;r0 = stream object (ptr)
-	;r1 = buffer (pubyte)
-	;r2 = buffer length (uint)
+	;:r0 = stream object (ptr)
+	;:r1 = buffer (pubyte)
+	;:r2 = buffer length (uint)
 	;outputs
-	;r0 = stream object (ptr)
+	;:r0 = stream object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
-	(entry 'stream :write '(r0 r1 r2))
+	(entry 'stream :write '(:r0 :r1 :r2))
 
 	;check if 1 char
-	(vpif '(r2 = 1))
-		(jump 'stream :write_char '(r0 (r1 0 ub)))
+	(vpif '(:r2 = 1))
+		(jump 'stream :write_char '(:r0 (:r1 0 ub)))
 	(endif)
 
-	(assign '(r0 r1 r2) '(r5 r0 r4))
-	(assign '((r5 stream_bufp) (r5 stream_bufe)) '(r1 r2))
-	(loop-while '(r4 /= 0) 'exit)
-		(vpif '(r2 /= r1))
-			(vp-sub-rr r1 r2)
-			(vpif '(r2 > r4))
-				(vp-cpy-rr r4 r2)
+	(assign '(:r0 :r1 :r2) '(:r5 :r0 :r4))
+	(assign '((:r5 stream_bufp) (:r5 stream_bufe)) '(:r1 :r2))
+	(loop-while '(:r4 /= 0) 'exit)
+		(vpif '(:r2 /= :r1))
+			(vp-sub-rr :r1 :r2)
+			(vpif '(:r2 > :r4))
+				(vp-cpy-rr :r4 :r2)
 			(endif)
-			(vp-sub-rr r2 r4)
-			(call 'sys_mem :copy '(r0 r1 r2) '(r0 r1))
-			(assign '(r1 (r5 stream_bufe)) '((r5 stream_bufp) r2))
+			(vp-sub-rr :r2 :r4)
+			(call 'sys_mem :copy '(:r0 :r1 :r2) '(:r0 :r1))
+			(assign '(:r1 (:r5 stream_bufe)) '((:r5 stream_bufp) :r2))
 		(else)
-			(vp-push r0 r4)
-			(call 'stream :write_next '(r5) '(r5))
-			(vp-pop r0 r4)
-			(assign '((r5 stream_bufp) (r5 stream_bufe)) '(r1 r2))
-			(breakif '(r2 = r1) 'exit)
+			(vp-push :r0 :r4)
+			(call 'stream :write_next '(:r5) '(:r5))
+			(vp-pop :r0 :r4)
+			(assign '((:r5 stream_bufp) (:r5 stream_bufe)) '(:r1 :r2))
+			(breakif '(:r2 = :r1) 'exit)
 		(endif)
 	(loop-end)
 
-	(exit 'stream :write '(r5))
+	(exit 'stream :write '(:r5))
 	(vp-ret)
 
 (def-func-end)
 
 (def-method 'stream :write_char)
 	;inputs
-	;r0 = stream object (ptr)
-	;r1 = char (uint)
+	;:r0 = stream object (ptr)
+	;:r1 = char (uint)
 	;outputs
-	;r0 = stream object (ptr)
+	;:r0 = stream object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
-	(entry 'stream :write_char '(r0 r1))
+	(entry 'stream :write_char '(:r0 :r1))
 
-	(assign '((r0 stream_bufp) (r0 stream_bufe)) '(r2 r3))
-	(vpif '(r2 = r3))
-		(vp-push r1)
-		(call 'stream :write_next '(r0) '(r0))
-		(vp-pop r1)
-		(assign '((r0 stream_bufp) (r0 stream_bufe)) '(r2 r3))
-		(gotoif '(r2 = r3) 'eof)
+	(assign '((:r0 stream_bufp) (:r0 stream_bufe)) '(:r2 :r3))
+	(vpif '(:r2 = :r3))
+		(vp-push :r1)
+		(call 'stream :write_next '(:r0) '(:r0))
+		(vp-pop :r1)
+		(assign '((:r0 stream_bufp) (:r0 stream_bufe)) '(:r2 :r3))
+		(gotoif '(:r2 = :r3) 'eof)
 	(endif)
-	(vp-cpy-ri-b r1 r2 0)
-	(vp-add-cr +byte_size r2)
-	(assign '(r2) '((r0 stream_bufp)))
+	(vp-cpy-ri-b :r1 :r2 0)
+	(vp-add-cr +byte_size :r2)
+	(assign '(:r2) '((:r0 stream_bufp)))
 
 (vp-label 'eof)
-	(exit 'stream :write_char '(r0))
+	(exit 'stream :write_char '(:r0))
 	(vp-ret)
 
 (def-func-end)
 
 (def-method 'stream :write_cstr)
 	;inputs
-	;r0 = stream object (ptr)
-	;r1 = buffer (pubyte)
+	;:r0 = stream object (ptr)
+	;:r1 = buffer (pubyte)
 	;outputs
-	;r0 = stream object (ptr)
+	;:r0 = stream object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
-	(entry 'stream :write_cstr '(r3 r1))
+	(entry 'stream :write_cstr '(:r3 :r1))
 
-	(call 'sys_str :length '(r1) '(r0 r1))
-	(jump 'stream :write '(r3 r0 r1))
+	(call 'sys_str :length '(:r1) '(:r0 :r1))
+	(jump 'stream :write '(:r3 :r0 :r1))
 
 (def-func-end)
 
 (def-method 'stream :flush)
 	;inputs
-	;r0 = stream object (ptr)
+	;:r0 = stream object (ptr)
 	;outputs
-	;r0 = stream object (ptr)
+	;:r0 = stream object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
-	(entry 'stream :flush '(r0))
+	(entry 'stream :flush '(:r0))
 
 	(class/stream/flush)
 
-	(exit 'stream :flush '(r0))
+	(exit 'stream :flush '(:r0))
 	(vp-ret)
 
 (def-func-end)
 
 (def-method 'stream :read_bits)
 	;inputs
-	;r0 = stream object (ptr)
-	;r1 = num bits (uint)
-	;r2 = bit pool (ulong)
-	;r3 = bit pool size (uint)
+	;:r0 = stream object (ptr)
+	;:r1 = num bits (uint)
+	;:r2 = bit pool (ulong)
+	;:r3 = bit pool size (uint)
 	;outputs
-	;r0 = stream object (ptr)
-	;r1 = -1 if eof, else data (long)
-	;r2 = bit pool (ulong)
-	;r3 = bit pool size (uint)
+	;:r0 = stream object (ptr)
+	;:r1 = -1 if eof, else data (long)
+	;:r2 = bit pool (ulong)
+	;:r3 = bit pool size (uint)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
 	(vp-def (this num_bits bit_pool bit_pool_size data))
 
@@ -437,17 +437,17 @@
 
 (def-method 'stream :write_bits)
 	;inputs
-	;r0 = stream object (ptr)
-	;r1 = data (uint)
-	;r2 = num bits (uint)
-	;r3 = bit pool (ulong)
-	;r4 = bit pool size (uint)
+	;:r0 = stream object (ptr)
+	;:r1 = data (uint)
+	;:r2 = num bits (uint)
+	;:r3 = bit pool (ulong)
+	;:r4 = bit pool size (uint)
 	;outputs
-	;r0 = stream object (ptr)
-	;r1 = bit pool (ulong)
-	;r2 = bit pool size (uint)
+	;:r0 = stream object (ptr)
+	;:r1 = bit pool (ulong)
+	;:r2 = bit pool size (uint)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
 	(vp-def (this data num_bits bit_pool bit_pool_size))
 
@@ -474,17 +474,17 @@
 
 (def-method 'stream :seek)
 	;inputs
-	;r0 = stream object (ptr)
-	;r1 = offset (long)
-	;r2 = pos (uint)
+	;:r0 = stream object (ptr)
+	;:r1 = offset (long)
+	;:r2 = pos (uint)
 	;outputs
-	;r0 = stream object (ptr)
-	;r1 = -1 for error, else file position
+	;:r0 = stream object (ptr)
+	;:r1 = -1 for error, else file position
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
-	(entry 'stream :seek '(r0 r1 r2))
-	(exit 'stream :seek '(r0 -1))
+	(entry 'stream :seek '(:r0 :r1 :r2))
+	(exit 'stream :seek '(:r0 -1))
 	(vp-ret)
 
 (def-func-end)

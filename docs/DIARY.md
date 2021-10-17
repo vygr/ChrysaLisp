@@ -33,7 +33,7 @@ level code.
 In the `obj` base class there exists this virtual method declaration:
 
 ```vdu
-(dec-method :hash class/obj/hash :virtual (r0) (r0 r1))
+(dec-method :hash class/obj/hash :virtual (:r0) (:r0 :r1))
 ```
 
 The implementation for the `obj` class is:
@@ -41,15 +41,15 @@ The implementation for the `obj` class is:
 ```vdu
 (def-method 'obj :hash)
 	;inputs
-	;r0 = object (ptr)
+	;:r0 = object (ptr)
 	;outputs
-	;r0 = object (ptr)
-	;r1 = hash code (ulong)
+	;:r0 = object (ptr)
+	;:r1 = hash code (ulong)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
-	(entry 'obj :hash '(r0))
-	(exit 'obj :hash '(r0 r0))
+	(entry 'obj :hash '(:r0))
+	(exit 'obj :hash '(:r0 :r0))
 	(vp-ret)
 
 (def-func-end)
@@ -81,49 +81,49 @@ And the implementation of this is in the `class/str/class.vp` file:
 ```vdu
 (def-method 'str :hash)
 	;inputs
-	;r0 = str object (ptr)
+	;:r0 = str object (ptr)
 	;outputs
-	;r0 = str object (ptr)
-	;r1 = hash code (ulong)
+	;:r0 = str object (ptr)
+	;:r1 = hash code (ulong)
 	;trashes
-	;r1-r4
+	;:r1-:r4
 
-	(entry 'str :hash '(r0))
+	(entry 'str :hash '(:r0))
 
-	(assign '((r0 str_hashcode)) '(r1))
-	(vpif '(r1 = 0))
-		(assign '((r0 str_length)) '(r4))
-		(vp-lea-i r0 str_data r3)
-		(vp-add-rr r3 r4)
-		(vp-xor-rr r1 r1)
-		(vpif '(r3 /= r4))
+	(assign '((:r0 str_hashcode)) '(:r1))
+	(vpif '(:r1 = 0))
+		(assign '((:r0 str_length)) '(:r4))
+		(vp-lea-i :r0 str_data :r3)
+		(vp-add-rr :r3 :r4)
+		(vp-xor-rr :r1 :r1)
+		(vpif '(:r3 /= :r4))
 			(loop-start)
-				(vp-cpy-ir-ub r3 0 r2)
-				(vp-add-cr +byte_size r3)
-				(vp-add-rr r2 r1)
-				(vp-cpy-rr r1 r2)
-				(vp-shl-cr 10 r1)
-				(vp-add-rr r1 r2)
-				(vp-cpy-rr r2 r1)
-				(vp-shr-cr 6 r2)
-				(vp-xor-rr r2 r1)
-			(loop-until '(r3 = r4))
+				(vp-cpy-ir-ub :r3 0 :r2)
+				(vp-add-cr +byte_size :r3)
+				(vp-add-rr :r2 :r1)
+				(vp-cpy-rr :r1 :r2)
+				(vp-shl-cr 10 :r1)
+				(vp-add-rr :r1 :r2)
+				(vp-cpy-rr :r2 :r1)
+				(vp-shr-cr 6 :r2)
+				(vp-xor-rr :r2 :r1)
+			(loop-until '(:r3 = :r4))
 		(endif)
-		(vp-cpy-rr r1 r2)
-		(vp-shl-cr 3 r1)
-		(vp-add-rr r1 r2)
-		(vp-cpy-rr r2 r1)
-		(vp-shr-cr 11 r2)
-		(vp-xor-rr r1 r2)
-		(vp-cpy-rr r2 r1)
-		(vp-shl-cr 15 r2)
-		(vp-add-rr r2 r1)
-		(vp-cpy-cr 0xffffffff r2)
-		(vp-and-rr r2 r1)
-		(assign '(r1) '((r0 str_hashcode)))
+		(vp-cpy-rr :r1 :r2)
+		(vp-shl-cr 3 :r1)
+		(vp-add-rr :r1 :r2)
+		(vp-cpy-rr :r2 :r1)
+		(vp-shr-cr 11 :r2)
+		(vp-xor-rr :r1 :r2)
+		(vp-cpy-rr :r2 :r1)
+		(vp-shl-cr 15 :r2)
+		(vp-add-rr :r2 :r1)
+		(vp-cpy-cr 0xffffffff :r2)
+		(vp-and-rr :r2 :r1)
+		(assign '(:r1) '((:r0 str_hashcode)))
 	(endif)
 
-	(exit 'str :hash '(r0 r1))
+	(exit 'str :hash '(:r0 :r1))
 	(vp-ret)
 
 (def-func-end)
@@ -167,7 +167,7 @@ in that file for other functions so we will just add one to the end.
 First we need to add a declaration to `class/obj/class.inc` for the new method:
 
 ```vdu
-(dec-method :lisp_hash class/obj/lisp_hash :static (r0 r1) (r0 r1))
+(dec-method :lisp_hash class/obj/lisp_hash :static (:r0 :r1) (:r0 :r1))
 ```
 
 And here is the new binding method we add to `class/obj/lisp.vp`:
@@ -175,33 +175,33 @@ And here is the new binding method we add to `class/obj/lisp.vp`:
 ```vdu
 (def-method 'obj :lisp_hash)
 	;inputs
-	;r0 = lisp object (ptr)
-	;r1 = args list object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
 	;outputs
-	;r0 = lisp object (ptr)
-	;r1 = return value object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
-	(entry 'obj :lisp_hash '(r0 r1))
+	(entry 'obj :lisp_hash '(:r0 :r1))
 
 (errorcases
-	(assign '((r1 array_length)) '(r2))
-	(gotoif '(r2 /= 1) 'error))
+	(assign '((:r1 array_length)) '(:r2))
+	(gotoif '(:r2 /= 1) 'error))
 
-	(vp-push r0)
+	(vp-push :r0)
 	(defq in (method-input 'obj :hash))
-	(array-bind-args r1 in)
-	(call 'obj :hash in '(_ r0))
-	(call 'num :create '(r0) '(r1))
-	(vp-pop r0)
+	(array-bind-args :r1 in)
+	(call 'obj :hash in '(_ :r0))
+	(call 'num :create '(:r0) '(:r1))
+	(vp-pop :r0)
 
-	(exit 'obj :lisp_hash '(r0 r1))
+	(exit 'obj :lisp_hash '(:r0 :r1))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(r0 "(hash obj)" error_msg_wrong_num_of_args r1)))
+	(jump 'lisp :repl_error '(:r0 "(hash obj)" error_msg_wrong_num_of_args :r1)))
 
 (def-func-end)
 ```

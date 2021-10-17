@@ -5,28 +5,28 @@
 ;;;;;;;;;;;;;;;;;;;
 
 (def-class sys_math nil
-	(dec-method :i_rand sys/math/i_rand :static (r0) (r0))
-	(dec-method :i_sqrt sys/math/i_sqrt :static (r0) (r0))
-	(dec-method :f_sqrt sys/math/f_sqrt :static (r0) (r0))
-	(dec-method :f_sin sys/math/f_sin :static (r0) (r0))
-	(dec-method :f_cos sys/math/f_cos :static (r0) (r0))
-	(dec-method :f_intersect sys/math/f_intersect :static (r0 r1 r2 r3 r4 r5 r6 r7) (r0 r1))
-	(dec-method :f_dist_sqd sys/math/f_dist_sqd :static (r0 r1 r2 r3 r4 r5) (r0))
-	(dec-method :r_pack sys/math/r_pack :static (r13 r14) (r13))
-	(dec-method :r_add sys/math/r_add :static (r13 r14) (r13))
-	(dec-method :r_sub sys/math/r_sub :static (r13 r14) (r13))
-	(dec-method :r_mul sys/math/r_mul :static (r13 r14) (r13))
-	(dec-method :r_div sys/math/r_div :static (r13 r14) (r13))
-	(dec-method :r_mod sys/math/r_mod :static (r13 r14) (r13))
-	(dec-method :r_frac sys/math/r_frac :static (r13) (r13))
-	(dec-method :r_floor sys/math/r_floor :static (r13) (r13))
-	(dec-method :r_sqrt sys/math/r_sqrt :static (r13) (r13))
-	(dec-method :r_sin sys/math/r_sin :static (r13) (r13))
-	(dec-method :r_cos sys/math/r_cos :static (r13) (r13))
-	(dec-method :r_i2r sys/math/r_i2r :static (r14) (r13))
-	(dec-method :r_f2r sys/math/r_f2r :static (r14) (r13))
-	(dec-method :r_r2i sys/math/r_r2i :static (r13) (r14))
-	(dec-method :r_r2f sys/math/r_r2f :static (r13) (r14)))
+	(dec-method :i_rand sys/math/i_rand :static (:r0) (:r0))
+	(dec-method :i_sqrt sys/math/i_sqrt :static (:r0) (:r0))
+	(dec-method :f_sqrt sys/math/f_sqrt :static (:r0) (:r0))
+	(dec-method :f_sin sys/math/f_sin :static (:r0) (:r0))
+	(dec-method :f_cos sys/math/f_cos :static (:r0) (:r0))
+	(dec-method :f_intersect sys/math/f_intersect :static (:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7) (:r0 :r1))
+	(dec-method :f_dist_sqd sys/math/f_dist_sqd :static (:r0 :r1 :r2 :r3 :r4 :r5) (:r0))
+	(dec-method :r_pack sys/math/r_pack :static (:r13 :r14) (:r13))
+	(dec-method :r_add sys/math/r_add :static (:r13 :r14) (:r13))
+	(dec-method :r_sub sys/math/r_sub :static (:r13 :r14) (:r13))
+	(dec-method :r_mul sys/math/r_mul :static (:r13 :r14) (:r13))
+	(dec-method :r_div sys/math/r_div :static (:r13 :r14) (:r13))
+	(dec-method :r_mod sys/math/r_mod :static (:r13 :r14) (:r13))
+	(dec-method :r_frac sys/math/r_frac :static (:r13) (:r13))
+	(dec-method :r_floor sys/math/r_floor :static (:r13) (:r13))
+	(dec-method :r_sqrt sys/math/r_sqrt :static (:r13) (:r13))
+	(dec-method :r_sin sys/math/r_sin :static (:r13) (:r13))
+	(dec-method :r_cos sys/math/r_cos :static (:r13) (:r13))
+	(dec-method :r_i2r sys/math/r_i2r :static (:r14) (:r13))
+	(dec-method :r_f2r sys/math/r_f2r :static (:r14) (:r13))
+	(dec-method :r_r2i sys/math/r_r2i :static (:r13) (:r14))
+	(dec-method :r_r2f sys/math/r_r2f :static (:r13) (:r14)))
 
 ;;;;;;;;;;;;;;;;
 ; inline methods
@@ -34,29 +34,29 @@
 
 (defun sys/math/f_sqrt ()
 	;inputs
-	;r0 = number (fixed)
+	;:r0 = number (fixed)
 	;outputs
-	;r0 = sqrt (fixed)
+	;:r0 = sqrt (fixed)
 	;trashes
-	;r0-r3
-	(vp-shl-cr +fp_shift r0)
-	(call 'sys_math :i_sqrt '(r0) '(r0)))
+	;:r0-:r3
+	(vp-shl-cr +fp_shift :r0)
+	(call 'sys_math :i_sqrt '(:r0) '(:r0)))
 
 (defun sys/math/f_cos ()
 	;inputs
-	;r0 = angle in radians (fixed)
+	;:r0 = angle in radians (fixed)
 	;outputs
-	;r0 = cosine (fixed)
+	;:r0 = cosine (fixed)
 	;trashes
-	;r0-r4
-	(vp-add-cr +fp_hpi r0)
-	(call 'sys_math :f_sin '(r0) '(r0)))
+	;:r0-:r4
+	(vp-add-cr +fp_hpi :r0)
+	(call 'sys_math :f_sin '(:r0) '(:r0)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; fixed point vector math codegen
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defcvar '*vsp* 0 '*vr* '(r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14))
+(defcvar '*vsp* 0 '*vr* '(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14))
 (defun vec-set (_) (setq *vsp* _))
 
 (defun vec-goto (l)

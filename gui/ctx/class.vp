@@ -9,17 +9,17 @@
 
 (def-method 'ctx :set_color)
 	;inputs
-	;r0 = view object (ptr)
-	;r1 = color (argb)
+	;:r0 = view object (ptr)
+	;:r1 = color (argb)
 	;trashes
-	;r0-r14
+	;:r0-:r14
 
 	(vp-def (ctx r g b a) (method-input 'host_gui :sdl_set_render_draw_color))
 
-	(entry 'ctx :set_color '(r0 r1))
+	(entry 'ctx :set_color '(:r0 :r1))
 
-	(fn-bind 'sys/statics/statics r14)
-	(assign '(r1 r1 r1 r1 (r14 statics_gui_renderer)) `(,a ,r ,g ,b ,ctx))
+	(fn-bind 'sys/statics/statics :r14)
+	(assign '(:r1 :r1 :r1 :r1 (:r14 statics_gui_renderer)) `(,a ,r ,g ,b ,ctx))
 	(vp-shr-cr 24 a)
 	(vp-shr-cr 16 r)
 	(vp-shr-cr 8 g)
@@ -34,44 +34,44 @@
 
 (defun for-each-visible-rect (_)
 	;for each rect on the dirty region
-	(assign '((rsp local_this)) '(r0))
-	(assign '((& r0 view_dirty_region)) '(r0))
-	(loop-flist r0 0 r0 r0)
-		(assign '(r0) '((rsp local_dirty_rect)))
+	(assign '((:rsp local_this)) '(:r0))
+	(assign '((& :r0 view_dirty_region)) '(:r0))
+	(loop-flist :r0 0 :r0 :r0)
+		(assign '(:r0) '((:rsp local_dirty_rect)))
 
 		;continue if out of bounds
-		(assign '((r0 rect_x) (r0 rect_y) (r0 rect_x1) (r0 rect_y1)) '(r7 r8 r9 r10))
-		(assign '((rsp (+ local_drect sdl_rect_x) i) (rsp (+ local_drect sdl_rect_y) i)
-			(rsp (+ local_drect sdl_rect_w) i) (rsp (+ local_drect sdl_rect_h) i)) '(r11 r12 r13 r14))
-		(vp-add-rr r11 r13)
-		(vp-add-rr r12 r14)
-		(continueif '(r9 <= r11) '(r10 <= r12) '(r7 >= r13) '(r8 >= r14))
+		(assign '((:r0 rect_x) (:r0 rect_y) (:r0 rect_x1) (:r0 rect_y1)) '(:r7 :r8 :r9 :r10))
+		(assign '((:rsp (+ local_drect sdl_rect_x) i) (:rsp (+ local_drect sdl_rect_y) i)
+			(:rsp (+ local_drect sdl_rect_w) i) (:rsp (+ local_drect sdl_rect_h) i)) '(:r11 :r12 :r13 :r14))
+		(vp-add-rr :r11 :r13)
+		(vp-add-rr :r12 :r14)
+		(continueif '(:r9 <= :r11) '(:r10 <= :r12) '(:r7 >= :r13) '(:r8 >= :r14))
 
 		;set clip region to this region
-		(vp-sub-rr r7 r9)
-		(vp-sub-rr r8 r10)
-		(assign '(r7 r8 r9 r10) '((rsp (+ local_clip_rect sdl_rect_x) i) (rsp (+ local_clip_rect sdl_rect_y) i)
-			(rsp (+ local_clip_rect sdl_rect_w) i) (rsp (+ local_clip_rect sdl_rect_h) i)))
-		(fn-bind 'sys/statics/statics r0)
-		(host-gui-call 'host_gui :sdl_render_set_clip_rect '((r0 statics_gui_renderer) (& rsp local_clip_rect)))
+		(vp-sub-rr :r7 :r9)
+		(vp-sub-rr :r8 :r10)
+		(assign '(:r7 :r8 :r9 :r10) '((:rsp (+ local_clip_rect sdl_rect_x) i) (:rsp (+ local_clip_rect sdl_rect_y) i)
+			(:rsp (+ local_clip_rect sdl_rect_w) i) (:rsp (+ local_clip_rect sdl_rect_h) i)))
+		(fn-bind 'sys/statics/statics :r0)
+		(host-gui-call 'host_gui :sdl_render_set_clip_rect '((:r0 statics_gui_renderer) (& :rsp local_clip_rect)))
 
 		;eval body
 		(exec _)
 
-		(assign '((rsp local_dirty_rect)) '(r0))
+		(assign '((:rsp local_dirty_rect)) '(:r0))
 	(loop-end))
 
 (def-method 'ctx :blit 16)
 	;inputs
-	;r0 = view object (ptr)
-	;r1 = texture id (ulong)
-	;r2 = color mod (argb)
-	;r7 = x (pixels)
-	;r8 = y (pixels)
-	;r9 = width (pixels)
-	;r10 = height (pixels)
+	;:r0 = view object (ptr)
+	;:r1 = texture id (ulong)
+	;:r2 = color mod (argb)
+	;:r7 = x (pixels)
+	;:r8 = y (pixels)
+	;:r9 = width (pixels)
+	;:r10 = height (pixels)
 	;trashes
-	;r0-r14
+	;:r0-:r14
 
 	(def-struct local 0
 		(struct drect sdl_rect_size)
@@ -80,116 +80,116 @@
 		(ulong texture)
 		(ptr this dirty_rect old_stack))
 
-	(vp-cpy-rr rsp r3)
+	(vp-cpy-rr :rsp :r3)
 	(vp-alloc local_size)
-	(vp-and-cr -16 rsp)
-	(assign '(r3) '((rsp local_old_stack)))
+	(vp-and-cr -16 :rsp)
+	(assign '(:r3) '((:rsp local_old_stack)))
 
 	;save draw rectangle info
-	(assign '((r0 view_ctx_x) (r0 view_ctx_y) r0 r1) '(r11 r12 (rsp local_this) (rsp local_texture)))
-	(vp-add-rr r11 r7)
-	(vp-add-rr r12 r8)
-	(assign '(r7 r8 r9 r10) '((rsp (+ local_drect sdl_rect_x) i) (rsp (+ local_drect sdl_rect_y) i)
-		(rsp (+ local_drect sdl_rect_w) i) (rsp (+ local_drect sdl_rect_h) i)))
-	(vp-xor-rr r7 r7)
-	(assign '(r7 r7 r9 r10) '((rsp (+ local_srect sdl_rect_x) i) (rsp (+ local_srect sdl_rect_y) i)
-		(rsp (+ local_srect sdl_rect_w) i) (rsp (+ local_srect sdl_rect_h) i)))
+	(assign '((:r0 view_ctx_x) (:r0 view_ctx_y) :r0 :r1) '(:r11 :r12 (:rsp local_this) (:rsp local_texture)))
+	(vp-add-rr :r11 :r7)
+	(vp-add-rr :r12 :r8)
+	(assign '(:r7 :r8 :r9 :r10) '((:rsp (+ local_drect sdl_rect_x) i) (:rsp (+ local_drect sdl_rect_y) i)
+		(:rsp (+ local_drect sdl_rect_w) i) (:rsp (+ local_drect sdl_rect_h) i)))
+	(vp-xor-rr :r7 :r7)
+	(assign '(:r7 :r7 :r9 :r10) '((:rsp (+ local_srect sdl_rect_x) i) (:rsp (+ local_srect sdl_rect_y) i)
+		(:rsp (+ local_srect sdl_rect_w) i) (:rsp (+ local_srect sdl_rect_h) i)))
 
 	;set the color mod
-	(vp-cpy-rr r2 r3)
-	(vp-cpy-rr r2 r4)
-	(vp-shr-cr 16 r3)
-	(vp-shr-cr 8 r2)
-	(vp-and-cr 0xff r3)
-	(vp-and-cr 0xff r2)
-	(vp-and-cr 0xff r4)
-	(host-gui-call 'host_gui :sdl_set_texture_color_mod '((rsp local_texture) r3 r2 r4))
+	(vp-cpy-rr :r2 :r3)
+	(vp-cpy-rr :r2 :r4)
+	(vp-shr-cr 16 :r3)
+	(vp-shr-cr 8 :r2)
+	(vp-and-cr 0xff :r3)
+	(vp-and-cr 0xff :r2)
+	(vp-and-cr 0xff :r4)
+	(host-gui-call 'host_gui :sdl_set_texture_color_mod '((:rsp local_texture) :r3 :r2 :r4))
 
 	(for-each-visible-rect
 		'(progn
 			;blit the texture
-			(fn-bind 'sys/statics/statics r0)
-			(host-gui-call 'host_gui :sdl_render_copy '((r0 statics_gui_renderer) (rsp local_texture) (& rsp local_srect) (& rsp local_drect)))))
+			(fn-bind 'sys/statics/statics :r0)
+			(host-gui-call 'host_gui :sdl_render_copy '((:r0 statics_gui_renderer) (:rsp local_texture) (& :rsp local_srect) (& :rsp local_drect)))))
 
-	(vp-cpy-ir rsp local_old_stack rsp)
+	(vp-cpy-ir :rsp local_old_stack :rsp)
 	(vp-ret)
 
 (def-func-end)
 
 (def-method 'ctx :box 16)
 	;inputs
-	;r0 = view object (ptr)
-	;r7 = x (pixels)
-	;r8 = y (pixels)
-	;r9 = width (pixels)
-	;r10 = height (pixels)
+	;:r0 = view object (ptr)
+	;:r7 = x (pixels)
+	;:r8 = y (pixels)
+	;:r9 = width (pixels)
+	;:r10 = height (pixels)
 	;trashes
-	;r0-r14
+	;:r0-:r14
 
 	(def-struct local 0
 		(struct drect sdl_rect_size)
 		(struct clip_rect sdl_rect_size)
 		(ptr this dirty_rect old_stack))
 
-	(vp-cpy-rr rsp r3)
+	(vp-cpy-rr :rsp :r3)
 	(vp-alloc local_size)
-	(vp-and-cr -16 rsp)
-	(assign '(r3) '((rsp local_old_stack)))
+	(vp-and-cr -16 :rsp)
+	(assign '(:r3) '((:rsp local_old_stack)))
 
 	;save draw rectangle info
-	(assign '(r0) '((rsp local_this)))
-	(assign '((r0 view_ctx_x) (r0 view_ctx_y)) '(r11 r12))
-	(vp-add-rr r11 r7)
-	(vp-add-rr r12 r8)
-	(assign '(r7 r8 r9 r10) '((rsp (+ local_drect sdl_rect_x) i) (rsp (+ local_drect sdl_rect_y) i)
-		(rsp (+ local_drect sdl_rect_w) i) (rsp (+ local_drect sdl_rect_h) i)))
+	(assign '(:r0) '((:rsp local_this)))
+	(assign '((:r0 view_ctx_x) (:r0 view_ctx_y)) '(:r11 :r12))
+	(vp-add-rr :r11 :r7)
+	(vp-add-rr :r12 :r8)
+	(assign '(:r7 :r8 :r9 :r10) '((:rsp (+ local_drect sdl_rect_x) i) (:rsp (+ local_drect sdl_rect_y) i)
+		(:rsp (+ local_drect sdl_rect_w) i) (:rsp (+ local_drect sdl_rect_h) i)))
 
 	(for-each-visible-rect
 		'(progn
 			;draw the rectangle
-			(fn-bind 'sys/statics/statics r0)
-			(host-gui-call 'host_gui :sdl_render_draw_rect '((r0 statics_gui_renderer) (& rsp local_drect)))))
+			(fn-bind 'sys/statics/statics :r0)
+			(host-gui-call 'host_gui :sdl_render_draw_rect '((:r0 statics_gui_renderer) (& :rsp local_drect)))))
 
-	(vp-cpy-ir rsp local_old_stack rsp)
+	(vp-cpy-ir :rsp local_old_stack :rsp)
 	(vp-ret)
 
 (def-func-end)
 
 (def-method 'ctx :filled_box 16)
 	;inputs
-	;r0 = view object (ptr)
-	;r7 = x (pixels)
-	;r8 = y (pixels)
-	;r9 = width (pixels)
-	;r10 = height (pixels)
+	;:r0 = view object (ptr)
+	;:r7 = x (pixels)
+	;:r8 = y (pixels)
+	;:r9 = width (pixels)
+	;:r10 = height (pixels)
 	;trashes
-	;r0-r14
+	;:r0-:r14
 
 	(def-struct local 0
 		(struct drect sdl_rect_size)
 		(struct clip_rect sdl_rect_size)
 		(ptr this dirty_rect old_stack))
 
-	(vp-cpy-rr rsp r3)
+	(vp-cpy-rr :rsp :r3)
 	(vp-alloc local_size)
-	(vp-and-cr -16 rsp)
-	(assign '(r3) '((rsp local_old_stack)))
+	(vp-and-cr -16 :rsp)
+	(assign '(:r3) '((:rsp local_old_stack)))
 
 	;save draw rectangle info
-	(assign '(r0) '((rsp local_this)))
-	(assign '((r0 view_ctx_x) (r0 view_ctx_y)) '(r11 r12))
-	(vp-add-rr r11 r7)
-	(vp-add-rr r12 r8)
-	(assign '(r7 r8 r9 r10) '((rsp (+ local_drect sdl_rect_x) i) (rsp (+ local_drect sdl_rect_y) i)
-		(rsp (+ local_drect sdl_rect_w) i) (rsp (+ local_drect sdl_rect_h) i)))
+	(assign '(:r0) '((:rsp local_this)))
+	(assign '((:r0 view_ctx_x) (:r0 view_ctx_y)) '(:r11 :r12))
+	(vp-add-rr :r11 :r7)
+	(vp-add-rr :r12 :r8)
+	(assign '(:r7 :r8 :r9 :r10) '((:rsp (+ local_drect sdl_rect_x) i) (:rsp (+ local_drect sdl_rect_y) i)
+		(:rsp (+ local_drect sdl_rect_w) i) (:rsp (+ local_drect sdl_rect_h) i)))
 
 	(for-each-visible-rect
 		'(progn
 			;draw the rectangle
-			(fn-bind 'sys/statics/statics r0)
-			(host-gui-call 'host_gui :sdl_render_fill_rect '((r0 statics_gui_renderer) (& rsp local_drect)))))
+			(fn-bind 'sys/statics/statics :r0)
+			(host-gui-call 'host_gui :sdl_render_fill_rect '((:r0 statics_gui_renderer) (& :rsp local_drect)))))
 
-	(vp-cpy-ir rsp local_old_stack rsp)
+	(vp-cpy-ir :rsp local_old_stack :rsp)
 	(vp-ret)
 
 (def-func-end)

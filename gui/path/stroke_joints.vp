@@ -5,21 +5,21 @@
 
 (def-method 'path :stroke_joints)
 	;inputs
-	;r0 = path object (ptr)
-	;r1 = stack array object (ptr)
-	;r2 = in path start iter (plong)
-	;r3 = in path end iter (plong)
-	;r4 = p1x (fixed)
-	;r5 = p1y (fixed)
-	;r6 = p2x (fixed)
-	;r7 = p2y (fixed)
-	;r8 = radius (fixed)
-	;r9 = tolerance (fixed)
-	;r10 = join style (byte)
+	;:r0 = path object (ptr)
+	;:r1 = stack array object (ptr)
+	;:r2 = in path start iter (plong)
+	;:r3 = in path end iter (plong)
+	;:r4 = p1x (fixed)
+	;:r5 = p1y (fixed)
+	;:r6 = p2x (fixed)
+	;:r7 = p2y (fixed)
+	;:r8 = radius (fixed)
+	;:r9 = tolerance (fixed)
+	;:r10 = join style (byte)
 	;outputs
-	;r0 = path object (ptr)
+	;:r0 = path object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
 	(def-vars
 		(union

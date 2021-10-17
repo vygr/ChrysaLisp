@@ -4,18 +4,18 @@
 
 (def-method 'path :gen_arc)
 	;inputs
-	;r0 = path object (ptr)
-	;r1 = stack array object (ptr)
-	;r2 = cx (fixed)
-	;r3 = cy (fixed)
-	;r4 = start angle (fixed)
-	;r5 = end angle (fixed)
-	;r6 = radius (fixed)
-	;r7 = tolerance (fixed)
+	;:r0 = path object (ptr)
+	;:r1 = stack array object (ptr)
+	;:r2 = cx (fixed)
+	;:r3 = cy (fixed)
+	;:r4 = start angle (fixed)
+	;:r5 = end angle (fixed)
+	;:r6 = radius (fixed)
+	;:r7 = tolerance (fixed)
 	;outputs
-	;r0 = path object (ptr)
+	;:r0 = path object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
 	(def-vars
 		(ptr this stack)

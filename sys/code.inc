@@ -39,7 +39,7 @@
 
 (defun gotoif (e l)
 	(bind '(d o s) (cond
-		((str? e) (assign e '(r0)) '(r0 /= 0))
+		((str? e) (assign e '(:r0)) '(:r0 /= 0))
 		((assign-map-reg-keys e))))
 	(defq e (find-rev o '(= /= <= >= > <)))
 	(case (vp-type s)
@@ -51,7 +51,7 @@
 
 (defun gotoifnot (e l)
 	(bind '(d o s) (cond
-		((str? e) (assign e '(r0)) '(r0 /= 0))
+		((str? e) (assign e '(:r0)) '(:r0 /= 0))
 		((assign-map-reg-keys e))))
 	(defq e (find-rev o '(/= = > < <= >=)))
 	(case (vp-type s)

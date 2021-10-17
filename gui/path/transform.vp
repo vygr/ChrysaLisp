@@ -4,18 +4,18 @@
 
 (def-method 'path :transform)
 	;inputs
-	;r0 = path object (ptr)
-	;r1 = source path object, can be same (ptr)
-	;r2 = m1x (fixed)
-	;r3 = m1y (fixed)
-	;r4 = m2x (fixed)
-	;r5 = m2y (fixed)
-	;r6 = trx (fixed)
-	;r7 = try (fixed)
+	;:r0 = path object (ptr)
+	;:r1 = source path object, can be same (ptr)
+	;:r2 = m1x (fixed)
+	;:r3 = m1y (fixed)
+	;:r4 = m2x (fixed)
+	;:r5 = m2y (fixed)
+	;:r6 = trx (fixed)
+	;:r7 = try (fixed)
 	;outputs
-	;r0 = path object (ptr)
+	;:r0 = path object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
 	(def-vars
 		(ptr this that)

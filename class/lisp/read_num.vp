@@ -9,15 +9,15 @@
 
 (def-method 'lisp :read_num)
 	;inputs
-	;r0 = lisp object (ptr)
-	;r1 = stream object (ptr)
-	;r2 = next char (uint)
+	;:r0 = lisp object (ptr)
+	;:r1 = stream object (ptr)
+	;:r2 = next char (uint)
 	;outputs
-	;r0 = lisp object (ptr)
-	;r1 = num object (ptr)
-	;r2 = next char (uint)
+	;:r0 = lisp object (ptr)
+	;:r1 = num object (ptr)
+	;:r2 = next char (uint)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
 	(def-struct local 0
 		(ptr this stream)
@@ -28,18 +28,18 @@
 	(vp-def (bufp base char num dot bufe))
 
 	(vp-alloc local_size)
-	(entry 'lisp :read_num `((rsp local_this) (rsp local_stream) ,char))
-	(assign `(,char ,char) '((rsp local_char) (rsp local_sign)))
+	(entry 'lisp :read_num `((:rsp local_this) (:rsp local_stream) ,char))
+	(assign `(,char ,char) '((:rsp local_char) (:rsp local_sign)))
 
 	(vpif `(,char = +char_minus))
-		(call 'stream :read_char `((rsp local_stream)) `(_ ,char))
+		(call 'stream :read_char `((:rsp local_stream)) `(_ ,char))
 		(breakif `(,char >= +char_0))
-		(assign `(,char) `((rsp local_char)))
+		(assign `(,char) `((:rsp local_char)))
 		(call 'sym :intern_cstr '("-") `(,num))
 		(goto 'exit)
 	(endif)
 
-	(assign '((& rsp local_buffer)) `(,bufp))
+	(assign '((& :rsp local_buffer)) `(,bufp))
 	(loop-start 'num_loop)
 		(vpif `(,char >= +char_0))
 			(gotoif `(,char <= +char_9) 'valid_digit)
@@ -53,16 +53,16 @@
 	(vp-label 'valid_digit)
 		(assign `(,char) `((,bufp 0 ub)))
 		(vp-add-cr 1 bufp)
-		(assign `(,bufp) '((rsp local_bufp)))
-		(call 'stream :read_char `((rsp local_stream)) `(_ ,char))
-		(assign `((rsp local_bufp) (& rsp ,(+ local_buffer 63))) `(,bufp ,bufe))
+		(assign `(,bufp) '((:rsp local_bufp)))
+		(call 'stream :read_char `((:rsp local_stream)) `(_ ,char))
+		(assign `((:rsp local_bufp) (& :rsp ,(+ local_buffer 63))) `(,bufp ,bufe))
 	(loop-until `(,bufp = ,bufe))
-	(assign `(,char) `((rsp local_char)))
+	(assign `(,char) `((:rsp local_char)))
 	(vp-xor-rr char char)
 	(assign `(,char) `((,bufp 0 ub)))
 
 	;pick base
-	(assign `((& rsp ,(+ local_buffer 2))) `(,bufp))
+	(assign `((& :rsp ,(+ local_buffer 2))) `(,bufp))
 	(assign `((,bufp -1 ub)) `(,base))
 	(vp-or-cr (- (ascii-code "a") (ascii-code "A")) base)
 	(vpif `(,base = +char_x))
@@ -77,22 +77,22 @@
 	(endif)
 
 	;create the number
-	(call 'sys_str :to_long `(,bufp ,base) `(r0 ,dot))
-	(assign '((rsp local_sign)) `(,char))
+	(call 'sys_str :to_long `(,bufp ,base) `(:r0 ,dot))
+	(assign '((:rsp local_sign)) `(,char))
 	(vpif `(,char = +char_minus))
-		(vp-mul-cr -1 r0)
+		(vp-mul-cr -1 :r0)
 	(endif)
 	(vpif `(,dot /= 0))
 		;there was a fixed point
-		(call 'fixed :create '(r0) '(r0))
+		(call 'fixed :create '(:r0) '(:r0))
 	(else)
 		;just parsed an int
-		(call 'num :create '(r0) '(r0))
+		(call 'num :create '(:r0) '(:r0))
 	(endif)
-	(call 'num :intern '(r0) '(r0))
+	(call 'num :intern '(:r0) '(:r0))
 
 (vp-label 'exit)
-	(exit 'lisp :read_num `((rsp local_this) r0 (rsp local_char)))
+	(exit 'lisp :read_num `((:rsp local_this) :r0 (:rsp local_char)))
 	(vp-free local_size)
 	(vp-ret)
 

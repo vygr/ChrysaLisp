@@ -12,13 +12,13 @@
 
 (def-method 'stdio :init)
 	;inputs
-	;r0 = stdio object (ptr)
-	;r1 = vtable (pptr)
+	;:r0 = stdio object (ptr)
+	;:r1 = vtable (pptr)
 	;outputs
-	;r0 = stdio object (ptr)
-	;r1 = 0 if error, else ok
+	;:r0 = stdio object (ptr)
+	;:r1 = 0 if error, else ok
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
 	(def-vars
 		(ptr this args msg data)
@@ -85,36 +85,36 @@
 
 (def-method 'stdio :deinit)
 	;inputs
-	;r0 = stdio object (ptr)
+	;:r0 = stdio object (ptr)
 	;outputs
-	;r0 = stdio object (ptr)
+	;:r0 = stdio object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
-	(entry 'stdio :deinit '(r0))
+	(entry 'stdio :deinit '(:r0))
 
 	;flush remaining stdout, stderr
-	(vp-push r0)
-	(call 'out :flush '((r0 stdio_stderr)))
+	(vp-push :r0)
+	(call 'out :flush '((:r0 stdio_stderr)))
 
 	;send stopping on stdout
-	(assign '((rsp 0)) '(r0))
-	(call 'out :set_state '((r0 stdio_stdout) stream_mail_state_stopping) '(r0))
+	(assign '((:rsp 0)) '(:r0))
+	(call 'out :set_state '((:r0 stdio_stdout) stream_mail_state_stopping) '(:r0))
 
 	;free stdin, stdout and stderr
-	(assign '((rsp 0)) '(r0))
-	(call 'in :deref '((r0 stdio_stdin)))
-	(assign '((rsp 0)) '(r0))
-	(call 'out :deref '((r0 stdio_stdout)))
-	(assign '((rsp 0)) '(r0))
-	(call 'out :deref '((r0 stdio_stderr)))
+	(assign '((:rsp 0)) '(:r0))
+	(call 'in :deref '((:r0 stdio_stdin)))
+	(assign '((:rsp 0)) '(:r0))
+	(call 'out :deref '((:r0 stdio_stdout)))
+	(assign '((:rsp 0)) '(:r0))
+	(call 'out :deref '((:r0 stdio_stderr)))
 
 	;free args
-	(assign '((rsp 0)) '(r0))
-	(call 'list :deref '((r0 stdio_args)))
-	(vp-pop r0)
+	(assign '((:rsp 0)) '(:r0))
+	(call 'list :deref '((:r0 stdio_args)))
+	(vp-pop :r0)
 
 	;deinit parent
-	(s-jump 'stdio :deinit '(r0))
+	(s-jump 'stdio :deinit '(:r0))
 
 (def-func-end)

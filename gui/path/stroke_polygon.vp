@@ -4,17 +4,17 @@
 
 (def-method 'path :stroke_polygon)
 	;inputs
-	;r0 = path object (ptr)
-	;r1 = stack array object (ptr)
-	;r2 = radius (fixed)
-	;r3 = tolerance (fixed)
-	;r4 = join style (byte)
+	;:r0 = path object (ptr)
+	;:r1 = stack array object (ptr)
+	;:r2 = radius (fixed)
+	;:r3 = tolerance (fixed)
+	;:r4 = join style (byte)
 	;outputs
-	;r0 = path object (ptr)
-	;r1 = output path1 object (ptr)
-	;r2 = output path2 object (ptr)
+	;:r0 = path object (ptr)
+	;:r1 = output path1 object (ptr)
+	;:r2 = output path2 object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
 	(def-vars
 		(ptr this stack path1 path2)

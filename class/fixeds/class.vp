@@ -8,7 +8,7 @@
 
 (defun mulop (_ v)
 	;trashes
-	;r1-r6+
+	;:r1-:r6+
 	(vp-def (dst src1 src2 dst1 src_end))
 	(entry 'fixeds _ `(,dst ,src1 ,src2))
 	(class/array/get_both src1 src1 src_end)
@@ -28,8 +28,8 @@
 
 (defun divop (_ v)
 	;trashes
-	;r1-r8+
-	(vp-def (s1 s2 dst src1 src2 dst1 src_end) '(r1 r2 r4 r5 r6 r7 r8))
+	;:r1-:r8+
+	(vp-def (s1 s2 dst src1 src2 dst1 src_end) '(:r1 :r2 :r4 :r5 :r6 :r7 :r8))
 	(entry 'fixeds _ `(,dst ,s1 ,s2))
 	(class/array/get_both s1 src1 src_end)
 	(assign `((,dst array_begin) (,s2 array_begin)) `(,dst1 ,src2))
@@ -53,7 +53,7 @@
 
 (defun fracop (_ v)
 	;trashes
-	;r1-r4+
+	;:r1-:r4+
 	(vp-def (dst src dst1 src_end))
 	(entry 'fixeds _ `(,dst ,src))
 	(class/array/get_both src src src_end)
@@ -71,13 +71,13 @@
 
 (def-method 'fixeds :mul)
 	;inputs
-	;r0 = fixeds object (ptr)
-	;r1 = source1 fixeds object, can be same (ptr)
-	;r2 = source2 fixeds object, can be same (ptr)
+	;:r0 = fixeds object (ptr)
+	;:r1 = source1 fixeds object, can be same (ptr)
+	;:r2 = source2 fixeds object, can be same (ptr)
 	;outputs
-	;r0 = fixeds object (ptr)
+	;:r0 = fixeds object (ptr)
 	;trashes
-	;r1-r6
+	;:r1-:r6
 
 	(mulop :mul 'fmul)
 
@@ -85,13 +85,13 @@
 
 (def-method 'fixeds :div)
 	;inputs
-	;r0 = fixeds object (ptr)
-	;r1 = source1 fixeds object, can be same (ptr)
-	;r2 = source2 fixeds object, can be same (ptr)
+	;:r0 = fixeds object (ptr)
+	;:r1 = source1 fixeds object, can be same (ptr)
+	;:r2 = source2 fixeds object, can be same (ptr)
 	;outputs
-	;r0 = fixeds object (ptr)
+	;:r0 = fixeds object (ptr)
 	;trashes
-	;r1-r8
+	;:r1-:r8
 
 	(divop :div 'fdiv)
 
@@ -99,13 +99,13 @@
 
 (def-method 'fixeds :mod)
 	;inputs
-	;r0 = fixeds object (ptr)
-	;r1 = source1 fixeds object, can be same (ptr)
-	;r2 = source2 fixeds object, can be same (ptr)
+	;:r0 = fixeds object (ptr)
+	;:r1 = source1 fixeds object, can be same (ptr)
+	;:r2 = source2 fixeds object, can be same (ptr)
 	;outputs
-	;r0 = fixeds object (ptr)
+	;:r0 = fixeds object (ptr)
 	;trashes
-	;r1-r8
+	;:r1-:r8
 
 	(divop :mod 'fmod)
 
@@ -113,12 +113,12 @@
 
 (def-method 'fixeds :frac)
 	;inputs
-	;r0 = fixeds object (ptr)
-	;r1 = source fixeds object, can be same (ptr)
+	;:r0 = fixeds object (ptr)
+	;:r1 = source fixeds object, can be same (ptr)
 	;outputs
-	;r0 = fixeds object (ptr)
+	;:r0 = fixeds object (ptr)
 	;trashes
-	;r1-r5
+	;:r1-:r5
 
 	(fracop :frac 'frac)
 
@@ -126,12 +126,12 @@
 
 (def-method 'fixeds :floor)
 	;inputs
-	;r0 = fixeds object (ptr)
-	;r1 = source fixeds object, can be same (ptr)
+	;:r0 = fixeds object (ptr)
+	;:r1 = source fixeds object, can be same (ptr)
 	;outputs
-	;r0 = fixeds object (ptr)
+	;:r0 = fixeds object (ptr)
 	;trashes
-	;r1-r5
+	;:r1-:r5
 
 	(fracop :floor 'floor)
 
@@ -139,13 +139,13 @@
 
 (def-method 'fixeds :scale)
 	;inputs
-	;r0 = fixeds object (ptr)
-	;r1 = source fixeds object, can be same (ptr)
-	;r2 = scale (fixed)
+	;:r0 = fixeds object (ptr)
+	;:r1 = source fixeds object, can be same (ptr)
+	;:r2 = scale (fixed)
 	;outputs
-	;r0 = fixeds object (ptr)
+	;:r0 = fixeds object (ptr)
 	;trashes
-	;r1-r5
+	;:r1-:r5
 
 	(vp-def (dst src scale dst1 src_end))
 
@@ -169,20 +169,20 @@
 
 (def-method 'fixeds :dot)
 	;inputs
-	;r0 = fixeds object (ptr)
-	;r1 = fixeds object, can be same (ptr)
+	;:r0 = fixeds object (ptr)
+	;:r1 = fixeds object, can be same (ptr)
 	;outputs
-	;r0 = fixeds object (ptr)
-	;r1 = dot product (fixed)
+	;:r0 = fixeds object (ptr)
+	;:r1 = dot product (fixed)
 	;trashes
-	;r1-r6
+	;:r1-:r6
 
 	(vp-def (this sum src2 src1 src_end val1 val2))
 
-	(entry 'fixeds :dot `(,this r1))
+	(entry 'fixeds :dot `(,this :r1))
 
 	(class/array/get_both this src1 src_end)
-	(assign '((r1 array_begin)) `(,src2))
+	(assign '((:r1 array_begin)) `(,src2))
 	(vp-xor-rr sum sum)
 	(loop-while (list src1 '/= src_end))
 		(assign `((,src1 0) (,src2 0)) `(,val1 ,val2))

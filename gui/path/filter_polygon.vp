@@ -4,13 +4,13 @@
 
 (def-method 'path :filter_polygon)
 	;inputs
-	;r0 = path object (ptr)
-	;r1 = source path object, can be same (ptr)
-	;r2 = tolerance (fixed)
+	;:r0 = path object (ptr)
+	;:r1 = source path object, can be same (ptr)
+	;:r2 = tolerance (fixed)
 	;outputs
-	;r0 = path object (ptr)
+	;:r0 = path object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
 	(def-vars
 		(ptr this that)

@@ -6,140 +6,140 @@
 
 (def-method 'ctx :lisp_set_color)
 	;inputs
-	;r0 = lisp object (ptr)
-	;r1 = args list object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
 	;outputs
-	;r0 = lisp object (ptr)
-	;r1 = return value object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
-	(entry 'ctx :lisp_set_color '(r0 r1))
+	(entry 'ctx :lisp_set_color '(:r0 :r1))
 
 (errorcases
-	(call 'lisp :env_args_sig '(r1 ($ sig) 2) '(r2))
-	(gotoif '(r2 = 0) 'error1))
+	(call 'lisp :env_args_sig '(:r1 ($ sig) 2) '(:r2))
+	(gotoif '(:r2 = 0) 'error1))
 
-	(vp-push r0)
+	(vp-push :r0)
 	(defq in (method-input 'ctx :set_color))
-	(list-bind-args r1 in '(:view :num))
+	(list-bind-args :r1 in '(:view :num))
 	(vp-push (elem 0 in))
 	(call 'ctx :set_color in)
-	(vp-pop r1)
-	(class/obj/ref r1 r2)
-	(vp-pop r0)
+	(vp-pop :r1)
+	(class/obj/ref :r1 :r2)
+	(vp-pop :r0)
 
-	(exit 'ctx :lisp_set_color '(r0 r1))
+	(exit 'ctx :lisp_set_color '(:r0 :r1))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error1)
-	(jump 'lisp :repl_error '(r0 "(ctx-set-color view col)" error_msg_wrong_types r1))
+	(jump 'lisp :repl_error '(:r0 "(ctx-set-color view col)" error_msg_wrong_types :r1))
 	(signature '(view num)))
 
 (def-func-end)
 
 (def-method 'ctx :lisp_box)
 	;inputs
-	;r0 = lisp object (ptr)
-	;r1 = args list object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
 	;outputs
-	;r0 = lisp object (ptr)
-	;r1 = return value object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
-	(entry 'ctx :lisp_box '(r0 r1))
+	(entry 'ctx :lisp_box '(:r0 :r1))
 
 (errorcases
-	(call 'lisp :env_args_sig '(r1 ($ sig) 5) '(r2))
-	(gotoif '(r2 = 0) 'error1))
+	(call 'lisp :env_args_sig '(:r1 ($ sig) 5) '(:r2))
+	(gotoif '(:r2 = 0) 'error1))
 
-	(vp-push r0)
+	(vp-push :r0)
 	(defq in (method-input 'ctx :box))
-	(list-bind-args r1 in '(:view :num :num :num :num))
+	(list-bind-args :r1 in '(:view :num :num :num :num))
 	(vp-push (elem 0 in))
 	(call 'ctx :box in)
-	(vp-pop r1)
-	(class/obj/ref r1 r2)
-	(vp-pop r0)
+	(vp-pop :r1)
+	(class/obj/ref :r1 :r2)
+	(vp-pop :r0)
 
-	(exit 'ctx :lisp_box '(r0 r1))
+	(exit 'ctx :lisp_box '(:r0 :r1))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error1)
-	(jump 'lisp :repl_error '(r0 "(ctx-box view x y w h)" error_msg_wrong_types r1))
+	(jump 'lisp :repl_error '(:r0 "(ctx-box view x y w h)" error_msg_wrong_types :r1))
 	(signature '(view num num num num)))
 
 (def-func-end)
 
 (def-method 'ctx :lisp_filled_box)
 	;inputs
-	;r0 = lisp object (ptr)
-	;r1 = args list object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
 	;outputs
-	;r0 = lisp object (ptr)
-	;r1 = return value object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
-	(entry 'ctx :lisp_filled_box '(r0 r1))
+	(entry 'ctx :lisp_filled_box '(:r0 :r1))
 
 (errorcases
-	(call 'lisp :env_args_sig '(r1 ($ sig) 5) '(r2))
-	(gotoif '(r2 = 0) 'error1))
+	(call 'lisp :env_args_sig '(:r1 ($ sig) 5) '(:r2))
+	(gotoif '(:r2 = 0) 'error1))
 
-	(vp-push r0)
+	(vp-push :r0)
 	(defq in (method-input 'ctx :filled_box))
-	(list-bind-args r1 in '(:view :num :num :num :num))
+	(list-bind-args :r1 in '(:view :num :num :num :num))
 	(vp-push (elem 0 in))
 	(call 'ctx :filled_box in)
-	(vp-pop r1)
-	(class/obj/ref r1 r2)
-	(vp-pop r0)
+	(vp-pop :r1)
+	(class/obj/ref :r1 :r2)
+	(vp-pop :r0)
 
-	(exit 'ctx :lisp_filled_box '(r0 r1))
+	(exit 'ctx :lisp_filled_box '(:r0 :r1))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error1)
-	(jump 'lisp :repl_error '(r0 "(ctx-filled-box view x y w h)" error_msg_wrong_types r1))
+	(jump 'lisp :repl_error '(:r0 "(ctx-filled-box view x y w h)" error_msg_wrong_types :r1))
 	(signature '(view num num num num)))
 
 (def-func-end)
 
 (def-method 'ctx :lisp_blit)
 	;inputs
-	;r0 = lisp object (ptr)
-	;r1 = args list object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
 	;outputs
-	;r0 = lisp object (ptr)
-	;r1 = return value object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
-	(entry 'ctx :lisp_blit '(r0 r1))
+	(entry 'ctx :lisp_blit '(:r0 :r1))
 
 (errorcases
-	(call 'lisp :env_args_sig '(r1 ($ sig) 7) '(r2))
-	(gotoif '(r2 = 0) 'error1))
+	(call 'lisp :env_args_sig '(:r1 ($ sig) 7) '(:r2))
+	(gotoif '(:r2 = 0) 'error1))
 
-	(vp-push r0)
+	(vp-push :r0)
 	(defq in (method-input 'ctx :blit))
-	(list-bind-args r1 in '(:view :num :num :num :num :num :num))
+	(list-bind-args :r1 in '(:view :num :num :num :num :num :num))
 	(vp-push (elem 0 in))
 	(call 'ctx :blit in)
-	(vp-pop r1)
-	(class/obj/ref r1 r2)
-	(vp-pop r0)
+	(vp-pop :r1)
+	(class/obj/ref :r1 :r2)
+	(vp-pop :r0)
 
-	(exit 'ctx :lisp_blit '(r0 r1))
+	(exit 'ctx :lisp_blit '(:r0 :r1))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error1)
-	(jump 'lisp :repl_error '(r0 "(ctx-blit view tid col x y w h)" error_msg_wrong_types r1))
+	(jump 'lisp :repl_error '(:r0 "(ctx-blit view tid col x y w h)" error_msg_wrong_types :r1))
 	(signature '(view num num num num num num)))
 
 (def-func-end)

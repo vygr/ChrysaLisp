@@ -20,7 +20,7 @@
 
 (def-method 'sys_kernel :kernel)
 	;inputs
-	;r0 = argv pointer (pptr)
+	;:r0 = argv pointer (pptr)
 	;info
 	;loader is already initialized when we get here !
 
@@ -67,9 +67,9 @@
 
 	;start routing pings
 	(call 'node :create {0, +node_id_size} {key})
-	(call 'sys_load :bind `(,(str (f-path 'sys_kernel :ping))) '(r0))
-	(vpif '(r0 /= 0))
-		(call 'sys_task :start '(r0))
+	(call 'sys_load :bind `(,(str (f-path 'sys_kernel :ping))) '(:r0))
+	(vpif '(:r0 /= 0))
+		(call 'sys_task :start '(:r0))
 	(endif)
 
 ;;;;;;;;;;;;;;;;;;;;;;;
@@ -82,24 +82,24 @@
 		;service all kernel mail
 		(loop-start 'kernel_loop)
 			;check if any mail
-			(assign {mbox_addr} '(r0))
-			(lh-is-empty r0 mbox_list r1)
-			(breakif '(r1 = 0))
-			(call 'sys_mail :read '(r0) {msg, data})
+			(assign {mbox_addr} '(:r0))
+			(lh-is-empty :r0 mbox_list :r1)
+			(breakif '(:r1 = 0))
+			(call 'sys_mail :read '(:r0) {msg, data})
 			;which kernel call number
-			(assign {data->+kn_msg_func} '(r0))
+			(assign {data->+kn_msg_func} '(:r0))
 			(switch)
-			(vpcase '(r0 = +kn_call_open))
+			(vpcase '(:r0 = +kn_call_open))
 			(vp-label 'run_here)
 				;fill in reply ID, user field is left alone !
-				(call 'opt_run {&data->+kn_msg_open_pathname} '(r0 r1 r2))
-				(assign {msg, data, +kn_msg_reply_size} '(r3 r4 r5))
-				(assign-net-id r4 +kn_msg_reply_id r3 msg_dest r6 r7 r8)
-				(save-net-id r4 +kn_msg_reply_id r0 r1 r2)
-				(assign '(r5) '((r3 msg_frag_length)))
-				(call 'sys_mail :send '(r3))
+				(call 'opt_run {&data->+kn_msg_open_pathname} '(:r0 :r1 :r2))
+				(assign {msg, data, +kn_msg_reply_size} '(:r3 :r4 :r5))
+				(assign-net-id :r4 +kn_msg_reply_id :r3 msg_dest :r6 :r7 :r8)
+				(save-net-id :r4 +kn_msg_reply_id :r0 :r1 :r2)
+				(assign '(:r5) '((:r3 msg_frag_length)))
+				(call 'sys_mail :send '(:r3))
 				(break)
-			(vpcase '(r0 = +kn_call_child))
+			(vpcase '(:r0 = +kn_call_child))
 				;find best cpu to run task
 				(assign {statics->statics_sys_task_task_count} {best_cnt})
 				(assign {node_id.node_id_node1} {best_id.node_id_node1})
@@ -121,7 +121,7 @@
 				(assign {best_id.node_id_node2} {msg->msg_dest.net_id_node_id.node_id_node2})
 				(call 'sys_mail :send {msg})
 				(break)
-			(vpcase '(r0 = +kn_call_ping))
+			(vpcase '(:r0 = +kn_call_ping))
 				;new services/routing ping
 				(def-vars
 					(ptr session set)
@@ -135,8 +135,8 @@
 				(call 'sys_pii :time nil '{time})
 
 				;find/create the routing tuple for the origin
-				(assign {data, key} '(r0 r1))
-				(assign-node-id r0 +kn_msg_ping_origin r1 str_data)
+				(assign {data, key} '(:r0 :r1))
+				(assign-node-id :r0 +kn_msg_ping_origin :r1 str_data)
 				(call 'hmap :find {statics->statics_sys_mail_node_map, key} {_, tuple, bucket})
 				(vpifnot {tuple})
 					(call 'node :create {&data->+kn_msg_ping_origin, +node_id_size} {new_key})
@@ -151,9 +151,9 @@
 				(endif)
 
 				;update routing entries for the origin ?
-				(call 'array :get_begin {tuple} '(_ r1))
-				(assign `((r1 ,(* +long_size 2)) (r1 ,(* +long_size 3))) '(r1 r2))
-				(assign '(r1 r2) {session, hops})
+				(call 'array :get_begin {tuple} '(_ :r1))
+				(assign `((:r1 ,(* +long_size 2)) (:r1 ,(* +long_size 3))) '(:r1 :r2))
+				(assign '(:r1 :r2) {session, hops})
 				(switch)
 				(breakif {data->+kn_msg_ping_session < session})
 				(vpcase {data->+kn_msg_ping_session > session})
@@ -201,10 +201,10 @@
 				(pop-scope)
 				(call 'sys_mail :free {msg})
 				(break)
-			(vpcase '(r0 = +kn_call_callback))
+			(vpcase '(:r0 = +kn_call_callback))
 				;call callback with this thread/stack
-				(assign {data->+kn_msg_key, data->+kn_msg_callback_addr} '(r0 r1))
-				(vp-call-r r1)
+				(assign {data->+kn_msg_key, data->+kn_msg_callback_addr} '(:r0 :r1))
+				(vp-call-r :r1)
 				;wake originator
 				(call 'sys_task :resume {data->+kn_msg_reply_id.net_id_mbox_id)})
 				(call 'sys_mail :free {msg})
@@ -212,50 +212,50 @@
 		(loop-end)
 
 		;resume any ready tasks and timeouts on the timer lists
-		(call 'sys_task :timer nil '(r0))
+		(call 'sys_task :timer nil '(:r0))
 
 		;find next task we could defer to
-		(assign {statics } '(r3))
-		(assign '((& r3 (+ statics_sys_task_task_lists lh_list_size))) '(r1))
-		(assign '((& r3 (+ statics_sys_task_task_lists (* num_task_lists lh_list_size)))) '(r2))
+		(assign {statics } '(:r3))
+		(assign '((& :r3 (+ statics_sys_task_task_lists lh_list_size))) '(:r1))
+		(assign '((& :r3 (+ statics_sys_task_task_lists (* num_task_lists lh_list_size)))) '(:r2))
 		(loop-start)
-			(lh-get-head r1 0 r4)
-			(ln-get-succ r4 0 r5)
-			(breakif '(r5 /= 0))
-			(vp-add-cr lh_list_size r1)
-		(loop-until '(r1 = r2))
+			(lh-get-head :r1 0 :r4)
+			(ln-get-succ :r4 0 :r5)
+			(breakif '(:r5 /= 0))
+			(vp-add-cr lh_list_size :r1)
+		(loop-until '(:r1 = :r2))
 
 		;defer to task if available
-		(vpif '(r5 /= 0))
-			(call 'sys_task :defer '(r4))
+		(vpif '(:r5 /= 0))
+			(call 'sys_task :defer '(:r4))
 			(continue 'kernel_loop)
 		(endif)
 
 		;no other task ready to run so
 		;exit if no tasks waiting for timers
-		(lh-get-head r3 statics_sys_task_timer_list r4)
-		(lh-get-head r3 statics_sys_mail_timeout_list r5)
-		(ln-get-succ r4 0 r1)
-		(ln-get-succ r5 0 r2)
-		(vpif '(r1 = 0))
-			(breakif '(r2 = 0) 'exit)
+		(lh-get-head :r3 statics_sys_task_timer_list :r4)
+		(lh-get-head :r3 statics_sys_mail_timeout_list :r5)
+		(ln-get-succ :r4 0 :r1)
+		(ln-get-succ :r5 0 :r2)
+		(vpif '(:r1 = 0))
+			(breakif '(:r2 = 0) 'exit)
 		(endif)
 
 		;go to sleep till next wake time then
-		(vp-cpy-cr +max_long r6)
-		(vp-cpy-rr r6 r7)
-		(vpif '(r1 /= 0))
-			(assign '((r4 tk_node_time)) '(r6))
+		(vp-cpy-cr +max_long :r6)
+		(vp-cpy-rr :r6 :r7)
+		(vpif '(:r1 /= 0))
+			(assign '((:r4 tk_node_time)) '(:r6))
 		(endif)
-		(vpif '(r2 /= 0))
-			(assign '((r5 msg_frag_data)) '(r7))
-			(assign '((r7 0)) '(r7))
+		(vpif '(:r2 /= 0))
+			(assign '((:r5 msg_frag_data)) '(:r7))
+			(assign '((:r7 0)) '(:r7))
 		(endif)
-		(vpif '(r7 < r6))
-			(vp-cpy-rr r7 r6)
+		(vpif '(:r7 < :r6))
+			(vp-cpy-rr :r7 :r6)
 		(endif)
-		(vp-sub-rr r0 r6)
-		(host-os-call 'host :sleep '(r6))
+		(vp-sub-rr :r0 :r6)
+		(host-os-call 'host :sleep '(:r6))
 	(loop-end)
 
 	;deinit allocator
@@ -267,29 +267,29 @@
 
 (vp-label 'flood_fill)
 	;inputs
-	;r0 = mail statics
-	;r1 = flood msg
-	;r2 = flood data
-	;r3-r4 = kernel node_id
+	;:r0 = mail statics
+	;:r1 = flood msg
+	;:r2 = flood data
+	;:r3-:r4 = kernel node_id
 	;trashes
-	;r0-r14
+	;:r0-:r14
 
 	(vp-def (msg data knode1 knode2 vnode1 vnode2 iter_begin iter_end iter link_node statics)
-		'(r14 r13 r12 r11 r10 r9 r8 r7 r6 r5 r4))
+		'(:r14 :r13 :r12 :r11 :r10 :r9 :r8 :r7 :r6 :r5 :r4))
 
 	(entry `(,statics ,msg ,data ,knode1 ,knode2))
 
 	;inc hops
-	(assign `((,data +kn_msg_ping_hops)) '(r0))
-	(vp-add-cr 1 r0)
-	(assign '(r0) `((,data +kn_msg_ping_hops)))
+	(assign `((,data +kn_msg_ping_hops)) '(:r0))
+	(vp-add-cr 1 :r0)
+	(assign '(:r0) `((,data +kn_msg_ping_hops)))
 	;old via
 	(load-node-id data +kn_msg_ping_via vnode1 vnode2)
 	;set new via
 	(save-node-id data +kn_msg_ping_via knode1 knode2)
 	;loop over the links
-	(assign `((,statics statics_sys_mail_links_array)) '(r0))
-	(class/array/get_both r0 iter iter_end)
+	(assign `((,statics statics_sys_mail_links_array)) '(:r0))
+	(class/array/get_both :r0 iter iter_end)
 	(vp-cpy-rr iter iter_begin)
 	(loop-while (list iter '/= iter_end) 'next_link)
 		(assign `((,iter 0)) `(,link_node))
@@ -297,40 +297,40 @@
 		;this links peer
 		(load-node-id link_node lk_node_peer_node_id knode1 knode2)
 		;not there yet ?
-		(assign `(,knode1 ,knode2) '(r0 r1))
-		(vp-or-rr r1 r0)
-		(continueif '(r0 = 0))
+		(assign `(,knode1 ,knode2) '(:r0 :r1))
+		(vp-or-rr :r1 :r0)
+		(continueif '(:r0 = 0))
 		;it's the old via ?
-		(assign `(,knode1) '(r0))
-		(vp-sub-rr vnode1 r0)
-		(vp-sub-rr vnode2 r1)
-		(vp-or-rr r1 r0)
-		(continueif '(r0 = 0))
+		(assign `(,knode1) '(:r0))
+		(vp-sub-rr vnode1 :r0)
+		(vp-sub-rr vnode2 :r1)
+		(vp-or-rr :r1 :r0)
+		(continueif '(:r0 = 0))
 		;have we sent to this node allready ?
-		(vp-cpy-rr iter_begin r2)
+		(vp-cpy-rr iter_begin :r2)
 		(loop-start)
-			(assign '((r2 0)) `(,link_node))
-			(vp-add-cr +ptr_size r2)
-			(breakif (list r2 '= iter))
-			(load-node-id link_node lk_node_peer_node_id r0 r1)
-			(vp-sub-rr knode1 r0)
-			(vp-sub-rr knode2 r1)
-			(vp-or-rr r1 r0)
-			(continueif '(r0 = 0) 'next_link)
+			(assign '((:r2 0)) `(,link_node))
+			(vp-add-cr +ptr_size :r2)
+			(breakif (list :r2 '= iter))
+			(load-node-id link_node lk_node_peer_node_id :r0 :r1)
+			(vp-sub-rr knode1 :r0)
+			(vp-sub-rr knode2 :r1)
+			(vp-or-rr :r1 :r0)
+			(continueif '(:r0 = 0) 'next_link)
 		(loop-end)
 		;multi-cast the data
-		(call 'sys_mail :alloc_obj `((,msg msg_obj) ,data (,msg msg_frag_length)) '(r0))
-		(vp-xor-rr r1 r1)
-		(save-net-id r0 msg_dest r1 knode1 knode2)
-		(call 'sys_mail :send '(r0))
+		(call 'sys_mail :alloc_obj `((,msg msg_obj) ,data (,msg msg_frag_length)) '(:r0))
+		(vp-xor-rr :r1 :r1)
+		(save-net-id :r0 msg_dest :r1 knode1 knode2)
+		(call 'sys_mail :send '(:r0))
 	(loop-end)
 	(vp-ret)
 
 (vp-label 'opts)
 	;inputs
-	;r0 = argv array (pptr)
+	;:r0 = argv array (pptr)
 	;trashes
-	;r0-r14
+	;:r0-:r14
 	;info
 	;process command options
 
@@ -357,8 +357,8 @@
 			(vpif (list (method-output 'sys_str :compare 0) '= 0))
 				(assign {*argv} {arg})
 				(breakifnot {arg} 'next_arg)
-				(assign {arg, $options_table + offset} '(r0 r1))
-				(vp-call-r r1)
+				(assign {arg, $options_table + offset} '(:r0 :r1))
+				(vp-call-r :r1)
 				(break 'next_arg)
 			(endif)
 			(call 'sys_str :length {table} {_, len})
@@ -371,11 +371,11 @@
 
 (vp-label 'opt_run)
 	;inputs
-	;r0 = argv pointer (pubyte)
+	;:r0 = argv pointer (pubyte)
 	;outputs
-	;r0-r2 = 0 if error, else ID (net_id)
+	;:r0-:r2 = 0 if error, else ID (net_id)
 	;trashes
-	;r0-r14
+	;:r0-:r14
 
 	(def-vars
 		(ptr arg func msg)
@@ -396,16 +396,16 @@
 		(call 'sys_pii :stat {arg, @sys/statics/statics.statics_sys_load_stat_buffer} {func})
 		(breakif {func})
 		;start lisp run task and send args
-		(call 'sys_load :bind `(,(str (f-path 'lisp :run))) '(r0))
-		(breakif '(r0 = 0))
-		(call 'sys_task :start '(r0)
+		(call 'sys_load :bind `(,(str (f-path 'lisp :run))) '(:r0))
+		(breakif '(:r0 = 0))
+		(call 'sys_task :start '(:r0)
 			{_, _, id.net_id_mbox_id, id.net_id_node_id.node_id_node1, id.net_id_node_id.node_id_node2})
 		(call 'str :create_from_cstr {arg} {arg})
 		(call 'sys_mail :alloc_obj {arg, &arg->str_data, arg->str_length} {msg})
 		(assign {msg, id.net_id_mbox_id, id.net_id_node_id.node_id_node1, id.net_id_node_id.node_id_node2}
-			'(r0 r2 r3 r4))
-		(save-net-id r0 msg_dest)
-		(call 'sys_mail :send '(r0))
+			'(:r0 :r2 :r3 :r4))
+		(save-net-id :r0 msg_dest)
+		(call 'sys_mail :send '(:r0))
 		(call 'str :deref {arg})
 	(else)
 		;open as raw task and return mailbox ID
@@ -422,54 +422,54 @@
 
 (vp-label 'opt_link)
 	;inputs
-	;r0 = argv pointer (pubyte)
+	;:r0 = argv pointer (pubyte)
 	;trashes
-	;r0-r11
+	;:r0-:r11
 
-	(entry '(r0))
+	(entry '(:r0))
 
 	;start link
-	(vp-push r0)
-	(assign `(,(str (f-path 'sys_link :link))) '(r0))
+	(vp-push :r0)
+	(assign `(,(str (f-path 'sys_link :link))) '(:r0))
 (vp-label 'opt_link_run)
-	(call 'sys_load :bind '(r0) '(r0))
-	(vp-pop r8)
-	(vpif '(r0 /= 0))
-		(call 'sys_task :start '(r0) '(_ _ r9 r10 r11))
+	(call 'sys_load :bind '(:r0) '(:r0))
+	(vp-pop :r8)
+	(vpif '(:r0 /= 0))
+		(call 'sys_task :start '(:r0) '(_ _ :r9 :r10 :r11))
 		;params message
-		(call 'sys_str :length '(r8) '(_ r0))
-		(call 'sys_mail :alloc '(r0) '(r0 r1))
-		(save-net-id r0 msg_dest r9 r10 r11)
-		(vp-cpy-rr r0 r3)
-		(call 'sys_str :copy '(r8 r1))
+		(call 'sys_str :length '(:r8) '(_ :r0))
+		(call 'sys_mail :alloc '(:r0) '(:r0 :r1))
+		(save-net-id :r0 msg_dest :r9 :r10 :r11)
+		(vp-cpy-rr :r0 :r3)
+		(call 'sys_str :copy '(:r8 :r1))
 		;send to link task
-		(call 'sys_mail :send '(r3))
+		(call 'sys_mail :send '(:r3))
 	(endif)
 	(vp-ret)
 
 (vp-label 'opt_usb_link)
 	;inputs
-	;r0 = argv pointer (pubyte)
+	;:r0 = argv pointer (pubyte)
 	;trashes
-	;r0-r11
+	;:r0-:r11
 
-	(entry '(r0))
+	(entry '(:r0))
 
 	;start link
-	(vp-push r0)
-	(assign `(,(str (f-path 'sys_link :usb_link))) '(r0))
+	(vp-push :r0)
+	(assign `(,(str (f-path 'sys_link :usb_link))) '(:r0))
 	(goto 'opt_link_run)
 
 	(vp-align +ptr_size)
 (vp-label 'options_table)
 	(vp-long `(- ,(label-sym 'opt_run) ,(label-sym 'options_table)))
-		(vp-string "-run") (vp-byte 0)
+		(vp-cstr "-run")
 		(vp-align +ptr_size)
 	(vp-long `(- ,(label-sym 'opt_link) ,(label-sym 'options_table)))
-		(vp-string "-l") (vp-byte 0)
+		(vp-cstr "-l")
 		(vp-align +ptr_size)
 	(vp-long `(- ,(label-sym 'opt_usb_link) ,(label-sym 'options_table)))
-		(vp-string "-u") (vp-byte 0)
+		(vp-cstr "-u")
 		(vp-align +ptr_size)
 	(vp-long 0)
 
@@ -477,14 +477,14 @@
 
 (def-method 'sys_kernel :id)
 	;outputs
-	;r0-r1 = node id (node_id)
+	;:r0-:r1 = node id (node_id)
 	;trashes
-	;r0-r1
+	;:r0-:r1
 
-	(fn-bind 'sys/statics/statics r1)
+	(fn-bind 'sys/statics/statics :r1)
 	(exit 'sys_kernel :id
-		`((r1 ,(+ statics_sys_task_kernel_node_id node_id_node1))
-		(r1 ,(+ statics_sys_task_kernel_node_id node_id_node2))))
+		`((:r1 ,(+ statics_sys_task_kernel_node_id node_id_node1))
+		(:r1 ,(+ statics_sys_task_kernel_node_id node_id_node2))))
 	(vp-ret)
 
 (def-func-end)
@@ -499,34 +499,34 @@
 	(vp-alloc local_size)
 
 	;don't count ping or postman tasks in load balancing
-	(fn-bind 'sys/statics/statics r0)
-	(assign '((r0 statics_sys_task_task_count)) '(r1))
-	(vp-sub-cr 2 r1)
-	(assign '(r1) '((r0 statics_sys_task_task_count)))
+	(fn-bind 'sys/statics/statics :r0)
+	(assign '((:r0 statics_sys_task_task_count)) '(:r1))
+	(vp-sub-cr 2 :r1)
+	(assign '(:r1) '((:r0 statics_sys_task_task_count)))
 
-	(call 'sys_kernel :id nil `((rsp ,(+ local_node_id node_id_node1)) (rsp ,(+ local_node_id node_id_node2))))
-	(vp-cpy-cr 2500000 r4)
+	(call 'sys_kernel :id nil `((:rsp ,(+ local_node_id node_id_node1)) (:rsp ,(+ local_node_id node_id_node2))))
+	(vp-cpy-cr 2500000 :r4)
 	(loop-start)
-		(call 'sys_math :i_rand '(1000000) '(r0))
-		(vp-add-rr r4 r0)
-		(call 'sys_task :sleep '(r0))
+		(call 'sys_math :i_rand '(1000000) '(:r0))
+		(vp-add-rr :r4 :r0)
+		(call 'sys_task :sleep '(:r0))
 
 		;send services/routing ping message
 		(call 'sys_mail :ping)
 
 		;purge stale nodes
-		(call 'sys_pii :time nil '((rsp local_now)))
-		(fn-bind 'sys/statics/statics r0)
-		(call 'hmap :for_each '((r0 statics_sys_mail_node_map) ($ purge_callback) rsp))
+		(call 'sys_pii :time nil '((:rsp local_now)))
+		(fn-bind 'sys/statics/statics :r0)
+		(call 'hmap :for_each '((:r0 statics_sys_mail_node_map) ($ purge_callback) :rsp))
 
 		;purge stale messages and parcels
-		(fn-bind 'sys/statics/statics r0)
-		(call 'purge_mail '((& r0 statics_sys_mail_offchip_list) (rsp local_now)))
-		(fn-bind 'sys/statics/statics r0)
-		(call 'purge_mail '((& r0 statics_sys_mail_parcel_list) (rsp local_now)))
+		(fn-bind 'sys/statics/statics :r0)
+		(call 'purge_mail '((& :r0 statics_sys_mail_offchip_list) (:rsp local_now)))
+		(fn-bind 'sys/statics/statics :r0)
+		(call 'purge_mail '((& :r0 statics_sys_mail_parcel_list) (:rsp local_now)))
 
 		;next ping period
-		(vp-cpy-cr (- ping_period 500000) r4)
+		(vp-cpy-cr (- ping_period 500000) :r4)
 	(loop-end)
 
 	(vp-free local_size)
@@ -534,9 +534,9 @@
 
 (vp-label 'purge_callback)
 	;inputs
-	;r0 = predicate data (ptr)
-	;r1 = element iterator (pptr)
-	;r2 = bucket list pointer (ptr)
+	;:r0 = predicate data (ptr)
+	;:r1 = element iterator (pptr)
+	;:r2 = bucket list pointer (ptr)
 
 	(def-struct local 0
 		(ptr bucket)
@@ -546,7 +546,7 @@
 
 	(vp-alloc local_size)
 	(entry 'hmap :each_callback `(,data ,iter ,bucket))
-	(assign `(,iter ,bucket) '((rsp local_iter) (rsp local_bucket)))
+	(assign `(,iter ,bucket) '((:rsp local_iter) (:rsp local_bucket)))
 
 	(assign `((,iter 0) (,iter +ptr_size)) `(,key ,tuple))
 	(load-node-id key str_data kid1 kid2)
@@ -562,7 +562,7 @@
 	(breakif (list kid1 '< (* ping_period 2)))
 	(default)
 		(call 'obj :deref `((,tuple 0)))
-		(call 'list :erase2 '((rsp local_bucket) (rsp local_iter)))
+		(call 'list :erase2 '((:rsp local_bucket) (:rsp local_iter)))
 	(endif)
 
 	(vp-free local_size)
@@ -570,8 +570,8 @@
 
 (vp-label 'purge_mail)
 	;inputs
-	;r0 = mail list (ptr)
-	;r1 = now (ulong)
+	;:r0 = mail list (ptr)
+	;:r1 = now (ulong)
 
 	(def-struct local 0
 		(ptr next)
@@ -582,16 +582,16 @@
 	(vp-alloc local_size)
 	(entry `(,next ,now))
 
-	(assign `(,now) '((rsp local_now)))
+	(assign `(,now) '((:rsp local_now)))
 	(loop-list-forward next 0 node next)
 		(assign `((,node msg_timestamp)) `(,time))
 		(vp-sub-rr now time)
 		(continueif `(,time >= ,(* ping_period -2)))
-		(vp-cpy-rr node r0)
-		(ln-remove-node node r1)
-		(assign `(,next) '((rsp local_next)))
-		(call 'sys_mail :free '(r0))
-		(assign '((rsp local_next) (rsp local_now)) `(,next ,now))
+		(vp-cpy-rr node :r0)
+		(ln-remove-node node :r1)
+		(assign `(,next) '((:rsp local_next)))
+		(call 'sys_mail :free '(:r0))
+		(assign '((:rsp local_next) (:rsp local_now)) `(,next ,now))
 	(loop-end)
 
 	(vp-free local_size)

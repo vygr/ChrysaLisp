@@ -4,20 +4,20 @@
 
 (def-method 'path :gen_clerp)
 	;inputs
-	;r0 = path object (ptr)
-	;r1 = stack array object (ptr)
-	;r2 = cx (fixed)
-	;r3 = cy (fixed)
-	;r4 = v1x (fixed)
-	;r5 = v1y (fixed)
-	;r6 = v2x (fixed)
-	;r7 = v2y (fixed)
-	;r8 = radius (fixed)
-	;r9 = tolerance (fixed)
+	;:r0 = path object (ptr)
+	;:r1 = stack array object (ptr)
+	;:r2 = cx (fixed)
+	;:r3 = cy (fixed)
+	;:r4 = v1x (fixed)
+	;:r5 = v1y (fixed)
+	;:r6 = v2x (fixed)
+	;:r7 = v2y (fixed)
+	;:r8 = radius (fixed)
+	;:r9 = tolerance (fixed)
 	;outputs
-	;r0 = path object (ptr)
+	;:r0 = path object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
 	(def-vars
 		(ptr this stack)

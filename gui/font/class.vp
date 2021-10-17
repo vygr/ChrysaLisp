@@ -16,12 +16,12 @@
 (gen-vtable 'font)
 
 (def-method 'font :open)
-	;r0 = name c string (pubyte)
-	;r1 = font size (pixels)
+	;:r0 = name c string (pubyte)
+	;:r1 = font size (pixels)
 	;outputs
-	;r0 = 0 if error, else font object (ptr)
+	;:r0 = 0 if error, else font object (ptr)
 	;trashes
-	;r0-r14
+	;:r0-:r14
 
 	(def-vars
 		(ptr this name flat_set data)
@@ -64,16 +64,16 @@
 
 (def-method 'font :init)
 	;inputs
-	;r0 = font object (ptr)
-	;r1 = vtable (pptr)
-	;r2 = name c string (pubyte)
-	;r3 = 0, else ctf data string object (ptr)
-	;r4 = font size (pixels)
+	;:r0 = font object (ptr)
+	;:r1 = vtable (pptr)
+	;:r2 = name c string (pubyte)
+	;:r3 = 0, else ctf data string object (ptr)
+	;:r4 = font size (pixels)
 	;outputs
-	;r0 = font object (ptr)
-	;r1 = 0 if error, else ok
+	;:r0 = font object (ptr)
+	;:r1 = 0 if error, else ok
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
 	(def-vars
 		(ptr this name data)
@@ -112,66 +112,66 @@
 
 (def-method 'font :deinit)
 	;inputs
-	;r0 = font object (ptr)
+	;:r0 = font object (ptr)
 	;outputs
-	;r0 = font object (ptr)
+	;:r0 = font object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
-	(entry 'font :deinit '(r0))
+	(entry 'font :deinit '(:r0))
 
-	(vp-push r0)
-	(call 'list :deref_if '((r0 font_chars)))
-	(assign '((rsp 0)) '(r0))
-	(call 'hmap :deref '((r0 font_sym_map)))
-	(assign '((rsp 0)) '(r0))
-	(call 'str :deref '((r0 font_name)))
-	(assign '((rsp 0)) '(r0))
-	(call 'str :deref '((r0 font_data)))
-	(vp-pop r0)
+	(vp-push :r0)
+	(call 'list :deref_if '((:r0 font_chars)))
+	(assign '((:rsp 0)) '(:r0))
+	(call 'hmap :deref '((:r0 font_sym_map)))
+	(assign '((:rsp 0)) '(:r0))
+	(call 'str :deref '((:r0 font_name)))
+	(assign '((:rsp 0)) '(:r0))
+	(call 'str :deref '((:r0 font_data)))
+	(vp-pop :r0)
 
 	;deinit parent
-	(s-jump 'font :deinit '(r0))
+	(s-jump 'font :deinit '(:r0))
 
 (def-func-end)
 
 (def-method 'font :get_metrics)
 	;inputs
-	;r0 = font object (ptr)
+	;:r0 = font object (ptr)
 	;outputs
-	;r0 = font object (ptr)
-	;r1 = ascent (pixels)
-	;r2 = descent (pixels)
-	;r3 = height (pixels)
+	;:r0 = font object (ptr)
+	;:r1 = ascent (pixels)
+	;:r2 = descent (pixels)
+	;:r3 = height (pixels)
 	;trashes
-	;r1-r4
+	;:r1-:r4
 
-	(entry 'font :get_metrics '(r0))
+	(entry 'font :get_metrics '(:r0))
 
-	(assign '((r0 font_data) (r0 font_pixels)) '(r3 r4))
-	(vp-add-cr str_data r3)
-	(assign '((r3 font_data_ascent) (r3 font_data_descent)) '(r1 r2))
-	(vp-mul-rr r4 r1)
-	(vp-mul-rr r4 r2)
-	(assign '((& r1 r2)) '(r3))
-	(vp-shr-cr 24 r1)
-	(vp-shr-cr 24 r2)
-	(vp-shr-cr 24 r3)
+	(assign '((:r0 font_data) (:r0 font_pixels)) '(:r3 :r4))
+	(vp-add-cr str_data :r3)
+	(assign '((:r3 font_data_ascent) (:r3 font_data_descent)) '(:r1 :r2))
+	(vp-mul-rr :r4 :r1)
+	(vp-mul-rr :r4 :r2)
+	(assign '((& :r1 :r2)) '(:r3))
+	(vp-shr-cr 24 :r1)
+	(vp-shr-cr 24 :r2)
+	(vp-shr-cr 24 :r3)
 
-	(exit 'font :get_metrics '(r0 r1 r2 r3))
+	(exit 'font :get_metrics '(:r0 :r1 :r2 :r3))
 	(vp-ret)
 
 (def-func-end)
 
 (def-method 'font :glyph_data)
 	;inputs
-	;r0 = font object (ptr)
-	;r1 = char code (uint)
+	;:r0 = font object (ptr)
+	;:r1 = char code (uint)
 	;outputs
-	;r0 = font object (ptr)
-	;r1 = 0, else glyph data pointer (ptr)
+	;:r0 = font object (ptr)
+	;:r1 = 0, else glyph data pointer (ptr)
 	;trashes
-	;r1-r4
+	;:r1-:r4
 
 	(vp-def (this data c start end))
 
@@ -209,14 +209,14 @@
 
 (def-method 'font :glyph_ranges)
 	;inputs
-	;r0 = font object (ptr)
+	;:r0 = font object (ptr)
 	;outputs
-	;r0 = font object (ptr)
-	;r1 = glyph ranges array object (ptr)
+	;:r0 = font object (ptr)
+	;:r1 = glyph ranges array object (ptr)
 	;trashes
-	;r1-r7
+	;:r1-:r7
 
-	(vp-def (this data info start end) '(r6 r7 r0 r1 r2))
+	(vp-def (this data info start end) '(:r6 :r7 :r0 :r1 :r2))
 
 	(entry 'font :glyph_ranges `(,this))
 
@@ -242,15 +242,15 @@
 
 (def-method 'font :glyph_info)
 	;inputs
-	;r0 = font object (ptr)
-	;r1 = utf8 encoded str object (ptr)
+	;:r0 = font object (ptr)
+	;:r1 = utf8 encoded str object (ptr)
 	;outputs
-	;r0 = font object (ptr)
-	;r1 = glyph info array object (ptr)
+	;:r0 = font object (ptr)
+	;:r1 = glyph info array object (ptr)
 	;trashes
-	;r1-r8
+	;:r1-:r8
 
-	(vp-def (this utf8 info data c) '(r6 r7 r8 r7 r1))
+	(vp-def (this utf8 info data c) '(:r6 :r7 :r8 :r7 :r1))
 
 	(entry 'font :glyph_info `(,this ,utf8))
 
@@ -271,14 +271,14 @@
 
 (def-method 'font :glyph_bounds)
 	;inputs
-	;r0 = font object (ptr)
-	;r1 = glyph info array object (ptr)
+	;:r0 = font object (ptr)
+	;:r1 = glyph info array object (ptr)
 	;outputs
-	;r0 = font object (ptr)
-	;r1 = width (pixels)
-	;r2 = height (pixels)
+	;:r0 = font object (ptr)
+	;:r1 = width (pixels)
+	;:r2 = height (pixels)
 	;trashes
-	;r1-r7
+	;:r1-:r7
 
 	(vp-def (this w h gap gw iter_begin iter_end info))
 
@@ -320,16 +320,16 @@
 
 (def-method 'font :glyph_paths)
 	;inputs
-	;r0 = font object (ptr)
-	;r1 = stack array object (ptr)
-	;r2 = glyph info array object (ptr)
+	;:r0 = font object (ptr)
+	;:r1 = stack array object (ptr)
+	;:r2 = glyph info array object (ptr)
 	;outputs
-	;r0 = font object (ptr)
-	;r1 = glyph paths list object (ptr)
-	;r2 = width (pixels)
-	;r3 = height (pixels)
+	;:r0 = font object (ptr)
+	;:r1 = glyph paths list object (ptr)
+	;:r2 = width (pixels)
+	;:r3 = height (pixels)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
 	(defun trans_xy (rx ry)
 		(vp-add-rr ox rx)
@@ -422,13 +422,13 @@
 
 (def-method 'font :sym_texture)
 	;inputs
-	;r0 = font object (ptr)
-	;r1 = utf8 encoded sym object (ptr)
+	;:r0 = font object (ptr)
+	;:r1 = utf8 encoded sym object (ptr)
 	;outputs
-	;r0 = font object (ptr)
-	;r1 = 0, else texture object (ptr)
+	;:r0 = font object (ptr)
+	;:r1 = 0, else texture object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
 	(def-vars
 		(ptr this sym txt sym_canvas paths info)
@@ -485,12 +485,12 @@
 
 (def-method 'font :ascii_textures)
 	;inputs
-	;r0 = font object (ptr)
+	;:r0 = font object (ptr)
 	;outputs
-	;r0 = font object (ptr)
-	;r1 = list of ascii texture objects (ptr)
+	;:r0 = font object (ptr)
+	;:r1 = list of ascii texture objects (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
 	(def-vars
 		(ptr this sym txt chars)
@@ -531,7 +531,7 @@
 
 (def-method 'font :flush)
 	;trashes
-	;r0-r14
+	;:r0-:r14
 
 	(def-vars
 		(ptr font new_map flat_set tmp)
@@ -568,28 +568,28 @@
 
 (vp-label 'flush_callback)
 	;inputs
-	;r0 = predicate data (ptr)
-	;r1 = element iterator (pptr)
+	;:r0 = predicate data (ptr)
+	;:r1 = element iterator (pptr)
 	;outputs
-	;r1 = 0 if break, else not
+	;:r1 = 0 if break, else not
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
-	(assign '((r1 0) (r1 +ptr_size)) '(r1 r2))
-	(assign '((r2 obj_count)) '(r3))
+	(assign '((:r1 0) (:r1 +ptr_size)) '(:r1 :r2))
+	(assign '((:r2 obj_count)) '(:r3))
 	(switch)
-	(vpcase '(r3 /= 1))
-		(class/obj/ref r1 r3)
-		(class/obj/ref r2 r3)
-		(vp-push r1 r2)
-		(call 'hmap :get_bucket '(r0 r1) '(_ r0))
-		(vp-pop r1 r2)
-		(jump 'list :push_back2 '(r0 r1 r2))
+	(vpcase '(:r3 /= 1))
+		(class/obj/ref :r1 :r3)
+		(class/obj/ref :r2 :r3)
+		(vp-push :r1 :r2)
+		(call 'hmap :get_bucket '(:r0 :r1) '(_ :r0))
+		(vp-pop :r1 :r2)
+		(jump 'list :push_back2 '(:r0 :r1 :r2))
 	(default)
-		(fn-bind 'sys/statics/statics r0)
-		(assign '((r0 statics_font_count)) '(r2))
-		(vp-sub-cr 1 r2)
-		(assign '(r2) '((r0 statics_font_count)))
+		(fn-bind 'sys/statics/statics :r0)
+		(assign '((:r0 statics_font_count)) '(:r2))
+		(vp-sub-cr 1 :r2)
+		(assign '(:r2) '((:r0 statics_font_count)))
 	(endif)
 	(vp-ret)
 

@@ -6,17 +6,17 @@
 
 (def-method 'canvas :ftri)
 	;inputs
-	;r0 = canvas object (ptr)
-	;r1 = x0 (fixed)
-	;r2 = y0 (fixed)
-	;r3 = x1 (fixed)
-	;r4 = y1 (fixed)
-	;r5 = x2 (fixed)
-	;r6 = y2 (fixed)
+	;:r0 = canvas object (ptr)
+	;:r1 = x0 (fixed)
+	;:r2 = y0 (fixed)
+	;:r3 = x1 (fixed)
+	;:r4 = y1 (fixed)
+	;:r5 = x2 (fixed)
+	;:r6 = y2 (fixed)
 	;outputs
-	;r0 = canvas object (ptr)
+	;:r0 = canvas object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
 	(def-vars
 		(ptr this)
@@ -111,17 +111,17 @@
 
 (def-method 'canvas :ftri)
 	;inputs
-	;r0 = canvas object (ptr)
-	;r1 = x0 (fixed)
-	;r2 = y0 (fixed)
-	;r3 = x1 (fixed)
-	;r4 = y1 (fixed)
-	;r5 = x2 (fixed)
-	;r6 = y2 (fixed)
+	;:r0 = canvas object (ptr)
+	;:r1 = x0 (fixed)
+	;:r2 = y0 (fixed)
+	;:r3 = x1 (fixed)
+	;:r4 = y1 (fixed)
+	;:r5 = x2 (fixed)
+	;:r6 = y2 (fixed)
 	;outputs
-	;r0 = canvas object (ptr)
+	;:r0 = canvas object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
 	(def-vars
 		(ptr this)
@@ -182,25 +182,25 @@
 		(assign (list c0 c1 c2 by) {c0, c1, c2, by})
 
 		;recip of a terms
-		(vp-def (a0 a1 a2) '(r3 r4 r5))
+		(vp-def (a0 a1 a2) '(:r3 :r4 :r5))
 		(assign {a0, a1, a2} (list a0 a1 a2))
 		(vpif (list a0 '/= 0))
-			(vp-cpy-cr (<< -1 (* +fp_shift 2)) r0)
-			(vp-cpy-cr -1 r2)
-			(vp-div-rrr a0 r2 r0)
-			(assign '(r0) {a0})
+			(vp-cpy-cr (<< -1 (* +fp_shift 2)) :r0)
+			(vp-cpy-cr -1 :r2)
+			(vp-div-rrr a0 :r2 :r0)
+			(assign '(:r0) {a0})
 		(endif)
 		(vpif (list a1 '/= 0))
-			(vp-cpy-cr (<< -1 (* +fp_shift 2)) r0)
-			(vp-cpy-cr -1 r2)
-			(vp-div-rrr a1 r2 r0)
-			(assign '(r0) {a1})
+			(vp-cpy-cr (<< -1 (* +fp_shift 2)) :r0)
+			(vp-cpy-cr -1 :r2)
+			(vp-div-rrr a1 :r2 :r0)
+			(assign '(:r0) {a1})
 		(endif)
 		(vpif (list a2 '/= 0))
-			(vp-cpy-cr (<< -1 (* +fp_shift 2)) r0)
-			(vp-cpy-cr -1 r2)
-			(vp-div-rrr a2 r2 r0)
-			(assign '(r0) {a2})
+			(vp-cpy-cr (<< -1 (* +fp_shift 2)) :r0)
+			(vp-cpy-cr -1 :r2)
+			(vp-div-rrr a2 :r2 :r0)
+			(assign '(:r0) {a2})
 		(endif)
 
 		(vp-def (this bx1 x0 by c0 bx by1 x1 x2 c1 c2 i0 i1 i2) (method-input 'canvas :span_noclip))

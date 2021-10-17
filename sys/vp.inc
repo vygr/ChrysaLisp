@@ -63,15 +63,13 @@
 ; VP Instructions
 ;;;;;;;;;;;;;;;;;
 
-(each (# (defcvar %0 %1) (defcvar %1 %1))
-	'(:0 :1 :2 :3 :4 :5 :6 :7 :8 :9 :10 :11 :12 :13 :14 :sp)
-	'(r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14 rsp))
+(each (# (defcvar %0 %0)) '(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14 :rsp))
 
 (defmacro vp-def (_ &optional l)
 	(if (> (length (defq v (filter (lambda (_)
 			(and (def? _ *compile_env*) (not (find _ *func_syms*)))) _))) 0)
 		(throw "VP redefine !" v))
-	(defq v '(r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14))
+	(defq v '(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14))
 	(setq l (apply cat (map (lambda (x y)
 		(list (list 'quote x) y)) _ (if l (merge-obj (cat (eval l)) v) v))))
 	`(progn (defcvar ~l) (apply push (cat (list *func_syms*) ',_))))
@@ -83,9 +81,7 @@
 	(if (setq _ (find-rev (elem 0 _) "bBsSiI"))
 		(elem _ '(b ub s us i ui)) ""))
 
-(defun vpreg? (_)
-	(or (find _ '(:0 :1 :2 :3 :4 :5 :6 :7 :8 :9 :10 :11 :12 :13 :14 :sp))
-		(find _ '(r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14 rsp))))
+(defun vpreg? (_) (find _ '(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14 :rsp)))
 
 (defun vp-type (o)
 	(case (pop (type-of o))
@@ -128,6 +124,7 @@
 (defun vp-short (&rest b) (emit (cat '(emit-short) b)))
 (defun vp-int (&rest b) (emit (cat '(emit-int) b)))
 (defun vp-long (&rest b) (emit (cat '(emit-long) b)))
+(defun vp-cstr (s) (vp-string s)(vp-byte 0))
 
 (defmacro vp-bcr (_)
 	`(defun ,(sym (cat "vp-" _ "-cr")) (c d l)

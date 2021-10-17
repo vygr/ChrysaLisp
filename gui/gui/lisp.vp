@@ -10,81 +10,81 @@
 
 (def-method 'gui :lisp_init)
 	;inputs
-	;r0 = lisp object (ptr)
-	;r1 = args list object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
 	;outputs
-	;r0 = lisp object (ptr)
-	;r1 = return value object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
-	(entry 'gui :lisp_init '(r0 r1))
+	(entry 'gui :lisp_init '(:r0 :r1))
 
 (errorcases
-	(call 'lisp :env_args_sig '(r1 ($ sig) 1) '(r2))
-	(gotoif '(r2 = 0) 'error))
+	(call 'lisp :env_args_sig '(:r1 ($ sig) 1) '(:r2))
+	(gotoif '(:r2 = 0) 'error))
 
-	(list-bind-args r1 '(r1) '(:view))
-	(vp-push r0 r1)
+	(list-bind-args :r1 '(:r1) '(:view))
+	(vp-push :r0 :r1)
 
 	;save background view for screen
-	(fn-bind 'sys/statics/statics r0)
-	(class/obj/ref r1 r2)
-	(assign '(r1) '((r0 statics_gui_screen)))
+	(fn-bind 'sys/statics/statics :r0)
+	(class/obj/ref :r1 :r2)
+	(assign '(:r1) '((:r0 statics_gui_screen)))
 	;init region heap
-	(call 'sys_heap :init '((& r0 statics_gui_rect_heap) rect_size 32))
+	(call 'sys_heap :init '((& :r0 statics_gui_rect_heap) rect_size 32))
 	;temp objects
-	(call 'list :create nil '(r0))
-	(fn-bind 'sys/statics/statics r1)
-	(assign '(r0) '((r1 statics_gui_temps)))
+	(call 'list :create nil '(:r0))
+	(fn-bind 'sys/statics/statics :r1)
+	(assign '(:r0) '((:r1 statics_gui_temps)))
 	;fill in lisp object tls for kernel :lisp_draw callbacks !!!
-	(assign '((r1 statics_sys_task_current_tcb) (r1 statics_sys_task_kernel_tcb)) '(r2 r3))
-	(assign '((r2 tk_node_lisp)) '(r2))
-	(assign '(r2) '((r3 tk_node_lisp)))
+	(assign '((:r1 statics_sys_task_current_tcb) (:r1 statics_sys_task_kernel_tcb)) '(:r2 :r3))
+	(assign '((:r2 tk_node_lisp)) '(:r2))
+	(assign '(:r2) '((:r3 tk_node_lisp)))
 	;gui priority
 	(call 'sys_task :set_priority '(2))
 
-	(vp-pop r0 r1)
-	(class/obj/ref r1 r2)
+	(vp-pop :r0 :r1)
+	(class/obj/ref :r1 :r2)
 
-	(exit 'gui :lisp_init '(r0 r1))
+	(exit 'gui :lisp_init '(:r0 :r1))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(r0 "(gui-init screen)" error_msg_wrong_types r1))
+	(jump 'lisp :repl_error '(:r0 "(gui-init screen)" error_msg_wrong_types :r1))
 	(signature '(view)))
 
 (def-func-end)
 
 (def-method 'gui :lisp_deinit 16)
 	;inputs
-	;r0 = lisp object (ptr)
-	;r1 = args list object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
 	;outputs
-	;r0 = lisp object (ptr)
-	;r1 = return value object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
 	(def-struct local 0
 		(ptr this old_stack))
 
 	(vp-alloc local_size)
-	(entry 'gui :lisp_deinit '(r0 r1))
+	(entry 'gui :lisp_deinit '(:r0 :r1))
 
 (errorcases
-	(assign '((r1 array_length)) '(r2))
-	(gotoif '(r2 /= 0) 'error))
+	(assign '((:r1 array_length)) '(:r2))
+	(gotoif '(:r2 /= 0) 'error))
 
 	;kernel callback for deinit
-	(assign '(r0) '((rsp local_this)))
-	(call 'sys_task :callback '(rsp ($ deinit_callback)))
-	(assign '((rsp local_this)) '(r0))
-	(assign '((r0 lisp_sym_nil)) '(r1))
-	(class/obj/ref r1 r2)
+	(assign '(:r0) '((:rsp local_this)))
+	(call 'sys_task :callback '(:rsp ($ deinit_callback)))
+	(assign '((:rsp local_this)) '(:r0))
+	(assign '((:r0 lisp_sym_nil)) '(:r1))
+	(class/obj/ref :r1 :r2)
 
-	(exit 'gui :lisp_deinit '(r0 r1))
+	(exit 'gui :lisp_deinit '(:r0 :r1))
 	(vp-free local_size)
 	(vp-ret)
 
@@ -92,110 +92,110 @@
 		(ptr user old_stack))
 
 (vp-label 'deinit_callback)
-	(vp-cpy-rr rsp r1)
+	(vp-cpy-rr :rsp :r1)
 	(vp-alloc local2_size)
-	(vp-and-cr -16 rsp)
-	(assign '(r0 r1) '((rsp local2_user) (rsp local2_old_stack)))
+	(vp-and-cr -16 :rsp)
+	(assign '(:r0 :r1) '((:rsp local2_user) (:rsp local2_old_stack)))
 
 	;free any screen
-	(fn-bind 'sys/statics/statics r1)
-	(assign '((r1 statics_gui_screen)) '(r0))
-	(vpif '(r0 /= 0))
-		(vp-xor-rr r2 r2)
-		(assign '(r2) '((r1 statics_gui_screen)))
-		(call 'view :deref '(r0))
+	(fn-bind 'sys/statics/statics :r1)
+	(assign '((:r1 statics_gui_screen)) '(:r0))
+	(vpif '(:r0 /= 0))
+		(vp-xor-rr :r2 :r2)
+		(assign '(:r2) '((:r1 statics_gui_screen)))
+		(call 'view :deref '(:r0))
 	(endif)
 
 	;destroy any window
-	(fn-bind 'sys/statics/statics r1)
-	(assign '((r1 statics_gui_window)) '(r0))
-	(vpif '(r0 /= 0))
-		(host-gui-call 'host_gui :sdl_destroy_window '(r0))
+	(fn-bind 'sys/statics/statics :r1)
+	(assign '((:r1 statics_gui_window)) '(:r0))
+	(vpif '(:r0 /= 0))
+		(host-gui-call 'host_gui :sdl_destroy_window '(:r0))
 		(host-gui-call 'host_gui :sdl_quit)
 	(endif)
 
 	;free old regions and deinit region heap
-	(fn-bind 'sys/statics/statics r0)
-	(assign '((& r0 statics_gui_old_regions)) '(r1))
-	(assign '((& r1 (* num_old_regions +ptr_size))) '(r2))
-	(loop-while '(r1 /= r2))
-		(vp-push r1 r2)
-		(fn-bind 'sys/statics/statics r0)
-		(call 'region :free '((& r0 statics_gui_rect_heap) r1))
-		(vp-pop r1 r2)
-		(vp-add-cr +ptr_size r1)
+	(fn-bind 'sys/statics/statics :r0)
+	(assign '((& :r0 statics_gui_old_regions)) '(:r1))
+	(assign '((& :r1 (* num_old_regions +ptr_size))) '(:r2))
+	(loop-while '(:r1 /= :r2))
+		(vp-push :r1 :r2)
+		(fn-bind 'sys/statics/statics :r0)
+		(call 'region :free '((& :r0 statics_gui_rect_heap) :r1))
+		(vp-pop :r1 :r2)
+		(vp-add-cr +ptr_size :r1)
 	(loop-end)
-	(fn-bind 'sys/statics/statics r0)
-	(call 'sys_heap :deinit '((& r0 statics_gui_rect_heap)))
+	(fn-bind 'sys/statics/statics :r0)
+	(call 'sys_heap :deinit '((& :r0 statics_gui_rect_heap)))
 
-	(assign '((rsp local2_old_stack)) '(rsp))
+	(assign '((:rsp local2_old_stack)) '(:rsp))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(r0 "(gui-deinit)" error_msg_wrong_types r1)))
+	(jump 'lisp :repl_error '(:r0 "(gui-deinit)" error_msg_wrong_types :r1)))
 
 (def-func-end)
 
 (def-method 'gui :lisp_update)
 	;inputs
-	;r0 = lisp object (ptr)
-	;r1 = args list object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
 	;outputs
-	;r0 = lisp object (ptr)
-	;r1 = return value object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
-	(entry 'gui :lisp_update '(r0 r1))
+	(entry 'gui :lisp_update '(:r0 :r1))
 
 (errorcases
-	(call 'lisp :env_args_sig '(r1 ($ sig) 3) '(r2))
-	(gotoif '(r2 = 0) 'error))
+	(call 'lisp :env_args_sig '(:r1 ($ sig) 3) '(:r2))
+	(gotoif '(:r2 = 0) 'error))
 
-	(list-bind-args r1 '(r3 r1 r2) '(:num :num :num))
-	(vp-push r0)
-	(call 'gui :update '(r3 r1 r2))
-	(vp-pop r0)
-	(assign '((r0 lisp_sym_nil)) '(r1))
-	(class/obj/ref r1 r2)
+	(list-bind-args :r1 '(:r3 :r1 :r2) '(:num :num :num))
+	(vp-push :r0)
+	(call 'gui :update '(:r3 :r1 :r2))
+	(vp-pop :r0)
+	(assign '((:r0 lisp_sym_nil)) '(:r1))
+	(class/obj/ref :r1 :r2)
 
-	(exit 'gui :lisp_update '(r0 r1))
+	(exit 'gui :lisp_update '(:r0 :r1))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(r0 "(gui-update mx my flags)" error_msg_wrong_types r1))
+	(jump 'lisp :repl_error '(:r0 "(gui-update mx my flags)" error_msg_wrong_types :r1))
 	(signature '(num num num)))
 
 (def-func-end)
 
 (def-method 'gui :lisp_event 16)
 	;inputs
-	;r0 = lisp object (ptr)
-	;r1 = args list object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
 	;outputs
-	;r0 = lisp object (ptr)
-	;r1 = return value object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
 	(def-struct local 0
 		(ptr this event old_stack))
 
 	(vp-alloc local_size)
-	(entry 'gui :lisp_event '(r0 r1))
+	(entry 'gui :lisp_event '(:r0 :r1))
 
 (errorcases
-	(assign '((r1 array_length)) '(r2))
-	(gotoif '(r2 /= 0) 'error))
+	(assign '((:r1 array_length)) '(:r2))
+	(gotoif '(:r2 /= 0) 'error))
 
 	;kernel callback for event
-	(assign '(r0) '((rsp local_this)))
-	(call 'sys_task :callback '(rsp ($ event_callback)))
-	(assign '((rsp local_this) (rsp local_event)) '(r0 r1))
+	(assign '(:r0) '((:rsp local_this)))
+	(call 'sys_task :callback '(:rsp ($ event_callback)))
+	(assign '((:rsp local_this) (:rsp local_event)) '(:r0 :r1))
 
-	(exit 'gui :lisp_event '(r0 r1))
+	(exit 'gui :lisp_event '(:r0 :r1))
 	(vp-free local_size)
 	(vp-ret)
 
@@ -203,82 +203,82 @@
 		(ptr user old_stack))
 
 (vp-label 'event_callback)
-	(vp-cpy-rr rsp r1)
+	(vp-cpy-rr :rsp :r1)
 	(vp-alloc local1_size)
-	(vp-and-cr -16 rsp)
-	(assign '(r0 r1) '((rsp local1_user) (rsp local1_old_stack)))
+	(vp-and-cr -16 :rsp)
+	(assign '(:r0 :r1) '((:rsp local1_user) (:rsp local1_old_stack)))
 
-	(host-gui-call 'host_gui :sdl_poll_event '(0) '(r0))
-	(vp-shl-cr 32 r0)
-	(vp-shr-cr 32 r0)
-	(vpif '(r0 /= 0))
-		(call 'str :create_from_buffer '(0 256) '(r0))
-		(assign '((rsp local1_user)) '(r1))
-		(assign '(r0) '((r1 local_event)))
-		(host-gui-call 'host_gui :sdl_poll_event '((& r0 str_data)))
+	(host-gui-call 'host_gui :sdl_poll_event '(0) '(:r0))
+	(vp-shl-cr 32 :r0)
+	(vp-shr-cr 32 :r0)
+	(vpif '(:r0 /= 0))
+		(call 'str :create_from_buffer '(0 256) '(:r0))
+		(assign '((:rsp local1_user)) '(:r1))
+		(assign '(:r0) '((:r1 local_event)))
+		(host-gui-call 'host_gui :sdl_poll_event '((& :r0 str_data)))
 	(else)
-		(assign '((rsp local1_user)) '(r0))
-		(assign '((r0 local_this)) '(r1))
-		(assign '((r1 lisp_sym_nil)) '(r1))
-		(class/obj/ref r1 r2)
-		(assign '(r1) '((r0 local_event)))
+		(assign '((:rsp local1_user)) '(:r0))
+		(assign '((:r0 local_this)) '(:r1))
+		(assign '((:r1 lisp_sym_nil)) '(:r1))
+		(class/obj/ref :r1 :r2)
+		(assign '(:r1) '((:r0 local_event)))
 	(endif)
-	(assign '((rsp local1_old_stack)) '(rsp))
+	(assign '((:rsp local1_old_stack)) '(:rsp))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(r0 "(gui-event)" error_msg_wrong_types r1)))
+	(jump 'lisp :repl_error '(:r0 "(gui-event)" error_msg_wrong_types :r1)))
 
 (def-func-end)
 
 (def-method 'gui :lisp_info)
 	;inputs
-	;r0 = lisp object (ptr)
-	;r1 = args list object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
 	;outputs
-	;r0 = lisp object (ptr)
-	;r1 = return value object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
-	(entry 'gui :lisp_info '(r0 r1))
+	(entry 'gui :lisp_info '(:r0 :r1))
 
 (errorcases
-	(assign '((r1 array_length)) '(r2))
-	(gotoif '(r2 /= 0) 'error))
+	(assign '((:r1 array_length)) '(:r2))
+	(gotoif '(:r2 /= 0) 'error))
 
-	(vp-push r0)
-	(fn-bind 'sys/statics/statics r1)
-	(assign '((r1 statics_sys_load_host_gui_funcs)) '(r1))
-	(vpif '(r1 /= 0))
+	(vp-push :r0)
+	(fn-bind 'sys/statics/statics :r1)
+	(assign '((:r1 statics_sys_load_host_gui_funcs)) '(:r1))
+	(vpif '(:r1 /= 0))
 		;we are GUI caperble
-		(fn-bind 'sys/statics/statics r1)
-		(assign '((r1 statics_gui_screen)) '(r1))
-		(assign '(0 0 0 0) '(r7 r8 r9 r10))
-		(vpif '(r1 /= 0))
+		(fn-bind 'sys/statics/statics :r1)
+		(assign '((:r1 statics_gui_screen)) '(:r1))
+		(assign '(0 0 0 0) '(:r7 :r8 :r9 :r10))
+		(vpif '(:r1 /= 0))
 			;have screen
-			(fn-bind 'sys/statics/statics r0)
-			(assign '((r1 view_w) (r1 view_h)) '(r9 r10))
-			(assign '((r0 statics_gui_mouse_x) (r0 statics_gui_mouse_y)) '(r7 r8))
+			(fn-bind 'sys/statics/statics :r0)
+			(assign '((:r1 view_w) (:r1 view_h)) '(:r9 :r10))
+			(assign '((:r0 statics_gui_mouse_x) (:r0 statics_gui_mouse_y)) '(:r7 :r8))
 		(endif)
-		(call 'list :create nil '(r11))
-		(call 'num :create '(r7) '(r7))
-		(call 'num :create '(r8) '(r8))
-		(call 'num :create '(r9) '(r9))
-		(call 'num :create '(r10) '(r10))
-		(call 'list :push_back2 '(r11 r7 r8) '(r0 _ _ _ _))
-		(call 'list :push_back2 '(r0 r9 r10) '(r1 _ _ _ _))
+		(call 'list :create nil '(:r11))
+		(call 'num :create '(:r7) '(:r7))
+		(call 'num :create '(:r8) '(:r8))
+		(call 'num :create '(:r9) '(:r9))
+		(call 'num :create '(:r10) '(:r10))
+		(call 'list :push_back2 '(:r11 :r7 :r8) '(:r0 _ _ _ _))
+		(call 'list :push_back2 '(:r0 :r9 :r10) '(:r1 _ _ _ _))
 	(else)
-		(call 'obj :ref '((r0 lisp_sym_nil)) '(r1))
+		(call 'obj :ref '((:r0 lisp_sym_nil)) '(:r1))
 	(endif)
-	(vp-pop r0)
+	(vp-pop :r0)
 
-	(exit 'gui :lisp_info '(r0 r1))
+	(exit 'gui :lisp_info '(:r0 :r1))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(r0 "(gui-info)" error_msg_wrong_types r1)))
+	(jump 'lisp :repl_error '(:r0 "(gui-info)" error_msg_wrong_types :r1)))
 
 (def-func-end)

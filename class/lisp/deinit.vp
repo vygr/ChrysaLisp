@@ -3,11 +3,11 @@
 
 (def-method 'lisp :deinit)
 	;inputs
-	;r0 = lisp object (ptr)
+	;:r0 = lisp object (ptr)
 	;outputs
-	;r0 = lisp object (ptr)
+	;:r0 = lisp object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
 	(def-vars
 		(ptr this)

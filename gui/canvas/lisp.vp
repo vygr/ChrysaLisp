@@ -8,411 +8,411 @@
 
 (def-method 'canvas :lisp_create)
 	;inputs
-	;r0 = lisp object (ptr)
-	;r1 = args list object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
 	;outputs
-	;r0 = lisp object (ptr)
-	;r1 = return value object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
-	(entry 'canvas :lisp_create '(r0 r1))
+	(entry 'canvas :lisp_create '(:r0 :r1))
 
 (errorcases
-	(call 'lisp :env_args_sig '(r1 ($ sig) 3) '(r2))
-	(gotoif '(r2 = 0) 'error))
+	(call 'lisp :env_args_sig '(:r1 ($ sig) 3) '(:r2))
+	(gotoif '(:r2 = 0) 'error))
 
-	(vp-push r0)
+	(vp-push :r0)
 	(defq in (method-input 'canvas :create))
-	(list-bind-args r1 in '(:num :num :num))
-	(call 'canvas :create in '(r1))
-	(vp-pop r0)
+	(list-bind-args :r1 in '(:num :num :num))
+	(call 'canvas :create in '(:r1))
+	(vp-pop :r0)
 
-	(exit 'canvas :lisp_create '(r0 r1))
+	(exit 'canvas :lisp_create '(:r0 :r1))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(r0 "(create-canvas width height scale)" error_msg_wrong_types r1))
+	(jump 'lisp :repl_error '(:r0 "(create-canvas width height scale)" error_msg_wrong_types :r1))
 	(signature '(num num num)))
 
 (def-func-end)
 
 (def-method 'canvas :lisp_create_pixmap)
 	;inputs
-	;r0 = lisp object (ptr)
-	;r1 = args list object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
 	;outputs
-	;r0 = lisp object (ptr)
-	;r1 = return value object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
-	(entry 'canvas :lisp_create_pixmap '(r0 r1))
+	(entry 'canvas :lisp_create_pixmap '(:r0 :r1))
 
 (errorcases
-	(call 'lisp :env_args_sig '(r1 ($ sig) 1) '(r2))
-	(gotoif '(r2 = 0) 'error))
+	(call 'lisp :env_args_sig '(:r1 ($ sig) 1) '(:r2))
+	(gotoif '(:r2 = 0) 'error))
 
-	(vp-push r0)
+	(vp-push :r0)
 	(defq in (method-input 'canvas :create_pixmap))
-	(list-bind-args r1 in '(:pixmap))
-	(call 'canvas :create_pixmap in '(r1))
-	(vp-pop r0)
+	(list-bind-args :r1 in '(:pixmap))
+	(call 'canvas :create_pixmap in '(:r1))
+	(vp-pop :r0)
 
-	(exit 'canvas :lisp_create_pixmap '(r0 r1))
+	(exit 'canvas :lisp_create_pixmap '(:r0 :r1))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(r0 "(create-canvas-pixmap pixmap)" error_msg_wrong_types r1))
+	(jump 'lisp :repl_error '(:r0 "(create-canvas-pixmap pixmap)" error_msg_wrong_types :r1))
 	(signature '(pixmap)))
 
 (def-func-end)
 
 (def-method 'canvas :lisp_fill)
 	;inputs
-	;r0 = lisp object (ptr)
-	;r1 = args list object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
 	;outputs
-	;r0 = lisp object (ptr)
-	;r1 = return value object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
-	(entry 'canvas :lisp_fill '(r0 r1))
+	(entry 'canvas :lisp_fill '(:r0 :r1))
 
 (errorcases
-	(call 'lisp :env_args_sig '(r1 ($ sig) 2) '(r2))
-	(gotoif '(r2 = 0) 'error))
+	(call 'lisp :env_args_sig '(:r1 ($ sig) 2) '(:r2))
+	(gotoif '(:r2 = 0) 'error))
 
-	(vp-push r0)
+	(vp-push :r0)
 	(defq in (method-input 'pixmap :fill))
-	(list-bind-args r1 in '(:canvas :num))
+	(list-bind-args :r1 in '(:canvas :num))
 	(vp-push (elem 0 in))
 	(assign `((,(elem 0 in) canvas_pixmap)) `(,(elem 0 in)))
 	(call 'pixmap :fill in)
-	(vp-pop r1)
-	(class/obj/ref r1 r2)
-	(vp-pop r0)
+	(vp-pop :r1)
+	(class/obj/ref :r1 :r2)
+	(vp-pop :r0)
 
-	(exit 'canvas :lisp_fill '(r0 r1))
+	(exit 'canvas :lisp_fill '(:r0 :r1))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(r0 "(canvas-fill canvas argb)" error_msg_wrong_types r1))
+	(jump 'lisp :repl_error '(:r0 "(canvas-fill canvas argb)" error_msg_wrong_types :r1))
 	(signature '(canvas num)))
 
 (def-func-end)
 
 (def-method 'canvas :lisp_swap)
 	;inputs
-	;r0 = lisp object (ptr)
-	;r1 = args list object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
 	;outputs
-	;r0 = lisp object (ptr)
-	;r1 = return value object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
-	(entry 'canvas :lisp_swap '(r0 r1))
+	(entry 'canvas :lisp_swap '(:r0 :r1))
 
 (errorcases
-	(call 'lisp :env_args_sig '(r1 ($ sig) 1) '(r2))
-	(gotoif '(r2 = 0) 'error))
+	(call 'lisp :env_args_sig '(:r1 ($ sig) 1) '(:r2))
+	(gotoif '(:r2 = 0) 'error))
 
-	(vp-push r0)
+	(vp-push :r0)
 	(defq in (method-input 'canvas :swap))
-	(list-bind-args r1 in '(:canvas))
-	(call 'canvas :swap in '(r0))
-	(call 'obj :ref '(r0) '(r1))
-	(vp-pop r0)
+	(list-bind-args :r1 in '(:canvas))
+	(call 'canvas :swap in '(:r0))
+	(call 'obj :ref '(:r0) '(:r1))
+	(vp-pop :r0)
 
-	(exit 'canvas :lisp_swap '(r0 r1))
+	(exit 'canvas :lisp_swap '(:r0 :r1))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(r0 "(canvas-swap canvas)" error_msg_wrong_types r1))
+	(jump 'lisp :repl_error '(:r0 "(canvas-swap canvas)" error_msg_wrong_types :r1))
 	(signature '(canvas)))
 
 (def-func-end)
 
 (def-method 'canvas :lisp_next_frame)
 	;inputs
-	;r0 = lisp object (ptr)
-	;r1 = args list object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
 	;outputs
-	;r0 = lisp object (ptr)
-	;r1 = return value object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
 	(def-struct local 0
 		(ptr this canvas))
 
 	(vp-alloc local_size)
-	(entry 'canvas :lisp_next_frame '(r0 r1))
+	(entry 'canvas :lisp_next_frame '(:r0 :r1))
 
 (errorcases
-	(call 'lisp :env_args_sig '(r1 ($ sig) 1) '(r2))
-	(gotoif '(r2 = 0) 'error))
+	(call 'lisp :env_args_sig '(:r1 ($ sig) 1) '(:r2))
+	(gotoif '(:r2 = 0) 'error))
 
-	(assign '(r0) '((rsp local_this)))
-	(list-bind-args r1 '(r0) '(:canvas))
-	(assign '(r0 (r0 canvas_pixmap)) '((rsp local_canvas) r0))
-	(call 'pixmap :next_frame '(r0))
-	(assign '((rsp local_canvas)) '(r0))
-	(call 'canvas :swap '(r0) '(r1))
-	(class/obj/ref r1 r2)
+	(assign '(:r0) '((:rsp local_this)))
+	(list-bind-args :r1 '(:r0) '(:canvas))
+	(assign '(:r0 (:r0 canvas_pixmap)) '((:rsp local_canvas) :r0))
+	(call 'pixmap :next_frame '(:r0))
+	(assign '((:rsp local_canvas)) '(:r0))
+	(call 'canvas :swap '(:r0) '(:r1))
+	(class/obj/ref :r1 :r2)
 
-	(exit 'canvas :lisp_next_frame '((rsp local_this) r1))
+	(exit 'canvas :lisp_next_frame '((:rsp local_this) :r1))
 	(vp-free local_size)
 	(vp-ret)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(r0 "(canvas-next-frame canvas)" error_msg_wrong_types r1))
+	(jump 'lisp :repl_error '(:r0 "(canvas-next-frame canvas)" error_msg_wrong_types :r1))
 	(signature '(canvas)))
 
 (def-func-end)
 
 (def-method 'canvas :lisp_plot)
 	;inputs
-	;r0 = lisp object (ptr)
-	;r1 = args list object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
 	;outputs
-	;r0 = lisp object (ptr)
-	;r1 = return value object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
-	(entry 'canvas :lisp_plot '(r0 r1))
+	(entry 'canvas :lisp_plot '(:r0 :r1))
 
 (errorcases
-	(call 'lisp :env_args_sig '(r1 ($ sig) 3) '(r2))
-	(gotoif '(r2 = 0) 'error))
+	(call 'lisp :env_args_sig '(:r1 ($ sig) 3) '(:r2))
+	(gotoif '(:r2 = 0) 'error))
 
-	(vp-push r0)
+	(vp-push :r0)
 	(defq in (method-input 'canvas :plot))
-	(list-bind-args r1 in '(:canvas :num :num))
-	(call 'canvas :plot in '(r0))
-	(call 'obj :ref '(r0) '(r1))
-	(vp-pop r0)
+	(list-bind-args :r1 in '(:canvas :num :num))
+	(call 'canvas :plot in '(:r0))
+	(call 'obj :ref '(:r0) '(:r1))
+	(vp-pop :r0)
 
-	(exit 'canvas :lisp_plot '(r0 r1))
+	(exit 'canvas :lisp_plot '(:r0 :r1))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(r0 "(canvas-plot canvas x y)" error_msg_wrong_types r1))
+	(jump 'lisp :repl_error '(:r0 "(canvas-plot canvas x y)" error_msg_wrong_types :r1))
 	(signature '(canvas num num)))
 
 (def-func-end)
 
 (def-method 'canvas :lisp_fbox)
 	;inputs
-	;r0 = lisp object (ptr)
-	;r1 = args list object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
 	;outputs
-	;r0 = lisp object (ptr)
-	;r1 = return value object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
-	(entry 'canvas :lisp_fbox '(r0 r1))
+	(entry 'canvas :lisp_fbox '(:r0 :r1))
 
 (errorcases
-	(call 'lisp :env_args_sig '(r1 ($ sig) 5) '(r2))
-	(gotoif '(r2 = 0) 'error))
+	(call 'lisp :env_args_sig '(:r1 ($ sig) 5) '(:r2))
+	(gotoif '(:r2 = 0) 'error))
 
-	(vp-push r0)
+	(vp-push :r0)
 	(defq in (method-input 'canvas :fbox))
-	(list-bind-args r1 in '(:canvas :num :num :num :num))
-	(call 'canvas :fbox in '(r0))
-	(call 'obj :ref '(r0) '(r1))
-	(vp-pop r0)
+	(list-bind-args :r1 in '(:canvas :num :num :num :num))
+	(call 'canvas :fbox in '(:r0))
+	(call 'obj :ref '(:r0) '(:r1))
+	(vp-pop :r0)
 
-	(exit 'canvas :lisp_fbox '(r0 r1))
+	(exit 'canvas :lisp_fbox '(:r0 :r1))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(r0 "(canvas-fbox canvas x y w h)" error_msg_wrong_types r1))
+	(jump 'lisp :repl_error '(:r0 "(canvas-fbox canvas x y w h)" error_msg_wrong_types :r1))
 	(signature '(canvas num num num num)))
 
 (def-func-end)
 
 (def-method 'canvas :lisp_fpoly)
 	;inputs
-	;r0 = lisp object (ptr)
-	;r1 = args list object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
 	;outputs
-	;r0 = lisp object (ptr)
-	;r1 = return value object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
-	(entry 'canvas :lisp_fpoly '(r0 r1))
+	(entry 'canvas :lisp_fpoly '(:r0 :r1))
 
 (errorcases
-	(call 'lisp :env_args_sig '(r1 ($ sig) 5) '(r2))
-	(gotoif '(r2 = 0) 'error))
+	(call 'lisp :env_args_sig '(:r1 ($ sig) 5) '(:r2))
+	(gotoif '(:r2 = 0) 'error))
 
-	(vp-push r0)
+	(vp-push :r0)
 	(defq in (method-input 'canvas :fpoly))
-	(list-bind-args r1 in '(:canvas :fixed :fixed :num :list))
-	(call 'canvas :fpoly in '(r0))
-	(call 'obj :ref '(r0) '(r1))
-	(vp-pop r0)
+	(list-bind-args :r1 in '(:canvas :fixed :fixed :num :list))
+	(call 'canvas :fpoly in '(:r0))
+	(call 'obj :ref '(:r0) '(:r1))
+	(vp-pop :r0)
 
-	(exit 'canvas :lisp_fpoly '(r0 r1))
+	(exit 'canvas :lisp_fpoly '(:r0 :r1))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(r0 "(canvas-fpoly canvas x y mode list)" error_msg_wrong_types r1))
+	(jump 'lisp :repl_error '(:r0 "(canvas-fpoly canvas x y mode list)" error_msg_wrong_types :r1))
 	(signature '(canvas fixed fixed num list)))
 
 (def-func-end)
 
 (def-method 'canvas :lisp_resize)
 	;inputs
-	;r0 = lisp object (ptr)
-	;r1 = args list object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
 	;outputs
-	;r0 = lisp object (ptr)
-	;r1 = return value object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
-	(entry 'canvas :lisp_resize '(r0 r1))
+	(entry 'canvas :lisp_resize '(:r0 :r1))
 
 (errorcases
-	(call 'lisp :env_args_sig '(r1 ($ sig) 2) '(r2))
-	(gotoif '(r2 = 0) 'error))
+	(call 'lisp :env_args_sig '(:r1 ($ sig) 2) '(:r2))
+	(gotoif '(:r2 = 0) 'error))
 
-	(vp-push r0)
+	(vp-push :r0)
 	(defq in (method-input 'pixmap :resize))
-	(list-bind-args r1 in '(:canvas :canvas))
+	(list-bind-args :r1 in '(:canvas :canvas))
 	(vp-push (elem 0 in))
 	(call 'pixmap :resize `((,(elem 0 in) canvas_pixmap) (,(elem 1 in) canvas_pixmap)))
-	(vp-pop r1)
-	(class/obj/ref r1 r2)
-	(vp-pop r0)
+	(vp-pop :r1)
+	(class/obj/ref :r1 :r2)
+	(vp-pop :r0)
 
-	(exit 'canvas :lisp_resize '(r0 r1))
+	(exit 'canvas :lisp_resize '(:r0 :r1))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(r0 "(canvas-resize canvas canvas)" error_msg_wrong_types r1))
+	(jump 'lisp :repl_error '(:r0 "(canvas-resize canvas canvas)" error_msg_wrong_types :r1))
 	(signature '(canvas canvas)))
 
 (def-func-end)
 
 (def-method 'canvas :lisp_to_argb32)
 	;inputs
-	;r0 = lisp object (ptr)
-	;r1 = args list object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
 	;outputs
-	;r0 = lisp object (ptr)
-	;r1 = return value object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
-	(entry 'canvas :lisp_to_argb32 '(r0 r1))
+	(entry 'canvas :lisp_to_argb32 '(:r0 :r1))
 
 (errorcases
-	(call 'lisp :env_args_sig '(r1 ($ sig) 2) '(r2))
-	(gotoif '(r2 = 0) 'error))
+	(call 'lisp :env_args_sig '(:r1 ($ sig) 2) '(:r2))
+	(gotoif '(:r2 = 0) 'error))
 
-	(vp-push r0)
+	(vp-push :r0)
 	(defq in (method-input 'pixmap :to_argb32))
-	(list-bind-args r1 in '(:num :num))
-	(call 'pixmap :to_argb32 in '(r0))
-	(call 'num :create '(r0) '(r1))
-	(vp-pop r0)
+	(list-bind-args :r1 in '(:num :num))
+	(call 'pixmap :to_argb32 in '(:r0))
+	(call 'num :create '(:r0) '(:r1))
+	(vp-pop :r0)
 
-	(exit 'canvas :lisp_to_argb32 '(r0 r1))
+	(exit 'canvas :lisp_to_argb32 '(:r0 :r1))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(r0 "(canvas-to-argb32 pixel type)" error_msg_wrong_types r1))
+	(jump 'lisp :repl_error '(:r0 "(canvas-to-argb32 pixel type)" error_msg_wrong_types :r1))
 	(signature '(num num)))
 
 (def-func-end)
 
 (def-method 'canvas :lisp_from_argb32)
 	;inputs
-	;r0 = lisp object (ptr)
-	;r1 = args list object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
 	;outputs
-	;r0 = lisp object (ptr)
-	;r1 = return value object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
-	(entry 'canvas :lisp_from_argb32 '(r0 r1))
+	(entry 'canvas :lisp_from_argb32 '(:r0 :r1))
 
 (errorcases
-	(call 'lisp :env_args_sig '(r1 ($ sig) 2) '(r2))
-	(gotoif '(r2 = 0) 'error))
+	(call 'lisp :env_args_sig '(:r1 ($ sig) 2) '(:r2))
+	(gotoif '(:r2 = 0) 'error))
 
-	(vp-push r0)
+	(vp-push :r0)
 	(defq in (method-input 'pixmap :from_argb32))
-	(list-bind-args r1 in '(:num :num))
-	(call 'pixmap :from_argb32 in '(r0))
-	(call 'num :create '(r0) '(r1))
-	(vp-pop r0)
+	(list-bind-args :r1 in '(:num :num))
+	(call 'pixmap :from_argb32 in '(:r0))
+	(call 'num :create '(:r0) '(:r1))
+	(vp-pop :r0)
 
-	(exit 'canvas :lisp_from_argb32 '(r0 r1))
+	(exit 'canvas :lisp_from_argb32 '(:r0 :r1))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(r0 "(canvas-from-argb32 pixel type)" error_msg_wrong_types r1))
+	(jump 'lisp :repl_error '(:r0 "(canvas-from-argb32 pixel type)" error_msg_wrong_types :r1))
 	(signature '(num num)))
 
 (def-func-end)
 
 (def-method 'canvas :lisp_ftri)
 	;inputs
-	;r0 = lisp object (ptr)
-	;r1 = args list object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
 	;outputs
-	;r0 = lisp object (ptr)
-	;r1 = return value object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
-	(entry 'canvas :lisp_ftri '(r0 r1))
+	(entry 'canvas :lisp_ftri '(:r0 :r1))
 
 (errorcases
-	(call 'lisp :env_args_sig '(r1 ($ sig) 2) '(r2))
-	(gotoif '(r2 = 0) 'error))
+	(call 'lisp :env_args_sig '(:r1 ($ sig) 2) '(:r2))
+	(gotoif '(:r2 = 0) 'error))
 
-	(vp-push r0)
-	(array-bind-args r1 '(r0 r13))
+	(vp-push :r0)
+	(array-bind-args :r1 '(:r0 :r13))
 (errorcases
-	(assign '((r13 array_length)) '(r2))
-	(gotoif '(r2 /= 6) 'error1))
+	(assign '((:r13 array_length)) '(:r2))
+	(gotoif '(:r2 /= 6) 'error1))
 	(defq in (method-input 'canvas :ftri))
-	(array-bind-args r13 (slice 1 -1 in))
-	(call 'canvas :ftri in '(r0))
-	(call 'obj :ref '(r0) '(r1))
-	(vp-pop r0)
+	(array-bind-args :r13 (slice 1 -1 in))
+	(call 'canvas :ftri in '(:r0))
+	(call 'obj :ref '(:r0) '(:r1))
+	(vp-pop :r0)
 
-	(exit 'canvas :lisp_ftri '(r0 r1))
+	(exit 'canvas :lisp_ftri '(:r0 :r1))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error1)
-	(vp-pop r0)
+	(vp-pop :r0)
 (vp-label 'error)
-	(jump 'lisp :repl_error '(r0 "(canvas-ftri canvas path)" error_msg_wrong_types r1))
+	(jump 'lisp :repl_error '(:r0 "(canvas-ftri canvas path)" error_msg_wrong_types :r1))
 	(signature '(canvas path)))
 
 (def-func-end)

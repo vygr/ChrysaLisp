@@ -6,105 +6,105 @@
 
 (def-method 'pixmap :lisp_save_cpm)
 	;inputs
-	;r0 = lisp object (ptr)
-	;r1 = args list object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
 	;outputs
-	;r0 = lisp object (ptr)
-	;r1 = return value object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
-	(entry 'pixmap :lisp_save_cpm '(r0 r1))
+	(entry 'pixmap :lisp_save_cpm '(:r0 :r1))
 
 (errorcases
-	(call 'lisp :env_args_sig '(r1 ($ sig) 3) '(r2))
-	(gotoif '(r2 = 0) 'error))
+	(call 'lisp :env_args_sig '(:r1 ($ sig) 3) '(:r2))
+	(gotoif '(:r2 = 0) 'error))
 
-	(vp-push r0)
+	(vp-push :r0)
 	(defq in (method-input 'pixmap :save_cpm))
-	(list-bind-args r1 in '(:pixmap :stream :num))
-	(call 'pixmap :save_cpm in '(r1))
-	(class/obj/ref r1 r2)
-	(vp-pop r0)
+	(list-bind-args :r1 in '(:pixmap :stream :num))
+	(call 'pixmap :save_cpm in '(:r1))
+	(class/obj/ref :r1 :r2)
+	(vp-pop :r0)
 
-	(exit 'pixmap :lisp_save_cpm '(r0 r1))
+	(exit 'pixmap :lisp_save_cpm '(:r0 :r1))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(r0 "(pixmap-save-cpm pixmap stream format)" error_msg_wrong_types r1))
+	(jump 'lisp :repl_error '(:r0 "(pixmap-save-cpm pixmap stream format)" error_msg_wrong_types :r1))
 	(signature '(pixmap stream num)))
 
 (def-func-end)
 
 (def-method 'pixmap :lisp_load_cpm)
 	;inputs
-	;r0 = lisp object (ptr)
-	;r1 = args list object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
 	;outputs
-	;r0 = lisp object (ptr)
-	;r1 = return value object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
-	(entry 'pixmap :lisp_load_cpm '(r0 r1))
+	(entry 'pixmap :lisp_load_cpm '(:r0 :r1))
 
 (errorcases
-	(call 'lisp :env_args_sig '(r1 ($ sig) 1) '(r2))
-	(gotoif '(r2 = 0) 'error))
+	(call 'lisp :env_args_sig '(:r1 ($ sig) 1) '(:r2))
+	(gotoif '(:r2 = 0) 'error))
 
-	(vp-push r0)
+	(vp-push :r0)
 	(defq in (method-input 'pixmap :load_cpm))
-	(list-bind-args r1 in '(:stream))
-	(call 'pixmap :load_cpm in '(r1))
-	(vp-pop r0)
-	(vpif '(r1 = 0))
-		(assign '((r0 lisp_sym_nil)) '(r1))
-		(class/obj/ref r1 r2)
+	(list-bind-args :r1 in '(:stream))
+	(call 'pixmap :load_cpm in '(:r1))
+	(vp-pop :r0)
+	(vpif '(:r1 = 0))
+		(assign '((:r0 lisp_sym_nil)) '(:r1))
+		(class/obj/ref :r1 :r2)
 	(endif)
 
-	(exit 'pixmap :lisp_load_cpm '(r0 r1))
+	(exit 'pixmap :lisp_load_cpm '(:r0 :r1))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(r0 "(pixmap-load-cpm stream)" error_msg_wrong_types r1))
+	(jump 'lisp :repl_error '(:r0 "(pixmap-load-cpm stream)" error_msg_wrong_types :r1))
 	(signature '(stream)))
 
 (def-func-end)
 
 (def-method 'pixmap :lisp_load_tga)
 	;inputs
-	;r0 = lisp object (ptr)
-	;r1 = args list object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
 	;outputs
-	;r0 = lisp object (ptr)
-	;r1 = return value object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
-	(entry 'pixmap :lisp_load_tga '(r0 r1))
+	(entry 'pixmap :lisp_load_tga '(:r0 :r1))
 
 (errorcases
-	(call 'lisp :env_args_sig '(r1 ($ sig) 1) '(r2))
-	(gotoif '(r2 = 0) 'error))
+	(call 'lisp :env_args_sig '(:r1 ($ sig) 1) '(:r2))
+	(gotoif '(:r2 = 0) 'error))
 
-	(vp-push r0)
+	(vp-push :r0)
 	(defq in (method-input 'pixmap :load_tga))
-	(list-bind-args r1 in '(:stream))
-	(call 'pixmap :load_tga in '(r1))
-	(vp-pop r0)
-	(vpif '(r1 = 0))
-		(assign '((r0 lisp_sym_nil)) '(r1))
-		(class/obj/ref r1 r2)
+	(list-bind-args :r1 in '(:stream))
+	(call 'pixmap :load_tga in '(:r1))
+	(vp-pop :r0)
+	(vpif '(:r1 = 0))
+		(assign '((:r0 lisp_sym_nil)) '(:r1))
+		(class/obj/ref :r1 :r2)
 	(endif)
 
-	(exit 'pixmap :lisp_load_tga '(r0 r1))
+	(exit 'pixmap :lisp_load_tga '(:r0 :r1))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(r0 "(pixmap-load-tga stream)" error_msg_wrong_types r1))
+	(jump 'lisp :repl_error '(:r0 "(pixmap-load-tga stream)" error_msg_wrong_types :r1))
 	(signature '(stream)))
 
 (def-func-end)

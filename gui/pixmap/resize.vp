@@ -4,12 +4,12 @@
 
 (def-method 'pixmap :resize)
 	;inputs
-	;r0 = pixmap object (ptr)
-	;r1 = source pixmap object (ptr)
+	;:r0 = pixmap object (ptr)
+	;:r1 = source pixmap object (ptr)
 	;outputs
-	;r0 = pixmap object (ptr)
+	;:r0 = pixmap object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
 	(def-vars
 		(ptr this source)
@@ -19,16 +19,16 @@
 		(uint a r g b q weight_x weight_y)
 		(long fw fh))
 
-	(assign '((r0 pixmap_width) (r0 pixmap_height) (r1 pixmap_width) (r1 pixmap_height))
-		'(r2 r3 r4 r5))
-	(vp-op2 vp-shl-cr 1 1 r2 r3)
-	(vpif '(r2 = r4) '(r3 = r5))
-		(jump 'pixmap :resize_2 '(r0 r1))
+	(assign '((:r0 pixmap_width) (:r0 pixmap_height) (:r1 pixmap_width) (:r1 pixmap_height))
+		'(:r2 :r3 :r4 :r5))
+	(vp-op2 vp-shl-cr 1 1 :r2 :r3)
+	(vpif '(:r2 = :r4) '(:r3 = :r5))
+		(jump 'pixmap :resize_2 '(:r0 :r1))
 	(endif)
-	(vp-op2 vp-shr-cr 1 1 r2 r3)
-	(vp-op2 vp-mul-cr 3 3 r2 r3)
-	(vpif '(r2 = r4) '(r3 = r5))
-		(jump 'pixmap :resize_3 '(r0 r1))
+	(vp-op2 vp-shr-cr 1 1 :r2 :r3)
+	(vp-op2 vp-mul-cr 3 3 :r2 :r3)
+	(vpif '(:r2 = :r4) '(:r3 = :r5))
+		(jump 'pixmap :resize_3 '(:r0 :r1))
 	(endif)
 
 	(push-scope)
@@ -141,12 +141,12 @@
 
 (def-method 'pixmap :resize_2)
 	;inputs
-	;r0 = pixmap object (ptr)
-	;r1 = source pixmap object (ptr)
+	;:r0 = pixmap object (ptr)
+	;:r1 = source pixmap object (ptr)
 	;outputs
-	;r0 = pixmap object (ptr)
+	;:r0 = pixmap object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
 	(vp-def (this source sdata xdata ydata data rb ga srb sga sw mga mrb))
 
@@ -202,12 +202,12 @@
 
 (def-method 'pixmap :resize_3)
 	;inputs
-	;r0 = pixmap object (ptr)
-	;r1 = source pixmap object (ptr)
+	;:r0 = pixmap object (ptr)
+	;:r1 = source pixmap object (ptr)
 	;outputs
-	;r0 = pixmap object (ptr)
+	;:r0 = pixmap object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
 	(vp-def (this source sdata xdata ydata data q rb ga srb sga sw mga mrb))
 

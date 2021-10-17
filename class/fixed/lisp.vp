@@ -5,128 +5,128 @@
 
 ;generic fixed math op
 (defun mathop (_)
-	(entry 'fixed (sym (cat :lisp_ (slice 1 -1 _))) '(r0 r1))
+	(entry 'fixed (sym (cat :lisp_ (slice 1 -1 _))) '(:r0 :r1))
 (errorcases
-	(call 'lisp :env_args_sig '(r1 ($ sig) 1) '(r2))
-	(gotoif '(r2 = 0) 'error))
-	(vp-push r0)
-	(assign '((r1 array_begin)) '(r2))
-	(call 'fixed _ '((r2 0)) '(_ r1))
-	(vp-pop r0)
-	(exit 'fixed (sym (cat :lisp_ (slice 1 -1 _))) '(r0 r1))
+	(call 'lisp :env_args_sig '(:r1 ($ sig) 1) '(:r2))
+	(gotoif '(:r2 = 0) 'error))
+	(vp-push :r0)
+	(assign '((:r1 array_begin)) '(:r2))
+	(call 'fixed _ '((:r2 0)) '(_ :r1))
+	(vp-pop :r0)
+	(exit 'fixed (sym (cat :lisp_ (slice 1 -1 _))) '(:r0 :r1))
 	(vp-ret))
 
 (def-method 'fixed :lisp_sin)
 	;inputs
-	;r0 = lisp object (ptr)
-	;r1 = args list object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
 	;outputs
-	;r0 = lisp object (ptr)
-	;r1 = return value object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
 	(mathop :sin)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(r0 "(sin angle)" error_msg_wrong_types r1))
+	(jump 'lisp :repl_error '(:r0 "(sin angle)" error_msg_wrong_types :r1))
 	(signature '(fixed)))
 
 (def-func-end)
 
 (def-method 'fixed :lisp_cos)
 	;inputs
-	;r0 = lisp object (ptr)
-	;r1 = args list object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
 	;outputs
-	;r0 = lisp object (ptr)
-	;r1 = return value object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
 	(mathop :cos)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(r0 "(cos angle)" error_msg_wrong_types r1))
+	(jump 'lisp :repl_error '(:r0 "(cos angle)" error_msg_wrong_types :r1))
 	(signature '(fixed)))
 
 (def-func-end)
 
 (def-method 'fixed :lisp_frac)
 	;inputs
-	;r0 = lisp object (ptr)
-	;r1 = args list object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
 	;outputs
-	;r0 = lisp object (ptr)
-	;r1 = return value object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
 	(mathop :frac)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(r0 "(frac num)" error_msg_wrong_types r1))
+	(jump 'lisp :repl_error '(:r0 "(frac num)" error_msg_wrong_types :r1))
 	(signature '(fixed)))
 
 (def-func-end)
 
 (def-method 'fixed :lisp_floor)
 	;inputs
-	;r0 = lisp object (ptr)
-	;r1 = args list object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
 	;outputs
-	;r0 = lisp object (ptr)
-	;r1 = return value object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
 	(mathop :floor)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(r0 "(floor num)" error_msg_wrong_types r1))
+	(jump 'lisp :repl_error '(:r0 "(floor num)" error_msg_wrong_types :r1))
 	(signature '(fixed)))
 
 (def-func-end)
 
 (def-method 'fixed :lisp_recip)
 	;inputs
-	;r0 = lisp object (ptr)
-	;r1 = args list object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
 	;outputs
-	;r0 = lisp object (ptr)
-	;r1 = return value object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
-	(entry 'fixed :lisp_recip '(r0 r1))
-
-(errorcases
-	(call 'lisp :env_args_sig '(r1 ($ sig) 1) '(r2))
-	(gotoif '(r2 = 0) 'error))
-
-	(vp-push r0)
-	(assign '((r1 array_begin)) '(r0))
-	(assign '((r0 0)) '(r0))
+	(entry 'fixed :lisp_recip '(:r0 :r1))
 
 (errorcases
-	(assign '((r0 num_value)) '(r2))
-	(gotoif '(r2 = 0) 'error1))
+	(call 'lisp :env_args_sig '(:r1 ($ sig) 1) '(:r2))
+	(gotoif '(:r2 = 0) 'error))
 
-	(call 'fixed :recip '(r0) '(_ r1))
-	(vp-pop r0)
+	(vp-push :r0)
+	(assign '((:r1 array_begin)) '(:r0))
+	(assign '((:r0 0)) '(:r0))
 
-	(exit 'fixed :lisp_recip '(r0 r1))
+(errorcases
+	(assign '((:r0 num_value)) '(:r2))
+	(gotoif '(:r2 = 0) 'error1))
+
+	(call 'fixed :recip '(:r0) '(_ :r1))
+	(vp-pop :r0)
+
+	(exit 'fixed :lisp_recip '(:r0 :r1))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error1)
-	(vp-pop r0)
+	(vp-pop :r0)
 (vp-label 'error)
-	(jump 'lisp :repl_error '(r0 "(recip fixed)" error_msg_wrong_types r1))
+	(jump 'lisp :repl_error '(:r0 "(recip fixed)" error_msg_wrong_types :r1))
 	(signature '(fixed)))
 
 (def-func-end)

@@ -8,18 +8,16 @@
 	(setq opcode (+ opcode (opt i 1)))
 	ci)
 
-(defun reg (r)
-	(or (find r '(:0 :1 :2 :3 :4 :5 :6 :7 :8 :9 :10 :11 :12 :13 :14 :sp))
-		(find r '(r0 r1 r2 r3 r4 r5 r6 r7 r8 r9 r10 r11 r12 r13 r14 rsp))))
+(defun reg (r) (find r '(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14 :rsp)))
 
-(defcvar 'stack_align 8 'stack_state '(:0 :1 :2 :3 :4 :5 :6 :7 :8 :9 :10 :11 :12 :13 :14))
+(defcvar 'stack_align 8 'stack_state '(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14))
 
 (defun stack-init ()
 	(defq tk_state_size (* +ptr_size (length stack_state)))
-	(vp-sub-cr (+ tk_state_size (* +ptr_size 2)) :1)
-	(f-bind 'sys_task :stop :2)
-	(vp-cpy-ri :4 :1 tk_state_size)
-	(vp-cpy-ri :2 :1 (+ tk_state_size +ptr_size)))
+	(vp-sub-cr (+ tk_state_size (* +ptr_size 2)) :r1)
+	(f-bind 'sys_task :stop :r2)
+	(vp-cpy-ri :r4 :r1 tk_state_size)
+	(vp-cpy-ri :r2 :r1 (+ tk_state_size +ptr_size)))
 
 (defun emit-cr (o c r)
 	(cond
@@ -196,8 +194,8 @@
 			(emit-short (+ (next-opcode) (<< (reg b) 8) (<< n 12)) c))
 		(t	(throw "emit-call-abi constant out of range !" c))))
 
-(defun emit-alloc (c) (emit-sub-cr (align c stack_align) :sp))
-(defun emit-free (c) (emit-add-cr (align c stack_align) :sp))
+(defun emit-alloc (c) (emit-sub-cr (align c stack_align) :rsp))
+(defun emit-free (c) (emit-add-cr (align c stack_align) :rsp))
 (defun emit-ret () (emit-short (next-opcode)))
 (defun emit-brk (n) (emit-short (+ (next-opcode) (<< n 8))))
 
@@ -205,10 +203,10 @@
 	(when (/= 0 (length b))
 		(emit-alloc (* +ptr_size (length b)))
 		(each-rev (lambda (r)
-			(emit-cpy-ri r :sp (* (- (length b) 1 _) +ptr_size))) b)))
+			(emit-cpy-ri r :rsp (* (- (length b) 1 _) +ptr_size))) b)))
 
 (defun emit-pop (&rest b)
 	(when (/= 0 (length b))
 		(each-rev (lambda (r)
-			(emit-cpy-ir :sp (* (- (length b) 1 _) +ptr_size) r)) b))
+			(emit-cpy-ir :rsp (* (- (length b) 1 _) +ptr_size) r)) b))
 		(emit-free (* +ptr_size (length b))))

@@ -15,21 +15,21 @@
 
 (def-method 'vdu :init)
 	;inputs
-	;r0 = vdu object (ptr)
-	;r1 = vtable (pptr)
+	;:r0 = vdu object (ptr)
+	;:r1 = vtable (pptr)
 	;outputs
-	;r0 = vdu object (ptr)
-	;r1 = 0 if error, else ok
+	;:r0 = vdu object (ptr)
+	;:r1 = 0 if error, else ok
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
 	;init parent
-	(s-call 'vdu :init '(r0 r1) '(r0 r1))
-	(vpif '(r1 /= 0))
+	(s-call 'vdu :init '(:r0 :r1) '(:r0 :r1))
+	(vpif '(:r1 /= 0))
 		;init myself
-		(vp-xor-rr r2 r2)
-		(assign '(r2 r2 r2 r2 r2)
-			'((r0 vdu_font) (r0 vdu_chars) (r0 vdu_width) (r0 vdu_height) (r0 vdu_textures)))
+		(vp-xor-rr :r2 :r2)
+		(assign '(:r2 :r2 :r2 :r2 :r2)
+			'((:r0 vdu_font) (:r0 vdu_chars) (:r0 vdu_width) (:r0 vdu_height) (:r0 vdu_textures)))
 	(endif)
 	(vp-ret)
 
@@ -37,32 +37,32 @@
 
 (def-method 'vdu :deinit)
 	;inputs
-	;r0 = vdu object (ptr)
+	;:r0 = vdu object (ptr)
 	;outputs
-	;r0 = vdu object (ptr)
+	;:r0 = vdu object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
 	;save object
-	(vp-push r0)
+	(vp-push :r0)
 
-	(call 'sys_mem :free '((r0 vdu_chars)))
-	(assign '((rsp 0)) '(r0))
-	(call 'list :deref_if '((r0 vdu_textures)))
+	(call 'sys_mem :free '((:r0 vdu_chars)))
+	(assign '((:rsp 0)) '(:r0))
+	(call 'list :deref_if '((:r0 vdu_textures)))
 
 	;deinit parent
-	(vp-pop r0)
-	(s-jump 'vdu :deinit '(r0))
+	(vp-pop :r0)
+	(s-jump 'vdu :deinit '(:r0))
 
 (def-func-end)
 
 (def-method 'vdu :draw)
 	;inputs
-	;r0 = view object (ptr)
+	;:r0 = view object (ptr)
 	;outputs
-	;r0 = view object (ptr)
+	;:r0 = view object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
 	(def-vars
 		(ptr this txt font)

@@ -7,15 +7,15 @@
 
 (def-method 'lisp :read_str)
 	;inputs
-	;r0 = lisp object (ptr)
-	;r1 = stream object (ptr)
-	;r2 = close char (uint)
+	;:r0 = lisp object (ptr)
+	;:r1 = stream object (ptr)
+	;:r2 = close char (uint)
 	;outputs
-	;r0 = lisp object (ptr)
-	;r1 = str object (ptr)
-	;r2 = next char (uint)
+	;:r0 = lisp object (ptr)
+	;:r1 = str object (ptr)
+	;:r2 = next char (uint)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
 	(def-vars
 		(ptr this stream str_stream value)

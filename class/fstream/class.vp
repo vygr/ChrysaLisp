@@ -6,48 +6,48 @@
 
 (def-method 'fstream :init)
 	;inputs
-	;r0 = fstream object (ptr)
-	;r1 = vtable (pptr)
-	;r2 = c string filename (pubyte)
-	;r3 = open mode (uint)
+	;:r0 = fstream object (ptr)
+	;:r1 = vtable (pptr)
+	;:r2 = c string filename (pubyte)
+	;:r3 = open mode (uint)
 	;outputs
-	;r0 = fstream object (ptr)
-	;r1 = 0 if error, else ok
+	;:r0 = fstream object (ptr)
+	;:r1 = 0 if error, else ok
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
 	(def-struct local 0
 		(ptr this vtable path buf))
 
 	(vp-alloc local_size)
-	(entry 'fstream :init '((rsp local_this) (rsp local_vtable) (rsp local_path) (r0 fstream_mode)))
+	(entry 'fstream :init '((:rsp local_this) (:rsp local_vtable) (:rsp local_path) (:r0 fstream_mode)))
 
 	;init parent
-	(call 'sys_mem :alloc '(fstream_buf_size) '(r3 r1))
-	(assign '((rsp local_this)) '(r0))
-	(assign '(r3 r1) '((rsp local_buf) (r0 fstream_buf_len)))
-	(s-call 'fstream :init '(r0 (rsp local_vtable) 0 r3 r3 0) '(r0 r1))
-	(vpif '(r1 /= 0))
+	(call 'sys_mem :alloc '(fstream_buf_size) '(:r3 :r1))
+	(assign '((:rsp local_this)) '(:r0))
+	(assign '(:r3 :r1) '((:rsp local_buf) (:r0 fstream_buf_len)))
+	(s-call 'fstream :init '(:r0 (:rsp local_vtable) 0 :r3 :r3 0) '(:r0 :r1))
+	(vpif '(:r1 /= 0))
 		;init myself
-		(call 'sys_pii :open '((rsp local_path) (r0 fstream_mode)) '(r1))
-		(assign '((rsp local_this)) '(r0))
-		(vpif '(r1 >= 3))
-			(assign '((r0 fstream_mode) r1) '(r2 (r0 fstream_handle)))
-			(breakif '(r2 = +file_open_read))
-			(assign '((rsp local_buf) (r0 fstream_buf_len)) '(r1 r2))
-			(vp-add-rr r2 r1)
-			(assign '(r1) '((r0 stream_bufe)))
+		(call 'sys_pii :open '((:rsp local_path) (:r0 fstream_mode)) '(:r1))
+		(assign '((:rsp local_this)) '(:r0))
+		(vpif '(:r1 >= 3))
+			(assign '((:r0 fstream_mode) :r1) '(:r2 (:r0 fstream_handle)))
+			(breakif '(:r2 = +file_open_read))
+			(assign '((:rsp local_buf) (:r0 fstream_buf_len)) '(:r1 :r2))
+			(vp-add-rr :r2 :r1)
+			(assign '(:r1) '((:r0 stream_bufe)))
 		(else)
-			(s-call 'fstream :deinit '(r0) '(r0))
-			(vp-xor-rr r1 r1)
+			(s-call 'fstream :deinit '(:r0) '(:r0))
+			(vp-xor-rr :r1 :r1)
 		(endif)
 	(else)
 		;error
-		(call 'sys_mem :free '((rsp local_buf)))
-		(assign '((rsp local_this) 0) '(r0 r1))
+		(call 'sys_mem :free '((:rsp local_buf)))
+		(assign '((:rsp local_this) 0) '(:r0 :r1))
 	(endif)
 
-	(exit 'fstream :init '(r0 r1))
+	(exit 'fstream :init '(:r0 :r1))
 	(vp-free local_size)
 	(vp-ret)
 
@@ -55,130 +55,130 @@
 
 (def-method 'fstream :deinit)
 	;inputs
-	;r0 = fstream object (ptr)
+	;:r0 = fstream object (ptr)
 	;outputs
-	;r0 = fstream object (ptr)
+	;:r0 = fstream object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
-	(entry 'fstream :deinit '(r0))
+	(entry 'fstream :deinit '(:r0))
 
 	;flush any data
-	(call 'fstream :flush '(r0) '(r0))
+	(call 'fstream :flush '(:r0) '(:r0))
 
 	;close file
-	(vp-push r0)
-	(call 'sys_pii :close '((r0 fstream_handle)))
-	(vp-pop r0)
+	(vp-push :r0)
+	(call 'sys_pii :close '((:r0 fstream_handle)))
+	(vp-pop :r0)
 
 	;deinit parent
-	(s-jump 'fstream :deinit '(r0))
+	(s-jump 'fstream :deinit '(:r0))
 
 (def-func-end)
 
 (def-method 'fstream :flush)
 	;inputs
-	;r0 = fstream object (ptr)
+	;:r0 = fstream object (ptr)
 	;outputs
-	;r0 = fstream object (ptr)
+	;:r0 = fstream object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
-	(entry 'fstream :flush '(r0))
+	(entry 'fstream :flush '(:r0))
 
 	;not in read mode ?
-	(assign '((r0 fstream_mode)) '(r1))
-	(vpif '(r1 /= +file_open_read))
-		(assign '((r0 stream_buffer) (r0 stream_bufp)) '(r1 r2))
-		(vp-sub-rr r1 r2)
-		(vpif '(r2 /= 0))
-			(vp-push r0)
-			(call 'sys_pii :write '((r0 fstream_handle) r1 r2))
-			(vp-pop r0)
+	(assign '((:r0 fstream_mode)) '(:r1))
+	(vpif '(:r1 /= +file_open_read))
+		(assign '((:r0 stream_buffer) (:r0 stream_bufp)) '(:r1 :r2))
+		(vp-sub-rr :r1 :r2)
+		(vpif '(:r2 /= 0))
+			(vp-push :r0)
+			(call 'sys_pii :write '((:r0 fstream_handle) :r1 :r2))
+			(vp-pop :r0)
 		(endif)
 	(endif)
 
 	;clear down bufp and bufe
-	(s-call 'fstream :flush '(r0) '(r0))
+	(s-call 'fstream :flush '(:r0) '(:r0))
 
-	(exit 'fstream :flush '(r0))
+	(exit 'fstream :flush '(:r0))
 	(vp-ret)
 
 (def-func-end)
 
 (def-method 'fstream :read_next)
 	;inputs
-	;r0 = fstream object (ptr)
+	;:r0 = fstream object (ptr)
 	;outputs
-	;r0 = fstream object (ptr)
-	;r1 = -1 for EOF, else more data
+	;:r0 = fstream object (ptr)
+	;:r1 = -1 for EOF, else more data
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
-	(entry 'fstream :read_next '(r0))
+	(entry 'fstream :read_next '(:r0))
 
 	;flush any read/write data
-	(call 'fstream :flush '(r0) '(r0))
+	(call 'fstream :flush '(:r0) '(:r0))
 
 	;set read mode
-	(vp-cpy-cr +file_open_read r1)
-	(assign '(r1) '((r0 fstream_mode)))
+	(vp-cpy-cr +file_open_read :r1)
+	(assign '(:r1) '((:r0 fstream_mode)))
 
 	;read next block of data
-	(vp-push r0)
-	(call 'sys_pii :read '((r0 fstream_handle) (r0 stream_buffer) (r0 fstream_buf_len)) '(r1))
-	(vp-pop r0)
-	(vpif '(r1 = 0))
+	(vp-push :r0)
+	(call 'sys_pii :read '((:r0 fstream_handle) (:r0 stream_buffer) (:r0 fstream_buf_len)) '(:r1))
+	(vp-pop :r0)
+	(vpif '(:r1 = 0))
 		;eof
-		(assign '(-1) '(r1))
+		(assign '(-1) '(:r1))
 	(else)
-		(assign '((r0 stream_buffer)) '(r2))
-		(assign '((& r2 r1)) '(r3))
-		(assign '(r2 r3) '((r0 stream_bufp) (r0 stream_bufe)))
+		(assign '((:r0 stream_buffer)) '(:r2))
+		(assign '((& :r2 :r1)) '(:r3))
+		(assign '(:r2 :r3) '((:r0 stream_bufp) (:r0 stream_bufe)))
 	(endif)
 
-	(exit 'fstream :read_next '(r0 r1))
+	(exit 'fstream :read_next '(:r0 :r1))
 	(vp-ret)
 
 (def-func-end)
 
 (def-method 'fstream :write_next)
 	;inputs
-	;r0 = fstream object (ptr)
+	;:r0 = fstream object (ptr)
 	;outputs
-	;r0 = fstream object (ptr)
+	;:r0 = fstream object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
-	(entry 'fstream :write_next '(r0))
+	(entry 'fstream :write_next '(:r0))
 
 	;flush any read/write data
-	(call 'fstream :flush '(r0) '(r0))
+	(call 'fstream :flush '(:r0) '(:r0))
 
 	;set write mode
-	(vp-cpy-cr +file_open_write r1)
-	(assign '(r1) '((r0 fstream_mode)))
+	(vp-cpy-cr +file_open_write :r1)
+	(assign '(:r1) '((:r0 fstream_mode)))
 
 	;set bufp and bufe for writing
-	(assign '((r0 stream_buffer) (r0 fstream_buf_len)) '(r1 r2))
-	(vp-add-rr r1 r2)
-	(assign '(r1 r2) '((r0 stream_bufp) (r0 stream_bufe)))
+	(assign '((:r0 stream_buffer) (:r0 fstream_buf_len)) '(:r1 :r2))
+	(vp-add-rr :r1 :r2)
+	(assign '(:r1 :r2) '((:r0 stream_bufp) (:r0 stream_bufe)))
 
-	(exit 'fstream :write_next '(r0))
+	(exit 'fstream :write_next '(:r0))
 	(vp-ret)
 
 (def-func-end)
 
 (def-method 'fstream :seek)
 	;inputs
-	;r0 = fstream object (ptr)
-	;r1 = offset (long)
-	;r2 = pos (uint)
+	;:r0 = fstream object (ptr)
+	;:r1 = offset (long)
+	;:r2 = pos (uint)
 	;outputs
-	;r0 = fstream object (ptr)
-	;r1 = -1 for error, else file position
+	;:r0 = fstream object (ptr)
+	;:r1 = -1 for error, else file position
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
 	(def-struct local 0
 		(ptr this)
@@ -186,13 +186,13 @@
 		(uint pos))
 
 	(vp-alloc local_size)
-	(entry 'fstream :seek '(r0 (rsp local_off) (rsp local_pos)))
-	(assign '(r0) '((rsp local_this)))
+	(entry 'fstream :seek '(:r0 (:rsp local_off) (:rsp local_pos)))
+	(assign '(:r0) '((:rsp local_this)))
 
-	(call 'fstream :flush '(r0) '(r0))
-	(call 'sys_pii :seek '((r0 fstream_handle) (rsp local_off) (rsp local_pos)) '(r1))
+	(call 'fstream :flush '(:r0) '(:r0))
+	(call 'sys_pii :seek '((:r0 fstream_handle) (:rsp local_off) (:rsp local_pos)) '(:r1))
 
-	(exit 'fstream :seek '((rsp local_this) r1))
+	(exit 'fstream :seek '((:rsp local_this) :r1))
 	(vp-free local_size)
 	(vp-ret)
 

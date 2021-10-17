@@ -10,107 +10,107 @@
 
 (def-method 'real :print)
 	;inputs
-	;r0 = real object (ptr)
-	;r1 = stream object (ptr)
+	;:r0 = real object (ptr)
+	;:r1 = stream object (ptr)
 	;outputs
-	;r0 = real object (ptr)
+	;:r0 = real object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
 	(def-struct local 0
 		(ptr this stream tmp))
 
 	(vp-alloc local_size)
-	(entry 'real :print '(r0 r1))
-	(assign '(r0 r1) '((rsp local_this) (rsp local_stream)))
+	(entry 'real :print '(:r0 :r1))
+	(assign '(:r0 :r1) '((:rsp local_this) (:rsp local_stream)))
 
-	(assign '((r0 num_value)) '(r0))
-	(vpif '(r0 < 0))
-		(call 'stream :write_cstr '(r1 "-0x"))
-		(assign '((rsp local_this)) '(r0))
-		(assign '((r0 num_value)) '(r0))
-		(vp-mul-cr -1 r0)
+	(assign '((:r0 num_value)) '(:r0))
+	(vpif '(:r0 < 0))
+		(call 'stream :write_cstr '(:r1 "-0x"))
+		(assign '((:rsp local_this)) '(:r0))
+		(assign '((:r0 num_value)) '(:r0))
+		(vp-mul-cr -1 :r0)
 	(else)
-		(call 'stream :write_cstr '(r1 "0x"))
-		(assign '((rsp local_this)) '(r0))
-		(assign '((r0 num_value)) '(r0))
+		(call 'stream :write_cstr '(:r1 "0x"))
+		(assign '((:rsp local_this)) '(:r0))
+		(assign '((:r0 num_value)) '(:r0))
 	(endif)
-	(call 'str :create_from_long '(r0 16) '(r0))
-	(assign '(r0) '((rsp local_tmp)))
-	(call 'stream :write '((rsp local_stream) (& r0 str_data) (r0 str_length)))
-	(call 'obj :deref '((rsp local_tmp)))
+	(call 'str :create_from_long '(:r0 16) '(:r0))
+	(assign '(:r0) '((:rsp local_tmp)))
+	(call 'stream :write '((:rsp local_stream) (& :r0 str_data) (:r0 str_length)))
+	(call 'obj :deref '((:rsp local_tmp)))
 
-	(exit 'real :print '((rsp local_this)))
+	(exit 'real :print '((:rsp local_this)))
 	(vp-free local_size)
 	(vp-ret)
 
 (def-func-end)
 
 (defun addop (_ p)
-	(entry 'real _ '(r0 r1))
-	(vp-push r0)
-	(class/array/get_both r1 r1 r2)
-	(vp-cpy-ir r1 0 r0)
-	(vp-add-cr +ptr_size r1)
-	(assign '((r0 num_value)) '(r13))
+	(entry 'real _ '(:r0 :r1))
+	(vp-push :r0)
+	(class/array/get_both :r1 :r1 :r2)
+	(vp-cpy-ir :r1 0 :r0)
+	(vp-add-cr +ptr_size :r1)
+	(assign '((:r0 num_value)) '(:r13))
 	(loop-start)
-		(vp-cpy-ir r1 0 r4)
-		(vp-add-cr +ptr_size r1)
-		(assign '((r4 num_value)) '(r14))
+		(vp-cpy-ir :r1 0 :r4)
+		(vp-add-cr +ptr_size :r1)
+		(assign '((:r4 num_value)) '(:r14))
 		(exec p)
-	(loop-until '(r1 = r2))
-	(v-call 'num :vcreate '(r13) '(r1) r4 r1)
-	(vp-pop r0)
-	(exit 'real _ '(r0 r1))
+	(loop-until '(:r1 = :r2))
+	(v-call 'num :vcreate '(:r13) '(:r1) :r4 :r1)
+	(vp-pop :r0)
+	(exit 'real _ '(:r0 :r1))
 	(vp-ret))
 
 (def-method 'real :add)
 	;inputs
-	;r0 = real object (ptr)
-	;r1 = list of real objects (ptr)
+	;:r0 = real object (ptr)
+	;:r1 = list of real objects (ptr)
 	;outputs
-	;r0 = real object (ptr)
-	;r1 = result real object (ptr)
+	;:r0 = real object (ptr)
+	;:r1 = result real object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
 	(addop :add
-		'(call 'sys_math :r_add '(r13 r14) '(r13)))
+		'(call 'sys_math :r_add '(:r13 :r14) '(:r13)))
 
 (def-func-end)
 
 (def-method 'real :sub)
 	;inputs
-	;r0 = real object (ptr)
-	;r1 = list of real objects (ptr)
+	;:r0 = real object (ptr)
+	;:r1 = list of real objects (ptr)
 	;outputs
-	;r0 = real object (ptr)
-	;r1 = result real object (ptr)
+	;:r0 = real object (ptr)
+	;:r1 = result real object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
 	(addop :sub
-		'(call 'sys_math :r_sub '(r13 r14) '(r13)))
+		'(call 'sys_math :r_sub '(:r13 :r14) '(:r13)))
 
 (def-func-end)
 
 (def-method 'real :mul)
 	;inputs
-	;r0 = real object (ptr)
-	;r1 = list of real objects (ptr)
+	;:r0 = real object (ptr)
+	;:r1 = list of real objects (ptr)
 	;outputs
-	;r0 = real object (ptr)
-	;r1 = result real object (ptr)
+	;:r0 = real object (ptr)
+	;:r1 = result real object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
 	(addop :mul
-		'(call 'sys_math :r_mul '(r13 r14) '(r13)))
+		'(call 'sys_math :r_mul '(:r13 :r14) '(:r13)))
 
 (def-func-end)
 
 (defun minop (_ p)
-	(vp-def (val this args obj iter_begin iter_end new_val) '(r14))
+	(vp-def (val this args obj iter_begin iter_end new_val) '(:r14))
 	(entry 'num _ `(,this ,args))
 	(class/array/get_both args iter_begin iter_end)
 	(vp-cpy-ir iter_begin 0 args)
@@ -128,18 +128,18 @@
 
 (def-method 'real :min)
 	;inputs
-	;r0 = real object (ptr)
-	;r1 = list of real objects (ptr)
+	;:r0 = real object (ptr)
+	;:r1 = list of real objects (ptr)
 	;outputs
-	;r0 = real object (ptr)
-	;r1 = result real object (ptr)
+	;:r0 = real object (ptr)
+	;:r1 = result real object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
 	(minop :min
 		'(progn
-			(call 'sys_math :r_sub (list new_val val) '(r13))
-			(vpif '(r13 < 0))
+			(call 'sys_math :r_sub (list new_val val) '(:r13))
+			(vpif '(:r13 < 0))
 				(vp-cpy-rr new_val val)
 				(vp-cpy-rr obj args)
 			(endif)))
@@ -148,18 +148,18 @@
 
 (def-method 'real :max)
 	;inputs
-	;r0 = real object (ptr)
-	;r1 = list of real objects (ptr)
+	;:r0 = real object (ptr)
+	;:r1 = list of real objects (ptr)
 	;outputs
-	;r0 = real object (ptr)
-	;r1 = result real object (ptr)
+	;:r0 = real object (ptr)
+	;:r1 = result real object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
 	(minop :max
 		'(progn
-			(call 'sys_math :r_sub (list new_val val) '(r13))
-			(vpif '(r13 > 0))
+			(call 'sys_math :r_sub (list new_val val) '(:r13))
+			(vpif '(:r13 > 0))
 				(vp-cpy-rr new_val val)
 				(vp-cpy-rr obj args)
 			(endif)))
@@ -167,318 +167,318 @@
 (def-func-end)
 
 (defun divop (_ p)
-	(entry 'real _ '(r0 r1))
-	(vp-push r0)
-	(class/array/get_both r1 r1 r4)
-	(vp-cpy-ir r1 0 r0)
-	(vp-add-cr +ptr_size r1)
-	(assign '((r0 num_value)) '(r13))
+	(entry 'real _ '(:r0 :r1))
+	(vp-push :r0)
+	(class/array/get_both :r1 :r1 :r4)
+	(vp-cpy-ir :r1 0 :r0)
+	(vp-add-cr +ptr_size :r1)
+	(assign '((:r0 num_value)) '(:r13))
 	(loop-start)
-		(vp-cpy-ir r1 0 r5)
-		(vp-add-cr +ptr_size r1)
-		(assign '((r5 num_value)) '(r14))
+		(vp-cpy-ir :r1 0 :r5)
+		(vp-add-cr +ptr_size :r1)
+		(assign '((:r5 num_value)) '(:r14))
 	(errorcases
-		(gotoif '(r14 = 0) 'error))
+		(gotoif '(:r14 = 0) 'error))
 		(exec p)
-	(loop-until '(r1 = r4))
-	(v-call 'num :vcreate '(r13) '(r1) r5 r1)
-	(vp-pop r0)
-	(exit 'real _ '(r0 r1))
+	(loop-until '(:r1 = :r4))
+	(v-call 'num :vcreate '(:r13) '(:r1) :r5 :r1)
+	(vp-pop :r0)
+	(exit 'real _ '(:r0 :r1))
 	(vp-ret)
 (vp-label 'error)
-	(vp-pop r0)
-	(exit 'real _ '(r0 r14))
+	(vp-pop :r0)
+	(exit 'real _ '(:r0 :r14))
 	(vp-ret))
 
 (def-method 'real :div)
 	;inputs
-	;r0 = real object (ptr)
-	;r1 = list of real objects (ptr)
+	;:r0 = real object (ptr)
+	;:r1 = list of real objects (ptr)
 	;outputs
-	;r0 = real object (ptr)
-	;r1 = 0 if error, else result real object (ptr)
+	;:r0 = real object (ptr)
+	;:r1 = 0 if error, else result real object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
 	(divop :div
-		'(call 'sys_math :r_div '(r13 r14) '(r13)))
+		'(call 'sys_math :r_div '(:r13 :r14) '(:r13)))
 
 (def-func-end)
 
 (def-method 'real :mod)
 	;inputs
-	;r0 = real object (ptr)
-	;r1 = list of real objects (ptr)
+	;:r0 = real object (ptr)
+	;:r1 = list of real objects (ptr)
 	;outputs
-	;r0 = real object (ptr)
-	;r1 = 0 if error, else result real object (ptr)
+	;:r0 = real object (ptr)
+	;:r1 = 0 if error, else result real object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
 	(divop :mod
-		'(call 'sys_math :r_mod '(r13 r14) '(r13)))
+		'(call 'sys_math :r_mod '(:r13 :r14) '(:r13)))
 
 (def-func-end)
 
 (defun compare (_ p)
-	(entry 'real _ '(r0 r1))
-	(vp-push r0)
-	(class/array/get_both r1 r1 r2)
-	(vp-cpy-ir r1 0 r0)
-	(vp-add-cr +ptr_size r1)
-	(assign '((r0 num_value)) '(r14))
+	(entry 'real _ '(:r0 :r1))
+	(vp-push :r0)
+	(class/array/get_both :r1 :r1 :r2)
+	(vp-cpy-ir :r1 0 :r0)
+	(vp-add-cr +ptr_size :r1)
+	(assign '((:r0 num_value)) '(:r14))
 	(loop-start)
-		(vp-cpy-ir r1 0 r3)
-		(vp-add-cr +ptr_size r1)
-		(assign '((r3 num_value)) '(r3))
+		(vp-cpy-ir :r1 0 :r3)
+		(vp-add-cr +ptr_size :r1)
+		(assign '((:r3 num_value)) '(:r3))
 		(exec p)
-	(loop-until '(r1 = r2))
-	(vp-pop r0)
-	(exit 'real _ '(r0 -1))
+	(loop-until '(:r1 = :r2))
+	(vp-pop :r0)
+	(exit 'real _ '(:r0 -1))
 	(vp-ret)
 (vp-label 'fail)
-	(vp-pop r0)
-	(exit 'real _ '(r0 0))
+	(vp-pop :r0)
+	(exit 'real _ '(:r0 0))
 	(vp-ret))
 
 (def-method 'real :ge)
 	;inputs
-	;r0 = real object (ptr)
-	;r1 = list of real objects (ptr)
+	;:r0 = real object (ptr)
+	;:r1 = list of real objects (ptr)
 	;outputs
-	;r0 = real object (ptr)
-	;r1 = 0, -1 (int)
+	;:r0 = real object (ptr)
+	;:r1 = 0, -1 (int)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
 	(compare :ge
 		'(progn
-			(call 'sys_math :r_sub '(r3 r14) '(r13))
-			(gotoif '(r13 > 0) 'fail)
-			(vp-cpy-rr r3 r14)))
+			(call 'sys_math :r_sub '(:r3 :r14) '(:r13))
+			(gotoif '(:r13 > 0) 'fail)
+			(vp-cpy-rr :r3 :r14)))
 
 (def-func-end)
 
 (def-method 'real :gt)
 	;inputs
-	;r0 = real object (ptr)
-	;r1 = list of real objects (ptr)
+	;:r0 = real object (ptr)
+	;:r1 = list of real objects (ptr)
 	;outputs
-	;r0 = real object (ptr)
-	;r1 = 0, -1 (int)
+	;:r0 = real object (ptr)
+	;:r1 = 0, -1 (int)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
 	(compare :gt
 		'(progn
-			(call 'sys_math :r_sub '(r3 r14) '(r13))
-			(gotoif '(r13 >= 0) 'fail)
-			(vp-cpy-rr r3 r14)))
+			(call 'sys_math :r_sub '(:r3 :r14) '(:r13))
+			(gotoif '(:r13 >= 0) 'fail)
+			(vp-cpy-rr :r3 :r14)))
 
 (def-func-end)
 
 (def-method 'real :le)
 	;inputs
-	;r0 = real object (ptr)
-	;r1 = list of real objects (ptr)
+	;:r0 = real object (ptr)
+	;:r1 = list of real objects (ptr)
 	;outputs
-	;r0 = real object (ptr)
-	;r1 = 0, -1 (int)
+	;:r0 = real object (ptr)
+	;:r1 = 0, -1 (int)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
 	(compare :le
 		'(progn
-			(call 'sys_math :r_sub '(r3 r14) '(r13))
-			(gotoif '(r13 < 0) 'fail)
-			(vp-cpy-rr r3 r14)))
+			(call 'sys_math :r_sub '(:r3 :r14) '(:r13))
+			(gotoif '(:r13 < 0) 'fail)
+			(vp-cpy-rr :r3 :r14)))
 
 (def-func-end)
 
 (def-method 'real :lt)
 	;inputs
-	;r0 = real object (ptr)
-	;r1 = list of real objects (ptr)
+	;:r0 = real object (ptr)
+	;:r1 = list of real objects (ptr)
 	;outputs
-	;r0 = real object (ptr)
-	;r1 = 0, -1 (int)
+	;:r0 = real object (ptr)
+	;:r1 = 0, -1 (int)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
 	(compare :lt
 		'(progn
-			(call 'sys_math :r_sub '(r3 r14) '(r13))
-			(gotoif '(r13 <= 0) 'fail)
-			(vp-cpy-rr r3 r14)))
+			(call 'sys_math :r_sub '(:r3 :r14) '(:r13))
+			(gotoif '(:r13 <= 0) 'fail)
+			(vp-cpy-rr :r3 :r14)))
 
 (def-func-end)
 
 ;generic real math ops
 (defun mathop (_ p)
-	(entry 'real _ '(r0))
-	(vp-push r0)
-	(assign '((r0 num_value)) '(r13))
+	(entry 'real _ '(:r0))
+	(vp-push :r0)
+	(assign '((:r0 num_value)) '(:r13))
 	(exec p)
-	(call 'real :create '(r13) '(r1))
-	(vp-pop r0)
-	(exit 'real _ '(r0 r1))
+	(call 'real :create '(:r13) '(:r1))
+	(vp-pop :r0)
+	(exit 'real _ '(:r0 :r1))
 	(vp-ret))
 
 (defun mathop1 (_ p)
-	(entry 'real _ '(r0))
-	(vp-push r0)
-	(assign '((r0 num_value)) '(r14))
+	(entry 'real _ '(:r0))
+	(vp-push :r0)
+	(assign '((:r0 num_value)) '(:r14))
 	(exec p)
-	(call 'real :create '(r13) '(r1))
-	(vp-pop r0)
-	(exit 'real _ '(r0 r1))
+	(call 'real :create '(:r13) '(:r1))
+	(vp-pop :r0)
+	(exit 'real _ '(:r0 :r1))
 	(vp-ret))
 
 (def-method 'real :sqrt)
 	;inputs
-	;r0 = real object (ptr)
+	;:r0 = real object (ptr)
 	;outputs
-	;r0 = real object (ptr)
-	;r1 = result real object (ptr)
+	;:r0 = real object (ptr)
+	;:r1 = result real object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
 	(mathop :sqrt
-		'(call 'sys_math :r_sqrt '(r13) '(r13)))
+		'(call 'sys_math :r_sqrt '(:r13) '(:r13)))
 
 (def-func-end)
 
 (def-method 'real :sin)
 	;inputs
-	;r0 = real object (ptr)
+	;:r0 = real object (ptr)
 	;outputs
-	;r0 = real object (ptr)
-	;r1 = result real object (ptr)
+	;:r0 = real object (ptr)
+	;:r1 = result real object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
 	(mathop :sin
-		'(call 'sys_math :r_sin '(r13) '(r13)))
+		'(call 'sys_math :r_sin '(:r13) '(:r13)))
 
 (def-func-end)
 
 (def-method 'real :cos)
 	;inputs
-	;r0 = real object (ptr)
+	;:r0 = real object (ptr)
 	;outputs
-	;r0 = real object (ptr)
-	;r1 = result real object (ptr)
+	;:r0 = real object (ptr)
+	;:r1 = result real object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
 	(mathop :cos
-		'(call 'sys_math :r_cos '(r13) '(r13)))
+		'(call 'sys_math :r_cos '(:r13) '(:r13)))
 
 (def-func-end)
 
 (def-method 'real :frac)
 	;inputs
-	;r0 = real object (ptr)
+	;:r0 = real object (ptr)
 	;outputs
-	;r0 = real object (ptr)
-	;r1 = result real object (ptr)
+	;:r0 = real object (ptr)
+	;:r1 = result real object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
 	(mathop :frac
-		'(call 'sys_math :r_frac '(r13) '(r13)))
+		'(call 'sys_math :r_frac '(:r13) '(:r13)))
 
 (def-func-end)
 
 (def-method 'real :floor)
 	;inputs
-	;r0 = real object (ptr)
+	;:r0 = real object (ptr)
 	;outputs
-	;r0 = real object (ptr)
-	;r1 = result real object (ptr)
+	;:r0 = real object (ptr)
+	;:r1 = result real object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
 	(mathop :floor
-		'(call 'sys_math :r_floor '(r13) '(r13)))
+		'(call 'sys_math :r_floor '(:r13) '(:r13)))
 
 (def-func-end)
 
 (def-method 'real :recip)
 	;inputs
-	;r0 = real object (ptr)
+	;:r0 = real object (ptr)
 	;outputs
-	;r0 = real object (ptr)
-	;r1 = result real object (ptr)
+	;:r0 = real object (ptr)
+	;:r1 = result real object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
 	(mathop1 :recip
-		'(call 'sys_math :r_div '(0x4000000000000001 r14) '(r13)))
+		'(call 'sys_math :r_div '(0x4000000000000001 :r14) '(:r13)))
 
 (def-func-end)
 
 (def-method 'real :abs)
 	;inputs
-	;r0 = real object (ptr)
+	;:r0 = real object (ptr)
 	;outputs
-	;r0 = real object (ptr)
-	;r1 = result real object (ptr)
+	;:r0 = real object (ptr)
+	;:r1 = result real object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
-	(entry 'real :abs '(r0))
+	(entry 'real :abs '(:r0))
 
-	(vp-push r0)
-	(assign '((r0 num_value)) '(r13))
-	(vpif '(r13 < 0))
+	(vp-push :r0)
+	(assign '((:r0 num_value)) '(:r13))
+	(vpif '(:r13 < 0))
 		; (n2r -1) for the sake of the C++ version
-		(call 'sys_math :r_mul '(r13 -0x3FFFFFFFFFFFFFFF) '(r13))
-		(call 'real :create '(r13) '(r1))
+		(call 'sys_math :r_mul '(:r13 -0x3FFFFFFFFFFFFFFF) '(:r13))
+		(call 'real :create '(:r13) '(:r1))
 	(else)
-		(assign '((rsp 0)) '(r1))
-		(class/obj/ref r1 r0)
+		(assign '((:rsp 0)) '(:r1))
+		(class/obj/ref :r1 :r0)
 	(endif)
-	(vp-pop r0)
+	(vp-pop :r0)
 
-	(exit 'real :abs '(r0 r1))
+	(exit 'real :abs '(:r0 :r1))
 	(vp-ret)
 
 (def-func-end)
 
 (def-method 'real :neg)
 	;inputs
-	;r0 = real object (ptr)
+	;:r0 = real object (ptr)
 	;outputs
-	;r0 = real object (ptr)
-	;r1 = result real object (ptr)
+	;:r0 = real object (ptr)
+	;:r1 = result real object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
 	(mathop :neg
-		'(call 'sys_math :r_mul '(r13 -0x3FFFFFFFFFFFFFFF) '(r13)))
+		'(call 'sys_math :r_mul '(:r13 -0x3FFFFFFFFFFFFFFF) '(:r13)))
 
 (def-func-end)
 
 (def-method 'real :sign)
 	;inputs
-	;r0 = real object (ptr)
+	;:r0 = real object (ptr)
 	;outputs
-	;r0 = real object (ptr)
-	;r1 = result real object (ptr)
+	;:r0 = real object (ptr)
+	;:r1 = result real object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
 	(mathop :sign
 		'(progn
-			(vpif '(r13 < 0))
+			(vpif '(:r13 < 0))
 				; (n2r -1) for the sake of the C++ version
-				(assign '(-0x3FFFFFFFFFFFFFFF) '(r13))
-			(elseif '(r13 > 0))
+				(assign '(-0x3FFFFFFFFFFFFFFF) '(:r13))
+			(elseif '(:r13 > 0))
 				; (n2r 1) for the sake of the C++ version
-				(assign '(0x4000000000000001) '(r13))
+				(assign '(0x4000000000000001) '(:r13))
 			(else)
-				(vp-xor-rr r13 r13)
+				(vp-xor-rr :r13 :r13)
 			(endif)))
 
 (def-func-end)

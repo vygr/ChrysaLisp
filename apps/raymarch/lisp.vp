@@ -16,131 +16,131 @@
 
 (def-func 'apps/raymarch/scene)
 	;inputs
-	;r0 = lisp object (ptr)
-	;r1 = args list object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
 	;outputs
-	;r0 = lisp object (ptr)
-	;r1 = return value object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
-	(entry '(r0 r1))
-
-(errorcases
-	(call 'lisp :env_args_sig '(r1 ($ sig) 1) '(r2))
-	(gotoif '(r2 = 0) 'error))
-
-	(array-bind-args r1 '(r2))
+	(entry '(:r0 :r1))
 
 (errorcases
-	(assign '((r2 array_length)) '(r1))
-	(gotoif '(r1 /= 3) 'error))
+	(call 'lisp :env_args_sig '(:r1 ($ sig) 1) '(:r2))
+	(gotoif '(:r2 = 0) 'error))
 
-	(vp-push r0)
-	(assign '((r2 array_begin)) '(r2))
+	(array-bind-args :r1 '(:r2))
+
+(errorcases
+	(assign '((:r2 array_length)) '(:r1))
+	(gotoif '(:r1 /= 3) 'error))
+
+	(vp-push :r0)
+	(assign '((:r2 array_begin)) '(:r2))
 	(vec-set 0)
-	(vec-load-long 3 r2)
+	(vec-load-long 3 :r2)
 	(scene)
-	(call 'fixed :create '(r0) '(r1))
-	(vp-pop r0)
+	(call 'fixed :create '(:r0) '(:r1))
+	(vp-pop :r0)
 
-	(exit '(r0 r1))
+	(exit '(:r0 :r1))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(r0 "(scene nums)" error_msg_wrong_types r1))
+	(jump 'lisp :repl_error '(:r0 "(scene nums)" error_msg_wrong_types :r1))
 	(signature '(nums)))
 
 (def-func-end)
 
 (def-func 'apps/raymarch/ray_march)
 	;inputs
-	;r0 = lisp object (ptr)
-	;r1 = args list object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
 	;outputs
-	;r0 = lisp object (ptr)
-	;r1 = return value object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
-	(entry '(r13 r14))
-
-(errorcases
-	(call 'lisp :env_args_sig '(r14 ($ sig) 6) '(r2))
-	(gotoif '(r2 = 0) 'error))
-
-	(array-bind-args r14 '(r0 r1 r2 r3 r4 r5))
+	(entry '(:r13 :r14))
 
 (errorcases
-	(assign '((r0 array_length)) '(r6))
-	(gotoif '(r6 /= 3) 'error)
-	(assign '((r1 array_length)) '(r6))
-	(gotoif '(r6 /= 3) 'error))
+	(call 'lisp :env_args_sig '(:r14 ($ sig) 6) '(:r2))
+	(gotoif '(:r2 = 0) 'error))
 
-	(vp-push r13)
-	(assign '((r0 array_begin) (r1 array_begin)) '(r0 r1))
-	(class/num/get_values '(r2 r3 r4 r5))
-	(assign '(1000 (<< 1 +fp_shift)) '(r6 r7))
+	(array-bind-args :r14 '(:r0 :r1 :r2 :r3 :r4 :r5))
+
+(errorcases
+	(assign '((:r0 array_length)) '(:r6))
+	(gotoif '(:r6 /= 3) 'error)
+	(assign '((:r1 array_length)) '(:r6))
+	(gotoif '(:r6 /= 3) 'error))
+
+	(vp-push :r13)
+	(assign '((:r0 array_begin) (:r1 array_begin)) '(:r0 :r1))
+	(class/num/get_values '(:r2 :r3 :r4 :r5))
+	(assign '(1000 (<< 1 +fp_shift)) '(:r6 :r7))
 
 	(vec-set 7)
 	(loop-start)
-		(breakif '(r6 = 0) '(r2 >= r3) '(r7 <= r4))
-		(vp-sub-cr 1 r6)
-		(vec-load-long 3 r0)
-		(vec-load-long 3 r1)
-		(vec-fscale 3 r2)
+		(breakif '(:r6 = 0) '(:r2 >= :r3) '(:r7 <= :r4))
+		(vp-sub-cr 1 :r6)
+		(vec-load-long 3 :r0)
+		(vec-load-long 3 :r1)
+		(vec-fscale 3 :r2)
 		(vec-add 3)
 		(scene)
 		(vec-dup 1)
-		(vec-fmul 1 '(r5))
-		(vp-add-rr (elem 0 (vec-pop 1)) r2)
+		(vec-fmul 1 '(:r5))
+		(vp-add-rr (elem 0 (vec-pop 1)) :r2)
 	(loop-end)
-	(vp-cpy-rr r2 r0)
-	(vpif '(r7 > r4))
-		(vp-cpy-rr r3 r0)
+	(vp-cpy-rr :r2 :r0)
+	(vpif '(:r7 > :r4))
+		(vp-cpy-rr :r3 :r0)
 	(endif)
-	(call 'fixed :create '(r0) '(r1))
-	(vp-pop r0)
+	(call 'fixed :create '(:r0) '(:r1))
+	(vp-pop :r0)
 
-	(exit '(r0 r1))
+	(exit '(:r0 :r1))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(r13 "(ray-march nums nums num num num num)" error_msg_wrong_types r14))
+	(jump 'lisp :repl_error '(:r13 "(ray-march nums nums num num num num)" error_msg_wrong_types :r14))
 	(signature '(nums nums num num num num)))
 
 (def-func-end)
 
 (def-func 'apps/raymarch/tile)
 	;inputs
-	;r0 = lisp object (ptr)
-	;r1 = args list object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
 	;outputs
-	;r0 = lisp object (ptr)
-	;r1 = return value object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
 	(def-vars
 		(ptr this canvas)
 		(puint data)
 		(uint x y x1 y1 xp yp))
 
-	(entry '(r0 r1))
+	(entry '(:r0 :r1))
 
 (errorcases
-	(call 'lisp :env_args_sig '(r1 ($ sig) 2) '(r2))
-	(gotoif '(r2 = 0) 'error))
+	(call 'lisp :env_args_sig '(:r1 ($ sig) 2) '(:r2))
+	(gotoif '(:r2 = 0) 'error))
 
 	(push-scope)
-	(assign '(r0) {this})
+	(assign '(:r0) {this})
 
-	(list-bind-args r1 '(r0 r1) '(:canvas :str))
-	(array-get-args r1 '(r7 r8 r9 r10) 'ui)
-	(vp-add-cr (* 4 +int_size) r1)
-	(assign '(r0 r1 r7 r8 r9 r10 r8) {canvas, data, x, y, x1, y1, yp})
+	(list-bind-args :r1 '(:r0 :r1) '(:canvas :str))
+	(array-get-args :r1 '(:r7 :r8 :r9 :r10) 'ui)
+	(vp-add-cr (* 4 +int_size) :r1)
+	(assign '(:r0 :r1 :r7 :r8 :r9 :r10 :r8) {canvas, data, x, y, x1, y1, yp})
 	(loop-start)
 		(assign {x} {xp})
 		(loop-start)
@@ -150,16 +150,16 @@
 		(loop-until {(xp + 1 => xp) = x1})
 	(loop-until {(yp + 1 => yp) = y1})
 
-	(call 'num :create {(x1 - x) * (y1 - y)} '(r1))
+	(call 'num :create {(x1 - x) * (y1 - y)} '(:r1))
 
-	(assign {this} '(r0))
-	(exit '(r0 r1))
+	(assign {this} '(:r0))
+	(exit '(:r0 :r1))
 	(pop-scope)
 	(return)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(r0 "(tile canvas data)" error_msg_wrong_types r1))
+	(jump 'lisp :repl_error '(:r0 "(tile canvas data)" error_msg_wrong_types :r1))
 	(signature '(canvas str)))
 
 (def-func-end)

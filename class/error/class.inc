@@ -2,14 +2,14 @@
 
 (def-class error obj
 	(dec-method :vtable class/error/vtable)
-	(dec-method :create class/error/create :static (r0 r1 r2 r3 r4 r5) (r0))
-	(dec-method :init class/error/init :static (r0 r1 r2 r3 r4 r5 r6 r7))
-	(dec-method :get_description class/error/get_description :static (r0) (r0 r1))
-	(dec-method :get_msg class/error/get_msg :static (r0) (r0 r1))
-	(dec-method :get_object class/error/get_object :static (r0) (r0 r1))
-	(dec-method :get_file class/error/get_file :static (r0) (r0 r1))
-	(dec-method :get_line class/error/get_line :static (r0) (r0 r1))
-	(dec-method :get_frame class/error/get_frame :static (r0) (r0 r1))
+	(dec-method :create class/error/create :static (:r0 :r1 :r2 :r3 :r4 :r5) (:r0))
+	(dec-method :init class/error/init :static (:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7))
+	(dec-method :get_description class/error/get_description :static (:r0) (:r0 :r1))
+	(dec-method :get_msg class/error/get_msg :static (:r0) (:r0 :r1))
+	(dec-method :get_object class/error/get_object :static (:r0) (:r0 :r1))
+	(dec-method :get_file class/error/get_file :static (:r0) (:r0 :r1))
+	(dec-method :get_line class/error/get_line :static (:r0) (:r0 :r1))
+	(dec-method :get_frame class/error/get_frame :static (:r0) (:r0 :r1))
 	(dec-method :print class/error/print :final)
 	(dec-method :deinit class/error/deinit :final))
 
@@ -23,53 +23,53 @@
 
 (defun class/error/get_description ()
 	;inputs
-	;r0 = error object (ptr)
+	;:r0 = error object (ptr)
 	;outputs
-	;r0 = error object (ptr)
-	;r1 = str object (ptr)
+	;:r0 = error object (ptr)
+	;:r1 = str object (ptr)
 	;trashes
-	;r1
-	(assign '((r0 error_description)) '(r1)))
+	;:r1
+	(assign '((:r0 error_description)) '(:r1)))
 
 (defun class/error/get_file ()
 	;inputs
-	;r0 = error object (ptr)
+	;:r0 = error object (ptr)
 	;outputs
-	;r0 = error object (ptr)
-	;r1 = str object (ptr)
+	;:r0 = error object (ptr)
+	;:r1 = str object (ptr)
 	;trashes
-	;r1
-	(assign '((r0 error_file)) '(r1)))
+	;:r1
+	(assign '((:r0 error_file)) '(:r1)))
 
 (defun class/error/get_object ()
 	;inputs
-	;r0 = error object (ptr)
+	;:r0 = error object (ptr)
 	;outputs
-	;r0 = error object (ptr)
-	;r1 = error payload object (ptr)
+	;:r0 = error object (ptr)
+	;:r1 = error payload object (ptr)
 	;trashes
-	;r1
-	(assign '((r0 error_object)) '(r1)))
+	;:r1
+	(assign '((:r0 error_object)) '(:r1)))
 
 (defun class/error/get_line ()
 	;inputs
-	;r0 = error object (ptr)
+	;:r0 = error object (ptr)
 	;outputs
-	;r0 = error object (ptr)
-	;r1 = line number (uint)
+	;:r0 = error object (ptr)
+	;:r1 = line number (uint)
 	;trashes
-	;r1
-	(assign '((r0 error_line)) '(r1)))
+	;:r1
+	(assign '((:r0 error_line)) '(:r1)))
 
 (defun class/error/get_frame ()
 	;inputs
-	;r0 = error object (ptr)
+	;:r0 = error object (ptr)
 	;outputs
-	;r0 = error object (ptr)
-	;r1 = error payload object (ptr)
+	;:r0 = error object (ptr)
+	;:r1 = error payload object (ptr)
 	;trashes
-	;r1
-	(assign '((r0 error_frame)) '(r1)))
+	;:r1
+	(assign '((:r0 error_frame)) '(:r1)))
 
 ;;;;;;;;;;;;
 ; error msgs

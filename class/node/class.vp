@@ -5,49 +5,49 @@
 
 (def-method 'node :create)
 	;inputs
-	;r0 = buffer (pubyte)
-	;r1 = buffer length (uint)
+	;:r0 = buffer (pubyte)
+	;:r1 = buffer length (uint)
 	;outputs
-	;r0 = 0 if error, else node object (ptr)
+	;:r0 = 0 if error, else node object (ptr)
 	;trashes
-	;r1-r6
+	;:r1-:r6
 
 	;save size of data
-	(entry 'node :create '(r5 r6))
+	(entry 'node :create '(:r5 :r6))
 
 	;create new str object
-	(call 'sys_mem :alloc '((& r1 (+ str_size +byte_size))) '(r0 _))
-	(vpif '(r0 /= 0))
+	(call 'sys_mem :alloc '((& :r1 (+ str_size +byte_size))) '(:r0 _))
+	(vpif '(:r0 /= 0))
 		;init the object
-		(call 'node :init `(r0 (@ ,(f-path 'node :vtable)) r5 r6) '(r0 r1))
-		(vpif '(r1 = 0))
+		(call 'node :init `(:r0 (@ ,(f-path 'node :vtable)) :r5 :r6) '(:r0 :r1))
+		(vpif '(:r1 = 0))
 			;error with init
-			(call 'sys_mem :free '(r0))
-			(vp-xor-rr r0 r0)
+			(call 'sys_mem :free '(:r0))
+			(vp-xor-rr :r0 :r0)
 		(endif)
 	(endif)
 
-	(exit 'node :create '(r0))
+	(exit 'node :create '(:r0))
 	(vp-ret)
 
 (def-func-end)
 
 (def-method 'node :hash)
 	;inputs
-	;r0 = node object (ptr)
+	;:r0 = node object (ptr)
 	;outputs
-	;r0 = node object (ptr)
-	;r1 = hash code (ulong)
+	;:r0 = node object (ptr)
+	;:r1 = hash code (ulong)
 	;trashes
-	;r1-r2
+	;:r1-:r2
 
-	(entry 'node :hash '(r0))
+	(entry 'node :hash '(:r0))
 
-	(vp-cpy-ir r0 (+ str_data node_id_node1) r1)
-	(vp-cpy-ir r0 (+ str_data node_id_node2) r2)
-	(vp-xor-rr r2 r1)
+	(vp-cpy-ir :r0 (+ str_data node_id_node1) :r1)
+	(vp-cpy-ir :r0 (+ str_data node_id_node2) :r2)
+	(vp-xor-rr :r2 :r1)
 
-	(exit 'node :hash '(r0 r1))
+	(exit 'node :hash '(:r0 :r1))
 	(vp-ret)
 
 (def-func-end)

@@ -9,172 +9,172 @@
 
 (def-method 'sys_mail :lisp_validate)
 	;inputs
-	;r0 = lisp object (ptr)
-	;r1 = args list object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
 	;outputs
-	;r0 = lisp object (ptr)
-	;r1 = return value object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
-	(entry 'sys_mail :lisp_validate '(r0 r1))
+	(entry 'sys_mail :lisp_validate '(:r0 :r1))
 
 (errorcases
-	(call 'lisp :env_args_sig '(r1 ($ sig) 1) '(r2))
-	(gotoif '(r2 = 0) 'error))
+	(call 'lisp :env_args_sig '(:r1 ($ sig) 1) '(:r2))
+	(gotoif '(:r2 = 0) 'error))
 
-	(vp-push r0)
-	(list-bind-args r1 '(r0) '(:obj))
-	(vp-cpy-ir r0 str_data r0)
-	(call 'sys_mail :validate '(r0) '(r0))
-	(assign '((rsp 0)) '(r1))
-	(vpif '(r0 /= 0))
-		(assign '((r1 lisp_sym_t)) '(r1))
+	(vp-push :r0)
+	(list-bind-args :r1 '(:r0) '(:obj))
+	(vp-cpy-ir :r0 str_data :r0)
+	(call 'sys_mail :validate '(:r0) '(:r0))
+	(assign '((:rsp 0)) '(:r1))
+	(vpif '(:r0 /= 0))
+		(assign '((:r1 lisp_sym_t)) '(:r1))
 	(else)
-		(assign '((r1 lisp_sym_nil)) '(r1))
+		(assign '((:r1 lisp_sym_nil)) '(:r1))
 	(endif)
-	(class/obj/ref r1 r2)
-	(vp-pop r0)
+	(class/obj/ref :r1 :r2)
+	(vp-pop :r0)
 
-	(exit 'sys_mail :lisp_validate '(r0 r1))
+	(exit 'sys_mail :lisp_validate '(:r0 :r1))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(r0 "(mail-validate mbox)" error_msg_wrong_types r1))
+	(jump 'lisp :repl_error '(:r0 "(mail-validate mbox)" error_msg_wrong_types :r1))
 	(signature '(str)))
 
 (def-func-end)
 
 (def-method 'sys_mail :lisp_read)
 	;inputs
-	;r0 = lisp object (ptr)
-	;r1 = args list object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
 	;outputs
-	;r0 = lisp object (ptr)
-	;r1 = return value object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
-	(entry 'sys_mail :lisp_read '(r0 r1))
+	(entry 'sys_mail :lisp_read '(:r0 :r1))
 
 (errorcases
-	(call 'lisp :env_args_sig '(r1 ($ sig) 1) '(r2))
-	(gotoif '(r2 = 0) 'error))
+	(call 'lisp :env_args_sig '(:r1 ($ sig) 1) '(:r2))
+	(gotoif '(:r2 = 0) 'error))
 
-	(vp-push r0)
-	(list-bind-args r1 '(r0) '(:obj))
-	(vp-cpy-ir r0 str_data r0)
-	(call 'sys_mail :validate '(r0) '(r0))
-	(vpif '(r0 /= 0))
-		(call 'sys_mail :read '(r0) '(r0 _))
-		(call 'sys_mail :free_obj '(r0) '(r1 _ _))
+	(vp-push :r0)
+	(list-bind-args :r1 '(:r0) '(:obj))
+	(vp-cpy-ir :r0 str_data :r0)
+	(call 'sys_mail :validate '(:r0) '(:r0))
+	(vpif '(:r0 /= 0))
+		(call 'sys_mail :read '(:r0) '(:r0 _))
+		(call 'sys_mail :free_obj '(:r0) '(:r1 _ _))
 	(else)
-		(assign '((rsp 0)) '(r1))
-		(assign '((r1 lisp_sym_nil)) '(r1))
-		(class/obj/ref r1 r2)
+		(assign '((:rsp 0)) '(:r1))
+		(assign '((:r1 lisp_sym_nil)) '(:r1))
+		(class/obj/ref :r1 :r2)
 	(endif)
-	(vp-pop r0)
+	(vp-pop :r0)
 
-	(exit 'sys_mail :lisp_read '(r0 r1))
+	(exit 'sys_mail :lisp_read '(:r0 :r1))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(r0 "(mail-read mbox)" error_msg_wrong_types r1))
+	(jump 'lisp :repl_error '(:r0 "(mail-read mbox)" error_msg_wrong_types :r1))
 	(signature '(str)))
 
 (def-func-end)
 
 (def-method 'sys_mail :lisp_poll)
 	;inputs
-	;r0 = lisp object (ptr)
-	;r1 = args list object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
 	;outputs
-	;r0 = lisp object (ptr)
-	;r1 = return value object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
-	(entry 'sys_mail :lisp_poll '(r0 r1))
-
-(errorcases
-	(call 'lisp :env_args_sig '(r1 ($ sig) 1) '(r2))
-	(gotoif '(r2 = 0) 'error))
-
-	(list-bind-args r1 '(r1) '(:list))
+	(entry 'sys_mail :lisp_poll '(:r0 :r1))
 
 (errorcases
-	(call 'lisp :env_args_match `(r1 (@ ,(f-path 'str :vtable)) 1) '(r2))
-	(gotoif '(r2 = 0) 'error))
+	(call 'lisp :env_args_sig '(:r1 ($ sig) 1) '(:r2))
+	(gotoif '(:r2 = 0) 'error))
 
-	(vp-push r0)
-	(call 'sys_mail :poll '(r1) '(r0 _ _))
-	(vpif '(r0 /= -1))
-		(call 'num :create '(r0) '(r1))
+	(list-bind-args :r1 '(:r1) '(:list))
+
+(errorcases
+	(call 'lisp :env_args_match `(:r1 (@ ,(f-path 'str :vtable)) 1) '(:r2))
+	(gotoif '(:r2 = 0) 'error))
+
+	(vp-push :r0)
+	(call 'sys_mail :poll '(:r1) '(:r0 _ _))
+	(vpif '(:r0 /= -1))
+		(call 'num :create '(:r0) '(:r1))
 	(else)
-		(assign '((rsp 0)) '(r1))
-		(assign '((r1 lisp_sym_nil)) '(r1))
-		(class/obj/ref r1 r2)
+		(assign '((:rsp 0)) '(:r1))
+		(assign '((:r1 lisp_sym_nil)) '(:r1))
+		(class/obj/ref :r1 :r2)
 	(endif)
-	(vp-pop r0)
+	(vp-pop :r0)
 
-	(exit 'sys_mail :lisp_poll '(r0 r1))
+	(exit 'sys_mail :lisp_poll '(:r0 :r1))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(r0 "(mail-poll mboxs)" error_msg_wrong_types r1))
+	(jump 'lisp :repl_error '(:r0 "(mail-poll mboxs)" error_msg_wrong_types :r1))
 	(signature '(list)))
 
 (def-func-end)
 
 (def-method 'sys_mail :lisp_select)
 	;inputs
-	;r0 = lisp object (ptr)
-	;r1 = args list object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
 	;outputs
-	;r0 = lisp object (ptr)
-	;r1 = return value object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
-	(entry 'sys_mail :lisp_select '(r0 r1))
-
-(errorcases
-	(call 'lisp :env_args_sig '(r1 ($ sig) 1) '(r2))
-	(gotoif '(r2 = 0) 'error))
-
-	(list-bind-args r1 '(r1) '(:list))
+	(entry 'sys_mail :lisp_select '(:r0 :r1))
 
 (errorcases
-	(call 'lisp :env_args_match `(r1 (@ ,(f-path 'str :vtable)) 1) '(r2))
-	(gotoif '(r2 = 0) 'error))
+	(call 'lisp :env_args_sig '(:r1 ($ sig) 1) '(:r2))
+	(gotoif '(:r2 = 0) 'error))
 
-	(vp-push r0)
-	(call 'sys_mail :select '(r1) '(r0))
-	(call 'num :create '(r0) '(r1))
-	(vp-pop r0)
+	(list-bind-args :r1 '(:r1) '(:list))
 
-	(exit 'sys_mail :lisp_select '(r0 r1))
+(errorcases
+	(call 'lisp :env_args_match `(:r1 (@ ,(f-path 'str :vtable)) 1) '(:r2))
+	(gotoif '(:r2 = 0) 'error))
+
+	(vp-push :r0)
+	(call 'sys_mail :select '(:r1) '(:r0))
+	(call 'num :create '(:r0) '(:r1))
+	(vp-pop :r0)
+
+	(exit 'sys_mail :lisp_select '(:r0 :r1))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(r0 "(mail-select mboxs)" error_msg_wrong_types r1))
+	(jump 'lisp :repl_error '(:r0 "(mail-select mboxs)" error_msg_wrong_types :r1))
 	(signature '(list)))
 
 (def-func-end)
 
 (def-method 'sys_mail :lisp_send)
 	;inputs
-	;r0 = lisp object (ptr)
-	;r1 = args list object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
 	;outputs
-	;r0 = lisp object (ptr)
-	;r1 = return value object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
 	(def-vars
 		(ptr this args value)
@@ -184,8 +184,8 @@
 	(entry 'sys_mail :lisp_send {this, args})
 
 (errorcases
-	(call 'lisp :env_args_sig {args, $sig, 2} '(r2))
-	(gotoif '(r2 = 0) 'error))
+	(call 'lisp :env_args_sig {args, $sig, 2} '(:r2))
+	(gotoif '(:r2 = 0) 'error))
 
 	(call 'lisp :env_args_set {args, 0, &arg0})
 	(call 'obj :inst_of (cat {arg1, @} (f-path 'str :vtable)))
@@ -198,9 +198,9 @@
 	(gotoif (list (method-output 'obj :inst_of 1) '= 0) 'error))
 	(call 'sys_mail :alloc_obj {arg1, arg1->array_begin, arg1->array_length * +long_size} {arg2})
 (vp-label 'sendit)
-	(assign {arg0, arg2} '(r1 r0))
-	(assign-net-id r1 str_data r0 msg_dest)
-	(call 'sys_mail :send '(r0))
+	(assign {arg0, arg2} '(:r1 :r0))
+	(assign-net-id :r1 str_data :r0 msg_dest)
+	(call 'sys_mail :send '(:r0))
 	(call 'obj :ref {arg0} {value})
 
 	(exit 'sys_mail :lisp_send {this, value})
@@ -217,263 +217,263 @@
 
 (def-method 'sys_mail :lisp_declare)
 	;inputs
-	;r0 = lisp object (ptr)
-	;r1 = args list object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
 	;outputs
-	;r0 = lisp object (ptr)
-	;r1 = return value object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
-	(entry 'sys_mail :lisp_declare '(r0 r1))
+	(entry 'sys_mail :lisp_declare '(:r0 :r1))
 
 (errorcases
-	(call 'lisp :env_args_sig '(r1 ($ sig) 3) '(r2))
-	(gotoif '(r2 = 0) 'error))
+	(call 'lisp :env_args_sig '(:r1 ($ sig) 3) '(:r2))
+	(gotoif '(:r2 = 0) 'error))
 
-	(vp-push r0)
+	(vp-push :r0)
 	(defq in (method-input 'sys_mail :declare))
-	(array-bind-args r1 in)
-	(call 'sys_mail :declare in '(r1))
-	(vp-pop r0)
+	(array-bind-args :r1 in)
+	(call 'sys_mail :declare in '(:r1))
+	(vp-pop :r0)
 
-	(exit 'sys_mail :lisp_declare '(r0 r1))
+	(exit 'sys_mail :lisp_declare '(:r0 :r1))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(r0 "(mail-declare mbox name info)" error_msg_wrong_types r1))
+	(jump 'lisp :repl_error '(:r0 "(mail-declare mbox name info)" error_msg_wrong_types :r1))
 	(signature '(str str str)))
 
 (def-func-end)
 
 (def-method 'sys_mail :lisp_enquire)
 	;inputs
-	;r0 = lisp object (ptr)
-	;r1 = args list object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
 	;outputs
-	;r0 = lisp object (ptr)
-	;r1 = return value object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
-	(entry 'sys_mail :lisp_enquire '(r0 r1))
+	(entry 'sys_mail :lisp_enquire '(:r0 :r1))
 
 (errorcases
-	(call 'lisp :env_args_sig '(r1 ($ sig) 1) '(r2))
-	(gotoif '(r2 = 0) 'error))
+	(call 'lisp :env_args_sig '(:r1 ($ sig) 1) '(:r2))
+	(gotoif '(:r2 = 0) 'error))
 
-	(vp-push r0)
+	(vp-push :r0)
 	(defq in (method-input 'sys_mail :enquire))
-	(array-bind-args r1 in)
-	(call 'sys_mail :enquire in '(r1))
-	(vp-pop r0)
+	(array-bind-args :r1 in)
+	(call 'sys_mail :enquire in '(:r1))
+	(vp-pop :r0)
 
-	(exit 'sys_mail :lisp_enquire '(r0 r1))
+	(exit 'sys_mail :lisp_enquire '(:r0 :r1))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(r0 "(mail-enquire prefix)" error_msg_wrong_types r1))
+	(jump 'lisp :repl_error '(:r0 "(mail-enquire prefix)" error_msg_wrong_types :r1))
 	(signature '(str)))
 
 (def-func-end)
 
 (def-method 'sys_mail :lisp_forget)
 	;inputs
-	;r0 = lisp object (ptr)
-	;r1 = args list object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
 	;outputs
-	;r0 = lisp object (ptr)
-	;r1 = return value object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
-	(entry 'sys_mail :lisp_forget '(r0 r1))
+	(entry 'sys_mail :lisp_forget '(:r0 :r1))
 
 (errorcases
-	(call 'lisp :env_args_sig '(r1 ($ sig) 1) '(r2))
-	(gotoif '(r2 = 0) 'error))
+	(call 'lisp :env_args_sig '(:r1 ($ sig) 1) '(:r2))
+	(gotoif '(:r2 = 0) 'error))
 
-	(vp-push r0)
+	(vp-push :r0)
 	(defq in (method-input 'sys_mail :forget))
-	(array-bind-args r1 in)
+	(array-bind-args :r1 in)
 	(vp-push (elem 0 in))
 	(call 'sys_mail :forget in)
-	(vp-pop r1)
-	(class/obj/ref r1 r2)
-	(vp-pop r0)
+	(vp-pop :r1)
+	(class/obj/ref :r1 :r2)
+	(vp-pop :r0)
 
-	(exit 'sys_mail :lisp_forget '(r0 r1))
+	(exit 'sys_mail :lisp_forget '(:r0 :r1))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(r0 "(mail-forget key)" error_msg_wrong_types r1))
+	(jump 'lisp :repl_error '(:r0 "(mail-forget key)" error_msg_wrong_types :r1))
 	(signature '(str)))
 
 (def-func-end)
 
 (def-method 'sys_mail :lisp_alloc_mbox)
 	;inputs
-	;r0 = lisp object (ptr)
-	;r1 = args list object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
 	;outputs
-	;r0 = lisp object (ptr)
-	;r1 = return value object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
-	(entry 'sys_mail :lisp_alloc_mbox '(r0 r1))
+	(entry 'sys_mail :lisp_alloc_mbox '(:r0 :r1))
 
 (errorcases
-	(assign '((r1 array_length)) '(r2))
-	(gotoif '(r2 /= 0) 'error))
+	(assign '((:r1 array_length)) '(:r2))
+	(gotoif '(:r2 /= 0) 'error))
 
-	(vp-push r0)
-	(call 'str :create_from_buffer '(0 +net_id_size) '(r6))
-	(call 'sys_mail :alloc_mbox nil `((r6 ,(+ str_data net_id_mbox_id)) _))
+	(vp-push :r0)
+	(call 'str :create_from_buffer '(0 +net_id_size) '(:r6))
+	(call 'sys_mail :alloc_mbox nil `((:r6 ,(+ str_data net_id_mbox_id)) _))
 	(call 'sys_kernel :id nil
-		`((r6 ,(+ str_data net_id_node_id node_id_node1))
-		(r6 ,(+ str_data net_id_node_id node_id_node2))))
-	(vp-pop r0)
+		`((:r6 ,(+ str_data net_id_node_id node_id_node1))
+		(:r6 ,(+ str_data net_id_node_id node_id_node2))))
+	(vp-pop :r0)
 
-	(exit 'sys_mail :lisp_alloc_mbox '(r0 r6))
+	(exit 'sys_mail :lisp_alloc_mbox '(:r0 :r6))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(r0 "(mail-alloc-mbox)" error_msg_wrong_types r1)))
+	(jump 'lisp :repl_error '(:r0 "(mail-alloc-mbox)" error_msg_wrong_types :r1)))
 
 (def-func-end)
 
 (def-method 'sys_mail :lisp_free_mbox)
 	;inputs
-	;r0 = lisp object (ptr)
-	;r1 = args list object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
 	;outputs
-	;r0 = lisp object (ptr)
-	;r1 = return value object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
-	(entry 'sys_mail :lisp_free_mbox '(r0 r1))
+	(entry 'sys_mail :lisp_free_mbox '(:r0 :r1))
 
 (errorcases
-	(call 'lisp :env_args_sig '(r1 ($ sig) 1) '(r2))
-	(gotoif '(r2 = 0) 'error))
+	(call 'lisp :env_args_sig '(:r1 ($ sig) 1) '(:r2))
+	(gotoif '(:r2 = 0) 'error))
 
-	(vp-push r0)
+	(vp-push :r0)
 	(defq in (method-input 'sys_mail :free_mbox))
-	(list-bind-args r1 in '(:obj))
+	(list-bind-args :r1 in '(:obj))
 	(vp-cpy-ir (elem 0 in) str_data (elem 0 in))
 	(call 'sys_mail :free_mbox in)
-	(vp-pop r0)
-	(assign '((r0 lisp_sym_nil)) '(r1))
-	(class/obj/ref r1 r2)
+	(vp-pop :r0)
+	(assign '((:r0 lisp_sym_nil)) '(:r1))
+	(class/obj/ref :r1 :r2)
 
-	(exit 'sys_mail :lisp_free_mbox '(r0 r1))
+	(exit 'sys_mail :lisp_free_mbox '(:r0 :r1))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(r0 "(mail-free-mbox mbox)" error_msg_wrong_types r1))
+	(jump 'lisp :repl_error '(:r0 "(mail-free-mbox mbox)" error_msg_wrong_types :r1))
 	(signature '(str)))
 
 (def-func-end)
 
 (def-method 'sys_mail :lisp_devices)
 	;inputs
-	;r0 = lisp object (ptr)
-	;r1 = args list object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
 	;outputs
-	;r0 = lisp object (ptr)
-	;r1 = return value object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
-	(entry 'sys_mail :lisp_devices '(r0 r1))
+	(entry 'sys_mail :lisp_devices '(:r0 :r1))
 
 (errorcases
-	(assign '((r1 array_length)) '(r2))
-	(gotoif '(r2 /= 0) 'error))
+	(assign '((:r1 array_length)) '(:r2))
+	(gotoif '(:r2 /= 0) 'error))
 
-	(vp-push r0)
-	(call 'sys_mail :devices nil '(r1))
-	(vp-pop r0)
+	(vp-push :r0)
+	(call 'sys_mail :devices nil '(:r1))
+	(vp-pop :r0)
 
-	(exit 'sys_mail :lisp_devices '(r0 r1))
+	(exit 'sys_mail :lisp_devices '(:r0 :r1))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(r0 "(mail-nodes)" error_msg_wrong_types r1)))
+	(jump 'lisp :repl_error '(:r0 "(mail-nodes)" error_msg_wrong_types :r1)))
 
 (def-func-end)
 
 (def-method 'sys_mail :lisp_timeout)
 	;inputs
-	;r0 = lisp object (ptr)
-	;r1 = args list object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
 	;outputs
-	;r0 = lisp object (ptr)
-	;r1 = return value object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
-	(entry 'sys_mail :lisp_timeout '(r0 r1))
+	(entry 'sys_mail :lisp_timeout '(:r0 :r1))
 
 (errorcases
-	(call 'lisp :env_args_sig '(r1 ($ sig) 3) '(r2))
-	(gotoif '(r2 = 0) 'error))
+	(call 'lisp :env_args_sig '(:r1 ($ sig) 3) '(:r2))
+	(gotoif '(:r2 = 0) 'error))
 
-	(vp-push r0)
-	(list-bind-args r1 '(r12 r13 r14) '(:obj :num :num))
+	(vp-push :r0)
+	(list-bind-args :r1 '(:r12 :r13 :r14) '(:obj :num :num))
 	;remove or create ?
-	(vpif '(r13 = 0))
+	(vpif '(:r13 = 0))
 		;remove from timeout list
-		(fn-bind 'sys/statics/statics r5)
-		(load-net-id r12 str_data r9 r10 r11)
-		(loop-list-forward r5 statics_sys_mail_timeout_list r5 r7)
-			(load-net-id r5 msg_dest r0 r1 r2)
-			(vp-sub-rr r9 r0)
-			(vp-sub-rr r10 r1)
-			(vp-sub-rr r11 r2)
-			(vp-or-rr r1 r0)
-			(vp-or-rr r2 r0)
-			(continueif '(r0 /= 0))
+		(fn-bind 'sys/statics/statics :r5)
+		(load-net-id :r12 str_data :r9 :r10 :r11)
+		(loop-list-forward :r5 statics_sys_mail_timeout_list :r5 :r7)
+			(load-net-id :r5 msg_dest :r0 :r1 :r2)
+			(vp-sub-rr :r9 :r0)
+			(vp-sub-rr :r10 :r1)
+			(vp-sub-rr :r11 :r2)
+			(vp-or-rr :r1 :r0)
+			(vp-or-rr :r2 :r0)
+			(continueif '(:r0 /= 0))
 			;remove from timeout list
-			(vp-cpy-rr r5 r0)
-			(ln-remove-node r5 r4)
-			(vp-push r12)
-			(call 'sys_mail :free '(r0))
-			(vp-pop r12)
+			(vp-cpy-rr :r5 :r0)
+			(ln-remove-node :r5 :r4)
+			(vp-push :r12)
+			(call 'sys_mail :free '(:r0))
+			(vp-pop :r12)
 		(endswitch)
 	(else)
 		;calculate wake time
-		(call 'sys_pii :time nil '(r0))
-		(vp-add-rr r0 r13)
-		(call 'sys_mail :alloc `(,(* 2 +long_size)) '(r0 r1))
-		(assign '(r13 r14) '((r1 0) (r1 +long_size)))
-		(load-net-id r12 str_data r2 r3 r4)
-		(save-net-id r0 msg_dest r2 r3 r4)
+		(call 'sys_pii :time nil '(:r0))
+		(vp-add-rr :r0 :r13)
+		(call 'sys_mail :alloc `(,(* 2 +long_size)) '(:r0 :r1))
+		(assign '(:r13 :r14) '((:r1 0) (:r1 +long_size)))
+		(load-net-id :r12 str_data :r2 :r3 :r4)
+		(save-net-id :r0 msg_dest :r2 :r3 :r4)
 		;insert into timeout list
-		(fn-bind 'sys/statics/statics r4)
-		(loop-list-forward r4 statics_sys_mail_timeout_list r4 r2)
-			(assign '((r4 msg_frag_data)) '(r1))
-			(assign '((r1 0)) '(r1))
-		(loop-until '(r13 < r1))
-		(ln-add-node-before r4 r0 r1)
+		(fn-bind 'sys/statics/statics :r4)
+		(loop-list-forward :r4 statics_sys_mail_timeout_list :r4 :r2)
+			(assign '((:r4 msg_frag_data)) '(:r1))
+			(assign '((:r1 0)) '(:r1))
+		(loop-until '(:r13 < :r1))
+		(ln-add-node-before :r4 :r0 :r1)
 	(endif)
-	(class/obj/ref r12 r0)
-	(vp-pop r0)
+	(class/obj/ref :r12 :r0)
+	(vp-pop :r0)
 
-	(exit 'sys_mail :lisp_timeout '(r0 r12))
+	(exit 'sys_mail :lisp_timeout '(:r0 :r12))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(r0 "(mail-timeout mbox ns id)" error_msg_wrong_types r1))
+	(jump 'lisp :repl_error '(:r0 "(mail-timeout mbox ns id)" error_msg_wrong_types :r1))
 	(signature '(str num num)))
 
 (def-func-end)

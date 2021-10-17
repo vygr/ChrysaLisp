@@ -5,9 +5,9 @@
 
 (def-method 'sys_mail :in)
 	;inputs
-	;r0 = link input msg buffer (ptr)
+	;:r0 = link input msg buffer (ptr)
 	;trashes
-	;r0-r14
+	;:r0-:r14
 
 	(def-vars
 		(ptr rx_msg msg parcel_list)

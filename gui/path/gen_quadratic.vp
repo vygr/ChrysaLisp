@@ -4,19 +4,19 @@
 
 (def-method 'path :gen_quadratic)
 	;inputs
-	;r0 = path object (ptr)
-	;r1 = stack array object (ptr)
-	;r2 = p1x (fixed)
-	;r3 = p1y (fixed)
-	;r4 = p2x (fixed)
-	;r5 = p2y (fixed)
-	;r6 = p3x (fixed)
-	;r7 = p3y (fixed)
-	;r8 = tolerance (fixed)
+	;:r0 = path object (ptr)
+	;:r1 = stack array object (ptr)
+	;:r2 = p1x (fixed)
+	;:r3 = p1y (fixed)
+	;:r4 = p2x (fixed)
+	;:r5 = p2y (fixed)
+	;:r6 = p3x (fixed)
+	;:r7 = p3y (fixed)
+	;:r8 = tolerance (fixed)
 	;outputs
-	;r0 = path object (ptr)
+	;:r0 = path object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
 	(def-vars
 		(ptr this stack)

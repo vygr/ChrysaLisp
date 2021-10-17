@@ -6,15 +6,15 @@
 
 (def-method 'lisp :repl_error)
 	;inputs
-	;r0 = lisp object (ptr)
-	;r1 = description c string (pubyte)
-	;r2 = 0, else error msg number (uint)
-	;r3 = error payload object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = description c string (pubyte)
+	;:r2 = 0, else error msg number (uint)
+	;:r3 = error payload object (ptr)
 	;outputs
-	;r0 = lisp object (ptr)
-	;r1 = error object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = error object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
 	(def-vars
 		(ptr this desc payload file value frame)

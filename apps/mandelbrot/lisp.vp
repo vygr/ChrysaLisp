@@ -8,24 +8,24 @@
 
 (def-func 'apps/mandelbrot/depth)
 	;inputs
-	;r0 = lisp object (ptr)
-	;r1 = args list object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
 	;outputs
-	;r0 = lisp object (ptr)
-	;r1 = return value object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
 	(vp-def (i x0 y0 xc yc x2 y2 four tmp))
 
-	(entry '(r0 r1))
+	(entry '(:r0 :r1))
 
 (errorcases
-	(call 'lisp :env_args_sig '(r1 ($ sig) 2) '(r2))
-	(gotoif '(r2 = 0) 'error))
+	(call 'lisp :env_args_sig '(:r1 ($ sig) 2) '(:r2))
+	(gotoif '(:r2 = 0) 'error))
 
-	(vp-push r0)
-	(list-bind-args r1 `(,x0 ,y0) '(:num :num))
+	(vp-push :r0)
+	(list-bind-args :r1 `(,x0 ,y0) '(:num :num))
 	(assign `(0 0 0 0 0 ,(<< 4 +mbfp_shift)) `(,i ,xc ,yc ,x2 ,y2 ,four))
 	(loop-start)
 		(vp-cpy-rr x2 tmp)
@@ -48,47 +48,47 @@
 		(vp-asr-cr +mbfp_shift x2)
 	(loop-until (list i '= 255))
 
-	(call 'num :create `(,i) '(r1))
-	(vp-pop r0)
+	(call 'num :create `(,i) '(:r1))
+	(vp-pop :r0)
 
-	(exit '(r0 r1))
+	(exit '(:r0 :r1))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(r0 "(depth x0 y0)" error_msg_wrong_types r1))
+	(jump 'lisp :repl_error '(:r0 "(depth x0 y0)" error_msg_wrong_types :r1))
 	(signature '(num num)))
 
 (def-func-end)
 
 (def-func 'apps/mandelbrot/tile)
 	;inputs
-	;r0 = lisp object (ptr)
-	;r1 = args list object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
 	;outputs
-	;r0 = lisp object (ptr)
-	;r1 = return value object (ptr)
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
 	(def-vars
 		(ptr this canvas)
 		(pubyte data)
 		(uint x y x1 y1 xp yp col))
 
-	(entry '(r0 r1))
+	(entry '(:r0 :r1))
 
 (errorcases
-	(call 'lisp :env_args_sig '(r1 ($ sig) 2) '(r2))
-	(gotoif '(r2 = 0) 'error))
+	(call 'lisp :env_args_sig '(:r1 ($ sig) 2) '(:r2))
+	(gotoif '(:r2 = 0) 'error))
 
 	(push-scope)
-	(assign '(r0) {this})
+	(assign '(:r0) {this})
 
-	(list-bind-args r1 '(r0 r1) '(:canvas :str))
-	(array-get-args r1 '(r7 r8 r9 r10) 'ui)
-	(vp-add-cr (* 4 +int_size) r1)
-	(assign '(r0 r1 r7 r8 r9 r10 r8) {canvas, data, x, y, x1, y1, yp})
+	(list-bind-args :r1 '(:r0 :r1) '(:canvas :str))
+	(array-get-args :r1 '(:r7 :r8 :r9 :r10) 'ui)
+	(vp-add-cr (* 4 +int_size) :r1)
+	(assign '(:r0 :r1 :r7 :r8 :r9 :r10 :r8) {canvas, data, x, y, x1, y1, yp})
 	(loop-start)
 		(assign {x} {xp})
 		(loop-start)
@@ -102,16 +102,16 @@
 		(loop-until {(xp + 1 => xp) = x1})
 	(loop-until {(yp + 1 => yp) = y1})
 
-	(call 'num :create {(x1 - x) * (y1 - y)} '(r1))
+	(call 'num :create {(x1 - x) * (y1 - y)} '(:r1))
 
-	(assign {this} '(r0))
-	(exit '(r0 r1))
+	(assign {this} '(:r0))
+	(exit '(:r0 :r1))
 	(pop-scope)
 	(return)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(r0 "(tile canvas data)" error_msg_wrong_types r1))
+	(jump 'lisp :repl_error '(:r0 "(tile canvas data)" error_msg_wrong_types :r1))
 	(signature '(canvas str)))
 
 (def-func-end)

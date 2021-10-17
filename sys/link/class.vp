@@ -38,19 +38,19 @@
 
 	;start out link and send params
 	(call 'sys_mail :alloc {16} {msg, data})
-	(call 'sys_task :start (cat {@} (f-path 'sys_link :out)) '(_ _ r2 r3 r4))
-	(assign {msg, data, &lk_node, mem} '(r0 r1 r5 r6))
-	(save-net-id r0 msg_dest)
-	(assign '(r5 r6) '((r1 0) (r1 +ptr_size)))
-	(call 'sys_mail :send '(r0))
+	(call 'sys_task :start (cat {@} (f-path 'sys_link :out)) '(_ _ :r2 :r3 :r4))
+	(assign {msg, data, &lk_node, mem} '(:r0 :r1 :r5 :r6))
+	(save-net-id :r0 msg_dest)
+	(assign '(:r5 :r6) '((:r1 0) (:r1 +ptr_size)))
+	(call 'sys_mail :send '(:r0))
 
 	;start in link and send params
 	(call 'sys_mail :alloc {16} {msg, data})
-	(call 'sys_task :start (cat {@} (f-path 'sys_link :in)) '(_ _ r2 r3 r4))
-	(assign {msg, data, &lk_node, mem} '(r0 r1 r5 r6))
-	(save-net-id r0 msg_dest)
-	(assign '(r5 r6) '((r1 0) (r1 +ptr_size)))
-	(call 'sys_mail :send '(r0))
+	(call 'sys_task :start (cat {@} (f-path 'sys_link :in)) '(_ _ :r2 :r3 :r4))
+	(assign {msg, data, &lk_node, mem} '(:r0 :r1 :r5 :r6))
+	(save-net-id :r0 msg_dest)
+	(assign '(:r5 :r6) '((:r1 0) (:r1 +ptr_size)))
+	(call 'sys_mail :send '(:r0))
 
 	;wait till link dies or told to quit...
 	(loop-start)
@@ -122,19 +122,19 @@
 
 	;start out link and send params
 	(call 'sys_mail :alloc {16} {msg, data})
-	(call 'sys_task :start (cat {@} (f-path 'sys_link :out)) '(_ _ r2 r3 r4))
-	(assign {msg, data, &lk_node, mem} '(r0 r1 r5 r6))
-	(save-net-id r0 msg_dest)
-	(assign '(r5 r6) '((r1 0) (r1 +ptr_size)))
-	(call 'sys_mail :send '(r0))
+	(call 'sys_task :start (cat {@} (f-path 'sys_link :out)) '(_ _ :r2 :r3 :r4))
+	(assign {msg, data, &lk_node, mem} '(:r0 :r1 :r5 :r6))
+	(save-net-id :r0 msg_dest)
+	(assign '(:r5 :r6) '((:r1 0) (:r1 +ptr_size)))
+	(call 'sys_mail :send '(:r0))
 
 	;start in link and send params
 	(call 'sys_mail :alloc {16} {msg, data})
-	(call 'sys_task :start (cat {@} (f-path 'sys_link :in)) '(_ _ r2 r3 r4))
-	(assign {msg, data, &lk_node, mem} '(r0 r1 r5 r6))
-	(save-net-id r0 msg_dest)
-	(assign '(r5 r6) '((r1 0) (r1 +ptr_size)))
-	(call 'sys_mail :send '(r0))
+	(call 'sys_task :start (cat {@} (f-path 'sys_link :in)) '(_ _ :r2 :r3 :r4))
+	(assign {msg, data, &lk_node, mem} '(:r0 :r1 :r5 :r6))
+	(save-net-id :r0 msg_dest)
+	(assign '(:r5 :r6) '((:r1 0) (:r1 +ptr_size)))
+	(call 'sys_mail :send '(:r0))
 
 	;wait till link dies or told to quit...
 	(loop-start)

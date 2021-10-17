@@ -25,20 +25,20 @@ operators to emit `(vp-cpy-xxx)` instructions for you.
 Let's start with a simple example.
 
 ```vdu
-	(assign '(r0 r1 42) '(r1 r2 r3))
+	(assign '(:r0 :r1 42) '(:r1 :r2 :r3))
 ```
 
-We wish to assign register `r0` to `r1` and register `r1` to `r2` and the
-constant `42` to `r3`. Sounds simple enough. So we just emit:
+We wish to assign register `:r0` to `:r1` and register `:r1` to `:r2` and the
+constant `42` to `:r3`. Sounds simple enough. So we just emit:
 
 ```vdu
-	(vp-cpy-rr r0 r1)
-	(vp-cpy-rr r1 r2)
-	(vp-cpy-cr 42 r3)
+	(vp-cpy-rr :r0 :r1)
+	(vp-cpy-rr :r1 :r2)
+	(vp-cpy-cr 42 :r3)
 ```
 
-Job done, yes ? Err, no. You've just corrupted what was in `r1` prior to
-copying it to `r2` ! The `(assign)` function does a topological sort on the
+Job done, yes ? Err, no. You've just corrupted what was in `:r1` prior to
+copying it to `:r2` ! The `(assign)` function does a topological sort on the
 parameters you provide to make sure this does not happen ! If it cannot
 guarantee a cycle free set of copy instructions then it will throw an error and
 expect you to sort the problem out. This happens far less often than you might
@@ -48,15 +48,15 @@ register.
 The above example actually gets emitted as:
 
 ```vdu
-	(vp-cpy-rr r1 r2)
-	(vp-cpy-rr r0 r1)
-	(vp-cpy-cr 42 r3)
+	(vp-cpy-rr :r1 :r2)
+	(vp-cpy-rr :r0 :r1)
+	(vp-cpy-cr 42 :r3)
 ```
 
 An example of a cycle that needs user intervention would be:
 
 ```vdu
-	(assign '(r0 r1 r2) '(r1 r2 r0))
+	(assign '(:r0 :r1 :r2) '(:r1 :r2 :r0))
 ```
 
 Ouch, no way to sort that, so you're going to have to help out manually.
@@ -66,15 +66,15 @@ stack. It's there to make your life easier, not to be a full blown compiler !
 You can use all of the VP addressing modes as well as registers.
 
 ```vdu
-	(assign '(r0 (r1 64 i) (r3 r2 us)) '((r2 8) r1 r5))
+	(assign '(:r0 (:r1 64 i) (:r3 :r2 us)) '((:r2 8) :r1 :r5))
 ```
 
 This will emit:
 
 ```vdu
-	(vp-cpy-dr-us r3 r2 r5)
-	(vp-cpy-ri r0 r2 8)
-	(vp-cpy-ir-i r1 64 r1)
+	(vp-cpy-dr-us :r3 :r2 :r5)
+	(vp-cpy-ri :r0 :r2 8)
+	(vp-cpy-ir-i :r1 64 :r1)
 ```
 
 Often you will be using the `(vp-def)` macro to use register equated names, or
@@ -97,23 +97,23 @@ You can add operators to your parameters which assignment emits effective
 address or resource binding instructions for.
 
 ```vdu
-	(assign '((& r0 6)) '(r1))
-	(assign '((& r0 r1)) '(r2))
-	(assign '(($ label)) '(r0))
-	(assign '("Hello world") '(r0))
-	(assign '((@ "sys/mem/alloc")) '(r0))
-	(assign `((@ ,(f-path 'num :vtable))) '(r0))
+	(assign '((& :r0 6)) '(:r1))
+	(assign '((& :r0 :r1)) '(:r2))
+	(assign '(($ label)) '(:r0))
+	(assign '("Hello world") '(:r0))
+	(assign '((@ "sys/mem/alloc")) '(:r0))
+	(assign `((@ ,(f-path 'num :vtable))) '(:r0))
 ```
 
 Will emit:
 
 ```vdu
-	(vp-lea-i r0 6 r1)
-	(vp-lea-d r0 r1 r2)
-	(vp-lea-p label r0)
-	(fn-string "Hello world" r0)
-	(fn-bind "sys/mem/alloc" r0)
-	(fn-bind "class/num/vtable" r0)
+	(vp-lea-i :r0 6 :r1)
+	(vp-lea-d :r0 :r1 :r2)
+	(vp-lea-p label :r0)
+	(fn-string "Hello world" :r0)
+	(fn-bind "sys/mem/alloc" :r0)
+	(fn-bind "class/num/vtable" :r0)
 ```
 
 * $ label address reference
@@ -182,7 +182,7 @@ These are in addition to the C/C++ style operators.
 	(assign {&var1, &var2} {p_var1, p_var2})
 	(assign {$label} {p_label})
 	(assign {"Hello", "World"} {p_str1, p_str2})
-	(assign {"Hello", "World"} '(r2 r3))
+	(assign {"Hello", "World"} '(:r2 :r3))
 	(assign {@sys/mem/alloc} {p_alloc})
 	(assign (cat {@} (f-path 'num :vtable)) {p_vtable})
 ```
@@ -196,7 +196,7 @@ as with a VP function.
 
 ```vdu
 (def-class sys_mail nil
-	(dec-method :declare sys/mail/declare :static (r0 r1)))
+	(dec-method :declare sys/mail/declare :static (:r0 :r1)))
 ```
 
 Implementation of the function is defined in the `sys/mail/class.vp` file.
@@ -204,10 +204,10 @@ Implementation of the function is defined in the `sys/mail/class.vp` file.
 ```vdu
 (def-method 'sys_mail :declare)
 	;inputs
-	;r0 = mailbox name c string (pubyte)
-	;r1 = mailbox id (ulong)
+	;:r0 = mailbox name c string (pubyte)
+	;:r1 = mailbox id (ulong)
 	;trashes
-	;r0-r14
+	;:r0-:r14
 
 	(def-vars
 		(ptr statics name)
@@ -263,20 +263,20 @@ This is the output from wrapping the `'hmap :insert` line in the example above:
 ```vdu
 -> obj/Darwin/x86_64/sys/mail/declare
 pre opt:
-	(vp-lea-i rsp 0 _v0)
-	(vp-cpy-cr statics_sys_mail_service_map _v1)
-	(vp-cpy-ir _v0 0 _v0)
-	(vp-add-rr _v1 _v0)
-	(vp-cpy-ir _v0 0 _v0)
-	(vp-lea-i rsp 8 _v1)
-	(vp-cpy-ir _v1 0 _v1)
-	(vp-lea-i rsp 16 _v2)
-	(vp-cpy-ir _v2 0 _v2)
+	(vp-lea-i :rsp 0 :v0)
+	(vp-cpy-cr statics_sys_mail_service_map :v1)
+	(vp-cpy-ir :v0 0 :v0)
+	(vp-add-rr :v1 :v0)
+	(vp-cpy-ir :v0 0 :v0)
+	(vp-lea-i :rsp 8 :v1)
+	(vp-cpy-ir :v1 0 :v1)
+	(vp-lea-i :rsp 16 :v2)
+	(vp-cpy-ir :v2 0 :v2)
 post opt:
-	(vp-cpy-ir rsp (+ 0 0) _v0)
-	(vp-cpy-ir _v0 (+ statics_sys_mail_service_map 0) _v0)
-	(vp-cpy-ir rsp (+ 8 0) _v1)
-	(vp-cpy-ir rsp (+ 16 0) _v2)
+	(vp-cpy-ir :rsp (+ 0 0) :v0)
+	(vp-cpy-ir :v0 (+ statics_sys_mail_service_map 0) :v0)
+	(vp-cpy-ir :rsp (+ 8 0) :v1)
+	(vp-cpy-ir :rsp (+ 16 0) :v2)
 ```
 
 `*debug_mode*` setting in the `class/lisp/boot.inc` file lets you set the
@@ -298,12 +298,12 @@ front of the function signature table !
 ```vdu
 	...
 (errorcases
-	(call 'lisp :env_args_sig '(r1 ($ sig) 3) '(r2))
-	(gotoif '(r2 = 0) 'error))
+	(call 'lisp :env_args_sig '(:r1 ($ sig) 3) '(:r2))
+	(gotoif '(:r2 = 0) 'error))
 	...
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(r0 "(piece-scans brd index vectors)" error_msg_wrong_types r1))
+	(jump 'lisp :repl_error '(:r0 "(piece-scans brd index vectors)" error_msg_wrong_types :r1))
 	(signature '(str num list)))
 	...
 ```
@@ -340,12 +340,12 @@ standard way you should access fields unless you have a good reason not to.
 So for example:
 
 ```vdu
-	(assign '((r0 str_length)) '(r0))
+	(assign '((:r0 str_length)) '(:r0))
 ```
 
 This will know from the type of 'str_length', a uint, that it should output the
 following.
 
 ```vdu
-	(vp-cpy-ir-ui r0 str_length r0)
+	(vp-cpy-ir-ui :r0 str_length :r0)
 ```

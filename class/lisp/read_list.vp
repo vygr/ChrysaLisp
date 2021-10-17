@@ -6,15 +6,15 @@
 
 (def-method 'lisp :read_list)
 	;inputs
-	;r0 = lisp object (ptr)
-	;r1 = stream object (ptr)
-	;r2 = next char (uint)
+	;:r0 = lisp object (ptr)
+	;:r1 = stream object (ptr)
+	;:r2 = next char (uint)
 	;outputs
-	;r0 = lisp object (ptr)
-	;r1 = list object (ptr)
-	;r2 = next char (uint)
+	;:r0 = lisp object (ptr)
+	;:r1 = list object (ptr)
+	;:r2 = next char (uint)
 	;trashes
-	;r1-r14
+	;:r1-:r14
 
 	(def-vars
 		(ptr this stream list ast)

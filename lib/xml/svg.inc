@@ -172,9 +172,9 @@
 			"stroke-opacity" 1.0
 			"transform" (list (n2f scale) 0.0 0.0 (n2f scale) 0.0 0.0)
 			;this block can be any order
+			"d" (path) "points" (path)
 			"x" 0.0 "y" 0.0 "x1" 0.0 "y1" 0.0 "x2" 0.0 "y2" 0.0
 			"cx" 0.0 "cy" 0.0 "r" 0.0
-			"d" (path) "points" (path)
 			)))
 	(XML-parse stream
 		(lambda (command keys vals)
