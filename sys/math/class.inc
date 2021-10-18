@@ -56,7 +56,7 @@
 ; fixed point vector math codegen
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defcvar '*vsp* 0 '*vr* '(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14))
+(defcvar '*vsp* 0)
 (defun vec-set (_) (setq *vsp* _))
 
 (defun vec-goto (l)
@@ -64,19 +64,19 @@
 	(goto l))
 
 (defmacro vec-assign (_1 _2)
-	(list 'assign _1 _2 '(slice *vsp* -1 *vr*)))
+	(list 'assign _1 _2 '(slice *vsp* -1 +vp_regs_0_14)))
 
 (defun vec-push (n)
-	(slice *vsp* (setq *vsp* (+ *vsp* n)) *vr*))
+	(slice *vsp* (setq *vsp* (+ *vsp* n)) +vp_regs_0_14))
 
 (defun vec-pop (n)
-	(slice (setq *vsp* (- *vsp* n)) (+ *vsp* n) *vr*))
+	(slice (setq *vsp* (- *vsp* n)) (+ *vsp* n) +vp_regs_0_14))
 
 (defun vec-top (n)
-	(slice (- *vsp* n) *vsp* *vr*))
+	(slice (- *vsp* n) *vsp* +vp_regs_0_14))
 
 (defun vec-tmp (n)
-	(slice *vsp* (+ *vsp* n) *vr*))
+	(slice *vsp* (+ *vsp* n) +vp_regs_0_14))
 
 (defun vec-load (n &rest _)
 	(each (lambda (_)
@@ -336,7 +336,7 @@
 
 (defun vec-flength (n)
 	(vec-flength-squared n)
-	(defq r (slice 0 (dec (if (>= *vsp* 4) 5 *vsp*)) *vr*))
+	(defq r (slice 0 (dec (if (>= *vsp* 4) 5 *vsp*)) +vp_regs_0_14))
 	(if (/= (length r) 0) (apply vp-push r))
 	(call 'sys_math :f_sqrt (vec-top 1) (vec-top 1))
 	(if (/= (length r) 0) (apply vp-pop r)))

@@ -2,37 +2,22 @@
 ; structured coding
 ;;;;;;;;;;;;;;;;;;;
 
+;module
+(env-push)
+
 (defcvar '*switch* nil '*switch_nxt* nil '*switch_stk* (list))
 
-(defmacro beg-sym ()
-	'(sym (str "b_" *switch*)))
+(defmacro beg-sym () '(sym (str "b_" *switch*)))
+(defmacro end-sym () '(sym (str "e_" *switch*)))
+(defmacro loc-sym (n) `(sym (str "o_" *switch* "_" ,n)))
+(defmacro cnt-sym () '(sym (str "_c_" *switch*)))
+(defmacro llb-sym (_) `(sym (cat "_b_" ,_)))
+(defmacro lle-sym (_) `(sym (cat "_e_" ,_)))
 
-(defmacro end-sym ()
-	'(sym (str "e_" *switch*)))
-
-(defmacro loc-sym (n)
-	`(sym (str "o_" *switch* "_" ,n)))
-
-(defmacro cnt-sym ()
-	'(sym (str "_c_" *switch*)))
-
-(defmacro llb-sym (_)
-	`(sym (cat "_b_" ,_)))
-
-(defmacro lle-sym (_)
-	`(sym (cat "_e_" ,_)))
-
-(defmacro errorif (e l)
-	(if (> *debug_mode* 0) (list 'gotoif e l)))
-
-(defmacro errorifnot (e l)
-	(if (> *debug_mode* 0) (list 'gotoifnot e l)))
-
-(defmacro errorcases (&rest e)
-	(if (> *debug_mode* 0) (cat '(progn) e)))
-
-(defmacro noterrorcases (&rest e)
-	(if (<= *debug_mode* 0) (cat '(progn) e)))
+(defmacro errorif (e l) (if (> *debug_mode* 0) (list 'gotoif e l)))
+(defmacro errorifnot (e l) (if (> *debug_mode* 0) (list 'gotoifnot e l)))
+(defmacro errorcases (&rest e) (if (> *debug_mode* 0) (cat '(progn) e)))
+(defmacro noterrorcases (&rest e) (if (<= *debug_mode* 0) (cat '(progn) e)))
 
 (defun goto (l)
 	(vp-jmp l))
@@ -395,6 +380,19 @@
 						(plong (new-var "pl" +ptr_size))))
 					(list line))))) lines)
 	prog)
+
+;module
+(export-symbols
+	def-vars def-enum def-struct def-bit operator
+	new-scope get-scope push-scope pop-scope pop-scope-syms pop-scope-checked
+	errorcases noterrorcases errorif errorifnot
+	switch endswitch vpcase vpcasenot default nextcaseif nextcaseifnot
+	vpif vpifnot else elseif elseifnot endif
+	break breakif breakifnot goto gotoif gotoifnot exitif exitifnot
+	loop-start loop-end loop-while loop-whilenot loop-until loop-untilnot
+	continue continueif continueifnot repeatif repeatifnot
+	used-syms get-sym unwind return)
+(env-pop)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;
 ; assignment and cscript

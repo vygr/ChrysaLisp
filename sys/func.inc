@@ -21,14 +21,9 @@
 (defcvar '*func_name* nil '*strings* (list) '*paths* (list) '*links* (list)
 	'*func_align* nil '*func_syms* (list))
 
-(defun link-sym (_)
-	(str "rl_" _))
-
-(defun path-sym (_)
-	(str "rp_" _))
-
-(defun string-sym (_)
-	(str "rs_" _))
+(defun link-sym (_) (str "rl_" _))
+(defun path-sym (_) (str "rp_" _))
+(defun string-sym (_) (str "rs_" _))
 
 (defun def-func (*name* &optional falign fstack)
 	(env-push)

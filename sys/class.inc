@@ -4,11 +4,79 @@
 
 (include "sys/code.inc")
 
-(defmacro class-sym (_)
-	`(sym (cat "_class_" ,_)))
+;module
+(env-push)
 
-(defmacro super-sym (_)
-	`(sym (cat "_super_" ,_)))
+(defq +vp_regs_calls ''(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14))
+(defmacro class-sym (_) `(sym (cat "_class_" ,_)))
+(defmacro super-sym (_) `(sym (cat "_super_" ,_)))
+
+;;;;;;;;;;;;;;;
+; class calling
+;;;;;;;;;;;;;;;
+
+(defun method-lookup (_1 _2)
+	;_1 = class name
+	;_2 = member name
+	(defq c (eval (class-sym _1)) _ (find-rev _2 (elem 0 c)))
+	(unless _ (throw "No such method !" (list _1 _2)))
+	(elem _ (elem 1 c)))
+
+(defun method-input (_1 _2 &optional _3)
+	;_1 = class name
+	;_2 = member name
+	;_3 = input paramater index, nil for entire list
+	(if _3
+		(elem _3 (elem 2 (method-lookup _1 _2)))
+		(elem 2 (method-lookup _1 _2))))
+
+(defun method-output (_1 _2 &optional _3)
+	;_1 = class name
+	;_2 = member name
+	;_3 = output paramater index, nil for entire list
+	(if _3
+		(elem _3 (elem 3 (method-lookup _1 _2)))
+		(elem 3 (method-lookup _1 _2))))
+
+(defun f-path (_1 _2)
+	;_1 = class name
+	;_2 = slot method name
+	(elem 0 (method-lookup _1 _2)))
+
+(defun s-path (_1 _2)
+	;_1 = class name
+	;_2 = slot method name
+	(elem 0 (method-lookup (eval (super-sym _1)) _2)))
+
+(defun f-entry (_1 _2 _3)
+	;_1 = class name
+	;_2 = slot method name
+	;_3 = in parameters
+	(assign (elem 2 (method-lookup _1 _2)) _3))
+
+(defun f-exit (_1 _2 _3)
+	;_1 = class name
+	;_2 = slot method name
+	;_3 = out parameters
+	(assign _3 (elem 3 (method-lookup _1 _2))))
+
+(defun l-entry (_1)
+	;_1 = in parameters
+	(cond
+		((not _1))
+		((str? _1) (assign (slice 0 (length (split _1 ",")) +vp_regs_calls) _1))
+		(t (assign (slice 0 (length _1) +vp_regs_calls) _1))))
+
+(defun l-exit (_1)
+	;_1 = out parameters
+	(cond
+		((not _1))
+		((str? _1) (assign _1 (slice 0 (length (split _1 ",")) +vp_regs_calls)))
+		(t (assign _1 (slice 0 (length _1) +vp_regs_calls)))))
+
+;;;;;;;;;;;;;;;;;;
+; class definition
+;;;;;;;;;;;;;;;;;;
 
 (defcvar (class-sym nil) '(()()0))
 
@@ -102,16 +170,15 @@
 					(vp-call-i :r14 (elem 4 m))))
 			(if _4 (assign (elem 3 m) _4)))
 		(t	;l-call
-			(defq _ '(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14))
 			(cond
 				((not _2))
-				((str? _2) (assign _2 (slice 0 (length (split _2 ",")) _)))
-				(t (assign _2 (slice 0 (length _2) _))))
+				((str? _2) (assign _2 (slice 0 (length (split _2 ",")) +vp_regs_calls)))
+				(t (assign _2 (slice 0 (length _2) +vp_regs_calls))))
 			(vp-call _1)
 			(cond
 				((not _3))
-				((str? _3) (assign (slice 0 (length (split _3 ",")) _) _3))
-				(t (assign (slice 0 (length _3) _) _3))))))
+				((str? _3) (assign (slice 0 (length (split _3 ",")) +vp_regs_calls) _3))
+				(t (assign (slice 0 (length _3) +vp_regs_calls) _3))))))
 
 (defun jump (_1 _2 &optional _3)
 	;_1 = class name
@@ -147,71 +214,6 @@
 	;or
 	;_1 = out parameters
 	(cat (if (= (length _) 1) '(l-exit) '(f-exit)) _))
-
-;;;;;;;;;;;;;;;
-; class calling
-;;;;;;;;;;;;;;;
-
-(defun method-lookup (_1 _2)
-	;_1 = class name
-	;_2 = member name
-	(defq c (eval (class-sym _1)) _ (find-rev _2 (elem 0 c)))
-	(unless _ (throw "No such method !" (list _1 _2)))
-	(elem _ (elem 1 c)))
-
-(defun method-input (_1 _2 &optional _3)
-	;_1 = class name
-	;_2 = member name
-	;_3 = input paramater index, nil for entire list
-	(if _3
-		(elem _3 (elem 2 (method-lookup _1 _2)))
-		(elem 2 (method-lookup _1 _2))))
-
-(defun method-output (_1 _2 &optional _3)
-	;_1 = class name
-	;_2 = member name
-	;_3 = output paramater index, nil for entire list
-	(if _3
-		(elem _3 (elem 3 (method-lookup _1 _2)))
-		(elem 3 (method-lookup _1 _2))))
-
-(defun f-path (_1 _2)
-	;_1 = class name
-	;_2 = slot method name
-	(elem 0 (method-lookup _1 _2)))
-
-(defun s-path (_1 _2)
-	;_1 = class name
-	;_2 = slot method name
-	(elem 0 (method-lookup (eval (super-sym _1)) _2)))
-
-(defun f-entry (_1 _2 _3)
-	;_1 = class name
-	;_2 = slot method name
-	;_3 = in parameters
-	(assign (elem 2 (method-lookup _1 _2)) _3))
-
-(defun f-exit (_1 _2 _3)
-	;_1 = class name
-	;_2 = slot method name
-	;_3 = out parameters
-	(assign _3 (elem 3 (method-lookup _1 _2))))
-
-(defun l-entry (_1)
-	;_1 = in parameters
-	(defq _ '(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14))
-	(cond
-		((not _1))
-		((str? _1) (assign (slice 0 (length (split _1 ",")) _) _1))
-		(t (assign (slice 0 (length _1) _) _1))))
-
-(defun l-exit (_1)
-	;_1 = out parameters
-	(defq _ '(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14))
-	(cond
-		((not _1))
-		((str? _1) (assign _1 (slice 0 (length (split _1 ",")) _)))
-		(t (assign _1 (slice 0 (length _1) _)))))
 
 ;;;;;;;;;;;;;;;;
 ; method calling
@@ -384,16 +386,15 @@
 	;_1 = label
 	;_2 = in parameters
 	;_3 = out parameters
-	(defq _ '(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14))
 	(cond
 		((not _2))
-		((str? _2) (assign _2 (slice 0 (length (split _2 ",")) _)))
-		(t (assign _2 (slice 0 (length _2) _))))
+		((str? _2) (assign _2 (slice 0 (length (split _2 ",")) +vp_regs_calls)))
+		(t (assign _2 (slice 0 (length _2) +vp_regs_calls))))
 	(vp-call _1)
 	(cond
 		((not _3))
-		((str? _3) (assign (slice 0 (length (split _3 ",")) _) _3))
-		(t (assign (slice 0 (length _3) _) _3))))
+		((str? _3) (assign (slice 0 (length (split _3 ",")) +vp_regs_calls) _3))
+		(t (assign (slice 0 (length _3) +vp_regs_calls) _3))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; generic class construction
@@ -456,3 +457,11 @@
 		(exit _1 :type '(:r0 :r1))
 		(vp-ret)
 	(def-func-end))
+
+;module
+(export-symbols
+	gen-type gen-create gen-vtable def-class def-method
+	entry exit call jump s-call d-call s-jump v-call d-jump r-call v-bind
+	f-entry f-exit l-entry l-exit f-path f-bind
+	method-input method-output method-lookup signature)
+(env-pop)
