@@ -76,8 +76,7 @@
 		(list (list 'quote x) y)) _ (if l (merge-obj (cat (eval l)) +vp_regs_0_14) +vp_regs_0_14))))
 	`(progn (defcvar ~l) (apply push (cat (list *func_syms*) ',_))))
 
-(defmacro type-sym (_)
-	`(sym (str ,_ "_t")))
+(defmacro type-sym (_) `(sym (str ,_ "_t")))
 
 (defun vp-type-t (_)
 	(if (setq _ (find-rev (elem 0 _) "bBsSiI"))
