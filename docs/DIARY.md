@@ -201,7 +201,7 @@ And here is the new binding method we add to `class/obj/lisp.vp`:
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(hash obj)" error_msg_wrong_num_of_args :r1)))
+	(jump 'lisp :repl_error '(:r0 "(hash obj)" +error_msg_wrong_num_of_args :r1)))
 
 (def-func-end)
 ```

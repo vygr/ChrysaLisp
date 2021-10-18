@@ -32,7 +32,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(create-view)" error_msg_wrong_num_of_args :r1)))
+	(jump 'lisp :repl_error '(:r0 "(create-view)" +error_msg_wrong_num_of_args :r1)))
 
 (def-func-end)
 
@@ -68,7 +68,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(view-find-id view id)" error_msg_wrong_types :r1))
+	(jump 'lisp :repl_error '(:r0 "(view-find-id view id)" +error_msg_wrong_types :r1))
 	(signature '(view num)))
 
 (def-func-end)
@@ -99,7 +99,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(view-sub view)" error_msg_wrong_types :r1))
+	(jump 'lisp :repl_error '(:r0 "(view-sub view)" +error_msg_wrong_types :r1))
 	(signature '(view)))
 
 (def-func-end)
@@ -131,7 +131,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(view-hide view)" error_msg_wrong_types :r1))
+	(jump 'lisp :repl_error '(:r0 "(view-hide view)" +error_msg_wrong_types :r1))
 	(signature '(view)))
 
 (def-func-end)
@@ -167,7 +167,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(view-add-front parent child)" error_msg_wrong_types :r1))
+	(jump 'lisp :repl_error '(:r0 "(view-add-front parent child)" +error_msg_wrong_types :r1))
 	(signature '(view view)))
 
 (def-func-end)
@@ -203,7 +203,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(view-add-back parent child)" error_msg_wrong_types :r1))
+	(jump 'lisp :repl_error '(:r0 "(view-add-back parent child)" +error_msg_wrong_types :r1))
 	(signature '(view view)))
 
 (def-func-end)
@@ -237,7 +237,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(view-trans-dirty view rx ry)" error_msg_wrong_types :r1))
+	(jump 'lisp :repl_error '(:r0 "(view-trans-dirty view rx ry)" +error_msg_wrong_types :r1))
 	(signature '(view num num)))
 
 (def-func-end)
@@ -276,7 +276,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(view-clr-opaque view)" error_msg_wrong_types :r1))
+	(jump 'lisp :repl_error '(:r0 "(view-clr-opaque view)" +error_msg_wrong_types :r1))
 	(signature '(view)))
 
 (def-func-end)
@@ -317,7 +317,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(view-add-opaque view x y w h)" error_msg_wrong_types :r1))
+	(jump 'lisp :repl_error '(:r0 "(view-add-opaque view x y w h)" +error_msg_wrong_types :r1))
 	(signature '(view num num num num)))
 
 (def-func-end)
@@ -358,7 +358,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(view-sub-opaque view x y w h)" error_msg_wrong_types :r1))
+	(jump 'lisp :repl_error '(:r0 "(view-sub-opaque view x y w h)" +error_msg_wrong_types :r1))
 	(signature '(view num num num num)))
 
 (def-func-end)
@@ -391,7 +391,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(view-set-flags view flags mask)" error_msg_wrong_types :r1))
+	(jump 'lisp :repl_error '(:r0 "(view-set-flags view flags mask)" +error_msg_wrong_types :r1))
 	(signature '(view num num)))
 
 (def-func-end)
@@ -434,7 +434,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(view-add-dirty view x y w h)" error_msg_wrong_types :r1))
+	(jump 'lisp :repl_error '(:r0 "(view-add-dirty view x y w h)" +error_msg_wrong_types :r1))
 	(signature '(view num num num num)))
 
 (def-func-end)
@@ -477,7 +477,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(view-children view)" error_msg_wrong_types :r1))
+	(jump 'lisp :repl_error '(:r0 "(view-children view)" +error_msg_wrong_types :r1))
 	(signature '(view)))
 
 (def-func-end)
@@ -510,7 +510,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(view-to-front view)" error_msg_wrong_types :r1))
+	(jump 'lisp :repl_error '(:r0 "(view-to-front view)" +error_msg_wrong_types :r1))
 	(signature '(view)))
 
 (def-func-end)
@@ -543,7 +543,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(view-to-back view)" error_msg_wrong_types :r1))
+	(jump 'lisp :repl_error '(:r0 "(view-to-back view)" +error_msg_wrong_types :r1))
 	(signature '(view)))
 
 (def-func-end)
@@ -585,7 +585,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(view-hit-tree view x y)" error_msg_wrong_types :r1))
+	(jump 'lisp :repl_error '(:r0 "(view-hit-tree view x y)" +error_msg_wrong_types :r1))
 	(signature '(view num num)))
 
 (def-func-end)

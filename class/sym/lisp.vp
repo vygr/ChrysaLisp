@@ -39,9 +39,9 @@
 
 (errorcases
 (vp-label 'error1)
-	(jump 'lisp :repl_error '(:r0 "(sym str)" error_msg_wrong_num_of_args :r1))
+	(jump 'lisp :repl_error '(:r0 "(sym str)" +error_msg_wrong_num_of_args :r1))
 (vp-label 'error2)
-	(jump 'lisp :repl_error '(:r4 "(sym str)" error_msg_not_a_string :r0)))
+	(jump 'lisp :repl_error '(:r4 "(sym str)" +error_msg_not_a_string :r0)))
 
 (def-func-end)
 
@@ -78,6 +78,6 @@
 
 (errorcases
 (vp-label 'error1)
-	(jump 'lisp :repl_error '(:r0 "(gensym)" error_msg_wrong_num_of_args :r1)))
+	(jump 'lisp :repl_error '(:r0 "(gensym)" +error_msg_wrong_num_of_args :r1)))
 
 (def-func-end)

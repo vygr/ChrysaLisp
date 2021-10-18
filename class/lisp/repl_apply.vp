@@ -74,8 +74,8 @@
 
 (errorcases
 (vp-label 'error1)
-	(jump 'lisp :repl_error '(:r0 "(lambda ([arg ...]) body)" error_msg_wrong_num_of_args :r2))
+	(jump 'lisp :repl_error '(:r0 "(lambda ([arg ...]) body)" +error_msg_wrong_num_of_args :r2))
 (vp-label 'error2)
-	(jump 'lisp :repl_error '(:r0 "(lambda ([arg ...]) body)" error_msg_not_a_lambda :r2)))
+	(jump 'lisp :repl_error '(:r0 "(lambda ([arg ...]) body)" +error_msg_not_a_lambda :r2)))
 
 (def-func-end)

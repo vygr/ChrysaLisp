@@ -24,7 +24,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(apply lambda list)" error_msg_wrong_types :r1))
+	(jump 'lisp :repl_error '(:r0 "(apply lambda list)" +error_msg_wrong_types :r1))
 	(signature '(obj list)))
 
 (def-func-end)
@@ -88,10 +88,10 @@
 (vp-label 'error)
 	(assign '((:rsp local_this) (:rsp local_args)) '(:r0 :r3))
 	(vp-free local_size)
-	(jump 'lisp :repl_error '(:r0 "(. env sym [...])" error_msg_wrong_types :r3))
+	(jump 'lisp :repl_error '(:r0 "(. env sym [...])" +error_msg_wrong_types :r3))
 (vp-label 'error1)
 	(assign '((:rsp local_this) (:rsp local_args)) '(:r0 :r3))
 	(vp-free local_size)
-	(jump 'lisp :repl_error '(:r0 "(. env sym [...])" error_msg_symbol_not_bound :r3)))
+	(jump 'lisp :repl_error '(:r0 "(. env sym [...])" +error_msg_symbol_not_bound :r3)))
 
 (def-func-end)

@@ -59,10 +59,10 @@
 
 (errorcases
 (vp-label 'error1)
-	(jump 'lisp :repl_error '(:r0 "(elem-set index list val)" error_msg_wrong_types :r1))
+	(jump 'lisp :repl_error '(:r0 "(elem-set index list val)" +error_msg_wrong_types :r1))
 (vp-label 'error2)
 	(vp-pop :r0 :r3)
-	(jump 'lisp :repl_error '(:r0 "(elem-set index list val)" error_msg_not_valid_index :r3))
+	(jump 'lisp :repl_error '(:r0 "(elem-set index list val)" +error_msg_not_valid_index :r3))
 	(signature '(num list obj)))
 
 (def-func-end)
@@ -104,7 +104,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(merge-obj dlist slist) -> dlist" error_msg_wrong_types :r1))
+	(jump 'lisp :repl_error '(:r0 "(merge-obj dlist slist) -> dlist" +error_msg_wrong_types :r1))
 	(signature '(list list)))
 
 (def-func-end)
@@ -164,9 +164,9 @@
 
 (errorcases
 (vp-label 'error1)
-	(jump 'lisp :repl_error {this, "(pivot lambda list start end)", error_msg_wrong_types, args})
+	(jump 'lisp :repl_error {this, "(pivot lambda list start end)", +error_msg_wrong_types, args})
 (vp-label 'error2)
-	(jump 'lisp :repl_error {this, "(pivot lambda list start end)", error_msg_not_valid_index, args})
+	(jump 'lisp :repl_error {this, "(pivot lambda list start end)", +error_msg_not_valid_index, args})
 	(signature '(obj list num num)))
 
 	(pop-scope-syms)
@@ -249,7 +249,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(jump 'lisp :repl_error '(:r0 "(match? list list)" error_msg_wrong_types :r1))
+	(jump 'lisp :repl_error '(:r0 "(match? list list)" +error_msg_wrong_types :r1))
 	(signature '(list list)))
 
 (def-func-end)
@@ -287,6 +287,6 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(copy form)" error_msg_wrong_num_of_args :r1)))
+	(jump 'lisp :repl_error '(:r0 "(copy form)" +error_msg_wrong_num_of_args :r1)))
 
 (def-func-end)

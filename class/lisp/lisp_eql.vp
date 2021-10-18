@@ -61,6 +61,6 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error (list this "(eql form form)" error_msg_wrong_num_of_args args)))
+	(jump 'lisp :repl_error (list this "(eql form form)" +error_msg_wrong_num_of_args args)))
 
 (def-func-end)

@@ -22,6 +22,6 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(bind (param ...) seq)" error_msg_wrong_num_of_args :r1)))
+	(jump 'lisp :repl_error '(:r0 "(bind (param ...) seq)" +error_msg_wrong_num_of_args :r1)))
 
 (def-func-end)

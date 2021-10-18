@@ -303,7 +303,7 @@ front of the function signature table !
 	...
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(piece-scans brd index vectors)" error_msg_wrong_types :r1))
+	(jump 'lisp :repl_error '(:r0 "(piece-scans brd index vectors)" +error_msg_wrong_types :r1))
 	(signature '(str num list)))
 	...
 ```

@@ -49,7 +49,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(scene nums)" error_msg_wrong_types :r1))
+	(jump 'lisp :repl_error '(:r0 "(scene nums)" +error_msg_wrong_types :r1))
 	(signature '(nums)))
 
 (def-func-end)
@@ -108,7 +108,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r13 "(ray-march nums nums num num num num)" error_msg_wrong_types :r14))
+	(jump 'lisp :repl_error '(:r13 "(ray-march nums nums num num num num)" +error_msg_wrong_types :r14))
 	(signature '(nums nums num num num num)))
 
 (def-func-end)
@@ -159,7 +159,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(tile canvas data)" error_msg_wrong_types :r1))
+	(jump 'lisp :repl_error '(:r0 "(tile canvas data)" +error_msg_wrong_types :r1))
 	(signature '(canvas str)))
 
 (def-func-end)

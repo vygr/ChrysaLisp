@@ -32,7 +32,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(pixmap-save-cpm pixmap stream format)" error_msg_wrong_types :r1))
+	(jump 'lisp :repl_error '(:r0 "(pixmap-save-cpm pixmap stream format)" +error_msg_wrong_types :r1))
 	(signature '(pixmap stream num)))
 
 (def-func-end)
@@ -68,7 +68,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(pixmap-load-cpm stream)" error_msg_wrong_types :r1))
+	(jump 'lisp :repl_error '(:r0 "(pixmap-load-cpm stream)" +error_msg_wrong_types :r1))
 	(signature '(stream)))
 
 (def-func-end)
@@ -104,7 +104,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(pixmap-load-tga stream)" error_msg_wrong_types :r1))
+	(jump 'lisp :repl_error '(:r0 "(pixmap-load-tga stream)" +error_msg_wrong_types :r1))
 	(signature '(stream)))
 
 (def-func-end)

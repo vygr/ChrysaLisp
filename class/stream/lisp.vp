@@ -47,7 +47,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(io-stream io)" error_msg_wrong_types :r1))
+	(jump 'lisp :repl_error '(:r0 "(io-stream io)" +error_msg_wrong_types :r1))
 	(signature '(str)))
 
 (def-func-end)
@@ -92,7 +92,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(file-stream path [mode])" error_msg_wrong_types :r1))
+	(jump 'lisp :repl_error '(:r0 "(file-stream path [mode])" +error_msg_wrong_types :r1))
 	(signature '(str num)))
 
 (def-func-end)
@@ -125,7 +125,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(string-stream str)" error_msg_wrong_types :r1))
+	(jump 'lisp :repl_error '(:r0 "(string-stream str)" +error_msg_wrong_types :r1))
 	(signature '(str)))
 
 (def-func-end)
@@ -158,7 +158,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(stream-avail stream)" error_msg_wrong_types :r1))
+	(jump 'lisp :repl_error '(:r0 "(stream-avail stream)" +error_msg_wrong_types :r1))
 	(signature '(stream)))
 
 (def-func-end)
@@ -227,13 +227,13 @@
 (errorcases
 	(defq in (method-input 'lisp :repl_error))
 (vp-label 'error1)
-	(vp-cpy-cr error_msg_wrong_num_of_args (elem 2 in))
+	(vp-cpy-cr +error_msg_wrong_num_of_args (elem 2 in))
 	(goto 'error)
 (vp-label 'error2)
-	(vp-cpy-cr error_msg_not_a_stream (elem 2 in))
+	(vp-cpy-cr +error_msg_not_a_stream (elem 2 in))
 	(goto 'error)
 (vp-label 'error3)
-	(vp-cpy-cr error_msg_not_a_number (elem 2 in))
+	(vp-cpy-cr +error_msg_not_a_number (elem 2 in))
 (vp-label 'error)
 	(assign {this, args} (erase in 1 3))
 	(jump 'lisp :repl_error `(,(elem 0 in) "(read-char stream [width])" ,(elem 2 in) ,(elem 3 in))))
@@ -273,7 +273,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(read-line stream)" error_msg_wrong_types :r1))
+	(jump 'lisp :repl_error '(:r0 "(read-line stream)" +error_msg_wrong_types :r1))
 	(signature '(stream)))
 
 (def-func-end)
@@ -307,7 +307,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(read-avail stream)" error_msg_wrong_types :r1))
+	(jump 'lisp :repl_error '(:r0 "(read-avail stream)" +error_msg_wrong_types :r1))
 	(signature '(stream)))
 
 (def-func-end)
@@ -342,7 +342,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(write stream str)" error_msg_wrong_types :r1))
+	(jump 'lisp :repl_error '(:r0 "(write stream str)" +error_msg_wrong_types :r1))
 	(signature '(stream str)))
 
 (def-func-end)
@@ -415,13 +415,13 @@
 (errorcases
 	(defq err (method-input 'lisp :repl_error 2))
 (vp-label 'error1)
-	(vp-cpy-cr error_msg_wrong_num_of_args err)
+	(vp-cpy-cr +error_msg_wrong_num_of_args err)
 	(goto 'error)
 (vp-label 'error2)
-	(vp-cpy-cr error_msg_not_a_stream err)
+	(vp-cpy-cr +error_msg_not_a_stream err)
 	(goto 'error)
 (vp-label 'error3)
-	(vp-cpy-cr error_msg_not_a_number err)
+	(vp-cpy-cr +error_msg_not_a_number err)
 (vp-label 'error)
 	(jump 'lisp :repl_error `(,this "(write-char stream list|num [width])" ,err ,args)))
 
@@ -455,7 +455,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(stream-flush stream)" error_msg_wrong_types :r1))
+	(jump 'lisp :repl_error '(:r0 "(stream-flush stream)" +error_msg_wrong_types :r1))
 	(signature '(stream)))
 
 (def-func-end)
@@ -488,7 +488,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(stream-seek stream offset pos)" error_msg_wrong_types :r1))
+	(jump 'lisp :repl_error '(:r0 "(stream-seek stream offset pos)" +error_msg_wrong_types :r1))
 	(signature '(stream num num)))
 
 (def-func-end)

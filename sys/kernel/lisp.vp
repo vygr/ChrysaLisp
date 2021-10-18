@@ -32,6 +32,6 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(kernel-stats)" error_msg_wrong_types :r1)))
+	(jump 'lisp :repl_error '(:r0 "(kernel-stats)" +error_msg_wrong_types :r1)))
 
 (def-func-end)

@@ -33,7 +33,7 @@
 
 (errorcases
 (vp-label 'error1)
-	(jump 'lisp :repl_error '(:r0 "(length seq)" error_msg_wrong_types :r1))
+	(jump 'lisp :repl_error '(:r0 "(length seq)" +error_msg_wrong_types :r1))
 	(signature '(seq)))
 
 (def-func-end)
@@ -72,9 +72,9 @@
 
 (errorcases
 (vp-label 'error1)
-	(jump 'lisp :repl_error '(:r0 "(elem index seq)" error_msg_wrong_types :r1))
+	(jump 'lisp :repl_error '(:r0 "(elem index seq)" +error_msg_wrong_types :r1))
 (vp-label 'error2)
-	(jump 'lisp :repl_error '(:r12 "(elem index seq)" error_msg_not_valid_index :r13))
+	(jump 'lisp :repl_error '(:r12 "(elem index seq)" +error_msg_not_valid_index :r13))
 	(signature '(num seq)))
 
 (def-func-end)
@@ -118,9 +118,9 @@
 
 (errorcases
 (vp-label 'error1)
-	(jump 'lisp :repl_error '(:r0 "(slice start end seq)" error_msg_wrong_types :r1))
+	(jump 'lisp :repl_error '(:r0 "(slice start end seq)" +error_msg_wrong_types :r1))
 (vp-label 'error2)
-	(jump 'lisp :repl_error '(:r12 "(slice start end seq)" error_msg_not_valid_index :r13))
+	(jump 'lisp :repl_error '(:r12 "(slice start end seq)" +error_msg_not_valid_index :r13))
 	(signature '(num num seq)))
 
 (def-func-end)
@@ -231,12 +231,12 @@
 
 (errorcases
 (vp-label 'error1)
-	(jump 'lisp :repl_error '(:r0 "(each! start end lambda (seq ...))" error_msg_wrong_num_of_args :r1))
+	(jump 'lisp :repl_error '(:r0 "(each! start end lambda (seq ...))" +error_msg_wrong_num_of_args :r1))
 (vp-label 'error3)
-	(call 'lisp :repl_error '((:rsp local_this) "(each! start end lambda (seq ...))" error_msg_not_a_sequence (:rsp local_args)) '(_ (:rsp local_value)))
+	(call 'lisp :repl_error '((:rsp local_this) "(each! start end lambda (seq ...))" +error_msg_not_a_sequence (:rsp local_args)) '(_ (:rsp local_value)))
 	(goto 'funcexit)
 (vp-label 'error4)
-	(call 'lisp :repl_error '((:rsp local_this) "(each! start end lambda (seq ...))" error_msg_not_valid_index (:rsp local_args)) '(_ (:rsp local_value)))
+	(call 'lisp :repl_error '((:rsp local_this) "(each! start end lambda (seq ...))" +error_msg_not_valid_index (:rsp local_args)) '(_ (:rsp local_value)))
 	(goto 'funcexit)
 	(signature '(num num obj list)))
 
@@ -356,12 +356,12 @@
 
 (errorcases
 (vp-label 'error1)
-	(jump 'lisp :repl_error '(:r0 "(some! start end mode lambda (seq ...))" error_msg_wrong_num_of_args :r1))
+	(jump 'lisp :repl_error '(:r0 "(some! start end mode lambda (seq ...))" +error_msg_wrong_num_of_args :r1))
 (vp-label 'error3)
-	(call 'lisp :repl_error '((:rsp local_this) "(some! start end mode lambda (seq ...))" error_msg_not_a_sequence (:rsp local_args)) '(_ (:rsp local_value)))
+	(call 'lisp :repl_error '((:rsp local_this) "(some! start end mode lambda (seq ...))" +error_msg_not_a_sequence (:rsp local_args)) '(_ (:rsp local_value)))
 	(goto 'funcexit)
 (vp-label 'error4)
-	(call 'lisp :repl_error '((:rsp local_this) "(some! start end mode lambda (seq ...))" error_msg_not_valid_index (:rsp local_args)) '(_ (:rsp local_value)))
+	(call 'lisp :repl_error '((:rsp local_this) "(some! start end mode lambda (seq ...))" +error_msg_not_valid_index (:rsp local_args)) '(_ (:rsp local_value)))
 	(goto 'funcexit)
 	(signature '(num num obj obj list)))
 
@@ -395,7 +395,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(cat seq ...)" error_msg_wrong_types :r1)))
+	(jump 'lisp :repl_error '(:r0 "(cat seq ...)" +error_msg_wrong_types :r1)))
 
 (def-func-end)
 
@@ -456,7 +456,7 @@
 	(vp-pop :r0)
 	(vp-cpy-rr args :r1)
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(find elem seq)" error_msg_wrong_types :r1))
+	(jump 'lisp :repl_error '(:r0 "(find elem seq)" +error_msg_wrong_types :r1))
 	(signature '(obj seq)))
 
 (def-func-end)
@@ -518,7 +518,7 @@
 	(vp-pop :r0)
 	(vp-cpy-rr args :r1)
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(find-rev elem seq)" error_msg_wrong_types :r1))
+	(jump 'lisp :repl_error '(:r0 "(find-rev elem seq)" +error_msg_wrong_types :r1))
 	(signature '(obj seq)))
 
 (def-func-end)

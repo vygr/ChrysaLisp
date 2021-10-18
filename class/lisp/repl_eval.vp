@@ -84,10 +84,10 @@
 (errorcases
 (vp-label 'error1)
 	(vp-free local_size)
-	(jump 'lisp :repl_error '(:r0 "(eval form [env])" error_msg_not_a_lambda :r1))
+	(jump 'lisp :repl_error '(:r0 "(eval form [env])" +error_msg_not_a_lambda :r1))
 (vp-label 'error2)
 	(assign '((:rsp local_this) (:rsp local_form)) '(:r0 :r3))
 	(vp-free local_size)
-	(jump 'lisp :repl_error '(:r0 "(eval form [env])" error_msg_symbol_not_bound :r3)))
+	(jump 'lisp :repl_error '(:r0 "(eval form [env])" +error_msg_symbol_not_bound :r3)))
 
 (def-func-end)

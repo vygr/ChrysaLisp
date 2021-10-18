@@ -75,9 +75,9 @@
 
 (errorcases
 (vp-label 'error1)
-	(jump 'lisp :repl_error {this, "(cond [(tst [body])] ...)", error_msg_wrong_num_of_args, args})
+	(jump 'lisp :repl_error {this, "(cond [(tst [body])] ...)", +error_msg_wrong_num_of_args, args})
 (vp-label 'error2)
-	(jump 'lisp :repl_error {this, "(cond [(tst [body])] ...)", error_msg_not_a_list, args}))
+	(jump 'lisp :repl_error {this, "(cond [(tst [body])] ...)", +error_msg_not_a_list, args}))
 
 	(pop-scope-syms)
 

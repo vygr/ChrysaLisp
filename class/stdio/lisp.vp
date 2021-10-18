@@ -47,6 +47,6 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(create-stdio)" error_msg_wrong_types :r1)))
+	(jump 'lisp :repl_error '(:r0 "(create-stdio)" +error_msg_wrong_types :r1)))
 
 (def-func-end)

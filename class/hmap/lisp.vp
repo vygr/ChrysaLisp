@@ -58,13 +58,13 @@
 
 (errorcases
 (vp-label 'error1)
-	(assign '(error_msg_wrong_num_of_args) '(:r2))
+	(assign '(+error_msg_wrong_num_of_args) '(:r2))
 	(goto 'error)
 (vp-label 'error2)
-	(assign '(error_msg_not_an_environment) '(:r2))
+	(assign '(+error_msg_not_an_environment) '(:r2))
 	(goto 'error)
 (vp-label 'error3)
-	(assign '(error_msg_not_a_symbol) '(:r2))
+	(assign '(+error_msg_not_a_symbol) '(:r2))
 (vp-label 'error)
 	(assign '((:rsp local_this) (:rsp local_args)) '(:r0 :r3))
 	(vp-free local_size)
@@ -92,19 +92,19 @@
 
 (errorcases
 (vp-label 'error1)
-	(assign '(error_msg_wrong_num_of_args) '(:r2))
+	(assign '(+error_msg_wrong_num_of_args) '(:r2))
 	(goto 'error)
 (vp-label 'error2)
-	(assign '(error_msg_not_an_environment) '(:r2))
+	(assign '(+error_msg_not_an_environment) '(:r2))
 	(goto 'error)
 (vp-label 'error3)
-	(assign '(error_msg_not_a_symbol) '(:r2))
+	(assign '(+error_msg_not_a_symbol) '(:r2))
 	(goto 'error)
 (vp-label 'error4)
-	(assign '(error_msg_symbol_not_bound) '(:r2))
+	(assign '(+error_msg_symbol_not_bound) '(:r2))
 	(goto 'error)
 (vp-label 'error5)
-	(assign '(error_msg_rebind_constant) '(:r2))
+	(assign '(+error_msg_rebind_constant) '(:r2))
 (vp-label 'error)
 	(assign '((:rsp local_this) (:rsp local_args)) '(:r0 :r3))
 	(vp-free local_size)
@@ -169,10 +169,10 @@
 
 (errorcases
 (vp-label 'error1)
-	(assign '(error_msg_wrong_num_of_args) '(:r2))
+	(assign '(+error_msg_wrong_num_of_args) '(:r2))
 	(goto 'error)
 (vp-label 'error2)
-	(assign '(error_msg_not_a_symbol) '(:r2))
+	(assign '(+error_msg_not_a_symbol) '(:r2))
 (vp-label 'error)
 	(assign '((:rsp local_this) (:rsp local_args)) '(:r0 :r3))
 	(vp-free local_size)
@@ -200,16 +200,16 @@
 
 (errorcases
 (vp-label 'error1)
-	(assign '(error_msg_wrong_num_of_args) '(:r2))
+	(assign '(+error_msg_wrong_num_of_args) '(:r2))
 	(goto 'error)
 (vp-label 'error2)
-	(assign '(error_msg_not_a_symbol) '(:r2))
+	(assign '(+error_msg_not_a_symbol) '(:r2))
 	(goto 'error)
 (vp-label 'error3)
-	(assign '(error_msg_symbol_not_bound) '(:r2))
+	(assign '(+error_msg_symbol_not_bound) '(:r2))
 	(goto 'error)
 (vp-label 'error4)
-	(assign '(error_msg_rebind_constant) '(:r2))
+	(assign '(+error_msg_rebind_constant) '(:r2))
 (vp-label 'error)
 	(assign '((:rsp local_this) (:rsp local_args)) '(:r0 :r3))
 	(vp-free local_size)
@@ -258,7 +258,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(get var [env])" error_msg_wrong_types :r1))
+	(jump 'lisp :repl_error '(:r0 "(get var [env])" +error_msg_wrong_types :r1))
 	(signature '(sym hmap)))
 
 (def-func-end)
@@ -304,7 +304,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(def? var [env])" error_msg_wrong_types :r1))
+	(jump 'lisp :repl_error '(:r0 "(def? var [env])" +error_msg_wrong_types :r1))
 	(signature '(sym hmap)))
 
 (def-func-end)
@@ -344,7 +344,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(env [num])" error_msg_wrong_types :r1)))
+	(jump 'lisp :repl_error '(:r0 "(env [num])" +error_msg_wrong_types :r1)))
 
 (def-func-end)
 
@@ -374,7 +374,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(tolist env)" error_msg_not_an_environment :r1))
+	(jump 'lisp :repl_error '(:r0 "(tolist env)" +error_msg_not_an_environment :r1))
 	(signature '(hmap)))
 
 (def-func-end)
@@ -430,13 +430,13 @@
 
 (errorcases
 (vp-label 'error1)
-	(assign '(error_msg_wrong_num_of_args) '(:r2))
+	(assign '(+error_msg_wrong_num_of_args) '(:r2))
 	(goto 'error)
 (vp-label 'error2)
-	(assign '(error_msg_not_an_environment) '(:r2))
+	(assign '(+error_msg_not_an_environment) '(:r2))
 	(goto 'error)
 (vp-label 'error3)
-	(assign '(error_msg_not_a_symbol) '(:r2))
+	(assign '(+error_msg_not_a_symbol) '(:r2))
 (vp-label 'error)
 	(assign '((:rsp local_this) (:rsp local_args)) '(:r0 :r3))
 	(vp-free local_size)
@@ -479,7 +479,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(penv [env])" error_msg_wrong_types :r1))
+	(jump 'lisp :repl_error '(:r0 "(penv [env])" +error_msg_wrong_types :r1))
 	(signature '(hmap)))
 
 (def-func-end)
@@ -515,7 +515,7 @@
 (vp-label 'error1)
 	(vp-pop :r0 :r1)
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(env-resize env num)" error_msg_wrong_types :r1))
+	(jump 'lisp :repl_error '(:r0 "(env-resize env num)" +error_msg_wrong_types :r1))
 	(signature '(hmap num)))
 
 (def-func-end)

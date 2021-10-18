@@ -33,7 +33,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(create-vdu)" error_msg_wrong_num_of_args :r1)))
+	(jump 'lisp :repl_error '(:r0 "(create-vdu)" +error_msg_wrong_num_of_args :r1)))
 
 (def-func-end)
 
@@ -131,7 +131,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(vdu-load vdu lines ox oy cx cy)" error_msg_wrong_types :r1))
+	(jump 'lisp :repl_error '(:r0 "(vdu-load vdu lines ox oy cx cy)" +error_msg_wrong_types :r1))
 	(signature '(vdu list num num num num)))
 
 (def-func-end)
@@ -188,7 +188,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(vdu-configure vdu)" error_msg_wrong_types :r1))
+	(jump 'lisp :repl_error '(:r0 "(vdu-configure vdu)" +error_msg_wrong_types :r1))
 	(signature '(vdu)))
 
 (def-func-end)

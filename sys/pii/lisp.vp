@@ -32,7 +32,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(pii-read-char fd)" error_msg_wrong_types :r1)))
+	(jump 'lisp :repl_error '(:r0 "(pii-read-char fd)" +error_msg_wrong_types :r1)))
 
 (def-func-end)
 
@@ -67,7 +67,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(pii-write-char fd char)" error_msg_wrong_types :r1)))
+	(jump 'lisp :repl_error '(:r0 "(pii-write-char fd char)" +error_msg_wrong_types :r1)))
 
 (def-func-end)
 
@@ -97,7 +97,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(pii-time)" error_msg_wrong_num_of_args :r1)))
+	(jump 'lisp :repl_error '(:r0 "(pii-time)" +error_msg_wrong_num_of_args :r1)))
 
 (def-func-end)
 
@@ -135,7 +135,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(pii-dirlist path)" error_msg_wrong_types :r1))
+	(jump 'lisp :repl_error '(:r0 "(pii-dirlist path)" +error_msg_wrong_types :r1))
 	(signature '(str)))
 
 (def-func-end)
@@ -177,7 +177,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(pii-fstat path)" error_msg_wrong_types :r1))
+	(jump 'lisp :repl_error '(:r0 "(pii-fstat path)" +error_msg_wrong_types :r1))
 	(signature '(str)))
 
 (def-func-end)
@@ -210,7 +210,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(pii-remove path)" error_msg_wrong_types :r1))
+	(jump 'lisp :repl_error '(:r0 "(pii-remove path)" +error_msg_wrong_types :r1))
 	(signature '(str)))
 
 (def-func-end)

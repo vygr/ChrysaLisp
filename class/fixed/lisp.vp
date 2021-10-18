@@ -30,7 +30,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(sin angle)" error_msg_wrong_types :r1))
+	(jump 'lisp :repl_error '(:r0 "(sin angle)" +error_msg_wrong_types :r1))
 	(signature '(fixed)))
 
 (def-func-end)
@@ -49,7 +49,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(cos angle)" error_msg_wrong_types :r1))
+	(jump 'lisp :repl_error '(:r0 "(cos angle)" +error_msg_wrong_types :r1))
 	(signature '(fixed)))
 
 (def-func-end)
@@ -68,7 +68,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(frac num)" error_msg_wrong_types :r1))
+	(jump 'lisp :repl_error '(:r0 "(frac num)" +error_msg_wrong_types :r1))
 	(signature '(fixed)))
 
 (def-func-end)
@@ -87,7 +87,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(floor num)" error_msg_wrong_types :r1))
+	(jump 'lisp :repl_error '(:r0 "(floor num)" +error_msg_wrong_types :r1))
 	(signature '(fixed)))
 
 (def-func-end)
@@ -126,7 +126,7 @@
 (vp-label 'error1)
 	(vp-pop :r0)
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(recip fixed)" error_msg_wrong_types :r1))
+	(jump 'lisp :repl_error '(:r0 "(recip fixed)" +error_msg_wrong_types :r1))
 	(signature '(fixed)))
 
 (def-func-end)

@@ -56,7 +56,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(depth x0 y0)" error_msg_wrong_types :r1))
+	(jump 'lisp :repl_error '(:r0 "(depth x0 y0)" +error_msg_wrong_types :r1))
 	(signature '(num num)))
 
 (def-func-end)
@@ -111,7 +111,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(tile canvas data)" error_msg_wrong_types :r1))
+	(jump 'lisp :repl_error '(:r0 "(tile canvas data)" +error_msg_wrong_types :r1))
 	(signature '(canvas str)))
 
 (def-func-end)

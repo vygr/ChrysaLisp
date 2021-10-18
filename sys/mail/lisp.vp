@@ -41,7 +41,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(mail-validate mbox)" error_msg_wrong_types :r1))
+	(jump 'lisp :repl_error '(:r0 "(mail-validate mbox)" +error_msg_wrong_types :r1))
 	(signature '(str)))
 
 (def-func-end)
@@ -81,7 +81,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(mail-read mbox)" error_msg_wrong_types :r1))
+	(jump 'lisp :repl_error '(:r0 "(mail-read mbox)" +error_msg_wrong_types :r1))
 	(signature '(str)))
 
 (def-func-end)
@@ -124,7 +124,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(mail-poll mboxs)" error_msg_wrong_types :r1))
+	(jump 'lisp :repl_error '(:r0 "(mail-poll mboxs)" +error_msg_wrong_types :r1))
 	(signature '(list)))
 
 (def-func-end)
@@ -161,7 +161,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(mail-select mboxs)" error_msg_wrong_types :r1))
+	(jump 'lisp :repl_error '(:r0 "(mail-select mboxs)" +error_msg_wrong_types :r1))
 	(signature '(list)))
 
 (def-func-end)
@@ -208,7 +208,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error {this, "(mail-send mbox obj)", error_msg_wrong_types, args})
+	(jump 'lisp :repl_error {this, "(mail-send mbox obj)", +error_msg_wrong_types, args})
 	(signature '(str obj)))
 
 	(pop-scope-syms)
@@ -242,7 +242,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(mail-declare mbox name info)" error_msg_wrong_types :r1))
+	(jump 'lisp :repl_error '(:r0 "(mail-declare mbox name info)" +error_msg_wrong_types :r1))
 	(signature '(str str str)))
 
 (def-func-end)
@@ -274,7 +274,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(mail-enquire prefix)" error_msg_wrong_types :r1))
+	(jump 'lisp :repl_error '(:r0 "(mail-enquire prefix)" +error_msg_wrong_types :r1))
 	(signature '(str)))
 
 (def-func-end)
@@ -309,7 +309,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(mail-forget key)" error_msg_wrong_types :r1))
+	(jump 'lisp :repl_error '(:r0 "(mail-forget key)" +error_msg_wrong_types :r1))
 	(signature '(str)))
 
 (def-func-end)
@@ -343,7 +343,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(mail-alloc-mbox)" error_msg_wrong_types :r1)))
+	(jump 'lisp :repl_error '(:r0 "(mail-alloc-mbox)" +error_msg_wrong_types :r1)))
 
 (def-func-end)
 
@@ -377,7 +377,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(mail-free-mbox mbox)" error_msg_wrong_types :r1))
+	(jump 'lisp :repl_error '(:r0 "(mail-free-mbox mbox)" +error_msg_wrong_types :r1))
 	(signature '(str)))
 
 (def-func-end)
@@ -407,7 +407,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(mail-nodes)" error_msg_wrong_types :r1)))
+	(jump 'lisp :repl_error '(:r0 "(mail-nodes)" +error_msg_wrong_types :r1)))
 
 (def-func-end)
 
@@ -473,7 +473,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(mail-timeout mbox ns id)" error_msg_wrong_types :r1))
+	(jump 'lisp :repl_error '(:r0 "(mail-timeout mbox ns id)" +error_msg_wrong_types :r1))
 	(signature '(str num num)))
 
 (def-func-end)

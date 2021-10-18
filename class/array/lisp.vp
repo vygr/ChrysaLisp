@@ -40,7 +40,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(array [num ...])" error_msg_wrong_types :r1)))
+	(jump 'lisp :repl_error '(:r0 "(array [num ...])" +error_msg_wrong_types :r1)))
 
 (def-func-end)
 
@@ -58,7 +58,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(nums [num ...])" error_msg_wrong_types :r1)))
+	(jump 'lisp :repl_error '(:r0 "(nums [num ...])" +error_msg_wrong_types :r1)))
 
 (def-func-end)
 
@@ -76,7 +76,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(fixeds [num ...])" error_msg_wrong_types :r1)))
+	(jump 'lisp :repl_error '(:r0 "(fixeds [num ...])" +error_msg_wrong_types :r1)))
 
 (def-func-end)
 
@@ -94,7 +94,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(reals [num ...])" error_msg_wrong_types :r1)))
+	(jump 'lisp :repl_error '(:r0 "(reals [num ...])" +error_msg_wrong_types :r1)))
 
 (def-func-end)
 
@@ -112,7 +112,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(path [num ...])" error_msg_wrong_types :r1)))
+	(jump 'lisp :repl_error '(:r0 "(path [num ...])" +error_msg_wrong_types :r1)))
 
 (def-func-end)
 
@@ -153,7 +153,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0  "(clear array ...)" error_msg_wrong_types :r1)))
+	(jump 'lisp :repl_error '(:r0  "(clear array ...)" +error_msg_wrong_types :r1)))
 
 (def-func-end)
 
@@ -190,7 +190,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(pop array)" error_msg_wrong_types :r1))
+	(jump 'lisp :repl_error '(:r0 "(pop array)" +error_msg_wrong_types :r1))
 	(signature '(array)))
 
 (def-func-end)
@@ -234,7 +234,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r6 "(push array form ...)" error_msg_wrong_types :r7)))
+	(jump 'lisp :repl_error '(:r6 "(push array form ...)" +error_msg_wrong_types :r7)))
 
 (def-func-end)
 
@@ -278,6 +278,6 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error `(,this "(cap len array ...)" error_msg_wrong_types ,args)))
+	(jump 'lisp :repl_error `(,this "(cap len array ...)" +error_msg_wrong_types ,args)))
 
 (def-func-end)

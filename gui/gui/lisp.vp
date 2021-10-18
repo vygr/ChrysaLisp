@@ -52,7 +52,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(gui-init screen)" error_msg_wrong_types :r1))
+	(jump 'lisp :repl_error '(:r0 "(gui-init screen)" +error_msg_wrong_types :r1))
 	(signature '(view)))
 
 (def-func-end)
@@ -133,7 +133,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(gui-deinit)" error_msg_wrong_types :r1)))
+	(jump 'lisp :repl_error '(:r0 "(gui-deinit)" +error_msg_wrong_types :r1)))
 
 (def-func-end)
 
@@ -165,7 +165,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(gui-update mx my flags)" error_msg_wrong_types :r1))
+	(jump 'lisp :repl_error '(:r0 "(gui-update mx my flags)" +error_msg_wrong_types :r1))
 	(signature '(num num num)))
 
 (def-func-end)
@@ -228,7 +228,7 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(gui-event)" error_msg_wrong_types :r1)))
+	(jump 'lisp :repl_error '(:r0 "(gui-event)" +error_msg_wrong_types :r1)))
 
 (def-func-end)
 
@@ -279,6 +279,6 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(gui-info)" error_msg_wrong_types :r1)))
+	(jump 'lisp :repl_error '(:r0 "(gui-info)" +error_msg_wrong_types :r1)))
 
 (def-func-end)
