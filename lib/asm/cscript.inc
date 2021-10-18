@@ -215,10 +215,9 @@
 	`(defq *inst* (push (clear '()) progn)
 		*vregt* (slice 0 ,_ '(nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil))))
 
-(defun set-reg-map (l &optional _)
+(defun set-reg-map (l _)
 	(setd _ '(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14))
-	(each (lambda (_ r) (set (penv) _ r))
-		+vreg (if (/= 0 (length l)) (merge-obj (map get l) _) _)))
+	(each (lambda (_ r) (set (penv) _ r)) +vreg (if l (merge-obj l _) _)))
 
 (defun push-reg (_)
 	(vreg-sym (dec (length (push *vregt* _)))))

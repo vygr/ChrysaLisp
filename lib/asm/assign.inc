@@ -48,7 +48,6 @@
 (defun assign-asm-to-asm (src dst)
 	(when (/= (length src) (length dst))
 		(throw "Mismatching number of src/dst parameters !" (list src dst)))
-	(setq src (assign-map-reg-keys src))
 	(assign-ignored-to-asm)
 	(when (> (length dst) 0)
 		(if (> (length dst) 1) (assign-topology-sort))
@@ -100,7 +99,6 @@
 (defun assign-asm-to-script (src dst _)
 	(unless (= (length src) (length (setq dst (map trim (split dst ",")))))
 		(throw "Mismatching number of src/dst parameters !" (list src dst)))
-	(setq src (assign-map-reg-keys src))
 	(assign-ignored-to-script)
 	(when (/= 0 (length dst))
 		(reset-reg-stack (length src))
@@ -112,7 +110,7 @@
 		(when *debug_inst*
 			(print "post opt:")
 			(each (const print-inst) *inst*))
-		(set-reg-map (reverse src) _)
+		(set-reg-map (reverse (assign-map-reg-keys src)) _)
 		(eval *inst* *compile_env*)))
 
 (defun assign-script-to-asm (src dst _)
@@ -128,7 +126,7 @@
 		(when *debug_inst*
 			(print "post opt:")
 			(each (const print-inst) *inst*))
-		(set-reg-map dst _)
+		(set-reg-map (assign-map-reg-keys dst) _)
 		(eval *inst* *compile_env*)))
 
 (defun assign-script-to-script (src dst _)
@@ -147,7 +145,7 @@
 		(when *debug_inst*
 			(print "post opt:")
 			(each (const print-inst) *inst*))
-		(set-reg-map '() _)
+		(set-reg-map nil _)
 		(eval *inst* *compile_env*)))
 
 (defun assign (&optional src dst _)
@@ -158,7 +156,7 @@
 			(assign-script-to-asm src dst _))
 		(if (str? (setq dst (opt dst '())))
 			(assign-asm-to-script src dst _)
-			(assign-asm-to-asm src dst))))
+			(assign-asm-to-asm (assign-map-reg-keys src) dst))))
 
 ;module
 (export-symbols
