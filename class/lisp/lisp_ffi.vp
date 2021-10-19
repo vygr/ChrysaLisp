@@ -23,8 +23,8 @@
 	(entry 'lisp :lisp_ffi {this, args})
 
 (errorcases
-	(call 'lisp :env_args_sig {args, $sig, 4} '(:r2))
-	(gotoif '(:r2 = 0) 'error))
+	(call 'lisp :env_args_sig {args, $sig, 4} '(:tmp))
+	(gotoif '(:tmp = 0) 'error))
 
 	(call 'list :get_begin {args} {_, iter_begin})
 	(call 'sys_load :bind {&iter_begin[+ptr_size * 2]->str_data} {value})

@@ -43,7 +43,7 @@
 		(if s
 			(call 'list :push_back (cat {states,} s) '(_ :state :tmp _))
 			(call 'list :push_back {states, state} '(_ :state :tmp _)))
-		(class/obj/ref (get :state) (get :tmp)))
+		(class/obj/ref :state :tmp))
 
 	(defun find_char_in (s)
 		(d-call 'str :find (cat s {,c}) '(_ _ :idx)))
@@ -51,8 +51,8 @@
 	(entry '(:r0 :r1))
 
 (errorcases
-	(call 'lisp :env_args_sig '(:r1 ($ sig) 1) '(:r2))
-	(gotoif '(:r2 = 0) 'error))
+	(call 'lisp :env_args_sig '(:r1 ($ sig) 1) '(:tmp))
+	(gotoif '(:tmp = 0) 'error))
 
 	(push-scope)
 	(assign '(:r0 :r1) {this, args})

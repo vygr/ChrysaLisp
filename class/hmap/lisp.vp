@@ -233,8 +233,8 @@
 	(assign '((:r1 array_length)) '(:r4))
 	(gotoif '(:r4 < 1) 'error)
 	(gotoif '(:r4 > 2) 'error)
-	(call 'lisp :env_args_sig '(:r1 ($ sig) :r4) '(:r2))
-	(gotoif '(:r2 = 0) 'error))
+	(call 'lisp :env_args_sig '(:r1 ($ sig) :r4) '(:tmp))
+	(gotoif '(:tmp = 0) 'error))
 
 	(assign '((:r1 array_length)) '(:r2))
 	(vp-push :r0)
@@ -279,8 +279,8 @@
 	(assign '((:r1 array_length)) '(:r4))
 	(gotoif '(:r4 < 1) 'error)
 	(gotoif '(:r4 > 2) 'error)
-	(call 'lisp :env_args_sig '(:r1 ($ sig) :r4) '(:r2))
-	(gotoif '(:r2 = 0) 'error))
+	(call 'lisp :env_args_sig '(:r1 ($ sig) :r4) '(:tmp))
+	(gotoif '(:tmp = 0) 'error))
 
 	(assign '((:r1 array_length)) '(:r2))
 	(vp-push :r0)
@@ -361,8 +361,8 @@
 	(entry 'hmap :lisp_list '(:r0 :r1))
 
 (errorcases
-	(call 'lisp :env_args_sig '(:r1 ($ sig) 1) '(:r2))
-	(gotoif '(:r2 = 0) 'error))
+	(call 'lisp :env_args_sig '(:r1 ($ sig) 1) '(:tmp))
+	(gotoif '(:tmp = 0) 'error))
 
 	(vp-push :r0)
 	(array-bind-args :r1 '(:r0))
@@ -459,8 +459,8 @@
 (errorcases
 	(assign '((:r1 array_length)) '(:r4))
 	(gotoif '(:r4 > 1) 'error)
-	(call 'lisp :env_args_sig '(:r1 ($ sig) :r4) '(:r2))
-	(gotoif '(:r2 = 0) 'error))
+	(call 'lisp :env_args_sig '(:r1 ($ sig) :r4) '(:tmp))
+	(gotoif '(:tmp = 0) 'error))
 
 	(assign '((:r1 array_length)) '(:r2))
 	(vpif '(:r2 = 0))
@@ -497,8 +497,8 @@
 	(entry 'hmap :lisp_resize '(:r0 :r1))
 
 (errorcases
-	(call 'lisp :env_args_sig '(:r1 ($ sig) 2) '(:r2))
-	(gotoif '(:r2 = 0) 'error))
+	(call 'lisp :env_args_sig '(:r1 ($ sig) 2) '(:tmp))
+	(gotoif '(:tmp = 0) 'error))
 
 	(vp-push :r0 :r1)
 	(defq in (method-input 'hmap :resize))

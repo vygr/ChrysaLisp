@@ -17,8 +17,8 @@
 	(entry 'ctx :lisp_set_color '(:r0 :r1))
 
 (errorcases
-	(call 'lisp :env_args_sig '(:r1 ($ sig) 2) '(:r2))
-	(gotoif '(:r2 = 0) 'error1))
+	(call 'lisp :env_args_sig '(:r1 ($ sig) 2) '(:tmp))
+	(gotoif '(:tmp = 0) 'error1))
 
 	(vp-push :r0)
 	(defq in (method-input 'ctx :set_color))

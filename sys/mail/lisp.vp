@@ -20,8 +20,8 @@
 	(entry 'sys_mail :lisp_validate '(:r0 :r1))
 
 (errorcases
-	(call 'lisp :env_args_sig '(:r1 ($ sig) 1) '(:r2))
-	(gotoif '(:r2 = 0) 'error))
+	(call 'lisp :env_args_sig '(:r1 ($ sig) 1) '(:tmp))
+	(gotoif '(:tmp = 0) 'error))
 
 	(vp-push :r0)
 	(list-bind-args :r1 '(:r0) '(:obj))
@@ -59,8 +59,8 @@
 	(entry 'sys_mail :lisp_read '(:r0 :r1))
 
 (errorcases
-	(call 'lisp :env_args_sig '(:r1 ($ sig) 1) '(:r2))
-	(gotoif '(:r2 = 0) 'error))
+	(call 'lisp :env_args_sig '(:r1 ($ sig) 1) '(:tmp))
+	(gotoif '(:tmp = 0) 'error))
 
 	(vp-push :r0)
 	(list-bind-args :r1 '(:r0) '(:obj))
@@ -99,14 +99,14 @@
 	(entry 'sys_mail :lisp_poll '(:r0 :r1))
 
 (errorcases
-	(call 'lisp :env_args_sig '(:r1 ($ sig) 1) '(:r2))
-	(gotoif '(:r2 = 0) 'error))
+	(call 'lisp :env_args_sig '(:r1 ($ sig) 1) '(:tmp))
+	(gotoif '(:tmp = 0) 'error))
 
 	(list-bind-args :r1 '(:r1) '(:list))
 
 (errorcases
-	(call 'lisp :env_args_match `(:r1 (@ ,(f-path 'str :vtable)) 1) '(:r2))
-	(gotoif '(:r2 = 0) 'error))
+	(call 'lisp :env_args_match `(:r1 (@ ,(f-path 'str :vtable)) 1) '(:tmp))
+	(gotoif '(:tmp = 0) 'error))
 
 	(vp-push :r0)
 	(call 'sys_mail :poll '(:r1) '(:r0 _ _))
@@ -142,14 +142,14 @@
 	(entry 'sys_mail :lisp_select '(:r0 :r1))
 
 (errorcases
-	(call 'lisp :env_args_sig '(:r1 ($ sig) 1) '(:r2))
-	(gotoif '(:r2 = 0) 'error))
+	(call 'lisp :env_args_sig '(:r1 ($ sig) 1) '(:tmp))
+	(gotoif '(:tmp = 0) 'error))
 
 	(list-bind-args :r1 '(:r1) '(:list))
 
 (errorcases
-	(call 'lisp :env_args_match `(:r1 (@ ,(f-path 'str :vtable)) 1) '(:r2))
-	(gotoif '(:r2 = 0) 'error))
+	(call 'lisp :env_args_match `(:r1 (@ ,(f-path 'str :vtable)) 1) '(:tmp))
+	(gotoif '(:tmp = 0) 'error))
 
 	(vp-push :r0)
 	(call 'sys_mail :select '(:r1) '(:r0))
@@ -228,8 +228,8 @@
 	(entry 'sys_mail :lisp_declare '(:r0 :r1))
 
 (errorcases
-	(call 'lisp :env_args_sig '(:r1 ($ sig) 3) '(:r2))
-	(gotoif '(:r2 = 0) 'error))
+	(call 'lisp :env_args_sig '(:r1 ($ sig) 3) '(:tmp))
+	(gotoif '(:tmp = 0) 'error))
 
 	(vp-push :r0)
 	(defq in (method-input 'sys_mail :declare))
@@ -260,8 +260,8 @@
 	(entry 'sys_mail :lisp_enquire '(:r0 :r1))
 
 (errorcases
-	(call 'lisp :env_args_sig '(:r1 ($ sig) 1) '(:r2))
-	(gotoif '(:r2 = 0) 'error))
+	(call 'lisp :env_args_sig '(:r1 ($ sig) 1) '(:tmp))
+	(gotoif '(:tmp = 0) 'error))
 
 	(vp-push :r0)
 	(defq in (method-input 'sys_mail :enquire))
@@ -292,8 +292,8 @@
 	(entry 'sys_mail :lisp_forget '(:r0 :r1))
 
 (errorcases
-	(call 'lisp :env_args_sig '(:r1 ($ sig) 1) '(:r2))
-	(gotoif '(:r2 = 0) 'error))
+	(call 'lisp :env_args_sig '(:r1 ($ sig) 1) '(:tmp))
+	(gotoif '(:tmp = 0) 'error))
 
 	(vp-push :r0)
 	(defq in (method-input 'sys_mail :forget))
@@ -360,8 +360,8 @@
 	(entry 'sys_mail :lisp_free_mbox '(:r0 :r1))
 
 (errorcases
-	(call 'lisp :env_args_sig '(:r1 ($ sig) 1) '(:r2))
-	(gotoif '(:r2 = 0) 'error))
+	(call 'lisp :env_args_sig '(:r1 ($ sig) 1) '(:tmp))
+	(gotoif '(:tmp = 0) 'error))
 
 	(vp-push :r0)
 	(defq in (method-input 'sys_mail :free_mbox))
@@ -424,8 +424,8 @@
 	(entry 'sys_mail :lisp_timeout '(:r0 :r1))
 
 (errorcases
-	(call 'lisp :env_args_sig '(:r1 ($ sig) 3) '(:r2))
-	(gotoif '(:r2 = 0) 'error))
+	(call 'lisp :env_args_sig '(:r1 ($ sig) 3) '(:tmp))
+	(gotoif '(:tmp = 0) 'error))
 
 	(vp-push :r0)
 	(list-bind-args :r1 '(:r12 :r13 :r14) '(:obj :num :num))

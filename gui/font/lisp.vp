@@ -18,8 +18,8 @@
 	(entry 'font :lisp_create '(:r0 :r1))
 
 (errorcases
-	(call 'lisp :env_args_sig '(:r1 ($ sig) 2) '(:r2))
-	(gotoif '(:r2 = 0) 'error))
+	(call 'lisp :env_args_sig '(:r1 ($ sig) 2) '(:tmp))
+	(gotoif '(:tmp = 0) 'error))
 
 	(vp-push :r0)
 	(defq in (method-input 'font :open))
@@ -58,8 +58,8 @@
 	(entry 'font :lisp_glyph_paths '(:r0 :r1))
 
 (errorcases
-	(call 'lisp :env_args_sig '(:r1 ($ sig) 2) '(:r2))
-	(gotoif '(:r2 = 0) 'error))
+	(call 'lisp :env_args_sig '(:r1 ($ sig) 2) '(:tmp))
+	(gotoif '(:tmp = 0) 'error))
 
 	(vp-alloc local_size)
 	(defq in1 (method-input 'font :glyph_info)
@@ -100,8 +100,8 @@
 	(entry 'font :lisp_glyph_bounds '(:r0 :r1))
 
 (errorcases
-	(call 'lisp :env_args_sig '(:r1 ($ sig) 2) '(:r2))
-	(gotoif '(:r2 = 0) 'error))
+	(call 'lisp :env_args_sig '(:r1 ($ sig) 2) '(:tmp))
+	(gotoif '(:tmp = 0) 'error))
 
 	(vp-alloc local_size)
 	(defq in1 (method-input 'font :glyph_info)
@@ -141,8 +141,8 @@
 	(entry 'font :lisp_glyph_ranges '(:r0 :r1))
 
 (errorcases
-	(call 'lisp :env_args_sig '(:r1 ($ sig) 1) '(:r2))
-	(gotoif '(:r2 = 0) 'error))
+	(call 'lisp :env_args_sig '(:r1 ($ sig) 1) '(:tmp))
+	(gotoif '(:tmp = 0) 'error))
 
 	(vp-push :r0)
 	(defq in (method-input 'font :glyph_ranges))
@@ -173,8 +173,8 @@
 	(entry 'font :lisp_texture '(:r0 :r1))
 
 (errorcases
-	(call 'lisp :env_args_sig '(:r1 ($ sig) 2) '(:r2))
-	(gotoif '(:r2 = 0) 'error))
+	(call 'lisp :env_args_sig '(:r1 ($ sig) 2) '(:tmp))
+	(gotoif '(:tmp = 0) 'error))
 
 	(vp-push :r0)
 	(defq in (method-input 'font :sym_texture))

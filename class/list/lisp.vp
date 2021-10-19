@@ -35,8 +35,8 @@
 	(entry 'list :lisp_elemset '(:r0 :r1))
 
 (errorcases
-	(call 'lisp :env_args_sig '(:r1 ($ sig) 3) '(:r2))
-	(gotoif '(:r2 = 0) 'error1))
+	(call 'lisp :env_args_sig '(:r1 ($ sig) 3) '(:tmp))
+	(gotoif '(:tmp = 0) 'error1))
 
 	(vp-push :r0 :r1)
 	(defq in (method-input 'list :set_element))
@@ -80,8 +80,8 @@
 	(entry 'list :lisp_merge '(:r0 :r1))
 
 (errorcases
-	(call 'lisp :env_args_sig '(:r1 ($ sig) 2) '(:r2))
-	(gotoif '(:r2 = 0) 'error))
+	(call 'lisp :env_args_sig '(:r1 ($ sig) 2) '(:tmp))
+	(gotoif '(:tmp = 0) 'error))
 
 	(vp-push :r0)
 	(array-bind-args :r1 '(:r0 :r1))
@@ -138,8 +138,8 @@
 	(entry 'list :lisp_part {this, args})
 
 (errorcases
-	(call 'lisp :env_args_sig {args, $sig, 4} '(:r2))
-	(gotoif '(:r2 = 0) 'error1))
+	(call 'lisp :env_args_sig {args, $sig, 4} '(:tmp))
+	(gotoif '(:tmp = 0) 'error1))
 
 	(call 'list :get_begin {args} {_, iter_begin})
 	(assign {iter_begin[0]} {func})
@@ -214,8 +214,8 @@
 	(entry 'list :lisp_match '(:r0 :r1))
 
 (errorcases
-	(call 'lisp :env_args_sig '(:r1 ($ sig) 2) '(:r2))
-	(gotoif '(:r2 = 0) 'error1))
+	(call 'lisp :env_args_sig '(:r1 ($ sig) 2) '(:tmp))
+	(gotoif '(:tmp = 0) 'error1))
 
 	(vp-push :r0)
 	(assign '((:r0 lisp_sym_underscore)) '(:r5))

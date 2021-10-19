@@ -66,7 +66,7 @@
 (vp-label 'fn_end)
 	(opt-emit-list *emit_list* *emit_start* *emit_end*)
 	(when *debug_emit*
-		(each print-emit *emit_list*))
+		(each emit-print *emit_list*))
 	(emit-native-regs *emit_list* *emit_start* *emit_end*)
 	(emit-passes)
 	(apply undef (cat (list *compile_env*) *func_syms*))

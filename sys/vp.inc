@@ -43,7 +43,7 @@
 		(eval *emit_list* *compile_env*)
 		(setq *out_buffer* (str *out_stream*) *pass* (inc *pass*))))
 
-(defun print-emit (_)
+(defun emit-print (_)
 	(and (list? _) (not (eql (elem 0 _) 'lambda)) (print _)))
 
 (defun emit-label (_)

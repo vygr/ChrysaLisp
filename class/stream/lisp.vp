@@ -21,8 +21,8 @@
 	(entry 'stream :lisp_iostream '(:r0 :r1))
 
 (errorcases
-	(call 'lisp :env_args_sig '(:r1 ($ sig) 1) '(:r2))
-	(gotoif '(:r2 = 0) 'error))
+	(call 'lisp :env_args_sig '(:r1 ($ sig) 1) '(:tmp))
+	(gotoif '(:tmp = 0) 'error))
 
 	(vp-cpy-rr :r0 :r8)
 	(list-bind-args :r1 '(:r5) '(:str))
@@ -68,8 +68,8 @@
 	(assign '((:r1 array_length)) '(:r4))
 	(gotoif '(:r4 > 2) 'error)
 	(gotoif '(:r4 < 1) 'error)
-	(call 'lisp :env_args_sig '(:r1 ($ sig) :r4) '(:r2))
-	(gotoif '(:r2 = 0) 'error))
+	(call 'lisp :env_args_sig '(:r1 ($ sig) :r4) '(:tmp))
+	(gotoif '(:tmp = 0) 'error))
 
 	(assign '((:r1 array_length)) '(:r2))
 	(vp-push :r0)
@@ -110,8 +110,8 @@
 	(entry 'stream :lisp_sstream '(:r0 :r1))
 
 (errorcases
-	(call 'lisp :env_args_sig '(:r1 ($ sig) 1) '(:r2))
-	(gotoif '(:r2 = 0) 'error))
+	(call 'lisp :env_args_sig '(:r1 ($ sig) 1) '(:tmp))
+	(gotoif '(:tmp = 0) 'error))
 
 	(vp-push :r0)
 	(defq in (method-input 'sstream :create))
@@ -143,8 +143,8 @@
 	(entry 'stream :lisp_available '(:r0 :r1))
 
 (errorcases
-	(call 'lisp :env_args_sig '(:r1 ($ sig) 1) '(:r2))
-	(gotoif '(:r2 = 0) 'error))
+	(call 'lisp :env_args_sig '(:r1 ($ sig) 1) '(:tmp))
+	(gotoif '(:tmp = 0) 'error))
 
 	(vp-push :r0)
 	(defq in (method-input 'stream :available))
@@ -255,8 +255,8 @@
 	(entry 'stream :lisp_readline '(:r0 :r1))
 
 (errorcases
-	(call 'lisp :env_args_sig '(:r1 ($ sig) 1) '(:r2))
-	(gotoif '(:r2 = 0) 'error))
+	(call 'lisp :env_args_sig '(:r1 ($ sig) 1) '(:tmp))
+	(gotoif '(:tmp = 0) 'error))
 
 	(vp-push :r0)
 	(defq in (method-input 'stream :read_line))
@@ -291,8 +291,8 @@
 	(entry 'stream :lisp_readavail '(:r0 :r1))
 
 (errorcases
-	(call 'lisp :env_args_sig '(:r1 ($ sig) 1) '(:r2))
-	(gotoif '(:r2 = 0) 'error))
+	(call 'lisp :env_args_sig '(:r1 ($ sig) 1) '(:tmp))
+	(gotoif '(:tmp = 0) 'error))
 
 	(vp-push :r0)
 	(list-bind-args :r1 '(:r2) '(:stream))
@@ -325,8 +325,8 @@
 	(entry 'stream :lisp_write '(:r0 :r1))
 
 (errorcases
-	(call 'lisp :env_args_sig '(:r1 ($ sig) 2) '(:r2))
-	(gotoif '(:r2 = 0) 'error))
+	(call 'lisp :env_args_sig '(:r1 ($ sig) 2) '(:tmp))
+	(gotoif '(:tmp = 0) 'error))
 
 	(vp-push :r0)
 	(defq in (method-input 'stream :write))
@@ -389,8 +389,8 @@
 	(assign `((,value obj_vtable) (@ ,(f-path 'list :vtable))) '(:r0 :r1))
 	(vpif '(:r0 = :r1))
 	(errorcases
-		(call 'lisp :env_args_type `(,value (@ ,(f-path 'num :vtable)) 1))
-		(gotoif (list (method-output 'lisp :env_args_type 0) '= 0) 'error3))
+		(call 'lisp :env_args_type `(,value (@ ,(f-path 'num :vtable)) 1) '(:tmp))
+		(gotoif '(:tmp = 0) 'error3))
 		(class/array/get_both value iter_begin iter_end)
 		(loop-start)
 			(vp-push this stream width iter_begin iter_end)
@@ -440,8 +440,8 @@
 	(entry 'stream :lisp_write_flush '(:r0 :r1))
 
 (errorcases
-	(call 'lisp :env_args_sig '(:r1 ($ sig) 1) '(:r2))
-	(gotoif '(:r2 = 0) 'error))
+	(call 'lisp :env_args_sig '(:r1 ($ sig) 1) '(:tmp))
+	(gotoif '(:tmp = 0) 'error))
 
 	(vp-push :r0)
 	(defq in (method-input 'stream :flush))
@@ -473,8 +473,8 @@
 	(entry 'stream :lisp_seek '(:r0 :r1))
 
 (errorcases
-	(call 'lisp :env_args_sig '(:r1 ($ sig) 3) '(:r2))
-	(gotoif '(:r2 = 0) 'error))
+	(call 'lisp :env_args_sig '(:r1 ($ sig) 3) '(:tmp))
+	(gotoif '(:tmp = 0) 'error))
 
 	(vp-push :r0)
 	(defq in (method-input 'stream :seek))

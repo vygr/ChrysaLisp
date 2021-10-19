@@ -16,8 +16,8 @@
 	(entry 'lisp :lisp_apply '(:r0 :r1))
 
 (errorcases
-	(call 'lisp :env_args_sig '(:r1 ($ sig) 2) '(:r2))
-	(gotoif '(:r2 = 0) 'error))
+	(call 'lisp :env_args_sig '(:r1 ($ sig) 2) '(:tmp))
+	(gotoif '(:tmp = 0) 'error))
 
 	(array-bind-args :r1 '(:r2 :r1))
 	(jump 'lisp :repl_apply '(:r0 :r1 :r2))
