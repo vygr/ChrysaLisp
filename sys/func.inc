@@ -26,7 +26,6 @@
 (defun string-sym (_) (str "rs_" _))
 
 (defun def-func (*name* &optional falign fstack)
-	(env-push)
 	(emit-reset)
 	(setq *func_name* *name* *switch_nxt* 0 *func_align* (opt falign stack_align))
 	(clear *strings* *paths* *links* *func_syms*)
@@ -44,9 +43,11 @@
 	(vp-align +ptr_size `(- ,(label-sym 'fn_entry) ,(label-sym 'fn_name_start)))
 (vp-label 'fn_entry)
 	(push-scope)
-	(defcvar '*emit_start* (length *emit_list*)))
+	(defcvar '*emit_start* (length *emit_list*))
+	(env-push))
 
 (defun def-func-end ()
+	(env-pop)
 	(defcvar '*emit_end* (length *emit_list*))
 	(pop-scope-checked)
 	(each (lambda (s)
@@ -69,8 +70,7 @@
 	(emit-passes)
 	(apply undef (cat (list *compile_env*) *func_syms*))
 	(save *out_buffer* (cat "obj/" *cpu* "/" *abi* "/" (str *func_name*)))
-	(print "-> " (str "obj/" *cpu* "/" *abi* "/" (str *func_name*) " (" (length *out_buffer*) ")"))
-	(env-pop))
+	(print "-> " (str "obj/" *cpu* "/" *abi* "/" (str *func_name*) " (" (length *out_buffer*) ")")))
 
 (defun fn-add-string (s)
 	(defq i -1)
