@@ -142,8 +142,8 @@
 				(t (throw "Must use static, virtual, final or override ! " mtype))))) lines)
 	`(def *compile_env* ',super_sym ',super ',class_sym ',vtable))
 
-(defun def-method (class member &optional alignment)
-	(def-func (f-path class member) alignment))
+(defmacro def-method (class member &optional alignment)
+	`(def-func (f-path ,class ,member) ,alignment))
 
 ;;;;;;;;;;;;;;;;;;
 ; function helpers
