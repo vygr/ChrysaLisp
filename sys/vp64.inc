@@ -2,15 +2,14 @@
 ; VP64 Emit Functions
 ;;;;;;;;;;;;;;;;;;;;;
 
+(defcvar 'stack_align 8 'stack_state '(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14))
+(defun native-reg? (r) (find r +vp_regs))
+
 (defq opcode 0)
 (defmacro next-opcode (&optional i)
 	(defq ci opcode)
 	(setq opcode (+ opcode (opt i 1)))
 	ci)
-
-(defun reg (r) (find r +vp_regs))
-
-(defcvar 'stack_align 8 'stack_state '(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14))
 
 (defun stack-init ()
 	(defq tk_state_size (* +ptr_size (length stack_state)))
@@ -22,12 +21,12 @@
 (defun emit-cr (o c r)
 	(cond
 		((<= -0x8 c 0x7)
-			(emit-short (+ o (<< (reg r) 8) (<< c 12))))
+			(emit-short (+ o (<< r 8) (<< c 12))))
 		((<= -0x80000 c 0x7ffff)
-			(emit-short (+ (inc o) (<< (reg r) 8) (<< c 12)) (>>> c 4)))
+			(emit-short (+ (inc o) (<< r 8) (<< c 12)) (>>> c 4)))
 		((<= -0x800000000 c 0x7ffffffff)
-			(emit-short (+ (+ o 2) (<< (reg r) 8) (<< c 12)) (>>> c 4) (>>> c 20)))
-		(t	(emit-short (+ (+ o 3) (<< (reg r) 8)) c (>>> c 16) (>>> c 32) (>>> c 48)))))
+			(emit-short (+ (+ o 2) (<< r 8) (<< c 12)) (>>> c 4) (>>> c 20)))
+		(t	(emit-short (+ (+ o 3) (<< r 8)) c (>>> c 16) (>>> c 32) (>>> c 48)))))
 
 (defun emit-cpy-cr (c r) (emit-cr (next-opcode 4) c r))
 (defun emit-add-cr (c r) (unless (= c 0) (emit-cr (next-opcode 4) c r)))
@@ -42,39 +41,39 @@
 	(cond
 		((= c 0))
 		((<= 1 c 63)
-			(emit-short (+ o (<< (reg r) 8)) c))
+			(emit-short (+ o (<< r 8)) c))
 		(t	(throw "emit-shift-cr constant out of range !" c))))
 
 (defun emit-shl-cr (c r) (emit-shift-cr (next-opcode) c r))
 (defun emit-shr-cr (c r) (emit-shift-cr (next-opcode) c r))
 (defun emit-asr-cr (c r) (emit-shift-cr (next-opcode) c r))
 
-(defun emit-cpy-rr (s d) (emit-short (+ (next-opcode) (<< (reg d) 8) (<< (reg s) 12))))
-(defun emit-add-rr (s d) (emit-short (+ (next-opcode) (<< (reg d) 8) (<< (reg s) 12))))
-(defun emit-sub-rr (s d) (emit-short (+ (next-opcode) (<< (reg d) 8) (<< (reg s) 12))))
-(defun emit-cmp-rr (s d) (emit-short (+ (next-opcode) (<< (reg d) 8) (<< (reg s) 12))))
-(defun emit-mul-rr (s d) (emit-short (+ (next-opcode) (<< (reg d) 8) (<< (reg s) 12))))
-(defun emit-and-rr (s d) (emit-short (+ (next-opcode) (<< (reg d) 8) (<< (reg s) 12))))
-(defun emit-or-rr (s d) (emit-short (+ (next-opcode) (<< (reg d) 8) (<< (reg s) 12))))
-(defun emit-xor-rr (s d) (emit-short (+ (next-opcode) (<< (reg d) 8) (<< (reg s) 12))))
-(defun emit-shl-rr (s d) (emit-short (+ (next-opcode) (<< (reg d) 8) (<< (reg s) 12))))
-(defun emit-shr-rr (s d) (emit-short (+ (next-opcode) (<< (reg d) 8) (<< (reg s) 12))))
-(defun emit-asr-rr (s d) (emit-short (+ (next-opcode) (<< (reg d) 8) (<< (reg s) 12))))
-(defun emit-lnot-rr (r d) (emit-short (+ (next-opcode) (<< (reg d) 8) (<< (reg r) 12))))
-(defun emit-land-rr (s d) (emit-short (+ (next-opcode) (<< (reg d) 8) (<< (reg s) 12))))
-(defun emit-swp-rr (s d) (emit-short (+ (next-opcode) (<< (reg d) 8) (<< (reg s) 12))))
-(defun emit-ext-rr (s d) (emit-short (+ (next-opcode) (<< (reg d) 8) (<< (reg s) 12))))
-(defun emit-div-rrr (s d2 d1) (emit-short (+ (next-opcode) (<< (reg d1) 8) (<< (reg d2) 12)) (reg s)))
-(defun emit-div-rrr-u (s d2 d1) (emit-short (+ (next-opcode) (<< (reg d1) 8) (<< (reg d2) 12)) (reg s)))
+(defun emit-cpy-rr (s d) (emit-short (+ (next-opcode) (<< d 8) (<< s 12))))
+(defun emit-add-rr (s d) (emit-short (+ (next-opcode) (<< d 8) (<< s 12))))
+(defun emit-sub-rr (s d) (emit-short (+ (next-opcode) (<< d 8) (<< s 12))))
+(defun emit-cmp-rr (s d) (emit-short (+ (next-opcode) (<< d 8) (<< s 12))))
+(defun emit-mul-rr (s d) (emit-short (+ (next-opcode) (<< d 8) (<< s 12))))
+(defun emit-and-rr (s d) (emit-short (+ (next-opcode) (<< d 8) (<< s 12))))
+(defun emit-or-rr (s d) (emit-short (+ (next-opcode) (<< d 8) (<< s 12))))
+(defun emit-xor-rr (s d) (emit-short (+ (next-opcode) (<< d 8) (<< s 12))))
+(defun emit-shl-rr (s d) (emit-short (+ (next-opcode) (<< d 8) (<< s 12))))
+(defun emit-shr-rr (s d) (emit-short (+ (next-opcode) (<< d 8) (<< s 12))))
+(defun emit-asr-rr (s d) (emit-short (+ (next-opcode) (<< d 8) (<< s 12))))
+(defun emit-lnot-rr (r d) (emit-short (+ (next-opcode) (<< d 8) (<< r 12))))
+(defun emit-land-rr (s d) (emit-short (+ (next-opcode) (<< d 8) (<< s 12))))
+(defun emit-swp-rr (s d) (emit-short (+ (next-opcode) (<< d 8) (<< s 12))))
+(defun emit-ext-rr (s d) (emit-short (+ (next-opcode) (<< d 8) (<< s 12))))
+(defun emit-div-rrr (s d2 d1) (emit-short (+ (next-opcode) (<< d1 8) (<< d2 12)) s))
+(defun emit-div-rrr-u (s d2 d1) (emit-short (+ (next-opcode) (<< d1 8) (<< d2 12)) s))
 
 (defun emit-scr (o c d)
 	(cond
 		((<= -0x8 c 0x7)
-			(emit-short (+ o (<< (reg d) 8) (<< c 12))))
+			(emit-short (+ o (<< d 8) (<< c 12))))
 		((<= -0x80000 c 0x7ffff)
-			(emit-short (+ (inc o) (<< (reg d) 8) (<< c 12)) (>>> c 4)))
+			(emit-short (+ (inc o) (<< d 8) (<< c 12)) (>>> c 4)))
 		((<= -0x800000000 c 0x7ffffffff)
-			(emit-short (+ (+ o 2) (<< (reg d) 8) (<< c 12)) (>>> c 4) (>>> c 20)))
+			(emit-short (+ (+ o 2) (<< d 8) (<< c 12)) (>>> c 4) (>>> c 20)))
 		(t	(throw "emit-scr constant out of range !" c))))
 
 (defun emit-seq-cr (c d) (emit-scr (next-opcode 3) c d))
@@ -84,12 +83,12 @@
 (defun emit-sgt-cr (c d) (emit-scr (next-opcode 3) c d))
 (defun emit-sge-cr (c d) (emit-scr (next-opcode 3) c d))
 
-(defun emit-seq-rr (s d) (emit-short (+ (next-opcode) (<< (reg d) 8) (<< (reg s) 12))))
-(defun emit-sne-rr (s d) (emit-short (+ (next-opcode) (<< (reg d) 8) (<< (reg s) 12))))
-(defun emit-slt-rr (s d) (emit-short (+ (next-opcode) (<< (reg d) 8) (<< (reg s) 12))))
-(defun emit-sle-rr (s d) (emit-short (+ (next-opcode) (<< (reg d) 8) (<< (reg s) 12))))
-(defun emit-sgt-rr (s d) (emit-short (+ (next-opcode) (<< (reg d) 8) (<< (reg s) 12))))
-(defun emit-sge-rr (s d) (emit-short (+ (next-opcode) (<< (reg d) 8) (<< (reg s) 12))))
+(defun emit-seq-rr (s d) (emit-short (+ (next-opcode) (<< d 8) (<< s 12))))
+(defun emit-sne-rr (s d) (emit-short (+ (next-opcode) (<< d 8) (<< s 12))))
+(defun emit-slt-rr (s d) (emit-short (+ (next-opcode) (<< d 8) (<< s 12))))
+(defun emit-sle-rr (s d) (emit-short (+ (next-opcode) (<< d 8) (<< s 12))))
+(defun emit-sgt-rr (s d) (emit-short (+ (next-opcode) (<< d 8) (<< s 12))))
+(defun emit-sge-rr (s d) (emit-short (+ (next-opcode) (<< d 8) (<< s 12))))
 
 (defun emit-branch (o c d)
 	(defq m (elem d *distance*))
@@ -111,7 +110,7 @@
 (defun emit-ir (o s c d)
 	(cond
 		((<= -0x8000 c 0x7fff)
-			(emit-short (+ o (<< (reg d) 8) (<< (reg s) 12)) c))
+			(emit-short (+ o (<< d 8) (<< s 12)) c))
 		(t	(throw "emit-ir constant out of range !" c))))
 
 (defun emit-cpy-ir (s c d) (emit-ir (next-opcode) s c d))
@@ -126,7 +125,7 @@
 (defun emit-ri (o s d c)
 	(cond
 		((<= -0x8000 c 0x7fff)
-			(emit-short (+ o (<< (reg d) 8) (<< (reg s) 12)) c))
+			(emit-short (+ o (<< d 8) (<< s 12)) c))
 		(t	(throw "emit-ri constant out of range !" c))))
 
 (defun emit-cpy-ri (s d c) (emit-ri (next-opcode) s d c))
@@ -135,7 +134,7 @@
 (defun emit-cpy-ri-i (s d c) (emit-ri (next-opcode) s d c))
 
 (defun emit-rd (o s d1 d2)
-	(emit-short (+ o (<< (reg d1) 8) (<< (reg d2) 12)) (reg s)))
+	(emit-short (+ o (<< d1 8) (<< d2 12)) s))
 
 (defun emit-cpy-rd (s d1 d2) (emit-rd (next-opcode) s d1 d2))
 (defun emit-cpy-rd-b (s d2 d1) (emit-rd (next-opcode) s d1 d2))
@@ -143,7 +142,7 @@
 (defun emit-cpy-rd-i (s d2 d1) (emit-rd (next-opcode) s d1 d2))
 
 (defun emit-dr (o s1 s2 d)
-	(emit-short (+ o (<< (reg d) 8) (<< (reg s1) 12)) (reg s2)))
+	(emit-short (+ o (<< d 8) (<< s1 12)) s2))
 
 (defun emit-cpy-dr (s1 s2 d) (emit-dr (next-opcode) s1 s2 d))
 (defun emit-cpy-dr-b (s1 s2 d) (emit-dr (next-opcode) s1 s2 d))
@@ -154,13 +153,13 @@
 (defun emit-cpy-dr-ui (s1 s2 d) (emit-dr (next-opcode) s1 s2 d))
 (defun emit-lea-d (s1 s2 d) (emit-dr (next-opcode) s1 s2 d))
 
-(defun emit-call-r (r) (emit-short (+ (next-opcode) (<< (reg r) 8))))
-(defun emit-jmp-r (r) (emit-short (+ (next-opcode) (<< (reg r) 8))))
+(defun emit-call-r (r) (emit-short (+ (next-opcode) (<< r 8))))
+(defun emit-jmp-r (r) (emit-short (+ (next-opcode) (<< r 8))))
 
 (defun emit-call-jmp-i (o r c)
 	(cond
 		((<= -0x80000 c 0x7ffff)
-			(emit-short (+ o (<< (reg r) 8) (<< c 12)) (>>> c 4)))
+			(emit-short (+ o (<< r 8) (<< c 12)) (>>> c 4)))
 		(t	(throw "emit-call-jmp-i constant out of range !" c))))
 
 (defun emit-call-i (r c) (emit-call-jmp-i (next-opcode) r c))
@@ -169,7 +168,7 @@
 (defun emit-p (o r l)
 	(cond
 		((<= -0x80000 (defq c (- l *pc* 4)) 0x7ffff)
-			(emit-short (+ o (<< (reg r) 8) (<< c 12)) (>>> c 4)))
+			(emit-short (+ o (<< r 8) (<< c 12)) (>>> c 4)))
 		(t	(throw "emit-p constant out of range !" c))))
 
 (defun emit-cpy-pr (l r) (emit-p (next-opcode) r l))
@@ -191,11 +190,11 @@
 (defun emit-call-abi (r b c n &rest x)
 	(cond
 		((<= 0 c (const (- 0x10000 +ptr_size)))
-			(emit-short (+ (next-opcode) (<< (reg b) 8) (<< n 12)) c))
+			(emit-short (+ (next-opcode) (<< b 8) (<< n 12)) c))
 		(t	(throw "emit-call-abi constant out of range !" c))))
 
-(defun emit-alloc (c) (emit-sub-cr (align c stack_align) :rsp))
-(defun emit-free (c) (emit-add-cr (align c stack_align) :rsp))
+(defun emit-alloc (c) (emit-sub-cr (align c stack_align) (const (native-reg? :rsp))))
+(defun emit-free (c) (emit-add-cr (align c stack_align) (const (native-reg? :rsp))))
 (defun emit-ret () (emit-short (next-opcode)))
 (defun emit-brk (n) (emit-short (+ (next-opcode) (<< n 8))))
 
@@ -203,10 +202,10 @@
 	(when (/= 0 (length b))
 		(emit-alloc (* +ptr_size (length b)))
 		(each-rev (lambda (r)
-			(emit-cpy-ri r :rsp (* (- (length b) 1 _) +ptr_size))) b)))
+			(emit-cpy-ri r (const (native-reg? :rsp)) (* (- (length b) 1 _) +ptr_size))) b)))
 
 (defun emit-pop (&rest b)
 	(when (/= 0 (length b))
 		(each-rev (lambda (r)
-			(emit-cpy-ir :rsp (* (- (length b) 1 _) +ptr_size) r)) b))
+			(emit-cpy-ir (const (native-reg? :rsp)) (* (- (length b) 1 _) +ptr_size) r)) b))
 		(emit-free (* +ptr_size (length b))))

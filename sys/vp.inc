@@ -1,3 +1,20 @@
+;;;;;;;;;;;;;;
+; VP Registers
+;;;;;;;;;;;;;;
+
+(defq +vp_regs ''(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14 :rsp)
+	+vp_regs_0_14 ''(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14))
+(defun vp-reg? (_) (find _ +vp_regs))
+(each (# (defcvar %0 %0)) +vp_regs)
+
+(defmacro vp-def (_ &optional l)
+	(if (> (length (defq v (filter (lambda (_)
+			(and (def? _ *compile_env*) (not (find _ *func_syms*)))) _))) 0)
+		(throw "VP redefine !" v))
+	(setq l (apply cat (map (lambda (x y)
+		(list (list 'quote x) y)) _ (if l (merge-obj (cat (eval l)) +vp_regs_0_14) +vp_regs_0_14))))
+	`(progn (defcvar ~l) (apply push (cat (list *func_syms*) ',_))))
+
 ;;;;;;;;;;;;;
 ; Emit Buffer
 ;;;;;;;;;;;;;
@@ -8,6 +25,12 @@
 (defun emit-reset ()
 	(defcvar '*emit_list* (push (clear '()) progn) '*distance* (clear '())
 		'*out_buffer* "" '*old_out_buffer* ""))
+
+(defun emit-native-regs (emit_list start end)
+	(each! start end (lambda (inst)
+		(if (list? inst)
+			(each (lambda (e)
+				(if (defq r (native-reg? e)) (elem-set _ inst r))) inst))) (list emit_list)))
 
 (defun emit-passes ()
 	(defcvar '*pass* 0 '*pc* 0 '*out_stream* (string-stream *out_buffer*))
@@ -63,19 +86,6 @@
 ; VP Instructions
 ;;;;;;;;;;;;;;;;;
 
-(defq +vp_regs ''(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14 :rsp)
-	+vp_regs_0_14 ''(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14))
-(defun vpreg? (_) (find _ +vp_regs))
-(each (# (defcvar %0 %0)) +vp_regs)
-
-(defmacro vp-def (_ &optional l)
-	(if (> (length (defq v (filter (lambda (_)
-			(and (def? _ *compile_env*) (not (find _ *func_syms*)))) _))) 0)
-		(throw "VP redefine !" v))
-	(setq l (apply cat (map (lambda (x y)
-		(list (list 'quote x) y)) _ (if l (merge-obj (cat (eval l)) +vp_regs_0_14) +vp_regs_0_14))))
-	`(progn (defcvar ~l) (apply push (cat (list *func_syms*) ',_))))
-
 (defmacro type-sym (_) `(sym (str ,_ "_t")))
 
 (defun vp-type-t (_)
@@ -86,17 +96,17 @@
 	(case (pop (type-of o))
 		(:sym
 			(cond
-				((vpreg? o) :r)
+				((vp-reg? o) :r)
 				((eql (elem 0 o) ":") :k)
 				(t :c)))
 		(:num :c)
 		(:list
 			(defq i (elem 0 o))
 			(cond
-				((vpreg? i)
+				((vp-reg? i)
 					(setq i (elem 1 o))
 					(cond
-						((vpreg? i)
+						((vp-reg? i)
 							(if (= 2 (length o)) :d
 								(sym (cat :d (elem 2 o)))))
 						((/= 2 (length o))
@@ -108,8 +118,8 @@
 				((eql i '@) :@)
 				((eql i '$) :$)
 				((eql i '&)
-					(if (vpreg? (elem 1 o))
-						(if (vpreg? (elem 2 o)) :&d :&i) nil))
+					(if (vp-reg? (elem 1 o))
+						(if (vp-reg? (elem 2 o)) :&d :&i) nil))
 				(t :c)))
 		(:str :s)
 		(t nil)))
@@ -135,7 +145,7 @@
 			(list ',(sym (cat "emit-" _)) (label-sym l) (dec (length (push *distance* 0)))))))
 (defmacro vp-op-cr (_)
 	`(defun ,(sym (cat "vp-" _ "-cr")) (c d)
-		(emit (list ',(sym (cat "emit-" _ "-cr")) c (get d)))))
+		(emit (list ',(sym (cat "emit-" _ "-cr")) (eval c) (get d)))))
 (defmacro vp-op-rr (_)
 	`(defun ,(sym (cat "vp-" _ "-rr")) (s d)
 		(emit (list ',(sym (cat "emit-" _ "-rr")) (get s) (get d)))))
@@ -158,12 +168,12 @@
 
 (defun vp-push (&rest b) (emit (cat '(emit-push) (map get b))))
 (defun vp-pop (&rest b) (emit (cat '(emit-pop) (map get b))))
-(defun vp-alloc (c) (emit (list 'emit-alloc c)))
-(defun vp-free (c) (emit (list 'emit-free c)))
+(defun vp-alloc (c) (emit (list 'emit-alloc (eval c))))
+(defun vp-free (c) (emit (list 'emit-free (eval c))))
 (defun vp-ret () (emit (list 'emit-ret)))
 (defun vp-brk (&optional n) (emit (list 'emit-brk (opt n 0))))
 
-(defun vp-call-abi (r b i n x) (emit (cat (list 'emit-call-abi r b i n) x)))
+(defun vp-call-abi (r b i n x) (emit (cat (list 'emit-call-abi (get r) (get b) i n) (map get x))))
 (defun vp-call (l) (emit (list 'emit-call (label-sym l))))
 (defun vp-call-r (d) (emit (list 'emit-call-r (get d))))
 (defun vp-call-i (b i) (emit (list 'emit-call-i (get b) (eval i))))

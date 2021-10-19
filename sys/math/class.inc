@@ -245,21 +245,21 @@
 (defun vec-shl (n s &optional v)
 	(setd v (vec-top n))
 	(each (lambda (v)
-		(if (vpreg? s)
+		(if (vp-reg? s)
 			(vp-shl-rr s v)
 			(vp-shl-cr s v))) v))
 
 (defun vec-shr (n s &optional v)
 	(setd v (vec-top n))
 	(each (lambda (v)
-		(if (vpreg? s)
+		(if (vp-reg? s)
 			(vp-shr-rr s v)
 			(vp-shr-cr s v))) v))
 
 (defun vec-asr (n s &optional v)
 	(setd v (vec-top n))
 	(each (lambda (v)
-		(if (vpreg? s)
+		(if (vp-reg? s)
 			(vp-asr-rr s v)
 			(vp-asr-cr s v))) v))
 
@@ -282,7 +282,7 @@
 (defun vec-scale (n &optional s v)
 	(setd s (elem 0 (vec-pop 1)) v (vec-top n))
 	(each (lambda (v)
-		(if (vpreg? s)
+		(if (vp-reg? s)
 			(vp-mul-rr s v)
 			(vp-mul-cr s v))) v))
 

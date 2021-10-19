@@ -2,21 +2,42 @@
 ; ARM Emit Functions
 ;;;;;;;;;;;;;;;;;;;;
 
+(defcvar 'stack_align 16 'stack_state '(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14 :r30))
+(defun native-reg? (r)
+	(find r '(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14 :r15
+			:r16 :r17 :r18 :r19 :r20 :r21 :r22 :r23 :r24 :r25 :r26 :r27 :r28 :r29 :r30 :rsp)))
+(each (# (defcvar %0 %0)) '(:r15 :r16 :r17 :r18 :r19 :r20 :r21 :r22 :r23 :r24 :r25 :r26 :r27 :r28 :r29 :r30))
+
+(defun stack-init ()
+	(defq tk_state_size (* +ptr_size (length stack_state)))
+	(vp-and-cr (neg stack_align) :r1)
+	(vp-sub-cr tk_state_size :r1)
+	(f-bind 'sys_task :stop :r2)
+	(vp-cpy-ri :r4 :r1 (- tk_state_size +ptr_size))
+	(vp-cpy-ri :r2 :r1 (- tk_state_size (* +ptr_size 2)))
+	(vp-lea-p 'start :r4)
+	(vp-cpy-ri :r4 :r1 0)
+	(goto 'funcexit)
+(vp-label 'start)
+	(vp-cpy-rr :r1 :r30)
+	(vp-jmp-r :r0)
+(vp-label 'funcexit))
+
 (defmacro emit-ux (x s d)
-	`(emit-int (+ 0xd3400000 (<< ,x 10) (<< (reg ,s) 5) (reg ,d))))
+	`(emit-int (+ 0xd3400000 (<< ,x 10) (<< ,s 5) ,d)))
 
 (defmacro emit-bf (o x y s d)
-	`(emit-int (+ ,o (<< ,x 16) (<< ,y 10) (<< (reg ,s) 5) (reg ,d))))
+	`(emit-int (+ ,o (<< ,x 16) (<< ,y 10) (<< ,s 5) ,d)))
 
 (defmacro emit-rrr (o m n d)
-	`(emit-int (+ ,o (<< (reg ,m) 16) (<< (reg ,n) 5) (reg ,d))))
+	`(emit-int (+ ,o (<< ,m 16) (<< ,n 5) ,d)))
 
 (defmacro emit-ri (w o s d c)
 	`(cond
 		((<= -0x100 ,c 0xff)
-			(emit-int (+ ,o (<< (logand ,c 0x1ff) 12) (<< (reg ,d) 5) (reg ,s))))
+			(emit-int (+ ,o (<< (logand ,c 0x1ff) 12) (<< ,d 5) ,s)))
 		((<= 0 ,c (<< 0xfff ,w))
-			(emit-int (+ 0x1000000 ,o (<< ,c (- 10 ,w)) (<< (reg ,d) 5) (reg ,s))))
+			(emit-int (+ 0x1000000 ,o (<< ,c (- 10 ,w)) (<< ,d 5) ,s)))
 		(t (throw "emit-ri/ir constant out of range !" ,c))))
 
 (defmacro emit-ir (w o s c d)
@@ -29,10 +50,10 @@
 		(if (eql ,s ,d) (emit-ux ,(elem w '(7 15 31)) ,d ,d))))
 
 (defmacro emit-rd (o s d1 d2)
-	`(emit-int (+ ,o (<< (reg ,d2) 16) (<< (reg ,d1) 5) (reg ,s))))
+	`(emit-int (+ ,o (<< ,d2 16) (<< ,d1 5) ,s)))
 
 (defmacro emit-dr (o s1 s2 d)
-	`(emit-int (+ ,o (<< (reg ,s2) 16) (<< (reg ,s1) 5) (reg ,d))))
+	`(emit-int (+ ,o (<< ,s2 16) (<< ,s1 5) ,d)))
 
 (defmacro emit-dru (o x s1 s2 d)
 	`(progn
@@ -83,60 +104,35 @@
 						n (logxor (logand (>> _s 6) 1) 1))
 					(+ (<< n 12) (<< _r 6) (logand _s 0x3f)))))))
 
-(defun reg (r)
-	(find r '(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14 :r15
-			:r16 :r17 :r18 :r19 :r20 :r21 :r22 :r23 :r24 :r25 :r26 :r27 :r28 :r29 :r30 :rsp)))
-
-(each (# (defcvar %0 %0)) '(:r15 :r16 :r17 :r18 :r19 :r20 :r21 :r22 :r23 :r24 :r25 :r26 :r27 :r28 :r29 :r30))
-
-(defcvar 'stack_align 16 'stack_state '(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14 :r30))
-
-(defun stack-init ()
-	(defq tk_state_size (* +ptr_size (length stack_state)))
-	(vp-and-cr (neg stack_align) :r1)
-	(vp-sub-cr tk_state_size :r1)
-	(f-bind 'sys_task :stop :r2)
-	(vp-cpy-ri :r4 :r1 (- tk_state_size +ptr_size))
-	(vp-cpy-ri :r2 :r1 (- tk_state_size (* +ptr_size 2)))
-	(vp-lea-p 'start :r4)
-	(vp-cpy-ri :r4 :r1 0)
-	(goto 'funcexit)
-(vp-label 'start)
-	(vp-cpy-rr :r1 :r30)
-	(vp-jmp-r :r0)
-(vp-label 'funcexit))
-
 (defun emit-push (&rest b)
 	(cond
 		((= 0 (defq l (length b))))
 		((= 1 l)
-			(emit-int (+ 0xf81f0c00 (<< (reg :rsp) 5) (reg (elem 0 b)))))
+			(emit-int (+ 0xf81f0c00 (const (<< (native-reg? :rsp) 5)) (elem 0 b))))
 		((= 2 l)
 			(emit-int (+ 0xa9bf0000
-				(<< (reg (elem 0 b)) 10) (<< (reg :rsp) 5) (reg (elem 1 b)))))
-		(t
-			(emit-sub-cr (align (* +ptr_size l) stack_align) :rsp)
+				(<< (elem 0 b) 10) (const (<< (native-reg? :rsp) 5)) (elem 1 b))))
+		(t	(emit-sub-cr (align (* +ptr_size l) stack_align) (const (native-reg? :rsp)))
 			(defq _ l)
 			(while (>= (setq _ (- _ 2)) 0)
 				(emit-int (+ 0xa9000000 (<< (- l _ 2) 15)
-					(<< (reg (elem _ b)) 10) (<< (reg :rsp) 5) (reg (elem (inc _) b)))))
-			(if (/= -2 _) (emit-cpy-ri (elem 0 b) :rsp (* +ptr_size (dec l)))))))
+					(<< (elem _ b) 10) (const (<< (native-reg? :rsp) 5)) (elem (inc _) b))))
+			(if (/= -2 _) (emit-cpy-ri (elem 0 b) (const (native-reg? :rsp)) (* +ptr_size (dec l)))))))
 
 (defun emit-pop (&rest b)
 	(cond
 		((= 0 (defq l (length b))))
 		((= 1 l)
-			(emit-int (+ 0xf8410400 (<< (reg :rsp) 5) (reg (elem 0 b)))))
+			(emit-int (+ 0xf8410400 (const (<< (native-reg? :rsp) 5)) (elem 0 b))))
 		((= 2 l)
 			(emit-int (+ 0xa8c10000
-				(<< (reg (elem 0 b)) 10) (<< (reg :rsp) 5) (reg (elem 1 b)))))
-		(t
-			(defq _ l)
+				(<< (elem 0 b) 10) (const (<< (native-reg? :rsp) 5)) (elem 1 b))))
+		(t	(defq _ l)
 			(while (>= (setq _ (- _ 2)) 0)
 				(emit-int (+ 0xa9400000 (<< (- l _ 2) 15)
-					(<< (reg (elem _ b)) 10) (<< (reg :rsp) 5) (reg (elem (inc _) b)))))
-			(if (/= -2 _) (emit-cpy-ir :rsp (* +ptr_size (dec l)) (elem 0 b)))
-			(emit-add-cr (align (* +ptr_size l) stack_align) :rsp))))
+					(<< (elem _ b) 10) (const (<< (native-reg? :rsp) 5)) (elem (inc _) b))))
+			(if (/= -2 _) (emit-cpy-ir (const (native-reg? :rsp)) (* +ptr_size (dec l)) (elem 0 b)))
+			(emit-add-cr (align (* +ptr_size l) stack_align) (const (native-reg? :rsp))))))
 
 (defun emit-beq (l d) (emit-branch 0x0 l))
 (defun emit-bne (l d) (emit-branch 0x1 l))
@@ -172,25 +168,25 @@
 	(emit-cmp-rr s d) (emit-int 0x5400006a) (emit-xor-rr d d) (emit-int 0x14000002) (emit-or-cr -1 d))
 
 (defun emit-call (l)
-	(emit-push :r30)
+	(emit-push (const (native-reg? :r30)))
 	(cond
 		((<= -0x8000000 (defq c (- l *pc*)) 0x7fffffc)
 			(emit-int (+ 0x94000000 (>> (logand c 0xfffffff) 2))))
 		(t (throw "emit-call constant out of range !" c)))
-	(emit-pop :r30))
+	(emit-pop (const (native-reg? :r30))))
 
 (defun emit-call-r (r)
-	(emit-push :r30)
-	(emit-int (+ 0xd63f0000 (<< (reg r) 5)))
-	(emit-pop :r30))
+	(emit-push (const (native-reg? :r30)))
+	(emit-int (+ 0xd63f0000 (<< r 5)))
+	(emit-pop (const (native-reg? :r30))))
 
 (defun emit-call-i (d c)
-	(emit-cpy-ir d c :r29)
-	(emit-call-r :r29))
+	(emit-cpy-ir d c (const (native-reg? :r29)))
+	(emit-call-r (const (native-reg? :r29))))
 
 (defun emit-call-p (l)
-	(emit-cpy-pr l :r29)
-	(emit-call-r :r29))
+	(emit-cpy-pr l (const (native-reg? :r29)))
+	(emit-call-r (const (native-reg? :r29))))
 
 (defun emit-jmp (l d)
 	(cond
@@ -199,23 +195,23 @@
 		(t (throw "emit-jmp constant out of range !" c))))
 
 (defun emit-jmp-r (r)
-	(emit-int (+ 0xd61f0000 (<< (reg r) 5))))
+	(emit-int (+ 0xd61f0000 (<< r 5))))
 
 (defun emit-jmp-i (d c)
-	(emit-cpy-ir d c :r29)
-	(emit-jmp-r :r29))
+	(emit-cpy-ir d c (const (native-reg? :r29)))
+	(emit-jmp-r (const (native-reg? :r29))))
 
 (defun emit-jmp-p (l)
-	(emit-cpy-pr l :r29)
-	(emit-jmp-r :r29))
+	(emit-cpy-pr l (const (native-reg? :r29)))
+	(emit-jmp-r (const (native-reg? :r29))))
 
 (defun emit-lea-i (s c d)
 	(cond
 		((and (= c 0) (eql s d)))
 		((<= -0x1000 c 0xfff)
 			(if (>= c 0)
-				(emit-int (+ 0x91000000 (<< (logand c 0xfff) 10) (<< (reg s) 5) (reg d)))
-				(emit-int (+ 0xd1000000 (<< (logand (neg c) 0xfff) 10) (<< (reg s) 5) (reg d)))))
+				(emit-int (+ 0x91000000 (<< (logand c 0xfff) 10) (<< s 5) d))
+				(emit-int (+ 0xd1000000 (<< (logand (neg c) 0xfff) 10) (<< s 5) d))))
 		(t (throw "emit-lea-i constant out of range !" c))))
 
 (defun emit-lea-d (s1 s2 d) (emit-rrr 0x8b000000 s1 s2 d))
@@ -223,14 +219,14 @@
 (defun emit-lea-p (l d)
 	(cond
 		((<= -0x100000 (defq c (- l *pc*)) 0xfffff)
-			(emit-int (+ 0x10000000 (<< (logand c 0x3) 29) (<< (logand c 0x1ffffc) 3) (reg d))))
+			(emit-int (+ 0x10000000 (<< (logand c 0x3) 29) (<< (logand c 0x1ffffc) 3) d)))
 		(t (throw "emit-lea-p constant out of range !" c))))
 
 (defun emit-cpy-ir (s c d)
-	(if (eql (reg d) 31)
+	(if (eql d (const (native-reg? :rsp)))
 		(progn
-			(emit-ir 3 0xf8400000 s c :r29)
-			(emit-cpy-rr :r29 :rsp))
+			(emit-ir 3 0xf8400000 s c (const (native-reg? :r29)))
+			(emit-cpy-rr (const (native-reg? :r29)) (const (native-reg? :rsp))))
 		(emit-ir 3 0xf8400000 s c d)))
 
 (defun emit-cpy-ir-b (s c d) (emit-ir 0 0x38800000 s c d))
@@ -238,9 +234,9 @@
 (defun emit-cpy-ir-i (s c d) (emit-ir 2 0xb8800000 s c d))
 
 (defun emit-cpy-ri (s d c)
-	(when (eql (reg s) 31)
-		(emit-cpy-rr :rsp :r29)
-		(setq s :r29))
+	(when (eql s (const (native-reg? :rsp)))
+		(emit-cpy-rr (const (native-reg? :rsp)) (const (native-reg? :r29)))
+		(setq s (const (native-reg? :r29))))
 	(emit-ri 3 0xf8000000 s d c))
 
 (defun emit-cpy-ri-b (s d c) (emit-ri 0 0x38000000 s d c))
@@ -267,11 +263,11 @@
 (defun emit-cpy-pr (l d)
 	(cond
 		((<= -0x100000 (defq c (- l *pc*)) 0xffffc)
-			(emit-int (+ 0x58000000 (<< (logand c 0x1fffff) 3) (reg d))))
+			(emit-int (+ 0x58000000 (<< (logand c 0x1fffff) 3) d)))
 		(t (throw "emit-cpy-pr constant out of range !" c))))
 
 (defun emit-mov-cr (c r)
-	(defq r (reg r) x (logand c 0xffff00000000) y (logand c 0xffff0000) z (logand c 0xffff))
+	(defq x (logand c 0xffff00000000) y (logand c 0xffff0000) z (logand c 0xffff))
 	(if (< c 0)
 		(cond
 			((>= c -0x10000)
@@ -283,8 +279,7 @@
 				(emit-int (+ 0x92c00000 (>> (logand (lognot c) 0xffff00000000) 27) r))
 				(if (/= y 0xffff0000) (emit-int (+ 0xf2a00000 (>> y 11) r)))
 				(if (/= z 0xffff) (emit-int (+ 0xf2800000 (<< z 5) r))))
-			(t
-				(emit-int (+ 0x92e00000 (>> (logand (lognot c) 0xffff000000000000) 43) r))
+			(t	(emit-int (+ 0x92e00000 (>> (logand (lognot c) 0xffff000000000000) 43) r))
 				(if (/= x 0xffff00000000) (emit-int (+ 0xf2c00000 (>> x 27) r)))
 				(if (/= y 0xffff0000) (emit-int (+ 0xf2a00000 (>> y 11) r)))
 				(if (/= z 0xffff) (emit-int (+ 0xf2800000 (<< z 5) r)))))
@@ -298,15 +293,14 @@
 				(emit-int (+ 0xd2c00000 (>> (logand c 0xffff00000000) 27) r))
 				(if (/= y 0) (emit-int (+ 0xf2a00000 (>> y 11) r)))
 				(if (/= z 0) (emit-int (+ 0xf2800000 (<< z 5) r))))
-			(t
-				(emit-int (+ 0xd2e00000 (>> (logand c 0xffff000000000000) 43) r))
+			(t	(emit-int (+ 0xd2e00000 (>> (logand c 0xffff000000000000) 43) r))
 				(if (/= x 0) (emit-int (+ 0xf2c00000 (>> x 27) r)))
 				(if (/= y 0) (emit-int (+ 0xf2a00000 (>> y 11) r)))
 				(if (/= z 0) (emit-int (+ 0xf2800000 (<< z 5) r)))))))
 
 (defun emit-cpy-cr (c r)
 	(if (/= -1 (defq i (emit-limm c)))
-		(emit-int (+ 0xb2000000 (<< i 10) (<< (reg :rsp) 5) (reg r)))
+		(emit-int (+ 0xb2000000 (<< i 10) (const (<< (native-reg? :rsp) 5)) r))
 		(emit-mov-cr c r)))
 
 (defun emit-add-cr (c r)
@@ -317,9 +311,9 @@
 		((<= c 0xffffff)
 			(defq f (logand c 0xfff) c (logand c 0xfff000))
 			(if (/= 0 f)
-				(emit-int (+ 0x91000000 (<< f 10) (<< (reg r) 5) (reg r))))
+				(emit-int (+ 0x91000000 (<< f 10) (<< r 5) r)))
 			(if (/= 0 c)
-				(emit-int (+ 0x91400000 (>> c 2) (<< (reg r) 5) (reg r)))))
+				(emit-int (+ 0x91400000 (>> c 2) (<< r 5) r))))
 		(t (throw "emit-add-cr constant out of range !" c))))
 
 (defun emit-sub-cr (c r)
@@ -330,39 +324,39 @@
 		((<= c 0xffffff)
 			(defq f (logand c 0xfff) c (logand c 0xfff000))
 			(if (/= 0 f)
-				(emit-int (+ 0xd1000000 (<< f 10) (<< (reg r) 5) (reg r))))
+				(emit-int (+ 0xd1000000 (<< f 10) (<< r 5) r)))
 			(if (/= 0 c)
-				(emit-int (+ 0xd1400000 (>> c 2) (<< (reg r) 5) (reg r)))))
+				(emit-int (+ 0xd1400000 (>> c 2) (<< r 5) r))))
 		(t (throw "emit-sub-cr constant out of range !" c))))
 
 (defun emit-cmp-cr (c r)
 	(cond
 		((<= 0 c 0xfff)
-			(emit-int (+ 0xf100001f (<< c 10) (<< (reg r) 5))))
+			(emit-int (+ 0xf100001f (<< c 10) (<< r 5))))
 		((<= -0xfff c 0)
-			(emit-int (+ 0xb100001f (<< (neg c) 10) (<< (reg r) 5))))
-		(t (emit-cpy-cr c :r29)
-			(emit-cmp-rr :r29 r))))
+			(emit-int (+ 0xb100001f (<< (neg c) 10) (<< r 5))))
+		(t (emit-cpy-cr c (const (native-reg? :r29)))
+			(emit-cmp-rr (const (native-reg? :r29)) r))))
 
 (defun emit-and-cr (c r)
 	(cond
 		((= c -1))
 		((= c 0)
 			(emit-xor-rr r r))
-		((eql (reg r) 31)
+		((eql r (const (native-reg? :rsp)))
 			(if (/= -1 (defq i (emit-limm c)))
 				(progn
-					(emit-cpy-rr :rsp :r29)
-					(emit-int (+ 0x92000000 (<< i 10) (<< (reg :r29) 5) (reg r))))
+					(emit-cpy-rr (const (native-reg? :rsp)) (const (native-reg? :r29)))
+					(emit-int (+ 0x92000000 (<< i 10) (<< (const (native-reg? :r29)) 5) r)))
 				(progn
-					(emit-mov-cr c :r29)
-					(emit-and-rr :r29 r))))
+					(emit-mov-cr c (const (native-reg? :r29)))
+					(emit-and-rr (const (native-reg? :r29)) r))))
 		(t (defq i (emit-limm c))
 			(if (/= i -1)
-				(emit-int (+ 0x92000000 (<< i 10) (<< (reg r) 5) (reg r)))
+				(emit-int (+ 0x92000000 (<< i 10) (<< r 5) r))
 				(progn
-					(emit-mov-cr c :r29)
-					(emit-and-rr :r29 r))))))
+					(emit-mov-cr c (const (native-reg? :r29)))
+					(emit-and-rr (const (native-reg? :r29)) r))))))
 
 (defun emit-or-cr (c r)
 	(cond
@@ -371,80 +365,76 @@
 			(emit-cpy-cr -1 r))
 		(t (defq i (emit-limm c))
 			(if (/= i -1)
-				(emit-int (+ 0xb2000000 (<< i 10) (<< (reg r) 5) (reg r)))
+				(emit-int (+ 0xb2000000 (<< i 10) (<< r 5) r))
 				(progn
-					(emit-mov-cr c :r29)
-					(emit-or-rr :r29 r))))))
+					(emit-mov-cr c (const (native-reg? :r29)))
+					(emit-or-rr (const (native-reg? :r29)) r))))))
 
 (defun emit-xor-cr (c r)
 	(cond
 		((= c 0))
 		(t (defq i (emit-limm c))
 			(if (/= i -1)
-				(emit-int (+ 0xd2000000 (<< i 10) (<< (reg r) 5) (reg r)))
+				(emit-int (+ 0xd2000000 (<< i 10) (<< r 5) r))
 				(progn
-					(emit-mov-cr c :r29)
-					(emit-xor-rr :r29 r))))))
+					(emit-mov-cr c (const (native-reg? :r29)))
+					(emit-xor-rr (const (native-reg? :r29)) r))))))
 
 (defun emit-cpy-rr (s d)
-	(defq sn (reg s) dn (reg d))
 	(cond
-		((eql sn dn))
-		((or (eql sn 31) (eql dn 31))
-			(emit-int (+ 0x91000000 (<< sn 5) dn)))
-		(t (emit-int (+ 0xaa0003e0 (<< sn 16) dn)))))
+		((eql s d))
+		((or (eql s (const (native-reg? :rsp))) (eql d (const (native-reg? :rsp))))
+			(emit-int (+ 0x91000000 (<< s 5) d)))
+		(t (emit-int (+ 0xaa0003e0 (<< s 16) d)))))
 
 (defun emit-add-rr (s d)
-	(if (eql (reg s) 31) (emit-rrr 0x8b206000 d s d) (emit-rrr 0x8b206000 s d d)))
+	(if (eql s (const (native-reg? :rsp))) (emit-rrr 0x8b206000 d s d) (emit-rrr 0x8b206000 s d d)))
 
 (defun emit-sub-rr (s d)
 	(cond
-		((eql (reg s) 31)
+		((eql s (const (native-reg? :rsp)))
 			(throw "emit-sub-rr src can't be :rsp !" (list s d)))
 		(t (emit-rrr 0xcb206000 s d d))))
 
 (defun emit-cmp-rr (s d)
 	(cond
-		((eql (reg s) 31)
+		((eql s (const (native-reg? :rsp)))
 			(throw "emit-cmp-rr src can't be :rsp !" (list s d)))
-		(t (emit-rrr 0xeb206000 s d :rsp))))
+		(t (emit-rrr 0xeb206000 s d (const (native-reg? :rsp))))))
 
 (defun emit-and-rr (s d)
-	(defq sn (reg s) dn (reg d))
 	(cond
-		((eql sn dn))
-		((or (eql sn 31) (eql dn 31))
+		((eql s d))
+		((or (eql s (const (native-reg? :rsp))) (eql d (const (native-reg? :rsp))))
 			(throw "emit-and-rr src/dst can't be :rsp !" (list s d)))
 		(t (emit-rrr 0x8a000000 s d d))))
 
 (defun emit-or-rr (s d)
-	(defq sn (reg s) dn (reg d))
 	(cond
-		((eql sn dn))
-		((or (eql sn 31) (eql dn 31))
+		((eql s d))
+		((or (eql s (const (native-reg? :rsp))) (eql d (const (native-reg? :rsp))))
 			(throw "emit-or-rr src/dst can't be :rsp !" (list s d)))
 		(t (emit-rrr 0xaa000000 s d d))))
 
 (defun emit-xor-rr (s d)
-	(defq sn (reg s) dn (reg d))
 	(cond
-		((or (eql sn 31) (eql dn 31))
+		((or (eql s (const (native-reg? :rsp))) (eql d (const (native-reg? :rsp))))
 			(throw "emit-xor-rr src/dst can't be :rsp !" (list s d)))
 		(t (emit-rrr 0xca000000 s d d))))
 
 (defun emit-lnot-rr (r d)
 	(emit-cmp-cr 0 d)
-	(emit-int (+ 0x9a9f17e0 (reg d))))
+	(emit-int (+ 0x9a9f17e0 d)))
 
 (defun emit-land-rr (s d)
 	(emit-cmp-cr 0 d)
-	(emit-int (+ 0xfa401804 (<< (reg s) 5)))
-	(emit-int (+ 0x9a9f07e0 (reg d))))
+	(emit-int (+ 0xfa401804 (<< s 5)))
+	(emit-int (+ 0x9a9f07e0 d)))
 
 (defmacro emit-shift-cr (e o c x y r)
 	`(cond
 		((= ,c 0))
-		((eql (reg ,r) 31)
+		((eql ,r ,(native-reg? :rsp))
 			(throw ,(cat "emit-" e "-cr dst can't be :rsp !") (list ,c ,r)))
 		(t (emit-bf ,o ,x ,y ,r ,r))))
 
@@ -454,7 +444,7 @@
 
 (defmacro emit-shift-rr (e o s d)
 	`(cond
-		((or (eql (reg ,s) 31) (eql (reg ,d) 31))
+		((or (eql ,s ,(native-reg? :rsp)) (eql ,d ,(native-reg? :rsp)))
 			(throw ,(cat "emit-" e "-rr src/dst can't be :rsp !") (list ,s ,d)))
 		(t (emit-rrr ,o ,s ,d ,d))))
 
@@ -464,41 +454,39 @@
 
 (defun emit-swp-rr (s d)
 	(unless (eql s d)
-		(emit-cpy-rr s :r29)
+		(emit-cpy-rr s (const (native-reg? :r29)))
 		(emit-cpy-rr d s)
-		(emit-cpy-rr :r29 d)))
+		(emit-cpy-rr (const (native-reg? :r29)) d)))
 
 (defun emit-mul-cr (c r)
 	(cond
 		((= c 0)
 			(emit-xor-rr r r))
 		((= c -1)
-			(emit-int (+ 0xcb000000 (<< (reg r) 16) (<< 31 5) (reg r))))
-		(t
-			(emit-cpy-cr c :r29)
-			(emit-mul-rr :r29 r))))
+			(emit-int (+ 0xcb000000 (<< r 16) (const (<< 31 5)) r)))
+		(t	(emit-cpy-cr c (const (native-reg? :r29)))
+			(emit-mul-rr (const (native-reg? :r29)) r))))
 
 (defun emit-mul-rr (s d)
-	(defq sn (reg s) dn (reg d))
-	(if (or (eql sn 31) (eql dn 31))
+	(if (or (eql s (const (native-reg? :rsp))) (eql d (const (native-reg? :rsp))))
 		(throw "emit-mul-rr src/dst can't be :rsp !" (list s d)))
-	(emit-int (+ 0x9b000000 (<< dn 16) (<< 31 10) (<< sn 5) dn)))
+	(emit-int (+ 0x9b000000 (<< d 16) (const (<< 31 10)) (<< s 5) d)))
 
 (defun emit-ext-rr (s d)
 	(unless (eql s d) (emit-cpy-rr s d))
 	(emit-asr-cr 63 d))
 
 (defun emit-div-rrr (s d1 d2)
-	(emit-int (+ 0x9ac00c00 (<< (reg s) 16) (<< (reg d2) 5) (reg :r29)))
-	(emit-int (+ 0x9b008000 (<< (reg :r29) 16) (<< (reg d2) 10) (<< (reg s) 5) (reg d1)))
-	(emit-cpy-rr :r29 d2))
+	(emit-int (+ 0x9ac00c00 (<< s 16) (<< d2 5) (const (native-reg? :r29))))
+	(emit-int (+ 0x9b008000 (const (<< (native-reg? :r29) 16)) (<< d2 10) (<< s 5) d1))
+	(emit-cpy-rr (const (native-reg? :r29)) d2))
 
 (defun emit-div-rrr-u (s d1 d2)
-	(emit-int (+ 0x9ac00800 (<< (reg s) 16) (<< (reg d2) 5) (reg :r29)))
-	(emit-int (+ 0x9b008000 (<< (reg :r29) 16) (<< (reg d2) 10) (<< (reg s) 5) (reg d1)))
-	(emit-cpy-rr :r29 d2))
+	(emit-int (+ 0x9ac00800 (<< s 16) (<< d2 5) (const (native-reg? :r29))))
+	(emit-int (+ 0x9b008000 (const (<< (native-reg? :r29) 16)) (<< d2 10) (<< s 5) d1))
+	(emit-cpy-rr (const (native-reg? :r29)) d2))
 
-(defun emit-alloc (c) (emit-sub-cr (align c stack_align) :rsp))
-(defun emit-free (c) (emit-add-cr (align c stack_align) :rsp))
+(defun emit-alloc (c) (emit-sub-cr (align c stack_align) (const (native-reg? :rsp))))
+(defun emit-free (c) (emit-add-cr (align c stack_align) (const (native-reg? :rsp))))
 (defun emit-ret () (emit-int 0xd65f03c0))
 (defun emit-brk (n))

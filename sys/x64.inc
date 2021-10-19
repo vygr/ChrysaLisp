@@ -2,9 +2,8 @@
 ; x64 Emit Functions
 ;;;;;;;;;;;;;;;;;;;;
 
-(defun reg (r) (find r '(:r0 :r1 :r2 :r3 :rsp :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14)))
-
 (defcvar 'stack_align 8 'stack_state '(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14))
+(defun native-reg? (r) (find r '(:r0 :r1 :r2 :r3 :rsp :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14)))
 
 (defun stack-init ()
 	(defq tk_state_size (* +ptr_size (length stack_state)))
@@ -14,33 +13,29 @@
 	(vp-cpy-ri :r2 :r1 (+ tk_state_size +ptr_size)))
 
 (defun emit-rr (o s d)
-	(defq s (reg s) d (reg d))
 	(emit-byte (+ 0x48 (<< (>> s 3) 2) (>> d 3)) o (+ 0xc0 (<< (logand 7 s) 3) (logand 7 d))))
 
 (defun emit-dr (o s1 s2 d)
-	(defq s1 (reg s1) s1l (logand 7 s1) s1h (>> s1 3)
-		s2 (reg s2) s2l (logand 7 s2) s2h (>> s2 3)
-		d (reg d) dl (logand 7 d) dh (>> d 3))
+	(defq s1l (logand 7 s1) s1h (>> s1 3)
+		s2l (logand 7 s2) s2h (>> s2 3)
+		dl (logand 7 d) dh (>> d 3))
 	(emit-byte (+ 0x48 (<< dh 2) (<< s2h 1) s1h) o)
 	(cond
 		((and (/= s1 5) (/= s1 13))
 			(emit-byte (+ 0x04 (<< dl 3)) (+ (<< s2l 3) s1l)))
-		(t
-			(emit-byte (+ 0x44 (<< dl 3)) (+ (<< s2l 3) s1l) 0))))
+		(t	(emit-byte (+ 0x44 (<< dl 3)) (+ (<< s2l 3) s1l) 0))))
 
 (defun emit-dr-bs (o s1 s2 d)
-	(defq s1 (reg s1) s1l (logand 7 s1) s1h (>> s1 3)
-		s2 (reg s2) s2l (logand 7 s2) s2h (>> s2 3)
-		d (reg d) dl (logand 7 d) dh (>> d 3))
+	(defq s1l (logand 7 s1) s1h (>> s1 3)
+		s2l (logand 7 s2) s2h (>> s2 3)
+		dl (logand 7 d) dh (>> d 3))
 	(emit-byte (+ 0x48 (<< dh 2) (<< s2h 1) s1h) 0xf o)
 	(cond
 		((and (/= s1 5) (/= s1 13))
 			(emit-byte (+ 0x04 (<< dl 3)) (+ (<< s2l 3) s1l)))
-		(t
-			(emit-byte (+ 0x44 (<< dl 3)) (+ (<< s2l 3) s1l) 0))))
+		(t	(emit-byte (+ 0x44 (<< dl 3)) (+ (<< s2l 3) s1l) 0))))
 
 (defun emit-ir (o s c d)
-	(defq s (reg s) d (reg d))
 	(emit-byte (+ 0x48 (<< (>> d 3) 2) (>> s 3)) o)
 	(cond
 		((and (= c 0) (/= s 5) (/= s 13))
@@ -57,8 +52,8 @@
 		(t (throw "emit-ir constant out of range !" c))))
 
 (defun emit-ir-bs (o s c d)
-	(defq s (reg s) sl (logand 7 s) sh (>> s 3)
-		d (reg d) dl (logand 7 d) dh (>> d 3))
+	(defq sl (logand 7 s) sh (>> s 3)
+		dl (logand 7 d) dh (>> d 3))
 	(emit-byte (+ 0x48 (<< dh 2) sh) 0x0f o)
 	(cond
 		((and (= c 0) (/= s 5) (/= s 13))
@@ -75,7 +70,7 @@
 		(t (throw "emit-ir-bs constant out of range !" c))))
 
 (defun emit-pr (o c d)
-	(defq d (reg d) dl (logand 7 d) dh (>> d 3) c (- c 7))
+	(defq dl (logand 7 d) dh (>> d 3) c (- c 7))
 	(cond
 		((<= -0x80000000 c 0x7fffffff)
 			(emit-byte (+ 0x48 (<< dh 2)) o (+ 0x5 (<< dl 3)))
@@ -84,7 +79,7 @@
 
 (defun emit-shift-cr (o c d)
 	(unless (= c 0)
-		(defq d (reg d) dl (logand 7 d) dh (>> d 3))
+		(defq dl (logand 7 d) dh (>> d 3))
 		(emit-byte (+ 0x48 dh))
 		(cond
 			((= c 1)
@@ -94,35 +89,33 @@
 			(t (throw "emit-shift-cr constant out of range !" c)))))
 
 (defun emit-shift-rr (o s d)
-	(defq sn (reg s) dn (reg d))
 	(cond
-		((eql sn 1)
-			(defq dl (logand 7 dn) dh (>> dn 3))
+		((eql s 1)
+			(defq dl (logand 7 d) dh (>> d 3))
 			(emit-byte (+ 0x48 dh) 0xd3 (+ o dl)))
-		((eql dn 1)
-			(defq sl (logand 7 sn) sh (>> sn 3))
+		((eql d 1)
+			(defq sl (logand 7 s) sh (>> s 3))
 			(emit-swp-rr s d)
 			(emit-byte (+ 0x48 sh) 0xd3 (+ o sl))
 			(emit-swp-rr s d))
-		(t
-			(emit-push d s :r0 :r1)
-			(emit-cpy-ir :rsp 24 :r0)
-			(emit-cpy-ir :rsp 16 :r1)
+		(t	(emit-push d s (const (native-reg? :r0)) (const (native-reg? :r1)))
+			(emit-cpy-ir (const (native-reg? :rsp)) 24 (const (native-reg? :r0)))
+			(emit-cpy-ir (const (native-reg? :rsp)) 16 (const (native-reg? :r1)))
 			(emit-byte 0x48 0xd3 o)
-			(emit-cpy-ri :r0 :rsp 24)
-			(emit-pop d s :r0 :r1))))
+			(emit-cpy-ri (const (native-reg? :r0)) (const (native-reg? :rsp)) 24)
+			(emit-pop d s (const (native-reg? :r0)) (const (native-reg? :r1))))))
 
 (defun emit-call-jump-p (o c)
 	(emit-byte 0xff o)
 	(emit-int (- c 6)))
 
 (defun emit-call-jump-r (o d)
-	(defq d (reg d) dl (logand 7 d))
+	(defq dl (logand 7 d))
 	(if (>= d 8) (emit-byte 0x41))
 	(emit-byte 0xff (+ o dl)))
 
 (defun emit-call-jump-i (o d c)
-	(defq d (reg d) dl (logand 7 d))
+	(defq dl (logand 7 d))
 	(if (>= d 8) (emit-byte 0x41))
 	(emit-byte 0xff)
 	(cond
@@ -141,13 +134,13 @@
 
 (defun emit-push (&rest b)
 	(each (lambda (r)
-		(if (>= (setq r (reg r)) 8)
+		(if (>= r 8)
 			(emit-byte 0x41 (+ 0x48 r))
 			(emit-byte (+ 0x50 r)))) b))
 
 (defun emit-pop (&rest b)
 	(each-rev (lambda (r)
-		(if (>= (setq r (reg r)) 8)
+		(if (>= r 8)
 			(emit-byte 0x41 (+ 0x50 r))
 			(emit-byte (+ 0x58 r)))) b))
 
@@ -173,7 +166,7 @@
 
 (defun emit-or-cr (c r)
 	(unless (= c 0)
-		(defq r (reg r) rl (logand 7 r) rh (>> r 3))
+		(defq rl (logand 7 r) rh (>> r 3))
 		(emit-byte (+ 0x48 rh))
 		(cond
 			((<= -0x80 c 0x7f)
@@ -188,7 +181,7 @@
 (defun emit-cmp-cr (c r)
 	(if (= c 0) (emit-rr 0x85 r r)
 		(progn
-			(defq r (reg r) rl (logand 7 r) rh (>> r 3))
+			(defq rl (logand 7 r) rh (>> r 3))
 			(emit-byte (+ 0x48 rh))
 			(cond
 				((<= -0x80 c 0x7f)
@@ -262,19 +255,18 @@
 	(if (= c 0)
 		(emit-xor-rr r r)
 		(progn
-			(defq rn (reg r) rl (logand rn 7) rh (>> rn 3))
+			(defq rl (logand r 7) rh (>> r 3))
 			(cond
 				((= -1 c)
 					(emit-or-cr -1 r))
 				((<= 0 c 0xffffffff)
-					(if (>= rn 8) (emit-byte 0x41))
+					(if (>= r 8) (emit-byte 0x41))
 					(emit-byte (+ 0xb8 rl))
 					(emit-int c))
 				((<= -0x80000000 c -1)
 					(emit-byte (+ 0x48 rh) 0xc7 (+ 0xc0 rl))
 					(emit-int c))
-				(t
-					(emit-byte (+ 0x48 rh) (+ 0xb8 rl))
+				(t	(emit-byte (+ 0x48 rh) (+ 0xb8 rl))
 					(emit-long c))))))
 
 (defun emit-cpy-rr (s d) (unless (eql s d) (emit-rr 0x89 s d)))
@@ -283,7 +275,6 @@
 (defun emit-cpy-pr (l d) (emit-pr 0x8b (- l *pc*) d))
 
 (defun emit-cpy-ri (s d c)
-	(defq s (reg s) d (reg d))
 	(cond
 		((and (= c 0) (/= d 5) (/= d 13))
 			(emit-byte (+ 0x48 (<< (>> s 3) 2) (>> d 3)) 0x89 (+ (<< (logand 7 s) 3) (logand 7 d)))
@@ -299,15 +290,14 @@
 		(t (throw "emit-cpy-ri constant out of range !" c))))
 
 (defun emit-cpy-rd (d s1 s2)
-	(defq s1 (reg s1) s1l (logand 7 s1) s1h (>> s1 3)
-		s2 (reg s2) s2l (logand 7 s2) s2h (>> s2 3)
-		d (reg d) dl (logand 7 d) dh (>> d 3))
+	(defq s1l (logand 7 s1) s1h (>> s1 3)
+		s2l (logand 7 s2) s2h (>> s2 3)
+		dl (logand 7 d) dh (>> d 3))
 	(emit-byte (+ 0x48 (<< dh 2) (<< s2h 1) s1h) 0x89)
 	(cond
 		((and (/= s1 5) (/= s1 13))
 			(emit-byte (+ 0x04 (<< dl 3)) (+ (<< s2l 3) s1l)))
-		(t
-			(emit-byte (+ 0x44 (<< dl 3)) (+ (<< s2l 3) s1l) 0))))
+		(t	(emit-byte (+ 0x44 (<< dl 3)) (+ (<< s2l 3) s1l) 0))))
 
 (defun emit-cpy-ir-b (s c d) (emit-ir-bs 0xbe s c d))
 (defun emit-cpy-dr-b (s1 s2 d) (emit-dr-bs 0xbe s1 s2 d))
@@ -319,7 +309,6 @@
 (defun emit-cpy-dr-us (s1 s2 d) (emit-dr-bs 0xb7 s1 s2 d))
 
 (defun emit-cpy-ir-i (s c d)
-	(defq s (reg s) d (reg d))
 	(emit-byte (+ 0x48 (<< (>> d 3) 2) (>> s 3)) 0x63)
 	(cond
 		((and (= c 0) (/= s 5) (/= s 13))
@@ -336,18 +325,16 @@
 		(t (throw "emit-cpy-ir-i constant out of range !" c))))
 
 (defun emit-cpy-dr-i (s1 s2 d)
-	(defq s1 (reg s1) s1l (logand 7 s1) s1h (>> s1 3)
-		s2 (reg s2) s2l (logand 7 s2) s2h (>> s2 3)
-		d (reg d) dl (logand 7 d) dh (>> d 3))
+	(defq s1l (logand 7 s1) s1h (>> s1 3)
+		s2l (logand 7 s2) s2h (>> s2 3)
+		dl (logand 7 d) dh (>> d 3))
 	(emit-byte (+ 0x48 (<< dh 2) (<< s2h 1) s1h) 0x63)
 	(cond
 		((and (/= s1 5) (/= s1 13))
 			(emit-byte (+ 0x04 (<< dl 3)) (+ (<< s2l 3) s1l)))
-		(t
-			(emit-byte (+ 0x44 (<< dl 3)) (+ (<< s2l 3) s1l) 0))))
+		(t	(emit-byte (+ 0x44 (<< dl 3)) (+ (<< s2l 3) s1l) 0))))
 
 (defun emit-cpy-ir-ui (s c d)
-	(defq s (reg s) d (reg d))
 	(if (or (>= s 8) (>= d 8)) (emit-byte (+ 0x40 (<< (>> d 3) 2) (>> s 3))))
 	(emit-byte 0x8b)
 	(cond
@@ -365,20 +352,19 @@
 		(t (throw "emit-cpy-ir-ui constant out of range !" c))))
 
 (defun emit-cpy-dr-ui (s1 s2 d)
-	(defq s1 (reg s1) s1l (logand 7 s1) s1h (>> s1 3)
-		s2 (reg s2) s2l (logand 7 s2) s2h (>> s2 3)
-		d (reg d) dl (logand 7 d) dh (>> d 3))
+	(defq s1l (logand 7 s1) s1h (>> s1 3)
+		s2l (logand 7 s2) s2h (>> s2 3)
+		dl (logand 7 d) dh (>> d 3))
 	(if (or (>= s1 8) (>= s2 8) (>= d 8)) (emit-byte (+ 0x40 (<< dh 2) (<< s2h 1) s1h)))
 	(emit-byte 0x8b)
 	(cond
 		((and (/= s1 5) (/= s1 13))
 			(emit-byte (+ 0x04 (<< dl 3)) (+ (<< s2l 3) s1l)))
-		(t
-			(emit-byte (+ 0x44 (<< dl 3)) (+ (<< s2l 3) s1l) 0))))
+		(t	(emit-byte (+ 0x44 (<< dl 3)) (+ (<< s2l 3) s1l) 0))))
 
 (defun emit-cpy-ri-b (s d c)
-	(defq s (reg s) sl (logand 7 s) sh (>> s 3)
-		d (reg d) dl (logand 7 d) dh (>> d 3))
+	(defq sl (logand 7 s) sh (>> s 3)
+		dl (logand 7 d) dh (>> d 3))
 	(if (or (>= s 4) (>= d 8)) (emit-byte (+ 0x40 (<< sh 2) dh)))
 	(emit-byte 0x88)
 	(cond
@@ -396,20 +382,19 @@
 		(t (throw "emit-cpy-ri-b constant out of range !" c))))
 
 (defun emit-cpy-rd-b (r s1 s2)
-	(defq s1 (reg s1) s1l (logand 7 s1) s1h (>> s1 3)
-		s2 (reg s2) s2l (logand 7 s2) s2h (>> s2 3)
-		r (reg r) rl (logand 7 r) rh (>> r 3))
+	(defq s1l (logand 7 s1) s1h (>> s1 3)
+		s2l (logand 7 s2) s2h (>> s2 3)
+		rl (logand 7 r) rh (>> r 3))
 	(if (or (>= s1 8) (>= s2 8) (>= r 4)) (emit-byte (+ 0x40 (<< rh 2) (<< s2h 1) s1h)))
 	(emit-byte 0x88)
 	(cond
 		((and (/= s1 5) (/= s1 13))
 			(emit-byte (+ 0x04 (<< rl 3)) (+ (<< s2l 3) s1l)))
-		(t
-			(emit-byte (+ 0x44 (<< rl 3)) (+ (<< s2l 3) s1l) 0))))
+		(t	(emit-byte (+ 0x44 (<< rl 3)) (+ (<< s2l 3) s1l) 0))))
 
 (defun emit-cpy-ri-s (s d c)
-	(defq s (reg s) sl (logand 7 s) sh (>> s 3)
-		d (reg d) dl (logand 7 d) dh (>> d 3))
+	(defq sl (logand 7 s) sh (>> s 3)
+		dl (logand 7 d) dh (>> d 3))
 	(emit-byte 0x66)
 	(if (or (>= s 8) (>= d 8)) (emit-byte (+ 0x40 (<< sh 2) dh)))
 	(emit-byte 0x89)
@@ -428,20 +413,18 @@
 		(t (throw "emit-cpy-ri-s constant out of range !" c))))
 
 (defun emit-cpy-rd-s (r s1 s2)
-	(defq s1 (reg s1) s1l (logand 7 s1) s1h (>> s1 3)
-		s2 (reg s2) s2l (logand 7 s2) s2h (>> s2 3)
-		r (reg r) rl (logand 7 r) rh (>> r 3))
+	(defq s1l (logand 7 s1) s1h (>> s1 3)
+		s2l (logand 7 s2) s2h (>> s2 3)
+		rl (logand 7 r) rh (>> r 3))
 	(emit-byte 0x66)
 	(if (or (>= s1 8) (>= s2 8) (>= r 8)) (emit-byte (+ 0x40 (<< rh 2) (<< s2h 1) s1h)))
 	(emit-byte 0x89)
 	(cond
 		((and (/= s1 5) (/= s1 13))
 			(emit-byte (+ 0x04 (<< rl 3)) (+ (<< s2l 3) s1l)))
-		(t
-			(emit-byte (+ 0x44 (<< rl 3)) (+ (<< s2l 3) s1l) 0))))
+		(t	(emit-byte (+ 0x44 (<< rl 3)) (+ (<< s2l 3) s1l) 0))))
 
 (defun emit-cpy-ri-i (s d c)
-	(defq s (reg s) d (reg d))
 	(if (or (>= s 8) (>= d 8)) (emit-byte (+ 0x40 (<< (>> s 3) 2) (>> d 3))))
 	(emit-byte 0x89)
 	(cond
@@ -459,20 +442,19 @@
 		(t (throw "emit-cpy-ri-i constant out of range !" c))))
 
 (defun emit-cpy-rd-i (r s1 s2)
-	(defq s1 (reg s1) s1l (logand 7 s1) s1h (>> s1 3)
-		s2 (reg s2) s2l (logand 7 s2) s2h (>> s2 3)
-		r (reg r) rl (logand 7 r) rh (>> r 3))
+	(defq s1l (logand 7 s1) s1h (>> s1 3)
+		s2l (logand 7 s2) s2h (>> s2 3)
+		rl (logand 7 r) rh (>> r 3))
 	(if (or (>= s1 8) (>= s2 8) (>= r 8)) (emit-byte (+ 0x40 (<< rh 2) (<< s2h 1) s1h)))
 	(emit-byte 0x89)
 	(cond
 		((and (/= s1 5) (/= s1 13))
 			(emit-byte (+ 0x04 (<< rl 3)) (+ (<< s2l 3) s1l)))
-		(t
-			(emit-byte (+ 0x44 (<< rl 3)) (+ (<< s2l 3) s1l) 0))))
+		(t	(emit-byte (+ 0x44 (<< rl 3)) (+ (<< s2l 3) s1l) 0))))
 
 (defun emit-add-cr (c r)
 	(unless (= c 0)
-		(defq r (reg r) rl (logand 7 r) rh (>> r 3))
+		(defq rl (logand 7 r) rh (>> r 3))
 		(emit-byte (+ 0x48 rh))
 		(cond
 			((= 1 c)
@@ -490,7 +472,7 @@
 
 (defun emit-sub-cr (c r)
 	(unless (= c 0)
-		(defq r (reg r) rl (logand 7 r) rh (>> r 3))
+		(defq rl (logand 7 r) rh (>> r 3))
 		(emit-byte (+ 0x48 rh))
 		(cond
 			((= 1 c)
@@ -511,7 +493,7 @@
 		(if (= c 0)
 			(emit-xor-rr r r)
 			(progn
-				(defq r (reg r) rl (logand 7 r) rh (>> r 3))
+				(defq rl (logand 7 r) rh (>> r 3))
 				(emit-byte (+ 0x48 rh))
 				(cond
 					((<= -0x80 c 0x7f)
@@ -529,7 +511,7 @@
 
 (defun emit-xor-cr (c r)
 	(unless (= c 0)
-		(defq r (reg r) rl (logand 7 r) rh (>> r 3))
+		(defq rl (logand 7 r) rh (>> r 3))
 		(emit-byte (+ 0x48 rh))
 		(cond
 			((<= -0x80 c 0x7f)
@@ -542,22 +524,20 @@
 			(t (throw "emit-xor-cr constant out of range !" c)))))
 
 (defun emit-lnot-rr (r d)
-	(defq dlh (reg d))
-	(if (>= dlh 4)
+	(if (>= d 4)
 		(throw "emit-lnot-rr illegal register !" d))
 	(emit-cpy-rr d r)
 	(emit-xor-rr d d)
 	(emit-cmp-cr 0 r)
-	(emit-byte 0x0f 0x94 (+ 0xc0 dlh)))
+	(emit-byte 0x0f 0x94 (+ 0xc0 d)))
 
 (defun emit-land-rr (s d)
-	(defq slh (reg s) dlh (reg d))
-	(if (or (>= slh 4) (>= dlh 4))
+	(if (or (>= s 4) (>= d 4))
 		(throw "emit-land-rr illegal register !" (list s d)))
 	(emit-cmp-cr 0 d)
-	(emit-byte 0x0f 0x95 (+ 0xc0 dlh))
+	(emit-byte 0x0f 0x95 (+ 0xc0 d))
 	(emit-cmp-cr 0 s)
-	(emit-byte 0x0f 0x95 (+ 0xc0 slh))
+	(emit-byte 0x0f 0x95 (+ 0xc0 s))
 	(emit-and-rr s d))
 
 (defun emit-shl-cr (c r) (emit-shift-cr 0xe0 c r))
@@ -571,7 +551,7 @@
 	(if (= c 0)
 		(emit-xor-rr r r)
 		(progn
-			(defq r (reg r) rl (logand r 7) rh (>> r 3))
+			(defq rl (logand r 7) rh (>> r 3))
 			(cond
 				((= 1 c))
 				((= -1 c)
@@ -584,69 +564,62 @@
 				(t (throw "emit-mul-cr constant out of range !" c))))))
 
 (defun emit-mul-rr (s d)
-	(defq s (reg s) sl (logand 7 s) sh (>> s 3)
-		d (reg d) dl (logand 7 d) dh (>> d 3))
+	(defq sl (logand 7 s) sh (>> s 3)
+		dl (logand 7 d) dh (>> d 3))
 	(emit-byte (+ 0x48 (<< dh 2) sh) 0x0f 0xaf (+ 0xc0 (<< dl 3) sl)))
 
 (defun emit-swp-rr (s d)
-	(defq sn (reg s) dn (reg d))
-	(unless (eql sn dn)
-		(if (eql sn 0) (setq sn dn dn 0))
-		(defq sl (logand 7 sn) sh (>> sn 3) dl (logand 7 dn) dh (>> dn 3))
-		(if (= dn 0)
+	(unless (eql s d)
+		(if (eql s 0) (setq s d d 0))
+		(defq sl (logand 7 s) sh (>> s 3) dl (logand 7 d) dh (>> d 3))
+		(if (= d 0)
 			(emit-byte (+ 0x48 sh) (+ 0x90 sl))
 			(emit-byte (+ 0x48 (<< sh 2) dh) 0x87 (+ 0xc0 (<< sl 3) dl)))))
 
 (defun emit-ext-rr (s d)
-	(defq sn (reg s) dn (reg d))
 	(cond
-		((and (eql sn 0) (eql dn 2))
+		((and (eql s 0) (eql d 2))
 			(emit-byte 0x48 0x99))
-		((eql sn dn)
+		((eql s d)
 			(emit-asr-cr 63 d))
-		(t
-			(emit-cpy-rr s d)
+		(t	(emit-cpy-rr s d)
 			(emit-asr-cr 63 d))))
 
 (defun emit-div-rrr (s d1 d2)
-	(defq sn (reg s) d1n (reg d1) d2n (reg d2))
 	(cond
-		((and (eql d1n 2) (eql d2n 0))
-			(defq sl (logand 7 sn) sh (>> sn 3))
+		((and (eql d1 2) (eql d2 0))
+			(defq sl (logand 7 s) sh (>> s 3))
 			(emit-byte (+ 0x48 sh) 0xF7 (+ 0xF8 sl)))
-		((and (eql d1n 0) (eql d2n 2) (not (eql sn 0)) (not (eql sn 2)))
-			(defq sl (logand 7 sn) sh (>> sn 3))
+		((and (eql d1 0) (eql d2 2) (not (eql s 0)) (not (eql s 2)))
+			(defq sl (logand 7 s) sh (>> s 3))
 			(emit-byte 0x48 0x92 (+ 0x48 sh) 0xF7 (+ 0xF8 sl) 0x48 0x92))
-		(t
-			(emit-push d2 d1 s :r2 :r1 :r0)
-			(emit-cpy-ir :rsp 24 :r1)
-			(emit-cpy-ir :rsp 32 :r2)
-			(emit-cpy-ir :rsp 40 :r0)
+		(t	(emit-push d2 d1 s (const (native-reg? :r2)) (const (native-reg? :r1)) (const (native-reg? :r0)))
+			(emit-cpy-ir (const (native-reg? :rsp)) 24 (const (native-reg? :r1)))
+			(emit-cpy-ir (const (native-reg? :rsp)) 32 (const (native-reg? :r2)))
+			(emit-cpy-ir (const (native-reg? :rsp)) 40 (const (native-reg? :r0)))
 			(emit-byte 0x48 0xF7 0xF9)
-			(emit-cpy-ri :r2 :rsp 32)
-			(emit-cpy-ri :r0 :rsp 40)
-			(emit-pop d2 d1 s :r2 :r1 :r0))))
+			(emit-cpy-ri (const (native-reg? :r2)) (const (native-reg? :rsp)) 32)
+			(emit-cpy-ri (const (native-reg? :r0)) (const (native-reg? :rsp)) 40)
+			(emit-pop d2 d1 s (const (native-reg? :r2)) (const (native-reg? :r1)) (const (native-reg? :r0))))))
 
 (defun emit-div-rrr-u (s d1 d2)
-	(defq sn (reg s) d1n (reg d1) d2n (reg d2))
 	(cond
-		((and (eql d1n 2) (eql d2n 0))
-			(defq sl (logand 7 sn) sh (>> sn 3))
+		((and (eql d1 2) (eql d2 0))
+			(defq sl (logand 7 s) sh (>> s 3))
 			(emit-byte (+ 0x48 sh) 0xF7 (+ 0xF0 sl)))
-		((and (eql d1n 0) (eql d2n 2) (not (eql sn 0)) (not (eql sn 2)))
-			(defq sl (logand 7 sn) sh (>> sn 3))
+		((and (eql d1 0) (eql d2 2) (not (eql s 0)) (not (eql s 2)))
+			(defq sl (logand 7 s) sh (>> s 3))
 			(emit-byte 0x48 0x92 (+ 0x48 sh) 0xF7 (+ 0xF0 sl) 0x48 0x92))
-		(t
-			(emit-push d2 d1 s :r2 :r1 :r0)
-			(emit-cpy-ir :rsp 24 :r1)
-			(emit-cpy-ir :rsp 32 :r2)
-			(emit-cpy-ir :rsp 40 :r0)
+		(t	(emit-push d2 d1 s (const (native-reg? :r2)) (const (native-reg? :r1)) (const (native-reg? :r0)))
+			(emit-cpy-ir (const (native-reg? :rsp)) 24 (const (native-reg? :r1)))
+			(emit-cpy-ir (const (native-reg? :rsp)) 32 (const (native-reg? :r2)))
+			(emit-cpy-ir (const (native-reg? :rsp)) 40 (const (native-reg? :r0)))
 			(emit-byte 0x48 0xF7 0xF1)
-			(emit-cpy-ri :r2 :rsp 32)
-			(emit-cpy-ri :r0 :rsp 40)
-			(emit-pop d2 d1 s :r2 :r1 :r0))))
+			(emit-cpy-ri (const (native-reg? :r2)) (const (native-reg? :rsp)) 32)
+			(emit-cpy-ri (const (native-reg? :r0)) (const (native-reg? :rsp)) 40)
+			(emit-pop d2 d1 s (const (native-reg? :r2)) (const (native-reg? :r1)) (const (native-reg? :r0))))))
 
-(defun emit-alloc (c) (emit-sub-cr (align c stack_align) :rsp))
-(defun emit-free (c) (emit-add-cr (align c stack_align) :rsp))
+(defun emit-alloc (c) (emit-sub-cr (align c stack_align) (const (native-reg? :rsp))))
+(defun emit-free (c) (emit-add-cr (align c stack_align) (const (native-reg? :rsp))))
 (defun emit-ret () (emit-byte 0xc3))
 (defun emit-brk (n))
