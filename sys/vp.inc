@@ -137,7 +137,7 @@
 
 (defmacro vp-bcr (_)
 	`(defun ,(sym (cat "vp-" _ "-cr")) (c d l)
-		(emit (list 'emit-cmp-cr c (get d))
+		(emit (list 'emit-cmp-cr (eval c) (get d))
 			(list ',(sym (cat "emit-" _)) (label-sym l) (dec (length (push *distance* 0)))))))
 (defmacro vp-brr (_)
 	`(defun ,(sym (cat "vp-" _ "-rr")) (s d l)

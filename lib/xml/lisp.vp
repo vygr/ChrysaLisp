@@ -46,7 +46,7 @@
 		(class/obj/ref :obj :tmp))
 
 	(defun find_char_in (s)
-		(d-call 'str :find (cat s {,c}) '(_ _ :idx)))
+		(d-call 'str :find (str s "," :c) '(_ _ :idx)))
 
 	(entry '(:r0 :r1))
 
@@ -95,7 +95,7 @@
 		(assign '(:c) {c})
 	(vp-label 'proc_char)
 		(switch)
-		(vp-def (:state :sym :c) '(:r0 :r1 :r13))
+		(vp-def (:state :sym :c) '(:r0 :r2 :r1))
 		(assign {state, sym_text, c} '(:state :sym :c))
 		(vpcase '(:state = :sym))
 			(switch)
