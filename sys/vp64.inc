@@ -11,13 +11,6 @@
 	(setq opcode (+ opcode (opt i 1)))
 	ci)
 
-(defun stack-init ()
-	(defq tk_state_size (* +ptr_size (length stack_state)))
-	(vp-sub-cr (+ tk_state_size (* +ptr_size 2)) :r1)
-	(f-bind 'sys_task :stop :r2)
-	(vp-cpy-ri :r4 :r1 tk_state_size)
-	(vp-cpy-ri :r2 :r1 (+ tk_state_size +ptr_size)))
-
 (defun emit-cr (o c r)
 	(cond
 		((<= -0x8 c 0x7)
@@ -209,3 +202,9 @@
 		(each-rev (lambda (r)
 			(emit-cpy-ir (const (native-reg? :rsp)) (* (- (length b) 1 _) +ptr_size) r)) b))
 		(emit-free (* +ptr_size (length b))))
+
+(defun emit-stack-init (s f x)
+	(defq tk_state_size (* +ptr_size (length stack_state)))
+	(emit-sub-cr (+ tk_state_size (* +ptr_size 2)) s)
+	(emit-cpy-ri f s tk_state_size)
+	(emit-cpy-ri x s (+ tk_state_size +ptr_size)))

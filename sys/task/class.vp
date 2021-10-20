@@ -282,7 +282,8 @@
 	(assign {tcb, tcb + tcb_size, 0, num_task_lists - 1, func} '(:r0 :r1 :r2 :r3 :r4))
 	(ln-set-succ :r0 0 :r2)
 	(assign '(:r3 :r1) '((:r0 tk_node_priority) (:r0 tk_node_stack_top)))
-	(stack-init)
+	(f-bind 'sys_task :stop :r2)
+	(vp-stack-init :r1 :r4 :r2)
 	(assign '(:r1) {tcb->tk_node_stack})
 
 	;resume new task

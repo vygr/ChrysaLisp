@@ -5,13 +5,6 @@
 (defcvar 'stack_align 8 'stack_state '(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14))
 (defun native-reg? (r) (find r '(:r0 :r1 :r2 :r3 :rsp :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14)))
 
-(defun stack-init ()
-	(defq tk_state_size (* +ptr_size (length stack_state)))
-	(vp-sub-cr (+ tk_state_size (* +ptr_size 2)) :r1)
-	(f-bind 'sys_task :stop :r2)
-	(vp-cpy-ri :r4 :r1 tk_state_size)
-	(vp-cpy-ri :r2 :r1 (+ tk_state_size +ptr_size)))
-
 (defun emit-rr (o s d)
 	(emit-byte (+ 0x48 (<< (>> s 3) 2) (>> d 3)) o (+ 0xc0 (<< (logand 7 s) 3) (logand 7 d))))
 
@@ -618,3 +611,9 @@
 (defun emit-free (c) (emit-add-cr (align c stack_align) (const (native-reg? :rsp))))
 (defun emit-ret () (emit-byte 0xc3))
 (defun emit-brk (n))
+
+(defun emit-stack-init (s f x)
+	(defq tk_state_size (* +ptr_size (length stack_state)))
+	(emit-sub-cr (+ tk_state_size (* +ptr_size 2)) s)
+	(emit-cpy-ri f s tk_state_size)
+	(emit-cpy-ri x s (+ tk_state_size +ptr_size)))
