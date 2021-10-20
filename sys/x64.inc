@@ -617,3 +617,38 @@
 	(emit-sub-cr (+ tk_state_size (* +ptr_size 2)) s)
 	(emit-cpy-ri f s tk_state_size)
 	(emit-cpy-ri x s (+ tk_state_size +ptr_size)))
+
+(case *abi*
+(AMD64
+(defun emit-call-abi (r b c n &rest x)
+	(cond
+		((= *func_align* 16)
+			(apply emit-push x)
+			(emit-call-jump-i 0x10 b c)
+			(emit-add-cr (* +ptr_size (length x)) (const (native-reg? :rsp))))
+		(t  (setq x (cat (list r r) x))
+			(emit-cpy-rr (const (native-reg? :rsp)) r)
+			(emit-and-cr -16 (const (native-reg? :rsp)))
+			(apply emit-push x)
+			(emit-call-jump-i 0x10 b c)
+			(emit-cpy-ir (const (native-reg? :rsp)) (* +ptr_size (- (length x) 2)) (const (native-reg? :rsp)))))))
+(WIN64
+(defun emit-call-abi (r b c n &rest x)
+	(cond
+		((= *func_align* 16)
+			(if (odd? (length x))
+				(setq x (cat (list r) x)))
+			(apply emit-push x)
+			(emit-sub-cr 32 (const (native-reg? :rsp)))
+			(emit-call-jump-i 0x10 b c)
+			(emit-add-cr (* +ptr_size (+ (length x) 4)) (const (native-reg? :rsp))))
+		(t  (emit-cpy-rr (const (native-reg? :rsp)) r)
+			(emit-and-cr -16 (const (native-reg? :rsp)))
+			(if (odd? (length x))
+				(defq y (cat (list r) x))
+				(defq y (cat (list r r) x)))
+			(apply emit-push y)
+			(emit-sub-cr 32 (const (native-reg? :rsp)))
+			(emit-call-jump-i 0x10 b c)
+			(emit-cpy-ir (const (native-reg? :rsp)) (* +ptr_size (+ (length x) 4)) (const (native-reg? :rsp)))))))
+(t (throw "Unknown ABI !" *abi*)))

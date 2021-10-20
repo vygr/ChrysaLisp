@@ -489,3 +489,16 @@
 	(emit-cpy-rr s (const (native-reg? :r30)))
 	(emit-jmp-r (const (native-reg? :r0))))
 ;funcexit
+
+(defun emit-call-abi (r b c n &rest x)
+	(setq x (cat `(,(native-reg? :r30)) x))
+	(apply emit-push x)
+	(emit-cpy-ir b c (const (native-reg? :r29)))
+	(emit-int (const (+ 0xd63f0000 (<< (native-reg? :r29) 5))))
+	(cond
+		((= 1 (defq l (length x)))
+			(emit-pop (const (native-reg? :r30))))
+		((= 2 l)
+			(emit-pop (const (native-reg? :r30)) (const (native-reg? :r29))))
+		(t  (emit-cpy-ir (const (native-reg? :rsp)) (* +ptr_size (dec l)) (const (native-reg? :r30)))
+			(emit-free (* +ptr_size l)))))
