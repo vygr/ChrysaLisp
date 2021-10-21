@@ -2,6 +2,7 @@
 (include "sys/heap/class.inc")
 (include "sys/pii/class.inc")
 (include "sys/statics/class.inc")
+(include "sys/load/class.inc")
 
 (def-method 'sys_heap :init)
 	;inputs
