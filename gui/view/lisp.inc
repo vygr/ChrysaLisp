@@ -171,11 +171,11 @@
 		(setf (setf (setf (setf this
 			+view_x x 0) +view_y y 0) +view_w width 0) +view_h height 0))
 
-	(defmethod :change (this x y width height)
-		; (. view :change x y width height) -> view
+	(defmethod :change (this x y width height &optional flag)
+		; (. view :change x y width height [flag]) -> view
 		(bind '(old_width old_height) (. this :get_size))
 		(. this :set_bounds x y width height)
-		(unless (and (= width old_width) (= height old_height))
+		(unless (and (= width old_width) (= height old_height) (not flag))
 			(. this :layout))
 		this)
 

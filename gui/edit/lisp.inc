@@ -83,11 +83,21 @@
 	(. vdu_underlay :set_flags 0 +view_flag_solid)
 	(.-> this (:add_child vdu_text) (:add_child vdu_underlay))
 
+	(defmethod :max_size (this)
+		; (. edit :max_size) -> (width height)
+		(bind '(w h) (. this :get_size))
+		(bind '(cw ch) (. (get :vdu_text this) :char_size))
+		(list (/ w cw) (/ h ch)))
+
 	(defmethod :pref_size (this)
 		; (. edit :pref_size) -> (width height)
-		(defq w 0 h 0 mw (def? :min_width this) mh (def? :min_height this))
+		(defq min_w (def? :min_width this) min_h (def? :min_height this)
+			vdu_w (get :vdu_width this) vdu_h (get :vdu_height this)
+			w 0 h 0)
 		(each (lambda (child)
-				(def child :min_width mw :min_height mh)
+				(def child
+					:min_width min_w :min_height min_h
+					:vdu_width vdu_w :vdu_height vdu_h)
 				(bind '(cw ch) (. child :pref_size))
 				(setq w (max w cw) h (max h ch)))
 			(. this :children))
@@ -95,8 +105,15 @@
 
 	(defmethod :layout (this)
 		; (. edit :layout) -> edit
+		(defq min_w (def? :min_width this) min_h (def? :min_height this)
+			vdu_w (get :vdu_width this) vdu_h (get :vdu_height this))
 		(bind '(w h) (. this :get_size))
-		(each (# (. %0 :change 0 0 w h)) (. this :children))
+		(each (lambda (child)
+				(def child
+					:min_width min_w :min_height min_h
+					:vdu_width vdu_w :vdu_height vdu_h)
+				(. child :change 0 0 w h t))
+			(. this :children))
 		this)
 
 	(defmethod :get_buffer (this)

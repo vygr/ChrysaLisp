@@ -131,7 +131,7 @@
 
 (defun window-resize ()
 	;layout the window and size the vdu to fit
-	(bind '(w h) (.-> *edit* :get_vdu_text :max_size))
+	(bind '(w h) (. *edit* :max_size))
 	(set *edit* :vdu_width w :vdu_height h)
 	(. *edit* :layout)
 	(set-sliders) (load-display))
@@ -168,6 +168,8 @@
 (defun main ()
 	(defq select (alloc-select +select_size) *running* t *edit* (Viewer-edit))
 	(.-> *edit* (:set_buffer (Buffer)) (:set_underlay_color +argb_grey6))
+	(def *edit* :min_width 0 :min_height 0
+		:vdu_width +vdu_min_width :vdu_height +vdu_min_height)
 	(. main_flow :add_back *edit*)
 	(populate-file-tree)
 	(populate-vdu nil)

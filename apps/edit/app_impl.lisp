@@ -233,7 +233,7 @@
 
 (defun window-resize ()
 	;layout the window and size the vdu to fit
-	(bind '(w h) (.-> *edit* :get_vdu_text :max_size))
+	(bind '(w h) (. *edit* :max_size))
 	(set *edit* :vdu_width w :vdu_height h)
 	(set *vdu_lines* :vdu_height h)
 	(. *edit* :layout)
@@ -338,6 +338,8 @@
 		edit_service (mail-declare (task-mailbox) "EDIT_SERVICE" "Edit Service 0.1")
 		*running* t *edit* (Editor-edit))
 	(.-> *edit* (:set_buffer (Buffer)) (:set_underlay_color +argb_grey6))
+	(def *edit* :min_width 0 :min_height 0
+		:vdu_width +vdu_min_width :vdu_height +vdu_min_height)
 	(. main_flow :add_back *edit*)
 	;load up the base Syntax keywords and boot.inc words for matching
 	(each (lambda ((key val)) (. dictionary :insert_word (str key)))

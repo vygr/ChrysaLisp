@@ -1,5 +1,3 @@
-(include "sys/code.inc")
-
 ;;;;;;;;;;;;;;;;;;;;
 ; host abi call info
 ;;;;;;;;;;;;;;;;;;;;

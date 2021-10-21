@@ -86,7 +86,7 @@
 
 (defun window-resize ()
 	;layout the window and size the vdu to fit
-	(bind '(w h) (.-> *edit* :get_vdu_text :max_size))
+	(bind '(w h) (. *edit* :max_size))
 	(set *edit* :vdu_width w :vdu_height h)
 	(. *edit* :layout)
 	(set-sliders) (load-display))
@@ -113,6 +113,8 @@
 		*cursor_x* 0 *cursor_y* 0 *running* t *pipe* nil
 		*history* (list) *history_idx* 0 *edit* (Terminal-edit))
 	(. *edit* :set_underlay_color +argb_green6)
+	(def *edit* :min_width +vdu_min_width :min_height +vdu_min_height
+		:vdu_width +vdu_min_width :vdu_height +vdu_min_height)
 	(. main_flow :add_back *edit*)
 	(tooltips)
 	(bind '(x y w h) (apply view-locate (.-> *window* (:connect +event_layout) :pref_size)))
