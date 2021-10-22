@@ -11,9 +11,7 @@
 (ffi canvas-from-argb32 "gui/canvas/lisp_from_argb32" 0)
 
 ;init pixmap shared cache map
-(defq _ (env))
-(while (penv _) (setq _ (penv _)))
-(def _ '*pixmap_cache* (lmap))
+(def *boot_env* '*pixmap_cache* (lmap))
 
 (structure +canvas +view_size
 	(ptr pixmap edges texture)
@@ -155,3 +153,13 @@
 			(if (= (logand flags +load_flag_noswap) 0)
 				(. this :swap))))
 	this)
+
+(defun canvas-flush ()
+	; (canvas-flush)
+	;flush any shared pixmaps that have no users.
+	;4 refs are held by the cache lmap and this loop !
+	(defq new_cache (lmap))
+	(. *pixmap_cache* :each (lambda (key val)
+		(if (> (getf val +obj_count 0) 4)
+			(. new_cache :insert key val))))
+	(def *boot_env* '*pixmap_cache* new_cache))

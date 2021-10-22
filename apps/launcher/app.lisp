@@ -16,6 +16,8 @@
 	(cat "apps/" _ "/app.lisp"))
 
 (defun main ()
+	;flush shared pixmaps
+	(canvas-flush)
 	;ensure the launcher is completely on screen
 	(bind '(w h) (. *window* :pref_size))
 	(bind '(x y w h) (apply view-locate (push (list (/ (* w 100) 80) h) *env_launcher_position*)))
