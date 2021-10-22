@@ -1902,6 +1902,12 @@
 (canvas-fill canvas argb)
 ```
 
+### canvas-flush
+
+```code
+(canvas-flush)
+```
+
 ### canvas-fpoly
 
 ```code
