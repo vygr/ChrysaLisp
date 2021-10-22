@@ -540,6 +540,12 @@
 (. edit :left_tab) -> edit
 ```
 
+### edit :max_size
+
+```code
+(. edit :max_size) -> (width height)
+```
+
 ### edit :mouse_down
 
 ```code
@@ -1143,7 +1149,7 @@
 ### view :change
 
 ```code
-(. view :change x y width height) -> view
+(. view :change x y width height [flag]) -> view
 ```
 
 ### view :change_dirty

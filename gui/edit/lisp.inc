@@ -78,7 +78,9 @@
 		:anchor_x 0 :anchor_y 0
 		:scroll_x 0 :scroll_y 0
 		:buffer (Buffer t) :underlay (list)
-		:selected +not_selected)
+		:selected +not_selected
+		:vdu_width 80 :vdu_height 40
+		:min_width 0 :min_height 0)
 	(. vdu_text :set_flags 0 +view_flag_solid)
 	(. vdu_underlay :set_flags 0 +view_flag_solid)
 	(.-> this (:add_child vdu_text) (:add_child vdu_underlay))
