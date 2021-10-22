@@ -309,11 +309,12 @@
 	;iter
 	; (reg ...)
 	;outputs
-	;load register list from iter
+	;save register list to iter
+	(setq i (get i))
 	(cond
 		((eql type nil)
 			(assign regs (map (lambda (r) (list i (* +long_size _))) regs)))
-		(t	(defq s (type-to-size type))
+		(t  (defq s (type-to-size type))
 			(assign regs (map (lambda (r) (list i (* s _) type)) regs)))))
 
 (defun array-get-args (i regs &optional type)
@@ -321,11 +322,12 @@
 	;iter
 	; (reg ...)
 	;outputs
-	;save register list to iter
+	;load register list from iter
+	(setq regs (assign-map-reg-keys regs))
 	(cond
 		((eql type nil)
 			(assign (map (lambda (r) (list i (* +long_size _))) regs) regs))
-		(t	(defq s (type-to-size type))
+		(t  (defq s (type-to-size type))
 			(assign (map (lambda (r) (list i (* s _) type)) regs) regs))))
 
 (defun array-map-args (regs pos)
@@ -344,5 +346,6 @@
 	; (reg ...)
 	;outputs
 	;load register list from array
-	(assign `((,a array_begin)) `(,(elem -2 regs)))
-	(array-get-args (elem -2 regs) regs))
+	(defq b (get (elem -2 regs)))
+	(assign `((,(get a) array_begin)) `(,b))
+	(array-get-args b regs))

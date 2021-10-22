@@ -37,6 +37,7 @@
 	;'({:num :str :char _} ...)
 	;outputs
 	;cast register list
+	(setq regs (assign-map-reg-keys regs))
 	(assign (map (lambda (r _)
 		(case _
 			((:num :fixed :real) (list r num_value))
