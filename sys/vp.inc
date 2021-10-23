@@ -22,29 +22,8 @@
 (defmacro emit (&rest _)
 	`(push *emit_list* ~_))
 
-(defun emit-reset ()
-	(defcvar '*emit_list* (push (clear '()) progn) '*distance* (clear '())
-		'*out_buffer* "" '*old_out_buffer* ""))
-
-(defun emit-native-regs (emit_list start end)
-	(each! start end (lambda (inst)
-		(if (list? inst)
-			(each (lambda (e)
-				(if (defq r (native-reg? e)) (elem-set _ inst r))) inst))) (list emit_list)))
-
-(defun emit-passes ()
-	(defcvar '*pass* 0 '*pc* 0 '*out_stream* (string-stream *out_buffer*))
-	(defq b nil)
-	(eval (prebind *emit_list*) *compile_env*)
-	(setq *out_buffer* (str *out_stream*) *pass* (inc *pass*))
-	(until (eql *out_buffer* *old_out_buffer*)
-		(task-slice)
-		(setq b *old_out_buffer* *old_out_buffer* *out_buffer* *out_stream* (string-stream b) *pc* 0)
-		(eval *emit_list* *compile_env*)
-		(setq *out_buffer* (str *out_stream*) *pass* (inc *pass*))))
-
 (defun emit-print (_)
-	(and (list? _) (not (eql (elem 0 _) 'lambda)) (print _)))
+	(unless (eql (elem 0 _) 'lambda) (print _)))
 
 (defun emit-label (_)
 	(set (penv) _ *pc*))
@@ -75,6 +54,32 @@
 		(setq *pc* (align p a))
 		(while (<= (setq p (inc p)) *pc*)
 			(write-char s b))))
+
+(defun emit-byte-code (emit_list)
+	;remove redundant labels and ops, plus rename labels
+	(defq out (push (clear '()) 'progn) labels (env 31)
+		last_e nil pc 0 pc_sym nil)
+	(each (lambda (op)
+		(defq e (elem 0 op))
+		(unless (eql e 'lambda)
+			(cond
+				((eql e 'emit-label)
+					(bind '(_ (_ label)) op)
+					(cond
+						((eql e last_e)
+							(def labels label pc_sym))
+						(t	(def labels label (setq pc_sym (sym (str "_" pc))))
+							(push out op)
+							(setq pc (inc pc)))))
+				((push out op))))
+		(setq last_e e)) emit_list)
+	(walk-list out
+		(lambda (e)
+			(and (sym? e) (defq e (def? e labels))
+				(elem-set _ _l e)))
+		(lambda (l) nil)
+		(lambda (l)))
+	out)
 
 ;;;;;;;;;;;;;;
 ; VP optimizer
@@ -125,8 +130,7 @@
 		(t nil)))
 
 (defun label-sym (s) (sym (cat "_l_" s)))
-(defun vp-label (l) (setq l (label-sym l))
-	(emit (list 'emit-label (list 'quote l))) (push *func_syms* l) (defcvar l 0))
+(defun vp-label (l) (setq l (label-sym l)) (emit (list 'emit-label (list 'quote l))))
 (defun vp-align (a &optional b) (emit (list 'emit-align a b)))
 (defun vp-string (s) (emit (list 'emit-string s)))
 (defun vp-byte (&rest b) (emit (cat '(emit-byte) b)))
@@ -138,11 +142,11 @@
 (defmacro vp-bcr (_)
 	`(defun ,(sym (cat "vp-" _ "-cr")) (c d l)
 		(emit (list 'emit-cmp-cr (eval c) (get d))
-			(list ',(sym (cat "emit-" _)) (label-sym l) (dec (length (push *distance* 0)))))))
+			(list ',(sym (cat "emit-" _)) (label-sym l)))))
 (defmacro vp-brr (_)
 	`(defun ,(sym (cat "vp-" _ "-rr")) (s d l)
 		(emit (list 'emit-cmp-rr (get s) (get d))
-			(list ',(sym (cat "emit-" _)) (label-sym l) (dec (length (push *distance* 0)))))))
+			(list ',(sym (cat "emit-" _)) (label-sym l)))))
 (defmacro vp-op-cr (_)
 	`(defun ,(sym (cat "vp-" _ "-cr")) (c d)
 		(emit (list ',(sym (cat "emit-" _ "-cr")) (eval c) (get d)))))
@@ -180,7 +184,7 @@
 (defun vp-call-i (b i) (emit (list 'emit-call-i (get b) (eval i))))
 (defun vp-call-p (l) (emit (list 'emit-call-p (label-sym l))))
 
-(defun vp-jmp (l) (emit (list 'emit-jmp (label-sym l) (dec (length (push *distance* 0))))))
+(defun vp-jmp (l) (emit (list 'emit-jmp (label-sym l))))
 (defun vp-jmp-r (d) (emit (list 'emit-jmp-r (get d))))
 (defun vp-jmp-i (b i) (emit (list 'emit-jmp-i (get b) (eval i))))
 (defun vp-jmp-p (l) (emit (list 'emit-jmp-p (label-sym l))))
@@ -217,12 +221,41 @@
 (defun vp-min (a b) (vpif (list a '< b)) (vp-cpy-rr a b) (endif))
 (defun vp-max (a b) (vpif (list a '> b)) (vp-cpy-rr a b) (endif))
 
-;;;;;;;;;;;;;;;;;;;;;
-; Arch Emit Functions
-;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;
+; native emit functions
+;;;;;;;;;;;;;;;;;;;;;;;
 
 (case *cpu*
 (x86_64 (include "sys/x64.inc"))
 (aarch64 (include "sys/arm64.inc"))
 (vp64 (include "sys/vp64.inc"))
 (t (throw "No such CPU !" *cpu*)))
+
+;;;;;;;;;;;;;;;;;;;;;;
+; byte code translator
+;;;;;;;;;;;;;;;;;;;;;;
+
+(defun emit-translate (byte_code)
+	(env-resize (env) 31)
+	(defq out_buf "" old_out_buf "" *pass* 0 *pc* 0 *branches* (clear '())
+		*out_stream* (string-stream out_buf))
+	(each! 1 -1 (lambda (op)
+			;map vp key syms to native reg nums
+			(each! 1 -1 (lambda (e)
+				(if (defq r (native-reg? e)) (elem-set _ op r))) (list op))
+			;create label and branch initial values
+			(cond
+				((eql (defq e (elem 0 op)) 'emit-label)
+					(def (penv (penv)) (elem -2 (elem -2 op)) 0))
+				((find e '(emit-beq emit-bne emit-bge emit-blt emit-ble emit-bgt emit-jmp))
+					(push op (dec (length (push *branches* 0)))))))
+		(list byte_code))
+	;multi pass of native emit functions
+	(eval (prebind byte_code))
+	(setq out_buf (str *out_stream*) *pass* (inc *pass*))
+	(until (eql out_buf old_out_buf)
+		(task-slice)
+		(defq b old_out_buf old_out_buf out_buf *out_stream* (string-stream b) *pc* 0)
+		(eval byte_code)
+		(setq out_buf (str *out_stream*) *pass* (inc *pass*)))
+	out_buf)

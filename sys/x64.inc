@@ -138,8 +138,8 @@
 			(emit-byte (+ 0x58 r)))) b))
 
 (defun emit-branch (o c d)
-	(defq m (elem d *distance*))
-	(and (/= *pass* 0) (> (abs c) (abs m)) (elem-set d *distance* (setq m c)))
+	(defq m (elem d *branches*))
+	(and (/= *pass* 0) (> (abs c) (abs m)) (elem-set d *branches* (setq m c)))
 	(cond
 		((<= -0x80 (- m 2) 0x7f)
 			(emit-byte o (- c 2)))
@@ -229,8 +229,8 @@
 (defun emit-call-p (l) (emit-call-jump-p 0x15 (- l *pc*)))
 
 (defun emit-jmp (l d)
-	(defq m (elem d *distance*) c (- l *pc*))
-	(and (/= *pass* 0) (> (abs c) (abs m)) (elem-set d *distance* (setq m c)))
+	(defq m (elem d *branches*) c (- l *pc*))
+	(and (/= *pass* 0) (> (abs c) (abs m)) (elem-set d *branches* (setq m c)))
 	(cond
 		((<= -0x80 (- m 2) 0x7f)
 			(emit-byte (+ 0x2 0xe9) (- c 2)))

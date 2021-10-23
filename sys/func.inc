@@ -26,7 +26,7 @@
 (defun string-sym (_) (str "rs_" _))
 
 (defun def-func (*name* &optional falign fstack)
-	(emit-reset)
+	(defcvar '*emit_list* (clear '()))
 	(setq *func_name* *name* *switch_nxt* 0 *func_align* (opt falign stack_align))
 	(clear *strings* *paths* *links* *func_syms*)
 (vp-label 'fn_start)
@@ -67,11 +67,11 @@
 	(opt-emit-list *emit_list* *emit_start* *emit_end*)
 	(when *debug_emit*
 		(each emit-print *emit_list*))
-	(emit-native-regs *emit_list* *emit_start* *emit_end*)
-	(emit-passes)
-	(apply undef (cat (list *compile_env*) *func_syms*))
-	(save *out_buffer* (cat "obj/" *cpu* "/" *abi* "/" (str *func_name*)))
-	(print "-> " (str "obj/" *cpu* "/" *abi* "/" (str *func_name*) " (" (length *out_buffer*) ")")))
+	(defq out (emit-translate (emit-byte-code *emit_list*)))
+	(if (> (length *func_syms*) 0)
+		(apply undef (cat (list *compile_env*) *func_syms*)))
+	(save out (cat "obj/" *cpu* "/" *abi* "/" (str *func_name*)))
+	(print "-> " (str "obj/" *cpu* "/" *abi* "/" (str *func_name*) " (" (length out) ")")))
 
 (defun fn-add-string (s)
 	(defq i -1)
