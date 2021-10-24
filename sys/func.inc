@@ -67,7 +67,7 @@
 	(opt-emit-list *emit_list* *emit_start* *emit_end*)
 	(when *debug_emit*
 		(each emit-print *emit_list*))
-	(defq out (emit-translate (emit-byte-code *emit_list*)))
+	(defq out (emit-translate (emit-vp-code *emit_list*)))
 	(if (> (length *func_syms*) 0)
 		(apply undef (cat (list *compile_env*) *func_syms*)))
 	(save out (cat "obj/" *cpu* "/" *abi* "/" (str *func_name*)))

@@ -55,7 +55,7 @@
 		(while (<= (setq p (inc p)) *pc*)
 			(write-char s b))))
 
-(defun emit-byte-code (emit_list)
+(defun emit-vp-code (emit_list)
 	;remove redundant labels and ops, plus rename labels
 	(defq out (push (clear '()) 'progn) labels (env 31)
 		last_e nil pc 0 pc_sym nil)
@@ -235,7 +235,7 @@
 ; byte code translator
 ;;;;;;;;;;;;;;;;;;;;;;
 
-(defun emit-translate (byte_code)
+(defun emit-translate (vp_code)
 	(env-resize (env) 31)
 	(defq out_buf "" old_out_buf "" *pass* 0 *pc* 0 *branches* (clear '())
 		*out_stream* (string-stream out_buf))
@@ -249,13 +249,13 @@
 					(def (penv (penv)) (elem -2 (elem -2 op)) 0))
 				((find e '(emit-beq emit-bne emit-bge emit-blt emit-ble emit-bgt emit-jmp))
 					(push op (dec (length (push *branches* 0)))))))
-		(list byte_code))
+		(list vp_code))
 	;multi pass of native emit functions
-	(eval (prebind byte_code))
+	(eval (prebind vp_code))
 	(setq out_buf (str *out_stream*) *pass* (inc *pass*))
 	(until (eql out_buf old_out_buf)
 		(task-slice)
 		(defq b old_out_buf old_out_buf out_buf *out_stream* (string-stream b) *pc* 0)
-		(eval byte_code)
+		(eval vp_code)
 		(setq out_buf (str *out_stream*) *pass* (inc *pass*)))
 	out_buf)
