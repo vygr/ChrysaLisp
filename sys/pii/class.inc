@@ -1,5 +1,5 @@
 (include "sys/class.inc")
-(include "sys/abi.inc")
+(include "sys/pii/abi.inc")
 
 (def-class host nil
 	(dec-method :exit nil :virtual (abi-args 1))

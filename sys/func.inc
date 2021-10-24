@@ -1,6 +1,7 @@
 (include "sys/pii/class.inc")
 (include "sys/task/class.inc")
-(include "sys/vp.inc")
+(include "lib/asm/vp.inc")
+(include "lib/trans/vp.inc")
 
 ;;;;;;;;;;;;;;;;;
 ; func structures
