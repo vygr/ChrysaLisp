@@ -8,6 +8,8 @@
 ;module
 (env-push)
 
+(defq +eps 1.0)
+
 (defun Mat3x3-f (m00 m01 m02 m10 m11 m12 m20 m21 m22)
 	(list (fixeds m00 m01 m02)
 		(fixeds m10 m11 m12)
@@ -23,23 +25,6 @@
 	(list (fixeds (nums-dot mar0 mbc0) (nums-dot mar0 mbc1) (nums-dot mar0 mbc2))
 		(fixeds (nums-dot mar1 mbc0) (nums-dot mar1 mbc1) (nums-dot mar1 mbc2))
 		(fixeds (nums-dot mar2 mbc0) (nums-dot mar2 mbc1) (nums-dot mar2 mbc2))))
-
-(defq +eps 1.0
-	+command_chars "MLHVCSQTAZmlhvcsqtaz"
-	+num_start_chars "-+0123456789"
-	+num_mid_chars ".0123456789")
-
-(defmacro is-command-char? (_)
-	(list 'find-rev _ +command_chars))
-
-(defmacro is-num-start-char? (_)
-	(list 'find-rev _ +num_start_chars))
-
-(defmacro is-num-mid-char? (_)
-	(list 'find-rev _ +num_mid_chars))
-
-(defmacro is-whitespace-char? (_)
-	`(<= (code ,_) +char_space))
 
 (defun read-col (val)
 	(case (length val)
