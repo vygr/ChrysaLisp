@@ -62,13 +62,13 @@
 			(emit-int c))
 		(t (throw "emit-ir-bs constant out of range !" c))))
 
-(defun emit-pr (o c d)
-	(defq dl (logand 7 d) dh (>> d 3) c (- c 7))
+(defun emit-pr (o l d)
+	(defq dl (logand 7 d) dh (>> d 3) l (- l *pc* 7))
 	(cond
-		((<= -0x80000000 c 0x7fffffff)
+		((<= -0x80000000 l 0x7fffffff)
 			(emit-byte (+ 0x48 (<< dh 2)) o (+ 0x5 (<< dl 3)))
-			(emit-int c))
-		(t (throw "emit-pr constant out of range !" c))))
+			(emit-int l))
+		(t (throw "emit-pr constant out of range !" l))))
 
 (defun emit-shift-cr (o c d)
 	(unless (= c 0)
@@ -98,9 +98,9 @@
 			(emit-cpy-ri (const (native-reg? :r0)) (const (native-reg? :rsp)) 24)
 			(emit-pop d s (const (native-reg? :r0)) (const (native-reg? :r1))))))
 
-(defun emit-call-jump-p (o c)
+(defun emit-call-jump-p (o l)
 	(emit-byte 0xff o)
-	(emit-int (- c 6)))
+	(emit-int (- l *pc* 4)))
 
 (defun emit-call-jump-r (o d)
 	(defq dl (logand 7 d))
@@ -137,23 +137,23 @@
 			(emit-byte 0x41 (+ 0x50 r))
 			(emit-byte (+ 0x58 r)))) b))
 
-(defun emit-branch (o c d)
-	(defq m (elem d *branches*))
-	(and (/= *pass* 0) (> (abs c) (abs m)) (elem-set d *branches* (setq m c)))
+(defun emit-branch (o l d)
+	(defq m (elem d *branches*) l (- l *pc*))
+	(and (/= *pass* 0) (> (abs l) (abs m)) (elem-set d *branches* (setq m l)))
 	(cond
 		((<= -0x80 (- m 2) 0x7f)
-			(emit-byte o (- c 2)))
+			(emit-byte o (- l 2)))
 		((<= -0x80000000 (- m 6) 0x7fffffff)
 			(emit-byte 0xf (+ 0x10 o))
-			(emit-int (- c 6)))
-		(t (throw "emit-branch constant out of range !" c))))
+			(emit-int (- l 6)))
+		(t (throw "emit-branch constant out of range !" l))))
 
-(defun emit-beq (l d) (emit-branch 0x74 (- l *pc*) d))
-(defun emit-bne (l d) (emit-branch 0x75 (- l *pc*) d))
-(defun emit-bge (l d) (emit-branch 0x7d (- l *pc*) d))
-(defun emit-blt (l d) (emit-branch 0x7c (- l *pc*) d))
-(defun emit-ble (l d) (emit-branch 0x7e (- l *pc*) d))
-(defun emit-bgt (l d) (emit-branch 0x7f (- l *pc*) d))
+(defun emit-beq (l d) (emit-branch 0x74 l d))
+(defun emit-bne (l d) (emit-branch 0x75 l d))
+(defun emit-bge (l d) (emit-branch 0x7d l d))
+(defun emit-blt (l d) (emit-branch 0x7c l d))
+(defun emit-ble (l d) (emit-branch 0x7e l d))
+(defun emit-bgt (l d) (emit-branch 0x7f l d))
 
 (defun emit-cmp-rr (s d) (emit-rr 0x39 s d))
 (defun emit-add-rr (s d) (emit-rr 0x01 s d))
@@ -226,7 +226,7 @@
 
 (defun emit-call-r (r) (emit-call-jump-r 0xd0 r))
 (defun emit-call-i (d c) (emit-call-jump-i 0x10 d c))
-(defun emit-call-p (l) (emit-call-jump-p 0x15 (- l *pc*)))
+(defun emit-call-p (l) (emit-call-jump-p 0x15 l))
 
 (defun emit-jmp (l d)
 	(defq m (elem d *branches*) c (- l *pc*))
@@ -241,11 +241,11 @@
 
 (defun emit-jmp-r (r) (emit-call-jump-r 0xe0 r))
 (defun emit-jmp-i (d c) (emit-call-jump-i 0x20 d c))
-(defun emit-jmp-p (l) (emit-call-jump-p 0x25 (- l *pc*)))
+(defun emit-jmp-p (l) (emit-call-jump-p 0x25 l))
 
 (defun emit-lea-i (s c d) (unless (and (= c 0) (eql s d)) (emit-ir 0x8d s c d)))
 (defun emit-lea-d (s1 s2 d) (emit-dr 0x8d s1 s2 d))
-(defun emit-lea-p (l d) (emit-pr 0x8d (- l *pc*) d))
+(defun emit-lea-p (l d) (emit-pr 0x8d l d))
 
 (defun emit-cpy-cr (c r)
 	(if (= c 0)
@@ -268,7 +268,7 @@
 (defun emit-cpy-rr (s d) (unless (eql s d) (emit-rr 0x89 s d)))
 (defun emit-cpy-ir (s c d) (emit-ir 0x8b s c d))
 (defun emit-cpy-dr (s1 s2 d) (emit-dr 0x8b s1 s2 d))
-(defun emit-cpy-pr (l d) (emit-pr 0x8b (- l *pc*) d))
+(defun emit-cpy-pr (l d) (emit-pr 0x8b l d))
 
 (defun emit-cpy-ri (s d c)
 	(cond
