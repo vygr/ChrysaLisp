@@ -18,6 +18,10 @@ Register key symbols for call to call anonymous register passing.
 
 VP VM register symbols renamed to :r0 to :r14 and :rsp keywords.
 
+Assembler and Translator stages separated out into their own libs.
+
+Join us at #ChrysaLisp-OS:matrix.org
+
 ------
 
 New `(mat4x4-invert)` function and Scene graph class updated to use this to
