@@ -2,6 +2,9 @@
 ; emit Buffer
 ;;;;;;;;;;;;;
 
+;module
+(env-push)
+
 (defun emit-label (_)
 	(set (penv) _ *pc*))
 
@@ -37,10 +40,17 @@
 ;;;;;;;;;;;;;;;;;;;;;;;
 
 (case *cpu*
-(x86_64 (include "lib/trans/x64.inc"))
-(aarch64 (include "lib/trans/arm64.inc"))
-(vp64 (include "lib/trans/vp64.inc"))
+(x86_64 (import "lib/trans/x64.inc"))
+(aarch64 (import "lib/trans/arm64.inc"))
+(vp64 (import "lib/trans/vp64.inc"))
 (t (throw "No such CPU !" *cpu*)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; gather all the emit funcs
+;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defq +emit_funcs (reduce (lambda (e (k v))
+	(if (starts-with "emit" k) (def e k v)) e) (tolist (env)) (env 11)))
 
 ;;;;;;;;;;;;;;;;;;;;
 ; vp code translator
@@ -53,16 +63,18 @@
 	(each! 1 -1 (lambda (op)
 			;map vp key syms to native reg nums
 			(each! 1 -1 (lambda (e)
-				(if (defq r (native-reg? e)) (elem-set _ op r))) (list op))
+				(if (defq r (emit-native-reg? e)) (elem-set _ op r))) (list op))
 			;create label and branch initial values
 			(cond
 				((eql (defq e (elem 0 op)) 'emit-label)
 					(def (penv (penv)) (elem -2 (elem -2 op)) 0))
 				((find e '(emit-beq emit-bne emit-bge emit-blt emit-ble emit-bgt emit-jmp))
-					(push op (dec (length (push *branches* 0)))))))
+					(push op (dec (length (push *branches* 0))))))
+			;bind emit func
+			(elem-set 0 op (def? (elem 0 op) +emit_funcs)))
 		(list vp_code))
 	;multi pass of native emit functions
-	(eval (prebind vp_code))
+	(eval vp_code)
 	(setq out_buf (str *out_stream*) *pass* (inc *pass*))
 	(until (eql out_buf old_out_buf)
 		(task-slice)
@@ -70,3 +82,7 @@
 		(eval vp_code)
 		(setq out_buf (str *out_stream*) *pass* (inc *pass*)))
 	out_buf)
+
+;module
+(export-symbols emit-translate)
+(env-pop)

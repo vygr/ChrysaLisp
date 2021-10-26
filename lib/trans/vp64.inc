@@ -3,7 +3,7 @@
 ;;;;;;;;;;;;;;;;;;;;;
 
 (defcvar 'stack_align 8 'stack_state '(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14))
-(defun native-reg? (r) (find r +vp_regs))
+(defun emit-native-reg? (r) (find r +vp_regs))
 
 (defq opcode 0)
 (defmacro next-opcode (&optional i)
@@ -186,8 +186,8 @@
 			(emit-short (+ (next-opcode) (<< b 8) (<< n 12)) c))
 		(t  (throw "emit-call-abi constant out of range !" c))))
 
-(defun emit-alloc (c) (emit-sub-cr (align c stack_align) (const (native-reg? :rsp))))
-(defun emit-free (c) (emit-add-cr (align c stack_align) (const (native-reg? :rsp))))
+(defun emit-alloc (c) (emit-sub-cr (align c stack_align) (const (emit-native-reg? :rsp))))
+(defun emit-free (c) (emit-add-cr (align c stack_align) (const (emit-native-reg? :rsp))))
 (defun emit-ret () (emit-short (next-opcode)))
 (defun emit-brk (n) (emit-short (+ (next-opcode) (<< n 8))))
 
@@ -195,12 +195,12 @@
 	(when (/= 0 (length b))
 		(emit-alloc (* +ptr_size (length b)))
 		(each-rev (lambda (r)
-			(emit-cpy-ri r (const (native-reg? :rsp)) (* (- (length b) 1 _) +ptr_size))) b)))
+			(emit-cpy-ri r (const (emit-native-reg? :rsp)) (* (- (length b) 1 _) +ptr_size))) b)))
 
 (defun emit-pop (&rest b)
 	(when (/= 0 (length b))
 		(each-rev (lambda (r)
-			(emit-cpy-ir (const (native-reg? :rsp)) (* (- (length b) 1 _) +ptr_size) r)) b))
+			(emit-cpy-ir (const (emit-native-reg? :rsp)) (* (- (length b) 1 _) +ptr_size) r)) b))
 		(emit-free (* +ptr_size (length b))))
 
 (defun emit-stack-init (s f x)
