@@ -169,7 +169,7 @@
 	`(find :array (type-of ,_)))
 (defmacro list? (_)
 	; (list? form) -> t | nil
-	`(find :list (type-of ,_)))
+	`(find-rev :list (type-of ,_)))
 (defmacro num? (_)
 	; (num? form) -> t | nil
 	`(find :num (type-of ,_)))
@@ -181,7 +181,7 @@
 	`(find :str (type-of ,_)))
 (defmacro sym? (_)
 	; (sym? form) -> t | nil
-	`(find :sym (type-of ,_)))
+	`(find-rev :sym (type-of ,_)))
 (defmacro env? (_)
 	; (env? form) -> t | nil
 	`(find :hmap (type-of ,_)))

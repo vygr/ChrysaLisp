@@ -27,20 +27,16 @@
 
 (defun emit-vp-code (emit_list)
 	;remove redundant labels and ops, plus rename labels
-	(defq out (push (clear '()) 'progn) labels (env 31)
-		last_e nil pc 0 pc_sym nil)
+	(defq out (push (clear '()) 'progn) labels (env 11)
+		last_e nil pc -1 pc_sym nil)
 	(each (lambda (op)
-		(defq e (elem 0 op))
-		(unless (eql e 'lambda)
+		(unless (eql (defq e (elem 0 op)) 'lambda)
 			(cond
 				((eql e 'emit-label)
-					(bind '(_ (_ label)) op)
-					(cond
-						((eql e last_e)
-							(def labels label pc_sym))
-						(t	(def labels label (setq pc_sym (sym (str "_" pc))))
-							(push out op)
-							(setq pc (inc pc)))))
+					(unless (eql e last_e)
+						(setq pc_sym (sym (str "_" (setq pc (inc pc)))))
+						(push out op))
+					(def labels (elem -2 (elem -2 op)) pc_sym))
 				((push out op))))
 		(setq last_e e)) emit_list)
 	(walk-list out
