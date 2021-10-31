@@ -26,7 +26,7 @@
 	(unless (eql (elem 0 _) 'lambda) (print _)))
 
 (defun emit-vp-code (emit_list)
-	;remove redundant labels and ops, plus rename labels
+	;remove redundant labels and rename
 	(defq out (push (clear '()) 'progn) labels (env 11)
 		last_e nil pc -1 pc_sym nil)
 	(each (lambda (op)
@@ -72,12 +72,10 @@
 				(t :c)))
 		(:num :c)
 		(:list
-			(defq i (elem 0 o))
 			(cond
-				((vp-reg? i)
-					(setq i (elem 1 o))
+				((vp-reg? (defq i (elem 0 o)))
 					(cond
-						((vp-reg? i)
+						((vp-reg? (defq i (elem 1 o)))
 							(if (= 2 (length o)) :d
 								(sym (cat :d (elem 2 o)))))
 						((/= 2 (length o))

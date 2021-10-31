@@ -41,7 +41,7 @@
 				(emit-int (+ 0x92c00000 (>> (logand (lognot c) 0xffff00000000) 27) r))
 				(if (/= y 0xffff0000) (emit-int (+ 0xf2a00000 (>> y 11) r)))
 				(if (/= z 0xffff) (emit-int (+ 0xf2800000 (<< z 5) r))))
-			(t	(emit-int (+ 0x92e00000 (>> (logand (lognot c) 0xffff000000000000) 43) r))
+			(t  (emit-int (+ 0x92e00000 (>> (logand (lognot c) 0xffff000000000000) 43) r))
 				(if (/= x 0xffff00000000) (emit-int (+ 0xf2c00000 (>> x 27) r)))
 				(if (/= y 0xffff0000) (emit-int (+ 0xf2a00000 (>> y 11) r)))
 				(if (/= z 0xffff) (emit-int (+ 0xf2800000 (<< z 5) r)))))
@@ -55,7 +55,7 @@
 				(emit-int (+ 0xd2c00000 (>> (logand c 0xffff00000000) 27) r))
 				(if (/= y 0) (emit-int (+ 0xf2a00000 (>> y 11) r)))
 				(if (/= z 0) (emit-int (+ 0xf2800000 (<< z 5) r))))
-			(t	(emit-int (+ 0xd2e00000 (>> (logand c 0xffff000000000000) 43) r))
+			(t  (emit-int (+ 0xd2e00000 (>> (logand c 0xffff000000000000) 43) r))
 				(if (/= x 0) (emit-int (+ 0xf2c00000 (>> x 27) r)))
 				(if (/= y 0) (emit-int (+ 0xf2a00000 (>> y 11) r)))
 				(if (/= z 0) (emit-int (+ 0xf2800000 (<< z 5) r)))))))
@@ -193,6 +193,7 @@
 	(cond
 		((= c 0))
 		((< c 0)
+			;add-cr
 			(cond
 				((<= (setq c (neg c)) 0xffffff)
 					(defq f (logand c 0xfff) c (logand c 0xfff000))
@@ -242,7 +243,7 @@
 		((= 2 l)
 			(emit-int (+ 0xa9bf0000
 				(<< (elem 0 b) 10) (const (<< (emit-native-reg? :rsp) 5)) (elem 1 b))))
-		(t	(emit-sub-cr (align (* +ptr_size l) stack_align) (const (emit-native-reg? :rsp)))
+		(t  (emit-sub-cr (align (* +ptr_size l) stack_align) (const (emit-native-reg? :rsp)))
 			(defq _ l)
 			(while (>= (setq _ (- _ 2)) 0)
 				(emit-int (+ 0xa9000000 (<< (- l _ 2) 15)
@@ -257,7 +258,7 @@
 		((= 2 l)
 			(emit-int (+ 0xa8c10000
 				(<< (elem 0 b) 10) (const (<< (emit-native-reg? :rsp) 5)) (elem 1 b))))
-		(t	(defq _ l)
+		(t  (defq _ l)
 			(while (>= (setq _ (- _ 2)) 0)
 				(emit-int (+ 0xa9400000 (<< (- l _ 2) 15)
 					(<< (elem _ b) 10) (const (<< (emit-native-reg? :rsp) 5)) (elem (inc _) b))))
@@ -469,7 +470,7 @@
 			(emit-xor-rr r r))
 		((= c -1)
 			(emit-int (+ 0xcb000000 (<< r 16) (const (<< 31 5)) r)))
-		(t	(emit-cpy-cr c (const (emit-native-reg? :r29)))
+		(t  (emit-cpy-cr c (const (emit-native-reg? :r29)))
 			(emit-mul-rr (const (emit-native-reg? :r29)) r))))
 
 (defun emit-ext-rr (s d)
