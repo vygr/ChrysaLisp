@@ -105,12 +105,12 @@
 (defun vec-distance-squared-to-line (p p1 p2)
 	(defq lv (vec-sub p2 p1) c1 (vec-dot (vec-sub p p1) lv))
 	(if (<= c1 0)
-		(vec-distance-squared p p1 lv)
+		(vec-distance-squared p p1)
 		(progn
 			(defq c2 (vec-dot lv lv))
 			(if (<= c2 c1)
-				(vec-distance-squared p p2 lv)
-				(vec-distance-squared p (vec-add p1 (vec-scale lv (/ c1 c2)) lv) lv)))))
+				(vec-distance-squared p p2)
+				(vec-distance-squared p (vec-add p1 (vec-scale lv (/ c1 c2)) lv))))))
 
 (defun vec-manhattan-distance (p1 p2)
 	(nums-sum (nums-abs (nums-sub p1 p2))))
@@ -139,8 +139,8 @@
 
 (defun vec-intersect-2d (l1_p1 av l2_p1 bv)
 	(defq axb (vec-det-2d av bv)
-		da (vec-det-2d (vec-add-2d l1_p1 av) l1_p1)
-		db (vec-det-2d (vec-add-2d l2_p1 bv) l2_p1))
+		da (vec-det-2d (vec-add l1_p1 av) l1_p1)
+		db (vec-det-2d (vec-add l2_p1 bv) l2_p1))
 	(if (/= axb 0)
 		(list
 			(/ (vec-det-2d
@@ -151,8 +151,8 @@
 				(list db (elem 1 bv))) axb))))
 
 (defun vec-intersect-lines-2d (l1_p1 l1_p2 l2_p1 l2_p2)
-	(defq av (vec-sub-2d l1_p2 l1_p1)
-		bv (vec-sub-2d l2_p2 l2_p1)
+	(defq av (vec-sub l1_p2 l1_p1)
+		bv (vec-sub l2_p2 l2_p1)
 		axb (vec-det-2d av bv)
 		da (vec-det-2d l1_p2 l1_p1)
 		db (vec-det-2d l2_p2 l2_p1))
@@ -166,9 +166,9 @@
 				(list db (elem 1 bv))) axb))))
 
 (defun vec-collide-lines-2d (l1_p1 l1_p2 l2_p1 l2_p2)
-	(defq av (vec-sub-2d l1_p2 l1_p1)
-		bv (vec-sub-2d l2_p2 l2_p1)
-		cv (vec-sub-2d l2_p2 l1_p1)
+	(defq av (vec-sub l1_p2 l1_p1)
+		bv (vec-sub l2_p2 l2_p1)
+		cv (vec-sub l2_p2 l1_p1)
 		axb (vec-det-2d av bv)
 		axc (vec-det-2d av cv)
 		cxb (vec-det-2d cv bv))
@@ -185,13 +185,13 @@
 				((or (> cxb 0) (< cxb axb)) nil)
 				(t t)))))
 
-(defun vec-collide-thick-lines-2d (l1_p1 l1_p2 l2_p1 tl2_p2 r)
+(defun vec-collide-thick-lines-2d (l1_p1 l1_p2 l2_p1 l2_p2 r)
 	(cond
 		((vec-collide-lines-2d l1_p1 l1_p2 l2_p1 l2_p2))
-		((<= (distance-squared-to-line-2d l2_p1 l1_p1 l1_p2) (setq r (* r r))))
-		((<= (distance-squared-to-line-2d l2_p2 l1_p1 l1_p2) r))
-		((<= (distance-squared-to-line-2d l2_p1 l1_p1 l1_p2) r))
-		((<= (distance-squared-to-line-2d l2_p2 l1_p1 l1_p2) r))))
+		((<= (vec-distance-squared-to-line l2_p1 l1_p1 l1_p2) (setq r (* r r))))
+		((<= (vec-distance-squared-to-line l2_p2 l1_p1 l1_p2) r))
+		((<= (vec-distance-squared-to-line l2_p1 l1_p1 l1_p2) r))
+		((<= (vec-distance-squared-to-line l2_p2 l1_p1 l1_p2) r))))
 
 (defun bounding-box (verts fnc)
 	; (bounding-box verts vec3-extract-fnc) -> (min_v3 max_v3)
