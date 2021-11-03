@@ -88,20 +88,19 @@
 		(defq id (inc id) idx nil miny (* miny width) maxy (* maxy width))
 		(lower :id)
 		(while (and (<= miny maxy) (not idx))
-			(some! (+ miny minx) (+ miny maxx 1) nil
-				(lambda (bucket)
-					(setq idx (some
-						(lambda (record)
+			(setq idx (some! (+ miny minx) (+ miny maxx 1) nil
+					(lambda (bucket)
+						(some (lambda (record)
 							(when (/= (elem +record_id record) id)
 								(elem-set +record_id record id)
-								(defq d (+ (elem +line_radius line)
-											(elem +line_radius (elem +record_line record))
-											(max (elem +line_gap line)
-												(elem +line_gap (elem +record_line record)))))
-								(if (hit-record? record line d) _)))
-						bucket)))
-				(list buckets))
-			(setq miny (+ miny width)))
+								(if (hit-record? record line (+
+										(elem +line_radius line)
+										(elem +line_radius (elem +record_line record))
+										(max (elem +line_gap line)
+											(elem +line_gap (elem +record_line record)))))
+									_))) bucket))
+					(list buckets))
+				miny (+ miny width)))
 		idx)
 	)
 
