@@ -1,7 +1,7 @@
 (import "sys/lisp.inc")
 (import "class/lisp.inc")
 (import "gui/lisp.inc")
-(import "lib/math/vector.inc")
+(import "lib/math/layer.inc")
 
 (enums +event 0
 	(enum close)
@@ -53,15 +53,15 @@
 			(push b (slice s e p))
 			(setq s e))) b)
 
-(defun to-2d (_)
-	(reduce (lambda (p _)
-		(push p (* zoom (elem 0 _)) (* zoom (elem 1 _)))) _ (path)))
+(defun to-path (_)
+	(reduce (lambda (p (x y &optional z))
+		(push p (* zoom x) (* zoom y))) _ (path)))
 
-(defun batch-to-2d (_)
-	(map to-2d _))
+(defun batch-to-path (_)
+	(map to-path _))
 
 (defun pcb-load (_)
-	(bind '(pcb _) (read (string-stream (cat "(" (load _) ")")) (ascii-code " ")))
+	(bind '(pcb _) (read (string-stream (load _)) (ascii-code " ")))
 	(bind '(pcb_width pcb_height pcb_depth) (elem 0 pcb))
 	(defq canvas (Canvas (* (+ pcb_width 4) (n2i zoom)) (* (+ pcb_height 4) (n2i zoom)) canvas_scale)
 		zoom (* zoom (n2f canvas_scale)) pcb_border (* zoom 2.0))
@@ -74,11 +74,10 @@
 (defun pcb-draw-normal ()
 	(defq colors (map trans (list +argb_red +argb_green +argb_blue +argb_yellow +argb_cyan +argb_magenta)))
 	(each! 1 -2 (lambda ((id track_radius via_radius track_gap pads paths))
-		(setq track_radius (* zoom track_radius) via_radius (* zoom via_radius)
-			track_gap (* zoom track_gap))
+		(setq track_radius (* zoom track_radius) via_radius (* zoom via_radius) track_gap (* zoom track_gap))
 		(when (/= track_radius 0.0)
 			;draw layers
-			(defq batched_paths (map batch paths) batched_paths_2d (map batch-to-2d batched_paths)
+			(defq batched_paths (map batch paths) batched_paths_2d (map batch-to-path batched_paths)
 				layers (list (list) (list) (list) (list) (list) (list)))
 			(each (lambda (p path_2d)
 				(each (lambda (seg seg_2d)
@@ -110,7 +109,7 @@
 			(when (or (= show -1) (= show (>> pad_z +fp_shift)))
 				(setq pad_radius (* zoom pad_radius) pad_gap (* zoom pad_gap)
 					pad_x (+ (* zoom pad_x) pcb_border) pad_y (+ (* zoom pad_y) pcb_border)
-					pad_shape (to-2d pad_shape))
+					pad_shape (to-path pad_shape))
 				(. canvas :set_color (const (trans +argb_white)))
 				(cond
 					((= (length pad_shape) 0)
@@ -133,11 +132,10 @@
 
 (defun pcb-draw-layer (with_gaps)
 	(each! 1 -2 (lambda ((id track_radius via_radius track_gap pads paths))
-		(setq track_radius (* zoom track_radius) via_radius (* zoom via_radius)
-			track_gap (* zoom track_gap))
+		(setq track_radius (* zoom track_radius) via_radius (* zoom via_radius) track_gap (* zoom track_gap))
 		(when (/= track_radius 0.0)
 			;draw layers
-			(defq batched_paths (map batch paths) batched_paths_2d (map batch-to-2d batched_paths) layer (list))
+			(defq batched_paths (map batch paths) batched_paths_2d (map batch-to-path batched_paths) layer (list))
 			(each (lambda (p path_2d)
 				(each (lambda (seg seg_2d)
 					(when (= show (defq z (% (>> (elem 2 (elem 0 seg)) +fp_shift) pcb_depth)))
@@ -160,7 +158,7 @@
 			(when (= show (>> pad_z +fp_shift))
 				(setq pad_radius (* zoom pad_radius) pad_gap (* zoom pad_gap)
 					pad_x (+ (* zoom pad_x) pcb_border) pad_y (+ (* zoom pad_y) pcb_border)
-					pad_shape (to-2d pad_shape))
+					pad_shape (to-path pad_shape))
 				(cond
 					((= (length pad_shape) 0)
 						;circular pad
@@ -179,11 +177,17 @@
 
 (defun win-refresh (_)
 	(defq file (elem _ pcbs))
+	(bind '(w h) (. (defq canvas (pcb-load (elem (setq index _) pcbs))) :pref_size))
+	(def pcb_scroll :min_width w :min_height h)
 	(def window_title :text (cat "Pcb -> " (slice (inc (find-rev "/" file)) -1 file)))
+	(. pcb_scroll :add_child (. canvas :swap))
 	(. window_title :layout)
-	(.-> pcb_scroll (:add_child (defq canvas (pcb-load (elem (setq index _) pcbs)))) :layout)
-	(. canvas :swap)
-	(. *window* :dirty_all))
+	(bind '(x y w h) (apply view-fit (cat (. *window* :get_pos) (. *window* :pref_size))))
+	(def pcb_scroll :min_width 32 :min_height 32)
+	(. *window* :change_dirty x y w h))
+
+(defun win-canvas (_)
+	(.-> pcb_scroll (:add_child (. (pcb-load (elem _ pcbs)) :swap)) :layout))
 
 (defun tooltips ()
 	(def *window* :tip_mbox (elem +select_tip select))
@@ -195,7 +199,7 @@
 (defun main ()
 	(defq select (alloc-select +select_size))
 	(tooltips)
-	(bind '(x y w h) (apply view-locate (. (win-refresh index) :pref_size)))
+	(bind '(x y w h) (apply view-locate (. (win-refresh index) :get_size)))
 	(gui-add-front (. *window* :change x y w h))
 	(while *running*
 		(defq *msg* (mail-read (elem (defq idx (mail-select select)) select)))
@@ -213,10 +217,10 @@
 				(win-refresh index))
 			((<= +event_show_all id +event_show_4)
 				(setq show (- id +event_show_all 1))
-				(win-refresh index))
+				(win-canvas index))
 			((<= +event_mode_normal id +event_mode_gerber)
 				(setq mode (- id +event_mode_normal))
-				(win-refresh index))
+				(win-canvas index))
 			(t (. *window* :event *msg*))))
 	(free-select select)
 	(gui-sub *window*))
