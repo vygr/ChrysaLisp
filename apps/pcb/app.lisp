@@ -23,7 +23,7 @@
 
 (defq pcbs (all-pcbs "apps/pcb/data/") index 1 canvas_scale 1 mode 0 show -1
 	+max_zoom 15.0 +min_zoom 5.0 zoom (/ (+ +min_zoom +max_zoom) 2.0) +eps 0.25
-	*running* t)
+	*running* t pcb nil)
 
 (ui-window *window* ()
 	(ui-title-bar window_title "" (0xea19) +event_close)
@@ -33,13 +33,10 @@
 			(:color (const *env_toolbar2_col*) :font (const (create-font "fonts/OpenSans-Regular.ctf" 20)))))
 	(ui-scroll pcb_scroll +scroll_flag_both (:min_width 512 :min_height 256)))
 
-(defun pcb-load (_)
-	(bind '(pcb _) (read (string-stream (load _)) (ascii-code " ")))
-	(pcb-canvas pcb mode show zoom canvas_scale))
-
-(defun win-refresh (_)
-	(defq file (elem _ pcbs))
-	(bind '(w h) (. (defq canvas (pcb-load (elem (setq index _) pcbs))) :pref_size))
+(defun win-load (_)
+	(defq file (elem (setq index _) pcbs))
+	(setq pcb (elem 0 (read (file-stream file) (ascii-code " "))))
+	(bind '(w h) (. (defq canvas (pcb-canvas pcb mode show zoom canvas_scale)) :pref_size))
 	(def pcb_scroll :min_width w :min_height h)
 	(def window_title :text (cat "Pcb -> " (slice (inc (find-rev "/" file)) -1 file)))
 	(. pcb_scroll :add_child (. canvas :swap))
@@ -48,8 +45,16 @@
 	(def pcb_scroll :min_width 32 :min_height 32)
 	(. *window* :change_dirty x y w h))
 
-(defun win-canvas (_)
-	(.-> pcb_scroll (:add_child (. (pcb-load (elem _ pcbs)) :swap)) :layout))
+(defun win-zoom ()
+	(bind '(w h) (. (defq canvas (pcb-canvas pcb mode show zoom canvas_scale)) :pref_size))
+	(def pcb_scroll :min_width w :min_height h)
+	(. pcb_scroll :add_child (. canvas :swap))
+	(bind '(x y w h) (apply view-fit (cat (. *window* :get_pos) (. *window* :pref_size))))
+	(def pcb_scroll :min_width 32 :min_height 32)
+	(. *window* :change_dirty x y w h))
+
+(defun win-show ()
+	(.-> pcb_scroll (:add_child (. (pcb-canvas pcb mode show zoom canvas_scale) :swap)) :layout))
 
 (defun tooltips ()
 	(def *window* :tip_mbox (elem +select_tip select))
@@ -61,7 +66,7 @@
 (defun main ()
 	(defq select (alloc-select +select_size))
 	(tooltips)
-	(bind '(x y w h) (apply view-locate (. (win-refresh index) :get_size)))
+	(bind '(x y w h) (apply view-locate (. (win-load index) :get_size)))
 	(gui-add-front (. *window* :change x y w h))
 	(while *running*
 		(defq *msg* (mail-read (elem (defq idx (mail-select select)) select)))
@@ -73,16 +78,16 @@
 			((= (defq id (getf *msg* +ev_msg_target_id)) +event_close)
 				(setq *running* nil))
 			((<= +event_prev id +event_next)
-				(win-refresh (% (+ index (dec (* 2 (- id +event_prev))) (length pcbs)) (length pcbs))))
+				(win-load (% (+ index (dec (* 2 (- id +event_prev))) (length pcbs)) (length pcbs))))
 			((<= +event_scale_down id +event_scale_up)
 				(setq zoom (max (min (+ zoom (n2f (dec (* 2 (- id +event_scale_down))))) +max_zoom) +min_zoom))
-				(win-refresh index))
+				(win-zoom))
 			((<= +event_show_all id +event_show_4)
 				(setq show (- id +event_show_all 1))
-				(win-canvas index))
+				(win-show))
 			((<= +event_mode_normal id +event_mode_gerber)
 				(setq mode (- id +event_mode_normal))
-				(win-canvas index))
+				(win-show))
 			(t (. *window* :event *msg*))))
 	(free-select select)
 	(gui-sub *window*))

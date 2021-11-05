@@ -92,7 +92,7 @@
 						(. canvas :fpoly pad_x pad_y +winding_odd_even (list pad_shape)))))) pads)
 		) (list pcb)))
 
-(defun pcb-draw-layer (with_gaps)
+(defun pcb-draw-gerber-layer (with_gaps)
 	(each! 1 -2 (lambda ((id track_radius via_radius track_gap pads paths))
 		(setq track_radius (* zoom track_radius) via_radius (* zoom via_radius) track_gap (* zoom track_gap))
 		(when (/= track_radius 0.0)
@@ -142,10 +142,10 @@
 (defun pcb-draw-gerber ()
 	;first draw in white with gaps
 	(. canvas :set_color +argb_white)
-	(pcb-draw-layer t)
+	(pcb-draw-gerber-layer t)
 	;second draw in black without gaps
 	(. canvas :set_color +argb_black)
-	(pcb-draw-layer nil))
+	(pcb-draw-gerber-layer nil))
 
 (defun pcb-canvas (pcb mode show zoom canvas_scale)
 	(bind '(pcb_width pcb_height pcb_depth) (elem 0 pcb))
