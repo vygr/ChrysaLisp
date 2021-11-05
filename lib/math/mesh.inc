@@ -54,17 +54,9 @@
 	; (Mesh) -> mesh
 	(def this :verts (list) :norms (list) :tris (list))
 
-	(defmethod :get_verts (this)
-		; (. mesh :get_verts) -> verts
-		(get :verts this))
-
-	(defmethod :get_norms (this)
-		; (. mesh :get_norms) -> norms
-		(get :norms this))
-
-	(defmethod :get_tris (this)
-		; (. mesh :get_tris) -> tris
-		(get :tris this))
+	(defgetmethod verts)
+	(defgetmethod norms)
+	(defgetmethod tris)
 
 	(defmethod :normals (this)
 		; (. mesh :normals) -> this

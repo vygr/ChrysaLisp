@@ -27,6 +27,16 @@
 	; (deffimethod name ffi)
 	`(def (def? :vtable this) ,n (ffi _ ,_ 0)))
 
+(defmacro defgetmethod (field)
+	; (defgetmethod field)
+	`(defmethod ,(sym (cat ":get_" field)) (this)
+		(def? ,(sym (cat ":" field)) this)))
+
+(defmacro defsetmethod (field)
+	; (defsetmethod field)
+	`(defmethod ,(sym (cat ":set_" field)) (this val)
+		(def this ,(sym (cat ":" field)) val) this))
+
 (defmacro defclass (n a s &rest _)
 	; (defclass name ([arg ...]) (super ...) body)
 	(defq vtmax 50 module (str *stream_name*)
