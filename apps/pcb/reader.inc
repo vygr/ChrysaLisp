@@ -1,0 +1,23 @@
+;;;;;;;;
+; reader
+;;;;;;;;
+
+(defun pcb-read (data)
+	; (pcb-read data) -> pcb
+	(defq pcb (elem 0 (read (string-stream data) (ascii-code " "))))
+	(each! 1 -2 (lambda ((id track_radius via_radius track_gap pads paths))
+		;convert paths to vec3-f
+		(each (lambda (pth)
+			(each (lambda (p)
+				(elem-set _ pth (apply fixeds p))) pth)) paths)
+		;convert pads to vec3-f and vec2-f
+		(each (lambda (p)
+			(bind '(pad_radius pad_gap pad_pos pad_shape) p)
+			(elem-set 2 p (apply fixeds pad_pos))
+			(each (lambda (p)
+				(elem-set _ pad_shape (apply fixeds p))) pad_shape)) pads)) (list pcb))
+	pcb)
+
+(defun pcb-load (file)
+	; (pcb-load file) -> pcb
+	(pcb-read (load file)))

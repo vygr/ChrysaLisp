@@ -2,10 +2,12 @@
 (import "class/lisp.inc")
 (import "gui/lisp.inc")
 
-;(import "lib/debug/frames.inc")
+(import "lib/debug/frames.inc")
 
+(import "./reader.inc")
 (import "./viewer.inc")
 (import "./layer.inc")
+(import "./router.inc")
 
 (enums +event 0
 	(enum close)
@@ -34,8 +36,7 @@
 	(ui-scroll pcb_scroll +scroll_flag_both (:min_width 512 :min_height 256)))
 
 (defun win-load (_)
-	(defq file (elem (setq index _) pcbs))
-	(setq pcb (elem 0 (read (file-stream file) (ascii-code " "))))
+	(setq pcb (pcb-load (defq file (elem (setq index _) pcbs))))
 	(bind '(w h) (. (defq canvas (pcb-canvas pcb mode show zoom canvas_scale)) :pref_size))
 	(def pcb_scroll :min_width w :min_height h)
 	(def window_title :text (cat "Pcb -> " (slice (inc (find-rev "/" file)) -1 file)))
@@ -68,6 +69,7 @@
 	(tooltips)
 	(bind '(x y w h) (apply view-locate (. (win-load index) :get_size)))
 	(gui-add-front (. *window* :change x y w h))
+(router-test pcb)
 	(while *running*
 		(defq *msg* (mail-read (elem (defq idx (mail-select select)) select)))
 		(cond
