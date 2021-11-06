@@ -15,6 +15,9 @@
 (enums +vec4 0
 	(enum x y z w))
 
+(defmacro Vec2-f (x y)
+	`(fixeds ,x ,y))
+
 (defmacro Vec3-f (x y z)
 	`(fixeds ,x ,y ,z))
 
@@ -28,7 +31,8 @@
 	`(reals ,x ,y ,z ,w))
 
 ;useful vector constants
-(defq +fixeds_zero3 (fixeds 0.0 0.0 0.0)
+(defq +fixeds_zero2 (fixeds 0.0 0.0)
+	+fixeds_zero3 (fixeds 0.0 0.0 0.0)
 	+fixeds_zero4 (fixeds 0.0 0.0 0.0 0.0)
 	+reals_zero3 (reals (n2r 0) (n2r 0) (n2r 0))
 	+reals_zero4 (reals (n2r 0) (n2r 0) (n2r 0) (n2r 0))
