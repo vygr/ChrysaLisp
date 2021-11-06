@@ -26,7 +26,10 @@
 	(defq p1 (slice +layer_line_x1 +layer_line_x2 layer_line)
 		p2 (slice +layer_line_x2 +layer_line_radius layer_line)
 		pv (apply fixeds (vec-perp-2d (vec-sub p2 p1)))
-		norm (vec-norm pv) dist (vec-dot norm p1))
+		l (vec-length pv))
+	(if (= l 0.0)
+		(defq norm +fixeds_zero2 dist 0.0)
+		(defq norm (vec-scale pv l) dist (vec-dot norm p1)))
 	(list id layer_line p1 p2 norm dist))
 
 (defun hit-line? (record layer_line d)
