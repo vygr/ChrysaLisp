@@ -89,6 +89,10 @@
 				(push (elem ni new_buckets) key)
 				(push (elem (inc ni) new_buckets) val)))
 		this)
+
+	(defmethod :empty? (this)
+		; (. xmap :empty?) -> t | nil
+		(every (# (= (length %0) 0)) (get :buckets this)))
 	)
 
 ;module

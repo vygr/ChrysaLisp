@@ -112,6 +112,10 @@
 			(while (defq key (pop old_bucket))
 				(push (elem (% (hash_fnc key) num_buckets) new_buckets) key))) buckets)
 		this)
+
+	(defmethod :empty? (this)
+		; (. xset :empty?) -> t | nil
+		(every (# (= (length %0) 0)) (get :buckets this)))
 	)
 
 ;module

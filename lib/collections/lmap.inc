@@ -62,6 +62,10 @@
 	(defmethod :resize (this num_buckets)
 		; (. lmap :resize num_buckets) -> lmap
 		this)
+
+	(defmethod :empty? (this)
+		; (. lmap :empty?) -> t | nil
+		(= (length (get :keys this) 0)))
 	)
 
 ;module
