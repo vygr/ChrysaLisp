@@ -29,16 +29,16 @@
 	(defgetmethod shape)
 	(defsetmethod shape))
 
-(defclass Track (id track_radius via_radius gap pads paths) nil
-	; (Track id track_radius via_radius gap pads paths) -> track
+(defclass Track (id track_radius via_radius gap pads wires) nil
+	; (Track id track_radius via_radius gap pads wires) -> track
 	(def this :id id :track_radius track_radius :via_radius via_radius :gap gap
-		:pads pads :paths paths)
+		:pads pads :wires wires)
 	(defgetmethod id)
 	(defgetmethod track_radius)
 	(defgetmethod via_radius)
 	(defgetmethod gap)
 	(defgetmethod pads)
-	(defgetmethod paths))
+	(defgetmethod wires))
 
 (defclass Net (track pcb) nil
 	; (Net track pcb) -> net
@@ -49,7 +49,7 @@
 		:via (defq via (* (. track :get_via_radius) res))
 		:gap (* (. track :get_gap) res)
 		:pads (defq pads (. track :get_pads))
-		:wires (defq wires (. track :get_paths))
+		:wires (defq wires (. track :get_wires))
 		:paths (defq paths (list))
 		:paths_collision_lines (defq paths_collision_lines (list))
 		:pad_collision_lines (defq pad_collision_lines (list))
@@ -355,18 +355,18 @@
 				(write-line stream "  )"))
 			pads)
 		(write-line stream " )")
-		;; (write-line stream " ;WIRES")
-		;; (write-line stream " (")
-		;; (each (lambda (wire)
-		;; 		(write-line stream "  ;WIRE")
-		;; 		(write stream "  (")
-		;; 		(each (lambda (p)
-		;; 				(bind '(x y z) p)
-		;; 				(write stream (str "(" (* x scale) " " (* y scale) " " z ")")))
-		;; 			wire)
-		;; 		(write-line stream ")"))
-		;; 	wires)
-		;; (write-line stream " )")
+		(write-line stream " ;WIRES")
+		(write-line stream " (")
+		(each (lambda (wire)
+				(write-line stream "  ;WIRE")
+				(write stream "  (")
+				(each (lambda (p)
+						(bind '(x y z) p)
+						(write stream (str "(" (* x scale) " " (* y scale) " " z ")")))
+					wire)
+				(write-line stream ")"))
+			wires)
+		(write-line stream " )")
 		(write-line stream " ;PATHS")
 		(write-line stream " (")
 		(each (lambda (pth)
@@ -400,6 +400,19 @@
 	(defgetmethod quantization)
 	(defgetmethod layers)
 	(defgetmethod via_layers)
+
+	(defmethod :set_node (this (x y z) val)
+		; (. pcb :set_node node val) -> this
+		;set grid node to value
+		(raise :nodes :width :stride)
+		(elem-set (+ x (* y width) (* z stride)) nodes val)
+		this)
+
+	(defmethod :get_node (this (x y z))
+		; (. pcb :get_node node) -> val
+		;get grid node value
+		(raise :nodes :width :stride)
+		(elem (+ x (* y width) (* z stride)) nodes))
 
 	(defmethod :node_to_point (this (x y z))
 		; (. pcb :node_to_point node) -> point
@@ -491,35 +504,6 @@
 		;increase area quantization
 		(set this :quantization (inc (get :quantization this)))
 		this)
-
-	(defmethod :print_pcb (this stream)
-		; (. pcb :print_pcb stream) -> this
-		;output dimensions of board for viewer app
-		(raise :width :height :depth)
-		(defq scale (recip (get :resolution this)))
-		(write-line stream (str "(" (* scale width) " " (* scale height) " " depth ")"))
-		this)
-
-	(defmethod :print_netlist (this stream)
-		; (. pcb :print_netlist stream) -> this
-		;output netlist and paths of board for viewer app
-		(each (lambda (net)
-			(. net :print_net)) (get :netlist))
-		(write-line stream "()")
-		this)
-
-	(defmethod :set_node (this (x y z) val)
-		; (. pcb :set_node node val) -> this
-		;set grid node to value
-		(raise :nodes :width :stride)
-		(elem-set (+ x (* y width) (* z stride)) nodes val)
-		this)
-
-	(defmethod :get_node (this (x y z))
-		; (. pcb :get_node node) -> val
-		;get grid node value
-		(raise :nodes :width :stride)
-		(elem (+ x (* y width) (* z stride)) nodes))
 
 	(defmethod :all_marked (this vec node)
 		; (. pcb :all_marked vec node) -> sort_nodes
@@ -659,6 +643,18 @@
 		;remove netlist from board
 		(each (# (. %0 :remove)) (get :netlist this))
 		this)
+
+	(defmethod :print_pcb (this stream)
+		; (. pcb :print_pcb stream) -> this
+		;output board state for viewer app
+		(raise :width :height :depth :resolution)
+		(write-line stream ";PCB")
+		(write-line stream "(")
+		(write-line stream " ;width, height, depth")
+		(write-line stream (str " (" (/ width resolution) " " (/ height resolution) " " depth ")"))
+		(each (# (. %0 :print_net stream)) (get :netlist this))
+		(write-line stream ")")
+		this)
 	)
 
 ;module
@@ -693,11 +689,9 @@
 			(gen-vectors path_range path_range_even_layer path_range)
 			(gen-vectors path_range path_range path_range_odd_layer))
 		pcb (Pcb width height depth rfvs rpvs res verb quant viascost))
-	(each! 1 -2 (lambda ((id track_radius via_radius track_gap pads paths))
+	(each! 1 -1 (lambda ((id track_radius via_radius track_gap pads wires &optional paths))
 		(setq pads (map (lambda ((radius gap pos shape))
 				(Pad radius gap pos shape)) pads))
-		(defq track (Track id track_radius via_radius track_gap pads paths)
-			net (Net track pcb))
-		(print "*******************")(print)
-		(. net :print_net (io-stream "stdout"))(print)
-		) (list pcb_list)))
+		(defq track (Track id track_radius via_radius track_gap pads wires))
+		(. pcb :add_track track)) (list pcb_list))
+	(. pcb :print_pcb (file-stream "apps/pcb/data/test4.pcb" +file_open_write)))

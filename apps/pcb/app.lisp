@@ -23,7 +23,9 @@
 		(unzip (split (pii-dirlist p) ",") (list (list) (list))))
 	(sort cmp out))
 
-(defq pcbs (all-pcbs "apps/pcb/data/") index 1 canvas_scale 1 mode 0 show -1
+(defq pcbs (all-pcbs "apps/pcb/data/")
+	index (some (# (if (eql "apps/pcb/data/test4.pcb" %0) _)) pcbs)
+	canvas_scale 1 mode 0 show -1
 	+max_zoom 15.0 +min_zoom 5.0 zoom (/ (+ +min_zoom +max_zoom) 2.0) +eps 0.25
 	*running* t pcb nil)
 

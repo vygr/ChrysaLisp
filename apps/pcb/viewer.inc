@@ -42,11 +42,12 @@
 	(map (const to-path) _))
 
 (defun pcb-draw-normal ()
-	(each! 1 -2 (lambda ((id track_radius via_radius track_gap pads paths))
+	(each! 1 -1 (lambda ((id track_radius via_radius track_gap pads wires &optional paths))
+		(if paths (setq wires (cat wires paths)))
 		(setq track_radius (* zoom track_radius) via_radius (* zoom via_radius) track_gap (* zoom track_gap))
 		(when (/= track_radius 0.0)
 			;draw layers
-			(defq batched_paths (map (const batch) paths)
+			(defq batched_paths (map (const batch) wires)
 				batched_paths_2d (map (const batch-to-path) batched_paths)
 				layers (list (list) (list) (list) (list) (list) (list)))
 			(each (lambda (p path_2d)
@@ -93,11 +94,12 @@
 		) (list pcb)))
 
 (defun pcb-draw-gerber-layer (with_gaps)
-	(each! 1 -2 (lambda ((id track_radius via_radius track_gap pads paths))
+	(each! 1 -1 (lambda ((id track_radius via_radius track_gap pads wires &optional paths))
+		(if paths (setq wires (cat wires paths)))
 		(setq track_radius (* zoom track_radius) via_radius (* zoom via_radius) track_gap (* zoom track_gap))
 		(when (/= track_radius 0.0)
 			;draw layers
-			(defq batched_paths (map (const batch) paths)
+			(defq batched_paths (map (const batch) wires)
 				batched_paths_2d (map (const batch-to-path) batched_paths)
 				layer (list))
 			(each (lambda (p path_2d)
