@@ -20,6 +20,13 @@
 			maxy (max maxy (n2f (* (/ (+ (n2i y) (dec quant)) quant) quant))))) pads)
 	(list (* (- maxx minx) (- maxy miny)) (list minx miny maxx maxy)))
 
+(defun sort-netlist (netlist)
+	(sort (lambda (n1 n2)
+		(defq a1 (. n1 :get_area) a2 (. n2 :get_area))
+		(if (= a1 a2)
+			(- (. n1 :get_radius) (. n2 :get_radius))
+			(- a1 a2))) netlist))
+
 (defclass Pad (radius gap pos shape) nil
 	; (Pad radius gap pos shape) -> pad
 	(def this :radius radius :gap gap :pos pos :shape shape)
@@ -587,12 +594,8 @@
 		; (. pcb :route timeout) -> t | nil
 		(raise :netlist)
 		(.-> this :remove_netlist :unmark_distances :reset_areas :shuffle_netlist)
-		(sort (lambda (n1 n2)
-			(defq a1 (. n1 :get_area) a2 (. n2 :get_area))
-			(if (= a1 a2)
-				(- (. n1 :get_radius) (. n2 :get_radius))
-				(- a1 a2))) netlist)
-		(defq hoisted_nets (fset 11)
+		(sort-netlist netlist)
+		(defq hoisted_nets (fset)
 			index 0 exit t retval t
 			start_time (pii-time))
 		(while (and exit (< index (length netlist)))
@@ -603,11 +606,7 @@
 				(t	(cond
 						((= index 0)
 							(.-> this :reset_areas :shuffle_netlist)
-							(sort (lambda (n1 n2)
-								(defq a1 (. n1 :get_area) a2 (. n2 :get_area))
-								(if (= a1 a2)
-									(- (. n1 :get_radius) (. n2 :get_radius))
-									(- a1 a2))) netlist)
+							(sort-netlist netlist)
 							(. hoisted_nets :empty))
 						(t	(defq pos (. this :hoist_net index))
 							(cond
@@ -618,8 +617,7 @@
 									(. hoisted_nets :erase (elem pos netlist)))
 								(t	(. hoisted_nets :insert (elem pos netlist))))
 							(while (> index pos)
-								(setq netlist (erase netlist index (inc index)))
-								(. (elem index netlist) :shuffle_topology)
+								(.-> (elem index netlist) :remove :shuffle_topology)
 								(setq index (dec index)))))))
 			(defq end_time (pii-time) elapsed (- end_time start_time))
 			(cond
@@ -697,7 +695,7 @@
 
 (defun router-test (pcb_list pcb_scroll mode show zoom canvas_scale)
 	(bind '(width height depth) (elem 0 pcb_list))
-	(bind '(res verb quant viascost) '(1 1 1 2))
+	(bind '(res verb quant viascost) '(1 1 64 0))
 	(bind '(flood_range flood_range_even_layer flood_range_odd_layer) '(2 1 1))
 	(bind '(path_range path_range_even_layer path_range_odd_layer) '(2 1 1))
 	(defq rfvs (list
@@ -713,6 +711,6 @@
 				(Pad radius gap pos shape)) pads))
 		(defq track (Track id track_radius via_radius track_gap pads wires))
 		(. pcb :add_track track)) (list pcb_list))
-	(. pcb :route 10000000 pcb_scroll mode show zoom canvas_scale)
+	(. pcb :route 1000000000 pcb_scroll mode show zoom canvas_scale)
 	;(. pcb :print_pcb (file-stream "apps/pcb/data/test4.pcb" +file_open_write))
 	(. pcb :close))
