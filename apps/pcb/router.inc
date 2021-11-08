@@ -11,7 +11,7 @@
 
 (defq +via_vectors (const-quoted
 	'(list (list (Node 0 0 -1) (Node 0 0 1)) (list (Node 0 0 -1) (Node 0 0 1))))
-	+spacial_hash_res 1.0)
+	+spacial_hash_res 0.5)
 
 (defun aabb_pads (pads quant)
 	;aabb of pads
