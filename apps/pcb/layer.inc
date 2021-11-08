@@ -29,7 +29,7 @@
 		l (vec-length pv))
 	(if (= l 0.0)
 		(defq norm +fixeds_zero2 dist 0.0)
-		(defq norm (vec-scale pv l) dist (vec-dot norm p1)))
+		(defq norm (vec-scale pv (recip l)) dist (vec-dot norm p1)))
 	(list id layer_line p1 p2 norm dist))
 
 (defun hit-line? (record layer_line d)

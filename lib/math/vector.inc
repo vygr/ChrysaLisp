@@ -194,8 +194,8 @@
 		((vec-collide-lines-2d l1_p1 l1_p2 l2_p1 l2_p2))
 		((<= (vec-distance-squared-to-line l2_p1 l1_p1 l1_p2) (setq r (* r r))))
 		((<= (vec-distance-squared-to-line l2_p2 l1_p1 l1_p2) r))
-		((<= (vec-distance-squared-to-line l2_p1 l1_p1 l1_p2) r))
-		((<= (vec-distance-squared-to-line l2_p2 l1_p1 l1_p2) r))))
+		((<= (vec-distance-squared-to-line l1_p1 l2_p1 l2_p2) r))
+		((<= (vec-distance-squared-to-line l1_p2 l2_p1 l2_p2) r))))
 
 (defun bounding-box (verts fnc)
 	; (bounding-box verts vec3-extract-fnc) -> (min_v3 max_v3)

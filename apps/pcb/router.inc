@@ -280,6 +280,7 @@
 		(defq path_vectors (. pcb :get_path_vectors)
 			nearer_nodes (list) pth (list) path_node end_node exit nil)
 		(until exit
+			(task-slice)
 			(push pth path_node)
 			(clear nearer_nodes)
 			(each (# (push nearer_nodes %0))
@@ -515,21 +516,20 @@
 	(defmethod :mark_distances (this radius via gap starts ends mid mid_scale)
 		; (. pcb :mark_distances radius via gap starts ends mid mid_scale) -> pcb
 		;generate all grid points surrounding node that are not shorting with an existing track
+(defq then (pii-time))
 		(raise :flood_vectors :viascost)
-		(defq distance 1 exit t frontier starts vias_nodes (fmap 11))
-		(while (and exit (or (not (. frontier :empty?)) (not (. vias_nodes :empty?))))
+		(defq distance 1 frontier starts vias_nodes (lmap) exit t)
+		(while (and exit (or (not (. vias_nodes :empty?)) (not (. frontier :empty?))))
 			(task-slice)
 			(. frontier :each (# (. this :set_node %0 distance)))
 			(cond
 				((every (# (/= (. this :get_node %0) 0)) ends)
 					(setq exit nil))
-				(t	(defq new_nodes (fset 11))
+				(t	(defq new_nodes (fset 11) vias_start (+ distance viascost))
 					(. frontier :each (lambda (node)
 						(each (# (. new_nodes :insert %0))
 							(. this :all_not_shorting
-								(. this :all_not_marked flood_vectors node) node radius gap))))
-					(defq vias_start (+ distance viascost))
-					(. frontier :each (lambda (node)
+								(. this :all_not_marked flood_vectors node) node radius gap))
 						(each (lambda (new_node)
 								(unless (defq node_set (. vias_nodes :find vias_start))
 									(. vias_nodes :insert vias_start (defq node_set (fset 11))))
@@ -540,6 +540,8 @@
 						(. delay_nodes :each (# (if (= (. this :get_node %0) 0) (. new_nodes :insert %0))))
 						(. vias_nodes :erase distance))
 					(setq frontier new_nodes distance (inc distance)))))
+(prin (time-in-seconds (- (pii-time) then)))
+(print)
 		this)
 
 	(defmethod :unmark_distances (this)
@@ -690,7 +692,7 @@
 
 (defun router-test (pcb_list pcb_scroll mode show zoom canvas_scale)
 	(bind '(width height depth) (elem 0 pcb_list))
-	(bind '(res verb quant viascost) '(1 1 64 0))
+	(bind '(res verb quant viascost) '(1 1 16 2))
 	(bind '(flood_range flood_range_even_layer flood_range_odd_layer) '(2 1 1))
 	(bind '(path_range path_range_even_layer path_range_odd_layer) '(2 1 1))
 	(defq rfvs (list
@@ -706,7 +708,7 @@
 				(Pad radius gap pos shape)) pads))
 		(defq track (Track id track_radius via_radius track_gap pads wires))
 		(. pcb :add_track track)) (list pcb_list))
-	(print (. pcb :route 10000000 pcb_scroll mode show zoom canvas_scale))
+	(print (. pcb :route 1000000000 pcb_scroll mode show zoom canvas_scale))
 	(print)
 	;(. pcb :print_pcb (file-stream "apps/pcb/data/test4.pcb" +file_open_write))
 	(. pcb :close))

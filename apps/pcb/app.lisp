@@ -2,7 +2,7 @@
 (import "class/lisp.inc")
 (import "gui/lisp.inc")
 
-(import "lib/debug/frames.inc")
+;(import "lib/debug/frames.inc")
 
 (import "./reader.inc")
 (import "./viewer.inc")

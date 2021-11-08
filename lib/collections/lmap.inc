@@ -65,7 +65,7 @@
 
 	(defmethod :empty? (this)
 		; (. lmap :empty?) -> t | nil
-		(= (length (get :keys this) 0)))
+		(= (length (get :keys this)) 0))
 	)
 
 ;module
