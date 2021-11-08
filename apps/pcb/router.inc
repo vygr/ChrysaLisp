@@ -9,6 +9,9 @@
 (defmacro mid-node (n1 n2)
 	`(vec-div (vec-add ,n1 ,n2) (const (Node 2 2 2))))
 
+(defq +via_vectors (const-quoted
+	'(list (list (Node 0 0 -1) (Node 0 0 1)) (list (Node 0 0 -1) (Node 0 0 1)))))
+
 (defun aabb_pads (pads quant)
 	;aabb of pads
 	(defq minx 1000000.0 miny 1000000.0 maxx -1000000.0 maxy -1000000.0)
@@ -24,7 +27,7 @@
 	(sort (lambda (n1 n2)
 		(defq a1 (. n1 :get_area) a2 (. n2 :get_area))
 		(if (= a1 a2)
-			(- (. n1 :get_radius) (. n2 :get_radius))
+			(- (. n2 :get_radius) (. n1 :get_radius))
 			(- a1 a2))) netlist))
 
 (defclass Pad (radius gap pos shape) nil
@@ -183,29 +186,29 @@
 	(defmethod :add_pad_collision_lines (this)
 		; (. net :add_pad_collision_lines) -> net
 		;add pad entries to spacial cache
-		(raise :pcb :pad_collision_lines)
-		(each (# (.-> pcb :get_layers (:add_layers_line %0))) pad_collision_lines)
+		(raise :pcb)
+		(each (# (.-> pcb :get_layers (:add_layers_line %0))) (get :pad_collision_lines this))
 		this)
 
 	(defmethod :sub_pad_collision_lines (this)
 		; (. net :sub_pad_collision_lines) -> net
 		;remove pad entries from spacial cache
-		(raise :pcb :pad_collision_lines)
-		(each (# (.-> pcb :get_layers (:sub_layers_line %0))) pad_collision_lines)
+		(raise :pcb)
+		(each (# (.-> pcb :get_layers (:sub_layers_line %0))) (get :pad_collision_lines this))
 		this)
 
 	(defmethod :add_wire_collision_lines (this)
 		; (. net :add_wire_collision_lines) -> net
 		;add wire entries to spacial cache
-		(raise :pcb :wire_collision_lines)
-		(each (# (.-> pcb :get_layers (:add_layers_line %0))) wire_collision_lines)
+		(raise :pcb)
+		(each (# (.-> pcb :get_layers (:add_layers_line %0))) (get :wire_collision_lines this))
 		this)
 
 	(defmethod :sub_wire_collision_lines (this)
 		; (. net :sub_wire_collision_lines) -> net
 		;remove wire entries from spacial cache
-		(raise :pcb :wire_collision_lines)
-		(each (# (.-> pcb :get_layers (:sub_layers_line %0))) wire_collision_lines)
+		(raise :pcb)
+		(each (# (.-> pcb :get_layers (:sub_layers_line %0))) (get :wire_collision_lines this))
 		this)
 
 	(defmethod :create_paths_collision_lines (this)
@@ -274,8 +277,7 @@
 		; (. net :backtrack_path this visited end_node radius via gap) -> nodes
 		;backtrack path from ends to starts
 		(raise :pcb)
-		(defq via_vectors (list (list (Node 0 0 -1) (Node 0 0 1)) (list (Node 0 0 -1) (Node 0 0 1)))
-			path_vectors (. pcb :get_path_vectors)
+		(defq path_vectors (. pcb :get_path_vectors)
 			nearer_nodes (list) pth (list) path_node end_node exit nil)
 		(until exit
 			(push pth path_node)
@@ -286,7 +288,7 @@
 					path_node radius gap))
 			(each (# (push nearer_nodes %0))
 				(. pcb :all_not_shorting_via
-					(. pcb :all_nearer_sorted via_vectors path_node)
+					(. pcb :all_nearer_sorted +via_vectors path_node)
 					path_node via gap))
 			(cond
 				((= (length nearer_nodes) 0)
@@ -400,13 +402,13 @@
 (defclass Pcb (width height depth rfvs rpvs res verb quant viascost) nil
 	; (Pcb width height depth rfvs rpvs res verb quant viascost) -> pcb
 	(def this :width (* width res) :height (* height res) :depth depth
-		:stride (defq stride (* width height res res)) :resolution res
+		:stride (defq stride (* width height res res))
+		:deform (fmap 101) :resolution res
 		:flood_vectors rfvs :path_vectors rpvs :netlist (list)
 		:quantization (* quant res) :viascost (* viascost res)
 		:verbosity verb :nodes (defq nodes (cap (* stride depth) (list)))
 		:layers (Layers width height depth 1.0)
-		:via_layers (Layers width height depth 1.0)
-		:deform (fmap 101))
+		:via_layers (Layers width height depth 1.0))
 	(times (* stride depth) (push nodes 0))
 
 	(defgetmethod depth)
@@ -420,15 +422,13 @@
 	(defmethod :set_node (this (x y z) val)
 		; (. pcb :set_node node val) -> pcb
 		;set grid node to value
-		(raise :nodes :width :stride)
-		(elem-set (+ x (* y width) (* z stride)) nodes val)
+		(elem-set (+ x (* y (get :width this)) (* z (get :stride this))) (get :nodes this) val)
 		this)
 
 	(defmethod :get_node (this (x y z))
 		; (. pcb :get_node node) -> val
 		;get grid node value
-		(raise :nodes :width :stride)
-		(elem (+ x (* y width) (* z stride)) nodes))
+		(elem (+ x (* y (get :width this)) (* z (get :stride this))) (get :nodes this)))
 
 	(defmethod :node_to_point (this (x y z))
 		; (. pcb :node_to_point node) -> point
@@ -456,10 +456,9 @@
 		; (. pcb :all_marked vec node) -> sort_nodes
 		;generate all grid points surrounding node, that are not value 0
 		(raise :width :height :depth)
-		(defq out (list))
+		(defq out (clear '()))
 		(each (lambda (v)
-			(defq n (vec-add node v))
-			(bind '(nx ny nz) n)
+			(bind '(nx ny nz) (defq n (vec-add node v)))
 			(when (and (< -1 nx width) (< -1 ny height) (< -1 nz depth))
 				(defq mark (. this :get_node n))
 				(if (/= mark 0)
@@ -470,10 +469,9 @@
 		; (. pcb :all_not_marked vec node) -> nodes
 		;generate all grid points surrounding node, that are value 0
 		(raise :width :height :depth)
-		(defq out (list))
+		(defq out (clear '()))
 		(each (lambda (v)
-			(defq n (vec-add node v))
-			(bind '(nx ny nz) n)
+			(bind '(nx ny nz) (defq n (vec-add node v)))
 			(when (and (< -1 nx width) (< -1 ny height) (< -1 nz depth))
 				(if (= (. this :get_node n) 0)
 					(push out n)))) (elem (% (elem +vec3_z node) 2) vec))
@@ -482,24 +480,22 @@
 	(defmethod :all_nearer_sorted (this vec node)
 		; (. pcb :all_nearer_sorted vec node) -> nodes
 		;generate all grid points surrounding node sorted
-		(defq out (list) distance (. this :get_node node)
-			marked_nodes (filter (lambda (mn)
-				(cond
-					((<= (- distance (elem 0 mn)) 0) nil)
-					(t	(elem-set 0 mn (vec-manhattan-distance node (elem 1 mn)))
-						t))) (. this :all_marked vec node)))
-		(sort (# (- (elem 0 %0) (elem 0 %1))) marked_nodes)
-		(each (# (push out (elem 1 %0))) marked_nodes)
+		(defq distance (. this :get_node node)
+			out (filter (lambda (mn)
+						(if (> (- distance (elem 0 mn)) 0)
+							(elem-set 0 mn (vec-manhattan-distance node (elem 1 mn)))))
+					(. this :all_marked vec node)))
+		(each (# (elem-set _ out (pop %0)))
+			(sort (# (- (elem 0 %0) (elem 0 %1))) out))
 		out)
 
 	(defmethod :all_not_shorting (this gather node radius gap)
 		; (. pcb :all_not_shorting gather node radius gap) -> nodes
 		;generate all grid points surrounding node that are not shorting with an existing track
 		(raise :layers)
-		(defq out (list) np (. this :node_to_pad_point node))
+		(defq out (clear '()) np (. this :node_to_pad_point node))
 		(each (lambda (new_node)
-			(defq nnp (. this :node_to_pad_point new_node))
-			(unless (. layers :hit_line np nnp radius gap)
+			(unless (. layers :hit_line np (. this :node_to_pad_point new_node) radius gap)
 				(push out new_node))) gather)
 		out)
 
@@ -507,7 +503,7 @@
 		; (. pcb :all_not_shorting_via gather node radius gap) -> nodes
 		;generate all grid points surrounding node that are not shorting with an existing track
 		(raise :layers :via_layers)
-		(defq out (list) np (push (slice +vec3_x +vec3_z (. this :node_to_pad_point node))
+		(defq out (clear '()) np (push (slice +vec3_x +vec3_z (. this :node_to_pad_point node))
 			(n2f (dec (get :depth this)))))
 		(each (lambda (new_node)
 			(defq nnp (push (slice +vec3_x +vec3_z (. this :node_to_pad_point new_node)) 0.0))
@@ -520,8 +516,7 @@
 		; (. pcb :mark_distances radius via gap starts ends mid mid_scale) -> pcb
 		;generate all grid points surrounding node that are not shorting with an existing track
 		(raise :flood_vectors :viascost)
-		(defq via_vectors (list (list (Node 0 0 -1) (Node 0 0 1)) (list (Node 0 0 -1) (Node 0 0 1)))
-			distance 1 exit t frontier starts vias_nodes (fmap 11))
+		(defq distance 1 exit t frontier starts vias_nodes (fmap 11))
 		(while (and exit (or (not (. frontier :empty?)) (not (. vias_nodes :empty?))))
 			(task-slice)
 			(. frontier :each (# (. this :set_node %0 distance)))
@@ -540,7 +535,7 @@
 									(. vias_nodes :insert vias_start (defq node_set (fset 11))))
 								(. node_set :insert new_node))
 							(. this :all_not_shorting_via
-								(. this :all_not_marked via_vectors node) node via gap))))
+								(. this :all_not_marked +via_vectors node) node via gap))))
 					(when (defq delay_nodes (. vias_nodes :find distance))
 						(. delay_nodes :each (# (if (= (. this :get_node %0) 0) (. new_nodes :insert %0))))
 						(. vias_nodes :erase distance))
@@ -711,6 +706,7 @@
 				(Pad radius gap pos shape)) pads))
 		(defq track (Track id track_radius via_radius track_gap pads wires))
 		(. pcb :add_track track)) (list pcb_list))
-	(. pcb :route 1000000000 pcb_scroll mode show zoom canvas_scale)
+	(print (. pcb :route 10000000 pcb_scroll mode show zoom canvas_scale))
+	(print)
 	;(. pcb :print_pcb (file-stream "apps/pcb/data/test4.pcb" +file_open_write))
 	(. pcb :close))
