@@ -65,7 +65,7 @@
 		:pads (defq pads (. track :get_pads))
 		:wires (defq wires (. track :get_wires))
 		:paths (defq paths (list))
-		:paths_collision_lines (defq paths_collision_lines (list))
+		:paths_collision_lines (list)
 		:pad_collision_lines (defq pad_collision_lines (list))
 		:pad_end_nodes (defq pad_end_nodes (list))
 		:wire_collision_lines (defq wire_collision_lines (list))
@@ -135,8 +135,8 @@
 			(setq z (+ z 1.0))))
 
 	;build wires collision lines and visited
-	(each (lambda (pth)
-		(defq p0 nil p1 (elem 0 pth))
+	(each (lambda (wire)
+		(defq p0 nil p1 (elem 0 wire))
 		(each! 1 -1 (lambda (p)
 			(setq p0 p1 p1 p)
 			(cond
@@ -152,16 +152,14 @@
 					(bind '(x0 y0 z0) p0)
 					(bind '(x1 y1 z1) p1)
 					(push wire_collision_lines (Layers-line x0 y0 z0 x1 y1 z1 radius gap))
-					(defq p (Vec2-f x0 y0)
-						v (vec-sub p (Vec2-f x1 y1))
-						l (vec-length v)
-						norm (vec-scale v (recip l))
+					(defq p (Vec2-f x0 y0) v (vec-sub p (Vec2-f x1 y1))
+						l (vec-length v) norm (vec-scale v (recip l))
 						i 0.0)
 					(while (< i l)
 						(bind '(x y) (vec-add p (vec-scale norm i)))
 						(. wire_nodes :insert (. pcb :pad_point_to_node (Vec3-f x y z0)))
 						(setq i (+ i 0.25)))
-					(. wire_nodes :insert (. pcb :pad_point_to_node p1))))) (list pth))) wires)
+					(. wire_nodes :insert (. pcb :pad_point_to_node p1))))) (list wire))) wires)
 
 	;add pad entries to via only spacial cache
 	(each (# (.-> pcb :get_via_layers (:add_layers_line %0))) pad_collision_lines)
@@ -173,6 +171,7 @@
 	(defgetmethod radius)
 	(defgetmethod pads)
 	(defgetmethod area)
+	(defgetmethod id)
 	(defsetmethod area)
 	(defsetmethod bbox)
 	(defsetmethod pcb)
@@ -240,7 +239,7 @@
 		; (. net :sub_paths_collision_lines) -> net
 		;remove paths entries from spacial cache
 		(raise :pcb :paths_collision_lines)
-		(each (# (.-> pcb :get_layers (:add_layers_line %0))) paths_collision_lines)
+		(each (# (.-> pcb :get_layers (:sub_layers_line %0))) paths_collision_lines)
 		(clear paths_collision_lines)
 		this)
 
@@ -294,7 +293,6 @@
 			(cond
 				((= (length nearer_nodes) 0)
 					;gone empty
-(print "backtrack fail")(print)
 					(setq exit (list)))
 				((defq n (some (# (. visited :find %0)) nearer_nodes))
 					;found existing track
@@ -316,12 +314,7 @@
 					failed (some! 1 -1 nil (lambda (ends)
 						(each (# (. visited :insert %0)) (elem (dec _) pad_end_nodes))
 						(unless (some (# (. visited :find %0)) ends)
-							(defq ns (elem 0 (elem (dec _) pad_end_nodes))
-								ne (elem 0 ends)
-								mid (mid-node ns ne)
-								;TODO
-								mid_scale 1)
-							(. pcb :mark_distances radius via gap visited ends mid mid_scale)
+							(. pcb :mark_distances radius via gap visited ends)
 							(sort (# (- (. pcb :get_node %0) (. pcb :get_node %1))) ends)
 							(defq nodes (. this :backtrack_path visited (elem 0 ends) radius via gap))
 							(. pcb :unmark_distances)
@@ -336,9 +329,9 @@
 					(t	(setq paths (. this :optimise_paths paths))
 						(lower :paths)
 						(.-> this
+							:add_paths_collision_lines
 							:add_pad_collision_lines
-							:add_wire_collision_lines
-							:add_paths_collision_lines)
+							:add_wire_collision_lines)
 						t)))))
 
 	(defmethod :print_net (this stream)
@@ -517,10 +510,9 @@
 					(push out new_node)))) gather)
 		out)
 
-	(defmethod :mark_distances (this radius via gap starts ends mid mid_scale)
-		; (. pcb :mark_distances radius via gap starts ends mid mid_scale) -> pcb
+	(defmethod :mark_distances (this radius via gap starts ends)
+		; (. pcb :mark_distances radius via gap starts ends) -> pcb
 		;generate all grid points surrounding node that are not shorting with an existing track
-(defq then (pii-time))
 		(raise :flood_vectors :viascost)
 		(defq distance 1 frontier starts vias_nodes (lmap) exit t)
 		(while (and exit (or (not (. vias_nodes :empty?)) (not (. frontier :empty?))))
@@ -544,8 +536,6 @@
 						(. delay_nodes :each (# (if (= (. this :get_node %0) 0) (. new_nodes :insert %0))))
 						(. vias_nodes :erase distance))
 					(setq frontier new_nodes distance (inc distance)))))
-(prin (time-in-seconds (- (pii-time) then)))
-(print)
 		this)
 
 	(defmethod :unmark_distances (this)
@@ -573,17 +563,18 @@
 		this)
 
 	(defmethod :hoist_net (this index)
-		; (. pcb :hoist_net index) -> new_index
+		; (. pcb :hoist_net index) -> (netlist new_index)
 		;move net to top of area group
 		(raise :netlist)
 		(defq area (. (elem index netlist) :get_area)
 			new_index (some! index 0 nil (# (if (< (. %0 :get_area) area) (inc _))) (list netlist)))
 		(unless new_index (setq new_index 0))
 		(when (/= index new_index)
-			(defq net (elem index netlist)
+			(defq net (slice index (inc index) netlist)
 				netlist (erase netlist index (inc index))
-				netlist (insert netlist new_index (list net))))
-		new_index)
+				netlist (insert netlist new_index net)))
+		(lower :netlist)
+		(list netlist new_index))
 
 	(defmethod :remove_netlist (this)
 		; (. pcb :remove_netlist) -> pcb
@@ -596,27 +587,32 @@
 		(raise :netlist)
 		(.-> this :remove_netlist :unmark_distances :reset_areas :shuffle_netlist)
 		(sort-netlist netlist)
-		(defq hoisted_nets (fset)
-			index 0 exit t retval t
-			start_time (pii-time))
+		(defq hoisted_nets (fset) index 0 exit t retval t start_time (pii-time))
 		(while (and exit (< index (length netlist)))
 			(task-slice)
+			(defq net (elem index netlist))
 			(cond
-				((. (elem index netlist) :route)
+				((. net :route)
+(prin "routed net, idx " index
+	", id " (. net :get_id)
+	", area " (. net :get_area))
+(print)
 					(setq index (inc index)))
 				(t	(cond
 						((= index 0)
 							(.-> this :reset_areas :shuffle_netlist)
-							(sort-netlist netlist)
-							(. hoisted_nets :empty))
-						(t	(defq pos (. this :hoist_net index))
+							(sort-netlist netlist))
+						(t	(bind '(netlist pos) (. this :hoist_net index))
+(prin "failed net, idx " index
+	", id " (. net :get_id)
+	", area " (. net :get_area))
+(print)
 							(cond
-								((or (= pos index) (. hoisted_nets :find (elem pos netlist)))
-									(when (/= pos 0)
-										(. (elem pos netlist) :set_area (. (elem (dec pos) netlist) :get_area))
-										(setq pos (. this :hoist_net pos)))
-									(. hoisted_nets :erase (elem pos netlist)))
-								(t	(. hoisted_nets :insert (elem pos netlist))))
+								((or (= pos index) (. hoisted_nets :find net))
+									(. net :set_area (. (elem (dec index) netlist) :get_area))
+									(bind '(netlist pos) (. this :hoist_net index))
+									(. hoisted_nets :insert net))
+								(t	(. hoisted_nets :erase net)))
 							(while (> index pos)
 								(.-> (elem index netlist) :remove :shuffle_topology)
 								(setq index (dec index)))))))
@@ -696,7 +692,7 @@
 
 (defun router-test (pcb_list pcb_scroll mode show zoom canvas_scale)
 	(bind '(width height depth) (elem 0 pcb_list))
-	(bind '(res verb quant viascost) '(2 1 16 0))
+	(bind '(res verb quant viascost) '(1 1 1 0))
 	(bind '(flood_range flood_range_even_layer flood_range_odd_layer) '(2 1 1))
 	(bind '(path_range path_range_even_layer path_range_odd_layer) '(2 1 1))
 	(defq rfvs (list
