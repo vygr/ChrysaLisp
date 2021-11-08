@@ -10,7 +10,8 @@
 	`(vec-div (vec-add ,n1 ,n2) (const (Node 2 2 2))))
 
 (defq +via_vectors (const-quoted
-	'(list (list (Node 0 0 -1) (Node 0 0 1)) (list (Node 0 0 -1) (Node 0 0 1)))))
+	'(list (list (Node 0 0 -1) (Node 0 0 1)) (list (Node 0 0 -1) (Node 0 0 1))))
+	+spacial_hash_res 1.0)
 
 (defun aabb_pads (pads quant)
 	;aabb of pads
@@ -123,8 +124,7 @@
 						;add pad entries to via only spacial cache
 						(.-> pcb :get_via_layers (:add_layers_line (Layers-line cx cy cz p1x p1y p1z radius gap)))
 						;pad lines
-						(setq p0x p1x p0y p1y p0z p1z
-							p1x (+ x xs) p1y (+ y ys) p1z cz)
+						(setq p0x p1x p0y p1y p0z p1z p1x (+ x xs) p1y (+ y ys) p1z cz)
 						(push pad_collision_lines (Layers-line p0x p0y p0z p1x p1y p1z radius gap))) (list shape))
 					(setq z (+ z 1.0)))))
 		;ends and deformations
@@ -408,8 +408,12 @@
 		:flood_vectors rfvs :path_vectors rpvs :netlist (list)
 		:quantization (* quant res) :viascost (* viascost res)
 		:verbosity verb :nodes (defq nodes (cap (* stride depth) (list)))
-		:layers (Layers width height depth 1.0)
-		:via_layers (Layers width height depth 1.0))
+		:layers (Layers (n2i (* (n2f width) +spacial_hash_res))
+						(n2i (* (n2f height) +spacial_hash_res))
+						depth (/ +spacial_hash_res (n2f res)))
+		:via_layers (Layers (n2i (* (n2f width) +spacial_hash_res))
+						(n2i (* (n2f height) +spacial_hash_res))
+						depth (/ +spacial_hash_res (n2f res))))
 	(times (* stride depth) (push nodes 0))
 
 	(defgetmethod depth)
@@ -692,7 +696,7 @@
 
 (defun router-test (pcb_list pcb_scroll mode show zoom canvas_scale)
 	(bind '(width height depth) (elem 0 pcb_list))
-	(bind '(res verb quant viascost) '(1 1 16 2))
+	(bind '(res verb quant viascost) '(2 1 16 0))
 	(bind '(flood_range flood_range_even_layer flood_range_odd_layer) '(2 1 1))
 	(bind '(path_range path_range_even_layer path_range_odd_layer) '(2 1 1))
 	(defq rfvs (list
