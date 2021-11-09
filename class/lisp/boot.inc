@@ -45,8 +45,8 @@
 (ffi clear "class/array/lisp_clear" 0)
 (ffi push "class/array/lisp_push" 0)
 (ffi pop "class/array/lisp_pop" 0)
+(ffi elem-set "class/array/lisp_elemset" 0)
 
-(ffi elem-set "class/list/lisp_elemset" 0)
 (ffi merge-obj "class/list/lisp_merge" 0)
 (ffi pivot "class/list/lisp_part" 0)
 (ffi match? "class/list/lisp_match" 0)

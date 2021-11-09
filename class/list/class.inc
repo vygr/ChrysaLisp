@@ -19,7 +19,6 @@
 	(dec-method :erase class/list/erase :final)
 	(dec-method :erase2 class/list/erase2 :final)
 	(dec-method :lisp_list class/list/lisp_list :static (:r0 :r1) (:r0 :r1))
-	(dec-method :lisp_elemset class/list/lisp_elemset :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_merge class/list/lisp_merge :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_part class/list/lisp_part :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_match class/list/lisp_match :static (:r0 :r1) (:r0 :r1))

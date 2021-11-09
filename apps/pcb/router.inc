@@ -400,7 +400,7 @@
 		:deform (fmap 101) :resolution res
 		:flood_vectors rfvs :path_vectors rpvs :netlist (list)
 		:quantization (* quant res) :viascost (* viascost res)
-		:verbosity verb :nodes (defq nodes (cap (* stride depth) (list)))
+		:verbosity verb :nodes (defq nodes (cap (* stride depth) (nums)))
 		:layers (Layers (n2i (* (n2f width) +spacial_hash_res))
 						(n2i (* (n2f height) +spacial_hash_res))
 						depth (/ +spacial_hash_res (n2f res)))
@@ -539,7 +539,7 @@
 		; (. pcb :unmark_distances) -> pcb
 		;set all grid values back to 0
 		(raise :nodes)
-		(each (lambda (n) (elem-set _ nodes 0)) nodes)
+		(vec-sub nodes nodes nodes)
 		this)
 
 	(defmethod :reset_areas (this)

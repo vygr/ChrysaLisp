@@ -281,3 +281,60 @@
 	(jump 'lisp :repl_error `(,this "(cap len array ...)" +error_msg_wrong_types ,args)))
 
 (def-func-end)
+
+(def-method 'array :lisp_elemset)
+	;inputs
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
+	;outputs
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
+	;trashes
+	;:r1-:r14
+
+	(entry 'array :lisp_elemset '(:r0 :r1))
+
+(errorcases
+	(call 'lisp :env_args_sig '(:r1 ($ sig) 3) '(:tmp))
+	(gotoif '(:tmp = 0) 'error1))
+
+	(vp-push :r0 :r1)
+	(bind '(:a :v :i) (method-input 'array :set_element))
+	(list-bind-args :r1 (array-map-args '(:a :v :i) '(1 2 0)) '(:num :array :obj))
+	(assign '((:a array_length) :v) '(:r14 (:rsp 0)))
+	(vpif '(:i < 0))
+		(vp-add-rr :r14 :i)
+		(vp-add-cr 1 :i)
+	(endif)
+
+(errorcases
+	(gotoif '(:i < 0) 'error2)
+	(gotoif '(:i >= :r14) 'error2))
+
+	(assign `((:a obj_vtable) (@ ,(f-path 'list :vtable))) '(:r12 :r13))
+	(vpif '(:r12 = :r13))
+		(class/obj/ref :v :r14 2)
+	(else)
+		(class/obj/ref :v :r14 1)
+		(vp-op3 vp-cpy-rr :a :v :i :r12 :r13 :r14)
+		(call 'obj :inst_of `(:v (@ ,(f-path 'num :vtable))) '(_ :tmp))
+		(vpif '(:tmp /= 0))
+			(assign '((:r13 num_value)) '(:r13))
+		(endif)
+		(vp-op3 vp-cpy-rr :r12 :r13 :r14 :a :v :i)
+	(endif)
+	(call 'array :set_element '(:a :v :i))
+	(vp-pop :r0 :r1)
+
+	(exit 'array :lisp_elemset '(:r0 :r1))
+	(vp-ret)
+
+(errorcases
+(vp-label 'error1)
+	(jump 'lisp :repl_error '(:r0 "(elem-set index array val)" +error_msg_wrong_types :r1))
+(vp-label 'error2)
+	(vp-pop :r0 :r3)
+	(jump 'lisp :repl_error '(:r0 "(elem-set index array val)" +error_msg_not_valid_index :r3))
+	(signature '(num array obj)))
+
+(def-func-end)
