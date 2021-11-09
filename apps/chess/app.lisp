@@ -30,7 +30,7 @@
 
 (defun display-board (board)
 	(each (lambda (square piece)
-		(def square :text (elem (find piece "QKRBNPqkrbnp ")
+		(def square :text (elem-get (find piece "QKRBNPqkrbnp ")
 			(if (= (logand (+ _ (>> _ 3)) 1) 0) "wltvmoqkrbnp " "qkrbnpwltvmo ")))
 		(. square :layout)) (. chess_grid :children) board)
 	(. chess_grid :dirty_all))
@@ -43,15 +43,15 @@
 				(if (> (length (push buf "")) (const vdu_height))
 					(setq buf (slice (const (dec (neg vdu_height))) -1 buf))))
 			(t	;char
-				(elem-set -2 buf (cat (elem -2 buf) c))))) s)
-	(. vdu :load buf 0 0 (length (elem -2 buf)) (dec (length buf))) buf)
+				(elem-set -2 buf (cat (elem-get -2 buf) c))))) s)
+	(. vdu :load buf 0 0 (length (elem-get -2 buf)) (dec (length buf))) buf)
 
 (defun dispatch-job (key val)
 	;send job to child
 	(. val :insert :timestamp (pii-time))
 	(mail-send (. val :find :child)
 		(setf-> (cat (str-alloc +job_size) brd (apply cat history))
-			(+job_reply (elem +select_reply select))
+			(+job_reply (elem-get +select_reply select))
 			(+job_move_time max_move_time)
 			(+job_color color)))
 	;update display
@@ -65,14 +65,14 @@
 (defun create (key val nodes)
 	; (create key val nodes)
 	;function called when entry is created
-	(open-task "apps/chess/child.lisp" (elem (random (length nodes)) nodes)
-		+kn_call_child key (elem +select_task select)))
+	(open-task "apps/chess/child.lisp" (elem-get (random (length nodes)) nodes)
+		+kn_call_child key (elem-get +select_task select)))
 
 (defun destroy (key val)
 	; (destroy key val)
 	;function called when entry is destroyed
 	(when (defq child (. val :find :child)) (mail-send child ""))
-	(mail-free-mbox (elem +select_reply select))
+	(mail-free-mbox (elem-get +select_reply select))
 	(elem-set +select_reply select (mail-alloc-mbox)))
 
 (defun main ()
@@ -80,9 +80,9 @@
 	(defq select (alloc-select +select_size) farm (Farm create destroy 1))
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(gui-add-front (. *window* :change x y w h))
-	(mail-timeout (elem +select_timer select) timer_rate 0)
+	(mail-timeout (elem-get +select_timer select) timer_rate 0)
 	(while id
-		(defq msg (mail-read (elem (defq idx (mail-select select)) select)))
+		(defq msg (mail-read (elem-get (defq idx (mail-select select)) select)))
 		(cond
 			((= idx +select_main)
 				;main mailbox
@@ -101,7 +101,7 @@
 				;child reply, process in sequence order
 				(sort (# (- (getf %1 +reply_seq) (getf %0 +reply_seq))) (push replys msg))
 				(while (and (/= (length replys) 0)
-							(= (getf (elem -2 replys) +reply_seq) next_seq))
+							(= (getf (elem-get -2 replys) +reply_seq) next_seq))
 					(setq msg (pop replys) next_seq (inc next_seq))
 					(defq data_type (getf msg +reply_type) data (slice +reply_data -1 msg))
 					(cond
@@ -123,7 +123,7 @@
 						((= data_type (ascii-code "s"))
 							(vdu-print vdu text_buf data)))))
 			(t	;timer event
-				(mail-timeout (elem +select_timer select) timer_rate 0)
+				(mail-timeout (elem-get +select_timer select) timer_rate 0)
 				(. farm :refresh (+ max_move_time 1000000)))))
 	;close window and children
 	(. farm :close)

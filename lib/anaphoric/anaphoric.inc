@@ -21,13 +21,13 @@
 	; (aand [form] ...)
 	(cond
 		((= (length _) 0))
-		((= (length _) 1) (elem 0 _))
-		(t `(aif ,(elem 0 _) (aand ~(slice 1 -1 _))))))
+		((= (length _) 1) (elem-get 0 _))
+		(t `(aif ,(elem-get 0 _) (aand ~(slice 1 -1 _))))))
 
 (defmacro acond (&rest _)
 	; (acond (tst body) ...)
 	(reduce (lambda (x _)
-		(push x `((defq ,(defq _x (gensym)) ,(elem 0 _)) (let ((it ,_x)) ~(slice 1 -1 _)))))
+		(push x `((defq ,(defq _x (gensym)) ,(elem-get 0 _)) (let ((it ,_x)) ~(slice 1 -1 _)))))
 			_ (list 'cond)))
 
 (defmacro aeach (x &rest _)

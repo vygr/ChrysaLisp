@@ -35,12 +35,12 @@
 (defun hit-line? (record layer_line d)
 	(defq p1 (slice +layer_line_x1 +layer_line_x2 layer_line)
 		p2 (slice +layer_line_x2 +layer_line_radius layer_line)
-		dp1 (- (vec-dot (elem +record_norm record) p1) (elem +record_dist record))
-		dp2 (- (vec-dot (elem +record_norm record) p2) (elem +record_dist record)))
+		dp1 (- (vec-dot (elem-get +record_norm record) p1) (elem-get +record_dist record))
+		dp2 (- (vec-dot (elem-get +record_norm record) p2) (elem-get +record_dist record)))
 	(cond
 		((and (> dp1 d) (> dp2 d)) nil)
 		((and (< dp1 (neg d)) (< dp2 (neg d))) nil)
-		((vec-collide-thick-lines-2d p1 p2 (elem +record_p1 record) (elem +record_p2 record) d))))
+		((vec-collide-thick-lines-2d p1 p2 (elem-get +record_p1 record) (elem-get +record_p2 record) d))))
 
 (defclass Layer (width height scale) nil
 	; (Layer width height scale) -> layer
@@ -96,9 +96,9 @@
 				(lambda (bucket)
 					(when (defq idx (some
 							(lambda (record)
-								(if (eql (elem +record_layer_line record) layer_line) _))
+								(if (eql (elem-get +record_layer_line record) layer_line) _))
 							bucket))
-						(elem-set idx bucket (elem -2 bucket))
+						(elem-set idx bucket (elem-get -2 bucket))
 						(pop bucket)))
 				(list buckets)))
 		this)
@@ -113,13 +113,13 @@
 					(not (defq hit (some! (+ miny minx) (+ miny maxx 1) nil
 						(lambda (bucket)
 							(some (lambda (record)
-								(when (/= (elem +record_id record) id)
+								(when (/= (elem-get +record_id record) id)
 									(elem-set +record_id record id)
 									(hit-line? record layer_line (+
-										(elem +layer_line_radius layer_line)
-										(elem +layer_line_radius (elem +record_layer_line record))
-										(max (elem +layer_line_gap layer_line)
-											(elem +layer_line_gap (elem +record_layer_line record)))))))
+										(elem-get +layer_line_radius layer_line)
+										(elem-get +layer_line_radius (elem-get +record_layer_line record))
+										(max (elem-get +layer_line_gap layer_line)
+											(elem-get +layer_line_gap (elem-get +record_layer_line record)))))))
 								bucket))
 						(list buckets))))))
 		hit)
@@ -138,7 +138,7 @@
 		(if (> z1 z2) (defq zt z1 z1 z2 z2 zt))
 		(raise :layers)
 		(while (<= z1 z2)
-			(. (elem (n2i z1) layers) :add_line layer_line)
+			(. (elem-get (n2i z1) layers) :add_line layer_line)
 			(setq z1 (+ z1 1.0)))
 		this)
 
@@ -150,7 +150,7 @@
 		(if (> z1 z2) (defq zt z1 z1 z2 z2 zt))
 		(raise :layers)
 		(while (<= z1 z2)
-			(. (elem (n2i z1) layers) :sub_line layer_line)
+			(. (elem-get (n2i z1) layers) :sub_line layer_line)
 			(setq z1 (+ z1 1.0)))
 		this)
 
@@ -162,7 +162,7 @@
 		(if (> z1 z2) (defq zt z1 z1 z2 z2 zt))
 		(raise :layers)
 		(while (and (<= z1 z2)
-					(not (defq hit (. (elem (n2i z1) layers) :hit_line layer_line))))
+					(not (defq hit (. (elem-get (n2i z1) layers) :hit_line layer_line))))
 			(setq z1 (+ z1 1.0)))
 		hit)
 
@@ -173,7 +173,7 @@
 		(if (> z1 z2) (defq zt z1 z1 z2 z2 zt))
 		(raise :layers)
 		(while (<= z1 z2)
-			(. (elem (n2i z1) layers) :add_line layer_line)
+			(. (elem-get (n2i z1) layers) :add_line layer_line)
 			(setq z1 (+ z1 1.0)))
 		this)
 
@@ -184,7 +184,7 @@
 		(if (> z1 z2) (defq zt z1 z1 z2 z2 zt))
 		(raise :layers)
 		(while (<= z1 z2)
-			(. (elem (n2i z1) layers) :sub_line layer_line)
+			(. (elem-get (n2i z1) layers) :sub_line layer_line)
 			(setq z1 (+ z1 1.0)))
 		this)
 
@@ -195,7 +195,7 @@
 		(if (> z1 z2) (defq zt z1 z1 z2 z2 zt))
 		(raise :layers)
 		(while (and (<= z1 z2)
-					(not (defq hit (. (elem (n2i z1) layers) :hit_line layer_line))))
+					(not (defq hit (. (elem-get (n2i z1) layers) :hit_line layer_line))))
 			(setq z1 (+ z1 1.0)))
 		hit)
 	)

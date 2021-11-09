@@ -116,7 +116,7 @@
 	(vp-push :r0)
 	(defq in (method-input 'sstream :create))
 	(list-bind-args :r1 in '(:obj))
-	(class/obj/ref (elem 0 in))
+	(class/obj/ref (elem-get 0 in))
 	(call 'sstream :create in '(:r1))
 	(vp-pop :r0)
 
@@ -227,16 +227,16 @@
 (errorcases
 	(defq in (method-input 'lisp :repl_error))
 (vp-label 'error1)
-	(vp-cpy-cr +error_msg_wrong_num_of_args (elem 2 in))
+	(vp-cpy-cr +error_msg_wrong_num_of_args (elem-get 2 in))
 	(goto 'error)
 (vp-label 'error2)
-	(vp-cpy-cr +error_msg_not_a_stream (elem 2 in))
+	(vp-cpy-cr +error_msg_not_a_stream (elem-get 2 in))
 	(goto 'error)
 (vp-label 'error3)
-	(vp-cpy-cr +error_msg_not_a_number (elem 2 in))
+	(vp-cpy-cr +error_msg_not_a_number (elem-get 2 in))
 (vp-label 'error)
 	(assign {this, args} (erase in 1 3))
-	(jump 'lisp :repl_error `(,(elem 0 in) "(read-char stream [width])" ,(elem 2 in) ,(elem 3 in))))
+	(jump 'lisp :repl_error `(,(elem-get 0 in) "(read-char stream [width])" ,(elem-get 2 in) ,(elem-get 3 in))))
 
 	(pop-scope-syms)
 
@@ -331,7 +331,7 @@
 	(vp-push :r0)
 	(defq in (method-input 'stream :write))
 	(array-bind-args :r1 (slice 0 2 in))
-	(assign `((,(elem 1 in) str_length)) `(,(elem 2 in)))
+	(assign `((,(elem-get 1 in) str_length)) `(,(elem-get 2 in)))
 	(list-cast-args in '(:stream :str _))
 	(call 'stream :write in '(:r1))
 	(class/obj/ref :r1 :r2)

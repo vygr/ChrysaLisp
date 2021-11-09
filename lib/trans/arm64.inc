@@ -148,7 +148,7 @@
 	`(progn
 		(unless (eql ,s ,d) (emit-xor-rr ,d ,d))
 		(emit-ir ,w ,o ,s ,c ,d)
-		(if (eql ,s ,d) (emit-ux ,(elem w '(7 15 31)) ,d ,d))))
+		(if (eql ,s ,d) (emit-ux ,(elem-get w '(7 15 31)) ,d ,d))))
 
 (defmacro emit-rd (o s d1 d2)
 	`(emit-int (+ ,o (<< ,d2 16) (<< ,d1 5) ,s)))
@@ -239,30 +239,30 @@
 	(cond
 		((= 0 (defq l (length b))))
 		((= 1 l)
-			(emit-int (+ 0xf81f0c00 (const (<< (emit-native-reg? :rsp) 5)) (elem 0 b))))
+			(emit-int (+ 0xf81f0c00 (const (<< (emit-native-reg? :rsp) 5)) (elem-get 0 b))))
 		((= 2 l)
 			(emit-int (+ 0xa9bf0000
-				(<< (elem 0 b) 10) (const (<< (emit-native-reg? :rsp) 5)) (elem 1 b))))
+				(<< (elem-get 0 b) 10) (const (<< (emit-native-reg? :rsp) 5)) (elem-get 1 b))))
 		(t  (emit-sub-cr (align (* +ptr_size l) stack_align) (const (emit-native-reg? :rsp)))
 			(defq _ l)
 			(while (>= (setq _ (- _ 2)) 0)
 				(emit-int (+ 0xa9000000 (<< (- l _ 2) 15)
-					(<< (elem _ b) 10) (const (<< (emit-native-reg? :rsp) 5)) (elem (inc _) b))))
-			(if (/= -2 _) (emit-cpy-ri (elem 0 b) (const (emit-native-reg? :rsp)) (* +ptr_size (dec l)))))))
+					(<< (elem-get _ b) 10) (const (<< (emit-native-reg? :rsp) 5)) (elem-get (inc _) b))))
+			(if (/= -2 _) (emit-cpy-ri (elem-get 0 b) (const (emit-native-reg? :rsp)) (* +ptr_size (dec l)))))))
 
 (defun emit-pop (&rest b)
 	(cond
 		((= 0 (defq l (length b))))
 		((= 1 l)
-			(emit-int (+ 0xf8410400 (const (<< (emit-native-reg? :rsp) 5)) (elem 0 b))))
+			(emit-int (+ 0xf8410400 (const (<< (emit-native-reg? :rsp) 5)) (elem-get 0 b))))
 		((= 2 l)
 			(emit-int (+ 0xa8c10000
-				(<< (elem 0 b) 10) (const (<< (emit-native-reg? :rsp) 5)) (elem 1 b))))
+				(<< (elem-get 0 b) 10) (const (<< (emit-native-reg? :rsp) 5)) (elem-get 1 b))))
 		(t  (defq _ l)
 			(while (>= (setq _ (- _ 2)) 0)
 				(emit-int (+ 0xa9400000 (<< (- l _ 2) 15)
-					(<< (elem _ b) 10) (const (<< (emit-native-reg? :rsp) 5)) (elem (inc _) b))))
-			(if (/= -2 _) (emit-cpy-ir (const (emit-native-reg? :rsp)) (* +ptr_size (dec l)) (elem 0 b)))
+					(<< (elem-get _ b) 10) (const (<< (emit-native-reg? :rsp) 5)) (elem-get (inc _) b))))
+			(if (/= -2 _) (emit-cpy-ir (const (emit-native-reg? :rsp)) (* +ptr_size (dec l)) (elem-get 0 b)))
 			(emit-add-cr (align (* +ptr_size l) stack_align) (const (emit-native-reg? :rsp))))))
 
 (defun emit-beq (l d) (emit-branch 0x0 l))

@@ -8,7 +8,7 @@
 (defmacro slot ()
 	`(defq x (get :buckets this)
 		b (% ((get :hash_fnc this) key) (get :num_buckets this))
-		e (some (# (if ((get :cmp_fnc this) %0 key) _)) (elem b x))))
+		e (some (# (if ((get :cmp_fnc this) %0 key) _)) (elem-get b x))))
 
 (defclass xset (&optional num_buckets cmp_fnc hash_fnc) nil
 	; (xset [num_buckets cmp_fnc hash_fnc]) -> xset
@@ -20,21 +20,21 @@
 	(defmethod :find (this key)
 		; (. xset :find key) -> nil | key
 		(slot)
-		(if e (elem e (elem b x))))
+		(if e (elem-get e (elem-get b x))))
 
 	(defmethod :insert (this key)
 		; (. xset :insert key) -> xset
 		(slot)
 		(cond
-			(e (elem-set e (elem b x) key))
-			(t (push (elem b x) key)))
+			(e (elem-set e (elem-get b x) key))
+			(t (push (elem-get b x) key)))
 		this)
 
 	(defmethod :erase (this key)
 		; (. xset :erase key) -> xset
 		(slot)
 		(when e
-			(elem-set e (defq b (elem b x)) (elem -2 b))
+			(elem-set e (defq b (elem-get b x)) (elem-get -2 b))
 			(pop b))
 		this)
 
@@ -110,7 +110,7 @@
 		(raise :num_buckets)
 		(each (lambda (old_bucket)
 			(while (defq key (pop old_bucket))
-				(push (elem (% (hash_fnc key) num_buckets) new_buckets) key))) buckets)
+				(push (elem-get (% (hash_fnc key) num_buckets) new_buckets) key))) buckets)
 		this)
 
 	(defmethod :empty? (this)

@@ -45,13 +45,13 @@ To discover the length of a sequence, use the `(length)` function:
 6
 ```
 
-Extraction of a single element with `(elem)`. Negative indexes mean to index
-from the back of the sequence ! Very useful !
+Extraction of a single element with `(elem-get)`. Negative indexes mean to
+index from the back of the sequence ! Very useful !
 
 ```vdu
-(elem 1 "abcd")
+(elem-get 1 "abcd")
 "b"
-(elem -2 (array 9 8 7))
+(elem-get -2 (array 9 8 7))
 7
 ```
 

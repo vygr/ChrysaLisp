@@ -37,7 +37,7 @@
 	(loop-start)
 		(vec-load-long 1 src1)
 		(vec-load-long 1 src2)
-		(errorif (list (elem 0 (vec-top 1)) '= 0) 'error)
+		(errorif (list (elem-get 0 (vec-top 1)) '= 0) 'error)
 		((eval (sym (cat "vec-" v))) 1)
 		(vec-store-long 1 dst1)
 		(vp-add-cr +long_size dst1)

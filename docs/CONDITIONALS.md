@@ -31,7 +31,7 @@ is true. Not just a single form but an implicit `(progn ...)`.
 (when (> z (const (i2n focal_len)))
 	(defq v (vec x y z) w (/ hsw z) h (/ hsh z))
 	(bind '(sx sy sz) (vec-add v (vec-scale (vec-norm
-		(vec-add v (vec-sub (elem +dlist_light_pos dlist) v))) r)))
+		(vec-add v (vec-sub (elem-get +dlist_light_pos dlist) v))) r)))
 	(defq x (+ (* x h) hsw) y (+ (* y h) hsh) r (* r h)
 		sx (+ (* sx h) hsw) sy (+ (* sy h) hsh))
 	(push out (list (vec-n2f x y z) (vec-n2f sx sy) (n2f r)
@@ -44,7 +44,7 @@ is true. Not just a single form but an implicit `(progn ...)`.
 form and evaluates the body if the result is `nil`.
 
 ```vdu
-(unless (eql (defq file (elem -2 route)) ".")
+(unless (eql (defq file (elem-get -2 route)) ".")
 	(def (defq node (Button)) :text file :border 0)
 	(. node :connect (inc (get :action_event this)))
 	(. root :add_child node))
@@ -140,13 +140,13 @@ the matching body clause, or if no match, the optional `t` clause.
 			((defq ink (get (sym (apply cat token)) (get :keywords this)))
 				;present in keyword map
 				(push col_list ink))
-			((eql (elem 0 token) "+")
+			((eql (elem-get 0 token) "+")
 				;is a constant symbol
 				(push col_list (get :ink_constants this)))
-			((eql (elem 0 token) "*")
+			((eql (elem-get 0 token) "*")
 				;is a global symbol
 				(push col_list (get :ink_globals this)))
-			((eql (elem 0 token) "-")
+			((eql (elem-get 0 token) "-")
 				;is a negative number
 				(push col_list (get :ink_numbers this)))
 			(t  ;default text color)

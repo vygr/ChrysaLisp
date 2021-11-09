@@ -158,7 +158,7 @@
 	(.-> *file_tree_scroll* :layout :dirty_all))
 
 (defun tooltips ()
-	(def *window* :tip_mbox (elem +select_tip select))
+	(def *window* :tip_mbox (elem-get +select_tip select))
 	(each (# (def %0 :tip_text %1)) (. main_toolbar :children)
 		'("copy" "select paragraph" "select form" "start form" "end form")))
 
@@ -180,7 +180,7 @@
 	(action-maximise)
 	(refresh)
 	(while *running*
-		(defq *msg* (mail-read (elem (defq idx (mail-select select)) select)))
+		(defq *msg* (mail-read (elem-get (defq idx (mail-select select)) select)))
 		(cond
 			((= idx +select_tip)
 				;tip time mail

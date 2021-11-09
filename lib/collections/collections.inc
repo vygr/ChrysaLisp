@@ -72,7 +72,7 @@
 				((collection? curr)
 					(setq curr (gets curr _i)))
 				((list? curr)
-					(setq curr (elem _i curr)))
+					(setq curr (elem-get _i curr)))
 				(t	(throw "Not an indexable collection " (list _i curr)))))
 		(setq hit curr))
 	hit)

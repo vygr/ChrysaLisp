@@ -38,7 +38,7 @@
 	(ui-scroll pcb_scroll +scroll_flag_both (:min_width 512 :min_height 256)))
 
 (defun win-load (_)
-	(setq pcb (pcb-load (defq file (elem (setq index _) pcbs))))
+	(setq pcb (pcb-load (defq file (elem-get (setq index _) pcbs))))
 	(bind '(w h) (. (defq canvas (pcb-canvas pcb mode show zoom canvas_scale)) :pref_size))
 	(def pcb_scroll :min_width w :min_height h)
 	(def window_title :text (cat "Pcb -> " (slice (inc (find-rev "/" file)) -1 file)))
@@ -60,7 +60,7 @@
 	(.-> pcb_scroll (:add_child (. (pcb-canvas pcb mode show zoom canvas_scale) :swap)) :layout))
 
 (defun tooltips ()
-	(def *window* :tip_mbox (elem +select_tip select))
+	(def *window* :tip_mbox (elem-get +select_tip select))
 	(each (# (def %0 :tip_text %1))
 		(. main_toolbar :children)
 		'("prev" "next" "zoom out" "zoom in" "pcb" "gerber"
@@ -73,7 +73,7 @@
 	(gui-add-front (. *window* :change x y w h))
 ;(router-test pcb pcb_scroll mode show zoom canvas_scale)
 	(while *running*
-		(defq *msg* (mail-read (elem (defq idx (mail-select select)) select)))
+		(defq *msg* (mail-read (elem-get (defq idx (mail-select select)) select)))
 		(cond
 			((= idx +select_tip)
 				;tip time mail

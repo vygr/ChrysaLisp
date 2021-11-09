@@ -42,10 +42,10 @@
 (defun get-by-val (n v in)
 	(let ((out nil))
 		(cond 
-			((list? (defq element (elem n (elem 0 in))))
-				(each (lambda (e) (if (elem-find v (elem +tz_locations e)) (setq out e))) in))
-			((num? element) (each (lambda (e) (if (=  (elem n e) v) (setq out e))) in))
-			(t (each (lambda (e) (if (eql (elem n e) v) (setq out e))) in)))
+			((list? (defq element (elem-get n (elem-get 0 in))))
+				(each (lambda (e) (if (elem-find v (elem-get +tz_locations e)) (setq out e))) in))
+			((num? element) (each (lambda (e) (if (=  (elem-get n e) v) (setq out e))) in))
+			(t (each (lambda (e) (if (eql (elem-get n e) v) (setq out e))) in)))
 		out))
 
 ;returns first occurrence index or nil if not found
@@ -80,14 +80,14 @@
 		(t nil)))
 
 (defmacro day-of-the-week (d)
-	`(elem ,d week_abbr))
+	`(elem-get ,d week_abbr))
 
 (defmacro month-of-the-year (m)
-	`(elem ,m month_abbr))
+	`(elem-get ,m month_abbr))
 
 (defmacro days-in-month (m y)
 	`(let ((months (list 31 28 31 30 31 30 31 31 30 31 30 31)))
-			(if (and (= (% ,m 12) 1) (leapyear? ,y)) 29 (elem (% ,m 12) months))))
+			(if (and (= (% ,m 12) 1) (leapyear? ,y)) 29 (elem-get (% ,m 12) months))))
 
 (defmacro days-in-year (year)
 	`(if (leapyear? ,year) 366 365))
@@ -96,18 +96,18 @@
 	(let ((leap_count 0))
 		(each (lambda (y) 
 			(if (eql (leapyear? y) t) (setq leap_count (inc leap_count)) nil))
-			(range (elem +time_year unix_epoch) (inc year))) leap_count))
+			(range (elem-get +time_year unix_epoch) (inc year))) leap_count))
 
 ;;;since day starts at 1 add 1.
 (defun get-yeardays (days)
-	(defq year (get-year days) years (- year (elem +time_year unix_epoch))
+	(defq year (get-year days) years (- year (elem-get +time_year unix_epoch))
 		leapyears (leapyears-since-epoch (dec year))
 		nonleapyears (- years leapyears))
 		(inc (- days (+ (* leapyears 366)
 			(* nonleapyears 365)))))
 
 (defun get-year (days)
-	(defq year (elem +time_year unix_epoch) yeardays (days-in-year year))
+	(defq year (elem-get +time_year unix_epoch) yeardays (days-in-year year))
 	(while (> days (setq yeardays (days-in-year year)))
 		(setq days (- days yeardays) year (inc year))) year)
 
@@ -121,14 +121,14 @@
 		(list date month year)))
 
 (defun check-date (td)
-	(defq maxarg (list 59 59 23 (days-in-month (elem +time_month td) (elem +time_year td)) 11 nil 6)
+	(defq maxarg (list 59 59 23 (days-in-month (elem-get +time_month td) (elem-get +time_year td)) 11 nil 6)
 		 minarg (list 0 0 0 1 0 nil 0) index -1)
 	(notany (lambda (a_)
-		(eql (and (not (= _ 5)) (or (> a_ (elem _ maxarg)) (< a_ (elem _ minarg)))) t)) td))
+		(eql (and (not (= _ 5)) (or (> a_ (elem-get _ maxarg)) (< a_ (elem-get _ minarg)))) t)) td))
 
 (defun float-time ()
 	(defq seconds (n2f (/ (pii-time) 1000000)) minutes (+ (* 60.0 (n2f 
-		(elem +tz_offset (get :local_timezone)))) (/ seconds 60.0)) 
+		(elem-get +tz_offset (get :local_timezone)))) (/ seconds 60.0)) 
 		hours (% (/ minutes 60.0) 12.0))
 	(list seconds minutes hours))
 
@@ -136,7 +136,7 @@
 (defun date (&optional secs)
 	(defq seconds (/ (pii-time) 1000000))
 	(if secs (setq seconds secs))
-	(defq minutes (+ (* 60 (elem +tz_offset (get :local_timezone))) (/ seconds 60))
+	(defq minutes (+ (* 60 (elem-get +tz_offset (get :local_timezone))) (/ seconds 60))
 		hours (/ minutes 60) days (/ hours 24) weeks (/ days 7))
 	(bind '(monthday month year) (get-date days))
 	(list (% seconds 60) (% minutes 60) (% hours 24) monthday month year (% days 7)))
@@ -147,7 +147,7 @@
 	(when (check-date td)
 		(cat (day-of-the-week wk) " " (month-of-the-year mo) " " 
 			(str dy) " " (pad h 2 "0") ":" (pad m 2 "0") ":" (pad s 2 "0") " " 
-			(elem +tz_abbreviation (get :local_timezone)) " " (str yr))))
+			(elem-get +tz_abbreviation (get :local_timezone)) " " (str yr))))
 
 (defun decode-date (dts)
 	(defq space_split (split dts " ") rdt (list) index 0)

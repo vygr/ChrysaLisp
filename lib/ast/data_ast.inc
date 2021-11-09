@@ -255,8 +255,8 @@
             (gets data-collection-types clz))))
       ((eql (first v) :ast-class)
         (defq
-          cl (ast-class nil (second v) (elem 2 v)))
-        (ast-from cl (elem 3 v))
+          cl (ast-class nil (second v) (elem-get 2 v)))
+        (ast-from cl (elem-get 3 v))
         cl)
       (t
         (throw "Not an ast list type" (first v))))))

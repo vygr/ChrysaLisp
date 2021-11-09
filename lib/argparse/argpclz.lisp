@@ -211,10 +211,10 @@
         ; Parse arglist
         (let ((index 0) (len (length arglist)))
           (while (< index len)
-                 (defq cntxt (. this :child_node (elem index arglist)))
+                 (defq cntxt (. this :child_node (elem-get index arglist)))
                  (if cntxt
                    (setq index (. cntxt :action_parse (inc index) arglist))
-                   (throw "No matching action found " (elem index arglist)))))
+                   (throw "No matching action found " (elem-get index arglist)))))
         ; Gather result
         (reduce (lambda (acc (_ _v))
                   (sets! acc

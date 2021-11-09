@@ -503,7 +503,7 @@
 	(vp-push :r0 :r1)
 	(defq in (method-input 'hmap :resize))
 	(list-bind-args :r1 in '(:env :num))
-	(errorif (list (elem 1 in) '< 1) 'error1)
+	(errorif (list (elem-get 1 in) '< 1) 'error1)
 	(call 'hmap :resize in '(:r1))
 	(class/obj/ref :r1 :r0)
 	(vp-pop :r0 :r2)

@@ -39,7 +39,7 @@
 		(progn
 			(def hslider :value _)
 			(setq buf_index _)
-			(. vdu :load (elem +profile_rec_buf (elem buf_index buf_list)) 0 0 0 1000))
+			(. vdu :load (elem-get +profile_rec_buf (elem-get buf_index buf_list)) 0 0 0 1000))
 		(progn
 			(clear buf_list)
 			(clear buf_keys)
@@ -56,7 +56,7 @@
 	(set-slider-values))
 
 (defun tooltips ()
-	(def *window* :tip_mbox (elem +select_tip select))
+	(def *window* :tip_mbox (elem-get +select_tip select))
 	(each (# (def %0 :tip_text %1)) (. main_toolbar :children)
 		'("clear"))
 	(each (# (def %0 :tip_text %1)) (. main_toolbar2 :children)
@@ -64,13 +64,13 @@
 
 (defun main ()
 	(defq select (alloc-select +select_size)
-		entry (mail-declare (elem +select_service select) "PROFILE_SERVICE" "Profile Service 0.1"))
+		entry (mail-declare (elem-get +select_service select) "PROFILE_SERVICE" "Profile Service 0.1"))
 	(tooltips)
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(gui-add-front (. *window* :change x y w h))
 	(reset)
 	(while id
-		(defq idx (mail-select select) *msg* (mail-read (elem idx select)))
+		(defq idx (mail-select select) *msg* (mail-read (elem-get idx select)))
 		(cond
 			;new profile *msg*
 			((= idx +select_service)
@@ -82,8 +82,8 @@
 					(push buf_keys key)
 					(push buf_list (list (list "")))
 					(reset (setq index (dec (length buf_list)))))
-				(elem-set +profile_rec_buf (elem index buf_list) (split data (ascii-char 10)))
-				(. vdu :load (elem +profile_rec_buf (elem buf_index buf_list)) 0 0 0 1000))
+				(elem-set +profile_rec_buf (elem-get index buf_list) (split data (ascii-char 10)))
+				(. vdu :load (elem-get +profile_rec_buf (elem-get buf_index buf_list)) 0 0 0 1000))
 			((= idx +select_tip)
 				;tip time mail
 				(if (defq view (. *window* :find_id (getf *msg* +mail_timeout_id)))

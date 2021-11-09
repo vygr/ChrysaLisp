@@ -66,7 +66,7 @@
       fsize 1024
       size (/ size fsize)
       bsize (inc bsize)))
-  (str " " (pad size 3 " ") (elem bsize sizes-in)))
+  (str " " (pad size 3 " ") (elem-get bsize sizes-in)))
 
 (defun mode-str (stat)
   ; (mode-str stat) -> string

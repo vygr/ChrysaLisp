@@ -11,7 +11,7 @@
 	Defaults to last 10 lines.")
 (("-c" "--count")
 	,(lambda (args arg)
-		(setq count (str-as-num (elem 0 args)))
+		(setq count (str-as-num (elem-get 0 args)))
 		(slice 1 -1 args)))
 ))
 
@@ -23,5 +23,5 @@
 		(defq lines (list))
 		(each-line (# (push lines %0)
 			(if (> (length lines) count) (setq lines (slice (- -1 count) -1 lines))))
-				(if (<= (length args) 1) (io-stream 'stdin) (file-stream (elem 1 args))))
+				(if (<= (length args) 1) (io-stream 'stdin) (file-stream (elem-get 1 args))))
 		(each print lines)))

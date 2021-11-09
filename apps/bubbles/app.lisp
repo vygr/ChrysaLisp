@@ -38,7 +38,7 @@
 (defun redraw-layers (verts mask)
 	;redraw layer/s
 	(elem-set +dlist_layer1_verts dlist verts)
-	(elem-set +dlist_mask dlist (logior (elem +dlist_mask dlist) mask)))
+	(elem-set +dlist_mask dlist (logior (elem-get +dlist_mask dlist) mask)))
 
 (defun vertex-cloud (num)
 	;array of random verts
@@ -53,7 +53,7 @@
 				(- (random (const (inc (* max_vel 2)))) (const max_vel)))
 			(i2n (const bubble_radius))
 			(vec-add (const (vec-f2n base base base))
-				(vec-scale (elem (random (length palette)) palette)
+				(vec-scale (elem-get (random (length palette)) palette)
 					(f2n (random (const (- 1.0 base))))))))) out)
 
 (defun vertex-update (verts)
@@ -97,7 +97,7 @@
 		(when (> z (const (i2n focal_len)))
 			(defq v (vec x y z) w (/ hsw z) h (/ hsh z))
 			(bind '(sx sy sz) (vec-add v (vec-scale (vec-norm
-				(vec-add v (vec-sub (elem +dlist_light_pos dlist) v))) r)))
+				(vec-add v (vec-sub (elem-get +dlist_light_pos dlist) v))) r)))
 			(defq x (+ (* x h) hsw) y (+ (* y h) hsh) r (* r h)
 				sx (+ (* sx h) hsw) sy (+ (* sy h) hsh))
 			(push out (list (vec-n2f x y z) (vec-n2f sx sy) (n2f r)
@@ -112,19 +112,19 @@
 
 (defun redraw (dlist)
 	;redraw layer/s
-	(when (/= 0 (logand (elem +dlist_mask dlist) 1))
-		(defq canvas (elem +dlist_layer1_canvas dlist))
+	(when (/= 0 (logand (elem-get +dlist_mask dlist) 1))
+		(defq canvas (elem-get +dlist_layer1_canvas dlist))
 		(. canvas :fill 0)
 		(bind '(sw sh) (. canvas :pref_size))
 		(defq hsw (i2n (>> sw 1)) hsh (i2n (>> sh 1)))
 		(render-verts canvas
-			(sort (# (if (<= (elem -2 (elem 0 %0)) (elem -2 (elem 0 %1))) 1 -1))
-				(clip-verts hsw hsh (elem +dlist_layer1_verts dlist))))
+			(sort (# (if (<= (elem-get -2 (elem-get 0 %0)) (elem-get -2 (elem-get 0 %1))) 1 -1))
+				(clip-verts hsw hsh (elem-get +dlist_layer1_verts dlist))))
 		(. canvas :swap))
 	(elem-set +dlist_mask dlist 0))
 
 (defun tooltips ()
-	(def *window* :tip_mbox (elem +select_tip select))
+	(def *window* :tip_mbox (elem-get +select_tip select))
 	(each (# (def %0 :tip_text %1)) (. main_toolbar :children)
 		'("refresh"))
 	(each (# (def %0 :tip_text %1)) (. style_toolbar :children)
@@ -147,13 +147,13 @@
 
 	;main event loop
 	(defq last_state :u id t)
-	(mail-timeout (elem +select_timer select) rate 0)
+	(mail-timeout (elem-get +select_timer select) rate 0)
 	(while id
-		(defq *msg* (mail-read (elem (defq idx (mail-select select)) select)))
+		(defq *msg* (mail-read (elem-get (defq idx (mail-select select)) select)))
 		(cond
 			((= idx +select_timer)
 				;timer event
-				(mail-timeout (elem +select_timer select) rate 0)
+				(mail-timeout (elem-get +select_timer select) rate 0)
 				(vertex-update verts)
 				(redraw-layers verts 1)
 				(redraw dlist))
@@ -178,7 +178,7 @@
 				(setq verts (vertex-cloud num_bubbles)))
 			((<= +event_grid id +event_axis)
 				;styles
-				(def (. mybackdrop :dirty) :style (elem (radio-select style_toolbar (- id +event_grid)) '(nil :grid :axis))))
+				(def (. mybackdrop :dirty) :style (elem-get (radio-select style_toolbar (- id +event_grid)) '(nil :grid :axis))))
 			((and (= id (. layer1_canvas :get_id))
 				(= (getf *msg* +ev_msg_type) +ev_type_mouse))
 					;mouse event in canvas

@@ -39,11 +39,11 @@
 		(setq services new_services)
 		(each (#
 			(defq info (split %0 ","))
-			(def (defq _ (Label)) :border 1 :text (elem 0 info))
+			(def (defq _ (Label)) :border 1 :text (elem-get 0 info))
 			(. service_flow :add_child _) (push service_labels _)
-			(def (defq _ (Label)) :border 1 :text (elem 1 info))
+			(def (defq _ (Label)) :border 1 :text (elem-get 1 info))
 			(. mbox_flow :add_child _) (push mbox_labels _)
-			(def (defq _ (Label)) :border 1 :text (if (> (length info) 2) (elem 2 info) "No Info"))
+			(def (defq _ (Label)) :border 1 :text (if (> (length info) 2) (elem-get 2 info) "No Info"))
 			(. info_flow :add_child _) (push info_labels _)) new_services)
 		(bind '(w h) (. right_flow :pref_size))
 		(. right_flow :change 0 0 w h)
@@ -64,7 +64,7 @@
 		;next event
 		(while (defq idx (mail-poll select))
 			(cond
-				((= (setq id (getf (defq msg (mail-read (elem idx select))) +ev_msg_target_id)) +event_close)
+				((= (setq id (getf (defq msg (mail-read (elem-get idx select))) +ev_msg_target_id)) +event_close)
 					;close button
 					(setq id nil))
 				((= id +event_min)

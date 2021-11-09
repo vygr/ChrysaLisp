@@ -52,7 +52,7 @@
 
 (defun any-node ()
   ; (any-node) -> node
-  (elem (random (length _found_nodes)) _found_nodes))
+  (elem-get (random (length _found_nodes)) _found_nodes))
 
 (defun remote-nodes ()
   ; (remote-nodes) -> list

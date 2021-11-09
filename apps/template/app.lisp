@@ -25,7 +25,7 @@
 			:ink_color +argb_white :spacing 16 :style :grid)))
 
 (defun tooltips ()
-	(def *window* :tip_mbox (elem +select_tip select))
+	(def *window* :tip_mbox (elem-get +select_tip select))
 	(each (# (def %0 :tip_text %1)) (. main_toolbar :children)
 		'("undo" "redo" "rewind" "cut" "copy" "paste")))
 
@@ -40,9 +40,9 @@
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(gui-add-front (. *window* :change x y w h))
 	(tooltips)
-	(mail-timeout (elem +select_timer select) timer_rate 0)
+	(mail-timeout (elem-get +select_timer select) timer_rate 0)
 	(while *running*
-		(defq *msg* (mail-read (elem (defq idx (mail-select select)) select)))
+		(defq *msg* (mail-read (elem-get (defq idx (mail-select select)) select)))
 		(cond
 			((= idx +select_tip)
 				;tip event
@@ -50,7 +50,7 @@
 					(. view :show_tip)))
 			((= idx +select_timer)
 				;timer event
-				(mail-timeout (elem +select_timer select) timer_rate 0))
+				(mail-timeout (elem-get +select_timer select) timer_rate 0))
 			((defq id (getf *msg* +ev_msg_target_id) action (. event_map :find id))
 				;call bound event action
 				(dispatch-action action))

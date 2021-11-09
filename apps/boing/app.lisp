@@ -17,16 +17,16 @@
 	(ui-title-bar _ "Boing" (0xea19 0xea1b 0xea1a) +event_close)
 	(ui-backdrop mybackdrop (:color +argb_black :ink_color +argb_white :style :grid
 			:spacing 64 :min_width 640 :min_height 480)
-		(ui-element frame (elem 0 frames))
-		(ui-element sframe (elem 0 sframes))))
+		(ui-element frame (elem-get 0 frames))
+		(ui-element sframe (elem-get 0 sframes))))
 
 (defun main ()
 	(defq select (alloc-select +select_size))
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(gui-add-front (. *window* :change x y w h))
-	(mail-timeout (elem +select_timer select) rate 0)
+	(mail-timeout (elem-get +select_timer select) rate 0)
 	(while id
-		(defq msg (mail-read (elem (defq idx (mail-select select)) select)))
+		(defq msg (mail-read (elem-get (defq idx (mail-select select)) select)))
 		(cond
 			((= idx +select_main)
 				;main mailbox
@@ -46,11 +46,11 @@
 					(t	(. *window* :event msg))))
 			((= idx +select_timer)
 				;timer event
-				(mail-timeout (elem +select_timer select) rate 0)
+				(mail-timeout (elem-get +select_timer select) rate 0)
 				(bind '(_ _ backdrop_width backdrop_height) (. mybackdrop :get_bounds))
 				(defq index (% (inc index) (length frames))
-					old_frame frame frame (elem index frames)
-					old_sframe sframe sframe (elem index sframes))
+					old_frame frame frame (elem-get index frames)
+					old_sframe sframe sframe (elem-get index sframes))
 				(bind '(x y w h) (. old_frame :get_bounds))
 				(bind '(sx sy sw sh) (. old_sframe :get_bounds))
 				(.-> mybackdrop (:add_dirty sx sy sw sh) (:add_dirty x y w h))

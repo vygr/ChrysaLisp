@@ -44,7 +44,7 @@
     np   (gets ywcntrl :npath)
     rpos (dec (length np)))
   (while (>= rpos 0)
-    (defq n (elem rpos np))
+    (defq n (elem-get rpos np))
     (if (find (first n) container-nodes)
       (setq res n rpos -1)
       (setq rpos (dec rpos))))

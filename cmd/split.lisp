@@ -13,11 +13,11 @@
 	the split.")
 (("-s" "--sep")
 	,(lambda (args arg)
-		(setq sep (elem 0 args))
+		(setq sep (elem-get 0 args))
 		(slice 1 -1 args)))
 (("-e" "--elem")
 	,(lambda (args arg)
-		(setq sel (str-as-num (elem 0 args)))
+		(setq sel (str-as-num (elem-get 0 args)))
 		(slice 1 -1 args)))
 ))
 
@@ -30,5 +30,5 @@
 		(each-line (#
 			(defq elms (split %0 sep))
 			(if (and sel (> (length elms) sel))
-				(setq elms (list (elem sel elms))))
+				(setq elms (list (elem-get sel elms))))
 			(each print elms)) (io-stream 'stdin))))

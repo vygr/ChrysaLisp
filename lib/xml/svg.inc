@@ -19,9 +19,9 @@
 	; (mat3x3-mul-f mat3x3_a mat3x3_b) -> mat3x3-f
 	(bind '(mar0 mar1 mar2) ma)
 	(bind '(mbr0 mbr1 mbr2) mb)
-	(defq mbc0 (fixeds (elem 0 mbr0) (elem 0 mbr1) (elem 0 mbr2))
-		mbc1 (fixeds (elem 1 mbr0) (elem 1 mbr1) (elem 1 mbr2))
-		mbc2 (fixeds (elem 2 mbr0) (elem 2 mbr1) (elem 2 mbr2)))
+	(defq mbc0 (fixeds (elem-get 0 mbr0) (elem-get 0 mbr1) (elem-get 0 mbr2))
+		mbc1 (fixeds (elem-get 1 mbr0) (elem-get 1 mbr1) (elem-get 1 mbr2))
+		mbc2 (fixeds (elem-get 2 mbr0) (elem-get 2 mbr1) (elem-get 2 mbr2)))
 	(list (fixeds (nums-dot mar0 mbc0) (nums-dot mar0 mbc1) (nums-dot mar0 mbc2))
 		(fixeds (nums-dot mar1 mbc0) (nums-dot mar1 mbc1) (nums-dot mar1 mbc2))
 		(fixeds (nums-dot mar2 mbc0) (nums-dot mar2 mbc1) (nums-dot mar2 mbc2))))
@@ -105,7 +105,7 @@
 		(t  val)))
 
 (defun push-attributes (stack keys vals)
-	(push stack (defq entry (. (elem -2 stack) :copy)))
+	(push stack (defq entry (. (elem-get -2 stack) :copy)))
 	(each (lambda (key val)
 		(cond
 			((eql key "style")

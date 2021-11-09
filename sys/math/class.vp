@@ -190,7 +190,7 @@
 	(vec-fdet 2)
 	(defq axb (vec-top 1))
 
-	(vpif (list (elem 0 axb) '/= 0))
+	(vpif (list (elem-get 0 axb) '/= 0))
 		(vec-dup 2 (cat da v1x))
 		(vec-fdet 2 (cat db v2x))
 		(vec-dup 2 (cat da v1y))

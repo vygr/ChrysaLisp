@@ -33,8 +33,8 @@
 				(if (> (length (push buf "")) (const vdu_height))
 					(setq buf (slice (const (dec (neg vdu_height))) -1 buf))))
 			(t  ;char
-				(elem-set -2 buf (cat (elem -2 buf) c))))) s)
-	(if vdu (. vdu :load buf 0 0 (length (elem -2 buf)) (dec (length buf)))) buf)
+				(elem-set -2 buf (cat (elem-get -2 buf) c))))) s)
+	(if vdu (. vdu :load buf 0 0 (length (elem-get -2 buf)) (dec (length buf)))) buf)
 
 (defun set-slider-values ()
 	(defq val (get :value hslider) mho (max 0 (dec (length buf_list))))
@@ -42,7 +42,7 @@
 	(. hslider :dirty))
 
 (defun play (_)
-	(unless (elem +debug_rec_state _)
+	(unless (elem-get +debug_rec_state _)
 		(step _))
 	(elem-set +debug_rec_state _ t))
 
@@ -50,8 +50,8 @@
 	(elem-set +debug_rec_state _ nil))
 
 (defun step (_)
-	(when (elem +debug_rec_reply_id _)
-		(mail-send (elem +debug_rec_reply_id _) "")
+	(when (elem-get +debug_rec_reply_id _)
+		(mail-send (elem-get +debug_rec_reply_id _) "")
 		(elem-set +debug_rec_reply_id _ nil)))
 
 (defun reset (&optional _)
@@ -60,7 +60,7 @@
 		(progn
 			(def hslider :value _)
 			(setq buf_index _)
-			(vdu-print vdu (elem +debug_rec_buf (elem buf_index buf_list)) ""))
+			(vdu-print vdu (elem-get +debug_rec_buf (elem-get buf_index buf_list)) ""))
 		(progn
 			(clear buf_list)
 			(clear buf_keys)
@@ -85,7 +85,7 @@
 	(set-slider-values))
 
 (defun tooltips ()
-	(def *window* :tip_mbox (elem +select_tip select))
+	(def *window* :tip_mbox (elem-get +select_tip select))
 	(each (# (def %0 :tip_text %1)) (. main_toolbar :children)
 		'("play" "pause" "step" "clear"))
 	(each (# (def %0 :tip_text %1)) (. main_toolbar2 :children)
@@ -93,13 +93,13 @@
 
 (defun main ()
 	(defq select (alloc-select +select_size)
-		entry (mail-declare (elem +select_service select) "DEBUG_SERVICE" "Debug Service 0.4"))
+		entry (mail-declare (elem-get +select_service select) "DEBUG_SERVICE" "Debug Service 0.4"))
 	(tooltips)
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(gui-add-front (. *window* :change x y w h))
 	(reset)
 	(while id
-		(defq idx (mail-select select) *msg* (mail-read (elem idx select)))
+		(defq idx (mail-select select) *msg* (mail-read (elem-get idx select)))
 		(cond
 			;new debug *msg*
 			((= idx +select_service)
@@ -111,9 +111,9 @@
 					(push buf_keys key)
 					(push buf_list (list (list "") nil nil))
 					(reset (setq index (dec (length buf_list)))))
-				(elem-set +debug_rec_buf (defq buf_rec (elem index buf_list))
-					(vdu-print (if (= index buf_index) vdu) (elem +debug_rec_buf buf_rec) data))
-				(if (elem +debug_rec_state buf_rec)
+				(elem-set +debug_rec_buf (defq buf_rec (elem-get index buf_list))
+					(vdu-print (if (= index buf_index) vdu) (elem-get +debug_rec_buf buf_rec) data))
+				(if (elem-get +debug_rec_state buf_rec)
 					(mail-send reply_id "")
 					(elem-set +debug_rec_reply_id buf_rec reply_id)))
 			((= idx +select_tip)
@@ -129,19 +129,19 @@
 			;pressed play button
 			((= id +event_play)
 				(when buf_index
-					(play (elem buf_index buf_list))))
+					(play (elem-get buf_index buf_list))))
 			;pressed pause button
 			((= id +event_pause)
 				(when buf_index
-					(pause (elem buf_index buf_list))))
+					(pause (elem-get buf_index buf_list))))
 			;pressed step button
 			((= id +event_step)
 				(when buf_index
-					(step (elem buf_index buf_list))))
+					(step (elem-get buf_index buf_list))))
 			;pressed clear button
 			((= id +event_clear)
 				(when buf_index
-					(step (elem buf_index buf_list))
+					(step (elem-get buf_index buf_list))
 					(setq buf_keys (cat (slice 0 buf_index buf_keys) (slice (inc buf_index) -1 buf_keys)))
 					(setq buf_list (cat (slice 0 buf_index buf_list) (slice (inc buf_index) -1 buf_list)))
 					(reset (min buf_index (dec (length buf_list))))))

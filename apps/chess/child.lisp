@@ -7,7 +7,7 @@
 
 ;piece map accses
 (defmacro piece-map (_ i)
-	`(elem (find-rev ,i ,(elem 0 (eval _))) (elem 1 ,_)))
+	`(elem-get (find-rev ,i ,(elem-get 0 (eval _))) (elem-get 1 ,_)))
 
 ;description of a pieces check influence
 (enums +vector 0
@@ -217,7 +217,7 @@
 			(cond
 				((and (<= 0 (setq x (+ x dx)) 7) (<= 0 (setq y (+ y dy)) 7))
 					;still on the board
-					(unless (eql (defq piece (elem (+ (* y 8) x) brd)) " ")
+					(unless (eql (defq piece (elem-get (+ (* y 8) x) brd)) " ")
 						;not +empty square so yield piece
 						(setq yield (cat yield piece) len 0)))
 				(t  ;off the edge
@@ -246,13 +246,13 @@
 		(unless (eql piece " ")
 			(defq eval_values (piece-map piece_evaluation_map piece))
 			(if (> (code piece) (ascii-code "Z"))
-				(setq white_score (+ white_score (elem 64 eval_values) (elem _ eval_values)))
-				(setq black_score (+ black_score (elem 64 eval_values) (elem _ eval_values)))))) (list brd))
+				(setq white_score (+ white_score (elem-get 64 eval_values) (elem-get _ eval_values)))
+				(setq black_score (+ black_score (elem-get 64 eval_values) (elem-get _ eval_values)))))) (list brd))
 	(* (- white_score black_score) color))
 
 ;generate all boards for a piece index and moves possibility, filtering out boards where king is in check
 (defun piece-moves (yield brd index color moves)
-	(defq piece (elem index brd) cx (logand index 7) cy (>> index 3)
+	(defq piece (elem-get index brd) cx (logand index 7) cy (>> index 3)
 		promote (if (= color +black) '("QRBN") '("qrbn")))
 	(each! 0 -1 (lambda ((dx dy len flag))
 		(defq x cx y cy)
@@ -265,7 +265,7 @@
 		(while (>= (setq len (dec len)) 0)
 			(cond
 				((and (<= 0 (setq x (+ x dx)) 7) (<= 0 (setq y (+ y dy)) 7))
-					(defq newindex (+ (* y 8) x) newpiece (elem newindex brd)
+					(defq newindex (+ (* y 8) x) newpiece (elem-get newindex brd)
 						newtype (piece-map piece_type_map newpiece))
 					(cond
 						((= newtype color)
@@ -377,7 +377,7 @@
 						((= (abs score) +timeout_value)
 							+timeout_value)
 						((>= alpha beta))))
-				(list (sort (lambda (a b) (- (elem 0 b) (elem 0 a))) ply0_brds))))
+				(list (sort (lambda (a b) (- (elem-get 0 b) (elem-get 0 a))) ply0_brds))))
 		(if (num? timeout) t
 			(setq nbrd (if pbrd pbrd nbrd) pbrd nil))) (list (range 1 max_ply)))
 	nbrd)
@@ -387,14 +387,14 @@
 
 (defun main ()
 	(defq select (alloc-select +select_size))
-	(mail-timeout (elem +select_timeout select) 1000000 0)
-	(defq msg (mail-read (elem (defq idx (mail-select select)) select)))
+	(mail-timeout (elem-get +select_timeout select) 1000000 0)
+	(defq msg (mail-read (elem-get (defq idx (mail-select select)) select)))
 	(cond
 		;timeout or quit
 		((or (= idx +select_timeout) (eql msg "")))
 		;main mailbox, reset timeout and reply with move
 		((= idx +select_main)
-			(mail-timeout (elem +select_timeout select) 0 0)
+			(mail-timeout (elem-get +select_timeout select) 0 0)
 			;read job
 			(defq reply_mbox (getf msg +job_reply)
 				max_time_per_move (getf msg +job_move_time)

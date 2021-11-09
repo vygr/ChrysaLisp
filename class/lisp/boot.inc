@@ -33,7 +33,7 @@
 (ffi logxor "class/num/lisp_xor" 0)
 
 (ffi length "class/seq/lisp_length" 0)
-(ffi elem "class/seq/lisp_elem" 0)
+(ffi elem-get "class/seq/lisp_elem" 0)
 (ffi find "class/seq/lisp_find" 0)
 (ffi find-rev "class/seq/lisp_rfind" 0)
 (ffi slice "class/seq/lisp_slice" 0)
@@ -191,11 +191,11 @@
 (defmacro lambda? (_)
 	; (lambda? form) -> t | nil
 	`(and (find :list (type-of (defq ,(defq __ (gensym)) ,_)))
-		(> (length ,__) 0) (eql (elem 0 ,__) 'lambda)))
+		(> (length ,__) 0) (eql (elem-get 0 ,__) 'lambda)))
 (defmacro macro? (_)
 	; (macro? form) -> t | nil
 	`(and (find :list (type-of (defq ,(defq __ (gensym)) ,_)))
-		(> (length ,__) 0) (eql (elem 0 ,__) 'macro)))
+		(> (length ,__) 0) (eql (elem-get 0 ,__) 'macro)))
 
 (defmacro inc (_)
 	; (inc num) -> num
@@ -211,7 +211,7 @@
 	; (setd var val [var val] ...)
 	(defq i -2 l (list 'setq))
 	(while (< (setq i (+ i 2)) (length _))
-		(push l (elem i _) (list 'opt (elem i _) (elem (inc i) _)))) l)
+		(push l (elem-get i _) (list 'opt (elem-get i _) (elem-get (inc i) _)))) l)
 
 ;;;;;;;;;;;;;;
 ; Control flow
@@ -247,8 +247,8 @@
 	; (and [tst] ...) -> t | nil | tst
 	(cond
 		((= (length _) 0))
-		((= (length _) 1) (elem 0 _))
-		(t `(if ,(elem 0 _) (and ~(slice 1 -1 _))))))
+		((= (length _) 1) (elem-get 0 _))
+		(t `(if ,(elem-get 0 _) (and ~(slice 1 -1 _))))))
 
 (defmacro case (_form &rest _body)
 	; (case form [(key|(key ...) body)] ...)
@@ -257,27 +257,27 @@
 			(unless (list? _keys) (setq _keys (list _keys)))
 			(setq _clause_body (pop (prebind (list (macroexpand
 				(if (= (length _clause_body) 1)
-					(elem 0 _clause_body)
+					(elem-get 0 _clause_body)
 					(cat '(progn) _clause_body)))))))
 			(or (eql :num (defq _clause_type (pop (type-of _clause_body))))
 				(eql :str _clause_type) (setq _atoms nil))
 			(each! 0 -1 (lambda (_key) (cond
 				((eql _key t)
 					(setq _default_key t _default_clause _clause_body))
-				(t  (push (elem 0 _map) _key)
-					(push (elem 1 _map) _clause_body)))) (list _keys)) _map)
+				(t  (push (elem-get 0 _map) _key)
+					(push (elem-get 1 _map) _clause_body)))) (list _keys)) _map)
 			_body (list (list) (list))))
 	(cond
 		(_default_key
-			(push (elem 1 _map) _default_clause)
+			(push (elem-get 1 _map) _default_clause)
 			(if _atoms
-				`(elem (or (find ,_form ',(elem 0 _map)) -2) ',(elem 1 _map))
-				`(eval (elem (or (find ,_form ',(elem 0 _map)) -2) ',(elem 1 _map)))))
+				`(elem-get (or (find ,_form ',(elem-get 0 _map)) -2) ',(elem-get 1 _map))
+				`(eval (elem-get (or (find ,_form ',(elem-get 0 _map)) -2) ',(elem-get 1 _map)))))
 		(t  (if _atoms
-				`(if (defq ,(defq _i (gensym)) (find ,_form ',(elem 0 _map)))
-					(elem ,_i ',(elem 1 _map)))
-				`(if (defq ,(defq _i (gensym)) (find ,_form ',(elem 0 _map)))
-					(eval (elem ,_i ',(elem 1 _map))))))))
+				`(if (defq ,(defq _i (gensym)) (find ,_form ',(elem-get 0 _map)))
+					(elem-get ,_i ',(elem-get 1 _map)))
+				`(if (defq ,(defq _i (gensym)) (find ,_form ',(elem-get 0 _map)))
+					(eval (elem-get ,_i ',(elem-get 1 _map))))))))
 
 (defmacro times (c &rest _)
 	; (times num body)
@@ -315,7 +315,7 @@
 	; (each-mergeable lambda seq) -> seq
 	(defq _ -1)
 	(while (< (setq _ (inc _)) (length _l))
-		(_f (elem _ _l))) _l)
+		(_f (elem-get _ _l))) _l)
 
 (defun each-mergeable-rev (_f _l)
 	; (each-mergeable-rev lambda seq) -> seq
@@ -331,13 +331,13 @@
 
 (defun map (_f &rest _)
 	; (map lambda seq ...) -> list
-	(defq _l (cap (length (elem 0 _)) (list)))
+	(defq _l (cap (length (elem-get 0 _)) (list)))
 	(each! 0 -1 (lambda (&rest _p)
 		(push _l (apply _f _p))) _) _l)
 
 (defun map-rev (_f &rest _)
 	; (map-rev lambda seq ...) -> list
-	(defq _l (cap (length (elem 0 _)) (list)))
+	(defq _l (cap (length (elem-get 0 _)) (list)))
 	(each! -1 0 (lambda (&rest _p)
 		(push _l (apply _f _p))) _) _l)
 
@@ -345,14 +345,14 @@
 	; (filter lambda seq) -> list
 	(defq _l (list))
 	(each! 0 -1 (lambda (&rest _p)
-		(if (apply _f _p) (push _l (elem _ _b)))) (list _b)) _l)
+		(if (apply _f _p) (push _l (elem-get _ _b)))) (list _b)) _l)
 
 (defun reduce (_f _l &optional _a)
 	; (reduce lambda seq [accum]) -> form
 	(cond
 		(_a (each! 0 -1 (lambda (_e)
 				(setq _a (_f _a _e))) (list _l)))
-		(t (setq _a (elem 0 _l))
+		(t (setq _a (elem-get 0 _l))
 			(each! 1 -1 (lambda (_e)
 				(setq _a (_f _a _e))) (list _l)))) _a)
 
@@ -361,7 +361,7 @@
 	(cond
 		(_a (each! -1 0 (lambda (_e)
 				(setq _a (_f _a _e))) (list _l)))
-		(t (setq _a (elem -2 _l))
+		(t (setq _a (elem-get -2 _l))
 			(each! -2 0 (lambda (_e)
 				(setq _a (_f _a _e))) (list _l)))) _a)
 
@@ -371,7 +371,7 @@
 	(cond
 		(_a (some! 0 -1 nil (lambda (_e)
 				(cond (__x t) (t (setq _a (_f _a _e)) nil))) (list _l)))
-		(t (setq _a (elem 0 _l))
+		(t (setq _a (elem-get 0 _l))
 			(some! 1 -1 nil (lambda (_e)
 				(cond (__x t) (t (setq _a (_f _a _e)) nil))) (list _l)))) _a)
 
@@ -381,7 +381,7 @@
 	(cond
 		(_a (some! -1 0 nil (lambda (_e)
 				(cond (__x t) (t (setq _a (_f _a _e)) nil))) (list _l)))
-		(t (setq _a (elem -2 _l))
+		(t (setq _a (elem-get -2 _l))
 			(some! -2 0 nil (lambda (_e)
 				(cond (__x t) (t (setq _a (_f _a _e)) nil))) (list _l)))) _a)
 
@@ -395,7 +395,7 @@
 
 (defmacro let (l &rest _)
 	; (let ([(var val) ...]) body)
-	`((lambda ,(map (lambda (_) (elem 0 _)) l) ~_) ~(map (lambda (_) (elem 1 _)) l)))
+	`((lambda ,(map (lambda (_) (elem-get 0 _)) l) ~_) ~(map (lambda (_) (elem-get 1 _)) l)))
 
 (defmacro let* (l &rest _)
 	; (let* ([(var val) ...]) body)
@@ -443,19 +443,19 @@
 
 (defun first (_)
 	; (first seq) -> el | nil
-	(if (and (not (nil? _)) (> (length _) 0)) (elem 0 _)))
+	(if (and (not (nil? _)) (> (length _) 0)) (elem-get 0 _)))
 
 (defun second (_)
 	; (second seq) -> el | nil
-	(if (and (not (nil? _)) (> (length _) 1)) (elem 1 _)))
+	(if (and (not (nil? _)) (> (length _) 1)) (elem-get 1 _)))
 
 (defun third (_)
 	; (third seq) -> el | nil
-	(if (and (not (nil? _)) (> (length _) 2)) (elem 2 _)))
+	(if (and (not (nil? _)) (> (length _) 2)) (elem-get 2 _)))
 
 (defun last (_)
 	; (last seq) -> el | nil
-	(if (and (not (nil? _)) (> (length _) 0)) (elem -2 _)))
+	(if (and (not (nil? _)) (> (length _) 0)) (elem-get -2 _)))
 
 (defun rest (_)
 	; (rest seq) -> nil | seq
@@ -478,11 +478,11 @@
 (defun unzip (l b)
 	; (unzip seq buckets) -> buckets
 	(reduce (lambda (b e)
-		(push (elem (% _ (length b)) b) e) b) l b))
+		(push (elem-get (% _ (length b)) b) e) b) l b))
 
 (defun zip (&rest _)
 	; (zip seq ...) -> list
-	(defq l (cap (length (elem 0 _)) (list)))
+	(defq l (cap (length (elem-get 0 _)) (list)))
 	(each! 0 -1 (lambda (&rest _) (push l _)) _)
 	(if (= 0 (length l)) l (apply cat l)))
 
@@ -637,7 +637,7 @@
 
 (defun char-to-num (_)
 	; (char-to-num char) -> num
-	(elem (code _)
+	(elem-get (code _)
 		(const (cat (list quote) (list
 			'(-1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 			-1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 0 1 2 3
@@ -652,7 +652,7 @@
 
 (defun num-to-char (_)
 	; (num-to-char num) -> char
-	(elem _ "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"))
+	(elem-get _ "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"))
 
 (defun str-as-num (_)
 	; (str-as-num str) -> num
@@ -696,8 +696,8 @@
 (defun swap (_ _1 _2)
 	; (swap list index index)
 	(when (/= _1 _2)
-		(defq _t (elem _1 _))
-		(elem-set _1 _ (elem _2 _))
+		(defq _t (elem-get _1 _))
+		(elem-set _1 _ (elem-get _2 _))
 		(elem-set _2 _ _t)))
 
 (defun shuffle (_a &optional _l _h)
@@ -783,12 +783,12 @@
 					((_fi _l)
 						(_fo _l))
 					(t  (push _stack _l 1)
-						(if (list? (defq _e (elem 0 _l))) (push _stack _e 0))
+						(if (list? (defq _e (elem-get 0 _l))) (push _stack _e 0))
 						(_f _e))))
 			((< _ (length _l))
 				;element of list
 				(push _stack _l (inc _))
-				(if (list? (defq _e (elem _ _l))) (push _stack _e 0))
+				(if (list? (defq _e (elem-get _ _l))) (push _stack _e 0))
 				(_f _e))
 			(t  ;exit list
 				(_fo _l)))))
@@ -803,7 +803,7 @@
 				(merge-obj args (list _))))
 		;enter list func
 		(lambda (_)
-			(and (> (length _) 0) (eql (elem 0 _) '#)))
+			(and (> (length _) 0) (eql (elem-get 0 _) '#)))
 		;exit list func
 		progn)
 	`(lambda ,(sort cmp args) ~_))
@@ -818,7 +818,7 @@
 
 (defun age (_)
 	; (age path) -> 0 | time ns
-	(if (setq _ (pii-fstat _)) (elem 0 _) 0))
+	(if (setq _ (pii-fstat _)) (elem-get 0 _) 0))
 
 (defun load-stream (_)
 	; (load-stream path) -> nil | stream

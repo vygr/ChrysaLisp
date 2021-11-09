@@ -21,7 +21,7 @@
 			(setq err new_err index _ flag (if (= it 32) 0 +view_flag_opaque)))) images_info)
 	(. wallpaper :sub)
 	(gui-add-back (.-> (setq wallpaper (Canvas w h 1))
-		(:resize (Canvas-from-file (elem index *env_wallpaper_images*) +load_flag_noswap)) :swap
+		(:resize (Canvas-from-file (elem-get index *env_wallpaper_images*) +load_flag_noswap)) :swap
 		(:set_flags (+ (const (+ +view_flag_at_back +view_flag_dirty_all)) flag)
 			(const (+ +view_flag_at_back +view_flag_dirty_all +view_flag_opaque)))
 		(:change 0 0 w h))))

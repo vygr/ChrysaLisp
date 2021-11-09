@@ -19,7 +19,7 @@
 
 (defun lighting (col at)
 	;very basic attenuation and diffuse
-	(defq alpha (elem 0 col) col (slice 1 -1 col))
+	(defq alpha (elem-get 0 col) col (slice 1 -1 col))
 	(bind '(r g b) (vec-min (vec-add
 		;attenuation
 		(vec-scale col (* (n2f at) 255.0) (const (cat +fixeds_tmp3)))
@@ -30,7 +30,7 @@
 
 (defun lighting-at3 (col at sp)
 	;very basic attenuation, diffuse and specular
-	(defq alpha (elem 0 col) col (slice 1 -1 col))
+	(defq alpha (elem-get 0 col) col (slice 1 -1 col))
 	(bind '(r g b) (vec-min (vec-add (vec-add
 		;attenuation
 		(vec-scale col (* (n2f at) (const (/ 255.0 3.0))) (const (cat +fixeds_tmp3)))
@@ -51,7 +51,7 @@
 			(when (<= +real_-1 z +real_1)
 				(defq x (* x rw) y (* y rw) at (recip (+ z +real_2)) r (* (const (n2r 0.02)) sp rw)
 					sx (* (+ x +real_1) sp) sy (* (+ y +real_1) sp))
-				(push (elem (n2i (* (+ z +real_1) (const (n2r (/ +num_poly_buckets 2))))) poly_buckets)
+				(push (elem-get (n2i (* (+ z +real_1) (const (n2r (/ +num_poly_buckets 2))))) poly_buckets)
 					(list (circle r) (lighting col at) (n2f sx) (n2f sy)))))
 		proj_verts))
 
@@ -72,16 +72,16 @@
 			(push ats at))
 		proj_verts)
 	(each (lambda ((i0 i1 i2 in))
-			(when (and (> (vec-dot (defq n (elem in norms)) (vec-sub (elem i0 verts) cam_pos)) +real_0)
-					(<= +real_-1 (elem i1 screen_zs) +real_1)
-					(<= +real_-1 (elem i2 screen_zs) +real_1)
-					(<= +real_-1 (defq z0 (elem i0 screen_zs)) +real_1))
+			(when (and (> (vec-dot (defq n (elem-get in norms)) (vec-sub (elem-get i0 verts) cam_pos)) +real_0)
+					(<= +real_-1 (elem-get i1 screen_zs) +real_1)
+					(<= +real_-1 (elem-get i2 screen_zs) +real_1)
+					(<= +real_-1 (defq z0 (elem-get i0 screen_zs)) +real_1))
 				(defq sp (max +real_0 (vec-dot n light_vec))
 					sp (* sp sp sp sp sp sp)
-					at (+ (elem i0 ats) (elem i1 ats) (elem i2 ats))
+					at (+ (elem-get i0 ats) (elem-get i1 ats) (elem-get i2 ats))
 					bucket (n2i (* (+ z0 +real_1) (const (n2r (/ +num_poly_buckets 2))))))
-				(push (elem bucket poly_buckets) (list
-					(cat (elem i0 screen_verts) (elem i1 screen_verts) (elem i2 screen_verts))
+				(push (elem-get bucket poly_buckets) (list
+					(cat (elem-get i0 screen_verts) (elem-get i1 screen_verts) (elem-get i2 screen_verts))
 					(lighting-at3 col at sp)))))
 		(. object :get_tris)))
 
@@ -165,7 +165,7 @@
 				((< _idx (length _children))
 					;step into child node
 					(push _stack _this _children (inc _idx)
-						(defq _this (elem _idx _children)) (get :children _this) 0))
+						(defq _this (elem-get _idx _children)) (get :children _this) 0))
 				(t  ;step out
 					(_fo _this _children))))
 		this)
@@ -224,7 +224,7 @@
 		(raise :poly_buckets)
 		(. scene :walk_nodes
 			(lambda (object children)
-				(defq mat4x4_obj (mat4x4-mul (elem -2 matrix_stack) (. object :get_matrix))
+				(defq mat4x4_obj (mat4x4-mul (elem-get -2 matrix_stack) (. object :get_matrix))
 					imat4x4_obj (mat4x4-invert mat4x4_obj))
 				(push matrix_stack mat4x4_obj)
 				(when (def? :mesh object)

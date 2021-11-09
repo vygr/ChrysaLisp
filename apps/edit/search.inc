@@ -16,10 +16,10 @@
 						(defq x1 (+ x pattern_len))
 						(if (cond
 								((eql pattern line))
-								((= x 0) (not-whole-word-char? (elem x1 line)))
-								((= x1 (length line)) (not-whole-word-char? (elem (dec x) line)))
-								((and (not-whole-word-char? (elem (dec x) line)))
-									(not-whole-word-char? (elem x1 line))))
+								((= x 0) (not-whole-word-char? (elem-get x1 line)))
+								((= x1 (length line)) (not-whole-word-char? (elem-get (dec x) line)))
+								((and (not-whole-word-char? (elem-get (dec x) line)))
+									(not-whole-word-char? (elem-get x1 line))))
 							(push out_xs x))) xs)
 					(push out out_xs))
 				(.-> *edit* :get_buffer :get_text_lines) found)
@@ -61,7 +61,7 @@
 		(bind '(ax ay) (. *edit* :get_anchor))
 		(when (> (length (defq text
 				(split (.-> *edit* :get_buffer (:copy ax ay)) (ascii-char +char_lf)))) 0)
-			(setq text (elem 0 text))
+			(setq text (elem-get 0 text))
 			(set *find_text* :clear_text text :cursor (length text) :anchor 0)
 			(.-> *find_text* :layout :dirty))))
 

@@ -32,15 +32,15 @@
 				(if (> (length (push buf "")) (const vdu_height))
 					(setq buf (slice (const (dec (neg vdu_height))) -1 buf))))
 			(t	;char
-				(elem-set -2 buf (cat (elem -2 buf) c))))) s)
-	(. vdu :load buf 0 0 (length (elem -2 buf)) (dec (length buf))) buf)
+				(elem-set -2 buf (cat (elem-get -2 buf) c))))) s)
+	(. vdu :load buf 0 0 (length (elem-get -2 buf)) (dec (length buf))) buf)
 
 (defun broadcast (text)
 	(setq text (cat "<" (get :clear_text chat_user) "> " text (ascii-char 10)))
-	(each (# (mail-send (to-net-id (elem 1 (split %0 ","))) text)) (mail-enquire "CHAT_SERVICE")))
+	(each (# (mail-send (to-net-id (elem-get 1 (split %0 ","))) text)) (mail-enquire "CHAT_SERVICE")))
 
 (defun tooltips ()
-	(def *window* :tip_mbox (elem +select_tip select))
+	(def *window* :tip_mbox (elem-get +select_tip select))
 	(each (# (def %0 :tip_text %1)) (. main_toolbar :children)
 		'("join" "leave")))
 
@@ -50,7 +50,7 @@
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(gui-add-front (. *window* :change x y w h))
 	(while id
-		(defq *msg* (mail-read (elem (defq idx (mail-select select)) select)))
+		(defq *msg* (mail-read (elem-get (defq idx (mail-select select)) select)))
 		(cond
 			((= idx +select_tip)
 				;tip time mail
@@ -66,7 +66,7 @@
 				;connect to network ?
 				(unless (or entry (eql "" (get :clear_text chat_user)))
 					(push select (mail-alloc-mbox))
-					(setq entry (mail-declare (elem +select_chat select) "CHAT_SERVICE" "Chat Service 0.1"))
+					(setq entry (mail-declare (elem-get +select_chat select) "CHAT_SERVICE" "Chat Service 0.1"))
 					(broadcast "Has joined the chat !")))
 			((= id +event_disconnect)
 				;disconnect to network

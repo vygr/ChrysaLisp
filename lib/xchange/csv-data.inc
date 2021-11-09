@@ -57,7 +57,7 @@
   (while (/= fpos -1)
     (defq lpos -1)
     (when (/= fpos (last clpos))
-      (setq lpos (elem (inc (csv-ifind fpos clpos)) clpos)))
+      (setq lpos (elem-get (inc (csv-ifind fpos clpos)) clpos)))
     (when (/= fpos 0)
       (setq fpos (inc fpos)))
     (push (get :row row) (csv-cell-value s fpos lpos))
@@ -81,7 +81,7 @@
   ; Returns a row's specific cell value indicated by index
   (csv-validate-clz rr :clz_csv_row)
   (setd index 0)
-  (elem index (get :row rr)))
+  (elem-get index (get :row rr)))
 
 (defun csv-first-cell (rr)
   ; (first-cell rr) -> cell content | exception
@@ -120,7 +120,7 @@
       (set doc :rows (slice 1 -1 drows)))
     ; Header provided
     ((find :use_header options)
-      (set doc :header (elem (inc (find :use_header options)) options))))
+      (set doc :header (elem-get (inc (find :use_header options)) options))))
   (when (find :validate options)
     (defq
       rrs (get :rows doc)
@@ -146,7 +146,7 @@
   ; (row doc index) -> row | exception
   (csv-validate-clz doc :clz_csv_document)
   (setd index 0)
-  (elem index (get :rows doc)))
+  (elem-get index (get :rows doc)))
 
 (defun csv-first-row (doc)
   ; (first-row doc) -> row | exception

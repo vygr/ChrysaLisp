@@ -64,8 +64,8 @@
 					(elem-set _ op e))) (list op))
 			;create label and branch initial values
 			(cond
-				((eql (defq e (elem 0 op)) 'emit-label)
-					(def (penv (penv)) (elem -2 (elem -2 op)) 0))
+				((eql (defq e (elem-get 0 op)) 'emit-label)
+					(def (penv (penv)) (elem-get -2 (elem-get -2 op)) 0))
 				((find e '(emit-beq emit-bne emit-bge emit-blt emit-ble emit-bgt emit-jmp))
 					(push op (dec (length (push *branches* 0))))))
 			;bind emit func

@@ -29,7 +29,7 @@
 			(:Slider 12)
 			(:Window
 				(case (if (= *mouse_buttons* 0)
-						(elem 0 (. view :drag_mode rx ry))
+						(elem-get 0 (. view :drag_mode rx ry))
 						(get :drag_mode view))
 					(1 10) (2 8) (3 5) (4 10) (6 4) (8 8) (9 4) (12 5) (t 0)))
 			(t 0)))
@@ -54,17 +54,17 @@
 	(gui-update 0 0 0)
 	;init mouse widget
 	(defq *mouse* (Canvas-from-file "apps/images/data/mice.cpm" 0))
-	(setf *mouse* +view_owner_id (elem +select_mouse select) 0)
+	(setf *mouse* +view_owner_id (elem-get +select_mouse select) 0)
 	(. *mouse* :set_flags +view_flag_at_front (const (+ +view_flag_solid +view_flag_at_front)))
 	(. *screen* :add_front *mouse*)
 	(mouse-type *screen* 0 0)
 	;fire up the login app and clipboard service
 	(open-child "apps/login/app.lisp" +kn_call_open)
 	(open-child "apps/clipboard/app.lisp" +kn_call_open)
-	(mail-timeout (elem +select_timer select) rate 0)
+	(mail-timeout (elem-get +select_timer select) rate 0)
 	(while *running*
 		(let* ((idx (mail-select select))
-			  (msg (mail-read (elem idx select))))
+			  (msg (mail-read (elem-get idx select))))
 			(cond
 				((= idx +select_main)
 					;main mailbox
@@ -89,7 +89,7 @@
 					)
 				((= idx +select_timer)
 					;timer event
-					(mail-timeout (elem +select_timer select) rate 0)
+					(mail-timeout (elem-get +select_timer select) rate 0)
 					(gui-update *mouse_x* *mouse_y* 0)
 					(while (defq msg (gui-event))
 						(if (defq action (. event_map :find (getf msg +sdl_common_event_type)))

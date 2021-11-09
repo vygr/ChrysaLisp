@@ -84,7 +84,7 @@
 (defun emit-sge-rr (s d) (emit-short (+ (next-opcode) (<< d 8) (<< s 12))))
 
 (defun emit-branch (o l d)
-	(defq m (elem d *branches*) l (- l *pc*))
+	(defq m (elem-get d *branches*) l (- l *pc*))
 	(and (/= *pass* 0) (> (abs l) (abs m)) (elem-set d *branches* (setq m l)))
 	(cond
 		((<= -0x80 (- m 2) 0x7f)

@@ -27,7 +27,7 @@
 			(progn
 				(defq i 0)
 				(while (< (setq i (inc i)) (length args))
-					(import (elem i args))
+					(import (elem-get i args))
 					(stream-flush stdout)
 					(stream-flush stderr))))
 		;repl from stdin

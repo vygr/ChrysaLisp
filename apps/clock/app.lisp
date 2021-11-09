@@ -91,9 +91,9 @@
 		(create-clockface (* (n2f clock_size) (n2f clock_scale))))
 	(bind '(w h) (. *window* :pref_size))
 	(gui-add-front (. *window* :change 0 0 w h))
-	(mail-timeout (elem +select_timer select) 1 0)
+	(mail-timeout (elem-get +select_timer select) 1 0)
 	(while id
-		(defq msg (mail-read (elem (defq idx (mail-select select)) select)))
+		(defq msg (mail-read (elem-get (defq idx (mail-select select)) select)))
 		(cond
 			((= idx +select_main)
 				;main mailbox
@@ -103,7 +103,7 @@
 					(t (. *window* :event msg))))
 			((= idx +select_timer)
 				;timer event
-				(mail-timeout (elem +select_timer select) rate 0)
+				(mail-timeout (elem-get +select_timer select) rate 0)
 				(when clock
 					(make-analog-time)
 					(view-analog-time (* (n2f clock_size) (n2f clock_scale)))

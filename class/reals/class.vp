@@ -159,7 +159,7 @@
 	(divop :div
 		'(progn
 			(assign `((,src1 0) (,src2 0)) in)
-			(errorif (list (elem 1 in) '= 0) 'error)
+			(errorif (list (elem-get 1 in) '= 0) 'error)
 			(call 'sys_math :r_div in `((,dst1 0)))))
 
 (def-func-end)
@@ -178,7 +178,7 @@
 	(divop :mod
 		'(progn
 			(assign `((,src1 0) (,src2 0)) in)
-			(errorif (list (elem 1 in) '= 0) 'error)
+			(errorif (list (elem-get 1 in) '= 0) 'error)
 			(call 'sys_math :r_mod in `((,dst1 0)))))
 
 (def-func-end)

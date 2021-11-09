@@ -62,16 +62,16 @@
 	;_4 = out parameters
 	;_6 = temp reg
 	(setd _6 :r13)
-	(defq m (method-lookup _1 _2) x (list) s (elem 2 m))
-	(if (eql (elem 1 m) :static)
+	(defq m (method-lookup _1 _2) x (list) s (elem-get 2 m))
+	(if (eql (elem-get 1 m) :static)
 		(throw "Abi methods must be virtual !" (list _1 _2)))
 	(if (or (find-rev _5 s) (find-rev _6 s))
 		(throw "Dispatch/Temp register conflicts with arg !" (list _5 _6 s)))
 	(assign _3 s)
 	(when (> (defq ls (length s)) (defq la (length (abi-args))))
 		(setq x (reverse (slice la ls s))))
-	(vp-call-abi _6 _5 (- (elem 4 m) +ptr_size) (length s) x)
-	(if _4 (assign (elem 3 m) _4)))
+	(vp-call-abi _6 _5 (- (elem-get 4 m) +ptr_size) (length s) x)
+	(if _4 (assign (elem-get 3 m) _4)))
 
 (defun host-os-call (_1 _2 &optional _3 _4 _5 _6)
 	;_1 = class name

@@ -209,7 +209,7 @@ apps/netmon/app.inc
 
 Looking at the parent task `apps/netmon/app.lisp` it then sends out, at regular
 intervals, a polling message to each child task, that consists of the parents
-reply mailbox. Note that the `(elem +select_reply select)` will just be the
+reply mailbox. Note that the `(elem-get +select_reply select)` will just be the
 mailbox id string returned from its earlier call to `(mail-alloc-mbox)`.
 
 ```vdu
@@ -218,7 +218,7 @@ mailbox id string returned from its earlier call to `(mail-alloc-mbox)`.
 	; (poll key val)
 	;function called to poll entry
 	(unless (eql (defq child (. val :find :child)) (const (pad "" +net_id_size)))
-		(mail-send child (elem +select_reply select))))
+		(mail-send child (elem-get +select_reply select))))
 ...
 ```
 

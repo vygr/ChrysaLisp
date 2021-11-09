@@ -21,7 +21,7 @@
 	then paths are read from stdin.")
 (("-f" "--format")
 	,(lambda (args arg)
-		(setq format (str-as-num (elem 0 args)))
+		(setq format (str-as-num (elem-get 0 args)))
 		(slice 1 -1 args)))
 ))
 

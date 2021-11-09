@@ -43,11 +43,11 @@
 			(cond
 				((eql msg t)
 					;user select msg
-					(defq msg (mail-read (elem (defq idx (mail-select *select*)) *select*))))
+					(defq msg (mail-read (elem-get (defq idx (mail-select *select*)) *select*))))
 				(t  ;pipe closed or pipe data
 					(defq idx +select_pipe))))
 		(t  ;no active pipe running
-			(defq msg (mail-read (elem (defq idx (mail-select *select*)) *select*)))))
+			(defq msg (mail-read (elem-get (defq idx (mail-select *select*)) *select*)))))
 	(list msg idx))
 
 (defun load-display ()
@@ -101,7 +101,7 @@
 	(set-sliders) (load-display))
 
 (defun tooltips ()
-	(def *window* :tip_mbox (elem +select_tip *select*))
+	(def *window* :tip_mbox (elem-get +select_tip *select*))
 	(each (# (def %0 :tip_text %1)) (. main_toolbar :children)
 		'("copy" "paste" "select paragraph")))
 

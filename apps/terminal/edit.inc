@@ -52,7 +52,7 @@
 				;push new line history entry if not same as last entry
 				(unless (eql cmd "")
 					(and (> (length (push *history* cmd)) 1)
-						(eql (elem -3 *history*) cmd)
+						(eql (elem-get -3 *history*) cmd)
 						(pop *history*))
 					(setq *history_idx* (length *history*)))
 				(. buffer :paste (const (cat (ascii-char +char_lf) (ascii-char +char_lf))))

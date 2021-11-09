@@ -30,7 +30,7 @@
 (defun batch (p)
 	(defq s 0 e 0 b (list))
 	(while (<= (setq e (inc e)) (length p))
-		(when (or (= e (length p)) (/= (elem 2 (elem s p)) (elem 2 (elem e p))))
+		(when (or (= e (length p)) (/= (elem-get 2 (elem-get s p)) (elem-get 2 (elem-get e p))))
 			(push b (slice s e p))
 			(setq s e))) b)
 
@@ -52,8 +52,8 @@
 				layers (list (list) (list) (list) (list) (list) (list)))
 			(each (lambda (p path_2d)
 				(each (lambda (seg seg_2d)
-					(when (or (= show (defq z (% (>> (elem 2 (elem 0 seg)) +fp_shift) pcb_depth))) (= show -1))
-						(path-stroke-polylines (elem z layers) track_radius +eps +join_round +cap_round +cap_round (list seg_2d)))
+					(when (or (= show (defq z (% (>> (elem-get 2 (elem-get 0 seg)) +fp_shift) pcb_depth))) (= show -1))
+						(path-stroke-polylines (elem-get z layers) track_radius +eps +join_round +cap_round +cap_round (list seg_2d)))
 					) p path_2d)
 				) batched_paths batched_paths_2d)
 			(each! 0 pcb_depth
@@ -104,7 +104,7 @@
 				layer (list))
 			(each (lambda (p path_2d)
 				(each (lambda (seg seg_2d)
-					(when (= show (defq z (% (>> (elem 2 (elem 0 seg)) +fp_shift) pcb_depth)))
+					(when (= show (defq z (% (>> (elem-get 2 (elem-get 0 seg)) +fp_shift) pcb_depth)))
 						(path-stroke-polylines layer (+ track_radius (if with_gaps track_gap 0.0))
 							+eps +join_round +cap_round +cap_round (list seg_2d)))
 					) p path_2d)
@@ -150,7 +150,7 @@
 	(pcb-draw-gerber-layer nil))
 
 (defun pcb-canvas (pcb mode show zoom canvas_scale)
-	(bind '(pcb_width pcb_height pcb_depth) (elem 0 pcb))
+	(bind '(pcb_width pcb_height pcb_depth) (elem-get 0 pcb))
 	(defq canvas (Canvas (* (+ pcb_width 4) (n2i zoom)) (* (+ pcb_height 4) (n2i zoom)) canvas_scale)
 		zoom (* zoom (n2f canvas_scale)) pcb_border (* zoom 2.0))
 	(.-> canvas (:set_canvas_flags +canvas_flag_antialias) (:fill +argb_black))

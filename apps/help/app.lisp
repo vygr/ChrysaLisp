@@ -11,19 +11,19 @@
 	(defq state t vdu_width 1 k (list) v (list))
 	(each-line (lambda (_)
 		(when (/= 0 (length (defq s (split (setq _ (trim-end _ (ascii-char 13))) " "))))
-			(defq f (elem 0 s))
+			(defq f (elem-get 0 s))
 			(cond
 				(state (cond
-					((eql f "###") (push k (sym (cat (elem 1 s) " " (elem 2 s)))) (push v ""))
+					((eql f "###") (push k (sym (cat (elem-get 1 s) " " (elem-get 2 s)))) (push v ""))
 					((eql f "```code") (setq state nil))))
 				((eql f "```") (setq state t))
-				(t (elem-set -2 v (cat (elem -2 v) _ (ascii-char 10))))))) (file-stream "docs/VP_CLASSES.md"))
+				(t (elem-set -2 v (cat (elem-get -2 v) _ (ascii-char 10))))))) (file-stream "docs/VP_CLASSES.md"))
 	(each (lambda (k v)
 		(when (/= 0 (length v))
 			(defq _ (split k ":"))
 			(cond
-				((and (>= (length (elem 0 _)) 4) (eql "lisp" (slice 0 4 (elem 0 _)))))
-				((and (>= (length (elem 1 _)) 5) (eql "lisp_" (slice 0 5 (elem 1 _)))))
+				((and (>= (length (elem-get 0 _)) 4) (eql "lisp" (slice 0 4 (elem-get 0 _)))))
+				((and (>= (length (elem-get 1 _)) 5) (eql "lisp_" (slice 0 5 (elem-get 1 _)))))
 				(t (push keys k) (push vals v))))) k v)
 	(each (lambda (_)
 		(def (defq b (Button)) :text _ :border 0
@@ -41,8 +41,8 @@
 				(if (> (length (push buf "")) (const vdu_height))
 					(setq buf (slice (const (dec (neg vdu_height))) -1 buf))))
 			(t	;char
-				(elem-set -2 buf (cat (elem -2 buf) c))))) s)
-	(. vdu :load buf 0 0 (length (elem -2 buf)) (dec (length buf))) buf)
+				(elem-set -2 buf (cat (elem-get -2 buf) c))))) s)
+	(. vdu :load buf 0 0 (length (elem-get -2 buf)) (dec (length buf))) buf)
 
 (ui-window *window* (:color +argb_black)
 	(ui-title-bar _ "Help" (0xea19) +event_close)
@@ -65,9 +65,9 @@
 			(when _
 				(setq text_buf (vdu-print vdu text_buf (str
 					"----------------------" (ascii-char 10)
-					(elem _ keys) (ascii-char 10)
+					(elem-get _ keys) (ascii-char 10)
 					"----------------------" (ascii-char 10)
-					(elem _ vals)
+					(elem-get _ vals)
 					"----------------------" (ascii-char 10) (ascii-char 10))))))
 		(t (. *window* :event msg))))
 	(gui-sub *window*))

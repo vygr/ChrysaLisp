@@ -26,7 +26,7 @@
   (gets-in levels lvlkw))
 
 (defun _level-name (lvlkw)
-  (elem (_level-index lvlkw) (gets-in levels :logstrs)))
+  (elem-get (_level-index lvlkw) (gets-in levels :logstrs)))
 
 ;;;;;;;;;;;;;;;;;;;;;
 ; Formatting
@@ -107,10 +107,10 @@
 
   (progn
     (defq nm (get :file_name this))
-    (while (eql (elem 0 nm) +dblq)
+    (while (eql (elem-get 0 nm) +dblq)
       (setq nm (slice 1 -2 nm)))
     (set this :file_name nm)
-    ; (when (eql (elem 0 nm) +dblq)
+    ; (when (eql (elem-get 0 nm) +dblq)
     ;   (set this :file_name (slice 1 -2 nm)))
     (bind '(fstream sz)
       (open-latest-log

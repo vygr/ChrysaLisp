@@ -346,6 +346,6 @@
 	; (reg ...)
 	;outputs
 	;load register list from array
-	(defq b (get (elem -2 regs)))
+	(defq b (get (elem-get -2 regs)))
 	(assign `((,(get a) array_begin)) `(,b))
 	(array-get-args b regs))

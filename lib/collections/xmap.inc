@@ -8,7 +8,7 @@
 (defmacro slot ()
 	`(defq x (get :buckets this)
 		b (* (% ((get :hash_fnc this) key) (get :num_buckets this)) 2)
-		e (some (# (if ((get :cmp_fnc this) %0 key) _)) (elem b x))))
+		e (some (# (if ((get :cmp_fnc this) %0 key) _)) (elem-get b x))))
 
 (defclass xmap (&optional num_buckets cmp_fnc hash_fnc) nil
 	; (xmap [num_buckets cmp_fnc hash_fnc]) -> xmap
@@ -20,23 +20,23 @@
 	(defmethod :find (this key)
 		; (. xmap :find key) -> nil | val
 		(slot)
-		(if e (elem e (elem (inc b) x))))
+		(if e (elem-get e (elem-get (inc b) x))))
 
 	(defmethod :insert (this key val)
 		; (. xmap :insert key val) -> xmap
 		(slot)
 		(cond
-			(e (elem-set e (elem (inc b) x) val))
-			(t (push (elem b x) key) (push (elem (inc b) x) val)))
+			(e (elem-set e (elem-get (inc b) x) val))
+			(t (push (elem-get b x) key) (push (elem-get (inc b) x) val)))
 		this)
 
 	(defmethod :erase (this key)
 		; (. xmap :erase key) -> xmap
 		(slot)
 		(when e
-			(defq bv (elem (inc b) x) b (elem b x))
-			(elem-set e b (elem -2 b))
-			(elem-set e bv (elem -2 bv))
+			(defq bv (elem-get (inc b) x) b (elem-get b x))
+			(elem-set e b (elem-get -2 b))
+			(elem-set e bv (elem-get -2 bv))
 			(pop b) (pop bv))
 		this)
 
@@ -44,7 +44,7 @@
 		; (. xmap :each lambda)
 		(defq _i -2 _b (get :buckets _this))
 		(while (< (setq _i (+ _i 2)) (length _b))
-			(each _fnc (elem _i _b) (elem (inc _i) _b))) _this)
+			(each _fnc (elem-get _i _b) (elem-get (inc _i) _b))) _this)
 
 	(defmethod :copy (this)
 		; (. xmap :copy) -> xmap
@@ -83,11 +83,11 @@
 			(push new_buckets (list) (list)))
 		(raise :num_buckets (i -2))
 		(while (< (setq i (+ i 2)) (length buckets))
-			(defq old_keys (elem i buckets) old_vals (elem (inc i) buckets))
+			(defq old_keys (elem-get i buckets) old_vals (elem-get (inc i) buckets))
 			(while (defq key (pop old_keys) val (pop old_vals))
 				(defq ni (* (% (hash_fnc key) num_buckets) 2))
-				(push (elem ni new_buckets) key)
-				(push (elem (inc ni) new_buckets) val)))
+				(push (elem-get ni new_buckets) key)
+				(push (elem-get (inc ni) new_buckets) val)))
 		this)
 
 	(defmethod :empty? (this)

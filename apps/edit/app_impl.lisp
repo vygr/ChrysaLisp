@@ -121,7 +121,7 @@
 	(bind '(sx sy) (. *edit* :get_scroll))
 	(defq lines (clear '()) start_line sy
 		end_line (inc (min
-			(elem 1 (. buffer :get_size))
+			(elem-get 1 (. buffer :get_size))
 			(+ start_line (get :vdu_height *edit*)))))
 	(while (< (setq start_line (inc start_line)) end_line)
 		(push lines (pad (str start_line) (const (dec +vdu_line_width)) "    ")))
@@ -272,7 +272,7 @@
 	(.-> *file_tree_scroll* :layout :dirty_all))
 
 (defun tooltips ()
-	(def *window* :tip_mbox (elem +select_tip select))
+	(def *window* :tip_mbox (elem-get +select_tip select))
 	(each (# (def %0 :tip_text %1)) (. main_toolbar :children)
 		'("undo" "redo" "rewind" "cut" "copy" "paste" "reflow" "select paragraph"
 		"outdent" "indent" "select form" "start form" "end form" "upper case"
@@ -319,17 +319,17 @@
 (defun select-match (dir)
 	(when match_window
 		(defq matches (. match_flow :children))
-		(if (>= match_index 0) (undef (. (elem match_index matches) :dirty) :color))
+		(if (>= match_index 0) (undef (. (elem-get match_index matches) :dirty) :color))
 		(setq match_index (+ match_index dir))
 		(if (< match_index 0) (setq match_index (dec (length matches))))
 		(if (> match_index (dec (length matches))) (setq match_index 0))
-		(def (. (elem match_index matches) :dirty) :color +argb_red)))
+		(def (. (elem-get match_index matches) :dirty) :color +argb_red)))
 
 ;import actions, bindings and app ui classes
 (import "./actions.inc")
 
 (defun dispatch-action (&rest action)
-	(and *macro_record* (find (elem 0 action) recorded_actions_list)
+	(and *macro_record* (find (elem-get 0 action) recorded_actions_list)
 		(push *macro_actions* action))
 	(catch (eval action) (progn (print _)(print) t)))
 
@@ -356,7 +356,7 @@
 	(action-maximise)
 	(refresh)
 	(while *running*
-		(defq *msg* (mail-read (elem (defq idx (mail-select select)) select)))
+		(defq *msg* (mail-read (elem-get (defq idx (mail-select select)) select)))
 		(cond
 			((= idx +select_tip)
 				;tip time mail
@@ -378,7 +378,7 @@
 						(cond
 							((or (= key +char_lf) (= key +char_cr) (= key +char_space))
 								;choose a match
-								(defq word (get :text (elem match_index (. match_flow :children))))
+								(defq word (get :text (elem-get match_index (. match_flow :children))))
 								(if (= key +char_space) (setq word (cat word " ")))
 								(clear-matches)
 								(dispatch-action action-select-word)

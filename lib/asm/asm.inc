@@ -18,7 +18,7 @@
 			((defq job (pop jobs))
 				(.-> val (:insert :job job) (:insert :timestamp (pii-time)))
 				(mail-send (. val :find :child) (cat
-					(char key +long_size) (elem +select_reply select) job)))
+					(char key +long_size) (elem-get +select_reply select) job)))
 			(t	;no jobs in que
 				(.-> val (:erase :job) (:erase :timestamp)))))
 	(defun create (key val nodes)
@@ -27,8 +27,8 @@
 		(if (= 0 (length nodes))
 			(setq nodes (list (slice +long_size -1 (task-mailbox)))))
 		(open-task "lib/asm/asm.lisp"
-			(elem (setq nxt_node (% (inc nxt_node) (length nodes))) nodes)
-			+kn_call_child key (elem +select_task select)))
+			(elem-get (setq nxt_node (% (inc nxt_node) (length nodes))) nodes)
+			+kn_call_child key (elem-get +select_task select)))
 	(defun destroy (key val)
 		; (destroy key val)
 		;function called when entry is destroyed
@@ -45,9 +45,9 @@
 		(setq jobs (map (# (str (list %0 *abi* *cpu* *debug_mode* *debug_emit* *debug_inst*)))
 			(unzip files jobs)))
 		(defq farm (Farm create destroy num_child))
-		(mail-timeout (elem +select_timer select) timer_rate 0)
+		(mail-timeout (elem-get +select_timer select) timer_rate 0)
 		(while working
-			(defq msg (mail-read (elem (defq idx (mail-select select)) select)))
+			(defq msg (mail-read (elem-get (defq idx (mail-select select)) select)))
 			(cond
 				((= idx +select_task)
 					;child launch responce
@@ -68,7 +68,7 @@
 						(. farm :each (lambda (key val)
 							(setq working (or working (. val :find :job)))))))
 				(t	;timer event
-					(mail-timeout (elem +select_timer select) timer_rate 0)
+					(mail-timeout (elem-get +select_timer select) timer_rate 0)
 					(. farm :refresh retry_timeout))))
 		(. farm :close)
 		(each mail-free-mbox select)
@@ -112,24 +112,24 @@
 	;create lists of immediate dependencies and products
 	(defq d (list "lib/asm/asm.inc" "class/lisp/boot.inc" _) p (list))
 	(each-line (lambda (_)
-		(when (and (> (length _) 10) (eql "(" (elem 0 _))
+		(when (and (> (length _) 10) (eql "(" (elem-get 0 _))
 				(<= 2 (length (defq s (split _ (const (cat " ')" (ascii-char 34) (ascii-char 13)))))) 4))
 			(cond
-				((eql (setq _ (elem 0 s)) "(include")
-					(push d (abs-path (elem 1 s) file)))
+				((eql (setq _ (elem-get 0 s)) "(include")
+					(push d (abs-path (elem-get 1 s) file)))
 				((eql _ "(import")
-					(push d (abs-path (elem 1 s) file)))
+					(push d (abs-path (elem-get 1 s) file)))
 				((eql _ "(def-method")
-					(push p (f-path (sym (elem 1 s)) (sym (elem 2 s)))))
+					(push p (f-path (sym (elem-get 1 s)) (sym (elem-get 2 s)))))
 				((eql _ "(gen-vtable")
-					(push p (f-path (sym (elem 1 s)) :vtable)))
+					(push p (f-path (sym (elem-get 1 s)) :vtable)))
 				((eql _ "(gen-type")
-					(push p (f-path (sym (elem 1 s)) :type)))
+					(push p (f-path (sym (elem-get 1 s)) :type)))
 				((eql _ "(gen-create")
-					(push p (f-path (sym (elem 1 s))
-						(if (> (length s) 2) (sym (cat :create_ (elem 2 s))) :create))))
+					(push p (f-path (sym (elem-get 1 s))
+						(if (> (length s) 2) (sym (cat :create_ (elem-get 2 s))) :create))))
 				((eql _ "(def-func")
-					(push p (sym (elem 1 s))))))) (file-stream (defq file _)))
+					(push p (sym (elem-get 1 s))))))) (file-stream (defq file _)))
 	(list d p))
 
 (defun func-obj (_)
@@ -156,7 +156,7 @@
 		(setq files (filter (#
 			(bind '(d p) (get (sym %0) info))
 			(setq p (reduce min (map file-age p)))
-			(each-mergeable (# (make-merge d (elem 0 (get (sym %0) info)))) d)
+			(each-mergeable (# (make-merge d (elem-get 0 (get (sym %0) info)))) d)
 			(some (# (>= %0 p)) (map file-age d))) files))
 		;return the list to compile
 		files)) *abi* *cpu*))
@@ -187,12 +187,12 @@
 			;must be included !
 			'sys/kernel/kernel))
 		;load all loader dependents
-		(each-mergeable (# (merge-obj f (elem 2 (load-func %0)))) f)
+		(each-mergeable (# (merge-obj f (elem-get 2 (load-func %0)))) f)
 		;load up all extra functions requested
 		(merge-obj f (map sym *funcs*))
 		(each load-func f)
 		;load up all dependents
-		(each-mergeable (# (merge-obj f (elem 2 (load-func %0)))) f)
+		(each-mergeable (# (merge-obj f (elem-get 2 (load-func %0)))) f)
 		;sort into order, leaving the init/statics first !
 		(sort cmp f 2)
 		;list of all function bodies and links in order, list of offsets of header and link sections
@@ -200,25 +200,25 @@
 		(defq b (map (# (get %0 *fsyms*)) f) ns (list) nso (list) ho (list) lo (list)
 			so (+ (length z) (reduce (#
 				(push ho %0)
-				(push lo (setq %0 (+ %0 (length (elem 0 %1)))))
-				(+ %0 (length (elem 1 %1)))) b 0)))
+				(push lo (setq %0 (+ %0 (length (elem-get 0 %1)))))
+				(+ %0 (length (elem-get 1 %1)))) b 0)))
 		;list of all strings that will appear in new strings section, and list of all new string offsets
-		(each (# (each (# (unless (find-rev %0 f) (merge-obj ns (list %0)))) (elem 2 (get %0 *fsyms*)))) f)
+		(each (# (each (# (unless (find-rev %0 f) (merge-obj ns (list %0)))) (elem-get 2 (get %0 *fsyms*)))) f)
 		(reduce (# (push nso %0) (+ %0 (length %1) 1)) ns 0)
 		;create new link sections with offsets to header strings or new strings
-		(each (# (defq u (elem _ lo))
+		(each (# (defq u (elem-get _ lo))
 			(elem-set 1 %0 (apply cat (push (map (#
 				(char (- (if (defq i (find-rev %0 f))
-					(+ (elem i ho) fn_header_pathname)
-					(+ (elem (find-rev %0 ns) nso) so)) (+ u (* _ 8))) 8)) (elem 2 %0)) "")))) b)
+					(+ (elem-get i ho) fn_header_pathname)
+					(+ (elem-get (find-rev %0 ns) nso) so)) (+ u (* _ 8))) 8)) (elem-get 2 %0)) "")))) b)
 		;build list of all sections of boot image
 		;concatenate all sections and write out
 		(defq stream (file-stream (func-obj 'sys/boot_image) +file_open_write)
 			f (reduce (# (push %0 (cat %1 (ascii-char 0)))) ns
-				(push (reduce (# (push %0 (elem 0 %1) (elem 1 %1))) b (list)) z))
+				(push (reduce (# (push %0 (elem-get 0 %1) (elem-get 1 %1))) b (list)) z))
 			l (reduce (# (+ %0 (length %1))) f 0))
 		;save size in boot image
-		(elem-set 0 f (cat (char l +long_size) (slice +long_size -1 (elem 0 f))))
+		(elem-set 0 f (cat (char l +long_size) (slice +long_size -1 (elem-get 0 f))))
 		(each (# (write stream %0)) f)
 		(print "-> " (func-obj 'sys/boot_image) " (" l ")") nil)))
 

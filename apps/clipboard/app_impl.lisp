@@ -6,10 +6,10 @@
 	(while t
 		(let ((msg (mail-read (task-mailbox))))
 			(cond
-				((= (defq type (elem 0 msg)) +clip_type_put)
+				((= (defq type (elem-get 0 msg)) +clip_type_put)
 					;put string on clipboard
-					(setq clipboard (elem 1 msg)))
+					(setq clipboard (elem-get 1 msg)))
 				((= type +clip_type_get)
 					;get string from clipboard
-					(mail-send (elem 1 msg) clipboard)))))
+					(mail-send (elem-get 1 msg) clipboard)))))
 	(mail-forget clip_service))

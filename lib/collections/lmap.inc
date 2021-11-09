@@ -11,7 +11,7 @@
 
 	(defmethod :find (this key)
 		; (. lmap :find key) -> nil | val
-		(if (defq e (find key (get :keys this))) (elem e (get :vals this))))
+		(if (defq e (find key (get :keys this))) (elem-get e (get :vals this))))
 
 	(defmethod :insert (this key val)
 		; (. lmap :insert key val) -> lmap
@@ -25,8 +25,8 @@
 		; (. lmap :erase key) -> lmap
 		(raise :keys :vals)
 		(when (defq e (find key keys))
-			(elem-set e keys (elem -2 keys))
-			(elem-set e vals (elem -2 vals))
+			(elem-set e keys (elem-get -2 keys))
+			(elem-set e vals (elem-get -2 vals))
 			(pop keys) (pop vals))
 		this)
 

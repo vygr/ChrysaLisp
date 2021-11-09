@@ -19,17 +19,17 @@
 	(def *image_scroll* :min_width +min_width :min_height +min_height))
 
 (defun action-ink ()
-	(setq *stroke_col* (elem (radio-select *ink_toolbar* (- *id* +event_black)) *palette*)))
+	(setq *stroke_col* (elem-get (radio-select *ink_toolbar* (- *id* +event_black)) *palette*)))
 
 (defun action-mode ()
 	(setq *stroke_mode* (+ (radio-select *mode_toolbar* (- *id* +event_pen)) +event_pen)))
 
 (defun action-radius ()
-	(setq *stroke_radius* (elem (radio-select *radius_toolbar* (- *id* +event_radius1)) *radiuss*)))
+	(setq *stroke_radius* (elem-get (radio-select *radius_toolbar* (- *id* +event_radius1)) *radiuss*)))
 
 (defun action-style ()
 	(def (. mybackdrop :dirty) :style
-		(elem (radio-select *style_toolbar* (- *id* +event_grid)) '(nil :grid :lines :axis))))
+		(elem-get (radio-select *style_toolbar* (- *id* +event_grid)) '(nil :grid :lines :axis))))
 
 (defun action-clear ()
 	(snapshot)
@@ -54,13 +54,13 @@
 	(if *picker_mbox* (mail-send *picker_mbox* ""))
 	(mail-send (setq *picker_mode* t *picker_mbox*
 		(open-child "apps/files/child.lisp" +kn_call_open))
-		(list (elem +select_picker select) "Save Whiteboard..." "." "")))
+		(list (elem-get +select_picker select) "Save Whiteboard..." "." "")))
 
 (defun action-load ()
 	(if *picker_mbox* (mail-send *picker_mbox* ""))
 	(mail-send (setq *picker_mode* nil *picker_mbox*
 		(open-child "apps/files/child.lisp" +kn_call_open))
-		(list (elem +select_picker select) "Load Whiteboard..." "." ".cwb")))
+		(list (elem-get +select_picker select) "Load Whiteboard..." "." ".cwb")))
 
 (defq
 event_map (fmap-kv

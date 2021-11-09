@@ -33,13 +33,13 @@
 	(setq *running* nil))
 
 (defun action-mode ()
-	(defq button (elem 0 (. main_toolbar :children)))
+	(defq button (elem-get 0 (. main_toolbar :children)))
 	(undef (. button :dirty) :color)
 	(if (setq *dirty* t *render_mode* (not *render_mode*))
 		(def button :color *env_radio_col*)))
 
 (defun action-auto ()
-	(defq button (elem 1 (. main_toolbar :children)))
+	(defq button (elem-get 1 (. main_toolbar :children)))
 	(undef (. button :dirty) :color)
 	(if (setq *auto_mode* (not *auto_mode*))
 		(def button :color *env_radio_col*)))

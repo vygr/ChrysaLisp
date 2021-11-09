@@ -10,7 +10,7 @@
 	(setd user_select '())
 	(defq cmdpipe (list) args (map (lambda (cmd)
 		(defq cmd (split cmd " "))
-		(push cmdpipe (cat "cmd/" (elem 0 cmd) ".lisp"))
+		(push cmdpipe (cat "cmd/" (elem-get 0 cmd) ".lisp"))
 		(slice 0 -2 (apply cat (map (lambda (_) (cat _ " ")) cmd)))) (split cmds "|")))
 	(cond
 		;error with pipe element ?
@@ -22,7 +22,7 @@
 			(defq select (list) streams (list))
 			(each (lambda (_)
 				(push streams (in-stream))
-				(push select (in-mbox (elem -2 streams)))) mboxs)
+				(push select (in-mbox (elem-get -2 streams)))) mboxs)
 			(defq stdout (in-stream) stdout_mbox (in-mbox stdout) ack_mbox (mail-alloc-mbox))
 			(each-rev (lambda (mbox arg stderr_mbox)
 				(mail-send mbox (setf-> (cat (str-alloc +stdio_msg_init_size) arg)
@@ -51,14 +51,14 @@
 				((< (defq idx (mail-select (get :select this))) user_select_len))
 				(t  ;must be stdout or one of the stderr's
 					(if (/= (in-get-state (in-next-msg (defq msg_in
-								(elem (- idx user_select_len) (get :streams this)))))
+								(elem-get (- idx user_select_len) (get :streams this)))))
 							+stream_mail_state_started)
 						(def this :state nil))
 					(read-avail msg_in)))))
 
 	(defmethod :write (this string)
 		; (. pipe :write string) -> pipe
-		(stream-flush (write (elem -2 (get :streams this)) string))
+		(stream-flush (write (elem-get -2 (get :streams this)) string))
 		this)
 
 	(defmethod :close (this)
@@ -69,7 +69,7 @@
 		;wait for stdout and stderr streams to stop
 		(defq user_select_len (length (get :user_select this)))
 		(while (> (length (get :select this)) user_select_len)
-			(if (= (in-get-state (in-next-msg (elem (defq idx (mail-select
+			(if (= (in-get-state (in-next-msg (elem-get (defq idx (mail-select
 						(slice user_select_len -1 (get :select this)))) (get :streams this))))
 					+stream_mail_state_stopped)
 				(def this

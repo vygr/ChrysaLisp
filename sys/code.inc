@@ -28,9 +28,9 @@
 		((assign-map-reg-keys e))))
 	(defq e (find-rev o '(= /= <= >= > <)))
 	(case (vp-type s)
-		(:c (if e ((eval (elem e '(vp-beq-cr vp-bne-cr vp-ble-cr vp-bge-cr vp-bgt-cr vp-blt-cr))) s d l)
+		(:c (if e ((eval (elem-get e '(vp-beq-cr vp-bne-cr vp-ble-cr vp-bge-cr vp-bgt-cr vp-blt-cr))) s d l)
 			(throw "No such comparator" o)))
-		(:r (if e ((eval (elem e '(vp-beq-rr vp-bne-rr vp-ble-rr vp-bge-rr vp-bgt-rr vp-blt-rr))) s d l)
+		(:r (if e ((eval (elem-get e '(vp-beq-rr vp-bne-rr vp-ble-rr vp-bge-rr vp-bgt-rr vp-blt-rr))) s d l)
 			(throw "No such comparator" o)))
 		(t (throw "No such compare mode" (vp-type s)))))
 
@@ -40,9 +40,9 @@
 		((assign-map-reg-keys e))))
 	(defq e (find-rev o '(/= = > < <= >=)))
 	(case (vp-type s)
-		(:c (if e ((eval (elem e '(vp-beq-cr vp-bne-cr vp-ble-cr vp-bge-cr vp-bgt-cr vp-blt-cr))) s d l)
+		(:c (if e ((eval (elem-get e '(vp-beq-cr vp-bne-cr vp-ble-cr vp-bge-cr vp-bgt-cr vp-blt-cr))) s d l)
 			(throw "No such comparator" o)))
-		(:r (if e ((eval (elem e '(vp-beq-rr vp-bne-rr vp-ble-rr vp-bge-rr vp-bgt-rr vp-blt-rr))) s d l)
+		(:r (if e ((eval (elem-get e '(vp-beq-rr vp-bne-rr vp-ble-rr vp-bge-rr vp-bgt-rr vp-blt-rr))) s d l)
 			(throw "No such comparator" o)))
 		(t (throw "No such compare mode" (vp-type s)))))
 
@@ -89,22 +89,22 @@
 	(goto (if l (eval (llb-sym l)) (beg-sym))))
 
 (defun breakif (&rest e)
-	(unless (sym? (defq i -2 l (elem -2 e)))
+	(unless (sym? (defq i -2 l (elem-get -2 e)))
 		(setq i -1 l nil))
 	(each! 0 i exitif (list e)))
 
 (defun breakifnot (&rest e)
-	(unless (sym? (defq i -2 l (elem -2 e)))
+	(unless (sym? (defq i -2 l (elem-get -2 e)))
 		(setq i -1 l nil))
 	(each! 0 i exitifnot (list e)))
 
 (defun continueif (&rest e)
-	(unless (sym? (defq i -2 l (elem -2 e)))
+	(unless (sym? (defq i -2 l (elem-get -2 e)))
 		(setq i -1 l nil))
 	(each! 0 i repeatif (list e)))
 
 (defun continueifnot (&rest e)
-	(unless (sym? (defq i -2 l (elem -2 e)))
+	(unless (sym? (defq i -2 l (elem-get -2 e)))
 		(setq i -1 l nil))
 	(each! 0 i repeatifnot (list e)))
 
@@ -121,14 +121,14 @@
 	(vp-label (beg-sym)))
 
 (defun loop-while (&rest e)
-	(unless (sym? (defq i -2 l (elem -2 e)))
+	(unless (sym? (defq i -2 l (elem-get -2 e)))
 		(setq i -1 l nil))
 	(switch l)
 	(vp-label (beg-sym))
 	(each! 0 i exitifnot (list e)))
 
 (defun loop-whilenot (&rest e)
-	(unless (sym? (defq i -2 l (elem -2 e)))
+	(unless (sym? (defq i -2 l (elem-get -2 e)))
 		(setq i -1 l nil))
 	(switch l)
 	(vp-label (beg-sym))
@@ -139,25 +139,25 @@
 	(endswitch))
 
 (defun loop-until (&rest e)
-	(unless (sym? (defq i -2 l (elem -2 e)))
+	(unless (sym? (defq i -2 l (elem-get -2 e)))
 		(setq i -1 l nil))
 	(each! 0 i repeatifnot (list e))
 	(endswitch))
 
 (defun loop-untilnot (&rest e)
-	(unless (sym? (defq i -2 l (elem -2 e)))
+	(unless (sym? (defq i -2 l (elem-get -2 e)))
 		(setq i -1 l nil))
 	(each! 0 i repeatif (list e))
 	(endswitch))
 
 (defun vpif (&rest e)
-	(unless (sym? (defq i -2 l (elem -2 e)))
+	(unless (sym? (defq i -2 l (elem-get -2 e)))
 		(setq i -1 l nil))
 	(switch l)
 	(each! 0 i nextcaseifnot (list e)))
 
 (defun vpifnot (&rest e)
-	(unless (sym? (defq i -2 l (elem -2 e)))
+	(unless (sym? (defq i -2 l (elem-get -2 e)))
 		(setq i -1 l nil))
 	(switch l)
 	(each! 0 i nextcaseif (list e)))
@@ -192,7 +192,7 @@
 	(defq syms (list) values (list) base (eval base))
 	(each (lambda (line)
 		(each! 1 -1 (lambda (field)
-			(case (elem 0 line)
+			(case (elem-get 0 line)
 				(enum (def-enum +byte_size))))
 			(list line))) lines)
 	(push syms (sym (cat name "_size")))
@@ -214,7 +214,7 @@
 	(defq syms (list) values (list) base (eval base))
 	(each (lambda (line)
 		(each! 1 -1 (lambda (field)
-			(case (elem 0 line)
+			(case (elem-get 0 line)
 				(bit (def-bit))))
 			(list line))) lines)
 	(push syms (sym (cat name "_size")))
@@ -248,11 +248,11 @@
 (defun get-scope (_)
 	(defq o 0)
 	(each! (inc _) -2 (lambda (_)
-			(setq o (+ o (elem 0 _)))) (list *syms*)) o)
+			(setq o (+ o (elem-get 0 _)))) (list *syms*)) o)
 
 (defun push-scope ()
 	(setq *sym_sp* (align *sym_sp* stack_align))
-	(elem-set 0 (elem -3 (new-scope)) *sym_sp*)
+	(elem-set 0 (elem-get -3 (new-scope)) *sym_sp*)
 	(when (/= *sym_sp* 0)
 		(when *debug_inst*
 			(print "(vp-alloc " *sym_sp* ")"))
@@ -263,12 +263,12 @@
 	(pop *syms*)
 	(defq u (list))
 	(each! 0 -1 (lambda (a)
-		(unless (elem -2 a) (push u (elem _ (elem 1 s))))) (list (elem 2 (defq s (pop *syms*)))))
+		(unless (elem-get -2 a) (push u (elem-get _ (elem-get 1 s))))) (list (elem-get 2 (defq s (pop *syms*)))))
 	(if (/= 0 (length u))
 		(throw "Unused symbols !" u))
 	(new-scope)
 	(setq *sym_sp* 0)
-	(elem 0 s))
+	(elem-get 0 s))
 
 (defun pop-scope ()
 	(when (/= (defq _ (pop-scope-syms)) 0)
@@ -297,17 +297,17 @@
 	;_1 name
 	;_2 type
 	;_3 values
-	(if (find-rev (setq _1 (sym _1)) (elem 1 (defq _ (pop *syms*))))
+	(if (find-rev (setq _1 (sym _1)) (elem-get 1 (defq _ (pop *syms*))))
 		(throw "Symbol redefined !" _1))
-	(push (elem 1 _) _1)
-	(push (elem 2 _) (cat (list (length *syms*) _2) _3 '(nil)))
+	(push (elem-get 1 _) _1)
+	(push (elem-get 2 _) (cat (list (length *syms*) _2) _3 '(nil)))
 	(push *syms* _))
 
 (defun get-sym (_1)
 	;_1 symbol
 	(defq _1 (sym _1) a (some! -2 0 nil (lambda (s)
-		(if (defq _ (find-rev _1 (elem 1 s)))
-			(elem _ (elem 2 s)))) (list *syms*)))
+		(if (defq _ (find-rev _1 (elem-get 1 s)))
+			(elem-get _ (elem-get 2 s)))) (list *syms*)))
 	(when a (elem-set -2 a t)) a)
 
 (defmacro used-syms (&rest _)
@@ -328,18 +328,18 @@
 			`(def-sym ',var 'var *sym_sp* ,type)
 			`(setq *sym_sp* (+ *sym_sp* ,size))))
 	(each (lambda (line)
-		(case (elem 0 line)
+		(case (elem-get 0 line)
 			(align
 				(if (> (length line) 1)
-					(push prog `(setq *sym_sp* (align *sym_sp* ,(eval (elem 1 line)))))
+					(push prog `(setq *sym_sp* (align *sym_sp* ,(eval (elem-get 1 line)))))
 					(push prog '(setq *sym_sp* (align *sym_sp* +long_size)))))
 			(offset
 				(push prog
-					`(def-sym ',(elem 1 line) 'var *sym_sp* 0 "")))
+					`(def-sym ',(elem-get 1 line) 'var *sym_sp* 0 "")))
 			(struct
 				(push prog
-					`(def-sym ',(elem 1 line) 'var *sym_sp* 0 "")
-					`(setq *sym_sp* (+ *sym_sp* ,(eval (elem 2 line))))))
+					`(def-sym ',(elem-get 1 line) 'var *sym_sp* 0 "")
+					`(setq *sym_sp* (+ *sym_sp* ,(eval (elem-get 2 line))))))
 			(union
 				(defq o (gensym) m (gensym))
 				(push prog `(defq ,o *sym_sp* ,m *sym_sp*))
@@ -349,17 +349,17 @@
 						`(setq ,m (max ,m *sym_sp*) *sym_sp* ,o))) (list line))
 				(push prog `(setq *sym_sp* ,m)))
 			(t
-				(if (defq alignment (find (elem 0 line)
+				(if (defq alignment (find (elem-get 0 line)
 						'(short int long ushort uint ulong ptr pptr
 							pubyte pushort puint pulong pbyte pshort pint plong)))
 					(push prog
-						`(setq *sym_sp* (align *sym_sp* ,(elem alignment
+						`(setq *sym_sp* (align *sym_sp* ,(elem-get alignment
 							'(+short_size +int_size +long_size +short_size
 								+int_size +long_size +ptr_size +ptr_size
 								+ptr_size +ptr_size +ptr_size +ptr_size
 								+ptr_size +ptr_size +ptr_size +ptr_size))))))
 				(each! 1 -1 (lambda (var)
-					(case (elem 0 line)
+					(case (elem-get 0 line)
 						(byte (new-var "b" +byte_size))
 						(short (new-var "s" +short_size))
 						(int (new-var "i" +int_size))

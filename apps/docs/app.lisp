@@ -50,7 +50,7 @@
 		(ui-scroll page_scroll +scroll_flag_vertical (:min_height 900))))
 
 (defun main ()
-	(populate-page (defq file (elem 0 doc_list)))
+	(populate-page (defq file (elem-get 0 doc_list)))
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(gui-add-front (. *window* :change x y w h))
 	(while (cond

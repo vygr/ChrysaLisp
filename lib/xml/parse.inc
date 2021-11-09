@@ -65,9 +65,9 @@
 				(:symbol
 					(case _type
 						(:close
-							(when (eql (elem -3 _stack) "<")
+							(when (eql (elem-get -3 _stack) "<")
 								(task-slice)
-								(_fnc_in (elem -2 _stack) _keys _vals))
+								(_fnc_in (elem-get -2 _stack) _keys _vals))
 							(setq _state :close))
 						(:symbol
 							(push _keys _token)
@@ -93,8 +93,8 @@
 								(("-->" "?>" ">" "/>"))
 								(t (throw "Unknown close _token !" _token))))
 						(t (throw "Unknown close _type !" _type)))
-					(if (or (eql _token "/>") (eql (elem -3 _stack) "</"))
-						(_fnc_out (elem -2 _stack)))
+					(if (or (eql _token "/>") (eql (elem-get -3 _stack) "</"))
+						(_fnc_out (elem-get -2 _stack)))
 					(pop _stack)
 					(pop _stack)
 					(setq _type nil _state :text))

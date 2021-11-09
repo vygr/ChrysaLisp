@@ -11,7 +11,7 @@
 	Defaults to first 10 lines.")
 (("-c" "--count")
 	,(lambda (args arg)
-		(setq count (str-as-num (elem 0 args)))
+		(setq count (str-as-num (elem-get 0 args)))
 		(slice 1 -1 args)))
 ))
 
@@ -22,5 +22,5 @@
 			(defq count 10 args (options stdio usage)))
 		(defq lines (list))
 		(each-line (# (if (< (length lines) count) (push lines %0)))
-			(if (<= (length args) 1) (io-stream 'stdin) (file-stream (elem 1 args))))
+			(if (<= (length args) 1) (io-stream 'stdin) (file-stream (elem-get 1 args))))
 		(each print lines)))

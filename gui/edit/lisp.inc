@@ -344,7 +344,7 @@
 					(while (and
 						(< (setq idx (inc idx)) (length line))
 						(< idx tab_width)
-						(eql (elem idx line) " ")))
+						(eql (elem-get idx line) " ")))
 					(if (> idx 0)
 						(.-> buffer (:set_cursor 0 _) (:delete (min tab_width idx)))))
 				(list (. buffer :get_text_lines)))
@@ -415,7 +415,7 @@
 				(. this :set_anchor 0 y)
 				(. buffer :paste (cat (join
 					(reduce (# (if (or (<= (length %0) 0)
-									(not (eql (elem -2 %0) %1))) (push %0 %1) %0))
+									(not (eql (elem-get -2 %0) %1))) (push %0 %1) %0))
 					(sort cmp (split (.-> buffer (:set_cursor 0 y1) (:cut 0 y)) (ascii-char +char_lf)))
 					(list)) (ascii-char +char_lf)) (ascii-char +char_lf)))))
 		this)
@@ -462,9 +462,9 @@
 				(push underlay (cat (slice 0 cx +not_selected) (slice cx x1 selected))))
 			(t  (push underlay (cat
 					(slice 0 cx +not_selected)
-					(slice cx (inc (length (elem cy buffer))) selected)))
+					(slice cx (inc (length (elem-get cy buffer))) selected)))
 				(while (< (setq cy (inc cy)) y1)
-					(push underlay (slice 0 (inc (length (elem cy buffer))) selected)))
+					(push underlay (slice 0 (inc (length (elem-get cy buffer))) selected)))
 				(push underlay (slice 0 x1 selected))))
 		(. vdu_underlay :load underlay scroll_x scroll_y -1 -1)
 		this)

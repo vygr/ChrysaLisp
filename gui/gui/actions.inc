@@ -4,7 +4,7 @@
 (defun cook_key (key_code key mod)
 	(and (/= (logand mod (const (logior +ev_key_mod_caps_lock +ev_key_mod_shift))) 0)
 		(defq i (find (char key) "§1234567890-=qwertyuiop[]asdfghjkl;\`zxcvbnm,./'"))
-		(setq key (code (elem i (const (cat "±!@#$%^&*()_+QWERTYUIOP{}ASDFGHJKL:|~ZXCVBNM<>?" (char 34)))))))
+		(setq key (code (elem-get i (const (cat "±!@#$%^&*()_+QWERTYUIOP{}ASDFGHJKL:|~ZXCVBNM<>?" (char 34)))))))
 	key)
 
 (defun set-mouse-id ()

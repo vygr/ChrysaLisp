@@ -7,10 +7,10 @@
 ; A class declaration is a lambda so the meta info
 ; deconstructs the lambda to get at the interesting bits
 
-(defmacro _mclass-args  (_) `(elem 1 ,_))  ; Position of class constructor args
-(defmacro _mclass-decl  (_) `(elem 2 ,_))  ; Position of declaration info
-(defmacro _mclass-body  (_) `(elem 3 ,_))  ; Position of class body
-(defmacro _mclass-vars  (_) `(elem 4 ,_))  ; Position of class initializers
+(defmacro _mclass-args  (_) `(elem-get 1 ,_))  ; Position of class constructor args
+(defmacro _mclass-decl  (_) `(elem-get 2 ,_))  ; Position of declaration info
+(defmacro _mclass-body  (_) `(elem-get 3 ,_))  ; Position of class body
+(defmacro _mclass-vars  (_) `(elem-get 4 ,_))  ; Position of class initializers
 (defmacro _mclass-initblk (_) `(second (_mclass-decl ,_)))
 (defmacro _mclass-init (_)    `(last (_mclass-initblk ,_)))
 (defmacro _mclass-id (_)      `(last (_mclass-decl ,_)))
@@ -19,8 +19,8 @@
 
 ; An instance meta data is a data block containing
 ; the super vtable, module information and methods
-(defmacro _minst-vtable (_) `(elem 0 ,_))
-(defmacro _minst-module (_) `(second (elem 1 ,_)))
+(defmacro _minst-vtable (_) `(elem-get 0 ,_))
+(defmacro _minst-module (_) `(second (elem-get 1 ,_)))
 
 ; Functions on class declarations
 
@@ -36,7 +36,7 @@
   `(last
     (elem
       (if (class-inherits? ,_) 2 1)
-      (elem 2 (_mclass-body ,_)))))
+      (elem-get 2 (_mclass-body ,_)))))
 
 (defmacro class-hasvars? (_)
   ; (class-hasvars? symbol) -> t | nil
@@ -99,7 +99,7 @@
     ; There is at least a :type-of method
     (each (lambda (vf)
       (when (list? (second vf))
-        (print ind "     " (elem 2 vf)))) (_mclass-meths _)))
+        (print ind "     " (elem-get 2 vf)))) (_mclass-meths _)))
   nil)
 
 ; Functions on class instances

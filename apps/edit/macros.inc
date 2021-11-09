@@ -26,7 +26,7 @@
 			(undoable nil
 				(bind '(cx cy) (. buffer :get_cursor))
 				(defq eof_gap_x (- (length (. buffer :get_text_line cy)) cx)
-					eof_gap_y (- (elem 1 (. buffer :get_size)) cy)
+					eof_gap_y (- (elem-get 1 (. buffer :get_size)) cy)
 					old_eof_gap_x +max_int  old_eof_gap_y +max_int)
 				(while (and (> eof_gap_y 0)
 							(or (< eof_gap_y old_eof_gap_y)
@@ -37,6 +37,6 @@
 					(bind '(cx cy) (. buffer :get_cursor))
 					(setq old_eof_gap_x eof_gap_x old_eof_gap_y eof_gap_y
 						eof_gap_x (- (length (. buffer :get_text_line cy)) cx)
-						eof_gap_y (- (elem 1 (. buffer :get_size)) cy)))))
+						eof_gap_y (- (elem-get 1 (. buffer :get_size)) cy)))))
 		(. *edit* :clear_selection)
 		(refresh)))

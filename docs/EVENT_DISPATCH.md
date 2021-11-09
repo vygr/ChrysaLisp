@@ -127,13 +127,13 @@ event handling.
 	(defq select (alloc-select +select_size))
 	...
 	(defq id t)
-	(mail-timeout (elem +select_timer select) rate 0)
+	(mail-timeout (elem-get +select_timer select) rate 0)
 	(while id
-		(defq *msg* (mail-read (elem (defq idx (mail-select select)) select)))
+		(defq *msg* (mail-read (elem-get (defq idx (mail-select select)) select)))
 		(cond
 			((= idx +select_timer)
 				;timer event
-				(mail-timeout (elem +select_timer select) rate 0)
+				(mail-timeout (elem-get +select_timer select) rate 0)
 				...
 				)
 			((= idx +select_tip)
@@ -267,7 +267,7 @@ event and key dispatching code.
 	(defq select (alloc-select +select_size))
 	...
 	(while *running*
-		(defq *msg* (mail-read (elem (defq idx (mail-select select)) select)))
+		(defq *msg* (mail-read (elem-get (defq idx (mail-select select)) select)))
 		(cond
 			((= idx +select_tip)
 				;tip time mail

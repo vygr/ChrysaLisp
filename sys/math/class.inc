@@ -280,7 +280,7 @@
 	(vec-asr n +fp_shift v))
 
 (defun vec-scale (n &optional s v)
-	(setd s (elem 0 (vec-pop 1)) v (vec-top n))
+	(setd s (elem-get 0 (vec-pop 1)) v (vec-top n))
 	(each (lambda (v)
 		(if (vp-reg? s)
 			(vp-mul-rr s v)
@@ -326,7 +326,7 @@
 (defun vec-fdet (n &optional v2)
 	(setd v2 (vec-pop n))
 	(each (lambda (v)
-		(vp-mul-rr (elem (- n _ 1) v2) v)) (vec-top n))
+		(vp-mul-rr (elem-get (- n _ 1) v2) v)) (vec-top n))
 	(vec-asr n +fp_shift)
 	(vec-dif n))
 

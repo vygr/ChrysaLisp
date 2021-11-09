@@ -30,12 +30,12 @@
 (defun clicked-blank (cell)
 	(defq work (list cell))
 	(while (defq cell (pop work))
-		(unless (eql (elem cell game_map) "r")
+		(unless (eql (elem-get cell game_map) "r")
 			(elem-set cell game_map "r")
-			(aeach (elem cell game_adj)
+			(aeach (elem-get cell game_adj)
 				(cond
-					((= (elem it game_board) 0) (push work it))
-					((< 0 (elem it game_board) 9) (elem-set it game_map "r"))))))
+					((= (elem-get it game_board) 0) (push work it))
+					((< 0 (elem-get it game_board) 9) (elem-set it game_map "r"))))))
 	(rebuild-board))
 
 (defun clicked-flag (cell)
@@ -66,7 +66,7 @@
 	(.-> status_bar :layout :dirty))
 
 (defun colorize (value)
-	(elem value '(+argb_black 0x000000ff 0x00006600 0x00ff0000 +argb_magenta 
+	(elem-get value '(+argb_black 0x000000ff 0x00006600 0x00ff0000 +argb_magenta 
 		+argb_black 0x00700000 +argb_grey1 0x0002bbdd +argb_black)))
 
 (defun board-layout ((gw gh nm))
@@ -96,23 +96,23 @@
 	(each (lambda (_)
 		(defq value nil)
 		(cond 
-			((eql (elem _ game_map) "f")
+			((eql (elem-get _ game_map) "f")
 				(. (defq mc (Button)) :connect (+ +event_click _))
 				(def mc :text "F" :border 1 :flow_flags 
 					(logior +flow_flag_align_hcenter +flow_flag_align_vcenter) :min_width 32 :min_height 32)
 				(. game_grid :add_child mc))			
-			((eql (elem _ game_map) "b")
+			((eql (elem-get _ game_map) "b")
 				(. (defq mc (Button)) :connect (+ +event_click _))
 				(def mc :text "" :border 1 :flow_flags 
 					(logior +flow_flag_align_hcenter +flow_flag_align_vcenter) :min_width 32 :min_height 32)
 				(. game_grid :add_child mc))
-			((eql (elem _ game_map) "r")
-				(if (< 0 (elem _ game_board) 9) 
+			((eql (elem-get _ game_map) "r")
+				(if (< 0 (elem-get _ game_board) 9) 
 					(. (defq mc (Label)) :connect (+ +event_click _))
 					(defq mc (Label)))
 				(def mc :text 
 					(cond 
-						((= (defq value (elem _ game_board)) 0) "")
+						((= (defq value (elem-get _ game_board)) 0) "")
 						((< 0 value 9) (str value))
 						((= value 9) "X"))
 					:flow_flags (logior +flow_flag_align_hcenter +flow_flag_align_vcenter) 
@@ -139,23 +139,23 @@
 		((= id +event_intermediate) (setq started t) (board-layout (setq difficulty intermediate_settings)))
 		((= id +event_expert) (setq started t) (board-layout (setq difficulty expert_settings)))
 		((and started (not game_over)
-			(<= +event_click id (+ +event_click (dec (* (elem 0 difficulty) (elem 1 difficulty))))))
+			(<= +event_click id (+ +event_click (dec (* (elem-get 0 difficulty) (elem-get 1 difficulty))))))
 			(defq cid (- id click_offset))
 			(bind '(gw gh gn) difficulty)
-			(when first_click (setq first_click nil game (create-game gw gh gn cid) game_board (elem 0 game) 
-				game_map (elem 1 game) game_adj (elem 2 game)))
+			(when first_click (setq first_click nil game (create-game gw gh gn cid) game_board (elem-get 0 game) 
+				game_map (elem-get 1 game) game_adj (elem-get 2 game)))
 			(cond 
 				((= mouse_down 1)
 					(cond
-						((eql (elem cid game_map) "f") (clicked-flag cid))
-						((= (elem cid game_board) 9) (clicked-mine cid) (setq game_over t))
-						((= (elem cid game_board) 0) (clicked-blank cid))
-						((< 0 (elem cid game_board) 9) (clicked-value cid))
+						((eql (elem-get cid game_map) "f") (clicked-flag cid))
+						((= (elem-get cid game_board) 9) (clicked-mine cid) (setq game_over t))
+						((= (elem-get cid game_board) 0) (clicked-blank cid))
+						((< 0 (elem-get cid game_board) 9) (clicked-value cid))
 						(t nil)))
 				((/= mouse_down 1)
 					(cond
-						((eql (elem cid game_map) "b") (right-clicked-button cid))
-						((eql (elem cid game_map) "f") (clicked-flag cid))
+						((eql (elem-get cid game_map) "b") (right-clicked-button cid))
+						((eql (elem-get cid game_map) "f") (clicked-flag cid))
 						(t nil)))
 				(t nil))
 			(is-game-over?))

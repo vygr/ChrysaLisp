@@ -56,7 +56,7 @@
 (defun rdr-peek (rdr &optional index)
   ; (peek rdr index) -> char | exception
   (setd index 0)
-  (elem (rdr-calc-off rdr index "rdr-peek") (gets rdr :buffer)))
+  (elem-get (rdr-calc-off rdr index "rdr-peek") (gets rdr :buffer)))
 
 
 (defun rdr-prefix (rdr &optional len)
@@ -69,7 +69,7 @@
   (setd len 1)
   (rdr-calc-off rdr len "rdr-forward")
   (while (> len 0)
-    (defq ch (elem (gets rdr :index) (gets rdr :buffer)))
+    (defq ch (elem-get (gets rdr :index) (gets rdr :buffer)))
     (sets-pairs! rdr
       :point    (inc (gets rdr :point))
       :index  (inc (gets rdr :index))

@@ -148,11 +148,11 @@
 	(if (/= axb 0)
 		(list
 			(/ (vec-det-2d
-				(list da (elem 0 av))
-				(list db (elem 0 bv))) axb)
+				(list da (elem-get 0 av))
+				(list db (elem-get 0 bv))) axb)
 			(/ (vec-det-2d
-				(list da (elem 1 av))
-				(list db (elem 1 bv))) axb))))
+				(list da (elem-get 1 av))
+				(list db (elem-get 1 bv))) axb))))
 
 (defun vec-intersect-lines-2d (l1_p1 l1_p2 l2_p1 l2_p2)
 	(defq av (vec-sub l1_p2 l1_p1)
@@ -163,11 +163,11 @@
 	(if (/= axb 0)
 		(list
 			(/ (vec-det-2d
-				(list da (elem 0 av))
-				(list db (elem 0 bv))) axb)
+				(list da (elem-get 0 av))
+				(list db (elem-get 0 bv))) axb)
 			(/ (vec-det-2d
-				(list da (elem 1 av))
-				(list db (elem 1 bv))) axb))))
+				(list da (elem-get 1 av))
+				(list db (elem-get 1 bv))) axb))))
 
 (defun vec-collide-lines-2d (l1_p1 l1_p2 l2_p1 l2_p2)
 	(defq av (vec-sub l1_p2 l1_p1)
@@ -199,7 +199,7 @@
 
 (defun bounding-box (verts fnc)
 	; (bounding-box verts vec3-extract-fnc) -> (min_v3 max_v3)
-	(defq min_v (cat (fnc (elem 0 verts))) max_v (cat min_v))
+	(defq min_v (cat (fnc (elem-get 0 verts))) max_v (cat min_v))
 	(each! 1 -1 (#
 		(vec-min (defq v (fnc %0)) min_v min_v)
 		(vec-max v max_v max_v)) (list verts))

@@ -4,7 +4,7 @@
 
 (defun pcb-read (data)
 	; (pcb-read data) -> pcb
-	(defq pcb (elem 0 (read (string-stream data) (ascii-code " "))))
+	(defq pcb (elem-get 0 (read (string-stream data) (ascii-code " "))))
 	(each! 1 -1 (lambda ((id track_radius via_radius track_gap pads wires &optional paths))
 		(setd paths '())
 		;convert wires to vec3-f

@@ -72,9 +72,9 @@
 
 (errorcases
 (vp-label 'error1)
-	(jump 'lisp :repl_error '(:r0 "(elem index seq)" +error_msg_wrong_types :r1))
+	(jump 'lisp :repl_error '(:r0 "(elem-get index seq)" +error_msg_wrong_types :r1))
 (vp-label 'error2)
-	(jump 'lisp :repl_error '(:r12 "(elem index seq)" +error_msg_not_valid_index :r13))
+	(jump 'lisp :repl_error '(:r12 "(elem-get index seq)" +error_msg_not_valid_index :r13))
 	(signature '(num seq)))
 
 (def-func-end)

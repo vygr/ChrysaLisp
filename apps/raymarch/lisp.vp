@@ -94,7 +94,7 @@
 		(scene)
 		(vec-dup 1)
 		(vec-fmul 1 '(:r5))
-		(vp-add-rr (elem 0 (vec-pop 1)) :r2)
+		(vp-add-rr (elem-get 0 (vec-pop 1)) :r2)
 	(loop-end)
 	(vp-cpy-rr :r2 :r0)
 	(vpif '(:r7 > :r4))

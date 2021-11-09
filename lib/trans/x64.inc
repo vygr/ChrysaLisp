@@ -118,7 +118,7 @@
 		(t (throw "emit-call-jump-i constant out of range !" c))))
 
 (defun emit-branch (o l d)
-	(defq m (elem d *branches*) l (- l *pc*))
+	(defq m (elem-get d *branches*) l (- l *pc*))
 	(and (/= *pass* 0) (> (abs l) (abs m)) (elem-set d *branches* (setq m l)))
 	(cond
 		((<= -0x80 (- m 2) 0x7f)
@@ -209,7 +209,7 @@
 (defun emit-call-p (l) (emit-call-jump-p 0x15 l))
 
 (defun emit-jmp (l d)
-	(defq m (elem d *branches*) c (- l *pc*))
+	(defq m (elem-get d *branches*) c (- l *pc*))
 	(and (/= *pass* 0) (> (abs c) (abs m)) (elem-set d *branches* (setq m c)))
 	(cond
 		((<= -0x80 (- m 2) 0x7f)

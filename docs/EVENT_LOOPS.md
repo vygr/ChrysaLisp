@@ -93,9 +93,9 @@ We read the message from that selection index mailbox and then decide what
 action to take based on the index value:
 
 ```vdu
-	(mail-timeout (elem +select_timer select) rate 0)
+	(mail-timeout (elem-get +select_timer select) rate 0)
 	(while ...
-		(defq msg (mail-read (elem (defq idx (mail-select select)) select)))
+		(defq msg (mail-read (elem-get (defq idx (mail-select select)) select)))
 		(cond
 			((= idx +select_main)
 				;main mailbox
@@ -103,7 +103,7 @@ action to take based on the index value:
 				)
 			((= idx +select_timer)
 				;timer event
-				(mail-timeout (elem +select_timer select) rate 0)
+				(mail-timeout (elem-get +select_timer select) rate 0)
 				...
 				)))
 ```
@@ -126,7 +126,7 @@ and remove your application window from the screen.
 		(setq services (filter (# (eql
 				(slice +long_size -1 (task-mailbox))
 				(slice +long_size -1 %0)))
-			(map (# (to-net-id (elem 1 (split %0 ",")))) services)))
+			(map (# (to-net-id (elem-get 1 (split %0 ",")))) services)))
 		(defq mbox (mail-alloc-mbox))
 		(mail-send (pop services) (list cmd view (task-mailbox) mbox))
 		(mail-read mbox)
@@ -217,7 +217,7 @@ to send off a job.
 			(mail-send (. val :find :child)
 				(setf-> job
 					(+job_key key)
-					(+job_reply (elem +select_reply select)))))
+					(+job_reply (elem-get +select_reply select)))))
 		(t  ;no jobs in que
 			(.-> val
 				(:erase :job)
@@ -226,8 +226,8 @@ to send off a job.
 (defun create (key val nodes)
 	; (create key val nodes)
 	;function called when entry is created
-	(open-task "apps/raymarch/child.lisp" (elem (random (length nodes)) nodes)
-		+kn_call_child key (elem +select_task select)))
+	(open-task "apps/raymarch/child.lisp" (elem-get (random (length nodes)) nodes)
+		+kn_call_child key (elem-get +select_task select)))
 
 (defun destroy (key val)
 	; (destroy key val)
@@ -269,9 +269,9 @@ task.
 	(defq select (alloc-select +select_size))
 	...
 	(defq farm (Farm create destroy (* 2 (length (mail-nodes)))))
-	(mail-timeout (elem +select_timer select) timer_rate 0)
+	(mail-timeout (elem-get +select_timer select) timer_rate 0)
 	(while ...
-		(defq msg (mail-read (elem (defq idx (mail-select select)) select)))
+		(defq msg (mail-read (elem-get (defq idx (mail-select select)) select)))
 		(cond
 			((= idx +select_main)
 				;main mailbox
@@ -293,7 +293,7 @@ task.
 				...
 				)
 			(t  ;timer event
-				(mail-timeout (elem +select_timer select) timer_rate 0)
+				(mail-timeout (elem-get +select_timer select) timer_rate 0)
 				(. farm :refresh retry_timeout)
 				(when dirty
 					(setq dirty nil)
@@ -345,15 +345,15 @@ long to receive some work, 5 seconds here, and it goes away.
 (defun main ()
 	(defq select (alloc-select +select_size) running t +timeout 5000000)
 	(while running
-		(mail-timeout (elem +select_timeout select) +timeout 0)
-		(defq msg (mail-read (elem (defq idx (mail-select select)) select)))
+		(mail-timeout (elem-get +select_timeout select) +timeout 0)
+		(defq msg (mail-read (elem-get (defq idx (mail-select select)) select)))
 		(cond
 			((or (= idx +select_timeout) (eql msg ""))
 				;timeout or quit
 				(setq running nil))
 			((= idx +select_main)
 				;main mailbox, reset timeout and reply with result
-				(mail-timeout (elem +select_timeout select) 0 0)
+				(mail-timeout (elem-get +select_timeout select) 0 0)
 				(defq key (getf msg +job_key)
 					mbox (getf msg +job_reply)
 					msg (slice +job_x -1 msg))
@@ -381,7 +381,7 @@ mailbox.
 ```vdu
 (defun reset ()
 	(if farm (. farm :close))
-	(mail-free-mbox (elem +select_reply select))
+	(mail-free-mbox (elem-get +select_reply select))
 	(elem-set +select_reply select (mail-alloc-mbox))
 	(setq jobs (map (lambda (y)
 			(setf-> (str-alloc +job_size)
@@ -416,7 +416,7 @@ This example is from the `apps/bubbles/app.lisp`, Bubbles application:
 ...
 
 (defun tooltips ()
-	(def *window* :tip_mbox (elem +select_tip select))
+	(def *window* :tip_mbox (elem-get +select_tip select))
 	(each (# (def %0 :tip_text %1)) (. main_toolbar :children)
 		'("refresh"))
 	(each (# (def %0 :tip_text %1)) (. style_toolbar :children)

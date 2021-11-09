@@ -41,13 +41,13 @@
 	; (defclass name ([arg ...]) (super ...) body)
 	(defq vtmax 50 module (str *stream_name*)
 		predn (sym (cat n "?")) kwn (sym (cat : n))
-		super (sym (cat "*class_" (if s (elem 0 s)) "*"))
+		super (sym (cat "*class_" (if s (elem-get 0 s)) "*"))
 		class (sym (cat "*class_" n "*"))
 		inits (list) methods (list))
 	(def (penv) '*class* n '*super_class* super)
 	(each (lambda (form)
 		(cond
-			((and (list? form) (ends-with "method" (elem 0 form)))
+			((and (list? form) (ends-with "method" (elem-get 0 form)))
 				(push methods form))
 			(t  (push inits form)))) _)
 	(if s

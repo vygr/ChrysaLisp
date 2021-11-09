@@ -31,7 +31,7 @@
 	(ui-scroll image_scroll +scroll_flag_both))
 
 (defun win-refresh (_)
-	(defq file (elem (setq index _) images))
+	(defq file (elem-get (setq index _) images))
 	(bind '(w h) (. (defq canvas (Canvas-from-file file 0)) :pref_size))
 	(def image_scroll :min_width w :min_height h)
 	(def window_title :text (cat "Images -> " (slice (inc (find-rev "/" file)) -1 file)))
@@ -42,7 +42,7 @@
 	(. *window* :change_dirty x y w h))
 
 (defun tooltips ()
-	(def *window* :tip_mbox (elem +select_tip select))
+	(def *window* :tip_mbox (elem-get +select_tip select))
 	(each (# (def %0 :tip_text %1)) (. main_toolbar :children)
 		'("prev" "next")))
 
@@ -52,7 +52,7 @@
 	(bind '(x y w h) (apply view-locate (. (win-refresh index) :get_size)))
 	(gui-add-front (. *window* :change x y w h))
 	(while id
-		(defq *msg* (mail-read (elem (defq idx (mail-select select)) select)))
+		(defq *msg* (mail-read (elem-get (defq idx (mail-select select)) select)))
 		(cond
 			((= idx +select_tip)
 				;tip time mail

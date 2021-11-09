@@ -30,9 +30,9 @@
 		;bsearch
 		(while (< j k)
 			(setq i (>> (+ j k) 1))
-			(if (starts-with prefix (elem i word_list))
+			(if (starts-with prefix (elem-get i word_list))
 				(setq k -1)
-				(if (> (cmp prefix (elem i word_list)) 0)
+				(if (> (cmp prefix (elem-get i word_list)) 0)
 					(setq j (inc i)) (setq k i))))
 		;bounds
 		(cond

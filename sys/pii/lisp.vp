@@ -55,7 +55,7 @@
 	(vp-push :r0)
 	(defq in (method-input 'sys_pii :write_char))
 	(array-bind-args :r1 in)
-	(vp-push (elem 1 in))
+	(vp-push (elem-get 1 in))
 	(list-cast-args in '(:num :num))
 	(call 'sys_pii :write_char in)
 	(vp-pop :r1)

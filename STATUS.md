@@ -4,6 +4,11 @@
 
 ------
 
+Rename `(elem)` to `(elem-get)`, will now be inline with new `(dim-get)` and
+`(dim-set)` multi dimensional element get and set functions.
+
+------
+
 Start of XML, SVG import libs. Plenty more to do yet.
 
 New '(lmap)' linear map class.

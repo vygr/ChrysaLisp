@@ -25,7 +25,7 @@
 	(ui-scroll image_scroll +scroll_flag_both))
 
 (defun win-refresh (_)
-	(defq file (elem (setq index _) films))
+	(defq file (elem-get (setq index _) films))
 	(bind '(w h) (. (setq canvas (Canvas-from-file file +load_flag_film)) :pref_size))
 	(def image_scroll :min_width w :min_height h)
 	(def window_title :text (cat "Films -> " (slice (inc (find-rev "/" file)) -1 file)))
@@ -36,7 +36,7 @@
 	(. *window* :change_dirty x y w h))
 
 (defun tooltips ()
-	(def *window* :tip_mbox (elem +select_tip select))
+	(def *window* :tip_mbox (elem-get +select_tip select))
 	(each (# (def %0 :tip_text %1)) (. main_toolbar :children)
 		'("prev" "next")))
 
@@ -45,9 +45,9 @@
 	(tooltips)
 	(bind '(x y w h) (apply view-locate (. (win-refresh index) :get_size)))
 	(gui-add-front (. *window* :change x y w h))
-	(mail-timeout (elem +select_timer select) rate 0)
+	(mail-timeout (elem-get +select_timer select) rate 0)
 	(while id
-		(defq *msg* (mail-read (elem (defq idx (mail-select select)) select)))
+		(defq *msg* (mail-read (elem-get (defq idx (mail-select select)) select)))
 		(cond
 			((= idx +select_tip)
 				;tip time mail
@@ -55,7 +55,7 @@
 					(. view :show_tip)))
 			((= idx +select_timer)
 				;timer event)
-				(mail-timeout (elem +select_timer select) rate 0)
+				(mail-timeout (elem-get +select_timer select) rate 0)
 				(.-> canvas :next_frame :swap))
 			((= (setq id (getf *msg* +ev_msg_target_id)) +event_close)
 				(setq id nil))

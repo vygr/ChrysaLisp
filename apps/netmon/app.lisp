@@ -53,7 +53,7 @@
 	(. used_grid :add_child ub)
 	(. alloc_grid :add_child ab)
 	(. task_grid :add_child tb)
-	(open-task "apps/netmon/child.lisp" key +kn_call_open 0 (elem +select_task select))
+	(open-task "apps/netmon/child.lisp" key +kn_call_open 0 (elem-get +select_task select))
 	val)
 
 (defun destroy (key val)
@@ -69,16 +69,16 @@
 	; (poll key val)
 	;function called to poll entry
 	(unless (eql (defq child (. val :find :child)) (const (pad "" +net_id_size)))
-		(mail-send child (elem +select_reply select))))
+		(mail-send child (elem-get +select_reply select))))
 
 (defun main ()
 	(defq select (alloc-select +select_size))
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(gui-add-front (. *window* :change x y w h))
 	(defq global_tasks (Global create destroy))
-	(mail-timeout (elem +select_nodes select) 1 0)
+	(mail-timeout (elem-get +select_nodes select) 1 0)
 	(while id
-		(defq msg (mail-read (elem (defq idx (mail-select select)) select)))
+		(defq msg (mail-read (elem-get (defq idx (mail-select select)) select)))
 		(cond
 			((= idx +select_main)
 				;main mailbox
@@ -124,7 +124,7 @@
 					(. task_bar :dirty) (. alloc_bar :dirty) (. used_bar :dirty)
 					(. val :insert :timestamp (pii-time))))
 			(t  ;timer event
-				(mail-timeout (elem +select_nodes select) rate 0)
+				(mail-timeout (elem-get +select_nodes select) rate 0)
 				(when (. global_tasks :refresh retry_timeout)
 					;nodes have mutated
 					(defq size (. global_tasks :size))

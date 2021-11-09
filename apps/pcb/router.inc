@@ -95,7 +95,7 @@
 	;build pad collision lines and endpoint nodes
 	(defq i 0)
 	(while (< i (length pads))
-		(defq p (elem i pads)
+		(defq p (elem-get i pads)
 			pos (. p :get_pos)
 			radius (. p :get_radius)
 			gap (. p :get_gap)
@@ -105,18 +105,18 @@
 		(defq z2 z1)
 		;traverse pad stack
 		(while (and (< (setq i (inc i)) (length pads))
-					(eql xy (slice +vec3_x +vec3_z (defq pos (. (defq p (elem i pads)) :get_pos))))
+					(eql xy (slice +vec3_x +vec3_z (defq pos (. (defq p (elem-get i pads)) :get_pos))))
 					(= radius (. p :get_radius))
 					(= gap (. p :get_gap))
 					(every (const eql) shape (. p :get_shape)))
-			(setq z2 (elem +vec3_z pos)))
+			(setq z2 (elem-get +vec3_z pos)))
 		;collision lines
 		(cond
 			((= (length shape) 0)
 				(push pad_collision_lines (Layers-line x y z1 x y z2 radius gap)))
 			(t	(defq z z1)
 				(while (<= z z2)
-					(bind '(xs ys) (elem 0 shape))
+					(bind '(xs ys) (elem-get 0 shape))
 					(defq cx x cy y cz z
 						p0x nil p0y nil p0z nil
 						p1x (+ x xs) p1y (+ y ys) p1z cz)
@@ -136,11 +136,11 @@
 
 	;build wires collision lines and visited
 	(each (lambda (wire)
-		(defq p0 nil p1 (elem 0 wire))
+		(defq p0 nil p1 (elem-get 0 wire))
 		(each! 1 -1 (lambda (p)
 			(setq p0 p1 p1 p)
 			(cond
-				((/= (elem +vec3_z p0) (elem +vec3_z p1))
+				((/= (elem-get +vec3_z p0) (elem-get +vec3_z p1))
 					;via wire
 					(bind '(x0 y0 z0) p0)
 					(defq depth (n2f (dec (. pcb :get_depth))) z 0.0)
@@ -216,7 +216,7 @@
 		(raise :pcb :radius :via :gap)
 		(defq depth (n2f (dec (. pcb :get_depth))))
 		(reduce (lambda (lines pth)
-			(defq p0 nil p1 (. pcb :node_to_pad_point (elem 0 pth)))
+			(defq p0 nil p1 (. pcb :node_to_pad_point (elem-get 0 pth)))
 			(each! 1 -1 (lambda (p)
 				(setq p0 p1 p1 (. pcb :node_to_pad_point p))
 				(bind '(x0 y0 z0) p0)
@@ -262,14 +262,14 @@
 		(reduce (lambda (opt_paths pth)
 			(defq opt_path (list)
 				d0 (Vec3-f 0.0 0.0 0.0) d1 nil
-				p0 nil p1 (. pcb :node_to_pad_point (elem 0 pth)))
+				p0 nil p1 (. pcb :node_to_pad_point (elem-get 0 pth)))
 			(each! 1 -1 (lambda (p)
 				(setq p0 p1 p1 (. pcb :node_to_pad_point p)
 					d1 (vec-norm (vec-sub p1 p0)))
 				(unless (eql d0 d1)
-					(push opt_path (elem (dec _) pth))
+					(push opt_path (elem-get (dec _) pth))
 					(setq d0 d1))) (list pth))
-			(push opt_path (elem -2 pth))
+			(push opt_path (elem-get -2 pth))
 			(push opt_paths opt_path)) paths (list)))
 
 	(defmethod :backtrack_path (this visited end_node radius via gap)
@@ -297,7 +297,7 @@
 				((defq n (some (# (. visited :find %0)) nearer_nodes))
 					;found existing track
 					(setq exit (push pth n)))
-				((setq path_node (elem 0 nearer_nodes)))))
+				((setq path_node (elem-get 0 nearer_nodes)))))
 		exit)
 
 	(defmethod :route (this)
@@ -312,11 +312,11 @@
 					:sub_wire_collision_lines)
 				(defq visited (. (get :wire_nodes this) :copy)
 					failed (some! 1 -1 nil (lambda (ends)
-						(each (# (. visited :insert %0)) (elem (dec _) pad_end_nodes))
+						(each (# (. visited :insert %0)) (elem-get (dec _) pad_end_nodes))
 						(unless (some (# (. visited :find %0)) ends)
 							(. pcb :mark_distances radius via gap visited ends)
 							(sort (# (- (. pcb :get_node %0) (. pcb :get_node %1))) ends)
-							(defq nodes (. this :backtrack_path visited (elem 0 ends) radius via gap))
+							(defq nodes (. this :backtrack_path visited (elem-get 0 ends) radius via gap))
 							(. pcb :unmark_distances)
 							(cond
 								((/= (length nodes) 0)
@@ -426,7 +426,7 @@
 	(defmethod :get_node (this (x y z))
 		; (. pcb :get_node node) -> val
 		;get grid node value
-		(elem (+ x (* y (get :width this)) (* z (get :stride this))) (get :nodes this)))
+		(elem-get (+ x (* y (get :width this)) (* z (get :stride this))) (get :nodes this)))
 
 	(defmethod :node_to_point (this (x y z))
 		; (. pcb :node_to_point node) -> point
@@ -460,7 +460,7 @@
 			(when (and (< -1 nx width) (< -1 ny height) (< -1 nz depth))
 				(defq mark (. this :get_node n))
 				(if (/= mark 0)
-					(push out (list mark n))))) (elem (% (elem +vec3_z node) 2) vec))
+					(push out (list mark n))))) (elem-get (% (elem-get +vec3_z node) 2) vec))
 		out)
 
 	(defmethod :all_not_marked (this vec node)
@@ -472,7 +472,7 @@
 			(bind '(nx ny nz) (defq n (vec-add node v)))
 			(when (and (< -1 nx width) (< -1 ny height) (< -1 nz depth))
 				(if (= (. this :get_node n) 0)
-					(push out n)))) (elem (% (elem +vec3_z node) 2) vec))
+					(push out n)))) (elem-get (% (elem-get +vec3_z node) 2) vec))
 		out)
 
 	(defmethod :all_nearer_sorted (this vec node)
@@ -480,11 +480,11 @@
 		;generate all grid points surrounding node sorted
 		(defq distance (. this :get_node node)
 			out (filter (lambda (mn)
-						(if (> (- distance (elem 0 mn)) 0)
-							(elem-set 0 mn (vec-manhattan-distance node (elem 1 mn)))))
+						(if (> (- distance (elem-get 0 mn)) 0)
+							(elem-set 0 mn (vec-manhattan-distance node (elem-get 1 mn)))))
 					(. this :all_marked vec node)))
 		(each (# (elem-set _ out (pop %0)))
-			(sort (# (- (elem 0 %0) (elem 0 %1))) out))
+			(sort (# (- (elem-get 0 %0) (elem-get 0 %1))) out))
 		out)
 
 	(defmethod :all_not_shorting (this gather node radius gap)
@@ -566,7 +566,7 @@
 		; (. pcb :hoist_net index) -> (netlist new_index)
 		;move net to top of area group
 		(raise :netlist)
-		(defq area (. (elem index netlist) :get_area)
+		(defq area (. (elem-get index netlist) :get_area)
 			new_index (some! index 0 nil (# (if (< (. %0 :get_area) area) (inc _))) (list netlist)))
 		(unless new_index (setq new_index 0))
 		(when (/= index new_index)
@@ -590,7 +590,7 @@
 		(defq hoisted_nets (fset) index 0 exit t retval t start_time (pii-time))
 		(while (and exit (< index (length netlist)))
 			(task-slice)
-			(defq net (elem index netlist))
+			(defq net (elem-get index netlist))
 			(cond
 				((. net :route)
 (prin "routed net, idx " index
@@ -609,12 +609,12 @@
 (print)
 							(cond
 								((or (= pos index) (. hoisted_nets :find net))
-									(. net :set_area (. (elem (dec index) netlist) :get_area))
+									(. net :set_area (. (elem-get (dec index) netlist) :get_area))
 									(bind '(netlist pos) (. this :hoist_net index))
 									(. hoisted_nets :insert net))
 								(t	(. hoisted_nets :erase net)))
 							(while (> index pos)
-								(.-> (elem index netlist) :remove :shuffle_topology)
+								(.-> (elem-get index netlist) :remove :shuffle_topology)
 								(setq index (dec index)))))))
 			(defq end_time (pii-time) elapsed (- end_time start_time))
 			(cond
@@ -691,7 +691,7 @@
 	out)
 
 (defun router-test (pcb_list pcb_scroll mode show zoom canvas_scale)
-	(bind '(width height depth) (elem 0 pcb_list))
+	(bind '(width height depth) (elem-get 0 pcb_list))
 	(bind '(res verb quant viascost) '(1 1 1 0))
 	(bind '(flood_range flood_range_even_layer flood_range_odd_layer) '(2 1 1))
 	(bind '(path_range path_range_even_layer path_range_odd_layer) '(2 1 1))

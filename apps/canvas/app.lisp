@@ -93,7 +93,7 @@
 				(path-gen-arc
 					(* f_canvas_width -0.2) (* f_canvas_height -0.2) 4.0 2.0
 					(* f_canvas_width 0o0.1) +eps (path))))))))
-	(fpoly 0xa0ffffff +winding_odd_even (list (elem 1 polygons) (elem 3 polygons)))
+	(fpoly 0xa0ffffff +winding_odd_even (list (elem-get 1 polygons) (elem-get 3 polygons)))
 	(fpoly 0xff000000 +winding_odd_even (transform-copy (/ angle 2.0) fp1))
 	(fpoly 0xff000000 +winding_odd_even (transform-copy (+ (/ angle 2.0) +fp_pi) fp2))
 	(fpoly 0xffffffff +winding_odd_even (transform-copy (+ (/ angle 2.0) +fp_hpi) fp3))
@@ -105,9 +105,9 @@
 	(.-> canvas (:fill 0) (:set_canvas_flags +canvas_flag_antialias))
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(gui-add-front (. *window* :change x y w h))
-	(mail-timeout (elem +select_timer select) rate 0)
+	(mail-timeout (elem-get +select_timer select) rate 0)
 	(while id
-		(defq msg (mail-read (elem (defq idx (mail-select select)) select)))
+		(defq msg (mail-read (elem-get (defq idx (mail-select select)) select)))
 		(cond
 			((= idx +select_main)
 				;main mailbox
@@ -117,7 +117,7 @@
 					(t (. *window* :event msg))))
 			((= idx +select_timer)
 				;timer event
-				(mail-timeout (elem +select_timer select) rate 0)
+				(mail-timeout (elem-get +select_timer select) rate 0)
 				(redraw)
 				(setq angle (+ angle 0.0025)))))
 	;close window

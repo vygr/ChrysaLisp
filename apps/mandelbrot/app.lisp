@@ -48,7 +48,7 @@
 			(mail-send (. val :find :child)
 				(setf-> job
 					(+job_key key)
-					(+job_reply (elem +select_reply select)))))
+					(+job_reply (elem-get +select_reply select)))))
 		(t	;no jobs in que
 			(.-> val
 				(:erase :job)
@@ -57,8 +57,8 @@
 (defun create (key val nodes)
 	; (create key val nodes)
 	;function called when entry is created
-	(open-task "apps/mandelbrot/child.lisp" (elem (random (length nodes)) nodes)
-		+kn_call_child key (elem +select_task select)))
+	(open-task "apps/mandelbrot/child.lisp" (elem-get (random (length nodes)) nodes)
+		+kn_call_child key (elem-get +select_task select)))
 
 (defun destroy (key val)
 	; (destroy key val)
@@ -71,7 +71,7 @@
 
 (defun reset ()
 	(if farm (. farm :close))
-	(mail-free-mbox (elem +select_reply select))
+	(mail-free-mbox (elem-get +select_reply select))
 	(elem-set +select_reply select (mail-alloc-mbox))
 	(setq jobs (map (lambda (y)
 			(setf-> (str-alloc +job_size)
@@ -93,9 +93,9 @@
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(gui-add-front (. *window* :change x y w h))
 	(reset)
-	(mail-timeout (elem +select_timer select) timer_rate 0)
+	(mail-timeout (elem-get +select_timer select) timer_rate 0)
 	(while id
-		(defq msg (mail-read (elem (defq idx (mail-select select)) select)))
+		(defq msg (mail-read (elem-get (defq idx (mail-select select)) select)))
 		(cond
 			((= idx +select_main)
 				;main mailbox
@@ -130,7 +130,7 @@
 				(setq dirty t)
 				(tile canvas msg))
 			(t	;timer event
-				(mail-timeout (elem +select_timer select) timer_rate 0)
+				(mail-timeout (elem-get +select_timer select) timer_rate 0)
 				(. farm :refresh retry_timeout)
 				(when dirty
 					(setq dirty nil)

@@ -327,22 +327,22 @@
 	;determine the index into the edge table which
 	;tells us which vertices are inside the surface
 	(defq cubeindex (reduce (lambda (cubeindex (b v))
-				(+ cubeindex (if (<= (elem v grid) isolevel) b 0)))
+				(+ cubeindex (if (<= (elem-get v grid) isolevel) b 0)))
 			(const-quoted `(
 			(1 +gridcell_v0) (2 +gridcell_v1)
 			(4 +gridcell_v2) (8 +gridcell_v3)
 			(16 +gridcell_v4) (32 +gridcell_v5)
 			(64 +gridcell_v6) (128 +gridcell_v7))) 0))
 	(cond
-		((= (defq cube (elem cubeindex +edge_table)) 0)
+		((= (defq cube (elem-get cubeindex +edge_table)) 0)
 			;cube is entirely in/out of the surface
 			'())
 		(t  ;find the vertices where the surface intersects the cube
 			(defq vertlist (reduce (lambda (vertlist (i p0 p1 v0 v1))
 						(push vertlist (if (= (logand cube i) 0) nil
 							(vertex-interp isolevel
-								(elem p0 grid) (elem p1 grid)
-								(elem v0 grid) (elem v1 grid)))))
+								(elem-get p0 grid) (elem-get p1 grid)
+								(elem-get v0 grid) (elem-get v1 grid)))))
 					(const-quoted '(
 					(1 +gridcell_p0 +gridcell_p1 +gridcell_v0 +gridcell_v1)
 					(2 +gridcell_p1 +gridcell_p2 +gridcell_v1 +gridcell_v2)
@@ -358,8 +358,8 @@
 					(2048 +gridcell_p3 +gridcell_p7 +gridcell_v3 +gridcell_v7))) (list)))
 			;return the triangles
 			(map (lambda ((p0 p1 p2))
-					(list (elem p0 vertlist) (elem p1 vertlist) (elem p2 vertlist)))
-				(elem cubeindex +tri_table)))))
+					(list (elem-get p0 vertlist) (elem-get p1 vertlist) (elem-get p2 vertlist)))
+				(elem-get cubeindex +tri_table)))))
 
 (defclass Iso (width height depth) nil
 	; (Iso) -> iso
