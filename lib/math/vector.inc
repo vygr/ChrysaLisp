@@ -31,11 +31,14 @@
 	`(reals ,x ,y ,z ,w))
 
 ;useful vector constants
-(defq +fixeds_zero2 (fixeds 0.0 0.0)
+(defq +nums_zero2 (nums 0 0)
+	+nums_zero3 (nums 0 0 0)
+	+fixeds_zero2 (fixeds 0.0 0.0)
 	+fixeds_zero3 (fixeds 0.0 0.0 0.0)
 	+fixeds_zero4 (fixeds 0.0 0.0 0.0 0.0)
 	+reals_zero3 (reals (n2r 0) (n2r 0) (n2r 0))
 	+reals_zero4 (reals (n2r 0) (n2r 0) (n2r 0) (n2r 0))
+	+nums_tmp3 (cat +nums_zero3) +nums_tmp2 (cat +nums_zero2)
 	+fixeds_tmp3 (cat +fixeds_zero3) +fixeds_tmp4 (cat +fixeds_zero4)
 	+reals_tmp3 (cat +reals_zero3) +reals_tmp4 (cat +reals_zero4))
 

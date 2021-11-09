@@ -453,26 +453,23 @@
 	(defmethod :all_marked (this vec node)
 		; (. pcb :all_marked vec node) -> sort_nodes
 		;generate all grid points surrounding node, that are not value 0
-		(raise :width :height :depth)
-		(defq out (clear '()))
+		(defq out (clear '())
+			vecm (Node (dec (get :width this)) (dec (get :height this)) (dec (get :depth this))))
 		(each (lambda (v)
-			(bind '(nx ny nz) (defq n (vec-add node v)))
-			(when (and (< -1 nx width) (< -1 ny height) (< -1 nz depth))
-				(defq mark (. this :get_node n))
-				(if (/= mark 0)
-					(push out (list mark n))))) (elem-get (% (elem-get +vec3_z node) 2) vec))
+			(and (eql (vec-min vecm (vec-max (defq n (vec-add node v)) +nums_zero3 +nums_tmp3) +nums_tmp3) n)
+					(/= (defq mark (. this :get_node n)) 0)
+				(push out (list mark n)))) (elem-get (% (elem-get +vec3_z node) 2) vec))
 		out)
 
 	(defmethod :all_not_marked (this vec node)
 		; (. pcb :all_not_marked vec node) -> nodes
 		;generate all grid points surrounding node, that are value 0
-		(raise :width :height :depth)
-		(defq out (clear '()))
+		(defq out (clear '())
+			vecm (Node (dec (get :width this)) (dec (get :height this)) (dec (get :depth this))))
 		(each (lambda (v)
-			(bind '(nx ny nz) (defq n (vec-add node v)))
-			(when (and (< -1 nx width) (< -1 ny height) (< -1 nz depth))
-				(if (= (. this :get_node n) 0)
-					(push out n)))) (elem-get (% (elem-get +vec3_z node) 2) vec))
+			(and (eql (vec-min vecm (vec-max (defq n (vec-add node v)) +nums_zero3 +nums_tmp3) +nums_tmp3) n)
+					(= (. this :get_node n) 0)
+				(push out n))) (elem-get (% (elem-get +vec3_z node) 2) vec))
 		out)
 
 	(defmethod :all_nearer_sorted (this vec node)
