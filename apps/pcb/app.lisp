@@ -71,7 +71,7 @@
 	(tooltips)
 	(bind '(x y w h) (apply view-locate (. (win-load index) :get_size)))
 	(gui-add-front (. *window* :change x y w h))
-(router-test pcb pcb_scroll mode show zoom canvas_scale)
+;(router-test pcb pcb_scroll mode show zoom canvas_scale)
 	(while *running*
 		(defq *msg* (mail-read (elem (defq idx (mail-select select)) select)))
 		(cond
