@@ -4,10 +4,9 @@
 
 ;(import "lib/debug/frames.inc")
 
+(import "./app.inc")
 (import "./reader.inc")
 (import "./viewer.inc")
-(import "./layer.inc")
-(import "./router.inc")
 
 (enums +event 0
 	(enum close)
@@ -15,7 +14,7 @@
 	(enum show_all show_1 show_2 show_3 show_4))
 
 (enums +select 0
-	(enum main tip))
+	(enum main reply tip))
 
 (defun all-pcbs (p)
 	(defq out (list))
@@ -27,7 +26,7 @@
 	index (some (# (if (eql "apps/pcb/data/test1.pcb" %0) _)) pcbs)
 	canvas_scale 1 mode 0 show -1
 	+max_zoom 15.0 +min_zoom 5.0 zoom (/ (+ +min_zoom +max_zoom) 2.0) +eps 0.25
-	*running* t pcb nil)
+	*running* t pcb nil pcb_data nil)
 
 (ui-window *window* ()
 	(ui-title-bar window_title "" (0xea19) +event_close)
@@ -38,7 +37,7 @@
 	(ui-scroll pcb_scroll +scroll_flag_both (:min_width 512 :min_height 256)))
 
 (defun win-load (_)
-	(setq pcb (pcb-load (defq file (elem-get (setq index _) pcbs))))
+	(setq pcb_data (load (defq file (elem-get (setq index _) pcbs))) pcb (pcb-read pcb_data))
 	(bind '(w h) (. (defq canvas (pcb-canvas pcb mode show zoom canvas_scale)) :pref_size))
 	(def pcb_scroll :min_width w :min_height h)
 	(def window_title :text (cat "Pcb -> " (slice (inc (find-rev "/" file)) -1 file)))
@@ -71,10 +70,17 @@
 	(tooltips)
 	(bind '(x y w h) (apply view-locate (. (win-load index) :get_size)))
 	(gui-add-front (. *window* :change x y w h))
-;(router-test pcb pcb_scroll mode show zoom canvas_scale)
+	(mail-send (defq child (open-child "apps/pcb/child.lisp" +kn_call_child))
+		(setf-> (cat (str-alloc +job_size) pcb_data)
+			(+job_key 0)
+			(+job_reply (elem-get +select_reply select))))
 	(while *running*
 		(defq *msg* (mail-read (elem-get (defq idx (mail-select select)) select)))
 		(cond
+			((= idx +select_reply)
+				;child pcb data
+				(setq pcb (pcb-read *msg*))
+				(win-show))
 			((= idx +select_tip)
 				;tip time mail
 				(if (defq view (. *window* :find_id (getf *msg* +mail_timeout_id)))
@@ -82,7 +88,14 @@
 			((= (defq id (getf *msg* +ev_msg_target_id)) +event_close)
 				(setq *running* nil))
 			((<= +event_prev id +event_next)
-				(win-load (% (+ index (dec (* 2 (- id +event_prev))) (length pcbs)) (length pcbs))))
+				(win-load (% (+ index (dec (* 2 (- id +event_prev))) (length pcbs)) (length pcbs)))
+				(mail-free-mbox (elem-get +select_reply select))
+				(elem-set +select_reply select (mail-alloc-mbox))
+				(mail-send child "")
+				(mail-send (setq child (open-child "apps/pcb/child.lisp" +kn_call_child))
+					(setf-> (cat (str-alloc +job_size) pcb_data)
+						(+job_key 0)
+						(+job_reply (elem-get +select_reply select)))))
 			((<= +event_scale_down id +event_scale_up)
 				(setq zoom (max (min (+ zoom (n2f (dec (* 2 (- id +event_scale_down))))) +max_zoom) +min_zoom))
 				(win-zoom))
@@ -94,4 +107,7 @@
 				(win-show))
 			(t (. *window* :event *msg*))))
 	(free-select select)
-	(gui-sub *window*))
+	(gui-sub *window*)
+	(mail-send child "")
+	(if (get 'profile-report)
+		(profile-report "Pcb")))

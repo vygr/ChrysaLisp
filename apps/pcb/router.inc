@@ -582,31 +582,31 @@
 		(each (# (. %0 :remove)) (get :netlist this))
 		this)
 
-	(defmethod :route (this timeout pcb_scroll mode show zoom canvas_scale)
+	(defmethod :route (this timeout mbox)
 		; (. pcb :route timeout) -> t | nil
 		(raise :netlist)
 		(.-> this :remove_netlist :unmark_distances :reset_areas :shuffle_netlist)
 		(sort-netlist netlist)
 		(defq hoisted_nets (fset) index 0 exit t retval t start_time (pii-time))
-		(while (and exit (< index (length netlist)))
+		(while (and exit (not (mail-poll (list (task-mailbox)))) (< index (length netlist)))
 			(task-slice)
 			(defq net (elem-get index netlist))
 			(cond
 				((. net :route)
-(prin "routed net, idx " index
-	", id " (. net :get_id)
-	", area " (. net :get_area))
-(print)
+;; (prin "routed net, idx " index
+;; 	", id " (. net :get_id)
+;; 	", area " (. net :get_area))
+;; (print)
 					(setq index (inc index)))
 				(t	(cond
 						((= index 0)
 							(.-> this :reset_areas :shuffle_netlist)
 							(sort-netlist netlist))
 						(t	(bind '(netlist pos) (. this :hoist_net index))
-(prin "failed net, idx " index
-	", id " (. net :get_id)
-	", area " (. net :get_area))
-(print)
+;; (prin "failed net, idx " index
+;; 	", id " (. net :get_id)
+;; 	", area " (. net :get_area))
+;; (print)
 							(cond
 								((or (= pos index) (. hoisted_nets :find net))
 									(. net :set_area (. (elem-get (dec index) netlist) :get_area))
@@ -621,12 +621,9 @@
 				((>= elapsed timeout)
 					(setq exit nil retval nil))
 				((>= (. this :get_verbosity) 1)
-;					(. this :print_pcb (io-stream "stdout"))(print)
 					(defq ss (string-stream (cat "")))
 					(. this :print_pcb ss)
-					(defq canvas (pcb-canvas (pcb-read (str ss)) mode show zoom canvas_scale))
-					(. pcb_scroll :add_child (. canvas :swap))
-					)))
+					(mail-send mbox (str ss)))))
 		retval)
 
 	(defmethod :cost (this)
@@ -676,39 +673,3 @@
 (export-classes
 	Pcb Track Net Pad)
 (env-pop)
-
-(defun gen-vectors (vec_range x_range y_range)
-	;generate range of routing vectors
-	(defq out (list) vec_range (n2f vec_range) y (neg y_range))
-	(while (<= y y_range)
-		(defq x (neg x_range))
-		(while (<= x x_range)
-			(defq l (vec-length (Vec2-f (n2f x) (n2f y))))
-			(and (> l 0.1) (<= l vec_range)
-				(push out (Node x y 0)))
-			(setq x (inc x)))
-		(setq y (inc y)))
-	out)
-
-(defun router-test (pcb_list pcb_scroll mode show zoom canvas_scale)
-	(bind '(width height depth) (elem-get 0 pcb_list))
-	(bind '(res verb quant viascost) '(1 1 1 0))
-	(bind '(flood_range flood_range_even_layer flood_range_odd_layer) '(2 1 1))
-	(bind '(path_range path_range_even_layer path_range_odd_layer) '(2 1 1))
-	(defq rfvs (list
-			(gen-vectors flood_range flood_range_even_layer flood_range)
-			(gen-vectors flood_range flood_range flood_range_odd_layer))
-		rpvs (list
-			(gen-vectors path_range path_range_even_layer path_range)
-			(gen-vectors path_range path_range path_range_odd_layer))
-		pcb (Pcb width height depth rfvs rpvs res verb quant viascost))
-	(each! 1 -1 (lambda ((id track_radius via_radius track_gap pads wires &optional paths))
-		(setq wires '())
-		(setq pads (map (lambda ((radius gap pos shape))
-				(Pad radius gap pos shape)) pads))
-		(defq track (Track id track_radius via_radius track_gap pads wires))
-		(. pcb :add_track track)) (list pcb_list))
-	(print (. pcb :route 10000000 pcb_scroll mode show zoom canvas_scale))
-	(print)
-	;(. pcb :print_pcb (file-stream "apps/pcb/data/test4.pcb" +file_open_write))
-	(. pcb :close))

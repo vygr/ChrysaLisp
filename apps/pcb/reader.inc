@@ -22,7 +22,3 @@
 			(each (lambda (p)
 				(elem-set _ pad_shape (apply fixeds p))) pad_shape)) pads)) (list pcb))
 	pcb)
-
-(defun pcb-load (file)
-	; (pcb-load file) -> pcb
-	(pcb-read (load file)))
