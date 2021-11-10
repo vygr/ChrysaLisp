@@ -84,20 +84,20 @@
 (defun vec-reflect (p n)
 	(vec-sub p (vec-scale n (* (nums-sum (vec-mul p n)) 2.0))))
 
-(defun vec-length (p)
-	(sqrt (vec-dot p p)))
-
 (defun vec-length-squared (p)
 	(vec-dot p p))
 
-(defun vec-norm (p)
-	(vec-scale p (recip (vec-length p))))
+(defun vec-length (p)
+	(sqrt (vec-dot p p)))
 
-(defun vec-distance (p1 p2)
-	(vec-length (vec-sub p2 p1)))
+(defun vec-norm (p)
+	(vec-scale p (recip (sqrt (vec-dot p p)))))
 
 (defun vec-distance-squared (p1 p2)
 	(vec-dot (defq p1 (vec-sub p2 p1)) p1))
+
+(defun vec-distance (p1 p2)
+	(sqrt (vec-dot (defq p1 (vec-sub p2 p1)) p1)))
 
 (defun vec-distance-to-line (p p1 p2)
 	(if (<= (defq lv (vec-sub p2 p1) c1 (vec-dot (vec-sub p p1) lv)) 0)
