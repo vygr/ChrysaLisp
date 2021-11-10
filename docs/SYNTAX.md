@@ -2220,6 +2220,24 @@
 (defun name ([arg ...]) body)
 ```
 
+### dim
+
+```code
+(dim nums array)
+```
+
+### dim-get
+
+```code
+(dim-get nums dim)
+```
+
+### dim-set
+
+```code
+(dim-set nums dim form)
+```
+
 ### drop!
 
 ```code
@@ -2271,7 +2289,7 @@
 ### elem-set
 
 ```code
-(elem-set index list val)
+(elem-set index array val)
 ```
 
 ### emap

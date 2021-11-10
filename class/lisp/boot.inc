@@ -92,6 +92,9 @@
 (ffi nums "class/array/lisp_nums" 0)
 (ffi fixeds "class/array/lisp_fixeds" 0)
 (ffi reals "class/array/lisp_reals" 0)
+(ffi dim "class/dim/lisp_dim" 0)
+(ffi dim-get "class/dim/lisp_get" 0)
+(ffi dim-set "class/dim/lisp_set" 0)
 
 (ffi hash "class/obj/lisp_hash" 0)
 (ffi eql "class/lisp/lisp_eql" 0)

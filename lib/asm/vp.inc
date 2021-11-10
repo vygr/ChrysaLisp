@@ -154,7 +154,7 @@
 (defun vp-jmp-p (l) (emit (list 'emit-jmp-p (label-sym l))))
 
 (defun vp-lea-i (b i d) (emit (list 'emit-lea-i (get b) (eval i) (get d))))
-(defun vp-lea-d (b i d) (emit (list 'emit-lea-d (get b) i (get d))))
+(defun vp-lea-d (b i d) (emit (list 'emit-lea-d (get b) (get i) (get d))))
 (defun vp-lea-p (l r) (emit (list 'emit-lea-p (label-sym l) (get r))))
 (defun vp-cpy-pr (l d) (emit (list 'emit-cpy-pr (label-sym l) (get d))))
 

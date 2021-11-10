@@ -1,0 +1,176 @@
+(include "sys/func.inc")
+(include "class/lisp/class.inc")
+(include "class/dim/class.inc")
+(include "class/num/class.inc")
+(include "class/nums/class.inc")
+
+(def-method 'dim :lisp_dim)
+	;inputs
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
+	;outputs
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
+	;trashes
+	;:r1-:r14
+
+	(entry 'dim :lisp_dim '(:r0 :r1))
+
+(errorcases
+	(call 'lisp :env_args_sig '(:r1 ($ sig) 2) '(:tmp))
+	(gotoif '(:tmp = 0) 'error))
+
+	(vp-push :r0)
+	(defq in (method-input 'dim :create))
+	(list-bind-args :r1 in '(:nums :array))
+	(call 'dim :create in '(:r1))
+	(vp-pop :r0)
+
+	(exit 'dim :lisp_dim '(:r0 :r1))
+	(vp-ret)
+
+(errorcases
+(vp-label 'error1)
+	(vp-pop :r0)
+(vp-label 'error)
+	(jump 'lisp :repl_error '(:r0 "(dim nums array)" +error_msg_wrong_types :r1))
+	(signature '(nums array)))
+
+(def-func-end)
+
+(def-method 'dim :lisp_get)
+	;inputs
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
+	;outputs
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
+	;trashes
+	;:r1-:r14
+
+	(entry 'dim :lisp_get '(:r0 :r1))
+
+(errorcases
+	(call 'lisp :env_args_sig '(:r1 ($ sig) 2) '(:tmp))
+	(gotoif '(:tmp = 0) 'error))
+
+	(vp-def (:elems :index :dims :indexs :dims_len :indexs_len
+			:dims_iter_begin :dims_iter_end :indexs_iter_begin :acc :d :i))
+
+	(vp-push :r0 :r1)
+	(list-bind-args :r1 '(:indexs :dims) '(:nums :dim))
+	(assign '((:dims dim_dims) (:dims dim_elems)) `(,(get :dims) ,(get :elems)))
+	(assign '((:dims array_length) (:indexs array_length)) `(,(get :dims_len) ,(get :indexs_len)))
+
+	(errorif '(:dims_len /= :indexs_len) 'error1)
+
+	(assign '((:dims array_begin) (:indexs array_begin)) `(,(get :dims_iter_begin) ,(get :indexs_iter_begin)))
+	(vp-shl-cr (log2 +ptr_size) :dims_len)
+	(vp-lea-d :dims_iter_begin :dims_len :dims_iter_end)
+
+	(assign '(0 1) `(,(get :index) ,(get :acc)))
+	(loop-start)
+		(vp-cpy-ir :dims_iter_begin 0 :d)
+		(vp-cpy-ir :indexs_iter_begin 0 :i)
+		(vp-add-cr +ptr_size :dims_iter_begin)
+		(vp-add-cr +ptr_size :indexs_iter_begin)
+		(vp-mul-rr :acc :i)
+		(vp-mul-rr :d :acc)
+		(vp-add-rr :i :index)
+	(loop-until '(:dims_iter_begin = :dims_iter_end))
+
+(errorcases
+	(assign '((:elems array_length)) `(,(get :indexs_len)))
+	(gotoif '(:index < 0) 'error1)
+	(gotoif '(:index >= :indexs_len) 'error1))
+
+	(call 'array :ref_element '(:elems :index) '(_ :r1))
+	(vp-pop :r0 :r2)
+
+	(exit 'dim :lisp_get '(:r0 :r1))
+	(vp-ret)
+
+(errorcases
+(vp-label 'error1)
+	(vp-pop :r0 :r1)
+	(jump 'lisp :repl_error '(:r0 "(dim-get nums dim)" +error_msg_not_valid_index :r1))
+(vp-label 'error)
+	(jump 'lisp :repl_error '(:r0 "(dim-get nums dim)" +error_msg_wrong_types :r1))
+	(signature '(nums dim)))
+
+(def-func-end)
+
+(def-method 'dim :lisp_set)
+	;inputs
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
+	;outputs
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
+	;trashes
+	;:r1-:r14
+
+	(entry 'dim :lisp_set '(:r0 :r1))
+
+(errorcases
+	(call 'lisp :env_args_sig '(:r1 ($ sig) 3) '(:tmp))
+	(gotoif '(:tmp = 0) 'error))
+
+	(vp-def (:elems :obj :index :dims :indexs :dims_len :indexs_len
+			:dims_iter_begin :dims_iter_end :indexs_iter_begin :acc :d :i))
+
+	(vp-push :r0 :r1)
+	(list-bind-args :r1 '(:indexs :dims :obj) '(:nums :dim :obj))
+	(assign '((:dims dim_dims) (:dims dim_elems)) `(,(get :dims) ,(get :elems)))
+	(assign '((:dims array_length) (:indexs array_length)) `(,(get :dims_len) ,(get :indexs_len)))
+
+	(errorif '(:dims_len /= :indexs_len) 'error1)
+
+	(assign '((:dims array_begin) (:indexs array_begin)) `(,(get :dims_iter_begin) ,(get :indexs_iter_begin)))
+	(vp-shl-cr (log2 +ptr_size) :dims_len)
+	(vp-lea-d :dims_iter_begin :dims_len :dims_iter_end)
+
+	(assign '(0 1) `(,(get :index) ,(get :acc)))
+	(loop-start)
+		(vp-cpy-ir :dims_iter_begin 0 :d)
+		(vp-cpy-ir :indexs_iter_begin 0 :i)
+		(vp-add-cr +ptr_size :dims_iter_begin)
+		(vp-add-cr +ptr_size :indexs_iter_begin)
+		(vp-mul-rr :acc :i)
+		(vp-mul-rr :d :acc)
+		(vp-add-rr :i :index)
+	(loop-until '(:dims_iter_begin = :dims_iter_end))
+
+(errorcases
+	(assign '((:elems array_length)) `(,(get :indexs_len)))
+	(gotoif '(:index < 0) 'error1)
+	(gotoif '(:index >= :indexs_len) 'error1))
+
+	(assign `((:elems obj_vtable) (@ ,(f-path 'list :vtable))) '(:r12 :r13))
+	(assign '(:obj) '((:rsp 0)))
+	(vpif '(:r12 = :r13))
+		(class/obj/ref :obj :r14 2)
+	(else)
+		(class/obj/ref :obj :r14 1)
+		(vp-op3 vp-cpy-rr :elems :obj :index :r12 :r13 :r14)
+		(call 'obj :inst_of `(:obj (@ ,(f-path 'num :vtable))) '(_ :tmp))
+		(vpif '(:tmp /= 0))
+			(assign '((:r13 num_value)) '(:r13))
+		(endif)
+		(vp-op3 vp-cpy-rr :r12 :r13 :r14 :elems :obj :index)
+	(endif)
+	(call 'array :set_element '(:elems :obj :index))
+	(vp-pop :r0 :r1)
+
+	(exit 'dim :lisp_set '(:r0 :r1))
+	(vp-ret)
+
+(errorcases
+(vp-label 'error1)
+	(vp-pop :r0 :r1)
+	(jump 'lisp :repl_error '(:r0 "(dim-set nums dim form)" +error_msg_not_valid_index :r1))
+(vp-label 'error)
+	(jump 'lisp :repl_error '(:r0 "(dim-set nums dim form)" +error_msg_wrong_types :r1))
+	(signature '(nums dim obj)))
+
+(def-func-end)

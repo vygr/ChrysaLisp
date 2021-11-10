@@ -395,19 +395,22 @@
 
 (defclass Pcb (width height depth rfvs rpvs res verb quant viascost) nil
 	; (Pcb width height depth rfvs rpvs res verb quant viascost) -> pcb
-	(def this :width (* width res) :height (* height res) :depth depth
-		:stride (defq stride (* width height res res))
+	(def this
+		:nodes_dim (dim (nums (* width res) (* height res) depth)
+			(defq nodes (cap (* width height depth) (nums))))
+		:width (* width res) :height (* height res) :depth depth
 		:deform (fmap 101) :resolution res
 		:flood_vectors rfvs :path_vectors rpvs :netlist (list)
 		:quantization (* quant res) :viascost (* viascost res)
-		:verbosity verb :nodes (defq nodes (cap (* stride depth) (nums)))
+		:verbosity verb
 		:layers (Layers (n2i (* (n2f width) +spacial_hash_res))
 						(n2i (* (n2f height) +spacial_hash_res))
 						depth (/ +spacial_hash_res (n2f res)))
 		:via_layers (Layers (n2i (* (n2f width) +spacial_hash_res))
 						(n2i (* (n2f height) +spacial_hash_res))
-						depth (/ +spacial_hash_res (n2f res))))
-	(times (* stride depth) (push nodes 0))
+						depth (/ +spacial_hash_res (n2f res)))
+		:nodes nodes)
+	(times (* width height depth) (push nodes 0))
 
 	(defgetmethod depth)
 	(defgetmethod resolution)
@@ -417,16 +420,16 @@
 	(defgetmethod verbosity)
 	(defgetmethod path_vectors)
 
-	(defmethod :set_node (this (x y z) val)
-		; (. pcb :set_node node val) -> pcb
-		;set grid node to value
-		(elem-set (+ x (* y (get :width this)) (* z (get :stride this))) (get :nodes this) val)
-		this)
-
-	(defmethod :get_node (this (x y z))
+	(defmethod :get_node (this node)
 		; (. pcb :get_node node) -> val
 		;get grid node value
-		(elem-get (+ x (* y (get :width this)) (* z (get :stride this))) (get :nodes this)))
+		(dim-get node (get :nodes_dim this)))
+
+	(defmethod :set_node (this node val)
+		; (. pcb :set_node node val) -> pcb
+		;set grid node to value
+		(dim-set node (get :nodes_dim this) val)
+		this)
 
 	(defmethod :node_to_point (this (x y z))
 		; (. pcb :node_to_point node) -> point

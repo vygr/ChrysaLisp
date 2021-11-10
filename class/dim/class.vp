@@ -1,0 +1,48 @@
+(include "sys/func.inc")
+(include "class/dim/class.inc")
+
+(gen-create 'dim)
+(gen-vtable 'dim)
+
+(def-method 'dim :init)
+	;inputs
+	;:r0 = dim object (ptr)
+	;:r1 = vtable (pptr)
+	;:r2 = dims nums object (ptr)
+	;:r3 = elements array object (ptr)
+	;outputs
+	;:r0 = error object (ptr)
+	;:r1 = 0 if error, else ok
+	;trashes
+	;:r1-:r6
+
+	;init parent
+	(s-call 'dim :init '(:r0 :r1) '(:r0 :r1))
+	(vpif '(:r1 /= 0))
+		;init self
+		(class/obj/ref :r2 :r1)
+		(class/obj/ref :r3 :r1)
+		(assign '(:r2 :r3) '((:r0 dim_dims) (:r0 dim_elems)))
+	(endif)
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'dim :deinit)
+	;inputs
+	;:r0 = dim object (ptr)
+	;outputs
+	;:r0 = dim object (ptr)
+	;trashes
+	;:r1-:r14
+
+	(entry 'dim :deinit '(:r0))
+
+	(vp-push :r0)
+	(call 'obj :deref '((:r0 dim_dims)))
+	(assign '((:rsp 0)) '(:r0))
+	(call 'obj :deref '((:r0 dim_elems)))
+	(vp-pop :r0)
+	(s-jump 'dim :deinit '(:r0))
+
+(def-func-end)
