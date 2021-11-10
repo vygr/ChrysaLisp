@@ -50,9 +50,11 @@
 
 	(defmethod :aabb (this layer_line)
 		; (. layer :aabb layer_line) -> aabb
-		(raise :width :height :scale)
 		(bind '(x1 y1 x2 y2 radius gap) layer_line)
-		(defq radius (+ radius gap) width (dec width) height (dec height))
+		(defq radius (+ radius gap)
+			width (dec (get :width this))
+			height (dec (get :height this)))
+		(raise :scale)
 		(if (< x1 x2)
 			(if (< y1 y2)
 				(list (min width (max 0 (n2i (* (- x1 radius) scale))))
@@ -106,7 +108,7 @@
 	(defmethod :hit_line (this layer_line)
 		; (. layer :hit_line layer_line) -> nil | t
 		(bind '(minx miny maxx maxy) (. this :aabb layer_line))
-		(raise :width :buckets :id)
+		(raise :width :id)
 		(defq id (inc id) miny (* (dec miny) width) maxy (* maxy width))
 		(lower :id)
 		(while (and (<= (setq miny (+ miny width)) maxy)
@@ -121,7 +123,7 @@
 										(max (elem-get +layer_line_gap layer_line)
 											(elem-get +layer_line_gap (elem-get +record_layer_line record)))))))
 								bucket))
-						(list buckets))))))
+						(list (get :buckets this)))))))
 		hit)
 	)
 

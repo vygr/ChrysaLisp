@@ -11,7 +11,7 @@
 
 (defq +via_vectors (const-quoted
 	'(list (list (Node 0 0 -1) (Node 0 0 1)) (list (Node 0 0 -1) (Node 0 0 1))))
-	+spacial_hash_res 0.5)
+	+spacial_hash_res 1.0)
 
 (defun aabb_pads (pads quant)
 	;aabb of pads
@@ -708,7 +708,7 @@
 				(Pad radius gap pos shape)) pads))
 		(defq track (Track id track_radius via_radius track_gap pads wires))
 		(. pcb :add_track track)) (list pcb_list))
-	(print (. pcb :route 1000000000 pcb_scroll mode show zoom canvas_scale))
+	(print (. pcb :route 10000000 pcb_scroll mode show zoom canvas_scale))
 	(print)
 	;(. pcb :print_pcb (file-stream "apps/pcb/data/test4.pcb" +file_open_write))
 	(. pcb :close))
