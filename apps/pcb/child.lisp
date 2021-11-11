@@ -60,4 +60,6 @@
 				;main mailbox, reset timeout and reply with result
 				(mail-timeout (elem-get +select_timeout select) 0 0)
 				(route (getf msg +job_reply) (slice +job_data -1 msg)))))
-	(free-select select))
+	(free-select select)
+	(if (get 'profile-report)
+		(profile-report "Pcb")))

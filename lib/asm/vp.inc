@@ -184,3 +184,4 @@
 (defun vp-op2 (op a b x y) (op a x) (op b y))
 (defun vp-min (a b) (vpif (list a '< b)) (vp-cpy-rr a b) (endif))
 (defun vp-max (a b) (vpif (list a '> b)) (vp-cpy-rr a b) (endif))
+(defun vp-abs (a) (vpif (list a '< 0)) (vp-mul-cr -1 a) (endif))

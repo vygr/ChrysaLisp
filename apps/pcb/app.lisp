@@ -108,6 +108,4 @@
 			(t (. *window* :event *msg*))))
 	(free-select select)
 	(gui-sub *window*)
-	(mail-send child "")
-	(if (get 'profile-report)
-		(profile-report "Pcb")))
+	(mail-send child ""))

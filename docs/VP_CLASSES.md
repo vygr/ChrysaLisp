@@ -1497,8 +1497,9 @@ inputs
 :r2 = source2 fixeds object, can be same (ptr)
 outputs
 :r0 = fixeds object (ptr)
+:r1 = 0 if error, else ok
 trashes
-:r1-:r8
+:r1-:r7
 ```
 
 ### fixeds :dot -> class/fixeds/dot
@@ -1523,7 +1524,7 @@ inputs
 outputs
 :r0 = fixeds object (ptr)
 trashes
-:r1-:r5
+:r1-:r4
 ```
 
 ### fixeds :frac -> class/fixeds/frac
@@ -1573,6 +1574,7 @@ inputs
 :r2 = source2 fixeds object, can be same (ptr)
 outputs
 :r0 = fixeds object (ptr)
+:r1 = 0 if error, else ok
 trashes
 :r1-:r8
 ```
@@ -1586,6 +1588,7 @@ inputs
 :r2 = source2 fixeds object, can be same (ptr)
 outputs
 :r0 = fixeds object (ptr)
+:r1 = 0 if error, else ok
 trashes
 :r1-:r6
 ```
@@ -4272,6 +4275,7 @@ inputs
 :r2 = source2 nums object, can be same (ptr)
 outputs
 :r0 = nums object (ptr)
+:r1 = 0 if error, else ok
 trashes
 :r1-:r6
 ```
@@ -4287,8 +4291,9 @@ inputs
 :r2 = source2 nums object, can be same (ptr)
 outputs
 :r0 = nums object (ptr)
+:r1 = 0 if error, else ok
 trashes
-:r1-:r8
+:r1-:r7
 ```
 
 ### nums :dot -> class/nums/dot
@@ -4509,6 +4514,7 @@ inputs
 :r2 = source2 nums object, can be same (ptr)
 outputs
 :r0 = nums object (ptr)
+:r1 = 0 if error, else ok
 trashes
 :r1-:r6
 ```
@@ -4522,6 +4528,7 @@ inputs
 :r2 = source2 nums object, can be same (ptr)
 outputs
 :r0 = nums object (ptr)
+:r1 = 0 if error, else ok
 trashes
 :r1-:r6
 ```
@@ -4535,8 +4542,9 @@ inputs
 :r2 = source2 nums object, can be same (ptr)
 outputs
 :r0 = nums object (ptr)
+:r1 = 0 if error, else ok
 trashes
-:r1-:r8
+:r1-:r7
 ```
 
 ### nums :mul -> class/nums/mul
@@ -4548,6 +4556,7 @@ inputs
 :r2 = source2 nums object, can be same (ptr)
 outputs
 :r0 = nums object (ptr)
+:r1 = 0 if error, else ok
 trashes
 :r1-:r6
 ```
@@ -4574,6 +4583,7 @@ inputs
 :r2 = source2 nums object, can be same (ptr)
 outputs
 :r0 = nums object (ptr)
+:r1 = 0 if error, else ok
 trashes
 :r1-:r6
 ```

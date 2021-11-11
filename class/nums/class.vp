@@ -5,69 +5,6 @@
 (gen-create 'nums)
 (gen-vtable 'nums)
 
-(defun addop (_)
-	;trashes
-	;:r1-:r6+
-	(vp-def (dst src1 src2 dst1 src_end))
-	(entry 'nums _ `(,dst ,src1 ,src2))
-	(class/array/get_both src1 src1 src_end)
-	(assign `((,dst array_begin) (,src2 array_begin)) `(,dst1 ,src2))
-	(vec-set 5)
-	(loop-start)
-		(vec-load-long 1 src1)
-		(vec-load-long 1 src2)
-		((eval (sym (cat "vec-" (slice 1 -1 _)))) 1)
-		(vec-store-long 1 dst1)
-		(vp-add-cr +long_size dst1)
-		(vp-add-cr +long_size src1)
-		(vp-add-cr +long_size src2)
-	(loop-until (list src1 '= src_end))
-	(exit 'nums _ `(,dst -1))
-	(vp-ret))
-
-(defun divop (_)
-	;trashes
-	;:r1-:r8+
-	(vp-def (s1 s2 dst src1 src2 dst1 src_end) '(:r1 :r2 :r4 :r5 :r6 :r7 :r8))
-	(entry 'nums _ `(,dst ,s1 ,s2))
-	(class/array/get_both s1 src1 src_end)
-	(assign `((,dst array_begin) (,s2 array_begin)) `(,dst1 ,src2))
-	(vec-set 0)
-	(loop-start)
-		(vec-load-long 1 src1)
-		(vec-load-long 1 src2)
-		(errorif (list (elem-get 0 (vec-top 1)) '= 0) 'error)
-		((eval (sym (cat "vec-" (slice 1 -1 _)))) 1)
-		(vec-store-long 1 dst1)
-		(vp-add-cr +long_size dst1)
-		(vp-add-cr +long_size src1)
-		(vp-add-cr +long_size src2)
-	(loop-until (list src1 '= src_end))
-	(exit 'nums _ `(,dst -1))
-	(vp-ret)
-(errorcases
-(vp-label 'error)
-	(exit 'nums _ `(,dst 0))
-	(vp-ret)))
-
-(defun absop (_)
-	;trashes
-	;:r1-:r4+
-	(vp-def (dst src dst1 src_end))
-	(entry 'nums _ `(,dst ,src))
-	(class/array/get_both src src src_end)
-	(assign `((,dst array_begin)) `(,dst1))
-	(vec-set 4)
-	(loop-start)
-		(vec-load-long 1 src)
-		((eval (sym (cat "vec-" (slice 1 -1 _)))) 1)
-		(vec-store-long 1 dst1)
-		(vp-add-cr +long_size src)
-		(vp-add-cr +long_size dst1)
-	(loop-until (list src '= src_end))
-	(exit 'nums _ `(,dst))
-	(vp-ret))
-
 (def-method 'nums :add)
 	;inputs
 	;:r0 = nums object (ptr)
@@ -75,10 +12,23 @@
 	;:r2 = source2 nums object, can be same (ptr)
 	;outputs
 	;:r0 = nums object (ptr)
+	;:r1 = 0 if error, else ok
 	;trashes
 	;:r1-:r6
 
-	(addop :add)
+	(vp-def (dst src1 src2 dst1 src_end e0 e1))
+
+	(entry 'nums :add `(,dst ,src1 ,src2))
+
+	(assign `((,src1 array_length)) `(,src_end))
+	(assign (map (# `(,%0 array_begin)) `(,src1 ,src2 ,dst)) `(,src1 ,src2 ,dst1))
+	(vp-shl-cr (log2 +ptr_size) src_end)
+	(vp-add-rr src1 src_end)
+	(vec-loop-until `(,src1 ,src2) `(,e0 ,e1) src_end dst1
+		(lambda ((e0 e1)) (vp-add-rr e1 e0) e0))
+
+	(exit 'nums :add `(,dst -1))
+	(vp-ret)
 
 (def-func-end)
 
@@ -89,10 +39,23 @@
 	;:r2 = source2 nums object, can be same (ptr)
 	;outputs
 	;:r0 = nums object (ptr)
+	;:r1 = 0 if error, else ok
 	;trashes
 	;:r1-:r6
 
-	(addop :sub)
+	(vp-def (dst src1 src2 dst1 src_end e0 e1))
+
+	(entry 'nums :sub `(,dst ,src1 ,src2))
+
+	(assign `((,src1 array_length)) `(,src_end))
+	(assign (map (# `(,%0 array_begin)) `(,src1 ,src2 ,dst)) `(,src1 ,src2 ,dst1))
+	(vp-shl-cr (log2 +ptr_size) src_end)
+	(vp-add-rr src1 src_end)
+	(vec-loop-until `(,src1 ,src2) `(,e0 ,e1) src_end dst1
+		(lambda ((e0 e1)) (vp-sub-rr e1 e0) e0))
+
+	(exit 'nums :sub `(,dst -1))
+	(vp-ret)
 
 (def-func-end)
 
@@ -103,10 +66,23 @@
 	;:r2 = source2 nums object, can be same (ptr)
 	;outputs
 	;:r0 = nums object (ptr)
+	;:r1 = 0 if error, else ok
 	;trashes
 	;:r1-:r6
 
-	(addop :min)
+	(vp-def (dst src1 src2 dst1 src_end e0 e1))
+
+	(entry 'nums :min `(,dst ,src1 ,src2))
+
+	(assign `((,src1 array_length)) `(,src_end))
+	(assign (map (# `(,%0 array_begin)) `(,src1 ,src2 ,dst)) `(,src1 ,src2 ,dst1))
+	(vp-shl-cr (log2 +ptr_size) src_end)
+	(vp-add-rr src1 src_end)
+	(vec-loop-until `(,src1 ,src2) `(,e0 ,e1) src_end dst1
+		(lambda ((e0 e1)) (vp-min e1 e0) e0))
+
+	(exit 'nums :min `(,dst -1))
+	(vp-ret)
 
 (def-func-end)
 
@@ -117,10 +93,23 @@
 	;:r2 = source2 nums object, can be same (ptr)
 	;outputs
 	;:r0 = nums object (ptr)
+	;:r1 = 0 if error, else ok
 	;trashes
 	;:r1-:r6
 
-	(addop :max)
+	(vp-def (dst src1 src2 dst1 src_end e0 e1))
+
+	(entry 'nums :max `(,dst ,src1 ,src2))
+
+	(assign `((,src1 array_length)) `(,src_end))
+	(assign (map (# `(,%0 array_begin)) `(,src1 ,src2 ,dst)) `(,src1 ,src2 ,dst1))
+	(vp-shl-cr (log2 +ptr_size) src_end)
+	(vp-add-rr src1 src_end)
+	(vec-loop-until `(,src1 ,src2) `(,e0 ,e1) src_end dst1
+		(lambda ((e0 e1)) (vp-max e1 e0) e0))
+
+	(exit 'nums :max `(,dst -1))
+	(vp-ret)
 
 (def-func-end)
 
@@ -131,10 +120,23 @@
 	;:r2 = source2 nums object, can be same (ptr)
 	;outputs
 	;:r0 = nums object (ptr)
+	;:r1 = 0 if error, else ok
 	;trashes
 	;:r1-:r6
 
-	(addop :mul)
+	(vp-def (dst src1 src2 dst1 src_end e0 e1))
+
+	(entry 'nums :mul `(,dst ,src1 ,src2))
+
+	(assign `((,src1 array_length)) `(,src_end))
+	(assign (map (# `(,%0 array_begin)) `(,src1 ,src2 ,dst)) `(,src1 ,src2 ,dst1))
+	(vp-shl-cr (log2 +ptr_size) src_end)
+	(vp-add-rr src1 src_end)
+	(vec-loop-until `(,src1 ,src2) `(,e0 ,e1) src_end dst1
+		(lambda ((e0 e1)) (vp-mul-rr e1 e0) e0))
+
+	(exit 'nums :mul `(,dst -1))
+	(vp-ret)
 
 (def-func-end)
 
@@ -145,10 +147,30 @@
 	;:r2 = source2 nums object, can be same (ptr)
 	;outputs
 	;:r0 = nums object (ptr)
+	;:r1 = 0 if error, else ok
 	;trashes
-	;:r1-:r8
+	;:r1-:r7
 
-	(divop :div)
+	(vp-def (e0 e1 high src1 src2 dst1 src_end dst))
+
+	(entry 'nums :div `(,dst ,e1 ,high))
+
+	(assign `((,e1 array_length)) `(,src_end))
+	(assign (map (# `(,%0 array_begin)) `(,e1 ,high ,dst)) `(,src1 ,src2 ,dst1))
+	(vp-shl-cr (log2 +ptr_size) src_end)
+	(vp-add-rr src1 src_end)
+	(vec-loop-until `(,src1 ,src2) `(,e0 ,e1) src_end dst1
+		(lambda ((e0 e1))
+			(errorif `(,e1 = 0) 'error)
+			(vp-ext-rr e0 high)
+			(vp-div-rrr e1 high e0)
+			e0))
+
+	(exit 'nums :div `(,dst -1))
+	(vp-ret)
+(vp-label 'error)
+	(exit 'nums :div `(,dst 0))
+	(vp-ret)
 
 (def-func-end)
 
@@ -159,10 +181,30 @@
 	;:r2 = source2 nums object, can be same (ptr)
 	;outputs
 	;:r0 = nums object (ptr)
+	;:r1 = 0 if error, else ok
 	;trashes
-	;:r1-:r8
+	;:r1-:r7
 
-	(divop :mod)
+	(vp-def (e0 e1 high src1 src2 dst1 src_end dst))
+
+	(entry 'nums :mod `(,dst ,e1 ,high))
+
+	(assign `((,e1 array_length)) `(,src_end))
+	(assign (map (# `(,%0 array_begin)) `(,e1 ,high ,dst)) `(,src1 ,src2 ,dst1))
+	(vp-shl-cr (log2 +ptr_size) src_end)
+	(vp-add-rr src1 src_end)
+	(vec-loop-until `(,src1 ,src2) `(,e0 ,e1) src_end dst1
+		(lambda ((e0 e1))
+			(errorif `(,e1 = 0) 'error)
+			(vp-ext-rr e0 high)
+			(vp-div-rrr e1 high e0)
+			high))
+
+	(exit 'nums :mod `(,dst -1))
+	(vp-ret)
+(vp-label 'error)
+	(exit 'nums :mod `(,dst 0))
+	(vp-ret)
 
 (def-func-end)
 
@@ -175,7 +217,19 @@
 	;trashes
 	;:r1-:r4
 
-	(absop :abs)
+	(vp-def (dst src1 dst1 src_end e0))
+
+	(entry 'nums :abs `(,dst ,src1))
+
+	(assign `((,src1 array_length)) `(,src_end))
+	(assign (map (# `(,%0 array_begin)) `(,src1 ,dst)) `(,src1 ,dst1))
+	(vp-shl-cr (log2 +ptr_size) src_end)
+	(vp-add-rr src1 src_end)
+	(vec-loop-until `(,src1) `(,e0) src_end dst1
+		(lambda ((e0)) (vp-abs e0) e0))
+
+	(exit 'nums :abs `(,dst))
+	(vp-ret)
 
 (def-func-end)
 
@@ -188,17 +242,17 @@
 	;trashes
 	;:r1-:r4
 
-	(vp-def (dst dst1 src_end sum val))
+	(vp-def (dst sum dst1 dst_end e0))
 
 	(entry 'nums :sum `(,dst))
 
-	(call 'nums :get_both `(,dst) `(,dst ,dst1 ,src_end))
+	(assign `((,dst array_length)) `(,dst_end))
+	(assign (map (# `(,%0 array_begin)) `(,dst)) `(,dst1))
 	(vp-xor-rr sum sum)
-	(loop-while (list dst1 '/= src_end))
-		(assign `((,dst1 0)) `(,val))
-		(vp-add-cr +long_size dst1)
-		(vp-add-rr val sum)
-	(loop-end)
+	(vp-shl-cr (log2 +ptr_size) dst_end)
+	(vp-add-rr dst1 dst_end)
+	(vec-loop-until `(,dst1) `(,e0) dst_end nil
+		(lambda ((e0)) (vp-add-rr e0 sum)))
 
 	(exit 'nums :sum `(,dst ,sum))
 	(vp-ret)
@@ -215,20 +269,16 @@
 	;trashes
 	;:r1-:r5
 
-	(vp-def (dst src scale dst1 src_end))
+	(vp-def (dst src1 scale dst1 src_end e0))
 
-	(entry 'nums :scale `(,dst ,src ,scale))
+	(entry 'nums :scale `(,dst ,src1 ,scale))
 
-	(class/array/get_both src src src_end)
-	(assign `((,dst array_begin)) `(,dst1))
-	(vec-set 5)
-	(loop-start)
-		(vec-load-long 1 src)
-		(vec-mul 1 `(,scale))
-		(vec-store-long 1 dst1)
-		(vp-add-cr +long_size src)
-		(vp-add-cr +long_size dst1)
-	(loop-until (list src '= src_end))
+	(assign `((,src1 array_length)) `(,src_end))
+	(assign (map (# `(,%0 array_begin)) `(,src1 ,dst)) `(,src1 ,dst1))
+	(vp-shl-cr (log2 +ptr_size) src_end)
+	(vp-add-rr src1 src_end)
+	(vec-loop-until `(,src1) `(,e0) src_end dst1
+		(lambda ((e0)) (vp-mul-rr scale e0) e0))
 
 	(exit 'nums :scale `(,dst))
 	(vp-ret)
@@ -245,22 +295,19 @@
 	;trashes
 	;:r1-:r6
 
-	(vp-def (this sum src2 src1 src_end val1 val2))
+	(vp-def (src dot src1 src2 src_end e0 e1))
 
-	(entry 'nums :dot `(,this :r1))
+	(entry 'nums :dot `(,src1 ,dot))
 
-	(class/array/get_both this src1 src_end)
-	(assign '((:r1 array_begin)) `(,src2))
-	(vp-xor-rr sum sum)
-	(loop-while (list src1 '/= src_end))
-		(assign `((,src1 0) (,src2 0)) `(,val1 ,val2))
-		(vp-add-cr +long_size src1)
-		(vp-add-cr +long_size src2)
-		(vp-mul-rr val1 val2)
-		(vp-add-rr val2 sum)
-	(loop-end)
+	(assign `((,dot array_length)) `(,src_end))
+	(assign (map (# `(,%0 array_begin)) `(,dot ,src)) `(,src1 ,src2))
+	(vp-xor-rr dot dot)
+	(vp-shl-cr (log2 +ptr_size) src_end)
+	(vp-add-rr src1 src_end)
+	(vec-loop-until `(,src1 ,src2) `(,e0 ,e1) src_end nil
+		(lambda ((e0 e1)) (vp-mul-rr e0 e1) (vp-add-rr e1 dot)))
 
-	(exit 'nums :dot `(,this ,sum))
+	(exit 'nums :dot `(,src ,dot))
 	(vp-ret)
 
 (def-func-end)
@@ -275,28 +322,25 @@
 	;trashes
 	;:r1-:r6
 
-	(vp-def (this val src2 src1 src_end val1 val2))
+	(vp-def (src val src1 src2 src_end e0 e1))
 
-	(entry 'nums :eql `(,this ,val))
+	(entry 'nums :eql `(,src ,val))
+	(gotoif `(,src = ,val) 'same)
 
-	(gotoif (list this '= val) 'same)
-
-	(class/array/get_both this src1 src_end)
-	(assign `((,val array_begin)) `(,src2))
+	(assign `((,val array_length)) `(,src_end))
+	(assign (map (# `(,%0 array_begin)) `(,val ,src)) `(,src1 ,src2))
 	(vp-xor-rr val val)
-	(loop-while (list src1 '/= src_end))
-		(assign `((,src1 0) (,src2 0)) `(,val1 ,val2))
-		(vp-add-cr +long_size src1)
-		(vp-add-cr +long_size src2)
-		(continueif (list val1 '= val2))
-		(vp-cpy-cr -1 val)
-	(endswitch)
+	(vp-shl-cr (log2 +ptr_size) src_end)
+	(vp-add-rr src1 src_end)
+	(vec-loop-while-endswitch `(,src1 ,src2) `(,e0 ,e1) src_end
+		(lambda ((e0 e1))
+			(continueif `(,e0 = ,e1))
+			(vp-cpy-cr -1 val)))
 
-	(exit 'nums :eql `(,this ,val))
+	(exit 'nums :eql `(,src ,val))
 	(vp-ret)
-
 (vp-label 'same)
-	(exit 'nums :eql `(,this 0))
+	(exit 'nums :eql `(,src 0))
 	(vp-ret)
 
 (def-func-end)
@@ -310,22 +354,20 @@
 	;trashes
 	;:r1-:r4
 
-	(vp-def (dst dst1 src_end hcode val))
+	(vp-def (src val src1 src_end e0))
 
-	(entry 'nums :hash `(,dst))
+	(entry 'nums :hash `(,src))
 
-	(call 'nums :get_both `(,dst) `(,dst ,dst1 ,src_end))
-	(vp-xor-rr hcode hcode)
-	(loop-while (list dst1 '/= src_end))
-		(assign `((,dst1 0)) `(,val))
-		(vp-add-cr +long_size dst1)
-		(vp-xor-rr val hcode)
-	(loop-end)
-	(vpif (list hcode '< 0))
-		(vp-mul-cr -1 hcode)
-	(endif)
+	(assign `((,src array_length)) `(,src_end))
+	(assign (map (# `(,%0 array_begin)) `(,src)) `(,src1))
+	(vp-xor-rr val val)
+	(vp-shl-cr (log2 +ptr_size) src_end)
+	(vp-add-rr src1 src_end)
+	(vec-loop-while `(,src1) `(,e0) src_end nil
+		(lambda ((e0)) (vp-xor-rr e0 val)))
+	(vp-abs val)
 
-	(exit 'nums :hash `(,dst ,hcode))
+	(exit 'nums :hash `(,src ,val))
 	(vp-ret)
 
 (def-func-end)

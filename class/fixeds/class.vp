@@ -6,69 +6,6 @@
 (gen-create 'fixeds)
 (gen-vtable 'fixeds)
 
-(defun mulop (_ v)
-	;trashes
-	;:r1-:r6+
-	(vp-def (dst src1 src2 dst1 src_end))
-	(entry 'fixeds _ `(,dst ,src1 ,src2))
-	(class/array/get_both src1 src1 src_end)
-	(assign `((,dst array_begin) (,src2 array_begin)) `(,dst1 ,src2))
-	(vec-set 5)
-	(loop-start)
-		(vec-load-long 1 src1)
-		(vec-load-long 1 src2)
-		((eval (sym (cat "vec-" v))) 1)
-		(vec-store-long 1 dst1)
-		(vp-add-cr +long_size dst1)
-		(vp-add-cr +long_size src1)
-		(vp-add-cr +long_size src2)
-	(loop-until (list src1 '= src_end))
-	(exit 'fixeds _ `(,dst -1))
-	(vp-ret))
-
-(defun divop (_ v)
-	;trashes
-	;:r1-:r8+
-	(vp-def (s1 s2 dst src1 src2 dst1 src_end) '(:r1 :r2 :r4 :r5 :r6 :r7 :r8))
-	(entry 'fixeds _ `(,dst ,s1 ,s2))
-	(class/array/get_both s1 src1 src_end)
-	(assign `((,dst array_begin) (,s2 array_begin)) `(,dst1 ,src2))
-	(vec-set 0)
-	(loop-start)
-		(vec-load-long 1 src1)
-		(vec-load-long 1 src2)
-		(errorif (list (elem-get 0 (vec-top 1)) '= 0) 'error)
-		((eval (sym (cat "vec-" v))) 1)
-		(vec-store-long 1 dst1)
-		(vp-add-cr +long_size dst1)
-		(vp-add-cr +long_size src1)
-		(vp-add-cr +long_size src2)
-	(loop-until (list src1 '= src_end))
-	(exit 'fixeds _ `(,dst -1))
-	(vp-ret)
-(errorcases
-(vp-label 'error)
-	(exit 'fixeds _ `(,dst 0))
-	(vp-ret)))
-
-(defun fracop (_ v)
-	;trashes
-	;:r1-:r4+
-	(vp-def (dst src dst1 src_end))
-	(entry 'fixeds _ `(,dst ,src))
-	(class/array/get_both src src src_end)
-	(assign `((,dst array_begin)) `(,dst1))
-	(vec-set 4)
-	(loop-start)
-		(vec-load-long 1 src)
-		((eval (sym (cat "vec-" v))) 1)
-		(vec-store-long 1 dst1)
-		(vp-add-cr +long_size src)
-		(vp-add-cr +long_size dst1)
-	(loop-until (list src '= src_end))
-	(exit 'fixeds _ `(,dst))
-	(vp-ret))
-
 (def-method 'fixeds :mul)
 	;inputs
 	;:r0 = fixeds object (ptr)
@@ -76,10 +13,23 @@
 	;:r2 = source2 fixeds object, can be same (ptr)
 	;outputs
 	;:r0 = fixeds object (ptr)
+	;:r1 = 0 if error, else ok
 	;trashes
 	;:r1-:r6
 
-	(mulop :mul 'fmul)
+	(vp-def (dst src1 src2 dst1 src_end e0 e1))
+
+	(entry 'fixeds :mul `(,dst ,src1 ,src2))
+
+	(assign `((,src1 array_length)) `(,src_end))
+	(assign (map (# `(,%0 array_begin)) `(,src1 ,src2 ,dst)) `(,src1 ,src2 ,dst1))
+	(vp-shl-cr (log2 +ptr_size) src_end)
+	(vp-add-rr src1 src_end)
+	(vec-loop-until `(,src1 ,src2) `(,e0 ,e1) src_end dst1
+		(lambda ((e0 e1)) (vp-mul-rr e1 e0) (vp-asr-cr +fp_shift e0) e0))
+
+	(exit 'fixeds :mul `(,dst -1))
+	(vp-ret)
 
 (def-func-end)
 
@@ -90,10 +40,31 @@
 	;:r2 = source2 fixeds object, can be same (ptr)
 	;outputs
 	;:r0 = fixeds object (ptr)
+	;:r1 = 0 if error, else ok
 	;trashes
-	;:r1-:r8
+	;:r1-:r7
 
-	(divop :div 'fdiv)
+	(vp-def (e0 e1 high src1 src2 dst1 src_end dst))
+
+	(entry 'fixeds :div `(,dst ,e1 ,high))
+
+	(assign `((,e1 array_length)) `(,src_end))
+	(assign (map (# `(,%0 array_begin)) `(,e1 ,high ,dst)) `(,src1 ,src2 ,dst1))
+	(vp-shl-cr (log2 +ptr_size) src_end)
+	(vp-add-rr src1 src_end)
+	(vec-loop-until `(,src1 ,src2) `(,e0 ,e1) src_end dst1
+		(lambda ((e0 e1))
+			(errorif `(,e1 = 0) 'error)
+			(vp-shl-cr +fp_shift e0)
+			(vp-ext-rr e0 high)
+			(vp-div-rrr e1 high e0)
+			e0))
+
+	(exit 'fixeds :div `(,dst -1))
+	(vp-ret)
+(vp-label 'error)
+	(exit 'fixeds :div `(,dst 0))
+	(vp-ret)
 
 (def-func-end)
 
@@ -104,10 +75,35 @@
 	;:r2 = source2 fixeds object, can be same (ptr)
 	;outputs
 	;:r0 = fixeds object (ptr)
+	;:r1 = 0 if error, else ok
 	;trashes
 	;:r1-:r8
 
-	(divop :mod 'fmod)
+	(vp-def (e0 e1 high src1 src2 dst1 src_end dst t0))
+
+	(entry 'fixeds :mod `(,dst ,e1 ,high))
+
+	(assign `((,e1 array_length)) `(,src_end))
+	(assign (map (# `(,%0 array_begin)) `(,e1 ,high ,dst)) `(,src1 ,src2 ,dst1))
+	(vp-shl-cr (log2 +ptr_size) src_end)
+	(vp-add-rr src1 src_end)
+	(vec-loop-until `(,src1 ,src2) `(,e0 ,e1) src_end dst1
+		(lambda ((e0 e1))
+			(errorif `(,e1 = 0) 'error)
+			(vp-cpy-rr e0 t0)
+			(vp-shl-cr +fp_shift e0)
+			(vp-ext-rr e0 high)
+			(vp-div-rrr e1 high e0)
+			(vp-asr-cr +fp_shift e0)
+			(vp-mul-rr e0 e1)
+			(vp-sub-rr e1 t0)
+			t0))
+
+	(exit 'fixeds :mod `(,dst -1))
+	(vp-ret)
+(vp-label 'error)
+	(exit 'fixeds :mod `(,dst 0))
+	(vp-ret)
 
 (def-func-end)
 
@@ -120,7 +116,27 @@
 	;trashes
 	;:r1-:r5
 
-	(fracop :frac 'frac)
+	(vp-def (dst src1 dst1 src_end e0 t0))
+
+	(entry 'fixeds :frac `(,dst ,src1))
+
+	(assign `((,src1 array_length)) `(,src_end))
+	(assign (map (# `(,%0 array_begin)) `(,src1 ,dst)) `(,src1 ,dst1))
+	(vp-shl-cr (log2 +ptr_size) src_end)
+	(vp-add-rr src1 src_end)
+	(vec-loop-until `(,src1) `(,e0) src_end dst1
+		(lambda ((e0))
+			(vpif `(,e0 >= 0))
+				(vp-and-cr +fp_frac_mask e0)
+			(else)
+				(vp-cpy-rr e0 t0)
+				(vp-cpy-cr (<< 1 +fp_shift) e0)
+				(vp-and-cr +fp_frac_mask t0)
+				(vp-sub-rr t0 e0)
+			(endif) e0))
+
+	(exit 'fixeds :frac `(,dst))
+	(vp-ret)
 
 (def-func-end)
 
@@ -131,9 +147,21 @@
 	;outputs
 	;:r0 = fixeds object (ptr)
 	;trashes
-	;:r1-:r5
+	;:r1-:r4
 
-	(fracop :floor 'floor)
+	(vp-def (dst src1 dst1 src_end e0 t0))
+
+	(entry 'fixeds :floor `(,dst ,src1))
+
+	(assign `((,src1 array_length)) `(,src_end))
+	(assign (map (# `(,%0 array_begin)) `(,src1 ,dst)) `(,src1 ,dst1))
+	(vp-shl-cr (log2 +ptr_size) src_end)
+	(vp-add-rr src1 src_end)
+	(vec-loop-until `(,src1) `(,e0) src_end dst1
+		(lambda ((e0)) (vp-and-cr +fp_int_mask e0) e0))
+
+	(exit 'fixeds :floor `(,dst))
+	(vp-ret)
 
 (def-func-end)
 
@@ -147,20 +175,16 @@
 	;trashes
 	;:r1-:r5
 
-	(vp-def (dst src scale dst1 src_end))
+	(vp-def (dst src1 scale dst1 src_end e0))
 
-	(entry 'fixeds :scale `(,dst ,src ,scale))
+	(entry 'fixeds :scale `(,dst ,src1 ,scale))
 
-	(class/array/get_both src src src_end)
-	(assign `((,dst array_begin)) `(,dst1))
-	(vec-set 5)
-	(loop-start)
-		(vec-load-long 1 src)
-		(vec-fmul 1 `(,scale))
-		(vec-store-long 1 dst1)
-		(vp-add-cr +long_size src)
-		(vp-add-cr +long_size dst1)
-	(loop-until (list src '= src_end))
+	(assign `((,src1 array_length)) `(,src_end))
+	(assign (map (# `(,%0 array_begin)) `(,src1 ,dst)) `(,src1 ,dst1))
+	(vp-shl-cr (log2 +ptr_size) src_end)
+	(vp-add-rr src1 src_end)
+	(vec-loop-until `(,src1) `(,e0) src_end dst1
+		(lambda ((e0)) (vp-mul-rr scale e0) (vp-asr-cr +fp_shift e0) e0))
 
 	(exit 'fixeds :scale `(,dst))
 	(vp-ret)
@@ -177,23 +201,19 @@
 	;trashes
 	;:r1-:r6
 
-	(vp-def (this sum src2 src1 src_end val1 val2))
+	(vp-def (src dot src1 src2 src_end e0 e1))
 
-	(entry 'fixeds :dot `(,this :r1))
+	(entry 'fixeds :dot `(,src1 ,dot))
 
-	(class/array/get_both this src1 src_end)
-	(assign '((:r1 array_begin)) `(,src2))
-	(vp-xor-rr sum sum)
-	(loop-while (list src1 '/= src_end))
-		(assign `((,src1 0) (,src2 0)) `(,val1 ,val2))
-		(vp-add-cr +long_size src1)
-		(vp-add-cr +long_size src2)
-		(vp-mul-rr val1 val2)
-		(vp-asr-cr +fp_shift val2)
-		(vp-add-rr val2 sum)
-	(loop-end)
+	(assign `((,dot array_length)) `(,src_end))
+	(assign (map (# `(,%0 array_begin)) `(,dot ,src)) `(,src1 ,src2))
+	(vp-xor-rr dot dot)
+	(vp-shl-cr (log2 +ptr_size) src_end)
+	(vp-add-rr src1 src_end)
+	(vec-loop-until `(,src1 ,src2) `(,e0 ,e1) src_end nil
+		(lambda ((e0 e1)) (vp-mul-rr e0 e1) (vp-asr-cr +fp_shift e1) (vp-add-rr e1 dot)))
 
-	(exit 'fixeds :dot `(,this ,sum))
+	(exit 'fixeds :dot `(,src ,dot))
 	(vp-ret)
 
 (def-func-end)
