@@ -1,7 +1,5 @@
 (include "sys/func.inc")
 (include "class/fixeds/class.inc")
-(include "sys/math/class.inc")
-(include "lib/consts/chars.inc")
 
 (gen-create 'fixeds)
 (gen-vtable 'fixeds)

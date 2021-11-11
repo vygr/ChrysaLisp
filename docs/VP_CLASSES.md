@@ -5774,6 +5774,7 @@ inputs
 :r2 = source2 reals object, can be same (ptr)
 outputs
 :r0 = reals object (ptr)
+:r1 = 0 if error, else ok
 trashes
 :r1-:r14
 ```
@@ -5789,6 +5790,7 @@ inputs
 :r2 = source2 reals object, can be same (ptr)
 outputs
 :r0 = reals object (ptr)
+:r1 = 0 if error, else ok
 trashes
 :r1-:r14
 ```
@@ -5839,6 +5841,7 @@ inputs
 :r2 = source2 reals object, can be same (ptr)
 outputs
 :r0 = reals object (ptr)
+:r1 = 0 if error, else ok
 trashes
 :r1-:r14
 ```
@@ -5852,6 +5855,7 @@ inputs
 :r2 = source2 reals object, can be same (ptr)
 outputs
 :r0 = reals object (ptr)
+:r1 = 0 if error, else ok
 trashes
 :r1-:r14
 ```
@@ -5865,6 +5869,7 @@ inputs
 :r2 = source2 reals object, can be same (ptr)
 outputs
 :r0 = reals object (ptr)
+:r1 = 0 if error, else ok
 trashes
 :r1-:r14
 ```
@@ -5878,6 +5883,7 @@ inputs
 :r2 = source2 reals object, can be same (ptr)
 outputs
 :r0 = reals object (ptr)
+:r1 = 0 if error, else ok
 trashes
 :r1-:r14
 ```
@@ -5904,6 +5910,7 @@ inputs
 :r2 = source2 reals object, can be same (ptr)
 outputs
 :r0 = reals object (ptr)
+:r1 = 0 if error, else ok
 trashes
 :r1-:r14
 ```
