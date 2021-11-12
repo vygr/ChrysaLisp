@@ -126,7 +126,7 @@ just pack the `num_value` fields of the input parameters into a typed array.
 
 The `lib/math/vector.inc` library provides a host of functions to operate on
 vectors. From simple operations such as `(vec-add ...)` to complex operations
-like `(vec-distance-to-line ...)`.
+like `(vec-dist-to-line ...)`.
 
 Standard constructor macros are provided for common types. `(Vec3-f ...)`,
 `(Vec4-f ...)`, `(Vec3-r ...)`, `(Vec4-r ...)` etc.

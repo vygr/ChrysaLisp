@@ -41,7 +41,7 @@
 	(loop-start)
 		(each (# (vp-cpy-ir %0 0 %1)) srcs elms)
 		(each (# (vp-add-cr +long_size %0)) srcs)
-		(defq r (func elms))
+		(defq r (apply func elms))
 		(when dst
 			(vp-cpy-ri r dst 0)
 			(vp-add-cr +long_size dst))
@@ -51,7 +51,7 @@
 	(loop-while `(,(elem-get 0 srcs) /= ,src_end))
 		(each (# (vp-cpy-ir %0 0 %1)) srcs elms)
 		(each (# (vp-add-cr +long_size %0)) srcs)
-		(defq r (func elms))
+		(defq r (apply func elms))
 		(when dst
 			(vp-cpy-ri r dst 0)
 			(vp-add-cr +long_size dst))
@@ -61,5 +61,5 @@
 	(loop-while `(,(elem-get 0 srcs) /= ,src_end))
 		(each (# (vp-cpy-ir %0 0 %1)) srcs elms)
 		(each (# (vp-add-cr +long_size %0)) srcs)
-		(func elms)
+		(apply func elms)
 	(endswitch))

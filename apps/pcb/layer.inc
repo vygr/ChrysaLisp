@@ -32,8 +32,12 @@
 		(defq norm (vec-scale pv (recip l)) dist (vec-dot norm p1)))
 	(list id layer_line p1 p2 norm dist))
 
-(defun hit-line? (record layer_line d)
-	(defq p1 (slice +layer_line_x1 +layer_line_x2 layer_line)
+(defun hit-line? (record layer_line)
+	(defq d (+ (elem-get +layer_line_radius layer_line)
+				(elem-get +layer_line_radius (elem-get +record_layer_line record))
+				(max (elem-get +layer_line_gap layer_line)
+					(elem-get +layer_line_gap (elem-get +record_layer_line record))))
+		p1 (slice +layer_line_x1 +layer_line_x2 layer_line)
 		p2 (slice +layer_line_x2 +layer_line_radius layer_line)
 		dp1 (- (vec-dot (elem-get +record_norm record) p1) (elem-get +record_dist record))
 		dp2 (- (vec-dot (elem-get +record_norm record) p2) (elem-get +record_dist record)))
@@ -41,6 +45,22 @@
 		((and (> dp1 d) (> dp2 d)) nil)
 		((and (< dp1 (neg d)) (< dp2 (neg d))) nil)
 		((vec-collide-thick-lines-2d p1 p2 (elem-get +record_p1 record) (elem-get +record_p2 record) d))))
+
+(defun scan-buckets (buckets minx miny maxx maxy width id func line)
+ 	(defq miny (* (dec miny) width) maxy (* maxy width))
+ 	(while (and (<= (setq miny (+ miny width)) maxy)
+				(not (defq hit (some! (+ miny minx) (+ miny maxx 1) nil
+					(lambda (bucket)
+						(some (lambda (record)
+							(when (/= (elem-get +record_id record) id)
+								(elem-set +record_id record id)
+								(func record line)))
+							bucket))
+					(list buckets)))))
+	hit))
+
+;native versions
+(ffi scan-buckets "apps/pcb/scan_buckets" 0)
 
 (defclass Layer (width height scale) nil
 	; (Layer width height scale) -> layer
@@ -107,24 +127,9 @@
 
 	(defmethod :hit_line (this layer_line)
 		; (. layer :hit_line layer_line) -> nil | t
+		(set this :id (defq id (inc (get :id this))))
 		(bind '(minx miny maxx maxy) (. this :aabb layer_line))
-		(raise :width :id)
-		(defq id (inc id) miny (* (dec miny) width) maxy (* maxy width))
-		(lower :id)
-		(while (and (<= (setq miny (+ miny width)) maxy)
-					(not (defq hit (some! (+ miny minx) (+ miny maxx 1) nil
-						(lambda (bucket)
-							(some (lambda (record)
-								(when (/= (elem-get +record_id record) id)
-									(elem-set +record_id record id)
-									(hit-line? record layer_line (+
-										(elem-get +layer_line_radius layer_line)
-										(elem-get +layer_line_radius (elem-get +record_layer_line record))
-										(max (elem-get +layer_line_gap layer_line)
-											(elem-get +layer_line_gap (elem-get +record_layer_line record)))))))
-								bucket))
-						(list (get :buckets this)))))))
-		hit)
+		(scan-buckets (get :buckets this) minx miny maxx maxy (get :width this) id (const hit-line?) layer_line))
 	)
 
 (defclass Layers (width height depth scale) nil

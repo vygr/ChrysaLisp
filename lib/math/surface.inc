@@ -439,7 +439,7 @@
 	(defmethod :get_scalar (this x y z)
 		; (. iso :get_scalar x y z) -> scalar
 		(raise :center :scale)
-		(vec-distance-to-line (vec-mul (vec-sub
+		(vec-dist-to-line (vec-mul (vec-sub
 			(Vec3-r (n2r x) (n2r y) (n2r z)) center +reals_tmp3) scale +reals_tmp3)
 			(const (Vec3-r (n2r -0.5) (n2r 0.0) (n2r 0.0)))
 			(const (Vec3-r (n2r 0.5) (n2r 0.0) (n2r 0.0)))))

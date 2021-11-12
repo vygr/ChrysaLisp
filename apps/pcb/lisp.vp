@@ -1,0 +1,73 @@
+(include "sys/func.inc")
+(include "class/lisp/class.inc")
+(include "class/num/class.inc")
+
+(def-func 'apps/pcb/scan_buckets)
+	;inputs
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
+	;outputs
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
+	;trashes
+	;:r1-:r14
+
+	(def-vars
+		(ptr this buckets func line hit record rec_id num_id args)
+		(pptr bucket_iter bucket_iter_end)
+		(pptr buckets_iter buckets_iter_end)
+		(int minx miny maxx maxy width))
+
+	(push-scope)
+	(entry '(:r0 :r1))
+
+(errorcases
+	(call 'lisp :env_args_sig '(:r1 ($ sig) 9) '(:tmp))
+	(gotoif '(:tmp = 0) 'error))
+
+	(list-bind-args :r1 '(:r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9)
+		'(:list :num :num :num :num :num :obj :list :obj))
+	(assign '(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9)
+		{this, buckets, minx, miny, maxx, maxy, width, num_id, func, line})
+
+	(call 'list :create nil {args})
+	(call 'obj :ref {line})
+	(call 'obj :ref {line})
+	(call 'list :push_back2 {args, line, line})
+
+	(assign {miny * width, maxy * width} {miny, maxy})
+	(loop-start)
+		(call 'list :get_iters {buckets, minx + miny, maxx + miny} {_, buckets_iter, buckets_iter_end})
+		(loop-start)
+			(call 'list :get_both {*buckets_iter} {_, bucket_iter, bucket_iter_end})
+			(loop-while {bucket_iter /= bucket_iter_end})
+				(assign {*bucket_iter} {record})
+				(call 'list :get_element {record, 0} {_, rec_id})
+				(vpif {rec_id->num_value /= num_id->num_value})
+					(call 'num :ref {num_id})
+					(call 'obj :ref {record})
+					(call 'list :set_element {record, num_id, 0})
+					(call 'list :set_element {args, record, 0})
+					(call 'lisp :repl_apply {this, args, func} {_, hit})
+					(gotoif {hit /= this->lisp_sym_nil} 'hit)
+					(call 'obj :deref {hit})
+				(endif)
+				(assign {bucket_iter + +ptr_size} {bucket_iter})
+			(loop-end)
+		(loop-until {(buckets_iter + +ptr_size => buckets_iter) > buckets_iter_end})
+	(loop-until {(miny + width => miny) > maxy})
+	(call 'obj :ref {this->lisp_sym_nil} {hit})
+
+(vp-label 'hit)
+	(call 'list :deref {args})
+	(exit {this, hit})
+	(return)
+
+(errorcases
+(vp-label 'error)
+	(jump 'lisp :repl_error '(:r0 "(scan-buckets buckets minx miny maxx maxy width id func line)" +error_msg_wrong_types :r1))
+	(signature '(list num num num num num num list obj)))
+
+	(pop-scope-syms)
+
+(def-func-end)

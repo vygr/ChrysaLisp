@@ -1,6 +1,8 @@
+;jit compile apps native functions
 (import "sys/lisp.inc")
-(import "class/lisp.inc")
+(jit "apps/pcb/" "lisp.vp" '("scan_buckets"))
 
+(import "class/lisp.inc")
 ;(import "lib/debug/frames.inc")
 ;(import "lib/debug/profile.inc")
 
@@ -29,21 +31,17 @@
 	(bind '(width height depth) (elem-get 0 pcb_list))
 	(bind '(res verb quant viascost) '(1 1 1 0))
 	(bind '(flood_range flood_range_even_layer flood_range_odd_layer) '(2 1 1))
-	(bind '(path_range path_range_even_layer path_range_odd_layer) '(2 1 1))
 	(defq rfvs (list
 			(gen-vectors flood_range flood_range_even_layer flood_range)
 			(gen-vectors flood_range flood_range flood_range_odd_layer))
-		rpvs (list
-			(gen-vectors path_range path_range_even_layer path_range)
-			(gen-vectors path_range path_range path_range_odd_layer))
-		pcb (Pcb width height depth rfvs rpvs res verb quant viascost))
+		pcb (Pcb width height depth rfvs res verb quant viascost))
 	(each! 1 -1 (lambda ((id track_radius via_radius track_gap pads wires &optional paths))
 		(task-slice)
 		(setq wires '() pads (map (lambda ((radius gap pos shape))
 			(Pad radius gap pos shape)) pads))
 		(defq track (Track id track_radius via_radius track_gap pads wires))
 		(. pcb :add_track track)) (list pcb_list))
-	(. pcb :route 1000000000 mbox)
+	(. pcb :route select mbox)
 	;(. pcb :print_pcb (file-stream "apps/pcb/data/test4.pcb" +file_open_write))
 	(. pcb :close))
 
@@ -59,6 +57,7 @@
 			((= idx +select_main)
 				;main mailbox, reset timeout and reply with result
 				(mail-timeout (elem-get +select_timeout select) 0 0)
+				(mail-timeout (elem-get +select_timeout select) 1000000000 0)
 				(route (getf msg +job_reply) (slice +job_data -1 msg)))))
 	(free-select select)
 	(if (get 'profile-report)

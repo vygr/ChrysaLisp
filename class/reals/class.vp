@@ -25,7 +25,7 @@
 	(vp-shl-cr (log2 +ptr_size) src_end)
 	(vp-add-rr src1 src_end)
 	(vec-loop-until `(,src1 ,src2) `(,e0 ,e1) src_end dst1
-		(lambda ((e0 e1)) (call 'sys_math :r_add `(,e0 ,e1) '(:r)) :r))
+		(lambda (e0 e1) (call 'sys_math :r_add `(,e0 ,e1) '(:r)) :r))
 
 	(exit 'reals :add `(,dst -1))
 	(vp-ret)
@@ -52,7 +52,7 @@
 	(vp-shl-cr (log2 +ptr_size) src_end)
 	(vp-add-rr src1 src_end)
 	(vec-loop-until `(,src1 ,src2) `(,e0 ,e1) src_end dst1
-		(lambda ((e0 e1)) (call 'sys_math :r_sub `(,e0 ,e1) '(:r)) :r))
+		(lambda (e0 e1) (call 'sys_math :r_sub `(,e0 ,e1) '(:r)) :r))
 
 	(exit 'reals :sub `(,dst -1))
 	(vp-ret)
@@ -79,7 +79,7 @@
 	(vp-shl-cr (log2 +ptr_size) src_end)
 	(vp-add-rr src1 src_end)
 	(vec-loop-until `(,src1 ,src2) `(,e0 ,e1) src_end dst1
-		(lambda ((e0 e1))
+		(lambda (e0 e1)
 			(assign `(,e0 ,e1) `(,t0 ,t1))
 			(call 'sys_math :r_sub `(,e0 ,e1) '(:r))
 			(vpif '(:r < 0))
@@ -112,7 +112,7 @@
 	(vp-shl-cr (log2 +ptr_size) src_end)
 	(vp-add-rr src1 src_end)
 	(vec-loop-until `(,src1 ,src2) `(,e0 ,e1) src_end dst1
-		(lambda ((e0 e1))
+		(lambda (e0 e1)
 			(assign `(,e0 ,e1) `(,t0 ,t1))
 			(call 'sys_math :r_sub `(,e0 ,e1) '(:r))
 			(vpif '(:r > 0))
@@ -145,7 +145,7 @@
 	(vp-shl-cr (log2 +ptr_size) src_end)
 	(vp-add-rr src1 src_end)
 	(vec-loop-until `(,src1 ,src2) `(,e0 ,e1) src_end dst1
-		(lambda ((e0 e1)) (call 'sys_math :r_mul `(,e0 ,e1) '(:r)) :r))
+		(lambda (e0 e1) (call 'sys_math :r_mul `(,e0 ,e1) '(:r)) :r))
 
 	(exit 'reals :mul `(,dst -1))
 	(vp-ret)
@@ -172,7 +172,7 @@
 	(vp-shl-cr (log2 +ptr_size) src_end)
 	(vp-add-rr src1 src_end)
 	(vec-loop-until `(,src1 ,src2) `(,e0 ,e1) src_end dst1
-		(lambda ((e0 e1))
+		(lambda (e0 e1)
 			(errorif `(,e1 = 0) 'error)
 			(call 'sys_math :r_div `(,e0 ,e1) `(:r))
 			:r))
@@ -205,7 +205,7 @@
 	(vp-shl-cr (log2 +ptr_size) src_end)
 	(vp-add-rr src1 src_end)
 	(vec-loop-until `(,src1 ,src2) `(,e0 ,e1) src_end dst1
-		(lambda ((e0 e1))
+		(lambda (e0 e1)
 			(errorif `(,e1 = 0) 'error)
 			(call 'sys_math :r_mod `(,e0 ,e1) `(:r))
 			:r))
@@ -236,7 +236,7 @@
 	(vp-shl-cr (log2 +ptr_size) src_end)
 	(vp-add-rr src1 src_end)
 	(vec-loop-until `(,src1) `(,e0) src_end dst1
-		(lambda ((e0)) (call 'sys_math :r_frac `(,e0) '(:r)) :r))
+		(lambda (e0) (call 'sys_math :r_frac `(,e0) '(:r)) :r))
 
 	(exit 'reals :frac `(,dst))
 	(vp-ret)
@@ -261,7 +261,7 @@
 	(vp-shl-cr (log2 +ptr_size) src_end)
 	(vp-add-rr src1 src_end)
 	(vec-loop-until `(,src1) `(,e0) src_end dst1
-		(lambda ((e0)) (call 'sys_math :r_floor `(,e0) '(:r)) :r))
+		(lambda (e0) (call 'sys_math :r_floor `(,e0) '(:r)) :r))
 
 	(exit 'reals :floor `(,dst))
 	(vp-ret)
@@ -286,7 +286,7 @@
 	(vp-shl-cr (log2 +ptr_size) src_end)
 	(vp-add-rr src1 src_end)
 	(vec-loop-until `(,src1) `(,e0) src_end dst1
-		(lambda ((e0))
+		(lambda (e0)
  			(vpif `(,e0 < 0))
 				(call 'sys_math :r_sub `(0 ,e0) `(,e0))
 			(endif)
@@ -316,7 +316,7 @@
 	(vp-shl-cr (log2 +ptr_size) src_end)
 	(vp-add-rr src1 src_end)
 	(vec-loop-until `(,src1) `(,e0) src_end dst1
-		(lambda ((e0)) (call 'sys_math :r_mul `(,e0 ,scale) '(:r)) :r))
+		(lambda (e0) (call 'sys_math :r_mul `(,e0 ,scale) '(:r)) :r))
 
 	(exit 'reals :scale `(,dst))
 	(vp-ret)

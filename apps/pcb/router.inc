@@ -11,7 +11,7 @@
 
 (defq +via_vectors (const-quoted
 	'(list (list (Node 0 0 -1) (Node 0 0 1)) (list (Node 0 0 -1) (Node 0 0 1))))
-	+spacial_hash_res 1.0)
+	+spacial_hash_res 4.0)
 
 (defun aabb_pads (pads quant)
 	;aabb of pads
@@ -65,10 +65,10 @@
 		:pads (defq pads (. track :get_pads))
 		:wires (defq wires (. track :get_wires))
 		:paths (defq paths (list))
-		:paths_collision_lines (list)
-		:pad_collision_lines (defq pad_collision_lines (list))
+		:paths_lines (list)
+		:pad_lines (defq pad_lines (list))
 		:pad_end_nodes (defq pad_end_nodes (list))
-		:wire_collision_lines (defq wire_collision_lines (list))
+		:wire_lines (defq wire_lines (list))
 		:wire_nodes (defq wire_nodes (fset 11)))
 
 	;scale pads and wires for resolution of grid
@@ -113,7 +113,7 @@
 		;collision lines
 		(cond
 			((= (length shape) 0)
-				(push pad_collision_lines (Layers-line x y z1 x y z2 radius gap)))
+				(push pad_lines (Layers-line x y z1 x y z2 radius gap)))
 			(t	(defq z z1)
 				(while (<= z z2)
 					(bind '(xs ys) (elem-get 0 shape))
@@ -125,7 +125,7 @@
 						(.-> pcb :get_via_layers (:add_layers_line (Layers-line cx cy cz p1x p1y p1z radius gap)))
 						;pad lines
 						(setq p0x p1x p0y p1y p0z p1z p1x (+ x xs) p1y (+ y ys) p1z cz)
-						(push pad_collision_lines (Layers-line p0x p0y p0z p1x p1y p1z radius gap))) (list shape))
+						(push pad_lines (Layers-line p0x p0y p0z p1x p1y p1z radius gap))) (list shape))
 					(setq z (+ z 1.0)))))
 		;ends and deformations
 		(push pad_end_nodes (defq ends (list)))
@@ -144,14 +144,14 @@
 					;via wire
 					(bind '(x0 y0 z0) p0)
 					(defq depth (n2f (dec (. pcb :get_depth))) z 0.0)
-					(push wire_collision_lines (Layers-line x0 y0 0.0 x0 y0 depth via gap))
+					(push wire_lines (Layers-line x0 y0 0.0 x0 y0 depth via gap))
 					(while (<= z depth)
 						(. wire_nodes :insert (. pcb :pad_point_to_node (Vec3-f x0 y0 z)))
 						(setq z (+ z 1.0))))
 				(t	;layer wire
 					(bind '(x0 y0 z0) p0)
 					(bind '(x1 y1 z1) p1)
-					(push wire_collision_lines (Layers-line x0 y0 z0 x1 y1 z1 radius gap))
+					(push wire_lines (Layers-line x0 y0 z0 x1 y1 z1 radius gap))
 					(defq p (Vec2-f x0 y0) v (vec-sub p (Vec2-f x1 y1))
 						l (vec-length v) norm (vec-scale v (recip l))
 						i 0.0)
@@ -162,7 +162,7 @@
 					(. wire_nodes :insert (. pcb :pad_point_to_node p1))))) (list wire))) wires)
 
 	;add pad entries to via only spacial cache
-	(each (# (.-> pcb :get_via_layers (:add_layers_line %0))) pad_collision_lines)
+	(each (# (.-> pcb :get_via_layers (:add_layers_line %0))) pad_lines)
 
 	;bounds
 	(bind '(area bbox) (aabb_pads pads (. pcb :get_quantization)))
@@ -182,36 +182,36 @@
 		(shuffle (get :pad_end_nodes this))
 		this)
 
-	(defmethod :add_pad_collision_lines (this)
-		; (. net :add_pad_collision_lines) -> net
+	(defmethod :add_pad_lines (this)
+		; (. net :add_pad_lines) -> net
 		;add pad entries to spacial cache
 		(raise :pcb)
-		(each (# (.-> pcb :get_layers (:add_layers_line %0))) (get :pad_collision_lines this))
+		(each (# (.-> pcb :get_layers (:add_layers_line %0))) (get :pad_lines this))
 		this)
 
-	(defmethod :sub_pad_collision_lines (this)
-		; (. net :sub_pad_collision_lines) -> net
+	(defmethod :sub_pad_lines (this)
+		; (. net :sub_pad_lines) -> net
 		;remove pad entries from spacial cache
 		(raise :pcb)
-		(each (# (.-> pcb :get_layers (:sub_layers_line %0))) (get :pad_collision_lines this))
+		(each (# (.-> pcb :get_layers (:sub_layers_line %0))) (get :pad_lines this))
 		this)
 
-	(defmethod :add_wire_collision_lines (this)
-		; (. net :add_wire_collision_lines) -> net
+	(defmethod :add_wire_lines (this)
+		; (. net :add_wire_lines) -> net
 		;add wire entries to spacial cache
 		(raise :pcb)
-		(each (# (.-> pcb :get_layers (:add_layers_line %0))) (get :wire_collision_lines this))
+		(each (# (.-> pcb :get_layers (:add_layers_line %0))) (get :wire_lines this))
 		this)
 
-	(defmethod :sub_wire_collision_lines (this)
-		; (. net :sub_wire_collision_lines) -> net
+	(defmethod :sub_wire_lines (this)
+		; (. net :sub_wire_lines) -> net
 		;remove wire entries from spacial cache
 		(raise :pcb)
-		(each (# (.-> pcb :get_layers (:sub_layers_line %0))) (get :wire_collision_lines this))
+		(each (# (.-> pcb :get_layers (:sub_layers_line %0))) (get :wire_lines this))
 		this)
 
-	(defmethod :create_paths_collision_lines (this)
-		; (. net :create_paths_collision_lines) -> lines
+	(defmethod :create_paths_lines (this)
+		; (. net :create_paths_lines) -> lines
 		;create paths collision lines
 		(raise :pcb :radius :via :gap)
 		(defq depth (n2f (dec (. pcb :get_depth))))
@@ -226,32 +226,32 @@
 					(push lines (Layers-line x0 y0 z0 x1 y1 z1 radius gap)))) (list pth))
 			lines) (get :paths this) (list)))
 
-	(defmethod :add_paths_collision_lines (this)
-		; (. net :add_paths_collision_lines) -> net
+	(defmethod :add_paths_lines (this)
+		; (. net :add_paths_lines) -> net
 		;add paths entries to spacial cache
 		(raise :pcb)
-		(defq paths_collision_lines (. this :create_paths_collision_lines))
-		(lower :paths_collision_lines)
-		(each (# (.-> pcb :get_layers (:add_layers_line %0))) paths_collision_lines)
+		(defq paths_lines (. this :create_paths_lines))
+		(lower :paths_lines)
+		(each (# (.-> pcb :get_layers (:add_layers_line %0))) paths_lines)
 		this)
 
-	(defmethod :sub_paths_collision_lines (this)
-		; (. net :sub_paths_collision_lines) -> net
+	(defmethod :sub_paths_lines (this)
+		; (. net :sub_paths_lines) -> net
 		;remove paths entries from spacial cache
-		(raise :pcb :paths_collision_lines)
-		(each (# (.-> pcb :get_layers (:sub_layers_line %0))) paths_collision_lines)
-		(clear paths_collision_lines)
+		(raise :pcb :paths_lines)
+		(each (# (.-> pcb :get_layers (:sub_layers_line %0))) paths_lines)
+		(clear paths_lines)
 		this)
 
 	(defmethod :remove (this)
 		; (. net :remove) -> net
 		;remove net entries from spacial grid
 		(.-> this
-			:sub_paths_collision_lines
-			:sub_wire_collision_lines
-			:sub_pad_collision_lines
-			:add_pad_collision_lines
-			:add_wire_collision_lines)
+			:sub_paths_lines
+			:sub_wire_lines
+			:sub_pad_lines
+			:add_pad_lines
+			:add_wire_lines)
 		(clear (get :paths this))
 		this)
 
@@ -276,7 +276,7 @@
 		; (. net :backtrack_path this visited end_node radius via gap) -> nodes
 		;backtrack path from ends to starts
 		(raise :pcb)
-		(defq path_vectors (. pcb :get_path_vectors)
+		(defq flood_vectors (. pcb :get_flood_vectors)
 			nearer_nodes (list) pth (list) path_node end_node exit nil)
 		(until exit
 			(task-slice)
@@ -284,7 +284,7 @@
 			(clear nearer_nodes)
 			(each (# (push nearer_nodes %0))
 				(. pcb :all_not_shorting
-					(. pcb :all_nearer_sorted path_vectors path_node)
+					(. pcb :all_nearer_sorted flood_vectors path_node)
 					path_node radius gap))
 			(each (# (push nearer_nodes %0))
 				(. pcb :all_not_shorting_via
@@ -308,8 +308,8 @@
 			((= radius 0.0) t)
 			(t	(clear paths)
 				(.-> this
-					:sub_pad_collision_lines
-					:sub_wire_collision_lines)
+					:sub_pad_lines
+					:sub_wire_lines)
 				(defq visited (. (get :wire_nodes this) :copy)
 					failed (some! 1 -1 nil (lambda (ends)
 						(each (# (. visited :insert %0)) (elem-get (dec _) pad_end_nodes))
@@ -329,9 +329,9 @@
 					(t	(setq paths (. this :optimise_paths paths))
 						(lower :paths)
 						(.-> this
-							:add_paths_collision_lines
-							:add_pad_collision_lines
-							:add_wire_collision_lines)
+							:add_paths_lines
+							:add_pad_lines
+							:add_wire_lines)
 						t)))))
 
 	(defmethod :print_net (this stream)
@@ -393,14 +393,14 @@
 		this)
 	)
 
-(defclass Pcb (width height depth rfvs rpvs res verb quant viascost) nil
-	; (Pcb width height depth rfvs rpvs res verb quant viascost) -> pcb
+(defclass Pcb (width height depth rfvs res verb quant viascost) nil
+	; (Pcb width height depth rfvs res verb quant viascost) -> pcb
 	(def this
 		:nodes_dim (dim (nums (* width res) (* height res) depth)
 			(defq nodes (cap (* width height depth) (nums))))
 		:width (* width res) :height (* height res) :depth depth
 		:deform (fmap 101) :resolution res
-		:flood_vectors rfvs :path_vectors rpvs :netlist (list)
+		:flood_vectors rfvs :netlist (list)
 		:quantization (* quant res) :viascost (* viascost res)
 		:verbosity verb
 		:layers (Layers (n2i (* (n2f width) +spacial_hash_res))
@@ -418,7 +418,7 @@
 	(defgetmethod layers)
 	(defgetmethod via_layers)
 	(defgetmethod verbosity)
-	(defgetmethod path_vectors)
+	(defgetmethod flood_vectors)
 
 	(defmethod :get_node (this node)
 		; (. pcb :get_node node) -> val
@@ -582,13 +582,13 @@
 		(each (# (. %0 :remove)) (get :netlist this))
 		this)
 
-	(defmethod :route (this timeout mbox)
-		; (. pcb :route timeout) -> t | nil
+	(defmethod :route (this select mbox)
+		; (. pcb :route select mbox) -> t | nil
 		(raise :netlist)
 		(.-> this :remove_netlist :unmark_distances :reset_areas :shuffle_netlist)
 		(sort-netlist netlist)
 		(defq hoisted_nets (fset) index 0 exit t retval t start_time (pii-time))
-		(while (and exit (not (mail-poll (list (task-mailbox)))) (< index (length netlist)))
+		(while (and exit (not (mail-poll select)) (< index (length netlist)))
 			(task-slice)
 			(defq net (elem-get index netlist))
 			(cond
@@ -617,13 +617,10 @@
 								(.-> (elem-get index netlist) :remove :shuffle_topology)
 								(setq index (dec index)))))))
 			(defq end_time (pii-time) elapsed (- end_time start_time))
-			(cond
-				((>= elapsed timeout)
-					(setq exit nil retval nil))
-				((>= (. this :get_verbosity) 1)
-					(defq ss (string-stream (cat "")))
-					(. this :print_pcb ss)
-					(mail-send mbox (str ss)))))
+			(when (>= (. this :get_verbosity) 1)
+				(defq ss (string-stream (cat "")))
+				(. this :print_pcb ss)
+				(mail-send mbox (str ss))))
 		retval)
 
 	(defmethod :cost (this)
