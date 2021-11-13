@@ -10,6 +10,9 @@ Rename `(elem)` to `(elem-get)`, will now be inline with new `(dim-get)` and
 New `(dim (nums x y z ...) array)` `(dim-get (nums x y z ...) dim)` and
 `(dim-set (nums x y z ...) dim obj)` built in functions.
 
+VP pseudo instructions `(vp-abs) (vp-min) (vp-max) (vp-vec)` added and the
+`sys/math/class.inc` vector DSL now uses this to perform operations.
+
 ------
 
 Start of XML, SVG import libs. Plenty more to do yet.

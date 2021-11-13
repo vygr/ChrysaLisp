@@ -8,6 +8,9 @@ In no particular order but to just to ensure I get thoughts down. I'll keep
 adding to this as I go along. If anybody would like to try helping out, then
 just get in touch.
 
+* Add support for `(vp-vec)` instructions at the translator level. MMX, SSX
+etc.
+
 * SDL2 Audio output, plus the implementation of a ChrysaLisp multi channel
 mixer service.
 
