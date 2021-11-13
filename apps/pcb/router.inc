@@ -11,7 +11,7 @@
 
 (defq +via_vectors (const-quoted
 	'(list (list (Node 0 0 -1) (Node 0 0 1)) (list (Node 0 0 -1) (Node 0 0 1))))
-	+spacial_hash_res 4.0 +path_scale 1)
+	+spacial_hash_res 8.0 +path_scale 1)
 
 (defun gen-vectors (vec_range x_range y_range)
 	;generate range of routing vectors
@@ -127,7 +127,7 @@
 		(cond
 			((= (length shape) 0)
 				(push pad_lines (Layers-line x y z1 x y z2 radius gap)))
-			(t	(defq z z1)
+			(t  (defq z z1)
 				(while (<= z z2)
 					(bind '(xs ys) (elem-get 0 shape))
 					(defq cx x cy y cz z
@@ -161,7 +161,7 @@
 					(while (<= z depth)
 						(. wire_nodes :insert (. pcb :pad_point_to_node (Vec3-f x0 y0 z)))
 						(setq z (+ z 1.0))))
-				(t	;layer wire
+				(t  ;layer wire
 					(bind '(x0 y0 z0) p0)
 					(bind '(x1 y1 z1) p1)
 					(push wire_lines (Layers-line x0 y0 z0 x1 y1 z1 radius gap))
@@ -310,7 +310,7 @@
 				((defq n (some (# (. visited :find %0)) nearer_nodes))
 					;found existing track
 					(setq exit (push pth n)))
-				(t	;sort nodes and take the first
+				(t  ;sort nodes and take the first
 					(setq path_node (elem-get 1 (elem-get 0
 						(sort (# (- (elem-get 0 %0) (elem-get 0 %1)))
 						(map (# (list (vec-squared-euclidean-distance path_node %0) %0))
@@ -324,7 +324,7 @@
 		(raise :pcb :radius :via :gap :paths :pad_end_nodes)
 		(cond
 			((= radius 0.0) t)
-			(t	(clear paths)
+			(t  (clear paths)
 				(.-> this
 					:sub_pad_lines
 					:sub_wire_lines)
@@ -344,7 +344,7 @@
 				(cond
 					(failed
 						(. this :remove) nil)
-					(t	(setq paths (. this :optimise_paths paths))
+					(t  (setq paths (. this :optimise_paths paths))
 						(lower :paths)
 						(.-> this
 							:add_paths_lines
@@ -494,7 +494,7 @@
 			vecm (Node (dec (get :width this)) (dec (get :height this)) (dec (get :depth this))))
 		(each (lambda (v)
 			(and (eql (vec-min vecm (vec-max (defq n (vec-add node v)) +nums_zero3 +nums_tmp3) +nums_tmp3) n)
-					(/= (defq v (. this :get_node n)) 0) (< v d)
+					(< 0 (. this :get_node n) d)
 				(push out n))) (elem-get (% (elem-get +vec3_z node) 2) vec))
 		out)
 
@@ -532,7 +532,7 @@
 			(cond
 				((every (# (/= (. this :get_node %0) 0)) ends)
 					(setq exit nil))
-				(t	(defq new_nodes (fset 11) vias_start (+ distance viascost))
+				(t  (defq new_nodes (fset 3) vias_start (+ distance viascost))
 					(. frontier :each (lambda (node)
 						(each (# (. new_nodes :insert %0))
 							(. this :all_not_shorting
@@ -605,26 +605,26 @@
 			(cond
 				((. net :route)
 ;; (prin "routed net, idx " index
-;; 	", id " (. net :get_id)
-;; 	", area " (. net :get_area))
+;;  ", id " (. net :get_id)
+;;  ", area " (. net :get_area))
 ;; (print)
 					(setq index (inc index)))
-				(t	(cond
+				(t  (cond
 						((= index 0)
 							(.-> this :reset_areas :shuffle_netlist)
 							(sort-netlist netlist))
-						(t	(bind '(netlist pos) (. this :hoist_net index))
+						(t  (bind '(netlist pos) (. this :hoist_net index))
 							(. (elem-get index netlist) :shuffle_topology)
 ;; (prin "failed net, idx " index
-;; 	", id " (. net :get_id)
-;; 	", area " (. net :get_area))
+;;  ", id " (. net :get_id)
+;;  ", area " (. net :get_area))
 ;; (print)
 							(cond
 								((or (= pos index) (. hoisted_nets :find net))
 									(. net :set_area (. (elem-get (dec index) netlist) :get_area))
 									(bind '(netlist pos) (. this :hoist_net index))
 									(. hoisted_nets :erase net))
-								(t	(. hoisted_nets :insert net)))
+								(t  (. hoisted_nets :insert net)))
 							(while (> index pos)
 								(. (elem-get index netlist) :remove)
 								(setq index (dec index)))))))

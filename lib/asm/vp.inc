@@ -179,9 +179,8 @@
 (vp-op-rr or) (vp-op-rr xor) (vp-op-rr shl) (vp-op-rr shr) (vp-op-rr asr)
 (vp-op-rr lnot) (vp-op-rr land) (vp-op-rr swp) (vp-op-rr ext)
 
-(defun vp-op4 (op a b c d x y z w) (op a x) (op b y) (op c z) (op d w))
-(defun vp-op3 (op a b c x y z) (op a x) (op b y) (op c z))
-(defun vp-op2 (op a b x y) (op a x) (op b y))
-(defun vp-min (a b) (vpif (list a '< b)) (vp-cpy-rr a b) (endif))
-(defun vp-max (a b) (vpif (list a '> b)) (vp-cpy-rr a b) (endif))
-(defun vp-abs (a) (vpif (list a '< 0)) (vp-mul-cr -1 a) (endif))
+;puedo vp instructions
+(defun vp-min (a b &optional c) (vp-cpy-rr b (setd c b)) (vpif (list a '< b)) (vp-cpy-rr a c) (endif))
+(defun vp-max (a b &optional c) (vp-cpy-rr b (setd c b)) (vpif (list a '> b)) (vp-cpy-rr a c) (endif))
+(defun vp-abs (a &optional b) (vp-cpy-rr a (setd b a)) (vpif (list a '< 0)) (vp-mul-cr -1 b) (endif))
+(defun vp-vec (op &rest v) (each op v (slice (/ (length v) 2) -1 v)))
