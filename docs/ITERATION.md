@@ -36,7 +36,7 @@ Classes that inherit from `class/seq`:
 'qwerty
 ```
 
-To discover the length of a sequence, use the `(length)` function:
+To discover the length of a sequence, use the `(length seq)` function:
 
 ```vdu
 (length (list 1 2 3))
@@ -45,8 +45,8 @@ To discover the length of a sequence, use the `(length)` function:
 6
 ```
 
-Extraction of a single element with `(elem-get)`. Negative indexes mean to
-index from the back of the sequence ! Very useful !
+Extraction of a single element with `(elem-get index seq)`. Negative indexes
+mean to index from the back of the sequence ! Very useful !
 
 ```vdu
 (elem-get 1 "abcd")
@@ -59,7 +59,7 @@ Note that negative indexes start at -1 representing the element that would be 1
 off the end of the sequence, so -2 means the final elements index. There is a
 good reason for this as will be illustrated with the `(slice)` function below.
 
-Extracting a 'slice' of a sequence with `(slice)`:
+Extracting a 'slice' of a sequence with `(slice start end seq)`:
 
 ```vdu
 (slice 0 3 "ABCDEF")
@@ -68,7 +68,7 @@ Extracting a 'slice' of a sequence with `(slice)`:
 "BCDE"
 ```
 
-Splice sequences together by using `(cat)`:
+Splice sequences together by using `(cat seq ...)`:
 
 ```vdu
 (cat (list 1 2 3) (list 5 6 7))
@@ -81,7 +81,7 @@ Splice sequences together by using `(cat)`:
 "abc"
 ```
 
-Search for an element with `(find)` and `(find-rev)`:
+Search for an element with `(find elem seq)` and `(find-rev elem seq)`:
 
 ```vdu
 (find "a" "defopqaui")
@@ -99,10 +99,11 @@ nil
 ## Iteration
 
 You can iterate over a sequence or slice of a sequence, forwards or backwards
-by use of the `(each!)` function. You provide the function that will be called
-for the group of elements from each index position. `(each)` and `(each-rev)`
-are macros that assume the index values cover the full extent of the sequence
-and take the sequence list as arguments rather than an explicit list.
+by use of the `(each! start end lambda (list seq ...))` function. You provide
+the function that will be called for the group of elements from each index
+position. `(each)` and `(each-rev)` are macros that assume the index values
+cover the full extent of the sequence and take the sequence list as arguments
+rather than an explicit list.
 
 Any elements over the minimum length of the given sequences are ignored.
 
@@ -135,12 +136,12 @@ B2
 ## Predication
 
 You can predicate over a sequence or slice of a sequence, forwards or backwards
-by use of the `(some!)` function. You provide the function that will be called
-for the group of elements from each index position, you can decide if it will
-exit if that function returns a `nil` or not. `(some)` `(every)` `(notany)` and
-`(notevery)` are macros that assume the index values cover the full extent of
-the sequence and set the break out option, plus take the sequence list as
-arguments rather than an explicit list.
+by use of the `(some! start end mode lambda (list seq ...))` function. You
+provide the function that will be called for the group of elements from each
+index position, you can decide if it will exit if that function returns a `nil`
+or not. `(some)` `(every)` `(notany)` and `(notevery)` are macros that assume
+the index values cover the full extent of the sequence and set the break out
+option, plus take the sequence list as arguments rather than an explicit list.
 
 The break out value is returned ! This means you can use these functions as a
 breakable for loop or a search loop !
@@ -163,16 +164,18 @@ t
 
 ## Map, Reduce and Filter
 
-Mapping transforms a sequence by transforming each element via a function to
-produce a list of the transformed elements.
+Mapping, with `(map lambda seq ...)`, transforms a sequence by transforming
+each element via a function to produce a list of the transformed elements.
 
-Reduction transforms a sequence by combining each element to produce a single
-result. Reduction can take an optional start value.
+Reduction, with `(reduce lambda seq [init])`, transforms a sequence by
+combining each element to produce a single result. Reduction can take an
+optional start value.
 
 Filtering transforms a sequence by producing a list of all the elements that
 pass the filter test function.
 
-These also come in `(map-rev)` and `(reduce-rev)` flavours.
+These also come in `(map-rev lambda seq ...)` and `(reduce-rev lambda seq
+[init])` flavours.
 
 ```vdu
 (map + '(1 2 3) '(6 7 8) '(1 7 6))
