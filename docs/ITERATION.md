@@ -171,8 +171,8 @@ Reduction, with `(reduce lambda seq [init])`, transforms a sequence by
 combining each element to produce a single result. Reduction can take an
 optional start value.
 
-Filtering transforms a sequence by producing a list of all the elements that
-pass the filter test function.
+Filtering, with `(filter lambda seq)`, transforms a sequence by producing a
+list of all the elements that pass the filter test function.
 
 These also come in `(map-rev lambda seq ...)` and `(reduce-rev lambda seq
 [init])` flavours.
