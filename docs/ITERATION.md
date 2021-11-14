@@ -228,7 +228,7 @@ Writing and reading of single elements using `(dim-get)` and `(dim-set)`.
 2
 (dim-set (nums 0 1) d "z")
 a
-(0 1 "z" 3 4 5 6 7)
+(0 1 "z" 3)
 (dim-set (nums 1 1) d "x")
 a
 (0 1 "z" "x")
