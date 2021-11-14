@@ -194,9 +194,18 @@ These also come in `(map-rev)` and `(reduce-rev)` flavours.
 ## Arrays
 
 Arrays are sequences that also allow for writing to elements with the
-`(elem-set)` function. They can also be wrapped by the `(dim)` function to
-allow dimensioned accsess to the underling array with `(dim-set)` and
-`(dim-get)`.
+`(elem-set index array val)` function. They can be wrapped by the `(dim (nums x
+y z ...) array)` function to allow dimensioned accsess to the underling array
+with `(dim-set (nums x y z ...) array val)` and `(dim-get (nums x y z ...)
+array)`.
+
+They can be acted on as a stack by use of `(push array val ...)` and `(pop
+array)`. These functions act on the array 'in place', existing references to
+the array are still valid but the contents will be mutated !
+
+Arrays can be cleared using `(clear array ...)` and the capacity set with `(cap
+length array ...)`. These functions act on the arrays 'in place', existing
+references to the arrays are still valid but the contents will be mutated !
 
 Classes that inherit from `class/array`:
 
@@ -232,4 +241,23 @@ a
 (dim-set (nums 1 1) d "x")
 a
 (0 1 "z" "x")
+```
+
+Pushing and popping elements.
+
+```vdu
+(defq a (list 0 1 2 3))
+(while (defq e (pop a)) (print e))
+3
+2
+1
+0
+(push a 6 8 "z" "y" 'q)
+(6 8 "z" "y" q)
+(while (defq e (pop a)) (print e))
+q
+y
+z
+8
+6
 ```
