@@ -190,3 +190,46 @@ These also come in `(map-rev)` and `(reduce-rev)` flavours.
 (filter (# (< %0 3)) '(0 1 2 3 4 5 6 7 8 9))
 (0 1 2)
 ```
+
+## Arrays
+
+Arrays are sequences that also allow for writing to elements with the
+`(elem-set)` function. They can also be wrapped by the `(dim)` function to
+allow dimensioned accsess to the underling array with `(dim-set)` and
+`(dim-get)`.
+
+Classes that inherit from `class/array`:
+
+* class/list
+
+* class/nums
+
+* class/fixeds
+
+* class/reals
+
+Writing of a single element with `(elem-set)`. Negative indexes mean to index
+from the back of the sequence ! Very useful !
+
+```vdu
+(elem-set 1 (defq a (list "a" "b" "c")) "z")
+a
+("a" "z" "c")
+(elem-set -2 (defq a (array 9 8 7)) 10)
+a
+(9 8 10)
+```
+
+Writing and reading of single elements using `(dim-get)` and `(dim-set)`.
+
+```vdu
+(defq d (dim (nums 2 2) (defq a (list 0 1 2 3))))
+(dim-get (nums 0 1) d)
+2
+(dim-set (nums 0 1) d "z")
+a
+(0 1 "z" 3 4 5 6 7)
+(dim-set (nums 1 1) d "x")
+a
+(0 1 "z" "x")
+```
