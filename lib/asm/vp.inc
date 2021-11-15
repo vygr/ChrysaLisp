@@ -183,4 +183,7 @@
 (defun vp-min (a b &optional c) (vp-cpy-rr b (setd c b)) (vpif (list a '< b)) (vp-cpy-rr a c) (endif))
 (defun vp-max (a b &optional c) (vp-cpy-rr b (setd c b)) (vpif (list a '> b)) (vp-cpy-rr a c) (endif))
 (defun vp-abs (a &optional b) (vp-cpy-rr a (setd b a)) (vpif (list a '< 0)) (vp-mul-cr -1 b) (endif))
-(defun vp-vec (op v2 v1) (each op v2 v1))
+(defun vp-vec (op v2 v1)
+	(if (/= (length v2) (length v1))
+		(throw "vp-vec mismatched vectors !" (list op v2 v1)))
+	(each op v2 v1))
