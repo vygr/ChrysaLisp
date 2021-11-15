@@ -422,7 +422,7 @@
 	; (Pcb width height depth res verb quant viascost fr fr_even fr_odd) -> pcb
 	(def this
 		:nodes_dim (dim (nums (* width res) (* height res) depth)
-			(defq nodes (cap (* width height depth) (nums))))
+			(defq nodes (cap (* width height depth res res) (nums))))
 		:width (* width res) :height (* height res) :depth depth
 		:deform (fmap 101) :resolution res
 		:flood_vectors (list
@@ -593,8 +593,8 @@
 		(when (/= index new_index)
 			(defq net (slice index (inc index) netlist)
 				netlist (erase netlist index (inc index))
-				netlist (insert netlist new_index net)))
-		(lower :netlist)
+				netlist (insert netlist new_index net))
+			(lower :netlist))
 		(list netlist new_index))
 
 	(defmethod :remove_netlist (this)
@@ -614,10 +614,6 @@
 			(defq net (elem-get index netlist))
 			(cond
 				((. net :route)
-;; (prin "routed net, idx " index
-;;  ", id " (. net :get_id)
-;;  ", area " (. net :get_area))
-;; (print)
 					(setq index (inc index)))
 				(t  (cond
 						((= index 0)
@@ -625,10 +621,6 @@
 							(sort-netlist netlist))
 						(t  (bind '(netlist pos) (. this :hoist_net index))
 							(. (elem-get index netlist) :shuffle_topology)
-;; (prin "failed net, idx " index
-;;  ", id " (. net :get_id)
-;;  ", area " (. net :get_area))
-;; (print)
 							(cond
 								((or (= pos index) (. hoisted_nets :find net))
 									(. net :set_area (. (elem-get (dec index) netlist) :get_area))
@@ -639,25 +631,9 @@
 								(. (elem-get index netlist) :remove)
 								(setq index (dec index)))))))
 			(when (>= (. this :get_verbosity) 1)
-				(defq ss (string-stream (cat "")))
-				(. this :print_pcb ss)
+				(. this :print_pcb (defq ss (string-stream (cat ""))))
 				(mail-send mbox (str ss))))
 		retval)
-
-	(defmethod :cost (this)
-		; (. pcb :cost) -> cost
-		;cost the board
-		(defq sum 0)
-		(each (lambda (net)
-			(each (lambda (pth)
-				(setq sum (+ sum (length pth)))) (get :paths this))) (get :netlist this))
-		sum)
-
-	(defmethod :increase_quantization (this)
-		; (. pcb :increase_quantization) -> pcb
-		;increase area quantization
-		(set this :quantization (inc (get :quantization this)))
-		this)
 
 	(defmethod :add_track (this track)
 		; (. pcb :add_track track) -> pcb
