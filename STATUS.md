@@ -13,6 +13,8 @@ New `(dim (nums x y z ...) array)` `(dim-get (nums x y z ...) dim)` and
 VP pseudo instructions `(vp-abs) (vp-min) (vp-max) (vp-vec)` added and the
 `sys/math/class.inc` vector DSL now uses this to perform operations.
 
+Separated out the source and destination vectors on the `(vp-vec)` instruction.
+
 ------
 
 Start of XML, SVG import libs. Plenty more to do yet.
