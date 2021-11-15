@@ -202,6 +202,13 @@ functions.
 (vp-long long ...)
 ```
 
+```vdu
+(vp-abs r &optional rd)
+(vp-min rs rd &optional rd)
+(vp-max rs rd &optional rd)
+(vp-vec op rsv rdv)
+```
+
 ## Calling Convention
 
 Simple answer is there is none. The better answer is that all calls, apart from
