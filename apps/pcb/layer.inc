@@ -46,9 +46,9 @@
 		((and (< dp1 (neg d)) (< dp2 (neg d))) nil)
 		((vec-collide-thick-lines-2d p1 p2 (elem-get +record_p1 record) (elem-get +record_p2 record) d))))
 
-(defun scan-buckets (buckets minx miny maxx maxy width id func line)
- 	(defq miny (* (dec miny) width) maxy (* maxy width))
- 	(while (and (<= (setq miny (+ miny width)) maxy)
+(defun hit-line (buckets minx miny maxx maxy width id func line)
+	(defq miny (* (dec miny) width) maxy (* maxy width))
+	(while (and (<= (setq miny (+ miny width)) maxy)
 				(not (defq hit (some! (+ miny minx) (+ miny maxx 1) nil
 					(lambda (bucket)
 						(some (lambda (record)
@@ -59,8 +59,30 @@
 					(list buckets)))))
 	hit))
 
+(defun add-line (buckets minx miny maxx maxy width record)
+	(defq miny (* (dec miny) width) maxy (* maxy width))
+	(while (<= (setq miny (+ miny width)) maxy)
+		(each! (+ miny minx) (+ miny maxx 1)
+			(lambda (bucket)
+				(push bucket record))
+			(list buckets))))
+
+(defun sub-line (buckets minx miny maxx maxy width layer_line)
+	(defq miny (* (dec miny) width) maxy (* maxy width))
+	(while (<= (setq miny (+ miny width)) maxy)
+		(each! (+ miny minx) (+ miny maxx 1)
+			(lambda (bucket)
+				(when (defq idx (some
+						(lambda (record)
+							(if (eql (elem-get +record_layer_line record) layer_line) _))
+						bucket))
+					(elem-set idx bucket (elem-get -2 bucket))
+					(pop bucket)))
+			(list buckets))))
+
 ;native versions
-(ffi scan-buckets "apps/pcb/scan_buckets" 0)
+(ffi hit-line "apps/pcb/hit_line" 0)
+(ffi add-line "apps/pcb/add_line" 0)
 
 (defclass Layer (width height scale) nil
 	; (Layer width height scale) -> layer
@@ -98,38 +120,20 @@
 	(defmethod :add_line (this layer_line)
 		; (. layer :add_line layer_line) -> layer
 		(bind '(minx miny maxx maxy) (. this :aabb layer_line))
-		(defq record (Record 0 layer_line))
-		(raise :width :buckets)
-		(setq miny (* (dec miny) width) maxy (* maxy width))
-		(while (<= (setq miny (+ miny width)) maxy)
-			(each! (+ miny minx) (+ miny maxx 1)
-				(lambda (bucket)
-					(push bucket record))
-				(list buckets)))
+		(add-line (get :buckets this) minx miny maxx maxy (get :width this) (Record 0 layer_line))
 		this)
 
 	(defmethod :sub_line (this layer_line)
 		; (. layer :sub_line layer_line) -> layer
 		(bind '(minx miny maxx maxy) (. this :aabb layer_line))
-		(raise :width :buckets)
-		(setq miny (* (dec miny) width) maxy (* maxy width))
-		(while (<= (setq miny (+ miny width)) maxy)
-			(each! (+ miny minx) (+ miny maxx 1)
-				(lambda (bucket)
-					(when (defq idx (some
-							(lambda (record)
-								(if (eql (elem-get +record_layer_line record) layer_line) _))
-							bucket))
-						(elem-set idx bucket (elem-get -2 bucket))
-						(pop bucket)))
-				(list buckets)))
+		(sub-line (get :buckets this) minx miny maxx maxy (get :width this) layer_line)
 		this)
 
 	(defmethod :hit_line (this layer_line)
 		; (. layer :hit_line layer_line) -> nil | t
 		(set this :id (defq id (inc (get :id this))))
 		(bind '(minx miny maxx maxy) (. this :aabb layer_line))
-		(scan-buckets (get :buckets this) minx miny maxx maxy (get :width this) id (const hit-line?) layer_line))
+		(hit-line (get :buckets this) minx miny maxx maxy (get :width this) id (const hit-line?) layer_line))
 	)
 
 (defclass Layers (width height depth scale) nil

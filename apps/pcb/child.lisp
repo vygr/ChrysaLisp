@@ -1,6 +1,6 @@
 ;jit compile apps native functions
 (import "sys/lisp.inc")
-(jit "apps/pcb/" "lisp.vp" '("scan_buckets"))
+(jit "apps/pcb/" "lisp.vp" '("hit_line" "add_line"))
 
 (import "class/lisp.inc")
 ;(import "lib/debug/frames.inc")
