@@ -198,6 +198,7 @@
 	;trashes
 	;:r1-:r3
 	(setd o :r0 bi :r1 ei :r2 b :r3)
+	(setq o (get o) bi (get bi) ei (get ei) b (get b))
 	(if (or (eql o bi) (eql o ei) (eql bi ei) (eql b bi) (eql b ei))
 		(throw "Invalid object, begin, end or base !" (list o bi ei b)))
 	(assign `((,o array_begin)) `(,b))

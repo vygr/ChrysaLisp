@@ -82,41 +82,45 @@
 	;trashes
 	;:r1-:r14
 
-	(def-vars
-		(ptr this buckets record)
-		(pptr buckets_iter buckets_iter_end)
-		(int minx miny maxx maxy width))
-
-	(push-scope)
 	(entry '(:r0 :r1))
 
 (errorcases
 	(call 'lisp :env_args_sig '(:r1 ($ sig) 7) '(:tmp))
 	(gotoif '(:tmp = 0) 'error))
 
-	(list-bind-args :r1 '(:r1 :r2 :r3 :r4 :r5 :r6 :r7)
+	(vp-def (:bucket :record :this :buckets :minx :miny :maxx :maxy :width :buckets_iter :buckets_iter_end)
+		(cat (method-input 'list :push_back) '(:r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14)))
+
+	(vp-cpy-rr :r0 :this)
+	(list-bind-args :r1 '(:buckets :minx :miny :maxx :maxy :width :record)
 		'(:list :num :num :num :num :num :list))
-	(assign '(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7)
-		{this, buckets, minx, miny, maxx, maxy, width, record})
 
-	(assign {miny * width, maxy * width} {miny, maxy})
+	;bump record ref count for pushes and return
+	(vp-vec vp-cpy-rr '(:maxx :maxy) '(:r13 :r14))
+	(vp-vec vp-sub-rr '(:minx :miny) '(:r13 :r14))
+	(vp-vec vp-add-cr '(1 1) '(:r13 :r14))
+	(vp-mul-rr :r13 :r14)
+	(vp-add-cr 1 :r14)
+	(class/obj/ref :record :r13 :r14)
+
+	(vp-vec vp-mul-rr '(:width :width) '(:miny :maxy))
 	(loop-start)
-		(call 'list :get_iters {buckets, minx + miny, maxx + miny} {_, buckets_iter, buckets_iter_end})
+		(vp-vec vp-cpy-rr '(:minx :maxx) '(:buckets_iter :buckets_iter_end))
+		(vp-vec vp-add-rr '(:miny :miny) '(:buckets_iter :buckets_iter_end))
+		(class/array/get_iters :buckets :buckets_iter :buckets_iter_end :r0)
 		(loop-start)
-			(call 'obj :ref {record})
-			(call 'list :push_back {*buckets_iter, record})
-		(loop-until {(buckets_iter + +ptr_size => buckets_iter) > buckets_iter_end})
-	(loop-until {(miny + width => miny) > maxy})
-	(call 'obj :ref {record})
+			(call 'list :push_back '((:buckets_iter 0) :record) `(_ ,(get :record) _ _))
+			(vp-add-cr +ptr_size :buckets_iter)
+		(loop-until '(:buckets_iter > :buckets_iter_end))
+		(vp-add-rr :width :miny)
+	(loop-until '(:miny > :maxy))
 
-	(exit {this, record})
-	(return)
+	(exit '(:this :record))
+	(vp-ret)
 
 (errorcases
 (vp-label 'error)
 	(jump 'lisp :repl_error '(:r0 "(add-line buckets minx miny maxx maxy width record)" +error_msg_wrong_types :r1))
 	(signature '(list num num num num num list)))
-
-	(pop-scope-syms)
 
 (def-func-end)
