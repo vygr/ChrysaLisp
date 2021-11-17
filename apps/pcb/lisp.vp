@@ -43,7 +43,7 @@
 			(loop-while {bucket_iter /= bucket_iter_end})
 				(assign {*bucket_iter} {record})
 				(call 'list :get_element {record, 0} {_, rec_id})
-				(vpif {rec_id->num_value /= num_id->num_value})
+				(vpif {rec_id /= num_id})
 					(call 'num :ref {num_id})
 					(call 'obj :ref {record})
 					(call 'list :set_element {record, num_id, 0})
