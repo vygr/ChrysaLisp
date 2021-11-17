@@ -83,9 +83,12 @@
 		lock_file (cat obj_prefix "lock") file (cat prefix file))
 	(while (/= (age lock_file) 0) (task-sleep 1000))
 	(when (some (# (> (age file) (age (cat obj_prefix %0)))) products)
-		(save "lock" lock_file)
-		(within-compile-env (lambda () (include file)))
-		(pii-remove lock_file)))
+		(catch
+			(progn
+				(save "lock" lock_file)
+				(within-compile-env (lambda () (include file)))
+				(pii-remove lock_file))
+			(progn (pii-remove lock_file) nil))))
 
 (enums +file_open 0
 	(enum read write append))
