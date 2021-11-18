@@ -150,6 +150,7 @@
 	;trashes
 	;:r1-:r2
 	(setd o :r0 ei :r1 b :r2)
+	(setq o (get o) ei (get ei) b (get b))
 	(if (or (eql o ei) (eql b ei))
 		(throw "Invalid object, index or base !" (list o ei b)))
 	(assign `((,o array_begin)) `(,b))

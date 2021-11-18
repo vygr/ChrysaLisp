@@ -1,6 +1,7 @@
 (include "sys/func.inc")
 (include "class/lisp/class.inc")
 (include "class/num/class.inc")
+(include "class/fixeds/class.inc")
 
 (def-func 'apps/pcb/hit_line)
 	;inputs
@@ -14,7 +15,7 @@
 
 	(def-vars
 		(ptr this buckets func line hit record rec_id num_id args)
-		(pptr bucket_iter bucket_iter_end)
+		(pptr record_iter record_iter_end)
 		(pptr buckets_iter buckets_iter_end)
 		(int minx miny maxx maxy width))
 
@@ -39,9 +40,9 @@
 	(loop-start)
 		(call 'list :get_iters {buckets, minx + miny, maxx + miny} {_, buckets_iter, buckets_iter_end})
 		(loop-start)
-			(call 'list :get_both {*buckets_iter} {_, bucket_iter, bucket_iter_end})
-			(loop-while {bucket_iter /= bucket_iter_end})
-				(assign {*bucket_iter} {record})
+			(call 'list :get_both {*buckets_iter} {_, record_iter, record_iter_end})
+			(loop-while {record_iter /= record_iter_end})
+				(assign {*record_iter} {record})
 				(call 'list :get_element {record, 0} {_, rec_id})
 				(vpif {rec_id /= num_id})
 					(call 'num :ref {num_id})
@@ -52,7 +53,7 @@
 					(gotoif {hit /= this->lisp_sym_nil} 'hit)
 					(call 'obj :deref {hit})
 				(endif)
-				(assign {bucket_iter + +ptr_size} {bucket_iter})
+				(assign {record_iter + +ptr_size} {record_iter})
 			(loop-end)
 		(loop-until {(buckets_iter + +ptr_size => buckets_iter) > buckets_iter_end})
 	(loop-until {(miny + width => miny) > maxy})
@@ -91,7 +92,6 @@
 	(vp-def (:bucket :record :this :buckets :minx :miny :maxx :maxy :width :buckets_iter :buckets_iter_end)
 		(cat (method-input 'list :push_back) '(:r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14)))
 
-	(vp-cpy-rr :r0 :this)
 	(list-bind-args :r1 '(:buckets :minx :miny :maxx :maxy :width :record)
 		'(:list :num :num :num :num :num :list))
 
@@ -122,5 +122,64 @@
 (vp-label 'error)
 	(jump 'lisp :repl_error '(:r0 "(add-line buckets minx miny maxx maxy width record)" +error_msg_wrong_types :r1))
 	(signature '(list num num num num num list)))
+
+(def-func-end)
+
+(def-func 'apps/pcb/sub_line)
+	;inputs
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
+	;outputs
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
+	;trashes
+	;:r1-:r14
+
+	(def-vars
+		(ptr this buckets line records rec_line)
+		(pptr record_iter record_iter_end)
+		(pptr buckets_iter buckets_iter_end)
+		(int minx miny maxx maxy width))
+
+	(push-scope)
+	(entry '(:r0 :r1))
+
+(errorcases
+	(call 'lisp :env_args_sig '(:r1 ($ sig) 7) '(:tmp))
+	(gotoif '(:tmp = 0) 'error))
+
+	(list-bind-args :r1 '(:r1 :r2 :r3 :r4 :r5 :r6 :r7)
+		'(:list :num :num :num :num :num :fixeds))
+	(assign '(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7)
+		{this, buckets, minx, miny, maxx, maxy, width, line})
+
+	(assign {miny * width, maxy * width} {miny, maxy})
+	(loop-start)
+		(call 'list :get_iters {buckets, minx + miny, maxx + miny} {_, buckets_iter, buckets_iter_end})
+		(loop-start)
+			(assign {*buckets_iter} {records})
+			(call 'list :get_both {records} {_, record_iter, record_iter_end})
+			(loop-while {record_iter /= record_iter_end} 'found_line)
+				(call 'list :get_element {*record_iter, 1} {_, rec_line})
+				(call 'nums :eql {line, rec_line} '(_ :tmp))
+				(vpif '(:tmp = 0))
+					(call 'list :erase {records, record_iter})
+					(break 'found_line)
+				(endif)
+				(assign {record_iter + +ptr_size} {record_iter})
+			(loop-end)
+		(loop-until {(buckets_iter + +ptr_size => buckets_iter) > buckets_iter_end})
+	(loop-until {(miny + width => miny) > maxy})
+
+	(call 'obj :ref {buckets})
+	(exit {this, buckets})
+	(return)
+
+(errorcases
+(vp-label 'error)
+	(jump 'lisp :repl_error '(:r0 "(sub-line buckets minx miny maxx maxy width line)" +error_msg_wrong_types :r1))
+	(signature '(list num num num num num fixeds)))
+
+	(pop-scope-syms)
 
 (def-func-end)

@@ -83,6 +83,7 @@
 ;native versions
 (ffi hit-line "apps/pcb/hit_line" 0)
 (ffi add-line "apps/pcb/add_line" 0)
+(ffi sub-line "apps/pcb/sub_line" 0)
 
 (defclass Layer (width height scale) nil
 	; (Layer width height scale) -> layer
