@@ -954,6 +954,18 @@
 (. slider :pref_size) -> (width height)
 ```
 
+### spinner :action
+
+```code
+(. spinner :action event) -> spinner
+```
+
+### spinner :layout
+
+```code
+(. spinner :layout) -> spinner
+```
+
 ### syntax :colorise
 
 ```code
@@ -1690,6 +1702,12 @@
 
 ```code
 (Slider) -> slider
+```
+
+### Spinner
+
+```code
+(Spinner) -> spinner
 ```
 
 ### Syntax
@@ -4060,6 +4078,12 @@
 
 ```code
 (ui-slider name [props]) -> slider
+```
+
+### ui-spinner
+
+```code
+(ui-spinner name [props]) -> spinner
 ```
 
 ### ui-textfield
