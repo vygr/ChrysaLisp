@@ -27,7 +27,7 @@
 	index (some (# (if (eql "apps/pcb/data/test1.pcb" %0) _)) pcbs)
 	canvas_scale 1 mode 0 show -1
 	+max_zoom 15.0 +min_zoom 5.0 zoom (/ (+ +min_zoom +max_zoom) 2.0) +eps 0.25
-	*running* t pcb nil pcb_data nil child nil
+	*running* t pcb nil pcb_data nil child nil +tag_min_size 104
 	grid_res 1 vias_cost 0 flood_range 2 even_range 1 odd_range 1)
 
 (ui-window *window* ()
@@ -37,20 +37,20 @@
 		(ui-buttons ("0" "1" "2" "3" "4") +event_show_all
 			(:color (const *env_toolbar2_col*) :font (const (create-font "fonts/OpenSans-Regular.ctf" 20)))))
 	(ui-flow _ (:flow_flags +flow_right_fill)
-		(ui-label _ (:text "grid_res:" :min_width 104 :flow_flags +flow_flag_align_hright))
+		(ui-label _ (:text "grid_res:" :min_width +tag_min_size :flow_flags +flow_flag_align_hright))
 		(. (ui-spinner res_spinner (:value 1 :maximum 3 :minimum 1))
 			:connect +event_res_spinner)
-		(ui-label _ (:text "vias_cost:" :min_width 104 :flow_flags +flow_flag_align_hright))
+		(ui-label _ (:text "vias_cost:" :min_width +tag_min_size :flow_flags +flow_flag_align_hright))
 		(. (ui-spinner vias_spinner (:value 0 :maximum 8 :minimum 0))
 			:connect +event_vias_spinner))
 	(ui-flow _ (:flow_flags +flow_right_fill)
-		(ui-label _ (:text "flood_range:" :min_width 104 :flow_flags +flow_flag_align_hright))
+		(ui-label _ (:text "flood_range:" :min_width +tag_min_size :flow_flags +flow_flag_align_hright))
 		(. (ui-spinner flood_spinner (:value 2 :maximum 4 :minimum 1))
 			:connect +event_flood_spinner)
-		(ui-label _ (:text "even_range:" :min_width 104 :flow_flags +flow_flag_align_hright))
+		(ui-label _ (:text "even_range:" :min_width +tag_min_size :flow_flags +flow_flag_align_hright))
 		(. (ui-spinner even_spinner (:value 1 :maximum 2 :minimum 1))
 			:connect +event_even_spinner)
-		(ui-label _ (:text "odd_range:" :min_width 104 :flow_flags +flow_flag_align_hright))
+		(ui-label _ (:text "odd_range:" :min_width +tag_min_size :flow_flags +flow_flag_align_hright))
 		(. (ui-spinner odd_spinner (:value 1 :maximum 2 :minimum 1))
 			:connect +event_odd_spinner))
 	(ui-scroll pcb_scroll +scroll_flag_both (:min_width 512 :min_height 256)))
