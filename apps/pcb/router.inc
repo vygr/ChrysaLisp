@@ -35,21 +35,17 @@
 
 (defun aabb_pads (pads quant)
 	;aabb of pads
-	(defq minx 1000000.0 miny 1000000.0 maxx -1000000.0 maxy -1000000.0)
+	(defq minxyz (Vec3-f 1000000.0 1000000.0 0.0) maxxyz (Vec3-f -1000000.0 -1000000.0 0.0)
+		quant (n2f quant))
 	(each (lambda (p)
-		(bind '(x y z) (. p :get_pos))
-		(setq minx (min minx (n2f (* (/ (n2i x) quant) quant)))
-			miny (min miny (n2f (* (/ (n2i y) quant) quant)))
-			maxx (max maxx (n2f (* (/ (+ (n2i x) (dec quant)) quant) quant)))
-			maxy (max maxy (n2f (* (/ (+ (n2i y) (dec quant)) quant) quant))))) pads)
-	(list (* (- maxx minx) (- maxy miny)) (list minx miny maxx maxy)))
+		(setq p (. p :get_pos) minxyz (vec-min minxyz p) maxxyz (vec-max maxxyz p))) pads)
+	(bind '(minx miny _) minxyz)
+	(bind '(maxx maxy _) maxxyz)
+	(list (n2f (n2i (/ (* (- maxx minx) (- maxy miny)) quant)))
+		(list minx miny maxx maxy)))
 
 (defun sort-netlist (netlist)
-	(sort (lambda (n1 n2)
-		(defq a1 (. n1 :get_area) a2 (. n2 :get_area))
-		(if (= a1 a2)
-			(- (. n2 :get_radius) (. n1 :get_radius))
-			(- a1 a2))) netlist))
+	(sort (# (- (. %0 :get_area) (. %1 :get_area))) netlist))
 
 (defclass Pad (radius gap pos shape) nil
 	; (Pad radius gap pos shape) -> pad
@@ -76,12 +72,12 @@
 
 (defclass Net (track pcb) nil
 	; (Net track pcb) -> net
-	(defq res (n2f (. pcb :get_resolution)))
+	(defq grid_res (n2f (. pcb :get_grid_res)))
 	(def this
 		:pcb pcb :id (. track :get_id)
-		:radius (* (. track :get_track_radius) res)
-		:via (defq via (* (. track :get_via_radius) res))
-		:gap (* (. track :get_gap) res)
+		:radius (* (. track :get_track_radius) grid_res)
+		:via (defq via (* (. track :get_via_radius) grid_res))
+		:gap (* (. track :get_gap) grid_res)
 		:pads (defq pads (. track :get_pads))
 		:wires (defq wires (. track :get_wires))
 		:paths (defq paths (list))
@@ -93,16 +89,16 @@
 
 	;scale pads and wires for resolution of grid
 	(each (lambda (p)
-		(. p :set_radius (* (. p :get_radius) res))
-		(. p :set_gap (* (. p :get_gap) res))
+		(. p :set_radius (* (. p :get_radius) grid_res))
+		(. p :set_gap (* (. p :get_gap) grid_res))
 		(bind '(x y z) (. p :get_pos))
-		(. p :set_pos (Vec3-f (* x res) (* y res) z))
+		(. p :set_pos (Vec3-f (* x grid_res) (* y grid_res) z))
 		(each (lambda (p)
-			(vec-scale p res p)) (. p :get_shape))) pads)
+			(vec-scale p grid_res p)) (. p :get_shape))) pads)
 	(each (lambda (wire)
 		(each (lambda (p)
 			(bind '(x y z) p)
-			(elem-set _ wire (Vec3-f (* x res) (* y res) z))) wire)) wires)
+			(elem-set _ wire (Vec3-f (* x grid_res) (* y grid_res) z))) wire)) wires)
 
 	;sort pads
 	(sort (lambda (p1 p2)
@@ -185,7 +181,7 @@
 	(each (# (.-> pcb :get_via_layers (:add_layers_line %0))) pad_lines)
 
 	;bounds
-	(bind '(area bbox) (aabb_pads pads (. pcb :get_quantization)))
+	(bind '(area bbox) (aabb_pads pads (. pcb :get_quant)))
 	(def this :area area :bbox bbox)
 
 	(defgetmethod radius)
@@ -363,7 +359,7 @@
 		; (. net :print_net stream) -> net
 		;output net, pads, wires and paths, for viewer app
 		(raise :pcb :pads :wires :paths :id :radius :via :gap)
-		(defq scale (recip (n2f (. pcb :get_resolution))) verbosity (. pcb :get_verbosity))
+		(defq scale (recip (n2f (. pcb :get_grid_res))) verbosity (. pcb :get_verbosity))
 		(if (>= verbosity 2) (write-line stream ";NET"))
 		(write-line stream "(")
 		(if (>= verbosity 2) (write-line stream " ;id, radius, via, gap"))
@@ -418,13 +414,13 @@
 		this)
 	)
 
-(defclass Pcb (width height depth res verb quant viascost fr fr_even fr_odd) nil
-	; (Pcb width height depth res verb quant viascost fr fr_even fr_odd) -> pcb
+(defclass Pcb (width height depth grid_res verb quant vias_cost fr fr_even fr_odd) nil
+	; (Pcb width height depth grid_res verb quant vias_cost fr fr_even fr_odd) -> pcb
 	(def this
-		:nodes_dim (dim (nums (* width res) (* height res) depth)
-			(defq nodes (cap (* width height depth res res) (nums))))
-		:width (* width res) :height (* height res) :depth depth
-		:deform (fmap 101) :resolution res
+		:nodes_dim (dim (nums (* width grid_res) (* height grid_res) depth)
+			(defq nodes (cap (* width height depth grid_res grid_res) (nums))))
+		:width (* width grid_res) :height (* height grid_res) :depth depth
+		:deform (fmap 101) :grid_res grid_res
 		:flood_vectors (list
 			(gen-vectors fr fr_even fr)
 			(gen-vectors fr fr fr_odd))
@@ -432,19 +428,19 @@
 			(gen-vectors (* fr +path_scale) (* fr_even +path_scale) (* fr +path_scale))
 			(gen-vectors (* fr +path_scale) (* fr +path_scale) (* fr_odd +path_scale)))
 		:netlist (list) :verbosity verb
-		:quantization (* quant res) :viascost (* viascost res)
+		:quant quant :vias_cost (* vias_cost grid_res)
 		:layers (Layers (n2i (* (n2f width) +spacial_hash_res))
 						(n2i (* (n2f height) +spacial_hash_res))
-						depth (/ +spacial_hash_res (n2f res)))
+						depth (/ +spacial_hash_res (n2f grid_res)))
 		:via_layers (Layers (n2i (* (n2f width) +spacial_hash_res))
 						(n2i (* (n2f height) +spacial_hash_res))
-						depth (/ +spacial_hash_res (n2f res)))
+						depth (/ +spacial_hash_res (n2f grid_res)))
 		:nodes nodes)
-	(times (* width height depth res res) (push nodes 0))
+	(times (* width height depth grid_res grid_res) (push nodes 0))
 
 	(defgetmethod depth)
-	(defgetmethod resolution)
-	(defgetmethod quantization)
+	(defgetmethod grid_res)
+	(defgetmethod quant)
 	(defgetmethod layers)
 	(defgetmethod via_layers)
 	(defgetmethod verbosity)
@@ -531,7 +527,7 @@
 	(defmethod :mark_distances (this radius via gap starts ends)
 		; (. pcb :mark_distances radius via gap starts ends) -> pcb
 		;generate all grid points surrounding node that are not shorting with an existing track
-		(raise :flood_vectors :viascost)
+		(raise :flood_vectors :vias_cost)
 		(defq distance 1 vias_map (const-quoted (fmap 11))
 			frontier (. starts :copy) exit t)
 		(while (and exit (or (not (. vias_map :empty?)) (not (. frontier :empty?))))
@@ -540,7 +536,7 @@
 			(cond
 				((every (# (/= (. this :get_node %0) 0)) ends)
 					(setq exit nil))
-				(t  (defq ns (alloc-node-set) vias_start (+ distance viascost))
+				(t  (defq ns (alloc-node-set) vias_start (+ distance vias_cost))
 					(. frontier :each (lambda (node)
 						(each (# (. ns :insert %0))
 							(. this :all_not_shorting
@@ -569,9 +565,9 @@
 	(defmethod :reset_areas (this)
 		; (. pcb :reset_areas) -> pcb
 		;reset areas
-		(raise :quantization)
+		(raise :quant)
 		(each (lambda (net)
-			(bind '(area bbox) (aabb_pads (. net :get_pads) quantization))
+			(bind '(area bbox) (aabb_pads (. net :get_pads) quant))
 			(.-> net (:set_area area) (:set_bbox bbox))) (get :netlist this))
 		this)
 
@@ -651,11 +647,11 @@
 	(defmethod :print_pcb (this stream)
 		; (. pcb :print_pcb stream) -> pcb
 		;output board state for viewer app
-		(raise :width :height :depth :resolution :verbosity)
+		(raise :width :height :depth :grid_res :verbosity)
 		(if (>= verbosity 2) (write-line stream ";PCB"))
 		(write-line stream "(")
 		(if (>= verbosity 2) (write-line stream " ;width, height, depth"))
-		(write-line stream (str " (" (/ width resolution) " " (/ height resolution) " " depth ")"))
+		(write-line stream (str " (" (/ width grid_res) " " (/ height grid_res) " " depth ")"))
 		(each (# (. %0 :print_net stream)) (get :netlist this))
 		(write-line stream ")")
 		this)

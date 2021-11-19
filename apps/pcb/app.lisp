@@ -10,8 +10,8 @@
 
 (enums +event 0
 	(enum close)
-	(enum reset prev next scale_down scale_up mode_normal mode_gerber)
-	(enum vias_spinner res_spinner)
+	(enum prev next reset scale_down scale_up mode_normal mode_gerber)
+	(enum vias_spinner res_spinner flood_spinner even_spinner odd_spinner)
 	(enum show_all show_1 show_2 show_3 show_4))
 
 (enums +select 0
@@ -27,21 +27,32 @@
 	index (some (# (if (eql "apps/pcb/data/test1.pcb" %0) _)) pcbs)
 	canvas_scale 1 mode 0 show -1
 	+max_zoom 15.0 +min_zoom 5.0 zoom (/ (+ +min_zoom +max_zoom) 2.0) +eps 0.25
-	*running* t pcb nil pcb_data nil child nil grid_res 1 vias_cost 0)
+	*running* t pcb nil pcb_data nil child nil
+	grid_res 1 vias_cost 0 flood_range 2 even_range 1 odd_range 1)
 
 (ui-window *window* ()
 	(ui-title-bar window_title "" (0xea19) +event_close)
 	(ui-tool-bar main_toolbar ()
-		(ui-buttons (0xe972 0xe91d 0xe91e 0xea00 0xea01 0xe9ac 0xe9ad) +event_reset)
+		(ui-buttons (0xe91d 0xe91e 0xe972 0xea00 0xea01 0xe9ac 0xe9ad) +event_prev)
 		(ui-buttons ("0" "1" "2" "3" "4") +event_show_all
 			(:color (const *env_toolbar2_col*) :font (const (create-font "fonts/OpenSans-Regular.ctf" 20)))))
 	(ui-flow _ (:flow_flags +flow_right_fill)
+		(ui-label _ (:text "grid_res:"))
+		(. (ui-spinner res_spinner (:value 1 :maximum 3 :minimum 1))
+			:connect +event_res_spinner)
 		(ui-label _ (:text "vias_cost:"))
 		(. (ui-spinner vias_spinner (:value 0 :maximum 8 :minimum 0))
-			:connect +event_vias_spinner)
-		(ui-label _ (:text "grid_res:"))
-		(. (ui-spinner res_spinner (:value 1 :maximum 2 :minimum 1))
-			:connect +event_res_spinner))
+			:connect +event_vias_spinner))
+	(ui-flow _ (:flow_flags +flow_right_fill)
+		(ui-label _ (:text "flood_range:"))
+		(. (ui-spinner flood_spinner (:value 2 :maximum 4 :minimum 1))
+			:connect +event_flood_spinner)
+		(ui-label _ (:text "even_range:"))
+		(. (ui-spinner even_spinner (:value 1 :maximum 2 :minimum 1))
+			:connect +event_even_spinner)
+		(ui-label _ (:text "odd_range:"))
+		(. (ui-spinner odd_spinner (:value 1 :maximum 2 :minimum 1))
+			:connect +event_odd_spinner))
 	(ui-scroll pcb_scroll +scroll_flag_both (:min_width 512 :min_height 256)))
 
 (defun win-load (_)
@@ -70,7 +81,7 @@
 	(def *window* :tip_mbox (elem-get +select_tip select))
 	(each (# (def %0 :tip_text %1))
 		(. main_toolbar :children)
-		'("route" "prev" "next" "zoom out" "zoom in" "pcb" "gerber"
+		'("prev" "next" "route" "zoom out" "zoom in" "pcb" "gerber"
 		"all layers" "layer 1" "layer 2" "layer 3" "layer 4")))
 
 (defun stop-route ()
@@ -84,6 +95,9 @@
 		(setf-> (cat (str-alloc +job_size) pcb_data)
 			(+job_grid_res grid_res)
 			(+job_vias_cost vias_cost)
+			(+job_flood_range flood_range)
+			(+job_even_range even_range)
+			(+job_odd_range odd_range)
 			(+job_reply (elem-get +select_reply select)))))
 
 (defun main ()
@@ -110,6 +124,12 @@
 				(setq vias_cost (get :value vias_spinner)))
 			((= id +event_res_spinner)
 				(setq grid_res (get :value res_spinner)))
+			((= id +event_flood_spinner)
+				(setq flood_range (get :value flood_spinner)))
+			((= id +event_even_spinner)
+				(setq even_range (get :value even_spinner)))
+			((= id +event_odd_spinner)
+				(setq odd_range (get :value odd_spinner)))
 			((<= +event_prev id +event_next)
 				(win-load (% (+ index (dec (* 2 (- id +event_prev))) (length pcbs)) (length pcbs)))
 				(stop-route))
@@ -123,6 +143,6 @@
 				(setq mode (- id +event_mode_normal))
 				(win-show))
 			(t (. *window* :event *msg*))))
+	(stop-route)
 	(free-select select)
-	(gui-sub *window*)
-	(mail-send child ""))
+	(gui-sub *window*))
