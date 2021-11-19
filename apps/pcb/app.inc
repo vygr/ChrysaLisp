@@ -1,6 +1,6 @@
 ;message structure
 
 (structure +job 0
-	(long key)
+	(int grid_res vias_cost)
 	(netid reply)
 	(offset data))

@@ -11,7 +11,7 @@
 
 (defq +via_vectors (const-quoted
 	'(list (list (Node 0 0 -1) (Node 0 0 1)) (list (Node 0 0 -1) (Node 0 0 1))))
-	+spacial_hash_res 4.0 +path_scale 1 +node_sets ''())
+	+spacial_hash_res 1.0 +path_scale 1 +node_sets ''())
 
 (defun alloc-node-set ()
 	(unless (defq ns (pop +node_sets))

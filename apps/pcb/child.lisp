@@ -1,6 +1,6 @@
 ;jit compile apps native functions
 (import "sys/lisp.inc")
-(jit "apps/pcb/" "lisp.vp" '("hit_line" "add_line"))
+(jit "apps/pcb/" "lisp.vp" '("hit_line" "add_line" "sub_line"))
 
 (import "class/lisp.inc")
 ;(import "lib/debug/frames.inc")
@@ -13,12 +13,12 @@
 (enums +select 0
 	(enum main timeout))
 
-(defun route (select mbox data)
+(defun route (select mbox grid_res vias_cost data)
 	(defq pcb_list (pcb-read data))
 	(bind '(width height depth) (elem-get 0 pcb_list))
-	(bind '(res verb quant viascost) '(1 1 1 0))
+	(bind '(verb quant) '(1 1))
 	(bind '(fr fr_even fr_odd) '(2 1 1))
-	(defq pcb (Pcb width height depth res verb quant viascost fr fr_even fr_odd))
+	(defq pcb (Pcb width height depth grid_res verb quant vias_cost fr fr_even fr_odd))
 	(each! 1 -1 (lambda ((id track_radius via_radius track_gap pads wires &optional paths))
 		(unless (mail-poll select)
 			(task-slice)
@@ -43,7 +43,10 @@
 				;main mailbox, reset timeout and reply with result
 				(mail-timeout (elem-get +select_timeout select) 0 0)
 				(mail-timeout (elem-get +select_timeout select) 1000000000 0)
-				(route select (getf msg +job_reply) (slice +job_data -1 msg)))))
+				(route select (getf msg +job_reply)
+					(getf msg +job_grid_res)
+					(getf msg +job_vias_cost)
+					(slice +job_data -1 msg)))))
 	(free-select select)
 	(if (get 'profile-report)
 		(profile-report "Pcb")))

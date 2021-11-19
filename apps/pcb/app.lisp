@@ -10,7 +10,8 @@
 
 (enums +event 0
 	(enum close)
-	(enum prev next scale_down scale_up mode_normal mode_gerber)
+	(enum reset prev next scale_down scale_up mode_normal mode_gerber)
+	(enum vias_spinner res_spinner)
 	(enum show_all show_1 show_2 show_3 show_4))
 
 (enums +select 0
@@ -26,14 +27,21 @@
 	index (some (# (if (eql "apps/pcb/data/test1.pcb" %0) _)) pcbs)
 	canvas_scale 1 mode 0 show -1
 	+max_zoom 15.0 +min_zoom 5.0 zoom (/ (+ +min_zoom +max_zoom) 2.0) +eps 0.25
-	*running* t pcb nil pcb_data nil)
+	*running* t pcb nil pcb_data nil child nil grid_res 1 vias_cost 0)
 
 (ui-window *window* ()
 	(ui-title-bar window_title "" (0xea19) +event_close)
 	(ui-tool-bar main_toolbar ()
-		(ui-buttons (0xe91d 0xe91e 0xea00 0xea01 0xe9ac 0xe9ad) +event_prev)
+		(ui-buttons (0xe972 0xe91d 0xe91e 0xea00 0xea01 0xe9ac 0xe9ad) +event_reset)
 		(ui-buttons ("0" "1" "2" "3" "4") +event_show_all
 			(:color (const *env_toolbar2_col*) :font (const (create-font "fonts/OpenSans-Regular.ctf" 20)))))
+	(ui-flow _ (:flow_flags +flow_right_fill)
+		(ui-label _ (:text "vias_cost:"))
+		(. (ui-spinner vias_spinner (:value 0 :maximum 8 :minimum 0))
+			:connect +event_vias_spinner)
+		(ui-label _ (:text "grid_res:"))
+		(. (ui-spinner res_spinner (:value 1 :maximum 2 :minimum 1))
+			:connect +event_res_spinner))
 	(ui-scroll pcb_scroll +scroll_flag_both (:min_width 512 :min_height 256)))
 
 (defun win-load (_)
@@ -62,18 +70,27 @@
 	(def *window* :tip_mbox (elem-get +select_tip select))
 	(each (# (def %0 :tip_text %1))
 		(. main_toolbar :children)
-		'("prev" "next" "zoom out" "zoom in" "pcb" "gerber"
+		'("route" "prev" "next" "zoom out" "zoom in" "pcb" "gerber"
 		"all layers" "layer 1" "layer 2" "layer 3" "layer 4")))
+
+(defun stop-route ()
+	(mail-free-mbox (elem-get +select_reply select))
+	(elem-set +select_reply select (mail-alloc-mbox))
+	(if child (mail-send child "")))
+
+(defun route ()
+	(stop-route)
+	(mail-send (setq child (open-child "apps/pcb/child.lisp" +kn_call_child))
+		(setf-> (cat (str-alloc +job_size) pcb_data)
+			(+job_grid_res grid_res)
+			(+job_vias_cost vias_cost)
+			(+job_reply (elem-get +select_reply select)))))
 
 (defun main ()
 	(defq select (alloc-select +select_size))
 	(tooltips)
 	(bind '(x y w h) (apply view-locate (. (win-load index) :get_size)))
 	(gui-add-front (. *window* :change x y w h))
-	(mail-send (defq child (open-child "apps/pcb/child.lisp" +kn_call_child))
-		(setf-> (cat (str-alloc +job_size) pcb_data)
-			(+job_key 0)
-			(+job_reply (elem-get +select_reply select))))
 	(while *running*
 		(defq *msg* (mail-read (elem-get (defq idx (mail-select select)) select)))
 		(cond
@@ -87,15 +104,15 @@
 					(. view :show_tip)))
 			((= (defq id (getf *msg* +ev_msg_target_id)) +event_close)
 				(setq *running* nil))
+			((= id +event_reset)
+				(route))
+			((= id +event_vias_spinner)
+				(setq vias_cost (get :value vias_spinner)))
+			((= id +event_res_spinner)
+				(setq grid_res (get :value res_spinner)))
 			((<= +event_prev id +event_next)
 				(win-load (% (+ index (dec (* 2 (- id +event_prev))) (length pcbs)) (length pcbs)))
-				(mail-free-mbox (elem-get +select_reply select))
-				(elem-set +select_reply select (mail-alloc-mbox))
-				(mail-send child "")
-				(mail-send (setq child (open-child "apps/pcb/child.lisp" +kn_call_child))
-					(setf-> (cat (str-alloc +job_size) pcb_data)
-						(+job_key 0)
-						(+job_reply (elem-get +select_reply select)))))
+				(stop-route))
 			((<= +event_scale_down id +event_scale_up)
 				(setq zoom (max (min (+ zoom (n2f (dec (* 2 (- id +event_scale_down))))) +max_zoom) +min_zoom))
 				(win-zoom))
