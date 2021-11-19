@@ -134,7 +134,7 @@
 			(ptr value))
 		(union
 			(pptr hiter)
-			(int result)))
+			(long result)))
 
 	(push-scope)
 	(entry 'array :sort_callback {pdata, liter, hiter})
