@@ -26,6 +26,7 @@
 (import "gui/font/lisp.inc")
 (import "gui/pixmap/lisp.inc")
 (import "gui/edit/lisp.inc")
+(import "gui/spinner/lisp.inc")
 
 ;ui tree helper macros
 (defun ui-merge-props (p)
@@ -81,6 +82,10 @@
 (defmacro ui-tree (n e &optional p)
 	; (ui-tree name event [props]) -> tree
 	`(ui-element ,n (Tree ,e) ,p))
+
+(defmacro ui-spinner (n &optional p)
+	; (ui-spinner name [props]) -> spinner
+	`(ui-element ,n (Spinner) ,p))
 
 (defmacro ui-title (n &optional p)
 	; (ui-title name [props]) -> title

@@ -48,6 +48,7 @@
 	*env_toolbar_font* (create-font "fonts/Entypo.ctf" 28)
 	*env_medium_toolbar_font* (create-font "fonts/Entypo.ctf" 22)
 	*env_small_toolbar_font* (create-font "fonts/Entypo.ctf" 16)
+	*env_tiny_toolbar_font* (create-font "fonts/Entypo.ctf" 10)
 	*env_terminal_font* (create-font "fonts/Hack-Regular.ctf" 16)
 	*env_medium_terminal_font* (create-font "fonts/Hack-Regular.ctf" 14)
 	*env_small_terminal_font* (create-font "fonts/Hack-Regular.ctf" 12)
