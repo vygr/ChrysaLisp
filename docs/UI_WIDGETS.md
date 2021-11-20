@@ -215,6 +215,20 @@ Creates a Tree instance, with name, base event id and optional property list.
 	`(ui-element ,n (Tree ,e) ,p))
 ```
 
+### (ui-spinner name [props]) -> spinner
+
+Creates a value Spinner instance, with name and optional property list.
+
+#### Properties
+
+`:value :maximum :minimum`
+
+```vdu
+(defmacro ui-spinner (n &optional p)
+	; (ui-spinner name [props]) -> spinner
+	`(ui-element ,n (Spinner) ,p))
+```
+
 ### (ui-title name [props]) -> title
 
 Creates a Title instance, with name and optional property list.
