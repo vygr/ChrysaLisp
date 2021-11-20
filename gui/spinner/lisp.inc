@@ -25,11 +25,8 @@
 
 	(defmethod :layout (this)
 		; (. spinner :layout) -> spinner
-		(.super this :layout)
-		(raise :value :value_label)
-		(set value_label :text (str value))
-		(.-> value_label :dirty)
-		this)
+		(set (get :value_label this) :text (str (get :value this)))
+		(.super this :layout))
 
 	(defmethod :action (this event)
 		; (. spinner :action event) -> spinner
