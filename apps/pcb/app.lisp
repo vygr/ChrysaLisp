@@ -11,7 +11,7 @@
 (enums +event 0
 	(enum close)
 	(enum prev next reset scale_down scale_up mode_normal mode_gerber)
-	(enum vias_spinner res_spinner flood_spinner even_spinner odd_spinner)
+	(enum vias_spinner res_spinner quant_spinner flood_spinner even_spinner odd_spinner)
 	(enum show_all show_1 show_2 show_3 show_4))
 
 (enums +select 0
@@ -28,7 +28,7 @@
 	canvas_scale 1 mode 0 show -1
 	+max_zoom 15.0 +min_zoom 5.0 zoom (/ (+ +min_zoom +max_zoom) 2.0) +eps 0.25
 	*running* t pcb nil pcb_data nil child nil +tag_min_size 104
-	grid_res 1 vias_cost 0 flood_range 2 even_range 1 odd_range 1)
+	grid_res 1 vias_cost 0 quant 1 flood_range 2 even_range 1 odd_range 1)
 
 (ui-window *window* ()
 	(ui-title-bar window_title "" (0xea19) +event_close)
@@ -42,7 +42,10 @@
 			:connect +event_res_spinner)
 		(ui-label _ (:text "vias_cost:" :min_width +tag_min_size :flow_flags +flow_flag_align_hright))
 		(. (ui-spinner vias_spinner (:value 0 :maximum 8 :minimum 0))
-			:connect +event_vias_spinner))
+			:connect +event_vias_spinner)
+		(ui-label _ (:text "quant:" :min_width +tag_min_size :flow_flags +flow_flag_align_hright))
+		(. (ui-spinner quant_spinner (:value 1 :maximum 16 :minimum 1))
+			:connect +event_quant_spinner))
 	(ui-flow _ (:flow_flags +flow_right_fill)
 		(ui-label _ (:text "flood_range:" :min_width +tag_min_size :flow_flags +flow_flag_align_hright))
 		(. (ui-spinner flood_spinner (:value 2 :maximum 4 :minimum 1))
@@ -120,10 +123,12 @@
 				(setq *running* nil))
 			((= id +event_reset)
 				(route))
-			((= id +event_vias_spinner)
-				(setq vias_cost (get :value vias_spinner)))
 			((= id +event_res_spinner)
 				(setq grid_res (get :value res_spinner)))
+			((= id +event_vias_spinner)
+				(setq vias_cost (get :value vias_spinner)))
+			((= id +event_quant_spinner)
+				(setq quant (get :value quant_spinner)))
 			((= id +event_flood_spinner)
 				(setq flood_range (get :value flood_spinner)))
 			((= id +event_even_spinner)
