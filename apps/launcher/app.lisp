@@ -8,7 +8,7 @@
 (ui-window *window* ()
 	(ui-title-bar title "Launcher" (0xea19) +event_close)
 	;grid scales all buttons equally
-	(ui-grid grid (:grid_width 2 :grid_height 0)
+	(ui-grid grid (:grid_width 2)
 		(each (lambda (p)
 			(. (ui-button _ (:text p)) :connect +event_button)) *env_launcher_apps*)))
 

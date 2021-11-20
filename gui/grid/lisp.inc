@@ -6,6 +6,7 @@
 
 (defclass Grid () (View)
 	; (Grid) -> grid
+	(def this :grid_width 0 :grid_height 0)
 
 	(defmethod :pref_size (this)
 		; (. grid :pref_size) -> (width height)

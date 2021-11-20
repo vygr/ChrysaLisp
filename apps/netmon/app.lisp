@@ -18,28 +18,28 @@
 
 (ui-window *window* ()
 	(ui-title-bar _ "Network Monitor" (0xea19 0xea1b 0xea1a) +event_close)
-	(ui-grid _ (:grid_width 0 :grid_height 1 :flow_flags +flow_down_fill :maximum 100 :value 0)
+	(ui-grid _ (:grid_height 1 :flow_flags +flow_down_fill :maximum 100 :value 0)
 		(ui-flow _ (:color +argb_green)
 			(ui-label _ (:text "Tasks" :color +argb_white))
 			(ui-grid task_scale_grid (:grid_width task_scale_size :grid_height 1 :color +argb_white
 					:font *env_medium_terminal_font*)
 				(times task_scale_size (ui-label _
 					(:text "|" :flow_flags (logior +flow_flag_align_vcenter +flow_flag_align_hright)))))
-			(ui-grid task_grid (:grid_width 1 :grid_height 0)))
+			(ui-grid task_grid (:grid_width 1)))
 		(ui-flow _ (:color +argb_yellow)
 			(ui-label _ (:text "Alloc (kb)" :color +argb_white))
 			(ui-grid alloc_scale_grid (:grid_width alloc_scale_size :grid_height 1 :color +argb_white
 					:font *env_medium_terminal_font*)
 				(times alloc_scale_size (ui-label _
 					(:text "|" :flow_flags (logior +flow_flag_align_vcenter +flow_flag_align_hright)))))
-			(ui-grid alloc_grid (:grid_width 1 :grid_height 0)))
+			(ui-grid alloc_grid (:grid_width 1)))
 		(ui-flow _ (:color +argb_red)
 			(ui-label _ (:text "Used (kb)" :color +argb_white))
 			(ui-grid used_scale_grid (:grid_width used_scale_size :grid_height 1 :color +argb_white
 					:font *env_medium_terminal_font*)
 				(times used_scale_size (ui-label _
 					(:text "|" :flow_flags (logior +flow_flag_align_vcenter +flow_flag_align_hright)))))
-			(ui-grid used_grid (:grid_width 1 :grid_height 0)))))
+			(ui-grid used_grid (:grid_width 1)))))
 
 (defun create (key now)
 	; (create key now) -> val

@@ -9,14 +9,14 @@
 (ui-window *window* ()
 	(ui-title-bar _ "Login Manager" () ())
 	(ui-flow _ (:flow_flags +flow_right_fill)
-		(ui-grid _ (:grid_width 1 :grid_height 0)
+		(ui-grid _ (:grid_width 1)
 			(ui-label _ (:text "Username:"))
 			(ui-label _ (:text "Password:")))
-		(ui-grid _ (:grid_width 1 :grid_height 0 :color +argb_white)
+		(ui-grid _ (:grid_width 1 :color +argb_white)
 			(ui-textfield username (:hint_text "username"
 				:clear_text (if (defq old (load "apps/login/current")) old "Guest")))
 			(ui-textfield password (:hint_text "password" :mode t :min_width 192))))
-	(ui-grid _ (:grid_width 0 :grid_height 1)
+	(ui-grid _ (:grid_height 1)
 		(ui-buttons ("Login" "Create") +event_login)))
 
 (defun position-window ()
