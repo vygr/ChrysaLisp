@@ -18,7 +18,7 @@
 
 (ui-window *window* ()
 	(ui-title-bar _ "Network Monitor" (0xea19 0xea1b 0xea1a) +event_close)
-	(ui-grid _ (:grid_width 3 :grid_height 1 :flow_flags +flow_down_fill :maximum 100 :value 0)
+	(ui-grid _ (:grid_width 0 :grid_height 1 :flow_flags +flow_down_fill :maximum 100 :value 0)
 		(ui-flow _ (:color +argb_green)
 			(ui-label _ (:text "Tasks" :color +argb_white))
 			(ui-grid task_scale_grid (:grid_width task_scale_size :grid_height 1 :color +argb_white
@@ -128,9 +128,6 @@
 				(when (. global_tasks :refresh retry_timeout)
 					;nodes have mutated
 					(defq size (. global_tasks :size))
-					(def used_grid :grid_height size)
-					(def alloc_grid :grid_height size)
-					(def task_grid :grid_height size)
 					(. used_grid :layout)
 					(. alloc_grid :layout)
 					(. task_grid :layout)

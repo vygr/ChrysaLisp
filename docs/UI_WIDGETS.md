@@ -248,7 +248,7 @@ Creates a Title instance, with name and optional property list.
 
 ### (ui-title-bar name title symbols event [props]) -> flow
 
-Creates a title bar, consiting of a Flow instance that contains Buttons and a
+Creates a title bar, consisting of a Flow instance that contains Buttons and a
 named Title instance.
 
 The symbols list consists of unicode symbol values. You can use the Fonts

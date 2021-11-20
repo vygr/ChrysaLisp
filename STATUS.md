@@ -15,6 +15,10 @@ VP pseudo instructions `(vp-abs) (vp-min) (vp-max) (vp-vec)` added and the
 
 Separated out the source and destination vectors on the `(vp-vec)` instruction.
 
+New value Spinner widget. Added parameter spinners to the Pcb app.
+
+Auto sizing Grid widgets, set either `:grid_width` or `:grid_height` to 0.
+
 ------
 
 Start of XML, SVG import libs. Plenty more to do yet.

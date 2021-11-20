@@ -6,9 +6,6 @@
 (defmacro Node (x y z)
 	`(nums ,x ,y ,z))
 
-(defmacro mid-node (n1 n2)
-	`(vec-div (vec-add ,n1 ,n2) (const (Node 2 2 2))))
-
 (defq +via_vectors (const-quoted
 	'(list (list (Node 0 0 -1) (Node 0 0 1)) (list (Node 0 0 -1) (Node 0 0 1))))
 	+spacial_hash_res 1.0 +path_scale 1 +node_sets ''())

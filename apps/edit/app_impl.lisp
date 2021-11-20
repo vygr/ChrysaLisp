@@ -53,7 +53,7 @@
 	(ui-flow _ (:flow_flags +flow_right_fill)
 		(ui-tool-bar buffer_toolbar (:color (get :color macro_toolbar))
 			(ui-buttons (0xe91d 0xe91e 0xe94b 0xe929 0xe97e 0xea07 0xe9f0) +event_prev))
-		(ui-grid _ (:grid_width 3 :grid_height 1)
+		(ui-grid _ (:grid_width 0 :grid_height 1)
 			(. (ui-textfield *name_text* (:color +argb_white
 					:hint_text "new file" :clear_text "")) :connect +event_new)
 			(ui-flow _ (:flow_flags +flow_right_fill)
@@ -68,7 +68,7 @@
 						:hint_text "replace" :clear_text "")) :connect +event_replace))))
 	(ui-flow _ (:flow_flags +flow_right_fill)
 		(ui-flow _ (:flow_flags +flow_stack_fill)
-			(ui-grid _ (:color +argb_grey14 :grid_width 1 :grid_height 2)
+			(ui-grid _ (:color +argb_grey14 :grid_width 1 :grid_height 0)
 				(ui-flow _ (:flow_flags +flow_down_fill)
 					(ui-label _ (:text "Open"))
 					(ui-scroll *open_tree_scroll* +scroll_flag_vertical nil
