@@ -88,7 +88,9 @@
 
 (defun stop-route ()
 	(mail-free-mbox (elem-get +select_reply select))
+	(mail-free-mbox (elem-get +select_prog select))
 	(elem-set +select_reply select (mail-alloc-mbox))
+	(elem-set +select_prog select (mail-alloc-mbox))
 	(if child (mail-send child "")))
 
 (defun route ()
@@ -127,9 +129,8 @@
 					(. view :show_tip)))
 			((= idx +select_prog)
 				;progress report mail
-				(set progress :value (getf *msg* +progress_current)
-					:maximum (getf *msg* +progress_total))
-				(. progress :dirty))
+				(set (. progress :dirty) :value (getf *msg* +progress_current)
+					:maximum (getf *msg* +progress_total)))
 			;must be gui event to main mailbox
 			((defq *id* (getf *msg* +ev_msg_target_id) action (. event_map :find *id*))
 				;call bound event action
