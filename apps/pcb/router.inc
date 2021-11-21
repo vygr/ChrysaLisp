@@ -596,8 +596,8 @@
 		(each (# (. %0 :remove)) (get :netlist this))
 		this)
 
-	(defmethod :route (this select mbox)
-		; (. pcb :route select mbox) -> t | nil
+	(defmethod :route (this select reply_mbox prog_mbox)
+		; (. pcb :route select reply_mbox prog_mbox) -> t | nil
 		(raise :netlist)
 		(.-> this :remove_netlist :unmark_distances :reset_areas :shuffle_netlist)
 		(sort-netlist netlist)
@@ -624,8 +624,12 @@
 								(. (elem-get index netlist) :remove)
 								(setq index (dec index)))))))
 			(when (>= (. this :get_verbosity) 1)
+				(mail-send prog_mbox
+					(setf-> (str-alloc +progress_size)
+						(+progress_total (length netlist))
+						(+progress_current index)))
 				(. this :print_pcb (defq ss (string-stream (cat ""))))
-				(mail-send mbox (str ss))))
+				(mail-send reply_mbox (str ss))))
 		retval)
 
 	(defmethod :add_track (this track)

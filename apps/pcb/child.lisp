@@ -12,7 +12,8 @@
 (enums +select 0
 	(enum main timeout))
 
-(defun route (select mbox grid_res vias_cost quant flood_range even_range odd_range data)
+(defun route (select reply_mbox prog_mbox
+		grid_res vias_cost quant flood_range even_range odd_range data)
 	(defq pcb_list (pcb-read data))
 	(bind '(width height depth) (elem-get 0 pcb_list))
 	(bind '(verb) '(1))
@@ -24,7 +25,7 @@
 				(Pad radius gap pos shape)) pads))
 			(defq track (Track id track_radius via_radius track_gap pads wires))
 			(. pcb :add_track track))) (list pcb_list))
-	(. pcb :route select mbox)
+	(. pcb :route select reply_mbox prog_mbox)
 	(. pcb :close))
 
 (defun main ()
@@ -39,7 +40,7 @@
 			((= idx +select_main)
 				;main mailbox, cancel timeout and reply with result
 				(mail-timeout (elem-get +select_timeout select) 0 0)
-				(route select (getf msg +job_reply)
+				(route select (getf msg +job_reply) (getf msg +job_prog)
 					(getf msg +job_grid_res)
 					(getf msg +job_vias_cost)
 					(getf msg +job_quant)
