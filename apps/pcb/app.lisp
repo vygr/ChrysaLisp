@@ -10,7 +10,7 @@
 
 (enums +event 0
 	(enum close)
-	(enum prev next reset scale_down scale_up mode_normal mode_gerber)
+	(enum prev next reset zoom_out zoom_in mode_normal mode_gerber)
 	(enum vias_spinner res_spinner quant_spinner flood_spinner even_spinner odd_spinner)
 	(enum show_all show_1 show_2 show_3 show_4))
 
@@ -23,12 +23,12 @@
 		(unzip (split (pii-dirlist p) ",") (list (list) (list))))
 	(sort cmp out))
 
-(defq pcbs (all-pcbs "apps/pcb/data/")
-	index (some (# (if (eql "apps/pcb/data/test1.pcb" %0) _)) pcbs)
-	canvas_scale 1 mode 0 show -1
-	+max_zoom 15.0 +min_zoom 5.0 zoom (/ (+ +min_zoom +max_zoom) 2.0) +eps 0.25
+(defq *pcbs* (all-pcbs "apps/pcb/data/")
+	*index* (some (# (if (eql "apps/pcb/data/test1.pcb" %0) _)) *pcbs*)
+	canvas_scale 1 *mode* 0 *show* -1
+	+max_zoom 15.0 +min_zoom 5.0 *zoom* (/ (+ +min_zoom +max_zoom) 2.0) +eps 0.25
 	*running* t pcb nil pcb_data nil child nil +tag_min_size 104
-	grid_res 1 vias_cost 0 quant 1 flood_range 2 even_range 1 odd_range 1)
+	*grid_res* 1 *vias_cost* 0 *quant* 1 *flood_range* 2 *even_range* 1 *odd_range* 1)
 
 (ui-window *window* ()
 	(ui-title-bar window_title "" (0xea19) +event_close)
@@ -59,8 +59,8 @@
 	(ui-scroll pcb_scroll +scroll_flag_both (:min_width 512 :min_height 256)))
 
 (defun win-load (_)
-	(setq pcb_data (load (defq file (elem-get (setq index _) pcbs))) pcb (pcb-read pcb_data))
-	(bind '(w h) (. (defq canvas (pcb-canvas pcb mode show zoom canvas_scale)) :pref_size))
+	(setq pcb_data (load (defq file (elem-get (setq *index* _) *pcbs*))) pcb (pcb-read pcb_data))
+	(bind '(w h) (. (defq canvas (pcb-canvas pcb *mode* *show* *zoom* canvas_scale)) :pref_size))
 	(def pcb_scroll :min_width w :min_height h)
 	(def window_title :text (cat "Pcb -> " (slice (inc (find-rev "/" file)) -1 file)))
 	(. pcb_scroll :add_child (. canvas :swap))
@@ -70,7 +70,7 @@
 	(. *window* :change_dirty x y w h))
 
 (defun win-zoom ()
-	(bind '(w h) (. (defq canvas (pcb-canvas pcb mode show zoom canvas_scale)) :pref_size))
+	(bind '(w h) (. (defq canvas (pcb-canvas pcb *mode* *show* *zoom* canvas_scale)) :pref_size))
 	(def pcb_scroll :min_width w :min_height h)
 	(. pcb_scroll :add_child (. canvas :swap))
 	(bind '(x y w h) (apply view-fit (cat (. *window* :get_pos) (. *window* :pref_size))))
@@ -78,7 +78,7 @@
 	(. *window* :change_dirty x y w h))
 
 (defun win-show ()
-	(.-> pcb_scroll (:add_child (. (pcb-canvas pcb mode show zoom canvas_scale) :swap)) :layout))
+	(.-> pcb_scroll (:add_child (. (pcb-canvas pcb *mode* *show* *zoom* canvas_scale) :swap)) :layout))
 
 (defun tooltips ()
 	(def *window* :tip_mbox (elem-get +select_tip select))
@@ -96,17 +96,23 @@
 	(stop-route)
 	(mail-send (setq child (open-child "apps/pcb/child.lisp" +kn_call_child))
 		(setf-> (cat (str-alloc +job_size) pcb_data)
-			(+job_grid_res grid_res)
-			(+job_vias_cost vias_cost)
-			(+job_flood_range flood_range)
-			(+job_even_range even_range)
-			(+job_odd_range odd_range)
+			(+job_grid_res *grid_res*)
+			(+job_vias_cost *vias_cost*)
+			(+job_flood_range *flood_range*)
+			(+job_even_range *even_range*)
+			(+job_odd_range *odd_range*)
 			(+job_reply (elem-get +select_reply select)))))
+
+;import actions and bindings
+(import "./actions.inc")
+
+(defun dispatch-action (&rest action)
+	(catch (eval action) (progn (print _)(print) t)))
 
 (defun main ()
 	(defq select (alloc-select +select_size))
 	(tooltips)
-	(bind '(x y w h) (apply view-locate (. (win-load index) :get_size)))
+	(bind '(x y w h) (apply view-locate (. (win-load *index*) :get_size)))
 	(gui-add-front (. *window* :change x y w h))
 	(while *running*
 		(defq *msg* (mail-read (elem-get (defq idx (mail-select select)) select)))
@@ -119,34 +125,36 @@
 				;tip time mail
 				(if (defq view (. *window* :find_id (getf *msg* +mail_timeout_id)))
 					(. view :show_tip)))
-			((= (defq id (getf *msg* +ev_msg_target_id)) +event_close)
-				(setq *running* nil))
-			((= id +event_reset)
-				(route))
-			((= id +event_res_spinner)
-				(setq grid_res (get :value res_spinner)))
-			((= id +event_vias_spinner)
-				(setq vias_cost (get :value vias_spinner)))
-			((= id +event_quant_spinner)
-				(setq quant (get :value quant_spinner)))
-			((= id +event_flood_spinner)
-				(setq flood_range (get :value flood_spinner)))
-			((= id +event_even_spinner)
-				(setq even_range (get :value even_spinner)))
-			((= id +event_odd_spinner)
-				(setq odd_range (get :value odd_spinner)))
-			((<= +event_prev id +event_next)
-				(win-load (% (+ index (dec (* 2 (- id +event_prev))) (length pcbs)) (length pcbs)))
-				(stop-route))
-			((<= +event_scale_down id +event_scale_up)
-				(setq zoom (max (min (+ zoom (n2f (dec (* 2 (- id +event_scale_down))))) +max_zoom) +min_zoom))
-				(win-zoom))
-			((<= +event_show_all id +event_show_4)
-				(setq show (- id +event_show_all 1))
-				(win-show))
-			((<= +event_mode_normal id +event_mode_gerber)
-				(setq mode (- id +event_mode_normal))
-				(win-show))
+			;must be gui event to main mailbox
+			((defq *id* (getf *msg* +ev_msg_target_id) action (. event_map :find *id*))
+				;call bound event action
+				(dispatch-action action))
+			((and (not (Textfield? (. *window* :find_id *id*)))
+					(= (getf *msg* +ev_msg_type) +ev_type_key)
+					(> (getf *msg* +ev_msg_key_keycode) 0))
+				;key event
+				(defq key (getf *msg* +ev_msg_key_key)
+					mod (getf *msg* +ev_msg_key_mod))
+				(cond
+					((/= 0 (logand mod (const
+							(+ +ev_key_mod_control +ev_key_mod_option +ev_key_mod_command))))
+						;call bound control/command key action
+						(when (defq action (. key_map_control :find key))
+							(dispatch-action action)))
+					((/= 0 (logand mod +ev_key_mod_shift))
+						;call bound shift key action, else insert
+						(cond
+							((defq action (. key_map_shift :find key))
+								(dispatch-action action))
+							((<= +char_space key +char_tilda)
+								;insert char etc ...
+								(char key))))
+					((defq action (. key_map :find key))
+						;call bound key action
+						(dispatch-action action))
+					((<= +char_space key +char_tilda)
+						;insert char etc ...
+						(char key))))
 			(t (. *window* :event *msg*))))
 	(stop-route)
 	(free-select select)

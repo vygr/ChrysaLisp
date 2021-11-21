@@ -94,10 +94,9 @@
 	(defmethod :aabb (this layer_line)
 		; (. layer :aabb layer_line) -> aabb
 		(bind '(x1 y1 x2 y2 radius gap) layer_line)
-		(defq radius (+ radius gap)
+		(raise :scale (radius (+ radius gap)
 			width (dec (get :width this))
-			height (dec (get :height this)))
-		(raise :scale)
+			height (dec (get :height this))))
 		(if (< x1 x2)
 			(if (< y1 y2)
 				(list (min width (max 0 (n2i (* (- x1 radius) scale))))
