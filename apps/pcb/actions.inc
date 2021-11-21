@@ -37,17 +37,15 @@ key_map (fmap-kv
 	(ascii-code "2") action-show2
 	(ascii-code "3") action-show3
 	(ascii-code "4") action-show4
-	(ascii-code "=") action-zoom-in
-	(ascii-code "-") action-zoom-out
 	(ascii-code "r") action-reset
 	(ascii-code "n") action-next
 	(ascii-code "p") action-prev)
 
-key_map_shift (fmap-kv
-	(ascii-code "+") action-zoom-in
-	(ascii-code "_") action-zoom-out)
+key_map_shift (fmap-kv)
 
-key_map_control (fmap-kv))
+key_map_control (fmap-kv
+	(ascii-code "=") action-zoom-in
+	(ascii-code "-") action-zoom-out))
 
 ;module
 (export-symbols
