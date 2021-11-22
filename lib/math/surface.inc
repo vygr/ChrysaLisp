@@ -328,7 +328,7 @@
 	;tells us which vertices are inside the surface
 	(defq cubeindex (reduce (lambda (cubeindex (b v))
 				(+ cubeindex (if (<= (elem-get v grid) isolevel) b 0)))
-			(static `(
+			(static '(
 			(1 +gridcell_v0) (2 +gridcell_v1)
 			(4 +gridcell_v2) (8 +gridcell_v3)
 			(16 +gridcell_v4) (32 +gridcell_v5)

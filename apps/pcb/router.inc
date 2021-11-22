@@ -525,7 +525,7 @@
 		; (. pcb :mark_distances radius via gap starts ends) -> pcb
 		;generate all grid points surrounding node that are not shorting with an existing track
 		(raise :flood_vectors :vias_cost)
-		(defq distance 1 vias_map (static (fmap 11))
+		(defq distance 1 vias_map (const (fmap 11))
 			frontier (. starts :copy) exit t)
 		(while (and exit (or (not (. vias_map :empty?)) (not (. frontier :empty?))))
 			(task-slice)
