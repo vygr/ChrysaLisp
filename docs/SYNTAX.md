@@ -2052,12 +2052,6 @@
 (const form)
 ```
 
-### static
-
-```code
-(static form)
-```
-
 ### copy
 
 ```code
@@ -3808,6 +3802,12 @@
 
 ```code
 (starts-with str str) -> t | nil
+```
+
+### static
+
+```code
+(static form)
 ```
 
 ### stdio-get-args
