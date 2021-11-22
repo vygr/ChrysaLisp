@@ -8,12 +8,12 @@
 (defun trans (_) (+ (logand 0xffffff _) 0xa0000000))
 
 (defq +eps 0.25
-	+colors (const-quoted '(map (const trans) (list
+	+colors (static '(map (const trans) (list
 		+argb_red +argb_green +argb_blue +argb_yellow +argb_cyan +argb_magenta))))
 
 (defun circle (r)
 	;cached circle generation
-	(defq cache (const-quoted (fmap 11)))
+	(defq cache (static (fmap 11)))
 	(unless (defq p (. cache :find r))
 		(. cache :insert r (defq p
 			(list (path-gen-arc 0.0 0.0 0.0 +fp_2pi r 0.25 (path))))))
@@ -21,7 +21,7 @@
 
 (defun oval (r s)
 	;cached oval generation
-	(defq cache (const-quoted (fmap 11)) key (str r s))
+	(defq cache (static (fmap 11)) key (str r s))
 	(unless (defq p (. cache :find key))
 		(. cache :insert key (defq p
 			(path-stroke-polylines (list) r +eps +join_bevel +cap_round +cap_round (list s)))))

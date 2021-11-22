@@ -85,7 +85,7 @@ VP versions of dot product `(nums-dot)`.
 Real format fixes to overflow conditions and some optimisations to multiply and
 conversions to fixed and integer.
 
-Addition of `(const-quoted form)` macro to `boot.inc`. Performs a macro and
+Addition of `(static form)` macro to `boot.inc`. Performs a macro and
 prebind expansion of the given form and then wraps it in a quote for runtime.
 
 `(eql)` and `(find)` can now be used on vectors. As a result a new `(fmap

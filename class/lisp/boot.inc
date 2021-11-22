@@ -154,8 +154,8 @@
 	; (const form)
 	(eval (macroexpand _)))
 
-(defmacro const-quoted (_)
-	; (const-quoted form)
+(defmacro static (_)
+	; (static form)
 	(cat (list quote) (list (prebind (eval (macroexpand _))))))
 
 (defun identity (_)

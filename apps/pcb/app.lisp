@@ -87,11 +87,12 @@
 		"all layers" "layer 1" "layer 2" "layer 3" "layer 4")))
 
 (defun stop-route ()
-	(mail-free-mbox (elem-get +select_reply select))
-	(mail-free-mbox (elem-get +select_prog select))
-	(elem-set +select_reply select (mail-alloc-mbox))
-	(elem-set +select_prog select (mail-alloc-mbox))
-	(if child (mail-send child "")))
+	(when child
+		(mail-send child "")
+		(mail-free-mbox (elem-get +select_reply select))
+		(mail-free-mbox (elem-get +select_prog select))
+		(elem-set +select_reply select (mail-alloc-mbox))
+		(elem-set +select_prog select (mail-alloc-mbox))))
 
 (defun route ()
 	(stop-route)

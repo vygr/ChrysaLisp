@@ -76,7 +76,7 @@
 
 (defun circle (r)
 	;cached circle generation, quantised to 1/4 pixel
-	(defq cache (const-quoted (fmap 13)) r (* (floor (* (n2f r) 4.0)) 0.25))
+	(defq cache (static (fmap 13)) r (* (floor (* (n2f r) 4.0)) 0.25))
 	(unless (defq p (. cache :find r))
 		(. cache :insert r (defq p
 			(path-gen-arc 0.0 0.0 0.0 +fp_2pi r 0.25 (path)))))

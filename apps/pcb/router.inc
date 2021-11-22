@@ -6,7 +6,7 @@
 (defmacro Node (x y z)
 	`(nums ,x ,y ,z))
 
-(defq +via_vectors (const-quoted
+(defq +via_vectors (static
 	'(list (list (Node 0 0 -1) (Node 0 0 1)) (list (Node 0 0 -1) (Node 0 0 1))))
 	+spacial_hash_res 1.0 +path_scale 1 +node_sets ''())
 
@@ -525,7 +525,7 @@
 		; (. pcb :mark_distances radius via gap starts ends) -> pcb
 		;generate all grid points surrounding node that are not shorting with an existing track
 		(raise :flood_vectors :vias_cost)
-		(defq distance 1 vias_map (const-quoted (fmap 11))
+		(defq distance 1 vias_map (static (fmap 11))
 			frontier (. starts :copy) exit t)
 		(while (and exit (or (not (. vias_map :empty?)) (not (. frontier :empty?))))
 			(task-slice)

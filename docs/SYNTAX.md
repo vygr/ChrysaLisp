@@ -2052,10 +2052,10 @@
 (const form)
 ```
 
-### const-quoted
+### static
 
 ```code
-(const-quoted form)
+(static form)
 ```
 
 ### copy
