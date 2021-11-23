@@ -15,12 +15,6 @@ event_map (fmap-kv
 	+event_next action-next
 	+event_zoom_in action-zoom-in
 	+event_zoom_out action-zoom-out
-	+event_res_spinner action-res-spinner
-	+event_vias_spinner action-vias-spinner
-	+event_quant_spinner action-quant-spinner
-	+event_flood_spinner action-flood-spinner
-	+event_even_spinner action-even-spinner
-	+event_odd_spinner action-odd-spinner
 	+event_show_all action-show-all
 	+event_show_1 action-show1
 	+event_show_2 action-show2
