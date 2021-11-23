@@ -9,7 +9,6 @@
 (enums +event 0
 	(enum close)
 	(enum prev next reset zoom_out zoom_in mode_normal mode_gerber)
-	(enum vias_spinner res_spinner quant_spinner flood_spinner even_spinner odd_spinner)
 	(enum show_all show_1 show_2 show_3 show_4))
 
 (enums +select 0
