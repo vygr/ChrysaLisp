@@ -35,7 +35,8 @@
 	(defq minxyz (Vec3-f 1000000.0 1000000.0 0.0) maxxyz (Vec3-f -1000000.0 -1000000.0 0.0)
 		quant (n2f quant))
 	(each (lambda (p)
-		(setq p (. p :get_pos) minxyz (vec-min minxyz p) maxxyz (vec-max maxxyz p))) pads)
+		(vec-min minxyz (setq p (. p :get_pos)) minxyz)
+		(vec-max maxxyz p maxxyz)) pads)
 	(bind '(minx miny _) minxyz)
 	(bind '(maxx maxy _) maxxyz)
 	(list (n2f (n2i (/ (* (- maxx minx) (- maxy miny)) quant)))
@@ -288,9 +289,8 @@
 	(defmethod :backtrack_path (this visited end_node radius via gap)
 		; (. net :backtrack_path this visited end_node radius via gap) -> nodes
 		;backtrack path from ends to starts
-		(raise :pcb)
-		(defq path_vectors (. pcb :get_path_vectors)
-			nearer_nodes '() pth (list) path_node end_node exit nil)
+		(raise :pcb (path_vectors (. pcb :get_path_vectors)
+			nearer_nodes '() pth (list) path_node end_node exit nil))
 		(until exit
 			(task-slice)
 			(push pth path_node)
@@ -355,8 +355,8 @@
 	(defmethod :print_net (this stream)
 		; (. net :print_net stream) -> net
 		;output net, pads, wires and paths, for viewer app
-		(raise :pcb :pads :wires :paths :id :radius :via :gap)
-		(defq scale (recip (n2f (. pcb :get_grid_res))) verbosity (. pcb :get_verbosity))
+		(raise :pcb :pads :wires :paths :id :radius :via :gap
+			(scale (recip (n2f (. pcb :get_grid_res))) verbosity (. pcb :get_verbosity)))
 		(if (>= verbosity 2) (write-line stream ";NET"))
 		(write-line stream "(")
 		(if (>= verbosity 2) (write-line stream " ;id, radius, via, gap"))
@@ -501,8 +501,7 @@
 	(defmethod :all_not_shorting (this gather node radius gap)
 		; (. pcb :all_not_shorting gather node radius gap) -> nodes
 		;generate all grid points surrounding node that are not shorting with an existing track
-		(raise :layers)
-		(defq out (clear '()) np (. this :node_to_pad_point node))
+		(raise :layers (out (clear '()) np (. this :node_to_pad_point node)))
 		(each (lambda (new_node)
 			(unless (. layers :hit_line np (. this :node_to_pad_point new_node) radius gap)
 				(push out new_node))) gather)
@@ -511,9 +510,8 @@
 	(defmethod :all_not_shorting_via (this gather node radius gap)
 		; (. pcb :all_not_shorting_via gather node radius gap) -> nodes
 		;generate all grid points surrounding node that are not shorting with an existing track
-		(raise :layers :via_layers)
-		(defq out (clear '()) np (push (slice +vec3_x +vec3_z (. this :node_to_pad_point node))
-			(n2f (dec (get :depth this)))))
+		(raise :layers :via_layers (out (clear '())
+			np (push (slice +vec3_x +vec3_z (. this :node_to_pad_point node)) (n2f (dec (get :depth this))))))
 		(each (lambda (new_node)
 			(defq nnp (push (slice +vec3_x +vec3_z (. this :node_to_pad_point new_node)) 0.0))
 			(unless (. via_layers :hit_line np nnp radius gap)
@@ -524,9 +522,8 @@
 	(defmethod :mark_distances (this radius via gap starts ends)
 		; (. pcb :mark_distances radius via gap starts ends) -> pcb
 		;generate all grid points surrounding node that are not shorting with an existing track
-		(raise :flood_vectors :vias_cost)
-		(defq distance 1 vias_map (const (fmap 11))
-			frontier (. starts :copy) exit t)
+		(raise :flood_vectors :vias_cost (distance 1 vias_map (const (fmap 11))
+			frontier (. starts :copy) exit t))
 		(while (and exit (or (not (. vias_map :empty?)) (not (. frontier :empty?))))
 			(task-slice)
 			(. frontier :each (# (. this :set_node %0 distance)))
@@ -579,9 +576,8 @@
 	(defmethod :hoist_net (this index)
 		; (. pcb :hoist_net index) -> (netlist new_index)
 		;move net to top of area group
-		(raise :netlist)
-		(defq area (. (elem-get index netlist) :get_area)
-			new_index (some! index 0 nil (# (if (< (. %0 :get_area) area) (inc _))) (list netlist)))
+		(raise :netlist (area (. (elem-get index netlist) :get_area)
+			new_index (some! index 0 nil (# (if (< (. %0 :get_area) area) (inc _))) (list netlist))))
 		(unless new_index (setq new_index 0))
 		(when (/= index new_index)
 			(defq net (slice index (inc index) netlist)
