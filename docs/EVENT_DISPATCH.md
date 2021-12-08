@@ -110,7 +110,7 @@ these three event blocks for each of the 3 button bars in this UI tree.
 ```
 
 The UI macros build our widget tree for us and automate calling the View class
-`:connect` methods for the buttons on the button bars. When these buttons are
+`:connect` method for the buttons on the button bars. When these buttons are
 clicked we will receive an `+ev_type_action` typed event with the
 `+ev_msg_target_id` field containing our declared constants.
 
