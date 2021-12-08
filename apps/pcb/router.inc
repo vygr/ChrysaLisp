@@ -30,15 +30,16 @@
 		(setq y (inc y)))
 	out)
 
-(defun aabb_pads (pads quant)
+(defun aabb-pads (pads quant)
 	;aabb of pads
-	(defq minxyz (Vec3-f 1000000.0 1000000.0 0.0) maxxyz (Vec3-f -1000000.0 -1000000.0 0.0)
+	(defq minxyz (Vec2-f 1000000.0 1000000.0)
+		maxxyz (Vec2-f -1000000.0 -1000000.0)
 		quant (n2f quant))
 	(each (lambda (p)
 		(vec-min minxyz (setq p (. p :get_pos)) minxyz)
 		(vec-max maxxyz p maxxyz)) pads)
-	(bind '(minx miny _) minxyz)
-	(bind '(maxx maxy _) maxxyz)
+	(bind '(minx miny) minxyz)
+	(bind '(maxx maxy) maxxyz)
 	(list (n2f (n2i (/ (* (- maxx minx) (- maxy miny)) quant)))
 		(list minx miny maxx maxy)))
 
@@ -179,7 +180,7 @@
 	(each (# (.-> pcb :get_via_layers (:add_layers_line %0))) pad_lines)
 
 	;bounds
-	(bind '(area bbox) (aabb_pads pads (. pcb :get_quant)))
+	(bind '(area bbox) (aabb-pads pads (. pcb :get_quant)))
 	(def this :area area :bbox bbox)
 
 	(defgetmethod radius)
@@ -561,7 +562,7 @@
 		;reset areas
 		(raise :quant)
 		(each (lambda (net)
-			(bind '(area bbox) (aabb_pads (. net :get_pads) quant))
+			(bind '(area bbox) (aabb-pads (. net :get_pads) quant))
 			(.-> net (:set_area area) (:set_bbox bbox))) (get :netlist this))
 		this)
 
