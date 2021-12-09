@@ -92,6 +92,7 @@
 		(setf-> (cat (str-alloc +job_size) pcb_data)
 			(+job_grid_res (get :value res_spinner))
 			(+job_vias_cost (get :value vias_spinner))
+			(+job_quant (get :value quant_spinner))
 			(+job_flood_range (get :value flood_spinner))
 			(+job_even_range (get :value even_spinner))
 			(+job_odd_range (get :value odd_spinner))
