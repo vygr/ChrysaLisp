@@ -489,7 +489,7 @@
 		out)
 
 	(defmethod :all_marked (this vec node)
-		; (. pcb :all_marked vec node) -> sort_nodes
+		; (. pcb :all_marked vec node) -> nodes
 		;generate all grid points surrounding node, that are not value 0, but less than node
 		(defq out (clear '()) d (. this :get_node node)
 			vecm (Node (dec (get :width this)) (dec (get :height this)) (dec (get :depth this))))
@@ -608,9 +608,10 @@
 				(t  (cond
 						((= index 0)
 							(.-> this :reset_areas :shuffle_netlist)
-							(sort-netlist netlist))
-						(t  (bind '(netlist pos) (. this :hoist_net index))
-							(. (elem-get index netlist) :shuffle_topology)
+							(sort-netlist netlist)
+							(. hoisted_nets :empty))
+						(t  (. (elem-get index netlist) :shuffle_topology)
+							(bind '(netlist pos) (. this :hoist_net index))
 							(cond
 								((or (= pos index) (. hoisted_nets :find net))
 									(. net :set_area (. (elem-get (dec index) netlist) :get_area))
