@@ -17,9 +17,9 @@
 			(defq shadow (get :shadow this)) shadow (- w (* shadow 2)) (- h (* shadow 2)))
 		;shadow
 		(defq col 0x80000000)
-		(while (and (> shadow 0) (/= col 0))
+		(while (and (/= col 0) (>= (setq shadow (dec shadow)) 0))
 			(.-> this (:ctx_set_color col) (:ctx_box shadow shadow (- w (* shadow 2)) (- h (* shadow 2))))
-			(setq col (logand 0xff000000 (+ (>> col 1) (>> col 4))) shadow (dec shadow)))
+			(setq col (logand 0xff000000 (+ (>> col 1) (>> col 4)))))
 		this)
 
 	(defmethod :add_child (this child)
