@@ -43,13 +43,13 @@
 		(when child
 			(. child :change (+ border shadow) (+ border shadow)
 				(- w (* 2 (+ border shadow))) (- h (* 2 (+ border shadow)))))
-		;adjust window transparetncy details based on color and shadow
+		;adjust window transparency details based on color and shadow
 		(when (= (>> (get :color this) 24) 0xff)
 			(cond
 				((= shadow 0)
 					(. this :set_flags +view_flag_opaque +view_flag_opaque))
-				(t	(.-> this :clr_opaque (:add_opaque (+ border shadow) (+ border shadow)
-						(- w (* 2 (+ border shadow))) (- h (* 2 (+ border shadow)))))))))
+				(t	(.-> this :clr_opaque (:add_opaque shadow shadow
+						(- w (* 2 shadow)) (- h (* 2 shadow))))))))
 
 	(defmethod :drag_mode (this rx ry)
 		; (. window :drag_mode rx ry) -> (drag_mode drag_offx drag_offy)

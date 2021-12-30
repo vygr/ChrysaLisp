@@ -274,7 +274,7 @@
 				(assign '((:rsp vis_next) (:rsp vis_root)) '(:r1 :r2))
 			(loop-until '(:r1 = :r2))
 		(else)
-			;use opaque region, so my opaque area is the visble region
+			;use opaque region, so my opaque area is the visible region
 			(assign '((:r1 hmap_parent) (:r1 view_x) (:r1 view_y)) '(:r2 :r7 :r8))
 			(assign '((:r2 view_w) (:r2 view_h)) '(:r9 :r10))
 			(vp-mul-cr -1 :r7)
