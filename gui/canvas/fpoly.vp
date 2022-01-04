@@ -226,13 +226,11 @@
 		;for each scanline
 		(loop-while {ys < ye})
 			;include new edges that begin on this scanline
-			(vp-def (tracker_list_head starts_node starts_last starts_new starts_tmp ys y))
-			(assign {&(this->canvas_edges_start)[ys * +ptr_size], &tracker_list, ys}
-				(list starts_node tracker_list_head ys))
+			(vp-def (tracker_list_head starts_node starts_last starts_new starts_tmp))
+			(assign {&(this->canvas_edges_start)[ys * +ptr_size], &tracker_list}
+				(list starts_node tracker_list_head))
 			(loop-start)
 				(ln-next-fnode starts_node starts_last)
-				(vp-cpy-ir-i starts_node edge_ys y)
-				(continueif (list y '/= ys))
 				(vp-cpy-rr starts_node starts_new)
 				(ln-remove-fnode starts_node starts_last)
 				(ln-add-fnode tracker_list_head 0 starts_new starts_tmp)
