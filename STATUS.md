@@ -4,6 +4,12 @@
 
 ------
 
+I'm currently dealing with an ongoing medical emergency, not myself, but family
+member. So things may be a bit quiet for a while. But the project is not dead,
+just in slow mode until life gets back to normality.
+
+------
+
 Rename `(elem)` to `(elem-get)`, will now be inline with new `(dim-get)` and
 `(dim-set)` multi dimensional element get and set functions.
 
