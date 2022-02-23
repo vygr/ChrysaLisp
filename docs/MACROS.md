@@ -63,7 +63,7 @@ key_map_control (fmap-kv
 	(ascii-code "O") action-ordered-unique)
 ```
 
-The `key_map_control` xmap is a map of `numbers->lambda` not a map of
+The `key_map_control` fmap is a map of `numbers->lambda` not a map of
 `string->lambda` ! This source becomes:
 
 ```vdu
@@ -256,10 +256,10 @@ Another example of wrapping code in a decorator macro is the Editor application
 text to ensure its effects can be undone.
 
 ```vdu
-(defmacro undoable (buffer &rest _)
+(defmacro undoable (this buffer &rest _)
 	`(progn
-		(unless buffer (setq buffer (. *edit* :get_buffer)))
-		(bind '(cx cy) (. *edit* :get_cursor))
+		(setd buffer (. this :get_buffer))
+		(bind '(cx cy) (. this :get_cursor))
 		(. buffer :push_undo
 			(list :mark (defq mark (. buffer :next_mark)))
 			(list :cursor cx cy))
