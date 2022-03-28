@@ -8,6 +8,10 @@ I'm currently dealing with an ongoing medical emergency, not myself, but family
 member. So things may be a bit quiet for a while. But the project is not dead,
 just in slow mode until life gets back to normality.
 
+Update: My partner and love of my life died suddenly after a fight with Acute
+Leukemia, I will forever miss her. I will get back to the project, but can't
+give a date yet. Please bare with me till normal life can resume. Thanks.
+
 ------
 
 Rename `(elem)` to `(elem-get)`, will now be inline with new `(dim-get)` and
