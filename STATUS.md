@@ -12,6 +12,8 @@ Update: My partner and love of my life died suddenly after a fight with Acute
 Leukemia, I will forever miss her. I will get back to the project, but can't
 give a date yet. Please bare with me till normal life can resume. Thanks.
 
+Update: Life just won't stop kicking at the moment. A few weeks after my partner died, my sisters husband has died in circumstances that have lead to a lengthy inquest. My focus is my sister at this time, thank you.
+
 ------
 
 Rename `(elem)` to `(elem-get)`, will now be inline with new `(dim-get)` and
