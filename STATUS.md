@@ -4,6 +4,11 @@
 
 ------
 
+Remove unsupported source. Available in the repo history if folks want to dig
+around.
+
+------
+
 I'm currently dealing with an ongoing medical emergency, not myself, but family
 member. So things may be a bit quiet for a while. But the project is not dead,
 just in slow mode until life gets back to normality.
@@ -12,7 +17,9 @@ Update: My partner and love of my life died suddenly after a fight with Acute
 Leukemia, I will forever miss her. I will get back to the project, but can't
 give a date yet. Please bare with me till normal life can resume. Thanks.
 
-Update: Life just won't stop kicking at the moment. A few weeks after my partner died, my sisters husband has died in circumstances that have lead to a lengthy inquest. My focus is my sister at this time, thank you.
+Update: Life just won't stop kicking at the moment. A few weeks after my
+partner died, my sisters husband has died in circumstances that have lead to a
+lengthy inquest. My focus is my sister at this time, thank you.
 
 ------
 
@@ -429,12 +436,6 @@ and is showing the fastest benchmark times of any current platform. Under 0.2
 second full build time on the MacBook Air !
 
 ------
-
-New `lib/clenv/clenv.inc` library for accessing `.hostenv` variable
-assignments.
-
-Updates to `apps/terminal/tui2.lisp` and `lib/collections/xnode.inc`to increase
-shell functionality.
 
 `(stream-seek)` and `(pii-fstat)` support. `(age)` now just a wrapper to
 `(pii-fstat)`
@@ -1075,8 +1076,8 @@ mode and deinit uses it to clear up all outstanding ack messages.
 Rework the assembler to not use (pipe) and open a farm of children that send
 results back via (stream-msg-out) streams. Significantly faster !
 
-(catch) now sets the _ symbol to the string forma of the thrown error for use
-by the eform.
+(catch) now sets the _ symbol to the string form of the thrown error for use by
+the eform.
 
 ------
 
@@ -1475,7 +1476,7 @@ BannanaEarwig.
 ------
 
 Happy now with the polygon and stroking APIs after playing around with the new
-analogue clock face demo. Makes a real difference the the flow of the source
+analogue clock face demo. Makes a real difference to the flow of the source
 code after rearranging the parameter ordering.
 
 ------

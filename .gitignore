@@ -15,5 +15,4 @@ main.vcxproj.filters
 main.vcxproj.user
 chrysalisp.exe
 *.DS_Store
-.hostenv
 apps/login/Guest/editor_open_files

@@ -185,18 +185,3 @@ Usage: unique [options] [line] ...
 	then will read lines from stdin.
 
 ```
-## wc
-```code
-
-Usage: wc [-h] [-v] [-f :file] [-l] [-w] [-c]
-
-Details:
-
-        -h   - displays help and exits
-        -v   - displays app version and exits
-        -f   - file to summarize (default: stdin)
-        -l   - include line count in summary (default: nil)
-        -w   - include word count in summary (default: nil)
-        -c   - include character count in summary (default: nil)
-
-```
