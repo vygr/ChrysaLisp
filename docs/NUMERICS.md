@@ -110,7 +110,7 @@ These operate on any number type and return a num integer.
 
 ### Comparison
 
-These operate on any number type and return `t | nil`.
+These operate on any number type and return `:t | :nil`.
 
 `(/=) (<) (<=) (=) (>) (>=)`
 

@@ -30,11 +30,11 @@
 	(enum main tip))
 
 (defq +vdu_min_width 80 +vdu_min_height 40 +vdu_max_width 100 +vdu_max_height 46
-	+vdu_line_width 5 *current_file* nil *selected_file_node* nil
-	*selected_open_node* nil *meta_map* (fmap) *open_files* (list)
-	*syntax* (Syntax) *whole_words* nil *macro_record* nil *macro_actions* (list)
+	+vdu_line_width 5 *current_file* :nil *selected_file_node* :nil
+	*selected_open_node* :nil *meta_map* (fmap) *open_files* (list)
+	*syntax* (Syntax) *whole_words* :nil *macro_record* :nil *macro_actions* (list)
 	+min_word_size 3 +max_matches 20 dictionary (Dictionary 1021) +margin 2
-	match_window nil match_flow nil match_index -1
+	match_window :nil match_flow :nil match_index -1
 	+state_filename "editor_open_files" +not_whole_word_chars " .,;'`(){}[]/")
 
 (ui-window *window* (:color +argb_grey1)
@@ -71,13 +71,13 @@
 			(ui-grid _ (:color +argb_grey14 :grid_width 1)
 				(ui-flow _ (:flow_flags +flow_down_fill)
 					(ui-label _ (:text "Open"))
-					(ui-scroll *open_tree_scroll* +scroll_flag_vertical nil
+					(ui-scroll *open_tree_scroll* +scroll_flag_vertical :nil
 						(. (ui-tree *open_tree* +event_open_folder_action
 								(:min_width 0 :color +argb_white
 								:font *env_medium_terminal_font*)) :connect +event_tree_action)))
 				(ui-flow _  (:flow_flags +flow_down_fill)
 					(ui-label _ (:text "Project"))
-					(ui-scroll *file_tree_scroll* +scroll_flag_vertical nil
+					(ui-scroll *file_tree_scroll* +scroll_flag_vertical :nil
 						(. (ui-tree *file_tree* +event_file_folder_action
 								(:min_width 0 :color (get :color *open_tree*)
 								:font (get :font *open_tree*))) :connect +event_tree_action))))
@@ -107,7 +107,7 @@
 								(ends-with ".md" file))
 							(push files (cat (slice
 								(if (eql root "./") 2 1) -1 root) "/" file))))
-					(t  ;dir
+					(:t  ;dir
 						(unless (starts-with "." file)
 							(push stack (cat root "/" file))))))
 				(unzip (split (pii-dirlist root) ",") (list (list) (list))))))
@@ -168,9 +168,9 @@
 	;create new file buffer
 	(unless (. *meta_map* :find file)
 		(defq mode (if (or (ends-with ".md" file)
-						   (ends-with ".txt" file)) t nil))
+						   (ends-with ".txt" file)) :t :nil))
 		(. *meta_map* :insert file
-			(list x y ax ay sx sy nil (defq buffer (Buffer mode *syntax*))))
+			(list x y ax ay sx sy :nil (defq buffer (Buffer mode *syntax*))))
 		(when file
 			(. buffer :file_load file)
 			(unless (find file *open_files*) (push *open_files* file))
@@ -288,7 +288,7 @@
 
 (defun clear-matches ()
 	(if match_window (gui-sub match_window))
-	(setq match_window nil match_flow nil match_index -1))
+	(setq match_window :nil match_flow :nil match_index -1))
 
 (defun show-matches ()
 	(clear-matches)
@@ -331,12 +331,12 @@
 (defun dispatch-action (&rest action)
 	(and *macro_record* (find (elem-get 0 action) recorded_actions_list)
 		(push *macro_actions* action))
-	(catch (eval action) (progn (print _)(print) t)))
+	(catch (eval action) (progn (print _)(print) :t)))
 
 (defun main ()
 	(defq select (alloc-select +select_size)
 		edit_service (mail-declare (task-mailbox) "EDIT_SERVICE" "Edit Service 0.1")
-		*running* t *edit* (Editor-edit))
+		*running* :t *edit* (Editor-edit))
 	(.-> *edit* (:set_buffer (Buffer)) (:set_underlay_color +argb_grey6))
 	(def *edit* :min_width 0 :min_height 0
 		:vdu_width +vdu_min_width :vdu_height +vdu_min_height)
@@ -348,8 +348,8 @@
 	(populate-file-tree)
 	(load-open-files)
 	(populate-open-tree)
-	(populate-vdu nil)
-	(select-node nil)
+	(populate-vdu :nil)
+	(select-node :nil)
 	(tooltips)
 	(bind '(x y w h) (apply view-locate (.-> *window* (:connect +event_layout) :pref_size)))
 	(gui-add-front (. *window* :change x y w h))
@@ -407,7 +407,7 @@
 						;insert the char
 						(dispatch-action action-insert (char key))
 						(show-matches))))
-			(t  ;gui event
+			(:t  ;gui event
 				(clear-matches)
 				(. *window* :event *msg*)))
 		;update meta data
@@ -415,7 +415,7 @@
 		(bind '(cx cy) (. *edit* :get_cursor))
 		(bind '(ax ay) (. *edit* :get_anchor))
 		(bind '(sx sy) (. *edit* :get_scroll))
-		(. *meta_map* :insert *current_file* (list cx cy ax ay sx sy nil buffer)))
+		(. *meta_map* :insert *current_file* (list cx cy ax ay sx sy :nil buffer)))
 	(free-select select)
 	(clear-matches)
 	(gui-sub *window*)

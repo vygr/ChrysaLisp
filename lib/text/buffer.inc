@@ -13,8 +13,8 @@
 	(when (or (= (length buffer) 0) (not (eql (elem-get -2 buffer) "")))
 		(push buffer "")
 		(push buffer_colored "")
-		(push buffer_states '(nil nil))
-		(push buffer_index nil)))
+		(push buffer_states '(:nil :nil))
+		(push buffer_index :nil)))
 
 (defun erase-line (y)
 	(setq buffer (erase buffer y (defq y1 (inc y)))
@@ -25,14 +25,14 @@
 (defun insert-line (y line)
 	(setq buffer (insert buffer y (list line))
 		buffer_colored (insert buffer_colored y (list line))
-		buffer_states (insert buffer_states y '((nil nil)))
-		buffer_index (insert buffer_index y '(nil))))
+		buffer_states (insert buffer_states y '((:nil :nil)))
+		buffer_index (insert buffer_index y '(:nil))))
 
 (defun set-line (y line)
 	(elem-set y buffer line)
 	(elem-set y buffer_colored line)
-	(elem-set y buffer_states '(nil nil))
-	(elem-set y buffer_index nil))
+	(elem-set y buffer_states '(:nil :nil))
+	(elem-set y buffer_index :nil))
 
 (defun redo ()
 	(defq idx (length undo_stack))
@@ -60,7 +60,7 @@
 		(clear (get :redo_stack this))
 		(last-line)
 		(lower :buffer :buffer_colored :buffer_states :buffer_index
-			(:dirty_colored t :dirty_index t :modified t))
+			(:dirty_colored :t :dirty_index :t :modified :t))
 		(. this :set_cursor x y)))
 
 (defmacro get-selection ()
@@ -76,17 +76,17 @@
 		(get-selection)
 		(cond
 			((and (= sx sx1) (= sy sy1)) "")
-			(t  (bind '(w h) (. this :get_size))
+			(:t  (bind '(w h) (. this :get_size))
 				~_))))
 
-(defclass Buffer (&optional mode syntax) nil
+(defclass Buffer (&optional mode syntax) :nil
 	; (Buffer [mode syntax]) -> buffer
 	(def this :buffer (list "") :buffer_colored (list "")
-		:buffer_states (list '(nil nil)) :buffer_index (list nil)
-		:dirty_colored nil :dirty_index nil
+		:buffer_states (list '(:nil :nil)) :buffer_index (list :nil)
+		:dirty_colored :nil :dirty_index :nil
 		:syntax (opt syntax (Syntax)) :undo_stack (list) :redo_stack (list)
 		:cursor_x 0 :cursor_y 0 :max_width 0 :tab_width 4 :wrap_width 80
-		:mode mode :lps nil :lps_pattern nil :next_mark -1 :modified nil)
+		:mode mode :lps :nil :lps_pattern :nil :next_mark -1 :modified :nil)
 
 	(defmethod :set_mode (this mode)
 		; (. buffer :set_mode mode) -> buffer
@@ -118,7 +118,7 @@
 		(list (get :cursor_x this) (get :cursor_y this)))
 
 	(defmethod :get_modified (this)
-		; (. buffer :get_modified) -> t | nil
+		; (. buffer :get_modified) -> :t | :nil
 		(get :modified this))
 
 	(defmethod :get_size (this)
@@ -155,13 +155,13 @@
 					max_width (max max_width (length line)))
 				(push buffer line)
 				(push buffer_colored line)
-				(push buffer_states '(nil nil))
-				(push buffer_index nil))
+				(push buffer_states '(:nil :nil))
+				(push buffer_index :nil))
 			(file-stream filepath))
 		(last-line)
 		(clear (get :undo_stack this) (get :redo_stack this))
 		(lower :buffer :buffer_colored :buffer_states :buffer_index :max_width
-			(:cursor_x 0 :cursor_y 0 :dirty_colored t :dirty_index t :modified nil))
+			(:cursor_x 0 :cursor_y 0 :dirty_colored :t :dirty_index :t :modified :nil))
 		this)
 
 	(defmethod :file_save (this filepath)
@@ -171,7 +171,7 @@
 				(task-slice)
 				(write-line stream (. syntax :compress_tabs line tab_width)))
 			(list (get :buffer this)))
-		(lower (:modified nil))
+		(lower (:modified :nil))
 		this)
 
 	(defmethod :colorise (this)
@@ -185,13 +185,13 @@
 						(mode)
 						((and (array? line_array) (eql state start_state))
 							(setq state end_state))
-						(t  (task-slice)
+						(:t  (task-slice)
 							(elem-set _ buffer_colored
 								(.-> syntax (:set_state state) (:colorise line)))
 							(elem-set _ buffer_states
 								(list state (setq state (. syntax :get_state)))))))
 				buffer buffer_colored buffer_states)
-			(lower :max_width (:dirty_colored nil)))
+			(lower :max_width (:dirty_colored :nil)))
 		this)
 
 	(defmethod :vdu_load (this vdu scroll_x scroll_y)
@@ -253,12 +253,12 @@
 			(cond
 				((and (eql "" back) (= y h))
 					(. this :push_undo (list :backspace x y)))
-				(t  (set-line (dec y) front)
+				(:t  (set-line (dec y) front)
 					(insert-line y back)
 					(cond
 						((<= y h)
 							(. this :push_undo (list :backspace x y)))
-						(t  (. this :push_undo
+						(:t  (. this :push_undo
 								(list :mark (defq mark (. this :next_mark)))
 								(list :backspace x y) (list :delete 0 y)
 								(list :mark mark))))))))
@@ -274,7 +274,7 @@
 					(set-line y (cat (elem-get y buffer) (elem-get (inc y) buffer)))
 					(erase-line (inc y))
 					(. this :push_undo (list :break x y)))
-				(t  (defq undo (slice (- x num) x (elem-get y buffer)))
+				(:t  (defq undo (slice (- x num) x (elem-get y buffer)))
 					(set-line y (erase (elem-get y buffer) (- x num) x))
 					(setq x (- x num))
 					(. this :push_undo (list :insert x y undo))))))
@@ -289,7 +289,7 @@
 					(set-line y (cat (elem-get y buffer) (elem-get (inc y) buffer)))
 					(erase-line (inc y))
 					(. this :push_undo (list :break x y)))
-				(t  (defq undo (slice x (+ x num) (elem-get y buffer)))
+				(:t  (defq undo (slice x (+ x num) (elem-get y buffer)))
 					(set-line y (erase (elem-get y buffer) x (+ x num)))
 					(. this :push_undo (list :insert x y undo))))))
 
@@ -313,7 +313,7 @@
 				((= sy sy1)
 					(push lines (slice sx sx1 (elem-get sy (get :buffer this))))
 					(. this :delete (- sx1 sx)))
-				(t  (while (<= sy (setq sy1 (dec sy1)))
+				(:t  (while (<= sy (setq sy1 (dec sy1)))
 						(task-slice)
 						(push lines (slice sx -1 (elem-get sy (get :buffer this))) (ascii-char +char_lf))
 						(if (> (defq gap (- (length (elem-get sy (get :buffer this))) sx)) 0)
@@ -332,7 +332,7 @@
 			(cond
 				((= sy sy1)
 					(slice sx sx1 (elem-get sy buffer)))
-				(t  (defq lines
+				(:t  (defq lines
 						(list (slice sx -1 (elem-get sy buffer)) (ascii-char +char_lf)))
 					(while (< (setq sy (inc sy)) sy1)
 						(push lines (elem-get sy buffer) (ascii-char +char_lf)))
@@ -366,7 +366,7 @@
 						(task-slice)
 						(bind '(state &optional x y data) (pop undo_stack))
 						(undo)))
-				(t  (undo)))
+				(:t  (undo)))
 			(set this :redo_stack redo_stack))
 		this)
 
@@ -383,12 +383,12 @@
 						(task-slice)
 						(bind '(state &optional x y data) (pop redo_stack))
 						(redo)))
-				(t  (redo)))
+				(:t  (redo)))
 			(set this :redo_stack redo_stack))
 		this)
 
 	(defmethod :left_bracket (this)
-		; (. buffer :left_bracket) -> (x y) | (nil nil)
+		; (. buffer :left_bracket) -> (x y) | (:nil :nil)
 		(bind '(x y) (.-> this :colorise :get_cursor))
 		(bind '(x y) (. this :constrain x y))
 		(raise :buffer :buffer_colored (c 0 ink_text (get :ink_text (get :syntax this))))
@@ -402,18 +402,18 @@
 					((setq x (dec x))))
 				(if (eql "(" (elem-get x line))
 					(setq x (inc x))))
-			(setq y (some! (inc y) 0 nil (lambda (line line_colored)
-					(if (setq x (some! (if x x -1) 0 nil (lambda (cl cc)
+			(setq y (some! (inc y) 0 :nil (lambda (line line_colored)
+					(if (setq x (some! (if x x -1) 0 :nil (lambda (cl cc)
 							(cond
-								((/= (logand 0xffffff000000 cc) ink_text) nil)
-								((eql cl ")") (setq c (inc c)) nil)
+								((/= (logand 0xffffff000000 cc) ink_text) :nil)
+								((eql cl ")") (setq c (inc c)) :nil)
 								((eql cl "(") (if (< (setq c (dec c)) 0) _))))
 						(list line line_colored))) _))
 				(list buffer buffer_colored))))
-		(if (< c 0) (list x y) '(nil nil)))
+		(if (< c 0) (list x y) '(:nil :nil)))
 
 	(defmethod :right_bracket (this)
-		; (. buffer :right_bracket) -> (x y) | (nil nil)
+		; (. buffer :right_bracket) -> (x y) | (:nil :nil)
 		(bind '(x y) (.-> this :colorise :get_cursor))
 		(bind '(x y) (. this :constrain x y))
 		(defq h (elem-get 1 (. this :get_size)))
@@ -428,24 +428,24 @@
 					((setq x (dec x))))
 				(if (eql "(" (elem-get x line))
 					(setq x (inc x))))
-			(setq y (some! y h nil (lambda (line line_colored)
-					(if (setq x (some! (if x x 0) -1 nil (lambda (cl cc)
+			(setq y (some! y h :nil (lambda (line line_colored)
+					(if (setq x (some! (if x x 0) -1 :nil (lambda (cl cc)
 							(cond
-								((/= (logand 0xffffff000000 cc) ink_text) nil)
-								((eql cl "(") (setq c (dec c)) nil)
+								((/= (logand 0xffffff000000 cc) ink_text) :nil)
+								((eql cl "(") (setq c (dec c)) :nil)
 								((eql cl ")") (if (> (setq c (inc c)) 0) _))))
 						(list line line_colored))) _))
 				(list buffer buffer_colored))))
-		(if (> c 0) (list x y) '(nil nil)))
+		(if (> c 0) (list x y) '(:nil :nil)))
 
 	(defmethod :find (this pattern)
 		; (. buffer :find pattern) -> buffer_index
 		(raise :lps :lps_pattern :buffer_index)
 		(unless (eql lps_pattern pattern)
-			(lower (:lps (setq lps (substr-lps pattern)) :lps_pattern pattern :dirty_index t))
-			(each (lambda (__) (elem-set _ buffer_index nil)) buffer_index))
+			(lower (:lps (setq lps (substr-lps pattern)) :lps_pattern pattern :dirty_index :t))
+			(each (lambda (__) (elem-set _ buffer_index :nil)) buffer_index))
 		(when (get :dirty_index this)
-			(lower (:dirty_index nil))
+			(lower (:dirty_index :nil))
 			(each (lambda (line index)
 					(if (> (length line) 0)
 						(unless index

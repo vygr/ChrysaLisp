@@ -5,14 +5,14 @@
 	(enum main timeout))
 
 (defun main ()
-	(defq select (alloc-select +select_size) running t +timeout 5000000)
+	(defq select (alloc-select +select_size) running :t +timeout 5000000)
 	(while running
 		(mail-timeout (elem-get +select_timeout select) +timeout 0)
 		(defq msg (mail-read (elem-get (defq idx (mail-select select)) select)))
 		(cond
 			((or (= idx +select_timeout) (eql msg ""))
 				;timeout or quit
-				(setq running nil))
+				(setq running :nil))
 			((= idx +select_main)
 				;main mailbox, reset timeout and reply with info
 				(mail-timeout (elem-get +select_timeout select) 0 0)

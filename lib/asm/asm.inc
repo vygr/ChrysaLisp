@@ -19,7 +19,7 @@
 				(.-> val (:insert :job job) (:insert :timestamp (pii-time)))
 				(mail-send (. val :find :child) (cat
 					(char key +long_size) (elem-get +select_reply select) job)))
-			(t	;no jobs in que
+			(:t	;no jobs in que
 				(.-> val (:erase :job) (:erase :timestamp)))))
 	(defun create (key val nodes)
 		; (create key val nodes)
@@ -38,7 +38,7 @@
 			(push jobs job)
 			(.-> val (:erase :job) (:erase :timestamp))))
 	(when (/= num_child 0)
-		(defq timer_rate (/ 1000000 1) working t jobs (list) errors (list) nxt_node (random nxt_node)
+		(defq timer_rate (/ 1000000 1) working :t jobs (list) errors (list) nxt_node (random nxt_node)
 			retry_timeout (if (starts-with "obj/vp64" (load-path)) 100000000 10000000)
 			select (list (mail-alloc-mbox) (mail-alloc-mbox) (mail-alloc-mbox)))
 		(times num_child (push jobs (list)))
@@ -64,16 +64,16 @@
 					(stream-flush (io-stream 'stdout))
 					;all jobs done ?
 					(when (= 0 (length jobs))
-						(setq working nil)
+						(setq working :nil)
 						(. farm :each (lambda (key val)
 							(setq working (or working (. val :find :job)))))))
-				(t	;timer event
+				(:t	;timer event
 					(mail-timeout (elem-get +select_timer select) timer_rate 0)
 					(. farm :refresh retry_timeout))))
 		(. farm :close)
 		(each mail-free-mbox select)
 		(each print errors))
-	(print "Done") nil)
+	(print "Done") :nil)
 
 ;;;;;;;;;;;;;
 ; make system
@@ -220,7 +220,7 @@
 		;save size in boot image
 		(elem-set 0 f (cat (char l +long_size) (slice +long_size -1 (elem-get 0 f))))
 		(each (# (write stream %0)) f)
-		(print "-> " (func-obj 'sys/boot_image) " (" l ")") nil)))
+		(print "-> " (func-obj 'sys/boot_image) " (" l ")") :nil)))
 
 (defun make-boot-all (&optional *abi* *cpu*)
 	(setd *abi* (abi) *cpu* (cpu))
@@ -298,7 +298,7 @@
 		(print "Mean time " (time-in-seconds (/ a c)) " seconds")
 		(print "Best time " (time-in-seconds (setq b (min b _))) " seconds")
 		(print "Worst time " (time-in-seconds (setq w (max w _))) " seconds"))
-	nil)
+	:nil)
 
 (defun compile-test (&optional *abi* *cpu*)
 	(setd *abi* (abi) *cpu* (cpu))

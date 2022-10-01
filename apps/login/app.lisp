@@ -15,7 +15,7 @@
 		(ui-grid _ (:grid_width 1 :color +argb_white)
 			(ui-textfield username (:hint_text "username"
 				:clear_text (if (defq old (load "apps/login/current")) old "Guest")))
-			(ui-textfield password (:hint_text "password" :mode t :min_width 192))))
+			(ui-textfield password (:hint_text "password" :mode :t :min_width 192))))
 	(ui-grid _ (:grid_height 1)
 		(ui-buttons ("Login" "Create") +event_login)))
 
@@ -43,8 +43,8 @@
 					;login user
 					(save user "apps/login/current")
 					(open-child "apps/wallpaper/app.lisp" +kn_call_open)
-					nil)
-				(t	t)))
+					:nil)
+				(:t	:t)))
 		((= id +event_create)
 			;create button
 			(cond
@@ -55,7 +55,7 @@
 					;login new user
 					(save user "apps/login/current")
 					(open-child "apps/wallpaper/app.lisp" +kn_call_open)
-					nil)
-				(t	t)))
-		(t (. *window* :event msg))))
+					:nil)
+				(:t	:t)))
+		(:t (. *window* :event msg))))
 	(gui-sub *window*))

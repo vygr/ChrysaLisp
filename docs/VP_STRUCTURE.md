@@ -113,9 +113,9 @@ carl_c_t -> "s"
 carl_size -> 6
 
 bob_a -> 0
-bob_a_t -> nil
+bob_a_t -> :nil
 bob_b -> 0
-bob_b_t -> nil
+bob_b_t -> :nil
 bob_c -> 6
 bob_c_t -> "s"
 bob_d -> 8

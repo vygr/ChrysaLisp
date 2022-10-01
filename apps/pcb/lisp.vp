@@ -31,7 +31,7 @@
 	(assign '(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9)
 		{this, buckets, minx, miny, maxx, maxy, width, num_id, func, line})
 
-	(call 'list :create nil {args})
+	(call 'list :create :nil {args})
 	(call 'obj :ref {line})
 	(call 'obj :ref {line})
 	(call 'list :push_back2 {args, line, line})

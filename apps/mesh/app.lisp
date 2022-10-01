@@ -18,7 +18,7 @@
 (enums +select 0
 	(enum main task reply tip frame_timer retry_timer))
 
-(defq anti_alias nil frame_timer_rate (/ 1000000 30) retry_timer_rate 1000000
+(defq anti_alias :nil frame_timer_rate (/ 1000000 30) retry_timer_rate 1000000
 	retry_timeout (if (starts-with "obj/vp64" (load-path)) 100000000 10000000)
 	+min_size 450 +max_size 800
 	canvas_size +min_size canvas_scale (if anti_alias 1 2)
@@ -28,7 +28,7 @@
 	+near +focal_dist +far (+ +near +stage_depth)
 	+top (* +focal_dist +real_1/2) +bottom (* +focal_dist +real_-1/2)
 	+left (* +focal_dist +real_-1/2) +right (* +focal_dist +real_1/2)
-	*auto_mode* nil *render_mode* nil)
+	*auto_mode* :nil *render_mode* :nil)
 
 (ui-window *window* ()
 	(ui-title-bar *title* "Mesh" (0xea19 0xea1b 0xea1a) +event_close)
@@ -85,7 +85,7 @@
 				(setf-> job
 					(+job_key key)
 					(+job_reply (elem-get +select_reply select)))))
-		(t  ;no jobs in que
+		(:t  ;no jobs in que
 			(.-> val
 				(:erase :job)
 				(:erase :timestamp)))))
@@ -117,12 +117,12 @@
 		("sphere.2" "(Mesh-sphere +real_1/2 10)")))
 	;create scene graph
 	(defq scene (Scene "root")
-		sphere_obj (Scene-object nil (fixeds 1.0 1.0 1.0 1.0) "sphere.1")
-		capsule1_obj (Scene-object nil (fixeds 0.8 1.0 0.0 0.0) "capsule.1")
-		capsule2_obj (Scene-object nil (fixeds 0.8 0.0 1.0 1.0) "capsule.2")
-		cube_obj (Scene-object nil (fixeds 0.8 1.0 1.0 0.0) "cube.1")
-		torus_obj (Scene-object nil (fixeds 1.0 0.0 1.0 0.0) "torus.1")
-		sphere2_obj (Scene-object nil (fixeds 0.8 1.0 0.0 1.0) "sphere.2"))
+		sphere_obj (Scene-object :nil (fixeds 1.0 1.0 1.0 1.0) "sphere.1")
+		capsule1_obj (Scene-object :nil (fixeds 0.8 1.0 0.0 0.0) "capsule.1")
+		capsule2_obj (Scene-object :nil (fixeds 0.8 0.0 1.0 1.0) "capsule.2")
+		cube_obj (Scene-object :nil (fixeds 0.8 1.0 1.0 0.0) "cube.1")
+		torus_obj (Scene-object :nil (fixeds 1.0 0.0 1.0 0.0) "torus.1")
+		sphere2_obj (Scene-object :nil (fixeds 0.8 1.0 0.0 1.0) "sphere.2"))
 	(. sphere_obj :set_translation (+ +real_-1/3 +real_-1/3) (+ +real_-1/3 +real_-1/3) (- +real_0 +focal_dist +real_1))
 	(. torus_obj :set_translation (+ +real_1/3 +real_1/3) (+ +real_1/3 +real_1/3) (- +real_0 +focal_dist +real_2))
 	(. sphere2_obj :set_translation +real_0 +real_1/2 +real_0)
@@ -139,7 +139,7 @@
 (import "./actions.inc")
 
 (defun dispatch-action (&rest action)
-	(catch (eval action) (progn (print _)(print) t)))
+	(catch (eval action) (progn (print _)(print) :t)))
 
 (defun main ()
 	;; (defq then (pii-time))
@@ -149,7 +149,7 @@
 	(.-> main_widget (:set_canvas_flags +canvas_mode) (:fill +argb_black) :swap)
 	(radio-select style_toolbar 0)
 	(gui-add-front (. *window* :change x y w h))
-	(defq select (alloc-select +select_size) *running* t *dirty* t
+	(defq select (alloc-select +select_size) *running* :t *dirty* :t
 		jobs (list) scene (create-scene jobs) farm (Farm create destroy 4))
 	(tooltips (elem-get +select_tip select))
 	(mail-timeout (elem-get +select_frame_timer select) frame_timer_rate 0)
@@ -177,7 +177,7 @@
 							(getf *msg* +job_reply_num_tris)
 							(slice +job_reply_data -1 *msg*)))
 				(each (# (. %0 :set_mesh mesh)) (. scene :find_nodes mesh_name))
-				(setq *dirty* t)
+				(setq *dirty* :t)
 				(when (defq val (. farm :find key))
 					(dispatch-job key val)))
 			((= idx +select_retry_timer)
@@ -185,7 +185,7 @@
 				(mail-timeout (elem-get +select_retry_timer select) retry_timer_rate 0)
 				(. farm :refresh retry_timeout)
 				(when (= 0 (length jobs))
-					(defq working nil)
+					(defq working :nil)
 					(. farm :each (lambda (key val)
 						(setq working (or working (. val :find :job)))))
 					(unless working
@@ -198,12 +198,12 @@
 					(setq *rotx* (% (+ *rotx* (n2r 0.01)) +real_2pi)
 						*roty* (% (+ *roty* (n2r 0.02)) +real_2pi)
 						*rotz* (% (+ *rotz* (n2r 0.03)) +real_2pi)
-						*dirty* t)
+						*dirty* :t)
 					(set-rot xrot_slider *rotx*)
 					(set-rot yrot_slider *roty*)
 					(set-rot zrot_slider *rotz*))
 				(when *dirty*
-					(setq *dirty* nil)
+					(setq *dirty* :nil)
 					(. scene :set_rotation +real_0 +real_0 *rotz*)
 					(each (# (. %0 :set_rotation *rotx* *roty* +real_0)) (. scene :children))
 					(. scene :render main_widget (* canvas_size canvas_scale)
@@ -238,7 +238,7 @@
 					((<= +char_space key +char_tilda)
 						;insert char etc ...
 						(char key))))
-			(t  ;gui event
+			(:t  ;gui event
 				(. *window* :event *msg*))))
 	(. farm :close)
 	(gui-sub *window*)

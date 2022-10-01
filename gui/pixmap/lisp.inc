@@ -42,7 +42,7 @@
 				(list (getf header +cpm_width)
 					(getf header +cpm_height)
 					(getf header +cpm_type)))
-			(t (list -1 -1 -1)))
+			(:t (list -1 -1 -1)))
 		(list -1 -1 -1)))
 
 (defun pixmap-tga-info (stream)
@@ -52,7 +52,7 @@
 			(2 (list (getf header +tga_width)
 					(getf header +tga_height)
 					(getf header +tga_depth)))
-			(t (list -1 -1 -1)))
+			(:t (list -1 -1 -1)))
 		(list -1 -1 -1)))
 
 (defun pixmap-info (file)
@@ -67,18 +67,18 @@
 				(pixmap-tga-info stream))
 			((ends-with ".svg" file)
 				(SVG-info stream))
-			(t (list -1 -1 -1)))
+			(:t (list -1 -1 -1)))
 		(list -1 -1 -1)))
 
 (defun pixmap-save (pixmap file type)
-	; (pixmap-save pixmap file type) -> nil | pixmap
+	; (pixmap-save pixmap file type) -> :nil | pixmap
 	(if (defq stream (file-stream file +file_open_write))
 		(cond
 			((ends-with ".cpm" file)
 				((const (ffi _ "gui/pixmap/lisp_save_cpm" 0)) pixmap stream type)))))
 
 (defun pixmap-load (file)
-	; (pixmap-load file) -> nil | pixmap
+	; (pixmap-load file) -> :nil | pixmap
 	(if (defq stream (file-stream file))
 		(cond
 			((ends-with ".cpm" file)

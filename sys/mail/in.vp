@@ -45,7 +45,7 @@
 	(endif)
 
 	;timestamp last change
-	(call 'sys_pii :time nil {msg->msg_timestamp})
+	(call 'sys_pii :time :nil {msg->msg_timestamp})
 
 	;copy fragment data
 	(assign {rx_msg->lk_msg_stamp.(-msg_stamp_start).msg_frag_length} {len})

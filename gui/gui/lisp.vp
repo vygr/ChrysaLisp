@@ -34,7 +34,7 @@
 	;init region heap
 	(call 'sys_heap :init '((& :r0 statics_gui_rect_heap) rect_size 32))
 	;temp objects
-	(call 'list :create nil '(:r0))
+	(call 'list :create :nil '(:r0))
 	(fn-bind 'sys/statics/statics :r1)
 	(assign '(:r0) '((:r1 statics_gui_temps)))
 	;fill in lisp object tls for kernel :lisp_draw callbacks !!!
@@ -262,7 +262,7 @@
 			(assign '((:r1 view_w) (:r1 view_h)) '(:r9 :r10))
 			(assign '((:r0 statics_gui_mouse_x) (:r0 statics_gui_mouse_y)) '(:r7 :r8))
 		(endif)
-		(call 'list :create nil '(:r11))
+		(call 'list :create :nil '(:r11))
 		(call 'num :create '(:r7) '(:r7))
 		(call 'num :create '(:r8) '(:r8))
 		(call 'num :create '(:r9) '(:r9))

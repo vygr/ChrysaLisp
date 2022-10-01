@@ -14,7 +14,7 @@
 (enums +select 0
 	(enum main service tip))
 
-(defq vdu_width 60 vdu_height 40 buf_keys (list) buf_list (list) buf_index nil id t)
+(defq vdu_width 60 vdu_height 40 buf_keys (list) buf_list (list) buf_index :nil id :t)
 
 (ui-window *window* (:color 0xc0000000)
 	(ui-flow _ (:flow_flags +flow_down_fill)
@@ -32,7 +32,7 @@
 				;line feed and truncate
 				(if (> (length (push buf "")) (const vdu_height))
 					(setq buf (slice (const (dec (neg vdu_height))) -1 buf))))
-			(t  ;char
+			(:t  ;char
 				(elem-set -2 buf (cat (elem-get -2 buf) c))))) s)
 	(if vdu (. vdu :load buf 0 0 (length (elem-get -2 buf)) (dec (length buf)))) buf)
 
@@ -44,15 +44,15 @@
 (defun play (_)
 	(unless (elem-get +debug_rec_state _)
 		(step _))
-	(elem-set +debug_rec_state _ t))
+	(elem-set +debug_rec_state _ :t))
 
 (defun pause (_)
-	(elem-set +debug_rec_state _ nil))
+	(elem-set +debug_rec_state _ :nil))
 
 (defun step (_)
 	(when (elem-get +debug_rec_reply_id _)
 		(mail-send (elem-get +debug_rec_reply_id _) "")
-		(elem-set +debug_rec_reply_id _ nil)))
+		(elem-set +debug_rec_reply_id _ :nil)))
 
 (defun reset (&optional _)
 	(setd _ -1)
@@ -64,7 +64,7 @@
 		(progn
 			(clear buf_list)
 			(clear buf_keys)
-			(setq buf_index nil)
+			(setq buf_index :nil)
 			(. vdu :load '(
 				{ChrysaLisp Debug 0.4}
 				{Toolbar1 buttons act on a single task.}
@@ -109,7 +109,7 @@
 					index (find-rev key buf_keys))
 				(unless index
 					(push buf_keys key)
-					(push buf_list (list (list "") nil nil))
+					(push buf_list (list (list "") :nil :nil))
 					(reset (setq index (dec (length buf_list)))))
 				(elem-set +debug_rec_buf (defq buf_rec (elem-get index buf_list))
 					(vdu-print (if (= index buf_index) vdu) (elem-get +debug_rec_buf buf_rec) data))
@@ -122,7 +122,7 @@
 					(. view :show_tip)))
 			;close ?
 			((= (setq id (getf *msg* +ev_msg_target_id)) +event_close)
-				(setq id nil))
+				(setq id :nil))
 			;moved task slider
 			((= id +event_hvalue)
 				(reset (get :value hslider)))
@@ -159,7 +159,7 @@
 				(each step buf_list)
 				(reset))
 			;otherwise
-			(t (. *window* :event *msg*))))
+			(:t (. *window* :event *msg*))))
 	(mail-forget entry)
 	(free-select select)
 	(gui-sub *window*))

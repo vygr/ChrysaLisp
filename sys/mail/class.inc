@@ -5,10 +5,10 @@
 ; mail static class
 ;;;;;;;;;;;;;;;;;;;
 
-(def-class sys_mail nil
+(def-class sys_mail :nil
 	(dec-method :statics_init sys/mail/statics_init :static)
 	(dec-method :statics_init1 sys/mail/statics_init1 :static)
-	(dec-method :alloc_mbox sys/mail/alloc_mbox :static nil (:r0 :r1))
+	(dec-method :alloc_mbox sys/mail/alloc_mbox :static :nil (:r0 :r1))
 	(dec-method :free_mbox sys/mail/free_mbox :static (:r0))
 	(dec-method :validate sys/mail/validate :static (:r0) (:r0))
 	(dec-method :alloc sys/mail/alloc :static (:r0) (:r0 :r1))
@@ -19,7 +19,7 @@
 	(dec-method :read sys/mail/read :static (:r0) (:r0 :r1))
 	(dec-method :poll sys/mail/poll :static (:r0) (:r0 :r4 :r5))
 	(dec-method :select sys/mail/select :static (:r0) (:r0))
-	(dec-method :mymail sys/mail/mymail :static nil (:r0 :r1))
+	(dec-method :mymail sys/mail/mymail :static :nil (:r0 :r1))
 	(dec-method :service sys/mail/service :static (:r0 :r1 :r2) (:r0))
 	(dec-method :ping sys/mail/ping :static)
 	(dec-method :declare sys/mail/declare :static (:r0 :r1 :r2) (:r0))

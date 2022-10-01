@@ -17,12 +17,12 @@
 	(push-scope)
 
 	(call 'sys_task :set_priority '(1))
-	(call 'sys_kernel :id nil {node_id.node_id_node1, node_id.node_id_node2})
+	(call 'sys_kernel :id :nil {node_id.node_id_node1, node_id.node_id_node2})
 	(assign {@sys/statics/statics} {statics})
 
 	(loop-start 'mail_loop)
 		;read parcel or junk mail
-		(call 'sys_mail :mymail nil {msg, data})
+		(call 'sys_mail :mymail :nil {msg, data})
 		(vpifnot {(msg->msg_dest.net_id_node_id.node_id_node1 - node_id.node_id_node1)
 			| (msg->msg_dest.net_id_node_id.node_id_node2 - node_id.node_id_node2)})
 			;we got some junk mail, just free it for now
@@ -34,7 +34,7 @@
 		(assign {statics->statics_sys_mail_session + 1} {statics->statics_sys_mail_session})
 
 		;for each fragment
-		(call 'sys_pii :time nil {time})
+		(call 'sys_pii :time :nil {time})
 		(assign {0} {offset})
 		(assign {msg->msg_frag_length} {ammount})
 		(loop-start)

@@ -7,7 +7,7 @@
 
 (ui-window *window* ()
 	(ui-title-bar _ "Services" (0xea19 0xea1b 0xea1a) +event_close)
-	(ui-scroll info_scroll +scroll_flag_vertical nil
+	(ui-scroll info_scroll +scroll_flag_vertical :nil
 		(ui-flow right_flow (:flow_flags +flow_right_fill)
 			(ui-flow service_flow (:flow_flags +flow_down_fill)
 				(ui-label _ (:text "Service" :color +argb_white
@@ -30,7 +30,7 @@
 	(defq new_services (mail-enquire ""))
 	(sort cmp new_services)
 	(unless (and (= (length new_services) (length services))
-				(if (empty? new_services) t (every eql new_services services)))
+				(if (empty? new_services) :t (every eql new_services services)))
 		;service directory has changed
 		(each (# (. %0 :sub)) service_labels)
 		(each (# (. %0 :sub)) mbox_labels)
@@ -51,7 +51,7 @@
 		(resize 256)))
 
 (defun main ()
-	(defq id t select (alloc-select 1) services (list)
+	(defq id :t select (alloc-select 1) services (list)
 		service_labels (list) mbox_labels (list) info_labels (list))
 	(populate)
 	;add window
@@ -66,14 +66,14 @@
 			(cond
 				((= (setq id (getf (defq msg (mail-read (elem-get idx select))) +ev_msg_target_id)) +event_close)
 					;close button
-					(setq id nil))
+					(setq id :nil))
 				((= id +event_min)
 					;min button
 					(resize 256))
 				((= id +event_max)
 					;max button
 					(resize 640))
-				(t (. *window* :event msg))))
+				(:t (. *window* :event msg))))
 		(task-sleep 10000)
 		(populate))
 	(free-select select)

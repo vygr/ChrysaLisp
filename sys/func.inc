@@ -19,8 +19,8 @@
 ; functions
 ;;;;;;;;;;;
 
-(defcvar '*func_name* nil '*strings* (list) '*paths* (list) '*links* (list)
-	'*func_align* nil '*func_syms* (list))
+(defcvar '*func_name* :nil '*strings* (list) '*paths* (list) '*links* (list)
+	'*func_align* :nil '*func_syms* (list))
 
 (defun link-sym (_) (str "rl_" _))
 (defun path-sym (_) (str "rp_" _))
@@ -95,7 +95,7 @@
 	(vp-lea-p (string-sym (fn-add-string s)) r))
 
 (defun fn-bind (p r)
-	(if (get p) (throw "Can't bind to inline function !" p)
+	(if (get p) (throw "can't bind to inline function !" p)
 		(vp-cpy-pr (link-sym (fn-find-link p)) r)))
 
 (defun fn-call (p)
@@ -103,7 +103,7 @@
 		(vp-call-p (link-sym (fn-find-link p)))))
 
 (defun fn-jump (p)
-	(if (get p) (throw "Can't jump to inline function !" p)
+	(if (get p) (throw "can't jump to inline function !" p)
 		(vp-jmp-p (link-sym (fn-find-link p)))))
 
 (defun abort (&optional s)

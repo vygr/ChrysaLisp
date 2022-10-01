@@ -2,7 +2,7 @@
 (include "sys/mail/class.inc")
 (include "class/str/class.inc")
 
-(def-class sys_link nil
+(def-class sys_link :nil
 	(dec-method :link sys/link/link)
 	(dec-method :usb_link sys/link/usb_link)
 	(dec-method :in sys/link/in)

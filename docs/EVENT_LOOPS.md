@@ -218,7 +218,7 @@ to send off a job.
 				(setf-> job
 					(+job_key key)
 					(+job_reply (elem-get +select_reply select)))))
-		(t  ;no jobs in que
+		(:t  ;no jobs in que
 			(.-> val
 				(:erase :job)
 				(:erase :timestamp)))))
@@ -289,17 +289,17 @@ task.
 				(defq key (get-long msg (- (length msg) +long_size)))
 				(when (defq val (. farm :find key))
 					(dispatch-job key val))
-				(setq dirty t)
+				(setq dirty :t)
 				...
 				)
-			(t  ;timer event
+			(:t  ;timer event
 				(mail-timeout (elem-get +select_timer select) timer_rate 0)
 				(. farm :refresh retry_timeout)
 				(when dirty
-					(setq dirty nil)
+					(setq dirty :nil)
 					...
 					(when (= 0 (length jobs))
-						(defq working nil)
+						(defq working :nil)
 						(. farm :each (lambda (key val)
 							(setq working (or working (. val :find :job)))))
 						(unless working (. farm :close)))))))
@@ -343,14 +343,14 @@ long to receive some work, 5 seconds here, and it goes away.
 ...
 
 (defun main ()
-	(defq select (alloc-select +select_size) running t +timeout 5000000)
+	(defq select (alloc-select +select_size) running :t +timeout 5000000)
 	(while running
 		(mail-timeout (elem-get +select_timeout select) +timeout 0)
 		(defq msg (mail-read (elem-get (defq idx (mail-select select)) select)))
 		(cond
 			((or (= idx +select_timeout) (eql msg ""))
 				;timeout or quit
-				(setq running nil))
+				(setq running :nil))
 			((= idx +select_main)
 				;main mailbox, reset timeout and reply with result
 				(mail-timeout (elem-get +select_timeout select) 0 0)

@@ -28,7 +28,7 @@
 (defun emit-vp-code (emit_list)
 	;remove redundant labels and rename
 	(defq out (push (clear '()) 'progn) labels (env 11)
-		last_e nil pc -1 pc_sym nil)
+		last_e :nil pc -1 pc_sym :nil)
 	(each (lambda (op)
 		(unless (eql (defq e (elem-get 0 op)) 'lambda)
 			(cond
@@ -43,7 +43,7 @@
 		(lambda (e)
 			(and (sym? e) (defq e (def? e labels))
 				(elem-set _ _l e)))
-		(lambda (l) nil)
+		(lambda (l) :nil)
 		(lambda (l)))
 	out)
 
@@ -59,7 +59,7 @@
 
 (defmacro type-sym (_) `(sym (str ,_ "_t")))
 
-(defun vp-type-t (_)
+(defun vp-type-:t (_)
 	(if (setq _ (find-rev (elem-get 0 _) "bBsSiI"))
 		(elem-get _ '(b ub s us i ui)) ""))
 
@@ -69,7 +69,7 @@
 			(cond
 				((vp-reg? o) :r)
 				((eql (elem-get 0 o) ":") :k)
-				(t :c)))
+				(:t :c)))
 		(:num :c)
 		(:list
 			(cond
@@ -82,16 +82,16 @@
 							(sym (cat :i (elem-get 2 o))))
 						((num? i) :i)
 						((setq i (get (type-sym i)))
-							(sym (cat :i (vp-type-t i))))
-						(t :i)))
+							(sym (cat :i (vp-type-:t i))))
+						(:t :i)))
 				((eql i '@) :@)
 				((eql i '$) :$)
 				((eql i '&)
 					(if (vp-reg? (elem-get 1 o))
-						(if (vp-reg? (elem-get 2 o)) :&d :&i) nil))
-				(t :c)))
+						(if (vp-reg? (elem-get 2 o)) :&d :&i) :nil))
+				(:t :c)))
 		(:str :s)
-		(t nil)))
+		(:t :nil)))
 
 (defun label-sym (s) (sym (cat "_l_" s)))
 (defun vp-label (l) (setq l (label-sym l)) (emit (list 'emit-label (list 'quote l))))

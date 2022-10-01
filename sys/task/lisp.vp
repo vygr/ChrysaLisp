@@ -51,7 +51,7 @@
 
 	(entry 'sys_task :lisp_timeslice '(:r3 :r4))
 
-	(call 'sys_pii :time nil '(:r0))
+	(call 'sys_pii :time :nil '(:r0))
 	(fn-bind 'sys/statics/statics :r2)
 	(assign '((:r2 statics_sys_task_then)) '(:r1))
 	(vp-sub-rr :r0 :r1)
@@ -84,7 +84,7 @@
 
 	(vp-push :r0)
 	(call 'str :create_from_buffer '(0 +net_id_size) '(:r3))
-	(call 'sys_task :mailbox nil
+	(call 'sys_task :mailbox :nil
 		`((:r3 ,(+ str_data net_id_mbox_id))
 		(:r3 ,(+ str_data net_id_node_id node_id_node1))
 		(:r3 ,(+ str_data net_id_node_id node_id_node2))))

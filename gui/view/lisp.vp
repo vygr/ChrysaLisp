@@ -24,7 +24,7 @@
 	(gotoif '(:r2 /= 0) 'error))
 
 	(vp-push :r0)
-	(call 'view :create nil '(:r1))
+	(call 'view :create :nil '(:r1))
 	(vp-pop :r0)
 
 	(exit 'view :lisp_create '(:r0 :r1))
@@ -459,7 +459,7 @@
 
 	(assign '(:r0) `(,this))
 	(list-bind-args :r1 `(,node) '(:view))
-	(call 'list :create nil '(:r0))
+	(call 'list :create :nil '(:r0))
 	(lh-get-head node view_list node)
 	(loop-start)
 		(ln-get-succ node 0 next)
@@ -575,7 +575,7 @@
 	(class/obj/ref :r10 :r0)
 	(call 'num :create '(:r11) '(:r11))
 	(call 'num :create '(:r12) '(:r12))
-	(call 'list :create nil '(:r0))
+	(call 'list :create :nil '(:r0))
 	(call 'list :push_back '(:r0 :r10) '(:r0 _ _ _))
 	(call 'list :push_back2 '(:r0 :r11 :r12) '(:r1 _ _ _ _))
 	(vp-pop :r0)

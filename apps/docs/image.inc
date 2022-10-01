@@ -8,7 +8,7 @@
 			(def (defq text (Text)) :text "")
 			(. page :add_child text)
 			:text)
-		(t	(defq canvas (Canvas-from-file line +load_flag_shared))
+		(:t	(defq canvas (Canvas-from-file line +load_flag_shared))
 			(. page :add_child canvas)
 			state)))
 

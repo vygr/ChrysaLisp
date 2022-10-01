@@ -117,7 +117,7 @@
 ### buffer :get_modified
 
 ```code
-(. buffer :get_modified) -> t | nil
+(. buffer :get_modified) -> :t | :nil
 ```
 
 ### buffer :get_size
@@ -171,7 +171,7 @@
 ### buffer :left_bracket
 
 ```code
-(. buffer :left_bracket) -> (x y) | (nil nil)
+(. buffer :left_bracket) -> (x y) | (:nil :nil)
 ```
 
 ### buffer :next_mark
@@ -207,7 +207,7 @@
 ### buffer :right_bracket
 
 ```code
-(. buffer :right_bracket) -> (x y) | (nil nil)
+(. buffer :right_bracket) -> (x y) | (:nil :nil)
 ```
 
 ### buffer :set_cursor
@@ -357,7 +357,7 @@
 ### canvas :save
 
 ```code
-(. canvas :save file format) -> nil | canvas
+(. canvas :save file format) -> :nil | canvas
 ```
 
 ### canvas :set_canvas_flags
@@ -753,7 +753,7 @@
 ### emap :find
 
 ```code
-(. emap :find key) -> nil | val
+(. emap :find key) -> :nil | val
 ```
 
 ### emap :insert
@@ -789,7 +789,7 @@
 ### farm :refresh
 
 ```code
-(. farm :refresh [_timeout]) -> t | nil
+(. farm :refresh [_timeout]) -> :t | :nil
 ```
 
 ### flow :layout
@@ -813,7 +813,7 @@
 ### global :refresh
 
 ```code
-(. global :refresh [_timeout]) -> t | nil
+(. global :refresh [_timeout]) -> :t | :nil
 ```
 
 ### global :size
@@ -867,13 +867,13 @@
 ### pipe :poll
 
 ```code
-(. pipe :poll) -> nil | t
+(. pipe :poll) -> :nil | :t
 ```
 
 ### pipe :read
 
 ```code
-(. pipe :read) -> nil | t | data
+(. pipe :read) -> :nil | :t | data
 ```
 
 ### pipe :write
@@ -1071,7 +1071,7 @@
 ### tree :find_node
 
 ```code
-(. tree :find_node route) -> node | nil
+(. tree :find_node route) -> node | :nil
 ```
 
 ### tree :get_route
@@ -1227,13 +1227,13 @@
 ### view :find_id
 
 ```code
-(. view :find_id target_id) -> nil | target_view
+(. view :find_id target_id) -> :nil | target_view
 ```
 
 ### view :find_owner
 
 ```code
-(. view :find_owner) -> nil | netid
+(. view :find_owner) -> :nil | netid
 ```
 
 ### view :get_bounds
@@ -1275,7 +1275,7 @@
 ### view :hit_tree
 
 ```code
-(. view :hit_tree x y) -> (hit_view | nil rx ry)
+(. view :hit_tree x y) -> (hit_view | :nil rx ry)
 ```
 
 ### view :layout
@@ -1413,7 +1413,7 @@
 ### xmap :empty?
 
 ```code
-(. xmap :empty?) -> t | nil
+(. xmap :empty?) -> :t | :nil
 ```
 
 ### xmap :erase
@@ -1425,7 +1425,7 @@
 ### xmap :find
 
 ```code
-(. xmap :find key) -> nil | val
+(. xmap :find key) -> :nil | val
 ```
 
 ### xmap :insert
@@ -1479,7 +1479,7 @@
 ### xset :empty?
 
 ```code
-(. xset :empty?) -> t | nil
+(. xset :empty?) -> :t | :nil
 ```
 
 ### xset :erase
@@ -1491,7 +1491,7 @@
 ### xset :find
 
 ```code
-(. xset :find key) -> nil | key
+(. xset :find key) -> :nil | key
 ```
 
 ### xset :insert
@@ -1539,7 +1539,7 @@
 ### .?
 
 ```code
-(.? this method) -> nil | lambda
+(.? this method) -> :nil | lambda
 ```
 
 ### .super
@@ -1558,6 +1558,12 @@
 
 ```code
 (/= num num ...)
+```
+
+### :nil?
+
+```code
+(:nil? o) -> bool
 ```
 
 ### <
@@ -1635,7 +1641,7 @@
 ### Canvas-from-file
 
 ```code
-(Canvas-from-file file flags) -> nil | canvas
+(Canvas-from-file file flags) -> :nil | canvas
 ```
 
 ### Canvas-from-pixmap
@@ -1683,7 +1689,7 @@
 ### Pipe
 
 ```code
-(Pipe cmds &optional user_select) -> pipe | nil
+(Pipe cmds &optional user_select) -> pipe | :nil
 ```
 
 ### Progress
@@ -1821,7 +1827,7 @@
 ### and
 
 ```code
-(and [tst] ...) -> t | nil | tst
+(and [tst] ...) -> :t | :nil | tst
 ```
 
 ### apply
@@ -1839,7 +1845,7 @@
 ### array?
 
 ```code
-(array? form) -> t | nil
+(array? form) -> :t | :nil
 ```
 
 ### ascii-char
@@ -2031,7 +2037,7 @@
 ### collection?
 
 ```code
-(collection? obj) -> t | nil
+(collection? obj) -> :t | :nil
 ```
 
 ### compose
@@ -2319,7 +2325,7 @@
 ### empty
 
 ```code
-(empty collection) -> collection | nil
+(empty collection) -> collection | :nil
 ```
 
 ### empty?
@@ -2331,13 +2337,13 @@
 ### ends-with
 
 ```code
-(ends-with str str) -> t | nil
+(ends-with str str) -> :t | :nil
 ```
 
 ### entries
 
 ```code
-(entries collection) ->  list | nil
+(entries collection) ->  list | :nil
 ```
 
 ### enums
@@ -2373,7 +2379,7 @@
 ### env?
 
 ```code
-(env? form) -> t | nil
+(env? form) -> :t | :nil
 ```
 
 ### eql
@@ -2403,7 +2409,7 @@
 ### every
 
 ```code
-(every lambda seq ...) -> nil | form
+(every lambda seq ...) -> :nil | form
 ```
 
 ### exec
@@ -2469,7 +2475,7 @@
 ### first
 
 ```code
-(first seq) -> el | nil
+(first seq) -> el | :nil
 ```
 
 ### fixeds
@@ -2535,7 +2541,7 @@
 ### func?
 
 ```code
-(func? form) -> t | nil
+(func? form) -> :t | :nil
 ```
 
 ### gensym
@@ -2625,13 +2631,13 @@
 ### gets
 
 ```code
-(gets collection k [if_nil]) -> value | if_nil | nil
+(gets collection k [if_nil]) -> value | if_nil | :nil
 ```
 
 ### gets-in
 
 ```code
-(gets-in collection key-path) -> value | nil
+(gets-in collection key-path) -> value | :nil
 ```
 
 ### gui-deinit
@@ -2769,7 +2775,7 @@
 ### keys
 
 ```code
-(keys collection) -> list | nil
+(keys collection) -> list | :nil
 ```
 
 ### lambda
@@ -2781,13 +2787,13 @@
 ### lambda?
 
 ```code
-(lambda? form) -> t | nil
+(lambda? form) -> :t | :nil
 ```
 
 ### last
 
 ```code
-(last seq) -> el | nil
+(last seq) -> el | :nil
 ```
 
 ### length
@@ -2817,7 +2823,7 @@
 ### list?
 
 ```code
-(list? form) -> t | nil
+(list? form) -> :t | :nil
 ```
 
 ### load
@@ -2835,7 +2841,7 @@
 ### load-stream
 
 ```code
-(load-stream path) -> nil | stream
+(load-stream path) -> :nil | stream
 ```
 
 ### log2
@@ -2877,7 +2883,7 @@
 ### macro?
 
 ```code
-(macro? form) -> t | nil
+(macro? form) -> :t | :nil
 ```
 
 ### macroexpand
@@ -2973,7 +2979,7 @@
 ### map?
 
 ```code
-(map? object) -> t | nil
+(map? object) -> :t | :nil
 ```
 
 ### match?
@@ -3048,12 +3054,6 @@
 (nempty? form) -> bool
 ```
 
-### nil?
-
-```code
-(nil? o) -> bool
-```
-
 ### nlo
 
 ```code
@@ -3069,19 +3069,19 @@
 ### not
 
 ```code
-(not form) -> t | nil
+(not form) -> :t | :nil
 ```
 
 ### notany
 
 ```code
-(notany lambda seq ...) -> t | nil
+(notany lambda seq ...) -> :t | :nil
 ```
 
 ### notevery
 
 ```code
-(notevery lambda seq ...) -> t | nil
+(notevery lambda seq ...) -> :t | :nil
 ```
 
 ### nto
@@ -3117,7 +3117,7 @@
 ### num?
 
 ```code
-(num? form) -> t | nil
+(num? form) -> :t | :nil
 ```
 
 ### nums
@@ -3237,7 +3237,7 @@
 ### or
 
 ```code
-(or [tst] ...) -> nil | tst
+(or [tst] ...) -> :nil | tst
 ```
 
 ### out-stream
@@ -3297,7 +3297,7 @@
 ### path-gen-paths
 
 ```code
-(path-gen-paths svg_d tol) -> (list (nil|t path) ...)
+(path-gen-paths svg_d tol) -> (list (:nil|:t path) ...)
 ```
 
 ### path-gen-quadratic
@@ -3423,7 +3423,7 @@
 ### pixmap-load
 
 ```code
-(pixmap-load file) -> nil | pixmap
+(pixmap-load file) -> :nil | pixmap
 ```
 
 ### pixmap-load-cpm
@@ -3441,7 +3441,7 @@
 ### pixmap-save
 
 ```code
-(pixmap-save pixmap file type) -> nil | pixmap
+(pixmap-save pixmap file type) -> :nil | pixmap
 ```
 
 ### pixmap-save-cpm
@@ -3651,7 +3651,7 @@
 ### rest
 
 ```code
-(rest seq) -> nil | seq
+(rest seq) -> :nil | seq
 ```
 
 ### reverse
@@ -3669,13 +3669,13 @@
 ### second
 
 ```code
-(second seq) -> el | nil
+(second seq) -> el | :nil
 ```
 
 ### seq?
 
 ```code
-(seq? form) -> t | nil
+(seq? form) -> :t | :nil
 ```
 
 ### set
@@ -3759,7 +3759,7 @@
 ### some
 
 ```code
-(some lambda seq ...) -> nil | form
+(some lambda seq ...) -> :nil | form
 ```
 
 ### some!
@@ -3771,7 +3771,7 @@
 ### some-rev
 
 ```code
-(some-rev lambda seq ...) -> nil | form
+(some-rev lambda seq ...) -> :nil | form
 ```
 
 ### sort
@@ -3801,7 +3801,7 @@
 ### starts-with
 
 ```code
-(starts-with str str) -> t | nil
+(starts-with str str) -> :t | :nil
 ```
 
 ### static
@@ -3843,7 +3843,7 @@
 ### str?
 
 ```code
-(str? form) -> t | nil
+(str? form) -> :t | :nil
 ```
 
 ### stream-avail
@@ -3891,7 +3891,7 @@
 ### sym?
 
 ```code
-(sym? form) -> t | nil
+(sym? form) -> :t | :nil
 ```
 
 ### task-mailbox
@@ -3915,7 +3915,7 @@
 ### third
 
 ```code
-(third seq) -> el | nil
+(third seq) -> el | :nil
 ```
 
 ### throw
@@ -4161,7 +4161,7 @@
 ### values
 
 ```code
-(values collection) -> list | nil
+(values collection) -> list | :nil
 ```
 
 ### vdu-configure

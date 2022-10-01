@@ -31,7 +31,7 @@
 	(call 'lisp :repl_eval {this, iter_begin[+ptr_size * 1]} {_, value})
 	(vpif (cat {value->obj_vtable = @} (f-path 'error :vtable)))
 		(call 'lisp :env_push {this})
-		(call 'list :create nil {str_args})
+		(call 'list :create :nil {str_args})
 		(call 'obj :ref {value})
 		(call 'list :push_back {str_args, value})
 		(call 'str :lisp_str {this, str_args} {_, str_value})

@@ -7,13 +7,13 @@
 		(undoable buffer
 			(bind '(cx cy) (. buffer :get_cursor))
 			;trim front
-			(defq y (some! 0 h nil
+			(defq y (some! 0 h :nil
 					(# (unless (blank-line? %0) _))
 				(list (. buffer :get_text_lines))))
 			(unless y (setq y h))
 			(.-> buffer (:set_cursor 0 y) (:cut 0 0))
 			;trim end
-			(defq y (some! (bind '(w h) (. buffer :get_size)) 0 nil
+			(defq y (some! (bind '(w h) (. buffer :get_size)) 0 :nil
 					(# (unless (blank-line? %0) (inc _)))
 				(list (. buffer :get_text_lines))))
 			(unless y (setq y 0))
@@ -79,8 +79,8 @@
 	(populate-vdu (elem-get idx live_buffers)))
 
 (defun action-scratch-buffer ()
-	(select-node nil)
-	(populate-vdu nil))
+	(select-node :nil)
+	(populate-vdu :nil))
 
 (defun action-close-buffer ()
 	(when *current_file*
@@ -89,5 +89,5 @@
 		(when (defq idx (find *current_file* *open_files*))
 			(setq *open_files* (erase *open_files* idx (inc idx))))
 		(populate-open-tree)
-		(populate-vdu nil)
-		(select-node nil)))
+		(populate-vdu :nil)
+		(select-node :nil)))

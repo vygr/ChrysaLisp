@@ -332,8 +332,8 @@
 
 	(vp-push :r0)
 	(call 'str :create_from_buffer '(0 +net_id_size) '(:r6))
-	(call 'sys_mail :alloc_mbox nil `((:r6 ,(+ str_data net_id_mbox_id)) _))
-	(call 'sys_kernel :id nil
+	(call 'sys_mail :alloc_mbox :nil `((:r6 ,(+ str_data net_id_mbox_id)) _))
+	(call 'sys_kernel :id :nil
 		`((:r6 ,(+ str_data net_id_node_id node_id_node1))
 		(:r6 ,(+ str_data net_id_node_id node_id_node2))))
 	(vp-pop :r0)
@@ -399,7 +399,7 @@
 	(gotoif '(:r2 /= 0) 'error))
 
 	(vp-push :r0)
-	(call 'sys_mail :devices nil '(:r1))
+	(call 'sys_mail :devices :nil '(:r1))
 	(vp-pop :r0)
 
 	(exit 'sys_mail :lisp_devices '(:r0 :r1))
@@ -451,7 +451,7 @@
 		(endswitch)
 	(else)
 		;calculate wake time
-		(call 'sys_pii :time nil '(:r0))
+		(call 'sys_pii :time :nil '(:r0))
 		(vp-add-rr :r0 :r13)
 		(call 'sys_mail :alloc `(,(* 2 +long_size)) '(:r0 :r1))
 		(assign '(:r13 :r14) '((:r1 0) (:r1 +long_size)))

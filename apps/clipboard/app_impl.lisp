@@ -3,7 +3,7 @@
 (defun main ()
 	(defq clip_service (mail-declare (task-mailbox) "CLIPBOARD_SERVICE" "Clipboard Service 0.2")
 		clipboard "")
-	(while t
+	(while :t
 		(let ((msg (mail-read (task-mailbox))))
 			(cond
 				((= (defq type (elem-get 0 msg)) +clip_type_put)

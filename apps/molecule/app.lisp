@@ -26,14 +26,14 @@
 		(unzip (split (pii-dirlist p) ",") (list (list) (list))))
 	(sort cmp out))
 
-(defq anti_alias t timer_rate (/ 1000000 30) +min_size 450 +max_size 800
+(defq anti_alias :t timer_rate (/ 1000000 30) +min_size 450 +max_size 800
 	canvas_size +min_size canvas_scale (if anti_alias 1 2)
 	*rotx* +real_0 *roty* +real_0 *rotz* +real_0 +focal_dist +real_4
 	+near +focal_dist +far (+ +near +real_4)
 	+top (* +focal_dist +real_1/3) +bottom (* +focal_dist +real_-1/3)
 	+left (* +focal_dist +real_-1/3) +right (* +focal_dist +real_1/3)
 	+canvas_mode (if anti_alias +canvas_flag_antialias 0)
-	*mol_index* 0 *auto_mode* nil *dirty* t
+	*mol_index* 0 *auto_mode* :nil *dirty* :t
 	balls (list) mol_files (all-mol-files "apps/molecule/data/")
 	palette (map (lambda (_) (Vec3-f
 			(n2f (/ (logand (>> _ 16) 0xff) 0xff))
@@ -156,7 +156,7 @@
 				("S" (list (const (n2r (* 88 canvas_scale))) (elem-get 6 palette)))
 				("Si" (list (const (n2r (* 111 canvas_scale))) (elem-get 6 palette)))
 				("P" (list (const (n2r (* 98 canvas_scale))) (elem-get 7 palette)))
-				(t (list (const (n2r (* 100 canvas_scale))) (const (Vec3-f 1.0 1.0 0.0))))))
+				(:t (list (const (n2r (* 100 canvas_scale))) (const (Vec3-f 1.0 1.0 0.0))))))
 			(push balls (list (Vec3-r x y z) radius col)))
 		(bind '(center radius) (bounding-sphere balls (# (elem-get +ball_vertex %0))))
 		(defq scale_p (/ (const (n2r 2.0)) radius) scale_r (/ (const (n2r 0.0625)) radius))
@@ -167,16 +167,16 @@
 
 (defun reset ()
 	(ball-file 0)
-	(setq *dirty* t))
+	(setq *dirty* :t))
 
 ;import actions and bindings
 (import "./actions.inc")
 
 (defun dispatch-action (&rest action)
-	(catch (eval action) (progn (print _)(print) t)))
+	(catch (eval action) (progn (print _)(print) :t)))
 
 (defun main ()
-	(defq select (alloc-select +select_size) *running* t)
+	(defq select (alloc-select +select_size) *running* :t)
 	(bind '(x y w h) (apply view-locate (.-> *window* (:connect +event_layout) :pref_size)))
 	(.-> main_widget (:set_canvas_flags +canvas_mode) (:fill +argb_black) :swap)
 	(radio-select style_toolbar 1)
@@ -198,12 +198,12 @@
 					(setq *rotx* (% (+ *rotx* (n2r 0.01)) +real_2pi)
 						*roty* (% (+ *roty* (n2r 0.02)) +real_2pi)
 						*rotz* (% (+ *rotz* (n2r 0.03)) +real_2pi)
-						*dirty* t)
+						*dirty* :t)
 					(set-rot xrot_slider *rotx*)
 					(set-rot yrot_slider *roty*)
 					(set-rot zrot_slider *rotz*))
 				(when *dirty*
-					(setq *dirty* nil)
+					(setq *dirty* :nil)
 					(render)))
 			((defq id (getf *msg* +ev_msg_target_id) action (. event_map :find id))
 				;call bound event action
@@ -234,7 +234,7 @@
 					((<= +char_space key +char_tilda)
 						;insert char etc ...
 						(char key))))
-			(t  ;gui event
+			(:t  ;gui event
 				(. *window* :event *msg*))))
 	(gui-sub *window*)
 	(free-select select)

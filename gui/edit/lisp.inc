@@ -41,9 +41,9 @@
 	(defq buffer (. this :get_buffer))
 	(bind '(cx cy) (. this :get_cursor))
 	(defq line (. buffer :get_text_line cy)
-		x (some! cx 0 nil (#
+		x (some! cx 0 :nil (#
 			(if (not-whole-word-char? %0) (inc _))) (list line))
-		x1 (some! cx -1 nil (#
+		x1 (some! cx -1 :nil (#
 		   (if (not-whole-word-char? %0) _)) (list line)))
 	(unless x (setq x 0))
 	(unless x1 (setq x1 (length line)))
@@ -52,10 +52,10 @@
 (defun select-paragraph (this)
 	(defq buffer (. this :get_buffer))
 	(bind '(cx cy) (. this :get_cursor))
-	(defq y (some! cy 0 nil
+	(defq y (some! cy 0 :nil
 				(# (if (blank-line? %0) (inc _)))
 			(list (. buffer :get_text_lines)))
-		y1 (some! cy (bind '(w h) (. buffer :get_size)) nil
+		y1 (some! cy (bind '(w h) (. buffer :get_size)) :nil
 				(# (if (blank-line? %0) _))
 			(list (. buffer :get_text_lines))))
 	(unless y (setq y 0))
@@ -77,7 +77,7 @@
 		:vdu_underlay (defq vdu_underlay (Vdu))
 		:anchor_x 0 :anchor_y 0
 		:scroll_x 0 :scroll_y 0
-		:buffer (Buffer t) :underlay (list)
+		:buffer (Buffer :t) :underlay (list)
 		:selected +not_selected
 		:vdu_width 80 :vdu_height 40
 		:min_width 0 :min_height 0)
@@ -114,7 +114,7 @@
 				(def child
 					:min_width min_w :min_height min_h
 					:vdu_width vdu_w :vdu_height vdu_h)
-				(. child :change 0 0 w h t))
+				(. child :change 0 0 w h :t))
 			(. this :children))
 		this)
 
@@ -187,7 +187,7 @@
 			((selection? this)
 				(bind '(sx sy sx1 sy1) (sort-selection this))
 				(. this :set_cursor sx sy))
-			(t  (. (get :buffer this) :left)))
+			(:t  (. (get :buffer this) :left)))
 		(. this :clear_selection))
 
 	(defmethod :right (this)
@@ -196,7 +196,7 @@
 			((selection? this)
 				(bind '(sx sy sx1 sy1) (sort-selection this))
 				(. this :set_cursor sx1 sy1))
-			(t  (. (get :buffer this) :right)))
+			(:t  (. (get :buffer this) :right)))
 		(. this :clear_selection))
 
 	(defmethod :up (this)
@@ -314,7 +314,7 @@
 
 	(defmethod :break (this)
 		; (. edit :break) -> edit
-		(undoable this nil
+		(undoable this :nil
 			(bind '(ax ay) (. this :get_anchor))
 			(. buffer :cut ax ay)
 			(bind '(x y) (.-> buffer :break :get_cursor))
@@ -326,7 +326,7 @@
 
 	(defmethod :tab (this)
 		; (. edit :tab) -> edit
-		(undoable this nil
+		(undoable this :nil
 			(defq tab_width (. buffer :get_tab_width))
 			(. buffer :cut ax ay)
 			(bind '(cx cy) (. buffer :get_cursor))
@@ -335,7 +335,7 @@
 
 	(defmethod :left_tab (this)
 		; (. edit :left_tab) -> edit
-		(undoable this nil
+		(undoable this :nil
 			(defq tab_width (. buffer :get_tab_width))
 			(bind '(y y1) (select-lines this))
 			(each! y y1 (lambda (line)
@@ -353,7 +353,7 @@
 
 	(defmethod :right_tab (this)
 		; (. edit :right_tab) -> edit
-		(undoable this nil
+		(undoable this :nil
 			(defq tab (pad "" (. buffer :get_tab_width) "        "))
 			(bind '(y y1) (select-lines this))
 			(each! y y1 (lambda (line)
@@ -367,7 +367,7 @@
 	(defmethod :to_lower (this)
 		; (. edit :to_lower) -> edit
 		(when (selection? this)
-			(undoable this nil
+			(undoable this :nil
 				(bind '(ax ay) (. this :get_anchor))
 				(. buffer :paste (to-lower (. buffer :cut ax ay)))))
 		this)
@@ -375,14 +375,14 @@
 	(defmethod :to_upper (this)
 		; (. edit :to_upper) -> edit
 		(when (selection? this)
-			(undoable this nil
+			(undoable this :nil
 				(bind '(ax ay) (. this :get_anchor))
 				(. buffer :paste (to-upper (. buffer :cut ax ay)))))
 		this)
 
 	(defmethod :reflow (this)
 		; (. edit :reflow) -> edit
-		(undoable this nil
+		(undoable this :nil
 			(bind '(y y1) (select-paragraph this))
 			(each (lambda (line)
 					(task-slice)
@@ -399,7 +399,7 @@
 	(defmethod :ordered (this)
 		; (. edit :ordered) -> edit
 		(when (selection? this)
-			(undoable this nil
+			(undoable this :nil
 				(bind '(y y1) (select-lines this))
 				(. this :set_anchor 0 y)
 				(. buffer :paste (cat (join
@@ -410,7 +410,7 @@
 	(defmethod :ordered_unique (this)
 		; (. edit :ordered_unique) -> edit
 		(when (selection? this)
-			(undoable this nil
+			(undoable this :nil
 				(bind '(y y1) (select-lines this))
 				(. this :set_anchor 0 y)
 				(. buffer :paste (cat (join
@@ -422,7 +422,7 @@
 
 	(defmethod :comment (this)
 		; (. edit :comment) -> edit
-		(undoable this nil
+		(undoable this :nil
 			(bind '(y y1) (select-lines this))
 			(. this :set_anchor 0 y)
 			(each! y y1 (lambda (line)
@@ -460,7 +460,7 @@
 		(cond
 			((= cy y1)
 				(push underlay (cat (slice 0 cx +not_selected) (slice cx x1 selected))))
-			(t  (push underlay (cat
+			(:t  (push underlay (cat
 					(slice 0 cx +not_selected)
 					(slice cx (inc (length (elem-get cy buffer))) selected)))
 				(while (< (setq cy (inc cy)) y1)
@@ -484,7 +484,7 @@
 						(push underlay (cat
 							(slice 0 x +not_selected) +bracket_char
 							(slice x (dec x1) +not_selected) +bracket_char)))
-					(t  (push underlay (cat (slice 0 x +not_selected) +bracket_char))
+					(:t  (push underlay (cat (slice 0 x +not_selected) +bracket_char))
 						(while (< (setq y (inc y)) y1) (push underlay ""))
 						(push underlay (cat (slice 0 x1 +not_selected) +bracket_char))))))
 		(. vdu_underlay :load underlay scroll_x scroll_y -1 -1)

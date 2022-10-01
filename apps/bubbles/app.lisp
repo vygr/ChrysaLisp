@@ -146,7 +146,7 @@
 	(redraw-layers verts 1)
 
 	;main event loop
-	(defq last_state :u id t)
+	(defq last_state :u id :t)
 	(mail-timeout (elem-get +select_timer select) rate 0)
 	(while id
 		(defq *msg* (mail-read (elem-get (defq idx (mail-select select)) select)))
@@ -162,7 +162,7 @@
 				(if (defq view (. *window* :find_id (getf *msg* +mail_timeout_id)))
 					(. view :show_tip)))
 			((= (setq id (getf *msg* +ev_msg_target_id)) +event_close)
-				(setq id nil))
+				(setq id :nil))
 			((= id +event_min)
 				;min button
 				(bind '(x y w h) (apply view-fit (cat (. *window* :get_pos) (. *window* :pref_size))))
@@ -178,7 +178,7 @@
 				(setq verts (vertex-cloud num_bubbles)))
 			((<= +event_grid id +event_axis)
 				;styles
-				(def (. mybackdrop :dirty) :style (elem-get (radio-select style_toolbar (- id +event_grid)) '(nil :grid :axis))))
+				(def (. mybackdrop :dirty) :style (elem-get (radio-select style_toolbar (- id +event_grid)) '(:nil :grid :axis))))
 			((and (= id (. layer1_canvas :get_id))
 				(= (getf *msg* +ev_msg_type) +ev_type_mouse))
 					;mouse event in canvas
@@ -196,13 +196,13 @@
 							;set light pos
 							(elem-set +dlist_light_pos dlist
 								(vec-i2n (* rx 4) (* ry 4) (neg (* box_size 4)))))
-						(t  ;mouse button is up
+						(:t  ;mouse button is up
 							(case last_state
 								(:d ;was down last time
 									(setq last_state :u))
 								(:u ;was up last time, so we are hovering
-									t)))))
-			(t (. *window* :event *msg*))))
+									:t)))))
+			(:t (. *window* :event *msg*))))
 	;close window
 	(free-select select)
 	(gui-sub *window*))

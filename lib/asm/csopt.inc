@@ -28,7 +28,7 @@
 	`(find-rev ,r ,op))
 
 (defmacro find-past (&rest _)
-	`(and (defq _ (some! _ 1 nil
+	`(and (defq _ (some! _ 1 :nil
 			(lambda (op) (cond ~_))
 		(list inst_list))) (> _ -1) _))
 
@@ -44,7 +44,7 @@
 		((uses? r op) -1)))
 
 (defun opt-inst-list (inst_list)
-	(defq _ 0 m nil)
+	(defq _ 0 m :nil)
 	(while (< (setq _ (inc _)) (length inst_list))
 		(cond
 			;variable loading and offset folding

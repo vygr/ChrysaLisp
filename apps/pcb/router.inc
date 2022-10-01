@@ -46,7 +46,7 @@
 (defun sort-netlist (netlist)
 	(sort (# (- (. %0 :get_area) (. %1 :get_area))) netlist))
 
-(defclass Pad (radius gap pos shape) nil
+(defclass Pad (radius gap pos shape) :nil
 	; (Pad radius gap pos shape) -> pad
 	(def this :radius radius :gap gap :pos pos :shape shape)
 	(defgetmethod radius)
@@ -58,7 +58,7 @@
 	(defgetmethod shape)
 	(defsetmethod shape))
 
-(defclass Track (id track_radius via_radius gap pads wires) nil
+(defclass Track (id track_radius via_radius gap pads wires) :nil
 	; (Track id track_radius via_radius gap pads wires) -> track
 	(def this :id id :track_radius track_radius :via_radius via_radius :gap gap
 		:pads pads :wires wires)
@@ -69,7 +69,7 @@
 	(defgetmethod pads)
 	(defgetmethod wires))
 
-(defclass Net (track pcb) nil
+(defclass Net (track pcb) :nil
 	; (Net track pcb) -> net
 	(defq grid_res (n2f (. pcb :get_grid_res)))
 	(def this
@@ -129,11 +129,11 @@
 		(cond
 			((= (length shape) 0)
 				(push pad_lines (Layers-line x y z1 x y z2 radius gap)))
-			(t  (defq z z1)
+			(:t  (defq z z1)
 				(while (<= z z2)
 					(bind '(xs ys) (elem-get 0 shape))
 					(defq cx x cy y cz z
-						p0x nil p0y nil p0z nil
+						p0x :nil p0y :nil p0z :nil
 						p1x (+ x xs) p1y (+ y ys) p1z cz)
 					(each! 1 -1 (lambda ((xs ys))
 						;add pad entries to via only spacial cache
@@ -151,7 +151,7 @@
 
 	;build wires collision lines and visited
 	(each (lambda (wire)
-		(defq p0 nil p1 (elem-get 0 wire))
+		(defq p0 :nil p1 (elem-get 0 wire))
 		(each! 1 -1 (lambda (p)
 			(setq p0 p1 p1 p)
 			(cond
@@ -163,7 +163,7 @@
 					(while (<= z depth)
 						(. wire_nodes :insert (. pcb :pad_point_to_node (Vec3-f x0 y0 z)))
 						(setq z (+ z 1.0))))
-				(t  ;layer wire
+				(:t  ;layer wire
 					(bind '(x0 y0 z0) p0)
 					(bind '(x1 y1 z1) p1)
 					(push wire_lines (Layers-line x0 y0 z0 x1 y1 z1 radius gap))
@@ -231,7 +231,7 @@
 		(raise :pcb :radius :via :gap)
 		(defq depth (n2f (dec (. pcb :get_depth))))
 		(reduce (lambda (lines pth)
-			(defq p0 nil p1 (. pcb :node_to_pad_point (elem-get 0 pth)))
+			(defq p0 :nil p1 (. pcb :node_to_pad_point (elem-get 0 pth)))
 			(each! 1 -1 (lambda (p)
 				(setq p0 p1 p1 (. pcb :node_to_pad_point p))
 				(bind '(x0 y0 z0) p0)
@@ -276,8 +276,8 @@
 		(raise :pcb)
 		(reduce (lambda (opt_paths pth)
 			(defq opt_path (list)
-				d0 (Vec3-f 0.0 0.0 0.0) d1 nil
-				p0 nil p1 (. pcb :node_to_pad_point (elem-get 0 pth)))
+				d0 (Vec3-f 0.0 0.0 0.0) d1 :nil
+				p0 :nil p1 (. pcb :node_to_pad_point (elem-get 0 pth)))
 			(each! 1 -1 (lambda (p)
 				(setq p0 p1 p1 (. pcb :node_to_pad_point p)
 					d1 (vec-norm (vec-sub p1 p0)))
@@ -291,7 +291,7 @@
 		; (. net :backtrack_path this visited end_node radius via gap) -> nodes
 		;backtrack path from ends to starts
 		(raise :pcb (path_vectors (. pcb :get_path_vectors)
-			nearer_nodes '() pth (list) path_node end_node exit nil))
+			nearer_nodes '() pth (list) path_node end_node exit :nil))
 		(until exit
 			(task-slice)
 			(push pth path_node)
@@ -311,7 +311,7 @@
 				((defq n (some (# (. visited :find %0)) nearer_nodes))
 					;found existing track
 					(setq exit (push pth n)))
-				(t  ;sort nodes and take the first
+				(:t  ;sort nodes and take the first
 					(setq path_node (elem-get 1 (elem-get 0
 						(sort (# (- (elem-get 0 %0) (elem-get 0 %1)))
 						(map (# (list (vec-squared-euclidean-distance path_node %0) %0))
@@ -320,17 +320,17 @@
 		exit)
 
 	(defmethod :route (this)
-		; (. net :route) -> t | nil
+		; (. net :route) -> :t | :nil
 		;attempt to route this net on the current boards state
 		(raise :pcb :radius :via :gap :paths :pad_end_nodes)
 		(cond
-			((= radius 0.0) t)
-			(t  (clear paths)
+			((= radius 0.0) :t)
+			(:t  (clear paths)
 				(.-> this
 					:sub_pad_lines
 					:sub_wire_lines)
 				(defq visited (. (get :wire_nodes this) :copy)
-					failed (some! 1 -1 nil (lambda (ends)
+					failed (some! 1 -1 :nil (lambda (ends)
 						(each (# (. visited :insert %0)) (elem-get (dec _) pad_end_nodes))
 						(unless (some (# (. visited :find %0)) ends)
 							(. pcb :mark_distances radius via gap visited ends)
@@ -340,18 +340,18 @@
 							(cond
 								((/= (length nodes) 0)
 									(each (# (. visited :insert %0)) nodes)
-									(push paths nodes) nil)
-								(t)))) (list pad_end_nodes)))
+									(push paths nodes) :nil)
+								(:t)))) (list pad_end_nodes)))
 				(cond
 					(failed
-						(. this :remove) nil)
-					(t  (setq paths (. this :optimise_paths paths))
+						(. this :remove) :nil)
+					(:t  (setq paths (. this :optimise_paths paths))
 						(lower :paths)
 						(.-> this
 							:add_paths_lines
 							:add_pad_lines
 							:add_wire_lines)
-						t)))))
+						:t)))))
 
 	(defmethod :print_net (this stream)
 		; (. net :print_net stream) -> net
@@ -412,7 +412,7 @@
 		this)
 	)
 
-(defclass Pcb (width height depth grid_res verb quant vias_cost fr fr_even fr_odd) nil
+(defclass Pcb (width height depth grid_res verb quant vias_cost fr fr_even fr_odd) :nil
 	; (Pcb width height depth grid_res verb quant vias_cost fr fr_even fr_odd) -> pcb
 	(def this
 		:nodes_dim (dim (nums (* width grid_res) (* height grid_res) depth)
@@ -524,14 +524,14 @@
 		; (. pcb :mark_distances radius via gap starts ends) -> pcb
 		;generate all grid points surrounding node that are not shorting with an existing track
 		(raise :flood_vectors :vias_cost (distance 1 vias_map (const (fmap 11))
-			frontier (. starts :copy) exit t))
+			frontier (. starts :copy) exit :t))
 		(while (and exit (or (not (. vias_map :empty?)) (not (. frontier :empty?))))
 			(task-slice)
 			(. frontier :each (# (. this :set_node %0 distance)))
 			(cond
 				((every (# (/= (. this :get_node %0) 0)) ends)
-					(setq exit nil))
-				(t  (defq ns (alloc-node-set) vias_start (+ distance vias_cost))
+					(setq exit :nil))
+				(:t  (defq ns (alloc-node-set) vias_start (+ distance vias_cost))
 					(. frontier :each (lambda (node)
 						(each (# (. ns :insert %0))
 							(. this :all_not_shorting
@@ -578,7 +578,7 @@
 		; (. pcb :hoist_net index) -> (netlist new_index)
 		;move net to top of area group
 		(raise :netlist (area (. (elem-get index netlist) :get_area)
-			new_index (some! index 0 nil (# (if (< (. %0 :get_area) area) (inc _))) (list netlist))))
+			new_index (some! index 0 :nil (# (if (< (. %0 :get_area) area) (inc _))) (list netlist))))
 		(unless new_index (setq new_index 0))
 		(when (/= index new_index)
 			(defq net (slice index (inc index) netlist)
@@ -594,30 +594,30 @@
 		this)
 
 	(defmethod :route (this select reply_mbox prog_mbox)
-		; (. pcb :route select reply_mbox prog_mbox) -> t | nil
+		; (. pcb :route select reply_mbox prog_mbox) -> :t | :nil
 		(raise :netlist)
 		(.-> this :remove_netlist :unmark_distances :reset_areas :shuffle_netlist)
 		(sort-netlist netlist)
-		(defq hoisted_nets (fset) index 0 exit t retval t)
+		(defq hoisted_nets (fset) index 0 exit :t retval :t)
 		(while (and exit (not (mail-poll select)) (< index (length netlist)))
 			(task-slice)
 			(defq net (elem-get index netlist))
 			(cond
 				((. net :route)
 					(setq index (inc index)))
-				(t  (cond
+				(:t  (cond
 						((= index 0)
 							(.-> this :reset_areas :shuffle_netlist)
 							(sort-netlist netlist)
 							(. hoisted_nets :empty))
-						(t  (. (elem-get index netlist) :shuffle_topology)
+						(:t  (. (elem-get index netlist) :shuffle_topology)
 							(bind '(netlist pos) (. this :hoist_net index))
 							(cond
 								((or (= pos index) (. hoisted_nets :find net))
 									(. net :set_area (. (elem-get (dec index) netlist) :get_area))
 									(bind '(netlist pos) (. this :hoist_net index))
 									(. hoisted_nets :erase net))
-								(t  (. hoisted_nets :insert net)))
+								(:t  (. hoisted_nets :insert net)))
 							(while (> index pos)
 								(. (elem-get index netlist) :remove)
 								(setq index (dec index)))))))
@@ -640,7 +640,7 @@
 		; (. pcb :close) -> pcb
 		;drop all nets and circular refs to pcb !
 		(raise :netlist)
-		(each (# (. %0 :set_pcb nil)) (get :netlist this))
+		(each (# (. %0 :set_pcb :nil)) (get :netlist this))
 		this)
 
 	(defmethod :print_pcb (this stream)

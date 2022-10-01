@@ -6,10 +6,10 @@
 ; task static class
 ;;;;;;;;;;;;;;;;;;;
 
-(def-class sys_task nil
+(def-class sys_task :nil
 	(dec-method :statics_init sys/task/statics_init)
-	(dec-method :tcb sys/task/tcb :static nil (:r0))
-	(dec-method :mailbox sys/task/mailbox :static nil (:r0 :r1 :r2))
+	(dec-method :tcb sys/task/tcb :static :nil (:r0))
+	(dec-method :mailbox sys/task/mailbox :static :nil (:r0 :r1 :r2))
 	(dec-method :callback sys/task/callback :static (:r0 :r1))
 	(dec-method :start sys/task/start :static (:r0) (:r0 :r1 :r2 :r3 :r4))
 	(dec-method :stop sys/task/stop)
@@ -19,7 +19,7 @@
 	(dec-method :resume sys/task/resume :static (:r0) (:r0))
 	(dec-method :defer sys/task/defer :static (:r0))
 	(dec-method :set_priority sys/task/set_priority :static (:r0))
-	(dec-method :timer sys/task/timer :static nil (:r0))
+	(dec-method :timer sys/task/timer :static :nil (:r0))
 	(dec-method :dump sys/task/dump)
 	(dec-method :task_callback class/obj/null :static (:r0))
 	(dec-method :lisp_sleep sys/task/lisp_sleep :static (:r0 :r1) (:r0 :r1))

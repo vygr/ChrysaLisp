@@ -93,7 +93,7 @@ if the symbol is not bound, you use the `(set)` and `(setq)` functions like so.
 ```
 
 You can look up the binding for a symbol with the `(get)` function. If the
-symbol is not bound this will return `nil`.
+symbol is not bound this will return `:nil`.
 
 ```vdu
 (get 'bert)
@@ -105,7 +105,7 @@ symbol is not bound this will return `nil`.
 (get 'z57u)
 78
 (get 'xyz)
-nil
+:nil
 ```
 
 It is possible to unbind a symbol by using `(undef)` like so.
@@ -113,9 +113,9 @@ It is possible to unbind a symbol by using `(undef)` like so.
 ```vdu
 (undef (env) 'bert 'alf)
 (get 'bert)
-nil
+:nil
 (get 'alf)
-nil
+:nil
 ```
 
 `(get)` can take an optional environment to work from. `(get sym e)` and if
@@ -228,7 +228,7 @@ pairs in order to interface with other code.
 (get :p2 e)
 89
 (get :p3 e)
-nil
+:nil
 ```
 
 The optional parameter, to `(env)`, is used to create a new isolated

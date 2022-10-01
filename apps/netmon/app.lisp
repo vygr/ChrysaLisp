@@ -13,7 +13,7 @@
 (defq task_scale_size 10 max_tasks task_scale_size last_max_tasks max_tasks
 	used_scale_size 4 max_used (* 1024 16384) last_max_used max_used
 	alloc_scale_size 4 max_alloc (* 1024 16384) last_max_alloc max_alloc
-	id t rate (/ 1000000 2) +mem_align (* 1024 4096)
+	id :t rate (/ 1000000 2) +mem_align (* 1024 4096)
 	retry_timeout (if (starts-with "obj/vp64" (load-path)) 10000000 1000000))
 
 (ui-window *window* ()
@@ -85,7 +85,7 @@
 				(cond
 					((= (setq id (getf msg +ev_msg_target_id)) +event_close)
 						;close button
-						(setq id nil))
+						(setq id :nil))
 					((= id +event_min)
 						;min button
 						(bind '(x y w h) (apply view-fit
@@ -97,7 +97,7 @@
 						(bind '(w h) (. *window* :pref_size))
 						(bind '(x y w h) (view-fit x y (/ (* w 100) 75) h))
 						(. *window* :change_dirty x y w h))
-					(t (. *window* :event msg))))
+					(:t (. *window* :event msg))))
 			((= idx +select_task)
 				;child launch responce
 				(defq child (getf msg +kn_msg_reply_id)
@@ -123,7 +123,7 @@
 					(def used_bar :maximum last_max_used :value used_val)
 					(. task_bar :dirty) (. alloc_bar :dirty) (. used_bar :dirty)
 					(. val :insert :timestamp (pii-time))))
-			(t  ;timer event
+			(:t  ;timer event
 				(mail-timeout (elem-get +select_nodes select) rate 0)
 				(when (. global_tasks :refresh retry_timeout)
 					;nodes have mutated

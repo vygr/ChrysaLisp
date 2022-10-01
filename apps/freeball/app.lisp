@@ -2,7 +2,7 @@
 (import "class/lisp.inc")
 (import "gui/lisp.inc")
 
-(defq id t index 0 xv 4 yv 0 i 512
+(defq id :t index 0 xv 4 yv 0 i 512
 	frames (map (lambda (_) (Canvas-from-file (cat "apps/freeball/data/staoball_" (str _) ".cpm") +load_flag_shared)) (range 1 13))
 	sframes (map (lambda (_) (Canvas-from-file (cat "apps/freeball/data/staoball_s_" (str _) ".cpm") +load_flag_shared)) (range 1 13)))
 
@@ -35,6 +35,6 @@
 			(and (< (getf (defq msg (mail-read (task-mailbox))) +ev_msg_target_id) 0)
 				(= (getf msg +ev_msg_type) +ev_type_mouse)
 				(/= (getf msg +ev_msg_mouse_buttons) 0)
-				(setq id nil)))
+				(setq id :nil)))
 		(task-sleep 40000))
 	(gui-sub view))

@@ -126,7 +126,7 @@ event handling.
 (defun main ()
 	(defq select (alloc-select +select_size))
 	...
-	(defq id t)
+	(defq id :t)
 	(mail-timeout (elem-get +select_timer select) rate 0)
 	(while id
 		(defq *msg* (mail-read (elem-get (defq idx (mail-select select)) select)))
@@ -143,7 +143,7 @@ event handling.
 			;here we know that this msg must be for (= idx +select_main)
 			;ie. from the GUI
 			((= (setq id (getf *msg* +ev_msg_target_id)) +event_close)
-				(setq id nil))
+				(setq id :nil))
 			((= id +event_min)
 				;min button
 				...
@@ -161,7 +161,7 @@ event handling.
 				...
 				)
 			...
-			(t (. *window* :event *msg*))))
+			(:t (. *window* :event *msg*))))
 	...
 	(free-select select))
 ```
@@ -261,7 +261,7 @@ event and key dispatching code.
 
 (defun dispatch-action (&rest action)
 	...
-	(catch (eval action) (progn (print _)(print) t)))
+	(catch (eval action) (progn (print _)(print) :t)))
 
 (defun main ()
 	(defq select (alloc-select +select_size))
@@ -311,7 +311,7 @@ event and key dispatching code.
 						(dispatch-action action-insert (char key))
 						...
 						)))
-			(t  ;gui event
+			(:t  ;gui event
 				...
 				(. *window* :event *msg*)))
 		...

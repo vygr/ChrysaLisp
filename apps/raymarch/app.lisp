@@ -14,7 +14,7 @@
 	(enum main task reply timer))
 
 (defq canvas_width 800 canvas_height 800 canvas_scale 1
-	timer_rate (/ 1000000 1) id t dirty nil
+	timer_rate (/ 1000000 1) id :t dirty :nil
 	retry_timeout (if (starts-with "obj/vp64" (load-path)) 50000000 5000000)
 	jobs (map (lambda (y)
 			(setf-> (str-alloc +job_size)
@@ -55,7 +55,7 @@
 				(setf-> job
 					(+job_key key)
 					(+job_reply (elem-get +select_reply select)))))
-		(t  ;no jobs in que
+		(:t  ;no jobs in que
 			(.-> val
 				(:erase :job)
 				(:erase :timestamp)))))
@@ -90,8 +90,8 @@
 				(cond
 					((= (setq id (getf msg +ev_msg_target_id)) +event_close)
 						;close button
-						(setq id nil))
-					(t (. *window* :event msg))))
+						(setq id :nil))
+					(:t (. *window* :event msg))))
 			((= idx +select_task)
 				;child launch responce
 				(defq key (getf msg +kn_msg_key) child (getf msg +kn_msg_reply_id))
@@ -103,16 +103,16 @@
 				(defq key (get-long msg (- (length msg) +long_size)))
 				(when (defq val (. farm :find key))
 					(dispatch-job key val))
-				(setq dirty t)
+				(setq dirty :t)
 				(tile canvas msg))
-			(t  ;timer event
+			(:t  ;timer event
 				(mail-timeout (elem-get +select_timer select) timer_rate 0)
 				(. farm :refresh retry_timeout)
 				(when dirty
-					(setq dirty nil)
+					(setq dirty :nil)
 					(. canvas :swap)
 					(when (= 0 (length jobs))
-						(defq working nil)
+						(defq working :nil)
 						(. farm :each (lambda (key val)
 							(setq working (or working (. val :find :job)))))
 						(unless working

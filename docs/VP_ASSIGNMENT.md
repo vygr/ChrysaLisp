@@ -195,7 +195,7 @@ Register inputs and outputs are declared in the `sys/mail/class.inc` file just
 as with a VP function.
 
 ```vdu
-(def-class sys_mail nil
+(def-class sys_mail :nil
 	(dec-method :declare sys/mail/declare :static (:r0 :r1)))
 ```
 
@@ -246,16 +246,16 @@ variables, with their correct data type.
 
 If you are curious to see the code emitted by the compiler you can switch on
 printing of the emitted code by use of the `*debug_emit*` and `*debug_inst*`
-flags. A `(setq *debug_inst* t)` will enable printing of each expression
-compilation, `(setq *debug_emit* t)` will enable printing of the entire
-functions final instructions. Be sure to `(setq *debug_inst* nil)` and `(setq
-*debug_emit* nil)` after the section of code or function to turn emit printing
+flags. A `(setq *debug_inst* :t)` will enable printing of each expression
+compilation, `(setq *debug_emit* :t)` will enable printing of the entire
+functions final instructions. Be sure to `(setq *debug_inst* :nil)` and `(setq
+*debug_emit* :nil)` after the section of code or function to turn emit printing
 off.
 
 This is the output from wrapping the `'hmap :insert` line in the example above:
 
 ```vdu
-(let ((*debug_inst* t))
+(let ((*debug_inst* :t))
 	(call 'hmap :insert {statics->statics_sys_mail_service_map, name, id})
 )
 ```

@@ -10,14 +10,14 @@
 		b (% (hash key) (get :num_buckets this))
 		e (find key (elem-get b x))))
 
-(defclass fset (&optional num_buckets) nil
+(defclass fset (&optional num_buckets) :nil
 	; (fset [num_buckets]) -> fset
 	(def this :buckets (list) :num_buckets (setq num_buckets (opt num_buckets 1)))
 	(while (>= (setq num_buckets (dec num_buckets)) 0)
 		(push (get :buckets this) (list)))
 
 	(defmethod :find (this key)
-		; (. fset :find key) -> nil | key
+		; (. fset :find key) -> :nil | key
 		(slot)
 		(if e (elem-get e (elem-get b x))))
 
@@ -26,7 +26,7 @@
 		(slot)
 		(cond
 			(e (elem-set e (elem-get b x) key))
-			(t (push (elem-get b x) key)))
+			(:t (push (elem-get b x) key)))
 		this)
 
 	(defmethod :erase (this key)
@@ -68,7 +68,7 @@
 		(cond
 			((eql this that)
 				(. this :empty))
-			(t  (. that :each (# (. this :erase %0)))
+			(:t  (. that :each (# (. this :erase %0)))
 				this)))
 
 	(defmethod :intersect (this that)
@@ -83,7 +83,7 @@
 		(cond
 			((eql this that)
 				(. this :empty))
-			(t  (. (defq other (. that :copy)) :difference this)
+			(:t  (. (defq other (. that :copy)) :difference this)
 				(. this :difference that)
 				(. this :union other))))
 
@@ -113,7 +113,7 @@
 		this)
 
 	(defmethod :empty? (this)
-		; (. fset :empty?) -> t | nil
+		; (. fset :empty?) -> :t | :nil
 		(every (# (= (length %0) 0)) (get :buckets this)))
 	)
 

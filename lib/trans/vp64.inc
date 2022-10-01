@@ -19,7 +19,7 @@
 			(emit-short (+ (inc o) (<< r 8) (<< c 12)) (>>> c 4)))
 		((<= -0x800000000 c 0x7ffffffff)
 			(emit-short (+ (+ o 2) (<< r 8) (<< c 12)) (>>> c 4) (>>> c 20)))
-		(t  (emit-short (+ (+ o 3) (<< r 8)) c (>>> c 16) (>>> c 32) (>>> c 48)))))
+		(:t  (emit-short (+ (+ o 3) (<< r 8)) c (>>> c 16) (>>> c 32) (>>> c 48)))))
 
 (defun emit-cpy-cr (c r) (emit-cr (next-opcode 4) c r))
 (defun emit-add-cr (c r) (unless (= c 0) (emit-cr (next-opcode 4) c r)))
@@ -35,7 +35,7 @@
 		((= c 0))
 		((<= 1 c 63)
 			(emit-short (+ o (<< r 8)) c))
-		(t  (throw "emit-shift-cr constant out of range !" c))))
+		(:t  (throw "emit-shift-cr constant out of range !" c))))
 
 (defun emit-shl-cr (c r) (emit-shift-cr (next-opcode) c r))
 (defun emit-shr-cr (c r) (emit-shift-cr (next-opcode) c r))
@@ -67,7 +67,7 @@
 			(emit-short (+ (inc o) (<< d 8) (<< c 12)) (>>> c 4)))
 		((<= -0x800000000 c 0x7ffffffff)
 			(emit-short (+ (+ o 2) (<< d 8) (<< c 12)) (>>> c 4) (>>> c 20)))
-		(t  (throw "emit-scr constant out of range !" c))))
+		(:t  (throw "emit-scr constant out of range !" c))))
 
 (defun emit-seq-cr (c d) (emit-scr (next-opcode 3) c d))
 (defun emit-sne-cr (c d) (emit-scr (next-opcode 3) c d))
@@ -91,7 +91,7 @@
 			(emit-short (+ o (<< (- l 2) 8))))
 		((<= -0x800000 (- m 4) 0x7fffff)
 			(emit-short (+ (inc o) (<< (- l 4) 8)) (>>> (- l 4) 8)))
-		(t  (throw "emit-branch constant out of range !" l))))
+		(:t  (throw "emit-branch constant out of range !" l))))
 
 (defun emit-beq (l d) (emit-branch (next-opcode 2) l d))
 (defun emit-bne (l d) (emit-branch (next-opcode 2) l d))
@@ -104,7 +104,7 @@
 	(cond
 		((<= -0x8000 c 0x7fff)
 			(emit-short (+ o (<< d 8) (<< s 12)) c))
-		(t  (throw "emit-ir constant out of range !" c))))
+		(:t  (throw "emit-ir constant out of range !" c))))
 
 (defun emit-cpy-ir (s c d) (emit-ir (next-opcode) s c d))
 (defun emit-cpy-ir-b (s c d) (emit-ir (next-opcode) s c d))
@@ -119,7 +119,7 @@
 	(cond
 		((<= -0x8000 c 0x7fff)
 			(emit-short (+ o (<< d 8) (<< s 12)) c))
-		(t  (throw "emit-ri constant out of range !" c))))
+		(:t  (throw "emit-ri constant out of range !" c))))
 
 (defun emit-cpy-ri (s d c) (emit-ri (next-opcode) s d c))
 (defun emit-cpy-ri-b (s d c) (emit-ri (next-opcode) s d c))
@@ -153,7 +153,7 @@
 	(cond
 		((<= -0x80000 c 0x7ffff)
 			(emit-short (+ o (<< r 8) (<< c 12)) (>>> c 4)))
-		(t  (throw "emit-call-jmp-i constant out of range !" c))))
+		(:t  (throw "emit-call-jmp-i constant out of range !" c))))
 
 (defun emit-call-i (r c) (emit-call-jmp-i (next-opcode) r c))
 (defun emit-jmp-i (r c) (emit-call-jmp-i (next-opcode) r c))
@@ -162,7 +162,7 @@
 	(cond
 		((<= -0x80000 (defq c (- l *pc* 4)) 0x7ffff)
 			(emit-short (+ o (<< r 8) (<< c 12)) (>>> c 4)))
-		(t  (throw "emit-p constant out of range !" c))))
+		(:t  (throw "emit-p constant out of range !" c))))
 
 (defun emit-cpy-pr (l r) (emit-p (next-opcode) r l))
 (defun emit-lea-p (l r) (emit-p (next-opcode) r l))
@@ -173,7 +173,7 @@
 			(emit-short (+ o (<< c 8))))
 		((<= -0x800000 (defq c (- l *pc* 4)) 0x7fffff)
 			(emit-short (+ (inc o) (<< c 8)) (>>> c 8)))
-		(t  (throw "emit-call-jmp-p constant out of range !" c))))
+		(:t  (throw "emit-call-jmp-p constant out of range !" c))))
 
 (defun emit-call (l) (emit-call-jmp-p (next-opcode 2) l))
 (defun emit-jmp (l d) (emit-call-jmp-p (next-opcode 2) l))
@@ -184,7 +184,7 @@
 	(cond
 		((<= 0 c (const (- 0x10000 +ptr_size)))
 			(emit-short (+ (next-opcode) (<< b 8) (<< n 12)) c))
-		(t  (throw "emit-call-abi constant out of range !" c))))
+		(:t  (throw "emit-call-abi constant out of range !" c))))
 
 (defun emit-alloc (c) (emit-sub-cr (align c stack_align) (const (emit-native-reg? :rsp))))
 (defun emit-free (c) (emit-add-cr (align c stack_align) (const (emit-native-reg? :rsp))))

@@ -33,10 +33,10 @@
 (import "./actions.inc")
 
 (defun dispatch-action (&rest action)
-	(catch (eval action) (progn (print _)(print) t)))
+	(catch (eval action) (progn (print _)(print) :t)))
 
 (defun main ()
-	(defq select (alloc-select +select_size) *running* t mouse_state :u)
+	(defq select (alloc-select +select_size) *running* :t mouse_state :u)
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(gui-add-front (. *window* :change x y w h))
 	(tooltips)
@@ -95,13 +95,13 @@
 									(setq mouse_state :d)))
 							;use rx, ry ...
 							)
-						(t  ;mouse button is up
+						(:t  ;mouse button is up
 							(case mouse_state
 								(:d ;was down last time
 									(setq mouse_state :u))
 								(:u ;was up last time, so we are hovering
 									)))))
-			(t  ;gui event
+			(:t  ;gui event
 				(. *window* :event *msg*))))
 	(gui-sub *window*)
 	(free-select select))

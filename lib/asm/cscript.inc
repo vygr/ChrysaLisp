@@ -49,7 +49,7 @@
 	(list 'find-rev _ +stringy_chars))
 
 (defun cscript-tokenize (line)
-	(defq state :space unary t token (clear '()) out_types (clear '()) out_tokens (clear '()))
+	(defq state :space unary :t token (clear '()) out_types (clear '()) out_tokens (clear '()))
 	(each (lambda (c)
 		(while c
 			(case state
@@ -72,68 +72,68 @@
 						((defq _ (is-bracket-char? c))
 							(push out_types (elem-get _ '(:lrb :rrb :lsb :rsb)))
 							(push out_tokens c)
-							(setq unary (elem-get _ '(t nil t nil)))))
-					(setq c nil))
+							(setq unary (elem-get _ '(:t :nil :t :nil)))))
+					(setq c :nil))
 				(:symbol
 					(cond
 						((is-symbol-char? c)
 							(push token c)
-							(setq c nil))
-						(t	(cond
+							(setq c :nil))
+						(:t	(cond
 								((find-rev (elem-get -2 (push out_tokens (apply cat token)))
 										'("pptr" "byte" "ubyte" "short" "ushort" "int" "uint" "long" "ulong" "ptr"))
 									(push out_types :operator))
-								(t	(push out_types state)))
+								(:t	(push out_types state)))
 							(clear token)
-							(setq state :space unary nil))))
+							(setq state :space unary :nil))))
 				(:number
 					(cond
 						((is-folow-on-number-char? c)
 							(push token c)
-							(setq c nil))
-						(t	(push out_types state)
+							(setq c :nil))
+						(:t	(push out_types state)
 							(push out_tokens (apply cat token))
 							(clear token)
-							(setq state :space unary nil))))
+							(setq state :space unary :nil))))
 				(:string
 					(cond
 						((eql c (ascii-char 34))
 							(push out_types state)
 							(push out_tokens (apply cat token))
 							(clear token)
-							(setq state :space unary nil))
-						(t 	(push token c)))
-					(setq c nil))
+							(setq state :space unary :nil))
+						(:t 	(push token c)))
+					(setq c :nil))
 				(:path
 					(cond
 						((is-path-char? c)
 							(push token c)
-							(setq c nil))
-						(t 	(push out_types state)
+							(setq c :nil))
+						(:t 	(push out_types state)
 							(push out_tokens (apply cat token))
 							(clear token)
-							(setq state :space unary nil))))
+							(setq state :space unary :nil))))
 				(:label
 					(cond
 						((is-label-char? c)
 							(push token c)
-							(setq c nil))
-						(t 	(push out_types state)
+							(setq c :nil))
+						(:t 	(push out_types state)
 							(push out_tokens (apply cat token))
 							(clear token)
-							(setq state :space unary nil))))
+							(setq state :space unary :nil))))
 				(:operator
 					(cond
 						((is-folow-on-op-char? c)
 							(push token c)
-							(setq c nil))
-						(t	(cond
+							(setq c :nil))
+						(:t	(cond
 								(unary
 									(if (setq _ (find-rev (elem-get 0 token) "-*&~!"))
 										(push out_tokens (elem-get _ "_#:~!"))
 										(throw "Unknown unary operator !" (elem-get 0 token))))
-								(t	(push out_tokens (apply cat token))
-									(setq unary t)))
+								(:t	(push out_tokens (apply cat token))
+									(setq unary :t)))
 						 	(push out_types state)
 							(clear token)
 							(setq state :space))))))) line)
@@ -166,16 +166,16 @@
 				;precidence
 				(unless (defq s (get-sym token))
 					(throw "Operator not defined !" token))
-				(defq v (- (elem-get 2 s) (elem-get 3 s)) x t)
+				(defq v (- (elem-get 2 s) (elem-get 3 s)) x :t)
 				(while (and x (/= 0 (length token_stack)))
 					(setq s (get-sym (elem-get -2 token_stack)))
 					(cond
 						((>= v (elem-get 2 s))
 							(push out_tokens (pop token_stack))
 							(push out_types :operator))
-						(t	(setq x nil))))
+						(:t	(setq x :nil))))
 				(push token_stack token))
-			(t	;number, symbol, string, path, label
+			(:t	;number, symbol, string, path, label
 				(push out_tokens token)
 				(push out_types type)))) tokenize_output)
 	(while (defq _ (pop token_stack))
@@ -188,7 +188,7 @@
 ;;;;;;;;;;;;;
 
 (defq +vreg ''(:v0 :v1 :v2 :v3 :v4 :v5 :v6 :v7 :v8 :v9 :v10 :v11 :v12 :v13 :v14))
-(each (lambda (_) (defcvar _ nil)) +vreg)
+(each (lambda (_) (defcvar _ :nil)) +vreg)
 
 (defmacro vreg-sym (_)
 	`(elem-get ,_ +vreg))
@@ -213,7 +213,7 @@
 
 (defmacro reset-reg-stack (_)
 	`(defq *inst* (push (clear '()) progn)
-		*vregt* (slice 0 ,_ '(nil nil nil nil nil nil nil nil nil nil nil nil nil nil nil))))
+		*vregt* (slice 0 ,_ '(:nil :nil :nil :nil :nil :nil :nil :nil :nil :nil :nil :nil :nil :nil :nil))))
 
 (defun set-reg-map (l _)
 	(setd _ '(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14))
@@ -227,7 +227,7 @@
 
 (defun compile-deref ()
 	(if (defq x (top-reg) w (get-type))
-		(defq z (slice 1 -1 w) z (if (eql z "") nil z) w (elem-get 0 w))
+		(defq z (slice 1 -1 w) z (if (eql z "") :nil z) w (elem-get 0 w))
 		(throw "No type info !" x))
 	(set-type z)
 	(setq w (elem-get (find-rev w "bBsSiIlLp") '(vp-cpy-ir-b vp-cpy-ir-ub vp-cpy-ir-s vp-cpy-ir-us
@@ -246,21 +246,21 @@
 (defun top-value ()
 	(when (get-type)
 		(compile-deref)
-		(set-type nil))
+		(set-type :nil))
 	(top-reg))
 
 (defun compile-null ()
-	(throw "Null operator !" nil))
+	(throw "Null operator !" :nil))
 
 (defun compile-key (_)
-	(sub-inst (list 'vp-cpy-rr (get _) (push-reg nil))))
+	(sub-inst (list 'vp-cpy-rr (get _) (push-reg :nil))))
 
 (defun compile-const (_)
-	(add-inst (list 'vp-cpy-cr _ (push-reg nil))))
+	(add-inst (list 'vp-cpy-cr _ (push-reg :nil))))
 
 (defun compile-arrow (&optional _)
 	(bind '((y w) x) (list (pop-reg) (pop-value)))
-	(if _ (push-reg nil))
+	(if _ (push-reg :nil))
 	(setq w (elem-get (find-rev w "bBsSiIlLp") '(vp-cpy-ri-b vp-cpy-ri-b vp-cpy-ri-s vp-cpy-ri-s
 										vp-cpy-ri-i vp-cpy-ri-i vp-cpy-ri vp-cpy-ri vp-cpy-ri)))
 	(add-inst (list w x y 0)))
@@ -279,12 +279,12 @@
 				((get _)
 					;equate
 					(compile-const _))
-				(t (throw "Symbol not defined !" _))))
+				(:t (throw "Symbol not defined !" _))))
 		((eql 'var (elem-get 1 s))
 			;variable
 			(add-inst (list 'vp-lea-i :rsp (+ (get-scope (elem-get 0 s)) (elem-get 2 s))
 									(push-reg (elem-get 3 s)))))
-		(t (throw "Symbol not a variable !" _))))
+		(:t (throw "Symbol not a variable !" _))))
 
 (defun compile-cast (_)
 	(if (defq c (find-rev (sym _) '(pptr byte ubyte short ushort int uint long ulong ptr)))
@@ -298,7 +298,7 @@
 	(add-inst (list 'vp-add-rr _ (top-reg))))
 
 (defun compile-uaddrof (_)
-	(set-type nil))
+	(set-type :nil))
 
 (defun compile-field (_)
 	(bind '(_ w) (pop-reg))
@@ -404,16 +404,16 @@
 			(throw "Compile op not defined !" _))
 		((not (eql 'op (elem-get 1 s)))
 			(throw "Not an operator !" _))
-		(t	((elem-get 4 s) _))))
+		(:t	((elem-get 4 s) _))))
 
 (defun compile-string (_)
-	(add-inst (list 'fn-string _ (push-reg nil))))
+	(add-inst (list 'fn-string _ (push-reg :nil))))
 
 (defun compile-bind (_)
-	(add-inst `(fn-bind ',_ ,(push-reg nil))))
+	(add-inst `(fn-bind ',_ ,(push-reg :nil))))
 
 (defun compile-label (_)
-	(add-inst `(vp-lea-p ',_ ,(push-reg nil))))
+	(add-inst `(vp-lea-p ',_ ,(push-reg :nil))))
 
 (defun cscript-compile (rpn_output)
 	(each! 0 -1 (lambda (token type)

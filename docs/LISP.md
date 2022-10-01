@@ -43,7 +43,7 @@ function can be used to return the current hash map and optionally resize the
 number of buckets from the default of 1. This proves very effective for storing
 large numbers of symbols and objects for the assembler as well as creating
 caches. Make sure to `(setq)` the symbol you bind to the result of `(env)` to
-`nil` before returning from the function if you do this, else you will create a
+`:nil` before returning from the function if you do this, else you will create a
 cycle that can't be freed.
 
 `(defq)` and `(bind)` always create entries in the current environment hash
@@ -56,7 +56,7 @@ foot off.
 
 There is no cons, cdr or car stuff. Lists are just vector objects and you use
 `(push)`, `(cat)`, `(slice)` etc to manipulate elements. Also an empty list
-does not evaluate to `nil`, it's just an error.
+does not evaluate to `:nil`, it's just an error.
 
 Function and macro definitions are scoped and visible only within the scope of
 the declaring function. There is no global macro list. During macro expansion
@@ -67,7 +67,7 @@ the environment chain is searched to see if a macro exists.
 ### Built in symbols
 
 ```vdu
-&rest &optional nil t
+&rest &optional :nil :t
 ```
 
 ### Built in functions

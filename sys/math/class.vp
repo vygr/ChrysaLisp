@@ -85,7 +85,7 @@
 			(vp-mul-cr coef :r0)
 			(vp-asr-cr +fp_shift :r0)
 			(vp-add-rr :r3 :r0))
-		(t	(unless (= coef 0)
+		(:t	(unless (= coef 0)
 				(vp-cpy-rr :r0 :r2)
 				(vp-mul-cr coef :r2)
 				(vp-asr-cr +fp_shift :r2)
@@ -141,7 +141,7 @@
 	(cheby-term -6786)
 	(cheby-term -900)
 	(cheby-term 89)
-	(cheby-term 7 t)
+	(cheby-term 7 :t)
 	(vp-ret)
 
 (def-func-end)

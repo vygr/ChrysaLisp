@@ -2,7 +2,7 @@
 
 (def-class array seq
 	(dec-method :vtable class/array/vtable)
-	(dec-method :create class/array/create :static nil (:r0))
+	(dec-method :create class/array/create :static :nil (:r0))
 	(dec-method :init class/array/init)
 	(dec-method :get_capacity class/array/get_capacity :static (:r0) (:r0 :r1))
 	(dec-method :set_capacity class/array/set_capacity :static (:r0 :r1) (:r0))
@@ -315,9 +315,9 @@
 	;save register list to iter
 	(setq i (get i))
 	(cond
-		((eql type nil)
+		((eql type :nil)
 			(assign regs (map (lambda (r) (list i (* +long_size _))) regs)))
-		(t  (defq s (type-to-size type))
+		(:t  (defq s (type-to-size type))
 			(assign regs (map (lambda (r) (list i (* s _) type)) regs)))))
 
 (defun array-get-args (i regs &optional type)
@@ -328,9 +328,9 @@
 	;load register list from iter
 	(setq regs (assign-map-reg-keys regs))
 	(cond
-		((eql type nil)
+		((eql type :nil)
 			(assign (map (lambda (r) (list i (* +long_size _))) regs) regs))
-		(t  (defq s (type-to-size type))
+		(:t  (defq s (type-to-size type))
 			(assign (map (lambda (r) (list i (* s _) type)) regs) regs))))
 
 (defun array-map-args (regs pos)

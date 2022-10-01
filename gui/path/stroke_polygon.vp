@@ -27,11 +27,11 @@
 
 	(call 'path :filter_polygon {this, this, 0.5})
 	(call 'path :get_both {this} {_, iter_begin_polyline, iter_end_polyline})
-	(call 'path :create nil {path1})
+	(call 'path :create :nil {path1})
 	(call 'path :stroke_joints {path1, stack, iter_begin_polyline, iter_end_polyline,
 		iter_end_polyline[-+long_size * 4], iter_end_polyline[-+long_size * 3],
 		iter_end_polyline[-+long_size * 2], iter_end_polyline[-+long_size], radius, eps, join_style})
-	(call 'path :create nil {path2})
+	(call 'path :create :nil {path2})
 	(call 'path :stroke_joints {path2, stack, iter_end_polyline - 2 * +long_size,
 		iter_begin_polyline - 2 * +long_size,
 		iter_begin_polyline[+long_size * 2], iter_begin_polyline[+long_size * 3],

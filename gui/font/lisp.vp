@@ -112,7 +112,7 @@
 	(assign `(,(elem-get 1 in2)) `((:rsp local_info)))
 	(call 'font :glyph_bounds in2 '(_ (:rsp local_w) (:rsp local_h)))
 	(call 'array :deref '((:rsp local_info)))
-	(call 'list :create nil '(:r13))
+	(call 'list :create :nil '(:r13))
 	(call 'num :create  '((:rsp local_w)) '(:r11))
 	(call 'num :create  '((:rsp local_h)) '(:r0))
 	(call 'list :push_back2 '(:r13 :r11 :r0) '(:r1 _ _ _ _))

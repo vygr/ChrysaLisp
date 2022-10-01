@@ -88,7 +88,7 @@
 	(gotoif '(:r2 /= 0) 'error))
 
 	(vp-push :r0)
-	(call 'sys_pii :time nil '(:r0))
+	(call 'sys_pii :time :nil '(:r0))
 	(call 'num :create '(:r0) '(:r1))
 	(vp-pop :r0)
 
@@ -162,7 +162,7 @@
 	(call 'sys_pii :stat '((& :r0 str_data) :r1) '(:r0))
 	(vpif '(:r0 = 0))
 		(vp-cpy-rr :r1 :r13)
-		(call 'array :create nil '(:r0))
+		(call 'array :create :nil '(:r0))
 		(call 'array :push_back2 '(:r0 (:r13 stat_mtime) (:r13 stat_fsize)) '(:r0 _ _ _ _))
 		(call 'array :push_back '(:r0 (:r13 stat_mode)) '(:r1 _ _ _))
 	(else)

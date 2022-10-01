@@ -12,8 +12,8 @@
 (enums +select 0
 	(enum main task reply timer))
 
-(defq vdu_width 38 vdu_height 12 text_buf nil
-	flicker_rate (/ 1000000 8) timer_rate (/ 1000000 1) max_move_time 10000000 id t
+(defq vdu_width 38 vdu_height 12 text_buf :nil
+	flicker_rate (/ 1000000 8) timer_rate (/ 1000000 1) max_move_time 10000000 id :t
 	brd "RNBQKBNRPPPPPPPP                                pppppppprnbqkbnr"
 	history (list brd) color +white start_time (pii-time) replys (list) next_seq 0)
 
@@ -42,7 +42,7 @@
 				;line feed and truncate
 				(if (> (length (push buf "")) (const vdu_height))
 					(setq buf (slice (const (dec (neg vdu_height))) -1 buf))))
-			(t	;char
+			(:t	;char
 				(elem-set -2 buf (cat (elem-get -2 buf) c))))) s)
 	(. vdu :load buf 0 0 (length (elem-get -2 buf)) (dec (length buf))) buf)
 
@@ -89,8 +89,8 @@
 				(cond
 					((= (setq id (getf msg +ev_msg_target_id)) +event_close)
 						;close button
-						(setq id nil))
-					(t (. *window* :event msg))))
+						(setq id :nil))
+					(:t (. *window* :event msg))))
 			((= idx +select_task)
 				;child launch responce
 				(defq key (getf msg +kn_msg_key) child (getf msg +kn_msg_reply_id))
@@ -122,7 +122,7 @@
 						;status
 						((= data_type (ascii-code "s"))
 							(vdu-print vdu text_buf data)))))
-			(t	;timer event
+			(:t	;timer event
 				(mail-timeout (elem-get +select_timer select) timer_rate 0)
 				(. farm :refresh (+ max_move_time 1000000)))))
 	;close window and children

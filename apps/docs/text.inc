@@ -11,15 +11,15 @@
 	flow)
 
 (defun heading (words &optional size)
-	(defq cnt 0 state nil page_width (get :min_width page)
+	(defq cnt 0 state :nil page_width (get :min_width page)
 		flow (line-flow size))
 	(each (lambda (word)
 		(. flow :add_child (defq text (Text)))
 		(if (starts-with "`" word)
-			(setq state t word (slice 1 -1 word)))
+			(setq state :t word (slice 1 -1 word)))
 		(if state (def text :ink_color +argb_blue))
 		(if (find "`" word)
-			(setq state nil word (apply cat (split word "`"))))
+			(setq state :nil word (apply cat (split word "`"))))
 		(def text :text word)
 		(bind '(w _) (. text :pref_size))
 		(when (> (setq cnt (+ cnt w)) page_width)
@@ -28,7 +28,7 @@
 			(setq cnt w))) words))
 
 (defun paragraph (words &optional size)
-	(defq cnt 0 state nil index 0 page_width (get :min_width page)
+	(defq cnt 0 state :nil index 0 page_width (get :min_width page)
 		flow (line-flow size))
 	(when (and (> (length words) 0)
 			(eql (elem-get 0 words) "* "))
@@ -41,10 +41,10 @@
 	(each! index -1 (lambda (word)
 		(. flow :add_child (defq text (Text)))
 		(if (starts-with "`" word)
-			(setq state t word (slice 1 -1 word)))
+			(setq state :t word (slice 1 -1 word)))
 		(if state (def text :ink_color +argb_blue))
 		(if (find "`" word)
-			(setq state nil word (apply cat (split word "`"))))
+			(setq state :nil word (apply cat (split word "`"))))
 		(def text :text word)
 		(bind '(w _) (. text :pref_size))
 		(when (> (setq cnt (+ cnt w)) page_width)
@@ -72,7 +72,7 @@
 		((starts-with "```" line)
 			;section start
 			(if (eql (setq state (sym (cat ":" (slice 3 -1 line)))) :) :code state))
-		(t  ;body text
+		(:t  ;body text
 			(cond
 				((eql line "")
 					;body paragraph end
@@ -94,7 +94,7 @@
 					(heading (line-words (slice 2 -1 line)) 34)
 					(under-line 4)
 					(blank-line))
-				(t  (each (lambda (word)
+				(:t  (each (lambda (word)
 						(push words word)) (line-words line))))
 			state)))
 

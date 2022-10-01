@@ -6,7 +6,7 @@
 	(cond
 		((starts-with "```" line)
 			:text)
-		(t	(each-line (lambda (line)
+		(:t	(each-line (lambda (line)
 					(task-slice)
 					((handler-func :vdu) :vdu page (trim-end line (ascii-char 13))))
 				(file-stream line))

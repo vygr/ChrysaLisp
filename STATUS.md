@@ -249,7 +249,7 @@ Tool tips experiment in the Editor.
 
 Mouse wheel support added across the GUI. Apps and Scroll widget.
 
-New `(.?)` macro. Returns `nil` if not callable else the bound method lambda.
+New `(.?)` macro. Returns `:nil` if not callable else the bound method lambda.
 
 GUI event loop moved out to Lisp. And move the SDL event queue handling out to
 Lisp !
@@ -364,7 +364,7 @@ like other the other time functions. As we are no longer using SDL sleep call.
 Changed the install network to a 3x3 mesh to not overload the Raspberry PI.
 
 Textfield widget now has :clear_text property. This is mapped to :text property
-depending on the value of a :mode (nil | t) property.
+depending on the value of a :mode (:nil | :t) property.
 
 Implemented `(if ...)` in VP code ! Nice performance boost across the system.
 
@@ -670,7 +670,7 @@ this addition.
 eg.
 ```code
 (map (# (< %0 0)) '(1 2 3 4 5 6 -6 -7 -8 0 7))
-(nil nil nil nil nil nil t t t nil nil)
+(:nil :nil :nil :nil :nil :nil :t :t :t :nil :nil)
 ```
 
 Anaphoric macros have moved over to the lib/ folder.
@@ -1128,7 +1128,7 @@ trim the snapshot.zip file of the empty folders.
 
 ------
 
-Removed sys_mail::trymail and sys_mail::tryread. Broke out sys_mail::poll from
+Removed sys_mail:trymail and sys_mail:tryread. Broke out sys_mail::poll from
 sys_mail::select and standardised on this way of polling an array of mailboxes.
 Made the API directly compatible with Lisp apps....
 
@@ -1178,7 +1178,7 @@ the target id array if required so saving a small amount of RAM.
 
 Fixed a silly memory leak in the Windows main.c myunmap function.
 
-Finally implemented the view::hide and view::to_back methods with a minimal
+Finally implemented the view::hide and view:to_back methods with a minimal
 redraw, title drag with the right button now does a to_back and drag.
 
 Added a Freeball demo to thrash the sprite compositing. This shows that you

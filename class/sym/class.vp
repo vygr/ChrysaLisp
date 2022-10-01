@@ -21,7 +21,7 @@
 	(push-scope)
 	(entry 'sym :statics_init {})
 
-	(call 'list :create nil {syms})
+	(call 'list :create :nil {syms})
 	(call 'list :set_capacity (cat {syms, } (str (length *static_syms*))))
 	(assign {$props} {next})
 	(loop-start)

@@ -43,7 +43,7 @@
 (x86_64 (import "lib/trans/x64.inc"))
 (aarch64 (import "lib/trans/arm64.inc"))
 (vp64 (import "lib/trans/vp64.inc"))
-(t (throw "No such CPU !" *cpu*)))
+(:t (throw "No such CPU !" *cpu*)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; gather all the emit funcs

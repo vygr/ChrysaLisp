@@ -15,15 +15,15 @@
 		(fnc_create _key _val _nodes))
 
 	(defmethod :refresh (this &optional _timeout)
-		; (. farm :refresh [_timeout]) -> t | nil
+		; (. farm :refresh [_timeout]) -> :t | :nil
 		;scan known nodes and update map
 		(defq _nodes (map (# (cat %0)) (mail-nodes)) _old_keys (list) _old_vals (list)
 			_create (get :create this) _destroy (get :destroy this)
-			_mutated nil _now (pii-time))
+			_mutated :nil _now (pii-time))
 		(. this :each (lambda (key val) (push _old_keys key) (push _old_vals val)))
 		;restart a child
 		(defun _restart ()
-			(setq _mutated t)
+			(setq _mutated :t)
 			(_destroy _key _val)
 			(. this :erase _key)
 			(setq _key (def this :key (inc (get :key this))) _val (emap))
@@ -40,7 +40,7 @@
 						(defq _then (. _val :find :timestamp))
 						(> (- _now _then) _timeout)
 						(_restart)))
-				(t	;not found child
+				(:t	;not found child
 					(_restart)))) _old_keys _old_vals)
 		_mutated)
 

@@ -29,14 +29,14 @@
 	(. pcb :close))
 
 (defun main ()
-	(defq select (alloc-select +select_size) running t)
+	(defq select (alloc-select +select_size) running :t)
 	(mail-timeout (elem-get +select_timeout select) 5000000 0)
 	(while running
 		(defq msg (mail-read (elem-get (defq idx (mail-select select)) select)))
 		(cond
 			((or (= idx +select_timeout) (eql msg ""))
 				;timeout or quit
-				(setq running nil))
+				(setq running :nil))
 			((= idx +select_main)
 				;main mailbox, cancel timeout and reply with result
 				(mail-timeout (elem-get +select_timeout select) 0 0)

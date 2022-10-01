@@ -11,12 +11,12 @@
 		(apply str (cat _ (list (ascii-char 10)))))))
 
 (defun options-find (optlist arg)
-	; (options-find optlist arg) -> nil | opt_entry
+	; (options-find optlist arg) -> :nil | opt_entry
 	(some (lambda (opt_entry)
 		(if (find arg (elem-get 0 opt_entry)) opt_entry)) optlist))
 
 (defun options (stdio optlist)
-	; (options stdio optlist) -> nil | args
+	; (options stdio optlist) -> :nil | args
 	;scan the stdio args and process acording to the optlist
 	(defq args (stdio-get-args stdio) out_args (list))
 	(while (/= (length args) 0)
@@ -31,11 +31,11 @@
 					((str? (elem-get 1 opt_entry))
 						;just print it and quit
 						(options-print (elem-get 1 opt_entry))
-						(setq args '() out_args nil))
-					(t	;else call arg handler
+						(setq args '() out_args :nil))
+					(:t	;else call arg handler
 						(setq args ((elem-get 1 opt_entry) args arg))))
 				;error, so quit
-				(setq args '() out_args nil))
+				(setq args '() out_args :nil))
 			;arg to output
 			(push out_args arg))) out_args)
 

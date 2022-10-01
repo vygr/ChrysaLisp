@@ -42,7 +42,7 @@
 			((:num :fixed :real) (list r num_value))
 			(:str (list '& r str_data))
 			(:char (list r str_data 'ub))
-			(t r))) regs types) regs))
+			(:t r))) regs types) regs))
 
 (defun list-bind-args (a regs types)
 	;inputs

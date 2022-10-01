@@ -134,7 +134,7 @@ returning it.
 
 ```vdu
 (defmacro or (&rest _)
-	; (or [tst] ...) -> nil | tst
+	; (or [tst] ...) -> :nil | tst
 	(defq out (list cond))
 	(each! 0 -1 (lambda (&rest c) (push out c)) (list _))
 	out)
@@ -151,7 +151,7 @@ provided and if you included a default.
 ```vdu
 (defmacro case (_form &rest _body)
 	; (case form [(key|(key ...) body)] ...)
-	(defq _default_key nil _default_clause nil _atoms t
+	(defq _default_key :nil _default_clause :nil _atoms :t
 		_map (reduce (lambda (_map (_keys &rest _clause_body))
 			(unless (list? _keys) (setq _keys (list _keys)))
 			(setq _clause_body (prebind (macroexpand
@@ -159,11 +159,11 @@ provided and if you included a default.
 					(elem-get 0 _clause_body)
 					(cat '(progn) _clause_body)))))
 			(or (eql :num (defq _clause_type (pop (type-of _clause_body))))
-				(eql :str _clause_type) (setq _atoms nil))
+				(eql :str _clause_type) (setq _atoms :nil))
 			(each! 0 -1 (lambda (_key) (cond
-				((eql _key t)
-					(setq _default_key t _default_clause _clause_body))
-				(t  (push (elem-get 0 _map) _key)
+				((eql _key :t)
+					(setq _default_key :t _default_clause _clause_body))
+				(:t  (push (elem-get 0 _map) _key)
 					(push (elem-get 1 _map) _clause_body)))) (list _keys)) _map)
 			_body (list (list) (list))))
 	(cond
@@ -172,7 +172,7 @@ provided and if you included a default.
 			(if _atoms
 				`(elem-get (or (find ,_form ',(elem-get 0 _map)) -2) ',(elem-get 1 _map))
 				`(eval (elem-get (or (find ,_form ',(elem-get 0 _map)) -2) ',(elem-get 1 _map)))))
-		(t  (if _atoms
+		(:t  (if _atoms
 				`(if (defq ,(defq _i (gensym)) (find ,_form ',(elem-get 0 _map)))
 					(elem-get ,_i ',(elem-get 1 _map)))
 				`(if (defq ,(defq _i (gensym)) (find ,_form ',(elem-get 0 _map)))
@@ -272,7 +272,7 @@ And an example of the macro in use:
 ```vdu
 (defmethod :reflow (this)
 	; (. edit :reflow) -> edit
-	(undoable this nil
+	(undoable this :nil
 		(bind '(y y1) (select-paragraph this))
 		(each (lambda (line)
 				(task-slice)
@@ -301,12 +301,12 @@ These macros define an interface for creating and converting to/from a 'number'
 and the actual numeric type selected.
 
 ```vdu
-(cond	;pick number format t/nil
-	(t	;reals
+(cond	;pick number format :t/:nil
+	(:t	;reals
 		(defmacro vec (&rest _) `(reals ~_))
 		(defmacro i2n (_) `(n2r ,_))
 		(defmacro f2n (_) `(n2r ,_)))
-	(t	;fixed point
+	(:t	;fixed point
 		(defmacro vec (&rest _) `(fixeds ~_))
 		(defmacro i2n (_) `(n2f ,_))
 		(defmacro f2n (_) _)))

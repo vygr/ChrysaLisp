@@ -34,7 +34,7 @@
 		(:right (setq x (- mx w -1))))
 	(view-fit x y w h))
 
-(defclass View () nil
+(defclass View () :nil
 	; (View) -> view
 	; overide the default 'this' env with a View component
 	(defq super this this ((const (ffi _ "gui/view/lisp_create" 0))))
@@ -42,10 +42,10 @@
 	(def this :targets (array))
 
 	(deffimethod :find_id "gui/view/lisp_find_id")
-		; (. view :find_id target_id) -> nil | target_view
+		; (. view :find_id target_id) -> :nil | target_view
 
 	(deffimethod :hit_tree "gui/view/lisp_hit_tree")
-		; (. view :hit_tree x y) -> (hit_view | nil rx ry)
+		; (. view :hit_tree x y) -> (hit_view | :nil rx ry)
 
 	(deffimethod :set_flags "gui/view/lisp_set_flags")
 		; (. view :set_flags value mask) -> view
@@ -198,7 +198,7 @@
 			this))
 
 	(defmethod :find_owner (this)
-		; (. view :find_owner) -> nil | netid
+		; (. view :find_owner) -> :nil | netid
 		(defq root this)
 		(while (and root (eql (defq id (getf root +view_owner_id 0))
 					(const (pad "" +net_id_size (ascii-char 0)))))

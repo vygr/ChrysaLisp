@@ -30,7 +30,7 @@
 	(call 'lisp :read {this, value, next_char} {_, form, next_char})
 
 	(call 'num :create {next_char} {args})
-	(call 'list :create nil {value})
+	(call 'list :create :nil {value})
 	(call 'list :push_back2 {value, form, args})
 
 	(exit 'lisp :lisp_read {this, value})

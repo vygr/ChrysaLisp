@@ -22,7 +22,7 @@
 	(cond
 		((= (length _) 0))
 		((= (length _) 1) (elem-get 0 _))
-		(t `(aif ,(elem-get 0 _) (aand ~(slice 1 -1 _))))))
+		(:t `(aif ,(elem-get 0 _) (aand ~(slice 1 -1 _))))))
 
 (defmacro acond (&rest _)
 	; (acond (tst body) ...)

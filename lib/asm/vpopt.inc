@@ -37,7 +37,7 @@
 		((find-rev (elem-get 0 ,op) ,'+opt_emit_multi_out_ops) (uses? ,r ,op))))
 
 (defmacro find-past (&rest _)
-	`(and (defq _ (some! _ emit_start nil
+	`(and (defq _ (some! _ emit_start :nil
 			(lambda (op) (cond ~_))
 		(list emit_list))) (> _ -1) _))
 
@@ -90,7 +90,7 @@
 			(elem-get c +opt_emit_write_ops)
 			(elem-get 1 op) (eval (elem-get 2 op))))
 		(defq rs (elem-get c (elem-get i emit_list)))
-		(unless (some! (inc i) _ nil (# (trashes-reg? rs %0)) (list emit_list))
+		(unless (some! (inc i) _ :nil (# (trashes-reg? rs %0)) (list emit_list))
 			(elem-set _ emit_list
 				(if (eql rs (elem-get 3 op))
 					(setq op (lambda))
@@ -100,7 +100,7 @@
 	(when (and (eql (elem-get 1 op) (elem-get 3 op))
 			(defq i (find-past-r _ (elem-get 1 op))))
 		(defq rs (elem-get 1 (elem-get i emit_list)))
-		(unless (some! (inc i) _ nil (# (trashes-reg? rs %0)) (list emit_list))
+		(unless (some! (inc i) _ :nil (# (trashes-reg? rs %0)) (list emit_list))
 			(elem-set 1 op rs)
 			(elem-set i emit_list op)
 			(elem-set _ emit_list (setq op (lambda))))))

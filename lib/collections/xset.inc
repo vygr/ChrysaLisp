@@ -10,7 +10,7 @@
 		b (% ((get :hash_fnc this) key) (get :num_buckets this))
 		e (some (# (if ((get :cmp_fnc this) %0 key) _)) (elem-get b x))))
 
-(defclass xset (&optional num_buckets cmp_fnc hash_fnc) nil
+(defclass xset (&optional num_buckets cmp_fnc hash_fnc) :nil
 	; (xset [num_buckets cmp_fnc hash_fnc]) -> xset
 	(def this :buckets (list) :num_buckets (setq num_buckets (opt num_buckets 1))
 		:cmp_fnc (opt cmp_fnc eql) :hash_fnc (opt hash_fnc hash))
@@ -18,7 +18,7 @@
 		(push (get :buckets this) (list)))
 
 	(defmethod :find (this key)
-		; (. xset :find key) -> nil | key
+		; (. xset :find key) -> :nil | key
 		(slot)
 		(if e (elem-get e (elem-get b x))))
 
@@ -27,7 +27,7 @@
 		(slot)
 		(cond
 			(e (elem-set e (elem-get b x) key))
-			(t (push (elem-get b x) key)))
+			(:t (push (elem-get b x) key)))
 		this)
 
 	(defmethod :erase (this key)
@@ -69,7 +69,7 @@
 		(cond
 			((eql this that)
 				(. this :empty))
-			(t  (. that :each (# (. this :erase %0)))
+			(:t  (. that :each (# (. this :erase %0)))
 				this)))
 
 	(defmethod :intersect (this that)
@@ -84,7 +84,7 @@
 		(cond
 			((eql this that)
 				(. this :empty))
-			(t  (. (defq other (. that :copy)) :difference this)
+			(:t  (. (defq other (. that :copy)) :difference this)
 				(. this :difference that)
 				(. this :union other))))
 
@@ -114,7 +114,7 @@
 		this)
 
 	(defmethod :empty? (this)
-		; (. xset :empty?) -> t | nil
+		; (. xset :empty?) -> :t | :nil
 		(every (# (= (length %0) 0)) (get :buckets this)))
 	)
 

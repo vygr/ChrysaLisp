@@ -29,30 +29,30 @@
 (defun main ()
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(gui-add-front (. *window* :change x y w h))
-	(defq accum 0 value 0 num 0 lastop nil)
+	(defq accum 0 value 0 num 0 lastop :nil)
 	(while (cond
 		((>= (defq id (getf (defq msg (mail-read (task-mailbox))) +ev_msg_target_id)) +event_button)
 			(defq op (get :text (. *window* :find_id (getf msg +ev_msg_action_source_id))))
 			(cond
 				((eql op "AC")
-					(setq accum 0 value 0 num 0 lastop nil))
+					(setq accum 0 value 0 num 0 lastop :nil))
 				((find op "=+-/*")
 					(if lastop
 						(setq value (do_lastop))
 						(setq value num accum num))
 					(setq lastop op num 0))
-				(t
+				(:t
 					(cond
 						((= num 0)
 							(unless (eql op "0"))
 								(setq num (str-as-num op)))
-						(t (setq num (str-as-num (cat (str num) op)))))
+						(:t (setq num (str-as-num (cat (str num) op)))))
 					(setq value num)))
 			(set display :text (str value))
 			(.-> display :layout :dirty))
 		((= id +event_close)
 			;close button
-			nil)
+			:nil)
 		((= id +event_min)
 			;min button
 			(bind '(x y w h) (apply view-fit (cat (. *window* :get_pos) (. *window* :pref_size))))
@@ -61,5 +61,5 @@
 			;max button
 			(bind '(x y w h) (apply view-fit (cat (. *window* :get_pos) '(512 512))))
 			(. *window* :change_dirty x y w h))
-		(t (. *window* :event msg))))
+		(:t (. *window* :event msg))))
 	(gui-sub *window*))

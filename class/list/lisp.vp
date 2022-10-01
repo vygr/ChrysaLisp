@@ -105,7 +105,7 @@
 	(d-call 'list :get_length {list} {_, length})
 	(gotoif {start < 0 || start >= end || end > length} 'error2))
 
-	(call 'list :create nil {params})
+	(call 'list :create :nil {params})
 	(call 'list :get_iter {list, start} {_, liter})
 	(call 'list :get_iter {list, end} {_, hiter})
 	(call 'list :partition {list, liter, hiter, $callback, &this} {_, liter})

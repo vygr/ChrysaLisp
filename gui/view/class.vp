@@ -169,7 +169,7 @@
 		(call 'region :paste_rect '(:r0 :r1 :r7 :r8 :r9 :r10))
 
 		;temp view for update
-		(call 'view :create nil '(:r1))
+		(call 'view :create :nil '(:r1))
 		(fn-bind 'sys/statics/statics :r0)
 		(call 'list :push_back '((:r0 statics_gui_temps) :r1) '(_ :r1 _ _))
 
@@ -425,7 +425,7 @@
 			(else)
 				;Lisp :draw method
 				(assign '(:r1) '(:r13))
-				(call 'list :create nil '(:r0))
+				(call 'list :create :nil '(:r0))
 				(assign '((:rsp local_this)) '(:r1))
 				(class/obj/ref :r1 :r2)
 				(call 'list :push_back '(:r0 :r1) '(:r1 _ _ _))

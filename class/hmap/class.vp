@@ -131,7 +131,7 @@
 	(vp-alloc local_size)
 	(entry 'hmap :list '((:rsp local_this)))
 
-	(call 'list :create nil '(:r0))
+	(call 'list :create :nil '(:r0))
 	(assign '(:r0) '((:rsp local_obj)))
 	(call 'hmap :for_each '((:rsp local_this) ($ callback) :r0) '(:r0))
 
@@ -148,7 +148,7 @@
 	(entry 'hset :each_callback '(:r0 :r1 :r2))
 
 	(assign '(:r0 (:r1 0) (:r1 +ptr_size)) '(:r6 :r7 :r8))
-	(call 'list :create nil '(:r0))
+	(call 'list :create :nil '(:r0))
 	(class/obj/ref :r7 :r1)
 	(class/obj/ref :r8 :r1)
 	(call 'list :push_back2 '(:r0 :r7 :r8) '(:r1 _ _ _ _))

@@ -7,12 +7,12 @@
 ;; (import "lib/debug/debug.inc")
 ;; (defmacro defun (&rest _) `(defun-debug ~_))
 
-(cond	;pick number format t/nil
-	(t	;reals
+(cond	;pick number format :t/:nil
+	(:t	;reals
 		(defmacro vec (&rest _) `(reals ~_))
 		(defmacro i2n (_) `(n2r ,_))
 		(defmacro f2n (_) `(n2r ,_)))
-	(t	;fixed point
+	(:t	;fixed point
 		(defmacro vec (&rest _) `(fixeds ~_))
 		(defmacro i2n (_) `(n2f ,_))
 		(defmacro f2n (_) _)))

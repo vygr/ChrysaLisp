@@ -1,6 +1,6 @@
 (include "sys/class.inc")
 
-(def-class obj nil
+(def-class obj :nil
 	(dec-method :vtable class/obj/vtable)
 	(dec-method :null class/obj/null)
 	(dec-method :destroy class/obj/destroy :static (:r0))

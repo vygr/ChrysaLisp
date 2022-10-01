@@ -158,4 +158,4 @@
 			(platforms (make-platforms))
 			(boot (remake))
 			(docs (make-docs))
-			(t (make)))))
+			(:t (make)))))

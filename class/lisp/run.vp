@@ -8,7 +8,7 @@
 (include "lib/consts/chars.inc")
 (include "sys/statics/class.inc")
 
-(def-func 'class/lisp/run nil 8192)
+(def-func 'class/lisp/run :nil 8192)
 	;lisp run loop task
 	;inputs
 	;msg of lisp filename
@@ -20,7 +20,7 @@
 	(push-scope)
 
 	;get param string
-	(call 'sys_mail :mymail nil {script, _})
+	(call 'sys_mail :mymail :nil {script, _})
 	(call 'sys_mail :free_obj {script} {script, _, _})
 
 	;string output stream
@@ -37,7 +37,7 @@
 		(call 'str :create_from_file {&script->str_data} {file})
 		(vpif {file})
 			;REPL from file stream
-			(call 'list :create nil {args})
+			(call 'list :create :nil {args})
 			(call 'sstream :create {file} {stream})
 			(call 'str :ref {script})
 			(call 'list :push_back2 {args, stream, script})

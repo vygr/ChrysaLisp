@@ -8,7 +8,7 @@
 (enums +event 0
 	(enum close max min))
 
-(defq id t index 0 xv 4 yv 0
+(defq id :t index 0 xv 4 yv 0
 	frames (map (lambda (_) (Canvas-from-file (cat "apps/boing/data/taoball_" (str _) ".cpm") +load_flag_shared)) (range 1 13))
 	sframes (map (lambda (_) (Canvas-from-file (cat "apps/boing/data/taoball_s_" (str _) ".cpm") +load_flag_shared)) (range 1 13))
 	rate (/ 1000000 30))
@@ -32,7 +32,7 @@
 				;main mailbox
 				(cond
 					((= (setq id (getf msg +ev_msg_target_id)) +event_close)
-						(setq id nil))
+						(setq id :nil))
 					((= id +event_min)
 						;min button
 						(bind '(x y w h) (apply view-fit (cat (. *window* :get_pos) (. *window* :pref_size))))
@@ -43,7 +43,7 @@
 						(bind '(w h) (. *window* :pref_size))
 						(bind '(x y w h) (view-fit x y (/ (* w 5) 3) (/ (* h 5) 3)))
 						(. *window* :change_dirty x y w h))
-					(t	(. *window* :event msg))))
+					(:t	(. *window* :event msg))))
 			((= idx +select_timer)
 				;timer event
 				(mail-timeout (elem-get +select_timer select) rate 0)

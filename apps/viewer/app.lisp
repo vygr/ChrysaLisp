@@ -17,7 +17,7 @@
 
 (defq +vdu_min_width 32 +vdu_min_height 16
 	+vdu_max_width 100 +vdu_max_height 48
-	*meta_map* (fmap 31) *current_file* nil *selected_file_node* nil +margin 2)
+	*meta_map* (fmap 31) *current_file* :nil *selected_file_node* :nil +margin 2)
 
 (ui-window *window* (:color +argb_grey1)
 	(ui-title-bar *title* "" (0xea19 0xea1b 0xea1a) +event_close)
@@ -27,7 +27,7 @@
 		(ui-backdrop _ (:color (const *env_toolbar_col*))))
 	(ui-flow _ (:flow_flags +flow_right_fill)
 		(ui-flow _ (:flow_flags +flow_stack_fill)
-			(ui-scroll *file_tree_scroll* +scroll_flag_vertical nil
+			(ui-scroll *file_tree_scroll* +scroll_flag_vertical :nil
 				(. (ui-tree *file_tree* +event_file_folder_action
 						(:min_width 0 :color +argb_white :font *env_medium_terminal_font*))
 					:connect +event_tree_action))
@@ -53,7 +53,7 @@
 								(ends-with ".md" file))
 							(push files (cat (slice
 								(if (eql root "./") 2 1) -1 root) "/" file))))
-					(t  ;dir
+					(:t  ;dir
 						(unless (starts-with "." file)
 							(push stack (cat root "/" file))))))
 				(unzip (split (pii-dirlist root) ",") (list (list) (list))))))
@@ -99,7 +99,7 @@
 		(. *meta_map* :insert file (list 0 0 0 0 0 0)))
 	(when file
 		(defq mode (if (or (ends-with ".md" file)
-						   (ends-with ".txt" file)) t nil)
+						   (ends-with ".txt" file)) :t :nil)
 			buffer (Buffer))
 		(.-> buffer (:set_mode mode) (:file_load file))
 		(. *edit* :set_buffer buffer)))
@@ -166,14 +166,14 @@
 (import "./actions.inc")
 
 (defun main ()
-	(defq select (alloc-select +select_size) *running* t *edit* (Viewer-edit))
+	(defq select (alloc-select +select_size) *running* :t *edit* (Viewer-edit))
 	(.-> *edit* (:set_buffer (Buffer)) (:set_underlay_color +argb_grey6))
 	(def *edit* :min_width 0 :min_height 0
 		:vdu_width +vdu_min_width :vdu_height +vdu_min_height)
 	(. main_flow :add_back *edit*)
 	(populate-file-tree)
-	(populate-vdu nil)
-	(select-node nil)
+	(populate-vdu :nil)
+	(select-node :nil)
 	(tooltips)
 	(bind '(x y w h) (apply view-locate (.-> *window* (:connect +event_layout) :pref_size)))
 	(gui-add-front (. *window* :change x y w h))
@@ -207,7 +207,7 @@
 					((defq action (. key_map :find key))
 						;call bound key action
 						(action))))
-			(t  ;gui event
+			(:t  ;gui event
 				(. *window* :event *msg*)))
 		;update meta data
 		(defq buffer (. *edit* :get_buffer))

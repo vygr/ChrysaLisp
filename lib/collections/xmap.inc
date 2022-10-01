@@ -10,7 +10,7 @@
 		b (* (% ((get :hash_fnc this) key) (get :num_buckets this)) 2)
 		e (some (# (if ((get :cmp_fnc this) %0 key) _)) (elem-get b x))))
 
-(defclass xmap (&optional num_buckets cmp_fnc hash_fnc) nil
+(defclass xmap (&optional num_buckets cmp_fnc hash_fnc) :nil
 	; (xmap [num_buckets cmp_fnc hash_fnc]) -> xmap
 	(def this :buckets (list) :num_buckets (setq num_buckets (opt num_buckets 1))
 		:cmp_fnc (opt cmp_fnc eql) :hash_fnc (opt hash_fnc hash))
@@ -18,7 +18,7 @@
 		(push (get :buckets this) (list) (list)))
 
 	(defmethod :find (this key)
-		; (. xmap :find key) -> nil | val
+		; (. xmap :find key) -> :nil | val
 		(slot)
 		(if e (elem-get e (elem-get (inc b) x))))
 
@@ -27,7 +27,7 @@
 		(slot)
 		(cond
 			(e (elem-set e (elem-get (inc b) x) val))
-			(t (push (elem-get b x) key) (push (elem-get (inc b) x) val)))
+			(:t (push (elem-get b x) key) (push (elem-get (inc b) x) val)))
 		this)
 
 	(defmethod :erase (this key)
@@ -91,7 +91,7 @@
 		this)
 
 	(defmethod :empty? (this)
-		; (. xmap :empty?) -> t | nil
+		; (. xmap :empty?) -> :t | :nil
 		(every (# (= (length %0) 0)) (get :buckets this)))
 	)
 

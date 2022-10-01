@@ -3,7 +3,7 @@
 ;;;;;;;;;;;;;;;;;;;;;
 
 (defmacro .? (this method)
-	; (.? this method) -> nil | lambda
+	; (.? this method) -> :nil | lambda
 	`(def? ,method (def? :vtable ,this)))
 
 (defmacro .super (this method &rest _)
@@ -49,7 +49,7 @@
 		(cond
 			((and (list? form) (ends-with "method" (elem-get 0 form)))
 				(push methods form))
-			(t  (push inits form)))) _)
+			(:t  (push inits form)))) _)
 	(if s
 		`(progn
 			(defq ,class (env 1))
@@ -73,7 +73,7 @@
 			(defun ,n ,a
 				(def (defq this (env 1)) :vtable ,class)
 				(unless (def? :vtable ,class)
-					(def ,class :vtable t :module ,module)
+					(def ,class :vtable :t :module ,module)
 					~methods
 					(defmethod :type_of (this)
 						(push (type-of this) ,kwn)))

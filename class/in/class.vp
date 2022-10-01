@@ -29,7 +29,7 @@
 		(assign '(:r1 (:r0 in_mbox_oid)) '((:r0 in_state) :r1))
 		(vpif '(:r1 = 0))
 			;need a new mailbox
-			(call 'sys_mail :alloc_mbox nil '(:r2 :r1))
+			(call 'sys_mail :alloc_mbox :nil '(:r2 :r1))
 			(vp-pop :r0)
 			(assign '(:r2) '((:r0 in_mbox_id)))
 		(else)

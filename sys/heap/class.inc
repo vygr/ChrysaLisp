@@ -5,7 +5,7 @@
 ; heap static class
 ;;;;;;;;;;;;;;;;;;;
 
-(def-class sys_heap nil
+(def-class sys_heap :nil
 	(dec-method :init sys/heap/init :static (:r0 :r1 :r2) (:r0 :r1))
 	(dec-method :deinit sys/heap/deinit :static (:r0) (:r0))
 	(dec-method :alloc sys/heap/alloc :static (:r0) (:r0 :r1))

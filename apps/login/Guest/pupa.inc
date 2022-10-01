@@ -30,8 +30,8 @@
 (defq *env_terminal_prompt* (cat *env_user* "> ") *env_terminal_lines* 1000)
 
 ;timezones must be locations not abbreviations. See lib/date/date.inc for more info.
-(defq *env_clock_timezone* "Etc/GMT" *env_clock_analog* t *env_clock_digital* t
-	*env_clock_twelve_hour* t  *env_clock_seconds* t  *env_clock_pad_hour* nil *env_clock_dotw* t)
+(defq *env_clock_timezone* "Etc/GMT" *env_clock_analog* :t *env_clock_digital* :t
+	*env_clock_twelve_hour* :t  *env_clock_seconds* :t  *env_clock_pad_hour* :nil *env_clock_dotw* :t)
 
 ;widget property defaults
 (ffi create-font "gui/font/lisp_create" 0)

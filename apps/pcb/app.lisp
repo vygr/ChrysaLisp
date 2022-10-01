@@ -24,7 +24,7 @@
 	*index* (some (# (if (eql "apps/pcb/data/test1.pcb" %0) _)) *pcbs*)
 	canvas_scale 1 *mode* 0 *show* -1
 	+max_zoom 15.0 +min_zoom 5.0 *zoom* (/ (+ +min_zoom +max_zoom) 2.0) +eps 0.25
-	*running* t pcb nil pcb_data nil child nil +tag_min_size 104)
+	*running* :t pcb :nil pcb_data :nil child :nil +tag_min_size 104)
 
 (ui-window *window* ()
 	(ui-title-bar window_title "" (0xea19) +event_close)
@@ -103,7 +103,7 @@
 (import "./actions.inc")
 
 (defun dispatch-action (&rest action)
-	(catch (eval action) (progn (print _)(print) t)))
+	(catch (eval action) (progn (print _)(print) :t)))
 
 (defun main ()
 	(defq select (alloc-select +select_size))
@@ -155,7 +155,7 @@
 					((<= +char_space key +char_tilda)
 						;insert char etc ...
 						(char key))))
-			(t (. *window* :event *msg*))))
+			(:t (. *window* :event *msg*))))
 	(stop-route)
 	(free-select select)
 	(gui-sub *window*))

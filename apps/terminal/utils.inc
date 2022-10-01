@@ -44,5 +44,5 @@
 	(defq ctx (url-ctx url cx) url (slice (if (defq i (find-rev " " (slice 0 cx url))) (inc i) 0) cx url))
 	(bind '(url file) (url-split url ctx))
 	(defq urls (map (lambda (_) (if (= ctx 0) (cat (slice (length file) -7 _) " ") (slice (length file) -1 _)))
-		(filter (lambda (_) (and (starts-with file _) (if (= ctx 0) (ends-with ".lisp " _) t))) (url-list url))))
+		(filter (lambda (_) (and (starts-with file _) (if (= ctx 0) (ends-with ".lisp " _) :t))) (url-list url))))
 	(if (= 0 (length urls)) "" (slice 0 (url-ext-index urls) (elem-get 0 urls))))

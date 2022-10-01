@@ -25,7 +25,7 @@
 (defun method-input (_1 _2 &optional _3)
 	;_1 = class name
 	;_2 = member name
-	;_3 = input paramater index, nil for entire list
+	;_3 = input paramater index, :nil for entire list
 	(if _3
 		(elem-get _3 (elem-get 2 (method-lookup _1 _2)))
 		(elem-get 2 (method-lookup _1 _2))))
@@ -33,7 +33,7 @@
 (defun method-output (_1 _2 &optional _3)
 	;_1 = class name
 	;_2 = member name
-	;_3 = output paramater index, nil for entire list
+	;_3 = output paramater index, :nil for entire list
 	(if _3
 		(elem-get _3 (elem-get 3 (method-lookup _1 _2)))
 		(elem-get 3 (method-lookup _1 _2))))
@@ -65,23 +65,23 @@
 	(cond
 		((not _1))
 		((str? _1) (assign (slice 0 (length (split _1 ",")) +vp_regs_calls) _1))
-		(t (assign (slice 0 (length _1) +vp_regs_calls) _1))))
+		(:t (assign (slice 0 (length _1) +vp_regs_calls) _1))))
 
 (defun l-exit (_1)
 	;_1 = out parameters
 	(cond
 		((not _1))
 		((str? _1) (assign _1 (slice 0 (length (split _1 ",")) +vp_regs_calls)))
-		(t (assign _1 (slice 0 (length _1) +vp_regs_calls)))))
+		(:t (assign _1 (slice 0 (length _1) +vp_regs_calls)))))
 
 ;;;;;;;;;;;;;;;;;;
 ; class definition
 ;;;;;;;;;;;;;;;;;;
 
-(defcvar (class-sym nil) '(()()0))
+(defcvar (class-sym :nil) '(()()0))
 
 (defun vtable-emit (class)
-	(if (eql (defq _ (eval (super-sym class))) nil)
+	(if (eql (defq _ (eval (super-sym class))) :nil)
 		(vp-long 0)
 		(fn-add-link (f-path _ :vtable)))
 	(each (lambda (_)
@@ -117,17 +117,17 @@
 							(elem-set 1 m mtype))
 						(:final
 							(throw "Virtual method is final !" mname))
-						(t (throw "Static method already exists !" mname))))
+						(:t (throw "Static method already exists !" mname))))
 				(:override
 					(case (elem-get 1 m)
 						(:virtual
 							(override))
 						(:final
 							(throw "Virtual method is final !" mname))
-						(t (throw "Static method already exists !" mname))))
+						(:t (throw "Static method already exists !" mname))))
 				(:virtual
 					(throw "Method already exists !, use override ?" mname))
-				(t (throw "Must use static, virtual, final or override ! " mtype)))
+				(:t (throw "Must use static, virtual, final or override ! " mtype)))
 			(case mtype
 				;new method
 				(:static
@@ -139,7 +139,7 @@
 						(elem-set 2 vtable (+ (elem-get 2 vtable) +ptr_size)))))
 				(:override
 					(throw "Method does not exist !" mname))
-				(t (throw "Must use static, virtual, final or override ! " mtype))))) lines)
+				(:t (throw "Must use static, virtual, final or override ! " mtype))))) lines)
 	`(def *compile_env* ',super_sym ',super ',class_sym ',vtable))
 
 (defmacro def-method (class member &optional alignment)
@@ -162,23 +162,23 @@
 					(assign _3 (elem-get 2 m))
 					(fn-call (elem-get 0 m)))
 				;v-call
-				(t	(defq _ (elem-get 2 m))
+				(:t	(defq _ (elem-get 2 m))
 					(if (find-rev :r14 _)
 						(throw "Dispatch register conflicts with arg !" (list :r14 _)))
 					(assign _3 _)
 					(vp-cpy-ir :r0 obj_vtable :r14)
 					(vp-call-i :r14 (elem-get 4 m))))
 			(if _4 (assign (elem-get 3 m) _4)))
-		(t	;l-call
+		(:t	;l-call
 			(cond
 				((not _2))
 				((str? _2) (assign _2 (slice 0 (length (split _2 ",")) +vp_regs_calls)))
-				(t (assign _2 (slice 0 (length _2) +vp_regs_calls))))
+				(:t (assign _2 (slice 0 (length _2) +vp_regs_calls))))
 			(vp-call _1)
 			(cond
 				((not _3))
 				((str? _3) (assign (slice 0 (length (split _3 ",")) +vp_regs_calls) _3))
-				(t (assign (slice 0 (length _3) +vp_regs_calls) _3))))))
+				(:t (assign (slice 0 (length _3) +vp_regs_calls) _3))))))
 
 (defun jump (_1 _2 &optional _3)
 	;_1 = class name
@@ -189,7 +189,7 @@
 			(assign _3 (elem-get 2 m))
 			(unwind)
 			(fn-jump (elem-get 0 m)))
-		(t	(defq _ (elem-get 2 m))
+		(:t	(defq _ (elem-get 2 m))
 			(if (find-rev :r14 _)
 				(throw "Dispatch register conflicts with arg !" (list :r14 _)))
 			(assign _3 _)
@@ -389,12 +389,12 @@
 	(cond
 		((not _2))
 		((str? _2) (assign _2 (slice 0 (length (split _2 ",")) +vp_regs_calls)))
-		(t (assign _2 (slice 0 (length _2) +vp_regs_calls))))
+		(:t (assign _2 (slice 0 (length _2) +vp_regs_calls))))
 	(vp-call _1)
 	(cond
 		((not _3))
 		((str? _3) (assign (slice 0 (length (split _3 ",")) +vp_regs_calls) _3))
-		(t (assign (slice 0 (length _3) +vp_regs_calls) _3))))
+		(:t (assign (slice 0 (length _3) +vp_regs_calls) _3))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; generic class construction

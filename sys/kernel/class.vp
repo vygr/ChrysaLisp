@@ -60,7 +60,7 @@
 
 	;set random node ID
 	(call 'sys_pii :rand {&statics->statics_sys_task_kernel_node_id, +node_id_size})
-	(call 'sys_kernel :id nil {node_id.node_id_node1, node_id.node_id_node2})
+	(call 'sys_kernel :id :nil {node_id.node_id_node1, node_id.node_id_node2})
 
 	;process command options
 	(call 'opts {argv})
@@ -132,7 +132,7 @@
 				(push-scope)
 
 				;timestamp
-				(call 'sys_pii :time nil '{time})
+				(call 'sys_pii :time :nil '{time})
 
 				;find/create the routing tuple for the origin
 				(assign {data, key} '(:r0 :r1))
@@ -140,7 +140,7 @@
 				(call 'hmap :find {statics->statics_sys_mail_node_map, key} {_, tuple, bucket})
 				(vpifnot {tuple})
 					(call 'node :create {&data->+kn_msg_ping_origin, +node_id_size} {new_key})
-					(call 'array :create nil {tuple})
+					(call 'array :create :nil {tuple})
 					;service set, time, session, hops, then any vias...
 					(call 'hset :create `((@ ,(f-path 'str :same)) 1) {set})
 					(call 'array :push_back2 {tuple, set, 0})
@@ -212,7 +212,7 @@
 		(loop-end)
 
 		;resume any ready tasks and timeouts on the timer lists
-		(call 'sys_task :timer nil '(:r0))
+		(call 'sys_task :timer :nil '(:r0))
 
 		;find next task we could defer to
 		(assign {statics } '(:r3))
@@ -504,7 +504,7 @@
 	(vp-sub-cr 2 :r1)
 	(assign '(:r1) '((:r0 statics_sys_task_task_count)))
 
-	(call 'sys_kernel :id nil `((:rsp ,(+ local_node_id node_id_node1)) (:rsp ,(+ local_node_id node_id_node2))))
+	(call 'sys_kernel :id :nil `((:rsp ,(+ local_node_id node_id_node1)) (:rsp ,(+ local_node_id node_id_node2))))
 	(vp-cpy-cr 2500000 :r4)
 	(loop-start)
 		(call 'sys_math :i_rand '(1000000) '(:r0))
@@ -515,7 +515,7 @@
 		(call 'sys_mail :ping)
 
 		;purge stale nodes
-		(call 'sys_pii :time nil '((:rsp local_now)))
+		(call 'sys_pii :time :nil '((:rsp local_now)))
 		(fn-bind 'sys/statics/statics :r0)
 		(call 'hmap :for_each '((:r0 statics_sys_mail_node_map) ($ purge_callback) :rsp))
 

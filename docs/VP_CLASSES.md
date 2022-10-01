@@ -972,7 +972,7 @@ trashes
 
 ## ctx
 
-Super Class: nil
+Super Class: :nil
 
 ### ctx :blit -> gui/ctx/blit
 
@@ -1957,7 +1957,7 @@ trashes
 
 ## gui
 
-Super Class: nil
+Super Class: :nil
 
 ### gui :composit -> gui/gui/composit
 
@@ -2361,109 +2361,109 @@ trashes
 
 ## host
 
-Super Class: nil
+Super Class: :nil
 
-### host :clear_icache -> nil
+### host :clear_icache -> :nil
 
-### host :close -> nil
+### host :close -> :nil
 
-### host :close_shared -> nil
+### host :close_shared -> :nil
 
-### host :dirlist -> nil
+### host :dirlist -> :nil
 
-### host :exit -> nil
+### host :exit -> :nil
 
-### host :gettime -> nil
+### host :gettime -> :nil
 
-### host :mmap -> nil
+### host :mmap -> :nil
 
-### host :mprotect -> nil
+### host :mprotect -> :nil
 
-### host :munmap -> nil
+### host :munmap -> :nil
 
-### host :open -> nil
+### host :open -> :nil
 
-### host :open_shared -> nil
+### host :open_shared -> :nil
 
-### host :rand -> nil
+### host :rand -> :nil
 
-### host :read -> nil
+### host :read -> :nil
 
-### host :remove -> nil
+### host :remove -> :nil
 
-### host :seek -> nil
+### host :seek -> :nil
 
-### host :sleep -> nil
+### host :sleep -> :nil
 
-### host :stat -> nil
+### host :stat -> :nil
 
-### host :unlink -> nil
+### host :unlink -> :nil
 
-### host :usb_running -> nil
+### host :usb_running -> :nil
 
-### host :usb_start -> nil
+### host :usb_start -> :nil
 
-### host :usb_stop -> nil
+### host :usb_stop -> :nil
 
-### host :write -> nil
+### host :write -> :nil
 
 ## host_gui
 
-Super Class: nil
+Super Class: :nil
 
-### host_gui :sdl_compose_custom_blend_mode -> nil
+### host_gui :sdl_compose_custom_blend_mode -> :nil
 
-### host_gui :sdl_create_renderer -> nil
+### host_gui :sdl_create_renderer -> :nil
 
-### host_gui :sdl_create_rgb_surface_from -> nil
+### host_gui :sdl_create_rgb_surface_from -> :nil
 
-### host_gui :sdl_create_texture -> nil
+### host_gui :sdl_create_texture -> :nil
 
-### host_gui :sdl_create_texture_from_surface -> nil
+### host_gui :sdl_create_texture_from_surface -> :nil
 
-### host_gui :sdl_create_window -> nil
+### host_gui :sdl_create_window -> :nil
 
-### host_gui :sdl_create_window_and_renderer -> nil
+### host_gui :sdl_create_window_and_renderer -> :nil
 
-### host_gui :sdl_destroy_texture -> nil
+### host_gui :sdl_destroy_texture -> :nil
 
-### host_gui :sdl_destroy_window -> nil
+### host_gui :sdl_destroy_window -> :nil
 
-### host_gui :sdl_free_surface -> nil
+### host_gui :sdl_free_surface -> :nil
 
-### host_gui :sdl_get_error -> nil
+### host_gui :sdl_get_error -> :nil
 
-### host_gui :sdl_init -> nil
+### host_gui :sdl_init -> :nil
 
-### host_gui :sdl_poll_event -> nil
+### host_gui :sdl_poll_event -> :nil
 
-### host_gui :sdl_quit -> nil
+### host_gui :sdl_quit -> :nil
 
-### host_gui :sdl_render_clear -> nil
+### host_gui :sdl_render_clear -> :nil
 
-### host_gui :sdl_render_copy -> nil
+### host_gui :sdl_render_copy -> :nil
 
-### host_gui :sdl_render_draw_rect -> nil
+### host_gui :sdl_render_draw_rect -> :nil
 
-### host_gui :sdl_render_fill_rect -> nil
+### host_gui :sdl_render_fill_rect -> :nil
 
-### host_gui :sdl_render_present -> nil
+### host_gui :sdl_render_present -> :nil
 
-### host_gui :sdl_render_set_clip_rect -> nil
+### host_gui :sdl_render_set_clip_rect -> :nil
 
-### host_gui :sdl_set_main_ready -> nil
+### host_gui :sdl_set_main_ready -> :nil
 
-### host_gui :sdl_set_render_draw_blend_mode -> nil
+### host_gui :sdl_set_render_draw_blend_mode -> :nil
 
-### host_gui :sdl_set_render_draw_color -> nil
+### host_gui :sdl_set_render_draw_color -> :nil
 
-### host_gui :sdl_set_render_target -> nil
+### host_gui :sdl_set_render_target -> :nil
 
-### host_gui :sdl_set_texture_blend_mode -> nil
+### host_gui :sdl_set_texture_blend_mode -> :nil
 
-### host_gui :sdl_set_texture_color_mod -> nil
+### host_gui :sdl_set_texture_color_mod -> :nil
 
-### host_gui :sdl_show_cursor -> nil
+### host_gui :sdl_show_cursor -> :nil
 
 ## hset
 
@@ -4606,7 +4606,7 @@ trashes
 
 ## obj
 
-Super Class: nil
+Super Class: :nil
 
 ### obj :deinit -> class/obj/null
 
@@ -5935,7 +5935,7 @@ trashes
 
 ## region
 
-Super Class: nil
+Super Class: :nil
 
 ### region :bounds -> gui/region/bounds
 
@@ -7262,7 +7262,7 @@ trashes
 
 ## sys_heap
 
-Super Class: nil
+Super Class: :nil
 
 ### sys_heap :alloc -> sys/heap/alloc
 
@@ -7327,7 +7327,7 @@ trashes
 
 ## sys_kernel
 
-Super Class: nil
+Super Class: :nil
 
 ### sys_kernel :id -> sys/kernel/id
 
@@ -7368,7 +7368,7 @@ started by kernel at boot
 
 ## sys_link
 
-Super Class: nil
+Super Class: :nil
 
 ### sys_link :in -> sys/link/in
 
@@ -7388,7 +7388,7 @@ started by kernel for each usb link
 
 ## sys_list
 
-Super Class: nil
+Super Class: :nil
 
 ### sys_list :init -> sys/list/init
 
@@ -7399,7 +7399,7 @@ inputs
 
 ## sys_load
 
-Super Class: nil
+Super Class: :nil
 
 ### sys_load :bind -> sys/load/bind
 
@@ -7466,7 +7466,7 @@ trashes
 
 ## sys_mail
 
-Super Class: nil
+Super Class: :nil
 
 ### sys_mail :alloc -> sys/mail/alloc
 
@@ -7871,7 +7871,7 @@ trashes
 
 ## sys_math
 
-Super Class: nil
+Super Class: :nil
 
 ### sys_math :f_cos -> sys/math/f_cos
 
@@ -8136,7 +8136,7 @@ trashes
 
 ## sys_mem
 
-Super Class: nil
+Super Class: :nil
 
 ### sys_mem :alloc -> sys/mem/alloc
 
@@ -8260,7 +8260,7 @@ init mem statics
 
 ## sys_pii
 
-Super Class: nil
+Super Class: :nil
 
 ### sys_pii :clear_icache -> sys/pii/clear_icache
 
@@ -8635,7 +8635,7 @@ trashes
 
 ## sys_str
 
-Super Class: nil
+Super Class: :nil
 
 ### sys_str :compare -> sys/str/compare
 
@@ -8726,7 +8726,7 @@ trashes
 
 ## sys_task
 
-Super Class: nil
+Super Class: :nil
 
 ### sys_task :callback -> sys/task/callback
 

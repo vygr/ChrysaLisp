@@ -6,7 +6,7 @@
 
 (defclass Backdrop () (View)
 	; (Backdrop) -> backdrop
-	(def this :style nil :spacing 32)
+	(def this :style :nil :spacing 32)
 
 	(defmethod :draw (this)
 		; (. backdrop :draw) -> backdrop

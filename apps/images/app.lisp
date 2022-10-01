@@ -22,7 +22,7 @@
 
 (defq images (all-images "apps/images/data/")
 	index (some (# (if (eql "apps/images/data/tiger.svg" %0) _)) images)
-	id t)
+	id :t)
 
 (ui-window *window* ()
 	(ui-title-bar window_title "" (0xea19) +event_close)
@@ -59,9 +59,9 @@
 				(if (defq view (. *window* :find_id (getf *msg* +mail_timeout_id)))
 					(. view :show_tip)))
 			((= (setq id (getf *msg* +ev_msg_target_id)) +event_close)
-				(setq id nil))
+				(setq id :nil))
 			((<= +event_prev id +event_next)
 				(win-refresh (% (+ index (dec (* 2 (- id +event_prev))) (length images)) (length images))))
-			(t (. *window* :event *msg*))))
+			(:t (. *window* :event *msg*))))
 	(free-select select)
 	(gui-sub *window*))

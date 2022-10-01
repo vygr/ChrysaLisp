@@ -4,7 +4,7 @@
 ; math static class
 ;;;;;;;;;;;;;;;;;;;
 
-(def-class sys_math nil
+(def-class sys_math :nil
 	(dec-method :i_rand sys/math/i_rand :static (:r0) (:r0))
 	(dec-method :i_sqrt sys/math/i_sqrt :static (:r0) (:r0))
 	(dec-method :f_sqrt sys/math/f_sqrt :static (:r0) (:r0))

@@ -30,7 +30,7 @@
 (defmacro is-symbol-char? (_)
 	(list 'find-rev _ +symbol_chars))
 
-(defclass Syntax () nil
+(defclass Syntax () :nil
 	; (Syntax) -> syntax
 	;default colours and state
 	(def this :keywords (defq keywords (env 101)) :state :text
@@ -54,7 +54,7 @@
 		(tolist *boot_env*))
 	(each (lambda (k)
 			(def keywords k (get :ink_keyword4 this)))
-		'(t nil &rest &optional
+		'(:t :nil &rest &optional
 			byte ubyte short ushort int uint long ulong ptr union struct
 			pbyte pubyte pshort pushort pint puint plong pulong pptr
 			nodeid netid offset enum bit))
@@ -91,24 +91,24 @@
 								(push token_list token)
 								(setq token (list c) state :symbol))
 							((push token c)))
-						(setq c nil))
+						(setq c :nil))
 					((:symbol :keysym)
 						(cond
 							((is-symbol-char? c)
 								(push token c)
-								(setq c nil))
-							(t  (push state_list state)
+								(setq c :nil))
+							(:t  (push state_list state)
 								(push token_list token)
 								(setq token (list) state :text))))
 					(:comment
 						(push token c)
-						(setq c nil))
+						(setq c :nil))
 					(:number
 						(cond
 							((is-allowed-number-char? c)
 								(push token c)
-								(setq c nil))
-							(t  (push state_list state)
+								(setq c :nil))
+							(:t  (push state_list state)
 								(push token_list token)
 								(setq token (list) state :text))))
 					(:string1
@@ -117,14 +117,14 @@
 							(push state_list state)
 							(push token_list token)
 							(setq token (list) state :text))
-						(setq c nil))
+						(setq c :nil))
 					(:string2
 						(push token c)
 						(when (eql c "}")
 							(push state_list state)
 							(push token_list token)
 							(setq token (list) state :text))
-						(setq c nil)))))
+						(setq c :nil)))))
 			line)
 		(push state_list state)
 		(push token_list token)
@@ -147,7 +147,7 @@
 						((eql (elem-get 0 token) "-")
 							;is a negative number
 							(push col_list (get :ink_numbers this)))
-						(t  ;default text color)
+						(:t  ;default text color)
 							(push col_list (get :ink_text this)))))
 				((:string1 :string2)
 					(push col_list (get :ink_strings this)))
@@ -184,7 +184,7 @@
 								(setq whitespace "")
 								(push %0 (ascii-char +char_tab)))
 							%0)
-						(t  (push %0 whitespace %1)
+						(:t  (push %0 whitespace %1)
 							(setq whitespace "X")
 							%0))) string (list))))
 			(string)))
@@ -200,7 +200,7 @@
 					(push lines (join line " "))
 					(push (clear line) word)
 					(setq cnt (+ (length word) 1)))
-				(t  (push line word)))) words)
+				(:t  (push line word)))) words)
 		(if (> (length line) 0)
 			(push lines (join line " ")) lines))
 	)

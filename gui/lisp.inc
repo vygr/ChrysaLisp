@@ -36,7 +36,7 @@
 		(cond
 			((defq i (find-rev s ps))
 				(elem-set i ps s) (elem-set i pv v))
-			(t  (push ps s) (push pv v))))
+			(:t  (push ps s) (push pv v))))
 		(unzip (opt p '()) (list (list) (list))))
 	(zip ps pv))
 
@@ -48,8 +48,8 @@
 	; (ui-root name func [props] [body]) -> view
 	(setq p (ui-merge-props p))
 	(if (/= 0 (length p))
-		`(progn (defq _ui (list (defq ,n ,c))) (def ,n ~p) ~x (setq _ui nil))
-		`(progn (defq _ui (list (defq ,n ,c))) ~x (setq _ui nil))))
+		`(progn (defq _ui (list (defq ,n ,c))) (def ,n ~p) ~x (setq _ui :nil))
+		`(progn (defq _ui (list (defq ,n ,c))) ~x (setq _ui :nil))))
 
 (defmacro ui-element (n c &optional p &rest x)
 	; (ui-element name func [props] [body]) -> view

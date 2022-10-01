@@ -89,7 +89,7 @@ Search for an element with `(find elem seq)` and `(find-rev elem seq)`:
 (find 5 (array 1 2 3 4 5))
 4
 (find "a" "def")
-nil
+:nil
 (find 'a (list 'd 't 'y 'a 'j 'k 'd))
 3
 (find-rev 'd (list 'd 't 'y 'a 'j 'k 'd))
@@ -138,7 +138,7 @@ B2
 You can predicate over a sequence or slice of a sequence, forwards or backwards
 by use of the `(some! start end mode lambda (list seq ...))` function. You
 provide the function that will be called for the group of elements from each
-index position, you can decide if it will exit if that function returns a `nil`
+index position, you can decide if it will exit if that function returns a `:nil`
 or not. `(some)` `(every)` `(notany)` and `(notevery)` are macros that assume
 the index values cover the full extent of the sequence and set the break out
 option, plus take the sequence list as arguments rather than an explicit list.
@@ -150,16 +150,16 @@ As with `(each!)` the function being called is passed the current index value
 bound to the '_' symbol ! Very useful !
 
 ```vdu
-(some! 0 -1 nil = (list '(1 2 3) '(5 6 3)))
-t
+(some! 0 -1 :nil = (list '(1 2 3) '(5 6 3)))
+:t
 (some (# (if (eql %0 "a") _)) "defhqaio")
 5
 (some > (array 1 2 3) (array 5 6 7))
-nil
+:nil
 (some < (array 1 2 3) (array 5 6 7))
-t
+:t
 (every < (array 1 2 3) (array 5 6 7))
-t
+:t
 ```
 
 ## Map, Reduce and Filter

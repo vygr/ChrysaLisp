@@ -136,7 +136,7 @@
 (ffi weak-ref "class/obj/lisp_weak_ref" 0)
 (ffi obj-ref "class/obj/lisp_obj_ref" 0)
 
-(defq t 't nil 'nil *boot_env* (env)
+(defq *boot_env* (env)
 	+byte_size 1 +short_size 2 +int_size 4 +long_size 8 +ptr_size 8
 	+str_data 24 +node_id_size 16 +net_id_size 24
 	defmacro '(macro (n a &rest _) `(defq ,n (macro ,a ~_))))
@@ -168,35 +168,35 @@
 	(eval (prebind (macroexpand _))))
 
 (defmacro array? (_)
-	; (array? form) -> t | nil
+	; (array? form) -> :t | :nil
 	`(find :array (type-of ,_)))
 (defmacro list? (_)
-	; (list? form) -> t | nil
+	; (list? form) -> :t | :nil
 	`(find-rev :list (type-of ,_)))
 (defmacro num? (_)
-	; (num? form) -> t | nil
+	; (num? form) -> :t | :nil
 	`(find :num (type-of ,_)))
 (defmacro func? (_)
-	; (func? form) -> t | nil
+	; (func? form) -> :t | :nil
 	`(find :func (type-of ,_)))
 (defmacro str? (_)
-	; (str? form) -> t | nil
+	; (str? form) -> :t | :nil
 	`(find :str (type-of ,_)))
 (defmacro sym? (_)
-	; (sym? form) -> t | nil
+	; (sym? form) -> :t | :nil
 	`(find-rev :sym (type-of ,_)))
 (defmacro env? (_)
-	; (env? form) -> t | nil
+	; (env? form) -> :t | :nil
 	`(find :hmap (type-of ,_)))
 (defmacro seq? (_)
-	; (seq? form) -> t | nil
+	; (seq? form) -> :t | :nil
 	`(find :seq (type-of ,_)))
 (defmacro lambda? (_)
-	; (lambda? form) -> t | nil
+	; (lambda? form) -> :t | :nil
 	`(and (find :list (type-of (defq ,(defq __ (gensym)) ,_)))
 		(> (length ,__) 0) (eql (elem-get 0 ,__) 'lambda)))
 (defmacro macro? (_)
-	; (macro? form) -> t | nil
+	; (macro? form) -> :t | :nil
 	`(and (find :list (type-of (defq ,(defq __ (gensym)) ,_)))
 		(> (length ,__) 0) (eql (elem-get 0 ,__) 'macro)))
 
@@ -221,8 +221,8 @@
 ;;;;;;;;;;;;;;
 
 (defmacro not (_)
-	; (not form) -> t | nil
-	`(if ,_ nil t))
+	; (not form) -> :t | :nil
+	`(if ,_ :nil :t))
 
 (defmacro when (x &rest _)
 	; (when tst body)
@@ -233,29 +233,29 @@
 (defmacro unless (x &rest _)
 	; (unless tst body)
 	(if (= (length _) 1)
-		`(if ,x nil ~_)
-		`(cond (,x nil) (t ~_))))
+		`(if ,x :nil ~_)
+		`(cond (,x :nil) (:t ~_))))
 
 (defmacro until (x &rest _)
 	; (until tst body)
 	`(while (not ,x) ~_))
 
 (defmacro or (&rest _)
-	; (or [tst] ...) -> nil | tst
+	; (or [tst] ...) -> :nil | tst
 	(defq out (list cond))
 	(each! 0 -1 (lambda (&rest c) (push out c)) (list _))
 	out)
 
 (defmacro and (&rest _)
-	; (and [tst] ...) -> t | nil | tst
+	; (and [tst] ...) -> :t | :nil | tst
 	(cond
 		((= (length _) 0))
 		((= (length _) 1) (elem-get 0 _))
-		(t `(if ,(elem-get 0 _) (and ~(slice 1 -1 _))))))
+		(:t `(if ,(elem-get 0 _) (and ~(slice 1 -1 _))))))
 
 (defmacro case (_form &rest _body)
 	; (case form [(key|(key ...) body)] ...)
-	(defq _default_key nil _default_clause nil _atoms t
+	(defq _default_key :nil _default_clause :nil _atoms :t
 		_map (reduce (lambda (_map (_keys &rest _clause_body))
 			(unless (list? _keys) (setq _keys (list _keys)))
 			(setq _clause_body (pop (prebind (list (macroexpand
@@ -263,11 +263,11 @@
 					(elem-get 0 _clause_body)
 					(cat '(progn) _clause_body)))))))
 			(or (eql :num (defq _clause_type (pop (type-of _clause_body))))
-				(eql :str _clause_type) (setq _atoms nil))
+				(eql :str _clause_type) (setq _atoms :nil))
 			(each! 0 -1 (lambda (_key) (cond
-				((eql _key t)
-					(setq _default_key t _default_clause _clause_body))
-				(t  (push (elem-get 0 _map) _key)
+				((eql _key :t)
+					(setq _default_key :t _default_clause _clause_body))
+				(:t  (push (elem-get 0 _map) _key)
 					(push (elem-get 1 _map) _clause_body)))) (list _keys)) _map)
 			_body (list (list) (list))))
 	(cond
@@ -276,7 +276,7 @@
 			(if _atoms
 				`(elem-get (or (find ,_form ',(elem-get 0 _map)) -2) ',(elem-get 1 _map))
 				`(eval (elem-get (or (find ,_form ',(elem-get 0 _map)) -2) ',(elem-get 1 _map)))))
-		(t  (if _atoms
+		(:t  (if _atoms
 				`(if (defq ,(defq _i (gensym)) (find ,_form ',(elem-get 0 _map)))
 					(elem-get ,_i ',(elem-get 1 _map)))
 				`(if (defq ,(defq _i (gensym)) (find ,_form ',(elem-get 0 _map)))
@@ -355,7 +355,7 @@
 	(cond
 		(_a (each! 0 -1 (lambda (_e)
 				(setq _a (_f _a _e))) (list _l)))
-		(t (setq _a (elem-get 0 _l))
+		(:t (setq _a (elem-get 0 _l))
 			(each! 1 -1 (lambda (_e)
 				(setq _a (_f _a _e))) (list _l)))) _a)
 
@@ -364,33 +364,33 @@
 	(cond
 		(_a (each! -1 0 (lambda (_e)
 				(setq _a (_f _a _e))) (list _l)))
-		(t (setq _a (elem-get -2 _l))
+		(:t (setq _a (elem-get -2 _l))
 			(each! -2 0 (lambda (_e)
 				(setq _a (_f _a _e))) (list _l)))) _a)
 
 (defun reduced-reduce (_f _l &optional _a)
 	; (reduced-reduce lambda seq [accum]) -> form
-	(defq __x nil)
+	(defq __x :nil)
 	(cond
-		(_a (some! 0 -1 nil (lambda (_e)
-				(cond (__x t) (t (setq _a (_f _a _e)) nil))) (list _l)))
-		(t (setq _a (elem-get 0 _l))
-			(some! 1 -1 nil (lambda (_e)
-				(cond (__x t) (t (setq _a (_f _a _e)) nil))) (list _l)))) _a)
+		(_a (some! 0 -1 :nil (lambda (_e)
+				(cond (__x :t) (:t (setq _a (_f _a _e)) :nil))) (list _l)))
+		(:t (setq _a (elem-get 0 _l))
+			(some! 1 -1 :nil (lambda (_e)
+				(cond (__x :t) (:t (setq _a (_f _a _e)) :nil))) (list _l)))) _a)
 
 (defun reduced-reduce-rev (_f _l &optional _a)
 	; (reduced-reduce-rev lambda seq [accum]) -> form
-	(defq __x nil)
+	(defq __x :nil)
 	(cond
-		(_a (some! -1 0 nil (lambda (_e)
-				(cond (__x t) (t (setq _a (_f _a _e)) nil))) (list _l)))
-		(t (setq _a (elem-get -2 _l))
-			(some! -2 0 nil (lambda (_e)
-				(cond (__x t) (t (setq _a (_f _a _e)) nil))) (list _l)))) _a)
+		(_a (some! -1 0 :nil (lambda (_e)
+				(cond (__x :t) (:t (setq _a (_f _a _e)) :nil))) (list _l)))
+		(:t (setq _a (elem-get -2 _l))
+			(some! -2 0 :nil (lambda (_e)
+				(cond (__x :t) (:t (setq _a (_f _a _e)) :nil))) (list _l)))) _a)
 
 (defmacro reduced (_a)
 	; (reduced accum)
-	`(progn (setq __x t) ,_a))
+	`(progn (setq __x :t) ,_a))
 
 ;;;;;;;;
 ; Scopes
@@ -409,32 +409,32 @@
 ;;;;;;;;;;;;
 
 (defmacro some (f &rest _)
-	; (some lambda seq ...) -> nil | form
-	`(some! 0 -1 nil ,f (list ~_)))
+	; (some lambda seq ...) -> :nil | form
+	`(some! 0 -1 :nil ,f (list ~_)))
 
 (defmacro some-rev (f &rest _)
-	; (some-rev lambda seq ...) -> nil | form
-	`(some! -1 0 nil ,f (list ~_)))
+	; (some-rev lambda seq ...) -> :nil | form
+	`(some! -1 0 :nil ,f (list ~_)))
 
 (defmacro every (f &rest _)
-	; (every lambda seq ...) -> nil | form
-	`(some! 0 -1 t ,f (list ~_)))
+	; (every lambda seq ...) -> :nil | form
+	`(some! 0 -1 :t ,f (list ~_)))
 
 (defmacro notany (f &rest _)
-	; (notany lambda seq ...) -> t | nil
-	`(not (some! 0 -1 nil ,f (list ~_))))
+	; (notany lambda seq ...) -> :t | :nil
+	`(not (some! 0 -1 :nil ,f (list ~_))))
 
 (defmacro notevery (f &rest _)
-	; (notevery lambda seq ...) -> t | nil
-	`(not (some! 0 -1 t ,f (list ~_))))
+	; (notevery lambda seq ...) -> :t | :nil
+	`(not (some! 0 -1 :t ,f (list ~_))))
 
-(defun nil? (_)
-	; (nil? o) -> bool
-	(eql _ nil))
+(defun :nil? (_)
+	; (:nil? o) -> bool
+	(eql _ :nil))
 
 (defun empty? (_)
 	; (empty? form) -> bool
-	(if (seq? _) (= (length _) 0) t))
+	(if (seq? _) (= (length _) 0) :t))
 
 (defun nempty? (_)
 	; (nempty? form) -> bool
@@ -445,24 +445,24 @@
 ;;;;;;;;;;;
 
 (defun first (_)
-	; (first seq) -> el | nil
-	(if (and (not (nil? _)) (> (length _) 0)) (elem-get 0 _)))
+	; (first seq) -> el | :nil
+	(if (and (not (:nil? _)) (> (length _) 0)) (elem-get 0 _)))
 
 (defun second (_)
-	; (second seq) -> el | nil
-	(if (and (not (nil? _)) (> (length _) 1)) (elem-get 1 _)))
+	; (second seq) -> el | :nil
+	(if (and (not (:nil? _)) (> (length _) 1)) (elem-get 1 _)))
 
 (defun third (_)
-	; (third seq) -> el | nil
-	(if (and (not (nil? _)) (> (length _) 2)) (elem-get 2 _)))
+	; (third seq) -> el | :nil
+	(if (and (not (:nil? _)) (> (length _) 2)) (elem-get 2 _)))
 
 (defun last (_)
-	; (last seq) -> el | nil
-	(if (and (not (nil? _)) (> (length _) 0)) (elem-get -2 _)))
+	; (last seq) -> el | :nil
+	(if (and (not (:nil? _)) (> (length _) 0)) (elem-get -2 _)))
 
 (defun rest (_)
-	; (rest seq) -> nil | seq
-	(if (and (not (nil? _)) (> (length _) 0)) (slice 1 -1 _) (list)))
+	; (rest seq) -> :nil | seq
+	(if (and (not (:nil? _)) (> (length _) 0)) (slice 1 -1 _) (list)))
 
 (defun erase (s b e)
 	; (erase seq start end) -> seq
@@ -505,7 +505,7 @@
 				(times cnt (push nl (pop base)))
 				(push res nl))
 			res)
-		(t (list seq))))
+		(:t (list seq))))
 
 ;;;;;;;;;;;;;;;;
 ; Math functions
@@ -626,11 +626,11 @@
 		(apply cat (map (lambda (_) (char (ascii-lower (code _)))) _))))
 
 (defun starts-with (p _)
-	; (starts-with str str) -> t | nil
+	; (starts-with str str) -> :t | :nil
 	(and (>= (length _) (length p)) (eql p (slice 0 (length p) _))))
 
 (defun ends-with (p _)
-	; (ends-with str str) -> t | nil
+	; (ends-with str str) -> :t | :nil
 	(and (>= (length _) (length p)) (eql p (slice (dec (neg (length p))) -1 _))))
 
 (defun align (num div)
@@ -672,7 +672,7 @@
 				(logand (<< _ 16) 0x3f0000)) 3))
 		((>= _ 0x80)
 			(char (+ 0x80c0 (>> _ 6) (logand (<< _ 8) 0x3f00)) 2))
-		(t  (char _))))
+		(:t  (char _))))
 
 (defun trim-start (s &optional c)
 	; (trim-start str [str]) -> str
@@ -768,11 +768,11 @@
 		((i ui) +int_size)
 		((s us) +short_size)
 		((b ub) +byte_size)
-		(t +long_size)))
+		(:t +long_size)))
 
 (defun walk-list (_l _f _fi _fo)
 	; (walk-list list fnc_element fnc_in fnc_out)
-	;if fnc_in returns nil, it will step down into that list.
+	;if fnc_in returns :nil, it will step down into that list.
 	;fnc_out is allways called to balence calls to fnc_in.
 	(defq _stack (list _l 0))
 	(while (defq _ (pop _stack) _l (pop _stack))
@@ -785,7 +785,7 @@
 				(cond
 					((_fi _l)
 						(_fo _l))
-					(t  (push _stack _l 1)
+					(:t  (push _stack _l 1)
 						(if (list? (defq _e (elem-get 0 _l))) (push _stack _e 0))
 						(_f _e))))
 			((< _ (length _l))
@@ -793,7 +793,7 @@
 				(push _stack _l (inc _))
 				(if (list? (defq _e (elem-get _ _l))) (push _stack _e 0))
 				(_f _e))
-			(t  ;exit list
+			(:t  ;exit list
 				(_fo _l)))))
 
 (defmacro # (&rest _)
@@ -824,7 +824,7 @@
 	(if (setq _ (pii-fstat _)) (elem-get 0 _) 0))
 
 (defun load-stream (_)
-	; (load-stream path) -> nil | stream
+	; (load-stream path) -> :nil | stream
 	(if (defq _ (load _)) (string-stream _)))
 
 (defun each-line (_f _)
@@ -837,7 +837,7 @@
 	(cond
 		((not (starts-with "./" lib_path))
 			lib_path)
-		(t  (setd current *stream_name*)
+		(:t  (setd current *stream_name*)
 			(while (starts-with "./" lib_path)
 				(unless (defq i (find-rev "/" current))
 					(throw "No relative path !" lib_path))
@@ -856,8 +856,8 @@
 		(cond
 			((and (defq file_list (def? '*file_includes* _ee))
 					(find lib_path file_list))
-				(setq _ee t))
-			(t  (setq _ee (penv _ee)))))
+				(setq _ee :t))
+			(:t  (setq _ee (penv _ee)))))
 	; if not existing import it here
 	(unless _ee
 		(unless (def? '*file_includes* _e)
@@ -908,7 +908,7 @@
 ;debug_mode 0, release, strip all error checking
 ;debug_mode 1, normal, with error checking
 ;debug_mode 2, guarded, with error checking and guard pages
-(defq *debug_mode* 1 *debug_emit* nil *debug_inst* nil)
+(defq *debug_mode* 1 *debug_emit* :nil *debug_inst* :nil)
 
 (defun cpu ()
 	; (cpu) -> sym
@@ -931,8 +931,8 @@
 		`(undef *compile_env* ~b))
 	(defun include (lib_path)
 		(import lib_path *compile_env*))
-	(catch (progn (setq _f (_f) *compile_env* nil) _f)
-		(setq *compile_env* nil)))
+	(catch (progn (setq _f (_f) *compile_env* :nil) _f)
+		(setq *compile_env* :nil)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Boot extension imports

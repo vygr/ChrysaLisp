@@ -159,7 +159,7 @@
 	(entry 'obj :type '(:r0))
 
 	(vp-push :r0)
-	(call 'list :create nil '(:r1))
+	(call 'list :create :nil '(:r1))
 	(vp-pop :r0)
 
 	(exit 'obj :type '(:r0 :r1))

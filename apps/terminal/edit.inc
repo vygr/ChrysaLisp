@@ -46,7 +46,7 @@
 				;active pipe so feed it
 				(. *pipe* :write (cat (. buffer :get_text_line y) (ascii-char +char_lf)))
 				(. buffer :paste (ascii-char +char_lf)))
-			(t  ;no active pipe
+			(:t  ;no active pipe
 				(defq prompt_len (length *env_terminal_prompt*)
 					cmd (slice prompt_len -1 (. buffer :get_text_line y)))
 				;push new line history entry if not same as last entry
@@ -59,12 +59,12 @@
 				(cond
 					((> (length cmd) 0)
 						;start pipe
-						(catch (setq *pipe* (Pipe cmd *select*)) (progn (setq *pipe* nil) t))
+						(catch (setq *pipe* (Pipe cmd *select*)) (progn (setq *pipe* :nil) :t))
 						(unless *pipe*
 							(. buffer :paste (cat "Pipe Error !"
 								(ascii-char +char_lf) (ascii-char +char_lf)
 								*env_terminal_prompt*))))
-					(t (. buffer :paste *env_terminal_prompt*))))))
+					(:t (. buffer :paste *env_terminal_prompt*))))))
 	(. *edit* :clear_selection)
 	(refresh))
 
@@ -73,7 +73,7 @@
 		(input-cursor
 			;EOF
 			(. *pipe* :close)
-			(setq *pipe* nil)
+			(setq *pipe* :nil)
 			(. buffer :paste (cat (ascii-char +char_lf) *env_terminal_prompt*)))
 		(. *edit* :clear_selection)
 		(refresh)))

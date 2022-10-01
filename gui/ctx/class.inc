@@ -1,6 +1,6 @@
 (include "sys/class.inc")
 
-(def-class ctx nil
+(def-class ctx :nil
 	(dec-method :set_color gui/ctx/set_color :static (:r0 :r1))
 	(dec-method :box gui/ctx/box :static (:r0 :r7 :r8 :r9 :r10))
 	(dec-method :filled_box gui/ctx/filled_box :static (:r0 :r7 :r8 :r9 :r10))

@@ -14,4 +14,4 @@
 	(. *window* :change_dirty x y w h))
 
 (defun action-close ()
-	(setq *running* nil))
+	(setq *running* :nil))

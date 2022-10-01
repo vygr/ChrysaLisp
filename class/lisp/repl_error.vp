@@ -48,7 +48,7 @@
 		(assign {iter[+ptr_size]} {frame})
 		(call 'obj :ref {frame})
 	(else)
-		(call 'list :create nil {frame})
+		(call 'list :create :nil {frame})
 	(endif)
 
 	(call 'error :create {desc, msg, payload, file, line, frame} {value})

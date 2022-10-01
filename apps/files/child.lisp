@@ -7,7 +7,7 @@
 	(enum file_button tree_button)
 	(enum exts_action ok_action))
 
-(ui-window *window* nil
+(ui-window *window* :nil
 	(ui-flow _ (:flow_flags +flow_down_fill)
 		(ui-title-bar window_title "" (0xea19) +event_close)
 		(ui-flow _ (:flow_flags +flow_right_fill)
@@ -22,12 +22,12 @@
 		(ui-flow _ (:flow_flags +flow_right_fill :font *env_terminal_font* :color +argb_white :border 1)
 			(ui-flow _ (:flow_flags +flow_down_fill)
 				(ui-label _ (:text "Folders" :font *env_window_font*))
-				(ui-scroll tree_scroll +scroll_flag_vertical nil
+				(ui-scroll tree_scroll +scroll_flag_vertical :nil
 					(ui-flow tree_flow (:flow_flags +flow_down_fill :color +argb_white
 						:min_width 256))))
 			(ui-flow _ (:flow_flags +flow_down_fill)
 				(ui-label _ (:text "Files" :font *env_window_font*))
-				(ui-scroll files_scroll +scroll_flag_vertical nil
+				(ui-scroll files_scroll +scroll_flag_vertical :nil
 					(ui-flow files_flow (:flow_flags +flow_down_fill :color +argb_white
 						:min_width 256)))))))
 
@@ -96,7 +96,7 @@
 	(gui-add-front (. *window* :change x y w h))
 	(while (cond
 		((eql (defq msg (mail-read (task-mailbox))) "")
-			nil)
+			:nil)
 		((= (defq id (getf msg +ev_msg_target_id)) +event_close)
 			(mail-send reply_mbox ""))
 		((= id +event_ok_action)
@@ -114,5 +114,5 @@
 		((= id +event_exts_action)
 			(setq exts (get :clear_text ext_filter))
 			(populate-files all_files current_dir exts))
-		(t (. *window* :event msg))))
+		(:t (. *window* :event msg))))
 	(gui-sub *window*))

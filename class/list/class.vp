@@ -130,7 +130,7 @@
 	(entry 'list :slice '(:r6 :r7 :r8))
 
 	;create new list
-	(call 'list :create nil '(:r0))
+	(call 'list :create :nil '(:r0))
 	(vp-cpy-rr :r8 :r1)
 	(vp-sub-rr :r7 :r1)
 	(assign '(:r1) '((:r0 array_length)))

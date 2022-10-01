@@ -17,7 +17,7 @@
 (enums +select 0
 	(enum main service tip))
 
-(defq vdu_width 60 vdu_height 40 buf_keys (list) buf_list (list) buf_index nil id t)
+(defq vdu_width 60 vdu_height 40 buf_keys (list) buf_list (list) buf_index :nil id :t)
 
 (ui-window *window* (:color 0xc0000000)
 	(ui-flow _ (:flow_flags +flow_down_fill)
@@ -43,7 +43,7 @@
 		(progn
 			(clear buf_list)
 			(clear buf_keys)
-			(setq buf_index nil)
+			(setq buf_index :nil)
 			(. vdu :load '(
 				{ChrysaLisp Profile 0.1}
 				{Toolbar1 buttons act on a single task.}
@@ -90,7 +90,7 @@
 					(. view :show_tip)))
 			;close ?
 			((= (setq id (getf *msg* +ev_msg_target_id)) +event_close)
-				(setq id nil))
+				(setq id :nil))
 			;moved task slider
 			((= id +event_hvalue)
 				(reset (get :value hslider)))
@@ -104,7 +104,7 @@
 			((= id +event_clear_all)
 				(reset))
 			;otherwise
-			(t (. *window* :event *msg*))))
+			(:t (. *window* :event *msg*))))
 	(mail-forget entry)
 	(free-select select)
 	(gui-sub *window*))

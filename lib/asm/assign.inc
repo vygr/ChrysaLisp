@@ -11,7 +11,7 @@
 (defun assign-map-reg-keys (s)
 	(walk-list (defq s (copy s))
 		(lambda (e) (and (sym? e) (eql (elem-get 0 e) ":") (elem-set _ _l (get e))))
-		(lambda (l) nil)
+		(lambda (l) :nil)
 		(lambda (l))) s)
 
 (defun assign-ignored-to-asm ()
@@ -32,7 +32,7 @@
 	(defq s src d dst i 0 c 1000 l (dec (length d)))
 	(while (and (< i l) (/= c 0))
 		(if (setq j (unless (list? (defq j (elem-get i d)))
-				(some! -1 (inc i) nil (lambda (s d)
+				(some! -1 (inc i) :nil (lambda (s d)
 					(cond
 						((and (list? s) (find-rev j s)) _)
 						((and (list? d) (find-rev j d)) _)
@@ -70,7 +70,7 @@
 					(:dui (vp-cpy-rd-i x (elem-get 0 y) (elem-get 1 y)))
 					(:dus (vp-cpy-rd-s x (elem-get 0 y) (elem-get 1 y)))
 					(:dub (vp-cpy-rd-b x (elem-get 0 y) (elem-get 1 y)))
-					(t (throw "Invalid dst parameter !" (list x y)))))
+					(:t (throw "Invalid dst parameter !" (list x y)))))
 				(:c (vp-cpy-cr x y))
 				(:i (vp-cpy-ir (elem-get 0 x) (elem-get 1 x) y))
 				(:ii (vp-cpy-ir-i (elem-get 0 x) (elem-get 1 x) y))
@@ -91,7 +91,7 @@
 				(:@ (fn-bind (elem-get 1 x) y))
 				(:s (fn-string x y))
 				(:$ (vp-lea-p (elem-get 1 x) y))
-				(t (throw "Invalid src parameter !" (list x y))))) src dst)))
+				(:t (throw "Invalid src parameter !" (list x y))))) src dst)))
 
 (defun print-inst (_)
 	(and (list? _) (not (eql (elem-get 0 _) 'lambda)) (print (ascii-char 9) _)))
@@ -145,7 +145,7 @@
 		(when *debug_inst*
 			(print "post opt:")
 			(each (const print-inst) *inst*))
-		(set-reg-map nil _)
+		(set-reg-map :nil _)
 		(eval *inst* *compile_env*)))
 
 (defun assign (&optional src dst _)

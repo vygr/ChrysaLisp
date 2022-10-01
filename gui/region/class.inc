@@ -1,6 +1,6 @@
 (include "sys/class.inc")
 
-(def-class region nil
+(def-class region :nil
 	(dec-method :translate gui/region/translate :static (:r1 :r7 :r8))
 	(dec-method :bounds gui/region/bounds :static (:r1) (:r7 :r8 :r9 :r10))
 	(dec-method :clip_rect gui/region/clip_rect :static (:r0 :r1 :r7 :r8 :r9 :r10) (:r0))

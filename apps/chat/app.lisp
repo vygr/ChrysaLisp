@@ -31,7 +31,7 @@
 				;line feed and truncate
 				(if (> (length (push buf "")) (const vdu_height))
 					(setq buf (slice (const (dec (neg vdu_height))) -1 buf))))
-			(t	;char
+			(:t	;char
 				(elem-set -2 buf (cat (elem-get -2 buf) c))))) s)
 	(. vdu :load buf 0 0 (length (elem-get -2 buf)) (dec (length buf))) buf)
 
@@ -45,7 +45,7 @@
 		'("join" "leave")))
 
 (defun main ()
-	(defq id t text_buf (list "") entry nil select (alloc-select (dec +select_size)))
+	(defq id :t text_buf (list "") entry :nil select (alloc-select (dec +select_size)))
 	(tooltips)
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(gui-add-front (. *window* :change x y w h))
@@ -61,7 +61,7 @@
 				(setq text_buf (vdu-print vdu text_buf *msg*)))
 			((= (setq id (getf *msg* +ev_msg_target_id)) +event_close)
 				;close
-				(setq id nil))
+				(setq id :nil))
 			((= id +event_connect)
 				;connect to network ?
 				(unless (or entry (eql "" (get :clear_text chat_user)))
@@ -74,13 +74,13 @@
 					(broadcast "Has left the chat !")
 					(mail-free-mbox (pop select))
 					(mail-forget entry)
-					(setq entry nil)))
+					(setq entry :nil)))
 			((= id +event_send)
 				;send to network
 				(broadcast (get :clear_text chat_text))
 				(set chat_text :clear_text "" :cursor 0 :anchor 0)
 				(.-> chat_text :layout :dirty))
-			(t (. *window* :event *msg*))))
+			(:t (. *window* :event *msg*))))
 	(when entry
 		(broadcast "Has left the chat !")
 		(mail-forget entry))

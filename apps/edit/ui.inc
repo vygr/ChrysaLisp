@@ -9,7 +9,7 @@
 	(vdu-resize +vdu_max_width +vdu_max_height))
 
 (defun action-close ()
-	(setq *running* nil))
+	(setq *running* :nil))
 
 (defun action-layout ()
 	;user window resize

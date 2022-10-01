@@ -42,14 +42,14 @@
 		dp1 (- (vec-dot (elem-get +record_norm record) p1) (elem-get +record_dist record))
 		dp2 (- (vec-dot (elem-get +record_norm record) p2) (elem-get +record_dist record)))
 	(cond
-		((and (> dp1 d) (> dp2 d)) nil)
-		((and (< dp1 (neg d)) (< dp2 (neg d))) nil)
+		((and (> dp1 d) (> dp2 d)) :nil)
+		((and (< dp1 (neg d)) (< dp2 (neg d))) :nil)
 		((vec-collide-thick-lines-2d p1 p2 (elem-get +record_p1 record) (elem-get +record_p2 record) d))))
 
 (defun hit-line (buckets minx miny maxx maxy width id func line)
 	(defq miny (* (dec miny) width) maxy (* maxy width))
 	(while (and (<= (setq miny (+ miny width)) maxy)
-				(not (defq hit (some! (+ miny minx) (+ miny maxx 1) nil
+				(not (defq hit (some! (+ miny minx) (+ miny maxx 1) :nil
 					(lambda (bucket)
 						(some (lambda (record)
 							(when (/= (elem-get +record_id record) id)
@@ -85,7 +85,7 @@
 (ffi add-line "apps/pcb/add_line" 0)
 (ffi sub-line "apps/pcb/sub_line" 0)
 
-(defclass Layer (width height scale) nil
+(defclass Layer (width height scale) :nil
 	; (Layer width height scale) -> layer
 	(def this :width width :height height :scale scale :id 0
 		:buckets (defq buckets (cap (* width height) (list))))
@@ -130,13 +130,13 @@
 		this)
 
 	(defmethod :hit_line (this layer_line)
-		; (. layer :hit_line layer_line) -> nil | t
+		; (. layer :hit_line layer_line) -> :nil | :t
 		(set this :id (defq id (inc (get :id this))))
 		(bind '(minx miny maxx maxy) (. this :aabb layer_line))
 		(hit-line (get :buckets this) minx miny maxx maxy (get :width this) id (const hit-line?) layer_line))
 	)
 
-(defclass Layers (width height depth scale) nil
+(defclass Layers (width height depth scale) :nil
 	; (Layers width height depth scale) -> layers
 	(def this :depth depth :layers (defq layers (list)))
 	(times depth (push layers (Layer width height scale)))
@@ -166,7 +166,7 @@
 		this)
 
 	(defmethod :hit_line (this p1 p2 radius gap)
-		; (. layers :hit_line p1 p2 radius gap) -> nil | t
+		; (. layers :hit_line p1 p2 radius gap) -> :nil | :t
 		(bind '(x1 y1 z1) p1)
 		(bind '(x2 y2 z2) p2)
 		(defq layer_line (Layer-line x1 y1 x2 y2 radius gap))
@@ -200,7 +200,7 @@
 		this)
 
 	(defmethod :hit_layers_line (this layers_line)
-		; (. layers :hit_layers_line layers_line) -> nil | t
+		; (. layers :hit_layers_line layers_line) -> :nil | :t
 		(bind '(x1 y1 z1 x2 y2 z2 radius gap) layers_line)
 		(defq layer_line (Layer-line x1 y1 x2 y2 radius gap))
 		(if (> z1 z2) (defq zt z1 z1 z2 z2 zt))

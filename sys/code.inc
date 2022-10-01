@@ -5,7 +5,7 @@
 ;module
 (env-push)
 
-(defcvar '*switch* nil '*switch_nxt* nil '*switch_stk* (list))
+(defcvar '*switch* :nil '*switch_nxt* :nil '*switch_stk* (list))
 
 (defmacro beg-sym () '(sym (str "b_" *switch*)))
 (defmacro end-sym () '(sym (str "e_" *switch*)))
@@ -32,7 +32,7 @@
 			(throw "No such comparator" o)))
 		(:r (if e ((eval (elem-get e '(vp-beq-rr vp-bne-rr vp-ble-rr vp-bge-rr vp-bgt-rr vp-blt-rr))) s d l)
 			(throw "No such comparator" o)))
-		(t (throw "No such compare mode" (vp-type s)))))
+		(:t (throw "No such compare mode" (vp-type s)))))
 
 (defun gotoifnot (e l)
 	(bind '(d o s) (cond
@@ -44,7 +44,7 @@
 			(throw "No such comparator" o)))
 		(:r (if e ((eval (elem-get e '(vp-beq-rr vp-bne-rr vp-ble-rr vp-bge-rr vp-bgt-rr vp-blt-rr))) s d l)
 			(throw "No such comparator" o)))
-		(t (throw "No such compare mode" (vp-type s)))))
+		(:t (throw "No such compare mode" (vp-type s)))))
 
 (defun switch (&optional _)
 	(push *switch_stk* *switch*)
@@ -90,22 +90,22 @@
 
 (defun breakif (&rest e)
 	(unless (sym? (defq i -2 l (elem-get -2 e)))
-		(setq i -1 l nil))
+		(setq i -1 l :nil))
 	(each! 0 i exitif (list e)))
 
 (defun breakifnot (&rest e)
 	(unless (sym? (defq i -2 l (elem-get -2 e)))
-		(setq i -1 l nil))
+		(setq i -1 l :nil))
 	(each! 0 i exitifnot (list e)))
 
 (defun continueif (&rest e)
 	(unless (sym? (defq i -2 l (elem-get -2 e)))
-		(setq i -1 l nil))
+		(setq i -1 l :nil))
 	(each! 0 i repeatif (list e)))
 
 (defun continueifnot (&rest e)
 	(unless (sym? (defq i -2 l (elem-get -2 e)))
-		(setq i -1 l nil))
+		(setq i -1 l :nil))
 	(each! 0 i repeatifnot (list e)))
 
 (defun vpcase (&rest e)
@@ -122,14 +122,14 @@
 
 (defun loop-while (&rest e)
 	(unless (sym? (defq i -2 l (elem-get -2 e)))
-		(setq i -1 l nil))
+		(setq i -1 l :nil))
 	(switch l)
 	(vp-label (beg-sym))
 	(each! 0 i exitifnot (list e)))
 
 (defun loop-whilenot (&rest e)
 	(unless (sym? (defq i -2 l (elem-get -2 e)))
-		(setq i -1 l nil))
+		(setq i -1 l :nil))
 	(switch l)
 	(vp-label (beg-sym))
 	(each! 0 i exitif (list e)))
@@ -140,25 +140,25 @@
 
 (defun loop-until (&rest e)
 	(unless (sym? (defq i -2 l (elem-get -2 e)))
-		(setq i -1 l nil))
+		(setq i -1 l :nil))
 	(each! 0 i repeatifnot (list e))
 	(endswitch))
 
 (defun loop-untilnot (&rest e)
 	(unless (sym? (defq i -2 l (elem-get -2 e)))
-		(setq i -1 l nil))
+		(setq i -1 l :nil))
 	(each! 0 i repeatif (list e))
 	(endswitch))
 
 (defun vpif (&rest e)
 	(unless (sym? (defq i -2 l (elem-get -2 e)))
-		(setq i -1 l nil))
+		(setq i -1 l :nil))
 	(switch l)
 	(each! 0 i nextcaseifnot (list e)))
 
 (defun vpifnot (&rest e)
 	(unless (sym? (defq i -2 l (elem-get -2 e)))
-		(setq i -1 l nil))
+		(setq i -1 l :nil))
 	(switch l)
 	(each! 0 i nextcaseif (list e)))
 
@@ -300,18 +300,18 @@
 	(if (find-rev (setq _1 (sym _1)) (elem-get 1 (defq _ (pop *syms*))))
 		(throw "Symbol redefined !" _1))
 	(push (elem-get 1 _) _1)
-	(push (elem-get 2 _) (cat (list (length *syms*) _2) _3 '(nil)))
+	(push (elem-get 2 _) (cat (list (length *syms*) _2) _3 '(:nil)))
 	(push *syms* _))
 
 (defun get-sym (_1)
 	;_1 symbol
-	(defq _1 (sym _1) a (some! -2 0 nil (lambda (s)
+	(defq _1 (sym _1) a (some! -2 0 :nil (lambda (s)
 		(if (defq _ (find-rev _1 (elem-get 1 s)))
 			(elem-get _ (elem-get 2 s)))) (list *syms*)))
-	(when a (elem-set -2 a t)) a)
+	(when a (elem-set -2 a :t)) a)
 
 (defmacro used-syms (&rest _)
-	(each get-sym _) nil)
+	(each get-sym _) :nil)
 
 (defun operator (_1 _2 &optional _3 _4)
 	;_1 name
@@ -348,7 +348,7 @@
 						`(def-vars ,_)
 						`(setq ,m (max ,m *sym_sp*) *sym_sp* ,o))) (list line))
 				(push prog `(setq *sym_sp* ,m)))
-			(t
+			(:t
 				(if (defq alignment (find (elem-get 0 line)
 						'(short int long ushort uint ulong ptr pptr
 							pubyte pushort puint pulong pbyte pshort pint plong)))

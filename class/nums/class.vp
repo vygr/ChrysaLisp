@@ -250,7 +250,7 @@
 	(vp-xor-rr sum sum)
 	(vp-shl-cr (log2 +ptr_size) dst_end)
 	(vp-add-rr dst1 dst_end)
-	(vec-loop-until `(,dst1) `(,e0) dst_end nil
+	(vec-loop-until `(,dst1) `(,e0) dst_end :nil
 		(lambda (e0) (vp-add-rr e0 sum)))
 
 	(exit 'nums :sum `(,dst ,sum))
@@ -303,7 +303,7 @@
 	(vp-xor-rr dot dot)
 	(vp-shl-cr (log2 +ptr_size) src_end)
 	(vp-add-rr src1 src_end)
-	(vec-loop-until `(,src1 ,src2) `(,e0 ,e1) src_end nil
+	(vec-loop-until `(,src1 ,src2) `(,e0 ,e1) src_end :nil
 		(lambda (e0 e1) (vp-mul-rr e0 e1) (vp-add-rr e1 dot)))
 
 	(exit 'nums :dot `(,src ,dot))
@@ -362,7 +362,7 @@
 	(vp-xor-rr val val)
 	(vp-shl-cr (log2 +ptr_size) src_end)
 	(vp-add-rr src1 src_end)
-	(vec-loop-while `(,src1) `(,e0) src_end nil
+	(vec-loop-while `(,src1) `(,e0) src_end :nil
 		(lambda (e0) (vp-xor-rr e0 val)))
 	(vp-abs val)
 

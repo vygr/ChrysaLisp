@@ -19,7 +19,7 @@
 
 (defq *old_mouse_x* -1 *old_mouse_y* -1 *mouse_type* 0
 	*mouse_x* 0 *mouse_y* 0 *mouse_buttons* 0 *mouse_id* 0
-	rate (/ 1000000 60) *running* t)
+	rate (/ 1000000 60) *running* :t)
 
 (defun mouse-type (view rx ry)
 	(if view
@@ -31,8 +31,8 @@
 				(case (if (= *mouse_buttons* 0)
 						(elem-get 0 (. view :drag_mode rx ry))
 						(get :drag_mode view))
-					(1 10) (2 8) (3 5) (4 10) (6 4) (8 8) (9 4) (12 5) (t 0)))
-			(t 0)))
+					(1 10) (2 8) (3 5) (4 10) (6 4) (8 8) (9 4) (12 5) (:t 0)))
+			(:t 0)))
 		(defq mouse_type 0))
 	(when (or (/= *mouse_x* *old_mouse_x*)
 			(/= *mouse_y* *old_mouse_y*)
@@ -40,7 +40,7 @@
 		(setq *old_mouse_x* *mouse_x* *old_mouse_y* *mouse_y* *mouse_type* mouse_type)
 		(bind '(w h) (. *mouse* :pref_size))
 		(def *mouse* :offset_x 0 :offset_y (* mouse_type w -1))
-		(bind '(hx hy) (case mouse_type (0 '(0 0)) (12 '(6 0)) (t '(8 8))))
+		(bind '(hx hy) (case mouse_type (0 '(0 0)) (12 '(6 0)) (:t '(8 8))))
 		(. *mouse* :change_dirty (- *mouse_x* hx) (- *mouse_y* hy) w w)))
 
 (defun main ()

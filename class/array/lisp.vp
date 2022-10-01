@@ -10,7 +10,7 @@
 	(call 'lisp :env_args_match `(:r1 (@ ,(f-path 'num :vtable)) (:r1 array_length)) '(:tmp))
 	(gotoif '(:tmp = 0) 'error))
 	(assign '(:r0 :r1) '(:r6 :r8))
-	(call _ :create nil '(:r7))
+	(call _ :create :nil '(:r7))
 	(assign '((:r8 array_length)) '(:r1))
 	(assign '(:r1) '((:r7 array_length)))
 	(call _ :set_capacity '(:r7 :r1))

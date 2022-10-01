@@ -6,7 +6,7 @@
 
 (defclass Window () (View)
 	; (Window) -> window
-	(def this :child nil :last_buttons 0 :is_window t
+	(def this :child :nil :last_buttons 0 :is_window :t
 		:drag_mode 0 :drag_offx 0 :drag_offy 0)
 
 	(defmethod :draw (this)
@@ -48,7 +48,7 @@
 			(cond
 				((= shadow 0)
 					(. this :set_flags +view_flag_opaque +view_flag_opaque))
-				(t	(.-> this :clr_opaque (:add_opaque shadow shadow
+				(:t	(.-> this :clr_opaque (:add_opaque shadow shadow
 						(- w (* 2 shadow)) (- h (* 2 shadow))))))))
 
 	(defmethod :drag_mode (this rx ry)
@@ -105,16 +105,16 @@
 								((/= 0 buttons)
 									;is down now, so move
 									(if (defq fnc (.? target :mouse_move)) (fnc target event)))
-								(t  ;is not down now, so release
+								(:t  ;is not down now, so release
 									(set this :last_buttons 0)
 									(if (defq fnc (.? target :mouse_up)) (fnc target event)))))
-						(t  ;was not down previously
+						(:t  ;was not down previously
 							(cond
 								((/= 0 buttons)
 									;is down now, so first down
 									(set this :last_buttons buttons)
 									(if (defq fnc (.? target :mouse_down)) (fnc target event)))
-								(t  ;is not down now, so hover
+								(:t  ;is not down now, so hover
 									(if (defq fnc (.? target :mouse_hover)) (fnc target event)))))))
 				((= type +ev_type_key)
 					(if (>= (getf event +ev_msg_key_keycode) 0)

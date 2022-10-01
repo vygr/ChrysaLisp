@@ -48,7 +48,7 @@
 	(call 'sys_mail :alloc '(+kn_msg_callback_size) `(,msg ,data))
 
 	;fill in destination, reply and function
-	(call 'sys_kernel :id nil '(:r0 :r1))
+	(call 'sys_kernel :id :nil '(:r0 :r1))
 	(vp-xor-rr :r2 :r2)
 	(save-net-id msg msg_dest :r2 :r0 :r1)
 	(vp-cpy-cr +kn_call_callback :r0)
@@ -207,7 +207,7 @@
 	(else)
 		;calculate wake time
 		(vp-cpy-rr :r0 :r2)
-		(call 'sys_pii :time nil '(:r0))
+		(call 'sys_pii :time :nil '(:r0))
 		(vp-add-rr :r2 :r0)
 		(assign '(:r0) '((:r1 tk_node_time)))
 
@@ -275,8 +275,8 @@
 	(call 'sys_mem :fill {tcb, tcb_size, 0}))
 
 	;alloc task mailbox and tls
-	(call 'sys_mail :alloc_mbox nil {tcb->tk_node_mbox_id, tcb->tk_node_mbox_addr})
-	(call 'array :create nil {tcb->tk_node_tls})
+	(call 'sys_mail :alloc_mbox :nil {tcb->tk_node_mbox_id, tcb->tk_node_mbox_addr})
+	(call 'array :create :nil {tcb->tk_node_tls})
 	(assign {0} {tcb->tk_node_lisp})
 
 	;init task control block stack, pc and stop address's
@@ -366,7 +366,7 @@
 	;resume tasks ready to run.
 	;mail mailboxes on timouts.
 
-	(call 'sys_pii :time nil '(:r6))
+	(call 'sys_pii :time :nil '(:r6))
 	(fn-bind 'sys/statics/statics :r3)
 	(loop-list-forward :r3 statics_sys_task_timer_list :r0 :r7)
 		(assign '((:r0 tk_node_time)) '(:r1))

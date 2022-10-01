@@ -5,14 +5,14 @@
 ;module
 (env-push)
 
-(defclass Dictionary (&optional num_buckets) nil
+(defclass Dictionary (&optional num_buckets) :nil
 	; (Dictionary [num_buckets]) -> dictionary
-	(def this :word_set (fset num_buckets) :word_list (list) :dirty nil)
+	(def this :word_set (fset num_buckets) :word_list (list) :dirty :nil)
 
 	(defmethod :insert_word (this word)
 		; (. dictionary :insert_word word) -> dictionary
 		(. (get :word_set this) :insert word)
-		(lower (:dirty t))
+		(lower (:dirty :t))
 		this)
 
 	(defmethod :sort (this)
@@ -20,13 +20,13 @@
 		(defq word_list (clear (get :word_list this)))
 		(. (get :word_set this) :each (# (push word_list %0)))
 		(sort cmp word_list)
-		(lower (:dirty nil))
+		(lower (:dirty :nil))
 		this)
 
 	(defmethod :find_matches (this prefix)
 		; (. dictionary :find_matches prefix) -> (word ...)
 		(if (get :dirty this) (. this :sort))
-		(raise :word_list (i nil j 0 k (length word_list)))
+		(raise :word_list (i :nil j 0 k (length word_list)))
 		;bsearch
 		(while (< j k)
 			(setq i (>> (+ j k) 1))
@@ -37,10 +37,10 @@
 		;bounds
 		(cond
 			((= k -1)
-				(setq j (some! i 0 nil
+				(setq j (some! i 0 :nil
 						(# (unless (starts-with prefix %0) (inc _)))
 					(list word_list)))
-				(setq k (some! i -1 nil
+				(setq k (some! i -1 :nil
 						(# (unless (starts-with prefix %0) _))
 					(list word_list)))
 				(unless j (setq j 0))

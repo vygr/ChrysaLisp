@@ -37,7 +37,7 @@
 				(elem-set +prof_cnt _e_ (inc (elem-get +prof_cnt _e_)))
 				(elem-set +prof_rcnt _e_ (inc (elem-get +prof_rcnt _e_)))
 				(if (= (elem-get +prof_rcnt _e_) 1) (push _e_ (pii-time))))
-			(t  (def *profile_meta_map* ',n (setq _e_ (list 1 1 0 (pii-time))))))
+			(:t  (def *profile_meta_map* ',n (setq _e_ (list 1 1 0 (pii-time))))))
 		(push *profile_return_vals* (progn ~_))
 		(elem-set +prof_rcnt _e_ (dec (elem-get +prof_rcnt _e_)))
 		(if (= (elem-get +prof_rcnt _e_) 0) (push _e_ (+ (- (pii-time) (pop _e_)) (pop _e_))))

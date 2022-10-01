@@ -11,7 +11,7 @@
 (import "./xnode.inc")
 
 (defun map? (_)
-	; (map? object) -> t | nil
+	; (map? object) -> :t | :nil
 	; Returns true if argument is a map type
 	(or (emap? _) (xmap? _) (fmap? _) (lmap? _)))
 
@@ -19,7 +19,7 @@
 	(or (xset? _) (fset? _)))
 
 (defun collection? (_)
-	; (collection? obj) -> t | nil
+	; (collection? obj) -> :t | :nil
 	; Returns true if argument is a collection type
 	(or (map? _) (set? _)))
 
@@ -29,10 +29,10 @@
 ; Associative structure functions
 
 (defun entries (_)
-	; (entries collection) ->  list | nil
+	; (entries collection) ->  list | :nil
 	; Returns a list of lists (key value) from maps and
 	; a list from xset, of collection entries
-	(defq rlist nil)
+	(defq rlist :nil)
 	(when (collection? _)
 		(setq rlist (list))
 		(if (map? _)
@@ -41,28 +41,28 @@
 	rlist)
 
 (defun keys (_)
-	; (keys collection) -> list | nil
+	; (keys collection) -> list | :nil
 	; Returns the keys of an associative structure
 	(defq res (list))
 	(when (defq els (entries _))
 		(each (lambda ((_k _v)) (push res _k)) els)) res)
 
 (defun values (_)
-	; (values collection) -> list | nil
+	; (values collection) -> list | :nil
 	; Returns the values of an associative structure
 	(defq res (list))
 	(when (defq els (entries _))
 		(each (lambda ((_k _v)) (push res _v)) els)) res)
 
 (defun gets (kv-map _k &optional if_nil)
-	; (gets collection k [if_nil]) -> value | if_nil | nil
+	; (gets collection k [if_nil]) -> value | if_nil | :nil
 	(opt (. kv-map :find _k) if_nil))
 
 (defun gets-in (coll &rest kws)
-	; (gets-in collection key-path) -> value | nil
+	; (gets-in collection key-path) -> value | :nil
 	; Walks into collection to return the last kws value
 	; Works on heterogenous collections/trees including lists
-	(defq hit nil)
+	(defq hit :nil)
 	(when (and (indexable? coll) (nempty? kws))
 		(defq
 			pick (reverse kws)
@@ -73,7 +73,7 @@
 					(setq curr (gets curr _i)))
 				((list? curr)
 					(setq curr (elem-get _i curr)))
-				(t	(throw "Not an indexable collection " (list _i curr)))))
+				(:t	(throw "Not an indexable collection " (list _i curr)))))
 		(setq hit curr))
 	hit)
 
@@ -123,8 +123,8 @@
 	`(emap-kv ~pairs))
 
 (defun empty (_coll)
-	; (empty collection) -> collection | nil
-	; Returns an empty collection of same category of _coll or nil
+	; (empty collection) -> collection | :nil
+	; Returns an empty collection of same category of _coll or :nil
 	(cond
 		((indexable? _coll)
 			(cond
@@ -135,7 +135,7 @@
 				((fmap? _coll) (fmap))
 				((lmap? _coll) (lmap))
 				((list? _coll) (list))))
-		(t nil)))
+		(:t :nil)))
 
 (defun into-map (m lop)
 	; (into-map map list-of-pairs) -> map
@@ -156,4 +156,4 @@
 	(cond
 		((or (emap? a) (xmap? a) (fmap? a) (lmap? a)) into-map)
 		((or (xset? a) (fset? a)) into-set)
-		(t (lambda (&rest _) _))))
+		(:t (lambda (&rest _) _))))

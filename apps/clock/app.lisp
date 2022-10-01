@@ -10,20 +10,20 @@
 (enums +select 0
 	(enum main timer))
 
-(defq clock_size 256 clock_scale 1 dotw nil face (list) eps 0.25
-	seconds 0.0 second 0 minutes 0.0 minute 0 hours 0.0 hour 0 id t
+(defq clock_size 256 clock_scale 1 dotw :nil face (list) eps 0.25
+	seconds 0.0 second 0 minutes 0.0 minute 0 hours 0.0 hour 0 id :t
 	rate (/ 1000000 1))
 
 (ui-window *window* ()
 	(ui-title-bar _ "Clock" (0xea19) +event_close)
-	(if (eql *env_clock_analog* t)
+	(if (eql *env_clock_analog* :t)
 		(ui-canvas clock clock_size clock_size clock_scale)
-		(defq clock nil))
-	(if (eql *env_clock_digital* t)
+		(defq clock :nil))
+	(if (eql *env_clock_digital* :t)
 		(ui-label display (:text "xxx hh:mm:ss"
 			:flow_flags (logior +flow_flag_align_hcenter +flow_flag_align_vcenter)
 			:font (create-font "fonts/Hack-Regular.ctf" 44)))
-		(defq display nil)))
+		(defq display :nil)))
 
 (defun make-digital-time ()
 	(bind '(sc mn hr _ _ _ wk) (date))
@@ -37,7 +37,7 @@
 	(if (and *env_clock_twelve_hour* (> hour 12)) (setq hour (- hour 12)))
 	(cat (if *env_clock_dotw* (day-of-the-week dotw) "") " " 
 		(if *env_clock_pad_hour* (pad hour 2 "0") (str hour)) (str ":" (pad minute 2 "0"))
-		(if (eql *env_clock_seconds* t) (str ":" (pad second 2 "0")) "")))
+		(if (eql *env_clock_seconds* :t) (str ":" (pad second 2 "0")) "")))
 
 (defun transform (_ a s &optional x y)
 	(defq sa (sin a) ca (cos a) x (opt x 0.0) y (opt y 0.0))
@@ -99,8 +99,8 @@
 				;main mailbox
 				(cond
 					((= (setq id (getf msg +ev_msg_target_id)) +event_close)
-						(setq id nil))
-					(t (. *window* :event msg))))
+						(setq id :nil))
+					(:t (. *window* :event msg))))
 			((= idx +select_timer)
 				;timer event
 				(mail-timeout (elem-get +select_timer select) rate 0)

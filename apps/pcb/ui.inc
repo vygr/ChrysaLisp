@@ -3,7 +3,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun action-close ()
-	(setq *running* nil))
+	(setq *running* :nil))
 
 (defun action-reset ()
 	(route))

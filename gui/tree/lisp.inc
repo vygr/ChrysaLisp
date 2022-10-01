@@ -22,7 +22,7 @@
 				((defq node (some (# (if (eql (def? :text %0) branch) %0)) (. root :children)))
 					;existing route
 					(setq root (elem-get -2 (. (elem-get -2 (. node :children)) :children))))
-				(t	;new route, so new node
+				(:t	;new route, so new node
 					(def (defq node (Flow)) :flow_flags +flow_down_fill :text branch)
 					(def (defq tab_flow (Flow)) :flow_flags +flow_right_fill)
 					(def (defq tab (Backdrop)) :min_width toggle_width)
@@ -44,7 +44,7 @@
 		this)
 
 	(defmethod :find_node (this route)
-		; (. tree :find_node route) -> node | nil
+		; (. tree :find_node route) -> node | :nil
 		; routes are:
 		; "a/b/c/node"
 		(defq route (split route "/") root this)
@@ -54,8 +54,8 @@
 					;existing route
 					(setq root (elem-get -2 (. (elem-get -2 (. node :children)) :children)))
 					node)
-				(t	;new route, so failed
-					nil))) route))
+				(:t	;new route, so failed
+					:nil))) route))
 
 	(defmethod :get_route (this node)
 		; (. tree :get_route node) -> route

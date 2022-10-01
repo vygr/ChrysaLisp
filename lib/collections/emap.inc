@@ -2,13 +2,13 @@
 ; generic env map object
 ;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defclass emap (&optional num_buckets) nil
+(defclass emap (&optional num_buckets) :nil
 	; (emap [num_buckets]) -> emap
 	(def this :num_buckets (setq num_buckets (opt num_buckets 1))
 		:buckets (env num_buckets))
 
 	(defmethod :find (this key)
-		; (. emap :find key) -> nil | val
+		; (. emap :find key) -> :nil | val
 		(get key (get :buckets this)))
 
 	(defmethod :insert (this key val)

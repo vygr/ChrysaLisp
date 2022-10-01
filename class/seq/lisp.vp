@@ -195,7 +195,7 @@
 		(loop-while '(:r9 /= :r10) 'done)
 			(call 'obj :deref '((:rsp local_value)))
 
-			(call 'list :create nil '((:rsp local_params)))
+			(call 'list :create :nil '((:rsp local_params)))
 			(assign '((:rsp local_args) (:rsp local_start)) '(:r0 :r9))
 			(class/array/get_both :r0 :r10 :r11)
 			(loop-start)
@@ -312,7 +312,7 @@
 		(loop-while '(:r9 /= :r10) 'done)
 			(call 'obj :deref '((:rsp local_value)))
 
-			(call 'list :create nil '((:rsp local_params)))
+			(call 'list :create :nil '((:rsp local_params)))
 			(assign '((:rsp local_args) (:rsp local_start)) '(:r0 :r9))
 			(class/array/get_both :r0 :r10 :r11)
 			(loop-start)

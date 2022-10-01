@@ -228,7 +228,7 @@ are deinit methods that chain on to their parent deinit with a direct
 `(s-jump)`, but this happens all over the code base where possible.
 
 The `(dec-method)` function takes the lists of input and output parameter
-registers. If the list of inputs or outputs is `nil` this means to inherit the
+registers. If the list of inputs or outputs is `:nil` this means to inherit the
 list from the parent class declaration.
 
 An example from the array class.inc.
@@ -258,7 +258,7 @@ This is the system level string compare function. `'sys_str :compare`
 Register inputs and outputs are declared in the `sys/str/class.inc` file.
 
 ```vdu
-(def-class sys_str nil
+(def-class sys_str :nil
 	(dec-method :compare sys/str/compare :static (:r0 :r1) (:r0)))
 ```
 

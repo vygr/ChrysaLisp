@@ -25,7 +25,7 @@
 ; Functions on class declarations
 
 (defmacro class-inherits? (_)
-  ; (class-inherits symbol) -> t | nil
+  ; (class-inherits symbol) -> :t | :nil
   ; Predicate for answering if class inherits
   ; from another class
   `(list? (_mclass-super ,_)))
@@ -39,13 +39,13 @@
       (elem-get 2 (_mclass-body ,_)))))
 
 (defmacro class-hasvars? (_)
-  ; (class-hasvars? symbol) -> t | nil
+  ; (class-hasvars? symbol) -> :t | :nil
   ; Predicate for answering if a class declares
   ; variables
   `(list? (_mclass-vars ,_)))
 
 (defmacro class? (_)
-  ; (class? symbol) -> t | nil
+  ; (class? symbol) -> :t | :nil
   ; Predicate for answering if a symbol is of type 'class'
   `(if (and
     (seq? (defq ,(defq __ (gensym)) ,_))
@@ -59,7 +59,7 @@
   (cond
     ((class? _)
       (sym (str ":" (slice 0 -2 (last (split (_mclass-id _) "_"))))))
-    (t
+    (:t
       :NOT_A_CLASS)))
 
 ; Profile
@@ -74,11 +74,11 @@
       :form)
     ((seq? _)
       :expression)
-    (t
+    (:t
       :unknown)))
 
 (defun inspect-class (_ &optional sindent)
-  ; (inspect-class symbol [indent width]) -> nil
+  ; (inspect-class symbol [indent width]) -> :nil
   ; Recursive class walker
   (when (class? _)
     (setd sindent 0)
@@ -100,34 +100,34 @@
     (each (lambda (vf)
       (when (list? (second vf))
         (print ind "     " (elem-get 2 vf)))) (_mclass-meths _)))
-  nil)
+  :nil)
 
 ; Functions on class instances
 (defmacro class-inst? (_)
-  ; (class-inst? object) -> t | nil
+  ; (class-inst? object) -> :t | :nil
   ; Predicate for answering if the object is of type class
   (if (sym? _)
   `(and (env? ,_) (def? :vtable ,_))
   `(and (env? (defq ,(defq __ (gensym)) ,_)) (def? :vtable ,__))))
 
 (defmacro class-type (_)
-  ; (class-type object) -> keyword | nil
+  ; (class-type object) -> keyword | :nil
   ; Returns the class of an object or
-  ; nil if not class
+  ; :nil if not class
   `(if (class-inst? (defq ,(defq __ (gensym)) ,_))
     (last (. ,__ :type_of))))
 
 (defmacro class-type-of? (obj ttype)
-  ; (type-of? object ctype) -> t | nil
+  ; (type-of? object ctype) -> :t | :nil
   ; Predicate for answering if object is of a certain class type
   `(progn
     (defq
       ,(defq _ttype (gensym)) ,ttype
       ,(defq _obj (gensym)) ,obj)
     (cond
-    ((find ,_ttype (type-of ,_obj)) t)
+    ((find ,_ttype (type-of ,_obj)) :t)
     ((class-inst? ,_obj) (find ,_ttype (. ,_obj :type_of)))
-    (t nil))))
+    (:t :nil))))
 
 (defun inst-data (_)
   ; (inst-data object) -> list

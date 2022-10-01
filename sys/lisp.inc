@@ -88,7 +88,7 @@
 				(save "lock" lock_file)
 				(within-compile-env (lambda () (include file)))
 				(pii-remove lock_file))
-			(progn (pii-remove lock_file) nil))))
+			(progn (pii-remove lock_file) :nil))))
 
 (enums +file_open 0
 	(enum read write append))

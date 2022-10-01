@@ -6,14 +6,14 @@
 ; the hash function
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defclass xnode () nil
+(defclass xnode () :nil
 	; Base tree node abstraction
 	(def this
 		:children (xmap)
-		:parent nil)
+		:parent :nil)
 
 	(defmethod :get_parent (this)
-		; (. xnode :get_parent) -> xnode | nil
+		; (. xnode :get_parent) -> xnode | :nil
 		; Retrieves the parent node of this node
 		(obj-ref (get :parent this))
 		; (get :parent this)
@@ -51,7 +51,7 @@
 			((. this :get_parent)
 				(filter (#(not (eql (first %0) uid)))
 					(entries (get :children (. this :get_parent)))))
-			(t '())))
+			(:t '())))
 
 	(defmethod :has_sibling? (this uid)
 		(defq
@@ -60,8 +60,8 @@
 		(cond
 			(par
 				(gets (get :children par) uid))
-			(t
-				nil)))
+			(:t
+				:nil)))
 
 	(defmethod :unique_id (this)
 		; (. xnode :unique_id) -> unique_id
@@ -73,10 +73,10 @@
 		; (. xnode :add_node child) -> xnode
 		; Adds a child node if unique_id not in children
 		(cond
-			((nil? child) this)
-			(t
+			((:nil? child) this)
+			(:t
 				(defq hsh (. child :unique_id))
-				(when (nil? (gets (get :children this) hsh))
+				(when (:nil? (gets (get :children this) hsh))
 					(. child :set_parent this)
 					(sets! (get :children this) hsh child))
 				child)))
@@ -86,7 +86,7 @@
 		; Removes a child node if unique id in children
 		(defq hsh (. child :unique_id))
 		(when (gets (get :children this) hsh)
-			(. child :set_parent nil)
+			(. child :set_parent :nil)
 			(drop! (get :children this) hsh))
 		child)
 
@@ -130,7 +130,7 @@
 		(cond
 			(pr
 				(. pr :full_name (str nm suffix)))
-			(t
+			(:t
 				(str nm suffix))))
 
 	(defmethod :child_node (this namestr)

@@ -51,7 +51,7 @@
 		this)
 
 	(defmethod :save (this file format)
-		; (. canvas :save file format) -> nil | canvas
+		; (. canvas :save file format) -> :nil | canvas
 		(if (pixmap-save (getf this +canvas_pixmap 0) file format) this))
 
 	(defmethod :swap (this)
@@ -124,8 +124,8 @@
 	(each (lambda ((key val)) (def this key val)) (tolist super)))
 
 (defun Canvas-from-file (file flags)
-	; (Canvas-from-file file flags) -> nil | canvas
-	(defq this nil)
+	; (Canvas-from-file file flags) -> :nil | canvas
+	(defq this :nil)
 	(when (/= (logand flags +load_flag_shared) 0)
 		;check cache first
 		(when (defq this (. *pixmap_cache* :find file))

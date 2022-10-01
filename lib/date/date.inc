@@ -16,23 +16,23 @@
 
 (defmacro leapyear? (y)
 	`(cond 
-		((and (= (% ,y 100) 0) (/= (% ,y 400) 0)) nil)
-		((= (% ,y 4) 0) t)
-		(t nil)))
+		((and (= (% ,y 100) 0) (/= (% ,y 400) 0)) :nil)
+		((= (% ,y 4) 0) :t)
+		(:t :nil)))
 
-(defq unix_epoch '(0 0 0 1 1 1970 0) dls_flag nil 
+(defq unix_epoch '(0 0 0 1 1 1970 0) dls_flag :nil 
 	;week_abbr (list "Sun" "Mon" "Tue" "Wed" "Thu" "Fri" "Sat")
 	week_abbr (list "Thu" "Fri" "Sat" "Sun" "Mon" "Tue" "Wed")
 	month_abbr (list "Jan" "Feb" "Mar" "Apr" "May" "Jun" "Jul" "Aug" "Sep" "Oct" "Nov" "Dec"))
 
 ;for decoding date string integers
 (defun s2i (s)
-	(let ((final 0) (index 1) (iszero nil) (isnum t) (isneg nil))
+	(let ((final 0) (index 1) (iszero :nil) (isnum :t) (isneg :nil))
 		(cond
-			((and (= (length s) 1) (eql (code s) 48)) (setq iszero t))
-			((starts-with "-" s) (setq isneg t s (slice 1 -1 s)))
-			(t nil))
-		(if (some (lambda (c) (not (< 47 (code c) 58))) s) (setq final nil))
+			((and (= (length s) 1) (eql (code s) 48)) (setq iszero :t))
+			((starts-with "-" s) (setq isneg :t s (slice 1 -1 s)))
+			(:t :nil))
+		(if (some (lambda (c) (not (< 47 (code c) 58))) s) (setq final :nil))
 		(if (and final (not iszero)) (each (lambda (c)
 			(setq final (+ final (* (- (code c) 48) index)) index (* index 10))) (reverse s)))
 		(if isneg (setq final (- 0 final)))
@@ -40,17 +40,17 @@
 
 ;returns the first list as out by finding v at elem n of a list within in.
 (defun get-by-val (n v in)
-	(let ((out nil))
+	(let ((out :nil))
 		(cond 
 			((list? (defq element (elem-get n (elem-get 0 in))))
 				(each (lambda (e) (if (elem-find v (elem-get +tz_locations e)) (setq out e))) in))
 			((num? element) (each (lambda (e) (if (=  (elem-get n e) v) (setq out e))) in))
-			(t (each (lambda (e) (if (eql (elem-get n e) v) (setq out e))) in)))
+			(:t (each (lambda (e) (if (eql (elem-get n e) v) (setq out e))) in)))
 		out))
 
-;returns first occurrence index or nil if not found
+;returns first occurrence index or :nil if not found
 (defmacro elem-find (v in)
-	`(let ((out nil))
+	`(let ((out :nil))
 		(each (lambda (e_) (if (eql e_ ,v) (unless out (setq out _)))) ,in)
 			out))
 
@@ -63,7 +63,7 @@
 				((eql ,p :offset) (get-by-val +tz_offset ,v timezones))
 				((eql ,p :title) (get-by-val +tz_title ,v timezones))
 				((eql ,p :location) (get-by-val +tz_locations ,v timezones))
-				(t nil))))
+				(:t :nil))))
 
 ;timezone-init creates the timezone. Use this once you have a location.
 (defmacro timezone-init (tz_loc)
@@ -75,9 +75,9 @@
 ;ensure that leapyears are not divisible by 100 unless also divisible by 400.
 (defmacro leapyear? (y)
 	`(cond 
-		((and (= (% ,y 100) 0) (/= (% ,y 400) 0)) nil)
-		((= (% ,y 4) 0) t)
-		(t nil)))
+		((and (= (% ,y 100) 0) (/= (% ,y 400) 0)) :nil)
+		((= (% ,y 4) 0) :t)
+		(:t :nil)))
 
 (defmacro day-of-the-week (d)
 	`(elem-get ,d week_abbr))
@@ -95,7 +95,7 @@
 (defun leapyears-since-epoch (year)
 	(let ((leap_count 0))
 		(each (lambda (y) 
-			(if (eql (leapyear? y) t) (setq leap_count (inc leap_count)) nil))
+			(if (eql (leapyear? y) :t) (setq leap_count (inc leap_count)) :nil))
 			(range (elem-get +time_year unix_epoch) (inc year))) leap_count))
 
 ;;;since day starts at 1 add 1.
@@ -121,10 +121,10 @@
 		(list date month year)))
 
 (defun check-date (td)
-	(defq maxarg (list 59 59 23 (days-in-month (elem-get +time_month td) (elem-get +time_year td)) 11 nil 6)
-		 minarg (list 0 0 0 1 0 nil 0) index -1)
+	(defq maxarg (list 59 59 23 (days-in-month (elem-get +time_month td) (elem-get +time_year td)) 11 :nil 6)
+		 minarg (list 0 0 0 1 0 :nil 0) index -1)
 	(notany (lambda (a_)
-		(eql (and (not (= _ 5)) (or (> a_ (elem-get _ maxarg)) (< a_ (elem-get _ minarg)))) t)) td))
+		(eql (and (not (= _ 5)) (or (> a_ (elem-get _ maxarg)) (< a_ (elem-get _ minarg)))) :t)) td))
 
 (defun float-time ()
 	(defq seconds (n2f (/ (pii-time) 1000000)) minutes (+ (* 60.0 (n2f 
@@ -152,7 +152,7 @@
 (defun decode-date (dts)
 	(defq space_split (split dts " ") rdt (list) index 0)
 	(bind '(wd mo dy hms tz yr) (defq space_split (split dts " ")))
-	(each (lambda (w_) (if (eql w_ wd) (setq wd _) nil) (setq index (inc index))) week_abbr)
+	(each (lambda (w_) (if (eql w_ wd) (setq wd _) :nil) (setq index (inc index))) week_abbr)
 	(setq index 0)
 	(each (lambda (m_) (if (eql m_ mo) (setq mo _)) (setq index (inc index))) month_abbr)
 	(defq smh (reverse (split hms ":")))
@@ -161,4 +161,4 @@
 
 (when (not (get :local_timezone))
 	(def (penv (env)) :local_timezone 
-		(list "UTC" 0 nil "(UTC) Coordinated Universal Time" "Etc/GMT")))
+		(list "UTC" 0 :nil "(UTC) Coordinated Universal Time" "Etc/GMT")))

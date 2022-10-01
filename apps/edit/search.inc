@@ -31,7 +31,7 @@
 		(defq buffer (. *edit* :get_buffer))
 		(when (> (length (defq found (filter-whole-words (. buffer :find pattern) pattern))) 0)
 			(bind '(cx cy) (. *edit* :get_cursor))
-			(when (defq next (some! cy -1 nil (lambda (xs)
+			(when (defq next (some! cy -1 :nil (lambda (xs)
 					(defq y _)
 					(some (lambda (x) (cond
 						((> y cy) (list x y))
@@ -46,7 +46,7 @@
 		(defq buffer (. *edit* :get_buffer))
 		(when (> (length (defq found (filter-whole-words (. buffer :find pattern) pattern))) 0)
 			(bind '(cx cy) (. *edit* :get_cursor))
-			(when (defq next (some! (inc cy) 0 nil (lambda (xs)
+			(when (defq next (some! (inc cy) 0 :nil (lambda (xs)
 					(defq y _)
 					(some-rev (lambda (x) (cond
 						((< y cy) (list x y))
@@ -70,7 +70,7 @@
 				(eql (defq replace (get :clear_text *replace_text*)) pattern))
 		(bind '(ax ay) (. *edit* :get_anchor))
 		(when (eql (.-> *edit* :get_buffer (:copy ax ay)) pattern)
-			(undoable nil
+			(undoable :nil
 				(. buffer :cut ax ay)
 				(. buffer :insert replace))
 			(refresh))
@@ -80,7 +80,7 @@
 	(unless (or (eql (defq pattern (get :clear_text *find_text*)) "")
 				(eql (defq replace (get :clear_text *replace_text*)) pattern))
 		(when (> (length (defq found (filter-whole-words (.-> *edit* :get_buffer (:find pattern)) pattern))) 0)
-			(undoable nil
+			(undoable :nil
 				(each-rev (lambda (xs)
 					(defq y _)
 					(each-rev (lambda (x)

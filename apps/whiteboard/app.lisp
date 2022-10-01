@@ -4,14 +4,14 @@
 (import "lib/math/vector.inc")
 
 ;quick stack frame switch
-(if nil   ;t for stack frame recording
+(if :nil   ;:t for stack frame recording
 	(import "lib/debug/frames.inc"))
 ;quick profiling switch
-(if t   ;t for profiling
+(if :t   ;:t for profiling
 	(import "lib/debug/profile.inc")
 	(defun profile-report (&rest _)))
 ;quick debug switch
-(if nil   ;t for debug
+(if :nil   ;:t for debug
 	(import "lib/debug/debug.inc"))
 
 (enums +dlist 0
@@ -44,7 +44,7 @@
 	*palette* (list +argb_black +argb_white +argb_red +argb_green +argb_blue +argb_cyan +argb_yellow +argb_magenta)
 	*palette* (cat *palette* (map trans *palette*)) *undo_stack* (list) *redo_stack* (list)
 	*stroke_col* (elem-get 0 *palette*) *stroke_mode* +event_pen *commited_polygons* (list) overlay_paths (list)
-	*picker_mbox* nil *picker_mode* nil *running* t
+	*picker_mbox* :nil *picker_mode* :nil *running* :t
 	rate (/ 1000000 60) +layer_all (+ +layer_commited +layer_overlay))
 
 (ui-window *window* ()
@@ -84,7 +84,7 @@
 		((= 2 (length pnts))
 			;just a point
 			(list (path-gen-arc (elem-get 0 pnts) (elem-get 1 pnts) 0.0 +fp_2pi rad +eps (path))))
-		(t  ;is a polyline draw
+		(:t  ;is a polyline draw
 			(bind '(x y x1 y1 &rest _) pnts)
 			(cond
 				((= mode +event_arrow1)
@@ -108,7 +108,7 @@
 					;flatten to filled circle
 					(list (path-gen-arc x y 0.0 +fp_2pi (vec-length (vec-sub (path x y) (path x1 y1)))
 						+eps (path))))
-				(t  ;flatten to pen stroke
+				(:t  ;flatten to pen stroke
 					(path-stroke-polylines (list) rad +eps +join_bevel +cap_round +cap_round (list pnts))))))))
 
 (defun snapshot ()
@@ -179,7 +179,7 @@
 	(def *image_scroll* :min_width +min_width :min_height +min_height)
 
 	;main event loop
-	(defq last_state :u last_point nil last_mid_point nil *id* t)
+	(defq last_state :u last_point :nil last_mid_point :nil *id* :t)
 	(mail-timeout (elem-get +select_timer select) rate 0)
 	(while *running*
 		(defq *msg* (mail-read (elem-get (defq idx (mail-select select)) select)))
@@ -195,7 +195,7 @@
 			((= idx +select_picker)
 				;save/load picker responce
 				(mail-send *picker_mbox* "")
-				(setq *picker_mbox* nil)
+				(setq *picker_mbox* :nil)
 				(cond
 					;closed picker
 					((eql *msg* ""))
@@ -204,7 +204,7 @@
 						(save (str (list "CWB Version 1.0" *commited_polygons*))
 							(cat (slice 0 (if (defq i (find-rev "." *msg*)) i -1) *msg*) ".cwb")))
 					;load whiteboard
-					(t  (when (ends-with ".cwb" *msg*)
+					(:t  (when (ends-with ".cwb" *msg*)
 							(bind '(data _) (read (file-stream *msg*) (ascii-code " ")))
 							(when (eql (elem-get 0 data) "CWB Version 1.0")
 								(snapshot)
@@ -239,7 +239,7 @@
 											(path-filter +tol stroke stroke)
 											(setq last_point new_point last_mid_point mid_point)
 											(redraw-layers +layer_overlay)))
-									(t  ;a shape mode
+									(:t  ;a shape mode
 										(elem-set +path_path (elem-get -2 overlay_paths) (cat last_point new_point))
 										(redraw-layers +layer_overlay)))
 								)
@@ -247,7 +247,7 @@
 								(setq last_state :d last_point new_point last_mid_point new_point)
 								(push overlay_paths (list *stroke_mode* *stroke_col* *stroke_radius* new_point))
 								(redraw-layers +layer_overlay))))
-					(t  ;mouse button is up
+					(:t  ;mouse button is up
 						(case last_state
 							(:d ;was down last time, so last point and commit stroke
 								(snapshot)
@@ -259,7 +259,7 @@
 								(clear overlay_paths)
 								(redraw-layers +layer_all))
 							(:u ;was up last time, so we are hovering
-								t)))))
+								:t)))))
 			((and (not (Textfield? (. *window* :find_id *id*)))
 					(= (getf *msg* +ev_msg_type) +ev_type_key)
 					(> (getf *msg* +ev_msg_key_keycode) 0))
@@ -278,7 +278,7 @@
 					((defq action (. key_map :find key))
 						;call bound key action
 						(action))))
-			(t  ;gui event
+			(:t  ;gui event
 				(. *window* :event *msg*))))
 	;close window
 	(free-select select)

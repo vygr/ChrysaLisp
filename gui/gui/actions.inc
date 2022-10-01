@@ -122,8 +122,8 @@
 			(. *screen* :set_flags +view_flag_dirty_all +view_flag_dirty_all))))
 
 (defun action-quit ()
-	;nil soon...
-	(setq *running* t))
+	;:nil soon...
+	(setq *running* :t))
 
 (defq event_map (fmap-kv
 	+SDL_MOUSEWHEEL action-mouse-wheel

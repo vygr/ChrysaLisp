@@ -8,7 +8,7 @@
 
 (defclass Text () (View)
 	; (Text) -> text
-	(def this :color 0 :sym_cache nil :text_cache nil)
+	(def this :color 0 :sym_cache :nil :text_cache :nil)
 
 	(defmethod :draw (this)
 		; (. text :draw) -> text

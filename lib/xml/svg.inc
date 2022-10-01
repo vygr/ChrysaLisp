@@ -30,7 +30,7 @@
 	(case (length val)
 		(4 (canvas-to-argb32 (str-to-num (cat "0xf" (slice 1 -1 val))) 12))
 		(7 (canvas-to-argb32 (str-to-num (cat "0x" (slice 1 -1 val))) 24))
-		(t (throw "Unknown # val !" val))))
+		(:t (throw "Unknown # val !" val))))
 
 (defun read-rgb (val)
 	(bind '(r g b) (map (const str-to-num) (slice 1 4 (split val "(), "))))
@@ -77,7 +77,7 @@
 				("yellow" +argb_yellow)
 				("magenta" +argb_magenta)
 				("cyan" +argb_cyan)
-				(t (cond
+				(:t (cond
 					((starts-with "#" val) (read-col val))
 					((starts-with "rgb(" val) (read-rgb val))
 					((throw "Unknown stroke/fill style !" val))))))
@@ -102,7 +102,7 @@
 				((throw "Unknown fill-rule !" val))))
 		("d"
 			(path-gen-paths val +eps))
-		(t  val)))
+		(:t  val)))
 
 (defun push-attributes (stack keys vals)
 	(push stack (defq entry (. (elem-get -2 stack) :copy)))
@@ -112,7 +112,7 @@
 				(each (lambda ((k v))
 						(. entry :insert k (read-attribute entry k v)))
 					(map (# (split %0 ":")) (split val ";"))))
-			(t (setq val (read-attribute entry key val))))
+			(:t (setq val (read-attribute entry key val))))
 		(. entry :insert key val)) keys vals)
 	entry)
 
@@ -136,15 +136,15 @@
 								(bind '(p1 p2) (path-stroke-polygon p (* 0.5 stroke_width) +eps
 									stroke_linejoin))
 								(push l p1 p2))
-							(t  ;open
+							(:t  ;open
 								(push l (path-stroke-polyline p (* 0.5 stroke_width) +eps
 									stroke_linejoin stroke_linecap stroke_linecap)))))
 							paths (list)))))))
 
 (defun SVG-Canvas (stream &optional scale)
-	; (SVG-Canvas stream [scale]) -> nil | canvas
+	; (SVG-Canvas stream [scale]) -> :nil | canvas
 	(setd scale 1)
-	(defq canvas nil stack
+	(defq canvas :nil stack
 		(list (lmap-kv
 			;this block of defaults are in order !
 			"stroke" 0
@@ -177,7 +177,7 @@
 					(defq entry (push-attributes stack keys vals)
 						cx (. entry :find "cx") cy (. entry :find "cy") r (. entry :find "r")
 						d (path-gen-arc cx cy 0.0 +fp_2pi r +eps (path)))
-					(path-fill-and-stroke canvas entry (list (list t d))))
+					(path-fill-and-stroke canvas entry (list (list :t d))))
 				("ellipse"
 					(defq entry (push-attributes stack keys vals)
 						cx (. entry :find "cx") cy (. entry :find "cy")
@@ -185,13 +185,13 @@
 					(unless rx (setq rx ry))
 					(unless ry (setq ry rx))
 					(defq d (path-gen-ellipse cx cy rx ry +eps (path)))
-					(path-fill-and-stroke canvas entry (list (list t d))))
+					(path-fill-and-stroke canvas entry (list (list :t d))))
 				("line"
 					(defq entry (push-attributes stack keys vals)
 						x1 (. entry :find "x1") y1 (. entry :find "y1")
 						x2 (. entry :find "x2") y2 (. entry :find "y2")
 						d (path x1 y1 x2 y2))
-					(path-fill-and-stroke canvas entry (list (list nil d))))
+					(path-fill-and-stroke canvas entry (list (list :nil d))))
 				("rect"
 					(defq entry (push-attributes stack keys vals)
 						x (. entry :find "x") y (. entry :find "y")
@@ -200,15 +200,15 @@
 					(unless rx (setq rx ry))
 					(unless ry (setq ry rx))
 					(defq d (path-gen-rect x y x1 y1 rx ry +eps (path)))
-					(path-fill-and-stroke canvas entry (list (list t d))))
+					(path-fill-and-stroke canvas entry (list (list :t d))))
 				("polygon"
 					(defq entry (push-attributes stack keys vals)
 						d (. entry :find "points"))
-					(path-fill-and-stroke canvas entry (list (list t d))))
+					(path-fill-and-stroke canvas entry (list (list :t d))))
 				("polyline"
 					(defq entry (push-attributes stack keys vals)
 						d (. entry :find "points"))
-					(path-fill-and-stroke canvas entry (list (list nil d))))
+					(path-fill-and-stroke canvas entry (list (list :nil d))))
 				("path"
 					(defq entry (push-attributes stack keys vals)
 						d (. entry :find "d"))

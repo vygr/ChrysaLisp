@@ -23,12 +23,12 @@
 	(assign {statics->statics_sys_task_task_count - 3} {statics->statics_sys_task_task_count})
 
 	;init node
-	(call 'sys_kernel :id nil {node_id.node_id_node1, node_id.node_id_node2})
+	(call 'sys_kernel :id :nil {node_id.node_id_node1, node_id.node_id_node2})
 	(assign {0 => lk_node.lk_node_task_count => lk_node.lk_node_peer_node_id.node_id_node1}
 		{lk_node.lk_node_peer_node_id.node_id_node2})
 
 	;read params msg from kernel
-	(call 'sys_mail :mymail nil {params, pdata})
+	(call 'sys_mail :mymail :nil {params, pdata})
 
 	;allocate message buffers
 	(call 'sys_mem :calloc {lk_buffer_size} {mem, _})
@@ -101,13 +101,13 @@
 	(assign {statics->statics_sys_task_task_count - 3} {statics->statics_sys_task_task_count})
 
 	;init and add link node to link array
-	(call 'sys_kernel :id nil {node_id.node_id_node1, node_id.node_id_node2})
+	(call 'sys_kernel :id :nil {node_id.node_id_node1, node_id.node_id_node2})
 	(assign {0 => lk_node.lk_node_task_count => lk_node.lk_node_peer_node_id.node_id_node1}
 		{lk_node.lk_node_peer_node_id.node_id_node2})
 	(call 'array :push_back {statics->statics_sys_mail_links_array, &lk_node})
 
 	;read params msg from kernel
-	(call 'sys_mail :mymail nil {params, pdata})
+	(call 'sys_mail :mymail :nil {params, pdata})
 
 	;open shared memory file
 	(call 'sys_pii :open_shared {pdata, lk_buffer_size} {handle})
@@ -170,7 +170,7 @@
 	(call 'node :create '(0 +node_id_size) {key})
 
 	;read params msg
-	(call 'sys_mail :mymail nil {msg, data})
+	(call 'sys_mail :mymail :nil {msg, data})
 	(assign {ptr(data + 0)} {lk_node})
 	(assign {ptr(data + +ptr_size)} {tx})
 	(call 'sys_mail :free {msg})
@@ -181,7 +181,7 @@
 	(call 'sys_task :sleep '(500000))
 
 	;assign tx channel
-	(call 'sys_kernel :id nil {node_id.node_id_node1, node_id.node_id_node2})
+	(call 'sys_kernel :id :nil {node_id.node_id_node1, node_id.node_id_node2})
 	(vpif {tx->lk_buffer_towel = node_id.node_id_node1})
 		(assign {tx + lk_buffer_chan_1} {tx})
 	(else)
@@ -255,7 +255,7 @@
 	(push-scope)
 
 	;read params msg
-	(call 'sys_mail :mymail nil {msg, data})
+	(call 'sys_mail :mymail :nil {msg, data})
 	(assign {ptr(data + 0)} {lk_node})
 	(assign {ptr(data + +ptr_size)} {rx})
 	(call 'sys_mail :free {msg})
@@ -266,7 +266,7 @@
 	(call 'sys_task :sleep '(1000000))
 
 	;assign rx channel
-	(call 'sys_kernel :id nil {node_id.node_id_node1, node_id.node_id_node2})
+	(call 'sys_kernel :id :nil {node_id.node_id_node1, node_id.node_id_node2})
 	(vpif {rx->lk_buffer_towel = node_id.node_id_node1})
 		(assign {rx + lk_buffer_chan_2} {rx})
 	(else)

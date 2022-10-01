@@ -631,7 +631,7 @@
 
 	(entry 'str :split `(,this ,splits))
 
-	(call 'list :create nil `(,out))
+	(call 'list :create :nil `(,out))
 	(assign `((& ,this str_data) (,this str_length)) `(,iter_begin ,iter_end))
 	(vp-add-rr iter_begin iter_end)
 	(loop-while (list iter_begin '/= iter_end) 'exit)
@@ -684,7 +684,7 @@
 
 	(entry 'str :split_char `(,this ,splitc))
 
-	(call 'list :create nil `(,out))
+	(call 'list :create :nil `(,out))
 	(assign `((& ,this str_data) (,this str_length)) `(,iter_begin ,iter_end))
 	(vp-add-rr iter_begin iter_end)
 	(loop-while (list iter_begin '/= iter_end) 'exit)

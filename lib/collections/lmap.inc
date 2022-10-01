@@ -5,12 +5,12 @@
 ;module
 (env-push)
 
-(defclass lmap () nil
+(defclass lmap () :nil
 	; (lmap) -> lmap
 	(def this :keys (list) :vals (list))
 
 	(defmethod :find (this key)
-		; (. lmap :find key) -> nil | val
+		; (. lmap :find key) -> :nil | val
 		(if (defq e (find key (get :keys this))) (elem-get e (get :vals this))))
 
 	(defmethod :insert (this key val)
@@ -18,7 +18,7 @@
 		(raise :keys :vals)
 		(cond
 			((defq e (find key keys)) (elem-set e vals val))
-			(t (push keys key) (push vals val)))
+			(:t (push keys key) (push vals val)))
 		this)
 
 	(defmethod :erase (this key)
@@ -64,7 +64,7 @@
 		this)
 
 	(defmethod :empty? (this)
-		; (. lmap :empty?) -> t | nil
+		; (. lmap :empty?) -> :t | :nil
 		(= (length (get :keys this)) 0))
 	)
 

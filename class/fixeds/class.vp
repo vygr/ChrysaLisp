@@ -208,7 +208,7 @@
 	(vp-xor-rr dot dot)
 	(vp-shl-cr (log2 +ptr_size) src_end)
 	(vp-add-rr src1 src_end)
-	(vec-loop-until `(,src1 ,src2) `(,e0 ,e1) src_end nil
+	(vec-loop-until `(,src1 ,src2) `(,e0 ,e1) src_end :nil
 		(lambda (e0 e1) (vp-mul-rr e0 e1) (vp-asr-cr +fp_shift e1) (vp-add-rr e1 dot)))
 
 	(exit 'fixeds :dot `(,src ,dot))

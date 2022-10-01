@@ -6,7 +6,7 @@
 ;;;;;;;;;
 
 (defun action-close ()
-	(setq *running* nil))
+	(setq *running* :nil))
 
 (defun action-minimise ()
 	(bind '(x y w h) (apply view-fit (cat (. *window* :get_pos) (. *window* :pref_size))))
@@ -29,7 +29,7 @@
 
 (defun action-style ()
 	(def (. mybackdrop :dirty) :style
-		(elem-get (radio-select *style_toolbar* (- *id* +event_grid)) '(nil :grid :lines :axis))))
+		(elem-get (radio-select *style_toolbar* (- *id* +event_grid)) '(:nil :grid :lines :axis))))
 
 (defun action-clear ()
 	(snapshot)
@@ -52,13 +52,13 @@
 
 (defun action-save ()
 	(if *picker_mbox* (mail-send *picker_mbox* ""))
-	(mail-send (setq *picker_mode* t *picker_mbox*
+	(mail-send (setq *picker_mode* :t *picker_mbox*
 		(open-child "apps/files/child.lisp" +kn_call_open))
 		(list (elem-get +select_picker select) "Save Whiteboard..." "." "")))
 
 (defun action-load ()
 	(if *picker_mbox* (mail-send *picker_mbox* ""))
-	(mail-send (setq *picker_mode* nil *picker_mbox*
+	(mail-send (setq *picker_mode* :nil *picker_mbox*
 		(open-child "apps/files/child.lisp" +kn_call_open))
 		(list (elem-get +select_picker select) "Load Whiteboard..." "." ".cwb")))
 

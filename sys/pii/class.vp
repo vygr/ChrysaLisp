@@ -240,7 +240,7 @@
 	;:r0
 
 	(abi-push-trashed :r13 :r14)
-	(host-os-call 'host :gettime nil '(:r0))
+	(host-os-call 'host :gettime :nil '(:r0))
 	(abi-pop-trashed :r13 :r14)
 	(exit 'sys_pii :time '(:r0))
 	(vp-ret)

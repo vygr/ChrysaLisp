@@ -13,7 +13,7 @@
 
 (defclass Scroll (flags) (View)
 	; (Scroll flags) -> scroll
-	(def this :vslider nil :hslider nil :child nil)
+	(def this :vslider :nil :hslider :nil :child :nil)
 	(when (/= 0 (logand flags +scroll_flag_vertical))
 		(def this :vslider (defq slider (Slider)))
 		(. slider :connect (. this :get_id))

@@ -25,7 +25,7 @@
 	(gotoif '(:r2 /= 0) 'error))
 
 	(vp-push :r0)
-	(call 'vdu :create nil '(:r1))
+	(call 'vdu :create :nil '(:r1))
 	(vp-pop :r0)
 
 	(exit 'vdu :lisp_create '(:r0 :r1))

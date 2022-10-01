@@ -31,7 +31,7 @@
 					(stream-flush stdout)
 					(stream-flush stderr))))
 		;repl from stdin
-		(while (catch (repl stdin 'stdin) t)
+		(while (catch (repl stdin 'stdin) :t)
 			(stream-flush stdout)
 			(stream-flush stderr)
 			(while (/= (stream-avail stdin) 0)

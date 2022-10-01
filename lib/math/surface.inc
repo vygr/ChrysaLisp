@@ -313,7 +313,7 @@
 		((< (abs (- isolevel valp1)) (const (n2r 0.0001))) p1)
 		((< (abs (- isolevel valp2)) (const (n2r 0.0001))) p2)
 		((< (abs (- valp1 valp2)) (const (n2r 0.0001))) p1)
-		(t  (vec-add p1 (vec-scale (vec-sub p2 p1 +reals_tmp3)
+		(:t  (vec-add p1 (vec-scale (vec-sub p2 p1 +reals_tmp3)
 				(/ (- isolevel valp1) (- valp2 valp1)) +reals_tmp3)))))
 
 ;given a grid cell and an isolevel, calculate the triangular
@@ -337,9 +337,9 @@
 		((= (defq cube (elem-get cubeindex +edge_table)) 0)
 			;cube is entirely in/out of the surface
 			'())
-		(t  ;find the vertices where the surface intersects the cube
+		(:t  ;find the vertices where the surface intersects the cube
 			(defq vertlist (reduce (lambda (vertlist (i p0 p1 v0 v1))
-						(push vertlist (if (= (logand cube i) 0) nil
+						(push vertlist (if (= (logand cube i) 0) :nil
 							(vertex-interp isolevel
 								(elem-get p0 grid) (elem-get p1 grid)
 								(elem-get v0 grid) (elem-get v1 grid)))))
@@ -361,7 +361,7 @@
 					(list (elem-get p0 vertlist) (elem-get p1 vertlist) (elem-get p2 vertlist)))
 				(elem-get cubeindex +tri_table)))))
 
-(defclass Iso (width height depth) nil
+(defclass Iso (width height depth) :nil
 	; (Iso) -> iso
 	(def this :width width :height height :depth depth
 		:center (vec-scale (Vec3-r (n2r (dec width)) (n2r (dec height)) (n2r (dec depth))) +real_1/2)

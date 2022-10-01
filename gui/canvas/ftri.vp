@@ -2,7 +2,7 @@
 (include "gui/canvas/class.inc")
 
 ;choose iterative or analytic version
-(cond (nil
+(cond (:nil
 
 (def-method 'canvas :ftri)
 	;inputs
@@ -107,7 +107,7 @@
 
 (def-func-end)
 
-)(t
+)(:t
 
 (def-method 'canvas :ftri)
 	;inputs

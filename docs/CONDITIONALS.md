@@ -3,15 +3,15 @@
 In this document we cover the ChrysaLisp conditional statements. The types
 available, plus the tricks you can pull with them.
 
-Note that true means *not nil* and that's significant. Any value other than
-`nil` is *not nil* !
+Note that true means *not :nil* and that's significant. Any value other than
+`:nil` is *not :nil* !
 
 ### if
 
 `(if tst form [else_form])` is a VP native code implemented conditional
 statement. It is a simple way to make a test evaluation and evaluate a form if
 the test is true and optionally evaluate a separate form if the test evaluates
-to `nil`.
+to `:nil`.
 
 ```vdu
 (if (= a 0)
@@ -19,7 +19,7 @@ to `nil`.
 	(print "a is not 0"))
 ```
 
-The return value of the `(if ...)` is the value of the form evaluated, or `nil`
+The return value of the `(if ...)` is the value of the form evaluated, or `:nil`
 if the form is empty.
 
 ### when
@@ -41,7 +41,7 @@ is true. Not just a single form but an implicit `(progn ...)`.
 ### unless
 
 `(unless tst body)` is the opposite to `(when ...)`. It just evaluates the test
-form and evaluates the body if the result is `nil`.
+form and evaluates the body if the result is `:nil`.
 
 ```vdu
 (unless (eql (defq file (elem-get -2 route)) ".")
@@ -80,7 +80,7 @@ that test form evaluates as true.
 Only the first test that evaluates as true has its body evaluated. Also if the
 body is empty the true value returned by the test is the returned value from
 the `(cond ...)` statement ! That can be very useful. If no test clause proves
-to be true then `nil` is returned from the `(cond ...)`.
+to be true then `:nil` is returned from the `(cond ...)`.
 
 So let's see a few examples:
 
@@ -94,7 +94,7 @@ So let's see a few examples:
 		(print "b is 0"))
 	((= b 1)
 		(print "b is 1"))
-	(t  (print "no test is none nil!")))
+	(:t  (print "no test is none :nil!")))
 ```
 
 Here the tests using symbol `a` have precedence over those with symbol `b` and
@@ -102,11 +102,11 @@ the final clause will happen if no other clause.
 
 ```vdu
 (cond
-	(a nil)
-	(t))
+	(a :nil)
+	(:t))
 ```
 
-Here if `a` is true then return `nil` else return `t`. So a simple logical not.
+Here if `a` is true then return `:nil` else return `:t`. So a simple logical not.
 
 It is possible to evaluate a test and bind the result to a symbol that's then
 used in the remaining clauses ! These are not static tests based on the value
@@ -123,15 +123,15 @@ of the symbols used at the entry to the `(cond ...)` !
 	((= id +event_max)
 		;maximize app
 		)
-	(t  ;ui event for window....
+	(:t  ;ui event for window....
 		(. *window* :event msg)))
 ```
 
 ### case
 
-`(case key (k0 body) ((k1 k2) body) ... [(t ...)])` is a variant of cond that
+`(case key (k0 body) ((k1 k2) body) ... [(:t ...)])` is a variant of cond that
 acts like a fast switch. The `key` form is evaluated and a jump is then made to
-the matching body clause, or if no match, the optional `t` clause.
+the matching body clause, or if no match, the optional `:t` clause.
 
 ```vdu
 (case state
@@ -149,7 +149,7 @@ the matching body clause, or if no match, the optional `t` clause.
 			((eql (elem-get 0 token) "-")
 				;is a negative number
 				(push col_list (get :ink_numbers this)))
-			(t  ;default text color)
+			(:t  ;default text color)
 				(push col_list (get :ink_text this)))))
 	((:string1 :string2)
 		(push col_list (get :ink_strings this)))
@@ -171,7 +171,7 @@ implemented as if a ladder of `(if ...)` by their respective macros.
 ### and
 
 For the `(and ...)` the forms will be evaluated one by one and will exit if
-that clause evaluates as `nil`. Therefore you can use it to execute a form only
+that clause evaluates as `:nil`. Therefore you can use it to execute a form only
 if all the preceding test clauses prove to be true !
 
 ```vdu

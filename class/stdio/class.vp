@@ -34,10 +34,10 @@
 	(s-call 'stdio :init {this, vtable} {_, ok})
 	(vpif {ok})
 		;init myself
-		(call 'sys_mail :mymail nil {msg, data})
+		(call 'sys_mail :mymail :nil {msg, data})
 		(vpif {msg->msg_frag_length})
 			;create stdin, stdout, stderr
-			(call 'sys_task :mailbox nil {args, _, _})
+			(call 'sys_task :mailbox :nil {args, _, _})
 			(call 'in :create {args} {this->stdio_stdin})
 			(call 'out :create
 				{data->stdio_msg_init_stdout_id.net_id_mbox_id,
@@ -64,7 +64,7 @@
 					msg->msg_dest.net_id_node_id.node_id_node2})
 			(assign {this->stdio_stdin->in_mbox_id}
 				{data->stdio_msg_init_stdout_id.net_id_mbox_id})
-			(call 'sys_kernel :id nil
+			(call 'sys_kernel :id :nil
 				{data->stdio_msg_init_stdout_id.net_id_node_id.node_id_node1,
 				data->stdio_msg_init_stdout_id.net_id_node_id.node_id_node2})
 			(assign {stdio_msg_init_reply} {msg->msg_frag_length})

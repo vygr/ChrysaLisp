@@ -22,14 +22,14 @@
 			(push values (num-intern base)))
 		(struct
 			(push syms (sym (cat name "_" (elem-get 1 line))) (sym (cat name "_" (elem-get 1 line) "_t")))
-			(push values (num-intern base) nil)
+			(push values (num-intern base) :nil)
 			(setq base (+ base (eval (elem-get 2 line)))))
 		(union
 			(defq union_base base max_base base)
 			(each! 1 -1 (lambda (line)
 				(setq max_base (max max_base (_structure union_base line)))) (list line))
 			(setq base max_base))
-		(t	(each! 1 -1 (lambda (field)
+		(:t	(each! 1 -1 (lambda (field)
 				(case (elem-get 0 line)
 					(byte (new_field "b" +byte_size +byte_size))
 					(ubyte (new_field "B" +byte_size +byte_size))

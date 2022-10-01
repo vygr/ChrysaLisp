@@ -8,7 +8,7 @@
 			((eql (elem-get i pattern) (elem-get j pattern))
 				(elem-set j lps (inc i))
 				(setq i (inc i) j (inc j)))
-			(t  (cond
+			(:t  (cond
 					((= (elem-get i lps) 0)
 						(elem-set j lps 0)
 						(setq j (inc j)))
@@ -29,4 +29,4 @@
 				(cond
 					((/= j 0)
 						(setq j (elem-get (dec j) lps)))
-					(t  (setq k (inc k))))))) out)
+					(:t  (setq k (inc k))))))) out)

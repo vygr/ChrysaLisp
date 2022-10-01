@@ -62,8 +62,8 @@
 
 	(call 'str :create_from_buffer {0, str_gap} '(:r0))
 	(call 'sstream :create '(:r0) {sstoken})
-	(call 'list :create nil {states})
-	(call 'list :create nil {tokens})
+	(call 'list :create :nil {states})
+	(call 'list :create :nil {tokens})
 	(call 'str :create_from_buffer (list (cat (char +char_double_quote) {=<>}) 4) {not_symbol_chars})
 	(call 'str :create_from_buffer {"</!-?", 5} {open_chars})
 	(call 'str :create_from_buffer {">/-?", 4} {close_chars})
@@ -81,7 +81,7 @@
 
 	;create resource tracker list
 	(vp-def (:res :iter_begin :iter_end) '(:r0 :r12 :r13))
-	(call 'list :create nil {resources})
+	(call 'list :create :nil {resources})
 	(assign {resources, &res_start, &res_end} '(:res :iter_begin :iter_end))
 	(loop-start)
 		(call 'list :push_back '(:res (:iter_begin 0)) '(:res _ _ _))

@@ -52,7 +52,7 @@
 		(assign '(:r0) '((:r1 canvas_pixmap)))
 
 		;edge array
-		(call 'array :create nil '(:r1))
+		(call 'array :create :nil '(:r1))
 		(vp-pop :r0)
 		(assign '(:r1) '((:r0 canvas_edges)))
 	(endif)
@@ -98,7 +98,7 @@
 		(call 'canvas :ref '((:r0 canvas_pixmap)))
 
 		;edge array
-		(call 'array :create nil '(:r1))
+		(call 'array :create :nil '(:r1))
 		(vp-pop :r0)
 		(assign '(:r1) '((:r0 canvas_edges)))
 	(endif)

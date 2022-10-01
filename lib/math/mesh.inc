@@ -50,7 +50,7 @@
 		tris)
 	(list norms new_tris))
 
-(defclass Mesh () nil
+(defclass Mesh () :nil
 	; (Mesh) -> mesh
 	(def this :verts (list) :norms (list) :tris (list))
 

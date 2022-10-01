@@ -9,7 +9,7 @@
 (enums +event 0
 	(enum close))
 
-(defq canvas_width 600 canvas_height 600 canvas_scale 1 id t
+(defq canvas_width 600 canvas_height 600 canvas_scale 1 id :t
 	f_canvas_width (n2f canvas_width) f_canvas_height (n2f canvas_height) f_canvas_scale (n2f canvas_scale)
 	rate (/ 1000000 30)
 	+eps 0.25 angle 0.0 font (create-font "fonts/OpenSans-Regular.ctf" 36)
@@ -113,8 +113,8 @@
 				;main mailbox
 				(cond
 					((= (getf msg +ev_msg_target_id) +event_close)
-						(setq id nil))
-					(t (. *window* :event msg))))
+						(setq id :nil))
+					(:t (. *window* :event msg))))
 			((= idx +select_timer)
 				;timer event
 				(mail-timeout (elem-get +select_timer select) rate 0)

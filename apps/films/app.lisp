@@ -15,7 +15,7 @@
 		(unzip (split (pii-dirlist p) ",") (list (list) (list))))
 	(sort cmp out))
 
-(defq films (all-films "apps/films/data/") index 0 canvas nil id t
+(defq films (all-films "apps/films/data/") index 0 canvas :nil id :t
 	rate (/ 1000000 30))
 
 (ui-window *window* ()
@@ -58,10 +58,10 @@
 				(mail-timeout (elem-get +select_timer select) rate 0)
 				(.-> canvas :next_frame :swap))
 			((= (setq id (getf *msg* +ev_msg_target_id)) +event_close)
-				(setq id nil))
+				(setq id :nil))
 			((<= +event_prev id +event_next)
 				(win-refresh (% (+ index (dec (* 2 (- id +event_prev))) (length films)) (length films))))
-			(t (. *window* :event *msg*))))
+			(:t (. *window* :event *msg*))))
 	;close window
 	(free-select select)
 	(gui-sub *window*))

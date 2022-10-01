@@ -25,14 +25,14 @@
 					((> maximum 0)
 						(setq portion (/ (* w portion) (+ maximum portion))
 							w (/ (* (get :value this) (- w portion)) maximum)))
-					(t	(setq portion w w 0)))
+					(:t	(setq portion w w 0)))
 				(. this :ctx_filled_box (inc w) 1 portion (- h 2)))
-			(t	(setq h (- h 2))
+			(:t	(setq h (- h 2))
 				(cond
 					((> maximum 0)
 						(setq portion (/ (* h portion) (+ maximum portion))
 							h (/ (* (get :value this) (- h portion)) maximum)))
-					(t	(setq portion h h 0)))
+					(:t	(setq portion h h 0)))
 				(. this :ctx_filled_box 1 (inc h) (- w 2) portion))))
 
 	(defmethod :pref_size (this)

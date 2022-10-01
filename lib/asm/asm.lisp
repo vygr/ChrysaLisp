@@ -20,14 +20,14 @@
 ;(import "lib/debug/profile.inc")
 
 (defun main ()
-	(defq select (alloc-select +select_size) working t +timeout 5000000)
+	(defq select (alloc-select +select_size) working :t +timeout 5000000)
 	(while working
 		(mail-timeout (elem-get +select_timeout select) +timeout 0)
 		(defq msg (mail-read (elem-get (defq idx (mail-select select)) select)))
 		(cond
 			;timeout or quit
 			((or (= idx +select_timeout) (eql msg ""))
-				(setq working nil))
+				(setq working :nil))
 			;main mailbox
 			((= idx +select_main)
 				;clear timeout

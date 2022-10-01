@@ -6,7 +6,7 @@
 (enums +event 0
 	(enum close button))
 
-(defq +margin_width (* 8 3) syntax (Syntax) handlers (emap) scroll_pos (fmap) button nil
+(defq +margin_width (* 8 3) syntax (Syntax) handlers (emap) scroll_pos (fmap) button :nil
 	doc_list '("VP_VM" "VP_ASSIGNMENT" "VP_STRUCTURE" "VP_FUNCTIONS" "VP_CLASSES"
 	"LISP" "ENVIRONMENT" "CONDITIONALS" "ITERATION" "MACROS" "CLASSES" "NUMERICS"
 	"COMMS" "EVENT_LOOPS" "EVENT_DISPATCH" "UI_WIDGETS"
@@ -55,12 +55,12 @@
 	(gui-add-front (. *window* :change x y w h))
 	(while (cond
 		((= (defq id (getf (defq msg (mail-read (task-mailbox))) +ev_msg_target_id)) +event_close)
-			nil)
+			:nil)
 		((= id +event_button)
 			(if button (undef (. button :dirty) :color))
 			(. scroll_pos :insert file (get :value (get :vslider page_scroll)))
 			(setq button (. *window* :find_id (getf msg +ev_msg_action_source_id)))
 			(def (. button :dirty) :color *env_radio_col*)
 			(populate-page (setq file (get :text button))))
-		(t (. *window* :event msg))))
+		(:t (. *window* :event msg))))
 	(gui-sub *window*))

@@ -44,8 +44,8 @@ reasons.
 The macro defines a function `(name [arg ...]) -> obj` as the constructor for
 new instances. It also auto defines both a `(. :type_of this) -> (...
 :grandparent :parent :name)` method, that returns the class inherence list for
-the object, along with a predicate function of the form `(name? this) -> nil |
-t`.
+the object, along with a predicate function of the form `(name? this) -> :nil |
+:t`.
 
 ```vdu
 (. (Button) :type_of)
@@ -54,7 +54,7 @@ t`.
 (Button? (Button))
 3
 (Button? (Label))
-nil
+:nil
 ```
 
 It is recommended that classes start with a capital letter but this is not
@@ -102,10 +102,10 @@ method:
 (.-> this :layout :dirty_all)
 ```
 
-## (.? this method) -> nil | lambda
+## (.? this method) -> :nil | lambda
 
 This will query if the method is defined on this object. A reflection call as
-other languages would say. You get back `nil` or the `lambda` for the method.
+other languages would say. You get back `:nil` or the `lambda` for the method.
 
 Somtimes you do want to check if the method you would call is in fact defined
 for this object ! The `Window` class does this within the event dispatch code
@@ -128,16 +128,16 @@ to avoid throwing any errors due to a method not found.
 							((/= 0 buttons)
 								;is down now, so move
 								(if (defq fnc (.? target :mouse_move)) (fnc target event)))
-							(t  ;is not down now, so release
+							(:t  ;is not down now, so release
 								(set this :last_buttons 0)
 								(if (defq fnc (.? target :mouse_up)) (fnc target event)))))
-					(t  ;was not down previously
+					(:t  ;was not down previously
 						(cond
 							((/= 0 buttons)
 								;is down now, so first down
 								(set this :last_buttons buttons)
 								(if (defq fnc (.? target :mouse_down)) (fnc target event)))
-							(t  ;is not down now, so hover
+							(:t  ;is not down now, so hover
 								(if (defq fnc (.? target :mouse_hover)) (fnc target event)))))))
 			((= type +ev_type_key)
 				(if (>= (getf event +ev_msg_key_keycode) 0)
@@ -203,7 +203,7 @@ An example from the `:draw` method of the Textfield class:
 (defclass Textfield () (Label)
 	; (Textfield) -> textfield
 	(def this :cursor 0 :anchor 0 :clear_text "" :hint_text "" :text ""
-		:mode nil :state 1)
+		:mode :nil :state 1)
 
 	(defmethod :draw (this)
 		; (. textfield :draw) -> textfield
@@ -261,10 +261,10 @@ An example from the `View` class:
 ```vdu
 ...
 	(deffimethod :find_id "gui/view/lisp_find_id")
-		; (. view :find_id target_id) -> nil | target_view
+		; (. view :find_id target_id) -> :nil | target_view
 
 	(deffimethod :hit_tree "gui/view/lisp_hit_tree")
-		; (. view :hit_tree x y) -> (hit_view | nil rx ry)
+		; (. view :hit_tree x y) -> (hit_view | :nil rx ry)
 
 	(deffimethod :set_flags "gui/view/lisp_set_flags")
 		; (. view :set_flags value mask) -> view

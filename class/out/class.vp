@@ -28,7 +28,7 @@
 		(assign '(:r2 :r2 stream_mail_state_started) '((:r0 out_seqnum) (:r0 out_ack_seqnum) :r2))
 		(assign '(:r2) '((:r0 out_state)))
 		(vp-push :r0)
-		(call 'sys_mail :alloc_mbox nil '(:r2 :r1))
+		(call 'sys_mail :alloc_mbox :nil '(:r2 :r1))
 		(vp-pop :r0)
 		(assign '(:r2 :r1 :r0) '((:r0 out_ack_mbox_id) (:r0 out_ack_mbox_addr) :r1))
 	(endif)
@@ -151,7 +151,7 @@
 		(assign '(:r6 :r7 :r8)
 			`((:r2 stream_msg_seqnum) (:r2 stream_msg_state)
 			(:r2 ,(+ stream_msg_ack_id net_id_mbox_id))))
-		(call 'sys_kernel :id nil
+		(call 'sys_kernel :id :nil
 			`((:r2 ,(+ stream_msg_ack_id net_id_node_id node_id_node1))
 			(:r2 ,(+ stream_msg_ack_id net_id_node_id node_id_node2))))
 		(call 'sys_mail :send '(:r9))

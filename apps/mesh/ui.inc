@@ -5,7 +5,7 @@
 (defun set-canvas (size)
 	(defq parent (penv main_widget))
 	(. main_widget :sub)
-	(setq main_widget (Canvas size size canvas_scale) canvas_size size *dirty* t)
+	(setq main_widget (Canvas size size canvas_scale) canvas_size size *dirty* :t)
 	(bind '(w h) (. parent :get_size))
 	(. parent :add_child main_widget)
 	(.-> main_widget (:set_canvas_flags +canvas_mode) (:change 0 0 w h))
@@ -30,12 +30,12 @@
 	(set-canvas (min w h)))
 
 (defun action-close ()
-	(setq *running* nil))
+	(setq *running* :nil))
 
 (defun action-mode ()
 	(defq button (elem-get 0 (. main_toolbar :children)))
 	(undef (. button :dirty) :color)
-	(if (setq *dirty* t *render_mode* (not *render_mode*))
+	(if (setq *dirty* :t *render_mode* (not *render_mode*))
 		(def button :color *env_radio_col*)))
 
 (defun action-auto ()
@@ -46,15 +46,15 @@
 
 (defun action-xrot ()
 	(if *auto_mode* (action-auto))
-	(setq *rotx* (get-rot xrot_slider) *dirty* t))
+	(setq *rotx* (get-rot xrot_slider) *dirty* :t))
 
 (defun action-yrot ()
 	(if *auto_mode* (action-auto))
-	(setq *roty* (get-rot yrot_slider) *dirty* t))
+	(setq *roty* (get-rot yrot_slider) *dirty* :t))
 
 (defun action-zrot ()
 	(if *auto_mode* (action-auto))
-	(setq *rotz* (get-rot zrot_slider) *dirty* t))
+	(setq *rotz* (get-rot zrot_slider) *dirty* :t))
 
 (defun action-style-plain ()
 	(def (. main_backdrop :dirty) :style :plain)

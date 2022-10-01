@@ -45,7 +45,7 @@
 		(unzip (split (pii-dirlist p) ",") (list (list) (list))))
 	(sort cmp out))
 
-(defq index 1 id t fonts (all-fonts "fonts/"))
+(defq index 1 id :t fonts (all-fonts "fonts/"))
 
 (ui-window *window* ()
 	(ui-title-bar window_title "" (0xea19) +event_close)
@@ -72,9 +72,9 @@
 				(if (defq view (. *window* :find_id (getf *msg* +mail_timeout_id)))
 					(. view :show_tip)))
 			((= (setq id (getf *msg* +ev_msg_target_id)) +event_close)
-				(setq id nil))
+				(setq id :nil))
 			((<= +event_prev id +event_next)
 				(win-refresh (% (+ index (dec (* 2 (- id +event_prev))) (length fonts)) (length fonts))))
-			(t (. *window* :event *msg*))))
+			(:t (. *window* :event *msg*))))
 	(free-select select)
 	(gui-sub *window*))

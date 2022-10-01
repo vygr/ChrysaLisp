@@ -32,7 +32,7 @@
 	(each (lambda (_)
 		(open-child (app-path _) +kn_call_open)) *env_launcher_auto_apps*)
 	(refresh-wallpaper)
-	(while t
+	(while :t
 		(cond
 			((and (< (getf (defq msg (mail-read (task-mailbox))) +ev_msg_target_id) 0)
 					(= (getf msg +ev_msg_type) +ev_type_gui))
@@ -48,7 +48,7 @@
 								)
 							(:u ;was up last time
 								(setq mouse_state :d))))
-					(t  ;mouse button is up
+					(:t  ;mouse button is up
 						(case mouse_state
 							(:d ;was down last time
 								;run launcher

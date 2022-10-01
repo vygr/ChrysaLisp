@@ -24,7 +24,7 @@
 			(path-gen-arc x y1 (const (+ +fp_pi +fp_hpi)) +fp_hpi rx tol dst)
 			(path-gen-arc x1 y1 0.0 +fp_hpi rx tol dst)
 			(path-gen-arc x1 y +fp_hpi +fp_hpi rx tol dst))
-		(t (defq d (path x y x y1 x1 y1 x1 y)))))
+		(:t (defq d (path x y x y1 x1 y1 x1 y)))))
 
 (defun path-gen-ellipse (cx cy rx ry tol dst)
 	; (path-gen-ellipse cx cy rx ry tol dst) -> dst
@@ -34,19 +34,19 @@
 	dst)
 
 (defun path-gen-paths (d eps)
-	; (path-gen-paths svg_d tol) -> (list (nil|t path) ...)
+	; (path-gen-paths svg_d tol) -> (list (:nil|:t path) ...)
 	(defq i 0 paths (list) d (path-svg (cat d " "))
 		cx 0.0 cy 0.0 cpx 0.0 cpy 0.0 last_cmd " ")
 	(until (eql (defq cmd (elem-get i d)) "x")
 		(setq i (inc i))
 		(case cmd
 			("M"
-				(push paths (list nil (defq p (path))))
+				(push paths (list :nil (defq p (path))))
 				(while (num? (elem-get i d))
 					(bind '(cpx cpy) (slice i (setq i (+ i 2)) d))
 					(push p cpx cpy)))
 			("m"
-				(push paths (list nil (defq p (path))))
+				(push paths (list :nil (defq p (path))))
 				(while (num? (elem-get i d))
 					(bind '(x y) (slice i (setq i (+ i 2)) d))
 					(setq cpx (+ cpx x) cpy (+ cpy y))
@@ -129,7 +129,7 @@
 						(defq x1 cpx y1 cpy))
 					(path-gen-quadratic cpx cpy x1 y1 x y eps p)
 					(setq cpx x cpy y cx x1 cy y1)))
-			("t"
+			(":t"
 				(while (num? (elem-get i d))
 					(bind '(x y) (slice i (setq i (+ i 2)) d))
 					(setq x (+ cpx x) y (+ cpy y))
@@ -151,7 +151,7 @@
 			(("Z" "z")
 				(bind '(cpx cpy) (slice 0 2 p))
 				(push p cpx cpy)
-				(elem-set 0 (elem-get -2 paths) t)))
+				(elem-set 0 (elem-get -2 paths) :t)))
 		(setq last_cmd cmd))
 	paths)
 

@@ -38,7 +38,7 @@
 	(assign '(:r1) '((:r12 statics_sys_mail_out_mbox_addr)))
 
 	;services, links and routing
-	(call 'array :create nil '((:r12 statics_sys_mail_links_array)))
+	(call 'array :create :nil '((:r12 statics_sys_mail_links_array)))
 	(call 'hmap :create '(($ key_node) 1) '((:r12 statics_sys_mail_node_map)))
 
 	;init header heap
@@ -368,7 +368,7 @@
 			(goto 'post_it)
 		(default)
 			;timestamp it and queue it on the outgoing packet list
-			(call 'sys_pii :time nil '(:r0))
+			(call 'sys_pii :time :nil '(:r0))
 			(vp-cpy-ri :r0 :r4 msg_timestamp)
 			(vp-add-cr statics_sys_mail_offchip_list :r1)
 			(lh-add-at-tail :r1 :r4 :r0)
@@ -488,7 +488,7 @@
 	;create service entry
 	(call 'obj :ref {name})
 	(call 'obj :ref {info})
-	(call 'list :create nil {cat})
+	(call 'list :create :nil {cat})
 	(call 'list :push_back {cat, name})
 	(call 'str :create_from_buffer {",", 1} {tmp1})
 	(call 'list :push_back {cat, tmp1})
@@ -542,7 +542,7 @@
 	(call 'node :create {&id->str_data.net_id_node_id, +node_id_size} {key})
 	(call 'hmap :find {@sys/statics/statics.statics_sys_mail_node_map, key} {_, tuple, bucket})
 	(vpifnot {tuple})
-		(call 'array :create nil {tuple})
+		(call 'array :create :nil {tuple})
 		(call 'hset :create `((@ ,(f-path 'str :same)) 1) {set})
 		(call 'array :push_back2 {tuple, set, 0})
 		(call 'array :push_back2 {tuple, -1, -1})
@@ -551,7 +551,7 @@
 		(assign {tuple[+ptr_size]} {tuple})
 		(call 'node :destroy {key})
 	(endif)
-	(call 'sys_pii :time nil {time})
+	(call 'sys_pii :time :nil {time})
 	(call 'array :set_element {tuple, time, 1})
 	(call 'array :get_first {tuple} {_, set})
 	(call 'sys_mail :service {name, id, info} {name})
@@ -578,7 +578,7 @@
 	(vp-alloc local_size)
 	(entry 'sys_mail :enquire '((:rsp local_prefix)))
 
-	(call 'list :create nil '((:rsp local_entries)))
+	(call 'list :create :nil '((:rsp local_entries)))
 	(fn-bind 'sys/statics/statics :r0)
 	(call 'hmap :for_each '((:r0 statics_sys_mail_node_map) ($ callback1) :rsp))
 
@@ -670,7 +670,7 @@
 	(vpif {tuple})
 		(assign {tuple[+ptr_size], +char_lf} {tuple, cat.cat_lf})
 		(call 'str :create_from_buffer {&cat.cat_lf, 1} {cat.cat_lf})
-		(call 'list :create nil {cat.cat_entries})
+		(call 'list :create :nil {cat.cat_entries})
 		(call 'array :get_element {tuple, 0} {_, set})
 		(call 'hset :for_each {set, $callback, &cat})
 		(call 'str :cat {cat.cat_lf, cat.cat_entries} {services})
@@ -723,7 +723,7 @@
 	;trashes
 	;:r0-:r14
 
-	(call 'list :create nil '(:r0))
+	(call 'list :create :nil '(:r0))
 	(vp-push :r0)
 	(fn-bind 'sys/statics/statics :r0)
 	(call 'hmap :for_each '((:r0 statics_sys_mail_node_map) ($ callback) (:rsp 0)))

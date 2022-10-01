@@ -32,7 +32,7 @@
 		(*pipe*
 			;active pipe running
 			(. *pipe* :poll))
-		(t  ;no active pipe running
+		(:t  ;no active pipe running
 			(mail-poll *select*))))
 
 (defun input-select ()
@@ -41,12 +41,12 @@
 			;active pipe running
 			(defq msg (. *pipe* :read))
 			(cond
-				((eql msg t)
+				((eql msg :t)
 					;user select msg
 					(defq msg (mail-read (elem-get (defq idx (mail-select *select*)) *select*))))
-				(t  ;pipe closed or pipe data
+				(:t  ;pipe closed or pipe data
 					(defq idx +select_pipe))))
-		(t  ;no active pipe running
+		(:t  ;no active pipe running
 			(defq msg (mail-read (elem-get (defq idx (mail-select *select*)) *select*)))))
 	(list msg idx))
 
@@ -110,7 +110,7 @@
 
 (defun main ()
 	(defq *select* (alloc-select +select_size)
-		*cursor_x* 0 *cursor_y* 0 *running* t *pipe* nil
+		*cursor_x* 0 *cursor_y* 0 *running* :t *pipe* :nil
 		*history* (list) *history_idx* 0 *edit* (Terminal-edit))
 	(. *edit* :set_underlay_color +argb_green6)
 	(def *edit* :min_width +vdu_min_width :min_height +vdu_min_height
@@ -126,10 +126,10 @@
 			((= idx +select_pipe)
 				;pipe event
 				(cond
-					((eql *msg* nil)
+					((eql *msg* :nil)
 						;pipe finished
 						(. *pipe* :close)
-						(setq *pipe* nil)
+						(setq *pipe* :nil)
 						(action-insert (cat (ascii-char +char_lf) *env_terminal_prompt*)))
 					((action-insert *msg*))))
 			((= idx +select_tip)
@@ -163,7 +163,7 @@
 					((<= +char_space key +char_tilda)
 						;insert the char
 						(action-insert (char key)))))
-			(t  ;gui event
+			(:t  ;gui event
 				(. *window* :event *msg*))))
 	(if *pipe* (. *pipe* :close))
 	(free-select *select*)

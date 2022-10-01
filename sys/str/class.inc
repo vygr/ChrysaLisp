@@ -4,7 +4,7 @@
 ; string static class
 ;;;;;;;;;;;;;;;;;;;;;
 
-(def-class sys_str nil
+(def-class sys_str :nil
 	(dec-method :length sys/str/length :static (:r0) (:r0 :r1))
 	(dec-method :copy sys/str/copy :static (:r0 :r1) (:r0 :r1))
 	(dec-method :compare sys/str/compare :static (:r0 :r1) (:r0))

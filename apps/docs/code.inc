@@ -20,7 +20,7 @@
 			(.-> page (:add_child vdu) (:add_child text))
 			(clear lines)
 			:text)
-		(t	(push lines (expand line 4))
+		(:t	(push lines (expand line 4))
 			state)))
 
 ;module

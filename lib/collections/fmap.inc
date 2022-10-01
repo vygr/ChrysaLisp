@@ -10,14 +10,14 @@
 		b (* (% (hash key) (get :num_buckets this)) 2)
 		e (find key (elem-get b x))))
 
-(defclass fmap (&optional num_buckets) nil
+(defclass fmap (&optional num_buckets) :nil
 	; (fmap [num_buckets]) -> fmap
 	(def this :buckets (list) :num_buckets (setq num_buckets (opt num_buckets 1)))
 	(while (>= (setq num_buckets (dec num_buckets)) 0)
 		(push (get :buckets this) (list) (list)))
 
 	(defmethod :find (this key)
-		; (. fmap :find key) -> nil | val
+		; (. fmap :find key) -> :nil | val
 		(slot)
 		(if e (elem-get e (elem-get (inc b) x))))
 
@@ -26,7 +26,7 @@
 		(slot)
 		(cond
 			(e (elem-set e (elem-get (inc b) x) val))
-			(t (push (elem-get b x) key) (push (elem-get (inc b) x) val)))
+			(:t (push (elem-get b x) key) (push (elem-get (inc b) x) val)))
 		this)
 
 	(defmethod :erase (this key)
@@ -90,7 +90,7 @@
 		this)
 
 	(defmethod :empty? (this)
-		; (. fmap :empty?) -> t | nil
+		; (. fmap :empty?) -> :t | :nil
 		(every (# (= (length %0) 0)) (get :buckets this)))
 	)
 

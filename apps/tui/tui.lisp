@@ -15,7 +15,7 @@
 				(pii-write-char 1 (ascii-code " "))
 				(pii-write-char 1 (ascii-code " "))
 				(pii-write-char 1 (ascii-code " ")))
-			(t	;print char
+			(:t	;print char
 				(pii-write-char 1 c)))) _))
 
 (defun prompt () ">")
@@ -29,13 +29,13 @@
 				(cmd
 					;feed active pipe
 					(. cmd :write (cat buffer (ascii-char 10))))
-				(t	;start new pipe
+				(:t	;start new pipe
 					(cond
 						((/= (length buffer) 0)
 							;new pipe
-							(catch (setq cmd (Pipe buffer (list (task-mailbox)))) (progn (setq cmd nil) t))
+							(catch (setq cmd (Pipe buffer (list (task-mailbox)))) (progn (setq cmd :nil) :t))
 							(unless cmd (print (cat (const (cat "Pipe Error !" (ascii-char 10))) (prompt)))))
-						(t (print (prompt))))))
+						(:t (print (prompt))))))
 			(setq buffer ""))
 		((= c 27)
 			;esc
@@ -44,7 +44,7 @@
 				(when (/= (length buffer) 0)
 					(. cmd :write buffer))
 				(. cmd :close)
-				(setq cmd nil buffer "")
+				(setq cmd :nil buffer "")
 				(print (cat (ascii-char 10) (prompt)))))
 		((and (= c 8) (/= (length buffer) 0))
 			;backspace
@@ -58,18 +58,18 @@
 	(print (cat (const (cat "ChrysaLisp Terminal 1.5" (ascii-char 10))) (prompt)))
 	;create child and send args
 	(mail-send (open-child "apps/tui/tui_child.lisp" +kn_call_open) (task-mailbox))
-	(defq cmd nil buffer "")
-	(while t
-		(defq data t)
+	(defq cmd :nil buffer "")
+	(while :t
+		(defq data :t)
 		(if cmd (setq data (. cmd :read)))
 		(cond
-			((eql data t)
+			((eql data :t)
 				;normal mailbox event
 				(terminal-input (get-byte (mail-read (task-mailbox)) 0)))
-			((eql data nil)
+			((eql data :nil)
 				;pipe is closed
 				(. cmd :close)
-				(setq cmd nil)
+				(setq cmd :nil)
 				(print (const (cat (ascii-char 10) ">"))))
-			(t	;string from pipe
+			(:t	;string from pipe
 				(print data)))))

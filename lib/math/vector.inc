@@ -174,17 +174,17 @@
 		axc (vec-det av cv)
 		cxb (vec-det cv bv))
 	(cond
-		((= axb 0) nil)
+		((= axb 0) :nil)
 		((> axb 0)
 			(cond
-				((or (< axc 0) (> axc axb)) nil)
-				((or (< cxb 0) (> cxb axb)) nil)
-				(t t)))
-		(t
+				((or (< axc 0) (> axc axb)) :nil)
+				((or (< cxb 0) (> cxb axb)) :nil)
+				(:t :t)))
+		(:t
 			(cond
-				((or (> axc 0) (< axc axb)) nil)
-				((or (> cxb 0) (< cxb axb)) nil)
-				(t t)))))
+				((or (> axc 0) (< axc axb)) :nil)
+				((or (> cxb 0) (< cxb axb)) :nil)
+				(:t :t)))))
 
 (defun vec-collide-thick-lines-2d (l1_p1 l1_p2 l2_p1 l2_p2 r)
 	(cond
