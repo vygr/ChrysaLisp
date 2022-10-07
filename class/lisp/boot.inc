@@ -428,8 +428,8 @@
 	; (notevery lambda seq ...) -> :t | :nil
 	`(not (some! 0 -1 :t ,f (list ~_))))
 
-(defun :nil? (_)
-	; (:nil? o) -> bool
+(defun nil? (_)
+	; (nil? o) -> bool
 	(eql _ :nil))
 
 (defun empty? (_)
@@ -446,23 +446,23 @@
 
 (defun first (_)
 	; (first seq) -> el | :nil
-	(if (and (not (:nil? _)) (> (length _) 0)) (elem-get 0 _)))
+	(if (and (not (nil? _)) (> (length _) 0)) (elem-get 0 _)))
 
 (defun second (_)
 	; (second seq) -> el | :nil
-	(if (and (not (:nil? _)) (> (length _) 1)) (elem-get 1 _)))
+	(if (and (not (nil? _)) (> (length _) 1)) (elem-get 1 _)))
 
 (defun third (_)
 	; (third seq) -> el | :nil
-	(if (and (not (:nil? _)) (> (length _) 2)) (elem-get 2 _)))
+	(if (and (not (nil? _)) (> (length _) 2)) (elem-get 2 _)))
 
 (defun last (_)
 	; (last seq) -> el | :nil
-	(if (and (not (:nil? _)) (> (length _) 0)) (elem-get -2 _)))
+	(if (and (not (nil? _)) (> (length _) 0)) (elem-get -2 _)))
 
 (defun rest (_)
 	; (rest seq) -> :nil | seq
-	(if (and (not (:nil? _)) (> (length _) 0)) (slice 1 -1 _) (list)))
+	(if (and (not (nil? _)) (> (length _) 0)) (slice 1 -1 _) (list)))
 
 (defun erase (s b e)
 	; (erase seq start end) -> seq

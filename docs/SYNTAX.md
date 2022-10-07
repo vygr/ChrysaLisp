@@ -1560,12 +1560,6 @@
 (/= num num ...)
 ```
 
-### :nil?
-
-```code
-(:nil? o) -> bool
-```
-
 ### <
 
 ```code
@@ -3052,6 +3046,12 @@
 
 ```code
 (nempty? form) -> bool
+```
+
+### nil?
+
+```code
+(nil? o) -> bool
 ```
 
 ### nlo

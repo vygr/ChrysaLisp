@@ -73,10 +73,10 @@
 		; (. xnode :add_node child) -> xnode
 		; Adds a child node if unique_id not in children
 		(cond
-			((:nil? child) this)
+			((nil? child) this)
 			(:t
 				(defq hsh (. child :unique_id))
-				(when (:nil? (gets (get :children this) hsh))
+				(when (nil? (gets (get :children this) hsh))
 					(. child :set_parent this)
 					(sets! (get :children this) hsh child))
 				child)))
