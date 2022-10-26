@@ -156,6 +156,7 @@ enum Opcodes
 	VP64_CALL_ABI,
 
 	VP64_RET,
+	VP64_SYNC,
 	VP64_BRK,
 };
 
@@ -309,6 +310,7 @@ std::string opcodeDesc[] = {
 	"VP64_CALL_ABI",
 
 	"VP64_RET",
+	"VP64_SYNC",
 	"VP64_BRK"
 };
 
@@ -1378,6 +1380,12 @@ int vp64(uint8_t* data, int64_t *stack, int64_t* argv, int64_t* host_os_funcs, i
 			{
 				pc = *(int16_t**)regs[15];
 				regs[15] += 8;
+			}
+			break;
+
+			case VP64_SYNC:
+			{
+				//sync_type = ir >> 12;
 			}
 			break;
 
