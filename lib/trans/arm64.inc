@@ -499,13 +499,13 @@
 	(emit-sub-cr tk_state_size s)
 	(emit-cpy-ri f s (- tk_state_size +ptr_size))
 	(emit-cpy-ri x s (- tk_state_size (* +ptr_size 2)))
-	(emit-lea-p (defcvar (label-sym 'start) (+ *pc* 12)) f)
+	(emit-lea-p (defcvar (label-sym 'arm_start) (+ *pc* 12)) f)
 	(emit-cpy-ri f s 0)
-	(emit-jmp (defcvar (label-sym 'funcexit) (+ *pc* 12)) 0)
-;start
-	(emit-cpy-rr s (const (emit-native-reg? :r30)))
+	(emit-jmp (defcvar (label-sym 'arm_exit) (+ *pc* 12)) 0)
+;arm_start
+	(emit-cpy-rr (const (emit-native-reg? :r1)) (const (emit-native-reg? :r30)))
 	(emit-jmp-r (const (emit-native-reg? :r0))))
-;funcexit
+;arm_exit
 
 (defun emit-call-abi (r b c n &rest x)
 	(setq x (cat `(,(emit-native-reg? :r30)) x))
