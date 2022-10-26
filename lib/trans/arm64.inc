@@ -490,6 +490,7 @@
 (defun emit-alloc (c) (emit-sub-cr (align c stack_align) (const (emit-native-reg? :rsp))))
 (defun emit-free (c) (emit-add-cr (align c stack_align) (const (emit-native-reg? :rsp))))
 (defun emit-ret () (emit-int 0xd65f03c0))
+(defun emit-sync (n))
 (defun emit-brk (n))
 
 (defun emit-stack-init (s f x)

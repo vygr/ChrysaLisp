@@ -1385,7 +1385,7 @@ int vp64(uint8_t* data, int64_t *stack, int64_t* argv, int64_t* host_os_funcs, i
 
 			case VP64_SYNC:
 			{
-				//sync_type = ir >> 12;
+				//sync_type = ir >> 8;
 			}
 			break;
 

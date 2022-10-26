@@ -189,6 +189,12 @@ functions.
 (vp-ext-rr rs rd)
 ```
 
+#### Memory Sync
+
+```vdu
+(vp-sync c)
+```
+
 #### Pseudo ops
 
 ```vdu

@@ -140,6 +140,7 @@
 (defun vp-free (c) (emit (list 'emit-free (eval c (penv)))))
 (defun vp-ret () (emit (list 'emit-ret)))
 (defun vp-brk (&optional n) (emit (list 'emit-brk (opt n 0))))
+(defun vp-sync (&optional n) (emit (list 'emit-sync (opt n 0))))
 (defun vp-stack-init (s f x) (emit (list 'emit-stack-init (get s) (get f) (get x))))
 
 (defun vp-call-abi (r b i n x) (emit (cat (list 'emit-call-abi (get r) (get b) i n) (map get x))))
