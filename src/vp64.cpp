@@ -321,6 +321,7 @@ int vp64(uint8_t* data, int64_t *stack, int64_t* argv, int64_t* host_os_funcs, i
 	int64_t ir;
 	int64_t compare1 = 0;
 	int64_t compare2 = 0;
+	std::atomic<int> sync;
 
 	// start at the beginning
 	fn_header* pHeader = (fn_header*)((uint8_t*)data);
@@ -1385,7 +1386,7 @@ int vp64(uint8_t* data, int64_t *stack, int64_t* argv, int64_t* host_os_funcs, i
 
 			case VP64_SYNC:
 			{
-				//sync_type = ir >> 8;
+				sync.store(ir >> 8, std::memory_order_seq_cst);
 			}
 			break;
 
