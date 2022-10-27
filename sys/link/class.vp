@@ -206,11 +206,10 @@
 				;copy message data
 				(call 'sys_mem :copy {&msg->msg_stamp_start, &tx_msg->lk_msg_stamp, msg_stamp_end - msg_stamp_start})
 				(call 'sys_mem :copy {msg->msg_frag_data, &tx_msg->lk_msg_data, (msg->msg_frag_length + +long_size - 1) & -+long_size})
-				(vp-sync)
 
 				;busy status
-				(assign {lk_chan_status_busy} {tx_msg->lk_msg_status})
 				(vp-sync)
+				(assign {lk_chan_status_busy} {tx_msg->lk_msg_status})
 
 				;free message
 				(call 'sys_mail :free {msg})
@@ -223,11 +222,10 @@
 			(else)
 				;just a ping
 				(assign {-1} {tx_msg->lk_msg_stamp.(-msg_stamp_start).msg_frag_length})
-				(vp-sync)
 
 				;busy status
-				(assign {lk_chan_status_busy} {tx_msg->lk_msg_status})
 				(vp-sync)
+				(assign {lk_chan_status_busy} {tx_msg->lk_msg_status})
 
 				;move on to next msg chan
 				(assign {&tx_msg->lk_msg_size} {tx_msg})
@@ -236,6 +234,9 @@
 				(endif)
 				(break 'sleep)
 			(endif)
+
+			;let other links run
+			(call 'sys_task :sleep '(0))
 		(loop-end)
 
 		;small sleep if nothing to do
@@ -302,7 +303,6 @@
 					(call 'sys_mem :copy {&rx_msg->lk_msg_data, data, rx_msg->lk_msg_stamp.(-msg_stamp_start).msg_frag_length + +long_size - 1) & -+long_size})
 					;clear status
 					(assign {lk_chan_status_ready} {rx_msg->lk_msg_status})
-					(vp-sync)
 
 					;send onwards
 					(call 'sys_mail :send {msg})
@@ -310,7 +310,6 @@
 			(else)
 				;clear status
 				(assign {lk_chan_status_ready} {rx_msg->lk_msg_status})
-				(vp-sync)
 			(endif)
 
 			;move on to next msg chan
