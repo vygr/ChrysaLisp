@@ -1,5 +1,6 @@
 #include <sys/types.h>
 #include <iostream>
+#include <atomic>
 #ifdef _WIN64
 	#include <immintrin.h>
 #endif
