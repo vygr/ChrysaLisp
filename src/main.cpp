@@ -24,6 +24,7 @@
 	#include <tchar.h>
 	#include <direct.h>
 	#include <conio.h>
+	#undef max
 #else
 	#include <sys/mman.h>
 	#include <sys/time.h>
