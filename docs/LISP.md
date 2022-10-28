@@ -20,7 +20,7 @@ other ways that a cycle can be created, by naming an environment within its own
 scope, but again this was too good an efficiency feature to miss out on. So you
 do have to be careful not to create cycles, so think about how your code works.
 
-No tail recursion optimisation ! There is a single looping function provided in
+No tail recursion optimization ! There is a single looping function provided in
 native code, `(while)`, every other looping construct builds on this primitive.
 There are also two native primitives `(some!)` and `(each!)` that provide
 generic access to iterating over a slice of a sequence/s, while calling a
@@ -38,13 +38,14 @@ disagree ;)
 
 All symbols live in the same environment, functions, macros, everything. The
 environment is a chain of hash maps. Each lambda gets a new hash map pushed
-onto the environment chain on invocation, and dereferenced on exit. The `(env)`
-function can be used to return the current hash map and optionally resize the
-number of buckets from the default of 1. This proves very effective for storing
-large numbers of symbols and objects for the assembler as well as creating
-caches. Make sure to `(setq)` the symbol you bind to the result of `(env)` to
-`:nil` before returning from the function if you do this, else you will create a
-cycle that can't be freed.
+onto the environment chain on invocation, and dereferenced on exit. The `(env
+[num])` function can be used to return the current hash map or create a new
+one, the `(env-resize env num)` function can resize the number of buckets for
+an existing environment. This proves very effective for storing large numbers
+of symbols and objects for the assembler as well as creating caches. Make sure
+to `(setq)` the symbol you bind to the result of `(env)` to `:nil` before
+returning from the function if you do this, else you will create a cycle that
+can't be freed.
 
 `(defq)` and `(bind)` always create entries in the current environment hash
 map. `(setq)` searches the environment chain to find an existing entry and sets
