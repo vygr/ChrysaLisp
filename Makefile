@@ -1,3 +1,14 @@
+SRC_DIR := ./src
+OBJ_DIR_GUI := ./src/obj/gui
+OBJ_DIR_TUI := ./src/obj/tui
+dummy_build_gui := $(shell mkdir -p $(OBJ_DIR_GUI))
+dummy_build_tui := $(shell mkdir -p $(OBJ_DIR_TUI))
+SRC_FILES := $(wildcard $(SRC_DIR)/*.cpp)
+OBJ_FILES_GUI := $(patsubst $(SRC_DIR)/%.cpp,$(OBJ_DIR_GUI)/%.o,$(SRC_FILES))
+OBJ_FILES_TUI := $(patsubst $(SRC_DIR)/%.cpp,$(OBJ_DIR_TUI)/%.o,$(SRC_FILES))
+CPPFLAGS := -O3 -std=c++14 -nostdlib -fno-exceptions
+CXXFLAGS += -MMD
+
 OS := $(shell uname)
 CPU := $(shell uname -m)
 ifeq ($(CPU),x86_64)
@@ -40,61 +51,51 @@ inst:
 	@./obj/$(CPU)/$(ABI)/$(OS)/main_tui -e obj\vp64\VP64\sys\boot_image -l 001-007 -l 001-004 -l 000-001 -l 001-002 &
 	@./obj/$(CPU)/$(ABI)/$(OS)/main_tui -e obj\vp64\VP64\sys\boot_image -l 000-006 -l 000-003 -l 000-002 -l 000-001 -run apps/tui/install.lisp
 
-obj/$(CPU)/$(ABI)/$(OS)/main_gui:	obj/$(CPU)/$(ABI)/$(OS)/main_gui.o obj/$(CPU)/$(ABI)/$(OS)/vp64.o
+obj/$(CPU)/$(ABI)/$(OS)/main_gui:	$(OBJ_FILES_GUI)
 ifeq ($(OS),Darwin)
-	c++ -o $@ $@.o \
-		obj/$(CPU)/$(ABI)/$(OS)/vp64.o \
+	c++ -o $@ $^ \
 		-F/Library/Frameworks \
-		-Wl,-framework,SDL2 -Wl
+		-framework SDL2
 endif
 ifeq ($(OS),Linux)
-	c++ -o $@ $@.o \
-		obj/$(CPU)/$(ABI)/$(OS)/vp64.o \
+	c++ -o $@ $^ \
 		$(shell sdl2-config --libs)
 endif
 
-obj/$(CPU)/$(ABI)/$(OS)/main_tui:	obj/$(CPU)/$(ABI)/$(OS)/main_tui.o obj/$(CPU)/$(ABI)/$(OS)/vp64.o
+obj/$(CPU)/$(ABI)/$(OS)/main_tui:	$(OBJ_FILES_TUI)
 ifeq ($(OS),Darwin)
-	c++ -o $@ $@.o \
-		obj/$(CPU)/$(ABI)/$(OS)/vp64.o
+	c++ -o $@ $^
 endif
 ifeq ($(OS),Linux)
-	c++ -o $@ $@.o \
-		obj/$(CPU)/$(ABI)/$(OS)/vp64.o
+	c++ -o $@ $^
 endif
 
-obj/$(CPU)/$(ABI)/$(OS)/main_gui.o:	src/main.cpp src/pii.h Makefile
+$(OBJ_DIR_GUI)/%.o: $(SRC_DIR)/%.cpp
 ifeq ($(OS),Darwin)
-	c++ -O3 -c -D_GUI=GUI -nostdlib -fno-exceptions \
+	c++ $(CPPFLAGS) $(CXXFLAGS) -c -D_GUI=GUI \
 		-I/Library/Frameworks/SDL2.framework/Headers/ \
 		-o $@ $<
 endif
 ifeq ($(OS),Linux)
-	c++ -O3 -c -D_GUI=GUI -nostdlib -fno-exceptions \
+	c++ $(CPPFLAGS) $(CXXFLAGS) -c -D_GUI=GUI \
 		$(shell sdl2-config --cflags) \
 		-o $@ $<
 endif
 
-obj/$(CPU)/$(ABI)/$(OS)/main_tui.o:	src/main.cpp Makefile
+$(OBJ_DIR_TUI)/%.o: $(SRC_DIR)/%.cpp
 ifeq ($(OS),Darwin)
-	c++ -O3 -c -nostdlib -fno-exceptions \
+	c++ $(CPPFLAGS) $(CXXFLAGS) -c \
 		-o $@ $<
 endif
 ifeq ($(OS),Linux)
-	c++ -O3 -c -nostdlib -fno-exceptions \
-		-o $@ $<
-endif
-
-obj/$(CPU)/$(ABI)/$(OS)/vp64.o:	src/vp64.cpp Makefile
-ifeq ($(OS),Darwin)
-	c++ -O3 -c -nostdlib -fno-exceptions \
-		-o $@ $<
-endif
-ifeq ($(OS),Linux)
-	c++ -O3 -c -nostdlib -fno-exceptions \
+	c++ $(CPPFLAGS) $(CXXFLAGS) -c \
 		-o $@ $<
 endif
 
 clean:
-	rm -rf obj/
+	rm -rf $(OBJ_DIR_GUI)/*
+	rm -rf $(OBJ_DIR_TUI)/*
 	unzip -nq snapshot.zip
+
+ -include $(OBJ_FILES_GUI:.o=.d)
+ -include $(OBJ_FILES_TUI:.o=.d)
