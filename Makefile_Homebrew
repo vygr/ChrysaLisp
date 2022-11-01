@@ -44,12 +44,11 @@ obj/$(CPU)/$(ABI)/$(OS)/main_gui:	obj/$(CPU)/$(ABI)/$(OS)/main_gui.o obj/$(CPU)/
 ifeq ($(OS),Darwin)
 	c++ -o $@ $@.o \
 		obj/$(CPU)/$(ABI)/$(OS)/vp64.o \
-		-F /opt/homebrew/Cellar/sdl2/2.0.14_1/lib \
 		$(shell sdl2-config --libs)
 endif
 ifeq ($(OS),Linux)
 	c++ -o $@ $@.o \
-	obj/$(CPU)/$(ABI)/$(OS)/vp64.o \
+		obj/$(CPU)/$(ABI)/$(OS)/vp64.o \
 		$(shell sdl2-config --libs)
 endif
 
@@ -66,12 +65,12 @@ endif
 obj/$(CPU)/$(ABI)/$(OS)/main_gui.o:	src/main.cpp src/pii.h Makefile
 ifeq ($(OS),Darwin)
 	c++ -O3 -c -D_GUI=GUI -nostdlib -fno-exceptions \
-		-I /opt/homebrew/Cellar/sdl2/2.0.14_1/include/SDL2/ \
+		$(shell sdl2-config --cflags) \
 		-o $@ $<
 endif
 ifeq ($(OS),Linux)
 	c++ -O3 -c -D_GUI=GUI -nostdlib -fno-exceptions \
-		-I/usr/include/SDL2/ \
+		$(shell sdl2-config --cflags) \
 		-o $@ $<
 endif
 
