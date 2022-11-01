@@ -49,7 +49,7 @@ ifeq ($(OS),Darwin)
 endif
 ifeq ($(OS),Linux)
 	c++ -o $@ $@.o \
-	obj/$(CPU)/$(ABI)/$(OS)/vp64.o \
+		obj/$(CPU)/$(ABI)/$(OS)/vp64.o \
 		$(shell sdl2-config --libs)
 endif
 
@@ -71,7 +71,7 @@ ifeq ($(OS),Darwin)
 endif
 ifeq ($(OS),Linux)
 	c++ -O3 -c -D_GUI=GUI -nostdlib -fno-exceptions \
-		-I/usr/include/SDL2/ \
+		$(shell sdl2-config --cflags) \
 		-o $@ $<
 endif
 
