@@ -586,6 +586,13 @@ static void (*host_os_funcs[]) = {
 };
 
 #ifdef _GUI
+
+uint32_t SDL_mypoll(SDL_Event *data)
+{
+	SDL_PumpEvents();
+	return 	SDL_PollEvent(data);
+}
+
 static void (*host_gui_funcs[]) = {
 	(void*)SDL_SetMainReady,
 	(void*)SDL_Init,
@@ -600,7 +607,7 @@ static void (*host_gui_funcs[]) = {
 	(void*)SDL_RenderPresent,
 	(void*)SDL_RenderSetClipRect,
 	(void*)SDL_SetRenderDrawBlendMode,
-	(void*)SDL_PollEvent,
+	(void*)SDL_mypoll,
 	(void*)SDL_RenderDrawRect,
 	(void*)SDL_FreeSurface,
 	(void*)SDL_CreateTextureFromSurface,
