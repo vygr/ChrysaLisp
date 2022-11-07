@@ -9,8 +9,8 @@
 
 (defun set-mouse-id ()
 	(bind '(view _ _) (. *screen* :hit_tree *mouse_x* *mouse_y*))
-	(unless view (prin "Nil view ! mx, my = " *mouse_x* " " *mouse_y*)(print))
-	(when (and view (/= (defq mouse_id (. view :get_id)) *mouse_id*))
+	(unless view (setq view *screen*))
+	(when (/= (defq mouse_id (. view :get_id)) *mouse_id*)
 		(and (defq old_view (. *screen* :find_id *mouse_id*))
 			(defq owner (. old_view :find_owner))
 			(mail-send owner (setf-> (str-alloc +ev_msg_exit_size)
