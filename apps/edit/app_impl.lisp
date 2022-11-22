@@ -339,6 +339,7 @@
 	(def *edit* :min_width 0 :min_height 0
 		:vdu_width +vdu_min_width :vdu_height +vdu_min_height)
 	(. main_flow :add_back *edit*)
+	(def *vdu_lines* :font (get :font *edit*))
 	;load up the base Syntax keywords and boot.inc words for matching
 	(each (lambda ((key val)) (. dictionary :insert_word (str key)))
 		(tolist (get :keywords *syntax* )))
