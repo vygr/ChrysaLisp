@@ -52,4 +52,5 @@
 	*env_terminal_font* (create-font "fonts/Hack-Regular.ctf" 16)
 	*env_medium_terminal_font* (create-font "fonts/Hack-Regular.ctf" 14)
 	*env_small_terminal_font* (create-font "fonts/Hack-Regular.ctf" 12)
+	*env_editor_font* (create-font "fonts/Hack-Regular.ctf" 20)
 	*env_tip_font* (create-font "fonts/OpenSans-Regular.ctf" 14))
