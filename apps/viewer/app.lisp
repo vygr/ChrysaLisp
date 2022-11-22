@@ -141,9 +141,8 @@
 	(set *edit* :vdu_width w :vdu_height h :min_width w :min_height h)
 	(bind '(x y w h) (apply view-fit
 		(cat (. *window* :get_pos) (. *window* :pref_size))))
-	(set *edit* :min_width +vdu_min_width :min_height +vdu_min_height)
 	(. *window* :change_dirty x y w h)
-	(set-sliders) (load-display))
+	(window-resize))
 
 (defun select-node (file)
 	;highlight the selected file

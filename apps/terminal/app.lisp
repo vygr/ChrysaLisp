@@ -96,9 +96,8 @@
 	(set *edit* :vdu_width w :vdu_height h :min_width w :min_height h)
 	(bind '(x y w h) (apply view-fit
 		(cat (. *window* :get_pos) (. *window* :pref_size))))
-	(set *edit* :min_width +vdu_min_width :min_height +vdu_min_height)
 	(. *window* :change_dirty x y w h)
-	(set-sliders) (load-display))
+	(window-resize))
 
 (defun tooltips ()
 	(def *window* :tip_mbox (elem-get +select_tip *select*))
@@ -114,7 +113,7 @@
 		*history* (list) *history_idx* 0 *edit* (Terminal-edit))
 	(. *edit* :set_underlay_color +argb_green6)
 	(def *edit* :min_width +vdu_min_width :min_height +vdu_min_height
-		:vdu_width +vdu_min_width :vdu_height +vdu_min_height)
+		:vdu_width +vdu_min_width :vdu_height +vdu_min_height :font *env_terminal_font*)
 	(. main_flow :add_back *edit*)
 	(tooltips)
 	(bind '(x y w h) (apply view-locate (.-> *window* (:connect +event_layout) :pref_size)))
