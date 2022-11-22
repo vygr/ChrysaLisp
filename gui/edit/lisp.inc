@@ -126,6 +126,10 @@
 		; (. edit :get_vdu_text) -> vdu_text
 		(get :vdu_text this))
 
+	(defmethod :get_vdu_underlay (this)
+		; (. edit :get_vdu_underlay) -> vdu_underlay
+		(get :vdu_underlay this))
+
 	(defmethod :get_cursor (this)
 		; (. edit :get_cursor) -> (list x y)
 		(raise :buffer)
