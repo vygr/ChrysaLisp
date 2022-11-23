@@ -84,7 +84,7 @@
 			(ui-backdrop _ (:color +argb_white)))
 		(ui-vdu *vdu_lines* (:min_width +vdu_line_width :min_height 0
 				:vdu_width +vdu_line_width :vdu_height +vdu_min_height
-				:ink_color +argb_grey12))
+				:ink_color +argb_grey12 :font *env_editor_font*))
 		(ui-backdrop _ (:color (get :ink_color *vdu_lines*) :min_width 1))
 		(ui-flow _ (:flow_flags +flow_left_fill)
 			(. (ui-slider *yslider*) :connect +event_yscroll)
@@ -339,7 +339,6 @@
 	(def *edit* :min_width 0 :min_height 0
 		:vdu_width +vdu_min_width :vdu_height +vdu_min_height)
 	(. main_flow :add_back *edit*)
-	(def *vdu_lines* :font (get :font *edit*))
 	;load up the base Syntax keywords and boot.inc words for matching
 	(each (lambda ((key val)) (. dictionary :insert_word (str key)))
 		(tolist (get :keywords *syntax* )))
