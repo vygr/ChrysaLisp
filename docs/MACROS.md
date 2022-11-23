@@ -124,8 +124,8 @@ Take the `(when)` construct:
 
 This replaces your use of `(when ...)` with either an `(if ...)` or `(cond
 ...)` primitive. Thus providing you with a nicer syntax to express your intent.
-Plus if later you deicide to add more statements to the when body you don't
-need to manually change the `(if ..)` yourself !
+Plus if later you decide to add more statements to the when body you don't need
+to manually change the `(if ...)` yourself !
 
 ## Macros can do complex substitution
 
