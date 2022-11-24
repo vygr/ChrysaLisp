@@ -108,14 +108,14 @@
 	(mail-timeout (elem-get +select_timer select) rate 0)
 	(while id
 		(defq msg (mail-read (elem-get (defq idx (mail-select select)) select)))
-		(cond
-			((= idx +select_main)
+		(case idx
+			(+select_main
 				;main mailbox
 				(cond
 					((= (getf msg +ev_msg_target_id) +event_close)
 						(setq id :nil))
 					(:t (. *window* :event msg))))
-			((= idx +select_timer)
+			(+select_timer
 				;timer event
 				(mail-timeout (elem-get +select_timer select) rate 0)
 				(redraw)

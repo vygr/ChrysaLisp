@@ -264,11 +264,13 @@
 					(cat '(progn) _clause_body)))))))
 			(or (eql :num (defq _clause_type (pop (type-of _clause_body))))
 				(eql :str _clause_type) (setq _atoms :nil))
-			(each! 0 -1 (lambda (_key) (cond
-				((eql _key :t)
-					(setq _default_key :t _default_clause _clause_body))
-				(:t  (push (elem-get 0 _map) _key)
-					(push (elem-get 1 _map) _clause_body)))) (list _keys)) _map)
+			(each! 0 -1 (lambda (_key)
+				(and (sym? _key) (starts-with "+" _key) (setq _key (eval _key)))
+				(cond
+					((eql _key :t)
+						(setq _default_key :t _default_clause _clause_body))
+					(:t  (push (elem-get 0 _map) _key)
+						(push (elem-get 1 _map) _clause_body)))) (list _keys)) _map)
 			_body (list (list) (list))))
 	(cond
 		(_default_key
