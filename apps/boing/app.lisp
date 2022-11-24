@@ -27,8 +27,8 @@
 	(mail-timeout (elem-get +select_timer select) rate 0)
 	(while id
 		(defq msg (mail-read (elem-get (defq idx (mail-select select)) select)))
-		(cond
-			((= idx +select_main)
+		(case idx
+			(+select_main
 				;main mailbox
 				(cond
 					((= (setq id (getf msg +ev_msg_target_id)) +event_close)
@@ -44,7 +44,7 @@
 						(bind '(x y w h) (view-fit x y (/ (* w 5) 3) (/ (* h 5) 3)))
 						(. *window* :change_dirty x y w h))
 					(:t	(. *window* :event msg))))
-			((= idx +select_timer)
+			(+select_timer
 				;timer event
 				(mail-timeout (elem-get +select_timer select) rate 0)
 				(bind '(_ _ backdrop_width backdrop_height) (. mybackdrop :get_bounds))

@@ -84,21 +84,21 @@
 	(mail-timeout (elem-get +select_timer select) timer_rate 0)
 	(while id
 		(defq msg (mail-read (elem-get (defq idx (mail-select select)) select)))
-		(cond
-			((= idx +select_main)
+		(case idx
+			(+select_main
 				;main mailbox
 				(cond
 					((= (setq id (getf msg +ev_msg_target_id)) +event_close)
 						;close button
 						(setq id :nil))
 					(:t (. *window* :event msg))))
-			((= idx +select_task)
+			(+select_task
 				;child launch responce
 				(defq key (getf msg +kn_msg_key) child (getf msg +kn_msg_reply_id))
 				(when (defq val (. farm :find key))
 					(. val :insert :child child)
 					(dispatch-job key val)))
-			((= idx +select_reply)
+			(+select_reply
 				;child responce
 				(defq key (get-long msg (- (length msg) +long_size)))
 				(when (defq val (. farm :find key))

@@ -79,8 +79,8 @@
 	(mail-timeout (elem-get +select_nodes select) 1 0)
 	(while id
 		(defq msg (mail-read (elem-get (defq idx (mail-select select)) select)))
-		(cond
-			((= idx +select_main)
+		(case idx
+			(+select_main
 				;main mailbox
 				(cond
 					((= (setq id (getf msg +ev_msg_target_id)) +event_close)
@@ -98,7 +98,7 @@
 						(bind '(x y w h) (view-fit x y (/ (* w 100) 75) h))
 						(. *window* :change_dirty x y w h))
 					(:t (. *window* :event msg))))
-			((= idx +select_task)
+			(+select_task
 				;child launch responce
 				(defq child (getf msg +kn_msg_reply_id)
 					val (. global_tasks :find (slice +long_size -1 child)))
@@ -106,7 +106,7 @@
 					(.-> val
 						(:insert :child child)
 						(:insert :timestamp (pii-time)))))
-			((= idx +select_reply)
+			(+select_reply
 				;child poll responce
 				(when (defq val (. global_tasks :find (getf msg +reply_node)))
 					(defq task_val (getf msg +reply_task_count)
