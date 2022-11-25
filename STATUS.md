@@ -15,6 +15,9 @@ to rebuild your native image.
 
 Support for `+...` symbols as keys in `(case)` statements.
 
+New `(font-info font) -> (name size)` function. Returns the name and size in a
+list.
+
 ------
 
 I'm currently dealing with an ongoing medical emergency, not myself, but family
