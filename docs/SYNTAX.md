@@ -2520,6 +2520,12 @@
 (font-glyph-ranges font)
 ```
 
+### font-info
+
+```code
+(font-info font)
+```
+
 ### font-sym-texture
 
 ```code
