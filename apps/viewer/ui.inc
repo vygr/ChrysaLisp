@@ -12,6 +12,20 @@
 	(select-node file)
 	(populate-vdu file))
 
+(defun action-font-up ()
+	;scale font up
+	(bind '(name size) (font-info (get :font *edit*)))
+	(set *edit* :font (defq font (create-font name (min (inc size) 48))))
+	(.-> *main_flow* :layout :dirty_all)
+	(window-resize))
+
+(defun action-font-down ()
+	;scale font up
+	(bind '(name size) (font-info (get :font *edit*)))
+	(set *edit* :font (defq font (create-font name (max (dec size) 8))))
+	(.-> *main_flow* :layout :dirty_all)
+	(window-resize))
+
 ;;;;;;;;;;;;;;;;;;;;
 ; main edit subclass
 ;;;;;;;;;;;;;;;;;;;;

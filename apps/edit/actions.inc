@@ -110,6 +110,8 @@ key_map_control (fmap-kv
 	(ascii-code "v") action-paste
 	(ascii-code "=") action-maximise
 	(ascii-code "-") action-minimise
+	(ascii-code "]") action-font-up
+	(ascii-code "[") action-font-down
 	(ascii-code "n") action-next-buffer
 	(ascii-code "N") action-prev-buffer
 	(ascii-code "q") action-reflow

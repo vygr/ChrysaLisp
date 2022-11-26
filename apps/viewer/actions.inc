@@ -56,6 +56,8 @@ key_map_control (fmap-kv
 	(ascii-code "c") action-copy
 	(ascii-code "=") action-maximise
 	(ascii-code "-") action-minimise
+	(ascii-code "]") action-font-up
+	(ascii-code "[") action-font-down
 	(ascii-code "9") action-left-bracket
 	(ascii-code "0") action-right-bracket))
 

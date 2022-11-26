@@ -24,7 +24,7 @@
 		(ui-backdrop _ (:color (const *env_toolbar_col*))))
 	(ui-flow _ (:flow_flags +flow_left_fill)
 		(. (ui-slider *yslider*) :connect +event_yscroll)
-		(ui-flow main_flow (:flow_flags +flow_up_fill)
+		(ui-flow *main_flow* (:flow_flags +flow_up_fill)
 			(. (ui-slider *xslider*) :connect +event_xscroll))))
 
 (defun input-poll ()
@@ -114,7 +114,7 @@
 	(. *edit* :set_underlay_color +argb_green6)
 	(def *edit* :min_width +vdu_min_width :min_height +vdu_min_height
 		:vdu_width +vdu_min_width :vdu_height +vdu_min_height :font *env_terminal_font*)
-	(. main_flow :add_back *edit*)
+	(. *main_flow* :add_back *edit*)
 	(tooltips)
 	(bind '(x y w h) (apply view-locate (.-> *window* (:connect +event_layout) :pref_size)))
 	(gui-add-front (. *window* :change x y w h))

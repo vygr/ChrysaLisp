@@ -34,7 +34,7 @@
 			(ui-backdrop _ (:color +argb_white)))
 		(ui-flow _ (:flow_flags +flow_left_fill)
 			(. (ui-slider *yslider*) :connect +event_yscroll)
-			(ui-flow main_flow (:flow_flags +flow_up_fill)
+			(ui-flow *main_flow* (:flow_flags +flow_up_fill)
 				(. (ui-slider *xslider*) :connect +event_xscroll)))))
 
 (defun all-src-files (root)
@@ -169,7 +169,7 @@
 	(.-> *edit* (:set_buffer (Buffer)) (:set_underlay_color +argb_grey6))
 	(def *edit* :min_width 0 :min_height 0
 		:vdu_width +vdu_min_width :vdu_height +vdu_min_height)
-	(. main_flow :add_back *edit*)
+	(. *main_flow* :add_back *edit*)
 	(populate-file-tree)
 	(populate-vdu :nil)
 	(select-node :nil)
