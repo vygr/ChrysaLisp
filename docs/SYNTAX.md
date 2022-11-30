@@ -2331,7 +2331,7 @@
 ### empty?
 
 ```code
-(empty? form) -> bool
+(empty? form) -> :t | :nil
 ```
 
 ### ends-with
@@ -2403,7 +2403,7 @@
 ### even?
 
 ```code
-(even? num) -> bool
+(even? num) -> :t | :nil
 ```
 
 ### every
@@ -3051,19 +3051,19 @@
 ### neg?
 
 ```code
-(neg? num) -> bool
+(neg? num) -> :t | :nil
 ```
 
 ### nempty?
 
 ```code
-(nempty? form) -> bool
+(nempty? form) -> :t | :nil
 ```
 
 ### nil?
 
 ```code
-(nil? o) -> bool
+(nil? o) -> :t | :nil
 ```
 
 ### nlo
@@ -3213,7 +3213,7 @@
 ### odd?
 
 ```code
-(odd? num) -> bool
+(odd? num) -> :t | :nil
 ```
 
 ### open-child
@@ -3477,7 +3477,7 @@
 ### pos?
 
 ```code
-(pos? num) -> bool
+(pos? num) -> :t | :nil
 ```
 
 ### pow

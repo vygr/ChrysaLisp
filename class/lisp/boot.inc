@@ -431,15 +431,15 @@
 	`(not (some! 0 -1 :t ,f (list ~_))))
 
 (defun nil? (_)
-	; (nil? o) -> bool
+	; (nil? o) -> :t | :nil
 	(eql _ :nil))
 
 (defun empty? (_)
-	; (empty? form) -> bool
+	; (empty? form) -> :t | :nil
 	(if (seq? _) (= (length _) 0) :t))
 
 (defun nempty? (_)
-	; (nempty? form) -> bool
+	; (nempty? form) -> :t | :nil
 	(if (seq? _) (> (length _) 0)))
 
 ;;;;;;;;;;;
@@ -516,19 +516,19 @@
 (defq +min_long (<< -1 63) +max_long (>> -1 1) +min_int (<< -1 31) +max_int (>> -1 33))
 
 (defun neg? (_)
-	; (neg? num) -> bool
+	; (neg? num) -> :t | :nil
 	(< _ 0))
 
 (defun pos? (_)
-	; (pos? num) -> bool
+	; (pos? num) -> :t | :nil
 	(> _ 0))
 
 (defun odd? (_)
-	; (odd? num) -> bool
+	; (odd? num) -> :t | :nil
 	(= 1 (logand 1 _)))
 
 (defun even? (_)
-	; (even? num) -> bool
+	; (even? num) -> :t | :nil
 	(= 0 (logand 1 _)))
 
 (defun lognot (_)
