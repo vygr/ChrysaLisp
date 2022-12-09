@@ -43,18 +43,32 @@
 
 	(entry 'lisp :lisp_env_pop '(:r0 :r1))
 
-(errorcases
 	(assign '((:r1 array_length)) '(:r2))
-	(gotoif '(:r2 /= 0) 'error))
-
-	(call 'lisp :env_pop '(:r0) '(:r0 :r1))
-	(class/obj/ref :r1 :r2)
+	(errorif '(:r2 > 1) 'error)
+	(vpif '(:r2 = 0))
+		(call 'lisp :env_pop '(:r0) '(:r0 :r1))
+		(class/obj/ref :r1 :r2)
+	(else)
+		(array-bind-args :r1 '(:r13))
+	(errorcases
+		(assign '((:r13 obj_vtable)) '(:r3))
+		(f-bind 'hmap :vtable :r4)
+		(gotoif '(:r4 /= :r3) 'error))
+		(assign '((:r13 hmap_parent)) '(:r1))
+		(vpif '(:r1 = 0))
+			(assign '((:r0 lisp_sym_nil)) '(:r1))
+			(class/obj/ref :r1 :r2)
+		(else)
+			(vp-xor-rr :r2 :r2)
+			(assign '(:r2) '((:r13 hmap_parent)))
+		(endif)
+	(endif)
 
 	(exit 'lisp :lisp_env_pop '(:r0 :r1))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(env-pop)" +error_msg_wrong_num_of_args :r1)))
+	(jump 'lisp :repl_error '(:r0 "(env-pop [env])" +error_msg_wrong_types :r1)))
 
 (def-func-end)

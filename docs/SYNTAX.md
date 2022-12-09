@@ -2361,13 +2361,13 @@
 ### env-pop
 
 ```code
-(env-pop)
+(env-pop [env])
 ```
 
 ### env-push
 
 ```code
-(env-push)
+(env-push [env])
 ```
 
 ### env-resize

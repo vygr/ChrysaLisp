@@ -38,18 +38,29 @@
 
 	(entry 'lisp :lisp_env_push '(:r0 :r1))
 
-(errorcases
 	(assign '((:r1 array_length)) '(:r2))
-	(gotoif '(:r2 /= 0) 'error))
-
-	(call 'lisp :env_push '(:r0) '(:r0 :r1))
-	(class/obj/ref :r1 :r2)
+	(errorif '(:r2 > 1) 'error)
+	(vpif '(:r2 = 0))
+		(call 'lisp :env_push '(:r0) '(:r0 :r1))
+		(class/obj/ref :r1 :r2)
+	(else)
+		(array-bind-args :r1 '(:r13))
+	(errorcases
+		(assign '((:r13 obj_vtable)) '(:r3))
+		(f-bind 'hmap :vtable :r4)
+		(gotoif '(:r4 /= :r3) 'error))
+		(vp-push :r0)
+		(call 'hmap :create '((:r13 hset_key_callback) 1) '(:r0))
+		(call 'hmap :set_parent '(:r0 :r13) '(:r1))
+		(class/obj/ref :r13 :r2)
+		(vp-pop :r0)
+	(endif)
 
 	(exit 'lisp :lisp_env_push '(:r0 :r1))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(env-push)" +error_msg_wrong_num_of_args :r1)))
+	(jump 'lisp :repl_error '(:r0 "(env-push [env])" +error_msg_wrong_types :r1)))
 
 (def-func-end)

@@ -201,8 +201,9 @@ are not within the current functions environment.
 You can create private or library/object specific environments and access them
 with `(eval form [e])` !
 
-It is possible to manually push a new environment and manually pop the current
-environment using the `(env-push)` and `(env-pop)` functions ! This is
+It is possible to manually push and pop the current environment using the
+`(env-push [e])` and `(env-pop [e])` functions ! The optional environment
+parameter allows construction of user environment stacks and trees. This is
 extremely low level and should be used with caution !
 
 ### Properties
@@ -251,7 +252,8 @@ First of all a new empty environment is pushed using `(env-push)`. Then you are
 free to define new functions and variables, constants etc and use them to
 construct other functions and classes. These symbols will not be visible to the
 outside world, only the symbols, functions and classes you deliberately export
-with the `(export env sym1 ...)` macro.
+with the `(export env sym1 ...)`, `(export-symbols sym1 ...)` and
+`(export-classes class1 ...)` macros.
 
 In effect all your 'workings' will be turned into anonymous references due to
 the effect of `(prebind)` as the library is read in via the `(repl ...)` !

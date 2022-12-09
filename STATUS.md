@@ -4,6 +4,11 @@
 
 ------
 
+Enhancements to `(env-push [env])` and `(env-pop [env])` to take an optional
+environment to act on. Defaults to the current environment as before.
+
+------
+
 Remove unsupported source. Available in the repo history if folks want to dig
 around.
 
