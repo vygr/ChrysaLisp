@@ -50,7 +50,7 @@
 
 	(defmethod :resize (this num_buckets)
 		; (. emap :resize num_buckets) -> emap
-		(env-resize (get :buckets this) num_buckets)
+		(env-resize num_buckets (get :buckets this))
 		this)
 	)
 

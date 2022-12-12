@@ -7,6 +7,9 @@
 Enhancements to `(env-push [env])` and `(env-pop [env])` to take an optional
 environment to act on. Defaults to the current environment as before.
 
+Changed `(env-resize num [env])` to take optional environment, default to
+current, to match other env functions.
+
 ------
 
 Remove unsupported source. Available in the repo history if folks want to dig

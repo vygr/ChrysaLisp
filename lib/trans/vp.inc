@@ -54,7 +54,7 @@
 
 (defun emit-translate (vp_code)
 	; (emit-translate vp_code) -> func_binary
-	(env-resize (env) 31)
+	(env-resize 31)
 	(defq out_buf "" old_out_buf "" *pass* 0 *pc* 0 *branches* (clear '())
 		*out_stream* (string-stream out_buf))
 	(each! 1 -1 (lambda (op)

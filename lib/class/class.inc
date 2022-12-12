@@ -59,7 +59,7 @@
 				(unless (def? :vtable ,class)
 					(defq _smethods (tolist ,super)
 						_vtnum (+ (/ (+ ,(+ (length methods) 1) (length _smethods)) ,vtmax) 1))
-					(if (> _vtnum 1) (env-resize ,class _vtnum))
+					(if (> _vtnum 1) (env-resize _vtnum ,class))
 					(def this :vtable (reduce (lambda (e (key val))
 						(def e key val) e) _smethods ,class))
 					(def ,class :vtable ,super :module ,module)

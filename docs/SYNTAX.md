@@ -2373,7 +2373,7 @@
 ### env-resize
 
 ```code
-(env-resize env num)
+(env-resize num [env])
 ```
 
 ### env?
