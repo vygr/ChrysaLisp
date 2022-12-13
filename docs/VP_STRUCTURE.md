@@ -300,7 +300,7 @@ reclaimed.
 
 For any given class there are `create` methods for that class that take any
 construction parameters and return a fully initialized instance. If the `alloc`
-or `init` methods fail then it will tidy up and return 0 to indicate a problem.
+or `init` methods fail then it'll tidy up and return 0 to indicate a problem.
 
 The `init` method is responsible for taking an allocated chunk of memory and
 setting the fields of that object to the initial state, allocating any

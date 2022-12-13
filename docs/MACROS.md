@@ -45,7 +45,7 @@ Let's look at a very simple macro.
 ```
 
 This macro will substitute any occurrence of `(ascii-code "X")` with the code
-value of that character. When the source code is evaluated it will only be the
+value of that character. When the source code is evaluated it'll only be the
 code value of "X", it won't be the char string "X". You can refer to the code
 of a character in your source without having to know the code value, the macro
 does the work for you.

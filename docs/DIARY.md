@@ -132,7 +132,7 @@ And the implementation of this is in the `class/str/class.vp` file:
 Yes, that's a big mouthful of VP assembler code, but this method is a critical
 performance issue for the entire system, so it has to be fast. What it's doing
 is scanning through the chars of the string and mixing them together into an
-`int` that it will store as the hash code, and returns it as well.
+`int` that it'll store as the hash code, and returns it as well.
 
 Note the use of the instance field `str_hashcode` ! This starts life as 0 when
 a new `str` object is created. A `str` object is immutable (let's not debase

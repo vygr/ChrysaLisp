@@ -774,7 +774,7 @@
 
 (defun walk-list (_l _f _fi _fo)
 	; (walk-list list fnc_element fnc_in fnc_out)
-	;if fnc_in returns :nil, it will step down into that list.
+	;if fnc_in returns :nil, it'll step down into that list.
 	;fnc_out is allways called to balence calls to fnc_in.
 	(defq _stack (list _l 0))
 	(while (defq _ (pop _stack) _l (pop _stack))

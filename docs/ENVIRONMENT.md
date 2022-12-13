@@ -182,7 +182,7 @@ present at invocation.
 
 This environment is initially populated with the formal parameter symbols,
 bound to the arguments that are passed to said function on invocation. So
-before your function body starts to run it will already be able to 'see' the
+before your function body starts to run it'll already be able to 'see' the
 formal parameter symbol bindings. It's then free to add more and use the
 current bindings as it wishes.
 

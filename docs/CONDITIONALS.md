@@ -9,7 +9,7 @@ Note that true means *not :nil* and that's significant. Any value other than
 ### if
 
 `(if tst form [else_form])` is a VP native code implemented conditional
-statement. It is a simple way to make a test evaluation and evaluate a form if
+statement. It's a simple way to make a test evaluation and evaluate a form if
 the test is true and optionally evaluate a separate form if the test evaluates
 to `:nil`.
 
@@ -52,8 +52,8 @@ form and evaluates the body if the result is `:nil`.
 
 ### while
 
-`(while tst body)` is a VP native code implemented conditional statement. It is
-like `(when ...)` but it will loop while the test clause is true.
+`(while tst body)` is a VP native code implemented conditional statement. It's
+like `(when ...)` but it'll loop while the test clause is true.
 
 ```vdu
 (while (< b e)

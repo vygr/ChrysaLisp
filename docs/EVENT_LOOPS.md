@@ -156,7 +156,7 @@ reasons to destroy an existing mailbox and recreate it as we will cover later.
 ## Coping with failure
 
 Let's say we have spawned a task out on the network and are waiting for some
-reply from a job we posted to it. It may be that we can't be sure that it will
+reply from a job we posted to it. It may be that we can't be sure that it'll
 ever reply back to us if somebody is allowed to pull out the link between our
 node and that other node ! An application that wished to survive such a failure
 event will need to restart the task and retry the job.
@@ -239,7 +239,7 @@ to send off a job.
 		(. val :erase :job)))
 ```
 
-When the library wishes to create a new child task, it will call our `(create)`
+When the library wishes to create a new child task, it'll call our `(create)`
 function. The `key` parameter will be the assigned task handle, not a mailbox
 ID, just a number we use to look up this tasks record. The `val` parameter is
 an `emap` object, one per child, where we store information to track this
@@ -247,10 +247,10 @@ child's state. The `nodes` parameter is the list of currently known network
 nodes, we get to choose where we will open the child task from this list.
 
 Here we pick a network node at random and send off an open task request to that
-node, when the reply comes in it will be to the `+select_task` mailbox and
+node, when the reply comes in it'll be to the `+select_task` mailbox and
 contain the `key` so we can retrieve the child's record.
 
-When the library wishes to destroy a child task, it will call our `(destroy)`
+When the library wishes to destroy a child task, it'll call our `(destroy)`
 function. Here we look to see if we ever received the tasks network ID, and if
 so send off a `quit` message to it. Then look to see if it had an outstanding
 job request, and if it did, we push the request back onto the job que.
@@ -333,7 +333,7 @@ called.
 In this way, the application will have all the jobs processed, any that die for
 whatever reason will be restarted and the outstanding jobs won't be lost.
 
-The child task is also robust in that it will self quit if it is orphaned. Too
+The child task is also robust in that it'll self quit if it is orphaned. Too
 long to receive some work, 5 seconds here, and it goes away.
 
 ```vdu

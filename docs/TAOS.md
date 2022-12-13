@@ -184,7 +184,7 @@ Some readers may be familiar with dynamic linking. Taos dynamic binding is more
 than dynamic linking. Code units are brought into memory only when needed. This
 is how it works:
 
-As a process executes it will ask for a named piece of code, a tool. This will
+As a process executes it'll ask for a named piece of code, a tool. This will
 be brought in from disk and translated into native code, before being executed.
 This tool may, in turn, call further tools, following the above procedure. Once
 a tool has finished being executed, it may be removed from memory if no other
@@ -404,7 +404,7 @@ Another feature of this execution mechanism is that only those components which
 are needed are ever loaded. If you design your application so that it is built
 of hierarchically structured Control objects, then code will only ever be
 loaded if it is executed. If the path of execution does not pass the particular
-component then it will not be loaded and thus occupy no space. So, the amount
+component then it'll not be loaded and thus occupy no space. So, the amount
 of memory consumed is kept to an absolute minimum and is driven by the
 execution of the program.
 

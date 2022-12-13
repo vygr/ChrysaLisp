@@ -138,7 +138,7 @@ B2
 You can predicate over a sequence or slice of a sequence, forwards or backwards
 by use of the `(some! start end mode lambda (list seq ...))` function. You
 provide the function that will be called for the group of elements from each
-index position, you can decide if it will exit if that function returns a `:nil`
+index position, you can decide if it'll exit if that function returns a `:nil`
 or not. `(some)` `(every)` `(notany)` and `(notevery)` are macros that assume
 the index values cover the full extent of the sequence and set the break out
 option, plus take the sequence list as arguments rather than an explicit list.

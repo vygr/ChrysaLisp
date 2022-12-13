@@ -40,7 +40,7 @@ constant `42` to `:r3`. Sounds simple enough. So we just emit:
 Job done, yes ? Err, no. You've just corrupted what was in `:r1` prior to
 copying it to `:r2` ! The `(assign)` function does a topological sort on the
 parameters you provide to make sure this does not happen ! If it cannot
-guarantee a cycle free set of copy instructions then it will throw an error and
+guarantee a cycle free set of copy instructions then it'll throw an error and
 expect you to sort the problem out. This happens far less often than you might
 imagine, but occasionally you will need to break the cycle with a temp
 register.
@@ -330,8 +330,8 @@ any future source or destination items.
 
 If you don't provide a qualifier for the copy type, `i ui s us b ub`,
 `(assign)` will attempt to lookup the type as declared in any `(def-struct)`
-for that field. If not found or not a symbol it will default to a long. If the
-type is found it will use the correct VP copy instruction that matches the
+for that field. If not found or not a symbol it'll default to a long. If the
+type is found it'll use the correct VP copy instruction that matches the
 field type.
 
 This saves a huge amount of finger trouble with field accesses and is the

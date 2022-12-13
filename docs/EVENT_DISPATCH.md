@@ -59,7 +59,7 @@ inherit from, and extended fields for each individual event type.
 (structure +ev_msg_exit +ev_msg_size)
 ```
 
-When an event is received, it will be targeted at a particular target object,
+When an event is received, it'll be targeted at a particular target object,
 one of the buttons, or a scroll bar, or a textfield etc. The
 `+ev_msg_target_id` field contains the id of that target UI widget.
 

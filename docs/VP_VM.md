@@ -221,7 +221,7 @@ Simple answer is there is none. The better answer is that all calls, apart from
 host OS ABI calls, take parameters in registers and not via the stack ! All
 functions define their register inputs and outputs, and document register
 trashes if they can. The `(assign)` function will do any parameter mapping and
-copying for you, it will tell you if it can't due to a circular mapping so you
+copying for you, it'll tell you if it can't due to a circular mapping so you
 can add a temp. Assignment will not attempt to spill to the stack or assign
 temp registers !
 

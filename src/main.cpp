@@ -392,7 +392,7 @@ int folder_visit_remove(const char *fname, int state)
 /*
 	int64_t pii_remove(const char *fqname) -> 0 | -1
 	Will remove a file or a directory
-	If a directory name is given, it will walk
+	If a directory name is given, it'll walk
 	the directory and remove all files and
 	subdirectories in it's path
 */

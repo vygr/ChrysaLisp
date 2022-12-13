@@ -228,7 +228,7 @@ An example from the `:draw` method of the Textfield class:
 ## (raise field | (var val) ...) -> (defq var (get field this) ...)
 
 This, and `(lower ...)` the opposite, is a macro to pull instance data
-properties into the method lambda. It will declare, with `(defq ...)`, each
+properties into the method lambda. it'll declare, with `(defq ...)`, each
 property as a local var without the leading ':'.
 
 Optionally you can add extras to the generated `(defq ...)` if required by
