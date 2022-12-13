@@ -118,7 +118,7 @@ It is possible to unbind a symbol by using `(undef)` like so.
 :nil
 ```
 
-`(get)` can take an optional environment to work from. `(get sym e)` and if
+`(get)` can take an optional environment to work from. `(get sym [e])` and if
 given the search for the symbol binding will start from that environment.
 
 A string can be 'interned' by user code by use of the `(sym)` function. This is
@@ -176,14 +176,14 @@ processes have as their shared parent environment. It's populated via the
 
 ### Function environments
 
-Every function, ie. lambda or macro, that's called is provided with it's own
+Every function, ie. lambda or macro, that's called is provided with its own
 empty environment, the parent of that environment is the current environment
 present at invocation.
 
 This environment is initially populated with the formal parameter symbols,
 bound to the arguments that are passed to said function on invocation. So
 before your function body starts to run it will already be able to 'see' the
-formal parameter symbol bindings. It is then free to add more and use the
+formal parameter symbol bindings. It's then free to add more and use the
 current bindings as it wishes.
 
 `(defq)` or `(bind)` functions will always bind symbols in the current

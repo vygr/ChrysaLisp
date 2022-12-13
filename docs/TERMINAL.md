@@ -55,7 +55,7 @@ Commands are lisp programs and, as such, have support for including other
 files. This enables resolution and re-use of terms and functions that enhance
 and enable the processing of the command. The defacto standard for ChrysaLisp
 reusable libraries to locate them under the `lib/` folder where each library
-has it's own subfolder. Within these subfolders you will find one or more files
+has its own subfolder. Within these subfolders you will find one or more files
 that have an `.inc` extension.
 
 ## Hello World example
