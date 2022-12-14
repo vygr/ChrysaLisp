@@ -10,6 +10,10 @@ environment to act on. Defaults to the current environment as before.
 Changed `(env-resize num [env])` to take optional environment, default to
 current, to match other env functions.
 
+Removed `*debug_mode* 2` as the guard page system won't work under the new
+MacOS execution restrictions and since the move to Lisp source for most day to
+day coding, this hasn't been used for years now.
+
 ------
 
 Remove unsupported source. Available in the repo history if folks want to dig

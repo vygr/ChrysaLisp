@@ -2,7 +2,7 @@
 ; Stack frames
 ;;;;;;;;;;;;;;
 
-(when (>= *debug_mode* 1)
+(when (> *debug_mode* 0)
 	(import "sys/lisp.inc")
 
 	(defq *stack_frame* (list) *stack_return_vals* (list))

@@ -286,8 +286,6 @@ compile option for the system. The various mode are:
 
 * 1 normal, with error checking
 
-* 2 guarded, with error checking and guard pages
-
 The `(errorcases)`, `(errorif)` and `(errorifnot)` macros alow you to
 conditionally include source code if the `*debug_mode*` is greater than 0.
 

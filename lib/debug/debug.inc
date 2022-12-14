@@ -2,7 +2,7 @@
 ; Debuging
 ;;;;;;;;;;
 
-(when (>= *debug_mode* 1)
+(when (> *debug_mode* 0)
 	(import "apps/debug/app.inc")
 
 	(defq *debug_return_vals* (list))
