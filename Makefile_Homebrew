@@ -27,6 +27,7 @@ hostenv:
 	@echo $(CPU) > arch
 	@echo $(OS) > platform
 	@echo $(ABI) > abi
+	mkdir -p obj/$(CPU)/$(ABI)/$(OS)	
 
 snapshot:
 	rm -f snapshot.zip
