@@ -32,10 +32,6 @@ hostenv:
 snapshot:
 	rm -f snapshot.zip
 	zip -9q snapshot.zip \
-		obj/x86_64/AMD64/Darwin \
-		obj/x86_64/AMD64/Linux \
-		obj/aarch64/ARM64/Linux \
-		obj/aarch64/ARM64/Darwin \
 		obj/vp64/VP64/sys/boot_image \
 		`find obj -name "main_gui.exe"` \
 		`find obj -name "main_tui.exe"`
