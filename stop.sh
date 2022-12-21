@@ -2,7 +2,7 @@
 killall main_gui -KILL > /dev/null 2>&1
 killall main_tui -KILL > /dev/null 2>&1
 
-export TEMP="/tmp/"
+export TEMP=/tmp/ChrysaLisp
 mkdir -p $TEMP
 
 # report how many link files are being removed
