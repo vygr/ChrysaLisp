@@ -183,8 +183,8 @@ provided and if you included a default.
 
 ## Macros can be nested
 
-The `(macroexpand)` function, called by the REPL, expands macros in depth first
-order, from left to right, top to bottom.
+The `(macroexpand)` function, called by the REPL, expands macros from left to
+right, top to bottom.
 
 It's perfectly OK to have nested macro forms, just remember that the lower
 macros will get to 'eat' the results of the higher macros !
