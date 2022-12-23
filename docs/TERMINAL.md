@@ -107,8 +107,8 @@ entry which is the name of the command
 
 * Lines 21 through 25 - The body of the command
 
-This is the `dump` command that outputs a nicely format hex dump of `stdin` or
-files given on the command args.
+This is the `dump` command that outputs a nicely formatted hex dump of `stdin`
+or files given on the command args.
 
 ```file
 cmd/dump.lisp
