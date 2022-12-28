@@ -36,7 +36,7 @@ your source look nice. Or bind symbols to registers, via `(method-input)` and
 great example of this is the `'canvas :fpoly`, or the `'pixmap :resize_2`
 functions.
 
-### VP Assembler
+### VP Assembler instructions
 
 #### Constant to register
 
@@ -175,8 +175,8 @@ functions.
 #### Push, Pop
 
 ```vdu
-(vp-push rx ry ...)
-(vp-pop rx ry ...)
+(vp-push rs rs ...)
+(vp-pop rd rd ...)
 
 (vp-alloc c)
 (vp-free c)
@@ -209,11 +209,71 @@ functions.
 ```
 
 ```vdu
-(vp-abs r &optional rd)
+(vp-abs rd &optional rd)
 (vp-min rs rd &optional rd)
 (vp-max rs rd &optional rd)
 (vp-vec op rsv rdv)
 ```
+
+Register op keys:
+
+* c, constant
+
+* r, register
+
+* i, constant index
+
+* cr, constant to register
+
+* rr, register to register
+
+* rrr, register pair by register to register pair
+
+* rd, destination register
+
+* rs, source register
+
+* rdh, destination register, high
+
+* rdl, destination register, low
+
+* rb, base register
+
+* ri, index register
+
+* rt, temp register
+
+* rsv, source register vector
+
+* rdv, destination register vector
+
+Memory op suffix keys:
+
+* ri, register to base indexed, index is a constant byte offset, 8 byte data
+item if no qualifier
+
+* rd, register to base indexed, index is a register byte offset, 8 byte
+data item if no qualifier
+
+* ir, base indexed to register, index is a constant byte offset, 8 byte
+data item if no qualifier
+
+* dr, base indexed to register, index is a register byte offset, 8 byte
+data item if no qualifier
+
+Memory op data type qualifier keys:
+
+* b, 1 byte data item, sign extended on read
+
+* s, 2 byte data item, sign extended on read
+
+* i, 4 byte data item, sign extended on read
+
+* ub, 1 byte data item, zero extended on read
+
+* us, 2 byte data item, zero extended on read
+
+* ui, 4 byte data item, zero extended on read
 
 ## Calling Convention
 
