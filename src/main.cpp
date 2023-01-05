@@ -338,7 +338,7 @@ int walk_directory(char* path,
 		{
 			if((strcmp(ent->d_name, ".") != 0) && (strcmp(ent->d_name, "..") != 0))
 			{
-				sprintf(NulPosition, "%c%s", slash, ent->d_name);
+				snprintf(NulPosition, sizeof(ent->d_name), "%c%s", slash, ent->d_name);
 				if (ent->d_type == DT_DIR)
 				{
 					if (walk_directory(path, filevisitor, foldervisitor))
