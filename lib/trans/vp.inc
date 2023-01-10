@@ -52,8 +52,8 @@
 (defq +emit_funcs (reduce (lambda (e (k v))
 	(if (starts-with "emit" k) (def e k v)) e) (tolist (env)) (env 11)))
 
-(defun emit-translate (vp_code)
-	; (emit-translate vp_code) -> func_binary
+(defun emit-translate (emit_code)
+	; (emit-translate emit_code) -> func_binary
 	(env-resize 31)
 	(defq out_buf "" old_out_buf "" *pass* 0 *pc* 0 *branches* (clear '())
 		*out_stream* (string-stream out_buf))
@@ -70,14 +70,14 @@
 					(push op (dec (length (push *branches* 0))))))
 			;bind emit func
 			(elem-set 0 op (def? e +emit_funcs)))
-		(list vp_code))
+		(list emit_code))
 	;multi pass of native emit functions
-	(eval vp_code)
+	(eval emit_code)
 	(setq out_buf (str *out_stream*) *pass* (inc *pass*))
 	(until (eql out_buf old_out_buf)
 		(task-slice)
 		(defq b old_out_buf old_out_buf out_buf *out_stream* (string-stream b) *pc* 0)
-		(eval vp_code)
+		(eval emit_code)
 		(setq out_buf (str *out_stream*) *pass* (inc *pass*)))
 	out_buf)
 
