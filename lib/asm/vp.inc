@@ -23,7 +23,9 @@
 	`(push *emit_list* ~_))
 
 (defun emit-print (_)
-	(unless (eql (elem-get 0 _) 'lambda) (print _)))
+	(unless (or (eql (elem-get 0 _) 'lambda)
+				(eql _ 'progn))
+		(print _)))
 
 (defun emit-vp-code (emit_list)
 	;remove redundant labels and rename
@@ -45,6 +47,7 @@
 				(elem-set _ _l e)))
 		(lambda (l) :nil)
 		(lambda (l)))
+	(when *debug_emit* (each emit-print out))
 	out)
 
 ;;;;;;;;;;;;;;

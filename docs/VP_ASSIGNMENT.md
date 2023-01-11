@@ -279,6 +279,15 @@ post opt:
 	(vp-cpy-ir :rsp (+ 16 0) :v2)
 ```
 
+You can wrap the `(def-func-end)` of a VP function or method with the following
+to see the final VP code output.
+
+```vdu
+(let ((*debug_emit* :t))
+	(def-func-end)
+)
+```
+
 `*debug_mode*` setting in the `class/lisp/boot.inc` file lets you set the
 compile option for the system. The various mode are:
 

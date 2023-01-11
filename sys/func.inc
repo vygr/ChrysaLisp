@@ -66,8 +66,6 @@
 	(vp-align +ptr_size)
 (vp-label 'fn_end)
 	(opt-emit-list *emit_list* *emit_start* *emit_end*)
-	(when *debug_emit*
-		(each emit-print *emit_list*))
 	(defq out (emit-translate (emit-vp-code *emit_list*)))
 	(if (> (length *func_syms*) 0)
 		(apply undef (cat (list *compile_env*) *func_syms*)))
