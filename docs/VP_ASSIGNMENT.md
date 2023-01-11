@@ -288,6 +288,55 @@ to see the final VP code output.
 )
 ```
 
+For example the `array :append` method.
+
+```vdu
+(emit-label '_0)
+(emit-long -1)
+(emit-short _7 _2 _5 _6 4096)
+(emit-label '_1)
+(emit-string "class/array/append")
+(emit-byte 0)
+(emit-byte (- _2 _1))
+(emit-align 8 (- _2 _1))
+(emit-label '_2)
+(emit-cmp-rr :r3 :r2)
+(emit-beq _4)
+(emit-cpy-rr :r1 :r6)
+(emit-cpy-rr :r2 :r7)
+(emit-cpy-rr :r3 :r8)
+(emit-cpy-ir-ui :r0 24 :r9)
+(emit-sub-rr :r2 :r3)
+(emit-lea-d :r3 :r9 :r1)
+(emit-cpy-ri-i :r1 :r0 24)
+(emit-call-p _5)
+(emit-cpy-ir :r6 16 :r1)
+(emit-shl-cr 3 :r7)
+(emit-shl-cr 3 :r8)
+(emit-add-rr :r1 :r7)
+(emit-add-rr :r1 :r8)
+(emit-cpy-ir :r0 16 :r1)
+(emit-shl-cr 3 :r9)
+(emit-add-rr :r1 :r9)
+(emit-label '_3)
+(emit-cpy-ir :r7 0 :r1)
+(emit-add-cr 8 :r9)
+(emit-add-cr 8 :r7)
+(emit-cpy-ri :r1 :r9 -8)
+(emit-cmp-rr :r8 :r7)
+(emit-bne _3)
+(emit-label '_4)
+(emit-ret)
+(emit-align 8 :nil)
+(emit-label '_5)
+(emit-long (- _6 *pc*))
+(emit-label '_6)
+(emit-string "class/array/set_capacity")
+(emit-byte 0)
+(emit-align 8 :nil)
+(emit-label '_7)
+```
+
 `*debug_mode*` setting in the `class/lisp/boot.inc` file lets you set the
 compile option for the system. The various mode are:
 
