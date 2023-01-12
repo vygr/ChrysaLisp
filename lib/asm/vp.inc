@@ -46,7 +46,7 @@
 			(and (sym? e) (defq e (def? e labels))
 				(elem-set _ _l e)))
 		(lambda (l) :nil)
-		(lambda (l)))
+		(lambda (l) :t))
 	(when *debug_emit* (each emit-print out))
 	out)
 

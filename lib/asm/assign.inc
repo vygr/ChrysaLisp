@@ -12,7 +12,7 @@
 	(walk-list (defq s (copy s))
 		(lambda (e) (and (sym? e) (eql (elem-get 0 e) ":") (elem-set _ _l (get e))))
 		(lambda (l) :nil)
-		(lambda (l))) s)
+		(lambda (l) :t)) s)
 
 (defun assign-ignored-to-asm ()
 	(defq s (list) d (list))
