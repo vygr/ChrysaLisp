@@ -288,7 +288,7 @@ to see the final VP code output.
 )
 ```
 
-For example the `array :append` method.
+For example the `'array :append` method.
 
 ```vdu
 (emit-label '_0)
