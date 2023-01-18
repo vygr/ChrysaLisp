@@ -15,6 +15,8 @@ more...
 ![](./screen_shot_7.png)
 ![](./screen_shot_8.png)
 
+Join us at #ChrysaLisp-OS:matrix.org for banter. https://element.io/
+recommended.
 
 It runs on MacOS, Windows or Linux for x64, MacOS or Linux for Aarch64. Will
 move to bare metal eventually but it's useful for now to run hosted while
