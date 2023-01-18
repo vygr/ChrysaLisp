@@ -1,10 +1,16 @@
 # ChrysaLisp
 
-Assembler/C-Script/Lisp 64 bit, MIMD, multi CPU, multi threaded, multi core,
-multi user Parallel OS. With GUI, Terminal, OO Assembler, Class libraries,
-C-Script compiler, Lisp interpreter, Debugger, Profiler, Vector Font engine and
-more...
-
+ChrysaLisp is a 64-bit, MIMD, multi-CPU, multi-threaded, multi-core, multi-user
+parallel operating system with features such as a GUI, terminal, OO Assembler,
+class libraries, C-Script compiler, Lisp interpreter, debugger, profiler,
+vector font engine, and more. It supports MacOS, Windows, and Linux for x64 and
+Aarch64 and eventually will move to bare metal. It also allows the modeling of
+various network topologies and the use of USB-links for joining heterogeneous
+host networks. It has a virtual CPU instruction set and a powerful object and
+class system for the assembler and high-level languages. It also has
+function-level dynamic binding and loading and a command terminal with a
+familiar interface for pipe-style command line applications. A Common Lisp-like
+interpreter is also provided.
 
 ![](./screen_shot_1.png)
 ![](./screen_shot_2.png)
@@ -18,52 +24,57 @@ more...
 Join us at #ChrysaLisp-OS:matrix.org for banter. https://element.io/
 recommended.
 
-It runs on MacOS, Windows or Linux for x64, MacOS or Linux for Aarch64. Will
-move to bare metal eventually but it's useful for now to run hosted while
-experimenting. When time allows I will be doing a VM boot image for UniKernel
-type appliances and a WebAssembly target to play around within the browser.
+ChrysaLisp can be used on MacOS, Windows, Linux for x64, MacOS, or Linux for
+Aarch64. Currently, it runs on a hosted environment while experimentation is
+being done, but eventually it will be transitioned to run on bare metal. In the
+future, I plan to create a VM boot image for UniKernel appliances and a
+WebAssembly target for use within web browsers.
 
-You can model various network topologies with point to point links. Each CPU in
-the network is modelled as a separate host process, point to point links use
-shared memory to simulate CPU to CPU, point to point, bi directional
-connections. There is no global bus based networking on purpose.
+ChrysaLisp allows for the simulation of various network topologies utilizing
+point-to-point links. Each CPU in the network is represented as a separate host
+process, and point-to-point links utilize shared memory to simulate CPU-to-CPU,
+bidirectional connections. The design intentionally does not include global
+bus-based networking.
 
-The usb-links branch has the ability to use a usb3/usb2 Prolific chip 'copy'
-cable to join heterogeneous host networks ! This demonstrates that the
-simulated peer to peer network on a single machine does actually translate to
-real world parallel hardware ! Plus it's rather cool to string your MacBook and
-Windows laptops together with your PI4's to create your own dev network.
+The "usb-links" branch enables the use of a USB3/USB2 Prolific chip "copy"
+cable to connect heterogeneous host networks. This feature demonstrates that
+the simulated peer-to-peer network on a single machine can be applied to actual
+parallel hardware. Additionally, it allows users to connect their MacBooks,
+Windows laptops and PI4's to create their own development network, which is
+pretty cool.
 
-There is a virtual CPU instruction set to avoid use of x64/ARM/VP64 native
-instructions. Currently it compiles directly to native code but there is no
-reason it can't also go via a byte code form and runtime translation.
+ChrysaLisp uses a virtual CPU instruction set to eliminate the use of x64, ARM,
+or VP64 native instructions. Currently, it compiles directly to native code,
+but it has the capability to also be translated to byte code form and use
+runtime translation.
 
-Register juggling for parameter passing is eliminated by having all functions
-define their register interface and parameter source and destinations are
-mapped automatically using a topological sort. Non DAG mappings are detected so
-the user can break them with a temporary if required. Operators are provided to
-simplify binding of parameters to dynamic bound functions, relative addresses,
-auto defined string pools, references and local stack frame values. Unused
-output parameters can be ignored with an _.
+To avoid the need for register juggling for parameter passing, all functions
+define their register interface, and parameter sources and destinations are
+automatically mapped using a topological sort. If non-DAG mappings are
+detected, the user can address them with a temporary. The software also
+includes operators to make it easy to bind parameters to dynamic bound
+functions, relative addresses, auto-defined string pools, references, and local
+stack frame values. Output parameters that are not used can be ignored with an
+underscore.
 
-There is a powerful object and class system, not just for an assembler, but
-quite as capable as a high level language. Static classes or virtual classes
-with inline, virtual, final, static and override methods can be defined. The
-GUI and Lisp are constructed using this class system.
+ChrysaLisp has a powerful object and class system that is not limited to just
+the assembler but is quite as capable as a high level language. It allows for
+the definition of static classes or virtual classes with inline, virtual,
+final, static, and override methods. The GUI and Lisp are built using this
+class system.
 
-It has function level dynamic binding and loading. Individual functions are
-loaded and bound on demand as tasks are created and distributed. Currently
-functions are loaded from the CPU file system on which the task finds itself,
-but these will eventually come from the server object that the task was created
-with and functions will be transported across the network as required.
-Functions are shared between all tasks that share the same server object, so
-only a single copy of a function is loaded regardless of how many tasks use
-that function.
+It has function-level dynamic binding and loading. Functions are loaded and
+bound on demand as tasks are created and distributed. Currently, functions are
+loaded from the CPU file system where the task is located, but in the future,
+they will come from the server object that the task was created with and will
+be transported across the network as needed. Functions are shared among all
+tasks that use the same server object, so only one copy of a function is
+loaded, regardless of how many tasks use it.
 
-The interface to the system functions is provided as a set of static classes,
-easing use and removing the need to remember static function locations, plus
-decoupling the source from changes at the system level. Look in the
-*sys/xxx.inc* files to see the interface definitions.
+The system functions are accessed through a set of static classes, which makes
+it easy to use and eliminates the need to remember static function locations,
+and also decouples the source from changes at the system level. The interface
+definitions for these functions can be found in the *sys/xxx.inc* files.
 
 A command terminal with a familiar interface for pipe style command line
 applications is provided with args vector, stdin, stdout, stderr etc. Classes
