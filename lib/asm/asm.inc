@@ -251,39 +251,30 @@
 ; cross platform make
 ;;;;;;;;;;;;;;;;;;;;;
 
+(defq +suported_abi ''(AMD64  WIN64  ARM64 RISCV64))
+(defq +suported_cpu ''(x86_64 x86_64 arm64 riscv64))
+
 (defun make-platforms ()
 	(defq files (all-vp-files))
-	(make files 'AMD64 'x86_64)
-	(make files 'WIN64 'x86_64)
-	(make files 'ARM64 'arm64)
-	(make files 'RISCV64 'riscv64)
+	(each (# (make files %0 %1)) +suported_abi +suported_cpu)
 	(defq *debug_mode* 0)
 	(make files 'VP64 'vp64))
 
 (defun make-all-platforms ()
 	(defq files (all-vp-files))
-	(make-all 'AMD64 'x86_64 files)
-	(make-all 'WIN64 'x86_64 files)
-	(make-all 'ARM64 'arm64 files)
-	(make-all 'RISCV64 'riscv64 files)
+	(each (# (make-all %0 %1 files)) +suported_abi +suported_cpu)
 	(defq *debug_mode* 0)
 	(make-all 'VP64 'vp64 files))
 
 (defun remake-platforms ()
 	(defq files (all-vp-files))
-	(remake 'AMD64 'x86_64 files)
-	(remake 'WIN64 'x86_64 files)
-	(remake 'ARM64 'arm64 files)
-	(remake 'RISCV64 'riscv64 files)
+	(each (# (remake %0 %1 files)) +suported_abi +suported_cpu)
 	(defq *debug_mode* 0)
 	(remake 'VP64 'vp64 files))
 
 (defun remake-all-platforms ()
 	(defq files (all-vp-files))
-	(remake-all 'AMD64 'x86_64 files)
-	(remake-all 'WIN64 'x86_64 files)
-	(remake-all 'ARM64 'arm64 files)
-	(remake-all 'RISCV64 'riscv64 files)
+	(each (# (remake-all %0 %1 files)) +suported_abi +suported_cpu)
 	(defq *debug_mode* 0)
 	(remake-all 'VP64 'vp64 files))
 
