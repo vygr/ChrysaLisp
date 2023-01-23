@@ -91,15 +91,15 @@ capability to allow mixing of C-Script compiled expressions within assignment
 and function calling code. An elementary optimise pass exists for these
 expressions. Both the virtual assembler and C-Script compiler are written in
 Lisp, look in the *sys/code.inc*, *lib/asm/xxx.inc*, *sys/func.inc*,
-*lib/trans/x64.inc*, *lib/trans/arm64.inc* and *lib/asm/vp.inc* for how this is
-done. Some of the Lisp primitives are constructed via a boot script that each
-instance of a Lisp class runs on construction, see *class/lisp/boot.inc* for
-details. The compilation and make environment, along with all the compile and
-make commands are created via the Lisp command line tool in *lib/asm/asm.inc*,
-again this auto runs for each instance of the `lisp` command run from the
-terminal. You can extend this with any number of additional files, just place
-them after the lisp command and they will execute after the *lib/asm/asm.inc*
-file and before processing of stdin.
+*lib/trans/x86_64.inc*, *lib/trans/arm64.inc* and *lib/asm/vp.inc* for how this
+is done. Some of the Lisp primitives are constructed via a boot script that
+each instance of a Lisp class runs on construction, see *class/lisp/boot.inc*
+for details. The compilation and make environment, along with all the compile
+and make commands are created via the Lisp command line tool in
+*lib/asm/asm.inc*, again this auto runs for each instance of the `lisp` command
+run from the terminal. You can extend this with any number of additional files,
+just place them after the lisp command and they will execute after the
+*lib/asm/asm.inc* file and before processing of stdin.
 
 Don't get the idea that due to being coded in interpreted Lisp the assembler
 and compiler will be slow. A fully cleaned system build from source, including

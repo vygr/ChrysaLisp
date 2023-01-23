@@ -24,7 +24,7 @@ simple load/store addressing modes.
 ```
 
 These are mapped to real physical registers by the target processor 'emit'
-functions, look in `lib/trans/x64.inc` and `lib/trans/arm64.inc`. On certain
+functions, look in `lib/trans/x86_64.inc` and `lib/trans/arm64.inc`. On certain
 processors, like the x86_64, it's worth knowing that `:r0` and `:r2` are mapped
 to rax and rdx when it comes to scheduling VP div and rem code ! It makes no
 difference to the arm64 emit functions, so one does tend to make VP divide code
