@@ -233,18 +233,18 @@
 			(each-mergeable (# (make-merge *prods* (bind '(d %0) (make-info %0))) (make-merge _l d))
 				(all-vp-files)) *prods*)) *abi* *cpu*))
 
-(defun make-all (&optional *abi* *cpu* files)
+(defun make-all (&optional files *abi* *cpu*)
 	(setd *abi* (abi) *cpu* (cpu))
 	(compile (opt files (all-vp-files)) *abi* *cpu*))
 
-(defun remake (&optional *abi* *cpu* files)
+(defun remake (&optional files *abi* *cpu*)
 	(setd *abi* (abi) *cpu* (cpu))
 	(make files *abi* *cpu*)
 	(make-boot-all *abi* *cpu*))
 
-(defun remake-all (&optional *abi* *cpu* files)
+(defun remake-all (&optional files *abi* *cpu*)
 	(setd *abi* (abi) *cpu* (cpu))
-	(make-all *abi* *cpu* files)
+	(make-all files *abi* *cpu*)
 	(make-boot-all *abi* *cpu*))
 
 ;;;;;;;;;;;;;;;;;;;;;
@@ -262,21 +262,21 @@
 
 (defun make-all-platforms ()
 	(defq files (all-vp-files))
-	(each (# (make-all %0 %1 files)) +supported_abi +supported_cpu)
+	(each (# (make-all files %0 %1)) +supported_abi +supported_cpu)
 	(defq *debug_mode* 0)
-	(make-all 'VP64 'vp64 files))
+	(make-all files 'VP64 'vp64))
 
 (defun remake-platforms ()
 	(defq files (all-vp-files))
-	(each (# (remake %0 %1 files)) +supported_abi +supported_cpu)
+	(each (# (remake files %0 %1)) +supported_abi +supported_cpu)
 	(defq *debug_mode* 0)
-	(remake 'VP64 'vp64 files))
+	(remake files 'VP64 'vp64))
 
 (defun remake-all-platforms ()
 	(defq files (all-vp-files))
-	(each (# (remake-all %0 %1 files)) +supported_abi +supported_cpu)
+	(each (# (remake-all files %0 %1)) +supported_abi +supported_cpu)
 	(defq *debug_mode* 0)
-	(remake-all 'VP64 'vp64 files))
+	(remake-all files 'VP64 'vp64))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;
 ; compile and make tests
