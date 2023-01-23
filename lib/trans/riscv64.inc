@@ -180,12 +180,6 @@
 (defun emit-call-p (l) (emit-call-jmp-p (next-opcode 2) l))
 (defun emit-jmp-p (l) (emit-call-jmp-p (next-opcode 2) l))
 
-(defun emit-call-abi (r b c n &rest x)
-	(cond
-		((<= 0 c (const (- 0x10000 +ptr_size)))
-			(emit-short (+ (next-opcode) (<< b 8) (<< n 12)) c))
-		(:t  (throw "emit-call-abi constant out of range !" c))))
-
 (defun emit-alloc (c) (emit-sub-cr (align c stack_align) (const (emit-native-reg? :rsp))))
 (defun emit-free (c) (emit-add-cr (align c stack_align) (const (emit-native-reg? :rsp))))
 (defun emit-ret () (emit-short (next-opcode)))
@@ -209,3 +203,9 @@
 	(emit-sub-cr (+ tk_state_size (* +ptr_size 2)) s)
 	(emit-cpy-ri f s tk_state_size)
 	(emit-cpy-ri x s (+ tk_state_size +ptr_size)))
+
+(defun emit-call-abi (r b c n &rest x)
+	(cond
+		((<= 0 c (const (- 0x10000 +ptr_size)))
+			(emit-short (+ (next-opcode) (<< b 8) (<< n 12)) c))
+		(:t  (throw "emit-call-abi constant out of range !" c))))
