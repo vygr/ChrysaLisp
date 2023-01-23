@@ -251,30 +251,30 @@
 ; cross platform make
 ;;;;;;;;;;;;;;;;;;;;;
 
-(defq +suported_abi ''(AMD64  WIN64  ARM64 RISCV64))
-(defq +suported_cpu ''(x86_64 x86_64 arm64 riscv64))
+(defq +supported_abi ''(AMD64  WIN64  ARM64 RISCV64))
+(defq +supported_cpu ''(x86_64 x86_64 arm64 riscv64))
 
 (defun make-platforms ()
 	(defq files (all-vp-files))
-	(each (# (make files %0 %1)) +suported_abi +suported_cpu)
+	(each (# (make files %0 %1)) +supported_abi +supported_cpu)
 	(defq *debug_mode* 0)
 	(make files 'VP64 'vp64))
 
 (defun make-all-platforms ()
 	(defq files (all-vp-files))
-	(each (# (make-all %0 %1 files)) +suported_abi +suported_cpu)
+	(each (# (make-all %0 %1 files)) +supported_abi +supported_cpu)
 	(defq *debug_mode* 0)
 	(make-all 'VP64 'vp64 files))
 
 (defun remake-platforms ()
 	(defq files (all-vp-files))
-	(each (# (remake %0 %1 files)) +suported_abi +suported_cpu)
+	(each (# (remake %0 %1 files)) +supported_abi +supported_cpu)
 	(defq *debug_mode* 0)
 	(remake 'VP64 'vp64 files))
 
 (defun remake-all-platforms ()
 	(defq files (all-vp-files))
-	(each (# (remake-all %0 %1 files)) +suported_abi +suported_cpu)
+	(each (# (remake-all %0 %1 files)) +supported_abi +supported_cpu)
 	(defq *debug_mode* 0)
 	(remake-all 'VP64 'vp64 files))
 
