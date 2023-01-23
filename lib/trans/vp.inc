@@ -42,7 +42,7 @@
 (case *cpu*
 (x86_64 (import "lib/trans/x64.inc"))
 (arm64 (import "lib/trans/arm64.inc"))
-(riscv64 (import "lib/trans/arm64.inc"))
+(riscv64 (import "lib/trans/riscv64.inc"))
 (vp64 (import "lib/trans/vp64.inc"))
 (:t (throw "No such CPU !" *cpu*)))
 
