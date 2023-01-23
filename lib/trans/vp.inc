@@ -39,12 +39,9 @@
 ; native emit functions
 ;;;;;;;;;;;;;;;;;;;;;;;
 
-(case *cpu*
-(x86_64 (import "lib/trans/x86_64.inc"))
-(arm64 (import "lib/trans/arm64.inc"))
-(riscv64 (import "lib/trans/riscv64.inc"))
-(vp64 (import "lib/trans/vp64.inc"))
-(:t (throw "No such CPU !" *cpu*)))
+(if (/= 0 (age (defq emit_file (cat "lib/trans/" *cpu* ".inc"))))
+	(import emit_file)
+	(throw "No such CPU !" *cpu*))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; gather all the emit funcs
