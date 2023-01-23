@@ -911,10 +911,16 @@
 ;debug_mode 1, normal, with error checking
 (defq *debug_mode* 1 *debug_emit* :nil *debug_inst* :nil)
 
+(defun os ()
+	; (os) -> sym
+	(defq o 'Linux)
+	(when (defq f (file-stream 'os))
+		(bind '(o _) (read f 32))) o)
+
 (defun cpu ()
 	; (cpu) -> sym
 	(defq o 'x86_64)
-	(when (defq f (file-stream 'arch))
+	(when (defq f (file-stream 'cpu))
 		(bind '(o _) (read f 32))) o)
 
 (defun abi ()

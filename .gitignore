@@ -1,8 +1,8 @@
 obj/*
 src/obj/*
 logs/*
-platform
-arch
+os
+cpu
 abi
 chrysalisp
 *.dll

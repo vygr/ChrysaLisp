@@ -12,10 +12,14 @@ CXXFLAGS += -MMD
 OS := $(shell uname)
 CPU := $(shell uname -m)
 ifeq ($(CPU),x86_64)
-ABI := AMD64
+	ABI := AMD64
 else
-CPU := aarch64
-ABI := ARM64
+	ifeq ($(CPU),riscv64)
+		ABI := RISCV64
+	else
+		CPU := arm64
+		ABI := ARM64
+	endif
 endif
 
 all:		hostenv tui gui
@@ -24,8 +28,8 @@ tui:		hostenv obj/$(CPU)/$(ABI)/$(OS)/main_tui
 install:	clean hostenv tui gui inst
 
 hostenv:
-	@echo $(CPU) > arch
-	@echo $(OS) > platform
+	@echo $(CPU) > cpu
+	@echo $(OS) > os
 	@echo $(ABI) > abi
 	mkdir -p obj/$(CPU)/$(ABI)/$(OS)	
 

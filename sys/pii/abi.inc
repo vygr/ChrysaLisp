@@ -11,10 +11,16 @@
 		(:t (throw "Unknown CPU for AMD64 !" *cpu*))))
 (ARM64
 	(case *cpu*
-		(aarch64
+		(arm64
 			(defmacro abi-trashed () ''(:r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14))
 			(defun abi-args (&optional _ o) (setd _ 8 o 0) (slice o (+ o _) '(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8))))
 		(:t (throw "Unknown CPU for ARM64 !" *cpu*))))
+(RISCV64
+	(case *cpu*
+		(riscv64
+			(defmacro abi-trashed () ''(:r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14))
+			(defun abi-args (&optional _ o) (setd _ 8 o 0) (slice o (+ o _) '(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8))))
+		(:t (throw "Unknown CPU for RISCV64 !" *cpu*))))
 (WIN64
 	(case *cpu*
 		(x86_64

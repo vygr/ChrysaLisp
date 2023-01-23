@@ -3252,6 +3252,12 @@
 (or [tst] ...) -> :nil | tst
 ```
 
+### os
+
+```code
+(os) -> sym
+```
+
 ### out-stream
 
 ```code

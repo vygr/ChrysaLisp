@@ -1,6 +1,6 @@
 @echo off
-@echo Windows > platform
-@echo x86_64 > arch
+@echo Windows > os
+@echo x86_64 > cpu
 @echo WIN64 > abi
 @call stop.bat
 @tar -xf snapshot.zip

@@ -255,7 +255,8 @@
 	(defq files (all-vp-files))
 	(make files 'AMD64 'x86_64)
 	(make files 'WIN64 'x86_64)
-	(make files 'ARM64 'aarch64)
+	(make files 'ARM64 'arm64)
+	(make files 'RISCV64 'riscv64)
 	(defq *debug_mode* 0)
 	(make files 'VP64 'vp64))
 
@@ -263,7 +264,8 @@
 	(defq files (all-vp-files))
 	(make-all 'AMD64 'x86_64 files)
 	(make-all 'WIN64 'x86_64 files)
-	(make-all 'ARM64 'aarch64 files)
+	(make-all 'ARM64 'arm64 files)
+	(make-all 'RISCV64 'riscv64 files)
 	(defq *debug_mode* 0)
 	(make-all 'VP64 'vp64 files))
 
@@ -271,7 +273,8 @@
 	(defq files (all-vp-files))
 	(remake 'AMD64 'x86_64 files)
 	(remake 'WIN64 'x86_64 files)
-	(remake 'ARM64 'aarch64 files)
+	(remake 'ARM64 'arm64 files)
+	(remake 'RISCV64 'riscv64 files)
 	(defq *debug_mode* 0)
 	(remake 'VP64 'vp64 files))
 
@@ -279,7 +282,8 @@
 	(defq files (all-vp-files))
 	(remake-all 'AMD64 'x86_64 files)
 	(remake-all 'WIN64 'x86_64 files)
-	(remake-all 'ARM64 'aarch64 files)
+	(remake-all 'ARM64 'arm64 files)
+	(remake-all 'RISCV64 'riscv64 files)
 	(defq *debug_mode* 0)
 	(remake-all 'VP64 'vp64 files))
 

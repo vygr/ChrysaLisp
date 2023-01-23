@@ -1,6 +1,6 @@
 @echo off
-@echo Windows > platform
-@echo x86_64 > arch
+@echo Windows > os
+@echo x86_64 > cpu
 @echo WIN64 > abi
 @call stop.bat
 @start /b .\obj\x86_64\WIN64\Windows\main_gui.exe .\obj\x86_64\WIN64\sys\boot_image -l 000-009 -l 001-009 -l 002-009 -l 003-009 -l 004-009 -l 005-009 -l 006-009 -l 007-009 -l 008-009

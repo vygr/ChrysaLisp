@@ -1,7 +1,7 @@
 #useful functions
 
-OS=`cat platform`
-CPU=`cat arch`
+OS=`cat os`
+CPU=`cat cpu`
 ABI=`cat abi`
 
 function zero_pad

@@ -73,9 +73,9 @@ needs to be especially large or even go as far as Busybox. But some of the more
 useful text processing and helpful commands would go a long way.
 
 * Other targets and platform configs. RISC V and MIPS targets. Bare metal PI3
-and other Aarch64 development board support along with GPIO/SPI/I2C and so
-forth for the maker community. SDL over frame buffer version for PI3, maybe
-just needs testing, but needs doing. L4 micro kernel hosted version could prove
+and other arm64 development board support along with GPIO/SPI/I2C and so forth
+for the maker community. SDL over frame buffer version for PI3, maybe just
+needs testing, but needs doing. L4 micro kernel hosted version could prove
 interesting.
 
 * Network wide DHT based object store, provided as a service. I've been

@@ -4,7 +4,7 @@ ChrysaLisp is a 64-bit, MIMD, multi-CPU, multi-threaded, multi-core, multi-user
 parallel operating system with features such as a GUI, terminal, OO Assembler,
 class libraries, C-Script compiler, Lisp interpreter, debugger, profiler,
 vector font engine, and more. It supports MacOS, Windows, and Linux for x64 and
-Aarch64 and eventually will move to bare metal. It also allows the modeling of
+arm64 and eventually will move to bare metal. It also allows the modeling of
 various network topologies and the use of USB-links for joining heterogeneous
 host networks. It has a virtual CPU instruction set and a powerful object and
 class system for the assembler and high-level languages. It also has
@@ -25,7 +25,7 @@ Join us at #ChrysaLisp-OS:matrix.org for banter. https://element.io/
 recommended.
 
 ChrysaLisp can be used on MacOS, Windows, Linux for x64, MacOS, or Linux for
-Aarch64. Currently, it runs on a hosted environment while experimentation is
+arm64. Currently, it runs on a hosted environment while experimentation is
 being done, but eventually it will be transitioned to run on bare metal. In the
 future, I plan to create a VM boot image for UniKernel appliances and a
 WebAssembly target for use within web browsers.
@@ -272,10 +272,6 @@ Used to create the more compact *snapshot.zip* that goes up on Github. This
 must come after creation of `(make-all-platforms)` *boot_image* set !
 
 ```
-obj/x86_64/AMD64/Darwin/
-obj/x86_64/AMD64/Linux/
-obj/aarch64/ARM64/Linux/
-obj/aarch64/ARM64/Darwin/
 obj/vp64/VP64/sys/boot_image
 obj/x86_64/WIN64/Windows/main_gui.exe
 obj/x86_64/WIN64/Windows/main_tui.exe
