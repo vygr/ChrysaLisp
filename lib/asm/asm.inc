@@ -251,7 +251,7 @@
 ; cross platform make
 ;;;;;;;;;;;;;;;;;;;;;
 
-(defq +supported_abi ''(AMD64  WIN64  ARM64 RISCV64)
+(defq +supported_abi ''(AMD64 WIN64 ARM64 RISCV64)
 	+supported_cpu ''(x86_64 x86_64 arm64 riscv64))
 
 (defun make-platforms ()

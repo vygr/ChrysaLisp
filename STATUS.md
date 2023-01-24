@@ -6,7 +6,8 @@
 
 Prep for RISCV64 port. :) The `aarch64` cpu folder has moved to `arm64` to
 follow Apple M1 standard. The RISCV64 outputs VP64 binaries for now, just to
-exercise the framework.
+exercise the framework. The `make install` should now work and a session should
+run provided you specify the `-e` option. ie `./run_tui.sh -e` or `./run.sh -e`
 
 ------
 
