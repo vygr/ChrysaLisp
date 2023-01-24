@@ -652,4 +652,4 @@
 			(emit-sub-cr 32 (const (emit-native-reg? :rsp)))
 			(emit-call-jump-i 0x10 b c)
 			(emit-cpy-ir (const (emit-native-reg? :rsp)) (* +ptr_size (+ (length x) 4)) (const (emit-native-reg? :rsp)))))))
-(:t (throw "Unknown ABI !" *abi*)))
+(:t (throw (cat "Unknown  ABI for CPU " *cpu* " !") *abi*)))

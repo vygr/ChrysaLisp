@@ -507,6 +507,8 @@
 	(emit-jmp-r (const (emit-native-reg? :r0))))
 ;arm_exit
 
+(case *abi*
+(ARM64
 (defun emit-call-abi (r b c n &rest x)
 	(setq x (cat `(,(emit-native-reg? :r30)) x))
 	(apply (const emit-push) x)
@@ -518,4 +520,5 @@
 		((= 2 l)
 			(emit-pop (const (emit-native-reg? :r30)) (const (emit-native-reg? :r29))))
 		(:t  (emit-cpy-ir (const (emit-native-reg? :rsp)) (* +ptr_size (dec l)) (const (emit-native-reg? :r30)))
-			(emit-free (* +ptr_size l)))))
+			(emit-free (* +ptr_size l))))))
+(:t (throw (cat "Unknown  ABI for CPU " *cpu* " !") *abi*)))
