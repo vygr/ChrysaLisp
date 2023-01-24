@@ -3,14 +3,14 @@
 ChrysaLisp is a 64-bit, MIMD, multi-CPU, multi-threaded, multi-core, multi-user
 parallel operating system with features such as a GUI, terminal, OO Assembler,
 class libraries, C-Script compiler, Lisp interpreter, debugger, profiler,
-vector font engine, and more. It supports MacOS, Windows, and Linux for x64 and
-arm64 and eventually will move to bare metal. It also allows the modeling of
-various network topologies and the use of USB-links for joining heterogeneous
-host networks. It has a virtual CPU instruction set and a powerful object and
-class system for the assembler and high-level languages. It also has
-function-level dynamic binding and loading and a command terminal with a
-familiar interface for pipe-style command line applications. A Common Lisp-like
-interpreter is also provided.
+vector font engine, and more. It supports MacOS, Windows, and Linux for x64,
+riscv64 and arm64 and eventually will move to bare metal. It also allows the
+modeling of various network topologies and the use of USB-links for joining
+heterogeneous host networks. It has a virtual CPU instruction set and a
+powerful object and class system for the assembler and high-level languages. It
+also has function-level dynamic binding and loading and a command terminal with
+a familiar interface for pipe-style command line applications. A Common
+Lisp-like interpreter is also provided.
 
 ![](./screen_shot_1.png)
 ![](./screen_shot_2.png)
