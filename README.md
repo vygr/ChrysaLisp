@@ -4,13 +4,13 @@ ChrysaLisp is a 64-bit, MIMD, multi-CPU, multi-threaded, multi-core, multi-user
 parallel operating system with features such as a GUI, terminal, OO Assembler,
 class libraries, C-Script compiler, Lisp interpreter, debugger, profiler,
 vector font engine, and more. It supports MacOS, Windows, and Linux for x64,
-riscv64 and arm64 and eventually will move to bare metal. It also allows the
+Riscv64 and Arm64 and eventually will move to bare metal. It also allows the
 modeling of various network topologies and the use of USB-links for joining
 heterogeneous host networks. It has a virtual CPU instruction set and a
 powerful object and class system for the assembler and high-level languages. It
-also has function-level dynamic binding and loading and a command terminal with
-a familiar interface for pipe-style command line applications. A Common
-Lisp-like interpreter is also provided.
+has function-level dynamic binding and loading and a command terminal with a
+familiar interface for pipe-style command line applications. A Common Lisp-like
+interpreter is also provided.
 
 ![](./screen_shot_1.png)
 ![](./screen_shot_2.png)
@@ -24,11 +24,14 @@ Lisp-like interpreter is also provided.
 Join us at #ChrysaLisp-OS:matrix.org for banter. https://element.io/
 recommended.
 
-ChrysaLisp can be used on MacOS, Windows, Linux for x64, MacOS, or Linux for
-arm64. Currently, it runs on a hosted environment while experimentation is
-being done, but eventually it will be transitioned to run on bare metal. In the
-future, I plan to create a VM boot image for UniKernel appliances and a
-WebAssembly target for use within web browsers.
+ChrysaLisp can be used on MacOS, Windows and Linux. Supports x64, arm64 and
+riscv64 CPUs. It also supports a VP64 software CPU emulator used for the
+install process, but this can be used, with the `-e` option, on platforms where
+no native CPU support currently exits, as the runtime system. It runs on a
+hosted environment while experimentation is being done, but eventually it will
+be transitioned to run on bare metal. In the future, I plan to create a VM boot
+image for UniKernel appliances and a WebAssembly target for use within web
+browsers.
 
 ChrysaLisp allows for the simulation of various network topologies utilizing
 point-to-point links. Each CPU in the network is represented as a separate host
@@ -40,12 +43,12 @@ The "usb-links" branch enables the use of a USB3/USB2 Prolific chip "copy"
 cable to connect heterogeneous host networks. This feature demonstrates that
 the simulated peer-to-peer network on a single machine can be applied to actual
 parallel hardware. Additionally, it allows users to connect their MacBooks,
-Windows laptops and PI4's to create their own development network, which is
-pretty cool.
+Linux, Windows machines and PI4's to create their own development network,
+which is pretty cool.
 
 ChrysaLisp uses a virtual CPU instruction set to eliminate the use of x64, ARM,
-or VP64 native instructions. Currently, it compiles directly to native code,
-but it has the capability to also be translated to byte code form and use
+RISV64, or VP64 native instructions. Currently, it compiles directly to native
+code, but it has the capability to also be translated to byte code form and use
 runtime translation.
 
 To avoid the need for register juggling for parameter passing, all functions
@@ -88,7 +91,7 @@ line, via the command `lisp`. To build the entire system type `(make)`,
 calculates minimum compile workload, or `(make-all)` to do everything
 regardless, at the Lisp command prompt. This Lisp has a C-Script 'snippets'
 capability to allow mixing of C-Script compiled expressions within assignment
-and function calling code. An elementary optimise pass exists for these
+and function calling code. An elementary optimize pass exists for these
 expressions. Both the virtual assembler and C-Script compiler are written in
 Lisp, look in the *sys/code.inc*, *lib/asm/xxx.inc*, *sys/func.inc*,
 *lib/trans/x86_64.inc*, *lib/trans/arm64.inc* and *lib/asm/vp.inc* for how this
