@@ -521,4 +521,4 @@
 			(emit-pop (const (emit-native-reg? :r30)) (const (emit-native-reg? :r29))))
 		(:t  (emit-cpy-ir (const (emit-native-reg? :rsp)) (* +ptr_size (dec l)) (const (emit-native-reg? :r30)))
 			(emit-free (* +ptr_size l))))))
-(:t (throw (cat "Unknown  ABI for CPU " *cpu* " !") *abi*)))
+(:t (throw (cat "Unknown ABI for CPU " *cpu* " !") *abi*)))

@@ -211,4 +211,4 @@
 		((<= 0 c (const (- 0x10000 +ptr_size)))
 			(emit-short (+ (next-opcode) (<< b 8) (<< n 12)) c))
 		(:t  (throw "emit-call-abi constant out of range !" c)))))
-(:t (throw (cat "Unknown  ABI for CPU " *cpu* " !") *abi*)))
+(:t (throw (cat "Unknown ABI for CPU " *cpu* " !") *abi*)))
