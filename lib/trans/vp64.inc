@@ -100,6 +100,20 @@
 (defun emit-ble (l d) (emit-branch (next-opcode 2) l d))
 (defun emit-bgt (l d) (emit-branch (next-opcode 2) l d))
 
+(defun emit-beq-cr (c d l m) (emit-cmp-cr c d) (emit-beq l m))
+(defun emit-bne-cr (c d l m) (emit-cmp-cr c d) (emit-bne l m))
+(defun emit-bge-cr (c d l m) (emit-cmp-cr c d) (emit-bge l m))
+(defun emit-blt-cr (c d l m) (emit-cmp-cr c d) (emit-blt l m))
+(defun emit-ble-cr (c d l m) (emit-cmp-cr c d) (emit-ble l m))
+(defun emit-bgt-cr (c d l m) (emit-cmp-cr c d) (emit-bgt l m))
+
+(defun emit-beq-rr (s d l m) (emit-cmp-rr s d) (emit-beq l m))
+(defun emit-bne-rr (s d l m) (emit-cmp-rr s d) (emit-bne l m))
+(defun emit-bge-rr (s d l m) (emit-cmp-rr s d) (emit-bge l m))
+(defun emit-blt-rr (s d l m) (emit-cmp-rr s d) (emit-blt l m))
+(defun emit-ble-rr (s d l m) (emit-cmp-rr s d) (emit-ble l m))
+(defun emit-bgt-rr (s d l m) (emit-cmp-rr s d) (emit-bgt l m))
+
 (defun emit-ir (o s c d)
 	(cond
 		((<= -0x8000 c 0x7fff)

@@ -21,7 +21,9 @@
 	+opt_emit_read_kill_ops
 		''(emit-label emit-call emit-call-abi emit-call-i emit-call-r emit-call-p emit-alloc emit-free)
 	+opt_emit_kill_ops
-		''(emit-jmp emit-jmp-i emit-jmp-r emit-jmp-p emit-alloc emit-free emit-cmp-cr emit-cmp-rr)
+		''(emit-jmp emit-jmp-i emit-jmp-r emit-jmp-p emit-alloc emit-free
+			emit-beq-cr emit-bne-cr emit-bge-cr emit-blt-cr emit-ble-cr emit-bgt-cr
+			emit-beq-rr emit-bne-rr emit-bge-rr emit-blt-rr emit-ble-rr emit-bgt-rr)
 	+opt_emit_two_out_ops
 		''(emit-land-rr emit-lnot-rr emit-swp-rr emit-div-rrr emit-div-rrr-u)
 	+opt_emit_multi_out_ops
