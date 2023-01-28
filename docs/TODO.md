@@ -8,6 +8,10 @@ In no particular order but to just to ensure I get thoughts down. I'll keep
 adding to this as I go along. If anybody would like to try helping out, then
 just get in touch.
 
+* Add a faster way to test for trashed registers from `emit` ops. Maybe
+redesign the format to make it easier to test. This will speed up most of the
+optimization stages of the compiler and assembler.
+
 * Add support for `(vp-vec)` instructions at the translator level. MMX, SSX
 etc.
 
