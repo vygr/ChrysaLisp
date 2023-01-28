@@ -6,6 +6,8 @@
 (env-push)
 
 (defq
+	+opt_no_op
+		''(lambda)
 	+opt_emit_read_ops
 		''(emit-cpy-ir-ui emit-cpy-ir-us emit-cpy-ir-ub emit-cpy-ir-i emit-cpy-ir-s emit-cpy-ir-b emit-cpy-ir)
 	+opt_emit_write_ops
@@ -95,7 +97,7 @@
 		(unless (some! (inc i) _ :nil (# (trashes-reg? rs %0)) (list emit_list))
 			(elem-set _ emit_list
 				(if (eql rs (elem-get 3 op))
-					(setq op (lambda))
+					(setq op +opt_no_op)
 					(setq op `(emit-cpy-rr ,rs ,(elem-get 3 op))))))))
 
 (defun opt-read-after-cpy ()
@@ -105,7 +107,7 @@
 		(unless (some! (inc i) _ :nil (# (trashes-reg? rs %0)) (list emit_list))
 			(elem-set 1 op rs)
 			(elem-set i emit_list op)
-			(elem-set _ emit_list (setq op (lambda))))))
+			(elem-set _ emit_list (setq op +opt_no_op)))))
 
 (defun opt-write-after-write ()
 	(when (defq w (find-past-rw1 _
@@ -114,12 +116,12 @@
 			(elem-get c +opt_emit_write_ops_signed)
 			(elem-get 2 op) (eval (elem-get 3 op))))
 		(when (= c 1)
-			(elem-set w emit_list (lambda)))))
+			(elem-set w emit_list +opt_no_op))))
 
 (defun opt-redundant-cpy ()
 	(if (or (eql (elem-get 1 op) (elem-get 2 op))
 			(find-past-rr _ (elem-get 2 op) (elem-get 1 op)))
-		(elem-set _ emit_list (setq op (lambda)))))
+		(elem-set _ emit_list (setq op +opt_no_op))))
 
 (defun opt-emit-list (emit_list emit_start emit_end)
 	(each! emit_start emit_end (lambda (op)
