@@ -400,8 +400,11 @@
 
 (defun emit-alloc (c) (emit-sub-cr (align c stack_align) (const (emit-native-reg? :rsp))))
 (defun emit-free (c) (emit-add-cr (align c stack_align) (const (emit-native-reg? :rsp))))
-(defun emit-ret () (emit-int 0xd65f03c0))
-(defun emit-sync (n) (emit-int 0xd5033fbf))
+
+(defun emit-ret ()
+	(riscv64-i 0x67 (const (emit-native-reg? :r28)) (const (emit-native-reg? :r30)) 0x0 0x0))
+
+(defun emit-sync (n) (emit-int 0x0ff0000f))
 (defun emit-brk (n))
 
 (defun emit-stack-init (s f x)
@@ -430,6 +433,6 @@
 			(emit-pop (const (emit-native-reg? :r30))))
 		((= 2 l)
 			(emit-pop (const (emit-native-reg? :r30)) (const (emit-native-reg? :r29))))
-		(:t  (emit-cpy-ir (const (emit-native-reg? :rsp)) (* +ptr_size (dec l)) (const (emit-native-reg? :r30)))
+		(:t (emit-cpy-ir (const (emit-native-reg? :rsp)) (* +ptr_size (dec l)) (const (emit-native-reg? :r30)))
 			(emit-free (* +ptr_size l))))))
 (:t (throw (cat "Unknown ABI for CPU " *cpu* " !") *abi*)))
