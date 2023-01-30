@@ -275,10 +275,10 @@
 			(riscv64-s 0x23 s d o i))
 		(:t (throw "riscv64-ri index out of range !" i))))
 
-(defun emit-cpy-ri-b (d s i) (riscv64-ir 0x0 d s i))
-(defun emit-cpy-ri-s (d s i) (riscv64-ir 0x1 d s i))
-(defun emit-cpy-ri-i (d s i) (riscv64-ir 0x2 d s i))
-(defun emit-cpy-ri (d s i) (riscv64-ir 0x3 d s i))
+(defun emit-cpy-ri-b (s d i) (riscv64-ir 0x0 s d i))
+(defun emit-cpy-ri-s (s d i) (riscv64-ir 0x1 s d i))
+(defun emit-cpy-ri-i (s d i) (riscv64-ir 0x2 s d i))
+(defun emit-cpy-ri (s d i) (riscv64-ir 0x3 s d i))
 
 (defun riscv64-dr (o s i d)
 	(riscv64-r 0x33 (const (emit-native-reg? :r29)) s i 0x0 0x0)
@@ -310,43 +310,25 @@
 
 (defun emit-lea-d (s i d) (riscv64-r 0x33 d s i 0x0 0x0))
 
-
-
-
-
-
-
-
-
 (defun emit-push (&rest b)
-	(cond
-		((= 0 (defq l (length b))))
-		((= 1 l)
-			(emit-int (+ 0xf81f0c00 (const (<< (emit-native-reg? :rsp) 5)) (elem-get 0 b))))
-		((= 2 l)
-			(emit-int (+ 0xa9bf0000
-				(<< (elem-get 0 b) 10) (const (<< (emit-native-reg? :rsp) 5)) (elem-get 1 b))))
-		(:t  (emit-sub-cr (align (* +ptr_size l) stack_align) (const (emit-native-reg? :rsp)))
-			(defq _ l)
-			(while (>= (setq _ (- _ 2)) 0)
-				(emit-int (+ 0xa9000000 (<< (- l _ 2) 15)
-					(<< (elem-get _ b) 10) (const (<< (emit-native-reg? :rsp) 5)) (elem-get (inc _) b))))
-			(if (/= -2 _) (emit-cpy-ri (elem-get 0 b) (const (emit-native-reg? :rsp)) (* +ptr_size (dec l)))))))
+	(when (/= 0 (defq l (length b)))
+		(emit-sub-cr (align (* +ptr_size l) stack_align) (const (emit-native-reg? :rsp)))
+		(defq _ l)
+		(while (>= (setq _ (dec _)) 0)
+			(emit-cpy-ri (elem-get _ b) (const (emit-native-reg? :rsp)) (* +ptr_size (- l _ 1))))))
 
 (defun emit-pop (&rest b)
-	(cond
-		((= 0 (defq l (length b))))
-		((= 1 l)
-			(emit-int (+ 0xf8410400 (const (<< (emit-native-reg? :rsp) 5)) (elem-get 0 b))))
-		((= 2 l)
-			(emit-int (+ 0xa8c10000
-				(<< (elem-get 0 b) 10) (const (<< (emit-native-reg? :rsp) 5)) (elem-get 1 b))))
-		(:t  (defq _ l)
-			(while (>= (setq _ (- _ 2)) 0)
-				(emit-int (+ 0xa9400000 (<< (- l _ 2) 15)
-					(<< (elem-get _ b) 10) (const (<< (emit-native-reg? :rsp) 5)) (elem-get (inc _) b))))
-			(if (/= -2 _) (emit-cpy-ir (const (emit-native-reg? :rsp)) (* +ptr_size (dec l)) (elem-get 0 b)))
-			(emit-add-cr (align (* +ptr_size l) stack_align) (const (emit-native-reg? :rsp))))))
+	(when (/= 0 (defq l (length b)))
+		(defq _ l)
+		(while (>= (setq _ (dec _)) 0)
+			(emit-cpy-ir (const (emit-native-reg? :rsp)) (* +ptr_size (- l _ 1)) (elem-get _ b)))
+		(emit-add-cr (align (* +ptr_size l) stack_align) (const (emit-native-reg? :rsp)))))
+
+
+
+
+
+
 
 (defun emit-call (l)
 	(emit-push (const (emit-native-reg? :r30)))
