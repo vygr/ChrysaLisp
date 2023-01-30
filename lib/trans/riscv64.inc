@@ -166,42 +166,81 @@
 	(emit-cpy-cr c (const (emit-native-reg? :r29)))
 	(riscv64-branch 0x4 d (const (emit-native-reg? :r29)) l))
 
-
-
-
-
-
-
-
-
-
-
+(defun riscv64-set (o d s c)
+	(riscv64-b 0x63 d s o c))
 
 (defun emit-seq-rr (s d)
-	(emit-cmp-rr s d) (emit-int 0x54000060) (emit-xor-rr d d) (emit-int 0x14000002) (emit-or-cr -1 d))
+	(riscv64-set 0x0 d s 8)
+	(emit-xor-rr d d)
+	(riscv64-set 0x0 (const (emit-native-reg? :r28)) (const (emit-native-reg? :r28)) 4)
+	(emit-or-cr -1 d))
 (defun emit-sne-rr (s d)
-	(emit-cmp-rr s d) (emit-int 0x54000061) (emit-xor-rr d d) (emit-int 0x14000002) (emit-or-cr -1 d))
+	(riscv64-set 0x1 d s 8)
+	(emit-xor-rr d d)
+	(riscv64-set 0x0 (const (emit-native-reg? :r28)) (const (emit-native-reg? :r28)) 4)
+	(emit-or-cr -1 d))
 (defun emit-slt-rr (s d)
-	(emit-cmp-rr s d) (emit-int 0x5400006b) (emit-xor-rr d d) (emit-int 0x14000002) (emit-or-cr -1 d))
-(defun emit-sle-rr (s d)
-	(emit-cmp-rr s d) (emit-int 0x5400006d) (emit-xor-rr d d) (emit-int 0x14000002) (emit-or-cr -1 d))
-(defun emit-sgt-rr (s d)
-	(emit-cmp-rr s d) (emit-int 0x5400006c) (emit-xor-rr d d) (emit-int 0x14000002) (emit-or-cr -1 d))
+	(riscv64-set 0x4 d s 8)
+	(emit-xor-rr d d)
+	(riscv64-set 0x0 (const (emit-native-reg? :r28)) (const (emit-native-reg? :r28)) 4)
+	(emit-or-cr -1 d))
 (defun emit-sge-rr (s d)
-	(emit-cmp-rr s d) (emit-int 0x5400006a) (emit-xor-rr d d) (emit-int 0x14000002) (emit-or-cr -1 d))
+	(riscv64-set 0x5 d s 8)
+	(emit-xor-rr d d)
+	(riscv64-set 0x0 (const (emit-native-reg? :r28)) (const (emit-native-reg? :r28)) 4)
+	(emit-or-cr -1 d))
+(defun emit-sle-rr (s d)
+	(riscv64-set 0x5 d s 8)
+	(emit-xor-rr d d)
+	(riscv64-set 0x0 (const (emit-native-reg? :r28)) (const (emit-native-reg? :r28)) 4)
+	(emit-or-cr -1 d))
+(defun emit-sgt-rr (s d)
+	(riscv64-set 0x4 d s 8)
+	(emit-xor-rr d d)
+	(riscv64-set 0x4 (const (emit-native-reg? :r28)) (const (emit-native-reg? :r28)) 4)
+	(emit-or-cr -1 d))
 
 (defun emit-seq-cr (c d)
-	(emit-cmp-cr c d) (emit-int 0x54000060) (emit-xor-rr d d) (emit-int 0x14000002) (emit-or-cr -1 d))
+	(emit-cpy-cr c (const (emit-native-reg? :r29)))
+	(riscv64-set 0x0 d (const (emit-native-reg? :r29)) 8)
+	(emit-xor-rr d d)
+	(riscv64-set 0x0 (const (emit-native-reg? :r28)) (const (emit-native-reg? :r28)) 4)
+	(emit-or-cr -1 d))
 (defun emit-sne-cr (c d)
-	(emit-cmp-cr c d) (emit-int 0x54000061) (emit-xor-rr d d) (emit-int 0x14000002) (emit-or-cr -1 d))
+	(emit-cpy-cr c (const (emit-native-reg? :r29)))
+	(riscv64-set 0x1 d (const (emit-native-reg? :r29)) 8)
+	(emit-xor-rr d d)
+	(riscv64-set 0x0 (const (emit-native-reg? :r28)) (const (emit-native-reg? :r28)) 4)
+	(emit-or-cr -1 d))
 (defun emit-slt-cr (c d)
-	(emit-cmp-cr c d) (emit-int 0x5400006b) (emit-xor-rr d d) (emit-int 0x14000002) (emit-or-cr -1 d))
-(defun emit-sle-cr (c d)
-	(emit-cmp-cr c d) (emit-int 0x5400006d) (emit-xor-rr d d) (emit-int 0x14000002) (emit-or-cr -1 d))
-(defun emit-sgt-cr (c d)
-	(emit-cmp-cr c d) (emit-int 0x5400006c) (emit-xor-rr d d) (emit-int 0x14000002) (emit-or-cr -1 d))
+	(emit-cpy-cr c (const (emit-native-reg? :r29)))
+	(riscv64-set 0x4 d (const (emit-native-reg? :r29)) 8)
+	(emit-xor-rr d d)
+	(riscv64-set 0x0 (const (emit-native-reg? :r28)) (const (emit-native-reg? :r28)) 4)
+	(emit-or-cr -1 d))
 (defun emit-sge-cr (c d)
-	(emit-cmp-cr c d) (emit-int 0x5400006a) (emit-xor-rr d d) (emit-int 0x14000002) (emit-or-cr -1 d))
+	(emit-cpy-cr c (const (emit-native-reg? :r29)))
+	(riscv64-set 0x5 d (const (emit-native-reg? :r29)) 8)
+	(emit-xor-rr d d)
+	(riscv64-set 0x0 (const (emit-native-reg? :r28)) (const (emit-native-reg? :r28)) 4)
+	(emit-or-cr -1 d))
+(defun emit-sle-cr (c d)
+	(emit-cpy-cr c (const (emit-native-reg? :r29)))
+	(riscv64-set 0x5 d (const (emit-native-reg? :r29)) 8)
+	(emit-xor-rr d d)
+	(riscv64-set 0x0 (const (emit-native-reg? :r28)) (const (emit-native-reg? :r28)) 4)
+	(emit-or-cr -1 d))
+(defun emit-sgt-cr (c d)
+	(emit-cpy-cr c (const (emit-native-reg? :r29)))
+	(riscv64-set 0x4 d (const (emit-native-reg? :r29)) 8)
+	(emit-xor-rr d d)
+	(riscv64-set 0x0 (const (emit-native-reg? :r28)) (const (emit-native-reg? :r28)) 4)
+	(emit-or-cr -1 d))
+
+
+
+
+
 
 
 
