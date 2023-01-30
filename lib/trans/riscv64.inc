@@ -54,6 +54,16 @@
 (defun emit-mul-rr (s d)
 	(riscv64-r 0x33 d d s 0x0 0x1))
 
+(defun emit-div-rrr (s d1 d2)
+	(riscv64-r 0x33 (const (emit-native-reg? :r29)) d1 d2 0x4 0x1)
+	(riscv64-r 0x33 d1 d1 d2 0x6 0x1)
+	(emit-cpy-rr (const (emit-native-reg? :r29)) d2))
+
+(defun emit-div-rrr-u (s d1 d2)
+	(riscv64-r 0x33 (const (emit-native-reg? :r29)) d1 d2 0x5 0x1)
+	(riscv64-r 0x33 d1 d1 d2 0x7 0x1)
+	(emit-cpy-rr (const (emit-native-reg? :r29)) d2))
+
 (defun emit-cpy-cr (c r)
 	(cond
 		((<= -0x800 c 0x7ff)
@@ -387,16 +397,6 @@
 		((<= -0x100000 (defq c (- l *pc*)) 0xfffff)
 			(emit-int (+ 0x10000000 (<< (logand c 0x3) 29) (<< (logand c 0x1ffffc) 3) d)))
 		(:t (throw "emit-lea-p constant out of range !" c))))
-
-(defun emit-div-rrr (s d1 d2)
-	(emit-int (+ 0x9ac00c00 (<< s 16) (<< d2 5) (const (emit-native-reg? :r29))))
-	(emit-int (+ 0x9b008000 (const (<< (emit-native-reg? :r29) 16)) (<< d2 10) (<< s 5) d1))
-	(emit-cpy-rr (const (emit-native-reg? :r29)) d2))
-
-(defun emit-div-rrr-u (s d1 d2)
-	(emit-int (+ 0x9ac00800 (<< s 16) (<< d2 5) (const (emit-native-reg? :r29))))
-	(emit-int (+ 0x9b008000 (const (<< (emit-native-reg? :r29) 16)) (<< d2 10) (<< s 5) d1))
-	(emit-cpy-rr (const (emit-native-reg? :r29)) d2))
 
 (defun emit-alloc (c) (emit-sub-cr (align c stack_align) (const (emit-native-reg? :rsp))))
 (defun emit-free (c) (emit-add-cr (align c stack_align) (const (emit-native-reg? :rsp))))
