@@ -105,8 +105,7 @@
 			(riscv64-cr u (const (emit-native-reg? :r29)))
 			(riscv64-cr l r)
 			(emit-shl-cr 32 (const (emit-native-reg? :r29)))
-			(emit-add-rr (const (emit-native-reg? :r29)) r))
-		(:t (throw "emit-cpy-cr constant out of range !" c))))
+			(emit-add-rr (const (emit-native-reg? :r29)) r))))
 
 (defun emit-add-cr (c r)
 	(cond
