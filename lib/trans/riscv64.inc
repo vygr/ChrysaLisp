@@ -262,19 +262,34 @@
 (defun emit-cpy-ri-i (d s i) (riscv64-ir 0x2 d s i))
 (defun emit-cpy-ri (d s i) (riscv64-ir 0x3 d s i))
 
+(defun riscv64-dr (o s i d)
+	(riscv64-r 0x33 (const (emit-native-reg? :r29)) s i 0x0 0x0)
+	(riscv64-i 0x3 d (const (emit-native-reg? :r29)) o 0))
+
+(defun emit-cpy-dr-b (s i d) (riscv64-dr 0x0 s i d))
+(defun emit-cpy-dr-s (s i d) (riscv64-dr 0x1 s i d))
+(defun emit-cpy-dr-i (s i d) (riscv64-dr 0x2 s i d))
+(defun emit-cpy-dr (s i d) (riscv64-dr 0x3 s i d))
+(defun emit-cpy-dr-ub (s i d) (riscv64-dr 0x4 s i d))
+(defun emit-cpy-dr-us (s i d) (riscv64-dr 0x5 s i d))
+(defun emit-cpy-dr-ui (s i d) (riscv64-dr 0x6 s i d))
+
+(defun riscv64-rd (o s d i)
+	(riscv64-r 0x33 (const (emit-native-reg? :r29)) d i 0x0 0x0)
+	(riscv64-i 0x23 s (const (emit-native-reg? :r29)) o 0))
+
+(defun emit-cpy-rd-b (s d i) (emit-rd 0x0 s d i))
+(defun emit-cpy-rd-s (s d i) (emit-rd 0x1 s d i))
+(defun emit-cpy-rd-i (s d i) (emit-rd 0x2 s d i))
+(defun emit-cpy-rd (s d i) (emit-rd 0x3 s d i))
 
 
-(defmacro emit-rd (o s d1 d2)
-	`(emit-int (+ ,o (<< ,d2 16) (<< ,d1 5) ,s)))
 
-(defmacro emit-dr (o s1 s2 d)
-	`(emit-int (+ ,o (<< ,s2 16) (<< ,s1 5) ,d)))
 
-(defmacro emit-dru (o x s1 s2 d)
-	`(progn
-		(and (not (eql ,s1 ,d)) (not (eql ,s2 ,d)) (emit-xor-rr ,d ,d))
-		(emit-dr ,o ,s1 ,s2 ,d)
-		(if (or (eql ,s1 ,d) (eql ,s2 ,d)) (emit-ux ,x ,d ,d))))
+
+
+
+
 
 (defun emit-push (&rest b)
 	(cond
@@ -366,19 +381,6 @@
 		((<= -0x100000 (defq c (- l *pc*)) 0xfffff)
 			(emit-int (+ 0x10000000 (<< (logand c 0x3) 29) (<< (logand c 0x1ffffc) 3) d)))
 		(:t (throw "emit-lea-p constant out of range !" c))))
-
-(defun emit-cpy-rd (s d1 d2) (emit-rd 0xf8206800 s d2 d1))
-(defun emit-cpy-rd-b (s d2 d1) (emit-rd 0x38206800 s d2 d1))
-(defun emit-cpy-rd-s (s d2 d1) (emit-rd 0x78206800 s d2 d1))
-(defun emit-cpy-rd-i (s d2 d1) (emit-rd 0xb8206800 s d2 d1))
-
-(defun emit-cpy-dr (s1 s2 d) (emit-dr 0xf8606800 s2 s1 d))
-(defun emit-cpy-dr-b (s1 s2 d) (emit-dr 0x38a06800 s2 s1 d))
-(defun emit-cpy-dr-s (s1 s2 d) (emit-dr 0x78a06800 s2 s1 d))
-(defun emit-cpy-dr-i (s1 s2 d) (emit-dr 0xb8a06800 s2 s1 d))
-(defun emit-cpy-dr-ub (s1 s2 d) (emit-dru 0x38606800 7 s1 s2 d))
-(defun emit-cpy-dr-us (s1 s2 d) (emit-dru 0x78606800 15 s1 s2 d))
-(defun emit-cpy-dr-ui (s1 s2 d) (emit-dru 0xb8606800 31 s1 s2 d))
 
 (defun emit-lnot-rr (r d)
 	(emit-cmp-cr 0 d)
