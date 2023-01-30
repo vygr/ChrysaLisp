@@ -237,6 +237,14 @@
 	(riscv64-set 0x0 (const (emit-native-reg? :r28)) (const (emit-native-reg? :r28)) 4)
 	(emit-or-cr -1 d))
 
+(defun emit-lnot-rr (r d)
+	(emit-seq-rr (const (emit-native-reg? :r28)) d))
+
+(defun emit-land-rr (s d)
+	(riscv64-set 0x0 (const (emit-native-reg? :r28)) d 8)
+	(riscv64-set 0x1 (const (emit-native-reg? :r28)) s 4)
+	(emit-xor-rr d d))
+
 (defun riscv64-ir (o s i d)
 	(cond
 		((<= -0x1000 i 0xfff)
@@ -379,15 +387,6 @@
 		((<= -0x100000 (defq c (- l *pc*)) 0xfffff)
 			(emit-int (+ 0x10000000 (<< (logand c 0x3) 29) (<< (logand c 0x1ffffc) 3) d)))
 		(:t (throw "emit-lea-p constant out of range !" c))))
-
-(defun emit-lnot-rr (r d)
-	(emit-cmp-cr 0 d)
-	(emit-int (+ 0x9a9f17e0 d)))
-
-(defun emit-land-rr (s d)
-	(emit-cmp-cr 0 d)
-	(emit-int (+ 0xfa401804 (<< s 5)))
-	(emit-int (+ 0x9a9f07e0 d)))
 
 (defun emit-div-rrr (s d1 d2)
 	(emit-int (+ 0x9ac00c00 (<< s 16) (<< d2 5) (const (emit-native-reg? :r29))))
