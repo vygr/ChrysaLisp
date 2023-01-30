@@ -237,10 +237,19 @@
 	(riscv64-set 0x0 (const (emit-native-reg? :r28)) (const (emit-native-reg? :r28)) 4)
 	(emit-or-cr -1 d))
 
+(defun riscv64-ir (o s i d)
+	(cond
+		((<= -0x1000 (defq c (- ,l *pc*)) 0xfff)
+			(riscv64-i 0x3 d s o i))
+		(:t (throw "riscv64-ir index out of range !" ,c))))
 
-
-
-
+(defun emit-cpy-ir-b (s c d) (riscv64-ir 0x0 s c d))
+(defun emit-cpy-ir-s (s c d) (riscv64-ir 0x1 s c d))
+(defun emit-cpy-ir-i (s c d) (riscv64-ir 0x2 s c d))
+(defun emit-cpy-ir (s c d) (riscv64-ir 0x3 s c d))
+(defun emit-cpy-ir-ub (s c d) (riscv64-ir 0x4 s c d))
+(defun emit-cpy-ir-us (s c d) (riscv64-ir 0x5 s c d))
+(defun emit-cpy-ir-ui (s c d) (riscv64-ir 0x6 s c d))
 
 
 
@@ -366,17 +375,9 @@
 			(emit-int (+ 0x10000000 (<< (logand c 0x3) 29) (<< (logand c 0x1ffffc) 3) d)))
 		(:t (throw "emit-lea-p constant out of range !" c))))
 
-(defun emit-cpy-ir-b (s c d) (emit-ir 0 0x38800000 s c d))
-(defun emit-cpy-ir-s (s c d) (emit-ir 1 0x78800000 s c d))
-(defun emit-cpy-ir-i (s c d) (emit-ir 2 0xb8800000 s c d))
-
 (defun emit-cpy-ri-b (s d c) (emit-ri 0 0x38000000 s d c))
 (defun emit-cpy-ri-s (s d c) (emit-ri 1 0x78000000 s d c))
 (defun emit-cpy-ri-i (s d c) (emit-ri 2 0xb8000000 s d c))
-
-(defun emit-cpy-ir-ub (s c d) (emit-iru 0 0x38400000 s c d))
-(defun emit-cpy-ir-us (s c d) (emit-iru 1 0x78400000 s c d))
-(defun emit-cpy-ir-ui (s c d) (emit-ir 2 0xb8400000 s c d))
 
 (defun emit-cpy-rd (s d1 d2) (emit-rd 0xf8206800 s d2 d1))
 (defun emit-cpy-rd-b (s d2 d1) (emit-rd 0x38206800 s d2 d1))
