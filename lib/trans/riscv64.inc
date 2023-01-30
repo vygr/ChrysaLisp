@@ -283,6 +283,15 @@
 (defun emit-cpy-rd-i (s d i) (riscv64-rd 0x2 s d i))
 (defun emit-cpy-rd (s d i) (riscv64-rd 0x3 s d i))
 
+(defun emit-lea-i (s i d)
+	(cond
+		((and (= i 0) (eql s d)))
+		((<= -0x800 i 0x7ff)
+			(riscv64-i 0x13 d s 0x0 i))
+		(:t (throw "emit-lea-i constant out of range !" i))))
+
+(defun emit-lea-d (s i d) (riscv64-r 0x33 d s i 0x0 0x0))
+
 
 
 
@@ -364,17 +373,6 @@
 (defun emit-jmp-p (l)
 	(emit-cpy-pr l (const (emit-native-reg? :r29)))
 	(emit-jmp-r (const (emit-native-reg? :r29))))
-
-(defun emit-lea-i (s c d)
-	(cond
-		((and (= c 0) (eql s d)))
-		((<= -0x1000 c 0xfff)
-			(if (>= c 0)
-				(emit-int (+ 0x91000000 (<< (logand c 0xfff) 10) (<< s 5) d))
-				(emit-int (+ 0xd1000000 (<< (logand (neg c) 0xfff) 10) (<< s 5) d))))
-		(:t (throw "emit-lea-i constant out of range !" c))))
-
-(defun emit-lea-d (s1 s2 d) (emit-rrr 0x8b000000 s1 s2 d))
 
 (defun emit-lea-p (l d)
 	(cond
