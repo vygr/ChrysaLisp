@@ -278,10 +278,10 @@
 	(riscv64-r 0x33 (const (emit-native-reg? :r29)) d i 0x0 0x0)
 	(riscv64-i 0x23 s (const (emit-native-reg? :r29)) o 0))
 
-(defun emit-cpy-rd-b (s d i) (emit-rd 0x0 s d i))
-(defun emit-cpy-rd-s (s d i) (emit-rd 0x1 s d i))
-(defun emit-cpy-rd-i (s d i) (emit-rd 0x2 s d i))
-(defun emit-cpy-rd (s d i) (emit-rd 0x3 s d i))
+(defun emit-cpy-rd-b (s d i) (riscv64-rd 0x0 s d i))
+(defun emit-cpy-rd-s (s d i) (riscv64-rd 0x1 s d i))
+(defun emit-cpy-rd-i (s d i) (riscv64-rd 0x2 s d i))
+(defun emit-cpy-rd (s d i) (riscv64-rd 0x3 s d i))
 
 
 
