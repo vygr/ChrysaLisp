@@ -134,27 +134,76 @@
 	(unless (eql s d) (emit-cpy-rr s d))
 	(emit-asr-cr 63 d))
 
-
-
-
-
-
-
-
-(defun emit-cmp-rr (s d)
+(defun riscv64-branch (o d s l)
 	(cond
-		((eql s (const (emit-native-reg? :rsp)))
-			(throw "emit-cmp-rr src can't be :rsp !" (list s d)))
-		(:t (emit-rrr 0xeb206000 s d (const (emit-native-reg? :rsp))))))
+		((<= -0x2000 (defq c (- ,l *pc*)) 0x1fff)
+			(riscv64-b 0x63 d s o c))
+		(:t (throw "riscv64-branch constant out of range !" ,c))))
 
-(defun emit-cmp-cr (c r)
-	(cond
-		((<= 0 c 0xfff)
-			(emit-int (+ 0xf100001f (<< c 10) (<< r 5))))
-		((<= -0xfff c 0)
-			(emit-int (+ 0xb100001f (<< (neg c) 10) (<< r 5))))
-		(:t (emit-cpy-cr c (const (emit-native-reg? :r29)))
-			(emit-cmp-rr (const (emit-native-reg? :r29)) r))))
+(defun emit-beq-rr (s d l m) (riscv64-branch 0x0 d s l))
+(defun emit-bne-rr (s d l m) (riscv64-branch 0x1 d s l))
+(defun emit-blt-rr (s d l m) (riscv64-branch 0x4 d s l))
+(defun emit-bge-rr (s d l m) (riscv64-branch 0x5 d s l))
+(defun emit-ble-rr (s d l m) (riscv64-branch 0x5 s d l))
+(defun emit-bgt-rr (s d l m) (riscv64-branch 0x4 s d l))
+
+(defun emit-beq-cr (c d l m)
+	(emit-cpy-cr c (const (emit-native-reg? :r29)))
+	(riscv64-branch 0x0 d (const (emit-native-reg? :r29)) l))
+(defun emit-bne-cr (c d l m)
+	(emit-cpy-cr c (const (emit-native-reg? :r29)))
+	(riscv64-branch 0x1 d (const (emit-native-reg? :r29)) l))
+(defun emit-blt-cr (c d l m)
+	(emit-cpy-cr c (const (emit-native-reg? :r29)))
+	(riscv64-branch 0x4 d (const (emit-native-reg? :r29)) l))
+(defun emit-bge-cr (c d l m)
+	(emit-cpy-cr c (const (emit-native-reg? :r29)))
+	(riscv64-branch 0x5 d (const (emit-native-reg? :r29)) l))
+(defun emit-ble-cr (c d l m)
+	(emit-cpy-cr c (const (emit-native-reg? :r29)))
+	(riscv64-branch 0x5 d (const (emit-native-reg? :r29)) l))
+(defun emit-bgt-cr (c d l m)
+	(emit-cpy-cr c (const (emit-native-reg? :r29)))
+	(riscv64-branch 0x4 d (const (emit-native-reg? :r29)) l))
+
+
+
+
+
+
+
+
+
+
+
+
+(defun emit-seq-rr (s d)
+	(emit-cmp-rr s d) (emit-int 0x54000060) (emit-xor-rr d d) (emit-int 0x14000002) (emit-or-cr -1 d))
+(defun emit-sne-rr (s d)
+	(emit-cmp-rr s d) (emit-int 0x54000061) (emit-xor-rr d d) (emit-int 0x14000002) (emit-or-cr -1 d))
+(defun emit-slt-rr (s d)
+	(emit-cmp-rr s d) (emit-int 0x5400006b) (emit-xor-rr d d) (emit-int 0x14000002) (emit-or-cr -1 d))
+(defun emit-sle-rr (s d)
+	(emit-cmp-rr s d) (emit-int 0x5400006d) (emit-xor-rr d d) (emit-int 0x14000002) (emit-or-cr -1 d))
+(defun emit-sgt-rr (s d)
+	(emit-cmp-rr s d) (emit-int 0x5400006c) (emit-xor-rr d d) (emit-int 0x14000002) (emit-or-cr -1 d))
+(defun emit-sge-rr (s d)
+	(emit-cmp-rr s d) (emit-int 0x5400006a) (emit-xor-rr d d) (emit-int 0x14000002) (emit-or-cr -1 d))
+
+(defun emit-seq-cr (c d)
+	(emit-cmp-cr c d) (emit-int 0x54000060) (emit-xor-rr d d) (emit-int 0x14000002) (emit-or-cr -1 d))
+(defun emit-sne-cr (c d)
+	(emit-cmp-cr c d) (emit-int 0x54000061) (emit-xor-rr d d) (emit-int 0x14000002) (emit-or-cr -1 d))
+(defun emit-slt-cr (c d)
+	(emit-cmp-cr c d) (emit-int 0x5400006b) (emit-xor-rr d d) (emit-int 0x14000002) (emit-or-cr -1 d))
+(defun emit-sle-cr (c d)
+	(emit-cmp-cr c d) (emit-int 0x5400006d) (emit-xor-rr d d) (emit-int 0x14000002) (emit-or-cr -1 d))
+(defun emit-sgt-cr (c d)
+	(emit-cmp-cr c d) (emit-int 0x5400006c) (emit-xor-rr d d) (emit-int 0x14000002) (emit-or-cr -1 d))
+(defun emit-sge-cr (c d)
+	(emit-cmp-cr c d) (emit-int 0x5400006a) (emit-xor-rr d d) (emit-int 0x14000002) (emit-or-cr -1 d))
+
+
 
 (defun emit-cpy-ir (s c d)
 	(if (eql d (const (emit-native-reg? :rsp)))
@@ -180,12 +229,6 @@
 		(and (not (eql ,s1 ,d)) (not (eql ,s2 ,d)) (emit-xor-rr ,d ,d))
 		(emit-dr ,o ,s1 ,s2 ,d)
 		(if (or (eql ,s1 ,d) (eql ,s2 ,d)) (emit-ux ,x ,d ,d))))
-
-(defmacro emit-branch (o l)
-	`(cond
-		((<= -0x100000 (defq ,(defq c (gensym)) (- ,l *pc*)) 0xffffc)
-			(emit-int (+ 0x54000000 (<< (logand ,c 0x1ffffc) 3) ,o)))
-		(:t (throw "emit-branch constant out of range !" ,c))))
 
 (defun emit-cpy-ri (s d c)
 	(when (eql s (const (emit-native-reg? :rsp)))
@@ -222,46 +265,6 @@
 					(<< (elem-get _ b) 10) (const (<< (emit-native-reg? :rsp) 5)) (elem-get (inc _) b))))
 			(if (/= -2 _) (emit-cpy-ir (const (emit-native-reg? :rsp)) (* +ptr_size (dec l)) (elem-get 0 b)))
 			(emit-add-cr (align (* +ptr_size l) stack_align) (const (emit-native-reg? :rsp))))))
-
-(defun emit-beq-cr (c d l m) (emit-cmp-cr c d) (emit-branch 0x0 l))
-(defun emit-bne-cr (c d l m) (emit-cmp-cr c d) (emit-branch 0x1 l))
-(defun emit-bge-cr (c d l m) (emit-cmp-cr c d) (emit-branch 0xa l))
-(defun emit-blt-cr (c d l m) (emit-cmp-cr c d) (emit-branch 0xb l))
-(defun emit-bgt-cr (c d l m) (emit-cmp-cr c d) (emit-branch 0xc l))
-(defun emit-ble-cr (c d l m) (emit-cmp-cr c d) (emit-branch 0xd l))
-
-(defun emit-beq-rr (s d l m) (emit-cmp-rr s d) (emit-branch 0x0 l))
-(defun emit-bne-rr (s d l m) (emit-cmp-rr s d) (emit-branch 0x1 l))
-(defun emit-bge-rr (s d l m) (emit-cmp-rr s d) (emit-branch 0xa l))
-(defun emit-blt-rr (s d l m) (emit-cmp-rr s d) (emit-branch 0xb l))
-(defun emit-bgt-rr (s d l m) (emit-cmp-rr s d) (emit-branch 0xc l))
-(defun emit-ble-rr (s d l m) (emit-cmp-rr s d) (emit-branch 0xd l))
-
-(defun emit-seq-cr (c d)
-	(emit-cmp-cr c d) (emit-int 0x54000060) (emit-xor-rr d d) (emit-int 0x14000002) (emit-or-cr -1 d))
-(defun emit-sne-cr (c d)
-	(emit-cmp-cr c d) (emit-int 0x54000061) (emit-xor-rr d d) (emit-int 0x14000002) (emit-or-cr -1 d))
-(defun emit-slt-cr (c d)
-	(emit-cmp-cr c d) (emit-int 0x5400006b) (emit-xor-rr d d) (emit-int 0x14000002) (emit-or-cr -1 d))
-(defun emit-sle-cr (c d)
-	(emit-cmp-cr c d) (emit-int 0x5400006d) (emit-xor-rr d d) (emit-int 0x14000002) (emit-or-cr -1 d))
-(defun emit-sgt-cr (c d)
-	(emit-cmp-cr c d) (emit-int 0x5400006c) (emit-xor-rr d d) (emit-int 0x14000002) (emit-or-cr -1 d))
-(defun emit-sge-cr (c d)
-	(emit-cmp-cr c d) (emit-int 0x5400006a) (emit-xor-rr d d) (emit-int 0x14000002) (emit-or-cr -1 d))
-
-(defun emit-seq-rr (s d)
-	(emit-cmp-rr s d) (emit-int 0x54000060) (emit-xor-rr d d) (emit-int 0x14000002) (emit-or-cr -1 d))
-(defun emit-sne-rr (s d)
-	(emit-cmp-rr s d) (emit-int 0x54000061) (emit-xor-rr d d) (emit-int 0x14000002) (emit-or-cr -1 d))
-(defun emit-slt-rr (s d)
-	(emit-cmp-rr s d) (emit-int 0x5400006b) (emit-xor-rr d d) (emit-int 0x14000002) (emit-or-cr -1 d))
-(defun emit-sle-rr (s d)
-	(emit-cmp-rr s d) (emit-int 0x5400006d) (emit-xor-rr d d) (emit-int 0x14000002) (emit-or-cr -1 d))
-(defun emit-sgt-rr (s d)
-	(emit-cmp-rr s d) (emit-int 0x5400006c) (emit-xor-rr d d) (emit-int 0x14000002) (emit-or-cr -1 d))
-(defun emit-sge-rr (s d)
-	(emit-cmp-rr s d) (emit-int 0x5400006a) (emit-xor-rr d d) (emit-int 0x14000002) (emit-or-cr -1 d))
 
 (defun emit-call (l)
 	(emit-push (const (emit-native-reg? :r30)))
