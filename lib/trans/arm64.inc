@@ -8,6 +8,10 @@
 			:r16 :r17 :r18 :r19 :r20 :r21 :r22 :r23 :r24 :r25 :r26 :r27 :r28 :r29 :r30 :rsp)))
 (each (# (defcvar %0 %0)) '(:r15 :r16 :r17 :r18 :r19 :r20 :r21 :r22 :r23 :r24 :r25 :r26 :r27 :r28 :r29 :r30))
 
+(defq +arm64_rlnk (emit-native-reg? :r30)
+	+arm64_rtmp (emit-native-reg? :r29)
+	+arm64_rsp (emit-native-reg? :rsp))
+
 (defmacro arm64-rrr (o m n d)
 	`(emit-int (+ ,o (<< ,m 16) (<< ,n 5) ,d)))
 
@@ -100,32 +104,32 @@
 (defun emit-cpy-rr (s d)
 	(cond
 		((eql s d))
-		((or (eql s (const (emit-native-reg? :rsp))) (eql d (const (emit-native-reg? :rsp))))
+		((or (eql s +arm64_rsp) (eql d +arm64_rsp))
 			(emit-int (+ 0x91000000 (<< s 5) d)))
 		(:t (emit-int (+ 0xaa0003e0 (<< s 16) d)))))
 
 (defun emit-xor-rr (s d)
 	(cond
-		((or (eql s (const (emit-native-reg? :rsp))) (eql d (const (emit-native-reg? :rsp))))
+		((or (eql s +arm64_rsp) (eql d +arm64_rsp))
 			(throw "emit-xor-rr src/dst can't be :rsp !" (list s d)))
 		(:t (arm64-rrr 0xca000000 s d d))))
 
 (defun emit-and-rr (s d)
 	(cond
 		((eql s d))
-		((or (eql s (const (emit-native-reg? :rsp))) (eql d (const (emit-native-reg? :rsp))))
+		((or (eql s +arm64_rsp) (eql d +arm64_rsp))
 			(throw "emit-and-rr src/dst can't be :rsp !" (list s d)))
 		(:t (arm64-rrr 0x8a000000 s d d))))
 
 (defun arm64-cmp-rr (s d)
 	(cond
-		((eql s (const (emit-native-reg? :rsp)))
+		((eql s +arm64_rsp)
 			(throw "arm64-cmp-rr src can't be :rsp !" (list s d)))
-		(:t (arm64-rrr 0xeb206000 s d (const (emit-native-reg? :rsp))))))
+		(:t (arm64-rrr 0xeb206000 s d +arm64_rsp))))
 
 (defun emit-cpy-cr (c r)
 	(if (/= -1 (defq i (arm64-limm c)))
-		(emit-int (+ 0xb2000000 (<< i 10) (const (<< (emit-native-reg? :rsp) 5)) r))
+		(emit-int (+ 0xb2000000 (<< i 10) (const (<< +arm64_rsp 5)) r))
 		(arm64-mov-cr c r)))
 
 (defun arm64-cmp-cr (c r)
@@ -134,14 +138,14 @@
 			(emit-int (+ 0xf100001f (<< c 10) (<< r 5))))
 		((<= -0xfff c 0)
 			(emit-int (+ 0xb100001f (<< (neg c) 10) (<< r 5))))
-		(:t (emit-cpy-cr c (const (emit-native-reg? :r29)))
-			(arm64-cmp-rr (const (emit-native-reg? :r29)) r))))
+		(:t (emit-cpy-cr c +arm64_rtmp)
+			(arm64-cmp-rr +arm64_rtmp r))))
 
 (defun emit-cpy-ir (s c d)
-	(if (eql d (const (emit-native-reg? :rsp)))
+	(if (eql d +arm64_rsp)
 		(progn
-			(arm64-ir 3 0xf8400000 s c (const (emit-native-reg? :r29)))
-			(emit-cpy-rr (const (emit-native-reg? :r29)) (const (emit-native-reg? :rsp))))
+			(arm64-ir 3 0xf8400000 s c +arm64_rtmp)
+			(emit-cpy-rr +arm64_rtmp +arm64_rsp))
 		(arm64-ir 3 0xf8400000 s c d)))
 
 (defmacro arm64-iru (w o s c d)
@@ -213,7 +217,7 @@
 (defun emit-or-rr (s d)
 	(cond
 		((eql s d))
-		((or (eql s (const (emit-native-reg? :rsp))) (eql d (const (emit-native-reg? :rsp))))
+		((or (eql s +arm64_rsp) (eql d +arm64_rsp))
 			(throw "emit-or-rr src/dst can't be :rsp !" (list s d)))
 		(:t (arm64-rrr 0xaa000000 s d d))))
 
@@ -226,44 +230,44 @@
 			(if (/= i -1)
 				(emit-int (+ 0xb2000000 (<< i 10) (<< r 5) r))
 				(progn
-					(arm64-mov-cr c (const (emit-native-reg? :r29)))
-					(emit-or-rr (const (emit-native-reg? :r29)) r))))))
+					(arm64-mov-cr c +arm64_rtmp)
+					(emit-or-rr +arm64_rtmp r))))))
 
 (defun emit-cpy-ri (s d c)
-	(when (eql s (const (emit-native-reg? :rsp)))
-		(emit-cpy-rr (const (emit-native-reg? :rsp)) (const (emit-native-reg? :r29)))
-		(setq s (const (emit-native-reg? :r29))))
+	(when (eql s +arm64_rsp)
+		(emit-cpy-rr +arm64_rsp +arm64_rtmp)
+		(setq s +arm64_rtmp))
 	(arm64-ri 3 0xf8000000 s d c))
 
 (defun emit-push (&rest b)
 	(cond
 		((= 0 (defq l (length b))))
 		((= 1 l)
-			(emit-int (+ 0xf81f0c00 (const (<< (emit-native-reg? :rsp) 5)) (elem-get 0 b))))
+			(emit-int (+ 0xf81f0c00 (const (<< +arm64_rsp 5)) (elem-get 0 b))))
 		((= 2 l)
 			(emit-int (+ 0xa9bf0000
-				(<< (elem-get 0 b) 10) (const (<< (emit-native-reg? :rsp) 5)) (elem-get 1 b))))
-		(:t  (emit-sub-cr (align (* +ptr_size l) stack_align) (const (emit-native-reg? :rsp)))
+				(<< (elem-get 0 b) 10) (const (<< +arm64_rsp 5)) (elem-get 1 b))))
+		(:t  (emit-sub-cr (align (* +ptr_size l) stack_align) +arm64_rsp)
 			(defq _ l)
 			(while (>= (setq _ (- _ 2)) 0)
 				(emit-int (+ 0xa9000000 (<< (- l _ 2) 15)
-					(<< (elem-get _ b) 10) (const (<< (emit-native-reg? :rsp) 5)) (elem-get (inc _) b))))
-			(if (/= -2 _) (emit-cpy-ri (elem-get 0 b) (const (emit-native-reg? :rsp)) (* +ptr_size (dec l)))))))
+					(<< (elem-get _ b) 10) (const (<< +arm64_rsp 5)) (elem-get (inc _) b))))
+			(if (/= -2 _) (emit-cpy-ri (elem-get 0 b) +arm64_rsp (* +ptr_size (dec l)))))))
 
 (defun emit-pop (&rest b)
 	(cond
 		((= 0 (defq l (length b))))
 		((= 1 l)
-			(emit-int (+ 0xf8410400 (const (<< (emit-native-reg? :rsp) 5)) (elem-get 0 b))))
+			(emit-int (+ 0xf8410400 (const (<< +arm64_rsp 5)) (elem-get 0 b))))
 		((= 2 l)
 			(emit-int (+ 0xa8c10000
-				(<< (elem-get 0 b) 10) (const (<< (emit-native-reg? :rsp) 5)) (elem-get 1 b))))
+				(<< (elem-get 0 b) 10) (const (<< +arm64_rsp 5)) (elem-get 1 b))))
 		(:t  (defq _ l)
 			(while (>= (setq _ (- _ 2)) 0)
 				(emit-int (+ 0xa9400000 (<< (- l _ 2) 15)
-					(<< (elem-get _ b) 10) (const (<< (emit-native-reg? :rsp) 5)) (elem-get (inc _) b))))
-			(if (/= -2 _) (emit-cpy-ir (const (emit-native-reg? :rsp)) (* +ptr_size (dec l)) (elem-get 0 b)))
-			(emit-add-cr (align (* +ptr_size l) stack_align) (const (emit-native-reg? :rsp))))))
+					(<< (elem-get _ b) 10) (const (<< +arm64_rsp 5)) (elem-get (inc _) b))))
+			(if (/= -2 _) (emit-cpy-ir +arm64_rsp (* +ptr_size (dec l)) (elem-get 0 b)))
+			(emit-add-cr (align (* +ptr_size l) stack_align) +arm64_rsp))))
 
 (defun emit-beq-cr (c d l m) (arm64-cmp-cr c d) (arm64-branch 0x0 l))
 (defun emit-bne-cr (c d l m) (arm64-cmp-cr c d) (arm64-branch 0x1 l))
@@ -306,12 +310,12 @@
 	(arm64-cmp-rr s d) (emit-int 0x5400006a) (emit-xor-rr d d) (emit-int 0x14000002) (emit-or-cr -1 d))
 
 (defun emit-call (l)
-	(emit-push (const (emit-native-reg? :r30)))
+	(emit-push +arm64_rlnk)
 	(cond
 		((<= -0x8000000 (defq c (- l *pc*)) 0x7fffffc)
 			(emit-int (+ 0x94000000 (>> (logand c 0xfffffff) 2))))
 		(:t (throw "emit-call constant out of range !" c)))
-	(emit-pop (const (emit-native-reg? :r30))))
+	(emit-pop +arm64_rlnk))
 
 (defun emit-cpy-pr (l d)
 	(cond
@@ -320,17 +324,17 @@
 		(:t (throw "emit-cpy-pr constant out of range !" c))))
 
 (defun emit-call-r (r)
-	(emit-push (const (emit-native-reg? :r30)))
+	(emit-push +arm64_rlnk)
 	(emit-int (+ 0xd63f0000 (<< r 5)))
-	(emit-pop (const (emit-native-reg? :r30))))
+	(emit-pop +arm64_rlnk))
 
 (defun emit-call-i (d c)
-	(emit-cpy-ir d c (const (emit-native-reg? :r29)))
-	(emit-call-r (const (emit-native-reg? :r29))))
+	(emit-cpy-ir d c +arm64_rtmp)
+	(emit-call-r +arm64_rtmp))
 
 (defun emit-call-p (l)
-	(emit-cpy-pr l (const (emit-native-reg? :r29)))
-	(emit-call-r (const (emit-native-reg? :r29))))
+	(emit-cpy-pr l +arm64_rtmp)
+	(emit-call-r +arm64_rtmp))
 
 (defun emit-jmp (l d)
 	(cond
@@ -342,12 +346,12 @@
 	(emit-int (+ 0xd61f0000 (<< r 5))))
 
 (defun emit-jmp-i (d c)
-	(emit-cpy-ir d c (const (emit-native-reg? :r29)))
-	(emit-jmp-r (const (emit-native-reg? :r29))))
+	(emit-cpy-ir d c +arm64_rtmp)
+	(emit-jmp-r +arm64_rtmp))
 
 (defun emit-jmp-p (l)
-	(emit-cpy-pr l (const (emit-native-reg? :r29)))
-	(emit-jmp-r (const (emit-native-reg? :r29))))
+	(emit-cpy-pr l +arm64_rtmp)
+	(emit-jmp-r +arm64_rtmp))
 
 (defun emit-lea-i (s c d)
 	(cond
@@ -396,20 +400,20 @@
 		((= c -1))
 		((= c 0)
 			(emit-xor-rr r r))
-		((eql r (const (emit-native-reg? :rsp)))
+		((eql r +arm64_rsp)
 			(if (/= -1 (defq i (arm64-limm c)))
 				(progn
-					(emit-cpy-rr (const (emit-native-reg? :rsp)) (const (emit-native-reg? :r29)))
-					(emit-int (+ 0x92000000 (<< i 10) (<< (const (emit-native-reg? :r29)) 5) r)))
+					(emit-cpy-rr +arm64_rsp +arm64_rtmp)
+					(emit-int (+ 0x92000000 (<< i 10) (<< +arm64_rtmp 5) r)))
 				(progn
-					(arm64-mov-cr c (const (emit-native-reg? :r29)))
-					(emit-and-rr (const (emit-native-reg? :r29)) r))))
+					(arm64-mov-cr c +arm64_rtmp)
+					(emit-and-rr +arm64_rtmp r))))
 		(:t (defq i (arm64-limm c))
 			(if (/= i -1)
 				(emit-int (+ 0x92000000 (<< i 10) (<< r 5) r))
 				(progn
-					(arm64-mov-cr c (const (emit-native-reg? :r29)))
-					(emit-and-rr (const (emit-native-reg? :r29)) r))))))
+					(arm64-mov-cr c +arm64_rtmp)
+					(emit-and-rr +arm64_rtmp r))))))
 
 (defun emit-xor-cr (c r)
 	(cond
@@ -418,15 +422,15 @@
 			(if (/= i -1)
 				(emit-int (+ 0xd2000000 (<< i 10) (<< r 5) r))
 				(progn
-					(arm64-mov-cr c (const (emit-native-reg? :r29)))
-					(emit-xor-rr (const (emit-native-reg? :r29)) r))))))
+					(arm64-mov-cr c +arm64_rtmp)
+					(emit-xor-rr +arm64_rtmp r))))))
 
 (defun emit-add-rr (s d)
-	(if (eql s (const (emit-native-reg? :rsp))) (arm64-rrr 0x8b206000 d s d) (arm64-rrr 0x8b206000 s d d)))
+	(if (eql s +arm64_rsp) (arm64-rrr 0x8b206000 d s d) (arm64-rrr 0x8b206000 s d d)))
 
 (defun emit-sub-rr (s d)
 	(cond
-		((eql s (const (emit-native-reg? :rsp)))
+		((eql s +arm64_rsp)
 			(throw "emit-sub-rr src can't be :rsp !" (list s d)))
 		(:t (arm64-rrr 0xcb206000 s d d))))
 
@@ -442,7 +446,7 @@
 (defmacro arm64-shift-cr (e o c x y r)
 	`(cond
 		((= ,c 0))
-		((eql ,r ,(emit-native-reg? :rsp))
+		((eql ,r ,+arm64_rsp)
 			(throw ,(cat "emit-" e "-cr dst can't be :rsp !") (list ,c ,r)))
 		(:t (arm64-bf ,o ,x ,y ,r ,r))))
 
@@ -452,7 +456,7 @@
 
 (defmacro arm64-shift-rr (e o s d)
 	`(cond
-		((or (eql ,s ,(emit-native-reg? :rsp)) (eql ,d ,(emit-native-reg? :rsp)))
+		((or (eql ,s ,+arm64_rsp) (eql ,d ,+arm64_rsp))
 			(throw ,(cat "emit-" e "-rr src/dst can't be :rsp !") (list ,s ,d)))
 		(:t (arm64-rrr ,o ,s ,d ,d))))
 
@@ -462,12 +466,12 @@
 
 (defun emit-swp-rr (s d)
 	(unless (eql s d)
-		(emit-cpy-rr s (const (emit-native-reg? :r29)))
+		(emit-cpy-rr s +arm64_rtmp)
 		(emit-cpy-rr d s)
-		(emit-cpy-rr (const (emit-native-reg? :r29)) d)))
+		(emit-cpy-rr +arm64_rtmp d)))
 
 (defun emit-mul-rr (s d)
-	(if (or (eql s (const (emit-native-reg? :rsp))) (eql d (const (emit-native-reg? :rsp))))
+	(if (or (eql s +arm64_rsp) (eql d +arm64_rsp))
 		(throw "emit-mul-rr src/dst can't be :rsp !" (list s d)))
 	(emit-int (+ 0x9b000000 (<< d 16) (const (<< 31 10)) (<< s 5) d)))
 
@@ -477,25 +481,25 @@
 			(emit-xor-rr r r))
 		((= c -1)
 			(emit-int (+ 0xcb000000 (<< r 16) (const (<< 31 5)) r)))
-		(:t  (emit-cpy-cr c (const (emit-native-reg? :r29)))
-			(emit-mul-rr (const (emit-native-reg? :r29)) r))))
+		(:t  (emit-cpy-cr c +arm64_rtmp)
+			(emit-mul-rr +arm64_rtmp r))))
 
 (defun emit-ext-rr (s d)
 	(unless (eql s d) (emit-cpy-rr s d))
 	(emit-asr-cr 63 d))
 
 (defun emit-div-rrr (s d1 d2)
-	(emit-int (+ 0x9ac00c00 (<< s 16) (<< d2 5) (const (emit-native-reg? :r29))))
-	(emit-int (+ 0x9b008000 (const (<< (emit-native-reg? :r29) 16)) (<< d2 10) (<< s 5) d1))
-	(emit-cpy-rr (const (emit-native-reg? :r29)) d2))
+	(emit-int (+ 0x9ac00c00 (<< s 16) (<< d2 5) +arm64_rtmp))
+	(emit-int (+ 0x9b008000 (const (<< +arm64_rtmp 16)) (<< d2 10) (<< s 5) d1))
+	(emit-cpy-rr +arm64_rtmp d2))
 
 (defun emit-div-rrr-u (s d1 d2)
-	(emit-int (+ 0x9ac00800 (<< s 16) (<< d2 5) (const (emit-native-reg? :r29))))
-	(emit-int (+ 0x9b008000 (const (<< (emit-native-reg? :r29) 16)) (<< d2 10) (<< s 5) d1))
-	(emit-cpy-rr (const (emit-native-reg? :r29)) d2))
+	(emit-int (+ 0x9ac00800 (<< s 16) (<< d2 5) +arm64_rtmp))
+	(emit-int (+ 0x9b008000 (const (<< +arm64_rtmp 16)) (<< d2 10) (<< s 5) d1))
+	(emit-cpy-rr +arm64_rtmp d2))
 
-(defun emit-alloc (c) (emit-sub-cr (align c stack_align) (const (emit-native-reg? :rsp))))
-(defun emit-free (c) (emit-add-cr (align c stack_align) (const (emit-native-reg? :rsp))))
+(defun emit-alloc (c) (emit-sub-cr (align c stack_align) +arm64_rsp))
+(defun emit-free (c) (emit-add-cr (align c stack_align) +arm64_rsp))
 (defun emit-ret () (emit-int 0xd65f03c0))
 (defun emit-sync (n) (emit-int 0xd5033fbf))
 (defun emit-brk (n))
@@ -510,22 +514,22 @@
 	(emit-cpy-ri f s 0)
 	(emit-jmp (defcvar (label-sym 'arm_exit) (+ *pc* 12)) 0)
 ;arm_start
-	(emit-cpy-rr (const (emit-native-reg? :r1)) (const (emit-native-reg? :r30)))
+	(emit-cpy-rr (const (emit-native-reg? :r1)) +arm64_rlnk)
 	(emit-jmp-r (const (emit-native-reg? :r0))))
 ;arm_exit
 
 (case *abi*
 (ARM64
 (defun emit-call-abi (r b c n &rest x)
-	(setq x (cat `(,(emit-native-reg? :r30)) x))
+	(setq x (cat `(,+arm64_rlnk) x))
 	(apply (const emit-push) x)
-	(emit-cpy-ir b c (const (emit-native-reg? :r29)))
-	(emit-int (const (+ 0xd63f0000 (<< (emit-native-reg? :r29) 5))))
+	(emit-cpy-ir b c +arm64_rtmp)
+	(emit-int (const (+ 0xd63f0000 (<< +arm64_rtmp 5))))
 	(cond
 		((= 1 (defq l (length x)))
-			(emit-pop (const (emit-native-reg? :r30))))
+			(emit-pop +arm64_rlnk))
 		((= 2 l)
-			(emit-pop (const (emit-native-reg? :r30)) (const (emit-native-reg? :r29))))
-		(:t  (emit-cpy-ir (const (emit-native-reg? :rsp)) (* +ptr_size (dec l)) (const (emit-native-reg? :r30)))
+			(emit-pop +arm64_rlnk +arm64_rtmp))
+		(:t  (emit-cpy-ir +arm64_rsp (* +ptr_size (dec l)) +arm64_rlnk)
 			(emit-free (* +ptr_size l))))))
 (:t (throw (cat "Unknown ABI for CPU " *cpu* " !") *abi*)))
