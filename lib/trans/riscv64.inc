@@ -11,7 +11,8 @@
 (defq +riscv64_rzero (emit-native-reg? :r28)
 	+riscv64_rlnk (emit-native-reg? :r30)
 	+riscv64_rtmp (emit-native-reg? :r29)
-	+riscv64_rtmp1 (emit-native-reg? :r27))
+	+riscv64_rtmp1 (emit-native-reg? :r27)
+	+riscv64_rsp (emit-native-reg? :rsp))
 
 (defmacro riscv64-r (o rd rs1 rs2 f3 f7)
 	`(emit-int (+ ,o (<< ,rd 7) (<< ,rs1 15) (<< ,rs2 20) (<< ,f3 12) (<< ,f7 25))))
@@ -333,17 +334,17 @@
 
 (defun emit-push (&rest b)
 	(when (/= 0 (defq l (length b)))
-		(emit-sub-cr (align (* +ptr_size l) stack_align) (const (emit-native-reg? :rsp)))
+		(emit-sub-cr (align (* +ptr_size l) stack_align) +riscv64_rsp)
 		(defq _ l)
 		(while (>= (setq _ (dec _)) 0)
-			(emit-cpy-ri (elem-get _ b) (const (emit-native-reg? :rsp)) (* +ptr_size (- l _ 1))))))
+			(emit-cpy-ri (elem-get _ b) +riscv64_rsp (* +ptr_size (- l _ 1))))))
 
 (defun emit-pop (&rest b)
 	(when (/= 0 (defq l (length b)))
 		(defq _ l)
 		(while (>= (setq _ (dec _)) 0)
-			(emit-cpy-ir (const (emit-native-reg? :rsp)) (* +ptr_size (- l _ 1)) (elem-get _ b)))
-		(emit-add-cr (align (* +ptr_size l) stack_align) (const (emit-native-reg? :rsp)))))
+			(emit-cpy-ir +riscv64_rsp (* +ptr_size (- l _ 1)) (elem-get _ b)))
+		(emit-add-cr (align (* +ptr_size l) stack_align) +riscv64_rsp)))
 
 (defun emit-call (l)
 	(emit-push +riscv64_rlnk)
@@ -393,8 +394,8 @@
 	(emit-cpy-pr l +riscv64_rtmp)
 	(emit-jmp-r +riscv64_rtmp))
 
-(defun emit-alloc (c) (emit-sub-cr (align c stack_align) (const (emit-native-reg? :rsp))))
-(defun emit-free (c) (emit-add-cr (align c stack_align) (const (emit-native-reg? :rsp))))
+(defun emit-alloc (c) (emit-sub-cr (align c stack_align) +riscv64_rsp))
+(defun emit-free (c) (emit-add-cr (align c stack_align) +riscv64_rsp))
 (defun emit-ret () (emit-jmp-r +riscv64_rlnk))
 (defun emit-sync (n) (emit-int 0x0ff0000f))
 (defun emit-brk (n))
@@ -416,11 +417,11 @@
 (case *abi*
 (RISCV64
 (defun emit-call-abi (r b c n &rest x)
-	(setq x (cat `(,(emit-native-reg? :r30)) x))
+	(setq x (cat `(,+riscv64_rlnk) x))
 	(apply (const emit-push) x)
 	(defq l (length x))
 	(emit-cpy-ir b c +riscv64_rtmp)
 	(riscv64-i 0x67 +riscv64_rlnk +riscv64_rtmp 0x0 0x0)
-	(emit-cpy-ir (const (emit-native-reg? :rsp)) (* +ptr_size (dec l)) +riscv64_rlnk)
+	(emit-cpy-ir +riscv64_rsp (* +ptr_size (dec l)) +riscv64_rlnk)
 	(emit-free (* +ptr_size l))))
 (:t (throw (cat "Unknown ABI for CPU " *cpu* " !") *abi*)))
