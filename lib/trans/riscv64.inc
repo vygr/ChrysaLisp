@@ -86,7 +86,7 @@
 	(cond
 		((<= -0x800 c 0x7ff)
 			(riscv64-i 0x13 r (emit-native-reg? :r28) 0x0 c))
-		((<= -0x100000000 c 0xffffffff)
+		((<= -0x80000000 c 0x7fffffff)
 			(if (= (logand 0x800 c) 0)
 				(defq u (>>> c 12))
 				(defq u (inc (>>> c 12))))
@@ -96,10 +96,10 @@
 
 (defun emit-cpy-cr (c r)
 	(cond
-		((<= -0x100000000 c 0xffffffff)
+		((<= -0x80000000 c 0x7fffffff)
 			(riscv64-cr c r))
 		(:t (defq l (logand c 0xffffffff))
-			(if (= (logand 0x800000000 c) 0)
+			(if (= (logand 0x80000000 c) 0)
 				(defq u (>>> c 32))
 				(defq u (inc (>>> c 32))))
 			(riscv64-cr u (const (emit-native-reg? :r29)))
