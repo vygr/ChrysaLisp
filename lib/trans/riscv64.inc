@@ -61,7 +61,7 @@
 (defun emit-cpy-rr (s d)
 	(cond
 		((eql s d))
-		(:t (riscv64-r 0x33 d s (emit-native-reg? :r28) 0x0 0x0))))
+		(:t (riscv64-r 0x33 d s +riscv64_rzero 0x0 0x0))))
 
 (defun emit-add-rr (s d)
 	(riscv64-r 0x33 d d s 0x0 0x0))
@@ -94,7 +94,7 @@
 (defun riscv64-cr (c r)
 	(cond
 		((riscv64-within c 12)
-			(riscv64-i 0x13 r (emit-native-reg? :r28) 0x0 c))
+			(riscv64-i 0x13 r +riscv64_rzero 0x0 c))
 		((riscv64-within c 32)
 			(if (= (logand 0x800 c) 0)
 				(defq u (>>> c 12))
