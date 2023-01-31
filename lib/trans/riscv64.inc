@@ -353,7 +353,7 @@
 (defun emit-call (l)
 	(emit-push (const (emit-native-reg? :r30)))
 	(cond
-		((riscv64-within (defq c (- l *pc*)) 20)
+		((riscv64-within (defq c (- l *pc*)) 21)
 			(riscv64-j 0x6f (const (emit-native-reg? :r30)) c))
 		(:t (throw "emit-call constant out of range !" c)))
 	(emit-pop (const (emit-native-reg? :r30))))
