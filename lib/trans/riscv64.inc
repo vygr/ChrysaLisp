@@ -346,68 +346,57 @@
 			(emit-cpy-ir (const (emit-native-reg? :rsp)) (* +ptr_size (- l _ 1)) (elem-get _ b)))
 		(emit-add-cr (align (* +ptr_size l) stack_align) (const (emit-native-reg? :rsp)))))
 
-
-
-
-
-
-
 (defun emit-call (l)
 	(emit-push (const (emit-native-reg? :r30)))
 	(cond
-		((<= -0x8000000 (defq c (- l *pc*)) 0x7fffffc)
-			(emit-int (+ 0x94000000 (>> (logand c 0xfffffff) 2))))
+		((<= -0x100000 (defq c (- l *pc*)) 0xfffff)
+			(riscv64-j 0x6f (const (emit-native-reg? :r30)) c))
 		(:t (throw "emit-call constant out of range !" c)))
 	(emit-pop (const (emit-native-reg? :r30))))
 
-(defun emit-cpy-pr (l d)
+(defun emit-jmp (l m)
 	(cond
-		((<= -0x100000 (defq c (- l *pc*)) 0xffffc)
-			(emit-int (+ 0x58000000 (<< (logand c 0x1fffff) 3) d)))
-		(:t (throw "emit-cpy-pr constant out of range !" c))))
+		((<= -0x100000 (defq c (- l *pc*)) 0xfffff)
+			(riscv64-j 0x6f (const (emit-native-reg? :r28)) c))
+		(:t (throw "emit-jmp constant out of range !" c))))
 
 (defun emit-call-r (r)
 	(emit-push (const (emit-native-reg? :r30)))
-	(emit-int (+ 0xd63f0000 (<< r 5)))
+	(riscv64-i 0x67 (const (emit-native-reg? :r30)) r 0x0 0x0)
 	(emit-pop (const (emit-native-reg? :r30))))
 
-(defun emit-call-i (d c)
-	(emit-cpy-ir d c (const (emit-native-reg? :r29)))
-	(emit-call-r (const (emit-native-reg? :r29))))
-
-(defun emit-call-p (l)
-	(emit-cpy-pr l (const (emit-native-reg? :r29)))
-	(emit-call-r (const (emit-native-reg? :r29))))
-
-(defun emit-jmp (l d)
-	(cond
-		((<= -0x8000000 (defq c (- l *pc*)) 0x7fffffc)
-			(emit-int (+ 0x14000000 (>> (logand c 0xfffffff) 2))))
-		(:t (throw "emit-jmp constant out of range !" c))))
-
 (defun emit-jmp-r (r)
-	(emit-int (+ 0xd61f0000 (<< r 5))))
+	(riscv64-i 0x67 (const (emit-native-reg? :r28)) r 0x0 0x0))
 
-(defun emit-jmp-i (d c)
-	(emit-cpy-ir d c (const (emit-native-reg? :r29)))
-	(emit-jmp-r (const (emit-native-reg? :r29))))
+(defun emit-call-i (s i)
+	(emit-cpy-ir s i (const (emit-native-reg? :r29)))
+	(emit-call-r (const (emit-native-reg? :r29))))
 
-(defun emit-jmp-p (l)
-	(emit-cpy-pr l (const (emit-native-reg? :r29)))
+(defun emit-jmp-i (s i)
+	(emit-cpy-ir s i (const (emit-native-reg? :r29)))
 	(emit-jmp-r (const (emit-native-reg? :r29))))
 
 (defun emit-lea-p (l d)
 	(cond
 		((<= -0x100000 (defq c (- l *pc*)) 0xfffff)
-			(emit-int (+ 0x10000000 (<< (logand c 0x3) 29) (<< (logand c 0x1ffffc) 3) d)))
+			(riscv64-u 0x17 d c))
 		(:t (throw "emit-lea-p constant out of range !" c))))
+
+(defun emit-cpy-pr (l d)
+	(emit-lea-p l (const (emit-native-reg? :r27)))
+	(emit-cpy-ir (const (emit-native-reg? :r27)) 0 d))
+
+(defun emit-call-p (l)
+	(emit-cpy-pr l (const (emit-native-reg? :r29)))
+	(emit-call-r (const (emit-native-reg? :r29))))
+
+(defun emit-jmp-p (l)
+	(emit-cpy-pr l (const (emit-native-reg? :r29)))
+	(emit-jmp-r (const (emit-native-reg? :r29))))
 
 (defun emit-alloc (c) (emit-sub-cr (align c stack_align) (const (emit-native-reg? :rsp))))
 (defun emit-free (c) (emit-add-cr (align c stack_align) (const (emit-native-reg? :rsp))))
-
-(defun emit-ret ()
-	(riscv64-i 0x67 (const (emit-native-reg? :r28)) (const (emit-native-reg? :r30)) 0x0 0x0))
-
+(defun emit-ret () (emit-jmp-r (const (emit-native-reg? :r30))))
 (defun emit-sync (n) (emit-int 0x0ff0000f))
 (defun emit-brk (n))
 
