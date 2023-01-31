@@ -130,8 +130,6 @@
 (defun emit-or-cr (c r)
 	(cond
 		((= c 0))
-		((= c -1)
-			(emit-cpy-cr -1 r))
 		((riscv64-within c 12)
 			(riscv64-i 0x13 r r 0x6 c))
 		(:t (throw "emit-or-cr constant out of range !" c))))
@@ -139,8 +137,6 @@
 (defun emit-and-cr (c r)
 	(cond
 		((= c -1))
-		((= c 0)
-			(emit-xor-rr r r))
 		((riscv64-within c 12)
 			(riscv64-i 0x13 r r 0x7 c))
 		(:t (emit-cpy-cr c (const (emit-native-reg? :r29)))
