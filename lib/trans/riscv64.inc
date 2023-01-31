@@ -379,7 +379,7 @@
 
 (defun emit-lea-p (l d)
 	(cond
-		((<= -0x100000 (defq c (- l *pc*)) 0xfffff)
+		((<= -0x80000 (defq c (- l *pc*)) 0x7ffff)
 			(riscv64-u 0x17 d c))
 		(:t (throw "emit-lea-p constant out of range !" c))))
 
