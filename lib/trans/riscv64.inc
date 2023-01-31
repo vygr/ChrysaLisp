@@ -11,25 +11,28 @@
 (defmacro riscv64-r (o rd rs1 rs2 f3 f7)
 	`(emit-int (+ ,o (<< ,rd 7) (<< ,rs1 15) (<< ,rs2 20) (<< ,f3 12) (<< ,f7 25))))
 
-(defmacro riscv64-i (o rd rs1 f3 imm)
-	`(emit-int (+ ,o (<< ,rd 7) (<< ,rs1 15) (<< ,f3 12) (<< ,imm 20))))
+(defmacro riscv64-i (o rd rs1 f3 imm12)
+	`(emit-int (+ ,o (<< ,rd 7) (<< ,rs1 15) (<< ,f3 12) (<< ,imm12 20))))
 
-(defmacro riscv64-s (o rs1 rs2 f3 imm)
+(defmacro riscv64-s (o rs1 rs2 f3 imm12)
 	`(emit-int (+ ,o (<< ,rs1 15) (<< ,rs2 20) (<< ,f3 12)
-		(<< (logand 0x1f ,imm) 7) (<< (logand 0xfe0 ,imm) 25))))
+		(<< (logand 0x1f ,imm12) 7) (<< (logand 0xfe0 ,imm12) 25))))
 
-(defmacro riscv64-b (o rs1 rs2 f3 imm)
+(defmacro riscv64-b (o rs1 rs2 f3 imm13)
 	`(emit-int (+ ,o (<< ,rs1 15) (<< ,rs2 20) (<< ,f3 12)
-		(<< (logand 0x1e ,imm) 7) (<< (logand 0x7e0 ,imm) 20)
-		(>> (logand 0x400 ,imm) 5) (<< (logand 0x800 ,imm) 18))))
+		(<< (logand 0x1e ,imm13) 7) (<< (logand 0x7e0 ,imm13) 20)
+		(>> (logand 0x400 ,imm13) 5) (<< (logand 0x800 ,imm13) 18))))
 
-(defmacro riscv64-u (o rd imm)
-	`(emit-int (+ ,o (<< ,rd 7) (<< ,imm 12))))
+(defmacro riscv64-u (o rd imm20)
+	`(emit-int (+ ,o (<< ,rd 7) (<< ,imm20 12))))
 
-(defmacro riscv64-j (o rd imm)
+(defmacro riscv64-j (o rd imm21)
 	`(emit-int (+ ,o (<< ,rd 7)
-		(<< (logand 0x7fe ,imm) 20) (<< (logand 0x400 ,imm) 9)
-		(logand 0xff000 ,imm) (<< (logand 0x80000 ,imm) 11))))
+		(<< (logand 0x7fe ,imm21) 20) (<< (logand 0x400 ,imm21) 9)
+		(logand 0xff000 ,imm21) (<< (logand 0x80000 ,imm21) 11))))
+
+(defmacro riscv64-within (c n)
+	`(<= ,(neg (<< 1 n)) ,c ,(>> -1 (- 64 n))))
 
 (defun emit-shl-rr (s d)
 	(riscv64-r 0x33 d d s 0x1 0x0))
@@ -84,9 +87,9 @@
 
 (defun riscv64-cr (c r)
 	(cond
-		((<= -0x800 c 0x7ff)
+		((riscv64-within c 12)
 			(riscv64-i 0x13 r (emit-native-reg? :r28) 0x0 c))
-		((<= -0x80000000 c 0x7fffffff)
+		((riscv64-within c 32)
 			(if (= (logand 0x800 c) 0)
 				(defq u (>>> c 12))
 				(defq u (inc (>>> c 12))))
@@ -96,7 +99,7 @@
 
 (defun emit-cpy-cr (c r)
 	(cond
-		((<= -0x80000000 c 0x7fffffff)
+		((riscv64-within c 32)
 			(riscv64-cr c r))
 		(:t (defq l (>>> (<< c 32) 32))
 			(if (>= c 0)
@@ -110,7 +113,7 @@
 (defun emit-add-cr (c r)
 	(cond
 		((= c 0))
-		((<= -0x800 c 0x7ff)
+		((riscv64-within c 12)
 			(riscv64-i 0x13 r r 0x0 c))
 		(:t (emit-cpy-cr c (const (emit-native-reg? :r29)))
 			(emit-add-rr (const (emit-native-reg? :r29)) r))))
@@ -118,7 +121,7 @@
 (defun emit-sub-cr (c r)
 	(cond
 		((= c 0))
-		((<= -0x800 (setq c (neg c)) 0x7ff)
+		((riscv64-within (setq c (neg c)) 12)
 			(riscv64-i 0x13 r r 0x0 c))
 		(:t (emit-cpy-cr c (const (emit-native-reg? :r29)))
 			(emit-sub-rr (const (emit-native-reg? :r29)) r))))
@@ -126,7 +129,7 @@
 (defun emit-xor-cr (c r)
 	(cond
 		((= c 0))
-		((<= -0x800 c 0x7ff)
+		((riscv64-within c 12)
 			(riscv64-i 0x13 r r 0x4 c))
 		(:t (throw "emit-xor-cr constant out of range !" c))))
 
@@ -135,7 +138,7 @@
 		((= c 0))
 		((= c -1)
 			(emit-cpy-cr -1 r))
-		((<= -0x800 c 0x7ff)
+		((riscv64-within c 12)
 			(riscv64-i 0x13 r r 0x6 c))
 		(:t (throw "emit-or-cr constant out of range !" c))))
 
@@ -144,7 +147,7 @@
 		((= c -1))
 		((= c 0)
 			(emit-xor-rr r r))
-		((<= -0x800 c 0x7ff)
+		((riscv64-within c 12)
 			(riscv64-i 0x13 r r 0x7 c))
 		(:t (emit-cpy-cr c (const (emit-native-reg? :r29)))
 			(emit-and-rr (const (emit-native-reg? :r29)) r))))
@@ -168,7 +171,7 @@
 
 (defun riscv64-branch (o d s l)
 	(cond
-		((<= -0x2000 (defq c (- l *pc*)) 0x1fff)
+		((riscv64-within (defq c (- l *pc*)) 13)
 			(riscv64-b 0x63 d s o c))
 		(:t (throw "riscv64-branch constant out of range !" c))))
 
@@ -279,7 +282,7 @@
 
 (defun riscv64-ir (o s i d)
 	(cond
-		((<= -0x1000 i 0xfff)
+		((riscv64-within i 12)
 			(riscv64-i 0x3 d s o i))
 		(:t (throw "riscv64-ir index out of range !" i))))
 
@@ -297,7 +300,7 @@
 
 (defun riscv64-ri (o s d i)
 	(cond
-		((<= -0x800 i 0x7ff)
+		((riscv64-within i 12)
 			(riscv64-s 0x23 d s o i))
 		(:t (emit-cpy-cr i (const (emit-native-reg? :r29)))
 			(riscv64-rd o s d (const (emit-native-reg? :r29))))))
@@ -327,7 +330,7 @@
 (defun emit-lea-i (s i d)
 	(cond
 		((and (= i 0) (eql s d)))
-		((<= -0x800 i 0x7ff)
+		((riscv64-within i 12)
 			(riscv64-i 0x13 d s 0x0 i))
 		(:t (throw "emit-lea-i constant out of range !" i))))
 
@@ -350,14 +353,14 @@
 (defun emit-call (l)
 	(emit-push (const (emit-native-reg? :r30)))
 	(cond
-		((<= -0x100000 (defq c (- l *pc*)) 0xfffff)
+		((riscv64-within (defq c (- l *pc*)) 20)
 			(riscv64-j 0x6f (const (emit-native-reg? :r30)) c))
 		(:t (throw "emit-call constant out of range !" c)))
 	(emit-pop (const (emit-native-reg? :r30))))
 
 (defun emit-jmp (l m)
 	(cond
-		((<= -0x100000 (defq c (- l *pc*)) 0xfffff)
+		((riscv64-within (defq c (- l *pc*)) 21)
 			(riscv64-j 0x6f (const (emit-native-reg? :r28)) c))
 		(:t (throw "emit-jmp constant out of range !" c))))
 
@@ -379,7 +382,7 @@
 
 (defun emit-lea-p (l d)
 	(cond
-		((<= -0x80000 (defq c (- l *pc*)) 0x7ffff)
+		((riscv64-within (defq c (- l *pc*)) 20)
 			(riscv64-u 0x17 d c))
 		(:t (throw "emit-lea-p constant out of range !" c))))
 
