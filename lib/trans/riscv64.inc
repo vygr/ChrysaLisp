@@ -118,13 +118,7 @@
 		(:t (emit-cpy-cr c (const (emit-native-reg? :r29)))
 			(emit-add-rr (const (emit-native-reg? :r29)) r))))
 
-(defun emit-sub-cr (c r)
-	(cond
-		((= c 0))
-		((riscv64-within (setq c (neg c)) 12)
-			(riscv64-i 0x13 r r 0x0 c))
-		(:t (emit-cpy-cr c (const (emit-native-reg? :r29)))
-			(emit-sub-rr (const (emit-native-reg? :r29)) r))))
+(defun emit-sub-cr (c r) (emit-add-cr (neg c) r))
 
 (defun emit-xor-cr (c r)
 	(cond
