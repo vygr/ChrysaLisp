@@ -16,7 +16,7 @@
 
 (defmacro riscv64-s (o rs1 rs2 f3 imm)
 	`(emit-int (+ ,o (<< ,rs1 15) (<< ,rs2 20) (<< ,f3 12)
-		(<< (logand 0x1f ,imm) 7) (<< (logand 0xfe0 ,imm) 20))))
+		(<< (logand 0x1f ,imm) 7) (<< (logand 0xfe0 ,imm) 25))))
 
 (defmacro riscv64-b (o rs1 rs2 f3 imm)
 	`(emit-int (+ ,o (<< ,rs1 15) (<< ,rs2 20) (<< ,f3 12)
@@ -98,8 +98,8 @@
 	(cond
 		((<= -0x80000000 c 0x7fffffff)
 			(riscv64-cr c r))
-		(:t (defq l (logand c 0xffffffff))
-			(if (= (logand 0x80000000 c) 0)
+		(:t (defq l (>>> (<< c 32) 32))
+			(if (>= c 0)
 				(defq u (>>> c 32))
 				(defq u (inc (>>> c 32))))
 			(riscv64-cr u (const (emit-native-reg? :r29)))
@@ -291,16 +291,21 @@
 (defun emit-cpy-ir-us (s i d) (riscv64-ir 0x5 s i d))
 (defun emit-cpy-ir-ui (s i d) (riscv64-ir 0x6 s i d))
 
+(defun riscv64-rd (o s d i)
+	(riscv64-r 0x33 (const (emit-native-reg? :r29)) d i 0x0 0x0)
+	(riscv64-i 0x23 s (const (emit-native-reg? :r29)) o 0))
+
 (defun riscv64-ri (o s d i)
 	(cond
-		((<= -0x1000 i 0xfff)
-			(riscv64-s 0x23 s d o i))
-		(:t (throw "riscv64-ri index out of range !" i))))
+		((<= -0x800 i 0x7ff)
+			(riscv64-s 0x23 d s o i))
+		(:t (emit-cpy-cr i (const (emit-native-reg? :r29)))
+			(riscv64-rd o s d (const (emit-native-reg? :r29))))))
 
-(defun emit-cpy-ri-b (s d i) (riscv64-ir 0x0 s d i))
-(defun emit-cpy-ri-s (s d i) (riscv64-ir 0x1 s d i))
-(defun emit-cpy-ri-i (s d i) (riscv64-ir 0x2 s d i))
-(defun emit-cpy-ri (s d i) (riscv64-ir 0x3 s d i))
+(defun emit-cpy-ri-b (s d i) (riscv64-ri 0x0 s d i))
+(defun emit-cpy-ri-s (s d i) (riscv64-ri 0x1 s d i))
+(defun emit-cpy-ri-i (s d i) (riscv64-ri 0x2 s d i))
+(defun emit-cpy-ri (s d i) (riscv64-ri 0x3 s d i))
 
 (defun riscv64-dr (o s i d)
 	(riscv64-r 0x33 (const (emit-native-reg? :r29)) s i 0x0 0x0)
@@ -313,10 +318,6 @@
 (defun emit-cpy-dr-ub (s i d) (riscv64-dr 0x4 s i d))
 (defun emit-cpy-dr-us (s i d) (riscv64-dr 0x5 s i d))
 (defun emit-cpy-dr-ui (s i d) (riscv64-dr 0x6 s i d))
-
-(defun riscv64-rd (o s d i)
-	(riscv64-r 0x33 (const (emit-native-reg? :r29)) d i 0x0 0x0)
-	(riscv64-i 0x23 s (const (emit-native-reg? :r29)) o 0))
 
 (defun emit-cpy-rd-b (s d i) (riscv64-rd 0x0 s d i))
 (defun emit-cpy-rd-s (s d i) (riscv64-rd 0x1 s d i))
