@@ -11,13 +11,16 @@
 	(setq opcode (+ opcode (opt i 1)))
 	ci)
 
+(defmacro vp64-within (c n)
+	`(<= ,(neg (<< 1 (- n 1))) ,c ,(>> -1 (- 64 (- n 1)))))
+
 (defun vp64-cr (o c r)
 	(cond
-		((<= -0x8 c 0x7)
+		((vp64-within c 4)
 			(emit-short (+ o (<< r 8) (<< c 12))))
-		((<= -0x80000 c 0x7ffff)
+		((vp64-within c 20)
 			(emit-short (+ (inc o) (<< r 8) (<< c 12)) (>>> c 4)))
-		((<= -0x800000000 c 0x7ffffffff)
+		((vp64-within c 36)
 			(emit-short (+ (+ o 2) (<< r 8) (<< c 12)) (>>> c 4) (>>> c 20)))
 		(:t  (emit-short (+ (+ o 3) (<< r 8)) c (>>> c 16) (>>> c 32) (>>> c 48)))))
 
@@ -61,11 +64,11 @@
 
 (defun vp64-scr (o c d)
 	(cond
-		((<= -0x8 c 0x7)
+		((vp64-within c 4)
 			(emit-short (+ o (<< d 8) (<< c 12))))
-		((<= -0x80000 c 0x7ffff)
+		((vp64-within c 20)
 			(emit-short (+ (inc o) (<< d 8) (<< c 12)) (>>> c 4)))
-		((<= -0x800000000 c 0x7ffffffff)
+		((vp64-within c 36)
 			(emit-short (+ (+ o 2) (<< d 8) (<< c 12)) (>>> c 4) (>>> c 20)))
 		(:t  (throw "vp64-scr constant out of range !" c))))
 
@@ -87,9 +90,9 @@
 	(defq m (elem-get d *branches*) l (- l *pc*))
 	(and (/= *pass* 0) (> (abs l) (abs m)) (elem-set d *branches* (setq m l)))
 	(cond
-		((<= -0x80 (- m 2) 0x7f)
+		((vp64-within (- m 2) 8)
 			(emit-short (+ o (<< (- l 2) 8))))
-		((<= -0x800000 (- m 4) 0x7fffff)
+		((vp64-within (- m 4) 24)
 			(emit-short (+ (inc o) (<< (- l 4) 8)) (>>> (- l 4) 8)))
 		(:t  (throw "vp64-branch constant out of range !" l))))
 
@@ -116,7 +119,7 @@
 
 (defun vp64-ir (o s c d)
 	(cond
-		((<= -0x8000 c 0x7fff)
+		((vp64-within c 16)
 			(emit-short (+ o (<< d 8) (<< s 12)) c))
 		(:t  (throw "vp64-ir constant out of range !" c))))
 
@@ -131,7 +134,7 @@
 
 (defun vp64-ri (o s d c)
 	(cond
-		((<= -0x8000 c 0x7fff)
+		((vp64-within c 16)
 			(emit-short (+ o (<< d 8) (<< s 12)) c))
 		(:t  (throw "vp64-ri constant out of range !" c))))
 
@@ -165,7 +168,7 @@
 
 (defun vp64-call-jmp-i (o r c)
 	(cond
-		((<= -0x80000 c 0x7ffff)
+		((vp64-within c 20)
 			(emit-short (+ o (<< r 8) (<< c 12)) (>>> c 4)))
 		(:t  (throw "vp64-call-jmp-i constant out of range !" c))))
 
@@ -174,7 +177,7 @@
 
 (defun vp64-p (o r l)
 	(cond
-		((<= -0x80000 (defq c (- l *pc* 4)) 0x7ffff)
+		((vp64-within (defq c (- l *pc* 4)) 20)
 			(emit-short (+ o (<< r 8) (<< c 12)) (>>> c 4)))
 		(:t  (throw "vp64-p constant out of range !" c))))
 
@@ -183,9 +186,9 @@
 
 (defun vp64-call-jmp-p (o l)
 	(cond
-		((<= -0x80 (defq c (- l *pc* 2)) 0x7f)
+		((vp64-within (defq c (- l *pc* 2)) 8)
 			(emit-short (+ o (<< c 8))))
-		((<= -0x800000 (defq c (- l *pc* 4)) 0x7fffff)
+		((vp64-within (defq c (- l *pc* 4)) 24)
 			(emit-short (+ (inc o) (<< c 8)) (>>> c 8)))
 		(:t  (throw "vp64-call-jmp-p constant out of range !" c))))
 
