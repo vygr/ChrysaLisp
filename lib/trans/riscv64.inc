@@ -294,7 +294,7 @@
 		((riscv64-within i 12)
 			(riscv64-i 0x3 d s o i))
 		(:t (emit-cpy-cr i +riscv64_rtmp)
-			(riscv64-dr o d s +riscv64_rtmp))))
+			(riscv64-dr o s +riscv64_rtmp d))))
 
 (defun emit-cpy-ir-b (s i d) (riscv64-ir 0x0 s i d))
 (defun emit-cpy-ir-s (s i d) (riscv64-ir 0x1 s i d))
