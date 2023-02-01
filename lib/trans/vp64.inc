@@ -12,7 +12,7 @@
 	ci)
 
 (defmacro vp64-within (c n)
-	`(<= ,(neg (<< 1 (- n 1))) ,c ,(>> -1 (- 64 (- n 1)))))
+	`(<= ,(neg (<< 1 (- n 1))) ,c ,(>> -1 (- 65 n))))
 
 (defun vp64-cr (o c r)
 	(cond

@@ -43,7 +43,7 @@
 		(logand 0xff000 ,imm21) (<< (logand 0x80000 ,imm21) 11))))
 
 (defmacro riscv64-within (c n)
-	`(<= ,(neg (<< 1 (- n 1))) ,c ,(>> -1 (- 64 (- n 1)))))
+	`(<= ,(neg (<< 1 (- n 1))) ,c ,(>> -1 (- 65 n))))
 
 (defun emit-shl-rr (s d)
 	(riscv64-r 0x33 d d s 0x1 0x0))
