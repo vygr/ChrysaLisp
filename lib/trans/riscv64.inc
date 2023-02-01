@@ -43,7 +43,7 @@
 		(logand 0xff000 ,imm21) (<< (logand 0x80000 ,imm21) 11))))
 
 (defmacro riscv64-within (c n)
-	`(<= ,(neg (<< 1 n)) ,c ,(>> -1 (- 64 n))))
+	`(<= ,(neg (<< 1 (- n 1))) ,c ,(>> -1 (- 64 (- n 1)))))
 
 (defun emit-shl-rr (s d)
 	(riscv64-r 0x33 d d s 0x1 0x0))
@@ -281,11 +281,20 @@
 	(riscv64-set 0x1 +riscv64_rzero s 4)
 	(emit-xor-rr d d))
 
+(defun riscv64-dr (o s i d)
+	(riscv64-r 0x33 +riscv64_rtmp s i 0x0 0x0)
+	(riscv64-i 0x3 d +riscv64_rtmp o 0))
+
+(defun riscv64-rd (o s d i)
+	(riscv64-r 0x33 +riscv64_rtmp d i 0x0 0x0)
+	(riscv64-i 0x23 s +riscv64_rtmp o 0))
+
 (defun riscv64-ir (o s i d)
 	(cond
 		((riscv64-within i 12)
 			(riscv64-i 0x3 d s o i))
-		(:t (throw "riscv64-ir index out of range !" i))))
+		(:t (emit-cpy-cr i +riscv64_rtmp)
+			(riscv64-dr o d s +riscv64_rtmp))))
 
 (defun emit-cpy-ir-b (s i d) (riscv64-ir 0x0 s i d))
 (defun emit-cpy-ir-s (s i d) (riscv64-ir 0x1 s i d))
@@ -294,10 +303,6 @@
 (defun emit-cpy-ir-ub (s i d) (riscv64-ir 0x4 s i d))
 (defun emit-cpy-ir-us (s i d) (riscv64-ir 0x5 s i d))
 (defun emit-cpy-ir-ui (s i d) (riscv64-ir 0x6 s i d))
-
-(defun riscv64-rd (o s d i)
-	(riscv64-r 0x33 +riscv64_rtmp d i 0x0 0x0)
-	(riscv64-i 0x23 s +riscv64_rtmp o 0))
 
 (defun riscv64-ri (o s d i)
 	(cond
@@ -310,10 +315,6 @@
 (defun emit-cpy-ri-s (s d i) (riscv64-ri 0x1 s d i))
 (defun emit-cpy-ri-i (s d i) (riscv64-ri 0x2 s d i))
 (defun emit-cpy-ri (s d i) (riscv64-ri 0x3 s d i))
-
-(defun riscv64-dr (o s i d)
-	(riscv64-r 0x33 +riscv64_rtmp s i 0x0 0x0)
-	(riscv64-i 0x3 d +riscv64_rtmp o 0))
 
 (defun emit-cpy-dr-b (s i d) (riscv64-dr 0x0 s i d))
 (defun emit-cpy-dr-s (s i d) (riscv64-dr 0x1 s i d))
