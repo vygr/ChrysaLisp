@@ -105,7 +105,7 @@
 				(defq u c)
 				(defq u (+ 0x1000 c)))
 			(riscv64-u 0x37 r u)
-			(riscv64-i 0x13 r r 0x0 c))
+			(if (/= (logand c 0xfff) 0) (riscv64-i 0x13 r r 0x0 c)))
 		(:t (throw "riscv64-cr constant out of range !" c))))
 
 (defun emit-cpy-cr (c r)
@@ -114,10 +114,14 @@
 			(riscv64-cr c r))
 		(:t (defq l (>>> (<< c 32) 32) u (>>> c 32))
 			(if (< l 0) (setq u (>>> (<< (inc u) 32) 32)))
-			(riscv64-cr u +riscv64_rtmp)
-			(riscv64-cr l r)
-			(emit-shl-cr 32 +riscv64_rtmp)
-			(emit-add-rr +riscv64_rtmp r))))
+			(cond
+				((= l 0)
+					(riscv64-cr u r)
+					(emit-shl-cr 32 r))
+				(:t (riscv64-cr u +riscv64_rtmp)
+					(riscv64-cr l r)
+					(emit-shl-cr 32 +riscv64_rtmp)
+					(emit-add-rr +riscv64_rtmp r))))))
 
 (defun emit-add-cr (c r)
 	(cond
