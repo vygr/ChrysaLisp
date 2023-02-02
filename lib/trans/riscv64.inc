@@ -97,7 +97,6 @@
 	(emit-cpy-rr +riscv64_rtmp d2))
 
 (defun riscv64-cr (c r)
-	(setq c (logior 0 c))
 	(cond
 		((riscv64-within c 12)
 			(riscv64-i 0x13 r +riscv64_rzero 0x0 c))
@@ -113,10 +112,8 @@
 	(cond
 		((riscv64-within c 32)
 			(riscv64-cr c r))
-		(:t (defq l (>>> (<< c 32) 32))
-			(if (>= c 0)
-				(defq u (>>> c 32))
-				(defq u (inc (>>> c 32))))
+		(:t (defq l (>>> (<< c 32) 32) u (>>> c 32))
+			(if (< l 0) (setq u (>>> (<< (inc u) 32) 32)))
 			(riscv64-cr u +riscv64_rtmp)
 			(riscv64-cr l r)
 			(emit-shl-cr 32 +riscv64_rtmp)
