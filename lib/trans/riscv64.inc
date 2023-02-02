@@ -390,7 +390,7 @@
 		(defq u c)
 		(defq u (+ 0x1000 c)))
 	(riscv64-u 0x17 d u)
-	(riscv64-i 0x13 d d 0x0 c))
+	(if (/= (logand c 0xfff) 0) (riscv64-i 0x13 d d 0x0 c)))
 
 (defun emit-cpy-pr (l d)
 	(emit-lea-p l +riscv64_rtmp1)
