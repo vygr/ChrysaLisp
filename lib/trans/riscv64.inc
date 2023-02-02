@@ -34,8 +34,8 @@
 		(<< (logand 0x1e ,imm13) 7) (<< (logand 0x7e0 ,imm13) 20)
 		(>> (logand 0x800 ,imm13) 5) (<< (logand 0x1000 ,imm13) 19))))
 
-(defmacro riscv64-u (o rd imm20)
-	`(emit-int (+ ,o (<< ,rd 7) (<< ,imm20 12))))
+(defmacro riscv64-u (o rd imm32)
+	`(emit-int (+ ,o (<< ,rd 7) (logand ,imm32 0xfffff000))))
 
 (defmacro riscv64-j (o rd imm21)
 	`(emit-int (+ ,o (<< ,rd 7)
@@ -97,13 +97,14 @@
 	(emit-cpy-rr +riscv64_rtmp d2))
 
 (defun riscv64-cr (c r)
+	(setq c (logior 0 c))
 	(cond
 		((riscv64-within c 12)
 			(riscv64-i 0x13 r +riscv64_rzero 0x0 c))
 		((riscv64-within c 32)
 			(if (= (logand 0x800 c) 0)
-				(defq u (>>> c 12))
-				(defq u (inc (>>> c 12))))
+				(defq u c)
+				(defq u (+ 0x1000 c)))
 			(riscv64-u 0x37 r u)
 			(riscv64-i 0x13 r r 0x0 (logand 0xfff c)))
 		(:t (throw "riscv64-cr constant out of range !" c))))
@@ -383,10 +384,12 @@
 	(emit-jmp-r +riscv64_rtmp))
 
 (defun emit-lea-p (l d)
-	(cond
-		((riscv64-within (defq c (- l *pc*)) 20)
-			(riscv64-u 0x17 d c))
-		(:t (throw "emit-lea-p constant out of range !" c))))
+	(defq c (- l *pc*))
+	(if (= (logand 0x800 c) 0)
+		(defq u c)
+		(defq u (+ 0x1000 c)))
+	(riscv64-u 0x17 d u)
+	(riscv64-i 0x13 d d 0x0 (logand 0xfff c)))
 
 (defun emit-cpy-pr (l d)
 	(emit-lea-p l +riscv64_rtmp1)
