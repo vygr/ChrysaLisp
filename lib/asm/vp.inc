@@ -114,7 +114,7 @@
 		(emit (list ',(sym (cat "emit-" _ "-rr")) (get s) (get d) (label-sym l)))))
 (defmacro vp-op-cr (_)
 	`(defun ,(sym (cat "vp-" _ "-cr")) (c d)
-		(emit (list ',(sym (cat "emit-" _ "-cr")) (eval c (penv)) (get d)))))
+		(emit (list ',(sym (cat "emit-" _ "-cr")) (logior 0 (eval c (penv))) (get d)))))
 (defmacro vp-op-rr (_)
 	`(defun ,(sym (cat "vp-" _ "-rr")) (s d)
 		(emit (list ',(sym (cat "emit-" _ "-rr")) (get s) (get d)))))
