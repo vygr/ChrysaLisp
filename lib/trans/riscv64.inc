@@ -27,7 +27,7 @@
 
 (defmacro riscv64-s (o rs1 rs2 f3 imm12)
 	`(emit-int (+ ,o (<< ,rs1 15) (<< ,rs2 20) (<< ,f3 12)
-		(<< (logand 0x1f ,imm12) 7) (<< (logand 0xfe0 ,imm12) 25))))
+		(<< (logand 0x1f ,imm12) 7) (<< (logand 0xfe0 ,imm12) 20))))
 
 (defmacro riscv64-b (o rs1 rs2 f3 imm13)
 	`(emit-int (+ ,o (<< ,rs1 15) (<< ,rs2 20) (<< ,f3 12)
