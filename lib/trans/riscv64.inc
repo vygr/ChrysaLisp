@@ -66,7 +66,7 @@
 (defun emit-cpy-rr (s d)
 	(cond
 		((eql s d))
-		(:t (riscv64-r 0x33 d s +riscv64_rzero 0x0 0x0))))
+		(:t (riscv64-i 0x13 d s 0x0 0x0))))
 
 (defun emit-add-rr (s d)
 	(riscv64-r 0x33 d d s 0x0 0x0))
@@ -296,12 +296,12 @@
 	(emit-or-cr -1 d))
 
 (defun emit-lnot-rr (r d)
-	(emit-seq-rr +riscv64_rzero d))
+	(riscv64-i 0x13 d d 0x3 0x1))
 
 (defun emit-land-rr (s d)
-	(riscv64-set 0x0 +riscv64_rzero d 12)
-	(riscv64-set 0x1 +riscv64_rzero s 8)
-	(emit-xor-rr d d))
+	(riscv64-r 0x33 +riscv64_rtmp s +riscv64_rzero 0x3 0x0)
+	(riscv64-r 0x33 d d +riscv64_rzero 0x3 0x0)
+	(riscv64-r 0x33 d d +riscv64_rtmp 0x7 0x0))
 
 (defun riscv64-dr (o s i d)
 	(riscv64-r 0x33 +riscv64_rtmp s i 0x0 0x0)
