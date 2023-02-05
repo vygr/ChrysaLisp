@@ -118,10 +118,10 @@
 				((= l 0)
 					(riscv64-cr u r)
 					(emit-shl-cr 32 r))
-				(:t (riscv64-cr u +riscv64_rtmp)
+				(:t (riscv64-cr u +riscv64_rtmp1)
 					(riscv64-cr l r)
-					(emit-shl-cr 32 +riscv64_rtmp)
-					(emit-add-rr +riscv64_rtmp r))))))
+					(emit-shl-cr 32 +riscv64_rtmp1)
+					(emit-add-rr +riscv64_rtmp1 r))))))
 
 (defun emit-add-cr (c r)
 	(cond
