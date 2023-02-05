@@ -516,10 +516,11 @@
 	(emit-and-rr s d))
 
 (defun emit-mul-cr (c r)
-	(if (= c 0)
-		(emit-xor-rr r r)
-		(progn
-			(defq rl (logand r 7) rh (>> r 3))
+	(cond
+		((= c 1))
+		((= c 0)
+			(emit-xor-rr r r))
+		(:t (defq rl (logand r 7) rh (>> r 3))
 			(cond
 				((= 1 c))
 				((= -1 c)

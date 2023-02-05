@@ -477,6 +477,7 @@
 
 (defun emit-mul-cr (c r)
 	(cond
+		((= c 1))
 		((= c 0)
 			(emit-xor-rr r r))
 		((= c -1)
