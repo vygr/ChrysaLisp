@@ -651,7 +651,6 @@ int main(int argc, char *argv[])
 			{
 				if (read((int)fd, data, data_size) == data_size)
 				{
-					//printf("image start address: 0x%llx\n", (unsigned int64_t)data);
 				#ifndef _WIN64
 					fcntl(0, F_SETFL, fcntl(0, F_GETFL, 0) | O_NONBLOCK);
 				#endif
