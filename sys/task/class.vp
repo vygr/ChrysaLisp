@@ -266,7 +266,7 @@
 	(entry 'sys_task :start {func})
 
 	;increment task count
-	(assign {@sys/statics/statics} {statics })
+	(assign {@sys/statics/statics} {statics})
 	(assign {statics->statics_sys_task_task_count + 1} {statics->statics_sys_task_task_count})
 
 	;create new task control block and stack
@@ -313,7 +313,7 @@
 	(push-scope)
 
 	;decrement task count
-	(assign {@sys/statics/statics} {statics })
+	(assign {@sys/statics/statics} {statics})
 	(assign {statics->statics_sys_task_task_count - 1} {statics->statics_sys_task_task_count})
 
 	;free task mailbox and tls

@@ -51,7 +51,7 @@
 	(call 'sys_mail :statics_init)
 
 	;start kernel task (get's mailbox id of 0 !)
-	(assign {@sys/statics/statics} {statics })
+	(assign {@sys/statics/statics} {statics})
 	(call 'sys_task :start {$fn_entry} {statics->statics_sys_task_kernel_tcb, mbox_addr, _, _, _})
 	(assign {statics->statics_sys_task_kernel_tcb} {statics->statics_sys_task_current_tcb})
 
@@ -215,7 +215,7 @@
 		(call 'sys_task :timer :nil '(:r0))
 
 		;find next task we could defer to
-		(assign {statics } '(:r3))
+		(assign {statics} '(:r3))
 		(assign '((& :r3 (+ statics_sys_task_task_lists lh_list_size))) '(:r1))
 		(assign '((& :r3 (+ statics_sys_task_task_lists (* num_task_lists lh_list_size)))) '(:r2))
 		(loop-start)
