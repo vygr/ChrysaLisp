@@ -87,13 +87,13 @@
 	(riscv64-r 0x33 d d s 0x0 0x1))
 
 (defun emit-div-rrr (s d1 d2)
-	(riscv64-r 0x33 +riscv64_rtmp d1 d2 0x4 0x1)
-	(riscv64-r 0x33 d1 d1 d2 0x6 0x1)
+	(riscv64-r 0x33 +riscv64_rtmp d2 s 0x4 0x1)
+	(riscv64-r 0x33 d1 d2 s 0x6 0x1)
 	(emit-cpy-rr +riscv64_rtmp d2))
 
 (defun emit-div-rrr-u (s d1 d2)
-	(riscv64-r 0x33 +riscv64_rtmp d1 d2 0x5 0x1)
-	(riscv64-r 0x33 d1 d1 d2 0x7 0x1)
+	(riscv64-r 0x33 +riscv64_rtmp d2 s 0x5 0x1)
+	(riscv64-r 0x33 d1 d2 s 0x7 0x1)
 	(emit-cpy-rr +riscv64_rtmp d2))
 
 (defun riscv64-cr (c r)
