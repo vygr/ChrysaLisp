@@ -30,6 +30,8 @@
 		(vpif '(:r1 /= 0))
 			(assign '((:r1 +ptr_size)) '(:r1))
 			(assign '((:r1 num_value)) '(:r2))
+			(if (>= *debug_mode* 2)
+				(debug-num "l" :r2))
 			(vp-add-cr 1 :r2)
 			(assign '(:r2) '((:r1 num_value)))
 		(endif)

@@ -33,6 +33,9 @@
 	(gotoif (list (method-output 'obj :inst_of 1) '= 0) 'error2))
 
 	(call 'list :get_second {args} {_, value})
+	(when (>= *debug_mode* 2)
+		(debug-str '("File"))
+		(debug-str {&value->str_data}))
 
 (errorcases
 	(call 'obj :inst_of (cat {value, @} (f-path 'str :vtable)))
