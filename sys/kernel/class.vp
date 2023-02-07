@@ -38,6 +38,9 @@
 	(push-scope)
 	(entry {argv})
 
+	;; (fn-bind 'class/array/append :r0)
+	;; (debug-num "start" :r0)
+
 	;init allocator
 	(call 'sys_mem :statics_init)
 
