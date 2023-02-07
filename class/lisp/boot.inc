@@ -909,6 +909,7 @@
 ;compilation options
 ;debug_mode 0, release, strip all error checking
 ;debug_mode 1, normal, with error checking
+;debug_mode 2, traceing, with error checking, and traceing in/out
 (defq *debug_mode* 1 *debug_emit* :nil *debug_inst* :nil)
 
 (defun os ()
