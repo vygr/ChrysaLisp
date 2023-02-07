@@ -439,7 +439,7 @@
 	(emit-sub-cr tk_state_size s)
 	(emit-cpy-ri f s (- tk_state_size +ptr_size))
 	(emit-cpy-ri x s (- tk_state_size (* +ptr_size 2)))
-	(emit-lea-p (defcvar (label-sym 'riscv_start) (+ *pc* 12)) f)
+	(emit-lea-p (defcvar (label-sym 'riscv_start) (+ *pc* 16)) f)
 	(emit-cpy-ri f s 0)
 	(emit-jmp (defcvar (label-sym 'riscv_exit) (+ *pc* 12)) 0)
 ;riscv_start
