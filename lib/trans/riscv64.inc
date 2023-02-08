@@ -416,8 +416,8 @@
 		(:t (throw "emit-lea-p constant out of range !" c))))
 
 (defun emit-cpy-pr (l d)
-	(emit-lea-p l +riscv64_rtmp1)
-	(emit-cpy-ir +riscv64_rtmp1 0 d))
+	(emit-lea-p l +riscv64_rtmp)
+	(emit-cpy-ir +riscv64_rtmp 0 d))
 
 (defun emit-call-p (l)
 	(emit-cpy-pr l +riscv64_rtmp)
