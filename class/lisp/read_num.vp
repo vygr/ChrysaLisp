@@ -23,7 +23,7 @@
 		(ptr this stream)
 		(pubyte bufp)
 		(int char sign)
-		(struct buffer 64))
+		(struct buffer 72))
 
 	(vp-def (bufp base char num dot bufe))
 
@@ -55,7 +55,7 @@
 		(vp-add-cr 1 bufp)
 		(assign `(,bufp) '((:rsp local_bufp)))
 		(call 'stream :read_char `((:rsp local_stream)) `(_ ,char))
-		(assign `((:rsp local_bufp) (& :rsp ,(+ local_buffer 63))) `(,bufp ,bufe))
+		(assign `((:rsp local_bufp) (& :rsp ,(+ local_buffer 72))) `(,bufp ,bufe))
 	(loop-until `(,bufp = ,bufe))
 	(assign `(,char) `((:rsp local_char)))
 	(vp-xor-rr char char)
