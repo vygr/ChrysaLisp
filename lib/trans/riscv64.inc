@@ -112,16 +112,13 @@
 	(cond
 		((riscv64-within c 32)
 			(riscv64-cr c r))
-		(:t (defq l (>>> (<< c 32) 32) u (>>> c 32))
-			(if (< l 0) (setq u (>>> (<< (inc u) 32) 32)))
-			(cond
-				((= l 0)
-					(riscv64-cr u r)
-					(emit-shl-cr 32 r))
-				(:t (riscv64-cr u +riscv64_rtmp1)
-					(riscv64-cr l r)
-					(emit-shl-cr 32 +riscv64_rtmp1)
-					(emit-add-rr +riscv64_rtmp1 r))))))
+		(:t (defq o (if (/= 0 (logand 7 *pc*)) 4 0))
+			(riscv64-u 0x17 r 0)
+			(riscv64-i 0x13 r r 0x0 (+ o 16))
+			(riscv64-i 0x3 r r 0x3 0)
+			(riscv64-j 0x6f +riscv64_rzero (+ o 12))
+			(emit-align 8)
+			(emit-long c))))
 
 (defun emit-add-cr (c r)
 	(cond
