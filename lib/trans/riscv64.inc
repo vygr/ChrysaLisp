@@ -300,8 +300,8 @@
 	(riscv64-i 0x13 d d 0x3 0x1))
 
 (defun emit-land-rr (s d)
-	(riscv64-r 0x33 +riscv64_rtmp s +riscv64_rzero 0x3 0x0)
-	(riscv64-r 0x33 d d +riscv64_rzero 0x3 0x0)
+	(riscv64-r 0x33 +riscv64_rtmp +riscv64_rzero s 0x3 0x0)
+	(riscv64-r 0x33 d +riscv64_rzero s 0x3 0x0)
 	(riscv64-r 0x33 d d +riscv64_rtmp 0x7 0x0))
 
 (defun riscv64-dr (o s i d)
