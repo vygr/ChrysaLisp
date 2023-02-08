@@ -306,12 +306,12 @@
 	(riscv64-r 0x33 d d +riscv64_rtmp 0x7 0x0))
 
 (defun riscv64-dr (o s i d)
-	(riscv64-r 0x33 +riscv64_rtmp s i 0x0 0x0)
-	(riscv64-i 0x3 d +riscv64_rtmp o 0))
+	(riscv64-r 0x33 +riscv64_rtmp2 s i 0x0 0x0)
+	(riscv64-i 0x3 d +riscv64_rtmp2 o 0))
 
 (defun riscv64-rd (o s d i)
-	(riscv64-r 0x33 +riscv64_rtmp d i 0x0 0x0)
-	(riscv64-i 0x23 s +riscv64_rtmp o 0))
+	(riscv64-r 0x33 +riscv64_rtmp2 d i 0x0 0x0)
+	(riscv64-i 0x23 s +riscv64_rtmp2 o 0))
 
 (defun riscv64-ir (o s i d)
 	(cond
