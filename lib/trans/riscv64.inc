@@ -17,6 +17,7 @@
 	+riscv64_rzero (emit-native-reg? :r29)
 	+riscv64_rtmp (emit-native-reg? :r28)
 	+riscv64_rtmp1 (emit-native-reg? :r27)
+	+riscv64_rtmp2 (emit-native-reg? :r26)
 	+riscv64_rsp (emit-native-reg? :rsp))
 
 (defmacro riscv64-r (o rd rs1 rs2 f3 f7)
@@ -316,8 +317,8 @@
 	(cond
 		((riscv64-within i 12)
 			(riscv64-i 0x3 d s o i))
-		(:t (emit-cpy-cr i +riscv64_rtmp)
-			(riscv64-dr o s +riscv64_rtmp d))))
+		(:t (emit-cpy-cr i +riscv64_rtmp2)
+			(riscv64-dr o s +riscv64_rtmp2 d))))
 
 (defun emit-cpy-ir-b (s i d) (riscv64-ir 0x0 s i d))
 (defun emit-cpy-ir-s (s i d) (riscv64-ir 0x1 s i d))
@@ -331,8 +332,8 @@
 	(cond
 		((riscv64-within i 12)
 			(riscv64-s 0x23 d s o i))
-		(:t (emit-cpy-cr i +riscv64_rtmp)
-			(riscv64-rd o s d +riscv64_rtmp))))
+		(:t (emit-cpy-cr i +riscv64_rtmp2)
+			(riscv64-rd o s d +riscv64_rtmp2))))
 
 (defun emit-cpy-ri-b (s d i) (riscv64-ri 0x0 s d i))
 (defun emit-cpy-ri-s (s d i) (riscv64-ri 0x1 s d i))
