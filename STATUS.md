@@ -9,6 +9,10 @@ follow Apple M1 standard. The RISCV64 outputs VP64 binaries for now, just to
 exercise the framework. The `make install` should now work and a session should
 run provided you specify the `-e` option. ie `./run_tui.sh -e` or `./run.sh -e`
 
+Riscv64 work is progressing, still a few issues but going well so far.
+
+Fix to parsing of 64 bit `0b` numbers.
+
 ------
 
 Enhancements to `(env-push [env])` and `(env-pop [env])` to take an optional
