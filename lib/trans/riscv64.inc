@@ -185,9 +185,9 @@
 (defun emit-beq-rr (s d l m) (riscv64-branch 0x0 d s l))
 (defun emit-bne-rr (s d l m) (riscv64-branch 0x1 d s l))
 (defun emit-blt-rr (s d l m) (riscv64-branch 0x4 d s l))
-(defun emit-bge-rr (s d l m) (riscv64-branch 0x5 d s l))
-(defun emit-ble-rr (s d l m) (riscv64-branch 0x5 s d l))
 (defun emit-bgt-rr (s d l m) (riscv64-branch 0x4 s d l))
+(defun emit-ble-rr (s d l m) (riscv64-branch 0x5 s d l))
+(defun emit-bge-rr (s d l m) (riscv64-branch 0x5 d s l))
 
 (defun emit-beq-cr (c d l m)
 	(cond
@@ -207,24 +207,24 @@
 			(emit-blt-rr +riscv64_rzero d l m))
 		(:t (emit-cpy-cr c +riscv64_rtmp)
 			(emit-blt-rr +riscv64_rtmp d l m))))
-(defun emit-bge-cr (c d l m)
-	(cond
-		((= c 0)
-			(emit-bge-rr +riscv64_rzero d l m))
-		(:t (emit-cpy-cr c +riscv64_rtmp)
-			(emit-bge-rr +riscv64_rtmp d l m))))
-(defun emit-ble-cr (c d l m)
-	(cond
-		((= c 0)
-			(emit-ble-rr +riscv64_rzero d l m))
-		(:t (emit-cpy-cr c +riscv64_rtmp)
-			(emit-ble-rr +riscv64_rtmp d l m))))
 (defun emit-bgt-cr (c d l m)
 	(cond
 		((= c 0)
 			(emit-bgt-rr +riscv64_rzero d l m))
 		(:t (emit-cpy-cr c +riscv64_rtmp)
 			(emit-bgt-rr +riscv64_rtmp d l m))))
+(defun emit-ble-cr (c d l m)
+	(cond
+		((= c 0)
+			(emit-ble-rr +riscv64_rzero d l m))
+		(:t (emit-cpy-cr c +riscv64_rtmp)
+			(emit-ble-rr +riscv64_rtmp d l m))))
+(defun emit-bge-cr (c d l m)
+	(cond
+		((= c 0)
+			(emit-bge-rr +riscv64_rzero d l m))
+		(:t (emit-cpy-cr c +riscv64_rtmp)
+			(emit-bge-rr +riscv64_rtmp d l m))))
 
 (defun emit-lnot-rr (r d)
 	(riscv64-i 0x13 d d 0x3 0x1))
