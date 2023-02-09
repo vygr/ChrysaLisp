@@ -46,10 +46,10 @@ parallel hardware. Additionally, it allows users to connect their MacBooks,
 Linux, Windows machines and PI4's to create their own development network,
 which is pretty cool.
 
-ChrysaLisp uses a virtual CPU instruction set to eliminate the use of x64, ARM,
-RISV64, or VP64 native instructions. Currently, it compiles directly to native
-code, but it has the capability to also be translated to byte code form and use
-runtime translation.
+ChrysaLisp uses a virtual CPU instruction set to eliminate the use of x64,
+ARM64, RISCV64, or VP64 native instructions. Currently, it compiles directly to
+native code, but it has the capability to also be translated to byte code form
+and use runtime translation.
 
 To avoid the need for register juggling for parameter passing, all functions
 define their register interface, and parameter sources and destinations are
