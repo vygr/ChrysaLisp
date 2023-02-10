@@ -604,7 +604,7 @@
 			(emit-swp-rr s d)
 			(emit-byte (+ 0x48 sh) 0xd3 (+ o sl))
 			(emit-swp-rr s d))
-		(:t  (emit-push d s (const (emit-native-reg? :r0)) (const (emit-native-reg? :r1)))
+		(:t (emit-push d s (const (emit-native-reg? :r0)) (const (emit-native-reg? :r1)))
 			(emit-cpy-ir (const (emit-native-reg? :rsp)) 24 (const (emit-native-reg? :r0)))
 			(emit-cpy-ir (const (emit-native-reg? :rsp)) 16 (const (emit-native-reg? :r1)))
 			(emit-byte 0x48 0xd3 o)
