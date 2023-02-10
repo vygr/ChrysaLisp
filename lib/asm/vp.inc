@@ -62,7 +62,7 @@
 
 (defmacro type-sym (_) `(sym (str ,_ "_t")))
 
-(defun vp-type-:t (_)
+(defun vp-type-t (_)
 	(if (setq _ (find-rev (elem-get 0 _) "bBsSiI"))
 		(elem-get _ '(b ub s us i ui)) ""))
 
@@ -85,7 +85,7 @@
 							(sym (cat :i (elem-get 2 o))))
 						((num? i) :i)
 						((setq i (get (type-sym i)))
-							(sym (cat :i (vp-type-:t i))))
+							(sym (cat :i (vp-type-t i))))
 						(:t :i)))
 				((eql i '@) :@)
 				((eql i '$) :$)
