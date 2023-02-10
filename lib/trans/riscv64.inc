@@ -20,28 +20,43 @@
 	+riscv64_rtmp2 (emit-native-reg? :r26)
 	+riscv64_rsp (emit-native-reg? :rsp))
 
+(defmacro riscv64-mask (r s)
+	(>> (<< (<< (>> -1 s) s) (- 64 s r)) (- 64 s r)))
+
+(defmacro riscv64-bf (n r s p)
+	(if (> s p)
+		`(>> (logand ,n ,(riscv64-mask r s)) ,(- s p))
+		`(<< (logand ,n ,(riscv64-mask r s)) ,(- p s))))
+
 (defmacro riscv64-r (o rd rs1 rs2 f3 f7)
 	`(emit-int (+ ,o (<< ,rd 7) (<< ,rs1 15) (<< ,rs2 20) (<< ,f3 12) (<< ,f7 25))))
 
 (defmacro riscv64-i (o rd rs1 f3 imm12)
-	`(emit-int (+ ,o (<< ,rd 7) (<< ,rs1 15) (<< ,f3 12) (<< ,imm12 20))))
+	`(emit-int (+ ,o (<< ,rd 7) (<< ,rs1 15) (<< ,f3 12)
+		(riscv64-bf ,imm12 12 0 20))))
 
 (defmacro riscv64-s (o rs1 rs2 f3 imm12)
 	`(emit-int (+ ,o (<< ,rs1 15) (<< ,rs2 20) (<< ,f3 12)
-		(<< (logand 0x1f ,imm12) 7) (<< (logand 0xfe0 ,imm12) 20))))
+		(riscv64-bf ,imm12 5 0 7)
+		(riscv64-bf ,imm12 7 5 25))))
+
+(defmacro riscv64-u (o rd imm32)
+	`(emit-int (+ ,o (<< ,rd 7)
+		(riscv64-bf ,imm32 24 12 12))))
 
 (defmacro riscv64-b (o rs1 rs2 f3 imm13)
 	`(emit-int (+ ,o (<< ,rs1 15) (<< ,rs2 20) (<< ,f3 12)
-		(<< (logand 0x1e ,imm13) 7) (<< (logand 0x7e0 ,imm13) 20)
-		(>> (logand 0x800 ,imm13) 4) (<< (logand 0x1000 ,imm13) 19))))
-
-(defmacro riscv64-u (o rd imm32)
-	`(emit-int (+ ,o (<< ,rd 7) (logand ,imm32 0xfffff000))))
+		(riscv64-bf ,imm13 1 11 7)
+		(riscv64-bf ,imm13 4 1 8)
+		(riscv64-bf ,imm13 6 5 25)
+		(riscv64-bf ,imm13 1 12 31))))
 
 (defmacro riscv64-j (o rd imm21)
 	`(emit-int (+ ,o (<< ,rd 7)
-		(<< (logand 0x7fe ,imm21) 20) (<< (logand 0x800 ,imm21) 9)
-		(logand 0xff000 ,imm21) (<< (logand 0x100000 ,imm21) 11))))
+		(riscv64-bf ,imm21 8 12 12)
+		(riscv64-bf ,imm21 1 11 20)
+		(riscv64-bf ,imm21 10 1 21)
+		(riscv64-bf ,imm21 1 20 31))))
 
 (defmacro riscv64-within (c n)
 	`(<= ,(neg (<< 1 (- n 1))) ,c ,(>> -1 (- 65 n))))
