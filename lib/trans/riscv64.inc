@@ -42,7 +42,7 @@
 
 (defmacro riscv64-u (o rd imm32)
 	`(emit-int (+ ,o (<< ,rd 7)
-		(riscv64-bf ,imm32 24 12 12))))
+		(riscv64-bf ,imm32 20 12 12))))
 
 (defmacro riscv64-b (o rs1 rs2 f3 imm13)
 	`(emit-int (+ ,o (<< ,rs1 15) (<< ,rs2 20) (<< ,f3 12)
