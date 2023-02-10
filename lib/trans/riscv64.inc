@@ -25,8 +25,8 @@
 
 (defmacro riscv64-bf (n r s p)
 	(if (> s p)
-		`(>> (logand ,n ,(riscv64-mask r s)) ,(- s p))
-		`(<< (logand ,n ,(riscv64-mask r s)) ,(- p s))))
+		`(>> (logand ,n (riscv64-mask ,r ,s)) ,(- s p))
+		`(<< (logand ,n (riscv64-mask ,r ,s)) ,(- p s))))
 
 (defmacro riscv64-r (o rd rs1 rs2 f3 f7)
 	`(emit-int (+ ,o (<< ,rd 7) (<< ,rs1 15) (<< ,rs2 20) (<< ,f3 12) (<< ,f7 25))))
