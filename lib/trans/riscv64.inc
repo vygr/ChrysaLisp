@@ -411,11 +411,11 @@
 (defun emit-lea-p (l d)
 	(cond
 		((riscv64-within (defq c (- l *pc*)) 32)
-			(if (= (logand 0x800 c) 0)
+			(if (= (logand (riscv64-mask 1 11) c) 0)
 				(defq u c)
-				(defq u (+ 0x1000 c)))
+				(defq u (+ (riscv64-mask 1 12) c)))
 			(riscv64-u 0x17 d u)
-			(if (/= (logand c 0xfff) 0) (riscv64-i 0x13 d d 0x0 c)))
+			(if (/= (logand c (riscv64-mask 12 0)) 0) (riscv64-i 0x13 d d 0x0 c)))
 		(:t (throw "emit-lea-p constant out of range !" c))))
 
 (defun emit-cpy-pr (l d)
