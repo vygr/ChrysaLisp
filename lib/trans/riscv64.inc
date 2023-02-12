@@ -317,7 +317,7 @@
 
 (defun riscv64-rd (o s d i)
 	(riscv64-r 0x33 +riscv64_rtmp3 d i 0x0 0x0)
-	(riscv64-s 0x23 s +riscv64_rtmp3 o 0))
+	(riscv64-s 0x23 +riscv64_rtmp3 s o 0))
 
 (defun riscv64-ir (o s i d)
 	(cond
