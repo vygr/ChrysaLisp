@@ -154,18 +154,22 @@
 		((= c 0))
 		((riscv64-within c 12)
 			(riscv64-i 0x13 r r 0x4 c))
-		(:t (throw "emit-xor-cr constant out of range !" c))))
+		(:t (emit-cpy-cr c +riscv64_rtmp1)
+			(emit-xor-rr +riscv64_rtmp1 r))))
 
 (defun emit-or-cr (c r)
 	(cond
 		((= c 0))
 		((riscv64-within c 12)
 			(riscv64-i 0x13 r r 0x6 c))
-		(:t (throw "emit-or-cr constant out of range !" c))))
+		(:t (emit-cpy-cr c +riscv64_rtmp1)
+			(emit-or-rr +riscv64_rtmp1 r))))
 
 (defun emit-and-cr (c r)
 	(cond
 		((= c -1))
+		((= c 0)
+			(emit-xor-rr r r))
 		((riscv64-within c 12)
 			(riscv64-i 0x13 r r 0x7 c))
 		(:t (emit-cpy-cr c +riscv64_rtmp1)
@@ -313,7 +317,7 @@
 
 (defun riscv64-rd (o s d i)
 	(riscv64-r 0x33 +riscv64_rtmp3 d i 0x0 0x0)
-	(riscv64-i 0x23 s +riscv64_rtmp3 o 0))
+	(riscv64-s 0x23 s +riscv64_rtmp3 o 0))
 
 (defun riscv64-ir (o s i d)
 	(cond
