@@ -12,7 +12,7 @@
 (ARM64
 	(case *cpu*
 		(arm64
-			(defmacro abi-trashed () ''(:r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14))
+			(defmacro abi-trashed () ''(:r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8))
 			(defun abi-args (&optional _ o) (setd _ 8 o 0) (slice o (+ o _) '(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8))))
 		(:t (throw (cat "Unknown CPU for ABI " *abi* " !") *cpu*))))
 (RISCV64
