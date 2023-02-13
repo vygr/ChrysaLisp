@@ -138,7 +138,7 @@
 	(vpif (list dot '/= 0))
 		(vp-shl-cr 16 num)
 		(vp-ext-rr num c)
-		(vp-div-rrr dot c num)
+		(vp-div-rrr-u dot c num)
 	(endif)
 
 	(exit 'sys_str :to_long `(,num ,dot))

@@ -155,7 +155,7 @@
 	(vp-cpy-rr :rsp :r4)	;stack location
 	(loop-start)
 		(vp-xor-rr :r2 :r2)
-		(vp-div-rrr :r3 :r2 :r0)
+		(vp-div-rrr-u :r3 :r2 :r0)
 		(vp-push :r2)
 	(loop-until '(:r0 = 0))
 	(loop-start)
