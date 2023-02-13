@@ -209,8 +209,8 @@
 
 (defun riscv64-branch (o j d s l)
 	(cond
-		;; ((riscv64-within (defq c (- l *pc*)) 13)
-		;; 	(riscv64-b 0x63 d s o c))
+		((riscv64-within (defq c (- l *pc*)) 13)
+			(riscv64-b 0x63 d s o c))
 		(:t (riscv64-b 0x63 s d j 8)
 			(riscv64-j 0x6f +riscv64_rzero (- l *pc*)))))
 
