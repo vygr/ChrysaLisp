@@ -114,7 +114,7 @@
 
 (defun riscv64-cr (c r)
 	(riscv64-u 0x17 r 0)
-	(riscv64-i 0x13 r r 0x0 20)
+	(riscv64-i 0x13 r r 0x0 16)
 	(riscv64-i 0x3 r r 0x2 0)
 	(riscv64-j 0x6f +riscv64_rzero 8)
 	(emit-int c))
@@ -207,18 +207,19 @@
 	(unless (eql s d) (emit-cpy-rr s d))
 	(emit-asr-cr 63 d))
 
-(defun riscv64-branch (o d s l)
+(defun riscv64-branch (o j d s l)
 	(cond
-		((riscv64-within (defq c (- l *pc*)) 13)
-			(riscv64-b 0x63 d s o c))
-		(:t (throw "riscv64-branch constant out of range !" c))))
+		;; ((riscv64-within (defq c (- l *pc*)) 13)
+		;; 	(riscv64-b 0x63 d s o c))
+		(:t (riscv64-b 0x63 s d j 8)
+			(riscv64-j 0x6f +riscv64_rzero (- l *pc*)))))
 
-(defun emit-beq-rr (s d l m) (riscv64-branch 0x0 d s l))
-(defun emit-bne-rr (s d l m) (riscv64-branch 0x1 d s l))
-(defun emit-blt-rr (s d l m) (riscv64-branch 0x4 d s l))
-(defun emit-bgt-rr (s d l m) (riscv64-branch 0x4 s d l))
-(defun emit-ble-rr (s d l m) (riscv64-branch 0x5 s d l))
-(defun emit-bge-rr (s d l m) (riscv64-branch 0x5 d s l))
+(defun emit-beq-rr (s d l m) (riscv64-branch 0x0 0x1 d s l))
+(defun emit-bne-rr (s d l m) (riscv64-branch 0x1 0x0 d s l))
+(defun emit-blt-rr (s d l m) (riscv64-branch 0x4 0x4 d s l))
+(defun emit-bgt-rr (s d l m) (riscv64-branch 0x4 0x4 s d l))
+(defun emit-ble-rr (s d l m) (riscv64-branch 0x5 0x5 s d l))
+(defun emit-bge-rr (s d l m) (riscv64-branch 0x5 0x5 d s l))
 
 (defun emit-beq-cr (c d l m)
 	(cond
