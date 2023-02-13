@@ -120,7 +120,7 @@
 	;; (emit-int c))
 	(cond
 		((riscv64-within c 12)
-			(riscv64-i 0x13 r +riscv64_rzero 0x0 c))
+			(riscv64-i 0x33 r +riscv64_rzero 0x0 c))
 		((riscv64-within c 32)
 			(if (= (logand (riscv64-mask 1 11) c) 0)
 				(defq u c)
