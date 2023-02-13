@@ -125,6 +125,7 @@
 			(defq l (>>> (<< c 52) 52) u (- (logior c) l))
 			(riscv64-u 0x37 r u)
 			(if (/= l 0) (riscv64-i 0x1b r r 0x0 l)))
+			;; (defq +riscv64_rtmp4 (emit-native-reg? :r25))
 			;; (riscv64-u 0x17 r 0)
 			;; (riscv64-i 0x13 r r 0x0 16)
 			;; (riscv64-i 0x3 r r 0x2 0)
@@ -438,7 +439,7 @@
 		((riscv64-within (defq c (- l *pc*)) 32)
 			(defq l (>>> (<< c 52) 52) u (- (logior c) l))
 			(riscv64-u 0x17 d u)
-			(if (/= l 0) (riscv64-i 0x1b d d 0x0 l)))
+			(if (/= l 0) (riscv64-i 0x13 d d 0x0 l)))
 		(:t (throw "emit-lea-p constant out of range !" c))))
 
 (defun emit-cpy-pr (l d)
