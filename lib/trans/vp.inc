@@ -29,7 +29,7 @@
 	(setq *pc* (+ *pc* (length _))))
 
 (defun emit-align (a &optional b)
-	(when (/= *pass* 0)
+	(when (> *pass* 0)
 		(defq p *pc* b (opt b 0) s *out_stream*)
 		(setq *pc* (align p a))
 		(while (<= (setq p (inc p)) *pc*)

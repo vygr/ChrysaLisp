@@ -88,7 +88,7 @@
 
 (defun vp64-branch (o l d)
 	(defq m (elem-get d *branches*) l (- l *pc*))
-	(and (/= *pass* 0) (> (abs l) (abs m)) (elem-set d *branches* (setq m l)))
+	(and (> *pass* 0) (> (abs l) (abs m)) (elem-set d *branches* (setq m l)))
 	(cond
 		((vp64-within (- m 2) 8)
 			(emit-short (+ o (<< (- l 2) 8))))
