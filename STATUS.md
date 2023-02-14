@@ -26,6 +26,14 @@ Many thanks to Martin Wendt for his tireless remote test cycle to allow me to
 get this done with no hardware. So, now we have 5 platforms building in under 5
 seconds (on my old MacBook). A good thing (tm).
 
+Install build on VisionFive2:
+
+https://www.youtube.com/watch?v=xZGjFP0gNBY
+
+Then native build:
+
+https://www.youtube.com/shorts/DhOC7wWRcnk
+
 ------
 
 Enhancements to `(env-push [env])` and `(env-pop [env])` to take an optional
