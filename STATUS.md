@@ -13,6 +13,19 @@ Riscv64 work is progressing, still a few issues but going well so far.
 
 Fix to parsing of 64 bit `0b` numbers.
 
+Riscv64 port work is done. Further work can be done on the target platform if
+needed etc. TUI runs in native on Linux Riscv64. :)
+
+The Riscv64 emit file is a really good example of how you should go about doing
+a port. Due to bug tracking and experience over several ports. This is the
+cleanest emit file yet. The mask creation and bit-field composition macros
+allow you to follow the manual and get it correct. I should have done this
+sooner. Will retrofit this idea on the other ports over time.
+
+Many thanks to Martin Wendt for his tireless remote test cycle to allow me to
+get this done with no hardware. So, now we have 5 platforms building in under 5
+seconds (on my old MacBook). A good thing (tm).
+
 ------
 
 Enhancements to `(env-push [env])` and `(env-pop [env])` to take an optional
