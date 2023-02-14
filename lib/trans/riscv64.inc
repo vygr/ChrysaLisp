@@ -61,46 +61,20 @@
 		(riscv64-bf ,imm21 10 1 21)
 		(riscv64-bf ,imm21 1 20 31))))
 
-(defun emit-shl-rr (s d)
-	(riscv64-r 0x33 d d s 0x1 0x0))
+(defun emit-shl-rr (s d) (riscv64-r 0x33 d d s 0x1 0x0))
+(defun emit-shr-rr (s d) (riscv64-r 0x33 d d s 0x5 0x0))
+(defun emit-asr-rr (s d) (riscv64-r 0x33 d d s 0x5 0x20))
+(defun emit-shl-cr (c r) (riscv64-i 0x13 r r 0x1 c))
+(defun emit-shr-cr (c r) (riscv64-i 0x13 r r 0x5 c))
+(defun emit-asr-cr (c r) (riscv64-i 0x13 r r 0x5 (+ c (riscv64-mask 1 10))))
 
-(defun emit-shr-rr (s d)
-	(riscv64-r 0x33 d d s 0x5 0x0))
-
-(defun emit-asr-rr (s d)
-	(riscv64-r 0x33 d d s 0x5 0x20))
-
-(defun emit-shl-cr (c r)
-	(riscv64-i 0x13 r r 0x1 c))
-
-(defun emit-shr-cr (c r)
-	(riscv64-i 0x13 r r 0x5 c))
-
-(defun emit-asr-cr (c r)
-	(riscv64-i 0x13 r r 0x5 (+ c (riscv64-mask 1 10))))
-
-(defun emit-cpy-rr (s d)
-	(cond
-		((eql s d))
-		(:t (riscv64-i 0x13 d s 0x0 0x0))))
-
-(defun emit-add-rr (s d)
-	(riscv64-r 0x33 d d s 0x0 0x0))
-
-(defun emit-sub-rr (s d)
-	(riscv64-r 0x33 d d s 0x0 0x20))
-
-(defun emit-xor-rr (s d)
-	(riscv64-r 0x33 d d s 0x4 0x0))
-
-(defun emit-or-rr (s d)
-	(riscv64-r 0x33 d d s 0x6 0x0))
-
-(defun emit-and-rr (s d)
-	(riscv64-r 0x33 d d s 0x7 0x0))
-
-(defun emit-mul-rr (s d)
-	(riscv64-r 0x33 d d s 0x0 0x1))
+(defun emit-cpy-rr (s d) (riscv64-i 0x13 d s 0x0 0x0))
+(defun emit-add-rr (s d) (riscv64-r 0x33 d d s 0x0 0x0))
+(defun emit-sub-rr (s d) (riscv64-r 0x33 d d s 0x0 0x20))
+(defun emit-xor-rr (s d) (riscv64-r 0x33 d d s 0x4 0x0))
+(defun emit-or-rr (s d) (riscv64-r 0x33 d d s 0x6 0x0))
+(defun emit-and-rr (s d) (riscv64-r 0x33 d d s 0x7 0x0))
+(defun emit-mul-rr (s d) (riscv64-r 0x33 d d s 0x0 0x1))
 
 (defun emit-div-rrr (s d1 d2)
 	(riscv64-r 0x33 +riscv64_rtmp1 d2 s 0x4 0x1)
@@ -244,8 +218,7 @@
 		(:t (emit-cpy-cr c +riscv64_rtmp1)
 			(emit-bge-rr +riscv64_rtmp1 d l m))))
 
-(defun emit-lnot-rr (r d)
-	(riscv64-i 0x13 d d 0x3 0x1))
+(defun emit-lnot-rr (r d) (riscv64-i 0x13 d d 0x3 0x1))
 
 (defun emit-land-rr (s d)
 	(riscv64-r 0x33 +riscv64_rtmp1 +riscv64_rzero s 0x3 0x0)
@@ -400,8 +373,7 @@
 	(riscv64-i 0x67 +riscv64_rlnk r 0x0 0x0)
 	(emit-pop +riscv64_rlnk))
 
-(defun emit-jmp-r (r)
-	(riscv64-i 0x67 +riscv64_rzero r 0x0 0x0))
+(defun emit-jmp-r (r) (riscv64-i 0x67 +riscv64_rzero r 0x0 0x0))
 
 (defun emit-call-i (s i)
 	(emit-cpy-ir s i +riscv64_rtmp1)
