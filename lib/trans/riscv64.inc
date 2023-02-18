@@ -394,7 +394,7 @@
 
 (defun emit-cpy-pr (l d)
 	(emit-lea-p *pc* d)
-	(emit-cpy-ir d (- l *pc* 4) d))
+	(emit-cpy-ir d (- l *pc* -4) d))
 
 (defun emit-call-p (l)
 	(emit-cpy-pr l +riscv64_rtmp1)
