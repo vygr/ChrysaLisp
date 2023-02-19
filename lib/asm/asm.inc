@@ -39,7 +39,7 @@
 			(.-> val (:erase :job) (:erase :timestamp))))
 	(when (/= num_child 0)
 		(defq timer_rate (/ 1000000 1) working :t jobs (list) errors (list) nxt_node (random nxt_node)
-			retry_timeout (if (starts-with "obj/vp64" (load-path)) 100000000 10000000)
+			retry_timeout (if (starts-with "obj/vp64" (load-path)) 1000000000 100000000)
 			select (list (mail-alloc-mbox) (mail-alloc-mbox) (mail-alloc-mbox)))
 		(times num_child (push jobs (list)))
 		(setq jobs (map (# (str (list %0 *abi* *cpu* *debug_mode* *debug_emit* *debug_inst*)))
