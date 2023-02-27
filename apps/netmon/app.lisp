@@ -13,8 +13,8 @@
 (defq task_scale_size 10 max_tasks task_scale_size last_max_tasks max_tasks
 	used_scale_size 4 max_used (* 1024 16384) last_max_used max_used
 	alloc_scale_size 4 max_alloc (* 1024 16384) last_max_alloc max_alloc
-	id :t rate (/ 1000000 2) +mem_align (* 1024 4096)
-	retry_timeout (if (starts-with "obj/vp64" (load-path)) 10000000 1000000))
+	id :t +poll_rate (/ 1000000 4) +mem_align (* 1024 4096)
+	+retry_timeout (if (starts-with "obj/vp64" (load-path)) 20000000 2000000))
 
 (ui-window *window* ()
 	(ui-title-bar _ "Network Monitor" (0xea19 0xea1b 0xea1a) +event_close)
@@ -45,7 +45,6 @@
 	; (create key now) -> val
 	;function called when entry is created
 	(.-> (defq ub (Progress) ab (Progress) tb (Progress) val (emap))
-		(:insert :child (const (pad "" +net_id_size)))
 		(:insert :timestamp now)
 		(:insert :used_bar ub)
 		(:insert :alloc_bar ab)
@@ -59,8 +58,7 @@
 (defun destroy (key val)
 	; (destroy key val)
 	;function called when entry is destroyed
-	(unless (eql (defq child (. val :find :child)) (const (pad "" +net_id_size)))
-		(mail-send child ""))
+	(when (defq child (. val :find :child)) (mail-send child ""))
 	(.-> val (:find :used_bar) :sub)
 	(.-> val (:find :alloc_bar) :sub)
 	(.-> val (:find :task_bar) :sub))
@@ -68,8 +66,9 @@
 (defun poll (key val)
 	; (poll key val)
 	;function called to poll entry
-	(unless (eql (defq child (. val :find :child)) (const (pad "" +net_id_size)))
-		(mail-send child (elem-get +select_reply select))))
+	(when (defq child (. val :find :child))
+		(if (> (- now (. val :find :timestamp)) +poll_rate)
+			(mail-send child (elem-get +select_reply select)))))
 
 (defun main ()
 	(defq select (alloc-select +select_size))
@@ -123,9 +122,9 @@
 					(def used_bar :maximum last_max_used :value used_val)
 					(. task_bar :dirty) (. alloc_bar :dirty) (. used_bar :dirty)
 					(. val :insert :timestamp (pii-time))))
-			(:t  ;timer event
-				(mail-timeout (elem-get +select_nodes select) rate 0)
-				(when (. global_tasks :refresh retry_timeout)
+			(:t	;polling timer event
+				(mail-timeout (elem-get +select_nodes select) +poll_rate 0)
+				(when (. global_tasks :refresh +retry_timeout)
 					;nodes have mutated
 					(defq size (. global_tasks :size))
 					(. used_grid :layout)
@@ -156,6 +155,7 @@
 				(setq last_max_used max_used last_max_alloc max_alloc last_max_tasks max_tasks
 					max_alloc (* 1024 16384) max_used (* 1024 16384) max_tasks task_scale_size)
 				;poll all nodes
+				(defq now (pii-time))
 				(. global_tasks :each poll))))
 	;close window and children
 	(. global_tasks :close)

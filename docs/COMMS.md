@@ -217,7 +217,7 @@ mailbox id string returned from its earlier call to `(mail-alloc-mbox)`.
 (defun poll (key val)
 	; (poll key val)
 	;function called to poll entry
-	(unless (eql (defq child (. val :find :child)) (const (pad "" +net_id_size)))
+	(when (defq child (. val :find :child))
 		(mail-send child (elem-get +select_reply select))))
 ...
 ```
