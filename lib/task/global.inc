@@ -9,9 +9,9 @@
 	(def this :size 0 :create fnc_create :destroy fnc_destroy)
 
 	(defmethod :refresh (this &optional _timeout)
-		; (. global :refresh [_timeout]) -> :t | :nil
+		; (. global :refresh [timeout]) -> :t | :nil
 		;scan known nodes and update node map
-		(defq _keys (map (# (cat %0)) (mail-nodes)) _old_keys (list) _old_vals (list)
+		(defq _keys (map cat (mail-nodes)) _old_keys (list) _old_vals (list)
 			_create (get :create this) _destroy (get :destroy this)
 			_mutated :nil _now (pii-time))
 		(. this :each (lambda (key val) (push _old_keys key) (push _old_vals val)))

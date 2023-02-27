@@ -795,7 +795,7 @@
 ### farm :refresh
 
 ```code
-(. farm :refresh [_timeout]) -> :t | :nil
+(. farm :refresh [timeout]) -> :t | :nil
 ```
 
 ### flow :layout
@@ -819,7 +819,7 @@
 ### global :refresh
 
 ```code
-(. global :refresh [_timeout]) -> :t | :nil
+(. global :refresh [timeout]) -> :t | :nil
 ```
 
 ### global :size

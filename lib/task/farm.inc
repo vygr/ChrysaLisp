@@ -7,7 +7,7 @@
 (defclass Farm (fnc_create fnc_destroy size) (fmap)
 	; (Farm fnc_create fnc_destroy size) -> farm
 	(def this :create fnc_create :destroy fnc_destroy :key -1)
-	(defq _nodes (map (# (cat %0)) (mail-nodes)) _now (pii-time))
+	(defq _nodes (map cat (mail-nodes)) _now (pii-time))
 	(times size
 		(defq _key (def this :key (inc (get :key this))) _val (emap))
 		(. this :insert _key _val)
@@ -15,9 +15,9 @@
 		(fnc_create _key _val _nodes))
 
 	(defmethod :refresh (this &optional _timeout)
-		; (. farm :refresh [_timeout]) -> :t | :nil
+		; (. farm :refresh [timeout]) -> :t | :nil
 		;scan known nodes and update map
-		(defq _nodes (map (# (cat %0)) (mail-nodes)) _old_keys (list) _old_vals (list)
+		(defq _nodes (map cat (mail-nodes)) _old_keys (list) _old_vals (list)
 			_create (get :create this) _destroy (get :destroy this)
 			_mutated :nil _now (pii-time))
 		(. this :each (lambda (key val) (push _old_keys key) (push _old_vals val)))
