@@ -63,18 +63,11 @@
 	(.-> val (:find :alloc_bar) :sub)
 	(.-> val (:find :task_bar) :sub))
 
-(defun poll (key val)
-	; (poll key val)
-	;function called to poll entry
-	(when (defq child (. val :find :child))
-		(when (>= (- now (. val :find :timestamp)) +poll_rate)
-			(mail-send child (elem-get +select_reply select)))))
-
 (defun main ()
 	(defq select (alloc-select +select_size))
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(gui-add-front (. *window* :change x y w h))
-	(defq global_tasks (Global create destroy))
+	(defq global_tasks (Global create destroy) poll_que (list))
 	(mail-timeout (elem-get +select_nodes select) 1 0)
 	(while id
 		(defq msg (mail-read (elem-get (defq idx (mail-select select)) select)))
@@ -104,7 +97,8 @@
 				(when val
 					(.-> val
 						(:insert :child child)
-						(:insert :timestamp (pii-time)))))
+						(:insert :timestamp (pii-time)))
+					(push poll_que child)))
 			(+select_reply
 				;child poll responce
 				(when (defq val (. global_tasks :find (getf msg +reply_node)))
@@ -121,7 +115,8 @@
 					(def alloc_bar :maximum max_alloc :value alloc_val)
 					(def used_bar :maximum max_used :value used_val)
 					(. task_bar :dirty) (. alloc_bar :dirty) (. used_bar :dirty)
-					(. val :insert :timestamp (pii-time))))
+					(. val :insert :timestamp (pii-time))
+					(push poll_que (. val :find :child))))
 			(:t	;polling timer event
 				(mail-timeout (elem-get +select_nodes select) +poll_rate 0)
 				(when (. global_tasks :refresh +retry_timeout)
@@ -152,9 +147,9 @@
 				(. task_scale_grid :dirty_all)
 				(. alloc_scale_grid :dirty_all)
 				(. used_scale_grid :dirty_all)
-				;poll all nodes
-				(defq now (pii-time))
-				(. global_tasks :each poll))))
+				;poll any ready children
+				(each (# (mail-send %0 (elem-get +select_reply select))) poll_que)
+				(clear poll_que))))
 	;close window and children
 	(. global_tasks :close)
 	(free-select select)
