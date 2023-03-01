@@ -121,7 +121,6 @@
 				(mail-timeout (elem-get +select_nodes select) +poll_rate 0)
 				(when (. global_tasks :refresh +retry_timeout)
 					;nodes have mutated
-					(defq size (. global_tasks :size))
 					(. used_grid :layout)
 					(. alloc_grid :layout)
 					(. task_grid :layout)
