@@ -66,6 +66,7 @@
 (defun main ()
 	(defq select (alloc-select +select_size))
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
+	(. *window* :set_flags +view_flag_at_front +view_flag_at_front)
 	(gui-add-front (. *window* :change x y w h))
 	(defq global_tasks (Global create destroy) poll_que (list))
 	(mail-timeout (elem-get +select_nodes select) 1 0)
