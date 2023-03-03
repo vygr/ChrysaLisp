@@ -165,6 +165,15 @@ Usage: tee [options] [path] ...
 	Read from stdin, write to stdout and all given paths.
 
 ```
+## time
+```code
+Usage: time [options]
+	options:
+		-h --help: this help info.
+	Time the duration of the stdin stream.
+	Print result to stderr.
+
+```
 ## tocpm
 ```code
 Usage: tocmp [options] [path] ...
