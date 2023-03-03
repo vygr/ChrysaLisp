@@ -6,6 +6,9 @@
 
 Update for the Netmon app.
 
+New `time` terminal command to allow simple timing of the duration of `stdin`.
+Use like `make it | time` etc.
+
 ------
 
 Prep for RISCV64 port. :) The `aarch64` cpu folder has moved to `arm64` to
