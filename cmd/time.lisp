@@ -23,4 +23,5 @@
 			(cat "Time:" (char 10)
 				(time-in-seconds (- (pii-time) start)) " seconds" (char 10)))
 		(task-sleep 100000)
-		(stream-flush (io-stream 'stderr))))
+		(stream-flush (io-stream 'stderr))
+		(task-sleep 100000)))
