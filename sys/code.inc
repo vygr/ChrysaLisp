@@ -14,11 +14,6 @@
 (defmacro llb-sym (_) `(sym (cat "_b_" ,_)))
 (defmacro lle-sym (_) `(sym (cat "_e_" ,_)))
 
-(defmacro errorif (e l) (if (> *debug_mode* 0) (list 'gotoif e l)))
-(defmacro errorifnot (e l) (if (> *debug_mode* 0) (list 'gotoifnot e l)))
-(defmacro errorcases (&rest e) (if (> *debug_mode* 0) (cat '(progn) e)))
-(defmacro noterrorcases (&rest e) (if (<= *debug_mode* 0) (cat '(progn) e)))
-
 (defun goto (l)
 	(vp-jmp l))
 
@@ -176,6 +171,15 @@
 
 (defun endif ()
 	(endswitch))
+
+;;;;;;;;;;;
+; errorcase
+;;;;;;;;;;;
+
+(defmacro errorcases (&rest e) (if (> *debug_mode* 0) (cat '(progn) e)))
+(defmacro noterrorcases (&rest e) (if (<= *debug_mode* 0) (cat '(progn) e)))
+(defmacro errorif (e l) `(errorcases (gotoif ,e ,l)))
+(defmacro errorifnot (e l) `(errorcases (gotoifnot ,e ,l)))
 
 ;;;;;;;
 ; enums
