@@ -9,7 +9,7 @@
 		(gotoif '(:r9 >= :r13) 'rect_split4)
 		(gotoif '(:r10 >= :r14) 'rect_xyx1)
 	(vp-label 'rect_xyx1y1)
-		;:r7 + :r8 + :r9 + :r10 inside
+		;x, y, x1, y1 inside
 		~a
 	(vp-label 'rect_split1)
 		;jump to correct overlap code
@@ -17,69 +17,69 @@
 		(gotoif '(:r9 >= :r13) 'rect_split5)
 		(gotoif '(:r10 >= :r14) 'rect_yx1)
 	(vp-label 'rect_yx1y1)
-		;:r8 + :r9 + :r10 inside
+		;y, x1, y1 inside
 		~b
 	(vp-label 'rect_split2)
 		;jump to correct overlap code
 		(gotoif '(:r9 >= :r13) 'rect_split6)
 		(gotoif '(:r10 >= :r14) 'rect_xx1)
 	(vp-label 'rect_xx1y1)
-		;:r7 + :r9 + :r10 inside
+		;x, x1, y1 inside
 		~c
 	(vp-label 'rect_split3)
 		;jump to correct overlap code
 		(gotoif '(:r9 >= :r13) 'rect_split7)
 		(gotoif '(:r10 >= :r14) 'rect_x1)
 	(vp-label 'rect_x1y1)
-		;:r9 + :r10 inside
+		;x1, y1 inside
 		~d
 	(vp-label 'rect_split4)
 		;jump to correct overlap code
 		(gotoif '(:r10 >= :r14) 'rect_xy)
 	(vp-label 'rect_xyy1)
-		;:r7 + :r8 + :r10 inside
+		;x, y, y1 inside
 		~e
 	(vp-label 'rect_split5)
 		;jump to correct overlap code
 		(gotoif '(:r10 >= :r14) 'rect_y)
 	(vp-label 'rect_yy1)
-		;:r8 + :r10 inside
+		;y, y1 inside
 		~f
 	(vp-label 'rect_split6)
 		;jump to correct overlap code
 		(gotoif '(:r10 >= :r14) 'rect_x)
 	(vp-label 'rect_xy1)
-		;:r7 + :r10 inside
+		;x, y1 inside
 		~g
 	(vp-label 'rect_split7)
 		;jump to correct overlap code
 		(gotoif '(:r10 >= :r14) 'rect_encl)
 	(vp-label 'rect_y1)
-		;:r10 inside
+		;y1 inside
 		~h
 	(vp-label 'rect_xyx1)
-		;:r7 + :r8 + :r9 inside
+		;x, y, x1 inside
 		~i
 	(vp-label 'rect_encl)
 		;region is enclosed
 		~j
 	(vp-label 'rect_x)
-		;:r7 inside
+		;x inside
 		~k
 	(vp-label 'rect_y)
-		;:r8 inside
+		;y inside
 		~l
 	(vp-label 'rect_xy)
-		;:r7 + :r8 inside
+		;x, y inside
 		~m
 	(vp-label 'rect_x1)
-		;:r9 inside
+		;x1 inside
 		~n
 	(vp-label 'rect_xx1)
-		;:r7 + :r9 inside
+		;x, x1 inside
 		~o
 	(vp-label 'rect_yx1)
-		;:r8 + :r9 inside
+		;y, x1 inside
 		~p))
 
 (def-method 'region :copy_rect)
@@ -112,39 +112,39 @@
 			(ln-add-fnode :r3 0 :r1 :r2)
 
 		(rect-overlap
-			(;:r7 + :r8 + :r9 + :r10 inside
+			(;x, y, x1, y1 inside
 			(assign '(:r7 :r8 :r9 :r10) '((:r1 rect_x) (:r1 rect_y) (:r1 rect_x1) (:r1 rect_y1)))
 			(continue))
 
-			(;:r8 + :r9 + :r10 inside
+			(;y, x1, y1 inside
 			(assign '(:r11 :r8 :r9 :r10) '((:r1 rect_x) (:r1 rect_y) (:r1 rect_x1) (:r1 rect_y1)))
 			(continue))
 
-			(;:r7 + :r9 + :r10 inside
+			(;x, x1, y1 inside
 			(assign '(:r7 :r12 :r9 :r10) '((:r1 rect_x) (:r1 rect_y) (:r1 rect_x1) (:r1 rect_y1)))
 			(continue))
 
-			(;:r9 + :r10 inside
+			(;x1, y1 inside
 			(assign '(:r11 :r12 :r9 :r10) '((:r1 rect_x) (:r1 rect_y) (:r1 rect_x1) (:r1 rect_y1)))
 			(continue))
 
-			(;:r7 + :r8 + :r10 inside
+			(;x, y, y1 inside
 			(assign '(:r7 :r8 :r13 :r10) '((:r1 rect_x) (:r1 rect_y) (:r1 rect_x1) (:r1 rect_y1)))
 			(continue))
 
-			(;:r8 + :r10 inside
+			(;y, y1 inside
 			(assign '(:r11 :r8 :r13 :r10) '((:r1 rect_x) (:r1 rect_y) (:r1 rect_x1) (:r1 rect_y1)))
 			(continue))
 
-			(;:r7 + :r10 inside
+			(;x, y1 inside
 			(assign '(:r7 :r12 :r13 :r10) '((:r1 rect_x) (:r1 rect_y) (:r1 rect_x1) (:r1 rect_y1)))
 			(continue))
 
-			(;:r10 inside
+			(;y1 inside
 			(assign '(:r11 :r12 :r13 :r10) '((:r1 rect_x) (:r1 rect_y) (:r1 rect_x1) (:r1 rect_y1)))
 			(continue))
 
-			(;:r7 + :r8 + :r9 inside
+			(;x, y, x1 inside
 			(assign '(:r7 :r8 :r9 :r14) '((:r1 rect_x) (:r1 rect_y) (:r1 rect_x1) (:r1 rect_y1)))
 			(continue))
 
@@ -152,27 +152,27 @@
 			(assign '(:r11 :r12 :r13 :r14) '((:r1 rect_x) (:r1 rect_y) (:r1 rect_x1) (:r1 rect_y1)))
 			(continue))
 
-			(;:r7 inside
+			(;x inside
 			(assign '(:r7 :r12 :r13 :r14) '((:r1 rect_x) (:r1 rect_y) (:r1 rect_x1) (:r1 rect_y1)))
 			(continue))
 
-			(;:r8 inside
+			(;y inside
 			(assign '(:r11 :r8 :r13 :r14) '((:r1 rect_x) (:r1 rect_y) (:r1 rect_x1) (:r1 rect_y1)))
 			(continue))
 
-			(;:r7 + :r8 inside
+			(;x, y inside
 			(assign '(:r7 :r8 :r13 :r14) '((:r1 rect_x) (:r1 rect_y) (:r1 rect_x1) (:r1 rect_y1)))
 			(continue))
 
-			(;:r9 inside
+			(;x1 inside
 			(assign '(:r11 :r12 :r9 :r14) '((:r1 rect_x) (:r1 rect_y) (:r1 rect_x1) (:r1 rect_y1)))
 			(continue))
 
-			(;:r7 + :r9 inside
+			(;x, x1 inside
 			(assign '(:r7 :r12 :r9 :r14) '((:r1 rect_x) (:r1 rect_y) (:r1 rect_x1) (:r1 rect_y1)))
 			(continue))
 
-			(;:r8 + :r9 inside
+			(;y, x1 inside
 			(assign '(:r11 :r8 :r9 :r14) '((:r1 rect_x) (:r1 rect_y) (:r1 rect_x1) (:r1 rect_y1)))))
 		(loop-end)
 	(endif)
@@ -209,7 +209,7 @@
 			(continueif '(:r11 >= :r9) '(:r12 >= :r10) '(:r7 >= :r13) '(:r8 >= :r14))
 
 		(rect-overlap
-			(;:r7 + :r8 + :r9 + :r10 inside
+			(;x, y, x1, y1 inside
 			;bottom part
 			(assign '(:r10) '((:r3 rect_y)))
 			;cut part
@@ -234,7 +234,7 @@
 			(assign '(:r11 :r12 :r13 :r8) '((:r1 rect_x) (:r1 rect_y) (:r1 rect_x1) (:r1 rect_y1)))
 			(continue))
 
-			(;:r8 + :r9 + :r10 inside
+			(;y, x1, y1 inside
 			;bottom part
 			(assign '(:r10) '((:r3 rect_y)))
 			;cut part
@@ -254,7 +254,7 @@
 			(assign '(:r11 :r12 :r13 :r8) '((:r1 rect_x) (:r1 rect_y) (:r1 rect_x1) (:r1 rect_y1)))
 			(continue))
 
-			(;:r7 + :r9 + :r10 inside
+			(;x, x1, y1 inside
 			;bottom part
 			(assign '(:r10) '((:r3 rect_y)))
 			;cut part
@@ -274,7 +274,7 @@
 			(assign '(:r11 :r12 :r7 :r10) '((:r1 rect_x) (:r1 rect_y) (:r1 rect_x1) (:r1 rect_y1)))
 			(continue))
 
-			(;:r9 + :r10 inside
+			(;x1, y1 inside
 			;bottom part
 			(assign '(:r10) '((:r3 rect_y)))
 			;cut part
@@ -289,7 +289,7 @@
 			(assign '(:r9 :r12 :r13 :r10) '((:r1 rect_x) (:r1 rect_y) (:r1 rect_x1) (:r1 rect_y1)))
 			(continue))
 
-			(;:r7 + :r8 + :r10 inside
+			(;x, y, y1 inside
 			;bottom part
 			(assign '(:r10) '((:r3 rect_y)))
 			;cut part
@@ -309,7 +309,7 @@
 			(assign '(:r11 :r12 :r13 :r8) '((:r1 rect_x) (:r1 rect_y) (:r1 rect_x1) (:r1 rect_y1)))
 			(continue))
 
-			(;:r8 + :r10 inside
+			(;y, y1 inside
 			;bottom part
 			(assign '(:r10) '((:r3 rect_y)))
 			;cut part
@@ -324,7 +324,7 @@
 			(assign '(:r11 :r12 :r13 :r8) '((:r1 rect_x) (:r1 rect_y) (:r1 rect_x1) (:r1 rect_y1)))
 			(continue))
 
-			(;:r7 + :r10 inside
+			(;x, y1 inside
 			;bottom part
 			(assign '(:r10) '((:r3 rect_y)))
 			;cut part
@@ -339,7 +339,7 @@
 			(assign '(:r11 :r12 :r7 :r10) '((:r1 rect_x) (:r1 rect_y) (:r1 rect_x1) (:r1 rect_y1)))
 			(continue))
 
-			(;:r10 inside
+			(;y1 inside
 			;bottom part
 			(assign '(:r10) '((:r3 rect_y)))
 			;cut part
@@ -349,7 +349,7 @@
 			(assign '(:r11 :r12 :r13 :r10) '((:r1 rect_x) (:r1 rect_y) (:r1 rect_x1) (:r1 rect_y1)))
 			(continue))
 
-			(;:r7 + :r8 + :r9 inside
+			(;x, y, x1 inside
 			;left part
 			(assign '(:r8 :r7) '((:r3 rect_y) (:r3 rect_x1)))
 			;cut part
@@ -375,7 +375,7 @@
 			(ln-add-fnode :r4 0 :r1 :r6)
 			(continue))
 
-			(;:r7 inside
+			(;x inside
 			;left part
 			(assign '(:r7) '((:r3 rect_x1)))
 			;cut part
@@ -385,7 +385,7 @@
 			(assign '(:r7 :r12 :r13 :r14) '((:r1 rect_x) (:r1 rect_y) (:r1 rect_x1) (:r1 rect_y1)))
 			(continue))
 
-			(;:r8 inside
+			(;y inside
 			;top part
 			(assign '(:r8) '((:r3 rect_y1)))
 			;cut part
@@ -395,7 +395,7 @@
 			(assign '(:r11 :r8 :r13 :r14) '((:r1 rect_x) (:r1 rect_y) (:r1 rect_x1) (:r1 rect_y1)))
 			(continue))
 
-			(;:r7 + :r8 inside
+			(;x, y inside
 			;left part
 			(assign '(:r8 :r7) '((:r3 rect_y) (:r3 rect_x1)))
 			;cut part
@@ -410,7 +410,7 @@
 			(assign '(:r11 :r12 :r13 :r8) '((:r1 rect_x) (:r1 rect_y) (:r1 rect_x1) (:r1 rect_y1)))
 			(continue))
 
-			(;:r9 inside
+			(;x1 inside
 			;right part
 			(assign '(:r9) '((:r3 rect_x)))
 			;cut part
@@ -420,7 +420,7 @@
 			(assign '(:r11 :r12 :r9 :r14) '((:r1 rect_x) (:r1 rect_y) (:r1 rect_x1) (:r1 rect_y1)))
 			(continue))
 
-			(;:r7 + :r9 inside
+			(;x, x1 inside
 			;right part
 			(assign '(:r9) '((:r3 rect_x)))
 			;cut part
@@ -435,7 +435,7 @@
 			(assign '(:r11 :r12 :r7 :r14) '((:r1 rect_x) (:r1 rect_y) (:r1 rect_x1) (:r1 rect_y1)))
 			(continue))
 
-			(;:r8 + :r9 inside
+			(;y, x1 inside
 			;right part
 			(assign '(:r9 :r8) '((:r3 rect_x) (:r3 rect_y)))
 			;cut part
@@ -481,18 +481,18 @@
 			(continueif '(:r11 >= :r9) '(:r12 >= :r10) '(:r7 >= :r13) '(:r8 >= :r14))
 
 		(rect-overlap
-			(;:r7 + :r8 + :r9 + :r10 inside
+			(;x, y, x1, y1 inside
 			(vp-ret))
 
-			(;:r8 + :r9 + :r10 inside
+			(;y, x1, y1 inside
 			(vp-cpy-rr :r11 :r9)
 			(continue))
 
-			(;:r7 + :r9 + :r10 inside
+			(;x, x1, y1 inside
 			(vp-cpy-rr :r12 :r10)
 			(continue))
 
-			(;:r9 + :r10 inside
+			(;x1, y1 inside
 			;bottom part
 			(assign '(:r10) '((:r6 rect_y)))
 			;right part
@@ -502,11 +502,11 @@
 			(assign '(:r9 :r12 :r13 :r10) '((:r1 rect_x) (:r1 rect_y) (:r1 rect_x1) (:r1 rect_y1)))
 			(continue))
 
-			(;:r7 + :r8 + :r10 inside
+			(;x, y, y1 inside
 			(vp-cpy-rr :r13 :r7)
 			(continue))
 
-			(;:r8 + :r10 inside
+			(;y, y1 inside
 			;bottom part
 			(assign '(:r10) '((:r6 rect_y)))
 			;top part
@@ -516,7 +516,7 @@
 			(assign '(:r11 :r12 :r13 :r8) '((:r1 rect_x) (:r1 rect_y) (:r1 rect_x1) (:r1 rect_y1)))
 			(continue))
 
-			(;:r7 + :r10 inside
+			(;x, y1 inside
 			;bottom part
 			(assign '(:r10) '((:r6 rect_y)))
 			;left part
@@ -526,12 +526,12 @@
 			(assign '(:r11 :r12 :r7 :r10) '((:r1 rect_x) (:r1 rect_y) (:r1 rect_x1) (:r1 rect_y1)))
 			(continue))
 
-			(;:r10 inside
+			(;y1 inside
 			;bottom part
 			(assign '(:r10) '((:r6 rect_y)))
 			(continue))
 
-			(;:r7 + :r8 + :r9 inside
+			(;x, y, x1 inside
 			(vp-cpy-rr :r14 :r8)
 			(continue))
 
@@ -541,17 +541,17 @@
 			(hp-freecell :r0 :r1 :r2)
 			(continue))
 
-			(;:r7 inside
+			(;x inside
 			;left part
 			(assign '(:r7) '((:r6 rect_x1)))
 			(continue))
 
-			(;:r8 inside
+			(;y inside
 			;top part
 			(assign '(:r8) '((:r6 rect_y1)))
 			(continue))
 
-			(;:r7 + :r8 inside
+			(;x, y inside
 			;left part
 			(assign '(:r8 :r7) '((:r6 rect_y) (:r6 rect_x1)))
 			;top part
@@ -561,12 +561,12 @@
 			(assign '(:r11 :r12 :r13 :r8) '((:r1 rect_x) (:r1 rect_y) (:r1 rect_x1) (:r1 rect_y1)))
 			(continue))
 
-			(;:r9 inside
+			(;x1 inside
 			;right part
 			(assign '(:r9) '((:r6 rect_x)))
 			(continue))
 
-			(;:r7 + :r9 inside
+			(;x, x1 inside
 			;right part
 			(assign '(:r9) '((:r6 rect_x)))
 			;left part
@@ -576,7 +576,7 @@
 			(assign '(:r11 :r12 :r7 :r14) '((:r1 rect_x) (:r1 rect_y) (:r1 rect_x1) (:r1 rect_y1)))
 			(continue))
 
-			(;:r8 + :r9 inside
+			(;y, x1 inside
 			;right part
 			(assign '(:r9 :r8) '((:r6 rect_x) (:r6 rect_y)))
 			;top part
@@ -626,7 +626,7 @@
 			(continueif '(:r11 >= :r9) '(:r12 >= :r10) '(:r7 >= :r13) '(:r8 >= :r14))
 
 		(rect-overlap
-			(;:r7 + :r8 + :r9 + :r10 inside
+			(;x, y, x1, y1 inside
 			;bottom part
 			(assign '(:r10) '((:r3 rect_y)))
 			;right part
@@ -646,7 +646,7 @@
 			(assign '(:r11 :r12 :r13 :r8) '((:r1 rect_x) (:r1 rect_y) (:r1 rect_x1) (:r1 rect_y1)))
 			(continue))
 
-			(;:r8 + :r9 + :r10 inside
+			(;y, x1, y1 inside
 			;bottom part
 			(assign '(:r10) '((:r3 rect_y)))
 			;right part
@@ -661,7 +661,7 @@
 			(assign '(:r11 :r12 :r13 :r8) '((:r1 rect_x) (:r1 rect_y) (:r1 rect_x1) (:r1 rect_y1)))
 			(continue))
 
-			(;:r7 + :r9 + :r10 inside
+			(;x, x1, y1 inside
 			;bottom part
 			(assign '(:r10) '((:r3 rect_y)))
 			;right part
@@ -676,7 +676,7 @@
 			(assign '(:r11 :r12 :r7 :r10) '((:r1 rect_x) (:r1 rect_y) (:r1 rect_x1) (:r1 rect_y1)))
 			(continue))
 
-			(;:r9 + :r10 inside
+			(;x1, y1 inside
 			;bottom part
 			(assign '(:r10) '((:r3 rect_y)))
 			;right part
@@ -686,7 +686,7 @@
 			(assign '(:r9 :r12 :r13 :r10) '((:r1 rect_x) (:r1 rect_y) (:r1 rect_x1) (:r1 rect_y1)))
 			(continue))
 
-			(;:r7 + :r8 + :r10 inside
+			(;x, y, y1 inside
 			;bottom part
 			(assign '(:r10) '((:r3 rect_y)))
 			;left part
@@ -701,7 +701,7 @@
 			(assign '(:r11 :r12 :r13 :r8) '((:r1 rect_x) (:r1 rect_y) (:r1 rect_x1) (:r1 rect_y1)))
 			(continue))
 
-			(;:r8 + :r10 inside
+			(;y, y1 inside
 			;bottom part
 			(assign '(:r10) '((:r3 rect_y)))
 			;top part
@@ -711,7 +711,7 @@
 			(assign '(:r11 :r12 :r13 :r8) '((:r1 rect_x) (:r1 rect_y) (:r1 rect_x1) (:r1 rect_y1)))
 			(continue))
 
-			(;:r7 + :r10 inside
+			(;x, y1 inside
 			;bottom part
 			(assign '(:r10) '((:r3 rect_y)))
 			;left part
@@ -721,12 +721,12 @@
 			(assign '(:r11 :r12 :r7 :r10) '((:r1 rect_x) (:r1 rect_y) (:r1 rect_x1) (:r1 rect_y1)))
 			(continue))
 
-			(;:r10 inside
+			(;y1 inside
 			;bottom part
 			(assign '(:r10) '((:r3 rect_y)))
 			(continue))
 
-			(;:r7 + :r8 + :r9 inside
+			(;x, y, x1 inside
 			;left part
 			(assign '(:r8 :r7) '((:r3 rect_y) (:r3 rect_x1)))
 			;right part
@@ -747,17 +747,17 @@
 			(hp-freecell :r0 :r1 :r2)
 			(continue))
 
-			(;:r7 inside
+			(;x inside
 			;left part
 			(assign '(:r7) '((:r3 rect_x1)))
 			(continue))
 
-			(;:r8 inside
+			(;y inside
 			;top part
 			(assign '(:r8) '((:r3 rect_y1)))
 			(continue))
 
-			(;:r7 + :r8 inside
+			(;x, y inside
 			;left part
 			(assign '(:r8 :r7) '((:r3 rect_y) (:r3 rect_x1)))
 			;top part
@@ -767,12 +767,12 @@
 			(assign '(:r11 :r12 :r13 :r8) '((:r1 rect_x) (:r1 rect_y) (:r1 rect_x1) (:r1 rect_y1)))
 			(continue))
 
-			(;:r9 inside
+			(;x1 inside
 			;right part
 			(assign '(:r9) '((:r3 rect_x)))
 			(continue))
 
-			(;:r7 + :r9 inside
+			(;x, x1 inside
 			;right part
 			(assign '(:r9) '((:r3 rect_x)))
 			;left part
@@ -782,7 +782,7 @@
 			(assign '(:r11 :r12 :r7 :r14) '((:r1 rect_x) (:r1 rect_y) (:r1 rect_x1) (:r1 rect_y1)))
 			(continue))
 
-			(;:r8 + :r9 inside
+			(;y, x1 inside
 			;right part
 			(assign '(:r9 :r8) '((:r3 rect_x) (:r3 rect_y)))
 			;top part
