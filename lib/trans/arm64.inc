@@ -6,12 +6,12 @@
 (each (# (defcvar %0 %0)) '(:r15 :r16 :r17 :r18 :r19 :r20 :r21 :r22 :r23 :r24 :r25 :r26 :r27 :r28 :r29 :r30))
 
 (defun emit-native-reg? (r)
-	(find r '(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7			;args (x0-x7)
-		:r15											;indirect (x8)
-		:r16 :r17 :r18 :r19 :r20 :r21 :r22				;temps (x9-x15)
-		:r23 :r24 :r25									;ip0, ip1, platform
-		:r8 :r9 :r10 :r11 :r12 :r13 :r14 :r26 :r27 :r28	;callee saves (x19-x28)
-		:r29 :r30 :rsp)))								;frm, lnk, stack
+	(find r '(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7           ;args (x0-x7)
+		:r15                                            ;indirect (x8)
+		:r16 :r17 :r18 :r19 :r20 :r21 :r22              ;temps (x9-x15)
+		:r23 :r24 :r25                                  ;ip0, ip1, platform
+		:r8 :r9 :r10 :r11 :r12 :r13 :r14 :r26 :r27 :r28 ;callee saves (x19-x28)
+		:r29 :r30 :rsp)))                               ;frm, lnk, stack
 
 (defq +arm64_rlnk (emit-native-reg? :r30)
 	+arm64_rtmp (emit-native-reg? :r29)
