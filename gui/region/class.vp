@@ -8,7 +8,6 @@
 		(gotoif '(:r12 >= :r8) 'rect_split2)
 		(gotoif '(:r9 >= :r13) 'rect_split4)
 		(gotoif '(:r10 >= :r14) 'rect_xyx1)
-	(vp-label 'rect_xyx1y1)
 		;x, y, x1, y1 inside
 		~a
 	(vp-label 'rect_split1)
@@ -16,45 +15,38 @@
 		(gotoif '(:r12 >= :r8) 'rect_split3)
 		(gotoif '(:r9 >= :r13) 'rect_split5)
 		(gotoif '(:r10 >= :r14) 'rect_yx1)
-	(vp-label 'rect_yx1y1)
 		;y, x1, y1 inside
 		~b
 	(vp-label 'rect_split2)
 		;jump to correct overlap code
 		(gotoif '(:r9 >= :r13) 'rect_split6)
 		(gotoif '(:r10 >= :r14) 'rect_xx1)
-	(vp-label 'rect_xx1y1)
 		;x, x1, y1 inside
 		~c
 	(vp-label 'rect_split3)
 		;jump to correct overlap code
 		(gotoif '(:r9 >= :r13) 'rect_split7)
 		(gotoif '(:r10 >= :r14) 'rect_x1)
-	(vp-label 'rect_x1y1)
 		;x1, y1 inside
 		~d
 	(vp-label 'rect_split4)
 		;jump to correct overlap code
 		(gotoif '(:r10 >= :r14) 'rect_xy)
-	(vp-label 'rect_xyy1)
 		;x, y, y1 inside
 		~e
 	(vp-label 'rect_split5)
 		;jump to correct overlap code
 		(gotoif '(:r10 >= :r14) 'rect_y)
-	(vp-label 'rect_yy1)
 		;y, y1 inside
 		~f
 	(vp-label 'rect_split6)
 		;jump to correct overlap code
 		(gotoif '(:r10 >= :r14) 'rect_x)
-	(vp-label 'rect_xy1)
 		;x, y1 inside
 		~g
 	(vp-label 'rect_split7)
 		;jump to correct overlap code
 		(gotoif '(:r10 >= :r14) 'rect_encl)
-	(vp-label 'rect_y1)
 		;y1 inside
 		~h
 	(vp-label 'rect_xyx1)
