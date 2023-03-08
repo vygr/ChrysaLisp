@@ -43,17 +43,19 @@ are aligned to a `+ptr_size`.
 * `ulong/ptr ln_fnode`: In a bound function the address of the next function in
 the function list. When unbound -1.
 
-* `ushort fn_header_length`: Total length of the function in bytes.
+* `ushort fn_header_length`: Total length of the function in bytes, including
+header, code and extra data.
 
-* `ushort fn_header_entry`: Offset in bytes to the code entry point.
+* `ushort fn_header_entry`: Offset in bytes, from the header start, to the code
+entry point.
 
-* `ushort fn_header_links`: Offset in bytes to the external function Vtable.
-Vtable entries are `+ptr_size`. In unbound format they are relative offsets to
-entries in the path pool. In bound format they are pointers to the code section
-of the external functions.
+* `ushort fn_header_links`: Offset in bytes, from the header start, to the
+external function Vtable. Vtable entries are `+ptr_size`. In unbound format
+they are relative offsets to entries in the path pool. In bound format they are
+pointers to the code section of the external functions.
 
-* `ushort fn_header_paths`: Offset in bytes to the path string pool. 0
-terminated C style strings.
+* `ushort fn_header_paths`: Offset in bytes, from the header start, to the path
+string pool. 0 terminated C style strings.
 
 * `ushort fn_header_stack`: Stack amount in bytes required by function.
 Currently this is a default value for all unless specified as an optional
