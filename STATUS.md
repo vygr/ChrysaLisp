@@ -9,6 +9,11 @@ Update for the Netmon app.
 New `time` terminal command to allow simple timing of the duration of `stdin`.
 Use like `make it | time` etc.
 
+Removed `(assign)` register key symbol equate creation. This was hiding a huge
+number of bugs in the source. It instead now allows normal register equates,
+and all the extra `(get r)` calls have been removed from the assembler `vp.inc`
+file.
+
 ------
 
 Prep for RISCV64 port. :) The `aarch64` cpu folder has moved to `arm64` to
