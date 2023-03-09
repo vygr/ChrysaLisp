@@ -263,20 +263,20 @@ This is the output from wrapping the `'hmap :insert` line in the example above:
 ```vdu
 -> obj/Darwin/x86_64/sys/mail/declare
 pre opt:
-	(vp-lea-i :rsp 0 :v0)
-	(vp-cpy-cr statics_sys_mail_service_map :v1)
-	(vp-cpy-ir :v0 0 :v0)
-	(vp-add-rr :v1 :v0)
-	(vp-cpy-ir :v0 0 :v0)
-	(vp-lea-i :rsp 8 :v1)
-	(vp-cpy-ir :v1 0 :v1)
-	(vp-lea-i :rsp 16 :v2)
-	(vp-cpy-ir :v2 0 :v2)
+	(vp-lea-i :rsp 0 _v0)
+	(vp-cpy-cr statics_sys_mail_service_map _v1)
+	(vp-cpy-ir _v0 0 _v0)
+	(vp-add-rr _v1 _v0)
+	(vp-cpy-ir _v0 0 _v0)
+	(vp-lea-i :rsp 8 _v1)
+	(vp-cpy-ir _v1 0 _v1)
+	(vp-lea-i :rsp 16 _v2)
+	(vp-cpy-ir _v2 0 _v2)
 post opt:
-	(vp-cpy-ir :rsp (+ 0 0) :v0)
-	(vp-cpy-ir :v0 (+ statics_sys_mail_service_map 0) :v0)
-	(vp-cpy-ir :rsp (+ 8 0) :v1)
-	(vp-cpy-ir :rsp (+ 16 0) :v2)
+	(vp-cpy-ir :rsp (+ 0 0) _v0)
+	(vp-cpy-ir _v0 (+ statics_sys_mail_service_map 0) _v0)
+	(vp-cpy-ir :rsp (+ 8 0) _v1)
+	(vp-cpy-ir :rsp (+ 16 0) _v2)
 ```
 
 You can wrap the `(def-func-end)` of a VP function or method with the following
