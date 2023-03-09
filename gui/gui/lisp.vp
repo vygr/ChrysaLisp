@@ -21,8 +21,8 @@
 	(entry 'gui :lisp_init '(:r0 :r1))
 
 (errorcases
-	(call 'lisp :env_args_sig '(:r1 ($ sig) 1) '(:tmp))
-	(gotoif '(:tmp = 0) 'error))
+	(call 'lisp :env_args_sig '(:r1 ($ sig) 1) '(tmp))
+	(gotoif `(,tmp = 0) 'error))
 
 	(list-bind-args :r1 '(:r1) '(:view))
 	(vp-push :r0 :r1)
@@ -150,8 +150,8 @@
 	(entry 'gui :lisp_update '(:r0 :r1))
 
 (errorcases
-	(call 'lisp :env_args_sig '(:r1 ($ sig) 3) '(:tmp))
-	(gotoif '(:tmp = 0) 'error))
+	(call 'lisp :env_args_sig '(:r1 ($ sig) 3) '(tmp))
+	(gotoif `(,tmp = 0) 'error))
 
 	(list-bind-args :r1 '(:r3 :r1 :r2) '(:num :num :num))
 	(vp-push :r0)

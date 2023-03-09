@@ -17,8 +17,8 @@
 	(entry 'sys_pii :lisp_readchar '(:r0 :r1))
 
 (errorcases
-	(call 'lisp :env_args_type `(:r1 (@ ,(f-path 'num :vtable)) 1) '(:tmp))
-	(gotoif '(:tmp = 0) 'error))
+	(call 'lisp :env_args_type `(:r1 (@ ,(f-path 'num :vtable)) 1) '(tmp))
+	(gotoif `(,tmp = 0) 'error))
 
 	(vp-push :r0)
 	(defq in (method-input 'sys_pii :read_char))
@@ -49,8 +49,8 @@
 	(entry 'sys_pii :lisp_writechar '(:r0 :r1))
 
 (errorcases
-	(call 'lisp :env_args_type `(:r1 (@ ,(f-path 'num :vtable)) 2) '(:tmp))
-	(gotoif '(:tmp = 0) 'error))
+	(call 'lisp :env_args_type `(:r1 (@ ,(f-path 'num :vtable)) 2) '(tmp))
+	(gotoif `(,tmp = 0) 'error))
 
 	(vp-push :r0)
 	(defq in (method-input 'sys_pii :write_char))
@@ -114,8 +114,8 @@
 	(entry 'sys_pii :lisp_dirlist '(:r0 :r1))
 
 (errorcases
-	(call 'lisp :env_args_sig '(:r1 ($ sig) 1) '(:tmp))
-	(gotoif '(:tmp = 0) 'error))
+	(call 'lisp :env_args_sig '(:r1 ($ sig) 1) '(tmp))
+	(gotoif `(,tmp = 0) 'error))
 
 	(vp-push :r0)
 	(list-bind-args :r1 '(:r6) '(:str))
@@ -153,8 +153,8 @@
 	(entry 'sys_pii :lisp_fstat '(:r0 :r1))
 
 (errorcases
-	(call 'lisp :env_args_sig '(:r1 ($ sig) 1) '(:tmp))
-	(gotoif '(:tmp = 0) 'error))
+	(call 'lisp :env_args_sig '(:r1 ($ sig) 1) '(tmp))
+	(gotoif `(,tmp = 0) 'error))
 
 	(vp-push :r0)
 	(assign '((:r1 array_begin) (@ sys/statics/statics)) '(:r0 :r1))
@@ -195,8 +195,8 @@
 	(entry 'sys_pii :lisp_remove '(:r0 :r1))
 
 (errorcases
-	(call 'lisp :env_args_sig '(:r1 ($ sig) 1) '(:tmp))
-	(gotoif '(:tmp = 0) 'error))
+	(call 'lisp :env_args_sig '(:r1 ($ sig) 1) '(tmp))
+	(gotoif `(,tmp = 0) 'error))
 
 	(vp-push :r0)
 	(defq in (method-input 'sys_pii :remove))

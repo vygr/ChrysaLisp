@@ -7,8 +7,8 @@
 (defun to-array (_)
 	(entry 'array (sym (cat :lisp_ _)) '(:r0 :r1))
 (errorcases
-	(call 'lisp :env_args_match `(:r1 (@ ,(f-path 'num :vtable)) (:r1 array_length)) '(:tmp))
-	(gotoif '(:tmp = 0) 'error))
+	(call 'lisp :env_args_match `(:r1 (@ ,(f-path 'num :vtable)) (:r1 array_length)) '(tmp))
+	(gotoif `(,tmp = 0) 'error))
 	(assign '(:r0 :r1) '(:r6 :r8))
 	(call _ :create :nil '(:r7))
 	(assign '((:r8 array_length)) '(:r1))
@@ -133,8 +133,8 @@
 	(entry 'array :lisp_clear '(:r0 :r1))
 
 (errorcases
-	(call 'lisp :env_args_type `(:r1 (@ ,(f-path 'array :vtable)) 1) '(:tmp))
-	(gotoif '(:tmp = 0) 'error))
+	(call 'lisp :env_args_type `(:r1 (@ ,(f-path 'array :vtable)) 1) '(tmp))
+	(gotoif `(,tmp = 0) 'error))
 
 	(vp-alloc local_size)
 	(class/array/get_both :r1 :r1 :r2)
@@ -170,8 +170,8 @@
 	(entry 'array :lisp_pop '(:r0 :r1))
 
 (errorcases
-	(call 'lisp :env_args_sig '(:r1 ($ sig) 1) '(:tmp))
-	(gotoif '(:tmp = 0) 'error))
+	(call 'lisp :env_args_sig '(:r1 ($ sig) 1) '(tmp))
+	(gotoif `(,tmp = 0) 'error))
 
 	(vp-push :r0)
 	(array-bind-args :r1 '(:r0))
@@ -295,35 +295,35 @@
 	(entry 'array :lisp_elemset '(:r0 :r1))
 
 (errorcases
-	(call 'lisp :env_args_sig '(:r1 ($ sig) 3) '(:tmp))
-	(gotoif '(:tmp = 0) 'error1))
+	(call 'lisp :env_args_sig '(:r1 ($ sig) 3) '(tmp))
+	(gotoif `(,tmp = 0) 'error1))
 
 	(vp-push :r0 :r1)
-	(bind '(:a :v :i) (method-input 'array :set_element))
-	(list-bind-args :r1 (array-map-args '(:a :v :i) '(1 2 0)) '(:num :array :obj))
-	(assign '((:a array_length) :v) '(:r14 (:rsp 0)))
-	(vpif '(:i < 0))
-		(vp-add-rr :r14 :i)
-		(vp-add-cr 1 :i)
+	(bind '(a v i) (method-input 'array :set_element))
+	(list-bind-args :r1 (array-map-args `(,a ,v ,i) '(1 2 0)) '(:num :array :obj))
+	(assign `((,a array_length) ,v) '(:r14 (:rsp 0)))
+	(vpif `(,i < 0))
+		(vp-add-rr :r14 i)
+		(vp-add-cr 1 i)
 	(endif)
 
 (errorcases
-	(gotoif '(:i < 0) 'error2)
-	(gotoif '(:i >= :r14) 'error2))
+	(gotoif `(,i < 0) 'error2)
+	(gotoif `(,i >= :r14) 'error2))
 
-	(assign `((:a obj_vtable) (@ ,(f-path 'list :vtable))) '(:r12 :r13))
+	(assign `((,a obj_vtable) (@ ,(f-path 'list :vtable))) '(:r12 :r13))
 	(vpif '(:r12 = :r13))
-		(class/obj/ref :v :r14 2)
+		(class/obj/ref v :r14 2)
 	(else)
-		(class/obj/ref :v :r14 1)
-		(vp-vec vp-cpy-rr '(:a :v :i) '(:r12 :r13 :r14))
-		(call 'obj :inst_of `(:v (@ ,(f-path 'num :vtable))) '(_ :tmp))
-		(vpif '(:tmp /= 0))
+		(class/obj/ref v :r14 1)
+		(vp-vec vp-cpy-rr `(,a ,v ,i) '(:r12 :r13 :r14))
+		(call 'obj :inst_of `(,v (@ ,(f-path 'num :vtable))) '(_ tmp))
+		(vpif `(,tmp /= 0))
 			(assign '((:r13 num_value)) '(:r13))
 		(endif)
-		(vp-vec vp-cpy-rr '(:r12 :r13 :r14) '(:a :v :i))
+		(vp-vec vp-cpy-rr '(:r12 :r13 :r14) `(,a ,v ,i))
 	(endif)
-	(call 'array :set_element '(:a :v :i))
+	(call 'array :set_element `(,a ,v ,i))
 	(vp-pop :r0 :r1)
 
 	(exit 'array :lisp_elemset '(:r0 :r1))

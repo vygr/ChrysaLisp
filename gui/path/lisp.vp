@@ -21,8 +21,8 @@
 	(entry 'path :lisp_transform '(:r0 :r1))
 
 (errorcases
-	(call 'lisp :env_args_sig '(:r1 ($ sig) 8) '(:tmp))
-	(gotoif '(:tmp = 0) 'error))
+	(call 'lisp :env_args_sig '(:r1 ($ sig) 8) '(tmp))
+	(gotoif `(,tmp = 0) 'error))
 
 	(vp-push :r0)
 	(defq in (method-input 'path :transform))
@@ -55,8 +55,8 @@
 	(entry 'path :lisp_simplify '(:r0 :r1))
 
 (errorcases
-	(call 'lisp :env_args_sig '(:r1 ($ sig) 3) '(:tmp))
-	(gotoif '(:tmp = 0) 'error))
+	(call 'lisp :env_args_sig '(:r1 ($ sig) 3) '(tmp))
+	(gotoif `(,tmp = 0) 'error))
 
 	(vp-push :r0)
 	(defq in (method-input 'path :simplify))
@@ -90,8 +90,8 @@
 	(entry 'path :lisp_filter '(:r0 :r1))
 
 (errorcases
-	(call 'lisp :env_args_sig '(:r1 ($ sig) 3) '(:tmp))
-	(gotoif '(:tmp = 0) 'error))
+	(call 'lisp :env_args_sig '(:r1 ($ sig) 3) '(tmp))
+	(gotoif `(,tmp = 0) 'error))
 
 	(vp-push :r0)
 	(defq in (method-input 'path :filter_polyline))
@@ -123,8 +123,8 @@
 	(entry 'path :lisp_gen_quadratic '(:r0 :r1))
 
 (errorcases
-	(call 'lisp :env_args_sig '(:r1 ($ sig) 8) '(:tmp))
-	(gotoif '(:tmp = 0) 'error))
+	(call 'lisp :env_args_sig '(:r1 ($ sig) 8) '(tmp))
+	(gotoif `(,tmp = 0) 'error))
 
 	(vp-push :r0)
 	(defq in (method-input 'path :gen_quadratic))
@@ -159,8 +159,8 @@
 	(entry 'path :lisp_gen_cubic '(:r0 :r1))
 
 (errorcases
-	(call 'lisp :env_args_sig '(:r1 ($ sig) 10) '(:tmp))
-	(gotoif '(:tmp = 0) 'error))
+	(call 'lisp :env_args_sig '(:r1 ($ sig) 10) '(tmp))
+	(gotoif `(,tmp = 0) 'error))
 
 	(vp-push :r0)
 	(defq in (method-input 'path :gen_cubic))
@@ -195,8 +195,8 @@
 	(entry 'path :lisp_gen_arc '(:r0 :r1))
 
 (errorcases
-	(call 'lisp :env_args_sig '(:r1 ($ sig) 7) '(:tmp))
-	(gotoif '(:tmp = 0) 'error))
+	(call 'lisp :env_args_sig '(:r1 ($ sig) 7) '(tmp))
+	(gotoif `(,tmp = 0) 'error))
 
 	(vp-push :r0)
 	(defq in (method-input 'path :gen_arc))
@@ -231,8 +231,8 @@
 	(entry 'path :lisp_stroke_polyline '(:r0 :r1))
 
 (errorcases
-	(call 'lisp :env_args_sig '(:r1 ($ sig) 6) '(:tmp))
-	(gotoif '(:tmp = 0) 'error))
+	(call 'lisp :env_args_sig '(:r1 ($ sig) 6) '(tmp))
+	(gotoif `(,tmp = 0) 'error))
 
 	(vp-push :r0)
 	(defq in (method-input 'path :stroke_polyline))
@@ -265,8 +265,8 @@
 	(entry 'path :lisp_stroke_polygon '(:r0 :r1))
 
 (errorcases
-	(call 'lisp :env_args_sig '(:r1 ($ sig) 4) '(:tmp))
-	(gotoif '(:tmp = 0) 'error))
+	(call 'lisp :env_args_sig '(:r1 ($ sig) 4) '(tmp))
+	(gotoif `(,tmp = 0) 'error))
 
 	(vp-push :r0)
 	(defq in (method-input 'path :stroke_polygon))
@@ -303,66 +303,82 @@
 		(ptr this args)
 		(int c))
 
-	(vp-def (:d :d_start :state :str :c) '(:r11 :r12 :r13))
+	(vp-def (d d_start state str c) '(:r11 :r12 :r13))
 
 	(entry 'path :lisp_svg '(:r0 :r1))
 
 (errorcases
-	(call 'lisp :env_args_sig '(:r1 ($ sig) 1) '(:tmp))
-	(gotoif '(:tmp = 0) 'error))
+	(call 'lisp :env_args_sig '(:r1 ($ sig) 1) '(tmp))
+	(gotoif `(,tmp = 0) 'error))
 
 	(push-scope)
 	(assign '(:r0 :r1) {this, args})
 
-	(list-bind-args :r1 '(:d) '(:str))
+	(list-bind-args :r1 `(,d) '(:str))
 
 	(call 'list :create :nil {commands})
 	(call 'str :create_from_buffer {"MLHVCSQTAZmlhvcsqtaz", 20} {command_chars})
 	(call 'str :create_from_buffer {"-0123456789", 11} {num_start_chars})
 	(call 'str :create_from_buffer {".0123456789", 11} {num_mid_chars})
 
-	(vp-xor-rr :state :state)
+	(bind '(st ch) (method-input 'str :find))
+	(vp-xor-rr state state)
 	(loop-start)
-		(vp-cpy-ir-ub :d 0 :c)
-		(breakif '(:c = 0))
-		(assign '(:c) {c})
-		(vpif '(:state = 0) 'next_char)
+		(vp-cpy-ir-ub d 0 c)
+		(breakif `(,c = 0))
+		(assign `(,c) {c})
+		(vpif `(,state = 0) 'next_char)
 		(vp-label 'eat_char)
-			(breakif '(:c <= +char_space))
-			(breakif '(:c = +char_comma))
-			(d-call 'str :find {num_start_chars, :c} '(_ _ :idx))
-			(vpif '(:idx /= -1))
+			(breakif `(,c <= +char_space))
+			(breakif `(,c = +char_comma))
+			(assign `(,c) `(,ch))
+			(assign {num_start_chars} `(,st))
+			(d-call 'str :find `(,st ,ch) '(_ _ idx))
+			(vpif `(,idx /= -1))
 				;number
-				(vp-cpy-rr :d :d_start)
-				(vp-cpy-cr 1 :state)
+				(vp-cpy-rr d d_start)
+				(vp-cpy-cr 1 state)
 				(break 'next_char)
 			(endif)
 		(errorcases
-			(d-call 'str :find {command_chars, :c} '(_ _ :idx))
-			(gotoif '(:idx = -1) 'error1))
+			(assign `(,c) `(,ch))
+			(assign {command_chars} `(,st))
+			(d-call 'str :find `(,st ,ch) '(_ _ idx))
+			(gotoif `(,idx = -1) 'error1))
 			;command
-			(call 'str :create_from_buffer {&c, 1} '(:str))
-			(call 'list :push_back {commands, :str})
+			(call 'str :create_from_buffer {&c, 1} '(str))
+			(bind '(l s) (method-input 'list :push_back))
+			(assign `(,str) `(,s))
+			(assign {commands} `(,l))
+			(call 'list :push_back `(,l ,s))
 		(else)
-			(d-call 'str :find {num_mid_chars, :c} '(_ _ :idx))
-			(breakif '(:idx /= -1))
+			(assign `(,c) `(,ch))
+			(assign {num_mid_chars} `(,st))
+			(d-call 'str :find `(,st ,ch) '(_ _ idx))
+			(breakif `(,idx /= -1))
 			(vp-xor-rr :r0 :r0)
-			(vp-cpy-ri-b :r0 :d 0)
-			(call 'sys_str :to_num '(:d_start) '(:num :dot))
-			(vpif '(:dot = 0))
-				(vp-shl-cr +fp_shift :num)
+			(vp-cpy-ri-b :r0 d 0)
+			(call 'sys_str :to_num `(,d_start) '(num dot))
+			(vpif `(,dot = 0))
+				(vp-shl-cr +fp_shift num)
 			(endif)
-			(call 'fixed :create '(:num) '(:num))
-			(call 'list :push_back {commands, :num})
-			(assign {c} '(:c))
-			(vp-xor-rr :state :state)
-			(vp-cpy-ri-b :c :d 0)
+			(call 'fixed :create `(,num) '(num))
+			(bind '(l n) (method-input 'list :push_back))
+			(assign `(,num) `(,n))
+			(assign {commands} `(,l))
+			(call 'list :push_back `(,l ,n))
+			(assign {c} `(,c))
+			(vp-xor-rr state state)
+			(vp-cpy-ri-b c d 0)
 			(goto 'eat_char)
 		(endif)
-		(vp-add-cr +byte_size :d)
+		(vp-add-cr +byte_size d)
 	(loop-end)
-	(call 'str :create_from_buffer '("x" 1) '(:str))
-	(call 'list :push_back {commands, :str})
+	(call 'str :create_from_buffer '("x" 1) '(str))
+	(bind '(l s) (method-input 'list :push_back))
+	(assign `(,str) `(,s))
+	(assign {commands} `(,l))
+	(call 'list :push_back `(,l ,s))
 
 	(call 'str :destroy {command_chars})
 	(call 'str :destroy {num_start_chars})

@@ -16,8 +16,8 @@
 	(entry 'out :lisp_create '(:r0 :r1))
 
 (errorcases
-	(call 'lisp :env_args_sig '(:r1 ($ sig) 1) '(:tmp))
-	(gotoif '(:tmp = 0) 'error))
+	(call 'lisp :env_args_sig '(:r1 ($ sig) 1) '(tmp))
+	(gotoif `(,tmp = 0) 'error))
 
 	(vp-push :r0)
 	(defq in (method-input 'out :create))

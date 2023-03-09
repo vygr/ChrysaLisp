@@ -102,14 +102,14 @@
 							(push out_tokens (apply cat token))
 							(clear token)
 							(setq state :space unary :nil))
-						(:t 	(push token c)))
+						(:t (push token c)))
 					(setq c :nil))
 				(:path
 					(cond
 						((is-path-char? c)
 							(push token c)
 							(setq c :nil))
-						(:t 	(push out_types state)
+						(:t (push out_types state)
 							(push out_tokens (apply cat token))
 							(clear token)
 							(setq state :space unary :nil))))
@@ -118,7 +118,7 @@
 						((is-label-char? c)
 							(push token c)
 							(setq c :nil))
-						(:t 	(push out_types state)
+						(:t (push out_types state)
 							(push out_tokens (apply cat token))
 							(clear token)
 							(setq state :space unary :nil))))
@@ -187,7 +187,7 @@
 ; compilation
 ;;;;;;;;;;;;;
 
-(defq +vreg ''(:v0 :v1 :v2 :v3 :v4 :v5 :v6 :v7 :v8 :v9 :v10 :v11 :v12 :v13 :v14))
+(defq +vreg ''(_v0 _v1 _v2 _v3 _v4 _v5 _v6 _v7 _v8 _v9 _v10 _v11 _v12 _v13 _v14))
 (each (lambda (_) (defcvar _ :nil)) +vreg)
 
 (defmacro vreg-sym (_)
@@ -195,9 +195,6 @@
 
 (defmacro add-inst (&rest b)
 	`(push *inst* ~b))
-
-(defmacro sub-inst (&rest b)
-	`(setq *inst* (insert *inst* 1 (list ~b))))
 
 (defmacro set-type (_)
 	(list 'elem-set -2 '*vregt* _))
@@ -252,9 +249,6 @@
 (defun compile-null ()
 	(throw "Null operator !" :nil))
 
-(defun compile-key (_)
-	(sub-inst (list 'vp-cpy-rr (get _) (push-reg :nil))))
-
 (defun compile-const (_)
 	(add-inst (list 'vp-cpy-cr _ (push-reg :nil))))
 
@@ -273,9 +267,6 @@
 				((get (sym (str _ "_t")))
 					;field/member
 					(add-inst (list 'vp-cpy-cr _ (push-reg (eval (sym (str _ "_t")))))))
-				((eql (elem-get 0 _) ":")
-					;key
-					(compile-key _))
 				((get _)
 					;equate
 					(compile-const _))

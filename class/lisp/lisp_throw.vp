@@ -16,8 +16,8 @@
 	(entry 'lisp :lisp_throw '(:r0 :r1))
 
 (errorcases
-	(call 'lisp :env_args_sig '(:r1 ($ sig) 2) '(:tmp))
-	(gotoif '(:tmp = 0) 'error))
+	(call 'lisp :env_args_sig '(:r1 ($ sig) 2) '(tmp))
+	(gotoif `(,tmp = 0) 'error))
 
 	(defq in (method-input 'lisp :repl_error))
 	(vp-xor-rr (elem-get 2 in) (elem-get 2 in))

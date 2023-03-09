@@ -326,7 +326,6 @@
 	; (reg ...)
 	;outputs
 	;load register list from iter
-	(setq regs (assign-map-reg-keys regs))
 	(cond
 		((eql type :nil)
 			(assign (map (lambda (r) (list i (* +long_size _))) regs) regs))

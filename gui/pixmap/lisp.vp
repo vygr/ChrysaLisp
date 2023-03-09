@@ -17,8 +17,8 @@
 	(entry 'pixmap :lisp_save_cpm '(:r0 :r1))
 
 (errorcases
-	(call 'lisp :env_args_sig '(:r1 ($ sig) 3) '(:tmp))
-	(gotoif '(:tmp = 0) 'error))
+	(call 'lisp :env_args_sig '(:r1 ($ sig) 3) '(tmp))
+	(gotoif `(,tmp = 0) 'error))
 
 	(vp-push :r0)
 	(defq in (method-input 'pixmap :save_cpm))
@@ -50,8 +50,8 @@
 	(entry 'pixmap :lisp_load_cpm '(:r0 :r1))
 
 (errorcases
-	(call 'lisp :env_args_sig '(:r1 ($ sig) 1) '(:tmp))
-	(gotoif '(:tmp = 0) 'error))
+	(call 'lisp :env_args_sig '(:r1 ($ sig) 1) '(tmp))
+	(gotoif `(,tmp = 0) 'error))
 
 	(vp-push :r0)
 	(defq in (method-input 'pixmap :load_cpm))
@@ -86,8 +86,8 @@
 	(entry 'pixmap :lisp_load_tga '(:r0 :r1))
 
 (errorcases
-	(call 'lisp :env_args_sig '(:r1 ($ sig) 1) '(:tmp))
-	(gotoif '(:tmp = 0) 'error))
+	(call 'lisp :env_args_sig '(:r1 ($ sig) 1) '(tmp))
+	(gotoif `(,tmp = 0) 'error))
 
 	(vp-push :r0)
 	(defq in (method-input 'pixmap :load_tga))

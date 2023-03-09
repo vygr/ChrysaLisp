@@ -233,8 +233,8 @@
 	(assign '((:r1 array_length)) '(:r4))
 	(gotoif '(:r4 < 1) 'error)
 	(gotoif '(:r4 > 2) 'error)
-	(call 'lisp :env_args_sig '(:r1 ($ sig) :r4) '(:tmp))
-	(gotoif '(:tmp = 0) 'error))
+	(call 'lisp :env_args_sig '(:r1 ($ sig) :r4) '(tmp))
+	(gotoif `(,tmp = 0) 'error))
 
 	(assign '((:r1 array_length)) '(:r2))
 	(vp-push :r0)
@@ -279,8 +279,8 @@
 	(assign '((:r1 array_length)) '(:r4))
 	(gotoif '(:r4 < 1) 'error)
 	(gotoif '(:r4 > 2) 'error)
-	(call 'lisp :env_args_sig '(:r1 ($ sig) :r4) '(:tmp))
-	(gotoif '(:tmp = 0) 'error))
+	(call 'lisp :env_args_sig '(:r1 ($ sig) :r4) '(tmp))
+	(gotoif `(,tmp = 0) 'error))
 
 	(assign '((:r1 array_length)) '(:r2))
 	(vp-push :r0)
@@ -361,8 +361,8 @@
 	(entry 'hmap :lisp_list '(:r0 :r1))
 
 (errorcases
-	(call 'lisp :env_args_sig '(:r1 ($ sig) 1) '(:tmp))
-	(gotoif '(:tmp = 0) 'error))
+	(call 'lisp :env_args_sig '(:r1 ($ sig) 1) '(tmp))
+	(gotoif `(,tmp = 0) 'error))
 
 	(vp-push :r0)
 	(array-bind-args :r1 '(:r0))
@@ -459,8 +459,8 @@
 (errorcases
 	(assign '((:r1 array_length)) '(:r4))
 	(gotoif '(:r4 > 1) 'error)
-	(call 'lisp :env_args_sig '(:r1 ($ sig) :r4) '(:tmp))
-	(gotoif '(:tmp = 0) 'error))
+	(call 'lisp :env_args_sig '(:r1 ($ sig) :r4) '(tmp))
+	(gotoif `(,tmp = 0) 'error))
 
 	(assign '((:r1 array_length)) '(:r2))
 	(vpif '(:r2 = 0))
@@ -494,38 +494,38 @@
 	;trashes
 	;:r1-:r14
 
-	(entry 'hmap :lisp_resize '(:this :args))
+	(entry 'hmap :lisp_resize '(this args))
 
 (errorcases
 	(bind '(e_args e_sig e_num) (method-input 'lisp :env_args_sig))
-	(assign '((:args array_length)) `(,e_num))
+	(assign `((,args array_length)) `(,e_num))
 	(gotoif `(,e_num > 2) 'error)
 	(gotoif `(,e_num < 1) 'error)
-	(call 'lisp :env_args_sig `(:args ($ sig) ,e_num) '(:tmp))
-	(gotoif '(:tmp = 0) 'error))
+	(call 'lisp :env_args_sig `(,args ($ sig) ,e_num) '(tmp))
+	(gotoif `(,tmp = 0) 'error))
 
-	(vp-push :this :args)
+	(vp-push this args)
 	(bind '(hmap size) (method-input 'hmap :resize))
-	(assign '((:args array_length)) '(:r14))
+	(assign `((,args array_length)) '(:r14))
 	(vpif '(:r14 = 1))
-		(assign '((:this lisp_environment)) `(,hmap))
-		(list-bind-args :args `(,size) '(:num))
+		(assign `((,this lisp_environment)) `(,hmap))
+		(list-bind-args args `(,size) '(:num))
 	(else)
-		(list-bind-args :args `(,size ,hmap) '(:num :env))
+		(list-bind-args args `(,size ,hmap) '(:num :env))
 	(endif)
 	(errorif `(,size < 1) 'error1)
-	(call 'hmap :resize `(,hmap ,size) `(,(get :args)))
-	(class/obj/ref (get :args) (get :this))
-	(vp-pop :this :r14)
+	(call 'hmap :resize `(,hmap ,size) `(,args))
+	(class/obj/ref args this)
+	(vp-pop this :r14)
 
-	(exit 'hmap :lisp_resize '(:this :args))
+	(exit 'hmap :lisp_resize `(,this ,args))
 	(vp-ret)
 
 (errorcases
 (vp-label 'error1)
-	(vp-pop :this :args)
+	(vp-pop this args)
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:this "(env-resize num [env])" +error_msg_wrong_types :args))
+	(jump 'lisp :repl_error `(,this "(env-resize num [env])" +error_msg_wrong_types ,args))
 	(signature '(num hmap)))
 
 (def-func-end)

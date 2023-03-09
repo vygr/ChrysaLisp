@@ -23,8 +23,8 @@
 	(entry '(:r0 :r1))
 
 (errorcases
-	(call 'lisp :env_args_sig '(:r1 ($ sig) 9) '(:tmp))
-	(gotoif '(:tmp = 0) 'error))
+	(call 'lisp :env_args_sig '(:r1 ($ sig) 9) '(tmp))
+	(gotoif `(,tmp = 0) 'error))
 
 	(list-bind-args :r1 '(:r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9)
 		'(:list :num :num :num :num :num :obj :list :obj))
@@ -86,8 +86,8 @@
 	(entry '(:r0 :r1))
 
 (errorcases
-	(call 'lisp :env_args_sig '(:r1 ($ sig) 7) '(:tmp))
-	(gotoif '(:tmp = 0) 'error))
+	(call 'lisp :env_args_sig '(:r1 ($ sig) 7) '(tmp))
+	(gotoif `(,tmp = 0) 'error))
 
 	(vp-def (:bucket :record :this :buckets :minx :miny :maxx :maxy :width :buckets_iter :buckets_iter_end)
 		(cat (method-input 'list :push_back) '(:r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14)))
@@ -145,8 +145,8 @@
 	(entry '(:r0 :r1))
 
 (errorcases
-	(call 'lisp :env_args_sig '(:r1 ($ sig) 7) '(:tmp))
-	(gotoif '(:tmp = 0) 'error))
+	(call 'lisp :env_args_sig '(:r1 ($ sig) 7) '(tmp))
+	(gotoif `(,tmp = 0) 'error))
 
 	(list-bind-args :r1 '(:r1 :r2 :r3 :r4 :r5 :r6 :r7)
 		'(:list :num :num :num :num :num :fixeds))
@@ -161,8 +161,8 @@
 			(call 'list :get_both {records} {_, record_iter, record_iter_end})
 			(loop-while {record_iter /= record_iter_end} 'found_line)
 				(call 'list :get_element {*record_iter, 1} {_, rec_line})
-				(call 'nums :eql {line, rec_line} '(_ :tmp))
-				(vpif '(:tmp = 0))
+				(call 'nums :eql {line, rec_line} '(_ tmp))
+				(vpif `(,tmp = 0))
 					(call 'list :erase {records, record_iter})
 					(break 'found_line)
 				(endif)

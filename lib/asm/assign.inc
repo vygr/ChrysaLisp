@@ -8,11 +8,53 @@
 ;module
 (env-push)
 
-(defun assign-map-reg-keys (s)
-	(walk-list (defq s (copy s))
-		(lambda (e) (and (sym? e) (eql (elem-get 0 e) ":") (elem-set _ _l (get e))))
-		(lambda (l) :nil)
-		(lambda (l) :t)) s)
+(defmacro assign-type-sym (_) `(sym (str ,_ "_t")))
+
+(defun assign-type-t (_)
+	(if (setq _ (find-rev (elem-get 0 _) "bBsSiI"))
+		(elem-get _ '(b ub s us i ui)) ""))
+
+(defun assign-src-type (o)
+	(case (pop (type-of o))
+		(:sym (if (vp-reg? o) :r :c))
+		(:num :c)
+		(:list
+			(cond
+				((vp-reg? (defq i (elem-get 0 o)))
+					(cond
+						((vp-reg? (defq i (elem-get 1 o)))
+							(if (= 2 (length o)) :d
+								(sym (cat :d (elem-get 2 o)))))
+						((/= 2 (length o))
+							(sym (cat :i (elem-get 2 o))))
+						((num? i) :i)
+						((setq i (get (assign-type-sym i)))
+							(sym (cat :i (assign-type-t i))))
+						(:t :i)))
+				((eql i '@) :@)
+				((eql i '$) :$)
+				((eql i '&)
+					(if (vp-reg? (elem-get 1 o))
+						(if (vp-reg? (elem-get 2 o)) :&d :&i) :nil))
+				(:t :c)))
+		(:str :s)))
+
+(defun assign-dst-type (o)
+	(case (pop (type-of o))
+		(:sym (and (not (vp-reg? o)) (eql (elem-get 0 o) ":") (throw ":reg equate !" o))
+			(if (vp-reg? o) :r :k))
+		(:list
+			(if (vp-reg? (defq i (elem-get 0 o)))
+				(cond
+					((vp-reg? (defq i (elem-get 1 o)))
+						(if (= 2 (length o)) :d
+							(sym (cat :d (elem-get 2 o)))))
+					((/= 2 (length o))
+						(sym (cat :i (elem-get 2 o))))
+					((num? i) :i)
+					((setq i (get (assign-type-sym i)))
+						(sym (cat :i (assign-type-t i))))
+					(:t :i))))))
 
 (defun assign-ignored-to-asm ()
 	(defq s (list) d (list))
@@ -52,8 +94,8 @@
 	(when (> (length dst) 0)
 		(if (> (length dst) 1) (assign-topology-sort))
 		(each (lambda (x y)
-			(case (vp-type x)
-				(:r (case (vp-type y)
+			(case (assign-src-type x)
+				(:r (case (assign-dst-type y)
 					(:r (vp-cpy-rr x y))
 					(:k (push *func_syms* y) (def *compile_env* y x))
 					(:i (vp-cpy-ri x (elem-get 0 y) (elem-get 1 y)))
@@ -110,7 +152,7 @@
 		(when *debug_inst*
 			(print "post opt:")
 			(each (const print-inst) *inst*))
-		(set-reg-map (reverse (assign-map-reg-keys src)) _)
+		(set-reg-map (reverse src) _)
 		(eval *inst* *compile_env*)))
 
 (defun assign-script-to-asm (src dst _)
@@ -126,7 +168,7 @@
 		(when *debug_inst*
 			(print "post opt:")
 			(each (const print-inst) *inst*))
-		(set-reg-map (assign-map-reg-keys dst) _)
+		(set-reg-map (cat dst) _)
 		(eval *inst* *compile_env*)))
 
 (defun assign-script-to-script (src dst _)
@@ -156,9 +198,9 @@
 			(assign-script-to-asm src dst _))
 		(if (str? (setq dst (opt dst '())))
 			(assign-asm-to-script src dst _)
-			(assign-asm-to-asm (assign-map-reg-keys src) dst))))
+			(assign-asm-to-asm src dst))))
 
 ;module
 (export-symbols
-	assign assign-map-reg-keys)
+	assign assign-src-type)
 (env-pop)

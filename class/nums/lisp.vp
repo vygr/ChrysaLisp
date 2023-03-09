@@ -312,8 +312,8 @@
 	(entry 'nums :lisp_sum '(:r0 :r1))
 
 (errorcases
-	(call 'lisp :env_args_sig '(:r1 ($ sig) 1) '(:tmp))
-	(gotoif '(:tmp = 0) 'error))
+	(call 'lisp :env_args_sig '(:r1 ($ sig) 1) '(tmp))
+	(gotoif `(,tmp = 0) 'error))
 
 	(vp-push :r0)
 	(array-bind-args :r1 '(:r0))
@@ -424,8 +424,8 @@
 (errorcases
 	(assign '((:r1 array_length)) '(:r2))
 	(gotoif '(:r2 /= 2) 'error)
-	(call 'lisp :env_args_match `(:r1 (@ ,(f-path 'nums :vtable)) 2) '(:tmp))
-	(gotoif '(:tmp = 0) 'error))
+	(call 'lisp :env_args_match `(:r1 (@ ,(f-path 'nums :vtable)) 2) '(tmp))
+	(gotoif `(,tmp = 0) 'error))
 
 	(vp-push :r0 :r1)
 	(array-bind-args :r1 '(:r0 :r1))
