@@ -89,33 +89,33 @@
 	(call 'lisp :env_args_sig '(:r1 ($ sig) 7) '(tmp))
 	(gotoif `(,tmp = 0) 'error))
 
-	(vp-def (:bucket :record :this :buckets :minx :miny :maxx :maxy :width :buckets_iter :buckets_iter_end)
+	(vp-def (bucket record this buckets minx miny maxx maxy width buckets_iter buckets_iter_end)
 		(cat (method-input 'list :push_back) '(:r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14)))
 
-	(list-bind-args :r1 '(:buckets :minx :miny :maxx :maxy :width :record)
+	(list-bind-args :r1 `(,buckets ,minx ,miny ,maxx ,maxy ,width ,record)
 		'(:list :num :num :num :num :num :list))
 
 	;bump record ref count for pushes and return
-	(vp-vec vp-cpy-rr '(:maxx :maxy) '(:r13 :r14))
-	(vp-vec vp-sub-rr '(:minx :miny) '(:r13 :r14))
+	(vp-vec vp-cpy-rr `(,maxx ,maxy) '(:r13 :r14))
+	(vp-vec vp-sub-rr `(,minx ,miny) '(:r13 :r14))
 	(vp-vec vp-add-cr '(1 1) '(:r13 :r14))
 	(vp-mul-rr :r13 :r14)
 	(vp-add-cr 1 :r14)
-	(class/obj/ref :record :r13 :r14)
+	(class/obj/ref record :r13 :r14)
 
-	(vp-vec vp-mul-rr '(:width :width) '(:miny :maxy))
+	(vp-vec vp-mul-rr `(,width ,width) `(,miny ,maxy))
 	(loop-start)
-		(vp-vec vp-cpy-rr '(:minx :maxx) '(:buckets_iter :buckets_iter_end))
-		(vp-vec vp-add-rr '(:miny :miny) '(:buckets_iter :buckets_iter_end))
-		(class/array/get_iters :buckets :buckets_iter :buckets_iter_end :r0)
+		(vp-vec vp-cpy-rr `(,minx ,maxx) `(,buckets_iter ,buckets_iter_end))
+		(vp-vec vp-add-rr `(,miny ,miny) `(,buckets_iter ,buckets_iter_end))
+		(class/array/get_iters buckets buckets_iter buckets_iter_end :r0)
 		(loop-start)
-			(call 'list :push_back '((:buckets_iter 0) :record) `(_ ,(get :record) _ _))
-			(vp-add-cr +ptr_size :buckets_iter)
-		(loop-until '(:buckets_iter > :buckets_iter_end))
-		(vp-add-rr :width :miny)
-	(loop-until '(:miny > :maxy))
+			(call 'list :push_back `((,buckets_iter 0) ,record) `(_ ,record _ _))
+			(vp-add-cr +ptr_size buckets_iter)
+		(loop-until `(,buckets_iter > ,buckets_iter_end))
+		(vp-add-rr width miny)
+	(loop-until `(,miny > ,maxy))
 
-	(exit '(:this :record))
+	(exit `(,this ,record))
 	(vp-ret)
 
 (errorcases
