@@ -303,7 +303,7 @@
 		(ptr this args)
 		(int c))
 
-	(vp-def (d d_start state str c) '(:r11 :r12 :r13))
+	(vp-def (d d_start state sstr c) '(:r11 :r12 :r13))
 
 	(entry 'path :lisp_svg '(:r0 :r1))
 
@@ -346,9 +346,9 @@
 			(d-call 'str :find `(,st ,ch) '(_ _ idx))
 			(gotoif `(,idx = -1) 'error1))
 			;command
-			(call 'str :create_from_buffer {&c, 1} '(str))
+			(call 'str :create_from_buffer {&c, 1} '(sstr))
 			(bind '(l s) (method-input 'list :push_back))
-			(assign `(,str) `(,s))
+			(assign `(,sstr) `(,s))
 			(assign {commands} `(,l))
 			(call 'list :push_back `(,l ,s))
 		(else)
@@ -374,9 +374,9 @@
 		(endif)
 		(vp-add-cr +byte_size d)
 	(loop-end)
-	(call 'str :create_from_buffer '("x" 1) '(str))
+	(call 'str :create_from_buffer '("x" 1) '(sstr))
 	(bind '(l s) (method-input 'list :push_back))
-	(assign `(,str) `(,s))
+	(assign `(,sstr) `(,s))
 	(assign {commands} `(,l))
 	(call 'list :push_back `(,l ,s))
 
