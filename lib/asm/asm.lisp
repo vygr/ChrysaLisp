@@ -5,6 +5,8 @@
 (import "sys/lisp.inc")
 (import "class/lisp.inc")
 
+(defq +timeout 5000000)
+
 (enums +select 0
 	(enum main timeout))
 
@@ -20,7 +22,7 @@
 ;(import "lib/debug/profile.inc")
 
 (defun main ()
-	(defq *select* (alloc-select +select_size) *working* :t +timeout 5000000)
+	(defq *select* (alloc-select +select_size) *working* :t)
 	(while *working*
 		(mail-timeout (elem-get +select_timeout *select*) +timeout 0)
 		(defq *msg* (mail-read (elem-get (defq *idx* (mail-select *select*)) *select*)))
