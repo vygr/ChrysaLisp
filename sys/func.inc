@@ -19,17 +19,17 @@
 ; functions
 ;;;;;;;;;;;
 
-(defcvar '*func_name* :nil '*strings* (list) '*paths* (list) '*links* (list)
-	'*func_align* :nil '*func_syms* (list))
+(defcvar '*func_name* :nil '*func_align* :nil
+	'*strings* (list) '*paths* (list) '*links* (list))
 
 (defun link-sym (_) (str "rl_" _))
 (defun path-sym (_) (str "rp_" _))
 (defun string-sym (_) (str "rs_" _))
 
-(defun def-func (*name* &optional falign fstack)
+(defun def-func (*name* &optional *falign* *fstack*)
 	(defcvar '*emit_list* (clear '()))
-	(setq *func_name* *name* *switch_nxt* 0 *func_align* (opt falign stack_align))
-	(clear *strings* *paths* *links* *func_syms*)
+	(setq *func_name* *name* *switch_nxt* 0 *func_align* (opt *falign* stack_align))
+	(clear *strings* *paths* *links*)
 (vp-label 'fn_start)
 	(vp-long -1)
 	(vp-short
@@ -37,7 +37,7 @@
 		(label-sym 'fn_entry)
 		(label-sym 'fn_links)
 		(label-sym 'fn_paths)
-		(opt fstack tk_stack_size))
+		(opt *fstack* tk_stack_size))
 (vp-label 'fn_name_start)
 	(vp-cstr (str *name*))
 	(vp-byte (list '- (label-sym 'fn_entry) (label-sym 'fn_name_start)))
@@ -45,6 +45,7 @@
 (vp-label 'fn_entry)
 	(push-scope)
 	(defcvar '*emit_start* (length *emit_list*))
+	(defq *func_env* (env))
 	(env-push)
 	(and (>= *debug_mode* 2)
 		(not (ends-with "/vtable" *name*))
@@ -64,6 +65,7 @@
 
 (defun def-func-end ()
 	(env-pop)
+	(setq *func_env* :nil)
 	(defcvar '*emit_end* (length *emit_list*))
 	(pop-scope-checked)
 	(each (lambda (s)
@@ -81,11 +83,9 @@
 	(vp-align +ptr_size)
 (vp-label 'fn_end)
 	(opt-emit-list *emit_list* *emit_start* *emit_end*)
-	(defq out (emit-translate (emit-vp-code *emit_list*)))
-	(if (> (length *func_syms*) 0)
-		(apply undef (cat (list *compile_env*) *func_syms*)))
-	(save out (cat "obj/" *cpu* "/" *abi* "/" (str *func_name*)))
-	(print "-> " (str "obj/" *cpu* "/" *abi* "/" (str *func_name*) " (" (length out) ")")))
+	(defq *out* (emit-translate (emit-vp-code *emit_list*)))
+	(save *out* (cat "obj/" *cpu* "/" *abi* "/" (str *func_name*)))
+	(print "-> " (str "obj/" *cpu* "/" *abi* "/" (str *func_name*) " (" (length *out*) ")")))
 
 (defun fn-add-string (s)
 	(defq i -1)

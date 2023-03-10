@@ -119,7 +119,7 @@ remake-platforms
 ### `*compile_env*` macros
 
 ```vdu
-defcvar undefc
+deffvar defcvar undefc
 ```
 
 ### `*compile_env*` functions

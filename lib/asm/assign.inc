@@ -97,7 +97,7 @@
 			(case (assign-src-type x)
 				(:r (case (assign-dst-type y)
 					(:r (vp-cpy-rr x y))
-					(:k (push *func_syms* y) (def *compile_env* y x))
+					(:k (def *func_env* y x))
 					(:i (vp-cpy-ri x (elem-get 0 y) (elem-get 1 y)))
 					(:ii (vp-cpy-ri-i x (elem-get 0 y) (elem-get 1 y)))
 					(:is (vp-cpy-ri-s x (elem-get 0 y) (elem-get 1 y)))

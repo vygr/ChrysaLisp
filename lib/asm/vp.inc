@@ -8,12 +8,9 @@
 (each (# (defcvar %0 %0)) +vp_regs)
 
 (defmacro vp-def (_ &optional l)
-	(if (> (length (defq v (filter (lambda (_)
-			(and (def? _ *compile_env*) (not (find _ *func_syms*)))) _))) 0)
-		(throw "VP redefine !" v))
 	(setq l (apply cat (map (lambda (x y)
 		(list (list 'quote x) y)) _ (if l (merge-obj (cat (eval l)) +vp_regs_0_14) +vp_regs_0_14))))
-	`(progn (defcvar ~l) (apply push (cat (list *func_syms*) ',_))))
+	`(progn (deffvar ~l)))
 
 ;;;;;;;;;;;;;
 ; Emit Buffer

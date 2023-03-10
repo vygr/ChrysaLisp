@@ -14,6 +14,11 @@ number of bugs in the source. It instead now allows normal register equates,
 and all the extra `(get r)` calls have been removed from the assembler `vp.inc`
 file.
 
+Introduce the `*func_env*` environment. Changed `code.inc` to use this, and VP
+register equates. Auto cleared by destruction of the environment at
+`(func-end)`, so no need for the `*func_syms*` list or `undef` of that lists
+contents.
+
 ------
 
 Prep for RISCV64 port. :) The `aarch64` cpu folder has moved to `arm64` to

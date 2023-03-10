@@ -44,11 +44,8 @@
 (defun switch (&optional _)
 	(push *switch_stk* *switch*)
 	(setq *switch* *switch_nxt* *switch_nxt* (inc *switch_nxt*))
-	(when _
-		(defcvar (defq _b (llb-sym _)) (beg-sym) (defq _e (lle-sym _)) (end-sym))
-		(push *func_syms* _b _e))
-	(defcvar (defq _ (cnt-sym)) 0)
-	(push *func_syms* _))
+	(when _ (deffvar (llb-sym _) (beg-sym) (lle-sym _) (end-sym)))
+	(deffvar (cnt-sym) 0))
 
 (defun default ()
 	(vp-label (loc-sym (defq s (cnt-sym) c (eval s))))
