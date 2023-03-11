@@ -2,7 +2,7 @@
 ; C-Script compiler
 ;;;;;;;;;;;;;;;;;;;
 
-(include "sys/code.inc")
+(include "lib/asm/code.inc")
 
 ;module
 (env-push)

@@ -2,8 +2,8 @@
 
 This document covers the various structuring elements of VP/C-Script source
 code. Conditionals, loops, switches, structures, enums, bits, classes, objects
-etc. The definition of these functions are in the `sys/code.inc` and
-`sys/class.inc` files.
+etc. The definition of these functions are in the `lib/asm/code.inc` and
+`lib/asm/class.inc` files.
 
 ## Data Structures
 
@@ -396,12 +396,12 @@ file in order to be visible to all code that use those methods.
 The none inline methods are defined in the `class.vp` file. Note the use of the
 helper method generators `(gen-create 'pair)` and `(gen-vtable 'pair)`. These
 helpers use the corresponding method declarations to generate the method code
-for you. Take a look in `sys/class.inc` for the implementation of these.
+for you. Take a look in `lib/asm/class.inc` for the implementation of these.
 
 Second the `class.vp` file.
 
 ```vdu
-(include "sys/func.inc")
+(include "lib/asm/func.inc")
 (include "class/pair/class.inc")
 
 (gen-create 'pair)

@@ -1,4 +1,4 @@
-(include "sys/class.inc")
+(include "lib/asm/class.inc")
 
 (def-class obj :nil
 	(dec-method :vtable class/obj/vtable)

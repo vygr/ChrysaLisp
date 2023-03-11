@@ -1,4 +1,4 @@
-(include "sys/func.inc")
+(include "lib/asm/func.inc")
 (include "gui/canvas/class.inc")
 
 ;choose iterative or analytic version

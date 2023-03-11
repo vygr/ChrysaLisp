@@ -144,7 +144,7 @@
 			(or (get (setq _ (sym _)) ages) (def ages _ (age _))))
 		;list of all file imports while defining dependencies and products
 		(within-compile-env (lambda ()
-			(include "sys/func.inc")
+			(include "lib/asm/func.inc")
 			(each include (all-class-files))
 			(each-mergeable (#
 				(bind '(d p) (make-info %0))
@@ -165,7 +165,7 @@
 	(within-compile-env (lambda ()
 		(setd *funcs* (list) *abi* (abi) *cpu* (cpu))
 		(defq *fsyms* (env 31) z (cat (char 0 8) (char 0 4)))
-		(include "sys/func.inc")
+		(include "lib/asm/func.inc")
 		(defun read-paths (_)
 			(defq l (list) i (get-short _ fn_header_links) e (get-short _ fn_header_paths))
 			(while (/= i e)
@@ -226,7 +226,7 @@
 	(setd *abi* (abi) *cpu* (cpu))
 	(make-boot
 		(within-compile-env (lambda ()
-			(include "sys/func.inc")
+			(include "lib/asm/func.inc")
 			(each include (all-class-files))
 			(defq *prods* (list))
 			;lists of all file imports and products

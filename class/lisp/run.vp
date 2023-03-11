@@ -1,4 +1,4 @@
-(include "sys/func.inc")
+(include "lib/asm/func.inc")
 (include "sys/mail/class.inc")
 (include "sys/task/class.inc")
 (include "class/sstream/class.inc")

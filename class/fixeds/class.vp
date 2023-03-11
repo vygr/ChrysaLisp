@@ -1,4 +1,4 @@
-(include "sys/func.inc")
+(include "lib/asm/func.inc")
 (include "class/fixeds/class.inc")
 
 (gen-create 'fixeds)

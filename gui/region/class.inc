@@ -1,4 +1,4 @@
-(include "sys/class.inc")
+(include "lib/asm/class.inc")
 
 (def-class region :nil
 	(dec-method :translate gui/region/translate :static (:r1 :r7 :r8))

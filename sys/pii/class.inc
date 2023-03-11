@@ -1,4 +1,4 @@
-(include "sys/class.inc")
+(include "lib/asm/class.inc")
 (include "sys/pii/abi.inc")
 
 (def-class host :nil

@@ -1,4 +1,4 @@
-(include "sys/func.inc")
+(include "lib/asm/func.inc")
 (include "class/lisp/class.inc")
 
 (def-method 'lisp :env_args_sig)

@@ -1,4 +1,4 @@
-(include "sys/func.inc")
+(include "lib/asm/func.inc")
 (include "sys/str/class.inc")
 
 (def-method 'sys_str :compare)

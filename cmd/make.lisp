@@ -11,7 +11,7 @@
 	(print "Scanning source files...")
 	(defq *imports* (all-vp-files) classes (list) functions (list) docs (list) syntax (list) state :x)
 	(within-compile-env (lambda ()
-		(include "sys/func.inc")
+		(include "lib/asm/func.inc")
 		(each include (all-class-files))
 		(each-mergeable (lambda (file)
 			(each-line (lambda (line)

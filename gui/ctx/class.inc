@@ -1,4 +1,4 @@
-(include "sys/class.inc")
+(include "lib/asm/class.inc")
 
 (def-class ctx :nil
 	(dec-method :set_color gui/ctx/set_color :static (:r0 :r1))

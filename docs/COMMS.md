@@ -120,7 +120,7 @@ a message containing task and memory usage information.
 current tasks main mailbox.
 
 ```vdu
-(include "sys/func.inc")
+(include "lib/asm/func.inc")
 (include "sys/kernel/class.inc")
 
 (def-struct reply 0

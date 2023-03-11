@@ -366,7 +366,7 @@ First of all the `(def-method 'sys_str :compare)` is doing the same job as a
 a `(dec-method)` for it in the include file. The `(def-func-end)` just wraps
 the function, matching any `(def-func)` or `(def-method)`. If you want to dive
 into what these calls do to get your function compiled and written out, look in
-`sys/func.inc` where all the magic happens.
+`lib/asm/func.inc` where all the magic happens.
 
 Next there is a section of documentation, this format can be parsed out by the
 `make docs` command line tool. Parsed documentation ends up in the
@@ -386,7 +386,7 @@ with the outside world.
 
 The other lines that are not basic VP code instructions are `(loop-start)`,
 `(loop-end)` and `(breakif)` functions. These are structured coding functions
-defined within the `sys/code.inc` file. There are many such helper functions
-that allow all the basic structured code concepts to be used, even within VP
-code as well as C-Script level code. These will be covered in detail in other
-documents, but here the use is fairly obvious.
+defined within the `lib/asm/code.inc` file. There are many such helper
+functions that allow all the basic structured code concepts to be used, even
+within VP code as well as C-Script level code. These will be covered in detail
+in other documents, but here the use is fairly obvious.
