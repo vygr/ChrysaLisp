@@ -358,7 +358,7 @@
 	;:r1-:r14
 
 	(vp-def (iter_end iter_begin stream value width this args)
-		'(:r7 :r8 :r9 :r10 :r11 :r12 :r13))
+		'(:r8 :r9 :r10 :r11 :r12))
 
 	(entry 'stream :lisp_writechar `(,this ,args))
 
@@ -383,8 +383,8 @@
 	(endif)
 
 	(assign `((,iter_begin +ptr_size)) `(,value))
-	(assign `((,value obj_vtable) (@ ,(f-path 'list :vtable))) '(:r0 :r1))
-	(vpif '(:r0 = :r1))
+	(assign `((,value obj_vtable) (@ ,(f-path 'list :vtable))) '(:r13 :r14))
+	(vpif '(:r13 = :r14))
 	(errorcases
 		(call 'lisp :env_args_type `(,value (@ ,(f-path 'num :vtable)) 1) '(tmp))
 		(gotoif `(,tmp = 0) 'error2))
