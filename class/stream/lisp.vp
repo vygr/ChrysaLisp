@@ -357,29 +357,26 @@
 	;trashes
 	;:r1-:r14
 
-	(vp-def (iter_end iter_begin this args stream value width)
+	(vp-def (iter_end iter_begin stream value width this args)
 		'(:r7 :r8 :r9 :r10 :r11 :r12 :r13))
 
 	(entry 'stream :lisp_writechar `(,this ,args))
 
 	(assign `((,args array_length)) `(,value))
+
 (errorcases
 	(gotoif (list value '< 2) 'error1)
-	(gotoif (list value '> 3) 'error1))
+	(gotoif (list value '> 3) 'error1)
+	(call 'lisp :env_args_sig `(,args ($ sig) ,value) '(tmp))
+	(gotoif `(,tmp = 0) 'error2))
+
 	(assign `((,args array_begin)) `(,iter_begin))
 	(assign `((,iter_begin 0)) `(,stream))
 
-(errorcases
-	(call 'obj :inst_of `(,stream (@ ,(f-path 'stream :vtable))))
-	(gotoif (list (method-output 'obj :inst_of 1) '= 0) 'error2))
-
 	(vp-cpy-cr 1 width)
 	(vpif (list value '= 3))
-		(assign `((,iter_begin ,(* +ptr_size 2))) '(:r0))
-	(errorcases
-		(assign `((@ ,(f-path 'num :vtable)) (:r0 obj_vtable)) '(:r1 :r2))
-		(gotoif '(:r1 /= :r2) 'error3))
-		(assign '((:r0 num_value)) `(,width))
+		(assign `((,iter_begin ,(* +ptr_size 2))) `(,width))
+		(assign `((,width num_value)) `(,width))
 		(vp-sub-cr 1 width)
 		(vp-and-cr 7 width)
 		(vp-add-cr 1 width)
@@ -390,24 +387,33 @@
 	(vpif '(:r0 = :r1))
 	(errorcases
 		(call 'lisp :env_args_type `(,value (@ ,(f-path 'num :vtable)) 1) '(tmp))
-		(gotoif `(,tmp = 0) 'error3))
+		(gotoif `(,tmp = 0) 'error2))
 		(class/array/get_both value iter_begin iter_end)
+		(def-vars
+			(ptr this stream)
+			(pptr iter_begin iter_end)
+			(uint width))
+		(push-scope)
+		(assign (list this stream iter_end width) {this, stream, iter_end, width})
 		(loop-start)
-			(vp-push this stream width iter_begin iter_end)
+			(assign (list iter_begin) {iter_begin})
 			(assign `((,iter_begin 0)) `(,value))
 			(call 'stream :write `(,stream (& ,value num_value) ,width))
-			(vp-pop this stream width iter_begin iter_end)
+			(assign {iter_begin, iter_end, stream, width}
+				(list iter_begin iter_end stream width))
 			(vp-add-cr +ptr_size iter_begin)
 		(loop-until (list iter_begin '= iter_end))
+		(assign {this, stream} (list this stream))
+		(pop-scope)
 	(else)
 	(errorcases
-		(call 'obj :inst_of `(,value (@ ,(f-path 'num :vtable))))
-		(gotoif (list (method-output 'obj :inst_of 1) '= 0) 'error3))
+		(call 'obj :inst_of `(,value (@ ,(f-path 'num :vtable))) '(_ tmp))
+		(gotoif `(,tmp = 0) 'error2))
 		(vp-push this stream)
 		(call 'stream :write `(,stream (& ,value num_value) ,width))
 		(vp-pop this stream)
 	(endif)
-	(class/obj/ref stream :r0)
+	(class/obj/ref stream :r14)
 
 	(exit 'stream :lisp_writechar `(,this ,stream))
 	(vp-ret)
@@ -418,12 +424,10 @@
 	(vp-cpy-cr +error_msg_wrong_num_of_args err)
 	(goto 'error)
 (vp-label 'error2)
-	(vp-cpy-cr +error_msg_not_a_stream err)
-	(goto 'error)
-(vp-label 'error3)
-	(vp-cpy-cr +error_msg_not_a_number err)
+	(vp-cpy-cr +error_msg_wrong_types err)
 (vp-label 'error)
-	(jump 'lisp :repl_error `(,this "(write-char stream list|num [width])" ,err ,args)))
+	(jump 'lisp :repl_error `(,this "(write-char stream list|num [width])" ,err ,args))
+	(signature '(stream obj num)))
 
 (def-func-end)
 
