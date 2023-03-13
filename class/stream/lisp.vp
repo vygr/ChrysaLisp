@@ -397,10 +397,8 @@
 		(assign (list this stream iter_end width) {this, stream, iter_end, width})
 		(loop-start)
 			(assign (list iter_begin) {iter_begin})
-			(assign `((,iter_begin 0)) `(,value))
-			(call 'stream :write `(,stream (& ,value num_value) ,width))
-			(assign {iter_begin, iter_end, stream, width}
-				(list iter_begin iter_end stream width))
+			(call 'stream :write {stream, &iter_begin[0]->num_value ,width})
+			(assign {iter_begin, iter_end} (list iter_begin iter_end))
 			(vp-add-cr +ptr_size iter_begin)
 		(loop-until (list iter_begin '= iter_end))
 		(assign {this, stream} (list this stream))
