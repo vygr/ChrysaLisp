@@ -64,8 +64,8 @@
 	(vpif '(:r2 /= :r3))
 		(loop-start)
 			(assign '((:r2 0)) '(:r4))
-			(gotoif '(:r1 = :r4) 'found)
 			(vp-add-cr +long_size :r2)
+			(gotoif '(:r1 = :r4) 'found)
 		(loop-until '(:r2 = :r3))
 	(endif)
 
@@ -74,6 +74,7 @@
 
 (vp-label 'found)
 	(assign '((:r0 array_begin)) '(:r3))
+	(vp-sub-cr +long_size :r2)
 	(vp-sub-rr :r3 :r2)
 	(vp-shr-cr (log2 +long_size) :r2)
 
