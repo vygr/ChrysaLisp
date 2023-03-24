@@ -283,16 +283,16 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun make-test (&optional i *abi* *cpu*)
-	(setd *abi* (abi) *cpu* (cpu))
-	(defq b 1000000000 w 0 a 0 c 0 files (all-vp-files))
-	(times (opt i 10)
+	(setd *abi* (abi) *cpu* (cpu) i 10)
+	(defq best +max_long worst 0 total 0 files (all-vp-files))
+	(times i
 		(defq _ (pii-time))
 		(compile files *abi* *cpu*)
-		(setq _ (- (pii-time) _) a (+ a _) c (inc c))
-		(print "Time " (time-in-seconds _) " seconds")
-		(print "Mean time " (time-in-seconds (/ a c)) " seconds")
-		(print "Best time " (time-in-seconds (setq b (min b _))) " seconds")
-		(print "Worst time " (time-in-seconds (setq w (max w _))) " seconds"))
+		(setq _ (- (pii-time) _) total (+ total _)
+			best (min best _) worst (max worst _)))
+	(print "Mean time " (time-in-seconds (/ total i)) " seconds")
+	(print "Best time " (time-in-seconds best) " seconds")
+	(print "Worst time " (time-in-seconds worst) " seconds")
 	:nil)
 
 (defun compile-test (&optional *abi* *cpu*)
