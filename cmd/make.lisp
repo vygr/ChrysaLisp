@@ -131,14 +131,15 @@
 
 (defq usage `(
 (("-h" "--help")
-"Usage: make [options] [all] [boot] [platforms] [doc] [it]
+"Usage: make [options] [all] [boot] [platforms] [doc] [it] [test]
 	options:
 		-h --help: this help info.
 	all: include all .vp files.
 	boot: create a boot image.
 	platforms: for all platforms not just the host.
 	docs: scan source files and create documentation.
-	it: all of the above !")
+	it: all of the above !
+	test: test make timings.")
 ))
 
 (defun main ()
@@ -147,8 +148,10 @@
 			(defq stdio (create-stdio))
 			(defq args (options stdio usage)))
 		(defq all (find-rev "all" args) boot (find-rev "boot" args)
-			platforms (find-rev "platforms" args) docs (find-rev "docs" args) it (find-rev "it" args))
+			platforms (find-rev "platforms" args) docs (find-rev "docs" args)
+			it (find-rev "it" args) test (find-rev "test" args))
 		(cond
+			(test (make-test))
 			(it (make-docs) (remake-all-platforms))
 			((and boot all platforms) (remake-all-platforms))
 			((and boot all) (remake-all))
