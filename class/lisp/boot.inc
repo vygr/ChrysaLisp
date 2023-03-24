@@ -937,8 +937,6 @@
 		`(def *func_env* ~b))
 	(defmacro defcvar (&rest b)
 		`(def *compile_env* ~b))
-	(defmacro undefc (&rest b)
-		`(undef *compile_env* ~b))
 	(defun include (lib_path)
 		(import lib_path *compile_env*))
 	(catch (progn (setq _f (_f) *compile_env* :nil) _f)
