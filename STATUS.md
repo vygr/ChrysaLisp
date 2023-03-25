@@ -4,6 +4,13 @@
 
 ------
 
+Addition of `test` option for the `make` command. If you wish to run a quick
+make test for your platform type `make test` in the Terminal app or TUI prompt.
+This test will do several full cleaned builds for your current platform and
+give you the stats.
+
+------
+
 Update for the Netmon app.
 
 New `time` terminal command to allow simple timing of the duration of `stdin`.
