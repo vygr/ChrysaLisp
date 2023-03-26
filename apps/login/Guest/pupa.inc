@@ -3,11 +3,12 @@
 
 ;launcher apps
 (defq *env_launcher_apps* '(
-	"terminal" "edit"
-	"viewer" "services"
+	"terminal" "services"
+	"edit" "viewer"
 	"debug" "profile"
 	"docs" "help"
-	"netmon" "fonts"
+	"netmon" "netspeed"
+	"fonts" "files"
 	"clock" "calculator"
 	"images" "films"
 	"whiteboard" "chat"

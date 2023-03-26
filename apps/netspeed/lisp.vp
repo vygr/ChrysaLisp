@@ -1,0 +1,34 @@
+(include "lib/asm/func.inc")
+(include "class/num/class.inc")
+(include "class/lisp/class.inc")
+(include "./app.inc")
+
+(def-func 'apps/netspeed/vops)
+	;inputs
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
+	;outputs
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
+	;trashes
+	;:r1-:r14
+
+	(entry '(:r0 :r1))
+
+(errorcases
+	(call 'lisp :env_args_sig '(:r1 ($ sig) 0) '(tmp))
+	(gotoif `(,tmp = 0) 'error))
+
+	(vp-push :r0)
+	(call 'num :create '(8000000) '(:r1))
+	(vp-pop :r0)
+
+	(exit '(:r0 :r1))
+	(vp-ret)
+
+(errorcases
+(vp-label 'error)
+	(jump 'lisp :repl_error '(:r0 "(vops)" +error_msg_wrong_types :r1))
+	(signature '()))
+
+(def-func-end)
