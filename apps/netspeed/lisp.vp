@@ -1,7 +1,13 @@
 (include "lib/asm/func.inc")
 (include "class/num/class.inc")
 (include "class/lisp/class.inc")
+(include "sys/pii/class.inc")
+(include "sys/task/class.inc")
 (include "./app.inc")
+
+(defmacro test-block (n &rest _)
+	(while (< (length _) n) (setq _ (cat _ _)))
+	`(progn ~(slice 0 n _)))
 
 (def-func 'apps/netspeed/vops)
 	;inputs
@@ -13,6 +19,9 @@
 	;trashes
 	;:r1-:r14
 
+	(vp-def (n_regs n_memory n_reals end cnth cnt start loop rt1 rt2)
+		'(:r11 :r12 :r13))
+
 	(entry '(:r0 :r1))
 
 (errorcases
@@ -20,12 +29,43 @@
 	(gotoif `(,tmp = 0) 'error))
 
 	(vp-push :r0)
-	(call 'num :create '(8) '(:r11))
-	(call 'num :create '(7) '(:r12))
-	(call 'num :create '(3) '(:r13))
+
+	;reg ops test
+	(call 'sys_pii :time :nil `(,start))
+	(vp-cpy-cr 0 cnt)
+	(loop-start)
+		(vp-cpy-cr 0 loop)
+		(loop-start)
+			(test-block 1000
+				(vp-cpy-cr 1 rt1)
+				(vp-add-cr 2 rt1)
+				(vp-sub-cr 3 rt1)
+				(vp-and-cr 4 rt1)
+				(vp-or-cr 4 rt1)
+				(vp-xor-cr 5 rt1)
+				(vp-add-rr rt2 rt1)
+				(vp-sub-rr rt2 rt1)
+				(vp-and-rr rt2 rt1)
+				(vp-or-rr rt2 rt1)
+				(vp-xor-rr rt2 rt1))
+			(vp-add-cr 1 loop)
+		(loop-until `(,loop = 1000))
+		(call 'sys_task :sleep '(0))
+		(vp-add-cr (* 1000 1000) cnt)
+		(call 'sys_pii :time :nil `(,end))
+		(vp-sub-rr start end)
+	(loop-until `(,end >= 100000))
+	(vp-mul-cr 1000000 cnt)
+	(vp-ext-rr cnt cnth)
+	(vp-div-rrr-u end cnth cnt)
+	(call 'num :create `(,cnt) `(,n_regs))
+
+	(call 'num :create '(7000000000) `(,n_memory))
+	(call 'num :create '(3000000000) `(,n_reals))
+
 	(call 'list :create :nil '(:r0))
-	(call 'list :push_back2 '(:r0 :r11 :r12) '(:r0 _ _ _ _))
-	(call 'list :push_back '(:r0 :r13) '(:r1 _ _ _))
+	(call 'list :push_back2 `(:r0 ,n_regs ,n_memory) '(:r0 _ _ _ _))
+	(call 'list :push_back `(:r0 ,n_reals) '(:r1 _ _ _))
 	(vp-pop :r0)
 
 	(exit '(:r0 :r1))

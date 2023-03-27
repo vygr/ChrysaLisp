@@ -10,8 +10,8 @@
 (enums +select 0
 	(enum main task reply nodes))
 
-(defq +scale_size 10 +max_align +scale_size
-	max_regs 10 max_memory 10 max_reals 10
+(defq +scale_size 10 +max_align 10000000000
+	max_regs 10000000000 max_memory 10000000000 max_reals 10000000000
 	id :t +poll_rate (/ 1000000 4)
 	+retry_timeout (if (starts-with "obj/vp64" (load-path)) 20000000 2000000))
 
@@ -19,21 +19,21 @@
 	(ui-title-bar _ "Network Speed" (0xea19 0xea1b 0xea1a) +event_close)
 	(ui-grid _ (:grid_height 1 :flow_flags +flow_down_fill :maximum 100 :value 0)
 		(ui-flow _ (:color +argb_green)
-			(ui-label _ (:text "Regs" :color +argb_white))
+			(ui-label _ (:text "Regs (bops/s)" :color +argb_white))
 			(ui-grid regs_scale_grid (:grid_width +scale_size :grid_height 1 :color +argb_white
 					:font *env_medium_terminal_font*)
 				(times +scale_size (ui-label _
 					(:text "|" :flow_flags (logior +flow_flag_align_vcenter +flow_flag_align_hright)))))
 			(ui-grid regs_grid (:grid_width 1)))
 		(ui-flow _ (:color +argb_yellow)
-			(ui-label _ (:text "Memory" :color +argb_white))
+			(ui-label _ (:text "Memory (bops/s)" :color +argb_white))
 			(ui-grid memory_scale_grid (:grid_width +scale_size :grid_height 1 :color +argb_white
 					:font *env_medium_terminal_font*)
 				(times +scale_size (ui-label _
 					(:text "|" :flow_flags (logior +flow_flag_align_vcenter +flow_flag_align_hright)))))
 			(ui-grid memory_grid (:grid_width 1)))
 		(ui-flow _ (:color +argb_red)
-			(ui-label _ (:text "Reals" :color +argb_white))
+			(ui-label _ (:text "Reals (bops/s)" :color +argb_white))
 			(ui-grid reals_scale_grid (:grid_width +scale_size :grid_height 1 :color +argb_white
 					:font *env_medium_terminal_font*)
 				(times +scale_size (ui-label _
@@ -65,7 +65,7 @@
 (defun update-scale (scale max_scale)
 	(each (lambda (mark)
 		(defq val (* (inc _) (/ max_scale (length scale))))
-		(def mark :text (str val "|"))
+		(def mark :text (str (/ val 1000000000) "|"))
 		(. mark :layout)) scale))
 
 (defun main ()
