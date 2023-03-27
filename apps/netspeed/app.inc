@@ -1,3 +1,3 @@
 (structure +reply 0
 	(nodeid node)
-	(ulong vp_speed))
+	(ulong vops_regs vops_memory vops_reals))

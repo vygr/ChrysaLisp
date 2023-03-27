@@ -20,7 +20,12 @@
 	(gotoif `(,tmp = 0) 'error))
 
 	(vp-push :r0)
-	(call 'num :create '(8000000) '(:r1))
+	(call 'num :create '(8) '(:r11))
+	(call 'num :create '(7) '(:r12))
+	(call 'num :create '(3) '(:r13))
+	(call 'list :create :nil '(:r0))
+	(call 'list :push_back2 '(:r0 :r11 :r12) '(:r0 _ _ _ _))
+	(call 'list :push_back '(:r0 :r13) '(:r1 _ _ _))
 	(vp-pop :r0)
 
 	(exit '(:r0 :r1))
