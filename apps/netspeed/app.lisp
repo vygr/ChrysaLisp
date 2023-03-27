@@ -10,7 +10,7 @@
 (enums +select 0
 	(enum main task reply nodes))
 
-(defq +scale_size 10 +max_align 10000000000
+(defq +scale_size 10 +max_align 10000000000 +smooth_steps 5
 	max_regs 10000000000 max_memory 10000000000 max_reals 10000000000
 	id :t +poll_rate (/ 1000000 4)
 	+retry_timeout (if (starts-with "obj/vp64" (load-path)) 20000000 2000000))
@@ -45,9 +45,12 @@
 	;function called when entry is created
 	(.-> (defq ub (Progress) ab (Progress) tb (Progress) val (emap))
 		(:insert :timestamp now)
-		(:insert :reals_bar ub)
+		(:insert :regs_bar tb)
 		(:insert :memory_bar ab)
-		(:insert :regs_bar tb))
+		(:insert :reals_bar ub)
+		(:insert :regs_results (list))
+		(:insert :memory_results (list))
+		(:insert :reals_results (list)))
 	(. reals_grid :add_child ub)
 	(. memory_grid :add_child ab)
 	(. regs_grid :add_child tb)
@@ -69,7 +72,7 @@
 		(. mark :layout)) scale))
 
 (defun smooth-result (results val)
-	(if (> (length (push results val)) 50)
+	(if (> (length (push results val)) +smooth_steps)
 		(setq results (slice 1 -1 results)))
 	(list results (/ (reduce + results 0) (length results))))
 
@@ -77,8 +80,7 @@
 	(defq select (alloc-select +select_size))
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(gui-add-front (. *window* :change x y w h))
-	(defq global_tasks (Global create destroy) poll_que (list)
-		reg_results (list) memory_results (list) reals_results (list))
+	(defq global_tasks (Global create destroy) poll_que (list))
 	(mail-timeout (elem-get +select_nodes select) 1 0)
 	(while id
 		(defq msg (mail-read (elem-get (defq idx (mail-select select)) select)))
@@ -118,8 +120,11 @@
 						vops_reals (getf msg +reply_vops_reals)
 						regs_bar (. val :find :regs_bar)
 						memory_bar (. val :find :memory_bar)
-						reals_bar (. val :find :reals_bar))
-					(bind '(reg_results vops_regs) (smooth-result reg_results vops_regs))
+						reals_bar (. val :find :reals_bar)
+						regs_results (. val :find :regs_results)
+						memory_results (. val :find :memory_results)
+						reals_results (. val :find :reals_results))
+					(bind '(regs_results vops_regs) (smooth-result regs_results vops_regs))
 					(bind '(memory_results vops_memory) (smooth-result memory_results vops_memory))
 					(bind '(reals_results vops_reals) (smooth-result reals_results vops_reals))
 					(setq max_reals (align (max max_reals vops_reals) +max_align)
@@ -129,7 +134,11 @@
 					(def memory_bar :maximum max_memory :value vops_memory)
 					(def reals_bar :maximum max_reals :value vops_reals)
 					(. regs_bar :dirty) (. memory_bar :dirty) (. reals_bar :dirty)
-					(. val :insert :timestamp (pii-time))
+					(.-> val
+						(:insert :timestamp (pii-time))
+						(:insert :regs_results regs_results)
+						(:insert :memory_results memory_results)
+						(:insert :reals_results reals_results))
 					(push poll_que (. val :find :child))))
 			(:t	;polling timer event
 				(mail-timeout (elem-get +select_nodes select) +poll_rate 0)
