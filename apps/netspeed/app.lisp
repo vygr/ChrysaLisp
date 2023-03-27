@@ -68,11 +68,17 @@
 		(def mark :text (str (/ val 1000000000) "|"))
 		(. mark :layout)) scale))
 
+(defun smooth-result (results val)
+	(if (> (length (push results val)) 50)
+		(setq results (slice 1 -1 results)))
+	(list results (/ (reduce + results 0) (length results))))
+
 (defun main ()
 	(defq select (alloc-select +select_size))
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(gui-add-front (. *window* :change x y w h))
-	(defq global_tasks (Global create destroy) poll_que (list))
+	(defq global_tasks (Global create destroy) poll_que (list)
+		reg_results (list) memory_results (list) reals_results (list))
 	(mail-timeout (elem-get +select_nodes select) 1 0)
 	(while id
 		(defq msg (mail-read (elem-get (defq idx (mail-select select)) select)))
@@ -113,6 +119,9 @@
 						regs_bar (. val :find :regs_bar)
 						memory_bar (. val :find :memory_bar)
 						reals_bar (. val :find :reals_bar))
+					(bind '(reg_results vops_regs) (smooth-result reg_results vops_regs))
+					(bind '(memory_results vops_memory) (smooth-result memory_results vops_memory))
+					(bind '(reals_results vops_reals) (smooth-result reals_results vops_reals))
 					(setq max_reals (align (max max_reals vops_reals) +max_align)
 						max_memory (align (max max_memory vops_memory) +max_align)
 						max_regs (align (max max_regs vops_regs) +max_align))

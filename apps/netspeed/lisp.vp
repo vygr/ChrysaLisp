@@ -3,7 +3,6 @@
 (include "class/lisp/class.inc")
 (include "sys/pii/class.inc")
 (include "sys/task/class.inc")
-(include "./app.inc")
 
 (defmacro test-block (n &rest _)
 	(while (< (length _) n) (setq _ (cat _ _)))
