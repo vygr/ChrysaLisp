@@ -10,9 +10,8 @@
 (enums +select 0
 	(enum main task reply nodes))
 
-(defq +scale_size 10 +max_align 10000000000 +smooth_steps 5
-	max_regs 10000000000 max_memory 10000000000 max_reals 10000000000
-	id :t +poll_rate (/ 1000000 4)
+(defq +scale_size 10 +max_align 10000000000
+	+smooth_steps 5 +poll_rate (/ 1000000 4)
 	+retry_timeout (if (starts-with "obj/vp64" (load-path)) 20000000 2000000))
 
 (ui-window *window* ()
@@ -83,10 +82,11 @@
 		:value vops :maximum (align (max max_vops vops) +max_align)))
 
 (defun main ()
-	(defq select (alloc-select +select_size))
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(gui-add-front (. *window* :change x y w h))
-	(defq global_tasks (Global create destroy) poll_que (list))
+	(defq id :t select (alloc-select +select_size)
+		max_regs 10000000000 max_memory 10000000000 max_reals 10000000000
+		global_tasks (Global create destroy) poll_que (list))
 	(mail-timeout (elem-get +select_nodes select) 1 0)
 	(while id
 		(defq msg (mail-read (elem-get (defq idx (mail-select select)) select)))
