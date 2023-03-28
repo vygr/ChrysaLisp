@@ -71,11 +71,8 @@
 		(. mark :layout)) scale))
 
 (defun update-result (node val max_val max_align bsym)
-	(defq bar (. node :find bsym))
-	(setq max_val (align (max max_val val) max_align))
-	(def bar :maximum max_val :value val)
-	(. bar :dirty)
-	max_val)
+	(def (. (. node :find bsym) :dirty)
+		:value val :maximum (align (max max_val val) max_align)))
 
 (defun main ()
 	(defq select (alloc-select +select_size))

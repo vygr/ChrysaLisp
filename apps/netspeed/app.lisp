@@ -78,13 +78,9 @@
 	(list results (/ (reduce + results 0) (length results))))
 
 (defun update-result (node vops max_vops bsym rsym)
-	(defq bar (. node :find bsym) results (. node :find rsym))
-	(bind '(results vops) (smooth-result results vops))
-	(setq max_vops (align (max max_vops vops) +max_align))
-	(def bar :maximum max_vops :value vops)
-	(. node :insert rsym results)
-	(. bar :dirty)
-	max_vops)
+	(bind '(results vops) (smooth-result (. node :find rsym) vops))
+	(def (. (. (. node :insert rsym results) :find bsym) :dirty)
+		:value vops :maximum (align (max max_vops vops) +max_align)))
 
 (defun main ()
 	(defq select (alloc-select +select_size))
@@ -128,7 +124,7 @@
 					(setq max_regs (update-result node (getf msg +reply_vops_regs) max_reals :regs_bar :regs_results)
 						max_reals (update-result node (getf msg +reply_vops_memory) max_memory :memory_bar :memory_results)
 						max_reals (update-result node (getf msg +reply_vops_reals) max_reals :reals_bar :reals_results))
-					(.-> node (:insert :timestamp (pii-time)))
+					(. node :insert :timestamp (pii-time))
 					(push poll_que (. node :find :child))))
 			(:t	;polling timer event
 				(mail-timeout (elem-get +select_nodes select) +poll_rate 0)
