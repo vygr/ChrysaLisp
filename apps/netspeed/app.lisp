@@ -122,7 +122,7 @@
 				;child poll responce
 				(when (defq node (. global_tasks :find (getf msg +reply_node)))
 					(setq max_regs (update-result node (getf msg +reply_vops_regs) max_reals :regs_bar :regs_results)
-						max_reals (update-result node (getf msg +reply_vops_memory) max_memory :memory_bar :memory_results)
+						max_memory (update-result node (getf msg +reply_vops_memory) max_memory :memory_bar :memory_results)
 						max_reals (update-result node (getf msg +reply_vops_reals) max_reals :reals_bar :reals_results))
 					(. node :insert :timestamp (pii-time))
 					(push poll_que (. node :find :child))))
