@@ -44,7 +44,7 @@
 (defun create (key now)
 	; (create key now) -> val
 	;function called when entry is created
-	(.-> (defq ub (Progress) ab (Progress) tb (Progress) val (emap))
+	(.-> (defq ub (Progress) ab (Progress) tb (Progress) node (emap))
 		(:insert :timestamp now)
 		(:insert :used_bar ub)
 		(:insert :alloc_bar ab)
@@ -53,21 +53,29 @@
 	(. alloc_grid :add_child ab)
 	(. task_grid :add_child tb)
 	(open-task "apps/netmon/child.lisp" key +kn_call_open 0 (elem-get +select_task select))
-	val)
+	node)
 
-(defun destroy (key val)
+(defun destroy (key node)
 	; (destroy key val)
 	;function called when entry is destroyed
-	(when (defq child (. val :find :child)) (mail-send child ""))
-	(.-> val (:find :used_bar) :sub)
-	(.-> val (:find :alloc_bar) :sub)
-	(.-> val (:find :task_bar) :sub))
+	(when (defq child (. node :find :child)) (mail-send child ""))
+	(.-> node (:find :used_bar) :sub)
+	(.-> node (:find :alloc_bar) :sub)
+	(.-> node (:find :task_bar) :sub))
 
-(defun update_scale (scale max_scale inc_scale)
+(defun update-scale (scale max_scale inc_scale)
+	(setq scale (.-> scale :dirty_all :children))
 	(each (lambda (mark)
 		(defq val (* (inc _) (/ (* max_scale 100) (length scale))))
 		(def mark :text (str (/ val inc_scale) "|"))
 		(. mark :layout)) scale))
+
+(defun update-result (node val max_val max_align bsym)
+	(defq bar (. node :find bsym))
+	(setq max_val (align (max max_val val) max_align))
+	(def bar :maximum max_val :value val)
+	(. bar :dirty)
+	max_val)
 
 (defun main ()
 	(defq select (alloc-select +select_size))
@@ -100,50 +108,32 @@
 			(+select_task
 				;child launch responce
 				(defq child (getf msg +kn_msg_reply_id)
-					val (. global_tasks :find (slice +long_size -1 child)))
-				(when val
-					(.-> val
+					node (. global_tasks :find (slice +long_size -1 child)))
+				(when node
+					(.-> node
 						(:insert :child child)
 						(:insert :timestamp (pii-time)))
 					(push poll_que child)))
 			(+select_reply
 				;child poll responce
-				(when (defq val (. global_tasks :find (getf msg +reply_node)))
-					(defq task_val (getf msg +reply_task_count)
-						alloc_val (getf msg +reply_mem_alloc)
-						used_val (getf msg +reply_mem_used)
-						task_bar (. val :find :task_bar)
-						alloc_bar (. val :find :alloc_bar)
-						used_bar (. val :find :used_bar))
-					(setq max_used (align (max max_used used_val) +mem_align)
-						max_alloc (align (max max_alloc alloc_val) +mem_align)
-						max_tasks (align (max max_tasks task_val) +task_align))
-					(def task_bar :maximum max_tasks :value task_val)
-					(def alloc_bar :maximum max_alloc :value alloc_val)
-					(def used_bar :maximum max_used :value used_val)
-					(. task_bar :dirty) (. alloc_bar :dirty) (. used_bar :dirty)
-					(. val :insert :timestamp (pii-time))
-					(push poll_que (. val :find :child))))
+				(when (defq node (. global_tasks :find (getf msg +reply_node)))
+					(setq max_tasks (update-result node (getf msg +reply_task_count) max_tasks +task_align :task_bar)
+						max_alloc (update-result node (getf msg +reply_mem_alloc) max_alloc +mem_align :alloc_bar)
+						max_used (update-result node (getf msg +reply_mem_used) max_used +mem_align :used_bar))
+					(. node :insert :timestamp (pii-time))
+					(push poll_que (. node :find :child))))
 			(:t	;polling timer event
 				(mail-timeout (elem-get +select_nodes select) +poll_rate 0)
 				(when (. global_tasks :refresh +retry_timeout)
 					;nodes have mutated
-					(. used_grid :layout)
-					(. alloc_grid :layout)
-					(. task_grid :layout)
+					(. used_grid :layout) (. alloc_grid :layout) (. task_grid :layout)
 					(bind '(x y w h) (apply view-fit
 						(cat (. *window* :get_pos) (. *window* :pref_size))))
 					(. *window* :change_dirty x y w h))
 				;set scales
-				(defq task_scale (. task_scale_grid :children)
-					alloc_scale (. alloc_scale_grid :children)
-					used_scale (. used_scale_grid :children))
-				(update_scale task_scale max_tasks 100)
-				(update_scale alloc_scale max_alloc 102400)
-				(update_scale used_scale max_used 102400)
-				(. task_scale_grid :dirty_all)
-				(. alloc_scale_grid :dirty_all)
-				(. used_scale_grid :dirty_all)
+				(update-scale task_scale_grid max_tasks 100)
+				(update-scale alloc_scale_grid max_alloc 102400)
+				(update-scale used_scale_grid max_used 102400)
 				;poll any ready children
 				(each (# (mail-send %0 (elem-get +select_reply select))) poll_que)
 				(clear poll_que))))

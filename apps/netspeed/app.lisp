@@ -43,7 +43,7 @@
 (defun create (key now)
 	; (create key now) -> val
 	;function called when entry is created
-	(.-> (defq ub (Progress) ab (Progress) tb (Progress) val (emap))
+	(.-> (defq ub (Progress) ab (Progress) tb (Progress) node (emap))
 		(:insert :timestamp now)
 		(:insert :regs_bar tb)
 		(:insert :memory_bar ab)
@@ -55,17 +55,18 @@
 	(. memory_grid :add_child ab)
 	(. regs_grid :add_child tb)
 	(open-task "apps/netspeed/child.lisp" key +kn_call_open 0 (elem-get +select_task select))
-	val)
+	node)
 
-(defun destroy (key val)
+(defun destroy (key node)
 	; (destroy key val)
 	;function called when entry is destroyed
-	(when (defq child (. val :find :child)) (mail-send child ""))
-	(.-> val (:find :reals_bar) :sub)
-	(.-> val (:find :memory_bar) :sub)
-	(.-> val (:find :regs_bar) :sub))
+	(when (defq child (. node :find :child)) (mail-send child ""))
+	(.-> node (:find :reals_bar) :sub)
+	(.-> node (:find :memory_bar) :sub)
+	(.-> node (:find :regs_bar) :sub))
 
 (defun update-scale (scale max_scale)
+	(setq scale (.-> scale :dirty_all :children))
 	(each (lambda (mark)
 		(defq val (* (inc _) (/ max_scale (length scale))))
 		(def mark :text (str (/ val 1000000000) "|"))
@@ -75,6 +76,15 @@
 	(if (> (length (push results val)) +smooth_steps)
 		(setq results (slice 1 -1 results)))
 	(list results (/ (reduce + results 0) (length results))))
+
+(defun update-result (node vops max_vops bsym rsym)
+	(defq bar (. node :find bsym) results (. node :find rsym))
+	(bind '(results vops) (smooth-result results vops))
+	(setq max_vops (align (max max_vops vops) +max_align))
+	(def bar :maximum max_vops :value vops)
+	(. node :insert rsym results)
+	(. bar :dirty)
+	max_vops)
 
 (defun main ()
 	(defq select (alloc-select +select_size))
@@ -106,60 +116,32 @@
 			(+select_task
 				;child launch responce
 				(defq child (getf msg +kn_msg_reply_id)
-					val (. global_tasks :find (slice +long_size -1 child)))
-				(when val
-					(.-> val
+					node (. global_tasks :find (slice +long_size -1 child)))
+				(when node
+					(.-> node
 						(:insert :child child)
 						(:insert :timestamp (pii-time)))
 					(push poll_que child)))
 			(+select_reply
 				;child poll responce
-				(when (defq val (. global_tasks :find (getf msg +reply_node)))
-					(defq vops_regs (getf msg +reply_vops_regs)
-						vops_memory (getf msg +reply_vops_memory)
-						vops_reals (getf msg +reply_vops_reals)
-						regs_bar (. val :find :regs_bar)
-						memory_bar (. val :find :memory_bar)
-						reals_bar (. val :find :reals_bar)
-						regs_results (. val :find :regs_results)
-						memory_results (. val :find :memory_results)
-						reals_results (. val :find :reals_results))
-					(bind '(regs_results vops_regs) (smooth-result regs_results vops_regs))
-					(bind '(memory_results vops_memory) (smooth-result memory_results vops_memory))
-					(bind '(reals_results vops_reals) (smooth-result reals_results vops_reals))
-					(setq max_reals (align (max max_reals vops_reals) +max_align)
-						max_memory (align (max max_memory vops_memory) +max_align)
-						max_regs (align (max max_regs vops_regs) +max_align))
-					(def regs_bar :maximum max_regs :value vops_regs)
-					(def memory_bar :maximum max_memory :value vops_memory)
-					(def reals_bar :maximum max_reals :value vops_reals)
-					(. regs_bar :dirty) (. memory_bar :dirty) (. reals_bar :dirty)
-					(.-> val
-						(:insert :timestamp (pii-time))
-						(:insert :regs_results regs_results)
-						(:insert :memory_results memory_results)
-						(:insert :reals_results reals_results))
-					(push poll_que (. val :find :child))))
+				(when (defq node (. global_tasks :find (getf msg +reply_node)))
+					(setq max_regs (update-result node (getf msg +reply_vops_regs) max_reals :regs_bar :regs_results)
+						max_reals (update-result node (getf msg +reply_vops_memory) max_memory :memory_bar :memory_results)
+						max_reals (update-result node (getf msg +reply_vops_reals) max_reals :reals_bar :reals_results))
+					(.-> node (:insert :timestamp (pii-time)))
+					(push poll_que (. node :find :child))))
 			(:t	;polling timer event
 				(mail-timeout (elem-get +select_nodes select) +poll_rate 0)
 				(when (. global_tasks :refresh +retry_timeout)
 					;nodes have mutated
-					(. reals_grid :layout)
-					(. memory_grid :layout)
-					(. regs_grid :layout)
+					(. reals_grid :layout) (. memory_grid :layout) (. regs_grid :layout)
 					(bind '(x y w h) (apply view-fit
 						(cat (. *window* :get_pos) (. *window* :pref_size))))
 					(. *window* :change_dirty x y w h))
 				;set scales
-				(defq regs_scale (. regs_scale_grid :children)
-					memory_scale (. memory_scale_grid :children)
-					reals_scale (. reals_scale_grid :children))
-				(update-scale regs_scale max_regs)
-				(update-scale memory_scale max_memory)
-				(update-scale reals_scale max_reals)
-				(. regs_scale_grid :dirty_all)
-				(. memory_scale_grid :dirty_all)
-				(. reals_scale_grid :dirty_all)
+				(update-scale regs_scale_grid max_regs)
+				(update-scale memory_scale_grid max_memory)
+				(update-scale reals_scale_grid max_reals)
 				;poll any ready children
 				(each (# (mail-send %0 (elem-get +select_reply select))) poll_que)
 				(clear poll_que))))
