@@ -7,10 +7,10 @@
 
 (defq +timeout 5000000)
 
-(enums +select 0
+(enums +_select 0
 	(enum main timeout))
 
-(structure +job 0
+(structure +_job 0
 	(long key)
 	(netid reply)
 	(offset params))
@@ -22,22 +22,22 @@
 ;(import "lib/debug/profile.inc")
 
 (defun main ()
-	(defq *select* (alloc-select +select_size) *working* :t)
+	(defq *select* (alloc-select +_select_size) *working* :t)
 	(while *working*
-		(mail-timeout (elem-get +select_timeout *select*) +timeout 0)
+		(mail-timeout (elem-get +_select_timeout *select*) +timeout 0)
 		(defq *msg* (mail-read (elem-get (defq *idx* (mail-select *select*)) *select*)))
 		(cond
 			;timeout or quit
-			((or (= *idx* +select_timeout) (eql *msg* ""))
+			((or (= *idx* +_select_timeout) (eql *msg* ""))
 				(setq *working* :nil))
 			;main mailbox
-			((= *idx* +select_main)
+			((= *idx* +_select_main)
 				;clear timeout
-				(mail-timeout (elem-get +select_timeout *select*) 0 0)
+				(mail-timeout (elem-get +_select_timeout *select*) 0 0)
 				;read job
-				(defq *reply_key* (getf *msg* +job_key) *reply_mbox* (getf *msg* +job_reply))
+				(defq *reply_key* (getf *msg* +_job_key) *reply_mbox* (getf *msg* +_job_reply))
 				(bind '((files *abi* *cpu* *debug_mode* *debug_emit* *debug_inst*) _)
-					(read (string-stream (slice +job_params -1 *msg*)) (ascii-code " ")))
+					(read (string-stream (slice +_job_params -1 *msg*)) (ascii-code " ")))
 				;compile the file list and catch any errors
 				(setq *msg* (list))
 				(catch
