@@ -651,6 +651,7 @@ int main(int argc, char *argv[])
 			{
 				if (read((int)fd, data, data_size) == data_size)
 				{
+					pii_close((int)fd);
 				#ifndef _WIN64
 					fcntl(0, F_SETFL, fcntl(0, F_GETFL, 0) | O_NONBLOCK);
 				#endif
@@ -681,10 +682,17 @@ int main(int argc, char *argv[])
 					}
 					pii_munmap(data, data_size, mmap_exec);
 				}
-				else std::cout << "Error, failed reading boot_image!" << std::endl;
+				else
+				{
+					pii_close((int)fd);
+					std::cout << "Error, failed reading boot_image!" << std::endl;
+				}
 			}
-			else std::cout << "Error, READ/WRITE/EXEC pages failed!" << std::endl;
-			pii_close((int)fd);
+			else
+			{
+				pii_close((int)fd);
+				std::cout << "Error, READ/WRITE/EXEC pages failed!" << std::endl;
+			}
 		}
 		else std::cout << "Error, boot_image not found!" << std::endl;
 	}
