@@ -9,6 +9,11 @@ make test for your platform type `make test` in the Terminal app or TUI prompt.
 This test will do several full cleaned builds for your current platform and
 give you the stats.
 
+New NetSpeed app ! Measures currently available VP register, memory and reals
+ops/s performance for each node on the network. This is a dynamic measurement,
+if you are running other processes then you will see the values react
+accordingly.
+
 ------
 
 Update for the Netmon app.
