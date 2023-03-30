@@ -3,10 +3,7 @@
 (include "class/lisp/class.inc")
 (include "sys/pii/class.inc")
 (include "sys/task/class.inc")
-
-(defmacro test-block (n &rest _)
-	(while (< (length _) n) (setq _ (cat _ _)))
-	`(progn ~(slice 0 n _)))
+(include "sys/math/class.inc")
 
 (def-func 'apps/netspeed/vops)
 	;inputs
@@ -18,21 +15,27 @@
 	;trashes
 	;:r1-:r14
 
-	(vp-def (n_regs n_memory n_reals end cnth cnt start loop rt1 rt2)
-		'(:r11 :r12 :r13))
+	(defmacro test-block (n &rest _)
+		(while (< (length _) n) (setq _ (cat _ _)))
+		`(progn ~(slice 0 n _)))
 
-	(entry '(:r0 :r1))
+	(def-vars
+		(ptr this args mem1 mem2)
+		(ulong regs_vops memory_vops reals_vops start end cnt))
+
+	(push-scope)
+	(entry {this, args})
 
 (errorcases
-	(call 'lisp :env_args_sig '(:r1 ($ sig) 0) '(tmp))
+	(call 'lisp :env_args_sig {args, $sig, 0} '(tmp))
 	(gotoif `(,tmp = 0) 'error))
 
-	(vp-push :r0)
-
 	;reg ops test
-	(call 'sys_pii :time :nil `(,start))
-	(vp-cpy-cr 0 cnt)
+	(call 'sys_pii :time :nil {start})
+	(assign {0} {cnt})
 	(loop-start)
+
+		(vp-def (loop rt1 rt2))
 		(vp-cpy-cr 0 loop)
 		(loop-start)
 			(test-block 1000
@@ -50,29 +53,83 @@
 			(vp-add-cr 1 loop)
 		(loop-until `(,loop = 1000))
 		(call 'sys_task :sleep '(0))
-		(vp-add-cr (* 1000 1000) cnt)
-		(call 'sys_pii :time :nil `(,end))
-		(vp-sub-rr start end)
-	(loop-until `(,end >= 100000))
-	(vp-mul-cr 1000000 cnt)
-	(vp-ext-rr cnt cnth)
-	(vp-div-rrr-u end cnth cnt)
-	(call 'num :create `(,cnt) `(,n_regs))
 
-	(call 'num :create '(7000000000) `(,n_memory))
-	(call 'num :create '(3000000000) `(,n_reals))
+		(call 'sys_pii :time :nil {end})
+		(assign {end - start, 1000 * 1000 + cnt} {end, cnt})
+	(loop-until {end >= 100000})
+	(call 'num :create {1000000 * cnt / end} {regs_vops})
 
-	(call 'list :create :nil '(:r0))
-	(call 'list :push_back2 `(:r0 ,n_regs ,n_memory) '(:r0 _ _ _ _))
-	(call 'list :push_back `(:r0 ,n_reals) '(:r1 _ _ _))
-	(vp-pop :r0)
+	;memory ops test
+	(call 'sys_pii :time :nil {start})
+	(assign {0} {cnt})
+	(loop-start)
 
-	(exit '(:r0 :r1))
-	(vp-ret)
+		(vp-def (loop rt1 rt2 rt3 rt4))
+		(assign {&mem1, &mem2} `(,rt1 ,rt2))
+		(vp-cpy-cr 0 loop)
+		(loop-start)
+			(test-block 1000
+				(vp-cpy-ir rt1 0 rt3)
+				(vp-cpy-ir rt2 0 rt4)
+				(vp-cpy-ri rt3 rt2 0)
+				(vp-cpy-ri rt4 rt1 0)
+				(vp-cpy-ir-i rt1 0 rt3)
+				(vp-cpy-ir-i rt2 0 rt4)
+				(vp-cpy-ri-i rt3 rt2 0)
+				(vp-cpy-ri-i rt4 rt1 0)
+				(vp-cpy-ir-s rt1 0 rt3)
+				(vp-cpy-ir-s rt2 0 rt4)
+				(vp-cpy-ri-s rt3 rt2 0)
+				(vp-cpy-ri-s rt4 rt1 0)
+				(vp-cpy-ir-b rt1 0 rt3)
+				(vp-cpy-ir-b rt2 0 rt4)
+				(vp-cpy-ri-b rt3 rt2 0)
+				(vp-cpy-ri-b rt4 rt1 0))
+			(vp-add-cr 1 loop)
+		(loop-until `(,loop = 1000))
+		(call 'sys_task :sleep '(0))
+
+		(call 'sys_pii :time :nil {end})
+		(assign {end - start, 1000 * 1000 + cnt} {end, cnt})
+	(loop-until {end >= 100000})
+	(call 'num :create {1000000 * cnt / end} {memory_vops})
+
+	;reals ops test
+	(call 'sys_pii :time :nil {start})
+	(assign {0} {cnt})
+	(loop-start)
+
+		(vp-def (loop rt1 rt2))
+		(vp-cpy-cr 0 loop)
+		(loop-start)
+			(test-block 6
+				(call 'sys_math :r_i2r '(1000) `(,rt1))
+				(call 'sys_math :r_add `(,rt1 ,rt1) `(,rt2))
+				(call 'sys_math :r_sub `(,rt2 ,rt1) `(,rt1))
+				(call 'sys_math :r_mul `(,rt2 ,rt1) `(,rt2))
+				(call 'sys_math :r_div `(,rt1 ,rt1) `(,rt2))
+				(call 'sys_math :r_r2i `(,rt2) `(,rt1)))
+			(vp-add-cr 1 loop)
+		(loop-until `(,loop = 100))
+		(call 'sys_task :sleep '(0))
+
+		(call 'sys_pii :time :nil {end})
+		(assign {end - start, 6 * 100 + cnt} {end, cnt})
+	(loop-until {end >= 100000})
+	(call 'num :create {1000000 * cnt / end} {reals_vops})
+
+	(call 'list :create :nil {args})
+	(call 'list :push_back2 {args, regs_vops, memory_vops})
+	(call 'list :push_back {args, reals_vops})
+
+	(exit {this, args})
+	(return)
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(vops)" +error_msg_wrong_types :r1))
+	(jump 'lisp :repl_error {this, "(vops)", +error_msg_wrong_types, args})
 	(signature '()))
+
+	(pop-scope-syms)
 
 (def-func-end)
