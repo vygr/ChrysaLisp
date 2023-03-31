@@ -17,7 +17,7 @@
 
 	(defmacro test-block (n &rest _)
 		(while (< (length _) n) (setq _ (cat _ _)))
-		`(progn ~(slice 0 n _)))
+		`(progn ~(copy (slice 0 n _))))
 
 	(def-vars
 		(ptr this args mem1 mem2)
