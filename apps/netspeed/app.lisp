@@ -10,7 +10,7 @@
 (enums +select 0
 	(enum main task reply nodes))
 
-(defq +scale_size 10 +bops 1000000000 +mops 1000000
+(defq +scale_size 5 +bops 1000000000 +mops 1000000
 	+max_bops_align (* +scale_size +bops) +max_mops_align  (* +scale_size +mops)
 	+smooth_steps 5 +poll_rate (/ 1000000 4)
 	+retry_timeout (if (starts-with "obj/vp64" (load-path)) 20000000 2000000))
