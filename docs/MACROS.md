@@ -390,3 +390,51 @@ Produces the following macro:
 (defmacro vec-add (v0 v1 &optional _)
 	(if _ `(,nums-add ~(list v0 v1) ,_) `(,nums-add ~(list v0 v1))))
 ```
+
+## Macros can save you typing
+
+OK, so we arrive at the most obvious thing. :)
+
+In the recent Netspeed application, that times blocks of VP code instructions
+to give a benchmark, we need to generate a basic block. And we need maybe
+thousands of lines of actual code, not a loop, and we really don't want to type
+this all in, and we want to be able to add instructions to the block with no
+effort later on etc etc.
+
+If you look in `apps/netspeed/lisp.vp` you will see this macro:
+
+```vdu
+(defmacro test-block (n &rest _)
+	(while (< (length _) n) (setq _ (cat _ _)))
+	`(progn ~(copy (slice 0 n _))))
+```
+
+What this macro does is to take a count of lines wanted, and a set of lines to
+replicate, to fill that number of lines.
+
+Here is the use case for the register ops test block:
+
+```vdu
+(test-block 1000
+	(vp-cpy-cr 1 rt1)
+	(vp-cpy-cr 2 rt2)
+	(vp-add-cr 3 rt1)
+	(vp-sub-cr 4 rt1)
+	(vp-and-cr 5 rt1)
+	(vp-or-cr 6 rt1)
+	(vp-xor-cr 7 rt1)
+	(vp-add-rr rt2 rt1)
+	(vp-sub-rr rt2 rt1)
+	(vp-and-rr rt2 rt1)
+	(vp-or-rr rt2 rt1)
+	(vp-xor-rr rt2 rt1)
+	(vp-shl-cr 3 rt1)
+	(vp-shr-cr 2 rt1)
+	(vp-asr-cr 1 rt1)
+	(vp-shl-rr rt2 rt1)
+	(vp-shr-rr rt2 rt1)
+	(vp-asr-rr rt2 rt1))
+```
+
+This will generate for us 1000 lines of code, replicating this block as many
+times as required to supply them.
