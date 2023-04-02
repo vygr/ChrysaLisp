@@ -19,6 +19,10 @@
 		(while (< (length _) n) (setq _ (cat _ _)))
 		`(progn ~(copy (slice 0 n _))))
 
+	(defmacro test-block-s (n &rest _)
+		(while (< (length _) n) (setq _ (cat _ _)))
+		`(progn ~(shuffle (copy (slice 0 n _)))))
+
 	(def-vars
 		(ptr this args mem1 mem2)
 		(ulong regs_vops memory_vops reals_vops start end cnt))
@@ -38,9 +42,9 @@
 		(vp-def (loop rt1 rt2))
 		(vp-cpy-cr 0 loop)
 		(loop-start)
-			(test-block 1000
-				(vp-cpy-cr 1 rt1)
-				(vp-cpy-cr 2 rt2)
+			(vp-cpy-cr 1 rt1)
+			(vp-cpy-cr 2 rt2)
+			(test-block-s 997
 				(vp-add-cr 3 rt1)
 				(vp-sub-cr 4 rt1)
 				(vp-and-cr 5 rt1)
