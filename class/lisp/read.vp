@@ -21,8 +21,7 @@
 	;skip white space
 (vp-label 'skip_white)
 	(vp-push :r1)
-	(loop-start)
-		(breakif '(:r2 > +char_space) '(:r2 = -1))
+	(loop-while '(:r2 <= +char_space) '(:r2 /= -1))
 		(call 'lisp :read_char '(:r0 :r1 :r2) '(:r0 :r2))
 		(assign '((:rsp 0)) '(:r1))
 	(loop-end)
