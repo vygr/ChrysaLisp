@@ -19,6 +19,28 @@
 	(ui-title-bar _ "Network Speed" (0xea19 0xea1b 0xea1a) +event_close)
 	(ui-grid _ (:grid_height 1 :flow_flags +flow_down_fill :maximum 100 :value 0)
 		(ui-flow _ (:color +argb_green)
+			(ui-label _ (:text "Net Regs (bops/s)" :color +argb_white))
+			(ui-grid net_regs_scale_grid (:grid_width +scale_size :grid_height 1 :color +argb_white
+					:font *env_medium_terminal_font*)
+				(times +scale_size (ui-label _
+					(:text "|" :flow_flags (logior +flow_flag_align_vcenter +flow_flag_align_hright)))))
+			(ui-progress net_regs))
+		(ui-flow _ (:color +argb_yellow)
+			(ui-label _ (:text "Net Memory (bops/s)" :color +argb_white))
+			(ui-grid net_memory_scale_grid (:grid_width +scale_size :grid_height 1 :color +argb_white
+					:font *env_medium_terminal_font*)
+				(times +scale_size (ui-label _
+					(:text "|" :flow_flags (logior +flow_flag_align_vcenter +flow_flag_align_hright)))))
+			(ui-progress net_memory))
+		(ui-flow _ (:color +argb_red)
+			(ui-label _ (:text "Net Reals (mops/s)" :color +argb_white))
+			(ui-grid net_reals_scale_grid (:grid_width +scale_size :grid_height 1 :color +argb_white
+					:font *env_medium_terminal_font*)
+				(times +scale_size (ui-label _
+					(:text "|" :flow_flags (logior +flow_flag_align_vcenter +flow_flag_align_hright)))))
+			(ui-progress net_reals)))
+	(ui-grid _ (:grid_height 1 :flow_flags +flow_down_fill :maximum 100 :value 0)
+		(ui-flow _ (:color +argb_green)
 			(ui-label _ (:text "Regs (bops/s)" :color +argb_white))
 			(ui-grid regs_scale_grid (:grid_width +scale_size :grid_height 1 :color +argb_white
 					:font *env_medium_terminal_font*)
@@ -81,10 +103,17 @@
 	(def (. (. (. node :insert rsym results) :find bsym) :dirty)
 		:value vops :maximum (align (max max_vops vops) max_vops_align)))
 
+(defun update-net-result (grid bar max_vops max_vops_align)
+	(defq total_vops (reduce (# (+ %0 (get :value %1)))
+		(.-> grid :dirty_all :children) 0))
+	(def (. bar :dirty) :value total_vops
+		:maximum (align (max max_vops total_vops) max_vops_align)))
+
 (defun main ()
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(gui-add-front (. *window* :change x y w h))
 	(defq id :t select (alloc-select +select_size)
+		net_max_regs +max_bops_align net_max_memory +max_bops_align net_max_reals +max_mops_align
 		max_regs +max_bops_align max_memory +max_bops_align max_reals +max_mops_align
 		global_tasks (Global create destroy) poll_que (list))
 	(mail-timeout (elem-get +select_nodes select) 1 0)
@@ -135,9 +164,15 @@
 						(cat (. *window* :get_pos) (. *window* :pref_size))))
 					(. *window* :change_dirty x y w h))
 				;set scales
+				(setq net_max_regs (update-net-result regs_grid net_regs net_max_regs +max_bops_align)
+					net_max_memory (update-net-result memory_grid net_memory net_max_memory +max_bops_align)
+					net_max_reals (update-net-result reals_grid net_reals net_max_reals +max_mops_align))
 				(update-scale regs_scale_grid max_regs +bops)
 				(update-scale memory_scale_grid max_memory +bops)
 				(update-scale reals_scale_grid max_reals +mops)
+				(update-scale net_regs_scale_grid net_max_regs +bops)
+				(update-scale net_memory_scale_grid net_max_memory +bops)
+				(update-scale net_reals_scale_grid net_max_reals +mops)
 				;poll any ready children
 				(each (# (mail-send %0 (elem-get +select_reply select))) poll_que)
 				(clear poll_que))))
