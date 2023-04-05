@@ -104,9 +104,9 @@
 		:value vops :maximum (align (max max_vops vops) max_vops_align)))
 
 (defun update-net-result (grid bar max_vops max_vops_align rsym)
-	(defq total_vops (reduce (# (+ %0 (get :value %1))) (. grid :children) 0))
-	(bind '(results total_vops) (smooth-result (get rsym) total_vops))
-	(set (env) rsym results)
+	(bind '(results total_vops) (smooth-result (get rsym)
+		(reduce (# (+ %0 (get :value %1))) (. grid :children) 0)))
+	(set (penv) rsym results)
 	(def (. bar :dirty) :value total_vops
 		:maximum (align (max max_vops total_vops) max_vops_align)))
 
