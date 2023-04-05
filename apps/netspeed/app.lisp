@@ -24,21 +24,21 @@
 					:font *env_medium_terminal_font*)
 				(times +scale_size (ui-label _
 					(:text "|" :flow_flags (logior +flow_flag_align_vcenter +flow_flag_align_hright)))))
-			(ui-progress net_regs))
+			(ui-progress net_regs_bar))
 		(ui-flow _ (:color +argb_yellow)
 			(ui-label _ (:text "Net Memory (bops/s)" :color +argb_white))
 			(ui-grid net_memory_scale_grid (:grid_width +scale_size :grid_height 1 :color +argb_white
 					:font *env_medium_terminal_font*)
 				(times +scale_size (ui-label _
 					(:text "|" :flow_flags (logior +flow_flag_align_vcenter +flow_flag_align_hright)))))
-			(ui-progress net_memory))
+			(ui-progress net_memory_bar))
 		(ui-flow _ (:color +argb_red)
 			(ui-label _ (:text "Net Reals (mops/s)" :color +argb_white))
 			(ui-grid net_reals_scale_grid (:grid_width +scale_size :grid_height 1 :color +argb_white
 					:font *env_medium_terminal_font*)
 				(times +scale_size (ui-label _
 					(:text "|" :flow_flags (logior +flow_flag_align_vcenter +flow_flag_align_hright)))))
-			(ui-progress net_reals)))
+			(ui-progress net_reals_bar)))
 	(ui-grid _ (:grid_height 1 :flow_flags +flow_down_fill :maximum 100 :value 0)
 		(ui-flow _ (:color +argb_green)
 			(ui-label _ (:text "Regs (bops/s)" :color +argb_white))
@@ -46,21 +46,21 @@
 					:font *env_medium_terminal_font*)
 				(times +scale_size (ui-label _
 					(:text "|" :flow_flags (logior +flow_flag_align_vcenter +flow_flag_align_hright)))))
-			(ui-grid regs_grid (:grid_width 1)))
+			(ui-grid regs_bar_grid (:grid_width 1)))
 		(ui-flow _ (:color +argb_yellow)
 			(ui-label _ (:text "Memory (bops/s)" :color +argb_white))
 			(ui-grid memory_scale_grid (:grid_width +scale_size :grid_height 1 :color +argb_white
 					:font *env_medium_terminal_font*)
 				(times +scale_size (ui-label _
 					(:text "|" :flow_flags (logior +flow_flag_align_vcenter +flow_flag_align_hright)))))
-			(ui-grid memory_grid (:grid_width 1)))
+			(ui-grid memory_bar_grid (:grid_width 1)))
 		(ui-flow _ (:color +argb_red)
 			(ui-label _ (:text "Reals (mops/s)" :color +argb_white))
 			(ui-grid reals_scale_grid (:grid_width +scale_size :grid_height 1 :color +argb_white
 					:font *env_medium_terminal_font*)
 				(times +scale_size (ui-label _
 					(:text "|" :flow_flags (logior +flow_flag_align_vcenter +flow_flag_align_hright)))))
-			(ui-grid reals_grid (:grid_width 1)))))
+			(ui-grid reals_bar_grid (:grid_width 1)))))
 
 (defun create (key now)
 	; (create key now) -> val
@@ -73,9 +73,9 @@
 		(:insert :regs_results (list))
 		(:insert :memory_results (list))
 		(:insert :reals_results (list)))
-	(. reals_grid :add_child ub)
-	(. memory_grid :add_child ab)
-	(. regs_grid :add_child tb)
+	(. reals_bar_grid :add_child ub)
+	(. memory_bar_grid :add_child ab)
+	(. regs_bar_grid :add_child tb)
 	(open-task "apps/netspeed/child.lisp" key +kn_call_open 0 (elem-get +select_task select))
 	node)
 
@@ -103,9 +103,11 @@
 	(def (. (. (. node :insert rsym results) :find bsym) :dirty)
 		:value vops :maximum (align (max max_vops vops) max_vops_align)))
 
-(defun update-net-result (grid bar max_vops max_vops_align)
+(defun update-net-result (grid bar max_vops max_vops_align rsym)
 	(defq total_vops (reduce (# (+ %0 (get :value %1)))
 		(.-> grid :dirty_all :children) 0))
+	(bind '(results total_vops) (smooth-result (get rsym) total_vops))
+	(set (env) rsym results)
 	(def (. bar :dirty) :value total_vops
 		:maximum (align (max max_vops total_vops) max_vops_align)))
 
@@ -113,6 +115,7 @@
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(gui-add-front (. *window* :change x y w h))
 	(defq id :t select (alloc-select +select_size)
+		:net_regs_results (list) :net_memory_results (list) :net_reals_results (list)
 		net_max_regs +max_bops_align net_max_memory +max_bops_align net_max_reals +max_mops_align
 		max_regs +max_bops_align max_memory +max_bops_align max_reals +max_mops_align
 		global_tasks (Global create destroy) poll_que (list))
@@ -159,14 +162,14 @@
 				(mail-timeout (elem-get +select_nodes select) +poll_rate 0)
 				(when (. global_tasks :refresh +retry_timeout)
 					;nodes have mutated
-					(. reals_grid :layout) (. memory_grid :layout) (. regs_grid :layout)
+					(. reals_bar_grid :layout) (. memory_bar_grid :layout) (. regs_bar_grid :layout)
 					(bind '(x y w h) (apply view-fit
 						(cat (. *window* :get_pos) (. *window* :pref_size))))
 					(. *window* :change_dirty x y w h))
 				;set scales
-				(setq net_max_regs (update-net-result regs_grid net_regs net_max_regs +max_bops_align)
-					net_max_memory (update-net-result memory_grid net_memory net_max_memory +max_bops_align)
-					net_max_reals (update-net-result reals_grid net_reals net_max_reals +max_mops_align))
+				(setq net_max_regs (update-net-result regs_bar_grid net_regs_bar net_max_regs +max_bops_align :net_regs_results)
+					net_max_memory (update-net-result memory_bar_grid net_memory_bar net_max_memory +max_bops_align :net_memory_results)
+					net_max_reals (update-net-result reals_bar_grid net_reals_bar net_max_reals +max_mops_align :net_reals_results))
 				(update-scale regs_scale_grid max_regs +bops)
 				(update-scale memory_scale_grid max_memory +bops)
 				(update-scale reals_scale_grid max_reals +mops)
