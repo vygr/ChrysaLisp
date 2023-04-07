@@ -94,7 +94,7 @@
 					;nodes have mutated
 					(bind '(x y w h) (apply view-fit
 						(cat (. *window* :get_pos) (. *window* :pref_size))))
-					(. *window* :change x y w h))
+					(. *window* :change_dirty x y w h))
 				;set scales
 				(each (# (. %0 :update_scale)) charts)
 				;poll any ready children
