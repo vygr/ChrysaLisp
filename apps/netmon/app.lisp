@@ -36,17 +36,14 @@
 	; (destroy key val)
 	;function called when entry is destroyed
 	(when (defq child (. node :find :child)) (mail-send child ""))
-	(.-> node (:find :used_bar) :sub)
-	(.-> node (:find :alloc_bar) :sub)
-	(.-> node (:find :task_bar) :sub))
+	(each (# (.-> node (:find %0) :sub)) '(:used_bar :alloc_bar :task_bar)))
 
-(defun update-result (node tasks alloc used)
-	(def task_chart :maximum (align (max tasks (get :maximum task_chart)) +task_align))
-	(def alloc_chart :maximum (align (max alloc (get :maximum alloc_chart)) +mem_align))
-	(def used_chart :maximum (align (max used (get :maximum used_chart)) +mem_align))
-	(def (.-> node (:find :task_bar) :dirty) :value tasks)
-	(def (.-> node (:find :alloc_bar) :dirty) :value alloc)
-	(def (.-> node (:find :used_bar) :dirty) :value used))
+(defun update-result (node &rest vals)
+	(each (# (def %0 :maximum (align (max %1 (get :maximum %0)) %2)))
+		(list task_chart alloc_chart used_chart) vals
+		(list +task_align +mem_align +mem_align))
+	(each (# (def (.-> node (:find %0) :dirty) :value %1))
+		'(:task_bar :alloc_bar :used_bar) vals))
 
 (defun main ()
 	(defq id :t select (alloc-select +select_size)

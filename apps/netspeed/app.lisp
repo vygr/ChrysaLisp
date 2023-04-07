@@ -44,28 +44,21 @@
 	; (destroy key val)
 	;function called when entry is destroyed
 	(when (defq child (. node :find :child)) (mail-send child ""))
-	(.-> node (:find :reals_bar) :sub)
-	(.-> node (:find :memory_bar) :sub)
-	(.-> node (:find :regs_bar) :sub))
+	(each (# (.-> node (:find %0) :sub)) '(:reals_bar :memory_bar :regs_bar)))
 
 (defun smooth-result (results val)
 	(if (> (length (push results val)) +smooth_steps)
 		(setq results (slice 1 -1 results)))
 	(list results (/ (reduce + results 0) (length results))))
 
-(defun update-result (node reg mem real)
-	(bind '(regs_results reg) (smooth-result (. node :find :regs_results) reg))
-	(bind '(memory_results mem) (smooth-result  (. node :find :memory_results) mem))
-	(bind '(reals_results real) (smooth-result (. node :find :reals_results) real))
-	(. node :insert :regs_results regs_results)
-	(. node :insert :memory_results memory_results)
-	(. node :insert :reals_results reals_results)
-	(def regs_chart :maximum (align (max reg (get :maximum regs_chart)) +max_bops_align))
-	(def memory_chart :maximum (align (max mem (get :maximum memory_chart)) +max_bops_align))
-	(def reals_chart :maximum (align (max real (get :maximum reals_chart)) +max_mops_align))
-	(def (.-> node (:find :regs_bar) :dirty) :value reg)
-	(def (.-> node (:find :memory_bar) :dirty) :value mem)
-	(def (.-> node (:find :reals_bar) :dirty) :value real))
+(defun update-result (node &rest vals)
+	(setq vals (map (# (bind '(results val) (smooth-result (. node :find %0) %1)) (. node :insert %0 results) val)
+		'(:regs_results :memory_results :reals_results) vals))
+	(each (# (def %0 :maximum (align (max %1 (get :maximum %0)) %2)))
+		(list regs_chart memory_chart reals_chart) vals
+		(list +max_bops_align +max_bops_align +max_mops_align))
+	(each (# (def (.-> node (:find %0) :dirty) :value %1))
+		'(:regs_bar :memory_bar :reals_bar) vals))
 
 (defun update-net-result ()
 	(bind '(regs_results total_regs) (smooth-result net_regs_results
