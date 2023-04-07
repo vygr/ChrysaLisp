@@ -17,9 +17,9 @@
 (ui-window *window* ()
 	(ui-title-bar _ "Network Monitor" (0xea19 0xea1b 0xea1a) +event_close)
 	(ui-grid _ (:grid_height 1)
-		(ui-hchart task_chart "Tasks" +task_scale_size 1 (:color +argb_green))
-		(ui-hchart alloc_chart "Alloc (kb)" +mem_scale_size 1024 (:color +argb_yellow))
-		(ui-hchart used_chart "Used (kb)" +mem_scale_size 1024 (:color +argb_red))))
+		(ui-hchart task_chart "Tasks" +task_scale_size (:color +argb_green))
+		(ui-hchart alloc_chart "Alloc (kb)" +mem_scale_size (:units 1024 :color +argb_yellow))
+		(ui-hchart used_chart "Used (kb)" +mem_scale_size (:units 1024 :color +argb_red))))
 
 (defun create (key now)
 	; (create key now) -> val

@@ -88,9 +88,9 @@
 	; (ui-spinner name [props]) -> spinner
 	`(ui-element ,n (Spinner) ,p))
 
-(defmacro ui-hchart (n t m u &optional p)
-	; (ui-hchart name title num_marks units [props]) -> hchart
-	`(ui-element ,n (Hchart ,t ,m ,u) ,p))
+(defmacro ui-hchart (n t m &optional p)
+	; (ui-hchart name title num_marks [props]) -> hchart
+	`(ui-element ,n (Hchart ,t ,m) ,p))
 
 (defmacro ui-title (n &optional p)
 	; (ui-title name [props]) -> title

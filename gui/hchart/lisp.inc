@@ -7,8 +7,8 @@
 (import "gui/grid/lisp.inc")
 (import "gui/progress/lisp.inc")
 
-(defclass Hchart (name num_marks units) (Flow)
-	; (Hchart title num_marks units) -> hchart
+(defclass Hchart (name num_marks) (Flow)
+	; (Hchart title num_marks) -> hchart
 	(def (defq title (Label)) :text name :color +argb_white)
 	(def (defq scale_grid (Grid)) :color +argb_white :grid_width num_marks :font *env_medium_terminal_font*)
 	(def (defq bar_grid (Grid)) :grid_width 1)
@@ -16,7 +16,7 @@
 		(def (defq _ (Label)) :text "|" :flow_flags (logior +flow_flag_align_vcenter +flow_flag_align_hright))
 		(. scale_grid :add_child _))
 	(.-> this (:add_child title) (:add_child scale_grid) (:add_child bar_grid))
-	(def this :units units :scale_grid scale_grid :bar_grid bar_grid
+	(def this :units 1 :scale_grid scale_grid :bar_grid bar_grid
 		:flow_flags +flow_down_fill :maximum 1 :value 0 :border 0)
 
 	(defmethod :add_bar (this)
