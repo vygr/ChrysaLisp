@@ -20,7 +20,7 @@
 		:flow_flags +flow_down_fill :maximum 1 :value 0 :border 0)
 
 	(defmethod :add_bar (this)
-		; (. hchart :add_bar) -> bar
+		; (. hchart :add_bar) -> progress
 		(. (get :bar_grid this) :add_child (defq bar (Progress)))
 		bar)
 
@@ -29,7 +29,7 @@
 		(get :bar_grid this))
 
 	(defmethod :update_scale (this)
-		; (. hchart :update_scale) -> this
+		; (. hchart :update_scale) -> hchart
 		(raise :maximum :units)
 		(defq scale (.-> (get :scale_grid this) :dirty_all :children))
 		(each (lambda (mark)
