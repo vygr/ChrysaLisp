@@ -27,6 +27,7 @@
 (import "gui/pixmap/lisp.inc")
 (import "gui/edit/lisp.inc")
 (import "gui/spinner/lisp.inc")
+(import "gui/hchart/lisp.inc")
 
 ;ui tree helper macros
 (defun ui-merge-props (p)
@@ -86,6 +87,10 @@
 (defmacro ui-spinner (n &optional p)
 	; (ui-spinner name [props]) -> spinner
 	`(ui-element ,n (Spinner) ,p))
+
+(defmacro ui-hchart (n t m u &optional p)
+	; (ui-hchart name title num_marks units [props]) -> hchart
+	`(ui-element ,n (Hchart ,t ,m ,u) ,p))
 
 (defmacro ui-title (n &optional p)
 	; (ui-title name [props]) -> title
