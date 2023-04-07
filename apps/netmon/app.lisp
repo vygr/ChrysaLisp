@@ -12,6 +12,7 @@
 
 (defq +task_scale_size 10 +mem_scale_size 4 +task_align 10
 	+mem_align (* 1024 16) +poll_rate (/ 1000000 4)
+	+bars ''(:task_bar :alloc_bar :used_bar)
 	+retry_timeout (if (starts-with "obj/vp64" (load-path)) 20000000 2000000))
 
 (ui-window *window* ()
@@ -24,11 +25,9 @@
 (defun create (key now)
 	; (create key now) -> val
 	;function called when entry is created
-	(.-> (defq node (emap))
-		(:insert :timestamp now)
-		(:insert :used_bar (. used_chart :add_bar))
-		(:insert :alloc_bar (. alloc_chart :add_bar))
-		(:insert :task_bar (. task_chart :add_bar)))
+	(. (defq node (emap)) :insert :timestamp now)
+	(each (# (. node :insert %0 (. %1 :add_bar)))
+		+bars (list task_chart alloc_chart used_chart))
 	(open-task "apps/netmon/child.lisp" key +kn_call_open 0 (elem-get +select_task select))
 	node)
 
@@ -36,12 +35,12 @@
 	; (destroy key val)
 	;function called when entry is destroyed
 	(when (defq child (. node :find :child)) (mail-send child ""))
-	(each (# (.-> node (:find %0) :sub)) '(:task_bar :alloc_bar :used_bar)))
+	(each (# (.-> node (:find %0) :sub)) +bars))
 
 (defun update-result (node &rest vals)
 	(each (# (def %0 :maximum (align (max %2 (get :maximum %0)) %3))
 			(def (.-> node (:find %1) :dirty) :value %2))
-		(list task_chart alloc_chart used_chart) '(:task_bar :alloc_bar :used_bar)
+		(list task_chart alloc_chart used_chart) +bars
 		vals (list +task_align +mem_align +mem_align)))
 
 (defun main ()

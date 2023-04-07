@@ -13,6 +13,8 @@
 (defq +scale_size 5 +bops 1000000000 +mops 1000000
 	+max_bops_align (* +scale_size +bops) +max_mops_align  (* +scale_size +mops)
 	+smooth_steps 5 +poll_rate (/ 1000000 4)
+	+bars ''(:regs_bar :memory_bar :reals_bar)
+	+results ''(:regs_results :memory_results :reals_results)
 	+retry_timeout (if (starts-with "obj/vp64" (load-path)) 20000000 2000000))
 
 (ui-window *window* ()
@@ -29,14 +31,9 @@
 (defun create (key now)
 	; (create key now) -> val
 	;function called when entry is created
-	(.-> (defq node (emap))
-		(:insert :timestamp now)
-		(:insert :regs_bar (. regs_chart :add_bar))
-		(:insert :memory_bar (. memory_chart :add_bar))
-		(:insert :reals_bar (. reals_chart :add_bar))
-		(:insert :regs_results (list))
-		(:insert :memory_results (list))
-		(:insert :reals_results (list)))
+	(. (defq node (emap)) :insert :timestamp now)
+	(each (# (.-> node (:insert %0 (. %2 :add_bar)) (:insert %1 (list))))
+		+bars +results (list regs_chart memory_chart reals_chart))
 	(open-task "apps/netspeed/child.lisp" key +kn_call_open 0 (elem-get +select_task select))
 	node)
 
@@ -44,7 +41,7 @@
 	; (destroy key val)
 	;function called when entry is destroyed
 	(when (defq child (. node :find :child)) (mail-send child ""))
-	(each (# (.-> node (:find %0) :sub)) '(:regs_bar :memory_bar :reals_bar)))
+	(each (# (.-> node (:find %0) :sub)) +bars))
 
 (defun smooth-result (results val)
 	(if (> (length (push results val)) +smooth_steps)
@@ -53,10 +50,10 @@
 
 (defun update-result (node &rest vals)
 	(setq vals (map (# (bind '(results val) (smooth-result (. node :find %0) %1)) (. node :insert %0 results) val)
-		'(:regs_results :memory_results :reals_results) vals))
+		+results vals))
 	(each (# (def %0 :maximum (align (max %2 (get :maximum %0)) %3))
 			(def (.-> node (:find %1) :dirty) :value %2))
-		(list regs_chart memory_chart reals_chart) '(:regs_bar :memory_bar :reals_bar)
+		(list regs_chart memory_chart reals_chart) +bars
 		vals (list +max_bops_align +max_bops_align +max_mops_align)))
 
 (defun update-net-result ()
