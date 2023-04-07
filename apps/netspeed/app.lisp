@@ -140,12 +140,9 @@
 					(. *window* :change_dirty x y w h))
 				;set scales
 				(update-net-result)
-				(. regs_chart :update_scale)
-				(. memory_chart :update_scale)
-				(. reals_chart :update_scale)
-				(. net_regs_chart :update_scale)
-				(. net_memory_chart :update_scale)
-				(. net_reals_chart :update_scale)
+				(each (# (. %0 :update_scale))
+					(list regs_chart memory_chart reals_chart
+						net_regs_chart net_memory_chart net_reals_chart))
 				;poll any ready children
 				(each (# (mail-send %0 (elem-get +select_reply select))) poll_que)
 				(clear poll_que))))

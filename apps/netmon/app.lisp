@@ -102,9 +102,8 @@
 						(cat (. *window* :get_pos) (. *window* :pref_size))))
 					(. *window* :change_dirty x y w h))
 				;set scales
-				(. task_chart :update_scale)
-				(. alloc_chart :update_scale)
-				(. used_chart :update_scale)
+				(each (# (. %0 :update_scale))
+					(list task_chart alloc_chart used_chart))
 				;poll any ready children
 				(each (# (mail-send %0 (elem-get +select_reply select))) poll_que)
 				(clear poll_que))))
