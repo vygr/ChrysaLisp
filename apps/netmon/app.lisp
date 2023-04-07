@@ -26,8 +26,7 @@
 	; (create key now) -> val
 	;function called when entry is created
 	(. (defq node (emap)) :insert :timestamp now)
-	(each (# (. node :insert %0 (. %1 :add_bar)))
-		+bars (list task_chart alloc_chart used_chart))
+	(each (# (. node :insert %0 (. %1 :add_bar))) +bars charts)
 	(open-task "apps/netmon/child.lisp" key +kn_call_open 0 (elem-get +select_task select))
 	node)
 
@@ -40,12 +39,12 @@
 (defun update-result (node &rest vals)
 	(each (# (def %0 :maximum (align (max %2 (get :maximum %0)) %3))
 			(def (.-> node (:find %1) :dirty) :value %2))
-		(list task_chart alloc_chart used_chart) +bars
-		vals (list +task_align +mem_align +mem_align)))
+		charts +bars vals (list +task_align +mem_align +mem_align)))
 
 (defun main ()
 	(defq id :t select (alloc-select +select_size)
-		global_tasks (Global create destroy) poll_que (list))
+		global_tasks (Global create destroy) poll_que (list)
+		charts (list task_chart alloc_chart used_chart))
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(. *window* :set_flags +view_flag_at_front +view_flag_at_front)
 	(gui-add-front (. *window* :change_dirty x y w h))
@@ -95,9 +94,9 @@
 					;nodes have mutated
 					(bind '(x y w h) (apply view-fit
 						(cat (. *window* :get_pos) (. *window* :pref_size))))
-					(. *window* :change_dirty x y w h))
+					(. *window* :change x y w h))
 				;set scales
-				(each (# (. %0 :update_scale)) (list task_chart alloc_chart used_chart))
+				(each (# (. %0 :update_scale)) charts)
 				;poll any ready children
 				(each (# (mail-send %0 (elem-get +select_reply select))) poll_que)
 				(clear poll_que))))
