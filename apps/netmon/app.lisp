@@ -36,14 +36,13 @@
 	; (destroy key val)
 	;function called when entry is destroyed
 	(when (defq child (. node :find :child)) (mail-send child ""))
-	(each (# (.-> node (:find %0) :sub)) '(:used_bar :alloc_bar :task_bar)))
+	(each (# (.-> node (:find %0) :sub)) '(:task_bar :alloc_bar :used_bar)))
 
 (defun update-result (node &rest vals)
-	(each (# (def %0 :maximum (align (max %1 (get :maximum %0)) %2)))
-		(list task_chart alloc_chart used_chart) vals
-		(list +task_align +mem_align +mem_align))
-	(each (# (def (.-> node (:find %0) :dirty) :value %1))
-		'(:task_bar :alloc_bar :used_bar) vals))
+	(each (# (def %0 :maximum (align (max %2 (get :maximum %0)) %3))
+			(def (.-> node (:find %1) :dirty) :value %2))
+		(list task_chart alloc_chart used_chart) '(:task_bar :alloc_bar :used_bar)
+		vals (list +task_align +mem_align +mem_align)))
 
 (defun main ()
 	(defq id :t select (alloc-select +select_size)
@@ -99,8 +98,7 @@
 						(cat (. *window* :get_pos) (. *window* :pref_size))))
 					(. *window* :change_dirty x y w h))
 				;set scales
-				(each (# (. %0 :update_scale))
-					(list task_chart alloc_chart used_chart))
+				(each (# (. %0 :update_scale)) (list task_chart alloc_chart used_chart))
 				;poll any ready children
 				(each (# (mail-send %0 (elem-get +select_reply select))) poll_que)
 				(clear poll_que))))

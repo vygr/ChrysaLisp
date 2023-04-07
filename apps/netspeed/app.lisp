@@ -44,7 +44,7 @@
 	; (destroy key val)
 	;function called when entry is destroyed
 	(when (defq child (. node :find :child)) (mail-send child ""))
-	(each (# (.-> node (:find %0) :sub)) '(:reals_bar :memory_bar :regs_bar)))
+	(each (# (.-> node (:find %0) :sub)) '(:regs_bar :memory_bar :reals_bar)))
 
 (defun smooth-result (results val)
 	(if (> (length (push results val)) +smooth_steps)
@@ -54,11 +54,10 @@
 (defun update-result (node &rest vals)
 	(setq vals (map (# (bind '(results val) (smooth-result (. node :find %0) %1)) (. node :insert %0 results) val)
 		'(:regs_results :memory_results :reals_results) vals))
-	(each (# (def %0 :maximum (align (max %1 (get :maximum %0)) %2)))
-		(list regs_chart memory_chart reals_chart) vals
-		(list +max_bops_align +max_bops_align +max_mops_align))
-	(each (# (def (.-> node (:find %0) :dirty) :value %1))
-		'(:regs_bar :memory_bar :reals_bar) vals))
+	(each (# (def %0 :maximum (align (max %2 (get :maximum %0)) %3))
+			(def (.-> node (:find %1) :dirty) :value %2))
+		(list regs_chart memory_chart reals_chart) '(:regs_bar :memory_bar :reals_bar)
+		vals (list +max_bops_align +max_bops_align +max_mops_align)))
 
 (defun update-net-result ()
 	(bind '(regs_results total_regs) (smooth-result net_regs_results
