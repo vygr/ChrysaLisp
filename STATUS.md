@@ -14,6 +14,9 @@ ops/s performance for each node on the network. This is a dynamic measurement,
 if you are running other processes then you will see the values react
 accordingly.
 
+New Hchart UI widget. Netmon and NetSpeed apps changed to use this and
+restructured the source while doing so.
+
 ------
 
 Update for the Netmon app.

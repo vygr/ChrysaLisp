@@ -229,6 +229,20 @@ Creates a value Spinner instance, with name and optional property list.
 	`(ui-element ,n (Spinner) ,p))
 ```
 
+### (ui-hchart name title marks [props]) -> hchart
+
+Creates a hchart instance, with name, title, marks and optional property list.
+
+#### Properties
+
+`:units :maximum`
+
+```vdu
+(defmacro ui-hchart (n t m &optional p)
+	; (ui-hchart name title num_marks [props]) -> hchart
+	`(ui-element ,n (Hchart ,t ,m) ,p))
+```
+
 ### (ui-title name [props]) -> title
 
 Creates a Title instance, with name and optional property list.

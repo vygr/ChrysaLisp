@@ -840,6 +840,24 @@
 (. grid :pref_size) -> (width height)
 ```
 
+### hchart :add_bar
+
+```code
+(. hchart :add_bar) -> bar
+```
+
+### hchart :get_bar_grid
+
+```code
+(. hchart :get_bar_grid) -> bar_grid
+```
+
+### hchart :update_scale
+
+```code
+(. hchart :update_scale) -> this
+```
+
 ### label :add_child
 
 ```code
@@ -1678,6 +1696,12 @@
 
 ```code
 (Grid) -> grid
+```
+
+### Hchart
+
+```code
+(Hchart title num_marks) -> hchart
 ```
 
 ### Label
@@ -4054,6 +4078,12 @@
 
 ```code
 (ui-grid name [props] [body]) -> grid
+```
+
+### ui-hchart
+
+```code
+(ui-hchart name title num_marks [props]) -> hchart
 ```
 
 ### ui-label
