@@ -19,21 +19,21 @@
 
 (ui-window *window* ()
 	(ui-title-bar _ "Network Speed" (0xea19 0xea1b 0xea1a) +event_close)
-	(ui-grid _ (:grid_height 1)
-		(ui-hchart net_regs_chart "Net Regs (bops/s)" +scale_size (:units +bops :color +argb_green))
-		(ui-hchart net_memory_chart "Net Memory (bops/s)" +scale_size (:units +bops :color +argb_yellow))
-		(ui-hchart net_reals_chart "Net Reals (mops/s)" +scale_size (:units +mops :color +argb_red)))
-	(ui-grid _ (:grid_height 1)
-		(ui-hchart regs_chart "Regs (bops/s)" +scale_size (:units +bops :color +argb_green))
-		(ui-hchart memory_chart "Memory (bops/s)" +scale_size (:units +bops :color +argb_yellow))
-		(ui-hchart reals_chart "Reals (mops/s)" +scale_size (:units +mops :color +argb_red))))
+	(ui-grid net_charts (:grid_height 1)
+		(ui-hchart _ "Net Regs (bops/s)" +scale_size (:units +bops :color +argb_green))
+		(ui-hchart _ "Net Memory (bops/s)" +scale_size (:units +bops :color +argb_yellow))
+		(ui-hchart _ "Net Reals (mops/s)" +scale_size (:units +mops :color +argb_red)))
+	(ui-grid charts (:grid_height 1)
+		(ui-hchart _ "Regs (bops/s)" +scale_size (:units +bops :color +argb_green))
+		(ui-hchart _ "Memory (bops/s)" +scale_size (:units +bops :color +argb_yellow))
+		(ui-hchart _ "Reals (mops/s)" +scale_size (:units +mops :color +argb_red))))
 
 (defun create (key now)
 	; (create key now) -> val
 	;function called when entry is created
 	(. (defq node (emap)) :insert :timestamp now)
 	(each (# (.-> node (:insert %0 (. %2 :add_bar)) (:insert %1 (list))))
-		+bars +results (list regs_chart memory_chart reals_chart))
+		+bars +results charts)
 	(open-task "apps/netspeed/child.lisp" key +kn_call_open 0 (elem-get +select_task select))
 	node)
 
@@ -53,30 +53,29 @@
 		+results vals))
 	(each (# (def %0 :maximum (align (max %2 (get :maximum %0)) %3))
 			(def (.-> node (:find %1) :dirty) :value %2))
-		(list regs_chart memory_chart reals_chart) +bars
-		vals (list +max_bops_align +max_bops_align +max_mops_align)))
+		charts +bars vals (list +max_bops_align +max_bops_align +max_mops_align)))
 
 (defun update-net-result ()
-	(bind '(regs_results total_regs) (smooth-result net_regs_results
+	(bind '(regs_chart memory_chart reals_chart) charts)
+	(bind '(regs_results memory_results reals_results) net_results)
+	(bind '(regs_results total_regs) (smooth-result regs_results
 		(reduce (# (+ %0 (get :value %1))) (.-> regs_chart :get_bar_grid :children) 0)))
-	(bind '(mem_results total_mem) (smooth-result net_memory_results
+	(bind '(mem_results total_mem) (smooth-result memory_results
 		(reduce (# (+ %0 (get :value %1))) (.-> memory_chart :get_bar_grid :children) 0)))
-	(bind '(real_results total_real) (smooth-result net_reals_results
+	(bind '(real_results total_real) (smooth-result reals_results
 		(reduce (# (+ %0 (get :value %1))) (.-> reals_chart :get_bar_grid :children) 0)))
-	(setq net_regs_results regs_results net_memory_results mem_results net_reals_results real_results)
-	(def net_regs_chart :maximum (align (max total_regs (get :maximum net_regs_chart)) +max_bops_align))
-	(def net_memory_chart :maximum (align (max total_mem (get :maximum net_memory_chart)) +max_bops_align))
-	(def net_reals_chart :maximum (align (max total_real (get :maximum net_reals_chart)) +max_mops_align))
-	(def (. net_regs_bar :dirty) :value total_regs)
-	(def (. net_memory_bar :dirty) :value total_mem)
-	(def (. net_reals_bar :dirty) :value total_real))
+	(setq net_results (list regs_results memory_results reals_results))
+	(each (# (def %0 :maximum (align (max %2 (get :maximum %0)) %3))
+			(def (. %1 :dirty) :value %2))
+		net_charts net_bars
+		(list total_regs total_mem total_real)
+		(list +max_bops_align +max_bops_align +max_mops_align)))
 
 (defun main ()
 	(defq id :t select (alloc-select +select_size)
-		net_regs_bar (. net_regs_chart :add_bar)
-		net_memory_bar (. net_memory_chart :add_bar)
-		net_reals_bar (. net_reals_chart :add_bar)
-		net_regs_results (list) net_memory_results (list) net_reals_results (list)
+		charts (. charts :children) net_charts (. net_charts :children)
+		net_bars (map (# (. %0 :add_bar)) net_charts)
+		net_results (list (list) (list) (list))
 		global_tasks (Global create destroy) poll_que (list))
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(gui-add-front (. *window* :change_dirty x y w h))
@@ -129,9 +128,7 @@
 					(. *window* :change x y w h))
 				;set scales
 				(update-net-result)
-				(each (# (. %0 :update_scale))
-					(list regs_chart memory_chart reals_chart
-						net_regs_chart net_memory_chart net_reals_chart))
+				(each (# (. %0 :update_scale)) (cat charts net_charts))
 				;poll any ready children
 				(each (# (mail-send %0 (elem-get +select_reply select))) poll_que)
 				(clear poll_que))))
