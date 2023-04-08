@@ -46,7 +46,7 @@
 (defun smooth-result (results val)
 	(if (> (length (push results val)) +smooth_steps)
 		(setq results (slice 1 -1 results)))
-	(list results (/ (reduce + results 0) (length results))))
+	(list results (/ (reduce (const +) results 0) (length results))))
 
 (defun update-result (node &rest vals)
 	(setq vals (map (#
