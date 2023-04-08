@@ -15,6 +15,7 @@
 	+smooth_steps 5 +poll_rate (/ 1000000 4)
 	+bars ''(:regs_bar :memory_bar :reals_bar)
 	+results ''(:regs_results :memory_results :reals_results)
+	+max_aligns `'(,+max_bops_align ,+max_bops_align ,+max_mops_align)
 	+retry_timeout (if (starts-with "obj/vp64" (load-path)) 20000000 2000000))
 
 (ui-window *window* ()
@@ -32,8 +33,7 @@
 	; (create key now) -> val
 	;function called when entry is created
 	(. (defq node (emap)) :insert :timestamp now)
-	(each (# (.-> node (:insert %0 (. %2 :add_bar)) (:insert %1 (list))))
-		+bars +results charts)
+	(each (# (.-> node (:insert %0 (. %2 :add_bar)) (:insert %1 (list)))) +bars +results charts)
 	(open-task "apps/netspeed/child.lisp" key +kn_call_open 0 (elem-get +select_task select))
 	node)
 
@@ -49,27 +49,23 @@
 	(list results (/ (reduce + results 0) (length results))))
 
 (defun update-result (node &rest vals)
-	(setq vals (map (# (bind '(results val) (smooth-result (. node :find %0) %1)) (. node :insert %0 results) val)
-		+results vals))
+	(setq vals (map (#
+			(bind '(res val) (smooth-result (. node :find %0) %1))
+			(. node :insert %0 res) val) +results vals))
 	(each (# (def %0 :maximum (align (max %2 (get :maximum %0)) %3))
 			(def (.-> node (:find %1) :dirty) :value %2))
-		charts +bars vals (list +max_bops_align +max_bops_align +max_mops_align)))
+		charts +bars vals +max_aligns))
 
 (defun update-net-result ()
-	(bind '(regs_chart memory_chart reals_chart) charts)
-	(bind '(regs_results memory_results reals_results) net_results)
-	(bind '(regs_results total_regs) (smooth-result regs_results
-		(reduce (# (+ %0 (get :value %1))) (.-> regs_chart :get_bar_grid :children) 0)))
-	(bind '(mem_results total_mem) (smooth-result memory_results
-		(reduce (# (+ %0 (get :value %1))) (.-> memory_chart :get_bar_grid :children) 0)))
-	(bind '(real_results total_real) (smooth-result reals_results
-		(reduce (# (+ %0 (get :value %1))) (.-> reals_chart :get_bar_grid :children) 0)))
-	(setq net_results (list regs_results memory_results reals_results))
+	(defq results (list) bars (map (# (.-> %0 :get_bar_grid :children)) charts)
+		totals (map (# (reduce (# (+ %0 (get :value %1))) %0 0)) bars)
+		totals (map (#
+			(bind '(res val) (smooth-result %0 %1))
+			(push results res) val) net_results totals))
+	(setq net_results results)
 	(each (# (def %0 :maximum (align (max %2 (get :maximum %0)) %3))
 			(def (. %1 :dirty) :value %2))
-		net_charts net_bars
-		(list total_regs total_mem total_real)
-		(list +max_bops_align +max_bops_align +max_mops_align)))
+		net_charts net_bars totals +max_aligns))
 
 (defun main ()
 	(defq id :t select (alloc-select +select_size)
