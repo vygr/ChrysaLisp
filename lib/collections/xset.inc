@@ -102,10 +102,8 @@
 
 	(defmethod :resize (this num_buckets)
 		; (. xset :resize num_buckets) -> xset
-		(raise :hash_fnc :buckets (new_buckets (list)))
+		(raise :hash_fnc :buckets (new_buckets (lists num_buckets)))
 		(lower :num_buckets (:buckets new_buckets))
-		(while (>= (setq num_buckets (dec num_buckets)) 0)
-			(push new_buckets (list)))
 		(raise :num_buckets)
 		(each (lambda (old_bucket)
 			(while (defq key (pop old_bucket))
