@@ -2859,7 +2859,7 @@
 ### lists
 
 ```code
-(lists n) -> (list (list0) - (listn))
+(lists n) -> (list (list0) - (listn-1))
 ```
 
 ### lists2
