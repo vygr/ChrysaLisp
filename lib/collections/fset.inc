@@ -13,7 +13,7 @@
 (defclass fset (&optional num_buckets) :nil
 	; (fset [num_buckets]) -> fset
 	(def this :num_buckets (setq num_buckets (opt num_buckets 1))
-		:buckets (lists (* num_buckets 2)))
+		:buckets (lists num_buckets))
 
 	(defmethod :find (this key)
 		; (. fset :find key) -> :nil | key

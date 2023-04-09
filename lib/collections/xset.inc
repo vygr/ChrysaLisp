@@ -13,7 +13,7 @@
 (defclass xset (&optional num_buckets cmp_fnc hash_fnc) :nil
 	; (xset [num_buckets cmp_fnc hash_fnc]) -> xset
 	(def this :num_buckets (setq num_buckets (opt num_buckets 1))
-		:buckets (lists (* num_buckets 2))
+		:buckets (lists num_buckets)
 		:cmp_fnc (opt cmp_fnc eql) :hash_fnc (opt hash_fnc hash))
 
 	(defmethod :find (this key)
