@@ -12,10 +12,9 @@
 
 (defclass xset (&optional num_buckets cmp_fnc hash_fnc) :nil
 	; (xset [num_buckets cmp_fnc hash_fnc]) -> xset
-	(def this :buckets (list) :num_buckets (setq num_buckets (opt num_buckets 1))
+	(def this :num_buckets (setq num_buckets (opt num_buckets 1))
+		:buckets (lists (* num_buckets 2))
 		:cmp_fnc (opt cmp_fnc eql) :hash_fnc (opt hash_fnc hash))
-	(while (>= (setq num_buckets (dec num_buckets)) 0)
-		(push (get :buckets this) (list)))
 
 	(defmethod :find (this key)
 		; (. xset :find key) -> :nil | key

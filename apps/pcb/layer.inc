@@ -88,8 +88,7 @@
 (defclass Layer (width height scale) :nil
 	; (Layer width height scale) -> layer
 	(def this :width width :height height :scale scale :id 0
-		:buckets (defq buckets (cap (* width height) (list))))
-	(times (* width height) (push buckets (list)))
+		:buckets (defq buckets (lists (* width height))))
 
 	(defmethod :aabb (this layer_line)
 		; (. layer :aabb layer_line) -> aabb

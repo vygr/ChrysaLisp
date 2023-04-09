@@ -12,10 +12,9 @@
 
 (defclass xmap (&optional num_buckets cmp_fnc hash_fnc) :nil
 	; (xmap [num_buckets cmp_fnc hash_fnc]) -> xmap
-	(def this :buckets (list) :num_buckets (setq num_buckets (opt num_buckets 1))
+	(def this :num_buckets (setq num_buckets (opt num_buckets 1))
+		:buckets (lists (* num_buckets 2))
 		:cmp_fnc (opt cmp_fnc eql) :hash_fnc (opt hash_fnc hash))
-	(while (>= (setq num_buckets (dec num_buckets)) 0)
-		(push (get :buckets this) (list) (list)))
 
 	(defmethod :find (this key)
 		; (. xmap :find key) -> :nil | val
@@ -77,10 +76,8 @@
 
 	(defmethod :resize (this num_buckets)
 		; (. xmap :resize num_buckets) -> xmap
-		(raise :hash_fnc :buckets (new_buckets (list)))
+		(raise :hash_fnc :buckets (new_buckets (lists (* num_buckets 2))))
 		(lower :num_buckets (:buckets new_buckets))
-		(while (>= (setq num_buckets (dec num_buckets)) 0)
-			(push new_buckets (list) (list)))
 		(raise :num_buckets (i -2))
 		(while (< (setq i (+ i 2)) (length buckets))
 			(defq old_keys (elem-get i buckets) old_vals (elem-get (inc i) buckets))

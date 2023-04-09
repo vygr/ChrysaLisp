@@ -12,9 +12,8 @@
 
 (defclass fset (&optional num_buckets) :nil
 	; (fset [num_buckets]) -> fset
-	(def this :buckets (list) :num_buckets (setq num_buckets (opt num_buckets 1)))
-	(while (>= (setq num_buckets (dec num_buckets)) 0)
-		(push (get :buckets this) (list)))
+	(def this :num_buckets (setq num_buckets (opt num_buckets 1))
+		:buckets (lists (* num_buckets 2)))
 
 	(defmethod :find (this key)
 		; (. fset :find key) -> :nil | key

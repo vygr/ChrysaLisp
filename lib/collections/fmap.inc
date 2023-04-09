@@ -12,9 +12,8 @@
 
 (defclass fmap (&optional num_buckets) :nil
 	; (fmap [num_buckets]) -> fmap
-	(def this :buckets (list) :num_buckets (setq num_buckets (opt num_buckets 1)))
-	(while (>= (setq num_buckets (dec num_buckets)) 0)
-		(push (get :buckets this) (list) (list)))
+	(def this :num_buckets (setq num_buckets (opt num_buckets 1))
+		:buckets (lists (* num_buckets 2)))
 
 	(defmethod :find (this key)
 		; (. fmap :find key) -> :nil | val
@@ -76,10 +75,8 @@
 
 	(defmethod :resize (this num_buckets)
 		; (. fmap :resize num_buckets) -> fmap
-		(raise :buckets (new_buckets (list)))
+		(raise :buckets (new_buckets (lists (* num_buckets 2))))
 		(lower :num_buckets (:buckets new_buckets))
-		(while (>= (setq num_buckets (dec num_buckets)) 0)
-			(push new_buckets (list) (list)))
 		(raise :num_buckets (i -2))
 		(while (< (setq i (+ i 2)) (length buckets))
 			(defq old_keys (elem-get i buckets) old_vals (elem-get (inc i) buckets))
