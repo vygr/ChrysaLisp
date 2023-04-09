@@ -39,7 +39,7 @@
 		(each! 0 -1 (lambda (file type)
 			(unless (starts-with "." file)
 				(push (if (eql type "4") stack files) (cat root "/" file))))
-			(unzip (split (pii-dirlist root) ",") (list (list) (list)))))
+			(unzip (split (pii-dirlist root) ",") (lists2))))
 	files)
 
 (defun populate-files (files dir exts)

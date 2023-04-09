@@ -42,7 +42,7 @@
 (defun all-fonts (p)
 	(defq out (list))
 	(each! 0 -1 (lambda (f m) (and (eql m "8") (ends-with ".ctf" f) (push out (cat p f))))
-		(unzip (split (pii-dirlist p) ",") (list (list) (list))))
+		(unzip (split (pii-dirlist p) ",") (lists2)))
 	(sort cmp out))
 
 (defq index 1 id :t fonts (all-fonts "fonts/"))

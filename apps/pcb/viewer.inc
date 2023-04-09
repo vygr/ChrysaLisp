@@ -49,7 +49,7 @@
 			;draw layers
 			(defq batched_paths (map (const batch) wires)
 				batched_paths_2d (map (const batch-to-path) batched_paths)
-				layers (list (list) (list) (list) (list) (list) (list)))
+				layers (lists 6))
 			(each (lambda (p path_2d)
 				(each (lambda (seg seg_2d)
 					(when (or (= show (defq z (% (>> (elem-get 2 (elem-get 0 seg)) +fp_shift) pcb_depth))) (= show -1))

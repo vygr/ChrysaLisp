@@ -102,5 +102,5 @@
 (defun fmap-kv (&rest _)
 	; (fmap-kv [key val ...]) -> fmap
 	(defq this (fmap))
-	(each! 0 -1 (# (. this :insert %0 %1)) (unzip _ (list (list) (list))))
+	(each! 0 -1 (# (. this :insert %0 %1)) (unzip _ (lists2)))
 	this)

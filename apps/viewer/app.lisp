@@ -56,7 +56,7 @@
 					(:t  ;dir
 						(unless (starts-with "." file)
 							(push stack (cat root "/" file))))))
-				(unzip (split (pii-dirlist root) ",") (list (list) (list))))))
+				(unzip (split (pii-dirlist root) ",") (lists2)))))
 	files)
 
 (defun load-display ()

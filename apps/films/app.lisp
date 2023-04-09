@@ -12,7 +12,7 @@
 (defun all-films (p)
 	(defq out (list))
 	(each! 0 -1 (lambda (f m) (and (eql m "8") (ends-with ".flm" f) (push out (cat p f))))
-		(unzip (split (pii-dirlist p) ",") (list (list) (list))))
+		(unzip (split (pii-dirlist p) ",") (lists2)))
 	(sort cmp out))
 
 (defq films (all-films "apps/films/data/") index 0 canvas :nil id :t

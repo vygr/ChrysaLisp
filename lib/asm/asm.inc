@@ -96,7 +96,7 @@
 						(push stack (cat root "/" file))
 						(if (ends-with ext file)
 							(push files (cat root "/" file))))))
-				(unzip (split (pii-dirlist root) ",") (list (list) (list))))))
+				(unzip (split (pii-dirlist root) ",") (lists2)))))
 	files)
 
 (defun all-vp-files ()

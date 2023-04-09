@@ -17,7 +17,7 @@
 				(ends-with ".tga" f)
 				(ends-with ".svg" f))
 			(push out (cat p f))))
-		(unzip (split (pii-dirlist p) ",") (list (list) (list))))
+		(unzip (split (pii-dirlist p) ",") (lists2)))
 	(sort cmp out))
 
 (defq images (all-images "apps/images/data/")

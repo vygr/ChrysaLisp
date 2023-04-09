@@ -76,5 +76,5 @@
 (defun lmap-kv (&rest _)
 	; (lmap-kv [key val ...]) -> lmap
 	(defq this (lmap))
-	(each! 0 -1 (# (. this :insert %0 %1)) (unzip _ (list (list) (list))))
+	(each! 0 -1 (# (. this :insert %0 %1)) (unzip _ (lists2)))
 	this)

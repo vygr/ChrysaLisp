@@ -583,6 +583,16 @@
 ; Utilities
 ;;;;;;;;;;;
 
+(defun lists (n)
+	; (lists n) -> (list (list0) - (listn-1))
+	(defq out (cap n (list)))
+	(while (>= (setq n (dec n)) 0) (push out (list)))
+	out)
+
+(defmacro lists2 ()
+	; (lists2) -> (list (list) (list))
+	'(list (list) (list)))
+
 (defmacro export (e &rest syms)
 	; (export env sym ...)
 	`(def ,e ~(reduce (lambda (l _)

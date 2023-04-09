@@ -57,6 +57,6 @@
 (defun emap-kv (&rest _)
 	; (emap-kv [key val ...]) -> emap
 	(defq this (emap))
-	(each! 0 -1 (# (. this :insert %0 %1)) (unzip _ (list (list) (list))))
+	(each! 0 -1 (# (. this :insert %0 %1)) (unzip _ (lists2)))
 	this)
 

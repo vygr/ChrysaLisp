@@ -35,7 +35,7 @@
 
 (defun to-net-id (sid)
 	; (to-net-id service_id) -> net_id
-	(bind '(e o) (unzip sid (list (list) (list))))
+	(bind '(e o) (unzip sid (lists2)))
 	(apply cat (map (# (char
 		(+ (- (code %0) (ascii-code "a"))
 		(<< (- (code %1) (ascii-code "a")) 4)))) e o)))

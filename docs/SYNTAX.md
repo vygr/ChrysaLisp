@@ -2856,6 +2856,18 @@
 (list? form) -> :t | :nil
 ```
 
+### lists
+
+```code
+(lists n) -> (list (list0) - (listn))
+```
+
+### lists2
+
+```code
+(lists2) -> (list (list) (list))
+```
+
 ### load
 
 ```code

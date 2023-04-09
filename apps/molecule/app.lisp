@@ -23,7 +23,7 @@
 	(defq out (list))
 	(each! 0 -1 (lambda (f m)
 		(and (eql m "8") (ends-with ".sdf" f) (push out (cat p f))))
-		(unzip (split (pii-dirlist p) ",") (list (list) (list))))
+		(unzip (split (pii-dirlist p) ",") (lists2)))
 	(sort cmp out))
 
 (defq anti_alias :t timer_rate (/ 1000000 30) +min_size 450 +max_size 800
