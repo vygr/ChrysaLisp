@@ -9,9 +9,9 @@
 	(def this :create fnc_create :destroy fnc_destroy :key -1)
 	(defq _nodes (map cat (mail-nodes)) _now (pii-time))
 	(times size
-		(defq _key (def this :key (inc (get :key this))) _val (emap))
+		(defq _key (def this :key (inc (get :key this))) _val (env 1))
 		(. this :insert _key _val)
-		(. _val :insert :timestamp _now)
+		(def _val :timestamp _now)
 		(fnc_create _key _val _nodes))
 
 	(defmethod :refresh (this &optional _timeout)
@@ -26,18 +26,18 @@
 			(setq _mutated :t)
 			(_destroy _key _val)
 			(. this :erase _key)
-			(setq _key (def this :key (inc (get :key this))) _val (emap))
+			(setq _key (def this :key (inc (get :key this))) _val (env 1))
 			(. this :insert _key _val)
-			(. _val :insert :timestamp _now)
+			(def _val :timestamp _now)
 			(_create _key _val _nodes))
 		;test for vanished and timeout nodes
 		(each (lambda (_key _val)
 			(cond
-				((or (not (defq _child (. _val :find :child)))
+				((or (not (defq _child (get :child _val)))
 					(find (slice +long_size -1 _child) _nodes))
 					;waiting on child launching, or found child in nodes, so check timestamp
 					(and _timeout
-						(defq _then (. _val :find :timestamp))
+						(defq _then (get :timestamp _val))
 						(> (- _now _then) _timeout)
 						(_restart)))
 				(:t	;not found child

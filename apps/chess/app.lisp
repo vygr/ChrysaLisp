@@ -48,8 +48,8 @@
 
 (defun dispatch-job (key val)
 	;send job to child
-	(. val :insert :timestamp (pii-time))
-	(mail-send (. val :find :child)
+	(def val :timestamp (pii-time))
+	(mail-send (get :child val)
 		(setf-> (cat (str-alloc +job_size) brd (apply cat history))
 			(+job_reply (elem-get +select_reply select))
 			(+job_move_time max_move_time)
@@ -71,7 +71,7 @@
 (defun destroy (key val)
 	; (destroy key val)
 	;function called when entry is destroyed
-	(when (defq child (. val :find :child)) (mail-send child ""))
+	(when (defq child (get :child val)) (mail-send child ""))
 	(mail-free-mbox (elem-get +select_reply select))
 	(elem-set +select_reply select (mail-alloc-mbox)))
 
@@ -95,7 +95,7 @@
 				;child launch responce
 				(defq key (getf msg +kn_msg_key) child (getf msg +kn_msg_reply_id))
 				(when (defq val (. farm :find key))
-					(. val :insert :child child)
+					(def val :child child)
 					(dispatch-job key val)))
 			((= idx +select_reply)
 				;child reply, process in sequence order

@@ -16,11 +16,11 @@
 		;send another job to child
 		(cond
 			((defq job (pop jobs))
-				(.-> val (:insert :job job) (:insert :timestamp (pii-time)))
-				(mail-send (. val :find :child) (cat
+				(def val :job job :timestamp (pii-time))
+				(mail-send (get :child val) (cat
 					(char key +long_size) (elem-get +select_reply select) job)))
 			(:t	;no jobs in que
-				(.-> val (:erase :job) (:erase :timestamp)))))
+				(undef val :job :timestamp))))
 	(defun create (key val nodes)
 		; (create key val nodes)
 		;function called when entry is created
@@ -32,11 +32,10 @@
 	(defun destroy (key val)
 		; (destroy key val)
 		;function called when entry is destroyed
-		(when (defq child (. val :find :child))
-			(mail-send child ""))
-		(when (defq job (. val :find :job))
+		(when (defq child (get :child val)) (mail-send child ""))
+		(when (defq job (get :job val))
 			(push jobs job)
-			(.-> val (:erase :job) (:erase :timestamp))))
+			(undef val :job :timestamp)))
 	(when (/= num_child 0)
 		(defq timer_rate (/ 1000000 1) working :t jobs (list) errors (list) nxt_node (random nxt_node)
 			retry_timeout (if (starts-with "obj/vp64" (load-path)) 1000000000 100000000)
@@ -53,7 +52,7 @@
 					;child launch responce
 					(defq key (getf msg +kn_msg_key) child (getf msg +kn_msg_reply_id))
 					(when (defq val (. farm :find key))
-						(. val :insert :child child)
+						(def val :child child)
 						(dispatch-job key val)))
 				((= idx +select_reply)
 					;child worker responce
@@ -66,7 +65,7 @@
 					(when (= 0 (length jobs))
 						(setq working :nil)
 						(. farm :each (lambda (key val)
-							(setq working (or working (. val :find :job)))))))
+							(setq working (or working (get :job val)))))))
 				(:t	;timer event
 					(mail-timeout (elem-get +select_timer select) timer_rate 0)
 					(. farm :refresh retry_timeout))))

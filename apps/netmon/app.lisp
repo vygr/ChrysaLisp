@@ -25,20 +25,20 @@
 (defun create (key now)
 	; (create key now) -> val
 	;function called when entry is created
-	(. (defq node (emap)) :insert :timestamp now)
-	(each (# (. node :insert %0 (. %1 :add_bar))) +bars charts)
+	(def (defq node (env 1)) :timestamp now)
+	(each (# (def node %0 (. %1 :add_bar))) +bars charts)
 	(open-task "apps/netmon/child.lisp" key +kn_call_open 0 (elem-get +select_task select))
 	node)
 
 (defun destroy (key node)
 	; (destroy key val)
 	;function called when entry is destroyed
-	(when (defq child (. node :find :child)) (mail-send child ""))
-	(each (# (.-> node (:find %0) :sub)) +bars))
+	(when (defq child (get :child node)) (mail-send child ""))
+	(each (# (. (get %0 node) :sub)) +bars))
 
 (defun update-result (node &rest vals)
 	(each (# (def %0 :maximum (align (max %2 (get :maximum %0)) %3))
-			(def (.-> node (:find %1) :dirty) :value %2))
+			(def (. (get %1 node) :dirty) :value %2))
 		charts +bars vals (list +task_align +mem_align +mem_align)))
 
 (defun main ()
@@ -75,9 +75,7 @@
 				(defq child (getf msg +kn_msg_reply_id)
 					node (. global_tasks :find (slice +long_size -1 child)))
 				(when node
-					(.-> node
-						(:insert :child child)
-						(:insert :timestamp (pii-time)))
+					(def node :child child :timestamp (pii-time))
 					(push poll_que child)))
 			(+select_reply
 				;child poll responce
@@ -86,8 +84,8 @@
 						(getf msg +reply_task_count)
 						(getf msg +reply_mem_alloc)
 						(getf msg +reply_mem_used))
-					(. node :insert :timestamp (pii-time))
-					(push poll_que (. node :find :child))))
+					(def node :timestamp (pii-time))
+					(push poll_que (get :child node))))
 			(:t	;polling timer event
 				(mail-timeout (elem-get +select_nodes select) +poll_rate 0)
 				(when (. global_tasks :refresh +retry_timeout)

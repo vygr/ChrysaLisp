@@ -211,17 +211,13 @@ to send off a job.
 	;send another job to child
 	(cond
 		((defq job (pop jobs))
-			(.-> val
-				(:insert :job job)
-				(:insert :timestamp (pii-time)))
-			(mail-send (. val :find :child)
+			(def val :job job :timestamp (pii-time))
+			(mail-send (get :child val)
 				(setf-> job
 					(+job_key key)
 					(+job_reply (elem-get +select_reply select)))))
 		(:t  ;no jobs in que
-			(.-> val
-				(:erase :job)
-				(:erase :timestamp)))))
+			(undef val :job :timestamp))))
 
 (defun create (key val nodes)
 	; (create key val nodes)
@@ -232,17 +228,16 @@ to send off a job.
 (defun destroy (key val)
 	; (destroy key val)
 	;function called when entry is destroyed
-	(when (defq child (. val :find :child))
-		(mail-send child ""))
-	(when (defq job (. val :find :job))
+	(when (defq child (get :child val)) (mail-send child ""))
+	(when (defq job (get :job val))
 		(push jobs job)
-		(. val :erase :job)))
+		(undef val :job)))
 ```
 
 When the library wishes to create a new child task, it'll call our `(create)`
 function. The `key` parameter will be the assigned task handle, not a mailbox
 ID, just a number we use to look up this tasks record. The `val` parameter is
-an `emap` object, one per child, where we store information to track this
+an `env` object, one per child, where we store information to track this
 child's state. The `nodes` parameter is the list of currently known network
 nodes, we get to choose where we will open the child task from this list.
 
@@ -282,7 +277,7 @@ task.
 				(defq key (getf msg +kn_msg_key)
 					  child (getf msg +kn_msg_reply_id))
 				(when (defq val (. farm :find key))
-					(. val :insert :child child)
+					(def val :child child)
 					(dispatch-job key val)))
 			((= idx +select_reply)
 				;child responce
@@ -301,7 +296,7 @@ task.
 					(when (= 0 (length jobs))
 						(defq working :nil)
 						(. farm :each (lambda (key val)
-							(setq working (or working (. val :find :job)))))
+							(setq working (or working (get :job val)))))
 						(unless working (. farm :close)))))))
 	...
 	(. farm :close)

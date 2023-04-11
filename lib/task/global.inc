@@ -21,7 +21,7 @@
 				((find _key _keys)
 					;found, so check timestamp
 					(and _timeout
-						(defq _then (. _val :find :timestamp))
+						(defq _then (get :timestamp _val))
 						(> (- _now _then) _timeout)
 						(progn
 							(setq _mutated :t)

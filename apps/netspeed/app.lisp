@@ -32,16 +32,16 @@
 (defun create (key now)
 	; (create key now) -> val
 	;function called when entry is created
-	(. (defq node (emap)) :insert :timestamp now)
-	(each (# (.-> node (:insert %0 (. %2 :add_bar)) (:insert %1 (list)))) +bars +results charts)
+	(def (defq node (env 1)) :timestamp now)
+	(each (# (def node %0 (. %2 :add_bar) %1 (list))) +bars +results charts)
 	(open-task "apps/netspeed/child.lisp" key +kn_call_open 0 (elem-get +select_task select))
 	node)
 
 (defun destroy (key node)
 	; (destroy key val)
 	;function called when entry is destroyed
-	(when (defq child (. node :find :child)) (mail-send child ""))
-	(each (# (.-> node (:find %0) :sub)) +bars))
+	(when (defq child (get :child node)) (mail-send child ""))
+	(each (# (. (get %0 node) :sub)) +bars))
 
 (defun smooth-result (results val)
 	(if (> (length (push results val)) +smooth_steps)
@@ -50,10 +50,10 @@
 
 (defun update-result (node &rest vals)
 	(setq vals (map (#
-			(bind '(res val) (smooth-result (. node :find %0) %1))
-			(. node :insert %0 res) val) +results vals))
+			(bind '(res val) (smooth-result (get %0 node) %1))
+			(def node %0 res) val) +results vals))
 	(each (# (def %0 :maximum (align (max %2 (get :maximum %0)) %3))
-			(def (.-> node (:find %1) :dirty) :value %2))
+			(def (. (get %1 node) :dirty) :value %2))
 		charts +bars vals +max_aligns))
 
 (defun update-net-result ()
@@ -102,9 +102,7 @@
 				(defq child (getf msg +kn_msg_reply_id)
 					node (. global_tasks :find (slice +long_size -1 child)))
 				(when node
-					(.-> node
-						(:insert :child child)
-						(:insert :timestamp (pii-time)))
+					(def node :child child :timestamp (pii-time))
 					(push poll_que child)))
 			(+select_reply
 				;child poll responce
@@ -113,8 +111,8 @@
 						(getf msg +reply_vops_regs)
 						(getf msg +reply_vops_memory)
 						(getf msg +reply_vops_reals))
-					(. node :insert :timestamp (pii-time))
-					(push poll_que (. node :find :child))))
+					(def node :timestamp (pii-time))
+					(push poll_que (get :child node))))
 			(:t	;polling timer event
 				(mail-timeout (elem-get +select_nodes select) +poll_rate 0)
 				(when (. global_tasks :refresh +retry_timeout)

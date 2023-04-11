@@ -78,17 +78,13 @@
 	;send another job to child
 	(cond
 		((defq job (pop jobs))
-			(.-> val
-				(:insert :job job)
-				(:insert :timestamp (pii-time)))
-			(mail-send (. val :find :child)
+			(def val :job job :timestamp (pii-time))
+			(mail-send (get :child val)
 				(setf-> job
 					(+job_key key)
 					(+job_reply (elem-get +select_reply select)))))
 		(:t  ;no jobs in que
-			(.-> val
-				(:erase :job)
-				(:erase :timestamp)))))
+			(undef val :job :timestamp))))
 
 (defun create (key val nodes)
 	; (create key val nodes)
@@ -99,11 +95,10 @@
 (defun destroy (key val)
 	; (destroy key val)
 	;function called when entry is destroyed
-	(when (defq child (. val :find :child))
-		(mail-send child ""))
-	(when (defq job (. val :find :job))
+	(when (defq child (get :child val)) (mail-send child ""))
+	(when (defq job (get :job val))
 		(push jobs job)
-		(. val :erase :job)))
+		(undef val :job)))
 
 (defun create-scene (job_que)
 	; (create-scene job_que) -> scene_root
@@ -165,7 +160,7 @@
 				;child task launch responce
 				(defq key (getf *msg* +kn_msg_key) child (getf *msg* +kn_msg_reply_id))
 				(when (defq val (. farm :find key))
-					(. val :insert :child child)
+					(def val :child child)
 					(dispatch-job key val)))
 			((= idx +select_reply)
 				;child mesh responce
@@ -187,7 +182,7 @@
 				(when (= 0 (length jobs))
 					(defq working :nil)
 					(. farm :each (lambda (key val)
-						(setq working (or working (. val :find :job)))))
+						(setq working (or working (get :job val)))))
 					(unless working
 						(mail-timeout (elem-get +select_retry_timer select) 0 0)
 						(. farm :close))))
