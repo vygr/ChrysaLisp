@@ -41,16 +41,7 @@ snapshot:
 		`find obj -name "main_tui.exe"`
 
 inst:
-	@./stop.sh
-	@./obj/$(CPU)/$(ABI)/$(OS)/main_tui -e obj\vp64\VP64\sys\boot_image -l 005-008 -l 002-008 -l 007-008 -l 006-008 &
-	@./obj/$(CPU)/$(ABI)/$(OS)/main_tui -e obj\vp64\VP64\sys\boot_image -l 004-007 -l 001-007 -l 006-007 -l 007-008 &
-	@./obj/$(CPU)/$(ABI)/$(OS)/main_tui -e obj\vp64\VP64\sys\boot_image -l 003-006 -l 000-006 -l 006-008 -l 006-007 &
-	@./obj/$(CPU)/$(ABI)/$(OS)/main_tui -e obj\vp64\VP64\sys\boot_image -l 002-005 -l 005-008 -l 004-005 -l 003-005 &
-	@./obj/$(CPU)/$(ABI)/$(OS)/main_tui -e obj\vp64\VP64\sys\boot_image -l 001-004 -l 004-007 -l 003-004 -l 004-005 &
-	@./obj/$(CPU)/$(ABI)/$(OS)/main_tui -e obj\vp64\VP64\sys\boot_image -l 000-003 -l 003-006 -l 003-005 -l 003-004 &
-	@./obj/$(CPU)/$(ABI)/$(OS)/main_tui -e obj\vp64\VP64\sys\boot_image -l 002-008 -l 002-005 -l 001-002 -l 000-002 &
-	@./obj/$(CPU)/$(ABI)/$(OS)/main_tui -e obj\vp64\VP64\sys\boot_image -l 001-007 -l 001-004 -l 000-001 -l 001-002 &
-	@./obj/$(CPU)/$(ABI)/$(OS)/main_tui -e obj\vp64\VP64\sys\boot_image -l 000-006 -l 000-003 -l 000-002 -l 000-001 -run apps/tui/install.lisp
+	@./run_tui.sh -n 5 -i -e
 
 obj/$(CPU)/$(ABI)/$(OS)/main_gui:	$(OBJ_FILES_GUI)
 ifeq ($(OS),Darwin)

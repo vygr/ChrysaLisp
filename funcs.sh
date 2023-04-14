@@ -62,7 +62,7 @@ function boot_cpu_tui
 {
 	if [ $1 -lt 1 ]
 	then
-		./obj/$CPU/$ABI/$OS/main_tui obj/$CPU/$ABI/sys/boot_image $2 $3 -run apps/tui/tui.lisp
+		./obj/$CPU/$ABI/$OS/main_tui obj/$CPU/$ABI/sys/boot_image $2 $3 -run $script
 	else
 		./obj/$CPU/$ABI/$OS/main_tui obj/$CPU/$ABI/sys/boot_image $2 $3 &
 	fi
@@ -75,8 +75,13 @@ function main
 	shift 2
 	base_cpu=0
 	emu=""
+	script="apps/tui/tui.lisp"
 	while [ "$#" -gt 0 ]; do
 	case $1 in
+		-i)
+			script="apps/tui/install.lisp";
+			shift
+			;;
 		-e)
 			emu=$1;
 			shift
