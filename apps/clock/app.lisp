@@ -12,7 +12,7 @@
 
 (defq clock_size 256 clock_scale 1 dotw :nil face (list) eps 0.25
 	seconds 0.0 second 0 minutes 0.0 minute 0 hours 0.0 hour 0 id :t
-	rate (/ 1000000 1))
+	+rate (/ 1000000 1))
 
 (ui-window *window* ()
 	(ui-title-bar _ "Clock" (0xea19) +event_close)
@@ -103,7 +103,7 @@
 					(:t (. *window* :event msg))))
 			((= idx +select_timer)
 				;timer event
-				(mail-timeout (elem-get +select_timer select) rate 0)
+				(mail-timeout (elem-get +select_timer select) +rate 0)
 				(when clock
 					(make-analog-time)
 					(view-analog-time (* (n2f clock_size) (n2f clock_scale)))

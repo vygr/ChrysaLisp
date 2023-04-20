@@ -13,7 +13,7 @@
 (enums +select 0
 	(enum main tip timer))
 
-(defq timer_rate (/ 1000000 1))
+(defq +rate (/ 1000000 1))
 
 (ui-window *window* ()
 	(ui-title-bar *title* "Template" (0xea19 0xea1b 0xea1a) +event_close)
@@ -40,7 +40,7 @@
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(gui-add-front (. *window* :change x y w h))
 	(tooltips)
-	(mail-timeout (elem-get +select_timer select) timer_rate 0)
+	(mail-timeout (elem-get +select_timer select) +rate 0)
 	(while *running*
 		(defq *msg* (mail-read (elem-get (defq idx (mail-select select)) select)))
 		(cond
@@ -50,7 +50,7 @@
 					(. view :show_tip)))
 			((= idx +select_timer)
 				;timer event
-				(mail-timeout (elem-get +select_timer select) timer_rate 0))
+				(mail-timeout (elem-get +select_timer select) +rate 0))
 			((defq id (getf *msg* +ev_msg_target_id) action (. event_map :find id))
 				;call bound event action
 				(dispatch-action action))

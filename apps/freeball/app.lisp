@@ -3,20 +3,20 @@
 (import "gui/lisp.inc")
 
 (defq id :t index 0 xv 4 yv 0 i 512
-	frames (map (lambda (_) (Canvas-from-file (cat "apps/freeball/data/staoball_" (str _) ".cpm") +load_flag_shared)) (range 1 13))
-	sframes (map (lambda (_) (Canvas-from-file (cat "apps/freeball/data/staoball_s_" (str _) ".cpm") +load_flag_shared)) (range 1 13)))
+	+frames (static '(map (lambda (_) (Canvas-from-file (cat "apps/freeball/data/staoball_" (str _) ".cpm") +load_flag_shared)) (range 1 13)))
+	+sframes (static '(map (lambda (_) (Canvas-from-file (cat "apps/freeball/data/staoball_s_" (str _) ".cpm") +load_flag_shared)) (range 1 13))))
 
 (ui-root view (View) (:color 0)
-	(ui-element frame (elem-get 0 frames))
-	(ui-element sframe (elem-get 0 sframes)))
+	(ui-element frame (elem-get 0 +frames))
+	(ui-element sframe (elem-get 0 +sframes)))
 
 (defun main ()
 	(defq screen (penv (gui-add-front view)))
 	(while id
 		(bind '(_ _ screen_width screen_height) (. screen :get_bounds))
-		(defq index (% (inc index) (length frames))
-			old_frame frame frame (elem-get index frames)
-			old_sframe sframe sframe (elem-get index sframes))
+		(defq index (% (inc index) (length +frames))
+			old_frame frame frame (elem-get index +frames)
+			old_sframe sframe sframe (elem-get index +sframes))
 		(bind '(ox oy w h) (. view :get_bounds))
 		(bind '(_ _ fw fh) (. old_frame :get_bounds))
 		(bind '(_ _ sw sh) (. old_sframe :get_bounds))

@@ -13,14 +13,14 @@
 (enums +select 0
 	(enum main task reply timer))
 
-(defq canvas_width 800 canvas_height 800 canvas_scale 2 timer_rate (/ 1000000 1) id :t dirty :nil
+(defq +width 800 +height 800 +scale 2 +timer_rate (/ 1000000 1) id :t dirty :nil
 	center_x (mbfp-from-fixed -0.5) center_y (mbfp-from-fixed 0.0) zoom (mbfp-from-fixed 1.0)
-	retry_timeout (if (starts-with "obj/vp64" (load-path)) 50000000 5000000)
+	+retry_timeout (if (starts-with "obj/vp64" (load-path)) 50000000 5000000)
 	jobs :nil farm :nil)
 
 (ui-window *window* ()
 	(ui-title-bar _ "Mandelbrot" (0xea19) +event_close)
-	(ui-canvas canvas canvas_width canvas_height canvas_scale))
+	(ui-canvas canvas +width +height +scale))
 
 (defun tile (canvas data)
 	; (tile canvas data) -> area
@@ -72,14 +72,14 @@
 			(setf-> (str-alloc +job_size)
 				(+job_x 0)
 				(+job_y y)
-				(+job_x1 (* canvas_width canvas_scale))
+				(+job_x1 (* +width +scale))
 				(+job_y1 (inc y))
-				(+job_w (* canvas_width canvas_scale))
-				(+job_h (* canvas_height canvas_scale))
+				(+job_w (* +width +scale))
+				(+job_h (* +height +scale))
 				(+job_cx center_x)
 				(+job_cy center_y)
 				(+job_z zoom)))
-			(range (dec (* canvas_height canvas_scale)) -1))
+			(range (dec (* +height +scale)) -1))
 		farm (Farm create destroy (* 2 (length (mail-nodes))))))
 
 (defun main ()
@@ -88,7 +88,7 @@
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(gui-add-front (. *window* :change x y w h))
 	(reset)
-	(mail-timeout (elem-get +select_timer select) timer_rate 0)
+	(mail-timeout (elem-get +select_timer select) +timer_rate 0)
 	(while id
 		(defq msg (mail-read (elem-get (defq idx (mail-select select)) select)))
 		(case idx
@@ -103,10 +103,10 @@
 							(/= (getf msg +ev_msg_mouse_buttons) 0))
 						;mouse click on the canvas view, zoom in/out, re-center
 						(bind '(w h) (. canvas :get_size))
-						(defq rx (- (getf msg +ev_msg_mouse_rx) (/ (- w canvas_width) 2))
-							ry (- (getf msg +ev_msg_mouse_ry) (/ (- h canvas_height) 2)))
-						(setq center_x (+ center_x (mbfp-offset rx canvas_width zoom))
-							center_y (+ center_y (mbfp-offset ry canvas_height zoom))
+						(defq rx (- (getf msg +ev_msg_mouse_rx) (/ (- w +width) 2))
+							ry (- (getf msg +ev_msg_mouse_ry) (/ (- h +height) 2)))
+						(setq center_x (+ center_x (mbfp-offset rx +width zoom))
+							center_y (+ center_y (mbfp-offset ry +height zoom))
 							zoom (mbfp-mul zoom (if (= 0 (logand (getf msg +ev_msg_mouse_buttons) 2))
 								(mbfp-from-fixed 0.5) (mbfp-from-fixed 2.0))))
 						(reset))
@@ -125,8 +125,8 @@
 				(setq dirty :t)
 				(tile canvas msg))
 			(:t	;timer event
-				(mail-timeout (elem-get +select_timer select) timer_rate 0)
-				(. farm :refresh retry_timeout)
+				(mail-timeout (elem-get +select_timer select) +timer_rate 0)
+				(. farm :refresh +retry_timeout)
 				(when dirty
 					(setq dirty :nil)
 					(. canvas :swap)

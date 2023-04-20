@@ -13,22 +13,22 @@
 (enums +select 0
 	(enum main task reply timer))
 
-(defq canvas_width 800 canvas_height 800 canvas_scale 1
-	timer_rate (/ 1000000 1) id :t dirty :nil
-	retry_timeout (if (starts-with "obj/vp64" (load-path)) 50000000 5000000)
+(defq +width 800 +height 800 +scale 1
+	+timer_rate (/ 1000000 1) id :t dirty :nil
+	+retry_timeout (if (starts-with "obj/vp64" (load-path)) 50000000 5000000)
 	jobs (map (lambda (y)
 			(setf-> (str-alloc +job_size)
 				(+job_x 0)
 				(+job_y y)
-				(+job_x1 (* canvas_width canvas_scale))
+				(+job_x1 (* +width +scale))
 				(+job_y1 (inc y))
-				(+job_w (* canvas_width canvas_scale))
-				(+job_h (* canvas_height canvas_scale))))
-		(range (dec (* canvas_height canvas_scale)) -1)))
+				(+job_w (* +width +scale))
+				(+job_h (* +height +scale))))
+		(range (dec (* +height +scale)) -1)))
 
 (ui-window *window* ()
 	(ui-title-bar _ "Raymarch" (0xea19) +event_close)
-	(ui-canvas canvas canvas_width canvas_height canvas_scale))
+	(ui-canvas canvas +width +height +scale))
 
 (defun tile (canvas data)
 	; (tile canvas data) -> area
@@ -76,7 +76,7 @@
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(gui-add-front (. *window* :change x y w h))
 	(defq farm (Farm create destroy (* 2 (length (mail-nodes)))))
-	(mail-timeout (elem-get +select_timer select) timer_rate 0)
+	(mail-timeout (elem-get +select_timer select) +timer_rate 0)
 	(while id
 		(defq msg (mail-read (elem-get (defq idx (mail-select select)) select)))
 		(case idx
@@ -101,8 +101,8 @@
 				(setq dirty :t)
 				(tile canvas msg))
 			(:t  ;timer event
-				(mail-timeout (elem-get +select_timer select) timer_rate 0)
-				(. farm :refresh retry_timeout)
+				(mail-timeout (elem-get +select_timer select) +timer_rate 0)
+				(. farm :refresh +retry_timeout)
 				(when dirty
 					(setq dirty :nil)
 					(. canvas :swap)

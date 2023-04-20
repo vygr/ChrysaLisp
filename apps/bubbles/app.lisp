@@ -9,13 +9,13 @@
 	(enum reset)
 	(enum grid plain axis))
 
-(defq canvas_width 600 canvas_height 600 min_width 300 min_height 300
-	rate (/ 1000000 60) base 0.3
-	palette (map (lambda (_) (vec-i2n
+(defq +width 600 +height 600 +min_width 300 +min_height 300
+	+rate (/ 1000000 60) +base 0.3
+	+palette (static '(map (lambda (_) (vec-i2n
 			(/ (logand (>> _ 16) 0xff) 0xff)
 			(/ (logand (>> _ 8) 0xff) 0xff)
 			(/ (logand _ 0xff) 0xff)))
-		(list +argb_cyan +argb_yellow +argb_magenta +argb_red +argb_green +argb_blue)))
+		(list +argb_cyan +argb_yellow +argb_magenta +argb_red +argb_green +argb_blue))))
 
 (ui-window *window* ()
 	(ui-title-bar _ "Bubbles" (0xea19 0xea1b 0xea1a) +event_close)
@@ -25,9 +25,9 @@
 		(ui-tool-bar style_toolbar ()
 			(ui-buttons (0xe976 0xe9a3 0xe9f0) +event_grid)))
 	(ui-scroll image_scroll +scroll_flag_both
-			(:min_width canvas_width :min_height canvas_height)
+			(:min_width +width :min_height +height)
 		(ui-backdrop mybackdrop (:color +argb_black :ink_color +argb_grey8)
-			(ui-canvas layer1_canvas canvas_width canvas_height 1))))
+			(ui-canvas layer1_canvas +width +height 1))))
 
 (defun radio-select (toolbar idx)
 	(each (lambda (button)
@@ -52,9 +52,9 @@
 				(- (random (const (inc (* max_vel 2)))) (const max_vel))
 				(- (random (const (inc (* max_vel 2)))) (const max_vel)))
 			(i2n (const bubble_radius))
-			(vec-add (const (vec-f2n base base base))
-				(vec-scale (elem-get (random (length palette)) palette)
-					(f2n (random (const (- 1.0 base))))))))) out)
+			(vec-add (const (vec-f2n +base +base +base))
+				(vec-scale (elem-get (random (length +palette)) +palette)
+					(f2n (random (const (- 1.0 +base))))))))) out)
 
 (defun vertex-update (verts)
 	(each (lambda (vert)
@@ -135,11 +135,11 @@
 	(defq dlist (list 0 light_pos layer1_canvas (list)) select (alloc-select +select_size))
 	(tooltips)
 	(. layer1_canvas :set_canvas_flags +canvas_flag_antialias)
-	(. mybackdrop :set_size canvas_width canvas_height)
+	(. mybackdrop :set_size +width +height)
 	(radio-select style_toolbar 0)
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(gui-add-front (. *window* :change x y w h))
-	(def image_scroll :min_width min_width :min_height min_height)
+	(def image_scroll :min_width +min_width :min_height +min_height)
 
 	;random cloud of verts
 	(defq verts (vertex-cloud num_bubbles))
@@ -147,13 +147,13 @@
 
 	;main event loop
 	(defq last_state :u id :t)
-	(mail-timeout (elem-get +select_timer select) rate 0)
+	(mail-timeout (elem-get +select_timer select) +rate 0)
 	(while id
 		(defq *msg* (mail-read (elem-get (defq idx (mail-select select)) select)))
 		(cond
 			((= idx +select_timer)
 				;timer event
-				(mail-timeout (elem-get +select_timer select) rate 0)
+				(mail-timeout (elem-get +select_timer select) +rate 0)
 				(vertex-update verts)
 				(redraw-layers verts 1)
 				(redraw dlist))
@@ -169,10 +169,10 @@
 				(. *window* :change_dirty x y w h))
 			((= id +event_max)
 				;max button
-				(def image_scroll :min_width canvas_width :min_height canvas_height)
+				(def image_scroll :min_width +width :min_height +height)
 				(bind '(x y w h) (apply view-fit (cat (. *window* :get_pos) (. *window* :pref_size))))
 				(. *window* :change_dirty x y w h)
-				(def image_scroll :min_width min_width :min_height min_height))
+				(def image_scroll :min_width +min_width :min_height +min_height))
 			((= id +event_reset)
 				;reset button
 				(setq verts (vertex-cloud num_bubbles)))

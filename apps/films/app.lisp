@@ -16,7 +16,7 @@
 	(sort cmp out))
 
 (defq films (all-films "apps/films/data/") index 0 canvas :nil id :t
-	rate (/ 1000000 30))
+	+rate (/ 1000000 30))
 
 (ui-window *window* ()
 	(ui-title-bar window_title "" (0xea19) +event_close)
@@ -45,7 +45,7 @@
 	(tooltips)
 	(bind '(x y w h) (apply view-locate (. (win-refresh index) :get_size)))
 	(gui-add-front (. *window* :change x y w h))
-	(mail-timeout (elem-get +select_timer select) rate 0)
+	(mail-timeout (elem-get +select_timer select) +rate 0)
 	(while id
 		(defq *msg* (mail-read (elem-get (defq idx (mail-select select)) select)))
 		(cond
@@ -55,7 +55,7 @@
 					(. view :show_tip)))
 			((= idx +select_timer)
 				;timer event)
-				(mail-timeout (elem-get +select_timer select) rate 0)
+				(mail-timeout (elem-get +select_timer select) +rate 0)
 				(.-> canvas :next_frame :swap))
 			((= (setq id (getf *msg* +ev_msg_target_id)) +event_close)
 				(setq id :nil))

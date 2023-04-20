@@ -35,12 +35,12 @@
 	+canvas_mode (if anti_alias +canvas_flag_antialias 0)
 	*mol_index* 0 *auto_mode* :nil *dirty* :t
 	balls (list) mol_files (all-mol-files "apps/molecule/data/")
-	palette (map (lambda (_) (Vec3-f
+	+palette (static '(map (lambda (_) (Vec3-f
 			(n2f (/ (logand (>> _ 16) 0xff) 0xff))
 			(n2f (/ (logand (>> _ 8) 0xff) 0xff))
 			(n2f (/ (logand _ 0xff) 0xff))))
 		(list +argb_black +argb_white +argb_red +argb_green
-			+argb_cyan +argb_blue +argb_yellow +argb_magenta)))
+			+argb_cyan +argb_blue +argb_yellow +argb_magenta))))
 
 (ui-window *window* ()
 	(ui-title-bar *title* "" (0xea19 0xea1b 0xea1a) +event_close)
@@ -148,14 +148,14 @@
 					(# (/ (n2r (str-as-num %0)) (const (n2r 65536))))
 				(slice 0 3 line)))
 			(bind '(radius col) (case (elem-get 3 line)
-				("C" (list (const (n2r (* 70 canvas_scale))) (elem-get 0 palette)))
-				("H" (list (const (n2r (* 25 canvas_scale))) (elem-get 1 palette)))
-				("O" (list (const (n2r (* 60 canvas_scale))) (elem-get 2 palette)))
-				("N" (list (const (n2r (* 65 canvas_scale))) (elem-get 3 palette)))
-				("F" (list (const (n2r (* 50 canvas_scale))) (elem-get 4 palette)))
-				("S" (list (const (n2r (* 88 canvas_scale))) (elem-get 6 palette)))
-				("Si" (list (const (n2r (* 111 canvas_scale))) (elem-get 6 palette)))
-				("P" (list (const (n2r (* 98 canvas_scale))) (elem-get 7 palette)))
+				("C" (list (const (n2r (* 70 canvas_scale))) (elem-get 0 +palette)))
+				("H" (list (const (n2r (* 25 canvas_scale))) (elem-get 1 +palette)))
+				("O" (list (const (n2r (* 60 canvas_scale))) (elem-get 2 +palette)))
+				("N" (list (const (n2r (* 65 canvas_scale))) (elem-get 3 +palette)))
+				("F" (list (const (n2r (* 50 canvas_scale))) (elem-get 4 +palette)))
+				("S" (list (const (n2r (* 88 canvas_scale))) (elem-get 6 +palette)))
+				("Si" (list (const (n2r (* 111 canvas_scale))) (elem-get 6 +palette)))
+				("P" (list (const (n2r (* 98 canvas_scale))) (elem-get 7 +palette)))
 				(:t (list (const (n2r (* 100 canvas_scale))) (const (Vec3-f 1.0 1.0 0.0))))))
 			(push balls (list (Vec3-r x y z) radius col)))
 		(bind '(center radius) (bounding-sphere balls (# (elem-get +ball_vertex %0))))
