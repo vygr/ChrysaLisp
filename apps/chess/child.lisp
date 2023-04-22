@@ -228,15 +228,15 @@
 
 ;test if king of given color is in check
 (defun in-check (brd color)
-	(if (= color +black)
-		(defq king_piece "K" tests (list black_tests))
-		(defq king_piece "k" tests (list white_tests)))
 	;find king index on board
-	(defq king_index (find-rev king_piece brd))
-		(some! 0 -1 :nil (lambda ((pieces vectors))
-			(defq hit_pieces (piece-scans brd king_index vectors) pieces (list pieces))
-			(some! 0 -1 :nil (lambda (piece)
-				(find-rev piece hit_pieces)) pieces)) tests))
+	(if (= color +black)
+		(defq king_index (find-rev "K" brd) tests black_tests)
+		(defq king_index (find-rev "k" brd) tests white_tests))
+	;return in check or not
+	(some! 0 -1 :nil (lambda ((pieces vectors))
+		(defq hit_pieces (piece-scans brd king_index vectors) pieces (list pieces))
+		(some! 0 -1 :nil (lambda (piece)
+			(find-rev piece hit_pieces)) pieces)) (list tests)))
 
 ;evaluate (score) a board for the color given
 (defun evaluate (brd color)
