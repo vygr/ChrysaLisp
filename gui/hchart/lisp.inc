@@ -2,7 +2,7 @@
 ; hchart widget
 ;;;;;;;;;;;;;;;
 
-(import "gui/button/lisp.inc")
+(import "gui/label/lisp.inc")
 (import "gui/flow/lisp.inc")
 (import "gui/grid/lisp.inc")
 (import "gui/progress/lisp.inc")
@@ -19,14 +19,12 @@
 	(def this :units 1 :scale_grid scale_grid :bar_grid bar_grid
 		:flow_flags +flow_down_fill :maximum 1 :value 0 :border 0)
 
+	(defgetmethod bar_grid)
+
 	(defmethod :add_bar (this)
 		; (. hchart :add_bar) -> progress
 		(. (get :bar_grid this) :add_child (defq bar (Progress)))
 		bar)
-
-	(defmethod :get_bar_grid (this)
-		; (. hchart :get_bar_grid) -> bar_grid
-		(get :bar_grid this))
 
 	(defmethod :update_scale (this)
 		; (. hchart :update_scale) -> hchart
