@@ -22,9 +22,8 @@
 	(entry 'lisp :repl_eval '(:r0 :r1))
 
 	;evaluate based on type
-	(assign '((:r1 obj_vtable)) '(:r2))
-	(f-bind 'sym :vtable :r3)
-	(f-bind 'list :vtable :r4)
+	(assign `((:r1 obj_vtable) (@ ,(f-path 'sym :vtable)) (@ ,(f-path 'list :vtable)))
+		'(:r2 :r3 :r4))
 	(switch)
 	(vpcase '(:r2 = :r3))
 		;eval to symbol binding ?

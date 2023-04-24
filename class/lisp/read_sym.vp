@@ -48,8 +48,9 @@
 			(call 'stream :write_char {str_stream, char})
 			(call 'stream :read_char {stream} {_, char})
 		(loop-end)
-		(call 'sstream :ref_string {str_stream} {_, value})
-		(call 'sstream :destroy {str_stream})
+		(call 'sstream :ref_string {str_stream} '(str_stream value))
+		(assign `(,value) {value})
+		(call 'sstream :destroy `(,str_stream))
 	(endswitch)
 	(call 'sym :intern {value} {value})
 

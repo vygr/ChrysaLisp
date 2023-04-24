@@ -18,8 +18,7 @@
 
 	(entry 'lisp :repl_apply '(:r0 :r1 :r2))
 
-	(assign '((:r2 obj_vtable)) '(:r3))
-	(f-bind 'func :vtable :r4)
+	(assign `((:r2 obj_vtable) (@ ,(f-path 'func :vtable))) '(:r3 :r4))
 	(vpif '(:r3 = :r4))
 		;built in or compiled function
 		(assign '((:r2 num_value)) '(:r2))

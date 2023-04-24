@@ -25,8 +25,7 @@
 	(call 'lisp :read '((:rsp local_this) :r0 :r1) '(:r0 :r1 :r2))
 	(switch)
 	(errorcases
-		(assign '((:r1 obj_vtable)) '(:r3))
-		(f-bind 'error :vtable :r4)
+		(assign `((:r1 obj_vtable) (@ ,(f-path 'error :vtable))) '(:r3 :r4))
 		(breakif '(:r3 = :r4)))
 		(assign '(:r1 :r2) '(:r12 :r13))
 		(call 'list :create :nil '(:r0))

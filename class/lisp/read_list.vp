@@ -23,7 +23,7 @@
 	(push-scope)
 	(entry 'lisp :read_list {this, stream, char})
 
-	;skip "(" and white space
+	;skip initial "(" and then any white space
 	(loop-start)
 		(call 'lisp :read_char {this, stream, char} {_, char})
 	(loop-until {char > +char_space || char = -1})
@@ -40,12 +40,12 @@
 				(call 'lisp :read_char {this, stream, char} {_, char})
 			(loop-end)
 			(breakif {char /= +char_semi})
-			(call 'stream :skip_not {stream, +char_lf})
-			(call 'stream :read_char {stream} {_, char})
+			(call 'stream :skip_not {stream, +char_lf} '(stream))
+			(call 'stream :read_char `(,stream) {_, char})
 		(loop-end)
 	(loop-end)
 
-	;skip ")"
+	;skip trailing ")"
 	(call 'stream :read_char {stream} {_, char})
 
 (vp-label 'funcexit)
