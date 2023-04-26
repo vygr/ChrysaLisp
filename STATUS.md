@@ -17,6 +17,9 @@ accordingly.
 New Hchart UI widget. Netmon and NetSpeed apps changed to use this and
 restructured the source while doing so.
 
+Introduction of new `errorif` macros to ease Lisp function argument error
+checking.
+
 ------
 
 Update for the Netmon app.
