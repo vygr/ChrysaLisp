@@ -16,9 +16,7 @@
 
 	(entry 'dim :lisp_dim '(:r0 :r1))
 
-(errorcases
-	(call 'lisp :env_args_sig '(:r1 ($ sig) 2) '(tmp))
-	(gotoif `(,tmp = 0) 'error))
+	(errorif-lisp-args-sig :r1 2 error)
 
 	(vp-push :r0 :r1)
 	(bind '(dims elems) (method-input 'dim :create))
@@ -55,9 +53,7 @@
 
 	(entry 'dim :lisp_get '(:r0 :r1))
 
-(errorcases
-	(call 'lisp :env_args_sig '(:r1 ($ sig) 2) '(tmp))
-	(gotoif `(,tmp = 0) 'error))
+	(errorif-lisp-args-sig :r1 2 error)
 
 	(vp-def (elems index dims indexs dims_len indexs_len
 			dims_iter_begin dims_iter_end indexs_iter_begin acc d i)
@@ -118,9 +114,7 @@
 
 	(entry 'dim :lisp_set '(:r0 :r1))
 
-(errorcases
-	(call 'lisp :env_args_sig '(:r1 ($ sig) 3) '(tmp))
-	(gotoif `(,tmp = 0) 'error))
+	(errorif-lisp-args-sig :r1 3 error)
 
 	(vp-def (elems obj index dims indexs dims_len indexs_len
 			dims_iter_begin dims_iter_end indexs_iter_begin acc d i)

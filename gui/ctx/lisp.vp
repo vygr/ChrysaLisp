@@ -16,9 +16,7 @@
 
 	(entry 'ctx :lisp_set_color '(:r0 :r1))
 
-(errorcases
-	(call 'lisp :env_args_sig '(:r1 ($ sig) 2) '(tmp))
-	(gotoif `(,tmp = 0) 'error1))
+	(errorif-lisp-args-sig :r1 2 error1)
 
 	(vp-push :r0)
 	(defq in (method-input 'ctx :set_color))
@@ -51,9 +49,7 @@
 
 	(entry 'ctx :lisp_box '(:r0 :r1))
 
-(errorcases
-	(call 'lisp :env_args_sig '(:r1 ($ sig) 5) '(tmp))
-	(gotoif `(,tmp = 0) 'error1))
+	(errorif-lisp-args-sig :r1 5 error1)
 
 	(vp-push :r0)
 	(defq in (method-input 'ctx :box))
@@ -86,9 +82,7 @@
 
 	(entry 'ctx :lisp_filled_box '(:r0 :r1))
 
-(errorcases
-	(call 'lisp :env_args_sig '(:r1 ($ sig) 5) '(tmp))
-	(gotoif `(,tmp = 0) 'error1))
+	(errorif-lisp-args-sig :r1 5 error1)
 
 	(vp-push :r0)
 	(defq in (method-input 'ctx :filled_box))
@@ -121,9 +115,7 @@
 
 	(entry 'ctx :lisp_blit '(:r0 :r1))
 
-(errorcases
-	(call 'lisp :env_args_sig '(:r1 ($ sig) 7) '(tmp))
-	(gotoif `(,tmp = 0) 'error1))
+	(errorif-lisp-args-sig :r1 7 error1)
 
 	(vp-push :r0)
 	(defq in (method-input 'ctx :blit))

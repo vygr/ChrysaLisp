@@ -26,9 +26,7 @@
 
 	(entry '(:r0 :r1))
 
-(errorcases
-	(call 'lisp :env_args_sig '(:r1 ($ sig) 1) '(tmp))
-	(gotoif `(,tmp = 0) 'error))
+	(errorif-lisp-args-sig :r1 1 error)
 
 	(array-bind-args :r1 '(:r2))
 
@@ -66,9 +64,7 @@
 
 	(entry '(:r13 :r14))
 
-(errorcases
-	(call 'lisp :env_args_sig '(:r14 ($ sig) 6) '(tmp))
-	(gotoif `(,tmp = 0) 'error))
+	(errorif-lisp-args-sig :r14 6 error)
 
 	(array-bind-args :r14 '(:r0 :r1 :r2 :r3 :r4 :r5))
 
@@ -130,9 +126,7 @@
 
 	(entry '(:r0 :r1))
 
-(errorcases
-	(call 'lisp :env_args_sig '(:r1 ($ sig) 2) '(tmp))
-	(gotoif `(,tmp = 0) 'error))
+	(errorif-lisp-args-sig :r1 2 error)
 
 	(push-scope)
 	(assign '(:r0) {this})

@@ -351,9 +351,7 @@ front of the function signature table !
 
 ```vdu
 	...
-(errorcases
-	(call 'lisp :env_args_sig '(:r1 ($ sig) 3) '(tmp))
-	(gotoif `(,tmp = 0) 'error))
+	(errorif-lisp-args-sig :r1 3 error)
 	...
 (errorcases
 (vp-label 'error)

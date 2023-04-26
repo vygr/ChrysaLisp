@@ -111,9 +111,7 @@
 
 	(entry 'sys_pii :lisp_dirlist '(:r0 :r1))
 
-(errorcases
-	(call 'lisp :env_args_sig '(:r1 ($ sig) 1) '(tmp))
-	(gotoif `(,tmp = 0) 'error))
+	(errorif-lisp-args-sig :r1 1 error)
 
 	(vp-push :r0)
 	(list-bind-args :r1 '(:r6) '(:str))
@@ -150,9 +148,7 @@
 
 	(entry 'sys_pii :lisp_fstat '(:r0 :r1))
 
-(errorcases
-	(call 'lisp :env_args_sig '(:r1 ($ sig) 1) '(tmp))
-	(gotoif `(,tmp = 0) 'error))
+	(errorif-lisp-args-sig :r1 1 error)
 
 	(vp-push :r0)
 	(assign '((:r1 array_begin) (@ sys/statics/statics)) '(:r0 :r1))
@@ -192,9 +188,7 @@
 
 	(entry 'sys_pii :lisp_remove '(:r0 :r1))
 
-(errorcases
-	(call 'lisp :env_args_sig '(:r1 ($ sig) 1) '(tmp))
-	(gotoif `(,tmp = 0) 'error))
+	(errorif-lisp-args-sig :r1 1 error)
 
 	(vp-push :r0)
 	(defq in (method-input 'sys_pii :remove))

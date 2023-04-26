@@ -67,3 +67,8 @@
 	`(errorcases
 		(assign '((,args array_length)) '(:r2))
 		(gotoif '(:r2 ~test) ',err)))
+
+(defmacro errorif-lisp-args-sig (args len err)
+	`(errorcases
+		(call 'lisp :env_args_sig '(,args ($ sig) ,len) '(tmp))
+		(gotoif `(,tmp = 0) ',err)))

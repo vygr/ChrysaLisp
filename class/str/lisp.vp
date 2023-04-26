@@ -18,9 +18,7 @@
 
 	(entry 'str :lisp_split '(:r0 :r1))
 
-(errorcases
-	(call 'lisp :env_args_sig '(:r1 ($ sig) 2) '(tmp))
-	(gotoif `(,tmp = 0) 'error1))
+	(errorif-lisp-args-sig :r1 2 error1)
 
 	(vp-push :r0)
 	(defq in (method-input 'str :split))
@@ -163,9 +161,7 @@
 
 	(entry 'str :lisp_cmp '(:r0 :r1))
 
-(errorcases
-	(call 'lisp :env_args_sig '(:r1 ($ sig) 2) '(tmp))
-	(gotoif `(,tmp = 0) 'error))
+	(errorif-lisp-args-sig :r1 2 error)
 
 	(vp-cpy-rr :r0 :r13)
 	(defq in (method-input 'str :compare))
@@ -195,9 +191,7 @@
 
 	(entry 'str :lisp_save '(:r0 :r1))
 
-(errorcases
-	(call 'lisp :env_args_sig '(:r1 ($ sig) 2) '(tmp))
-	(gotoif `(,tmp = 0) 'error1))
+	(errorif-lisp-args-sig :r1 2 error1)
 
 	(vp-cpy-rr :r0 :r12)
 	(vp-cpy-rr :r1 :r13)
@@ -234,9 +228,7 @@
 
 	(entry 'str :lisp_load '(:r0 :r1))
 
-(errorcases
-	(call 'lisp :env_args_sig '(:r1 ($ sig) 1) '(tmp))
-	(gotoif `(,tmp = 0) 'error))
+	(errorif-lisp-args-sig :r1 1 error)
 
 	(vp-cpy-rr :r0 :r13)
 	(defq in (method-input 'str :create_from_file))
@@ -320,9 +312,7 @@
 
 	(entry 'str :lisp_create '(:r0 :r1))
 
-(errorcases
-	(call 'lisp :env_args_sig '(:r1 ($ sig) 1) '(tmp))
-	(gotoif `(,tmp = 0) 'error))
+	(errorif-lisp-args-sig :r1 1 error)
 
 	(vp-push :r0)
 	(list-bind-args :r1 '(:r1) '(:num))
@@ -353,9 +343,7 @@
 
 	(entry 'str :lisp_expand '(:r0 :r1))
 
-(errorcases
-	(call 'lisp :env_args_sig '(:r1 ($ sig) 2) '(tmp))
-	(gotoif `(,tmp = 0) 'error))
+	(errorif-lisp-args-sig :r1 2 error)
 
 	(list-bind-args :r1 `(,in ,tab_width) '(:obj :num))
 	(errorif `(,tab_width <= 0) 'error)
@@ -435,9 +423,7 @@
 
 	(entry 'str :lisp_to_num '(:r0 :r1))
 
-(errorcases
-	(call 'lisp :env_args_sig '(:r1 ($ sig) 1) '(tmp))
-	(gotoif `(,tmp = 0) 'error))
+	(errorif-lisp-args-sig :r1 1 error)
 
 	(vp-push :r0)
 	(defq in (method-input 'sys_str :to_num)

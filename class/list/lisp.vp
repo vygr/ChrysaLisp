@@ -34,9 +34,7 @@
 
 	(entry 'list :lisp_merge '(:r0 :r1))
 
-(errorcases
-	(call 'lisp :env_args_sig '(:r1 ($ sig) 2) '(tmp))
-	(gotoif `(,tmp = 0) 'error))
+	(errorif-lisp-args-sig :r1 2 error)
 
 	(vp-push :r0)
 	(array-bind-args :r1 '(:r0 :r1))
@@ -169,9 +167,7 @@
 
 	(entry 'list :lisp_match '(:r0 :r1))
 
-(errorcases
-	(call 'lisp :env_args_sig '(:r1 ($ sig) 2) '(tmp))
-	(gotoif `(,tmp = 0) 'error1))
+	(errorif-lisp-args-sig :r1 2 error1)
 
 	(vp-push :r0)
 	(assign '((:r0 lisp_sym_underscore)) '(:r5))

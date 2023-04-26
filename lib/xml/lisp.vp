@@ -59,9 +59,7 @@
 
 	(entry '(:r0 :r1))
 
-(errorcases
-	(call 'lisp :env_args_sig '(:r1 ($ sig) 1) '(tmp))
-	(gotoif `(,tmp = 0) 'error))
+	(errorif-lisp-args-sig :r1 1 error)
 
 	(push-scope)
 	(assign '(:r0 :r1) {this, args})

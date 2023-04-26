@@ -18,9 +18,7 @@
 
 	(entry 'canvas :lisp_create '(:r0 :r1))
 
-(errorcases
-	(call 'lisp :env_args_sig '(:r1 ($ sig) 3) '(tmp))
-	(gotoif `(,tmp = 0) 'error))
+	(errorif-lisp-args-sig :r1 3 error)
 
 	(vp-push :r0)
 	(defq in (method-input 'canvas :create))
@@ -50,9 +48,7 @@
 
 	(entry 'canvas :lisp_create_pixmap '(:r0 :r1))
 
-(errorcases
-	(call 'lisp :env_args_sig '(:r1 ($ sig) 1) '(tmp))
-	(gotoif `(,tmp = 0) 'error))
+	(errorif-lisp-args-sig :r1 1 error)
 
 	(vp-push :r0)
 	(defq in (method-input 'canvas :create_pixmap))
@@ -82,9 +78,7 @@
 
 	(entry 'canvas :lisp_fill '(:r0 :r1))
 
-(errorcases
-	(call 'lisp :env_args_sig '(:r1 ($ sig) 2) '(tmp))
-	(gotoif `(,tmp = 0) 'error))
+	(errorif-lisp-args-sig :r1 2 error)
 
 	(vp-push :r0)
 	(defq in (method-input 'pixmap :fill))
@@ -118,9 +112,7 @@
 
 	(entry 'canvas :lisp_swap '(:r0 :r1))
 
-(errorcases
-	(call 'lisp :env_args_sig '(:r1 ($ sig) 1) '(tmp))
-	(gotoif `(,tmp = 0) 'error))
+	(errorif-lisp-args-sig :r1 1 error)
 
 	(vp-push :r0)
 	(defq in (method-input 'canvas :swap))
@@ -155,9 +147,7 @@
 	(vp-alloc local_size)
 	(entry 'canvas :lisp_next_frame '(:r0 :r1))
 
-(errorcases
-	(call 'lisp :env_args_sig '(:r1 ($ sig) 1) '(tmp))
-	(gotoif `(,tmp = 0) 'error))
+	(errorif-lisp-args-sig :r1 1 error)
 
 	(assign '(:r0) '((:rsp local_this)))
 	(list-bind-args :r1 '(:r0) '(:canvas))
@@ -190,9 +180,7 @@
 
 	(entry 'canvas :lisp_plot '(:r0 :r1))
 
-(errorcases
-	(call 'lisp :env_args_sig '(:r1 ($ sig) 3) '(tmp))
-	(gotoif `(,tmp = 0) 'error))
+	(errorif-lisp-args-sig :r1 3 error)
 
 	(vp-push :r0)
 	(defq in (method-input 'canvas :plot))
@@ -223,9 +211,7 @@
 
 	(entry 'canvas :lisp_fbox '(:r0 :r1))
 
-(errorcases
-	(call 'lisp :env_args_sig '(:r1 ($ sig) 5) '(tmp))
-	(gotoif `(,tmp = 0) 'error))
+	(errorif-lisp-args-sig :r1 5 error)
 
 	(vp-push :r0)
 	(defq in (method-input 'canvas :fbox))
@@ -256,9 +242,7 @@
 
 	(entry 'canvas :lisp_fpoly '(:r0 :r1))
 
-(errorcases
-	(call 'lisp :env_args_sig '(:r1 ($ sig) 5) '(tmp))
-	(gotoif `(,tmp = 0) 'error))
+	(errorif-lisp-args-sig :r1 5 error)
 
 	(vp-push :r0)
 	(defq in (method-input 'canvas :fpoly))
@@ -289,9 +273,7 @@
 
 	(entry 'canvas :lisp_resize '(:r0 :r1))
 
-(errorcases
-	(call 'lisp :env_args_sig '(:r1 ($ sig) 2) '(tmp))
-	(gotoif `(,tmp = 0) 'error))
+	(errorif-lisp-args-sig :r1 2 error)
 
 	(vp-push :r0)
 	(defq in (method-input 'pixmap :resize))
@@ -324,9 +306,7 @@
 
 	(entry 'canvas :lisp_to_argb32 '(:r0 :r1))
 
-(errorcases
-	(call 'lisp :env_args_sig '(:r1 ($ sig) 2) '(tmp))
-	(gotoif `(,tmp = 0) 'error))
+	(errorif-lisp-args-sig :r1 2 error)
 
 	(vp-push :r0)
 	(defq in (method-input 'pixmap :to_argb32))
@@ -357,9 +337,7 @@
 
 	(entry 'canvas :lisp_from_argb32 '(:r0 :r1))
 
-(errorcases
-	(call 'lisp :env_args_sig '(:r1 ($ sig) 2) '(tmp))
-	(gotoif `(,tmp = 0) 'error))
+	(errorif-lisp-args-sig :r1 2 error)
 
 	(vp-push :r0)
 	(defq in (method-input 'pixmap :from_argb32))
@@ -390,9 +368,7 @@
 
 	(entry 'canvas :lisp_ftri '(:r0 :r1))
 
-(errorcases
-	(call 'lisp :env_args_sig '(:r1 ($ sig) 2) '(tmp))
-	(gotoif `(,tmp = 0) 'error))
+	(errorif-lisp-args-sig :r1 2 error)
 
 	(vp-push :r0)
 	(array-bind-args :r1 '(:r0 :r13))

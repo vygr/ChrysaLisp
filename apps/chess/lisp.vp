@@ -22,9 +22,7 @@
 
 	(entry '(:r0 :r1))
 
-(errorcases
-	(call 'lisp :env_args_sig '(:r1 ($ sig) 3) '(tmp))
-	(gotoif `(,tmp = 0) 'error))
+	(errorif-lisp-args-sig :r1 3 error)
 
 	(vp-alloc local_size)
 	(assign '(:r0 :r1) '((:rsp local_this) (:rsp local_args)))
