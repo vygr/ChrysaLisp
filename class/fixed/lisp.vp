@@ -6,7 +6,7 @@
 ;generic fixed math op
 (defun mathop (_)
 	(entry 'fixed (sym (cat :lisp_ (slice 1 -1 _))) '(:r0 :r1))
-	(errorif-lisp-args-sig :r1 1 error)
+	(errorif-lisp-args-sig :r1 1 'error)
 	(vp-push :r0)
 	(assign '((:r1 array_begin)) '(:r2))
 	(call 'fixed _ '((:r2 0)) '(_ :r1))
@@ -102,7 +102,7 @@
 
 	(entry 'fixed :lisp_recip '(:r0 :r1))
 
-	(errorif-lisp-args-sig :r1 1 error)
+	(errorif-lisp-args-sig :r1 1 'error)
 
 	(vp-push :r0)
 	(assign '((:r1 array_begin)) '(:r0))

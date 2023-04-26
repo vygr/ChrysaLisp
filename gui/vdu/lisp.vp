@@ -20,7 +20,7 @@
 
 	(entry 'vdu :lisp_create '(:r0 :r1))
 
-	(errorif-lisp-args-len :r1 /= 0 error)
+	(errorif-lisp-args-len :r1 /= 0 'error)
 
 	(vp-push :r0)
 	(call 'vdu :create :nil '(:r1))
@@ -54,7 +54,7 @@
 
 	(entry 'vdu :lisp_load '(:r0 :r1))
 
-	(errorif-lisp-args-sig :r1 6 error)
+	(errorif-lisp-args-sig :r1 6 'error)
 
 	(push-scope)
 	(list-bind-args :r1 '(:r1 :r2 :r3 :r4 :r5 :r6) '(:vdu :list :num :num :num :num))
@@ -148,7 +148,7 @@
 
 	(entry 'vdu :lisp_configure '(:r0 :r1))
 
-	(errorif-lisp-args-sig :r1 1 error)
+	(errorif-lisp-args-sig :r1 1 'error)
 
 	(push-scope)
 	(assign '(:r0) {this})

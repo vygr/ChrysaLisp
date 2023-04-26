@@ -17,7 +17,7 @@
 
 	(entry 'sys_task :lisp_sleep '(:r0 :r1))
 
-	(errorif-lisp-args-sig :r1 1 error)
+	(errorif-lisp-args-sig :r1 1 'error)
 
 	(vp-push :r0)
 	(defq in (method-input 'sys_task :sleep))
@@ -76,7 +76,7 @@
 
 	(entry 'sys_task :lisp_mailbox '(:r0 :r1))
 
-	(errorif-lisp-args-len :r1 /= 0 error)
+	(errorif-lisp-args-len :r1 /= 0 'error)
 
 	(vp-push :r0)
 	(call 'str :create_from_buffer '(0 +net_id_size) '(:r3))

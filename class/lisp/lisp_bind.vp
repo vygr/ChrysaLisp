@@ -13,7 +13,7 @@
 
 	(entry 'lisp :lisp_bind '(:r0 :r1))
 
-	(errorif-lisp-args-len :r1 /= 2 error)
+	(errorif-lisp-args-len :r1 /= 2 'error)
 
 	(array-bind-args :r1 '(:r1 :r2))
 	(jump 'lisp :env_bind '(:r0 :r1 :r2))

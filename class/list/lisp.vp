@@ -34,7 +34,7 @@
 
 	(entry 'list :lisp_merge '(:r0 :r1))
 
-	(errorif-lisp-args-sig :r1 2 error)
+	(errorif-lisp-args-sig :r1 2 'error)
 
 	(vp-push :r0)
 	(array-bind-args :r1 '(:r0 :r1))
@@ -90,7 +90,7 @@
 	(push-scope)
 	(entry 'list :lisp_part {this, args})
 
-	(errorif-lisp-args-sig :r1 4 error1)
+	(errorif-lisp-args-sig :r1 4 'error1)
 
 	(call 'list :get_begin {args} {_, iter_begin})
 	(assign {iter_begin[0]} {func})
@@ -165,7 +165,7 @@
 
 	(entry 'list :lisp_match '(:r0 :r1))
 
-	(errorif-lisp-args-sig :r1 2 error1)
+	(errorif-lisp-args-sig :r1 2 'error1)
 
 	(vp-push :r0)
 	(assign '((:r0 lisp_sym_underscore)) '(:r5))
@@ -216,7 +216,7 @@
 
 	(entry 'list :lisp_copy '(:r0 :r1))
 
-	(errorif-lisp-args-len :r1 /= 1 error)
+	(errorif-lisp-args-len :r1 /= 1 'error)
 
 	(array-bind-args :r1 '(:r1))
 	(f-bind 'list :vtable :r2)

@@ -15,7 +15,7 @@
 
 	(entry 'sys_kernel :lisp_stats '(:r0 :r1))
 
-	(errorif-lisp-args-len :r1 /= 0 error)
+	(errorif-lisp-args-len :r1 /= 0 'error)
 
 	(vp-push :r0)
 	(call 'sys_mem :avail :nil '(:r10))

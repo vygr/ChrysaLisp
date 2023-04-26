@@ -181,31 +181,31 @@
 (defmacro errorif-lisp-args-len (args cnd len err)
 	`(errorcases
 		(assign '((,args array_length)) '(:r2))
-		(gotoif '(:r2 ,cnd ,len) ',err)))
+		(gotoif '(:r2 ,cnd ,len) ,err)))
 
-(defmacro errorif-lisp-args-sig (args len err)
+(defmacro errorif-lisp-args-sig (args len l)
 	`(errorcases
 		(call 'lisp :env_args_sig '(,args ($ sig) ,len) '(tmp))
-		(gotoif `(,tmp = 0) ',err)))
+		(gotoif `(,tmp = 0) ,l)))
 
-(defmacro errorif-lisp-args-sig-range (args len1 len2 err)
+(defmacro errorif-lisp-args-sig-range (args len1 len2 l)
 	`(errorcases
 		(bind '(e_args e_sig e_num) (method-input 'lisp :env_args_sig))
 		(assign '((,args array_length)) `(,e_num))
-		(if (> ,len1 0) (gotoif `(,e_num < ,,len1) ',err))
-		(gotoif `(,e_num > ,,len2) ',err)
+		(if (> ,len1 0) (gotoif `(,e_num < ,,len1) ,l))
+		(gotoif `(,e_num > ,,len2) ,l)
 		(call 'lisp :env_args_sig `(,,args ($ sig) ,e_num) '(tmp))
-		(gotoif `(,tmp = 0) ',err)))
+		(gotoif `(,tmp = 0) ,l)))
 
-(defmacro errorif-lisp-args-match (args class len err)
+(defmacro errorif-lisp-args-match (args class len l)
 	`(errorcases
 		(call 'lisp :env_args_match '(,args (@ ,(f-path class :vtable)) ,len) '(tmp))
-		(gotoif `(,tmp = 0) ',err)))
+		(gotoif `(,tmp = 0) ,l)))
 
-(defmacro errorif-lisp-args-type (args class len err)
+(defmacro errorif-lisp-args-type (args class len l)
 	`(errorcases
 		(call 'lisp :env_args_type '(,args (@ ,(f-path class :vtable)) ,len) '(tmp))
-		(gotoif `(,tmp = 0) ',err)))
+		(gotoif `(,tmp = 0) ,l)))
 
 ;;;;;;;
 ; enums

@@ -185,7 +185,7 @@ And here is the new binding method we add to `class/obj/lisp.vp`:
 
 	(entry 'obj :lisp_hash '(:r0 :r1))
 
-	(errorif-lisp-args-len :r1 /= 1 error)
+	(errorif-lisp-args-len :r1 /= 1 'error)
 
 	(vp-push :r0)
 	(defq in (method-input 'obj :hash))

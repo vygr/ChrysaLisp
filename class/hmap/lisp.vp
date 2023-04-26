@@ -229,7 +229,7 @@
 
 	(entry 'hmap :lisp_get '(:r0 :r1))
 
-	(errorif-lisp-args-sig-range :r1 1 2 error)
+	(errorif-lisp-args-sig-range :r1 1 2 'error)
 
 	(assign '((:r1 array_length)) '(:r2))
 	(vp-push :r0)
@@ -270,7 +270,7 @@
 
 	(entry 'hmap :lisp_defx '(:r0 :r1))
 
-	(errorif-lisp-args-sig-range :r1 1 2 error)
+	(errorif-lisp-args-sig-range :r1 1 2 'error)
 
 	(assign '((:r1 array_length)) '(:r2))
 	(vp-push :r0)
@@ -350,7 +350,7 @@
 
 	(entry 'hmap :lisp_list '(:r0 :r1))
 
-	(errorif-lisp-args-sig :r1 1 error)
+	(errorif-lisp-args-sig :r1 1 'error)
 
 	(vp-push :r0)
 	(array-bind-args :r1 '(:r0))
@@ -385,7 +385,7 @@
 	(entry 'hmap :lisp_undef '(:r0 :r1))
 	(assign '(:r0 :r1) '((:rsp local_this) (:rsp local_args)))
 
-	(errorif-lisp-args-len :r1 < 2 error1)
+	(errorif-lisp-args-len :r1 < 2 'error1)
 
 	(class/array/get_both :r1 :r3 :r2)
 	(array-get-args :r3 '(:r0))
@@ -442,7 +442,7 @@
 
 	(entry 'hmap :lisp_parent '(:r0 :r1))
 
-	(errorif-lisp-args-sig-range :r1 0 1 error)
+	(errorif-lisp-args-sig-range :r1 0 1 'error)
 
 	(assign '((:r1 array_length)) '(:r2))
 	(vpif '(:r2 = 0))
@@ -478,7 +478,7 @@
 
 	(entry 'hmap :lisp_resize '(this args))
 
-	(errorif-lisp-args-sig-range :r1 1 2 error)
+	(errorif-lisp-args-sig-range :r1 1 2 'error)
 
 	(vp-push this args)
 	(bind '(hmap size) (method-input 'hmap :resize))

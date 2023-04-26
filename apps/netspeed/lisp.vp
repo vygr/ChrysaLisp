@@ -30,7 +30,7 @@
 	(push-scope)
 	(entry {this, args})
 
-	(errorif-lisp-args-sig :r1 0 error)
+	(errorif-lisp-args-sig :r1 0 'error)
 
 	;reg ops test
 	(call 'sys_pii :time :nil {start})

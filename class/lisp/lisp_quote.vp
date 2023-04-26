@@ -13,7 +13,7 @@
 
 	(entry 'lisp :lisp_quote '(:r0 :r1))
 
-	(errorif-lisp-args-len :r1 /= 2 error)
+	(errorif-lisp-args-len :r1 /= 2 'error)
 
 	(assign '((:r1 array_begin)) '(:r1))
 	(assign '((:r1 +ptr_size)) '(:r1))
