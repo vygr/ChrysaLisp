@@ -15,9 +15,7 @@
 
 	(entry 'sys_load :lisp_path '(:r0 :r1))
 
-(errorcases
-	(assign '((:r1 array_length)) '(:r2))
-	(gotoif '(:r2 /= 0) 'error))
+	(errorif-lisp-args-len :r1 error /= 0)
 
 	(vp-push :r0)
 	(call 'str :create_from_cstr `(,(cat "obj/" *cpu* "/" *abi* "/")) '(:r1))

@@ -73,9 +73,7 @@
 	(vp-alloc local_size)
 	(entry 'gui :lisp_deinit '(:r0 :r1))
 
-(errorcases
-	(assign '((:r1 array_length)) '(:r2))
-	(gotoif '(:r2 /= 0) 'error))
+	(errorif-lisp-args-len :r1 error /= 0)
 
 	;kernel callback for deinit
 	(assign '(:r0) '((:rsp local_this)))
@@ -186,9 +184,7 @@
 	(vp-alloc local_size)
 	(entry 'gui :lisp_event '(:r0 :r1))
 
-(errorcases
-	(assign '((:r1 array_length)) '(:r2))
-	(gotoif '(:r2 /= 0) 'error))
+	(errorif-lisp-args-len :r1 error /= 0)
 
 	;kernel callback for event
 	(assign '(:r0) '((:rsp local_this)))
@@ -244,9 +240,7 @@
 
 	(entry 'gui :lisp_info '(:r0 :r1))
 
-(errorcases
-	(assign '((:r1 array_length)) '(:r2))
-	(gotoif '(:r2 /= 0) 'error))
+	(errorif-lisp-args-len :r1 error /= 0)
 
 	(vp-push :r0)
 	(fn-bind 'sys/statics/statics :r1)

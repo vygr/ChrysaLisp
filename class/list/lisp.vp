@@ -222,9 +222,7 @@
 
 	(entry 'list :lisp_copy '(:r0 :r1))
 
-(errorcases
-	(assign '((:r1 array_length)) '(:r2))
-	(gotoif '(:r2 /= 1) 'error))
+	(errorif-lisp-args-len :r1 error /= 1)
 
 	(array-bind-args :r1 '(:r1))
 	(f-bind 'list :vtable :r2)

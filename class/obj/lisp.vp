@@ -161,9 +161,7 @@
 
 	(entry 'obj :lisp_hash '(:r0 :r1))
 
-(errorcases
-	(assign '((:r1 array_length)) '(:r2))
-	(gotoif '(:r2 /= 1) 'error))
+	(errorif-lisp-args-len :r1 error /= 1)
 
 	(vp-push :r0)
 	(defq in (method-input 'obj :hash))
@@ -193,9 +191,7 @@
 
 	(entry 'obj :lisp_type '(:r0 :r1))
 
-(errorcases
-	(assign '((:r1 array_length)) '(:r2))
-	(gotoif '(:r2 /= 1) 'error))
+	(errorif-lisp-args-len :r1 error /= 1)
 
 	(vp-push :r0)
 	(defq in (method-input 'obj :type))
@@ -224,9 +220,7 @@
 
 	(entry 'obj :lisp_weak_ref '(:r0 :r1))
 
-(errorcases
-	(assign '((:r1 array_length)) '(:r2))
-	(gotoif '(:r2 /= 1) 'error))
+	(errorif-lisp-args-len :r1 error /= 1)
 
 	(list-bind-args :r1 '(:r2) '(:obj))
 	(assign '((:r0 lisp_sym_nil)) '(:r1))
@@ -260,9 +254,7 @@
 
 	(entry 'obj :lisp_obj_ref '(:r0 :r1))
 
-(errorcases
-	(assign '((:r1 array_length)) '(:r2))
-	(gotoif '(:r2 /= 1) 'error))
+	(errorif-lisp-args-len :r1 error /= 1)
 
 	(list-bind-args :r1 '(:r2) '(:obj))
 	(assign '((:r0 lisp_sym_nil)) '(:r1))

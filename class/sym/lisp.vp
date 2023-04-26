@@ -14,9 +14,7 @@
 
 	(entry 'sym :lisp_sym '(:r0 :r1))
 
-(errorcases
-	(assign '((:r1 array_length)) '(:r2))
-	(gotoif '(:r2 /= 1) 'error1))
+	(errorif-lisp-args-len :r1 error1 /= 1)
 
 	(vp-cpy-rr :r0 :r4)
 	(call 'list :get_first '(:r1) '(:r0 :r1))
@@ -57,9 +55,7 @@
 
 	(entry 'sym :lisp_gensym '(:r0 :r1))
 
-(errorcases
-	(assign '((:r1 array_length)) '(:r2))
-	(gotoif '(:r2 /= 0) 'error1))
+	(errorif-lisp-args-len :r1 error1 /= 0)
 
 	(vp-push :r0)
 	(assign '((:r0 lisp_nextsym)) '(:r1))

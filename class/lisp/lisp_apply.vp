@@ -46,9 +46,7 @@
 	(entry 'lisp :lisp_mcall '(:r0 :r1))
 	(assign '(:r0 :r1) '((:rsp local_this) (:rsp local_args)))
 
-(errorcases
-	(assign '((:r1 array_length)) '(:r2))
-	(gotoif '(:r2 < 2) 'error))
+	(errorif-lisp-args-len :r1 error < 2)
 
 	(array-bind-args :r1 '(:r0 :r13))
 

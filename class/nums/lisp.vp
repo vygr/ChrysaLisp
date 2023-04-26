@@ -421,9 +421,8 @@
 
 	(entry 'nums :lisp_dot '(:r0 :r1))
 
+	(errorif-lisp-args-len :r1 error /= 2)
 (errorcases
-	(assign '((:r1 array_length)) '(:r2))
-	(gotoif '(:r2 /= 2) 'error)
 	(call 'lisp :env_args_match `(:r1 (@ ,(f-path 'nums :vtable)) 2) '(tmp))
 	(gotoif `(,tmp = 0) 'error))
 

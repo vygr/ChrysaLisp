@@ -14,9 +14,7 @@
 
 	(entry 'in :lisp_create '(:r0 :r1))
 
-(errorcases
-	(assign '((:r1 array_length)) '(:r2))
-	(gotoif '(:r2 /= 0) 'error))
+	(errorif-lisp-args-len :r1 error /= 0)
 
 	(vp-push :r0)
 	(call 'in :create '(0) '(:r1))

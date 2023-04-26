@@ -62,3 +62,8 @@
 		sym_ffi sym_stack_frame)
 	(ptr stack)
 	(ulong nextsym then))
+
+(defmacro errorif-lisp-args-len (args err &rest test)
+	`(errorcases
+		(assign '((,args array_length)) '(:r2))
+		(gotoif '(:r2 ~test) ',err)))
