@@ -306,7 +306,7 @@
 
 	(entry 'sys_mail :lisp_alloc_mbox '(:r0 :r1))
 
-	(errorif-lisp-args-len :r1 error /= 0)
+	(errorif-lisp-args-len :r1 /= 0 error)
 
 	(vp-push :r0)
 	(call 'str :create_from_buffer '(0 +net_id_size) '(:r6))
@@ -370,7 +370,7 @@
 
 	(entry 'sys_mail :lisp_devices '(:r0 :r1))
 
-	(errorif-lisp-args-len :r1 error /= 0)
+	(errorif-lisp-args-len :r1 /= 0 error)
 
 	(vp-push :r0)
 	(call 'sys_mail :devices :nil '(:r1))

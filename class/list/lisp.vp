@@ -216,7 +216,7 @@
 
 	(entry 'list :lisp_copy '(:r0 :r1))
 
-	(errorif-lisp-args-len :r1 error /= 1)
+	(errorif-lisp-args-len :r1 /= 1 error)
 
 	(array-bind-args :r1 '(:r1))
 	(f-bind 'list :vtable :r2)

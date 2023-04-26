@@ -13,7 +13,7 @@
 
 	(entry 'lisp :lisp_prebind '(:r0 :r1))
 
-	(errorif-lisp-args-len :r1 error /= 1)
+	(errorif-lisp-args-len :r1 /= 1 error)
 
 	(array-bind-args :r1 '(:r1))
 	(class/obj/ref :r1 :r2)

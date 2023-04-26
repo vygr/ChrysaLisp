@@ -395,7 +395,7 @@
 	(entry 'hmap :lisp_undef '(:r0 :r1))
 	(assign '(:r0 :r1) '((:rsp local_this) (:rsp local_args)))
 
-	(errorif-lisp-args-len :r1 error1 < 2)
+	(errorif-lisp-args-len :r1 < 2 error1)
 
 	(class/array/get_both :r1 :r3 :r2)
 	(array-get-args :r3 '(:r0))

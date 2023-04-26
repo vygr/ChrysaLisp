@@ -419,7 +419,7 @@
 
 	(entry 'nums :lisp_dot '(:r0 :r1))
 
-	(errorif-lisp-args-len :r1 error /= 2)
+	(errorif-lisp-args-len :r1 /= 2 error)
 	(errorif-lisp-args-match :r1 nums 2 error)
 
 	(vp-push :r0 :r1)

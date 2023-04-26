@@ -79,7 +79,7 @@
 
 	(entry 'sys_pii :lisp_time '(:r0 :r1))
 
-	(errorif-lisp-args-len :r1 error /= 0)
+	(errorif-lisp-args-len :r1 /= 0 error)
 
 	(vp-push :r0)
 	(call 'sys_pii :time :nil '(:r0))

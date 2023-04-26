@@ -63,10 +63,10 @@
 	(ptr stack)
 	(ulong nextsym then))
 
-(defmacro errorif-lisp-args-len (args err &rest test)
+(defmacro errorif-lisp-args-len (args cnd len err)
 	`(errorcases
 		(assign '((,args array_length)) '(:r2))
-		(gotoif '(:r2 ~test) ',err)))
+		(gotoif '(:r2 ,cnd ,len) ',err)))
 
 (defmacro errorif-lisp-args-sig (args len err)
 	`(errorcases
