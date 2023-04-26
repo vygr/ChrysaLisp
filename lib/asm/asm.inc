@@ -291,7 +291,8 @@
 			best (min best _) worst (max worst _)))
 	(print "Mean time " (time-in-seconds (/ total i)) " seconds")
 	(print "Best time " (time-in-seconds best) " seconds")
-	(print "Worst time " (time-in-seconds worst) " seconds"))
+	(print "Worst time " (time-in-seconds worst) " seconds")
+	:nil)
 
 (defun compile-test (&optional *abi* *cpu*)
 	(setd *abi* (abi) *cpu* (cpu))
