@@ -420,9 +420,7 @@
 	(entry 'nums :lisp_dot '(:r0 :r1))
 
 	(errorif-lisp-args-len :r1 error /= 2)
-(errorcases
-	(call 'lisp :env_args_match `(:r1 (@ ,(f-path 'nums :vtable)) 2) '(tmp))
-	(gotoif `(,tmp = 0) 'error))
+	(errorif-lisp-args-match :r1 nums 2 error)
 
 	(vp-push :r0 :r1)
 	(array-bind-args :r1 '(:r0 :r1))

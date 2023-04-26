@@ -98,9 +98,7 @@
 
 	(list-bind-args :r1 '(:r1) '(:list))
 
-(errorcases
-	(call 'lisp :env_args_match `(:r1 (@ ,(f-path 'str :vtable)) 1) '(tmp))
-	(gotoif `(,tmp = 0) 'error))
+	(errorif-lisp-args-match :r1 str 1 error)
 
 	(vp-push :r0)
 	(call 'sys_mail :poll '(:r1) '(:r0 _ _))
@@ -139,9 +137,7 @@
 
 	(list-bind-args :r1 '(:r1) '(:list))
 
-(errorcases
-	(call 'lisp :env_args_match `(:r1 (@ ,(f-path 'str :vtable)) 1) '(tmp))
-	(gotoif `(,tmp = 0) 'error))
+	(errorif-lisp-args-match :r1 str 1 error)
 
 	(vp-push :r0)
 	(call 'sys_mail :select '(:r1) '(:r0))

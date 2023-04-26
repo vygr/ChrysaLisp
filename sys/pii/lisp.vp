@@ -16,9 +16,7 @@
 
 	(entry 'sys_pii :lisp_readchar '(:r0 :r1))
 
-(errorcases
-	(call 'lisp :env_args_type `(:r1 (@ ,(f-path 'num :vtable)) 1) '(tmp))
-	(gotoif `(,tmp = 0) 'error))
+	(errorif-lisp-args-type :r1 num 1 error)
 
 	(vp-push :r0)
 	(defq in (method-input 'sys_pii :read_char))
@@ -48,9 +46,7 @@
 
 	(entry 'sys_pii :lisp_writechar '(:r0 :r1))
 
-(errorcases
-	(call 'lisp :env_args_type `(:r1 (@ ,(f-path 'num :vtable)) 2) '(tmp))
-	(gotoif `(,tmp = 0) 'error))
+	(errorif-lisp-args-type :r1 num 2 error)
 
 	(vp-push :r0)
 	(defq in (method-input 'sys_pii :write_char))

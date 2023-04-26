@@ -36,9 +36,7 @@
 
 (defun addop (_)
 	(entry 'num (sym (cat :lisp_ (slice 1 -1 _))) '(:r0 :r1))
-(errorcases
-	(call 'lisp :env_args_match `(:r1 (@ ,(f-path 'num :vtable)) 2) '(tmp))
-	(gotoif `(,tmp = 0) 'error))
+	(errorif-lisp-args-match :r1 num 2 error)
 	(vp-push :r0)
 	(assign '((:r1 array_begin)) '(:r2))
 	(call 'num _ '((:r2 0) :r1) '(_ :r1))
@@ -138,9 +136,7 @@
 
 (defun divop (_)
 	(entry 'num (sym (cat :lisp_ (slice 1 -1 _))) '(:r0 :r1))
-(errorcases
-	(call 'lisp :env_args_match `(:r1 (@ ,(f-path 'num :vtable)) 2) '(tmp))
-	(gotoif `(,tmp = 0) 'error1))
+	(errorif-lisp-args-match :r1 num 2 error1)
 	(vp-push :r0 :r1)
 	(assign '((:r1 array_begin)) '(:r2))
 	(call 'num _ '((:r2 0) :r1) '(_ :r1))
@@ -192,9 +188,7 @@
 
 (defun andop (_ i p)
 	(entry 'num (sym (cat :lisp_ (slice 1 -1 _))) '(:r0 :r1))
-(errorcases
-	(call 'lisp :env_args_type `(:r1 (@ ,(f-path 'num :vtable)) 0) '(tmp))
-	(gotoif `(,tmp = 0) 'error))
+	(errorif-lisp-args-type :r1 num 0 error)
 	(vp-push :r0)
 	(class/array/get_both :r1 :r1 :r2)
 	(vp-cpy-cr i :r0)
@@ -341,9 +335,7 @@
 
 (defun compare (_)
 	(entry 'num (sym (cat :lisp_ (slice 1 -1 _))) '(:r0 :r1))
-(errorcases
-	(call 'lisp :env_args_type `(:r1 (@ ,(f-path 'num :vtable)) 2) '(tmp))
-	(gotoif `(,tmp = 0) 'error))
+	(errorif-lisp-args-type :r1 num 2 error)
 	(vp-push :r0)
 	(assign '((:r1 array_begin)) '(:r2))
 	(call 'num _ '((:r2 0) :r1) '(_ :r1))

@@ -72,3 +72,13 @@
 	`(errorcases
 		(call 'lisp :env_args_sig '(,args ($ sig) ,len) '(tmp))
 		(gotoif `(,tmp = 0) ',err)))
+
+(defmacro errorif-lisp-args-match (args class len err)
+	`(errorcases
+		(call 'lisp :env_args_match '(,args (@ ,(f-path class :vtable)) ,len) '(tmp))
+		(gotoif `(,tmp = 0) ',err)))
+
+(defmacro errorif-lisp-args-type (args class len err)
+	`(errorcases
+		(call 'lisp :env_args_type '(,args (@ ,(f-path class :vtable)) ,len) '(tmp))
+		(gotoif `(,tmp = 0) ',err)))
