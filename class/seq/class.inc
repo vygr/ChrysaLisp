@@ -19,3 +19,10 @@
 	(dec-method :lisp_some class/seq/lisp_some :static (:r0 :r1) (:r0 :r1)))
 
 (def-struct seq obj_size)
+
+(defmacro lisp-elem-index (idx len)
+	`(progn
+		(vpif '(,idx < 0))
+			(vp-add-rr ,len ,idx)
+			(vp-add-cr 1 ,idx)
+		(endif)))
