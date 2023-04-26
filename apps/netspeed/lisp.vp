@@ -30,9 +30,7 @@
 	(push-scope)
 	(entry {this, args})
 
-(errorcases
-	(call 'lisp :env_args_sig {args, $sig, 0} '(tmp))
-	(gotoif `(,tmp = 0) 'error))
+	(errorif-lisp-args-sig :r1 0 error)
 
 	;reg ops test
 	(call 'sys_pii :time :nil {start})

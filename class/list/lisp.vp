@@ -90,9 +90,7 @@
 	(push-scope)
 	(entry 'list :lisp_part {this, args})
 
-(errorcases
-	(call 'lisp :env_args_sig {args, $sig, 4} '(tmp))
-	(gotoif `(,tmp = 0) 'error1))
+	(errorif-lisp-args-sig :r1 4 error1)
 
 	(call 'list :get_begin {args} {_, iter_begin})
 	(assign {iter_begin[0]} {func})
