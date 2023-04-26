@@ -62,12 +62,7 @@
 
 	(entry 'stream :lisp_fstream '(:r0 :r1))
 
-(errorcases
-	(assign '((:r1 array_length)) '(:r4))
-	(gotoif '(:r4 > 2) 'error)
-	(gotoif '(:r4 < 1) 'error)
-	(call 'lisp :env_args_sig '(:r1 ($ sig) :r4) '(tmp))
-	(gotoif `(,tmp = 0) 'error))
+	(errorif-lisp-args-sig-range :r1 1 2 error)
 
 	(assign '((:r1 array_length)) '(:r2))
 	(vp-push :r0)
@@ -350,14 +345,9 @@
 
 	(entry 'stream :lisp_writechar `(,this ,args))
 
+	(errorif-lisp-args-sig-range :r1 2 3 error)
+
 	(assign `((,args array_length)) `(,value))
-
-(errorcases
-	(gotoif (list value '< 2) 'error1)
-	(gotoif (list value '> 3) 'error1)
-	(call 'lisp :env_args_sig `(,args ($ sig) ,value) '(tmp))
-	(gotoif `(,tmp = 0) 'error2))
-
 	(assign `((,args array_begin)) `(,iter_begin))
 	(assign `((,iter_begin 0)) `(,stream))
 

@@ -229,12 +229,7 @@
 
 	(entry 'hmap :lisp_get '(:r0 :r1))
 
-(errorcases
-	(assign '((:r1 array_length)) '(:r4))
-	(gotoif '(:r4 < 1) 'error)
-	(gotoif '(:r4 > 2) 'error)
-	(call 'lisp :env_args_sig '(:r1 ($ sig) :r4) '(tmp))
-	(gotoif `(,tmp = 0) 'error))
+	(errorif-lisp-args-sig-range :r1 1 2 error)
 
 	(assign '((:r1 array_length)) '(:r2))
 	(vp-push :r0)
@@ -275,12 +270,7 @@
 
 	(entry 'hmap :lisp_defx '(:r0 :r1))
 
-(errorcases
-	(assign '((:r1 array_length)) '(:r4))
-	(gotoif '(:r4 < 1) 'error)
-	(gotoif '(:r4 > 2) 'error)
-	(call 'lisp :env_args_sig '(:r1 ($ sig) :r4) '(tmp))
-	(gotoif `(,tmp = 0) 'error))
+	(errorif-lisp-args-sig-range :r1 1 2 error)
 
 	(assign '((:r1 array_length)) '(:r2))
 	(vp-push :r0)
@@ -452,11 +442,7 @@
 
 	(entry 'hmap :lisp_parent '(:r0 :r1))
 
-(errorcases
-	(assign '((:r1 array_length)) '(:r4))
-	(gotoif '(:r4 > 1) 'error)
-	(call 'lisp :env_args_sig '(:r1 ($ sig) :r4) '(tmp))
-	(gotoif `(,tmp = 0) 'error))
+	(errorif-lisp-args-sig-range :r1 0 1 error)
 
 	(assign '((:r1 array_length)) '(:r2))
 	(vpif '(:r2 = 0))
@@ -492,13 +478,7 @@
 
 	(entry 'hmap :lisp_resize '(this args))
 
-(errorcases
-	(bind '(e_args e_sig e_num) (method-input 'lisp :env_args_sig))
-	(assign `((,args array_length)) `(,e_num))
-	(gotoif `(,e_num > 2) 'error)
-	(gotoif `(,e_num < 1) 'error)
-	(call 'lisp :env_args_sig `(,args ($ sig) ,e_num) '(tmp))
-	(gotoif `(,tmp = 0) 'error))
+	(errorif-lisp-args-sig-range :r1 1 2 error)
 
 	(vp-push this args)
 	(bind '(hmap size) (method-input 'hmap :resize))

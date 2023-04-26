@@ -346,12 +346,9 @@
 
 	(entry 'nums :lisp_scale `(,this ,args))
 
+	(errorif-lisp-args-sig-range :r1 2 3 error)
+
 	(assign `((,args array_length)) `(,argc))
-(errorcases
-	(gotoif (list argc '< 2) 'error)
-	(gotoif (list argc '> 3) 'error)
-	(call 'lisp :env_args_sig `(,args ($ sig) ,argc) '(tmp))
-	(gotoif `(,tmp = 0) 'error))
 	(assign `((,args array_begin)) `(,iter_begin))
 	(array-get-args iter_begin `(,nums1 ,scale))
 	(assign `((,nums1 array_length)) `(,len1))

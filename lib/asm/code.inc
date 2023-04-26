@@ -188,6 +188,15 @@
 		(call 'lisp :env_args_sig '(,args ($ sig) ,len) '(tmp))
 		(gotoif `(,tmp = 0) ',err)))
 
+(defmacro errorif-lisp-args-sig-range (args len1 len2 err)
+	`(errorcases
+		(bind '(e_args e_sig e_num) (method-input 'lisp :env_args_sig))
+		(assign '((,args array_length)) `(,e_num))
+		(if (> ,len1 0) (gotoif `(,e_num < ,,len1) ',err))
+		(gotoif `(,e_num > ,,len2) ',err)
+		(call 'lisp :env_args_sig `(,,args ($ sig) ,e_num) '(tmp))
+		(gotoif `(,tmp = 0) ',err)))
+
 (defmacro errorif-lisp-args-match (args class len err)
 	`(errorcases
 		(call 'lisp :env_args_match '(,args (@ ,(f-path class :vtable)) ,len) '(tmp))
@@ -407,7 +416,7 @@
 	def-vars def-enum def-struct def-bit operator
 	new-scope get-scope push-scope pop-scope pop-scope-syms pop-scope-checked
 	errorcases noterrorcases errorif errorifnot
-	errorif-lisp-args-len errorif-lisp-args-sig
+	errorif-lisp-args-len errorif-lisp-args-sig errorif-lisp-args-sig-range
 	errorif-lisp-args-match errorif-lisp-args-type
 	switch endswitch vpcase vpcasenot default nextcaseif nextcaseifnot
 	vpif vpifnot else elseif elseifnot endif

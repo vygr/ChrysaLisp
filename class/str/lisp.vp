@@ -56,14 +56,9 @@
 
 	(entry 'str :lisp_code (list this args))
 
+	(errorif-lisp-args-sig-range :r1 1 3 error1)
+
 	(assign `((,args array_length)) `(,len))
-
-(errorcases
-	(gotoif (list len '< 1) 'error1)
-	(gotoif (list len '> 3) 'error1)
-	(call 'lisp :env_args_sig (list args '($ sig) len) '(tmp))
-	(gotoif `(,tmp = 0) 'error1))
-
 	(assign `((,args array_begin) 1) `(,iter_begin ,width))
 	(vp-xor-rr index index)
 	(vp-cpy-ir iter_begin 0 value)
