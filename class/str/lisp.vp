@@ -63,8 +63,8 @@
 (errorcases
 	(gotoif (list len '< 1) 'error1)
 	(gotoif (list len '> 3) 'error1)
-	(call 'lisp :env_args_sig (list args '($ sig) len) '(:r2))
-	(gotoif '(:r2 = 0) 'error1))
+	(call 'lisp :env_args_sig (list args '($ sig) len) '(tmp))
+	(gotoif `(,tmp = 0) 'error1))
 
 	(assign `((,args array_begin) 1) `(,iter_begin ,width))
 	(vp-xor-rr index index)

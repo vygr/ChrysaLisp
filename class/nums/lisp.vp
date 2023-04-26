@@ -14,16 +14,16 @@
 	;trashes
 	;:r1-:r14
 
-	(vp-def (dst iter_begin res nums1 nums2 this args func argc len1 len2)
-		'(:r0 :r1 :r2 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14))
+	(vp-def (dst iter_begin nums1 nums2 this args func argc len1 len2)
+		'(:r0 :r1 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14))
 
 	(entry 'nums :lisp_vecop1 `(,this ,args ,func))
 
 	(assign `((,args array_length)) `(,argc))
 (errorcases
 	(gotoif (list argc '> 3) 'error)
-	(call 'lisp :env_args_match `(,args (@ ,(f-path 'nums :vtable)) 2) `(,res))
-	(gotoif (list res '= 0) 'error))
+	(call 'lisp :env_args_match `(,args (@ ,(f-path 'nums :vtable)) 2) '(tmp))
+	(gotoif `(,tmp = 0) 'error))
 	(assign `((,args array_begin)) `(,iter_begin))
 	(array-get-args iter_begin `(,nums1 ,nums2))
 	(assign `((,nums1 array_length)) `(,len1))
@@ -68,16 +68,16 @@
 	;trashes
 	;:r1-:r14
 
-	(vp-def (dst iter_begin res nums1 this args func argc len1 len2)
-		'(:r0 :r1 :r2 :r8 :r9 :r10 :r11 :r12 :r13 :r14))
+	(vp-def (dst iter_begin nums1 this args func argc len1 len2)
+		'(:r0 :r1 :r8 :r9 :r10 :r11 :r12 :r13 :r14))
 
 	(entry 'nums :lisp_vecop2 `(,this ,args ,func))
 
 	(assign `((,args array_length)) `(,argc))
 (errorcases
 	(gotoif (list argc '> 2) 'error)
-	(call 'lisp :env_args_match `(,args (@ ,(f-path 'nums :vtable)) 1) `(,res))
-	(gotoif (list res '= 0) 'error))
+	(call 'lisp :env_args_match `(,args (@ ,(f-path 'nums :vtable)) 1) '(tmp))
+	(gotoif `(,tmp = 0) 'error))
 	(assign `((,args array_begin)) `(,iter_begin))
 	(array-get-args iter_begin `(,nums1))
 	(assign `((,nums1 array_length)) `(,len1))
@@ -343,8 +343,8 @@
 	;trashes
 	;:r1-:r14
 
-	(vp-def (dst iter_begin res nums1 scale this args argc len1 len2)
-		'(:r0 :r1 :r2 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14))
+	(vp-def (dst iter_begin nums1 scale this args argc len1 len2)
+		'(:r0 :r1 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14))
 
 	(entry 'nums :lisp_scale `(,this ,args))
 
@@ -352,8 +352,8 @@
 (errorcases
 	(gotoif (list argc '< 2) 'error)
 	(gotoif (list argc '> 3) 'error)
-	(call 'lisp :env_args_sig `(,args ($ sig) ,argc) `(,res))
-	(gotoif (list res '= 0) 'error))
+	(call 'lisp :env_args_sig `(,args ($ sig) ,argc) '(tmp))
+	(gotoif `(,tmp = 0) 'error))
 	(assign `((,args array_begin)) `(,iter_begin))
 	(array-get-args iter_begin `(,nums1 ,scale))
 	(assign `((,nums1 array_length)) `(,len1))

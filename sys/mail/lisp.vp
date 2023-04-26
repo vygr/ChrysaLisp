@@ -184,8 +184,8 @@
 	(entry 'sys_mail :lisp_send {this, args})
 
 (errorcases
-	(call 'lisp :env_args_sig {args, $sig, 2} '(:r2))
-	(gotoif '(:r2 = 0) 'error))
+	(call 'lisp :env_args_sig {args, $sig, 2} '(tmp))
+	(gotoif `(,tmp = 0) 'error))
 
 	(call 'lisp :env_args_set {args, 0, &arg0})
 	(call 'obj :inst_of (cat {arg1, @} (f-path 'str :vtable)))
