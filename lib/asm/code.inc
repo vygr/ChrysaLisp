@@ -169,14 +169,34 @@
 (defun endif ()
 	(endswitch))
 
-;;;;;;;;;;;
-; errorcase
-;;;;;;;;;;;
+;;;;;;;;;;;;
+; errorcases
+;;;;;;;;;;;;
 
 (defmacro errorcases (&rest e) (if (> *debug_mode* 0) `(progn ~e)))
 (defmacro noterrorcases (&rest e) (if (<= *debug_mode* 0) `(progn ~e)))
 (defmacro errorif (e l) `(errorcases (gotoif ,e ,l)))
 (defmacro errorifnot (e l) `(errorcases (gotoifnot ,e ,l)))
+
+(defmacro errorif-lisp-args-len (args cnd len err)
+	`(errorcases
+		(assign '((,args array_length)) '(:r2))
+		(gotoif '(:r2 ,cnd ,len) ',err)))
+
+(defmacro errorif-lisp-args-sig (args len err)
+	`(errorcases
+		(call 'lisp :env_args_sig '(,args ($ sig) ,len) '(tmp))
+		(gotoif `(,tmp = 0) ',err)))
+
+(defmacro errorif-lisp-args-match (args class len err)
+	`(errorcases
+		(call 'lisp :env_args_match '(,args (@ ,(f-path class :vtable)) ,len) '(tmp))
+		(gotoif `(,tmp = 0) ',err)))
+
+(defmacro errorif-lisp-args-type (args class len err)
+	`(errorcases
+		(call 'lisp :env_args_type '(,args (@ ,(f-path class :vtable)) ,len) '(tmp))
+		(gotoif `(,tmp = 0) ',err)))
 
 ;;;;;;;
 ; enums
@@ -387,6 +407,8 @@
 	def-vars def-enum def-struct def-bit operator
 	new-scope get-scope push-scope pop-scope pop-scope-syms pop-scope-checked
 	errorcases noterrorcases errorif errorifnot
+	errorif-lisp-args-len errorif-lisp-args-sig
+	errorif-lisp-args-match errorif-lisp-args-type
 	switch endswitch vpcase vpcasenot default nextcaseif nextcaseifnot
 	vpif vpifnot else elseif elseifnot endif
 	break breakif breakifnot goto gotoif gotoifnot exitif exitifnot

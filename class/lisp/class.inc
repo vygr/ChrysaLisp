@@ -62,23 +62,3 @@
 		sym_ffi sym_stack_frame)
 	(ptr stack)
 	(ulong nextsym then))
-
-(defmacro errorif-lisp-args-len (args cnd len err)
-	`(errorcases
-		(assign '((,args array_length)) '(:r2))
-		(gotoif '(:r2 ,cnd ,len) ',err)))
-
-(defmacro errorif-lisp-args-sig (args len err)
-	`(errorcases
-		(call 'lisp :env_args_sig '(,args ($ sig) ,len) '(tmp))
-		(gotoif `(,tmp = 0) ',err)))
-
-(defmacro errorif-lisp-args-match (args class len err)
-	`(errorcases
-		(call 'lisp :env_args_match '(,args (@ ,(f-path class :vtable)) ,len) '(tmp))
-		(gotoif `(,tmp = 0) ',err)))
-
-(defmacro errorif-lisp-args-type (args class len err)
-	`(errorcases
-		(call 'lisp :env_args_type '(,args (@ ,(f-path class :vtable)) ,len) '(tmp))
-		(gotoif `(,tmp = 0) ',err)))
