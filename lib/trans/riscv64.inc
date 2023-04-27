@@ -428,7 +428,7 @@
 (case *abi*
 (RISCV64
 (defun emit-call-abi (r b c n &rest x)
-	(defq x (cat `(,+riscv64_rlnk) x) l (length x))
+	(defq x (cat (list +riscv64_rlnk) x) l (length x))
 	(apply (const emit-push) x)
 	(emit-cpy-ir b c +riscv64_rtmp1)
 	(riscv64-i 0x67 +riscv64_rlnk +riscv64_rtmp1 0x0 0x0)

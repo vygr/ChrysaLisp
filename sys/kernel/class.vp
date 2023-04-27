@@ -285,9 +285,9 @@
 	(entry `(,statics ,msg ,data ,knode1 ,knode2))
 
 	;inc hops
-	(assign `((,data +kn_msg_ping_hops)) '(:r0))
+	(assign `((,data ,+kn_msg_ping_hops)) '(:r0))
 	(vp-add-cr 1 :r0)
-	(assign '(:r0) `((,data +kn_msg_ping_hops)))
+	(assign '(:r0) `((,data ,+kn_msg_ping_hops)))
 	;old via
 	(load-node-id data +kn_msg_ping_via vnode1 vnode2)
 	;set new via
@@ -553,7 +553,7 @@
 	(entry 'hmap :each_callback `(,data ,iter ,bucket))
 	(assign `(,iter ,bucket) '((:rsp local_iter) (:rsp local_bucket)))
 
-	(assign `((,iter 0) (,iter +ptr_size)) `(,key ,tuple))
+	(assign `((,iter 0) (,iter ,+ptr_size)) `(,key ,tuple))
 	(load-node-id key str_data kid1 kid2)
 	(load-node-id data (+ local_node_id node_id_node1) did1 did2)
 	(vp-sub-rr did1 kid1)

@@ -42,8 +42,8 @@
 			;is none quoted list ?
 			(assign '((:r0 lisp_sym_quote)) '(:r2))
 			(gotoif '(:r1 = :r2) 'next_list)
-			;; (assign '((:r0 lisp_sym_qquote)) '(:r2))
-			;; (gotoif '(:r1 = :r2) 'next_list)
+			(assign '((:r0 lisp_sym_qquote)) '(:r2))
+			(gotoif '(:r1 = :r2) 'next_list)
 
 			;is it a lambda or macro or not a symbol ?
 			(switch)

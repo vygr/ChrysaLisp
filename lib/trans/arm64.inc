@@ -527,7 +527,7 @@
 (case *abi*
 (ARM64
 (defun emit-call-abi (r b c n &rest x)
-	(setq x (cat `(,+arm64_rlnk) x))
+	(setq x (cat (list +arm64_rlnk) x))
 	(apply (const emit-push) x)
 	(emit-cpy-ir b c +arm64_rtmp)
 	(emit-int (const (+ 0xd63f0000 (<< +arm64_rtmp 5))))

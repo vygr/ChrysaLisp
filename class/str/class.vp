@@ -661,7 +661,7 @@
 		(assign `(,iter_begin) '(:r1))
 		(vp-sub-rr iter_start :r1)
 		(call 'str :create_from_buffer `(,iter_start :r1) '(:r0))
-		(call 'list :push_back `(,out ,:r0))
+		(call 'list :push_back `(,out :r0))
 	(loop-end)
 
 	(exit 'str :split `(,this ,out))
@@ -714,7 +714,7 @@
 		(assign `(,iter_begin) '(:r1))
 		(vp-sub-rr iter_start :r1)
 		(call 'str :create_from_buffer `(,iter_start :r1) '(:r0))
-		(call 'list :push_back `(,out ,:r0))
+		(call 'list :push_back `(,out :r0))
 	(loop-end)
 
 	(exit 'str :split_char `(,this ,out))

@@ -9,6 +9,8 @@ to quasi-quotation. This removes the ordering issues with regards to the vp and
 cscript include files, but open a wider debate on the prebinder quasi-quotation
 policy in general. I will add a TODO item to review the current policy.
 
+prebind no longer steps into quasi-quotation ! See above.
+
 ------
 
 Addition of `test` option for the `make` command. If you wish to run a quick
