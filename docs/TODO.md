@@ -8,6 +8,10 @@ In no particular order but to just to ensure I get thoughts down. I'll keep
 adding to this as I go along. If anybody would like to try helping out, then
 just get in touch.
 
+* Review the prebinder quasi-quotation policy with regards to traversing info
+quasi-quoted forms. Currently it will do so, while not doing so for quoted
+forms.
+
 * Separate the VP instruction for div and rem into individual operations. The
 x64 isn't really the way things should be done anymore.
 

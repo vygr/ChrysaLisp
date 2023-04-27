@@ -4,6 +4,13 @@
 
 ------
 
+Fix to make VP and C-Script optimizers immune to prebinder policy with regards
+to quasi-quotation. This removes the ordering issues with regards to the vp and
+cscript include files, but open a wider debate on the prebinder quasi-quotation
+policy in general. I will add a TODO item to review the current policy.
+
+------
+
 Addition of `test` option for the `make` command. If you wish to run a quick
 make test for your platform type `make test` in the Terminal app or TUI prompt.
 This test will do several full cleaned builds for your current platform and
