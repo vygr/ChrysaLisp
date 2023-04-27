@@ -2,8 +2,6 @@
 ; class definition
 ;;;;;;;;;;;;;;;;;;
 
-(include "lib/asm/code.inc")
-
 ;module
 (env-push)
 

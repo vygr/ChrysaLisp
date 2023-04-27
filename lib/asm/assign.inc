@@ -2,9 +2,6 @@
 ; assignment
 ;;;;;;;;;;;;
 
-(include "lib/asm/cscript.inc")
-(include "lib/asm/csopt.inc")
-
 ;module
 (env-push)
 

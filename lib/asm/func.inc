@@ -1,7 +1,13 @@
+(include "lib/asm/code.inc")
+(include "lib/asm/vp.inc")
+(include "lib/asm/vpopt.inc")
+(include "lib/asm/cscript.inc")
+(include "lib/asm/csopt.inc")
+(include "lib/asm/assign.inc")
+(include "lib/trans/vp.inc")
+
 (include "sys/pii/class.inc")
 (include "sys/task/class.inc")
-(include "lib/asm/vp.inc")
-(include "lib/trans/vp.inc")
 
 ;;;;;;;;;;;;;;;;;
 ; func structures

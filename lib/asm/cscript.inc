@@ -2,8 +2,6 @@
 ; C-Script compiler
 ;;;;;;;;;;;;;;;;;;;
 
-(include "lib/asm/code.inc")
-
 ;module
 (env-push)
 
@@ -401,10 +399,10 @@
 	(add-inst (list 'fn-string _ (push-reg :nil))))
 
 (defun compile-bind (_)
-	(add-inst `(fn-bind ',_ ,(push-reg :nil))))
+	(add-inst (list 'fn-bind (list quote _) (push-reg :nil))))
 
 (defun compile-label (_)
-	(add-inst `(vp-lea-p ',_ ,(push-reg :nil))))
+	(add-inst (list 'vp-lea-p (list quote _) (push-reg :nil))))
 
 (defun cscript-compile (rpn_output)
 	(each! 0 -1 (lambda (token type)

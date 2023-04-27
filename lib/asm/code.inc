@@ -413,7 +413,7 @@
 
 ;module
 (export-symbols
-	def-vars def-enum def-struct def-bit operator
+	def-vars def-sym def-enum def-struct def-bit operator
 	new-scope get-scope push-scope pop-scope pop-scope-syms pop-scope-checked
 	errorcases noterrorcases errorif errorifnot
 	errorif-lisp-args-len errorif-lisp-args-sig errorif-lisp-args-sig-range
@@ -425,9 +425,3 @@
 	continue continueif continueifnot repeatif repeatifnot
 	used-syms get-sym unwind return)
 (env-pop)
-
-;;;;;;;;;;;;;;;;;;;;;;;;
-; assignment and cscript
-;;;;;;;;;;;;;;;;;;;;;;;;
-
-(include "lib/asm/assign.inc")

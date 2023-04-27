@@ -47,12 +47,6 @@
 	(when *debug_emit* (each emit-print out))
 	out)
 
-;;;;;;;;;;;;;;
-; VP optimizer
-;;;;;;;;;;;;;;
-
-(include "lib/asm/vpopt.inc")
-
 ;;;;;;;;;;;;;;;;;
 ; VP Instructions
 ;;;;;;;;;;;;;;;;;
