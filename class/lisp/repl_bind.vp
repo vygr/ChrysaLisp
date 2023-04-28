@@ -96,10 +96,10 @@
 				(assign '((:r1 obj_vtable)) '(:r3))
 				(vpif '(:r2 = :r3) 'next_elem)
 					;is this symbol a defined constant symbol ?
+					(assign '((:r1 str_length)) '(:r2))
+					(breakif '(:r2 <= 1))
 					(assign '((:r1 str_data ub)) '(:r2))
 					(breakif '(:r2 /= +char_plus))
-					(assign '((:r1 str_length)) '(:r2))
-					(breakif '(:r2 = 1))
 					(assign '((:rsp local_this)) '(:r0))
 					(call 'hmap :get '((:r0 lisp_environment) :r1) '(_ :r1))
 					(breakif '(:r1 = 0))
