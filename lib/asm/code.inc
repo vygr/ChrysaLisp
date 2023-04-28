@@ -350,13 +350,14 @@
 	;_4 compile macro
 	(def-sym _1 'op (* _2 2) (opt _3 0) (opt _4 compile-null)))
 
+(defun new-var (type size)
+	(push prog
+		`(def-sym ',var 'var *sym_sp* ,type)
+		`(setq *sym_sp* (+ *sym_sp* ,size))))
+
 (defmacro def-vars (&rest lines)
 	; (def-vars [(byte field ...)] ...)
 	(defq prog (list progn))
-	(defun new-var (type size)
-		(push prog
-			`(def-sym ',var 'var *sym_sp* ,type)
-			`(setq *sym_sp* (+ *sym_sp* ,size))))
 	(each (lambda (line)
 		(case (elem-get 0 line)
 			(align
