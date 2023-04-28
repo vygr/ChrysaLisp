@@ -189,7 +189,7 @@
 (each (lambda (_) (defcvar _ :nil)) +vreg)
 
 (defmacro vreg-sym (_)
-	`(elem-get ,_ +vreg))
+	`(elem-get ,_ ,+vreg))
 
 (defmacro add-inst (&rest b)
 	`(push *inst* ~b))

@@ -52,10 +52,10 @@
 	(vp-xor-rr :r2 :r2)
 	(save-net-id msg msg_dest :r2 :r0 :r1)
 	(vp-cpy-cr +kn_call_callback :r0)
-	(assign `(,usr) `((,data +kn_msg_key)))
-	(assign '(:r0) `((,data +kn_msg_func)))
+	(assign `(,usr) `((,data ,+kn_msg_key)))
+	(assign '(:r0) `((,data ,+kn_msg_func)))
 	(assign `(,tcb) `((,data ,(+ +kn_msg_reply_id net_id_mbox_id))))
-	(assign `(,addr) `((,data +kn_msg_callback_addr)))
+	(assign `(,addr) `((,data ,+kn_msg_callback_addr)))
 
 	;send mail to kernel then suspend till kernel wakes us
 	(call 'sys_mail :send `(,msg))

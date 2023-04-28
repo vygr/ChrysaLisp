@@ -562,7 +562,7 @@
 	(switch)
 	(breakif (list kid1 '= 0))
 	(assign `((,tuple array_begin) (,data local_now)) `(,tuple ,kid1))
-	(assign `((,tuple +ptr_size)) `(,kid2))
+	(assign `((,tuple ,+ptr_size)) `(,kid2))
 	(vp-sub-rr kid2 kid1)
 	(breakif (list kid1 '< (* ping_period 2)))
 	(default)
