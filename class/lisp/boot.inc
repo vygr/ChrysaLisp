@@ -139,7 +139,12 @@
 (defq *boot_env* (env)
 	+byte_size 1 +short_size 2 +int_size 4 +long_size 8 +ptr_size 8
 	+str_data 24 +node_id_size 16 +net_id_size 24
-	defmacro '(macro (n a &rest _) `(defq ,n (macro ,a ~_))))
+	defmacro (list 'macro '(n a &rest _)
+		(list list defq 'n (list cat (list list ''macro 'a) '_))))
+
+(defmacro const (_)
+	; (const form)
+	(eval (macroexpand _)))
 
 (defmacro defun (n a &rest _)
 	; (defun name ([arg ...]) body)
@@ -148,15 +153,11 @@
 	; (prin [form ...])
 	; (print [form ...])
 	; (str [form ...])
-	`(defq ,n (lambda ,a ~_)))
-
-(defmacro const (_)
-	; (const form)
-	(eval (macroexpand _)))
+	(list (const defq) n (cat (list 'lambda a) _)))
 
 (defmacro static (_)
 	; (static form)
-	(cat (list quote) (list (prebind (eval (macroexpand _))))))
+	(cat (list (const quote)) (list (prebind (eval (macroexpand _))))))
 
 (defun identity (_)
 	; (identity any) -> any
@@ -202,10 +203,10 @@
 
 (defmacro inc (_)
 	; (inc num) -> num
-	`(+ ,_ 1))
+	(list (const +) _ 1))
 (defmacro dec (_)
 	; (dec num) -> num
-	`(- ,_ 1))
+	(list (const -) _ 1))
 
 (defmacro opt (x y &optional z)
 	; (opt var val [cond])
