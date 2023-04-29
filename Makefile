@@ -87,7 +87,7 @@ endif
 clean:
 	rm -rf $(OBJ_DIR_GUI)/*
 	rm -rf $(OBJ_DIR_TUI)/*
-	unzip -nq snapshot.zip
+	unzip -oq snapshot.zip
 
  -include $(OBJ_FILES_GUI:.o=.d)
  -include $(OBJ_FILES_TUI:.o=.d)
