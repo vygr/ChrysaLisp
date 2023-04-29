@@ -83,7 +83,7 @@
 (deferror "not_a_canvas")
 (deferror "not_a_class")
 (deferror "not_a_filename")
-(deferror "not_a_lambda")
+(deferror "not_a_function")
 (deferror "not_a_list")
 (deferror "not_a_number")
 (deferror "not_a_pipe")

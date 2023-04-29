@@ -109,7 +109,7 @@
 (ffi quasi-quote "class/lisp/lisp_qquote" 1)
 (ffi eval "class/lisp/lisp_eval" 0)
 (ffi lambda "class/lisp/lisp_lambda" 1)
-(ffi macro "class/lisp/lisp_lambda" 1)
+(ffi macro "class/lisp/lisp_macro" 1)
 (ffi progn "class/lisp/lisp_progn" 0)
 (ffi apply "class/lisp/lisp_apply" 0)
 (ffi repl "class/lisp/lisp_repl" 0)
@@ -596,7 +596,7 @@
 (defmacro export (e &rest syms)
 	; (export env sym ...)
 	`(def ,e ~(reduce (lambda (l _)
-		(push l (list 'quote _) _)) syms (list))))
+		(push l (list quote _) _)) syms (list))))
 
 (defmacro export-symbols (&rest syms)
 	; (export-symbols sym ...)

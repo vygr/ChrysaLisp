@@ -9,7 +9,7 @@
 
 (defmacro vp-def (_ &optional l)
 	(setq l (apply cat (map (lambda (x y)
-		(list (list 'quote x) y)) _ (if l (merge-obj (cat (eval l)) +vp_regs_0_14) +vp_regs_0_14))))
+		(list (list quote x) y)) _ (if l (merge-obj (cat (eval l)) +vp_regs_0_14) +vp_regs_0_14))))
 	`(progn (deffvar ~l)))
 
 ;;;;;;;;;;;;;
@@ -52,7 +52,7 @@
 ;;;;;;;;;;;;;;;;;
 
 (defun label-sym (s) (sym (cat "_l_" s)))
-(defun vp-label (l) (setq l (label-sym l)) (emit (list 'emit-label (list 'quote l))))
+(defun vp-label (l) (setq l (label-sym l)) (emit (list 'emit-label (list quote l))))
 (defun vp-align (a &optional b) (emit (list 'emit-align a b)))
 (defun vp-string (s) (emit (list 'emit-string s)))
 (defun vp-byte (&rest b) (emit (cat '(emit-byte) b)))

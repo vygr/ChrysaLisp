@@ -2947,6 +2947,19 @@ trashes
 :r1-:r14
 ```
 
+### lisp :lisp_macro -> class/lisp/lisp_macro
+
+```code
+inputs
+:r0 = lisp object (ptr)
+:r1 = args list object (ptr)
+outputs
+:r0 = lisp object (ptr)
+:r1 = return value object (ptr)
+trashes
+:r1-:r14
+```
+
 ### lisp :lisp_macroexpand -> class/lisp/lisp_macroexpand
 
 ```code
