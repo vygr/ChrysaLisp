@@ -50,14 +50,13 @@
 		(cond
 			((lambda? v) (def keywords k (get :ink_keyword2 this)))
 			((macro? v) (def keywords k (get :ink_keyword3 this)))
-			((func? v) (def keywords k (get :ink_keyword1 this))))
-		(tolist *boot_env*)))
-	(each (lambda (k)
-			(def keywords k (get :ink_keyword4 this)))
+			((func? v) (def keywords k (get :ink_keyword1 this)))))
+		(tolist *boot_env*))
+	(each (# (def keywords %0 (get :ink_keyword4 this)))
 		'(:t :nil &rest &optional
-			byte ubyte short ushort int uint long ulong ptr union struct
-			pbyte pubyte pshort pushort pint puint plong pulong pptr
-			nodeid netid offset enum bit))
+		byte ubyte short ushort int uint long ulong ptr union struct
+		pbyte pubyte pshort pushort pint puint plong pulong pptr
+		nodeid netid offset enum bit))
 
 	(defgetmethod state)
 	(defsetmethod state)
@@ -97,7 +96,7 @@
 							((is-symbol-char? c)
 								(push token c)
 								(setq c :nil))
-							(:t  (push state_list state)
+							(:t	(push state_list state)
 								(push token_list token)
 								(setq token (list) state :text))))
 					(:comment
@@ -108,7 +107,7 @@
 							((is-allowed-number-char? c)
 								(push token c)
 								(setq c :nil))
-							(:t  (push state_list state)
+							(:t	(push state_list state)
 								(push token_list token)
 								(setq token (list) state :text))))
 					(:string1
@@ -147,7 +146,7 @@
 						((eql (elem-get 0 token) "-")
 							;is a negative number
 							(push col_list (get :ink_numbers this)))
-						(:t  ;default text color)
+						(:t	;default text color)
 							(push col_list (get :ink_text this)))))
 				((:string1 :string2)
 					(push col_list (get :ink_strings this)))
