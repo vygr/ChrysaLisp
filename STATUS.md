@@ -11,6 +11,8 @@ policy in general. I will add a TODO item to review the current policy.
 
 prebind no longer steps into quasi-quotation ! See above.
 
+prebinding of quote, quasi-quote, lambda and macro symbols !!!
+
 ------
 
 Addition of `test` option for the `make` command. If you wish to run a quick
