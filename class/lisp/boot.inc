@@ -2,6 +2,13 @@
 ; Primitives
 ;;;;;;;;;;;;
 
+;these are build in by the lisp class init function !!!
+; (ffi ffi "class/lisp/lisp_ffi" 1)
+; (ffi lambda "class/lisp/lisp_lambda" 1)
+; (ffi macro "class/lisp/lisp_macro" 1)
+; (ffi quote "class/lisp/lisp_quote" 1)
+; (ffi quasi-quote "class/lisp/lisp_qquote" 1)
+
 (ffi = "class/num/lisp_eq" 0)
 (ffi /= "class/num/lisp_ne" 0)
 (ffi < "class/num/lisp_lt" 0)
@@ -105,11 +112,7 @@
 (ffi throw "class/lisp/lisp_throw" 0)
 (ffi bind "class/lisp/lisp_bind" 0)
 (ffi read "class/lisp/lisp_read" 0)
-(ffi quote "class/lisp/lisp_quote" 1)
-(ffi quasi-quote "class/lisp/lisp_qquote" 1)
 (ffi eval "class/lisp/lisp_eval" 0)
-(ffi lambda "class/lisp/lisp_lambda" 1)
-(ffi macro "class/lisp/lisp_macro" 1)
 (ffi progn "class/lisp/lisp_progn" 0)
 (ffi apply "class/lisp/lisp_apply" 0)
 (ffi repl "class/lisp/lisp_repl" 0)
@@ -139,7 +142,12 @@
 (defq *boot_env* (env)
 	+byte_size 1 +short_size 2 +int_size 4 +long_size 8 +ptr_size 8
 	+str_data 24 +node_id_size 16 +net_id_size 24
-	defmacro '(macro (n a &rest _) `(defq ,n (macro ,a ~_))))
+	defmacro (list macro '(n a &rest _)
+		(list list defq 'n (list cat (list list macro 'a) '_))))
+
+(defmacro const (_)
+	; (const form)
+	(eval (macroexpand _)))
 
 (defmacro defun (n a &rest _)
 	; (defun name ([arg ...]) body)
@@ -148,15 +156,11 @@
 	; (prin [form ...])
 	; (print [form ...])
 	; (str [form ...])
-	`(defq ,n (lambda ,a ~_)))
-
-(defmacro const (_)
-	; (const form)
-	(eval (macroexpand _)))
+	(list (const defq) n (cat (list (const lambda) a) _)))
 
 (defmacro static (_)
 	; (static form)
-	(cat (list quote) (list (prebind (eval (macroexpand _))))))
+	(cat (list (const quote)) (list (prebind (eval (macroexpand _))))))
 
 (defun identity (_)
 	; (identity any) -> any
@@ -194,11 +198,15 @@
 (defmacro lambda? (_)
 	; (lambda? form) -> :t | :nil
 	`(and (find :list (type-of (defq ,(defq __ (gensym)) ,_)))
-		(> (length ,__) 0) (eql (elem-get 0 ,__) 'lambda)))
+		(> (length ,__) 0)
+		(or (eql (elem-get 0 ,__) 'lambda)
+			(eql (elem-get 0 ,__) (const lambda)))))
 (defmacro macro? (_)
 	; (macro? form) -> :t | :nil
 	`(and (find :list (type-of (defq ,(defq __ (gensym)) ,_)))
-		(> (length ,__) 0) (eql (elem-get 0 ,__) 'macro)))
+		(> (length ,__) 0)
+		(or (eql (elem-get 0 ,__) 'macro)
+			(eql (elem-get 0 ,__) (const macro)))))
 
 (defmacro inc (_)
 	; (inc num) -> num

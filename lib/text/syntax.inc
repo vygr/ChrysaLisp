@@ -48,10 +48,10 @@
 	;defaults from boot environment
 	(each (lambda ((k v))
 		(cond
-			((func? v) (def keywords k (get :ink_keyword1 this)))
 			((lambda? v) (def keywords k (get :ink_keyword2 this)))
-			((macro? v) (def keywords k (get :ink_keyword3 this)))))
-		(tolist *boot_env*))
+			((macro? v) (def keywords k (get :ink_keyword3 this)))
+			((func? v) (def keywords k (get :ink_keyword1 this))))
+		(tolist *boot_env*)))
 	(each (lambda (k)
 			(def keywords k (get :ink_keyword4 this)))
 		'(:t :nil &rest &optional

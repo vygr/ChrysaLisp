@@ -38,20 +38,17 @@
 			(class/array/get_both :r1 :r1 :r2)
 			(assign '(:r1 :r2 (:r1 0)) '((:rsp local_iter_begin) (:rsp local_iter_end) :r1))
 
-			;first element check if function call
+			;first element checks
+			;is it quote or qquote function ?
+			(assign '((:r0 lisp_func_quote)) '(:r2))
+			(gotoif '(:r1 = :r2) 'next_list)
+			(assign '((:r0 lisp_func_qquote)) '(:r2))
+			(gotoif '(:r1 = :r2) 'next_list)
+
 			;is it a compiled function ?
 			(f-bind 'func :vtable :r2)
 			(assign '((:r1 obj_vtable)) '(:r3))
-			(vpif '(:r2 = :r3))
-				;is it quote or qquote function ?
-				(assign '((:r1 num_value)) '(:r3))
-				(vp-and-cr (neg +ptr_size) :r3)
-				(f-bind 'lisp :lisp_quote :r2)
-				(gotoif '(:r3 = :r2) 'next_list)
-				(f-bind 'lisp :lisp_qquote :r2)
-				(gotoif '(:r3 = :r2) 'next_list)
-				(goto 'skip_first)
-			(endif)
+			(gotoif '(:r3 = :r2) 'skip_first)
 
 			;is it quote or qquote symbol ?
 			(assign '((:r0 lisp_sym_quote)) '(:r2))
@@ -73,12 +70,6 @@
 				(call 'obj :deref '(:r0))
 				(goto 'next_list)
 			(endif)
-
-			;is it a lambda or macro ?
-			(assign '((:r0 lisp_sym_lambda)) '(:r2))
-			(gotoif '(:r1 = :r2) 'skip_first)
-			(assign '((:r0 lisp_sym_macro)) '(:r2))
-			(gotoif '(:r1 = :r2) 'skip_first)
 
 			;is not a symbol ?
 			(switch)
@@ -102,6 +93,8 @@
 			(assign '((:rsp local_this)) '(:r0))
 			(array-bind-args :r1 '(:r2))
 			(assign '((:r0 lisp_sym_lambda)) '(:r3))
+			(gotoif '(:r2 = :r3) 'bind_it)
+			(assign '((:r0 lisp_func_lambda)) '(:r3))
 			(breakif '(:r2 /= :r3))
 			(default)
 			(vp-label 'bind_it)
