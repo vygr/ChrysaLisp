@@ -55,14 +55,11 @@
 			(gotoif '(:r1 = :r2) 'bind_quote)
 			(assign '((:r0 lisp_sym_qquote)) '(:r2))
 			(vpif '(:r1 = :r2))
+				(assign '((:r0 lisp_func_qquote)) '(:r1))
+				(goto 'bind_qquote)
 			(vp-label 'bind_quote)
-				;find symbol binding
-				(call 'hmap :search '((:r0 lisp_environment) :r1) '(_ :r1 _))
-				(gotoif '(:r1 = 0) 'next_list)
-				(assign '((:r1 +ptr_size)) '(:r1))
-				(f-bind 'func :vtable :r2)
-				(assign '((:r1 obj_vtable)) '(:r3))
-				(gotoif '(:r2 /= :r3) 'next_list)
+				(assign '((:r0 lisp_func_quote)) '(:r1))
+			(vp-label 'bind_qquote)
 				;bind function call site
 				(assign '((:rsp local_iter_begin)) '(:r3))
 				(class/obj/ref :r1 :r2)
