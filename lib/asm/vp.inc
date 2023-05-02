@@ -23,7 +23,7 @@
 	(defq out (push (clear '()) 'progn) labels (env 11)
 		last_e :nil pc -1 pc_sym :nil)
 	(each (lambda (op)
-		(unless (eql (defq e (elem-get 0 op)) 'lambda)
+		(unless (is-lambda? (defq e (elem-get 0 op)))
 			(cond
 				((eql e 'emit-label)
 					(unless (eql e last_e)

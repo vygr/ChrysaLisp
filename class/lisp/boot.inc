@@ -171,6 +171,16 @@
 	; (exec form)
 	(eval (prebind (macroexpand _))))
 
+(defun is-lambda? (_)
+	; (is-lambda? form) -> :t | :nil
+	(or (eql _ (const lambda)) (eql _ 'lambda)))
+(defun is-macro? (_)
+	; (is-macro? form) -> :t | :nil
+	(or (eql _ (const macro)) (eql _ 'macro)))
+(defun is-quote? (_)
+	; (is-quote? form) -> :t | :nil
+	(or (eql _ (const quote)) (eql _ 'quote)))
+
 (defmacro array? (_)
 	; (array? form) -> :t | :nil
 	`(find :array (type-of ,_)))
@@ -198,15 +208,11 @@
 (defmacro lambda? (_)
 	; (lambda? form) -> :t | :nil
 	`(and (find :list (type-of (defq ,(defq __ (gensym)) ,_)))
-		(> (length ,__) 0)
-		(or (eql (elem-get 0 ,__) 'lambda)
-			(eql (elem-get 0 ,__) (const lambda)))))
+		(> (length ,__) 0) (is-lambda? (elem-get 0 ,__))))
 (defmacro macro? (_)
 	; (macro? form) -> :t | :nil
 	`(and (find :list (type-of (defq ,(defq __ (gensym)) ,_)))
-		(> (length ,__) 0)
-		(or (eql (elem-get 0 ,__) 'macro)
-			(eql (elem-get 0 ,__) (const macro)))))
+		(> (length ,__) 0) (is-macro? (elem-get 0 ,__))))
 
 (defmacro inc (_)
 	; (inc num) -> num

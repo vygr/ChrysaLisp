@@ -34,7 +34,7 @@
 	(defun debug-fun? (_)
 		; (debug-fun? form)
 		(and (list? _) (/= 0 (length _))
-			(not (or (eql 'quote (elem-get 0 _)) (eql 'debug (elem-get 0 _))))
+			(not (or (is-quote (elem-get 0 _)) (eql 'debug (elem-get 0 _))))
 			(sym? (elem-get 0 _)) (setq _ (get (elem-get 0 _)))
 			(or (func? _) (lambda? _))))
 

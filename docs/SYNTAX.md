@@ -2784,6 +2784,24 @@
 (io-stream io)
 ```
 
+### is-lambda?
+
+```code
+(is-lambda? form) -> :t | :nil
+```
+
+### is-macro?
+
+```code
+(is-macro? form) -> :t | :nil
+```
+
+### is-quote?
+
+```code
+(is-quote? form) -> :t | :nil
+```
+
 ### join
 
 ```code

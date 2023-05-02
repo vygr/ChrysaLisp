@@ -68,6 +68,7 @@
 
 			;local defines and symbols
 			(call 'create_env_info {this})
+			(call 'create_env_funcs {this})
 
 			;run any boot.inc
 			(call 'str :create_from_file {"class/lisp/boot.inc"} {file})
@@ -104,8 +105,9 @@
 		(vp-label 'local_env)
 			(call 'hmap :create {this->lisp_environment->hset_key_callback, 31} {func})
 			(call 'hmap :set_parent {func, this->lisp_environment} {this->lisp_environment})
-			;lookup defines and symbols
-			(call 'lookup_env_info {this})
+			;local defines and symbols
+			(call 'create_env_info {this})
+			(call 'lookup_env_funcs {this})
 		(endif)
 	(endif)
 
@@ -139,6 +141,16 @@
 	(call 'hmap :insert {this->lisp_environment, this->lisp_sym_file_includes, symbol})
 	(call 'obj :deref {symbol})
 
+	(pop-scope)
+	(return)
+
+(vp-label 'create_env_funcs)
+	(def-vars
+		(ptr this))
+
+	(push-scope)
+	(entry {this})
+
 	(call 'func :create (cat {@} (f-path 'lisp :lisp_ffi) {+ func_type_args_raw}) {this->lisp_func_ffi})
 	(call 'hmap :insert {this->lisp_environment, this->lisp_sym_ffi, this->lisp_func_ffi})
 	(call 'func :create (cat {@} (f-path 'lisp :lisp_lambda) {+ func_type_args_raw}) {this->lisp_func_lambda})
@@ -153,31 +165,12 @@
 	(pop-scope)
 	(return)
 
-(vp-label 'lookup_env_info)
+(vp-label 'lookup_env_funcs)
 	(def-vars
-		(ptr this symbol table))
+		(ptr this))
 
 	(push-scope)
 	(entry {this})
-
-	;look up standard built in symbols
-	(assign {$built_ins} {table})
-	(loop-while {table->built_in_symbol})
-		(call 'sym :intern_cstr {&table->built_in_symbol + table->built_in_symbol} {symbol})
-		(assign {symbol} {ptr(this + table->built_in_field)})
-		(assign {table + built_in_size} {table})
-	(loop-end)
-
-	;lookups
-	(call 'str :create_from_buffer {"ChrysaLisp", 10} {symbol})
-	(call 'hmap :insert {this->lisp_environment, this->lisp_sym_stream_name, symbol})
-	(call 'obj :deref {symbol})
-	(call 'num :create '(0) {symbol})
-	(call 'hmap :insert {this->lisp_environment, this->lisp_sym_stream_line, symbol})
-	(call 'obj :deref {symbol})
-	(call 'list :create :nil {symbol})
-	(call 'hmap :insert {this->lisp_environment, this->lisp_sym_file_includes, symbol})
-	(call 'obj :deref {symbol})
 
 	(call 'hmap :get {this->lisp_environment, this->lisp_sym_ffi} {_, this->lisp_func_ffi})
 	(call 'hmap :get {this->lisp_environment, this->lisp_sym_lambda} {_ , this->lisp_func_lambda})
