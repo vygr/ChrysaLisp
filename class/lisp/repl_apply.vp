@@ -36,13 +36,13 @@
 
 (errorcases
 	(array-get-args :r3 '(:r5))
-	(assign '((:r0 lisp_sym_lambda)) '(:r6))
+	(assign '((:r0 lisp_func_lambda)) '(:r6))
 	(vpif '(:r5 /= :r6))
-		(assign '((:r0 lisp_sym_macro)) '(:r6))
+		(assign '((:r0 lisp_func_macro)) '(:r6))
 		(vpif '(:r5 /= :r6))
-			(assign '((:r0 lisp_func_lambda)) '(:r6))
+			(assign '((:r0 lisp_sym_lambda)) '(:r6))
 			(vpif '(:r5 /= :r6))
-				(assign '((:r0 lisp_func_macro)) '(:r6))
+				(assign '((:r0 lisp_sym_macro)) '(:r6))
 				(gotoif '(:r5 /= :r6) 'error2)
 			(endif)
 		(endif)
