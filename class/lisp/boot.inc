@@ -171,16 +171,6 @@
 	; (exec form)
 	(eval (prebind (macroexpand _))))
 
-(defun is-lambda? (_)
-	; (is-lambda? form) -> :t | :nil
-	(or (eql _ (const lambda)) (eql _ 'lambda)))
-(defun is-macro? (_)
-	; (is-macro? form) -> :t | :nil
-	(or (eql _ (const macro)) (eql _ 'macro)))
-(defun is-quote? (_)
-	; (is-quote? form) -> :t | :nil
-	(or (eql _ (const quote)) (eql _ 'quote)))
-
 (defmacro array? (_)
 	; (array? form) -> :t | :nil
 	`(find :array (type-of ,_)))
@@ -455,6 +445,18 @@
 (defun nempty? (_)
 	; (nempty? form) -> :t | :nil
 	(if (seq? _) (> (length _) 0)))
+
+(defun is-lambda? (_)
+	; (is-lambda? form) -> :t | :nil
+	(or (eql _ (const lambda)) (eql _ 'lambda)))
+
+(defun is-macro? (_)
+	; (is-macro? form) -> :t | :nil
+	(or (eql _ (const macro)) (eql _ 'macro)))
+
+(defun is-quote? (_)
+	; (is-quote? form) -> :t | :nil
+	(or (eql _ (const quote)) (eql _ 'quote)))
 
 ;;;;;;;;;;;
 ; Sequences
