@@ -7,11 +7,11 @@
 
 (defun boot-lambdas ()
 	(sort cmp (reduce (lambda (_ (k v))
-		(if (lambda? v) (push _ k) _)) (tolist *boot_env*) (list))))
+		(if (lambda-func? v) (push _ k) _)) (tolist *boot_env*) (list))))
 
 (defun boot-macros ()
 	(sort cmp (reduce (lambda (_ (k v))
-		(if (macro? v) (push _ k) _)) (tolist *boot_env*) (list))))
+		(if (macro-func? v) (push _ k) _)) (tolist *boot_env*) (list))))
 
 (defun paragraph (words)
 	(each (lambda (line)

@@ -2784,24 +2784,6 @@
 (io-stream io)
 ```
 
-### is-lambda?
-
-```code
-(is-lambda? form) -> :t | :nil
-```
-
-### is-macro?
-
-```code
-(is-macro? form) -> :t | :nil
-```
-
-### is-quote?
-
-```code
-(is-quote? form) -> :t | :nil
-```
-
 ### join
 
 ```code
@@ -2824,6 +2806,12 @@
 
 ```code
 (lambda ([arg ...]) body)
+```
+
+### lambda-func?
+
+```code
+(lambda-func? form) -> :t | :nil
 ```
 
 ### lambda?
@@ -2932,6 +2920,12 @@
 
 ```code
 (lower field | (field val) ...) -> (set this field var ...)
+```
+
+### macro-func?
+
+```code
+(macro-func? form) -> :t | :nil
 ```
 
 ### macro?
@@ -3588,10 +3582,22 @@
 (quasi-quote form)
 ```
 
+### quasi-quote?
+
+```code
+(quasi-quote? form) -> :t | :nil
+```
+
 ### quote
 
 ```code
 (quote form)
+```
+
+### quote?
+
+```code
+(quote? form) -> :t | :nil
 ```
 
 ### raise

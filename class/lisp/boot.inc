@@ -162,47 +162,90 @@
 	; (static form)
 	(cat (list (const quote)) (list (prebind (eval (macroexpand _))))))
 
+(defun exec (_)
+	; (exec form)
+	(eval (prebind (macroexpand _))))
+
+;;;;;;;;;;;;
+; Predicates
+;;;;;;;;;;;;
+
 (defun identity (_)
 	; (identity any) -> any
 	; function that returns it's argument
 	_)
 
-(defun exec (_)
-	; (exec form)
-	(eval (prebind (macroexpand _))))
-
-(defmacro array? (_)
-	; (array? form) -> :t | :nil
-	`(find :array (type-of ,_)))
-(defmacro list? (_)
-	; (list? form) -> :t | :nil
-	`(find-rev :list (type-of ,_)))
-(defmacro num? (_)
-	; (num? form) -> :t | :nil
-	`(find :num (type-of ,_)))
-(defmacro func? (_)
-	; (func? form) -> :t | :nil
-	`(find :func (type-of ,_)))
-(defmacro str? (_)
-	; (str? form) -> :t | :nil
-	`(find :str (type-of ,_)))
-(defmacro sym? (_)
-	; (sym? form) -> :t | :nil
-	`(find-rev :sym (type-of ,_)))
-(defmacro env? (_)
-	; (env? form) -> :t | :nil
-	`(find :hmap (type-of ,_)))
-(defmacro seq? (_)
-	; (seq? form) -> :t | :nil
-	`(find :seq (type-of ,_)))
-(defmacro lambda? (_)
+(defun lambda? (_)
 	; (lambda? form) -> :t | :nil
-	`(and (find :list (type-of (defq ,(defq __ (gensym)) ,_)))
-		(> (length ,__) 0) (is-lambda? (elem-get 0 ,__))))
-(defmacro macro? (_)
+	(cond ((eql _ (const lambda))) ((eql _ 'lambda))))
+
+(defun macro? (_)
 	; (macro? form) -> :t | :nil
-	`(and (find :list (type-of (defq ,(defq __ (gensym)) ,_)))
-		(> (length ,__) 0) (is-macro? (elem-get 0 ,__))))
+	(cond ((eql _ (const macro))) ((eql _ 'macro))))
+
+(defun quote? (_)
+	; (quote? form) -> :t | :nil
+	(cond ((eql _ (const quote))) ((eql _ 'quote))))
+
+(defun quasi-quote? (_)
+	; (quasi-quote? form) -> :t | :nil
+	(cond ((eql _ (const quasi-quote))) ((eql _ 'quasi-quote))))
+
+(defun array? (_)
+	; (array? form) -> :t | :nil
+	(find :array (type-of _)))
+
+(defun list? (_)
+	; (list? form) -> :t | :nil
+	(find-rev :list (type-of _)))
+
+(defun num? (_)
+	; (num? form) -> :t | :nil
+	(find :num (type-of _)))
+
+(defun func? (_)
+	; (func? form) -> :t | :nil
+	(find :func (type-of _)))
+
+(defun str? (_)
+	; (str? form) -> :t | :nil
+	(find :str (type-of _)))
+
+(defun sym? (_)
+	; (sym? form) -> :t | :nil
+	(find-rev :sym (type-of _)))
+
+(defun env? (_)
+	; (env? form) -> :t | :nil
+	(find :hmap (type-of _)))
+
+(defun seq? (_)
+	; (seq? form) -> :t | :nil
+	(find :seq (type-of _)))
+
+(defun lambda-func? (_)
+	; (lambda-func? form) -> :t | :nil
+	(if (list? _) (if (> (length _) 0) (lambda? (elem-get 0 _)))))
+
+(defun macro-func? (_)
+	; (macro-func? form) -> :t | :nil
+	(if (list? _) (if (> (length _) 0) (macro? (elem-get 0 _)))))
+
+(defun nil? (_)
+	; (nil? o) -> :t | :nil
+	(eql _ :nil))
+
+(defun empty? (_)
+	; (empty? form) -> :t | :nil
+	(if (seq? _) (= (length _) 0) :t))
+
+(defun nempty? (_)
+	; (nempty? form) -> :t | :nil
+	(if (seq? _) (> (length _) 0)))
+
+;;;;;;;;;;;;;;
+; default opts
+;;;;;;;;;;;;;;
 
 (defmacro inc (_)
 	; (inc num) -> num
@@ -410,9 +453,9 @@
 	; (let* ([(var val) ...]) body)
 	`((lambda () ,(reduce (lambda (l (var val)) (push l var val)) l (list defq)) ~_)))
 
-;;;;;;;;;;;;
-; Predicates
-;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;
+; Sequence predicates
+;;;;;;;;;;;;;;;;;;;;;
 
 (defmacro some (f &rest _)
 	; (some lambda seq ...) -> :nil | form
@@ -433,30 +476,6 @@
 (defmacro notevery (f &rest _)
 	; (notevery lambda seq ...) -> :t | :nil
 	`(not (some! 0 -1 :t ,f (list ~_))))
-
-(defun nil? (_)
-	; (nil? o) -> :t | :nil
-	(eql _ :nil))
-
-(defun empty? (_)
-	; (empty? form) -> :t | :nil
-	(if (seq? _) (= (length _) 0) :t))
-
-(defun nempty? (_)
-	; (nempty? form) -> :t | :nil
-	(if (seq? _) (> (length _) 0)))
-
-(defun is-lambda? (_)
-	; (is-lambda? form) -> :t | :nil
-	(or (eql _ (const lambda)) (eql _ 'lambda)))
-
-(defun is-macro? (_)
-	; (is-macro? form) -> :t | :nil
-	(or (eql _ (const macro)) (eql _ 'macro)))
-
-(defun is-quote? (_)
-	; (is-quote? form) -> :t | :nil
-	(or (eql _ (const quote)) (eql _ 'quote)))
 
 ;;;;;;;;;;;
 ; Sequences

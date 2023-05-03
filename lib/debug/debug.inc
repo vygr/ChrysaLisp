@@ -36,7 +36,7 @@
 		(and (list? _) (/= 0 (length _))
 			(not (or (is-quote (elem-get 0 _)) (eql 'debug (elem-get 0 _))))
 			(sym? (elem-get 0 _)) (setq _ (get (elem-get 0 _)))
-			(or (func? _) (lambda? _))))
+			(or (func? _) (lambda-func? _))))
 
 	(defun debug-fun (n _)
 		; (debug-fun name list) -> list

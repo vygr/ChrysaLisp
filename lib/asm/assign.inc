@@ -133,7 +133,7 @@
 				(:t (throw "Invalid src parameter !" (list x y))))) src dst)))
 
 (defun print-inst (_)
-	(and (list? _) (not (is-lambda? (elem-get 0 _))) (print (ascii-char 9) _)))
+	(and (list? _) (not (lambda? (elem-get 0 _))) (print (ascii-char 9) _)))
 
 (defun assign-asm-to-script (src dst _)
 	(unless (= (length src) (length (setq dst (map trim (split dst ",")))))

@@ -70,7 +70,7 @@
       (classkw (first _)))
     ((find (last (type-of _)) (list :str :num :sym))
       _)
-    ((or (func? _) (lambda? _) (macro? _))
+    ((or (func? _) (lambda-func? _) (macro-func? _))
       :form)
     ((seq? _)
       :expression)
