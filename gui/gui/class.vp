@@ -46,7 +46,7 @@
 			{$title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
 				statics->statics_gui_screen->view_w,
 				statics->statics_gui_screen->view_h,
-				SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE}
+				SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI}
 			{statics->statics_gui_window})
 
 		;hide host cursor
