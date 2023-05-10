@@ -37,9 +37,8 @@
 
 	;create screen window ?
 	(vpifnot {statics->statics_gui_window})
-		;init sdl2
-		(host-gui-call 'host_gui :sdl_set_main_ready)
-		(host-gui-call 'host_gui :sdl_init {SDL_INIT_VIDEO | SDL_INIT_EVENTS})
+		;init
+		(host-gui-call 'host_gui :init)
 
 		;create window
 		(host-gui-call 'host_gui :sdl_create_window
@@ -48,9 +47,6 @@
 				statics->statics_gui_screen->view_h,
 				SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI}
 			{statics->statics_gui_window})
-
-		;hide host cursor
-		(host-gui-call 'host_gui :sdl_show_cursor {0})
 
 		;create renderer and back buffer
 		(cond

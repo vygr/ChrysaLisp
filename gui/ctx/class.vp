@@ -14,7 +14,7 @@
 	;trashes
 	;:r0-:r14
 
-	(vp-def (ctx r g b a) (method-input 'host_gui :sdl_set_render_draw_color))
+	(vp-def (ctx r g b a) (method-input 'host_gui :set_color))
 
 	(entry 'ctx :set_color '(:r0 :r1))
 
@@ -27,7 +27,7 @@
 	(vp-and-cr 0xff r)
 	(vp-and-cr 0xff g)
 	(vp-and-cr 0xff b)
-	(host-gui-call 'host_gui :sdl_set_render_draw_color `(,ctx ,r ,g ,b ,a))
+	(host-gui-call 'host_gui :set_color `(,ctx ,r ,g ,b ,a))
 	(vp-ret)
 
 (def-func-end)
@@ -53,7 +53,7 @@
 		(assign '(:r7 :r8 :r9 :r10) '((:rsp (+ local_clip_rect sdl_rect_x) i) (:rsp (+ local_clip_rect sdl_rect_y) i)
 			(:rsp (+ local_clip_rect sdl_rect_w) i) (:rsp (+ local_clip_rect sdl_rect_h) i)))
 		(fn-bind 'sys/statics/statics :r0)
-		(host-gui-call 'host_gui :sdl_render_set_clip_rect '((:r0 statics_gui_renderer) (& :rsp local_clip_rect)))
+		(host-gui-call 'host_gui :set_clip '((:r0 statics_gui_renderer) (& :rsp local_clip_rect)))
 
 		;eval body
 		(exec _)
@@ -103,13 +103,13 @@
 	(vp-and-cr 0xff :r3)
 	(vp-and-cr 0xff :r2)
 	(vp-and-cr 0xff :r4)
-	(host-gui-call 'host_gui :sdl_set_texture_color_mod '((:rsp local_texture) :r3 :r2 :r4))
+	(host-gui-call 'host_gui :set_texture_color '((:rsp local_texture) :r3 :r2 :r4))
 
 	(for-each-visible-rect
 		'(progn
 			;blit the texture
 			(fn-bind 'sys/statics/statics :r0)
-			(host-gui-call 'host_gui :sdl_render_copy '((:r0 statics_gui_renderer) (:rsp local_texture) (& :rsp local_srect) (& :rsp local_drect)))))
+			(host-gui-call 'host_gui :blit '((:r0 statics_gui_renderer) (:rsp local_texture) (& :rsp local_srect) (& :rsp local_drect)))))
 
 	(vp-cpy-ir :rsp local_old_stack :rsp)
 	(vp-ret)
@@ -148,7 +148,7 @@
 		'(progn
 			;draw the rectangle
 			(fn-bind 'sys/statics/statics :r0)
-			(host-gui-call 'host_gui :sdl_render_draw_rect '((:r0 statics_gui_renderer) (& :rsp local_drect)))))
+			(host-gui-call 'host_gui :box '((:r0 statics_gui_renderer) (& :rsp local_drect)))))
 
 	(vp-cpy-ir :rsp local_old_stack :rsp)
 	(vp-ret)
@@ -187,7 +187,7 @@
 		'(progn
 			;draw the rectangle
 			(fn-bind 'sys/statics/statics :r0)
-			(host-gui-call 'host_gui :sdl_render_fill_rect '((:r0 statics_gui_renderer) (& :rsp local_drect)))))
+			(host-gui-call 'host_gui :filled_box '((:r0 statics_gui_renderer) (& :rsp local_drect)))))
 
 	(vp-cpy-ir :rsp local_old_stack :rsp)
 	(vp-ret)

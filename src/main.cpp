@@ -587,10 +587,17 @@ static void (*host_os_funcs[]) = {
 
 #ifdef _GUI
 
-uint32_t SDL_mypoll(SDL_Event *data)
+uint32_t Init()
+{
+	SDL_SetMainReady();
+	SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS);
+	return SDL_ShowCursor(0);
+}
+
+uint32_t PollEvent(SDL_Event *data)
 {
 	SDL_PumpEvents();
-	return 	SDL_PollEvent(data);
+	return SDL_PollEvent(data);
 }
 
 uint64_t Upload_Texture(SDL_Renderer *renderer, uint32_t *data, uint64_t w, uint64_t h, uint64_t s, uint64_t m)
@@ -618,7 +625,7 @@ static void (*host_gui_funcs[]) = {
 	(void*)SDL_RenderPresent,
 	(void*)SDL_RenderSetClipRect,
 	(void*)SDL_SetRenderDrawBlendMode,
-	(void*)SDL_mypoll,
+	(void*)PollEvent,
 	(void*)SDL_RenderDrawRect,
 	(void*)SDL_FreeSurface,
 	(void*)SDL_CreateTextureFromSurface,
@@ -632,7 +639,15 @@ static void (*host_gui_funcs[]) = {
 	(void*)SDL_SetRenderTarget,
 	(void*)SDL_RenderClear,
 	(void*)SDL_ShowCursor,
-	//new API for ChrysaLisp portable compositor 
+	//new API for ChrysaLisp portable compositor
+	(void*)Init,
+	(void*)PollEvent,
+	(void*)SDL_RenderDrawRect,
+	(void*)SDL_RenderFillRect,
+	(void*)SDL_RenderCopy,
+	(void*)SDL_RenderSetClipRect,
+	(void*)SDL_SetRenderDrawColor,
+	(void*)SDL_SetTextureColorMod,
 	(void*)Upload_Texture,
 };
 #endif

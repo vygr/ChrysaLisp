@@ -53,7 +53,15 @@
 	(dec-method :sdl_set_render_target :nil :virtual (abi-args 2) (:r0))
 	(dec-method :sdl_render_clear :nil :virtual (abi-args 1) (:r0))
 	(dec-method :sdl_show_cursor :nil :virtual (abi-args 1) (:r0))
-	;new API for ChrysaLisp portable compositor 
+	;new API for ChrysaLisp portable compositor
+	(dec-method :init :nil :virtual (abi-args 0) (:r0))
+	(dec-method :poll_event :nil :virtual (abi-args 1) (:r0))
+	(dec-method :box :nil :virtual (abi-args 2) (:r0))
+	(dec-method :filled_box :nil :virtual (abi-args 2) (:r0))
+	(dec-method :blit :nil :virtual (abi-args 4) (:r0))
+	(dec-method :set_clip :nil :virtual (abi-args 2) (:r0))
+	(dec-method :set_color :nil :virtual (abi-args 5) (:r0))
+	(dec-method :set_texture_color :nil :virtual (abi-args 4) (:r0))
 	(dec-method :upload_texture :nil :virtual (abi-args 6) (:r0)))
 
 (defun abi-call-table (_1 _2 _5 &optional _3 _4 _6)
@@ -102,16 +110,6 @@
 ;;;;;;;;;;;;;;;
 ; SDL interface
 ;;;;;;;;;;;;;;;
-
-(defcvar 'SDL_INIT_TIMER 0x00000001)
-(defcvar 'SDL_INIT_AUDIO 0x00000010)
-(defcvar 'SDL_INIT_VIDEO 0x00000020)
-(defcvar 'SDL_INIT_JOYSTICK 0x00000200)
-(defcvar 'SDL_INIT_HAPTIC 0x00001000)
-(defcvar 'SDL_INIT_GAMECONTROLLER 0x00002000)
-(defcvar 'SDL_INIT_EVENTS 0x00004000)
-(defcvar 'SDL_INIT_NOPARACHUTE 0x00100000)
-(defcvar 'SDL_INIT_EVERYTHING (logior SDL_INIT_TIMER SDL_INIT_AUDIO SDL_INIT_VIDEO SDL_INIT_EVENTS SDL_INIT_JOYSTICK SDL_INIT_HAPTIC SDL_INIT_GAMECONTROLLER))
 
 (defcvar 'SDL_WINDOW_FULLSCREEN 0x00000001)
 (defcvar 'SDL_WINDOW_OPENGL 0x00000002)
