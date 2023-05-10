@@ -593,6 +593,17 @@ uint32_t SDL_mypoll(SDL_Event *data)
 	return 	SDL_PollEvent(data);
 }
 
+uint64_t Upload_Texture(SDL_Renderer *renderer, uint32_t *data, uint64_t w, uint64_t h, uint64_t s, uint64_t m)
+{
+	auto surface = SDL_CreateRGBSurfaceFrom(data, w, h, 32, s, 0xff0000, 0xff00, 0xff, 0xff000000);
+	auto tid = SDL_CreateTextureFromSurface(renderer, surface);
+	auto mode = SDL_ComposeCustomBlendMode(SDL_BLENDFACTOR_ONE, SDL_BLENDFACTOR_ONE_MINUS_SRC_ALPHA, SDL_BLENDOPERATION_ADD,
+		SDL_BLENDFACTOR_ONE, SDL_BLENDFACTOR_ONE_MINUS_SRC_ALPHA, SDL_BLENDOPERATION_ADD);
+	SDL_SetTextureBlendMode(tid, mode);
+	SDL_FreeSurface(surface);
+	return (uint64_t)tid;
+}
+
 static void (*host_gui_funcs[]) = {
 	(void*)SDL_SetMainReady,
 	(void*)SDL_Init,
@@ -621,6 +632,8 @@ static void (*host_gui_funcs[]) = {
 	(void*)SDL_SetRenderTarget,
 	(void*)SDL_RenderClear,
 	(void*)SDL_ShowCursor,
+	//new API for ChrysaLisp portable compositor 
+	(void*)Upload_Texture,
 };
 #endif
 
