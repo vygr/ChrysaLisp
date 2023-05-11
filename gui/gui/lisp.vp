@@ -106,8 +106,7 @@
 	(fn-bind 'sys/statics/statics :r1)
 	(assign '((:r1 statics_gui_window)) '(:r0))
 	(vpif '(:r0 /= 0))
-		(host-gui-call 'host_gui :sdl_destroy_window '(:r0))
-		(host-gui-call 'host_gui :sdl_quit)
+		(host-gui-call 'host_gui :deinit)
 	(endif)
 
 	;free old regions and deinit region heap

@@ -39,59 +39,25 @@
 	(vpifnot {statics->statics_gui_window})
 		;init
 		(host-gui-call 'host_gui :init)
-
-		;create window
-		(host-gui-call 'host_gui :sdl_create_window
-			{$title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
-				statics->statics_gui_screen->view_w,
-				statics->statics_gui_screen->view_h,
-				SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI}
-			{statics->statics_gui_window})
-
-		;create renderer and back buffer
-		(cond
-			((> num_old_regions 0)
-				(host-gui-call 'host_gui :sdl_create_renderer
-					{statics->statics_gui_window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC}
-					{statics->statics_gui_renderer}))
-			(:t  (host-gui-call 'host_gui :sdl_create_renderer
-					{statics->statics_gui_window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_TARGETTEXTURE}
-					{statics->statics_gui_renderer})
-				(host-gui-call 'host_gui :sdl_create_texture
-					{statics->statics_gui_renderer, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_TARGET,
-					statics->statics_gui_screen->view_w,
-					statics->statics_gui_screen->view_h}
-					{statics->statics_gui_texture})))
-
-		;set blend mode
-		(host-gui-call 'host_gui :sdl_set_render_draw_blend_mode {statics->statics_gui_renderer, SDL_BLENDMODE_BLEND})
+		(assign {1} {statics->statics_gui_window})
 	(endif)
 
 	;resize back buffer ?
 	(when (= num_old_regions 0)
 	(vpif {statics->statics_gui_flags})
 		;resize back buffer and redraw in full
-		(host-gui-call 'host_gui :sdl_destroy_texture {statics->statics_gui_texture})
-		(host-gui-call 'host_gui :sdl_create_texture
-			{statics->statics_gui_renderer, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_TARGET,
-				statics->statics_gui_screen->view_w, statics->statics_gui_screen->view_h}
-			{statics->statics_gui_texture})
+		(host-gui-call 'host_gui :resize {statics->statics_gui_screen->view_w, statics->statics_gui_screen->view_h})
 	(endif))
 
 	;update screen
 	(vpif {statics->statics_gui_dirty_flag})
-		(cond
-			((> num_old_regions 0)
-				;no render to texture
-				(call 'gui :composit {statics->statics_gui_screen}))
-			(:t  ;render to back buffer texture
-				(host-gui-call 'host_gui :sdl_set_render_target {statics->statics_gui_renderer, statics->statics_gui_texture})
-				(call 'gui :composit {statics->statics_gui_screen})
-				(host-gui-call 'host_gui :sdl_set_render_target {statics->statics_gui_renderer, 0})
-				(host-gui-call 'host_gui :sdl_render_copy {statics->statics_gui_renderer, statics->statics_gui_texture, 0, 0})))
+		;render to the backbuffer
+		(host-gui-call 'host_gui :begin_composite)
+		(call 'gui :composite {statics->statics_gui_screen})
+		(host-gui-call 'host_gui :end_composite)
 
-		;swap, clear temps and dirty flag
-		(host-gui-call 'host_gui :sdl_render_present {statics->statics_gui_renderer})
+		;flush backbuffer, clear temps and dirty flag
+		(host-gui-call 'host_gui :flush)
 		(call 'list :clear {statics->statics_gui_temps})
 		(assign {0} {statics->statics_gui_dirty_flag})
 	(endif)
@@ -100,12 +66,9 @@
 	(pop-scope-syms)
 	(return)
 
-(vp-label 'title)
-	(vp-cstr "ChrysaLisp GUI Window")
-
 (def-func-end)
 
-(def-method 'gui :composit)
+(def-method 'gui :composite)
 	;inputs
 	;:r0 = root view object (ptr)
 	;trashes
@@ -118,7 +81,7 @@
 
 	;save inputs
 	(vp-alloc local_size)
-	(entry 'gui :composit '(:r0))
+	(entry 'gui :composite '(:r0))
 	(assign '(:r0) '((:rsp local_root)))
 
 	;iterate through views back to front

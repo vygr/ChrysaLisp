@@ -142,7 +142,7 @@
 	(call 'texture :deref_if {this->pixmap_texture})
 
 	;create SDL surface from pixel buffer, convert to texture
-	(host-gui-call 'host_gui :create_texture {@sys/statics/statics.statics_gui_renderer, &this->pixmap_data,
+	(host-gui-call 'host_gui :create_texture {&this->pixmap_data,
 		this->pixmap_width, this->pixmap_height, this->pixmap_stride, 0} {tex_id})
 
 	;new texture

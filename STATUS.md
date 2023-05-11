@@ -4,6 +4,10 @@
 
 ------
 
+First stage in new portable compositor API.
+
+------
+
 Fix to make VP and C-Script optimizers immune to prebinder policy with regards
 to quasi-quotation. This removes the ordering issues with regards to the vp and
 cscript include files, but open a wider debate on the prebinder quasi-quotation

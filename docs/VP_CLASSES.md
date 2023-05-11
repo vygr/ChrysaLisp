@@ -1972,7 +1972,7 @@ trashes
 
 Super Class: :nil
 
-### gui :composit -> gui/gui/composit
+### gui :composite -> gui/gui/composite
 
 ```code
 inputs
@@ -2424,59 +2424,35 @@ Super Class: :nil
 
 Super Class: :nil
 
-### host_gui :sdl_compose_custom_blend_mode -> :nil
+### host_gui :begin_composite -> :nil
 
-### host_gui :sdl_create_renderer -> :nil
+### host_gui :blit -> :nil
 
-### host_gui :sdl_create_rgb_surface_from -> :nil
+### host_gui :box -> :nil
 
-### host_gui :sdl_create_texture -> :nil
+### host_gui :create_texture -> :nil
 
-### host_gui :sdl_create_texture_from_surface -> :nil
+### host_gui :deinit -> :nil
 
-### host_gui :sdl_create_window -> :nil
+### host_gui :destroy_texture -> :nil
 
-### host_gui :sdl_create_window_and_renderer -> :nil
+### host_gui :end_composite -> :nil
 
-### host_gui :sdl_destroy_texture -> :nil
+### host_gui :filled_box -> :nil
 
-### host_gui :sdl_destroy_window -> :nil
+### host_gui :flush -> :nil
 
-### host_gui :sdl_free_surface -> :nil
+### host_gui :init -> :nil
 
-### host_gui :sdl_get_error -> :nil
+### host_gui :poll_event -> :nil
 
-### host_gui :sdl_init -> :nil
+### host_gui :resize -> :nil
 
-### host_gui :sdl_poll_event -> :nil
+### host_gui :set_clip -> :nil
 
-### host_gui :sdl_quit -> :nil
+### host_gui :set_color -> :nil
 
-### host_gui :sdl_render_clear -> :nil
-
-### host_gui :sdl_render_copy -> :nil
-
-### host_gui :sdl_render_draw_rect -> :nil
-
-### host_gui :sdl_render_fill_rect -> :nil
-
-### host_gui :sdl_render_present -> :nil
-
-### host_gui :sdl_render_set_clip_rect -> :nil
-
-### host_gui :sdl_set_main_ready -> :nil
-
-### host_gui :sdl_set_render_draw_blend_mode -> :nil
-
-### host_gui :sdl_set_render_draw_color -> :nil
-
-### host_gui :sdl_set_render_target -> :nil
-
-### host_gui :sdl_set_texture_blend_mode -> :nil
-
-### host_gui :sdl_set_texture_color_mod -> :nil
-
-### host_gui :sdl_show_cursor -> :nil
+### host_gui :set_texture_color -> :nil
 
 ## hset
 

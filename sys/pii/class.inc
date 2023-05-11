@@ -26,44 +26,21 @@
 	(dec-method :usb_running :nil :virtual (abi-args 1) (:r0)))
 
 (def-class host_gui :nil
-	(dec-method :sdl_set_main_ready :nil :virtual (abi-args 0) (:r0))
-	(dec-method :sdl_init :nil :virtual (abi-args 1) (:r0))
-	(dec-method :sdl_get_error :nil :virtual (abi-args 0) (:r0))
-	(dec-method :sdl_quit :nil :virtual (abi-args 0) (:r0))
-	(dec-method :sdl_create_window :nil :virtual (abi-args 6) (:r0))
-	(dec-method :sdl_create_window_and_renderer :nil :virtual (abi-args 5) (:r0))
-	(dec-method :sdl_destroy_window :nil :virtual (abi-args 1) (:r0))
-	(dec-method :sdl_create_renderer :nil :virtual (abi-args 3) (:r0))
-	(dec-method :sdl_set_render_draw_color :nil :virtual (abi-args 5) (:r0))
-	(dec-method :sdl_render_fill_rect :nil :virtual (abi-args 2) (:r0))
-	(dec-method :sdl_render_present :nil :virtual (abi-args 1) (:r0))
-	(dec-method :sdl_render_set_clip_rect :nil :virtual (abi-args 2) (:r0))
-	(dec-method :sdl_set_render_draw_blend_mode :nil :virtual (abi-args 2) (:r0))
-	(dec-method :sdl_poll_event :nil :virtual (abi-args 1) (:r0))
-	(dec-method :sdl_render_draw_rect :nil :virtual (abi-args 2) (:r0))
-	(dec-method :sdl_free_surface :nil :virtual (abi-args 1) (:r0))
-	(dec-method :sdl_create_texture_from_surface :nil :virtual (abi-args 2) (:r0))
-	(dec-method :sdl_destroy_texture :nil :virtual (abi-args 1) (:r0))
-	(dec-method :sdl_render_copy :nil :virtual (abi-args 4) (:r0))
-	(dec-method :sdl_set_texture_blend_mode :nil :virtual (abi-args 2) (:r0))
-	(dec-method :sdl_set_texture_color_mod :nil :virtual (abi-args 4) (:r0))
-	(dec-method :sdl_create_rgb_surface_from :nil :virtual (abi-args 9) (:r0))
-	(dec-method :sdl_compose_custom_blend_mode :nil :virtual (abi-args 6) (:r0))
-	(dec-method :sdl_create_texture :nil :virtual (abi-args 5) (:r0))
-	(dec-method :sdl_set_render_target :nil :virtual (abi-args 2) (:r0))
-	(dec-method :sdl_render_clear :nil :virtual (abi-args 1) (:r0))
-	(dec-method :sdl_show_cursor :nil :virtual (abi-args 1) (:r0))
-	;new API for ChrysaLisp portable compositor
 	(dec-method :init :nil :virtual (abi-args 0) (:r0))
-	(dec-method :poll_event :nil :virtual (abi-args 1) (:r0))
-	(dec-method :box :nil :virtual (abi-args 2) (:r0))
-	(dec-method :filled_box :nil :virtual (abi-args 2) (:r0))
-	(dec-method :blit :nil :virtual (abi-args 4) (:r0))
-	(dec-method :set_clip :nil :virtual (abi-args 2) (:r0))
-	(dec-method :set_color :nil :virtual (abi-args 5) (:r0))
+	(dec-method :deinit :nil :virtual (abi-args 0) (:r0))
+	(dec-method :box :nil :virtual (abi-args 1) (:r0))
+	(dec-method :filled_box :nil :virtual (abi-args 1) (:r0))
+	(dec-method :blit :nil :virtual (abi-args 3) (:r0))
+	(dec-method :set_clip :nil :virtual (abi-args 1) (:r0))
+	(dec-method :set_color :nil :virtual (abi-args 4) (:r0))
 	(dec-method :set_texture_color :nil :virtual (abi-args 4) (:r0))
 	(dec-method :destroy_texture :nil :virtual (abi-args 1) (:r0))
-	(dec-method :create_texture :nil :virtual (abi-args 6) (:r0)))
+	(dec-method :create_texture :nil :virtual (abi-args 5) (:r0))
+	(dec-method :begin_composite :nil :virtual (abi-args 0) (:r0))
+	(dec-method :end_composite :nil :virtual (abi-args 0) (:r0))
+	(dec-method :flush :nil :virtual (abi-args 0) (:r0))
+	(dec-method :resize :nil :virtual (abi-args 2) (:r0))
+	(dec-method :poll_event :nil :virtual (abi-args 1) (:r0)))
 
 (defun abi-call-table (_1 _2 _5 &optional _3 _4 _6)
 	;_1 = class name
@@ -108,60 +85,12 @@
 	(vp-cpy-ir _5 statics_sys_load_host_gui_funcs _5)
 	(abi-call-table _1 _2 _5 _3 _4 _6))
 
-;;;;;;;;;;;;;;;
-; SDL interface
-;;;;;;;;;;;;;;;
-
-(defcvar 'SDL_WINDOW_FULLSCREEN 0x00000001)
-(defcvar 'SDL_WINDOW_OPENGL 0x00000002)
-(defcvar 'SDL_WINDOW_SHOWN 0x00000004)
-(defcvar 'SDL_WINDOW_HIDDEN 0x00000008)
-(defcvar 'SDL_WINDOW_BORDERLESS 0x00000010)
-(defcvar 'SDL_WINDOW_RESIZABLE 0x00000020)
-(defcvar 'SDL_WINDOW_MINIMIZED 0x00000040)
-(defcvar 'SDL_WINDOW_MAXIMIZED 0x00000080)
-(defcvar 'SDL_WINDOW_INPUT_GRABBED 0x00000100)
-(defcvar 'SDL_WINDOW_INPUT_FOCUS 0x00000200)
-(defcvar 'SDL_WINDOW_MOUSE_FOCUS 0x00000400)
-(defcvar 'SDL_WINDOW_FULLSCREEN_DESKTOP (logior SDL_WINDOW_FULLSCREEN 0x00001000))
-(defcvar 'SDL_WINDOW_FOREIGN 0x00000800)
-(defcvar 'SDL_WINDOW_ALLOW_HIGHDPI 0x00002000)
-
-(defcvar 'SDL_WINDOWPOS_UNDEFINED_MASK 0x1FFF0000)
-(defcvar 'SDL_WINDOWPOS_UNDEFINED SDL_WINDOWPOS_UNDEFINED_MASK)
-(defcvar 'SDL_WINDOWPOS_CENTERED_MASK 0x2FFF0000)
-
-(defcvar 'SDL_RENDERER_SOFTWARE 0x00000001)
-(defcvar 'SDL_RENDERER_ACCELERATED 0x00000002)
-(defcvar 'SDL_RENDERER_PRESENTVSYNC 0x00000004)
-(defcvar 'SDL_RENDERER_TARGETTEXTURE 0x00000008)
-
-(defcvar 'SDL_BLENDMODE_NONE 0)
-(defcvar 'SDL_BLENDMODE_BLEND 1)
-(defcvar 'SDL_BLENDMODE_ADD 2)
-(defcvar 'SDL_BLENDMODE_MOD 4)
-
-(defcvar 'SDL_TEXTUREACCESS_STATIC 0x0)
-(defcvar 'SDL_TEXTUREACCESS_STREAMING 0x1)
-(defcvar 'SDL_TEXTUREACCESS_TARGET 0x2)
-
-(defcvar 'SDL_PIXELFORMAT_RGB888 0x16161804)
-(defcvar 'SDL_PIXELFORMAT_RGBA8888 0x16462004)
-(defcvar 'SDL_PIXELFORMAT_ARGB8888 0x16362004)
+;;;;;;;;;;;;;;;;;;;;
+; SDL interface rect
+;;;;;;;;;;;;;;;;;;;;
 
 (def-struct sdl_rect 0
 	(int x y w h))
-
-(def-struct sdl_surface 0
-	(int flags)
-	(long format)
-	(int w h pitch)
-	(long pixels userdata)
-	(int locked)
-	(long lockdata)
-	(struct clip sdl_rect_size)
-	(long map)
-	(int obj))
 
 (def-class sys_pii :nil
 	(dec-method :exit sys/pii/exit :static (:r0))
