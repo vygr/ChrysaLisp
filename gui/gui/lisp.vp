@@ -102,9 +102,9 @@
 		(call 'view :deref '(:r0))
 	(endif)
 
-	;destroy any window
+	;destroy any gui
 	(fn-bind 'sys/statics/statics :r1)
-	(assign '((:r1 statics_gui_window)) '(:r0))
+	(assign '((:r1 statics_gui_init)) '(:r0))
 	(vpif '(:r0 /= 0))
 		(host-gui-call 'host_gui :deinit)
 	(endif)

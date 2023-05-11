@@ -35,11 +35,11 @@
 	(fn-bind 'sys/statics/statics :r0)
 	(assign '(:r0) {statics})
 
-	;create screen window ?
-	(vpifnot {statics->statics_gui_window})
+	;inited gui compositor ?
+	(vpifnot {statics->statics_gui_init})
 		;init
 		(host-gui-call 'host_gui :init)
-		(assign {1} {statics->statics_gui_window})
+		(assign {1} {statics->statics_gui_init})
 	(endif)
 
 	;resize back buffer ?
