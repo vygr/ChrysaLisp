@@ -7,10 +7,6 @@ SDL_Texture *backbuffer;
 
 uint64_t Init(SDL_Rect *rect)
 {
-	rect->x = 0;
-	rect->y = 0;
-	rect->w = 1280;
-	rect->h = 960;
 	SDL_SetMainReady();
 	SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS);
 	window = SDL_CreateWindow("ChrysaLisp GUI Window",
