@@ -16,7 +16,8 @@
 	;:r2 = update flags
 
 	(def-vars
-		(ptr statics old_stack))
+		(ptr statics old_stack)
+		(struct rect sdl_rect_size))
 
 	(entry 'gui :update '(:r0 :r1 :r2))
 
@@ -42,22 +43,22 @@
 		(assign {1} {statics->statics_gui_init})
 	(endif)
 
-	;resize back buffer ?
-	(when (= num_old_regions 0)
+	;resize back buffer etc ?
 	(vpif {statics->statics_gui_flags})
 		;resize back buffer and redraw in full
 		(host-gui-call 'host_gui :resize {statics->statics_gui_screen->view_w, statics->statics_gui_screen->view_h})
-	(endif))
+	(endif)
 
 	;update screen
 	(vpif {statics->statics_gui_dirty_flag})
 		;render to the backbuffer
 		(host-gui-call 'host_gui :begin_composite)
-		(call 'gui :composite {statics->statics_gui_screen})
+		(call 'gui :composite {statics->statics_gui_screen}
+			{rect.sdl_rect_x, rect.sdl_rect_y, rect.sdl_rect_w, rect.sdl_rect_h})
 		(host-gui-call 'host_gui :end_composite)
 
 		;flush backbuffer, clear temps and dirty flag
-		(host-gui-call 'host_gui :flush)
+		(host-gui-call 'host_gui :flush {&rect})
 		(call 'list :clear {statics->statics_gui_temps})
 		(assign {0} {statics->statics_gui_dirty_flag})
 	(endif)
@@ -71,13 +72,21 @@
 (def-method 'gui :composite)
 	;inputs
 	;:r0 = root view object (ptr)
+	;outputs
+	;:r7 = x (pixels)
+	;:r8 = y (pixels)
+	;:r9 = width (pixels)
+	;:r10 = height (pixels)
 	;trashes
 	;:r0-:r14
+	;info
+	;the dirty region bounds is returned for use by the :flush call !
 
 	(def-struct local 0
 		(ptr root ctx_flist ctx_next)
 		(ptr damaged_region)
-		(uint index))
+		(uint index)
+		(int x y w h))
 
 	;save inputs
 	(vp-alloc local_size)
@@ -94,47 +103,11 @@
 	;create visible region at root
 	(call 'view :backward_tree '(:r0 :r0 ($ visible_down_callback) ($ visible_up_callback)))
 
-	(when (/= num_old_regions 0)
-		;copy new damaged region
-		(vp-xor-rr :r1 :r1)
-		(assign '(:r1) '((:rsp local_damaged_region)))
-		(fn-bind 'sys/statics/statics :r4)
-		(call 'region :copy_rect '((& :r4 statics_gui_rect_heap) (& :r0 view_dirty_region)
-			(& :rsp local_damaged_region) 0 0 (:r0 view_w) (:r0 view_h)) '(:r0))
-
-		;paste old damaged region into root
-		(fn-bind 'sys/statics/statics :r4)
-		(assign '((& :r4 statics_gui_old_regions) (:r4 statics_gui_old_region_index) (:rsp local_root)) '(:r1 :r2 :r3))
-		(call 'region :paste_region '(:r0 (& :r1 :r2) (& :r3 view_dirty_region) 0 0) '(:r0))
-
-		;free old damaged region
-		(fn-bind 'sys/statics/statics :r4)
-		(assign '((& :r4 statics_gui_old_regions) (:r4 statics_gui_old_region_index)) '(:r1 :r2))
-		(call 'region :free '(:r0 (& :r1 :r2)) '(:r0))
-
-		;paste new damaged region into all old damaged regions
-		(assign '((:r4 statics_gui_old_region_index)) '(:r2))
-		(loop-start)
-			(vp-add-cr +ptr_size :r2)
-			(vpif (list :r2 '= (* num_old_regions +ptr_size)))
-				(vp-xor-rr :r2 :r2)
-			(endif)
-			(assign '((& :r4 statics_gui_old_regions) (:r4 statics_gui_old_region_index)) '(:r1 :r3))
-			(breakif '(:r2 = :r3))
-			(assign '(:r2) '((:rsp local_index)))
-			(call 'region :paste_region '(:r0 (& :rsp local_damaged_region) (& :r1 :r2) 0 0) '(:r0))
-			(assign '((:rsp local_index)) '(:r2))
-			(fn-bind 'sys/statics/statics :r4)
-		(loop-end)
-		(assign '((:rsp local_damaged_region)) '(:r0))
-		(assign '(:r0) '((:r1 :r2)))
-
-		;move on to next old region
-		(vp-add-cr +ptr_size :r2)
-		(vpif (list :r2 '= (* num_old_regions +ptr_size)))
-			(vp-xor-rr :r2 :r2)
-		(endif)
-		(assign '((:rsp local_root) :r2) '(:r0 (:r4 statics_gui_old_region_index))))
+	;save bounds for :flush
+	(call 'region :bounds '((& :r0 view_dirty_region)) '(x y w h))
+	(vp-sub-rr x w)
+	(vp-sub-rr y h)
+	(assign `(,x ,y ,w ,h) '((:rsp local_x) (:rsp local_y) (:rsp local_w) (:rsp local_h)))
 
 	;iterate through views front to back
 	;distribute visible region
@@ -155,6 +128,7 @@
 		(assign '((:rsp local_ctx_next)) '(:r0))
 	(loop-end)
 
+	(exit 'gui :composite '((:rsp local_x) (:rsp local_y) (:rsp local_w) (:rsp local_h)))
 	(vp-free local_size)
 	(vp-ret)
 

@@ -38,7 +38,7 @@
 	(dec-method :create_texture :nil :virtual (abi-args 5) (:r0))
 	(dec-method :begin_composite :nil :virtual (abi-args 0) (:r0))
 	(dec-method :end_composite :nil :virtual (abi-args 0) (:r0))
-	(dec-method :flush :nil :virtual (abi-args 0) (:r0))
+	(dec-method :flush :nil :virtual (abi-args 1) (:r0))
 	(dec-method :resize :nil :virtual (abi-args 2) (:r0))
 	(dec-method :poll_event :nil :virtual (abi-args 1) (:r0)))
 

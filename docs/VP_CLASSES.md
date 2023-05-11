@@ -1977,8 +1977,15 @@ Super Class: :nil
 ```code
 inputs
 :r0 = root view object (ptr)
+outputs
+:r7 = x (pixels)
+:r8 = y (pixels)
+:r9 = width (pixels)
+:r10 = height (pixels)
 trashes
 :r0-:r14
+info
+the dirty region bounds is returned for use by the :flush call !
 ```
 
 ### gui :lisp_deinit -> gui/gui/lisp_deinit

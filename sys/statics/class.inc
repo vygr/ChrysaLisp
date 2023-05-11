@@ -72,8 +72,6 @@
 	(uint gui_dirty_flag gui_old_region_index gui_flags)
 	(int gui_mouse_x gui_mouse_y)
 	(align)
-	(struct gui_old_regions (* num_old_regions +ptr_size))
-	(align)
 
 	;lisp statics
 	(ptr lisp_boot_env)

@@ -109,17 +109,7 @@
 		(host-gui-call 'host_gui :deinit)
 	(endif)
 
-	;free old regions and deinit region heap
-	(fn-bind 'sys/statics/statics :r0)
-	(assign '((& :r0 statics_gui_old_regions)) '(:r1))
-	(assign '((& :r1 (* num_old_regions +ptr_size))) '(:r2))
-	(loop-while '(:r1 /= :r2))
-		(vp-push :r1 :r2)
-		(fn-bind 'sys/statics/statics :r0)
-		(call 'region :free '((& :r0 statics_gui_rect_heap) :r1))
-		(vp-pop :r1 :r2)
-		(vp-add-cr +ptr_size :r1)
-	(loop-end)
+	;deinit region heap
 	(fn-bind 'sys/statics/statics :r0)
 	(call 'sys_heap :deinit '((& :r0 statics_gui_rect_heap)))
 

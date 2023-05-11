@@ -58,7 +58,7 @@ uint64_t End_Composite()
 	return 0;
 }
 
-uint64_t Flush()
+uint64_t Flush(const SDL_Rect *rect)
 {
 	SDL_RenderCopy(renderer, backbuffer, 0, 0);
 	SDL_RenderPresent(renderer);

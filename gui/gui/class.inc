@@ -8,7 +8,7 @@
 
 (def-class gui :nil
 	(dec-method :update gui/gui/update :static (:r0 :r1 :r2))
-	(dec-method :composite gui/gui/composite :static (:r0))
+	(dec-method :composite gui/gui/composite :static (:r0) (:r7 :r8 :r9 :r10))
 	(dec-method :lisp_init gui/gui/lisp_init :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_deinit gui/gui/lisp_deinit :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_update gui/gui/lisp_update :static (:r0 :r1) (:r0 :r1))
@@ -18,11 +18,6 @@
 ;;;;;;;;;;;;;;;;
 ; gui structures
 ;;;;;;;;;;;;;;;;
-
-;0 for render to texture, assumes previous rendered frames are destroyed
-;1 for double buffered, 2 for triple buffered etc, assumes previous rendered frames are intact !
-;when running in buffered modes there may still be issues if SDL does not send EVENT_WINDOW_RESTORED etc
-(defcvar 'num_old_regions 0)
 
 (def-enum ev_type 0
 	(enum mouse key action gui wheel enter exit))
