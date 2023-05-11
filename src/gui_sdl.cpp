@@ -12,8 +12,7 @@ uint64_t Init()
 	window = SDL_CreateWindow("ChrysaLisp GUI Window",
 				SDL_WINDOWPOS_UNDEFINED,
 				SDL_WINDOWPOS_UNDEFINED,
-				1280,
-				960,
+				1280, 960,
 				SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
 	renderer = SDL_CreateRenderer(window, -1,
 				SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_TARGETTEXTURE);
@@ -56,12 +55,12 @@ uint64_t Begin_Composite()
 uint64_t End_Composite()
 {
 	SDL_SetRenderTarget(renderer, 0);
-	SDL_RenderCopy(renderer, backbuffer, 0, 0);
 	return 0;
 }
 
 uint64_t Flush()
 {
+	SDL_RenderCopy(renderer, backbuffer, 0, 0);
 	SDL_RenderPresent(renderer);
 	return 0;
 }
