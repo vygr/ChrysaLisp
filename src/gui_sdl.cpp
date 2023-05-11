@@ -5,19 +5,23 @@ SDL_Window *window;
 SDL_Renderer *renderer;
 SDL_Texture *backbuffer;
 
-uint64_t Init()
+uint64_t Init(SDL_Rect *rect)
 {
+	rect->x = 0;
+	rect->y = 0;
+	rect->w = 1280;
+	rect->h = 960;
 	SDL_SetMainReady();
 	SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS);
 	window = SDL_CreateWindow("ChrysaLisp GUI Window",
 				SDL_WINDOWPOS_UNDEFINED,
 				SDL_WINDOWPOS_UNDEFINED,
-				1280, 960,
+				rect->w, rect->h,
 				SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
 	renderer = SDL_CreateRenderer(window, -1,
 				SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_TARGETTEXTURE);
 	backbuffer = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_TARGET,
-				1280, 960);
+				rect->w, rect->h);
 	SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 	SDL_ShowCursor(0);
 	return 0;

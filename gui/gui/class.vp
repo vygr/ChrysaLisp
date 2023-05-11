@@ -39,8 +39,9 @@
 	;inited gui compositor ?
 	(vpifnot {statics->statics_gui_init})
 		;init
-		(host-gui-call 'host_gui :init)
-		(assign {1} {statics->statics_gui_init})
+		(host-gui-call 'host_gui :init {&rect})
+		(assign {1, rect.sdl_rect_w, rect.sdl_rect_h}
+			{statics->statics_gui_init, statics->statics_gui_screen->view_w, statics->statics_gui_screen->view_h})
 	(endif)
 
 	;resize back buffer etc ?
