@@ -587,14 +587,14 @@ static void (*host_os_funcs[]) = {
 
 #ifdef _GUI
 
-uint32_t Init()
+uint64_t Init()
 {
 	SDL_SetMainReady();
 	SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS);
 	return SDL_ShowCursor(0);
 }
 
-uint32_t PollEvent(SDL_Event *data)
+uint64_t PollEvent(SDL_Event *data)
 {
 	SDL_PumpEvents();
 	return SDL_PollEvent(data);
@@ -648,6 +648,7 @@ static void (*host_gui_funcs[]) = {
 	(void*)SDL_RenderSetClipRect,
 	(void*)SDL_SetRenderDrawColor,
 	(void*)SDL_SetTextureColorMod,
+	(void*)SDL_DestroyTexture,
 	(void*)Upload_Texture,
 };
 #endif

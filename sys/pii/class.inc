@@ -62,7 +62,8 @@
 	(dec-method :set_clip :nil :virtual (abi-args 2) (:r0))
 	(dec-method :set_color :nil :virtual (abi-args 5) (:r0))
 	(dec-method :set_texture_color :nil :virtual (abi-args 4) (:r0))
-	(dec-method :upload_texture :nil :virtual (abi-args 6) (:r0)))
+	(dec-method :destroy_texture :nil :virtual (abi-args 1) (:r0))
+	(dec-method :create_texture :nil :virtual (abi-args 6) (:r0)))
 
 (defun abi-call-table (_1 _2 _5 &optional _3 _4 _6)
 	;_1 = class name
