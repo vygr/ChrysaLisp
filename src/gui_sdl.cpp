@@ -1,4 +1,6 @@
-#if defined(_HOST_GUI) && _HOST_GUI == 0
+#if defined(_HOST_GUI)
+#if _HOST_GUI == 0
+
 #include <SDL.h>
 
 SDL_Window *window;
@@ -122,4 +124,5 @@ void (*host_gui_funcs[]) = {
 	(void*)host_gui_poll_event,
 };
 
+#endif
 #endif

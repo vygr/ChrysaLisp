@@ -1,4 +1,6 @@
-#if defined(_HOST_GUI) && _HOST_GUI == 1
+#if defined(_HOST_GUI)
+#if _HOST_GUI == 1
+
 #include <stdint.h>
 
 struct Rect
@@ -86,4 +88,5 @@ void (*host_gui_funcs[]) = {
 	(void*)host_gui_poll_event,
 };
 
+#endif
 #endif
