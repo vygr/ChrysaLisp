@@ -52,44 +52,20 @@ inst:
 	@./run_tui.sh -n 5 -i -e
 
 obj/$(CPU)/$(ABI)/$(OS)/main_gui:	$(OBJ_FILES_GUI)
-ifeq ($(OS),Darwin)
 	c++ -o $@ $^ \
 		$(shell sdl2-config --libs)
-endif
-ifeq ($(OS),Linux)
-	c++ -o $@ $^ \
-		$(shell sdl2-config --libs)
-endif
 
 obj/$(CPU)/$(ABI)/$(OS)/main_tui:	$(OBJ_FILES_TUI)
-ifeq ($(OS),Darwin)
 	c++ -o $@ $^
-endif
-ifeq ($(OS),Linux)
-	c++ -o $@ $^
-endif
 
 $(OBJ_DIR_GUI)/%.o: $(SRC_DIR)/%.cpp
-ifeq ($(OS),Darwin)
 	c++ $(CPPFLAGS) $(CXXFLAGS) -c -D_HOST_GUI=$(HOST_GUI) \
 		$(shell sdl2-config --cflags) \
 		-o $@ $<
-endif
-ifeq ($(OS),Linux)
-	c++ $(CPPFLAGS) $(CXXFLAGS) -c -D_HOST_GUI=$(HOST_GUI) \
-		$(shell sdl2-config --cflags) \
-		-o $@ $<
-endif
 
 $(OBJ_DIR_TUI)/%.o: $(SRC_DIR)/%.cpp
-ifeq ($(OS),Darwin)
 	c++ $(CPPFLAGS) $(CXXFLAGS) -c \
 		-o $@ $<
-endif
-ifeq ($(OS),Linux)
-	c++ $(CPPFLAGS) $(CXXFLAGS) -c \
-		-o $@ $<
-endif
 
 clean:
 	rm -rf $(OBJ_DIR_GUI)/*
