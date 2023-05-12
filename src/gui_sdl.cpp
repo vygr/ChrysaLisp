@@ -76,12 +76,12 @@ void host_gui_filled_box(const SDL_Rect *rect)
 	SDL_RenderFillRect(renderer, rect);
 }
 
-void host_gui_set_color(Uint8 r, Uint8 g, Uint8 b, Uint8 a)
+void host_gui_set_color(uint8_t r, uint8_t g, uint8_t b, uint8_t a)
 {
 	SDL_SetRenderDrawColor(renderer, r, g, b, a);
 }
 
-void host_gui_set_texture_color(SDL_Texture *t, Uint8 r, Uint8 g, Uint8 b)
+void host_gui_set_texture_color(SDL_Texture *t, uint8_t r, uint8_t g, uint8_t b)
 {
 	SDL_SetTextureColorMod(t, r, g, b);
 }
