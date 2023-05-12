@@ -14,11 +14,15 @@ develop for ChrysaLisp.
 
 ### Mac
 
-Download and install the SDL framework from:
-https://www.libsdl.org/download-2.0.php
+Install Homebrew ! It's the easy way.
 
-Get the development *.dmg* file for the framework and copy *SDL2.framework*
-over into your */Library/Frameworks* folder.
+https://brew.sh/
+
+Install the SDL framework from Homebrew with:
+
+```code
+brew install sdl2
+```
 
 ### Linux, PI64
 

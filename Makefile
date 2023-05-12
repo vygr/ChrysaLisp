@@ -54,8 +54,7 @@ inst:
 obj/$(CPU)/$(ABI)/$(OS)/main_gui:	$(OBJ_FILES_GUI)
 ifeq ($(OS),Darwin)
 	c++ -o $@ $^ \
-		-F/Library/Frameworks \
-		-framework SDL2
+		$(shell sdl2-config --libs)
 endif
 ifeq ($(OS),Linux)
 	c++ -o $@ $^ \
@@ -73,7 +72,7 @@ endif
 $(OBJ_DIR_GUI)/%.o: $(SRC_DIR)/%.cpp
 ifeq ($(OS),Darwin)
 	c++ $(CPPFLAGS) $(CXXFLAGS) -c -D_HOST_GUI=$(HOST_GUI) \
-		-I/Library/Frameworks/SDL2.framework/Headers/ \
+		$(shell sdl2-config --cflags) \
 		-o $@ $<
 endif
 ifeq ($(OS),Linux)

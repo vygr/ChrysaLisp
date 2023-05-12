@@ -132,7 +132,7 @@ the link between CPU 000 and 001.
 
 An example network viewed with ps looks like this for a 4x4 mesh network:
 
-```
+```code
 ./main_gui -l 011-015 -l 003-015 -l 014-015 -l 012-015
 ./main_gui -l 010-014 -l 002-014 -l 013-014 -l 014-015
 ./main_gui -l 009-013 -l 001-013 -l 012-013 -l 013-014
@@ -158,14 +158,16 @@ supported platforms.
 
 The experimental GUI requires the **SDL2** library to be installed.
 
-Download these from the SDL web site.
+Get them via your package manager, on Linux with:
 
-- [SDL](https://www.libsdl.org/download-2.0.php)
-
-Or get them via your package manager.
-
-```
+```code
 sudo apt-get install libsdl2-dev
+```
+
+Or on Mac via Homebrew.
+
+```code
+brew install sdl2
 ```
 
 ## Make/Run/Stop
@@ -182,39 +184,27 @@ boot image. You must create the native boot images the first time round. This
 is a little slower than subsequent boots and system compiles but allows us to
 keep the snapshot.zip file as small as possible.
 
-If on Linux or Mac (using manually setup frameworks).
+If on Linux or Mac via Homebrew:
 
-```
+```code
 make install
-```
-
-If you have Homebrew installed on Mac and the SDL package via that way.
-
-```
-make -f Makefile_Homebrew install
 ```
 
 Or on Windows
 
-```
+```code
 install.bat
 ```
 
 ### Make
 
-```
+```code
 make
-```
-
-Or, as above.
-
-```
-make -f Makefile_Homebrew
 ```
 
 ### Run
 
-```
+```code
 ./run_tui.sh [-n num_cpus] [-e] [-b base_cpu]
 ```
 
@@ -222,7 +212,7 @@ Text user interface based fully connected network. Each CPU has links to every
 other CPU. Careful with this as you can end up with a very large number of link
 files and shared memory regions. CPU 0 launches a terminal to the host system.
 
-```
+```code
 ./run.sh [-n num_cpus] [-e] [-b base_cpu]
 ```
 
@@ -230,35 +220,35 @@ Fully connected network. Each CPU has links to every other CPU. Careful with
 this as you can end up with a very large number of link files and shared memory
 regions. CPU 0 launches a GUI.
 
-```
+```code
 ./run_star.sh [-n num_cpus] [-e] [-b base_cpu]
 ```
 
 Star connected network. Each CPU has a link to the first CPU. CPU 0 launches a
 GUI.
 
-```
+```code
 ./run_ring.sh [-n num_cpus] [-e] [-b base_cpu]
 ```
 
 Ring connected network. Each CPU has links to the next and previous CPU's. CPU
 0 launches a GUI.
 
-```
+```code
 ./run_tree.sh [-n num_cpus] [-e] [-b base_cpu]
 ```
 
 Tree connected network. Each CPU has links to its parent CPU and up to two
 child CPU's. CPU 0 launches a GUI.
 
-```
+```code
 ./run_mesh.sh [-n num_cpus on a side] [-e] [-b base_cpu]
 ```
 
 Mesh connected network. Each CPU has links to 4 adjacent CPU's. This is similar
 to Transputer meshes. CPU 0 launches a GUI.
 
-```
+```code
 ./run_cube.sh [-n num_cpus on a side] [-e] [-b base_cpu]
 ```
 
@@ -269,7 +259,7 @@ to TMS320C40 meshes. CPU 0 launches a GUI.
 
 Stop with:
 
-```
+```code
 ./stop.sh
 ```
 
@@ -277,7 +267,7 @@ Stop with:
 
 Snapshot with:
 
-```
+```code
 make snapshot
 ```
 
@@ -288,7 +278,7 @@ the host directory structures, the pre-compiled Windows *main_gui.exe* and
 Used to create the more compact *snapshot.zip* that goes up on Github. This
 must come after creation of `(make-all-platforms)` *boot_image* set !
 
-```
+```code
 obj/vp64/VP64/sys/boot_image
 obj/x86_64/WIN64/Windows/main_gui.exe
 obj/x86_64/WIN64/Windows/main_tui.exe
@@ -298,6 +288,6 @@ obj/x86_64/WIN64/Windows/main_tui.exe
 
 Clean with:
 
-```
+```code
 make clean
 ```
