@@ -20,6 +20,10 @@
 	"mesh" "template")
 	*env_launcher_auto_apps* '("terminal"))
 
+;default gui window size/pos
+(defq *env_window_x* 0 *env_window_y* 0
+	*env_window_width* 1280 *env_window_height* 960)
+
 ;launcher placement from xy :center :top :bottom :left :right)
 (defq *env_launcher_position* :center)
 

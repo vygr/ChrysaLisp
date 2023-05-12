@@ -49,7 +49,7 @@
 		service (mail-declare (task-mailbox) "GUI_SERVICE" "GUI Service 0.2"))
 	;init screen widget
 	(def (defq *screen* (Backdrop)) :style :grid :color +argb_grey2 :ink_color +argb_grey1)
-	(. (gui-init (. *screen* :change 0 0 1280 960)) :dirty_all)
+	(. (gui-init (. *screen* :change *env_window_x* *env_window_y* *env_window_width* *env_window_height*)) :dirty_all)
 	(gui-update 0 0 0)
 	;init mouse widget
 	(defq *mouse* (Canvas-from-file "apps/images/data/mice.cpm" 0))
