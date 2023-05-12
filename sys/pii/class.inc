@@ -85,13 +85,6 @@
 	(vp-cpy-ir _5 statics_sys_load_host_gui_funcs _5)
 	(abi-call-table _1 _2 _5 _3 _4 _6))
 
-;;;;;;;;;;;;;;;;;;;;
-; SDL interface rect
-;;;;;;;;;;;;;;;;;;;;
-
-(def-struct sdl_rect 0
-	(int x y w h))
-
 (def-class sys_pii :nil
 	(dec-method :exit sys/pii/exit :static (:r0))
 	(dec-method :mmap sys/pii/mmap :static (:r0 :r1 :r2) (:r0))
@@ -153,6 +146,9 @@
 		(call 'sys_pii :write_char '(2 10))
 		(assign {_a, _b} '(:r0 :r1))
 		(pop-scope)))
+
+(def-struct host_gui_rect 0
+	(int x y w h))
 
 (def-enum +file_open 0
 	(enum read write append))

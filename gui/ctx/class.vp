@@ -40,8 +40,8 @@
 
 		;continue if out of bounds
 		(assign '((:r0 rect_x) (:r0 rect_y) (:r0 rect_x1) (:r0 rect_y1)) '(:r7 :r8 :r9 :r10))
-		(assign '((:rsp (+ local_drect sdl_rect_x) i) (:rsp (+ local_drect sdl_rect_y) i)
-			(:rsp (+ local_drect sdl_rect_w) i) (:rsp (+ local_drect sdl_rect_h) i)) '(:r11 :r12 :r13 :r14))
+		(assign '((:rsp (+ local_drect host_gui_rect_x) i) (:rsp (+ local_drect host_gui_rect_y) i)
+			(:rsp (+ local_drect host_gui_rect_w) i) (:rsp (+ local_drect host_gui_rect_h) i)) '(:r11 :r12 :r13 :r14))
 		(vp-add-rr :r11 :r13)
 		(vp-add-rr :r12 :r14)
 		(continueif '(:r9 <= :r11) '(:r10 <= :r12) '(:r7 >= :r13) '(:r8 >= :r14))
@@ -49,8 +49,8 @@
 		;set clip region to this region
 		(vp-sub-rr :r7 :r9)
 		(vp-sub-rr :r8 :r10)
-		(assign '(:r7 :r8 :r9 :r10) '((:rsp (+ local_clip_rect sdl_rect_x) i) (:rsp (+ local_clip_rect sdl_rect_y) i)
-			(:rsp (+ local_clip_rect sdl_rect_w) i) (:rsp (+ local_clip_rect sdl_rect_h) i)))
+		(assign '(:r7 :r8 :r9 :r10) '((:rsp (+ local_clip_rect host_gui_rect_x) i) (:rsp (+ local_clip_rect host_gui_rect_y) i)
+			(:rsp (+ local_clip_rect host_gui_rect_w) i) (:rsp (+ local_clip_rect host_gui_rect_h) i)))
 		(host-gui-call 'host_gui :set_clip '((& :rsp local_clip_rect)))
 
 		;eval body
@@ -72,9 +72,9 @@
 	;:r0-:r14
 
 	(def-struct local 0
-		(struct drect sdl_rect_size)
-		(struct srect sdl_rect_size)
-		(struct clip_rect sdl_rect_size)
+		(struct drect host_gui_rect_size)
+		(struct srect host_gui_rect_size)
+		(struct clip_rect host_gui_rect_size)
 		(ulong texture)
 		(ptr this dirty_rect old_stack))
 
@@ -87,11 +87,11 @@
 	(assign '((:r0 view_ctx_x) (:r0 view_ctx_y) :r0 :r1) '(:r11 :r12 (:rsp local_this) (:rsp local_texture)))
 	(vp-add-rr :r11 :r7)
 	(vp-add-rr :r12 :r8)
-	(assign '(:r7 :r8 :r9 :r10) '((:rsp (+ local_drect sdl_rect_x) i) (:rsp (+ local_drect sdl_rect_y) i)
-		(:rsp (+ local_drect sdl_rect_w) i) (:rsp (+ local_drect sdl_rect_h) i)))
+	(assign '(:r7 :r8 :r9 :r10) '((:rsp (+ local_drect host_gui_rect_x) i) (:rsp (+ local_drect host_gui_rect_y) i)
+		(:rsp (+ local_drect host_gui_rect_w) i) (:rsp (+ local_drect host_gui_rect_h) i)))
 	(vp-xor-rr :r7 :r7)
-	(assign '(:r7 :r7 :r9 :r10) '((:rsp (+ local_srect sdl_rect_x) i) (:rsp (+ local_srect sdl_rect_y) i)
-		(:rsp (+ local_srect sdl_rect_w) i) (:rsp (+ local_srect sdl_rect_h) i)))
+	(assign '(:r7 :r7 :r9 :r10) '((:rsp (+ local_srect host_gui_rect_x) i) (:rsp (+ local_srect host_gui_rect_y) i)
+		(:rsp (+ local_srect host_gui_rect_w) i) (:rsp (+ local_srect host_gui_rect_h) i)))
 
 	;set the color mod
 	(vp-cpy-rr :r2 :r3)
@@ -124,8 +124,8 @@
 	;:r0-:r14
 
 	(def-struct local 0
-		(struct drect sdl_rect_size)
-		(struct clip_rect sdl_rect_size)
+		(struct drect host_gui_rect_size)
+		(struct clip_rect host_gui_rect_size)
 		(ptr this dirty_rect old_stack))
 
 	(vp-cpy-rr :rsp :r3)
@@ -138,8 +138,8 @@
 	(assign '((:r0 view_ctx_x) (:r0 view_ctx_y)) '(:r11 :r12))
 	(vp-add-rr :r11 :r7)
 	(vp-add-rr :r12 :r8)
-	(assign '(:r7 :r8 :r9 :r10) '((:rsp (+ local_drect sdl_rect_x) i) (:rsp (+ local_drect sdl_rect_y) i)
-		(:rsp (+ local_drect sdl_rect_w) i) (:rsp (+ local_drect sdl_rect_h) i)))
+	(assign '(:r7 :r8 :r9 :r10) '((:rsp (+ local_drect host_gui_rect_x) i) (:rsp (+ local_drect host_gui_rect_y) i)
+		(:rsp (+ local_drect host_gui_rect_w) i) (:rsp (+ local_drect host_gui_rect_h) i)))
 
 	(for-each-visible-rect
 		'(progn
@@ -162,8 +162,8 @@
 	;:r0-:r14
 
 	(def-struct local 0
-		(struct drect sdl_rect_size)
-		(struct clip_rect sdl_rect_size)
+		(struct drect host_gui_rect_size)
+		(struct clip_rect host_gui_rect_size)
 		(ptr this dirty_rect old_stack))
 
 	(vp-cpy-rr :rsp :r3)
@@ -176,8 +176,8 @@
 	(assign '((:r0 view_ctx_x) (:r0 view_ctx_y)) '(:r11 :r12))
 	(vp-add-rr :r11 :r7)
 	(vp-add-rr :r12 :r8)
-	(assign '(:r7 :r8 :r9 :r10) '((:rsp (+ local_drect sdl_rect_x) i) (:rsp (+ local_drect sdl_rect_y) i)
-		(:rsp (+ local_drect sdl_rect_w) i) (:rsp (+ local_drect sdl_rect_h) i)))
+	(assign '(:r7 :r8 :r9 :r10) '((:rsp (+ local_drect host_gui_rect_x) i) (:rsp (+ local_drect host_gui_rect_y) i)
+		(:rsp (+ local_drect host_gui_rect_w) i) (:rsp (+ local_drect host_gui_rect_h) i)))
 
 	(for-each-visible-rect
 		'(progn

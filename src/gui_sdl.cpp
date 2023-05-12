@@ -5,7 +5,7 @@ SDL_Window *window;
 SDL_Renderer *renderer;
 SDL_Texture *backbuffer;
 
-uint64_t Init(SDL_Rect *rect)
+void host_gui_init(SDL_Rect *rect)
 {
 	SDL_SetMainReady();
 	SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS);
@@ -20,77 +20,83 @@ uint64_t Init(SDL_Rect *rect)
 				rect->w, rect->h);
 	SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 	SDL_ShowCursor(0);
-	return 0;
 }
 
-void DeInit()
+void host_gui_deinit()
 {
 	SDL_DestroyWindow(window);
 	SDL_Quit();
 }
 
-uint64_t PollEvent(SDL_Event *data)
+uint64_t host_gui_poll_event(SDL_Event *data)
 {
 	SDL_PumpEvents();
 	return SDL_PollEvent(data);
 }
 
-uint64_t Upload_Texture(uint32_t *data, uint64_t w, uint64_t h, uint64_t s, uint64_t m)
+uint64_t host_gui_create_texture(uint32_t *data, uint64_t w, uint64_t h, uint64_t s, uint64_t m)
 {
 	auto surface = SDL_CreateRGBSurfaceFrom(data, w, h, 32, s, 0xff0000, 0xff00, 0xff, 0xff000000);
-	auto tid = SDL_CreateTextureFromSurface(renderer, surface);
+	auto t = SDL_CreateTextureFromSurface(renderer, surface);
 	auto mode = SDL_ComposeCustomBlendMode(SDL_BLENDFACTOR_ONE, SDL_BLENDFACTOR_ONE_MINUS_SRC_ALPHA, SDL_BLENDOPERATION_ADD,
 		SDL_BLENDFACTOR_ONE, SDL_BLENDFACTOR_ONE_MINUS_SRC_ALPHA, SDL_BLENDOPERATION_ADD);
-	SDL_SetTextureBlendMode(tid, mode);
+	SDL_SetTextureBlendMode(t, mode);
 	SDL_FreeSurface(surface);
-	return (uint64_t)tid;
+	return (uint64_t)t;
 }
 
-uint64_t Begin_Composite()
+void host_gui_destroy_texture(SDL_Texture *t)
+{
+	SDL_DestroyTexture(t);
+}
+
+void host_gui_begin_composite()
 {
 	SDL_SetRenderTarget(renderer, backbuffer);
-	return 0;
 }
 
-uint64_t End_Composite()
+void host_gui_end_composite()
 {
 	SDL_SetRenderTarget(renderer, 0);
-	return 0;
 }
 
-uint64_t Flush(const SDL_Rect *rect)
+void host_gui_flush(const SDL_Rect *rect)
 {
 	SDL_RenderCopy(renderer, backbuffer, 0, 0);
 	SDL_RenderPresent(renderer);
-	return 0;
 }
 
-void DrawRect(const SDL_Rect *rect)
+void host_gui_box(const SDL_Rect *rect)
 {
 	SDL_RenderDrawRect(renderer, rect);
 }
 
-void FillRect(const SDL_Rect *rect)
+void host_gui_filled_box(const SDL_Rect *rect)
 {
 	SDL_RenderFillRect(renderer, rect);
 }
 
-void SetColor(Uint8 r, Uint8 g, Uint8 b, Uint8 a)
+void host_gui_set_color(Uint8 r, Uint8 g, Uint8 b, Uint8 a)
 {
 	SDL_SetRenderDrawColor(renderer, r, g, b, a);
 }
 
-void Blit(SDL_Texture *t, const SDL_Rect *srect, const SDL_Rect *drect)
+void host_gui_set_texture_color(SDL_Texture *t, Uint8 r, Uint8 g, Uint8 b)
+{
+	SDL_SetTextureColorMod(t, r, g, b);
+}
+
+void host_gui_blit(SDL_Texture *t, const SDL_Rect *srect, const SDL_Rect *drect)
 {
 	SDL_RenderCopy(renderer, t, srect, drect);
 }
 
-void SetClip(const SDL_Rect *rect)
+void host_gui_set_clip(const SDL_Rect *rect)
 {
 	SDL_RenderSetClipRect(renderer, rect);
 }
 
-void Resize(uint64_t w, uint64_t h)
+void host_gui_resize(uint64_t w, uint64_t h)
 {
 	SDL_DestroyTexture(backbuffer);
 	backbuffer = SDL_CreateTexture(renderer,
@@ -99,21 +105,21 @@ void Resize(uint64_t w, uint64_t h)
 }
 
 void (*host_gui_funcs[]) = {
-	(void*)Init,
-	(void*)DeInit,
-	(void*)DrawRect,
-	(void*)FillRect,
-	(void*)Blit,
-	(void*)SetClip,
-	(void*)SetColor,
-	(void*)SDL_SetTextureColorMod,
-	(void*)SDL_DestroyTexture,
-	(void*)Upload_Texture,
-	(void*)Begin_Composite,
-	(void*)End_Composite,
-	(void*)Flush,
-	(void*)Resize,
-	(void*)PollEvent,
+	(void*)host_gui_init,
+	(void*)host_gui_deinit,
+	(void*)host_gui_box,
+	(void*)host_gui_filled_box,
+	(void*)host_gui_blit,
+	(void*)host_gui_set_clip,
+	(void*)host_gui_set_color,
+	(void*)host_gui_set_texture_color,
+	(void*)host_gui_destroy_texture,
+	(void*)host_gui_create_texture,
+	(void*)host_gui_begin_composite,
+	(void*)host_gui_end_composite,
+	(void*)host_gui_flush,
+	(void*)host_gui_resize,
+	(void*)host_gui_poll_event,
 };
 
 #endif

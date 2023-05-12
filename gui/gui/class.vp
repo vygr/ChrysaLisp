@@ -17,7 +17,7 @@
 
 	(def-vars
 		(ptr statics old_stack)
-		(struct rect sdl_rect_size))
+		(struct rect host_gui_rect_size))
 
 	(entry 'gui :update '(:r0 :r1 :r2))
 
@@ -40,9 +40,9 @@
 	(vpifnot {statics->statics_gui_init})
 		;init
 		(assign {0, 0, statics->statics_gui_screen->view_w, statics->statics_gui_screen->view_h}
-			{rect.sdl_rect_x, rect.sdl_rect_y, rect.sdl_rect_w, rect.sdl_rect_h})
+			{rect.host_gui_rect_x, rect.host_gui_rect_y, rect.host_gui_rect_w, rect.host_gui_rect_h})
 		(host-gui-call 'host_gui :init {&rect})
-		(assign {1, rect.sdl_rect_w, rect.sdl_rect_h}
+		(assign {1, rect.host_gui_rect_w, rect.host_gui_rect_h}
 			{statics->statics_gui_init, statics->statics_gui_screen->view_w, statics->statics_gui_screen->view_h})
 	(endif)
 
@@ -57,7 +57,7 @@
 		;render to the backbuffer
 		(host-gui-call 'host_gui :begin_composite)
 		(call 'gui :composite {statics->statics_gui_screen}
-			{rect.sdl_rect_x, rect.sdl_rect_y, rect.sdl_rect_w, rect.sdl_rect_h})
+			{rect.host_gui_rect_x, rect.host_gui_rect_y, rect.host_gui_rect_w, rect.host_gui_rect_h})
 		(host-gui-call 'host_gui :end_composite)
 
 		;flush backbuffer, clear temps and dirty flag
