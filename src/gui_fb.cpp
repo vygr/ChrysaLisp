@@ -3,7 +3,7 @@
 
 struct Rect
 {
-	int x, y, w, h;
+	int32_t x, y, w, h;
 };
 
 void host_gui_init(Rect *rect)
