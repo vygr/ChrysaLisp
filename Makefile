@@ -22,6 +22,14 @@ else
 	endif
 endif
 
+HOST_GUI := 0
+ifeq ($(GUI),sdl)
+	HOST_GUI := 0
+endif
+ifeq ($(GUI),fb)
+	HOST_GUI := 1
+endif
+
 all:		hostenv tui gui
 gui:		hostenv obj/$(CPU)/$(ABI)/$(OS)/main_gui
 tui:		hostenv obj/$(CPU)/$(ABI)/$(OS)/main_tui
@@ -64,12 +72,12 @@ endif
 
 $(OBJ_DIR_GUI)/%.o: $(SRC_DIR)/%.cpp
 ifeq ($(OS),Darwin)
-	c++ $(CPPFLAGS) $(CXXFLAGS) -c -D_GUI=GUI \
+	c++ $(CPPFLAGS) $(CXXFLAGS) -c -D_HOST_GUI=$(HOST_GUI) \
 		-I/Library/Frameworks/SDL2.framework/Headers/ \
 		-o $@ $<
 endif
 ifeq ($(OS),Linux)
-	c++ $(CPPFLAGS) $(CXXFLAGS) -c -D_GUI=GUI \
+	c++ $(CPPFLAGS) $(CXXFLAGS) -c -D_HOST_GUI=$(HOST_GUI) \
 		$(shell sdl2-config --cflags) \
 		-o $@ $<
 endif

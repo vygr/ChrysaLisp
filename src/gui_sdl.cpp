@@ -1,4 +1,4 @@
-#ifdef _GUI
+#if defined(_HOST_GUI) && _HOST_GUI == 0
 #include <SDL.h>
 
 SDL_Window *window;

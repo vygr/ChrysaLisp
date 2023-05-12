@@ -582,7 +582,7 @@ static void (*host_os_funcs[]) = {
 	(void*)pii_sleep,
 };
 
-#ifdef _GUI
+#ifdef _HOST_GUI
 extern void (*host_gui_funcs[]);
 #endif
 
@@ -623,7 +623,7 @@ int main(int argc, char *argv[])
 						if (stack)
 						{
 							std::cout << "ChrysaLisp vp64 emulator v0.1" << std::endl;
-						#ifdef _GUI
+						#ifdef _HOST_GUI
 							ret_val = vp64((uint8_t*)data, (int64_t*)((char*)stack + VP64_STACK_SIZE), (int64_t*)argv, (int64_t*)host_os_funcs, (int64_t*)host_gui_funcs);
 						#else
 							ret_val = vp64((uint8_t*)data, (int64_t*)((char*)stack + VP64_STACK_SIZE), (int64_t*)argv, (int64_t*)host_os_funcs, (int64_t*)nullptr);
@@ -636,7 +636,7 @@ int main(int argc, char *argv[])
 						//swap to RX
 						pii_flush_icache(data, data_size);
 						pii_mprotect(data, data_size, mmap_exec);
-					#ifdef _GUI
+					#ifdef _HOST_GUI
 						ret_val = ((int(*)(char* [], void* [], void* []))((char*)data + data[5]))(argv, host_os_funcs, host_gui_funcs);
 					#else
 						ret_val = ((int(*)(char* [], void* [], void* []))((char*)data + data[5]))(argv, host_os_funcs, nullptr);
