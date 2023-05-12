@@ -182,8 +182,16 @@ boot image. You must create the native boot images the first time round. This
 is a little slower than subsequent boots and system compiles but allows us to
 keep the snapshot.zip file as small as possible.
 
+If on Linux or Mac (using manually setup frameworks).
+
 ```
 make install
+```
+
+If you have Homebrew installed on Mac and the SDL package via that way.
+
+```
+make -f Makefile_Homebrew install
 ```
 
 Or on Windows
@@ -196,6 +204,12 @@ install.bat
 
 ```
 make
+```
+
+Or, as above.
+
+```
+make -f Makefile_Homebrew
 ```
 
 ### Run
