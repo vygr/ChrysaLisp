@@ -2,7 +2,6 @@
  * Host GUI for ChrysaLisp SDL
  */
 #include <stdlib.h>
-#include <assert.h>
 #include <SDL2/SDL.h>
 #include "gr.h"
 

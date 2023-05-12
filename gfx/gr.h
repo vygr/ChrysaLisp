@@ -32,3 +32,7 @@ uint64_t Flush(const struct rect *r);
 
 void DrawBits(struct drawable *d, int x, int y, int width, int height); // not used by CL
 uint64_t WaitEvent(void *data);
+
+/* debug routines exit graphics mode for error message */
+void unassert_handler(char *msg, char *file, int line);
+#define unassert(a)   if (!(a)) unassert_handler(#a,__FILE__, __LINE__)

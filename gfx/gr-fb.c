@@ -3,14 +3,14 @@
  *
  * May 2023 Greg Haerr
  */
+#include <inttypes.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <assert.h>
-#include <inttypes.h>
-#include <unistd.h>
 #include <string.h>
-#include <poll.h>
+#include <unistd.h>
 #include <fcntl.h>
+#include <poll.h>
+#include <termios.h>
 #include <sys/ioctl.h>
 #include <sys/mman.h>
 #include <linux/fb.h>
@@ -20,16 +20,21 @@
 #include "gr.h"
 #include "sdl-dummy.h"
 
-#define PATH_FRAMEBUFFER    "/dev/fb0"
+#define PATH_FRAMEBUFFER    "/dev/fb0"          /* or env "FRAMEBUFFER" */
 #define PATH_MOUSE          "/dev/input/mice"
+#define PATH_KEYBOARD       "/dev/tty"          /* or env "CONSOLE" */
 
 static struct drawable fb;      /* hardware framebuffer */
-static int mouse_fd = -1;
+static struct termios orig;
 static int frame_fd = -1;       /* framebuffer file handle */
+static int mouse_fd = -1;
+static int keybd_fd = -1;;
 
 static int OpenFramebuffer(void);
 static int OpenMouse(void);
 static int ReadMouse(int *dx, int *dy, int *bp);
+static int OpenKeyboard(void);
+static void CloseKeyboard(void);
 
 /* Mouse button bits */
 #define MWBUTTON_L		  0x01		/* left button*/
@@ -38,20 +43,19 @@ static int ReadMouse(int *dx, int *dy, int *bp);
 #define MWBUTTON_SCROLLUP 0x20		/* wheel up*/
 #define MWBUTTON_SCROLLDN 0x40		/* wheel down*/
 
-uint64_t Flush(const struct rect *r)
+void unassert_handler(char *msg, char *file, int line)
 {
-    // backbuffer not yet implemented
-    return 0;
+    DeInit();
+    printf("Assertion failed: %s at %s:%d\n", msg, file, line);
+    exit(255);
 }
-
-/******************** Routines only required for CL *******************/
 
 uint64_t Upload_Texture(uint32_t *data, uint64_t w, uint64_t h, uint64_t s, uint64_t m)
 {
     struct drawable *t;
 
     t = malloc(sizeof(struct drawable));
-    assert(t);
+    unassert(t);
     t->pixtype = fb.pixtype;
     t->bpp = fb.bpp;
     t->width = w;
@@ -59,14 +63,18 @@ uint64_t Upload_Texture(uint32_t *data, uint64_t w, uint64_t h, uint64_t s, uint
     t->pitch = s;
     t->size = h * t->pitch;
     t->pixels = malloc(t->size);
-    assert(t->pixels);
+    unassert(t->pixels);
     return (uint64_t)t;
+}
+
+void SetTextureColorMod(uint64_t texture, uint8_t r, uint8_t g, uint8_t b)
+{
 }
 
 void DestroyTexture(uint64_t texture)
 {
     struct drawable *t = (void *)texture;
-    assert(t);
+    unassert(t);
     free(t->pixels);
     free(t);
 }
@@ -78,6 +86,12 @@ uint64_t Begin_Composite()
 
 uint64_t End_Composite()
 {
+    return 0;
+}
+
+uint64_t Flush(const struct rect *r)
+{
+    // backbuffer not yet implemented
     return 0;
 }
 
@@ -104,17 +118,14 @@ void SetClip(const struct rect *rect)
 
 void Resize(uint64_t w, uint64_t h)
 {
-}
-
-void SetTextureColorMod(uint64_t texture, uint8_t r, uint8_t g, uint8_t b)
-{
+    /* FB display cannot be resized */
 }
 
 static void blit(struct drawable *dst, struct drawable *src, 
     const struct rect *srect, const struct rect *drect)
 {
-    assert(srect->w == drect->w);
-    assert(srect->h == drect->h);
+    unassert(srect->w == drect->w);
+    unassert(srect->h == drect->h);
     char *dstaddr = dst->pixels + drect->y * dst->pitch + drect->x * (dst->bpp >> 3);
     char *srcaddr = src->pixels + srect->y * src->pitch + srect->x * (src->bpp >> 3);
     int i;
@@ -125,7 +136,7 @@ static void blit(struct drawable *dst, struct drawable *src,
     }
 }
 
-/* copy pixel data */
+/* draw passed pixel data */
 void DrawBits(struct drawable *d, int x, int y, int width, int height)
 {
     struct rect r;
@@ -141,12 +152,13 @@ void DrawBits(struct drawable *d, int x, int y, int width, int height)
     blit(&fb, d, &r, &r);
 }
 
+/* draw pixel data from passed texture handle */
 void Blit(uint64_t texture, const struct rect *srect, const struct rect *drect)
 {
     struct drawable *d = (struct drawable *)texture;
-    assert(d);
-    assert(srect->w == drect->w);
-    assert(srect->h == drect->h);
+    unassert(d);
+    unassert(srect->w == drect->w);
+    unassert(srect->h == drect->h);
     blit(&fb, d, drect, srect);
     //SDL_RenderCopy(renderer, texture, srect, drect);
 }
@@ -166,7 +178,6 @@ static uint64_t GetEventTimeout(void *data, int timeout)
         if (fds[0].revents & POLLIN) {
             unsigned char buf[1];
             if (read(0, buf, 1) == 1) {
-                //printf("Got %c\n", buf[0]);
                 event->type = SDL_KEYDOWN;
                 event->key.keysym.sym = buf[0];
                 return 1;
@@ -228,8 +239,20 @@ uint64_t PollEvent(SDL_Event *event)
 
 uint64_t WaitEvent(void *event)
 {
-    GetEventTimeout(event, -1);
+    GetEventTimeout(event, 50);
     return 1;
+}
+
+uint64_t Init(struct rect *r)
+{
+    if (OpenKeyboard() < 0)     /* must be before FB open for KDSETMODE to work */
+        return -1;
+    if (OpenMouse() < 0)
+        return -1;
+    if (OpenFramebuffer() < 0)  /* printf display won't work after this */
+        return -1;
+    atexit(DeInit);
+    return 0;
 }
 
 void (*host_gui_funcs[]) = {
@@ -250,15 +273,6 @@ void (*host_gui_funcs[]) = {
     (void*)PollEvent,
 };
 
-uint64_t Init(struct rect *r)
-{
-    if (OpenFramebuffer() < 0)
-        return -1;
-    if (OpenMouse() < 0)
-        return -1;
-    return 0;
-}
-
 /* open linux framebuffer*/
 static int OpenFramebuffer(void)
 {
@@ -276,7 +290,7 @@ static int OpenFramebuffer(void)
     /* get dynamic framebuffer info*/
     if (ioctl(frame_fd, FBIOGET_FSCREENINFO, &fb_fix) == -1 ||
         ioctl(frame_fd, FBIOGET_VSCREENINFO, &fb_var) == -1) {
-            printf("Error reading framebuffer info: %m\n");
+            printf("Can't get framebuffer specs: %m\n");
             goto fail;
     }
 
@@ -309,7 +323,7 @@ static int OpenFramebuffer(void)
             fb.pixtype = MWPF_TRUECOLORARGB;
             break;
         default:
-            printf("Unsupported %d bpp truecolor framebuffer\n", fb.bpp);
+            printf("Unsupported framebuffer bpp: %d\n", fb.bpp);
             goto fail;
         }
     } else {
@@ -325,24 +339,14 @@ static int OpenFramebuffer(void)
 
     fb.pixels = mmap(NULL, fb.size, PROT_READ|PROT_WRITE, MAP_SHARED, frame_fd, 0);
     if(fb.pixels == NULL || fb.pixels == (unsigned char *)-1) {
-        printf("Error mmaping %s: %m\n", PATH_FRAMEBUFFER);
+        printf("Can't mmap %s: %m\n", PATH_FRAMEBUFFER);
         goto fail;
     }
 
-#if HAVE_TEXT
-    int tty = 0;
-    //tty = open ("/dev/tty0", O_RDWR);
-    if(tty < 0) {
-        printf("Error can't open /dev/tty0: %m\n");
-        goto fail;
+    /* switch console to graphic mode, no more printf error messages */
+    if (keybd_fd >= 0) {
+        ioctl(keybd_fd, KDSETMODE, KD_GRAPHICS);
     }
-    if(ioctl (tty, KDSETMODE, KD_GRAPHICS) == -1) {
-        printf("Error setting graphics mode: %m\n");
-        //close(tty);
-        goto fail;
-    }
-    //close(tty);
-#endif
 
     memset(fb.pixels, 0, fb.size);
     return frame_fd; /* success*/
@@ -357,23 +361,12 @@ static void CloseFramebuffer(void)
 {
     if (frame_fd >= 0) {
         munmap(fb.pixels, fb.size);
-#if HAVE_TEXT
-        int tty = 0;
-        //int tty = open ("/dev/tty0", O_RDWR);
-        ioctl(tty, KDSETMODE, KD_TEXT);
-        //close(tty);
-#endif
+        if (keybd_fd >= 0) {
+            ioctl(keybd_fd, KDSETMODE, KD_TEXT);
+        }
         close(frame_fd);
      }
     frame_fd = -1;
-}
-
-static void CloseMouse(void);
-
-void DeInit(void)
-{
-    CloseMouse();
-    CloseFramebuffer();
 }
 
 static int OpenMouse(void)
@@ -384,7 +377,7 @@ static int OpenMouse(void)
 
     mouse_fd = open(PATH_MOUSE, O_RDWR | O_NONBLOCK);
     if (mouse_fd < 0) {
-        printf("Can't open mouse %s\n", PATH_MOUSE);
+        printf("Can't open mouse %s: %m\n", PATH_MOUSE);
         return -1;
     }
 
@@ -421,8 +414,7 @@ static void CloseMouse(void)
  * Left, Right, and Mid are the three button states, 1 if being depressed.
  * Neg-X and Neg-Y are set if XXXXXXXX and YYYYYYYY are negative, respectively.
  */
-static int
-ReadMouse(int *dx, int *dy, int *bp)
+static int ReadMouse(int *dx, int *dy, int *bp)
 {
     int n, x, y, w, left, middle, right, button;
     unsigned char data[4];
@@ -453,4 +445,45 @@ ReadMouse(int *dx, int *dy, int *bp)
     *dy = y;       
     *bp = button;
     return 1;
+}
+
+static int OpenKeyboard(void)
+{
+    char *path;
+    struct termios new;
+
+    if (!(path = getenv("CONSOLE")))
+        path = PATH_KEYBOARD;
+    keybd_fd = open(path, O_NONBLOCK);
+    if (keybd_fd < 0) {
+        printf("Can't open %s, may need root or tty group permissions\n", path);
+        return -1;
+    }
+
+    tcgetattr(keybd_fd, &orig);
+    new = orig;
+    new.c_lflag &= ~(ECHO | ICANON | IEXTEN | ISIG);
+    new.c_iflag &= ~(ICRNL | INPCK | ISTRIP | IXON | BRKINT);
+    new.c_cflag &= ~(CSIZE | PARENB);
+    new.c_cflag |= CS8;
+    new.c_cc[VMIN] = 0;
+    new.c_cc[VTIME] = 0;
+    tcsetattr(keybd_fd, TCSAFLUSH, &new);
+    return keybd_fd;
+}
+
+static void CloseKeyboard(void)
+{
+    if (keybd_fd >= 0) {
+        tcsetattr(keybd_fd, TCSANOW, &orig);
+        close(keybd_fd);
+    }
+    keybd_fd = -1;
+}
+
+void DeInit(void)
+{
+    CloseMouse();
+    CloseFramebuffer();
+    CloseKeyboard();        /* must be after FB close for KDSETMODE to work */
 }

@@ -255,7 +255,6 @@ void con_textout(struct console *con, int c, int attr)
     cursoroff();
 
     switch (c) {
-    case '\0':  return;
     case '\b':  if (--con->curx <= 0) con->curx = 0; goto update;
     case '\r':  con->curx = 0; goto update;
     case '\n':  goto scroll;
@@ -307,7 +306,7 @@ static void draw_video_ram(struct console *con, int sx, int sy, int ex, int ey)
 /* Called periodically from the main loop */
 void con_update(struct console *con)
 {
-    static int lastx = -1, lasty = -1, needscursor = 0;
+    static int lastx = -1, lasty = -1, needscursor = 1;
 
     if (vid_maxx >= 0 || vid_maxy >= 0) {
         /* draw text bitmaps from adaptor RAM */
@@ -320,24 +319,24 @@ void con_update(struct console *con)
 
         reset_dirty_region();
         needscursor = 1;
-    } else {
-        /* check for cursor draw */
-        if (lastx != con->curx || lasty != con->cury || needscursor) {
-            if (lastx >= 0) {
-                /* remove last cursor */
-                draw_video_ram(con, lastx, lasty, lastx+1, lasty+1);
-                DrawBits(&con->scr, lastx * con->char_width, lasty * con->char_height,
-                    con->char_width, con->char_height);
-            }
+    }
 
-            /* draw current cursor */
-            drawbitmap(con, '_', ATTR_DEFAULT,
-                con->curx * con->char_width, con->cury * con->char_height, 0);
-            DrawBits(&con->scr, con->curx * con->char_width, con->cury * con->char_height,
+    /* check for cursor draw */
+    if (lastx != con->curx || lasty != con->cury || needscursor) {
+        if (lastx >= 0) {
+            /* remove last cursor */
+            draw_video_ram(con, lastx, lasty, lastx+1, lasty+1);
+            DrawBits(&con->scr, lastx * con->char_width, lasty * con->char_height,
                 con->char_width, con->char_height);
-            lastx = con->curx; lasty = con->cury;
-            needscursor = 0;
         }
+
+        /* draw current cursor */
+        drawbitmap(con, '_', ATTR_DEFAULT,
+            con->curx * con->char_width, con->cury * con->char_height, 0);
+        DrawBits(&con->scr, con->curx * con->char_width, con->cury * con->char_height,
+            con->char_width, con->char_height);
+        lastx = con->curx; lasty = con->cury;
+        needscursor = 0;
     }
 }
 
