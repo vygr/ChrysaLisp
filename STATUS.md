@@ -6,6 +6,13 @@
 
 First stage in new portable compositor API.
 
+`gui_sdl.cpp` file is now where the new host compositor via SDL lives.
+
+`gui_fb.cpp` file is where the new host compositor via Linux FB will live !
+
+Extra make options, just add `GUI=sdl` or `GUI=fb` on the Linux `make install`
+line. It will default to `GUI=sdl` if nothing specified or invalid.
+
 ------
 
 Fix to make VP and C-Script optimizers immune to prebinder policy with regards
