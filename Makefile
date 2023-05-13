@@ -4,10 +4,13 @@ OBJ_DIR_TUI := ./src/obj/tui
 dummy_build_gui := $(shell mkdir -p $(OBJ_DIR_GUI))
 dummy_build_tui := $(shell mkdir -p $(OBJ_DIR_TUI))
 SRC_FILES := $(wildcard $(SRC_DIR)/*.cpp)
+SRC_CFILES := $(wildcard $(SRC_DIR)/*.c)
 OBJ_FILES_GUI := $(patsubst $(SRC_DIR)/%.cpp,$(OBJ_DIR_GUI)/%.o,$(SRC_FILES))
 OBJ_FILES_TUI := $(patsubst $(SRC_DIR)/%.cpp,$(OBJ_DIR_TUI)/%.o,$(SRC_FILES))
-CPPFLAGS := -O3 -std=c++14 -nostdlib -fno-exceptions
-CXXFLAGS += -MMD
+OBJ_CFILES_GUI := $(patsubst $(SRC_DIR)/%.c,$(OBJ_DIR_GUI)/%.o,$(SRC_CFILES))
+OBJ_CFILES_TUI := $(patsubst $(SRC_DIR)/%.c,$(OBJ_DIR_TUI)/%.o,$(SRC_CFILES))
+CFLAGS := -O3 -nostdlib -fno-exceptions -MMD
+CPPFLAGS := -std=c++14
 
 OS := $(shell uname)
 CPU := $(shell uname -m)
@@ -51,20 +54,29 @@ snapshot:
 inst:
 	@./run_tui.sh -n 5 -i -e
 
-obj/$(CPU)/$(ABI)/$(OS)/main_gui:	$(OBJ_FILES_GUI)
+obj/$(CPU)/$(ABI)/$(OS)/main_gui:	$(OBJ_FILES_GUI) $(OBJ_CFILES_GUI)
 	c++ -o $@ $^ \
 		$(shell sdl2-config --libs)
 
-obj/$(CPU)/$(ABI)/$(OS)/main_tui:	$(OBJ_FILES_TUI)
+obj/$(CPU)/$(ABI)/$(OS)/main_tui:	$(OBJ_FILES_TUI) $(OBJ_CFILES_TUI)
 	c++ -o $@ $^
 
 $(OBJ_DIR_GUI)/%.o: $(SRC_DIR)/%.cpp
-	c++ $(CPPFLAGS) $(CXXFLAGS) -c -D_HOST_GUI=$(HOST_GUI) \
+	c++ $(CFLAGS) $(CPPFLAGS) -c -D_HOST_GUI=$(HOST_GUI) \
 		$(shell sdl2-config --cflags) \
 		-o $@ $<
 
 $(OBJ_DIR_TUI)/%.o: $(SRC_DIR)/%.cpp
-	c++ $(CPPFLAGS) $(CXXFLAGS) -c \
+	c++ $(CFLAGS) $(CPPFLAGS) -c \
+		-o $@ $<
+
+$(OBJ_DIR_GUI)/%.o: $(SRC_DIR)/%.c
+	cc $(CFLAGS) -c -D_HOST_GUI=$(HOST_GUI) \
+		$(shell sdl2-config --cflags) \
+		-o $@ $<
+
+$(OBJ_DIR_TUI)/%.o: $(SRC_DIR)/%.c
+	cc $(CFLAGS) -c \
 		-o $@ $<
 
 clean:
