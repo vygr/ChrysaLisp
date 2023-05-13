@@ -1,5 +1,5 @@
 /*
- * Host GUI Library for ChrysaLisp SDL/Framebuffer
+ * Host GUI for ChrysaLisp SDL/Framebuffer
  *
  * May 2023 Greg Haerr
  */
@@ -11,12 +11,12 @@
 #define MWPF_TRUECOLOR565  3    /* 16bpp, le unsigned short 5/6/5 RGB */
 #define MWPF_TRUECOLOR555  4    /* 16bpp, le unsigned short 5/5/5 RGB */
 
-struct rect {
+typedef struct rect {
     int x, y;
     int w, h;
-};
+} Rect;
 
-struct drawable {
+typedef struct drawable {
     int pixtype;                /* pixel format */
     int bpp;                    /* bits per pixel */
     int width;                  /* width in pixels */
@@ -24,15 +24,14 @@ struct drawable {
     int pitch;                  /* stride in bytes, offset to next pixel row */
     int size;                   /* total size in bytes */
     unsigned char *pixels;      /* pixel data */
-};
+} Drawable, Texture;
 
 uint64_t Init(struct rect *r);
 void DeInit(void);
-uint64_t Flush(const struct rect *r);
+void Flush(const Rect *r);
+void DrawRect(const Rect *rect);
+void FillRect(const Rect *rect);
+void SetClip(const Rect *rect);
 
-void DrawBits(struct drawable *d, int x, int y, int width, int height); // not used by CL
-uint64_t WaitEvent(void *data);
-
-/* debug routines exit graphics mode for error message */
-void unassert_handler(char *msg, char *file, int line);
-#define unassert(a)   if (!(a)) unassert_handler(#a,__FILE__, __LINE__)
+void BlitDrawable(Drawable *d, int x, int y, int width, int height); // not used by CL
+uint64_t WaitEvent(void *event);

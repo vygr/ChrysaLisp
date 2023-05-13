@@ -10,7 +10,7 @@ static SDL_Renderer *renderer;
 static SDL_Texture *backbuffer;
 static float sdlZoom = 0.5;
 
-uint64_t Init(struct rect *r)
+uint64_t Init(Rect *r)
 {
     int pixtype, pixelformat;
 
@@ -83,25 +83,49 @@ void DeInit(void)
 	SDL_Quit();
 }
 
-uint64_t Flush(const struct rect *r)
+void Begin_Composite()
+{
+	SDL_SetRenderTarget(renderer, backbuffer);
+}
+
+void End_Composite()
+{
+	SDL_SetRenderTarget(renderer, 0);
+}
+
+void Flush(const Rect *r)
 {
     /* copy backbuffer to display*/
     //SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0x00, 0x00);
     //SDL_RenderClear(renderer);
     SDL_RenderCopy(renderer, backbuffer, NULL, NULL);
     SDL_RenderPresent(renderer);
-    return 0;
 }
 
-/******************** Routines only required for CL *******************/
-
-uint64_t PollEvent(SDL_Event *data)
+/* set global clipping rectangle */
+void SetClip(const Rect *rect)
 {
-	SDL_PumpEvents();
-	return SDL_PollEvent(data);
+	SDL_RenderSetClipRect(renderer, (SDL_Rect *)rect);
 }
 
-uint64_t Upload_Texture(uint32_t *data, uint64_t w, uint64_t h, uint64_t s, uint64_t m)
+/* set color for DrawRect and FillRect */
+void SetColor(Uint8 r, Uint8 g, Uint8 b, Uint8 a)
+{
+	SDL_SetRenderDrawColor(renderer, r, g, b, a);
+}
+
+/* draw pixels from passed texture handle */
+void DrawRect(const Rect *rect)
+{
+	SDL_RenderDrawRect(renderer, (SDL_Rect *)rect);
+}
+
+void FillRect(const Rect *rect)
+{
+	SDL_RenderFillRect(renderer, (struct SDL_Rect *)rect);
+}
+
+Texture *CreateTexture(void *data, uint64_t w, uint64_t h, uint64_t s, uint64_t m)
 {
 	SDL_Surface * surface = SDL_CreateRGBSurfaceFrom(data, w, h, 32, s, 0xff0000, 0xff00, 0xff, 0xff000000);
 	SDL_Texture * tid = SDL_CreateTextureFromSurface(renderer, surface);
@@ -110,44 +134,12 @@ uint64_t Upload_Texture(uint32_t *data, uint64_t w, uint64_t h, uint64_t s, uint
 		SDL_BLENDFACTOR_ONE, SDL_BLENDFACTOR_ONE_MINUS_SRC_ALPHA, SDL_BLENDOPERATION_ADD);
 	SDL_SetTextureBlendMode(tid, mode);
 	SDL_FreeSurface(surface);
-	return (uint64_t)tid;
+	return (Texture *)tid;
 }
 
-uint64_t Begin_Composite()
-{
-	SDL_SetRenderTarget(renderer, backbuffer);
-	return 0;
-}
-
-uint64_t End_Composite()
-{
-	SDL_SetRenderTarget(renderer, 0);
-	return 0;
-}
-
-void DrawRect(const SDL_Rect *rect)
-{
-	SDL_RenderDrawRect(renderer, rect);
-}
-
-void FillRect(const SDL_Rect *rect)
-{
-	SDL_RenderFillRect(renderer, rect);
-}
-
-void SetColor(Uint8 r, Uint8 g, Uint8 b, Uint8 a)
-{
-	SDL_SetRenderDrawColor(renderer, r, g, b, a);
-}
-
-void Blit(SDL_Texture *t, const SDL_Rect *srect, const SDL_Rect *drect)
+void DrawTexture(SDL_Texture *t, const SDL_Rect *srect, const SDL_Rect *drect)
 {
 	SDL_RenderCopy(renderer, t, srect, drect);
-}
-
-void SetClip(const SDL_Rect *rect)
-{
-	SDL_RenderSetClipRect(renderer, rect);
 }
 
 void Resize(uint64_t w, uint64_t h)
@@ -158,17 +150,23 @@ void Resize(uint64_t w, uint64_t h)
 				w, h);
 }
 
+uint64_t PollEvent(SDL_Event *data)
+{
+	SDL_PumpEvents();
+	return SDL_PollEvent(data);
+}
+
 void (*host_gui_funcs[]) = {
 	(void*)Init,
 	(void*)DeInit,
 	(void*)DrawRect,
 	(void*)FillRect,
-	(void*)Blit,
+	(void*)DrawTexture,
 	(void*)SetClip,
 	(void*)SetColor,
 	(void*)SDL_SetTextureColorMod,
 	(void*)SDL_DestroyTexture,
-	(void*)Upload_Texture,
+	(void*)CreateTexture,
 	(void*)Begin_Composite,
 	(void*)End_Composite,
 	(void*)Flush,
@@ -177,6 +175,21 @@ void (*host_gui_funcs[]) = {
 };
 
 /******************** Routines not required for CL *******************/
+
+/* draw pixels from passed drawable (not used by CL) */
+void BlitDrawable(Drawable *d, int x, int y, int width, int height)
+{
+    SDL_Rect r;
+    if (!width) width = d->width;
+    if (!height) height = d->height;
+    r.x = x;
+    r.y = y;
+    r.w = width;
+    r.h = height;
+
+    unsigned char *pixels = d->pixels + y * d->pitch + x * (d->bpp >> 3);
+    SDL_UpdateTexture(backbuffer, &r, pixels, d->pitch);
+}
 
 /* convert keycode to shift value */
 static SDL_Keycode key_shift(SDL_Keycode kc)
@@ -241,21 +254,7 @@ static int sdl_key(Uint8 state, SDL_Keysym sym)
     return kc;
 }
 
-/* send pixel data to SDL */
-void DrawBits(struct drawable *d, int x, int y, int width, int height)
-{
-    SDL_Rect r;
-    if (!width) width = d->width;
-    if (!height) height = d->height;
-    r.x = x;
-    r.y = y;
-    r.w = width;
-    r.h = height;
-
-    unsigned char *pixels = d->pixels + y * d->pitch + x * (d->bpp >> 3);
-    SDL_UpdateTexture(backbuffer, &r, pixels, d->pitch);
-}
-
+/* block for next event (not used by CL) */
 uint64_t WaitEvent(void *data)
 {
     SDL_Event *event = (SDL_Event *)data;

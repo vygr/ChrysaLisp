@@ -29,6 +29,8 @@ static struct termios orig;
 static int frame_fd = -1;       /* framebuffer file handle */
 static int mouse_fd = -1;
 static int keybd_fd = -1;;
+static int clipminx, clipmaxx;
+static int clipminy, clipmaxy;
 
 static int OpenFramebuffer(void);
 static int OpenMouse(void);
@@ -43,6 +45,14 @@ static void CloseKeyboard(void);
 #define MWBUTTON_SCROLLUP 0x20		/* wheel up*/
 #define MWBUTTON_SCROLLDN 0x40		/* wheel down*/
 
+#define MIN(a,b)      ((a) < (b) ? (a) : (b))
+#define MAX(a,b)      ((a) > (b) ? (a) : (b))
+#define CLAMP(x,a,b)  ((x) > (b) ? (b) : ((x) < (a) ? (a) : (x)))
+
+/* debug routines exit graphics mode for error message */
+void unassert_handler(char *msg, char *file, int line);
+#define unassert(a)   if (!(a)) unassert_handler(#a,__FILE__, __LINE__)
+
 void unassert_handler(char *msg, char *file, int line)
 {
     DeInit();
@@ -50,70 +60,164 @@ void unassert_handler(char *msg, char *file, int line)
     exit(255);
 }
 
-uint64_t Upload_Texture(uint32_t *data, uint64_t w, uint64_t h, uint64_t s, uint64_t m)
-{
-    struct drawable *t;
-
-    t = malloc(sizeof(struct drawable));
-    unassert(t);
-    t->pixtype = fb.pixtype;
-    t->bpp = fb.bpp;
-    t->width = w;
-    t->height = h;
-    t->pitch = s;
-    t->size = h * t->pitch;
-    t->pixels = malloc(t->size);
-    unassert(t->pixels);
-    return (uint64_t)t;
-}
-
-void SetTextureColorMod(uint64_t texture, uint8_t r, uint8_t g, uint8_t b)
+void Begin_Composite(void)
 {
 }
 
-void DestroyTexture(uint64_t texture)
+void End_Composite(void)
 {
-    struct drawable *t = (void *)texture;
-    unassert(t);
-    free(t->pixels);
-    free(t);
 }
 
-uint64_t Begin_Composite()
-{
-    return 0;
-}
-
-uint64_t End_Composite()
-{
-    return 0;
-}
-
-uint64_t Flush(const struct rect *r)
+void Flush(const Rect *r)
 {
     // backbuffer not yet implemented
-    return 0;
 }
+
+/* adjust passed rect to current clip rectangle */
+static Rect *ClipRect(const Rect *rect)
+{
+    int x2, y2;
+    static Rect r;
+
+    r.x = CLAMP(rect->x, clipminx, clipmaxx);
+    x2 = rect->x + rect->w - 1;
+    x2 = CLAMP(x2, clipminx, clipmaxx);
+    r.w = x2 - r.x + 1;
+    r.y = CLAMP(rect->y, clipminy, clipmaxy);
+    y2 = rect->y + rect->h - 1;
+    y2 = CLAMP(y2, clipminy, clipmaxy);
+    r.h = y2 - r.y + 1;
+    if (r.w <= 1 || r.h <= 1)
+        return 0;
+    return &r;
+}
+
+/* set global clipping rectangle */
+void SetClip(const Rect *rect)
+{
+    if (rect) {
+        int maxx = fb.width - 1;
+        int maxy = fb.height - 1;
+        clipminx = CLAMP(rect->x, 0, maxx);
+        clipmaxx = rect->x + rect->w - 1;
+        clipmaxx = CLAMP(clipmaxx, 0, maxx);
+        clipminy = CLAMP(rect->y, 0, maxy);
+        clipmaxy = rect->y + rect->h - 1;
+        clipmaxy = CLAMP(clipmaxy, 0, maxy);
+    } else {
+        clipminx = 0;
+        clipmaxx = fb.width - 1;
+        clipminy = 0;
+        clipmaxy = fb.height - 1;
+    }
+}
+
+typedef uint32_t COLORVAL;      /* color in 0xAARRGGBB register format */
+typedef uint32_t PIXELVAL;      /* pixel format B, G, R, A in memory */
+
+/* create COLORVAL (0xAARRGGBB register format)*/
+#define ARGB(a,r,g,b) ((COLORVAL)                  \
+                (((uint32_t)(uint8_t)(b)) <<  0) | \
+                (((uint32_t)(uint8_t)(g)) <<  8) | \
+                (((uint32_t)(uint8_t)(r)) << 16) | \
+                (((uint32_t)(uint8_t)(a)) << 24))
+#define RGB(r,g,b)    ARGB(255,(r),(g),(b))     /* ARGB 255 alpha */
+#define COLORVAL_TO_PIXELVAL(c)     (c)         /* no conversion! */
+
+static PIXELVAL defColor = COLORVAL_TO_PIXELVAL(RGB(0, 0, 255));
+static PIXELVAL defColorMod = COLORVAL_TO_PIXELVAL(ARGB(255, 255, 255, 255));
 
 /* set color for DrawRect and FillRect */
 void SetColor(uint8_t r, uint8_t g, uint8_t b, uint8_t a)
 {
-    //coming shortly
+    defColor = COLORVAL_TO_PIXELVAL(ARGB(a, r, g, b));
 }
 
-void DrawRect(const struct rect *rect)
+/* FIXME not implemented yet in DrawTexture */
+void SetTextureColorMod(Texture *texture, uint8_t r, uint8_t g, uint8_t b)
 {
-    //coming shortly
+    defColorMod = COLORVAL_TO_PIXELVAL(RGB(r, g, b));
 }
 
-void FillRect(const struct rect *rect)
+/* Draw horizontal line from x1,y to x2,y including final point */
+static void DrawHLine32(Drawable *d, int x1, int x2, int y, PIXELVAL c)
 {
-    //coming shortly
+    uint8_t *addr = d->pixels + y * d->pitch + (x1 << 2);
+    int width = x2 - x1 + 1;
+    unassert(x1 >= 0 && x1 < d->width);
+    unassert(x2 >= 0 && x2 < d->width);
+    unassert(x2 >= x1);
+    unassert(y >= 0 && y < d->height);
+
+    //if(defMode == ROP_COPY) {
+        int w = width;
+        while (--w >= 0) {
+            *((uint32_t *)addr) = c;
+            addr += 4;
+        }
+    //}
+    //else APPLYOP(defMode, width, (uint32_t), c, *(ADDR32), addr, 0, 4);
+    //UpdateRect(x1, y, width, 1);
 }
 
-void SetClip(const struct rect *rect)
+/* Draw a vertical line from x,y1 to x,y2 including final point */
+static void DrawVLine32(Drawable *d, int x, int y1, int y2, PIXELVAL c)
 {
-    //SDL_RenderSetClipRect(renderer, rect);
+    int pitch = d->pitch;
+    uint8_t *addr = d->pixels + y1 * pitch + (x << 2);
+    int height = y2 - y1 + 1;
+    unassert(x >= 0 && x < d->width);
+    unassert(y1 >= 0 && y1 < d->height);
+    unassert(y2 >= 0 && y2 < d->height);
+    unassert(y2 >= y1);
+
+    //if(defMode == ROP_COPY) {
+        int h = height;
+        while (--h >= 0) {
+            *((uint32_t *)addr) = c;
+            addr += pitch;
+        }
+    //}
+    //else APPLYOP(defMode, height, (uint32_t), c, *(ADDR32), addr, 0, pitch);
+    //UpdateRect(x, y1, 1, height);
+}
+
+void DrawRect(const Rect *rect)
+{
+    Rect *r = ClipRect(rect);
+    if (!r) return;
+    int x = r->x;
+    int y = r->y;
+    int width = r->w;
+    int height = r->h;
+    int maxx = x + width - 1;
+    int maxy = y + height - 1;
+    DrawHLine32(&fb, x, maxx, y, defColor);
+    if (height > 1)
+        DrawHLine32(&fb, x, maxx, maxy, defColor);
+    if (height < 3)
+        return;
+    ++y;
+    --maxy;
+    DrawVLine32(&fb, x, y, maxy, defColor);
+    if (width > 1)
+        DrawVLine32(&fb, maxx, y, maxy, defColor);
+}
+
+
+void FillRect(const Rect *rect)
+{
+    Rect *r = ClipRect(rect);
+    if (!r) return;
+    int x2 = r->x + r->w - 1;
+    int y1 = r->y;
+    int y2 = y1 + r->h - 1;
+
+    while (y1 <= y2)
+        DrawHLine32(&fb, r->x, x2, y1++, defColor);
+    //int X1 = r->x;
+    //int Y1 = r->y;
+    //UpdateRect(X1, Y1, x2-X1+1, y2-Y1+1);
 }
 
 void Resize(uint64_t w, uint64_t h)
@@ -121,8 +225,34 @@ void Resize(uint64_t w, uint64_t h)
     /* FB display cannot be resized */
 }
 
-static void blit(struct drawable *dst, struct drawable *src, 
-    const struct rect *srect, const struct rect *drect)
+/* allocate drawable for passed data and return a handle to it */
+Texture *CreateTexture(void *data, uint64_t width, uint64_t height, uint64_t pitch, uint64_t mode)
+{
+    Texture *t;
+
+    t = malloc(sizeof(Texture));
+    unassert(t);
+    t->pixtype = fb.pixtype;
+    t->bpp = fb.bpp;
+    t->width = width;
+    t->height = height;
+    t->pitch = pitch;
+    t->size = height * t->pitch;
+    t->pixels = malloc(t->size);
+    unassert(t->pixels);
+    memcpy(t->pixels, data, t->size);
+    return t;
+}
+
+void DestroyTexture(Texture *texture)
+{
+    unassert(texture);
+    free(texture->pixels);
+    free(texture);
+}
+
+/* actually copy data, no clipping done */
+static void blit(Drawable *src, const Rect *srect, Drawable *dst, const Rect *drect)
 {
     unassert(srect->w == drect->w);
     unassert(srect->h == drect->h);
@@ -134,12 +264,25 @@ static void blit(struct drawable *dst, struct drawable *src,
         dstaddr += dst->pitch;
         srcaddr += src->pitch;
     }
+    //UpdateRect(drect->x, drect->y, drect->w, drect->h);
 }
 
-/* draw passed pixel data */
-void DrawBits(struct drawable *d, int x, int y, int width, int height)
+/* draw pixels from passed texture handle */
+void BlitTexture(Texture *texture, const Rect *srect, const Rect *drect)
 {
-    struct rect r;
+    unassert(texture);
+    unassert(srect->w == drect->w);
+    unassert(srect->h == drect->h);
+    Rect *cr = ClipRect(drect);
+    if (cr) {
+        blit(texture, srect, &fb, cr);
+    }
+}
+
+/* draw pixels from passed drawable (not used by CL) */
+void BlitDrawable(Drawable *d, int x, int y, int width, int height)
+{
+    Rect r;
     if (!width) width = d->width;
     if (!height) height = d->height;
     r.x = x;
@@ -147,20 +290,17 @@ void DrawBits(struct drawable *d, int x, int y, int width, int height)
     r.w = width;
     r.h = height;
 
-    //unsigned char *pixels = d->pixels + y * d->pitch + x * (d->bpp >> 3);
-    //SDL_UpdateTexture(backbuffer, &r, pixels, d->pitch);
-    blit(&fb, d, &r, &r);
-}
-
-/* draw pixel data from passed texture handle */
-void Blit(uint64_t texture, const struct rect *srect, const struct rect *drect)
-{
-    struct drawable *d = (struct drawable *)texture;
-    unassert(d);
-    unassert(srect->w == drect->w);
-    unassert(srect->h == drect->h);
-    blit(&fb, d, drect, srect);
-    //SDL_RenderCopy(renderer, texture, srect, drect);
+#if 1
+    Rect *cr = ClipRect(&r);
+    if (cr) {
+        blit(d, cr, &fb, cr);
+    }
+#else   /* used to test code for textures */
+    Texture *t = CreateTexture(d->pixels, d->width, d->height, d->pitch, 0);
+    unassert(t);
+    BlitTexture(t, cr, cr);
+    DestroyTexture(t);
+#endif
 }
 
 /* msec timeout 0 to poll, timeout -1 to block */
@@ -237,13 +377,14 @@ uint64_t PollEvent(SDL_Event *event)
     return event->type != 0;
 }
 
+/* block for next event (not used by CL) */
 uint64_t WaitEvent(void *event)
 {
-    GetEventTimeout(event, 50);
+    GetEventTimeout(event, -1);
     return 1;
 }
 
-uint64_t Init(struct rect *r)
+uint64_t Init(Rect *r)
 {
     if (OpenKeyboard() < 0)     /* must be before FB open for KDSETMODE to work */
         return -1;
@@ -260,12 +401,12 @@ void (*host_gui_funcs[]) = {
     (void*)DeInit,
     (void*)DrawRect,
     (void*)FillRect,
-    (void*)Blit,
+    (void*)BlitTexture,
     (void*)SetClip,
     (void*)SetColor,
     (void*)SetTextureColorMod,
     (void*)DestroyTexture,
-    (void*)Upload_Texture,
+    (void*)CreateTexture,
     (void*)Begin_Composite,
     (void*)End_Composite,
     (void*)Flush,
@@ -349,7 +490,8 @@ static int OpenFramebuffer(void)
     }
 
     memset(fb.pixels, 0, fb.size);
-    return frame_fd; /* success*/
+    SetClip(0);
+    return frame_fd;
 
 fail:
     close(frame_fd);

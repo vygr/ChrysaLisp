@@ -313,7 +313,7 @@ void con_update(struct console *con)
         draw_video_ram(con, vid_minx, vid_miny, vid_maxx+1, vid_maxy+1);
 
         /* send screen bits to backend */
-        DrawBits(&con->scr, vid_minx * con->char_width, vid_miny * con->char_height,
+        BlitDrawable(&con->scr, vid_minx * con->char_width, vid_miny * con->char_height,
             (vid_maxx-vid_minx+1) * con->char_width,
             (vid_maxy-vid_miny+1) * con->char_height);
 
@@ -326,14 +326,14 @@ void con_update(struct console *con)
         if (lastx >= 0) {
             /* remove last cursor */
             draw_video_ram(con, lastx, lasty, lastx+1, lasty+1);
-            DrawBits(&con->scr, lastx * con->char_width, lasty * con->char_height,
+            BlitDrawable(&con->scr, lastx * con->char_width, lasty * con->char_height,
                 con->char_width, con->char_height);
         }
 
         /* draw current cursor */
         drawbitmap(con, '_', ATTR_DEFAULT,
             con->curx * con->char_width, con->cury * con->char_height, 0);
-        DrawBits(&con->scr, con->curx * con->char_width, con->cury * con->char_height,
+        BlitDrawable(&con->scr, con->curx * con->char_width, con->cury * con->char_height,
             con->char_width, con->char_height);
         lastx = con->curx; lasty = con->cury;
         needscursor = 0;
@@ -355,6 +355,17 @@ int waitevent(struct console *con)
                 c = event.key.keysym.sym;
                 if (c == 033)
                     return 1;
+                if (c == '1') {
+                    Rect r;
+                    r.x = 20;
+                    r.y = 40;
+                    r.w = 200;
+                    r.h = 30;
+                    DrawRect(&r);
+                    SetClip(&r);
+                }
+                if (c == '2')
+                    SetClip(0);
                 if (c == '\n') c = '\r';
                 if (c == '\r') {
                     con_textout(con, c, ATTR_DEFAULT);
@@ -451,7 +462,7 @@ int main(int ac, char **av)
     struct console *con = &console;
 
     if (con_init(con) < 0) exit(2);
-    con_setcursor(con, con->lines-1, 0);
+    //con_setcursor(con, con->lines-1, 0);
     update_dirty_region(con->curx, con->cury, 1, 1);
 
     for (;;) {
