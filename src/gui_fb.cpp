@@ -70,10 +70,7 @@ Texture *host_gui_create_texture(pixel_t *src, uint64_t w, uint64_t h, uint64_t 
 	do
 	{
 		pixel_t *src_end_line = (pixel_t*)((uint8_t*)src + span);
-		do
-		{
-			*dst++ = *src++;
-		} while (src != src_end_line);
+		do { *dst++ = *src++; } while (src != src_end_line);
 		src += s;
 	} while (src != src_end);
 	return t;
