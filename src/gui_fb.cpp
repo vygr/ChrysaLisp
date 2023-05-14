@@ -11,7 +11,7 @@ struct Rect
 
 const uint32_t SCREEN_WIDTH = 1024;
 const uint32_t SCREEN_HEIGHT = 768;
-const uint32_t SCREEN_STRIDE = SCREEN_HEIGHT * sizeof(uint32_t);
+const uint32_t SCREEN_STRIDE = SCREEN_WIDTH * sizeof(uint32_t);
 
 uint32_t *screen = 0;
 uint32_t *backbuffer = 0;
@@ -24,8 +24,8 @@ Rect clip;
 
 void host_gui_init(Rect *rect)
 {
-	screen = (uint32_t *)malloc(SCREEN_WIDTH * SCREEN_HEIGHT * 4);
-	backbuffer = (uint32_t *)malloc(SCREEN_WIDTH * SCREEN_HEIGHT * 4);
+	screen = (uint32_t *)malloc(SCREEN_HEIGHT * SCREEN_STRIDE);
+	backbuffer = (uint32_t *)malloc(SCREEN_HEIGHT * SCREEN_STRIDE);
 	rect->w = SCREEN_WIDTH;
 	rect->h = SCREEN_HEIGHT;
 }
