@@ -261,10 +261,14 @@ void DestroyTexture(Texture *texture)
 }
 
 /* hardcoded MWPF_TRUECOLORARGB format */
-#define B   0
-#define G   1
-#define R   2
-#define A   3
+#define SB  0
+#define SG  1
+#define SR  2
+#define SA  3
+#define DB  0
+#define DG  1
+#define DR  2
+#define DA  3
 
 //#define muldiv255(a,b)    (((a)*(b))/255)         /* slow divide, exact*/
 #define muldiv255(a,b)      ((((a)+1)*(b))>>8)      /* very fast, 92% accurate*/
@@ -286,25 +290,25 @@ static void blit(Drawable *src, const Rect *srect, Drawable *dst, const Rect *dr
         while (x-- > 0) {
             uint8_t alpha;
 #define FORCE   1
-            if (FORCE || (alpha = s[A]) == 255) {
-                d[B] = s[B] * defColorModB / 255;
-                d[G] = s[G] * defColorModG / 255;
-                d[R] = s[R] * defColorModR / 255;
-                d[A] = s[A];
+            if (FORCE || (alpha = s[SA]) == 255) {
+                d[DB] = s[SB] * defColorModB / 255;
+                d[DG] = s[SG] * defColorModG / 255;
+                d[DR] = s[SR] * defColorModR / 255;
+                d[DA] = s[SA];
             } else if (alpha != 0) {
 #if 1
                 /* d += muldiv255(a, s - d) */
-                d[B] += muldiv255(alpha, (s[B] * defColorModB / 255) - d[B]);
-                d[G] += muldiv255(alpha, (s[G] * defColorModG / 255) - d[G]);
-                d[R] += muldiv255(alpha, (s[R] * defColorModR / 255) - d[R]);
+                d[DB] += muldiv255(alpha, (s[SB] * defColorModB / 255) - d[DB]);
+                d[DG] += muldiv255(alpha, (s[SG] * defColorModG / 255) - d[DG]);
+                d[DR] += muldiv255(alpha, (s[SR] * defColorModR / 255) - d[DR]);
 
                 /* d += muldiv255(a, 255 - d)*/
-                d[A] += muldiv255(alpha, 255 - d[A]);
+                d[DA] += muldiv255(alpha, 255 - d[DA]);
 #else
-                d[B] = s[B] * defColorModB / 255;
-                d[G] = s[G] * defColorModG / 255;
-                d[R] = s[R] * defColorModR / 255;
-                d[A] = s[A];
+                d[DB] = s[SB] * defColorModB / 255;
+                d[DG] = s[SG] * defColorModG / 255;
+                d[DR] = s[SR] * defColorModR / 255;
+                d[DA] = s[SA];
 #endif
             }
             d += 4;
