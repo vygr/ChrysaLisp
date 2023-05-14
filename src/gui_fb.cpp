@@ -61,8 +61,10 @@ void host_gui_end_composite()
 void host_gui_flush(const Rect *rect)
 {
 	//no need to clip ! I think ...
-	uint32_t *dst = screen + (rect->h * SCREEN_STRIDE + rect->x);
-	uint32_t *src = backbuffer + (rect->h * SCREEN_STRIDE + rect->x);
+	uint32_t *dst = (uint32_t*)((uint8_t*)screen +
+		(rect->y * SCREEN_STRIDE + rect->x * sizeof(uint32_t)));
+	uint32_t *src = (uint32_t*)((uint8_t*)backbuffer +
+		(rect->y * SCREEN_STRIDE + rect->x * sizeof(uint32_t)));
 	uint32_t stride = (SCREEN_STRIDE - rect->w * sizeof(uint32_t));
 	for (uint32_t y = 0 ; y < rect->h; y++)
 	{
@@ -80,7 +82,8 @@ void host_gui_filled_box(const Rect *rect)
 	Rect r = *rect;
 	if (color_a == 0) return;
 	if (r.w < 1 || r.h < 1) return;
-	uint32_t *dst = backbuffer + (r.y * SCREEN_STRIDE + r.x);
+	uint32_t *dst = (uint32_t*)((uint8_t*)backbuffer +
+		(r.y * SCREEN_STRIDE + r.x * sizeof(uint32_t)));
 	uint32_t stride = (SCREEN_STRIDE - r.w * sizeof(uint32_t));
 	if (color_a == 0xff)
 	{
