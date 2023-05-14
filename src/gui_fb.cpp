@@ -78,7 +78,7 @@ void host_gui_filled_box(const Rect *rect)
 	Rect r = *rect;
 	if (color_a == 0) return;
 	if (r.w < 1 || r.h < 1) return;
-	uint32_t *dst = backbuffer + (r.h * SCREEN_STRIDE + r.x);
+	uint32_t *dst = backbuffer + (r.y * SCREEN_STRIDE + r.x);
 	uint32_t stride = (SCREEN_STRIDE - r.w * sizeof(uint32_t));
 	if (color_a == 0xff)
 	{
