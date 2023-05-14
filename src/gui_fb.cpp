@@ -26,6 +26,8 @@ void host_gui_init(Rect *rect)
 {
 	screen = (uint32_t *)malloc(SCREEN_WIDTH * SCREEN_HEIGHT * 4);
 	backbuffer = (uint32_t *)malloc(SCREEN_WIDTH * SCREEN_HEIGHT * 4);
+	rect->w = SCREEN_WIDTH;
+	rect->h = SCREEN_HEIGHT;
 }
 
 void host_gui_deinit()
