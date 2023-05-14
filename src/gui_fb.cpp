@@ -64,24 +64,24 @@ void host_gui_flush(const Rect *rect)
 {
 	//no need to clip to screen I think !
 	if (rect->w < 1 || rect->h < 1) return;
-	pixel_t *src = (pixel_t*)((uint8_t*)backbuffer +
-		(rect->y * SCREEN_STRIDE + rect->x * sizeof(pixel_t)));
 	pixel_t *dst = (pixel_t*)((uint8_t*)screen +
 		(rect->y * SCREEN_STRIDE + rect->x * sizeof(pixel_t)));
-	pixel_t *dst_end = (pixel_t*)((uint8_t*)dst +
+	pixel_t *src = (pixel_t*)((uint8_t*)backbuffer +
+		(rect->y * SCREEN_STRIDE + rect->x * sizeof(pixel_t)));
+	pixel_t *src_end = (pixel_t*)((uint8_t*)dst +
 		rect->h * SCREEN_STRIDE);
 	uint32_t span = rect->w * sizeof(pixel_t);
-	uint32_t stride = (SCREEN_STRIDE - span);
+	uint32_t stride = SCREEN_STRIDE - span;
 	do
 	{
-		pixel_t *dst_end_line = (pixel_t*)((uint8_t*)dst + span);
+		pixel_t *src_end_line = (pixel_t*)((uint8_t*)src + span);
 		do
 		{
 			*dst++ = *src++;
-		} while (dst != dst_end_line);
+		} while (src != src_end_line);
 		src += stride;
 		dst += stride;
-	} while (dst != dst_end);
+	} while (src != src_end);
 }
 
 void host_gui_filled_box(const Rect *rect)
@@ -104,7 +104,7 @@ void host_gui_filled_box(const Rect *rect)
 	pixel_t *dst_end = (pixel_t*)((uint8_t*)dst +
 		(r.h - r.y) * SCREEN_STRIDE);
 	uint32_t span = (r.w - r.x) * sizeof(pixel_t);
-	uint32_t stride = (SCREEN_STRIDE - span);
+	uint32_t stride = SCREEN_STRIDE - span;
 	if (color_a == 0xff)
 	{
 		pixel_t dcol = color_r + color_g + color_b;
