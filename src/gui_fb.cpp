@@ -62,49 +62,69 @@ void host_gui_end_composite()
 
 void host_gui_flush(const Rect *rect)
 {
-	//no need to clip ! I think ...
-	pixel_t *dst = (pixel_t*)((uint8_t*)screen +
-		(rect->y * SCREEN_STRIDE + rect->x * sizeof(pixel_t)));
+	//no need to clip to screen I think !
+	if (rect->w < 1 || rect->h < 1) return;
 	pixel_t *src = (pixel_t*)((uint8_t*)backbuffer +
 		(rect->y * SCREEN_STRIDE + rect->x * sizeof(pixel_t)));
-	uint32_t stride = (SCREEN_STRIDE - rect->w * sizeof(pixel_t));
-	for (uint32_t y = 0 ; y < rect->h; y++)
+	pixel_t *dst = (pixel_t*)((uint8_t*)screen +
+		(rect->y * SCREEN_STRIDE + rect->x * sizeof(pixel_t)));
+	pixel_t *dst_end = (pixel_t*)((uint8_t*)dst +
+		rect->h * SCREEN_STRIDE);
+	uint32_t span = rect->w * sizeof(pixel_t);
+	uint32_t stride = (SCREEN_STRIDE - span);
+	do
 	{
-		for (uint32_t x = 0 ; x < rect->w; x++)
+		pixel_t *dst_end_line = (pixel_t*)((uint8_t*)dst + span);
+		do
 		{
 			*dst++ = *src++;
-		}
+		} while (dst != dst_end_line);
 		src += stride;
 		dst += stride;
-	}
+	} while (dst != dst_end);
 }
 
 void host_gui_filled_box(const Rect *rect)
 {
+	//clip
 	Rect r = *rect;
 	if (color_a == 0) return;
 	if (r.w < 1 || r.h < 1) return;
+	r.w += r.x;
+	r.h += r.y;
+	if (r.x >= clip.w || r.y >= clip.h) return;
+	if (r.w <= clip.x || r.h <= clip.y) return;
+	if (clip.x > r.x) r.x = clip.x;
+	if (clip.y > r.y) r.y = clip.y;
+	if (r.w > clip.w) r.w = clip.w;
+	if (r.h > clip.h) r.h = clip.h;
+	//fill the rect
 	pixel_t *dst = (pixel_t*)((uint8_t*)backbuffer +
 		(r.y * SCREEN_STRIDE + r.x * sizeof(pixel_t)));
-	uint32_t stride = (SCREEN_STRIDE - r.w * sizeof(pixel_t));
+	pixel_t *dst_end = (pixel_t*)((uint8_t*)dst +
+		(r.h - r.y) * SCREEN_STRIDE);
+	uint32_t span = (r.w - r.x) * sizeof(pixel_t);
+	uint32_t stride = (SCREEN_STRIDE - span);
 	if (color_a == 0xff)
 	{
 		pixel_t dcol = color_r + color_g + color_b;
-		for (uint32_t y = 0 ; y < r.h; y++)
+		do
 		{
-			for (uint32_t x = 0 ; x < r.w; x++)
+			pixel_t *dst_end_line = (pixel_t*)((uint8_t*)dst + span);
+			do
 			{
 				*dst++ = dcol;
-			}
+			} while (dst != dst_end_line);
 			dst += stride;
-		}
+		} while (dst != dst_end);
 	}
 	else
 	{
 		pixel_t da = 0xff - color_a;
-		for (uint32_t y = 0 ; y < r.h; y++)
+		do
 		{
-			for (uint32_t x = 0 ; x < r.w; x++)
+			pixel_t *dst_end_line = (pixel_t*)((uint8_t*)dst + span);
+			do
 			{
 				pixel_t dr = *dst;
 				pixel_t dg = dr & 0xff00;
@@ -114,9 +134,9 @@ void host_gui_filled_box(const Rect *rect)
 				dg = ((dg * da >> 8) & 0xff00) + color_g;
 				db = (db * da >> 8) + color_b;
 				*dst++ = dr + dg + db;
-			}
+			} while (dst != dst_end_line);
 			dst += stride;
-		}
+		} while (dst != dst_end);
 	}
 }
 
@@ -159,7 +179,10 @@ void host_gui_blit(uint64_t t, const Rect *srect, const Rect *drect)
 
 void host_gui_set_clip(const Rect *rect)
 {
+	//store as x, y, x1, y1 !
 	clip = *rect;
+	clip.w += clip.x;
+	clip.h += clip.y;
 }
 
 void host_gui_resize(uint64_t w, uint64_t h)
