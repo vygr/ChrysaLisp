@@ -4,12 +4,18 @@
 #include <stdint.h>
 #include <memory>
 
+typedef uint32_t pixel_t;
+
 struct Rect
 {
 	int32_t x, y, w, h;
 };
 
-typedef uint32_t pixel_t;
+struct Texture
+{
+	int32_t w, h;
+	pixel_t *data;
+};
 
 const uint32_t SCREEN_WIDTH = 1024;
 const uint32_t SCREEN_HEIGHT = 768;
@@ -43,13 +49,29 @@ uint64_t host_gui_poll_event(uint64_t data)
 	return 0;
 }
 
-uint64_t host_gui_create_texture(pixel_t *data, uint64_t w, uint64_t h, uint64_t s, uint64_t m)
+Texture *host_gui_create_texture(pixel_t *src, uint64_t w, uint64_t h, uint64_t s, uint64_t m)
 {
-	return 0;
+	Texture *t = (Texture*)malloc(sizeof(Texture));
+	pixel_t *dst = (pixel_t *)malloc(w * h * sizeof(pixel_t));
+	t->data = dst;
+	pixel_t *src_end = (pixel_t*)((uint8_t*)src + h * s);
+	uint32_t span = w * sizeof(pixel_t);
+	do
+	{
+		pixel_t *src_end_line = (pixel_t*)((uint8_t*)src + span);
+		do
+		{
+			*dst++ = *src++;
+		} while (src != src_end_line);
+		src += s;
+	} while (src != src_end);
+	return t;
 }
 
-void host_gui_destroy_texture(uint64_t t)
+void host_gui_destroy_texture(Texture *t)
 {
+	free(t->data);
+	free(t);
 }
 
 void host_gui_begin_composite()
@@ -65,9 +87,9 @@ void host_gui_flush(const Rect *rect)
 	//no need to clip to screen I think !
 	if (rect->w < 1 || rect->h < 1) return;
 	pixel_t *dst = (pixel_t*)((uint8_t*)screen +
-		(rect->y * SCREEN_STRIDE + rect->x * sizeof(pixel_t)));
+		rect->y * SCREEN_STRIDE + rect->x * sizeof(pixel_t));
 	pixel_t *src = (pixel_t*)((uint8_t*)backbuffer +
-		(rect->y * SCREEN_STRIDE + rect->x * sizeof(pixel_t)));
+		rect->y * SCREEN_STRIDE + rect->x * sizeof(pixel_t));
 	pixel_t *src_end = (pixel_t*)((uint8_t*)src +
 		rect->h * SCREEN_STRIDE);
 	uint32_t span = rect->w * sizeof(pixel_t);
@@ -100,7 +122,7 @@ void host_gui_filled_box(const Rect *rect)
 	if (r.h > clip.h) r.h = clip.h;
 	//fill the rect
 	pixel_t *dst = (pixel_t*)((uint8_t*)backbuffer +
-		(r.y * SCREEN_STRIDE + r.x * sizeof(pixel_t)));
+		r.y * SCREEN_STRIDE + r.x * sizeof(pixel_t));
 	pixel_t *dst_end = (pixel_t*)((uint8_t*)dst +
 		(r.h - r.y) * SCREEN_STRIDE);
 	uint32_t span = (r.w - r.x) * sizeof(pixel_t);
@@ -173,7 +195,7 @@ void host_gui_set_texture_color(uint64_t t, uint8_t r, uint8_t g, uint8_t b)
 {
 }
 
-void host_gui_blit(uint64_t t, const Rect *srect, const Rect *drect)
+void host_gui_blit(Texture *t, const Rect *srect, const Rect *drect)
 {
 }
 
