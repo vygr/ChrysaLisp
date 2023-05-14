@@ -1,5 +1,5 @@
 #if defined(_HOST_GUI)
-#if _HOST_GUI == -1 //demo template
+#if _HOST_GUI == 1 //demo template
 
 #include <stdint.h>
 #include <memory>
@@ -223,6 +223,84 @@ void host_gui_box(const Rect *rect)
 
 void host_gui_blit(Texture *t, const Rect *srect, const Rect *drect)
 {
+	//clip
+	Rect dr = *drect;
+	Rect sr = *srect;
+	if (dr.w < 1 || dr.h < 1) return;
+	dr.w += dr.x;
+	dr.h += dr.y;
+	if (dr.x >= clip.w || dr.y >= clip.h) return;
+	if (dr.w <= clip.x || dr.h <= clip.y) return;
+	if (clip.x > dr.x) dr.x = clip.x;
+	if (clip.y > dr.y) dr.y = clip.y;
+	if (dr.w > clip.w) dr.w = clip.w;
+	if (dr.h > clip.h) dr.h = clip.h;
+	//blit the rect
+	pixel_t *src = (pixel_t*)((uint8_t*)t->data +
+		sr.y * SCREEN_STRIDE + sr.x * sizeof(pixel_t));
+	pixel_t *dst = (pixel_t*)((uint8_t*)backbuffer +
+		dr.y * SCREEN_STRIDE + dr.x * sizeof(pixel_t));
+	pixel_t *dst_end = (pixel_t*)((uint8_t*)dst +
+		(dr.h - dr.y) * SCREEN_STRIDE);
+	uint32_t span = (dr.w - dr.x) * sizeof(pixel_t);
+	uint32_t dstride = SCREEN_STRIDE - span;
+	uint32_t sstride = t->w * sizeof(pixel_t) - span;
+
+	if (t->color == 0xffffff)
+	{
+		do
+		{
+			pixel_t *dst_end_line = (pixel_t*)((uint8_t*)dst + span);
+			do
+			{
+				pixel_t dr = *dst;
+				pixel_t dg = dr & 0xff00;
+				pixel_t db = dr & 0xff;
+				dr = dr & 0xff0000;
+
+				pixel_t sa = *src++;
+				pixel_t sr = sa & 0xff0000;
+				pixel_t sg = sa & 0xff00;
+				pixel_t sb = sa & 0xff;
+				sa = sa >> 24;
+
+				pixel_t da = 0xff - sa;
+
+				dr = ((dr * da >> 8) & 0xff0000) + sr;
+				dg = ((dg * da >> 8) & 0xff00) + sg;
+				db = (db * da >> 8) + sb;
+				*dst++ = dr + dg + db;
+			} while (dst != dst_end_line);
+			dst += dstride;
+			src += sstride;
+		} while (dst != dst_end);
+	}
+	else
+	{
+		do
+		{
+			pixel_t *dst_end_line = (pixel_t*)((uint8_t*)dst + span);
+			do
+			{
+				pixel_t dr = *dst;
+				pixel_t dg = dr & 0xff00;
+				pixel_t db = dr & 0xff;
+				dr = dr & 0xff0000;
+
+				pixel_t sa = *src++;
+				sa = sa >> 24;
+
+				pixel_t da = 0xff - sa;
+
+				dr = ((dr * da >> 8) & 0xff0000) + t->r;
+				dg = ((dg * da >> 8) & 0xff00) + t->g;
+				db = (db * da >> 8) + t->b;
+				*dst++ = dr + dg + db;
+			} while (dst != dst_end_line);
+			dst += dstride;
+			src += sstride;
+		} while (dst != dst_end);
+	}
 }
 
 //////////////////
