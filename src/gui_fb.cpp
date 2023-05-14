@@ -9,23 +9,25 @@ struct Rect
 	int32_t x, y, w, h;
 };
 
+typedef uint32_t pixel_t;
+
 const uint32_t SCREEN_WIDTH = 1024;
 const uint32_t SCREEN_HEIGHT = 768;
-const uint32_t SCREEN_STRIDE = SCREEN_WIDTH * sizeof(uint32_t);
+const uint32_t SCREEN_STRIDE = SCREEN_WIDTH * sizeof(pixel_t);
 
-uint32_t *screen = 0;
-uint32_t *backbuffer = 0;
-uint32_t color_a = 0;
-uint32_t color_r = 0;
-uint32_t color_g = 0;
-uint32_t color_b = 0;
+pixel_t *screen = 0;
+pixel_t *backbuffer = 0;
+pixel_t color_a = 0;
+pixel_t color_r = 0;
+pixel_t color_g = 0;
+pixel_t color_b = 0;
 
 Rect clip;
 
 void host_gui_init(Rect *rect)
 {
-	screen = (uint32_t *)malloc(SCREEN_HEIGHT * SCREEN_STRIDE);
-	backbuffer = (uint32_t *)malloc(SCREEN_HEIGHT * SCREEN_STRIDE);
+	screen = (pixel_t *)malloc(SCREEN_HEIGHT * SCREEN_STRIDE);
+	backbuffer = (pixel_t *)malloc(SCREEN_HEIGHT * SCREEN_STRIDE);
 	rect->w = SCREEN_WIDTH;
 	rect->h = SCREEN_HEIGHT;
 }
@@ -41,7 +43,7 @@ uint64_t host_gui_poll_event(uint64_t data)
 	return 0;
 }
 
-uint64_t host_gui_create_texture(uint32_t *data, uint64_t w, uint64_t h, uint64_t s, uint64_t m)
+uint64_t host_gui_create_texture(pixel_t *data, uint64_t w, uint64_t h, uint64_t s, uint64_t m)
 {
 	return 0;
 }
@@ -61,11 +63,11 @@ void host_gui_end_composite()
 void host_gui_flush(const Rect *rect)
 {
 	//no need to clip ! I think ...
-	uint32_t *dst = (uint32_t*)((uint8_t*)screen +
-		(rect->y * SCREEN_STRIDE + rect->x * sizeof(uint32_t)));
-	uint32_t *src = (uint32_t*)((uint8_t*)backbuffer +
-		(rect->y * SCREEN_STRIDE + rect->x * sizeof(uint32_t)));
-	uint32_t stride = (SCREEN_STRIDE - rect->w * sizeof(uint32_t));
+	pixel_t *dst = (pixel_t*)((uint8_t*)screen +
+		(rect->y * SCREEN_STRIDE + rect->x * sizeof(pixel_t)));
+	pixel_t *src = (pixel_t*)((uint8_t*)backbuffer +
+		(rect->y * SCREEN_STRIDE + rect->x * sizeof(pixel_t)));
+	uint32_t stride = (SCREEN_STRIDE - rect->w * sizeof(pixel_t));
 	for (uint32_t y = 0 ; y < rect->h; y++)
 	{
 		for (uint32_t x = 0 ; x < rect->w; x++)
@@ -82,12 +84,12 @@ void host_gui_filled_box(const Rect *rect)
 	Rect r = *rect;
 	if (color_a == 0) return;
 	if (r.w < 1 || r.h < 1) return;
-	uint32_t *dst = (uint32_t*)((uint8_t*)backbuffer +
-		(r.y * SCREEN_STRIDE + r.x * sizeof(uint32_t)));
-	uint32_t stride = (SCREEN_STRIDE - r.w * sizeof(uint32_t));
+	pixel_t *dst = (pixel_t*)((uint8_t*)backbuffer +
+		(r.y * SCREEN_STRIDE + r.x * sizeof(pixel_t)));
+	uint32_t stride = (SCREEN_STRIDE - r.w * sizeof(pixel_t));
 	if (color_a == 0xff)
 	{
-		uint32_t dcol = color_r + color_g + color_b;
+		pixel_t dcol = color_r + color_g + color_b;
 		for (uint32_t y = 0 ; y < r.h; y++)
 		{
 			for (uint32_t x = 0 ; x < r.w; x++)
@@ -99,14 +101,14 @@ void host_gui_filled_box(const Rect *rect)
 	}
 	else
 	{
-		uint32_t da = 0xff - color_a;
+		pixel_t da = 0xff - color_a;
 		for (uint32_t y = 0 ; y < r.h; y++)
 		{
 			for (uint32_t x = 0 ; x < r.w; x++)
 			{
-				uint32_t dr = *dst;
-				uint32_t dg = dr & 0xff00;
-				uint32_t db = dr & 0xff;
+				pixel_t dr = *dst;
+				pixel_t dg = dr & 0xff00;
+				pixel_t db = dr & 0xff;
 				dr = dr & 0xff0000;
 				dr = (dr * da >> 8) + color_r;
 				dg = (dg * da >> 8) + color_g;
