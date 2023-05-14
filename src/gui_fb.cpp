@@ -34,6 +34,10 @@ pixel_t color_b = 0;
 
 Rect clip;
 
+////////////////////////////////
+// screen setup/access functions
+////////////////////////////////
+
 void host_gui_init(Rect *rect)
 {
 	screen = (pixel_t *)malloc(SCREEN_HEIGHT * SCREEN_STRIDE);
@@ -47,6 +51,43 @@ void host_gui_deinit()
 	free(screen);
 	free(backbuffer);
 }
+
+void host_gui_resize(uint64_t w, uint64_t h)
+{
+}
+
+void host_gui_begin_composite()
+{
+}
+
+void host_gui_end_composite()
+{
+}
+
+void host_gui_flush(const Rect *rect)
+{
+	//no need to clip to screen I think !
+	if (rect->w < 1 || rect->h < 1) return;
+	pixel_t *dst = (pixel_t*)((uint8_t*)screen +
+		rect->y * SCREEN_STRIDE + rect->x * sizeof(pixel_t));
+	pixel_t *src = (pixel_t*)((uint8_t*)backbuffer +
+		rect->y * SCREEN_STRIDE + rect->x * sizeof(pixel_t));
+	pixel_t *src_end = (pixel_t*)((uint8_t*)src +
+		rect->h * SCREEN_STRIDE);
+	uint32_t span = rect->w * sizeof(pixel_t);
+	uint32_t stride = SCREEN_STRIDE - span;
+	do
+	{
+		pixel_t *src_end_line = (pixel_t*)((uint8_t*)src + span);
+		do { *dst++ = *src++; } while (src != src_end_line);
+		src += stride;
+		dst += stride;
+	} while (src != src_end);
+}
+
+////////////////////
+// texture functions
+////////////////////
 
 Texture *host_gui_create_texture(pixel_t *src, uint64_t w, uint64_t h, uint64_t s, uint64_t m)
 {
@@ -77,33 +118,34 @@ void host_gui_destroy_texture(Texture *t)
 	free(t);
 }
 
-void host_gui_begin_composite()
+void host_gui_set_texture_color(Texture *t, uint8_t r, uint8_t g, uint8_t b)
 {
+	//convert to premultiplied channels !, fast check for == white
+	t->r = r << 16;
+	t->g = g << 8;
+	t->b = b;
+	t->color = t->r + t->g + t->b;
 }
 
-void host_gui_end_composite()
+////////////////////
+// drawing functions
+////////////////////
+
+void host_gui_set_clip(const Rect *rect)
 {
+	//store as x, y, x1, y1 !
+	clip = *rect;
+	clip.w += clip.x;
+	clip.h += clip.y;
 }
 
-void host_gui_flush(const Rect *rect)
+void host_gui_set_color(uint8_t r, uint8_t g, uint8_t b, uint8_t a)
 {
-	//no need to clip to screen I think !
-	if (rect->w < 1 || rect->h < 1) return;
-	pixel_t *dst = (pixel_t*)((uint8_t*)screen +
-		rect->y * SCREEN_STRIDE + rect->x * sizeof(pixel_t));
-	pixel_t *src = (pixel_t*)((uint8_t*)backbuffer +
-		rect->y * SCREEN_STRIDE + rect->x * sizeof(pixel_t));
-	pixel_t *src_end = (pixel_t*)((uint8_t*)src +
-		rect->h * SCREEN_STRIDE);
-	uint32_t span = rect->w * sizeof(pixel_t);
-	uint32_t stride = SCREEN_STRIDE - span;
-	do
-	{
-		pixel_t *src_end_line = (pixel_t*)((uint8_t*)src + span);
-		do { *dst++ = *src++; } while (src != src_end_line);
-		src += stride;
-		dst += stride;
-	} while (src != src_end);
+	//convert to premultiplied channels !
+	color_a = a;
+	color_r = ((r * a) & 0xff00) << 8;
+	color_g = (g * a) & 0xff00;
+	color_b = (b * a) >> 8;
 }
 
 void host_gui_filled_box(const Rect *rect)
@@ -179,39 +221,13 @@ void host_gui_box(const Rect *rect)
 	host_gui_filled_box(&r);
 }
 
-void host_gui_set_color(uint8_t r, uint8_t g, uint8_t b, uint8_t a)
-{
-	//convert to premultiplied channels !
-	color_a = a;
-	color_r = ((r * a) & 0xff00) << 8;
-	color_g = (g * a) & 0xff00;
-	color_b = (b * a) >> 8;
-}
-
-void host_gui_set_texture_color(Texture *t, uint8_t r, uint8_t g, uint8_t b)
-{
-	//convert to premultiplied channels !, fast check for == white
-	t->r = r << 16;
-	t->g = g << 8;
-	t->b = b;
-	t->color = t->r + t->g + t->b;
-}
-
 void host_gui_blit(Texture *t, const Rect *srect, const Rect *drect)
 {
 }
 
-void host_gui_set_clip(const Rect *rect)
-{
-	//store as x, y, x1, y1 !
-	clip = *rect;
-	clip.w += clip.x;
-	clip.h += clip.y;
-}
-
-void host_gui_resize(uint64_t w, uint64_t h)
-{
-}
+//////////////////
+// event functions
+//////////////////
 
 uint64_t host_gui_poll_event(uint64_t data)
 {
