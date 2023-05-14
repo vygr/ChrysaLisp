@@ -137,7 +137,7 @@ static uint8_t defColorModR = 255;
 static uint8_t defColorModG = 255;
 static uint8_t defColorModB = 255;
 
-/* set color for DrawRect and FillRect */
+/* set color for Drawables */
 void SetColor(uint8_t r, uint8_t g, uint8_t b, uint8_t a)
 {
     defColor = COLORVAL_TO_PIXELVAL(ARGB(a, r, g, b));
@@ -195,8 +195,8 @@ void DrawRect(const Rect *rect)
     int y = r->y;
     int width = r->w;
     int height = r->h;
-    int maxx = x + width;
-    int maxy = y + height;
+    int maxx = x + width - 1;
+    int maxy = y + height - 1;
 
     if (width <= 0 || height <= 0)
         return;
@@ -218,9 +218,9 @@ void FillRect(const Rect *rect)
 {
     Rect *r = ClipRect(rect);
     if (!r) return;
-    int x2 = r->x + r->w;
+    int x2 = r->x + r->w - 1;
     int y1 = r->y;
-    int y2 = y1 + r->h;
+    int y2 = y1 + r->h - 1;
     
     while (y1 <= y2)
         DrawHLine32(&fb, r->x, x2, y1++, defColor);
@@ -266,27 +266,47 @@ void DestroyTexture(Texture *texture)
 #define R   2
 #define A   3
 
+//#define muldiv255(a,b)    (((a)*(b))/255)         /* slow divide, exact*/
+#define muldiv255(a,b)      ((((a)+1)*(b))>>8)      /* very fast, 92% accurate*/
+
 /* actually copy data, no clipping done */
 static void blit(Drawable *src, const Rect *srect, Drawable *dst, const Rect *drect)
 {
     //unassert(srect->w == drect->w);   //FIXME check why needs commenting out
     /* src and dst height can differ, will use dst height for drawing */
-    char *dstaddr = dst->pixels + drect->y * dst->pitch + drect->x * (dst->bpp >> 3);
-    char *srcaddr = src->pixels + srect->y * src->pitch + srect->x * (src->bpp >> 3);
+    uint8_t *dstaddr = dst->pixels + drect->y * dst->pitch + drect->x * (dst->bpp >> 3);
+    uint8_t *srcaddr = src->pixels + srect->y * src->pitch + srect->x * (src->bpp >> 3);
     int y = drect->h;
     //ZZZ
     while (y-- > 0) {
         //memcpy(dstaddr, srcaddr, drect->w * (dst->bpp >> 3));
         int x = drect->w;
-        char *s = srcaddr;
-        char *d = dstaddr;
+        uint8_t *s = srcaddr;
+        uint8_t *d = dstaddr;
         while (x-- > 0) {
-            //if (s[A] != 0) {
+            uint8_t alpha;
+#define FORCE   1
+            if (FORCE || (alpha = s[A]) == 255) {
                 d[B] = s[B] * defColorModB / 255;
                 d[G] = s[G] * defColorModG / 255;
                 d[R] = s[R] * defColorModR / 255;
                 d[A] = s[A];
-            //}
+            } else if (alpha != 0) {
+#if 1
+                /* d += muldiv255(a, s - d) */
+                d[B] += muldiv255(alpha, (s[B] * defColorModB / 255) - d[B]);
+                d[G] += muldiv255(alpha, (s[G] * defColorModG / 255) - d[G]);
+                d[R] += muldiv255(alpha, (s[R] * defColorModR / 255) - d[R]);
+
+                /* d += muldiv255(a, 255 - d)*/
+                d[A] += muldiv255(alpha, 255 - d[A]);
+#else
+                d[B] = s[B] * defColorModB / 255;
+                d[G] = s[G] * defColorModG / 255;
+                d[R] = s[R] * defColorModR / 255;
+                d[A] = s[A];
+#endif
+            }
             d += 4;
             s += 4;
         }
@@ -356,10 +376,12 @@ static uint64_t GetEventTimeout(void *data, int timeout)
         memset(event, 0, sizeof(SDL_Event));
         if (fds[0].revents & POLLIN) {
             unsigned char buf[1];
-            if (read(0, buf, 1) == 1) {
-                event->type = SDL_KEYDOWN;
-                event->key.keysym.sym = buf[0];
+            if (read(keybd_fd, buf, 1) == 1) {
                 if (buf[0] == 033) exit(1);
+                if (buf[0] == 0x7F) buf[0] = '\b';
+                event->type = SDL_KEYDOWN;
+                event->key.state = SDL_PRESSED;
+                event->key.keysym.sym = buf[0];
                 return 1;
             }
         }
@@ -385,6 +407,8 @@ static uint64_t GetEventTimeout(void *data, int timeout)
                         //printf("Mouse %d button %d\n", event->button.button, event->type);
                         return 1;
                     }
+                    event->type = 0;
+                    return 1;
                 }
                 if (x != lastx || y != lasty) {
                     event->type = SDL_MOUSEMOTION;
