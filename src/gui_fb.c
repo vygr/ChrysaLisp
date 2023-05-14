@@ -40,11 +40,11 @@ static int OpenKeyboard(void);
 static void CloseKeyboard(void);
 
 /* Mouse button bits */
-#define MWBUTTON_L		  0x01		/* left button*/
-#define MWBUTTON_R		  0x02		/* right button*/
-#define MWBUTTON_M		  0x10		/* middle*/
-#define MWBUTTON_SCROLLUP 0x20		/* wheel up*/
-#define MWBUTTON_SCROLLDN 0x40		/* wheel down*/
+#define MWBUTTON_L        0x01      /* left button*/
+#define MWBUTTON_R        0x02      /* right button*/
+#define MWBUTTON_M        0x10      /* middle*/
+#define MWBUTTON_SCROLLUP 0x20      /* wheel up*/
+#define MWBUTTON_SCROLLDN 0x40      /* wheel down*/
 
 #define MIN(a,b)      ((a) < (b) ? (a) : (b))
 #define MAX(a,b)      ((a) > (b) ? (a) : (b))
@@ -88,14 +88,14 @@ static Rect *ClipRect(const Rect *rect)
     static Rect r;
 
     r.x = CLAMP(rect->x, clipminx, clipmaxx);
-    x2 = rect->x + rect->w - 1;
+    x2 = rect->x + rect->w;
     x2 = CLAMP(x2, clipminx, clipmaxx);
     r.w = x2 - r.x + 1;
     r.y = CLAMP(rect->y, clipminy, clipmaxy);
     y2 = rect->y + rect->h - 1;
     y2 = CLAMP(y2, clipminy, clipmaxy);
     r.h = y2 - r.y + 1;
-    if (r.w <= 1 || r.h <= 1)
+    if (r.w < 1 || r.h < 1)
         return 0;
     return &r;
 }
@@ -107,10 +107,10 @@ void SetClip(const Rect *rect)
         int maxx = fb.width - 1;
         int maxy = fb.height - 1;
         clipminx = CLAMP(rect->x, 0, maxx);
-        clipmaxx = rect->x + rect->w - 1;
+        clipmaxx = rect->x + rect->w;
         clipmaxx = CLAMP(clipmaxx, 0, maxx);
         clipminy = CLAMP(rect->y, 0, maxy);
-        clipmaxy = rect->y + rect->h - 1;
+        clipmaxy = rect->y + rect->h;
         clipmaxy = CLAMP(clipmaxy, 0, maxy);
     } else {
         clipminx = 0;
@@ -150,7 +150,7 @@ void SetTextureColorMod(Texture *texture, uint8_t r, uint8_t g, uint8_t b)
 /* Draw horizontal line from x1,y to x2,y including final point */
 static void DrawHLine32(Drawable *d, int x1, int x2, int y, PIXELVAL c)
 {
-    uint8_t *addr = d->pixels + y * d->pitch + (x1 << 2);
+    uint8_t *addr = d->pixels + y * d->pitch + x1 * (d->bpp >> 3);
     int width = x2 - x1 + 1;
     unassert(x1 >= 0 && x1 < d->width);
     unassert(x2 >= 0 && x2 < d->width);
@@ -172,7 +172,7 @@ static void DrawHLine32(Drawable *d, int x1, int x2, int y, PIXELVAL c)
 static void DrawVLine32(Drawable *d, int x, int y1, int y2, PIXELVAL c)
 {
     int pitch = d->pitch;
-    uint8_t *addr = d->pixels + y1 * pitch + (x << 2);
+    uint8_t *addr = d->pixels + y1 * pitch + x * (d->bpp >> 3);
     int height = y2 - y1 + 1;
     unassert(x >= 0 && x < d->width);
     unassert(y1 >= 0 && y1 < d->height);
@@ -198,10 +198,10 @@ void DrawRect(const Rect *rect)
     int y = r->y;
     int width = r->w;
     int height = r->h;
-    //if (width <= 0 || height <= 0)
-        //return;
-    int maxx = x + width - 1;
-    int maxy = y + height - 1;
+    if (width <= 0 || height <= 0)
+        return;
+    int maxx = x + width;
+    int maxy = y + height;
     DrawHLine32(&fb, x, maxx, y, defColor);
     if (height > 1)
         DrawHLine32(&fb, x, maxx, maxy, defColor);
@@ -219,9 +219,9 @@ void FillRect(const Rect *rect)
 {
     Rect *r = ClipRect(rect);
     if (!r) return;
-    int x2 = r->x + r->w - 1;
+    int x2 = r->x + r->w;
     int y1 = r->y;
-    int y2 = y1 + r->h - 1;
+    int y2 = y1 + r->h;
     
     while (y1 <= y2)
         DrawHLine32(&fb, r->x, x2, y1++, defColor);
@@ -264,14 +264,13 @@ void DestroyTexture(Texture *texture)
 /* actually copy data, no clipping done */
 static void blit(Drawable *src, const Rect *srect, Drawable *dst, const Rect *drect)
 {
-    //FIXE
-    //unassert(srect->w == drect->w);
+    //unassert(srect->w == drect->w);   //FIXME check why needs commenting out
     /* src and dst height can differ, will use dst height for drawing */
     char *dstaddr = dst->pixels + drect->y * dst->pitch + drect->x * (dst->bpp >> 3);
     char *srcaddr = src->pixels + srect->y * src->pitch + srect->x * (src->bpp >> 3);
     int i;
     for (i=0; i < drect->h; i++) {
-        memcpy(dstaddr, srcaddr, srect->w * dst->bpp >> 3);
+        memcpy(dstaddr, srcaddr, drect->w * dst->bpp >> 3);
         dstaddr += dst->pitch;
         srcaddr += src->pitch;
     }
@@ -347,7 +346,7 @@ static uint64_t GetEventTimeout(void *data, int timeout)
         }
         if (fds[1].revents & POLLIN) {
             int x, y, b;
-            static int lastx = -1, lasty = -1, lastb;
+            static int lastx = -1, lasty = -1, lastb = 0;
             static int posx, posy;
             if (ReadMouse(&x, &y, &b)) {
                 if (x != lastx || y != lasty) {
@@ -369,8 +368,8 @@ static uint64_t GetEventTimeout(void *data, int timeout)
                 }
                 if (b != lastb) {
                     event->button.clicks = 1;
-					event->button.x = posx;
-					event->button.y = posy;
+                    event->button.x = posx;
+                    event->button.y = posy;
                     if ((b & MWBUTTON_L) ^ (lastb & MWBUTTON_L)) {
                         event->button.button = SDL_BUTTON_LEFT;
                         event->type = (b & MWBUTTON_L)? SDL_MOUSEBUTTONDOWN: SDL_MOUSEBUTTONUP;
@@ -378,10 +377,10 @@ static uint64_t GetEventTimeout(void *data, int timeout)
                         event->button.button = SDL_BUTTON_RIGHT;
                         event->type = (b & MWBUTTON_R)? SDL_MOUSEBUTTONDOWN: SDL_MOUSEBUTTONUP;
                     }
+                    lastb = b;
                     if (event->button.button) {
                         event->button.state = (event->type == SDL_MOUSEBUTTONDOWN)? SDL_PRESSED: SDL_RELEASED;
                         //printf("Mouse %d button %d\n", event->button.button, event->type);
-						lastb = b;
                         return 1;
                     }
                 }
@@ -397,7 +396,9 @@ uint64_t PollEvent(SDL_Event *event)
 {
     static SDL_Event ev;
     static int saved = 0;
+
     if (event == NULL) {
+        /* only indicate whether event found, don't dequeue */
         if (!saved)
             GetEventTimeout(&ev, 0);
         if (ev.type != 0) {
@@ -406,12 +407,14 @@ uint64_t PollEvent(SDL_Event *event)
         }
         return 0;
     }
+
+    /* alwaus deqeue if event found */
     if (saved) {
         *event = ev;
+        saved = 0;
     } else {
         GetEventTimeout(event, 0);
     }
-    saved = 0;
     return event->type != 0;
 }
 
@@ -463,11 +466,11 @@ static int OpenFramebuffer(void)
     struct fb_fix_screeninfo  fb_fix;
     struct fb_var_screeninfo fb_var;
 
-	char *env = getenv("FRAMEBUFFER");
+    char *env = getenv("FRAMEBUFFER");
     frame_fd = open(env? env: PATH_FRAMEBUFFER, O_RDWR);
-	if(frame_fd < 0) {
-		printf("Error opening %s: %m. Check kernel config\n", env? env: PATH_FRAMEBUFFER);
-		return -1;
+    if(frame_fd < 0) {
+        printf("Error opening %s: %m. Check kernel config\n", env? env: PATH_FRAMEBUFFER);
+        return -1;
     }
     /* get dynamic framebuffer info*/
     if (ioctl(frame_fd, FBIOGET_FSCREENINFO, &fb_fix) == -1 ||
@@ -488,11 +491,11 @@ static int OpenFramebuffer(void)
 
     /* set pixel format*/
     if(type == FB_TYPE_PACKED_PIXELS &&
-	   (visual == FB_VISUAL_TRUECOLOR || visual == FB_VISUAL_DIRECTCOLOR)) {
+       (visual == FB_VISUAL_TRUECOLOR || visual == FB_VISUAL_DIRECTCOLOR)) {
         switch(fb.bpp) {
         case 16:
             if (fb_var.green.length == 5) {
-                fb.pixtype = MWPF_TRUECOLOR555; // FIXME must also set MWPF_PIXELFORMAT in config
+                fb.pixtype = MWPF_TRUECOLOR555;
             } else {
                 fb.pixtype = MWPF_TRUECOLOR565;
             }
@@ -527,7 +530,7 @@ static int OpenFramebuffer(void)
 
     /* switch console to graphic mode, no more printf error messages */
     if (keybd_fd >= 0) {
-        //ioctl(keybd_fd, KDSETMODE, KD_GRAPHICS);
+        //ioctl(keybd_fd, KDSETMODE, KD_GRAPHICS);    //FIXME comment out for debug text screen during exec
     }
 
     memset(fb.pixels, 0, fb.size);
@@ -606,7 +609,7 @@ static int ReadMouse(int *dx, int *dy, int *bp)
     if (n != 3 && n != 4)
         return 0;
 
-	button = 0;
+    button = 0;
     left = data[0] & 0x1;
     right = data[0] & 0x2;
     middle = data[0] & 0x4;
