@@ -48,11 +48,6 @@ void host_gui_deinit()
 	free(backbuffer);
 }
 
-uint64_t host_gui_poll_event(uint64_t data)
-{
-	return 0;
-}
-
 Texture *host_gui_create_texture(pixel_t *src, uint64_t w, uint64_t h, uint64_t s, uint64_t m)
 {
 	Texture *t = (Texture*)malloc(sizeof(Texture));
@@ -216,6 +211,11 @@ void host_gui_set_clip(const Rect *rect)
 
 void host_gui_resize(uint64_t w, uint64_t h)
 {
+}
+
+uint64_t host_gui_poll_event(uint64_t data)
+{
+	return 0;
 }
 
 void (*host_gui_funcs[]) = {
