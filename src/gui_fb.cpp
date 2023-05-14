@@ -108,10 +108,7 @@ void host_gui_flush(const Rect *rect)
 	do
 	{
 		pixel_t *src_end_line = (pixel_t*)((uint8_t*)src + span);
-		do
-		{
-			*dst++ = *src++;
-		} while (src != src_end_line);
+		do { *dst++ = *src++; } while (src != src_end_line);
 		src += stride;
 		dst += stride;
 	} while (src != src_end);
@@ -144,10 +141,7 @@ void host_gui_filled_box(const Rect *rect)
 		do
 		{
 			pixel_t *dst_end_line = (pixel_t*)((uint8_t*)dst + span);
-			do
-			{
-				*dst++ = dcol;
-			} while (dst != dst_end_line);
+			do { *dst++ = dcol; } while (dst != dst_end_line);
 			dst += stride;
 		} while (dst != dst_end);
 	}
