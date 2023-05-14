@@ -133,7 +133,9 @@ typedef uint32_t PIXELVAL;      /* pixel format B, G, R, A in memory */
 #define COLORVAL_TO_PIXELVAL(c)     (c)         /* no conversion! */
 
 static PIXELVAL defColor = COLORVAL_TO_PIXELVAL(RGB(0, 0, 255));
-static PIXELVAL defColorMod = COLORVAL_TO_PIXELVAL(ARGB(255, 255, 255, 255));
+static uint8_t defColorModR = 255;
+static uint8_t defColorModG = 255;
+static uint8_t defColorModB = 255;
 
 /* set color for DrawRect and FillRect */
 void SetColor(uint8_t r, uint8_t g, uint8_t b, uint8_t a)
@@ -141,10 +143,11 @@ void SetColor(uint8_t r, uint8_t g, uint8_t b, uint8_t a)
     defColor = COLORVAL_TO_PIXELVAL(ARGB(a, r, g, b));
 }
 
-/* FIXME not implemented yet in DrawTexture */
 void SetTextureColorMod(Texture *texture, uint8_t r, uint8_t g, uint8_t b)
 {
-    defColorMod = COLORVAL_TO_PIXELVAL(RGB(r, g, b));
+    defColorModR = r;
+    defColorModR = g;
+    defColorModR = b;
 }
 
 /* Draw horizontal line from x1,y to x2,y including final point */
@@ -152,19 +155,16 @@ static void DrawHLine32(Drawable *d, int x1, int x2, int y, PIXELVAL c)
 {
     uint8_t *addr = d->pixels + y * d->pitch + x1 * (d->bpp >> 3);
     int width = x2 - x1 + 1;
+    int w = width;
     unassert(x1 >= 0 && x1 < d->width);
     unassert(x2 >= 0 && x2 < d->width);
     unassert(x2 >= x1);
     unassert(y >= 0 && y < d->height);
 
-    //if(defMode == ROP_COPY) {
-        int w = width;
-        while (--w >= 0) {
-            *((uint32_t *)addr) = c;
-            addr += 4;
-        }
-    //}
-    //else APPLYOP(defMode, width, (uint32_t), c, *(ADDR32), addr, 0, 4);
+    while (--w >= 0) {
+        *((uint32_t *)addr) = c;    //FIXME needs alpha blending
+        addr += 4;
+    }
     //UpdateRect(x1, y, width, 1);
 }
 
@@ -174,19 +174,16 @@ static void DrawVLine32(Drawable *d, int x, int y1, int y2, PIXELVAL c)
     int pitch = d->pitch;
     uint8_t *addr = d->pixels + y1 * pitch + x * (d->bpp >> 3);
     int height = y2 - y1 + 1;
+    int h = height;
     unassert(x >= 0 && x < d->width);
     unassert(y1 >= 0 && y1 < d->height);
     unassert(y2 >= 0 && y2 < d->height);
     unassert(y2 >= y1);
 
-    //if(defMode == ROP_COPY) {
-        int h = height;
-        while (--h >= 0) {
-            *((uint32_t *)addr) = c;
-            addr += pitch;
-        }
-    //}
-    //else APPLYOP(defMode, height, (uint32_t), c, *(ADDR32), addr, 0, pitch);
+    while (--h >= 0) {
+        *((uint32_t *)addr) = c;    //FIXME needs alpha blending
+        addr += pitch;
+    }
     //UpdateRect(x, y1, 1, height);
 }
 
@@ -198,10 +195,12 @@ void DrawRect(const Rect *rect)
     int y = r->y;
     int width = r->w;
     int height = r->h;
-    if (width <= 0 || height <= 0)
-        return;
     int maxx = x + width;
     int maxy = y + height;
+
+    if (width <= 0 || height <= 0)
+        return;
+
     DrawHLine32(&fb, x, maxx, y, defColor);
     if (height > 1)
         DrawHLine32(&fb, x, maxx, maxy, defColor);
@@ -261,6 +260,12 @@ void DestroyTexture(Texture *texture)
     free(texture);
 }
 
+/* hardcoded MWPF_TRUECOLORARGB format */
+#define B   0
+#define G   1
+#define R   2
+#define A   3
+
 /* actually copy data, no clipping done */
 static void blit(Drawable *src, const Rect *srect, Drawable *dst, const Rect *drect)
 {
@@ -268,9 +273,23 @@ static void blit(Drawable *src, const Rect *srect, Drawable *dst, const Rect *dr
     /* src and dst height can differ, will use dst height for drawing */
     char *dstaddr = dst->pixels + drect->y * dst->pitch + drect->x * (dst->bpp >> 3);
     char *srcaddr = src->pixels + srect->y * src->pitch + srect->x * (src->bpp >> 3);
-    int i;
-    for (i=0; i < drect->h; i++) {
-        memcpy(dstaddr, srcaddr, drect->w * dst->bpp >> 3);
+    int y = drect->h;
+    //ZZZ
+    while (y-- > 0) {
+        //memcpy(dstaddr, srcaddr, drect->w * (dst->bpp >> 3));
+        int x = drect->w;
+        char *s = srcaddr;
+        char *d = dstaddr;
+        while (x-- > 0) {
+            //if (s[A] != 0) {
+                d[B] = s[B] * defColorModB / 255;
+                d[G] = s[G] * defColorModG / 255;
+                d[R] = s[R] * defColorModR / 255;
+                d[A] = s[A];
+            //}
+            d += 4;
+            s += 4;
+        }
         dstaddr += dst->pitch;
         srcaddr += src->pitch;
     }
@@ -329,7 +348,7 @@ static uint64_t GetEventTimeout(void *data, int timeout)
     struct pollfd fds[2];
     SDL_Event *event = (SDL_Event *)data;
 
-    fds[0].fd = 0;
+    fds[0].fd = keybd_fd;
     fds[0].events = POLLIN;
     fds[1].fd = mouse_fd;
     fds[1].events = POLLIN;
@@ -349,23 +368,6 @@ static uint64_t GetEventTimeout(void *data, int timeout)
             static int lastx = -1, lasty = -1, lastb = 0;
             static int posx, posy;
             if (ReadMouse(&x, &y, &b)) {
-                if (x != lastx || y != lasty) {
-                    event->type = SDL_MOUSEMOTION;
-                    posx += x;
-                    posy += y;
-                    if (posx < 0) posx = 0;
-                    if (posy < 0) posy = 0;
-                    if (posx >= fb.width) posx = fb.width - 1;
-                    if (posy >= fb.height) posy = fb.height - 1;
-                    event->motion.x = posx;
-                    event->motion.y = posy;
-                    event->motion.xrel = x;
-                    event->motion.yrel = y;
-                    //printf("Mouse motion %d,%d\n", posx, posy);
-                    lastx = x;
-                    lasty = y;
-                    return 1;
-                }
                 if (b != lastb) {
                     event->button.clicks = 1;
                     event->button.x = posx;
@@ -383,6 +385,23 @@ static uint64_t GetEventTimeout(void *data, int timeout)
                         //printf("Mouse %d button %d\n", event->button.button, event->type);
                         return 1;
                     }
+                }
+                if (x != lastx || y != lasty) {
+                    event->type = SDL_MOUSEMOTION;
+                    posx += x;
+                    posy += y;
+                    if (posx < 0) posx = 0;
+                    if (posy < 0) posy = 0;
+                    if (posx >= fb.width) posx = fb.width - 1;
+                    if (posy >= fb.height) posy = fb.height - 1;
+                    event->motion.x = posx;
+                    event->motion.y = posy;
+                    event->motion.xrel = x;
+                    event->motion.yrel = y;
+                    //printf("Mouse motion %d,%d\n", posx, posy);
+                    lastx = x;
+                    lasty = y;
+                    return 1;
                 }
             }
         }
