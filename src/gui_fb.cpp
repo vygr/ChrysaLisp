@@ -110,8 +110,8 @@ void host_gui_filled_box(const Rect *rect)
 				pixel_t dg = dr & 0xff00;
 				pixel_t db = dr & 0xff;
 				dr = dr & 0xff0000;
-				dr = (dr * da >> 8) + color_r;
-				dg = (dg * da >> 8) + color_g;
+				dr = ((dr * da >> 8) & 0xff0000) + color_r;
+				dg = ((dg * da >> 8) & 0xff00) + color_g;
 				db = (db * da >> 8) + color_b;
 				*dst++ = dr + dg + db;
 			}
