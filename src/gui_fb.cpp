@@ -14,10 +14,10 @@ struct Rect
 struct Texture
 {
 	int32_t w, h;
-	pixel_t color = 0;
-	pixel_t r = 0;
-	pixel_t g = 0;
-	pixel_t b = 0;
+	pixel_t color = 0xffffff;
+	pixel_t r = 0xff0000;
+	pixel_t g = 0x00ff00;
+	pixel_t b = 0x0000ff;
 	pixel_t *data;
 };
 
@@ -57,6 +57,11 @@ Texture *host_gui_create_texture(pixel_t *src, uint64_t w, uint64_t h, uint64_t 
 {
 	Texture *t = (Texture*)malloc(sizeof(Texture));
 	pixel_t *dst = (pixel_t *)malloc(w * h * sizeof(pixel_t));
+	t->w = w;
+	t->h = h;
+	t->r = 0xff0000;
+	t->g = 0x00ff00;
+	t->b = 0x0000ff;
 	t->data = dst;
 	pixel_t *src_end = (pixel_t*)((uint8_t*)src + h * s);
 	uint32_t span = w * sizeof(pixel_t);
