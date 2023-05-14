@@ -62,6 +62,7 @@ Texture *host_gui_create_texture(pixel_t *src, uint64_t w, uint64_t h, uint64_t 
 	t->r = 0xff0000;
 	t->g = 0x00ff00;
 	t->b = 0x0000ff;
+	t->color = 0xffffff;
 	t->data = dst;
 	pixel_t *src_end = (pixel_t*)((uint8_t*)src + h * s);
 	uint32_t span = w * sizeof(pixel_t);
