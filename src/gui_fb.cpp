@@ -14,6 +14,10 @@ struct Rect
 struct Texture
 {
 	int32_t w, h;
+	pixel_t color = 0;
+	pixel_t r = 0;
+	pixel_t g = 0;
+	pixel_t b = 0;
 	pixel_t *data;
 };
 
@@ -191,8 +195,13 @@ void host_gui_set_color(uint8_t r, uint8_t g, uint8_t b, uint8_t a)
 	color_b = (b * a) >> 8;
 }
 
-void host_gui_set_texture_color(uint64_t t, uint8_t r, uint8_t g, uint8_t b)
+void host_gui_set_texture_color(Texture *t, uint8_t r, uint8_t g, uint8_t b)
 {
+	//convert to premultiplied channels !, fast check for == white
+	t->r = r << 16;
+	t->g = g << 8;
+	t->b = b;
+	t->color = t->r + t->g + t->b;
 }
 
 void host_gui_blit(Texture *t, const Rect *srect, const Rect *drect)
