@@ -68,7 +68,7 @@ void host_gui_flush(const Rect *rect)
 		(rect->y * SCREEN_STRIDE + rect->x * sizeof(pixel_t)));
 	pixel_t *src = (pixel_t*)((uint8_t*)backbuffer +
 		(rect->y * SCREEN_STRIDE + rect->x * sizeof(pixel_t)));
-	pixel_t *src_end = (pixel_t*)((uint8_t*)dst +
+	pixel_t *src_end = (pixel_t*)((uint8_t*)src +
 		rect->h * SCREEN_STRIDE);
 	uint32_t span = rect->w * sizeof(pixel_t);
 	uint32_t stride = SCREEN_STRIDE - span;
