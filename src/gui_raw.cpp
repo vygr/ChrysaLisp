@@ -324,11 +324,11 @@ void host_gui_blit(Texture *t, const Rect *srect, const Rect *drect)
 				pixel_t sa = *src++;
 				if (sa > 0xffffff)
 				{
+					pixel_t sr = sa & 0xff0000;
+					pixel_t sg = sa & 0xff00;
+					pixel_t sb = sa & 0xff;
 					if (sa < 0xff000000)
 					{
-						pixel_t sr = sa & 0xff0000;
-						pixel_t sg = sa & 0xff00;
-						pixel_t sb = sa & 0xff;
 						sa = sa >> 24;
 						pixel_t drb = *dst;
 						pixel_t dg = drb & 0xff00;
@@ -343,9 +343,6 @@ void host_gui_blit(Texture *t, const Rect *srect, const Rect *drect)
 					}
 					else
 					{
-						pixel_t sr = sa & 0xff0000;
-						pixel_t sg = sa & 0xff00;
-						pixel_t sb = sa & 0xff;
 						sr = (sr * t->r >> 8) & 0xff0000;
 						sg = (sg * t->g >> 8) & 0xff00;
 						sb = sb * t->b >> 8;
