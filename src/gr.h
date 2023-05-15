@@ -3,6 +3,7 @@
  *
  * May 2023 Greg Haerr
  */
+#include <inttypes.h>
 
 /* supported framebuffer pixel formats */
 #define MWPF_TRUECOLORARGB 0    /* 32bpp, memory byte order B, G, R, A */
@@ -24,6 +25,7 @@ typedef struct drawable {
     int pitch;                  /* stride in bytes, offset to next pixel row */
     int size;                   /* total size in bytes */
     unsigned char *pixels;      /* pixel data */
+    uint32_t r, g, b, color;
 } Drawable, Texture;
 
 uint64_t Init(struct rect *r);

@@ -133,9 +133,6 @@ typedef uint32_t PIXELVAL;      /* pixel format B, G, R, A in memory */
 #define COLORVAL_TO_PIXELVAL(c)     (c)         /* no conversion! */
 
 static PIXELVAL defColor = COLORVAL_TO_PIXELVAL(RGB(0, 0, 255));
-static uint8_t defColorModR = 255;
-static uint8_t defColorModG = 255;
-static uint8_t defColorModB = 255;
 
 /* set color for Drawables */
 void SetColor(uint8_t r, uint8_t g, uint8_t b, uint8_t a)
@@ -145,9 +142,9 @@ void SetColor(uint8_t r, uint8_t g, uint8_t b, uint8_t a)
 
 void SetTextureColorMod(Texture *texture, uint8_t r, uint8_t g, uint8_t b)
 {
-    defColorModR = r;
-    defColorModR = g;
-    defColorModR = b;
+    texture->r = r;
+    texture->g = g;
+    texture->b = b;
 }
 
 /* Draw horizontal line from x1,y to x2,y including final point */
@@ -270,8 +267,9 @@ void DestroyTexture(Texture *texture)
 #define DR  2
 #define DA  3
 
-//#define muldiv255(a,b)    (((a)*(b))/255)         /* slow divide, exact*/
+//#define muldiv255(a,b)    (((a)*(b))/255)           /* slow divide, exact*/
 #define muldiv255(a,b)      ((((a)+1)*(b))>>8)      /* very fast, 92% accurate*/
+//#define muldiv255(a,b)    (((a)*(b))>>8)          /* fastest, less accurate*/
 
 /* actually copy data, no clipping done */
 static void blit(Drawable *src, const Rect *srect, Drawable *dst, const Rect *drect)
@@ -281,36 +279,47 @@ static void blit(Drawable *src, const Rect *srect, Drawable *dst, const Rect *dr
     uint8_t *dstaddr = dst->pixels + drect->y * dst->pitch + drect->x * (dst->bpp >> 3);
     uint8_t *srcaddr = src->pixels + srect->y * src->pitch + srect->x * (src->bpp >> 3);
     int y = drect->h;
-    //ZZZ
     while (y-- > 0) {
-        //memcpy(dstaddr, srcaddr, drect->w * (dst->bpp >> 3));
         int x = drect->w;
         uint8_t *s = srcaddr;
         uint8_t *d = dstaddr;
         while (x-- > 0) {
-            uint8_t alpha;
-#define FORCE   1
-            if (FORCE || (alpha = s[SA]) == 255) {
-                d[DB] = s[SB] * defColorModB / 255;
-                d[DG] = s[SG] * defColorModG / 255;
-                d[DR] = s[SR] * defColorModR / 255;
-                d[DA] = s[SA];
-            } else if (alpha != 0) {
+//ZZZ both methods work
 #if 1
-                /* d += muldiv255(a, s - d) */
-                d[DB] += muldiv255(alpha, (s[SB] * defColorModB / 255) - d[DB]);
-                d[DG] += muldiv255(alpha, (s[SG] * defColorModG / 255) - d[DG]);
-                d[DR] += muldiv255(alpha, (s[SR] * defColorModR / 255) - d[DR]);
-
-                /* d += muldiv255(a, 255 - d)*/
-                d[DA] += muldiv255(alpha, 255 - d[DA]);
-#else
-                d[DB] = s[SB] * defColorModB / 255;
-                d[DG] = s[SG] * defColorModG / 255;
-                d[DR] = s[SR] * defColorModR / 255;
-                d[DA] = s[SA];
-#endif
+            uint8_t sa = s[SA];
+            uint8_t da = 0xff - sa;
+            if (src->color == 0xffffff) {
+                d[DR] = ((d[DR] * da) >> 8) + s[SR];
+                d[DG] = ((d[DG] * da) >> 8) + s[SG];
+                d[DB] = ((d[DB] * da) >> 8) + s[SB];
+                d[DA] = 255;
+            } else {
+                //FIXME DOESN'T WORK, must use src and texture color
+                //d[DR] = ((d[DR] * da) >> 8) + src->b;
+                //d[DG] = ((d[DG] * da) >> 8) + src->g;
+                //d[DB] = ((d[DB] * da) >> 8) + src->r;
+                d[DR] = ((d[DR] * da) >> 8) + s[SR] * src->b / 255;
+                d[DG] = ((d[DG] * da) >> 8) + s[SG] * src->g / 255;
+                d[DB] = ((d[DB] * da) >> 8) + s[SB] * src->r / 255;
+                d[DA] = 255;
             }
+#else
+            uint8_t alpha = s[SA];
+            if (src->color == 0xffffff) {
+                d[DB] += muldiv255(alpha, s[SB] - d[DB]);
+                d[DG] += muldiv255(alpha, s[SG] - d[DG]);
+                d[DR] += muldiv255(alpha, s[SR] - d[DR]);
+                d[DA] = 255;
+            } else {
+                /* d += muldiv255(a, s - d) */
+                d[DB] += muldiv255(alpha, (s[SB] * src->b / 255) - d[DB]);
+                d[DG] += muldiv255(alpha, (s[SG] * src->g / 255) - d[DG]);
+                d[DR] += muldiv255(alpha, (s[SR] * src->r / 255) - d[DR]);
+                /* d += muldiv255(a, 255 - d)*/
+                //d[DA] += muldiv255(alpha, 255 - d[DA]);
+                d[DA] = 255;
+            }
+#endif
             d += 4;
             s += 4;
         }
@@ -356,6 +365,8 @@ void BlitDrawable(Drawable *d, int x, int y, int width, int height)
 #if 1
     Rect *cr = ClipRect(&r);
     if (cr) {
+        d->r = d->g = d->b = 0xff;
+        d->color = 0xffffff;
         blit(d, cr, &fb, cr);
     }
 #else   /* used to test code for textures */
