@@ -1,5 +1,5 @@
 #if defined(_HOST_GUI)
-#if _HOST_GUI == -1 //demo template
+#if _HOST_GUI == 1 //demo template
 
 #include <stdint.h>
 #include <memory>
@@ -151,9 +151,9 @@ void host_gui_destroy_texture(Texture *t)
 void host_gui_set_texture_color(Texture *t, uint8_t r, uint8_t g, uint8_t b)
 {
 	//convert to premultiplied channels !, fast check for == white
-	t->r = r;
-	t->g = g;
-	t->b = b;
+	t->r = r + 1;
+	t->g = g + 1;
+	t->b = b + 1;
 	t->color = (t->r << 16) + (t->g << 8) + t->b;
 }
 
