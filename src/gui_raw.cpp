@@ -1,5 +1,5 @@
 #if defined(_HOST_GUI)
-#if _HOST_GUI == -1 //demo template
+#if _HOST_GUI == 1 //demo template
 
 #include <stdint.h>
 #include <memory>
@@ -154,7 +154,7 @@ void host_gui_set_texture_color(Texture *t, uint8_t r, uint8_t g, uint8_t b)
 	t->r = r + 1;
 	t->g = g + 1;
 	t->b = b + 1;
-	t->color = (t->r << 16) + (t->g << 8) + t->b;
+	t->color = (r << 16) + (g << 8) + b;
 }
 
 ////////////////////
