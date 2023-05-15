@@ -1,5 +1,5 @@
 #if defined(_HOST_GUI)
-#if _HOST_GUI == 1 //demo template
+#if _HOST_GUI == -1 //demo template
 
 #include <stdint.h>
 #include <memory>
