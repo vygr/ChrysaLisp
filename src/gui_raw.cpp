@@ -1,8 +1,9 @@
 #if defined(_HOST_GUI)
-#if _HOST_GUI == 1 //demo template
+#if _HOST_GUI == -1 //demo template
 
 #include <stdint.h>
 #include <memory>
+#include <iostream>
 
 typedef uint32_t pixel_t;
 
@@ -13,26 +14,30 @@ struct Rect
 
 struct Texture
 {
-	int32_t w, h;
+	int32_t w, h, s;
 	pixel_t color = 0xffffff;
-	pixel_t r = 0xff0000;
-	pixel_t g = 0x00ff00;
-	pixel_t b = 0x0000ff;
+	pixel_t r = 0xff;
+	pixel_t g = 0xff;
+	pixel_t b = 0xff;
 	pixel_t *data;
 };
 
-const uint32_t SCREEN_WIDTH = 1024;
-const uint32_t SCREEN_HEIGHT = 768;
+const uint32_t SCREEN_WIDTH = 1280;
+const uint32_t SCREEN_HEIGHT = 960;
 const uint32_t SCREEN_STRIDE = SCREEN_WIDTH * sizeof(pixel_t);
 
 pixel_t *screen = 0;
 pixel_t *backbuffer = 0;
 pixel_t color_a = 0;
-pixel_t color_r = 0;
+pixel_t color_rb = 0;
 pixel_t color_g = 0;
-pixel_t color_b = 0;
 
 Rect clip;
+
+#include <SDL.h>
+
+SDL_Window *window;
+SDL_Renderer *renderer;
 
 ////////////////////////////////
 // screen setup/access functions
@@ -40,6 +45,19 @@ Rect clip;
 
 void host_gui_init(Rect *rect)
 {
+	SDL_SetMainReady();
+	SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS);
+	window = SDL_CreateWindow("ChrysaLisp GUI Window",
+				SDL_WINDOWPOS_UNDEFINED,
+				SDL_WINDOWPOS_UNDEFINED,
+				SCREEN_WIDTH, SCREEN_HEIGHT,
+				SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
+	renderer = SDL_CreateRenderer(window, -1,
+				SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_TARGETTEXTURE);
+	SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+	SDL_SetRenderTarget(renderer, 0);
+	SDL_ShowCursor(0);
+
 	screen = (pixel_t *)malloc(SCREEN_HEIGHT * SCREEN_STRIDE);
 	backbuffer = (pixel_t *)malloc(SCREEN_HEIGHT * SCREEN_STRIDE);
 	rect->w = SCREEN_WIDTH;
@@ -50,6 +68,9 @@ void host_gui_deinit()
 {
 	free(screen);
 	free(backbuffer);
+
+	SDL_DestroyWindow(window);
+	SDL_Quit();
 }
 
 void host_gui_resize(uint64_t w, uint64_t h)
@@ -80,9 +101,17 @@ void host_gui_flush(const Rect *rect)
 	{
 		pixel_t *src_end_line = (pixel_t*)((uint8_t*)src + span);
 		do { *dst++ = *src++; } while (src != src_end_line);
-		src += stride;
-		dst += stride;
+		src = (pixel_t*)((uint8_t*)src + stride);
+		dst = (pixel_t*)((uint8_t*)dst + stride);
 	} while (src != src_end);
+
+	auto surface = SDL_CreateRGBSurfaceFrom(screen, SCREEN_WIDTH, SCREEN_HEIGHT, 32, SCREEN_STRIDE, 0xff0000, 0xff00, 0xff, 0xff000000);
+	auto t = SDL_CreateTextureFromSurface(renderer, surface);
+	SDL_SetTextureBlendMode(t, SDL_BLENDMODE_NONE);
+	SDL_FreeSurface(surface);
+	SDL_RenderCopy(renderer, t, 0, 0);
+	SDL_DestroyTexture(t);
+	SDL_RenderPresent(renderer);
 }
 
 ////////////////////
@@ -95,9 +124,10 @@ Texture *host_gui_create_texture(pixel_t *src, uint64_t w, uint64_t h, uint64_t 
 	pixel_t *dst = (pixel_t *)malloc(w * h * sizeof(pixel_t));
 	t->w = w;
 	t->h = h;
-	t->r = 0xff0000;
-	t->g = 0x00ff00;
-	t->b = 0x0000ff;
+	t->s = w * sizeof(pixel_t);
+	t->r = 0xff;
+	t->g = 0xff;
+	t->b = 0xff;
 	t->color = 0xffffff;
 	t->data = dst;
 	pixel_t *src_end = (pixel_t*)((uint8_t*)src + h * s);
@@ -107,7 +137,7 @@ Texture *host_gui_create_texture(pixel_t *src, uint64_t w, uint64_t h, uint64_t 
 	{
 		pixel_t *src_end_line = (pixel_t*)((uint8_t*)src + span);
 		do { *dst++ = *src++; } while (src != src_end_line);
-		src += s;
+		src = (pixel_t*)((uint8_t*)src + s);
 	} while (src != src_end);
 	return t;
 }
@@ -121,10 +151,10 @@ void host_gui_destroy_texture(Texture *t)
 void host_gui_set_texture_color(Texture *t, uint8_t r, uint8_t g, uint8_t b)
 {
 	//convert to premultiplied channels !, fast check for == white
-	t->r = r << 16;
-	t->g = g << 8;
+	t->r = r;
+	t->g = g;
 	t->b = b;
-	t->color = t->r + t->g + t->b;
+	t->color = (t->r << 16) + (t->g << 8) + t->b;
 }
 
 ////////////////////
@@ -143,9 +173,8 @@ void host_gui_set_color(uint8_t r, uint8_t g, uint8_t b, uint8_t a)
 {
 	//convert to premultiplied channels !
 	color_a = a;
-	color_r = ((r * a) & 0xff00) << 8;
+	color_rb = (((r * a) & 0xff00) << 8) + ((b * a) >> 8);
 	color_g = (g * a) & 0xff00;
-	color_b = (b * a) >> 8;
 }
 
 void host_gui_filled_box(const Rect *rect)
@@ -171,12 +200,12 @@ void host_gui_filled_box(const Rect *rect)
 	uint32_t stride = SCREEN_STRIDE - span;
 	if (color_a == 0xff)
 	{
-		pixel_t dcol = color_r + color_g + color_b;
+		pixel_t dcol = color_rb + color_g;
 		do
 		{
 			pixel_t *dst_end_line = (pixel_t*)((uint8_t*)dst + span);
 			do { *dst++ = dcol; } while (dst != dst_end_line);
-			dst += stride;
+			dst = (pixel_t*)((uint8_t*)dst + stride);
 		} while (dst != dst_end);
 	}
 	else
@@ -187,16 +216,14 @@ void host_gui_filled_box(const Rect *rect)
 			pixel_t *dst_end_line = (pixel_t*)((uint8_t*)dst + span);
 			do
 			{
-				pixel_t dr = *dst;
-				pixel_t dg = dr & 0xff00;
-				pixel_t db = dr & 0xff;
-				dr = dr & 0xff0000;
-				dr = ((dr * da >> 8) & 0xff0000) + color_r;
+				pixel_t drb = *dst;
+				pixel_t dg = drb & 0xff00;
+				drb = drb & 0xff00ff;
+				drb = ((drb * da >> 8) & 0xff00ff) + color_rb;
 				dg = ((dg * da >> 8) & 0xff00) + color_g;
-				db = (db * da >> 8) + color_b;
-				*dst++ = dr + dg + db;
+				*dst++ = drb + dg;
 			} while (dst != dst_end_line);
-			dst += stride;
+			dst = (pixel_t*)((uint8_t*)dst + stride);
 		} while (dst != dst_end);
 	}
 }
@@ -231,21 +258,28 @@ void host_gui_blit(Texture *t, const Rect *srect, const Rect *drect)
 	dr.h += dr.y;
 	if (dr.x >= clip.w || dr.y >= clip.h) return;
 	if (dr.w <= clip.x || dr.h <= clip.y) return;
-	if (clip.x > dr.x) dr.x = clip.x;
-	if (clip.y > dr.y) dr.y = clip.y;
+	if (clip.x > dr.x)
+	{
+		sr.x += clip.x - dr.x;
+		dr.x = clip.x;
+	}
+	if (clip.y > dr.y)
+	{
+		sr.y += clip.y - dr.y;
+		dr.y = clip.y;
+	}
 	if (dr.w > clip.w) dr.w = clip.w;
 	if (dr.h > clip.h) dr.h = clip.h;
 	//blit the rect
 	pixel_t *src = (pixel_t*)((uint8_t*)t->data +
-		sr.y * SCREEN_STRIDE + sr.x * sizeof(pixel_t));
+		sr.y * t->s + sr.x * sizeof(pixel_t));
 	pixel_t *dst = (pixel_t*)((uint8_t*)backbuffer +
 		dr.y * SCREEN_STRIDE + dr.x * sizeof(pixel_t));
 	pixel_t *dst_end = (pixel_t*)((uint8_t*)dst +
 		(dr.h - dr.y) * SCREEN_STRIDE);
 	uint32_t span = (dr.w - dr.x) * sizeof(pixel_t);
 	uint32_t dstride = SCREEN_STRIDE - span;
-	uint32_t sstride = t->w * sizeof(pixel_t) - span;
-
+	uint32_t sstride = t->s - span;
 	if (t->color == 0xffffff)
 	{
 		do
@@ -253,26 +287,31 @@ void host_gui_blit(Texture *t, const Rect *srect, const Rect *drect)
 			pixel_t *dst_end_line = (pixel_t*)((uint8_t*)dst + span);
 			do
 			{
-				pixel_t dr = *dst;
-				pixel_t dg = dr & 0xff00;
-				pixel_t db = dr & 0xff;
-				dr = dr & 0xff0000;
-
 				pixel_t sa = *src++;
-				pixel_t sr = sa & 0xff0000;
-				pixel_t sg = sa & 0xff00;
-				pixel_t sb = sa & 0xff;
-				sa = sa >> 24;
-
-				pixel_t da = 0xff - sa;
-
-				dr = ((dr * da >> 8) & 0xff0000) + sr;
-				dg = ((dg * da >> 8) & 0xff00) + sg;
-				db = (db * da >> 8) + sb;
-				*dst++ = dr + dg + db;
+				if (sa > 0xffffff)
+				{
+					if (sa < 0xff000000)
+					{
+						pixel_t srb = sa & 0xff00ff;
+						pixel_t sg = sa & 0xff00;
+						sa = sa >> 24;
+						pixel_t drb = *dst;
+						pixel_t dg = drb & 0xff00;
+						drb = drb & 0xff00ff;
+						pixel_t da = 0xff - sa;
+						drb = ((drb * da >> 8) & 0xff00ff) + srb;
+						dg = ((dg * da >> 8) & 0xff00) + sg;
+						*dst = drb + dg;
+					}
+					else
+					{
+						*dst = sa & 0xffffff;
+					}
+				}
+				dst++;
 			} while (dst != dst_end_line);
-			dst += dstride;
-			src += sstride;
+			dst = (pixel_t*)((uint8_t*)dst + dstride);
+			src = (pixel_t*)((uint8_t*)src + sstride);
 		} while (dst != dst_end);
 	}
 	else
@@ -282,23 +321,41 @@ void host_gui_blit(Texture *t, const Rect *srect, const Rect *drect)
 			pixel_t *dst_end_line = (pixel_t*)((uint8_t*)dst + span);
 			do
 			{
-				pixel_t dr = *dst;
-				pixel_t dg = dr & 0xff00;
-				pixel_t db = dr & 0xff;
-				dr = dr & 0xff0000;
-
 				pixel_t sa = *src++;
-				sa = sa >> 24;
-
-				pixel_t da = 0xff - sa;
-
-				dr = ((dr * da >> 8) & 0xff0000) + t->r;
-				dg = ((dg * da >> 8) & 0xff00) + t->g;
-				db = (db * da >> 8) + t->b;
-				*dst++ = dr + dg + db;
+				if (sa > 0xffffff)
+				{
+					if (sa < 0xff000000)
+					{
+						pixel_t sr = sa & 0xff0000;
+						pixel_t sg = sa & 0xff00;
+						pixel_t sb = sa & 0xff;
+						sa = sa >> 24;
+						pixel_t drb = *dst;
+						pixel_t dg = drb & 0xff00;
+						drb = drb & 0xff00ff;
+						pixel_t da = 0xff - sa;
+						sr = (sr * t->r >> 8) & 0xff0000;
+						sg = (sg * t->g >> 8) & 0xff00;
+						sb = sb * t->b >> 8;
+						drb = ((drb * da >> 8) & 0xff00ff) + sr + sb;
+						dg = ((dg * da >> 8) & 0xff00) + sg;
+						*dst = drb + dg;
+					}
+					else
+					{
+						pixel_t sr = sa & 0xff0000;
+						pixel_t sg = sa & 0xff00;
+						pixel_t sb = sa & 0xff;
+						sr = (sr * t->r >> 8) & 0xff0000;
+						sg = (sg * t->g >> 8) & 0xff00;
+						sb = sb * t->b >> 8;
+						*dst = sr + sg + sb;
+					}
+				}
+				dst++;
 			} while (dst != dst_end_line);
-			dst += dstride;
-			src += sstride;
+			dst = (pixel_t*)((uint8_t*)dst + dstride);
+			src = (pixel_t*)((uint8_t*)src + sstride);
 		} while (dst != dst_end);
 	}
 }
@@ -309,7 +366,8 @@ void host_gui_blit(Texture *t, const Rect *srect, const Rect *drect)
 
 uint64_t host_gui_poll_event(uint64_t data)
 {
-	return 0;
+	SDL_PumpEvents();
+	return SDL_PollEvent((SDL_Event*)data);
 }
 
 void (*host_gui_funcs[]) = {
