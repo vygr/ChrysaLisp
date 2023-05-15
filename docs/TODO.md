@@ -8,6 +8,9 @@ In no particular order but to just to ensure I get thoughts down. I'll keep
 adding to this as I go along. If anybody would like to try helping out, then
 just get in touch.
 
+* Forth that outputs words compiled to VP ops !!! I will do this just to honor
+Chuck !
+
 * Separate the VP instruction for div and rem into individual operations. The
 x64 isn't really the way things should be done anymore.
 
