@@ -30,8 +30,7 @@ static struct termios orig;
 static int frame_fd = -1;       /* framebuffer file handle */
 static int mouse_fd = -1;
 static int keybd_fd = -1;;
-static int clipminx, clipmaxx;
-static int clipminy, clipmaxy;
+static Rect clip;
 
 static int OpenFramebuffer(void);
 static int OpenMouse(void);
@@ -87,36 +86,38 @@ static Rect *ClipRect(const Rect *rect)
     int x2, y2;
     static Rect r;
 
-    r.x = CLAMP(rect->x, clipminx, clipmaxx);
-    x2 = rect->x + rect->w;
-    x2 = CLAMP(x2, clipminx, clipmaxx);
-    r.w = x2 - r.x + 1;
-    r.y = CLAMP(rect->y, clipminy, clipmaxy);
-    y2 = rect->y + rect->h - 1;
-    y2 = CLAMP(y2, clipminy, clipmaxy);
-    r.h = y2 - r.y + 1;
-    if (r.w < 1 || r.h < 1)
-        return 0;
+    r = *rect;
+    if (r.w < 1 || r.h < 1) return NULL;
+    r.w += r.x;
+    r.h += r.y;
+    if (r.x >= clip.w || r.y >= clip.h) return NULL;
+    if (r.w <= clip.x || r.h <= clip.y) return NULL;
+    if (clip.x > r.x) r.x = clip.x;
+    if (clip.y > r.y) r.y = clip.y;
+    if (r.w > clip.w) r.w = clip.w;
+    if (r.h > clip.h) r.h = clip.h;
+    r.w -= r.x;
+    r.h -= r.y;
     return &r;
 }
 
 /* set global clipping rectangle */
 void SetClip(const Rect *rect)
 {
+    // store as x, y, x1, y1
     if (rect) {
-        int maxx = fb.width - 1;
-        int maxy = fb.height - 1;
-        clipminx = CLAMP(rect->x, 0, maxx);
-        clipmaxx = rect->x + rect->w;
-        clipmaxx = CLAMP(clipmaxx, 0, maxx);
-        clipminy = CLAMP(rect->y, 0, maxy);
-        clipmaxy = rect->y + rect->h;
-        clipmaxy = CLAMP(clipmaxy, 0, maxy);
+        clip = *rect;
+        clip.w += clip.x;
+        clip.h += clip.y;
+        if (clip.x < 0) clip.x = 0;
+        if (clip.y < 0) clip.y = 0;
+        if (clip.w >= fb.width) clip.w = fb.width - 1;
+        if (clip.h >= fb.height) clip.h = fb.height - 1;
     } else {
-        clipminx = 0;
-        clipmaxx = fb.width - 1;
-        clipminy = 0;
-        clipmaxy = fb.height - 1;
+        clip.x = 0;
+        clip.w = fb.width - 1;
+        clip.y = 0;
+        clip.h = fb.height - 1;
     }
 }
 
@@ -284,9 +285,7 @@ static void blit(Drawable *src, const Rect *srect, Drawable *dst, const Rect *dr
         int x = drect->w;
         uint8_t *s = srcaddr;
         uint8_t *d = dstaddr;
-        //uint16_t t;
         while (x-- > 0) {
-//ZZZ both methods work
 #if 1
             uint8_t sa = s[SA];
             uint8_t da = 0xff - sa;
