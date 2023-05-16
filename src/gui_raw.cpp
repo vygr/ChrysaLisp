@@ -125,9 +125,9 @@ Texture *host_gui_create_texture(pixel_t *src, uint64_t w, uint64_t h, uint64_t 
 	t->w = w;
 	t->h = h;
 	t->s = w * sizeof(pixel_t);
-	t->r = 0xff;
-	t->g = 0xff;
-	t->b = 0xff;
+	t->r = 0xff + 1;
+	t->g = 0xff + 1;
+	t->b = 0xff + 1;
 	t->color = 0xffffff;
 	t->data = dst;
 	pixel_t *src_end = (pixel_t*)((uint8_t*)src + h * s);
