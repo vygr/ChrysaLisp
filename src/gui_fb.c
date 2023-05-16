@@ -220,20 +220,41 @@ void DrawRect(const Rect *rect)
         DrawVLine32(&bb, maxx, y, maxy, defColor);
 }
 
-
+/* fill rectangle with current color */
 void FillRect(const Rect *rect)
 {
+    pixel_t color_a = defColor >> 24;
+    if (color_a == 0) return;
     Rect *r = ClipRect(rect);
     if (!r) return;
-    int x2 = r->x + r->w - 1;
-    int y1 = r->y;
-    int y2 = y1 + r->h - 1;
+    int h = r->h;
+    int span = (bb.pitch >> 2) - r->w;      /* in pixels, not bytes */
+    pixel_t *dst = (pixel_t *)(bb.pixels + r->y * bb.pitch + r->x * (bb.bpp >> 3));
     
-    while (y1 <= y2)
-        DrawHLine32(&bb, r->x, x2, y1++, defColor);
-    //int X1 = r->x;
-    //int Y1 = r->y;
-    //UpdateRect(X1, Y1, x2-X1+1, y2-Y1+1);
+    if (color_a == 0xff) {  /* source copy */
+        do {
+            int w = r->w;
+            do {
+                *dst++ = defColor;
+            } while (--w > 0);
+            dst += span;
+        } while (--h > 0);
+    } else {                /* premultiplied ARGB */
+		pixel_t da = 0xff - color_a;
+        do {
+            int w = r->w;
+            do {
+				pixel_t drb = *dst;
+				pixel_t dg = drb & 0x00ff00;
+				       drb = drb & 0xff00ff;
+				drb = ((drb * da >> 8) & 0xff00ff) + (defColor & 0xff00ff);
+				dg =   ((dg * da >> 8) & 0x00ff00) + (defColor & 0x00ff00);
+				*dst++ = drb + dg;
+            } while (--w > 0);
+            dst += span;
+        } while (--h > 0);
+    }
+    //UpdateRect(r->x, r->y, r->w, r->h);
 }
 
 void Resize(uint64_t w, uint64_t h)

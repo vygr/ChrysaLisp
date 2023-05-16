@@ -28,6 +28,8 @@ typedef struct drawable {
     uint32_t r, g, b, color;
 } Drawable, Texture;
 
+typedef uint32_t pixel_t;       /* fixed ARGB8888 for now */
+
 uint64_t Init(struct rect *r);
 void DeInit(void);
 void Flush(const Rect *r);
