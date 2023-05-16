@@ -1,5 +1,5 @@
 #if defined(_HOST_GUI)
-#if _HOST_GUI == -1 //demo template
+#if _HOST_GUI == 1 //demo template
 
 #include <stdint.h>
 #include <memory>
@@ -294,11 +294,10 @@ void host_gui_blit(Texture *t, const Rect *srect, const Rect *drect)
 					{
 						pixel_t srb = sa & 0xff00ff;
 						pixel_t sg = sa & 0xff00;
-						sa = sa >> 24;
 						pixel_t drb = *dst;
 						pixel_t dg = drb & 0xff00;
 						drb = drb & 0xff00ff;
-						pixel_t da = 0xff - sa;
+						pixel_t da = 0xff - (sa >> 24);
 						drb = ((drb * da >> 8) & 0xff00ff) + srb;
 						dg = ((dg * da >> 8) & 0xff00) + sg;
 						*dst = drb + dg;
