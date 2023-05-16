@@ -16,9 +16,9 @@ struct Texture
 {
 	int32_t w, h, s;
 	pixel_t color = 0xffffff;
-	pixel_t r = 0xff;
-	pixel_t g = 0xff;
-	pixel_t b = 0xff;
+	pixel_t r = 0xff + 1;
+	pixel_t g = 0xff + 1;
+	pixel_t b = 0xff + 1;
 	pixel_t *data;
 };
 
