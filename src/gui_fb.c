@@ -25,11 +25,12 @@
 #define PATH_MOUSE          "/dev/input/mice"
 #define PATH_KEYBOARD       "/dev/tty"          /* or env "CONSOLE" */
 
-static struct drawable fb;      /* hardware framebuffer */
 static struct termios orig;
-static int frame_fd = -1;       /* framebuffer file handle */
+static int frame_fd = -1;           /* framebuffer file handle */
 static int mouse_fd = -1;
 static int keybd_fd = -1;;
+static Drawable fb;                 /* hardware framebuffer */
+static Drawable bb;                 /* back buffer */
 static Rect clip;
 
 static int OpenFramebuffer(void);
@@ -37,6 +38,8 @@ static int OpenMouse(void);
 static int ReadMouse(int *dx, int *dy, int *bp);
 static int OpenKeyboard(void);
 static void CloseKeyboard(void);
+static Rect *ClipRect(const Rect *rect);
+static void blit(Drawable *src, const Rect *srect, Drawable *dst, const Rect *drect);
 
 /* Mouse button bits */
 #define MWBUTTON_L        0x01      /* left button*/
@@ -77,13 +80,19 @@ void End_Composite(void)
 
 void Flush(const Rect *r)
 {
-    // backbuffer not yet implemented
+    Rect cr;
+    cr.x = 0;
+    cr.y = 0;
+    cr.w = fb.width;
+    cr.h = fb.height;
+    unassert(r);
+    //blit(&bb, &cr, &fb, &cr);
+    memcpy(fb.pixels, bb.pixels, fb.size);
 }
 
 /* adjust passed rect to current clip rectangle */
 static Rect *ClipRect(const Rect *rect)
 {
-    int x2, y2;
     static Rect r;
 
     r = *rect;
@@ -199,16 +208,16 @@ void DrawRect(const Rect *rect)
     if (width <= 0 || height <= 0)
         return;
 
-    DrawHLine32(&fb, x, maxx, y, defColor);
+    DrawHLine32(&bb, x, maxx, y, defColor);
     if (height > 1)
-        DrawHLine32(&fb, x, maxx, maxy, defColor);
+        DrawHLine32(&bb, x, maxx, maxy, defColor);
     if (height < 3)
         return;
     ++y;
     --maxy;
-    DrawVLine32(&fb, x, y, maxy, defColor);
+    DrawVLine32(&bb, x, y, maxy, defColor);
     if (width > 1)
-        DrawVLine32(&fb, maxx, y, maxy, defColor);
+        DrawVLine32(&bb, maxx, y, maxy, defColor);
 }
 
 
@@ -221,7 +230,7 @@ void FillRect(const Rect *rect)
     int y2 = y1 + r->h - 1;
     
     while (y1 <= y2)
-        DrawHLine32(&fb, r->x, x2, y1++, defColor);
+        DrawHLine32(&bb, r->x, x2, y1++, defColor);
     //int X1 = r->x;
     //int Y1 = r->y;
     //UpdateRect(X1, Y1, x2-X1+1, y2-Y1+1);
@@ -339,18 +348,12 @@ void BlitTexture(Texture *texture, const Rect *srect, const Rect *drect)
     unassert(srect->w == drect->w);
     unassert(srect->h == drect->h);
     Rect *cr = ClipRect(drect);
-#if 0
-    if (srect->h != cr->h) {
-        return;
-        DeInit();
-        printf("src %d,%d %d,%d dst %d,%d %d,%d\n",
-            drect->x, drect->y, drect->w, drect->h,
-            cr->x, cr->y, cr->w, cr->h);
-        exit(1);
-    }
-#endif
+
     if (cr) {
-        blit(texture, srect, &fb, cr);
+        Rect sr2 = *srect;
+        if (clip.x > drect->x) sr2.x += clip.x - drect->x;
+        if (clip.y > drect->y) sr2.y += clip.y - drect->y;
+        blit(texture, &sr2, &bb, cr);
     }
 }
 
@@ -370,7 +373,7 @@ void BlitDrawable(Drawable *d, int x, int y, int width, int height)
     if (cr) {
         d->r = d->g = d->b = 0xff;
         d->color = 0xffffff;
-        blit(d, cr, &fb, cr);
+        blit(d, cr, &bb, cr);
     }
 #else   /* used to test code for textures */
     Texture *t = CreateTexture(d->pixels, d->width, d->height, d->pitch, 0);
@@ -496,6 +499,10 @@ uint64_t Init(Rect *r)
         return -1;
     if (OpenFramebuffer() < 0)  /* printf display won't work after this */
         return -1;
+    bb = fb;
+    bb.pixels = malloc(bb.size);
+    unassert(bb.pixels);
+    memset(bb.pixels, 0, bb.size);
     atexit(DeInit);
     signal(SIGHUP, sighup);
     signal(SIGABRT, sighup);
@@ -597,7 +604,7 @@ static int OpenFramebuffer(void)
     }
 
     memset(fb.pixels, 0, fb.size);
-    SetClip(0);
+    SetClip(NULL);
     return frame_fd;
 
 fail:
