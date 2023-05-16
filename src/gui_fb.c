@@ -267,9 +267,10 @@ void DestroyTexture(Texture *texture)
 #define DR  2
 #define DA  3
 
-//#define muldiv255(a,b)    (((a)*(b))/255)           /* slow divide, exact*/
-#define muldiv255(a,b)      ((((a)+1)*(b))>>8)      /* very fast, 92% accurate*/
-//#define muldiv255(a,b)    (((a)*(b))>>8)          /* fastest, less accurate*/
+//#define muldiv255(a,b)    (((a)*(b)+127)/255)     /* slow divide, 100% accurate */
+#define muldiv255(a,b)      ((((a)+1)*(b))>>8)      /* very fast, 71% */
+//#define muldiv255(a,b)    (((a)*(b))>>8)          /* fastest, 28% */
+//#define muldiv255(a,b)    (t = (a)*(b)+0x80, ((((t)>>8)+(t))>>8))   /* fast 100%, Blinn's method */
 
 /* actually copy data, no clipping done */
 static void blit(Drawable *src, const Rect *srect, Drawable *dst, const Rect *drect)
@@ -283,24 +284,27 @@ static void blit(Drawable *src, const Rect *srect, Drawable *dst, const Rect *dr
         int x = drect->w;
         uint8_t *s = srcaddr;
         uint8_t *d = dstaddr;
+        //uint16_t t;
         while (x-- > 0) {
 //ZZZ both methods work
 #if 1
             uint8_t sa = s[SA];
             uint8_t da = 0xff - sa;
-            if (src->color == 0xffffff) {
+            if (src->color == 0xffffff) {   /* premultiplied source */
                 d[DR] = ((d[DR] * da) >> 8) + s[SR];
                 d[DG] = ((d[DG] * da) >> 8) + s[SG];
                 d[DB] = ((d[DB] * da) >> 8) + s[SB];
                 d[DA] = 255;
             } else {
-                //FIXME DOESN'T WORK, must use src and texture color
-                //d[DR] = ((d[DR] * da) >> 8) + src->b;
-                //d[DG] = ((d[DG] * da) >> 8) + src->g;
-                //d[DB] = ((d[DB] * da) >> 8) + src->r;
-                d[DR] = ((d[DR] * da) >> 8) + s[SR] * src->b / 255;
-                d[DG] = ((d[DG] * da) >> 8) + s[SG] * src->g / 255;
-                d[DB] = ((d[DB] * da) >> 8) + s[SB] * src->r / 255;
+                d[DG] = ((d[DG] * da) >> 8) + (s[SG] * (src->g + 1) >> 8);
+                d[DB] = ((d[DB] * da) >> 8) + (s[SB] * (src->r + 1) >> 8);
+                d[DR] = ((d[DR] * da) >> 8) + (s[SR] * (src->r + 1) >> 8);
+                //d[DR] = ((d[DR] * da) >> 8) + s[SR] * src->b / 255;
+                //d[DG] = ((d[DG] * da) >> 8) + s[SG] * src->g / 255;
+                //d[DB] = ((d[DB] * da) >> 8) + s[SB] * src->r / 255;
+                //d[DR] = ((d[DR] * da) >> 8) + muldiv255(s[SR], src->b);
+                //d[DG] = ((d[DG] * da) >> 8) + muldiv255(s[SG], src->g);
+                //d[DB] = ((d[DB] * da) >> 8) + muldiv255(s[SB], src->r);
                 d[DA] = 255;
             }
 #else
@@ -437,6 +441,8 @@ static uint64_t GetEventTimeout(void *data, int timeout)
                     event->motion.y = posy;
                     event->motion.xrel = x;
                     event->motion.yrel = y;
+                    if (b & MWBUTTON_L) event->motion.state |= 1;
+                    if (b & MWBUTTON_R) event->motion.state |= 4;
                     //printf("Mouse motion %d,%d\n", posx, posy);
                     lastx = x;
                     lasty = y;
