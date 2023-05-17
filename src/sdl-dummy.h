@@ -13,6 +13,16 @@ enum scancode {
 };
 typedef enum scancode   SDL_Scancode;
 
+typedef enum {
+    KMOD_LSHIFT = 0x0001,
+    KMOD_RSHIFT = 0x0002,
+    KMOD_LCTRL = 0x0040,
+    KMOD_RCTRL = 0x0080,
+} SDL_KeyMod;
+
+#define KMOD_CTRL   (KMOD_LCTRL|KMOD_RCTRL)
+#define KMOD_SHIFT  (KMOD_LSHIFT|KMOD_RSHIFT)
+
 enum eventtype {
     SDL_QUIT           = 0x100, /**< User-requested quit */
     SDL_WINDOWEVENT    = 0x200, /**< Window state change */
