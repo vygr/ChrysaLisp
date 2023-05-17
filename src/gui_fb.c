@@ -623,6 +623,8 @@ uint64_t Init(Rect *r)
         return -1;
     if (OpenFramebuffer() < 0)  /* printf display won't work after this */
         return -1;
+    r->w = fb.width;
+    r->h = fb.height;
     bb = fb;
     bb.pixels = malloc(bb.size);
     unassert(bb.pixels);
