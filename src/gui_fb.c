@@ -81,6 +81,11 @@ void Flush(const Rect *r)
     memcpy(fb.pixels, bb.pixels, fb.size);
 }
 
+void host_gui_resize(uint64_t w, uint64_t h)
+{
+    /* FB display cannot be resized */
+}
+
 /* adjust passed rect to current clip rectangle */
 static Rect *ClipRect(const Rect *rect)
 {
@@ -147,6 +152,35 @@ void SetTextureColorMod(Texture *texture, uint8_t r, uint8_t g, uint8_t b)
     texture->r = r;
     texture->g = g;
     texture->b = b;
+    texture->color = (r << 16) + (g << 8)  + b;
+}
+
+/* allocate drawable for passed data and return a handle to it */
+Texture *CreateTexture(void *data, uint64_t width, uint64_t height, uint64_t pitch, uint64_t mode)
+{
+    Texture *t;
+
+    t = malloc(sizeof(Texture));
+    unassert(t);
+    t->pixtype = fb.pixtype;
+    t->bpp = fb.bpp;
+    t->width = width;
+    t->height = height;
+    t->pitch = pitch;
+    t->size = height * t->pitch;
+    t->pixels = malloc(t->size);
+    unassert(t->pixels);
+    t->r = t->g = t->b = 0xff;
+    t->color = 0xffffff;
+    memcpy(t->pixels, data, t->size);
+    return t;
+}
+
+void DestroyTexture(Texture *texture)
+{
+    unassert(texture);
+    free(texture->pixels);
+    free(texture);
 }
 
 /* fill rectangle with current color */
@@ -168,7 +202,7 @@ void FillRect(const Rect *rect)
             } while (--w > 0);
             dst += span;
         } while (--h > 0);
-    } else {                /* premultiplied ARGB */
+    } else {                /* premul blend with global color */
 		pixel_t da = 0xff - color_a;
         do {
             int w = r->w;
@@ -186,127 +220,82 @@ void FillRect(const Rect *rect)
     //UpdateRect(r);
 }
 
+/* draw rectangle - this function isn't required in a driver */
 void host_gui_box(const Rect *rect)
 {
-	//just call filled box and let it do the clipping and drawing
+	/* just call filled box and let it do the clipping and drawing */
 	Rect r = *rect;
 	if (rect->w < 1 || rect->h < 1) return;
 	r.h = 1;
 	FillRect(&r);
 	if (rect->h <= 1) return;
+
 	r.y = rect->y + rect->h - 1;
 	FillRect(&r);
 	if (rect->h <= 2) return;
+
 	r.y = rect->y + 1;
 	r.w = 1;
 	r.h = rect->h - 2;
 	FillRect(&r);
 	if (rect->w <= 1) return;
+
 	r.x = rect->x + rect->w - 1;
 	FillRect(&r);
 }
 
-void host_gui_resize(uint64_t w, uint64_t h)
-{
-    /* FB display cannot be resized */
-}
-
-/* allocate drawable for passed data and return a handle to it */
-Texture *CreateTexture(void *data, uint64_t width, uint64_t height, uint64_t pitch, uint64_t mode)
-{
-    Texture *t;
-
-    t = malloc(sizeof(Texture));
-    unassert(t);
-    t->pixtype = fb.pixtype;
-    t->bpp = fb.bpp;
-    t->width = width;
-    t->height = height;
-    t->pitch = pitch;
-    t->size = height * t->pitch;
-    t->pixels = malloc(t->size);
-    unassert(t->pixels);
-    memcpy(t->pixels, data, t->size);
-    return t;
-}
-
-void DestroyTexture(Texture *texture)
-{
-    unassert(texture);
-    free(texture->pixels);
-    free(texture);
-}
-
-/* hardcoded MWPF_TRUECOLORARGB format */
-#define SB  0
-#define SG  1
-#define SR  2
-#define SA  3
-#define DB  0
-#define DG  1
-#define DR  2
-#define DA  3
-
-//#define muldiv255(a,b)    (((a)*(b)+127)/255)     /* slow divide, 100% accurate */
-#define muldiv255(a,b)      ((((a)+1)*(b))>>8)      /* very fast, 71% */
-//#define muldiv255(a,b)    (((a)*(b))>>8)          /* fastest, 28% */
-//#define muldiv255(a,b)    (t = (a)*(b)+0x80, ((((t)>>8)+(t))>>8))   /* fast 100%, Blinn's method */
-
 /* actually copy data, no clipping done */
-static void blit(Drawable *src, const Rect *srect, Drawable *dst, const Rect *drect)
+static void blit(Drawable *ts, const Rect *srect, Drawable *td, const Rect *drect)
 {
     //unassert(srect->w == drect->w);   //FIXME check why needs commenting out
     /* src and dst height can differ, will use dst height for drawing */
-    uint8_t *dstaddr = dst->pixels + drect->y * dst->pitch + drect->x * (dst->bpp >> 3);
-    uint8_t *srcaddr = src->pixels + srect->y * src->pitch + srect->x * (src->bpp >> 3);
+    pixel_t *dst = (pixel_t *)(td->pixels + drect->y * td->pitch + drect->x * (td->bpp >> 3));
+    pixel_t *src = (pixel_t *)(ts->pixels + srect->y * ts->pitch + srect->x * (ts->bpp >> 3));
+    int span = drect->w * (td->bpp >> 3);
+    int dspan = td->pitch - span;
+    int sspan = ts->pitch - span;
     int y = drect->h;
     do {
         int x = drect->w;
-        uint8_t *s = srcaddr;
-        uint8_t *d = dstaddr;
         do {
-#if 1
-            uint8_t sa = s[SA];
-            uint8_t da = 0xff - sa;
-            if (src->color == 0xffffff) {   /* premultiplied source */
-                d[DR] = ((d[DR] * da) >> 8) + s[SR];
-                d[DG] = ((d[DG] * da) >> 8) + s[SG];
-                d[DB] = ((d[DB] * da) >> 8) + s[SB];
-                d[DA] = 255;
-            } else {                        /* premul source + color mod */
-                d[DG] = ((d[DG] * da) >> 8) + (s[SG] * (src->g + 1) >> 8);
-                d[DB] = ((d[DB] * da) >> 8) + (s[SB] * (src->r + 1) >> 8);
-                d[DR] = ((d[DR] * da) >> 8) + (s[SR] * (src->r + 1) >> 8);
-                //d[DR] = ((d[DR] * da) >> 8) + s[SR] * src->b / 255;
-                //d[DG] = ((d[DG] * da) >> 8) + s[SG] * src->g / 255;
-                //d[DB] = ((d[DB] * da) >> 8) + s[SB] * src->r / 255;
-                //d[DR] = ((d[DR] * da) >> 8) + muldiv255(s[SR], src->b);
-                //d[DG] = ((d[DG] * da) >> 8) + muldiv255(s[SG], src->g);
-                //d[DB] = ((d[DB] * da) >> 8) + muldiv255(s[SB], src->r);
-                d[DA] = 255;
+            pixel_t sa = *src++;
+            if (sa > 0x00ffffff) {
+                if (ts->color == 0xffffff) {        /* premul blend from source */
+                    if (sa < 0xff000000) {
+						pixel_t drb = *dst;
+						pixel_t dg = drb & 0x00ff00;
+						       drb = drb & 0xff00ff;
+						pixel_t da = 0xff - (sa >> 24);
+						drb = ((drb * da >> 8) & 0xff00ff) + (sa & 0xff00ff);
+						dg =   ((dg * da >> 8) & 0x00ff00) + (sa & 0x00ff00);
+						*dst = drb + dg;
+                     } else {                       /* source copy */
+                        *dst = sa & 0xffffff;
+                     }
+                } else {                            /* color mod blend (glyphs) */
+					pixel_t sr = sa & 0xff0000;
+					pixel_t sg = sa & 0xff00;
+                    pixel_t sb = sa & 0xff;
+                    sr = (sr * ts->r >> 8) & 0xff0000;
+                    sg = (sg * ts->g >> 8) & 0xff00;
+                    sb = sb * ts->b >> 8;
+                    if (sa < 0xff000000) {
+                        pixel_t da = 0xff - (sa >> 24);
+                        pixel_t drb = *dst;
+                        pixel_t dg = drb & 0xff00;
+                        drb = drb & 0xff00ff;
+                        drb = ((drb * da >> 8) & 0xff00ff) + sr + sb;
+                        dg = ((dg * da >> 8) & 0xff00) + sg;
+                        *dst = drb + dg;
+                    } else {
+                        *dst = sr + sg + sb;
+                    }
+                }
             }
-#else
-            uint8_t alpha = s[SA];
-            if (src->color == 0xffffff) {
-                d[DB] += muldiv255(alpha, s[SB] - d[DB]);
-                d[DG] += muldiv255(alpha, s[SG] - d[DG]);
-                d[DR] += muldiv255(alpha, s[SR] - d[DR]);
-                d[DA] = 255;
-            } else {
-                /* d += muldiv255(a, s - d) */
-                d[DB] += muldiv255(alpha, (s[SB] * src->b / 255) - d[DB]);
-                d[DG] += muldiv255(alpha, (s[SG] * src->g / 255) - d[DG]);
-                d[DR] += muldiv255(alpha, (s[SR] * src->r / 255) - d[DR]);
-                /* d += muldiv255(a, 255 - d)*/
-                //d[DA] += muldiv255(alpha, 255 - d[DA]);
-                d[DA] = 255;
-            }
-#endif
-            d += 4;
-            s += 4;
+            dst++;
         } while (--x > 0);
-        dstaddr += dst->pitch;
-        srcaddr += src->pitch;
+        dst = (pixel_t *)((uint8_t *)dst + dspan);
+        src = (pixel_t *)((uint8_t *)src + sspan);
     } while (--y > 0);
     //UpdateRect(drect);
 }
@@ -318,13 +307,11 @@ void BlitTexture(Texture *texture, const Rect *srect, const Rect *drect)
     unassert(srect->w == drect->w);
     unassert(srect->h == drect->h);
     Rect *cr = ClipRect(drect);
-
-    if (cr) {
-        Rect sr2 = *srect;
-        if (clip.x > drect->x) sr2.x += clip.x - drect->x;
-        if (clip.y > drect->y) sr2.y += clip.y - drect->y;
-        blit(texture, &sr2, &bb, cr);
-    }
+    if (!cr) return;
+    Rect sr2 = *srect;
+    if (clip.x > drect->x) sr2.x += clip.x - drect->x;
+    if (clip.y > drect->y) sr2.y += clip.y - drect->y;
+    blit(texture, &sr2, &bb, cr);
 }
 
 /* draw pixels from passed drawable (not used by CL) */
@@ -573,6 +560,8 @@ static int OpenFramebuffer(void)
         printf("Can't mmap %s: %m\n", PATH_FRAMEBUFFER);
         goto fail;
     }
+    fb.r = fb.g = fb.b = 0xff;
+    fb.color = 0xffffff;
 
     /* switch console to graphic mode, no more printf error messages */
     if (keybd_fd >= 0) {
