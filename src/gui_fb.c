@@ -38,7 +38,8 @@ static int OpenMouse(void);
 static int ReadMouse(int *dx, int *dy, int *bp);
 static int OpenKeyboard(void);
 static void CloseKeyboard(void);
-static void blit(Drawable *src, const Rect *srect, Drawable *dst, const Rect *drect);
+static void blit_blend(Drawable *src, const Rect *srect, Drawable *dst, const Rect *drect);
+static void blit_srccopy(Drawable *src, const Rect *srect, Drawable *dst, const Rect *drect);
 
 #define DEBUG   1
 
@@ -76,8 +77,8 @@ void Flush(const Rect *r)
     cr.w = fb.width;
     cr.h = fb.height;
     unassert(r);
-    //blit(&bb, &cr, &fb, &cr);
-    memcpy(fb.pixels, bb.pixels, fb.size);
+    blit_srccopy(&bb, &cr, &fb, &cr);
+    //memcpy(fb.pixels, bb.pixels, fb.size);
 }
 
 void host_gui_resize(uint64_t w, uint64_t h)
@@ -243,8 +244,28 @@ void host_gui_box(const Rect *rect)
 	FillRect(&r);
 }
 
-/* actually copy data, no clipping done */
-static void blit(Drawable *ts, const Rect *srect, Drawable *td, const Rect *drect)
+/* fast source copy blit, no clipping */
+static void blit_srccopy(Drawable *ts, const Rect *srect, Drawable *td, const Rect *drect)
+{
+    pixel_t *dst = (pixel_t *)(td->pixels + drect->y * td->pitch + drect->x * (td->bpp >> 3));
+    pixel_t *src = (pixel_t *)(ts->pixels + srect->y * ts->pitch + srect->x * (ts->bpp >> 3));
+    int span = drect->w * (td->bpp >> 3);
+    int dspan = td->pitch - span;
+    int sspan = ts->pitch - span;
+    int y = drect->h;
+    do {
+        int x = drect->w;
+        do {
+            *dst++ = *src++;
+        } while (--x > 0);
+        dst = (pixel_t *)((uint8_t *)dst + dspan);
+        src = (pixel_t *)((uint8_t *)src + sspan);
+    } while (--y > 0);
+    //UpdateRect(drect);
+}
+
+/* premultiplied alpha blend or color mod blit, no clipping done */
+static void blit_blend(Drawable *ts, const Rect *srect, Drawable *td, const Rect *drect)
 {
     //unassert(srect->w == drect->w);   //FIXME check why needs commenting out
     /* src and dst height can differ, will use dst height for drawing */
@@ -310,7 +331,7 @@ void BlitTexture(Texture *texture, const Rect *srect, const Rect *drect)
     Rect sr2 = *srect;
     if (clip.x > drect->x) sr2.x += clip.x - drect->x;
     if (clip.y > drect->y) sr2.y += clip.y - drect->y;
-    blit(texture, &sr2, &bb, cr);
+    blit_blend(texture, &sr2, &bb, cr);
 }
 
 /* draw pixels from passed drawable (not used by CL) */
@@ -329,7 +350,7 @@ void BlitDrawable(Drawable *d, int x, int y, int width, int height)
     if (cr) {
         d->r = d->g = d->b = 0xff;
         d->color = 0xffffff;
-        blit(d, cr, &bb, cr);
+        blit_blend(d, cr, &bb, cr);
     }
 #else   /* used to test code for textures */
     Texture *t = CreateTexture(d->pixels, d->width, d->height, d->pitch, 0);
