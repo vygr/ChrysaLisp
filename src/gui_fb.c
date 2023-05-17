@@ -41,16 +41,7 @@ static void CloseKeyboard(void);
 static Rect *ClipRect(const Rect *rect);
 static void blit(Drawable *src, const Rect *srect, Drawable *dst, const Rect *drect);
 
-/* Mouse button bits */
-#define MWBUTTON_L        0x01      /* left button*/
-#define MWBUTTON_R        0x02      /* right button*/
-#define MWBUTTON_M        0x10      /* middle*/
-#define MWBUTTON_SCROLLUP 0x20      /* wheel up*/
-#define MWBUTTON_SCROLLDN 0x40      /* wheel down*/
-
-#define MIN(a,b)      ((a) < (b) ? (a) : (b))
-#define MAX(a,b)      ((a) > (b) ? (a) : (b))
-#define CLAMP(x,a,b)  ((x) > (b) ? (b) : ((x) < (a) ? (a) : (x)))
+#define DEBUG   1
 
 /* debug routines exit graphics mode for error message */
 void unassert_handler(char *msg, char *file, int line);
@@ -70,11 +61,11 @@ void sighup(int signo)
     exit(1);
 }
 
-void Begin_Composite(void)
+void host_gui_begin_composite(void)
 {
 }
 
-void End_Composite(void)
+void host_gui_end_composite(void)
 {
 }
 
@@ -147,6 +138,7 @@ static PIXELVAL defColor = COLORVAL_TO_PIXELVAL(RGB(0, 0, 255));
 /* set color for Drawables */
 void SetColor(uint8_t r, uint8_t g, uint8_t b, uint8_t a)
 {
+    //FIXME premul colors with alpha
     defColor = COLORVAL_TO_PIXELVAL(ARGB(a, r, g, b));
 }
 
@@ -157,69 +149,6 @@ void SetTextureColorMod(Texture *texture, uint8_t r, uint8_t g, uint8_t b)
     texture->b = b;
 }
 
-/* Draw horizontal line from x1,y to x2,y including final point */
-static void DrawHLine32(Drawable *d, int x1, int x2, int y, PIXELVAL c)
-{
-    uint8_t *addr = d->pixels + y * d->pitch + x1 * (d->bpp >> 3);
-    int width = x2 - x1 + 1;
-    int w = width;
-    unassert(x1 >= 0 && x1 < d->width);
-    unassert(x2 >= 0 && x2 < d->width);
-    unassert(x2 >= x1);
-    unassert(y >= 0 && y < d->height);
-
-    while (--w >= 0) {
-        *((uint32_t *)addr) = c;    //FIXME needs alpha blending
-        addr += 4;
-    }
-    //UpdateRect(x1, y, width, 1);
-}
-
-/* Draw a vertical line from x,y1 to x,y2 including final point */
-static void DrawVLine32(Drawable *d, int x, int y1, int y2, PIXELVAL c)
-{
-    int pitch = d->pitch;
-    uint8_t *addr = d->pixels + y1 * pitch + x * (d->bpp >> 3);
-    int height = y2 - y1 + 1;
-    int h = height;
-    unassert(x >= 0 && x < d->width);
-    unassert(y1 >= 0 && y1 < d->height);
-    unassert(y2 >= 0 && y2 < d->height);
-    unassert(y2 >= y1);
-
-    while (--h >= 0) {
-        *((uint32_t *)addr) = c;    //FIXME needs alpha blending
-        addr += pitch;
-    }
-    //UpdateRect(x, y1, 1, height);
-}
-
-void DrawRect(const Rect *rect)
-{
-    Rect *r = ClipRect(rect);
-    if (!r) return;
-    int x = r->x;
-    int y = r->y;
-    int width = r->w;
-    int height = r->h;
-    int maxx = x + width - 1;
-    int maxy = y + height - 1;
-
-    if (width <= 0 || height <= 0)
-        return;
-
-    DrawHLine32(&bb, x, maxx, y, defColor);
-    if (height > 1)
-        DrawHLine32(&bb, x, maxx, maxy, defColor);
-    if (height < 3)
-        return;
-    ++y;
-    --maxy;
-    DrawVLine32(&bb, x, y, maxy, defColor);
-    if (width > 1)
-        DrawVLine32(&bb, maxx, y, maxy, defColor);
-}
-
 /* fill rectangle with current color */
 void FillRect(const Rect *rect)
 {
@@ -227,10 +156,10 @@ void FillRect(const Rect *rect)
     if (color_a == 0) return;
     Rect *r = ClipRect(rect);
     if (!r) return;
-    int h = r->h;
-    int span = (bb.pitch >> 2) - r->w;      /* in pixels, not bytes */
     pixel_t *dst = (pixel_t *)(bb.pixels + r->y * bb.pitch + r->x * (bb.bpp >> 3));
+    int span = (bb.pitch >> 2) - r->w;      /* in pixels, not bytes */
     
+    int h = r->h;
     if (color_a == 0xff) {  /* source copy */
         do {
             int w = r->w;
@@ -254,10 +183,30 @@ void FillRect(const Rect *rect)
             dst += span;
         } while (--h > 0);
     }
-    //UpdateRect(r->x, r->y, r->w, r->h);
+    //UpdateRect(r);
 }
 
-void Resize(uint64_t w, uint64_t h)
+void host_gui_box(const Rect *rect)
+{
+	//just call filled box and let it do the clipping and drawing
+	Rect r = *rect;
+	if (rect->w < 1 || rect->h < 1) return;
+	r.h = 1;
+	FillRect(&r);
+	if (rect->h <= 1) return;
+	r.y = rect->y + rect->h - 1;
+	FillRect(&r);
+	if (rect->h <= 2) return;
+	r.y = rect->y + 1;
+	r.w = 1;
+	r.h = rect->h - 2;
+	FillRect(&r);
+	if (rect->w <= 1) return;
+	r.x = rect->x + rect->w - 1;
+	FillRect(&r);
+}
+
+void host_gui_resize(uint64_t w, uint64_t h)
 {
     /* FB display cannot be resized */
 }
@@ -311,11 +260,11 @@ static void blit(Drawable *src, const Rect *srect, Drawable *dst, const Rect *dr
     uint8_t *dstaddr = dst->pixels + drect->y * dst->pitch + drect->x * (dst->bpp >> 3);
     uint8_t *srcaddr = src->pixels + srect->y * src->pitch + srect->x * (src->bpp >> 3);
     int y = drect->h;
-    while (y-- > 0) {
+    do {
         int x = drect->w;
         uint8_t *s = srcaddr;
         uint8_t *d = dstaddr;
-        while (x-- > 0) {
+        do {
 #if 1
             uint8_t sa = s[SA];
             uint8_t da = 0xff - sa;
@@ -324,7 +273,7 @@ static void blit(Drawable *src, const Rect *srect, Drawable *dst, const Rect *dr
                 d[DG] = ((d[DG] * da) >> 8) + s[SG];
                 d[DB] = ((d[DB] * da) >> 8) + s[SB];
                 d[DA] = 255;
-            } else {
+            } else {                        /* premul source + color mod */
                 d[DG] = ((d[DG] * da) >> 8) + (s[SG] * (src->g + 1) >> 8);
                 d[DB] = ((d[DB] * da) >> 8) + (s[SB] * (src->r + 1) >> 8);
                 d[DR] = ((d[DR] * da) >> 8) + (s[SR] * (src->r + 1) >> 8);
@@ -355,11 +304,11 @@ static void blit(Drawable *src, const Rect *srect, Drawable *dst, const Rect *dr
 #endif
             d += 4;
             s += 4;
-        }
+        } while (--x > 0);
         dstaddr += dst->pitch;
         srcaddr += src->pitch;
-    }
-    //UpdateRect(drect->x, drect->y, drect->w, drect->h);
+    } while (--y > 0);
+    //UpdateRect(drect);
 }
 
 /* draw pixels from passed texture handle */
@@ -403,6 +352,12 @@ void BlitDrawable(Drawable *d, int x, int y, int width, int height)
     DestroyTexture(t);
 #endif
 }
+
+#define MWBUTTON_L        0x01      /* left button*/
+#define MWBUTTON_R        0x02      /* right button*/
+#define MWBUTTON_M        0x10      /* middle*/
+#define MWBUTTON_SCROLLUP 0x20      /* wheel up*/
+#define MWBUTTON_SCROLLDN 0x40      /* wheel down*/
 
 /* msec timeout 0 to poll, timeout -1 to block */
 static uint64_t GetEventTimeout(void *data, int timeout)
@@ -534,7 +489,7 @@ uint64_t Init(Rect *r)
 void (*host_gui_funcs[]) = {
     (void*)Init,
     (void*)DeInit,
-    (void*)DrawRect,
+    (void*)host_gui_box,
     (void*)FillRect,
     (void*)BlitTexture,
     (void*)SetClip,
@@ -542,10 +497,10 @@ void (*host_gui_funcs[]) = {
     (void*)SetTextureColorMod,
     (void*)DestroyTexture,
     (void*)CreateTexture,
-    (void*)Begin_Composite,
-    (void*)End_Composite,
+    (void*)host_gui_begin_composite,
+    (void*)host_gui_end_composite,
     (void*)Flush,
-    (void*)Resize,
+    (void*)host_gui_resize,
     (void*)PollEvent,
 };
 
@@ -621,7 +576,9 @@ static int OpenFramebuffer(void)
 
     /* switch console to graphic mode, no more printf error messages */
     if (keybd_fd >= 0) {
-        //ioctl(keybd_fd, KDSETMODE, KD_GRAPHICS);    //FIXME comment out for debug text screen during exec
+#if !DEBUG
+        ioctl(keybd_fd, KDSETMODE, KD_GRAPHICS);
+#endif
     }
 
     memset(fb.pixels, 0, fb.size);
