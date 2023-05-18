@@ -165,14 +165,15 @@ void host_gui_set_clip(const Rect *rect)
 void host_gui_set_color(uint8_t r, uint8_t g, uint8_t b, uint8_t a)
 {
     /* premul colors with alpha */
-    r = (a * (r + 1)) >> 8;
-    g = (a * (g + 1)) >> 8;
-    b = (a * (b + 1)) >> 8;
+    r = ((r + 1) * a) >> 8;
+    g = ((g + 1) * a) >> 8;
+    b = ((b + 1) * a) >> 8;
     draw_color = (a << 24) + (r << 16) + (g << 8)  + b;
 }
 
 void host_gui_texture_color(Texture *texture, uint8_t r, uint8_t g, uint8_t b)
 {
+    /* colors used in color mod blit */
     texture->r = r;
     texture->g = g;
     texture->b = b;
@@ -227,16 +228,16 @@ void host_gui_filled_box(const Rect *rect)
             dst += span;
         } while (--h > 0);
     } else {                /* premul blend with global color */
-		pixel_t da = 0xff - color_a;
+        pixel_t da = 0xff - color_a;
         do {
             int w = r->w;
             do {
-				pixel_t drb = *dst;
-				pixel_t dg = drb & 0x00ff00;
-				       drb = drb & 0xff00ff;
-				drb = ((drb * da >> 8) & 0xff00ff) + (draw_color & 0xff00ff);
-				dg =   ((dg * da >> 8) & 0x00ff00) + (draw_color & 0x00ff00);
-				*dst++ = drb + dg;
+                pixel_t drb = *dst;
+                pixel_t dg = drb & 0x00ff00;
+                       drb = drb & 0xff00ff;
+                drb = ((drb * da >> 8) & 0xff00ff) + (draw_color & 0xff00ff);
+                dg =   ((dg * da >> 8) & 0x00ff00) + (draw_color & 0x00ff00);
+                *dst++ = drb + dg;
             } while (--w > 0);
             dst += span;
         } while (--h > 0);
@@ -246,25 +247,25 @@ void host_gui_filled_box(const Rect *rect)
 /* draw rectangle - this function isn't required in a driver */
 void host_gui_box(const Rect *rect)
 {
-	/* just call filled box and let it do the clipping and drawing */
-	Rect r = *rect;
-	if (rect->w < 1 || rect->h < 1) return;
-	r.h = 1;
-	host_gui_filled_box(&r);
-	if (rect->h <= 1) return;
+    /* just call filled box and let it do the clipping and drawing */
+    Rect r = *rect;
+    if (rect->w < 1 || rect->h < 1) return;
+    r.h = 1;
+    host_gui_filled_box(&r);
+    if (rect->h <= 1) return;
 
-	r.y = rect->y + rect->h - 1;
-	host_gui_filled_box(&r);
-	if (rect->h <= 2) return;
+    r.y = rect->y + rect->h - 1;
+    host_gui_filled_box(&r);
+    if (rect->h <= 2) return;
 
-	r.y = rect->y + 1;
-	r.w = 1;
-	r.h = rect->h - 2;
-	host_gui_filled_box(&r);
-	if (rect->w <= 1) return;
+    r.y = rect->y + 1;
+    r.w = 1;
+    r.h = rect->h - 2;
+    host_gui_filled_box(&r);
+    if (rect->w <= 1) return;
 
-	r.x = rect->x + rect->w - 1;
-	host_gui_filled_box(&r);
+    r.x = rect->x + rect->w - 1;
+    host_gui_filled_box(&r);
 }
 
 /* fast source copy blit, no clipping */
@@ -304,19 +305,19 @@ static void blit_blend(Drawable *ts, const Rect *srect, Drawable *td, const Rect
             if (sa > 0x00ffffff) {
                 if (ts->color == 0xffffff) {        /* premul blend from source */
                     if (sa < 0xff000000) {
-						pixel_t drb = *dst;
-						pixel_t dg = drb & 0x00ff00;
-						       drb = drb & 0xff00ff;
-						pixel_t da = 0xff - (sa >> 24);
-						drb = ((drb * da >> 8) & 0xff00ff) + (sa & 0xff00ff);
-						dg =   ((dg * da >> 8) & 0x00ff00) + (sa & 0x00ff00);
-						*dst = drb + dg;
+                        pixel_t drb = *dst;
+                        pixel_t dg = drb & 0x00ff00;
+                               drb = drb & 0xff00ff;
+                        pixel_t da = 0xff - (sa >> 24);
+                        drb = ((drb * da >> 8) & 0xff00ff) + (sa & 0xff00ff);
+                        dg =   ((dg * da >> 8) & 0x00ff00) + (sa & 0x00ff00);
+                        *dst = drb + dg;
                      } else {                       /* source copy */
                         *dst = sa & 0xffffff;
                      }
                 } else {                            /* color mod blend (glyphs) */
-					pixel_t sr = sa & 0xff0000;
-					pixel_t sg = sa & 0x00ff00;
+                    pixel_t sr = sa & 0xff0000;
+                    pixel_t sg = sa & 0x00ff00;
                     pixel_t sb = sa & 0x0000ff;
                     sr = (sr * ts->r >> 8) & 0xff0000;
                     sg = (sg * ts->g >> 8) & 0x00ff00;
@@ -324,10 +325,10 @@ static void blit_blend(Drawable *ts, const Rect *srect, Drawable *td, const Rect
                     if (sa < 0xff000000) {
                         pixel_t da = 0xff - (sa >> 24);
                         pixel_t drb = *dst;
-                        pixel_t dg = drb & 0xff00;
-                        drb = drb & 0xff00ff;
+                        pixel_t dg = drb & 0x00ff00;
+                               drb = drb & 0xff00ff;
                         drb = ((drb * da >> 8) & 0xff00ff) + sr + sb;
-                        dg = ((dg * da >> 8) & 0xff00) + sg;
+                        dg =   ((dg * da >> 8) & 0x00ff00) + sg;
                         *dst = drb + dg;
                     } else {
                         *dst = sr + sg + sb;
