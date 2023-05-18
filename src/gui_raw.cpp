@@ -1,5 +1,5 @@
 #if defined(_HOST_GUI)
-#if _HOST_GUI == -1 //demo template
+#if _HOST_GUI == 1 //demo template
 
 #include <stdint.h>
 #include <memory>
@@ -19,7 +19,7 @@ struct Texture
 	pixel_t r = 0xff + 1;
 	pixel_t g = 0xff + 1;
 	pixel_t b = 0xff + 1;
-	pixel_t *data;
+	pixel_t data[0];
 };
 
 const uint32_t SCREEN_WIDTH = 1280;
@@ -120,8 +120,7 @@ void host_gui_flush(const Rect *rect)
 
 Texture *host_gui_create_texture(pixel_t *src, uint64_t w, uint64_t h, uint64_t s, uint64_t m)
 {
-	Texture *t = (Texture*)malloc(sizeof(Texture));
-	pixel_t *dst = (pixel_t *)malloc(w * h * sizeof(pixel_t));
+	Texture *t = (Texture*)malloc(sizeof(Texture) + w * h * sizeof(pixel_t));
 	t->w = w;
 	t->h = h;
 	t->s = w * sizeof(pixel_t);
@@ -129,7 +128,7 @@ Texture *host_gui_create_texture(pixel_t *src, uint64_t w, uint64_t h, uint64_t 
 	t->g = 0xff + 1;
 	t->b = 0xff + 1;
 	t->color = 0xffffff;
-	t->data = dst;
+	pixel_t *dst = t->data;
 	pixel_t *src_end = (pixel_t*)((uint8_t*)src + h * s);
 	uint32_t span = w * sizeof(pixel_t);
 	s -= span;
@@ -144,7 +143,6 @@ Texture *host_gui_create_texture(pixel_t *src, uint64_t w, uint64_t h, uint64_t 
 
 void host_gui_destroy_texture(Texture *t)
 {
-	free(t->data);
 	free(t);
 }
 
