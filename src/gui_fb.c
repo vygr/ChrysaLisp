@@ -52,7 +52,7 @@ typedef struct drawable {
     int size;                   /* total size in bytes */
     unsigned char *pixels;      /* pixel data */
     uint32_t r, g, b;           /* premul colors to use for color mod blit */
-    uint32_t color;             /* combined premul colors or 0xfffff for source blend */
+    uint32_t color;             /* combined premul colors or 0x00fffff for source blend */
     uint8_t data[];             /* texture data allocated in single malloc */
 } Drawable, Texture;
 
@@ -164,7 +164,10 @@ void host_gui_set_clip(const Rect *rect)
 /* set color for Drawables */
 void host_gui_set_color(uint8_t r, uint8_t g, uint8_t b, uint8_t a)
 {
-    //FIXME premul colors with alpha ?
+    /* premul colors with alpha */
+    r = (a * (r + 1)) >> 8;
+    g = (a * (g + 1)) >> 8;
+    b = (a * (b + 1)) >> 8;
     draw_color = (a << 24) + (r << 16) + (g << 8)  + b;
 }
 
@@ -313,11 +316,11 @@ static void blit_blend(Drawable *ts, const Rect *srect, Drawable *td, const Rect
                      }
                 } else {                            /* color mod blend (glyphs) */
 					pixel_t sr = sa & 0xff0000;
-					pixel_t sg = sa & 0xff00;
-                    pixel_t sb = sa & 0xff;
+					pixel_t sg = sa & 0x00ff00;
+                    pixel_t sb = sa & 0x0000ff;
                     sr = (sr * ts->r >> 8) & 0xff0000;
-                    sg = (sg * ts->g >> 8) & 0xff00;
-                    sb = sb * ts->b >> 8;
+                    sg = (sg * ts->g >> 8) & 0x00ff00;
+                    sb =  sb * ts->b >> 8;
                     if (sa < 0xff000000) {
                         pixel_t da = 0xff - (sa >> 24);
                         pixel_t drb = *dst;
