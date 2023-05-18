@@ -32,6 +32,9 @@ endif
 ifeq ($(GUI),fb)
 	HOST_GUI := 1
 endif
+ifeq ($(GUI),raw)
+	HOST_GUI := 2
+endif
 
 all:		hostenv tui gui
 gui:		hostenv obj/$(CPU)/$(ABI)/$(OS)/main_gui
