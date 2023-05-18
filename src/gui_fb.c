@@ -28,6 +28,8 @@
 #define PATH_KEYBOARD       "/dev/tty"          /* or env "CONSOLE" */
 #define PATH_MOUSE          "/dev/input/mice"
 
+#define SCROLLFACTOR        4   /* multiply factor for scrollwheel */
+
 /* supported pixel formats (only ARGB8888 supported now) */
 #define PF_ARGB8888         0   /* 32bpp, memory byte order B, G, R, A */
 #define PF_ABGR8888         1   /* 32bpp, memory byte order R, G, B, A */
@@ -70,7 +72,7 @@ void host_gui_deinit(void);
 static int open_framebuffer(void);
 static int open_keyboard(void);
 static int open_mouse(void);
-static int read_mouse(int *dx, int *dy, int *bp);
+static int read_mouse(int *dx, int *dy, int *dw, int *bp);
 static void close_framebuffer(void);
 static void close_keyboard(void);
 static void close_mouse(void);
@@ -534,11 +536,15 @@ static uint64_t get_event_timeout(void *data, int timeout)
             }
         }
         if (fds[1].revents & POLLIN) {
-            int x, y, b;
+            int x, y, w, b;
             static int lastx = -1, lasty = -1, lastb = 0;
-            if (read_mouse(&x, &y, &b)) {
+            if (read_mouse(&x, &y, &w, &b)) {
                 if (b != lastb) {
-                    if ((b & BUTTON_L) ^ (lastb & BUTTON_L)) {
+                    if (b & (BUTTON_SCROLLUP|BUTTON_SCROLLDN)) {
+                        event->wheel.type = SDL_MOUSEWHEEL;
+                        event->wheel.direction = SDL_MOUSEWHEEL_NORMAL;
+                        event->wheel.y = w * SCROLLFACTOR;
+                    } else if ((b & BUTTON_L) ^ (lastb & BUTTON_L)) {
                         event->button.button = SDL_BUTTON_LEFT;
                         event->type = (b & BUTTON_L)? SDL_MOUSEBUTTONDOWN: SDL_MOUSEBUTTONUP;
                         event->button.state = (b & BUTTON_L)? SDL_PRESSED: SDL_RELEASED;
@@ -552,14 +558,6 @@ static uint64_t get_event_timeout(void *data, int timeout)
                         event->button.x = posx;
                         event->button.y = posy;
                         event->button.clicks = 1;
-                    } else if (b & BUTTON_SCROLLUP) {
-                        event->wheel.type = SDL_MOUSEWHEEL;
-                        event->wheel.direction = SDL_MOUSEWHEEL_NORMAL;
-                        event->wheel.y = y;
-                    } else if (b & BUTTON_SCROLLDN) {
-                        event->wheel.type = SDL_MOUSEWHEEL;
-                        event->wheel.direction = SDL_MOUSEWHEEL_NORMAL;
-                        event->wheel.y = y;
                     }
                     lastb = b;
                     return 1;
@@ -817,7 +815,7 @@ static void close_mouse(void)
  * Left, Right, and Mid are the three button states, 1 if being depressed.
  * Neg-X and Neg-Y are set if XXXXXXXX and YYYYYYYY are negative, respectively.
  */
-static int read_mouse(int *dx, int *dy, int *bp)
+static int read_mouse(int *dx, int *dy, int *dw, int *bp)
 {
     int n, x, y, w, left, middle, right, button;
     unsigned char data[4];
@@ -846,6 +844,7 @@ static int read_mouse(int *dx, int *dy, int *bp)
     }
     *dx = x;
     *dy = y;       
+    *dw = w;
     *bp = button;
     return 1;
 }
