@@ -18,12 +18,38 @@
 #include <linux/kd.h>
 #include <linux/vt.h>
 
-#include "gr.h"
 #include "sdl-dummy.h"
 
+#define DEBUG   1      /* exit on ESC, don't change to graphics console */
+
 #define PATH_FRAMEBUFFER    "/dev/fb0"          /* or env "FRAMEBUFFER" */
-#define PATH_MOUSE          "/dev/input/mice"
 #define PATH_KEYBOARD       "/dev/tty"          /* or env "CONSOLE" */
+#define PATH_MOUSE          "/dev/input/mice"
+
+/* supported pixel formats (only ARGB8888 supported now) */
+#define PF_ARGB8888         0   /* 32bpp, memory byte order B, G, R, A */
+#define PF_ABGR8888         1   /* 32bpp, memory byte order R, G, B, A */
+#define PF_BGR888           2   /* 24bpp, memory byte order R, G, B */
+#define PF_RGB565           3   /* 16bpp, le unsigned short 5/6/5 RGB */
+#define PF_RGB555           4   /* 15bpp, le unsigned short 5/5/5 RGB */
+
+typedef uint32_t pixel_t;       /* fixed ARGB8888 for now */
+
+typedef struct rect {
+    int x, y;
+    int w, h;
+} Rect;
+
+typedef struct drawable {
+    int pixtype;                /* pixel format */
+    int bpp;                    /* bits per pixel */
+    int width;                  /* width in pixels */
+    int height;                 /* height in pixels */
+    int pitch;                  /* stride in bytes, offset to next pixel row */
+    int size;                   /* total size in bytes */
+    unsigned char *pixels;      /* pixel data */
+    uint32_t r, g, b, color;
+} Drawable, Texture;
 
 static struct termios orig;
 static int frame_fd = -1;           /* framebuffer file handle */
@@ -33,34 +59,39 @@ static int posx, posy;              /* cursor position */
 static Drawable fb;                 /* hardware framebuffer */
 static Drawable bb;                 /* back buffer */
 static Rect clip;
+static pixel_t draw_color = -1;      /* default color */
 
-static int OpenFramebuffer(void);
-static int OpenMouse(void);
-static int ReadMouse(int *dx, int *dy, int *bp);
-static int OpenKeyboard(void);
-static void CloseKeyboard(void);
+void host_gui_deinit(void);
+static int open_framebuffer(void);
+static int open_keyboard(void);
+static int open_mouse(void);
+static int read_mouse(int *dx, int *dy, int *bp);
+static void close_framebuffer(void);
+static void close_keyboard(void);
+static void close_mouse(void);
 static void blit_blend(Drawable *src, const Rect *srect, Drawable *dst, const Rect *drect);
 static void blit_srccopy(Drawable *src, const Rect *srect, Drawable *dst, const Rect *drect);
 
-#define DEBUG   1
-
-/* debug routines exit graphics mode for error message */
-void unassert_handler(char *msg, char *file, int line);
+#if DEBUG
 #define unassert(a)   if (!(a)) unassert_handler(#a,__FILE__, __LINE__)
 
-void unassert_handler(char *msg, char *file, int line)
+/* exit graphics mode for error message */
+static void unassert_handler(char *msg, char *file, int line)
 {
-    DeInit();
+    host_gui_deinit();
     printf("Assertion failed: %s at %s:%d\n", msg, file, line);
     exit(255);
 }
 
-void sighup(int signo)
+static void catch_signals(int signo)
 {
-    DeInit();
+    host_gui_deinit();
     printf("SIGNAL %d\n", signo);
     exit(1);
 }
+#else
+#define unassert(a)
+#endif
 
 void host_gui_begin_composite(void)
 {
@@ -70,7 +101,7 @@ void host_gui_end_composite(void)
 {
 }
 
-void Flush(const Rect *r)
+void host_gui_flush(const Rect *r)
 {
     Rect cr;
     cr.x = 0;
@@ -79,16 +110,14 @@ void Flush(const Rect *r)
     cr.h = fb.height;
     unassert(r);
     blit_srccopy(&bb, &cr, &fb, &cr);
-    //memcpy(fb.pixels, bb.pixels, fb.size);
 }
 
 void host_gui_resize(uint64_t w, uint64_t h)
 {
-    /* FB display cannot be resized */
 }
 
-/* adjust passed rect to current clip rectangle */
-static Rect *ClipRect(const Rect *rect)
+/* return rect adjusted to current clip rectangle */
+static Rect *get_clip_rect(const Rect *rect)
 {
     static Rect r;
 
@@ -108,9 +137,9 @@ static Rect *ClipRect(const Rect *rect)
 }
 
 /* set global clipping rectangle */
-void SetClip(const Rect *rect)
+void host_gui_set_clip(const Rect *rect)
 {
-    // store as x, y, x1, y1
+    /* store as x, y, x1, y1 */
     if (rect) {
         clip = *rect;
         clip.w += clip.x;
@@ -127,28 +156,14 @@ void SetClip(const Rect *rect)
     }
 }
 
-typedef uint32_t COLORVAL;      /* color in 0xAARRGGBB register format */
-typedef uint32_t PIXELVAL;      /* pixel format B, G, R, A in memory */
-
-/* create COLORVAL (0xAARRGGBB register format)*/
-#define ARGB(a,r,g,b) ((COLORVAL)                  \
-                (((uint32_t)(uint8_t)(b)) <<  0) | \
-                (((uint32_t)(uint8_t)(g)) <<  8) | \
-                (((uint32_t)(uint8_t)(r)) << 16) | \
-                (((uint32_t)(uint8_t)(a)) << 24))
-#define RGB(r,g,b)    ARGB(255,(r),(g),(b))     /* ARGB 255 alpha */
-#define COLORVAL_TO_PIXELVAL(c)     (c)         /* no conversion! */
-
-static PIXELVAL defColor = COLORVAL_TO_PIXELVAL(RGB(0, 0, 255));
-
 /* set color for Drawables */
-void SetColor(uint8_t r, uint8_t g, uint8_t b, uint8_t a)
+void host_gui_set_color(uint8_t r, uint8_t g, uint8_t b, uint8_t a)
 {
-    //FIXME premul colors with alpha
-    defColor = COLORVAL_TO_PIXELVAL(ARGB(a, r, g, b));
+    //FIXME premul colors with alpha ?
+    draw_color = (a << 24) + (r << 16) + (g << 8)  + b;
 }
 
-void SetTextureColorMod(Texture *texture, uint8_t r, uint8_t g, uint8_t b)
+void host_gui_texture_color(Texture *texture, uint8_t r, uint8_t g, uint8_t b)
 {
     texture->r = r;
     texture->g = g;
@@ -157,7 +172,7 @@ void SetTextureColorMod(Texture *texture, uint8_t r, uint8_t g, uint8_t b)
 }
 
 /* allocate drawable for passed data and return a handle to it */
-Texture *CreateTexture(void *data, uint64_t width, uint64_t height, uint64_t pitch, uint64_t mode)
+Texture *host_gui_create_texture(void *data, uint64_t width, uint64_t height, uint64_t pitch, uint64_t mode)
 {
     Texture *t;
 
@@ -177,7 +192,7 @@ Texture *CreateTexture(void *data, uint64_t width, uint64_t height, uint64_t pit
     return t;
 }
 
-void DestroyTexture(Texture *texture)
+void host_gui_destroy_texture(Texture *texture)
 {
     unassert(texture);
     free(texture->pixels);
@@ -185,11 +200,11 @@ void DestroyTexture(Texture *texture)
 }
 
 /* fill rectangle with current color */
-void FillRect(const Rect *rect)
+void host_gui_filled_box(const Rect *rect)
 {
-    pixel_t color_a = defColor >> 24;
+    pixel_t color_a = draw_color >> 24;
     if (color_a == 0) return;
-    Rect *r = ClipRect(rect);
+    Rect *r = get_clip_rect(rect);
     if (!r) return;
     pixel_t *dst = (pixel_t *)(bb.pixels + r->y * bb.pitch + r->x * (bb.bpp >> 3));
     int span = (bb.pitch >> 2) - r->w;      /* in pixels, not bytes */
@@ -199,7 +214,7 @@ void FillRect(const Rect *rect)
         do {
             int w = r->w;
             do {
-                *dst++ = defColor;
+                *dst++ = draw_color;
             } while (--w > 0);
             dst += span;
         } while (--h > 0);
@@ -211,14 +226,13 @@ void FillRect(const Rect *rect)
 				pixel_t drb = *dst;
 				pixel_t dg = drb & 0x00ff00;
 				       drb = drb & 0xff00ff;
-				drb = ((drb * da >> 8) & 0xff00ff) + (defColor & 0xff00ff);
-				dg =   ((dg * da >> 8) & 0x00ff00) + (defColor & 0x00ff00);
+				drb = ((drb * da >> 8) & 0xff00ff) + (draw_color & 0xff00ff);
+				dg =   ((dg * da >> 8) & 0x00ff00) + (draw_color & 0x00ff00);
 				*dst++ = drb + dg;
             } while (--w > 0);
             dst += span;
         } while (--h > 0);
     }
-    //UpdateRect(r);
 }
 
 /* draw rectangle - this function isn't required in a driver */
@@ -228,21 +242,21 @@ void host_gui_box(const Rect *rect)
 	Rect r = *rect;
 	if (rect->w < 1 || rect->h < 1) return;
 	r.h = 1;
-	FillRect(&r);
+	host_gui_filled_box(&r);
 	if (rect->h <= 1) return;
 
 	r.y = rect->y + rect->h - 1;
-	FillRect(&r);
+	host_gui_filled_box(&r);
 	if (rect->h <= 2) return;
 
 	r.y = rect->y + 1;
 	r.w = 1;
 	r.h = rect->h - 2;
-	FillRect(&r);
+	host_gui_filled_box(&r);
 	if (rect->w <= 1) return;
 
 	r.x = rect->x + rect->w - 1;
-	FillRect(&r);
+	host_gui_filled_box(&r);
 }
 
 /* fast source copy blit, no clipping */
@@ -262,13 +276,12 @@ static void blit_srccopy(Drawable *ts, const Rect *srect, Drawable *td, const Re
         dst = (pixel_t *)((uint8_t *)dst + dspan);
         src = (pixel_t *)((uint8_t *)src + sspan);
     } while (--y > 0);
-    //UpdateRect(drect);
 }
 
-/* premultiplied alpha blend or color mod blit, no clipping done */
+/* premultiplied alpha blend or color mod blit, no clipping */
 static void blit_blend(Drawable *ts, const Rect *srect, Drawable *td, const Rect *drect)
 {
-    //unassert(srect->w == drect->w);   //FIXME check why needs commenting out
+    //unassert(srect->w == drect->w);   //FIXME check why src width can != dst width
     /* src and dst height can differ, will use dst height for drawing */
     pixel_t *dst = (pixel_t *)(td->pixels + drect->y * td->pitch + drect->x * (td->bpp >> 3));
     pixel_t *src = (pixel_t *)(ts->pixels + srect->y * ts->pitch + srect->x * (ts->bpp >> 3));
@@ -318,16 +331,15 @@ static void blit_blend(Drawable *ts, const Rect *srect, Drawable *td, const Rect
         dst = (pixel_t *)((uint8_t *)dst + dspan);
         src = (pixel_t *)((uint8_t *)src + sspan);
     } while (--y > 0);
-    //UpdateRect(drect);
 }
 
 /* draw pixels from passed texture handle */
-void BlitTexture(Texture *texture, const Rect *srect, const Rect *drect)
+void host_gui_blit(Texture *texture, const Rect *srect, const Rect *drect)
 {
     unassert(texture);
     unassert(srect->w == drect->w);
     unassert(srect->h == drect->h);
-    Rect *cr = ClipRect(drect);
+    Rect *cr = get_clip_rect(drect);
     if (!cr) return;
     Rect sr2 = *srect;
     if (clip.x > drect->x) sr2.x += clip.x - drect->x;
@@ -335,44 +347,19 @@ void BlitTexture(Texture *texture, const Rect *srect, const Rect *drect)
     blit_blend(texture, &sr2, &bb, cr);
 }
 
-/* draw pixels from passed drawable (not used by CL) */
-void BlitDrawable(Drawable *d, int x, int y, int width, int height)
-{
-    Rect r;
-    if (!width) width = d->width;
-    if (!height) height = d->height;
-    r.x = x;
-    r.y = y;
-    r.w = width;
-    r.h = height;
-
-#if 1
-    Rect *cr = ClipRect(&r);
-    if (cr) {
-        d->r = d->g = d->b = 0xff;
-        d->color = 0xffffff;
-        blit_blend(d, cr, &bb, cr);
-    }
-#else   /* used to test code for textures */
-    Texture *t = CreateTexture(d->pixels, d->width, d->height, d->pitch, 0);
-    unassert(t);
-    BlitTexture(t, cr, cr);
-    DestroyTexture(t);
-#endif
-}
-
-#define MWBUTTON_L        0x01      /* left button*/
-#define MWBUTTON_R        0x02      /* right button*/
-#define MWBUTTON_M        0x10      /* middle*/
-#define MWBUTTON_SCROLLUP 0x20      /* wheel up*/
-#define MWBUTTON_SCROLLDN 0x40      /* wheel down*/
+#define BUTTON_L        0x01      /* left button*/
+#define BUTTON_R        0x02      /* right button*/
+#define BUTTON_M        0x10      /* middle*/
+#define BUTTON_SCROLLUP 0x20      /* wheel up*/
+#define BUTTON_SCROLLDN 0x40      /* wheel down*/
 
 
-// Lookup table to convert ascii characters in to keyboard scan codes
-// Format: most signifficant bit indicates if scan code should be sent with shift modifier
-// remaining 7 bits are to be used as scan code number.
-
-const uint8_t ascii_to_scan_code_table[] = {
+/*
+ * Lookup table to convert ascii characters in to keyboard scan codes
+ * Format: most signifficant bit indicates if scan code should be sent with shift modifier
+ * remaining 7 bits are to be used as scan code number.
+ */
+const uint8_t ascii_to_scan_code_table[128] = {
   /* ASCII:   0 */ 0,
   /* ASCII:   1 */ 0,
   /* ASCII:   2 */ 0,
@@ -504,7 +491,7 @@ const uint8_t ascii_to_scan_code_table[] = {
 };
 
 /* msec timeout 0 to poll, timeout -1 to block */
-static uint64_t GetEventTimeout(void *data, int timeout)
+static uint64_t get_event_timeout(void *data, int timeout)
 {
     struct pollfd fds[2];
     SDL_Event *event = (SDL_Event *)data;
@@ -540,27 +527,27 @@ static uint64_t GetEventTimeout(void *data, int timeout)
         if (fds[1].revents & POLLIN) {
             int x, y, b;
             static int lastx = -1, lasty = -1, lastb = 0;
-            if (ReadMouse(&x, &y, &b)) {
+            if (read_mouse(&x, &y, &b)) {
                 if (b != lastb) {
-                    if ((b & MWBUTTON_L) ^ (lastb & MWBUTTON_L)) {
+                    if ((b & BUTTON_L) ^ (lastb & BUTTON_L)) {
                         event->button.button = SDL_BUTTON_LEFT;
-                        event->type = (b & MWBUTTON_L)? SDL_MOUSEBUTTONDOWN: SDL_MOUSEBUTTONUP;
-                        event->button.state = (b & MWBUTTON_L)? SDL_PRESSED: SDL_RELEASED;
+                        event->type = (b & BUTTON_L)? SDL_MOUSEBUTTONDOWN: SDL_MOUSEBUTTONUP;
+                        event->button.state = (b & BUTTON_L)? SDL_PRESSED: SDL_RELEASED;
                         event->button.x = posx;
                         event->button.y = posy;
                         event->button.clicks = 1;
-                    } else if ((b & MWBUTTON_R) ^ (lastb & MWBUTTON_R)) {
+                    } else if ((b & BUTTON_R) ^ (lastb & BUTTON_R)) {
                         event->button.button = SDL_BUTTON_RIGHT;
-                        event->type = (b & MWBUTTON_R)? SDL_MOUSEBUTTONDOWN: SDL_MOUSEBUTTONUP;
-                        event->button.state = (b & MWBUTTON_R)? SDL_PRESSED: SDL_RELEASED;
+                        event->type = (b & BUTTON_R)? SDL_MOUSEBUTTONDOWN: SDL_MOUSEBUTTONUP;
+                        event->button.state = (b & BUTTON_R)? SDL_PRESSED: SDL_RELEASED;
                         event->button.x = posx;
                         event->button.y = posy;
                         event->button.clicks = 1;
-                    } else if (b & MWBUTTON_SCROLLUP) {
+                    } else if (b & BUTTON_SCROLLUP) {
                         event->wheel.type = SDL_MOUSEWHEEL;
                         event->wheel.direction = SDL_MOUSEWHEEL_NORMAL;
                         event->wheel.y = y;
-                    } else if (b & MWBUTTON_SCROLLDN) {
+                    } else if (b & BUTTON_SCROLLDN) {
                         event->wheel.type = SDL_MOUSEWHEEL;
                         event->wheel.direction = SDL_MOUSEWHEEL_NORMAL;
                         event->wheel.y = y;
@@ -580,8 +567,8 @@ static uint64_t GetEventTimeout(void *data, int timeout)
                     event->motion.y = posy;
                     event->motion.xrel = x;
                     event->motion.yrel = y;
-                    if (b & MWBUTTON_L) event->motion.state |= 1;
-                    if (b & MWBUTTON_R) event->motion.state |= 4;
+                    if (b & BUTTON_L) event->motion.state |= 1;
+                    if (b & BUTTON_R) event->motion.state |= 4;
                     lastx = x;
                     lasty = y;
                     return 1;
@@ -594,7 +581,7 @@ static uint64_t GetEventTimeout(void *data, int timeout)
     return 1;
 }
 
-uint64_t PollEvent(SDL_Event *event)
+uint64_t host_gui_poll_event(SDL_Event *event)
 {
     static SDL_Event ev;
     static int saved = 0;
@@ -602,7 +589,7 @@ uint64_t PollEvent(SDL_Event *event)
     if (event == NULL) {
         /* only indicate whether event found, don't dequeue */
         if (!saved)
-            GetEventTimeout(&ev, 0);
+            get_event_timeout(&ev, 0);
         if (ev.type != 0) {
             saved = 1;
             return 1;
@@ -615,25 +602,18 @@ uint64_t PollEvent(SDL_Event *event)
         *event = ev;
         saved = 0;
     } else {
-        GetEventTimeout(event, 0);
+        get_event_timeout(event, 0);
     }
     return event->type != 0;
 }
 
-/* block for next event (not used by CL) */
-uint64_t WaitEvent(void *event)
+uint64_t host_gui_init(Rect *r)
 {
-    GetEventTimeout(event, -1);
-    return 1;
-}
-
-uint64_t Init(Rect *r)
-{
-    if (OpenKeyboard() < 0)     /* must be before FB open for KDSETMODE to work */
+    if (open_keyboard() < 0)     /* must be before FB open for KDSETMODE to work */
         return -1;
-    if (OpenMouse() < 0)
+    if (open_mouse() < 0)
         return -1;
-    if (OpenFramebuffer() < 0)  /* printf display won't work after this */
+    if (open_framebuffer() < 0)  /* printf display won't work after this */
         return -1;
     posx = fb.width / 2;
     posy = fb.height / 2;
@@ -643,33 +623,42 @@ uint64_t Init(Rect *r)
     bb.pixels = malloc(bb.size);
     unassert(bb.pixels);
     memset(bb.pixels, 0, bb.size);
-    atexit(DeInit);
-    signal(SIGHUP, sighup);
-    signal(SIGABRT, sighup);
-    signal(SIGSEGV, sighup);
+    atexit(host_gui_deinit);
+#if DEBUG
+    signal(SIGHUP, catch_signals);
+    signal(SIGABRT, catch_signals);
+    signal(SIGSEGV, catch_signals);
+#endif
     return 0;
 }
 
+void host_gui_deinit(void)
+{
+    close_mouse();
+    close_framebuffer();
+    close_keyboard();        /* must be after FB close for KDSETMODE to work */
+}
+
 void (*host_gui_funcs[]) = {
-    (void*)Init,
-    (void*)DeInit,
+    (void*)host_gui_init,
+    (void*)host_gui_deinit,
     (void*)host_gui_box,
-    (void*)FillRect,
-    (void*)BlitTexture,
-    (void*)SetClip,
-    (void*)SetColor,
-    (void*)SetTextureColorMod,
-    (void*)DestroyTexture,
-    (void*)CreateTexture,
+    (void*)host_gui_filled_box,
+    (void*)host_gui_blit,
+    (void*)host_gui_set_clip,
+    (void*)host_gui_set_color,
+    (void*)host_gui_texture_color,
+    (void*)host_gui_destroy_texture,
+    (void*)host_gui_create_texture,
     (void*)host_gui_begin_composite,
     (void*)host_gui_end_composite,
-    (void*)Flush,
+    (void*)host_gui_flush,
     (void*)host_gui_resize,
-    (void*)PollEvent,
+    (void*)host_gui_poll_event,
 };
 
 /* open linux framebuffer*/
-static int OpenFramebuffer(void)
+static int open_framebuffer(void)
 {
     int type, visual;
     int extra = getpagesize() - 1;
@@ -678,7 +667,7 @@ static int OpenFramebuffer(void)
 
     char *env = getenv("FRAMEBUFFER");
     frame_fd = open(env? env: PATH_FRAMEBUFFER, O_RDWR);
-    if(frame_fd < 0) {
+    if (frame_fd < 0) {
         printf("Error opening %s: %m. Check kernel config\n", env? env: PATH_FRAMEBUFFER);
         return -1;
     }
@@ -700,22 +689,22 @@ static int OpenFramebuffer(void)
     fb.size = fb.height * fb.pitch;
 
     /* set pixel format*/
-    if(type == FB_TYPE_PACKED_PIXELS &&
+    if (type == FB_TYPE_PACKED_PIXELS &&
        (visual == FB_VISUAL_TRUECOLOR || visual == FB_VISUAL_DIRECTCOLOR)) {
-        switch(fb.bpp) {
+        switch (fb.bpp) {
         case 16:
             if (fb_var.green.length == 5) {
-                fb.pixtype = MWPF_TRUECOLOR555;
+                fb.pixtype = PF_RGB555;
             } else {
-                fb.pixtype = MWPF_TRUECOLOR565;
+                fb.pixtype = PF_RGB565;
             }
             break;
         case 18:
         case 24:
-            fb.pixtype = MWPF_TRUECOLORBGR;
+            fb.pixtype = PF_BGR888;
             break;
         case 32:
-            fb.pixtype = MWPF_TRUECOLORARGB;
+            fb.pixtype = PF_ARGB8888;
             break;
         default:
             printf("Unsupported framebuffer bpp: %d\n", fb.bpp);
@@ -726,14 +715,14 @@ static int OpenFramebuffer(void)
         goto fail;
     }
     printf("%dx%dx%dbpp pitch %d type %d visual %d pixtype %d\n", fb.width, fb.height,
-        (fb.pixtype == MWPF_TRUECOLOR555)? 15: fb.bpp, fb.pitch, type, visual,
+        (fb.pixtype == PF_RGB555)? 15: fb.bpp, fb.pitch, type, visual,
         fb.pixtype);
 
     /* mmap framebuffer into this address space*/
     fb.size = (fb.size + extra) & ~extra;       /* extend to page boundary*/
 
     fb.pixels = mmap(NULL, fb.size, PROT_READ|PROT_WRITE, MAP_SHARED, frame_fd, 0);
-    if(fb.pixels == NULL || fb.pixels == (unsigned char *)-1) {
+    if (fb.pixels == NULL || fb.pixels == (unsigned char *)-1) {
         printf("Can't mmap %s: %m\n", PATH_FRAMEBUFFER);
         goto fail;
     }
@@ -748,7 +737,7 @@ static int OpenFramebuffer(void)
     }
 
     memset(fb.pixels, 0, fb.size);
-    SetClip(NULL);
+    host_gui_set_clip(NULL);
     return frame_fd;
 
 fail:
@@ -757,7 +746,7 @@ fail:
     return -1;
 }
 
-static void CloseFramebuffer(void)
+static void close_framebuffer(void)
 {
     if (frame_fd >= 0) {
         munmap(fb.pixels, fb.size);
@@ -769,7 +758,7 @@ static void CloseFramebuffer(void)
     frame_fd = -1;
 }
 
-static int OpenMouse(void)
+static int open_mouse(void)
 {
     /* sequence to mouse device to send ImPS/2 events*/
     static const unsigned char imps2[] = { 0xf3, 200, 0xf3, 100, 0xf3, 80 };
@@ -790,7 +779,7 @@ static int OpenMouse(void)
     return mouse_fd;
 }
 
-static void CloseMouse(void)
+static void close_mouse(void)
 {
     if (mouse_fd >= 0)
         close(mouse_fd);
@@ -814,7 +803,7 @@ static void CloseMouse(void)
  * Left, Right, and Mid are the three button states, 1 if being depressed.
  * Neg-X and Neg-Y are set if XXXXXXXX and YYYYYYYY are negative, respectively.
  */
-static int ReadMouse(int *dx, int *dy, int *bp)
+static int read_mouse(int *dx, int *dy, int *bp)
 {
     int n, x, y, w, left, middle, right, button;
     unsigned char data[4];
@@ -828,18 +817,18 @@ static int ReadMouse(int *dx, int *dy, int *bp)
     right = data[0] & 0x2;
     middle = data[0] & 0x4;
 
-    if (left)   button |= MWBUTTON_L;
-    if (middle) button |= MWBUTTON_M;
-    if (right)  button |= MWBUTTON_R;
+    if (left)   button |= BUTTON_L;
+    if (middle) button |= BUTTON_M;
+    if (right)  button |= BUTTON_R;
 
     x =   (signed char) data[1];
-    y = - (signed char) data[2];  // y axis flipped between conventions
+    y = - (signed char) data[2];  /* y axis flipped between conventions */
     if (n == 4) {
         w = (signed char) data[3];
         if (w > 0)
-            button |= MWBUTTON_SCROLLUP;
+            button |= BUTTON_SCROLLUP;
         if (w < 0)
-            button |= MWBUTTON_SCROLLDN;
+            button |= BUTTON_SCROLLDN;
     }
     *dx = x;
     *dy = y;       
@@ -847,7 +836,7 @@ static int ReadMouse(int *dx, int *dy, int *bp)
     return 1;
 }
 
-static int OpenKeyboard(void)
+static int open_keyboard(void)
 {
     char *path;
     struct termios new;
@@ -872,18 +861,11 @@ static int OpenKeyboard(void)
     return keybd_fd;
 }
 
-static void CloseKeyboard(void)
+static void close_keyboard(void)
 {
     if (keybd_fd >= 0) {
         tcsetattr(keybd_fd, TCSANOW, &orig);
         close(keybd_fd);
     }
     keybd_fd = -1;
-}
-
-void DeInit(void)
-{
-    CloseMouse();
-    CloseFramebuffer();
-    CloseKeyboard();        /* must be after FB close for KDSETMODE to work */
 }
