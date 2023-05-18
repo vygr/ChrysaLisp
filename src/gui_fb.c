@@ -29,6 +29,7 @@ static struct termios orig;
 static int frame_fd = -1;           /* framebuffer file handle */
 static int mouse_fd = -1;
 static int keybd_fd = -1;;
+static int posx, posy;              /* cursor position */
 static Drawable fb;                 /* hardware framebuffer */
 static Drawable bb;                 /* back buffer */
 static Rect clip;
@@ -518,41 +519,53 @@ static uint64_t GetEventTimeout(void *data, int timeout)
             unsigned char buf[1];
             if (read(keybd_fd, buf, 1) == 1) {
                 int c = buf[0];
-                if (c == 033) exit(1);
+#if DEBUG
+                if (c == 033) exit(0);      /* exit on ESC! */
+#endif
                 if (c == 0x7F) c = '\b';
                 if (c == '\r') c = '\n';
                 event->type = SDL_KEYDOWN;
                 event->key.state = SDL_PRESSED;
+                if (c <= ' ' & c != '\n' && c != '\b' && c != '\t') {
+                    event->key.keysym.mod = KMOD_CTRL;
+                    c += 'a' - 1;
+                }
+                event->key.keysym.sym = c;
                 int scancode = ascii_to_scan_code_table[c & 0x7f];
                 event->key.keysym.scancode = scancode & 127;
-                event->key.keysym.sym = c;
-                if (scancode & 0x80) event->key.keysym.mod = KMOD_SHIFT;
+                if (scancode & 0x80) event->key.keysym.mod |= KMOD_SHIFT;
                 return 1;
             }
         }
         if (fds[1].revents & POLLIN) {
             int x, y, b;
             static int lastx = -1, lasty = -1, lastb = 0;
-            static int posx, posy;
             if (ReadMouse(&x, &y, &b)) {
                 if (b != lastb) {
-                    event->button.clicks = 1;
-                    event->button.x = posx;
-                    event->button.y = posy;
                     if ((b & MWBUTTON_L) ^ (lastb & MWBUTTON_L)) {
                         event->button.button = SDL_BUTTON_LEFT;
                         event->type = (b & MWBUTTON_L)? SDL_MOUSEBUTTONDOWN: SDL_MOUSEBUTTONUP;
+                        event->button.state = (b & MWBUTTON_L)? SDL_PRESSED: SDL_RELEASED;
+                        event->button.x = posx;
+                        event->button.y = posy;
+                        event->button.clicks = 1;
                     } else if ((b & MWBUTTON_R) ^ (lastb & MWBUTTON_R)) {
                         event->button.button = SDL_BUTTON_RIGHT;
                         event->type = (b & MWBUTTON_R)? SDL_MOUSEBUTTONDOWN: SDL_MOUSEBUTTONUP;
+                        event->button.state = (b & MWBUTTON_R)? SDL_PRESSED: SDL_RELEASED;
+                        event->button.x = posx;
+                        event->button.y = posy;
+                        event->button.clicks = 1;
+                    } else if (b & MWBUTTON_SCROLLUP) {
+                        event->wheel.type = SDL_MOUSEWHEEL;
+                        event->wheel.direction = SDL_MOUSEWHEEL_NORMAL;
+                        event->wheel.y = y;
+                    } else if (b & MWBUTTON_SCROLLDN) {
+                        event->wheel.type = SDL_MOUSEWHEEL;
+                        event->wheel.direction = SDL_MOUSEWHEEL_NORMAL;
+                        event->wheel.y = y;
                     }
                     lastb = b;
-                    if (event->button.button) {
-                        event->button.state = (event->type == SDL_MOUSEBUTTONDOWN)? SDL_PRESSED: SDL_RELEASED;
-                        //printf("Mouse %d button %d\n", event->button.button, event->type);
-                        return 1;
-                    }
-                    event->type = 0;
                     return 1;
                 }
                 if (x != lastx || y != lasty) {
@@ -569,7 +582,6 @@ static uint64_t GetEventTimeout(void *data, int timeout)
                     event->motion.yrel = y;
                     if (b & MWBUTTON_L) event->motion.state |= 1;
                     if (b & MWBUTTON_R) event->motion.state |= 4;
-                    //printf("Mouse motion %d,%d\n", posx, posy);
                     lastx = x;
                     lasty = y;
                     return 1;
@@ -623,6 +635,8 @@ uint64_t Init(Rect *r)
         return -1;
     if (OpenFramebuffer() < 0)  /* printf display won't work after this */
         return -1;
+    posx = fb.width / 2;
+    posy = fb.height / 2;
     r->w = fb.width;
     r->h = fb.height;
     bb = fb;

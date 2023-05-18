@@ -85,6 +85,9 @@ struct mousemotionevent {
 #define SDL_BUTTON_MIDDLE   2
 #define SDL_BUTTON_RIGHT    3
 
+#define SDL_MOUSEWHEEL_NORMAL   0
+#define SDL_MOUSEWHEEL_FLIPPED  1
+
 /* General keyboard/mouse state definitions */
 #define SDL_RELEASED    0
 #define SDL_PRESSED     1
