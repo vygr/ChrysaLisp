@@ -43,6 +43,7 @@ typedef struct rect {
 typedef struct drawable {
     int pixtype;                /* pixel format */
     int bpp;                    /* bits per pixel */
+    int bytespp;                /* bytes per pixel */
     int width;                  /* width in pixels */
     int height;                 /* height in pixels */
     int pitch;                  /* stride in bytes, offset to next pixel row */
@@ -180,6 +181,7 @@ Texture *host_gui_create_texture(void *data, uint64_t width, uint64_t height, ui
     unassert(t);
     t->pixtype = fb.pixtype;
     t->bpp = fb.bpp;
+    t->bytespp = fb.bytespp;
     t->width = width;
     t->height = height;
     t->pitch = pitch;
@@ -206,7 +208,7 @@ void host_gui_filled_box(const Rect *rect)
     if (color_a == 0) return;
     Rect *r = get_clip_rect(rect);
     if (!r) return;
-    pixel_t *dst = (pixel_t *)(bb.pixels + r->y * bb.pitch + r->x * (bb.bpp >> 3));
+    pixel_t *dst = (pixel_t *)(bb.pixels + r->y * bb.pitch + r->x * bb.bytespp);
     int span = (bb.pitch >> 2) - r->w;      /* in pixels, not bytes */
     
     int h = r->h;
@@ -262,9 +264,9 @@ void host_gui_box(const Rect *rect)
 /* fast source copy blit, no clipping */
 static void blit_srccopy(Drawable *ts, const Rect *srect, Drawable *td, const Rect *drect)
 {
-    pixel_t *dst = (pixel_t *)(td->pixels + drect->y * td->pitch + drect->x * (td->bpp >> 3));
-    pixel_t *src = (pixel_t *)(ts->pixels + srect->y * ts->pitch + srect->x * (ts->bpp >> 3));
-    int span = drect->w * (td->bpp >> 3);
+    pixel_t *dst = (pixel_t *)(td->pixels + drect->y * td->pitch + drect->x * td->bytespp);
+    pixel_t *src = (pixel_t *)(ts->pixels + srect->y * ts->pitch + srect->x * ts->bytespp);
+    int span = drect->w * td->bytespp;
     int dspan = td->pitch - span;
     int sspan = ts->pitch - span;
     int y = drect->h;
@@ -283,9 +285,9 @@ static void blit_blend(Drawable *ts, const Rect *srect, Drawable *td, const Rect
 {
     //unassert(srect->w == drect->w);   //FIXME check why src width can != dst width
     /* src and dst height can differ, will use dst height for drawing */
-    pixel_t *dst = (pixel_t *)(td->pixels + drect->y * td->pitch + drect->x * (td->bpp >> 3));
-    pixel_t *src = (pixel_t *)(ts->pixels + srect->y * ts->pitch + srect->x * (ts->bpp >> 3));
-    int span = drect->w * (td->bpp >> 3);
+    pixel_t *dst = (pixel_t *)(td->pixels + drect->y * td->pitch + drect->x * td->bytespp);
+    pixel_t *src = (pixel_t *)(ts->pixels + srect->y * ts->pitch + srect->x * ts->bytespp);
+    int span = drect->w * td->bytespp;
     int dspan = td->pitch - span;
     int sspan = ts->pitch - span;
     int y = drect->h;
@@ -685,6 +687,7 @@ static int open_framebuffer(void)
     fb.width = fb_var.xres;
     fb.height = fb_var.yres;
     fb.bpp = fb_var.bits_per_pixel;
+    fb.bytespp = fb.bpp >> 3;
     fb.pitch = fb_fix.line_length;
     fb.size = fb.height * fb.pitch;
 
