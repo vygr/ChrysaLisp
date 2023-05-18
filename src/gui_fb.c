@@ -1,3 +1,5 @@
+#if defined(_HOST_GUI)
+#if _HOST_GUI == 1
 /*
  * Host GUI for ChrysaLisp Framebuffer
  *
@@ -49,7 +51,9 @@ typedef struct drawable {
     int pitch;                  /* stride in bytes, offset to next pixel row */
     int size;                   /* total size in bytes */
     unsigned char *pixels;      /* pixel data */
-    uint32_t r, g, b, color;
+    uint32_t r, g, b;           /* premul colors to use for color mod blit */
+    uint32_t color;             /* combined premul colors or 0xfffff for source blend */
+    uint8_t data[];             /* texture data allocated in single malloc */
 } Drawable, Texture;
 
 static struct termios orig;
@@ -177,7 +181,8 @@ Texture *host_gui_create_texture(void *data, uint64_t width, uint64_t height, ui
 {
     Texture *t;
 
-    t = malloc(sizeof(Texture));
+    int size = height * pitch;
+    t = malloc(sizeof(Texture) + size);
     unassert(t);
     t->pixtype = fb.pixtype;
     t->bpp = fb.bpp;
@@ -185,9 +190,8 @@ Texture *host_gui_create_texture(void *data, uint64_t width, uint64_t height, ui
     t->width = width;
     t->height = height;
     t->pitch = pitch;
-    t->size = height * t->pitch;
-    t->pixels = malloc(t->size);
-    unassert(t->pixels);
+    t->size = size;
+    t->pixels = t->data;
     t->r = t->g = t->b = 0xff;
     t->color = 0xffffff;
     memcpy(t->pixels, data, t->size);
@@ -197,7 +201,6 @@ Texture *host_gui_create_texture(void *data, uint64_t width, uint64_t height, ui
 void host_gui_destroy_texture(Texture *texture)
 {
     unassert(texture);
-    free(texture->pixels);
     free(texture);
 }
 
@@ -639,6 +642,10 @@ void host_gui_deinit(void)
     close_mouse();
     close_framebuffer();
     close_keyboard();        /* must be after FB close for KDSETMODE to work */
+    if (bb.pixels) {
+        free(bb.pixels);
+        bb.pixels = NULL;
+    }
 }
 
 void (*host_gui_funcs[]) = {
@@ -872,3 +879,5 @@ static void close_keyboard(void)
     }
     keybd_fd = -1;
 }
+#endif /* _HOST_GUI == 1 */
+#endif /* defined(_HOST_GUI) */
