@@ -542,7 +542,11 @@ static uint64_t get_event_timeout(void *data, int timeout)
                 if (b & (BUTTON_SCROLLUP|BUTTON_SCROLLDN)) {
                     event->wheel.type = SDL_MOUSEWHEEL;
                     event->wheel.direction = SDL_MOUSEWHEEL_NORMAL;
-                    event->wheel.y = w * SCROLLFACTOR;
+                    if (b & BUTTON_M) {
+                        event->wheel.x = w * SCROLLFACTOR;
+                    } else {
+                        event->wheel.y = w * SCROLLFACTOR;
+                    }
                     lastb = b;
                     return 1;
                 }
@@ -577,8 +581,8 @@ static uint64_t get_event_timeout(void *data, int timeout)
                     event->motion.y = posy;
                     event->motion.xrel = x;
                     event->motion.yrel = y;
-                    if (b & BUTTON_L) event->motion.state |= 1;
-                    if (b & BUTTON_R) event->motion.state |= 4;
+                    if (b & BUTTON_L) event->motion.state |= SDL_BUTTON_LMASK;
+                    if (b & BUTTON_R) event->motion.state |= SDL_BUTTON_RMASK;
                     lastx = x;
                     lasty = y;
                     return 1;

@@ -6,11 +6,11 @@ typedef uint16_t        Uint16;
 typedef uint32_t        Uint32;
 typedef int32_t         Sint32;
 
-typedef union event     SDL_Event;
+/* keyboard */
 typedef struct keysym   SDL_Keysym;
 typedef Sint32          SDL_Keycode;
 enum scancode {
-    SDL_SCANCODE_UNKNOWN = 0,
+    SDL_SCANCODE_UNKNOWN = 0
 };
 typedef enum scancode   SDL_Scancode;
 
@@ -20,10 +20,23 @@ typedef enum {
     KMOD_LCTRL = 0x0040,
     KMOD_RCTRL = 0x0080,
 } SDL_KeyMod;
+#define KMOD_CTRL               (KMOD_LCTRL|KMOD_RCTRL)
+#define KMOD_SHIFT              (KMOD_LSHIFT|KMOD_RSHIFT)
 
-#define KMOD_CTRL   (KMOD_LCTRL|KMOD_RCTRL)
-#define KMOD_SHIFT  (KMOD_LSHIFT|KMOD_RSHIFT)
+/*  mouse */
+#define SDL_RELEASED            0
+#define SDL_PRESSED             1
 
+#define SDL_BUTTON_LEFT         1
+#define SDL_BUTTON_RIGHT        3
+
+#define SDL_BUTTON_LMASK        01
+#define SDL_BUTTON_RMASK        04
+
+#define SDL_MOUSEWHEEL_NORMAL   0
+#define SDL_MOUSEWHEEL_FLIPPED  1
+
+/* event */
 enum eventtype {
     SDL_QUIT           = 0x100, /**< User-requested quit */
     SDL_WINDOWEVENT    = 0x200, /**< Window state change */
@@ -82,17 +95,6 @@ struct mousemotionevent {
     Sint32 yrel;        /**< The relative motion in the Y direction */
 };
 
-#define SDL_BUTTON_LEFT     1
-#define SDL_BUTTON_MIDDLE   2
-#define SDL_BUTTON_RIGHT    3
-
-#define SDL_MOUSEWHEEL_NORMAL   0
-#define SDL_MOUSEWHEEL_FLIPPED  1
-
-/* General keyboard/mouse state definitions */
-#define SDL_RELEASED    0
-#define SDL_PRESSED     1
-
 struct mousebuttonevent {
     Uint32 type;        /**< ::SDL_MOUSEBUTTONDOWN or ::SDL_MOUSEBUTTONUP */
     Uint32 timestamp;   /**< In milliseconds, populated using SDL_GetTicks() */
@@ -126,3 +128,4 @@ union event {
     struct quitevent quit;              /**< Quit request event data */
     Uint8 padding[56];
 };
+typedef union event     SDL_Event;
