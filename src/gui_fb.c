@@ -78,6 +78,7 @@ static void close_keyboard(void);
 static void close_mouse(void);
 static void blit_blend(Drawable *src, const Rect *srect, Drawable *dst, const Rect *drect);
 static void blit_srccopy(Drawable *src, const Rect *srect, Drawable *dst, const Rect *drect);
+static void blit_srccopy_rgb565(Drawable *ts, const Rect *srect, Drawable *td, const Rect *drect);
 
 #if DEBUG
 #define unassert(a)   if (!(a)) unassert_handler(#a,__FILE__, __LINE__)
@@ -111,12 +112,18 @@ void host_gui_end_composite(void)
 void host_gui_flush(const Rect *r)
 {
     Rect cr;
-    cr.x = 0;
-    cr.y = 0;
-    cr.w = fb.width;
-    cr.h = fb.height;
-    unassert(r);
-    blit_srccopy(&bb, &cr, &fb, &cr);
+    if (r == NULL) {
+        cr.x = 0;
+        cr.y = 0;
+        cr.w = fb.width;
+        cr.h = fb.height;
+        r = &cr;
+    }
+    if (fb.pixtype == PF_RGB565) {
+        blit_srccopy_rgb565(&bb, r, &fb, r);
+    } else {
+        blit_srccopy(&bb, r, &fb, r);
+    }
 }
 
 void host_gui_resize(uint64_t w, uint64_t h)
@@ -190,9 +197,9 @@ Texture *host_gui_create_texture(void *data, uint64_t width, uint64_t height, ui
     int size = height * pitch;
     t = malloc(sizeof(Texture) + size);
     unassert(t);
-    t->pixtype = fb.pixtype;
-    t->bpp = fb.bpp;
-    t->bytespp = fb.bytespp;
+    t->pixtype = bb.pixtype;
+    t->bpp = bb.bpp;
+    t->bytespp = bb.bytespp;
     t->width = width;
     t->height = height;
     t->pitch = pitch;
@@ -285,6 +292,29 @@ static void blit_srccopy(Drawable *ts, const Rect *srect, Drawable *td, const Re
             *dst++ = *src++;
         } while (--x > 0);
         dst = (pixel_t *)((uint8_t *)dst + dspan);
+        src = (pixel_t *)((uint8_t *)src + sspan);
+    } while (--y > 0);
+}
+
+static void blit_srccopy_rgb565(Drawable *ts, const Rect *srect, Drawable *td, const Rect *drect)
+{
+    unassert(srect->w == drect->w);
+    unassert(srect->h == drect->h);
+    uint16_t *dst = (uint16_t *)(td->pixels + drect->y * td->pitch + drect->x * td->bytespp);
+    pixel_t *src =   (pixel_t *)(ts->pixels + srect->y * ts->pitch + srect->x * ts->bytespp);
+    int sspan = ts->pitch - (srect->w * ts->bytespp);
+    int dspan = td->pitch - (drect->w * td->bytespp);
+    int y = drect->h;
+    do {
+        int x = drect->w;
+        do {
+            pixel_t s = *src++;
+            uint8_t r = (s >> 16) & 0xff;
+            uint8_t g = (s >> 8) & 0xff;
+            uint8_t b = s & 0xff;
+            *dst++ = ((r & 0xf8) << 8) | ((g & 0xfc) << 3) | ((b & 0xf8) >> 3);
+        } while (--x > 0);
+        dst = (uint16_t *)((uint8_t *)dst + dspan);
         src = (pixel_t *)((uint8_t *)src + sspan);
     } while (--y > 0);
 }
@@ -633,10 +663,20 @@ uint64_t host_gui_init(Rect *r)
     posy = fb.height / 2;
     r->w = fb.width;
     r->h = fb.height;
-    bb = fb;
+
+    bb.pixtype = PF_ARGB8888;
+    bb.bpp = 32;
+    bb.bytespp = 4;
+    bb.width = fb.width;
+    bb.height = fb.height;
+    bb.pitch = bb.width * bb.bytespp;
+    bb.size = bb.height * bb.pitch;
+    bb.r = bb.g = bb.b = 0xff;
+    bb.color = 0xffffff;
     bb.pixels = malloc(bb.size);
     unassert(bb.pixels);
     memset(bb.pixels, 0, bb.size);
+
     atexit(host_gui_deinit);
 #if DEBUG
     signal(SIGHUP, catch_signals);
@@ -734,8 +774,7 @@ static int open_framebuffer(void)
         goto fail;
     }
     printf("%dx%dx%dbpp pitch %d type %d visual %d pixtype %d\n", fb.width, fb.height,
-        (fb.pixtype == PF_RGB555)? 15: fb.bpp, fb.pitch, type, visual,
-        fb.pixtype);
+        (fb.pixtype == PF_RGB555)? 15: fb.bpp, fb.pitch, type, visual, fb.pixtype);
 
     /* mmap framebuffer into this address space*/
     fb.size = (fb.size + extra) & ~extra;       /* extend to page boundary*/
