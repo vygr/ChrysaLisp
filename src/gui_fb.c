@@ -539,12 +539,15 @@ static uint64_t get_event_timeout(void *data, int timeout)
             int x, y, w, b;
             static int lastx = -1, lasty = -1, lastb = 0;
             if (read_mouse(&x, &y, &w, &b)) {
+                if (b & (BUTTON_SCROLLUP|BUTTON_SCROLLDN)) {
+                    event->wheel.type = SDL_MOUSEWHEEL;
+                    event->wheel.direction = SDL_MOUSEWHEEL_NORMAL;
+                    event->wheel.y = w * SCROLLFACTOR;
+                    lastb = b;
+                    return 1;
+                }
                 if (b != lastb) {
-                    if (b & (BUTTON_SCROLLUP|BUTTON_SCROLLDN)) {
-                        event->wheel.type = SDL_MOUSEWHEEL;
-                        event->wheel.direction = SDL_MOUSEWHEEL_NORMAL;
-                        event->wheel.y = w * SCROLLFACTOR;
-                    } else if ((b & BUTTON_L) ^ (lastb & BUTTON_L)) {
+                    if ((b & BUTTON_L) ^ (lastb & BUTTON_L)) {
                         event->button.button = SDL_BUTTON_LEFT;
                         event->type = (b & BUTTON_L)? SDL_MOUSEBUTTONDOWN: SDL_MOUSEBUTTONUP;
                         event->button.state = (b & BUTTON_L)? SDL_PRESSED: SDL_RELEASED;
