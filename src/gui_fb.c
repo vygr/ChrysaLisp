@@ -297,6 +297,7 @@ static void blit_srccopy(Drawable *ts, const Rect *srect, Drawable *td, const Re
     } while (--y > 0);
 }
 
+/* source copy conversion blit ARGB888 -> RGB565 */
 static void blit_srccopy_rgb565(Drawable *ts, const Rect *srect, Drawable *td, const Rect *drect)
 {
     unassert(srect->w == drect->w);
@@ -310,10 +311,7 @@ static void blit_srccopy_rgb565(Drawable *ts, const Rect *srect, Drawable *td, c
         int x = drect->w;
         do {
             pixel_t s = *src++;
-            uint8_t r = (s >> 16) & 0xff;
-            uint8_t g = (s >> 8) & 0xff;
-            uint8_t b = s & 0xff;
-            *dst++ = ((r & 0xf8) << 8) | ((g & 0xfc) << 3) | ((b & 0xf8) >> 3);
+            *dst++ = (((s >> 16) & 0xf8) << 8) | (((s >> 8) & 0xfc) << 3) | ((s & 0xf8) >> 3);
         } while (--x > 0);
         dst = (uint16_t *)((uint8_t *)dst + dspan);
         src = (pixel_t *)((uint8_t *)src + sspan);
