@@ -30,12 +30,13 @@
 
 #define SCROLLFACTOR        4   /* multiply factor for scrollwheel */
 
-/* supported pixel formats (only ARGB8888 supported now) */
+/* pixel formats, -1 means unsupported */
 #define PF_ARGB8888         0   /* 32bpp, memory byte order B, G, R, A */
-#define PF_ABGR8888         1   /* 32bpp, memory byte order R, G, B, A */
-#define PF_BGR888           2   /* 24bpp, memory byte order R, G, B */
+#define PF_ABGR8888         -1  /* 32bpp, memory byte order R, G, B, A */
+#define PF_BGR888           -2  /* 24bpp, memory byte order R, G, B */
 #define PF_RGB565           3   /* 16bpp, le unsigned short 5/6/5 RGB */
-#define PF_RGB555           4   /* 15bpp, le unsigned short 5/5/5 RGB */
+#define PF_RGB555           -4  /* 15bpp, le unsigned short 5/5/5 RGB */
+#define PF_PALETTE          -5  /*  8bpp palette */
 
 typedef uint32_t pixel_t;       /* fixed ARGB8888 for now */
 
@@ -718,21 +719,21 @@ void (*host_gui_funcs[]) = {
 /* open linux framebuffer*/
 static int open_framebuffer(void)
 {
-    int type, visual;
-    int extra = getpagesize() - 1;
+    int type, visual, extra;
     struct fb_fix_screeninfo  fb_fix;
     struct fb_var_screeninfo fb_var;
 
     char *env = getenv("FRAMEBUFFER");
     frame_fd = open(env? env: PATH_FRAMEBUFFER, O_RDWR);
     if (frame_fd < 0) {
-        printf("Error opening %s: %m. Check kernel config\n", env? env: PATH_FRAMEBUFFER);
+        printf("Error opening framebuffer %s: %m. Check kernel config\n",
+                env? env: PATH_FRAMEBUFFER);
         return -1;
     }
     /* get dynamic framebuffer info*/
     if (ioctl(frame_fd, FBIOGET_FSCREENINFO, &fb_fix) == -1 ||
         ioctl(frame_fd, FBIOGET_VSCREENINFO, &fb_var) == -1) {
-            printf("Can't get framebuffer specs: %m\n");
+            printf("Can't get framebuffer info: %m\n");
             goto fail;
     }
 
@@ -751,9 +752,13 @@ static int open_framebuffer(void)
     if (type == FB_TYPE_PACKED_PIXELS &&
        (visual == FB_VISUAL_TRUECOLOR || visual == FB_VISUAL_DIRECTCOLOR)) {
         switch (fb.bpp) {
+        case 8:
+            fb.pixtype = PF_PALETTE;
+            break;
         case 16:
             if (fb_var.green.length == 5) {
                 fb.pixtype = PF_RGB555;
+                fb.bpp = 15;
             } else {
                 fb.pixtype = PF_RGB565;
             }
@@ -765,18 +770,18 @@ static int open_framebuffer(void)
         case 32:
             fb.pixtype = PF_ARGB8888;
             break;
-        default:
-            printf("Unsupported framebuffer bpp: %d\n", fb.bpp);
-            goto fail;
         }
-    } else {
-        printf("Palette modes not supported\n");
+    }
+    printf("%dx%dx%dbpp pitch %d type %d visual %d pixtype %d\n",
+            fb.width, fb.height, fb.bpp, fb.pitch, type, visual, fb.pixtype);
+
+    if (fb.pixtype <= 0) {
+        printf("Unsupported framebuffer type\n");
         goto fail;
     }
-    printf("%dx%dx%dbpp pitch %d type %d visual %d pixtype %d\n", fb.width, fb.height,
-        (fb.pixtype == PF_RGB555)? 15: fb.bpp, fb.pitch, type, visual, fb.pixtype);
 
     /* mmap framebuffer into this address space*/
+    extra = getpagesize() - 1;
     fb.size = (fb.size + extra) & ~extra;       /* extend to page boundary*/
 
     fb.pixels = mmap(NULL, fb.size, PROT_READ|PROT_WRITE, MAP_SHARED, frame_fd, 0);
@@ -801,7 +806,8 @@ static int open_framebuffer(void)
 fail:
     close(frame_fd);
     frame_fd = -1;
-    return -1;
+    host_gui_deinit();
+    exit(1);
 }
 
 static void close_framebuffer(void)
