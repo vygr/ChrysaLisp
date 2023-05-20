@@ -31,12 +31,13 @@
 #define SCROLLFACTOR        4   /* multiply factor for scrollwheel */
 
 /* pixel formats, -1 means unsupported */
-#define PF_ARGB8888         0   /* 32bpp, memory byte order B, G, R, A */
-#define PF_ABGR8888         -1  /* 32bpp, memory byte order R, G, B, A */
-#define PF_BGR888           -2  /* 24bpp, memory byte order R, G, B */
-#define PF_RGB565           3   /* 16bpp, le unsigned short 5/6/5 RGB */
-#define PF_RGB555           -4  /* 15bpp, le unsigned short 5/5/5 RGB */
-#define PF_PALETTE          -5  /*  8bpp palette */
+#define PF_UNKNOWN          0
+#define PF_ARGB8888         1   /* 32bpp, memory byte order B, G, R, A */
+#define PF_ABGR8888         -2  /* 32bpp, memory byte order R, G, B, A */
+#define PF_BGR888           -3  /* 24bpp, memory byte order R, G, B */
+#define PF_RGB565           4   /* 16bpp, le unsigned short 5/6/5 RGB */
+#define PF_RGB555           -5  /* 15bpp, le unsigned short 5/5/5 RGB */
+#define PF_PALETTE          -6  /*  8bpp palette */
 
 typedef uint32_t pixel_t;       /* fixed ARGB8888 for now */
 
@@ -739,6 +740,7 @@ static int open_framebuffer(void)
     type = fb_fix.type;
     visual = fb_fix.visual;
 
+    fb.pixtype = PF_UNKNOWN;
     fb.width = fb_var.xres;
     fb.height = fb_var.yres;
     fb.bpp = fb_var.bits_per_pixel;
@@ -773,7 +775,7 @@ static int open_framebuffer(void)
     printf("%dx%dx%dbpp pitch %d type %d visual %d pixtype %d\n",
             fb.width, fb.height, fb.bpp, fb.pitch, type, visual, fb.pixtype);
 
-    if (fb.pixtype <= 0) {
+    if (fb.pixtype <= PF_UNKNOWN) {
         printf("Unsupported framebuffer type\n");
         goto fail;
     }
