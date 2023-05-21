@@ -171,8 +171,8 @@ void host_gui_set_color(uint8_t r, uint8_t g, uint8_t b, uint8_t a)
 {
 	//convert to premultiplied channels !
 	color_a = a;
-	color_rb = (((r * a) & 0xff00) << 8) + ((b * a) >> 8);
-	color_g = (g * a) & 0xff00;
+	color_rb = ((((r + 1) * a) & 0xff00) << 8) + (((b + 1) * a) >> 8);
+	color_g = ((g + 1) * a) & 0xff00;
 }
 
 void host_gui_filled_box(const Rect *rect)
