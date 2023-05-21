@@ -13,6 +13,12 @@ First stage in new portable compositor API.
 Extra make options, just add `GUI=sdl` or `GUI=fb` on the Linux `make install`
 line. It will default to `GUI=sdl` if nothing specified or invalid.
 
+We have had a fantastic contribution of the Linux FB compositor driver from
+Greg Haerr ! Many thanks Greg for doing this and for showing folks that a
+Raspberry Pi3 is actually a seriously fast device ! Folks seams to forget this
+as the world moved on with layers and layers of software (pun definitely
+intended).
+
 ------
 
 Fix to make VP and C-Script optimizers immune to prebinder policy with regards
