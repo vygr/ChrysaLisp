@@ -772,8 +772,13 @@ static int open_framebuffer(void)
             break;
         }
     }
-    printf("%dx%dx%dbpp pitch %d type %d visual %d pixtype %d\n",
-            fb.width, fb.height, fb.bpp, fb.pitch, type, visual, fb.pixtype);
+    printf("%dx%dx%dbpp (a%d:%d, r%d:%d, g%d:%d, b%d:%d) ", fb.width, fb.height, fb.bpp,
+            fb_var.transp.offset, fb_var.transp.length,
+            fb_var.red.offset, fb_var.red.length,
+            fb_var.green.offset, fb_var.green.length,
+            fb_var.blue.offset, fb_var.blue.length);
+    printf("pitch %d type %d visual %d pixtype %d\n",
+            fb.pitch, type, visual, fb.pixtype);
 
     if (fb.pixtype <= PF_UNKNOWN) {
         printf("Unsupported framebuffer type\n");
