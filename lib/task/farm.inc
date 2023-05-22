@@ -4,6 +4,19 @@
 
 (import "sys/lisp.inc")
 
+;module
+(env-push)
+
+(defun restart ()
+	;restart a child
+	(setq _mutated :t)
+	(_destroy _key _val)
+	(. this :erase _key)
+	(setq _key (def this :key (inc (get :key this))) _val (env 1))
+	(. this :insert _key _val)
+	(def _val :timestamp _now)
+	(_create _key _val _nodes))
+
 (defclass Farm (fnc_create fnc_destroy size) (fmap)
 	; (Farm fnc_create fnc_destroy size) -> farm
 	(def this :create fnc_create :destroy fnc_destroy :key -1)
@@ -21,15 +34,6 @@
 			_create (get :create this) _destroy (get :destroy this)
 			_mutated :nil _now (pii-time))
 		(. this :each (lambda (key val) (push _old_keys key) (push _old_vals val)))
-		;restart a child
-		(defun _restart ()
-			(setq _mutated :t)
-			(_destroy _key _val)
-			(. this :erase _key)
-			(setq _key (def this :key (inc (get :key this))) _val (env 1))
-			(. this :insert _key _val)
-			(def _val :timestamp _now)
-			(_create _key _val _nodes))
 		;test for vanished and timeout nodes
 		(each (lambda (_key _val)
 			(cond
@@ -39,9 +43,9 @@
 					(and _timeout
 						(defq _then (get :timestamp _val))
 						(> (- _now _then) _timeout)
-						(_restart)))
+						(restart)))
 				(:t	;not found child
-					(_restart)))) _old_keys _old_vals)
+					(restart)))) _old_keys _old_vals)
 		_mutated)
 
 	(defmethod :close (this)
@@ -49,3 +53,7 @@
 		;close tasks
 		(.-> this (:each (get :destroy this)) :empty))
 	)
+
+;module
+(export-classes Farm)
+(env-pop)
