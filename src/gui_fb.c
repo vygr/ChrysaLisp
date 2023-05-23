@@ -14,6 +14,7 @@
 #include <poll.h>
 #include <termios.h>
 #include <signal.h>
+#include <errno.h>
 #include <sys/ioctl.h>
 #include <sys/mman.h>
 #include <linux/fb.h>
@@ -42,22 +43,22 @@
 typedef uint32_t pixel_t;       /* fixed ARGB8888 for now */
 
 typedef struct rect {
-    int x, y;
-    int w, h;
+    int32_t x, y;
+    int32_t w, h;
 } Rect;
 
 typedef struct drawable {
-    int pixtype;                /* pixel format */
-    int bpp;                    /* bits per pixel */
-    int bytespp;                /* bytes per pixel */
-    int width;                  /* width in pixels */
-    int height;                 /* height in pixels */
-    int pitch;                  /* stride in bytes, offset to next pixel row */
-    int size;                   /* total size in bytes */
-    unsigned char *pixels;      /* pixel data */
+    int32_t pixtype;            /* pixel format */
+    int32_t bpp;                /* bits per pixel */
+    int32_t bytespp;            /* bytes per pixel */
+    int32_t width;              /* width in pixels */
+    int32_t height;             /* height in pixels */
+    int32_t pitch;              /* stride in bytes, offset to next pixel row */
+    int32_t size;               /* total size in bytes */
+    uint8_t *pixels;            /* pixel data */
     uint32_t r, g, b;           /* premul colors to use for color mod blit */
     uint32_t color;             /* combined premul colors or 0x00fffff for source blend */
-    uint8_t data[];             /* texture data allocated in single malloc */
+    pixel_t data[];             /* texture data allocated in single malloc */
 } Drawable, Texture;
 
 static struct termios orig;
@@ -75,6 +76,7 @@ static int open_framebuffer(void);
 static int open_keyboard(void);
 static int open_mouse(void);
 static int read_mouse(int *dx, int *dy, int *dw, int *bp);
+static ssize_t readansi(int fd, char *buf, size_t size);
 static void close_framebuffer(void);
 static void close_keyboard(void);
 static void close_mouse(void);
@@ -206,7 +208,7 @@ Texture *host_gui_create_texture(void *data, uint64_t width, uint64_t height, ui
     t->height = height;
     t->pitch = pitch;
     t->size = size;
-    t->pixels = t->data;
+    t->pixels = (uint8_t *)t->data;
     t->r = t->g = t->b = 0xff;
     t->color = 0xffffff;
     memcpy(t->pixels, data, t->size);
@@ -394,7 +396,6 @@ void host_gui_blit(Texture *texture, const Rect *srect, const Rect *drect)
 #define BUTTON_SCROLLUP 0x20      /* wheel up*/
 #define BUTTON_SCROLLDN 0x40      /* wheel down*/
 
-
 /*
  * Lookup table to convert ascii characters in to keyboard scan codes
  * Format: most signifficant bit indicates if scan code should be sent with shift modifier
@@ -531,6 +532,62 @@ const uint8_t ascii_to_scan_code_table[128] = {
   /* ASCII: 127 */ 0
 };
 
+/* convert from ANSI keyboard sequence to scancode */
+static int ansi_to_scancode(char *buf, int n)
+{
+    if (n >= 1 && buf[0] == 033) {
+        if (buf[1] == '[') {
+            if (n == 3) {                           /* xterm sequences */
+                switch (buf[2]) {                   /* ESC [ A etc */
+                case 'A':   return SDL_SCANCODE_UP;     // kUpArrow
+                case 'B':   return SDL_SCANCODE_DOWN;   // kDownArrow
+                case 'C':   return SDL_SCANCODE_RIGHT;  // kRightArrow
+                case 'D':   return SDL_SCANCODE_LEFT;   // kLeftArrow
+                case 'F':   return SDL_SCANCODE_END;    // kEnd
+                case 'H':   return SDL_SCANCODE_HOME;   // kHome
+                }
+            }
+#if 0
+            else if (n == 4 && buf[2] == '1') {   /* ESC [ 1 P etc */
+                switch (buf[3]) {
+                case 'P':   return 0x3B;    // kF1
+                case 'Q':   return 0x3C;    // kF2
+                case 'R':   return 0x3D;    // kF3
+                case 'S':   return 0x3E;    // kF4
+                }
+            }
+#endif
+            if (n > 3 && buf[n-1] == '~') {         /* vt sequences */
+                switch (atoi(buf+2)) {
+                case 1:     return SDL_SCANCODE_HOME;      // kHome
+                case 2:     return SDL_SCANCODE_INSERT;    // kInsert
+                case 3:     return SDL_SCANCODE_DELETE;    // kDelete
+                case 4:     return SDL_SCANCODE_END;       // kEnd
+                case 5:     return SDL_SCANCODE_PAGEUP;    // kPageUp
+                case 6:     return SDL_SCANCODE_PAGEDOWN;  // kPageDown
+                case 7:     return SDL_SCANCODE_HOME;      // kHome
+                case 8:     return SDL_SCANCODE_END;       // kEnd
+#if 0
+                case 11:    return 0x3B;    // kF1
+                case 12:    return 0x3C;    // kF2
+                case 13:    return 0x3D;    // kF3
+                case 14:    return 0x3E;    // kF4
+                case 15:    return 0x3F;    // kF5
+                case 17:    return 0x40;    // kF6
+                case 18:    return 0x41;    // kF7
+                case 19:    return 0x42;    // kF8
+                case 20:    return 0x43;    // kF9
+                case 21:    return 0x44;    // kF10
+                case 23:    return 0x85;    // kF11
+                case 24:    return 0x86;    // kF12
+#endif
+                }
+            }
+        }
+    }
+    return 0;
+}
+
 /* msec timeout 0 to poll, timeout -1 to block */
 static uint64_t get_event_timeout(void *data, int timeout)
 {
@@ -544,24 +601,34 @@ static uint64_t get_event_timeout(void *data, int timeout)
     if (poll(fds, 2, timeout) >= 0) {
         memset(event, 0, sizeof(SDL_Event));
         if (fds[0].revents & POLLIN) {
-            unsigned char buf[1];
-            if (read(keybd_fd, buf, 1) == 1) {
-                int c = buf[0];
+            int c, n;
+            unsigned char buf[16];
+            if ((n = readansi(keybd_fd, buf, sizeof(buf))) > 0) {
+                if (n > 1) {
+                    c = ansi_to_scancode(buf, n);
+                    event->type = SDL_KEYDOWN;
+                    event->key.state = SDL_PRESSED;
+                    event->key.keysym.scancode = c;
+                    event->key.keysym.sym = (1 << 30) | c;
+                    return 1;
+                } else {
+                    c = buf[0];
 #if DEBUG
-                if (c == 033) exit(0);      /* exit on ESC! */
+                    if (c == 033) exit(0);      /* exit on ESC! */
 #endif
-                if (c == 0x7F) c = '\b';
-                if (c == '\r') c = '\n';
-                event->type = SDL_KEYDOWN;
-                event->key.state = SDL_PRESSED;
-                if (c <= ' ' & c != '\n' && c != '\b' && c != '\t') {
-                    event->key.keysym.mod = KMOD_CTRL;
-                    c += 'a' - 1;
+                    if (c == 0x7F) c = '\b';
+                    if (c == '\r') c = '\n';
+                    event->type = SDL_KEYDOWN;
+                    event->key.state = SDL_PRESSED;
+                    if (c <= ' ' & c != '\n' && c != '\b' && c != '\t') {
+                        event->key.keysym.mod = KMOD_CTRL;
+                        c += 'a' - 1;
+                    }
+                    event->key.keysym.sym = c;
+                    int scancode = ascii_to_scan_code_table[c & 0x7f];
+                    event->key.keysym.scancode = scancode & 127;
+                    if (scancode & 0x80) event->key.keysym.mod |= KMOD_SHIFT;
                 }
-                event->key.keysym.sym = c;
-                int scancode = ascii_to_scan_code_table[c & 0x7f];
-                event->key.keysym.scancode = scancode & 127;
-                if (scancode & 0x80) event->key.keysym.mod |= KMOD_SHIFT;
                 return 1;
             }
         }
@@ -772,8 +839,13 @@ static int open_framebuffer(void)
             break;
         }
     }
-    printf("%dx%dx%dbpp pitch %d type %d visual %d pixtype %d\n",
-            fb.width, fb.height, fb.bpp, fb.pitch, type, visual, fb.pixtype);
+    printf("%dx%dx%dbpp (a%d:%d, r%d:%d, g%d:%d, b%d:%d) ", fb.width, fb.height, fb.bpp,
+            fb_var.transp.offset, fb_var.transp.length,
+            fb_var.red.offset, fb_var.red.length,
+            fb_var.green.offset, fb_var.green.length,
+            fb_var.blue.offset, fb_var.blue.length);
+    printf("pitch %d type %d visual %d pixtype %d\n",
+            fb.pitch, type, visual, fb.pixtype);
 
     if (fb.pixtype <= PF_UNKNOWN) {
         printf("Unsupported framebuffer type\n");
@@ -920,7 +992,7 @@ static int open_keyboard(void)
     new.c_iflag &= ~(ICRNL | INPCK | ISTRIP | IXON | BRKINT);
     new.c_cflag &= ~(CSIZE | PARENB);
     new.c_cflag |= CS8;
-    new.c_cc[VMIN] = 0;
+    new.c_cc[VMIN] = 1;
     new.c_cc[VTIME] = 0;
     tcsetattr(keybd_fd, TCSAFLUSH, &new);
     return keybd_fd;
@@ -933,6 +1005,139 @@ static void close_keyboard(void)
         close(keybd_fd);
     }
     keybd_fd = -1;
+}
+
+/*═════════════════════════════════════════════════════════════════════════════╡
+│ Copyright 2022 Justine Alexandra Roberts Tunney                              │
+│                                                                              │
+│ Permission to use, copy, modify, and/or distribute this software for         │
+│ any purpose with or without fee is hereby granted, provided that the         │
+│ above copyright notice and this permission notice appear in all copies.      │
+│                                                                              │
+│ THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL                │
+│ WARRANTIES WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED                │
+│ WARRANTIES OF MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE             │
+│ AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL         │
+│ DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR        │
+│ PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER               │
+│ TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR             │
+│ PERFORMANCE OF THIS SOFTWARE.                                                │
+╚─────────────────────────────────────────────────────────────────────────────*/
+#define ThomPikeCont(x)     (((x)&0300) == 0200)
+#define ThomPikeByte(x)     ((x) & (((1 << ThomPikeMsb(x)) - 1) | 3))
+#define ThomPikeLen(x)      (7 - ThomPikeMsb(x))
+#define ThomPikeMsb(x)      (((x)&0xff) < 252 ? bsr(~(x)&0xff) : 1)
+#define ThomPikeMerge(x, y) ((x) << 6 | ((y)&077))
+
+#if defined(__GNUC__)
+#define bsr(x)  ((x)? (__builtin_clz(x) ^ ((sizeof(int) * 8) -1)): 0)
+#else
+int bsr(int n)
+{
+    if (n == 0) return 0;   /* avoid incorrect result of 31 returned! */
+    return (__builtin_clz(n) ^ ((sizeof(int) * 8) - 1));
+}
+#endif
+
+static ssize_t readansi(int fd, char *buf, size_t size)
+{
+  uint8_t c;
+  int rc, i, j;
+  enum { kAscii, kUtf8, kEsc, kCsi, kSs } t;
+  if (size) buf[0] = 0;
+  for (j = i = 0, t = kAscii;;) {
+    if (i + 2 >= size) {
+      errno = ENOMEM;
+      return -1;
+    }
+    if ((rc = read(fd, &c, 1)) != 1) {
+      if (rc == -1 && errno == EINTR && i) {
+        continue;
+      }
+      /* linux kernel will return EAGAIN after lone ESC typed */
+      if (rc == -1 && errno == EAGAIN) {
+          return i;
+      }
+      return rc;
+    }
+    buf[i++] = c;
+    buf[i] = 0;
+    switch (t) {
+      case kAscii:
+        if (c < 0200) {
+          if (c == 033) {
+            t = kEsc;
+          } else {
+            return i;
+          }
+        } else if (c >= 0300) {
+          t = kUtf8;
+          j = ThomPikeLen(c) - 1;
+        }
+        break;
+      case kUtf8:
+        /*if (!--j) return i;*/
+        if (!--j) return 0;     /* discard UTF-8 for now */
+        break;
+      case kEsc:
+        switch (c) {
+          case '[':
+            t = kCsi;
+            break;
+          case 'N':
+          case 'O':
+            t = kSs;
+            break;
+          case 0x20:
+          case 0x21:
+          case 0x22:
+          case 0x23:
+          case 0x24:
+          case 0x25:
+          case 0x26:
+          case 0x27:
+          case 0x28:
+          case 0x29:
+          case 0x2A:
+          case 0x2B:
+          case 0x2C:
+          case 0x2D:
+          case 0x2E:
+          case 0x2F:
+            break;
+          default:
+            return i;
+        }
+        break;
+      case kCsi:
+        switch (c) {
+          case ':':
+          case ';':
+          case '<':
+          case '=':
+          case '>':
+          case '?':
+          case '0':
+          case '1':
+          case '2':
+          case '3':
+          case '4':
+          case '5':
+          case '6':
+          case '7':
+          case '8':
+          case '9':
+            break;
+          default:
+            return i;
+        }
+        break;
+      case kSs:
+        return i;
+      default:
+        __builtin_unreachable();
+    }
+  }
 }
 #endif /* _HOST_GUI == 1 */
 #endif /* defined(_HOST_GUI) */
