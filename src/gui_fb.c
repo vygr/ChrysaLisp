@@ -42,22 +42,22 @@
 typedef uint32_t pixel_t;       /* fixed ARGB8888 for now */
 
 typedef struct rect {
-    int x, y;
-    int w, h;
+    int32_t x, y;
+    int32_t w, h;
 } Rect;
 
 typedef struct drawable {
-    int pixtype;                /* pixel format */
-    int bpp;                    /* bits per pixel */
-    int bytespp;                /* bytes per pixel */
-    int width;                  /* width in pixels */
-    int height;                 /* height in pixels */
-    int pitch;                  /* stride in bytes, offset to next pixel row */
-    int size;                   /* total size in bytes */
-    unsigned char *pixels;      /* pixel data */
+    int32_t pixtype;            /* pixel format */
+    int32_t bpp;                /* bits per pixel */
+    int32_t bytespp;            /* bytes per pixel */
+    int32_t width;              /* width in pixels */
+    int32_t height;             /* height in pixels */
+    int32_t pitch;              /* stride in bytes, offset to next pixel row */
+    int32_t size;               /* total size in bytes */
+    uint8_t *pixels;            /* pixel data */
     uint32_t r, g, b;           /* premul colors to use for color mod blit */
     uint32_t color;             /* combined premul colors or 0x00fffff for source blend */
-    uint8_t data[];             /* texture data allocated in single malloc */
+    pixel_t data[];             /* texture data allocated in single malloc */
 } Drawable, Texture;
 
 static struct termios orig;
@@ -206,7 +206,7 @@ Texture *host_gui_create_texture(void *data, uint64_t width, uint64_t height, ui
     t->height = height;
     t->pitch = pitch;
     t->size = size;
-    t->pixels = t->data;
+    t->pixels = (uint8_t *)t->data;
     t->r = t->g = t->b = 0xff;
     t->color = 0xffffff;
     memcpy(t->pixels, data, t->size);
