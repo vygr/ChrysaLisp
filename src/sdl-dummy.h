@@ -10,7 +10,16 @@ typedef int32_t         Sint32;
 typedef struct keysym   SDL_Keysym;
 typedef Sint32          SDL_Keycode;
 enum scancode {
-    SDL_SCANCODE_UNKNOWN = 0
+    SDL_SCANCODE_INSERT = 73,
+    SDL_SCANCODE_HOME = 74,
+    SDL_SCANCODE_PAGEUP = 75,
+    SDL_SCANCODE_DELETE = 76,
+    SDL_SCANCODE_END = 77,
+    SDL_SCANCODE_PAGEDOWN = 78,
+    SDL_SCANCODE_RIGHT = 79,
+    SDL_SCANCODE_LEFT = 80,
+    SDL_SCANCODE_DOWN = 81,
+    SDL_SCANCODE_UP = 82,
 };
 typedef enum scancode   SDL_Scancode;
 
