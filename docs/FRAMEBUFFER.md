@@ -5,12 +5,12 @@
 ChrysaLisp now runs on 64-bit ARM-based Raspberry Pi systems. In order to get
 started, if you're not already running on their 64-bit Linux (known as
 Bullseye), you'll first need to download the Raspberry Pi system imager from:
-https://www.raspberrypi.com/software/
+`https://www.raspberrypi.com/software/`
 
 Running the imager will let you select an operating system, storage device and
 target microSD storage card to write to. To install the required 64-bit Linux,
 hit "Choose OS", then "Raspberry Pi OS (other", then "Raspberry Pi OS
-(64-bit)". Click on the Settings icon in the lower right and select "pi.local"
+(64-bit))". Click on the Settings icon in the lower right and select "pi.local"
 for the hostname, Enable SSH, login username/password and your wireless LAN
 SSID and password.
 
@@ -41,7 +41,7 @@ sudo raspi-config
 
 The next step is setting up the framebuffer device to use 32bpp (bits per
 pixel) ARGB. This will result in higher quality graphics. To do this, edit the
-/boot/config.txt file using:
+`/boot/config.txt` file using:
 
 ```code
 sudo vi /boot/config.txt
@@ -49,15 +49,19 @@ sudo vi /boot/config.txt
 
 Find the following line, and comment out the statement by adding a '#' as the
 first character. This removes the default framebuffer driver, which defaults to
-RGB565. (Note, ChrysaLisp will run fine on RGB565 if you want to): ```code
-#dtoverlay=vc4-fkms-v3d <--- add '# at line start for 32bpp ``` Type ":wq" to
-save.
+RGB565. (Note, ChrysaLisp will run fine on RGB565 if you want to):
+
+```code
+#dtoverlay=vc4-fkms-v3d  <--- add '# at line start for 32bpp
+```
+
+Type ":wq" to save.
 
 The program `fbset` can be used (after rebooting) to see what the current
 framebuffer format is.
 
-By default, Linux doesn't allow opening /dev/fb0 (the framebuffer), nor the
-default terminal (/dev/tty), or the mouse (/dev/input/mice) unless the device
+By default, Linux doesn't allow opening `/dev/fb0` (the framebuffer), nor the
+default terminal `/dev/tty`, or the mouse `/dev/input/mice` unless the device
 file is allowed to with group or other permissions. To change that, run the
 following, presuming you're logged in as 'user1':
 
@@ -79,7 +83,7 @@ everything ready to go for running ChrysaLisp.
 
 ### Building ChrysaLisp on PI
 
-To pull down the source and build ChyrsaLisp, use the following:
+To pull down the source and build ChrysaLisp, use the following:
 
 ```code
 git clone https://github.com/vygr/ChrysaLips.git
