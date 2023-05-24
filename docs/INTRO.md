@@ -35,13 +35,13 @@ sudo apt-get install libsdl2-dev
 
 ### Windows 64bit
 
-Unzip the snapshot.zip file with your favourite Zip application. With 7Zip just
+Unzip the snapshot.zip file with your favorite Zip application. With 7Zip just
 right click on the snapshot.zip file and choose 'Extract Here'.
 
 Download and install the SDL frameworks from:
 https://www.libsdl.org/download-2.0.php
 
-Get the development versions for both frameworks and unzip them somwhere. Copy
+Get the development versions for both frameworks and unzip them somewhere. Copy
 the .dll files from the lib folders into your ChrysaLisp folder.
 
 SDL2.dll
