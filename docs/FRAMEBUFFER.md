@@ -25,7 +25,7 @@ Linux.
 After the first boot, the Pi will come up running a graphical X11 desktop.
 You'll want to turn this off by clicking on the Pi logo in the top left, then
 selecting Preferences->Raspberry Pi Configuration. Then select System->"Boot:
-to CLI", OK. You might want to change your display to 1920x10280, this can be
+to CLI", OK. You might want to change your display to 1920x1280, this can be
 done by Selecting Display->Headless Resolution.
 
 After rebooting using Pi->Shutdown->Reboot, the system should come up in a
