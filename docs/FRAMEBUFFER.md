@@ -66,8 +66,8 @@ file is allowed to with group or other permissions. To change that, run the
 following, presuming you're logged in as 'user1':
 
 ```code
-usermod -a -G video user1
-usermod -a -G input user1
+sudo usermod -a -G video user1
+sudo usermod -a -G input user1
 sudo chmod 666 /dev/tty
 ```
 
