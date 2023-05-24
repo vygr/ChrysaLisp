@@ -86,7 +86,9 @@ everything ready to go for running ChrysaLisp.
 To pull down the source and build ChrysaLisp, use the following:
 
 ```code
-git clone https://github.com/vygr/ChrysaLips.git
+sudo apt install git
+git clone https://github.com/vygr/ChrysaLisp.git
+cd ChrysaLisp/
 make GUI=fb install
 sudo apt install vim    (not needed, but nice to have full vi editor)
 ```
