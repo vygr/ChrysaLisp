@@ -17,7 +17,7 @@ SSID and password.
 This will write the target microSD storage card with the specified settings
 which can then be used to boot 64-bit Bullseye Linux on the PI.
 
-NOTE: ChyrsaLisp *requires* a 64-bit OS, and currently won't run on 32-bit
+NOTE: ChrysaLisp *requires* a 64-bit OS, and currently won't run on 32-bit
 Linux.
 
 ### Setting up the Pi system after bootup
@@ -49,7 +49,7 @@ sudo vi /boot/config.txt
 
 Find the following line, and comment out the statement by adding a '#' as the
 first character. This removes the default framebuffer driver, which defaults to
-RGB565. (Note, ChyrsaLisp will run fine on RGB565 if you want to): ```code
+RGB565. (Note, ChrysaLisp will run fine on RGB565 if you want to): ```code
 #dtoverlay=vc4-fkms-v3d <--- add '# at line start for 32bpp ``` Type ":wq" to
 save.
 
@@ -77,7 +77,7 @@ sudo systemctl disable gpm
 Then reboot using `reboot`. The system should come up in text mode with
 everything ready to go for running ChrysaLisp.
 
-### Building ChyrsaLisp on PI
+### Building ChrysaLisp on PI
 
 To pull down the source and build ChyrsaLisp, use the following:
 
@@ -89,7 +89,7 @@ sudo apt install vim    (not needed, but nice to have full vi editor)
 
 ### Running ChrysaLisp on framebuffer after setup
 
-To run ChyrsaLisp from the text console, use:
+To run ChrysaLisp from the text console, use:
 
 ```code
 ./run.sh
