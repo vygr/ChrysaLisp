@@ -44,7 +44,7 @@ pixel) ARGB. This will result in higher quality graphics. To do this, edit the
 `/boot/config.txt` file using:
 
 ```code
-sudo vi /boot/config.txt
+sudo nano /boot/config.txt
 ```
 
 Find the following line, and comment out the statement by adding a '#' as the
@@ -54,8 +54,6 @@ RGB565. (Note, ChrysaLisp will run fine on RGB565 if you want to):
 ```code
 #dtoverlay=vc4-fkms-v3d  <--- add '# at line start for 32bpp
 ```
-
-Type ":wq" to save.
 
 The program `fbset` can be used (after rebooting) to see what the current
 framebuffer format is.
@@ -68,6 +66,7 @@ following, presuming you're logged in as 'user1':
 ```code
 sudo usermod -a -G video user1
 sudo usermod -a -G input user1
+sudo usermod -a -G tty user1
 sudo chmod 666 /dev/tty
 ```
 
@@ -90,7 +89,6 @@ sudo apt install git
 git clone https://github.com/vygr/ChrysaLisp.git
 cd ChrysaLisp/
 make GUI=fb install
-sudo apt install vim    (not needed, but nice to have full vi editor)
 ```
 
 ### Running ChrysaLisp on framebuffer after setup
