@@ -22,7 +22,7 @@ Linux.
 
 ### Setting up the Pi system after bootup
 
-After the first boot, the Pi will come up running a graphical X11 desktop.
+After the first boot, the Pi may come up running a graphical X11 desktop.
 You'll want to turn this off by clicking on the Pi logo in the top left, then
 selecting Preferences->Raspberry Pi Configuration. Then select System->"Boot:
 to CLI", OK. You might want to change your display to 1920x1280, this can be
@@ -39,7 +39,7 @@ mode on boot, if wanted:
 sudo raspi-config
 ```
 
-The next step is setting up the framebuffer device to use 32bpp (bits per
+The next step is setting up the FRAMEBUFFER device to use 32bpp (bits per
 pixel) ARGB. This will result in higher quality graphics. To do this, edit the
 `/boot/config.txt` file using:
 
@@ -48,7 +48,7 @@ sudo nano /boot/config.txt
 ```
 
 Find the following line, and comment out the statement by adding a '#' as the
-first character. This removes the default framebuffer driver, which defaults to
+first character. This removes the default FRAMEBUFFER driver, which defaults to
 RGB565. (Note, ChrysaLisp will run fine on RGB565 if you want to):
 
 ```code
@@ -56,12 +56,12 @@ RGB565. (Note, ChrysaLisp will run fine on RGB565 if you want to):
 ```
 
 The program `fbset` can be used (after rebooting) to see what the current
-framebuffer format is.
+FRAMEBUFFER format is.
 
-By default, Linux doesn't allow opening `/dev/fb0` (the framebuffer), nor the
-default terminal `/dev/tty`, or the mouse `/dev/input/mice` unless the device
-file is allowed to with group or other permissions. To change that, run the
-following, presuming you're logged in as 'user1':
+By default, Linux doesn't allow opening `/dev/fb0` (the FRAMEBUFFER), nor the
+default terminal `/dev/tty` (the CONSOLE), or the mouse `/dev/input/mice`
+unless the device file is allowed to with group or other permissions. To change
+that, run the following, presuming you're logged in as 'user1':
 
 ```code
 sudo usermod -a -G video user1
@@ -91,7 +91,7 @@ cd ChrysaLisp/
 make GUI=fb install
 ```
 
-### Running ChrysaLisp on framebuffer after setup
+### Running ChrysaLisp on FRAMEBUFFER after setup
 
 To run ChrysaLisp from the text console, use:
 
