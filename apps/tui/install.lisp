@@ -6,7 +6,7 @@
 (print "Please wait...")
 (print)
 (while (< (length (mail-nodes)) 5) (task-sleep 100000))
-(pipe-run "make all boot" (lambda (_)
+(pipe-run "make all boot | time" (lambda (_)
 	(while (> (length _) 0)
 		(cond
 			((> (length _) 80)
