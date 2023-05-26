@@ -598,7 +598,7 @@ static uint64_t get_event_timeout(void *data, int timeout)
     fds[0].events = POLLIN;
     fds[1].fd = mouse_fd;
     fds[1].events = POLLIN;
-    if (poll(fds, 2, timeout) >= 0) {
+    if (poll(fds, 2, timeout) > 0) {
         memset(event, 0, sizeof(SDL_Event));
         if (fds[0].revents & POLLIN) {
             int c, n;
