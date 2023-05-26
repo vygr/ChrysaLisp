@@ -694,27 +694,22 @@ static uint64_t get_event_timeout(void *data, int timeout)
 
 uint64_t host_gui_poll_event(SDL_Event *event)
 {
-    static SDL_Event ev;
-    static int saved = 0;
+    static SDL_Event ev; /* ev.type inited to 0 ! */
 
-    if (event == NULL) {
+    if (event == NULL)
+	{
         /* only indicate whether event found, don't dequeue */
-        if (!saved)
-            get_event_timeout(&ev, 0);
-        if (ev.type != 0) {
-            saved = 1;
-            return ev.type;
-        }
-        return 0;
+        if (!ev.type) get_event_timeout(&ev, 0);
+		return ev.type;
     }
 
-    /* alwaus deqeue if event found */
-    if (saved) {
+    /* always deqeue if event found */
+    if (ev.type)
+	{
         *event = ev;
-        saved = 0;
-    } else {
-        get_event_timeout(event, 0);
+        ev.type = 0;
     }
+	else get_event_timeout(event, 0);
     return event->type;
 }
 
