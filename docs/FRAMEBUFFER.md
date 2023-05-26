@@ -9,8 +9,9 @@ Bullseye), you'll first need to download the Raspberry Pi system imager from:
 
 Running the imager will let you select an operating system, storage device and
 target microSD storage card to write to. To install the required 64-bit Linux,
-hit "Choose OS", then "Raspberry Pi OS (other", then "Raspberry Pi OS
-(64-bit))". Click on the Settings icon in the lower right and select "pi.local"
+hit "Choose OS", then "Raspberry Pi OS (other)", then "Raspberry Pi OS (64-bit)"
+or "Raspberry Pi OS Lite (64-bit)" .
+Click on the Settings icon in the lower right and select "pi.local"
 for the hostname, Enable SSH, login username/password and your wireless LAN
 SSID and password.
 
@@ -96,7 +97,7 @@ make GUI=fb install
 To run ChrysaLisp from the text console, use:
 
 ```code
-./run.sh
+./run_fb.sh
 ```
 
 If all the permissions are right, you should see a graphical screen and can

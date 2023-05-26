@@ -598,7 +598,7 @@ static uint64_t get_event_timeout(void *data, int timeout)
     fds[0].events = POLLIN;
     fds[1].fd = mouse_fd;
     fds[1].events = POLLIN;
-    if (poll(fds, 2, timeout) >= 0) {
+    if (poll(fds, 2, timeout) > 0) {
         memset(event, 0, sizeof(SDL_Event));
         if (fds[0].revents & POLLIN) {
             int c, n;
@@ -620,7 +620,7 @@ static uint64_t get_event_timeout(void *data, int timeout)
                     if (c == '\r') c = '\n';
                     event->type = SDL_KEYDOWN;
                     event->key.state = SDL_PRESSED;
-                    if (c <= ' ' & c != '\n' && c != '\b' && c != '\t') {
+                    if (c < ' ' & c != '\n' && c != '\b' && c != '\t') {
                         event->key.keysym.mod = KMOD_CTRL;
                         c += 'a' - 1;
                     }
@@ -703,7 +703,7 @@ uint64_t host_gui_poll_event(SDL_Event *event)
             get_event_timeout(&ev, 0);
         if (ev.type != 0) {
             saved = 1;
-            return 1;
+            return ev.type;
         }
         return 0;
     }
@@ -715,7 +715,7 @@ uint64_t host_gui_poll_event(SDL_Event *event)
     } else {
         get_event_timeout(event, 0);
     }
-    return event->type != 0;
+    return event->type;
 }
 
 uint64_t host_gui_init(Rect *r)
@@ -992,7 +992,7 @@ static int open_keyboard(void)
     new.c_iflag &= ~(ICRNL | INPCK | ISTRIP | IXON | BRKINT);
     new.c_cflag &= ~(CSIZE | PARENB);
     new.c_cflag |= CS8;
-    new.c_cc[VMIN] = 1;
+    new.c_cc[VMIN] = 1;     /* =1 required for lone ESC key processing */
     new.c_cc[VTIME] = 0;
     tcsetattr(keybd_fd, TCSAFLUSH, &new);
     return keybd_fd;
