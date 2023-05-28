@@ -43,6 +43,9 @@
 		(bind '(hx hy) (case mouse_type (0 '(0 0)) (12 '(6 0)) (:t '(8 8))))
 		(. *mouse* :change_dirty (- *mouse_x* hx) (- *mouse_y* hy) w w)))
 
+(defun dispatch (msg type)
+	(and (defq action (. event_map :find type)) (action)))
+
 (defun main ()
 	;declare service
 	(defq select (alloc-select +select_size)
@@ -90,9 +93,18 @@
 					;timer event
 					(mail-timeout (elem-get +select_timer select) rate 0)
 					(gui-update *mouse_x* *mouse_y* 0)
+					;dispatch events, roll up mouse motion
+					(defq last_motion :nil)
 					(while (defq msg (gui-event))
-						(if (defq action (. event_map :find (getf msg +sdl_common_event_type)))
-							(action)))
+						(cond
+							((= (defq type (getf msg +sdl_common_event_type)) +SDL_MOUSEMOTION)
+								(setq last_motion msg))
+							(:t (when last_motion
+									(dispatch last_motion +SDL_MOUSEMOTION)
+									(setq last_motion :nil))
+								(dispatch msg type))))
+					(when last_motion
+						(dispatch last_motion +SDL_MOUSEMOTION))
 					;remove orphans
 					(each (# (unless (and (defq owner (. %0 :find_owner)) (mail-validate owner))
 							(.-> %0 :hide :sub))) (. *screen* :children))))))
