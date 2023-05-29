@@ -14,7 +14,7 @@ then
 		links=""
 		add_link $cpu 0
 		links_to_0+="$links"
-		boot_cpu_gui $cpu $emu "$links"
+		boot_cpu_gui $cpu $emu "$links" $front
 	done
-	boot_cpu_gui $cpu $emu "$links_to_0"
+	boot_cpu_gui $cpu $emu "$links_to_0" $front
 fi

@@ -24,7 +24,7 @@ then
 				wrap $lcpu_x
 				add_link $cpu $(($cpu_y*$num_cpu + $wp))
 			done
-			boot_cpu_gui $cpu $emu "$links"
+			boot_cpu_gui $cpu $emu "$links" $front
 		done
 	done
 fi

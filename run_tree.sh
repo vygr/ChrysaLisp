@@ -27,6 +27,6 @@ then
 			add_link $cpu $lcpu
 		fi
 
-		boot_cpu_gui $cpu $emu "$links"
+		boot_cpu_gui $cpu $emu "$links" $front
 	done
 fi

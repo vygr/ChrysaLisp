@@ -50,9 +50,15 @@ function wrap
 
 function boot_cpu_gui
 {
+	echo $1 $2 $3 $4
 	if [ $1 -lt 1 ]
 	then
-		./obj/$CPU/$ABI/$OS/main_gui obj/$CPU/$ABI/sys/boot_image $2 $3 -run gui/gui/gui.lisp &
+		if [ "$4" == "" ]
+		then
+			./obj/$CPU/$ABI/$OS/main_gui obj/$CPU/$ABI/sys/boot_image $2 $3 -run gui/gui/gui.lisp &
+		else
+			./obj/$CPU/$ABI/$OS/main_gui obj/$CPU/$ABI/sys/boot_image $2 $3 -run gui/gui/gui.lisp
+		fi
 	else
 		./obj/$CPU/$ABI/$OS/main_gui obj/$CPU/$ABI/sys/boot_image $2 $3 &
 	fi
@@ -75,6 +81,7 @@ function main
 	shift 2
 	base_cpu=0
 	emu=""
+	front=""
 	script="apps/tui/tui.lisp"
 	while [ "$#" -gt 0 ]; do
 	case $1 in
@@ -84,6 +91,10 @@ function main
 			;;
 		-e)
 			emu=$1;
+			shift
+			;;
+		-f)
+			front=$1;
 			shift
 			;;
 		-n)
@@ -97,6 +108,7 @@ function main
 		*)	echo "[-n cnt] number of nodes"
 			echo "[-b base] base offset"
 			echo "[-e] emulator mode"
+			echo "[-f] foreground mode"
 			echo "[-h] help"
 			num_cpu=0
 			break
