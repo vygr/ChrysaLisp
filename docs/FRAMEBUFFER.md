@@ -97,7 +97,7 @@ make GUI=fb install
 To run ChrysaLisp from the text console, use:
 
 ```code
-./run_fb.sh
+./run.sh -f
 ```
 
 If all the permissions are right, you should see a graphical screen and can
