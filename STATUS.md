@@ -19,6 +19,12 @@ Raspberry Pi3 is actually a seriously fast device ! Folks seams to forget this
 as the world moved on with layers and layers of software (pun definitely
 intended).
 
+`-f` option added to the run scripts to launch GUI task in the foreground. This
+is for Frame buffer mode so that the TTY driver goes to the GUI event
+processing. So for Pi4 Frame buffer mode I'd recommend `./run.sh -f`. For now
+the ESC key will exit back to the shell immediately ! This will be improved
+shortly.
+
 ------
 
 Fix to make VP and C-Script optimizers immune to prebinder policy with regards
