@@ -15,6 +15,6 @@ then
 		do
 			add_link $cpu $lcpu
 		done
-		boot_cpu_tui $cpu $emu "$links"
+		boot_cpu_tui $cpu "$links"
 	done
 fi

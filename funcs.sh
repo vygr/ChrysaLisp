@@ -50,17 +50,16 @@ function wrap
 
 function boot_cpu_gui
 {
-	echo $1 $2 $3 $4
 	if [ $1 -lt 1 ]
 	then
-		if [ "$4" == "" ]
+		if [ "$front" == "" ]
 		then
-			./obj/$CPU/$ABI/$OS/main_gui obj/$CPU/$ABI/sys/boot_image $2 $3 -run gui/gui/gui.lisp &
+			./obj/$CPU/$ABI/$OS/main_gui obj/$CPU/$ABI/sys/boot_image $2 $emu -run gui/gui/gui.lisp &
 		else
-			./obj/$CPU/$ABI/$OS/main_gui obj/$CPU/$ABI/sys/boot_image $2 $3 -run gui/gui/gui.lisp
+			./obj/$CPU/$ABI/$OS/main_gui obj/$CPU/$ABI/sys/boot_image $2 $emu -run gui/gui/gui.lisp
 		fi
 	else
-		./obj/$CPU/$ABI/$OS/main_gui obj/$CPU/$ABI/sys/boot_image $2 $3 &
+		./obj/$CPU/$ABI/$OS/main_gui obj/$CPU/$ABI/sys/boot_image $2 $emu &
 	fi
 }
 
@@ -68,9 +67,9 @@ function boot_cpu_tui
 {
 	if [ $1 -lt 1 ]
 	then
-		./obj/$CPU/$ABI/$OS/main_tui obj/$CPU/$ABI/sys/boot_image $2 $3 -run $script
+		./obj/$CPU/$ABI/$OS/main_tui obj/$CPU/$ABI/sys/boot_image $2 $emu -run $script
 	else
-		./obj/$CPU/$ABI/$OS/main_tui obj/$CPU/$ABI/sys/boot_image $2 $3 &
+		./obj/$CPU/$ABI/$OS/main_tui obj/$CPU/$ABI/sys/boot_image $2 $emu &
 	fi
 }
 
