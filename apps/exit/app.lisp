@@ -7,7 +7,10 @@
 
 (ui-window *window* ()
 	(ui-title-bar _ "Exit" () ())
-	(ui-label _ (:text "Do you wish to exit !" :color +argb_white))
+	(ui-label _ (:text (num-to-utf8 0xea47) :color +argb_white
+		:font *env_warning_font*
+		:flow_flags (logior +flow_flag_align_vcenter +flow_flag_align_hcenter)))
+	(ui-label _ (:text "Do you wish to exit" :color +argb_white))
 	(ui-grid _ (:grid_height 1)
 		(ui-buttons ("Cancel" "Confirm") +event_close)))
 
