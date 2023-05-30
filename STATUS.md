@@ -5,9 +5,9 @@
 ------
 
 New GUI exit app available from the Launcher and from the SDL Window close
-button. This will run the `apps/exit.lisp` application and if the user confirms
-the wish to exit the system then an RPC call to the GUI service will be made to
-exit the GUI.
+button. This will run the `apps/exit/app.lisp` application and if the user
+confirms the wish to exit the system then an RPC call to the GUI service will
+be made to exit the GUI.
 
 Currently when the `host_gui_deinit` call is made this will also call `exit(0)`
 ! This is a temporary stop gap while things catch up. This is however VERY
