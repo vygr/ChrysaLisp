@@ -56,7 +56,10 @@ function boot_cpu_gui
 		then
 			./obj/$CPU/$ABI/$OS/main_gui obj/$CPU/$ABI/sys/boot_image $2 $emu -run gui/gui/gui.lisp &
 		else
-			./obj/$CPU/$ABI/$OS/main_gui obj/$CPU/$ABI/sys/boot_image $2 $emu -run gui/gui/gui.lisp
+			{
+				./obj/$CPU/$ABI/$OS/main_gui obj/$CPU/$ABI/sys/boot_image $2 $emu -run gui/gui/gui.lisp
+				./stop.sh
+			} &> /dev/null
 		fi
 	else
 		./obj/$CPU/$ABI/$OS/main_gui obj/$CPU/$ABI/sys/boot_image $2 $emu &
