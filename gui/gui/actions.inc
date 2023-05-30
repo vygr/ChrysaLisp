@@ -123,7 +123,17 @@
 			(. *screen* :set_flags +view_flag_dirty_all +view_flag_dirty_all))))
 
 (defun action-quit ()
-	;:nil soon...
+	;send quit action to all GUI apps
+	;action 0 is reservered for close !
+	(each (lambda (child)
+		(when (defq mbox (. child :find_owner))
+			(defq source_id (. child :get_id))
+			(mail-send mbox (setf-> (str-alloc +ev_msg_action_size)
+				(+ev_msg_type +ev_type_action)
+				(+ev_msg_target_id 0)
+				(+ev_msg_action_source_id source_id)))))
+		(. *screen* :children))
+	;send GUI force quit event...
 	(setq *running* :t))
 
 (defq event_map (fmap-kv

@@ -8,6 +8,9 @@
 (import "class/lisp.inc")
 (import "gui/lisp.inc")
 
+(enums +event 0
+	(enum close))
+
 (defun app-path (_)
 	(cat "apps/" _ "/app.lisp"))
 
@@ -32,10 +35,13 @@
 	(each (lambda (_)
 		(open-child (app-path _) +kn_call_open)) *env_launcher_auto_apps*)
 	(refresh-wallpaper)
-	(while :t
+	(defq id :t)
+	(while id
+		(setq id (getf (defq msg (mail-read (task-mailbox))) +ev_msg_target_id))
 		(cond
-			((and (< (getf (defq msg (mail-read (task-mailbox))) +ev_msg_target_id) 0)
-					(= (getf msg +ev_msg_type) +ev_type_gui))
+			((= id +event_close)
+				(setq id :nil))
+			((and (< id 0) (= (getf msg +ev_msg_type) +ev_type_gui))
 				;resized GUI
 				(refresh-wallpaper))
 			((= (getf msg +ev_msg_type) +ev_type_mouse)

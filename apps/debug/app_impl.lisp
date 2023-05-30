@@ -3,10 +3,10 @@
 (import "./app.inc")
 
 (enums +event 0
+	(enum close)
 	(enum hvalue)
 	(enum play pause step clear)
-	(enum play_all pause_all step_all clear_all)
-	(enum close))
+	(enum play_all pause_all step_all clear_all))
 
 (enums +debug_rec 0
 	(enum buf state reply_id))

@@ -4,7 +4,7 @@
 (import "gui/lisp.inc")
 
 (enums +event 0
-	(enum login create))
+	(enum close login create))
 
 (ui-window *window* ()
 	(ui-title-bar _ "Login Manager" () ())
@@ -36,6 +36,9 @@
 			(= (getf msg +ev_msg_type) +ev_type_gui))
 			;resized GUI
 			(position-window))
+		((= id +event_close)
+			;app close
+			:nil)
 		((= id +event_login)
 			;login button
 			(cond
@@ -43,6 +46,7 @@
 					;login user
 					(save user "apps/login/current")
 					(open-child "apps/wallpaper/app.lisp" +kn_call_open)
+					(task-sleep 100000)
 					:nil)
 				(:t	:t)))
 		((= id +event_create)
@@ -55,6 +59,7 @@
 					;login new user
 					(save user "apps/login/current")
 					(open-child "apps/wallpaper/app.lisp" +kn_call_open)
+					(task-sleep 100000)
 					:nil)
 				(:t	:t)))
 		(:t (. *window* :event msg))))

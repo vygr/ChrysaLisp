@@ -107,7 +107,9 @@
 						(dispatch last_motion +SDL_MOUSEMOTION))
 					;remove orphans
 					(each (# (unless (and (defq owner (. %0 :find_owner)) (mail-validate owner))
-							(.-> %0 :hide :sub))) (. *screen* :children))))))
+							(.-> %0 :hide :sub))) (defq children (. *screen* :children)))
+					;quit if no apps
+					(if (<= (length children) 1) (setq *running* :nil))))))
+	(mail-forget service)
 	(free-select select)
-	(gui-deinit)
-	(mail-forget service))
+	(gui-deinit))
