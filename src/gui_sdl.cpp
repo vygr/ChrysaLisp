@@ -21,11 +21,12 @@ void host_gui_init(SDL_Rect *rect)
 	backbuffer = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_TARGET,
 				rect->w, rect->h);
 	SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
-	SDL_ShowCursor(0);
+	SDL_ShowCursor(SDL_DISABLE);
 }
 
 void host_gui_deinit()
 {
+	SDL_ShowCursor(SDL_ENABLE);
 	SDL_DestroyWindow(window);
 	SDL_Quit();
 }

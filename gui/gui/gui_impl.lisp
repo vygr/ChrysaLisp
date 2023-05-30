@@ -73,14 +73,25 @@
 					(bind '(cmd view owner reply) msg)
 					(cond
 						((= cmd 0)
+							;send quit action to all GUI apps
+							;action 0 is reservered for close !
+							(each (lambda (child)
+								(when (defq mbox (. child :find_owner))
+									(defq source_id (. child :get_id))
+									(mail-send mbox (setf-> (str-alloc +ev_msg_action_size)
+										(+ev_msg_type +ev_type_action)
+										(+ev_msg_target_id 0)
+										(+ev_msg_action_source_id source_id)))))
+								(. *screen* :children)))
+						((= cmd 1)
 							;hide and sub view
 							(.-> view :hide :sub))
-						((= cmd 1)
+						((= cmd 2)
 							;add view at front
 							(setf view +view_owner_id owner 0)
 							(. *screen* :add_back view)
 							(. view :to_front))
-						((= cmd 2)
+						((= cmd 3)
 							;add view at back
 							(setf view +view_owner_id owner 0)
 							(. *screen* :add_back view)

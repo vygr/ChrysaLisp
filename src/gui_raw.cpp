@@ -56,7 +56,7 @@ void host_gui_init(Rect *rect)
 				SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_TARGETTEXTURE);
 	SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 	SDL_SetRenderTarget(renderer, 0);
-	SDL_ShowCursor(0);
+	SDL_ShowCursor(SDL_DISABLE);
 
 	screen = (pixel_t *)malloc(SCREEN_HEIGHT * SCREEN_STRIDE);
 	backbuffer = (pixel_t *)malloc(SCREEN_HEIGHT * SCREEN_STRIDE);
@@ -69,6 +69,7 @@ void host_gui_deinit()
 	free(screen);
 	free(backbuffer);
 
+	SDL_ShowCursor(SDL_ENABLE);
 	SDL_DestroyWindow(window);
 	SDL_Quit();
 }

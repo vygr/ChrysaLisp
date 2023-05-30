@@ -56,6 +56,7 @@
 		(mail-free-mbox mbox)
 		view))
 
-(defmacro gui-sub (view) `(gui-rpc ,view 0))
-(defmacro gui-add-front (view) `(gui-rpc ,view 1))
-(defmacro gui-add-back (view) `(gui-rpc ,view 2))
+(defmacro gui-exit () `(gui-rpc :nil 0))
+(defmacro gui-sub (view) `(gui-rpc ,view 1))
+(defmacro gui-add-front (view) `(gui-rpc ,view 2))
+(defmacro gui-add-back (view) `(gui-rpc ,view 3))

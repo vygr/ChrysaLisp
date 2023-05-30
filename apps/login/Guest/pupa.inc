@@ -17,7 +17,8 @@
 	"canvas" "pcb"
 	"raymarch" "mandelbrot"
 	"chess" "minefield"
-	"mesh" "template")
+	"mesh" "template"
+	"exit")
 	*env_launcher_auto_apps* '("terminal"))
 
 ;default gui window size/pos

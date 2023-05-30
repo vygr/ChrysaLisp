@@ -123,18 +123,8 @@
 			(. *screen* :set_flags +view_flag_dirty_all +view_flag_dirty_all))))
 
 (defun action-quit ()
-	;send quit action to all GUI apps
-	;action 0 is reservered for close !
-	(each (lambda (child)
-		(when (defq mbox (. child :find_owner))
-			(defq source_id (. child :get_id))
-			(mail-send mbox (setf-> (str-alloc +ev_msg_action_size)
-				(+ev_msg_type +ev_type_action)
-				(+ev_msg_target_id 0)
-				(+ev_msg_action_source_id source_id)))))
-		(. *screen* :children))
-	;send GUI force quit event...
-	(setq *running* :t))
+	;launch exit app
+	(open-child "apps/exit/app.lisp" +kn_call_open))
 
 (defq event_map (fmap-kv
 	+SDL_MOUSEWHEEL action-mouse-wheel
