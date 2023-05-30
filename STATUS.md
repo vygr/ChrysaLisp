@@ -4,6 +4,20 @@
 
 ------
 
+New GUI exit app available from the Launcher and from the SDL Window close
+button. This will run the `apps/exit.lisp` application and if the user confirms
+the wish to exit the system then an RPC call to the GUI service will be made to
+exit the GUI.
+
+Currently when the `host_gui_deinit` call is made this will also call `exit(0)`
+! This is a temporary stop gap while things catch up. This is however VERY
+convenient for those running full screen and in FRAMEBUFFER mode.
+
+Along with the exit app, the bash scripts will auto call `./stop.sh` if you are
+running the system with the `-f` option ! Another convenience.
+
+------
+
 First stage in new portable compositor API.
 
 `gui_sdl.cpp` file is now where the new host compositor via SDL lives.
