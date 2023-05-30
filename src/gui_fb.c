@@ -92,12 +92,14 @@ static void unassert_handler(char *msg, char *file, int line)
 {
     host_gui_deinit();
     printf("Assertion failed: %s at %s:%d\n", msg, file, line);
+	exit(255);
 }
 
 static void catch_signals(int signo)
 {
     host_gui_deinit();
     printf("SIGNAL %d\n", signo);
+	exit(1);
 }
 #else
 #define unassert(a)
