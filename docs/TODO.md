@@ -8,6 +8,9 @@ In no particular order but to just to ensure I get thoughts down. I'll keep
 adding to this as I go along. If anybody would like to try helping out, then
 just get in touch.
 
+* `pupa.inc` for Guest should always run prior to the user `pupa.inc` file to
+ensure defaults present for all env vars.
+
 * Forth that outputs words compiled to VP ops !!! I will do this just to honor
 Chuck !
 
