@@ -90,14 +90,14 @@ static void blit_srccopy_rgb565(Drawable *ts, const Rect *srect, Drawable *td, c
 /* exit graphics mode for error message */
 static void unassert_handler(char *msg, char *file, int line)
 {
-    printf("Assertion failed: %s at %s:%d\n", msg, file, line);
     host_gui_deinit();
+    printf("Assertion failed: %s at %s:%d\n", msg, file, line);
 }
 
 static void catch_signals(int signo)
 {
-    printf("SIGNAL %d\n", signo);
     host_gui_deinit();
+    printf("SIGNAL %d\n", signo);
 }
 #else
 #define unassert(a)
@@ -611,6 +611,9 @@ static uint64_t get_event_timeout(void *data, int timeout)
                     return 1;
                 } else {
                     c = buf[0];
+#if DEBUG
+                    if (c == 033) exit(0);      /* exit on ESC! */
+#endif
                     if (c == 0x7F) c = '\b';
                     if (c == '\r') c = '\n';
                     event->type = SDL_KEYDOWN;
@@ -734,6 +737,7 @@ uint64_t host_gui_init(Rect *r)
     unassert(bb.pixels);
     memset(bb.pixels, 0, bb.size);
 
+	atexit(host_gui_deinit);
 #if DEBUG
     signal(SIGHUP, catch_signals);
     signal(SIGABRT, catch_signals);
@@ -751,7 +755,6 @@ void host_gui_deinit(void)
         free(bb.pixels);
         bb.pixels = NULL;
     }
-    exit(0);
 }
 
 void (*host_gui_funcs[]) = {

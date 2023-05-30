@@ -7,6 +7,7 @@
 (include "class/str/class.inc")
 (include "class/lisp/class.inc")
 (include "sys/statics/class.inc")
+(include "sys/pii/class.inc")
 
 (def-method 'gui :lisp_init)
 	;inputs
@@ -79,6 +80,9 @@
 	(assign '((:rsp local_this)) '(:r0))
 	(assign '((:r0 lisp_sym_nil)) '(:r1))
 	(class/obj/ref :r1 :r2)
+
+	;pii exit ! for now
+	(call 'sys_pii :exit '(0))
 
 	(exit 'gui :lisp_deinit '(:r0 :r1))
 	(vp-free local_size)

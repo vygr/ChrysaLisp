@@ -29,7 +29,6 @@ void host_gui_deinit()
 	SDL_ShowCursor(SDL_ENABLE);
 	SDL_DestroyWindow(window);
 	SDL_Quit();
-    exit(0);
 }
 
 uint64_t host_gui_poll_event(SDL_Event *data)
