@@ -56,11 +56,15 @@ function boot_cpu_gui
 		then
 			./obj/$CPU/$ABI/$OS/main_gui obj/$CPU/$ABI/sys/boot_image $2 $emu -run gui/gui/gui.lisp &
 		else
-			{
-				./obj/$CPU/$ABI/$OS/main_gui obj/$CPU/$ABI/sys/boot_image $2 $emu -run gui/gui/gui.lisp
-				./stop.sh
-			} &> /dev/null
-			clear
+			./obj/$CPU/$ABI/$OS/main_gui obj/$CPU/$ABI/sys/boot_image $2 $emu -run gui/gui/gui.lisp
+			exitcode=$?
+			if [ $exitcode -eq 0 ]
+			then
+				{
+					./stop.sh
+				} &> /dev/null
+				clear
+			fi
 		fi
 	else
 		./obj/$CPU/$ABI/$OS/main_gui obj/$CPU/$ABI/sys/boot_image $2 $emu &

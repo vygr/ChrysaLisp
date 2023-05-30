@@ -612,7 +612,7 @@ static uint64_t get_event_timeout(void *data, int timeout)
                 } else {
                     c = buf[0];
 #if DEBUG
-                    if (c == 033) exit(0);      /* exit on ESC! */
+                    if (c == 033) exit(1);      /* exit on ESC! */
 #endif
                     if (c == 0x7F) c = '\b';
                     if (c == '\r') c = '\n';
