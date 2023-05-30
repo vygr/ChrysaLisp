@@ -72,6 +72,7 @@ void host_gui_deinit()
 	SDL_ShowCursor(SDL_ENABLE);
 	SDL_DestroyWindow(window);
 	SDL_Quit();
+    exit(0);
 }
 
 void host_gui_resize(uint64_t w, uint64_t h)
