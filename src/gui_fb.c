@@ -532,55 +532,51 @@ const uint8_t ascii_to_scan_code_table[128] = {
   /* ASCII: 127 */ 0
 };
 
-/* convert from ANSI keyboard sequence to scancode */
-static int ansi_to_scancode(char *buf, int n)
+/* cook tty sequence */
+static int cook_tty(char *buf, int n, int &m)
 {
-    if (n >= 1 && buf[0] == 033) {
-        if (buf[1] == '[') {
-            if (n == 3) {                           /* xterm sequences */
-                switch (buf[2]) {                   /* ESC [ A etc */
-                case 'A':   return SDL_SCANCODE_UP;     // kUpArrow
-                case 'B':   return SDL_SCANCODE_DOWN;   // kDownArrow
-                case 'C':   return SDL_SCANCODE_RIGHT;  // kRightArrow
-                case 'D':   return SDL_SCANCODE_LEFT;   // kLeftArrow
-                case 'F':   return SDL_SCANCODE_END;    // kEnd
-                case 'H':   return SDL_SCANCODE_HOME;   // kHome
+	m = 0;
+    if (n >= 1 && buf[0] == 033)
+	{
+        if (buf[1] == '[')
+		{
+			/* xterm sequences */
+            if (n == 3)
+			{
+                switch (buf[2])
+				{	/* ESC [ A etc */
+					case 'A': return SDL_SCANCODE_UP;     // kUpArrow
+					case 'B': return SDL_SCANCODE_DOWN;   // kDownArrow
+					case 'C': return SDL_SCANCODE_RIGHT;  // kRightArrow
+					case 'D': return SDL_SCANCODE_LEFT;   // kLeftArrow
+					case 'F': return SDL_SCANCODE_END;    // kEnd
+					case 'H': return SDL_SCANCODE_HOME;   // kHome
                 }
             }
-#if 0
-            else if (n == 4 && buf[2] == '1') {   /* ESC [ 1 P etc */
-                switch (buf[3]) {
-                case 'P':   return 0x3B;    // kF1
-                case 'Q':   return 0x3C;    // kF2
-                case 'R':   return 0x3D;    // kF3
-                case 'S':   return 0x3E;    // kF4
+            if (n == 6)
+			{
+                switch (buf[5])
+				{	/* shift ESC [ A etc */
+					case 'A': m = KMOD_SHIFT; return SDL_SCANCODE_UP;     // kUpArrow
+					case 'B': m = KMOD_SHIFT; return SDL_SCANCODE_DOWN;   // kDownArrow
+					case 'C': m = KMOD_SHIFT; return SDL_SCANCODE_RIGHT;  // kRightArrow
+					case 'D': m = KMOD_SHIFT; return SDL_SCANCODE_LEFT;   // kLeftArrow
+					case 'F': m = KMOD_SHIFT; return SDL_SCANCODE_END;    // kEnd
+					case 'H': m = KMOD_SHIFT; return SDL_SCANCODE_HOME;   // kHome
                 }
             }
-#endif
-            if (n > 3 && buf[n-1] == '~') {         /* vt sequences */
-                switch (atoi(buf+2)) {
-                case 1:     return SDL_SCANCODE_HOME;      // kHome
-                case 2:     return SDL_SCANCODE_INSERT;    // kInsert
-                case 3:     return SDL_SCANCODE_DELETE;    // kDelete
-                case 4:     return SDL_SCANCODE_END;       // kEnd
-                case 5:     return SDL_SCANCODE_PAGEUP;    // kPageUp
-                case 6:     return SDL_SCANCODE_PAGEDOWN;  // kPageDown
-                case 7:     return SDL_SCANCODE_HOME;      // kHome
-                case 8:     return SDL_SCANCODE_END;       // kEnd
-#if 0
-                case 11:    return 0x3B;    // kF1
-                case 12:    return 0x3C;    // kF2
-                case 13:    return 0x3D;    // kF3
-                case 14:    return 0x3E;    // kF4
-                case 15:    return 0x3F;    // kF5
-                case 17:    return 0x40;    // kF6
-                case 18:    return 0x41;    // kF7
-                case 19:    return 0x42;    // kF8
-                case 20:    return 0x43;    // kF9
-                case 21:    return 0x44;    // kF10
-                case 23:    return 0x85;    // kF11
-                case 24:    return 0x86;    // kF12
-#endif
+            if (n > 3 && buf[n-1] == '~')
+			{	/* vt sequences */
+                switch (atoi(buf+2))
+				{
+					case 1: return SDL_SCANCODE_HOME;      // kHome
+					case 2: return SDL_SCANCODE_INSERT;    // kInsert
+					case 3: return SDL_SCANCODE_DELETE;    // kDelete
+					case 4: return SDL_SCANCODE_END;       // kEnd
+					case 5: return SDL_SCANCODE_PAGEUP;    // kPageUp
+					case 6: return SDL_SCANCODE_PAGEDOWN;  // kPageDown
+					case 7: return SDL_SCANCODE_HOME;      // kHome
+					case 8: return SDL_SCANCODE_END;       // kEnd
                 }
             }
         }
@@ -598,20 +594,27 @@ static uint64_t get_event_timeout(void *data, int timeout)
     fds[0].events = POLLIN;
     fds[1].fd = mouse_fd;
     fds[1].events = POLLIN;
-    if (poll(fds, 2, timeout) > 0) {
+    if (poll(fds, 2, timeout) > 0)
+	{
         memset(event, 0, sizeof(SDL_Event));
-        if (fds[0].revents & POLLIN) {
-            int c, n;
+        if (fds[0].revents & POLLIN)
+		{
+            int c, n, m;
             unsigned char buf[16];
-            if ((n = readansi(keybd_fd, buf, sizeof(buf))) > 0) {
-                if (n > 1) {
-                    c = ansi_to_scancode(buf, n);
+            if ((n = readansi(keybd_fd, buf, sizeof(buf))) > 0)
+			{
+                if (n > 1)
+				{
+                    c = cook_tty(buf, n, m);
                     event->type = SDL_KEYDOWN;
                     event->key.state = SDL_PRESSED;
                     event->key.keysym.scancode = c;
                     event->key.keysym.sym = (1 << 30) | c;
+					event->key.keysym.mod = m;
                     return 1;
-                } else {
+                }
+				else
+				{
                     c = buf[0];
 #if DEBUG
                     if (c == 033) exit(1);      /* exit on ESC! */
@@ -632,30 +635,34 @@ static uint64_t get_event_timeout(void *data, int timeout)
                 return 1;
             }
         }
-        if (fds[1].revents & POLLIN) {
+        if (fds[1].revents & POLLIN)
+		{
             int x, y, w, b;
             static int lastx = -1, lasty = -1, lastb = 0;
-            if (read_mouse(&x, &y, &w, &b)) {
-                if (b & (BUTTON_SCROLLUP|BUTTON_SCROLLDN)) {
+            if (read_mouse(&x, &y, &w, &b))
+			{
+                if (b & (BUTTON_SCROLLUP|BUTTON_SCROLLDN))
+				{
                     event->wheel.type = SDL_MOUSEWHEEL;
                     event->wheel.direction = SDL_MOUSEWHEEL_NORMAL;
-                    if (b & BUTTON_M) {
-                        event->wheel.x = w * SCROLLFACTOR;
-                    } else {
-                        event->wheel.y = w * SCROLLFACTOR;
-                    }
+                    if (b & BUTTON_M) event->wheel.x = w * SCROLLFACTOR;
+					else event->wheel.y = w * SCROLLFACTOR;
                     lastb = b;
                     return 1;
                 }
-                if (b != lastb) {
-                    if ((b & BUTTON_L) ^ (lastb & BUTTON_L)) {
+                if (b != lastb)
+				{
+                    if ((b & BUTTON_L) ^ (lastb & BUTTON_L))
+					{
                         event->button.button = SDL_BUTTON_LEFT;
                         event->type = (b & BUTTON_L)? SDL_MOUSEBUTTONDOWN: SDL_MOUSEBUTTONUP;
                         event->button.state = (b & BUTTON_L)? SDL_PRESSED: SDL_RELEASED;
                         event->button.x = posx;
                         event->button.y = posy;
                         event->button.clicks = 1;
-                    } else if ((b & BUTTON_R) ^ (lastb & BUTTON_R)) {
+                    }
+					else if ((b & BUTTON_R) ^ (lastb & BUTTON_R))
+					{
                         event->button.button = SDL_BUTTON_RIGHT;
                         event->type = (b & BUTTON_R)? SDL_MOUSEBUTTONDOWN: SDL_MOUSEBUTTONUP;
                         event->button.state = (b & BUTTON_R)? SDL_PRESSED: SDL_RELEASED;
@@ -666,7 +673,8 @@ static uint64_t get_event_timeout(void *data, int timeout)
                     lastb = b;
                     return 1;
                 }
-                if (x != lastx || y != lasty) {
+                if (x != lastx || y != lasty)
+				{
                     event->type = SDL_MOUSEMOTION;
                     posx += x;
                     posy += y;
@@ -687,7 +695,6 @@ static uint64_t get_event_timeout(void *data, int timeout)
             }
         }
     }
-
     event->type = 0;
     return 1;
 }
