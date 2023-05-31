@@ -76,6 +76,11 @@ void host_gui_deinit()
 {
 	free(screen);
 	free(backbuffer);
+	scr_width = 0;
+	scr_height = 0;
+	scr_stride = 0;
+	screen = 0;
+	backbuffer = 0;
 
 	//this code is just so we can see the output !
 	SDL_ShowCursor(SDL_ENABLE);
