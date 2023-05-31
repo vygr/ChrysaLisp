@@ -605,7 +605,7 @@ static uint64_t get_event_timeout(void *data, int timeout)
 			{
                 if (n > 1)
 				{
-                    c = cook_tty(buf, n, m);
+                    c = cook_tty(buf, n, &m);
                     event->type = SDL_KEYDOWN;
                     event->key.state = SDL_PRESSED;
                     event->key.keysym.scancode = c;
