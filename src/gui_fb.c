@@ -533,17 +533,17 @@ const uint8_t ascii_to_scan_code_table[128] = {
 };
 
 /* cook tty sequence */
-static int cook_tty(char *buf, int n, int &m)
+static int cook_tty(char *buf, int n, int *m)
 {
-	m = 0;
-    if (n >= 1 && buf[0] == 033)
+	*m = 0;
+	if (n >= 1 && buf[0] == 033)
 	{
-        if (buf[1] == '[')
+		if (buf[1] == '[')
 		{
 			/* xterm sequences */
-            if (n == 3)
+			if (n == 3)
 			{
-                switch (buf[2])
+				switch (buf[2])
 				{	/* ESC [ A etc */
 					case 'A': return SDL_SCANCODE_UP;     // kUpArrow
 					case 'B': return SDL_SCANCODE_DOWN;   // kDownArrow
@@ -551,23 +551,23 @@ static int cook_tty(char *buf, int n, int &m)
 					case 'D': return SDL_SCANCODE_LEFT;   // kLeftArrow
 					case 'F': return SDL_SCANCODE_END;    // kEnd
 					case 'H': return SDL_SCANCODE_HOME;   // kHome
-                }
-            }
-            if (n == 6)
+				}
+			}
+			if (n == 6)
 			{
-                switch (buf[5])
+				switch (buf[5])
 				{	/* shift ESC [ A etc */
-					case 'A': m = KMOD_SHIFT; return SDL_SCANCODE_UP;     // kUpArrow
-					case 'B': m = KMOD_SHIFT; return SDL_SCANCODE_DOWN;   // kDownArrow
-					case 'C': m = KMOD_SHIFT; return SDL_SCANCODE_RIGHT;  // kRightArrow
-					case 'D': m = KMOD_SHIFT; return SDL_SCANCODE_LEFT;   // kLeftArrow
-					case 'F': m = KMOD_SHIFT; return SDL_SCANCODE_END;    // kEnd
-					case 'H': m = KMOD_SHIFT; return SDL_SCANCODE_HOME;   // kHome
-                }
-            }
-            if (n > 3 && buf[n-1] == '~')
+					case 'A': *m = KMOD_SHIFT; return SDL_SCANCODE_UP;     // kUpArrow
+					case 'B': *m = KMOD_SHIFT; return SDL_SCANCODE_DOWN;   // kDownArrow
+					case 'C': *m = KMOD_SHIFT; return SDL_SCANCODE_RIGHT;  // kRightArrow
+					case 'D': *m = KMOD_SHIFT; return SDL_SCANCODE_LEFT;   // kLeftArrow
+					case 'F': *m = KMOD_SHIFT; return SDL_SCANCODE_END;    // kEnd
+					case 'H': *m = KMOD_SHIFT; return SDL_SCANCODE_HOME;   // kHome
+				}
+			}
+			if (n > 3 && buf[n-1] == '~')
 			{	/* vt sequences */
-                switch (atoi(buf+2))
+				switch (atoi(buf+2))
 				{
 					case 1: return SDL_SCANCODE_HOME;      // kHome
 					case 2: return SDL_SCANCODE_INSERT;    // kInsert
@@ -577,11 +577,11 @@ static int cook_tty(char *buf, int n, int &m)
 					case 6: return SDL_SCANCODE_PAGEDOWN;  // kPageDown
 					case 7: return SDL_SCANCODE_HOME;      // kHome
 					case 8: return SDL_SCANCODE_END;       // kEnd
-                }
-            }
-        }
-    }
-    return 0;
+				}
+			}
+		}
+	}
+	return 0;
 }
 
 /* msec timeout 0 to poll, timeout -1 to block */
