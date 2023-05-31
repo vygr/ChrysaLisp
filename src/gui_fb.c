@@ -1141,5 +1141,6 @@ static ssize_t readansi(int fd, char *buf, size_t size)
     }
   }
 }
+
 #endif /* _HOST_GUI == 1 */
 #endif /* defined(_HOST_GUI) */
