@@ -105,6 +105,12 @@
 			(+ev_msg_key_key (cook_key key_code key mod))
 			(+ev_msg_key_mod mod)))))
 
+(defun action-key-up ()
+	(defq view (set-mouse-id)
+		key_code (getf msg +sdl_keyboard_event_scancode)
+		key (getf msg +sdl_keyboard_event_sym)
+		mod (getf msg +sdl_keyboard_event_mod)))
+
 (defun action-window ()
 	(cond
 		((= (defq event (getf msg +sdl_window_event_event)) +SDL_WINDOWEVENT_SIZE_CHANGED)
@@ -132,6 +138,7 @@
 	+SDL_MOUSEBUTTONDOWN action-mouse-button-down
 	+SDL_MOUSEBUTTONUP action-mouse-button-up
 	+SDL_KEYDOWN action-key-down
+	+SDL_KEYUP action-key-up
 	+SDL_WINDOWEVENT action-window
 	+SDL_QUIT action-quit))
 
