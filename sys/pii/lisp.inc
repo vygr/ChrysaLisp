@@ -43,7 +43,7 @@
 (structure +sdl_keyboard_event 0
 	(uint type timestamp windowid)
 	(ubyte state repeat padding2 padding3)
-	(int scancode sym)
+	(int scode key)
 	(ushort mod)
 	(uint unused))
 

@@ -190,7 +190,7 @@
 				(action))
 			((and (not (Textfield? (. *window* :find_id id)))
 					(= (getf *msg* +ev_msg_type) +ev_type_key)
-					(> (getf *msg* +ev_msg_key_keycode) 0))
+					(> (getf *msg* +ev_msg_key_scode) 0))
 				;key event
 				(defq key (getf *msg* +ev_msg_key_key) mod (getf *msg* +ev_msg_key_mod))
 				(cond

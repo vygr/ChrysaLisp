@@ -1,7 +1,7 @@
 ;module
 (env-push)
 
-(defun cook_key (key_code key mod)
+(defun cook_key (scode key mod)
 	(and (/= (logand mod (const (logior +ev_key_mod_caps_lock +ev_key_mod_shift))) 0)
 		(defq i (find (char key) "§1234567890-=qwertyuiop[]asdfghjkl;\`zxcvbnm,./'"))
 		(setq key (code (elem-get i (const (cat "±!@#$%^&*()_+QWERTYUIOP{}ASDFGHJKL:|~ZXCVBNM<>?" (char 34)))))))
@@ -91,9 +91,10 @@
 
 (defun action-key-down ()
 	(defq view (set-mouse-id)
-		key_code (getf msg +sdl_keyboard_event_scancode)
-		key (getf msg +sdl_keyboard_event_sym)
+		scode (getf msg +sdl_keyboard_event_scode)
+		key (getf msg +sdl_keyboard_event_key)
 		mod (getf msg +sdl_keyboard_event_mod))
+;	(prin "scode = " scode " key = 0x" (int-to-hex-str key) " mod = 0x" (short-to-hex-str mod))(print)
 	(mouse-type view
 		(- *mouse_x* (getf view +view_ctx_x 0))
 		(- *mouse_y* (getf view +view_ctx_y 0)))
@@ -101,14 +102,14 @@
 		(mail-send owner (setf-> (str-alloc +ev_msg_key_size)
 			(+ev_msg_type +ev_type_key)
 			(+ev_msg_target_id *mouse_id*)
-			(+ev_msg_key_keycode key_code)
-			(+ev_msg_key_key (cook_key key_code key mod))
+			(+ev_msg_key_scode scode)
+			(+ev_msg_key_key (cook_key scode key mod))
 			(+ev_msg_key_mod mod)))))
 
 (defun action-key-up ()
 	(defq view (set-mouse-id)
-		key_code (getf msg +sdl_keyboard_event_scancode)
-		key (getf msg +sdl_keyboard_event_sym)
+		scode (getf msg +sdl_keyboard_event_scode)
+		key (getf msg +sdl_keyboard_event_key)
 		mod (getf msg +sdl_keyboard_event_mod)))
 
 (defun action-window ()

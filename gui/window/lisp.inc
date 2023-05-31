@@ -117,7 +117,7 @@
 								(:t  ;is not down now, so hover
 									(if (defq fnc (.? target :mouse_hover)) (fnc target event)))))))
 				((= type +ev_type_key)
-					(if (>= (getf event +ev_msg_key_keycode) 0)
+					(if (>= (getf event +ev_msg_key_scode) 0)
 						(if (defq fnc (.? target :key_down)) (fnc target event))
 						(if (defq fnc (.? target :key_up)) (fnc target event))))
 				((= type +ev_type_wheel)

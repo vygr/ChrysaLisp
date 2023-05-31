@@ -22,7 +22,7 @@
 	(int x y))
 
 (structure +ev_msg_key +ev_msg_size
-	(uint keycode key mod))
+	(uint scode key mod))
 
 (structure +ev_msg_action +ev_msg_size
 	(ulong source_id))
