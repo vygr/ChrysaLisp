@@ -22,18 +22,14 @@ struct Texture
 	pixel_t data[0];
 };
 
-const uint32_t SCREEN_WIDTH = 1280;
-const uint32_t SCREEN_HEIGHT = 960;
-const uint32_t SCREEN_STRIDE = SCREEN_WIDTH * sizeof(pixel_t);
-
 pixel_t *screen = 0;
 pixel_t *backbuffer = 0;
 pixel_t color_a = 0;
 pixel_t color_rb = 0;
 pixel_t color_g = 0;
-uint32_t scr_width = SCREEN_WIDTH;
-uint32_t scr_height = SCREEN_HEIGHT;
-uint32_t scr_stride = SCREEN_STRIDE;
+uint32_t scr_width = 0;
+uint32_t scr_height = 0;
+uint32_t scr_stride = 0;
 
 Rect clip;
 
