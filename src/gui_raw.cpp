@@ -82,6 +82,8 @@ void host_gui_resize(uint64_t w, uint64_t h)
 	scr_width = w;
 	scr_height = h;
 	scr_stride = w * sizeof(pixel_t);
+	free(screen);
+	free(backbuffer);
 	screen = (pixel_t *)malloc(scr_height * scr_stride);
 	backbuffer = (pixel_t *)malloc(scr_height * scr_stride);
 }
