@@ -1920,6 +1920,12 @@
 (bits name base [(bit field ...)] ...)
 ```
 
+### byte-to-hex-str
+
+```code
+(byte-to-hex-str num) -> str
+```
+
 ### canvas-brighter
 
 ```code
@@ -2760,6 +2766,12 @@
 (insert seq pos seq) -> seq
 ```
 
+### int-to-hex-str
+
+```code
+(int-to-hex-str num) -> str
+```
+
 ### into-fn
 
 ```code
@@ -2914,6 +2926,12 @@
 
 ```code
 (logxor [num] ...)
+```
+
+### long-to-hex-str
+
+```code
+(long-to-hex-str num) -> str
 ```
 
 ### lower
@@ -3796,6 +3814,12 @@
 
 ```code
 (sets-pairs! collection))
+```
+
+### short-to-hex-str
+
+```code
+(short-to-hex-str num) -> str
 ```
 
 ### shuffle
