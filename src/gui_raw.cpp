@@ -37,8 +37,8 @@ uint32_t scr_stride = SCREEN_STRIDE;
 
 Rect clip;
 
+//this code is just so we can see the output !
 #include <SDL.h>
-
 SDL_Window *window;
 SDL_Renderer *renderer;
 
@@ -46,8 +46,22 @@ SDL_Renderer *renderer;
 // screen setup/access functions
 ////////////////////////////////
 
+void host_gui_resize(uint64_t w, uint64_t h)
+{
+	scr_width = w;
+	scr_height = h;
+	scr_stride = w * sizeof(pixel_t);
+	free(screen);
+	free(backbuffer);
+	screen = (pixel_t *)malloc(scr_height * scr_stride);
+	backbuffer = (pixel_t *)malloc(scr_height * scr_stride);
+}
+
 void host_gui_init(Rect *rect)
 {
+	host_gui_resize(rect->w, rect->h);
+
+	//this code is just so we can see the output !
 	SDL_SetMainReady();
 	SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS);
 	window = SDL_CreateWindow("ChrysaLisp GUI Window",
@@ -60,11 +74,6 @@ void host_gui_init(Rect *rect)
 	SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 	SDL_SetRenderTarget(renderer, 0);
 	SDL_ShowCursor(SDL_DISABLE);
-
-	screen = (pixel_t *)malloc(scr_height * scr_stride);
-	backbuffer = (pixel_t *)malloc(scr_height * scr_stride);
-	rect->w = scr_width;
-	rect->h = scr_height;
 }
 
 void host_gui_deinit()
@@ -72,20 +81,10 @@ void host_gui_deinit()
 	free(screen);
 	free(backbuffer);
 
+	//this code is just so we can see the output !
 	SDL_ShowCursor(SDL_ENABLE);
 	SDL_DestroyWindow(window);
 	SDL_Quit();
-}
-
-void host_gui_resize(uint64_t w, uint64_t h)
-{
-	scr_width = w;
-	scr_height = h;
-	scr_stride = w * sizeof(pixel_t);
-	free(screen);
-	free(backbuffer);
-	screen = (pixel_t *)malloc(scr_height * scr_stride);
-	backbuffer = (pixel_t *)malloc(scr_height * scr_stride);
 }
 
 void host_gui_begin_composite()
@@ -116,6 +115,7 @@ void host_gui_flush(const Rect *rect)
 		dst = (pixel_t*)((uint8_t*)dst + stride);
 	} while (src != src_end);
 
+	//this code is just so we can see the output !
 	auto surface = SDL_CreateRGBSurfaceFrom(screen, scr_width, scr_height, 32, scr_stride, 0xff0000, 0xff00, 0xff, 0xff000000);
 	auto t = SDL_CreateTextureFromSurface(renderer, surface);
 	SDL_SetTextureBlendMode(t, SDL_BLENDMODE_NONE);
