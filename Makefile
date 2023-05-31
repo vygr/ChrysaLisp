@@ -58,29 +58,37 @@ inst:
 	@./run_tui.sh -n 5 -i -e
 
 obj/$(CPU)/$(ABI)/$(OS)/main_gui:	$(OBJ_FILES_GUI) $(OBJ_CFILES_GUI)
+ifeq ($(GUI),fb)
+	c++ -o $@ $^
+else
 	c++ -o $@ $^ \
 		$(shell sdl2-config --libs)
+endif
 
 obj/$(CPU)/$(ABI)/$(OS)/main_tui:	$(OBJ_FILES_TUI) $(OBJ_CFILES_TUI)
 	c++ -o $@ $^
 
 $(OBJ_DIR_GUI)/%.o: $(SRC_DIR)/%.cpp
-	c++ $(CFLAGS) $(CPPFLAGS) -c -D_HOST_GUI=$(HOST_GUI) \
-		$(shell sdl2-config --cflags) \
-		-o $@ $<
+ifeq ($(GUI),fb)
+	c++ -c -o $@ $< $(CFLAGS) $(CPPFLAGS) -D_HOST_GUI=$(HOST_GUI)
+else
+	c++ -c -o $@ $< $(CFLAGS) $(CPPFLAGS) -D_HOST_GUI=$(HOST_GUI) \
+		$(shell sdl2-config --cflags)		
+endif
 
 $(OBJ_DIR_TUI)/%.o: $(SRC_DIR)/%.cpp
-	c++ $(CFLAGS) $(CPPFLAGS) -c \
-		-o $@ $<
+	c++ -c -o $@ $< $(CFLAGS) $(CPPFLAGS)
 
 $(OBJ_DIR_GUI)/%.o: $(SRC_DIR)/%.c
-	cc $(CFLAGS) -c -D_HOST_GUI=$(HOST_GUI) \
-		$(shell sdl2-config --cflags) \
-		-o $@ $<
+ifeq ($(GUI),fb)
+	cc -c -o $@ $< $(CFLAGS) -D_HOST_GUI=$(HOST_GUI)
+else
+	cc -c -o $@ $< $(CFLAGS) -D_HOST_GUI=$(HOST_GUI) \
+		$(shell sdl2-config --cflags)
+endif
 
 $(OBJ_DIR_TUI)/%.o: $(SRC_DIR)/%.c
-	cc $(CFLAGS) -c \
-		-o $@ $<
+	cc -c -o $@ $< $(CFLAGS)
 
 clean:
 	rm -rf $(OBJ_DIR_GUI)/*
