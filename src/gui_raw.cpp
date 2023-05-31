@@ -31,6 +31,9 @@ pixel_t *backbuffer = 0;
 pixel_t color_a = 0;
 pixel_t color_rb = 0;
 pixel_t color_g = 0;
+uint32_t scr_width = SCREEN_WIDTH;
+uint32_t scr_height = SCREEN_HEIGHT;
+uint32_t scr_stride = SCREEN_STRIDE;
 
 Rect clip;
 
@@ -50,7 +53,7 @@ void host_gui_init(Rect *rect)
 	window = SDL_CreateWindow("ChrysaLisp GUI Window",
 				SDL_WINDOWPOS_UNDEFINED,
 				SDL_WINDOWPOS_UNDEFINED,
-				SCREEN_WIDTH, SCREEN_HEIGHT,
+				scr_width, scr_height,
 				SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
 	renderer = SDL_CreateRenderer(window, -1,
 				SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_TARGETTEXTURE);
@@ -58,10 +61,10 @@ void host_gui_init(Rect *rect)
 	SDL_SetRenderTarget(renderer, 0);
 	SDL_ShowCursor(SDL_DISABLE);
 
-	screen = (pixel_t *)malloc(SCREEN_HEIGHT * SCREEN_STRIDE);
-	backbuffer = (pixel_t *)malloc(SCREEN_HEIGHT * SCREEN_STRIDE);
-	rect->w = SCREEN_WIDTH;
-	rect->h = SCREEN_HEIGHT;
+	screen = (pixel_t *)malloc(scr_height * scr_stride);
+	backbuffer = (pixel_t *)malloc(scr_height * scr_stride);
+	rect->w = scr_width;
+	rect->h = scr_height;
 }
 
 void host_gui_deinit()
@@ -76,6 +79,11 @@ void host_gui_deinit()
 
 void host_gui_resize(uint64_t w, uint64_t h)
 {
+	scr_width = w;
+	scr_height = h;
+	scr_stride = w * sizeof(pixel_t);
+	screen = (pixel_t *)malloc(scr_height * scr_stride);
+	backbuffer = (pixel_t *)malloc(scr_height * scr_stride);
 }
 
 void host_gui_begin_composite()
@@ -91,13 +99,13 @@ void host_gui_flush(const Rect *rect)
 	//no need to clip to screen I think !
 	if (rect->w < 1 || rect->h < 1) return;
 	pixel_t *dst = (pixel_t*)((uint8_t*)screen +
-		rect->y * SCREEN_STRIDE + rect->x * sizeof(pixel_t));
+		rect->y * scr_stride + rect->x * sizeof(pixel_t));
 	pixel_t *src = (pixel_t*)((uint8_t*)backbuffer +
-		rect->y * SCREEN_STRIDE + rect->x * sizeof(pixel_t));
+		rect->y * scr_stride + rect->x * sizeof(pixel_t));
 	pixel_t *src_end = (pixel_t*)((uint8_t*)src +
-		rect->h * SCREEN_STRIDE);
+		rect->h * scr_stride);
 	uint32_t span = rect->w * sizeof(pixel_t);
-	uint32_t stride = SCREEN_STRIDE - span;
+	uint32_t stride = scr_stride - span;
 	do
 	{
 		pixel_t *src_end_line = (pixel_t*)((uint8_t*)src + span);
@@ -106,7 +114,7 @@ void host_gui_flush(const Rect *rect)
 		dst = (pixel_t*)((uint8_t*)dst + stride);
 	} while (src != src_end);
 
-	auto surface = SDL_CreateRGBSurfaceFrom(screen, SCREEN_WIDTH, SCREEN_HEIGHT, 32, SCREEN_STRIDE, 0xff0000, 0xff00, 0xff, 0xff000000);
+	auto surface = SDL_CreateRGBSurfaceFrom(screen, scr_width, scr_height, 32, scr_stride, 0xff0000, 0xff00, 0xff, 0xff000000);
 	auto t = SDL_CreateTextureFromSurface(renderer, surface);
 	SDL_SetTextureBlendMode(t, SDL_BLENDMODE_NONE);
 	SDL_FreeSurface(surface);
@@ -192,11 +200,11 @@ void host_gui_filled_box(const Rect *rect)
 	if (r.h > clip.h) r.h = clip.h;
 	//fill the rect
 	pixel_t *dst = (pixel_t*)((uint8_t*)backbuffer +
-		r.y * SCREEN_STRIDE + r.x * sizeof(pixel_t));
+		r.y * scr_stride + r.x * sizeof(pixel_t));
 	pixel_t *dst_end = (pixel_t*)((uint8_t*)dst +
-		(r.h - r.y) * SCREEN_STRIDE);
+		(r.h - r.y) * scr_stride);
 	uint32_t span = (r.w - r.x) * sizeof(pixel_t);
-	uint32_t stride = SCREEN_STRIDE - span;
+	uint32_t stride = scr_stride - span;
 	if (color_a == 0xff)
 	{
 		pixel_t dcol = color_rb + color_g;
@@ -273,11 +281,11 @@ void host_gui_blit(Texture *t, const Rect *srect, const Rect *drect)
 	pixel_t *src = (pixel_t*)((uint8_t*)t->data +
 		sr.y * t->s + sr.x * sizeof(pixel_t));
 	pixel_t *dst = (pixel_t*)((uint8_t*)backbuffer +
-		dr.y * SCREEN_STRIDE + dr.x * sizeof(pixel_t));
+		dr.y * scr_stride + dr.x * sizeof(pixel_t));
 	pixel_t *dst_end = (pixel_t*)((uint8_t*)dst +
-		(dr.h - dr.y) * SCREEN_STRIDE);
+		(dr.h - dr.y) * scr_stride);
 	uint32_t span = (dr.w - dr.x) * sizeof(pixel_t);
-	uint32_t dstride = SCREEN_STRIDE - span;
+	uint32_t dstride = scr_stride - span;
 	uint32_t sstride = t->s - span;
 	if (t->color == 0xffffff)
 	{
