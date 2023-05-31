@@ -9,23 +9,13 @@
 			(push chunk c)))
 	(if (/= 0 (length chunk)) chunk))
 
-;hex strings of number
-(defun as-hex-byte (_)
-	(cat (num-to-char (logand (>> _ 4) 0xf)) (num-to-char (logand _ 0xf))))
-(defun as-hex-short (_)
-	(cat (as-hex-byte (>> _ 8)) (as-hex-byte (logand _ 0xff))))
-(defun as-hex-int (_)
-	(cat (as-hex-short (>> _ 16)) (as-hex-short (logand _ 0xffff))))
-(defun as-hex-long (_)
-	(cat (as-hex-int (>> _ 32)) (as-hex-int (logand _ 0xffffffff))))
-
 ;dump a file to stdout
 (defun dump-file (_)
 	(when _
 		(defq adr 0)
 		(while (defq c (read-chunk _))
-			(prin (as-hex-int adr) " " (apply cat (map (lambda (_)
-				(cat (as-hex-byte _) " ")) c)))
+			(prin (int-to-hex-str adr) " " (apply cat (map (lambda (_)
+				(cat (byte-to-hex-str _) " ")) c)))
 			(times (- chunk_size (length c)) (prin "   "))
 			(print (apply cat (map (lambda (_)
 				(if (<= 32 _ 126) (char _) ".")) c)))

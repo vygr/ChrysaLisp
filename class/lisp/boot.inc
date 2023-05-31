@@ -721,6 +721,19 @@
 			(char (+ 0x80c0 (>> _ 6) (logand (<< _ 8) 0x3f00)) 2))
 		(:t  (char _))))
 
+(defun byte-to-hex-str (_)
+	; (byte-to-hex-str num) -> str
+	(cat (num-to-char (logand (>> _ 4) 0xf)) (num-to-char (logand _ 0xf))))
+(defun short-to-hex-str (_)
+	; (short-to-hex-str num) -> str
+	(cat (byte-to-hex-str (>> _ 8)) (byte-to-hex-str (logand _ 0xff))))
+(defun int-to-hex-str (_)
+	; (int-to-hex-str num) -> str
+	(cat (short-to-hex-str (>> _ 16)) (short-to-hex-str (logand _ 0xffff))))
+(defun long-to-hex-str (_)
+	; (long-to-hex-str num) -> str
+	(cat (int-to-hex-str (>> _ 32)) (int-to-hex-str (logand _ 0xffffffff))))
+
 (defun trim-start (s &optional c)
 	; (trim-start str [str]) -> str
 	(defq c (if c (code c) (ascii-code " ")) i -1)
