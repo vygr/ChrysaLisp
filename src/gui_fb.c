@@ -76,7 +76,6 @@ static int open_framebuffer(void);
 static int open_keyboard(void);
 static int open_mouse(void);
 static int read_mouse(int *dx, int *dy, int *dw, int *bp);
-static ssize_t readansi(int fd, char *buf, size_t size);
 static void close_framebuffer(void);
 static void close_keyboard(void);
 static void close_mouse(void);
@@ -396,12 +395,7 @@ void host_gui_blit(Texture *texture, const Rect *srect, const Rect *drect)
 #define BUTTON_SCROLLUP 0x20      /* wheel up*/
 #define BUTTON_SCROLLDN 0x40      /* wheel down*/
 
-/*
- * Lookup table to convert ascii characters in to keyboard scan codes
- * Format: most signifficant bit indicates if scan code should be sent with shift modifier
- * remaining 7 bits are to be used as scan code number.
- */
-const uint8_t ascii_to_scan_code_table[128] = {
+const uint8_t scan_code_to_hid_table[128] = {
   /* ASCII:   0 */ 0,
   /* ASCII:   1 */ 0,
   /* ASCII:   2 */ 0,
@@ -532,58 +526,6 @@ const uint8_t ascii_to_scan_code_table[128] = {
   /* ASCII: 127 */ 0
 };
 
-/* cook tty sequence */
-static int cook_tty(char *buf, int n, int *m)
-{
-	*m = 0;
-	if (n >= 1 && buf[0] == 033)
-	{
-		if (buf[1] == '[')
-		{
-			/* xterm sequences */
-			if (n == 3)
-			{
-				switch (buf[2])
-				{	/* ESC [ A etc */
-					case 'A': return SDL_SCANCODE_UP;     // kUpArrow
-					case 'B': return SDL_SCANCODE_DOWN;   // kDownArrow
-					case 'C': return SDL_SCANCODE_RIGHT;  // kRightArrow
-					case 'D': return SDL_SCANCODE_LEFT;   // kLeftArrow
-					case 'F': return SDL_SCANCODE_END;    // kEnd
-					case 'H': return SDL_SCANCODE_HOME;   // kHome
-				}
-			}
-			if (n == 6)
-			{
-				switch (buf[5])
-				{	/* shift ESC [ A etc */
-					case 'A': *m = KMOD_SHIFT; return SDL_SCANCODE_UP;     // kUpArrow
-					case 'B': *m = KMOD_SHIFT; return SDL_SCANCODE_DOWN;   // kDownArrow
-					case 'C': *m = KMOD_SHIFT; return SDL_SCANCODE_RIGHT;  // kRightArrow
-					case 'D': *m = KMOD_SHIFT; return SDL_SCANCODE_LEFT;   // kLeftArrow
-					case 'F': *m = KMOD_SHIFT; return SDL_SCANCODE_END;    // kEnd
-					case 'H': *m = KMOD_SHIFT; return SDL_SCANCODE_HOME;   // kHome
-				}
-			}
-			if (n > 3 && buf[n-1] == '~')
-			{	/* vt sequences */
-				switch (atoi(buf+2))
-				{
-					case 1: return SDL_SCANCODE_HOME;      // kHome
-					case 2: return SDL_SCANCODE_INSERT;    // kInsert
-					case 3: return SDL_SCANCODE_DELETE;    // kDelete
-					case 4: return SDL_SCANCODE_END;       // kEnd
-					case 5: return SDL_SCANCODE_PAGEUP;    // kPageUp
-					case 6: return SDL_SCANCODE_PAGEDOWN;  // kPageDown
-					case 7: return SDL_SCANCODE_HOME;      // kHome
-					case 8: return SDL_SCANCODE_END;       // kEnd
-				}
-			}
-		}
-	}
-	return 0;
-}
-
 /* msec timeout 0 to poll, timeout -1 to block */
 static uint64_t get_event_timeout(void *data, int timeout)
 {
@@ -599,40 +541,27 @@ static uint64_t get_event_timeout(void *data, int timeout)
         memset(event, 0, sizeof(SDL_Event));
         if (fds[0].revents & POLLIN)
 		{
-            int c, n, m;
-            unsigned char buf[16];
-            if ((n = readansi(keybd_fd, buf, sizeof(buf))) > 0)
+            int c;
+            unsigned char buf[1];
+            if (read(keybd_fd, buf, sizeof(buf)) > 0)
 			{
-                if (n > 1)
+				c = scan_code_to_hid_table[buf[0] & 0x7f];
+				if (buf[0] & 0x80)
 				{
-                    c = cook_tty(buf, n, &m);
-                    event->type = SDL_KEYDOWN;
-                    event->key.state = SDL_PRESSED;
-                    event->key.keysym.scancode = c;
-                    event->key.keysym.sym = (1 << 30) | c;
-					event->key.keysym.mod = m;
-                    return 1;
-                }
+					/* key down */
+#if DEBUG
+					if (c == 41) exit(1);      /* exit on ESC! */
+#endif
+					event->type = SDL_KEYDOWN;
+					event->key.keysym.scancode = c;
+				}
 				else
 				{
-                    c = buf[0];
-#if DEBUG
-                    if (c == 033) exit(1);      /* exit on ESC! */
-#endif
-                    if (c == 0x7F) c = '\b';
-                    if (c == '\r') c = '\n';
-                    event->type = SDL_KEYDOWN;
-                    event->key.state = SDL_PRESSED;
-                    if (c < ' ' & c != '\n' && c != '\b' && c != '\t') {
-                        event->key.keysym.mod = KMOD_CTRL;
-                        c += 'a' - 1;
-                    }
-                    event->key.keysym.sym = c;
-                    int scancode = ascii_to_scan_code_table[c & 0x7f];
-                    event->key.keysym.scancode = scancode & 127;
-                    if (scancode & 0x80) event->key.keysym.mod |= KMOD_SHIFT;
-                }
-                return 1;
+					/* key up */
+					event->type = SDL_KEYUP;
+					event->key.keysym.scancode = c;
+				}
+				return 1;
             }
         }
         if (fds[1].revents & POLLIN)
@@ -1007,139 +936,6 @@ static void close_keyboard(void)
         close(keybd_fd);
     }
     keybd_fd = -1;
-}
-
-/*═════════════════════════════════════════════════════════════════════════════╡
-│ Copyright 2022 Justine Alexandra Roberts Tunney                              │
-│                                                                              │
-│ Permission to use, copy, modify, and/or distribute this software for         │
-│ any purpose with or without fee is hereby granted, provided that the         │
-│ above copyright notice and this permission notice appear in all copies.      │
-│                                                                              │
-│ THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL                │
-│ WARRANTIES WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED                │
-│ WARRANTIES OF MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE             │
-│ AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL         │
-│ DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR        │
-│ PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER               │
-│ TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR             │
-│ PERFORMANCE OF THIS SOFTWARE.                                                │
-╚─────────────────────────────────────────────────────────────────────────────*/
-#define ThomPikeCont(x)     (((x)&0300) == 0200)
-#define ThomPikeByte(x)     ((x) & (((1 << ThomPikeMsb(x)) - 1) | 3))
-#define ThomPikeLen(x)      (7 - ThomPikeMsb(x))
-#define ThomPikeMsb(x)      (((x)&0xff) < 252 ? bsr(~(x)&0xff) : 1)
-#define ThomPikeMerge(x, y) ((x) << 6 | ((y)&077))
-
-#if defined(__GNUC__)
-#define bsr(x)  ((x)? (__builtin_clz(x) ^ ((sizeof(int) * 8) -1)): 0)
-#else
-int bsr(int n)
-{
-    if (n == 0) return 0;   /* avoid incorrect result of 31 returned! */
-    return (__builtin_clz(n) ^ ((sizeof(int) * 8) - 1));
-}
-#endif
-
-static ssize_t readansi(int fd, char *buf, size_t size)
-{
-  uint8_t c;
-  int rc, i, j;
-  enum { kAscii, kUtf8, kEsc, kCsi, kSs } t;
-  if (size) buf[0] = 0;
-  for (j = i = 0, t = kAscii;;) {
-    if (i + 2 >= size) {
-      errno = ENOMEM;
-      return -1;
-    }
-    if ((rc = read(fd, &c, 1)) != 1) {
-      if (rc == -1 && errno == EINTR && i) {
-        continue;
-      }
-      /* linux kernel will return EAGAIN after lone ESC typed */
-      if (rc == -1 && errno == EAGAIN) {
-          return i;
-      }
-      return rc;
-    }
-    buf[i++] = c;
-    buf[i] = 0;
-    switch (t) {
-      case kAscii:
-        if (c < 0200) {
-          if (c == 033) {
-            t = kEsc;
-          } else {
-            return i;
-          }
-        } else if (c >= 0300) {
-          t = kUtf8;
-          j = ThomPikeLen(c) - 1;
-        }
-        break;
-      case kUtf8:
-        /*if (!--j) return i;*/
-        if (!--j) return 0;     /* discard UTF-8 for now */
-        break;
-      case kEsc:
-        switch (c) {
-          case '[':
-            t = kCsi;
-            break;
-          case 'N':
-          case 'O':
-            t = kSs;
-            break;
-          case 0x20:
-          case 0x21:
-          case 0x22:
-          case 0x23:
-          case 0x24:
-          case 0x25:
-          case 0x26:
-          case 0x27:
-          case 0x28:
-          case 0x29:
-          case 0x2A:
-          case 0x2B:
-          case 0x2C:
-          case 0x2D:
-          case 0x2E:
-          case 0x2F:
-            break;
-          default:
-            return i;
-        }
-        break;
-      case kCsi:
-        switch (c) {
-          case ':':
-          case ';':
-          case '<':
-          case '=':
-          case '>':
-          case '?':
-          case '0':
-          case '1':
-          case '2':
-          case '3':
-          case '4':
-          case '5':
-          case '6':
-          case '7':
-          case '8':
-          case '9':
-            break;
-          default:
-            return i;
-        }
-        break;
-      case kSs:
-        return i;
-      default:
-        __builtin_unreachable();
-    }
-  }
 }
 
 #endif /* _HOST_GUI == 1 */
