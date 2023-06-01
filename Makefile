@@ -55,7 +55,7 @@ snapshot:
 		`find obj -name "main_tui.exe"`
 
 inst:
-	@./run_tui.sh -n 5 -i -e
+	@./run_tui.sh -n 8 -i -e
 
 obj/$(CPU)/$(ABI)/$(OS)/main_gui:	$(OBJ_FILES_GUI) $(OBJ_CFILES_GUI)
 ifeq ($(GUI),fb)
