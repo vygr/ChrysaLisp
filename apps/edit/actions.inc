@@ -72,7 +72,6 @@ key_map (fmap-kv
 	+char_lf action-break
 	+char_cr action-break
 	+char_backspace action-backspace
-	+char_delete action-delete
 	+char_tab action-tab)
 
 key_map_shift (fmap-kv
@@ -82,6 +81,7 @@ key_map_shift (fmap-kv
 	0x40000051 action-down-select
 	0x4000004A action-home-select
 	0x4000004D action-end-select
+	+char_delete action-delete
 	+char_tab action-left-tab)
 
 key_map_control (fmap-kv

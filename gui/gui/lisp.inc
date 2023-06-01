@@ -8,7 +8,7 @@
 ;gui events for Lisp level (getf)
 
 (enums +ev_type 0
-	(enum mouse key action gui wheel enter exit))
+	(enum mouse key_down key_up action gui wheel enter exit))
 
 (structure +ev_msg 0
 	(ulong target_id type))
@@ -34,13 +34,15 @@
 (structure +ev_msg_exit +ev_msg_size)
 
 (defq +ev_key_mod_left_shift 0x1 +ev_key_mod_right_shift 0x2
-	+ev_key_mod_left_option 0x100 +ev_key_mod_right_option 0x200
-	+ev_key_mod_left_command 0x400 +ev_key_mod_right_command 0x800
-	+ev_key_mod_caps_lock 0x2000
-	+ev_key_mod_control 0x40
+	+ev_key_mod_left_control 0x40 +ev_key_mod_right_control 0x80
+	+ev_key_mod_left_alt 0x100 +ev_key_mod_right_alt 0x200
+	+ev_key_mod_left_meta 0x400 +ev_key_mod_right_meta 0x800
+	+ev_key_mod_num_lock 0x1000 +ev_key_mod_caps_lock 0x2000
+	+ev_key_mod_mode 0x4000
 	+ev_key_mod_shift (+ +ev_key_mod_left_shift +ev_key_mod_right_shift)
-	+ev_key_mod_option (+ +ev_key_mod_left_option +ev_key_mod_right_option)
-	+ev_key_mod_command (+ +ev_key_mod_left_command +ev_key_mod_right_command))
+	+ev_key_mod_control (+ +ev_key_mod_left_control +ev_key_mod_right_control)
+	+ev_key_mod_alt (+ +ev_key_mod_left_alt +ev_key_mod_right_alt)
+	+ev_key_mod_meta (+ +ev_key_mod_left_meta +ev_key_mod_right_meta))
 
 ;add/sub from screen
 

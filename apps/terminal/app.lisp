@@ -139,13 +139,13 @@
 				;call bound event action
 				(action))
 			((and (not (Textfield? (. *window* :find_id id)))
-					(= (getf *msg* +ev_msg_type) +ev_type_key)
+					(= (getf *msg* +ev_msg_type) +ev_type_key_down)
 					(> (getf *msg* +ev_msg_key_scode) 0))
 				;key event
 				(defq key (getf *msg* +ev_msg_key_key) mod (getf *msg* +ev_msg_key_mod))
 				(cond
 					((/= 0 (logand mod (const
-							(+ +ev_key_mod_control +ev_key_mod_option +ev_key_mod_command))))
+							(+ +ev_key_mod_control +ev_key_mod_alt +ev_key_mod_meta))))
 						;call bound control/command key action
 						(when (defq action (. key_map_control :find key))
 							(action)))

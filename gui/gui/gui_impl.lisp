@@ -8,6 +8,7 @@
 (import "gui/lisp.inc" _)
 
 (import "sys/pii/lisp.inc")
+(import "lib/keys/macbook-uk.inc")
 (import "./actions.inc")
 
 (enums +select 0
@@ -19,6 +20,7 @@
 
 (defq *old_mouse_x* -1 *old_mouse_y* -1 *mouse_type* 0
 	*mouse_x* 0 *mouse_y* 0 *mouse_buttons* 0 *mouse_id* 0
+	*mods* 0 *key_dispatch* (fmap)
 	rate (/ 1000000 60) *running* :t)
 
 (defun mouse-type (view rx ry)

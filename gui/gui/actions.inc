@@ -1,10 +1,40 @@
 ;module
 (env-push)
 
-(defun cook_key (scode key mod)
-	(and (/= (logand mod (const (logior +ev_key_mod_caps_lock +ev_key_mod_shift))) 0)
-		(defq i (find (char key) "§1234567890-=qwertyuiop[]asdfghjkl;\`zxcvbnm,./'"))
-		(setq key (code (elem-get i (const (cat "±!@#$%^&*()_+QWERTYUIOP{}ASDFGHJKL:|~ZXCVBNM<>?" (char 34)))))))
+(import "lib/consts/scodes.inc")
+
+(defq +mod_scodes `'(
+		,+sc_lshift ,+sc_rshift ,+sc_lctrl ,+sc_rctrl
+		,+sc_lalt ,+sc_ralt ,+sc_lgui ,+sc_rgui
+		,+sc_capslock ,+sc_numlockclear)
+	+mod_masks `'(
+		,+ev_key_mod_left_shift ,+ev_key_mod_right_shift
+		,+ev_key_mod_left_control ,+ev_key_mod_right_control
+		,+ev_key_mod_left_alt ,+ev_key_mod_right_alt
+		,+ev_key_mod_left_meta ,+ev_key_mod_right_meta
+		,+ev_key_mod_caps_lock ,+ev_key_mod_num_lock)
+	+mod_toggles `'(
+		,+sc_capslock ,+sc_numlockclear))
+
+(defun update-mods-down (scode)
+	(and (defq i (find scode +mod_scodes))
+		(not (find scode +mod_toggles))
+		(setq *mods* (logior *mods* (elem-get i +mod_masks)))))
+
+(defun update-mods-up (scode)
+	(if (defq i (find scode +mod_scodes))
+		(if (find scode +mod_toggles)
+			(setq *mods* (logxor *mods* (elem-get i +mod_masks)))
+			(setq *mods* (logand *mods* (lognot (elem-get i +mod_masks)))))))
+
+(defun cook-key (scode)
+	(defq key :nil)
+	(if (/= (logand *mods* +ev_key_mod_shift) 0)
+		(setq key (. *shift_map* :find scode)))
+	(unless key (setq key (. *normal_map* :find scode)))
+	(unless key (setq key 0))
+	(if (/= (logand *mods* +ev_key_mod_caps_lock) 0)
+		(setq key (ascii-upper key)))
 	key)
 
 (defun set-mouse-id ()
@@ -21,6 +51,39 @@
 			(mail-send owner (setf-> (str-alloc +ev_msg_enter_size)
 				(+ev_msg_type +ev_type_enter)
 				(+ev_msg_target_id *mouse_id*))))) view)
+
+(defun action-key-down ()
+	(defq view (set-mouse-id)
+		scode (getf msg +sdl_keyboard_event_scode))
+	(update-mods-down scode)
+	(prin "scode = " scode)(print)
+	(. *key_dispatch* :insert scode *mouse_id*)
+	(mouse-type view
+		(- *mouse_x* (getf view +view_ctx_x 0))
+		(- *mouse_y* (getf view +view_ctx_y 0)))
+	(when (defq owner (. view :find_owner))
+		(mail-send owner (setf-> (str-alloc +ev_msg_key_size)
+			(+ev_msg_type +ev_type_key_down)
+			(+ev_msg_target_id *mouse_id*)
+			(+ev_msg_key_scode scode)
+			(+ev_msg_key_key (cook-key scode))
+			(+ev_msg_key_mod *mods*)))))
+
+(defun action-key-up ()
+	(defq view (set-mouse-id)
+		scode (getf msg +sdl_keyboard_event_scode)
+		key (getf msg +sdl_keyboard_event_key))
+	(update-mods-up scode)
+	(when (defq old_id (. *key_dispatch* :find scode))
+		(. *key_dispatch* :erase scode)
+		(and (defq view (. *screen* :find_id old_id))
+			(defq owner (. view :find_owner))
+			(mail-send owner (setf-> (str-alloc +ev_msg_key_size)
+				(+ev_msg_type +ev_type_key_up)
+				(+ev_msg_target_id old_id)
+				(+ev_msg_key_scode scode)
+				(+ev_msg_key_key (cook-key scode))
+				(+ev_msg_key_mod *mods*))))))
 
 (defun action-mouse-wheel ()
 	(mouse-type (defq view (set-mouse-id))
@@ -88,29 +151,6 @@
 	(mouse-type (defq view (set-mouse-id))
 		(- *mouse_x* (getf view +view_ctx_x 0))
 		(- *mouse_y* (getf view +view_ctx_y 0))))
-
-(defun action-key-down ()
-	(defq view (set-mouse-id)
-		scode (getf msg +sdl_keyboard_event_scode)
-		key (getf msg +sdl_keyboard_event_key)
-		mod (getf msg +sdl_keyboard_event_mod))
-;	(prin "scode = " scode " key = 0x" (int-to-hex-str key) " mod = 0x" (short-to-hex-str mod))(print)
-	(mouse-type view
-		(- *mouse_x* (getf view +view_ctx_x 0))
-		(- *mouse_y* (getf view +view_ctx_y 0)))
-	(if (defq owner (. view :find_owner))
-		(mail-send owner (setf-> (str-alloc +ev_msg_key_size)
-			(+ev_msg_type +ev_type_key)
-			(+ev_msg_target_id *mouse_id*)
-			(+ev_msg_key_scode scode)
-			(+ev_msg_key_key (cook_key scode key mod))
-			(+ev_msg_key_mod mod)))))
-
-(defun action-key-up ()
-	(defq view (set-mouse-id)
-		scode (getf msg +sdl_keyboard_event_scode)
-		key (getf msg +sdl_keyboard_event_key)
-		mod (getf msg +sdl_keyboard_event_mod)))
 
 (defun action-window ()
 	(cond

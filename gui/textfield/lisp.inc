@@ -49,7 +49,7 @@
 		(defq key (getf event +ev_msg_key_key) mod (getf event +ev_msg_key_mod)
 			cursor (min cursor (length clear_text)))
 		(cond
-			((/= 0 (logand mod (const (+ +ev_key_mod_control +ev_key_mod_command))))
+			((/= 0 (logand mod (const (+ +ev_key_mod_control +ev_key_mod_meta))))
 				;control/command key
 				(cond
 					((= key (ascii-code "a"))
@@ -87,6 +87,15 @@
 					((= key 0x4000004f)
 						;right
 						(setq cursor (min (length clear_text) (inc cursor))))
+					((= key +char_delete)
+						;delete
+						(cond
+							((/= cursor anchor)
+								(defq sx (min anchor cursor) sx1 (max anchor cursor))
+								(setq clear_text (erase clear_text sx sx1) cursor sx))
+							((and (/= cursor (length clear_text)) (/= (length clear_text) 0))
+								(setq clear_text (erase clear_text cursor (inc cursor)))))
+						(setq anchor cursor))
 					((<= +char_space key +char_tilda)
 						;insert char
 						(when (/= cursor anchor)
@@ -107,15 +116,6 @@
 					((and (/= cursor 0) (/= (length clear_text) 0))
 						(setq clear_text (erase clear_text (dec cursor) cursor)
 							cursor (dec cursor))))
-				(setq anchor cursor))
-			((= key +char_delete)
-				;delete
-				(cond
-					((/= cursor anchor)
-						(defq sx (min anchor cursor) sx1 (max anchor cursor))
-						(setq clear_text (erase clear_text sx sx1) cursor sx))
-					((and (/= cursor (length clear_text)) (/= (length clear_text) 0))
-						(setq clear_text (erase clear_text cursor (inc cursor)))))
 				(setq anchor cursor))
 			((= key 0x40000050)
 				;left
