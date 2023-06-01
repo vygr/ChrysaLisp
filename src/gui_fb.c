@@ -919,9 +919,9 @@ static int open_keyboard(void)
         return -1;
     }
 
-	ioctl(fd, KDGKBMODE, &old_kbd_mode);
+	ioctl(keybd_fd, KDGKBMODE, &old_kbd_mode);
     tcgetattr(keybd_fd, &orig);
-	ioctl(fd, KDSKBMODE, K_MEDIUMRAW);
+	ioctl(keybd_fd, KDSKBMODE, K_MEDIUMRAW);
     new = orig;
     new.c_lflag &= ~(ECHO | ICANON | IEXTEN | ISIG);
     new.c_iflag &= ~(ICRNL | INPCK | ISTRIP | IXON | BRKINT);
@@ -937,7 +937,7 @@ static void close_keyboard(void)
 {
     if (keybd_fd >= 0)
 	{
-		ioctl(fd, KDSKBMODE, old_kbd_mode);
+		ioctl(keybd_fd, KDSKBMODE, old_kbd_mode);
         tcsetattr(keybd_fd, TCSANOW, &orig);
         close(keybd_fd);
     }
