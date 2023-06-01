@@ -8,7 +8,7 @@
 (import "gui/lisp.inc" _)
 
 (import "sys/pii/lisp.inc")
-(import "lib/keys/macbook-uk.inc")
+(import "lib/keys/macbook_uk.inc")
 (import "./actions.inc")
 
 (enums +select 0

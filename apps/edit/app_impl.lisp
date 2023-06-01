@@ -408,7 +408,7 @@
 						;insert the char
 						(dispatch-action action-insert (char key))
 						(show-matches))))
-			(:t  ;gui event
+			(:t	;gui event
 				(clear-matches)
 				(. *window* :event *msg*)))
 		;update meta data
