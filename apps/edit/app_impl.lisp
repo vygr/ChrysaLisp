@@ -363,10 +363,13 @@
 			((defq id (getf *msg* +ev_msg_target_id) action (. event_map :find id))
 				;call bound event action
 				(dispatch-action action))
+			((= (getf *msg* +ev_msg_type) +ev_type_key_up)
+				;key up event
+				)
 			((and (not (Textfield? (. *window* :find_id id)))
 					(= (getf *msg* +ev_msg_type) +ev_type_key_down)
 					(> (getf *msg* +ev_msg_key_scode) 0))
-				;key event
+				;key down event
 				(defq key (getf *msg* +ev_msg_key_key) mod (getf *msg* +ev_msg_key_mod))
 				(cond
 					((and match_window (or (= key 0x40000052) (= key 0x40000051)
