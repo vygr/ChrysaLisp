@@ -561,16 +561,13 @@ static uint64_t get_event_timeout(void *data, int timeout)
             unsigned char buf[1];
             if (read(keybd_fd, buf, sizeof(buf)) > 0)
 			{
-				if (buf[0] != 0xe0)
-				{
-					c = scan_code_to_hid_table[buf[0] & 0x7f];
+				c = scan_code_to_hid_table[buf[0] & 0x7f];
 #if DEBUG
-					if (c == 41) exit(1);      /* exit on ESC! */
+				if (c == 41) exit(1);      /* exit on ESC! */
 #endif
-					event->key.keysym.scancode = c;
-					event->type = (buf[0] & 0x80) ? SDL_KEYUP : SDL_KEYDOWN;
-					return 1;
-				}
+				event->key.keysym.scancode = c;
+				event->type = (buf[0] & 0x80) ? SDL_KEYUP : SDL_KEYDOWN;
+				return 1;
             }
         }
         if (fds[1].revents & POLLIN)
