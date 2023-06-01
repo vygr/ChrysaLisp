@@ -551,7 +551,7 @@ static uint64_t get_event_timeout(void *data, int timeout)
 				if (c == 41) exit(1);      /* exit on ESC! */
 #endif
 				event->key.keysym.scancode = c;
-				event->type = ? (buf[0] & 0x80) SDL_KEYDOWN : SDL_KEYUP;
+				event->type = (buf[0] & 0x80) ? SDL_KEYDOWN : SDL_KEYUP;
 				return 1;
             }
         }
