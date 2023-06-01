@@ -56,6 +56,7 @@
 	(defq view (set-mouse-id)
 		scode (getf msg +sdl_keyboard_event_scode))
 	(update-mods-down scode)
+	;(prin scode)(print)
 	(. *key_dispatch* :insert scode *mouse_id*)
 	(mouse-type view
 		(- *mouse_x* (getf view +view_ctx_x 0))

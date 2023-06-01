@@ -13,6 +13,7 @@
 	+char_underscore (ascii-code "_")
 	+char_pipe (ascii-code "|")
 	+char_hash (ascii-code "#")
+	+char_pound 156
 	+char_lrb (ascii-code "(")
 	+char_rrb (ascii-code ")")
 	+char_lsb (ascii-code "[")
@@ -25,7 +26,7 @@
 	+char_comma (ascii-code ",")
 	+char_tilda (ascii-code "~")
 	+char_grave (ascii-code "§")
-	+char_plusminus (ascii-code "±")
+	+char_plusminus 241
 	+char_semi (ascii-code ";")
 	+char_colon (ascii-code ":")
 	+char_dot (ascii-code ".")

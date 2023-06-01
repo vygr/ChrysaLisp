@@ -66,4 +66,6 @@
 (defq
 	*env_keyboard_map* "lib/keys/macbook_uk.inc"
 	;*env_keyboard_map* "lib/keys/macbook_us.inc"
+	;*env_keyboard_map* "lib/keys/microsoft_uk.inc"
+	;*env_keyboard_map* "lib/keys/microsoft_us.inc"
 )
