@@ -4,10 +4,20 @@
 
 ------
 
-New GUI exit app available from the Launcher and from the SDL Window close
-button. This will run the `apps/exit/app.lisp` application and if the user
+New keyboard cooking system. ChrysaLisp now take on the work to map raw scan
+codes to modifier key states and country code cooking of keycaps.
+
+Supported so far:
+
+`lib/keys/macbook_uk.inc`
+`lib/keys/microsoft_uk.inc`
+
+------
+
+New GUI Logout app available from the Launcher and from the SDL Window close
+button. This will run the `apps/logout/app.lisp` application and if the user
 confirms the wish to exit the system then an RPC call to the GUI service will
-be made to exit the GUI.
+be made to quit the GUI.
 
 Currently when the `host_gui_deinit` call is made this will also call `exit(0)`
 ! This is a temporary stop gap while things catch up. This is however VERY

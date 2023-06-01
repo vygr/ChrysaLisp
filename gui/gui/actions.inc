@@ -169,8 +169,8 @@
 			(. *screen* :set_flags +view_flag_dirty_all +view_flag_dirty_all))))
 
 (defun action-quit ()
-	;launch exit app
-	(open-child "apps/exit/app.lisp" +kn_call_open))
+	;launch logout app
+	(open-child "apps/logout/app.lisp" +kn_call_open))
 
 (defq event_map (fmap-kv
 	+SDL_MOUSEWHEEL action-mouse-wheel

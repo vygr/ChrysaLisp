@@ -18,10 +18,8 @@
 (defq *profile_meta_map* (env 1) *profile_return_vals* (list)
 	*stack_frame* (list) *stack_return_vals* (list))
 
-(defq *old_mouse_x* -1 *old_mouse_y* -1 *mouse_type* 0
-	*mouse_x* 0 *mouse_y* 0 *mouse_buttons* 0 *mouse_id* 0
-	*mods* 0 *key_dispatch* (fmap)
-	rate (/ 1000000 60) *running* :t)
+;frame rate
+(defq +rate (/ 1000000 60))
 
 (defun mouse-type (view rx ry)
 	(if view
@@ -48,10 +46,29 @@
 (defun dispatch (msg type)
 	(and (defq action (. event_map :find type)) (action)))
 
+(defun close-apps (quit)
+	;send quit action to all GUI apps
+	;action 0 is reservered for close !
+	(each (lambda (child)
+		(when (defq mbox (. child :find_owner))
+			(defq source_id (. child :get_id))
+			(mail-send mbox (setf-> (str-alloc +ev_msg_action_size)
+				(+ev_msg_type +ev_type_action)
+				(+ev_msg_target_id 0)
+				(+ev_msg_action_source_id source_id)))))
+		(. *screen* :children))
+	;run login app or quit ?
+	(if quit
+		(setq *quiting* :t)
+		(open-child "apps/login/app.lisp" +kn_call_open)))
+
 (defun main ()
-	;declare service
+	;declare service and vars
 	(defq select (alloc-select +select_size)
-		service (mail-declare (task-mailbox) "GUI_SERVICE" "GUI Service 0.2"))
+		service (mail-declare (task-mailbox) "GUI_SERVICE" "GUI Service 0.2")
+		*running* :t *quiting* :nil *old_mouse_x* -1 *old_mouse_y* -1
+		*mouse_type* 0 *mouse_x* 0 *mouse_y* 0 *mouse_buttons* 0 *mouse_id* 0
+		*mods* 0 *key_dispatch* (fmap))
 	;init screen widget
 	(def (defq *screen* (Backdrop)) :style :grid :color +argb_grey2 :ink_color +argb_grey1)
 	(. (gui-init (. *screen* :change *env_window_x* *env_window_y* *env_window_width* *env_window_height*)) :dirty_all)
@@ -65,7 +82,7 @@
 	;fire up the login app and clipboard service
 	(open-child "apps/login/app.lisp" +kn_call_open)
 	(open-child "apps/clipboard/app.lisp" +kn_call_open)
-	(mail-timeout (elem-get +select_timer select) rate 0)
+	(mail-timeout (elem-get +select_timer select) +rate 0)
 	(while *running*
 		(let* ((idx (mail-select select))
 			  (msg (mail-read (elem-get idx select))))
@@ -75,25 +92,20 @@
 					(bind '(cmd view owner reply) msg)
 					(cond
 						((= cmd 0)
-							;send quit action to all GUI apps
-							;action 0 is reservered for close !
-							(each (lambda (child)
-								(when (defq mbox (. child :find_owner))
-									(defq source_id (. child :get_id))
-									(mail-send mbox (setf-> (str-alloc +ev_msg_action_size)
-										(+ev_msg_type +ev_type_action)
-										(+ev_msg_target_id 0)
-										(+ev_msg_action_source_id source_id)))))
-								(. *screen* :children)))
+							;quit all
+							(close-apps :t))
 						((= cmd 1)
+							;quit all, restart login
+							(close-apps :nil))
+						((= cmd 2)
 							;hide and sub view
 							(.-> view :hide :sub))
-						((= cmd 2)
+						((= cmd 3)
 							;add view at front
 							(setf view +view_owner_id owner 0)
 							(. *screen* :add_back view)
 							(. view :to_front))
-						((= cmd 3)
+						((= cmd 4)
 							;add view at back
 							(setf view +view_owner_id owner 0)
 							(. *screen* :add_back view)
@@ -104,7 +116,7 @@
 					)
 				((= idx +select_timer)
 					;timer event
-					(mail-timeout (elem-get +select_timer select) rate 0)
+					(mail-timeout (elem-get +select_timer select) +rate 0)
 					(gui-update *mouse_x* *mouse_y* 0)
 					;dispatch events, roll up mouse motion
 					(defq last_motion :nil)
@@ -122,7 +134,7 @@
 					(each (# (unless (and (defq owner (. %0 :find_owner)) (mail-validate owner))
 							(.-> %0 :hide :sub))) (defq children (. *screen* :children)))
 					;quit if no apps
-					(if (<= (length children) 1) (setq *running* :nil))))))
+					(and *quiting* (<= (length children) 1) (setq *running* :nil))))))
 	(mail-forget service)
 	(free-select select)
 	(gui-deinit))

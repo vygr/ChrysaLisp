@@ -3,16 +3,16 @@
 (import "gui/lisp.inc")
 
 (enums +event 0
-	(enum close confirm))
+	(enum close logout quit))
 
 (ui-window *window* ()
-	(ui-title-bar _ "Exit" () ())
+	(ui-title-bar _ "Logout Manager" () ())
 	(ui-label _ (:text (num-to-utf8 0xea47) :color +argb_white
 		:font *env_warning_font*
 		:flow_flags (logior +flow_flag_align_vcenter +flow_flag_align_hcenter)))
 	(ui-label _ (:text "Do you wish to exit?" :color +argb_white))
 	(ui-grid _ (:grid_height 1)
-		(ui-buttons ("Cancel" "Confirm") +event_close)))
+		(ui-buttons ("Cancel" "Logout" "Quit") +event_close)))
 
 (defun position-window ()
 	(bind '(w h) (. *window* :pref_size))
@@ -31,8 +31,11 @@
 		((= id +event_close)
 			;app close
 			:nil)
-		((= id +event_confirm)
-			;confirm button
-			(gui-exit))
+		((= id +event_logout)
+			;logout button
+			(gui-logout))
+		((= id +event_quit)
+			;quit button
+			(gui-quit))
 		(:t (. *window* :event msg))))
 	(gui-sub *window*))
