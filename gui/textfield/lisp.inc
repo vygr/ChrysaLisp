@@ -87,15 +87,6 @@
 					((= key 0x4000004f)
 						;right
 						(setq cursor (min (length clear_text) (inc cursor))))
-					((= key +char_delete)
-						;delete
-						(cond
-							((/= cursor anchor)
-								(defq sx (min anchor cursor) sx1 (max anchor cursor))
-								(setq clear_text (erase clear_text sx sx1) cursor sx))
-							((and (/= cursor (length clear_text)) (/= (length clear_text) 0))
-								(setq clear_text (erase clear_text cursor (inc cursor)))))
-						(setq anchor cursor))
 					((<= +char_space key +char_tilda)
 						;insert char
 						(when (/= cursor anchor)
@@ -116,6 +107,15 @@
 					((and (/= cursor 0) (/= (length clear_text) 0))
 						(setq clear_text (erase clear_text (dec cursor) cursor)
 							cursor (dec cursor))))
+				(setq anchor cursor))
+			((= key +char_delete)
+				;delete
+				(cond
+					((/= cursor anchor)
+						(defq sx (min anchor cursor) sx1 (max anchor cursor))
+						(setq clear_text (erase clear_text sx sx1) cursor sx))
+					((and (/= cursor (length clear_text)) (/= (length clear_text) 0))
+						(setq clear_text (erase clear_text cursor (inc cursor)))))
 				(setq anchor cursor))
 			((= key 0x40000050)
 				;left

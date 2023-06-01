@@ -24,11 +24,10 @@
 	+sc_equals +char_equal +sc_grave +char_grave +sc_period +char_dot
 	+sc_slash +char_divide +sc_backslash +char_backslash +sc_nonusbackslash +char_tick
 	+sc_leftbracket +char_lsb +sc_rightbracket +char_rsb +sc_semicolon +char_semi
-	+sc_apostrophe +char_quote +sc_comma +char_comma
+	+sc_apostrophe +char_quote +sc_comma +char_comma +sc_delete +char_delete
 	+sc_right 0x4000004f +sc_left 0x40000050
 	+sc_down 0x40000051 +sc_up 0x40000052
-	+sc_home 0x4000004A +sc_end 0x4000004D
-	)
+	+sc_home 0x4000004A +sc_end 0x4000004D)
 *shift_map* (fmap-kv
 	+sc_a (ascii-code "A") +sc_b (ascii-code "B") +sc_c (ascii-code "C")
 	+sc_d (ascii-code "D") +sc_e (ascii-code "E") +sc_f (ascii-code "F")
@@ -43,7 +42,7 @@
 	+sc_3 (ascii-code "#") +sc_4 (ascii-code "$") +sc_5 (ascii-code "%")
 	+sc_6 (ascii-code "^") +sc_7 (ascii-code "&") +sc_8 (ascii-code "*")
 	+sc_9 (ascii-code "(")
-	+sc_backspace +char_delete +sc_minus +char_underscore +sc_equals +char_plus
+	+sc_minus +char_underscore +sc_equals +char_plus
 	+sc_period +char_gt +sc_slash +char_question +sc_backslash +char_pipe
 	+sc_nonusbackslash +char_tilda +sc_leftbracket +char_lcb
 	+sc_rightbracket +char_rcb +sc_semicolon +char_colon +sc_apostrophe +char_double_quote

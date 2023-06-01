@@ -34,11 +34,11 @@ key_map (fmap-kv
 	+char_lf action-break
 	+char_cr action-break
 	+char_backspace action-backspace
+	+char_delete action-delete
 	+char_tab action-tab
 	+char_esc action-escape)
 
-key_map_shift (fmap-kv
-	+char_delete action-delete)
+key_map_shift (fmap-kv)
 
 key_map_control (fmap-kv
 	(ascii-code "w") action-select-word
