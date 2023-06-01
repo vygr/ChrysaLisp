@@ -395,7 +395,8 @@ void host_gui_blit(Texture *texture, const Rect *srect, const Rect *drect)
 #define BUTTON_SCROLLUP 0x20      /* wheel up*/
 #define BUTTON_SCROLLDN 0x40      /* wheel down*/
 
-const uint8_t scan_code_to_hid_table[128] = {
+const uint8_t scan_code_to_hid_table[128] =
+{
   /* 0 */ 0,
   /* 1 +sc_escape */ 41,
   /* 2 */ 0,
@@ -546,21 +547,11 @@ static uint64_t get_event_timeout(void *data, int timeout)
             if (read(keybd_fd, buf, sizeof(buf)) > 0)
 			{
 				c = scan_code_to_hid_table[buf[0] & 0x7f];
-				if (buf[0] & 0x80)
-				{
-					/* key down */
 #if DEBUG
-					if (c == 41) exit(1);      /* exit on ESC! */
+				if (c == 41) exit(1);      /* exit on ESC! */
 #endif
-					event->type = SDL_KEYDOWN;
-					event->key.keysym.scancode = c;
-				}
-				else
-				{
-					/* key up */
-					event->type = SDL_KEYUP;
-					event->key.keysym.scancode = c;
-				}
+				event->key.keysym.scancode = c;
+				event->type = ? (buf[0] & 0x80) SDL_KEYDOWN : SDL_KEYUP;
 				return 1;
             }
         }
