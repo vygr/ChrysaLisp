@@ -70,8 +70,7 @@
 
 (defun action-key-up ()
 	(defq view (set-mouse-id)
-		scode (getf msg +sdl_keyboard_event_scode)
-		key (getf msg +sdl_keyboard_event_key))
+		scode (getf msg +sdl_keyboard_event_scode))
 	(update-mods-up scode)
 	(when (defq old_id (. *key_dispatch* :find scode))
 		(. *key_dispatch* :erase scode)
