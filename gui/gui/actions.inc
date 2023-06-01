@@ -17,8 +17,8 @@
 		,+sc_capslock ,+sc_numlockclear))
 
 (defun update-mods-down (scode)
-	(and (defq i (find scode +mod_scodes))
-		(not (find scode +mod_toggles))
+	(and (not (find scode +mod_toggles))
+		(defq i (find scode +mod_scodes))
 		(setq *mods* (logior *mods* (elem-get i +mod_masks)))))
 
 (defun update-mods-up (scode)
