@@ -61,3 +61,9 @@
 	*env_editor_font* (create-font "fonts/Hack-Regular.ctf" 20)
 	*env_tip_font* (create-font "fonts/OpenSans-Regular.ctf" 14)
 	*env_warning_font* (create-font "fonts/Entypo.ctf" 64))
+
+;keyboard map module
+(defq
+	*env_keyboard_map* "lib/keys/macbook_uk.inc"
+	;*env_keyboard_map* "lib/keys/macbook_us.inc"
+)
