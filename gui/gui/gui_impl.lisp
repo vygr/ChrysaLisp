@@ -8,6 +8,8 @@
 (import "gui/lisp.inc" _)
 
 (import "sys/pii/lisp.inc")
+(defq *env_user* "Guest")
+(import "apps/login/Guest/pupa.inc")
 (import *env_keyboard_map*)
 (import "./actions.inc")
 

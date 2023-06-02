@@ -1,3 +1,4 @@
+(import "apps/login/pupa.inc")
 (import "class/lisp.inc")
 (import "gui/lisp.inc")
 (import "./app.inc")

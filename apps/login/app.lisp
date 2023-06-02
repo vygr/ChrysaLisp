@@ -1,4 +1,5 @@
 (defq *env_user* "Guest")
+(import "apps/login/Guest/pupa.inc")
 (import "sys/lisp.inc")
 (import "class/lisp.inc")
 (import "gui/lisp.inc")

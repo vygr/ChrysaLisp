@@ -1,5 +1,4 @@
 ;import symbols
-(import "apps/login/pupa.inc")
 (import "lib/consts/colors.inc")
 
 ;lisp bindings
