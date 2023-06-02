@@ -12,6 +12,8 @@ Supported so far:
 `lib/keys/macbook_uk.inc`
 `lib/keys/microsoft_uk.inc`
 
+Test user account added to check test cycle of Login/Logout.
+
 ------
 
 New GUI Logout app available from the Launcher and from the SDL Window close
