@@ -8,6 +8,8 @@ In no particular order but to just to ensure I get thoughts down. I'll keep
 adding to this as I go along. If anybody would like to try helping out, then
 just get in touch.
 
+* Environment browser GUI app to aid debugging and housekeeping.
+
 * `pupa.inc` for Guest should always run prior to the user `pupa.inc` file to
 ensure defaults present for all env vars.
 
