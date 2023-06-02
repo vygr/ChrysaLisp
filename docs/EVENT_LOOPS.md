@@ -133,9 +133,11 @@ and remove your application window from the screen.
 		(mail-free-mbox mbox)
 		view))
 
-(defmacro gui-sub (view) `(gui-rpc ,view 0))
-(defmacro gui-add-front (view) `(gui-rpc ,view 1))
-(defmacro gui-add-back (view) `(gui-rpc ,view 2))
+(defmacro gui-quit () `(gui-rpc :nil 0))
+(defmacro gui-logout () `(gui-rpc :nil 1))
+(defmacro gui-sub (view) `(gui-rpc ,view 2))
+(defmacro gui-add-front (view) `(gui-rpc ,view 3))
+(defmacro gui-add-back (view) `(gui-rpc ,view 4))
 ```
 
 Don't worry about the service lookup code, just the RPC part:
