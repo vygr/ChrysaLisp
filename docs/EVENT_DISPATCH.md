@@ -83,6 +83,11 @@ Lets look at the `apps/bubbles/app.lisp`, Bubbles demo:
 We are going to use these target ids when we construct the UI tree for the
 application.
 
+Please note that target id `0`, is reserved for, and should always be used to
+indicate the application needs to close ! This action event will be sent by the
+GUI service when the user wishes to logout or shutdown the system ! The best
+thing is use this for your close button event.
+
 * `+event_close, +event_min, +event_max` for our title bar window buttons.
 
 * `+event_reset` for the main toolbar button, that makes the demo reset with a
