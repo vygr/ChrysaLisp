@@ -35,6 +35,9 @@ These event messages follow a standard format, have a common header that they
 inherit from, and extended fields for each individual event type.
 
 ```vdu
+(enums +ev_type 0
+	(enum mouse key_down key_up action gui wheel enter exit))
+
 (structure +ev_msg 0
 	(ulong target_id type))
 
@@ -47,7 +50,7 @@ inherit from, and extended fields for each individual event type.
 	(int x y))
 
 (structure +ev_msg_key +ev_msg_size
-	(uint keycode key mod))
+	(uint scode key mod))
 
 (structure +ev_msg_action +ev_msg_size
 	(ulong source_id))
