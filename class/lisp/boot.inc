@@ -417,30 +417,6 @@
 			(each! -2 0 (lambda (_e)
 				(setq _a (_f _a _e))) (list _l)))) _a)
 
-(defun reduced-reduce (_f _l &optional _a)
-	; (reduced-reduce lambda seq [accum]) -> form
-	(defq __x :nil)
-	(cond
-		(_a (some! 0 -1 :nil (lambda (_e)
-				(cond (__x :t) (:t (setq _a (_f _a _e)) :nil))) (list _l)))
-		(:t (setq _a (elem-get 0 _l))
-			(some! 1 -1 :nil (lambda (_e)
-				(cond (__x :t) (:t (setq _a (_f _a _e)) :nil))) (list _l)))) _a)
-
-(defun reduced-reduce-rev (_f _l &optional _a)
-	; (reduced-reduce-rev lambda seq [accum]) -> form
-	(defq __x :nil)
-	(cond
-		(_a (some! -1 0 :nil (lambda (_e)
-				(cond (__x :t) (:t (setq _a (_f _a _e)) :nil))) (list _l)))
-		(:t (setq _a (elem-get -2 _l))
-			(some! -2 0 :nil (lambda (_e)
-				(cond (__x :t) (:t (setq _a (_f _a _e)) :nil))) (list _l)))) _a)
-
-(defmacro reduced (_a)
-	; (reduced accum)
-	`(progn (setq __x :t) ,_a))
-
 ;;;;;;;;
 ; Scopes
 ;;;;;;;;

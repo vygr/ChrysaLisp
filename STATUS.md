@@ -877,10 +877,6 @@ Added (def:) macro for easy definition of self evaluating symbols.
 'find and 'rfind methods promoted to the 'seq interface. (find) and (find-rev)
 can now search all seq subclasses.
 
-Added, to `class/lisp/boot.inc`, proposed new (reduced-reduce) and
-(reduced-reduce-rev) variants of (reduce) that allow early exit by use of the
-(reduced acc) macro.
-
 Promoted the (get) macro from `gui/lisp.inc` to `class/lisp/boot.inc`.
 
 Added `cmd/files.lisp` to list files that match a given directory postfix and

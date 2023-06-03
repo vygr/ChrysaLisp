@@ -3714,24 +3714,6 @@
 (reduce-rev lambda seq [accum]) -> form
 ```
 
-### reduced
-
-```code
-(reduced accum)
-```
-
-### reduced-reduce
-
-```code
-(reduced-reduce lambda seq [accum]) -> form
-```
-
-### reduced-reduce-rev
-
-```code
-(reduced-reduce-rev lambda seq [accum]) -> form
-```
-
 ### repl
 
 ```code
