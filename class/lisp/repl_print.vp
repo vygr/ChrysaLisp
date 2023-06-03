@@ -46,7 +46,7 @@
 			(else)
 				(assign '((:r0 lisp_sym_splicing)) '(:r2))
 				(breakif '(:r3 /= :r2) 'notquote)
-				(call 'stream :write_char '(:r1 +char_tilda))
+				(call 'stream :write_char '(:r1 +char_tilde))
 			(endswitch)
 			(assign '((:rsp local_value)) '(:r0))
 			(assign '((:r0 array_length)) '(:r1))

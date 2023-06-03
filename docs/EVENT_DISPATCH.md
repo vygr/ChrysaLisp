@@ -303,7 +303,7 @@ event and key dispatching code.
 							((defq action (. key_map_shift :find key))
 								...
 								(dispatch-action action))
-							((<= +char_space key +char_tilda)
+							((<= +char_space key +char_tilde)
 								(dispatch-action action-insert (char key))
 								...
 								)))
@@ -311,7 +311,7 @@ event and key dispatching code.
 						;call bound key action
 						...
 						(dispatch-action action))
-					((<= +char_space key +char_tilda)
+					((<= +char_space key +char_tilde)
 						;insert the char
 						(dispatch-action action-insert (char key))
 						...

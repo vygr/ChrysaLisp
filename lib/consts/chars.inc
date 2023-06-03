@@ -24,7 +24,7 @@
 	+char_double_quote 34
 	+char_tick (ascii-code "`")
 	+char_comma (ascii-code ",")
-	+char_tilda (ascii-code "~")
+	+char_tilde (ascii-code "~")
 	+char_grave (ascii-code "§")
 	+char_plusminus 241
 	+char_semi (ascii-code ";")

@@ -398,14 +398,14 @@
 							((defq action (. key_map_shift :find key))
 								(clear-matches)
 								(dispatch-action action))
-							((<= +char_space key +char_tilda)
+							((<= +char_space key +char_tilde)
 								(dispatch-action action-insert (char key))
 								(show-matches))))
 					((defq action (. key_map :find key))
 						;call bound key action
 						(clear-matches)
 						(dispatch-action action))
-					((<= +char_space key +char_tilda)
+					((<= +char_space key +char_tilde)
 						;insert the char
 						(dispatch-action action-insert (char key))
 						(show-matches))))

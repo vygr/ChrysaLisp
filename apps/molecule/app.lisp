@@ -226,13 +226,13 @@
 						(cond
 							((defq action (. key_map_shift :find key))
 								(dispatch-action action))
-							((<= +char_space key +char_tilda)
+							((<= +char_space key +char_tilde)
 								;insert char etc ...
 								(char key))))
 					((defq action (. key_map :find key))
 						;call bound key action
 						(dispatch-action action))
-					((<= +char_space key +char_tilda)
+					((<= +char_space key +char_tilde)
 						;insert char etc ...
 						(char key))))
 			(:t  ;gui event

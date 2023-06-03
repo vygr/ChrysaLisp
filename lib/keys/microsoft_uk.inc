@@ -49,7 +49,7 @@
 	+sc_6 (ascii-code "^") +sc_7 (ascii-code "&") +sc_8 (ascii-code "*")
 	+sc_9 (ascii-code "(")
 	+sc_minus +char_underscore +sc_equals +char_plus
-	+sc_period +char_gt +sc_slash +char_question +sc_backslash +char_tilda
+	+sc_period +char_gt +sc_slash +char_question +sc_backslash +char_tilde
 	+sc_nonusbackslash +char_pipe +sc_leftbracket +char_lcb
 	+sc_rightbracket +char_rcb +sc_semicolon +char_colon +sc_apostrophe +char_at
 	+sc_comma +char_lt +sc_grave +char_plusminus)

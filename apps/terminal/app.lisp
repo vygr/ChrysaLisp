@@ -155,12 +155,12 @@
 						(cond
 							((defq action (. key_map_shift :find key))
 								(action))
-							((<= +char_space key +char_tilda)
+							((<= +char_space key +char_tilde)
 								(action-insert (char key)))))
 					((defq action (. key_map :find key))
 						;call bound key action
 						(action))
-					((<= +char_space key +char_tilda)
+					((<= +char_space key +char_tilde)
 						;insert the char
 						(action-insert (char key)))))
 			(:t  ;gui event

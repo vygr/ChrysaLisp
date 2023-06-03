@@ -44,7 +44,7 @@
 	+sc_9 (ascii-code "(")
 	+sc_minus +char_underscore +sc_equals +char_plus
 	+sc_period +char_gt +sc_slash +char_question +sc_backslash +char_pipe
-	+sc_nonusbackslash +char_tilda +sc_leftbracket +char_lcb
+	+sc_nonusbackslash +char_tilde +sc_leftbracket +char_lcb
 	+sc_rightbracket +char_rcb +sc_semicolon +char_colon +sc_apostrophe +char_double_quote
 	+sc_comma +char_lt +sc_grave +char_plusminus)
 )

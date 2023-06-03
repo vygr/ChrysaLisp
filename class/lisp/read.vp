@@ -45,7 +45,7 @@
 		(jump 'lisp :read_rmacro '(:r0 :r1 :r2 (:r0 lisp_sym_qquote)))
 	(vpcase '(:r2 = +char_comma))
 		(jump 'lisp :read_rmacro '(:r0 :r1 :r2 (:r0 lisp_sym_unquote)))
-	(vpcase '(:r2 = +char_tilda))
+	(vpcase '(:r2 = +char_tilde))
 		(jump 'lisp :read_rmacro '(:r0 :r1 :r2 (:r0 lisp_sym_splicing)))
 	(vpcase '(:r2 = +char_semi))
 		(vp-push :r0)
