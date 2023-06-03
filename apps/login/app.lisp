@@ -1,5 +1,5 @@
 (defq *env_user* "Guest")
-(import "apps/login/Guest/pupa.inc")
+(import "./Guest/pupa.inc")
 (import "sys/lisp.inc")
 (import "class/lisp.inc")
 (import "gui/lisp.inc")
@@ -49,7 +49,6 @@
 					;login user
 					(save user "apps/login/current")
 					(open-child "apps/wallpaper/app.lisp" +kn_call_open)
-					(task-sleep 100000)
 					:nil)
 				(:t	:t)))
 		((= id +event_create)
@@ -62,7 +61,6 @@
 					;login new user
 					(save user "apps/login/current")
 					(open-child "apps/wallpaper/app.lisp" +kn_call_open)
-					(task-sleep 100000)
 					:nil)
 				(:t	:t)))
 		(:t (. *window* :event msg))))

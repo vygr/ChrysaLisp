@@ -4,7 +4,7 @@
 ;which they appear. No warranty is given, and no liability for use or
 ;distribution is expressed or implied by the works' original copyright holder.
 
-(import "apps/login/pupa.inc")
+(import "././login/pupa.inc")
 (import "sys/lisp.inc")
 (import "class/lisp.inc")
 (import "gui/lisp.inc")
