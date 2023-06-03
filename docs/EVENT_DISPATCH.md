@@ -28,16 +28,13 @@ There are various GUI event types, listed in `gui/gui/lisp.inc`:
 
 ```vdu
 (enums +ev_type 0
-	(enum mouse key action gui wheel enter exit))
+	(enum mouse key_down key_up action gui wheel enter exit))
 ```
 
 These event messages follow a standard format, have a common header that they
 inherit from, and extended fields for each individual event type.
 
 ```vdu
-(enums +ev_type 0
-	(enum mouse key_down key_up action gui wheel enter exit))
-
 (structure +ev_msg 0
 	(ulong target_id type))
 
