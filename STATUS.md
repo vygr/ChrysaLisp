@@ -4,6 +4,11 @@
 
 ------
 
+Renamed the `vp-vec` op to `vp-simd` as this carries better info at the source
+level.
+
+------
+
 New keyboard cooking system. ChrysaLisp now takes on the work to map raw scan
 codes to modifier key states and country code cooking of keycaps.
 
