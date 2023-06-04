@@ -212,7 +212,7 @@ functions.
 (vp-abs rd &optional rd)
 (vp-min rs rd &optional rd)
 (vp-max rs rd &optional rd)
-(vp-vec op rsv rdv)
+(vp-simd op rsv rdv)
 ```
 
 Register op keys:

@@ -4,7 +4,7 @@
 
 ------
 
-New keyboard cooking system. ChrysaLisp now take on the work to map raw scan
+New keyboard cooking system. ChrysaLisp now takes on the work to map raw scan
 codes to modifier key states and country code cooking of keycaps.
 
 Supported so far:

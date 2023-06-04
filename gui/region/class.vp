@@ -814,7 +814,7 @@
 	(loop-flist :r1 0 :r6 :r6)
 		(assign '((:rsp local_dx) (:rsp local_dy) (:r6 rect_x) (:r6 rect_y) (:r6 rect_x1) (:r6 rect_y1))
 			'(:r11 :r12 :r7 :r8 :r9 :r10))
-		(vp-vec vp-add-rr '(:r11 :r12 :r11 :r12) '(:r7 :r8 :r9 :r10))
+		(vp-simd vp-add-rr '(:r11 :r12 :r11 :r12) '(:r7 :r8 :r9 :r10))
 		(call 'region :remove_rect '(:r0 (:rsp local_dlist) :r7 :r8 :r9 :r10))
 	(loop-end)
 
@@ -849,7 +849,7 @@
 	(loop-flist :r3 0 :r5 :r5)
 		(assign '((:rsp local_dx) (:rsp local_dy) (:r5 rect_x) (:r5 rect_y) (:r5 rect_x1) (:r5 rect_y1))
 			'(:r11 :r12 :r7 :r8 :r9 :r10))
-		(vp-vec vp-add-rr '(:r11 :r12 :r11 :r12) '(:r7 :r8 :r9 :r10))
+		(vp-simd vp-add-rr '(:r11 :r12 :r11 :r12) '(:r7 :r8 :r9 :r10))
 		(call 'region :copy_rect '(:r0 (:rsp local_slist) :r6 :r7 :r8 :r9 :r10))
 	(loop-end)
 
@@ -883,7 +883,7 @@
 	(loop-flist :r1 0 :r1 :r1)
 		(assign '(:r1 (:rsp local_dx) (:rsp local_dy) (:r1 rect_x) (:r1 rect_y) (:r1 rect_x1) (:r1 rect_y1))
 			'((:rsp local_node) :r11 :r12 :r7 :r8 :r9 :r10))
-		(vp-vec vp-add-rr '(:r11 :r12 :r11 :r12) '(:r7 :r8 :r9 :r10))
+		(vp-simd vp-add-rr '(:r11 :r12 :r11 :r12) '(:r7 :r8 :r9 :r10))
 		(call 'region :paste_rect '(:r0 (:rsp local_dlist) :r7 :r8 :r9 :r10))
 		(assign '((:rsp local_node)) '(:r1))
 	(loop-end)
@@ -959,15 +959,15 @@
 
 	(assign '((:r1 ln_fnode_next)) '(:r1))
 	(vpif '(:r1 = 0))
-		(vp-vec vp-cpy-rr '(:r1 :r1 :r1 :r1) '(:r7 :r8 :r9 :r10))
+		(vp-simd vp-cpy-rr '(:r1 :r1 :r1 :r1) '(:r7 :r8 :r9 :r10))
 	(else)
 		;first rect
 		(assign '((:r1 rect_x) (:r1 rect_y) (:r1 rect_x1) (:r1 rect_y1)) '(:r7 :r8 :r9 :r10))
 		;run through region list
 		(loop-flist :r1 0 :r1 :r1)
 			(assign '((:r1 rect_x) (:r1 rect_y) (:r1 rect_x1) (:r1 rect_y1)) '(:r11 :r12 :r13 :r14))
-			(vp-vec vp-min '(:r11 :r12) '(:r7 :r8))
-			(vp-vec vp-max '(:r13 :r14) '(:r9 :r10))
+			(vp-simd vp-min '(:r11 :r12) '(:r7 :r8))
+			(vp-simd vp-max '(:r13 :r14) '(:r9 :r10))
 		(loop-end)
 	(endif)
 
@@ -989,7 +989,7 @@
 	;run through source region list
 	(loop-flist :r1 0 :r1 :r1)
 		(assign '((:r1 rect_x) (:r1 rect_y) (:r1 rect_x1) (:r1 rect_y1)) '(:r11 :r12 :r13 :r14))
-		(vp-vec vp-add-rr '(:r7 :r8 :r7 :r8) '(:r11 :r12 :r13 :r14))
+		(vp-simd vp-add-rr '(:r7 :r8 :r7 :r8) '(:r11 :r12 :r13 :r14))
 		(assign '(:r11 :r12 :r13 :r14) '((:r1 rect_x) (:r1 rect_y) (:r1 rect_x1) (:r1 rect_y1)))
 	(loop-end)
 	(vp-ret)

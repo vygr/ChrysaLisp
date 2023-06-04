@@ -92,17 +92,17 @@
 		'(:list :num :num :num :num :num :list))
 
 	;bump record ref count for pushes and return
-	(vp-vec vp-cpy-rr `(,maxx ,maxy) '(:r13 :r14))
-	(vp-vec vp-sub-rr `(,minx ,miny) '(:r13 :r14))
-	(vp-vec vp-add-cr '(1 1) '(:r13 :r14))
+	(vp-simd vp-cpy-rr `(,maxx ,maxy) '(:r13 :r14))
+	(vp-simd vp-sub-rr `(,minx ,miny) '(:r13 :r14))
+	(vp-simd vp-add-cr '(1 1) '(:r13 :r14))
 	(vp-mul-rr :r13 :r14)
 	(vp-add-cr 1 :r14)
 	(class/obj/ref record :r13 :r14)
 
-	(vp-vec vp-mul-rr `(,width ,width) `(,miny ,maxy))
+	(vp-simd vp-mul-rr `(,width ,width) `(,miny ,maxy))
 	(loop-start)
-		(vp-vec vp-cpy-rr `(,minx ,maxx) `(,buckets_iter ,buckets_iter_end))
-		(vp-vec vp-add-rr `(,miny ,miny) `(,buckets_iter ,buckets_iter_end))
+		(vp-simd vp-cpy-rr `(,minx ,maxx) `(,buckets_iter ,buckets_iter_end))
+		(vp-simd vp-add-rr `(,miny ,miny) `(,buckets_iter ,buckets_iter_end))
 		(class/array/get_iters buckets buckets_iter buckets_iter_end :r0)
 		(loop-start)
 			(call 'list :push_back `((,buckets_iter 0) ,record) `(_ ,record _ _))

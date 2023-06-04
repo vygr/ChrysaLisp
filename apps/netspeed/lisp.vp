@@ -42,7 +42,7 @@
 		(vp-def (loop r1 r2 r3 r4 r5 r6 r7 r8 r9))
 		(vp-cpy-cr 0 loop)
 		(loop-start)
-			(vp-vec vp-cpy-cr '(1 2 3 4 5 6 7 8 9) `(,r1 ,r2 ,r3 ,r4 ,r5 ,r6 ,r7 ,r8 ,r9))
+			(vp-simd vp-cpy-cr '(1 2 3 4 5 6 7 8 9) `(,r1 ,r2 ,r3 ,r4 ,r5 ,r6 ,r7 ,r8 ,r9))
 			(test-block-s 990
 				(vp-add-cr 3 r2) (vp-add-cr 3 r3) (vp-add-cr 3 r4) (vp-add-cr 3 r5)
 				(vp-add-cr 3 r6) (vp-add-cr 3 r7) (vp-add-cr 3 r8) (vp-add-cr 3 r9)

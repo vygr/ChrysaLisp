@@ -23,7 +23,7 @@ x64 isn't really the way things should be done anymore.
 redesign the format to make it easier to test. This will speed up most of the
 optimization stages of the compiler and assembler.
 
-* Add support for `(vp-vec)` instructions at the translator level. MMX, SSX
+* Add support for `(vp-simd)` instructions at the translator level. MMX, SSX
 etc.
 
 * SDL2 Audio output, plus the implementation of a ChrysaLisp multi channel
