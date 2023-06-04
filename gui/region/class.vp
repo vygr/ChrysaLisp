@@ -959,7 +959,7 @@
 
 	(assign '((:r1 ln_fnode_next)) '(:r1))
 	(vpif '(:r1 = 0))
-		(assign '(:r1 :r1 :r1 :r1) '(:r7 :r8 :r9 :r10))
+		(vp-vec vp-cpy-rr '(:r1 :r1 :r1 :r1) '(:r7 :r8 :r9 :r10))
 	(else)
 		;first rect
 		(assign '((:r1 rect_x) (:r1 rect_y) (:r1 rect_x1) (:r1 rect_y1)) '(:r7 :r8 :r9 :r10))
