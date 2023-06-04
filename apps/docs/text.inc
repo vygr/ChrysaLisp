@@ -72,7 +72,7 @@
 		((starts-with "```" line)
 			;section start
 			(if (eql (setq state (sym (cat ":" (slice 3 -1 line)))) :) :code state))
-		(:t  ;body text
+		(:t ;body text
 			(cond
 				((eql line "")
 					;body paragraph end
@@ -94,7 +94,7 @@
 					(heading (line-words (slice 2 -1 line)) 34)
 					(under-line 4)
 					(blank-line))
-				(:t  (each (lambda (word)
+				(:t (each (lambda (word)
 						(push words word)) (line-words line))))
 			state)))
 
