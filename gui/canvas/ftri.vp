@@ -30,10 +30,10 @@
 	(assign {x0, y0, x0, y0, x1, y1, x2, y2,
 			this->canvas_cx, this->canvas_cy, this->canvas_cx1, this->canvas_cy1}
 		(list bx by bx1 by1 x1 y1 x2 y2 cx cy cx1 cy1))
-	(vp-min x1 bx) (vp-max x1 bx1)
-	(vp-min x2 bx) (vp-max x2 bx1)
-	(vp-min y1 by) (vp-max y1 by1)
-	(vp-min y2 by) (vp-max y2 by1)
+	(vp-vec vp-min `(,x1 ,y1) `(,bx ,by))
+	(vp-vec vp-max `(,x1 ,y1) `(,bx1 ,by1))
+	(vp-vec vp-min `(,x2 ,y2) `(,bx ,by))
+	(vp-vec vp-max `(,x2 ,y2) `(,bx1 ,by1))
 	(vp-vec vp-shl-cr '(+fp_shift +fp_shift) `(,cx ,cy))
 	(vp-vec vp-shl-cr '(+fp_shift +fp_shift) `(,cx1 ,cy1))
 
