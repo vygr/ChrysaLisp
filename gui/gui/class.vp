@@ -251,7 +251,7 @@
 			(loop-until '(:r1 = :r2))
 
 			;free any temp region
-			(call 'region :free '(:r0 (& :rsp vis_region)) '(:r0))
+			(call 'region :free '(:r0 (& :rsp vis_region)) '(:r0 _))
 		(endif)
 	(endif)
 
@@ -293,7 +293,7 @@
 		;free local dirty region
 		(assign '((:rsp vis_this)) '(:r1))
 		(vp-add-cr view_dirty_region :r1)
-		(call 'region :free '(:r0 :r1) '(:r0))
+		(call 'region :free '(:r0 :r1) '(:r0 _))
 	(endif)
 
 	;if dirty all flag then paste entire view onto parent

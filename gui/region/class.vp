@@ -1016,6 +1016,7 @@
 	;:r1 = source region listhead (ptr)
 	;outputs
 	;:r0 = region heap (ptr)
+	;:r1 = source region listhead (ptr)
 	;trashes
 	;:r2-:r4
 
@@ -1040,7 +1041,7 @@
 		(assign `(,rec) `((,region ln_fnode_next)))
 	(endif)
 
-	(exit 'region :free `(,heap))
+	(exit 'region :free `(,heap ,region))
 	(vp-ret)
 
 (def-func-end)

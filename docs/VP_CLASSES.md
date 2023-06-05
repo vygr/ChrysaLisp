@@ -6034,6 +6034,7 @@ inputs
 :r1 = source region listhead (ptr)
 outputs
 :r0 = region heap (ptr)
+:r1 = source region listhead (ptr)
 trashes
 :r2-:r4
 ```
