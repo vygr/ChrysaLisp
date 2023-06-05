@@ -488,7 +488,7 @@
 			(continue))
 
 			(;region is enclosed
-			(vp-cpy-rr srec :r1)
+			(vp-cpy-rr srec rec)
 			(ln-remove-fnode srec prec)
 			(ln-add-fnode dregion 0 rec prec)
 			(continue))
@@ -960,9 +960,9 @@
 			(continue))
 
 			(;region is enclosed
-			(vp-cpy-rr srec :r1)
+			(vp-cpy-rr srec rec)
 			(ln-remove-fnode srec prec)
-			(hp-freecell :r0 :r1 :r2)
+			(hp-freecell heap rec tmp)
 			(continue))
 
 			(;x inside
