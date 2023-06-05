@@ -907,38 +907,42 @@
 	;trashes
 	;:r1-:r3, :r11-:r14
 
-	(entry 'region :clip_rect '(:r0 :r1 :r7 :r8 :r9 :r10))
+	(vp-def (heap region rec trec prec cx cy cx1 cy1 x y x1 y1)
+		'(:r0 :r1 :r1 :r2 :r3 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14))
+
+	(entry 'region :clip_rect `(,heap ,region ,cx ,cy ,cx1 ,cy1))
 
 	;check for any obvious errors in inputs
-	(vpif '(:r9 > :r7) '(:r10 > :r8))
+	(vpif `(,cx1 > ,cx) `(,cy1 > ,cy))
 		;run through source region list
-		(loop-flist :r1 0 :r1 :r3 'node_loop)
-			(assign '((:r1 rect_x) (:r1 rect_y) (:r1 rect_x1) (:r1 rect_y1)) '(:r11 :r12 :r13 :r14))
-			(vpif '(:r11 < :r9) '(:r12 < :r10) '(:r13 > :r7) '(:r14 > :r8))
+		(loop-flist region 0 rec prec 'node_loop)
+			(assign `((,rec rect_x) (,rec rect_y) (,rec rect_x1) (,rec rect_y1))
+				`(,x ,y ,x1 ,y1))
+			(vpif `(,x < ,cx1) `(,y < ,cy1) `(,x1 > ,cx) `(,y1 > ,cy))
 				;clip region
-				(vpif '(:r11 < :r7))
-					(assign '(:r7) '((:r1 rect_x)))
+				(vpif `(,x < ,cx))
+					(assign `(,cx) `((,rec rect_x)))
 				(endif)
-				(vpif '(:r12 < :r8))
-					(assign '(:r8) '((:r1 rect_y)))
+				(vpif `(,y < ,cy))
+					(assign `(,cy) `((,rec rect_y)))
 				(endif)
-				(vpif '(:r13 > :r9))
-					(assign '(:r9) '((:r1 rect_x1)))
+				(vpif `(,x1 > ,cx1))
+					(assign `(,cx1) `((,rec rect_x1)))
 				(endif)
-				(vpif '(:r14 > :r10))
-					(assign '(:r10) '((:r1 rect_y1)))
+				(vpif `(,y1 > ,cy1))
+					(assign `(,cy1) `((,rec rect_y1)))
 				(endif)
 				(continue 'node_loop)
 			(endif)
 
 			;region is outside
-			(vp-cpy-rr :r1 :r2)
-			(ln-remove-fnode :r1 :r3)
-			(hp-freecell :r0 :r2 :r3)
+			(vp-cpy-rr rec trec)
+			(ln-remove-fnode rec prec)
+			(hp-freecell heap trec prec)
 		(loop-end)
 	(endif)
 
-	(exit 'region :clip_rect '(:r0))
+	(exit 'region :clip_rect `(,heap))
 	(vp-ret)
 
 (def-func-end)
@@ -1015,16 +1019,19 @@
 	;trashes
 	;:r1-:r3
 
-	;run through source region list
-	(entry 'region :free '(:r0 :r1))
+	(vp-def (heap region rec prec trec)
+		'(:r0 :r1 :r1 :r2 :r3))
 
-	(loop-flist :r1 0 :r1 :r2)
-		(vp-cpy-rr :r1 :r3)
-		(ln-remove-fnode :r1 :r2)
-		(hp-freecell :r0 :r3 :r2)
+	;run through source region list
+	(entry 'region :free `(,heap ,region))
+
+	(loop-flist region 0 rec prec)
+		(vp-cpy-rr rec trec)
+		(ln-remove-fnode rec prec)
+		(hp-freecell heap trec prec)
 	(loop-end)
 
-	(exit 'region :free '(:r0))
+	(exit 'region :free `(,heap))
 	(vp-ret)
 
 (def-func-end)
