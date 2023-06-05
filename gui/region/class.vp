@@ -806,19 +806,25 @@
 		(ptr dlist)
 		(int dx dy))
 
+	(vp-def (heap region rec x y x1 y1 dx dy)
+		'(:r0 :r1 :r6 :r7 :r8 :r9 :r10 :r11 :r12))
+
 	;save inputs
 	(vp-alloc local_size)
-	(entry 'region :remove_region '(:r0 :r1 (:rsp local_dlist) (:rsp local_dx) (:rsp local_dy)))
+	(entry 'region :remove_region `(,heap ,region (:rsp local_dlist) (:rsp local_dx) (:rsp local_dy)))
 
 	;run through source region list
-	(loop-flist :r1 0 :r6 :r6)
-		(assign '((:rsp local_dx) (:rsp local_dy) (:r6 rect_x) (:r6 rect_y) (:r6 rect_x1) (:r6 rect_y1))
-			'(:r11 :r12 :r7 :r8 :r9 :r10))
-		(vp-simd vp-add-rr '(:r11 :r12 :r11 :r12) '(:r7 :r8 :r9 :r10))
-		(call 'region :remove_rect '(:r0 (:rsp local_dlist) :r7 :r8 :r9 :r10))
+	(loop-flist region 0 rec rec)
+		(vp-simd vp-cpy-ir-i '(:rsp :rsp) `(,local_dx ,local_dy) `(,dx ,dy))
+		(vp-simd vp-cpy-ir-i
+			`(,rec ,rec ,rec ,rec)
+			`(,rect_x ,rect_y ,rect_x1 ,rect_y1)
+			`(,x ,y ,x1 ,y1))
+		(vp-simd vp-add-rr `(,dx ,dy ,dx ,dy) `(,x ,y ,x1 ,y1))
+		(call 'region :remove_rect `(,heap (:rsp local_dlist) ,x ,y ,x1 ,y1))
 	(loop-end)
 
-	(exit 'region :remove_region '(:r0))
+	(exit 'region :remove_region `(,heap))
 	(vp-free local_size)
 	(vp-ret)
 
@@ -841,19 +847,25 @@
 		(ptr slist)
 		(int dx dy))
 
+	(vp-def (heap dregion cregion rec x y x1 y1 dx dy)
+		'(:r0 :r6 :r3 :r5 :r7 :r8 :r9 :r10 :r11 :r12))
+
 	;save inputs
 	(vp-alloc local_size)
-	(entry 'region :copy_region '(:r0 (:rsp local_slist) :r6 :r3 (:rsp local_dx) (:rsp local_dy)))
+	(entry 'region :copy_region `(,heap (:rsp local_slist) ,dregion ,cregion (:rsp local_dx) (:rsp local_dy)))
 
 	;run through copy region list
-	(loop-flist :r3 0 :r5 :r5)
-		(assign '((:rsp local_dx) (:rsp local_dy) (:r5 rect_x) (:r5 rect_y) (:r5 rect_x1) (:r5 rect_y1))
-			'(:r11 :r12 :r7 :r8 :r9 :r10))
-		(vp-simd vp-add-rr '(:r11 :r12 :r11 :r12) '(:r7 :r8 :r9 :r10))
-		(call 'region :copy_rect '(:r0 (:rsp local_slist) :r6 :r7 :r8 :r9 :r10))
+	(loop-flist cregion 0 rec rec)
+		(vp-simd vp-cpy-ir-i '(:rsp :rsp) `(,local_dx ,local_dy) `(,dx ,dy))
+		(vp-simd vp-cpy-ir-i
+			`(,rec ,rec ,rec ,rec)
+			`(,rect_x ,rect_y ,rect_x1 ,rect_y1)
+			`(,x ,y ,x1 ,y1))
+		(vp-simd vp-add-rr `(,dx ,dy ,dx ,dy) `(,x ,y ,x1 ,y1))
+		(call 'region :copy_rect `(,heap (:rsp local_slist) ,dregion ,x ,y ,x1 ,y1))
 	(loop-end)
 
-	(exit 'region :copy_region '(:r0))
+	(exit 'region :copy_region `(,heap))
 	(vp-free local_size)
 	(vp-ret)
 
@@ -875,20 +887,27 @@
 		(ptr node dlist)
 		(int dx dy))
 
+	(vp-def (heap region rec x y x1 y1 dx dy)
+		'(:r0 :r1 :r1 :r7 :r8 :r9 :r10 :r11 :r12))
+
 	;save inputs
 	(vp-alloc local_size)
-	(entry 'region :paste_region '(:r0 :r1 (:rsp local_dlist) (:rsp local_dx) (:rsp local_dy)))
+	(entry 'region :paste_region `(,heap ,region (:rsp local_dlist) (:rsp local_dx) (:rsp local_dy)))
 
 	;run through source region list
-	(loop-flist :r1 0 :r1 :r1)
-		(assign '(:r1 (:rsp local_dx) (:rsp local_dy) (:r1 rect_x) (:r1 rect_y) (:r1 rect_x1) (:r1 rect_y1))
-			'((:rsp local_node) :r11 :r12 :r7 :r8 :r9 :r10))
-		(vp-simd vp-add-rr '(:r11 :r12 :r11 :r12) '(:r7 :r8 :r9 :r10))
-		(call 'region :paste_rect '(:r0 (:rsp local_dlist) :r7 :r8 :r9 :r10))
-		(assign '((:rsp local_node)) '(:r1))
+	(loop-flist region 0 rec rec)
+		(assign `(,rec) '((:rsp local_node)))
+		(vp-simd vp-cpy-ir-i '(:rsp :rsp) `(,local_dx ,local_dy) `(,dx ,dy))
+		(vp-simd vp-cpy-ir-i
+			`(,rec ,rec ,rec ,rec)
+			`(,rect_x ,rect_y ,rect_x1 ,rect_y1)
+			`(,x ,y ,x1 ,y1))
+		(vp-simd vp-add-rr `(,dx ,dy ,dx ,dy) `(,x ,y ,x1 ,y1))
+		(call 'region :paste_rect `(,heap (:rsp local_dlist) ,x ,y ,x1 ,y1))
+		(assign '((:rsp local_node)) `(,rec))
 	(loop-end)
 
-	(exit 'region :paste_region '(:r0))
+	(exit 'region :paste_region `(,heap))
 	(vp-free local_size)
 	(vp-ret)
 
@@ -1004,9 +1023,7 @@
 			`(,rec ,rec ,rec ,rec)
 			`(,rect_x ,rect_y ,rect_x1 ,rect_y1)
 			`(,x ,y ,x1 ,y1))
-		(vp-simd vp-add-rr
-			`(,tx ,ty ,tx ,ty)
-			`(,x ,y ,x1 ,y1))
+		(vp-simd vp-add-rr `(,tx ,ty ,tx ,ty) `(,x ,y ,x1 ,y1))
 		(vp-simd vp-cpy-ri-i
 			`(,x ,y ,x1 ,y1)
 			`(,rec ,rec ,rec ,rec)
