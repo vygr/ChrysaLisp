@@ -916,22 +916,18 @@
 	(vpif `(,cx1 > ,cx) `(,cy1 > ,cy))
 		;run through source region list
 		(loop-flist region 0 rec prec 'node_loop)
-			(assign `((,rec rect_x) (,rec rect_y) (,rec rect_x1) (,rec rect_y1))
+			(vp-simd vp-cpy-ir-i
+				`(,rec ,rec ,rec ,rec)
+				`(,rect_x ,rect_y ,rect_x1 ,rect_y1)
 				`(,x ,y ,x1 ,y1))
 			(vpif `(,x < ,cx1) `(,y < ,cy1) `(,x1 > ,cx) `(,y1 > ,cy))
 				;clip region
-				(vpif `(,x < ,cx))
-					(assign `(,cx) `((,rec rect_x)))
-				(endif)
-				(vpif `(,y < ,cy))
-					(assign `(,cy) `((,rec rect_y)))
-				(endif)
-				(vpif `(,x1 > ,cx1))
-					(assign `(,cx1) `((,rec rect_x1)))
-				(endif)
-				(vpif `(,y1 > ,cy1))
-					(assign `(,cy1) `((,rec rect_y1)))
-				(endif)
+				(vp-simd vp-min `(,cx ,cy) `(,x ,y))
+				(vp-simd vp-max `(,cx1 ,cy1) `(,x1 ,y1))
+				(vp-simd vp-cpy-ri-i
+					`(,x ,y ,x1 ,y1)
+					`(,rec ,rec ,rec ,rec)
+					`(,rect_x ,rect_y ,rect_x1 ,rect_y1))
 				(continue 'node_loop)
 			(endif)
 
@@ -969,11 +965,15 @@
 		(vp-simd vp-cpy-cr `(0 0 0 0) `(,bx ,by ,bx1 ,by1))
 	(else)
 		;first rect
-		(assign `((,rec rect_x) (,rec rect_y) (,rec rect_x1) (,rec rect_y1))
+		(vp-simd vp-cpy-ir-i
+			`(,rec ,rec ,rec ,rec)
+			`(,rect_x ,rect_y ,rect_x1 ,rect_y1)
 			`(,bx ,by ,bx1 ,by1))
 		;run through region list
 		(loop-flist rec 0 rec rec)
-			(assign `((,rec rect_x) (,rec rect_y) (,rec rect_x1) (,rec rect_y1))
+			(vp-simd vp-cpy-ir-i
+				`(,rec ,rec ,rec ,rec)
+				`(,rect_x ,rect_y ,rect_x1 ,rect_y1)
 				`(,x ,y ,x1 ,y1))
 			(vp-simd vp-min `(,x ,y) `(,bx ,by))
 			(vp-simd vp-max `(,x1 ,y1) `(,bx1 ,by1))
@@ -1000,11 +1000,17 @@
 
 	;run through source region list
 	(loop-flist region 0 rec rec)
-		(assign `((,rec rect_x) (,rec rect_y) (,rec rect_x1) (,rec rect_y1))
+		(vp-simd vp-cpy-ir-i
+			`(,rec ,rec ,rec ,rec)
+			`(,rect_x ,rect_y ,rect_x1 ,rect_y1)
 			`(,x ,y ,x1 ,y1))
-		(vp-simd vp-add-rr `(,tx ,ty ,tx ,ty) `(,x ,y ,x1 ,y1))
-		(assign `(,x ,y ,x1 ,y1)
-			`((,rec rect_x) (,rec rect_y) (,rec rect_x1) (,rec rect_y1)))
+		(vp-simd vp-add-rr
+			`(,tx ,ty ,tx ,ty)
+			`(,x ,y ,x1 ,y1))
+		(vp-simd vp-cpy-ri-i
+			`(,x ,y ,x1 ,y1)
+			`(,rec ,rec ,rec ,rec)
+			`(,rect_x ,rect_y ,rect_x1 ,rect_y1))
 	(loop-end)
 	(vp-ret)
 
