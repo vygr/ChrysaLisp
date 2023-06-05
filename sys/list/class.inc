@@ -394,6 +394,6 @@
 	;_3 = list node
 	;_4 = list last
 
-	(vp-lea-i _1 _2 _3)
+	(vp-lea-i _1 (+ _2 ln_fnode_next) _3)
 	(loop-start _5)
 		(ln-next-fnode _3 _4))

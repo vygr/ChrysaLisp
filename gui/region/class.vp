@@ -972,7 +972,7 @@
 		(assign `((,rec rect_x) (,rec rect_y) (,rec rect_x1) (,rec rect_y1))
 			`(,bx ,by ,bx1 ,by1))
 		;run through region list
-		(loop-flist rec ln_fnode_next rec rec)
+		(loop-flist rec 0 rec rec)
 			(assign `((,rec rect_x) (,rec rect_y) (,rec rect_x1) (,rec rect_y1))
 				`(,x ,y ,x1 ,y1))
 			(vp-simd vp-min `(,x ,y) `(,bx ,by))
@@ -1029,7 +1029,7 @@
 	(assign `((,region ln_fnode_next)) `(,rec0))
 	(vpif `(,rec0 /= 0))
 		;find end of region list
-		(loop-flist rec0 ln_fnode_next rec recn)
+		(loop-flist rec0 0 rec recn)
 		(loop-end)
 		;splice region onto heap free list
 		(assign `((,heap hp_heap_free_flist)) `(,rec))
