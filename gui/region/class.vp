@@ -941,8 +941,8 @@
 				`(,x ,y ,x1 ,y1))
 			(vpif `(,x < ,cx1) `(,y < ,cy1) `(,x1 > ,cx) `(,y1 > ,cy))
 				;clip region
-				(vp-simd vp-min `(,cx ,cy) `(,x ,y))
-				(vp-simd vp-max `(,cx1 ,cy1) `(,x1 ,y1))
+				(vp-simd vp-max `(,cx ,cy) `(,x ,y))
+				(vp-simd vp-min `(,cx1 ,cy1) `(,x1 ,y1))
 				(vp-simd vp-cpy-ri-i
 					`(,x ,y ,x1 ,y1)
 					`(,rec ,rec ,rec ,rec)
@@ -981,7 +981,7 @@
 	;is empty ?
 	(assign `((,region ln_fnode_next)) `(,rec))
 	(vpif `(,rec = 0))
-		(vp-simd vp-cpy-cr `(0 0 0 0) `(,bx ,by ,bx1 ,by1))
+		(vp-simd vp-cpy-rr `(,rec ,rec ,rec ,rec) `(,bx ,by ,bx1 ,by1))
 	(else)
 		;first rect
 		(vp-simd vp-cpy-ir-i
