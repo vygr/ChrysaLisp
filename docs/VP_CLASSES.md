@@ -6035,7 +6035,7 @@ inputs
 outputs
 :r0 = region heap (ptr)
 trashes
-:r1-:r3
+:r2-:r4
 ```
 
 ### region :paste_rect -> gui/region/paste_rect

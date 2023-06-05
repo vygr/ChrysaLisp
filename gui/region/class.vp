@@ -972,7 +972,7 @@
 		(assign `((,rec rect_x) (,rec rect_y) (,rec rect_x1) (,rec rect_y1))
 			`(,bx ,by ,bx1 ,by1))
 		;run through region list
-		(loop-flist rec 0 rec rec)
+		(loop-flist rec ln_fnode_next rec rec)
 			(assign `((,rec rect_x) (,rec rect_y) (,rec rect_x1) (,rec rect_y1))
 				`(,x ,y ,x1 ,y1))
 			(vp-simd vp-min `(,x ,y) `(,bx ,by))
@@ -1017,19 +1017,28 @@
 	;outputs
 	;:r0 = region heap (ptr)
 	;trashes
-	;:r1-:r3
+	;:r2-:r4
 
-	(vp-def (heap region rec prec trec)
-		'(:r0 :r1 :r1 :r2 :r3))
+	(vp-def (heap region rec0 recn rec)
+		'(:r0 :r1 :r2 :r3 :r4))
 
 	;run through source region list
 	(entry 'region :free `(,heap ,region))
 
-	(loop-flist region 0 rec prec)
-		(vp-cpy-rr rec trec)
-		(ln-remove-fnode rec prec)
-		(hp-freecell heap trec prec)
-	(loop-end)
+	;empty ?
+	(assign `((,region ln_fnode_next)) `(,rec0))
+	(vpif `(,rec0 /= 0))
+		;find end of region list
+		(loop-flist region ln_fnode_next rec recn)
+		(loop-end)
+		;splice region onto heap free list
+		(assign `((,heap hp_heap_free_flist)) `(,rec))
+		(assign `(,rec0) `((,heap hp_heap_free_flist)))
+		(assign `(,rec) `((,recn ln_fnode_next)))
+		;free region list
+		(vp-xor-rr rec rec)
+		(assign `(,rec) `((,region ln_fnode_next)))
+	(endif)
 
 	(exit 'region :free `(,heap))
 	(vp-ret)
