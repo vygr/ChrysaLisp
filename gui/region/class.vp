@@ -1023,7 +1023,6 @@
 	(vp-def (heap region rec0 recn rec)
 		'(:r0 :r1 :r2 :r3 :r4))
 
-	;run through source region list
 	(entry 'region :free `(,heap ,region))
 
 	;empty ?
