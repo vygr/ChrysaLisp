@@ -632,6 +632,7 @@
 
 		(rect-overlap
 			(;x, y, x1, y1 inside
+			(exit 'region :paste_rect `(,heap))
 			(vp-ret))
 
 			(;y, x1, y1 inside

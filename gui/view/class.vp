@@ -479,13 +479,11 @@
 	(entry 'view :forward_tree_callback '(:r0 :r1))
 
 	(assign '((:r1 local_view)) '(:r2))
-	(vpif '(:r2 = 0))
-		(assign '((:r0 view_id) (:r1 local_id)) '(:r2 :r3))
-		(vpif '(:r2 = :r3))
-			(assign '(:r0) '((:r1 local_view)))
-			(vp-xor-rr :r1 :r1)
-		(endif)
-	(else)
+	(gotoif '(:r2 /= 0) 'down_exit)
+	(assign '((:r0 view_id) (:r1 local_id)) '(:r2 :r3))
+	(vpif '(:r2 = :r3))
+		(assign '(:r0) '((:r1 local_view)))
+	(vp-label 'down_exit)
 		(vp-xor-rr :r1 :r1)
 	(endif)
 
