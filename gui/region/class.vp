@@ -1177,8 +1177,8 @@
 				`(,x ,y ,x1 ,y1))
 			(vpif `(,x < ,cx1) `(,y < ,cy1) `(,x1 > ,cx) `(,y1 > ,cy))
 				;clip region
-				(vp-simd vp-max `(,cx ,cy) `(,x ,y))
-				(vp-simd vp-min `(,cx1 ,cy1) `(,x1 ,y1))
+				(vp-simd vp-max-rr `(,cx ,cy) `(,x ,y))
+				(vp-simd vp-min-rr `(,cx1 ,cy1) `(,x1 ,y1))
 				(vp-simd vp-cpy-ri-i
 					`(,x ,y ,x1 ,y1)
 					`(,rec ,rec ,rec ,rec)
@@ -1230,8 +1230,8 @@
 				`(,rec ,rec ,rec ,rec)
 				`(,rect_x ,rect_y ,rect_x1 ,rect_y1)
 				`(,x ,y ,x1 ,y1))
-			(vp-simd vp-min `(,x ,y) `(,bx ,by))
-			(vp-simd vp-max `(,x1 ,y1) `(,bx1 ,by1))
+			(vp-simd vp-min-rr `(,x ,y) `(,bx ,by))
+			(vp-simd vp-max-rr `(,x1 ,y1) `(,bx1 ,by1))
 		(loop-end)
 	(endif)
 

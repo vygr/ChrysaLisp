@@ -131,8 +131,10 @@
 (vp-op-rr lnot) (vp-op-rr land) (vp-op-rr swp) (vp-op-rr ext)
 
 ;puedo vp instructions
-(defun vp-min (a b &optional c) (vp-cpy-rr b (setd c b)) (vpif (list a '< b)) (vp-cpy-rr a c) (endif))
-(defun vp-max (a b &optional c) (vp-cpy-rr b (setd c b)) (vpif (list a '> b)) (vp-cpy-rr a c) (endif))
+(defun vp-min-cr (a b) (vpif (list b '> a)) (vp-cpy-cr a b) (endif))
+(defun vp-max-cr (a b) (vpif (list b '< a)) (vp-cpy-cr a b) (endif))
+(defun vp-min-rr (a b) (vpif (list a '< b)) (vp-cpy-rr a b) (endif))
+(defun vp-max-rr (a b) (vpif (list a '> b)) (vp-cpy-rr a b) (endif))
 (defun vp-abs (a &optional b) (vp-cpy-rr a (setd b a)) (vpif (list a '< 0)) (vp-mul-cr -1 b) (endif))
 (defun vp-simd (op &rest v)
 	(unless (every (# (= (length %0) (length (elem-get 0 v)))) v)

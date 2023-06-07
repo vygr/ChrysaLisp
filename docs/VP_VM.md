@@ -210,8 +210,10 @@ functions.
 
 ```vdu
 (vp-abs rd &optional rd)
-(vp-min rs rd &optional rd)
-(vp-max rs rd &optional rd)
+(vp-min-cr c rd)
+(vp-max-cr c rd)
+(vp-min-rr rs rd)
+(vp-max-rr rs rd)
 (vp-simd op rsv rdv)
 ```
 

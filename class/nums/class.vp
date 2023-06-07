@@ -78,7 +78,7 @@
 	(vp-shl-cr (log2 +ptr_size) src_end)
 	(vp-add-rr src1 src_end)
 	(vec-loop-until `(,src1 ,src2) `(,e0 ,e1) src_end dst1
-		(lambda (e0 e1) (vp-min e1 e0) e0))
+		(lambda (e0 e1) (vp-min-rr e1 e0) e0))
 
 	(exit 'nums :min `(,dst -1))
 	(vp-ret)
@@ -105,7 +105,7 @@
 	(vp-shl-cr (log2 +ptr_size) src_end)
 	(vp-add-rr src1 src_end)
 	(vec-loop-until `(,src1 ,src2) `(,e0 ,e1) src_end dst1
-		(lambda (e0 e1) (vp-max e1 e0) e0))
+		(lambda (e0 e1) (vp-max-rr e1 e0) e0))
 
 	(exit 'nums :max `(,dst -1))
 	(vp-ret)

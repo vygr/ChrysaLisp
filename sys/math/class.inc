@@ -130,11 +130,11 @@
 
 (defun vec-min (n &optional v2 v1)
 	(setd v2 (vec-pop n) v1 (vec-top n))
-	(vp-simd vp-min v2 v1))
+	(vp-simd vp-min-rr v2 v1))
 
 (defun vec-max (n &optional v2 v1)
 	(setd v2 (vec-pop n) v1 (vec-top n))
-	(vp-simd vp-max v2 v1))
+	(vp-simd vp-max-rr v2 v1))
 
 (defun vec-mul (n &optional v2 v1)
 	(setd v2 (vec-pop n) v1 (vec-top n))
@@ -251,11 +251,11 @@
 	(vec-push 1))
 
 (defun vec-high (n)
-	(reduce (lambda (v1 v2) (vp-max v2 v1) v1) (vec-pop n))
+	(reduce (lambda (v1 v2) (vp-max-rr v2 v1) v1) (vec-pop n))
 	(vec-push 1))
 
 (defun vec-low (n)
-	(reduce (lambda (v1 v2) (vp-min v2 v1) v1) (vec-pop n))
+	(reduce (lambda (v1 v2) (vp-min-rr v2 v1) v1) (vec-pop n))
 	(vec-push 1))
 
 (defun vec-perp ()

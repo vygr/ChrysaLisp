@@ -201,7 +201,7 @@
 		(vpif '(:r8 < 0))
 			(vp-xor-rr :r8 :r8)
 		(endif)
-		(vp-simd vp-min '(:r1 :r2) '(:r9 :r10))
+		(vp-simd vp-min-rr '(:r1 :r2) '(:r9 :r10))
 		(assign '(:r7 :r8 :r9 :r10) '((:r0 canvas_cx) (:r0 canvas_cy) (:r0 canvas_cx1) (:r0 canvas_cy1)))
 	(endif)
 
@@ -301,8 +301,8 @@
 	;clip check
 	(assign '((:r0 canvas_cx) (:r0 canvas_cy) (:r0 canvas_cx1) (:r0 canvas_cy1)) '(:r2 :r3 :r4 :r5))
 	(vpif '(:r9 > :r7) '(:r9 > :r2) '(:r8 >= :r3) '(:r7 < :r4) '(:r8 < :r5))
-		(vp-max :r2 :r7)
-		(vp-min :r4 :r9)
+		(vp-max-rr :r2 :r7)
+		(vp-min-rr :r4 :r9)
 		(jump 'canvas :span_noclip '(:r0 :r1 :r7 :r8 :r9))
 	(endif)
 
