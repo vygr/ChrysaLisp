@@ -394,7 +394,7 @@
 		(endif)
 	(endif)
 
-	;,view1 will be 0 or not depending on haveing any dirty region
+	;return value will be 0 or not depending on haveing any dirty region
 	(exit 'view :forward_tree_callback `((:rsp dist_this) ,view1))
 	(vp-free dist_size)
 	(vp-ret)
@@ -402,6 +402,7 @@
 (vp-label 'distribute_up_callback)
 	;add myself to draw list if not empty
 	(vp-def (view user node tmp) '(:r0 :r1 :r2 :r3))
+
 	(entry 'view :forward_tree_callback `(,view ,user))
 
 	(assign `((,view view_dirty_region)) `(,node))
