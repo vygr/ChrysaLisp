@@ -91,7 +91,7 @@
 		;init state
 		(assign {0, pixels} {this->font_chars, this->font_pixels})
 		(call 'sym :intern_cstr {name} {this->font_name})
-		(call 'hmap :create {0, 61} {this->font_sym_map})
+		(call 'hmap :create {0, 101} {this->font_sym_map})
 		(vpif {data})
 			(call 'str :ref {data} {this->font_data})
 		(else)
