@@ -222,7 +222,7 @@
 
 (defun vec-abs (n &optional v)
 	(setd v (vec-top n))
-	(vp-simd vp-abs v v))
+	(vp-simd vp-abs-rr v v))
 
 (defun vec-square (n &optional v)
 	(setd v (vec-top n))

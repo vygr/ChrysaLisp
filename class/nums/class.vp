@@ -225,7 +225,7 @@
 	(vp-shl-cr (log2 +ptr_size) src_end)
 	(vp-add-rr src1 src_end)
 	(vec-loop-until `(,src1) `(,e0) src_end dst1
-		(lambda (e0) (vp-abs e0) e0))
+		(lambda (e0) (vp-abs-rr e0 e0) e0))
 
 	(exit 'nums :abs `(,dst))
 	(vp-ret)
@@ -364,7 +364,7 @@
 	(vp-add-rr src1 src_end)
 	(vec-loop-while `(,src1) `(,e0) src_end :nil
 		(lambda (e0) (vp-xor-rr e0 val)))
-	(vp-abs val)
+	(vp-abs-rr val val)
 
 	(exit 'nums :hash `(,src ,val))
 	(vp-ret)
