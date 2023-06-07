@@ -2058,12 +2058,6 @@
 (code str [width index])
 ```
 
-### collection?
-
-```code
-(collection? obj) -> :t | :nil
-```
-
 ### compose
 
 ```code
@@ -2280,12 +2274,6 @@
 (dim-set nums dim form)
 ```
 
-### drop!
-
-```code
-(drop! collection key) -> collection
-```
-
 ### each
 
 ```code
@@ -2346,12 +2334,6 @@
 (emap-kv [key val ...]) -> emap
 ```
 
-### empty
-
-```code
-(empty collection) -> collection | :nil
-```
-
 ### empty?
 
 ```code
@@ -2362,12 +2344,6 @@
 
 ```code
 (ends-with str str) -> :t | :nil
-```
-
-### entries
-
-```code
-(entries collection) ->  list | :nil
 ```
 
 ### enums
@@ -2658,18 +2634,6 @@
 (getf obj field [offset]) -> value
 ```
 
-### gets
-
-```code
-(gets collection k [if_nil]) -> value | if_nil | :nil
-```
-
-### gets-in
-
-```code
-(gets-in collection key-path) -> value | :nil
-```
-
 ### gui-deinit
 
 ```code
@@ -2772,24 +2736,6 @@
 (int-to-hex-str num) -> str
 ```
 
-### into-fn
-
-```code
-(into-fn collection) -> fn
-```
-
-### into-map
-
-```code
-(into-map map list-of-pairs) -> map
-```
-
-### into-set
-
-```code
-(into-set set list-of-elements) -> set
-```
-
 ### io-stream
 
 ```code
@@ -2806,12 +2752,6 @@
 
 ```code
 (kernel-stats)
-```
-
-### keys
-
-```code
-(keys collection) -> list | :nil
 ```
 
 ### lambda
@@ -3060,22 +3000,10 @@
 (max num num ...)
 ```
 
-### merge-into!
-
-```code
-(merge-into! collection (collections)) -> collection
-```
-
 ### merge-obj
 
 ```code
 (merge-obj dlist slist) -> dlist
-```
-
-### merges
-
-```code
-(merges (collections)) -> collection
 ```
 
 ### min
@@ -3328,12 +3256,6 @@
 
 ```code
 (pad form width [str]) -> str
-```
-
-### pairs-into-kv
-
-```code
-(pairs-into-kv list) -> emap
 ```
 
 ### partition
@@ -3762,6 +3684,12 @@
 (set-field obj field size|0 val)
 ```
 
+### set?
+
+```code
+(set? object) -> :t | :nil
+```
+
 ### setd
 
 ```code
@@ -3784,18 +3712,6 @@
 
 ```code
 (setq var val [var val] ...)
-```
-
-### sets!
-
-```code
-(sets! collection key value) -> collection
-```
-
-### sets-pairs!
-
-```code
-(sets-pairs! collection))
 ```
 
 ### short-to-hex-str
@@ -4240,12 +4156,6 @@
 
 ```code
 (unzip seq buckets) -> buckets
-```
-
-### values
-
-```code
-(values collection) -> list | :nil
 ```
 
 ### vdu-configure
