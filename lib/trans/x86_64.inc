@@ -618,7 +618,7 @@
 			(emit-xor-rr r r))
 		((defq s (log2 c))
 			(emit-shl-cr s r))
-		(:t (defq rl (logand r 7) rh (>> r 3))
+		(:t	(defq rl (logand r 7) rh (>> r 3))
 			(cond
 				((= -1 c)
 					(emit-byte (+ 0x48 rh) 0xf7 (+ 0xd8 rl)))

@@ -177,21 +177,21 @@
 
 	;save inputs
 	(vp-alloc vis_size)
-	(entry 'view :forward_tree_callback '((:rsp vis_this) (:rsp vis_root)))
+	(entry 'view :forward_tree_callback `(,view1 ,view2))
+	(assign `(,view1 ,view2) '((:rsp vis_this) (:rsp vis_root)))
 
-	;region heap
-	(fn-bind 'sys/statics/statics heap)
-	(vp-add-cr statics_gui_rect_heap heap)
-
-	;remove opaque region from ancestors if not root
-	(assign '((:rsp vis_this) (:rsp vis_root)) `(,view1 ,view2))
+	;if not root
 	(vpif `(,view1 /= ,view2))
+		;region heap
+		(fn-bind 'sys/statics/statics heap)
+		(vp-add-cr statics_gui_rect_heap heap)
+
 		;remove my opaque region from ancestors
 		(vp-xor-rr tmp tmp)
 		(assign `(,tmp (,view1 view_flags)) `((:rsp vis_region) ,tmp))
 		(vp-and-cr view_flag_opaque tmp)
 		(vpif `(,tmp /= 0))
-			;remove entire view from ancestors
+			;entire view is opaque
 			(vp-simd vp-cpy-cr '(0 0) `(,x ,y))
 			(vp-simd vp-cpy-ir-i `(,view1 ,view1) `(,view_w ,view_h) `(,x1 ,y1))
 			(loop-start)
@@ -214,7 +214,7 @@
 				(assign '((:rsp vis_next) (:rsp vis_root)) `(,view1 ,view2))
 			(loop-until `(,view1 = ,view2))
 		(else)
-			;use opaque region, so my opaque area is the visible region
+			;use views opaque region
 			(assign `((,view1 hmap_parent)) `(,view2))
 			(vp-simd vp-cpy-ir-i `(,view1 ,view1) `(,view_x ,view_y) `(,x ,y))
 			(vp-simd vp-cpy-ir-i `(,view2 ,view2) `(,view_w ,view_h) `(,x1 ,y1))
@@ -325,35 +325,33 @@
 
 	;save inputs
 	(vp-alloc dist_size)
-	(entry 'view :forward_tree_callback `((:rsp dist_this) ,view1))
-	(assign `(,view1) '((:rsp dist_data)))
+	(entry 'view :forward_tree_callback `(,view2 ,view1))
+	(assign `(,view2 ,view1) '((:rsp dist_this) (:rsp dist_data)))
 
-	;region heap
-	(fn-bind 'sys/statics/statics heap)
-	(vp-add-cr statics_gui_rect_heap heap)
-
-	;copy view from parent if not root
-	(assign `((:rsp dist_this) (,view1 local_root)) `(,view2 ,tmp))
+	;if not root
+	(assign `((,view1 local_root)) `(,tmp))
 	(vpif `(,view2 /= ,tmp))
-		;remove opaque region from ancestors
+		;region heap
+		(fn-bind 'sys/statics/statics heap)
+		(vp-add-cr statics_gui_rect_heap heap)
+
+		;copy my dirty region from parent
 		(assign `((,view2 hmap_parent)) `(,view1))
 		(vp-simd vp-cpy-ir-i `(,view2 ,view2 ,view2 ,view2)
 			`(,view_ctx_x ,view_ctx_y ,view_w ,view_h)
 			`(,x ,y ,x1 ,y1))
 		(vp-simd vp-add-rr `(,x ,y) `(,x1 ,y1))
-
-		;copy my area from parent
 		(call 'region :copy_rect `(,heap (& ,view1 view_dirty_region) (& ,view2 view_dirty_region) ,x ,y ,x1 ,y1) `(,heap))
 
-		;did we find any opaque region ?
+		;did we find any dirty region ?
 		(assign '((:rsp dist_this)) `(,view2))
 		(assign `((,view2 view_dirty_region)) `(,view1))
 		(vpif `(,view1 /= 0))
-			;remove my opaque region from ancestors
+			;remove my opaque areas from ancestors
 			(assign `((,view2 view_flags)) `(,tmp))
 			(vp-and-cr view_flag_opaque tmp)
 			(vpif `(,tmp /= 0))
-				;remove entire view from ancestors
+				;entire view is opaque
 				(loop-start)
 					(assign `((,view2 hmap_parent)) `(,view1))
 					(assign `(,view1) '((:rsp dist_next)))
@@ -373,8 +371,8 @@
 					(assign `((,view1 local_root)) `(,view1))
 				(loop-until `(,view1 = ,view2))
 			(else)
-				;remove opaque region from ancestors
-				(assign `(,view2) `(,view1))
+				;use views opaque region
+				(vp-cpy-rr view2 view1)
 				(loop-start)
 					(assign `((,view1 hmap_parent)) `(,view2))
 					(assign `(,view2) '((:rsp dist_next)))
@@ -388,19 +386,20 @@
 				(loop-until `(,view1 = ,view2))
 			(endif)
 
-			;return flag for recursion or not
-			(assign '((:rsp dist_this)) `(,view2))
-			(assign `((,view2 view_dirty_region)) `(,view1))
+			;return flag for traversing into children
+			(assign '((:rsp dist_this)) `(,view1))
+			(assign `((,view1 view_dirty_region)) `(,view1))
 		(endif)
 	(endif)
 
 	;return value will be 0 or not depending on haveing any dirty region
+	;we will not traverse into child views if no reason
 	(exit 'view :forward_tree_callback `((:rsp dist_this) ,view1))
 	(vp-free dist_size)
 	(vp-ret)
 
 (vp-label 'distribute_up_callback)
-	;add myself to draw list if not empty
+	;add myself to draw list if any dirty region
 	(vp-def (view user node tmp) '(:r0 :r1 :r2 :r3))
 
 	(entry 'view :forward_tree_callback `(,view ,user))
