@@ -85,6 +85,9 @@
 	;info
 	;the dirty region bounds is returned for use by the :flush call !
 
+	(vp-def (root heap region x y x1 y1 tmp)
+		'(:r0 :r0 :r1 :r7 :r8 :r9 :r10 :r1))
+
 	(def-struct local 0
 		(ptr root ctx_flist ctx_next)
 		(ptr damaged_region)
@@ -93,52 +96,58 @@
 
 	;save inputs
 	(vp-alloc local_size)
-	(entry 'gui :composite '(:r0))
-	(assign '(:r0) '((:rsp local_root)))
+	(entry 'gui :composite `(,root))
+	(assign `(,root) '((:rsp local_root)))
 
 	;iterate through views back to front
 	;setting abs cords
-	(vp-xor-rr :r7 :r7)
-	(vp-xor-rr :r8 :r8)
-	(call 'view :backward_tree '(:r0 :r0 ($ abs_down_callback) ($ abs_up_callback)))
+	(vp-xor-rr x x)
+	(vp-xor-rr y y)
+	(call 'view :backward_tree `(,root ,root ($ abs_down_callback) ($ abs_up_callback)))
 
 	;iterate through views back to front
 	;create visible region at root
-	(call 'view :backward_tree '(:r0 :r0 ($ visible_down_callback) ($ visible_up_callback)))
+	(call 'view :backward_tree `(,root ,root ($ visible_down_callback) ($ visible_up_callback)))
 
 	;save bounds for :flush
-	(call 'region :bounds '((& :r0 view_dirty_region)) '(x y w h))
-	(vp-sub-rr x w)
-	(vp-sub-rr y h)
-	(assign `(,x ,y ,w ,h) '((:rsp local_x) (:rsp local_y) (:rsp local_w) (:rsp local_h)))
+	(call 'region :bounds `((& ,root view_dirty_region)) `(,x ,y ,x1 ,y1))
+	(vp-simd vp-sub-rr `(,x ,y) `(,x1 ,y1))
+	(vp-simd vp-cpy-ri-i
+		`(,x ,y ,x1 ,y1)
+		`(:rsp :rsp :rsp :rsp)
+		`(,local_x ,local_y ,local_w ,local_h))
 
 	;iterate through views front to back
 	;distribute visible region
-	(vp-xor-rr :r1 :r1)
-	(assign '(:r1) '((:rsp local_ctx_flist)))
-	(call 'view :forward_tree '(:r0 :rsp ($ distribute_down_callback) ($ distribute_up_callback)))
+	(vp-xor-rr tmp tmp)
+	(assign `(,tmp) '((:rsp local_ctx_flist)))
+	(call 'view :forward_tree `(,root :rsp ($ distribute_down_callback) ($ distribute_up_callback)))
 
 	;draw all views on draw list, and free dirty regions
-	(loop-flist :rsp local_ctx_flist :r0 :r0)
-		(assign '(:r0) '((:rsp local_ctx_next)))
-		(vp-sub-cr view_ctx_node :r0)
-		(call 'view :draw '(:r0))
-		(assign '((:rsp local_ctx_next)) '(:r1))
-		(vp-sub-cr (- view_ctx_node view_dirty_region) :r1)
-		(fn-bind 'sys/statics/statics :r0)
-		(vp-add-cr statics_gui_rect_heap :r0)
-		(call 'region :free '(:r0 :r1))
-		(assign '((:rsp local_ctx_next)) '(:r0))
+	(loop-flist :rsp local_ctx_flist root root)
+		(assign `(,root) '((:rsp local_ctx_next)))
+		(vp-sub-cr view_ctx_node root)
+		(call 'view :draw `(,root))
+		(assign '((:rsp local_ctx_next)) `(,region))
+		(vp-sub-cr (- view_ctx_node view_dirty_region) region)
+		(fn-bind 'sys/statics/statics heap)
+		(vp-add-cr statics_gui_rect_heap heap)
+		(call 'region :free `(,heap ,region))
+		(assign '((:rsp local_ctx_next)) `(,root))
 	(loop-end)
 
-	(exit 'gui :composite '((:rsp local_x) (:rsp local_y) (:rsp local_w) (:rsp local_h)))
+	(vp-simd vp-cpy-ir-i
+		`(:rsp :rsp :rsp :rsp)
+		`(,local_x ,local_y ,local_w ,local_h)
+		`(,x ,y ,x1 ,y1))
+
+	(exit 'gui :composite `(,x ,y ,x1 ,y1))
 	(vp-free local_size)
 	(vp-ret)
 
-	(vp-def (view user heap x y x1 y1 vx vy vx1 vy1)
-		'(:r0 :r1 :r0 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14))
-
 (vp-label 'abs_down_callback)
+	(vp-def (view user x y x1 y1) '(:r0 :r1 :r7 :r8 :r9 :r10))
+
 	(entry 'view :forward_tree_callback `(,view ,user))
 
 	(vp-simd vp-cpy-ir-i `(,view ,view) `(,view_x ,view_y) `(,x1 ,y1))
@@ -149,6 +158,8 @@
 	(vp-ret)
 
 (vp-label 'abs_up_callback)
+	(vp-def (view user x y x1 y1) '(:r0 :r1 :r7 :r8 :r9 :r10))
+
 	(entry 'view :forward_tree_callback `(,view ,user))
 
 	(vp-simd vp-cpy-ir-i `(,view ,view) `(,view_x ,view_y) `(,x1 ,y1))
@@ -158,6 +169,9 @@
 	(vp-ret)
 
 (vp-label 'visible_down_callback)
+	(vp-def (heap view1 view2 tmp x y x1 y1 vx vy vx1 vy1)
+		'(:r0 :r1 :r2 :r3 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14))
+
 	(def-struct vis 0
 		(ptr this root next region))
 
@@ -170,23 +184,23 @@
 	(vp-add-cr statics_gui_rect_heap heap)
 
 	;remove opaque region from ancestors if not root
-	(assign '((:rsp vis_this) (:rsp vis_root)) '(:r1 :r2))
-	(vpif '(:r1 /= :r2))
+	(assign '((:rsp vis_this) (:rsp vis_root)) `(,view1 ,view2))
+	(vpif `(,view1 /= ,view2))
 		;remove my opaque region from ancestors
-		(vp-xor-rr :r2 :r2)
-		(assign '(:r2 (:r1 view_flags)) '((:rsp vis_region) :r3))
-		(vp-and-cr view_flag_opaque :r3)
-		(vpif '(:r3 /= 0))
+		(vp-xor-rr tmp tmp)
+		(assign `(,tmp (,view1 view_flags)) `((:rsp vis_region) ,tmp))
+		(vp-and-cr view_flag_opaque tmp)
+		(vpif `(,tmp /= 0))
 			;remove entire view from ancestors
 			(vp-simd vp-cpy-cr '(0 0) `(,x ,y))
-			(vp-simd vp-cpy-ir-i `(:r1 :r1) `(,view_w ,view_h) `(,x1 ,y1))
+			(vp-simd vp-cpy-ir-i `(,view1 ,view1) `(,view_w ,view_h) `(,x1 ,y1))
 			(loop-start)
-				(assign '((:r1 hmap_parent)) '(:r2))
-				(assign '(:r2) '((:rsp vis_next)))
+				(assign `((,view1 hmap_parent)) `(,view2))
+				(assign `(,view2) '((:rsp vis_next)))
 
 				;translate region
-				(vp-simd vp-cpy-ir-i `(:r1 :r1) `(,view_x ,view_y) `(,vx ,vy))
-				(vp-simd vp-cpy-ir-i `(:r2 :r2) `(,view_w ,view_h) `(,vx1 ,vy1))
+				(vp-simd vp-cpy-ir-i `(,view1 ,view1) `(,view_x ,view_y) `(,vx ,vy))
+				(vp-simd vp-cpy-ir-i `(,view2 ,view2) `(,view_w ,view_h) `(,vx1 ,vy1))
 				(vp-simd vp-add-rr `(,vx ,vy ,vx ,vy) `(,x ,y ,x1 ,y1))
 
 				;clip to parent, exit if clipped away
@@ -195,46 +209,43 @@
 				(vp-simd vp-min-rr `(,vx1 ,vy1) `(,x1 ,y1))
 
 				;remove opaque region
-				(call 'region :remove_rect `(,heap (& :r2 view_dirty_region) ,x ,y ,x1 ,y1) `(,heap))
+				(call 'region :remove_rect `(,heap (& ,view2 view_dirty_region) ,x ,y ,x1 ,y1) `(,heap))
 
-				(assign '((:rsp vis_next) (:rsp vis_root)) '(:r1 :r2))
-			(loop-until '(:r1 = :r2))
+				(assign '((:rsp vis_next) (:rsp vis_root)) `(,view1 ,view2))
+			(loop-until `(,view1 = ,view2))
 		(else)
 			;use opaque region, so my opaque area is the visible region
-			(assign '((:r1 hmap_parent)) `(:r2))
-			(vp-simd vp-cpy-ir-i `(:r1 :r1) `(,view_x ,view_y) `(,x ,y))
-			(vp-simd vp-cpy-ir-i `(:r2 :r2) `(,view_w ,view_h) `(,x1 ,y1))
+			(assign `((,view1 hmap_parent)) `(,view2))
+			(vp-simd vp-cpy-ir-i `(,view1 ,view1) `(,view_x ,view_y) `(,x ,y))
+			(vp-simd vp-cpy-ir-i `(,view2 ,view2) `(,view_w ,view_h) `(,x1 ,y1))
 			(vp-simd vp-mul-cr '(-1 -1) `(,x ,y))
 			(vp-simd vp-add-rr `(,x ,y) `(,x1 ,y1))
-			(vp-add-cr view_opaque_region :r1)
-			(call 'region :copy_rect `(,heap :r1 (& :rsp vis_region) ,x ,y ,x1 ,y1) `(,heap))
+			(call 'region :copy_rect `(,heap (& ,view1 view_opaque_region) (& :rsp vis_region) ,x ,y ,x1 ,y1) `(,heap))
 
 			;remove from ancestors
-			(assign '((:rsp vis_this)) '(:r1))
+			(assign '((:rsp vis_this)) `(,view1))
 			(loop-start)
-				(assign '((:r1 hmap_parent)) '(:r2))
-				(assign '(:r2) '((:rsp vis_next)))
+				(assign `((,view1 hmap_parent)) `(,view2))
+				(assign `(,view2) '((:rsp vis_next)))
 
 				;exit if clipped away
-				(assign '((:rsp vis_region)) '(:r3))
-				(breakif '(:r3 = 0))
+				(assign '((:rsp vis_region)) `(,tmp))
+				(breakif `(,tmp = 0))
 
 				;translate temp opaque region
-				(vp-simd vp-cpy-ir-i `(:r1 :r1) `(,view_x ,view_y) `(,x ,y))
+				(vp-simd vp-cpy-ir-i `(,view1 ,view1) `(,view_x ,view_y) `(,x ,y))
 				(call 'region :translate `((& :rsp vis_region) ,x ,y))
 
 				;clip temp opaque region
-				(assign '((:rsp vis_next)) '(:r2))
-				(call 'region :clip_rect `(,heap (& :rsp vis_region) 0 0 (:r2 view_w) (:r2 view_h)) `(,heap))
+				(assign '((:rsp vis_next)) `(,view2))
+				(call 'region :clip_rect `(,heap (& :rsp vis_region) 0 0 (,view2 view_w) (,view2 view_h)) `(,heap))
 
 				;remove temp opaque region
-				(vp-lea-i :rsp vis_region :r1)
-				(assign '((:rsp vis_next)) '(:r2))
-				(vp-add-cr view_dirty_region :r2)
-				(call 'region :remove_region `(,heap :r1 :r2 0 0) `(,heap))
+				(assign '((:rsp vis_next)) `(,view2))
+				(call 'region :remove_region `(,heap (& :rsp vis_region) (& ,view2 view_dirty_region) 0 0) `(,heap))
 
-				(assign '((:rsp vis_next) (:rsp vis_root)) '(:r1 :r2))
-			(loop-until '(:r1 = :r2))
+				(assign '((:rsp vis_next) (:rsp vis_root)) `(,view1 ,view2))
+			(loop-until `(,view1 = ,view2))
 
 			;free any temp region
 			(call 'region :free `(,heap (& :rsp vis_region)) `(,heap _))
@@ -246,6 +257,9 @@
 	(vp-ret)
 
 (vp-label 'visible_up_callback)
+	(vp-def (heap view1 view2 tmp x y x1 y1 vx vy vx1 vy1)
+		'(:r0 :r1 :r2 :r3 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14))
+
 	;save inputs
 	(vp-alloc vis_size)
 	(entry 'view :forward_tree_callback '((:rsp vis_this) (:rsp vis_root)))
@@ -255,99 +269,97 @@
 	(vp-add-cr statics_gui_rect_heap heap)
 
 	;clip local dirty region with parent bounds
-	(assign '((:rsp vis_this) (:rsp vis_root)) '(:r1 :r3))
-	(assign '((:r1 hmap_parent)) '(:r2))
-	(vpif '(:r1 = :r3))
-		(vp-cpy-rr :r1 :r2)
+	(assign '((:rsp vis_this) (:rsp vis_root)) `(,view1 ,tmp))
+	(assign `((,view1 hmap_parent)) `(,view2))
+	(vpif `(,view1 = ,tmp))
+		(vp-cpy-rr view1 view2)
 	(endif)
-	(vp-simd vp-cpy-ir-i `(:r1 :r1) `(,view_x ,view_y) `(,x ,y))
-	(vp-simd vp-cpy-ir-i `(:r2 :r2) `(,view_w ,view_h) `(,x1 ,y1))
+	(vp-simd vp-cpy-ir-i `(,view1 ,view1) `(,view_x ,view_y) `(,x ,y))
+	(vp-simd vp-cpy-ir-i `(,view2 ,view2) `(,view_w ,view_h) `(,x1 ,y1))
 	(vp-simd vp-mul-cr '(-1 -1) `(,x ,y))
 	(vp-simd vp-add-rr `(,x ,y) `(,x1 ,y1))
-	(vp-add-cr view_dirty_region :r1)
-	(call 'region :clip_rect `(,heap :r1 ,x ,y ,x1 ,y1) `(,heap))
+	(call 'region :clip_rect `(,heap (& ,view1 view_dirty_region) ,x ,y ,x1 ,y1) `(,heap))
 
 	;paste local dirty region onto parent if not root
-	(assign '((:rsp vis_this) (:rsp vis_root)) '(:r1 :r3))
-	(vpif '(:r1 /= :r3))
-		(vp-simd vp-cpy-ir-i `(:r1 :r1) `(,view_x ,view_y) `(,x ,y))
-		(assign '((:r1 hmap_parent)) `(:r2))
-		(vp-simd vp-add-cr `(,view_dirty_region ,view_dirty_region) `(:r1 :r2))
-		(call 'region :paste_region `(,heap :r1 :r2 ,x ,y) `(,heap))
+	(assign '((:rsp vis_this) (:rsp vis_root)) `(,view1 ,view2))
+	(vpif `(,view1 /= ,view2))
+		(vp-simd vp-cpy-ir-i `(,view1 ,view1) `(,view_x ,view_y) `(,x ,y))
+		(assign `((,view1 hmap_parent)) `(,view2))
+		(call 'region :paste_region `(,heap (& ,view1 view_dirty_region) (& ,view2 view_dirty_region) ,x ,y) `(,heap))
 
 		;free local dirty region
-		(assign '((:rsp vis_this)) '(:r1))
-		(vp-add-cr view_dirty_region :r1)
-		(call 'region :free `(,heap :r1) `(,heap _))
+		(assign '((:rsp vis_this)) `(,view1))
+		(call 'region :free `(,heap (& ,view1 view_dirty_region)) `(,heap _))
 	(endif)
 
 	;if dirty all flag then paste entire view onto parent
-	(assign '((:rsp vis_this)) '(:r2))
-	(assign '((:r2 view_flags)) '(:r3))
-	(vp-and-cr view_flag_dirty_all :r3)
-	(vpif '(:r3 /= 0))
+	(assign '((:rsp vis_this)) `(,view2))
+	(assign `((,view2 view_flags)) `(,tmp))
+	(vp-and-cr view_flag_dirty_all tmp)
+	(vpif `(,tmp /= 0))
 		;clear dirty all flag
-		(assign '((:r2 view_flags)) '(:r3))
-		(vp-and-cr (lognot view_flag_dirty_all) :r3)
-		(assign '(:r3) `((:r2 view_flags)))
-		(vp-simd vp-cpy-ir-i `(:r2 :r2 :r2 :r2)
+		(assign `((,view2 view_flags)) `(,tmp))
+		(vp-and-cr (lognot view_flag_dirty_all) tmp)
+		(assign `(,tmp) `((,view2 view_flags)))
+		(vp-simd vp-cpy-ir-i `(,view2 ,view2 ,view2 ,view2)
 			`(,view_x ,view_y ,view_w ,view_h)
 			`(,x ,y ,x1 ,y1))
 		(vp-simd vp-add-rr `(,x ,y) `(,x1 ,y1))
-		(assign '((:rsp vis_root) (:r2 hmap_parent)) '(:r3 :r1))
-		(vpif '(:r2 = :r3))
-			(vp-cpy-rr :r2 :r1)
+		(assign `((:rsp vis_root) (,view2 hmap_parent)) `(,tmp ,view1))
+		(vpif `(,view2 = ,tmp))
+			(vp-cpy-rr view2 view1)
 		(endif)
-		(vp-add-cr view_dirty_region :r1)
-		(call 'region :paste_rect `(,heap :r1 ,x ,y ,x1 ,y1))
+		(call 'region :paste_rect `(,heap (& ,view1 view_dirty_region) ,x ,y ,x1 ,y1))
 	(endif)
 
-	(exit 'view :forward_tree_callback '((:rsp vis_this) :r1))
+	(exit 'view :forward_tree_callback `((:rsp vis_this) ,view1))
 	(vp-free vis_size)
 	(vp-ret)
 
 (vp-label 'distribute_down_callback)
+	(vp-def (heap view1 view2 tmp x y x1 y1 vx vy vx1 vy1)
+		'(:r0 :r1 :r2 :r3 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14))
+
 	(def-struct dist 0
 		(ptr this data next))
 
 	;save inputs
 	(vp-alloc dist_size)
-	(entry 'view :forward_tree_callback '((:rsp dist_this) :r1))
-	(assign '(:r1) '((:rsp dist_data)))
+	(entry 'view :forward_tree_callback `((:rsp dist_this) ,view1))
+	(assign `(,view1) '((:rsp dist_data)))
 
 	;region heap
 	(fn-bind 'sys/statics/statics heap)
 	(vp-add-cr statics_gui_rect_heap heap)
 
 	;copy view from parent if not root
-	(assign '((:rsp dist_this) (:r1 local_root)) '(:r2 :r3))
-	(vpif '(:r2 /= :r3))
+	(assign `((:rsp dist_this) (,view1 local_root)) `(,view2 ,tmp))
+	(vpif `(,view2 /= ,tmp))
 		;remove opaque region from ancestors
-		(assign '((:r2 hmap_parent)) `(:r1))
-		(vp-simd vp-cpy-ir-i `(:r2 :r2 :r2 :r2)
+		(assign `((,view2 hmap_parent)) `(,view1))
+		(vp-simd vp-cpy-ir-i `(,view2 ,view2 ,view2 ,view2)
 			`(,view_ctx_x ,view_ctx_y ,view_w ,view_h)
 			`(,x ,y ,x1 ,y1))
 		(vp-simd vp-add-rr `(,x ,y) `(,x1 ,y1))
-		(vp-simd vp-add-cr `(,view_dirty_region ,view_dirty_region) `(:r1 :r2))
 
 		;copy my area from parent
-		(call 'region :copy_rect `(,heap :r1 :r2 ,x ,y ,x1 ,y1) `(,heap))
+		(call 'region :copy_rect `(,heap (& ,view1 view_dirty_region) (& ,view2 view_dirty_region) ,x ,y ,x1 ,y1) `(,heap))
 
 		;did we find any opaque region ?
-		(assign '((:rsp dist_this)) '(:r2))
-		(assign '((:r2 view_dirty_region)) '(:r1))
-		(vpif '(:r1 /= 0))
+		(assign '((:rsp dist_this)) `(,view2))
+		(assign `((,view2 view_dirty_region)) `(,view1))
+		(vpif `(,view1 /= 0))
 			;remove my opaque region from ancestors
-			(assign '((:r2 view_flags)) '(:r3))
-			(vp-and-cr view_flag_opaque :r3)
-			(vpif '(:r3 /= 0))
+			(assign `((,view2 view_flags)) `(,tmp))
+			(vp-and-cr view_flag_opaque tmp)
+			(vpif `(,tmp /= 0))
 				;remove entire view from ancestors
 				(loop-start)
-					(assign '((:r2 hmap_parent)) '(:r1))
-					(assign '(:r1) '((:rsp dist_next)))
+					(assign `((,view2 hmap_parent)) `(,view1))
+					(assign `(,view1) '((:rsp dist_next)))
 
 					;clip to parent
-					(vp-simd vp-cpy-ir-i `(:r1 :r1 :r1 :r1)
+					(vp-simd vp-cpy-ir-i `(,view1 ,view1 ,view1 ,view1)
 						`(,view_ctx_x ,view_ctx_y ,view_w ,view_h)
 						`(,vx ,vy ,vx1 ,vy1))
 					(vp-simd vp-add-rr `(,vx ,vy) `(,vx1 ,vy1))
@@ -355,53 +367,51 @@
 					(vp-simd vp-max-rr `(,vx ,vy) `(,x ,y))
 					(vp-simd vp-min-rr `(,vx1 ,vy1) `(,x1 ,y1))
 
-					(vp-add-cr view_dirty_region :r1)
-					(call 'region :remove_rect `(,heap :r1 ,x ,y ,x1 ,y1) `(,heap))
+					(call 'region :remove_rect `(,heap (& ,view1 view_dirty_region) ,x ,y ,x1 ,y1) `(,heap))
 
-					(assign '((:rsp dist_data) (:rsp dist_next)) '(:r1 :r2))
-					(assign '((:r1 local_root)) '(:r1))
-				(loop-until '(:r1 = :r2))
+					(assign '((:rsp dist_data) (:rsp dist_next)) `(,view1 ,view2))
+					(assign `((,view1 local_root)) `(,view1))
+				(loop-until `(,view1 = ,view2))
 			(else)
 				;remove opaque region from ancestors
-				(assign '(:r2) '(:r1))
+				(assign `(,view2) `(,view1))
 				(loop-start)
-					(assign '((:r1 hmap_parent)) '(:r2))
-					(assign '(:r2) '((:rsp dist_next)))
+					(assign `((,view1 hmap_parent)) `(,view2))
+					(assign `(,view2) '((:rsp dist_next)))
 
-					(assign '((:rsp dist_this)) '(:r1))
-					(vp-simd vp-cpy-ir-i `(:r1 :r1) `(,view_ctx_x ,view_ctx_y) `(,x ,y))
-					(vp-add-cr view_opaque_region :r1)
-					(vp-add-cr view_dirty_region :r2)
-					(call 'region :remove_region `(,heap :r1 :r2 ,x ,y) `(,heap))
+					(assign '((:rsp dist_this)) `(,view1))
+					(vp-simd vp-cpy-ir-i `(,view1 ,view1) `(,view_ctx_x ,view_ctx_y) `(,x ,y))
+					(call 'region :remove_region `(,heap (& ,view1 view_opaque_region) (& ,view2 view_dirty_region) ,x ,y) `(,heap))
 
-					(assign '((:rsp dist_data) (:rsp dist_next)) '(:r2 :r1))
-					(assign '((:r2 local_root)) '(:r2))
-				(loop-until '(:r1 = :r2))
+					(assign '((:rsp dist_data) (:rsp dist_next)) `(,view2 ,view1))
+					(assign `((,view2 local_root)) `(,view2))
+				(loop-until `(,view1 = ,view2))
 			(endif)
 
 			;return flag for recursion or not
-			(assign '((:rsp dist_this)) '(:r2))
-			(assign '((:r2 view_dirty_region)) '(:r1))
+			(assign '((:rsp dist_this)) `(,view2))
+			(assign `((,view2 view_dirty_region)) `(,view1))
 		(endif)
 	(endif)
 
-	;:r1 will be 0 or not depending on haveing any dirty region
-	(exit 'view :forward_tree_callback '((:rsp dist_this) :r1))
+	;,view1 will be 0 or not depending on haveing any dirty region
+	(exit 'view :forward_tree_callback `((:rsp dist_this) ,view1))
 	(vp-free dist_size)
 	(vp-ret)
 
 (vp-label 'distribute_up_callback)
 	;add myself to draw list if not empty
-	(entry 'view :forward_tree_callback `(,view :r1))
+	(vp-def (view user node tmp) '(:r0 :r1 :r2 :r3))
+	(entry 'view :forward_tree_callback `(,view ,user))
 
-	(assign `((,view view_dirty_region)) '(:r2))
-	(vpif '(:r2 /= 0))
-		(vp-lea-i view view_ctx_node :r2)
-		(vp-add-cr local_ctx_flist :r1)
-		(ln-add-fnode :r1 0 :r2 :r3)
+	(assign `((,view view_dirty_region)) `(,node))
+	(vpif `(,node /= 0))
+		(vp-lea-i view view_ctx_node node)
+		(vp-add-cr local_ctx_flist user)
+		(ln-add-fnode user 0 node tmp)
 	(endif)
 
-	(exit 'view :forward_tree_callback `(,view :r1))
+	(exit 'view :forward_tree_callback `(,view ,user))
 	(vp-ret)
 
 (def-func-end)
