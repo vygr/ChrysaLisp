@@ -487,7 +487,9 @@
 			(emit-xor-rr r r))
 		((= c -1)
 			(emit-int (+ 0xcb000000 (<< r 16) (const (<< 31 5)) r)))
-		(:t  (emit-cpy-cr c +arm64_rtmp)
+		((defq s (log2 c))
+			(emit-shl-cr s r))
+		(:t	(emit-cpy-cr c +arm64_rtmp)
 			(emit-mul-rr +arm64_rtmp r))))
 
 (defun emit-ext-rr (s d)

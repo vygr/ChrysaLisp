@@ -516,23 +516,6 @@
 	(emit-byte 0x0f 0x95 (+ 0xc0 s))
 	(emit-and-rr s d))
 
-(defun emit-mul-cr (c r)
-	(cond
-		((= c 1))
-		((= c 0)
-			(emit-xor-rr r r))
-		(:t (defq rl (logand r 7) rh (>> r 3))
-			(cond
-				((= 1 c))
-				((= -1 c)
-					(emit-byte (+ 0x48 rh) 0xf7 (+ 0xd8 rl)))
-				((<= -0x80 c 0x7f)
-					(emit-byte (+ 0x48 (<< rh 2) rh) 0x6b (+ 0xc0 rl (<< rl 3)) c))
-				((<= -0x80000000 c 0x7fffffff)
-					(emit-byte (+ 0x48 (<< rh 2) rh) 0x69 (+ 0xc0 rl (<< rl 3)))
-					(emit-int c))
-				(:t (throw "emit-mul-cr constant out of range !" c))))))
-
 (defun emit-mul-rr (s d)
 	(defq sl (logand 7 s) sh (>> s 3)
 		dl (logand 7 d) dh (>> d 3))
@@ -627,6 +610,24 @@
 			(emit-asr-cr 63 d))
 		(:t  (emit-cpy-rr s d)
 			(emit-asr-cr 63 d))))
+
+(defun emit-mul-cr (c r)
+	(cond
+		((= c 1))
+		((= c 0)
+			(emit-xor-rr r r))
+		((defq s (log2 c))
+			(emit-shl-cr s r))
+		(:t (defq rl (logand r 7) rh (>> r 3))
+			(cond
+				((= -1 c)
+					(emit-byte (+ 0x48 rh) 0xf7 (+ 0xd8 rl)))
+				((<= -0x80 c 0x7f)
+					(emit-byte (+ 0x48 (<< rh 2) rh) 0x6b (+ 0xc0 rl (<< rl 3)) c))
+				((<= -0x80000000 c 0x7fffffff)
+					(emit-byte (+ 0x48 (<< rh 2) rh) 0x69 (+ 0xc0 rl (<< rl 3)))
+					(emit-int c))
+				(:t (throw "emit-mul-cr constant out of range !" c))))))
 
 (case *abi*
 (AMD64

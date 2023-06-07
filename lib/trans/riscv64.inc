@@ -155,6 +155,8 @@
 			(emit-xor-rr r r))
 		((= c -1)
 			(riscv64-r 0x33 r +riscv64_rzero r 0x0 0x20))
+		((defq s (log2 c))
+			(emit-shl-cr s r))
 		(:t (emit-cpy-cr c +riscv64_rtmp1)
 			(emit-mul-rr +riscv64_rtmp1 r))))
 
