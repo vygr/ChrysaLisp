@@ -152,7 +152,7 @@
 
 	(vp-simd vp-cpy-ir-i `(,view ,view) `(,view_x ,view_y) `(,x1 ,y1))
 	(vp-simd vp-add-rr `(,x1 ,y1) `(,x ,y))
-	(assign `(,x ,y) `((,view view_ctx_x) (,view view_ctx_y)))
+	(vp-simd vp-cpy-ri-i `(,x ,y) `(,view ,view) `(,view_ctx_x ,view_ctx_y))
 
 	(exit 'view :forward_tree_callback `(,view ,user))
 	(vp-ret)
