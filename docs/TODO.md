@@ -8,6 +8,9 @@ In no particular order but to just to ensure I get thoughts down. I'll keep
 adding to this as I go along. If anybody would like to try helping out, then
 just get in touch.
 
+* Move `vp-min, vp-max, vp-abs` into the VP VM proper. ARM64 and x64 have
+native operations `cmov` that could implement these.
+
 * Environment browser GUI app to aid debugging and housekeeping.
 
 * `pupa.inc` for Guest should always run prior to the user `pupa.inc` file to
