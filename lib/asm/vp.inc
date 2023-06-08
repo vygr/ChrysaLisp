@@ -47,7 +47,7 @@
 
 (defun label-sym (s) (sym (cat "_l_" s)))
 (defun vp-label (l) (setq l (label-sym l)) (emit `(emit-label ',l)))
-(defun vp-align (a &optional b) (emit `(emit-align ,a ,b)))
+(defun vp-align (a &optional b) (if b (emit `(emit-align ,a ,b)) (emit `(emit-align ,a))))
 (defun vp-string (s) (emit `(emit-string ,s)))
 (defun vp-byte (&rest b) (emit `(emit-byte ~b)))
 (defun vp-short (&rest b) (emit `(emit-short ~b)))
