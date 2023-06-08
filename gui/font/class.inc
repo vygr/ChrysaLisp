@@ -44,4 +44,4 @@
 (def-struct font_curve_element font_line_element_size
 	(int x1 y1 x2 y2))
 
-(defcvar 'font_max_word_cache 1024)
+(defcvar 'font_max_word_cache 2048)
