@@ -268,6 +268,22 @@
 	(fn-bind 'sys/statics/statics heap)
 	(vp-add-cr statics_gui_rect_heap heap)
 
+	;if dirty all flag then dirty entire view
+	(assign '((:rsp vis_this)) `(,view1))
+	(assign `((,view1 view_flags)) `(,tmp))
+	(vp-and-cr view_flag_dirty_all tmp)
+	(vpif `(,tmp /= 0))
+		;clear dirty all flag
+		(assign `((,view1 view_flags)) `(,tmp))
+		(vp-and-cr (lognot view_flag_dirty_all) tmp)
+		(assign `(,tmp) `((,view1 view_flags)))
+
+		;add dirty
+		(vp-simd vp-cpy-cr '(0 0) `(,x ,y))
+		(vp-simd vp-cpy-ir-i `(,view1 ,view1) `(,view_w ,view_h) `(,x1 ,y1))
+		(call 'region :paste_rect `(,heap (& ,view1 view_dirty_region) ,x ,y ,x1 ,y1) `(,heap))
+	(endif)
+
 	;clip local dirty region with parent bounds
 	(assign '((:rsp vis_this) (:rsp vis_root)) `(,view1 ,tmp))
 	(assign `((,view1 hmap_parent)) `(,view2))
@@ -290,26 +306,6 @@
 		;free local dirty region
 		(assign '((:rsp vis_this)) `(,view1))
 		(call 'region :free `(,heap (& ,view1 view_dirty_region)) `(,heap _))
-	(endif)
-
-	;if dirty all flag then paste entire view onto parent
-	(assign '((:rsp vis_this)) `(,view2))
-	(assign `((,view2 view_flags)) `(,tmp))
-	(vp-and-cr view_flag_dirty_all tmp)
-	(vpif `(,tmp /= 0))
-		;clear dirty all flag
-		(assign `((,view2 view_flags)) `(,tmp))
-		(vp-and-cr (lognot view_flag_dirty_all) tmp)
-		(assign `(,tmp) `((,view2 view_flags)))
-		(vp-simd vp-cpy-ir-i `(,view2 ,view2 ,view2 ,view2)
-			`(,view_x ,view_y ,view_w ,view_h)
-			`(,x ,y ,x1 ,y1))
-		(vp-simd vp-add-rr `(,x ,y) `(,x1 ,y1))
-		(assign `((:rsp vis_root) (,view2 hmap_parent)) `(,tmp ,view1))
-		(vpif `(,view2 = ,tmp))
-			(vp-cpy-rr view2 view1)
-		(endif)
-		(call 'region :paste_rect `(,heap (& ,view1 view_dirty_region) ,x ,y ,x1 ,y1))
 	(endif)
 
 	(exit 'view :forward_tree_callback `((:rsp vis_this) ,view1))
