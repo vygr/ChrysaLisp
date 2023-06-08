@@ -89,7 +89,11 @@
 	(vp-align +ptr_size)
 (vp-label 'fn_end)
 	(opt-emit-list *emit_list* *emit_start* *emit_end*)
-	(defq *out* (emit-translate (emit-vp-code *emit_list*)))
+	(defq *emit_code* (emit-vp-code *emit_list*))
+	(if (eql *cpu* 'vp64)
+		(save (cat "(" (join (map str *emit_code*) (char 10)) ")")
+			(cat "obj/vp/" (str *func_name*))))
+	(defq *out* (emit-translate *emit_code*))
 	(save *out* (cat "obj/" *cpu* "/" *abi* "/" (str *func_name*)))
 	(print "-> " (str "obj/" *cpu* "/" *abi* "/" (str *func_name*) " (" (length *out*) ")")))
 

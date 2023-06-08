@@ -38,7 +38,7 @@
 				(elem-set _ _l e)))
 		(lambda (l) :nil)
 		(lambda (l) :t))
-	(when *debug_emit* (each! 1 -1 print (list out)))
+	(when *debug_emit* (print (cat "(" (join (map str out) (char 10)) ")")))
 	out)
 
 ;;;;;;;;;;;;;;;;;
