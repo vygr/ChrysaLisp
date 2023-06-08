@@ -32,11 +32,8 @@
 	(vp-and-cr -16 :rsp)
 	(entry {old_stack})
 
-	;statics
-	(fn-bind 'sys/statics/statics :r0)
-	(assign '(:r0) {statics})
-
 	;inited gui compositor ?
+	(assign {@sys/statics/statics} {statics})
 	(vpifnot {statics->statics_gui_init})
 		;init
 		(assign {0, 0, statics->statics_gui_screen->view_w, statics->statics_gui_screen->view_h}
