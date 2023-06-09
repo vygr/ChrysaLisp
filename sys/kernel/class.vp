@@ -38,10 +38,6 @@
 	(push-scope)
 	(entry {argv})
 
-	(when (>= *debug_mode* 2)
-		(fn-bind 'class/array/append :r0)
-		(debug-num "start" :r0))
-
 	;init allocator
 	(call 'sys_mem :statics_init)
 
@@ -71,11 +67,10 @@
 
 	;start routing pings
 	(call 'node :create {0, +node_id_size} {key})
-	(unless (>= *debug_mode* 2)
 	(call 'sys_load :bind `(,(str (f-path 'sys_kernel :ping))) '(:r0))
 	(vpif '(:r0 /= 0))
 		(call 'sys_task :start '(:r0))
-	(endif))
+	(endif)
 
 ;;;;;;;;;;;;;;;;;;;;;;;
 ; main kernel task loop

@@ -38,7 +38,6 @@
 				(elem-set _ _l e)))
 		(lambda (l) :nil)
 		(lambda (l) :t))
-	(when *debug_emit* (print (cat "(" (join (map str out) (char 10)) ")")))
 	out)
 
 ;;;;;;;;;;;;;;;;;
