@@ -35,6 +35,7 @@
 
 (defun path-gen-paths (d eps)
 	; (path-gen-paths svg_d tol) -> (list (:nil|:t path) ...)
+	; :t closed, :nil open
 	(defq i 0 paths (list) d (path-svg (cat d " "))
 		cx 0.0 cy 0.0 cpx 0.0 cpy 0.0 last_cmd " ")
 	(until (eql (defq cmd (elem-get i d)) "x")
