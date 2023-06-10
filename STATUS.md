@@ -12,6 +12,9 @@ what happens and use `vp-simd`.
 
 Added strength reduction optimization to the `emit-mul-cr` operation.
 
+Addition of basic `text` command support for the SVG import library. Along with
+this added a new `clock.svg` test image and the `OpenSans-Bol.ctf` font.
+
 ------
 
 New keyboard cooking system. ChrysaLisp now takes on the work to map raw scan
