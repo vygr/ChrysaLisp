@@ -10,10 +10,18 @@
 
 (defq +eps 1.0)
 
+(defun degrees-to-radians (d)
+	(/ (* d 180.0) +fp_pi))
+
 (defun Mat3x3-f (m00 m01 m02 m10 m11 m12 m20 m21 m22)
 	(list (fixeds m00 m01 m02)
 		(fixeds m10 m11 m12)
 		(fixeds m20 m21 m22)))
+
+(defun Mat3x3-rotz-f (a tx ty)
+	(list (fixeds (cos a) (* (sin a) -1.0) 0.0)
+		(fixeds (sin a) (cos a) 0.0)
+		(fixeds tx ty 1.0)))
 
 (defun mat3x3-mul-f (ma mb)
 	; (mat3x3-mul-f mat3x3_a mat3x3_b) -> mat3x3-f
@@ -38,19 +46,21 @@
 
 (defun read-transform (entry val)
 	(bind '(m00 m01 m10 m11 tx ty) (. entry :find "transform"))
-	(defq ma (Mat3x3-f m00 m01 tx m10 m11 ty 0.0 0.0 1.0))
-	(cond
-		((starts-with "matrix(" val)
-			(bind '(m00 m01 m10 m11 tx ty)
-					(map (# (n2f (str-to-num %0)))
-				 (slice 1 7 (split val "(), "))))
+	(defq ma (Mat3x3-f m00 m01 tx m10 m11 ty 0.0 0.0 1.0)
+		args (split val "(), ") key (elem-get 0 args)
+		vals (map (# (n2f (str-to-num %0))) (slice 1 -1 args)))
+	(case key
+		("matrix"
+			(bind '(m00 m01 m10 m11 tx ty) vals)
 			(defq mb (Mat3x3-f m00 m01 tx m10 m11 ty 0.0 0.0 1.0)))
-		((starts-with "translate(" val)
-			(bind '(tx ty)
-					(map (# (n2f (str-to-num %0)))
-				(slice 1 3 (split val "(), "))))
+		("translate"
+			(bind '(tx ty) vals)
 			(defq mb (Mat3x3-f 1.0 0.0 tx 0.0 1.0 ty 0.0 0.0 1.0)))
-		((throw "Unknown transform !" val)))
+		("rotate"
+			(bind '(a &optional tx ty) vals)
+			(setd tx 0.0 ty 0.0)
+			(defq mb (Mat3x3-rotz-f (degrees-to-radians a) tx ty)))
+		(:t	(throw "Unknown transform !" (elem-get 0 args))))
 	(bind '((m00 m01 tx) (m10 m11 ty) _) (mat3x3-mul-f ma mb))
 	(list m00 m01 m10 m11 tx ty))
 
@@ -81,13 +91,13 @@
 					((starts-with "#" val) (read-col val))
 					((starts-with "rgb(" val) (read-rgb val))
 					((throw "Unknown stroke/fill style !" val))))))
-		(("stroke-linecap")
+		("stroke-linecap"
 			(case val
 				("butt" +cap_butt)
 				("round" +cap_round)
 				("square" +cap_square)
 				((throw "Unknown stroke-linecap style !" val))))
-		(("stroke-linejoin")
+		("stroke-linejoin"
 			(case val
 				("miter" +join_miter)
 				("bevel" +join_bevel)
@@ -100,6 +110,29 @@
 				("nonzero" +winding_none_zero)
 				("evenodd" +winding_odd_even)
 				((throw "Unknown fill-rule !" val))))
+		("font-weight"
+			(case val
+				("normal" "Regular")
+				("bold" "Bold")
+				("bolder" "Bolder")
+				("lighter" "Lighter")
+				((throw "Unknown font-weight !" val))))
+		("font-size"
+			(n2f (str-to-num (elem-get 0 (split val "pt")))))
+		("font-family"
+			"OpenSans")
+		("text-anchor"
+			(case val
+				("start" "start")
+				("middle" "middle")
+				("end" "end")
+				((throw "Unknown text-anchor !" val))))
+		("dominant-baseline"
+			(case val
+				("auto" "auto")
+				("middle" "middle")
+				("hanging" "hanging")
+				((throw "Unknown dominant-baseline !" val))))
 		("d"
 			(path-gen-paths val +eps))
 		(:t  val)))
@@ -160,6 +193,8 @@
 			"d" (path) "points" (path)
 			"x" 0.0 "y" 0.0 "x1" 0.0 "y1" 0.0 "x2" 0.0 "y2" 0.0
 			"cx" 0.0 "cy" 0.0 "r" 0.0
+			"text-anchor" "start" "dominant-baseline" "auto"
+			"font-size" 16.0 "font-family" "OpenSans" "font-weight" "Regular"
 			)))
 	(XML-parse stream
 		(lambda (command keys vals)
@@ -214,14 +249,39 @@
 						d (. entry :find "d"))
 					(path-fill-and-stroke canvas entry d))
 				("text"
-					)
+					(push-attributes stack keys vals))
 				))
 		(lambda (command)
 			(case command
-				(("svg" "g" "circle" "ellipse" "path" "polygon" "polyline" "line" "rect")
+				(("svg" "g" "circle" "ellipse" "path" "polygon" "polyline" "line" "rect" "text")
 					(pop stack))
 				))
-		(lambda (text)))
+		(lambda (text)
+			;render text
+			(defq entry (elem-get -2 stack)
+				x (. entry :find "x") y (. entry :find "y")
+				family (. entry :find "font-family")
+				weight (. entry :find "font-weight")
+				size (. entry :find "font-size")
+				anchor (. entry :find "text-anchor")
+				baseline (. entry :find "dominant-baseline")
+				font (create-font (cat "fonts/" family "-" weight ".ctf") (n2i size)))
+			(unless font
+				(setq font (create-font (cat "fonts/" family "-Regular.ctf") (n2i size))))
+			(unless font
+				(setq font (create-font "fonts/OpenSans-Regular.ctf" (n2i size))))
+			(bind '(w h) (font-glyph-bounds font text))
+			(defq ox (case anchor
+					("middle" (n2f w))
+					("end" (n2f (* w 2)))
+					(:t 0.0))
+				oy (case baseline
+					("middle" (* (n2f h) 0.5))
+					("hanging" (n2f h))
+					(:t 0.0))
+				d (map (# (list :t (path-transform 1.0 0.0 0.0 1.0 (- x ox) (+ y oy) %0 %0)))
+					(font-glyph-paths font text)))
+			(path-fill-and-stroke canvas entry d)))
 	;resize to final output
 	(bind '(w h) (. canvas :pref_size))
 	(. (Canvas w h 1) :resize canvas))
