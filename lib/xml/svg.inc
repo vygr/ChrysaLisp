@@ -55,8 +55,13 @@
 			(bind '(m00 m01 m10 m11 tx ty) vals)
 			(defq mb (Mat3x3-f m00 m01 tx m10 m11 ty 0.0 0.0 1.0)))
 		("translate"
-			(bind '(tx ty) vals)
+			(bind '(tx &optional ty) vals)
+			(setd ty 0.0)
 			(defq mb (Mat3x3-f 1.0 0.0 tx 0.0 1.0 ty 0.0 0.0 1.0)))
+		("scale"
+			(bind '(sx &optional sy) vals)
+			(setd sy sx)
+			(defq mb (Mat3x3-f sx 0.0 0.0 0.0 sy 0.0 0.0 0.0 1.0)))
 		("rotate"
 			(bind '(a &optional tx ty) vals)
 			(setd tx 0.0 ty 0.0)
