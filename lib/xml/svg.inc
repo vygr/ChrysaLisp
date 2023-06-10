@@ -206,8 +206,6 @@
 					(if (defq val (. entry :find "height")) (setq height val))
 					(. (setq canvas (Canvas (n2i width) (n2i height) (n2i scale)))
 						:set_canvas_flags +canvas_flag_antialias))
-				("g"
-					(push-attributes stack keys vals))
 				("circle"
 					(defq entry (push-attributes stack keys vals)
 						cx (. entry :find "cx") cy (. entry :find "cy") r (. entry :find "r")
@@ -248,7 +246,7 @@
 					(defq entry (push-attributes stack keys vals)
 						d (. entry :find "d"))
 					(path-fill-and-stroke canvas entry d))
-				("text"
+				(("text" "g")
 					(push-attributes stack keys vals))
 				))
 		(lambda (command)
