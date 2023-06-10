@@ -19,8 +19,9 @@
 		(fixeds m20 m21 m22)))
 
 (defun Mat3x3-rotz-f (a tx ty)
-	(list (fixeds (cos a) (* (sin a) -1.0) 0.0)
-		(fixeds (sin a) (cos a) 0.0)
+	(defq ca (cos a) sa (sin a))
+	(list (fixeds ca (* sa -1.0) 0.0)
+		(fixeds sa ca 0.0)
 		(fixeds tx ty 1.0)))
 
 (defun mat3x3-mul-f (ma mb)
