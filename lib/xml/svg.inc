@@ -60,7 +60,7 @@
 			(bind '(a &optional tx ty) vals)
 			(setd tx 0.0 ty 0.0)
 			(defq mb (Mat3x3-rotz-f (degrees-to-radians a) tx ty)))
-		(:t	(throw "Unknown transform !" (elem-get 0 args))))
+		(:t	(throw "Unknown transform !" key)))
 	(bind '((m00 m01 tx) (m10 m11 ty) _) (mat3x3-mul-f ma mb))
 	(list m00 m01 m10 m11 tx ty))
 
@@ -135,7 +135,7 @@
 				((throw "Unknown dominant-baseline !" val))))
 		("d"
 			(path-gen-paths val +eps))
-		(:t  val)))
+		(:t	val)))
 
 (defun push-attributes (stack keys vals)
 	(push stack (defq entry (. (elem-get -2 stack) :copy)))
