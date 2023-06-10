@@ -18,3 +18,8 @@
 	; (set? object) -> :t | :nil
 	; returns true if argument is a set type
 	(or (xset? _) (fset? _)))
+
+(defun gather (m &rest _)
+	; (gather map key ...) -> (val ...)
+	; gather a set of values
+	(map (# (. m :find %0)) _))

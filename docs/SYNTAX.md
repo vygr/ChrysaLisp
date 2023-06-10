@@ -2550,6 +2550,12 @@
 (func? form) -> :t | :nil
 ```
 
+### gather
+
+```code
+(gather map key ...) -> (val ...)
+```
+
 ### gensym
 
 ```code
