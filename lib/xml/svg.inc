@@ -213,6 +213,8 @@
 					(defq entry (push-attributes stack keys vals)
 						d (. entry :find "d"))
 					(path-fill-and-stroke canvas entry d))
+				("text"
+					)
 				))
 		(lambda (command)
 			(case command

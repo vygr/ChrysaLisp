@@ -134,7 +134,7 @@
 			(vp-add-rr c num)
 		(endif)
 		(vp-add-cr +byte_size bufp)
-	(loop-end)
+	(loop-until `(,dot >= 10000000))
 	(vpif (list dot '/= 0))
 		(vp-shl-cr 16 num)
 		(vp-ext-rr num c)
@@ -159,8 +159,15 @@
 
 	(entry 'sys_str :to_num `(,bufp))
 
+	;skip whitespace
+	(assign `((,bufp 0 ub)) `(,c))
+	(loop-while `(,c <= (ascii-code " ")) `(,c /= 0))
+		(vp-add-cr +byte_size bufp)
+		(assign `((,bufp 0 ub)) `(,c))
+	(loop-end)
+
 	;negative/positive
-	(assign `((,bufp 0 ub) 1) `(,c ,minus))
+	(assign `(1) `(,minus))
 	(vpif (list c '= (ascii-code "-")))
 		(vp-add-cr +byte_size bufp)
 		(vp-cpy-cr -1 minus)
