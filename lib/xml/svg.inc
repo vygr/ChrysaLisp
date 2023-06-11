@@ -11,7 +11,7 @@
 (defq +eps 1.0)
 
 (defun degrees-to-radians (d)
-	(/ (* d 180.0) +fp_pi))
+	(/ (* d +fp_pi) 180.0))
 
 (defun Mat3x3-f (m00 m01 m02 m10 m11 m12 m20 m21 m22)
 	(list (fixeds m00 m01 m02)
@@ -22,6 +22,18 @@
 	(defq ca (cos a) sa (sin a))
 	(list (fixeds ca (* sa -1.0) tx)
 		(fixeds sa ca ty)
+		(fixeds 0.0 0.0 1.0)))
+
+(defun Mat3x3-skewx-f (a)
+	(defq ca (cos a) sa (sin a))
+	(list (fixeds ca (* sa -1.0) 0.0)
+		(fixeds 0.0 1.0 0.0)
+		(fixeds 0.0 0.0 1.0)))
+
+(defun Mat3x3-skewy-f (a)
+	(defq ca (cos a) sa (sin a))
+	(list (fixeds 1.0 0.0 0.0)
+		(fixeds sa ca 0.0)
 		(fixeds 0.0 0.0 1.0)))
 
 (defun mat3x3-mul-f (ma mb)
@@ -47,27 +59,40 @@
 
 (defun read-transform (entry val)
 	(bind '(m00 m01 m10 m11 tx ty) (. entry :find "transform"))
-	(defq ma (Mat3x3-f m00 m01 tx m10 m11 ty 0.0 0.0 1.0)
-		args (split val "(), ") key (elem-get 0 args)
-		vals (map (# (n2f (str-to-num %0))) (slice 1 -1 args)))
-	(case key
-		("matrix"
-			(bind '(m00 m01 m10 m11 tx ty) vals)
-			(defq mb (Mat3x3-f m00 m01 tx m10 m11 ty 0.0 0.0 1.0)))
-		("translate"
-			(bind '(tx &optional ty) vals)
-			(setd ty 0.0)
-			(defq mb (Mat3x3-f 1.0 0.0 tx 0.0 1.0 ty 0.0 0.0 1.0)))
-		("scale"
-			(bind '(sx &optional sy) vals)
-			(setd sy sx)
-			(defq mb (Mat3x3-f sx 0.0 0.0 0.0 sy 0.0 0.0 0.0 1.0)))
-		("rotate"
-			(bind '(a &optional tx ty) vals)
-			(setd tx 0.0 ty 0.0)
-			(defq mb (Mat3x3-rotz-f (degrees-to-radians a) tx ty)))
-		(:t	(throw "Unknown transform !" key)))
-	(bind '((m00 m01 tx) (m10 m11 ty) _) (mat3x3-mul-f ma mb))
+	(defq stack (reverse (split val ")"))
+		ma (Mat3x3-f m00 m01 tx m10 m11 ty 0.0 0.0 1.0))
+	(while (defq transform (pop stack))
+		(defq args (split transform (const (cat "(, " (ascii-char 9) (ascii-char 10))))
+			key (elem-get 0 args)
+			vals (map (# (n2f (str-to-num %0))) (slice 1 -1 args)))
+		(defq mb (case key
+			("matrix"
+				(bind '(m00 m01 m10 m11 tx ty) vals)
+				(Mat3x3-f m00 m01 tx m10 m11 ty 0.0 0.0 1.0))
+			("translate"
+				(bind '(tx &optional ty) vals)
+				(setd ty 0.0)
+				(Mat3x3-f 1.0 0.0 tx 0.0 1.0 ty 0.0 0.0 1.0))
+			("scale"
+				(bind '(sx &optional sy) vals)
+				(setd sy sx)
+				(Mat3x3-f sx 0.0 0.0 0.0 sy 0.0 0.0 0.0 1.0))
+			("rotate"
+				(bind '(a &optional tx ty) vals)
+				(setd tx 0.0 ty 0.0)
+				(defq rm (Mat3x3-rotz-f (degrees-to-radians a) 0.0 0.0))
+				(bind '((m00 m01 m02) (m10 m11 m12) _) rm)
+				(bind '(rx ry) (path-transform m00 m01 m10 m11 m02 m12 (path tx ty) (path tx ty)))
+				(Mat3x3-rotz-f (degrees-to-radians a) (- tx rx) (- ty ry)))
+			("skewX"
+				(bind '(a) vals)
+				(Mat3x3-skewx-f (* (degrees-to-radians a) -1.0)))
+			("skewY"
+				(bind '(a) vals)
+				(Mat3x3-skewy-f (degrees-to-radians a)))
+			(:t	(throw "Unknown transform !" key))))
+		(setq ma (mat3x3-mul-f ma mb)))
+	(bind '((m00 m01 tx) (m10 m11 ty) _) ma)
 	(list m00 m01 m10 m11 tx ty))
 
 (defun read-attribute (entry key val)
@@ -76,7 +101,7 @@
 			"width" "height" "stroke-width" "fill-opacity" "stroke-opacity")
 			(n2f (str-to-num val)))
 		("viewBox"
-			(map (# (n2i (str-to-num %0))) (split val ", ")))
+			(map (# (n2f (str-to-num %0))) (split val ", ")))
 		("points"
 			(reduce (# (push %0 (n2f (str-to-num %1)))) (split val ", ") (path)))
 		("transform"
@@ -182,7 +207,7 @@
 
 (defun SVG-Canvas (stream &optional scale)
 	; (SVG-Canvas stream [scale]) -> :nil | canvas
-	(setd scale 1)
+	(setd scale 1) (setq scale (n2f scale))
 	(defq canvas :nil stack
 		(list (lmap-kv
 			;this block of defaults are in order !
@@ -194,7 +219,7 @@
 			"fill-rule" +winding_none_zero
 			"fill-opacity" 1.0
 			"stroke-opacity" 1.0
-			"transform" (list (n2f scale) 0.0 0.0 (n2f scale) 0.0 0.0)
+			"transform" (list scale 0.0 0.0 scale 0.0 0.0)
 			;this block can be any order
 			"d" (path) "points" (path)
 			"x" 0.0 "y" 0.0 "x1" 0.0 "y1" 0.0 "x2" 0.0 "y2" 0.0
@@ -206,12 +231,13 @@
 		(lambda (command keys vals)
 			(case command
 				("svg"
-					(defq entry (push-attributes stack keys vals) width 256 height 256)
-					(if (defq val (. entry :find "viewBox")) (bind '(_ _ width height) val))
+					(defq entry (push-attributes stack keys vals) x 0.0 y 0.0 width 256.0 height 256.0)
+					(if (defq val (. entry :find "viewBox")) (bind '(x y width height) val))
 					(if (defq val (. entry :find "width")) (setq width val))
 					(if (defq val (. entry :find "height")) (setq height val))
 					(. (setq canvas (Canvas (n2i width) (n2i height) (n2i scale)))
-						:set_canvas_flags +canvas_flag_antialias))
+						:set_canvas_flags +canvas_flag_antialias)
+					(. entry :insert "transform" (list scale 0.0 0.0 scale (* scale x -1.0) (* scale y -1.0))))
 				("circle"
 					(bind '(cx cy r) (gather (defq entry (push-attributes stack keys vals))
 						"cx" "cy" "r"))
@@ -277,7 +303,7 @@
 					("middle" (* (n2f h) 0.5))
 					("hanging" (n2f h))
 					(:t 0.0))
-				d (map (# (list :t (path-transform 1.0 0.0 0.0 1.0 ox oy %0 %0)))
+				d (map (# (list :t (path-transform 1.0 0.0 0.0 1.0 (+ x ox) (+ y oy) %0 %0)))
 					(font-glyph-paths font text)))
 			(path-fill-and-stroke canvas entry d)))
 	;resize to final output
