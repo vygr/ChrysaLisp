@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?><svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="300" height="300">	<path d="M-1 301 L301 301 L301 -1 L-0.9999999999999716 -1 L-1 301 Z" stroke="rgb(255, 255, 255)" stroke-opacity=" 0" stroke-width="0" stroke-linecap="square" fill="rgb(255, 255, 255)" fill-opacity=" 0"></path>
-	<circle cx="150" cy="150" r="140" stroke="rgb(255, 255, 255)" stroke-opacity="1" stroke-width="3" fill="rgb(0, 0, 0)" fill-opacity="1"></circle>
+	<circle cx="150" cy="150" r="140" stroke="rgb(255, 255, 255)" stroke-opacity="0" stroke-width="3" fill="rgb(0, 0, 0)" fill-opacity="1"></circle>
 	<line x1="74.10061241052887" y1="252.57213541475693" x2="67.20066808421332" y2="261.89687499791665" stroke="rgb(192, 192, 192)" stroke-opacity="1" stroke-width="1.5" stroke-linecap="round"></line>
 	<line x1="69.06002487542281" y1="248.6431975699938" x2="61.70184531864308" y2="257.61076098544777" stroke="rgb(192, 192, 192)" stroke-opacity="1" stroke-width="1.5" stroke-linecap="round"></line>
 	<line x1="64.22248163268578" y1="244.4668055072525" x2="56.42452541747541" y2="253.05469691700273" stroke="rgb(192, 192, 192)" stroke-opacity="1" stroke-width="1.5" stroke-linecap="round"></line>
@@ -135,4 +135,5 @@
 	<text x="150" y="105" text-anchor="middle" dominant-baseline="middle" transform="rotate(0,150,105)" font-family="Verdana" font-size="12pt" font-weight="normal" fill="rgb(255, 255, 255)" fill-opacity="1">mph</text>
 	<path d="M171.35445546454827 156.54258028705985 L19.76819396662088 141.62284670760292 L19.836209257286132 140.6251624287673 L172.04481066480054 146.41608485687843 L171.35445546454827 156.54258028705985 Z" stroke="rgb(255, 0, 0)" stroke-opacity="1" stroke-width="1" stroke-linecap="square" fill="rgb(255, 0, 0)" fill-opacity="1"></path>
 	<circle cx="150" cy="150" r="14" stroke="rgb(0, 0, 0)" stroke-opacity="1" stroke-width="1" fill="rgb(255, 255, 255)" fill-opacity="1"></circle>
+	<circle cx="150" cy="150" r="140" stroke="rgb(255, 255, 255)" stroke-opacity="1" stroke-width="3" fill-opacity="0"></circle>
 </svg>
