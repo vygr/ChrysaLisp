@@ -6,6 +6,7 @@
 (import "sys/lisp.inc" _)
 (import "class/lisp.inc" _)
 (import "gui/lisp.inc" _)
+(setq _ :nil)
 
 (import "sys/pii/lisp.inc")
 (defq *env_user* "Guest")

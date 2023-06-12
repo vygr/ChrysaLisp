@@ -49,7 +49,7 @@
 
 (defun default ()
 	(vp-label (loc-sym (defq s (cnt-sym) c (eval s))))
-	(set (env) s (inc c)))
+	(set (penv) s (inc c)))
 
 (defun endswitch ()
 	(vp-label (end-sym))

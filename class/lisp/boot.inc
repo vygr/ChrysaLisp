@@ -966,15 +966,25 @@
 
 (defun within-compile-env (_f)
 	; (within-compile-env lambda)
-	(defq *compile_env* (env-resize 503))
+	(defq *compile_env* (env-resize 503)
+		*compile_envs* (list '*compile_env* *compile_env*))
 	(defmacro deffvar (&rest b)
 		`(def *func_env* ~b))
 	(defmacro defcvar (&rest b)
 		`(def *compile_env* ~b))
 	(defun include (lib_path)
 		(import lib_path *compile_env*))
-	(catch (progn (setq _f (_f) *compile_env* :nil) _f)
-		(setq *compile_env* :nil)))
+	(catch
+		(progn
+			(setq _f (_f))
+			(while (defq _e (pop *compile_envs*)
+					_s (pop *compile_envs*))
+				(set _e _s :nil))
+			_f)
+		(progn
+			(while (defq _e (pop *compile_envs*)
+					_s (pop *compile_envs*))
+				(set _e _s :nil)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Boot extension imports
