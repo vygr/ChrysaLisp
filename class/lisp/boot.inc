@@ -943,7 +943,6 @@
 ;compilation options
 ;debug_mode 0, release, strip all error checking
 ;debug_mode 1, normal, with error checking
-;debug_mode 2, traceing, with error checking, and traceing in/out
 (defq *debug_mode* 1 *debug_emit* :nil *debug_inst* :nil)
 
 (defun os ()
@@ -966,25 +965,12 @@
 
 (defun within-compile-env (_f)
 	; (within-compile-env lambda)
-	(defq *compile_env* (env-resize 503)
-		*compile_envs* (list '*compile_env* *compile_env*))
-	(defmacro deffvar (&rest b)
-		`(def *func_env* ~b))
-	(defmacro defcvar (&rest b)
-		`(def *compile_env* ~b))
-	(defun include (lib_path)
-		(import lib_path *compile_env*))
-	(catch
-		(progn
-			(setq _f (_f))
-			(while (defq _e (pop *compile_envs*)
-					_s (pop *compile_envs*))
-				(set _e _s :nil))
-			_f)
-		(progn
-			(while (defq _e (pop *compile_envs*)
-					_s (pop *compile_envs*))
-				(set _e _s :nil)))))
+	(defq *compile_env* (env-resize 503))
+	(defmacro defcvar (&rest b) `(def *compile_env* ~b))
+	(defmacro deffvar (&rest b) `(def *func_env* ~b))
+	(defun include (lib_path) (import lib_path *compile_env*))
+	(catch (progn (setq _f (_f) *compile_env* :nil) _f)
+		(setq *compile_env* :nil)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Boot extension imports
