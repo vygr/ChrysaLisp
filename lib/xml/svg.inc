@@ -13,20 +13,20 @@
 (defun deg-to-rad (d)
 	(/ (* d +fp_pi) 180.0))
 
-(defun Mat3x2-f (m00 m01 m02 m10 m11 m12)
-	(fixeds m00 m01 m02 m10 m11 m12))
+(defmacro Mat3x2-f (m00 m01 m02 m10 m11 m12)
+	`(fixeds ,m00 ,m01 ,m02 ,m10 ,m11 ,m12))
 
 (defun Mat3x2-rotz-f (a)
 	(defq ca (cos a) sa (sin a))
-	(fixeds ca (* sa -1.0) 0.0 sa ca 0.0))
+	(Mat3x2-f ca (* sa -1.0) 0.0 sa ca 0.0))
 
 (defun Mat3x2-skewx-f (a)
 	(defq ca (cos a) sa (sin a))
-	(fixeds ca (* sa -1.0) 0.0 0.0 1.0 0.0))
+	(Mat3x2-f ca (* sa -1.0) 0.0 0.0 1.0 0.0))
 
 (defun Mat3x2-skewy-f (a)
 	(defq ca (cos a) sa (sin a))
-	(fixeds 1.0 0.0 0.0 sa ca 0.0))
+	(Mat3x2-f 1.0 0.0 0.0 sa ca 0.0))
 
 (defun mat3x2-mul-f (ma mb)
 	; (mat3x2-mul-f mat3x2_a mat3x2_b) -> mat3x2-f
@@ -35,7 +35,7 @@
 		mbc0 (fixeds (elem-get 0 mbr0) (elem-get 0 mbr1) 0.0)
 		mbc1 (fixeds (elem-get 1 mbr0) (elem-get 1 mbr1) 0.0)
 		mbc2 (fixeds (elem-get 2 mbr0) (elem-get 2 mbr1) 1.0))
-	(fixeds (nums-dot mar0 mbc0) (nums-dot mar0 mbc1) (nums-dot mar0 mbc2)
+	(Mat3x2-f (nums-dot mar0 mbc0) (nums-dot mar0 mbc1) (nums-dot mar0 mbc2)
 		(nums-dot mar1 mbc0) (nums-dot mar1 mbc1) (nums-dot mar1 mbc2)))
 
 (defun read-col (val)
