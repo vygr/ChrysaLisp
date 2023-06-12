@@ -5211,12 +5211,7 @@ trashes
 inputs
 :r0 = path object (ptr)
 :r1 = source path object, can be same (ptr)
-:r2 = m1x (fixed)
-:r3 = m1y (fixed)
-:r4 = m2x (fixed)
-:r5 = m2y (fixed)
-:r6 = trx (fixed)
-:r7 = try (fixed)
+:r2 = m3x2 (fixeds)
 outputs
 :r0 = path object (ptr)
 trashes

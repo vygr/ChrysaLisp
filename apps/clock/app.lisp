@@ -42,10 +42,9 @@
 
 (defun transform (_ a s &optional x y)
 	(defq sa (sin a) ca (cos a) x (opt x 0.0) y (opt y 0.0))
-	(path-transform
-		(* s ca) (* s (* sa -1.0))
-		(* s sa) (* s ca)
-		(* s (+ x 0.5)) (* s (+ y 0.5)) _ _))
+	(path-transform (fixeds
+		(* s ca) (* s (* sa -1.0)) (* s (+ x 0.5))
+		(* s sa) (* s ca) (* s (+ y 0.5))) _ _))
 
 (defun create-clockface (scale)
 	;create static clock face

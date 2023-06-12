@@ -13,7 +13,10 @@ what happens and use `vp-simd`.
 Added strength reduction optimization to the `emit-mul-cr` operation.
 
 Addition of basic `text` command support for the SVG import library. Along with
-this added a new `clock.svg` test image and the `OpenSans-Bol.ctf` font.
+this added a new `clock.svg` test image and the `OpenSans-Bold.ctf` font.
+
+More optimization for the SVG parser, and changed the `(path-transform m3x2 src
+dst)` function to follow the SVG m3x2 transform format.
 
 ------
 

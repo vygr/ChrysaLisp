@@ -6,36 +6,32 @@
 	;inputs
 	;:r0 = path object (ptr)
 	;:r1 = source path object, can be same (ptr)
-	;:r2 = m1x (fixed)
-	;:r3 = m1y (fixed)
-	;:r4 = m2x (fixed)
-	;:r5 = m2y (fixed)
-	;:r6 = trx (fixed)
-	;:r7 = try (fixed)
+	;:r2 = m3x2 (fixeds)
 	;outputs
 	;:r0 = path object (ptr)
 	;trashes
 	;:r1-:r14
 
 	(def-vars
-		(ptr this that)
-		(pptr iter_begin iter_end iter_this)
-		(int m1x m1y m2x m2y trx try))
+		(ptr this that m3x2)
+		(pptr iter_begin iter_end iter_this))
 
 	(push-scope)
-	(entry 'path :transform {this, that, m1x, m1y, m2x, m2y, trx, try})
+	(entry 'path :transform {this, that, m3x2})
 
 	(call 'path :get_both {that} {_, iter_begin, iter_end})
 	(call 'path :get_begin {this} {_, iter_this})
+	(call 'fixeds :get_begin {m3x2} {_, m3x2})
 
 	(vec-set 0)
-	(vec-load 3 {iter_end, iter_begin, iter_this})
-	(bind '(e i j) (vec-top 3))
-	(vec-load 2 {m1x, m1y})
+	(vec-load 4 {iter_end, iter_begin, iter_this, m3x2})
+	(bind '(e i j k) (vec-top 4))
+	(vec-load-long 2 k)
 	(defq m1 (vec-top 2))
-	(vec-load 2 {m2x, m2y})
+	(vec-load-long 2 k (* 3 +long_size))
 	(defq m2 (vec-top 2))
-	(vec-load 2 {trx, try})
+	(vec-load-long 1 k (* 2 +long_size))
+	(vec-load-long 1 k (* 5 +long_size))
 	(defq tr (vec-top 2))
 
 	(loop-while (list i '/= e))

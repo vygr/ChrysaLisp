@@ -26,28 +26,25 @@
 (defun transform-copy (angle _)
 	(defq sa (sin angle) ca (cos angle))
 	(map (lambda (_)
-		(path-transform
-			(* +f_scale ca) (* +f_scale (* sa -1.0))
-			(* +f_scale sa) (* +f_scale ca)
-			(* +f_width +f_scale 0.5) (* +f_height +f_scale 0.5)
+		(path-transform (fixeds
+			(* +f_scale ca) (* +f_scale (* sa -1.0)) (* +f_width +f_scale 0.5)
+			(* +f_scale sa) (* +f_scale ca) (* +f_height +f_scale 0.5))
 			_ (cat _))) _))
 
 (defun transform (angle _)
 	(defq sa (sin angle) ca (cos angle))
 	(map (lambda (_)
-		(path-transform
-			(* +f_scale ca) (* +f_scale (* sa -1.0))
-			(* +f_scale sa) (* +f_scale ca)
-			(* +f_width +f_scale 0.5) (* +f_height +f_scale 0.5)
+		(path-transform (fixeds
+			(* +f_scale ca) (* +f_scale (* sa -1.0)) (* +f_width +f_scale 0.5)
+			(* +f_scale sa) (* +f_scale ca) (* +f_height +f_scale 0.5))
 			_ _)) _))
 
 (defun transform-norm (angle _)
 	(defq sa (sin angle) ca (cos angle))
 	(map (lambda (_)
-		(path-transform
-			(* +f_width +f_scale ca) (* +f_height +f_scale (* sa -1.0))
-			(* +f_width +f_scale sa) (* +f_height +f_scale ca)
-			(* +f_width +f_scale 0.5) (* +f_height +f_scale 0.5)
+		(path-transform (fixeds
+			(* +f_width +f_scale ca) (* +f_height +f_scale (* sa -1.0)) (* +f_width +f_scale 0.5)
+			(* +f_width +f_scale sa) (* +f_height +f_scale ca) (* +f_height +f_scale 0.5))
 			_ _)) _))
 
 (defun fpoly (col mode _)

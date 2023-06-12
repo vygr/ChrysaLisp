@@ -3357,7 +3357,7 @@
 ### path-transform
 
 ```code
-(path-transform m1x m1y m2x m2y trx try src dst)
+(path-transform m3x2 src dst)
 ```
 
 ### penv

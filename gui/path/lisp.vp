@@ -20,23 +20,28 @@
 
 	(entry 'path :lisp_transform '(:r0 :r1))
 
-	(errorif-lisp-args-sig :r1 8 'error)
+	(errorif-lisp-args-sig :r1 3 'error)
 
-	(vp-push :r0)
+	(vp-push :r0 :r1)
 	(defq in (method-input 'path :transform))
-	(list-bind-args :r1 (array-map-args in '(7 6 0 1 2 3 4 5))
-		'(:fixed :fixed :fixed :fixed :fixed :fixed :path :path))
+	(list-bind-args :r1 (array-map-args in '(2 1 0))
+		'(:fixeds :path :path))
+	(errorcases
+		(assign `((,(elem-get -2 in) array_length)) '(:r14))
+		(gotoif '(:r14 < 6) 'error1))
 	(call 'path :transform in '(:r0))
 	(call 'obj :ref '(:r0) '(:r1))
-	(vp-pop :r0)
+	(vp-pop :r0 :r2)
 
 	(exit 'path :lisp_transform '(:r0 :r1))
 	(vp-ret)
 
 (errorcases
+(vp-label 'error1)
+	(vp-pop :r0 :r1)
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(path-transform m1x m1y m2x m2y trx try src dst)" +error_msg_wrong_types :r1))
-	(signature '(fixed fixed fixed fixed fixed fixed path path)))
+	(jump 'lisp :repl_error '(:r0 "(path-transform m3x2 src dst)" +error_msg_wrong_types :r1))
+	(signature '(fixeds path path)))
 
 (def-func-end)
 

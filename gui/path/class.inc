@@ -6,7 +6,7 @@
 	(dec-method :vcreate gui/path/create :final)
 	(dec-method :filter_polyline gui/path/filter_polyline :static (:r0 :r1 :r2) (:r0))
 	(dec-method :filter_polygon gui/path/filter_polygon :static (:r0 :r1 :r2) (:r0))
-	(dec-method :transform gui/path/transform :static (:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7) (:r0))
+	(dec-method :transform gui/path/transform :static (:r0 :r1 :r2) (:r0))
 	(dec-method :simplify gui/path/simplify :static (:r0 :r1 :r2 :r3) (:r0))
 	(dec-method :gen_clerp gui/path/gen_clerp :static (:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9) (:r0))
 	(dec-method :gen_arc gui/path/gen_arc :static (:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7) (:r0))

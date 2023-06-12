@@ -49,8 +49,7 @@
 	(+ +argb_black (<< r 16) (<< g 8) b))
 
 (defun read-transform (entry val)
-	(bind '(m00 m01 m10 m11 tx ty) (. entry :find "transform"))
-	(defq stack (reverse (split val ")")) ma (Mat3x2-f m00 m01 tx m10 m11 ty))
+	(defq stack (reverse (split val ")")) ma (. entry :find "transform"))
 	(while (defq transform (pop stack))
 		(defq args (split transform (const (cat "(, " (ascii-char 9) (ascii-char 10))))
 			key (elem-get 0 args)
@@ -70,8 +69,9 @@
 			("rotate"
 				(bind '(a &optional tx ty) vals)
 				(setd tx 0.0 ty 0.0)
-				(bind '(m00 m01 m02 m10 m11 m12) (Mat3x2-rotz-f (deg-to-rad a)))
-				(bind '(rx ry) (path-transform m00 m01 m10 m11 m02 m12 (path tx ty) (path 0 0)))
+				(defq mb (Mat3x2-rotz-f (deg-to-rad a)))
+				(bind '(m00 m01 m02 m10 m11 m12) mb)
+				(bind '(rx ry) (path-transform mb (path tx ty) (path 0 0)))
 				(Mat3x2-f m00 m01 (- tx rx) m10 m11 (- ty ry)))
 			("skewX"
 				(bind '(a) vals)
@@ -81,8 +81,7 @@
 				(Mat3x2-skewy-f (deg-to-rad a)))
 			(:t	(throw "Unknown transform !" key))))
 		(setq ma (mat3x2-mul-f ma mb)))
-	(bind '(m00 m01 tx m10 m11 ty) ma)
-	(list m00 m01 m10 m11 tx ty))
+	ma)
 
 (defun read-attribute (entry key val)
 	(case key
@@ -176,13 +175,13 @@
 		(.-> canvas
 			(:set_color (+ (<< (n2i (* fill_opacity 0xff.0)) 24) (logand fill 0xffffff)))
 			(:fpoly 0.0 0.0 fill_rule
-				(map (lambda ((f p)) (apply (const path-transform) (cat transform (list p (cat p)))))
+				(map (lambda ((f p)) (path-transform transform p (cat p)))
 					paths))))
 	(when (and (/= stroke 0) (/= stroke_opacity 0.0))
 		(.-> canvas
 			(:set_color (+ (<< (n2i (* stroke_opacity 0xff.0)) 24) (logand stroke 0xffffff)))
 			(:fpoly 0.0 0.0 fill_rule
-				(map (lambda (p) (apply (const path-transform) (cat transform (list p p))))
+				(map (lambda (p) (path-transform transform p p))
 					(reduce (lambda (l (f p))
 						(cond
 							(f	;closed
@@ -208,7 +207,7 @@
 			"fill-rule" +winding_none_zero
 			"fill-opacity" 1.0
 			"stroke-opacity" 1.0
-			"transform" (list scale 0.0 0.0 scale 0.0 0.0)
+			"transform" (Mat3x2-f scale 0.0 0.0 0.0 scale 0.0)
 			;this block can be any order
 			"d" (path) "points" (path)
 			"x" 0.0 "y" 0.0 "x1" 0.0 "y1" 0.0 "x2" 0.0 "y2" 0.0
@@ -226,7 +225,7 @@
 					(if (defq val (. entry :find "height")) (setq height val))
 					(. (setq canvas (Canvas (n2i width) (n2i height) (n2i scale)))
 						:set_canvas_flags +canvas_flag_antialias)
-					(. entry :insert "transform" (list scale 0.0 0.0 scale (* scale x -1.0) (* scale y -1.0))))
+					(. entry :insert "transform" (Mat3x2-f scale 0.0 (* scale x -1.0) 0.0 scale (* scale y -1.0))))
 				("circle"
 					(bind '(cx cy r) (gather (defq entry (push-attributes stack keys vals))
 						"cx" "cy" "r"))
@@ -288,7 +287,8 @@
 					("middle" (* (n2f h) 0.5))
 					("hanging" (n2f h))
 					(:t 0.0))
-				d (map (# (list :t (path-transform 1.0 0.0 0.0 1.0 (+ x ox) (+ y oy) %0 %0)))
+				d (map (# (list :t (path-transform
+						(Mat3x2-f 1.0 0.0 (+ x ox) 0.0 1.0 (+ y oy)) %0 %0)))
 					(font-glyph-paths font text)))
 			(path-fill-and-stroke canvas entry d)))
 	;resize to final output
