@@ -5,8 +5,6 @@
 ;module
 (env-push)
 
-(defcvar '*switch* :nil '*switch_nxt* :nil '*switch_stk* (list))
-
 (defmacro beg-sym () '(sym (str "b_" *switch*)))
 (defmacro end-sym () '(sym (str "e_" *switch*)))
 (defmacro loc-sym (n) `(sym (str "o_" *switch* "_" ,n)))

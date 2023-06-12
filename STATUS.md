@@ -18,6 +18,9 @@ this added a new `clock.svg` test image and the `OpenSans-Bold.ctf` font.
 More optimization for the SVG parser, and changed the `(path-transform m3x2 src
 dst)` function to follow the SVG m3x2 transform format.
 
+Simplification of the `*compile_env*` and `*func_env*` variable bindings and
+cycle breaking on errors.
+
 ------
 
 New keyboard cooking system. ChrysaLisp now takes on the work to map raw scan

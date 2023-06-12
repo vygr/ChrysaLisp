@@ -25,17 +25,15 @@
 ; functions
 ;;;;;;;;;;;
 
-(defcvar '*func_name* :nil '*func_align* :nil
-	'*strings* (list) '*paths* (list) '*links* (list))
-
 (defun link-sym (_) (str "rl_" _))
 (defun path-sym (_) (str "rp_" _))
 (defun string-sym (_) (str "rs_" _))
 
-(defun def-func (*name* &optional *falign* *fstack*)
-	(defcvar '*emit_list* (clear '()))
-	(setq *func_name* *name* *switch_nxt* 0 *func_align* (opt *falign* stack_align))
-	(clear *strings* *paths* *links*)
+(defun def-func (*func_name* &optional *falign* *fstack*)
+	(defq *func_align* (opt *falign* stack_align)
+		*strings* (clear '()) *paths* (clear '())
+		*links* (clear '()) *emit_list* (clear '())
+		*switch_stk* (clear '()) *switch* :nil *switch_nxt* 0)
 (vp-label 'fn_start)
 	(vp-long -1)
 	(vp-short
@@ -45,7 +43,7 @@
 		(label-sym 'fn_paths)
 		(opt *fstack* tk_stack_size))
 (vp-label 'fn_name_start)
-	(vp-cstr (str *name*))
+	(vp-cstr (str *func_name*))
 	(vp-byte (list '- (label-sym 'fn_entry) (label-sym 'fn_name_start)))
 	(vp-align +ptr_size (list '- (label-sym 'fn_entry) (label-sym 'fn_name_start)))
 (vp-label 'fn_entry)
