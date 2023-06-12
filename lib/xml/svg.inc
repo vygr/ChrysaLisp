@@ -8,39 +8,35 @@
 ;module
 (env-push)
 
-(defq +eps 1.0)
+(defq +eps 0.5)
 
-(defun degrees-to-radians (d)
+(defun deg-to-rad (d)
 	(/ (* d +fp_pi) 180.0))
 
 (defun Mat3x2-f (m00 m01 m02 m10 m11 m12)
-	(list (fixeds m00 m01 m02)
-		(fixeds m10 m11 m12)))
+	(fixeds m00 m01 m02 m10 m11 m12))
 
-(defun Mat3x2-rotz-f (a tx ty)
+(defun Mat3x2-rotz-f (a)
 	(defq ca (cos a) sa (sin a))
-	(list (fixeds ca (* sa -1.0) tx)
-		(fixeds sa ca ty)))
+	(fixeds ca (* sa -1.0) 0.0 sa ca 0.0))
 
 (defun Mat3x2-skewx-f (a)
 	(defq ca (cos a) sa (sin a))
-	(list (fixeds ca (* sa -1.0) 0.0)
-		(fixeds 0.0 1.0 0.0)))
+	(fixeds ca (* sa -1.0) 0.0 0.0 1.0 0.0))
 
 (defun Mat3x2-skewy-f (a)
 	(defq ca (cos a) sa (sin a))
-	(list (fixeds 1.0 0.0 0.0)
-		(fixeds sa ca 0.0)))
+	(fixeds 1.0 0.0 0.0 sa ca 0.0))
 
-(defun mat32x32-mul-f (ma mb)
-	; (mat32x32-mul-f mat3x2_a mat3x2_b) -> mat3x2-f
-	(bind '(mar0 mar1) ma)
-	(bind '(mbr0 mbr1) mb)
-	(defq mbc0 (fixeds (elem-get 0 mbr0) (elem-get 0 mbr1) 0.0)
+(defun mat3x2-mul-f (ma mb)
+	; (mat3x2-mul-f mat3x2_a mat3x2_b) -> mat3x2-f
+	(defq mar0 (slice 0 3 ma) mar1 (slice 3 -1 ma)
+		mbr0 (slice 0 3 mb) mbr1 (slice 3 -1 mb)
+		mbc0 (fixeds (elem-get 0 mbr0) (elem-get 0 mbr1) 0.0)
 		mbc1 (fixeds (elem-get 1 mbr0) (elem-get 1 mbr1) 0.0)
 		mbc2 (fixeds (elem-get 2 mbr0) (elem-get 2 mbr1) 1.0))
-	(list (fixeds (nums-dot mar0 mbc0) (nums-dot mar0 mbc1) (nums-dot mar0 mbc2))
-		(fixeds (nums-dot mar1 mbc0) (nums-dot mar1 mbc1) (nums-dot mar1 mbc2))))
+	(fixeds (nums-dot mar0 mbc0) (nums-dot mar0 mbc1) (nums-dot mar0 mbc2)
+		(nums-dot mar1 mbc0) (nums-dot mar1 mbc1) (nums-dot mar1 mbc2)))
 
 (defun read-col (val)
 	(case (length val)
@@ -54,13 +50,12 @@
 
 (defun read-transform (entry val)
 	(bind '(m00 m01 m10 m11 tx ty) (. entry :find "transform"))
-	(defq stack (reverse (split val ")"))
-		ma (Mat3x2-f m00 m01 tx m10 m11 ty))
+	(defq stack (reverse (split val ")")) ma (Mat3x2-f m00 m01 tx m10 m11 ty))
 	(while (defq transform (pop stack))
 		(defq args (split transform (const (cat "(, " (ascii-char 9) (ascii-char 10))))
 			key (elem-get 0 args)
-			vals (map (# (n2f (str-to-num %0))) (slice 1 -1 args)))
-		(defq mb (case key
+			vals (map (# (n2f (str-to-num %0))) (slice 1 -1 args))
+			mb (case key
 			("matrix"
 				(bind '(m00 m01 m10 m11 tx ty) vals)
 				(Mat3x2-f m00 m01 tx m10 m11 ty))
@@ -75,19 +70,18 @@
 			("rotate"
 				(bind '(a &optional tx ty) vals)
 				(setd tx 0.0 ty 0.0)
-				(defq rm (Mat3x2-rotz-f (degrees-to-radians a) 0.0 0.0))
-				(bind '((m00 m01 m02) (m10 m11 m12)) rm)
-				(bind '(rx ry) (path-transform m00 m01 m10 m11 m02 m12 (path tx ty) (path tx ty)))
-				(Mat3x2-rotz-f (degrees-to-radians a) (- tx rx) (- ty ry)))
+				(bind '(m00 m01 m02 m10 m11 m12) (Mat3x2-rotz-f (deg-to-rad a)))
+				(bind '(rx ry) (path-transform m00 m01 m10 m11 m02 m12 (path tx ty) (path 0 0)))
+				(Mat3x2-f m00 m01 (- tx rx) m10 m11 (- ty ry)))
 			("skewX"
 				(bind '(a) vals)
-				(Mat3x2-skewx-f (* (degrees-to-radians a) -1.0)))
+				(Mat3x2-skewx-f (* (deg-to-rad a) -1.0)))
 			("skewY"
 				(bind '(a) vals)
-				(Mat3x2-skewy-f (degrees-to-radians a)))
+				(Mat3x2-skewy-f (deg-to-rad a)))
 			(:t	(throw "Unknown transform !" key))))
-		(setq ma (mat32x32-mul-f ma mb)))
-	(bind '((m00 m01 tx) (m10 m11 ty)) ma)
+		(setq ma (mat3x2-mul-f ma mb)))
+	(bind '(m00 m01 tx m10 m11 ty) ma)
 	(list m00 m01 m10 m11 tx ty))
 
 (defun read-attribute (entry key val)
@@ -191,18 +185,18 @@
 				(map (lambda (p) (apply (const path-transform) (cat transform (list p p))))
 					(reduce (lambda (l (f p))
 						(cond
-							(f  ;closed
+							(f	;closed
 								(bind '(p1 p2) (path-stroke-polygon p (* 0.5 stroke_width) +eps
 									stroke_linejoin))
 								(push l p1 p2))
-							(:t  ;open
+							(:t	;open
 								(push l (path-stroke-polyline p (* 0.5 stroke_width) +eps
 									stroke_linejoin stroke_linecap stroke_linecap)))))
 							paths (list)))))))
 
 (defun SVG-Canvas (stream &optional scale)
 	; (SVG-Canvas stream [scale]) -> :nil | canvas
-	(setd scale 1) (setq scale (n2f scale))
+	(setq scale (n2f (opt scale 1)))
 	(defq canvas :nil stack
 		(list (lmap-kv
 			;this block of defaults are in order !
@@ -241,8 +235,7 @@
 				("ellipse"
 					(bind '(cx cy rx ry) (gather (defq entry (push-attributes stack keys vals))
 						"cx" "cy" "rx" "ry"))
-					(unless rx (setq rx ry))
-					(unless ry (setq ry rx))
+					(setd rx ry ry rx)
 					(defq d (path-gen-ellipse cx cy rx ry +eps (path)))
 					(path-fill-and-stroke canvas entry (list (list :t d))))
 				("line"
@@ -254,8 +247,7 @@
 					(bind '(x y rx ry x1 y1) (gather (defq entry (push-attributes stack keys vals))
 						"x" "y" "rx" "ry" "width" "height"))
 					(setq x1 (+ x x1) y1 (+ y y1))
-					(unless rx (setq rx ry))
-					(unless ry (setq ry rx))
+					(setd rx ry ry rx)
 					(defq d (path-gen-rect x y x1 y1 rx ry +eps (path)))
 					(path-fill-and-stroke canvas entry (list (list :t d))))
 				("polygon"
@@ -285,10 +277,8 @@
 					"x" "y" "font-family" "font-weight" "font-size"
 					"text-anchor" "dominant-baseline"))
 			(defq font (create-font (cat "fonts/" family "-" weight ".ctf") (n2i size)))
-			(unless font
-				(setq font (create-font (cat "fonts/" family "-Regular.ctf") (n2i size))))
-			(unless font
-				(setq font (create-font "fonts/OpenSans-Regular.ctf" (n2i size))))
+			(setd font (create-font (cat "fonts/" family "-Regular.ctf") (n2i size)))
+			(setd font (create-font "fonts/OpenSans-Regular.ctf" (n2i size)))
 			(bind '(w h) (font-glyph-bounds font text))
 			(defq ox (case anchor
 					("middle" (* (n2f w) -1.0))
