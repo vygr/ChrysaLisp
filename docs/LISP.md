@@ -38,14 +38,16 @@ disagree ;)
 
 All symbols live in the same environment, functions, macros, everything. The
 environment is a chain of hash maps. Each lambda gets a new hash map pushed
-onto the environment chain on invocation, and dereferenced on exit. The `(env
-[num])` function can be used to return the current hash map or create a new
-one, the `(env-resize num [e])` function can resize the number of buckets for
-an existing environment. This proves very effective for storing large numbers
-of symbols and objects for the assembler as well as creating caches. Make sure
-to `(setq)` the symbol you bind to the result of `(env)` to `:nil` before
-returning from the function if you do this, else you will create a cycle that
-can't be freed.
+onto the environment chain on invocation, and the current environment is
+dereferenced on exit.
+
+The `(env [num])` function can be used to return the current hash map or create
+a new one, the `(env-resize num [e])` function can resize the number of buckets
+for an existing environment. This proves very effective for storing large
+numbers of symbols and objects for the assembler as well as creating caches.
+Make sure to `(setq)` the symbol you bind to the result of `(env)` to `:nil`
+before returning from the function if you do this, else you will create a cycle
+that can't be freed.
 
 `(defq)` and `(bind)` always create entries in the current environment hash
 map. `(setq)` searches the environment chain to find an existing entry and sets
