@@ -54,7 +54,7 @@
 
 (defun def-func-end ()
 	(env-pop)
-	(set (penv) '*func_env* :nil)
+	(undef (penv) '*func_env*)
 	(defq *emit_end* (length *emit_list*))
 	(pop-scope-checked)
 	(each (lambda (s)
