@@ -137,7 +137,7 @@
 				("lighter" "Lighter")
 				((throw "Unknown font-weight !" val))))
 		("font-size"
-			(n2f (str-to-num (elem-get 0 (split val "pt")))))
+			(n2f (str-to-num (pop (split val "pt")))))
 		("font-family"
 			"OpenSans")
 		("text-anchor"
@@ -175,8 +175,7 @@
 		(.-> canvas
 			(:set_color (+ (<< (n2i (* fill_opacity 0xff.0)) 24) (logand fill 0xffffff)))
 			(:fpoly 0.0 0.0 fill_rule
-				(map (lambda ((f p)) (path-transform transform p (cat p)))
-					paths))))
+				(map (lambda ((f p)) (path-transform transform p (cat p))) paths))))
 	(when (and (/= stroke 0) (/= stroke_opacity 0.0))
 		(.-> canvas
 			(:set_color (+ (<< (n2i (* stroke_opacity 0xff.0)) 24) (logand stroke 0xffffff)))
@@ -219,11 +218,11 @@
 		(lambda (command keys vals)
 			(case command
 				("svg"
-					(defq entry (push-attributes stack keys vals) x 0.0 y 0.0 width 256.0 height 256.0)
-					(if (defq val (. entry :find "viewBox")) (bind '(x y width height) val))
-					(if (defq val (. entry :find "width")) (setq width val))
-					(if (defq val (. entry :find "height")) (setq height val))
-					(. (setq canvas (Canvas (n2i width) (n2i height) (n2i scale)))
+					(bind '(w h vb) (gather (defq entry (push-attributes stack keys vals))
+						"width" "height" "viewBox"))
+					(defq x 0.0 y 0.0) (setd w 256.0 h 256.0)
+					(if vb (bind '(x y w h) vb))
+					(. (setq canvas (Canvas (n2i w) (n2i h) (n2i scale)))
 						:set_canvas_flags +canvas_flag_antialias)
 					(. entry :insert "transform" (Mat3x2-f scale 0.0 (* scale x -1.0) 0.0 scale (* scale y -1.0))))
 				("circle"
