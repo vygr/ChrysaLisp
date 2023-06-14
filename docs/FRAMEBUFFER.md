@@ -9,11 +9,12 @@ Bullseye), you'll first need to download the Raspberry Pi system imager from:
 
 Running the imager will let you select an operating system, storage device and
 target microSD storage card to write to. To install the required 64-bit Linux,
-hit "Choose OS", then "Raspberry Pi OS (other)", then "Raspberry Pi OS (64-bit)"
-or "Raspberry Pi OS Lite (64-bit)" .
-Click on the Settings icon in the lower right and select "pi.local"
-for the hostname, Enable SSH, login username/password and your wireless LAN
-SSID and password.
+hit "Choose OS", then "Raspberry Pi OS (other)", then "Raspberry Pi OS
+(64-bit)" or "Raspberry Pi OS Lite (64-bit)" .
+
+Click on the Settings icon in the lower right and select "pi.local" for the
+hostname, Enable SSH, login username/password and your wireless LAN SSID and
+password.
 
 This will write the target microSD storage card with the specified settings
 which can then be used to boot 64-bit Bullseye Linux on the PI.
