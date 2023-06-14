@@ -1,6 +1,6 @@
 # Introduction to Framebuffer Operations
 
-## Getting Started on Raspberry Pi 3
+## Getting Started on Raspberry Pi3/4
 
 ChrysaLisp now runs on 64-bit ARM-based Raspberry Pi systems. In order to get
 started, if you're not already running on their 64-bit Linux (known as
@@ -104,9 +104,9 @@ If all the permissions are right, you should see a graphical screen and can
 Login. If not, their should be an error message showing the problem, which is
 likely a permissions issue described above.
 
-To exit (for now), type ESC. Be aware that ESC will immediately exit ChrysaLisp
-without saving anything. We hope to have an update that allows exiting from the
-GUI itself shortly.
+To exit use the Logout application `Quit` option from the pop up dialog. If you
+have DEBUG set in the FB driver code, type ESC. Be aware that the ESC key DEBUG
+option will immediately exit ChrysaLisp without saving anything !
 
 To stop the system from outside of ChrysaLisp, use:
 
