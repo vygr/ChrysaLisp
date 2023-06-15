@@ -21,6 +21,10 @@ dst)` function to follow the SVG m3x2 transform format.
 Simplification of the `*compile_env*` and `*func_env*` variable bindings and
 cycle breaking on errors.
 
+Bug fix to `'nums :dot` and `'fixeds :dot`. It should have been using the first
+vector input to dictates the length of the dot product. This was found while
+optimizing the SVG `(mat3x2-mul-f)` function.
+
 ------
 
 New keyboard cooking system. ChrysaLisp now takes on the work to map raw scan
