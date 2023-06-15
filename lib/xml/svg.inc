@@ -32,11 +32,11 @@
 	; (mat3x2-mul-f mat3x2_a mat3x2_b) -> mat3x2-f
 	(defq mar0 (slice 0 3 ma) mar1 (slice 3 -1 ma)
 		mbr0 (slice 0 3 mb) mbr1 (slice 3 -1 mb)
-		mbc0 (fixeds (elem-get 0 mbr0) (elem-get 0 mbr1) 0.0)
-		mbc1 (fixeds (elem-get 1 mbr0) (elem-get 1 mbr1) 0.0)
+		mbc0 (fixeds (elem-get 0 mbr0) (elem-get 0 mbr1))
+		mbc1 (fixeds (elem-get 1 mbr0) (elem-get 1 mbr1))
 		mbc2 (fixeds (elem-get 2 mbr0) (elem-get 2 mbr1) 1.0))
-	(Mat3x2-f (nums-dot mar0 mbc0) (nums-dot mar0 mbc1) (nums-dot mar0 mbc2)
-		(nums-dot mar1 mbc0) (nums-dot mar1 mbc1) (nums-dot mar1 mbc2)))
+	(Mat3x2-f (nums-dot mbc0 mar0) (nums-dot mbc1 mar0) (nums-dot mbc2 mar0)
+		(nums-dot mbc0 mar1) (nums-dot mbc1 mar1) (nums-dot mbc2 mar1)))
 
 (defun read-col (val)
 	(case (length val)
