@@ -298,7 +298,7 @@
 
 	(entry 'nums :dot `(,src1 ,dot))
 
-	(assign `((,dot array_length)) `(,src_end))
+	(assign `((,src1 array_length)) `(,src_end))
 	(assign (map (# `(,%0 array_begin)) `(,dot ,src)) `(,src1 ,src2))
 	(vp-xor-rr dot dot)
 	(vp-shl-cr (log2 +ptr_size) src_end)
