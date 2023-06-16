@@ -4,6 +4,14 @@
 
 ------
 
+Host GUI compositors can now reduce memory usage for glyph textures by 75% and
+improve performance on glyph blits.
+
+`gui_raw.cpp` driver switched to save 75% glyph memory and faster red/blue
+channel calculations.
+
+------
+
 Renamed the `vp-vec` op to `vp-simd` as this carries better info at the source
 level.
 
