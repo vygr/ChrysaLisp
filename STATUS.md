@@ -22,7 +22,7 @@ Simplification of the `*compile_env*` and `*func_env*` variable bindings and
 cycle breaking on errors.
 
 Bug fix to `'nums :dot` and `'fixeds :dot`. It should have been using the first
-vector input to dictates the length of the dot product. This was found while
+vector input to dictate the length of the dot product. This was found while
 optimizing the SVG `(mat3x2-mul-f)` function.
 
 ------
