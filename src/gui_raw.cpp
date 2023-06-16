@@ -314,9 +314,9 @@ void host_gui_blit(Texture *t, const Rect *srect, const Rect *drect)
 				alpha_t sa = *src++;
 				if (sa > 0xff)
 				{
-					pixel_t sr = sa & 0xff;
-					pixel_t sg = ((sr * t->g) >> 8) & 0xff00;
-					pixel_t srb = ((sr * t->rb) >> 8) & 0xff00ff;
+					pixel_t srb = sa & 0xff;
+					pixel_t sg = ((srb * t->g) >> 8) & 0xff00;
+					srb = ((srb * t->rb) >> 8) & 0xff00ff;
 					if (sa < 0xff00)
 					{
 						pixel_t da = 0xff - (sa >> 8);
