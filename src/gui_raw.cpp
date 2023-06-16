@@ -6,7 +6,7 @@
 #include <iostream>
 
 typedef uint32_t pixel_t;
-typedef uint16_t alpha_t;
+typedef uint8_t alpha_t;
 
 struct Rect
 {
@@ -149,7 +149,7 @@ Texture *host_gui_create_texture(pixel_t *src, uint64_t w, uint64_t h, uint64_t 
 		do
 		{
 			pixel_t *src_end_line = (pixel_t*)((uint8_t*)src + span);
-			do { *dst++ = *src++ >> 16; } while (src != src_end_line);
+			do { *dst++ = *src++ >> 24; } while (src != src_end_line);
 			src = (pixel_t*)((uint8_t*)src + s);
 		} while (src != src_end);
 	}
@@ -312,14 +312,13 @@ void host_gui_blit(Texture *t, const Rect *srect, const Rect *drect)
 			do
 			{
 				alpha_t sa = *src++;
-				if (sa > 0xff)
+				if (sa != 0)
 				{
-					pixel_t srb = sa & 0xff;
-					pixel_t sg = ((srb * t->g) >> 8) & 0xff00;
-					srb = ((srb * t->rb) >> 8) & 0xff00ff;
-					if (sa < 0xff00)
+					pixel_t sg = ((sa * t->g) >> 8) & 0xff00;
+					pixel_t srb = ((sa * t->rb) >> 8) & 0xff00ff;
+					if (sa != 0xff)
 					{
-						pixel_t da = 0xff - (sa >> 8);
+						pixel_t da = 0xff - sa;
 						pixel_t drb = *dst;
 						pixel_t dg = drb & 0xff00;
 						drb = drb & 0xff00ff;
