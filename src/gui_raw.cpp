@@ -16,9 +16,8 @@ struct Rect
 struct Texture
 {
 	int32_t w, h, s, m;
-	pixel_t r = (0xff + 1) << 16;
+	pixel_t rb = ((0xff + 1) << 16) + (0xff + 1);
 	pixel_t g = (0xff + 1) << 8;
-	pixel_t b = 0xff + 1;
 	pixel_t data[0];
 };
 
@@ -138,9 +137,8 @@ Texture *host_gui_create_texture(pixel_t *src, uint64_t w, uint64_t h, uint64_t 
 	t->h = h;
 	t->s = w * tt;
 	t->m = m;
-	t->r = (0xff + 1) << 16;
+	t->rb = ((0xff + 1) << 16) + (0xff + 1);
 	t->g = (0xff + 1) << 8;
-	t->b = 0xff + 1;
 	pixel_t *src_end = (pixel_t*)((uint8_t*)src + h * s);
 	uint32_t span = w * sizeof(pixel_t);
 	s -= span;
@@ -177,9 +175,8 @@ void host_gui_destroy_texture(Texture *t)
 void host_gui_set_texture_color(Texture *t, uint8_t r, uint8_t g, uint8_t b)
 {
 	//convert to premultiplied channels !
-	t->r = (r + 1) << 16;
+	t->rb = ((r + 1) << 16) + (b + 1);
 	t->g = (g + 1) << 8;
-	t->b = b + 1;
 }
 
 ////////////////////
@@ -319,21 +316,20 @@ void host_gui_blit(Texture *t, const Rect *srect, const Rect *drect)
 				{
 					pixel_t sr = sa & 0xff;
 					pixel_t sg = ((sr * t->g) >> 8) & 0xff00;
-					pixel_t sb = (sr * t->b) >> 8;
-					sr = ((sr * t->r) >> 8) & 0xff0000;
+					pixel_t srb = ((sr * t->rb) >> 8) & 0xff00ff;
 					if (sa < 0xff00)
 					{
 						pixel_t da = 0xff - (sa >> 8);
 						pixel_t drb = *dst;
 						pixel_t dg = drb & 0xff00;
 						drb = drb & 0xff00ff;
-						drb = ((drb * da >> 8) & 0xff00ff) + sr + sb;
+						drb = ((drb * da >> 8) & 0xff00ff) + srb;
 						dg = ((dg * da >> 8) & 0xff00) + sg;
 						*dst = drb + dg;
 					}
 					else
 					{
-						*dst = sr + sg + sb;
+						*dst = srb + sg;
 					}
 				}
 				dst++;
