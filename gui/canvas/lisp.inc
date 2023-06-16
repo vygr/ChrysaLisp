@@ -54,9 +54,9 @@
 		; (. canvas :save file format) -> :nil | canvas
 		(if (pixmap-save (getf this +canvas_pixmap 0) file format) this))
 
-	(defmethod :swap (this)
-		; (. canvas :swap) -> canvas
-		(. ((const (ffi _ "gui/canvas/lisp_swap" 0)) this) :dirty))
+	(defmethod :swap (this flags)
+		; (. canvas :swap flags) -> canvas
+		(. ((const (ffi _ "gui/canvas/lisp_swap" 0)) this flags) :dirty))
 
 	(defmethod :next_frame (this)
 		; (. canvas :next_frame) -> canvas
@@ -151,7 +151,7 @@
 			(if (/= (logand flags +load_flag_film) 0)
 				(setf pixmap +pixmap_stream stream 0))
 			(if (= (logand flags +load_flag_noswap) 0)
-				(. this :swap))))
+				(. this :swap 0))))
 	this)
 
 (defun canvas-flush ()

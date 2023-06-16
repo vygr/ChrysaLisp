@@ -107,7 +107,7 @@
 				(when clock
 					(make-analog-time)
 					(view-analog-time (* (n2f clock_size) (n2f clock_scale)))
-					(. clock :swap))
+					(. clock :swap 0))
 				(when display
 					(make-digital-time)
 					(set display :text (view-digital-time))

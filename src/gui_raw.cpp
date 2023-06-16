@@ -6,6 +6,7 @@
 #include <iostream>
 
 typedef uint32_t pixel_t;
+typedef uint16_t alpha_t;
 
 struct Rect
 {
@@ -14,10 +15,9 @@ struct Rect
 
 struct Texture
 {
-	int32_t w, h, s;
-	pixel_t color = 0xffffff;
-	pixel_t r = 0xff + 1;
-	pixel_t g = 0xff + 1;
+	int32_t w, h, s, m;
+	pixel_t r = (0xff + 1) << 16;
+	pixel_t g = (0xff + 1) << 8;
 	pixel_t b = 0xff + 1;
 	pixel_t data[0];
 };
@@ -132,24 +132,40 @@ void host_gui_flush(const Rect *rect)
 
 Texture *host_gui_create_texture(pixel_t *src, uint64_t w, uint64_t h, uint64_t s, uint64_t m)
 {
-	Texture *t = (Texture*)malloc(sizeof(Texture) + w * h * sizeof(pixel_t));
+	auto tt = m ? sizeof(alpha_t) : sizeof(pixel_t);
+	Texture *t = (Texture*)malloc(sizeof(Texture) + w * h * tt);
 	t->w = w;
 	t->h = h;
-	t->s = w * sizeof(pixel_t);
-	t->r = 0xff + 1;
-	t->g = 0xff + 1;
+	t->s = w * tt;
+	t->m = m;
+	t->r = (0xff + 1) << 16;
+	t->g = (0xff + 1) << 8;
 	t->b = 0xff + 1;
-	t->color = 0xffffff;
-	pixel_t *dst = t->data;
 	pixel_t *src_end = (pixel_t*)((uint8_t*)src + h * s);
 	uint32_t span = w * sizeof(pixel_t);
 	s -= span;
-	do
+	if (m)
 	{
-		pixel_t *src_end_line = (pixel_t*)((uint8_t*)src + span);
-		do { *dst++ = *src++; } while (src != src_end_line);
-		src = (pixel_t*)((uint8_t*)src + s);
-	} while (src != src_end);
+		// glyph mode texture
+		alpha_t *dst = (alpha_t*)t->data;
+		do
+		{
+			pixel_t *src_end_line = (pixel_t*)((uint8_t*)src + span);
+			do { *dst++ = *src++ >> 16; } while (src != src_end_line);
+			src = (pixel_t*)((uint8_t*)src + s);
+		} while (src != src_end);
+	}
+	else
+	{
+		// normal mode texture
+		pixel_t *dst = (pixel_t*)t->data;
+		do
+		{
+			pixel_t *src_end_line = (pixel_t*)((uint8_t*)src + span);
+			do { *dst++ = *src++; } while (src != src_end_line);
+			src = (pixel_t*)((uint8_t*)src + s);
+		} while (src != src_end);
+	}
 	return t;
 }
 
@@ -160,11 +176,10 @@ void host_gui_destroy_texture(Texture *t)
 
 void host_gui_set_texture_color(Texture *t, uint8_t r, uint8_t g, uint8_t b)
 {
-	//convert to premultiplied channels !, fast check for == white
-	t->r = r + 1;
-	t->g = g + 1;
+	//convert to premultiplied channels !
+	t->r = (r + 1) << 16;
+	t->g = (g + 1) << 8;
 	t->b = b + 1;
-	t->color = (r << 16) + (g << 8) + b;
 }
 
 ////////////////////
@@ -281,17 +296,60 @@ void host_gui_blit(Texture *t, const Rect *srect, const Rect *drect)
 	if (dr.w > clip.w) dr.w = clip.w;
 	if (dr.h > clip.h) dr.h = clip.h;
 	//blit the rect
-	pixel_t *src = (pixel_t*)((uint8_t*)t->data +
-		sr.y * t->s + sr.x * sizeof(pixel_t));
 	pixel_t *dst = (pixel_t*)((uint8_t*)backbuffer +
 		dr.y * scr_stride + dr.x * sizeof(pixel_t));
 	pixel_t *dst_end = (pixel_t*)((uint8_t*)dst +
 		(dr.h - dr.y) * scr_stride);
-	uint32_t span = (dr.w - dr.x) * sizeof(pixel_t);
-	uint32_t dstride = scr_stride - span;
-	uint32_t sstride = t->s - span;
-	if (t->color == 0xffffff)
+	if (t->m)
 	{
+		//texture mode 1 ie. glyph mode
+		alpha_t *src = (alpha_t*)((uint8_t*)t->data +
+			sr.y * t->s + sr.x * sizeof(alpha_t));
+		uint32_t span = (dr.w - dr.x);
+		uint32_t sstride = t->s - span * sizeof(alpha_t);
+		span *= sizeof(pixel_t);
+		uint32_t dstride = scr_stride - span;
+		do
+		{
+			pixel_t *dst_end_line = (pixel_t*)((uint8_t*)dst + span);
+			do
+			{
+				alpha_t sa = *src++;
+				if (sa > 0xff)
+				{
+					pixel_t sr = sa & 0xff;
+					pixel_t sg = ((sr * t->g) >> 8) & 0xff00;
+					pixel_t sb = (sr * t->b) >> 8;
+					sr = ((sr * t->r) >> 8) & 0xff0000;
+					if (sa < 0xff00)
+					{
+						pixel_t da = 0xff - (sa >> 8);
+						pixel_t drb = *dst;
+						pixel_t dg = drb & 0xff00;
+						drb = drb & 0xff00ff;
+						drb = ((drb * da >> 8) & 0xff00ff) + sr + sb;
+						dg = ((dg * da >> 8) & 0xff00) + sg;
+						*dst = drb + dg;
+					}
+					else
+					{
+						*dst = sr + sg + sb;
+					}
+				}
+				dst++;
+			} while (dst != dst_end_line);
+			dst = (pixel_t*)((uint8_t*)dst + dstride);
+			src = (alpha_t*)((uint8_t*)src + sstride);
+		} while (dst != dst_end);
+	}
+	else
+	{
+		//texture mode 0 ie. normal mode
+		pixel_t *src = (pixel_t*)((uint8_t*)t->data +
+			sr.y * t->s + sr.x * sizeof(pixel_t));
+		uint32_t span = (dr.w - dr.x) * sizeof(pixel_t);
+		uint32_t dstride = scr_stride - span;
+		uint32_t sstride = t->s - span;
 		do
 		{
 			pixel_t *dst_end_line = (pixel_t*)((uint8_t*)dst + span);
@@ -315,43 +373,6 @@ void host_gui_blit(Texture *t, const Rect *srect, const Rect *drect)
 					else
 					{
 						*dst = sa & 0xffffff;
-					}
-				}
-				dst++;
-			} while (dst != dst_end_line);
-			dst = (pixel_t*)((uint8_t*)dst + dstride);
-			src = (pixel_t*)((uint8_t*)src + sstride);
-		} while (dst != dst_end);
-	}
-	else
-	{
-		do
-		{
-			pixel_t *dst_end_line = (pixel_t*)((uint8_t*)dst + span);
-			do
-			{
-				pixel_t sa = *src++;
-				if (sa > 0xffffff)
-				{
-					pixel_t sr = sa & 0xff0000;
-					pixel_t sg = sa & 0xff00;
-					pixel_t sb = sa & 0xff;
-					sr = (sr * t->r >> 8) & 0xff0000;
-					sg = (sg * t->g >> 8) & 0xff00;
-					sb = sb * t->b >> 8;
-					if (sa < 0xff000000)
-					{
-						pixel_t da = 0xff - (sa >> 24);
-						pixel_t drb = *dst;
-						pixel_t dg = drb & 0xff00;
-						drb = drb & 0xff00ff;
-						drb = ((drb * da >> 8) & 0xff00ff) + sr + sb;
-						dg = ((dg * da >> 8) & 0xff00) + sg;
-						*dst = drb + dg;
-					}
-					else
-					{
-						*dst = sr + sg + sb;
 					}
 				}
 				dst++;

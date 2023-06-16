@@ -245,7 +245,7 @@
 						(. canvas :ftri p)))
 				(task-slice))
 			poly_buckets)
-		(. canvas :swap)
+		(. canvas :swap 0)
 		this)
 	)
 

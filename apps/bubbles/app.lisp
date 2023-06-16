@@ -120,7 +120,7 @@
 		(render-verts canvas
 			(sort (# (if (<= (elem-get -2 (elem-get 0 %0)) (elem-get -2 (elem-get 0 %1))) 1 -1))
 				(clip-verts hsw hsh (elem-get +dlist_layer1_verts dlist))))
-		(. canvas :swap))
+		(. canvas :swap 0))
 	(elem-set +dlist_mask dlist 0))
 
 (defun tooltips ()

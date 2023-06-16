@@ -57,7 +57,7 @@
 			((= idx +select_timer)
 				;timer event)
 				(mail-timeout (elem-get +select_timer select) +rate 0)
-				(.-> canvas :next_frame :swap))
+				(.-> canvas :next_frame (:swap 0)))
 			((= (setq id (getf *msg* +ev_msg_target_id)) +event_close)
 				(setq id :nil))
 			((<= +event_prev id +event_next)

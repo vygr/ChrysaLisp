@@ -962,6 +962,7 @@ coverage is 0x0 to 0x80
 ```code
 inputs
 :r0 = canvas object (ptr)
+:r1 = canvas upload flags (uint)
 outputs
 :r0 = canvas object (ptr)
 trashes
@@ -5472,6 +5473,7 @@ trashes
 ```code
 inputs
 :r0 = pixmap object (ptr)
+:r1 = pixmap upload flags (uint)
 outputs
 :r0 = pixmap object (ptr)
 trashes

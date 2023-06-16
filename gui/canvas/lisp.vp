@@ -112,11 +112,11 @@
 
 	(entry 'canvas :lisp_swap '(:r0 :r1))
 
-	(errorif-lisp-args-sig :r1 1 'error)
+	(errorif-lisp-args-sig :r1 2 'error)
 
 	(vp-push :r0)
 	(defq in (method-input 'canvas :swap))
-	(list-bind-args :r1 in '(:canvas))
+	(list-bind-args :r1 in '(:canvas :num))
 	(call 'canvas :swap in '(:r0))
 	(call 'obj :ref '(:r0) '(:r1))
 	(vp-pop :r0)
@@ -126,8 +126,8 @@
 
 (errorcases
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(canvas-swap canvas)" +error_msg_wrong_types :r1))
-	(signature '(canvas)))
+	(jump 'lisp :repl_error '(:r0 "(canvas-swap canvas flags)" +error_msg_wrong_types :r1))
+	(signature '(canvas num)))
 
 (def-func-end)
 
@@ -154,7 +154,7 @@
 	(assign '(:r0 (:r0 canvas_pixmap)) '((:rsp local_canvas) :r0))
 	(call 'pixmap :next_frame '(:r0))
 	(assign '((:rsp local_canvas)) '(:r0))
-	(call 'canvas :swap '(:r0) '(:r1))
+	(call 'canvas :swap '(:r0 0) '(:r1))
 	(class/obj/ref :r1 :r2)
 
 	(exit 'canvas :lisp_next_frame '((:rsp local_this) :r1))

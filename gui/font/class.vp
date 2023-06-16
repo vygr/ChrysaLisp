@@ -453,7 +453,7 @@
 		(call 'canvas :fpoly {sym_canvas, 0, h << (+fp_shift + 1), winding_odd_even, paths})
 
 		;take texture from canvas
-		(call 'canvas :swap {sym_canvas})
+		(call 'canvas :swap {sym_canvas, 1})
 		(assign {sym_canvas->canvas_texture} {txt})
 		(assign {0} {sym_canvas->canvas_texture})
 

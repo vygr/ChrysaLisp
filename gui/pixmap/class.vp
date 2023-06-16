@@ -111,39 +111,50 @@
 (def-method 'pixmap :upload 16)
 	;inputs
 	;:r0 = pixmap object (ptr)
+	;:r1 = pixmap upload flags (uint)
 	;outputs
 	;:r0 = pixmap object (ptr)
 	;trashes
 	;:r1-:r14
 
-	(entry 'pixmap :upload '(:r0))
+	(def-struct local 0
+		(ptr this)
+		(uint flags))
 
-	(vp-push :r0)
-	(call 'sys_task :callback '(:r0 ($ callback)))
-	(vp-pop :r0)
+	(def-vars
+		(struct frame local_size))
 
-	(exit 'pixmap :upload '(:r0))
-	(vp-ret)
+	(push-scope)
+	(entry 'pixmap :upload {frame.local_this, frame.local_flags})
+
+	(call 'sys_task :callback {&frame, $callback})
+
+	(exit 'pixmap :upload {frame.local_this})
+	(pop-scope)
+	(return)
 
 (vp-label 'callback)
 	;inputs
 	;:r0 = user data
 
 	(def-vars
-		(ptr this old_stack)
+		(ptr user this old_stack)
 		(ulong tex_id))
 
 	(vp-cpy-rr :rsp :r1)
 	(push-scope)
 	(vp-and-cr -16 :rsp)
-	(entry {this, old_stack})
+	(entry {user, old_stack})
 
 	;free any texture
+	(assign {user->local_this} {this})
 	(call 'texture :deref_if {this->pixmap_texture})
 
 	;create SDL surface from pixel buffer, convert to texture
 	(host-gui-call 'host_gui :create_texture {&this->pixmap_data,
-		this->pixmap_width, this->pixmap_height, this->pixmap_stride, 0} {tex_id})
+			this->pixmap_width, this->pixmap_height,
+			this->pixmap_stride, user->local_flags}
+		{tex_id})
 
 	;new texture
 	(call 'texture :create {tex_id, this->pixmap_width, this->pixmap_height} {this->pixmap_texture})

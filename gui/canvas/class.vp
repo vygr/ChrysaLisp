@@ -144,16 +144,18 @@
 (def-method 'canvas :swap)
 	;inputs
 	;:r0 = canvas object (ptr)
+	;:r1 = canvas upload flags (uint)
 	;outputs
 	;:r0 = canvas object (ptr)
 	;trashes
 	;:r1-:r14
 
 	(def-vars
-		(ptr this pixmap texture))
+		(ptr this pixmap texture)
+		(uint flags))
 
 	(push-scope)
-	(entry 'canvas :swap {this})
+	(entry 'canvas :swap {this, flags})
 
 	;scale the pixmap if needed
 	(vpif {this->canvas_scale = 1})
@@ -165,7 +167,7 @@
 	(endif)
 
 	;upload then ref_if the texture
-	(call 'pixmap :upload {pixmap})
+	(call 'pixmap :upload {pixmap, flags})
 	(assign {this->canvas_texture} {texture})
 	(call 'texture :ref_if {pixmap->pixmap_texture} {this->canvas_texture})
 	(call 'texture :deref_if {texture})

@@ -142,7 +142,7 @@
 	;; (times 10 (Mesh-iso (Iso-capsule 30 30 30) (n2r 0.25)))
 	;; (prin (time-in-seconds (- (pii-time) then)))(print)
 	(bind '(x y w h) (apply view-locate (.-> *window* (:connect +event_layout) :pref_size)))
-	(.-> main_widget (:set_canvas_flags +canvas_mode) (:fill +argb_black) :swap)
+	(.-> main_widget (:set_canvas_flags +canvas_mode) (:fill +argb_black) (:swap 0))
 	(radio-select style_toolbar 0)
 	(gui-add-front (. *window* :change x y w h))
 	(defq select (alloc-select +select_size) *running* :t *dirty* :t

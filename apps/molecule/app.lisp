@@ -134,7 +134,7 @@
 			(list (mat4x4-vec4-mul matrix v) r c)) balls))))
 	(. main_widget :fill 0)
 	(render-balls main_widget balls)
-	(. main_widget :swap))
+	(. main_widget :swap 0))
 
 (defun ball-file (index)
 	(when (defq stream (file-stream (defq file (elem-get index mol_files))))
@@ -179,7 +179,7 @@
 (defun main ()
 	(defq select (alloc-select +select_size) *running* :t)
 	(bind '(x y w h) (apply view-locate (.-> *window* (:connect +event_layout) :pref_size)))
-	(.-> main_widget (:set_canvas_flags +canvas_mode) (:fill +argb_black) :swap)
+	(.-> main_widget (:set_canvas_flags +canvas_mode) (:fill +argb_black) (:swap 0))
 	(radio-select style_toolbar 1)
 	(gui-add-front (. *window* :change x y w h))
 	(tooltips)

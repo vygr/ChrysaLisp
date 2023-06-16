@@ -73,7 +73,7 @@
 
 (defun main ()
 	(defq select (alloc-select +select_size))
-	(.-> canvas (:fill +argb_black) :swap)
+	(.-> canvas (:fill +argb_black) (:swap 0))
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(gui-add-front (. *window* :change x y w h))
 	(defq farm (Farm create destroy (* 2 (length (mail-nodes)))))
@@ -106,7 +106,7 @@
 				(. farm :refresh +retry_timeout)
 				(when dirty
 					(setq dirty :nil)
-					(. canvas :swap)
+					(. canvas :swap 0)
 					(when (= 0 (length jobs))
 						(defq working :nil)
 						(. farm :each (lambda (key val)

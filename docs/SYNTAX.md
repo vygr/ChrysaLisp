@@ -375,7 +375,7 @@
 ### canvas :swap
 
 ```code
-(. canvas :swap) -> canvas
+(. canvas :swap flags) -> canvas
 ```
 
 ### dictionary :find_matches
@@ -1995,7 +1995,7 @@
 ### canvas-swap
 
 ```code
-(canvas-swap canvas)
+(canvas-swap canvas flags)
 ```
 
 ### canvas-to-argb32
