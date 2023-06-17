@@ -41,6 +41,7 @@
 #define PF_PALETTE          -6  /*  8bpp palette */
 
 typedef uint32_t pixel_t;       /* fixed ARGB8888 for now */
+typedef uint8_t alpha_t;        /* size of alpha channel */
 
 typedef struct rect {
     int32_t x, y;
@@ -190,24 +191,47 @@ void host_gui_texture_color(Texture *texture, uint8_t r, uint8_t g, uint8_t b)
 }
 
 /* allocate drawable for passed data and return a handle to it */
-Texture *host_gui_create_texture(void *data, uint64_t width, uint64_t height, uint64_t pitch, uint64_t mode)
+Texture *host_gui_create_texture(pixel_t *src, uint64_t width, uint64_t height, uint64_t pitch, uint64_t mode)
 {
     Texture *t;
+    int s = (mode == 1)? sizeof(alpha_t): sizeof(pixel_t);
+    int size = height * width * s;
 
-    int size = height * pitch;
     t = malloc(sizeof(Texture) + size);
     unassert(t);
     t->pixtype = bb.pixtype;
     t->bpp = bb.bpp;
-    t->bytespp = bb.bytespp;
+    t->bytespp = s;
     t->width = width;
     t->height = height;
-    t->pitch = pitch;
+    t->pitch = width * s;
     t->size = size;
     t->pixels = (uint8_t *)t->data;
     t->color = 0xffffff;
     t->mode = mode;
-    memcpy(t->pixels, data, t->size);
+
+    pixel_t *src_end = (pixel_t*)((uint8_t*)src + height * pitch);
+    uint32_t span = width * sizeof(pixel_t);
+    pitch -= span;
+    if (mode == 1) {        // glyph mode texture
+        alpha_t *dst = (alpha_t *)t->pixels;
+        do {
+            pixel_t *src_end_line = (pixel_t *)((uint8_t *)src + span);
+            do {
+                *dst++ = *src++ >> 24;
+            } while (src != src_end_line);
+            src = (pixel_t *)((uint8_t *)src + pitch);
+        } while (src != src_end);
+    } else {                // normal mode texture
+        pixel_t *dst = (pixel_t *)t->pixels;
+        do {
+            pixel_t *src_end_line = (pixel_t *)((uint8_t *)src + span);
+            do {
+                *dst++ = *src++;
+            } while (src != src_end_line);
+            src = (pixel_t *)((uint8_t *)src + pitch);
+        } while (src != src_end);
+    }
     return t;
 }
 
@@ -358,15 +382,14 @@ static void blit_colormod(Drawable *ts, const Rect *srect, Drawable *td, const R
     //unassert(srect->w == drect->w);   //FIXME check why src width can != dst width
     /* src and dst height can differ, will use dst height for drawing */
     pixel_t *dst = (pixel_t *)(td->pixels + drect->y * td->pitch + drect->x * td->bytespp);
-    pixel_t *src = (pixel_t *)(ts->pixels + srect->y * ts->pitch + srect->x * ts->bytespp);
-    int span = drect->w * td->bytespp;
-    int dspan = td->pitch - span;
-    int sspan = ts->pitch - span;
+    alpha_t *src = (alpha_t *)(ts->pixels + srect->y * ts->pitch + srect->x * ts->bytespp);
+    int dspan = td->pitch - (drect->w * td->bytespp);
+    int sspan = ts->pitch - drect->w;
     int y = drect->h;
     do {
         int x = drect->w;
         do {
-            pixel_t sa = *src++ >> 24;
+            alpha_t sa = *src++;
             if (sa != 0) {
                 pixel_t srb = ((sa * (ts->color & 0xff00ff)) >> 8) & 0xff00ff;
                 pixel_t sg =  ((sa * (ts->color & 0x00ff00)) >> 8) & 0x00ff00;
@@ -385,7 +408,7 @@ static void blit_colormod(Drawable *ts, const Rect *srect, Drawable *td, const R
             dst++;
         } while (--x > 0);
         dst = (pixel_t *)((uint8_t *)dst + dspan);
-        src = (pixel_t *)((uint8_t *)src + sspan);
+        src = (alpha_t *)((uint8_t *)src + sspan);
     } while (--y > 0);
 }
 
