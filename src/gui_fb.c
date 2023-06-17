@@ -41,6 +41,7 @@
 #define PF_PALETTE          -6  /*  8bpp palette */
 
 typedef uint32_t pixel_t;       /* fixed ARGB8888 for now */
+typedef uint8_t alpha_t;        /* size of alpha channel */
 
 typedef struct rect {
     int32_t x, y;
@@ -56,8 +57,8 @@ typedef struct drawable {
     int32_t pitch;              /* stride in bytes, offset to next pixel row */
     int32_t size;               /* total size in bytes */
     uint8_t *pixels;            /* pixel data */
-    uint32_t r, g, b;           /* premul colors to use for color mod blit */
-    uint32_t color;             /* combined premul colors or 0x00fffff for source blend */
+    uint32_t color;             /* rgb color for glyph blit mode */
+    int32_t mode;               /* blit mode: 1 = colormod */
     pixel_t data[];             /* texture data allocated in single malloc */
 } Drawable, Texture;
 
@@ -186,31 +187,51 @@ void host_gui_set_color(uint8_t r, uint8_t g, uint8_t b, uint8_t a)
 void host_gui_texture_color(Texture *texture, uint8_t r, uint8_t g, uint8_t b)
 {
     /* colors used in color mod blit */
-    texture->r = r;
-    texture->g = g;
-    texture->b = b;
-    texture->color = (r << 16) + (g << 8)  + b;
+    texture->color = r | (g << 8) | (b << 16);
 }
 
 /* allocate drawable for passed data and return a handle to it */
-Texture *host_gui_create_texture(void *data, uint64_t width, uint64_t height, uint64_t pitch, uint64_t mode)
+Texture *host_gui_create_texture(pixel_t *src, uint64_t width, uint64_t height, uint64_t pitch, uint64_t mode)
 {
     Texture *t;
+    int s = (mode == 1)? sizeof(alpha_t): sizeof(pixel_t);
+    int size = height * width * s;
 
-    int size = height * pitch;
     t = malloc(sizeof(Texture) + size);
     unassert(t);
     t->pixtype = bb.pixtype;
     t->bpp = bb.bpp;
-    t->bytespp = bb.bytespp;
+    t->bytespp = s;
     t->width = width;
     t->height = height;
-    t->pitch = pitch;
+    t->pitch = width * s;
     t->size = size;
     t->pixels = (uint8_t *)t->data;
-    t->r = t->g = t->b = 0xff;
     t->color = 0xffffff;
-    memcpy(t->pixels, data, t->size);
+    t->mode = mode;
+
+    pixel_t *src_end = (pixel_t*)((uint8_t*)src + height * pitch);
+    uint32_t span = width * sizeof(pixel_t);
+    pitch -= span;
+    if (mode == 1) {        // glyph mode texture
+        alpha_t *dst = (alpha_t *)t->pixels;
+        do {
+            pixel_t *src_end_line = (pixel_t *)((uint8_t *)src + span);
+            do {
+                *dst++ = *src++ >> 24;
+            } while (src != src_end_line);
+            src = (pixel_t *)((uint8_t *)src + pitch);
+        } while (src != src_end);
+    } else {                // normal mode texture
+        pixel_t *dst = (pixel_t *)t->pixels;
+        do {
+            pixel_t *src_end_line = (pixel_t *)((uint8_t *)src + span);
+            do {
+                *dst++ = *src++;
+            } while (src != src_end_line);
+            src = (pixel_t *)((uint8_t *)src + pitch);
+        } while (src != src_end);
+    }
     return t;
 }
 
@@ -280,7 +301,7 @@ void host_gui_box(const Rect *rect)
     host_gui_filled_box(&r);
 }
 
-/* fast source copy blit, no clipping */
+/* fast srccopy blit, no clipping */
 static void blit_srccopy(Drawable *ts, const Rect *srect, Drawable *td, const Rect *drect)
 {
     pixel_t *dst = (pixel_t *)(td->pixels + drect->y * td->pitch + drect->x * td->bytespp);
@@ -299,7 +320,7 @@ static void blit_srccopy(Drawable *ts, const Rect *srect, Drawable *td, const Re
     } while (--y > 0);
 }
 
-/* source copy conversion blit ARGB888 -> RGB565 */
+/* source copy conversion blit ARGB888 -> RGB565, no clipping */
 static void blit_srccopy_rgb565(Drawable *ts, const Rect *srect, Drawable *td, const Rect *drect)
 {
     unassert(srect->w == drect->w);
@@ -320,7 +341,7 @@ static void blit_srccopy_rgb565(Drawable *ts, const Rect *srect, Drawable *td, c
     } while (--y > 0);
 }
 
-/* premultiplied alpha blend or color mod blit, no clipping */
+/* premultiplied alpha blend blit, no clipping */
 static void blit_blend(Drawable *ts, const Rect *srect, Drawable *td, const Rect *drect)
 {
     //unassert(srect->w == drect->w);   //FIXME check why src width can != dst width
@@ -336,42 +357,58 @@ static void blit_blend(Drawable *ts, const Rect *srect, Drawable *td, const Rect
         do {
             pixel_t sa = *src++;
             if (sa > 0x00ffffff) {
-                if (ts->color == 0xffffff) {        /* premul blend from source */
-                    if (sa < 0xff000000) {
-                        pixel_t drb = *dst;
-                        pixel_t dg = drb & 0x00ff00;
-                               drb = drb & 0xff00ff;
-                        pixel_t da = 0xff - (sa >> 24);
-                        drb = ((drb * da >> 8) & 0xff00ff) + (sa & 0xff00ff);
-                        dg =   ((dg * da >> 8) & 0x00ff00) + (sa & 0x00ff00);
-                        *dst = drb + dg;
-                     } else {                       /* source copy */
-                        *dst = sa & 0xffffff;
-                     }
-                } else {                            /* color mod blend (glyphs) */
-                    pixel_t sr = sa & 0xff0000;
-                    pixel_t sg = sa & 0x00ff00;
-                    pixel_t sb = sa & 0x0000ff;
-                    sr = (sr * ts->r >> 8) & 0xff0000;
-                    sg = (sg * ts->g >> 8) & 0x00ff00;
-                    sb =  sb * ts->b >> 8;
-                    if (sa < 0xff000000) {
-                        pixel_t da = 0xff - (sa >> 24);
-                        pixel_t drb = *dst;
-                        pixel_t dg = drb & 0x00ff00;
-                               drb = drb & 0xff00ff;
-                        drb = ((drb * da >> 8) & 0xff00ff) + sr + sb;
-                        dg =   ((dg * da >> 8) & 0x00ff00) + sg;
-                        *dst = drb + dg;
-                    } else {
-                        *dst = sr + sg + sb;
-                    }
-                }
+                if (sa < 0xff000000) {          /* premul blend from source */
+                    pixel_t drb = *dst;
+                    pixel_t dg = drb & 0x00ff00;
+                           drb = drb & 0xff00ff;
+                    pixel_t da = 0xff - (sa >> 24);
+                    drb = ((drb * da >> 8) & 0xff00ff) + (sa & 0xff00ff);
+                    dg =   ((dg * da >> 8) & 0x00ff00) + (sa & 0x00ff00);
+                    *dst = drb + dg;
+                 } else {                       /* source copy */
+                    *dst = sa & 0xffffff;
+                 }
             }
             dst++;
         } while (--x > 0);
         dst = (pixel_t *)((uint8_t *)dst + dspan);
         src = (pixel_t *)((uint8_t *)src + sspan);
+    } while (--y > 0);
+}
+
+/* color mod blit, no clipping */
+static void blit_colormod(Drawable *ts, const Rect *srect, Drawable *td, const Rect *drect)
+{
+    //unassert(srect->w == drect->w);   //FIXME check why src width can != dst width
+    /* src and dst height can differ, will use dst height for drawing */
+    pixel_t *dst = (pixel_t *)(td->pixels + drect->y * td->pitch + drect->x * td->bytespp);
+    alpha_t *src = (alpha_t *)(ts->pixels + srect->y * ts->pitch + srect->x * ts->bytespp);
+    int dspan = td->pitch - (drect->w * td->bytespp);
+    int sspan = ts->pitch - drect->w;
+    int y = drect->h;
+    do {
+        int x = drect->w;
+        do {
+            alpha_t sa = *src++;
+            if (sa != 0) {
+                pixel_t srb = ((sa * (ts->color & 0xff00ff)) >> 8) & 0xff00ff;
+                pixel_t sg =  ((sa * (ts->color & 0x00ff00)) >> 8) & 0x00ff00;
+                if (sa != 0xff) {
+                    pixel_t da = 0xff - sa;
+                    pixel_t drb = *dst;
+                    pixel_t dg = drb & 0x00ff00;
+                           drb = drb & 0xff00ff;
+                    drb = ((drb * da >> 8) & 0xff00ff) + srb;
+                    dg =   ((dg * da >> 8) & 0x00ff00) + sg;
+                    *dst = drb + dg;
+                } else {
+                    *dst = srb + sg;
+                }
+            }
+            dst++;
+        } while (--x > 0);
+        dst = (pixel_t *)((uint8_t *)dst + dspan);
+        src = (alpha_t *)((uint8_t *)src + sspan);
     } while (--y > 0);
 }
 
@@ -386,7 +423,9 @@ void host_gui_blit(Texture *texture, const Rect *srect, const Rect *drect)
     Rect sr2 = *srect;
     if (clip.x > drect->x) sr2.x += clip.x - drect->x;
     if (clip.y > drect->y) sr2.y += clip.y - drect->y;
-    blit_blend(texture, &sr2, &bb, cr);
+    if (texture->mode == 1)
+        blit_colormod(texture, &sr2, &bb, cr);
+    else blit_blend(texture, &sr2, &bb, cr);
 }
 
 #define BUTTON_L        0x01      /* left button*/
@@ -675,8 +714,8 @@ uint64_t host_gui_init(Rect *r)
     bb.height = fb.height;
     bb.pitch = bb.width * bb.bytespp;
     bb.size = bb.height * bb.pitch;
-    bb.r = bb.g = bb.b = 0xff;
     bb.color = 0xffffff;
+    bb.mode = 0;
     bb.pixels = malloc(bb.size);
     unassert(bb.pixels);
     memset(bb.pixels, 0, bb.size);
@@ -798,8 +837,8 @@ static int open_framebuffer(void)
         printf("Can't mmap %s: %m\n", PATH_FRAMEBUFFER);
         goto fail;
     }
-    fb.r = fb.g = fb.b = 0xff;
     fb.color = 0xffffff;
+    fb.mode = 0;
 
     /* switch console to graphic mode, no more printf error messages */
     if (keybd_fd >= 0) {
