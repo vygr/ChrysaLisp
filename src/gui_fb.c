@@ -335,17 +335,17 @@ static void blit_blend(Drawable *ts, const Rect *srect, Drawable *td, const Rect
         do {
             pixel_t sa = *src++;
             if (sa > 0x00ffffff) {
-                    if (sa < 0xff000000) {          /* premul blend from source */
-                        pixel_t drb = *dst;
-                        pixel_t dg = drb & 0x00ff00;
-                               drb = drb & 0xff00ff;
-                        pixel_t da = 0xff - (sa >> 24);
-                        drb = ((drb * da >> 8) & 0xff00ff) + (sa & 0xff00ff);
-                        dg =   ((dg * da >> 8) & 0x00ff00) + (sa & 0x00ff00);
-                        *dst = drb + dg;
-                     } else {                       /* source copy */
-                        *dst = sa & 0xffffff;
-                     }
+                if (sa < 0xff000000) {          /* premul blend from source */
+                    pixel_t drb = *dst;
+                    pixel_t dg = drb & 0x00ff00;
+                           drb = drb & 0xff00ff;
+                    pixel_t da = 0xff - (sa >> 24);
+                    drb = ((drb * da >> 8) & 0xff00ff) + (sa & 0xff00ff);
+                    dg =   ((dg * da >> 8) & 0x00ff00) + (sa & 0x00ff00);
+                    *dst = drb + dg;
+                 } else {                       /* source copy */
+                    *dst = sa & 0xffffff;
+                 }
             }
             dst++;
         } while (--x > 0);
@@ -370,23 +370,23 @@ static void blit_colormod(Drawable *ts, const Rect *srect, Drawable *td, const R
         do {
             pixel_t sa = *src++;
             if (sa > 0x00ffffff) {
-                    pixel_t sr = sa & 0xff0000;
-                    pixel_t sg = sa & 0x00ff00;
-                    pixel_t sb = sa & 0x0000ff;
-                    sr = (sr * ts->r >> 8) & 0xff0000;
-                    sg = (sg * ts->g >> 8) & 0x00ff00;
-                    sb =  sb * ts->b >> 8;
-                    if (sa < 0xff000000) {
-                        pixel_t da = 0xff - (sa >> 24);
-                        pixel_t drb = *dst;
-                        pixel_t dg = drb & 0x00ff00;
-                               drb = drb & 0xff00ff;
-                        drb = ((drb * da >> 8) & 0xff00ff) + sr + sb;
-                        dg =   ((dg * da >> 8) & 0x00ff00) + sg;
-                        *dst = drb + dg;
-                    } else {
-                        *dst = sr + sg + sb;
-                    }
+                pixel_t sr = sa & 0xff0000;
+                pixel_t sg = sa & 0x00ff00;
+                pixel_t sb = sa & 0x0000ff;
+                sr = (sr * ts->r >> 8) & 0xff0000;
+                sg = (sg * ts->g >> 8) & 0x00ff00;
+                sb =  sb * ts->b >> 8;
+                if (sa < 0xff000000) {
+                    pixel_t da = 0xff - (sa >> 24);
+                    pixel_t drb = *dst;
+                    pixel_t dg = drb & 0x00ff00;
+                           drb = drb & 0xff00ff;
+                    drb = ((drb * da >> 8) & 0xff00ff) + sr + sb;
+                    dg =   ((dg * da >> 8) & 0x00ff00) + sg;
+                    *dst = drb + dg;
+                } else {
+                    *dst = sr + sg + sb;
+                }
             }
             dst++;
         } while (--x > 0);
