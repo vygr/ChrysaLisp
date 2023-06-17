@@ -189,9 +189,8 @@ right, top to bottom.
 It's perfectly OK to have nested macro forms, just remember that the lower
 macros will get to 'eat' the results of the higher macros !
 
-`(macroexpand)` will keep looping until it finds no more macro substitutions
-are possible. The resulting tree will only consist of built in primitives,
-atoms and none macro function calls.
+The resulting tree will only consist of built in primitives, atoms and none
+macro function calls.
 
 Most of the GUI widget trees, for application UIs, are constructed with nested
 ui macros, for example the Pcb app UI:
