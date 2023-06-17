@@ -10,6 +10,8 @@ improve performance on glyph blits.
 `gui_raw.cpp` driver switched to save 75% glyph memory and faster red/blue
 channel calculations.
 
+`gui-fb.c` driver updated to use same 8bit glyph textures.
+
 ------
 
 Renamed the `vp-vec` op to `vp-simd` as this carries better info at the source
