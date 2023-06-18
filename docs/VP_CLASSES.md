@@ -5212,11 +5212,11 @@ trashes
 inputs
 :r0 = path object (ptr)
 :r1 = source path object, can be same (ptr)
-:r2 = m3x2 (fixeds)
+:r2 = m3x2 fixeds object (ptr)
 outputs
 :r0 = path object (ptr)
 trashes
-:r1-:r14
+:r1-:r13
 ```
 
 ### path :vcreate -> gui/path/create

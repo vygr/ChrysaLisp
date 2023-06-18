@@ -1,55 +1,39 @@
 (include "lib/asm/func.inc")
 (include "gui/path/class.inc")
-(include "sys/math/class.inc")
 
 (def-method 'path :transform)
 	;inputs
 	;:r0 = path object (ptr)
 	;:r1 = source path object, can be same (ptr)
-	;:r2 = m3x2 (fixeds)
+	;:r2 = m3x2 fixeds object (ptr)
 	;outputs
 	;:r0 = path object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r13
 
-	(def-vars
-		(ptr this that m3x2)
-		(pptr iter_begin iter_end iter_this))
+	(vp-def (this iter_begin m00 m01 m02 m10 m11 m12
+		iter_this iter_end x y x1 y1))
 
-	(push-scope)
-	(entry 'path :transform {this, that, m3x2})
+	(entry 'path :transform `(,this ,iter_begin ,m00))
 
-	(call 'path :get_both {that} {_, iter_begin, iter_end})
-	(call 'path :get_begin {this} {_, iter_this})
-	(call 'fixeds :get_begin {m3x2} {_, m3x2})
+	(class/array/get_both iter_begin iter_begin iter_end)
+	(vpif `(,iter_begin /= ,iter_end))
+		(assign `((,this array_begin)) `(,iter_this))
+		(array-bind-args m00 `(,m00 ,m01 ,m02 ,m10 ,m11 ,m12))
+		(loop-start)
+			(vp-simd vp-cpy-ir `(,iter_begin ,iter_begin) `(0 ,+long_size) `(,x ,y))
+			(vp-simd vp-cpy-rr `(,x ,y) `(,x1 ,y1))
+			(vp-simd vp-mul-rr `(,m00 ,m01) `(,x ,y1))
+			(vp-simd vp-mul-rr `(,m10 ,m11) `(,x1 ,y))
+			(vp-simd vp-add-rr `(,y1 ,x1) `(,x ,y))
+			(vp-simd vp-asr-cr `(,+fp_shift ,+fp_shift) `(,x ,y))
+			(vp-simd vp-add-rr `(,m02 ,m12) `(,x ,y))
+			(vp-simd vp-cpy-ri `(,x ,y) `(,iter_this ,iter_this) `(0 ,+long_size))
+			(vp-simd vp-add-cr `(,(* +long_size 2) ,(* +long_size 2)) `(,iter_begin ,iter_this))
+		(loop-until `(,iter_begin = ,iter_end))
+	(endif)
 
-	(vec-set 0)
-	(vec-load 4 {iter_end, iter_begin, iter_this, m3x2})
-	(bind '(e i j k) (vec-top 4))
-	(vec-load-long 2 k)
-	(defq m1 (vec-top 2))
-	(vec-load-long 2 k (* 3 +long_size))
-	(defq m2 (vec-top 2))
-	(vec-load-long 1 k (* 2 +long_size))
-	(vec-load-long 1 k (* 5 +long_size))
-	(defq tr (vec-top 2))
-
-	(loop-while (list i '/= e))
-		(vec-load-long 2 i)
-		(defq xy (vec-top 2))
-
-		(vec-dup 2 m1)
-		(vec-fdot 2 xy)
-		(vec-dup 2 m2)
-		(vec-fdot 2 xy)
-		(vec-add 2 tr)
-		(vec-store-long 2 j)
-		(vp-add-cr (* 2 +long_size) i)
-		(vp-add-cr (* 2 +long_size) j)
-	(loop-end)
-
-	(exit 'path :transform {this})
-	(pop-scope)
-	(return)
+	(exit 'path :transform `(,this))
+	(vp-ret)
 
 (def-func-end)
