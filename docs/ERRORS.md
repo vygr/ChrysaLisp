@@ -47,15 +47,15 @@ Another point to make is about defensive coding.... DON'T do it ! Absolutely
 don't do it. Don't engage with stupid, "They will drag you down to their level
 and beat you with experience..."
 
-All those times you code a loop to break on `iter >= iter_end` !!!
-Stop doing that ! You're introducing a test coverage analysis leak. If your
-inputs and algorithm say you should hit an `=` end stop, then say so in the
-coding, don't wimp out and think you're helping anyone by saying >=, you're not
-helping ! You're perpetuating the problems. What would happen on a CPU that has
-some weird addressing system that uses negative arranged addresses ? Or you
-cross the memory limit boundary and wrap back to zero.... but that can't happen
-? No it did in the past, maybe not so much now, but maybe The Mill CPU will
-come up with a good way to exploit that idea...
+All those times you code a loop to break on `iter >= iter_end` !!! Stop doing
+that ! You're introducing a test coverage analysis leak. If your inputs and
+algorithm say you should hit an `=` end stop, then say so in the coding, don't
+wimp out and think you're helping anyone by saying `>=`, you're not helping !
+You're perpetuating the problems. What would happen on a CPU that has some
+weird addressing system that uses negative arranged addresses ? Or you cross
+the memory limit boundary and wrap back to zero... but that can't happen ? No
+it did in the past, maybe not so much now, but maybe `The Mill CPU` will come
+up with a good way to exploit that idea...
 
 The further down to the leaf code you introduce an error check, the worse you
 make things in terms of performance. Maybe you can get your compiler to prove
@@ -73,11 +73,11 @@ catches zero."
 
 Well that brings up other issues !
 
-At the VP level you’re not dealing with signed or unsigned values, you're
+At the VP level you're not dealing with signed or unsigned values, you're
 dealing with registers and YOU treat them as signed or unsigned. You're not
 getting a compiler to manipulate them with `vp-asr-cr` vs `vp-shr-cr` based on
 the type you declared ! The CScript level compiler will do this, but at the VP
-level it's baked in by you !
+level it's baked in by YOU !
 
 Can you even check for the type of a register input ? NO, it's not possible. At
 this level it's just some bits and you perform some defined actions on them.
