@@ -24,7 +24,7 @@
 			(path-gen-arc x y1 (const (+ +fp_pi +fp_hpi)) +fp_hpi rx tol dst)
 			(path-gen-arc x1 y1 0.0 +fp_hpi rx tol dst)
 			(path-gen-arc x1 y +fp_hpi +fp_hpi rx tol dst))
-		(:t (defq d (path x y x y1 x1 y1 x1 y)))))
+		(:t (path x y x y1 x1 y1 x1 y))))
 
 (defun path-gen-ellipse (cx cy rx ry tol dst)
 	; (path-gen-ellipse cx cy rx ry tol dst) -> dst
@@ -130,7 +130,7 @@
 						(defq x1 cpx y1 cpy))
 					(path-gen-quadratic cpx cpy x1 y1 x y eps p)
 					(setq cpx x cpy y cx x1 cy y1)))
-			(":t"
+			("t"
 				(while (num? (elem-get i d))
 					(bind '(x y) (slice i (setq i (+ i 2)) d))
 					(setq x (+ cpx x) y (+ cpy y))
