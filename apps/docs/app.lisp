@@ -12,7 +12,7 @@
 	"LISP" "ENVIRONMENT" "CONDITIONALS" "ITERATION" "MACROS" "CLASSES" "NUMERICS"
 	"COMMS" "EVENT_LOOPS" "EVENT_DISPATCH" "UI_WIDGETS"
 	"SYNTAX" "TERMINAL" "COMMANDS" "DIARY"
-	"INTRO" "FRAMEBUFFER" "TAOS" "TODO"))
+	"INTRO" "FRAMEBUFFER" "ERRORS" "TAOS" "TODO"))
 
 (defun handler-func (state)
 	(unless (defq handler (. handlers :find state))
