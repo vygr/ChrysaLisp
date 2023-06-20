@@ -36,7 +36,7 @@
 	*syntax* (Syntax) *whole_words* :nil *macro_record* :nil *macro_actions* (list)
 	+min_word_size 3 +max_matches 20 dictionary (Dictionary 1021) +margin 2
 	match_window :nil match_flow :nil match_index -1
-	+state_filename "editor_open_files" +not_whole_word_chars " .,;'`(){}[]/")
+	+state_filename "editor_state" +not_whole_word_chars " .,;'`(){}[]/")
 
 (ui-window *window* (:color +argb_grey1)
 	(ui-title-bar *title* "Edit" (0xea19 0xea1b 0xea1a) +event_close)

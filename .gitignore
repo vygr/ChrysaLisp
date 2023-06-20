@@ -15,4 +15,4 @@ main.vcxproj.filters
 main.vcxproj.user
 chrysalisp.exe
 *.DS_Store
-*editor_open_files
+*editor_state
