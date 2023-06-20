@@ -8,6 +8,10 @@ In no particular order but to just to ensure I get thoughts down. I'll keep
 adding to this as I go along. If anybody would like to try helping out, then
 just get in touch.
 
+* Edit app should use a more robust format for the `editor_open_files` file.
+Maybe a hash map of key values rather than an anonymous list ! Probably should
+rename this file to `editor_state` etc.
+
 * Add find functions to the Viewer app. Just include them from the Editor
 actions. It would be nice to be able to find stuff in the Viewer.
 
