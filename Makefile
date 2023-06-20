@@ -26,13 +26,13 @@ else
 endif
 
 HOST_GUI := 0
-ifeq ($(GUI),sdl)
+ifeq ($(shell echo $(GUI) | tr '[:upper:]' '[:lower:]'),sdl)
 	HOST_GUI := 0
 endif
-ifeq ($(GUI),fb)
+ifeq ($(shell echo $(GUI) | tr '[:upper:]' '[:lower:]'),fb)
 	HOST_GUI := 1
 endif
-ifeq ($(GUI),raw)
+ifeq ($(shell echo $(GUI) | tr '[:upper:]' '[:lower:]'),raw)
 	HOST_GUI := 2
 endif
 
