@@ -140,7 +140,7 @@ recorded_actions_list (list
 ;module
 (export-symbols
 	event_map key_map key_map_shift key_map_control recorded_actions_list
-	action-insert action-save-all action-maximise
+	action-insert action-save-all action-maximise action-save-all
 	select-word action-select-word action-insert)
 (export-classes
 	Editor-edit)

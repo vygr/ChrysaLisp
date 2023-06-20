@@ -419,6 +419,7 @@
 		(bind '(ax ay) (. *edit* :get_anchor))
 		(bind '(sx sy) (. *edit* :get_scroll))
 		(. *meta_map* :insert *current_file* (list cx cy ax ay sx sy :nil buffer)))
+	(action-save-all)
 	(free-select select)
 	(clear-matches)
 	(gui-sub *window*)
