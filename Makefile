@@ -43,10 +43,18 @@ tui:		hostenv obj/$(CPU)/$(ABI)/$(OS)/main_tui
 install:	clean hostenv tui gui inst
 
 hostenv:
+ifeq ($(HOST_GUI),0)
+	@echo Building sdl GUI driver.
+endif
+ifeq ($(HOST_GUI),1)
+	@echo Building fb GUI driver.
+endif
+ifeq ($(HOST_GUI),2)
+	@echo Building raw GUI driver.
+endif
 	@echo $(CPU) > cpu
 	@echo $(OS) > os
 	@echo $(ABI) > abi
-	@echo Building $(HGUI) GUI driver.
 	mkdir -p obj/$(CPU)/$(ABI)/$(OS)	
 
 snapshot:
