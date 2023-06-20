@@ -8,6 +8,8 @@ In no particular order but to just to ensure I get thoughts down. I'll keep
 adding to this as I go along. If anybody would like to try helping out, then
 just get in touch.
 
+* Add a mini display to the Edit app.
+
 * Edit app should use a more robust format for the `editor_open_files` file.
 Maybe a hash map of key values rather than an anonymous list ! Probably should
 rename this file to `editor_state` etc.
