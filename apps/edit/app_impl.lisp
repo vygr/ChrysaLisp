@@ -225,8 +225,8 @@
 				(if (/= (age file) 0) (populate-file file x y ax ay sx sy)))
 			stream)))
 
-(defun save-open-files ()
-	;save users open file tree
+(defun save-state ()
+	;save editor state
 	(when (defq stream (file-stream (cat *env_home* +state_filename) +file_open_write))
 		(each (lambda (file)
 				(write-line stream (str (list file (slice 0 -2 (. *meta_map* :find file))))))
@@ -423,6 +423,4 @@
 	(free-select select)
 	(clear-matches)
 	(gui-sub *window*)
-	(action-save-all)
-	(save-open-files)
 	(mail-forget edit_service))

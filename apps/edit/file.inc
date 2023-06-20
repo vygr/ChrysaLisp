@@ -35,7 +35,7 @@
 	(refresh))
 
 (defun action-save ()
-	(save-open-files)
+	(save-state)
 	(defq buffer (. *edit* :get_buffer))
 	(when (and *current_file* (. (trim-buffer buffer) :get_modified))
 		(. buffer :file_save *current_file*)
@@ -43,7 +43,7 @@
 		(refresh)))
 
 (defun action-save-all ()
-	(save-open-files)
+	(save-state)
 	(. *meta_map* :each (lambda (file (_ _ _ _ _ _ _ buffer))
 		(if (and file (. (trim-buffer buffer) :get_modified))
 			(. buffer :file_save file))))
