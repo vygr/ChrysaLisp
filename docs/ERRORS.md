@@ -1,6 +1,6 @@
 # Errors, or lack of them
 
-Dr, it really hurts when I pass an `nums` array to a routine that expects a
+Dr, it really hurts when I pass a `nums` array to a routine that expects a
 `fixeds` array... you all know the answer to that !
 
 I want to talk about ChrysaLisp error checking policy and philosophy.
@@ -81,3 +81,81 @@ level it's baked in by YOU !
 
 Can you even check for the type of a register input ? NO, it's not possible. At
 this level it's just some bits and you perform some defined actions on them.
+
+## Helpful `errorcase` macros
+
+The main way to wrap code that we do not want to include in `release mode` is
+by use of the `(errorcase)` macro. This macro simply tests the value of
+`*debug_mode*`, and if greater than 0, includes the wrapped code.
+
+```vdu
+(defmacro errorcases (&rest e) (if (> *debug_mode* 0) `(progn ~e)))
+```
+
+The direct opposite, so inclusion of code, when not `(<= *debug_mode* 0)`, is
+also provided.
+
+```vdu
+(defmacro noterrorcases (&rest e) (if (<= *debug_mode* 0) `(progn ~e)))
+```
+
+Simple jump macros that wrap a `(gotoif)` or `(gotoifnot)`.
+
+```vdu
+(defmacro errorif (e l) `(errorcases (gotoif ,e ,l)))
+(defmacro errorifnot (e l) `(errorcases (gotoifnot ,e ,l)))
+```
+
+There are also specialist argument testing helpers to ease the validation of
+Lisp function arguments, while not being present in release mode. You will see
+plenty of example uses of these macros in the Lisp binding methods that start
+with the `:lisp_`.
+
+### Specific number of arguments, or minium, or maximum.
+
+```vdu
+(defmacro errorif-lisp-args-len (args cnd len err)
+	`(errorcases
+		(assign '((,args array_length)) '(:r2))
+		(gotoif '(:r2 ,cnd ,len) ,err)))
+```
+
+### Specific type signature for the Lisp arguments.
+
+```vdu
+(defmacro errorif-lisp-args-sig (args len l)
+	`(errorcases
+		(call 'lisp :env_args_sig '(,args ($ sig) ,len) '(tmp))
+		(gotoif `(,tmp = 0) ,l)))
+```
+
+### Specific type signature and length range.
+
+```vdu
+(defmacro errorif-lisp-args-sig-range (args len1 len2 l)
+	`(errorcases
+		(bind '(e_args e_sig e_num) (method-input 'lisp :env_args_sig))
+		(assign '((,args array_length)) `(,e_num))
+		(if (> ,len1 0) (gotoif `(,e_num < ,,len1) ,l))
+		(gotoif `(,e_num > ,,len2) ,l)
+		(call 'lisp :env_args_sig `(,,args ($ sig) ,e_num) '(tmp))
+		(gotoif `(,tmp = 0) ,l)))
+```
+
+### Minimum length of arguments of exact same type.
+
+```vdu
+(defmacro errorif-lisp-args-match (args class len l)
+	`(errorcases
+		(call 'lisp :env_args_match '(,args (@ ,(f-path class :vtable)) ,len) '(tmp))
+		(gotoif `(,tmp = 0) ,l)))
+```
+
+### Minimum length of arguments of the same type inheritance.
+
+```vdu
+(defmacro errorif-lisp-args-type (args class len l)
+	`(errorcases
+		(call 'lisp :env_args_type '(,args (@ ,(f-path class :vtable)) ,len) '(tmp))
+		(gotoif `(,tmp = 0) ,l)))
+```
