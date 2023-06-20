@@ -97,8 +97,8 @@ void host_gui_end_composite()
 
 void host_gui_flush(const Rect *rect)
 {
-	//no need to clip to screen I think !
-	if (rect->w < 1 || rect->h < 1) return;
+	//no need to clip to screen
+	if (rect->w <= 0 || rect->h <= 0) return;
 	pixel_t *dst = (pixel_t*)((uint8_t*)screen +
 		rect->y * scr_stride + rect->x * sizeof(pixel_t));
 	pixel_t *src = (pixel_t*)((uint8_t*)backbuffer +
@@ -204,7 +204,7 @@ void host_gui_filled_box(const Rect *rect)
 	//clip
 	Rect r = *rect;
 	if (color_a == 0) return;
-	if (r.w < 1 || r.h < 1) return;
+	if (r.w <= 0 || r.h <= 0) return;
 	r.w += r.x;
 	r.h += r.y;
 	if (r.x >= clip.w || r.y >= clip.h) return;
@@ -254,7 +254,7 @@ void host_gui_box(const Rect *rect)
 {
 	//just call filled box and let it do the clipping and drawing
 	Rect r = *rect;
-	if (rect->w < 1 || rect->h < 1) return;
+	if (rect->w <= 0 || rect->h <= 0) return;
 	r.h = 1;
 	host_gui_filled_box(&r);
 	if (rect->h <= 1) return;
@@ -275,7 +275,7 @@ void host_gui_blit(Texture *t, const Rect *srect, const Rect *drect)
 	//clip
 	Rect dr = *drect;
 	Rect sr = *srect;
-	if (dr.w < 1 || dr.h < 1) return;
+	if (dr.w <= 0 || dr.h <= 0) return;
 	dr.w += dr.x;
 	dr.h += dr.y;
 	if (dr.x >= clip.w || dr.y >= clip.h) return;

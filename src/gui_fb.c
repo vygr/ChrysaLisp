@@ -140,7 +140,7 @@ static Rect *get_clip_rect(const Rect *rect)
     static Rect r;
 
     r = *rect;
-    if (r.w < 1 || r.h < 1) return NULL;
+    if (r.w <= 0 || r.h <= 0) return NULL;
     r.w += r.x;
     r.h += r.y;
     if (r.x >= clip.w || r.y >= clip.h) return NULL;
@@ -282,7 +282,7 @@ void host_gui_box(const Rect *rect)
 {
     /* just call filled box and let it do the clipping and drawing */
     Rect r = *rect;
-    if (rect->w < 1 || rect->h < 1) return;
+    if (rect->w <= 0 || rect->h <= 0) return;
     r.h = 1;
     host_gui_filled_box(&r);
     if (rect->h <= 1) return;
