@@ -12,6 +12,8 @@ channel calculations.
 
 `gui-fb.c` driver updated to use same 8bit glyph textures.
 
+New `ERRORS.md` doc.
+
 ------
 
 Renamed the `vp-vec` op to `vp-simd` as this carries better info at the source

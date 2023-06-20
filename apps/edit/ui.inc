@@ -9,6 +9,7 @@
 	(vdu-resize +vdu_max_width +vdu_max_height))
 
 (defun action-close ()
+	(action-save-all)
 	(setq *running* :nil))
 
 (defun action-layout ()

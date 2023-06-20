@@ -340,10 +340,11 @@
 	(def *edit* :min_width 0 :min_height 0
 		:vdu_width +vdu_min_width :vdu_height +vdu_min_height)
 	(. *main_flow* :add_back *edit*)
-	;load up the base Syntax keywords and boot.inc words for matching
+	;load up the base Syntax keywords and boot.inc and english words for matching
 	(each (lambda ((key val)) (. dictionary :insert_word (str key)))
 		(tolist (get :keywords *syntax* )))
 	(each-line populate-dictionary (file-stream "class/lisp/boot.inc"))
+	(each-line populate-dictionary (file-stream "lib/text/english.txt"))
 	(populate-file-tree)
 	(load-open-files)
 	(populate-open-tree)
