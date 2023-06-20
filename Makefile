@@ -45,6 +45,15 @@ hostenv:
 	@echo $(CPU) > cpu
 	@echo $(OS) > os
 	@echo $(ABI) > abi
+ifeq ($(HOST_GUI),0)
+	@echo Building sdl GUI driver.
+endif
+ifeq ($(HOST_GUI),1)
+	@echo Building fb GUI driver.
+endif
+ifeq ($(HOST_GUI),2)
+	@echo Building raw GUI driver.
+endif
 	mkdir -p obj/$(CPU)/$(ABI)/$(OS)	
 
 snapshot:
