@@ -11,6 +11,7 @@ OBJ_CFILES_GUI := $(patsubst $(SRC_DIR)/%.c,$(OBJ_DIR_GUI)/%.o,$(SRC_CFILES))
 OBJ_CFILES_TUI := $(patsubst $(SRC_DIR)/%.c,$(OBJ_DIR_TUI)/%.o,$(SRC_CFILES))
 CFLAGS := -O3 -nostdlib -fno-exceptions -MMD
 CPPFLAGS := -std=c++14
+HGUI := $(shell echo $(GUI) | tr '[:upper:]' '[:lower:]')
 
 OS := $(shell uname)
 CPU := $(shell uname -m)
@@ -26,13 +27,13 @@ else
 endif
 
 HOST_GUI := 0
-ifeq ($(shell echo $(GUI) | tr '[:upper:]' '[:lower:]'),sdl)
+ifeq ($(HGUI),sdl)
 	HOST_GUI := 0
 endif
-ifeq ($(shell echo $(GUI) | tr '[:upper:]' '[:lower:]'),fb)
+ifeq ($(HGUI),fb)
 	HOST_GUI := 1
 endif
-ifeq ($(shell echo $(GUI) | tr '[:upper:]' '[:lower:]'),raw)
+ifeq ($(HGUI),raw)
 	HOST_GUI := 2
 endif
 
@@ -45,15 +46,7 @@ hostenv:
 	@echo $(CPU) > cpu
 	@echo $(OS) > os
 	@echo $(ABI) > abi
-ifeq ($(HOST_GUI),0)
-	@echo Building sdl GUI driver.
-endif
-ifeq ($(HOST_GUI),1)
-	@echo Building fb GUI driver.
-endif
-ifeq ($(HOST_GUI),2)
-	@echo Building raw GUI driver.
-endif
+	@echo Building $(HGUI) GUI driver.
 	mkdir -p obj/$(CPU)/$(ABI)/$(OS)	
 
 snapshot:
