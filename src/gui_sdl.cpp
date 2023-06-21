@@ -65,7 +65,9 @@ void host_gui_end_composite()
 
 void host_gui_flush(const SDL_Rect *rect)
 {
+	SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
 	SDL_RenderCopy(renderer, backbuffer, 0, 0);
+	SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 	SDL_RenderPresent(renderer);
 }
 
