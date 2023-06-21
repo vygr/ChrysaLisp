@@ -20,6 +20,7 @@ void host_gui_init(SDL_Rect *rect)
 				SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_TARGETTEXTURE);
 	backbuffer = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_TARGET,
 				rect->w, rect->h);
+	SDL_SetTextureBlendMode(backbuffer, SDL_BLENDMODE_NONE);
 	SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 	SDL_ShowCursor(SDL_DISABLE);
 }
@@ -107,6 +108,7 @@ void host_gui_resize(uint64_t w, uint64_t h)
 	backbuffer = SDL_CreateTexture(renderer,
 				SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_TARGET,
 				w, h);
+	SDL_SetTextureBlendMode(backbuffer, SDL_BLENDMODE_NONE);
 }
 
 void (*host_gui_funcs[]) = {
