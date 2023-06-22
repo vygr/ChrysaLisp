@@ -28,12 +28,12 @@
 	(errorif {length /= 2} 'error1)
 	(call 'list :get_first {args} {_, stream})
 
-(errorcases
+(errorcase
 	(call 'obj :inst_of (cat {stream, @} (f-path 'stream :vtable)))
 	(gotoif (list (method-output 'obj :inst_of 1) '= 0) 'error2))
 
 	(call 'list :get_second {args} {_, value})
-(errorcases
+(errorcase
 	(call 'obj :inst_of (cat {value, @} (f-path 'str :vtable)))
 	(gotoif (list (method-output 'obj :inst_of 1) '= 0) 'error3))
 
@@ -76,7 +76,7 @@
 			(call 'lisp :repl_print {this, this->lisp_stdout, value})
 			(call 'stream :write_char {this->lisp_stdout, +char_lf})
 		(endif)
-	(errorcases
+	(errorcase
 		(breakif (cat {value->obj_vtable = @} (f-path 'error :vtable))))
 	(loop-end)
 
@@ -89,7 +89,7 @@
 	(exit 'lisp :lisp_repl {this, value})
 	(return)
 
-(errorcases
+(errorcase
 (vp-label 'error1)
 	(jump 'lisp :repl_error {this, "(repl stream path)", +error_msg_wrong_num_of_args, args})
 (vp-label 'error2)

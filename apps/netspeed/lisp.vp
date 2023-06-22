@@ -151,7 +151,7 @@
 	(exit {this, args})
 	(return)
 
-(errorcases
+(errorcase
 (vp-label 'error)
 	(jump 'lisp :repl_error {this, "(vops)", +error_msg_wrong_types, args})
 	(signature '()))

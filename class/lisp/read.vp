@@ -57,7 +57,7 @@
 		(assign '((:r0 lisp_sym_nil)) '(:r1))
 		(class/obj/ref :r1 :r3)
 		(break)
-(errorcases
+(errorcase
 	(vpcase '(:r2 = +char_rrb))
 		(vp-push :r0 :r1)
 		(call 'stream :read_char '(:r1) '(_ (:rsp 0)))

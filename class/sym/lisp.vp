@@ -23,7 +23,7 @@
 		(vp-push :r4)
 		(call 'obj :ref '(:r1) '(:r0))
 	(else)
-	(errorcases
+	(errorcase
 		(assign `((@ ,(f-path 'str :vtable))) '(:r3))
 		(gotoif '(:r2 /= :r3) 'error2))
 		(vp-push :r4)
@@ -35,7 +35,7 @@
 	(exit 'sym :lisp_sym '(:r0 :r1))
 	(vp-ret)
 
-(errorcases
+(errorcase
 (vp-label 'error1)
 	(jump 'lisp :repl_error '(:r0 "(sym str)" +error_msg_wrong_num_of_args :r1))
 (vp-label 'error2)
@@ -72,7 +72,7 @@
 	(exit 'sym :lisp_gensym '(:r0 :r1))
 	(vp-ret)
 
-(errorcases
+(errorcase
 (vp-label 'error1)
 	(jump 'lisp :repl_error '(:r0 "(gensym)" +error_msg_wrong_num_of_args :r1)))
 

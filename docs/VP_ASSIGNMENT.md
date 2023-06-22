@@ -342,7 +342,7 @@ compile option for the system. The various mode are:
 
 * 1 normal, with error checking
 
-The `(errorcases)`, `(errorif)` and `(errorifnot)` macros alow you to
+The `(errorcase)`, `(errorif)` and `(errorifnot)` macros alow you to
 conditionally include source code if the `*debug_mode*` is greater than 0.
 
 For example adding conditional type checking of input parameters that will be
@@ -353,7 +353,7 @@ front of the function signature table !
 	...
 	(errorif-lisp-args-sig :r1 3 'error)
 	...
-(errorcases
+(errorcase
 (vp-label 'error)
 	(jump 'lisp :repl_error '(:r0 "(piece-scans brd index vectors)" +error_msg_wrong_types :r1))
 	(signature '(str num list)))

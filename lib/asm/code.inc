@@ -168,26 +168,26 @@
 	(endswitch))
 
 ;;;;;;;;;;;;
-; errorcases
+; errorcase
 ;;;;;;;;;;;;
 
-(defmacro errorcases (&rest e) (if (> *debug_mode* 0) `(progn ~e)))
-(defmacro noterrorcases (&rest e) (if (<= *debug_mode* 0) `(progn ~e)))
-(defmacro errorif (e l) `(errorcases (gotoif ,e ,l)))
-(defmacro errorifnot (e l) `(errorcases (gotoifnot ,e ,l)))
+(defmacro errorcase (&rest e) (if (> *debug_mode* 0) `(progn ~e)))
+(defmacro noterrorcase (&rest e) (if (<= *debug_mode* 0) `(progn ~e)))
+(defmacro errorif (e l) `(errorcase (gotoif ,e ,l)))
+(defmacro errorifnot (e l) `(errorcase (gotoifnot ,e ,l)))
 
 (defmacro errorif-lisp-args-len (args cnd len err)
-	`(errorcases
+	`(errorcase
 		(assign '((,args array_length)) '(:r2))
 		(gotoif '(:r2 ,cnd ,len) ,err)))
 
 (defmacro errorif-lisp-args-sig (args len l)
-	`(errorcases
+	`(errorcase
 		(call 'lisp :env_args_sig '(,args ($ sig) ,len) '(tmp))
 		(gotoif `(,tmp = 0) ,l)))
 
 (defmacro errorif-lisp-args-sig-range (args len1 len2 l)
-	`(errorcases
+	`(errorcase
 		(bind '(e_args e_sig e_num) (method-input 'lisp :env_args_sig))
 		(assign '((,args array_length)) `(,e_num))
 		(if (> ,len1 0) (gotoif `(,e_num < ,,len1) ,l))
@@ -196,12 +196,12 @@
 		(gotoif `(,tmp = 0) ,l)))
 
 (defmacro errorif-lisp-args-match (args class len l)
-	`(errorcases
+	`(errorcase
 		(call 'lisp :env_args_match '(,args (@ ,(f-path class :vtable)) ,len) '(tmp))
 		(gotoif `(,tmp = 0) ,l)))
 
 (defmacro errorif-lisp-args-type (args class len l)
-	`(errorcases
+	`(errorcase
 		(call 'lisp :env_args_type '(,args (@ ,(f-path class :vtable)) ,len) '(tmp))
 		(gotoif `(,tmp = 0) ,l)))
 
@@ -414,7 +414,7 @@
 (export-symbols
 	def-vars def-sym def-enum def-struct def-bit operator
 	new-scope get-scope push-scope pop-scope pop-scope-syms pop-scope-checked
-	errorcases noterrorcases errorif errorifnot
+	errorcase noterrorcase errorif errorifnot
 	errorif-lisp-args-len errorif-lisp-args-sig errorif-lisp-args-sig-range
 	errorif-lisp-args-match errorif-lisp-args-type
 	switch endswitch vpcase vpcasenot default nextcaseif nextcaseifnot

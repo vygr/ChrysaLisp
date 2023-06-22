@@ -64,7 +64,7 @@
 	(exit 'obj :lisp_get_field '(:r7 :r1))
 	(vp-ret)
 
-(errorcases
+(errorcase
 (vp-label 'error)
 	(jump 'lisp :repl_error '(:r0 "(get-field obj field size|0)" +error_msg_wrong_types :r1))
 	(signature '(obj num num)))
@@ -138,7 +138,7 @@
 	(exit 'obj :lisp_set_field '(:r0 :r1))
 	(vp-ret)
 
-(errorcases
+(errorcase
 (vp-label 'error)
 	(jump 'lisp :repl_error '(:r0 "(set-field obj field size|0 val)" +error_msg_wrong_types :r1))
 	(signature '(obj num num obj)))
@@ -169,7 +169,7 @@
 	(exit 'obj :lisp_hash '(:r0 :r1))
 	(vp-ret)
 
-(errorcases
+(errorcase
 (vp-label 'error)
 	(jump 'lisp :repl_error '(:r0 "(hash obj)" +error_msg_wrong_num_of_args :r1)))
 
@@ -198,7 +198,7 @@
 	(exit 'obj :lisp_type '(:r0 :r1))
 	(vp-ret)
 
-(errorcases
+(errorcase
 (vp-label 'error)
 	(jump 'lisp :repl_error '(:r0 "(type-of obj)" +error_msg_wrong_num_of_args :r1)))
 
@@ -231,7 +231,7 @@
 	(exit 'obj :lisp_weak_ref '(:r0 :r1))
 	(vp-ret)
 
-(errorcases
+(errorcase
 (vp-label 'error)
 	(jump 'lisp :repl_error '(:r0 "(weak-ref obj)" +error_msg_wrong_num_of_args :r1))
 	(signature '(obj)))
@@ -255,7 +255,7 @@
 	(list-bind-args :r1 '(:r2) '(:obj))
 	(assign '((:r0 lisp_sym_nil)) '(:r1))
 	(vpif '(:r1 /= :r2))
-	(errorcases
+	(errorcase
 		(assign `((@ ,(f-path 'num :vtable)) (:r2 obj_vtable)) '(:r3 :r1))
 		(gotoif '(:r3 /= :r1) 'error1))
 		(assign '((:r2 num_value)) '(:r1))
@@ -265,7 +265,7 @@
 	(exit 'obj :lisp_obj_ref '(:r0 :r1))
 	(vp-ret)
 
-(errorcases
+(errorcase
 (vp-label 'error1)
 	(vp-cpy-rr :r2 :r1)
 (vp-label 'error)

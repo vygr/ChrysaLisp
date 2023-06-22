@@ -138,7 +138,7 @@
 					;stack this list for scanning
 					(assign '((:rsp local_this)) '(:r0))
 					(assign '((:r0 lisp_stack)) '(:r0))
-				(errorcases
+				(errorcase
 					(assign '((:r0 array_length) (:rsp local_start)) '(:r2 :r3))
 					(vp-sub-rr :r3 :r2)
 					(vpif '(:r2 >= 2000))

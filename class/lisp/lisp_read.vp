@@ -34,7 +34,7 @@
 	(exit 'lisp :lisp_read {this, value})
 	(return)
 
-(errorcases
+(errorcase
 (vp-label 'error1)
 	(jump 'lisp :repl_error {this, "(read stream last_char)", +error_msg_wrong_types, args})
 	(signature '(stream num)))

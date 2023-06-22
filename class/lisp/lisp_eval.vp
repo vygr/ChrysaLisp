@@ -32,7 +32,7 @@
 	(exit 'lisp :lisp_eval '(:r0 :r1))
 	(vp-ret)
 
-(errorcases
+(errorcase
 (vp-label 'error)
 	(jump 'lisp :repl_error '(:r0 "(eval form [env])" +error_msg_wrong_types :r1))
 	(signature '(obj hmap)))

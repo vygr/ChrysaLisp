@@ -22,7 +22,7 @@
 	(bind '(dims elems) (method-input 'dim :create))
 	(list-bind-args :r1 `(,dims ,elems) '(:nums :array))
 
-(errorcases
+(errorcase
 	(assign `((,dims array_length)) '(:r14))
 	(gotoif '(:r14 = 0) 'error1))
 
@@ -32,7 +32,7 @@
 	(exit 'dim :lisp_dim '(:r0 :r1))
 	(vp-ret)
 
-(errorcases
+(errorcase
 (vp-label 'error1)
 	(vp-pop :r0 :r1)
 (vp-label 'error)
@@ -81,7 +81,7 @@
 		(vp-add-rr i index)
 	(loop-until `(,dims_iter_begin = ,dims_iter_end))
 
-(errorcases
+(errorcase
 	(assign `((,elems array_length)) `(,indexs_len))
 	(gotoif `(,index < 0) 'error1)
 	(gotoif `(,index >= ,indexs_len) 'error1))
@@ -92,7 +92,7 @@
 	(exit 'dim :lisp_get '(:r0 :r1))
 	(vp-ret)
 
-(errorcases
+(errorcase
 (vp-label 'error1)
 	(vp-pop :r0 :r1)
 	(jump 'lisp :repl_error '(:r0 "(dim-get nums dim)" +error_msg_not_valid_index :r1))
@@ -142,7 +142,7 @@
 		(vp-add-rr i index)
 	(loop-until `(,dims_iter_begin = ,dims_iter_end))
 
-(errorcases
+(errorcase
 	(assign `((,elems array_length)) `(,indexs_len))
 	(gotoif `(,index < 0) 'error1)
 	(gotoif `(,index >= ,indexs_len) 'error1))
@@ -166,7 +166,7 @@
 	(exit 'dim :lisp_set '(:r0 :r1))
 	(vp-ret)
 
-(errorcases
+(errorcase
 (vp-label 'error1)
 	(vp-pop :r0 :r1)
 	(jump 'lisp :repl_error '(:r0 "(dim-set nums dim form)" +error_msg_not_valid_index :r1))

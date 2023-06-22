@@ -49,7 +49,7 @@
 	(exit 'gui :lisp_init '(:r0 :r1))
 	(vp-ret)
 
-(errorcases
+(errorcase
 (vp-label 'error)
 	(jump 'lisp :repl_error '(:r0 "(gui-init screen)" +error_msg_wrong_types :r1))
 	(signature '(view)))
@@ -120,7 +120,7 @@
 	(assign '((:rsp local2_old_stack)) '(:rsp))
 	(vp-ret)
 
-(errorcases
+(errorcase
 (vp-label 'error)
 	(jump 'lisp :repl_error '(:r0 "(gui-deinit)" +error_msg_wrong_types :r1)))
 
@@ -150,7 +150,7 @@
 	(exit 'gui :lisp_update '(:r0 :r1))
 	(vp-ret)
 
-(errorcases
+(errorcase
 (vp-label 'error)
 	(jump 'lisp :repl_error '(:r0 "(gui-update mx my flags)" +error_msg_wrong_types :r1))
 	(signature '(num num num)))
@@ -211,7 +211,7 @@
 	(assign '((:rsp local1_old_stack)) '(:rsp))
 	(vp-ret)
 
-(errorcases
+(errorcase
 (vp-label 'error)
 	(jump 'lisp :repl_error '(:r0 "(gui-event)" +error_msg_wrong_types :r1)))
 
@@ -260,7 +260,7 @@
 	(exit 'gui :lisp_info '(:r0 :r1))
 	(vp-ret)
 
-(errorcases
+(errorcase
 (vp-label 'error)
 	(jump 'lisp :repl_error '(:r0 "(gui-info)" +error_msg_wrong_types :r1)))
 

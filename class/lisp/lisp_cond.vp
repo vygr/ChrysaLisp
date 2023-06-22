@@ -28,7 +28,7 @@
 		(assign (list iter_begin) {iter_begin})
 		(vp-cpy-ir iter_begin 0 value)
 
-	(errorcases
+	(errorcase
 		(assign `((,value obj_vtable) (@ ,(f-path 'list :vtable))) (list vtable tmp))
 		(gotoif (list vtable '/= tmp) 'error2)
 		(assign `((,value array_length)) `(,tmp))
@@ -48,7 +48,7 @@
 			(assign (list iter_begin iter_end) {iter_begin, iter_end})
 			(loop-start)
 
-			(errorcases
+			(errorcase
 				(assign `((,value obj_vtable) (@ ,(f-path 'error :vtable))) (list vtable tmp))
 				(gotoif (list vtable '= tmp) 'funcexit))
 
@@ -73,7 +73,7 @@
 	(exit 'lisp :lisp_cond (list this value))
 	(return)
 
-(errorcases
+(errorcase
 (vp-label 'error1)
 	(jump 'lisp :repl_error {this, "(cond [(tst [body])] ...)", +error_msg_wrong_num_of_args, args})
 (vp-label 'error2)

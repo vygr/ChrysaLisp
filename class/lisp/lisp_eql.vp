@@ -18,7 +18,7 @@
 
 	(entry 'lisp :lisp_eql `(,this ,args))
 
-(errorcases
+(errorcase
 	(assign `((,args array_length)) '(:r2))
 	(gotoif '(:r2 /= 2) 'error))
 
@@ -59,7 +59,7 @@
 	(exit 'lisp :lisp_eql `(,this :r1))
 	(vp-ret)
 
-(errorcases
+(errorcase
 (vp-label 'error)
 	(jump 'lisp :repl_error (list this "(eql form form)" +error_msg_wrong_num_of_args args)))
 

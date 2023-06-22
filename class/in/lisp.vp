@@ -23,7 +23,7 @@
 	(exit 'in :lisp_create '(:r0 :r1))
 	(vp-ret)
 
-(errorcases
+(errorcase
 (vp-label 'error)
 	(jump 'lisp :repl_error '(:r0 "(in-stream)" +error_msg_wrong_types :r1)))
 
@@ -53,7 +53,7 @@
 	(exit 'in :lisp_next_msg '(:r0 :r1))
 	(vp-ret)
 
-(errorcases
+(errorcase
 (vp-label 'error)
 	(jump 'lisp :repl_error '(:r0 "(in-next-msg in)" +error_msg_wrong_types :r1))
 	(signature '(in)))

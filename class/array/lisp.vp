@@ -36,7 +36,7 @@
 
 	(to-array 'array)
 
-(errorcases
+(errorcase
 (vp-label 'error)
 	(jump 'lisp :repl_error '(:r0 "(array [num ...])" +error_msg_wrong_types :r1)))
 
@@ -54,7 +54,7 @@
 
 	(to-array 'nums)
 
-(errorcases
+(errorcase
 (vp-label 'error)
 	(jump 'lisp :repl_error '(:r0 "(nums [num ...])" +error_msg_wrong_types :r1)))
 
@@ -72,7 +72,7 @@
 
 	(to-array 'fixeds)
 
-(errorcases
+(errorcase
 (vp-label 'error)
 	(jump 'lisp :repl_error '(:r0 "(fixeds [num ...])" +error_msg_wrong_types :r1)))
 
@@ -90,7 +90,7 @@
 
 	(to-array 'reals)
 
-(errorcases
+(errorcase
 (vp-label 'error)
 	(jump 'lisp :repl_error '(:r0 "(reals [num ...])" +error_msg_wrong_types :r1)))
 
@@ -108,7 +108,7 @@
 
 	(to-array 'path)
 
-(errorcases
+(errorcase
 (vp-label 'error)
 	(jump 'lisp :repl_error '(:r0 "(path [num ...])" +error_msg_wrong_types :r1)))
 
@@ -147,7 +147,7 @@
 	(vp-free local_size)
 	(vp-ret)
 
-(errorcases
+(errorcase
 (vp-label 'error)
 	(jump 'lisp :repl_error '(:r0  "(clear array ...)" +error_msg_wrong_types :r1)))
 
@@ -182,7 +182,7 @@
 	(exit 'array :lisp_pop '(:r0 :r1))
 	(vp-ret)
 
-(errorcases
+(errorcase
 (vp-label 'error)
 	(jump 'lisp :repl_error '(:r0 "(pop array)" +error_msg_wrong_types :r1))
 	(signature '(array)))
@@ -209,7 +209,7 @@
 	(vpif '(:r1 = :r2))
 		(d-call 'list :append '(:r0 :r7 1 :r3) '(:r0))
 	(else)
-	(errorcases
+	(errorcase
 		(call 'obj :inst_of `(:r0 (@ ,(f-path 'array :vtable))) '(:r0 :r1))
 		(gotoif '(:r1 = 0) 'error))
 		(assign '((:r0 array_length)) '(:r8))
@@ -226,7 +226,7 @@
 	(exit 'array :lisp_push '(:r6 :r0))
 	(vp-ret)
 
-(errorcases
+(errorcase
 (vp-label 'error)
 	(jump 'lisp :repl_error '(:r6 "(push array form ...)" +error_msg_wrong_types :r7)))
 
@@ -246,13 +246,13 @@
 
 	(entry 'array :lisp_cap `(,this ,args))
 
-(errorcases
+(errorcase
 	(assign `((,args array_length)) `(,argc))
 	(gotoif (list argc '< 2) 'error))
 	(class/array/get_both args iter_begin iter_end)
 	(assign `((,iter_begin 0)) `(,args))
 	(vp-add-cr +ptr_size iter_begin)
-(errorcases
+(errorcase
 	(f-bind 'num :vtable obj)
 	(assign `((,args obj_vtable)) `(,res))
 	(gotoif (list obj '/= res) 'error))
@@ -260,7 +260,7 @@
 	(loop-start)
 		(assign `((,iter_begin 0)) `(,obj))
 		(vp-add-cr +ptr_size iter_begin)
-	(errorcases
+	(errorcase
 		(call 'obj :inst_of `(,obj (@ ,(f-path 'array :vtable))) `(,obj ,res))
 		(gotoif (list res '= 0) 'error))
 		(call 'array :set_capacity `(,obj ,argc) `(,obj))
@@ -270,7 +270,7 @@
 	(exit 'array :lisp_cap `(,this ,obj))
 	(vp-ret)
 
-(errorcases
+(errorcase
 (vp-label 'error)
 	(jump 'lisp :repl_error `(,this "(cap len array ...)" +error_msg_wrong_types ,args)))
 
@@ -299,7 +299,7 @@
 		(vp-add-cr 1 i)
 	(endif)
 
-(errorcases
+(errorcase
 	(gotoif `(,i < 0) 'error2)
 	(gotoif `(,i >= :r14) 'error2))
 
@@ -321,7 +321,7 @@
 	(exit 'array :lisp_elemset '(:r0 :r1))
 	(vp-ret)
 
-(errorcases
+(errorcase
 (vp-label 'error1)
 	(jump 'lisp :repl_error '(:r0 "(elem-set index array val)" +error_msg_wrong_types :r1))
 (vp-label 'error2)

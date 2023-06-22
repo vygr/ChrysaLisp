@@ -25,7 +25,7 @@
 	(exit 'fixeds :lisp_frac '(:r0 :r1))
 	(vp-ret)
 
-(errorcases
+(errorcase
 (vp-label 'error)
 	(jump 'lisp :repl_error '(:r0 "(fixeds-frac fixeds [fixeds])" +error_msg_wrong_types :r3)))
 
@@ -53,7 +53,7 @@
 	(exit 'fixeds :lisp_floor '(:r0 :r1))
 	(vp-ret)
 
-(errorcases
+(errorcase
 (vp-label 'error)
 	(jump 'lisp :repl_error '(:r0 "(fixeds-floor fixeds [fixeds])" +error_msg_wrong_types :r3)))
 

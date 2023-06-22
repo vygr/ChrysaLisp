@@ -114,7 +114,7 @@
 	(vp-free local_size)
 	(vp-ret)
 
-(errorcases
+(errorcase
 (vp-label 'error)
 	(jump 'lisp :repl_error '(:r0 "(quasi-quote form)" +error_msg_wrong_num_of_args :r1)))
 

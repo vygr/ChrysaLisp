@@ -33,7 +33,7 @@
 	(exit 'font :lisp_create '(:r0 :r1))
 	(vp-ret)
 
-(errorcases
+(errorcase
 (vp-label 'error)
 	(jump 'lisp :repl_error '(:r0 "(create-font name pixels)" +error_msg_wrong_types :r1))
 	(signature '(str num)))
@@ -72,7 +72,7 @@
 	(vp-free local_size)
 	(vp-ret)
 
-(errorcases
+(errorcase
 (vp-label 'error)
 	(jump 'lisp :repl_error '(:r0 "(font-glyph-paths font str)" +error_msg_wrong_types :r1))
 	(signature '(font str)))
@@ -105,7 +105,7 @@
 	(exit 'font :lisp_info '(:r0 :r1))
 	(vp-ret)
 
-(errorcases
+(errorcase
 (vp-label 'error)
 	(jump 'lisp :repl_error '(:r0 "(font-info font)" +error_msg_wrong_types :r1))
 	(signature '(font)))
@@ -148,7 +148,7 @@
 	(vp-free local_size)
 	(vp-ret)
 
-(errorcases
+(errorcase
 (vp-label 'error)
 	(jump 'lisp :repl_error '(:r0 "(font-glyph-bounds font str)" +error_msg_wrong_types :r1))
 	(signature '(font str)))
@@ -178,7 +178,7 @@
 	(exit 'font :lisp_glyph_ranges '(:r0 :r1))
 	(vp-ret)
 
-(errorcases
+(errorcase
 (vp-label 'error)
 	(jump 'lisp :repl_error '(:r0 "(font-glyph-ranges font)" +error_msg_wrong_types :r1))
 	(signature '(font)))
@@ -212,7 +212,7 @@
 	(exit 'font :lisp_texture '(:r0 :r1))
 	(vp-ret)
 
-(errorcases
+(errorcase
 (vp-label 'error)
 	(jump 'lisp :repl_error '(:r0 "(font-sym-texture font sym)" +error_msg_wrong_types :r1))
 	(signature '(font sym)))

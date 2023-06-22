@@ -35,7 +35,7 @@
 	(exit 'str :lisp_split '(:r0 :r1))
 	(vp-ret)
 
-(errorcases
+(errorcase
 (vp-label 'error1)
 	(jump 'lisp :repl_error '(:r0 "(split str chars)" +error_msg_wrong_types :r1))
 	(signature '(str str)))
@@ -80,7 +80,7 @@
 		(vp-add-cr 1 index)
 	(endif)
 
-(errorcases
+(errorcase
 	(gotoif (list index '< 0) 'error1)
 	(vp-sub-rr width len)
 	(gotoif (list index '> len) 'error1))
@@ -96,7 +96,7 @@
 	(exit 'str :lisp_code (list this value))
 	(vp-ret)
 
-(errorcases
+(errorcase
 (vp-label 'error1)
 	(jump 'lisp :repl_error (list this "(code str [width index])" +error_msg_wrong_types args))
 	(signature '(str num num)))
@@ -119,7 +119,7 @@
 
 	(assign `((,args array_length)) `(,len))
 
-(errorcases
+(errorcase
 	(gotoif (list len '> 2) 'error1)
 	(call 'lisp :env_args_type `(,args (@ ,(f-path 'num :vtable)) 1) '(tmp))
 	(gotoif `(,tmp = 0) 'error1))
@@ -138,7 +138,7 @@
 	(exit 'str :lisp_char (list this value))
 	(vp-ret)
 
-(errorcases
+(errorcase
 (vp-label 'error1)
 	(jump 'lisp :repl_error (list this "(char num [width])" +error_msg_wrong_types args)))
 
@@ -167,7 +167,7 @@
 	(exit 'str :lisp_cmp '(:r13 :r0))
 	(vp-ret)
 
-(errorcases
+(errorcase
 (vp-label 'error)
 	(jump 'lisp :repl_error '(:r0 "(cmp str str)" +error_msg_wrong_types :r1))
 	(signature '(str str)))
@@ -202,7 +202,7 @@
 	(exit 'str :lisp_save '(:r12 :r11))
 	(vp-ret)
 
-(errorcases
+(errorcase
 (vp-label 'error1)
 	(jump 'lisp :repl_error '(:r0 "(save str path)" +error_msg_wrong_types :r1))
 (vp-label 'error2)
@@ -236,7 +236,7 @@
 	(exit 'str :lisp_load '(:r13 :r0))
 	(vp-ret)
 
-(errorcases
+(errorcase
 (vp-label 'error)
 	(jump 'lisp :repl_error '(:r0 "(load path)" +error_msg_wrong_types :r1))
 	(signature '(str)))
@@ -317,7 +317,7 @@
 	(exit 'str :lisp_create '(:r0 :r1))
 	(vp-ret)
 
-(errorcases
+(errorcase
 (vp-label 'error)
 	(jump 'lisp :repl_error '(:r0 "(str-alloc size)" +error_msg_wrong_types :r1))
 	(signature '(num)))
@@ -399,7 +399,7 @@
 	(loop-until `(,iter_begin = ,iter_end))
 	(vp-ret)
 
-(errorcases
+(errorcase
 (vp-label 'error)
 	(jump 'lisp :repl_error '(:r0 "(expand str tab_width)" +error_msg_wrong_types :r1))
 	(signature '(str num)))
@@ -435,7 +435,7 @@
 	(exit 'str :lisp_to_num '(:r0 :r1))
 	(vp-ret)
 
-(errorcases
+(errorcase
 (vp-label 'error)
 	(jump 'lisp :repl_error '(:r0 "(str-to-num str)" +error_msg_wrong_types :r1))
 	(signature '(str)))

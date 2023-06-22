@@ -114,7 +114,7 @@
 	(vp-pop :r3 :r4 :r5 :r0)
 	(goto 'got_cell)
 
-(errorcases
+(errorcase
 (vp-label 'error)
 	(abort))
 

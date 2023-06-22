@@ -14,7 +14,7 @@
 	(entry 'lisp :lisp_if '(:r0 :r1))
 
 	(assign '((:r1 array_length)) '(:r2))
-(errorcases
+(errorcase
 	(gotoif '(:r2 < 3) 'error)
 	(gotoif '(:r2 > 4) 'error))
 
@@ -22,7 +22,7 @@
 	(vp-push :r0 :r1 :r2)
 
 	(call 'lisp :repl_eval '(:r0 (:r1 +ptr_size)) '(:r0 :r1))
-(errorcases
+(errorcase
 	(assign `((:r1 obj_vtable) (@ ,(f-path 'error :vtable))) '(:r2 :r3))
 	(gotoif '(:r2 = :r3) 'error1))
 
@@ -48,7 +48,7 @@
 	(exit 'lisp :lisp_if '(:r0 :r1))
 	(vp-ret)
 
-(errorcases
+(errorcase
 (vp-label 'error)
 	(jump 'lisp :repl_error '(:r0 "(if tst form [else_form])" +error_msg_wrong_num_of_args :r1)))
 

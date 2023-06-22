@@ -29,7 +29,7 @@
 	(exit 'vdu :lisp_create '(:r0 :r1))
 	(vp-ret)
 
-(errorcases
+(errorcase
 (vp-label 'error)
 	(jump 'lisp :repl_error '(:r0 "(create-vdu)" +error_msg_wrong_num_of_args :r1)))
 
@@ -88,7 +88,7 @@
 					(loop-until '(:r0 = :r2))
 				(endif)
 			(else)
-			(errorcases
+			(errorcase
 				(vpif (cat {line->obj_vtable /= @} (f-path 'array :vtable)))
 					(gotoif (cat {line->obj_vtable /= @} (f-path 'nums :vtable)) 'exit)
 				(endif))
@@ -125,7 +125,7 @@
 	(pop-scope)
 	(return)
 
-(errorcases
+(errorcase
 (vp-label 'error)
 	(jump 'lisp :repl_error '(:r0 "(vdu-load vdu lines ox oy cx cy)" +error_msg_wrong_types :r1))
 	(signature '(vdu list num num num num)))
@@ -180,7 +180,7 @@
 	(pop-scope)
 	(return)
 
-(errorcases
+(errorcase
 (vp-label 'error)
 	(jump 'lisp :repl_error '(:r0 "(vdu-configure vdu)" +error_msg_wrong_types :r1))
 	(signature '(vdu)))

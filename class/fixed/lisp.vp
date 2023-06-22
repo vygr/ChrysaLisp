@@ -26,7 +26,7 @@
 
 	(mathop :sin)
 
-(errorcases
+(errorcase
 (vp-label 'error)
 	(jump 'lisp :repl_error '(:r0 "(sin angle)" +error_msg_wrong_types :r1))
 	(signature '(fixed)))
@@ -45,7 +45,7 @@
 
 	(mathop :cos)
 
-(errorcases
+(errorcase
 (vp-label 'error)
 	(jump 'lisp :repl_error '(:r0 "(cos angle)" +error_msg_wrong_types :r1))
 	(signature '(fixed)))
@@ -64,7 +64,7 @@
 
 	(mathop :frac)
 
-(errorcases
+(errorcase
 (vp-label 'error)
 	(jump 'lisp :repl_error '(:r0 "(frac num)" +error_msg_wrong_types :r1))
 	(signature '(fixed)))
@@ -83,7 +83,7 @@
 
 	(mathop :floor)
 
-(errorcases
+(errorcase
 (vp-label 'error)
 	(jump 'lisp :repl_error '(:r0 "(floor num)" +error_msg_wrong_types :r1))
 	(signature '(fixed)))
@@ -108,7 +108,7 @@
 	(assign '((:r1 array_begin)) '(:r0))
 	(assign '((:r0 0)) '(:r0))
 
-(errorcases
+(errorcase
 	(assign '((:r0 num_value)) '(:r2))
 	(gotoif '(:r2 = 0) 'error1))
 
@@ -118,7 +118,7 @@
 	(exit 'fixed :lisp_recip '(:r0 :r1))
 	(vp-ret)
 
-(errorcases
+(errorcase
 (vp-label 'error1)
 	(vp-pop :r0)
 (vp-label 'error)

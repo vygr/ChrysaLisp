@@ -36,14 +36,14 @@
 		(break)
 	(vpcase '(:r2 = :r4))
 		;apply function, don't eval args if special form
-	(errorcases
+	(errorcase
 		(assign '((:r1 array_length)) '(:r2))
 		(gotoif '(:r2 = 0) 'error1))
 		(assign '(:r0 :r1) '((:rsp local_this) (:rsp local_form)))
 		(array-bind-args :r1 '(:r1))
 		(call 'lisp :repl_eval '(:r0 :r1) '(:r0 :r1))
 		(assign '((:r1 obj_vtable)) '(:r2))
-	(errorcases
+	(errorcase
 		(f-bind 'error :vtable :r3)
 		(breakif '(:r2 = :r3)))
 		(assign '(:r1) '((:rsp local_func)))
@@ -58,7 +58,7 @@
 			(assign '((:rsp local_form)) '(:r0))
 			(d-call 'list :slice '(:r0 1 (:r0 array_length)) '(_ (:rsp local_args)))
 			(call 'lisp :repl_eval_list '((:rsp local_this) (:rsp local_args)) '(_ :r1))
-		(errorcases
+		(errorcase
 			(assign '((:r1 obj_vtable)) '(:r2))
 			(f-bind 'error :vtable :r3)
 			(assign '(:r1) '((:rsp local_value)))
@@ -80,7 +80,7 @@
 	(vp-free local_size)
 	(vp-ret)
 
-(errorcases
+(errorcase
 (vp-label 'error1)
 	(vp-free local_size)
 	(jump 'lisp :repl_error '(:r0 "(eval form [env])" +error_msg_not_a_function :r1))

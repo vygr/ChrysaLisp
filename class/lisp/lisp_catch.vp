@@ -16,14 +16,14 @@
 	(def-vars
 		(ptr this args value str_args str_value)
 		(pptr iter_begin))
-(errorcases
+(errorcase
 	(def-vars
 		(uint length)))
 
 	(push-scope)
 	(entry 'lisp :lisp_catch {this, args})
 
-(errorcases
+(errorcase
 	(d-call 'list :get_length {args} {_, length})
 	(gotoif {length /= 3} 'error1))
 
@@ -51,7 +51,7 @@
 	(exit 'lisp :lisp_catch {this, value})
 	(return)
 
-(errorcases
+(errorcase
 (vp-label 'error1)
 	(jump 'lisp :repl_error {this, "(catch form eform)", +error_msg_wrong_num_of_args, args}))
 

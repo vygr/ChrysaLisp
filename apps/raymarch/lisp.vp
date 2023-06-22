@@ -30,7 +30,7 @@
 
 	(array-bind-args :r1 '(:r2))
 
-(errorcases
+(errorcase
 	(assign '((:r2 array_length)) '(:r1))
 	(gotoif '(:r1 /= 3) 'error))
 
@@ -45,7 +45,7 @@
 	(exit '(:r0 :r1))
 	(vp-ret)
 
-(errorcases
+(errorcase
 (vp-label 'error)
 	(jump 'lisp :repl_error '(:r0 "(scene nums)" +error_msg_wrong_types :r1))
 	(signature '(nums)))
@@ -68,7 +68,7 @@
 
 	(array-bind-args :r14 '(:r0 :r1 :r2 :r3 :r4 :r5))
 
-(errorcases
+(errorcase
 	(assign '((:r0 array_length)) '(:r6))
 	(gotoif '(:r6 /= 3) 'error)
 	(assign '((:r1 array_length)) '(:r6))
@@ -102,7 +102,7 @@
 	(exit '(:r0 :r1))
 	(vp-ret)
 
-(errorcases
+(errorcase
 (vp-label 'error)
 	(jump 'lisp :repl_error '(:r13 "(ray-march nums nums num num num num)" +error_msg_wrong_types :r14))
 	(signature '(nums nums num num num num)))
@@ -151,7 +151,7 @@
 	(pop-scope)
 	(return)
 
-(errorcases
+(errorcase
 (vp-label 'error)
 	(jump 'lisp :repl_error '(:r0 "(tile canvas data)" +error_msg_wrong_types :r1))
 	(signature '(canvas str)))

@@ -12,7 +12,7 @@
 	(vp-alloc local_size)
 	(entry 'hmap _ '(:r0 :r1))
 	(assign '(:r0 :r1) '((:rsp local_this) (:rsp local_args)))
-(errorcases
+(errorcase
 	(assign '((:r1 array_length)) '(:r2))
 	(gotoif '(:r2 < 3) 'error1)
 	(vp-and-cr 1 :r2)
@@ -21,13 +21,13 @@
 	(array-get-args :r3 '(:r0))
 	(vp-add-cr +ptr_size :r3)
 	(assign '(:r0 :r2) '((:rsp local_env) (:rsp local_iter_end)))
-(errorcases
+(errorcase
 	(call 'obj :inst_of `(:r0 (@ ,(f-path 'hmap :vtable))) '(:r0 :r1))
 	(gotoif '(:r1 = 0) 'error2))
 	(loop-start)
 		(assign '(:r3) '((:rsp local_iter_begin)))
 		(array-get-args :r3 '(:r1 :r2))
-	(errorcases
+	(errorcase
 		(assign '((:r1 obj_vtable)) '(:r3))
 		(f-bind 'sym :vtable :r4)
 		(gotoif '(:r3 /= :r4) 'error3))
@@ -56,7 +56,7 @@
 		'(progn
 			(call 'hmap :insert '(:r0 :r1 :r2) '(:r0 _ _))))
 
-(errorcases
+(errorcase
 (vp-label 'error1)
 	(assign '(+error_msg_wrong_num_of_args) '(:r2))
 	(goto 'error)
@@ -84,13 +84,13 @@
 
 	(defset :lisp_set
 		'(progn
-		(errorcases
+		(errorcase
 			(assign '((:r1 str_data ub)) '(:r3))
 			(gotoif '(:r3 = +char_plus) 'error5))
 			(call 'hmap :set '(:r0 :r1 :r2) '(:r0 :r1))
 			(errorif '(:r1 = 0) 'error4)))
 
-(errorcases
+(errorcase
 (vp-label 'error1)
 	(assign '(+error_msg_wrong_num_of_args) '(:r2))
 	(goto 'error)
@@ -119,7 +119,7 @@
 	(vp-alloc local_size)
 	(entry 'hmap _ '(:r0 :r1))
 	(assign '(:r0 :r1) '((:rsp local_this) (:rsp local_args)))
-(errorcases
+(errorcase
 	(assign '((:r1 array_length)) '(:r2))
 	(gotoif '(:r2 < 3) 'error1)
 	(vp-and-cr 1 :r2)
@@ -133,13 +133,13 @@
 		(assign '((:rsp local_iter_begin)) '(:r1))
 		(call 'lisp :repl_eval '((:rsp local_this) (:r1 +ptr_size)) '(:r0 :r1))
 		(assign '(:r1) '((:rsp local_val)))
-	(errorcases
+	(errorcase
 		(assign '((:r1 obj_vtable)) '(:r3))
 		(f-bind 'error :vtable :r4)
 		(breakif '(:r3 = :r4)))
 		(assign '(:r1 (:rsp local_iter_begin)) '(:r2 :r1))
 		(assign '((:r1 0)) '(:r1))
-	(errorcases
+	(errorcase
 		(assign '((:r1 obj_vtable)) '(:r3))
 		(f-bind 'sym :vtable :r4)
 		(gotoif '(:r3 /= :r4) 'error2))
@@ -167,7 +167,7 @@
 		'(progn
 			(call 'hmap :insert '(:r0 :r1 :r2))))
 
-(errorcases
+(errorcase
 (vp-label 'error1)
 	(assign '(+error_msg_wrong_num_of_args) '(:r2))
 	(goto 'error)
@@ -192,13 +192,13 @@
 
 	(defsetq :lisp_setq
 		'(progn
-		(errorcases
+		(errorcase
 			(assign '((:r1 str_data ub)) '(:r3))
 			(gotoif '(:r3 = +char_plus) 'error4))
 			(call 'hmap :set '(:r0 :r1 :r2) '(_ :r1))
 			(errorif '(:r1 = 0) 'error3)))
 
-(errorcases
+(errorcase
 (vp-label 'error1)
 	(assign '(+error_msg_wrong_num_of_args) '(:r2))
 	(goto 'error)
@@ -251,7 +251,7 @@
 	(exit 'hmap :lisp_get '(:r0 :r1))
 	(vp-ret)
 
-(errorcases
+(errorcase
 (vp-label 'error)
 	(jump 'lisp :repl_error '(:r0 "(get var [env])" +error_msg_wrong_types :r1))
 	(signature '(sym hmap)))
@@ -292,7 +292,7 @@
 	(exit 'hmap :lisp_defx '(:r0 :r1))
 	(vp-ret)
 
-(errorcases
+(errorcase
 (vp-label 'error)
 	(jump 'lisp :repl_error '(:r0 "(def? var [env])" +error_msg_wrong_types :r1))
 	(signature '(sym hmap)))
@@ -315,7 +315,7 @@
 	(errorif '(:r2 > 1) 'error)
 	(vpif '(:r2 /= 0))
 		(array-bind-args :r1 '(:r2))
-	(errorcases
+	(errorcase
 		(assign '((:r2 obj_vtable)) '(:r3))
 		(f-bind 'num :vtable :r4)
 		(gotoif '(:r3 /= :r4) 'error))
@@ -332,7 +332,7 @@
 	(exit 'hmap :lisp_env '(:r0 :r1))
 	(vp-ret)
 
-(errorcases
+(errorcase
 (vp-label 'error)
 	(jump 'lisp :repl_error '(:r0 "(env [num])" +error_msg_wrong_types :r1)))
 
@@ -360,7 +360,7 @@
 	(exit 'hmap :lisp_list '(:r0 :r1))
 	(vp-ret)
 
-(errorcases
+(errorcase
 (vp-label 'error)
 	(jump 'lisp :repl_error '(:r0 "(tolist env)" +error_msg_not_an_environment :r1))
 	(signature '(hmap)))
@@ -391,12 +391,12 @@
 	(array-get-args :r3 '(:r0))
 	(vp-add-cr +ptr_size :r3)
 	(assign '(:r0 :r2) '((:rsp local_env) (:rsp local_iter_end)))
-(errorcases
+(errorcase
 	(call 'obj :inst_of `(:r0 (@ ,(f-path 'hmap :vtable))) '(:r0 :r1))
 	(gotoif '(:r1 = 0) 'error2))
 	(loop-start)
 		(assign '((:r3 0) :r3) '(:r1 (:rsp local_iter_begin)))
-	(errorcases
+	(errorcase
 		(assign '((:r1 obj_vtable)) '(:r3))
 		(f-bind 'sym :vtable :r4)
 		(gotoif '(:r3 /= :r4) 'error3))
@@ -414,7 +414,7 @@
 	(vp-free local_size)
 	(vp-ret)
 
-(errorcases
+(errorcase
 (vp-label 'error1)
 	(assign '(+error_msg_wrong_num_of_args) '(:r2))
 	(goto 'error)
@@ -459,7 +459,7 @@
 	(exit 'hmap :lisp_parent '(:r0 :r1))
 	(vp-ret)
 
-(errorcases
+(errorcase
 (vp-label 'error)
 	(jump 'lisp :repl_error '(:r0 "(penv [env])" +error_msg_wrong_types :r1))
 	(signature '(hmap)))
@@ -497,7 +497,7 @@
 	(exit 'hmap :lisp_resize `(,this ,args))
 	(vp-ret)
 
-(errorcases
+(errorcase
 (vp-label 'error1)
 	(vp-pop this args)
 (vp-label 'error)

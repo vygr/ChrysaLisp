@@ -26,7 +26,7 @@
 	(defq in (method-input 'path :transform))
 	(list-bind-args :r1 (array-map-args in '(2 1 0))
 		'(:fixeds :path :path))
-	(errorcases
+	(errorcase
 		(assign `((,(elem-get -2 in) array_length)) '(:r14))
 		(gotoif '(:r14 < 6) 'error1))
 	(call 'path :transform in '(:r0))
@@ -36,7 +36,7 @@
 	(exit 'path :lisp_transform '(:r0 :r1))
 	(vp-ret)
 
-(errorcases
+(errorcase
 (vp-label 'error1)
 	(vp-pop :r0 :r1)
 (vp-label 'error)
@@ -71,7 +71,7 @@
 	(exit 'path :lisp_simplify '(:r0 :r1))
 	(vp-ret)
 
-(errorcases
+(errorcase
 (vp-label 'error)
 	(jump 'lisp :repl_error '(:r0 "(path-simplify tol src dst)" +error_msg_wrong_types :r1))
 	(signature '(fixed path path)))
@@ -102,7 +102,7 @@
 	(exit 'path :lisp_filter '(:r0 :r1))
 	(vp-ret)
 
-(errorcases
+(errorcase
 (vp-label 'error)
 	(jump 'lisp :repl_error '(:r0 "(path-filter tol src dst)" +error_msg_wrong_types :r1))
 	(signature '(fixed path path)))
@@ -136,7 +136,7 @@
 	(exit 'path :lisp_gen_quadratic '(:r0 :r1))
 	(vp-ret)
 
-(errorcases
+(errorcase
 (vp-label 'error)
 	(jump 'lisp :repl_error '(:r0 "(path-gen-quadratic p1x p1y p2x p2y p3x p3y tol dst) -> dst" +error_msg_wrong_types :r1))
 	(signature '(fixed fixed fixed fixed fixed fixed fixed path)))
@@ -170,7 +170,7 @@
 	(exit 'path :lisp_gen_cubic '(:r0 :r1))
 	(vp-ret)
 
-(errorcases
+(errorcase
 (vp-label 'error)
 	(jump 'lisp :repl_error '(:r0 "(path-gen-cubic p1x p1y p2x p2y p3x p3y p4x p4y tol dst) -> dst" +error_msg_wrong_types :r1))
 	(signature '(fixed fixed fixed fixed fixed fixed fixed fixed fixed path)))
@@ -204,7 +204,7 @@
 	(exit 'path :lisp_gen_arc '(:r0 :r1))
 	(vp-ret)
 
-(errorcases
+(errorcase
 (vp-label 'error)
 	(jump 'lisp :repl_error '(:r0 "(path-gen-arc cx cy start end radius tol dst) -> dst" +error_msg_wrong_types :r1))
 	(signature '(fixed fixed fixed fixed fixed fixed path)))
@@ -236,7 +236,7 @@
 	(exit 'path :lisp_stroke_polyline '(:r0 :r1))
 	(vp-ret)
 
-(errorcases
+(errorcase
 (vp-label 'error)
 	(jump 'lisp :repl_error '(:r0 "(path-stroke-polyline path radius tol join cap1 cap2) -> path" +error_msg_wrong_types :r1))
 	(signature '(path fixed fixed num num num)))
@@ -270,7 +270,7 @@
 	(exit 'path :lisp_stroke_polygon '(:r0 :r1))
 	(vp-ret)
 
-(errorcases
+(errorcase
 (vp-label 'error)
 	(jump 'lisp :repl_error '(:r0 "(path-stroke-polygon path radius tol join) -> paths" +error_msg_wrong_types :r1))
 	(signature '(path fixed fixed num)))
@@ -327,7 +327,7 @@
 				(vp-cpy-cr 1 state)
 				(break 'next_char)
 			(endif)
-		(errorcases
+		(errorcase
 			(assign `(,c) `(,ch))
 			(assign {command_chars} `(,st))
 			(d-call 'str :find `(,st ,ch) '(_ _ idx))
@@ -374,10 +374,10 @@
 	(exit 'path :lisp_svg {this, commands})
 	(return)
 
-(noterrorcases
+(noterrorcase
 	(pop-scope-syms))
 
-(errorcases
+(errorcase
 (vp-label 'error1)
 	(call 'str :destroy {commands})
 	(call 'str :destroy {command_chars})

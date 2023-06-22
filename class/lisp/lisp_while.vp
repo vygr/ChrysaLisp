@@ -33,7 +33,7 @@
 		(assign '((:r0 lisp_sym_nil)) '(:r2))
 		(breakif '(:r1 = :r2))
 		(loop-start)
-		(errorcases
+		(errorcase
 			(f-bind 'error :vtable :r2)
 			(assign '((:r1 obj_vtable)) '(:r3))
 			(breakif '(:r2 = :r3)))
@@ -50,7 +50,7 @@
 	(vp-free local_size)
 	(vp-ret)
 
-(errorcases
+(errorcase
 (vp-label 'error)
 	(jump 'lisp :repl_error '(:r0 "(while tst body)" +error_msg_wrong_num_of_args :r1)))
 

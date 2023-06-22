@@ -33,7 +33,7 @@
 	(exit 'lisp :lisp_ffi {this, value})
 	(return)
 
-(errorcases
+(errorcase
 (vp-label 'error)
 	(jump 'lisp :repl_error {this, "(ffi sym path flags)", +error_msg_wrong_types, args})
 	(signature '(obj sym str num)))

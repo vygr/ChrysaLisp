@@ -100,7 +100,7 @@
 	(vp-ret)
 
 (vp-label 'msgs)
-(errorcases
+(errorcase
 	(each (lambda (_) (vp-cstr _)) *error_msgs*))
 (vp-label 'unknown)
 	(vp-cstr "unknown_error !")

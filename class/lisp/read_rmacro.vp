@@ -24,7 +24,7 @@
 	(call 'stream :read_char '(:r1) '(:r0 :r1))
 	(call 'lisp :read '((:rsp local_this) :r0 :r1) '(:r0 :r1 :r2))
 	(switch)
-	(errorcases
+	(errorcase
 		(assign `((:r1 obj_vtable) (@ ,(f-path 'error :vtable))) '(:r3 :r4))
 		(breakif '(:r3 = :r4)))
 		(assign '(:r1 :r2) '(:r12 :r13))

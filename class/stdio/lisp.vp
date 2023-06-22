@@ -43,7 +43,7 @@
 	(vp-free local_size)
 	(vp-ret)
 
-(errorcases
+(errorcase
 (vp-label 'error)
 	(jump 'lisp :repl_error '(:r0 "(create-stdio)" +error_msg_wrong_types :r1)))
 

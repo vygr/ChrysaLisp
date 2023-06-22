@@ -107,7 +107,7 @@
 		(vp-cpy-ir :r1 0 :r5)
 		(vp-add-cr +ptr_size :r1)
 		(assign '((:r5 num_value)) '(:r3))
-	(errorcases
+	(errorcase
 		(gotoif '(:r3 = 0) 'error))
 		(exec p)
 	(loop-until '(:r1 = :r4))
@@ -159,7 +159,7 @@
 		(vp-cpy-ir :r4 0 :r6)
 		(vp-add-cr +ptr_size :r4)
 		(assign '((:r6 num_value)) '(:r1))
-	(errorcases
+	(errorcase
 		(gotoif '(:r1 = 0) 'error))
 		(vec-set 2)
 		(vec-fmod 1)

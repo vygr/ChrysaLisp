@@ -52,7 +52,7 @@
 	(exit 'lisp :read_list {this, list, char})
 	(return)
 
-(errorcases
+(errorcase
 (vp-label 'error)
 	(call 'obj :deref {list})
 	(assign {ast} {list})

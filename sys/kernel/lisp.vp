@@ -28,7 +28,7 @@
 	(exit 'sys_kernel :lisp_stats '(:r0 :r1))
 	(vp-ret)
 
-(errorcases
+(errorcase
 (vp-label 'error)
 	(jump 'lisp :repl_error '(:r0 "(kernel-stats)" +error_msg_wrong_types :r1)))
 

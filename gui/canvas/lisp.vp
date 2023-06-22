@@ -29,7 +29,7 @@
 	(exit 'canvas :lisp_create '(:r0 :r1))
 	(vp-ret)
 
-(errorcases
+(errorcase
 (vp-label 'error)
 	(jump 'lisp :repl_error '(:r0 "(create-canvas width height scale)" +error_msg_wrong_types :r1))
 	(signature '(num num num)))
@@ -59,7 +59,7 @@
 	(exit 'canvas :lisp_create_pixmap '(:r0 :r1))
 	(vp-ret)
 
-(errorcases
+(errorcase
 (vp-label 'error)
 	(jump 'lisp :repl_error '(:r0 "(create-canvas-pixmap pixmap)" +error_msg_wrong_types :r1))
 	(signature '(pixmap)))
@@ -93,7 +93,7 @@
 	(exit 'canvas :lisp_fill '(:r0 :r1))
 	(vp-ret)
 
-(errorcases
+(errorcase
 (vp-label 'error)
 	(jump 'lisp :repl_error '(:r0 "(canvas-fill canvas argb)" +error_msg_wrong_types :r1))
 	(signature '(canvas num)))
@@ -124,7 +124,7 @@
 	(exit 'canvas :lisp_swap '(:r0 :r1))
 	(vp-ret)
 
-(errorcases
+(errorcase
 (vp-label 'error)
 	(jump 'lisp :repl_error '(:r0 "(canvas-swap canvas flags)" +error_msg_wrong_types :r1))
 	(signature '(canvas num)))
@@ -161,7 +161,7 @@
 	(vp-free local_size)
 	(vp-ret)
 
-(errorcases
+(errorcase
 (vp-label 'error)
 	(jump 'lisp :repl_error '(:r0 "(canvas-next-frame canvas)" +error_msg_wrong_types :r1))
 	(signature '(canvas)))
@@ -192,7 +192,7 @@
 	(exit 'canvas :lisp_plot '(:r0 :r1))
 	(vp-ret)
 
-(errorcases
+(errorcase
 (vp-label 'error)
 	(jump 'lisp :repl_error '(:r0 "(canvas-plot canvas x y)" +error_msg_wrong_types :r1))
 	(signature '(canvas num num)))
@@ -223,7 +223,7 @@
 	(exit 'canvas :lisp_fbox '(:r0 :r1))
 	(vp-ret)
 
-(errorcases
+(errorcase
 (vp-label 'error)
 	(jump 'lisp :repl_error '(:r0 "(canvas-fbox canvas x y w h)" +error_msg_wrong_types :r1))
 	(signature '(canvas num num num num)))
@@ -254,7 +254,7 @@
 	(exit 'canvas :lisp_fpoly '(:r0 :r1))
 	(vp-ret)
 
-(errorcases
+(errorcase
 (vp-label 'error)
 	(jump 'lisp :repl_error '(:r0 "(canvas-fpoly canvas x y mode list)" +error_msg_wrong_types :r1))
 	(signature '(canvas fixed fixed num list)))
@@ -287,7 +287,7 @@
 	(exit 'canvas :lisp_resize '(:r0 :r1))
 	(vp-ret)
 
-(errorcases
+(errorcase
 (vp-label 'error)
 	(jump 'lisp :repl_error '(:r0 "(canvas-resize canvas canvas)" +error_msg_wrong_types :r1))
 	(signature '(canvas canvas)))
@@ -318,7 +318,7 @@
 	(exit 'canvas :lisp_to_argb32 '(:r0 :r1))
 	(vp-ret)
 
-(errorcases
+(errorcase
 (vp-label 'error)
 	(jump 'lisp :repl_error '(:r0 "(canvas-to-argb32 pixel type)" +error_msg_wrong_types :r1))
 	(signature '(num num)))
@@ -349,7 +349,7 @@
 	(exit 'canvas :lisp_from_argb32 '(:r0 :r1))
 	(vp-ret)
 
-(errorcases
+(errorcase
 (vp-label 'error)
 	(jump 'lisp :repl_error '(:r0 "(canvas-from-argb32 pixel type)" +error_msg_wrong_types :r1))
 	(signature '(num num)))
@@ -372,7 +372,7 @@
 
 	(vp-push :r0)
 	(array-bind-args :r1 '(:r0 :r13))
-(errorcases
+(errorcase
 	(assign '((:r13 array_length)) '(:r2))
 	(gotoif '(:r2 /= 6) 'error1))
 	(defq in (method-input 'canvas :ftri))
@@ -384,7 +384,7 @@
 	(exit 'canvas :lisp_ftri '(:r0 :r1))
 	(vp-ret)
 
-(errorcases
+(errorcase
 (vp-label 'error1)
 	(vp-pop :r0)
 (vp-label 'error)

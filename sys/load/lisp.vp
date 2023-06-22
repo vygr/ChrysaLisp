@@ -24,7 +24,7 @@
 	(exit 'sys_load :lisp_path '(:r0 :r1))
 	(vp-ret)
 
-(errorcases
+(errorcase
 (vp-label 'error)
 	(jump 'lisp :repl_error '(:r0 "(load-path)" +error_msg_wrong_num_of_args :r1)))
 

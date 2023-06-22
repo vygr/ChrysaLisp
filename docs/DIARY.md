@@ -197,7 +197,7 @@ And here is the new binding method we add to `class/obj/lisp.vp`:
 	(exit 'obj :lisp_hash '(:r0 :r1))
 	(vp-ret)
 
-(errorcases
+(errorcase
 (vp-label 'error)
 	(jump 'lisp :repl_error '(:r0 "(hash obj)" +error_msg_wrong_num_of_args :r1)))
 

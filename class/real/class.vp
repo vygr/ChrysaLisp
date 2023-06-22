@@ -177,7 +177,7 @@
 		(vp-cpy-ir :r1 0 :r5)
 		(vp-add-cr +ptr_size :r1)
 		(assign '((:r5 num_value)) '(:r14))
-	(errorcases
+	(errorcase
 		(gotoif '(:r14 = 0) 'error))
 		(exec p)
 	(loop-until '(:r1 = :r4))

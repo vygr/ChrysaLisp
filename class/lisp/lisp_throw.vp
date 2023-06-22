@@ -22,7 +22,7 @@
 	(list-bind-args :r1 in '(_ :str _ :obj))
 	(jump 'lisp :repl_error in)
 
-(errorcases
+(errorcase
 (vp-label 'error)
 	(jump 'lisp :repl_error '(:r0 "(throw str form)" +error_msg_wrong_types :r1))
 	(signature '(str obj)))

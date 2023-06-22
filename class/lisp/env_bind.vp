@@ -21,7 +21,7 @@
 	(push-scope)
 	(entry 'lisp :env_bind {this, vars, vals})
 
-(errorcases
+(errorcase
 	(gotoif (cat {vars->obj_vtable /= @} (f-path 'list :vtable)) 'error1)
 	(call 'obj :inst_of (cat {vals, @} (f-path 'seq :vtable)) '(_ tmp))
 	(gotoif (list tmp '= 0) 'error2))
@@ -94,7 +94,7 @@
 	(exit 'lisp :env_bind {this, value})
 	(return)
 
-(errorcases
+(errorcase
 (vp-label 'error1)
 	(jump 'lisp :repl_error {this, "(bind (param ...) seq)", +error_msg_not_a_list, vars})
 (vp-label 'error2)

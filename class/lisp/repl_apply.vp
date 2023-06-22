@@ -26,7 +26,7 @@
 		(vp-jmp-r :r2)
 	(endif)
 
-(errorcases
+(errorcase
 	(f-bind 'list :vtable :r4)
 	(gotoif '(:r3 /= :r4) 'error2)
 	(assign '((:r2 array_length)) '(:r3))
@@ -34,7 +34,7 @@
 
 	(class/array/get_both :r2 :r3 :r4)
 
-(errorcases
+(errorcase
 	(array-get-args :r3 '(:r5))
 	(assign '((:r0 lisp_func_lambda)) '(:r6))
 	(vpif '(:r5 /= :r6))
@@ -58,7 +58,7 @@
 	(call 'lisp :env_bind '(:r0 (:r1 0) (:rsp local_value)) '(:r0 :r1))
 	(assign '(:r1) '((:rsp local_value)))
 	(loop-start)
-	(errorcases
+	(errorcase
 		(assign '((:r1 obj_vtable)) '(:r3))
 		(f-bind 'error :vtable :r4)
 		(breakif '(:r3 = :r4)))
@@ -77,7 +77,7 @@
 	(vp-free local_size)
 	(vp-ret)
 
-(errorcases
+(errorcase
 (vp-label 'error1)
 	(jump 'lisp :repl_error '(:r0 "(lambda ([arg ...]) body)" +error_msg_wrong_num_of_args :r2))
 (vp-label 'error2)

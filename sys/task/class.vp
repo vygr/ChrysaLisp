@@ -271,7 +271,7 @@
 
 	;create new task control block and stack
 	(call 'sys_mem :alloc {ushort(func - ubyte(func - +byte_size) - +short_size) + tk_node_size} {tcb, tcb_size})
-(errorcases
+(errorcase
 	(call 'sys_mem :fill {tcb, tcb_size, 0}))
 
 	;alloc task mailbox and tls
@@ -306,7 +306,7 @@
 
 	(def-vars
 		(ptr statics tcb))
-(errorcases
+(errorcase
 	(def-vars
 		(pptr stack stack_end)))
 
@@ -326,7 +326,7 @@
 	(assign {tcb} (list tcb))
 	(ln-remove-node tcb next_tcb)
 
-(errorcases
+(errorcase
 	;test stack space canary
 	(assign {&tcb->tk_node_size} {stack})
 	(assign {stack + 1024} {stack_end})

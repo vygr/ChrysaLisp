@@ -55,7 +55,7 @@
 	(exit 'list :lisp_merge '(:r0 :r1))
 	(vp-ret)
 
-(errorcases
+(errorcase
 (vp-label 'error)
 	(jump 'lisp :repl_error '(:r0 "(merge-obj dlist slist) -> dlist" +error_msg_wrong_types :r1))
 	(signature '(list list)))
@@ -83,7 +83,7 @@
 		(ptr value list)
 		(pptr iter_begin liter hiter)
 		(int start end))
-(errorcases
+(errorcase
 	(def-vars
 		(int length)))
 
@@ -97,7 +97,7 @@
 	(assign {iter_begin[+ptr_size]} {list})
 	(call 'num :get_value {iter_begin[+ptr_size * 2]} {_, start})
 	(call 'num :get_value {iter_begin[+ptr_size * 3]} {_, end})
-(errorcases
+(errorcase
 	(d-call 'list :get_length {list} {_, length})
 	(gotoif {start < 0 || start >= end || end > length} 'error2))
 
@@ -113,7 +113,7 @@
 	(exit 'list :lisp_part {this, value})
 	(return)
 
-(errorcases
+(errorcase
 (vp-label 'error1)
 	(jump 'lisp :repl_error {this, "(pivot lambda list start end)", +error_msg_wrong_types, args})
 (vp-label 'error2)
@@ -197,7 +197,7 @@
 	(exit 'list :lisp_match '(:r0 :r1))
 	(vp-ret)
 
-(errorcases
+(errorcase
 (vp-label 'error1)
 	(jump 'lisp :repl_error '(:r0 "(match? list list)" +error_msg_wrong_types :r1))
 	(signature '(list list)))
@@ -233,7 +233,7 @@
 	(exit 'list :lisp_copy '(:r0 :r1))
 	(vp-ret)
 
-(errorcases
+(errorcase
 (vp-label 'error)
 	(jump 'lisp :repl_error '(:r0 "(copy form)" +error_msg_wrong_num_of_args :r1)))
 
