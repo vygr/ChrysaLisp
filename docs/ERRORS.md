@@ -32,15 +32,6 @@ At the lowest level, VP code core functions, there is no forgiveness. They
 assume you pass correct input and always provide a valid output. YOU are in the
 wrong if you pass crap to them and it's perfectly valid to crash if you do so.
 
-## Lisp throws
-
-We should try to type check everything we can at the Lisp interpreter level, IF
-running in debug mode. Front load all the type checking and stupid input
-checking on the Lisp binding `lisp_xxx` functions to test for types and just
-plane crap input, and provide some almost sensible error throws. But wrap all
-of that in the errorcase macros so we can strip it out when doing a release
-mode build.
-
 ## Defensive coding
 
 Another point to make is about defensive coding.... DON'T do it ! Absolutely
@@ -81,6 +72,15 @@ level it's baked in by YOU !
 
 Can you even check for the type of a register input ? NO, it's not possible. At
 this level it's just some bits and you perform some defined actions on them.
+
+## Lisp throws
+
+We should try to type check everything we can at the Lisp interpreter level, IF
+running in debug mode. Front load all the type checking and stupid input
+checking on the Lisp binding `lisp_xxx` functions to test for types and just
+plane crap input, and provide some almost sensible error throws. But wrap all
+of that in the errorcase macros so we can strip it out when doing a release
+mode build.
 
 ## Helpful `errorcase` macros
 
