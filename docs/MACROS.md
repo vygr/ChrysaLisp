@@ -110,7 +110,7 @@ not obvious. But stick with me as we proceed.
 
 It might surprise you to learn that a lot of what you take for granted as
 language constructs within ChrysaLisp are provided as macros ! They are not
-actually built in primitives but macros, supplied in the `boot.inc` file.
+actually built in primitives but macros, supplied in the `root.inc` file.
 
 Take the `(when)` construct:
 

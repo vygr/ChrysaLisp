@@ -74,5 +74,5 @@
 	(align)
 
 	;lisp statics
-	(ptr lisp_boot_env)
+	(ptr lisp_root_env)
 	(align))

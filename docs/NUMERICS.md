@@ -19,7 +19,7 @@ parsed to a num object. You can specify the base with a prefix of `0b`, `0x` or
 `0o` for binary, hex or octal. Num's parsed during `(read)` are interned in a
 similar manner to symbols.
 
-Useful constants defined in `boot.inc`.
+Useful constants defined in `root.inc`.
 
 `+min_long +max_long +min_int +max_int`
 
@@ -44,7 +44,7 @@ There is an extensive VP level DSL macro/function set for fixed format vectors
 in the `sys/math/class.inc` file. For examples of there use take a look at the
 `gui/canvas/` drawing functions.
 
-Useful constants defined in `boot.inc`.
+Useful constants defined in `root.inc`.
 
 `+fp_shift +fp_int_mask +fp_frac_mask +fp_2pi +fp_pi +fp_hpi +fp_rpi`
 
@@ -114,7 +114,7 @@ These operate on any number type and return `:t | :nil`.
 
 `(/=) (<) (<=) (=) (>) (>=)`
 
-### `boot.inc` extras
+### `root.inc` extras
 
 `(neg?) (pos?) (odd?) (even?) (lognot) (log2) (pow) (ntz) (nto) (nlz) (nlo)`
 

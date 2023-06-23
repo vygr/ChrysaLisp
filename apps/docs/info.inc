@@ -1,17 +1,17 @@
 ;module
 (env-push)
 
-(defun boot-funcs ()
+(defun root-funcs ()
 	(sort cmp (reduce (lambda (_ (k v))
-		(if (func? v) (push _ k) _)) (tolist *boot_env*) (list))))
+		(if (func? v) (push _ k) _)) (tolist *root_env*) (list))))
 
-(defun boot-lambdas ()
+(defun root-lambdas ()
 	(sort cmp (reduce (lambda (_ (k v))
-		(if (lambda-func? v) (push _ k) _)) (tolist *boot_env*) (list))))
+		(if (lambda-func? v) (push _ k) _)) (tolist *root_env*) (list))))
 
-(defun boot-macros ()
+(defun root-macros ()
 	(sort cmp (reduce (lambda (_ (k v))
-		(if (macro-func? v) (push _ k) _)) (tolist *boot_env*) (list))))
+		(if (macro-func? v) (push _ k) _)) (tolist *root_env*) (list))))
 
 (defun paragraph (words)
 	(each (lambda (line)
@@ -25,12 +25,12 @@
 		((starts-with "```" line)
 			:text)
 		(:t  (case line
-				("boot-funcs"
-					(paragraph (boot-funcs)))
-				("boot-macros"
-					(paragraph (boot-macros)))
-				("boot-lambdas"
-					(paragraph (boot-lambdas))))
+				("root-funcs"
+					(paragraph (root-funcs)))
+				("root-macros"
+					(paragraph (root-macros)))
+				("root-lambdas"
+					(paragraph (root-lambdas))))
 			state)))
 
 ;module

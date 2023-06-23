@@ -51,7 +51,7 @@
 			((lambda-func? v) (def keywords k (get :ink_keyword2 this)))
 			((macro-func? v) (def keywords k (get :ink_keyword3 this)))
 			((func? v) (def keywords k (get :ink_keyword1 this)))))
-		(tolist *boot_env*))
+		(tolist *root_env*))
 	(each (# (def keywords %0 (get :ink_keyword4 this)))
 		'(:t :nil &rest &optional
 		byte ubyte short ushort int uint long ulong ptr union struct

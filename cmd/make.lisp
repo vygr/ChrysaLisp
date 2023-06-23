@@ -100,7 +100,7 @@
 							(eql _ "defmethod") (eql _ "deffimethod") (eql _ "defabstractmethod"))
 						(setq state :y))))) (file-stream file)))
 		(cat (all-files "." "lisp.inc")
-			'("class/lisp/boot.inc" "lib/anaphoric/anaphoric.inc" "lib/debug/debug.inc"
+			'("class/lisp/root.inc" "lib/anaphoric/anaphoric.inc" "lib/debug/debug.inc"
 			"lib/debug/profile.inc" "lib/collections/xmap.inc" "lib/collections/xset.inc"
 			"lib/collections/emap.inc" "lib/collections/collections.inc" "lib/class/class.inc"
 			"lib/class/struct.inc" "lib/text/buffer.inc" "lib/text/syntax.inc" "apps/debug/app.inc"

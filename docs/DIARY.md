@@ -227,7 +227,7 @@ image -> obj/x86_64/AMD64/sys/boot_image (161268)
 So we are done ? Not quite, we still need to define the Lisp level command that
 lets us call this new binding ! And that's done with an `(ffi)` call in one of
 the `lisp.inc` files where the `(ffi)` calls are kept. The master file is
-`class/lisp/boot.inc` for built in language bindings and this new binding
+`class/lisp/root.inc` for built in language bindings and this new binding
 certainly comes under that category, so we will add an entry to that file.
 
 I'm going to add an entry at the top of this block of `(ffi)` calls as it feels
@@ -277,5 +277,5 @@ folks.
 It's worth pointing out that this has now been used in the creation of standard
 set and map classes `emap, xmap, fmap, lmap` and `xset, fset`. I refer everyone
 to look at `lib/collections/`. These collection classes are present across the
-entire system via `boot.inc` so feel free to use them in apps without needing
+entire system via `root.inc` so feel free to use them in apps without needing
 to `(import)` anything.

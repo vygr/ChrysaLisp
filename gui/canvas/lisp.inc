@@ -11,7 +11,7 @@
 (ffi canvas-from-argb32 "gui/canvas/lisp_from_argb32" 0)
 
 ;init pixmap shared cache map
-(def *boot_env* '*pixmap_cache* (lmap))
+(def *root_env* '*pixmap_cache* (lmap))
 
 (structure +canvas +view_size
 	(ptr pixmap edges texture)
@@ -162,4 +162,4 @@
 	(. *pixmap_cache* :each (lambda (key val)
 		(if (> (getf val +obj_count 0) 4)
 			(. new_cache :insert key val))))
-	(def *boot_env* '*pixmap_cache* new_cache))
+	(def *root_env* '*pixmap_cache* new_cache))

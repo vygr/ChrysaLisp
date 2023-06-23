@@ -335,7 +335,7 @@ For example the `'array :append` method.
 (emit-label '_7)
 ```
 
-`*debug_mode*` setting in the `class/lisp/boot.inc` file lets you set the
+`*debug_mode*` setting in the `class/lisp/root.inc` file lets you set the
 compile option for the system. The various mode are:
 
 * 0 release, strip all error checking

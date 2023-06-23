@@ -105,7 +105,7 @@ prebind no longer steps into quasi-quotation ! See above.
 
 prebinding of quote, quasi-quote, lambda and macro symbols !!!
 
-`boot.inc` predicates have been changed to functions rather than macros.
+`root.inc` predicates have been changed to functions rather than macros.
 
 ------
 
@@ -260,7 +260,7 @@ perform lighting and back face culling in object space.
 
 New `(Iso-capsule)` surface class.
 
-`(time-in-seconds time)` promoted to `boot.inc`
+`(time-in-seconds time)` promoted to `root.inc`
 
 Mesh demo now streams mesh data for the scene graph nodes via a Mesh loader
 Farm.
@@ -274,7 +274,7 @@ Simplify Edit, Viewer and Terminal apps by having a main vdu subclass. The
 event loop code can then be shared, plus better partitioning of the
 application.
 
-New `(export-symbols)` and `(export-classes)` macros in `boot.inc`.
+New `(export-symbols)` and `(export-classes)` macros in `root.inc`.
 
 New GUI Edit widget. Editor, Viewer and Terminal apps changed to use this.
 
@@ -299,11 +299,11 @@ VP versions of dot product `(nums-dot)`.
 Real format fixes to overflow conditions and some optimisations to multiply and
 conversions to fixed and integer.
 
-Addition of `(static form)` macro to `boot.inc`. Performs a macro and
+Addition of `(static form)` macro to `root.inc`. Performs a macro and
 prebind expansion of the given form and then wraps it in a quote for runtime.
 
 `(eql)` and `(find)` can now be used on vectors. As a result a new `(fmap
-[num_buckets])` class is available as standard from `boot.inc`. This map type
+[num_buckets])` class is available as standard from `root.inc`. This map type
 uses the `(find)` call to search the buckets.
 
 `(find)` now follows strict behavior of `(eql)` for element tests.
@@ -332,7 +332,7 @@ Correct the quote skipping in the `(split)` function.
 
 New CLASSES.md document.
 
-Addition of `(let* ...)` macro to `boot.inc`.
+Addition of `(let* ...)` macro to `root.inc`.
 
 View class :ctx_panel method moved to Lisp code.
 
@@ -388,7 +388,7 @@ memory.
 
 Make system now uses `(abs-path)`.
 
-Editor pulls in `boot.inc` to the matches dictionary on startup.
+Editor pulls in `root.inc` to the matches dictionary on startup.
 
 Viewer application now shares most of the Editor engine source. Can copy from
 Viewer to clipboard now.
@@ -436,7 +436,7 @@ Viewer app updated to new Edit event dispatch system.
 
 Edit app saves/restores users open file list. Added action-close-buffer.
 
-New `(some-rev)` added to `boot.inc`.
+New `(some-rev)` added to `root.inc`.
 
 Editor saves file meta info.
 
@@ -523,18 +523,18 @@ function.
 ------
 
 Added nesting to the `(#)` macro ! Plus arbitrary % parameters not just
-starting from %0. This comes with the addition to `boot.inc` of a `(walk-list
+starting from %0. This comes with the addition to `root.inc` of a `(walk-list
 list elm_fnc down_fnc up_fnc)` function ! Enjoy.
 
 Promotion of `(get-field)` `(set-field)` `(obj-ref)` and `(weak-ref)` to
-`boot.inc`.
+`root.inc`.
 
 `(get-xxx)` macros now uses `(get-field)` and addition of `(get-nodeid)` and
 `(get-netid)` macros.
 
 Addition of +net_id_size+ and +node_id_size+ symbols.
 
-`(structure)` macro promoted to `boot.inc` with new `(getf)` macro. Structure
+`(structure)` macro promoted to `root.inc` with new `(getf)` macro. Structure
 not only creates constant symbols ie `name_field` for the field offsets but
 also type symbols `name_field_t` to allow the `(getf)` macro to create the
 correct accessor.
@@ -545,10 +545,10 @@ trailing "_t" for type symbols.
 `(def-struct)`, `(def-enum)` and `(def-bit)` now implemented as macros. Deleted
 `(def-struct-end)`, `(def-enum-end)` and `(def-bit-end)`.
 
-Introduction of `(enums)` at Lisp level in `boot.inc`. Enums fields are not
+Introduction of `(enums)` at Lisp level in `root.inc`. Enums fields are not
 typed, they have no auto `xxx_t` symbol created.
 
-Introduction of `(bits)` at Lisp level in `boot.inc`. Bits fields also are not
+Introduction of `(bits)` at Lisp level in `root.inc`. Bits fields also are not
 typed, they have no auto `xxx_t` symbol created.
 
 ------
@@ -683,7 +683,7 @@ interns number objects.
 
 ------
 
-New (class), (method), (method) and (.) macro in `class/lisp/boot.inc` to
+New (class), (method), (method) and (.) macro in `class/lisp/root.inc` to
 allow OOPS style libraries and classes.
 
 New `lib/hmap/xmap.inc` and `lib/hmap/xset.inc` classes for generic maps and
@@ -705,7 +705,7 @@ Added (def?) built in function.
 New !!! hot off the press ChrysaLisp IDE for Windows to start with, but coming
 to Mac and Linux soon... https://github.com/PaulBlythe/Chrysalisp-IDE
 
-Promoted (odd?) (even?) (pow) (neg?) (pos?) to boot.inc.
+Promoted (odd?) (even?) (pow) (neg?) (pos?) to root.inc.
 
 (mail-declare) and (mail-forget) now return and take the service entry key.
 
@@ -793,7 +793,7 @@ and return a string stream. Lisp IO stream access is moved to the new
 (file-stream path [mode]) optional mode now supported (file_open_read,
 file_open_write) ! Writable file streams now available.
 
-(intern) and (intern-seq) functions available in boot.inc.
+(intern) and (intern-seq) functions available in root.inc.
 
 (str-as-num) can now parse negative number ! -10, -0xfe, -56.7 etc.
 
@@ -911,7 +911,7 @@ implement save/load of Whiteboard document files. Picker is now available for
 use by all applications.
 
 Added (first), (second), (last) and (rest) macros to the sequence section of
-the boot.inc file.
+the root.inc file.
 
 ------
 
@@ -920,7 +920,7 @@ Added (def:) macro for easy definition of self evaluating symbols.
 'find and 'rfind methods promoted to the 'seq interface. (find) and (find-rev)
 can now search all seq subclasses.
 
-Promoted the (get) macro from `gui/lisp.inc` to `class/lisp/boot.inc`.
+Promoted the (get) macro from `gui/lisp.inc` to `class/lisp/root.inc`.
 
 Added `cmd/files.lisp` to list files that match a given directory postfix and
 file prefix.
@@ -1471,7 +1471,7 @@ within paragraphs plus structure the code a bit better.
 Added a set of colour themes and used them everywhere, currently a subtle grey
 shades look.
 
-Continued to lower functions to VP, and made pre-binding throughout boot.inc
+Continued to lower functions to VP, and made pre-binding throughout root.inc
 the standard and elsewhere a simple call profiler showed would benefit.
 
 ------
@@ -1542,7 +1542,7 @@ around 1.5KB of boot image !
 ------
 
 Moved the Lisp class bindings out to the classes that provide the functionality
-being used. I still want to tidy up the Lisp boot.inc file to just include a
+being used. I still want to tidy up the Lisp root.inc file to just include a
 set of finer grained lisp.inc files though.
 
 Lowered the stream class Lisp bindings to VP. Now that the bindings are
@@ -1558,7 +1558,7 @@ a bit of a bodge.
 
 On prompting from no-identd I took a look at Anaphoric macros and agree that
 they can be useful but folks should be aware of what the issues are if you use
-them. So I've added the obvious ones to boot.inc. Maybe they should be going in
+them. So I've added the obvious ones to root.inc. Maybe they should be going in
 a separate class/lisp/anaphoric.inc file ?
 
 ------

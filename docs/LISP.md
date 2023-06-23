@@ -76,10 +76,10 @@ the environment chain is searched to see if a macro exists.
 ### Built in functions
 
 ```info
-boot-funcs
+root-funcs
 ```
 
-### `boot.inc` symbols
+### `root.inc` symbols
 
 ```vdu
 +byte_size +short_size +int_size +long_size +ptr_size +str_data
@@ -88,16 +88,16 @@ boot-funcs
 *debug_mode* *debug_emit* *debug_inst*
 ```
 
-### `boot.inc` macros
+### `root.inc` macros
 
 ```info
-boot-macros
+root-macros
 ```
 
-### `boot.inc` functions
+### `root.inc` functions
 
 ```info
-boot-lambdas
+root-lambdas
 ```
 
 ## Within a `cmd/lisp.lisp` instance
@@ -106,7 +106,7 @@ boot-lambdas
 
 ```vdu
 all-vp-files compile compile-pipe compile-test make make-all make-all-platforms
-make-boot make-boot-all make-info make-platforms make-test remake
+make-boot make-root-all make-info make-platforms make-test remake
 remake-platforms
 ```
 

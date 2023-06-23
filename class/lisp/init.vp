@@ -54,14 +54,14 @@
 		(assign {@sys/statics/statics.statics_sys_task_current_tcb->tk_node_tls} {this->lisp_stack})
 
 		;spin lock if boot env busy
-		(loop-while {@sys/statics/statics.statics_lisp_boot_env = -1})
+		(loop-while {@sys/statics/statics.statics_lisp_root_env = -1})
 			(call 'sys_task :sleep {100})
 		(loop-end)
 
 		;do we have a shared boot env yet ?
-		(vpifnot {@sys/statics/statics.statics_lisp_boot_env})
+		(vpifnot {@sys/statics/statics.statics_lisp_root_env})
 			;mark as busy
-			(assign {-1} {@sys/statics/statics.statics_lisp_boot_env})
+			(assign {-1} {@sys/statics/statics.statics_lisp_root_env})
 
 			;intern standard built in symbols
 			(call 'hmap :create {0, 101} {this->lisp_environment})
@@ -70,13 +70,13 @@
 			(call 'create_env_info {this})
 			(call 'create_env_funcs {this})
 
-			;run any boot.inc
-			(call 'str :create_from_file {"class/lisp/boot.inc"} {file})
+			;run any root.inc
+			(call 'str :create_from_file {"class/lisp/root.inc"} {file})
 			(vpif {file})
 				;REPL from file stream
 				(call 'list :create :nil {repl_args})
 				(call 'sstream :create {file} {stream})
-				(call 'str :create_from_buffer {"class/lisp/boot.inc", 19} {file})
+				(call 'str :create_from_buffer {"class/lisp/root.inc", 19} {file})
 				(call 'list :push_back2 {repl_args, stream, file})
 				(call 'lisp :lisp_repl {this, repl_args} {_, value})
 				(vpif (cat {value->obj_vtable = @} (f-path 'error :vtable)))
@@ -93,15 +93,15 @@
 				;deinit myself and parent
 				(call 'lisp :deinit {this})
 				;mark as free
-				(assign {0} {@sys/statics/statics.statics_lisp_boot_env})
+				(assign {0} {@sys/statics/statics.statics_lisp_root_env})
 			(else)
 				;save shared boot env
-				(call 'obj :ref {this->lisp_environment} {@sys/statics/statics.statics_lisp_boot_env})
+				(call 'obj :ref {this->lisp_environment} {@sys/statics/statics.statics_lisp_root_env})
 				(goto 'local_env)
 			(endif)
 		(else)
 			;boot env is my parent env
-			(call 'obj :ref {@sys/statics/statics.statics_lisp_boot_env} {this->lisp_environment})
+			(call 'obj :ref {@sys/statics/statics.statics_lisp_root_env} {this->lisp_environment})
 		(vp-label 'local_env)
 			(call 'hmap :create {this->lisp_environment->hset_key_callback, 31} {func})
 			(call 'hmap :set_parent {func, this->lisp_environment} {this->lisp_environment})

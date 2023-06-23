@@ -1,7 +1,7 @@
 # Lisp Classes
 
 Lisp level Classes are implanted via a macro set in the `lib/class/class.inc`
-file. This is included via `boot.inc` so is available to all applications
+file. This is included via `root.inc` so is available to all applications
 without need to import the library.
 
 A class and its object instances consist of two VP level `hmap` objects. One

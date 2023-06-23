@@ -109,7 +109,7 @@
 
 (defun make-info (_)
 	;create lists of immediate dependencies and products
-	(defq d (list "lib/asm/asm.inc" "class/lisp/boot.inc" _) p (list))
+	(defq d (list "lib/asm/asm.inc" "class/lisp/root.inc" _) p (list))
 	(each-line (lambda (_)
 		(when (and (> (length _) 10) (eql "(" (elem-get 0 _))
 				(<= 2 (length (defq s (split _ (const (cat " ')" (ascii-char 34) (ascii-char 13)))))) 4))
@@ -221,7 +221,7 @@
 		(each (# (write stream %0)) f)
 		(print "-> " (func-obj 'sys/boot_image) " (" l ")") :nil)))
 
-(defun make-boot-all (&optional *abi* *cpu*)
+(defun make-root-all (&optional *abi* *cpu*)
 	(setd *abi* (abi) *cpu* (cpu))
 	(make-boot
 		(within-compile-env (lambda ()
@@ -239,12 +239,12 @@
 (defun remake (&optional files *abi* *cpu*)
 	(setd *abi* (abi) *cpu* (cpu))
 	(make files *abi* *cpu*)
-	(make-boot-all *abi* *cpu*))
+	(make-root-all *abi* *cpu*))
 
 (defun remake-all (&optional files *abi* *cpu*)
 	(setd *abi* (abi) *cpu* (cpu))
 	(make-all files *abi* *cpu*)
-	(make-boot-all *abi* *cpu*))
+	(make-root-all *abi* *cpu*))
 
 ;;;;;;;;;;;;;;;;;;;;;
 ; cross platform make
