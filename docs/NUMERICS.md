@@ -52,7 +52,7 @@ Useful constants defined in `root.inc`.
 
 These are a floating point number format. The VP class, `class/real/`, holds a
 real value in the `num_value` field. Not IEEE, but a compromise format for fast
-operations on integer only machines. They are a `32.32` mantisa.exp format.
+operations on integer only machines. They are a `32.32` mantissa.exp format.
 
 Zero is represented as integer 0, and negative and positive numbers pass the
 same tests as integers do.
@@ -62,7 +62,7 @@ signed 32 bit twos compliment value.
 
 Look in `sys/math/class.inc` and `sys/math/class.vp` for the specifics of the
 implementation. The basic operation is, `unpack, align mantissas, operate,
-normalise, repack.`
+normalize, repack.`
 
 Useful constants defined in `lib/math/vector.inc`.
 
