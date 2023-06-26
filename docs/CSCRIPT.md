@@ -143,6 +143,9 @@ in the order rules, but they ALL do this !
 
 `:operator`, `:number`, `:symbol`, `:path`, `:label`, `:string`
 
-Well, having said that, I'm not so sure about Lisp... or Forth... any language
+Well, having said that, I'm not so sure about Lisp... or Forth. Any language
 that lets you change the parser rules or compilation rules with a user function
 or macro is in a world of it's own.
+
+What holds it together if you can do that ? Discipline, and maybe learned
+responses... Pavlov's dog etc. But be aware that you need to rise above that.
