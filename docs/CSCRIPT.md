@@ -1,4 +1,4 @@
-# C script expression compiler
+# C Script expression compiler
 
 The C script idea came along after I had started changing things over to use
 the new Lisp engine to replace the NASM assembler. Partly to show off the power
@@ -32,8 +32,8 @@ So what does the CScript compiler do ? It consists of 4 phases:
 I'm hoping this doc might demystify a few compiler things in general, but I'm
 not a compiler expert. Just a amateur playing with fire...
 
-It didn't occur to me before why it's called the `Shunting Yard algorithm`...
-but now I see it ! If you had a train of carriages on a track and wanted to
+It didn't occur to me before why it's called the `Shunting Yard algorithm` but
+now I see it ! If you had a train of carriages on a track and wanted to
 rearrange them and you had a side track and a turntable, THIS is what you would
 do !
 
@@ -138,8 +138,8 @@ it also boiled away the ordering operators like `:lrb` and `:lsb` ! All of
 those operators are just changing the order of what we do at the VP output
 stage.
 
-Your left only with these operations, in the your defined order. Languages may
-vary in the order rules, but they ALL do this !
+Your only left with these operations, in your defined order. Languages may vary
+in the order rules, but they ALL do this !
 
 `:operator`, `:number`, `:symbol`, `:path`, `:label`, `:string`
 
