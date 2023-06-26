@@ -150,4 +150,4 @@ or macro is in a world of it's own.
 What holds it together if you can do that ? Discipline, and maybe learned
 responses... Pavlov's dog etc. But be aware that you need to rise above that.
 
-I have yet to get to the interesting bits though... better keep typing.
+I have yet to get to the interesting bits though... better keep typing ;)
