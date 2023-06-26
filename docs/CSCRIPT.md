@@ -30,7 +30,7 @@ So what does the CScript compiler do ? It consists of 4 phases:
 * Optimization of generated VP assembler.
 
 I'm hoping this doc might demystify a few compiler things in general, but I'm
-not a compiler expert. Just a amateur playing with fire...
+not a compiler expert. Just an amateur playing with fire...
 
 It didn't occur to me before why it's called the `Shunting Yard algorithm` but
 now I see it ! If you had a train of carriages on a track and wanted to
@@ -143,4 +143,6 @@ in the order rules, but they ALL do this !
 
 `:operator`, `:number`, `:symbol`, `:path`, `:label`, `:string`
 
-Well, having said that, I'm not so sure about Lisp... or Forth...
+Well, having said that, I'm not so sure about Lisp... or Forth... any language
+that lets you change the parser rules or compilation rules with a user function
+or macro is in a world of it's own.
