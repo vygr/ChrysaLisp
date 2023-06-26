@@ -32,7 +32,7 @@ So what does the CScript compiler do ? It consists of 4 phases:
 I'm hoping this doc might demystify a few compiler things in general, but I'm
 not a compiler expert. Just an amateur playing with fire...
 
-It didn't occur to me before why it's called the `Shunting Yard algorithm` but
+It didn't occur to me before why it's called the `Shunting Yard Algorithm` but
 now I see it ! If you had a train of carriages on a track and wanted to
 rearrange them and you had a side track and a turntable, THIS is what you would
 do !
