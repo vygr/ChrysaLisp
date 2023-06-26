@@ -29,6 +29,18 @@ So what does the CScript compiler do ? It consists of 4 phases:
 
 * Optimization of generated VP assembler.
 
+I'm hoping this doc might demystify a few compiler things in general, but I'm
+not a compiler expert. Just a amateur playing with fire...
+
+It didn't occur to me before why it's called the `Shunting Yard algorithm`...
+but now I see it ! If you had a train of carriages on a track and wanted to
+rearrange them and you had a side track and a turntable, THIS is what you would
+do !
+
+Put the first class carriages before the others etc... and do it with
+hierarchial rules... it's not far off the compositor visibility idea :) Maybe I
+have an issue with 1D thinking.
+
 ## Tokenization
 
 Tokenization is a fairly simple thing. The expression string is scanned
@@ -119,3 +131,15 @@ compilation is as simple as:
 			(:label (compile-label (sym token)))
 			(:string (compile-string token)))) rpn_output))
 ```
+
+OK, that's a bit flippant. What the reverse polish stage did was to arrange
+things so that we can scan the output and emit instructions without a care. And
+it also boiled away the ordering operators like `:lrb` and `:lsb` ! All of
+those operators are just changing the order of what we do at the VP level.
+
+Your left only with these operations, in the your defined order. Languages may
+vary in the order rules, but they ALL do this !
+
+`:operator`, `:number`, `:symbol`, `:path`, `:label`, `:string`
+
+Well, having said that, I'm not so sure about Lisp... or Forth...
