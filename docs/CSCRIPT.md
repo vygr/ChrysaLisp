@@ -135,7 +135,8 @@ compilation is as simple as:
 OK, that's a bit flippant. What the reverse polish stage did was to arrange
 things so that we can scan the output and emit instructions without a care. And
 it also boiled away the ordering operators like `:lrb` and `:lsb` ! All of
-those operators are just changing the order of what we do at the VP level.
+those operators are just changing the order of what we do at the VP output
+stage.
 
 Your left only with these operations, in the your defined order. Languages may
 vary in the order rules, but they ALL do this !
