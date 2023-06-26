@@ -21,9 +21,9 @@ The CScript compiler implementation files are `lib/asm/cscript.inc`,
 
 So what does the CScript compiler do ? It consists of 4 phases:
 
-* Tokenization of the given string expression.
+* Tokenization of the expression.
 
-* Conversion to reverse polish form.
+* Reverse polish conversion.
 
 * Compilation to VP assembler instructions.
 
@@ -37,8 +37,8 @@ of token. A list of those tokens and their types is returned as the tokenizer
 output.
 
 `(cscript-tokenize line)` is the function that does this work. The types of
-output token are: `:symbol`, `:number`, `:string`, `:path`, `:label` or
-`:operator`.
+output token are: `:symbol`, `:number`, `:string`, `:path`, `:label`, `:lrb`,
+`:rrb`, `:lsb`, `:rsb` or `:operator`.
 
 Let's see a few simple example expressions and what they get tokenized into.
 
@@ -56,7 +56,66 @@ Let's see a few simple example expressions and what they get tokenized into.
 (:symbol :operator :symbol)
 
 "vdu->vdu_char_height * 9 >> 4"
-
 ("vdu" "->" "vdu_char_height" "*" "9" ">>" "4")
 (:symbol :operator :symbol :operator :number :operator :number)
+```
+
+## Reverse polish
+
+I don't find this stage easy to describe ! But the general idea is that you are
+rearranging your tokens and operations on those tokens into an easily digested,
+left to right, sequence. Maybe you can see it as flattening an expression tree
+into a list etc. It's also the stage where the precedence of various operators
+are taken into account in how you flatten the tree.
+
+The algorithm used here is the classic `Shunting Yard Algorithm` !
+`https://brilliant.org/wiki/shunting-yard-algorithm/`
+
+`(cscript-reverse-polish tokens)` is the function used to do the conversion.
+
+Again let's see a few simple example expressions and what the reverse polish
+conversion does to them.
+
+```vdu
+"char /= +char_semi"
+(("char" "/=" "+char_semi")
+(:symbol :operator :symbol))
+...
+(("char" "+char_semi" "/=")
+(:symbol :symbol :operator))
+
+"char > +char_space || char = -1"
+(("char" ">" "+char_space" "||" "char" "=" "_" "1")
+(:symbol :operator :symbol :operator :symbol :operator :operator :number))
+...
+(("char" "+char_space" ">" "char" "1" "_" "=" "||")
+(:symbol :symbol :operator :symbol :number :operator :operator :operator))
+
+"(table + len + +ptr_size) & - +ptr_size"
+(("(" "table" "+" "len" "+" "+ptr_size" ")" "&" "_" "+ptr_size")
+(:lrb :symbol :operator :symbol :operator :symbol :rrb :operator :operator :symbol))
+...
+(("table" "len" "+" "+ptr_size" "+" "+ptr_size" "_" "&")
+(:symbol :symbol :operator :symbol :operator :symbol :operator :operator))
+```
+
+Notice how on that last example the entires for the `:lrb` and `:rrb` tokens
+have mysteriously vanished... ;) That's because they don't mean anything other
+than a change in order of the reverse polish output !
+
+## Compilation
+
+After you have converted your expression into reverse polish form the
+compilation is as simple as:
+
+```vdu
+(defun cscript-compile (rpn_output)
+	(each! 0 -1 (lambda (token type)
+		(case type
+			(:operator (compile-operator (sym token)))
+			(:number (compile-const (str-as-num token)))
+			(:symbol (compile-ref (sym token)))
+			(:path (compile-bind (sym token)))
+			(:label (compile-label (sym token)))
+			(:string (compile-string token)))) rpn_output))
 ```
