@@ -1,7 +1,7 @@
 # C script expression compiler
 
-The C script idea came along after I had started changing this over to use the
-new Lisp engine to replace the NASM assembler. Partly to show off the power
+The C script idea came along after I had started changing things over to use
+the new Lisp engine to replace the NASM assembler. Partly to show off the power
 that comes from having a Lisp as your macro assembler and partly to fulfill a
 need to simplify prototyping code without having to worry about register
 assignments and running out of registers etc.
@@ -17,7 +17,7 @@ each time you use a string argument as an input or output to the `(assign)`
 function.
 
 The CScript compiler implementation files are `lib/asm/cscript.inc`,
-`lib/asm/csopy.inc` and to some extent `lib/asm/code.inc`.
+`lib/asm/csopt.inc` and to some extent `lib/asm/code.inc`.
 
 So what does the CScript compiler do ? It consists of 4 phases:
 
