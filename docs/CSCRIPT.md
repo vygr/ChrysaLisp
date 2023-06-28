@@ -133,10 +133,9 @@ compilation is as simple as:
 ```
 
 OK, that's a bit flippant. What the reverse polish stage did was to arrange
-things so that we can scan the output and emit instructions without a care. And
-it also boiled away the ordering operators like `:lrb` and `:lsb` ! All of
-those operators are just changing the order of what we do at the VP output
-stage.
+things so that we can scan the output and emit instructions without a care. It
+also boiled away the ordering operators like `:lrb` and `:lsb` ! All of those
+operators are just changing the order of what we do at the VP output stage.
 
 Your only left with these operations, in your defined order. Languages may vary
 in the order rules, but they ALL do this !
@@ -190,8 +189,8 @@ stack.
 	(list (vreg-sym (dec (length *vregt*))) (pop *vregt*)))
 ```
 
-We also keep a list of the generated VP instructions that we add to as we go.
-And have a macro to push items onto that for us.
+We also keep a list of the generated VP instructions, that we add to as we go,
+and a macro to push items onto that for us.
 
 ```vdu
 (defmacro add-inst (&rest b)
@@ -202,8 +201,8 @@ And have a macro to push items onto that for us.
 
 Let's take a look at the `(compile-const)` function to see how we `stack` a
 constant as we scan the reverse polish input. What we want to do is add a new
-item onto the type stack, in this case its type is `:nil`. And we want to add a
-new instruction to the output that will perform this operation.
+item onto the type stack, in this case its type is `:nil`. We also want to add
+a new instruction to the output that will perform this operation.
 
 ```vdu
 (defun compile-const (_)
@@ -218,7 +217,7 @@ will look something like:
 (vp-cpy-cr 592 _v3)
 ```
 
-And let's see what simple operators like addition and subtraction do.
+Let's see what simple operators like addition and subtraction do.
 
 ```vdu
 (defun compile-plus (_)
@@ -416,9 +415,9 @@ post opt:
 ```
 
 Notice what has happened here. The results of the addition and subtraction sub
-expressions have been stacked up into the results `_v0` and `_v1` ! And note
-that the work carried out to do the subtraction sub expression does not use
-`_v0`, it is not trashed ! Also note that we are not actually using 'real' VP
+expressions have been stacked up into the results `_v0` and `_v1` ! Note that
+the work carried out to do the subtraction sub expression does not use `_v0`,
+it is not trashed ! Also note that we are not actually using 'real' VP
 registers yet ! No mention of `:r0` or `:r1` etc. ;)
 
 ### Assign inputs and outputs
@@ -434,7 +433,7 @@ drain code created by the compilation functions.
 
 We could, and do, use just the input part or the output part of this process to
 interface with VP register lists in order to call VP methods, or use output
-from VP methods. We have the ability to define symbol bindings for those `_vX`
+from VP methods. We have the ability to define symbol bindings for those `_vXX`
 symbols before we let the assembler see the list of VP instructions we have
 built up !
 
@@ -500,7 +499,10 @@ hanging memory references.
 
 The other types of `(assign)` are variations on this theme. In the
 `VP_ASSIGNMENT.md` doc we talked about the 4 principle possibilities but there
-are other things that could be done. There are further extensions to the
-operators that could be added, user custom operators are possible but have not
-been used. Support was added to the compiler to directly work on ChrysaLisp
-fixed point values using "*>" and "</".
+are other things that could be done.
+
+There are further extensions to the operators that could be added, user custom
+operators are possible but have not yet been used.
+
+Support was added to the compiler to directly work on ChrysaLisp fixed point
+values using "*>" and "</".
