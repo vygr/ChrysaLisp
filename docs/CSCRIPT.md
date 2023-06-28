@@ -436,11 +436,13 @@ We could, and do, use just the input part or the output part of this process to
 interface with VP register lists in order to call VP methods, or use output
 from VP methods. We have the ability to define symbol bindings for those `_vX`
 symbols before we let the assembler see the list of VP instructions we have
-built up ! So a call to a VP method from CScript can gather the VP register
-inputs from the `(method-input)` function and create a register map in order to
-create code that will use exactly the correct registers for that call, and
-likewise use `(method-output)` function to map the outputs to a pre-loaded
-compiler stack that a CScript output can consume.
+built up !
+
+A call to a VP method from CScript can gather the VP register inputs from the
+`(method-input)` function and create a register map in order to create code
+that will use exactly the correct registers for that call, likewise you use
+`(method-output)` function to map output registers to a pre-loaded compiler
+stack that a CScript output can consume.
 
 This is what these register map functions provide.
 
@@ -497,8 +499,8 @@ hanging memory references.
 * Evaluate the compiler output instruction list.
 
 The other types of `(assign)` are variations on this theme. In the
-`ASSIGNMENT.md` doc we talked about the 4 principle possibilities but there are
-other things that could be done. There are further extensions to the operators
-that could be added, user custom operators are possible but have not been used.
-Support was added to the compiler to directly work on ChrysaLisp fixed point
-values using "*>" and "</".
+`VP_ASSIGNMENT.md` doc we talked about the 4 principle possibilities but there
+are other things that could be done. There are further extensions to the
+operators that could be added, user custom operators are possible but have not
+been used. Support was added to the compiler to directly work on ChrysaLisp
+fixed point values using "*>" and "</".
