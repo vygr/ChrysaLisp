@@ -151,3 +151,276 @@ What holds it together if you can do that ? Discipline, and maybe learned
 responses... Pavlov's dog etc. But be aware that you need to rise above that.
 
 I have yet to get to the interesting bits though... better keep typing ;)
+
+### Compilation stacks
+
+In order to compile the reverse polish output from of the CScript expression we
+use a stack of symbols and there associated type. By type I mean whether the
+resister is holding a `ptr` or an `int` etc.
+
+Items are added to this stack on operations such as `(compile-const)` and
+`(compile-ref)` and are removed or transformed when operator actions are
+compiled.
+
+```vdu
+(defq +vreg ''(_v0 _v1 _v2 _v3 _v4 _v5 _v6 _v7 _v8 _v9 _v10 _v11 _v12 _v13 _v14)
+	*vregt* (list))
+```
+
+Functions and macros are provided to push, pop and extract items from the
+stack.
+
+```vdu
+(defmacro set-type (_)
+	(list 'elem-set -2 '*vregt* _))
+
+(defmacro get-type ()
+	'(elem-get -2 *vregt*))
+
+(defmacro top-reg ()
+	'(vreg-sym (dec (length *vregt*))))
+
+(defmacro tmp-reg ()
+	'(vreg-sym (length *vregt*)))
+
+(defun push-reg (_)
+	(vreg-sym (dec (length (push *vregt* _)))))
+
+(defun pop-reg ()
+	(list (vreg-sym (dec (length *vregt*))) (pop *vregt*)))
+```
+
+We also keep a list of the generated VP instructions that we add to as we go.
+And have a macro to push items onto that for us.
+
+```vdu
+(defmacro add-inst (&rest b)
+	`(push *inst* ~b))
+```
+
+### Code generation
+
+Let's take a look at the `(compile-const)` function to see how we `stack` a
+constant as we scan the reverse polish input. What we want to do is add a new
+item onto the type stack, in this case its type is `:nil`. And we want to add a
+new instruction to the output that will perform this operation.
+
+```vdu
+(defun compile-const (_)
+	(add-inst (list 'vp-cpy-cr _ (push-reg :nil))))
+```
+
+We use `(push-reg) -> sym` to stack the type, `:nil`, and return the symbol
+representing the register that will hold it, and output an instruction that
+will look something like:
+
+```vdu
+(vp-cpy-cr 592 _v3)
+```
+
+And let's see what simple operators like addition and subtraction do.
+
+```vdu
+(defun compile-plus (_)
+	(add-inst (list 'vp-add-rr (pop-value) (top-value))))
+
+(defun compile-minus (_)
+	(add-inst (list 'vp-sub-rr (pop-value) (top-value))))
+```
+
+These are simple operators that take a value from the stack and transform the
+resulting top value. If you hit both of these one after the other you may see
+something like the following instructions output:
+
+```vdu
+(vp-add-rr _v4 _v3)
+(vp-sub-rr _v3 _v2)
+```
+
+Note the use of `(pop-value)` and `(top-value)` functions to refer to the
+popped and top items on the stack ! This is where some of the magic starts to
+happen. The type of the stack items is tested and extra instructions may be
+generated to take that type into account. We may need to load a value from
+memory into a register that the addition and subtraction operators will act on.
+
+### Dereferencing
+
+Look closer at the `(pop-value)` and `(top-value)` functions.
+
+```vdu
+(defun compile-deref ()
+	(if (defq x (top-reg) w (get-type))
+		(defq z (slice 1 -1 w) z (if (eql z "") :nil z) w (elem-get 0 w))
+		(throw "No type info !" x))
+	(set-type z)
+	(setq w (elem-get (find-rev w "bBsSiIlLp")
+		'(vp-cpy-ir-b vp-cpy-ir-ub vp-cpy-ir-s vp-cpy-ir-us
+		vp-cpy-ir-i vp-cpy-ir-ui vp-cpy-ir vp-cpy-ir vp-cpy-ir)))
+	(add-inst (list w x 0 x)))
+
+(defun compile-deref? ()
+	(if (get-type)
+		(compile-deref)))
+
+(defun pop-value ()
+	(compile-deref?)
+	(pop *vregt*)
+	(vreg-sym (length *vregt*)))
+
+(defun top-value ()
+	(when (get-type)
+		(compile-deref)
+		(set-type :nil))
+	(top-reg))
+```
+
+The stack items are tested to see if they are boring types like `:nil`, and if
+not then the type of the item is used to output the correct VP memory read
+operation. The type code for the item is trimmed by one element. These type
+codes are simply a string, such as `i` for a signed integer `ppI` for pointer
+to pointer to unsigned integer etc. If the type string becomes empty it is set
+to `:nil` to represent the end of the line.
+
+### Referencing
+
+We push typed items onto the stack with the opposite function to
+`(compile-deref)` !
+
+Let's look at what compiling a `:symbol` does.
+
+```vdu
+(defun compile-ref (_)
+	(cond
+		((not (defq s (get-sym _)))
+			;not in symbol table so figure out what it is
+			(cond
+				((get (sym (str _ "_t")))
+					;field/member
+					(add-inst (list 'vp-cpy-cr _
+						(push-reg (eval (sym (str _ "_t")))))))
+				((get _)
+					;equate
+					(compile-const _))
+				(:t (throw "Symbol not defined !" _))))
+		((eql 'var (elem-get 1 s))
+			;variable
+			(add-inst (list 'vp-lea-i :rsp
+						(+ (get-scope (elem-get 0 s)) (elem-get 2 s))
+						(push-reg (elem-get 3 s)))))
+		(:t (throw "Symbol not a variable !" _))))
+```
+
+We examine what the symbol is, by first looking it up in the `(def-vars)`
+scope. Fallback to some simple VP level types we want to cope with, and throw
+an error if not found. But let's say we do find it, then we output a VP
+instruction that creates a reference to the stack location, and push the
+variables type string onto the compilation stack.
+
+Define a variable and reference it:
+
+```vdu
+(def-vars (int a b c))
+(push-scope)
+(assign {a + b} {c})
+(pop-scope)
+```
+
+The compilation of `{a}` will stack a type of "i" and output a VP instruction
+of:
+
+```vdu
+(vp-lea-i :rsp 0 _v0)
+```
+
+Later on when we need to perform the "+" operator we see the dereference. The
+full example showing the output.
+
+```vdu
+(let ((*debug_inst* :t))
+	(def-vars (int a b c))
+	(push-scope)
+	(assign {a + b} {c})
+	(pop-scope)
+	(return))
+
+(vp-alloc 16)
+pre opt:
+	(vp-lea-i :rsp 0 _v0)
+	(vp-lea-i :rsp 4 _v1)
+	(vp-cpy-ir-i _v1 0 _v1)
+	(vp-cpy-ir-i _v0 0 _v0)
+	(vp-add-rr _v1 _v0)
+
+	(vp-lea-i :rsp 8 _v1)
+	(vp-cpy-ri-i _v0 _v1 0)
+post opt:
+	(vp-cpy-ir-i :rsp (+ 4 0) _v1)
+	(vp-cpy-ir-i :rsp (+ 0 0) _v0)
+	(vp-add-rr _v1 _v0)
+
+	(vp-cpy-ri-i _v0 :rsp (+ 8 0))
+(vp-free 16)
+(vp-ret)
+```
+
+### Multiple statements
+
+You may have multiple statements compiled in the same expression, using the ","
+separator. What happens in that case is that each statement is compiled one
+after the other and the results build up on the compilation stack.
+
+This is extremely useful when we come to the way that the `(assign)` function
+uses this to exchange between CScript and VP level source !
+
+Take another example:
+
+```vdu
+(let ((*debug_inst* :t))
+	(def-vars (int a b c d) (ushort x y))
+	(push-scope)
+	(assign {a + b, x - y} {c, d})
+	(pop-scope)
+	(return))
+
+(vp-alloc 24)
+pre opt:
+	(vp-lea-i :rsp 0 _v0)
+	(vp-lea-i :rsp 4 _v1)
+	(vp-cpy-ir-i _v1 0 _v1)
+	(vp-cpy-ir-i _v0 0 _v0)
+	(vp-add-rr _v1 _v0)
+
+	(vp-lea-i :rsp 16 _v1)
+	(vp-lea-i :rsp 18 _v2)
+	(vp-cpy-ir-us _v2 0 _v2)
+	(vp-cpy-ir-us _v1 0 _v1)
+	(vp-sub-rr _v2 _v1)
+
+	(vp-lea-i :rsp 12 _v2)
+	(vp-cpy-ri-i _v1 _v2 0)
+	(vp-lea-i :rsp 8 _v1)
+	(vp-cpy-ri-i _v0 _v1 0)
+post opt:
+	(vp-cpy-ir-i :rsp (+ 4 0) _v1)
+	(vp-cpy-ir-i :rsp (+ 0 0) _v0)
+	(vp-add-rr _v1 _v0)
+
+	(vp-cpy-ir-us :rsp (+ 18 0) _v2)
+	(vp-cpy-ir-us :rsp (+ 16 0) _v1)
+	(vp-sub-rr _v2 _v1)
+
+	(vp-cpy-ri-i _v1 :rsp (+ 12 0))
+	(vp-cpy-ri-i _v0 :rsp (+ 8 0))
+(vp-free 24)
+(vp-ret)
+```
+
+Notice what has happened here. The results of the addition and subtraction sub
+expressions have been stacked up into the results `_v0` and `_v1` ! And note
+that the work carried out to do the subtraction sub expression does not use
+`_v0`, it is not trashed ! Also note that we are not actually using 'real' VP
+registers yet ! No mention of `:r0` or `:r1` etc. ;)
+
+What we have built up here is a representation of the loads, stores and
+computation into a stack over virtual virtual registers.
+
