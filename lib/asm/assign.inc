@@ -149,7 +149,7 @@
 		(when *debug_inst*
 			(print "post opt:")
 			(each (const print-inst) *inst*))
-		(set-reg-map (reverse src) _)
+		(def-reg-map (reverse src) _)
 		(eval *inst* *func_env*)))
 
 (defun assign-script-to-asm (src dst _)
@@ -165,7 +165,7 @@
 		(when *debug_inst*
 			(print "post opt:")
 			(each (const print-inst) *inst*))
-		(set-reg-map (cat dst) _)
+		(def-reg-map (cat dst) _)
 		(eval *inst* *func_env*)))
 
 (defun assign-script-to-script (src dst _)
@@ -184,7 +184,7 @@
 		(when *debug_inst*
 			(print "post opt:")
 			(each (const print-inst) *inst*))
-		(set-reg-map :nil _)
+		(def-reg-map :nil _)
 		(eval *inst* *func_env*)))
 
 (defun assign (&optional src dst _)

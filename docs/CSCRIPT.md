@@ -454,12 +454,12 @@ This is what these register map functions provide.
 	`(defq *inst* (push (clear '()) progn)
 		*vregt* (slice 0 ,_ '(:nil :nil :nil :nil :nil :nil :nil :nil :nil :nil :nil :nil :nil :nil :nil))))
 
-(defun set-reg-map (l _)
-	(setd _ '(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14))
-	(each (lambda (_ r) (set (penv) _ r)) +vreg (if l (merge-obj l _) _)))
+(defun def-reg-map (pre spill)
+	(setd spill '(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14))
+	(each (# (def *func_env* %0 %1)) +vreg (if pre (merge-obj pre spill) spill)))
 ```
 
-By default, if you don't provide a list of VP registers to `(set-reg-map)` it
+By default, if you don't provide a list of VP registers to `(def-reg-map)` it
 will use the full list of VP registers. If you do provide a list it will merge
 the full set with your provided list ! Your provided set will be at the front
 and take priority. This is also why use of the CScript compiler in general
@@ -482,7 +482,7 @@ mind.
 		(when *debug_inst*
 			(print "post opt:")
 			(each (const print-inst) *inst*))
-		(set-reg-map (cat dst) _)
+		(def-reg-map (cat dst) _)
 		(eval *inst* *func_env*)))
 ```
 

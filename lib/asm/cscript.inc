@@ -186,7 +186,6 @@
 ;;;;;;;;;;;;;
 
 (defq +vreg ''(_v0 _v1 _v2 _v3 _v4 _v5 _v6 _v7 _v8 _v9 _v10 _v11 _v12 _v13 _v14))
-(each (lambda (_) (defcvar _ :nil)) +vreg)
 
 (defmacro vreg-sym (_)
 	`(elem-get ,_ ,+vreg))
@@ -210,9 +209,9 @@
 	`(defq *inst* (push (clear '()) progn)
 		*vregt* (slice 0 ,_ '(:nil :nil :nil :nil :nil :nil :nil :nil :nil :nil :nil :nil :nil :nil :nil))))
 
-(defun set-reg-map (l _)
-	(setd _ '(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14))
-	(each (lambda (_ r) (set (penv) _ r)) +vreg (if l (merge-obj l _) _)))
+(defun def-reg-map (pre spill)
+	(setd spill '(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14))
+	(each (# (def *func_env* %0 %1)) +vreg (if pre (merge-obj pre spill) spill)))
 
 (defun push-reg (_)
 	(vreg-sym (dec (length (push *vregt* _)))))
@@ -225,8 +224,9 @@
 		(defq z (slice 1 -1 w) z (if (eql z "") :nil z) w (elem-get 0 w))
 		(throw "No type info !" x))
 	(set-type z)
-	(setq w (elem-get (find-rev w "bBsSiIlLp") '(vp-cpy-ir-b vp-cpy-ir-ub vp-cpy-ir-s vp-cpy-ir-us
-										vp-cpy-ir-i vp-cpy-ir-ui vp-cpy-ir vp-cpy-ir vp-cpy-ir)))
+	(setq w (elem-get (find-rev w "bBsSiIlLp")
+		'(vp-cpy-ir-b vp-cpy-ir-ub vp-cpy-ir-s vp-cpy-ir-us
+		vp-cpy-ir-i vp-cpy-ir-ui vp-cpy-ir vp-cpy-ir vp-cpy-ir)))
 	(add-inst (list w x 0 x)))
 
 (defun compile-deref? ()
@@ -253,8 +253,9 @@
 (defun compile-arrow (&optional _)
 	(bind '((y w) x) (list (pop-reg) (pop-value)))
 	(if _ (push-reg :nil))
-	(setq w (elem-get (find-rev w "bBsSiIlLp") '(vp-cpy-ri-b vp-cpy-ri-b vp-cpy-ri-s vp-cpy-ri-s
-										vp-cpy-ri-i vp-cpy-ri-i vp-cpy-ri vp-cpy-ri vp-cpy-ri)))
+	(setq w (elem-get (find-rev w "bBsSiIlLp")
+		'(vp-cpy-ri-b vp-cpy-ri-b vp-cpy-ri-s vp-cpy-ri-s
+		vp-cpy-ri-i vp-cpy-ri-i vp-cpy-ri vp-cpy-ri vp-cpy-ri)))
 	(add-inst (list w x y 0)))
 
 (defun compile-ref (_)
@@ -470,6 +471,6 @@
 ;module
 (export-symbols
 	cscript
-	reset-reg-stack set-reg-map
+	reset-reg-stack def-reg-map
 	compile-deref? compile-arrow)
 (env-pop)
