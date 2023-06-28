@@ -153,8 +153,8 @@ I have yet to get to the interesting bits though... better keep typing ;)
 
 ### Compilation stacks
 
-In order to compile the reverse polish output from of the CScript expression we
-use a stack of symbols and there associated type. By type I mean whether the
+In order to compile the reverse polish output from the CScript expression stage
+we use a stack of symbols and there associated type. By type I mean whether the
 resister is holding a `ptr` or an `int` etc.
 
 Items are added to this stack on operations such as `(compile-const)` and
