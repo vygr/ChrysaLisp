@@ -296,8 +296,8 @@ Let's look at what compiling a `:symbol` does.
 			(cond
 				((get (sym (str _ "_t")))
 					;field/member
-					(add-inst (list 'vp-cpy-cr _
-						(push-reg (eval (sym (str _ "_t")))))))
+					(add-inst (list 'vp-cpy-cr
+						_ (push-reg (eval (sym (str _ "_t")))))))
 				((get _)
 					;equate
 					(compile-const _))
@@ -305,8 +305,8 @@ Let's look at what compiling a `:symbol` does.
 		((eql 'var (elem-get 1 s))
 			;variable
 			(add-inst (list 'vp-lea-i :rsp
-						(+ (get-scope (elem-get 0 s)) (elem-get 2 s))
-						(push-reg (elem-get 3 s)))))
+				(+ (get-scope (elem-get 0 s)) (elem-get 2 s))
+				(push-reg (elem-get 3 s)))))
 		(:t (throw "Symbol not a variable !" _))))
 ```
 
