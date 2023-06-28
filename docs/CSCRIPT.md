@@ -421,6 +421,84 @@ that the work carried out to do the subtraction sub expression does not use
 `_v0`, it is not trashed ! Also note that we are not actually using 'real' VP
 registers yet ! No mention of `:r0` or `:r1` etc. ;)
 
-What we have built up here is a representation of the loads, stores and
-computation into a stack over virtual virtual registers.
+### Assign inputs and outputs
 
+What we have built up above, on the input side of the `(assign)` is a
+representation of the loads, stores and computation into a stack of virtual
+virtual registers. What we then do on the output side of the `(assign)` is to
+drain that stack of virtual virtual registers.
+
+BUT, we could populate those stacks without using the CScript compiler ! The
+above so far has always been a Script to Script assignment. Both the source and
+drain code created by the compilation functions.
+
+We could, and do, use just the input part or the output part of this process to
+interface with VP register lists in order to call VP methods, or use output
+from VP methods. We have the ability to define symbol bindings for those `_vX`
+symbols before we let the assembler see the list of VP instructions we have
+built up ! So a call to a VP method from CScript can gather the VP register
+inputs from the `(method-input)` function and create a register map in order to
+create code that will use exactly the correct registers for that call, and
+likewise use `(method-output)` function to map the outputs to a pre-loaded
+compiler stack that a CScript output can consume.
+
+This is what these register map functions provide.
+
+```vdu
+(defmacro reset-reg-stack (_)
+	`(defq *inst* (push (clear '()) progn)
+		*vregt* (slice 0 ,_ '(:nil :nil :nil :nil :nil :nil :nil :nil :nil :nil :nil :nil :nil :nil :nil))))
+
+(defun set-reg-map (l _)
+	(setd _ '(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14))
+	(each (lambda (_ r) (set (penv) _ r)) +vreg (if l (merge-obj l _) _)))
+```
+
+By default, if you don't provide a list of VP registers to `(set-reg-map)` it
+will use the full list of VP registers. If you do provide a list it will merge
+the full set with your provided list ! Your provided set will be at the front
+and take priority. This is also why use of the CScript compiler in general
+means you must accept that all VP registers may be trashed.
+
+Take a look at `(assign-script-to-asm)` now with fresh eyes and these ideas in
+mind.
+
+```vdu
+(defun assign-script-to-asm (src dst _)
+	(unless (= (length (setq src (split src ","))) (length dst))
+		(throw "Mismatching number of src/dst parameters !" (list src dst)))
+	(when (/= 0 (length dst))
+		(reset-reg-stack 0)
+		(each (# (cscript %0) (compile-deref?)) src)
+		(when *debug_inst*
+			(print "pre opt:")
+			(each (const print-inst) *inst*))
+		(opt-inst-list *inst*)
+		(when *debug_inst*
+			(print "post opt:")
+			(each (const print-inst) *inst*))
+		(set-reg-map (cat dst) _)
+		(eval *inst* *func_env*)))
+```
+
+* Split up the CScript expression by ",".
+
+* Test it matches the VP destination register list.
+
+* Reset the compiler register stack.
+
+* Compile each of the CScript expressions, forcing a `(compile-deref?)` on any
+hanging memory references.
+
+* Call the CScript optimizer to crunch down what we can.
+
+* Set the `_vXX` to `:rXX` bindings.
+
+* Evaluate the compiler output instruction list.
+
+The other types of `(assign)` are variations on this theme. In the
+`ASSIGNMENT.md` doc we talked about the 4 principle possibilities but there are
+other things that could be done. There are further extensions to the operators
+that could be added, user custom operators are possible but have not been used.
+Support was added to the compiler to directly work on ChrysaLisp fixed point
+values using "*>" and "</".
