@@ -154,8 +154,8 @@ I have yet to get to the interesting bits though... better keep typing ;)
 ### Compilation stacks
 
 In order to compile the reverse polish output from the CScript expression stage
-we use a stack of symbols and there associated type. By type I mean whether the
-resister is holding a `ptr` or an `int` etc.
+we use a stack of symbols and their associated type. By type I mean whether the
+register is holding a `ptr` or an `int` etc.
 
 Items are added to this stack on operations such as `(compile-const)` and
 `(compile-ref)` and are removed or transformed when operator actions are
@@ -190,7 +190,7 @@ stack.
 ```
 
 We also keep a list of the generated VP instructions, that we add to as we go,
-and a macro to push items onto that for us.
+and a macro to push items onto it for us.
 
 ```vdu
 (defmacro add-inst (&rest b)
@@ -238,9 +238,10 @@ something like the following instructions output:
 
 Note the use of `(pop-value)` and `(top-value)` functions to refer to the
 popped and top items on the stack ! This is where some of the magic starts to
-happen. The type of the stack items is tested and extra instructions may be
+happen. The type of the stack items are tested and extra instructions may be
 generated to take that type into account. We may need to load a value from
-memory into a register that the addition and subtraction operators will act on.
+memory into a register, that the addition and subtraction operators will act
+on.
 
 ### Dereferencing
 
@@ -283,7 +284,7 @@ to `:nil` to represent the end of the line.
 ### Referencing
 
 We push typed items onto the stack with the opposite function to
-`(compile-deref)` !
+`(compile-deref)`, `(compile-ref)` !
 
 Let's look at what compiling a `:symbol` does.
 
@@ -311,9 +312,11 @@ Let's look at what compiling a `:symbol` does.
 
 We examine what the symbol is, by first looking it up in the `(def-vars)`
 scope. Fallback to some simple VP level types we want to cope with, and throw
-an error if not found. But let's say we do find it, then we output a VP
-instruction that creates a reference to the stack location, and push the
-variables type string onto the compilation stack.
+an error if not found.
+
+But let's say we do find it, then we output a VP instruction that creates a
+reference to the stack location, and push the variables type string onto the
+compilation stack.
 
 Define a variable and reference it:
 
@@ -322,6 +325,7 @@ Define a variable and reference it:
 (push-scope)
 (assign {a + b} {c})
 (pop-scope)
+(return)
 ```
 
 The compilation of `{a}` will stack a type of "i" and output a VP instruction
