@@ -211,7 +211,7 @@
 
 (defun def-reg-map (pre spill)
 	(setd spill '(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14))
-	(each (# (def *func_env* %0 %1)) +vreg (if pre (merge-obj pre spill) spill)))
+	(each (# (deffvar %0 %1)) +vreg (if pre (merge-obj pre spill) spill)))
 
 (defun push-reg (_)
 	(vreg-sym (dec (length (push *vregt* _)))))
