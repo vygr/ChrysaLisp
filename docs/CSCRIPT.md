@@ -80,7 +80,7 @@ left to right, sequence. Maybe you can see it as flattening an expression tree
 into a list etc. It's also the stage where the precedence of various operators
 are taken into account in how you flatten the tree.
 
-The algorithm used here is the classic `Shunting Yard Algorithm` !
+The algorithm used here is the classic `Shunting Yard Algorithm`,
 `https://brilliant.org/wiki/shunting-yard-algorithm/`
 
 `(cscript-reverse-polish tokens)` is the function used to do the conversion.
@@ -509,4 +509,4 @@ There are further extensions to the operators that could be added, user custom
 operators are possible but have not yet been used.
 
 Support was added to the compiler to directly work on ChrysaLisp fixed point
-values using "*>" and "</".
+values using the "*>" and "</" operators.
