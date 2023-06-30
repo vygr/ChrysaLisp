@@ -14,6 +14,8 @@ channel calculations.
 
 New `ERRORS.md` doc.
 
+New `CSCRIPT.md` doc.
+
 ------
 
 Renamed the `vp-vec` op to `vp-simd` as this carries better info at the source
