@@ -10,7 +10,7 @@ improve performance on glyph blits.
 `gui_raw.cpp` driver switched to save 75% glyph memory and faster red/blue
 channel calculations.
 
-`gui-fb.c` driver updated to use same 8bit glyph textures.
+`gui_fb.c` driver updated to use same 8bit glyph textures.
 
 New `ERRORS.md` doc.
 
