@@ -80,8 +80,8 @@ left to right, sequence. Maybe you can see it as flattening an expression tree
 into a list etc. It's also the stage where the precedence of various operators
 are taken into account in how you flatten the tree.
 
-The algorithm used here is the classic `Shunting Yard Algorithm`,
-`https://brilliant.org/wiki/shunting-yard-algorithm/`
+The algorithm used here is the classic `Shunting Yard Algorithm`.
+(https://brilliant.org/wiki/shunting-yard-algorithm/)
 
 `(cscript-reverse-polish tokens)` is the function used to do the conversion.
 
