@@ -14,6 +14,9 @@
 (def-enum +scope 0
 	(enum offset names attribs))
 
+;last attrib entry is for used flag !
+(defq +attrib_used -2)
+
 (defmacro scope-new ()
 	'(push *scopes* (list 0 (list) (list))))
 
@@ -37,7 +40,7 @@
 	(defq unused (list))
 	(each! 0 -1
 		(lambda (attrib)
-			(unless (elem-get -2 attrib)
+			(unless (elem-get +attrib_used attrib)
 				(push unused (elem-get _ (elem-get +scope_names scope)))))
 		(list (elem-get +scope_attribs (defq scope (pop *scopes*)))))
 	(if (/= 0 (length unused))
@@ -78,7 +81,7 @@
 	(defq name (sym name) attrib (some! -2 0 :nil (lambda (scope)
 		(if (defq _ (find-rev name (elem-get +scope_names scope)))
 			(elem-get _ (elem-get +scope_attribs scope)))) (list *scopes*)))
-	(when attrib (elem-set -2 attrib :t)) attrib)
+	(when attrib (elem-set +attrib_used attrib :t)) attrib)
 
 (defmacro scope-used (&rest names)
 	(each scope-get-sym names) :nil)
