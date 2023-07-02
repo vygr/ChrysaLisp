@@ -68,16 +68,17 @@
 	(vp-ret))
 
 (defun scope-def-sym (name type &rest values)
-	(if (find-rev (setq name (sym name)) (elem-get +scope_names (defq _ (pop *scopes*))))
+	(if (find-rev (setq name (sym name))
+			(elem-get +scope_names (defq scope (pop *scopes*))))
 		(throw "Symbol redefined !" name))
-	(push (elem-get +scope_names _) name)
-	(push (elem-get 2 _) (cat (list (length *scopes*) type) values '(:nil)))
-	(push *scopes* _))
+	(push (elem-get +scope_names scope) name)
+	(push (elem-get +scope_types scope) (cat (list (length *scopes*) type) values '(:nil)))
+	(push *scopes* scope))
 
 (defun scope-get-sym (name)
 	(defq name (sym name) a (some! -2 0 :nil (lambda (s)
 		(if (defq _ (find-rev name (elem-get +scope_names s)))
-			(elem-get _ (elem-get 2 s)))) (list *scopes*)))
+			(elem-get _ (elem-get +scope_types s)))) (list *scopes*)))
 	(when a (elem-set -2 a :t)) a)
 
 (defmacro scope-used (&rest names)
