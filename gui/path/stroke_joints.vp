@@ -33,7 +33,7 @@
 		(byte join_style))
 
 	(push-scope)
-	(used-syms l2_pv l1_vx l1_vy p3)
+	(scope-used l2_pv l1_vx l1_vy p3)
 	(entry 'path :stroke_joints {this, stack, iter_i, iter_j, p1x, p1y, p2x, p2y, radius, eps, join_style})
 
 	(vpif {iter_i /= iter_j})

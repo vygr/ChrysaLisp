@@ -185,14 +185,14 @@
 	(cond
 		((eql (elem-get 1 (defq m (method-lookup _1 _2))) :static)
 			(assign _3 (elem-get 2 m))
-			(unwind)
+			(scope-unwind)
 			(fn-jump (elem-get 0 m)))
 		(:t	(defq _ (elem-get 2 m))
 			(if (find-rev :r14 _)
 				(throw "Dispatch register conflicts with arg !" (list :r14 _)))
 			(assign _3 _)
 			(vp-cpy-ir :r0 obj_vtable :r14)
-			(unwind)
+			(scope-unwind)
 			(vp-jmp-i :r14 (elem-get 4 m)))))
 
 (defmacro entry (&rest _)
@@ -235,7 +235,7 @@
 	(unless (eql (elem-get 1 (defq m (method-lookup _1 _2))) :static)
 		(throw "Method is not static ! Use v-jump ?" (list _1 _2)))
 	(assign _3 (elem-get 2 m))
-	(unwind)
+	(scope-unwind)
 	(fn-jump (elem-get 0 m)))
 
 (defun f-bind (_1 _2 _3)
@@ -267,7 +267,7 @@
 		(unless (eql _2 :init)
 			(throw "Method is static !" (list (eval (super-sym _1)) _2))))
 	(assign _3 (elem-get 2 m))
-	(unwind)
+	(scope-unwind)
 	(if (eql (elem-get 0 m) 'class/obj/null)
 		(vp-ret)
 		(fn-jump (elem-get 0 m))))
@@ -310,7 +310,7 @@
 		(throw "Dispatch register conflicts with arg !" (list _4 _)))
 	(assign _3 _)
 	(vp-cpy-ir :r0 obj_vtable _4)
-	(unwind)
+	(scope-unwind)
 	(vp-jmp-i _4 (elem-get 4 m)))
 
 (defun v-bind (_1 _2 &optional _3 _4)
@@ -342,7 +342,7 @@
 	(if (eql (elem-get 1 (defq m (method-lookup _1 _2))) :static)
 		(throw "Method is static ! Use f-jmp ?" (list _1 _2)))
 	(assign _3 (elem-get 2 m))
-	(unwind)
+	(scope-unwind)
 	(fn-jump (elem-get 0 m)))
 
 (defun d-bind (_1 _2 _3)
@@ -377,7 +377,7 @@
 	(if (find-rev _4 _)
 		(throw "Dispatch register conflicts with arg !" (list _4 _)))
 	(assign _3 (cat _ (list _4)))
-	(unwind)
+	(scope-unwind)
 	(vp-jmp-r _4))
 
 (defun l-call (_1 &optional _2 _3)

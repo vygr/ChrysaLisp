@@ -16,6 +16,8 @@ New `ERRORS.md` doc.
 
 New `CSCRIPT.md` doc.
 
+Separate stack scoped variables into its own module `lib/asm/scopes.inc`.
+
 ------
 
 Renamed the `vp-vec` op to `vp-simd` as this carries better info at the source

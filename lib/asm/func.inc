@@ -1,4 +1,5 @@
 (include "lib/asm/code.inc")
+(include "lib/asm/scopes.inc")
 (include "lib/asm/vp.inc")
 (include "lib/asm/vpopt.inc")
 (include "lib/asm/cscript.inc")

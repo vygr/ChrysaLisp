@@ -17,7 +17,7 @@ each time you use a string argument as an input or output to the `(assign)`
 function.
 
 The CScript compiler implementation files are `lib/asm/cscript.inc`,
-`lib/asm/csopt.inc` and to some extent `lib/asm/code.inc`.
+`lib/asm/csopt.inc` and `lib/asm/scopes.inc`.
 
 So what does the CScript compiler do ? It consists of 4 phases:
 
@@ -291,7 +291,7 @@ Let's look at what compiling a `:symbol` does.
 ```vdu
 (defun compile-ref (_)
 	(cond
-		((not (defq s (get-sym _)))
+		((not (defq s (scope-get-sym _)))
 			;not in symbol table so figure out what it is
 			(cond
 				((get (sym (str _ "_t")))
@@ -305,7 +305,7 @@ Let's look at what compiling a `:symbol` does.
 		((eql 'var (elem-get 1 s))
 			;variable
 			(add-inst (list 'vp-lea-i :rsp
-				(+ (get-scope (elem-get 0 s)) (elem-get 2 s))
+				(+ (scope-get (elem-get 0 s)) (elem-get 2 s))
 				(push-reg (elem-get 3 s)))))
 		(:t (throw "Symbol not a variable !" _))))
 ```

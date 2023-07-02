@@ -30,7 +30,7 @@
 		(byte join_style cap1_style cap2_style))
 
 	(push-scope)
-	(used-syms l2_pv p3 p4)
+	(scope-used l2_pv p3 p4)
 	(entry 'path :stroke_polyline {this, stack, radius, eps, join_style, cap1_style, cap2_style})
 
 	(vec-set 0)
