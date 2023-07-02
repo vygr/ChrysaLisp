@@ -9,70 +9,75 @@
 ; variables
 ;;;;;;;;;;;
 
-(defcvar '*sym_sp* 0 '*syms* (list))
+(defcvar '*scopes_sp* 0 '*scopes* (list))
+
+(def-enum +scope 0
+	(enum offset names types))
 
 (defmacro scope-new ()
-	'(push *syms* (list 0 (list) (list))))
+	'(push *scopes* (list 0 (list) (list))))
 
 (defun scope-get (level)
 	(defq offset 0)
-	(each! (inc level) -2 (# (setq offset (+ offset (elem-get 0 %0)))) (list *syms*))
+	(each! (inc level) -2
+		(# (setq offset (+ offset (elem-get +scope_offset %0))))
+		(list *scopes*))
 	offset)
 
 (defun push-scope ()
-	(setq *sym_sp* (align *sym_sp* stack_align))
-	(elem-set 0 (elem-get -3 (scope-new)) *sym_sp*)
-	(when (/= *sym_sp* 0)
+	(setq *scopes_sp* (align *scopes_sp* stack_align))
+	(elem-set +scope_offset (elem-get -3 (scope-new)) *scopes_sp*)
+	(when (/= *scopes_sp* 0)
 		(when *debug_inst*
-			(print "(vp-alloc " *sym_sp* ")"))
-		(vp-alloc *sym_sp*)
-		(setq *sym_sp* 0)))
+			(print "(vp-alloc " *scopes_sp* ")"))
+		(vp-alloc *scopes_sp*)
+		(setq *scopes_sp* 0)))
 
 (defun pop-scope-syms ()
-	(pop *syms*)
-	(defq u (list))
-	(each! 0 -1 (lambda (a)
-		(unless (elem-get -2 a) (push u (elem-get _ (elem-get 1 s))))) (list (elem-get 2 (defq s (pop *syms*)))))
-	(if (/= 0 (length u))
-		(throw "Unused symbols !" u))
+	(pop *scopes*)
+	(defq unused (list))
+	(each! 0 -1
+		(lambda (a)
+			(unless (elem-get -2 a)
+				(push unused (elem-get _ (elem-get +scope_names scope)))))
+		(list (elem-get 2 (defq scope (pop *scopes*)))))
+	(if (/= 0 (length unused))
+		(throw "Unused symbols !" unused))
 	(scope-new)
-	(setq *sym_sp* 0)
-	(elem-get 0 s))
+	(setq *scopes_sp* 0)
+	(elem-get +scope_offset scope))
 
 (defun pop-scope ()
-	(when (/= (defq _ (pop-scope-syms)) 0)
-		(when *debug_inst*
-			(print "(vp-free " _ ")"))
-		(vp-free _)))
+	(when (/= (defq offset (pop-scope-syms)) 0)
+		(if *debug_inst* (print "(vp-free " offset ")"))
+		(vp-free offset)))
 
 (defun pop-scope-checked ()
-	(defq _ (pop-scope-syms))
-	(when (/= (length *syms*) 2)
-		(throw "Unbalanced scopes !" _)))
+	(defq offset (pop-scope-syms))
+	(when (/= (length *scopes*) 2)
+		(throw "Unbalanced scopes !" offset)))
 
 (defun scope-unwind ()
-	(when (/= (defq _ (scope-get -1)) 0)
-		(when *debug_inst*
-			(print "(vp-free " _ ")"))
-		(vp-free _)))
+	(when (/= (defq offset (scope-get -1)) 0)
+		(if *debug_inst* (print "(vp-free " offset ")"))
+		(vp-free offset)))
 
 (defun return ()
 	(scope-unwind)
-	(when *debug_inst*
-		(print "(vp-ret)"))
+	(if *debug_inst* (print "(vp-ret)"))
 	(vp-ret))
 
 (defun scope-def-sym (name type &rest values)
-	(if (find-rev (setq name (sym name)) (elem-get 1 (defq _ (pop *syms*))))
+	(if (find-rev (setq name (sym name)) (elem-get +scope_names (defq _ (pop *scopes*))))
 		(throw "Symbol redefined !" name))
-	(push (elem-get 1 _) name)
-	(push (elem-get 2 _) (cat (list (length *syms*) type) values '(:nil)))
-	(push *syms* _))
+	(push (elem-get +scope_names _) name)
+	(push (elem-get 2 _) (cat (list (length *scopes*) type) values '(:nil)))
+	(push *scopes* _))
 
 (defun scope-get-sym (name)
 	(defq name (sym name) a (some! -2 0 :nil (lambda (s)
-		(if (defq _ (find-rev name (elem-get 1 s)))
-			(elem-get _ (elem-get 2 s)))) (list *syms*)))
+		(if (defq _ (find-rev name (elem-get +scope_names s)))
+			(elem-get _ (elem-get 2 s)))) (list *scopes*)))
 	(when a (elem-set -2 a :t)) a)
 
 (defmacro scope-used (&rest names)
@@ -83,8 +88,8 @@
 
 (defun scope-new-var (type size)
 	(push prog
-		`(scope-def-sym ',var 'var *sym_sp* ,type)
-		`(setq *sym_sp* (+ *sym_sp* ,size))))
+		`(scope-def-sym ',var 'var *scopes_sp* ,type)
+		`(setq *scopes_sp* (+ *scopes_sp* ,size))))
 
 (defmacro def-vars (&rest lines)
 	; (def-vars [(byte field ...)] ...)
@@ -93,29 +98,29 @@
 		(case (elem-get 0 line)
 			(align
 				(if (> (length line) 1)
-					(push prog `(setq *sym_sp* (align *sym_sp* ,(eval (elem-get 1 line)))))
-					(push prog '(setq *sym_sp* (align *sym_sp* +long_size)))))
+					(push prog `(setq *scopes_sp* (align *scopes_sp* ,(eval (elem-get 1 line)))))
+					(push prog '(setq *scopes_sp* (align *scopes_sp* +long_size)))))
 			(offset
 				(push prog
-					`(scope-def-sym ',(elem-get 1 line) 'var *sym_sp* 0 "")))
+					`(scope-def-sym ',(elem-get 1 line) 'var *scopes_sp* 0 "")))
 			(struct
 				(push prog
-					`(scope-def-sym ',(elem-get 1 line) 'var *sym_sp* 0 "")
-					`(setq *sym_sp* (+ *sym_sp* ,(eval (elem-get 2 line))))))
+					`(scope-def-sym ',(elem-get 1 line) 'var *scopes_sp* 0 "")
+					`(setq *scopes_sp* (+ *scopes_sp* ,(eval (elem-get 2 line))))))
 			(union
 				(defq o (gensym) m (gensym))
-				(push prog `(defq ,o *sym_sp* ,m *sym_sp*))
+				(push prog `(defq ,o *scopes_sp* ,m *scopes_sp*))
 				(each! 1 -1 (lambda (_)
 					(push prog
 						`(def-vars ,_)
-						`(setq ,m (max ,m *sym_sp*) *sym_sp* ,o))) (list line))
-				(push prog `(setq *sym_sp* ,m)))
+						`(setq ,m (max ,m *scopes_sp*) *scopes_sp* ,o))) (list line))
+				(push prog `(setq *scopes_sp* ,m)))
 			(:t
 				(if (defq alignment (find (elem-get 0 line)
 						'(short int long ushort uint ulong ptr pptr
 							pubyte pushort puint pulong pbyte pshort pint plong)))
 					(push prog
-						`(setq *sym_sp* (align *sym_sp* ,(elem-get alignment
+						`(setq *scopes_sp* (align *scopes_sp* ,(elem-get alignment
 							'(+short_size +int_size +long_size +short_size
 								+int_size +long_size +ptr_size +ptr_size
 								+ptr_size +ptr_size +ptr_size +ptr_size
