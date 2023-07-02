@@ -14,9 +14,6 @@
 (def-enum +scope 0
 	(enum offset names attribs))
 
-(def-enum +attrib 0
-	(enum type used))
-
 (defmacro scope-new ()
 	'(push *scopes* (list 0 (list) (list))))
 
@@ -40,7 +37,7 @@
 	(defq unused (list))
 	(each! 0 -1
 		(lambda (attrib)
-			(unless (elem-get +attrib_used attrib)
+			(unless (elem-get -2 attrib)
 				(push unused (elem-get _ (elem-get +scope_names scope)))))
 		(list (elem-get +scope_attribs (defq scope (pop *scopes*)))))
 	(if (/= 0 (length unused))
@@ -69,19 +66,19 @@
 	(if *debug_inst* (print "(vp-ret)"))
 	(vp-ret))
 
-(defun scope-def-sym (name type &rest values)
+(defun scope-def-sym (name type &rest attribs)
 	(if (find-rev (setq name (sym name))
 			(elem-get +scope_names (defq scope (pop *scopes*))))
 		(throw "Symbol redefined !" name))
 	(push (elem-get +scope_names scope) name)
-	(push (elem-get +scope_attribs scope) (cat (list (length *scopes*) type) values '(:nil)))
+	(push (elem-get +scope_attribs scope) (cat (list (length *scopes*) type) attribs '(:nil)))
 	(push *scopes* scope))
 
 (defun scope-get-sym (name)
-	(defq name (sym name) a (some! -2 0 :nil (lambda (scope)
+	(defq name (sym name) attrib (some! -2 0 :nil (lambda (scope)
 		(if (defq _ (find-rev name (elem-get +scope_names scope)))
 			(elem-get _ (elem-get +scope_attribs scope)))) (list *scopes*)))
-	(when a (elem-set -2 a :t)) a)
+	(when attrib (elem-set -2 attrib :t)) attrib)
 
 (defmacro scope-used (&rest names)
 	(each scope-get-sym names) :nil)
