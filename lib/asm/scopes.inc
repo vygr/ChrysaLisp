@@ -11,9 +11,6 @@
 
 (defcvar '*sym_sp* 0 '*syms* (list))
 
-(def-enum +scope 0
-	(enum offset names types))
-
 (defmacro scope-new ()
 	'(push *syms* (list 0 (list) (list))))
 
@@ -24,7 +21,7 @@
 
 (defun push-scope ()
 	(setq *sym_sp* (align *sym_sp* stack_align))
-	(elem-set 0 (elem-get +scope_names (scope-new)) *sym_sp*)
+	(elem-set 0 (elem-get -3 (scope-new)) *sym_sp*)
 	(when (/= *sym_sp* 0)
 		(when *debug_inst*
 			(print "(vp-alloc " *sym_sp* ")"))
@@ -35,7 +32,7 @@
 	(pop *syms*)
 	(defq u (list))
 	(each! 0 -1 (lambda (a)
-		(unless (elem-get +scope_types a) (push u (elem-get _ (elem-get 1 s))))) (list (elem-get 2 (defq s (pop *syms*)))))
+		(unless (elem-get -2 a) (push u (elem-get _ (elem-get 1 s))))) (list (elem-get 2 (defq s (pop *syms*)))))
 	(if (/= 0 (length u))
 		(throw "Unused symbols !" u))
 	(scope-new)
@@ -65,13 +62,12 @@
 		(print "(vp-ret)"))
 	(vp-ret))
 
-(defun scope-def-sym (name type &rest attrib)
-	(if (find-rev (setq name (sym name))
-			(elem-get +scope_names (defq scope (pop *syms*))))
+(defun scope-def-sym (name type &rest values)
+	(if (find-rev (setq name (sym name)) (elem-get 1 (defq _ (pop *syms*))))
 		(throw "Symbol redefined !" name))
-	(push (elem-get +scope_names scope) name)
-	(push (elem-get +scope_types scope) (cat (list (length *syms*) type) attrib '(:nil)))
-	(push *syms* scope))
+	(push (elem-get 1 _) name)
+	(push (elem-get 2 _) (cat (list (length *syms*) type) values '(:nil)))
+	(push *syms* _))
 
 (defun scope-get-sym (name)
 	(defq name (sym name) a (some! -2 0 :nil (lambda (s)
