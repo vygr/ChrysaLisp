@@ -12,7 +12,10 @@
 (defcvar '*scopes_sp* 0 '*scopes* (list))
 
 (def-enum +scope 0
-	(enum offset names types))
+	(enum offset names attribs))
+
+(def-enum +attrib 0
+	(enum type used))
 
 (defmacro scope-new ()
 	'(push *scopes* (list 0 (list) (list))))
@@ -28,8 +31,7 @@
 	(setq *scopes_sp* (align *scopes_sp* stack_align))
 	(elem-set +scope_offset (elem-get -3 (scope-new)) *scopes_sp*)
 	(when (/= *scopes_sp* 0)
-		(when *debug_inst*
-			(print "(vp-alloc " *scopes_sp* ")"))
+		(if *debug_inst* (print "(vp-alloc " *scopes_sp* ")"))
 		(vp-alloc *scopes_sp*)
 		(setq *scopes_sp* 0)))
 
@@ -37,10 +39,10 @@
 	(pop *scopes*)
 	(defq unused (list))
 	(each! 0 -1
-		(lambda (a)
-			(unless (elem-get -2 a)
+		(lambda (attrib)
+			(unless (elem-get +attrib_used attrib)
 				(push unused (elem-get _ (elem-get +scope_names scope)))))
-		(list (elem-get 2 (defq scope (pop *scopes*)))))
+		(list (elem-get +scope_attribs (defq scope (pop *scopes*)))))
 	(if (/= 0 (length unused))
 		(throw "Unused symbols !" unused))
 	(scope-new)
@@ -72,13 +74,13 @@
 			(elem-get +scope_names (defq scope (pop *scopes*))))
 		(throw "Symbol redefined !" name))
 	(push (elem-get +scope_names scope) name)
-	(push (elem-get +scope_types scope) (cat (list (length *scopes*) type) values '(:nil)))
+	(push (elem-get +scope_attribs scope) (cat (list (length *scopes*) type) values '(:nil)))
 	(push *scopes* scope))
 
 (defun scope-get-sym (name)
-	(defq name (sym name) a (some! -2 0 :nil (lambda (s)
-		(if (defq _ (find-rev name (elem-get +scope_names s)))
-			(elem-get _ (elem-get +scope_types s)))) (list *scopes*)))
+	(defq name (sym name) a (some! -2 0 :nil (lambda (scope)
+		(if (defq _ (find-rev name (elem-get +scope_names scope)))
+			(elem-get _ (elem-get +scope_attribs scope)))) (list *scopes*)))
 	(when a (elem-set -2 a :t)) a)
 
 (defmacro scope-used (&rest names)
