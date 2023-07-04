@@ -9,18 +9,7 @@
 
 (include "sys/pii/class.inc")
 (include "sys/task/class.inc")
-
-;;;;;;;;;;;;;;;;;
-; func structures
-;;;;;;;;;;;;;;;;;
-
-(def-struct fn_header ln_fnode_size
-	(ushort length)
-	(ushort entry)
-	(ushort links)
-	(ushort paths)
-	(ushort stack)
-	(offset pathname))
+(include "./lisp.inc")
 
 ;;;;;;;;;;;
 ; functions

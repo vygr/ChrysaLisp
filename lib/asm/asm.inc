@@ -4,6 +4,7 @@
 
 (import "class/lisp.inc")
 (import "././task/farm.inc")
+(import "././boot/image.inc")
 
 (defun compile (files &optional *abi* *cpu* num_child)
 	(unless (list? files) (setq files (list files)))
@@ -131,9 +132,6 @@
 					(push p (sym (elem-get 1 s))))))) (file-stream (defq file _)))
 	(list d p))
 
-(defun func-obj (_)
-	(sym (cat "obj/" *cpu* "/" *abi* "/" _)))
-
 (defun make (&optional files *abi* *cpu*)
 	(setd files (all-vp-files) *abi* (abi) *cpu* (cpu))
 	(compile ((lambda ()
@@ -148,7 +146,7 @@
 			(each-mergeable (#
 				(bind '(d p) (make-info %0))
 				(make-merge files d)
-				(def info (sym %0) (list d (map func-obj p)))) files)))
+				(def info (sym %0) (list d (map func-obj-path p)))) files)))
 		;filter to only the .vp files
 		(setq files (filter (# (ends-with ".vp" %0)) files))
 		;filter to only the files who's oldest product is older than any dependency
@@ -160,70 +158,9 @@
 		;return the list to compile
 		files)) *abi* *cpu*))
 
-(defun make-boot (&optional *funcs* *abi* *cpu*)
-	(within-compile-env (lambda ()
-		(setd *funcs* (list) *abi* (abi) *cpu* (cpu))
-		(defq *fsyms* (env 31) z (cat (char 0 8) (char 0 4)))
-		(include "lib/asm/func.inc")
-		(defun read-paths (_)
-			(defq l (list) i (get-short _ fn_header_links) e (get-short _ fn_header_paths))
-			(while (/= i e)
-				(push l (sym (get-cstr _ (+ (get-long _ i) i))))
-				(setq i (+ i 8))) l)
-		(defun load-func (_)
-			(or (get _ *fsyms*)
-				(progn
-					(unless (defq b (load (func-obj _))) (throw "No such file !" (func-obj _)))
-					(defq h (slice fn_header_entry (defq l (get-short b fn_header_links)) b)
-						l (slice l (defq p (get-short b fn_header_paths)) b))
-					(def *fsyms* _ (list (cat (char -1 8) (char p 2) h) l (read-paths b))))))
-		(unless (list? *funcs*) (setq *funcs* (list *funcs*)))
-		(defq f (list
-			;must be first function !
-			'sys/load/init
-			;must be second function !
-			'sys/statics/statics
-			;must be included !
-			'sys/kernel/kernel))
-		;load all loader dependents
-		(each-mergeable (# (merge-obj f (elem-get 2 (load-func %0)))) f)
-		;load up all extra functions requested
-		(merge-obj f (map sym *funcs*))
-		(each load-func f)
-		;load up all dependents
-		(each-mergeable (# (merge-obj f (elem-get 2 (load-func %0)))) f)
-		;sort into order, leaving the init/statics first !
-		(sort cmp f 2)
-		;list of all function bodies and links in order, list of offsets of header and link sections
-		;and offset of new strings section
-		(defq b (map (# (get %0 *fsyms*)) f) ns (list) nso (list) ho (list) lo (list)
-			so (+ (length z) (reduce (#
-				(push ho %0)
-				(push lo (setq %0 (+ %0 (length (elem-get 0 %1)))))
-				(+ %0 (length (elem-get 1 %1)))) b 0)))
-		;list of all strings that will appear in new strings section, and list of all new string offsets
-		(each (# (each (# (unless (find-rev %0 f) (merge-obj ns (list %0)))) (elem-get 2 (get %0 *fsyms*)))) f)
-		(reduce (# (push nso %0) (+ %0 (length %1) 1)) ns 0)
-		;create new link sections with offsets to header strings or new strings
-		(each (# (defq u (elem-get _ lo))
-			(elem-set 1 %0 (apply cat (push (map (#
-				(char (- (if (defq i (find-rev %0 f))
-					(+ (elem-get i ho) fn_header_pathname)
-					(+ (elem-get (find-rev %0 ns) nso) so)) (+ u (* _ 8))) 8)) (elem-get 2 %0)) "")))) b)
-		;build list of all sections of boot image
-		;concatenate all sections and write out
-		(defq stream (file-stream (func-obj 'sys/boot_image) +file_open_write)
-			f (reduce (# (push %0 (cat %1 (ascii-char 0)))) ns
-				(push (reduce (# (push %0 (elem-get 0 %1) (elem-get 1 %1))) b (list)) z))
-			l (reduce (# (+ %0 (length %1))) f 0))
-		;save size in boot image
-		(elem-set 0 f (cat (char l +long_size) (slice +long_size -1 (elem-get 0 f))))
-		(each (# (write stream %0)) f)
-		(print "-> " (func-obj 'sys/boot_image) " (" l ")") :nil)))
-
 (defun make-boot-all (&optional *abi* *cpu*)
 	(setd *abi* (abi) *cpu* (cpu))
-	(make-boot
+	(boot-image
 		(within-compile-env (lambda ()
 			(include "lib/asm/func.inc")
 			(each include (all-class-files))

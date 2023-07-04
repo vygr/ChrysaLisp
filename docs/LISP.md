@@ -106,8 +106,7 @@ root-lambdas
 
 ```vdu
 all-vp-files compile compile-pipe compile-test make make-all make-all-platforms
-make-boot make-boot-all make-info make-platforms make-test remake
-remake-platforms
+make-boot-all make-info make-platforms make-test remake remake-platforms
 ```
 
 ## Within a `*compile_env*` environment

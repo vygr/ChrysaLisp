@@ -34,7 +34,7 @@
 
 	;get boot block info
 	(assign '(($ fn_start) ($ fn_end)) '(:r0 :r1))
-	(assign '((:r0 0) (:r1 fn_header_length)) '(:r2 :r3))
+	(assign '((:r0 0) (:r1 +fn_header_length)) '(:r2 :r3))
 	(assign '(:r1 :r3) '((:rsp local_boot_static_func) (:rsp local_boot_static_len)))
 	(assign '(:r1) '((:rsp local_boot_tail_func)))
 	(vp-sub-rr :r0 :r1)
@@ -57,7 +57,7 @@
 
 	;init reloc buffer address etc
 	(assign '((:rsp local_new_static_func)) `(,statics))
-	(assign `((,statics fn_header_entry)) '(:r1))
+	(assign `((,statics +fn_header_entry)) '(:r1))
 	(vp-add-rr :r1 statics)
 	(assign `(,statics) '((:rsp local_statics)))
 	(assign '(:r0 :r0) `((,statics statics_sys_load_reloc_stack) (,statics statics_sys_load_reloc_buffer)))
@@ -76,10 +76,10 @@
 	(ln-add-fnode statics statics_sys_load_function_flist func :r0)
 	;add all tail functions to function list
 	(assign '((:rsp local_new_tail_func)) `(,func))
-	(assign `((,func fn_header_length)) '(:r0))
+	(assign `((,func +fn_header_length)) '(:r0))
 	(vp-add-rr :r0 func)
 	(loop-start)
-		(assign `((,func fn_header_length)) '(:r0))
+		(assign `((,func +fn_header_length)) '(:r0))
 		(breakif '(:r0 = 0))
 		(ln-add-fnode statics statics_sys_load_function_flist func :r1)
 		(vp-add-rr :r0 func)
@@ -87,12 +87,12 @@
 
 	;bind all function intra references
 	(assign '((:rsp local_new_tail_func)) `(,func))
-	(assign `((,func fn_header_length)) '(:r0))
+	(assign `((,func +fn_header_length)) '(:r0))
 	(vp-add-rr :r0 func)
 	(loop-start)
-		(assign `((,func fn_header_length)) '(:r0))
+		(assign `((,func +fn_header_length)) '(:r0))
 		(breakif '(:r0 = 0))
-		(assign `((,func fn_header_links) (,func fn_header_paths)) `(,links ,paths))
+		(assign `((,func +fn_header_links) (,func +fn_header_paths)) `(,links ,paths))
 		(vp-add-rr func links)
 		(vp-add-rr func paths)
 		(vp-add-rr :r0 func)
@@ -144,7 +144,7 @@
 
 	(loop-flist stats statics_sys_load_function_flist node node)
 		(vp-cpy-rr name str1)
-		(vp-lea-i node fn_header_pathname str2)
+		(vp-lea-i node +fn_header_pathname str2)
 		(loop-start)
 			(vp-cpy-ir-ub str1 0 c1)
 			(vp-cpy-ir-ub str2 0 c2)
@@ -154,7 +154,7 @@
 			(vp-add-cr +byte_size str2)
 		(loop-end)
 	(loop-until (list c1 '= 0))
-	(assign `((,node fn_header_entry)) '(:r0))
+	(assign `((,node +fn_header_entry)) '(:r0))
 	(vp-add-rr node :r0)
 
 	(exit '(:r0))
@@ -197,11 +197,11 @@
 	;check if function already present !
 	(fn-bind 'sys/statics/statics :r7)
 	(loop-flist :r7 statics_sys_load_function_flist :r5 :r5)
-		(call 'sys_str :compare '(:r6 (& :r5 fn_header_pathname)) '(:r0))
+		(call 'sys_str :compare '(:r6 (& :r5 +fn_header_pathname)) '(:r0))
 	(loop-until '(:r0 = 0))
 	(vpif '(:r5 /= 0))
 		;found function already loaded
-		(assign '((:r5 fn_header_entry)) '(:r0))
+		(assign '((:r5 +fn_header_entry)) '(:r0))
 		(vp-add-rr :r5 :r0)
 		(vp-ret)
 	(endif)
@@ -241,11 +241,11 @@
 	;check if function already present !
 	(fn-bind 'sys/statics/statics :r7)
 	(loop-flist :r7 statics_sys_load_function_flist :r5 :r5)
-		(call 'sys_str :compare '(:r6 (& :r5 fn_header_pathname)) '(:r0))
+		(call 'sys_str :compare '(:r6 (& :r5 +fn_header_pathname)) '(:r0))
 	(loop-until '(:r0 = 0))
 	(vpif '(:r5 /= 0))
 		;found function already loaded
-		(assign '((:r5 fn_header_entry)) '(:r0))
+		(assign '((:r5 +fn_header_entry)) '(:r0))
 		(vp-add-rr :r5 :r0)
 		(vp-ret)
 	(endif)
@@ -304,7 +304,7 @@
 
 	;check loaded length equals file size
 	(assign '((:r7 statics_sys_load_block_start) (:r7 statics_sys_load_stat_buffer)) '(:r3 :r2))
-	(assign '((:r3 fn_header_length) (:r2 stat_fsize)) '(:r0 :r1))
+	(assign '((:r3 +fn_header_length) (:r2 stat_fsize)) '(:r0 :r1))
 	(vpif '(:r0 /= :r1))
 		(call 'sys_pii :write_str '(2 "Length field error !"))
 		(call 'sys_pii :exit '(1))
@@ -318,7 +318,7 @@
 	(vp-cpy-rr :r1 :r5)
 
 	;copy paths to reloc buffer
-	(assign '((:r3 fn_header_paths) (:r3 fn_header_length)) '(:r0 :r2))
+	(assign '((:r3 +fn_header_paths) (:r3 +fn_header_length)) '(:r0 :r2))
 	(vp-add-rr :r3 :r0)
 	(vp-add-rr :r3 :r2)
 	(loop-while '(:r0 /= :r2))
@@ -341,7 +341,7 @@
 	(endif)
 
 	;bind links to paths in reloc buffer
-	(assign '((:r3 fn_header_links) (:r3 fn_header_paths)) '(:r0 :r1))
+	(assign '((:r3 +fn_header_links) (:r3 +fn_header_paths)) '(:r0 :r1))
 	(vp-add-rr :r3 :r0)
 	(vp-add-rr :r3 :r1)
 	(vp-sub-rr :r1 :r5)
@@ -354,7 +354,7 @@
 	(loop-end)
 
 	;adjust block start
-	(assign '((:r3 fn_header_paths)) '(:r0))
+	(assign '((:r3 +fn_header_paths)) '(:r0))
 	(vp-add-rr :r3 :r0)
 	(vp-add-cr (dec +ptr_size) :r0)
 	(vp-and-cr (neg +ptr_size) :r0)
@@ -362,10 +362,10 @@
 
 	;load and link function references
 	;now actual addresses of strings in the reloc buffer
-	(assign '((:r3 fn_header_links)) '(:r0))
+	(assign '((:r3 +fn_header_links)) '(:r0))
 	(vp-add-rr :r3 :r0)
 	(loop-start)
-		(assign '((:r3 fn_header_paths)) '(:r1))
+		(assign '((:r3 +fn_header_paths)) '(:r1))
 		(vp-add-rr :r3 :r1)
 		(breakif '(:r0 = :r1))
 		(vp-push :r3 :r0)
@@ -391,7 +391,7 @@
 	(assign '(:r0) '((:r7 statics_sys_load_reloc_stack)))
 
 	;return function address
-	(assign '((:r3 fn_header_entry)) '(:r0))
+	(assign '((:r3 +fn_header_entry)) '(:r0))
 	(vp-add-rr :r3 :r0)
 
 	(exit 'sys_load :load '(:r0))
@@ -414,10 +414,10 @@
 
 	(fn-bind 'sys/statics/statics node)
 	(loop-flist node statics_sys_load_function_flist node node)
-		(assign `((,node fn_header_entry)) `(,node_end))
+		(assign `((,node +fn_header_entry)) `(,node_end))
 		(vp-add-rr node node_end)
 		(continueif (list cptr '< node_end))
-		(assign `((,node fn_header_links)) `(,node_end))
+		(assign `((,node +fn_header_links)) `(,node_end))
 		(vp-add-rr node node_end)
 	(loop-until (list cptr '< node_end))
 	(vp-sub-rr node cptr)
