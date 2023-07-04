@@ -48,9 +48,9 @@
 		'sys/statics/statics
 		;must be included !
 		'sys/kernel/kernel))
-	;load up all extra functions requested
+	;load extra functions requested
 	(merge-obj boot_funcs (map sym *funcs*))
-	;load all dependents
+	;load refs recursively
 	(each-mergeable
 		(# (merge-obj boot_funcs (elem-get +blob_refs (func-load %0))))
 		boot_funcs)
@@ -58,38 +58,27 @@
 	(sort cmp boot_funcs 2)
 	;list of function blobs and links in order
 	;list of offsets of header and link sections
-	;and offset of new strings section
 	(defq blobs (map (# (get %0 *blob_map*)) boot_funcs)
-		boot_paths (list) boot_paths_offsets (list)
-		header_offsets (list) links_offsets (list)
-		boot_paths_offset (+ (length zero)
-			(reduce (lambda (offset (body links refs))
-				(push header_offsets offset)
-				(push links_offsets (setq offset (+ offset (length body))))
-				(+ offset (length links))) blobs 0)))
-	;list of paths that will appear in boot image paths section
-	(each (lambda (func)
-		(each (lambda (ref)
-			(unless (find ref boot_funcs) (merge-obj boot_paths (list ref))))
-			(elem-get +blob_refs (get func *blob_map*)))) boot_funcs)
-	;list of boot paths offsets
-	(reduce (# (push boot_paths_offsets %0) (+ %0 (length %1) 1)) boot_paths 0)
-	;create new link sections with offsets to header path or boot paths
+		header_offsets (list) links_offsets (list))
+	(reduce (lambda (offset (body links refs))
+		(push header_offsets offset)
+		(push links_offsets (setq offset (+ offset (length body))))
+		(+ offset (length links))) blobs 0)
+	;create new link sections with offsets to header path
 	(each (# (defq u (elem-get _ links_offsets))
-		(elem-set +blob_links %0 (apply cat (push (map (#
-			(char (-
-				(if (defq i (find %0 boot_funcs))
-					(+ (elem-get i header_offsets) +fn_header_pathname)
-					(+ (elem-get (find %0 boot_paths) boot_paths_offsets) boot_paths_offset))
+		(elem-set +blob_links %0 (apply cat (push (map
+			(# (char (-
+				(+ (elem-get (find %0 boot_funcs) header_offsets) +fn_header_pathname)
 				(+ u (* _ +ptr_size))) +ptr_size)) (elem-get +blob_refs %0)) "")))) blobs)
 	;build list of all sections of boot image
-	;concatenate all sections and write out
 	(defq stream (file-stream (func-obj-path 'sys/boot_image) +file_open_write)
-		blobs (reduce (# (push %0 (cat %1 (ascii-char 0)))) boot_paths
-			(push (reduce (# (push %0 (elem-get +blob_body %1) (elem-get +blob_links %1))) blobs (list)) zero))
+		blobs (push (reduce (# (push %0
+			(elem-get +blob_body %1)
+			(elem-get +blob_links %1))) blobs (list)) zero)
 		boot_len (reduce (# (+ %0 (length %1))) blobs 0))
 	;save size in boot image
 	(elem-set 0 blobs (cat (char boot_len +long_size) (slice +long_size -1 (elem-get 0 blobs))))
+	;write out boot image
 	(each (# (write stream %0)) blobs)
 	(print "-> " (func-obj-path 'sys/boot_image) " (" boot_len ")") :nil)
 
