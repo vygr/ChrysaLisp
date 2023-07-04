@@ -26,7 +26,7 @@
 (defun func-load (name)
 	; (func-load name) -> (list body links refs)
 	;cache loading of function blobs etc
-	(or (get name *fparts*)
+	(or (get name *blob_map*)
 		(progn
 			(unless (defq fobj (load (func-obj-path name)))
 				(throw "No such file !" (func-obj-path name)))
@@ -35,11 +35,11 @@
 				body (cat (char -1 +ptr_size) (char paths_offset +short_size)
 					(slice +fn_header_entry links_offset fobj))
 				links (slice links_offset paths_offset fobj))
-			(def *fparts* name (list body links (func-refs fobj))))))
+			(def *blob_map* name (list body links (func-refs fobj))))))
 
 (defun boot-image (&optional *funcs* *abi* *cpu*)
 	(setd *funcs* (list) *abi* (abi) *cpu* (cpu))
-	(defq *fparts* (env 31) z (cat (char 0 +ptr_size) (char 0 +int_size)))
+	(defq *blob_map* (env 31) zero (cat (char 0 +ptr_size) (char 0 +int_size)))
 	(unless (list? *funcs*) (setq *funcs* (list *funcs*)))
 	(defq boot_funcs (list
 		;must be first function !
@@ -59,10 +59,10 @@
 	;list of function blobs and links in order
 	;list of offsets of header and link sections
 	;and offset of new strings section
-	(defq blobs (map (# (get %0 *fparts*)) boot_funcs)
+	(defq blobs (map (# (get %0 *blob_map*)) boot_funcs)
 		boot_paths (list) boot_paths_offsets (list)
 		header_offsets (list) links_offsets (list)
-		boot_paths_offset (+ (length z)
+		boot_paths_offset (+ (length zero)
 			(reduce (lambda (offset (body links refs))
 				(push header_offsets offset)
 				(push links_offsets (setq offset (+ offset (length body))))
@@ -71,7 +71,7 @@
 	(each (lambda (func)
 		(each (lambda (ref)
 			(unless (find ref boot_funcs) (merge-obj boot_paths (list ref))))
-			(elem-get +blob_refs (get func *fparts*)))) boot_funcs)
+			(elem-get +blob_refs (get func *blob_map*)))) boot_funcs)
 	;list of boot paths offsets
 	(reduce (# (push boot_paths_offsets %0) (+ %0 (length %1) 1)) boot_paths 0)
 	;create new link sections with offsets to header path or boot paths
@@ -86,7 +86,7 @@
 	;concatenate all sections and write out
 	(defq stream (file-stream (func-obj-path 'sys/boot_image) +file_open_write)
 		blobs (reduce (# (push %0 (cat %1 (ascii-char 0)))) boot_paths
-			(push (reduce (# (push %0 (elem-get +blob_body %1) (elem-get +blob_links %1))) blobs (list)) z))
+			(push (reduce (# (push %0 (elem-get +blob_body %1) (elem-get +blob_links %1))) blobs (list)) zero))
 		boot_len (reduce (# (+ %0 (length %1))) blobs 0))
 	;save size in boot image
 	(elem-set 0 blobs (cat (char boot_len +long_size) (slice +long_size -1 (elem-get 0 blobs))))
