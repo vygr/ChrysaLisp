@@ -221,7 +221,7 @@
 		(each (# (write stream %0)) f)
 		(print "-> " (func-obj 'sys/boot_image) " (" l ")") :nil)))
 
-(defun make-root-all (&optional *abi* *cpu*)
+(defun make-boot-all (&optional *abi* *cpu*)
 	(setd *abi* (abi) *cpu* (cpu))
 	(make-boot
 		(within-compile-env (lambda ()
@@ -239,12 +239,12 @@
 (defun remake (&optional files *abi* *cpu*)
 	(setd *abi* (abi) *cpu* (cpu))
 	(make files *abi* *cpu*)
-	(make-root-all *abi* *cpu*))
+	(make-boot-all *abi* *cpu*))
 
 (defun remake-all (&optional files *abi* *cpu*)
 	(setd *abi* (abi) *cpu* (cpu))
 	(make-all files *abi* *cpu*)
-	(make-root-all *abi* *cpu*))
+	(make-boot-all *abi* *cpu*))
 
 ;;;;;;;;;;;;;;;;;;;;;
 ; cross platform make
