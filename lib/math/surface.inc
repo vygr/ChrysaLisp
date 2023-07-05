@@ -1,7 +1,7 @@
 ;with gratitude to
 ;http://www.paulbourke.net/geometry/polygonise/
 
-(import "lib/math/matrix.inc")
+(import "./matrix.inc")
 
 ;module
 (env-push)

@@ -2,7 +2,7 @@
 ; tri mesh
 ;;;;;;;;;;
 
-(import "lib/math/surface.inc")
+(import "./surface.inc")
 
 ;module
 (env-push)

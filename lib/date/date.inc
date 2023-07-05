@@ -1,4 +1,4 @@
-(import "lib/date/timezones.inc")
+(import "./timezones.inc")
 
 ;to set your local timezone use the tz-init function. tz-init uses locations
 ;not abbreviations.

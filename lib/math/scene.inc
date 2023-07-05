@@ -2,7 +2,7 @@
 ; scene class
 ;;;;;;;;;;;;;
 
-(import "lib/math/mesh.inc")
+(import "./mesh.inc")
 
 ;module
 (env-push)

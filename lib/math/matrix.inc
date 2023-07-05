@@ -2,7 +2,7 @@
 ; matrix math
 ;;;;;;;;;;;;;
 
-(import "lib/math/vector.inc")
+(import "./vector.inc")
 
 (enums +mat3x3 0
 	(enum r0 r1 r2))

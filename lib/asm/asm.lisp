@@ -19,7 +19,7 @@
 (defun print (&rest args)
 	(push *msg* (apply str (push args (ascii-char 10)))))
 
-;(import "lib/debug/profile.inc")
+;(import "././debug/profile.inc")
 
 (defun main ()
 	(defq *select* (alloc-select +_select_size) *working* :t)

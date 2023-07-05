@@ -1,8 +1,8 @@
 ;module
 (env-push)
 
-(import "lib/consts/scodes.inc")
-(import "lib/consts/chars.inc")
+(import "././consts/scodes.inc")
+(import "././consts/chars.inc")
 
 (defq
 *normal_map* (fmap-kv
