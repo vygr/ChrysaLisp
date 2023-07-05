@@ -1,4 +1,4 @@
-(include "class/stream/class.inc")
+(include "././stream/class.inc")
 
 (def-class in stream
 	(dec-method :vtable class/in/vtable)

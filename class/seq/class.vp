@@ -1,7 +1,7 @@
 (include "lib/asm/func.inc")
-(include "class/seq/class.inc")
-(include "class/sym/class.inc")
-(include "class/list/class.inc")
+(include "./class.inc")
+(include "././sym/class.inc")
+(include "././list/class.inc")
 
 (gen-vtable 'seq)
 (gen-type 'seq)

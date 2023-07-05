@@ -1,7 +1,7 @@
 (include "lib/asm/func.inc")
-(include "class/num/class.inc")
-(include "class/str/class.inc")
-(include "class/lisp/class.inc")
+(include "././num/class.inc")
+(include "././str/class.inc")
+(include "././lisp/class.inc")
 
 (def-method 'obj :lisp_get_field)
 	;inputs

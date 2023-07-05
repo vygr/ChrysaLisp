@@ -1,6 +1,6 @@
 (include "lib/asm/func.inc")
-(include "class/num/class.inc")
-(include "class/lisp/class.inc")
+(include "././num/class.inc")
+(include "./class.inc")
 
 (def-method 'lisp :env_args_set)
 	;inputs

@@ -1,8 +1,8 @@
 (include "lib/asm/func.inc")
 (include "sys/load/class.inc")
-(include "class/sym/class.inc")
-(include "class/sstream/class.inc")
-(include "class/lisp/class.inc")
+(include "././sym/class.inc")
+(include "././sstream/class.inc")
+(include "./class.inc")
 (include "lib/consts/chars.inc")
 
 (def-method 'lisp :read_sym)

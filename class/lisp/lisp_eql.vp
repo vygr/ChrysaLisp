@@ -1,8 +1,8 @@
 (include "lib/asm/func.inc")
-(include "class/str/class.inc")
-(include "class/nums/class.inc")
-(include "class/func/class.inc")
-(include "class/lisp/class.inc")
+(include "././str/class.inc")
+(include "././nums/class.inc")
+(include "././func/class.inc")
+(include "./class.inc")
 
 (def-method 'lisp :lisp_eql)
 	;inputs

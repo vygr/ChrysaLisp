@@ -1,4 +1,4 @@
-(include "class/hset/class.inc")
+(include "././hset/class.inc")
 
 (def-class hmap hset
 	(dec-method :vtable class/hmap/vtable)

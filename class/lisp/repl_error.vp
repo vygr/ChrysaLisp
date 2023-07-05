@@ -1,8 +1,8 @@
 (include "lib/asm/func.inc")
-(include "class/sym/class.inc")
-(include "class/hmap/class.inc")
-(include "class/num/class.inc")
-(include "class/lisp/class.inc")
+(include "././sym/class.inc")
+(include "././hmap/class.inc")
+(include "././num/class.inc")
+(include "./class.inc")
 
 (def-method 'lisp :repl_error)
 	;inputs

@@ -1,5 +1,5 @@
 (include "lib/asm/func.inc")
-(include "class/fixeds/class.inc")
+(include "./class.inc")
 
 (gen-create 'fixeds)
 (gen-vtable 'fixeds)

@@ -1,6 +1,6 @@
 (include "lib/asm/func.inc")
-(include "class/in/class.inc")
-(include "class/lisp/class.inc")
+(include "./class.inc")
+(include "././lisp/class.inc")
 
 (def-method 'in :lisp_create)
 	;inputs

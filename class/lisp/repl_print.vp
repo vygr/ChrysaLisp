@@ -1,8 +1,8 @@
 (include "lib/asm/func.inc")
-(include "class/stream/class.inc")
-(include "class/sym/class.inc")
-(include "class/func/class.inc")
-(include "class/lisp/class.inc")
+(include "././stream/class.inc")
+(include "././sym/class.inc")
+(include "././func/class.inc")
+(include "./class.inc")
 (include "lib/consts/chars.inc")
 
 (def-method 'lisp :repl_print)

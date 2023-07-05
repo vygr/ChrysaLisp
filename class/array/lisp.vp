@@ -1,7 +1,7 @@
 (include "lib/asm/func.inc")
-(include "class/lisp/class.inc")
-(include "class/num/class.inc")
-(include "class/reals/class.inc")
+(include "././lisp/class.inc")
+(include "././num/class.inc")
+(include "././reals/class.inc")
 (include "gui/path/class.inc")
 
 (defun to-array (_)

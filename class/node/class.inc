@@ -1,4 +1,4 @@
-(include "class/str/class.inc")
+(include "././str/class.inc")
 
 (def-class node str
 	(dec-method :vtable class/node/vtable)

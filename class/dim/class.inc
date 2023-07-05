@@ -1,4 +1,4 @@
-(include "class/obj/class.inc")
+(include "././obj/class.inc")
 
 (def-class dim obj
 	(dec-method :vtable class/dim/vtable)

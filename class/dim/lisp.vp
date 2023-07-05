@@ -1,8 +1,8 @@
 (include "lib/asm/func.inc")
-(include "class/lisp/class.inc")
-(include "class/dim/class.inc")
-(include "class/num/class.inc")
-(include "class/nums/class.inc")
+(include "././lisp/class.inc")
+(include "./class.inc")
+(include "././num/class.inc")
+(include "././nums/class.inc")
 
 (def-method 'dim :lisp_dim)
 	;inputs

@@ -1,5 +1,5 @@
 (include "lib/asm/func.inc")
-(include "class/node/class.inc")
+(include "./class.inc")
 
 (gen-vtable 'node)
 

@@ -1,8 +1,8 @@
 (include "lib/asm/func.inc")
-(include "class/func/class.inc")
-(include "class/sym/class.inc")
-(include "class/stream/class.inc")
-(include "class/list/class.inc")
+(include "./class.inc")
+(include "././sym/class.inc")
+(include "././stream/class.inc")
+(include "././list/class.inc")
 (include "lib/consts/chars.inc")
 
 (gen-create 'func)
