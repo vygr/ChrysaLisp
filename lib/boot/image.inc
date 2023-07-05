@@ -41,15 +41,15 @@
 	(setd *funcs* (list) *abi* (abi) *cpu* (cpu))
 	(defq *blob_map* (env 31) zero (cat (char 0 +ptr_size) (char 0 +int_size)))
 	(unless (list? *funcs*) (setq *funcs* (list *funcs*)))
-	(defq boot_funcs (list
+	;all functions requried and requested
+	(defq boot_funcs (merge-obj (list
 		;must be first function !
 		'sys/load/init
 		;must be second function !
 		'sys/statics/statics
 		;must be included !
-		'sys/kernel/kernel))
-	;load extra functions requested
-	(merge-obj boot_funcs (map sym *funcs*))
+		'sys/kernel/kernel)
+		(map sym *funcs*)))
 	;load refs recursively
 	(each-mergeable
 		(# (merge-obj boot_funcs (elem-get +blob_refs (func-load %0))))
