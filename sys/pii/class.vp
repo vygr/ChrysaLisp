@@ -1,7 +1,7 @@
 (include "lib/asm/func.inc")
-(include "sys/str/class.inc")
-(include "sys/pii/class.inc")
-(include "sys/statics/class.inc")
+(include "././str/class.inc")
+(include "./class.inc")
+(include "././statics/class.inc")
 
 (def-method 'sys_pii :exit)
 	;inputs

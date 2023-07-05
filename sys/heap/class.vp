@@ -1,8 +1,8 @@
 (include "lib/asm/func.inc")
-(include "sys/heap/class.inc")
-(include "sys/pii/class.inc")
-(include "sys/statics/class.inc")
-(include "sys/load/class.inc")
+(include "./class.inc")
+(include "././pii/class.inc")
+(include "././statics/class.inc")
+(include "././load/class.inc")
 
 (def-method 'sys_heap :init)
 	;inputs

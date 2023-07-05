@@ -1,5 +1,5 @@
 (include "lib/asm/func.inc")
-(include "sys/str/class.inc")
+(include "./class.inc")
 
 (def-method 'sys_str :compare)
 	;inputs

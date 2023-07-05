@@ -1,11 +1,11 @@
 (include "lib/asm/func.inc")
-(include "sys/mail/class.inc")
-(include "sys/kernel/class.inc")
+(include "./class.inc")
+(include "././kernel/class.inc")
 (include "class/str/class.inc")
 (include "class/array/class.inc")
 (include "class/num/class.inc")
 (include "class/lisp/class.inc")
-(include "sys/statics/class.inc")
+(include "././statics/class.inc")
 
 (def-method 'sys_mail :lisp_validate)
 	;inputs

@@ -1,5 +1,5 @@
-(include "sys/pii/class.inc")
-(include "sys/pii/abi.inc")
+(include "././pii/class.inc")
+(include "././pii/abi.inc")
 
 ;;;;;;;;;;;;;;;;;;;
 ; load static class

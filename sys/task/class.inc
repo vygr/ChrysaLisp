@@ -1,6 +1,6 @@
-(include "sys/list/class.inc")
-(include "sys/heap/class.inc")
-(include "sys/mail/class.inc")
+(include "././list/class.inc")
+(include "././heap/class.inc")
+(include "././mail/class.inc")
 
 ;;;;;;;;;;;;;;;;;;;
 ; task static class

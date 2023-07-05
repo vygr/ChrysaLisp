@@ -1,5 +1,5 @@
-(include "sys/list/class.inc")
-(include "sys/heap/class.inc")
+(include "././list/class.inc")
+(include "././heap/class.inc")
 
 ;;;;;;;;;;;;;;;;;;;
 ; mail static class

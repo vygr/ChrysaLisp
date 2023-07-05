@@ -1,10 +1,10 @@
 (include "lib/asm/func.inc")
-(include "sys/link/class.inc")
-(include "sys/load/class.inc")
-(include "sys/kernel/class.inc")
-(include "sys/str/class.inc")
-(include "sys/math/class.inc")
-(include "sys/pii/class.inc")
+(include "././link/class.inc")
+(include "././load/class.inc")
+(include "./class.inc")
+(include "././str/class.inc")
+(include "././math/class.inc")
+(include "././pii/class.inc")
 (include "gui/gui/class.inc")
 (include "class/sym/class.inc")
 (include "class/num/class.inc")
@@ -12,7 +12,7 @@
 (include "class/hmap/class.inc")
 (include "class/lisp/class.inc")
 (include "lib/consts/chars.inc")
-(include "sys/statics/class.inc")
+(include "././statics/class.inc")
 
 ;;;;;;;;;;;;;
 ; kernel task

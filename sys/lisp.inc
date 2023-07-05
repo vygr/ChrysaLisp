@@ -1,5 +1,5 @@
 ;import symbols
-(import "sys/kernel/lisp.inc")
+(import "./kernel/lisp.inc")
 
 (ffi kernel-stats "sys/kernel/lisp_stats" 0)
 (ffi load-path "sys/load/lisp_path" 0)

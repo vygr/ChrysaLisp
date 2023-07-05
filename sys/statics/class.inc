@@ -1,5 +1,5 @@
-(include "sys/task/class.inc")
-(include "sys/mem/class.inc")
+(include "././task/class.inc")
+(include "././mem/class.inc")
 (include "gui/gui/class.inc")
 
 ;;;;;;;;;;;;;;;;;;;;;;

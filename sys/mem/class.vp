@@ -1,6 +1,6 @@
 (include "lib/asm/func.inc")
-(include "sys/heap/class.inc")
-(include "sys/statics/class.inc")
+(include "././heap/class.inc")
+(include "././statics/class.inc")
 
 (def-method 'sys_mem :statics_init)
 	;info

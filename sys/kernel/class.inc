@@ -1,4 +1,4 @@
-(include "sys/mail/class.inc")
+(include "././mail/class.inc")
 
 (def-class sys_kernel :nil
 	(dec-method :id sys/kernel/id :static :nil (:r0 :r1))

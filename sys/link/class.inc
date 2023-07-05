@@ -1,5 +1,5 @@
-(include "sys/list/class.inc")
-(include "sys/mail/class.inc")
+(include "././list/class.inc")
+(include "././mail/class.inc")
 (include "class/str/class.inc")
 
 (def-class sys_link :nil

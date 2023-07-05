@@ -1,5 +1,5 @@
 (include "lib/asm/class.inc")
-(include "sys/pii/abi.inc")
+(include "./abi.inc")
 
 (def-class host :nil
 	(dec-method :exit :nil :virtual (abi-args 1))

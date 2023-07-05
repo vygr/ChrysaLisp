@@ -1,6 +1,6 @@
 (include "lib/asm/func.inc")
-(include "sys/math/class.inc")
-(include "sys/statics/class.inc")
+(include "./class.inc")
+(include "././statics/class.inc")
 
 (def-method 'sys_math :i_rand)
 	;inputs

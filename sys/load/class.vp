@@ -1,10 +1,10 @@
 (include "lib/asm/func.inc")
-(include "sys/load/class.inc")
-(include "sys/str/class.inc")
-(include "sys/kernel/class.inc")
+(include "./class.inc")
+(include "././str/class.inc")
+(include "././kernel/class.inc")
 (include "class/str/class.inc")
 (include "lib/consts/chars.inc")
-(include "sys/statics/class.inc")
+(include "././statics/class.inc")
 
 (def-method 'sys_load :init)
 	;inputs
