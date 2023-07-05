@@ -1,15 +1,15 @@
-(include "lib/asm/code.inc")
-(include "lib/asm/scopes.inc")
-(include "lib/asm/vp.inc")
-(include "lib/asm/vpopt.inc")
-(include "lib/asm/cscript.inc")
-(include "lib/asm/csopt.inc")
-(include "lib/asm/assign.inc")
-(include "lib/trans/vp.inc")
+(include "./code.inc")
+(include "./scopes.inc")
+(include "./vp.inc")
+(include "./vpopt.inc")
+(include "./cscript.inc")
+(include "./csopt.inc")
+(include "./assign.inc")
+(include "./lisp.inc")
+(include "././trans/vp.inc")
 
 (include "sys/pii/class.inc")
 (include "sys/task/class.inc")
-(include "./lisp.inc")
 
 ;;;;;;;;;;;
 ; functions
