@@ -1,6 +1,6 @@
 (include "lib/asm/func.inc")
-(include "gui/ctx/class.inc")
-(include "gui/view/class.inc")
+(include "./class.inc")
+(include "././view/class.inc")
 (include "class/lisp/class.inc")
 (include "class/num/class.inc")
 

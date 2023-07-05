@@ -2,8 +2,8 @@
 ; edit widget
 ;;;;;;;;;;;;;
 
-(import "gui/vdu/lisp.inc")
-(import "gui/canvas/lisp.inc")
+(import "././vdu/lisp.inc")
+(import "././canvas/lisp.inc")
 (import "lib/text/buffer.inc")
 
 ;module

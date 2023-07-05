@@ -1,5 +1,5 @@
 (include "lib/asm/func.inc")
-(include "gui/path/class.inc")
+(include "./class.inc")
 (include "class/fixed/class.inc")
 (include "class/sym/class.inc")
 (include "sys/str/class.inc")

@@ -1,4 +1,4 @@
-(include "gui/view/class.inc")
+(include "././view/class.inc")
 
 (def-class canvas view
 	(dec-method :vtable gui/canvas/vtable)

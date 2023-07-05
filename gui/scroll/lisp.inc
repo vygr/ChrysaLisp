@@ -2,7 +2,7 @@
 ; scroll widget
 ;;;;;;;;;;;;;;;
 
-(import "gui/slider/lisp.inc")
+(import "././slider/lisp.inc")
 
 ;scroll flags
 (bits +scroll_flag 0

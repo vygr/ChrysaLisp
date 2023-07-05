@@ -2,7 +2,7 @@
 ; window widget
 ;;;;;;;;;;;;;;;
 
-(import "gui/scroll/lisp.inc")
+(import "././scroll/lisp.inc")
 
 (defclass Window () (View)
 	; (Window) -> window

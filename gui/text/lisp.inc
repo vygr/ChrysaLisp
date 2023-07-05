@@ -2,9 +2,9 @@
 ; text widget
 ;;;;;;;;;;;;;
 
-(import "gui/view/lisp.inc")
-(import "gui/font/lisp.inc")
-(import "gui/texture/lisp.inc")
+(import "././view/lisp.inc")
+(import "././font/lisp.inc")
+(import "././texture/lisp.inc")
 
 (defclass Text () (View)
 	; (Text) -> text

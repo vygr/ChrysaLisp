@@ -2,8 +2,8 @@
 ; textfield widget
 ;;;;;;;;;;;;;;;;;;
 
-(import "gui/label/lisp.inc")
-(import "gui/font/lisp.inc")
+(import "././label/lisp.inc")
+(import "././font/lisp.inc")
 (import "lib/consts/chars.inc")
 (import "apps/clipboard/app.inc")
 

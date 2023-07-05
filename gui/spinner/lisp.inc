@@ -2,9 +2,9 @@
 ; spinner widget
 ;;;;;;;;;;;;;;;;
 
-(import "gui/button/lisp.inc")
-(import "gui/flow/lisp.inc")
-(import "gui/grid/lisp.inc")
+(import "././button/lisp.inc")
+(import "././flow/lisp.inc")
+(import "././grid/lisp.inc")
 
 (defclass Spinner () (Flow)
 	; (Spinner) -> spinner

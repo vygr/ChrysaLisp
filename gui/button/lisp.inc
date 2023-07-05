@@ -2,7 +2,7 @@
 ; button widget
 ;;;;;;;;;;;;;;;
 
-(import "gui/label/lisp.inc")
+(import "././label/lisp.inc")
 
 (defclass Button () (Label)
 	; (Button) -> button

@@ -2,7 +2,7 @@
 ; slider widget
 ;;;;;;;;;;;;;;;;;
 
-(import "gui/view/lisp.inc")
+(import "././view/lisp.inc")
 
 (defclass Slider () (View)
 	; (Slider) -> slider

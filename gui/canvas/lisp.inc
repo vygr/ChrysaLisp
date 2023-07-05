@@ -2,9 +2,9 @@
 ; canvas widget
 ;;;;;;;;;;;;;;;
 
-(import "gui/view/lisp.inc")
-(import "gui/texture/lisp.inc")
-(import "gui/pixmap/lisp.inc")
+(import "././view/lisp.inc")
+(import "././texture/lisp.inc")
+(import "././pixmap/lisp.inc")
 
 ;lisp bindings
 (ffi canvas-to-argb32 "gui/canvas/lisp_to_argb32" 0)

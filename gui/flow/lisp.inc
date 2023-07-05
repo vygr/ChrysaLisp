@@ -2,7 +2,7 @@
 ; flow widget
 ;;;;;;;;;;;;;
 
-(import "gui/view/lisp.inc")
+(import "././view/lisp.inc")
 
 ;flow flags
 (bits +flow_flag 0

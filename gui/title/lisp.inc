@@ -2,7 +2,7 @@
 ; title widget
 ;;;;;;;;;;;;;;
 
-(import "gui/label/lisp.inc")
+(import "././label/lisp.inc")
 
 (defclass Title () (Label)
 	; (Title) -> title

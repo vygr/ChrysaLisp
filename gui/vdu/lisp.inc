@@ -2,7 +2,7 @@
 ; vdu widget
 ;;;;;;;;;;;;
 
-(import "gui/view/lisp.inc")
+(import "././view/lisp.inc")
 
 (structure +vdu +view_size
 	(ptr font textures)

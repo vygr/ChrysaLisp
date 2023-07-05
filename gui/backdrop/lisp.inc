@@ -2,7 +2,7 @@
 ; backdrop widget
 ;;;;;;;;;;;;;;;;;
 
-(import "gui/view/lisp.inc")
+(import "././view/lisp.inc")
 
 (defclass Backdrop () (View)
 	; (Backdrop) -> backdrop

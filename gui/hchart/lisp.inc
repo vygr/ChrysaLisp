@@ -2,10 +2,10 @@
 ; hchart widget
 ;;;;;;;;;;;;;;;
 
-(import "gui/label/lisp.inc")
-(import "gui/flow/lisp.inc")
-(import "gui/grid/lisp.inc")
-(import "gui/progress/lisp.inc")
+(import "././label/lisp.inc")
+(import "././flow/lisp.inc")
+(import "././grid/lisp.inc")
+(import "././progress/lisp.inc")
 
 (defclass Hchart (name num_marks) (Flow)
 	; (Hchart title num_marks) -> hchart

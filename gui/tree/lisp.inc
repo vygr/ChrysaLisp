@@ -2,9 +2,9 @@
 ; tree widget
 ;;;;;;;;;;;;;
 
-(import "gui/button/lisp.inc")
-(import "gui/flow/lisp.inc")
-(import "gui/backdrop/lisp.inc")
+(import "././button/lisp.inc")
+(import "././flow/lisp.inc")
+(import "././backdrop/lisp.inc")
 
 (defclass Tree (event) (Flow)
 	; (Tree event) -> tree

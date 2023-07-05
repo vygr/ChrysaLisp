@@ -1,5 +1,5 @@
 (include "lib/asm/func.inc")
-(include "gui/pixmap/class.inc")
+(include "./class.inc")
 (include "class/num/class.inc")
 (include "class/stream/class.inc")
 (include "class/lisp/class.inc")

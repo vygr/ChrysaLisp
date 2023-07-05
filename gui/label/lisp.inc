@@ -2,8 +2,8 @@
 ; label widget
 ;;;;;;;;;;;;;;;
 
-(import "gui/flow/lisp.inc")
-(import "gui/text/lisp.inc")
+(import "././flow/lisp.inc")
+(import "././text/lisp.inc")
 
 (defclass Label () (View)
 	; (Label) -> label

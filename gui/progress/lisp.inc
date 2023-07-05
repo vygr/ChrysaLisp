@@ -2,7 +2,7 @@
 ; progress widget
 ;;;;;;;;;;;;;;;;;
 
-(import "gui/view/lisp.inc")
+(import "././view/lisp.inc")
 
 (defclass Progress () (View)
 	; (Progress) -> progress
