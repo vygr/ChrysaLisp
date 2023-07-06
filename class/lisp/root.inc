@@ -873,7 +873,7 @@
 	(cond
 		((not (starts-with "./" lib_path))
 			lib_path)
-		(:t  (setd current *stream_name*)
+		(:t	(setd current *stream_name*)
 			(while (starts-with "./" lib_path)
 				(unless (defq i (find-rev "/" current))
 					(throw "No relative path !" lib_path))

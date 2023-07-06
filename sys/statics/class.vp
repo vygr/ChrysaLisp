@@ -2,7 +2,4 @@
 (include "./class.inc")
 
 (def-func 'sys/statics/statics)
-	;info
-	;statics data
-	(vp-string (pad "" statics_size (char 0 +long_size)))
 (def-func-end)
