@@ -5454,7 +5454,7 @@ inputs
 outputs
 :r1 = col (uint)
 trashes
-:r1-:r8
+:r1-:r10
 ```
 
 ### pixmap :to_premul -> gui/pixmap/to_premul
