@@ -338,9 +338,11 @@
 
 	(defun nbits (mask) (- 64 (nlz mask) (ntz mask)))
 
-	(defun lbr (sr dr sm dm)
+	(defun lbr (col sr dr sm dm)
 		(defq sb (nbits sm) db (- (nbits dm) sb) pipe
-			`((vp-shl-cr ,(- (nlz sm) (nlz dm)) ,sr)
+			`((vp-cpy-rr ,col ,sr)
+			(vp-and-cr ,sm ,sr)
+			(vp-shl-cr ,(- (nlz sm) (nlz dm)) ,sr)
 			(vp-cpy-rr ,sr ,dr)))
 		(while (> db 0)
 			(push pipe `(vp-shr-cr ,sb ,sr) `(vp-add-rr ,sr ,dr))
@@ -356,23 +358,19 @@
 	(defun to-argb32 (am rm gm bm)
 		(cond
 			((= am 0)
-				(vp-simd vp-cpy-rr `(,col ,col ,col) `(,sr ,sg ,sb))
-				(vp-simd vp-and-cr `(,rm ,gm ,bm) `(,sr ,sg ,sb))
 				(vp-cpy-cr +argb_black a)
 				(pipeline
-					(lbr sr r rm 0xff0000)
-					(lbr sg g gm 0x00ff00)
-					(lbr sb b bm 0x0000ff))
+					(lbr col sr r rm 0xff0000)
+					(lbr col sg g gm 0x00ff00)
+					(lbr col sb b bm 0x0000ff))
 				(vp-simd vp-add-rr `(,a ,r) `(,g ,b))
 				(vp-lea-d g b col))
 			(:t
-				(vp-simd vp-cpy-rr `(,col ,col ,col ,col) `(,sa ,sr ,sg ,sb))
-				(vp-simd vp-and-cr `(,am ,rm ,gm ,bm) `(,sa ,sr ,sg ,sb))
 				(pipeline
-					(lbr sa a am 0xff000000)
-					(lbr sr r rm 0x00ff0000)
-					(lbr sg g gm 0x0000ff00)
-					(lbr sb b bm 0x000000ff))
+					(lbr col sa a am 0xff000000)
+					(lbr col sr r rm 0x00ff0000)
+					(lbr col sg g gm 0x0000ff00)
+					(lbr col sb b bm 0x000000ff))
 				(vp-simd vp-add-rr `(,a ,r) `(,g ,b))
 				(vp-lea-d g b col))))
 
