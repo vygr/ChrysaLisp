@@ -351,28 +351,28 @@
 	(defun pipeline (&rest pipes)
 		(defq plen (reduce (# (max %0 (length %1))) pipes 0))
 		(each (# (while (< (length %0) plen) (push %0 `(,lambda)))) pipes)
-		(each (const eval) (apply zip pipes)))
+		(each (const eval) (apply (const zip) pipes)))
 
-	(defun to-argb32 (_a _r _g _b)
+	(defun to-argb32 (am rm gm bm)
 		(cond
-			((= _a 0)
+			((= am 0)
 				(vp-simd vp-cpy-rr `(,col ,col ,col) `(,sr ,sg ,sb))
-				(vp-simd vp-and-cr `(,_r ,_g ,_b) `(,sr ,sg ,sb))
+				(vp-simd vp-and-cr `(,rm ,gm ,bm) `(,sr ,sg ,sb))
 				(vp-cpy-cr +argb_black a)
 				(pipeline
-					(lbr sr r _r 0xff0000)
-					(lbr sg g _g 0x00ff00)
-					(lbr sb b _b 0x0000ff))
+					(lbr sr r rm 0xff0000)
+					(lbr sg g gm 0x00ff00)
+					(lbr sb b bm 0x0000ff))
 				(vp-simd vp-add-rr `(,a ,r) `(,g ,b))
 				(vp-lea-d g b col))
 			(:t
 				(vp-simd vp-cpy-rr `(,col ,col ,col ,col) `(,sa ,sr ,sg ,sb))
-				(vp-simd vp-and-cr `(,_a ,_r ,_g ,_b) `(,sa ,sr ,sg ,sb))
+				(vp-simd vp-and-cr `(,am ,rm ,gm ,bm) `(,sa ,sr ,sg ,sb))
 				(pipeline
-					(lbr sa a _a 0xff000000)
-					(lbr sr r _r 0x00ff0000)
-					(lbr sg g _g 0x0000ff00)
-					(lbr sb b _b 0x000000ff))
+					(lbr sa a am 0xff000000)
+					(lbr sr r rm 0x00ff0000)
+					(lbr sg g gm 0x0000ff00)
+					(lbr sb b bm 0x000000ff))
 				(vp-simd vp-add-rr `(,a ,r) `(,g ,b))
 				(vp-lea-d g b col))))
 
@@ -431,22 +431,22 @@
 
 	(vp-def (_ col pix r g b))
 
-	(defun from-argb32 (_a _r _g _b)
+	(defun from-argb32 (am rm gm bm)
 		(cond
-			((= 0 _a)
+			((= 0 am)
 				(vp-simd vp-cpy-rr `(,col ,col) `(,g ,b))
 				(vp-simd vp-shr-cr
-					`(,(- (nlz _r) 40) ,(- (nlz _g) 48) ,(- (nlz _b) 56))
+					`(,(- (nlz rm) 40) ,(- (nlz gm) 48) ,(- (nlz bm) 56))
 					`(,col ,g ,b))
-				(vp-simd vp-and-cr `(,_r ,_g ,_b) `(,col ,g ,b))
+				(vp-simd vp-and-cr `(,rm ,gm ,bm) `(,col ,g ,b))
 				(vp-add-rr g col)
 				(vp-add-rr b col))
 			(:t
 				(vp-simd vp-cpy-rr `(,col ,col ,col) `(,r ,g ,b))
 				(vp-simd vp-shr-cr
-					`(,(- (nlz _a) 32) ,(- (nlz _r) 40) ,(- (nlz _g) 48) ,(- (nlz _b) 56))
+					`(,(- (nlz am) 32) ,(- (nlz rm) 40) ,(- (nlz gm) 48) ,(- (nlz bm) 56))
 					`(,col ,r ,g ,b))
-				(vp-simd vp-and-cr `(,_a ,_r ,_g ,_b) `(,col ,r ,g ,b))
+				(vp-simd vp-and-cr `(,am ,rm ,gm ,bm) `(,col ,r ,g ,b))
 				(vp-simd vp-add-rr `(,r ,g) `(,col ,b))
 				(vp-add-rr b col))))
 
