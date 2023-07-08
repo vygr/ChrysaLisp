@@ -390,8 +390,8 @@
 					(conv col sr r rm 0x00ff0000)
 					(conv col sg g gm 0x0000ff00)
 					(conv col sb b bm 0x000000ff))))
-		(vp-simd vp-add-rr `(,a ,r) `(,g ,b))
-		(vp-lea-d g b col))
+		(vp-simd vp-add-rr `(,a ,g) `(,r ,b))
+		(vp-lea-d r b col))
 
 	(entry 'pixmap :to_argb32 (list col pix))
 
