@@ -5257,10 +5257,11 @@ trashes
 inputs
 :r0 = width (pixels)
 :r1 = height (pixels)
+:r2 = type (int)
 outputs
 :r0 = 0 if error, else pixmap object (ptr)
 trashes
-:r1-:r6
+:r1-:r7
 ```
 
 ### pixmap :deinit -> gui/pixmap/deinit
@@ -5306,6 +5307,7 @@ inputs
 :r1 = vtable (pptr)
 :r2 = width (pixels)
 :r3 = height (pixels)
+:r4 = type (int)
 outputs
 :r0 = pixmap object (ptr)
 :r1 = 0 if error, else ok

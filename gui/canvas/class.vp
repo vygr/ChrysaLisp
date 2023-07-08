@@ -47,7 +47,7 @@
 		(assign '(:r0 :r1) '((:r3 canvas_cx1) (:r3 canvas_cy1)))
 
 		;alloc pixmap
-		(call 'pixmap :create '(:r0 :r1) '(:r0))
+		(call 'pixmap :create '(:r0 :r1 -32) '(:r0))
 		(assign '((:rsp 0)) '(:r1))
 		(assign '(:r0) '((:r1 canvas_pixmap)))
 
@@ -157,12 +157,16 @@
 	(push-scope)
 	(entry 'canvas :swap {this, flags})
 
+	;must be in premul alpha format
+	(assign {this->canvas_pixmap} {pixmap})
+	(call 'pixmap :as_premul {pixmap, pixmap})
+
 	;scale the pixmap if needed
 	(vpif {this->canvas_scale = 1})
-		(call 'pixmap :ref {this->canvas_pixmap} {pixmap})
+		(call 'pixmap :ref {pixmap} {pixmap})
 	(else)
-		(call 'pixmap :create {this->canvas_pixmap->pixmap_width / this->canvas_scale,
-			this->canvas_pixmap->pixmap_height / this->canvas_scale} {pixmap})
+		(call 'pixmap :create {pixmap->pixmap_width / this->canvas_scale,
+			pixmap->pixmap_height / this->canvas_scale, -32} {pixmap})
 		(call 'pixmap :resize {pixmap, this->canvas_pixmap})
 	(endif)
 

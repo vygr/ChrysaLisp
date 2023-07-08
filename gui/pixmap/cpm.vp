@@ -43,7 +43,7 @@
 			{ || header.cpm_ident = } (str (code "MLF." 4))) 'error1)
 
 	;create pixmap
-	(call 'pixmap :create {header.cpm_width, header.cpm_height} {this})
+	(call 'pixmap :create {header.cpm_width, header.cpm_height, 32} {this})
 	(vpif {this})
 		(assign {header.cpm_type => this->pixmap_stream_type} {bits})
 		(assign {&this->pixmap_data} {data})
@@ -103,7 +103,6 @@
 			(endif)
 			(assign (list data) {data})
 		(loop-until (list data '= data_end))
-		(call 'pixmap :as_premul {this, this})
 		(assign {stream->stream_bufp} {this->pixmap_bufp})
 	(endif)
 
@@ -141,6 +140,9 @@
 	(push-scope)
 	(entry 'pixmap :save_cpm {this, stream, format})
 
+	;must be argb
+	(call 'pixmap :as_argb {this, this})
+
 	;write header
 	(assign (str (code "MPC." 4)) {header.cpm_ident})
 	(assign {0 => header.cpm_bytes} {header.cpm_trans})
@@ -162,8 +164,7 @@
 		(switch)
 		(vpcase {state = 0})
 			;no state
-			(call 'pixmap :to_argb {data[i * +int_size]} {col})
-			(call 'pixmap :from_argb32 {col, format} {col})
+			(call 'pixmap :from_argb32 {data[i * +int_size], format} {col})
 			(assign {i} {j})
 			(assign {i + 1} {i})
 			(vpif {i = len})
@@ -171,16 +172,14 @@
 				(call 'stream :write_bits {stream, col, bits, bit_pool, bit_pool_size} {_, bit_pool, bit_pool_size})
 				(break 'pixloop)
 			(endif)
-			(call 'pixmap :to_argb {data[i * +int_size]} {next_col})
-			(call 'pixmap :from_argb32 {next_col, format} {next_col})
+			(call 'pixmap :from_argb32 {data[i * +int_size], format} {next_col})
 			(assign {2} {state})
 			(continueif {col /= next_col} 'pixloop)
 			(assign {1} {state})
 			(continue 'pixloop)
 		(default)
 			;repeat state
-			(call 'pixmap :to_argb {data[i * +int_size]} {next_col})
-			(call 'pixmap :from_argb32 {next_col, format} {next_col})
+			(call 'pixmap :from_argb32 {data[i * +int_size], format} {next_col})
 			(assign {i + 1} {i})
 			(nextcaseif {state /= 1})
 			(switch)
@@ -205,8 +204,7 @@
 				(call 'stream :write_bits {stream, i - j - 1, 8, bit_pool, bit_pool_size} {_, bit_pool, bit_pool_size})
 				(assign {&data[j * +int_size], &data[i * +int_size]} {data1, data2})
 				(loop-start)
-					(call 'pixmap :to_argb {*data1} {col})
-					(call 'pixmap :from_argb32 {col, format} {col})
+					(call 'pixmap :from_argb32 {*data1, format} {col})
 					(call 'stream :write_bits {stream, col, bits, bit_pool, bit_pool_size} {_, bit_pool, bit_pool_size})
 				(loop-until {(data1 + +int_size => data1) = data2})
 				(assign {0} {state})
@@ -242,6 +240,9 @@
 	(entry 'pixmap :next_frame {this})
 
 	(vpif {this->pixmap_stream} 'error)
+		;must be premul
+		(call 'pixmap :as_premul {this, this})
+
 		;decode acording to type
 		(assign {&this->pixmap_data} {data})
 		(assign {data + this->pixmap_height * this->pixmap_stride} {data_end})

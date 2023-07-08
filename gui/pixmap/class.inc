@@ -2,8 +2,8 @@
 
 (def-class pixmap obj
 	(dec-method :vtable gui/pixmap/vtable)
-	(dec-method :create gui/pixmap/create :static (:r0 :r1) (:r0))
-	(dec-method :init gui/pixmap/init :static (:r0 :r1 :r2 :r3) (:r0 :r1))
+	(dec-method :create gui/pixmap/create :static (:r0 :r1 :r2) (:r0))
+	(dec-method :init gui/pixmap/init :static (:r0 :r1 :r2 :r3 :r4) (:r0 :r1))
 	(dec-method :upload gui/pixmap/upload :static (:r0 :r1) (:r0))
 	(dec-method :resize gui/pixmap/resize :static (:r0 :r1) (:r0))
 	(dec-method :resize_2 gui/pixmap/resize_2 :static (:r0 :r1) (:r0))
@@ -26,6 +26,7 @@
 
 (def-struct pixmap obj_size
 	(ptr texture stream bufp)
-	(uint stream_type width height stride type)
+	(uint stream_type width height stride)
+	(int type)
 	(align)
 	(offset data))

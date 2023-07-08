@@ -4,6 +4,14 @@
 
 ------
 
+Pixmap pixel type import and export conversions now auto generated.
+
+Pixmap type code used to cache premul/argb status. This fixes a problem with
+image file conversions where switching through premul format can loose
+information.
+
+------
+
 Host GUI compositors can now reduce memory usage for glyph textures by 75% and
 improve performance on glyph blits.
 
