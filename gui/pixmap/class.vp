@@ -351,25 +351,25 @@
 	(vp-def (col pix a r g b sa sr sg sb)
 		'(:r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r1 :r2))
 
-	(defun nbits (mask) (- 64 (nlz mask) (ntz mask)))
+	(defun width (mask) (- 64 (nlz mask) (ntz mask)))
 
 	(defun conv (col sr dr sm dm)
-		(defq sb (nbits sm) db (nbits dm))
+		(defq sw (width sm) dw (width dm))
 		(cond
-			((> (/ db sb) 2)
+			((> (/ dw sw) 2)
 				;fractional muliply
 				(defq pipe `((vp-cpy-rr ,col ,dr)
 					(vp-and-cr ,sm ,dr) (vp-mul-cr ,(/ dm sm) ,dr)))
-				(if (/= sb 1) (push pipe `(vp-cpy-cr ,dm ,sr) `(vp-and-rr ,sr ,dr))))
+				(if (/= sw 1) (push pipe `(vp-cpy-cr ,dm ,sr) `(vp-and-rr ,sr ,dr))))
 			(:t ;left bit replicate
 				(defq ls (- (nlz sm) (nlz dm)) pipe
 					`((vp-cpy-rr ,col ,sr) (vp-and-cr ,sm ,sr)
 					(vp-shl-cr ,ls ,sr) (vp-cpy-rr ,sr ,dr))
-					db (- db sb) sm (>> (<< sm ls) sb))
-				(while (> db 0)
-					(push pipe `(vp-shr-cr ,sb ,sr) `(vp-add-rr ,sr ,dr))
-					(setq db (- db sb) sm (>> sm sb)))
-				(and (/= db 0) (/= sm 0) (push pipe `(vp-and-cr ,dm ,dr)))))
+					dw (- dw sw) sm (>> (<< sm ls) sw))
+				(while (> dw 0)
+					(push pipe `(vp-shr-cr ,sw ,sr) `(vp-add-rr ,sr ,dr))
+					(setq dw (- dw sw) sm (>> sm sw)))
+				(and (/= dw 0) (/= sm 0) (push pipe `(vp-and-cr ,dm ,dr)))))
 		pipe)
 
 	(defun pipeline (&rest pipes)
