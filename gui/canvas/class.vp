@@ -159,7 +159,7 @@
 
 	;must be in premul alpha format
 	(assign {this->canvas_pixmap} {pixmap})
-	(call 'pixmap :as_premul {pixmap, pixmap})
+	(call 'pixmap :as_premul {pixmap})
 
 	;scale the pixmap if needed
 	(vpif {this->canvas_scale = 1})

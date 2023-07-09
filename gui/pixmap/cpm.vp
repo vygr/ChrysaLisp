@@ -141,7 +141,7 @@
 	(entry 'pixmap :save_cpm {this, stream, format})
 
 	;must be argb
-	(call 'pixmap :as_argb {this, this})
+	(call 'pixmap :as_argb {this})
 
 	;write header
 	(assign (str (code "MPC." 4)) {header.cpm_ident})
@@ -241,7 +241,7 @@
 
 	(vpif {this->pixmap_stream} 'error)
 		;must be premul
-		(call 'pixmap :as_premul {this, this})
+		(call 'pixmap :as_premul {this})
 
 		;decode acording to type
 		(assign {&this->pixmap_data} {data})

@@ -175,7 +175,7 @@
 	;trashes
 	;:r1-:r3
 
-	(vp-def (_ col rb g))
+	(vp-def (_ col g rb))
 
 	(entry 'pixmap :to_premul `(,col))
 
@@ -258,35 +258,34 @@
 (def-method 'pixmap :as_argb)
 	;inputs
 	;:r0 = pixmap object (ptr)
-	;:r1 = source pixmap object (ptr)
 	;outputs
 	;:r0 = pixmap object (ptr)
 	;trashes
-	;:r1-:r9
+	;:r1-:r8
 
-	(vp-def (this that pix dst src pmul argb end col height)
-		'(:r0 :r1 :r2 :r5 :r6 :r7 :r8 :r9 :r1 :r1))
+	(vp-def (this col pix dst pmul argb end height)
+		'(:r0 :r1 :r2 :r5 :r6 :r7 :r8 :r1))
 
-	(entry 'pixmap :as_argb `(,this ,that))
+	(entry 'pixmap :as_argb `(,this))
 
 	(assign `((,this pixmap_type)) `(,pix))
 	(vpif `(,pix < 0))
 		(vp-mul-cr -1 pix)
 		(assign `(,pix) `((,this pixmap_type)))
 
-		(assign `((& ,this pixmap_data) (& ,that pixmap_data)) `(,dst ,src))
-		(assign `((,this pixmap_stride) (,this pixmap_height)) `(,end ,height))
+		(assign `((& ,this pixmap_data) (,this pixmap_stride) (,this pixmap_height))
+			`(,dst ,end ,height))
 		(vp-mul-rr height end)
 		(vp-simd vp-xor-rr `(,pmul ,argb) `(,pmul ,argb))
 		(vp-add-rr dst end)
 		(loop-start)
-			(vp-cpy-ir-ui src 0 col)
+			(vp-cpy-ir-ui dst 0 col)
+			(vp-add-cr +int_size dst)
 			(vpif `(,col /= ,pmul))
 				(vp-cpy-rr col pmul)
 				(call 'pixmap :to_argb `(,col) `(,argb))
 			(endif)
-			(vp-cpy-ri-i argb dst 0)
-			(vp-simd vp-add-cr `(,+int_size ,+int_size) `(,dst ,src))
+			(vp-cpy-ri-i argb dst (neg +int_size))
 		(loop-until `(,dst = ,end))
 	(endif)
 
@@ -298,35 +297,34 @@
 (def-method 'pixmap :as_premul)
 	;inputs
 	;:r0 = pixmap object (ptr)
-	;:r1 = source pixmap object (ptr)
 	;outputs
 	;:r0 = pixmap object (ptr)
 	;trashes
-	;:r1-:r8
+	;:r1-:r7
 
-	(vp-def (this that pix dst src pmul argb end col height)
-		'(:r0 :r1 :r2 :r4 :r5 :r6 :r7 :r8 :r1 :r1))
+	(vp-def (this col pix dst pmul argb end height)
+		'(:r0 :r1 :r2 :r4 :r5 :r6 :r7 :r1))
 
-	(entry 'pixmap :as_premul `(,this ,that))
+	(entry 'pixmap :as_premul `(,this))
 
 	(assign `((,this pixmap_type)) `(,pix))
 	(vpif `(,pix < 0))
 		(vp-mul-cr -1 pix)
 		(assign `(,pix) `((,this pixmap_type)))
 
-		(assign `((& ,this pixmap_data) (& ,that pixmap_data)) `(,dst ,src))
-		(assign `((,this pixmap_stride) (,this pixmap_height)) `(,end ,height))
+		(assign `((& ,this pixmap_data) (,this pixmap_stride) (,this pixmap_height))
+			`(,dst ,end ,height))
 		(vp-mul-rr height end)
 		(vp-simd vp-xor-rr `(,pmul ,argb) `(,pmul ,argb))
 		(vp-add-rr dst end)
 		(loop-start)
-			(vp-cpy-ir-ui src 0 col)
-			(vpif `(,col /= ,argb))
-				(vp-cpy-rr col argb)
-				(call 'pixmap :to_premul `(,col) `(,pmul))
+			(vp-cpy-ir-ui dst 0 col)
+			(vp-add-cr +int_size dst)
+			(vpif `(,col /= ,pmul))
+				(vp-cpy-rr col pmul)
+				(call 'pixmap :to_premul `(,col) `(,argb))
 			(endif)
-			(vp-cpy-ri-i pmul dst 0)
-			(vp-simd vp-add-cr `(,+int_size ,+int_size) `(,dst ,src))
+			(vp-cpy-ri-i argb dst (neg +int_size))
 		(loop-until `(,dst = ,end))
 	(endif)
 

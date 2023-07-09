@@ -5232,11 +5232,10 @@ Super Class: obj
 ```code
 inputs
 :r0 = pixmap object (ptr)
-:r1 = source pixmap object (ptr)
 outputs
 :r0 = pixmap object (ptr)
 trashes
-:r1-:r9
+:r1-:r8
 ```
 
 ### pixmap :as_premul -> gui/pixmap/as_premul
@@ -5244,11 +5243,10 @@ trashes
 ```code
 inputs
 :r0 = pixmap object (ptr)
-:r1 = source pixmap object (ptr)
 outputs
 :r0 = pixmap object (ptr)
 trashes
-:r1-:r8
+:r1-:r7
 ```
 
 ### pixmap :create -> gui/pixmap/create
