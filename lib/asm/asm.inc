@@ -2,9 +2,11 @@
 ; VP Assembler
 ;;;;;;;;;;;;;;
 
-(import "class/lisp.inc")
 (import "././task/farm.inc")
 (import "././boot/image.inc")
+
+;module
+(env-push)
 
 (defun compile (files &optional *abi* *cpu* num_child)
 	(unless (list? files) (setq files (list files)))
@@ -235,3 +237,13 @@
 	(setd *abi* (abi) *cpu* (cpu))
 	(each (# (compile %0 *abi* *cpu*)) (defq files (all-vp-files)))
 	(compile (cat (all-class-files) files) *abi* *cpu* 1))
+
+;module
+(export-symbols
+	all-files all-vp-files all-class-files
+	make make-all make-merge
+	make-platforms make-all-platforms
+	remake remake-all
+	remake-platforms remake-all-platforms
+	compile-test make-test)
+(env-pop)

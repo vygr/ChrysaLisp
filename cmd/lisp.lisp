@@ -1,5 +1,6 @@
-(import "lib/asm/asm.inc")
+(import "class/lisp.inc")
 (import "lib/options/options.inc")
+(import "lib/asm/asm.inc")
 
 (defq usage `(
 (("-h" "--help")
