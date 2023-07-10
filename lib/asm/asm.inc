@@ -236,7 +236,7 @@
 (defun compile-test (&optional *abi* *cpu*)
 	(setd *abi* (abi) *cpu* (cpu))
 	(each (# (compile %0 *abi* *cpu*)) (defq files (all-vp-files)))
-	(compile (cat (all-class-files) files) *abi* *cpu* 1))
+	(compile files *abi* *cpu* 1))
 
 ;module
 (export-symbols
