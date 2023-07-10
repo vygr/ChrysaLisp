@@ -8,6 +8,8 @@ In no particular order but to just to ensure I get thoughts down. I'll keep
 adding to this as I go along. If anybody would like to try helping out, then
 just get in touch.
 
+* Auto tree decomposition lib. Go along with the Farm and Global classes.
+
 * Add a mini display to the Edit app.
 
 * Edit app should use a more robust format for the `editor_state` file. Maybe a
