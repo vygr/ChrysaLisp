@@ -13,8 +13,7 @@
 	(defq nxt_node (length (mail-nodes)) num_files (length (shuffle files)))
 	(setd *abi* (abi) *cpu* (cpu) num_child (max 1 (* nxt_node 2)))
 	(setq num_child (min num_child num_files))
-	(enums +select 0
-		(enum task reply timer))
+	(enums +select 0 (enum task reply timer))
 	(defun dispatch-job (key val)
 		;send another job to child
 		(cond
@@ -37,6 +36,7 @@
 		;function called when entry is destroyed
 		(when (defq child (get :child val)) (mail-send child ""))
 		(when (defq job (get :job val))
+			(print "Job timed out -> " job)
 			(push jobs job)
 			(undef val :job :timestamp)))
 	(when (/= num_child 0)
