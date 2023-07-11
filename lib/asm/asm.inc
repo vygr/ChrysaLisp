@@ -11,7 +11,7 @@
 (defun compile (files &optional *abi* *cpu* num_child)
 	(unless (list? files) (setq files (list files)))
 	(defq nxt_node (length (mail-nodes)) num_files (length (shuffle files)))
-	(setd *abi* (abi) *cpu* (cpu) num_child (max 1 (* nxt_node 2)))
+	(setd *abi* (abi) *cpu* (cpu) num_child (max 1 (* nxt_node 1)))
 	(setq num_child (min num_child num_files))
 	(enums +select 0 (enum task reply timer))
 	(defun dispatch-job (key val)
@@ -42,7 +42,7 @@
 	(when (/= num_child 0)
 		(defq timer_rate (/ 1000000 1) working :t
 			errors (list) nxt_node (random nxt_node)
-			retry_timeout (if (starts-with "obj/vp64" (load-path)) 100000000 2000000)
+			retry_timeout (if (starts-with "obj/vp64" (load-path)) 100000000 1000000)
 			select (list (mail-alloc-mbox) (mail-alloc-mbox) (mail-alloc-mbox))
 			jobs (map (# (str (list (list %0) *abi* *cpu* *debug_mode* *debug_emit* *debug_inst*))) files)
 			farm (Farm create destroy num_child))
