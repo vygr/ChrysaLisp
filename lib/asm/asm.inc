@@ -44,7 +44,7 @@
 (defun compile (files &optional *abi* *cpu* num_child)
 	(unless (list? files) (setq files (list files)))
 	(defq nxt_node (length (mail-nodes)) num_files (length (shuffle files)))
-	(setd *abi* (abi) *cpu* (cpu) num_child (max 1 (* nxt_node 1)))
+	(setd *abi* (abi) *cpu* (cpu) num_child (max 1 (/ (* nxt_node 75) 100)))
 	(setq num_child (min num_child num_files))
 	(enums +select 0 (enum task reply timer))
 	(when (/= num_child 0)
