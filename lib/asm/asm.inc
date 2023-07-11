@@ -8,48 +8,52 @@
 ;module
 (env-push)
 
+(defun dispatch-job (key val)
+	;send another job to child
+	(cond
+		((defq job (pop jobs))
+			(def val :job job :timestamp (pii-time))
+			(mail-send (get :child val) (cat
+				(char key +long_size) (elem-get +select_reply select) job)))
+		(:t	;no jobs in que
+			(undef val :job :timestamp))))
+
+(defun cancel-job (key val)
+	;cancel this job
+	(undef val :job :timestamp)
+	(. farm :restart key val))
+
+(defun create (key val nodes)
+	; (create key val nodes)
+	;function called when entry is created
+	(if (= 0 (length nodes))
+		(setq nodes (list (slice +long_size -1 (task-mailbox)))))
+	(open-task "lib/asm/asm.lisp"
+		(elem-get (setq nxt_node (% (inc nxt_node) (length nodes))) nodes)
+		+kn_call_child key (elem-get +select_task select)))
+
+(defun destroy (key val)
+	; (destroy key val)
+	;function called when entry is destroyed
+	(when (defq child (get :child val)) (mail-send child ""))
+	(when (defq job (get :job val))
+		(print "Restarting job ! -> " job)
+		(push jobs job)
+		(undef val :job :timestamp)))
+
 (defun compile (files &optional *abi* *cpu* num_child)
 	(unless (list? files) (setq files (list files)))
 	(defq nxt_node (length (mail-nodes)) num_files (length (shuffle files)))
 	(setd *abi* (abi) *cpu* (cpu) num_child (max 1 (* nxt_node 1)))
 	(setq num_child (min num_child num_files))
 	(enums +select 0 (enum task reply timer))
-	(defun dispatch-job (key val)
-		;send another job to child
-		(cond
-			((defq job (pop jobs))
-				(def val :job job :timestamp (pii-time))
-				(mail-send (get :child val) (cat
-					(char key +long_size) (elem-get +select_reply select) job)))
-			(:t	;no jobs in que
-				(undef val :job :timestamp))))
-	(defun cancel-job (key val)
-		;cancel this job
-		(undef val :job :timestamp)
-		(. farm :restart key val))
-	(defun create (key val nodes)
-		; (create key val nodes)
-		;function called when entry is created
-		(if (= 0 (length nodes))
-			(setq nodes (list (slice +long_size -1 (task-mailbox)))))
-		(open-task "lib/asm/asm.lisp"
-			(elem-get (setq nxt_node (% (inc nxt_node) (length nodes))) nodes)
-			+kn_call_child key (elem-get +select_task select)))
-	(defun destroy (key val)
-		; (destroy key val)
-		;function called when entry is destroyed
-		(when (defq child (get :child val)) (mail-send child ""))
-		(when (defq job (get :job val))
-			(print "Restarting job ! -> " job)
-			(push jobs job)
-			(undef val :job :timestamp)))
 	(when (/= num_child 0)
 		(defq timer_rate (/ 1000000 1) working :t
 			errors (list) nxt_node (random nxt_node)
 			retry_timeout (if (starts-with "obj/vp64" (load-path)) 20000000 2000000)
 			select (list (mail-alloc-mbox) (mail-alloc-mbox) (mail-alloc-mbox))
 			jobs (map (# (str (list (list %0) *abi* *cpu* *debug_mode* *debug_emit* *debug_inst*))) files)
-			farm (Farm create destroy num_child))
+			farm (Farm (const create) (const destroy) num_child))
 		(mail-timeout (elem-get +select_timer select) timer_rate 0)
 		(while working
 			(defq msg (mail-read (elem-get (defq idx (mail-select select)) select)))
