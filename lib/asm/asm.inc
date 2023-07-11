@@ -36,7 +36,7 @@
 		;function called when entry is destroyed
 		(when (defq child (get :child val)) (mail-send child ""))
 		(when (defq job (get :job val))
-			(print "Job timed out -> " job)
+			(print "Job timed out ! -> " job)
 			(push jobs job)
 			(undef val :job :timestamp)))
 	(when (/= num_child 0)
