@@ -48,6 +48,14 @@
 					(restart)))) _old_keys _old_vals)
 		_mutated)
 
+	(defmethod :restart (this _key _val)
+		; (. farm :restart key val)
+		;restart task
+		(defq _nodes (map cat (mail-nodes))
+			_create (get :create this) _destroy (get :destroy this)
+			_mutated :nil _now (pii-time))
+		(restart))
+
 	(defmethod :close (this)
 		; (. farm :close)
 		;close tasks

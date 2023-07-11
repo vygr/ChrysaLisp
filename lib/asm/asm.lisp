@@ -23,8 +23,8 @@
 
 (defun main ()
 	(defq *select* (alloc-select +_select_size) *working* :t *msg* :nil)
-	(within-compile-env
-		(# (while *working*
+	(within-compile-env (lambda ()
+		(while *working*
 			(mail-timeout (elem-get +_select_timeout *select*) +_timeout 0)
 			(setq *msg* (mail-read (elem-get (defq *idx* (mail-select *select*)) *select*)))
 			(cond

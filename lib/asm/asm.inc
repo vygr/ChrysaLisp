@@ -23,6 +23,10 @@
 					(char key +long_size) (elem-get +select_reply select) job)))
 			(:t	;no jobs in que
 				(undef val :job :timestamp))))
+	(defun cancel-job (key val)
+		;cancel this job
+		(undef val :job :timestamp)
+		(. farm :restart key val))
 	(defun create (key val nodes)
 		; (create key val nodes)
 		;function called when entry is created
@@ -36,7 +40,7 @@
 		;function called when entry is destroyed
 		(when (defq child (get :child val)) (mail-send child ""))
 		(when (defq job (get :job val))
-			(print "Job timed out ! -> " job)
+			(print "Restarting job ! -> " job)
 			(push jobs job)
 			(undef val :job :timestamp)))
 	(when (/= num_child 0)
@@ -58,10 +62,17 @@
 						(dispatch-job key val)))
 				((= idx +select_reply)
 					;child worker responce
-					(defq key (str-as-num (pop (defq msg (split msg (ascii-char 10))))))
+					(defq key (str-as-num (pop (defq msg (split msg (ascii-char 10)))))
+						error_flag :nil)
+					(each (# (cond
+						((starts-with "Error:" %0)
+							(push errors %0)
+							(setq error_flag :t))
+						(:t (print %0)))) msg)
 					(when (defq val (. farm :find key))
-						(dispatch-job key val))
-					(each (# (if (starts-with "Error:" %0) (push errors %0) (print %0))) msg)
+						(if error_flag
+							(cancel-job key val)
+							(dispatch-job key val)))
 					(stream-flush (io-stream 'stdout))
 					;all jobs done ?
 					(when (= 0 (length jobs))

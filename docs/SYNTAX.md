@@ -798,6 +798,12 @@
 (. farm :refresh [timeout]) -> :t | :nil
 ```
 
+### farm :restart
+
+```code
+(. farm :restart key val)
+```
+
 ### flow :layout
 
 ```code
