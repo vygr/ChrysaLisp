@@ -3,6 +3,8 @@
 What is the underlying VP machine abstraction ? What is a VP task, VP node, VP
 network ? How are these ideas mapped onto `real` hardware or host OS's ?
 
+The VP machine is a `sea` of nodes. So how does one sail upon this sea ?
+
 ## Tasks
 
 A VP task is a 'thread' of execution of VP instructions. Don't get hung up on
