@@ -123,12 +123,12 @@ You can create, destroy and search for the mailbox/s for a service/s task/s of
 interest, via the `'sys_mail :enquire`, `'sys_mail :declare` and `'sys_mail
 :forget` method calls.
 
-## Does the OS even exist...
+## Does the VP OS even exist...
 
 I was going to say that the system is an emergent OS... but that leads to a
 whole pile of other discussions.
 
-Are you trying to tell me, the OS and Network just emerges from the
+Are you trying to tell me, the OS and Network just emerge from the
 interactions... ? YES !
 
 This was something that hit me back when I coded Onslaught on the ST/Amiga...
@@ -136,4 +136,4 @@ The entire game was an emergent effect of the sprite rules.
 
 I spent most of the time playing the game and tweaking the rules till it did
 what I thought was a good game. And then I thought "This also applies to a
-distributed OS" ...
+distributed OS !" ...
