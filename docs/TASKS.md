@@ -66,3 +66,16 @@ on the bare metal, it can even be running as a C/C++/Rust VP64 EMU !
 
 In either case, a VP node can execute a number of VP tasks, and it does this
 via a priority based co-op task scheduling policy.
+
+## Link tasks
+
+A link task, or driver, is a task that registers itself with the Kernel as a task that can send message data to a neighbor node.
+
+It runs at the link driver priority, lower than the Kernel, but higher than the rest of the system.
+
+When a link starts up, it exchanges a `hello` with the node it's connected to.
+And then starts to transmit message data.
+
+A link doesn't get involved in anything other than sending and receiving data
+to/from it's neighbor. It does work to split and combine large messages into
+smaller packets, but keeps itself to itself.
