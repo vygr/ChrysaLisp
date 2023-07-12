@@ -125,11 +125,11 @@ interest, via the `'sys_mail :enquire`, `'sys_mail :declare` and `'sys_mail
 
 ## Does the OS even exist...
 
-I was going to say that the system is an emergent OS.... but that leads to a
-whole pile of other discussions ...
+I was going to say that the system is an emergent OS... but that leads to a
+whole pile of other discussions.
 
 Are you trying to tell me, the OS and Network just emerges from the
-interactions.... YES.
+interactions... YES !
 
 This was something that hit me back when I coded Onslaught on the ST/Amiga...
 The entire game was an emergent effect of the sprite rules.
