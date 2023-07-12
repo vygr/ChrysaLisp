@@ -67,6 +67,22 @@ on the bare metal, it can even be running as a C/C++/Rust VP64 EMU !
 In either case, a VP node can execute a number of VP tasks, and it does this
 via a priority based co-op task scheduling policy.
 
+## Kernel task
+
+The Kernel task is the highest priority task running on a VP node. It's
+initially given the command line arguments after a `boot_image` launch. These
+arguments are usually commands to start up link drivers and/or the TUI/GUI
+services.
+
+Once the Kernel launches all the command line tasks, it enters a loop
+monitoring messages to it to distribute new tasks, register new link driver
+tasks, services declaration from neighbors and beyond !
+
+The Kernel task also launches a `ping` task. This task sits in the background
+and every so often sends out the local `Service Directory` entries to its
+neighbors. In this way the network wide routing and service tasks info is
+distributed.
+
 ## Link tasks
 
 A link task, or driver, is a task that registers itself with the Kernel as a task that can send message data to a neighbor node.
