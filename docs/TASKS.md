@@ -132,11 +132,9 @@ Are you trying to tell me, the OS and Network just emerge from the
 interactions... ? YES !
 
 This was something that hit me back when I coded Onslaught on the ST/Amiga...
-The entire game was an emergent effect of the sprite rules.
-
-I spent most of the time playing the game and tweaking the rules till it did
-what I thought was a good game. And then I thought "This also applies to a
-distributed OS !" ...
+The entire game was an emergent effect of the sprite rules. I spent most of the
+time playing the game and tweaking the rules till it did what I thought was a
+good game. And then I thought "This also applies to a distributed OS !" ...
 
 As soon as we launch a `boot_image`` we have a VP node running. A VP node is a
 single thread (on the host OS maybe), that does it's own co-op scheduling, so
