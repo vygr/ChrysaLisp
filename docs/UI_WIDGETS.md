@@ -40,7 +40,7 @@ section of the `ENVIRONMENT` document apply to UI trees !
 
 The View class is the base widget class. Its main function is to interface to
 the VP level GUI compositor. It defines a rectangular region that will be
-rendered by calling the widget `:draw` methods. The GUI process will make this
+rendered by calling the widget `:draw` methods. The GUI task will make this
 call when and if it calculates that this widget needs to redraw itself, when it
 does so each widget subclass overrides the `:draw` method and uses VP drawing
 methods to render that particular widget.

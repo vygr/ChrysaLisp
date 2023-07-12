@@ -69,8 +69,8 @@ just using the separated name spaces in the obj/ directory. But I'd quite like
 to get to the point where there is a single virtual binary package for an
 application for distribution. At this point I would implement the ability for
 applications to have native coded versions of functions available and those
-functions would be bound to in preference to the VP versions when a process
-finds itself on such an architecture.
+functions would be bound to in preference to the VP versions when a task finds
+itself on such an architecture.
 
 * Live hot patching of functions. This should be relatively easy because all
 calls and jumps between functions go via a local Vtable at the end of the

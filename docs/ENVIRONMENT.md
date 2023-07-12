@@ -170,9 +170,9 @@ in this case the 'lisp' application you happen to be inside.
 
 If you want to look up the parent of an environment you can use `(penv)`, try
 typing `(tolist (penv (env)))` at the REPL prompt. I'm not going to print that
-here as it's way too big, but that's the boot environment that all Lisp
-processes have as their shared parent environment. It's populated via the
-`class/lisp/root.inc` file that's evaluated for every Lisp process launched.
+here as it's way too big, but that's the boot environment that all Lisp tasks
+have as their shared parent environment. It's populated via the
+`class/lisp/root.inc` file that's evaluated for every Lisp task launched.
 
 ### Function environments
 

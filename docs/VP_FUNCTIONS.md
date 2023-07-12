@@ -59,7 +59,7 @@ path string pool. 0 terminated C style strings.
 
 * `ushort +fn_header_stack`: Stack amount in bytes required by function.
 Currently this is a default value for all unless specified as an optional
-argument via `(def-func)`. A process main function uses this value to allocate
+argument via `(def-func)`. A tasks main function uses this value to allocate
 the initial stack requirement but in future a debug mode stack check will check
 at each function entry point that there is enough stack remaining for the
 function invocation.

@@ -5,9 +5,8 @@ handled, or dispatched, so that the correct action is performed for each event
 received.
 
 When a GUI application receives an event message on its `main` mailbox these
-come from the GUI process. They consist of various types, mouse events,
-keyboard presses and UI widget notifications when objects like buttons are
-clicked etc.
+come from the GUI task. They consist of various types, mouse events, keyboard
+presses and UI widget notifications when objects like buttons are clicked etc.
 
 In the `EVENT_LOOPS` document we talked about applications allocating multiple
 mailboxes to differentiate between type of messages. But did not cover
@@ -353,10 +352,10 @@ This example is not about the dispatching of GUI events but illustrates an
 important technique that applications may find useful.
 
 The Docs application, `apps/docs/app.lisp`, uses the idea of a current state
-and searches an `emap` of state to handler function in order to process each
-line of the document being scanned. If the state is not found in the `emap`
-then it uses the state to create a module name and dynamically loads that
-module, entering it into the `emap`.
+and searches an `emap` of state to handler function in order to task each line
+of the document being scanned. If the state is not found in the `emap` then it
+uses the state to create a module name and dynamically loads that module,
+entering it into the `emap`.
 
 In this way the Docs application has the ability to be extended in
 functionality at runtime. The addition of a new document section handler

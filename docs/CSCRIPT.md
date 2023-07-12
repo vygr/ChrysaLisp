@@ -435,7 +435,7 @@ BUT, we could populate those stacks without using the CScript compiler ! The
 above so far has always been a Script to Script assignment. Both the source and
 drain code created by the compilation functions.
 
-We could, and do, use just the input part or the output part of this process to
+We could, and do, use just the input part or the output part of this task to
 interface with VP register lists in order to call VP methods, or use output
 from VP methods. We have the ability to define symbol bindings for those `_vXX`
 symbols before we let the assembler see the list of VP instructions we have

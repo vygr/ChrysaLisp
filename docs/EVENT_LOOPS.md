@@ -15,9 +15,9 @@ on some way of typing your messages so you can distinguish between them.
 needing to worry about replies that may come to you from failed or timed out
 child tasks.
 
-* In a GUI application event loop the GUI process will send your application
-GUI events via the main mailbox and you will need to create additional
-mailboxes in order to keep those separate from your other activities.
+* In a GUI application event loop the GUI task will send your application GUI
+events via the main mailbox and you will need to create additional mailboxes in
+order to keep those separate from your other activities.
 
 * Prioritizing messages by using an ordered selection list of mailboxes with
 the higher priority messages going to the earlier entries in that selection
