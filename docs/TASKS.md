@@ -13,7 +13,7 @@ word Thread ! ChrysaLisp Tasks are not processes or threads.
 Each task has a control block created for it, this control block, `TCB`,
 contains a few items that each task needs to maintain and an area that is used
 for the `stack`, your `:rsp` register is pointing at the end of this area when
-it is created. These Task Control Blocks are held on a list, one list for each
+it's created. These `Task Control Blocks` are held on a list, one list for each
 task priority. When a task is inactive, due to scheduling or blocking on a
 message read etc, the VP register state for that task is stored pushed onto the
 stack. When a task becomes active the VP register state is popped from the
@@ -41,10 +41,10 @@ mailbox ID 0 ! You can always talk to the Kernel task via mailbox ID 0, it's
 guaranteed to be there.
 
 The Kernel task is responsible for scheduling the other tasks, for maintaining
-the distributed Service Directory, distributing task start requests and
-handling callbacks to the initial OS thread that started the VP node
-`boot_image`. A lot of host OS calls require that you only call them on their
-own `stack` !
+the distributed `Service Directory`, distributing task start requests and
+handling callbacks to the initial OS process/thread/emu/warp/weft/queef that
+started the VP node `boot_image`. A lot of host OS calls require that you only
+call them on their own `stack` !
 
 You can view a VP node as what happens when you run a `boot_image`, doesn't
 matter how your running it ! From an host OS thread, process, bare metal, EMU,
