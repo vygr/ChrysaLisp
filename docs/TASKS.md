@@ -32,7 +32,7 @@ task TCB.
 During the lifetime of a task it can change state from active to inactive,
 suspended, sleeping etc. Based on the method name you can probably guess the features available, so do look through the `sys/task/class.*` files.
 
-# Networks
+## Networks
 
 A VP network consists of a group of VP nodes, each connected to a neighbor by a
 point to point link, each node executing a group of VP tasks. These tasks are
