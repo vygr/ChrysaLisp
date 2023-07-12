@@ -77,14 +77,14 @@ When a link starts up, it exchanges a `hello` with the node it's connected to.
 And then starts to transmit message data.
 
 A link doesn't get involved in anything other than sending and receiving data
-to/from it's neighbor. It does work to split and combine large messages into
+to/from its neighbor. It does work to split and combine large messages into
 smaller packets, but keeps itself to itself.
 
 ## Lisp tasks
 
 A Lisp task is a task stared by the Kernel via launching `class/lisp/run.vp`.
 It's just the same as any other VP level task, but this task is passed the path
-of the `.lisp` file to start interpreting as its first message.
+of the `.lisp` file it should start interpreting as its first message.
 
 The `run.vp` task creates an instance of the Lisp class and then calls the
 `'lisp :repl` method with the file name it received from the Kernel.
