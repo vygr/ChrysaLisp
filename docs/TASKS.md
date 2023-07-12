@@ -15,11 +15,13 @@ word Thread ! ChrysaLisp Tasks are not processes or threads.
 Each task has a control block created for it, this control block, `TCB`,
 contains a few items that each task needs to maintain and an area that is used
 for the `stack`, your `:rsp` register is pointing at the end of this area when
-it's created. These `Task Control Blocks` are held on a list, one list for each
-task priority. When a task is inactive, due to scheduling or blocking on a
-message read etc, the VP register state for that task is stored pushed onto the
-stack. When a task becomes active the VP register state is popped from the
-stack and execution of this tasks activity continues.
+it's created.
+
+These `Task Control Blocks` are held on a list, one list for each task
+priority. When a task is inactive, due to scheduling or blocking on a message
+read etc, the VP register state for that task is stored pushed onto the stack.
+When a task becomes active the VP register state is popped from the stack and
+execution of this tasks activity continues.
 
 The structure of the TCB and the priority lists are detailed in
 `sys/task/class.inc`, the implementation of the task methods in
@@ -56,7 +58,7 @@ node.
 ## Networks
 
 A VP network consists of a group of VP nodes, each connected to a neighbor by a
-point to point link, each node is executing a group of VP tasks. These tasks
+point to point link. Each node is executing a group of VP tasks. These tasks
 are communicating with each other via sending and receiving messages, see the
 `COMMS.md` document for that discussion.
 
@@ -67,6 +69,10 @@ on the bare metal, it can even be running as a C/C++/Rust VP64 EMU !
 In either case, a VP node can execute a number of VP tasks, and it does this
 via a priority based co-op task scheduling policy.
 
+Networks can `morph` dynamically ! The `sea` of VP nodes, and services, within
+your horizon, can and does, change during your apps lifetime... more on this
+later.
+
 ## Kernel task
 
 The Kernel task is the highest priority task running on a VP node. It's
@@ -76,7 +82,7 @@ services.
 
 Once the Kernel launches all the command line tasks, it enters a loop
 monitoring messages to it to distribute new tasks, register new link driver
-tasks, services declaration from neighbors and beyond !
+tasks, service declarations from neighbors and beyond !
 
 The Kernel task also launches a `ping` task. This task sits in the background
 and every so often sends out the local `Service Directory` entries to its
