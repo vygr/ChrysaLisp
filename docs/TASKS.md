@@ -46,7 +46,7 @@ The Kernel task is responsible for scheduling the other tasks, for maintaining
 the distributed `Service Directory`, distributing task start requests and
 handling callbacks to the initial OS process/thread/emu/warp/weft/queef that
 started the VP node `boot_image`. A lot of host OS calls require that you only
-call them on their own `stack` !
+call them on their own `queef` !
 
 You can view a VP node as what happens when you run a `boot_image`, doesn't
 matter how your running it ! From an host OS thread, process, bare metal, EMU,
