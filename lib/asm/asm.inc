@@ -8,6 +8,9 @@
 ;module
 (env-push)
 
+(enums +select 0
+	(enum task reply timer))
+
 (defun dispatch-job (key val)
 	;send another job to child
 	(cond
@@ -45,9 +48,7 @@
 	(unless (list? files) (setq files (list files)))
 	(defq nxt_node (length (mail-nodes)) num_files (length (shuffle files)))
 	(setd *abi* (abi) *cpu* (cpu) num_child (max 1 (/ (* nxt_node 75) 100)))
-	(setq num_child (min num_child num_files))
-	(enums +select 0 (enum task reply timer))
-	(when (/= num_child 0)
+	(when (/= (setq num_child (min num_child num_files)) 0)
 		(defq timer_rate (/ 1000000 1) working :t
 			errors (list) nxt_node (random nxt_node)
 			retry_timeout (if (starts-with "obj/vp64" (load-path)) 20000000 2000000)
