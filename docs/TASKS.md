@@ -137,3 +137,36 @@ The entire game was an emergent effect of the sprite rules.
 I spent most of the time playing the game and tweaking the rules till it did
 what I thought was a good game. And then I thought "This also applies to a
 distributed OS !" ...
+
+As soon as we launch a `boot_image`` we have a VP node running. A VP node is a
+single thread (on the host OS maybe), that does it's own co-op scheduling, so
+it can run many VP tasks, on a single host OS thread.
+
+If we launch several `boot_image` we have several VP nodes (like the run
+scripts do). At this point although we have several VP nodes running, they all
+think they are a network of 1 node ! As the link driver tasks start up and they
+introduce themselves to the node next door, the VP nodes find that they are
+part of a bigger network, and they glue/gel/glop/gloop/queef together into a
+bigger blob of VP nodes. That takes a few seconds depending on the link driver
+comms speed and the host OS process sheduling.
+
+That's on a single Host machine ! But you could have nodes started on other machines, and a link driver comes up that 'gloops' those VP nodes together...
+
+As VP nodes gloop, they sync up their copies of the Services Directory (and sort out the message routing situation).
+
+All this works in reverse as well, as VP nodes go out of contact, the nodes
+'ungloop', and split apart. The Service directory of the separated parts
+updates, and the routing situation updates.
+
+This glooping and unglooping of VP nodes can go on ALL the time ! In a mostly
+stable situation it doesn't do it that often, but in theory it can be like a
+quantum foam ;) Applications live on this 'sea' of VP nodes. And they have to
+live with the fact that things can and do come and go dynamically.
+
+You have classes provided like `Global`` and `Farm`` that take a lot of the
+pain away from you, they monitor the network state and call back to you as VP
+nodes go away or appear. The assembler, like the Raymarch demo is fault
+tolerant in that it creates a farm of children to do work for it, but these
+children may live on VP nodes that die. Any child that dies is restarted on the
+current 'sea', and you try again. Keep going till all the files are compiled,
+then stop.
