@@ -88,3 +88,14 @@ of the `.lisp` file it should start interpreting as its first message.
 
 The `run.vp` task creates an instance of the Lisp class and then calls the
 `'lisp :repl` method with the file name it received from the Kernel.
+
+## Service tasks
+
+A service task is one that `declares` its mailbox in the `Service Directory`. There is nothing special apart from that action.
+
+The Kernel maintains a directory of all the local services, and via talking to
+neighboring Kernels, a network wide directory of these named mailboxes.
+
+You can create, destroy and search for the mailbox/s for a service/s task/s of
+interest, via the `'sys_mail :enquire`, `'sys_mail :declare` and `'sys_mail
+:forget` method calls.
