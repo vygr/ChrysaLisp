@@ -32,6 +32,10 @@ the `'sys_task :stop` method. If a task eventually returns from its entry point
 without calling `'sys_task :stop` this will happen automatically. A 'call' to
 `'sys_task :stop` is pushed onto the task stack on creation of the TCB.
 
+When a task is created it's assigned a none repeating 64 bit `mailbox_id`, this
+ID is combined with a 128 bit `node_id` to create the network wide `net_id`
+that is used to address a message.
+
 During the lifetime of a task it can change state from active to inactive,
 suspended, sleeping etc. Based on the method names you can probably guess the
 features available, so do look through the `sys/task/class.*` files.
@@ -48,12 +52,16 @@ The Kernel task is responsible for scheduling the other tasks, for maintaining
 the distributed `Service Directory`, distributing task start requests and
 handling callbacks to the initial OS process/thread/emu/warp/weft/queef that
 started the VP node `boot_image`. A lot of host OS calls require that you only
-call them on their own `queef` !
+call them via their own `stack` !
 
 You can view a VP node as what happens when you run a `boot_image`, doesn't
 matter how your running it ! From an host OS thread, process, bare metal, EMU,
 it's all irrelevant. If you `launched` a `boot_image` then you are running a VP
 node.
+
+When a node is launched it's assigned a 128 bit UUID `node_id`. Messages are
+routed first of all to the correct VP node and then into the mailbox of the
+corresponding `mailbox_id`.
 
 ## Networks
 
@@ -89,6 +97,12 @@ and every so often sends out the local `Service Directory` entries to its
 neighbors. In this way the network wide routing and service tasks info is
 distributed.
 
+The Kernel task is responsible for distribution of task creation requests via
+sending a message to it on `mailbox_id` 0. This method of starting a task
+passes the task creation request from Kernel to neighboring Kernel until the
+decision is made to call `'sys_task :start` by one of the Kernels, then the
+`net_id` of the new task is returned to the original requester.
+
 ## Link tasks
 
 A link task, or driver, is a task that registers itself with the Kernel as a task that can send message data to a neighbor node.
@@ -113,7 +127,8 @@ The `run.vp` task creates an instance of the Lisp class and then calls the
 
 ## Service tasks
 
-A service task is one that `declares` its mailbox in the `Service Directory`. There is nothing special apart from that action.
+A service task is one that `declares` its `net_id` in the `Service Directory`.
+There is nothing special apart from that action.
 
 The Kernel maintains a directory of all the local VP node's services, and via
 talking to neighboring Kernels, via the link drivers, a network wide directory
@@ -123,7 +138,7 @@ You can create, destroy and search for the mailbox/s for a service/s task/s of
 interest, via the `'sys_mail :enquire`, `'sys_mail :declare` and `'sys_mail
 :forget` method calls.
 
-## Does the VP OS even exist...
+## Does the VP OS even exist ?
 
 I was going to say that the system is an emergent OS... but that leads to a
 whole pile of other discussions.
@@ -136,7 +151,7 @@ The entire game was an emergent effect of the sprite rules. I spent most of the
 time playing the game and tweaking the rules till it did what I thought was a
 good game. And then I thought "This also applies to a distributed OS !" ...
 
-As soon as we launch a `boot_image`` we have a VP node running. A VP node is a
+As soon as we launch a `boot_image` we have a VP node running. A VP node is a
 single thread (on the host OS maybe), that does it's own co-op scheduling, so
 it can run many VP tasks, on a single host OS thread.
 
@@ -144,19 +159,21 @@ If we launch several `boot_image` we have several VP nodes (like the run
 scripts do). At this point although we have several VP nodes running, they all
 think they are a network of 1 node ! As the link driver tasks start up and they
 introduce themselves to the node next door, the VP nodes find that they are
-part of a bigger network, and they glue/gel/glop/gloop/queef together into a
-bigger blob of VP nodes. That takes a few seconds depending on the link driver
-comms speed and the host OS process sheduling.
+part of a bigger network, and they join together into a bigger group of VP
+nodes. That takes a few seconds depending on the link driver communication
+speed and the host OS process scheduling.
 
-That's on a single Host machine ! But you could have nodes started on other machines, and a link driver comes up that 'gloops' those VP nodes together...
+That's on a single Host machine ! But you could have nodes started on other
+machines, and a link driver comes up that 'groups' those VP nodes together...
 
-As VP nodes gloop, they sync up their copies of the Services Directory (and sort out the message routing situation).
+As VP nodes group, they sync up their copies of the Services Directory (and
+sort out the message routing situation).
 
 All this works in reverse as well, as VP nodes go out of contact, the nodes
-'ungloop', and split apart. The Service directory of the separated parts
+'ungroup', and split apart. The Service directory of the separated parts
 updates, and the routing situation updates.
 
-This glooping and unglooping of VP nodes can go on ALL the time ! In a mostly
+This grouping and ungrouping of VP nodes can go on ALL the time ! In a mostly
 stable situation it doesn't do it that often, but in theory it can be like a
 quantum foam ;) Applications live on this 'sea' of VP nodes. And they have to
 live with the fact that things can and do come and go dynamically.
