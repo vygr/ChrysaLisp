@@ -77,7 +77,7 @@ suspending the calling task, by use of the `'sys_mail :poll` function.
 Polling of multiple mailboxes and selection from multiple mailboxes is provided
 by the `'sys_mail :poll` and `'sys_mail :select` function calls.
 
-## Process Mailbox ID's
+## Task Mailbox ID's
 
 A `net_id` task mailbox ID consists of a combination of the local mailbox ID
 and the CPU `node_id`. The CPU `node_id` occupies the later 128 bits, the local
