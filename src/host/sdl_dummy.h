@@ -1,4 +1,4 @@
-/* sdl-dummy.h - faked up SDL header for non-SDL video */
+/* sdl_dummy.h - faked up SDL header for non-SDL video */
 
 #include <inttypes.h>
 typedef uint8_t         Uint8;
