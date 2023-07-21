@@ -21,7 +21,7 @@
 #include <linux/keyboard.h>
 #include <linux/kd.h>
 #include <linux/vt.h>
-#include "sdl-dummy.h"
+#include "sdl_dummy.h"
 
 #define DEBUG   1      /* exit on ESC, don't change to graphics console */
 
