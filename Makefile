@@ -60,9 +60,7 @@ endif
 	@echo $(CPU) > cpu
 	@echo $(OS) > os
 	@echo $(ABI) > abi
-	mkdir -p obj/$(CPU)/$(ABI)/$(OS)
-	mkdir -p $(OBJ_DIR_GUI)
-	mkdir -p $(OBJ_DIR_TUI)
+	mkdir -p obj/$(CPU)/$(ABI)/$(OS) $(OBJ_DIR_GUI) $(OBJ_DIR_TUI)
 
 snapshot:
 	rm -f snapshot.zip
@@ -93,9 +91,6 @@ else
 		$(shell sdl2-config --cflags)		
 endif
 
-$(OBJ_DIR_TUI)/%.o: $(SRC_DIR)/%.cpp
-	c++ -c -o $@ $< $(CFLAGS) $(CPPFLAGS)
-
 $(OBJ_DIR_GUI)/%.o: $(SRC_DIR)/%.c
 ifeq ($(GUI),fb)
 	cc -c -o $@ $< $(CFLAGS) -D_HOST_GUI=$(HOST_GUI)
@@ -103,6 +98,9 @@ else
 	cc -c -o $@ $< $(CFLAGS) -D_HOST_GUI=$(HOST_GUI) \
 		$(shell sdl2-config --cflags)
 endif
+
+$(OBJ_DIR_TUI)/%.o: $(SRC_DIR)/%.cpp
+	c++ -c -o $@ $< $(CFLAGS) $(CPPFLAGS)
 
 $(OBJ_DIR_TUI)/%.o: $(SRC_DIR)/%.c
 	cc -c -o $@ $< $(CFLAGS)
