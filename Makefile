@@ -2,8 +2,12 @@ SRC_DIR := ./src
 OBJ_DIR_GUI := ./src/obj/gui
 OBJ_DIR_TUI := ./src/obj/tui
 
-SRC_FILES := $(wildcard $(SRC_DIR)/*.cpp)
-SRC_FILES += $(wildcard $(SRC_DIR)/*.c)
+SRC_DIRS := $(shell find $(SRC_DIR) -type d | grep -v "/obj")
+OBJ_DIRS := $(patsubst $(SRC_DIR)/%,$(OBJ_DIR_GUI)/%,$(SRC_DIRS))
+OBJ_DIRS += $(patsubst $(SRC_DIR)/%,$(OBJ_DIR_TUI)/%,$(SRC_DIRS))
+
+SRC_FILES := $(shell find $(SRC_DIR) -name "*.cpp")
+SRC_FILES += $(shell find $(SRC_DIR) -name "*.c")
 
 OBJ_FILES_GUI := $(patsubst $(SRC_DIR)/%.cpp,$(OBJ_DIR_GUI)/%.o,$(SRC_FILES))
 OBJ_FILES_GUI := $(patsubst $(SRC_DIR)/%.c,$(OBJ_DIR_GUI)/%.o,$(OBJ_FILES_GUI))
@@ -60,7 +64,7 @@ endif
 	@echo $(CPU) > cpu
 	@echo $(OS) > os
 	@echo $(ABI) > abi
-	mkdir -p obj/$(CPU)/$(ABI)/$(OS) $(OBJ_DIR_GUI) $(OBJ_DIR_TUI)
+	mkdir -p obj/$(CPU)/$(ABI)/$(OS) $(OBJ_DIRS)
 
 snapshot:
 	rm -f snapshot.zip
