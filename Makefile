@@ -1,8 +1,6 @@
 SRC_DIR := ./src
 OBJ_DIR_GUI := ./src/obj/gui
 OBJ_DIR_TUI := ./src/obj/tui
-dummy_build_gui := $(shell mkdir -p $(OBJ_DIR_GUI))
-dummy_build_tui := $(shell mkdir -p $(OBJ_DIR_TUI))
 
 SRC_FILES := $(wildcard $(SRC_DIR)/*.cpp)
 SRC_FILES += $(wildcard $(SRC_DIR)/*.c)
@@ -12,6 +10,9 @@ OBJ_FILES_GUI := $(patsubst $(SRC_DIR)/%.c,$(OBJ_DIR_GUI)/%.o,$(OBJ_FILES_GUI))
 
 OBJ_FILES_TUI := $(patsubst $(SRC_DIR)/%.cpp,$(OBJ_DIR_TUI)/%.o,$(SRC_FILES))
 OBJ_FILES_TUI := $(patsubst $(SRC_DIR)/%.c,$(OBJ_DIR_TUI)/%.o,$(OBJ_FILES_TUI))
+
+OBJ_FILES := $(OBJ_FILES_GUI)
+OBJ_FILES += $(OBJ_FILES_TUI)
 
 CFLAGS := -O3 -nostdlib -fno-exceptions -MMD
 CPPFLAGS := -std=c++14
@@ -59,7 +60,9 @@ endif
 	@echo $(CPU) > cpu
 	@echo $(OS) > os
 	@echo $(ABI) > abi
-	mkdir -p obj/$(CPU)/$(ABI)/$(OS)	
+	mkdir -p obj/$(CPU)/$(ABI)/$(OS)
+	mkdir -p $(OBJ_DIR_GUI)
+	mkdir -p $(OBJ_DIR_TUI)
 
 snapshot:
 	rm -f snapshot.zip
@@ -105,10 +108,8 @@ $(OBJ_DIR_TUI)/%.o: $(SRC_DIR)/%.c
 	cc -c -o $@ $< $(CFLAGS)
 
 clean:
-	rm -rf $(OBJ_DIR_GUI)/*
-	rm -rf $(OBJ_DIR_TUI)/*
-	rm -rf ./obj/
+	rm -rf ./obj
+	rm -rf ./src/obj
 	unzip -oq snapshot.zip
 
- -include $(OBJ_FILES_GUI:.o=.d)
- -include $(OBJ_FILES_TUI:.o=.d)
+ -include $(OBJ_FILES:.o=.d)
