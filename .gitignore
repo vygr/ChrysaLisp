@@ -1,13 +1,10 @@
-obj/*
-src/obj/*
-logs/*
 os
 cpu
 abi
 chrysalisp
-*.dll
 .vs/*
 .vscode/*
+obj/*
 x64/*
 main.sln
 main.vcxproj
@@ -15,4 +12,7 @@ main.vcxproj.filters
 main.vcxproj.user
 chrysalisp.exe
 *.DS_Store
+*.o
+*.d
+*.dll
 *editor_state
