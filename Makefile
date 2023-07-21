@@ -64,11 +64,11 @@ endif
 	@echo $(CPU) > cpu
 	@echo $(OS) > os
 	@echo $(ABI) > abi
-	mkdir -p obj/$(CPU)/$(ABI)/$(OS) $(OBJ_DIRS)
+	@mkdir -p obj/$(CPU)/$(ABI)/$(OS) $(OBJ_DIRS)
 
 snapshot:
-	rm -f snapshot.zip
-	zip -9q snapshot.zip \
+	@rm -f snapshot.zip
+	@zip -9q snapshot.zip \
 		obj/vp64/VP64/sys/boot_image \
 		`find obj -name "main_gui.exe"` \
 		`find obj -name "main_tui.exe"`
@@ -110,8 +110,8 @@ $(OBJ_DIR_TUI)/%.o: $(SRC_DIR)/%.c
 	cc -c -o $@ $< $(CFLAGS)
 
 clean:
-	rm -rf ./obj
-	rm -rf ./src/obj
-	unzip -oq snapshot.zip
+	@rm -rf ./obj
+	@rm -rf ./src/obj
+	@unzip -oq snapshot.zip
 
  -include $(OBJ_FILES:.o=.d)
