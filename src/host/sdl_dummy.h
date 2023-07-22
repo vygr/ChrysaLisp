@@ -149,9 +149,9 @@ union event {
     Uint8 padding[56];
 };
 
-typedef event SDL_Event;
-typedef windowevent SDL_WindowEvent;
-typedef keyboardevent SDL_KeyboardEvent;
-typedef mousemotionevent SDL_MouseMotionEvent;
-typedef mousebuttonevent SDL_MouseButtonEvent;
-typedef mousewheelevent SDL_MouseWheelEvent;
+typedef union event SDL_Event;
+typedef struct windowevent SDL_WindowEvent;
+typedef struct keyboardevent SDL_KeyboardEvent;
+typedef struct mousemotionevent SDL_MouseMotionEvent;
+typedef struct mousebuttonevent SDL_MouseButtonEvent;
+typedef struct mousewheelevent SDL_MouseWheelEvent;
