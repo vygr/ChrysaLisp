@@ -105,11 +105,11 @@ static void catch_signals(int signo)
 #define unassert(a)
 #endif
 
-void host_gui_begin_composite(void)
+void host_gui_begin_composite()
 {
 }
 
-void host_gui_end_composite(void)
+void host_gui_end_composite()
 {
 }
 
@@ -184,14 +184,15 @@ void host_gui_set_color(uint8_t r, uint8_t g, uint8_t b, uint8_t a)
     draw_color = (a << 24) + (r << 16) + (g << 8)  + b;
 }
 
-void host_gui_texture_color(Texture *texture, uint8_t r, uint8_t g, uint8_t b)
+void host_gui_set_texture_color(void *handle, uint8_t r, uint8_t g, uint8_t b)
 {
     /* colors used in color mod blit */
-    texture->color = r | (g << 8) | (b << 16);
+	Texture *t = (Texture*)handle;
+    t->color = r | (g << 8) | (b << 16);
 }
 
 /* allocate drawable for passed data and return a handle to it */
-Texture *host_gui_create_texture(pixel_t *src, uint64_t width, uint64_t height, uint64_t pitch, uint64_t mode)
+void *host_gui_create_texture(pixel_t *src, uint64_t width, uint64_t height, uint64_t pitch, uint64_t mode)
 {
     Texture *t;
     int s = (mode == 1)? sizeof(alpha_t): sizeof(pixel_t);
@@ -235,10 +236,11 @@ Texture *host_gui_create_texture(pixel_t *src, uint64_t width, uint64_t height, 
     return t;
 }
 
-void host_gui_destroy_texture(Texture *texture)
+void host_gui_destroy_texture(void *handle)
 {
-    unassert(texture);
-    free(texture);
+	Texture *t = (Texture*)handle;
+    unassert(t);
+    free(t);
 }
 
 /* fill rectangle with current color */
@@ -413,9 +415,10 @@ static void blit_colormod(Drawable *ts, const SDL_Rect *srect, Drawable *td, con
 }
 
 /* draw pixels from passed texture handle */
-void host_gui_blit(Texture *texture, const SDL_Rect *srect, const SDL_Rect *drect)
+void host_gui_blit(void *handle, const SDL_Rect *srect, const SDL_Rect *drect)
 {
-    unassert(texture);
+	Texture *t = (Texture*)handle;
+    unassert(t);
     unassert(srect->w == drect->w);
     unassert(srect->h == drect->h);
     SDL_Rect *cr = get_clip_rect(drect);
@@ -423,9 +426,9 @@ void host_gui_blit(Texture *texture, const SDL_Rect *srect, const SDL_Rect *drec
     SDL_Rect sr2 = *srect;
     if (clip.x > drect->x) sr2.x += clip.x - drect->x;
     if (clip.y > drect->y) sr2.y += clip.y - drect->y;
-    if (texture->mode == 1)
-        blit_colormod(texture, &sr2, &bb, cr);
-    else blit_blend(texture, &sr2, &bb, cr);
+    if (t->mode == 1)
+        blit_colormod(t, &sr2, &bb, cr);
+    else blit_blend(t, &sr2, &bb, cr);
 }
 
 #define BUTTON_L        0x01      /* left button*/
@@ -749,7 +752,7 @@ void (*host_gui_funcs[]) = {
     (void*)host_gui_blit,
     (void*)host_gui_set_clip,
     (void*)host_gui_set_color,
-    (void*)host_gui_texture_color,
+    (void*)host_gui_set_texture_color,
     (void*)host_gui_destroy_texture,
     (void*)host_gui_create_texture,
     (void*)host_gui_begin_composite,
