@@ -538,10 +538,12 @@ void *pii_flush_icache(void* addr, size_t len)
 }
 
 std::random_device rd;
-std::uniform_int_distribution<int> dist(0, 256);
+std::mt19937 rng(rd());
+std::uniform_int_distribution<int> dist(0, 255);
+
 void pii_random(char* addr, size_t len)
 {
-	for (int i = 0; i < len; ++i) addr[i] = dist(rd);
+	for (int i = 0; i < len; ++i) addr[i] = dist(rng);
 }
 
 void pii_sleep(uint64_t usec)
