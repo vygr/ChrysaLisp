@@ -6,6 +6,11 @@ typedef uint16_t        Uint16;
 typedef uint32_t        Uint32;
 typedef int32_t         Sint32;
 
+struct SDL_Rect
+{
+	int32_t x, y, w, h;
+};
+
 /* keyboard */
 typedef struct keysym   SDL_Keysym;
 typedef Sint32          SDL_Keycode;
@@ -55,6 +60,12 @@ enum eventtype {
     SDL_MOUSEBUTTONDOWN,        /**< Mouse button pressed */
     SDL_MOUSEBUTTONUP,          /**< Mouse button released */
     SDL_MOUSEWHEEL,             /**< Mouse wheel motion */
+};
+
+enum eventid {
+	SDL_WINDOWEVENT_SHOWN = 0x1,
+	SDL_WINDOWEVENT_SIZE_CHANGED = 0x6,
+	SDL_WINDOWEVENT_RESTORED = 0x9,
 };
 
 struct quitevent {
@@ -137,4 +148,10 @@ union event {
     struct quitevent quit;              /**< Quit request event data */
     Uint8 padding[56];
 };
-typedef union event     SDL_Event;
+
+typedef event SDL_Event;
+typedef windowevent SDL_WindowEvent;
+typedef keyboardevent SDL_KeyboardEvent;
+typedef mousemotionevent SDL_MouseMotionEvent;
+typedef mousebuttonevent SDL_MouseButtonEvent;
+typedef mousewheelevent SDL_MouseWheelEvent;

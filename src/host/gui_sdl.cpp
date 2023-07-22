@@ -7,7 +7,7 @@ SDL_Window *window;
 SDL_Renderer *renderer;
 SDL_Texture *backbuffer;
 
-void host_gui_init(SDL_Rect *rect)
+void host_gui_init(SDL_Rect *rect, uint64_t flags)
 {
 	SDL_SetMainReady();
 	SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS);
@@ -22,7 +22,7 @@ void host_gui_init(SDL_Rect *rect)
 				rect->w, rect->h);
 	SDL_SetTextureBlendMode(backbuffer, SDL_BLENDMODE_NONE);
 	SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
-	SDL_ShowCursor(SDL_DISABLE);
+	if (flags) SDL_ShowCursor(SDL_DISABLE);
 }
 
 void host_gui_deinit()
@@ -32,13 +32,13 @@ void host_gui_deinit()
 	SDL_Quit();
 }
 
-uint64_t host_gui_poll_event(SDL_Event *data)
+uint64_t host_gui_poll_event(void *handle)
 {
 	SDL_PumpEvents();
-	return SDL_PollEvent(data);
+	return SDL_PollEvent((SDL_Event*)handle);
 }
 
-uint64_t host_gui_create_texture(uint32_t *data, uint64_t w, uint64_t h, uint64_t s, uint64_t m)
+void *host_gui_create_texture(uint32_t *data, uint64_t w, uint64_t h, uint64_t s, uint64_t m)
 {
 	auto surface = SDL_CreateRGBSurfaceFrom(data, w, h, 32, s, 0xff0000, 0xff00, 0xff, 0xff000000);
 	auto t = SDL_CreateTextureFromSurface(renderer, surface);
@@ -46,11 +46,12 @@ uint64_t host_gui_create_texture(uint32_t *data, uint64_t w, uint64_t h, uint64_
 		SDL_BLENDFACTOR_ONE, SDL_BLENDFACTOR_ONE_MINUS_SRC_ALPHA, SDL_BLENDOPERATION_ADD);
 	SDL_SetTextureBlendMode(t, mode);
 	SDL_FreeSurface(surface);
-	return (uint64_t)t;
+	return t;
 }
 
-void host_gui_destroy_texture(SDL_Texture *t)
+void host_gui_destroy_texture(void *handle)
 {
+	auto t = (SDL_Texture*)handle;
 	SDL_DestroyTexture(t);
 }
 
@@ -87,13 +88,15 @@ void host_gui_set_color(uint8_t r, uint8_t g, uint8_t b, uint8_t a)
 	SDL_SetRenderDrawColor(renderer, r, g, b, a);
 }
 
-void host_gui_set_texture_color(SDL_Texture *t, uint8_t r, uint8_t g, uint8_t b)
+void host_gui_set_texture_color(void *handle, uint8_t r, uint8_t g, uint8_t b)
 {
+	auto t = (SDL_Texture*)handle;
 	SDL_SetTextureColorMod(t, r, g, b);
 }
 
-void host_gui_blit(SDL_Texture *t, const SDL_Rect *srect, const SDL_Rect *drect)
+void host_gui_blit(void *handle, const SDL_Rect *srect, const SDL_Rect *drect)
 {
+	auto t = (SDL_Texture*)handle;
 	SDL_RenderCopy(renderer, t, srect, drect);
 }
 

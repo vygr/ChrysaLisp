@@ -8,11 +8,6 @@
 typedef uint32_t pixel_t;
 typedef uint8_t alpha_t;
 
-struct Rect
-{
-	int32_t x, y, w, h;
-};
-
 struct Texture
 {
 	int32_t w, h, s, m;
@@ -30,8 +25,6 @@ uint32_t scr_width = 0;
 uint32_t scr_height = 0;
 uint32_t scr_stride = 0;
 
-Rect clip;
-
 //this code is just so we can see the output !
 #include <SDL.h>
 SDL_Window *window;
@@ -40,6 +33,8 @@ SDL_Renderer *renderer;
 ////////////////////////////////
 // screen setup/access functions
 ////////////////////////////////
+
+SDL_Rect clip;
 
 void host_gui_resize(uint64_t w, uint64_t h)
 {
@@ -52,7 +47,7 @@ void host_gui_resize(uint64_t w, uint64_t h)
 	backbuffer = (pixel_t *)malloc(scr_height * scr_stride);
 }
 
-void host_gui_init(Rect *rect)
+void host_gui_init(SDL_Rect *rect, uint64_t flags)
 {
 	host_gui_resize(rect->w, rect->h);
 
@@ -68,7 +63,7 @@ void host_gui_init(Rect *rect)
 				SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_TARGETTEXTURE);
 	SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
 	SDL_SetRenderTarget(renderer, 0);
-	SDL_ShowCursor(SDL_DISABLE);
+	if (flags) SDL_ShowCursor(SDL_DISABLE);
 }
 
 void host_gui_deinit()
@@ -95,7 +90,7 @@ void host_gui_end_composite()
 {
 }
 
-void host_gui_flush(const Rect *rect)
+void host_gui_flush(const SDL_Rect *rect)
 {
 	//no need to clip to screen
 	if (rect->w <= 0 || rect->h <= 0) return;
@@ -129,7 +124,7 @@ void host_gui_flush(const Rect *rect)
 // texture functions
 ////////////////////
 
-Texture *host_gui_create_texture(pixel_t *src, uint64_t w, uint64_t h, uint64_t s, uint64_t m)
+void *host_gui_create_texture(pixel_t *src, uint64_t w, uint64_t h, uint64_t s, uint64_t m)
 {
 	auto tt = m ? sizeof(alpha_t) : sizeof(pixel_t);
 	Texture *t = (Texture*)malloc(sizeof(Texture) + w * h * tt);
@@ -167,14 +162,16 @@ Texture *host_gui_create_texture(pixel_t *src, uint64_t w, uint64_t h, uint64_t 
 	return t;
 }
 
-void host_gui_destroy_texture(Texture *t)
+void host_gui_destroy_texture(void *handle)
 {
+	auto t = (Texture*)handle;
 	free(t);
 }
 
-void host_gui_set_texture_color(Texture *t, uint8_t r, uint8_t g, uint8_t b)
+void host_gui_set_texture_color(void *handle, uint8_t r, uint8_t g, uint8_t b)
 {
 	//convert to premultiplied channels !
+	auto t = (Texture*)handle;
 	t->rb = ((r + 1) << 16) + (b + 1);
 	t->g = (g + 1) << 8;
 }
@@ -183,7 +180,7 @@ void host_gui_set_texture_color(Texture *t, uint8_t r, uint8_t g, uint8_t b)
 // drawing functions
 ////////////////////
 
-void host_gui_set_clip(const Rect *rect)
+void host_gui_set_clip(const SDL_Rect *rect)
 {
 	//store as x, y, x1, y1 !
 	clip = *rect;
@@ -199,10 +196,10 @@ void host_gui_set_color(uint8_t r, uint8_t g, uint8_t b, uint8_t a)
 	color_g = ((g + 1) * a) & 0xff00;
 }
 
-void host_gui_filled_box(const Rect *rect)
+void host_gui_filled_box(const SDL_Rect *rect)
 {
 	//clip
-	Rect r = *rect;
+	SDL_Rect r = *rect;
 	if (color_a == 0) return;
 	if (r.w <= 0 || r.h <= 0) return;
 	r.w += r.x;
@@ -250,10 +247,10 @@ void host_gui_filled_box(const Rect *rect)
 	}
 }
 
-void host_gui_box(const Rect *rect)
+void host_gui_box(const SDL_Rect *rect)
 {
 	//just call filled box and let it do the clipping and drawing
-	Rect r = *rect;
+	SDL_Rect r = *rect;
 	if (rect->w <= 0 || rect->h <= 0) return;
 	r.h = 1;
 	host_gui_filled_box(&r);
@@ -270,11 +267,12 @@ void host_gui_box(const Rect *rect)
 	host_gui_filled_box(&r);
 }
 
-void host_gui_blit(Texture *t, const Rect *srect, const Rect *drect)
+void host_gui_blit(void *handle, const SDL_Rect *srect, const SDL_Rect *drect)
 {
+	auto t = (Texture*)handle;
 	//clip
-	Rect dr = *drect;
-	Rect sr = *srect;
+	SDL_Rect dr = *drect;
+	SDL_Rect sr = *srect;
 	if (dr.w <= 0 || dr.h <= 0) return;
 	dr.w += dr.x;
 	dr.h += dr.y;
@@ -382,10 +380,10 @@ void host_gui_blit(Texture *t, const Rect *srect, const Rect *drect)
 // event functions
 //////////////////
 
-uint64_t host_gui_poll_event(uint64_t data)
+uint64_t host_gui_poll_event(void *handle)
 {
 	SDL_PumpEvents();
-	return SDL_PollEvent((SDL_Event*)data);
+	return SDL_PollEvent((SDL_Event*)handle);
 }
 
 void (*host_gui_funcs[]) = {

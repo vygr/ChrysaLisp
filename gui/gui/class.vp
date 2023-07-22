@@ -38,7 +38,7 @@
 		;init
 		(assign {0, 0, statics->statics_gui_screen->view_w, statics->statics_gui_screen->view_h}
 			{rect.host_gui_rect_x, rect.host_gui_rect_y, rect.host_gui_rect_w, rect.host_gui_rect_h})
-		(host-gui-call 'host_gui :init {&rect})
+		(host-gui-call 'host_gui :init {&rect, 1})
 		(assign {1, rect.host_gui_rect_w, rect.host_gui_rect_h}
 			{statics->statics_gui_init, statics->statics_gui_screen->view_w, statics->statics_gui_screen->view_h})
 	(endif)

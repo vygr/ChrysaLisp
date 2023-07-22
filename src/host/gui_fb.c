@@ -46,7 +46,7 @@ typedef uint8_t alpha_t;        /* size of alpha channel */
 typedef struct rect {
     int32_t x, y;
     int32_t w, h;
-} Rect;
+} SDL_Rect;
 
 typedef struct drawable {
     int32_t pixtype;            /* pixel format */
@@ -69,7 +69,7 @@ static int keybd_fd = -1;;
 static int posx, posy;              /* cursor position */
 static Drawable fb;                 /* hardware framebuffer */
 static Drawable bb;                 /* back buffer */
-static Rect clip;
+static SDL_Rect clip;
 static pixel_t draw_color = -1;      /* default color */
 
 void host_gui_deinit(void);
@@ -80,9 +80,9 @@ static int read_mouse(int *dx, int *dy, int *dw, int *bp);
 static void close_framebuffer(void);
 static void close_keyboard(void);
 static void close_mouse(void);
-static void blit_blend(Drawable *src, const Rect *srect, Drawable *dst, const Rect *drect);
-static void blit_srccopy(Drawable *src, const Rect *srect, Drawable *dst, const Rect *drect);
-static void blit_srccopy_rgb565(Drawable *ts, const Rect *srect, Drawable *td, const Rect *drect);
+static void blit_blend(Drawable *src, const SDL_Rect *srect, Drawable *dst, const SDL_Rect *drect);
+static void blit_srccopy(Drawable *src, const SDL_Rect *srect, Drawable *dst, const SDL_Rect *drect);
+static void blit_srccopy_rgb565(Drawable *ts, const SDL_Rect *srect, Drawable *td, const SDL_Rect *drect);
 
 #if DEBUG
 #define unassert(a)   if (!(a)) unassert_handler(#a,__FILE__, __LINE__)
@@ -113,9 +113,9 @@ void host_gui_end_composite(void)
 {
 }
 
-void host_gui_flush(const Rect *r)
+void host_gui_flush(const SDL_Rect *r)
 {
-    Rect cr;
+    SDL_Rect cr;
     if (r == NULL) {
         cr.x = 0;
         cr.y = 0;
@@ -135,9 +135,9 @@ void host_gui_resize(uint64_t w, uint64_t h)
 }
 
 /* return rect adjusted to current clip rectangle */
-static Rect *get_clip_rect(const Rect *rect)
+static SDL_Rect *get_clip_rect(const SDL_Rect *rect)
 {
-    static Rect r;
+    static SDL_Rect r;
 
     r = *rect;
     if (r.w <= 0 || r.h <= 0) return NULL;
@@ -155,7 +155,7 @@ static Rect *get_clip_rect(const Rect *rect)
 }
 
 /* set global clipping rectangle */
-void host_gui_set_clip(const Rect *rect)
+void host_gui_set_clip(const SDL_Rect *rect)
 {
     /* store as x, y, x1, y1 */
     if (rect) {
@@ -242,11 +242,11 @@ void host_gui_destroy_texture(Texture *texture)
 }
 
 /* fill rectangle with current color */
-void host_gui_filled_box(const Rect *rect)
+void host_gui_filled_box(const SDL_Rect *rect)
 {
     pixel_t color_a = draw_color >> 24;
     if (color_a == 0) return;
-    Rect *r = get_clip_rect(rect);
+    SDL_Rect *r = get_clip_rect(rect);
     if (!r) return;
     pixel_t *dst = (pixel_t *)(bb.pixels + r->y * bb.pitch + r->x * bb.bytespp);
     int span = (bb.pitch >> 2) - r->w;      /* in pixels, not bytes */
@@ -278,10 +278,10 @@ void host_gui_filled_box(const Rect *rect)
 }
 
 /* draw rectangle - this function isn't required in a driver */
-void host_gui_box(const Rect *rect)
+void host_gui_box(const SDL_Rect *rect)
 {
     /* just call filled box and let it do the clipping and drawing */
-    Rect r = *rect;
+    SDL_Rect r = *rect;
     if (rect->w <= 0 || rect->h <= 0) return;
     r.h = 1;
     host_gui_filled_box(&r);
@@ -302,7 +302,7 @@ void host_gui_box(const Rect *rect)
 }
 
 /* fast srccopy blit, no clipping */
-static void blit_srccopy(Drawable *ts, const Rect *srect, Drawable *td, const Rect *drect)
+static void blit_srccopy(Drawable *ts, const SDL_Rect *srect, Drawable *td, const SDL_Rect *drect)
 {
     pixel_t *dst = (pixel_t *)(td->pixels + drect->y * td->pitch + drect->x * td->bytespp);
     pixel_t *src = (pixel_t *)(ts->pixels + srect->y * ts->pitch + srect->x * ts->bytespp);
@@ -321,7 +321,7 @@ static void blit_srccopy(Drawable *ts, const Rect *srect, Drawable *td, const Re
 }
 
 /* source copy conversion blit ARGB888 -> RGB565, no clipping */
-static void blit_srccopy_rgb565(Drawable *ts, const Rect *srect, Drawable *td, const Rect *drect)
+static void blit_srccopy_rgb565(Drawable *ts, const SDL_Rect *srect, Drawable *td, const SDL_Rect *drect)
 {
     unassert(srect->w == drect->w);
     unassert(srect->h == drect->h);
@@ -342,7 +342,7 @@ static void blit_srccopy_rgb565(Drawable *ts, const Rect *srect, Drawable *td, c
 }
 
 /* premultiplied alpha blend blit, no clipping */
-static void blit_blend(Drawable *ts, const Rect *srect, Drawable *td, const Rect *drect)
+static void blit_blend(Drawable *ts, const SDL_Rect *srect, Drawable *td, const SDL_Rect *drect)
 {
     //unassert(srect->w == drect->w);   //FIXME check why src width can != dst width
     /* src and dst height can differ, will use dst height for drawing */
@@ -377,7 +377,7 @@ static void blit_blend(Drawable *ts, const Rect *srect, Drawable *td, const Rect
 }
 
 /* color mod blit, no clipping */
-static void blit_colormod(Drawable *ts, const Rect *srect, Drawable *td, const Rect *drect)
+static void blit_colormod(Drawable *ts, const SDL_Rect *srect, Drawable *td, const SDL_Rect *drect)
 {
     //unassert(srect->w == drect->w);   //FIXME check why src width can != dst width
     /* src and dst height can differ, will use dst height for drawing */
@@ -413,14 +413,14 @@ static void blit_colormod(Drawable *ts, const Rect *srect, Drawable *td, const R
 }
 
 /* draw pixels from passed texture handle */
-void host_gui_blit(Texture *texture, const Rect *srect, const Rect *drect)
+void host_gui_blit(Texture *texture, const SDL_Rect *srect, const SDL_Rect *drect)
 {
     unassert(texture);
     unassert(srect->w == drect->w);
     unassert(srect->h == drect->h);
-    Rect *cr = get_clip_rect(drect);
+    SDL_Rect *cr = get_clip_rect(drect);
     if (!cr) return;
-    Rect sr2 = *srect;
+    SDL_Rect sr2 = *srect;
     if (clip.x > drect->x) sr2.x += clip.x - drect->x;
     if (clip.y > drect->y) sr2.y += clip.y - drect->y;
     if (texture->mode == 1)
@@ -673,8 +673,9 @@ static uint64_t get_event_timeout(void *data, int timeout)
     return 1;
 }
 
-uint64_t host_gui_poll_event(SDL_Event *event)
+uint64_t host_gui_poll_event(void *handle)
 {
+	SDL_Event *event = (SDL_Event*)handle;
     static SDL_Event ev; /* ev.type inited to 0 ! */
 
     if (event == NULL)
@@ -694,7 +695,7 @@ uint64_t host_gui_poll_event(SDL_Event *event)
     return event->type;
 }
 
-uint64_t host_gui_init(Rect *r)
+uint64_t host_gui_init(SDL_Rect *r, uint64_t flags)
 {
     if (open_keyboard() < 0)     /* must be before FB open for KDSETMODE to work */
         return -1;
