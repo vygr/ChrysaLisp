@@ -7387,12 +7387,6 @@ started by kernel for each link
 
 ### sys_link :out -> sys/link/out
 
-### sys_link :usb_link -> sys/link/usb_link
-
-```code
-started by kernel for each usb link
-```
-
 ## sys_list
 
 Super Class: :nil
