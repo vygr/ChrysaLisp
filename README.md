@@ -39,12 +39,11 @@ process, and point-to-point links utilize shared memory to simulate CPU-to-CPU,
 bidirectional connections. The design intentionally does not include global
 bus-based networking.
 
-The "usb-links" branch enables the use of a USB3/USB2 Prolific chip "copy"
-cable to connect heterogeneous host networks. This feature demonstrates that
-the simulated peer-to-peer network on a single machine can be applied to actual
-parallel hardware. Additionally, it allows users to connect their MacBooks,
-Linux, Windows machines and PI4's to create their own development network,
-which is pretty cool.
+The ChrysaLib project, https://github.com/vygr/ChrysaLib, enables the use of IP
+and USB3/USB2 Prolific chip "copy" cables to create heterogeneous host
+networks. This allows users to connect their MacBooks, Linux, Windows machines
+and PI4's to create their own development LAN or WAN networks, which is pretty
+cool.
 
 ChrysaLisp uses a virtual CPU instruction set to eliminate the use of x64,
 ARM64, RISCV64, or VP64 native instructions. Currently, it compiles directly to
