@@ -62,14 +62,20 @@ struct stamp
 	uint32_t m_pad;
 };
 
-//hard values for now...
-const int lk_data_size = 984;
+//hard values for now matching sys/link/class.inc
+const int lk_data_size = 4056;
 const int lk_page_size = 4096;
 
 enum
 {
 	lk_chan_status_ready,
 	lk_chan_status_busy
+};
+
+struct lk_node
+{
+	node_id m_peer_node_id;
+	uint32_t m_task_count;
 };
 
 struct lk_msg
@@ -84,6 +90,15 @@ struct lk_msg
 struct lk_chan
 {
 	lk_msg m_msgs[3];
+};
+
+struct lk_buffer
+{
+	lk_chan m_chan_1;
+	uint64_t m_towel;
+	char m_pad1[lk_page_size * 4 - sizeof(lk_chan) - sizeof(uint64_t)];
+	lk_chan m_chan_2;
+	char m_pad2[lk_page_size * 4 - sizeof(lk_chan)];
 };
 
 #endif
