@@ -4,7 +4,12 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <iostream>
+
+#ifdef _WIN64
+#include <io.h>
+#else
 #include <unistd.h>
+#endif
 
 #define VP64_STACK_SIZE 8192
 extern int vp64(uint8_t* data, int64_t *stack, int64_t *argv, int64_t *host_os_funcs, int64_t *host_gui_funcs);
