@@ -24,18 +24,19 @@
 	(struct peer_node_id node_id_size)
 	(uint task_count))
 
-(def-struct lk_msg 0
-	(uint status task_count)
+(def-struct lk_buf 0
+	(uint status hash task_count frag_length frag_offset total_length)
 	(struct peer_node_id node_id_size)
-	(struct stamp (- msg_stamp_end msg_stamp_start))
+	(struct dest net_id_size)
+	(struct src net_id_size)
 	(struct data lk_data_size))
 
 (def-struct lk_chan 0
-	(struct msg0 lk_msg_size)
-	(struct msg1 lk_msg_size)
-	(struct msg2 lk_msg_size))
+	(struct msg0 lk_buf_size)
+	(struct msg1 lk_buf_size)
+	(struct msg2 lk_buf_size))
 
-(def-struct lk_buffer 0
+(def-struct lk_shmem 0
 	(struct chan_1 lk_chan_size)
 	(ulong towel)
 	(align lk_page_size)
@@ -45,5 +46,5 @@
 ;; (print "page size: " lk_page_size)
 ;; (print "packet size: " lk_data_size)
 ;; (print "chan size: " lk_chan_size)
-;; (print "buffer size: " lk_buffer_size)
-;; (print "que size: " (/ lk_chan_size lk_msg_size))
+;; (print "buffer size: " lk_shmem_size)
+;; (print "que size: " (/ lk_chan_size lk_buf_size))

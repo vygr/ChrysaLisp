@@ -32,14 +32,14 @@
 	(call 'sys_mail :mymail :nil {params, pdata})
 
 	;open shared memory file
-	(call 'sys_pii :open_shared {pdata, lk_buffer_size} {handle})
+	(call 'sys_pii :open_shared {pdata, lk_shmem_size} {handle})
 
 	;map shared object
-	(call 'sys_pii :mmap {lk_buffer_size, handle, +mmap_shared} {mem})
+	(call 'sys_pii :mmap {lk_shmem_size, handle, +mmap_shared} {mem})
 
 	;put my towel down if seams available
-	(vpifnot {mem->lk_buffer_towel})
-		(assign {node_id.node_id_node1} {mem->lk_buffer_towel})
+	(vpifnot {mem->lk_shmem_towel})
+		(assign {node_id.node_id_node1} {mem->lk_shmem_towel})
 	(endif)
 
 	;start out link and send params
@@ -65,7 +65,7 @@
 	(loop-end)
 
 	;unmap object
-	(call 'sys_pii :munmap {mem, lk_buffer_size, +mmap_shared})
+	(call 'sys_pii :munmap {mem, lk_shmem_size, +mmap_shared})
 
 	;close it
 	(call 'sys_pii :close_shared {pdata, handle})
@@ -104,20 +104,20 @@
 
 	;assign tx channel
 	(call 'sys_kernel :id :nil {node_id.node_id_node1, node_id.node_id_node2})
-	(vpif {tx->lk_buffer_towel = node_id.node_id_node1})
-		(assign {tx + lk_buffer_chan_1} {tx})
+	(vpif {tx->lk_shmem_towel = node_id.node_id_node1})
+		(assign {tx + lk_shmem_chan_1} {tx})
 	(else)
-		(assign {tx + lk_buffer_chan_2} {tx})
+		(assign {tx + lk_shmem_chan_2} {tx})
 	(endif)
 	(assign {&tx->lk_chan_msg0} {tx_msg})
 
 	;write messages through the shared buffer
 	(loop-start)
 		;do we have a free out slot
-		(loop-while {tx_msg->lk_msg_status = lk_chan_status_ready} 'sleep)
+		(loop-while {tx_msg->lk_buf_status = lk_chan_status_ready} 'sleep)
 			;write my task count and cpu id
 			(assign {node_id.node_id_node1, node_id.node_id_node2, statics->statics_sys_task_task_count}
-				{tx_msg->lk_msg_peer_node_id.node_id_node1, tx_msg->lk_msg_peer_node_id.node_id_node2, tx_msg->lk_msg_task_count})
+				{tx_msg->lk_buf_peer_node_id.node_id_node1, tx_msg->lk_buf_peer_node_id.node_id_node2, tx_msg->lk_buf_task_count})
 
 			;see if any mail for this link
 			(call 'sys_mail :ready
@@ -126,31 +126,39 @@
 				key} {msg})
 			(vpif {msg})
 				;copy message data
-				(call 'sys_mem :copy {&msg->msg_stamp_start, &tx_msg->lk_msg_stamp, msg_stamp_end - msg_stamp_start})
-				(call 'sys_mem :copy {msg->msg_frag_data, &tx_msg->lk_msg_data, (msg->msg_frag_length + +long_size - 1) & -+long_size})
+				(assign {msg->msg_frag_length} {tx_msg->lk_buf_frag_length})
+				(assign {msg->msg_frag_offset} {tx_msg->lk_buf_frag_offset})
+				(assign {msg->msg_total_length} {tx_msg->lk_buf_total_length})
+				(assign {msg->msg_dest.net_id_mbox_id} {tx_msg->lk_buf_dest.net_id_mbox_id})
+				(assign {msg->msg_dest.net_id_node_id.node_id_node1} {tx_msg->lk_buf_dest.net_id_node_id.node_id_node1})
+				(assign {msg->msg_dest.net_id_node_id.node_id_node2} {tx_msg->lk_buf_dest.net_id_node_id.node_id_node2})
+				(assign {msg->msg_src.net_id_mbox_id} {tx_msg->lk_buf_src.net_id_mbox_id})
+				(assign {msg->msg_src.net_id_node_id.node_id_node1} {tx_msg->lk_buf_src.net_id_node_id.node_id_node1})
+				(assign {msg->msg_src.net_id_node_id.node_id_node2} {tx_msg->lk_buf_src.net_id_node_id.node_id_node2})
+				(call 'sys_mem :copy {msg->msg_frag_data, &tx_msg->lk_buf_data, (msg->msg_frag_length + +long_size - 1) & -+long_size})
 
 				;busy status
 				(vp-sync)
-				(assign {lk_chan_status_busy} {tx_msg->lk_msg_status})
+				(assign {lk_chan_status_busy} {tx_msg->lk_buf_status})
 
 				;free message
 				(call 'sys_mail :free {msg})
 
 				;move on to next msg chan
-				(assign {&tx_msg->lk_msg_size} {tx_msg})
+				(assign {&tx_msg->lk_buf_size} {tx_msg})
 				(vpif {tx_msg = &tx->lk_chan_size})
 					(assign {&tx->lk_chan_msg0} {tx_msg})
 				(endif)
 			(else)
 				;just a ping
-				(assign {-1} {tx_msg->lk_msg_stamp.(-msg_stamp_start).msg_frag_length})
+				(assign {-1} {tx_msg->lk_buf_frag_length})
 
 				;busy status
 				(vp-sync)
-				(assign {lk_chan_status_busy} {tx_msg->lk_msg_status})
+				(assign {lk_chan_status_busy} {tx_msg->lk_buf_status})
 
 				;move on to next msg chan
-				(assign {&tx_msg->lk_msg_size} {tx_msg})
+				(assign {&tx_msg->lk_buf_size} {tx_msg})
 				(vpif {tx_msg = &tx->lk_chan_size})
 					(assign {&tx->lk_chan_msg0} {tx_msg})
 				(endif)
@@ -195,47 +203,55 @@
 
 	;assign rx channel
 	(call 'sys_kernel :id :nil {node_id.node_id_node1, node_id.node_id_node2})
-	(vpif {rx->lk_buffer_towel = node_id.node_id_node1})
-		(assign {rx + lk_buffer_chan_2} {rx})
+	(vpif {rx->lk_shmem_towel = node_id.node_id_node1})
+		(assign {rx + lk_shmem_chan_2} {rx})
 	(else)
-		(assign {rx + lk_buffer_chan_1} {rx})
+		(assign {rx + lk_shmem_chan_1} {rx})
 	(endif)
 	(assign {&rx->lk_chan_msg0} {rx_msg})
 
 	;read messages from the shared buffer
 	(loop-start)
 		;check for received message
-		(loop-while {rx_msg->lk_msg_status = lk_chan_status_busy})
+		(loop-while {rx_msg->lk_buf_status = lk_chan_status_busy})
 			;read neibour task count and peer id
-			(assign {rx_msg->lk_msg_peer_node_id.node_id_node1, rx_msg->lk_msg_peer_node_id.node_id_node2, rx_msg->lk_msg_task_count}
+			(assign {rx_msg->lk_buf_peer_node_id.node_id_node1, rx_msg->lk_buf_peer_node_id.node_id_node2, rx_msg->lk_buf_task_count}
 				{lk_node->lk_node_peer_node_id.node_id_node1, lk_node->lk_node_peer_node_id.node_id_node2, lk_node->lk_node_task_count})
 
 			;is this just a ping ?
-			(vpif {rx_msg->lk_msg_stamp.(-msg_stamp_start).msg_frag_length /= 0xffffffff})
+			(vpif {rx_msg->lk_buf_frag_length /= 0xffffffff})
 				;is this msg part of a parcel for this node
-				(vpif {rx_msg->lk_msg_stamp.(-msg_stamp_start).msg_total_length
-					&& rx_msg->lk_msg_stamp.(-msg_stamp_start).msg_dest.net_id_node_id.node_id_node1 = node_id.node_id_node1
-					&& rx_msg->lk_msg_stamp.(-msg_stamp_start).msg_dest.net_id_node_id.node_id_node2 = node_id.node_id_node2})
+				(vpif {rx_msg->lk_buf_total_length
+					&& rx_msg->lk_buf_dest.net_id_node_id.node_id_node1 = node_id.node_id_node1
+					&& rx_msg->lk_buf_dest.net_id_node_id.node_id_node2 = node_id.node_id_node2})
 					;copy direct from link buffer to parcel !
 					(call 'sys_mail :in {rx_msg})
 				(else)
 					;allocate msg, copy over data
-					(call 'sys_mail :alloc {rx_msg->lk_msg_stamp.(-msg_stamp_start).msg_frag_length} {msg, data})
-					(call 'sys_mem :copy {&rx_msg->lk_msg_stamp, &msg->msg_stamp_start, msg_stamp_end - msg_stamp_start})
-					(call 'sys_mem :copy {&rx_msg->lk_msg_data, data, rx_msg->lk_msg_stamp.(-msg_stamp_start).msg_frag_length + +long_size - 1) & -+long_size})
+					(call 'sys_mail :alloc {rx_msg->lk_buf_frag_length} {msg, data})
+					(assign {rx_msg->lk_buf_frag_length} {msg->msg_frag_length})
+					(assign {rx_msg->lk_buf_frag_offset} {msg->msg_frag_offset})
+					(assign {rx_msg->lk_buf_total_length} {msg->msg_total_length})
+					(assign {rx_msg->lk_buf_dest.net_id_mbox_id} {msg->msg_dest.net_id_mbox_id})
+					(assign {rx_msg->lk_buf_dest.net_id_node_id.node_id_node1} {msg->msg_dest.net_id_node_id.node_id_node1})
+					(assign {rx_msg->lk_buf_dest.net_id_node_id.node_id_node2} {msg->msg_dest.net_id_node_id.node_id_node2})
+					(assign {rx_msg->lk_buf_src.net_id_mbox_id} {msg->msg_src.net_id_mbox_id})
+					(assign {rx_msg->lk_buf_src.net_id_node_id.node_id_node1} {msg->msg_src.net_id_node_id.node_id_node1})
+					(assign {rx_msg->lk_buf_src.net_id_node_id.node_id_node2} {msg->msg_src.net_id_node_id.node_id_node2})
+					(call 'sys_mem :copy {&rx_msg->lk_buf_data, data, rx_msg->lk_buf_frag_length + +long_size - 1) & -+long_size})
 					;clear status
-					(assign {lk_chan_status_ready} {rx_msg->lk_msg_status})
+					(assign {lk_chan_status_ready} {rx_msg->lk_buf_status})
 
 					;send onwards
 					(call 'sys_mail :send {msg})
 				(endif)
 			(else)
 				;clear status
-				(assign {lk_chan_status_ready} {rx_msg->lk_msg_status})
+				(assign {lk_chan_status_ready} {rx_msg->lk_buf_status})
 			(endif)
 
 			;move on to next msg chan
-			(assign {&rx_msg->lk_msg_size} {rx_msg})
+			(assign {&rx_msg->lk_buf_size} {rx_msg})
 			(vpif {rx_msg = &rx->lk_chan_size})
 				(assign {&rx->lk_chan_msg0} {rx_msg})
 			(endif)

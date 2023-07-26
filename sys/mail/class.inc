@@ -61,12 +61,10 @@
 
 (def-struct msg ln_node_size
 	(ulong timestamp)
-	(offset stamp_start)
 	(struct dest net_id_size)
 	(struct src net_id_size)
 	(uint frag_length frag_offset total_length)
 	(align)
-	(offset stamp_end)
 	(ptr obj frag_data))
 
 ;must be power 2

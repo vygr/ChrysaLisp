@@ -7,6 +7,10 @@
 
 #include <inttypes.h>
 
+//hard values for now matching sys/link/class.inc
+const uint32_t lk_data_size = 4056;
+const uint32_t lk_page_size = 4096;
+
 enum
 {
 	mmap_data,
@@ -52,20 +56,6 @@ struct net_id
 	node_id m_node_id;
 };
 
-struct stamp
-{
-	net_id m_dest;
-	net_id m_src;
-	uint32_t m_frag_length;
-	uint32_t m_frag_offset;
-	uint32_t m_total_length;
-	uint32_t m_pad;
-};
-
-//hard values for now matching sys/link/class.inc
-const uint32_t lk_data_size = 4056;
-const uint32_t lk_page_size = 4096;
-
 enum
 {
 	lk_chan_status_ready,
@@ -78,21 +68,26 @@ struct lk_node
 	uint32_t m_task_count;
 };
 
-struct lk_msg
+struct lk_buf
 {
 	uint32_t m_status;
+	uint32_t m_hash;
 	uint32_t m_task_count;
+	uint32_t m_frag_length;
+	uint32_t m_frag_offset;
+	uint32_t m_total_length;
 	node_id m_peer_node_id;
-	stamp m_stamp;
+	net_id m_dest;
+	net_id m_src;
 	char m_data[lk_data_size];
 };
 
 struct lk_chan
 {
-	lk_msg m_msgs[3];
+	lk_buf m_msgs[3];
 };
 
-struct lk_buffer
+struct lk_shmem
 {
 	lk_chan m_chan_1;
 	uint64_t m_towel;
