@@ -63,8 +63,8 @@ struct stamp
 };
 
 //hard values for now matching sys/link/class.inc
-const int lk_data_size = 4056;
-const int lk_page_size = 4096;
+const uint32_t lk_data_size = 4056;
+const uint32_t lk_page_size = 4096;
 
 enum
 {
