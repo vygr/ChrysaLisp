@@ -43,6 +43,7 @@
 	(struct chan_2 lk_chan_size)
 	(align lk_page_size))
 
+;; (print "towel: " lk_shmem_towel)
 ;; (print "page size: " lk_page_size)
 ;; (print "packet size: " lk_data_size)
 ;; (print "chan size: " lk_chan_size)
