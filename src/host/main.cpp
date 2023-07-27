@@ -13,7 +13,7 @@
 
 #define VP64_STACK_SIZE 8192
 extern int vp64(uint8_t* data, int64_t *stack, int64_t *argv, int64_t *host_os_funcs, int64_t *host_gui_funcs);
-bool run_emu = false;
+extern bool run_emu;
 
 extern struct stat fs;
 extern int64_t pii_open(const char *path, uint64_t mode);

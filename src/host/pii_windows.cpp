@@ -291,7 +291,7 @@ int64_t pii_gettime()
 	return (((int64_t)tv.tv_sec * 1000000) + tv.tv_usec);
 }
 
-extern bool run_emu;
+bool run_emu = false;
 
 int64_t pii_mprotect(void *addr, size_t len, uint64_t mode)
 {

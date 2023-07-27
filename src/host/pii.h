@@ -8,8 +8,8 @@
 #include <inttypes.h>
 
 //hard values for now matching sys/link/class.inc
-const uint32_t lk_data_size = 4056;
 const uint32_t lk_page_size = 4096;
+const uint32_t lk_data_size = 984;
 
 enum
 {
@@ -91,9 +91,9 @@ struct lk_shmem
 {
 	lk_chan m_chan_1;
 	uint64_t m_towel;
-	char m_pad1[lk_page_size * 4 - sizeof(lk_chan) - sizeof(uint64_t)];
+	char m_pad1[lk_page_size - sizeof(lk_chan) - sizeof(uint64_t)];
 	lk_chan m_chan_2;
-	char m_pad2[lk_page_size * 4 - sizeof(lk_chan)];
+	char m_pad2[lk_page_size - sizeof(lk_chan)];
 };
 
 #endif

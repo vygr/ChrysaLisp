@@ -15,7 +15,7 @@
 ;msg data area max size when allocated as a string object
 ;allowing for heap pointer and null byte, rounded down for faster memcpy
 (defq lk_page_size 4096)
-(defcvar 'lk_data_size (- lk_page_size str_size +long_size sys_mem_header_size))
+(defcvar 'lk_data_size (- 1024 str_size +long_size sys_mem_header_size))
 
 (def-enum lk_chan_status 0
 	(enum ready busy))
