@@ -151,7 +151,8 @@
 				(endif)
 			(else)
 				;just a ping
-				(assign {-1} {tx_msg->lk_buf_frag_length})
+				(assign {0} {tx_msg->lk_buf_frag_length})
+				(assign {0xffffffff} {tx_msg->lk_buf_total_length})
 
 				;busy status
 				(vp-sync)
@@ -219,7 +220,7 @@
 				{lk_node->lk_node_peer_node_id.node_id_node1, lk_node->lk_node_peer_node_id.node_id_node2, lk_node->lk_node_task_count})
 
 			;is this just a ping ?
-			(vpif {rx_msg->lk_buf_frag_length /= 0xffffffff})
+			(vpif {rx_msg->lk_buf_total_length /= 0xffffffff})
 				;is this msg part of a parcel for this node
 				(vpif {rx_msg->lk_buf_total_length
 					&& rx_msg->lk_buf_dest.net_id_node_id.node_id_node1 = node_id.node_id_node1
