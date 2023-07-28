@@ -41,18 +41,18 @@
 		(<< (- (code %1) (ascii-code "a")) 4)))) e o)))
 	(cat (slice 16 -1 sid) (slice 0 16 sid)))
 
-(defun to-service-id (nid)
-	; (to-service-id net_id) -> service_id
-	(setq nid (apply cat (map (# (cat
+(defun to-service-id (id)
+	; (to-service-id id) -> service_id
+	(defq id (apply cat (map (# (cat
 		(char (+ (logand 0x0f (code %0)) (ascii-code "a")))
-		(char (+ (logand 0x0f (>> (code %0) 4)) (ascii-code "a"))))) nid)))
-	(cat (slice 16 -1 nid) (slice 0 16 nid)))
+		(char (+ (logand 0x0f (>> (code %0) 4)) (ascii-code "a"))))) id)))
+	(if (= (length id) +net_id_size) (cat (slice 16 -1 id) (slice 0 16 id)) id))
 
 (defun open-task (task node mode key_num reply)
 	; (open-task task node mode key_num reply)
 	(mail-send (cat (char 0 +long_size) node)
-		(cat (char key_num +long_size) reply
-			(char mode +long_size) task (char 0))))
+		(cat (char mode +long_size) (char key_num +long_size)
+			reply task (char 0))))
 
 (defun open-child (task mode)
 	; (open-child task mode) -> str

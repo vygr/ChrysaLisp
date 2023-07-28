@@ -3957,7 +3957,7 @@
 ### to-service-id
 
 ```code
-(to-service-id net_id) -> service_id
+(to-service-id id) -> service_id
 ```
 
 ### to-upper

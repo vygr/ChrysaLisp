@@ -93,7 +93,7 @@
 			(vp-label 'run_here)
 				;fill in reply ID, user field is left alone !
 				(call 'opt_run {&data->kn_msg_open_pathname} '(:r0 :r1 :r2))
-				(assign {msg, data, kn_msg_reply_size} '(:r3 :r4 :r5))
+				(assign {msg, data, kn_msg_size} '(:r3 :r4 :r5))
 				(assign-net-id :r4 kn_msg_reply_id :r3 msg_dest :r6 :r7 :r8)
 				(save-net-id :r4 kn_msg_reply_id :r0 :r1 :r2)
 				(assign '(:r5) '((:r3 msg_frag_length)))
