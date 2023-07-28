@@ -36,15 +36,17 @@
 (defun to-net-id (sid)
 	; (to-net-id service_id) -> net_id
 	(bind '(e o) (unzip sid (lists2)))
-	(apply cat (map (# (char
+	(setq sid (apply cat (map (# (char
 		(+ (- (code %0) (ascii-code "a"))
 		(<< (- (code %1) (ascii-code "a")) 4)))) e o)))
+	(cat (slice 16 -1 sid) (slice 0 16 sid)))
 
 (defun to-service-id (nid)
 	; (to-service-id net_id) -> service_id
-	(apply cat (map (# (cat
+	(setq nid (apply cat (map (# (cat
 		(char (+ (logand 0x0f (code %0)) (ascii-code "a")))
 		(char (+ (logand 0x0f (>> (code %0) 4)) (ascii-code "a"))))) nid)))
+	(cat (slice 16 -1 nid) (slice 0 16 nid)))
 
 (defun open-task (task node mode key_num reply)
 	; (open-task task node mode key_num reply)
