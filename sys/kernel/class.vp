@@ -60,6 +60,11 @@
 
 	;set random node ID
 	(call 'sys_pii :rand {&statics->statics_sys_task_kernel_node_id, +node_id_size})
+	;lisp nodes allways have bit 0 set !
+	(assign {&statics->statics_sys_task_kernel_node_id} '(:r0))
+	(assign '((:r0 0 ub)) '(:r1))
+	(vp-or-cr 1 :r1)
+	(assign '(:r1) '((:r0 0 ub)))
 	(call 'sys_kernel :id :nil {node_id.node_id_node1, node_id.node_id_node2})
 
 	;process command options
