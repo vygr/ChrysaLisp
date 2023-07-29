@@ -84,7 +84,9 @@ struct lk_buf
 
 struct lk_chan
 {
-	lk_buf m_msgs[3];
+	lk_buf m_msg0;
+	lk_buf m_msg1;
+	lk_buf m_msg2;
 };
 
 struct lk_shmem
