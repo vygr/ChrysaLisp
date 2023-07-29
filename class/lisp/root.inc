@@ -243,6 +243,14 @@
 	; (nempty? form) -> :t | :nil
 	(if (seq? _) (> (length _) 0)))
 
+(defun lisp-node? (_)
+	; (lisp_node? node) -> :t | :nil
+	(= (logand (code (elem-get 0 _)) 1) 1))
+
+(defun cpp-node? (_)
+	; (cpp_node? node) -> :t | :nil
+	(= (logand (code (elem-get 0 _)) 1) 0))
+
 ;;;;;;;;;;;;;;
 ; default opts
 ;;;;;;;;;;;;;;
@@ -850,6 +858,10 @@
 (defun time-in-seconds (_)
 	; (time-in-seconds time) -> str
 	(str (/ _ 1000000) "." (pad (% _ 1000000) 6 "00000")))
+
+(defun lisp-nodes ()
+	; (lisp-nodes) -> nodes
+	(filter (const lisp-node?) (mail-nodes)))
 
 ;;;;;;;;;
 ; Streams

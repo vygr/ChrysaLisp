@@ -70,7 +70,7 @@
 
 (defun open-pipe (tasks)
 	; (open-pipe tasks) -> (str ...)
-	(defq devices (mail-nodes) ids (cap (length tasks) (list))
+	(defq devices (lisp-nodes) ids (cap (length tasks) (list))
 		mbox (mail-alloc-mbox) index -1 tail (task-mailbox))
 	(while (< (setq index (inc index)) (length tasks))
 		(open-task (elem-get index tasks) (slice +long_size -1 tail) +kn_call_child 0 mbox)

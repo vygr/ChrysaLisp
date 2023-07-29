@@ -2094,6 +2094,12 @@
 (cos angle)
 ```
 
+### cpp_node?
+
+```code
+(cpp_node? node) -> :t | :nil
+```
+
 ### cpu
 
 ```code
@@ -2806,6 +2812,18 @@
 
 ```code
 (let* ([(var val) ...]) body)
+```
+
+### lisp-nodes
+
+```code
+(lisp-nodes) -> nodes
+```
+
+### lisp_node?
+
+```code
+(lisp_node? node) -> :t | :nil
 ```
 
 ### list
