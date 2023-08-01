@@ -1845,7 +1845,7 @@
 ### alloc-select
 
 ```code
-(alloc-select size) -> (list (task-mailbox) [temp_mbox] ...)
+(alloc-select size) -> (list (task-netid) [temp_mbox] ...)
 ```
 
 ### and
@@ -3918,10 +3918,10 @@
 (sym? form) -> :t | :nil
 ```
 
-### task-mailbox
+### task-netid
 
 ```code
-(task-mailbox)
+(task-netid)
 ```
 
 ### task-sleep

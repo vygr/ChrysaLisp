@@ -3,7 +3,7 @@
 
 (ffi kernel-stats "sys/kernel/lisp_stats" 0)
 (ffi load-path "sys/load/lisp_path" 0)
-(ffi task-mailbox "sys/task/lisp_mailbox" 0)
+(ffi task-netid "sys/task/lisp_mailbox" 0)
 (ffi task-sleep "sys/task/lisp_sleep" 0)
 (ffi task-slice "sys/task/lisp_timeslice" 0)
 (ffi mail-alloc-mbox "sys/mail/lisp_alloc_mbox" 0)
@@ -23,8 +23,8 @@
 	(long time id))
 
 (defun alloc-select (size)
-	; (alloc-select size) -> (list (task-mailbox) [temp_mbox] ...)
-	(defq select (list (task-mailbox)))
+	; (alloc-select size) -> (list (task-netid) [temp_mbox] ...)
+	(defq select (list (task-netid)))
 	(while (> (setq size (dec size)) 0)
 		(push select (mail-alloc-mbox)))
 	select)
@@ -57,7 +57,7 @@
 (defun open-child (task mode)
 	; (open-child task mode) -> str
 	(defq mbox (mail-alloc-mbox))
-	(open-task task (slice +long_size -1 (task-mailbox)) mode 0 mbox)
+	(open-task task (slice +long_size -1 (task-netid)) mode 0 mbox)
 	(defq id (getf (mail-read mbox) +kn_msg_reply_id))
 	(mail-free-mbox mbox) id)
 
@@ -71,7 +71,7 @@
 (defun open-pipe (tasks)
 	; (open-pipe tasks) -> (str ...)
 	(defq devices (lisp-nodes) ids (cap (length tasks) (list))
-		mbox (mail-alloc-mbox) index -1 tail (task-mailbox))
+		mbox (mail-alloc-mbox) index -1 tail (task-netid))
 	(while (< (setq index (inc index)) (length tasks))
 		(open-task (elem-get index tasks) (slice +long_size -1 tail) +kn_call_child 0 mbox)
 		(defq tail (getf (mail-read mbox) +kn_msg_reply_id))

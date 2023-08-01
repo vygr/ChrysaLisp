@@ -334,7 +334,7 @@
 
 (defun main ()
 	(defq select (alloc-select +select_size)
-		edit_service (mail-declare (task-mailbox) "Edit" "Edit Service 0.1")
+		edit_service (mail-declare (task-netid) "Edit" "Edit Service 0.1")
 		*running* :t *edit* (Editor-edit))
 	(.-> *edit* (:set_buffer (Buffer)) (:set_underlay_color +argb_grey6))
 	(def *edit* :min_width 0 :min_height 0

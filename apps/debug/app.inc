@@ -11,6 +11,6 @@
 			s (apply str s) s (cat s (if (eql (elem-get -2 s) (ascii-char 10)) "" (ascii-char 10))))
 		(mail-send debug_mbox (setf-> (cat (str-alloc +debug_size) s)
 			(+debug_reply mbox)
-			(+debug_origin (task-mailbox))))
+			(+debug_origin (task-netid))))
 		(mail-read mbox)
 		(mail-free-mbox mbox)))

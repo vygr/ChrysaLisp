@@ -30,7 +30,7 @@
 	; (create key val nodes)
 	;function called when entry is created
 	(if (= 0 (length nodes))
-		(setq nodes (list (slice +long_size -1 (task-mailbox)))))
+		(setq nodes (list (slice +long_size -1 (task-netid)))))
 	(open-task "lib/asm/asm.lisp"
 		(elem-get (setq nxt_node (% (inc nxt_node) (length nodes))) nodes)
 		+kn_call_child key (elem-get +select_task select)))

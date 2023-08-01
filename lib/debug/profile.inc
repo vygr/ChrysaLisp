@@ -13,7 +13,7 @@
 	; (profile-print name [stream]) -> stdout | stream
 	(setd s (io-stream 'stdout))
 	(defq e (tolist *profile_meta_map*) m (reduce (lambda (a (k v)) (max a (length k))) e 0))
-	(write s (cat (task-mailbox) n (ascii-char 10)))
+	(write s (cat (task-netid) n (ascii-char 10)))
 	(each (lambda ((k v))
 		(write s (cat
 			(pad k m)

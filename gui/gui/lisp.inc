@@ -47,13 +47,10 @@
 ;add/sub from screen
 
 (defun gui-rpc (view cmd)
-	(when (/= 0 (length (defq services (mail-enquire "Gui"))))
-		(setq services (filter (# (eql
-				(slice +long_size -1 (task-mailbox))
-				(slice +long_size -1 %0)))
-			(map (# (to-net-id (elem-get 1 (split %0 ",")))) services)))
+	(when (/= 0 (length (defq service (mail-enquire "Gui,"))))
+		(setq service (to-net-id (elem-get 1 (split (pop service) ","))))
 		(defq mbox (mail-alloc-mbox))
-		(mail-send (pop services) (list cmd view (task-mailbox) mbox))
+		(mail-send service (list cmd view (task-netid) mbox))
 		(mail-read mbox)
 		(mail-free-mbox mbox)
 		view))

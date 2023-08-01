@@ -1,10 +1,10 @@
 (import "./app.inc")
 
 (defun main ()
-	(defq clip_service (mail-declare (task-mailbox) "Clipboard" "Clipboard Service 0.2")
+	(defq clip_service (mail-declare (task-netid) "Clipboard" "Clipboard Service 0.2")
 		clipboard "")
 	(while :t
-		(let ((msg (mail-read (task-mailbox))))
+		(let ((msg (mail-read (task-netid))))
 			(cond
 				((= (defq type (elem-get 0 msg)) +clip_type_put)
 					;put string on clipboard

@@ -55,7 +55,7 @@
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(gui-add-front (. *window* :change x y w h))
 	(while (cond
-		((= (defq id (getf (defq msg (mail-read (task-mailbox))) +ev_msg_target_id)) +event_close)
+		((= (defq id (getf (defq msg (mail-read (task-netid))) +ev_msg_target_id)) +event_close)
 			:nil)
 		((= id +event_button)
 			(if button (undef (. button :dirty) :color))

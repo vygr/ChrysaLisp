@@ -1,7 +1,7 @@
 (import "sys/lisp.inc")
 
 ;read args from parent
-(defq mbox (mail-read (task-mailbox)))
+(defq mbox (mail-read (task-netid)))
 
 ;pole pii stdin
 (while :t

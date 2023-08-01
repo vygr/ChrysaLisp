@@ -88,7 +88,7 @@
 
 (defun main ()
 	;read paramaters from parent
-	(bind '(reply_mbox title dir exts) (mail-read (task-mailbox)))
+	(bind '(reply_mbox title dir exts) (mail-read (task-netid)))
 	(def window_title :text title)
 	(def ext_filter :clear_text exts)
 	(defq all_files (sort cmp (all-files dir)) tree_buttons (list) file_buttons (list) current_dir (cat dir "/"))
@@ -96,7 +96,7 @@
 	(bind '(x y w h) (apply view-locate (. *window* :get_size)))
 	(gui-add-front (. *window* :change x y w h))
 	(while (cond
-		((eql (defq msg (mail-read (task-mailbox))) "")
+		((eql (defq msg (mail-read (task-netid))) "")
 			:nil)
 		((= (defq id (getf msg +ev_msg_target_id)) +event_close)
 			(mail-send reply_mbox ""))

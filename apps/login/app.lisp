@@ -35,7 +35,7 @@
 	(gui-add-front *window*)
 	(position-window)
 	(while (cond
-		((and (< (defq id (getf (defq msg (mail-read (task-mailbox))) +ev_msg_target_id)) 0)
+		((and (< (defq id (getf (defq msg (mail-read (task-netid))) +ev_msg_target_id)) 0)
 			(= (getf msg +ev_msg_type) +ev_type_gui))
 			;resized GUI
 			(position-window))

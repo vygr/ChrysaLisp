@@ -12,6 +12,8 @@ information.
 
 Simplify Service naming and implement `"*"` prefix to allow global discovery.
 
+Simplify RPC calls. And rename of `(task-mailbox)` to `(task-netid)`.
+
 ------
 
 Host GUI compositors can now reduce memory usage for glyph textures by 75% and
@@ -430,7 +432,7 @@ Whiteboard application upgraded to latest framework.
 
 New `(alloc-select)` and `(free-select)` functions. To standardise allocation
 and freeing of mailbox selection lists. The first element will allways be the
-main `(task-mailbox)`.
+main `(task-netid)`.
 
 Truncate error report `Obj:` field to 256 characters.
 

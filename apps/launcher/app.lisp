@@ -24,7 +24,7 @@
 	(bind '(x y w h) (apply view-locate (push (list (/ (* w 100) 80) h) *env_launcher_position*)))
 	(gui-add-front (. *window* :change x y w h))
 	(while (cond
-		((= (defq id (getf (defq msg (mail-read (task-mailbox))) +ev_msg_target_id)) +event_close)
+		((= (defq id (getf (defq msg (mail-read (task-netid))) +ev_msg_target_id)) +event_close)
 			:nil)
 		((= id +event_button)
 			(open-child (app-path (get :text (. *window* :find_id (getf msg +ev_msg_action_source_id)))) +kn_call_open)

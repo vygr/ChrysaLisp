@@ -134,7 +134,7 @@
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(gui-add-front (. *window* :change x y w h))
 	(while (cond
-		((= (defq id (getf (defq msg (mail-read (task-mailbox))) +ev_msg_target_id)) +event_close)
+		((= (defq id (getf (defq msg (mail-read (task-netid))) +ev_msg_target_id)) +event_close)
 			:nil)
 		((= id +event_beginner) (setq started :t) (board-layout (setq difficulty beginner_settings)))
 		((= id +event_intermediate) (setq started :t) (board-layout (setq difficulty intermediate_settings)))
