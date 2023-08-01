@@ -14,6 +14,8 @@ Simplify Service naming and implement `"*"` prefix to allow global discovery.
 
 Simplify RPC calls. And rename of `(task-mailbox)` to `(task-netid)`.
 
+`sdir` command now defaults to prefix `'*'`.
+
 ------
 
 Host GUI compositors can now reduce memory usage for glyph textures by 75% and
