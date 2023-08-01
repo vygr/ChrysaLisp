@@ -1,7 +1,7 @@
 (import "lib/task/pipe.inc")
 
 (defq tmbox (mail-alloc-mbox))
-(mail-declare tmbox "TERMINAL_SERVICE" "Terminal Services 0.1")
+(mail-declare tmbox "Terminal" "Terminal Services 0.1")
 
 ;override print for TUI output
 (defun print (_)

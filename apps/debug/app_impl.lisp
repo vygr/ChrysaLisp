@@ -94,7 +94,7 @@
 
 (defun main ()
 	(defq select (alloc-select +select_size)
-		entry (mail-declare (elem-get +select_service select) "DEBUG_SERVICE" "Debug Service 0.4"))
+		entry (mail-declare (elem-get +select_service select) "*Debug" "Debug Service 0.4"))
 	(tooltips)
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(gui-add-front (. *window* :change x y w h))

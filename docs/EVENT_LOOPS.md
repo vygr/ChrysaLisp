@@ -122,7 +122,7 @@ and remove your application window from the screen.
 
 ```vdu
 (defun gui-rpc (view cmd)
-	(when (/= 0 (length (defq services (mail-enquire "GUI_SERVICE"))))
+	(when (/= 0 (length (defq services (mail-enquire "Gui"))))
 		(setq services (filter (# (eql
 				(slice +long_size -1 (task-mailbox))
 				(slice +long_size -1 %0)))

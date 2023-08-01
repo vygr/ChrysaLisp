@@ -38,7 +38,7 @@
 
 (defun broadcast (text)
 	(setq text (cat "<" (get :clear_text chat_user) "> " text (ascii-char 10)))
-	(each (# (mail-send (to-net-id (elem-get 1 (split %0 ","))) text)) (mail-enquire "CHAT_SERVICE")))
+	(each (# (mail-send (to-net-id (elem-get 1 (split %0 ","))) text)) (mail-enquire "*Chat")))
 
 (defun tooltips ()
 	(def *window* :tip_mbox (elem-get +select_tip select))
@@ -67,7 +67,7 @@
 				;connect to network ?
 				(unless (or entry (eql "" (get :clear_text chat_user)))
 					(push select (mail-alloc-mbox))
-					(setq entry (mail-declare (elem-get +select_chat select) "CHAT_SERVICE" "Chat Service 0.1"))
+					(setq entry (mail-declare (elem-get +select_chat select) "*Chat" "Chat Service 0.1"))
 					(broadcast "Has joined the chat !")))
 			((= id +event_disconnect)
 				;disconnect to network

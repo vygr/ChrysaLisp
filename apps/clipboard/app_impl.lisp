@@ -1,7 +1,7 @@
 (import "./app.inc")
 
 (defun main ()
-	(defq clip_service (mail-declare (task-mailbox) "CLIPBOARD_SERVICE" "Clipboard Service 0.2")
+	(defq clip_service (mail-declare (task-mailbox) "Clipboard" "Clipboard Service 0.2")
 		clipboard "")
 	(while :t
 		(let ((msg (mail-read (task-mailbox))))

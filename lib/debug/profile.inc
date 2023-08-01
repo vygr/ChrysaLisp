@@ -25,7 +25,7 @@
 
 (defun profile-report (n &optional reset)
 	; (profile-report name [reset])
-   (when (/= 0 (length (defq services (mail-enquire "PROFILE_SERVICE"))))
+   (when (/= 0 (length (defq services (mail-enquire "*Profile"))))
 		(mail-send (to-net-id (elem-get 1 (split (pop services) ",")))
 			(str (profile-print n (string-stream (cat "")))))
 		(if reset (setq *profile_meta_map* (env 401)))))

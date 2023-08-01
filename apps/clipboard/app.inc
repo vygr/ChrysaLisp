@@ -5,7 +5,7 @@
 
 (defun clipboard-put (string)
 	; (clipboard-put string)
-	(when (/= 0 (length (defq services (mail-enquire "CLIPBOARD_SERVICE"))))
+	(when (/= 0 (length (defq services (mail-enquire "Clipboard"))))
 		(setq services (filter (# (eql
 			(slice +long_size -1 (task-mailbox))
 			(slice +long_size -1 %0))) (map (# (to-net-id (elem-get 1 (split %0 ",")))) services)))
@@ -14,7 +14,7 @@
 (defun clipboard-get ()
 	; (clipboard-get) -> string
 	(defq data "")
-	(when (/= 0 (length (defq services (mail-enquire "CLIPBOARD_SERVICE"))))
+	(when (/= 0 (length (defq services (mail-enquire "Clipboard"))))
 		(setq services (filter (# (eql
 			(slice +long_size -1 (task-mailbox))
 			(slice +long_size -1 %0))) (map (# (to-net-id (elem-get 1 (split %0 ",")))) services)))

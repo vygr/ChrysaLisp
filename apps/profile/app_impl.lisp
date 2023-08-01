@@ -65,7 +65,7 @@
 
 (defun main ()
 	(defq select (alloc-select +select_size)
-		entry (mail-declare (elem-get +select_service select) "PROFILE_SERVICE" "Profile Service 0.1"))
+		entry (mail-declare (elem-get +select_service select) "*Profile" "Profile Service 0.1"))
 	(tooltips)
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(gui-add-front (. *window* :change x y w h))

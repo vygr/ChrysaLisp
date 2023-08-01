@@ -68,7 +68,7 @@
 (defun main ()
 	;declare service and vars
 	(defq select (alloc-select +select_size)
-		service (mail-declare (task-mailbox) "GUI_SERVICE" "GUI Service 0.2")
+		service (mail-declare (task-mailbox) "Gui" "GUI Service 0.2")
 		*running* :t *quiting* :nil *old_mouse_x* -1 *old_mouse_y* -1
 		*mouse_type* 0 *mouse_x* 0 *mouse_y* 0 *mouse_buttons* 0 *mouse_id* 0
 		*mods* 0 *key_dispatch* (fmap))

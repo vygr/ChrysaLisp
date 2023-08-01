@@ -718,9 +718,13 @@
 	(entry 'hset :each_callback '(:r0 :r1 :r2))
 
 	(assign '((:r1 0) (:r0 cat_lf)) '(:r1 :r2))
-	(class/obj/ref :r1 :r3)
-	(class/obj/ref :r2 :r3)
-	(jump 'list :push_back2 '((:r0 cat_entries) :r1 :r2))
+	(vp-cpy-ir-ub :r1 str_data :r3)
+	(vpif `(:r3 = +char_multiply))
+		(class/obj/ref :r1 :r3)
+		(class/obj/ref :r2 :r3)
+		(jump 'list :push_back2 '((:r0 cat_entries) :r1 :r2))
+	(endif)
+	(vp-ret)
 
 (def-func-end)
 

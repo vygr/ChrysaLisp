@@ -10,6 +10,8 @@ Pixmap type code used to cache premul/argb status. This fixes a problem with
 image file conversions where switching through premul format can loose
 information.
 
+Simplify Service naming and implement `"*"` prefix to allow global discovery.
+
 ------
 
 Host GUI compositors can now reduce memory usage for glyph textures by 75% and
