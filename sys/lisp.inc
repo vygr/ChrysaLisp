@@ -33,16 +33,16 @@
 	; (free-select select)
 	(each! 1 -1 mail-free-mbox (list select)))
 
-(defun to-net-id (sid)
+(defun to-net-id (id)
 	; (to-net-id service_id) -> net_id
-	(bind '(e o) (unzip sid (lists2)))
-	(setq sid (apply cat (map (# (char
+	(bind '(e o) (unzip id (lists2)))
+	(setq id (apply cat (map (# (char
 		(+ (- (code %0) (ascii-code "a"))
 		(<< (- (code %1) (ascii-code "a")) 4)))) e o)))
-	(cat (slice 16 -1 sid) (slice 0 16 sid)))
+	(cat (slice 16 -1 id) (slice 0 16 id)))
 
 (defun to-service-id (id)
-	; (to-service-id id) -> service_id
+	; (to-service-id net_id) -> service_id
 	(defq id (apply cat (map (# (cat
 		(char (+ (logand 0x0f (code %0)) (ascii-code "a")))
 		(char (+ (logand 0x0f (>> (code %0) 4)) (ascii-code "a"))))) id)))
@@ -77,6 +77,9 @@
 		(defq tail (getf (mail-read mbox) +kn_msg_reply_id))
 		(push ids tail))
 	(mail-free-mbox mbox) ids)
+
+(defun task-nodeid ()
+	(slice +mailbox_id_size -1 (task-netid)))
 
 ;jit helper, lock file is not very effective here...
 (defun jit (prefix file products)

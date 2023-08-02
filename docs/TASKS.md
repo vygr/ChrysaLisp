@@ -185,13 +185,13 @@ stable situation it doesn't do it that often, but in theory it can be like a
 quantum foam ;) Applications live on this 'sea' of VP nodes. And they have to
 live with the fact that things can and do come and go dynamically.
 
-You have classes provided like `Global` and `Farm` that take a lot of the pain
-away from you, they monitor the network state and call back to you as VP nodes
-go away or appear. The assembler, like the Raymarch demo is fault tolerant, in
-that, it creates a farm of children to do work for it, but these children may
-live on VP nodes that die. Any child that dies is restarted on the current
-'sea', and you try again. Keep going till all the files are compiled, then
-stop.
+You have classes provided like `Global`, `Farm` and `Local` that take a lot of
+the pain away from you, they monitor the network state and call back to you as
+VP nodes go away or appear. The assembler, like the Raymarch demo is fault
+tolerant, in that, it creates a farm of children to do work for it, but these
+children may live on VP nodes that die. Any child that dies is restarted on the
+current 'sea', and you try again. Keep going till all the files are compiled,
+then stop.
 
 A robust app, allows for the fact that its tasks may go out of contact, as a
 link is pulled out, or maybe somebody pulls the power cable out from a node or

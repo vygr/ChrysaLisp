@@ -1,6 +1,6 @@
-;;;;;;;;;;;;;;;;;;
-; farm task object
-;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;
+; local tasks object
+;;;;;;;;;;;;;;;;;;;;
 
 (import "sys/lisp.inc")
 
@@ -24,19 +24,23 @@
 	(setq _mutated :t)
 	(stop) (start))
 
-(defclass Farm (_create _destroy size) (fmap)
-	; (Farm fnc_create fnc_destroy size) -> farm
-	(def this :create _create :destroy _destroy :key -1)
-	(defq _nodes (map cat (lisp-nodes)) _now (pii-time))
-	(times size (start))
+(defclass Local (_create _destroy &optional max_size init_size size) (fmap)
+	; (Local fnc_create fnc_destroy &optional max_size init_size size) -> local
+	(setd max_size +max_int init_size 1 size 1)
+	(def this :create _create :destroy _destroy
+		:nodes (list (task-nodeid)) :key -1 :size size :max_size max_size)
+	(defq _nodes (get :nodes this) _now (pii-time))
+	(times (min max_size (max init_size 1)) (start))
 
 	(defmethod :refresh (this &optional _timeout)
-		; (. farm :refresh [timeout]) -> :t | :nil
+		; (. local :refresh [timeout]) -> :t | :nil
 		;scan known nodes and update map
-		(defq _nodes (map cat (lisp-nodes))
+		(defq _lisp_nodes (map cat (lisp-nodes))
+			_nodes (filter (# (find %0 _lisp_nodes)) (get :nodes this))
 			_old_keys (list) _old_vals (list)
 			_create (get :create this) _destroy (get :destroy this)
 			_mutated :nil _now (pii-time))
+		(def this :nodes _nodes)
 		(. this :each (lambda (key val) (push _old_keys key) (push _old_vals val)))
 		;test for vanished and timeout nodes
 		(each (lambda (_key _val)
@@ -53,19 +57,28 @@
 		_mutated)
 
 	(defmethod :restart (this _key _val)
-		; (. farm :restart key val)
+		; (. local :restart key val)
 		;restart task
-		(defq _nodes (map cat (lisp-nodes))
-			_create (get :create this) _destroy (get :destroy this)
-			_mutated :nil _now (pii-time))
+		(defq _nodes (get :nodes this) _mutated :nil _now (pii-time)
+			_create (get :create this) _destroy (get :destroy this))
 		(restart))
 
+	(defmethod :add_node (this node)
+		; (. local :add_node node)
+		;add new node
+		(defq _nodes (get :nodes this)
+			_headroom (- (get :max_size this) (length _nodes)))
+		(unless (or (<= _headroom 0) (find node _nodes))
+			(def this :nodes (push _nodes node))
+			(defq _now (pii-time) _create (get :create this))
+			(times (min (get :size this) _headroom) (start))))
+
 	(defmethod :close (this)
-		; (. farm :close)
+		; (. local :close)
 		;close tasks
 		(.-> this (:each (get :destroy this)) :empty))
 	)
 
 ;module
-(export-classes Farm)
+(export-classes Local)
 (env-pop)

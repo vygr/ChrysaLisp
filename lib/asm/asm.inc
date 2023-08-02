@@ -2,7 +2,7 @@
 ; VP Assembler
 ;;;;;;;;;;;;;;
 
-(import "././task/farm.inc")
+(import "././task/local.inc")
 (import "././boot/image.inc")
 
 ;module
@@ -29,10 +29,7 @@
 (defun create (key val nodes)
 	; (create key val nodes)
 	;function called when entry is created
-	(if (= 0 (length nodes))
-		(setq nodes (list (slice +long_size -1 (task-netid)))))
-	(open-task "lib/asm/asm.lisp"
-		(elem-get (setq nxt_node (% (inc nxt_node) (length nodes))) nodes)
+	(open-task "lib/asm/asm.lisp" (elem-get -2 nodes)
 		+kn_call_child key (elem-get +select_task select)))
 
 (defun destroy (key val)
@@ -44,17 +41,16 @@
 		(push jobs job)
 		(undef val :job :timestamp)))
 
-(defun compile (files &optional *abi* *cpu* num_child)
+(defun compile (files &optional *abi* *cpu*)
+	(setd *abi* (abi) *cpu* (cpu))
 	(unless (list? files) (setq files (list files)))
-	(defq nxt_node (length (lisp-nodes)) num_files (length (shuffle files)))
-	(setd *abi* (abi) *cpu* (cpu) num_child (max 1 (/ (* nxt_node 75) 100)))
-	(when (/= (setq num_child (min num_child num_files)) 0)
-		(defq timer_rate (/ 1000000 1) working :t
-			errors (list) nxt_node (random nxt_node)
+	(when (nempty? files)
+		(shuffle files)
+		(defq timer_rate (/ 1000000 1) working :t errors (list)
 			retry_timeout (if (starts-with "obj/vp64" (load-path)) 20000000 2000000)
 			select (list (mail-alloc-mbox) (mail-alloc-mbox) (mail-alloc-mbox))
 			jobs (map (# (str (list (list %0) *abi* *cpu* *debug_mode* *debug_emit* *debug_inst*))) files)
-			farm (Farm (const create) (const destroy) num_child))
+			farm (Local (const create) (const destroy) (length files) 4))
 		(mail-timeout (elem-get +select_timer select) timer_rate 0)
 		(while working
 			(defq msg (mail-read (elem-get (defq idx (mail-select select)) select)))
@@ -63,6 +59,7 @@
 					;child launch responce
 					(defq key (getf msg +kn_msg_key) child (getf msg +kn_msg_reply_id))
 					(when (defq val (. farm :find key))
+						(. farm :add_node (slice +mailbox_id_size -1 child))
 						(def val :child child)
 						(dispatch-job key val)))
 				((= idx +select_reply)
@@ -251,7 +248,7 @@
 (defun compile-test (&optional *abi* *cpu*)
 	(setd *abi* (abi) *cpu* (cpu))
 	(each (# (compile %0 *abi* *cpu*)) (defq files (all-vp-files)))
-	(compile files *abi* *cpu* 1))
+	(compile files *abi* *cpu*))
 
 ;module
 (export-symbols
