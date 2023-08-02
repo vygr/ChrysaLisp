@@ -76,7 +76,7 @@
 	(.-> canvas (:fill +argb_black) (:swap 0))
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(gui-add-front (. *window* :change x y w h))
-	(defq farm (Farm create destroy (* 2 (length (mail-nodes)))))
+	(defq farm (Farm create destroy (* 2 (length (lisp-nodes)))))
 	(mail-timeout (elem-get +select_timer select) +timer_rate 0)
 	(while id
 		(defq msg (mail-read (elem-get (defq idx (mail-select select)) select)))

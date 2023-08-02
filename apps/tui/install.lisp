@@ -5,7 +5,7 @@
 (print "Building platform native boot image.")
 (print "Please wait...")
 (print)
-(while (< (length (mail-nodes)) 8) (task-sleep 100000))
+(while (< (length (lisp-nodes)) 8) (task-sleep 100000))
 (pipe-run "make all boot | time" (lambda (_)
 	(while (> (length _) 0)
 		(cond

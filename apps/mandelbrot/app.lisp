@@ -81,7 +81,7 @@
 				(+job_cy center_y)
 				(+job_z zoom)))
 			(range (dec (* +height +scale)) -1))
-		farm (Farm create destroy (* 2 (length (mail-nodes))))))
+		farm (Farm create destroy (* 2 (length (lisp-nodes))))))
 
 (defun main ()
 	(defq select (alloc-select +select_size))

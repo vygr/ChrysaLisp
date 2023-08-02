@@ -262,7 +262,7 @@ task.
 (defun main ()
 	(defq select (alloc-select +select_size))
 	...
-	(defq farm (Farm create destroy (* 2 (length (mail-nodes)))))
+	(defq farm (Farm create destroy (* 2 (length (lisp-nodes)))))
 	(mail-timeout (elem-get +select_timer select) timer_rate 0)
 	(while ...
 		(defq msg (mail-read (elem-get (defq idx (mail-select select)) select)))
@@ -389,7 +389,7 @@ mailbox.
 				(+job_cy center_y)
 				(+job_z zoom)))
 			(range (dec (* canvas_height canvas_scale)) -1))
-		farm (Farm create destroy (* 2 (length (mail-nodes))))))
+		farm (Farm create destroy (* 2 (length (lisp-nodes))))))
 ```
 
 ## Delayed actions with `(mail-timeout)`
