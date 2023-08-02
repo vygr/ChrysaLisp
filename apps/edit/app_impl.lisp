@@ -108,7 +108,7 @@
 								(ends-with ".md" file))
 							(push files (cat (slice
 								(if (eql root "./") 2 1) -1 root) "/" file))))
-					(:t  ;dir
+					(:t	;dir
 						(unless (starts-with "." file)
 							(push stack (cat root "/" file))))))
 				(unzip (split (pii-dirlist root) ",") (lists2)))))

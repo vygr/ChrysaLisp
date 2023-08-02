@@ -18,7 +18,7 @@
 			;send abort to any started pipe elements
 			(each (lambda (_) (if (/= 0 (get-long _ 0)) (mail-send _ ""))) mboxs)
 			(setq this :nil))
-		(:t  ;wire up pipe and send args
+		(:t	;wire up pipe and send args
 			(defq select (list) streams (list))
 			(each (lambda (_)
 				(push streams (in-stream))
@@ -49,7 +49,7 @@
 			(defq user_select_len (length (get :user_select this)))
 			(cond
 				((< (defq idx (mail-select (get :select this))) user_select_len))
-				(:t  ;must be stdout or one of the stderr's
+				(:t	;must be stdout or one of the stderr's
 					(if (/= (in-get-state (in-next-msg (defq msg_in
 								(elem-get (- idx user_select_len) (get :streams this)))))
 							+stream_mail_state_started)
@@ -89,5 +89,5 @@
 				;pipe is closed
 				(. pipe :close)
 				(setq pipe :nil))
-			(:t  ;string from pipe
+			(:t	;string from pipe
 				(out data)))))

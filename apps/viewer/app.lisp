@@ -54,7 +54,7 @@
 								(ends-with ".md" file))
 							(push files (cat (slice
 								(if (eql root "./") 2 1) -1 root) "/" file))))
-					(:t  ;dir
+					(:t	;dir
 						(unless (starts-with "." file)
 							(push stack (cat root "/" file))))))
 				(unzip (split (pii-dirlist root) ",") (lists2)))))
@@ -207,7 +207,7 @@
 					((defq action (. key_map :find key))
 						;call bound key action
 						(action))))
-			(:t  ;gui event
+			(:t	;gui event
 				(. *window* :event *msg*)))
 		;update meta data
 		(defq buffer (. *edit* :get_buffer))

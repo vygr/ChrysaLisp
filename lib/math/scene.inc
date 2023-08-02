@@ -166,7 +166,7 @@
 					;step into child node
 					(push _stack _this _children (inc _idx)
 						(defq _this (elem-get _idx _children)) (get :children _this) 0))
-				(:t  ;step out
+				(:t	;step out
 					(_fo _this _children))))
 		this)
 

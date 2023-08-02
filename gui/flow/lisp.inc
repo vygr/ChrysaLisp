@@ -47,7 +47,7 @@
 				((/= 0 (logand (. child :get_flags) +view_flag_hiden))
 					;hiden
 					(. child :change 0 0 0 0))
-				(:t  ;showing
+				(:t	;showing
 					(bind '(cw ch) (. child :pref_size))
 					(defq cx x cy y)
 					(if (/= 0 (logand flow_flags +flow_flag_left))

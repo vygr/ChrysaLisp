@@ -85,7 +85,7 @@
 		((= 2 (length pnts))
 			;just a point
 			(list (path-gen-arc (elem-get 0 pnts) (elem-get 1 pnts) 0.0 +fp_2pi rad +eps (path))))
-		(:t  ;is a polyline draw
+		(:t	;is a polyline draw
 			(bind '(x y x1 y1 &rest _) pnts)
 			(cond
 				((= mode +event_arrow1)
@@ -109,7 +109,7 @@
 					;flatten to filled circle
 					(list (path-gen-arc x y 0.0 +fp_2pi (vec-length (vec-sub (path x y) (path x1 y1)))
 						+eps (path))))
-				(:t  ;flatten to pen stroke
+				(:t	;flatten to pen stroke
 					(path-stroke-polylines (list) rad +eps +join_bevel +cap_round +cap_round (list pnts))))))))
 
 (defun snapshot ()
@@ -240,7 +240,7 @@
 											(path-filter +tol stroke stroke)
 											(setq last_point new_point last_mid_point mid_point)
 											(redraw-layers +layer_overlay)))
-									(:t  ;a shape mode
+									(:t	;a shape mode
 										(elem-set +path_path (elem-get -2 overlay_paths) (cat last_point new_point))
 										(redraw-layers +layer_overlay)))
 								)
@@ -248,7 +248,7 @@
 								(setq last_state :d last_point new_point last_mid_point new_point)
 								(push overlay_paths (list *stroke_mode* *stroke_col* *stroke_radius* new_point))
 								(redraw-layers +layer_overlay))))
-					(:t  ;mouse button is up
+					(:t	;mouse button is up
 						(case last_state
 							(:d ;was down last time, so last point and commit stroke
 								(snapshot)
@@ -279,7 +279,7 @@
 					((defq action (. key_map :find key))
 						;call bound key action
 						(action))))
-			(:t  ;gui event
+			(:t	;gui event
 				(. *window* :event *msg*))))
 	;close window
 	(free-select select)

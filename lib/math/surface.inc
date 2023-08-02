@@ -337,7 +337,7 @@
 		((= (defq cube (elem-get cubeindex +edge_table)) 0)
 			;cube is entirely in/out of the surface
 			'())
-		(:t  ;find the vertices where the surface intersects the cube
+		(:t	;find the vertices where the surface intersects the cube
 			(defq vertlist (reduce (lambda (vertlist (i p0 p1 v0 v1))
 						(push vertlist (if (= (logand cube i) 0) :nil
 							(vertex-interp isolevel

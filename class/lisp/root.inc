@@ -837,7 +837,7 @@
 				(push _stack _l (inc _))
 				(if (list? (defq _e (elem-get _ _l))) (push _stack _e 0))
 				(_f _e))
-			(:t  ;exit list
+			(:t	;exit list
 				(_fo _l)))))
 
 (defmacro # (&rest _)

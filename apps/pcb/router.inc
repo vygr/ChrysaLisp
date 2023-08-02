@@ -163,7 +163,7 @@
 					(while (<= z depth)
 						(. wire_nodes :insert (. pcb :pad_point_to_node (Vec3-f x0 y0 z)))
 						(setq z (+ z 1.0))))
-				(:t  ;layer wire
+				(:t	;layer wire
 					(bind '(x0 y0 z0) p0)
 					(bind '(x1 y1 z1) p1)
 					(push wire_lines (Layers-line x0 y0 z0 x1 y1 z1 radius gap))
@@ -311,7 +311,7 @@
 				((defq n (some (# (. visited :find %0)) nearer_nodes))
 					;found existing track
 					(setq exit (push pth n)))
-				(:t  ;sort nodes and take the first
+				(:t	;sort nodes and take the first
 					(setq path_node (elem-get 1 (elem-get 0
 						(sort (# (- (elem-get 0 %0) (elem-get 0 %1)))
 						(map (# (list (vec-squared-euclidean-distance path_node %0) %0))

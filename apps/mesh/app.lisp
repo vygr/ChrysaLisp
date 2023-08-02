@@ -84,7 +84,7 @@
 				(setf-> job
 					(+job_key key)
 					(+job_reply (elem-get +select_reply select)))))
-		(:t  ;no jobs in que
+		(:t	;no jobs in que
 			(undef val :job :timestamp))))
 
 (defun create (key val nodes)
@@ -234,7 +234,7 @@
 					((<= +char_space key +char_tilde)
 						;insert char etc ...
 						(char key))))
-			(:t  ;gui event
+			(:t	;gui event
 				(. *window* :event *msg*))))
 	(. farm :close)
 	(gui-sub *window*)

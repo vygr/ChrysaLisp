@@ -105,16 +105,16 @@
 								((/= 0 buttons)
 									;is down now, so move
 									(if (defq fnc (.? target :mouse_move)) (fnc target event)))
-								(:t  ;is not down now, so release
+								(:t	;is not down now, so release
 									(set this :last_buttons 0)
 									(if (defq fnc (.? target :mouse_up)) (fnc target event)))))
-						(:t  ;was not down previously
+						(:t	;was not down previously
 							(cond
 								((/= 0 buttons)
 									;is down now, so first down
 									(set this :last_buttons buttons)
 									(if (defq fnc (.? target :mouse_down)) (fnc target event)))
-								(:t  ;is not down now, so hover
+								(:t	;is not down now, so hover
 									(if (defq fnc (.? target :mouse_hover)) (fnc target event)))))))
 				((= type +ev_type_key_down)
 					(if (>= (getf event +ev_msg_key_scode) 0)

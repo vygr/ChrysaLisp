@@ -220,7 +220,7 @@
 					(unless (eql (defq piece (elem-get (+ (* y 8) x) brd)) " ")
 						;not +empty square so yield piece
 						(setq yield (cat yield piece) len 0)))
-				(:t  ;off the edge
+				(:t	;off the edge
 					(setq len 0))))) (list vectors)) yield)
 
 ;native versions
@@ -277,7 +277,7 @@
 						((and (= flag +must_capture) (= newtype +empty))
 							;must capture and got +empty square
 							(setq len 0))
-						(:t  ;try this move
+						(:t	;try this move
 							(defq newbrd (cat (slice 0 index brd) " " (slice (inc index) -1 brd)))
 							(cond
 								((and (or (= y 0) (= y 7)) (or (eql piece "P") (eql piece "p")))
@@ -286,14 +286,14 @@
 										(setq newbrd (cat (slice 0 newindex newbrd) promote_piece (slice (inc newindex) -1 newbrd)))
 										(unless (in-check newbrd color)
 											(push yield newbrd))) promote))
-								(:t  ;generate this as a possible move
+								(:t	;generate this as a possible move
 									(setq newbrd (cat (slice 0 newindex newbrd) piece (slice (inc newindex) -1 newbrd)))
 									(unless (in-check newbrd color)
 										(push yield newbrd))))
 							(if (and (= flag +may_capture) (/= newtype +empty))
 								;may capture and we did so !
 								(setq len 0)))))
-				(:t  ;gone off the board
+				(:t	;gone off the board
 					(setq len 0))))) (list moves)))
 
 ;generate all moves (boards) for the given colours turn

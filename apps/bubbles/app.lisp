@@ -196,7 +196,7 @@
 							;set light pos
 							(elem-set +dlist_light_pos dlist
 								(vec-i2n (* rx 4) (* ry 4) (neg (* box_size 4)))))
-						(:t  ;mouse button is up
+						(:t	;mouse button is up
 							(case last_state
 								(:d ;was down last time
 									(setq last_state :u))
