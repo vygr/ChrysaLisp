@@ -29,7 +29,7 @@
 (defun create (key val nodes)
 	; (create key val nodes)
 	;function called when entry is created
-	(open-task "lib/asm/asm.lisp" (elem-get -2 nodes)
+	(open-task "lib/asm/asm.lisp" (elem-get (random (length nodes)) nodes)
 		+kn_call_child key (elem-get +select_task select)))
 
 (defun destroy (key val)
