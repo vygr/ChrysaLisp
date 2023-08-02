@@ -141,7 +141,7 @@
 
 (defq *root_env* (env)
 	+byte_size 1 +short_size 2 +int_size 4 +long_size 8 +ptr_size 8
-	+str_data 24 +node_id_size 16 +net_id_size 24
+	+str_data 24 +mailbox_id_size 8 +node_id_size 16 +net_id_size 24
 	defmacro (list macro '(n a &rest _)
 		(list list defq 'n (list cat (list list macro 'a) '_))))
 
