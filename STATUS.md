@@ -16,7 +16,7 @@ Simplify RPC calls. And rename of `(task-mailbox)` to `(task-netid)`.
 
 `sdir` command now defaults to prefix `'*'`.
 
-New `Local` task calls in `lib/tasks/local.inc`, for assigning a local
+New `Local` task class in `lib/tasks/local.inc`, for assigning a local
 dynamically growing Farm of worker tasks.
 
 ------
