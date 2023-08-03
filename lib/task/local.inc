@@ -35,8 +35,8 @@
 	(defmethod :refresh (this &optional _timeout)
 		; (. local :refresh [timeout]) -> :t | :nil
 		;scan known nodes and update map
-		(defq _lisp_nodes (map cat (lisp-nodes))
-			_nodes (filter (# (find %0 _lisp_nodes)) (get :nodes this))
+		(defq _known_nodes (map cat (mail-nodes))
+			_nodes (filter (# (find %0 _known_nodes)) (get :nodes this))
 			_old_keys (list) _old_vals (list)
 			_create (get :create this) _destroy (get :destroy this)
 			_mutated :nil _now (pii-time))
