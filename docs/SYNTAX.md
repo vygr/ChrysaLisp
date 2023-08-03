@@ -852,6 +852,12 @@
 (. hchart :add_bar) -> progress
 ```
 
+### hchart :layout_bars
+
+```code
+(. hchart :layout_bars) -> hchart
+```
+
 ### hchart :update_scale
 
 ```code

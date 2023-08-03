@@ -120,7 +120,8 @@
 					;nodes have mutated
 					(bind '(x y w h) (apply view-fit
 						(cat (. *window* :get_pos) (. *window* :pref_size))))
-					(. *window* :change_dirty x y w h))
+					(. *window* :change_dirty x y w h)
+					(each (# (. %0 :layout_bars)) charts))
 				;set scales
 				(update-net-result)
 				(each (# (. %0 :update_scale)) (cat charts net_charts))
