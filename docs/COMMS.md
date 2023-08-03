@@ -23,7 +23,7 @@ using the `'sys_mail :validate` function. This mailbox address function
 validates that this ID is an existing mailbox and will return `null` if the
 mailbox cannot be found.
 
-Mailbox IDs are always a unique 32 bit non repeated identifier. During mail
+Mailbox IDs are always a unique 64 bit non repeated identifier. During mail
 delivery any messages using an ID that cannot be validated are treated as junk
 mail and sent to this nodes Postman task. This postman task just currently
 frees the message but later versions of the system may use this information for
