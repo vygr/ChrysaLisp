@@ -1,7 +1,7 @@
 # Communications
 
 In ChrysaLisp while it is not forbidden for tasks to communicate with shared
-memory structures, provided they live on the same CPU node, the main means that
+memory structures, provided they live on the same VP node, the main means that
 tasks use to communicate with each other is via message passing. Each task on
 creation is allocated a main mailbox, tasks create messages and send these
 messages between themselves by use of these mailboxes. More mailboxes can be
@@ -80,11 +80,11 @@ by the `'sys_mail :poll` and `'sys_mail :select` function calls.
 ## Task Mailbox ID's
 
 A `net_id` task mailbox ID consists of a combination of the local mailbox ID
-and the CPU `node_id`. The CPU `node_id` occupies the later 128 bits, the local
-mailbox ID occupies the first 64 bits.
+and the VP node `node_id`. The VP node `node_id` occupies the later 128 bits,
+the local mailbox ID occupies the first 64 bits.
 
-Message routing first of all routes messages from the source CPU node to the
-destination CPU node and then the local mailbox ID is validated before delivery
+Message routing first of all routes messages from the source VP node to the
+destination VP node and then the local mailbox ID is validated before delivery
 of the message into the receivers mailbox. Any message with an invalid local
 mailbox ID is discarded as junk mail.
 
@@ -174,8 +174,8 @@ and receiving objects. This uses the `'sys_mail :alloc_obj` and `'sys_mail
 :free_obj` calls within the Lisp bindings, see `sys/lisp.inc` and
 `sys/mail/lisp.vp`.
 
-It is possible to send a Lisp list to a task that lives on the same CPU, this
-will just pass an object reference between the tasks.
+It is possible to send a Lisp list to a task that lives on the same VP node,
+this will just pass an object reference between the tasks.
 
 Senders can martial data for sending via a `(str ...)` or `(str (string-stream
 ...))` and Receivers with a `(string-stream msg)` or combined with a `(read
@@ -183,8 +183,8 @@ Senders can martial data for sending via a `(str ...)` or `(str (string-stream
 
 The Lisp level `(mail-timeout net_id ns user)` function can be used to send a
 mail message to a mailbox after a time delay ! This message, on receipt, will
-contain the 64bit value of the current time and the 64bit user value. This can
-be used for animation callback purposes or in combination with `'sys_mail
+contain the 64 bit value of the current time and the 64 bit user value. This
+can be used for animation callback purposes or in combination with `'sys_mail
 :select` to provided timed mailbox read functionality. If the time delay given
 is 0 the call will remove the entry from the timer list.
 
