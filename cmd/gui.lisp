@@ -20,7 +20,7 @@
 	(when (and
 			(defq stdio (create-stdio))
 			(defq args (options stdio usage))
-			(> (length (defq nodes (mail-nodes))) 0))
+			(> (length (defq nodes (map cat (lisp-nodes)))) 0))
 		(if (<= (length args) 1)
 			;convert from stdin
 			(each-line launch (io-stream 'stdin))
