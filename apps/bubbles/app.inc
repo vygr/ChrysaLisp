@@ -1,5 +1,5 @@
 ;common imports
-(import "././login/pupa.inc")
+(import "././login/env.inc")
 (import "sys/lisp.inc")
 (import "class/lisp.inc")
 (import "gui/lisp.inc")

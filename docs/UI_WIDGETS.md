@@ -150,9 +150,8 @@ supplied overrides. For the Window widget you can see root defaults set for
 properties that are not used by the window directly but are defaults for the
 other widgets in the tree.
 
-The `*env_xxx_xxx*` values come from the user login `pupa.inc` files. A user
-can set these in their own private `pupa.inc` file. See the `apps/login/`
-folder.
+The `*env_xxx_xxx*` values come from the user login `env.inc` files. A user can
+set these in their own private `env.inc` file. See the `apps/login/` folder.
 
 #### Properties
 

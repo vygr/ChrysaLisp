@@ -1,4 +1,4 @@
-(import "././login/pupa.inc")
+(import "././login/env.inc")
 ;jit compile apps native functions
 (import "sys/lisp.inc")
 (jit "apps/mandelbrot/" "lisp.vp" '("tile"))

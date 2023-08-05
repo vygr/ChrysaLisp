@@ -1,5 +1,5 @@
 (defq *env_user* "Guest")
-(import "./Guest/pupa.inc")
+(import "./Guest/env.inc")
 (import "sys/lisp.inc")
 (import "class/lisp.inc")
 (import "gui/lisp.inc")
@@ -45,7 +45,7 @@
 		((= id +event_login)
 			;login button
 			(cond
-				((/= (age (cat "apps/login/" (defq user (get-username)) "/pupa.inc")) 0)
+				((/= (age (cat "apps/login/" (defq user (get-username)) "/env.inc")) 0)
 					;login user
 					(save user "apps/login/current")
 					(open-child "apps/wallpaper/app.lisp" +kn_call_open)
@@ -54,10 +54,10 @@
 		((= id +event_create)
 			;create button
 			(cond
-				((and (/= (age "apps/login/Guest/pupa.inc") 0)
-					(= (age (cat (defq home (cat "apps/login/" (defq user (get-username)) "/")) "pupa.inc")) 0))
+				((and (/= (age "apps/login/Guest/env.inc") 0)
+					(= (age (cat (defq home (cat "apps/login/" (defq user (get-username)) "/")) "env.inc")) 0))
 					;copy initial user files from Guest
-					(save (load "apps/login/Guest/pupa.inc") (cat home "pupa.inc"))
+					(save (load "apps/login/Guest/env.inc") (cat home "env.inc"))
 					;login new user
 					(save user "apps/login/current")
 					(open-child "apps/wallpaper/app.lisp" +kn_call_open)

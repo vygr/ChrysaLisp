@@ -4,6 +4,10 @@
 
 ------
 
+Rename `pupa.inc` files to `env.inc`.
+
+------
+
 ChrysaLisp and ChrysaLib now work together, using the same communication
 protocols. As a result the ChrysaLisp `usb-links` branch has been deleted as it
 is now redundant.
