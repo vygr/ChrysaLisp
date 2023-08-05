@@ -8,6 +8,9 @@ In no particular order but to just to ensure I get thoughts down. I'll keep
 adding to this as I go along. If anybody would like to try helping out, then
 just get in touch.
 
+* Docs app needs some love. min/max buttons, dynamic font scaling [...]... doc
+selection in a subject based tree selector etc.
+
 * Gui remote desktop service that runs over CLB.
 
 * Add a mini display to the Edit app.
