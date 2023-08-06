@@ -5,6 +5,7 @@
 (import "././button/lisp.inc")
 (import "././flow/lisp.inc")
 (import "././backdrop/lisp.inc")
+(import "lib/text/files.inc")
 
 (defclass Tree (event) (Flow)
 	; (Tree event) -> tree
@@ -65,6 +66,14 @@
 			(setq node (penv node))
 			(unless (eql node this) (setq node (penv (penv node)))))
 		(join (reverse route) "/"))
+
+	(defmethod :populate (this &optional root exts n)
+		; (. tree :populate &optional root exts n) -> this
+		;load up a file tree
+		(defq files (sort cmp (all-files-cut root exts n)))
+		(each (# (. this :add_route %0)) (all-dirs files))
+		(each (# (. this :add_route %0)) files)
+		this)
 
 	(defmethod :action (this event)
 		; (. tree :action event) -> tree

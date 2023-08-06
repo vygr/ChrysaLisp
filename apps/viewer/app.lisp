@@ -5,7 +5,6 @@
 (import "class/lisp.inc")
 (import "gui/lisp.inc")
 (import "lib/text/buffer.inc")
-(import "lib/text/files.inc")
 
 (enums +event 0
 	(enum close max min)
@@ -96,12 +95,6 @@
 	(def *title* :text (cat "Viewer -> " (if file file "<no file>")))
 	(.-> *title* :layout :dirty))
 
-(defun populate-file-tree ()
-	;load up the file tree
-	(defq files (sort cmp (all-files-cut "." '(".vp" ".inc" ".lisp" ".md") 2)))
-	(each (# (. *file_tree* :add_route %0)) (all-dirs files))
-	(each (# (. *file_tree* :add_route %0)) files))
-
 (defun window-resize ()
 	;layout the window and size the vdu to fit
 	(bind '(w h) (. *edit* :max_size))
@@ -143,7 +136,7 @@
 	(def *edit* :min_width 0 :min_height 0
 		:vdu_width +vdu_min_width :vdu_height +vdu_min_height)
 	(. *main_flow* :add_back *edit*)
-	(populate-file-tree)
+	(. *file_tree* :populate "." '(".vp" ".inc" ".lisp" ".md") 2)
 	(populate-vdu :nil)
 	(select-node :nil)
 	(tooltips)

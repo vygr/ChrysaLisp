@@ -1110,6 +1110,12 @@
 (. tree :get_route node) -> route
 ```
 
+### tree :populate
+
+```code
+(. tree :populate &optional root exts n) -> this
+```
+
 ### vdu :char_size
 
 ```code

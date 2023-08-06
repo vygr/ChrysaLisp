@@ -7,7 +7,6 @@
 (import "gui/lisp.inc")
 (import "lib/consts/chars.inc")
 (import "lib/text/buffer.inc")
-(import "lib/text/files.inc")
 (import "lib/text/dictionary.inc")
 (import "././clipboard/app.inc")
 
@@ -173,12 +172,6 @@
 	(def *title* :text (cat "Edit -> " (if file file "<scratch pad>")))
 	(.-> *title* :layout :dirty))
 
-(defun populate-file-tree ()
-	;load up the file tree
-	(defq files (sort cmp (all-files-cut "." '(".vp" ".inc" ".lisp" ".md") 2)))
-	(each (# (. *file_tree* :add_route %0)) (all-dirs files))
-	(each (# (. *file_tree* :add_route %0)) files))
-
 (defun populate-open-tree ()
 	;reload open tree
 	(sort cmp *open_files*)
@@ -317,7 +310,7 @@
 		(tolist (get :keywords *syntax* )))
 	(each-line populate-dictionary (file-stream "class/lisp/root.inc"))
 	(each-line populate-dictionary (file-stream "lib/text/english.txt"))
-	(populate-file-tree)
+	(. *file_tree* :populate "." '(".vp" ".inc" ".lisp" ".md") 2)
 	(load-open-files)
 	(populate-open-tree)
 	(populate-vdu :nil)
