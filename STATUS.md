@@ -6,6 +6,9 @@
 
 Rename `pupa.inc` files to `env.inc`.
 
+New `lib/text/files.inc` library for easy folder and file enumeration. Changed
+all apps and commands to use it.
+
 ------
 
 ChrysaLisp and ChrysaLib now work together, using the same communication
