@@ -29,7 +29,7 @@
 	+left (* +focal_dist +real_-1/3) +right (* +focal_dist +real_1/3)
 	+canvas_mode (if anti_alias +canvas_flag_antialias 0)
 	*mol_index* 0 *auto_mode* :nil *dirty* :t
-	balls (list) mol_files (all-files "apps/molecule/data/" '(".sdf"))
+	balls (list) mol_files (sort cmp (all-files "apps/molecule/data/" '(".sdf")))
 	+palette (static '(map (lambda (_) (Vec3-f
 			(n2f (/ (logand (>> _ 16) 0xff) 0xff))
 			(n2f (/ (logand (>> _ 8) 0xff) 0xff))
