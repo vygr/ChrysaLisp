@@ -36,7 +36,9 @@
 	; (all-files-cut &optional root exts n) -> paths
 	;sliced paths
 	(setd n 0)
-	(map (# (slice n -1 %0)) (all-files root exts)))
+	(defq files (all-files root exts))
+	(if (/= n 0) (setq files (map (# (slice n -1 %0)) files)))
+	files)
 
 ;module
 (export-symbols
