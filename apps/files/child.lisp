@@ -2,6 +2,7 @@
 (import "sys/lisp.inc")
 (import "class/lisp.inc")
 (import "gui/lisp.inc")
+(import "lib/text/files.inc")
 
 (enums +event 0
 	(enum close)
@@ -31,17 +32,6 @@
 				(ui-scroll files_scroll +scroll_flag_vertical :nil
 					(ui-flow files_flow (:flow_flags +flow_down_fill :color +argb_white
 						:min_width 256)))))))
-
-(defun all-files (root)
-	;all files from root downwards, none recursive
-	;don't include "." folders
-	(defq stack (list root) files (list))
-	(while (setq root (pop stack))
-		(each! 0 -1 (lambda (file type)
-			(unless (starts-with "." file)
-				(push (if (eql type "4") stack files) (cat root "/" file))))
-			(unzip (split (pii-dirlist root) ",") (lists2))))
-	files)
 
 (defun populate-files (files dir exts)
 	;filter files and dirs to only those that match and are unique
@@ -91,7 +81,7 @@
 	(bind '(reply_mbox title dir exts) (mail-read (task-netid)))
 	(def window_title :text title)
 	(def ext_filter :clear_text exts)
-	(defq all_files (sort cmp (all-files dir)) tree_buttons (list) file_buttons (list) current_dir (cat dir "/"))
+	(defq all_files (sort cmp (all-files dir '(""))) tree_buttons (list) file_buttons (list) current_dir (cat dir "/"))
 	(populate-files all_files current_dir exts)
 	(bind '(x y w h) (apply view-locate (. *window* :get_size)))
 	(gui-add-front (. *window* :change x y w h))

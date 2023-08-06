@@ -1,6 +1,7 @@
 (import "lib/asm/asm.inc")
 (import "lib/task/pipe.inc")
 (import "lib/options/options.inc")
+(import "lib/text/files.inc")
 
 (defun make-docs ()
 	(defq *abi* (abi) *cpu* (cpu))
@@ -81,7 +82,7 @@
 		(save _eat_chunk target))
 	(generate-cmd-help (reduce
 		cmd-collector
-		(sort cmp (map extract-cmd (all-files "cmd" ".lisp")))
+		(sort cmp (map extract-cmd (all-files "cmd" '(".lisp"))))
 		(list)))
 	(print "-> docs/COMMANDS.md")
 
@@ -99,7 +100,7 @@
 					((or (eql _ "defun") (eql _ "defmacro") (eql _ "defclass")
 							(eql _ "defmethod") (eql _ "deffimethod") (eql _ "defabstractmethod"))
 						(setq state :y))))) (file-stream file)))
-		(cat (all-files "." "lisp.inc")
+		(cat (all-files-cut "." '("lisp.inc") 2)
 			'("class/lisp/root.inc" "lib/anaphoric/anaphoric.inc" "lib/debug/debug.inc"
 			"lib/debug/profile.inc" "lib/collections/xmap.inc" "lib/collections/xset.inc"
 			"lib/collections/emap.inc" "lib/collections/collections.inc" "lib/class/class.inc"

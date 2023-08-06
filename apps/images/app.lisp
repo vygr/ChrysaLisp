@@ -2,6 +2,7 @@
 (import "sys/lisp.inc")
 (import "class/lisp.inc")
 (import "gui/lisp.inc")
+(import "lib/text/files.inc")
 
 (enums +event 0
 	(enum close)
@@ -10,18 +11,7 @@
 (enums +select 0
 	(enum main tip))
 
-(defun all-images (p)
-	(defq out (list))
-	(each! 0 -1 (lambda (f m)
-		(and (eql m "8")
-			(or (ends-with ".cpm" f)
-				(ends-with ".tga" f)
-				(ends-with ".svg" f))
-			(push out (cat p f))))
-		(unzip (split (pii-dirlist p) ",") (lists2)))
-	(sort cmp out))
-
-(defq images (all-images "apps/images/data/")
+(defq images (all-files "apps/images/data" '(".cpm" ".tga" ".svg"))
 	index (some (# (if (eql "apps/images/data/tiger.svg" %0) _)) images)
 	id :t)
 

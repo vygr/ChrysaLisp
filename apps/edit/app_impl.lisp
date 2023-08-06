@@ -7,6 +7,7 @@
 (import "gui/lisp.inc")
 (import "lib/consts/chars.inc")
 (import "lib/text/buffer.inc")
+(import "lib/text/files.inc")
 (import "lib/text/dictionary.inc")
 (import "././clipboard/app.inc")
 
@@ -92,28 +93,6 @@
 			(ui-flow *main_flow* (:flow_flags +flow_up_fill)
 				(. (ui-slider *xslider*) :connect +event_xscroll)))))
 
-(defun all-src-files (root)
-	;all source files from root downwards, none recursive
-	(defq stack (list root) files (list))
-	(while (setq root (pop stack))
-		(unless (starts-with "./obj" root)
-			(each! 0 -1 (lambda (file type)
-				(cond
-					((eql type "8")
-						;file
-						(if (or ;src file ?
-								(ends-with ".vp" file)
-								(ends-with ".inc" file)
-								(ends-with ".lisp" file)
-								(ends-with ".md" file))
-							(push files (cat (slice
-								(if (eql root "./") 2 1) -1 root) "/" file))))
-					(:t	;dir
-						(unless (starts-with "." file)
-							(push stack (cat root "/" file))))))
-				(unzip (split (pii-dirlist root) ",") (lists2)))))
-	files)
-
 (defun load-display ()
 	;load the vdu widgets with the text, selection and line numbers
 	(defq buffer (. *edit* :get_buffer))
@@ -194,18 +173,11 @@
 	(def *title* :text (cat "Edit -> " (if file file "<scratch pad>")))
 	(.-> *title* :layout :dirty))
 
-(defun all-dirs (files)
-	;return all the dir routes
-	(reduce (lambda (dirs file)
-		(defq dir (find-rev "/" file) dir (if dir (cat (slice 0 dir file) "/.")))
-		(if (and dir (not (find dir dirs)))
-			(push dirs dir) dirs)) files (list)))
-
 (defun populate-file-tree ()
 	;load up the file tree
-	(defq all_src_files (sort cmp (all-src-files ".")))
-	(each (# (. *file_tree* :add_route %0)) (all-dirs all_src_files))
-	(each (# (. *file_tree* :add_route %0)) all_src_files))
+	(defq files (sort cmp (all-files-cut "." '(".vp" ".inc" ".lisp" ".md") 2)))
+	(each (# (. *file_tree* :add_route %0)) (all-dirs files))
+	(each (# (. *file_tree* :add_route %0)) files))
 
 (defun populate-open-tree ()
 	;reload open tree

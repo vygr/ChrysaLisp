@@ -6,6 +6,7 @@
 (import "class/lisp.inc")
 (import "gui/lisp.inc")
 (import "lib/math/matrix.inc")
+(import "lib/text/files.inc")
 
 (enums +event 0
 	(enum close max min)
@@ -20,13 +21,6 @@
 (enums +ball 0
 	(enum vertex radius col))
 
-(defun all-mol-files (p)
-	(defq out (list))
-	(each! 0 -1 (lambda (f m)
-		(and (eql m "8") (ends-with ".sdf" f) (push out (cat p f))))
-		(unzip (split (pii-dirlist p) ",") (lists2)))
-	(sort cmp out))
-
 (defq anti_alias :t timer_rate (/ 1000000 30) +min_size 450 +max_size 800
 	canvas_size +min_size canvas_scale (if anti_alias 1 2)
 	*rotx* +real_0 *roty* +real_0 *rotz* +real_0 +focal_dist +real_4
@@ -35,7 +29,7 @@
 	+left (* +focal_dist +real_-1/3) +right (* +focal_dist +real_1/3)
 	+canvas_mode (if anti_alias +canvas_flag_antialias 0)
 	*mol_index* 0 *auto_mode* :nil *dirty* :t
-	balls (list) mol_files (all-mol-files "apps/molecule/data/")
+	balls (list) mol_files (all-files "apps/molecule/data/" '(".sdf"))
 	+palette (static '(map (lambda (_) (Vec3-f
 			(n2f (/ (logand (>> _ 16) 0xff) 0xff))
 			(n2f (/ (logand (>> _ 8) 0xff) 0xff))

@@ -2,6 +2,7 @@
 (import "sys/lisp.inc")
 (import "class/lisp.inc")
 (import "gui/lisp.inc")
+(import "lib/text/files.inc")
 
 (enums +event 0
 	(enum close)
@@ -40,13 +41,7 @@
 	(bind '(x y w h) (apply view-fit (cat (. *window* :get_pos) (. *window* :pref_size))))
 	(. *window* :change_dirty x y w h))
 
-(defun all-fonts (p)
-	(defq out (list))
-	(each! 0 -1 (lambda (f m) (and (eql m "8") (ends-with ".ctf" f) (push out (cat p f))))
-		(unzip (split (pii-dirlist p) ",") (lists2)))
-	(sort cmp out))
-
-(defq index 1 id :t fonts (all-fonts "fonts/"))
+(defq index 1 id :t fonts (all-files "fonts/" '(".ctf")))
 
 (ui-window *window* ()
 	(ui-title-bar window_title "" (0xea19) +event_close)

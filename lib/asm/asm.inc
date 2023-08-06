@@ -4,6 +4,7 @@
 
 (import "././task/local.inc")
 (import "././boot/image.inc")
+(import "././text/files.inc")
 
 ;module
 (env-push)
@@ -98,29 +99,13 @@
 	(each (lambda (s)
 		(unless (find s l) (push l s))) sl))
 
-(defun all-files (root ext)
-	;all files from root downwards with extention, none recursive
-	;don't include "." folders
-	(defq stack (list root) files (list))
-	(while (setq root (pop stack))
-		(unless (starts-with "./obj" root)
-			(each! 0 -1 (lambda (file type)
-				(unless (starts-with "." file)
-					(if (eql type "4")
-						(push stack (cat root "/" file))
-						(if (ends-with ext file)
-							(push files (cat root "/" file))))))
-				(unzip (split (pii-dirlist root) ",") (lists2)))))
-	files)
-
 (defun all-vp-files ()
 	;filter to only the .vp files, strip off the leading "./"
-	(map (# (slice 2 -1 %0))
-		(filter (# (not (starts-with "./apps/" %0))) (all-files "." ".vp"))))
+	(filter (# (not (starts-with "apps/" %0))) (all-files-cut "." '(".vp") 2)))
 
 (defun all-class-files ()
 	;filter to only the class.inc files, strip off the leading "./"
-	(map (# (slice 2 -1 %0)) (all-files "." "class.inc")))
+	(all-files-cut "." '("class.inc") 2))
 
 (defun make-info (_)
 	;create lists of immediate dependencies and products
@@ -252,7 +237,7 @@
 
 ;module
 (export-symbols
-	all-files all-vp-files all-class-files
+	all-vp-files all-class-files
 	make make-all make-merge
 	make-platforms make-all-platforms
 	remake remake-all
