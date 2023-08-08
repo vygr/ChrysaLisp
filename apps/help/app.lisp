@@ -18,7 +18,7 @@
 					((eql f "###") (push k (sym (cat (elem-get 1 s) " " (elem-get 2 s)))) (push v ""))
 					((eql f "```code") (setq state :nil))))
 				((eql f "```") (setq state :t))
-				(:t (elem-set -2 v (cat (elem-get -2 v) _ (ascii-char 10))))))) (file-stream "docs/VP_CLASSES.md"))
+				(:t (elem-set -2 v (cat (elem-get -2 v) _ (ascii-char 10))))))) (file-stream "docs/Reference/VP_CLASSES.md"))
 	(each (lambda (k v)
 		(when (/= 0 (length v))
 			(defq _ (split k ":"))

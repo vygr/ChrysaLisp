@@ -43,7 +43,7 @@
 								(merge-obj syntax (list (sym line)))))))) (file-stream file))) *imports*)))
 	;create classes docs
 	(sort (# (cmp (elem-get 0 %0) (elem-get 0 %1))) classes)
-	(defq stream (file-stream "docs/VP_CLASSES.md" +file_open_write)
+	(defq stream (file-stream "docs/Reference/VP_CLASSES.md" +file_open_write)
 		classes (map (lambda ((a b &rest c))
 			(sort (# (cmp (elem-get 0 %0) (elem-get 0 %1))) c)
 			(cat (list a b) c)) classes))
@@ -57,7 +57,7 @@
 				(write-line stream "```code")
 				(each (# (write-line stream %0)) (elem-get i docs))
 				(write-line stream (const (str "```" (ascii-char 10)))))) methds)) classes)
-	(print "-> docs/VP_CLASSES.md")
+	(print "-> docs/Reference/VP_CLASSES.md")
 
 	;create commands docs
 	(defq target 'docs/Reference/COMMANDS.md)
