@@ -15,7 +15,6 @@ event_map (fmap-kv
 	+event_tree_action action-tree-action
 	+event_file_leaf_action action-file-leaf-action))
 
-
 ;module
 (export-symbols
 	event_map )
