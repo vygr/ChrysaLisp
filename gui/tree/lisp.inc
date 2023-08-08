@@ -70,7 +70,7 @@
 	(defmethod :populate (this &optional root exts n)
 		; (. tree :populate &optional root exts n) -> this
 		;load up a file tree
-		(defq files (sort cmp (all-files-cut root exts n)))
+		(defq files (sort cmp (all-files root exts n)))
 		(each (# (. this :add_route %0)) (all-dirs files))
 		(each (# (. this :add_route %0)) files)
 		this)

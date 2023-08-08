@@ -101,11 +101,11 @@
 
 (defun all-vp-files ()
 	;filter to only the .vp files, strip off the leading "./"
-	(filter (# (not (starts-with "apps/" %0))) (all-files-cut "." '(".vp") 2)))
+	(filter (# (not (starts-with "apps/" %0))) (all-files "." '(".vp") 2)))
 
 (defun all-class-files ()
 	;filter to only the class.inc files, strip off the leading "./"
-	(all-files-cut "." '("class.inc") 2))
+	(all-files "." '("class.inc") 2))
 
 (defun make-info (_)
 	;create lists of immediate dependencies and products
