@@ -7,7 +7,7 @@
 (import "lib/text/syntax.inc")
 
 (enums +event 0
-	(enum close min max)
+	(enum close max min)
 	(enum tree_action)
 	(enum file_folder_action file_leaf_action))
 
