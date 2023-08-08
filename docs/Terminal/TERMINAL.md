@@ -47,7 +47,7 @@ Note that some of the commands may include optional arguments to be passed to
 the command. Typically, commands do provide argument help and can be displayed
 by `command -h`.
 
-You can find additional command information in `docs/COMMANDS.md`.
+You can find additional command information in `docs/Reference/COMMANDS.md`.
 
 ## Library Files
 

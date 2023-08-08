@@ -73,7 +73,7 @@
 (defun main ()
 	(defq select (alloc-select +select_size) *running* :t)
 	(. *file_tree* :populate "docs" '(".md"))
-	(populate-page "docs/INTRO.md")
+	(populate-page "docs/Intro/INTRO.md")
 	(select-node :nil)
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(gui-add-front (. *window* :change x y w h))

@@ -60,7 +60,7 @@
 	(print "-> docs/VP_CLASSES.md")
 
 	;create commands docs
-	(defq target 'docs/COMMANDS.md)
+	(defq target 'docs/Reference/COMMANDS.md)
 	(defun extract-cmd (el)
 		(first (split (second (split el "/")) ".")))
 	(defun cmd-collector (acc el)
@@ -84,7 +84,7 @@
 		cmd-collector
 		(sort cmp (map extract-cmd (all-files "cmd" '(".lisp"))))
 		(list)))
-	(print "-> docs/COMMANDS.md")
+	(print "-> docs/Reference/COMMANDS.md")
 
 	;create lisp syntax docs
 	(each (lambda (file)
@@ -108,7 +108,7 @@
 			"lib/task/pipe.inc" "lib/task/global.inc" "lib/task/farm.inc"
 			"lib/text/dictionary.inc")))
 	(sort cmp syntax)
-	(defq stream (file-stream "docs/SYNTAX.md" +file_open_write))
+	(defq stream (file-stream "docs/Reference/SYNTAX.md" +file_open_write))
 	(write-line stream (const (str "# Syntax" (ascii-char 10))))
 	(each (lambda (line)
 		(defq form (elem-get 0 (defq body (split line (const (cat (ascii-char 9) " )"))))))
@@ -128,7 +128,7 @@
 				(write-line stream "```code")
 				(write-line stream line)
 				(write-line stream (cat "```" (ascii-char 10)))))) syntax)
-	(print "-> docs/SYNTAX.md"))
+	(print "-> docs/Reference/SYNTAX.md"))
 
 (defq usage `(
 (("-h" "--help")
