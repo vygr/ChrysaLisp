@@ -56,17 +56,16 @@
 		(ui-scroll page_scroll +scroll_flag_vertical (:min_height 900))))
 
 (defun select-node (file)
-	(when :t 
-		;highlight the selected file
-		(if *selected_file_node* (undef (. *selected_file_node* :dirty) :color))
-		(when file
-			(setq *selected_file_node* (. *file_tree* :find_node file))
-			(def (. *selected_file_node* :dirty) :color +argb_grey12))
-		(bind '(w h) (. *file_tree* :pref_size))
-		(. *file_tree* :change 0 0 w h)
-		(def *file_tree* :min_width w)
-		(def *file_tree_scroll* :min_width w)
-		(.-> *file_tree_scroll* :layout :dirty_all)))
+	;highlight the selected file
+	(if *selected_file_node* (undef (. *selected_file_node* :dirty) :color))
+	(when file
+		(setq *selected_file_node* (. *file_tree* :find_node file))
+		(def (. *selected_file_node* :dirty) :color +argb_grey12))
+	(bind '(w h) (. *file_tree* :pref_size))
+	(. *file_tree* :change 0 0 w h)
+	(def *file_tree* :min_width w)
+	(def *file_tree_scroll* :min_width w)
+	(.-> *file_tree_scroll* :layout :dirty_all))
 
 ;import actions
 (import "./actions.inc")
