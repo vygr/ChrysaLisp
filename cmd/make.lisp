@@ -100,7 +100,7 @@
 					((or (eql _ "defun") (eql _ "defmacro") (eql _ "defclass")
 							(eql _ "defmethod") (eql _ "deffimethod") (eql _ "defabstractmethod"))
 						(setq state :y))))) (file-stream file)))
-		(cat (all-files-cut "." '("lisp.inc") 2)
+		(cat (all-files "." '("lisp.inc") 2)
 			'("class/lisp/root.inc" "lib/anaphoric/anaphoric.inc" "lib/debug/debug.inc"
 			"lib/debug/profile.inc" "lib/collections/xmap.inc" "lib/collections/xset.inc"
 			"lib/collections/emap.inc" "lib/collections/collections.inc" "lib/class/class.inc"
