@@ -1,4 +1,4 @@
-;(import "lib/debug/frames.inc")
+(import "lib/debug/frames.inc")
 
 (import "././login/env.inc")
 (import "sys/lisp.inc")
@@ -73,8 +73,8 @@
 
 (defun main ()
 	(defq select (alloc-select +select_size) *running* :t)
-	(. *file_tree* :populate "./docs" '(".md") 2)
-	(populate-page "./docs/INTRO.md")
+	(. *file_tree* :populate "./docs" '(".md"))
+	(populate-page "docs/INTRO.md")
 	(select-node :nil)
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(gui-add-front (. *window* :change x y w h))
