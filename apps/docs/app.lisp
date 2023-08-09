@@ -14,8 +14,18 @@
 (enums +select 0
 	(enum main tip))
 
-(defq +margin_width (* 8 3) syntax (Syntax) handlers (emap) scroll_pos (fmap) *current_file* :nil *selected_file_node* :nil
-*running* :t)
+(defq +margin_width (* 8 3))
+
+(ui-window *window* (:color +argb_grey15)
+	(ui-title-bar _ "Docs" (0xea19 0xea1b 0xea1a) +event_close)
+	(ui-flow doc_flow (:flow_flags +flow_right_fill :font *env_window_font* :color *env_toolbar_col*)
+		(ui-flow _ (:flow_flags +flow_stack_fill)
+			(ui-scroll *file_tree_scroll* +scroll_flag_vertical :nil
+				(. (ui-tree *file_tree* +event_file_folder_action
+						(:min_width 0 :color +argb_white :font *env_medium_terminal_font*))
+					:connect +event_tree_action))
+			(ui-backdrop _ (:color +argb_white)))
+		(ui-scroll page_scroll +scroll_flag_vertical (:min_height 900))))
 
 (defun handler-func (state)
 	(unless (defq handler (. handlers :find state))
@@ -44,17 +54,6 @@
 		(.-> page_scroll (:add_child page_flow) (:layout))
 		(.-> doc_flow :layout :dirty_all)))
 
-(ui-window *window* (:color +argb_grey15)
-	(ui-title-bar _ "Docs" (0xea19 0xea1b 0xea1a) +event_close)
-	(ui-flow doc_flow (:flow_flags +flow_right_fill :font *env_window_font* :color *env_toolbar_col*)
-		(ui-flow _ (:flow_flags +flow_stack_fill)
-			(ui-scroll *file_tree_scroll* +scroll_flag_vertical :nil
-				(. (ui-tree *file_tree* +event_file_folder_action
-						(:min_width 0 :color +argb_white :font *env_medium_terminal_font*))
-					:connect +event_tree_action))
-			(ui-backdrop _ (:color +argb_white)))
-		(ui-scroll page_scroll +scroll_flag_vertical (:min_height 900))))
-
 (defun select-node (file)
 	;highlight the selected file
 	(if *selected_file_node* (undef (. *selected_file_node* :dirty) :color))
@@ -71,13 +70,14 @@
 (import "./actions.inc")
 
 (defun main ()
-	(defq select (alloc-select +select_size) *running* :t)
+	(defq select (alloc-select +select_size) syntax (Syntax) handlers (emap)
+	scroll_pos (fmap) *running* :t
+	*current_file* "docs/Vm/VP_VM.md" *selected_file_node* :nil)
 	(. *file_tree* :populate "docs" '(".md"))
-	(populate-page "docs/Intro/INTRO.md")
+	(populate-page *current_file*)
 	(select-node :nil)
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(gui-add-front (. *window* :change x y w h))
-
 	(while *running* 
 		(defq *msg* (mail-read (elem-get (defq idx (mail-select select)) select)))
 		(cond
@@ -85,10 +85,12 @@
 				;tip event
 				(if (defq view (. *window* :find_id (getf *msg* +mail_timeout_id)))
 					(. view :show_tip)))
-			((defq id (getf *msg* +ev_msg_target_id) action (. event_map :find id))
+			;mus be +select_main
+			((defq action (. event_map :find (getf *msg* +ev_msg_target_id)))
 				;call bound event action
 				(action))
-			(:t (. *window* :event *msg*))))
-
+			(:t (. *window* :event *msg*)
+				;save scroll position
+				(. scroll_pos :insert *current_file* (get :value (get :vslider page_scroll))))))
 	(gui-sub *window*)
 	(free-select select))
