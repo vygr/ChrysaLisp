@@ -10,6 +10,9 @@ New `lib/text/files.inc` library for easy folder and file enumeration. Changed
 all apps and commands to use it.
 
 New Tree widget `:populate` method.
+
+Docs app redesign by Bananearwig, to use a Tree widget. Plus reorg of docs
+folder.
  
 ------
 
