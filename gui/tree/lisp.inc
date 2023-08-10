@@ -9,7 +9,8 @@
 
 (defclass Tree (event) (Flow)
 	; (Tree event) -> tree
-	(def this :flow_flags +flow_down_fill :action_event event :border 0)
+	(def this :flow_flags +flow_down_fill :action_event event
+		:border 0 :selected_node :nil)
 
 	(defmethod :add_route (this route)
 		; (. tree :add_route route) -> tree
@@ -59,7 +60,7 @@
 					:nil))) route))
 
 	(defmethod :get_route (this node)
-		; (. tree :get_route node) -> route
+		; (. tree :get_route node) -> tree
 		(defq route (list))
 		(until (eql node this)
 			(push route (get :text node))
@@ -68,11 +69,22 @@
 		(join (reverse route) "/"))
 
 	(defmethod :populate (this &optional root exts n)
-		; (. tree :populate &optional root exts n) -> this
+		; (. tree :populate &optional root exts n) -> tree
 		;load up a file tree
 		(defq files (sort cmp (all-files root exts n)))
 		(each (# (. this :add_route %0)) (all-dirs files))
 		(each (# (. this :add_route %0)) files)
+		this)
+
+	(defmethod :select (this route)
+		; (. tree :select route) -> tree
+		;highlight a tree route
+		(raise :selected_node)
+		(if selected_node (undef (. selected_node :dirty) :color))
+		(when route
+			(setq selected_node (. this :find_node route))
+			(def (. selected_node :dirty) :color +argb_grey12))
+		(lower :selected_node)
 		this)
 
 	(defmethod :action (this event)

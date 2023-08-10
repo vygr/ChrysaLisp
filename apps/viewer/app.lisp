@@ -18,7 +18,7 @@
 
 (defq +vdu_min_width 32 +vdu_min_height 16
 	+vdu_max_width 100 +vdu_max_height 48
-	*meta_map* (fmap 31) *current_file* :nil *selected_file_node* :nil +margin 2)
+	*meta_map* (fmap 31) *current_file* :nil +margin 2)
 
 (ui-window *window* (:color +argb_grey1)
 	(ui-title-bar *title* "" (0xea19 0xea1b 0xea1a) +event_close)
@@ -112,10 +112,7 @@
 
 (defun select-node (file)
 	;highlight the selected file
-	(if *selected_file_node* (undef (. *selected_file_node* :dirty) :color))
-	(when file
-		(setq *selected_file_node* (. *file_tree* :find_node file))
-		(def (. *selected_file_node* :dirty) :color +argb_grey12))
+	(. *file_tree* :select file)
 	(bind '(w h) (. *file_tree* :pref_size))
 	(. *file_tree* :change 0 0 w h)
 	(def *file_tree* :min_width w)

@@ -31,8 +31,7 @@
 	(enum main tip))
 
 (defq +vdu_min_width 80 +vdu_min_height 40 +vdu_max_width 100 +vdu_max_height 46
-	+vdu_line_width 5 *current_file* :nil *selected_file_node* :nil
-	*selected_open_node* :nil *meta_map* (fmap) *open_files* (list)
+	+vdu_line_width 5 *current_file* :nil *meta_map* (fmap) *open_files* (list)
 	*syntax* (Syntax) *whole_words* :nil *macro_record* :nil *macro_actions* (list)
 	+min_word_size 3 +max_matches 20 dictionary (Dictionary 1021) +margin 2
 	match_window :nil match_flow :nil match_index -1
@@ -217,13 +216,8 @@
 
 (defun select-node (file)
 	;highlight the selected file
-	(if *selected_file_node* (undef (. *selected_file_node* :dirty) :color))
-	(if *selected_open_node* (undef (. *selected_open_node* :dirty) :color))
-	(when file
-		(setq *selected_open_node* (. *open_tree* :find_node file))
-		(setq *selected_file_node* (. *file_tree* :find_node file))
-		(def (. *selected_open_node* :dirty) :color +argb_grey12)
-		(def (. *selected_file_node* :dirty) :color +argb_grey12))
+	(. *open_tree* :select file)
+	(. *file_tree* :select file)
 	(bind '(w h) (. *file_tree* :pref_size))
 	(. *file_tree* :change 0 0 w h)
 	(def *file_tree* :min_width w)

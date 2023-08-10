@@ -14,6 +14,8 @@ New Tree widget `:populate` method.
 Docs app redesign by Bannanearwig, to use a Tree widget. Plus reorg of docs
 folder.
 
+New Tree class `:select` method.
+
 ------
 
 ChrysaLisp and ChrysaLib now work together, using the same communication

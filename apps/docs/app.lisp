@@ -1,5 +1,4 @@
 ;(import "lib/debug/frames.inc")
-
 (import "././login/env.inc")
 (import "sys/lisp.inc")
 (import "class/lisp.inc")
@@ -56,10 +55,7 @@
 
 (defun select-node (file)
 	;highlight the selected file
-	(if *selected_file_node* (undef (. *selected_file_node* :dirty) :color))
-	(when file
-		(setq *selected_file_node* (. *file_tree* :find_node file))
-		(def (. *selected_file_node* :dirty) :color +argb_grey12))
+	(. *file_tree* :select file)
 	(bind '(w h) (. *file_tree* :pref_size))
 	(. *file_tree* :change 0 0 w h)
 	(def *file_tree* :min_width w)
@@ -71,8 +67,7 @@
 
 (defun main ()
 	(defq select (alloc-select +select_size) syntax (Syntax) handlers (emap)
-	scroll_pos (fmap) *running* :t
-	*current_file* "docs/Vm/VP_VM.md" *selected_file_node* :nil)
+	scroll_pos (fmap) *running* :t *current_file* "docs/Vm/VP_VM.md")
 	(. *file_tree* :populate "docs" '(".md"))
 	(populate-page *current_file*)
 	(select-node *current_file*)
