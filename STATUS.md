@@ -11,9 +11,9 @@ all apps and commands to use it.
 
 New Tree widget `:populate` method.
 
-Docs app redesign by Bananearwig, to use a Tree widget. Plus reorg of docs
+Docs app redesign by Bannanearwig, to use a Tree widget. Plus reorg of docs
 folder.
- 
+
 ------
 
 ChrysaLisp and ChrysaLib now work together, using the same communication
