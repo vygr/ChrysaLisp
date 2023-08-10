@@ -75,7 +75,7 @@
 	*current_file* "docs/Vm/VP_VM.md" *selected_file_node* :nil)
 	(. *file_tree* :populate "docs" '(".md"))
 	(populate-page *current_file*)
-	(select-node :nil)
+	(select-node *current_file*)
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(gui-add-front (. *window* :change x y w h))
 	(while *running* 
