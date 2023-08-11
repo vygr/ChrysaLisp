@@ -1,4 +1,5 @@
 ;(import "lib/debug/frames.inc")
+
 (import "././login/env.inc")
 (import "sys/lisp.inc")
 (import "class/lisp.inc")
@@ -81,9 +82,27 @@
 				(if (defq view (. *window* :find_id (getf *msg* +mail_timeout_id)))
 					(. view :show_tip)))
 			;mus be +select_main
-			((defq action (. event_map :find (getf *msg* +ev_msg_target_id)))
+			((defq id (getf *msg* +ev_msg_target_id) action (. event_map :find id))
 				;call bound event action
 				(action))
+			((and (not (Textfield? (. *window* :find_id id)))
+					(= (getf *msg* +ev_msg_type) +ev_type_key_down)
+					(> (getf *msg* +ev_msg_key_scode) 0))
+				;key event
+				(defq key (getf *msg* +ev_msg_key_key) mod (getf *msg* +ev_msg_key_mod))
+				(cond
+					((/= 0 (logand mod (const
+							(+ +ev_key_mod_control +ev_key_mod_alt +ev_key_mod_meta))))
+						;call bound control/command key action
+						(if (defq action (. key_map_control :find key))
+							(action)))
+					((/= 0 (logand mod +ev_key_mod_shift))
+						;call bound shift key action
+						(if (defq action (. key_map_shift :find key))
+							(action)))
+					((defq action (. key_map :find key))
+						;call bound key action
+						(action))))
 			(:t (. *window* :event *msg*)
 				;save scroll position
 				(. scroll_pos :insert *current_file* (get :value (get :vslider page_scroll))))))

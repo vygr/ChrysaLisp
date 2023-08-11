@@ -13,9 +13,17 @@ event_map (fmap-kv
 	+event_min action-minimise
 	+event_max action-maximise
 	+event_tree_action action-tree-action
-	+event_file_leaf_action action-file-leaf-action))
+	+event_file_leaf_action action-file-leaf-action)
+
+key_map (fmap-kv)
+
+key_map_shift (fmap-kv)
+
+key_map_control (fmap-kv
+	(ascii-code "=") action-maximise
+	(ascii-code "-") action-minimise))
 
 ;module
 (export-symbols
-	event_map )
+	event_map key_map key_map_shift key_map_control)
 (env-pop)
