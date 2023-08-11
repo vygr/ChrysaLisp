@@ -16,6 +16,8 @@ folder.
 
 New Tree class `:select` method.
 
+Addition of key events to Docs app.
+
 ------
 
 ChrysaLisp and ChrysaLib now work together, using the same communication
