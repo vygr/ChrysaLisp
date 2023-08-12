@@ -5,6 +5,7 @@ $use_em = $FALSE;
 $ncpu = 8;
 $bcpu = 0;
 $showhelp = $FALSE;
+$front = $FALSE;
 
 for ($count = 0 ; $count -lt $args.count ; $count ++ ){
     $marg = $args[$count]
@@ -18,6 +19,9 @@ for ($count = 0 ; $count -lt $args.count ; $count ++ ){
     elseif ( $marg -eq '-b'){
         $bcpu = $args[$count+1];
         $count ++;
+    }
+    elseif ( $marg -eq '-f'){
+        $front = $TRUE;
     }
     else {
         $showhelp = $TRUE;
@@ -56,6 +60,6 @@ else {
 
 		    $links += add_link $c1 $c2 $links
 	    }
-	    boot_cpu_tui $cpu "$links"
+	    boot_cpu_tui %front $cpu "$links"
     }
 }

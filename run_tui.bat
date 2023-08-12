@@ -13,3 +13,4 @@
 @start /b .\obj\x86_64\WIN64\Windows\main_tui.exe .\obj\x86_64\WIN64\sys\boot_image -l 000-002 -l 001-002 -l 002-003 -l 002-004 -l 002-005 -l 002-006 -l 002-007 -l 002-008 -l 002-009
 @start /b .\obj\x86_64\WIN64\Windows\main_tui.exe .\obj\x86_64\WIN64\sys\boot_image -l 000-001 -l 001-002 -l 001-003 -l 001-004 -l 001-005 -l 001-006 -l 001-007 -l 001-008 -l 001-009
 .\obj\x86_64\WIN64\Windows\main_tui.exe .\obj\x86_64\WIN64\sys\boot_image -l 000-001 -l 000-002 -l 000-003 -l 000-004 -l 000-005 -l 000-006 -l 000-007 -l 000-008 -l 000-009 -run apps/tui/tui.lisp
+if %ERRORLEVEL% EQU 0 call stop.bat
