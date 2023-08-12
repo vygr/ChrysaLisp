@@ -57,8 +57,7 @@ function boot_cpu_gui
 			./obj/$CPU/$ABI/$OS/main_gui obj/$CPU/$ABI/sys/boot_image $2 $emu -run gui/gui/gui.lisp &
 		else
 			./obj/$CPU/$ABI/$OS/main_gui obj/$CPU/$ABI/sys/boot_image $2 $emu -run gui/gui/gui.lisp
-			exitcode=$?
-			if [ $exitcode -eq 0 ]
+			if [ $? -eq 0 ]
 			then
 				{
 					./stop.sh
@@ -75,7 +74,18 @@ function boot_cpu_tui
 {
 	if [ $1 -lt 1 ]
 	then
-		./obj/$CPU/$ABI/$OS/main_tui obj/$CPU/$ABI/sys/boot_image $2 $emu -run $script
+		if [ "$front" == "" ]
+		then
+			./obj/$CPU/$ABI/$OS/main_tui obj/$CPU/$ABI/sys/boot_image $2 $emu -run $script
+		else
+			./obj/$CPU/$ABI/$OS/main_tui obj/$CPU/$ABI/sys/boot_image $2 $emu -run $script
+			if [ $? -eq 0 ]
+			then
+				{
+					./stop.sh
+				} &> /dev/null
+			fi
+		fi
 	else
 		./obj/$CPU/$ABI/$OS/main_tui obj/$CPU/$ABI/sys/boot_image $2 $emu &
 	fi

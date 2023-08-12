@@ -18,6 +18,9 @@ New Tree class `:select` method.
 
 Addition of key events to Docs app.
 
+`make install` now exits and auto calls `./stop.sh`. No need to CNTRL-C
+anymore.
+
 ------
 
 ChrysaLisp and ChrysaLib now work together, using the same communication

@@ -28,5 +28,4 @@
 (print "GUI with './run.bat'")
 (print "stop the network with './stop.bat'")
 (print)
-(print "Please press CNTRL-C to exit!")
-(print)
+((ffi _ "gui/gui/lisp_deinit" 0))
