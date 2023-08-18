@@ -28,10 +28,10 @@
 
 (defun action-font-up ()
 	;scale font up
-	(setq *font_scale* (min 1.5 (+ (defq old_size *font_scale*) 0.125)))
-	(if (/= old_size *font_scale*) (populate-page *current_file*)))
+	(setq *page_scale* (min 1.5 (+ (defq old_size *page_scale*) 0.125)))
+	(if (/= old_size *page_scale*) (populate-page *current_file*)))
 
 (defun action-font-down ()
 	;scale font down
-	(setq *font_scale* (max 0.75 (- (defq old_size *font_scale*) 0.125)))
-	(if (/= old_size *font_scale*) (populate-page *current_file*)))
+	(setq *page_scale* (max 0.75 (- (defq old_size *page_scale*) 0.125)))
+	(if (/= old_size *page_scale*) (populate-page *current_file*)))

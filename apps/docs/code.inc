@@ -7,7 +7,7 @@
 	(cond
 		((starts-with "```" line)
 			(def (defq vdu (Vdu))
-				:font (create-font "fonts/Hack-Regular.ctf" (font-scale 16))
+				:font (create-font "fonts/Hack-Regular.ctf" (page-scale 16))
 				:vdu_width (reduce (# (max %0 (length %1))) lines 0)
 				:vdu_height (length lines)
 				:color 0

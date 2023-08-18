@@ -38,10 +38,10 @@
 	(when file
 		;min width of an 80 column terminal !
 		(def (defq vdu (Vdu))
-			:font (create-font "fonts/Hack-Regular.ctf" (font-scale 16))
+			:font (create-font "fonts/Hack-Regular.ctf" (page-scale 16))
 			:vdu_width 80 :vdu_height 1)
 		(ui-root page_flow (Flow) (:flow_flags +flow_right_fill
-				:font (create-font "fonts/OpenSans-Regular.ctf" (font-scale 18))
+				:font (create-font "fonts/OpenSans-Regular.ctf" (page-scale 18))
 				:color (get :color *window*))
 			(ui-label _ (:min_width +margin_width))
 			(ui-flow page (:flow_flags +flow_down_fill :min_width (elem-get 0 (. vdu :pref_size))))
@@ -68,8 +68,8 @@
 	(def *file_tree_scroll* :min_width w)
 	(.-> *file_tree_scroll* :layout :dirty_all))
 
-(defun font-scale (s)
-	(n2i (* (n2f s) *font_scale*)))
+(defun page-scale (s)
+	(n2i (* (n2f s) *page_scale*)))
 
 ;import actions
 (import "./actions.inc")
@@ -77,7 +77,7 @@
 (defun main ()
 	(defq select (alloc-select +select_size) syntax (Syntax) handlers (emap)
 		scroll_pos (fmap) *running* :t *current_file* "docs/Vm/VP_VM.md"
-		*font_scale* 1.0)
+		*page_scale* 1.0)
 	(. *file_tree* :populate "docs" '(".md"))
 	(populate-page *current_file*)
 	(select-node *current_file*)
