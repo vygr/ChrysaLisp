@@ -20,6 +20,8 @@ key_map (fmap-kv)
 key_map_shift (fmap-kv)
 
 key_map_control (fmap-kv
+	(ascii-code "]") action-font-up
+	(ascii-code "[") action-font-down
 	(ascii-code "=") action-maximise
 	(ascii-code "-") action-minimise))
 

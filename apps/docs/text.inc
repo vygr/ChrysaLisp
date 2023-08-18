@@ -10,9 +10,9 @@
 	(. page :add_child flow)
 	flow)
 
-(defun heading (words &optional size)
-	(defq cnt 0 state :nil page_width (get :min_width page)
-		flow (line-flow size))
+(defun heading (words size)
+	(defq size (font-scale size) cnt 0 state :nil
+		page_width (get :min_width page) flow (line-flow size))
 	(each (lambda (word)
 		(. flow :add_child (defq text (Text)))
 		(if (starts-with "`" word)
@@ -35,7 +35,7 @@
 		;needs a bullet and indent
 		(def (defq text (Text))
 			:text (cat (num-to-utf8 0xe95f) "    ")
-			:font (create-font "fonts/Entypo.ctf" 10))
+			:font (create-font "fonts/Entypo.ctf" (font-scale 10)))
 		(. flow :add_child text)
 		(setq index 1 cnt (defq indent_width (elem-get 0 (. text :pref_size)))))
 	(each! index -1 (lambda (word)

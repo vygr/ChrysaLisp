@@ -18,14 +18,14 @@
 
 (ui-window *window* (:color +argb_grey15)
 	(ui-title-bar _ "Docs" (0xea19 0xea1b 0xea1a) +event_close)
-	(ui-flow doc_flow (:flow_flags +flow_right_fill :font *env_window_font* :color *env_toolbar_col*)
+	(ui-flow doc_flow (:flow_flags +flow_right_fill :color *env_toolbar_col*)
 		(ui-flow _ (:flow_flags +flow_stack_fill)
 			(ui-scroll *file_tree_scroll* +scroll_flag_vertical :nil
 				(. (ui-tree *file_tree* +event_file_folder_action
 						(:min_width 0 :color +argb_white :font *env_medium_terminal_font*))
 					:connect +event_tree_action))
 			(ui-backdrop _ (:color +argb_white)))
-		(ui-scroll page_scroll +scroll_flag_vertical (:min_height 900))))
+		(ui-scroll page_scroll +scroll_flag_both (:min_height 900))))
 
 (defun handler-func (state)
 	(unless (defq handler (. handlers :find state))
@@ -36,10 +36,15 @@
 
 (defun populate-page (file)
 	(when file
-		(ui-root page_flow (Flow) (:flow_flags +flow_right_fill :font *env_window_font*
+		;min width of an 80 column terminal !
+		(def (defq vdu (Vdu))
+			:font (create-font "fonts/Hack-Regular.ctf" (font-scale 16))
+			:vdu_width 80 :vdu_height 1)
+		(ui-root page_flow (Flow) (:flow_flags +flow_right_fill
+				:font (create-font "fonts/OpenSans-Regular.ctf" (font-scale 18))
 				:color (get :color *window*))
 			(ui-label _ (:min_width +margin_width))
-			(ui-flow page (:flow_flags +flow_down_fill :min_width 800))
+			(ui-flow page (:flow_flags +flow_down_fill :min_width (elem-get 0 (. vdu :pref_size))))
 			(ui-label _ (:min_width +margin_width)))
 		(defq state :text)
 		(each-line (lambda (line)
@@ -63,12 +68,16 @@
 	(def *file_tree_scroll* :min_width w)
 	(.-> *file_tree_scroll* :layout :dirty_all))
 
+(defun font-scale (s)
+	(n2i (* (n2f s) *font_scale*)))
+
 ;import actions
 (import "./actions.inc")
 
 (defun main ()
 	(defq select (alloc-select +select_size) syntax (Syntax) handlers (emap)
-	scroll_pos (fmap) *running* :t *current_file* "docs/Vm/VP_VM.md")
+		scroll_pos (fmap) *running* :t *current_file* "docs/Vm/VP_VM.md"
+		*font_scale* 1.0)
 	(. *file_tree* :populate "docs" '(".md"))
 	(populate-page *current_file*)
 	(select-node *current_file*)

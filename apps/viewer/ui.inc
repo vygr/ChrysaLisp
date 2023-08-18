@@ -20,7 +20,7 @@
 	(window-resize))
 
 (defun action-font-down ()
-	;scale font up
+	;scale font down
 	(bind '(name size) (font-info (get :font *edit*)))
 	(set *edit* :font (defq font (create-font name (max (dec size) 8))))
 	(.-> *main_flow* :layout :dirty_all)

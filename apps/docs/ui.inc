@@ -25,3 +25,13 @@
 	(bind '(w h) (. *window* :pref_size))
 	(bind '(x y w h) (view-fit x y w (* h 2)))
 	(. *window* :change_dirty x y w h))
+
+(defun action-font-up ()
+	;scale font up
+	(setq *font_scale* (min 1.5 (+ *font_scale* 0.125)))
+	(populate-page *current_file*))
+
+(defun action-font-down ()
+	;scale font down
+	(setq *font_scale* (max 0.75 (- *font_scale* 0.125)))
+	(populate-page *current_file*))

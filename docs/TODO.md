@@ -11,7 +11,7 @@ just get in touch.
 * Add dynamic font scaling `cntrl-[ ]` to the Terminal app. Toolbar buttons for
 common sizes, 80x40, 160x80 etc.
 
-* Docs app needs some love. Dynamic font scaling [...]. Toolbar with forward and back button etc.
+* Docs app needs some love. Toolbar with forward and back button etc.
 
 * Gui remote desktop service that runs over CLB.
 
