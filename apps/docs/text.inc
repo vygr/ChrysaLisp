@@ -62,7 +62,7 @@
 	(. page :add_child text))
 
 (defun under-line (size)
-	(def (defq backdrop (Backdrop)) :color +argb_black :min_height size)
+	(def (defq backdrop (Backdrop)) :color +argb_black :min_height (max 1 (font-scale size)))
 	(. page :add_child backdrop))
 
 (defun handler (state page line)
