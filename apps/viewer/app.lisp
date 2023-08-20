@@ -16,11 +16,11 @@
 (enums +select 0
 	(enum main tip))
 
-(bind '(edit_font +edit_size) (font-info *env_editor_font*))
+(bind '(+edit_font +edit_size) (font-info *env_editor_font*))
 
 (defq +vdu_min_width 32 +vdu_min_height 16
 	+vdu_max_width 100 +vdu_max_height 48
-	+margin 2 +edit_font (str edit_font))
+	+margin 2)
 
 (ui-window *window* (:color +argb_grey1)
 	(ui-title-bar *title* "" (0xea19 0xea1b 0xea1a) +event_close)

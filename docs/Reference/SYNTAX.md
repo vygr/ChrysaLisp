@@ -1107,13 +1107,19 @@
 ### tree :get_route
 
 ```code
-(. tree :get_route node) -> route
+(. tree :get_route node) -> tree
 ```
 
 ### tree :populate
 
 ```code
-(. tree :populate &optional root exts n) -> this
+(. tree :populate &optional root exts n) -> tree
+```
+
+### tree :select
+
+```code
+(. tree :select route) -> tree
 ```
 
 ### vdu :char_size

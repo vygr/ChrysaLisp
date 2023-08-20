@@ -94,12 +94,12 @@
 	(errorif-lisp-args-sig :r1 1 'error)
 
 	(vp-push :r0)
-	(array-bind-args :r1 '(:r1))
-	(vp-cpy-ir :r1 font_name :r11)
-	(class/obj/ref :r11 :r2)
-	(call 'num :create '((:r1 font_pixels)) '(:r12))
-	(call 'list :create :nil '(:r13))
-	(call 'list :push_back2 '(:r13 :r11 :r12) '(:r1 _ _ _ _))
+	(array-bind-args :r1 '(:r13))
+	(vp-cpy-ir :r13 font_name :r0)
+	(call 'str :create_from_buffer '((& :r0 str_data) (:r0 str_length)) '(:r12))
+	(call 'num :create '((:r13 font_pixels)) '(:r11))
+	(call 'list :create :nil '(:r0))
+	(call 'list :push_back2 '(:r0 :r12 :r11) '(:r1 _ _ _ _))
 	(vp-pop :r0)
 
 	(exit 'font :lisp_info '(:r0 :r1))

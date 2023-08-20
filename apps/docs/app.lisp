@@ -15,8 +15,8 @@
 	(enum main tip))
 
 (defq +margin_width (* 8 3)
-	+doc_font (str (elem-get 0 (font-info *env_window_font*)))
-	+term_font (str (elem-get 0 (font-info *env_terminal_font*))))
+	+doc_font (elem-get 0 (font-info *env_window_font*))
+	+term_font (elem-get 0 (font-info *env_terminal_font*)))
 
 (ui-window *window* (:color +argb_grey15)
 	(ui-title-bar _ "Docs" (0xea19 0xea1b 0xea1a) +event_close)
