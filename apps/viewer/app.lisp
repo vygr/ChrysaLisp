@@ -16,9 +16,11 @@
 (enums +select 0
 	(enum main tip))
 
+(bind '(edit_font +edit_size) (font-info *env_editor_font*))
+
 (defq +vdu_min_width 32 +vdu_min_height 16
 	+vdu_max_width 100 +vdu_max_height 48
-	*meta_map* (fmap 31) *current_file* :nil +margin 2)
+	+margin 2 +edit_font (str edit_font))
 
 (ui-window *window* (:color +argb_grey1)
 	(ui-title-bar *title* "" (0xea19 0xea1b 0xea1a) +event_close)
@@ -124,11 +126,15 @@
 	(each (# (def %0 :tip_text %1)) (. main_toolbar :children)
 		'("copy" "select paragraph" "select form" "start form" "end form")))
 
+(defun page-scale (s)
+	(n2i (* (n2f s) *page_scale*)))
+
 ;import actions, bindings and app ui classes
 (import "./actions.inc")
 
 (defun main ()
-	(defq select (alloc-select +select_size) *running* :t *edit* (Viewer-edit))
+	(defq select (alloc-select +select_size) *running* :t *edit* (Viewer-edit)
+		*meta_map* (fmap 31) *current_file* :nil *page_scale* 1.0)
 	(.-> *edit* (:set_buffer (Buffer)) (:set_underlay_color +argb_grey6))
 	(def *edit* :min_width 0 :min_height 0
 		:vdu_width +vdu_min_width :vdu_height +vdu_min_height)

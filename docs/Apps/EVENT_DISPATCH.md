@@ -362,7 +362,7 @@ functionality at runtime. The addition of a new document section handler
 involves providing a new module and does not require changing the Docs
 application itself.
 
-Here is the entire Docs application, it's very short:
+Here is the entire Docs application, it's quite short:
 
 ```file
 apps/docs/app.lisp

@@ -58,7 +58,7 @@
 		(. page_flow :change 0 0 w h)
 		(def page_scroll :min_width w)
 		(def (get :vslider page_scroll) :value (if (defq pos (. scroll_pos :find file)) pos 0))
-		(.-> page_scroll (:add_child page_flow) (:layout))
+		(.-> page_scroll (:add_child page_flow) :layout)
 		(.-> doc_flow :layout :dirty_all)))
 
 (defun select-node (file)

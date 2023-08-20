@@ -48,19 +48,21 @@
 
 (defun action-font-up ()
 	;scale font up
-	(bind '(name size) (font-info (get :font *edit*)))
-	(set *edit* :font (defq font (create-font name (min (inc size) 48))))
-	(set *vdu_lines* :font font)
-	(.-> *edit_flow* :layout :dirty_all)
-	(window-resize))
+	(setq *page_scale* (min 1.5 (+ (defq old_size *page_scale*) 0.125)))
+	(when (/= old_size *page_scale*)
+		(set *edit* :font (create-font +edit_font (page-scale +edit_size)))
+		(set *vdu_lines* :font (get :font *edit*))
+		(.-> *edit_flow* :layout :dirty_all)
+		(window-resize)))
 
 (defun action-font-down ()
 	;scale font down
-	(bind '(name size) (font-info (get :font *edit*)))
-	(set *edit* :font (defq font (create-font name (max (dec size) 8))))
-	(set *vdu_lines* :font font)
-	(.-> *edit_flow* :layout :dirty_all)
-	(window-resize))
+	(setq *page_scale* (max 0.75 (- (defq old_size *page_scale*) 0.125)))
+	(when (/= old_size *page_scale*)
+		(set *edit* :font (create-font +edit_font (page-scale +edit_size)))
+		(set *vdu_lines* :font (get :font *edit*))
+		(.-> *edit_flow* :layout :dirty_all)
+		(window-resize)))
 
 ;;;;;;;;;;;;;;;;;;;;
 ; main edit subclass
