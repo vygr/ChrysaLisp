@@ -6,7 +6,7 @@
 (import "class/lisp.inc")
 (import "gui/lisp.inc")
 (import "lib/math/scene.inc")
-(import "lib/task/farm.inc")
+(import "lib/task/local.inc")
 (import "./app.inc")
 
 (enums +event 0
@@ -146,7 +146,7 @@
 	(radio-select style_toolbar 0)
 	(gui-add-front (. *window* :change x y w h))
 	(defq select (alloc-select +select_size) *running* :t *dirty* :t
-		jobs (list) scene (create-scene jobs) farm (Farm create destroy 4))
+		jobs (list) scene (create-scene jobs) farm (Local create destroy 4))
 	(tooltips (elem-get +select_tip select))
 	(mail-timeout (elem-get +select_frame_timer select) frame_timer_rate 0)
 	(mail-timeout (elem-get +select_retry_timer select) retry_timer_rate 0)
