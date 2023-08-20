@@ -46,7 +46,7 @@
 	(select-node file)
 	(populate-vdu file))
 
-(defun action-font-up ()
+(defun action-scale-up ()
 	;scale font up
 	(setq *page_scale* (min 1.5 (+ (defq old_size *page_scale*) 0.125)))
 	(when (/= old_size *page_scale*)
@@ -55,7 +55,7 @@
 		(.-> *edit_flow* :layout :dirty_all)
 		(window-resize)))
 
-(defun action-font-down ()
+(defun action-scale-down ()
 	;scale font down
 	(setq *page_scale* (max 0.75 (- (defq old_size *page_scale*) 0.125)))
 	(when (/= old_size *page_scale*)
