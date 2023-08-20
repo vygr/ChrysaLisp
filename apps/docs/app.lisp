@@ -14,7 +14,9 @@
 (enums +select 0
 	(enum main tip))
 
-(defq +margin_width (* 8 3))
+(defq +margin_width (* 8 3)
+	+doc_font (str (elem-get 0 (font-info *env_window_font*)))
+	+term_font (str (elem-get 0 (font-info *env_terminal_font*))))
 
 (ui-window *window* (:color +argb_grey15)
 	(ui-title-bar _ "Docs" (0xea19 0xea1b 0xea1a) +event_close)
@@ -38,10 +40,10 @@
 	(when file
 		;min width of an 80 column terminal !
 		(def (defq vdu (Vdu))
-			:font (create-font "fonts/Hack-Regular.ctf" (page-scale 16))
+			:font (create-font +term_font (page-scale 16))
 			:vdu_width 80 :vdu_height 1)
 		(ui-root page_flow (Flow) (:flow_flags +flow_right_fill
-				:font (create-font "fonts/OpenSans-Regular.ctf" (page-scale 18))
+				:font (create-font +doc_font (page-scale 18))
 				:color (get :color *window*))
 			(ui-label _ (:min_width +margin_width))
 			(ui-flow page (:flow_flags +flow_down_fill :min_width (elem-get 0 (. vdu :pref_size))))

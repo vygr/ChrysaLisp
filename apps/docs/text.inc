@@ -6,7 +6,7 @@
 
 (defun line-flow (&optional size)
 	(def (defq flow (Flow)) :flow_flags +flow_right_fill)
-	(if size (def flow :font (create-font "fonts/OpenSans-Regular.ctf" size)))
+	(if size (def flow :font (create-font +doc_font size)))
 	(. page :add_child flow)
 	flow)
 
