@@ -26,7 +26,7 @@
 	(mail-send mbox (apply cat reply_list)))
 
 (defun main ()
-	(defq select (alloc-select +select_size) running :t +timeout 10000000)
+	(defq select (alloc-select +select_size) running :t +timeout 1000000)
 	(while running
 		(mail-timeout (elem-get +select_timeout select) +timeout 0)
 		(defq msg (mail-read (elem-get (defq idx (mail-select select)) select)))
