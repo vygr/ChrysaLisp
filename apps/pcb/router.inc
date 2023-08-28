@@ -129,7 +129,7 @@
 		(cond
 			((= (length shape) 0)
 				(push pad_lines (Layers-line x y z1 x y z2 radius gap)))
-			(:t  (defq z z1)
+			(:t	(defq z z1)
 				(while (<= z z2)
 					(bind '(xs ys) (elem-get 0 shape))
 					(defq cx x cy y cz z
@@ -325,7 +325,7 @@
 		(raise :pcb :radius :via :gap :paths :pad_end_nodes)
 		(cond
 			((= radius 0.0) :t)
-			(:t  (clear paths)
+			(:t	(clear paths)
 				(.-> this
 					:sub_pad_lines
 					:sub_wire_lines)
@@ -345,7 +345,7 @@
 				(cond
 					(failed
 						(. this :remove) :nil)
-					(:t  (setq paths (. this :optimise_paths paths))
+					(:t	(setq paths (. this :optimise_paths paths))
 						(lower :paths)
 						(.-> this
 							:add_paths_lines
@@ -531,7 +531,7 @@
 			(cond
 				((every (# (/= (. this :get_node %0) 0)) ends)
 					(setq exit :nil))
-				(:t  (defq ns (alloc-node-set) vias_start (+ distance vias_cost))
+				(:t	(defq ns (alloc-node-set) vias_start (+ distance vias_cost))
 					(. frontier :each (lambda (node)
 						(each (# (. ns :insert %0))
 							(. this :all_not_shorting
@@ -605,19 +605,19 @@
 			(cond
 				((. net :route)
 					(setq index (inc index)))
-				(:t  (cond
+				(:t	(cond
 						((= index 0)
 							(.-> this :reset_areas :shuffle_netlist)
 							(sort-netlist netlist)
 							(. hoisted_nets :empty))
-						(:t  (. (elem-get index netlist) :shuffle_topology)
+						(:t	(. (elem-get index netlist) :shuffle_topology)
 							(bind '(netlist pos) (. this :hoist_net index))
 							(cond
 								((or (= pos index) (. hoisted_nets :find net))
 									(. net :set_area (. (elem-get (dec index) netlist) :get_area))
 									(bind '(netlist pos) (. this :hoist_net index))
 									(. hoisted_nets :erase net))
-								(:t  (. hoisted_nets :insert net)))
+								(:t	(. hoisted_nets :insert net)))
 							(while (> index pos)
 								(. (elem-get index netlist) :remove)
 								(setq index (dec index)))))))

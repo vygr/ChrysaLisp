@@ -324,7 +324,7 @@
 				(cond
 					((eql _key :t)
 						(setq _default_key :t _default_clause _clause_body))
-					(:t  (push (elem-get 0 _map) _key)
+					(:t	(push (elem-get 0 _map) _key)
 						(push (elem-get 1 _map) _clause_body)))) (list _keys)) _map)
 			_body (list (list) (list))))
 	(cond
@@ -333,7 +333,7 @@
 			(if _atoms
 				`(elem-get (or (find ,_form ',(elem-get 0 _map)) -2) ',(elem-get 1 _map))
 				`(eval (elem-get (or (find ,_form ',(elem-get 0 _map)) -2) ',(elem-get 1 _map)))))
-		(:t  (if _atoms
+		(:t	(if _atoms
 				`(if (defq ,(defq _i (gensym)) (find ,_form ',(elem-get 0 _map)))
 					(elem-get ,_i ',(elem-get 1 _map)))
 				`(if (defq ,(defq _i (gensym)) (find ,_form ',(elem-get 0 _map)))
@@ -703,7 +703,7 @@
 				(logand (<< _ 16) 0x3f0000)) 3))
 		((>= _ 0x80)
 			(char (+ 0x80c0 (>> _ 6) (logand (<< _ 8) 0x3f00)) 2))
-		(:t  (char _))))
+		(:t	(char _))))
 
 (defun byte-to-hex-str (_)
 	; (byte-to-hex-str num) -> str
@@ -829,7 +829,7 @@
 				(cond
 					((_fi _l)
 						(_fo _l))
-					(:t  (push _stack _l 1)
+					(:t	(push _stack _l 1)
 						(if (list? (defq _e (elem-get 0 _l))) (push _stack _e 0))
 						(_f _e))))
 			((< _ (length _l))
@@ -905,7 +905,7 @@
 			((and (defq file_list (def? '*file_includes* _ee))
 					(find lib_path file_list))
 				(setq _ee :t))
-			(:t  (setq _ee (penv _ee)))))
+			(:t	(setq _ee (penv _ee)))))
 	; if not existing import it here
 	(unless _ee
 		(unless (def? '*file_includes* _e)

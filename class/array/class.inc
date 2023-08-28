@@ -317,7 +317,7 @@
 	(cond
 		((eql type :nil)
 			(assign regs (map (lambda (r) (list i (* +long_size _))) regs)))
-		(:t  (defq s (type-to-size type))
+		(:t	(defq s (type-to-size type))
 			(assign regs (map (lambda (r) (list i (* s _) type)) regs)))))
 
 (defun array-get-args (i regs &optional type)
@@ -329,7 +329,7 @@
 	(cond
 		((eql type :nil)
 			(assign (map (lambda (r) (list i (* +long_size _))) regs) regs))
-		(:t  (defq s (type-to-size type))
+		(:t	(defq s (type-to-size type))
 			(assign (map (lambda (r) (list i (* s _) type)) regs) regs))))
 
 (defun array-map-args (regs pos)

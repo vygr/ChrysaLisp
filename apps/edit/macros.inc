@@ -8,7 +8,7 @@
 		(*macro_record*
 			(radio-select macro_toolbar 2)
 			(clear *macro_actions*))
-		(:t  (radio-select macro_toolbar -1)))
+		(:t	(radio-select macro_toolbar -1)))
 	(. *edit* :clear_selection)
 	(refresh))
 

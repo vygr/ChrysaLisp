@@ -94,7 +94,7 @@ So let's see a few examples:
 		(print "b is 0"))
 	((= b 1)
 		(print "b is 1"))
-	(:t  (print "no test is none :nil!")))
+	(:t	(print "no test is none :nil!")))
 ```
 
 Here the tests using symbol `a` have precedence over those with symbol `b` and

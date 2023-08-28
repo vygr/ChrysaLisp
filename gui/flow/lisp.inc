@@ -73,7 +73,7 @@
 								(setq cx 0))
 							((/= 0 (logand flow_flags +flow_flag_align_hright))
 								(setq cx (- fw cw)))
-							(:t  (setq cx (/ (- fw cw) 2)))))
+							(:t	(setq cx (/ (- fw cw) 2)))))
 					(when (/= 0 (logand flow_flags
 							(const (num-intern (logior +flow_flag_align_vcenter +flow_flag_align_vtop +flow_flag_align_vbottom)))))
 						(cond
@@ -81,7 +81,7 @@
 								(setq cy 0))
 							((/= 0 (logand flow_flags +flow_flag_align_vbottom))
 								(setq cy (- fh ch)))
-							(:t  (setq cy (/ (- fh ch) 2)))))
+							(:t	(setq cy (/ (- fh ch) 2)))))
 
 					;last one ?
 					(when (= _ end)

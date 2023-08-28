@@ -49,7 +49,7 @@
 		(cond
 			((and (list? form) (ends-with "method" (elem-get 0 form)))
 				(push methods form))
-			(:t  (push inits form)))) _)
+			(:t	(push inits form)))) _)
 	(if s
 		`(progn
 			(defq ,class (env 1))

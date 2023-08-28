@@ -36,7 +36,7 @@
 			((eql (defq text (get :clear_text this)) "")
 				(defq text (get :hint_text this) mode :nil)
 				(def this :ink_color (get :hint_color this)))
-			(:t  (defq mode (get :mode this))
+			(:t	(defq mode (get :mode this))
 				(def this :ink_color (get :no_hint_color this))))
 		(if mode
 			(def this :text (pad "" (length text) "******************"))

@@ -68,7 +68,7 @@
 		(cond
 			((eql this that)
 				(. this :empty))
-			(:t  (. that :each (# (. this :erase %0)))
+			(:t	(. that :each (# (. this :erase %0)))
 				this)))
 
 	(defmethod :intersect (this that)
@@ -83,7 +83,7 @@
 		(cond
 			((eql this that)
 				(. this :empty))
-			(:t  (. (defq other (. that :copy)) :difference this)
+			(:t	(. (defq other (. that :copy)) :difference this)
 				(. this :difference that)
 				(. this :union other))))
 
