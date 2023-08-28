@@ -33,10 +33,7 @@
 (bind '(+edit_font +edit_size) (font-info *env_editor_font*))
 
 (defq +vdu_min_width 80 +vdu_min_height 40 +vdu_max_width 100 +vdu_max_height 46
-	+vdu_line_width 5 *current_file* :nil *meta_map* (fmap) *open_files* (list)
-	*syntax* (Syntax) *whole_words* :nil *macro_record* :nil *macro_actions* (list)
-	+min_word_size 3 +max_matches 20 dictionary (Dictionary 1021) +margin 2
-	match_window :nil match_flow :nil match_index -1
+	+vdu_line_width 5 +min_word_size 3 +max_matches 20 +margin 2
 	+state_filename "editor_state" +not_whole_word_chars " .,;'`(){}[]/")
 
 (ui-window *window* (:color +argb_grey1)
@@ -299,7 +296,10 @@
 (defun main ()
 	(defq select (alloc-select +select_size)
 		edit_service (mail-declare (task-netid) "Edit" "Edit Service 0.1")
-		*running* :t *edit* (Editor-edit) *page_scale* 1.0)
+		*running* :t *edit* (Editor-edit) *page_scale* 1.0
+		*current_file* :nil *meta_map* (fmap) *open_files* (list) *syntax* (Syntax)
+		*whole_words* :nil *macro_record* :nil *macro_actions* (list)
+		dictionary (Dictionary 1021) match_window :nil match_flow :nil match_index -1)
 	(.-> *edit* (:set_buffer (Buffer)) (:set_underlay_color +argb_grey6))
 	(def *edit* :min_width 0 :min_height 0
 		:vdu_width +vdu_min_width :vdu_height +vdu_min_height)

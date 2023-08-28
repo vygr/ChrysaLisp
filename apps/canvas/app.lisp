@@ -10,14 +10,14 @@
 (enums +event 0
 	(enum close))
 
-(defq +width 600 +height 600 +scale 1 id :t
+(defq +width 600 +height 600 +scale 1
 	+f_width (n2f +width) +f_height (n2f +height) +f_scale (n2f +scale)
-	+rate (/ 1000000 30)
-	+eps 0.25 angle 0.0 font (create-font "fonts/OpenSans-Regular.ctf" 36)
-	fp1 (font-glyph-paths font "    Glyphs!")
-	fp2 (font-glyph-paths font "    Easy!")
-	fp3 (font-glyph-paths font "    Simple!")
-	fp4 (font-glyph-paths font "    Quality!"))
+	+rate (/ 1000000 30) +eps 0.25 angle 0.0
+	+font (create-font "fonts/OpenSans-Regular.ctf" 36)
+	+fp1 `',(font-glyph-paths +font "    Glyphs!")
+	+fp2 `',(font-glyph-paths +font "    Easy!")
+	+fp3 `',(font-glyph-paths +font "    Simple!")
+	+fp4 `',(font-glyph-paths +font "    Quality!"))
 
 (ui-window *window* ()
 	(ui-title-bar _ "Canvas" (0xea19) +event_close)
@@ -92,14 +92,14 @@
 					(* +f_width -0.2) (* +f_height -0.2) 4.0 2.0
 					(* +f_width 0o0.1) +eps (path))))))))
 	(fpoly 0xa0ffffff +winding_odd_even (list (elem-get 1 polygons) (elem-get 3 polygons)))
-	(fpoly 0xff000000 +winding_odd_even (transform-copy (/ angle 2.0) fp1))
-	(fpoly 0xff000000 +winding_odd_even (transform-copy (+ (/ angle 2.0) +fp_pi) fp2))
-	(fpoly 0xffffffff +winding_odd_even (transform-copy (+ (/ angle 2.0) +fp_hpi) fp3))
-	(fpoly 0xffffffff +winding_odd_even (transform-copy (+ (/ angle 2.0) (* -1.0 +fp_hpi)) fp4))
+	(fpoly 0xff000000 +winding_odd_even (transform-copy (/ angle 2.0) +fp1))
+	(fpoly 0xff000000 +winding_odd_even (transform-copy (+ (/ angle 2.0) +fp_pi) +fp2))
+	(fpoly 0xffffffff +winding_odd_even (transform-copy (+ (/ angle 2.0) +fp_hpi) +fp3))
+	(fpoly 0xffffffff +winding_odd_even (transform-copy (+ (/ angle 2.0) (* -1.0 +fp_hpi)) +fp4))
 	(. canvas :swap 0))
 
 (defun main ()
-	(defq select (alloc-select +select_size))
+	(defq select (alloc-select +select_size) id :t)
 	(.-> canvas (:fill 0) (:set_canvas_flags +canvas_flag_antialias))
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(gui-add-front (. *window* :change x y w h))

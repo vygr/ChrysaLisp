@@ -9,8 +9,7 @@
 (enums +event 0
 	(enum close max min))
 
-(defq id :t index 0 xv 4 yv 0
-	+frames (static '(map (lambda (_) (Canvas-from-file (cat "apps/boing/data/taoball_" (str _) ".cpm") +load_flag_shared)) (range 1 13)))
+(defq +frames (static '(map (lambda (_) (Canvas-from-file (cat "apps/boing/data/taoball_" (str _) ".cpm") +load_flag_shared)) (range 1 13)))
 	+sframes (static '(map (lambda (_) (Canvas-from-file (cat "apps/boing/data/taoball_s_" (str _) ".cpm") +load_flag_shared)) (range 1 13)))
 	+rate (/ 1000000 30))
 
@@ -22,7 +21,7 @@
 		(ui-element sframe (elem-get 0 +sframes))))
 
 (defun main ()
-	(defq select (alloc-select +select_size))
+	(defq select (alloc-select +select_size) id :t index 0 xv 4 yv 0)
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(gui-add-front (. *window* :change x y w h))
 	(mail-timeout (elem-get +select_timer select) +rate 0)

@@ -18,8 +18,7 @@
 
 (bind '(+edit_font +edit_size) (font-info *env_editor_font*))
 
-(defq +vdu_min_width 32 +vdu_min_height 16
-	+vdu_max_width 100 +vdu_max_height 48
+(defq +vdu_min_width 32 +vdu_min_height 16 +vdu_max_width 100 +vdu_max_height 48
 	+margin 2)
 
 (ui-window *window* (:color +argb_grey1)
