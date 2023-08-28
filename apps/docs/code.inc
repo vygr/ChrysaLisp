@@ -8,7 +8,7 @@
 		((starts-with "```" line)
 			(def (defq vdu (Vdu))
 				:font (create-font +term_font (page-scale 16))
-				:vdu_width (reduce (# (max %0 (length %1))) lines 0)
+				:vdu_width (max-length lines)
 				:vdu_height (length lines)
 				:color 0
 				:ink_color +argb_blue)

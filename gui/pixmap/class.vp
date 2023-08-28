@@ -367,7 +367,7 @@
 		pipe)
 
 	(defun pipeline (&rest pipes)
-		(defq plen (reduce (# (max %0 (length %1))) pipes 0))
+		(defq plen (max-length pipes))
 		(each (# (while (< (length %0) plen) (push %0 :nil))) pipes)
 		(each (const eval) (apply (const zip) pipes)))
 

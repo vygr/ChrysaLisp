@@ -3048,6 +3048,12 @@
 (max num num ...)
 ```
 
+### max-length
+
+```code
+(max-length list) -> max
+```
+
 ### merge-obj
 
 ```code

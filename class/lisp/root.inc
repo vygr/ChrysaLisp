@@ -863,6 +863,10 @@
 	; (lisp-nodes) -> nodes
 	(filter (const lisp-node?) (mail-nodes)))
 
+(defun max-length (_)
+	; (max-length list) -> max
+	(reduce (# (max %0 (length %1))) _ 0))
+
 ;;;;;;;;;
 ; Streams
 ;;;;;;;;;

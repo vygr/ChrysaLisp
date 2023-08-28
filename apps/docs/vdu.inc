@@ -6,7 +6,7 @@
 	(defq lines '())
 	(cond
 		((starts-with "```" line)
-			(def (defq mw (reduce (# (max %0 (length %1))) lines 0) vdu (Vdu))
+			(def (defq mw (max-length lines) vdu (Vdu))
 				:font (create-font +term_font (page-scale 16))
 				:vdu_width 80
 				:vdu_height (+ (length lines) 2)
