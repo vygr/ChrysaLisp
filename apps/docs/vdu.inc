@@ -6,12 +6,14 @@
 	(defq lines '())
 	(cond
 		((starts-with "```" line)
-			(def (defq vdu (Vdu))
+			(def (defq mw (reduce (# (max %0 (length %1))) lines 0) vdu (Vdu))
 				:font (create-font +term_font (page-scale 16))
 				:vdu_width 80
 				:vdu_height (+ (length lines) 2)
 				:color 0
 				:ink_color +argb_black)
+			(bind '(tw h) (. vdu :pref_size))
+			(def vdu :vdu_width mw)
 			(bind '(w h) (. vdu :pref_size))
 			(. syntax :set_state :text)
 			(.-> vdu
@@ -23,6 +25,12 @@
 				:min_height h)
 			(def (defq text (Text)) :text "")
 			(. backdrop :add_child vdu)
+			(when (> w tw)
+				(def (defq scroll (Scroll +scroll_flag_horizontal))
+					:min_width tw
+					:min_height h)
+				(. scroll :add_child (. backdrop :change 0 0 w h))
+				(setq backdrop scroll))
 			(.-> page (:add_child backdrop) (:add_child text))
 			(clear lines)
 			:text)
