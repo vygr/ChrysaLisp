@@ -12,6 +12,6 @@
 		(.super this pattern))
 
 	(defmethod :search (this text pattern &optional creg)
-		; (. regexp :search text pattern &optional meta) -> indexs
+		; (. regexp :search text pattern &optional meta) -> indexes
 		(.super this text pattern &optional creg))
 	)

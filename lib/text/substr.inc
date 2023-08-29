@@ -28,14 +28,14 @@
 		lps)
 
 	(defmethod :search (this text pattern &optional lps)
-		; (. substr :search text pattern &optional meta) -> indexs
+		; (. substr :search text pattern &optional meta) -> indexes
 		(defq out (list) lps (opt lps (. this :compile pattern)) j 0 k 0)
 		(while (< k (length text))
 			(if (defq match (eql (elem-get j pattern) (elem-get k text)))
 				(setq j (inc j) k (inc k)))
 			(cond
 				((= j (length pattern))
-					(push out (- k j))
+					(push out (list (- k j) k))
 					(setq j 0))
 				((and (not match) (< k (length text)))
 					(cond
