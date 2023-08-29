@@ -1,32 +1,46 @@
-;Knuth-Morris-Pratt substr search algorithm
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Knuth-Morris-Pratt substr search class
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defun substr-lps (pattern)
-	(defq lps (cap (length pattern) (list 0)) i 0 j 1)
-	(times (dec (length pattern)) (push lps -1))
-	(while (< j (length lps))
-		(cond
-			((eql (elem-get i pattern) (elem-get j pattern))
-				(elem-set j lps (inc i))
-				(setq i (inc i) j (inc j)))
-			(:t	(cond
-					((= (elem-get i lps) 0)
-						(elem-set j lps 0)
-						(setq j (inc j)))
-					((/= (elem-get i lps) 0)
-						(elem-set i lps (elem-get (dec i) lps))
-						(setq j (inc j))))))) lps)
+(defclass Substr () :nil
+	; (Substr) -> substr
+	(def this :meta_cache (fmap))
 
-(defun substr (pattern text &optional lps)
-	(defq out (list) lps (opt lps (substr-lps pattern)) j 0 k 0)
-	(while (< k (length text))
-		(if (defq match (eql (elem-get j pattern) (elem-get k text)))
-			(setq j (inc j) k (inc k)))
-		(cond
-			((= j (length pattern))
-				(push out (- k j))
-				(setq j 0))
-			((and (not match) (< k (length text)))
+	(defmethod :compile (this pattern)
+		; (. substr :compile pattern) -> :nil | meta
+		(raise :meta_cache)
+		(unless (defq lps (. meta_cache :find pattern))
+			(defq lps (cap (length pattern) (list 0)) i 0 j 1)
+			(times (dec (length pattern)) (push lps -1))
+			(while (< j (length lps))
 				(cond
-					((/= j 0)
-						(setq j (elem-get (dec j) lps)))
-					(:t	(setq k (inc k))))))) out)
+					((eql (elem-get i pattern) (elem-get j pattern))
+						(elem-set j lps (inc i))
+						(setq i (inc i) j (inc j)))
+					(:t	(cond
+							((= (elem-get i lps) 0)
+								(elem-set j lps 0)
+								(setq j (inc j)))
+							((/= (elem-get i lps) 0)
+								(elem-set i lps (elem-get (dec i) lps))
+								(setq j (inc j)))))))
+			(. meta_cache :insert pattern lps))
+		lps)
+
+	(defmethod :search (this text pattern &optional lps)
+		; (. substr :search text pattern &optional meta) -> indexs
+		(defq out (list) lps (opt lps (. this :compile pattern)) j 0 k 0)
+		(while (< k (length text))
+			(if (defq match (eql (elem-get j pattern) (elem-get k text)))
+				(setq j (inc j) k (inc k)))
+			(cond
+				((= j (length pattern))
+					(push out (- k j))
+					(setq j 0))
+				((and (not match) (< k (length text)))
+					(cond
+						((/= j 0)
+							(setq j (elem-get (dec j) lps)))
+						(:t	(setq k (inc k)))))))
+		out)
+	)

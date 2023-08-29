@@ -173,8 +173,8 @@ speed and the host OS process scheduling.
 That's on a single Host machine ! But you could have nodes started on other
 machines, and a link driver comes up that 'groups' those VP nodes together...
 
-As VP nodes group, they sync up their copies of the Services Directory (and
-sort out the message routing situation).
+As VP nodes group, they sync up their copies of the Service Directory (and sort
+out the message routing situation).
 
 All this works in reverse as well, as VP nodes go out of contact, the nodes
 'ungroup', and split apart. The Service directory of the separated parts
