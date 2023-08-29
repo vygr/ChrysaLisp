@@ -36,6 +36,16 @@ Usage: file [options] [prefix] [postfix]
 	files ./apps/wallpaper/ .tga
 
 ```
+## grep
+```code
+Usage: grep [options] [path] ...
+	options:
+		-h --help: this help info.
+		-e --exp pattern: regular expression.
+	If no paths given on command line
+	then will grep stdin.
+
+```
 ## gui
 ```code
 Usage: gui [node ...]

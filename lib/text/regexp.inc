@@ -9,9 +9,9 @@
 
 	(defmethod :compile (this pattern)
 		; (. regexp :compile pattern) -> :nil | meta
-		(.super this pattern))
+		(.super this :compile pattern))
 
 	(defmethod :search (this text pattern &optional creg)
 		; (. regexp :search text pattern &optional meta) -> indexes
-		(.super this text pattern &optional creg))
+		(.super this :search text pattern creg))
 	)
