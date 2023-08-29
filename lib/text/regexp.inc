@@ -41,7 +41,7 @@
 			(cond
 				((= (length pattern) 0)
 					(defq creg :nil))
-				(:t (defq creg (list))
+				(:t	(defq creg (list))
 					(each (# (push creg (list (list (const match-literal) %0) (inc (length creg))))) pattern)))
 			(. meta_cache :insert pattern creg))
 		creg)
