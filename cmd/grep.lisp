@@ -25,8 +25,8 @@
 	;initialize pipe details and command args, abort on error
 	(when (and
 			(defq stdio (create-stdio))
-			(defq pattern "" args (options stdio usage)))
-		(defq regexp (Regexp) cexp (. regexp :compile pattern))
+			(defq pattern "" args (options stdio usage))
+			(defq regexp (Regexp) cexp (. regexp :compile pattern)))
 		(if (<= (length args) 1)
 			;grep from stdin
 			(grep-file (io-stream 'stdin))
