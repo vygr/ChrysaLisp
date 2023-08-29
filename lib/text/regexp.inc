@@ -11,9 +11,8 @@
 
 (defun match (text creg start)
 	; (match text creg start) -> :nil | end
-	(defq current (list 0) next (list))
 	;for each char in text
-	(defq end (some! start -1 :nil
+	(and (defq current (list 0) next (list) end (some! start -1 :nil
 		(lambda (s)
 			;for each current state
 			(each (lambda (index)
@@ -31,8 +30,7 @@
 				((= (length current) 0) -1)
 				;break out if any end states
 				((find (length creg) current) (inc _))))
-		(list text)))
-	(if end (if (> end -1) end)))
+		(list text))) (> end -1) end))
 
 (defclass Regexp () (Substr)
 	; (Regexp) -> regexp
@@ -44,7 +42,7 @@
 			(cond
 				((= (length pattern) 0)
 					(defq creg :nil))
-				(:t	(defq creg (list))
+				(:t (defq creg (list))
 					(each (# (push creg (list (list (const match-literal) %0) (inc (length creg))))) pattern)))
 			(. meta_cache :insert pattern creg))
 		creg)
