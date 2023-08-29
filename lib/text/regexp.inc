@@ -9,10 +9,10 @@
 
 (defun match-literal (c) (eql c s))
 
-(defun match (text creg start)
+(defun match (text creg index)
 	(defq current (list 0) next (list))
 	;for each char in text
-	(some! start -1 :nil (lambda (s)
+	(some! index -1 :nil (lambda (s)
 			;for each current state
 			(each (lambda (index)
 					(defq state (elem-get index creg))
@@ -35,8 +35,11 @@
 		; (. regexp :compile pattern) -> :nil | meta
 		(raise :meta_cache)
 		(unless (defq creg (. meta_cache :find pattern))
-			(defq creg (list))
-			(each (# (push creg (list (list (const match-literal) %0) (inc (length creg))))) pattern)
+			(cond
+				((= (length pattern) 0)
+					(defq creg :nil))
+				(:t	(defq creg (list))
+					(each (# (push creg (list (list (const match-literal) %0) (inc (length creg))))) pattern)))
 			(. meta_cache :insert pattern creg))
 		creg)
 
