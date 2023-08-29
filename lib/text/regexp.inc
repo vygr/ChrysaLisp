@@ -9,10 +9,12 @@
 
 (defun match-literal (c) (eql c s))
 
-(defun match (text creg index)
+(defun match (text creg start)
+	; (match text creg start) -> :nil | end
 	(defq current (list 0) next (list))
 	;for each char in text
-	(some! index -1 :nil (lambda (s)
+	(defq end (some! start -1 :nil
+		(lambda (s)
 			;for each current state
 			(each (lambda (index)
 					(defq state (elem-get index creg))
@@ -24,9 +26,13 @@
 			;swap to new states
 			(defq tmp current)
 			(setq current next next (clear tmp))
-			;any end states ?
-			(if (some (# (= %0 (length creg))) current) (inc _)))
+			(cond
+				;break out if no states
+				((= (length current) 0) -1)
+				;break out if any end states
+				((some (# (= %0 (length creg))) current) (inc _))))
 		(list text)))
+	(if end (if (> end -1) end)))
 
 (defclass Regexp () (Substr)
 	; (Regexp) -> regexp
