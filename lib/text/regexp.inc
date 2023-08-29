@@ -30,7 +30,7 @@
 				;break out if no states
 				((= (length current) 0) -1)
 				;break out if any end states
-				((some (# (= %0 (length creg))) current) (inc _))))
+				((find (length creg) current) (inc _))))
 		(list text)))
 	(if end (if (> end -1) end)))
 
