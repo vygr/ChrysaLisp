@@ -19,8 +19,7 @@
 					(defq state (elem-get index creg))
 					(when (eval (elem-get 0 state))
 						;matched text char, so insert next states
-						(each (# (unless (find %0 next) (push next %0)))
-							(slice 1 -1 state))))
+						(each! 1 -1 (# (unless (find %0 next) (push next %0))) (list state))))
 				current)
 			;swap to new states
 			(defq tmp current)
