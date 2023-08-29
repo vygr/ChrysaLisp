@@ -9,7 +9,7 @@
 			(push chunk c)))
 	(if (/= 0 (length chunk)) chunk))
 
-;dump a file to stdout
+;dump a stream to stdout
 (defun dump-file (_)
 	(when _
 		(defq adr 0)

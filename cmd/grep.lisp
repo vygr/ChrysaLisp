@@ -2,7 +2,7 @@
 (import "lib/options/options.inc")
 (import "lib/text/regexp.inc")
 
-;grep a file to stdout
+;grep a stream to stdout
 (defun grep-file (stream)
 	(each-line (# (if (nempty? (. regexp :search %0 pattern cexp)) (print %0)))
 		stream))
