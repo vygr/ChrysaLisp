@@ -76,8 +76,16 @@
 			(:op
 				(case token
 					("."
-						(defq a (pop stack) b (pop stack))
-						(push stack (cat b a)))))))
+						(defq b (pop stack) a (pop stack))
+						(push stack (cat a b)))
+					("|"
+						(defq b (pop stack) a (pop stack))
+						(push stack (cat
+							`((:nil 1 ,(+ (length a) 2)))
+							a
+							`((:nil ,(+ (length b) 1)))
+							b)))
+					))))
 		rpn_output)
 	(pop stack))
 
@@ -109,6 +117,7 @@
 		end (some! start -1 :nil
 			(lambda (s)
 				;for each current state
+				(prin current)(print)
 				(each (lambda (index)
 						(defq state (elem-get index creg))
 						(when (eval (elem-get 0 state))
@@ -153,6 +162,6 @@
 ;module
 (export-classes
 	Regexp)
-;; (export-symbols
-;; 	tokenize polish compile firststate addstate)
+(export-symbols
+	tokenize polish compile firststate addstate)
 (env-pop)
