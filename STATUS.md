@@ -6,7 +6,7 @@
 
 New `Substr` string search class. Editor updated to use this new class.
 
-New `Regexp` string search class. Basic test case for now, more coming soon.
+New `Regexp` string search class. Supports `\t \r \n \w \b \ . + * ? | ( )`.
 
 New `grep` command, just `-e regexp_pattern` for now.
 
