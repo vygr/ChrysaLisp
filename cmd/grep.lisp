@@ -4,7 +4,9 @@
 
 ;grep a stream to stdout
 (defun grep-file (stream)
-	(each-line (# (if (nempty? (. regexp :search %0 pattern cexp)) (print %0)))
+	(each-line (# (if (nempty?
+			(. regexp :search (map (const progn) %0) pattern cexp))
+			(print %0)))
 		stream))
 
 (defq usage `(
