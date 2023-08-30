@@ -2,8 +2,6 @@
 ; regexp search class
 ;;;;;;;;;;;;;;;;;;;;;
 
-(import "./substr.inc")
-
 ;module
 (env-push)
 
@@ -29,7 +27,7 @@
 				((find (length creg) current) (inc _))))
 		(list text))) (> end -1) end))
 
-(defclass Regexp () (Substr)
+(defclass Regexp () :nil
 	; (Regexp) -> regexp
 
 	(defmethod :compile (this pattern)

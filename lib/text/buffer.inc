@@ -3,6 +3,7 @@
 ;;;;;;;;;;;;;;;;;;;;
 
 (import "./syntax.inc")
+(import "./substr.inc")
 (import "./regexp.inc")
 (import "././consts/chars.inc")
 
