@@ -5,7 +5,7 @@
 ;module
 (env-push)
 
-(defq +op_presidence ".+*?|()" +op_chars "+*?|" +bracket_chars "([])")
+(defq +op_presidence "+*?.|()" +op_chars "+*?|" +bracket_chars "([])")
 (defmacro is-op-char? (_) (list 'find _ +op_chars))
 (defmacro is-esc-char? (_) (list 'find _ "\\"))
 (defmacro is-bracket-char? (_) (list 'find _ +bracket_chars))
@@ -23,9 +23,9 @@
 						((is-esc-char? c)
 							(dot?)
 							(setq state :esc))
-						((is-op-char? c)
+						((defq _ (is-op-char? c))
 							(output :op c)
-							(setq dot :nil))
+							(setq dot (elem-get _ '(:t :t :t :nil))))
 						((defq _ (is-bracket-char? c))
 							(if (< _ 2) (dot?))
 							(output (elem-get _ '(:lrb :lsb :rsb :rrb)) c)
@@ -37,6 +37,9 @@
 				(:esc
 					(output :lit c)
 					(setq c :nil dot :t state :space))))) line)
+;; (print "tokenize")
+;; (each (# (print %0 " -> " %1)) out_types out_tokens)
+;; (print)
 	(list out_tokens out_types))
 
 (defun polish (tokenize_output)
@@ -66,6 +69,9 @@
 				(output type token)))) tokenize_output)
 	(while (defq _ (pop token_stack))
 		(output :op _))
+;; (print "polish")
+;; (each (# (print %0 " -> " %1)) out_types out_tokens)
+;; (print)
 	(list out_tokens out_types))
 
 (defun compile (stack rpn_output)
@@ -85,8 +91,27 @@
 							a
 							`((:nil ,(+ (length b) 1)))
 							b)))
+					("?"
+						(defq a (pop stack))
+						(push stack (cat
+							`((:nil 1 ,(+ (length a) 1)))
+							a)))
+					("*"
+						(defq a (pop stack))
+						(push stack (cat
+							`((:nil 1 ,(+ (length a) 2)))
+							a
+							`((:nil 1 ,(neg (length a)))))))
+					("+"
+						(defq a (pop stack))
+						(push stack (cat
+							a
+							`((:nil 1 ,(neg (length a)))))))
 					))))
 		rpn_output)
+;; (print "compile")
+;; (each print (elem-get 0 stack))
+;; (print)
 	(pop stack))
 
 (defun addstate (creg next index state)
@@ -117,7 +142,6 @@
 		end (some! start -1 :nil
 			(lambda (s)
 				;for each current state
-				(prin current)(print)
 				(each (lambda (index)
 						(defq state (elem-get index creg))
 						(when (eval (elem-get 0 state))
@@ -162,6 +186,6 @@
 ;module
 (export-classes
 	Regexp)
-(export-symbols
-	tokenize polish compile firststate addstate)
+;; (export-symbols
+;; 	tokenize polish compile firststate addstate)
 (env-pop)
