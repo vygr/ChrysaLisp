@@ -138,28 +138,27 @@
 
 (defun match (text creg start)
 	; (match text creg start) -> :nil | end
-	;for each char in text
-	(cond
+	(if (find (length creg) (defq current (firststate creg (list))))
 		;break out imediatly if any end states
-		((find (length creg) (defq current (firststate creg (list))))
-			(length text))
-		(:t	(and (defq next (list) end (some! start -1 :nil
-				(lambda (s)
-					;for each current state
-					(each (lambda (index)
-						(defq state (elem-get index creg))
-						(when (eval (elem-get 0 state))
-							;matched text char, so insert next states
-							(addstate creg next index state))) current)
-					;swap to new states
-					(defq tmp current)
-					(setq current next next (clear tmp))
-					(cond
-						;break out if no states
-						((= (length current) 0) -1)
-						;break out if any end states
-						((find (length creg) current) (inc _))))
-				(list text))) (> end -1) end))))
+		(length text)
+		;for each char in text
+		(and (defq next (list) end (some! start -1 :nil
+			(lambda (s)
+				;for each current state
+				(each (lambda (index)
+					(defq state (elem-get index creg))
+					(when (eval (elem-get 0 state))
+						;matched text char, so insert next states
+						(addstate creg next index state))) current)
+				;swap to new states
+				(defq tmp current)
+				(setq current next next (clear tmp))
+				(cond
+					;break out if no states
+					((= (length current) 0) -1)
+					;break out if any end states
+					((find (length creg) current) (inc _))))
+			(list text))) (> end -1) end)))
 
 (defclass Regexp () :nil
 	; (Regexp) -> regexp
