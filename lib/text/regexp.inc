@@ -7,8 +7,6 @@
 ;module
 (env-push)
 
-(defun match-literal (c) (eql c s))
-
 (defun match (text creg start)
 	; (match text creg start) -> :nil | end
 	;for each char in text
@@ -42,7 +40,7 @@
 				((= (length pattern) 0)
 					(defq creg :nil))
 				(:t	(defq creg (list))
-					(each (# (push creg (list (list (const match-literal) %0) (inc (length creg))))) pattern)))
+					(each (# (push creg `((,eql s ,%0) ,(+ (length creg) 1)))) pattern)))
 			(. meta_cache :insert pattern creg))
 		creg)
 
