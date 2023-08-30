@@ -4,6 +4,14 @@
 
 ------
 
+New `Substr` string search class. Editor updated to use this new class.
+
+New `Regexp` string search class. Basic test case for now, more coming soon.
+
+New `grep` command, just `-e regexp_pattern` for now.
+
+------
+
 Rename `pupa.inc` files to `env.inc`.
 
 New `lib/text/files.inc` library for easy folder and file enumeration. Changed
