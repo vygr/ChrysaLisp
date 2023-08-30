@@ -39,7 +39,13 @@
 							(setq comma :t)))
 					(setq c :nil))
 				(:esc
-					(output :lit c)
+					(case c
+						("w" (output :white c))
+						("b" (output :black c))
+						("r" (output :lit (ascii-char 13)))
+						("n" (output :lit (ascii-char 10)))
+						("t" (output :lit (ascii-char 9)))
+						(:t	(output :lit c)))
 					(setq c :nil comma :t state :space))))) line)
 ;; (print "tokenize")
 ;; (each (# (print %0 " -> " %1)) out_types out_tokens)
@@ -67,7 +73,7 @@
 						((>= p ps) (output :op (pop stack)))
 						(:t	(setq x :nil))))
 				(push stack token))
-			(:t	;:lit :wild
+			(:t	;:lit :wild :white :black
 				(output type token)))) tokenize_output)
 	(while (defq _ (pop stack)) (output :op _))
 ;; (print "polish")
@@ -78,40 +84,32 @@
 (defun compile (stack rpn_output)
 	(each! 0 -1 (lambda (token type)
 		(case type
-			(:lit
-				(push stack `(((,eql s ,token) 1))))
-			(:wild
-				(push stack `((:t 1))))
-			(:op
-				(case token
-					(","
-						(defq b (pop stack) a (pop stack))
-						(push stack (cat a b)))
-					("|"
-						(defq b (pop stack) a (pop stack))
-						(push stack (cat
-							`((:nil 1 ,(+ (length a) 2)))
-							a
-							`((:nil ,(+ (length b) 1)))
-							b)))
-					("?"
-						(defq a (pop stack))
-						(push stack (cat
-							`((:nil 1 ,(+ (length a) 1)))
-							a)))
-					("*"
-						(defq a (pop stack))
-						(push stack (cat
-							`((:nil 1 ,(+ (length a) 2)))
-							a
-							`((:nil 1 ,(neg (length a)))))))
-					("+"
-						(defq a (pop stack))
-						(push stack (cat
-							a
-							`((:nil 1 ,(neg (length a)))))))
-					))))
-		rpn_output)
+			(:lit (push stack `(((,eql s ,token) 1))))
+			(:wild (push stack `((:t 1))))
+			(:white (push stack `(((,<= (,code s) 32) 1))))
+			(:black (push stack `(((,> (,code s) 32) 1))))
+			(:op (case token
+				(","
+					(defq b (pop stack) a (pop stack))
+					(push stack (cat a b)))
+				("|"
+					(defq b (pop stack) a (pop stack))
+					(push stack (cat
+						`((:nil 1 ,(+ (length a) 2))) a
+						`((:nil ,(+ (length b) 1))) b)))
+				("?"
+					(defq a (pop stack))
+					(push stack (cat
+						`((:nil 1 ,(+ (length a) 1))) a)))
+				("*"
+					(defq a (pop stack) l (length a))
+					(push stack (cat
+						`((:nil 1 ,(+ l 2))) a `((:nil 1 ,(neg l))))))
+				("+"
+					(defq a (pop stack))
+					(push stack (cat
+						a `((:nil 1 ,(neg (length a)))))))
+				)))) rpn_output)
 ;; (print "compile")
 ;; (each print (elem-get 0 stack))
 ;; (print)
@@ -131,8 +129,8 @@
 					(each! 1 -1 (# (push stack (+ offset %0))) (list state))))))
 	next)
 
-(defun firststate (creg current state)
-	(if (elem-get 0 state)
+(defun firststate (creg current)
+	(if (elem-get 0 (defq state (elem-get 0 creg)))
 		;not a split
 		(push current 0)
 		;a split
@@ -142,18 +140,17 @@
 	; (match text creg start) -> :nil | end
 	;for each char in text
 	(cond
-		;break out imediatly any end states
-		((find (length creg) (defq current (firststate creg (list) (elem-get 0 creg))))
+		;break out imediatly if any end states
+		((find (length creg) (defq current (firststate creg (list))))
 			(length text))
 		(:t	(and (defq next (list) end (some! start -1 :nil
 				(lambda (s)
 					;for each current state
 					(each (lambda (index)
-							(defq state (elem-get index creg))
-							(when (eval (elem-get 0 state))
-								;matched text char, so insert next states
-								(addstate creg next index state)))
-						current)
+						(defq state (elem-get index creg))
+						(when (eval (elem-get 0 state))
+							;matched text char, so insert next states
+							(addstate creg next index state))) current)
 					;swap to new states
 					(defq tmp current)
 					(setq current next next (clear tmp))
@@ -192,6 +189,4 @@
 ;module
 (export-classes
 	Regexp)
-;; (export-symbols
-;; 	tokenize polish compile firststate addstate)
 (env-pop)
