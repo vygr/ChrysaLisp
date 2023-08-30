@@ -81,7 +81,8 @@
 ;; (print)
 	(list out_tokens out_types))
 
-(defun compile (stack rpn_output)
+(defun compile (rpn_output)
+	(defq stack (clear '()))
 	(each! 0 -1 (lambda (token type)
 		(case type
 			(:lit (push stack `(((,eql s ,token) 1))))
@@ -170,7 +171,7 @@
 		(raise :meta_cache)
 		(unless (defq creg (. meta_cache :find pattern))
 			(defq creg (if (= (length pattern) 0)
-				:nil (compile (list) (polish (tokenize pattern)))))
+				:nil (compile (polish (tokenize pattern)))))
 			(. meta_cache :insert pattern creg))
 		creg)
 
