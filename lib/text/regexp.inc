@@ -103,9 +103,9 @@
 					(push stack (cat
 						`((:nil 1 ,(+ (length a) 1))) a)))
 				("*"
-					(defq a (pop stack) l (length a))
+					(defq a (pop stack) b (length a))
 					(push stack (cat
-						`((:nil 1 ,(+ l 2))) a `((:nil 1 ,(neg l))))))
+						`((:nil 1 ,(+ b 2))) a `((:nil 1 ,(neg b))))))
 				("+"
 					(defq a (pop stack))
 					(push stack (cat
