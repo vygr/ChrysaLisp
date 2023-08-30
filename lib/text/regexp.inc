@@ -5,38 +5,42 @@
 ;module
 (env-push)
 
-(defq +op_presidence "+*?.|()" +op_chars "+*?|" +bracket_chars "([])")
+(defq +op_presidence "+*?,|()" +op_chars "+*?|" +bracket_chars "([])")
 (defmacro is-op-char? (_) (list 'find _ +op_chars))
 (defmacro is-esc-char? (_) (list 'find _ "\\"))
 (defmacro is-bracket-char? (_) (list 'find _ +bracket_chars))
 
-(defun dot? () (when dot (push out_types :op) (push out_tokens ".")))
+(defun comma? () (when comma (push out_types :op) (push out_tokens ",")))
 (defun output (op token) (push out_types op) (push out_tokens token))
 
 (defun tokenize (line)
-	(defq state :space dot :nil out_types (clear '()) out_tokens (clear '()))
+	(defq state :space comma :nil out_types (clear '()) out_tokens (clear '()))
 	(each (lambda (c)
 		(while c
 			(case state
 				(:space
 					(cond
 						((is-esc-char? c)
-							(dot?)
+							(comma?)
 							(setq state :esc))
 						((defq _ (is-op-char? c))
 							(output :op c)
-							(setq dot (elem-get _ '(:t :t :t :nil))))
+							(setq comma (elem-get _ '(:t :t :t :nil))))
 						((defq _ (is-bracket-char? c))
-							(if (< _ 2) (dot?))
+							(if (< _ 2) (comma?))
 							(output (elem-get _ '(:lrb :lsb :rsb :rrb)) c)
-							(setq dot (elem-get _ '(:nil :nil :t :t))))
-						(:t	(dot?)
+							(setq comma (elem-get _ '(:nil :nil :t :t))))
+						((eql c ".")
+							(comma?)
+							(output :wild c)
+							(setq comma :t))
+						(:t	(comma?)
 							(output :lit c)
-							(setq dot :t)))
+							(setq comma :t)))
 					(setq c :nil))
 				(:esc
 					(output :lit c)
-					(setq c :nil dot :t state :space))))) line)
+					(setq c :nil comma :t state :space))))) line)
 ;; (print "tokenize")
 ;; (each (# (print %0 " -> " %1)) out_types out_tokens)
 ;; (print)
@@ -65,7 +69,7 @@
 							(output :op (pop token_stack)))
 						(:t	(setq x :nil))))
 				(push token_stack token))
-			(:t	;lit
+			(:t	;:lit :wild
 				(output type token)))) tokenize_output)
 	(while (defq _ (pop token_stack))
 		(output :op _))
@@ -79,9 +83,11 @@
 		(case type
 			(:lit
 				(push stack `(((,eql s ,token) 1))))
+			(:wild
+				(push stack `((:t 1))))
 			(:op
 				(case token
-					("."
+					(","
 						(defq b (pop stack) a (pop stack))
 						(push stack (cat a b)))
 					("|"
@@ -138,25 +144,28 @@
 (defun match (text creg start)
 	; (match text creg start) -> :nil | end
 	;for each char in text
-	(and (defq current (firststate creg (list) (elem-get 0 creg)) next (list)
-		end (some! start -1 :nil
-			(lambda (s)
-				;for each current state
-				(each (lambda (index)
-						(defq state (elem-get index creg))
-						(when (eval (elem-get 0 state))
-							;matched text char, so insert next states
-							(addstate creg next index state)))
-					current)
-				;swap to new states
-				(defq tmp current)
-				(setq current next next (clear tmp))
-				(cond
-					;break out if no states
-					((= (length current) 0) -1)
-					;break out if any end states
-					((find (length creg) current) (inc _))))
-			(list text))) (> end -1) end))
+	(cond
+		;break out imediatly any end states
+		((find (length creg) (defq current (firststate creg (list) (elem-get 0 creg))))
+			(length text))
+		(:t	(and (defq next (list) end (some! start -1 :nil
+				(lambda (s)
+					;for each current state
+					(each (lambda (index)
+							(defq state (elem-get index creg))
+							(when (eval (elem-get 0 state))
+								;matched text char, so insert next states
+								(addstate creg next index state)))
+						current)
+					;swap to new states
+					(defq tmp current)
+					(setq current next next (clear tmp))
+					(cond
+						;break out if no states
+						((= (length current) 0) -1)
+						;break out if any end states
+						((find (length creg) current) (inc _))))
+				(list text))) (> end -1) end))))
 
 (defclass Regexp () :nil
 	; (Regexp) -> regexp
