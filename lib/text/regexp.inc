@@ -47,32 +47,29 @@
 	(list out_tokens out_types))
 
 (defun polish (tokenize_output)
-	(defq token_stack '() out_tokens (clear '()) out_types (clear '()))
+	(defq stack '() out_tokens (clear '()) out_types (clear '()))
 	(each! 0 -1 (lambda (token type)
 		(case type
 			((:lrb :lsb)
-				(push token_stack token))
+				(push stack token))
 			(:rrb
-				(while (and (not (eql "(" (setq token (pop token_stack)))) token)
+				(while (and (not (eql "(" (setq token (pop stack)))) token)
 					(output :op token)))
 			(:rsb
-				(while (and (not (eql "[" (setq token (pop token_stack)))) token)
+				(while (and (not (eql "[" (setq token (pop stack)))) token)
 					(output :op token))
 				(output :op "[]"))
-			(:op
-				;precidence
+			(:op ;precidence
 				(defq p (find token +op_presidence) x :t)
-				(while (and x (/= 0 (length token_stack)))
-					(defq ps (find (elem-get -2 token_stack) +op_presidence))
+				(while (and x (/= 0 (length stack)))
+					(defq ps (find (elem-get -2 stack) +op_presidence))
 					(cond
-						((>= p ps)
-							(output :op (pop token_stack)))
+						((>= p ps) (output :op (pop stack)))
 						(:t	(setq x :nil))))
-				(push token_stack token))
+				(push stack token))
 			(:t	;:lit :wild
 				(output type token)))) tokenize_output)
-	(while (defq _ (pop token_stack))
-		(output :op _))
+	(while (defq _ (pop stack)) (output :op _))
 ;; (print "polish")
 ;; (each (# (print %0 " -> " %1)) out_types out_tokens)
 ;; (print)
