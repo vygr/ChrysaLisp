@@ -81,23 +81,31 @@
 		rpn_output)
 	(pop stack))
 
-(defun addstate (next index state)
+(defun addstate (creg next index state)
 	(defq stack (slice 1 -1 state))
 	(while (defq offset (pop stack))
-		(push next (+ index offset)))
+		(cond
+			((= (defq new_index (+ index offset)) (length creg))
+				;end state
+				(unless (find new_index next) (push next new_index)))
+			(:t	(if (elem-get 0 (defq state (elem-get new_index creg)))
+					;not a split
+					(unless (find new_index next) (push next new_index))
+					;a split
+					(each! 1 -1 (# (push stack (+ offset %0))) (list state))))))
 	next)
 
-(defun firststate (current state)
+(defun firststate (creg current state)
 	(if (elem-get 0 state)
 		;not a split
 		(push current 0)
 		;a split
-		(addstate current 0 state)))
+		(addstate creg current 0 state)))
 
 (defun match (text creg start)
 	; (match text creg start) -> :nil | end
 	;for each char in text
-	(and (defq current (firststate (list) (elem-get 0 creg)) next (list)
+	(and (defq current (firststate creg (list) (elem-get 0 creg)) next (list)
 		end (some! start -1 :nil
 			(lambda (s)
 				;for each current state
@@ -105,7 +113,7 @@
 						(defq state (elem-get index creg))
 						(when (eval (elem-get 0 state))
 							;matched text char, so insert next states
-							(addstate next index state)))
+							(addstate creg next index state)))
 					current)
 				;swap to new states
 				(defq tmp current)
