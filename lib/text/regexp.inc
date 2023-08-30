@@ -45,7 +45,7 @@
 						("r" (output :lit (ascii-char 13)))
 						("n" (output :lit (ascii-char 10)))
 						("t" (output :lit (ascii-char 9)))
-						(:t	(output :lit c)))
+						(:t (output :lit c)))
 					(setq c :nil comma :t state :space))))) line)
 ;; (print "tokenize")
 ;; (each (# (print %0 " -> " %1)) out_types out_tokens)
@@ -119,15 +119,14 @@
 (defun addstate (creg next index state)
 	(defq stack (slice 1 -1 state))
 	(while (defq offset (pop stack))
-		(cond
-			((= (defq new_index (+ index offset)) (length creg))
-				;end state
-				(unless (find new_index next) (push next new_index)))
-			(:t	(if (elem-get 0 (defq state (elem-get new_index creg)))
-					;not a split
-					(unless (find new_index next) (push next new_index))
-					;a split
-					(each! 1 -1 (# (push stack (+ offset %0))) (list state))))))
+		(if (= (defq new_index (+ index offset)) (length creg))
+			;end state
+			(unless (find new_index next) (push next new_index))
+			(if (elem-get 0 (defq state (elem-get new_index creg)))
+				;not a split
+				(unless (find new_index next) (push next new_index))
+				;a split
+				(each! 1 -1 (# (push stack (+ offset %0))) (list state)))))
 	next)
 
 (defun firststate (creg current)
