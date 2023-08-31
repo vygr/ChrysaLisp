@@ -87,8 +87,8 @@
 		(case type
 			(:lit (push stack `(((,eql s ,token) 1))))
 			(:wild (push stack `((:t 1))))
-			(:white (push stack `(((,<= (,code s) 32) 1))))
-			(:black (push stack `(((,> (,code s) 32) 1))))
+			(:white (push stack `(((,<= (,cmp s " ") 0) 1))))
+			(:black (push stack `(((,> (,cmp s " ") 0) 1))))
 			(:op (case token
 				(","
 					(defq b (pop stack) a (pop stack))
