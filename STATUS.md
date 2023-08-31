@@ -14,6 +14,9 @@ New `grep` command, just `-e regexp_pattern` for now.
 New built in iterators, `each-found` and `each-match`. For language level
 access to Substr and Regexp `:search`.
 
+New built in search functions, `substr` and `matches`. For language level
+access to Substr and Regexp `:search`.
+
 eg.
 
 (each-found print "abcdefxyz" "abc")

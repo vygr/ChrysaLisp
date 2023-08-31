@@ -1004,10 +1004,18 @@
 
 (defq +*substr* (Substr) +*regexp* (Regexp))
 
+(defun substr (_t _p)
+	; (substr text substr) -> (list [(i0 i1)] ...)
+	(. +*substr* :search _t _p))
+
+(defun matches (_t _p)
+	; (matches text regexp) -> (list [(i0 i1)] ...)
+	(. +*regexp* :search _t _p))
+
 (defun each-found (_f _t _p)
 	; (each-found lambda text substr)
-	(each _f (. +*substr* :search _t _p)))
+	(each _f (substr _t _p)))
 
 (defun each-match (_f _t _p)
 	; (each-match lambda text regexp)
-	(each _f (. +*regexp* :search _t _p)))
+	(each _f (matches _t _p)))

@@ -3054,6 +3054,12 @@
 (match? list list)
 ```
 
+### matches
+
+```code
+(matches text regexp) -> (list [(i0 i1)] ...)
+```
+
 ### max
 
 ```code
@@ -3934,6 +3940,12 @@
 
 ```code
 (structure name base [(byte field ...)] ...)
+```
+
+### substr
+
+```code
+(substr text substr) -> (list [(i0 i1)] ...)
 ```
 
 ### swap
