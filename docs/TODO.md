@@ -10,8 +10,6 @@ just get in touch.
 
 * Add `Regexp` to the Editor toolbar.
 
-* Add `each-match` language construct to `root.inc`.
-
 * Add dynamic font scaling `cntrl-[ ]` to the Terminal app. Toolbar buttons for
 common sizes, 80x40, 160x80 etc.
 
