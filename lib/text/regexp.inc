@@ -130,6 +130,7 @@
 		;offsets can be expressions !
 		(if (setq offset (eval offset))
 			(if (= (defq new_index (+ index offset)) (length creg))
+				;stopped, so matched somthing !
 				(setq end (max end si))
 				;not a stop state
 				(if (elem-get 0 (defq state (elem-get new_index creg)))
