@@ -129,7 +129,8 @@
 	(while (defq offset (pop stack))
 		;offsets can be expressions !
 		(if (setq offset (eval offset))
-			(if (/= (defq new_index (+ index offset)) (length creg))
+			(if (= (defq new_index (+ index offset)) (length creg))
+				(setq end (max end si))
 				;not a stop state
 				(if (elem-get 0 (defq state (elem-get new_index creg)))
 					;not a split
@@ -157,7 +158,6 @@
 				(defq state (elem-get index creg))
 				(when (eval (elem-get 0 state))
 					;matched text char, so insert next states
-					(setq end (max end si))
 					(addstate creg next index state))) current)
 			;swap to new states
 			(defq tmp current)
