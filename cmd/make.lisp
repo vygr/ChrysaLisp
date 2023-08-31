@@ -41,6 +41,7 @@
 						((and (or (eql _ "call") (eql _ "jump")) (eql (elem-get 2 s) ":repl_error"))
 							(if (setq line (chop line))
 								(merge-obj syntax (list (sym line)))))))) (file-stream file))) *imports*)))
+
 	;create classes docs
 	(sort (# (cmp (elem-get 0 %0) (elem-get 0 %1))) classes)
 	(defq stream (file-stream "docs/Reference/VP_CLASSES.md" +file_open_write)
@@ -101,12 +102,8 @@
 							(eql _ "defmethod") (eql _ "deffimethod") (eql _ "defabstractmethod"))
 						(setq state :y))))) (file-stream file)))
 		(cat (all-files "." '("lisp.inc") 2)
-			'("class/lisp/root.inc" "lib/anaphoric/anaphoric.inc" "lib/debug/debug.inc"
-			"lib/debug/profile.inc" "lib/collections/xmap.inc" "lib/collections/xset.inc"
-			"lib/collections/emap.inc" "lib/collections/collections.inc" "lib/class/class.inc"
-			"lib/class/struct.inc" "lib/text/buffer.inc" "lib/text/syntax.inc" "apps/debug/app.inc"
-			"lib/task/pipe.inc" "lib/task/global.inc" "lib/task/farm.inc"
-			"lib/text/dictionary.inc")))
+			(all-files "./lib/" '(".inc") 2)
+			'("class/lisp/root.inc" "apps/debug/app.inc")))
 	(sort cmp syntax)
 	(defq stream (file-stream "docs/Reference/SYNTAX.md" +file_open_write))
 	(write-line stream (const (str "# Syntax" (ascii-char 10))))

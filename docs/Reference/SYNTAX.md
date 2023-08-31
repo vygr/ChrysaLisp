@@ -816,6 +816,150 @@
 (. flow :pref_size) -> (width height)
 ```
 
+### fmap :copy
+
+```code
+(. fmap :copy) -> fmap
+```
+
+### fmap :deep_copy
+
+```code
+(. fmap :deep_copy) -> fmap
+```
+
+### fmap :each
+
+```code
+(. fmap :each lambda)
+```
+
+### fmap :empty
+
+```code
+(. fmap :empty) -> fmap
+```
+
+### fmap :empty?
+
+```code
+(. fmap :empty?) -> :t | :nil
+```
+
+### fmap :erase
+
+```code
+(. fmap :erase key) -> fmap
+```
+
+### fmap :find
+
+```code
+(. fmap :find key) -> :nil | val
+```
+
+### fmap :insert
+
+```code
+(. fmap :insert key val) -> fmap
+```
+
+### fmap :move
+
+```code
+(. fmap :move) -> fmap
+```
+
+### fmap :resize
+
+```code
+(. fmap :resize num_buckets) -> fmap
+```
+
+### fset :copy
+
+```code
+(. fset :copy) -> fset
+```
+
+### fset :deep_copy
+
+```code
+(. fset :deep_copy) -> fset
+```
+
+### fset :difference
+
+```code
+(. fset :difference fset) -> fset
+```
+
+### fset :each
+
+```code
+(. fset :each lambda)
+```
+
+### fset :empty
+
+```code
+(. fset :empty) -> fset
+```
+
+### fset :empty?
+
+```code
+(. fset :empty?) -> :t | :nil
+```
+
+### fset :erase
+
+```code
+(. fset :erase key) -> fset
+```
+
+### fset :find
+
+```code
+(. fset :find key) -> :nil | key
+```
+
+### fset :insert
+
+```code
+(. fset :insert key) -> fset
+```
+
+### fset :intersect
+
+```code
+(. fset :intersect fset) -> fset
+```
+
+### fset :move
+
+```code
+(. fset :move) -> fset
+```
+
+### fset :not_intersect
+
+```code
+(. fset :not_intersect fset) -> fset
+```
+
+### fset :resize
+
+```code
+(. fset :resize num_buckets) -> fset
+```
+
+### fset :union
+
+```code
+(. fset :union fset) -> fset
+```
+
 ### global :close
 
 ```code
@@ -864,6 +1008,30 @@
 (. hchart :update_scale) -> hchart
 ```
 
+### iso :get_gridcell
+
+```code
+(. iso :get_gridcell x y z) -> gridcell
+```
+
+### iso :get_metrics
+
+```code
+(. iso :get_metrics) -> (width height depth)
+```
+
+### iso :get_scalar
+
+```code
+(. iso :get_scalar x y z) -> scalar
+```
+
+### iso :get_surface
+
+```code
+(. iso :get_surface x y z isolevel) -> triangles
+```
+
 ### label :add_child
 
 ```code
@@ -886,6 +1054,102 @@
 
 ```code
 (. label :pref_size) -> (width height)
+```
+
+### lmap :copy
+
+```code
+(. lmap :copy) -> lmap
+```
+
+### lmap :deep_copy
+
+```code
+(. lmap :deep_copy) -> lmap
+```
+
+### lmap :each
+
+```code
+(. lmap :each lambda)
+```
+
+### lmap :empty
+
+```code
+(. lmap :empty) -> lmap
+```
+
+### lmap :empty?
+
+```code
+(. lmap :empty?) -> :t | :nil
+```
+
+### lmap :erase
+
+```code
+(. lmap :erase key) -> lmap
+```
+
+### lmap :find
+
+```code
+(. lmap :find key) -> :nil | val
+```
+
+### lmap :insert
+
+```code
+(. lmap :insert key val) -> lmap
+```
+
+### lmap :move
+
+```code
+(. lmap :move) -> lmap
+```
+
+### lmap :resize
+
+```code
+(. lmap :resize num_buckets) -> lmap
+```
+
+### local :add_node
+
+```code
+(. local :add_node node)
+```
+
+### local :close
+
+```code
+(. local :close)
+```
+
+### local :refresh
+
+```code
+(. local :refresh [timeout]) -> :t | :nil
+```
+
+### local :restart
+
+```code
+(. local :restart key val)
+```
+
+### mesh :normals
+
+```code
+(. mesh :normals) -> this
+```
+
+### mesh :optimise
+
+```code
+(. mesh :optimise) -> this
 ```
 
 ### pipe :close
@@ -922,6 +1186,126 @@
 
 ```code
 (. progress :pref_size) -> (width height)
+```
+
+### regexp :compile
+
+```code
+(. regexp :compile pattern) -> :nil | meta
+```
+
+### regexp :search
+
+```code
+(. regexp :search text pattern &optional meta) -> indexes
+```
+
+### scene_node :add_node
+
+```code
+(. scene_node :add_node child) -> scene_node
+```
+
+### scene_node :children
+
+```code
+(. scene_node :children) -> children
+```
+
+### scene_node :find_nodes
+
+```code
+(. scene_node :find_nodes name) -> nodes
+```
+
+### scene_node :get_color
+
+```code
+(. scene_node :get_color) -> color
+```
+
+### scene_node :get_matrix
+
+```code
+(. scene_node :get_matrix) -> matrix
+```
+
+### scene_node :get_mesh
+
+```code
+(. scene_node :get_mesh) -> mesh
+```
+
+### scene_node :get_norms
+
+```code
+(. scene_node :get_norms) -> norms
+```
+
+### scene_node :get_parent
+
+```code
+(. scene_node :get_parent) -> scene_node | :nil
+```
+
+### scene_node :get_tris
+
+```code
+(. scene_node :get_tris) -> tris
+```
+
+### scene_node :get_verts
+
+```code
+(. scene_node :get_verts) -> verts
+```
+
+### scene_node :render
+
+```code
+(. scene_node :render canvas size left right top bottom near far) -> scene_node
+```
+
+### scene_node :set_mesh
+
+```code
+(. scene_node :set_mesh mesh) -> scene_node
+```
+
+### scene_node :set_parent
+
+```code
+(. scene_node :set_parent parent) -> scene_node
+```
+
+### scene_node :set_rotation
+
+```code
+(. scene_node :set_rotation x y z) -> scene_node
+```
+
+### scene_node :set_scale
+
+```code
+(. scene_node :set_scale x y z) -> scene_node
+```
+
+### scene_node :set_translation
+
+```code
+(. scene_node :set_translation x y z) -> scene_node
+```
+
+### scene_node :sub_node
+
+```code
+(. scene_node :sub_node) -> scene_node
+```
+
+### scene_node :walk_nodes
+
+```code
+(. scene_node :walk_nodes fnc_in fnc_out) -> scene_node
 ```
 
 ### scroll :action
@@ -994,6 +1378,18 @@
 
 ```code
 (. spinner :layout) -> spinner
+```
+
+### substr :compile
+
+```code
+(. substr :compile pattern) -> :nil | meta
+```
+
+### substr :search
+
+```code
+(. substr :search text pattern &optional meta) -> indexes
 ```
 
 ### syntax :colorise
@@ -1722,10 +2118,76 @@
 (Hchart title num_marks) -> hchart
 ```
 
+### Iso
+
+```code
+(Iso) -> iso
+```
+
+### Iso-capsule
+
+```code
+(Iso-capsule width height depth) -> iso
+```
+
+### Iso-cube
+
+```code
+(Iso-cube width height depth) -> iso
+```
+
+### Iso-sphere
+
+```code
+(Iso-sphere width height depth) -> iso
+```
+
+### Iso-tetra
+
+```code
+(Iso-tetra width height depth) -> iso
+```
+
 ### Label
 
 ```code
 (Label) -> label
+```
+
+### Local
+
+```code
+(Local fnc_create fnc_destroy &optional max_size init_size size) -> local
+```
+
+### Mesh
+
+```code
+(Mesh) -> mesh
+```
+
+### Mesh-data
+
+```code
+(Mesh-data num_verts num_norms num_tris data) -> mesh
+```
+
+### Mesh-iso
+
+```code
+(Mesh-iso iso isolevel) -> mesh
+```
+
+### Mesh-sphere
+
+```code
+(Mesh-sphere radius eps) -> mesh
+```
+
+### Mesh-torus
+
+```code
+(Mesh-torus radius_ring radius_body eps) -> mesh
 ```
 
 ### Pipe
@@ -1738,6 +2200,42 @@
 
 ```code
 (Progress) -> progress
+```
+
+### Regexp
+
+```code
+(Regexp) -> regexp
+```
+
+### SVG-Canvas
+
+```code
+(SVG-Canvas stream [scale]) -> :nil | canvas
+```
+
+### SVG-info
+
+```code
+(SVG-info stream) -> (width height type) | (-1 -1 -1)
+```
+
+### Scene
+
+```code
+(Scene &optional name) -> scene_node
+```
+
+### Scene-node
+
+```code
+(Scene-node &optional name) -> scene_node
+```
+
+### Scene-object
+
+```code
+(Scene-object mesh color &optional name) -> scene_node
 ```
 
 ### Scroll
@@ -1756,6 +2254,12 @@
 
 ```code
 (Spinner) -> spinner
+```
+
+### Substr
+
+```code
+(Substr) -> substr
 ```
 
 ### Syntax
@@ -1804,6 +2308,12 @@
 
 ```code
 (Window) -> window
+```
+
+### XML-parse
+
+```code
+(XML-parse stream fnc_in fnc_out fnc_text)
 ```
 
 ### aand
@@ -1858,6 +2368,18 @@
 
 ```code
 (align num div) -> num
+```
+
+### all-dirs
+
+```code
+(all-dirs paths) -> paths
+```
+
+### all-files
+
+```code
+(all-files &optional root exts n) -> paths
 ```
 
 ### alloc-select
@@ -1942,6 +2464,18 @@
 
 ```code
 (bits name base [(bit field ...)] ...)
+```
+
+### bounding-box
+
+```code
+(bounding-box verts vec3-extract-fnc) -> (min_v3 max_v3)
+```
+
+### bounding-sphere
+
+```code
+(bounding-sphere verts vec3-extract-fnc) -> (center_v3 radius)
 ```
 
 ### byte-to-hex-str
@@ -2124,6 +2658,12 @@
 (cpu) -> sym
 ```
 
+### create
+
+```code
+(create key val nodes)
+```
+
 ### create-canvas
 
 ```code
@@ -2232,6 +2772,30 @@
 (def env var val [var val] ...)
 ```
 
+### def-bit
+
+```code
+(def-bit name base [(bit field ...)] ...)
+```
+
+### def-enum
+
+```code
+(def-enum name base [(enum field ...)] ...)
+```
+
+### def-struct
+
+```code
+(def-struct name base [(byte field ...)] ...)
+```
+
+### def-vars
+
+```code
+(def-vars [(byte field ...)] ...)
+```
+
 ### def?
 
 ```code
@@ -2284,6 +2848,12 @@
 
 ```code
 (defun name ([arg ...]) body)
+```
+
+### destroy
+
+```code
+(destroy key val)
 ```
 
 ### dim
@@ -2374,6 +2944,12 @@
 
 ```code
 (emap-kv [key val ...]) -> emap
+```
+
+### emit-translate
+
+```code
+(emit-translate emit_code) -> func_binary
 ```
 
 ### empty?
@@ -2544,6 +3120,18 @@
 (floor num)
 ```
 
+### fmap
+
+```code
+(fmap [num_buckets]) -> fmap
+```
+
+### fmap-kv
+
+```code
+(fmap-kv [key val ...]) -> fmap
+```
+
 ### font-glyph-bounds
 
 ```code
@@ -2586,6 +3174,30 @@
 (free-select select)
 ```
 
+### fset
+
+```code
+(fset [num_buckets]) -> fset
+```
+
+### fset-k
+
+```code
+(fset-k [key ...]) -> fset
+```
+
+### func-load
+
+```code
+(func-load name) -> (list body links refs)
+```
+
+### func-refs
+
+```code
+(func-refs fobj) -> (list [sym] ...)
+```
+
 ### func?
 
 ```code
@@ -2596,6 +3208,12 @@
 
 ```code
 (gather map key ...) -> (val ...)
+```
+
+### gen-norms
+
+```code
+(gen-norms verts tris) -> (norms new_tris)
 ```
 
 ### gensym
@@ -2790,6 +3408,12 @@
 (io-stream io)
 ```
 
+### iso-surface
+
+```code
+(iso-surface grid isolevel) -> tris
+```
+
 ### join
 
 ```code
@@ -2878,6 +3502,18 @@
 
 ```code
 (lists2) -> (list (list) (list))
+```
+
+### lmap
+
+```code
+(lmap) -> lmap
+```
+
+### lmap-kv
+
+```code
+(lmap-kv [key val ...]) -> lmap
 ```
 
 ### load
@@ -3046,6 +3682,30 @@
 
 ```code
 (map? object) -> :t | :nil
+```
+
+### mat3x2-mul-f
+
+```code
+(mat3x2-mul-f mat3x2_a mat3x2_b) -> mat3x2-f
+```
+
+### mat3x3-mul
+
+```code
+(mat3x3-mul mat3x3_a mat3x3_b) -> mat3x3
+```
+
+### mat4x4-invert
+
+```code
+(mat4x4-invert mat4x4) -> mat4x4
+```
+
+### mat4x4-mul
+
+```code
+(mat4x4-mul mat4x4_a mat4x4_b) -> mat4x4
 ```
 
 ### match?
@@ -3304,6 +3964,36 @@
 
 ```code
 (opt var val [cond])
+```
+
+### opt-mesh
+
+```code
+(opt-mesh verts norms tris) -> (new_verts new_norms new_tris)
+```
+
+### opt-vectors
+
+```code
+(opt-vectors vectors) -> (new_vectors new_indexs)
+```
+
+### options
+
+```code
+(options stdio optlist) -> :nil | args
+```
+
+### options-find
+
+```code
+(options-find optlist arg) -> :nil | opt_entry
+```
+
+### options-print
+
+```code
+(options-print &rest _)
 ```
 
 ### or
@@ -3730,6 +4420,12 @@
 
 ```code
 (save str path)
+```
+
+### search
+
+```code
+(search text creg start) -> -1 | end
 ```
 
 ### second
@@ -4246,6 +4942,12 @@
 
 ```code
 (vdu-load vdu lines ox oy cx cy)
+```
+
+### vertex-interp
+
+```code
+(vertex-interp isolevel p1 p2 valp1 valp2) -> p
 ```
 
 ### view-add-back
