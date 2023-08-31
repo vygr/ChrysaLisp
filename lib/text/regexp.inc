@@ -60,7 +60,7 @@
 ;; (print)
 	(list out_tokens out_types))
 
-(defun polish (tokenize_output)
+(defun postfix (tokenize_output)
 	(defq stack '() out_tokens (clear '()) out_types (clear '()))
 	(each! 0 -1 (lambda (token type)
 		(case type
@@ -84,7 +84,7 @@
 			(:t	;:lit :wild :white :black :sol :eol
 				(output type token)))) tokenize_output)
 	(while (defq _ (pop stack)) (output :op _))
-;; (print "polish")
+;; (print "postfix")
 ;; (each (# (print %0 " -> " %1)) out_types out_tokens)
 ;; (print)
 	(list out_tokens out_types))
@@ -183,8 +183,8 @@
 		; (. regexp :compile pattern) -> :nil | meta
 		(raise :meta_cache)
 		(unless (defq creg (. meta_cache :find pattern))
-			(defq creg (if (= (length pattern) 0)
-				:nil (compile (polish (tokenize pattern)))))
+			(setq creg (catch (compile (postfix (tokenize pattern))) :t))
+			(if (eql creg :t) (setq creg :nil))
 			(. meta_cache :insert pattern creg))
 		creg)
 
