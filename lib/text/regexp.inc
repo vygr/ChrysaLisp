@@ -183,8 +183,7 @@
 		; (. regexp :compile pattern) -> :nil | meta
 		(raise :meta_cache)
 		(unless (defq creg (. meta_cache :find pattern))
-;			(setq creg (catch (compile (postfix (tokenize pattern))) :t))
-			(setq creg (compile (postfix (tokenize pattern))))
+			(setq creg (catch (compile (postfix (tokenize pattern))) :t))
 			(if (eql creg :t) (setq creg :nil))
 			(. meta_cache :insert pattern creg))
 		creg)
