@@ -63,9 +63,6 @@
 					("t" (output :lit (ascii-char 9)))
 					(:t (output :lit c)))
 				(comma :t state :space)))) line)
-;; (print "tokenize")
-;; (each (# (print %0 " -> " %1)) out_types out_tokens)
-;; (print)
 	(list out_tokens out_types))
 
 (defun postfix (tokenize_output)
@@ -88,9 +85,6 @@
 			(:t	;:lit :wild :class :white :black :sol :eol
 				(output type token)))) tokenize_output)
 	(while (defq _ (pop stack)) (output :op _))
-;; (print "postfix")
-;; (each (# (print %0 " -> " %1)) out_types out_tokens)
-;; (print)
 	(list out_tokens out_types))
 
 (defun compile (postfix_output)
@@ -128,9 +122,6 @@
 					(push stack (cat
 						a `((:nil 1 ,(neg (length a)))))))
 				)))) postfix_output)
-;; (print "compile")
-;; (each print (elem-get 0 stack))
-;; (print)
 	(pop stack))
 
 (defun addstate (creg next index state)
