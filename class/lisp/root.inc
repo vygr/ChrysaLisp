@@ -995,3 +995,10 @@
 (import "lib/class/struct.inc")
 (import "lib/class/class.inc")
 (import "lib/collections/collections.inc")
+(import "lib/text/substr.inc")
+(import "lib/text/regexp.inc")
+
+(defq *substr* (Substr))
+(defq *regexp* (Regexp))
+(defun each-found (_f _t _p) (each _f (. *substr* :search _t _p)))
+(defun each-match (_f _t _p) (each _f (. *regexp* :search _t _p)))

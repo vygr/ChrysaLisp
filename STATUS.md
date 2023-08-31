@@ -11,6 +11,18 @@ $ []`.
 
 New `grep` command, just `-e regexp_pattern` for now.
 
+New built in iterators, `each-found` and `each-match`. For language level
+access to Substr and Regexp `:search`.
+
+eg.
+
+(each-found print "abcdefxyz" "abc")
+(0 3)
+
+(each-match print "abcdefxyz" "abc|xyz")
+(0 3)
+(6 9)
+
 ------
 
 Rename `pupa.inc` files to `env.inc`.
