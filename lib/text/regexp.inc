@@ -5,7 +5,7 @@
 ;module
 (env-push)
 
-(defq +op_presidence "+*?,|()" +op_chars "+*?|" +bracket_chars "([])")
+(defq +op_presidence "+*?,|()" +op_chars "+*?|" +bracket_chars "()")
 (defmacro is-op-char? (_) (list 'find _ +op_chars))
 (defmacro is-esc-char? (_) (list 'find _ "\\"))
 (defmacro is-bracket-char? (_) (list 'find _ +bracket_chars))
@@ -14,7 +14,8 @@
 (defun output (op token) (push out_types op) (push out_tokens token))
 
 (defun tokenize (line)
-	(defq state :space comma :nil out_types (clear '()) out_tokens (clear '()))
+	(defq state :space comma :nil token :nil
+		out_types (clear '()) out_tokens (clear '()))
 	(each (lambda (c)
 		(while c
 			(case state
@@ -27,9 +28,12 @@
 							(output :op c)
 							(setq comma (elem-get _ '(:t :t :t :nil))))
 						((defq _ (is-bracket-char? c))
-							(if (< _ 2) (comma?))
-							(output (elem-get _ '(:lrb :lsb :rsb :rrb)) c)
-							(setq comma (elem-get _ '(:nil :nil :t :t))))
+							(if (< _ 1) (comma?))
+							(output (elem-get _ '(:lrb :rrb)) c)
+							(setq comma (elem-get _ '(:nil :t))))
+						((eql c "[")
+							(comma?)
+							(setq token (clear '()) state :class))
 						((eql c ".")
 							(comma?)
 							(output :wild c)
@@ -45,6 +49,13 @@
 						(:t	(comma?)
 							(output :lit c)
 							(setq comma :t)))
+					(setq c :nil))
+				(:class
+					(cond
+						((eql c "]")
+							(output :class (apply cat token))
+							(setq comma :t state :space))
+						(:t	(push token c)))
 					(setq c :nil))
 				(:esc
 					(case c
@@ -64,15 +75,11 @@
 	(defq stack '() out_tokens (clear '()) out_types (clear '()))
 	(each! 0 -1 (lambda (token type)
 		(case type
-			((:lrb :lsb)
+			(:lrb
 				(push stack token))
 			(:rrb
 				(while (and (not (eql "(" (setq token (pop stack)))) token)
 					(output :op token)))
-			(:rsb
-				(while (and (not (eql "[" (setq token (pop stack)))) token)
-					(output :op token))
-				(output :op "[]"))
 			(:op ;precidence
 				(defq p (find token +op_presidence) x :t)
 				(while (and x (/= 0 (length stack)))
@@ -81,7 +88,7 @@
 						((>= p ps) (output :op (pop stack)))
 						(:t	(setq x :nil))))
 				(push stack token))
-			(:t	;:lit :wild :white :black :sol :eol
+			(:t	;:lit :wild :class :white :black :sol :eol
 				(output type token)))) tokenize_output)
 	(while (defq _ (pop stack)) (output :op _))
 ;; (print "postfix")
@@ -99,6 +106,9 @@
 			(:black (push stack `(((,> (,cmp s " ") 0) 1))))
 			(:sol (push stack `((:nil (,if (,= si 0) 1)))))
 			(:eol (push stack `((:nil (,if (,= si (- (,length text) 1)) 1)))))
+			(:class (push stack
+				`(((,<= (,cmp ,(elem-get 0 token) s) 0
+				(,cmp ,(elem-get -2 token) s)) 1))))
 			(:op (case token
 				(","
 					(defq b (pop stack) a (pop stack))
