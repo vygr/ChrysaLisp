@@ -2316,10 +2316,22 @@
 (each! start end lambda (seq ...))
 ```
 
+### each-found
+
+```code
+(each-found lambda text substr)
+```
+
 ### each-line
 
 ```code
 (each-line lambda stream)
+```
+
+### each-match
+
+```code
+(each-match lambda text regexp)
 ```
 
 ### each-mergeable
