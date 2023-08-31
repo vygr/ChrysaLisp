@@ -34,6 +34,14 @@
 							(comma?)
 							(output :wild c)
 							(setq comma :t))
+						((eql c "^")
+							(comma?)
+							(output :sol c)
+							(setq comma :t))
+						((eql c "$")
+							(comma?)
+							(output :eol c)
+							(setq comma :t))
 						(:t	(comma?)
 							(output :lit c)
 							(setq comma :t)))
@@ -73,7 +81,7 @@
 						((>= p ps) (output :op (pop stack)))
 						(:t	(setq x :nil))))
 				(push stack token))
-			(:t	;:lit :wild :white :black
+			(:t	;:lit :wild :white :black :sol :eol
 				(output type token)))) tokenize_output)
 	(while (defq _ (pop stack)) (output :op _))
 ;; (print "polish")
@@ -89,6 +97,8 @@
 			(:wild (push stack `((:t 1))))
 			(:white (push stack `(((,<= (,cmp s " ") 0) 1))))
 			(:black (push stack `(((,> (,cmp s " ") 0) 1))))
+			(:sol (push stack `((:nil (,if (,= si 0) 1)))))
+			(:eol (push stack `((:nil (,if (,= si (- (,length text) 1)) 1)))))
 			(:op (case token
 				(","
 					(defq b (pop stack) a (pop stack))
@@ -119,14 +129,17 @@
 (defun addstate (creg next index state)
 	(defq stack (slice 1 -1 state))
 	(while (defq offset (pop stack))
-		(if (= (defq new_index (+ index offset)) (length creg))
-			;end state
-			(unless (find new_index next) (push next new_index))
-			(if (elem-get 0 (defq state (elem-get new_index creg)))
-				;not a split
+		;offsets can be expressions !
+		(if (setq offset (eval offset))
+			(if (= (defq new_index (+ index offset)) (length creg))
+				;end state
 				(unless (find new_index next) (push next new_index))
-				;a split
-				(each! 1 -1 (# (push stack (+ offset %0))) (list state)))))
+				(if (elem-get 0 (defq state (elem-get new_index creg)))
+					;not a split
+					(unless (find new_index next) (push next new_index))
+					;a split
+					(each! 1 -1 (# (if (setq %0 (eval %0))
+						(push stack (+ offset %0)))) (list state))))))
 	next)
 
 (defun firststate (creg current)
@@ -138,27 +151,29 @@
 
 (defun match (text creg start)
 	; (match text creg start) -> :nil | end
-	(if (find (length creg) (defq current (firststate creg (list))))
+	;break out imediatly if no states
+	(if (/= (length (defq si start current (firststate creg (list)))) 0)
 		;break out imediatly if any end states
-		(length text)
-		;for each char in text
-		(and (defq next (list) end (some! start -1 :nil
-			(lambda (s)
-				;for each current state
-				(each (lambda (index)
-					(defq state (elem-get index creg))
-					(when (eval (elem-get 0 state))
-						;matched text char, so insert next states
-						(addstate creg next index state))) current)
-				;swap to new states
-				(defq tmp current)
-				(setq current next next (clear tmp))
-				(cond
-					;break out if no states
-					((= (length current) 0) -1)
-					;break out if any end states
-					((find (length creg) current) (inc _))))
-			(list text))) (> end -1) end)))
+		(if (find (length creg) current)
+			(length text)
+			;for each char in text
+			(and (defq next (list) end (some! start -1 :nil
+				(lambda (s) (defq si _)
+					;for each current state
+					(each (lambda (index)
+						(defq state (elem-get index creg))
+						(when (eval (elem-get 0 state))
+							;matched text char, so insert next states
+							(addstate creg next index state))) current)
+					;swap to new states
+					(defq tmp current)
+					(setq current next next (clear tmp))
+					(cond
+						;break out if no states
+						((= (length current) 0) -1)
+						;break out if any end states
+						((find (length creg) current) (inc si))))
+				(list text))) (> end -1) end))))
 
 (defclass Regexp () :nil
 	; (Regexp) -> regexp
