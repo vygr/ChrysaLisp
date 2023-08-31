@@ -93,7 +93,7 @@
 ;; (print)
 	(list out_tokens out_types))
 
-(defun compile (rpn_output)
+(defun compile (postfix_output)
 	(defq stack (clear '()))
 	(each! 0 -1 (lambda (token type)
 		(case type
@@ -127,7 +127,7 @@
 					(defq a (pop stack))
 					(push stack (cat
 						a `((:nil 1 ,(neg (length a)))))))
-				)))) rpn_output)
+				)))) postfix_output)
 ;; (print "compile")
 ;; (each print (elem-get 0 stack))
 ;; (print)
