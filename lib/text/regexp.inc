@@ -138,9 +138,8 @@
 	(while (defq offset (pop stack))
 		;offsets can be expressions !
 		(if (setq offset (eval offset))
-			(if (= (defq new_index (+ index offset)) (length creg))
-				;end state
-				(unless (find new_index next) (push next new_index))
+			(if (/= (defq new_index (+ index offset)) (length creg))
+				;not a stop state
 				(if (elem-get 0 (defq state (elem-get new_index creg)))
 					;not a split
 					(unless (find new_index next) (push next new_index))
@@ -157,30 +156,24 @@
 		(addstate creg current 0 state)))
 
 (defun match (text creg start)
-	; (match text creg start) -> :nil | end
-	;break out imediatly if no states
-	(if (/= (length (defq si start current (firststate creg (list)))) 0)
-		;break out imediatly if any end states
-		(if (find (length creg) current)
-			(length text)
-			;for each char in text
-			(and (defq next (list) end (some! start -1 :nil
-				(lambda (s) (defq si _)
-					;for each current state
-					(each (lambda (index)
-						(defq state (elem-get index creg))
-						(when (eval (elem-get 0 state))
-							;matched text char, so insert next states
-							(addstate creg next index state))) current)
-					;swap to new states
-					(defq tmp current)
-					(setq current next next (clear tmp))
-					(cond
-						;break out if no states
-						((= (length current) 0) -1)
-						;break out if any end states
-						((find (length creg) current) (inc si))))
-				(list text))) (> end -1) end))))
+	; (match text creg start) -> -1 | end
+	;for each char in text
+	(defq end -1 si start current (firststate creg (list)) next (list))
+	(some! start -1 :nil
+		(lambda (s) (defq si _)
+			;for each current state
+			(each (lambda (index)
+				(defq state (elem-get index creg))
+				(when (eval (elem-get 0 state))
+					;matched text char, so insert next states
+					(setq end (max end si))
+					(addstate creg next index state))) current)
+			;swap to new states
+			(defq tmp current)
+			(setq current next next (clear tmp))
+			;break out if no states
+			(= (length current) 0))
+		(list text)) (inc end))
 
 (defclass Regexp () :nil
 	; (Regexp) -> regexp
@@ -190,7 +183,8 @@
 		; (. regexp :compile pattern) -> :nil | meta
 		(raise :meta_cache)
 		(unless (defq creg (. meta_cache :find pattern))
-			(setq creg (catch (compile (postfix (tokenize pattern))) :t))
+;			(setq creg (catch (compile (postfix (tokenize pattern))) :t))
+			(setq creg (compile (postfix (tokenize pattern))))
 			(if (eql creg :t) (setq creg :nil))
 			(. meta_cache :insert pattern creg))
 		creg)
@@ -201,7 +195,7 @@
 		(when creg
 			(defq x -1)
 			(while (< (setq x (inc x)) (length text))
-				(when (defq x1 (match text creg x))
+				(when (> (defq x1 (match text creg x)) x)
 					(push out (list x x1))
 					(setq x (dec x1)))))
 		out)
