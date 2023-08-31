@@ -148,8 +148,8 @@
 		;a split
 		(addstate creg current 0 state)))
 
-(defun match (text creg start)
-	; (match text creg start) -> -1 | end
+(defun search (text creg start)
+	; (search text creg start) -> -1 | end
 	;for each char in text
 	(defq end -1 si start current (firststate creg (list)) next (list))
 	(some! start -1 :nil
@@ -186,7 +186,7 @@
 		(when creg
 			(defq x -1)
 			(while (< (setq x (inc x)) (length text))
-				(when (> (defq x1 (match text creg x)) x)
+				(when (> (defq x1 (search text creg x)) x)
 					(push out (list x x1))
 					(setq x (dec x1)))))
 		out)
