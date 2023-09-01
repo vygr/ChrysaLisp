@@ -4,11 +4,14 @@
 (defq usage `(
 (("-h" "--help")
 "Usage: split [options]
+
 	options:
 		-h --help: this help info.
 		-s --sep separator: default ,.
 		-e --sel num: selected element, default :nil.
+
 	Split the lines from stdin to stdout.
+
 	Optionaly select a specific element of
 	the split.")
 (("-s" "--sep")

@@ -4,8 +4,10 @@
 (defq usage `(
 (("-h" "--help")
 "Usage: tee [options] [path] ...
+
 	options:
 		-h --help: this help info.
+
 	Read from stdin, write to stdout and all given paths.")
 ))
 

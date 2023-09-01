@@ -24,9 +24,11 @@
 (defq usage `(
 (("-h" "--help")
 "Usage: dump [options] [path] ...
+
 	options:
 		-h --help: this help info.
 		-c --chunk num: chunk size, default 8.
+
 	If no paths given on command line
 	then will dump stdin.")
 (("-c" "--chunk")

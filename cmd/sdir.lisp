@@ -5,6 +5,7 @@
 (defq usage `(
 (("-h" "--help")
 "Usage: sdir [options] [prefix]
+
 	options:
 		-h --help: this help info.")
 ))

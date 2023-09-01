@@ -11,8 +11,10 @@
 (defq usage `(
 (("-h" "--help")
 "Usage: cat [options] [path] ...
+
 	options:
 		-h --help: this help info.
+
 	If no paths given on command line
 	then paths are read from stdin.")
 ))

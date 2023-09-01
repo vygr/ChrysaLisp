@@ -4,8 +4,10 @@
 (defq usage `(
 (("-h" "--help")
 "Usage: sort [options] [line] ...
+
 	options:
 		-h --help: this help info.
+
 	If no lines given on command line
 	then will sort lines from stdin.")
 ))

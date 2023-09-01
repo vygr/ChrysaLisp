@@ -10,6 +10,7 @@
 (defq usage `(
 (("-h" "--help")
 "Usage: grep [options] [path] ...
+
 	options:
 		-h --help: this help info.
 		-e --exp pattern: regular expression.

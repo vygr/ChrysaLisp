@@ -5,8 +5,10 @@
 (defq usage `(
 (("-h" "--help")
 "Usage: lisp [options] [path] ...
+
 	options:
 		-h --help: this help info.
+
 	If no paths given on command line
 	then will REPL from stdin.")
 ))

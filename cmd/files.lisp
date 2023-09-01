@@ -6,11 +6,15 @@
 (defq usage `(
 (("-h" "--help")
 {Usage: file [options] [prefix] [postfix]
+
 	options:
 		-h --help: this help info.
+
 	Find all files that match the prefix and postfix.
-		prefix default ".".
-		postfix default "".
+
+		prefix default "."
+		postfix default ""
+
 	eg.
 	files ./apps/wallpaper/ .tga})
 ))

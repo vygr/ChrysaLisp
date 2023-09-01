@@ -4,9 +4,12 @@
 (defq usage `(
 (("-h" "--help")
 "Usage: time [options]
+
 	options:
 		-h --help: this help info.
+
 	Time the duration of the stdin stream.
+
 	Print result to stderr.")
 ))
 

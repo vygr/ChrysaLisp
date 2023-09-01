@@ -4,10 +4,13 @@
 (defq usage `(
 (("-h" "--help")
 "Usage: tail [options file]
+
 	options:
 		-h --help: this help info.
 		-c --count num: line count, default 10.
+
 	Returns lines from end of file or stdin.
+
 	Defaults to last 10 lines.")
 (("-c" "--count")
 	,(lambda (args arg)

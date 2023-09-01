@@ -4,9 +4,12 @@
 (defq usage `(
 (("-h" "--help")
 "Usage: link [options] 000-000 ...
+
 	options:
 		-h --help: this help info.
+
 	Start SHMEM link driver/s.
+
 	If no links names given on command line
 	then names are read from stdin.")
 ))
