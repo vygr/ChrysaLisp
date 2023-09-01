@@ -5,11 +5,11 @@
 (import "sys/lisp.inc")
 (import "class/lisp.inc")
 
-(defun pipe-split (line)
-	; (pipe-split line) -> (list e0 [e1] ...)
+(defun pipe-split (cmdline)
+	; (pipe-split cmdline) -> (list e0 [e1] ...)
 	(defq i 0)
-	(map (lambda ((x x1)) (defq j i) (setq i x1) (slice j x line))
-		(push (substr line " | ") '(-1 0))))
+	(map (lambda ((x x1)) (defq j i) (setq i x1) (slice j x cmdline))
+		(push (substr cmdline " | ") '(-1 0))))
 
 (defclass Pipe (cmds &optional user_select) :nil
 	; (Pipe cmds &optional user_select) -> pipe | :nil

@@ -4203,7 +4203,7 @@
 ### pipe-split
 
 ```code
-(pipe-split line) -> (list e0 [e1] ...)
+(pipe-split cmdline) -> (list e0 [e1] ...)
 ```
 
 ### pivot
