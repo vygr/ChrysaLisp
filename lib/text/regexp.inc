@@ -58,6 +58,7 @@
 				(case c
 					("w" (output :white c))
 					("b" (output :black c))
+					("q" (output :lit (ascii-char 34)))
 					("r" (output :lit (ascii-char 13)))
 					("n" (output :lit (ascii-char 10)))
 					("t" (output :lit (ascii-char 9)))
@@ -151,7 +152,7 @@
 (defun search (text creg start)
 	; (search text creg start) -> -1 | end
 	;for each char in text
-	(defq end -1 si start current (firststate creg (list)) next (list))
+	(defq end -2 si start current (firststate creg (list)) next (list))
 	(some! start -1 :nil
 		(lambda (s) (defq si _)
 			;for each current state
@@ -167,9 +168,9 @@
 			(= (length current) 0))
 		(list text)) (inc end))
 
-(defclass Regexp () :nil
+(defclass Regexp (&optional num_buckets) :nil
 	; (Regexp) -> regexp
-	(def this :meta_cache (fmap))
+	(def this :meta_cache (fmap num_buckets))
 
 	(defmethod :compile (this pattern)
 		; (. regexp :compile pattern) -> :nil | meta
@@ -179,6 +180,15 @@
 			(if (eql creg :t) (setq creg :nil))
 			(. meta_cache :insert pattern creg))
 		creg)
+
+	(defmethod :match? (this text pattern &optional creg)
+		; (. regexp :match? text pattern &optional meta) -> :t | :nil
+		(defq creg (opt creg (. this :compile pattern)))
+		(when creg
+			(defq x -1 x1 -1)
+			(while (and (= x1 -1) (< (setq x (inc x)) (length text)))
+				(setq x1 (search text creg x)))
+			(/= x1 -1)))
 
 	(defmethod :search (this text pattern &optional creg)
 		; (. regexp :search text pattern &optional meta) -> indexes

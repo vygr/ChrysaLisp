@@ -2,9 +2,9 @@
 ; Knuth-Morris-Pratt substr search class
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defclass Substr () :nil
+(defclass Substr (&optional num_buckets) :nil
 	; (Substr) -> substr
-	(def this :meta_cache (fmap))
+	(def this :meta_cache (fmap num_buckets))
 
 	(defmethod :compile (this pattern)
 		; (. substr :compile pattern) -> :nil | meta
