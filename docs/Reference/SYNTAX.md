@@ -2889,7 +2889,7 @@
 ### defclass
 
 ```code
-(defclass name ([arg ...]) (super ...) body)
+(defclass Name ([arg ...]) (super ...) body)
 ```
 
 ### deffimethod

@@ -13,6 +13,25 @@
 	options:
 		-h --help: this help info.
 		-e --exp pattern: regular expression.
+
+	Supports:
+		\q	double quote
+		\t	tab
+		\r	return
+		\n	line feed
+		\w	white space
+		\b	black space
+		\\	esc for \ etc
+		.	any char
+		+	one or more
+		*	zero or more
+		?	zero or one
+		|	or
+		^	start of line
+		$	end of line
+		[]	class, [0-9], [abc123]
+		()	group
+
 	If no paths given on command line
 	then will grep stdin.")
 (("-e" "--exp")
