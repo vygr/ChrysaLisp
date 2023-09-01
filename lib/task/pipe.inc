@@ -8,10 +8,13 @@
 (defclass Pipe (cmds &optional user_select) :nil
 	; (Pipe cmds &optional user_select) -> pipe | :nil
 	(setd user_select '())
-	(defq cmdpipe (list) args (map (lambda (cmd)
-		(defq cmd (split cmd " "))
-		(push cmdpipe (cat "cmd/" (elem-get 0 cmd) ".lisp"))
-		(slice 0 -2 (apply cat (map (lambda (_) (cat _ " ")) cmd)))) (split cmds "|")))
+	(defq i 0 cmdpipe (list) args
+		(map (lambda (cmd)
+				(setq cmd (split cmd " "))
+				(push cmdpipe (cat "cmd/" (elem-get 0 cmd) ".lisp"))
+				(slice 0 -2 (apply cat (map (# (cat %0 " ")) cmd))))
+			(map (lambda ((x x1)) (defq j i) (setq i x1) (slice j x cmds))
+				(push (matches cmds " \| ") '(-1 0)))))
 	(cond
 		;error with pipe element ?
 		((some (lambda (_) (= 0 (get-long _ 0))) (defq mboxs (open-pipe cmdpipe)))
