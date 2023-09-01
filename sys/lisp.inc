@@ -70,12 +70,13 @@
 
 (defun open-pipe (tasks)
 	; (open-pipe tasks) -> (str ...)
-	(defq devices (lisp-nodes) ids (cap (length tasks) (list))
-		mbox (mail-alloc-mbox) index -1 tail (task-netid))
+	(defq ids (cap (length tasks) (list)) mbox (mail-alloc-mbox)
+		index -1 tail (task-netid))
 	(while (< (setq index (inc index)) (length tasks))
 		(open-task (elem-get index tasks) (slice +long_size -1 tail) +kn_call_child 0 mbox)
 		(defq tail (getf (mail-read mbox) +kn_msg_reply_id))
-		(push ids tail))
+		(push ids tail)
+		(if (= 0 (get-long tail 0)) (setq tail (task-netid))))
 	(mail-free-mbox mbox) ids)
 
 (defun task-nodeid ()
