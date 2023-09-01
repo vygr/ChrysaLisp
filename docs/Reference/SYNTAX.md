@@ -1194,6 +1194,12 @@
 (. regexp :compile pattern) -> :nil | meta
 ```
 
+### regexp :match?
+
+```code
+(. regexp :match? text pattern &optional meta) -> :t | :nil
+```
+
 ### regexp :search
 
 ```code
@@ -3516,6 +3522,12 @@
 (lmap-kv [key val ...]) -> lmap
 ```
 
+### lmatch?
+
+```code
+(lmatch? list list)
+```
+
 ### load
 
 ```code
@@ -3711,7 +3723,7 @@
 ### match?
 
 ```code
-(match? list list)
+(match? text regexp) -> :t | :nil
 ```
 
 ### matches

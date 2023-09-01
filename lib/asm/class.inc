@@ -99,7 +99,7 @@
 		class_sym (class-sym class) super_sym (super-sym class))
 	(each (lambda ((_ mname mfunc &optional mtype regs_in regs_out))
 		(setd mtype :static)
-		(and regs_in (match? regs_in '(abi-args _)) (setq regs_in (eval regs_in)))
+		(and regs_in (lmatch? regs_in '(abi-args _)) (setq regs_in (eval regs_in)))
 		(defq m (if (defq s (find-rev mname (elem-get 0 vtable))) (elem-get s (elem-get 1 vtable))))
 		(if m
 			(case mtype

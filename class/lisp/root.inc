@@ -56,7 +56,7 @@
 
 (ffi merge-obj "class/list/lisp_merge" 0)
 (ffi pivot "class/list/lisp_part" 0)
-(ffi match? "class/list/lisp_match" 0)
+(ffi lmatch? "class/list/lisp_match" 0)
 (ffi copy "class/list/lisp_copy" 0)
 
 (ffi str "class/str/lisp_str" 0)
@@ -1002,20 +1002,24 @@
 ; pattern search
 ;;;;;;;;;;;;;;;;
 
-(defq +*substr* (Substr) +*regexp* (Regexp))
+(defq +*substr* (Substr 11) +*regexp* (Regexp 11))
 
 (defun substr (_t _p)
 	; (substr text substr) -> (list [(i0 i1)] ...)
 	(. +*substr* :search _t _p))
 
+(defun match? (_t _p)
+	; (match? text regexp) -> :t | :nil
+	(. +*regexp* :match? _t _p))
+
 (defun matches (_t _p)
 	; (matches text regexp) -> (list [(i0 i1)] ...)
 	(. +*regexp* :search _t _p))
 
-(defun each-found (_f _t _p)
+(defmacro each-found (_f _t _p)
 	; (each-found lambda text substr)
-	(each _f (substr _t _p)))
+	`(each! 0 -1 ,_f (list (substr ,_t ,_p))))
 
-(defun each-match (_f _t _p)
+(defmacro each-match (_f _t _p)
 	; (each-match lambda text regexp)
-	(each _f (matches _t _p)))
+	`(each! 0 -1 ,_f (list (matches ,_t ,_p))))

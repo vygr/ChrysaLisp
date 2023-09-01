@@ -6,15 +6,15 @@
 
 New `Substr` string search class. Editor updated to use this new class.
 
-New `Regexp` string search class. Supports `\t \r \n \w \b \ . + * ? | ( ) ^
+New `Regexp` string search class. Supports `\q \t \r \n \w \b \ . + * ? | ( ) ^
 $ []`.
 
 New `grep` command, just `-e regexp_pattern` for now.
 
-New built in iterators, `each-found` and `each-match`. For language level
-access to Substr and Regexp `:search`.
+New built in search functions, `substr`, `match?` and `matches`. For language
+level access to Substr and Regexp `:search`.
 
-New built in search functions, `substr` and `matches`. For language level
+New built in iterator macros, `each-found` and `each-match`. For language level
 access to Substr and Regexp `:search`.
 
 eg.

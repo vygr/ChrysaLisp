@@ -37,13 +37,13 @@
 
 (defun opt-find-1 (_ r x)
 	(find-past
-		((match? op x) _)
+		((lmatch? op x) _)
 		((uses? r op) -1)))
 
 (defun opt-find-2 (_ r x y)
 	(find-past
-		((match? op x) (setq m 0) _)
-		((match? op y) (setq m 1) _)
+		((lmatch? op x) (setq m 0) _)
+		((lmatch? op y) (setq m 1) _)
 		((uses? r op) -1)))
 
 (defun opt-inst-list (inst_list)
