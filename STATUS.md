@@ -12,7 +12,7 @@ $ []`.
 New `grep` command, just `-e regexp_pattern` for now.
 
 New built in search functions, `substr`, `match?` and `matches`. For language
-level access to Substr and Regexp `:search`.
+level access to Substr and Regexp `:search` and `:match?`.
 
 New built in iterator macros, `each-found` and `each-match`. For language level
 access to Substr and Regexp `:search`.
