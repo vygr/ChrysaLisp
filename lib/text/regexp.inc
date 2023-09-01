@@ -99,8 +99,10 @@
 			(:sol (push stack `((:nil (,if (,= si 0) 1)))))
 			(:eol (push stack `((:nil (,if (,= si (- (,length text) 1)) 1)))))
 			(:class (push stack
-				`(((,<= (,cmp ,(elem-get 0 token) s) 0
-				(,cmp ,(elem-get -2 token) s)) 1))))
+				(if (eql (elem-get 1 token) "-")
+					`(((,<= (,cmp ,(elem-get 0 token) s) 0
+						(,cmp ,(elem-get -2 token) s)) 1))
+					`(((,find s ,token) 1)))))
 			(:op (case token
 				(","
 					(defq b (pop stack) a (pop stack))
