@@ -59,6 +59,7 @@
 					("w" (output :white c))
 					("b" (output :black c))
 					("q" (output :lit (ascii-char 34)))
+					("s" (output :lit (ascii-char 32)))
 					("r" (output :lit (ascii-char 13)))
 					("n" (output :lit (ascii-char 10)))
 					("t" (output :lit (ascii-char 9)))

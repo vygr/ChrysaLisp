@@ -16,6 +16,7 @@
 		-e --exp pattern: regular expression.
 
 	Supports:
+		\s	space
 		\q	double quote
 		\t	tab
 		\r	return

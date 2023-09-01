@@ -54,6 +54,7 @@ Usage: grep [options] [path] ...
 		-e --exp pattern: regular expression.
 
 	Supports:
+		\s	space
 		\q	double quote
 		\t	tab
 		\r	return
