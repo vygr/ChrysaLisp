@@ -63,7 +63,7 @@
 					("n" (output :lit (ascii-char 10)))
 					("t" (output :lit (ascii-char 9)))
 					(:t (output :lit c)))
-				(concat :t state :space)))) line)
+				(setq concat :t state :space)))) line)
 	(list out_tokens out_types))
 
 (defun postfix (tokenize_output)
@@ -94,8 +94,8 @@
 		(case type
 			(:lit (push stack `(((,eql s ,token) 1))))
 			(:wild (push stack `((:t 1))))
-			(:white (push stack `(((,<= (,cmp s " ") 0) 1))))
-			(:black (push stack `(((,> (,cmp s " ") 0) 1))))
+			(:white (push stack `(((,<= (,code s) 32) 1))))
+			(:black (push stack `(((,> (,code s) 32) 1))))
 			(:sol (push stack `((:nil (,if (,= si 0) 1)))))
 			(:eol (push stack `((:nil (,if (,= si (- (,length text) 1)) 1)))))
 			(:class (push stack
