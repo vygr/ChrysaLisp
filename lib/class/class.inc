@@ -38,7 +38,7 @@
 		(def this ,(sym (cat ":" field)) val) this))
 
 (defmacro defclass (n a s &rest _)
-	; (defclass name ([arg ...]) (super ...) body)
+	; (defclass Name ([arg ...]) (super ...) body)
 	(defq vtmax 50 module (str *stream_name*)
 		predn (sym (cat n "?")) kwn (sym (cat : n))
 		super (sym (cat "*class_" (if s (elem-get 0 s)) "*"))
