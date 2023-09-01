@@ -2247,7 +2247,7 @@
 ### Pipe
 
 ```code
-(Pipe cmds &optional user_select) -> pipe | :nil
+(Pipe cmdline &optional user_select) -> pipe | :nil
 ```
 
 ### Progress
