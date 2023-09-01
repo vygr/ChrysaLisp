@@ -8,8 +8,8 @@
 (defun pipe-split (cmdline)
 	; (pipe-split cmdline) -> (list e0 [e1] ...)
 	(defq i 0)
-	(map trim (map (lambda ((x x1)) (defq j i) (setq i x1) (slice j x cmdline))
-		(push (substr cmdline " | ") '(-1 0)))))
+	(map (lambda ((x x1)) (defq j i) (setq i x1) (trim (slice j x cmdline)))
+		(push (substr cmdline " | ") '(-1 0))))
 
 (defclass Pipe (cmdline &optional user_select) :nil
 	; (Pipe cmdline &optional user_select) -> pipe | :nil
