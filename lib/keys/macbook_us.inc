@@ -5,7 +5,7 @@
 (import "././consts/chars.inc")
 
 (defq
-*normal_map* (fmap-kv
+*normal_map* (Fmap-kv
 	+sc_a (ascii-code "a") +sc_b (ascii-code "b") +sc_c (ascii-code "c")
 	+sc_d (ascii-code "d") +sc_e (ascii-code "e") +sc_f (ascii-code "f")
 	+sc_g (ascii-code "g") +sc_h (ascii-code "h") +sc_i (ascii-code "i")
@@ -28,7 +28,7 @@
 	+sc_right 0x4000004f +sc_left 0x40000050
 	+sc_down 0x40000051 +sc_up 0x40000052
 	+sc_home 0x4000004A +sc_end 0x4000004D)
-*shift_map* (fmap-kv
+*shift_map* (Fmap-kv
 	+sc_a (ascii-code "A") +sc_b (ascii-code "B") +sc_c (ascii-code "C")
 	+sc_d (ascii-code "D") +sc_e (ascii-code "E") +sc_f (ascii-code "F")
 	+sc_g (ascii-code "G") +sc_h (ascii-code "H") +sc_i (ascii-code "I")

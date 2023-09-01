@@ -12,7 +12,7 @@
 (import "./ui.inc")
 
 (defq
-event_map (fmap-kv
+event_map (Fmap-kv
 	+event_close action-close
 	+event_min action-minimise
 	+event_max action-maximise
@@ -27,7 +27,7 @@ event_map (fmap-kv
 	+event_tree_action action-tree-action
 	+event_file_leaf_action action-file-leaf-action)
 
-key_map (fmap-kv
+key_map (Fmap-kv
 	0x40000050 action-left
 	0x4000004f action-right
 	0x40000052 action-up
@@ -35,7 +35,7 @@ key_map (fmap-kv
 	0x4000004A action-home
 	0x4000004D action-end)
 
-key_map_shift (fmap-kv
+key_map_shift (Fmap-kv
 	0x40000050 action-left-select
 	0x4000004f action-right-select
 	0x40000052 action-up-select
@@ -43,7 +43,7 @@ key_map_shift (fmap-kv
 	0x4000004A action-home-select
 	0x4000004D action-end-select)
 
-key_map_control (fmap-kv
+key_map_control (Fmap-kv
 	(ascii-code "a") action-select-all
 	(ascii-code "b") action-select-block
 	(ascii-code "B") action-copy-block

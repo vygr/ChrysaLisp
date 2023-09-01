@@ -10,8 +10,8 @@
 		b (* (% (hash key) (get :num_buckets this)) 2)
 		e (find key (elem-get b x))))
 
-(defclass fmap (&optional num_buckets) :nil
-	; (fmap [num_buckets]) -> fmap
+(defclass Fmap (&optional num_buckets) :nil
+	; (Fmap [num_buckets]) -> fmap
 	(def this :num_buckets (setq num_buckets (opt num_buckets 1))
 		:buckets (lists (* num_buckets 2)))
 
@@ -46,7 +46,7 @@
 
 	(defmethod :copy (this)
 		; (. fmap :copy) -> fmap
-		(defq that ((get 'fmap) (get :num_buckets this)))
+		(defq that ((get 'Fmap) (get :num_buckets this)))
 		(each (lambda (this_bucket that_bucket)
 			(each (lambda (key_val)
 				(push that_bucket key_val)) this_bucket)) (get :buckets this) (get :buckets that))
@@ -54,7 +54,7 @@
 
 	(defmethod :deep_copy (this)
 		; (. fmap :deep_copy) -> fmap
-		(defq that ((get 'fmap) (get :num_buckets this)))
+		(defq that ((get 'Fmap) (get :num_buckets this)))
 		(each (lambda (this_bucket that_bucket)
 			(each (lambda (key_val)
 				(push that_bucket (copy key_val))) this_bucket)) (get :buckets this) (get :buckets that))
@@ -67,7 +67,7 @@
 
 	(defmethod :move (this)
 		; (. fmap :move) -> fmap
-		(defq that ((get 'fmap) (get :num_buckets this))
+		(defq that ((get 'Fmap) (get :num_buckets this))
 			this_buckets (get :buckets this) that_buckets (get :buckets that))
 		(set this :buckets that_buckets)
 		(set that :buckets this_buckets)
@@ -93,11 +93,11 @@
 
 ;module
 (export-classes
-	fmap)
+	Fmap)
 (env-pop)
 
-(defun fmap-kv (&rest _)
-	; (fmap-kv [key val ...]) -> fmap
-	(defq this (fmap))
+(defun Fmap-kv (&rest _)
+	; (Fmap-kv [key val ...]) -> fmap
+	(defq this (Fmap))
 	(each! 0 -1 (# (. this :insert %0 %1)) (unzip _ (lists2)))
 	this)

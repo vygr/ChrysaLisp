@@ -179,7 +179,7 @@ start having a LOT of UI widgets and may want to handle key press actions and
 so forth, this `(cond)` statement is going to get very long and untidy. We are
 going to end up not being able to see the wood for the trees !
 
-## The `fmap` or `xmap` event action dispatch loop
+## The `Fmap` or `Xmap` event action dispatch loop
 
 The Editor application takes this approach and it has started to become the `go
 to` way to arrange things. I encourage folks to adopt this style apart from the
@@ -188,7 +188,7 @@ very simplest or throw away code.
 It's still a simple idea though. We have separate functions for each action we
 wish to perform and hold them in a set of files for that type of action. We
 then have a `module` that includes all the handler action files and enters the
-action functions into an event id to action function `fmap`.
+action functions into an event id to action function `Fmap`.
 
 Likewise we do the same for keyboard event actions !
 
@@ -218,23 +218,23 @@ Here is the Editor application action bindings, `apps/editor/actions.inc`:
 (import "./ui.inc")
 
 (defq
-event_map (fmap-kv
+event_map (Fmap-kv
 	...
 	+event_close action-close
 	+event_min action-minimise
 	+event_max action-maximise)
 
-key_map (fmap-kv
+key_map (Fmap-kv
 	0x40000050 action-left
 	...
 	+char_tab action-tab)
 
-key_map_shift (fmap-kv
+key_map_shift (Fmap-kv
 	0x40000050 action-left-select
 	...
 	+char_tab action-left-tab)
 
-key_map_control (fmap-kv
+key_map_control (Fmap-kv
 	(ascii-code "M") action-macro-record
 	...
 	(ascii-code "O") action-ordered-unique)
@@ -352,10 +352,10 @@ This example is not about the dispatching of GUI events but illustrates an
 important technique that applications may find useful.
 
 The Docs application, `apps/docs/app.lisp`, uses the idea of a current state
-and searches an `emap` of state to handler function in order to task each line
-of the document being scanned. If the state is not found in the `emap` then it
+and searches an `Emap` of state to handler function in order to task each line
+of the document being scanned. If the state is not found in the `Emap` then it
 uses the state to create a module name and dynamically loads that module,
-entering it into the `emap`.
+entering it into the `Emap`.
 
 In this way the Docs application has the ability to be extended in
 functionality at runtime. The addition of a new document section handler

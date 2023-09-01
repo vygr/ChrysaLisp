@@ -24,7 +24,7 @@
 	(setq _mutated :t)
 	(stop) (start))
 
-(defclass Local (_create _destroy &optional max_size init_size size) (fmap)
+(defclass Local (_create _destroy &optional max_size init_size size) (Fmap)
 	; (Local fnc_create fnc_destroy &optional max_size init_size size) -> local
 	(setd max_size +max_int init_size 1 size 1)
 	(def this :create _create :destroy _destroy

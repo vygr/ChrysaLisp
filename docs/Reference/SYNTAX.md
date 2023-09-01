@@ -2094,6 +2094,18 @@
 (Dictionary [num_buckets]) -> dictionary
 ```
 
+### Emap
+
+```code
+(Emap [num_buckets]) -> emap
+```
+
+### Emap-kv
+
+```code
+(Emap-kv [key val ...]) -> emap
+```
+
 ### Farm
 
 ```code
@@ -2104,6 +2116,30 @@
 
 ```code
 (Flow) -> flow
+```
+
+### Fmap
+
+```code
+(Fmap [num_buckets]) -> fmap
+```
+
+### Fmap-kv
+
+```code
+(Fmap-kv [key val ...]) -> fmap
+```
+
+### Fset
+
+```code
+(Fset [num_buckets]) -> fset
+```
+
+### Fset-k
+
+```code
+(Fset-k [key ...]) -> fset
 ```
 
 ### Global
@@ -2158,6 +2194,18 @@
 
 ```code
 (Label) -> label
+```
+
+### Lmap
+
+```code
+(Lmap) -> lmap
+```
+
+### Lmap-kv
+
+```code
+(Lmap-kv [key val ...]) -> lmap
 ```
 
 ### Local
@@ -2320,6 +2368,30 @@
 
 ```code
 (XML-parse stream fnc_in fnc_out fnc_text)
+```
+
+### Xmap
+
+```code
+(Xmap [num_buckets cmp_fnc hash_fnc]) -> xmap
+```
+
+### Xmap-kv
+
+```code
+(Xmap-kv [key val ...]) -> xmap
+```
+
+### Xset
+
+```code
+(Xset [num_buckets cmp_fnc hash_fnc]) -> xset
+```
+
+### Xset-k
+
+```code
+(Xset-k [key ...]) -> xset
 ```
 
 ### aand
@@ -2940,18 +3012,6 @@
 (elem-set index array val)
 ```
 
-### emap
-
-```code
-(emap [num_buckets]) -> emap
-```
-
-### emap-kv
-
-```code
-(emap-kv [key val ...]) -> emap
-```
-
 ### emit-translate
 
 ```code
@@ -3126,18 +3186,6 @@
 (floor num)
 ```
 
-### fmap
-
-```code
-(fmap [num_buckets]) -> fmap
-```
-
-### fmap-kv
-
-```code
-(fmap-kv [key val ...]) -> fmap
-```
-
 ### font-glyph-bounds
 
 ```code
@@ -3178,18 +3226,6 @@
 
 ```code
 (free-select select)
-```
-
-### fset
-
-```code
-(fset [num_buckets]) -> fset
-```
-
-### fset-k
-
-```code
-(fset-k [key ...]) -> fset
 ```
 
 ### func-load
@@ -3508,18 +3544,6 @@
 
 ```code
 (lists2) -> (list (list) (list))
-```
-
-### lmap
-
-```code
-(lmap) -> lmap
-```
-
-### lmap-kv
-
-```code
-(lmap-kv [key val ...]) -> lmap
 ```
 
 ### lmatch?
@@ -5130,34 +5154,10 @@
 (write-short stream num|list) -> stream
 ```
 
-### xmap
-
-```code
-(xmap [num_buckets cmp_fnc hash_fnc]) -> xmap
-```
-
-### xmap-kv
-
-```code
-(xmap-kv [key val ...]) -> xmap
-```
-
 ### xml-parse
 
 ```code
 (xml-parse stream)
-```
-
-### xset
-
-```code
-(xset [num_buckets cmp_fnc hash_fnc]) -> xset
-```
-
-### xset-k
-
-```code
-(xset-k [key ...]) -> xset
 ```
 
 ### zip

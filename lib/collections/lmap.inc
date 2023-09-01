@@ -5,8 +5,8 @@
 ;module
 (env-push)
 
-(defclass lmap () :nil
-	; (lmap) -> lmap
+(defclass Lmap () :nil
+	; (Lmap) -> lmap
 	(def this :keys (list) :vals (list))
 
 	(defmethod :find (this key)
@@ -36,13 +36,13 @@
 
 	(defmethod :copy (this)
 		; (. lmap :copy) -> lmap
-		(defq that ((get 'lmap)))
+		(defq that ((get 'Lmap)))
 		(set that :keys (cat (get :keys this)) :vals (cat (get :vals this)))
 		that)
 
 	(defmethod :deep_copy (this)
 		; (. lmap :deep_copy) -> lmap
-		(defq that ((get 'lmap)))
+		(defq that ((get 'Lmap)))
 		(set that :keys (copy (get :keys this)) :vals (copy (get :vals this)))
 		that)
 
@@ -53,7 +53,7 @@
 
 	(defmethod :move (this)
 		; (. lmap :move) -> lmap
-		(raise :keys :vals (that ((get 'lmap))
+		(raise :keys :vals (that ((get 'Lmap))
 			that_keys (get :keys that) that_vals (get :vals that)))
 		(lower (:keys that_keys :vals that_vals))
 		(set that :keys keys :vals vals)
@@ -70,11 +70,11 @@
 
 ;module
 (export-classes
-	lmap)
+	Lmap)
 (env-pop)
 
-(defun lmap-kv (&rest _)
-	; (lmap-kv [key val ...]) -> lmap
-	(defq this (lmap))
+(defun Lmap-kv (&rest _)
+	; (Lmap-kv [key val ...]) -> lmap
+	(defq this (Lmap))
 	(each! 0 -1 (# (. this :insert %0 %1)) (unzip _ (lists2)))
 	this)

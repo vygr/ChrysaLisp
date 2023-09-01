@@ -316,7 +316,7 @@ Auto sizing Grid widgets, set either `:grid_width` or `:grid_height` to 0.
 
 Start of XML, SVG import libs. Plenty more to do yet.
 
-New '(lmap)' linear map class.
+New '(Lmap)' linear map class.
 
 Moved all the Canvas loading and saving to Lisp.
 
@@ -381,13 +381,13 @@ conversions to fixed and integer.
 Addition of `(static form)` macro to `root.inc`. Performs a macro and
 prebind expansion of the given form and then wraps it in a quote for runtime.
 
-`(eql)` and `(find)` can now be used on vectors. As a result a new `(fmap
+`(eql)` and `(find)` can now be used on vectors. As a result a new `(Fmap
 [num_buckets])` class is available as standard from `root.inc`. This map type
 uses the `(find)` call to search the buckets.
 
 `(find)` now follows strict behavior of `(eql)` for element tests.
 
-New `(fset [num_buckets])` class.
+New `(Fset [num_buckets])` class.
 
 New `:find_matches_case` method on Dictionary class. Editor now uses this for
 word matching.
@@ -744,7 +744,7 @@ Converged csv, yaml and data exchange libraries to `lib/xchange`. Main includes
 * lib/xchange/msg-data.inc  - Serializing and deserializing data structures
 * lib/xchange/yaml-data.inc - Reading and writing YAML files
 
-Replaced `properties` from `xtras.inc` with `emaps`
+Replaced `properties` from `xtras.inc` with `Emaps`
 
 Beginning to move the widget code out to Lisp level. Eventually only the GUI
 compositor system will be in VP code.

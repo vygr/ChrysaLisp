@@ -18,7 +18,7 @@
 (import "./ui.inc")
 
 (defq
-event_map (fmap-kv
+event_map (Fmap-kv
 	+event_macro_record action-macro-record
 	+event_macro_playback action-macro-playback
 	+event_macro_to_eof action-macro-to-eof
@@ -62,7 +62,7 @@ event_map (fmap-kv
 	+event_tree_action action-tree-action
 	+event_open_leaf_action action-open-leaf-action)
 
-key_map (fmap-kv
+key_map (Fmap-kv
 	0x40000050 action-left
 	0x4000004f action-right
 	0x40000052 action-up
@@ -75,7 +75,7 @@ key_map (fmap-kv
 	+char_delete action-delete
 	+char_tab action-tab)
 
-key_map_shift (fmap-kv
+key_map_shift (Fmap-kv
 	0x40000050 action-left-select
 	0x4000004f action-right-select
 	0x40000052 action-up-select
@@ -84,7 +84,7 @@ key_map_shift (fmap-kv
 	0x4000004D action-end-select
 	+char_tab action-left-tab)
 
-key_map_control (fmap-kv
+key_map_control (Fmap-kv
 	(ascii-code "M") action-macro-record
 	(ascii-code "m") action-macro-playback
 	(ascii-code "/") action-comment-block

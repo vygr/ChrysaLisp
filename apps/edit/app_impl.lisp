@@ -297,7 +297,7 @@
 	(defq select (alloc-select +select_size)
 		edit_service (mail-declare (task-netid) "Edit" "Edit Service 0.1")
 		*running* :t *edit* (Editor-edit) *page_scale* 1.0
-		*current_file* :nil *meta_map* (fmap) *open_files* (list) *syntax* (Syntax)
+		*current_file* :nil *meta_map* (Fmap) *open_files* (list) *syntax* (Syntax)
 		*whole_words* :nil *macro_record* :nil *macro_actions* (list)
 		dictionary (Dictionary 1021) match_window :nil match_flow :nil match_index -1)
 	(.-> *edit* (:set_buffer (Buffer)) (:set_underlay_color +argb_grey6))

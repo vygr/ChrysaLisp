@@ -2,8 +2,8 @@
 ; generic env map object
 ;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defclass emap (&optional num_buckets) :nil
-	; (emap [num_buckets]) -> emap
+(defclass Emap (&optional num_buckets) :nil
+	; (Emap [num_buckets]) -> emap
 	(def this :num_buckets (setq num_buckets (opt num_buckets 1))
 		:buckets (env num_buckets))
 
@@ -27,13 +27,13 @@
 
 	(defmethod :copy (this)
 		; (. emap :copy) -> emap
-		(defq that ((get 'emap) (get :num_buckets this)) that_buckets (get :buckets that))
+		(defq that ((get 'Emap) (get :num_buckets this)) that_buckets (get :buckets that))
 		(each (lambda ((key val)) (def that_buckets key val)) (tolist (get :buckets this)))
 		that)
 
 	(defmethod :deep_copy (this)
 		; (. emap :deep_copy) -> emap
-		(defq that ((get 'emap) (get :num_buckets this)) that_buckets (get :buckets that))
+		(defq that ((get 'Emap) (get :num_buckets this)) that_buckets (get :buckets that))
 		(each (lambda ((key val)) (def that_buckets (copy key) (copy val))) (tolist (get :buckets this)))
 		that)
 
@@ -54,9 +54,9 @@
 		this)
 	)
 
-(defun emap-kv (&rest _)
-	; (emap-kv [key val ...]) -> emap
-	(defq this (emap))
+(defun Emap-kv (&rest _)
+	; (Emap-kv [key val ...]) -> emap
+	(defq this (Emap))
 	(each! 0 -1 (# (. this :insert %0 %1)) (unzip _ (lists2)))
 	this)
 

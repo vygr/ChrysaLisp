@@ -133,7 +133,7 @@
 
 (defun main ()
 	(defq select (alloc-select +select_size) *running* :t *edit* (Viewer-edit)
-		*meta_map* (fmap 31) *current_file* :nil *page_scale* 1.0)
+		*meta_map* (Fmap 31) *current_file* :nil *page_scale* 1.0)
 	(.-> *edit* (:set_buffer (Buffer)) (:set_underlay_color +argb_grey6))
 	(def *edit* :min_width 0 :min_height 0
 		:vdu_width +vdu_min_width :vdu_height +vdu_min_height)

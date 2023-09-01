@@ -21,7 +21,7 @@
 
 (defun opt-vectors (vectors)
 	; (opt-vectors vectors) -> (new_vectors new_indexs)
-	(defq vec_fmap (fmap 101) vec_imap (cap (length vectors) (list)) new_vecs (list))
+	(defq vec_fmap (Fmap 101) vec_imap (cap (length vectors) (list)) new_vecs (list))
 	(each (lambda (v)
 		(unless (defq i (. vec_fmap :find v))
 			(setq i (length new_vecs))

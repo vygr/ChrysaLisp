@@ -10,8 +10,8 @@
 		b (% ((get :hash_fnc this) key) (get :num_buckets this))
 		e (some (# (if ((get :cmp_fnc this) %0 key) _)) (elem-get b x))))
 
-(defclass xset (&optional num_buckets cmp_fnc hash_fnc) :nil
-	; (xset [num_buckets cmp_fnc hash_fnc]) -> xset
+(defclass Xset (&optional num_buckets cmp_fnc hash_fnc) :nil
+	; (Xset [num_buckets cmp_fnc hash_fnc]) -> xset
 	(def this :num_buckets (setq num_buckets (opt num_buckets 1))
 		:buckets (lists num_buckets)
 		:cmp_fnc (opt cmp_fnc eql) :hash_fnc (opt hash_fnc hash))
@@ -43,7 +43,7 @@
 
 	(defmethod :copy (this)
 		; (. xset :copy) -> xset
-		(defq that ((get 'xset) (get :num_buckets this) (get :cmp_fnc this) (get :hash_fnc this)))
+		(defq that ((get 'Xset) (get :num_buckets this) (get :cmp_fnc this) (get :hash_fnc this)))
 		(each (lambda (this_bucket that_bucket)
 			(each (lambda (key)
 				(push that_bucket key)) this_bucket)) (get :buckets this) (get :buckets that))
@@ -51,7 +51,7 @@
 
 	(defmethod :deep_copy (this)
 		; (. xset :deep_copy) -> xset
-		(defq that ((get 'xset) (get :num_buckets this) (get :cmp_fnc this) (get :hash_fnc this)))
+		(defq that ((get 'Xset) (get :num_buckets this) (get :cmp_fnc this) (get :hash_fnc this)))
 		(each (lambda (this_bucket that_bucket)
 			(each (lambda (key)
 				(push that_bucket (copy key))) this_bucket)) (get :buckets this) (get :buckets that))
@@ -94,7 +94,7 @@
 
 	(defmethod :move (this)
 		; (. xset :move) -> xset
-		(defq that ((get 'xset) (get :num_buckets this) (get :cmp_fnc this) (get :hash_fnc this))
+		(defq that ((get 'Xset) (get :num_buckets this) (get :cmp_fnc this) (get :hash_fnc this))
 			this_buckets (get :buckets this) that_buckets (get :buckets that))
 		(set this :buckets that_buckets)
 		(set that :buckets this_buckets)
@@ -117,11 +117,11 @@
 
 ;module
 (export-classes
-	xset)
+	Xset)
 (env-pop)
 
-(defun xset-k (&rest _)
-	; (xset-k [key ...]) -> xset
-	(defq this (xset))
+(defun Xset-k (&rest _)
+	; (Xset-k [key ...]) -> xset
+	(defq this (Xset))
 	(each (# (. this :insert %0)) _)
 	this)

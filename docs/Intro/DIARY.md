@@ -275,7 +275,7 @@ folks.
 ## Results
 
 It's worth pointing out that this has now been used in the creation of standard
-set and map classes `emap, xmap, fmap, lmap` and `xset, fset`. I refer everyone
+set and map classes `Emap, Xmap, Fmap, Lmap` and `Xset, Fset`. I refer everyone
 to look at `lib/collections/`. These collection classes are present across the
 entire system via `root.inc` so feel free to use them in apps without needing
 to `(import)` anything.

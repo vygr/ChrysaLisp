@@ -10,8 +10,8 @@
 		b (* (% ((get :hash_fnc this) key) (get :num_buckets this)) 2)
 		e (some (# (if ((get :cmp_fnc this) %0 key) _)) (elem-get b x))))
 
-(defclass xmap (&optional num_buckets cmp_fnc hash_fnc) :nil
-	; (xmap [num_buckets cmp_fnc hash_fnc]) -> xmap
+(defclass Xmap (&optional num_buckets cmp_fnc hash_fnc) :nil
+	; (Xmap [num_buckets cmp_fnc hash_fnc]) -> xmap
 	(def this :num_buckets (setq num_buckets (opt num_buckets 1))
 		:buckets (lists (* num_buckets 2))
 		:cmp_fnc (opt cmp_fnc eql) :hash_fnc (opt hash_fnc hash))
@@ -47,7 +47,7 @@
 
 	(defmethod :copy (this)
 		; (. xmap :copy) -> xmap
-		(defq that ((get 'xmap) (get :num_buckets this) (get :cmp_fnc this) (get :hash_fnc this)))
+		(defq that ((get 'Xmap) (get :num_buckets this) (get :cmp_fnc this) (get :hash_fnc this)))
 		(each (lambda (this_bucket that_bucket)
 			(each (lambda (key_val)
 				(push that_bucket key_val)) this_bucket)) (get :buckets this) (get :buckets that))
@@ -55,7 +55,7 @@
 
 	(defmethod :deep_copy (this)
 		; (. xmap :deep_copy) -> xmap
-		(defq that ((get 'xmap) (get :num_buckets this) (get :cmp_fnc this) (get :hash_fnc this)))
+		(defq that ((get 'Xmap) (get :num_buckets this) (get :cmp_fnc this) (get :hash_fnc this)))
 		(each (lambda (this_bucket that_bucket)
 			(each (lambda (key_val)
 				(push that_bucket (copy key_val))) this_bucket)) (get :buckets this) (get :buckets that))
@@ -68,7 +68,7 @@
 
 	(defmethod :move (this)
 		; (. xmap :move) -> xmap
-		(defq that ((get 'xmap) (get :num_buckets this) (get :cmp_fnc this) (get :hash_fnc this))
+		(defq that ((get 'Xmap) (get :num_buckets this) (get :cmp_fnc this) (get :hash_fnc this))
 			this_buckets (get :buckets this) that_buckets (get :buckets that))
 		(set this :buckets that_buckets)
 		(set that :buckets this_buckets)
@@ -94,11 +94,11 @@
 
 ;module
 (export-classes
-	xmap)
+	Xmap)
 (env-pop)
 
-(defun xmap-kv (&rest _)
-	; (xmap-kv [key val ...]) -> xmap
-	(defq this (xmap))
+(defun Xmap-kv (&rest _)
+	; (Xmap-kv [key val ...]) -> xmap
+	(defq this (Xmap))
 	(each! 0 -1 (# (. this :insert %0 %1)) (unzip _ (lists2)))
 	this)

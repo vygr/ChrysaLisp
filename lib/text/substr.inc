@@ -4,7 +4,7 @@
 
 (defclass Substr (&optional num_buckets) :nil
 	; (Substr) -> substr
-	(def this :meta_cache (fmap num_buckets))
+	(def this :meta_cache (Fmap num_buckets))
 
 	(defmethod :compile (this pattern)
 		; (. substr :compile pattern) -> :nil | meta

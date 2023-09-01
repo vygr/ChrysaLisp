@@ -196,7 +196,7 @@
 	; (SVG-Canvas stream [scale]) -> :nil | canvas
 	(setq scale (n2f (opt scale 1)))
 	(defq canvas :nil stack
-		(list (lmap-kv
+		(list (Lmap-kv
 			;this block of defaults are in order !
 			"stroke" 0
 			"fill" +argb_black
@@ -296,7 +296,7 @@
 
 (defun SVG-info (stream)
 	; (SVG-info stream) -> (width height type) | (-1 -1 -1)
-	(defq stack (list (lmap)) width -1 height -1)
+	(defq stack (list (Lmap)) width -1 height -1)
 	(XML-parse stream
 		(lambda (command keys vals)
 			(when (eql command "svg")

@@ -8,7 +8,7 @@
 (import "./ui.inc")
 
 (defq
-event_map (fmap-kv
+event_map (Fmap-kv
 	+event_close action-close
 	+event_reset action-reset
 	+event_prev action-prev
@@ -23,7 +23,7 @@ event_map (fmap-kv
 	+event_mode_normal action-mode-normal
 	+event_mode_gerber action-mode-gerber)
 
-key_map (fmap-kv
+key_map (Fmap-kv
 	(ascii-code "a") action-mode-normal
 	(ascii-code "g") action-mode-gerber
 	(ascii-code "0") action-show-all
@@ -35,9 +35,9 @@ key_map (fmap-kv
 	(ascii-code "n") action-next
 	(ascii-code "p") action-prev)
 
-key_map_shift (fmap-kv)
+key_map_shift (Fmap-kv)
 
-key_map_control (fmap-kv
+key_map_control (Fmap-kv
 	(ascii-code "=") action-zoom-in
 	(ascii-code "-") action-zoom-out))
 

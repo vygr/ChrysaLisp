@@ -12,12 +12,12 @@
 (defun map? (_)
 	; (map? object) -> :t | :nil
 	; returns true if argument is a map type
-	(or (emap? _) (xmap? _) (fmap? _) (lmap? _)))
+	(or (Emap? _) (Xmap? _) (Fmap? _) (Lmap? _)))
 
 (defun set? (_)
 	; (set? object) -> :t | :nil
 	; returns true if argument is a set type
-	(or (xset? _) (fset? _)))
+	(or (Xset? _) (Fset? _)))
 
 (defun gather (m &rest _)
 	; (gather map key ...) -> (val ...)

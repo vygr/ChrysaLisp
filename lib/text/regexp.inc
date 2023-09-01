@@ -172,7 +172,7 @@
 
 (defclass Regexp (&optional num_buckets) :nil
 	; (Regexp) -> regexp
-	(def this :meta_cache (fmap num_buckets))
+	(def this :meta_cache (Fmap num_buckets))
 
 	(defmethod :compile (this pattern)
 		; (. regexp :compile pattern) -> :nil | meta

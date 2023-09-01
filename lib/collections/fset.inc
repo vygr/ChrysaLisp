@@ -10,8 +10,8 @@
 		b (% (hash key) (get :num_buckets this))
 		e (find key (elem-get b x))))
 
-(defclass fset (&optional num_buckets) :nil
-	; (fset [num_buckets]) -> fset
+(defclass Fset (&optional num_buckets) :nil
+	; (Fset [num_buckets]) -> fset
 	(def this :num_buckets (setq num_buckets (opt num_buckets 1))
 		:buckets (lists num_buckets))
 
@@ -42,7 +42,7 @@
 
 	(defmethod :copy (this)
 		; (. fset :copy) -> fset
-		(defq that ((get 'fset) (get :num_buckets this)))
+		(defq that ((get 'Fset) (get :num_buckets this)))
 		(each (lambda (this_bucket that_bucket)
 			(each (lambda (key)
 				(push that_bucket key)) this_bucket)) (get :buckets this) (get :buckets that))
@@ -50,7 +50,7 @@
 
 	(defmethod :deep_copy (this)
 		; (. fset :deep_copy) -> fset
-		(defq that ((get 'fset) (get :num_buckets this)))
+		(defq that ((get 'Fset) (get :num_buckets this)))
 		(each (lambda (this_bucket that_bucket)
 			(each (lambda (key)
 				(push that_bucket (copy key))) this_bucket)) (get :buckets this) (get :buckets that))
@@ -93,7 +93,7 @@
 
 	(defmethod :move (this)
 		; (. fset :move) -> fset
-		(defq that ((get 'fset) (get :num_buckets this))
+		(defq that ((get 'Fset) (get :num_buckets this))
 			this_buckets (get :buckets this) that_buckets (get :buckets that))
 		(set this :buckets that_buckets)
 		(set that :buckets this_buckets)
@@ -116,11 +116,11 @@
 
 ;module
 (export-classes
-	fset)
+	Fset)
 (env-pop)
 
-(defun fset-k (&rest _)
-	; (fset-k [key ...]) -> fset
-	(defq this (fset))
+(defun Fset-k (&rest _)
+	; (Fset-k [key ...]) -> fset
+	(defq this (Fset))
 	(each (# (. this :insert %0)) _)
 	this)

@@ -12,7 +12,7 @@
 
 (defun alloc-node-set ()
 	(unless (defq ns (pop +node_sets))
-		(defq ns (fset 11))) ns)
+		(defq ns (Fset 11))) ns)
 
 (defun free-node-set (ns)
 	(push +node_sets (. ns :empty)))
@@ -418,7 +418,7 @@
 		:nodes_dim (dim (nums (* width grid_res) (* height grid_res) depth)
 			(defq nodes (cap (* width height depth grid_res grid_res) (nums))))
 		:width (* width grid_res) :height (* height grid_res) :depth depth
-		:deform (fmap 101) :grid_res grid_res
+		:deform (Fmap 101) :grid_res grid_res
 		:flood_vectors (list
 			(gen-vectors fr fr_even fr)
 			(gen-vectors fr fr fr_odd))
@@ -523,7 +523,7 @@
 	(defmethod :mark_distances (this radius via gap starts ends)
 		; (. pcb :mark_distances radius via gap starts ends) -> pcb
 		;generate all grid points surrounding node that are not shorting with an existing track
-		(raise :flood_vectors :vias_cost (distance 1 vias_map (const (fmap 11))
+		(raise :flood_vectors :vias_cost (distance 1 vias_map (const (Fmap 11))
 			frontier (. starts :copy) exit :t))
 		(while (and exit (or (not (. vias_map :empty?)) (not (. frontier :empty?))))
 			(task-slice)
@@ -598,7 +598,7 @@
 		(raise :netlist)
 		(.-> this :remove_netlist :unmark_distances :reset_areas :shuffle_netlist)
 		(sort-netlist netlist)
-		(defq hoisted_nets (fset) index 0 exit :t retval :t)
+		(defq hoisted_nets (Fset) index 0 exit :t retval :t)
 		(while (and exit (not (mail-poll select)) (< index (length netlist)))
 			(task-slice)
 			(defq net (elem-get index netlist))
