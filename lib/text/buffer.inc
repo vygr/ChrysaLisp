@@ -3,8 +3,6 @@
 ;;;;;;;;;;;;;;;;;;;;
 
 (import "./syntax.inc")
-(import "./substr.inc")
-(import "./regexp.inc")
 (import "././consts/chars.inc")
 
 ;module
@@ -88,7 +86,7 @@
 		:syntax (opt syntax (Syntax)) :undo_stack (list) :redo_stack (list)
 		:cursor_x 0 :cursor_y 0 :max_width 0 :tab_width 4 :wrap_width 80
 		:mode mode :next_mark -1 :modified :nil
-		:substr (Substr) :last_pattern :nil)
+		:last_pattern :nil)
 
 	(defmethod :set_mode (this mode)
 		; (. buffer :set_mode mode) -> buffer
@@ -442,18 +440,18 @@
 
 	(defmethod :find (this pattern)
 		; (. buffer :find pattern) -> buffer_index
-		(raise :last_pattern :buffer_index :substr)
+		(raise :last_pattern :buffer_index)
 		(unless (eql last_pattern pattern)
 			(lower (:last_pattern pattern :dirty_index :t))
 			(each (lambda (__) (elem-set _ buffer_index :nil)) buffer_index))
 		(when (get :dirty_index this)
 			(lower (:dirty_index :nil))
-			(defq meta (. substr :compile pattern))
+			(defq meta (. +*substr* :compile pattern))
 			(each (lambda (line index)
 					(if (> (length line) 0)
 						(unless index
 							(task-slice)
-							(elem-set _ buffer_index (. substr :search line pattern meta)))
+							(elem-set _ buffer_index (. +*substr* :search line pattern meta)))
 						(elem-set _ buffer_index '())))
 				(get :buffer this) buffer_index))
 		buffer_index)
