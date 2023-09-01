@@ -4200,6 +4200,12 @@
 (pipe-run cmdline &optional outfun)
 ```
 
+### pipe-split
+
+```code
+(pipe-split line) -> (list e0 [e1] ...)
+```
+
 ### pivot
 
 ```code
