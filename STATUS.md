@@ -6,8 +6,8 @@
 
 New `Substr` string search class. Editor updated to use this new class.
 
-New `Regexp` string search class. Supports `\q \t \r \n \w \b \ . + * ? | ( ) ^
-$ []`.
+New `Regexp` string search class. Supports `\s \f \q \t \r \n \w \b \ . + * ? |
+( ) ^ $ []`.
 
 New `grep` command, just `-e regexp_pattern` for now.
 

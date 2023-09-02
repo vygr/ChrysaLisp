@@ -20,6 +20,7 @@
 		\q	double quote
 		\t	tab
 		\r	return
+		\f	form feed
 		\n	line feed
 		\w	white space
 		\b	black space

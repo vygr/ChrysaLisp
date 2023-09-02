@@ -61,6 +61,7 @@
 					("q" (output :lit (ascii-char 34)))
 					("s" (output :lit (ascii-char 32)))
 					("r" (output :lit (ascii-char 13)))
+					("f" (output :lit (ascii-char 12)))
 					("n" (output :lit (ascii-char 10)))
 					("t" (output :lit (ascii-char 9)))
 					(:t (output :lit c)))
