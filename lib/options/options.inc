@@ -18,7 +18,7 @@
 (defun options (stdio optlist)
 	; (options stdio optlist) -> :nil | args
 	;scan the stdio args and process acording to the optlist
-	(defq args (stdio-get-args stdio) out_args (list))
+	(defq args (split (stdio-get-args stdio) " ") out_args (list))
 	(while (/= (length args) 0)
 		;look for "-", pass through if not
 		(defq arg (elem-get 0 args) args (slice 1 -1 args))
