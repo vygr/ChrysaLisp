@@ -2,23 +2,23 @@
 (import "lib/options/options.inc")
 
 ;read up to chunk_size chars from stream
-(defun read-chunk (_)
+(defun read-chunk (stream)
 	(defq chunk (list))
 	(while (and (/= chunk_size (length chunk))
-			(defq c (read-char _))
+			(defq c (read-char stream))
 			(push chunk c)))
 	(if (/= 0 (length chunk)) chunk))
 
 ;dump a stream to stdout
-(defun dump-file (_)
-	(when _
+(defun dump-file (stream)
+	(when stream
 		(defq adr 0)
-		(while (defq c (read-chunk _))
-			(prin (int-to-hex-str adr) " " (apply cat (map (lambda (_)
-				(cat (byte-to-hex-str _) " ")) c)))
+		(while (defq c (read-chunk stream))
+			(prin (int-to-hex-str adr) " " (apply cat (map (#
+				(cat (byte-to-hex-str %0) " ")) c)))
 			(times (- chunk_size (length c)) (prin "   "))
-			(print (apply cat (map (lambda (_)
-				(if (<= 32 _ 126) (char _) ".")) c)))
+			(print (apply cat (map (#
+				(if (<= 32 %0 126) (char %0) ".")) c)))
 			(setq adr (+ adr chunk_size)))))
 
 (defq usage `(
