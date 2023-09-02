@@ -16,8 +16,8 @@
 	(setd user_select '())
 	(bind '(cmdpipe args) (reduce (#
 			(bind '((x x1)) (matches %1 "^\b+"))
-			(push (elem-get 0 %0) (cat "cmd/" (slice x x1 %1) ".lisp"))
-			(push (elem-get 1 %0) %1) %0)
+			(push (first %0) (cat "cmd/" (slice x x1 %1) ".lisp"))
+			(push (second %0) %1) %0)
 		(pipe-split cmdline) (lists2)))
 	(cond
 		;error with pipe element ?
