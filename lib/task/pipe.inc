@@ -20,9 +20,9 @@
 		(push (second %0) %1) %0) (pipe-split cmdline) (lists2)))
 	(cond
 		;error with pipe element ?
-		((some (lambda (_) (= 0 (get-long _ 0))) (defq mboxs (open-pipe cmdpipe)))
+		((some (# (= 0 (get-long %0 0))) (defq mboxs (open-pipe cmdpipe)))
 			;send abort to any started pipe elements
-			(each (lambda (_) (if (/= 0 (get-long _ 0)) (mail-send _ ""))) mboxs)
+			(each (# (if (/= 0 (get-long %0 0)) (mail-send %0 ""))) mboxs)
 			(setq this :nil))
 		(:t ;wire up pipe and send args
 			(bind '(streams select) (reduce (lambda (%0 _)
