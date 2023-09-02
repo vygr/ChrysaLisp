@@ -9,7 +9,7 @@
 
 (defq usage `(
 (("-h" "--help")
-"Usage: grep [options] [path] ...
+"Usage: grep [options] [pattern] [path] ...
 
 	options:
 		-h --help: this help info.
@@ -46,10 +46,12 @@
 	;initialize pipe details and command args, abort on error
 	(when (and
 			(defq stdio (create-stdio))
-			(defq pattern "" args (options stdio usage))
-			(defq regexp (Regexp) cexp (. regexp :compile pattern)))
-		(if (<= (length args) 1)
-			;grep from stdin
-			(grep-file (io-stream 'stdin))
-			;grep from args as files
-			(each (# (grep-file (file-stream %0))) (slice 1 -1 args)))))
+			(defq pattern "" args (options stdio usage)))
+		(when (and (eql pattern "") (> (length args) 1))
+			(defq pattern (elem-get 1 args) args (erase args 1 2)))
+		(when (defq regexp (Regexp) cexp (. regexp :compile pattern)))
+			(if (<= (length args) 1)
+				;grep from stdin
+				(grep-file (io-stream 'stdin))
+				;grep from args as files
+				(each (# (grep-file (file-stream %0))) (slice 1 -1 args)))))
