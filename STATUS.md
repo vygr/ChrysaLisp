@@ -26,6 +26,8 @@ eg.
 (0 3)
 (6 9)
 
+Argument quoting added to options processing lib.
+
 ------
 
 Rename `pupa.inc` files to `env.inc`.
