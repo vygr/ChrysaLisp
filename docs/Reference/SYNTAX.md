@@ -4032,6 +4032,12 @@
 (options-print &rest _)
 ```
 
+### options-split
+
+```code
+(options-split args) -> (list a0 [a1] ...)
+```
+
 ### or
 
 ```code
