@@ -53,7 +53,7 @@ Usage: grep [options] [pattern] [path] ...
 		-h --help: this help info.
 		-e --exp pattern: regular expression.
 
-	Supports:
+	pattern:
 		\s	space
 		\q	double quote
 		\t	tab
