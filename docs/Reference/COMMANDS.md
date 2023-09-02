@@ -47,7 +47,7 @@ Usage: file [options] [prefix] [postfix]
 ```
 ## grep
 ```code
-Usage: grep [options] [path] ...
+Usage: grep [options] [pattern] [path] ...
 
 	options:
 		-h --help: this help info.
