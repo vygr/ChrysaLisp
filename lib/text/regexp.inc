@@ -45,7 +45,7 @@
 						(concat?)
 						(output :eol c)
 						(setq concat :t))
-					(:t	(concat?)
+					(:t (concat?)
 						(output :lit c)
 						(setq concat :t))))
 			(:class
@@ -53,7 +53,7 @@
 					((eql c "]")
 						(output :class (apply cat token))
 						(setq concat :t state :space))
-					(:t	(push token c))))
+					(:t (push token c))))
 			(:esc
 				(case c
 					("w" (output :white c))
@@ -82,9 +82,9 @@
 					(defq ps (find (elem-get -2 stack) +op_presidence))
 					(cond
 						((>= p ps) (output :op (pop stack)))
-						(:t	(setq x :nil))))
+						(:t (setq x :nil))))
 				(push stack token))
-			(:t	;:lit :wild :class :white :black :sol :eol
+			(:t ;:lit :wild :class :white :black :sol :eol
 				(output type token)))) tokenize_output)
 	(while (defq _ (pop stack)) (output :op _))
 	(list out_tokens out_types))
