@@ -14,7 +14,7 @@
 	(sym (cat "obj/" *cpu* "/" *abi* "/" _)))
 
 (defun func-refs (fobj)
-	; (func-refs fobj) -> (list [sym] ...)
+	; (func-refs fobj) -> ([sym] ...)
 	(defq paths (list)
 		lo (get-short fobj +fn_header_links)
 		po (get-short fobj +fn_header_paths))
@@ -24,7 +24,7 @@
 	paths)
 
 (defun func-load (name)
-	; (func-load name) -> (list body links refs)
+	; (func-load name) -> (body links refs)
 	;cache loading of function blobs etc
 	(or (get name *blob_map*)
 		(progn

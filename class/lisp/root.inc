@@ -609,13 +609,13 @@
 ;;;;;;;;;;;
 
 (defun lists (n)
-	; (lists n) -> (list (list0) - (listn-1))
+	; (lists n) -> ((list0) ... (listn-1))
 	(defq out (cap n (list)))
 	(while (>= (setq n (dec n)) 0) (push out (list)))
 	out)
 
 (defmacro lists2 ()
-	; (lists2) -> (list (list) (list))
+	; (lists2) -> ((list) (list))
 	'(list (list) (list)))
 
 (defmacro export (e &rest syms)
@@ -1011,7 +1011,7 @@
 (defq +*substr* (Substr 11) +*regexp* (Regexp 11))
 
 (defun substr (_t _p)
-	; (substr text substr) -> (list [(i0 i1)] ...)
+	; (substr text substr) -> ([(i0 i1)] ...)
 	(. +*substr* :search _t _p))
 
 (defun match? (_t _p)
@@ -1019,7 +1019,7 @@
 	(. +*regexp* :match? _t _p))
 
 (defun matches (_t _p)
-	; (matches text regexp) -> (list [(i0 i1)] ...)
+	; (matches text regexp) -> ([(i0 i1)] ...)
 	(. +*regexp* :search _t _p))
 
 (defmacro each-found (_f _t _p)

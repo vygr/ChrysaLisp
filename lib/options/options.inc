@@ -16,7 +16,7 @@
 		(if (find arg (elem-get 0 opt_entry)) opt_entry)) optlist))
 
 (defun options-split (args)
-	; (options-split args) -> (list a0 [a1] ...)
+	; (options-split args) -> (a0 [a1] ...)
 	(map (lambda ((x x1)) (trim (slice x x1 args) (ascii-char 34)))
 		(matches args {".*"|\b+})))
 

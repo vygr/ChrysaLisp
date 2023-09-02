@@ -417,7 +417,7 @@
 ### edit :char_pos
 
 ```code
-(. edit :char_pos event) -> (list x y)
+(. edit :char_pos event) -> (x y)
 ```
 
 ### edit :clear_selection
@@ -465,7 +465,7 @@
 ### edit :get_anchor
 
 ```code
-(. edit :get_anchor) -> (list x y)
+(. edit :get_anchor) -> (x y)
 ```
 
 ### edit :get_buffer
@@ -477,13 +477,13 @@
 ### edit :get_cursor
 
 ```code
-(. edit :get_cursor) -> (list x y)
+(. edit :get_cursor) -> (x y)
 ```
 
 ### edit :get_scroll
 
 ```code
-(. edit :get_scroll) -> (list x y)
+(. edit :get_scroll) -> (x y)
 ```
 
 ### edit :get_vdu_text
@@ -2463,7 +2463,7 @@
 ### alloc-select
 
 ```code
-(alloc-select size) -> (list (task-netid) [temp_mbox] ...)
+(alloc-select size) -> ((task-netid) [temp_mbox] ...)
 ```
 
 ### and
@@ -3231,13 +3231,13 @@
 ### func-load
 
 ```code
-(func-load name) -> (list body links refs)
+(func-load name) -> (body links refs)
 ```
 
 ### func-refs
 
 ```code
-(func-refs fobj) -> (list [sym] ...)
+(func-refs fobj) -> ([sym] ...)
 ```
 
 ### func?
@@ -3537,13 +3537,13 @@
 ### lists
 
 ```code
-(lists n) -> (list (list0) - (listn-1))
+(lists n) -> ((list0) ... (listn-1))
 ```
 
 ### lists2
 
 ```code
-(lists2) -> (list (list) (list))
+(lists2) -> ((list) (list))
 ```
 
 ### lmatch?
@@ -3753,7 +3753,7 @@
 ### matches
 
 ```code
-(matches text regexp) -> (list [(i0 i1)] ...)
+(matches text regexp) -> ([(i0 i1)] ...)
 ```
 
 ### max
@@ -4035,7 +4035,7 @@
 ### options-split
 
 ```code
-(options-split args) -> (list a0 [a1] ...)
+(options-split args) -> (a0 [a1] ...)
 ```
 
 ### or
@@ -4101,7 +4101,7 @@
 ### path-gen-paths
 
 ```code
-(path-gen-paths svg_d tol) -> (list (:nil|:t path) ...)
+(path-gen-paths svg_d tol) -> ((:nil|:t path) ...)
 ```
 
 ### path-gen-quadratic
@@ -4209,7 +4209,7 @@
 ### pipe-split
 
 ```code
-(pipe-split cmdline) -> (list e0 [e1] ...)
+(pipe-split cmdline) -> (e0 [e1] ...)
 ```
 
 ### pivot
@@ -4695,7 +4695,7 @@
 ### substr
 
 ```code
-(substr text substr) -> (list [(i0 i1)] ...)
+(substr text substr) -> ([(i0 i1)] ...)
 ```
 
 ### swap

@@ -131,16 +131,16 @@
 		(get :vdu_underlay this))
 
 	(defmethod :get_cursor (this)
-		; (. edit :get_cursor) -> (list x y)
+		; (. edit :get_cursor) -> (x y)
 		(raise :buffer)
 		(. buffer :get_cursor))
 
 	(defmethod :get_anchor (this)
-		; (. edit :get_anchor) -> (list x y)
+		; (. edit :get_anchor) -> (x y)
 		(list (get :anchor_x this) (get :anchor_y this)))
 
 	(defmethod :get_scroll (this)
-		; (. edit :get_scroll) -> (list x y)
+		; (. edit :get_scroll) -> (x y)
 		(list (get :scroll_x this) (get :scroll_y this)))
 
 	(defmethod :set_buffer (this buffer)
@@ -161,7 +161,7 @@
 		(lower :scroll_x :scroll_y) this)
 
 	(defmethod :char_pos (this event)
-		; (. edit :char_pos event) -> (list x y)
+		; (. edit :char_pos event) -> (x y)
 		(raise :scroll_x :scroll_y :vdu_text)
 		(bind '(w h) (. vdu_text :char_size))
 		(defq x (getf event +ev_msg_mouse_rx) y (getf event +ev_msg_mouse_ry))
