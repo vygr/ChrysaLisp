@@ -159,12 +159,12 @@
 	(list (const defq) n (cat (list (const lambda) a) _)))
 
 (defmacro static-q (_)
-	; (static-q 'form) -> '(form)
+	; (static-q 'form) -> 'form
 	;static quoted
 	(cat (list (const quote)) (list (prebind (eval (macroexpand _))))))
 
 (defmacro static-qq (_)
-	; (static-qq 'form) -> `(form)
+	; (static-qq 'form) -> `form
 	;static quasi-quoted
 	(cat (list (const quasi-quote)) (list (prebind (eval (macroexpand _))))))
 

@@ -4617,13 +4617,13 @@
 ### static-q
 
 ```code
-(static-q 'form) -> '(form)
+(static-q 'form) -> 'form
 ```
 
 ### static-qq
 
 ```code
-(static-qq 'form) -> `(form)
+(static-qq 'form) -> `form
 ```
 
 ### stdio-get-args
