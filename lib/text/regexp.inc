@@ -6,9 +6,9 @@
 (env-push)
 
 (defq +bracket_chars "()" +op_chars "+*?|" +op_presidence "+*?,|()")
-(defmacro is-op-char? (_) (list 'find _ +op_chars))
-(defmacro is-esc-char? (_) (list 'find _ "\\"))
-(defmacro is-bracket-char? (_) (list 'find _ +bracket_chars))
+(defmacro is-bracket-char? (_) `(find ,_ +bracket_chars))
+(defmacro is-esc-char? (_) `(eql ,_ ,(ascii-char 92)))
+(defmacro is-op-char? (_) `(find ,_ +op_chars))
 
 (defun concat? () (when concat (push out_types :op) (push out_tokens ",")))
 (defun output (op token) (push out_types op) (push out_tokens token))
@@ -94,17 +94,16 @@
 	(defq stack (clear '()))
 	(each! 0 -1 (lambda (token type)
 		(case type
-			(:lit (push stack `(((,eql s ,token) 1))))
-			(:wild (push stack `((:t 1))))
-			(:white (push stack `(((,<= (,code s) 32) 1))))
-			(:black (push stack `(((,> (,code s) 32) 1))))
-			(:sol (push stack `((:nil (,if (,= si 0) 1)))))
-			(:eol (push stack `((:nil (,if (,= si (- (,length text) 1)) 1)))))
+			(:lit (push stack (static-qq '(((eql s ,token) 1)))))
+			(:wild (push stack '((:t 1))))
+			(:white (push stack (static-qq '(((<= (code s) 32) 1)))))
+			(:black (push stack (static-qq '(((> (code s) 32) 1)))))
+			(:sol (push stack (static-qq '((:nil (if (= si 0) 1))))))
+			(:eol (push stack (static-qq '((:nil (if (= si (- (length text) 1)) 1))))))
 			(:class (push stack
-				(if (eql (elem-get 1 token) "-")
-					`(((,<= ,(code (elem-get 0 token)) (,code s)
-						,(code (elem-get -2 token))) 1))
-					`(((,find s ,token) 1)))))
+				(if (eql (second token) "-")
+					(static-qq '(((<= ,(code (first token)) (code s) ,(code (last token))) 1)))
+					(static-qq '(((find s ,token) 1))))))
 			(:op (case token
 				(","
 					(defq b (pop stack) a (pop stack))

@@ -28,6 +28,9 @@ eg.
 
 Argument quoting added to options processing lib.
 
+Added `static-qq` and `static-q` macros to `root.inc`, these perform static
+quasi-quotation and quotation.
+
 ------
 
 Rename `pupa.inc` files to `env.inc`.
@@ -380,8 +383,8 @@ VP versions of dot product `(nums-dot)`.
 Real format fixes to overflow conditions and some optimisations to multiply and
 conversions to fixed and integer.
 
-Addition of `(static form)` macro to `root.inc`. Performs a macro and
-prebind expansion of the given form and then wraps it in a quote for runtime.
+Addition of `(static-q form)` macro to `root.inc`. Performs a macro and prebind
+expansion of the given form and then wraps it in a quote for runtime.
 
 `(eql)` and `(find)` can now be used on vectors. As a result a new `(Fmap
 [num_buckets])` class is available as standard from `root.inc`. This map type

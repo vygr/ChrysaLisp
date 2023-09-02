@@ -30,7 +30,7 @@
 	+canvas_mode (if anti_alias +canvas_flag_antialias 0)
 	*mol_index* 0 *auto_mode* :nil *dirty* :t
 	balls (list) mol_files (sort cmp (all-files "apps/molecule/data/" '(".sdf")))
-	+palette (static '(map (lambda (_) (Vec3-f
+	+palette (static-q '(map (lambda (_) (Vec3-f
 			(n2f (/ (logand (>> _ 16) 0xff) 0xff))
 			(n2f (/ (logand (>> _ 8) 0xff) 0xff))
 			(n2f (/ (logand _ 0xff) 0xff))))

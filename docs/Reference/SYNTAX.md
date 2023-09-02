@@ -4614,10 +4614,16 @@
 (starts-with str str) -> :t | :nil
 ```
 
-### static
+### static-q
 
 ```code
-(static form)
+(static-q 'form) -> '(form)
+```
+
+### static-qq
+
+```code
+(static-qq 'form) -> `(form)
 ```
 
 ### stdio-get-args

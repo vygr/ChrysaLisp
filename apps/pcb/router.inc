@@ -6,7 +6,7 @@
 (defmacro Node (x y z)
 	`(nums ,x ,y ,z))
 
-(defq +via_vectors (static
+(defq +via_vectors (static-q
 	'(list (list (Node 0 0 -1) (Node 0 0 1)) (list (Node 0 0 -1) (Node 0 0 1))))
 	+spacial_hash_res 1.0 +path_scale 1 +node_sets ''())
 
