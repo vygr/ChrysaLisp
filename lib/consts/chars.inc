@@ -7,13 +7,16 @@
 	+char_delete 127
 	+char_tab 9
 	+char_lf 10
+	+char_ff 12
 	+char_cr 13
 	+char_esc 27
+	+char_double_quote 34
+	+char_plusminus 241
+	+char_pound 156
 	+char_space (ascii-code " ")
 	+char_underscore (ascii-code "_")
 	+char_pipe (ascii-code "|")
 	+char_hash (ascii-code "#")
-	+char_pound 156
 	+char_lrb (ascii-code "(")
 	+char_rrb (ascii-code ")")
 	+char_lsb (ascii-code "[")
@@ -21,12 +24,10 @@
 	+char_lcb (ascii-code "{")
 	+char_rcb (ascii-code "}")
 	+char_quote (ascii-code "'")
-	+char_double_quote 34
 	+char_tick (ascii-code "`")
 	+char_comma (ascii-code ",")
 	+char_tilde (ascii-code "~")
 	+char_grave (ascii-code "§")
-	+char_plusminus 241
 	+char_semi (ascii-code ";")
 	+char_colon (ascii-code ":")
 	+char_dot (ascii-code ".")
