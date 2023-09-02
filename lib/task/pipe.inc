@@ -26,10 +26,9 @@
 			(each (lambda (_) (if (/= 0 (get-long _ 0)) (mail-send _ ""))) mboxs)
 			(setq this :nil))
 		(:t ;wire up pipe and send args
-			(defq select (list) streams (list))
-			(each (lambda (_)
-				(push streams (in-stream))
-				(push select (in-mbox (last streams)))) mboxs)
+			(bind '(streams select) (reduce (lambda (%0 _)
+				(push (first %0) (defq in (in-stream)))
+				(push (second %0) (in-mbox in)) %0) mboxs (lists2)))
 			(defq stdout (in-stream) stdout_mbox (in-mbox stdout) ack_mbox (mail-alloc-mbox))
 			(each-rev (lambda (mbox arg stderr_mbox)
 				(mail-send mbox (setf-> (cat (str-alloc +stdio_msg_init_size) arg)
