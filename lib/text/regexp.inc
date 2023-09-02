@@ -109,22 +109,18 @@
 					(defq b (pop stack) a (pop stack))
 					(push stack (cat a b)))
 				("|"
-					(defq b (pop stack) a (pop stack))
-					(push stack (cat
-						`((:nil 1 ,(+ (length a) 2))) a
-						`((:nil ,(+ (length b) 1))) b)))
+					(defq b (pop stack) a (pop stack)
+						oa (+ (length a) 2) ob (+ (length b) 1))
+					(push stack (cat `((:nil 1 ,oa)) a `((:nil ,ob)) b)))
 				("?"
-					(defq a (pop stack))
-					(push stack (cat
-						`((:nil 1 ,(+ (length a) 1))) a)))
+					(defq a (pop stack) oa (+ (length a) 1))
+					(push stack (cat `((:nil 1 ,oa)) a)))
 				("*"
-					(defq a (pop stack) b (length a))
-					(push stack (cat
-						`((:nil 1 ,(+ b 2))) a `((:nil 1 ,(neg b))))))
+					(defq a (pop stack) b (length a) oa (+ b 2) ob (neg b))
+					(push stack (cat `((:nil 1 ,oa)) a `((:nil 1 ,ob)))))
 				("+"
-					(defq a (pop stack))
-					(push stack (cat
-						a `((:nil 1 ,(neg (length a)))))))
+					(defq a (pop stack) oa (neg (length a)))
+					(push stack (cat a `((:nil 1 ,oa)))))
 				)))) postfix_output)
 	(pop stack))
 
