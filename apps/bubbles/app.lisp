@@ -11,7 +11,7 @@
 
 (defq +width 600 +height 600 +min_width 300 +min_height 300
 	+rate (/ 1000000 60) +base 0.3
-	+palette (static-q '(map (lambda (_) (vec-i2n
+	+palette (push `(,quote) (map (lambda (_) (vec-i2n
 			(/ (logand (>> _ 16) 0xff) 0xff)
 			(/ (logand (>> _ 8) 0xff) 0xff)
 			(/ (logand _ 0xff) 0xff)))

@@ -94,26 +94,25 @@
 	(defq stack (clear '()))
 	(each! 0 -1 (lambda (token type)
 		(case type
-			(:lit (push stack (static-qq '(((eql s ,token) 1)))))
+			(:lit (push stack (static-qq (((eql s ,token) 1)))))
 			(:wild (push stack '((:t 1))))
-			(:white (push stack (static-qq '(((<= (code s) 32) 1)))))
-			(:black (push stack (static-qq '(((> (code s) 32) 1)))))
-			(:sol (push stack (static-qq '((:nil (if (= si 0) 1))))))
-			(:eol (push stack (static-qq '((:nil (if (= si (- (length text) 1)) 1))))))
+			(:white (push stack (static-qq (((<= (code s) 32) 1)))))
+			(:black (push stack (static-qq (((> (code s) 32) 1)))))
+			(:sol (push stack (static-qq ((:nil (if (= si 0) 1))))))
+			(:eol (push stack (static-qq ((:nil (if (= si (dec (length text))) 1))))))
 			(:class (push stack
 				(if (eql (second token) "-")
-					(static-qq '(((<= ,(code (first token)) (code s) ,(code (last token))) 1)))
-					(static-qq '(((find s ,token) 1))))))
+					(static-qq (((<= ,(code (first token)) (code s) ,(code (last token))) 1)))
+					(static-qq (((find s ,token) 1))))))
 			(:op (case token
 				(","
 					(defq b (pop stack) a (pop stack))
 					(push stack (cat a b)))
 				("|"
-					(defq b (pop stack) a (pop stack)
-						oa (+ (length a) 2) ob (+ (length b) 1))
+					(defq b (pop stack) a (pop stack) oa (+ (length a) 2) ob (inc (length b)))
 					(push stack (cat `((:nil 1 ,oa)) a `((:nil ,ob)) b)))
 				("?"
-					(defq a (pop stack) oa (+ (length a) 1))
+					(defq a (pop stack) oa (inc (length a)))
 					(push stack (cat `((:nil 1 ,oa)) a)))
 				("*"
 					(defq a (pop stack) b (length a) oa (+ b 2) ob (neg b))

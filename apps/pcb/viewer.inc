@@ -7,9 +7,8 @@
 
 (defun trans (_) (+ (logand 0xffffff _) 0xa0000000))
 
-(defq +eps 0.25
-	+colors (static-q '(map (const trans) (list
-		+argb_red +argb_green +argb_blue +argb_yellow +argb_cyan +argb_magenta))))
+(defq +eps 0.25 +colors `'(~(map trans (list
+	+argb_red +argb_green +argb_blue +argb_yellow +argb_cyan +argb_magenta))))
 
 (defun circle (r)
 	;cached circle generation
