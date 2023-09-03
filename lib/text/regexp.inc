@@ -98,35 +98,27 @@
 (defun compile (postfix_output)
 	(defq stack (clear '()))
 	(each! 0 -1 (lambda (token type)
-		(case type
-			(:lit (push stack (cache (static-qq (((eql s ,token) 1))))))
-			(:wild (push stack (static-q ((:t 1)))))
-			(:white (push stack (static-q (((<= (code s) 32) 1)))))
-			(:black (push stack (static-q (((> (code s) 32) 1)))))
-			(:sol (push stack (static-q ((:nil (if (= si 0) 1))))))
-			(:eol (push stack (static-q ((:nil (if (= si (dec (length text))) 1))))))
-			(:class (push stack (cache
-				(if (eql (second token) "-")
-					(static-qq (((<= ,(code (first token)) (code s) ,(code (last token))) 1)))
-					(static-qq (((find s ,token) 1)))))))
-			(:op (case token
-				(","
-					(defq b (pop stack) a (pop stack))
-					(push stack (cat a b)))
-				("|"
-					(defq b (pop stack) a (pop stack) oa (+ (length a) 2) ob (inc (length b)))
-					(push stack (cat (cache `((:nil 1 ,oa))) a (cache `((:nil ,ob))) b)))
-				("?"
-					(defq a (pop stack) oa (inc (length a)))
-					(push stack (cat (cache `((:nil 1 ,oa))) a)))
-				("*"
-					(defq a (pop stack) b (length a) oa (+ b 2) ob (neg b))
-					(push stack (cat (cache `((:nil 1 ,oa))) a (cache `((:nil 1 ,ob))))))
-				("+"
-					(defq a (pop stack) oa (neg (length a)))
-					(push stack (cat a (cache `((:nil 1 ,oa))))))
-				)))) postfix_output)
-	(pop stack))
+		(push stack (case type
+			(:lit (cache (static-qq (((eql s ,token) 1)))))
+			(:wild (static-q ((:t 1))))
+			(:white (static-q (((<= (code s) 32) 1))))
+			(:black (static-q (((> (code s) 32) 1))))
+			(:sol (static-q ((:nil (if (= si 0) 1)))))
+			(:eol (static-q ((:nil (if (= si (dec (length text))) 1)))))
+			(:class (cache (if (eql (second token) "-")
+				(static-qq (((<= ,(code (first token)) (code s) ,(code (last token))) 1)))
+				(static-qq (((find s ,token) 1))))))
+			(:op (defq a (pop stack)) (case token
+				("," (cat (pop stack) a))
+				("|" (defq b (pop stack) ob (+ (length b) 2) oa (inc (length a)))
+					(cat (cache `((:nil 1 ,ob))) b (cache `((:nil ,oa))) a))
+				("?" (defq oa (inc (length a)))
+					(cat (cache `((:nil 1 ,oa))) a))
+				("*" (defq b (length a) oa (+ b 2) ob (neg b))
+					(cat (cache `((:nil 1 ,oa))) a (cache `((:nil 1 ,ob)))))
+				("+" (defq oa (neg (length a)))
+					(cat a (cache `((:nil 1 ,oa)))))
+				))))) postfix_output) (pop stack))
 
 (defun addelem (creg next index elem)
 	(defq stack (slice 1 -1 elem))
