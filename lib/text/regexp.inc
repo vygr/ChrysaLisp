@@ -128,42 +128,42 @@
 				)))) postfix_output)
 	(pop stack))
 
-(defun addstate (creg next index state)
-	(defq stack (slice 1 -1 state))
+(defun addelem (creg next index elem)
+	(defq stack (slice 1 -1 elem))
 	(while (defq offset (pop stack))
 		;offsets can be expressions !
 		(if (setq offset (eval offset))
 			(if (= (defq new_index (+ index offset)) (length creg))
 				;stopped, so matched somthing !
 				(setq end (max end si))
-				;not a stop state
-				(if (elem-get 0 (defq state (elem-get new_index creg)))
+				;not stopped
+				(if (elem-get 0 (defq elem (elem-get new_index creg)))
 					;not a split
 					(unless (find new_index next) (push next new_index))
 					;a split
 					(each! 1 -1 (# (if (setq %0 (eval %0))
-						(push stack (+ offset %0)))) (list state))))))
+						(push stack (+ offset %0)))) (list elem))))))
 	next)
 
-(defun firststate (creg current)
-	(if (elem-get 0 (defq state (elem-get 0 creg)))
+(defun firstelem (creg current)
+	(if (elem-get 0 (defq elem (elem-get 0 creg)))
 		;not a split
 		(push current 0)
 		;a split
-		(addstate creg current 0 state)))
+		(addelem creg current 0 elem)))
 
 (defun search (text creg start)
 	; (search text creg start) -> -1 | end
 	;for each char in text
-	(defq end -2 si start current (firststate creg (list)) next (list))
+	(defq end -2 si start current (firstelem creg (list)) next (list))
 	(some! start -1 :nil
 		(lambda (s) (defq si _)
-			;for each current state
+			;for each current elem
 			(each (lambda (index)
-				(defq state (elem-get index creg))
-				(when (eval (elem-get 0 state))
+				(defq elem (elem-get index creg))
+				(when (eval (elem-get 0 elem))
 					;matched text char, so insert next states
-					(addstate creg next index state))) current)
+					(addelem creg next index elem))) current)
 			;swap to new states
 			(defq tmp current)
 			(setq current next next (clear tmp))
