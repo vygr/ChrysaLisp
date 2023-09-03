@@ -95,11 +95,11 @@
 	(each! 0 -1 (lambda (token type)
 		(case type
 			(:lit (push stack (static-qq (((eql s ,token) 1)))))
-			(:wild (push stack '((:t 1))))
-			(:white (push stack (static-qq (((<= (code s) 32) 1)))))
-			(:black (push stack (static-qq (((> (code s) 32) 1)))))
-			(:sol (push stack (static-qq ((:nil (if (= si 0) 1))))))
-			(:eol (push stack (static-qq ((:nil (if (= si (dec (length text))) 1))))))
+			(:wild (push stack (static-q ((:t 1)))))
+			(:white (push stack (static-q (((<= (code s) 32) 1)))))
+			(:black (push stack (static-q (((> (code s) 32) 1)))))
+			(:sol (push stack (static-q ((:nil (if (= si 0) 1))))))
+			(:eol (push stack (static-q ((:nil (if (= si (dec (length text))) 1))))))
 			(:class (push stack
 				(if (eql (second token) "-")
 					(static-qq (((<= ,(code (first token)) (code s) ,(code (last token))) 1)))
