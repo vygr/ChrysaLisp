@@ -13,10 +13,10 @@
 (defun concat? () (when concat (push out_types :op) (push out_tokens ",")))
 (defun output (op token) (push out_types op) (push out_tokens token))
 
-(defun cache (state)
-	(defq c (const (Fmap 11)) k (str state))
-	(unless (defq s (. c :find k))
-		(. c :insert k (setq s state))) s)
+(defun cache (elem) ;graph element cache
+	(defq c (const (Fmap 11)) k (str elem))
+	(unless (defq e (. c :find k))
+		(. c :insert k (setq e elem))) e)
 
 (defun tokenize (line)
 	(defq state :space concat :nil token :nil
