@@ -13,6 +13,11 @@
 (defun concat? () (when concat (push out_types :op) (push out_tokens ",")))
 (defun output (op token) (push out_types op) (push out_tokens token))
 
+(defun cache (state)
+	(defq c (const (Fmap 11)) k (str state))
+	(unless (defq s (. c :find k))
+		(. c :insert k (setq s state))) s)
+
 (defun tokenize (line)
 	(defq state :space concat :nil token :nil
 		out_types (clear '()) out_tokens (clear '()))
@@ -94,32 +99,32 @@
 	(defq stack (clear '()))
 	(each! 0 -1 (lambda (token type)
 		(case type
-			(:lit (push stack (static-qq (((eql s ,token) 1)))))
+			(:lit (push stack (cache (static-qq (((eql s ,token) 1))))))
 			(:wild (push stack (static-q ((:t 1)))))
 			(:white (push stack (static-q (((<= (code s) 32) 1)))))
 			(:black (push stack (static-q (((> (code s) 32) 1)))))
 			(:sol (push stack (static-q ((:nil (if (= si 0) 1))))))
 			(:eol (push stack (static-q ((:nil (if (= si (dec (length text))) 1))))))
-			(:class (push stack
+			(:class (push stack (cache
 				(if (eql (second token) "-")
 					(static-qq (((<= ,(code (first token)) (code s) ,(code (last token))) 1)))
-					(static-qq (((find s ,token) 1))))))
+					(static-qq (((find s ,token) 1)))))))
 			(:op (case token
 				(","
 					(defq b (pop stack) a (pop stack))
 					(push stack (cat a b)))
 				("|"
 					(defq b (pop stack) a (pop stack) oa (+ (length a) 2) ob (inc (length b)))
-					(push stack (cat `((:nil 1 ,oa)) a `((:nil ,ob)) b)))
+					(push stack (cat (cache `((:nil 1 ,oa))) a (cache `((:nil ,ob))) b)))
 				("?"
 					(defq a (pop stack) oa (inc (length a)))
-					(push stack (cat `((:nil 1 ,oa)) a)))
+					(push stack (cat (cache `((:nil 1 ,oa))) a)))
 				("*"
 					(defq a (pop stack) b (length a) oa (+ b 2) ob (neg b))
-					(push stack (cat `((:nil 1 ,oa)) a `((:nil 1 ,ob)))))
+					(push stack (cat (cache `((:nil 1 ,oa))) a (cache `((:nil 1 ,ob))))))
 				("+"
 					(defq a (pop stack) oa (neg (length a)))
-					(push stack (cat a `((:nil 1 ,oa)))))
+					(push stack (cat a (cache `((:nil 1 ,oa))))))
 				)))) postfix_output)
 	(pop stack))
 
