@@ -162,12 +162,12 @@
 			(each (lambda (index)
 				(defq elem (elem-get index creg))
 				(when (eval (elem-get 0 elem))
-					;matched text char, so insert next states
+					;matched text char, so insert next elems
 					(addelem creg next index elem))) current)
-			;swap to new states
+			;swap to new elems
 			(defq tmp current)
 			(setq current next next (clear tmp))
-			;break out if no states
+			;break out if no elems
 			(= (length current) 0))
 		(list text)) (inc end))
 
