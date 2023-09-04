@@ -36,6 +36,7 @@ event_map (Fmap-kv
 	+event_find_down action-find-down
 	+event_find_up action-find-up
 	+event_whole_words action-whole-words
+	+event_regexp action-regexp
 	+event_replace action-replace
 	+event_replace_all action-replace-all
 	+event_undo action-undo
@@ -135,7 +136,7 @@ recorded_actions_list (list
 	action-select-block action-select-line action-select-paragraph
 	action-select-word action-set-find-text action-tab action-to-lower
 	action-to-upper action-trim action-undo action-up action-up-select
-	action-whole-words))
+	action-whole-words action-regexp))
 
 ;module
 (export-symbols

@@ -4,7 +4,11 @@
 
 (defun action-whole-words ()
 	(setq *whole_words* (not *whole_words*))
-	(radio-select find_toolbar (if *whole_words* 2 -1)))
+	(radio-select find_toolbar (list :nil :nil *whole_words* *regexp*)))
+
+(defun action-regexp ()
+	(setq *regexp* (not *regexp*))
+	(radio-select find_toolbar (list :nil :nil *whole_words* *regexp*)))
 
 (defun filter-whole-words (found pattern)
 	(cond

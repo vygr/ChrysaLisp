@@ -8,11 +8,10 @@
 (defun blank-line? (line)
 	(every (# (eql " " %0)) line))
 
-(defun radio-select (toolbar idx)
-	(each (lambda (button)
-			(undef (. button :dirty) :color)
-			(if (= _ idx) (def button :color *env_radio_col*)))
-		(. toolbar :children)) idx)
+(defun radio-select (toolbar states)
+	(each (# (undef (. %0 :dirty) :color)
+			(if %1 (def %0 :color *env_radio_col*)))
+		(. toolbar :children) states))
 
 (defmacro undoable (buffer &rest _)
 	`(progn

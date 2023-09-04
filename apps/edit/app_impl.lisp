@@ -23,7 +23,7 @@
 		toupper tolower ordered unique
 		comment)
 	(enum prev next scratch close_buffer save_all save new)
-	(enum find_down find_up whole_words)
+	(enum find_down find_up whole_words regexp)
 	(enum replace replace_all)
 	(enum macro_playback macro_to_eof macro_record))
 
@@ -57,7 +57,7 @@
 					:hint_text "new file" :clear_text "")) :connect +event_new)
 			(ui-flow _ (:flow_flags +flow_right_fill)
 				(ui-tool-bar find_toolbar (:color (get :color macro_toolbar))
-					(ui-buttons (0xe914 0xe91b 0xe9cd) +event_find_down))
+					(ui-buttons (0xe914 0xe91b 0xe9cd 0xe9a8) +event_find_down))
 				(. (ui-textfield *find_text* (:color +argb_white
 						:hint_text "find" :clear_text "")) :connect +event_find_down))
 			(ui-flow _ (:flow_flags +flow_right_fill)
@@ -237,7 +237,7 @@
 	(each (# (def %0 :tip_text %1)) (. buffer_toolbar :children)
 		'("previous" "next" "scratchpad" "close" "save all" "save" "new"))
 	(each (# (def %0 :tip_text %1)) (. find_toolbar :children)
-		'("find down" "find up" "whole words"))
+		'("find down" "find up" "whole words" "regexp"))
 	(each (# (def %0 :tip_text %1)) (. macro_toolbar :children)
 		'("playback" "playback eof" "record"))
 	(each (# (def %0 :tip_text %1)) (. replace_toolbar :children)
@@ -296,7 +296,7 @@
 (defun main ()
 	(defq select (alloc-select +select_size)
 		edit_service (mail-declare (task-netid) "Edit" "Edit Service 0.1")
-		*running* :t *edit* (Editor-edit) *page_scale* 1.0
+		*running* :t *edit* (Editor-edit) *page_scale* 1.0 *regexp* :nil 
 		*current_file* :nil *meta_map* (Fmap) *open_files* (list) *syntax* (Syntax)
 		*whole_words* :nil *macro_record* :nil *macro_actions* (list)
 		dictionary (Dictionary 1021) match_window :nil match_flow :nil match_index -1)

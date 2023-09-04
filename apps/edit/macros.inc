@@ -4,11 +4,7 @@
 
 (defun action-macro-record ()
 	(setq *macro_record* (not *macro_record*))
-	(cond
-		(*macro_record*
-			(radio-select macro_toolbar 2)
-			(clear *macro_actions*))
-		(:t	(radio-select macro_toolbar -1)))
+	(radio-select macro_toolbar (list :nil :nil *macro_record*))
 	(. *edit* :clear_selection)
 	(refresh))
 
