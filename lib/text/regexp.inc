@@ -89,7 +89,7 @@
 				(push stack token))
 			(:t ;:lit :wild :class :white :black :assert
 				(output type token)))) tokenize_output)
-	(while (defq _ (pop stack)) (output :op _))
+	(while (defq token (pop stack)) (output :op token))
 	(list out_tokens out_types))
 
 (defun compile (postfix_output)
