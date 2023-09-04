@@ -11,8 +11,8 @@
 (defmacro is-esc-char? (_) `(eql ,_ ,(ascii-char 92)))
 (defmacro is-op-char? (_) `(find ,_ +op_chars))
 
-(defun concat? () (when concat (push out_types :op) (push out_tokens ",")))
 (defun output (op token) (push out_types op) (push out_tokens token))
+(defun concat? () (if concat (output :op ",")))
 
 (defun cache (elem) ;graph element cache
 	(defq c (const (Fmap 11)) k (str elem))
