@@ -118,41 +118,41 @@
 					(cat a (cache `((:nil 1 ,oa)))))
 				))))) postfix_output) (pop stack))
 
-(defun insertelem (creg next index elem)
+(defun insertelem (cpat next index elem)
 	(defq stack (slice 1 -1 elem))
 	(while (defq offset (pop stack))
 		;offsets can be expressions !
 		(if (setq offset (eval offset))
-			(if (= (defq new_index (+ index offset)) (length creg))
+			(if (= (defq new_index (+ index offset)) (length cpat))
 				;stopped, so matched somthing !
 				(setq end (max end si))
 				;not stopped
-				(if (elem-get 0 (defq elem (elem-get new_index creg)))
+				(if (elem-get 0 (defq elem (elem-get new_index cpat)))
 					;not a split
 					(unless (find new_index next) (push next new_index))
 					;a split
 					(each! 1 -1 (# (if (setq %0 (eval %0))
 						(push stack (+ offset %0)))) (list elem)))))) next)
 
-(defun firstelem (creg current)
-	(if (elem-get 0 (defq elem (elem-get 0 creg)))
+(defun firstelem (cpat current)
+	(if (elem-get 0 (defq elem (elem-get 0 cpat)))
 		;not a split
 		(push current 0)
 		;a split
-		(insertelem creg current 0 elem)))
+		(insertelem cpat current 0 elem)))
 
-(defun search (text creg start)
-	; (search text creg start) -> -1 | end
+(defun search (text cpat start)
+	; (search text cpat start) -> -1 | end
 	;for each char in text
-	(defq end -2 si start current (firstelem creg (list)) next (list))
+	(defq end -2 si start current (firstelem cpat (list)) next (list))
 	(some! start -1 :nil
 		(lambda (s) (defq si _)
 			;for each current elem
 			(each (lambda (index)
-				(defq elem (elem-get index creg))
+				(defq elem (elem-get index cpat))
 				(when (eval (elem-get 0 elem))
 					;matched text char, so insert next elems
-					(insertelem creg next index elem))) current)
+					(insertelem cpat next index elem))) current)
 			;swap to new elems
 			(defq tmp current)
 			(setq current next next (clear tmp))
@@ -167,28 +167,28 @@
 	(defmethod :compile (this pattern)
 		; (. regexp :compile pattern) -> :nil | meta
 		(raise :meta_cache)
-		(unless (defq creg (. meta_cache :find pattern))
-			(setq creg (catch (compile (postfix (tokenize pattern))) :t))
-			(if (eql creg :t) (setq creg :nil))
-			(. meta_cache :insert pattern creg))
-		creg)
+		(unless (defq cpat (. meta_cache :find pattern))
+			(setq cpat (catch (compile (postfix (tokenize pattern))) :t))
+			(if (eql cpat :t) (setq cpat :nil))
+			(. meta_cache :insert pattern cpat))
+		cpat)
 
-	(defmethod :match? (this text pattern &optional creg)
+	(defmethod :match? (this text pattern &optional cpat)
 		; (. regexp :match? text pattern &optional meta) -> :t | :nil
-		(defq creg (opt creg (. this :compile pattern)))
-		(when creg
+		(defq cpat (opt cpat (. this :compile pattern)))
+		(when cpat
 			(defq x -1 x1 -1)
 			(while (and (= x1 -1) (< (setq x (inc x)) (length text)))
-				(setq x1 (search text creg x)))
+				(setq x1 (search text cpat x)))
 			(/= x1 -1)))
 
-	(defmethod :search (this text pattern &optional creg)
+	(defmethod :search (this text pattern &optional cpat)
 		; (. regexp :search text pattern &optional meta) -> indexes
-		(defq out (list) creg (opt creg (. this :compile pattern)))
-		(when creg
+		(defq out (list) cpat (opt cpat (. this :compile pattern)))
+		(when cpat
 			(defq x -1)
 			(while (< (setq x (inc x)) (length text))
-				(when (> (defq x1 (search text creg x)) x)
+				(when (> (defq x1 (search text cpat x)) x)
 					(push out (list x x1))
 					(setq x (dec x1)))))
 		out)
