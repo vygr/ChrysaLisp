@@ -132,8 +132,7 @@
 					(unless (find new_index next) (push next new_index))
 					;a split
 					(each! 1 -1 (# (if (setq %0 (eval %0))
-						(push stack (+ offset %0)))) (list elem))))))
-	next)
+						(push stack (+ offset %0)))) (list elem)))))) next)
 
 (defun firstelem (creg current)
 	(if (elem-get 0 (defq elem (elem-get 0 creg)))
