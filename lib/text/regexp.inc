@@ -154,8 +154,7 @@
 					;matched text char, so insert next elems
 					(insertelem cpat next index elem))) current)
 			;swap to new elems
-			(defq tmp current)
-			(setq current next next (clear tmp))
+			(defq tmp current) (setq current next next (clear tmp))
 			;break out if no elems
 			(= (length current) 0))
 		(list text)) (inc end))
@@ -195,6 +194,5 @@
 	)
 
 ;module
-(export-classes
-	Regexp)
+(export-classes Regexp)
 (env-pop)
