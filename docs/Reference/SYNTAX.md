@@ -105,7 +105,7 @@
 ### buffer :find
 
 ```code
-(. buffer :find pattern) -> buffer_index
+(. buffer :find pattern mode) -> buffer_index
 ```
 
 ### buffer :get_cursor
@@ -4473,7 +4473,7 @@
 ### search
 
 ```code
-(search text creg start) -> -1 | end
+(search text cpat start) -> -1 | end
 ```
 
 ### second
