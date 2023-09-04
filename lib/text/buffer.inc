@@ -86,7 +86,7 @@
 		:syntax (opt syntax (Syntax)) :undo_stack (list) :redo_stack (list)
 		:cursor_x 0 :cursor_y 0 :max_width 0 :tab_width 4 :wrap_width 80
 		:mode mode :next_mark -1 :modified :nil
-		:last_pattern :nil)
+		:last_pattern :nil :last_find_mode :nil)
 
 	(defmethod :set_mode (this mode)
 		; (. buffer :set_mode mode) -> buffer
@@ -438,20 +438,23 @@
 				(list buffer buffer_colored))))
 		(if (> c 0) (list x y) '(:nil :nil)))
 
-	(defmethod :find (this pattern)
-		; (. buffer :find pattern) -> buffer_index
-		(raise :last_pattern :buffer_index)
+	(defmethod :find (this pattern mode)
+		; (. buffer :find pattern mode) -> buffer_index
+		(raise :last_pattern :last_find_mode :buffer_index)
+		(unless (eql mode last_find_mode)
+			(lower (:last_find_mode mode :last_pattern :nil)))
 		(unless (eql last_pattern pattern)
 			(lower (:last_pattern pattern :dirty_index :t))
 			(each (lambda (__) (elem-set _ buffer_index :nil)) buffer_index))
+		(setq mode (if mode +*regexp* +*substr*))
 		(when (get :dirty_index this)
 			(lower (:dirty_index :nil))
-			(defq meta (. +*substr* :compile pattern))
+			(defq meta (. mode :compile pattern))
 			(each (lambda (line index)
 					(if (> (length line) 0)
 						(unless index
 							(task-slice)
-							(elem-set _ buffer_index (. +*substr* :search line pattern meta)))
+							(elem-set _ buffer_index (. mode :search line pattern meta)))
 						(elem-set _ buffer_index '())))
 				(get :buffer this) buffer_index))
 		buffer_index)
