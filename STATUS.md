@@ -31,6 +31,8 @@ Argument quoting added to options processing lib.
 Added `static-qq` and `static-q` macros to `root.inc`, these perform static
 quasi-quotation and quotation.
 
+Regexp search/replace added to Editor app.
+
 ------
 
 Rename `pupa.inc` files to `env.inc`.
