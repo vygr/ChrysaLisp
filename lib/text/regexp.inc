@@ -36,7 +36,7 @@
 						(if (< _ 1) (concat?))
 						(output (elem-get _ '(:lrb :rrb)) c)
 						(setq concat (elem-get _ '(:nil :t))))
-					((defq _ (is-assert-char? c))
+					((is-assert-char? c)
 						(concat?)
 						(output :assert c)
 						(setq concat :t))
