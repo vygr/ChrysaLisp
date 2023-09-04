@@ -118,7 +118,7 @@
 					(cat a (cache `((:nil 1 ,oa)))))
 				))))) postfix_output) (pop stack))
 
-(defun addelem (creg next index elem)
+(defun insertelem (creg next index elem)
 	(defq stack (slice 1 -1 elem))
 	(while (defq offset (pop stack))
 		;offsets can be expressions !
@@ -140,7 +140,7 @@
 		;not a split
 		(push current 0)
 		;a split
-		(addelem creg current 0 elem)))
+		(insertelem creg current 0 elem)))
 
 (defun search (text creg start)
 	; (search text creg start) -> -1 | end
@@ -153,7 +153,7 @@
 				(defq elem (elem-get index creg))
 				(when (eval (elem-get 0 elem))
 					;matched text char, so insert next elems
-					(addelem creg next index elem))) current)
+					(insertelem creg next index elem))) current)
 			;swap to new elems
 			(defq tmp current)
 			(setq current next next (clear tmp))
