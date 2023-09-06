@@ -1024,8 +1024,8 @@
 
 (defmacro each-found (_f _t _p)
 	; (each-found lambda text substr)
-	`(each! 0 -1 ,_f (list (substr ,_t ,_p))))
+	`(each! 0 -1 ,_f (substr ,_t ,_p)))
 
 (defmacro each-match (_f _t _p)
 	; (each-match lambda text regexp)
-	`(each! 0 -1 ,_f (list (matches ,_t ,_p))))
+	`(each! 0 -1 ,_f (matches ,_t ,_p)))
