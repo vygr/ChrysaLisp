@@ -5,7 +5,7 @@
 ;module
 (env-push)
 
-(defq +bracket_chars "()" +assert_chars "^$" +op_cat "'" +op_cot "`"
+(defq +bracket_chars "()" +assert_chars "^$" +op_cat "'" +op_tac "`"
 	+op_chars "+*?|" +op_presidence "+*?'|`()")
 (defmacro is-bracket-char? (_) `(find ,_ +bracket_chars))
 (defmacro is-assert-char? (_) `(find ,_ +assert_chars))
@@ -41,9 +41,9 @@
 						(output :op c)
 						(setq concat (elem-get _ (static-q (+op_cat +op_cat +op_cat :nil)))))
 					((defq _ (is-bracket-char? c))
-						(concat? (elem-get _ (list concat +op_cot)))
+						(concat? (elem-get _ (list concat +op_tac)))
 						(output (elem-get _ '(:lrb :rrb)) c)
-						(setq concat (elem-get _ (static-q (+op_cot +op_cat)))))
+						(setq concat (elem-get _ (static-q (+op_tac +op_cat)))))
 					((is-assert-char? c)
 						(concat?)
 						(output :assert c)
@@ -121,7 +121,7 @@
 			(:lrb (cache (static-qq ((:nil (srange ,token))))))
 			(:rrb (cache (static-qq ((:nil (erange ,token))))))
 			(:op (defq a (pop stack)) (case token
-				((+op_cat +op_cot) (cat (pop stack) a))
+				((+op_cat +op_tac) (cat (pop stack) a))
 				("|" (defq b (pop stack) ob (+ (length b) 2) oa (inc (length a)))
 					(cat (cache `((:nil 1 ,ob))) b (cache `((:nil ,oa))) a))
 				("?" (defq oa (inc (length a)))
