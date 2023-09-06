@@ -36,6 +36,14 @@ Regexp search/replace added to Editor app.
 Substr and Regexp `:search` now returns submatches. So `(matches submatches)`.
 Submatches are your `$0 $1 $2` etc.
 
+```lisp
+(. +*regexp* :search "abc67894nndndfnd890" "([0-9]+)")
+(((3 8) (16 19)) (("67894") ("890")))
+
+(. +*regexp* :search "abc67894nndndfnd890" "([0-9]+|[a-z]+)")
+(((0 3) (3 8) (8 16) (16 19)) (("abc") ("67894") ("nndndfnd") ("890")))
+```
+
 ------
 
 Rename `pupa.inc` files to `env.inc`.
