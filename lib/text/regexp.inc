@@ -21,7 +21,7 @@
 		(. c :insert k (setq e elem))) e)
 
 (defun srange (label) ;start of sub match
-	(if (<= (length sl) label) (push sl (list 0 0)))
+	(while (<= (length sl) label) (push sl (list 0 0)))
 	(elem-set 0 (elem-get label sl) si) 1)
 
 (defun erange (label) ;end of sub match
@@ -205,7 +205,7 @@
 				(when (> (defq x1 (search text cpat x)) x)
 					(push out (list x x1))
 					(push outs (map (lambda ((s s1))
-						(if (< s s1) (slice (inc s) (inc s1) text) "")) sl))
+						(if (< s s1) (slice (inc s) (inc s1) text) (slice 0 0 text))) sl))
 					(setq x (dec x1)))))
 		(list out outs))
 	)
