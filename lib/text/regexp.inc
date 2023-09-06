@@ -22,10 +22,10 @@
 
 (defun srange (label) ;start of sub match
 	(while (<= (length sl) label) (push sl (list 0 0)))
-	(elem-set 0 (elem-get label sl) (inc si)) 1)
+	(elem-set 0 (elem-get label sl) si) 1)
 
 (defun erange (label) ;end of sub match
-	(elem-set 1 (elem-get label sl) (inc si)) 1)
+	(elem-set 1 (elem-get label sl) si) 1)
 
 (defun tokenize (line)
 	(defq state :space concat :nil token :nil
@@ -204,7 +204,8 @@
 				(defq sl (clear '()))
 				(when (> (defq x1 (search text cpat x)) x)
 					(push out (list x x1))
-					(push outs (map (lambda ((s s1)) (if (< s s1) (slice s s1 text) "")) sl))
+					(push outs (map (lambda ((s s1))
+						(if (< s s1) (slice (inc s) (inc s1) text) "")) sl))
 					(setq x (dec x1)))))
 		(list out outs))
 	)
