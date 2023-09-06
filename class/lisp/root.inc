@@ -1010,16 +1010,16 @@
 
 (defq +*substr* (Substr 11) +*regexp* (Regexp 11))
 
-(defun substr (_t _p)
-	; (substr text substr) -> ([(i0 i1)] ...)
-	(. +*substr* :search _t _p))
-
 (defun match? (_t _p)
 	; (match? text regexp) -> :t | :nil
 	(. +*regexp* :match? _t _p))
 
+(defun substr (_t _p)
+	; (substr text substr) -> (([(i0 i1)] ...) ())
+	(. +*substr* :search _t _p))
+
 (defun matches (_t _p)
-	; (matches text regexp) -> ([(i0 i1)] ...)
+	; (matches text regexp) -> (([(i0 i1)] ...) ([([(s0 s1)] ...)]...))
 	(. +*regexp* :search _t _p))
 
 (defmacro each-found (_f _t _p)

@@ -31,7 +31,7 @@
 		lps)
 
 	(defmethod :search (this text pattern &optional lps)
-		; (. substr :search text pattern &optional meta) -> indexes
+		; (. substr :search text pattern &optional meta) -> (matches submatches)
 		(defq out (list) lps (opt lps (. this :compile pattern)))
 		(when lps
 			(defq j 0 k 0)
@@ -47,5 +47,5 @@
 							((/= j 0)
 								(setq j (elem-get (dec j) lps)))
 							(:t (setq k (inc k))))))))
-		out)
+		(list out '()))
 	)

@@ -1203,7 +1203,7 @@
 ### regexp :search
 
 ```code
-(. regexp :search text pattern &optional meta) -> indexes
+(. regexp :search text pattern &optional meta) -> (matches submatches)
 ```
 
 ### scene_node :add_node
@@ -1395,7 +1395,7 @@
 ### substr :search
 
 ```code
-(. substr :search text pattern &optional meta) -> indexes
+(. substr :search text pattern &optional meta) -> (matches submatches)
 ```
 
 ### syntax :colorise
@@ -3753,7 +3753,7 @@
 ### matches
 
 ```code
-(matches text regexp) -> ([(i0 i1)] ...)
+(matches text regexp) -> (([(i0 i1)] ...) ([([(s0 s1)] ...)]...))
 ```
 
 ### max
@@ -4695,7 +4695,7 @@
 ### substr
 
 ```code
-(substr text substr) -> ([(i0 i1)] ...)
+(substr text substr) -> (([(i0 i1)] ...) ())
 ```
 
 ### swap

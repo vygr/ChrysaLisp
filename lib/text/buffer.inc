@@ -454,7 +454,7 @@
 					(if (> (length line) 0)
 						(unless index
 							(task-slice)
-							(elem-set _ buffer_index (. mode :search line pattern meta)))
+							(elem-set _ buffer_index (first (. mode :search line pattern meta))))
 						(elem-set _ buffer_index '())))
 				(get :buffer this) buffer_index))
 		buffer_index)

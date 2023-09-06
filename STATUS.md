@@ -33,6 +33,9 @@ quasi-quotation and quotation.
 
 Regexp search/replace added to Editor app.
 
+Substr and Regexp `:search` now returns submatches. So `(matches submatches)`.
+Submatches are your `$0 $1 $2` etc.
+
 ------
 
 Rename `pupa.inc` files to `env.inc`.

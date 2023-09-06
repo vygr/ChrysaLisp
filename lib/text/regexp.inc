@@ -5,19 +5,26 @@
 ;module
 (env-push)
 
-(defq +bracket_chars "()" +assert_chars "^$" +op_chars "+*?|" +op_presidence "+*?,|()")
+(defq +bracket_chars "()" +assert_chars "^$" +op_chars "+*?|" +op_presidence "+*?,|'()")
 (defmacro is-bracket-char? (_) `(find ,_ +bracket_chars))
 (defmacro is-assert-char? (_) `(find ,_ +assert_chars))
 (defmacro is-esc-char? (_) `(eql ,_ ,(ascii-char 92)))
 (defmacro is-op-char? (_) `(find ,_ +op_chars))
 
 (defun output (op token) (push out_types op) (push out_tokens token))
-(defun concat? () (if concat (output :op ",")))
+(defun concat? (&optional o) (if concat (output :op (opt o concat))))
 
 (defun cache (elem) ;graph element cache
 	(defq c (const (Fmap 11)) k (str elem))
 	(unless (defq e (. c :find k))
 		(. c :insert k (setq e elem))) e)
+
+(defun srange (label)
+	(while (<= (length sl) label) (push sl (list 0 0)))
+	(elem-set 0 (elem-get label sl) (inc si)) 1)
+
+(defun erange (label)
+	(elem-set 1 (elem-get label sl) (inc si)) 1)
 
 (defun tokenize (line)
 	(defq state :space concat :nil token :nil
@@ -31,30 +38,30 @@
 						(setq state :esc))
 					((defq _ (is-op-char? c))
 						(output :op c)
-						(setq concat (elem-get _ '(:t :t :t :nil))))
+						(setq concat (elem-get _ '("," "," "," :nil))))
 					((defq _ (is-bracket-char? c))
-						(if (< _ 1) (concat?))
+						(concat? (elem-get _ (list concat "'")))
 						(output (elem-get _ '(:lrb :rrb)) c)
-						(setq concat (elem-get _ '(:nil :t))))
+						(setq concat (elem-get _ '("'" ","))))
 					((is-assert-char? c)
 						(concat?)
 						(output :assert c)
-						(setq concat :t))
+						(setq concat ","))
 					((eql c "[")
 						(concat?)
 						(setq token (clear '()) state :class))
 					((eql c ".")
 						(concat?)
 						(output :wild c)
-						(setq concat :t))
+						(setq concat ","))
 					(:t (concat?)
 						(output :lit c)
-						(setq concat :t))))
+						(setq concat ","))))
 			(:class
 				(cond
 					((eql c "]")
 						(output :class (apply cat token))
-						(setq concat :t state :space))
+						(setq concat  "," state :space))
 					(:t (push token c))))
 			(:esc
 				(case c
@@ -67,16 +74,21 @@
 					("n" (output :lit (ascii-char 10)))
 					("t" (output :lit (ascii-char 9)))
 					(:t (output :lit c)))
-				(setq concat :t state :space)))) line)
+				(setq concat "," state :space)))) line)
+;(map (# (print %0 " -> " %1)) out_types out_tokens)(print)
 	(list out_tokens out_types))
 
 (defun postfix (tokenize_output)
-	(defq stack '() out_tokens (clear '()) out_types (clear '()))
+	(defq stack (clear '()) parens (clear '())
+		out_tokens (clear '()) out_types (clear '()) label -1)
 	(each! 0 -1 (lambda (token type)
 		(case type
 			(:lrb
-				(push stack token))
+				(push stack token)
+				(push parens (setq label (inc label)))
+				(output :lrb label))
 			(:rrb
+				(output :rrb (pop parens))
 				(while (and (not (eql "(" (setq token (pop stack)))) token)
 					(output :op token)))
 			(:op ;precidence
@@ -90,6 +102,7 @@
 			(:t ;:lit :wild :class :white :black :assert
 				(output type token)))) tokenize_output)
 	(while (defq token (pop stack)) (output :op token))
+;(map (# (print %0 " -> " %1)) out_types out_tokens)(print)
 	(list out_tokens out_types))
 
 (defun compile (postfix_output)
@@ -104,10 +117,12 @@
 				(static-qq (((<= ,(code (first token)) (code s) ,(code (last token))) 1)))
 				(static-qq (((find s ,token) 1))))))
 			(:assert (case token
-				("^" (static-q ((:nil (if (= si 0) 1)))))
+				("^" (static-q ((:nil (if (= si -1) 1)))))
 				("$" (static-q ((:nil (if (= si (dec (length text))) 1)))))))
+			(:lrb (cache (static-qq ((:nil (srange ,token))))))
+			(:rrb (cache (static-qq ((:nil (erange ,token))))))
 			(:op (defq a (pop stack)) (case token
-				("," (cat (pop stack) a))
+				(("," "'") (cat (pop stack) a))
 				("|" (defq b (pop stack) ob (+ (length b) 2) oa (inc (length a)))
 					(cat (cache `((:nil 1 ,ob))) b (cache `((:nil ,oa))) a))
 				("?" (defq oa (inc (length a)))
@@ -144,7 +159,7 @@
 (defun search (text cpat start)
 	; (search text cpat start) -> -1 | end
 	;for each char in text
-	(defq end -2 si start current (firstelem cpat (list)) next (list))
+	(defq end -2 si (dec start) current (firstelem cpat (list)) next (list))
 	(some! start -1 :nil
 		(lambda (s) (defq si _)
 			;for each current elem
@@ -168,6 +183,7 @@
 		(raise :meta_cache)
 		(unless (defq cpat (. meta_cache :find pattern))
 			(setq cpat (catch (compile (postfix (tokenize pattern))) :t))
+;			(setq cpat (compile (postfix (tokenize pattern))))
 			(if (eql cpat :t) (setq cpat :nil))
 			(. meta_cache :insert pattern cpat))
 		cpat)
@@ -176,21 +192,23 @@
 		; (. regexp :match? text pattern &optional meta) -> :t | :nil
 		(defq cpat (opt cpat (. this :compile pattern)))
 		(when cpat
-			(defq x -1 x1 -1)
+			(defq x -1 x1 -1 sl '())
 			(while (and (= x1 -1) (< (setq x (inc x)) (length text)))
 				(setq x1 (search text cpat x)))
 			(/= x1 -1)))
 
 	(defmethod :search (this text pattern &optional cpat)
-		; (. regexp :search text pattern &optional meta) -> indexes
-		(defq out (list) cpat (opt cpat (. this :compile pattern)))
+		; (. regexp :search text pattern &optional meta) -> (matches submatches)
+		(defq out (list) outs (list) cpat (opt cpat (. this :compile pattern)))
 		(when cpat
 			(defq x -1)
 			(while (< (setq x (inc x)) (length text))
+				(defq sl (clear '()))
 				(when (> (defq x1 (search text cpat x)) x)
 					(push out (list x x1))
+					(push outs (map (lambda ((s s1)) (if (< s s1) (slice s s1 text) "")) sl))
 					(setq x (dec x1)))))
-		out)
+		(list out outs))
 	)
 
 ;module

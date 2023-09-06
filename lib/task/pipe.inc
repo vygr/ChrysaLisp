@@ -9,13 +9,13 @@
 	; (pipe-split cmdline) -> (e0 [e1] ...)
 	(defq i 0)
 	(map (lambda ((x x1)) (defq j i) (setq i x1) (trim (slice j x cmdline)))
-		(push (substr cmdline " | ") '(-1 0))))
+		(push (first (substr cmdline " | ")) '(-1 0))))
 
 (defclass Pipe (cmdline &optional user_select) :nil
 	; (Pipe cmdline &optional user_select) -> pipe | :nil
 	(setd user_select '())
 	(bind '(cmdpipe args) (reduce (#
-		(bind '((x x1)) (matches %1 "^\b+"))
+		(bind '((x x1)) (first (matches %1 "^\b+")))
 		(push (first %0) (cat "cmd/" (slice x x1 %1) ".lisp"))
 		(push (second %0) %1) %0) (pipe-split cmdline) (lists2)))
 	(cond
