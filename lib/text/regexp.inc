@@ -5,7 +5,7 @@
 ;module
 (env-push)
 
-(defq +bracket_chars "()" +assert_chars "^$" +op_chars "+*?|" +op_presidence "+*?,|'()")
+(defq +bracket_chars "()" +assert_chars "^$" +op_chars "+*?|" +op_presidence "+*?'|`()")
 (defmacro is-bracket-char? (_) `(find ,_ +bracket_chars))
 (defmacro is-assert-char? (_) `(find ,_ +assert_chars))
 (defmacro is-esc-char? (_) `(eql ,_ ,(ascii-char 92)))
@@ -19,11 +19,11 @@
 	(unless (defq e (. c :find k))
 		(. c :insert k (setq e elem))) e)
 
-(defun srange (label)
+(defun srange (label) ;start of sub match
 	(while (<= (length sl) label) (push sl (list 0 0)))
 	(elem-set 0 (elem-get label sl) (inc si)) 1)
 
-(defun erange (label)
+(defun erange (label) ;end of sub match
 	(elem-set 1 (elem-get label sl) (inc si)) 1)
 
 (defun tokenize (line)
@@ -38,30 +38,30 @@
 						(setq state :esc))
 					((defq _ (is-op-char? c))
 						(output :op c)
-						(setq concat (elem-get _ '("," "," "," :nil))))
+						(setq concat (elem-get _ '("'" "'" "'" :nil))))
 					((defq _ (is-bracket-char? c))
-						(concat? (elem-get _ (list concat "'")))
+						(concat? (elem-get _ (list concat "`")))
 						(output (elem-get _ '(:lrb :rrb)) c)
-						(setq concat (elem-get _ '("'" ","))))
+						(setq concat (elem-get _ '("`" "'"))))
 					((is-assert-char? c)
 						(concat?)
 						(output :assert c)
-						(setq concat ","))
+						(setq concat "'"))
 					((eql c "[")
 						(concat?)
 						(setq token (clear '()) state :class))
 					((eql c ".")
 						(concat?)
 						(output :wild c)
-						(setq concat ","))
+						(setq concat "'"))
 					(:t (concat?)
 						(output :lit c)
-						(setq concat ","))))
+						(setq concat "'"))))
 			(:class
 				(cond
 					((eql c "]")
 						(output :class (apply cat token))
-						(setq concat  "," state :space))
+						(setq concat  "'" state :space))
 					(:t (push token c))))
 			(:esc
 				(case c
@@ -74,7 +74,7 @@
 					("n" (output :lit (ascii-char 10)))
 					("t" (output :lit (ascii-char 9)))
 					(:t (output :lit c)))
-				(setq concat "," state :space)))) line)
+				(setq concat "'" state :space)))) line)
 ;(map (# (print %0 " -> " %1)) out_types out_tokens)(print)
 	(list out_tokens out_types))
 
@@ -122,7 +122,7 @@
 			(:lrb (cache (static-qq ((:nil (srange ,token))))))
 			(:rrb (cache (static-qq ((:nil (erange ,token))))))
 			(:op (defq a (pop stack)) (case token
-				(("," "'") (cat (pop stack) a))
+				(("'" "`") (cat (pop stack) a))
 				("|" (defq b (pop stack) ob (+ (length b) 2) oa (inc (length a)))
 					(cat (cache `((:nil 1 ,ob))) b (cache `((:nil ,oa))) a))
 				("?" (defq oa (inc (length a)))
