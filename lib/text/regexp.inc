@@ -21,7 +21,7 @@
 		(. c :insert k (setq e elem))) e)
 
 (defun srange (label) ;start of sub match
-	(while (<= (length sl) label) (push sl (list 0 0)))
+	(if (<= (length sl) label) (push sl (list 0 0)))
 	(elem-set 0 (elem-get label sl) si) 1)
 
 (defun erange (label) ;end of sub match
