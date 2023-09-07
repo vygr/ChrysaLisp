@@ -441,10 +441,8 @@
 	(defmethod :find (this pattern mode)
 		; (. buffer :find pattern mode) -> buffer_index
 		(raise :last_pattern :last_find_mode :buffer_index)
-		(unless (eql mode last_find_mode)
-			(lower (:last_find_mode mode :last_pattern :nil)))
-		(unless (eql last_pattern pattern)
-			(lower (:last_pattern pattern :dirty_index :t))
+		(unless (and (eql mode last_find_mode) (eql last_pattern pattern))
+			(lower (:last_find_mode mode :last_pattern pattern :dirty_index :t))
 			(each (lambda (__) (elem-set _ buffer_index :nil)) buffer_index))
 		(setq mode (if mode +*regexp* +*substr*))
 		(when (get :dirty_index this)
