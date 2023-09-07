@@ -13,25 +13,25 @@
 		(push buffer "")
 		(push buffer_colored "")
 		(push buffer_states '(:nil :nil))
-		(push buffer_index :nil)))
+		(push buffer_found :nil)))
 
 (defun erase-line (y)
 	(setq buffer (erase buffer y (defq y1 (inc y)))
 		buffer_colored (erase buffer_colored y y1)
 		buffer_states (erase buffer_states y y1)
-		buffer_index (erase buffer_index y y1)))
+		buffer_found (erase buffer_found y y1)))
 
 (defun insert-line (y line)
 	(setq buffer (insert buffer y (list line))
 		buffer_colored (insert buffer_colored y (list line))
 		buffer_states (insert buffer_states y '((:nil :nil)))
-		buffer_index (insert buffer_index y '(:nil))))
+		buffer_found (insert buffer_found y '(:nil))))
 
 (defun set-line (y line)
 	(elem-set y buffer line)
 	(elem-set y buffer_colored line)
 	(elem-set y buffer_states '(:nil :nil))
-	(elem-set y buffer_index :nil))
+	(elem-set y buffer_found :nil))
 
 (defun redo ()
 	(defq idx (length undo_stack))
@@ -54,11 +54,11 @@
 		(bind '(x y) (. this :get_cursor))
 		(bind '(x y) (. this :constrain x y))
 		(bind '(w h) (. this :get_size))
-		(raise :buffer :buffer_colored :buffer_states :buffer_index)
+		(raise :buffer :buffer_colored :buffer_states :buffer_found)
 		~_
 		(clear (get :redo_stack this))
 		(last-line)
-		(lower :buffer :buffer_colored :buffer_states :buffer_index
+		(lower :buffer :buffer_colored :buffer_states :buffer_found
 			(:dirty_colored :t :dirty_index :t :modified :t))
 		(. this :set_cursor x y)))
 
@@ -81,7 +81,7 @@
 (defclass Buffer (&optional mode syntax) :nil
 	; (Buffer [mode syntax]) -> buffer
 	(def this :buffer (list "") :buffer_colored (list "")
-		:buffer_states (list '(:nil :nil)) :buffer_index (list :nil)
+		:buffer_states (list '(:nil :nil)) :buffer_found (list :nil)
 		:dirty_colored :nil :dirty_index :nil
 		:syntax (opt syntax (Syntax)) :undo_stack (list) :redo_stack (list)
 		:cursor_x 0 :cursor_y 0 :max_width 0 :tab_width 4 :wrap_width 80
@@ -148,7 +148,7 @@
 	(defmethod :file_load (this filepath)
 		; (. buffer :file_load filepath) -> buffer
 		(raise :syntax :tab_width (buffer (list) buffer_colored (list)
-			 buffer_states (list) buffer_index (list) max_width 0))
+			 buffer_states (list) buffer_found (list) max_width 0))
 		(each-line (lambda (line)
 				(task-slice)
 				(setq line (expand (trim-end line (const (char +char_cr))) tab_width)
@@ -156,11 +156,11 @@
 				(push buffer line)
 				(push buffer_colored line)
 				(push buffer_states '(:nil :nil))
-				(push buffer_index :nil))
+				(push buffer_found :nil))
 			(file-stream filepath))
 		(last-line)
 		(clear (get :undo_stack this) (get :redo_stack this))
-		(lower :buffer :buffer_colored :buffer_states :buffer_index :max_width
+		(lower :buffer :buffer_colored :buffer_states :buffer_found :max_width
 			(:cursor_x 0 :cursor_y 0 :dirty_colored :t :dirty_index :t :modified :nil))
 		this)
 
@@ -439,11 +439,11 @@
 		(if (> c 0) (list x y) '(:nil :nil)))
 
 	(defmethod :find (this pattern mode)
-		; (. buffer :find pattern mode) -> buffer_index
-		(raise :last_pattern :last_find_mode :buffer_index)
+		; (. buffer :find pattern mode) -> buffer_found
+		(raise :last_pattern :last_find_mode :buffer_found)
 		(unless (and (eql mode last_find_mode) (eql last_pattern pattern))
 			(lower (:last_find_mode mode :last_pattern pattern :dirty_index :t))
-			(each (lambda (__) (elem-set _ buffer_index :nil)) buffer_index))
+			(each (lambda (__) (elem-set _ buffer_found :nil)) buffer_found))
 		(setq mode (if mode +*regexp* +*substr*))
 		(when (get :dirty_index this)
 			(lower (:dirty_index :nil))
@@ -452,10 +452,10 @@
 					(if (> (length line) 0)
 						(unless index
 							(task-slice)
-							(elem-set _ buffer_index (. mode :search line pattern meta)))
-						(elem-set _ buffer_index '(()()))))
-				(get :buffer this) buffer_index))
-		buffer_index)
+							(elem-set _ buffer_found (. mode :search line pattern meta)))
+						(elem-set _ buffer_found '(()()))))
+				(get :buffer this) buffer_found))
+		buffer_found)
 	)
 
 ;module
