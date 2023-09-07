@@ -4,6 +4,10 @@
 
 ------
 
+New `(replace seq s e seq)` function in `root.inc`.
+
+------
+
 New `Substr` string search class. Editor updated to use this new class.
 
 New `Regexp` string search class. Supports `\s \f \q \t \r \n \w \b \ . + * ? |
