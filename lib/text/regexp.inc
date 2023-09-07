@@ -116,7 +116,7 @@
 				(static-qq (((<= ,(code (first token)) (code s) ,(code (last token))) 1)))
 				(static-qq (((find s ,token) 1))))))
 			(:assert (case token
-				("^" (static-q ((:nil (if (= si -1) 1)))))
+				("^" (static-q ((:nil (if (= si 0) 1)))))
 				("$" (static-q ((:nil (if (= si (dec (length text))) 1)))))))
 			(:lrb (cache (static-qq ((:nil (srange ,token))))))
 			(:rrb (cache (static-qq ((:nil (erange ,token))))))
@@ -158,7 +158,7 @@
 (defun search (text cpat start)
 	; (search text cpat start) -> -1 | end
 	;for each char in text
-	(defq end -2 si (dec start) current (firstelem cpat (list)) next (list))
+	(defq end -2 si start current (firstelem cpat (list)) next (list))
 	(some! start -1 :nil
 		(lambda (s) (defq si _)
 			;for each current elem
@@ -205,7 +205,7 @@
 				(when (> (defq x1 (search text cpat x)) x)
 					(push out (list x x1))
 					(push outs (map (lambda ((s s1))
-						(if (< (max s 0) s1) (slice (inc s) (inc s1) text) (slice 0 0 text))) sl))
+						(if (< s s1) (slice s (inc s1) text) (slice 0 0 text))) sl))
 					(setq x (dec x1)))))
 		(list out outs))
 	)
