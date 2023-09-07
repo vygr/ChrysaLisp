@@ -14,17 +14,18 @@
 	(cond
 		(*whole_words*
 			(defq out (cap (length found) (list)))
-			(each (lambda (line indexes)
-					(defq out_indexes (list))
-					(each (lambda ((x x1))
+			(each (lambda (line (indexes substrs))
+					(defq out_indexes (list) out_substrs (list))
+					(each (lambda ((x x1) subs)
 						(if (cond
 								((eql pattern line))
 								((= x 0) (not-whole-word-char? (elem-get x1 line)))
 								((= x1 (length line)) (not-whole-word-char? (elem-get (dec x) line)))
 								((and (not-whole-word-char? (elem-get (dec x) line)))
 									(not-whole-word-char? (elem-get x1 line))))
-							(push out_indexes (list x x1)))) indexes)
-					(push out out_indexes))
+							(push out_indexes (list x x1))
+							(push out_substrs subs))) indexes substrs)
+					(push out (list out_indexes out_substrs)))
 				(.-> *edit* :get_buffer :get_text_lines) found)
 			  out)
 		(found)))
@@ -34,7 +35,7 @@
 		(defq buffer (. *edit* :get_buffer))
 		(when (> (length (defq found (filter-whole-words (. buffer :find pattern *regexp*) pattern))) 0)
 			(bind '(cx cy) (. *edit* :get_cursor))
-			(when (defq next (some! cy -1 :nil (lambda (indexes)
+			(when (defq next (some! cy -1 :nil (lambda ((indexes substrs))
 					(defq y _)
 					(some (lambda ((x x1)) (cond
 						((> y cy) (list x x1 y))
@@ -49,7 +50,7 @@
 		(defq buffer (. *edit* :get_buffer))
 		(when (> (length (defq found (filter-whole-words (. buffer :find pattern *regexp*) pattern))) 0)
 			(bind '(cx cy) (. *edit* :get_cursor))
-			(when (defq next (some! (inc cy) 0 :nil (lambda (indexes)
+			(when (defq next (some! (inc cy) 0 :nil (lambda ((indexes substrs))
 					(defq y _)
 					(some-rev (lambda ((x x1)) (cond
 						((< y cy) (list x x1 y))
@@ -84,7 +85,7 @@
 				(eql (defq replace (get :clear_text *replace_text*)) pattern))
 		(when (> (length (defq found (filter-whole-words (.-> *edit* :get_buffer (:find pattern *regexp*)) pattern))) 0)
 			(undoable :nil
-				(each-rev (lambda (indexes)
+				(each-rev (lambda ((indexes substrs))
 					(defq y _)
 					(each-rev (lambda ((x x1))
 						(.-> buffer (:set_cursor x y) (:cut x1 y))
