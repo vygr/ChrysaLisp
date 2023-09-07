@@ -8,6 +8,9 @@
 ;module
 (env-push)
 
+(defun intern (l s)
+	(cond ((defq i (find s l)) (elem-get i l)) ((push l s) s)))
+
 (defun last-line ()
 	(when (or (= (length buffer) 0) (not (eql (elem-get -2 buffer) "")))
 		(push buffer "")
@@ -447,12 +450,14 @@
 		(setq mode (if mode +*regexp* +*substr*))
 		(when (get :dirty_index this)
 			(lower (:dirty_index :nil))
-			(defq meta (. mode :compile pattern))
+			(defq meta (. mode :compile pattern) allsubs (clear '()))
 			(each (lambda (line index)
 					(if (> (length line) 0)
 						(unless index
 							(task-slice)
-							(elem-set _ buffer_found (. mode :search line pattern meta)))
+							(bind '(indexs substrs) (. mode :search line pattern meta))
+							(setq substrs (map (# (map (# (intern allsubs %0)) %0)) substrs))
+							(elem-set _ buffer_found (list indexs substrs)))
 						(elem-set _ buffer_found '(()()))))
 				(get :buffer this) buffer_found))
 		buffer_found)
