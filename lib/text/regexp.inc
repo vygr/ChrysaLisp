@@ -20,13 +20,6 @@
 	(unless (defq e (. c :find k))
 		(. c :insert k (setq e elem))) e)
 
-(defun srange (label) ;start of sub match
-	(while (<= (length sl) label) (push sl (list 0 0)))
-	(elem-set 0 (elem-get label sl) si) 1)
-
-(defun erange (label) ;end of sub match
-	(elem-set 1 (elem-get label sl) si) 1)
-
 (defun tokenize (line)
 	(defq state :space concat :nil token :nil
 		out_types (clear '()) out_tokens (clear '()))
@@ -118,8 +111,10 @@
 			(:assert (case token
 				("^" (static-q ((:nil (if (= si 0) 1)))))
 				("$" (static-q ((:nil (if (= si (dec (length text))) 1)))))))
-			(:lrb (cache (static-qq ((:nil (srange ,token))))))
-			(:rrb (cache (static-qq ((:nil (erange ,token))))))
+			(:lrb (cache (static-qq ((:nil
+				(progn (while (<= (length sl) ,token) (push sl (list 0 0)))
+					(elem-set 0 (elem-get ,token sl) si) 1))))))
+			(:rrb (cache (static-qq ((:nil (progn (elem-set 1 (elem-get ,token sl) si) 1))))))
 			(:op (defq a (pop stack)) (case token
 				((+op_cat +op_tac) (cat (pop stack) a))
 				("|" (defq b (pop stack) ob (+ (length b) 2) oa (inc (length a)))
