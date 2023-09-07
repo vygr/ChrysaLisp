@@ -34,7 +34,8 @@
 (defun action-find-down ()
 	(unless (eql (defq pattern (get :clear_text *find_text*)) "")
 		(defq buffer (. *edit* :get_buffer))
-		(when (> (length (defq found (filter-whole-words (. buffer :find pattern *regexp*)))) 0)
+		(when (> (length (defq found (filter-whole-words
+					(. buffer :find pattern *regexp*)))) 0)
 			(bind '(cx cy) (. *edit* :get_cursor))
 			(when (defq next (some! cy -1 :nil (lambda ((indexes substrs))
 					(defq y _)
@@ -49,7 +50,8 @@
 (defun action-find-up ()
 	(unless (eql (defq pattern (get :clear_text *find_text*)) "")
 		(defq buffer (. *edit* :get_buffer))
-		(when (> (length (defq found (filter-whole-words (. buffer :find pattern *regexp*)))) 0)
+		(when (> (length (defq found (filter-whole-words
+					(. buffer :find pattern *regexp*)))) 0)
 			(bind '(cx cy) (. *edit* :get_cursor))
 			(when (defq next (some! (inc cy) 0 :nil (lambda ((indexes substrs))
 					(defq y _)
@@ -70,7 +72,7 @@
 			(set *find_text* :clear_text text :cursor (length text) :anchor 0)
 			(.-> *find_text* :layout :dirty))))
 
-(defun build-replace (found rep cx cy ax)
+(defun build-replace (found rep_text rep_matchs cx cy ax)
 	(when (< cy (length found))
 		(if (< ax cx) (defq tx cx cx ax ax tx))
 		(bind '(indexs substrs) (elem-get cy found))
@@ -78,32 +80,37 @@
 			(when *regexp*
 				(setq subs (if (>= subs (length substrs)) '() (elem-get subs substrs)))
 				(each! -1 0 (lambda ((x x1) (s))
-						(setq rep (replace rep x x1
+						(setq rep_text (replace rep_text x x1
 							(if (< (defq s (str-to-num s)) (length subs))
 								(elem-get s subs) ""))))
-					(matches rep "\$([0-9]+)")))
-			rep)))
+					rep_matchs))
+			rep_text)))
 
 (defun action-replace ()
 	(unless (eql (defq pattern (get :clear_text *find_text*)) "")
 		(defq found (filter-whole-words (. buffer :find pattern *regexp*)))
 		(bind '(cx cy) (. *edit* :get_cursor))
 		(bind '(ax ay) (. *edit* :get_anchor))
-		(when (and (= cy ay) (defq rep (build-replace found (get :clear_text *replace_text*) cx cy ax)))
+		(when (and (= cy ay) (defq rep_text (get :clear_text *replace_text*)
+				rep_matchs (matches rep_text "\$([0-9]+)")
+				rep_text (build-replace found rep_text rep_matchs cx cy ax)))
 			(undoable :nil
 				(. buffer :cut ax ay)
-				(. buffer :insert rep))
+				(. buffer :insert rep_text))
 			(refresh))
 		(action-find-down)))
 
 (defun action-replace-all ()
 	(unless (eql (defq pattern (get :clear_text *find_text*)) "")
-		(when (> (length (defq found (filter-whole-words (.-> *edit* :get_buffer (:find pattern *regexp*))))) 0)
+		(when (> (length (defq found (filter-whole-words
+					(.-> *edit* :get_buffer (:find pattern *regexp*))))) 0)
+			(defq rep_text (get :clear_text *replace_text*)
+				rep_matchs (matches rep_text "\$([0-9]+)"))
 			(undoable :nil
 				(each (lambda ((indexes substrs))
 					(defq y _)
 					(each-rev (lambda ((x x1))
-						(when (defq rep (build-replace found (get :clear_text *replace_text*) x y x1))
+						(when (defq rep (build-replace found rep_text rep_matchs x y x1))
 							(.-> buffer (:set_cursor x y) (:cut x1 y))
 							(. buffer :insert rep))) indexes)) found))
 			(bind '(cx cy) (. *edit* :get_cursor))
