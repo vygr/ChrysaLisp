@@ -82,8 +82,9 @@
 				(push parens (setq label (inc label)))
 				(output :lrb label))
 			(:rrb
-				(output :rrb (pop parens))
-				(while (and (not (eql "(" (setq token (pop stack)))) token)
+				(unless (setq type (pop parens)) (throw "Regexp bad parens !" parens))
+				(output :rrb type)
+				(until (eql "(" (setq token (pop stack)))
 					(output :op token)))
 			(:op ;precidence
 				(defq p (find token +op_presidence) x :t)
@@ -96,6 +97,7 @@
 			(:t ;:lit :wild :class :white :black :assert
 				(output type token)))) tokenize_output)
 	(while (defq token (pop stack)) (output :op token))
+	(if (nempty? parens) (throw "Regexp bad parens !" parens))
 	(list out_tokens out_types))
 
 (defun compile (postfix_output)
