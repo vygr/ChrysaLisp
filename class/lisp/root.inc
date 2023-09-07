@@ -495,9 +495,13 @@
 	; (erase seq start end) -> seq
 	(cat (slice 0 b s) (slice e -1 s)))
 
-(defun insert (s p e)
+(defun insert (s p i)
 	; (insert seq pos seq) -> seq
-	(cat (slice 0 p s) e (slice p -1 s)))
+	(cat (slice 0 p s) i (slice p -1 s)))
+
+(defun replace (s b e i)
+	; (replace seq start end seq) -> seq
+	(cat (slice 0 b s) i (slice e -1 s)))
 
 (defun join (l j)
 	; (join list seq) -> seq
