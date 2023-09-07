@@ -62,7 +62,7 @@
 		(clear (get :redo_stack this))
 		(last-line)
 		(lower :buffer :buffer_colored :buffer_states :buffer_found
-			(:dirty_colored :t :dirty_index :t :modified :t))
+			(:dirty_colored :t :dirty_find :t :modified :t))
 		(. this :set_cursor x y)))
 
 (defmacro get-selection ()
@@ -85,7 +85,7 @@
 	; (Buffer [mode syntax]) -> buffer
 	(def this :buffer (list "") :buffer_colored (list "")
 		:buffer_states (list '(:nil :nil)) :buffer_found (list :nil)
-		:dirty_colored :nil :dirty_index :nil
+		:dirty_colored :nil :dirty_find :nil
 		:syntax (opt syntax (Syntax)) :undo_stack (list) :redo_stack (list)
 		:cursor_x 0 :cursor_y 0 :max_width 0 :tab_width 4 :wrap_width 80
 		:mode mode :next_mark -1 :modified :nil
@@ -164,7 +164,7 @@
 		(last-line)
 		(clear (get :undo_stack this) (get :redo_stack this))
 		(lower :buffer :buffer_colored :buffer_states :buffer_found :max_width
-			(:cursor_x 0 :cursor_y 0 :dirty_colored :t :dirty_index :t :modified :nil))
+			(:cursor_x 0 :cursor_y 0 :dirty_colored :t :dirty_find :t :modified :nil))
 		this)
 
 	(defmethod :file_save (this filepath)
@@ -445,11 +445,11 @@
 		; (. buffer :find pattern mode) -> buffer_found
 		(raise :last_pattern :last_find_mode :buffer_found)
 		(unless (and (eql mode last_find_mode) (eql last_pattern pattern))
-			(lower (:last_find_mode mode :last_pattern pattern :dirty_index :t))
+			(lower (:last_find_mode mode :last_pattern pattern :dirty_find :t))
 			(each (lambda (__) (elem-set _ buffer_found :nil)) buffer_found))
 		(setq mode (if mode +*regexp* +*substr*))
-		(when (get :dirty_index this)
-			(lower (:dirty_index :nil))
+		(when (get :dirty_find this)
+			(lower (:dirty_find :nil))
 			(defq meta (. mode :compile pattern) allsubs (clear '()))
 			(each (lambda (line index)
 					(if (> (length line) 0)
