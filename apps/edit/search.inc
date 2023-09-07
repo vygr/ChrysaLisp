@@ -29,7 +29,7 @@
 					(push out (list out_indexes out_substrs)))
 				(.-> *edit* :get_buffer :get_text_lines) found)
 			out)
-		((copy found))))
+		((cat found))))
 
 (defun action-find-down ()
 	(unless (eql (defq pattern (get :clear_text *find_text*)) "")
@@ -75,8 +75,8 @@
 		(if (< ax cx) (defq tx cx cx ax ax tx))
 		(bind '(indexs substrs) (elem-get cy found))
 		(when (defq subs (some (lambda ((x x1)) (and (= x cx) (= x1 ax) _)) indexs))
-			(setq subs (if (>= subs (length substrs)) '() (elem-get subs substrs)))
 			(when *regexp*
+				(setq subs (if (>= subs (length substrs)) '() (elem-get subs substrs)))
 				(each! -1 0 (lambda ((x x1) (s))
 						(setq rep (replace rep x x1
 							(if (< (defq s (str-to-num s)) (length subs))
