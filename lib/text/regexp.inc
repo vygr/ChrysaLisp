@@ -69,7 +69,7 @@
 					("t" (output :lit (ascii-char 9)))
 					(:t (output :lit c)))
 				(setq concat +op_cat state :space)))) line)
-	(unless (eql state :space) (clear out_tokens out_types))
+	(unless (eql state :space) (throw "Regexp bad state !" state))
 	(list out_tokens out_types))
 
 (defun postfix (tokenize_output)
