@@ -6,6 +6,8 @@
 
 New `(replace seq s e seq)` function in `root.inc`.
 
+Textfield widgets offset text to show cursor.
+
 ------
 
 New `Substr` string search class. Editor updated to use this new class.

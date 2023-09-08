@@ -7,6 +7,22 @@
 (import "lib/consts/chars.inc")
 (import "apps/clipboard/app.inc")
 
+;module
+(env-push)
+
+(defun setoffset ()
+	;adjust text offset
+	(raise :clear_text :label_text :font :border :cursor)
+	(bind '(tw th) (font-glyph-bounds font (slice 0 cursor clear_text)))
+	(bind '(w h) (. this :get_size))
+	(defq offset (get :offset label_text) border (abs border))
+	(cond
+		((> (+ tw offset (* border 2) 2) w)
+			(setq offset (- w tw border 2)))
+		((< (- (+ tw offset) border) 0)
+			(setq offset (- 2 tw border))))
+	(set label_text :offset offset))
+
 (defclass Textfield () (Label)
 	; (Textfield) -> textfield
 	(def this :cursor 0 :anchor 0 :clear_text "" :hint_text "" :text ""
@@ -16,18 +32,19 @@
 		; (. textfield :draw) -> textfield
 		(.super this :draw)
 		(bind '(w h) (. this :get_size))
-		(raise :font :text :cursor :anchor)
+		(raise :font :text :cursor :anchor :label_text)
 		(when (and font text)
+			(defq offset (get :offset label_text))
 			(bind '(tw th) (font-glyph-bounds font (slice 0 cursor text)))
 			(when (/= cursor anchor)
 				(bind '(sw _) (font-glyph-bounds font (slice 0 (min anchor cursor) text)))
 				(bind '(sw1 _) (font-glyph-bounds font (slice 0 (max anchor cursor) text)))
 				(.-> this
 					(:ctx_set_color (get :hint_color this))
-					(:ctx_filled_box sw (>>> (- h th) 1) (- sw1 sw) th)))
+					(:ctx_filled_box (+ sw offset) (>>> (- h th) 1) (- sw1 sw) th)))
 			(.-> this
 				(:ctx_set_color (get :ink_color this))
-				(:ctx_filled_box tw (>>> (- h th) 1) 2 th)))
+				(:ctx_filled_box (+ tw offset) (>>> (- h th) 1) 2 th)))
 		this)
 
 	(defmethod :layout (this)
@@ -137,17 +154,21 @@
 				(setq clear_text (insert clear_text cursor (char key))
 					cursor (inc cursor) anchor cursor)))
 		(lower :clear_text :cursor :anchor)
+		;adjust text offset
+		(setoffset)
 		(.-> this :layout :dirty_all))
 
 	(defmethod :mouse_down (this event)
 		; (. textfield :mouse_down event) -> textfield
 		(unless (eql (get :clear_text this) "")
-			(raise :text :font)
-			(defq rx (getf event +ev_msg_mouse_rx) anchor -1)
+			(raise :text :font :label_text)
+			(defq rx (- (getf event +ev_msg_mouse_rx) (get :offset label_text)) anchor -1)
 			(while (and (<= (setq anchor (inc anchor)) (length text))
 						(> rx (elem-get 0 (font-glyph-bounds font (slice 0 anchor text))))))
 			(setq anchor (max 0 (dec anchor)))
 			(lower :anchor (:cursor anchor :state -1))
+			;adjust text offset
+			(setoffset)
 			(.-> this :layout :dirty_all))
 		this)
 
@@ -160,12 +181,18 @@
 	(defmethod :mouse_move (this event)
 		; (. textfield :mouse_move event) -> textfield
 		(unless (or (eql (get :clear_text this) "") (= (get :state this) 1))
-			(raise :text :font)
-			(defq rx (getf event +ev_msg_mouse_rx) cursor -1)
+			(raise :text :font :label_text)
+			(defq rx (- (getf event +ev_msg_mouse_rx) (get :offset label_text)) cursor -1)
 			(while (and (<= (setq cursor (inc cursor)) (length text))
 						(> rx (elem-get 0 (font-glyph-bounds font (slice 0 cursor text))))))
 			(setq cursor (max 0 (dec cursor)))
 			(lower :cursor)
+			;adjust text offset
+			(setoffset)
 			(.-> this :layout :dirty_all))
 		this)
 	)
+
+;module
+(export-classes Textfield)
+(env-pop)
