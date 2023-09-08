@@ -298,11 +298,12 @@
 
 	(defmethod :insert (this string)
 		; (. buffer :insert string) -> buffer
-		(mutate-buffer
-			(set-line y (insert (elem-get y buffer) x string))
-			(setq x (+ x (length string)))
-			(if (>= y h) (. this :push_undo (list :delete 0 y)))
-			(. this :push_undo (list :backspace x y (length string)))))
+		(if (eql string "") this
+			(mutate-buffer
+				(set-line y (insert (elem-get y buffer) x string))
+				(setq x (+ x (length string)))
+				(if (>= y h) (. this :push_undo (list :delete 0 y)))
+				(. this :push_undo (list :backspace x y (length string))))))
 
 	(defmethod :cut (this anchor_x anchor_y)
 		; (. buffer :cut anchor_x anchor_y) -> string
