@@ -105,7 +105,7 @@
 ### buffer :find
 
 ```code
-(. buffer :find pattern mode) -> buffer_index
+(. buffer :find pattern mode) -> buffer_found
 ```
 
 ### buffer :get_cursor
@@ -4450,6 +4450,12 @@
 
 ```code
 (repl stream path)
+```
+
+### replace
+
+```code
+(replace seq start end seq) -> seq
 ```
 
 ### rest
