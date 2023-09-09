@@ -22,7 +22,7 @@
 		block bracket_left bracket_right
 		toupper tolower ordered unique
 		comment)
-	(enum prev next scratch close_buffer close_all save_all save new)
+	(enum prev next scratch close_buffer close_all save save_all new)
 	(enum whole_words regexp find_down find_up)
 	(enum replace replace_all)
 	(enum macro_playback macro_to_eof macro_record)
@@ -53,7 +53,7 @@
 		(ui-backdrop _ (:color (const *env_toolbar_col*))))
 	(ui-flow _ (:flow_flags +flow_right_fill)
 		(ui-tool-bar buffer_toolbar (:color (get :color macro_toolbar))
-			(ui-buttons (0xe91d 0xe91e 0xe94b 0xe94d 0xe94c 0xea3d 0xea07 0xe94e) +event_prev))
+			(ui-buttons (0xe91d 0xe91e 0xe94b 0xe94d 0xe94c 0xea07 0xea3d 0xe94e) +event_prev))
 		(ui-grid _ (:grid_height 1)
 			(. (ui-textfield *name_text* (:color +argb_white
 					:hint_text "new file" :clear_text "")) :connect +event_new)
@@ -241,7 +241,7 @@
 		"outdent" "indent" "select form" "start form" "end form" "upper case"
 		"lower case" "sort" "unique" "comment"))
 	(each (# (def %0 :tip_text %1)) (. buffer_toolbar :children)
-		'("previous" "next" "scratchpad" "close" "close all" "save all" "save" "new"))
+		'("previous" "next" "scratchpad" "close" "close all" "save" "save all" "new"))
 	(each (# (def %0 :tip_text %1)) (. find_toolbar :children)
 		'("whole words" "regexp" "find down" "find up"))
 	(each (# (def %0 :tip_text %1)) (. macro_toolbar :children)
