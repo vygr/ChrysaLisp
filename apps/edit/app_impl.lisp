@@ -36,7 +36,7 @@
 
 (defq +vdu_min_width 80 +vdu_min_height 40 +vdu_max_width 100 +vdu_max_height 46
 	+vdu_line_width 5 +min_word_size 3 +max_matches 20 +margin 2
-	+state_filename "editor_state" +not_whole_word_chars " .,;'`(){}[]/"
+	+state_filename "editor_state" +not_whole_word_chars (cat " .,;'`(){}[]/" {"})
 	+text_types ''(".md" ".txt") +file_types ''(".lisp" ".inc" ".vp" ".md" ".txt"))
 
 (ui-window *window* (:color +argb_grey1)

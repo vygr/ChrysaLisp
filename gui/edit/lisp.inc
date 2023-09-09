@@ -9,7 +9,7 @@
 ;module
 (env-push)
 
-(defq +not_whole_word_chars " .,;'`(){}[]/" +block_comment ";; "
+(defq +not_whole_word_chars (cat " .,;'`(){}[]/" {"}) +block_comment ";; "
 	+not_selected (apply nums (map (lambda (_) 0) (str-alloc 8192)))
 	+bracket_char (nums 0x7f))
 
@@ -191,7 +191,7 @@
 			((selection? this)
 				(bind '(sx sy sx1 sy1) (sort-selection this))
 				(. this :set_cursor sx sy))
-			(:t	(. (get :buffer this) :left)))
+			(:t (. (get :buffer this) :left)))
 		(. this :clear_selection))
 
 	(defmethod :right (this)
@@ -200,7 +200,7 @@
 			((selection? this)
 				(bind '(sx sy sx1 sy1) (sort-selection this))
 				(. this :set_cursor sx1 sy1))
-			(:t	(. (get :buffer this) :right)))
+			(:t (. (get :buffer this) :right)))
 		(. this :clear_selection))
 
 	(defmethod :up (this)
@@ -464,7 +464,7 @@
 		(cond
 			((= cy y1)
 				(push underlay (cat (slice 0 cx +not_selected) (slice cx x1 selected))))
-			(:t	(push underlay (cat
+			(:t (push underlay (cat
 					(slice 0 cx +not_selected)
 					(slice cx (inc (length (elem-get cy buffer))) selected)))
 				(while (< (setq cy (inc cy)) y1)
@@ -488,7 +488,7 @@
 						(push underlay (cat
 							(slice 0 x +not_selected) +bracket_char
 							(slice x (dec x1) +not_selected) +bracket_char)))
-					(:t	(push underlay (cat (slice 0 x +not_selected) +bracket_char))
+					(:t (push underlay (cat (slice 0 x +not_selected) +bracket_char))
 						(while (< (setq y (inc y)) y1) (push underlay ""))
 						(push underlay (cat (slice 0 x1 +not_selected) +bracket_char))))))
 		(. vdu_underlay :load underlay scroll_x scroll_y -1 -1)
