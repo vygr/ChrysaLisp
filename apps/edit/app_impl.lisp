@@ -36,7 +36,8 @@
 
 (defq +vdu_min_width 80 +vdu_min_height 40 +vdu_max_width 100 +vdu_max_height 46
 	+vdu_line_width 5 +min_word_size 3 +max_matches 20 +margin 2
-	+state_filename "editor_state" +not_whole_word_chars " .,;'`(){}[]/")
+	+state_filename "editor_state" +not_whole_word_chars " .,;'`(){}[]/"
+	+text_types ''(".md" ".txt") +file_types ''(".lisp" ".inc" ".vp" ".md"))
 
 (ui-window *window* (:color +argb_grey1)
 	(ui-title-bar *title* "Edit" (0xea19 0xea1b 0xea1a) +event_close)
@@ -150,8 +151,7 @@
 (defun populate-file (file x y ax ay sx sy)
 	;create new file buffer
 	(unless (. *meta_map* :find file)
-		(defq mode (if (or (ends-with ".md" file)
-						   (ends-with ".txt" file)) :t :nil))
+		(defq mode (if (some (# (ends-with %0 file)) +text_types) :t :nil))
 		(. *meta_map* :insert file
 			(list x y ax ay sx sy :nil (defq buffer (Buffer mode *syntax*))))
 		(when file
@@ -315,7 +315,7 @@
 		(tolist (get :keywords *syntax* )))
 	(each-line populate-dictionary (file-stream "class/lisp/root.inc"))
 	(each-line populate-dictionary (file-stream "lib/text/english.txt"))
-	(. *file_tree* :populate "." '(".vp" ".inc" ".lisp" ".md") 2)
+	(. *file_tree* :populate "." +file_types 2)
 	(load-open-files)
 	(populate-open-tree)
 	(populate-vdu :nil)
