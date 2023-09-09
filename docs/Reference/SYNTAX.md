@@ -1470,6 +1470,12 @@
 (. textfield :mouse_up event) -> textfield
 ```
 
+### textfield :pref_size
+
+```code
+(. textfield :pref_size) -> (width height)
+```
+
 ### .
 
 ```code
@@ -1488,6 +1494,12 @@
 (. title :mouse_move event) -> title
 ```
 
+### tree ::empty
+
+```code
+(. tree ::empty) -> tree
+```
+
 ### tree :action
 
 ```code
@@ -1498,6 +1510,18 @@
 
 ```code
 (. tree :add_route route) -> tree
+```
+
+### tree :collapse
+
+```code
+(. tree :collapse) -> tree
+```
+
+### tree :expand
+
+```code
+(. tree :expand) -> tree
 ```
 
 ### tree :find_node

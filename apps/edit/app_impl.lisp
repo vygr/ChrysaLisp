@@ -178,7 +178,7 @@
 (defun populate-open-tree ()
 	;reload open tree
 	(sort cmp *open_files*)
-	(each (# (. %0 :sub)) (. *open_tree* :children))
+	(. *open_tree* :empty)
 	(each (# (. *open_tree* :add_route %0)) (defq dirs (all-dirs *open_files*)))
 	(each (# (. *open_tree* :add_route %0)) *open_files*)
 	(each (# (. *file_tree* :add_route %0)) dirs)

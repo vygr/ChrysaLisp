@@ -12,6 +12,12 @@
 	(def this :flow_flags +flow_down_fill :action_event event
 		:border 0 :selected_node :nil)
 
+	(defmethod :empty (this)
+		; (. tree ::empty) -> tree
+		;empty tree
+		(each (# (. %0 :sub)) (. this :children))
+		this)
+
 	(defmethod :add_route (this route)
 		; (. tree :add_route route) -> tree
 		; routes are:
@@ -24,7 +30,7 @@
 				((defq node (some (# (if (eql (def? :text %0) branch) %0)) (. root :children)))
 					;existing route
 					(setq root (elem-get -2 (. (elem-get -2 (. node :children)) :children))))
-				(:t	;new route, so new node
+				(:t ;new route, so new node
 					(def (defq node (Flow)) :flow_flags +flow_down_fill :text branch)
 					(def (defq tab_flow (Flow)) :flow_flags +flow_right_fill)
 					(def (defq tab (Backdrop)) :min_width toggle_width)
@@ -56,7 +62,7 @@
 					;existing route
 					(setq root (elem-get -2 (. (elem-get -2 (. node :children)) :children)))
 					node)
-				(:t	;new route, so failed
+				(:t ;new route, so failed
 					:nil))) route))
 
 	(defmethod :get_route (this node)
