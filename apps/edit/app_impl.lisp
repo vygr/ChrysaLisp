@@ -148,7 +148,7 @@
 				(. dictionary :insert_word word)))
 		(split line +not_whole_word_chars)))
 
-(defun populate-file (file x y ax ay sx sy)
+(defun populate-buffer (file x y ax ay sx sy)
 	;create new file buffer
 	(unless (. *meta_map* :find file)
 		(defq mode (if (some (# (ends-with %0 file)) +text_types) :t :nil))
@@ -156,12 +156,11 @@
 			(list x y ax ay sx sy :nil (defq buffer (Buffer mode *syntax*))))
 		(when file
 			(. buffer :file_load file)
-			(unless (find file *open_files*) (push *open_files* file))
 			(each populate-dictionary (. buffer :get_text_lines)))))
 
 (defun populate-vdu (file)
 	;load up the vdu widget from this file
-	(populate-file file 0 0 0 0 0 0)
+	(populate-buffer file 0 0 0 0 0 0)
 	(bind '(cx cy ax ay sx sy _ buffer) (. *meta_map* :find file))
 	(setq *current_file* file)
 	(bind '(cx cy) (. buffer :constrain cx cy))
@@ -183,7 +182,17 @@
 	(each (# (. *open_tree* :add_route %0)) (defq dirs (all-dirs *open_files*)))
 	(each (# (. *open_tree* :add_route %0)) *open_files*)
 	(each (# (. *file_tree* :add_route %0)) dirs)
-	(each (# (. *file_tree* :add_route %0)) *open_files*))
+	(each (# (. *file_tree* :add_route %0)) *open_files*)
+	(bind '(w h) (. *file_tree* :pref_size))
+	(def *file_tree* :min_width w)
+	(def *open_tree* :min_width w)
+	(def *file_tree_scroll* :min_width w)
+	(def *open_tree_scroll* :min_width w)
+	(.-> *file_tree* (:change 0 0 w h) :layout)
+	(bind '(w h) (. *open_tree* :pref_size))
+	(.-> *open_tree* (:change 0 0 w h) :layout)
+	(.-> *open_tree_scroll* :layout :dirty_all)
+	(.-> *file_tree_scroll* :layout :dirty_all))
 
 (defun load-open-files ()
 	;load users open file tree
@@ -191,7 +200,9 @@
 		(each-line (lambda (line)
 				(bind '(form _) (read (string-stream line) +char_space))
 				(bind '(file (x y ax ay sx sy _)) form)
-				(if (/= (age file) 0) (populate-file file x y ax ay sx sy)))
+				(when (/= (age file) 0)
+					(unless (find file *open_files*) (push *open_files* file))
+					(populate-buffer file x y ax ay sx sy)))
 			stream)))
 
 (defun save-state ()
@@ -222,17 +233,7 @@
 (defun select-node (file)
 	;highlight the selected file
 	(. *open_tree* :select file)
-	(. *file_tree* :select file)
-	(bind '(w h) (. *file_tree* :pref_size))
-	(. *file_tree* :change 0 0 w h)
-	(def *file_tree* :min_width w)
-	(def *file_tree_scroll* :min_width w)
-	(def *open_tree* :min_width w)
-	(def *open_tree_scroll* :min_width w)
-	(bind '(w h) (. *open_tree* :pref_size))
-	(. *open_tree* :change 0 0 w h)
-	(.-> *open_tree_scroll* :layout :dirty_all)
-	(.-> *file_tree_scroll* :layout :dirty_all))
+	(. *file_tree* :select file))
 
 (defun tooltips ()
 	(def *window* :tip_mbox (elem-get +select_tip select))

@@ -52,19 +52,24 @@
 	;collapse all tree nodes
 	(tree-mutate *file_tree* :collapse))
 
-(defun action-file-leaf-action ()
-	;load up the file selected
-	(. *open_tree* :add_route (defq file (. *file_tree* :get_route
-		(. *window* :find_id (getf *msg* +ev_msg_action_source_id)))))
+(defun switch-file (file)
+	;switch to file
+	(unless (find file *open_files*) (push *open_files* file))
+	(populate-open-tree)
 	(select-node file)
 	(populate-vdu file))
 
 (defun action-open-leaf-action ()
-	;switch to the file selected
-	(. *file_tree* :add_route (defq file (. *open_tree* :get_route
-		(. *window* :find_id (getf *msg* +ev_msg_action_source_id)))))
-	(select-node file)
-	(populate-vdu file))
+	;switch the file selected
+	(defq file (. *open_tree* :get_route
+		(. *window* :find_id (getf *msg* +ev_msg_action_source_id))))
+	(switch-file file))
+
+(defun action-file-leaf-action ()
+	;load the file selected
+	(defq file (. *file_tree* :get_route
+		(. *window* :find_id (getf *msg* +ev_msg_action_source_id))))
+	(switch-file file))
 
 (defun action-scale-up ()
 	;scale font up

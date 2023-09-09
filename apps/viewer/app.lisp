@@ -73,7 +73,7 @@
 	(. *meta_map* :insert *current_file* (list cx cy ax ay sx sy))
 	(set-sliders) (load-display))
 
-(defun populate-file (file)
+(defun populate-buffer (file)
 	;create new file buffer
 	(unless (. *meta_map* :find file)
 		(. *meta_map* :insert file (list 0 0 0 0 0 0)))
@@ -86,7 +86,7 @@
 
 (defun populate-vdu (file)
 	;load up the vdu widget from this file
-	(populate-file file)
+	(populate-buffer file)
 	(bind '(cx cy ax ay sx sy) (. *meta_map* :find file))
 	(. *edit* :set_cursor cx cy)
 	(. *edit* :set_anchor ax ay)
