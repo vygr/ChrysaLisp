@@ -302,7 +302,7 @@
 (defun main ()
 	(defq select (alloc-select +select_size)
 		edit_service (mail-declare (task-netid) "Edit" "Edit Service 0.1")
-		*running* :t *edit* (Editor-edit) *page_scale* 1.0 *regexp* :nil 
+		*running* :t *edit* (Editor-edit) *page_scale* 1.0 *regexp* :nil
 		*current_file* :nil *meta_map* (Fmap) *open_files* (list) *syntax* (Syntax)
 		*whole_words* :nil *macro_record* :nil *macro_actions* (list)
 		dictionary (Dictionary 1021) match_window :nil match_flow :nil match_index -1)
@@ -380,7 +380,7 @@
 						;insert the char
 						(dispatch-action action-insert (char key))
 						(show-matches))))
-			(:t	;gui event
+			(:t ;gui event
 				(clear-matches)
 				(. *window* :event *msg*)))
 		;update meta data

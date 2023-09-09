@@ -36,7 +36,7 @@
 
 (defun view-digital-time ()
 	(if (and *env_clock_twelve_hour* (> hour 12)) (setq hour (- hour 12)))
-	(cat (if *env_clock_dotw* (day-of-the-week dotw) "") " " 
+	(cat (if *env_clock_dotw* (day-of-the-week dotw) "") " "
 		(if *env_clock_pad_hour* (pad hour 2 "0") (str hour)) (str ":" (pad minute 2 "0"))
 		(if (eql *env_clock_seconds* :t) (str ":" (pad second 2 "0")) "")))
 
