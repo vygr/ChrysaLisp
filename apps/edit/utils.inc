@@ -41,9 +41,13 @@
 
 (defun switch-file (file)
 	;switch to file or scratch (:nil)
-	(when (and file (not (find file *open_files*)))
-		(push *open_files* file))
 	(populate-open-tree)
 	(select-node file)
 	(populate-vdu file)
 	(save-state))
+
+(defun open-file (file)
+	;open file or scratch (:nil)
+	(when (and file (not (find file *open_files*)))
+		(push *open_files* file))
+	(switch-file file))

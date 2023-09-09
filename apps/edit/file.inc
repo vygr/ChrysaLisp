@@ -54,7 +54,7 @@
 		(if (= (age file) 0) (save "" file))
 		(def *name_text* :cursor 0 :anchor 0 :clear_text "")
 		(.-> *name_text* :layout :dirty_all)
-		(switch-file file)))
+		(open-file file)))
 
 (defun action-next-buffer ()
 	(defq files (cat *open_files* '(:nil))
@@ -82,11 +82,7 @@
 		(elem-get (% i (length files)) files)))
 
 (defun action-close-buffer ()
-	(defq file (close-file *current_file*))
-	(populate-open-tree)
-	(select-node file)
-	(populate-vdu file)
-	(save-state))
+	(switch-file (close-file *current_file*)))
 
 (defun action-close-all ()
 	(each (# (close-file %0)) (cat *open_files*))

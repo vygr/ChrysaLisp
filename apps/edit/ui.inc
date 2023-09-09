@@ -55,7 +55,7 @@
 
 (defun action-file-leaf-action ()
 	;load the file selected
-	(switch-file (. *file_tree* :get_route
+	(open-file (. *file_tree* :get_route
 		(. *window* :find_id (getf *msg* +ev_msg_action_source_id)))))
 
 (defun action-scale-up ()
