@@ -78,7 +78,9 @@
 					(. flow :set_flags +view_flag_hiden +view_flag_hiden)
 					(def %0 :text ">"))
 				((push stack %0)))) (. node :children)))
-		this)
+		(bind '(x y) (. this :get_pos))
+		(bind '(w h) (. this :pref_size))
+		(. this :change x y w h))
 
 	(defmethod :collapse (this)
 		; (. tree :collapse) -> tree
@@ -90,7 +92,9 @@
 					(. flow :set_flags 0 +view_flag_hiden)
 					(def %0 :text "^"))
 				((push stack %0)))) (. node :children)))
-		this)
+		(bind '(x y) (. this :get_pos))
+		(bind '(w h) (. this :pref_size))
+		(. this :change x y w h))
 
 	(defmethod :populate (this &optional root exts n)
 		; (. tree :populate &optional root exts n) -> tree

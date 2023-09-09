@@ -34,8 +34,6 @@
 
 (defun tree-mutate (tree action)
 	(. tree action)
-	(bind '(w h) (. tree :pref_size))
-	(. tree :change 0 0 w h)
 	(.-> (penv tree) :layout :dirty_all))
 
 (defun action-open-tree-expand ()
