@@ -53,12 +53,17 @@
 			((eql (defq text (get :clear_text this)) "")
 				(defq text (get :hint_text this) mode :nil)
 				(def this :ink_color (get :hint_color this)))
-			(:t	(defq mode (get :mode this))
+			(:t (defq mode (get :mode this))
 				(def this :ink_color (get :no_hint_color this))))
 		(if mode
 			(def this :text (pad "" (length text) "******************"))
 			(def this :text text))
 		(.super this :layout))
+
+	(defmethod :pref_size (this)
+		; (. textfield :pref_size) -> (width height)
+		(bind '(w h) (.super this :pref_size))
+		(list 128 h))
 
 	(defmethod :key_down (this event)
 		; (. textfield :key_down event) -> textfield
