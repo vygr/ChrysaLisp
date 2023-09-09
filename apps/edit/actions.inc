@@ -23,7 +23,7 @@ event_map (Fmap-kv
 	;; +event_open_tree_colapse action-open-tree-colapse
 	;; +event_file_tree_expand action-file-tree-expand
 	;; +event_file_tree_colapse action-file-tree-colapse
-	;; +event_close_all action-close-all
+	+event_close_all action-close-all
 	+event_close_buffer action-close-buffer
 	+event_macro_record action-macro-record
 	+event_macro_playback action-macro-playback
