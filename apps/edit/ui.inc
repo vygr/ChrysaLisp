@@ -32,21 +32,27 @@
 	(.-> (penv (. *window* :find_id (getf *msg* +ev_msg_action_source_id)))
 		:layout :dirty_all))
 
+(defun tree-mutate (tree action)
+	(. tree action)
+	(bind '(w h) (. tree :pref_size))
+	(. tree :change 0 0 w h)
+	(.-> (penv tree) :layout :dirty_all))
+
 (defun action-open-tree-expand ()
 	;expand all tree nodes
-	(.-> (. *open_tree* :expand) :layout :dirty_all))
+	(tree-mutate *open_tree* :expand))
 
 (defun action-open-tree-collapse ()
 	;collapse all tree nodes
-	(.-> (. *open_tree* :collapse) :layout :dirty_all))
+	(tree-mutate *open_tree* :collapse))
 
 (defun action-file-tree-expand ()
 	;expand all tree nodes
-	(.-> (. *file_tree* :expand) :layout :dirty_all))
+	(tree-mutate *file_tree* :expand))
 
 (defun action-file-tree-collapse ()
 	;collapse all tree nodes
-	(.-> (. *file_tree* :collapse) :layout :dirty_all))
+	(tree-mutate *file_tree* :collapse))
 
 (defun action-file-leaf-action ()
 	;load up the file selected

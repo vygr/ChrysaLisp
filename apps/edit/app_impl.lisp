@@ -26,8 +26,8 @@
 	(enum whole_words regexp find_down find_up)
 	(enum replace replace_all)
 	(enum macro_playback macro_to_eof macro_record)
-	(enum open_tree_expand open_tree_collapse)
-	(enum file_tree_expand file_tree_collapse))
+	(enum open_tree_collapse open_tree_expand)
+	(enum file_tree_collapse file_tree_expand))
 
 (enums +select 0
 	(enum main tip))
@@ -72,7 +72,7 @@
 			(ui-grid _ (:color +argb_grey14 :grid_width 1)
 				(ui-flow _ (:flow_flags +flow_down_fill)
 					(ui-flow _ (:flow_flags +flow_left_fill)
-						(ui-buttons (">" "^") +event_open_tree_expand)
+						(ui-buttons (">" "^") +event_open_tree_collapse)
 						(ui-label _ (:text "Open")))
 					(ui-scroll *open_tree_scroll* +scroll_flag_vertical :nil
 						(. (ui-tree *open_tree* +event_open_folder_action
@@ -80,7 +80,7 @@
 								:font *env_medium_terminal_font*)) :connect +event_tree_action)))
 				(ui-flow _  (:flow_flags +flow_down_fill)
 					(ui-flow _ (:flow_flags +flow_left_fill)
-						(ui-buttons (">" "^") +event_file_tree_expand)
+						(ui-buttons (">" "^") +event_file_tree_collapse)
 						(ui-label _ (:text "Project")))
 					(ui-scroll *file_tree_scroll* +scroll_flag_vertical :nil
 						(. (ui-tree *file_tree* +event_file_folder_action

@@ -8,6 +8,9 @@ New `(replace seq s e seq)` function in `root.inc`.
 
 Textfield widgets offset text to show cursor.
 
+Editor app tree global expand and collapse buttons. New `:expand` and
+`:collapse` methods on Tree widget.
+
 ------
 
 New `Substr` string search class. Editor updated to use this new class.

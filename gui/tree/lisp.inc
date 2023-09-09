@@ -68,6 +68,30 @@
 			(unless (eql node this) (setq node (penv (penv node)))))
 		(join (reverse route) "/"))
 
+	(defmethod :expand (this)
+		; (. tree :expand) -> tree
+		(defq stack (list this))
+		(while (defq node (pop stack))
+			(each (# (cond
+				((and (Button? %0) (find (get :text %0) "^>"))
+					(defq flow (elem-get -2 (. (penv (penv %0)) :children)))
+					(. flow :set_flags +view_flag_hiden +view_flag_hiden)
+					(def %0 :text ">"))
+				((push stack %0)))) (. node :children)))
+		this)
+
+	(defmethod :collapse (this)
+		; (. tree :collapse) -> tree
+		(defq stack (list this))
+		(while (defq node (pop stack))
+			(each (# (cond
+				((and (Button? %0) (find (get :text %0) "^>"))
+					(defq flow (elem-get -2 (. (penv (penv %0)) :children)))
+					(. flow :set_flags 0 +view_flag_hiden)
+					(def %0 :text "^"))
+				((push stack %0)))) (. node :children)))
+		this)
+
 	(defmethod :populate (this &optional root exts n)
 		; (. tree :populate &optional root exts n) -> tree
 		;load up a file tree
