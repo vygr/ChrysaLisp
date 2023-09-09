@@ -19,6 +19,12 @@
 
 (defq
 event_map (Fmap-kv
+	;; +event_open_tree_expand action-open-tree-expand
+	;; +event_open_tree_colapse action-open-tree-colapse
+	;; +event_file_tree_expand action-file-tree-expand
+	;; +event_file_tree_colapse action-file-tree-colapse
+	;; +event_close_all action-close-all
+	+event_close_buffer action-close-buffer
 	+event_macro_record action-macro-record
 	+event_macro_playback action-macro-playback
 	+event_macro_to_eof action-macro-to-eof
@@ -26,7 +32,6 @@ event_map (Fmap-kv
 	+event_close action-close
 	+event_min action-minimise
 	+event_max action-maximise
-	+event_close_buffer action-close-buffer
 	+event_save action-save
 	+event_save_all action-save-all
 	+event_new action-new
