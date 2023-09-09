@@ -41,12 +41,12 @@
 			(. buffer :file_save file))))
 
 (defun action-save ()
-	(save-state)
-	(save-file *current_file*))
+	(save-file *current_file*)
+	(save-state))
 
 (defun action-save-all ()
-	(save-state)
-	(each (# (save-file %0)) *open_files*))
+	(each (# (save-file %0)) *open_files*)
+	(save-state))
 
 (defun action-new ()
 	(when (not (eql (defq file (get :clear_text *name_text*)) ""))
@@ -57,7 +57,8 @@
 		(unless (find file *open_files*) (push *open_files* file))
 		(populate-open-tree)
 		(select-node file)
-		(populate-vdu file)))
+		(populate-vdu file)
+		(save-state)))
 
 (defun action-next-buffer ()
 	(defq files (cat *open_files* '(:nil))
@@ -88,14 +89,15 @@
 
 (defun action-close-buffer ()
 	(setq *current_file* (close-file *current_file*))
-	(save-state)
 	(populate-open-tree)
 	(populate-vdu *current_file*)
-	(select-node *current_file*))
+	(select-node *current_file*)
+	(save-state))
 
 (defun action-close-all ()
 	(each (# (close-file %0)) (cat *open_files*))
-	(save-state)
+	(setq *current_file* :nil)
 	(populate-open-tree)
 	(populate-vdu :nil)
-	(select-node :nil))
+	(select-node :nil)
+	(save-state))

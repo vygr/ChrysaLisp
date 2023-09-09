@@ -57,7 +57,8 @@
 	(unless (find file *open_files*) (push *open_files* file))
 	(populate-open-tree)
 	(select-node file)
-	(populate-vdu file))
+	(populate-vdu file)
+	(save-state))
 
 (defun action-open-leaf-action ()
 	;switch the file selected

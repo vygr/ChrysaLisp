@@ -194,8 +194,8 @@
 	(.-> *open_tree_scroll* :layout :dirty_all)
 	(.-> *file_tree_scroll* :layout :dirty_all))
 
-(defun load-open-files ()
-	;load users open file tree
+(defun load-state ()
+	;load editor state
 	(when (defq stream (file-stream (cat *env_home* +state_filename)))
 		(defq last_file (read-line stream))
 		(each-line (lambda (line)
@@ -320,7 +320,7 @@
 	(each-line populate-dictionary (file-stream "class/lisp/root.inc"))
 	(each-line populate-dictionary (file-stream "lib/text/english.txt"))
 	(. *file_tree* :populate "." +file_types 2)
-	(setq *current_file* (load-open-files))
+	(setq *current_file* (load-state))
 	(populate-open-tree)
 	(populate-vdu *current_file*)
 	(select-node *current_file*)
