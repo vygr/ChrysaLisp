@@ -26,8 +26,8 @@
 	(enum whole_words regexp find_down find_up)
 	(enum replace replace_all)
 	(enum macro_playback macro_to_eof macro_record)
-	(enum open_tree_expand open_tree_colapse)
-	(enum file_tree_expand file_tree_colapse))
+	(enum open_tree_expand open_tree_collapse)
+	(enum file_tree_expand file_tree_collapse))
 
 (enums +select 0
 	(enum main tip))

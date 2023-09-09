@@ -36,17 +36,17 @@
 	;expand all tree nodes
 	(.-> (. *open_tree* :expand) :layout :dirty_all))
 
-(defun action-open-tree-colapse ()
-	;colapse all tree nodes
-	(.-> (. *open_tree* :colapse) :layout :dirty_all))
+(defun action-open-tree-collapse ()
+	;collapse all tree nodes
+	(.-> (. *open_tree* :collapse) :layout :dirty_all))
 
 (defun action-file-tree-expand ()
 	;expand all tree nodes
 	(.-> (. *file_tree* :expand) :layout :dirty_all))
 
-(defun action-file-tree-colapse ()
-	;colapse all tree nodes
-	(.-> (. *file_tree* :colapse) :layout :dirty_all))
+(defun action-file-tree-collapse ()
+	;collapse all tree nodes
+	(.-> (. *file_tree* :collapse) :layout :dirty_all))
 
 (defun action-file-leaf-action ()
 	;load up the file selected

@@ -20,9 +20,9 @@
 (defq
 event_map (Fmap-kv
 	;; +event_open_tree_expand action-open-tree-expand
-	;; +event_open_tree_colapse action-open-tree-colapse
+	;; +event_open_tree_collapse action-open-tree-collapse
 	;; +event_file_tree_expand action-file-tree-expand
-	;; +event_file_tree_colapse action-file-tree-colapse
+	;; +event_file_tree_collapse action-file-tree-collapse
 	+event_close_all action-close-all
 	+event_close_buffer action-close-buffer
 	+event_macro_record action-macro-record
