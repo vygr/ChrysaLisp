@@ -38,3 +38,12 @@
 	(unless x (setq x 0))
 	(unless x1 (setq x1 (length line)))
 	(list x x1))
+
+(defun switch-file (file)
+	;switch to file or scratch (:nil)
+	(when (and file (not (find file *open_files*)))
+		(push *open_files* file))
+	(populate-open-tree)
+	(select-node file)
+	(populate-vdu file)
+	(save-state))

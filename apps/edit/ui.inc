@@ -48,15 +48,6 @@
 	;collapse all tree nodes
 	(. *file_tree* :collapse))
 
-(defun switch-file (file)
-	;switch to file
-	(unless (find file *open_files*)
-		(push *open_files* file)
-		(populate-open-tree))
-	(select-node file)
-	(populate-vdu file)
-	(save-state))
-
 (defun action-open-leaf-action ()
 	;switch to the file selected
 	(switch-file (. *open_tree* :get_route
