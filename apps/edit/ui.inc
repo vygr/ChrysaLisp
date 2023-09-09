@@ -58,16 +58,14 @@
 	(save-state))
 
 (defun action-open-leaf-action ()
-	;switch the file selected
-	(defq file (. *open_tree* :get_route
-		(. *window* :find_id (getf *msg* +ev_msg_action_source_id))))
-	(switch-file file))
+	;switch to the file selected
+	(switch-file (. *open_tree* :get_route
+		(. *window* :find_id (getf *msg* +ev_msg_action_source_id)))))
 
 (defun action-file-leaf-action ()
 	;load the file selected
-	(defq file (. *file_tree* :get_route
-		(. *window* :find_id (getf *msg* +ev_msg_action_source_id))))
-	(switch-file file))
+	(switch-file (. *file_tree* :get_route
+		(. *window* :find_id (getf *msg* +ev_msg_action_source_id)))))
 
 (defun action-scale-up ()
 	;scale font up
