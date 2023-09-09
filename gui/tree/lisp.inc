@@ -80,7 +80,7 @@
 				((push stack %0)))) (. node :children)))
 		(bind '(x y) (. this :get_pos))
 		(bind '(w h) (. this :pref_size))
-		(. this :change x y w h))
+		(.-> this (:change x y w h) :emit))
 
 	(defmethod :collapse (this)
 		; (. tree :collapse) -> tree
@@ -94,7 +94,7 @@
 				((push stack %0)))) (. node :children)))
 		(bind '(x y) (. this :get_pos))
 		(bind '(w h) (. this :pref_size))
-		(. this :change x y w h))
+		(.-> this (:change x y w h) :emit))
 
 	(defmethod :populate (this &optional root exts n)
 		; (. tree :populate &optional root exts n) -> tree

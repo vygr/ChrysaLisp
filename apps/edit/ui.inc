@@ -32,25 +32,21 @@
 	(.-> (penv (. *window* :find_id (getf *msg* +ev_msg_action_source_id)))
 		:layout :dirty_all))
 
-(defun tree-mutate (tree action)
-	(. tree action)
-	(.-> (penv tree) :layout :dirty_all))
-
 (defun action-open-tree-expand ()
 	;expand all tree nodes
-	(tree-mutate *open_tree* :expand))
+	(. *open_tree* :expand))
 
 (defun action-open-tree-collapse ()
 	;collapse all tree nodes
-	(tree-mutate *open_tree* :collapse))
+	(. *open_tree* :collapse))
 
 (defun action-file-tree-expand ()
 	;expand all tree nodes
-	(tree-mutate *file_tree* :expand))
+	(. *file_tree* :expand))
 
 (defun action-file-tree-collapse ()
 	;collapse all tree nodes
-	(tree-mutate *file_tree* :collapse))
+	(. *file_tree* :collapse))
 
 (defun switch-file (file)
 	;switch to file
