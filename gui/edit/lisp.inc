@@ -9,9 +9,9 @@
 ;module
 (env-push)
 
-(defq +not_whole_word_chars (cat " .,;'`(){}[]/" {"}) +block_comment ";; "
-	+not_selected (apply nums (map (lambda (_) 0) (str-alloc 8192)))
-	+bracket_char (nums 0x7f))
+(defq +not_whole_word_chars (cat " .,;'`(){}[]/" (ascii-char 34))
+	+block_comment ";; " +bracket_char (nums 0x7f)
+	+not_selected (apply nums (map (lambda (_) 0) (str-alloc 8192))))
 
 (defmacro not-whole-word-char? (_)
 	`(find ,_ +not_whole_word_chars))

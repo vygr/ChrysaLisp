@@ -36,7 +36,7 @@
 
 (defq +vdu_min_width 80 +vdu_min_height 40 +vdu_max_width 100 +vdu_max_height 46
 	+vdu_line_width 5 +min_word_size 3 +max_matches 20 +margin 2
-	+state_filename "editor_state" +not_whole_word_chars (cat " .,;'`(){}[]/" {"})
+	+state_filename "editor_state" +not_whole_word_chars (cat " .,;'`(){}[]/" (ascii-char 34))
 	+text_types ''(".md" ".txt") +file_types ''(".lisp" ".inc" ".vp" ".md" ".txt"))
 
 (ui-window *window* (:color +argb_grey1)
@@ -198,6 +198,10 @@
 	;load editor state
 	(when (defq stream (file-stream (cat *env_home* +state_filename)))
 		(defq last_file (read-line stream))
+		(set *find_text* :clear_text (read-line stream))
+		(set *replace_text* :clear_text (read-line stream))
+		(.-> *find_text* :layout :dirty)
+		(.-> *replace_text* :layout :dirty)
 		(each-line (lambda (line)
 				(bind '(form _) (read (string-stream line) +char_space))
 				(bind '(file (x y ax ay sx sy _)) form)
@@ -211,6 +215,8 @@
 	;save editor state
 	(when (defq stream (file-stream (cat *env_home* +state_filename) +file_open_write))
 		(write-line stream (str *current_file*))
+		(write-line stream (get :clear_text *find_text*))
+		(write-line stream (get :clear_text *replace_text*))
 		(each (lambda (file)
 				(write-line stream (str (list file (slice 0 -2 (. *meta_map* :find file))))))
 			(sort cmp *open_files*))))
