@@ -50,8 +50,9 @@
 
 (defun switch-file (file)
 	;switch to file
-	(unless (find file *open_files*) (push *open_files* file))
-	(populate-open-tree)
+	(unless (find file *open_files*)
+		(push *open_files* file)
+		(populate-open-tree))
 	(select-node file)
 	(populate-vdu file)
 	(save-state))
