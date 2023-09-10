@@ -62,9 +62,9 @@
 	(unless y1 (setq y1 h))
 	(list y y1))
 
-(defmacro undoable (this buffer &rest _)
+(defmacro undoable (&rest _)
 	`(progn
-		(setd buffer (. this :get_buffer))
+		(raise :buffer)
 		(bind '(cx cy) (. this :get_cursor))
 		(. buffer :push_undo
 			(list :mark (defq mark (. buffer :next_mark)))
@@ -318,7 +318,7 @@
 
 	(defmethod :break (this)
 		; (. edit :break) -> edit
-		(undoable this :nil
+		(undoable
 			(bind '(ax ay) (. this :get_anchor))
 			(. buffer :cut ax ay)
 			(bind '(x y) (.-> buffer :break :get_cursor))
@@ -330,7 +330,7 @@
 
 	(defmethod :tab (this)
 		; (. edit :tab) -> edit
-		(undoable this :nil
+		(undoable
 			(defq tab_width (. buffer :get_tab_width))
 			(. buffer :cut ax ay)
 			(bind '(cx cy) (. buffer :get_cursor))
@@ -339,7 +339,7 @@
 
 	(defmethod :left_tab (this)
 		; (. edit :left_tab) -> edit
-		(undoable this :nil
+		(undoable
 			(defq tab_width (. buffer :get_tab_width))
 			(bind '(y y1) (select-lines this))
 			(each! y y1 (lambda (line)
@@ -357,7 +357,7 @@
 
 	(defmethod :right_tab (this)
 		; (. edit :right_tab) -> edit
-		(undoable this :nil
+		(undoable
 			(defq tab (pad "" (. buffer :get_tab_width) "        "))
 			(bind '(y y1) (select-lines this))
 			(each! y y1 (lambda (line)
@@ -371,7 +371,7 @@
 	(defmethod :to_lower (this)
 		; (. edit :to_lower) -> edit
 		(when (selection? this)
-			(undoable this :nil
+			(undoable
 				(bind '(ax ay) (. this :get_anchor))
 				(. buffer :paste (to-lower (. buffer :cut ax ay)))))
 		this)
@@ -379,14 +379,14 @@
 	(defmethod :to_upper (this)
 		; (. edit :to_upper) -> edit
 		(when (selection? this)
-			(undoable this :nil
+			(undoable
 				(bind '(ax ay) (. this :get_anchor))
 				(. buffer :paste (to-upper (. buffer :cut ax ay)))))
 		this)
 
 	(defmethod :reflow (this)
 		; (. edit :reflow) -> edit
-		(undoable this :nil
+		(undoable
 			(bind '(y y1) (select-paragraph this))
 			(each (lambda (line)
 					(task-slice)
@@ -403,7 +403,7 @@
 	(defmethod :ordered (this)
 		; (. edit :ordered) -> edit
 		(when (selection? this)
-			(undoable this :nil
+			(undoable
 				(bind '(y y1) (select-lines this))
 				(. this :set_anchor 0 y)
 				(. buffer :paste (cat (join
@@ -414,7 +414,7 @@
 	(defmethod :ordered_unique (this)
 		; (. edit :ordered_unique) -> edit
 		(when (selection? this)
-			(undoable this :nil
+			(undoable
 				(bind '(y y1) (select-lines this))
 				(. this :set_anchor 0 y)
 				(. buffer :paste (cat (join
@@ -426,7 +426,7 @@
 
 	(defmethod :comment (this)
 		; (. edit :comment) -> edit
-		(undoable this :nil
+		(undoable
 			(bind '(y y1) (select-lines this))
 			(. this :set_anchor 0 y)
 			(each! y y1 (lambda (line)
