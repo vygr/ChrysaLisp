@@ -11,7 +11,7 @@
 (defclass Terminal-edit () (Viewer-edit)
 	(def this :ink_color +argb_green)
 
-	(defmethod :mouse_wheel (this event)
+	(defmethod :mouse_wheel (event)
 		; (. edit :mouse_wheel event) -> edit
 		(raise :scroll_x :scroll_y)
 		(setq scroll_x (+ scroll_x (getf event +ev_msg_wheel_x))

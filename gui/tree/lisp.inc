@@ -12,13 +12,13 @@
 	(def this :flow_flags +flow_down_fill :action_event event
 		:border 0 :selected_node :nil)
 
-	(defmethod :empty (this)
+	(defmethod :empty ()
 		; (. tree ::empty) -> tree
 		;empty tree
 		(each (# (. %0 :sub)) (. this :children))
 		this)
 
-	(defmethod :add_route (this route)
+	(defmethod :add_route (route)
 		; (. tree :add_route route) -> tree
 		; routes are:
 		; "a/b/c/file"
@@ -51,7 +51,7 @@
 			(. root :add_child node))
 		this)
 
-	(defmethod :find_node (this route)
+	(defmethod :find_node (route)
 		; (. tree :find_node route) -> node | :nil
 		; routes are:
 		; "a/b/c/node"
@@ -65,7 +65,7 @@
 				(:t ;new route, so failed
 					:nil))) route))
 
-	(defmethod :get_route (this node)
+	(defmethod :get_route (node)
 		; (. tree :get_route node) -> tree
 		(defq route (list))
 		(until (eql node this)
@@ -74,7 +74,7 @@
 			(unless (eql node this) (setq node (penv (penv node)))))
 		(join (reverse route) "/"))
 
-	(defmethod :expand (this)
+	(defmethod :expand ()
 		; (. tree :expand) -> tree
 		(defq stack (list this))
 		(while (defq node (pop stack))
@@ -88,7 +88,7 @@
 		(bind '(w h) (. this :pref_size))
 		(.-> this (:change x y w h) :emit))
 
-	(defmethod :collapse (this)
+	(defmethod :collapse ()
 		; (. tree :collapse) -> tree
 		(defq stack (list this))
 		(while (defq node (pop stack))
@@ -102,7 +102,7 @@
 		(bind '(w h) (. this :pref_size))
 		(.-> this (:change x y w h) :emit))
 
-	(defmethod :populate (this &optional root exts n)
+	(defmethod :populate (&optional root exts n)
 		; (. tree :populate &optional root exts n) -> tree
 		;load up a file tree
 		(defq files (sort cmp (all-files root exts n)))
@@ -110,7 +110,7 @@
 		(each (# (. this :add_route %0)) files)
 		this)
 
-	(defmethod :select (this route)
+	(defmethod :select (route)
 		; (. tree :select route) -> tree
 		;highlight a tree route
 		(raise :selected_node)
@@ -121,7 +121,7 @@
 		(lower :selected_node)
 		this)
 
-	(defmethod :action (this event)
+	(defmethod :action (event)
 		; (. tree :action event) -> tree
 		(when (defq toggle (. this :find_id (getf event +ev_msg_action_source_id)))
 			(defq node (elem-get -2 (. (penv (penv toggle)) :children))

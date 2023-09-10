@@ -9,7 +9,7 @@
 	(def this :child :nil :last_buttons 0 :is_window :t
 		:drag_mode 0 :drag_offx 0 :drag_offy 0)
 
-	(defmethod :draw (this)
+	(defmethod :draw ()
 		; (. window :draw) -> window
 		(bind '(w h) (. this :get_size))
 		;panel
@@ -22,20 +22,20 @@
 			(setq col (logand 0xff000000 (+ (>> col 1) (>> col 4)))))
 		this)
 
-	(defmethod :add_child (this child)
+	(defmethod :add_child (child)
 		; (. window :add_child child) -> window
 		(if (defq old_child (get :child this))
 			(. old_child :sub))
 		(lower :child)
 		(. this :add_back child))
 
-	(defmethod :pref_size (this)
+	(defmethod :pref_size ()
 		; (. window :pref_size) -> (width height)
 		(raise :border :shadow :child)
 		(bind '(w h) (. child :pref_size))
 		(list (+ (* (+ shadow border) 2) w) (+ (* (+ shadow border) 2) h)))
 
-	(defmethod :layout (this)
+	(defmethod :layout ()
 		; (. window :layout) -> window
 		(raise :border :shadow :child)
 		;position any child
@@ -51,7 +51,7 @@
 				(:t	(.-> this :clr_opaque (:add_opaque shadow shadow
 						(- w (* 2 shadow)) (- h (* 2 shadow))))))))
 
-	(defmethod :drag_mode (this rx ry)
+	(defmethod :drag_mode (rx ry)
 		; (. window :drag_mode rx ry) -> (drag_mode drag_offx drag_offy)
 		(bind '(w h) (. this :get_size))
 		(raise :border :shadow (drag_mode 0 drag_offx 0 drag_offy 0))
@@ -65,14 +65,14 @@
 			(setq drag_mode (+ drag_mode 8) drag_offy (- ry h)))
 		(list drag_mode drag_offx drag_offy))
 
-	(defmethod :mouse_down (this event)
+	(defmethod :mouse_down (event)
 		; (. window :mouse_down event) -> window
 		(bind '(drag_mode drag_offx drag_offy)
 			(. this :drag_mode (getf event +ev_msg_mouse_rx) (getf event +ev_msg_mouse_ry)))
 		(lower :drag_mode :drag_offx :drag_offy)
 		this)
 
-	(defmethod :mouse_move (this event)
+	(defmethod :mouse_move (event)
 		; (. window :mouse_move event) -> window
 		(raise :drag_mode :drag_offx :drag_offy
 			(ax (getf event +ev_msg_mouse_x) ay (getf event +ev_msg_mouse_y)))
@@ -89,7 +89,7 @@
 			(setq y1 (max (- ay drag_offy) (+ y h))))
 		(.-> this (:change_dirty x y (- x1 x) (- y1 y)) :emit))
 
-	(defmethod :event (this event)
+	(defmethod :event (event)
 		; (. window :event event) -> window
 		(defq target (. this :find_id (getf event +ev_msg_target_id))
 			type (getf event +ev_msg_type))

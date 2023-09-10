@@ -95,27 +95,27 @@
 		:matrix (Mat4x4-unity) :imatrix (Mat4x4-unity)
 		:dirty :nil :name (opt name ""))
 
-	(defmethod :get_parent (this)
+	(defmethod :get_parent ()
 		; (. scene_node :get_parent) -> scene_node | :nil
 		(obj-ref (get :parent this)))
 
-	(defmethod :set_parent (this parent)
+	(defmethod :set_parent (parent)
 		; (. scene_node :set_parent parent) -> scene_node
 		(set this :parent (weak-ref parent))
 		this)
 
-	(defmethod :children (this)
+	(defmethod :children ()
 		; (. scene_node :children) -> children
 		(get :children this))
 
-	(defmethod :add_node (this child)
+	(defmethod :add_node (child)
 		; (. scene_node :add_node child) -> scene_node
 		(if (. child :get_parent) (. child :sub_node))
 		(push (get :children this) child)
 		(. child :set_parent this)
 		this)
 
-	(defmethod :sub_node (this)
+	(defmethod :sub_node ()
 		; (. scene_node :sub_node) -> scene_node
 		(when (defq parent (. child :get_parent))
 			(. child :set_parent :nil)
@@ -123,22 +123,22 @@
 			(set parent :children (erase children idx (inc idx))))
 		this)
 
-	(defmethod :set_rotation (this x y z)
+	(defmethod :set_rotation (x y z)
 		; (. scene_node :set_rotation x y z) -> scene_node
 		(set this :rot_x x :rot_y y :rot_z z :dirty :t)
 		this)
 
-	(defmethod :set_translation (this x y z)
+	(defmethod :set_translation (x y z)
 		; (. scene_node :set_translation x y z) -> scene_node
 		(set this :trans_x x :trans_y y :trans_z z :dirty :t)
 		this)
 
-	(defmethod :set_scale (this x y z)
+	(defmethod :set_scale (x y z)
 		; (. scene_node :set_scale x y z) -> scene_node
 		(set this :scale_x x :scale_y y :scale_z z :dirty :t)
 		this)
 
-	(defmethod :get_matrix (this)
+	(defmethod :get_matrix ()
 		; (. scene_node :get_matrix) -> matrix
 		(when (get :dirty this)
 			(raise :rot_x :rot_y :rot_z
@@ -152,7 +152,7 @@
 				(Mat4x4-scale scale_x scale_y scale_z)))))))
 		(get :matrix this))
 
-	(defmethod :walk_nodes (_this _fi _fo)
+	(defmethod_ :walk_nodes (_fi _fo)
 		; (. scene_node :walk_nodes fnc_in fnc_out) -> scene_node
 		;if fnc_in returns :nil, it'll step down into that nodes children.
 		;fnc_out is allways called to balence calls to fnc_in.
@@ -170,7 +170,7 @@
 					(_fo _this _children))))
 		this)
 
-	(defmethod :find_nodes (this name)
+	(defmethod :find_nodes (name)
 		; (. scene_node :find_nodes name) -> nodes
 		(defq nodes (list))
 		(. this :walk_nodes
@@ -186,27 +186,27 @@
 	; (Scene-object mesh color &optional name) -> scene_node
 	(def this :mesh mesh :color color)
 
-	(defmethod :get_mesh (this)
+	(defmethod :get_mesh ()
 		; (. scene_node :get_mesh) -> mesh
 		(get :mesh this))
 
-	(defmethod :set_mesh (this mesh)
+	(defmethod :set_mesh (mesh)
 		; (. scene_node :set_mesh mesh) -> scene_node
 		(lower :mesh) this)
 
-	(defmethod :get_verts (this)
+	(defmethod :get_verts ()
 		; (. scene_node :get_verts) -> verts
 		(. (get :mesh this) :get_verts))
 
-	(defmethod :get_norms (this)
+	(defmethod :get_norms ()
 		; (. scene_node :get_norms) -> norms
 		(. (get :mesh this) :get_norms))
 
-	(defmethod :get_tris (this)
+	(defmethod :get_tris ()
 		; (. scene_node :get_tris) -> tris
 		(. (get :mesh this) :get_tris))
 
-	(defmethod :get_color (this)
+	(defmethod :get_color ()
 		; (. scene_node :get_color) -> color
 		(get :color this))
 	)
@@ -216,7 +216,7 @@
 	(def this :poly_buckets (defq poly_buckets (cap +num_poly_buckets (list))))
 	(times +num_poly_buckets (push poly_buckets (list)))
 
-	(defmethod :render (this canvas size left right top bottom near far mode)
+	(defmethod :render (canvas size left right top bottom near far mode)
 		; (. scene_node :render canvas size left right top bottom near far) -> scene_node
 		(. canvas :fill 0)
 		(defq mat4x4_frust (Mat4x4-frustum left right top bottom near far)

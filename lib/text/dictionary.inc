@@ -9,13 +9,13 @@
 	; (Dictionary [num_buckets]) -> dictionary
 	(def this :word_set (Fset num_buckets) :word_list (list) :dirty :nil)
 
-	(defmethod :insert_word (this word)
+	(defmethod :insert_word (word)
 		; (. dictionary :insert_word word) -> dictionary
 		(. (get :word_set this) :insert word)
 		(lower (:dirty :t))
 		this)
 
-	(defmethod :sort (this)
+	(defmethod :sort ()
 		; (. dictionary :sort) -> dictionary
 		(defq word_list (clear (get :word_list this)))
 		(. (get :word_set this) :each (# (push word_list %0)))
@@ -23,7 +23,7 @@
 		(lower (:dirty :nil))
 		this)
 
-	(defmethod :find_matches (this prefix)
+	(defmethod :find_matches (prefix)
 		; (. dictionary :find_matches prefix) -> (word ...)
 		(if (get :dirty this) (. this :sort))
 		(raise :word_list (i :nil j 0 k (length word_list)))
@@ -48,7 +48,7 @@
 				(slice j k word_list))
 			((list))))
 
-	(defmethod :find_matches_case (this prefix)
+	(defmethod :find_matches_case (prefix)
 		; (. dictionary :find_matches_case prefix) -> (word ...)
 		(defq matches (. this :find_matches prefix))
 		(each (# (push matches %0)) (. this :find_matches (to-lower prefix)))

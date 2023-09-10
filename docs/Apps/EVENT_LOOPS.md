@@ -430,7 +430,7 @@ this to find which button wants the tip shown.
 Here is the Button class `:mouse_enter` method:
 
 ```vdu
-(defmethod :mouse_enter (this event)
+(defmethod :mouse_enter (event)
 	; (. button :mouse_enter event) -> button
 	(and (def? :tip_text this) (defq tip_mbox (get :tip_mbox this))
 		(mail-timeout tip_mbox 1000000 (. this :get_id)))

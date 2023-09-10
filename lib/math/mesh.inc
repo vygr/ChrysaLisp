@@ -58,13 +58,13 @@
 	(defgetmethod norms)
 	(defgetmethod tris)
 
-	(defmethod :normals (this)
+	(defmethod :normals ()
 		; (. mesh :normals) -> this
 		(raise :verts :tris)
 		(bind '(norms tris) (gen-norms norms tris))
 		(lower :norms :tris))
 
-	(defmethod :optimise (this)
+	(defmethod :optimise ()
 		; (. mesh :optimise) -> this
 		(raise :verts :norms :tris)
 		(bind '(verts norms tris) (opt-mesh verts norms tris))

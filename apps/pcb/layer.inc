@@ -90,7 +90,7 @@
 	(def this :width width :height height :scale scale :id 0
 		:buckets (defq buckets (lists (* width height))))
 
-	(defmethod :aabb (this layer_line)
+	(defmethod :aabb (layer_line)
 		; (. layer :aabb layer_line) -> aabb
 		(bind '(x1 y1 x2 y2 radius gap) layer_line)
 		(raise :scale (radius (+ radius gap)
@@ -116,19 +116,19 @@
 					(min width (max 0 (n2i (* (+ x1 radius) scale))))
 					(min height (max 0 (n2i (* (+ y1 radius) scale))))))))
 
-	(defmethod :add_line (this layer_line)
+	(defmethod :add_line (layer_line)
 		; (. layer :add_line layer_line) -> layer
 		(bind '(minx miny maxx maxy) (. this :aabb layer_line))
 		(add-line (get :buckets this) minx miny maxx maxy (get :width this) (Record 0 layer_line))
 		this)
 
-	(defmethod :sub_line (this layer_line)
+	(defmethod :sub_line (layer_line)
 		; (. layer :sub_line layer_line) -> layer
 		(bind '(minx miny maxx maxy) (. this :aabb layer_line))
 		(sub-line (get :buckets this) minx miny maxx maxy (get :width this) layer_line)
 		this)
 
-	(defmethod :hit_line (this layer_line)
+	(defmethod :hit_line (layer_line)
 		; (. layer :hit_line layer_line) -> :nil | :t
 		(set this :id (defq id (inc (get :id this))))
 		(bind '(minx miny maxx maxy) (. this :aabb layer_line))
@@ -140,7 +140,7 @@
 	(def this :depth depth :layers (defq layers (list)))
 	(times depth (push layers (Layer width height scale)))
 
-	(defmethod :add_line (this p1 p2 radius gap)
+	(defmethod :add_line (p1 p2 radius gap)
 		; (. layers :add_line p1 p2 radius gap) -> layers
 		(bind '(x1 y1 z1) p1)
 		(bind '(x2 y2 z2) p2)
@@ -152,7 +152,7 @@
 			(setq z1 (+ z1 1.0)))
 		this)
 
-	(defmethod :sub_line (this p1 p2 radius gap)
+	(defmethod :sub_line (p1 p2 radius gap)
 		; (. layers :sub_line p1 p2 radius gap) -> layers
 		(bind '(x1 y1 z1) p1)
 		(bind '(x2 y2 z2) p2)
@@ -164,7 +164,7 @@
 			(setq z1 (+ z1 1.0)))
 		this)
 
-	(defmethod :hit_line (this p1 p2 radius gap)
+	(defmethod :hit_line (p1 p2 radius gap)
 		; (. layers :hit_line p1 p2 radius gap) -> :nil | :t
 		(bind '(x1 y1 z1) p1)
 		(bind '(x2 y2 z2) p2)
@@ -176,7 +176,7 @@
 			(setq z1 (+ z1 1.0)))
 		hit)
 
-	(defmethod :add_layers_line (this layers_line)
+	(defmethod :add_layers_line (layers_line)
 		; (. layers :add_layers_line layers_line) -> layers
 		(bind '(x1 y1 z1 x2 y2 z2 radius gap) layers_line)
 		(defq layer_line (Layer-line x1 y1 x2 y2 radius gap))
@@ -187,7 +187,7 @@
 			(setq z1 (+ z1 1.0)))
 		this)
 
-	(defmethod :sub_layers_line (this layers_line)
+	(defmethod :sub_layers_line (layers_line)
 		; (. layers :sub_layers_line layers_line) -> layers
 		(bind '(x1 y1 z1 x2 y2 z2 radius gap) layers_line)
 		(defq layer_line (Layer-line x1 y1 x2 y2 radius gap))
@@ -198,7 +198,7 @@
 			(setq z1 (+ z1 1.0)))
 		this)
 
-	(defmethod :hit_layers_line (this layers_line)
+	(defmethod :hit_layers_line (layers_line)
 		; (. layers :hit_layers_line layers_line) -> :nil | :t
 		(bind '(x1 y1 z1 x2 y2 z2 radius gap) layers_line)
 		(defq layer_line (Layer-line x1 y1 x2 y2 radius gap))

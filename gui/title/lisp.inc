@@ -7,7 +7,7 @@
 (defclass Title () (Label)
 	; (Title) -> title
 
-	(defmethod :mouse_down (this event)
+	(defmethod :mouse_down (event)
 		; (. title :mouse_down event) -> title
 		(defq ax (getf event +ev_msg_mouse_x) ay (getf event +ev_msg_mouse_y)
 			window (penv this))
@@ -20,7 +20,7 @@
 			(. window :to_back))
 		this)
 
-	(defmethod :mouse_move (this event)
+	(defmethod :mouse_move (event)
 		; (. title :mouse_move event) -> title
 		(defq ax (getf event +ev_msg_mouse_x) ay (getf event +ev_msg_mouse_y)
 			window (penv this))

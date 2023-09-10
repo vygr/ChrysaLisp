@@ -191,41 +191,41 @@
 	(defsetmethod bbox)
 	(defsetmethod pcb)
 
-	(defmethod :shuffle_topology (this)
+	(defmethod :shuffle_topology ()
 		; (. net :shuffle_topology) -> net
 		;randomize order of pads
 		(shuffle (get :pad_end_nodes this))
 		this)
 
-	(defmethod :add_pad_lines (this)
+	(defmethod :add_pad_lines ()
 		; (. net :add_pad_lines) -> net
 		;add pad entries to spacial cache
 		(raise :pcb)
 		(each (# (.-> pcb :get_layers (:add_layers_line %0))) (get :pad_lines this))
 		this)
 
-	(defmethod :sub_pad_lines (this)
+	(defmethod :sub_pad_lines ()
 		; (. net :sub_pad_lines) -> net
 		;remove pad entries from spacial cache
 		(raise :pcb)
 		(each (# (.-> pcb :get_layers (:sub_layers_line %0))) (get :pad_lines this))
 		this)
 
-	(defmethod :add_wire_lines (this)
+	(defmethod :add_wire_lines ()
 		; (. net :add_wire_lines) -> net
 		;add wire entries to spacial cache
 		(raise :pcb)
 		(each (# (.-> pcb :get_layers (:add_layers_line %0))) (get :wire_lines this))
 		this)
 
-	(defmethod :sub_wire_lines (this)
+	(defmethod :sub_wire_lines ()
 		; (. net :sub_wire_lines) -> net
 		;remove wire entries from spacial cache
 		(raise :pcb)
 		(each (# (.-> pcb :get_layers (:sub_layers_line %0))) (get :wire_lines this))
 		this)
 
-	(defmethod :create_paths_lines (this)
+	(defmethod :create_paths_lines ()
 		; (. net :create_paths_lines) -> lines
 		;create paths collision lines
 		(raise :pcb :radius :via :gap)
@@ -241,7 +241,7 @@
 					(push lines (Layers-line x0 y0 z0 x1 y1 z1 radius gap)))) (list pth))
 			lines) (get :paths this) (list)))
 
-	(defmethod :add_paths_lines (this)
+	(defmethod :add_paths_lines ()
 		; (. net :add_paths_lines) -> net
 		;add paths entries to spacial cache
 		(raise :pcb)
@@ -250,7 +250,7 @@
 		(each (# (.-> pcb :get_layers (:add_layers_line %0))) paths_lines)
 		this)
 
-	(defmethod :sub_paths_lines (this)
+	(defmethod :sub_paths_lines ()
 		; (. net :sub_paths_lines) -> net
 		;remove paths entries from spacial cache
 		(raise :pcb :paths_lines)
@@ -258,7 +258,7 @@
 		(clear paths_lines)
 		this)
 
-	(defmethod :remove (this)
+	(defmethod :remove ()
 		; (. net :remove) -> net
 		;remove net entries from spacial grid
 		(.-> this
@@ -270,7 +270,7 @@
 		(clear (get :paths this))
 		this)
 
-	(defmethod :optimise_paths (this paths)
+	(defmethod :optimise_paths (paths)
 		; (. net :optimise_paths paths) -> opt_paths
 		;remove redundant points from paths
 		(raise :pcb)
@@ -287,7 +287,7 @@
 			(push opt_path (elem-get -2 pth))
 			(push opt_paths opt_path)) paths (list)))
 
-	(defmethod :backtrack_path (this visited end_node radius via gap)
+	(defmethod :backtrack_path (visited end_node radius via gap)
 		; (. net :backtrack_path this visited end_node radius via gap) -> nodes
 		;backtrack path from ends to starts
 		(raise :pcb (path_vectors (. pcb :get_path_vectors)
@@ -319,7 +319,7 @@
 						(sort (# (- (. pcb :get_node %0) (. pcb :get_node %1))) nearer_nodes))))))))))
 		exit)
 
-	(defmethod :route (this)
+	(defmethod :route ()
 		; (. net :route) -> :t | :nil
 		;attempt to route this net on the current boards state
 		(raise :pcb :radius :via :gap :paths :pad_end_nodes)
@@ -353,7 +353,7 @@
 							:add_wire_lines)
 						:t)))))
 
-	(defmethod :print_net (this stream)
+	(defmethod :print_net (stream)
 		; (. net :print_net stream) -> net
 		;output net, pads, wires and paths, for viewer app
 		(raise :pcb :pads :wires :paths :id :radius :via :gap
@@ -444,40 +444,40 @@
 	(defgetmethod verbosity)
 	(defgetmethod path_vectors)
 
-	(defmethod :get_node (this node)
+	(defmethod :get_node (node)
 		; (. pcb :get_node node) -> val
 		;get grid node value
 		(dim-get node (get :nodes_dim this)))
 
-	(defmethod :set_node (this node val)
+	(defmethod :set_node (node val)
 		; (. pcb :set_node node val) -> pcb
 		;set grid node to value
 		(dim-set node (get :nodes_dim this) val)
 		this)
 
-	(defmethod :node_to_point (this (x y z))
+	(defmethod :node_to_point ((x y z))
 		; (. pcb :node_to_point node) -> point
 		;convert node to point
 		(Vec3-f (n2f x) (n2f y) (n2f z)))
 
-	(defmethod :point_to_node (this (x y z))
+	(defmethod :point_to_node ((x y z))
 		; (. pcb :point_to_node point) -> node
 		;convert point to node
 		(Node (n2i (+ x 0.5)) (n2i (+ y 0.5)) (n2i z)))
 
-	(defmethod :node_to_pad_point (this node)
+	(defmethod :node_to_pad_point (node)
 		; (. pcb :node_to_pad_point node) -> point
 		;convert node to pad point
 		(if (defq p (. (get :deform this) :find node))
 			p (. this :node_to_point node)))
 
-	(defmethod :pad_point_to_node (this point)
+	(defmethod :pad_point_to_node (point)
 		; (. pcb :pad_point_to_node point) -> node
 		;convert pad point to node
 		(. (get :deform this) :insert (defq n (. this :point_to_node point)) point)
 		n)
 
-	(defmethod :all_not_marked (this vec node)
+	(defmethod :all_not_marked (vec node)
 		; (. pcb :all_not_marked vec node) -> nodes
 		;generate all grid points surrounding node, that are value 0
 		(defq out (clear '())
@@ -488,7 +488,7 @@
 				(push out n))) (elem-get (% (elem-get +vec3_z node) 2) vec))
 		out)
 
-	(defmethod :all_marked (this vec node)
+	(defmethod :all_marked (vec node)
 		; (. pcb :all_marked vec node) -> nodes
 		;generate all grid points surrounding node, that are not value 0, but less than node
 		(defq out (clear '()) d (. this :get_node node)
@@ -499,7 +499,7 @@
 				(push out n))) (elem-get (% (elem-get +vec3_z node) 2) vec))
 		out)
 
-	(defmethod :all_not_shorting (this gather node radius gap)
+	(defmethod :all_not_shorting (gather node radius gap)
 		; (. pcb :all_not_shorting gather node radius gap) -> nodes
 		;generate all grid points surrounding node that are not shorting with an existing track
 		(raise :layers (out (clear '()) np (. this :node_to_pad_point node)))
@@ -508,7 +508,7 @@
 				(push out new_node))) gather)
 		out)
 
-	(defmethod :all_not_shorting_via (this gather node radius gap)
+	(defmethod :all_not_shorting_via (gather node radius gap)
 		; (. pcb :all_not_shorting_via gather node radius gap) -> nodes
 		;generate all grid points surrounding node that are not shorting with an existing track
 		(raise :layers :via_layers (out (clear '())
@@ -520,7 +520,7 @@
 					(push out new_node)))) gather)
 		out)
 
-	(defmethod :mark_distances (this radius via gap starts ends)
+	(defmethod :mark_distances (radius via gap starts ends)
 		; (. pcb :mark_distances radius via gap starts ends) -> pcb
 		;generate all grid points surrounding node that are not shorting with an existing track
 		(raise :flood_vectors :vias_cost (distance 1 vias_map (const (Fmap 11))
@@ -550,14 +550,14 @@
 		(.-> vias_map (:each (lambda (k v) (free-node-set v))) :empty)
 		this)
 
-	(defmethod :unmark_distances (this)
+	(defmethod :unmark_distances ()
 		; (. pcb :unmark_distances) -> pcb
 		;set all grid values back to 0
 		(raise :nodes)
 		(vec-sub nodes nodes nodes)
 		this)
 
-	(defmethod :reset_areas (this)
+	(defmethod :reset_areas ()
 		; (. pcb :reset_areas) -> pcb
 		;reset areas
 		(raise :quant)
@@ -566,7 +566,7 @@
 			(.-> net (:set_area area) (:set_bbox bbox))) (get :netlist this))
 		this)
 
-	(defmethod :shuffle_netlist (this)
+	(defmethod :shuffle_netlist ()
 		; (. pcb :shuffle_netlist) -> pcb
 		;shuffle order of netlist
 		(raise :netlist)
@@ -574,7 +574,7 @@
 		(each (# (. %0 :shuffle_topology)) netlist)
 		this)
 
-	(defmethod :hoist_net (this index)
+	(defmethod :hoist_net (index)
 		; (. pcb :hoist_net index) -> (netlist new_index)
 		;move net to top of area group
 		(raise :netlist (area (. (elem-get index netlist) :get_area)
@@ -587,13 +587,13 @@
 			(lower :netlist))
 		(list netlist new_index))
 
-	(defmethod :remove_netlist (this)
+	(defmethod :remove_netlist ()
 		; (. pcb :remove_netlist) -> pcb
 		;remove netlist from board
 		(each (# (. %0 :remove)) (get :netlist this))
 		this)
 
-	(defmethod :route (this select reply_mbox prog_mbox)
+	(defmethod :route (select reply_mbox prog_mbox)
 		; (. pcb :route select reply_mbox prog_mbox) -> :t | :nil
 		(raise :netlist)
 		(.-> this :remove_netlist :unmark_distances :reset_areas :shuffle_netlist)
@@ -630,20 +630,20 @@
 				(mail-send reply_mbox (str ss))))
 		retval)
 
-	(defmethod :add_track (this track)
+	(defmethod :add_track (track)
 		; (. pcb :add_track track) -> pcb
 		(raise :netlist)
 		(push netlist (Net track this))
 		this)
 
-	(defmethod :close (this)
+	(defmethod :close ()
 		; (. pcb :close) -> pcb
 		;drop all nets and circular refs to pcb !
 		(raise :netlist)
 		(each (# (. %0 :set_pcb :nil)) (get :netlist this))
 		this)
 
-	(defmethod :print_pcb (this stream)
+	(defmethod :print_pcb (stream)
 		; (. pcb :print_pcb stream) -> pcb
 		;output board state for viewer app
 		(raise :width :height :depth :grid_res :verbosity)

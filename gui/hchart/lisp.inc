@@ -21,17 +21,17 @@
 
 	(defgetmethod bar_grid)
 
-	(defmethod :add_bar (this)
+	(defmethod :add_bar ()
 		; (. hchart :add_bar) -> progress
 		(. (get :bar_grid this) :add_child (defq bar (Progress)))
 		bar)
 
-	(defmethod :layout_bars (this)
+	(defmethod :layout_bars ()
 		; (. hchart :layout_bars) -> hchart
 		(. (get :bar_grid this) :layout)
 		this)
 
-	(defmethod :update_scale (this)
+	(defmethod :update_scale ()
 		; (. hchart :update_scale) -> hchart
 		(raise :maximum :units)
 		(defq scale (.-> (get :scale_grid this) :dirty_all :children))

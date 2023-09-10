@@ -8,7 +8,7 @@
 	; (Grid) -> grid
 	(def this :grid_width 0 :grid_height 0)
 
-	(defmethod :pref_size (this)
+	(defmethod :pref_size ()
 		; (. grid :pref_size) -> (width height)
 		(raise :grid_width :grid_height
 			(pw 0 ph 0 children (. this :children)))
@@ -21,7 +21,7 @@
 			(setq pw (max w pw) ph (max h ph))) children)
 		(list (* grid_width pw) (* grid_height ph)))
 
-	(defmethod :layout (this)
+	(defmethod :layout ()
 		; (. grid :layout) -> grid
 		(bind '(w h) (. this :get_size))
 		(raise :grid_width :grid_height

@@ -32,7 +32,7 @@
 	(defq _nodes (get :nodes this) _now (pii-time))
 	(times (min max_size (max init_size 1)) (start))
 
-	(defmethod :refresh (this &optional _timeout)
+	(defmethod :refresh (&optional _timeout)
 		; (. local :refresh [timeout]) -> :t | :nil
 		;scan known nodes and update map
 		(defq _known_nodes (map cat (mail-nodes))
@@ -56,14 +56,14 @@
 					(restart)))) _old_keys _old_vals)
 		_mutated)
 
-	(defmethod :restart (this _key _val)
+	(defmethod :restart (_key _val)
 		; (. local :restart key val)
 		;restart task
 		(defq _nodes (get :nodes this) _mutated :nil _now (pii-time)
 			_create (get :create this) _destroy (get :destroy this))
 		(restart))
 
-	(defmethod :add_node (this node)
+	(defmethod :add_node (node)
 		; (. local :add_node node)
 		;add new node
 		(defq _nodes (get :nodes this)
@@ -73,7 +73,7 @@
 			(defq _now (pii-time) _create (get :create this))
 			(times (min (get :size this) _headroom) (start))))
 
-	(defmethod :close (this)
+	(defmethod :close ()
 		; (. local :close)
 		;close tasks
 		(.-> this (:each (get :destroy this)) :empty))

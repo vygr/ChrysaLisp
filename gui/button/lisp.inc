@@ -8,12 +8,12 @@
 	; (Button) -> button
 	(def this :state 1)
 
-	(defmethod :draw (this)
+	(defmethod :draw ()
 		; (. button :draw) -> button
 		(bind '(w h) (. this :get_size))
 		(. this :ctx_panel (get :color this) 1 (* (get :border this) (get :state this)) 0 0 w h))
 
-	(defmethod :layout (this)
+	(defmethod :layout ()
 		; (. button :layout) -> button
 		(defq flow (get :label_flow this) state (get :state this)
 			border (get :border this) pos border)
@@ -24,19 +24,19 @@
 		(.-> flow (:change pos pos (- w (* border 2)) (- h (* border 2))) :layout)
 		(. this :set_flags +view_flag_opaque +view_flag_opaque))
 
-	(defmethod :mouse_down (this event)
+	(defmethod :mouse_down (event)
 		; (. button :mouse_down event) -> button
 		(def (. this :mouse_exit event) :state -1)
 		(.-> this :layout :dirty_all))
 
-	(defmethod :mouse_up (this event)
+	(defmethod :mouse_up (event)
 		; (. button :mouse_up event) -> button
 		(when (/= (get :state this) 1)
 			(def this :state 1)
 			(.-> this :layout :dirty_all :emit))
 		this)
 
-	(defmethod :mouse_move (this event)
+	(defmethod :mouse_move (event)
 		; (. button :mouse_move event) -> button
 		(bind '(w h) (. this :get_size))
 		(defq rx (getf event +ev_msg_mouse_rx) ry (getf event +ev_msg_mouse_ry)
@@ -46,13 +46,13 @@
 			(.-> this :layout :dirty_all))
 		this)
 
-	(defmethod :mouse_enter (this event)
+	(defmethod :mouse_enter (event)
 		; (. button :mouse_enter event) -> button
 		(and (def? :tip_text this) (defq tip_mbox (get :tip_mbox this))
 			(mail-timeout tip_mbox 1000000 (. this :get_id)))
 		this)
 
-	(defmethod :mouse_exit (this event)
+	(defmethod :mouse_exit (event)
 		; (. button :mouse_exit event) -> button
 		(if (defq tip_mbox (get :tip_mbox this))
 			(mail-timeout tip_mbox 0 0))
@@ -61,7 +61,7 @@
 			(undef this :tip_window))
 		this)
 
-	(defmethod :show_tip (this)
+	(defmethod :show_tip ()
 		; (. button :show_tip) -> button
 		(when (defq tip_text (def? :tip_text this))
 			(def (defq tip_window (Label)) :text tip_text :color +argb_white

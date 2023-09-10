@@ -28,7 +28,7 @@
 	(def this :cursor 0 :anchor 0 :clear_text "" :hint_text "" :text ""
 		:mode :nil :state 1)
 
-	(defmethod :draw (this)
+	(defmethod :draw ()
 		; (. textfield :draw) -> textfield
 		(.super this :draw)
 		(bind '(w h) (. this :get_size))
@@ -47,7 +47,7 @@
 				(:ctx_filled_box (+ tw offset) (>>> (- h th) 1) 2 th)))
 		this)
 
-	(defmethod :layout (this)
+	(defmethod :layout ()
 		; (. textfield :layout) -> textfield
 		(cond
 			((eql (defq text (get :clear_text this)) "")
@@ -60,12 +60,12 @@
 			(def this :text text))
 		(.super this :layout))
 
-	(defmethod :pref_size (this)
+	(defmethod :pref_size ()
 		; (. textfield :pref_size) -> (width height)
 		(bind '(w h) (.super this :pref_size))
 		(list 128 h))
 
-	(defmethod :key_down (this event)
+	(defmethod :key_down (event)
 		; (. textfield :key_down event) -> textfield
 		(raise :clear_text :cursor :anchor :mode)
 		(defq key (getf event +ev_msg_key_key) mod (getf event +ev_msg_key_mod)
@@ -163,7 +163,7 @@
 		(setoffset)
 		(.-> this :layout :dirty_all))
 
-	(defmethod :mouse_down (this event)
+	(defmethod :mouse_down (event)
 		; (. textfield :mouse_down event) -> textfield
 		(unless (eql (get :clear_text this) "")
 			(raise :text :font :label_text)
@@ -177,13 +177,13 @@
 			(.-> this :layout :dirty_all))
 		this)
 
-	(defmethod :mouse_up (this event)
+	(defmethod :mouse_up (event)
 		; (. textfield :mouse_up event) -> textfield
 		(when (/= (get :state this) 1)
 			(def this :state 1))
 		this)
 
-	(defmethod :mouse_move (this event)
+	(defmethod :mouse_move (event)
 		; (. textfield :mouse_move event) -> textfield
 		(unless (or (eql (get :clear_text this) "") (= (get :state this) 1))
 			(raise :text :font :label_text)

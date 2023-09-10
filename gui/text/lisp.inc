@@ -10,7 +10,7 @@
 	; (Text) -> text
 	(def this :color 0 :sym_cache :nil :text_cache :nil :offset 0)
 
-	(defmethod :draw (this)
+	(defmethod :draw ()
 		; (. text :draw) -> text
 		(raise :font :text :offset :sym_cache)
 		(when (and font text (if (eql (def? :text_cache this) text)
@@ -21,7 +21,7 @@
 			(. this :ctx_blit tid (get :ink_color this) offset (>>> (- h th) 1) tw th))
 		this)
 
-	(defmethod :pref_size (this)
+	(defmethod :pref_size ()
 		; (. text :pref_size) -> (width height)
 		(defq font (get :font this) text (get :text this) w 0 h 0)
 		(and font text (bind '(w h) (font-glyph-bounds font text)))

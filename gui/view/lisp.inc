@@ -98,7 +98,7 @@
 	(deffimethod :ctx_blit "gui/ctx/lisp_blit")
 		; (. view :ctx_blit tid col x y width height) -> view
 
-	(defmethod :ctx_panel (this col flags depth x y width height)
+	(defmethod :ctx_panel (col flags depth x y width height)
 		; (. view :ctx_panel col flags depth x y width height) -> view
 		(defq abs_depth (abs depth))
 		(when (/= flags 0)
@@ -128,50 +128,50 @@
 					(:ctx_filled_box (- (+ x width) abs_depth) (+ y abs_depth) abs_depth (- height abs_depth abs_depth)))))
 		this)
 
-	(defmethod :get_id (this)
+	(defmethod :get_id ()
 		; (. view :get_id) -> id
 		(getf this +view_id 0))
 
-	(defmethod :dirty (this)
+	(defmethod :dirty ()
 		; (. view :dirty) -> view
 		(bind '(w h) (. this :get_size))
 		(. this :add_dirty 0 0 w h))
 
-	(defmethod :dirty_all (this)
+	(defmethod :dirty_all ()
 		; (. view :dirty_all) -> view
 		(. this :set_flags +view_flag_dirty_all +view_flag_dirty_all))
 
-	(defmethod :get_flags (this)
+	(defmethod :get_flags ()
 		; (. view :get_flags) -> flags
 		(getf this +view_flags 0))
 
-	(defmethod :add_child (this child)
+	(defmethod :add_child (child)
 		; (. view :add_child child) -> view
 		(. this :add_back child))
 
-	(defmethod :get_pos (this)
+	(defmethod :get_pos ()
 		; (. view :get_pos) -> (x y)
 		(list (getf this +view_x 0) (getf this +view_y 0)))
 
-	(defmethod :get_size (this)
+	(defmethod :get_size ()
 		; (. view :get_size) -> (width height)
 		(list (getf this +view_w 0) (getf this +view_h 0)))
 
-	(defmethod :set_size (this width height)
+	(defmethod :set_size (width height)
 		; (. view :set_size width height) -> view
 		(setf (setf this +view_w width 0) +view_h height 0))
 
-	(defmethod :get_bounds (this)
+	(defmethod :get_bounds ()
 		; (. view :get_bounds) -> (x y width height)
 		(list (getf this +view_x 0) (getf this +view_y 0)
 			(getf this +view_w 0) (getf this +view_h 0)))
 
-	(defmethod :set_bounds (this x y width height)
+	(defmethod :set_bounds (x y width height)
 		; (. view :set_size x y width height) -> view
 		(setf (setf (setf (setf this
 			+view_x x 0) +view_y y 0) +view_w width 0) +view_h height 0))
 
-	(defmethod :change (this x y width height &optional flag)
+	(defmethod :change (x y width height &optional flag)
 		; (. view :change x y width height [flag]) -> view
 		(bind '(old_width old_height) (. this :get_size))
 		(. this :set_bounds x y width height)
@@ -179,25 +179,25 @@
 			(. this :layout))
 		this)
 
-	(defmethod :change_dirty (this x y width height)
+	(defmethod :change_dirty (x y width height)
 		; (. view :change_dirty x y width height) -> view
 		(bind '(old_x old_y) (. this :get_pos))
 		(.-> this :dirty (:change x y width height)
 			(:trans_dirty (- old_x x) (- old_y y)) :dirty_all))
 
-	(defmethod :pref_size (this)
+	(defmethod :pref_size ()
 		; (. view :pref_size) -> (width height)
 		(defq mw (def? :min_width this) mh (def? :min_height this))
 		(setd mw 0 mh 0)
 		(list mw mh))
 
-	(defmethod :layout (this)
+	(defmethod :layout ()
 		; (. view :layout) -> view
 		(if (= (>> (get :color this) 24) 0xff)
 			(. this :set_flags +view_flag_opaque +view_flag_opaque)
 			this))
 
-	(defmethod :find_owner (this)
+	(defmethod :find_owner ()
 		; (. view :find_owner) -> :nil | netid
 		(defq root this)
 		(while (and root (eql (defq id (getf root +view_owner_id 0))
@@ -205,12 +205,12 @@
 			(setq root (penv root)))
 		(if root id))
 
-	(defmethod :connect (this id)
+	(defmethod :connect (id)
 		; (. view :connect id) -> view
 		(push (get :targets this) id)
 		this)
 
-	(defmethod :emit (this)
+	(defmethod :emit ()
 		; (. view :emit) -> view
 		(when (defq mbox (. this :find_owner))
 			(defq source_id (. this :get_id))

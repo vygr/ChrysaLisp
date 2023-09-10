@@ -175,7 +175,7 @@
 	; (Regexp) -> regexp
 	(def this :meta_cache (Fmap num_buckets))
 
-	(defmethod :compile (this pattern)
+	(defmethod :compile (pattern)
 		; (. regexp :compile pattern) -> :nil | meta
 		(raise :meta_cache)
 		(unless (defq cpat (. meta_cache :find pattern))
@@ -184,7 +184,7 @@
 			(. meta_cache :insert pattern cpat))
 		cpat)
 
-	(defmethod :match? (this text pattern &optional cpat)
+	(defmethod :match? (text pattern &optional cpat)
 		; (. regexp :match? text pattern &optional meta) -> :t | :nil
 		(defq cpat (opt cpat (. this :compile pattern)))
 		(when cpat
@@ -193,7 +193,7 @@
 				(setq x1 (search text cpat x)))
 			(/= x1 -1)))
 
-	(defmethod :search (this text pattern &optional cpat)
+	(defmethod :search (text pattern &optional cpat)
 		; (. regexp :search text pattern &optional meta) -> (matches submatches)
 		(defq out (list) outs (list) cpat (opt cpat (. this :compile pattern)))
 		(when cpat

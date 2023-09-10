@@ -8,7 +8,7 @@
 	; (Global fnc_create fnc_destroy) -> global
 	(def this :size 0 :create fnc_create :destroy fnc_destroy)
 
-	(defmethod :refresh (this &optional _timeout)
+	(defmethod :refresh (&optional _timeout)
 		; (. global :refresh [timeout]) -> :t | :nil
 		;scan known nodes and update node map
 		(defq _keys (map cat (lisp-nodes))
@@ -41,13 +41,13 @@
 		(def this :size (length _keys))
 		_mutated)
 
-	(defmethod :close (this)
+	(defmethod :close ()
 		; (. global :close)
 		;close tasks
 		(.-> this (:each (get :destroy this)) :empty)
 		(def this :size 0))
 
-	(defmethod :size (this)
+	(defmethod :size ()
 		; (. global :size) -> size
 		;size of tasks
 		(get :size this))

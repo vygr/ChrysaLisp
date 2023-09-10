@@ -30,7 +30,7 @@
 	(defq _nodes (map cat (lisp-nodes)) _now (pii-time))
 	(times size (start))
 
-	(defmethod :refresh (this &optional _timeout)
+	(defmethod :refresh (&optional _timeout)
 		; (. farm :refresh [timeout]) -> :t | :nil
 		;scan known nodes and update map
 		(defq _nodes (map cat (lisp-nodes))
@@ -52,7 +52,7 @@
 					(restart)))) _old_keys _old_vals)
 		_mutated)
 
-	(defmethod :restart (this _key _val)
+	(defmethod :restart (_key _val)
 		; (. farm :restart key val)
 		;restart task
 		(defq _nodes (map cat (lisp-nodes))
@@ -60,7 +60,7 @@
 			_mutated :nil _now (pii-time))
 		(restart))
 
-	(defmethod :close (this)
+	(defmethod :close ()
 		; (. farm :close)
 		;close tasks
 		(.-> this (:each (get :destroy this)) :empty))

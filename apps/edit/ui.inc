@@ -85,12 +85,12 @@
 		:vdu_width +vdu_min_width :vdu_height +vdu_min_height
 		:font *env_editor_font* :ink_color +argb_white)
 
-	(defmethod :mouse_down (this event)
+	(defmethod :mouse_down (event)
 		; (. vdu :mouse_down event) -> vdu
 		(.super this :mouse_down event)
 		(refresh) this)
 
-	(defmethod :mouse_up (this event)
+	(defmethod :mouse_up (event)
 		; (. vdu :mouse_up event) -> vdu
 		(case (getf event +ev_msg_mouse_count)
 			(2 (action-select-word))
@@ -98,13 +98,13 @@
 			(4 (action-select-paragraph)))
 		(refresh) this)
 
-	(defmethod :mouse_move (this event)
+	(defmethod :mouse_move (event)
 		; (. vdu :mouse_move event) -> vdu
 		(.super this :mouse_move event)
 		(clear-matches)
 		(refresh) this)
 
-	(defmethod :mouse_wheel (this event)
+	(defmethod :mouse_wheel (event)
 		; (. vdu :mouse_wheel event) -> vdu
 		(.super this :mouse_wheel event)
 		(clear-matches)

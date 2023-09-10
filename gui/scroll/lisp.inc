@@ -23,17 +23,17 @@
 		(. slider :connect (. this :get_id))
 		(. this :add_front slider))
 
-	(defmethod :add_child (this child)
+	(defmethod :add_child (child)
 		; (. scroll :add_child child) -> scroll
 		(if (defq old_child (get :child this))
 			(. old_child :sub))
 		(. this :add_back (set this :child child)))
 
-	(defmethod :action (this data)
+	(defmethod :action (data)
 		; (. scroll :action data) -> scroll
 		(.-> this :layout (:set_flags +view_flag_dirty_all +view_flag_dirty_all)))
 
-	(defmethod :pref_size (this)
+	(defmethod :pref_size ()
 		; (. scroll :pref_size) -> (width height)
 		(defq hslider (get :hslider this) vslider (get :vslider this)
 			mw (def? :min_width this) mh (def? :min_height this))
@@ -42,7 +42,7 @@
 		(if hslider (setq mh (+ mh (pop (. hslider :pref_size)))))
 		(list mw mh))
 
-	(defmethod :layout (this)
+	(defmethod :layout ()
 		; (. scroll :layout) -> scroll
 		(defq hslider (get :hslider this) vslider (get :vslider this)
 			child (get :child this) sw 0 sh 0)
@@ -71,7 +71,7 @@
 			(. child :set_bounds (neg hval) (neg vval) cw ch))
 		this)
 
-	(defmethod :mouse_wheel (this event)
+	(defmethod :mouse_wheel (event)
 		; (. scroll :mouse_wheel event) -> scroll
 		(defq hslider (get :hslider this) vslider (get :vslider this))
 		(if hslider (def hslider :value (+ (get :value hslider) (* 16 (getf event +ev_msg_wheel_x)))))

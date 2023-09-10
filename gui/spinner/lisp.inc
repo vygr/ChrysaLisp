@@ -23,12 +23,12 @@
 		:value 0 :maximum 0 :minimum 0 :value_label label
 		:up_id (. up_button :get_id) :down_id (. down_button :get_id))
 
-	(defmethod :layout (this)
+	(defmethod :layout ()
 		; (. spinner :layout) -> spinner
 		(set (get :value_label this) :text (str (get :value this)))
 		(.super this :layout))
 
-	(defmethod :action (this event)
+	(defmethod :action (event)
 		; (. spinner :action event) -> spinner
 		(raise :value :value_label
 			(src_id (getf event +ev_msg_action_source_id)))

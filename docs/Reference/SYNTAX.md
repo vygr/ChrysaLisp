@@ -30,6 +30,12 @@
 (- num num ...)
 ```
 
+### _this :method
+
+```code
+(. _this :method [arg ...])
+```
+
 ### backdrop :draw
 
 ```code
@@ -738,12 +744,6 @@
 (. emap :deep_copy) -> emap
 ```
 
-### emap :each
-
-```code
-(. emap :each lambda)
-```
-
 ### emap :empty
 
 ```code
@@ -828,12 +828,6 @@
 (. fmap :deep_copy) -> fmap
 ```
 
-### fmap :each
-
-```code
-(. fmap :each lambda)
-```
-
 ### fmap :empty
 
 ```code
@@ -892,12 +886,6 @@
 
 ```code
 (. fset :difference fset) -> fset
-```
-
-### fset :each
-
-```code
-(. fset :each lambda)
 ```
 
 ### fset :empty
@@ -1066,12 +1054,6 @@
 
 ```code
 (. lmap :deep_copy) -> lmap
-```
-
-### lmap :each
-
-```code
-(. lmap :each lambda)
 ```
 
 ### lmap :empty
@@ -1306,12 +1288,6 @@
 
 ```code
 (. scene_node :sub_node) -> scene_node
-```
-
-### scene_node :walk_nodes
-
-```code
-(. scene_node :walk_nodes fnc_in fnc_out) -> scene_node
 ```
 
 ### scroll :action
@@ -1866,12 +1842,6 @@
 (. xmap :deep_copy) -> xmap
 ```
 
-### xmap :each
-
-```code
-(. xmap :each lambda)
-```
-
 ### xmap :empty
 
 ```code
@@ -1930,12 +1900,6 @@
 
 ```code
 (. xset :difference xset) -> xset
-```
-
-### xset :each
-
-```code
-(. xset :each lambda)
 ```
 
 ### xset :empty
@@ -2907,7 +2871,7 @@
 ### defabstractmethod
 
 ```code
-(defabstractmethod (this [arg ...]) body)
+(defabstractmethod ([arg ...]) body)
 ```
 
 ### defclass
@@ -2931,7 +2895,13 @@
 ### defmethod
 
 ```code
-(defmethod name (this [arg ...]) body)
+(defmethod name ([arg ...]) body)
+```
+
+### defmethod_
+
+```code
+(defmethod_ name ([arg ...]) body)
 ```
 
 ### defq

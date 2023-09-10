@@ -6,7 +6,7 @@
 	; (Substr) -> substr
 	(def this :meta_cache (Fmap num_buckets))
 
-	(defmethod :compile (this pattern)
+	(defmethod :compile (pattern)
 		; (. substr :compile pattern) -> :nil | meta
 		(raise :meta_cache)
 		(unless (defq lps (. meta_cache :find pattern))
@@ -30,7 +30,7 @@
 			(. meta_cache :insert pattern lps))
 		lps)
 
-	(defmethod :search (this text pattern &optional lps)
+	(defmethod :search (text pattern &optional lps)
 		; (. substr :search text pattern &optional meta) -> (matches submatches)
 		(defq out (list) lps (opt lps (. this :compile pattern)))
 		(when lps

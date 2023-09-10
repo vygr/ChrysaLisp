@@ -8,7 +8,7 @@
 	; (Slider) -> slider
 	(def this :state 0 :value 0 :maximum 0 :portion 0 :downxy 0)
 
-	(defmethod :draw (this)
+	(defmethod :draw ()
 		; (. slider :draw) -> slider
 		(defq maximum (get :maximum this) portion (get :portion this) col (get :color this))
 		;border
@@ -35,25 +35,25 @@
 					(:t	(setq portion h h 0)))
 				(. this :ctx_filled_box 1 (inc h) (- w 2) portion))))
 
-	(defmethod :pref_size (this)
+	(defmethod :pref_size ()
 		; (. slider :pref_size) -> (width height)
 		(list 10 10))
 
-	(defmethod :mouse_down (this event)
+	(defmethod :mouse_down (event)
 		; (. slider :mouse_down event) -> slider
 		(bind '(w h) (. this :get_size))
 		(defq rx (getf event +ev_msg_mouse_rx) ry (getf event +ev_msg_mouse_ry))
 		(def this :old_value (get :value this) :downxy (if (> w h) rx ry) :state 1)
 		(.-> this :dirty_all (:mouse_move event)))
 
-	(defmethod :mouse_up (this event)
+	(defmethod :mouse_up (event)
 		; (. slider :mouse_up event) -> slider
 		(when (/= (get :state this) 0)
 			(def this :state 0)
 			(. this :dirty_all))
 		this)
 
-	(defmethod :mouse_move (this event)
+	(defmethod :mouse_move (event)
 		; (. slider :mouse_move event) -> slider
 		(bind '(w h) (. this :get_size))
 		(defq rx (getf event +ev_msg_mouse_rx) ry (getf event +ev_msg_mouse_ry)

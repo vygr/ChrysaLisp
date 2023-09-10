@@ -11,17 +11,22 @@
 	`((def? ,method ,(eval *super_class*)) ,this ~_))
 
 (defmacro defmethod (n a &rest _)
-	; (defmethod name (this [arg ...]) body)
+	; (defmethod name ([arg ...]) body)
 	; (. this :method [arg ...])
-	`(def (def? :vtable this) ,n (lambda ,a ~(macroexpand _))))
+	`(def (def? :vtable this) ,n (lambda (this ~a) ~(macroexpand _))))
+
+(defmacro defmethod_ (n a &rest _)
+	; (defmethod_ name ([arg ...]) body)
+	; (. _this :method [arg ...])
+	`(def (def? :vtable this) ,n (lambda (_this ~a) ~(macroexpand _))))
 
 (defmacro defabstractmethod (n a &rest _)
-	; (defabstractmethod (this [arg ...]) body)
+	; (defabstractmethod ([arg ...]) body)
 	; Declare a method as abstract and will
 	; throw an error if invoked. Concrete
 	; classes deriving from a class with abstractions
 	; should provide the concreate handler
-	`(def (def? :vtable this) ,n (lambda ,a (throw "Is abstract method !" ,n))))
+	`(def (def? :vtable this) ,n (lambda (this ~a) (throw "Is abstract method !" ,n))))
 
 (defmacro deffimethod (n _)
 	; (deffimethod name ffi)
@@ -29,12 +34,12 @@
 
 (defmacro defgetmethod (field)
 	; (defgetmethod field)
-	`(defmethod ,(sym (cat ":get_" field)) (this)
+	`(defmethod ,(sym (cat ":get_" field)) ()
 		(def? ,(sym (cat ":" field)) this)))
 
 (defmacro defsetmethod (field)
 	; (defsetmethod field)
-	`(defmethod ,(sym (cat ":set_" field)) (this val)
+	`(defmethod ,(sym (cat ":set_" field)) (val)
 		(def this ,(sym (cat ":" field)) val) this))
 
 (defmacro defclass (n a s &rest _)
@@ -64,7 +69,7 @@
 						(def e key val) e) _smethods ,class))
 					(def ,class :vtable ,super :module ,module)
 					~methods
-					(defmethod :type_of (this)
+					(defmethod :type_of ()
 						(push (.super this :type_of) ,kwn)))
 				~inits this))
 		`(progn
@@ -75,7 +80,7 @@
 				(unless (def? :vtable ,class)
 					(def ,class :vtable :t :module ,module)
 					~methods
-					(defmethod :type_of (this)
+					(defmethod :type_of ()
 						(push (type-of this) ,kwn)))
 				~inits this))))
 

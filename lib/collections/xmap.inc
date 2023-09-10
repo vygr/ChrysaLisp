@@ -16,12 +16,12 @@
 		:buckets (lists (* num_buckets 2))
 		:cmp_fnc (opt cmp_fnc eql) :hash_fnc (opt hash_fnc hash))
 
-	(defmethod :find (this key)
+	(defmethod :find (key)
 		; (. xmap :find key) -> :nil | val
 		(slot)
 		(if e (elem-get e (elem-get (inc b) x))))
 
-	(defmethod :insert (this key val)
+	(defmethod :insert (key val)
 		; (. xmap :insert key val) -> xmap
 		(slot)
 		(cond
@@ -29,7 +29,7 @@
 			(:t (push (elem-get b x) key) (push (elem-get (inc b) x) val)))
 		this)
 
-	(defmethod :erase (this key)
+	(defmethod :erase (key)
 		; (. xmap :erase key) -> xmap
 		(slot)
 		(when e
@@ -39,13 +39,13 @@
 			(pop b) (pop bv))
 		this)
 
-	(defmethod :each (_this _fnc)
+	(defmethod_ :each (_fnc)
 		; (. xmap :each lambda)
 		(defq _i -2 _b (get :buckets _this))
 		(while (< (setq _i (+ _i 2)) (length _b))
 			(each _fnc (elem-get _i _b) (elem-get (inc _i) _b))) _this)
 
-	(defmethod :copy (this)
+	(defmethod :copy ()
 		; (. xmap :copy) -> xmap
 		(defq that ((get 'Xmap) (get :num_buckets this) (get :cmp_fnc this) (get :hash_fnc this)))
 		(each (lambda (this_bucket that_bucket)
@@ -53,7 +53,7 @@
 				(push that_bucket key_val)) this_bucket)) (get :buckets this) (get :buckets that))
 		that)
 
-	(defmethod :deep_copy (this)
+	(defmethod :deep_copy ()
 		; (. xmap :deep_copy) -> xmap
 		(defq that ((get 'Xmap) (get :num_buckets this) (get :cmp_fnc this) (get :hash_fnc this)))
 		(each (lambda (this_bucket that_bucket)
@@ -61,12 +61,12 @@
 				(push that_bucket (copy key_val))) this_bucket)) (get :buckets this) (get :buckets that))
 		that)
 
-	(defmethod :empty (this)
+	(defmethod :empty ()
 		; (. xmap :empty) -> xmap
 		(each (# (clear %0)) (get :buckets this))
 		this)
 
-	(defmethod :move (this)
+	(defmethod :move ()
 		; (. xmap :move) -> xmap
 		(defq that ((get 'Xmap) (get :num_buckets this) (get :cmp_fnc this) (get :hash_fnc this))
 			this_buckets (get :buckets this) that_buckets (get :buckets that))
@@ -74,7 +74,7 @@
 		(set that :buckets this_buckets)
 		that)
 
-	(defmethod :resize (this num_buckets)
+	(defmethod :resize (num_buckets)
 		; (. xmap :resize num_buckets) -> xmap
 		(raise :hash_fnc :buckets (new_buckets (lists (* num_buckets 2))))
 		(lower :num_buckets (:buckets new_buckets))
@@ -87,7 +87,7 @@
 				(push (elem-get (inc ni) new_buckets) val)))
 		this)
 
-	(defmethod :empty? (this)
+	(defmethod :empty? ()
 		; (. xmap :empty?) -> :t | :nil
 		(every (# (= (length %0) 0)) (get :buckets this)))
 	)

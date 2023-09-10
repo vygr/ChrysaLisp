@@ -21,7 +21,7 @@
 (defclass Flow () (View)
 	; (Flow) -> flow
 
-	(defmethod :pref_size (this)
+	(defmethod :pref_size ()
 		; (. flow :pref_size) -> (width height)
 		(defq flow_flags (get :flow_flags this) pw 0 ph 0
 			mw (def? :min_width this) mh (def? :min_height this))
@@ -36,7 +36,7 @@
 				(setq pw (max w pw) ph (max h ph)))) (. this :children))
 		(list (max pw mw) (max ph mh)))
 
-	(defmethod :layout (this)
+	(defmethod :layout ()
 		; (. flow :layout) -> flow
 		(bind '(fw fh) (. this :get_size))
 		(raise :flow_flags (children (. this :children) end (dec (length children))

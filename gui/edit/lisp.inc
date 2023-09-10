@@ -85,13 +85,13 @@
 	(. vdu_underlay :set_flags 0 +view_flag_solid)
 	(.-> this (:add_child vdu_text) (:add_child vdu_underlay))
 
-	(defmethod :max_size (this)
+	(defmethod :max_size ()
 		; (. edit :max_size) -> (width height)
 		(bind '(w h) (. this :get_size))
 		(bind '(cw ch) (. (get :vdu_text this) :char_size))
 		(list (/ w cw) (/ h ch)))
 
-	(defmethod :pref_size (this)
+	(defmethod :pref_size ()
 		; (. edit :pref_size) -> (width height)
 		(defq min_w (def? :min_width this) min_h (def? :min_height this)
 			vdu_w (get :vdu_width this) vdu_h (get :vdu_height this)
@@ -105,7 +105,7 @@
 			(. this :children))
 		(list w h))
 
-	(defmethod :layout (this)
+	(defmethod :layout ()
 		; (. edit :layout) -> edit
 		(defq min_w (def? :min_width this) min_h (def? :min_height this)
 			vdu_w (get :vdu_width this) vdu_h (get :vdu_height this))
@@ -118,49 +118,49 @@
 			(. this :children))
 		this)
 
-	(defmethod :get_buffer (this)
+	(defmethod :get_buffer ()
 		; (. edit :get_buffer) -> text_buffer
 		(get :buffer this))
 
-	(defmethod :get_vdu_text (this)
+	(defmethod :get_vdu_text ()
 		; (. edit :get_vdu_text) -> vdu_text
 		(get :vdu_text this))
 
-	(defmethod :get_vdu_underlay (this)
+	(defmethod :get_vdu_underlay ()
 		; (. edit :get_vdu_underlay) -> vdu_underlay
 		(get :vdu_underlay this))
 
-	(defmethod :get_cursor (this)
+	(defmethod :get_cursor ()
 		; (. edit :get_cursor) -> (x y)
 		(raise :buffer)
 		(. buffer :get_cursor))
 
-	(defmethod :get_anchor (this)
+	(defmethod :get_anchor ()
 		; (. edit :get_anchor) -> (x y)
 		(list (get :anchor_x this) (get :anchor_y this)))
 
-	(defmethod :get_scroll (this)
+	(defmethod :get_scroll ()
 		; (. edit :get_scroll) -> (x y)
 		(list (get :scroll_x this) (get :scroll_y this)))
 
-	(defmethod :set_buffer (this buffer)
+	(defmethod :set_buffer (buffer)
 		; (. edit :set_buffer text_buffer) -> this
 		(lower :buffer) this)
 
-	(defmethod :set_cursor (this x y)
+	(defmethod :set_cursor (x y)
 		; (. edit :set_cursor x y) -> this
 		(raise :buffer)
 		(. buffer :set_cursor x y) this)
 
-	(defmethod :set_anchor (this anchor_x anchor_y)
+	(defmethod :set_anchor (anchor_x anchor_y)
 		; (. edit :set_anchor x y) -> this
 		(lower :anchor_x :anchor_y) this)
 
-	(defmethod :set_scroll (this scroll_x scroll_y)
+	(defmethod :set_scroll (scroll_x scroll_y)
 		; (. edit :set_scroll x y) -> this
 		(lower :scroll_x :scroll_y) this)
 
-	(defmethod :char_pos (this event)
+	(defmethod :char_pos (event)
 		; (. edit :char_pos event) -> (x y)
 		(raise :scroll_x :scroll_y :vdu_text)
 		(bind '(w h) (. vdu_text :char_size))
@@ -168,24 +168,24 @@
 		(setq x (if (>= x 0) x (- x w)) y (if (>= y 0) y (- y h)))
 		(list (+ scroll_x (/ x w)) (+ scroll_y (/ y h))))
 
-	(defmethod :clear_selection (this)
+	(defmethod :clear_selection ()
 		; (. edit :clear_selection) -> edit
 		(bind '(cx cy) (. this :get_cursor))
 		(.-> this (:set_cursor cx cy) (:set_anchor cx cy)))
 
-	(defmethod :home (this)
+	(defmethod :home ()
 		; (. edit :home) -> edit
 		(bind '(cx cy) (. this :get_cursor))
 		(.-> this (:set_cursor 0 cy) (:set_anchor 0 cy)))
 
-	(defmethod :end (this)
+	(defmethod :end ()
 		; (. edit :end) -> edit
 		(raise :buffer)
 		(bind '(cx cy) (. buffer :get_cursor))
 		(bind '(cx cy) (. buffer :constrain +max_int cy))
 		(.-> this (:set_cursor cx cy) (:set_anchor cx cy)))
 
-	(defmethod :left (this)
+	(defmethod :left ()
 		; (. edit :left) -> edit
 		(cond
 			((selection? this)
@@ -194,7 +194,7 @@
 			(:t (. (get :buffer this) :left)))
 		(. this :clear_selection))
 
-	(defmethod :right (this)
+	(defmethod :right ()
 		; (. edit :right) -> edit
 		(cond
 			((selection? this)
@@ -203,7 +203,7 @@
 			(:t (. (get :buffer this) :right)))
 		(. this :clear_selection))
 
-	(defmethod :up (this)
+	(defmethod :up ()
 		; (. edit :up) -> edit
 		(when (selection? this)
 			(bind '(sx sy sx1 sy1) (sort-selection this))
@@ -211,7 +211,7 @@
 		(. (get :buffer this) :up)
 		(. this :clear_selection))
 
-	(defmethod :down (this)
+	(defmethod :down ()
 		; (. edit :down) -> edit
 		(when (selection? this)
 			(bind '(sx sy sx1 sy1) (sort-selection this))
@@ -219,72 +219,72 @@
 		(. (get :buffer this) :down)
 		(. this :clear_selection))
 
-	(defmethod :home_select (this)
+	(defmethod :home_select ()
 		; (. edit :home_select) -> edit
 		(bind '(cx cy) (. this :get_cursor))
 		(. this :set_cursor 0 cy))
 
-	(defmethod :end_select (this)
+	(defmethod :end_select ()
 		; (. edit :end_select) -> edit
 		(raise :buffer)
 		(bind '(cx cy) (. buffer :get_cursor))
 		(bind '(cx cy) (. buffer :constrain +max_int cy))
 		(. this :set_cursor cx cy))
 
-	(defmethod :left_select (this)
+	(defmethod :left_select ()
 		; (. edit :left_select) -> edit
 		(. (get :buffer this) :left)
 		this)
 
-	(defmethod :right_select (this)
+	(defmethod :right_select ()
 		; (. edit :right_select) -> edit
 		(. (get :buffer this) :right)
 		this)
 
-	(defmethod :up_select (this)
+	(defmethod :up_select ()
 		; (. edit :up_select) -> edit
 		(. (get :buffer this) :up)
 		this)
 
-	(defmethod :down_select (this)
+	(defmethod :down_select ()
 		; (. edit :down_select) -> edit
 		(. (get :buffer this) :down)
 		this)
 
-	(defmethod :left_bracket (this)
+	(defmethod :left_bracket ()
 		; (. edit :left_bracket) -> edit
 		(if (bind '(cx cy) (. (get :buffer this) :left_bracket))
 			(. this :set_cursor cx cy))
 		(. this :clear_selection))
 
-	(defmethod :right_bracket (this)
+	(defmethod :right_bracket ()
 		; (. edit :right_bracket) -> edit
 		(if (bind '(cx cy) (. (get :buffer this) :right_bracket))
 			(. this :set_cursor cx cy))
 		(. this :clear_selection))
 
-	(defmethod :select_all (this)
+	(defmethod :select_all ()
 		; (. edit :select_all) -> edit
 		(bind '(w h) (. (get :buffer this) :get_size))
 		(.-> this (:set_cursor 0 h) (:set_anchor 0 0)))
 
-	(defmethod :select_word (this)
+	(defmethod :select_word ()
 		; (. edit :select_word) -> edit
 		(bind '(x x1) (select-word this))
 		(bind '(cx cy) (. this :get_cursor))
 		(.-> this (:set_cursor x1 cy) (:set_anchor x cy)))
 
-	(defmethod :select_line (this)
+	(defmethod :select_line ()
 		; (. edit :select_line) -> edit
 		(bind '(cx cy) (. this :get_cursor))
 		(.-> this (:set_cursor 0 (inc cy)) (:set_anchor 0 cy)))
 
-	(defmethod :select_paragraph (this)
+	(defmethod :select_paragraph ()
 		; (. edit :select_paragraph) -> edit
 		(bind '(y y1) (select-paragraph this))
 		(.-> this (:set_cursor 0 y1) (:set_anchor 0 y)))
 
-	(defmethod :select_block (this)
+	(defmethod :select_block ()
 		; (. edit :select_block) -> edit
 		(raise :buffer)
 		(if (bind '(x y) (. buffer :left_bracket))
@@ -292,7 +292,7 @@
 				(.-> this (:set_cursor (inc x1) y1) (:set_anchor x y))))
 		this)
 
-	(defmethod :insert (this string)
+	(defmethod :insert (string)
 		; (. edit :insert string) -> edit
 		(raise :buffer)
 		(bind '(ax ay) (. this :get_anchor))
@@ -300,7 +300,7 @@
 		(. buffer :insert string)
 		(. this :clear_selection))
 
-	(defmethod :backspace (this)
+	(defmethod :backspace ()
 		; (. edit :backspace) -> edit
 		(raise :buffer)
 		(bind '(ax ay) (. this :get_anchor))
@@ -308,7 +308,7 @@
 			(. buffer :backspace))
 		(. this :clear_selection))
 
-	(defmethod :delete (this)
+	(defmethod :delete ()
 		; (. edit :delete) -> edit
 		(raise :buffer)
 		(bind '(ax ay) (. this :get_anchor))
@@ -316,7 +316,7 @@
 			(. buffer :delete))
 		(. this :clear_selection))
 
-	(defmethod :break (this)
+	(defmethod :break ()
 		; (. edit :break) -> edit
 		(undoable
 			(bind '(ax ay) (. this :get_anchor))
@@ -328,7 +328,7 @@
 			(if (> indent 0) (. buffer :insert (pad "" indent "        "))))
 		(. this :clear_selection))
 
-	(defmethod :tab (this)
+	(defmethod :tab ()
 		; (. edit :tab) -> edit
 		(undoable
 			(defq tab_width (. buffer :get_tab_width))
@@ -337,7 +337,7 @@
 			(. buffer :insert (pad "" (- tab_width (% cx tab_width)) "        ")))
 		(. this :clear_selection))
 
-	(defmethod :left_tab (this)
+	(defmethod :left_tab ()
 		; (. edit :left_tab) -> edit
 		(undoable
 			(defq tab_width (. buffer :get_tab_width))
@@ -355,7 +355,7 @@
 			(. this :set_cursor cx cy))
 		this)
 
-	(defmethod :right_tab (this)
+	(defmethod :right_tab ()
 		; (. edit :right_tab) -> edit
 		(undoable
 			(defq tab (pad "" (. buffer :get_tab_width) "        "))
@@ -368,7 +368,7 @@
 			(. this :set_cursor cx cy))
 		this)
 
-	(defmethod :to_lower (this)
+	(defmethod :to_lower ()
 		; (. edit :to_lower) -> edit
 		(when (selection? this)
 			(undoable
@@ -376,7 +376,7 @@
 				(. buffer :paste (to-lower (. buffer :cut ax ay)))))
 		this)
 
-	(defmethod :to_upper (this)
+	(defmethod :to_upper ()
 		; (. edit :to_upper) -> edit
 		(when (selection? this)
 			(undoable
@@ -384,7 +384,7 @@
 				(. buffer :paste (to-upper (. buffer :cut ax ay)))))
 		this)
 
-	(defmethod :reflow (this)
+	(defmethod :reflow ()
 		; (. edit :reflow) -> edit
 		(undoable
 			(bind '(y y1) (select-paragraph this))
@@ -400,7 +400,7 @@
 			(.-> this (:set_cursor x y) (:set_anchor x y)))
 		this)
 
-	(defmethod :ordered (this)
+	(defmethod :ordered ()
 		; (. edit :ordered) -> edit
 		(when (selection? this)
 			(undoable
@@ -411,7 +411,7 @@
 					(ascii-char +char_lf)) (ascii-char +char_lf)))))
 		this)
 
-	(defmethod :ordered_unique (this)
+	(defmethod :ordered_unique ()
 		; (. edit :ordered_unique) -> edit
 		(when (selection? this)
 			(undoable
@@ -424,7 +424,7 @@
 					(list)) (ascii-char +char_lf)) (ascii-char +char_lf)))))
 		this)
 
-	(defmethod :comment (this)
+	(defmethod :comment ()
 		; (. edit :comment) -> edit
 		(undoable
 			(bind '(y y1) (select-lines this))
@@ -444,13 +444,13 @@
 			(. this :set_cursor x y))
 		this)
 
-	(defmethod :set_underlay_color (this col)
+	(defmethod :set_underlay_color (col)
 		; (. edit :set_underlay_color argb) -> edit
 		(lower (:selected (apply nums (map (lambda (_)
 			(<< (canvas-from-argb32 col 15) 48)) +not_selected))))
 		this)
 
-	(defmethod :underlay_selection (this)
+	(defmethod :underlay_selection ()
 		; (. edit :underlay_selection) -> edit
 		(raise :buffer :underlay :selected :vdu_underlay :scroll_x :scroll_y)
 		(bind '(cx cy) (. this :get_cursor))
@@ -473,7 +473,7 @@
 		(. vdu_underlay :load underlay scroll_x scroll_y -1 -1)
 		this)
 
-	(defmethod :underlay_brackets (this)
+	(defmethod :underlay_brackets ()
 		; (. edit :underlay_brackets) -> edit
 		;create the underlay for just bracket indicators
 		(raise :buffer :underlay :selected :vdu_underlay :scroll_x :scroll_y)
@@ -494,7 +494,7 @@
 		(. vdu_underlay :load underlay scroll_x scroll_y -1 -1)
 		this)
 
-	(defmethod :underlay_clear (this)
+	(defmethod :underlay_clear ()
 		; (. edit :underlay_clear) -> edit
 		;create the underlay for clear
 		(raise :underlay :vdu_underlay :scroll_x :scroll_y)
@@ -502,7 +502,7 @@
 		(. vdu_underlay :load underlay scroll_x scroll_y -1 -1)
 		this)
 
-	(defmethod :mouse_down (this event)
+	(defmethod :mouse_down (event)
 		; (. edit :mouse_down event) -> edit
 		(raise :buffer)
 		(bind '(x y) (. this :char_pos event))
@@ -511,7 +511,7 @@
 		(. this :set_anchor x y)
 		this)
 
-	(defmethod :mouse_move (this event)
+	(defmethod :mouse_move (event)
 		; (. edit :mouse_move event) -> edit
 		(raise :buffer)
 		(bind '(x y) (. this :char_pos event))
@@ -519,7 +519,7 @@
 		(. buffer :set_cursor x y)
 		this)
 
-	(defmethod :mouse_wheel (this event)
+	(defmethod :mouse_wheel (event)
 		; (. edit :mouse_wheel event) -> edit
 		(raise :scroll_x :scroll_y)
 		(setq scroll_x (+ scroll_x (getf event +ev_msg_wheel_x))

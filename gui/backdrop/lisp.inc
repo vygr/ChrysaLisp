@@ -8,7 +8,7 @@
 	; (Backdrop) -> backdrop
 	(def this :style :nil :spacing 32)
 
-	(defmethod :draw (this)
+	(defmethod :draw ()
 		; (. backdrop :draw) -> backdrop
 		(bind '(w h) (. this :get_size))
 		(raise :spacing)

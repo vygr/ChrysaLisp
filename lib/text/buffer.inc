@@ -91,64 +91,64 @@
 		:mode mode :next_mark -1 :modified :nil
 		:last_pattern :nil :last_find_mode :nil)
 
-	(defmethod :set_mode (this mode)
+	(defmethod :set_mode (mode)
 		; (. buffer :set_mode mode) -> buffer
 		(lower :mode)
 		this)
 
-	(defmethod :next_mark (this)
+	(defmethod :next_mark ()
 		; (. buffer :next_mark) -> mark
 		(lower (:next_mark (inc (get :next_mark this)))))
 
-	(defmethod :push_undo (this &rest records)
+	(defmethod :push_undo (&rest records)
 		; (. buffer :push_undo record ...) -> buffer
 		(raise :undo_stack)
 		(each (# (push undo_stack %0)) records)
 		this)
 
-	(defmethod :clear_undo (this)
+	(defmethod :clear_undo ()
 		; (. buffer :clear_undo) -> buffer
 		(clear (get :undo_stack this) (get :redo_stack this))
 		this)
 
-	(defmethod :set_cursor (this cursor_x cursor_y)
+	(defmethod :set_cursor (cursor_x cursor_y)
 		; (. buffer :set_cursor x y) -> buffer
 		(lower :cursor_x :cursor_y)
 		this)
 
-	(defmethod :get_cursor (this)
+	(defmethod :get_cursor ()
 		; (. buffer :get_cursor) -> (x y)
 		(list (get :cursor_x this) (get :cursor_y this)))
 
-	(defmethod :get_modified (this)
+	(defmethod :get_modified ()
 		; (. buffer :get_modified) -> :t | :nil
 		(get :modified this))
 
-	(defmethod :get_size (this)
+	(defmethod :get_size ()
 		; (. buffer :get_size) -> (width height)
 		(list (get :max_width this) (dec (length (get :buffer this)))))
 
-	(defmethod :get_syntax (this)
+	(defmethod :get_syntax ()
 		; (. buffer :get_syntax) -> syntax
 		(get :syntax this))
 
-	(defmethod :get_wrap_width (this)
+	(defmethod :get_wrap_width ()
 		; (. buffer :get_wrap_width) -> wrap_width
 		(get :wrap_width this))
 
-	(defmethod :get_tab_width (this)
+	(defmethod :get_tab_width ()
 		; (. buffer :get_tab_width) -> tab_width
 		(get :tab_width this))
 
-	(defmethod :get_text_lines (this)
+	(defmethod :get_text_lines ()
 		; (. buffer :get_text_lines) -> lines
 		(get :buffer this))
 
-	(defmethod :get_text_line (this y)
+	(defmethod :get_text_line (y)
 		; (. buffer :get_text_line y) -> line
 		(elem-get y (get :buffer this)))
 
-	(defmethod :file_load (this filepath)
+	(defmethod :file_load (filepath)
 		; (. buffer :file_load filepath) -> buffer
 		(raise :syntax :tab_width (buffer (list) buffer_colored (list)
 			 buffer_states (list) buffer_found (list) max_width 0))
@@ -167,7 +167,7 @@
 			(:cursor_x 0 :cursor_y 0 :dirty_colored :t :dirty_find :t :modified :nil))
 		this)
 
-	(defmethod :file_save (this filepath)
+	(defmethod :file_save (filepath)
 		; (. buffer :file_save filepath) -> buffer
 		(raise :syntax :tab_width (stream (file-stream filepath +file_open_write)))
 		(each! 0 (bind '(w h) (. this :get_size)) (lambda (line)
@@ -177,7 +177,7 @@
 		(lower (:modified :nil))
 		this)
 
-	(defmethod :colorise (this)
+	(defmethod :colorise ()
 		; (. buffer :colorise) -> buffer
 		(when (get :dirty_colored this)
 			(raise :syntax :buffer :buffer_colored :buffer_states :mode
@@ -197,13 +197,13 @@
 			(lower :max_width (:dirty_colored :nil)))
 		this)
 
-	(defmethod :vdu_load (this vdu scroll_x scroll_y)
+	(defmethod :vdu_load (vdu scroll_x scroll_y)
 		; (. buffer :vdu_load vdu scroll_x scroll_y) -> buffer
 		(. vdu :load (get :buffer_colored (. this :colorise))
 			scroll_x scroll_y (get :cursor_x this) (get :cursor_y this))
 		this)
 
-	(defmethod :constrain (this x y)
+	(defmethod :constrain (x y)
 		; (. buffer :constrain x y) -> (x y)
 		(bind '(w h) (. this :get_size))
 		(raise :buffer)
@@ -214,7 +214,7 @@
 			((> x (length (elem-get y buffer))) (setq x (length (elem-get y buffer)))))
 		(list x y))
 
-	(defmethod :left (this)
+	(defmethod :left ()
 		; (. buffer :left) -> buffer
 		(bind '(x y) (. this :get_cursor))
 		(if (< (setq x (dec x)) 0)
@@ -224,7 +224,7 @@
 		(bind '(x y) (. this :constrain x y))
 		(. this :set_cursor x y))
 
-	(defmethod :right (this)
+	(defmethod :right ()
 		; (. buffer :right) -> buffer
 		(bind '(x y) (. this :get_cursor))
 		(bind '(w h) (. this :get_size))
@@ -236,19 +236,19 @@
 		(bind '(x y) (. this :constrain x y))
 		(. this :set_cursor x y))
 
-	(defmethod :down (this)
+	(defmethod :down ()
 		; (. buffer :down) -> buffer
 		(bind '(x y) (. this :get_cursor))
 		(bind '(x y) (. this :constrain x (inc y)))
 		(. this :set_cursor x y))
 
-	(defmethod :up (this)
+	(defmethod :up ()
 		; (. buffer :up) -> buffer
 		(bind '(x y) (. this :get_cursor))
 		(bind '(x y) (. this :constrain x (dec y)))
 		(. this :set_cursor x y))
 
-	(defmethod :break (this)
+	(defmethod :break ()
 		; (. buffer :break) -> buffer
 		(mutate-buffer
 			(defq front (slice 0 x (elem-get y buffer)) back (slice x -1 (elem-get y buffer)))
@@ -266,7 +266,7 @@
 								(list :backspace x y) (list :delete 0 y)
 								(list :mark mark))))))))
 
-	(defmethod :backspace (this &optional num)
+	(defmethod :backspace (&optional num)
 		; (. buffer :backspace &optional num) -> buffer
 		(mutate-buffer
 			(setd num 1)
@@ -282,7 +282,7 @@
 					(setq x (- x num))
 					(. this :push_undo (list :insert x y undo))))))
 
-	(defmethod :delete (this &optional num)
+	(defmethod :delete (&optional num)
 		; (. buffer :delete &optional num) -> buffer
 		(mutate-buffer
 			(setd num 1)
@@ -296,7 +296,7 @@
 					(set-line y (erase (elem-get y buffer) x (+ x num)))
 					(. this :push_undo (list :insert x y undo))))))
 
-	(defmethod :insert (this string)
+	(defmethod :insert (string)
 		; (. buffer :insert string) -> buffer
 		(if (eql string "") this
 			(mutate-buffer
@@ -305,7 +305,7 @@
 				(if (>= y h) (. this :push_undo (list :delete 0 y)))
 				(. this :push_undo (list :backspace x y (length string))))))
 
-	(defmethod :cut (this anchor_x anchor_y)
+	(defmethod :cut (anchor_x anchor_y)
 		; (. buffer :cut anchor_x anchor_y) -> string
 		(select-buffer
 			(. this :push_undo
@@ -329,7 +329,7 @@
 			(. this :push_undo (list :mark mark))
 			(apply cat lines)))
 
-	(defmethod :copy (this anchor_x anchor_y)
+	(defmethod :copy (anchor_x anchor_y)
 		; (. buffer :copy anchor_x anchor_y) -> string
 		(select-buffer
 			(raise :buffer)
@@ -344,7 +344,7 @@
 						(push lines (slice 0 sx1 (elem-get sy buffer))))
 					(apply cat lines)))))
 
-	(defmethod :paste (this string)
+	(defmethod :paste (string)
 		; (. buffer :paste string) -> buffer
 		(. this :push_undo (list :mark (defq mark (. this :next_mark))))
 		(while (defq idx (find (ascii-char +char_lf) string))
@@ -357,7 +357,7 @@
 		(. this :push_undo (list :mark mark))
 		this)
 
-	(defmethod :undo (this)
+	(defmethod :undo ()
 		; (. buffer :undo) -> buffer
 		(when (defq data (pop (defq undo_stack (get :undo_stack this))))
 			(defq redo_stack (cat (get :redo_stack this)))
@@ -374,7 +374,7 @@
 			(set this :redo_stack redo_stack))
 		this)
 
-	(defmethod :redo (this)
+	(defmethod :redo ()
 		; (. buffer :redo) -> buffer
 		(when (defq data (pop (defq redo_stack (get :redo_stack this))))
 			(defq undo_stack (get :undo_stack this) redo_stack (cat redo_stack))
@@ -391,7 +391,7 @@
 			(set this :redo_stack redo_stack))
 		this)
 
-	(defmethod :left_bracket (this)
+	(defmethod :left_bracket ()
 		; (. buffer :left_bracket) -> (x y) | (:nil :nil)
 		(bind '(x y) (.-> this :colorise :get_cursor))
 		(bind '(x y) (. this :constrain x y))
@@ -416,7 +416,7 @@
 				(list buffer buffer_colored))))
 		(if (< c 0) (list x y) '(:nil :nil)))
 
-	(defmethod :right_bracket (this)
+	(defmethod :right_bracket ()
 		; (. buffer :right_bracket) -> (x y) | (:nil :nil)
 		(bind '(x y) (.-> this :colorise :get_cursor))
 		(bind '(x y) (. this :constrain x y))
@@ -442,7 +442,7 @@
 				(list buffer buffer_colored))))
 		(if (> c 0) (list x y) '(:nil :nil)))
 
-	(defmethod :find (this pattern mode)
+	(defmethod :find (pattern mode)
 		; (. buffer :find pattern mode) -> buffer_found
 		(raise :last_pattern :last_find_mode :buffer_found)
 		(unless (and (eql mode last_find_mode) (eql last_pattern pattern))

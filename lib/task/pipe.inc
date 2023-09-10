@@ -41,12 +41,12 @@
 			(def this :select (cat user_select select) :user_select user_select
 				:streams streams :state :t)))
 
-	(defmethod :poll (this)
+	(defmethod :poll ()
 		; (. pipe :poll) -> :nil | :t
 		(when (get :state this)
 			(mail-poll (get :select this))))
 
-	(defmethod :read (this)
+	(defmethod :read ()
 		; (. pipe :read) -> :nil | :t | data
 		;:nil if pipe closed
 		;:t if user select
@@ -61,12 +61,12 @@
 						(def this :state :nil))
 					(read-avail msg_in)))))
 
-	(defmethod :write (this string)
+	(defmethod :write (string)
 		; (. pipe :write string) -> pipe
 		(stream-flush (write (elem-get -2 (get :streams this)) string))
 		this)
 
-	(defmethod :close (this)
+	(defmethod :close ()
 		; (. pipe :close) -> pipe
 		;clear the stdin stream, which will send stopping and stopped
 		(pop (get :select this))

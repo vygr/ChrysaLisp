@@ -370,11 +370,11 @@
 	(defabstractmethod :get_scalar (this x y z))
 		; (. iso :get_scalar x y z) -> scalar
 
-	(defmethod :get_metrics (this)
+	(defmethod :get_metrics ()
 		; (. iso :get_metrics) -> (width height depth)
 		(list (get :width this) (get :height this) (get :depth this)))
 
-	(defmethod :get_gridcell (this x y z)
+	(defmethod :get_gridcell (x y z)
 		; (. iso :get_gridcell x y z) -> gridcell
 		(raise :width :height :depth :center :scale)
 		(defq ix (inc x) iy (inc y) iz (inc z)
@@ -398,7 +398,7 @@
 			(get_scalar_fnc this ix iy z)
 			(get_scalar_fnc this x iy z)))
 
-	(defmethod :get_surface (this x y z isolevel)
+	(defmethod :get_surface (x y z isolevel)
 		; (. iso :get_surface x y z isolevel) -> triangles
 		(iso-surface (. this :get_gridcell x y z) isolevel))
 	)
@@ -406,7 +406,7 @@
 (defclass Iso-sphere (width height depth) (Iso width height depth)
 	; (Iso-sphere width height depth) -> iso
 
-	(defmethod :get_scalar (this x y z)
+	(defmethod :get_scalar (x y z)
 		; (. iso :get_scalar x y z) -> scalar
 		(raise :center :scale)
 		(vec-length (vec-mul (vec-sub
@@ -416,7 +416,7 @@
 (defclass Iso-cube (width height depth) (Iso width height depth)
 	; (Iso-cube width height depth) -> iso
 
-	(defmethod :get_scalar (this x y z)
+	(defmethod :get_scalar (x y z)
 		; (. iso :get_scalar x y z) -> scalar
 		(raise :center :scale)
 		(reduce max (vec-abs (vec-mul (vec-sub
@@ -426,7 +426,7 @@
 (defclass Iso-tetra (width height depth) (Iso width height depth)
 	; (Iso-tetra width height depth) -> iso
 
-	(defmethod :get_scalar (this x y z)
+	(defmethod :get_scalar (x y z)
 		; (. iso :get_scalar x y z) -> scalar
 		(raise :center :scale)
 		(vec-sum (vec-abs (vec-mul (vec-sub
@@ -436,7 +436,7 @@
 (defclass Iso-capsule (width height depth) (Iso width height depth)
 	; (Iso-capsule width height depth) -> iso
 
-	(defmethod :get_scalar (this x y z)
+	(defmethod :get_scalar (x y z)
 		; (. iso :get_scalar x y z) -> scalar
 		(raise :center :scale)
 		(vec-dist-to-line (vec-mul (vec-sub

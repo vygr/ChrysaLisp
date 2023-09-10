@@ -7,7 +7,7 @@
 (defclass Progress () (View)
 	; (Progress) -> progress
 
-	(defmethod :draw (this)
+	(defmethod :draw ()
 		; (. progress :draw) -> progress
 		;border
 		(bind '(w h) (. this :get_size))
@@ -18,7 +18,7 @@
 		;middle right
 		(.-> this (:ctx_set_color (canvas-darker col)) (:ctx_filled_box (inc gap) 1 (- w 2 gap) (- h 2))))
 
-	(defmethod :pref_size (this)
+	(defmethod :pref_size ()
 		; (. progress :pref_size) -> (width height)
 		(list 256 10))
 	)

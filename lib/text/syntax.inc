@@ -61,12 +61,12 @@
 	(defgetmethod state)
 	(defsetmethod state)
 
-	(defmethod :set_colors (this colors)
+	(defmethod :set_colors (colors)
 		; (. syntax :set_colors fmap) -> syntax
 		(. colors :each (# (set this %0 (<< (canvas-from-argb32 %1 15) 32))))
 		this)
 
-	(defmethod :colorise (this line)
+	(defmethod :colorise (line)
 		; (. syntax :colorise str) -> array
 
 		;tokenise the string starting with the current state
@@ -167,7 +167,7 @@
 			token_list col_list)
 		(apply cat state_list))
 
-	(defmethod :compress_tabs (this string tab_width)
+	(defmethod :compress_tabs (string tab_width)
 		; (. syntax :compress_tabs string tab_width) -> string
 		;tab compression of string
 		(cond
@@ -188,7 +188,7 @@
 							%0))) string (list))))
 			(string)))
 
-	(defmethod :text_flow (this words line_width)
+	(defmethod :text_flow (words line_width)
 		; (. syntax :text_flow words line_width) -> lines
 		;word reflow
 		(defq cnt 0 line (clear '()) lines (list))

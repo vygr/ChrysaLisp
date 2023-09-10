@@ -60,7 +60,7 @@ the object, along with a predicate function of the form `(name? this) -> :nil |
 It is recommended that classes start with a capital letter but this is not
 enforced.
 
-## (defmethod name (this [arg ...]) body)
+## (defmethod name ([arg ...]) body)
 
 A method is just a function that has a default parameter `this`. That's pretty
 much the entire deal. You get passed a reference to the `hmap` containing the
@@ -112,7 +112,7 @@ for this object ! The `Window` class does this within the event dispatch code
 to avoid throwing any errors due to a method not found.
 
 ```vdu
-(defmethod :event (this event)
+(defmethod :event (event)
 	; (. window :event event) -> window
 	(defq target (. this :find_id (getf event +ev_msg_target_id))
 		type (getf event +ev_msg_type))
@@ -163,7 +163,7 @@ This is the `lib/math/surface.inc` Iso class `:get_gridcell` method, it caches
 the `:get_scalar` method.
 
 ```vdu
-	(defmethod :get_gridcell (this x y z)
+	(defmethod :get_gridcell (x y z)
 		; (. iso :get_gridcell x y z) -> gridcell
 		(raise :width :height :depth :center :scale)
 		(defq ix (inc x) iy (inc y) iz (inc z)
@@ -205,7 +205,7 @@ An example from the `:draw` method of the Textfield class:
 	(def this :cursor 0 :anchor 0 :clear_text "" :hint_text "" :text ""
 		:mode :nil :state 1)
 
-	(defmethod :draw (this)
+	(defmethod :draw ()
 		; (. textfield :draw) -> textfield
 		(.super this :draw)
 		(bind '(w h) (. this :get_size))
@@ -244,7 +244,7 @@ local variables to the object property.
 Optionally you can add extras to the generated `(set this ...)` by wrapping
 them in '()'.
 
-##  (defabstractmethod (this [arg ...]) body)
+##  (defabstractmethod ([arg ...]) body)
 
 This macros lets you define in a `base` class that there should exist a
 concrete method within each subclass.

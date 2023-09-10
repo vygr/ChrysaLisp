@@ -271,7 +271,7 @@ text to ensure its effects can be undone.
 And an example of the macro in use:
 
 ```vdu
-(defmethod :reflow (this)
+(defmethod :reflow ()
 	; (. edit :reflow) -> edit
 	(undoable
 		(bind '(y y1) (select-paragraph this))

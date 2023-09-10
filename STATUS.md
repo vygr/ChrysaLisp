@@ -13,6 +13,8 @@ Editor app tree global expand and collapse buttons. New `:expand` and
 
 Added replace across all buffers to Editor app.
 
+`defmethod` auto declares the `this` parameter.
+
 ------
 
 New `Substr` string search class. Editor updated to use this new class.

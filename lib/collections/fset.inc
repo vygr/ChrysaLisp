@@ -15,12 +15,12 @@
 	(def this :num_buckets (setq num_buckets (opt num_buckets 1))
 		:buckets (lists num_buckets))
 
-	(defmethod :find (this key)
+	(defmethod :find (key)
 		; (. fset :find key) -> :nil | key
 		(slot)
 		(if e (elem-get e (elem-get b x))))
 
-	(defmethod :insert (this key)
+	(defmethod :insert (key)
 		; (. fset :insert key) -> fset
 		(slot)
 		(cond
@@ -28,7 +28,7 @@
 			(:t (push (elem-get b x) key)))
 		this)
 
-	(defmethod :erase (this key)
+	(defmethod :erase (key)
 		; (. fset :erase key) -> fset
 		(slot)
 		(when e
@@ -36,11 +36,11 @@
 			(pop b))
 		this)
 
-	(defmethod :each (_this _fnc)
+	(defmethod_ :each (_fnc)
 		; (. fset :each lambda)
 		(each (lambda (_) (each _fnc _)) (get :buckets _this)))
 
-	(defmethod :copy (this)
+	(defmethod :copy ()
 		; (. fset :copy) -> fset
 		(defq that ((get 'Fset) (get :num_buckets this)))
 		(each (lambda (this_bucket that_bucket)
@@ -48,7 +48,7 @@
 				(push that_bucket key)) this_bucket)) (get :buckets this) (get :buckets that))
 		that)
 
-	(defmethod :deep_copy (this)
+	(defmethod :deep_copy ()
 		; (. fset :deep_copy) -> fset
 		(defq that ((get 'Fset) (get :num_buckets this)))
 		(each (lambda (this_bucket that_bucket)
@@ -56,13 +56,13 @@
 				(push that_bucket (copy key))) this_bucket)) (get :buckets this) (get :buckets that))
 		that)
 
-	(defmethod :union (this that)
+	(defmethod :union (that)
 		; (. fset :union fset) -> fset
 		(unless (eql this that)
 			(. that :each (# (. this :insert %0))))
 		this)
 
-	(defmethod :difference (this that)
+	(defmethod :difference (that)
 		; (. fset :difference fset) -> fset
 		(cond
 			((eql this that)
@@ -70,14 +70,14 @@
 			(:t	(. that :each (# (. this :erase %0)))
 				this)))
 
-	(defmethod :intersect (this that)
+	(defmethod :intersect (that)
 		; (. fset :intersect fset) -> fset
 		(unless (eql this that)
 			(each (# (elem-set _ b (filter (# (. that :find %0)) %0)))
 				(defq b (get :buckets this))))
 		this)
 
-	(defmethod :not_intersect (this that)
+	(defmethod :not_intersect (that)
 		; (. fset :not_intersect fset) -> fset
 		(cond
 			((eql this that)
@@ -86,12 +86,12 @@
 				(. this :difference that)
 				(. this :union other))))
 
-	(defmethod :empty (this)
+	(defmethod :empty ()
 		; (. fset :empty) -> fset
 		(each (# (clear %0)) (get :buckets this))
 		this)
 
-	(defmethod :move (this)
+	(defmethod :move ()
 		; (. fset :move) -> fset
 		(defq that ((get 'Fset) (get :num_buckets this))
 			this_buckets (get :buckets this) that_buckets (get :buckets that))
@@ -99,7 +99,7 @@
 		(set that :buckets this_buckets)
 		that)
 
-	(defmethod :resize (this num_buckets)
+	(defmethod :resize (num_buckets)
 		; (. fset :resize num_buckets) -> fset
 		(raise :buckets (new_buckets (lists num_buckets)))
 		(lower :num_buckets (:buckets new_buckets))
@@ -109,7 +109,7 @@
 				(push (elem-get (% (hash key) num_buckets) new_buckets) key))) buckets)
 		this)
 
-	(defmethod :empty? (this)
+	(defmethod :empty? ()
 		; (. fset :empty?) -> :t | :nil
 		(every (# (= (length %0) 0)) (get :buckets this)))
 	)

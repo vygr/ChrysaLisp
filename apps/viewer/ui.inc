@@ -33,7 +33,7 @@
 ;;;;;;;;;;;;;;;;;;;;
 
 (defclass Viewer-edit () (Editor-edit)
-	(defmethod :mouse_move (this event)
+	(defmethod :mouse_move (event)
 		; (. edit :mouse_move event) -> edit
 		(raise :buffer)
 		(bind '(x y) (. this :char_pos event))
@@ -41,7 +41,7 @@
 		(. buffer :set_cursor x y)
 		(refresh) this)
 
-	(defmethod :mouse_wheel (this event)
+	(defmethod :mouse_wheel (event)
 		; (. edit :mouse_wheel event) -> edit
 		(raise :scroll_x :scroll_y)
 		(setq scroll_x (+ scroll_x (getf event +ev_msg_wheel_x))

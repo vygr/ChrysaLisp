@@ -15,12 +15,12 @@
 	(def this :num_buckets (setq num_buckets (opt num_buckets 1))
 		:buckets (lists (* num_buckets 2)))
 
-	(defmethod :find (this key)
+	(defmethod :find (key)
 		; (. fmap :find key) -> :nil | val
 		(slot)
 		(if e (elem-get e (elem-get (inc b) x))))
 
-	(defmethod :insert (this key val)
+	(defmethod :insert (key val)
 		; (. fmap :insert key val) -> fmap
 		(slot)
 		(cond
@@ -28,7 +28,7 @@
 			(:t (push (elem-get b x) key) (push (elem-get (inc b) x) val)))
 		this)
 
-	(defmethod :erase (this key)
+	(defmethod :erase (key)
 		; (. fmap :erase key) -> fmap
 		(slot)
 		(when e
@@ -38,13 +38,13 @@
 			(pop b) (pop bv))
 		this)
 
-	(defmethod :each (_this _fnc)
+	(defmethod_ :each (_fnc)
 		; (. fmap :each lambda)
 		(defq _i -2 _b (get :buckets _this))
 		(while (< (setq _i (+ _i 2)) (length _b))
 			(each _fnc (elem-get _i _b) (elem-get (inc _i) _b))) _this)
 
-	(defmethod :copy (this)
+	(defmethod :copy ()
 		; (. fmap :copy) -> fmap
 		(defq that ((get 'Fmap) (get :num_buckets this)))
 		(each (lambda (this_bucket that_bucket)
@@ -52,7 +52,7 @@
 				(push that_bucket key_val)) this_bucket)) (get :buckets this) (get :buckets that))
 		that)
 
-	(defmethod :deep_copy (this)
+	(defmethod :deep_copy ()
 		; (. fmap :deep_copy) -> fmap
 		(defq that ((get 'Fmap) (get :num_buckets this)))
 		(each (lambda (this_bucket that_bucket)
@@ -60,12 +60,12 @@
 				(push that_bucket (copy key_val))) this_bucket)) (get :buckets this) (get :buckets that))
 		that)
 
-	(defmethod :empty (this)
+	(defmethod :empty ()
 		; (. fmap :empty) -> fmap
 		(each (# (clear %0)) (get :buckets this))
 		this)
 
-	(defmethod :move (this)
+	(defmethod :move ()
 		; (. fmap :move) -> fmap
 		(defq that ((get 'Fmap) (get :num_buckets this))
 			this_buckets (get :buckets this) that_buckets (get :buckets that))
@@ -73,7 +73,7 @@
 		(set that :buckets this_buckets)
 		that)
 
-	(defmethod :resize (this num_buckets)
+	(defmethod :resize (num_buckets)
 		; (. fmap :resize num_buckets) -> fmap
 		(raise :buckets (new_buckets (lists (* num_buckets 2))))
 		(lower :num_buckets (:buckets new_buckets))
@@ -86,7 +86,7 @@
 				(push (elem-get (inc ni) new_buckets) val)))
 		this)
 
-	(defmethod :empty? (this)
+	(defmethod :empty? ()
 		; (. fmap :empty?) -> :t | :nil
 		(every (# (= (length %0) 0)) (get :buckets this)))
 	)
