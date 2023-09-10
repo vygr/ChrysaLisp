@@ -11,6 +11,8 @@ Textfield widgets offset text to show cursor.
 Editor app tree global expand and collapse buttons. New `:expand` and
 `:collapse` methods on Tree widget.
 
+Added replace across all buffers to Editor app.
+
 ------
 
 New `Substr` string search class. Editor updated to use this new class.
