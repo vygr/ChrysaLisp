@@ -15,6 +15,7 @@
 
 (defun action-paste ()
 	(unless (eql (defq data (clipboard-get)) "")
+		(defq buffer (. *edit* :get_buffer))
 		(undoable :nil
 			(bind '(ax ay) (. *edit* :get_anchor))
 			(. buffer :cut ax ay)

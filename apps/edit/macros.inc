@@ -18,6 +18,7 @@
 
 (defun action-macro-to-eof ()
 	(when (> (length *macro_actions*) 0)
+		(defq buffer (. *edit* :get_buffer))
 		(let ((:macro_playback :t))
 			(undoable :nil
 				(bind '(cx cy) (. buffer :get_cursor))
