@@ -116,6 +116,7 @@
 							(. buffer :insert rep))) indexes)) found))
 			(bind '(cx cy) (. *edit* :get_cursor))
 			(.-> *edit* (:set_cursor cx cy) (:set_anchor cx cy))
+	        (update-meta-data)
 			(refresh))))
 
 (defun action-replace-global ()
@@ -123,5 +124,4 @@
 	(until exit
 		(action-replace-all)
 		(action-next-buffer)
-        (update-meta-data)
 		(setq exit (eql *current_file* here))))
