@@ -88,7 +88,8 @@
 
 (defun action-replace ()
 	(unless (eql (defq pattern (get :clear_text *find_text*)) "")
-		(defq found (filter-whole-words (. buffer :find pattern *regexp*)))
+		(defq buffer (. *edit* :get_buffer)
+			found (filter-whole-words (. buffer :find pattern *regexp*)))
 		(bind '(cx cy) (. *edit* :get_cursor))
 		(bind '(ax ay) (. *edit* :get_anchor))
 		(when (and (= cy ay) (defq rep_text (get :clear_text *replace_text*)
@@ -102,8 +103,8 @@
 
 (defun action-replace-all ()
 	(unless (eql (defq pattern (get :clear_text *find_text*)) "")
-		(when (> (length (defq found (filter-whole-words
-					(.-> *edit* :get_buffer (:find pattern *regexp*))))) 0)
+		(when (> (length (defq buffer (. *edit* :get_buffer)
+					found (filter-whole-words (. buffer :find pattern *regexp*)))) 0)
 			(defq rep_text (get :clear_text *replace_text*)
 				rep_matchs (matches rep_text "\$([0-9]+)"))
 			(undoable :nil
@@ -116,3 +117,11 @@
 			(bind '(cx cy) (. *edit* :get_cursor))
 			(.-> *edit* (:set_cursor cx cy) (:set_anchor cx cy))
 			(refresh))))
+
+(defun action-replace-global ()
+	(defq here *current_file* exit :nil)
+	(until exit
+		(action-replace-all)
+		(action-next-buffer)
+        (update-meta-data)
+		(setq exit (eql *current_file* here))))

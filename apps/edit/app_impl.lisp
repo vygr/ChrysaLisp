@@ -1,4 +1,4 @@
-;(import "lib/debug/frames.inc")
+(import "lib/debug/frames.inc")
 ;(import "lib/debug/profile.inc")
 
 (import "././login/env.inc")
@@ -24,7 +24,7 @@
 		comment)
 	(enum prev next scratch close_buffer close_all save save_all new)
 	(enum whole_words regexp find_down find_up)
-	(enum replace replace_all)
+	(enum replace replace_all replace_global)
 	(enum macro_playback macro_to_eof macro_record)
 	(enum open_tree_collapse open_tree_expand)
 	(enum file_tree_collapse file_tree_expand))
@@ -65,7 +65,7 @@
 						:hint_text "find" :clear_text "")) :connect +event_find_down))
 			(ui-flow _ (:flow_flags +flow_right_fill)
 				(ui-tool-bar replace_toolbar (:color (get :color macro_toolbar))
-					(ui-buttons (0xe95c 0xe95a) +event_replace))
+					(ui-buttons (0xe95c 0xe95e 0xe95a) +event_replace))
 				(. (ui-textfield *replace_text* (:color +argb_white
 						:hint_text "replace" :clear_text "")) :connect +event_replace))))
 	(ui-flow *edit_flow* (:flow_flags +flow_right_fill)
@@ -257,7 +257,7 @@
 	(each (# (def %0 :tip_text %1)) (. macro_toolbar :children)
 		'("playback" "playback eof" "record"))
 	(each (# (def %0 :tip_text %1)) (. replace_toolbar :children)
-		'("replace" "replace all")))
+		'("replace" "replace all" "replace global")))
 
 (defun clear-matches ()
 	(if match_window (gui-sub match_window))
@@ -300,6 +300,13 @@
 
 (defun page-scale (s)
 	(n2i (* (n2f s) *page_scale*)))
+
+(defun update-meta-data ()
+	(defq buffer (. *edit* :get_buffer))
+	(bind '(cx cy) (. *edit* :get_cursor))
+	(bind '(ax ay) (. *edit* :get_anchor))
+	(bind '(sx sy) (. *edit* :get_scroll))
+	(. *meta_map* :insert *current_file* (list cx cy ax ay sx sy :nil buffer)))
 
 ;import actions, bindings and app ui classes
 (import "./actions.inc")
@@ -394,11 +401,7 @@
 				(clear-matches)
 				(. *window* :event *msg*)))
 		;update meta data
-		(defq buffer (. *edit* :get_buffer))
-		(bind '(cx cy) (. *edit* :get_cursor))
-		(bind '(ax ay) (. *edit* :get_anchor))
-		(bind '(sx sy) (. *edit* :get_scroll))
-		(. *meta_map* :insert *current_file* (list cx cy ax ay sx sy :nil buffer)))
+		(update-meta-data))
 	(action-save-all)
 	(free-select select)
 	(clear-matches)

@@ -13,9 +13,9 @@
 (import "./file.inc")
 (import "./select.inc")
 (import "./clipboard.inc")
-(import "./search.inc")
 (import "./macros.inc")
 (import "./ui.inc")
+(import "./search.inc")
 
 (defq
 event_map (Fmap-kv
@@ -44,6 +44,7 @@ event_map (Fmap-kv
 	+event_regexp action-regexp
 	+event_replace action-replace
 	+event_replace_all action-replace-all
+	+event_replace_global action-replace-global
 	+event_undo action-undo
 	+event_redo action-redo
 	+event_rewind action-rewind
@@ -141,7 +142,7 @@ recorded_actions_list (list
 	action-select-block action-select-line action-select-paragraph
 	action-select-word action-set-find-text action-tab action-to-lower
 	action-to-upper action-trim action-undo action-up action-up-select
-	action-whole-words action-regexp))
+	action-whole-words action-regexp action-replace-global))
 
 ;module
 (export-symbols
