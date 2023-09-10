@@ -257,9 +257,9 @@ Another example of wrapping code in a decorator macro is the Editor application
 text to ensure its effects can be undone.
 
 ```vdu
-(defmacro undoable (this buffer &rest _)
+(defmacro undoable (&rest _)
 	`(progn
-		(setd buffer (. this :get_buffer))
+		(raise :buffer)
 		(bind '(cx cy) (. this :get_cursor))
 		(. buffer :push_undo
 			(list :mark (defq mark (. buffer :next_mark)))
@@ -273,7 +273,7 @@ And an example of the macro in use:
 ```vdu
 (defmethod :reflow (this)
 	; (. edit :reflow) -> edit
-	(undoable this :nil
+	(undoable
 		(bind '(y y1) (select-paragraph this))
 		(each (lambda (line)
 				(task-slice)
