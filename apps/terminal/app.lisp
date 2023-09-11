@@ -121,6 +121,7 @@
 	(gui-add-front (. *window* :change x y w h))
 	(window-resize)
 	(action-insert (cat "ChrysaLisp Terminal 2.0" (ascii-char +char_lf) *env_terminal_prompt*))
+	(refresh)
 	(while *running*
 		(bind '(*msg* idx) (input-select))
 		(cond
@@ -165,7 +166,8 @@
 						;insert the char
 						(action-insert (char key)))))
 			(:t	;gui event
-				(. *window* :event *msg*))))
+				(. *window* :event *msg*)))
+		(refresh))
 	(if *pipe* (. *pipe* :close))
 	(free-select *select*)
 	(gui-sub *window*))

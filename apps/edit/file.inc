@@ -31,8 +31,7 @@
 
 (defun action-trim ()
 	(trim-buffer (. *edit* :get_buffer))
-	(. *edit* :clear_selection)
-	(refresh))
+	(. *edit* :clear_selection))
 
 (defun save-file (file)
 	(when (and file (defq state (. *meta_map* :find file)))

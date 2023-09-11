@@ -3,13 +3,10 @@
 ;;;;;;;;;;;;;;;;
 
 (defun action-select-word ()
-	(. *edit* :select_word)
-	(refresh))
+	(. *edit* :select_word))
 
 (defun action-select-line ()
-	(. *edit* :select_line)
-	(refresh))
+	(. *edit* :select_line))
 
 (defun action-select-paragraph ()
-	(. *edit* :select_paragraph)
-	(refresh))
+	(. *edit* :select_paragraph))

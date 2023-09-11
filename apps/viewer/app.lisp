@@ -63,8 +63,10 @@
 
 (defun refresh ()
 	;refresh display and ensure cursor is visible
-	(bind '(cx cy ax ay sx sy) (. *meta_map* :find *current_file*))
+	(defq buffer (. *edit* :get_buffer))
 	(bind '(cx cy) (. *edit* :get_cursor))
+	(bind '(ax ay) (. *edit* :get_anchor))
+	(bind '(sx sy) (. *edit* :get_scroll))
 	(bind '(w h) (.-> *edit* :get_vdu_text :vdu_size))
 	(if (< (- cx +margin) sx) (setq sx (- cx +margin)))
 	(if (< (- cy +margin) sy) (setq sy (- cy +margin)))
@@ -176,11 +178,7 @@
 						(action))))
 			(:t	;gui event
 				(. *window* :event *msg*)))
-		;update meta data
-		(defq buffer (. *edit* :get_buffer))
-		(bind '(cx cy) (. *edit* :get_cursor))
-		(bind '(ax ay) (. *edit* :get_anchor))
-		(bind '(sx sy) (. *edit* :get_scroll))
-		(. *meta_map* :insert *current_file* (list cx cy ax ay sx sy)))
+		;update meta data and refresh display
+		(refresh))
 	(free-select select)
 	(gui-sub *window*))

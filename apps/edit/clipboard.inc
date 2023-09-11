@@ -5,13 +5,11 @@
 (defun action-cut ()
 	(bind '(ax ay) (. *edit* :get_anchor))
 	(clipboard-put (.-> *edit* :get_buffer (:cut ax ay)))
-	(. *edit* :clear_selection)
-	(refresh))
+	(. *edit* :clear_selection))
 
 (defun action-copy ()
 	(bind '(ax ay) (. *edit* :get_anchor))
-	(clipboard-put (.-> *edit* :get_buffer (:copy ax ay)))
-	(refresh))
+	(clipboard-put (.-> *edit* :get_buffer (:copy ax ay))))
 
 (defun action-paste ()
 	(unless (eql (defq data (clipboard-get)) "")
@@ -20,8 +18,7 @@
 			(bind '(ax ay) (. *edit* :get_anchor))
 			(. buffer :cut ax ay)
 			(. buffer :paste data))
-		(. *edit* :clear_selection)
-		(refresh)))
+		(. *edit* :clear_selection)))
 
 (defun action-cut-word ()
 	(action-select-word)

@@ -7,29 +7,25 @@
 		(cond
 			(*pipe* (. buffer :set_cursor 0 y))
 			((. buffer :set_cursor (length *env_terminal_prompt*) y))))
-	(. *edit* :clear_selection)
-	(refresh))
+	(. *edit* :clear_selection))
 
 (defun action-end ()
 	(input-cursor
 		(bind '(x y) (. buffer :constrain +max_int y))
 		(. buffer :set_cursor x y))
-	(. *edit* :clear_selection)
-	(refresh))
+	(. *edit* :clear_selection))
 
 (defun action-left ()
 	(input-cursor
 		(cond
 			(*pipe* (if (> x 0) (. buffer :left)))
 			((if (> x (length *env_terminal_prompt*)) (. buffer :left)))))
-	(. *edit* :clear_selection)
-	(refresh))
+	(. *edit* :clear_selection))
 
 (defun action-right ()
 	(input-cursor
 		(if (/= x (length (. buffer :get_text_line y))) (. buffer :right)))
-	(. *edit* :clear_selection)
-	(refresh))
+	(. *edit* :clear_selection))
 
 (defun action-up ()
 	(unless *pipe*
@@ -42,8 +38,7 @@
 			(when (< *history_idx* (length *history*))
 				(setq cmd (elem-get *history_idx* *history*)))
 			(. buffer :insert (cat *env_terminal_prompt* cmd)))
-		(. *edit* :clear_selection)
-		(refresh)))
+		(. *edit* :clear_selection)))
 
 (defun action-down ()
 	(unless *pipe*
@@ -56,5 +51,4 @@
 			(when (< *history_idx* (length *history*))
 				(setq cmd (elem-get *history_idx* *history*)))
 			(. buffer :insert (cat *env_terminal_prompt* cmd)))
-		(. *edit* :clear_selection)
-		(refresh)))
+		(. *edit* :clear_selection)))

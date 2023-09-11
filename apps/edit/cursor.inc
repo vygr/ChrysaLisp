@@ -3,57 +3,43 @@
 ;;;;;;;;;;;;;;;;
 
 (defun action-home ()
-	(. *edit* :home)
-	(refresh))
+	(. *edit* :home))
 
 (defun action-end ()
-	(. *edit* :end)
-	(refresh))
+	(. *edit* :end))
 
 (defun action-left ()
-	(. *edit* :left)
-	(refresh))
+	(. *edit* :left))
 
 (defun action-right ()
-	(. *edit* :right)
-	(refresh))
+	(. *edit* :right))
 
 (defun action-up ()
-	(. *edit* :up)
-	(refresh))
+	(. *edit* :up))
 
 (defun action-down ()
-	(. *edit* :down)
-	(refresh))
+	(. *edit* :down))
 
 (defun action-home-select ()
-	(. *edit* :home_select)
-	(refresh))
+	(. *edit* :home_select))
 
 (defun action-end-select ()
-	(. *edit* :end_select)
-	(refresh))
+	(. *edit* :end_select))
 
 (defun action-left-select ()
-	(. *edit* :left_select)
-	(refresh))
+	(. *edit* :left_select))
 
 (defun action-right-select ()
-	(. *edit* :right_select)
-	(refresh))
+	(. *edit* :right_select))
 
 (defun action-up-select ()
-	(. *edit* :up_select)
-	(refresh))
+	(. *edit* :up_select))
 
 (defun action-down-select ()
-	(. *edit* :down_select)
-	(refresh))
+	(. *edit* :down_select))
 
 (defun action-left-bracket ()
-	(. *edit* :left_bracket)
-	(refresh))
+	(. *edit* :left_bracket))
 
 (defun action-right-bracket ()
-	(. *edit* :right_bracket)
-	(refresh))
+	(. *edit* :right_bracket))

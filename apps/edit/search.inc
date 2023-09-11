@@ -44,8 +44,7 @@
 						((>= x cx) (list x x1 y)))) indexes)) (list found)))
 				(bind '(x x1 y) next)
 				(. *edit* :set_anchor x y)
-				(. buffer :set_cursor x1 y)
-				(refresh)))))
+				(. buffer :set_cursor x1 y)))))
 
 (defun action-find-up ()
 	(unless (eql (defq pattern (get :clear_text *find_text*)) "")
@@ -60,8 +59,7 @@
 						((< x cx) (list x x1 y)))) indexes)) (list found)))
 				(bind '(x x1 y) next)
 				(. *edit* :set_anchor x1 y)
-				(. buffer :set_cursor x y)
-				(refresh)))))
+				(. buffer :set_cursor x y)))))
 
 (defun action-set-find-text ()
 	(when (selection?)
@@ -97,8 +95,7 @@
 				rep_text (build-replace found rep_text rep_matchs cx cy ax)))
 			(undoable :nil
 				(. buffer :cut ax ay)
-				(. buffer :insert rep_text))
-			(refresh))
+				(. buffer :insert rep_text)))
 		(action-find-down)))
 
 (defun action-replace-all ()
@@ -115,9 +112,7 @@
 							(.-> buffer (:set_cursor x y) (:cut x1 y))
 							(. buffer :insert rep))) indexes)) found))
 			(bind '(cx cy) (. *edit* :get_cursor))
-			(.-> *edit* (:set_cursor cx cy) (:set_anchor cx cy))
-	        (update-meta-data)
-			(refresh))))
+			(.-> *edit* (:set_cursor cx cy) (:set_anchor cx cy)))))
 
 (defun action-replace-global ()
 	(defq here *current_file* exit :nil)

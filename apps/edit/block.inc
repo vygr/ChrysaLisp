@@ -3,33 +3,25 @@
 ;;;;;;;;;;;;;;;
 
 (defun action-left-tab ()
-	(. *edit* :left_tab)
-	(refresh))
+	(. *edit* :left_tab))
 
 (defun action-right-tab ()
-	(. *edit* :right_tab)
-	(refresh))
+	(. *edit* :right_tab))
 
 (defun action-to-lower ()
-	(. *edit* :to_lower)
-	(refresh))
+	(. *edit* :to_lower))
 
 (defun action-to-upper ()
-	(. *edit* :to_upper)
-	(refresh))
+	(. *edit* :to_upper))
 
 (defun action-reflow ()
-	(. *edit* :reflow)
-	(refresh))
+	(. *edit* :reflow))
 
 (defun action-ordered ()
-	(. *edit* :ordered)
-	(refresh))
+	(. *edit* :ordered))
 
 (defun action-ordered-unique ()
-	(. *edit* :ordered_unique)
-	(refresh))
+	(. *edit* :ordered_unique))
 
 (defun action-comment-block ()
-	(. *edit* :comment)
-	(refresh))
+	(. *edit* :comment))
