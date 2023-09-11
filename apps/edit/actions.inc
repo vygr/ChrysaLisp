@@ -142,11 +142,19 @@ recorded_actions_list (list
 	action-select-block action-select-line action-select-paragraph
 	action-select-word action-set-find-text action-tab action-to-lower
 	action-to-upper action-trim action-undo action-up action-up-select
-	action-whole-words action-regexp action-replace-global))
+	action-whole-words action-regexp action-replace-global)
+
+find_actions_list (list
+	action-find-down action-find-up
+	action-replace action-replace-all action-replace-global)
+
+replace_actions_list (list
+	action-replace action-replace-all action-replace-global))
 
 ;module
 (export-symbols
-	event_map key_map key_map_shift key_map_control recorded_actions_list
+	recorded_actions_list find_actions_list replace_actions_list
+	event_map key_map key_map_shift key_map_control
 	action-insert action-save-all action-maximise
 	select-word action-select-word action-insert)
 (export-classes

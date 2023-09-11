@@ -312,7 +312,12 @@
 (import "./actions.inc")
 
 (defun dispatch-action (&rest action)
-	(and *macro_record* (find (elem-get 0 action) recorded_actions_list)
+	(defq func (elem-get 0 action))
+	(if (find func find_actions_list)
+		(push action (get :clear_text *find_text*)))
+	(if (find func replace_actions_list)
+		(push action (get :clear_text *replace_text*)))
+	(and *macro_record* (find func recorded_actions_list)
 		(push *macro_actions* action))
 	(catch (eval action) (progn (print _)(print) :t)))
 

@@ -31,8 +31,8 @@
 			out)
 		((cat found))))
 
-(defun action-find-down ()
-	(unless (eql (defq pattern (get :clear_text *find_text*)) "")
+(defun action-find-down (pattern)
+	(unless (eql pattern "")
 		(defq buffer (. *edit* :get_buffer))
 		(when (> (length (defq found (filter-whole-words
 					(. buffer :find pattern *regexp*)))) 0)
@@ -47,8 +47,8 @@
 				(. buffer :set_cursor x1 y)
 				(refresh)))))
 
-(defun action-find-up ()
-	(unless (eql (defq pattern (get :clear_text *find_text*)) "")
+(defun action-find-up (pattern)
+	(unless (eql pattern "")
 		(defq buffer (. *edit* :get_buffer))
 		(when (> (length (defq found (filter-whole-words
 					(. buffer :find pattern *regexp*)))) 0)
@@ -86,27 +86,26 @@
 					rep_matchs))
 			rep_text)))
 
-(defun action-replace ()
-	(unless (eql (defq pattern (get :clear_text *find_text*)) "")
+(defun action-replace (pattern rep_text)
+	(unless (eql pattern "")
 		(defq buffer (. *edit* :get_buffer)
 			found (filter-whole-words (. buffer :find pattern *regexp*)))
 		(bind '(cx cy) (. *edit* :get_cursor))
 		(bind '(ax ay) (. *edit* :get_anchor))
-		(when (and (= cy ay) (defq rep_text (get :clear_text *replace_text*)
+		(when (and (= cy ay) (defq
 				rep_matchs (matches rep_text "\$([0-9]+)")
 				rep_text (build-replace found rep_text rep_matchs cx cy ax)))
 			(undoable
 				(. buffer :cut ax ay)
 				(. buffer :insert rep_text))
 			(refresh))
-		(action-find-down)))
+		(action-find-down pattern)))
 
-(defun action-replace-all ()
-	(unless (eql (defq pattern (get :clear_text *find_text*)) "")
+(defun action-replace-all (pattern rep_text)
+	(unless (eql pattern "")
 		(when (> (length (defq buffer (. *edit* :get_buffer)
 					found (filter-whole-words (. buffer :find pattern *regexp*)))) 0)
-			(defq rep_text (get :clear_text *replace_text*)
-				rep_matchs (matches rep_text "\$([0-9]+)"))
+			(defq rep_matchs (matches rep_text "\$([0-9]+)"))
 			(undoable
 				(each (lambda ((indexes substrs))
 					(defq y _)
@@ -119,9 +118,9 @@
 	        (update-meta-data)
 			(refresh))))
 
-(defun action-replace-global ()
+(defun action-replace-global (pattern rep_text)
 	(defq here *current_file* exit :nil)
 	(until exit
-		(action-replace-all)
+		(action-replace-all pattern rep_text)
 		(action-next-buffer)
 		(setq exit (eql *current_file* here))))
