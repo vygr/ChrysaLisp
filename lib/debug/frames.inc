@@ -18,5 +18,5 @@
 		`(defq ,n (framed-lambda ,n ,a ~(macroexpand _))))
 
 	(defmacro defmethod (n a &rest _)
-		`(def (def? :vtable this) ,n (framed-lambda ,(sym (cat *class* " " n)) ,a ~(macroexpand _))))
+		`(def (def? :vtable this) ,n (framed-lambda ,(sym (cat *class* " " n)) (this ~a) ~(macroexpand _))))
 )
