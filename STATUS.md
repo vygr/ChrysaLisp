@@ -15,6 +15,8 @@ Added replace across all buffers to Editor app.
 
 `defmethod` auto declares the `this` parameter.
 
+Editor search and replace across all buffers.
+
 ------
 
 New `Substr` string search class. Editor updated to use this new class.
