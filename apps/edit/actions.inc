@@ -142,14 +142,13 @@ recorded_actions_list (list
 	action-select-block action-select-line action-select-paragraph
 	action-select-word action-set-find-text action-tab action-to-lower
 	action-to-upper action-trim action-undo action-up action-up-select
-	action-whole-words action-regexp action-replace-global)
-
-find_actions_list (list
-	action-find-down action-find-up
-	action-replace action-replace-all action-replace-global)
+	action-replace-global)
 
 replace_actions_list (list
-	action-replace action-replace-all action-replace-global))
+	action-replace action-replace-all action-replace-global)
+
+find_actions_list (cat replace_actions_list (list
+	action-find-down action-find-up)))
 
 ;module
 (export-symbols
