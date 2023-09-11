@@ -88,7 +88,7 @@
 	(defmethod :mouse_down (event)
 		; (. vdu :mouse_down event) -> vdu
 		(.super this :mouse_down event)
-		this)
+		(refresh) this)
 
 	(defmethod :mouse_up (event)
 		; (. vdu :mouse_up event) -> vdu
@@ -96,13 +96,13 @@
 			(2 (action-select-word))
 			(3 (action-select-line))
 			(4 (action-select-paragraph)))
-		this)
+		(refresh) this)
 
 	(defmethod :mouse_move (event)
 		; (. vdu :mouse_move event) -> vdu
 		(.super this :mouse_move event)
 		(clear-matches)
-		this)
+		(refresh) this)
 
 	(defmethod :mouse_wheel (event)
 		; (. vdu :mouse_wheel event) -> vdu
@@ -111,6 +111,5 @@
 		(bind '(x y ax ay sx sy _ buffer) (. *meta_map* :find *current_file*))
 		(bind '(sx sy) (. this :get_scroll))
 		(. *meta_map* :insert *current_file* (list x y ax ay sx sy _ buffer))
-		(set-sliders) (load-display)
-		this)
+		(set-sliders) (load-display) this)
 	)

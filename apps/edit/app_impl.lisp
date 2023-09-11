@@ -128,20 +128,16 @@
 	(. *edit* :set_scroll sx sy))
 
 (defun refresh ()
-	;update meta data
-	(defq buffer (. *edit* :get_buffer))
-	(bind '(cx cy) (. *edit* :get_cursor))
-	(bind '(ax ay) (. *edit* :get_anchor))
-	(bind '(sx sy) (. *edit* :get_scroll))
-	(. *meta_map* :insert *current_file* (list cx cy ax ay sx sy :nil buffer))
 	(unless (get :macro_playback)
 		;refresh display and ensure cursor is visible
+		(bind '(cx cy ax ay sx sy _ buffer) (. *meta_map* :find *current_file*))
+		(bind '(cx cy) (. buffer :get_cursor))
 		(bind '(w h) (.-> *edit* :get_vdu_text :vdu_size))
 		(if (< (- cx +margin) sx) (setq sx (- cx +margin)))
 		(if (< (- cy +margin) sy) (setq sy (- cy +margin)))
 		(if (>= (+ cx +margin) (+ sx w)) (setq sx (- (+ cx +margin) w -1)))
 		(if (>= (+ cy +margin) (+ sy h)) (setq sy (- (+ cy +margin) h -1)))
-		(. *meta_map* :insert *current_file* (list cx cy ax ay sx sy :nil buffer))
+		(. *meta_map* :insert *current_file* (list cx cy ax ay sx sy _ buffer))
 		(set-sliders) (load-display)))
 
 (defun populate-dictionary (line)
@@ -305,6 +301,13 @@
 (defun page-scale (s)
 	(n2i (* (n2f s) *page_scale*)))
 
+(defun update-meta-data ()
+	(defq buffer (. *edit* :get_buffer))
+	(bind '(cx cy) (. *edit* :get_cursor))
+	(bind '(ax ay) (. *edit* :get_anchor))
+	(bind '(sx sy) (. *edit* :get_scroll))
+	(. *meta_map* :insert *current_file* (list cx cy ax ay sx sy :nil buffer)))
+
 ;import actions, bindings and app ui classes
 (import "./actions.inc")
 
@@ -397,8 +400,8 @@
 			(:t ;gui event
 				(clear-matches)
 				(. *window* :event *msg*)))
-		;update meta data and display
-		(refresh))
+		;update meta data
+		(update-meta-data))
 	(action-save-all)
 	(free-select select)
 	(clear-matches)

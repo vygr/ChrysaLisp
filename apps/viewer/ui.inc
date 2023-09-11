@@ -39,7 +39,7 @@
 		(bind '(x y) (. this :char_pos event))
 		(bind '(x y) (. buffer :constrain x y))
 		(. buffer :set_cursor x y)
-		this)
+		(refresh) this)
 
 	(defmethod :mouse_wheel (event)
 		; (. edit :mouse_wheel event) -> edit
@@ -51,6 +51,5 @@
 		(setq sx (+ sx (getf event +ev_msg_wheel_x))
 			sy (- sy (getf event +ev_msg_wheel_y)))
 		(. *meta_map* :insert *current_file* (list x y ax ay sx sy))
-		(set-sliders) (load-display)
-		this)
+		(set-sliders) (load-display) this)
 	)

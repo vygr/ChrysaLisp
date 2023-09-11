@@ -4,7 +4,8 @@
 
 (defun action-copy ()
 	(bind '(ax ay) (. *edit* :get_anchor))
-	(clipboard-put (.-> *edit* :get_buffer (:copy ax ay))))
+	(clipboard-put (.-> *edit* :get_buffer (:copy ax ay)))
+	(refresh))
 
 (defun action-paste ()
 	(unless (eql (defq data (clipboard-get)) "")
