@@ -14,7 +14,6 @@
 			(defq buffer (. *edit* :get_buffer))
 			(undoable
 				(each (# (eval %0)) *macro_actions*)))
-		(. *edit* :clear_selection)
 		(refresh)))
 
 (defun action-macro-to-eof ()
@@ -36,5 +35,4 @@
 					(setq old_eof_gap_x eof_gap_x old_eof_gap_y eof_gap_y
 						eof_gap_x (- (length (. buffer :get_text_line cy)) cx)
 						eof_gap_y (- (elem-get 1 (. buffer :get_size)) cy)))))
-		(. *edit* :clear_selection)
 		(refresh)))
