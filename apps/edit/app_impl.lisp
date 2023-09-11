@@ -314,7 +314,7 @@
 (defun dispatch-action (&rest action)
 	(defq func (elem-get 0 action))
 	(if (find func find_actions_list)
-		(push action (get :clear_text *find_text*)))
+		(push action *whole_words* *regexp* (get :clear_text *find_text*)))
 	(if (find func replace_actions_list)
 		(push action (get :clear_text *replace_text*)))
 	(and *macro_record* (find func recorded_actions_list)
