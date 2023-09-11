@@ -39,7 +39,7 @@
 			(ui-flow *main_flow* (:flow_flags +flow_up_fill)
 				(. (ui-slider *xslider*) :connect +event_xscroll)))))
 
-(defun load-display ()
+(defun refresh-display ()
 	;load the vdu widgets with the text, selection and line numbers
 	(bind '(cx cy) (. *edit* :get_cursor))
 	(bind '(ax ay) (. *edit* :get_anchor))
@@ -49,7 +49,7 @@
 		(. *edit* :underlay_brackets)
 		(. *edit* :underlay_selection)))
 
-(defun set-sliders ()
+(defun refresh-sliders ()
 	;set slider values for current file
 	(bind '(cx cy ax ay sx sy) (. *meta_map* :find *current_file*))
 	(bind '(w h) (.-> *edit* :get_buffer :get_size))
@@ -71,7 +71,7 @@
 	(if (>= (+ cx +margin) (+ sx w)) (setq sx (- (+ cx +margin) w -1)))
 	(if (>= (+ cy +margin) (+ sy h)) (setq sy (- (+ cy +margin) h -1)))
 	(. *meta_map* :insert *current_file* (list cx cy ax ay sx sy))
-	(set-sliders) (load-display))
+	(refresh-sliders) (refresh-display))
 
 (defun populate-buffer (file)
 	;create new file buffer
@@ -101,7 +101,7 @@
 	(bind '(w h) (. *edit* :max_size))
 	(set *edit* :vdu_width w :vdu_height h)
 	(. *edit* :layout)
-	(set-sliders) (load-display))
+	(refresh-sliders) (refresh-display))
 
 (defun vdu-resize (w h)
 	;size the vdu and layout the window to fit

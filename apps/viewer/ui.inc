@@ -51,5 +51,5 @@
 		(setq sx (+ sx (getf event +ev_msg_wheel_x))
 			sy (- sy (getf event +ev_msg_wheel_y)))
 		(. *meta_map* :insert *current_file* (list x y ax ay sx sy))
-		(set-sliders) (load-display) this)
+		(refresh-sliders) (refresh-display) this)
 	)

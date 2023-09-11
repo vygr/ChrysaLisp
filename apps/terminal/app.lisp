@@ -51,7 +51,7 @@
 			(defq msg (mail-read (elem-get (defq idx (mail-select *select*)) *select*)))))
 	(list msg idx))
 
-(defun load-display ()
+(defun refresh-display ()
 	;load the vdu widgets with the text and selection
 	(bind '(cx cy) (. *edit* :get_cursor))
 	(bind '(sx sy) (. *edit* :get_scroll))
@@ -61,7 +61,7 @@
 		(. *edit* :underlay_clear)
 		(. *edit* :underlay_selection)))
 
-(defun set-sliders ()
+(defun refresh-sliders ()
 	;set slider values
 	(bind '(w h) (.-> *edit* :get_buffer :get_size))
 	(bind '(sx sy) (. *edit* :get_scroll))
@@ -83,14 +83,14 @@
 		(if (>= cx (+ sx w)) (setq sx (- cx w -1)))
 		(if (>= cy (+ sy h)) (setq sy (- cy h -1)))
 		(. *edit* :set_scroll sx sy)
-		(set-sliders) (load-display)))
+		(refresh-sliders) (refresh-display)))
 
 (defun window-resize ()
 	;layout the window and size the vdu to fit
 	(bind '(w h) (. *edit* :max_size))
 	(set *edit* :vdu_width w :vdu_height h)
 	(. *edit* :layout)
-	(set-sliders) (load-display))
+	(refresh-sliders) (refresh-display))
 
 (defun vdu-resize (w h)
 	;size the vdu and layout the window to fit

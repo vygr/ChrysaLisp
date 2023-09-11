@@ -19,13 +19,13 @@
 	;user xscroll bar
 	(bind '(sx sy) (. *edit* :get_scroll))
 	(. *edit* :set_scroll (get :value *xslider*) sy)
-	(load-display))
+	(refresh-display))
 
 (defun action-yscroll ()
 	;user yscroll bar
 	(bind '(sx sy) (. *edit* :get_scroll))
 	(. *edit* :set_scroll sx (get :value *yslider*))
-	(load-display))
+	(refresh-display))
 
 (defun action-tree-action ()
 	;any tree mutate action
@@ -111,5 +111,5 @@
 		(bind '(x y ax ay sx sy _ buffer) (. *meta_map* :find *current_file*))
 		(bind '(sx sy) (. this :get_scroll))
 		(. *meta_map* :insert *current_file* (list x y ax ay sx sy _ buffer))
-		(set-sliders) (load-display) this)
+		(refresh-sliders) (refresh-display) this)
 	)

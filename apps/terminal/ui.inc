@@ -17,5 +17,5 @@
 		(setq scroll_x (+ scroll_x (getf event +ev_msg_wheel_x))
 			scroll_y (- scroll_y (getf event +ev_msg_wheel_y)))
 		(lower :scroll_x :scroll_y)
-		(set-sliders) (load-display) this)
+		(refresh-sliders) (refresh-display) this)
 	)

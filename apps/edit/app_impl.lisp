@@ -97,7 +97,7 @@
 			(ui-flow *main_flow* (:flow_flags +flow_up_fill)
 				(. (ui-slider *xslider*) :connect +event_xscroll)))))
 
-(defun load-display ()
+(defun refresh-display ()
 	;load the vdu widgets with the text, selection and line numbers
 	(defq buffer (. *edit* :get_buffer))
 	(bind '(cx cy) (. *edit* :get_cursor))
@@ -115,7 +115,7 @@
 		(. *edit* :underlay_brackets)
 		(. *edit* :underlay_selection)))
 
-(defun set-sliders ()
+(defun refresh-sliders ()
 	;set slider values for current file
 	(bind '(cx cy ax ay sx sy _ buffer) (. *meta_map* :find *current_file*))
 	(bind '(w h) (. buffer :get_size))
@@ -138,7 +138,7 @@
 		(if (>= (+ cx +margin) (+ sx w)) (setq sx (- (+ cx +margin) w -1)))
 		(if (>= (+ cy +margin) (+ sy h)) (setq sy (- (+ cy +margin) h -1)))
 		(. *meta_map* :insert *current_file* (list cx cy ax ay sx sy _ buffer))
-		(set-sliders) (load-display)))
+		(refresh-sliders) (refresh-display)))
 
 (defun populate-dictionary (line)
 	;populate dictionary with this lines words
@@ -228,7 +228,7 @@
 	(set *vdu_lines* :vdu_height h)
 	(. *edit* :layout)
 	(. *vdu_lines* :layout)
-	(set-sliders) (load-display))
+	(refresh-sliders) (refresh-display))
 
 (defun vdu-resize (w h)
 	;size the vdu and layout the window to fit
