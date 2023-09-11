@@ -11,7 +11,8 @@
 (defun action-macro-playback ()
 	(when (> (length *macro_actions*) 0)
 		(let ((:macro_playback :t))
-			(undoable :nil
+			(defq buffer (. *edit* :get_buffer))
+			(undoable
 				(each (# (eval %0)) *macro_actions*)))
 		(. *edit* :clear_selection)
 		(refresh)))
@@ -20,7 +21,7 @@
 	(when (> (length *macro_actions*) 0)
 		(defq buffer (. *edit* :get_buffer))
 		(let ((:macro_playback :t))
-			(undoable :nil
+			(undoable
 				(bind '(cx cy) (. buffer :get_cursor))
 				(defq eof_gap_x (- (length (. buffer :get_text_line cy)) cx)
 					eof_gap_y (- (elem-get 1 (. buffer :get_size)) cy)

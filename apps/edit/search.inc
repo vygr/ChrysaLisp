@@ -95,7 +95,7 @@
 		(when (and (= cy ay) (defq rep_text (get :clear_text *replace_text*)
 				rep_matchs (matches rep_text "\$([0-9]+)")
 				rep_text (build-replace found rep_text rep_matchs cx cy ax)))
-			(undoable :nil
+			(undoable
 				(. buffer :cut ax ay)
 				(. buffer :insert rep_text))
 			(refresh))
@@ -107,7 +107,7 @@
 					found (filter-whole-words (. buffer :find pattern *regexp*)))) 0)
 			(defq rep_text (get :clear_text *replace_text*)
 				rep_matchs (matches rep_text "\$([0-9]+)"))
-			(undoable :nil
+			(undoable
 				(each (lambda ((indexes substrs))
 					(defq y _)
 					(each-rev (lambda ((x x1))

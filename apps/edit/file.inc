@@ -4,7 +4,7 @@
 
 (defun trim-buffer (buffer)
 	(when (> (bind '(w h) (. buffer :get_size)) 0)
-		(undoable buffer
+		(undoable
 			(bind '(cx cy) (. buffer :get_cursor))
 			;trim front
 			(defq y (some! 0 h :nil

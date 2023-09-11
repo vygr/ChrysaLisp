@@ -13,9 +13,8 @@
 			(if %1 (def %0 :color *env_radio_col*)))
 		(. toolbar :children) states))
 
-(defmacro undoable (buffer &rest _)
+(defmacro undoable (&rest _)
 	`(progn
-		(unless buffer (setq buffer (. *edit* :get_buffer)))
 		(bind '(cx cy) (. *edit* :get_cursor))
 		(. buffer :push_undo
 			(list :mark (defq mark (. buffer :next_mark)))
