@@ -143,5 +143,5 @@
 		(switch-file :nil)
 		(defq buffer (. *edit* :get_buffer))
 		(undoable
-			(each (# (. buffer :paste (cat %0 (ascii-char 10)))) files))
+			(each (# (.-> buffer (:insert %0) :break)) files))
 		(refresh)))
