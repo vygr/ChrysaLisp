@@ -65,6 +65,11 @@
 		(bind '(w h) (.super this :pref_size))
 		(list 128 h))
 
+	(defmethod :set_text (text)
+		; (. textfield :set_text text) -> textfield
+		(def this :clear_text text :cursor (length text) :anchor 0)
+		this)
+
 	(defmethod :key_down (event)
 		; (. textfield :key_down event) -> textfield
 		(raise :clear_text :cursor :anchor :mode)

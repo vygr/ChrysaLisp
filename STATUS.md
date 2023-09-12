@@ -17,6 +17,8 @@ Added replace across all buffers to Editor app.
 
 Editor search and replace across all buffers.
 
+Textfield `:set_text` method.
+
 ------
 
 New `Substr` string search class. Editor updated to use this new class.

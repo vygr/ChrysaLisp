@@ -1452,6 +1452,12 @@
 (. textfield :pref_size) -> (width height)
 ```
 
+### textfield :set_text
+
+```code
+(. textfield :set_text text) -> textfield
+```
+
 ### .
 
 ```code

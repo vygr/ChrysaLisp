@@ -69,8 +69,7 @@
 		(when (> (length (defq text
 				(split (.-> *edit* :get_buffer (:copy ax ay)) (ascii-char +char_lf)))) 0)
 			(setq text (elem-get 0 text))
-			(set *find_text* :clear_text text :cursor (length text) :anchor 0)
-			(.-> *find_text* :layout :dirty))))
+			(.-> *find_text* (:set_text text) :layout :dirty))))
 
 (defun build-replace (found rep_text rep_matchs cx cy ax)
 	(when (< cy (length found))
