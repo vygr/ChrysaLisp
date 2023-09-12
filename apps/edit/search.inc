@@ -4,11 +4,11 @@
 
 (defun action-whole-words ()
 	(setq *whole_words* (not *whole_words*))
-	(radio-select find_toolbar (list *whole_words* *regexp* :nil :nil)))
+	(radio-select find_toolbar (list :nil *whole_words* *regexp* :nil :nil)))
 
 (defun action-regexp ()
 	(setq *regexp* (not *regexp*))
-	(radio-select find_toolbar (list *whole_words* *regexp* :nil :nil)))
+	(radio-select find_toolbar (list :nil *whole_words* *regexp* :nil :nil)))
 
 (defun filter-whole-words (whole_words found)
 	(cond
@@ -123,3 +123,25 @@
 		(action-replace-all whole_words regexp pattern rep_text)
 		(action-next-buffer)
 		(setq exit (eql *current_file* here)))))
+
+(defun file-match? (file search pattern meta)
+	(when (defq result :nil stream (file-stream file))
+		(while (and (not result) (defq line (read-line stream)))
+			(task-slice)
+			(setq result (. search :match? line pattern meta)))
+		result))
+
+(defun action-find-global (whole_words regexp pattern)
+	(when (defq search (if regexp +*regexp* +*substr*)
+			meta (. search :compile pattern))
+		;find files match but not dictionaries !
+		(defq files (sort cmp (all-files "." +file_types 2)))
+		(if (defq i (find "lib/text/english.txt" files))
+			(setq files (erase files i (inc i))))
+		(setq files (filter (# (file-match? %0 search pattern meta)) files))
+		;paste into scratch buffer
+		(switch-file :nil)
+		(defq buffer (. *edit* :get_buffer))
+		(undoable
+			(each (# (. buffer :paste (cat %0 (ascii-char 10)))) files))
+		(refresh)))

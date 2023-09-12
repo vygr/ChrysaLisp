@@ -23,7 +23,7 @@
 		toupper tolower ordered unique
 		comment)
 	(enum prev next scratch close_buffer close_all save save_all new)
-	(enum whole_words regexp find_down find_up)
+	(enum global whole_words regexp find_down find_up)
 	(enum replace replace_all replace_global)
 	(enum macro_playback macro_to_eof macro_record)
 	(enum open_tree_collapse open_tree_expand)
@@ -60,7 +60,7 @@
 					:hint_text "new file" :clear_text "")) :connect +event_new)
 			(ui-flow _ (:flow_flags +flow_right_fill)
 				(ui-tool-bar find_toolbar (:color (get :color macro_toolbar))
-					(ui-buttons (0xe9cd 0xe9a8 0xe914 0xe91b) +event_whole_words))
+					(ui-buttons (0xe9a1 0xe9cd 0xe9a8 0xe914 0xe91b) +event_global))
 				(. (ui-textfield *find_text* (:color +argb_white
 						:hint_text "find" :clear_text "")) :connect +event_find_down))
 			(ui-flow _ (:flow_flags +flow_right_fill)
@@ -253,7 +253,7 @@
 	(each (# (def %0 :tip_text %1)) (. buffer_toolbar :children)
 		'("previous" "next" "scratchpad" "close" "close all" "save" "save all" "new"))
 	(each (# (def %0 :tip_text %1)) (. find_toolbar :children)
-		'("whole words" "regexp" "find down" "find up"))
+		'("global search" "whole words" "regexp" "find down" "find up"))
 	(each (# (def %0 :tip_text %1)) (. macro_toolbar :children)
 		'("playback" "playback eof" "record"))
 	(each (# (def %0 :tip_text %1)) (. replace_toolbar :children)

@@ -40,6 +40,7 @@ event_map (Fmap-kv
 	+event_scratch action-scratch-buffer
 	+event_find_down action-find-down
 	+event_find_up action-find-up
+	+event_global action-find-global
 	+event_whole_words action-whole-words
 	+event_regexp action-regexp
 	+event_replace action-replace
@@ -148,7 +149,7 @@ replace_actions_list (list
 	action-replace action-replace-all action-replace-global)
 
 find_actions_list (cat replace_actions_list (list
-	action-find-down action-find-up)))
+	action-find-down action-find-up action-find-global)))
 
 ;module
 (export-symbols

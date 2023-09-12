@@ -21,6 +21,9 @@ Textfield `:set_text` method.
 
 Textfield click to focus for key event dispatch.
 
+Editor supports global find across all files. Matching files are inserted into
+scratch buffer.
+
 ------
 
 New `Substr` string search class. Editor updated to use this new class.

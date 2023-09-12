@@ -48,4 +48,8 @@
 								(setq j (elem-get (dec j) lps)))
 							(:t (setq k (inc k))))))))
 		(list out '()))
+
+	(defmethod :match? (text pattern &optional lps)
+		; (. substr :match? text pattern &optional meta) -> :t | :nil
+		(nempty? (first (. this :search text pattern lps))))
 	)
