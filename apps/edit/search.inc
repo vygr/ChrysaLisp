@@ -115,12 +115,12 @@
 							(. buffer :insert rep))) indexes)) found))
 			(bind '(cx cy) (. *edit* :get_cursor))
 			(.-> *edit* (:set_cursor cx cy) (:set_anchor cx cy))
-	        (update-meta-data)
+			(update-meta-data)
 			(refresh))))
 
 (defun action-replace-global (whole_words regexp pattern rep_text)
-	(defq here *current_file* exit :nil)
-	(until exit
+	(when (defq exit :nil here *current_file*)
+		(until exit
 		(action-replace-all whole_words regexp pattern rep_text)
 		(action-next-buffer)
-		(setq exit (eql *current_file* here))))
+		(setq exit (eql *current_file* here)))))
