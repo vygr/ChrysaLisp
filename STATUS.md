@@ -19,6 +19,8 @@ Editor search and replace across all buffers.
 
 Textfield `:set_text` method.
 
+Textfield click to focus for key event dispatch.
+
 ------
 
 New `Substr` string search class. Editor updated to use this new class.
