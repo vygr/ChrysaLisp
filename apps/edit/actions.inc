@@ -130,7 +130,7 @@ key_map_control (Fmap-kv
 	(ascii-code "o") action-ordered
 	(ascii-code "O") action-ordered-unique)
 
-recorded_actions_list (list
+recorded_actions (list
 	action-backspace action-break action-comment-block action-copy action-cut
 	action-cut-block action-cut-line action-cut-paragraph action-cut-word
 	action-copy-block action-copy-line action-copy-paragraph action-copy-word
@@ -145,15 +145,15 @@ recorded_actions_list (list
 	action-to-upper action-trim action-undo action-up action-up-select
 	action-replace-global)
 
-replace_actions_list (list
+replace_actions (list
 	action-replace action-replace-all action-replace-global)
 
-find_actions_list (cat replace_actions_list (list
+find_actions (cat replace_actions (list
 	action-find-down action-find-up action-find-global)))
 
 ;module
 (export-symbols
-	recorded_actions_list find_actions_list replace_actions_list
+	recorded_actions find_actions replace_actions
 	event_map key_map key_map_shift key_map_control
 	action-insert action-save-all action-maximise
 	select-word action-select-word action-insert)

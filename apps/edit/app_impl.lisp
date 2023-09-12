@@ -313,11 +313,11 @@
 
 (defun dispatch-action (&rest action)
 	(defq func (elem-get 0 action))
-	(if (find func find_actions_list)
+	(if (find func find_actions)
 		(push action *whole_words* *regexp* (get :clear_text *find_text*)))
-	(if (find func replace_actions_list)
+	(if (find func replace_actions)
 		(push action (get :clear_text *replace_text*)))
-	(and *macro_record* (find func recorded_actions_list)
+	(and *macro_record* (find func recorded_actions)
 		(push *macro_actions* action))
 	(catch (eval action) (progn (print _)(print) :t)))
 
