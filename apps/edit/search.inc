@@ -143,5 +143,6 @@
 		(switch-file :nil)
 		(defq buffer (. *edit* :get_buffer))
 		(undoable
-			(each (# (. buffer :paste (cat %0 (ascii-char 10)))) files))
+			(. buffer :paste (join files (ascii-char 10)))
+			(. buffer :paste (ascii-char 10)))
 		(refresh)))
