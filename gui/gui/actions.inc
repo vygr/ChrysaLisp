@@ -52,8 +52,15 @@
 				(+ev_msg_type +ev_type_enter)
 				(+ev_msg_target_id *mouse_id*))))) view)
 
+(defun set-focus-id ()
+	(cond
+		(*focus*
+			(setq *mouse_id* (. *focus* :get_id))
+			*focus*)
+		((set-mouse-id))))
+
 (defun action-key-down ()
-	(defq view (set-mouse-id)
+	(defq view (set-focus-id)
 		scode (getf msg +sdl_keyboard_event_scode))
 	(update-mods-down scode)
 	;(prin scode)(print)
@@ -70,7 +77,7 @@
 			(+ev_msg_key_mod *mods*)))))
 
 (defun action-key-up ()
-	(defq view (set-mouse-id)
+	(defq view (set-focus-id)
 		scode (getf msg +sdl_keyboard_event_scode))
 	(update-mods-up scode)
 	(when (defq old_id (. *key_dispatch* :find scode))
@@ -120,8 +127,8 @@
 	(setq *mouse_x* (getf msg +sdl_mouse_button_event_x)
 		*mouse_y* (getf msg +sdl_mouse_button_event_y)
 		*mouse_buttons* (logior *mouse_buttons* (getf msg +sdl_mouse_button_event_button)))
-	(and (defq view (set-mouse-id))
-		(defq owner (. view :find_owner))
+	(when (and (defq view (set-mouse-id))
+			(defq owner (. view :find_owner)))
 		(mail-send owner (setf-> (str-alloc +ev_msg_mouse_size)
 			(+ev_msg_type +ev_type_mouse)
 			(+ev_msg_target_id *mouse_id*)
@@ -130,7 +137,8 @@
 			(+ev_msg_mouse_rx (- *mouse_x* (getf view +view_ctx_x 0)))
 			(+ev_msg_mouse_ry (- *mouse_y* (getf view +view_ctx_y 0)))
 			(+ev_msg_mouse_buttons *mouse_buttons*)
-			(+ev_msg_mouse_count (getf msg +sdl_mouse_button_event_clicks))))))
+			(+ev_msg_mouse_count (getf msg +sdl_mouse_button_event_clicks))))
+		(setq *focus* (if (Textfield? view) view))))
 
 (defun action-mouse-button-up ()
 	(setq *mouse_x* (getf msg +sdl_mouse_button_event_x)

@@ -71,7 +71,7 @@
 		service (mail-declare (task-netid) "Gui" "GUI Service 0.2")
 		*running* :t *quiting* :nil *old_mouse_x* -1 *old_mouse_y* -1
 		*mouse_type* 0 *mouse_x* 0 *mouse_y* 0 *mouse_buttons* 0 *mouse_id* 0
-		*mods* 0 *key_dispatch* (Fmap))
+		*mods* 0 *key_dispatch* (Fmap) *focus* :nil)
 	;init screen widget
 	(def (defq *screen* (Backdrop)) :style :grid :color +argb_grey2 :ink_color +argb_grey1)
 	(. (gui-init (. *screen* :change *env_window_x* *env_window_y* *env_window_width* *env_window_height*)) :dirty_all)
