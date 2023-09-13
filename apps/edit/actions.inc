@@ -5,6 +5,7 @@
 ; actions
 ;;;;;;;;;
 
+(import "./match.inc")
 (import "./utils.inc")
 (import "./undo.inc")
 (import "./cursor.inc")
