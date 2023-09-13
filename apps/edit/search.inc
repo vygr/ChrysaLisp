@@ -133,12 +133,16 @@
 
 (defun action-find-global (whole_words regexp pattern)
 	(when (defq search (if regexp +*regexp* +*substr*)
+			pattern (map (const progn) pattern)
 			meta (. search :compile pattern))
+;; (defq then (pii-time))
 		;find files match but not dictionaries !
 		(defq files (sort cmp (all-files "." +file_types 2)))
 		(if (defq i (find "lib/text/english.txt" files))
 			(setq files (erase files i (inc i))))
 		(setq files (filter (# (file-match? %0 search pattern meta)) files))
+;; (prin (time-in-seconds (- (pii-time) then)))
+;; (print)
 		;paste into scratch buffer
 		(switch-file :nil)
 		(defq buffer (. *edit* :get_buffer))
