@@ -55,7 +55,8 @@
 
 (defmacro structure (name base &rest lines)
 	; (structure name base [(byte field ...)] ...)
-	(if (get (sym (cat name "_size"))) (throw "Structure redefined !" name))
+	(if (def? (sym (cat name "_size")) (penv))
+		(throw "Structure redefined !" name))
 	(defq syms (list) values (list) base (eval base))
 	(each (lambda (line)
 		(setq base (_structure base line))) lines)
@@ -113,7 +114,8 @@
 
 (defmacro enums (name base &rest lines)
 	; (enums name base [(enum field ...)] ...)
-	(if (get (sym (cat name "_size"))) (throw "Enums redefined !" name))
+	(if (def? (sym (cat name "_size")) (penv))
+		(throw "Enums redefined !" name))
 	(defq syms (list) values (list) base (eval base))
 	(each (lambda (line)
 		(each! 1 -1 (lambda (field)
@@ -135,7 +137,8 @@
 
 (defmacro bits (name base &rest lines)
 	; (bits name base [(bit field ...)] ...)
-	(if (get (sym (cat name "_size"))) (throw "Bits redefined !" name))
+	(if (def? (sym (cat name "_size")) (penv))
+		(throw "Bits redefined !" name))
 	(defq syms (list) values (list) base (eval base))
 	(each (lambda (line)
 		(each! 1 -1 (lambda (field)
