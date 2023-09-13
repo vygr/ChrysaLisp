@@ -160,11 +160,9 @@
 	(some! start -1 :nil
 		(lambda (s) (defq si _)
 			;for each current elem
-			(each (lambda (index)
-				(defq elem (elem-get index cpat))
-				(when (eval (elem-get 0 elem))
-					;matched text char, so insert next elems
-					(insertelem cpat next index elem))) current)
+			(each (# (if (eval (elem-get 0 (defq elem (elem-get %0 cpat))))
+				;matched text char, so insert next elems
+				(insertelem cpat next %0 elem))) current)
 			;swap to new elems
 			(defq tmp current) (setq current next next (clear tmp))
 			;break out if no elems
