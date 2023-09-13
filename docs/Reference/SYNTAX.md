@@ -1368,6 +1368,12 @@
 (. substr :compile pattern) -> :nil | meta
 ```
 
+### substr :match?
+
+```code
+(. substr :match? text pattern &optional meta) -> :t | :nil
+```
+
 ### substr :search
 
 ```code
@@ -1510,6 +1516,12 @@
 
 ```code
 (. tree :find_node route) -> node | :nil
+```
+
+### tree :get_relative
+
+```code
+(. tree :get_relative route) -> (x y w h)
 ```
 
 ### tree :get_route
@@ -1750,6 +1762,12 @@
 
 ```code
 (. view :set_flags value mask) -> view
+```
+
+### view :set_pos
+
+```code
+(. view :set_pos x y) -> view
 ```
 
 ### view :set_size
