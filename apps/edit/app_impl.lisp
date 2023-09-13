@@ -9,6 +9,7 @@
 (import "lib/text/buffer.inc")
 (import "lib/text/dictionary.inc")
 (import "././clipboard/app.inc")
+(import "lib/task/local.inc")
 
 (enums +event 0
 	(enum close max min)
