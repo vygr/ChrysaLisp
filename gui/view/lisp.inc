@@ -153,6 +153,11 @@
 		; (. view :get_pos) -> (x y)
 		(list (getf this +view_x 0) (getf this +view_y 0)))
 
+	(defmethod :set_pos (x y)
+		; (. view :set_pos x y) -> view
+		(setf (setf this +view_x x 0) +view_y y 0)
+		this)
+
 	(defmethod :get_size ()
 		; (. view :get_size) -> (width height)
 		(list (getf this +view_w 0) (getf this +view_h 0)))

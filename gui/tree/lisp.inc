@@ -115,11 +115,21 @@
 		;highlight a tree route
 		(raise :selected_node)
 		(if selected_node (undef (. selected_node :dirty) :color))
-		(when route
-			(setq selected_node (. this :find_node route))
+		(and route (setq selected_node (. this :find_node route))
 			(def (. selected_node :dirty) :color +argb_grey12))
 		(lower :selected_node)
 		this)
+
+	(defmethod :get_relative (route)
+		; (. tree :get_relative route) -> (x y w h)
+		;relative position of route
+		(defq x 0 y 0 w 0 h 0)
+		(when (and route (defq node (. this :find_node route)))
+			(bind '(x y w h) (. node :get_bounds))
+			(until (eql (defq p (penv node)) this)
+				(bind '(x1 y1) (. p :get_pos))
+				(setq x (+ x x1) y (+ y y1) node p)))
+		(list x y w h))
 
 	(defmethod :action (event)
 		; (. tree :action event) -> tree

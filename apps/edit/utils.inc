@@ -54,8 +54,8 @@
 (defun switch-file (file)
 	;switch to file or scratch (:nil)
 	(populate-open-tree)
-	(select-node file)
 	(populate-vdu file)
+	(select-node file)
 	(save-state))
 
 (defun open-file (file)

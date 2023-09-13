@@ -239,10 +239,21 @@
 	(. *window* :change_dirty x y w h)
 	(window-resize))
 
+(defun visible-node (tree file)
+	;highlight and show the selected file
+	(. tree :select file)
+	(bind '(_ y _ h) (. tree :get_relative file))
+	(defq tree (penv tree) scroll (get :vslider tree))
+	(bind '(_ th) (. tree :get_size))
+	(defq val (get :value scroll))
+	(if (< y val) (def scroll :value y))
+	(if (> (+ y h) (+ val th)) (def scroll :value (- (+ y h) th)))
+	(.-> tree :layout :dirty_all))
+
 (defun select-node (file)
-	;highlight the selected file
-	(. *open_tree* :select file)
-	(. *file_tree* :select file))
+	;highlight and show the selected file in both tree views
+	(visible-node *open_tree* file)
+	(visible-node *file_tree* file))
 
 (defun tooltips ()
 	(def *window* :tip_mbox (elem-get +select_tip select))
