@@ -27,6 +27,19 @@
 	(bind '(ax ay) (. *edit* :get_anchor))
 	(or (/= ax cx) (/= ay cy)))
 
+(defun sort-selection ()
+	(bind '(cx cy) (. *edit* :get_cursor))
+	(bind '(ax ay) (. *edit* :get_anchor))
+	(defq sx cx sy cy sx1 ax sy1 ay)
+	(if (> sy sy1) (defq st sx sx sx1 sx1 st st sy sy sy1 sy1 st))
+	(and (= sy sy1) (> sx sx1) (defq st sx sx sx1 sx1 st))
+	(list sx sy sx1 sy1))
+
+(defun select-lines ()
+	(bind '(sx sy sx1 sy1) (sort-selection))
+	(if (or (> sx1 0) (= sy sy1)) (setq sy1 (inc sy1)))
+	(list sy sy1))
+
 (defun select-word ()
 	(bind '(cx cy) (. *edit* :get_cursor))
 	(defq line (.-> *edit* :get_buffer (:get_text_line cy))

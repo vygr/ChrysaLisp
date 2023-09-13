@@ -34,6 +34,7 @@ event_map (Fmap-kv
 	+event_max action-maximise
 	+event_save action-save
 	+event_save_all action-save-all
+	+event_load_all action-load-all
 	+event_new action-new
 	+event_next action-next-buffer
 	+event_prev action-prev-buffer

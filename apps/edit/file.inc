@@ -87,3 +87,10 @@
 (defun action-close-all ()
 	(each (# (close-file %0)) (cat *open_files*))
 	(switch-file :nil))
+
+(defun action-load-all ()
+	(when (selection?)
+		(bind '(y y1) (select-lines))
+		(defq buffer (. *edit* :get_buffer))
+		(each (# (if (/= (age %0) 0) (open-file %0)))
+			(split (.-> buffer (:set_cursor 0 y1) (:copy 0 y)) (ascii-char +char_lf)))))
