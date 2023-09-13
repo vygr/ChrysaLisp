@@ -58,7 +58,7 @@
 
 (defun is-game-over? (&optional lost)
 	(defq message "")
-	(cond 
+	(cond
 		(game_over (setq message "You Lost!"))
 		((= (length (filter (# (or (eql %0 "f") (eql %0 "b"))) game_map)) (last difficulty))
 			(setq message "You Won!" game_over :t))
@@ -67,7 +67,7 @@
 	(.-> status_bar :layout :dirty))
 
 (defun colorize (value)
-	(elem-get value '(+argb_black 0x000000ff 0x00006600 0x00ff0000 +argb_magenta 
+	(elem-get value '(+argb_black 0x000000ff 0x00006600 0x00ff0000 +argb_magenta
 		+argb_black 0x00700000 +argb_grey1 0x0002bbdd +argb_black)))
 
 (defun board-layout ((gw gh nm))
@@ -77,7 +77,7 @@
 		; (ui-grid game_grid (:grid_width 1 :grid_height 5)
 	(each (lambda (_)
 		(. (defq mc (Button)) :connect (+ _ +event_click))
-		(def mc :text "" :border 1 :flow_flags 
+		(def mc :text "" :border 1 :flow_flags
 			(logior +flow_flag_align_hcenter +flow_flag_align_vcenter) :min_width 32 :min_height 32)
 		(. game_grid :add_child mc)) (range 0 gwh))
 	(def game_grid :grid_width gw :grid_height gh :color (const *env_toolbar_col*) :font *env_window_font*)
@@ -96,27 +96,27 @@
 		; (ui-grid game_grid (:grid_width 1 :grid_height 5)
 	(each (lambda (_)
 		(defq value :nil)
-		(cond 
+		(cond
 			((eql (elem-get _ game_map) "f")
 				(. (defq mc (Button)) :connect (+ +event_click _))
-				(def mc :text "F" :border 1 :flow_flags 
+				(def mc :text "F" :border 1 :flow_flags
 					(logior +flow_flag_align_hcenter +flow_flag_align_vcenter) :min_width 32 :min_height 32)
-				(. game_grid :add_child mc))			
+				(. game_grid :add_child mc))
 			((eql (elem-get _ game_map) "b")
 				(. (defq mc (Button)) :connect (+ +event_click _))
-				(def mc :text "" :border 1 :flow_flags 
+				(def mc :text "" :border 1 :flow_flags
 					(logior +flow_flag_align_hcenter +flow_flag_align_vcenter) :min_width 32 :min_height 32)
 				(. game_grid :add_child mc))
 			((eql (elem-get _ game_map) "r")
-				(if (< 0 (elem-get _ game_board) 9) 
+				(if (< 0 (elem-get _ game_board) 9)
 					(. (defq mc (Label)) :connect (+ +event_click _))
 					(defq mc (Label)))
-				(def mc :text 
-					(cond 
+				(def mc :text
+					(cond
 						((= (defq value (elem-get _ game_board)) 0) "")
 						((< 0 value 9) (str value))
 						((= value 9) "X"))
-					:flow_flags (logior +flow_flag_align_hcenter +flow_flag_align_vcenter) 
+					:flow_flags (logior +flow_flag_align_hcenter +flow_flag_align_vcenter)
 					:border 0 :ink_color (colorize value) :color (if (= value 9) +argb_red *env_toolbar_col*) :min_width 32 :min_height 32)
 				(. game_grid :add_child mc))
 			(:t :nil))) (range 0 gwh))
@@ -129,7 +129,7 @@
 	(. *window* :change_dirty x y w h))
 
 (defun main ()
-	(defq started :nil game (list) game_board (list) game_adj (list) game_map (list) 
+	(defq started :nil game (list) game_board (list) game_adj (list) game_map (list)
 		first_click :t difficulty (list) game_grid :nil click_offset 4 game_over :nil mouse_down 0)
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(gui-add-front (. *window* :change x y w h))
@@ -143,9 +143,9 @@
 			(<= +event_click id (+ +event_click (dec (* (elem-get 0 difficulty) (elem-get 1 difficulty))))))
 			(defq cid (- id click_offset))
 			(bind '(gw gh gn) difficulty)
-			(when first_click (setq first_click :nil game (create-game gw gh gn cid) game_board (elem-get 0 game) 
+			(when first_click (setq first_click :nil game (create-game gw gh gn cid) game_board (elem-get 0 game)
 				game_map (elem-get 1 game) game_adj (elem-get 2 game)))
-			(cond 
+			(cond
 				((= mouse_down 1)
 					(cond
 						((eql (elem-get cid game_map) "f") (clicked-flag cid))
