@@ -70,4 +70,5 @@
 			(populate-buffer %0 0 0 0 0 0 0))
 		files)
 	(populate-open-tree)
+	(select-node *current_file*)
 	(save-state))
