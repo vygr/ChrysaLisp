@@ -65,10 +65,9 @@
 	(switch-file file))
 
 (defun open-files (files)
-	(each (# (unless (find %0 *open_files*))
-			(push *open_files* %0)
-			(populate-buffer %0 0 0 0 0 0 0))
-		files)
+	(each (# (unless (find %0 *open_files*)
+		(push *open_files* %0)
+		(populate-buffer %0 0 0 0 0 0 0))) files)
 	(populate-open-tree)
 	(select-node *current_file*)
 	(save-state))
