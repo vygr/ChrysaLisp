@@ -24,6 +24,8 @@ Textfield click to focus for key event dispatch.
 Editor supports global find across all files. Matching files are inserted into
 scratch buffer.
 
+Editor support for block loading of files.
+
 ------
 
 New `Substr` string search class. Editor updated to use this new class.
