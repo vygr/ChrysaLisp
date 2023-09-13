@@ -92,5 +92,6 @@
 	(when (selection?)
 		(bind '(y y1) (select-lines))
 		(defq buffer (. *edit* :get_buffer))
-		(each (# (if (/= (age %0) 0) (open-file %0)))
-			(split (.-> buffer (:set_cursor 0 y1) (:copy 0 y)) (ascii-char +char_lf)))))
+		(open-files (filter (# (/= (age %0) 0))
+			(split (.-> buffer (:set_cursor 0 y1) (:copy 0 y))
+				(ascii-char +char_lf))))))

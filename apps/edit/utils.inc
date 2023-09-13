@@ -60,6 +60,14 @@
 
 (defun open-file (file)
 	;open file or scratch (:nil)
-	(when (and file (not (find file *open_files*)))
+	(and file (not (find file *open_files*))
 		(push *open_files* file))
 	(switch-file file))
+
+(defun open-files (files)
+	(each (# (unless (find %0 *open_files*))
+			(push *open_files* %0)
+			(populate-buffer %0 0 0 0 0 0 0))
+		files)
+	(populate-open-tree)
+	(save-state))
