@@ -1,5 +1,4 @@
-
-;all negative numbers are buttons. Adding 10 results in the value. 
+;all negative numbers are buttons. Adding 10 results in the value.
 ;-1 is a flagged button. 9 is a mine.
 (defq ord_vals (list (list -1 -1) (list -1 0) (list -1 1)
 	(list 0 -1) (list 0 0) (list 0 1) (list 1 -1) (list 1 0) (list 1 1))
@@ -25,7 +24,7 @@
 			(push a neighbors) (push b 0) (push p "b")
 			(if (= x_index (dec w)) (setq x_index 0 y_index (inc y_index)) (setq x_index (inc x_index))))
 		(range 0 (* w h)))
-	(board-set-mines m b n s w h) 
+	(board-set-mines m b n s w h)
 	(board-set-values a b) (list b p a))
 
 (defun mine-list (l n s w h)
