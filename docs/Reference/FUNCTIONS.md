@@ -726,13 +726,13 @@ should provide the concreate handler
 
 ### defmethod
 
+### defmethod
+
 ```code
 (defmethod name ([arg ...]) body)
 
 (. this :method [arg ...])
 ```code
-
-### defmethod
 
 ### defmethod
 
@@ -752,6 +752,12 @@ should provide the concreate handler
 
 ### defun
 
+### defun
+
+### defun
+
+### defun
+
 ```code
 (defun name ([arg ...]) body)
 
@@ -761,12 +767,6 @@ should provide the concreate handler
 (print [form ...])
 (str [form ...])
 ```code
-
-### defun
-
-### defun
-
-### defun
 
 ### deg-to-rad
 
@@ -1779,7 +1779,10 @@ _1 = class name
 ### gui-add-back
 
 ```code
-Lisp (getf ...)
+;;;;;;;;;;;;;;
+
+hchart widget
+;;;;;;;;;;;;;;
 ```code
 
 ### gui-quit

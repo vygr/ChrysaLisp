@@ -17,6 +17,11 @@
 			(each (# (write-line stream %0)) info))
 		(write-line stream (cat "```code" (ascii-char 10)))))
 
+(defun dedupe (l)
+	(sort cmp l)
+	(defq ll "" out (list))
+	(each (# (unless (eql ll %0) (push out (setq ll %0)))) l))
+
 (defun make-docs ()
 	(defq *abi* (abi) *cpu* (cpu))
 	(defun chop (_)
@@ -126,8 +131,8 @@
 								(push methods (list (second _) (setq info (list))))
 								(setq state :method)))))))
 			(file-stream file)))
-		(cat (all-files "." '("lisp.inc") 2) (all-files "./lib/" '(".inc") 2)
-			'("class/lisp/root.inc" "apps/debug/app.inc")))
+		(dedupe (cat (all-files "." '("lisp.inc") 2) (all-files "./lib/" '(".inc") 2)
+			'("class/lisp/root.inc" "apps/debug/app.inc"))))
 	;functions
 	(defq stream (file-stream "docs/Reference/FUNCTIONS.md" +file_open_write))
 	(sort (# (cmp (first %0) (first %1))) functions)

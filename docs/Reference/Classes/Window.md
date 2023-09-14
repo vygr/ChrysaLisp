@@ -54,3 +54,7 @@
 (. window :pref_size) -> (width height)
 ```code
 
+### :type_of
+
+### :type_of
+

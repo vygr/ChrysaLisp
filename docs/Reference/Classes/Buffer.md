@@ -190,10 +190,6 @@
 (. buffer :set_mode mode) -> buffer
 ```code
 
-### :type_of
-
-### :type_of
-
 ### :undo
 
 ```code
