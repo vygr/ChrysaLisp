@@ -111,7 +111,7 @@
 ### buffer :find
 
 ```code
-(. buffer :find pattern mode) -> buffer_found
+(. buffer :find pattern wmode rmode) -> buffer_found
 ```
 
 ### buffer :get_cursor
@@ -4354,6 +4354,12 @@
 
 ```code
 (quasi-quote? form) -> :t | :nil
+```
+
+### query
+
+```code
+(query pattern whole_words regexp) -> (engine pattern meta)
 ```
 
 ### quote

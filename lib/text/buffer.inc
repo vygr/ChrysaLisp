@@ -78,7 +78,7 @@
 		(get-selection)
 		(cond
 			((and (= sx sx1) (= sy sy1)) "")
-			(:t	(bind '(w h) (. this :get_size))
+			(:t (bind '(w h) (. this :get_size))
 				~_))))
 
 (defclass Buffer (&optional mode syntax) :nil
@@ -89,7 +89,7 @@
 		:syntax (opt syntax (Syntax)) :undo_stack (list) :redo_stack (list)
 		:cursor_x 0 :cursor_y 0 :max_width 0 :tab_width 4 :wrap_width 80
 		:mode mode :next_mark -1 :modified :nil
-		:last_pattern :nil :last_find_mode :nil)
+		:last_pattern :nil :last_wmode :nil :last_rmode :nil)
 
 	(defmethod :set_mode (mode)
 		; (. buffer :set_mode mode) -> buffer
@@ -188,7 +188,7 @@
 						(mode)
 						((and (array? line_array) (eql state start_state))
 							(setq state end_state))
-						(:t	(task-slice)
+						(:t (task-slice)
 							(elem-set _ buffer_colored
 								(.-> syntax (:set_state state) (:colorise line)))
 							(elem-set _ buffer_states
@@ -256,12 +256,12 @@
 			(cond
 				((and (eql "" back) (= y h))
 					(. this :push_undo (list :backspace x y)))
-				(:t	(set-line (dec y) front)
+				(:t (set-line (dec y) front)
 					(insert-line y back)
 					(cond
 						((<= y h)
 							(. this :push_undo (list :backspace x y)))
-						(:t	(. this :push_undo
+						(:t (. this :push_undo
 								(list :mark (defq mark (. this :next_mark)))
 								(list :backspace x y) (list :delete 0 y)
 								(list :mark mark))))))))
@@ -277,7 +277,7 @@
 					(set-line y (cat (elem-get y buffer) (elem-get (inc y) buffer)))
 					(erase-line (inc y))
 					(. this :push_undo (list :break x y)))
-				(:t	(defq undo (slice (- x num) x (elem-get y buffer)))
+				(:t (defq undo (slice (- x num) x (elem-get y buffer)))
 					(set-line y (erase (elem-get y buffer) (- x num) x))
 					(setq x (- x num))
 					(. this :push_undo (list :insert x y undo))))))
@@ -292,7 +292,7 @@
 					(set-line y (cat (elem-get y buffer) (elem-get (inc y) buffer)))
 					(erase-line (inc y))
 					(. this :push_undo (list :break x y)))
-				(:t	(defq undo (slice x (+ x num) (elem-get y buffer)))
+				(:t (defq undo (slice x (+ x num) (elem-get y buffer)))
 					(set-line y (erase (elem-get y buffer) x (+ x num)))
 					(. this :push_undo (list :insert x y undo))))))
 
@@ -317,7 +317,7 @@
 				((= sy sy1)
 					(push lines (slice sx sx1 (elem-get sy (get :buffer this))))
 					(. this :delete (- sx1 sx)))
-				(:t	(while (<= sy (setq sy1 (dec sy1)))
+				(:t (while (<= sy (setq sy1 (dec sy1)))
 						(task-slice)
 						(push lines (slice sx -1 (elem-get sy (get :buffer this))) (ascii-char +char_lf))
 						(if (> (defq gap (- (length (elem-get sy (get :buffer this))) sx)) 0)
@@ -336,7 +336,7 @@
 			(cond
 				((= sy sy1)
 					(slice sx sx1 (elem-get sy buffer)))
-				(:t	(defq lines
+				(:t (defq lines
 						(list (slice sx -1 (elem-get sy buffer)) (ascii-char +char_lf)))
 					(while (< (setq sy (inc sy)) sy1)
 						(push lines (elem-get sy buffer) (ascii-char +char_lf)))
@@ -370,7 +370,7 @@
 						(task-slice)
 						(bind '(state &optional x y data) (pop undo_stack))
 						(undo)))
-				(:t	(undo)))
+				(:t (undo)))
 			(set this :redo_stack redo_stack))
 		this)
 
@@ -387,7 +387,7 @@
 						(task-slice)
 						(bind '(state &optional x y data) (pop redo_stack))
 						(redo)))
-				(:t	(redo)))
+				(:t (redo)))
 			(set this :redo_stack redo_stack))
 		this)
 
@@ -442,21 +442,24 @@
 				(list buffer buffer_colored))))
 		(if (> c 0) (list x y) '(:nil :nil)))
 
-	(defmethod :find (pattern mode)
-		; (. buffer :find pattern mode) -> buffer_found
-		(raise :last_pattern :last_find_mode :buffer_found)
-		(unless (and (eql mode last_find_mode) (eql last_pattern pattern))
-			(lower (:last_find_mode mode :last_pattern pattern :dirty_find :t))
+	(defmethod :find (pattern wmode rmode)
+		; (. buffer :find pattern wmode rmode) -> buffer_found
+		(raise :last_pattern :last_wmode :last_rmode :buffer_found)
+		(unless (and (eql wmode last_wmode)
+					(eql rmode last_rmode)
+					(eql last_pattern pattern))
+			(lower (:last_wmode wmode :last_rmode rmode
+					:last_pattern pattern :dirty_find :t))
 			(each (lambda (__) (elem-set _ buffer_found :nil)) buffer_found))
-		(setq mode (if mode +*regexp* +*substr*))
 		(when (get :dirty_find this)
 			(lower (:dirty_find :nil))
-			(defq meta (. mode :compile pattern) allsubs (clear '()))
+			(bind '(engine pattern meta) (query pattern wmode rmode))
+			(defq allsubs (clear '()))
 			(each (lambda (line index)
 					(if (> (length line) 0)
 						(unless index
 							(task-slice)
-							(bind '(indexs substrs) (. mode :search line pattern meta))
+							(bind '(indexs substrs) (. engine :search line pattern meta))
 							(setq substrs (map (# (map (# (intern allsubs %0)) %0)) substrs))
 							(elem-set _ buffer_found (list indexs substrs)))
 						(elem-set _ buffer_found '(()()))))

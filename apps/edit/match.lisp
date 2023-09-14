@@ -17,14 +17,12 @@
 	(offset params))
 
 (defun file-match? (file pattern whole_words regexp)
-	(defq search (if regexp +*regexp* +*substr*)
-		pattern (map (const progn) pattern)
-		meta (. search :compile pattern))
-	(when (defq result :nil stream (file-stream file))
-		(while (and (not result) (defq line (read-line stream)))
-			(task-slice)
-			(setq result (. search :match? line pattern meta)))
-		result))
+	(when (bind '(search pattern meta) (query pattern whole_words regexp))
+		(when (defq result :nil stream (file-stream file))
+			(while (and (not result) (defq line (read-line stream)))
+				(task-slice)
+				(setq result (. search :match? line pattern meta)))
+			result)))
 
 (defun main ()
 	(defq *select* (alloc-select +select_size) *working* :t *msg* :nil)
@@ -42,9 +40,8 @@
 				;read job
 				(defq *reply_key* (getf *msg* +job_key)
 					*reply_mbox* (getf *msg* +job_reply)
-					result 0)
-				(setq result (if (apply (const file-match?)
-					(first (read (string-stream (slice +job_params -1 *msg*)) (ascii-code " ")))) 1 0))
+					result (if (apply (const file-match?)
+						(first (read (string-stream (slice +job_params -1 *msg*)) (ascii-code " ")))) 1 0))
 				;send reply
 				(mail-send *reply_mbox* (setf (slice 0 +job_params *msg*)
 					+job_result result)))))
