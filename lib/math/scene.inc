@@ -10,6 +10,7 @@
 (defq +num_poly_buckets 50)
 
 (defun circle (r)
+	; (circle r) -> path
 	;cached circle generation, quantised to 1/4 pixel
 	(defq cache (const (Fmap 13)) r (* (floor (* (n2f r) 4.0)) 0.25))
 	(unless (defq p (. cache :find r))
@@ -18,6 +19,7 @@
 	p)
 
 (defun lighting (col at)
+	; (lighting col at)
 	;very basic attenuation and diffuse
 	(defq alpha (elem-get 0 col) col (slice 1 -1 col))
 	(bind '(r g b) (vec-min (vec-add
@@ -29,6 +31,7 @@
 	(+ (<< (n2i (* alpha 255.0)) 24) (<< (n2i r) 16) (<< (n2i g) 8) (n2i b)))
 
 (defun lighting-at3 (col at sp)
+	; (lighting-at3 col at sp)
 	;very basic attenuation, diffuse and specular
 	(defq alpha (elem-get 0 col) col (slice 1 -1 col))
 	(bind '(r g b) (vec-min (vec-add (vec-add
@@ -166,7 +169,7 @@
 					;step into child node
 					(push _stack _this _children (inc _idx)
 						(defq _this (elem-get _idx _children)) (get :children _this) 0))
-				(:t	;step out
+				(:t ;step out
 					(_fo _this _children))))
 		this)
 

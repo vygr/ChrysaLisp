@@ -272,6 +272,8 @@ flush any shared pixmaps that have no users.
 ### circle
 
 ```code
+(circle r) -> path
+
 cached circle generation, quantised to 1/4 pixel
 ```
 
@@ -716,12 +718,16 @@ tells us which vertices are inside the surface
 ### lighting
 
 ```code
+(lighting col at)
+
 very basic attenuation and diffuse
 ```
 
 ### lighting-at3
 
 ```code
+(lighting-at3 col at sp)
+
 very basic attenuation, diffuse and specular
 ```
 
