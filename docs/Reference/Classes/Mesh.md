@@ -16,3 +16,7 @@
 (. mesh :optimise) -> this
 ```code
 
+### tris
+
+### verts
+

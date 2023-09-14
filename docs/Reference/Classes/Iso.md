@@ -16,6 +16,12 @@
 (. iso :get_metrics) -> (width height depth)
 ```code
 
+### :get_scalar
+
+```code
+(. iso :get_scalar x y z) -> scalar
+```code
+
 ### :get_surface
 
 ```code

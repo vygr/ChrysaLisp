@@ -24,3 +24,5 @@
 (. hchart :update_scale) -> hchart
 ```code
 
+### bar_grid
+
