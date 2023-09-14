@@ -67,7 +67,7 @@
 		(cond
 			((eql this that)
 				(. this :empty))
-			(:t	(. that :each (# (. this :erase %0)))
+			(:t (. that :each (# (. this :erase %0)))
 				this)))
 
 	(defmethod :intersect (that)
@@ -82,7 +82,7 @@
 		(cond
 			((eql this that)
 				(. this :empty))
-			(:t	(. (defq other (. that :copy)) :difference this)
+			(:t (. (defq other (. that :copy)) :difference this)
 				(. this :difference that)
 				(. this :union other))))
 
@@ -121,6 +121,4 @@
 
 (defun Fset-k (&rest _)
 	; (Fset-k [key ...]) -> fset
-	(defq this (Fset))
-	(each (# (. this :insert %0)) _)
-	this)
+	(reduce (# (. %0 :insert %1)) _ (Fset)))
