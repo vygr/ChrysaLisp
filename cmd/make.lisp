@@ -20,7 +20,10 @@
 (defun dedupe (l)
 	(sort cmp l)
 	(defq ll "" out (list))
-	(each (# (unless (eql ll %0) (push out (setq ll %0)))) l))
+	(each (# (unless (eql ll %0) (push out (setq ll %0)))) l)
+	(filter (lambda (name)
+		(not (some (# (starts-with %0 name))
+			'("lib/asm/" "lib/trans/" "lib/keys/")))) out))
 
 (defun make-docs ()
 	(defq *abi* (abi) *cpu* (cpu))
@@ -61,7 +64,7 @@
 							(if (setq line (chop line))
 								(merge-obj syntax (list (sym line)))))))) (file-stream file))) *imports*)))
 
-	;create classes docs
+	;create VP classes docs
 	(sort (# (cmp (elem-get 0 %0) (elem-get 0 %1))) classes)
 	(defq stream (file-stream "docs/Reference/VP_CLASSES.md" +file_open_write)
 		classes (map (lambda ((a b &rest c))
@@ -107,8 +110,9 @@
 	(print "-> docs/Reference/COMMANDS.md")
 
 	;create lisp functions and classes docs
-	(defq classes (list) functions (list) info :nil methods :nil state :nil)
+	(defq classes (list) functions (list) info :nil methods :nil)
 	(each (lambda (file)
+		(defq state :nil)
 		(each-line (lambda (line)
 			(case state
 				((:function :class :method)
@@ -117,27 +121,28 @@
 						(push info (trim (slice (inc (find ";" line)) -1 line)))
 						(setq state :nil)))
 				(:t (when (> (length line) 9)
-						(defq _ (split line (const (cat (ascii-char 9) " ()'" (ascii-char 13)))))
-						(unless (eql (second _) ":type_of")
+						(defq _ (split line (const (cat (ascii-char 9) " ()'" (ascii-char 13))))
+							name (second _))
+						(unless (eql name ":type_of")
 							(case (first _)
 								(("defun" "defmacro")
-									(push functions (list (second _) (setq info (list))))
+									(push functions (list name (setq info (list))))
 									(setq state :function))
 								("defclass"
-									(push classes (list (second _) (parent? _)
+									(push classes (list name (parent? _)
 										(setq methods (list)) (setq info (list))))
 									(setq state :class))
 								(("defmethod" "deffimethod" "defabstractmethod")
-									(push methods (list (second _) (setq info (list))))
+									(push methods (list name (setq info (list))))
 									(setq state :method))
 								("defgetmethod"
-									(push methods (list (cat ":get_" (second _)) (setq info (list))))
+									(push methods (list (cat ":get_" name) (setq info (list))))
 									(setq state :method))
 								("defsetmethod"
-									(push methods (list (cat ":set_" (second _)) (setq info (list))))
+									(push methods (list (cat ":set_" name) (setq info (list))))
 									(setq state :method))))))))
 			(file-stream file)))
-		(dedupe (cat (all-files "." '("lisp.inc") 2) (all-files "./lib/" '(".inc") 2)
+		(dedupe (cat (all-files "." '("lisp.inc") 2) (all-files "./lib" '(".inc") 2)
 			'("class/lisp/root.inc" "apps/debug/app.inc"))))
 	;functions
 	(defq stream (file-stream "docs/Reference/FUNCTIONS.md" +file_open_write))

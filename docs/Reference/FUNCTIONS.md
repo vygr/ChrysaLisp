@@ -154,8 +154,6 @@ parse the commands and attributes calling back to the user functions
 (abi) -> sym
 ```code
 
-### abort
-
 ### abs-path
 
 ```code
@@ -167,8 +165,6 @@ parse the commands and attributes calling back to the user functions
 ```code
 (acond (tst body) ...)
 ```code
-
-### add-inst
 
 ### aeach
 
@@ -194,12 +190,6 @@ parse the commands and attributes calling back to the user functions
 (align num div) -> num
 ```code
 
-### all-class-files
-
-```code
-filter to only the class.inc files, strip off the leading "./"
-```code
-
 ### all-dirs
 
 ```code
@@ -216,12 +206,6 @@ return all the dir paths
 all source files from root downwards, none recursive
 ```code
 
-### all-vp-files
-
-```code
-filter to only the .vp files, strip off the leading "./"
-```code
-
 ### alloc-select
 
 ```code
@@ -233,42 +217,6 @@ filter to only the .vp files, strip off the leading "./"
 ```code
 (and [tst] ...) -> :t | :nil | tst
 ```code
-
-### arm64-bf
-
-### arm64-branch
-
-### arm64-cmp-cr
-
-### arm64-cmp-rr
-
-### arm64-dr
-
-### arm64-dru
-
-### arm64-ir
-
-### arm64-iru
-
-### arm64-is-mask
-
-### arm64-is-shifted-mask
-
-### arm64-limm
-
-### arm64-mov-cr
-
-### arm64-rd
-
-### arm64-ri
-
-### arm64-rrr
-
-### arm64-shift-cr
-
-### arm64-shift-rr
-
-### arm64-ux
 
 ### array?
 
@@ -306,36 +254,6 @@ filter to only the .vp files, strip off the leading "./"
 (asome seq body)
 ```code
 
-### assert
-
-### assign
-
-```code
-optional src, dst, compiler regs
-```code
-
-### assign-asm-to-asm
-
-### assign-asm-to-script
-
-### assign-dst-type
-
-### assign-ignored-to-asm
-
-### assign-ignored-to-script
-
-### assign-script-to-asm
-
-### assign-script-to-script
-
-### assign-src-type
-
-### assign-topology-sort
-
-### assign-type-sym
-
-### assign-type-t
-
 ### awhen
 
 ```code
@@ -347,8 +265,6 @@ optional src, dst, compiler regs
 ```code
 (awhile form body)
 ```code
-
-### beg-sym
 
 ### bits
 
@@ -372,12 +288,6 @@ optional src, dst, compiler regs
 (bounding-sphere verts vec3-extract-fnc) -> (center_v3 radius)
 ```code
 
-### break
-
-### breakif
-
-### breakifnot
-
 ### byte-to-hex-str
 
 ```code
@@ -385,22 +295,6 @@ optional src, dst, compiler regs
 ```code
 
 ### cache
-
-### call
-
-```code
-_1 = class name
-
-_2 = member name
-_3 = in parameters
-_4 = out parameters
-```code
-
-### cancel-job
-
-```code
-cancel this job
-```code
 
 ### canvas-brighter
 
@@ -443,87 +337,7 @@ flush any shared pixmaps that have no users.
 cached circle generation, quantised to 1/4 pixel
 ```code
 
-### class-sym
-
 ### compile
-
-### compile
-
-### compile-and
-
-### compile-arrow
-
-### compile-arshift
-
-### compile-bind
-
-### compile-cast
-
-### compile-cmp
-
-### compile-const
-
-### compile-deref
-
-### compile-deref?
-
-### compile-div
-
-### compile-divu
-
-### compile-fdiv
-
-### compile-field
-
-### compile-fmul
-
-### compile-index
-
-### compile-label
-
-### compile-land
-
-### compile-lor
-
-### compile-lshift
-
-### compile-member
-
-### compile-minus
-
-### compile-mul
-
-### compile-null
-
-### compile-operator
-
-### compile-or
-
-### compile-plus
-
-### compile-ref
-
-### compile-rem
-
-### compile-remu
-
-### compile-rshift
-
-### compile-string
-
-### compile-test
-
-### compile-uaddrof
-
-### compile-uderef
-
-### compile-ulnot
-
-### compile-uminus
-
-### compile-unot
-
-### compile-xor
 
 ### compose
 
@@ -537,12 +351,6 @@ cached circle generation, quantised to 1/4 pixel
 (const form)
 ```code
 
-### continue
-
-### continueif
-
-### continueifnot
-
 ### cpp-node?
 
 ```code
@@ -555,54 +363,10 @@ cached circle generation, quantised to 1/4 pixel
 (cpu) -> sym
 ```code
 
-### create
-
-```code
-(create key val nodes)
-
-function called when entry is created
-```code
-
-### cscript
-
-### cscript-compile
-
-### cscript-reverse-polish
-
-### cscript-tokenize
-
 ### curry
 
 ```code
 (curry lambda var ...) -> lambda
-```code
-
-### d-bind
-
-```code
-_1 = class name
-
-_2 = member name
-_3 = reg
-```code
-
-### d-call
-
-```code
-_1 = class name
-
-_2 = member name
-_3 = in parameters
-_4 = out parameters
-```code
-
-### d-jump
-
-```code
-_1 = class name
-
-_2 = member name
-_3 = in parameters
 ```code
 
 ### date
@@ -651,44 +415,6 @@ _3 = in parameters
 
 ### decode-date
 
-### def-bit
-
-```code
-(def-bit name base [(bit field ...)] ...)
-```code
-
-### def-bit
-
-### def-class
-
-### def-enum
-
-```code
-(def-enum name base [(enum field ...)] ...)
-```code
-
-### def-enum
-
-### def-func
-
-### def-func-end
-
-### def-method
-
-### def-reg-map
-
-### def-struct
-
-```code
-(def-struct name base [(byte field ...)] ...)
-```code
-
-### def-vars
-
-```code
-(def-vars [(byte field ...)] ...)
-```code
-
 ### def_real
 
 ### defabstractmethod
@@ -701,8 +427,6 @@ throw an error if invoked. Concrete
 classes deriving from a class with abstractions
 should provide the concreate handler
 ```code
-
-### default
 
 ### defclass
 
@@ -726,13 +450,13 @@ should provide the concreate handler
 
 ### defmethod
 
-### defmethod
-
 ```code
 (defmethod name ([arg ...]) body)
 
 (. this :method [arg ...])
 ```code
+
+### defmethod
 
 ### defmethod
 
@@ -754,10 +478,6 @@ should provide the concreate handler
 
 ### defun
 
-### defun
-
-### defun
-
 ```code
 (defun name ([arg ...]) body)
 
@@ -768,21 +488,11 @@ should provide the concreate handler
 (str [form ...])
 ```code
 
+### defun
+
+### defun
+
 ### deg-to-rad
-
-### destroy
-
-```code
-(destroy key val)
-
-function called when entry is destroyed
-```code
-
-### dispatch-job
-
-```code
-send another job to child
-```code
 
 ### each
 
@@ -828,590 +538,6 @@ send another job to child
 
 ### elem-find
 
-### else
-
-### elseif
-
-### elseifnot
-
-### emit
-
-### emit-add-cr
-
-### emit-add-cr
-
-### emit-add-cr
-
-### emit-add-rr
-
-### emit-align
-
-### emit-alloc
-
-### emit-alloc
-
-### emit-alloc
-
-### emit-alloc
-
-### emit-and-cr
-
-### emit-and-cr
-
-### emit-and-cr
-
-### emit-and-rr
-
-### emit-asr-cr
-
-### emit-asr-cr
-
-### emit-asr-cr
-
-### emit-asr-rr
-
-### emit-asr-rr
-
-### emit-asr-rr
-
-### emit-beq-cr
-
-### emit-beq-cr
-
-### emit-beq-cr
-
-### emit-beq-cr
-
-### emit-beq-rr
-
-### emit-beq-rr
-
-### emit-beq-rr
-
-### emit-beq-rr
-
-### emit-bge-cr
-
-### emit-bge-cr
-
-### emit-bge-cr
-
-### emit-bge-cr
-
-### emit-bge-rr
-
-### emit-bge-rr
-
-### emit-bge-rr
-
-### emit-bgt-cr
-
-### emit-bgt-cr
-
-### emit-bgt-rr
-
-### emit-ble-cr
-
-### emit-ble-cr
-
-### emit-ble-cr
-
-### emit-ble-rr
-
-### emit-ble-rr
-
-### emit-ble-rr
-
-### emit-blt-cr
-
-### emit-blt-rr
-
-### emit-bne-cr
-
-### emit-brk
-
-### emit-brk
-
-### emit-brk
-
-### emit-brk
-
-### emit-byte
-
-### emit-call
-
-### emit-call
-
-### emit-call
-
-### emit-call
-
-### emit-call-abi
-
-### emit-call-abi
-
-### emit-call-abi
-
-### emit-call-abi
-
-### emit-call-abi
-
-### emit-call-i
-
-### emit-call-i
-
-### emit-call-i
-
-### emit-call-p
-
-### emit-call-p
-
-### emit-call-p
-
-### emit-call-p
-
-### emit-call-r
-
-### emit-call-r
-
-### emit-call-r
-
-### emit-call-r
-
-### emit-cpy-cr
-
-### emit-cpy-cr
-
-### emit-cpy-cr
-
-### emit-cpy-cr
-
-### emit-cpy-dr
-
-### emit-cpy-dr
-
-### emit-cpy-dr
-
-### emit-cpy-dr-b
-
-### emit-cpy-dr-i
-
-### emit-cpy-dr-i
-
-### emit-cpy-dr-s
-
-### emit-cpy-dr-s
-
-### emit-cpy-dr-ub
-
-### emit-cpy-dr-ub
-
-### emit-cpy-dr-ub
-
-### emit-cpy-dr-ui
-
-### emit-cpy-dr-ui
-
-### emit-cpy-dr-ui
-
-### emit-cpy-dr-ui
-
-### emit-cpy-ir
-
-### emit-cpy-ir
-
-### emit-cpy-ir-b
-
-### emit-cpy-ir-b
-
-### emit-cpy-ir-b
-
-### emit-cpy-ir-i
-
-### emit-cpy-ir-i
-
-### emit-cpy-ir-i
-
-### emit-cpy-ir-s
-
-### emit-cpy-ir-s
-
-### emit-cpy-ir-ub
-
-### emit-cpy-ir-ub
-
-### emit-cpy-ir-ub
-
-### emit-cpy-ir-ub
-
-### emit-cpy-ir-ui
-
-### emit-cpy-ir-ui
-
-### emit-cpy-ir-ui
-
-### emit-cpy-ir-ui
-
-### emit-cpy-ir-us
-
-### emit-cpy-pr
-
-### emit-cpy-pr
-
-### emit-cpy-pr
-
-### emit-cpy-rd
-
-### emit-cpy-rd
-
-### emit-cpy-rd
-
-### emit-cpy-rd-b
-
-### emit-cpy-rd-b
-
-### emit-cpy-rd-i
-
-### emit-cpy-rd-i
-
-### emit-cpy-rd-s
-
-### emit-cpy-rd-s
-
-### emit-cpy-rd-s
-
-### emit-cpy-ri
-
-### emit-cpy-ri
-
-### emit-cpy-ri
-
-### emit-cpy-ri-b
-
-### emit-cpy-ri-b
-
-### emit-cpy-ri-b
-
-### emit-cpy-ri-i
-
-### emit-cpy-ri-i
-
-### emit-cpy-ri-i
-
-### emit-cpy-ri-s
-
-### emit-cpy-ri-s
-
-### emit-cpy-rr
-
-### emit-cpy-rr
-
-### emit-cpy-rr
-
-### emit-cpy-rr
-
-### emit-div-rrr
-
-### emit-div-rrr
-
-### emit-div-rrr
-
-### emit-div-rrr-u
-
-### emit-div-rrr-u
-
-### emit-div-rrr-u
-
-### emit-div-rrr-u
-
-### emit-ext-rr
-
-### emit-ext-rr
-
-### emit-ext-rr
-
-### emit-ext-rr
-
-### emit-int
-
-### emit-jmp
-
-### emit-jmp
-
-### emit-jmp
-
-### emit-jmp-i
-
-### emit-jmp-i
-
-### emit-jmp-p
-
-### emit-jmp-p
-
-### emit-jmp-p
-
-### emit-jmp-r
-
-### emit-jmp-r
-
-### emit-jmp-r
-
-### emit-label
-
-### emit-land-rr
-
-### emit-land-rr
-
-### emit-land-rr
-
-### emit-land-rr
-
-### emit-lea-d
-
-### emit-lea-d
-
-### emit-lea-i
-
-### emit-lea-i
-
-### emit-lea-i
-
-### emit-lea-p
-
-### emit-lea-p
-
-### emit-lea-p
-
-### emit-lnot-rr
-
-### emit-lnot-rr
-
-### emit-lnot-rr
-
-### emit-long
-
-### emit-mul-cr
-
-### emit-mul-cr
-
-### emit-mul-cr
-
-### emit-mul-cr
-
-### emit-mul-rr
-
-### emit-mul-rr
-
-### emit-mul-rr
-
-### emit-mul-rr
-
-### emit-native-reg?
-
-### emit-native-reg?
-
-### emit-native-reg?
-
-### emit-native-reg?
-
-### emit-or-cr
-
-### emit-or-cr
-
-### emit-or-cr
-
-### emit-or-cr
-
-### emit-or-rr
-
-### emit-or-rr
-
-### emit-or-rr
-
-### emit-or-rr
-
-### emit-pop
-
-### emit-pop
-
-### emit-pop
-
-### emit-pop
-
-### emit-push
-
-### emit-push
-
-### emit-push
-
-### emit-push
-
-### emit-ret
-
-### emit-ret
-
-### emit-ret
-
-### emit-ret
-
-### emit-seq-cr
-
-### emit-seq-cr
-
-### emit-seq-cr
-
-### emit-seq-cr
-
-### emit-seq-rr
-
-### emit-seq-rr
-
-### emit-seq-rr
-
-### emit-seq-rr
-
-### emit-sge-cr
-
-### emit-sge-cr
-
-### emit-sge-cr
-
-### emit-sge-rr
-
-### emit-sge-rr
-
-### emit-sge-rr
-
-### emit-sgt-cr
-
-### emit-sgt-cr
-
-### emit-sgt-cr
-
-### emit-sgt-cr
-
-### emit-sgt-rr
-
-### emit-sgt-rr
-
-### emit-sgt-rr
-
-### emit-sgt-rr
-
-### emit-shift-cr
-
-### emit-shift-rr
-
-### emit-shl-cr
-
-### emit-shl-cr
-
-### emit-shl-cr
-
-### emit-shl-rr
-
-### emit-shl-rr
-
-### emit-shl-rr
-
-### emit-short
-
-### emit-shr-cr
-
-### emit-shr-cr
-
-### emit-sle-cr
-
-### emit-sle-cr
-
-### emit-sle-cr
-
-### emit-sle-rr
-
-### emit-sle-rr
-
-### emit-sle-rr
-
-### emit-slt-cr
-
-### emit-slt-cr
-
-### emit-slt-cr
-
-### emit-slt-cr
-
-### emit-slt-rr
-
-### emit-slt-rr
-
-### emit-slt-rr
-
-### emit-slt-rr
-
-### emit-sne-cr
-
-### emit-sne-cr
-
-### emit-sne-cr
-
-### emit-sne-rr
-
-### emit-sne-rr
-
-### emit-sne-rr
-
-### emit-stack-init
-
-### emit-stack-init
-
-### emit-stack-init
-
-### emit-stack-init
-
-### emit-string
-
-### emit-sub-cr
-
-### emit-sub-cr
-
-### emit-sub-cr
-
-### emit-sub-cr
-
-### emit-sub-rr
-
-### emit-sub-rr
-
-### emit-sub-rr
-
-### emit-sub-rr
-
-### emit-swp-rr
-
-### emit-swp-rr
-
-### emit-swp-rr
-
-### emit-translate
-
-```code
-(emit-translate emit_code) -> func_binary
-```code
-
-### emit-vp-code
-
-```code
-remove redundant labels and rename
-```code
-
-### emit-xor-cr
-
-### emit-xor-cr
-
-### emit-xor-cr
-
-### emit-xor-rr
-
 ### empty?
 
 ```code
@@ -1420,26 +546,10 @@ remove redundant labels and rename
 
 ### encode-date
 
-### endif
-
 ### ends-with
 
 ```code
 (ends-with str str) -> :t | :nil
-```code
-
-### endswitch
-
-### entry
-
-```code
-either
-
-_1 = class name
-_2 = slot method name
-_3 = in parameters
-or
-_1 = in parameters
 ```code
 
 ### enums
@@ -1462,20 +572,6 @@ _1 = in parameters
 
 ### erase-line
 
-### errorcase
-
-### errorif
-
-### errorif-lisp-args-len
-
-### errorif-lisp-args-match
-
-### errorif-lisp-args-sig
-
-### errorif-lisp-args-sig-range
-
-### errorif-lisp-args-type
-
 ### even?
 
 ```code
@@ -1493,22 +589,6 @@ _1 = in parameters
 ```code
 (exec form)
 ```code
-
-### exit
-
-```code
-either
-
-_1 = class name
-_2 = slot method name
-_3 = out parameters
-or
-_1 = out parameters
-```code
-
-### exitif
-
-### exitifnot
 
 ### export
 
@@ -1528,83 +608,11 @@ _1 = out parameters
 (export-symbols sym ...)
 ```code
 
-### f-bind
-
-```code
-_1 = class name
-
-_2 = member name
-_3 = reg
-```code
-
-### f-call
-
-```code
-_1 = class name
-
-_2 = member name
-_3 = in parameters
-_4 = out parameters
-```code
-
-### f-entry
-
-```code
-_1 = class name
-
-_2 = slot method name
-_3 = in parameters
-```code
-
-### f-exit
-
-```code
-_1 = class name
-
-_2 = slot method name
-_3 = out parameters
-```code
-
-### f-jmp
-
-```code
-_1 = class name
-
-_2 = member name
-_3 = in parameters
-```code
-
-### f-path
-
-```code
-_1 = class name
-
-_2 = slot method name
-```code
-
-### file-age
-
-```code
-modification time of a file, cached
-```code
-
 ### filter
 
 ```code
 (filter lambda seq) -> list
 ```code
-
-### find-past
-
-### find-past
-
-### find-past-r
-
-### find-past-rr
-
-### find-past-rw
-
-### find-past-rw1
 
 ### first
 
@@ -1615,22 +623,6 @@ modification time of a file, cached
 ### firstelem
 
 ### float-time
-
-### fn-add-link
-
-### fn-add-path
-
-### fn-add-string
-
-### fn-bind
-
-### fn-call
-
-### fn-find-link
-
-### fn-jump
-
-### fn-string
 
 ### framed-lambda
 
@@ -1670,26 +662,10 @@ cache loading of function blobs etc
 gather a list of values
 ```code
 
-### gen-create
-
-```code
-_1 = class name
-
-_2 = create/init name
-```code
-
 ### gen-norms
 
 ```code
 (gen-norms verts tris) -> (norms new_tris)
-```code
-
-### gen-type
-
-### gen-vtable
-
-```code
-_1 = class name
 ```code
 
 ### get-by-val
@@ -1740,8 +716,6 @@ _1 = class name
 (get-short str index) -> num
 ```code
 
-### get-type
-
 ### get-ubyte
 
 ```code
@@ -1770,20 +744,7 @@ _1 = class name
 (getf obj field [offset]) -> value
 ```code
 
-### goto
-
-### gotoif
-
-### gotoifnot
-
 ### gui-add-back
-
-```code
-;;;;;;;;;;;;;;
-
-hchart widget
-;;;;;;;;;;;;;;
-```code
 
 ### gui-quit
 
@@ -1853,27 +814,9 @@ function that returns it's argument
 
 ### is-bracket-char?
 
-### is-bracket-char?
-
 ### is-esc-char?
 
-### is-folow-on-number-char?
-
-### is-folow-on-op-char?
-
-### is-label-char?
-
 ### is-number-char?
-
-### is-number-char?
-
-### is-op-char?
-
-### is-path-char?
-
-### is-stringy-char?
-
-### is-symbol-char?
 
 ### is-symbol-char?
 
@@ -1893,38 +836,6 @@ tells us which vertices are inside the surface
 ```code
 (join list seq) -> seq
 ```code
-
-### jump
-
-```code
-_1 = class name
-
-_2 = member name
-_3 = in parameters
-```code
-
-### l-call
-
-```code
-_1 = label
-
-_2 = in parameters
-_3 = out parameters
-```code
-
-### l-entry
-
-```code
-_1 = in parameters
-```code
-
-### l-exit
-
-```code
-_1 = out parameters
-```code
-
-### label-sym
 
 ### lambda-func?
 
@@ -1976,8 +887,6 @@ very basic attenuation and diffuse
 very basic attenuation, diffuse and specular
 ```code
 
-### link-sym
-
 ### lisp-node?
 
 ```code
@@ -2010,15 +919,11 @@ very basic attenuation, diffuse and specular
 (lists2) -> ((list) (list))
 ```code
 
-### llb-sym
-
 ### load-stream
 
 ```code
 (load-stream path) -> :nil | stream
 ```code
-
-### loc-sym
 
 ### log2
 
@@ -2038,18 +943,6 @@ very basic attenuation, diffuse and specular
 (long-to-hex-str num) -> str
 ```code
 
-### loop-end
-
-### loop-start
-
-### loop-until
-
-### loop-untilnot
-
-### loop-while
-
-### loop-whilenot
-
 ### lower
 
 ```code
@@ -2067,30 +960,6 @@ very basic attenuation, diffuse and specular
 ```code
 (macro? form) -> :t | :nil
 ```code
-
-### make
-
-### make-all
-
-### make-all-platforms
-
-### make-boot-all
-
-### make-info
-
-```code
-create lists of immediate dependencies and products
-```code
-
-### make-merge
-
-```code
-merge string into string list
-```code
-
-### make-platforms
-
-### make-test
 
 ### map
 
@@ -2160,32 +1029,6 @@ returns true if argument is a map type
 (max-length list) -> max
 ```code
 
-### method-input
-
-```code
-_1 = class name
-
-_2 = member name
-_3 = input paramater index, :nil for entire list
-```code
-
-### method-lookup
-
-```code
-_1 = class name
-
-_2 = member name
-```code
-
-### method-output
-
-```code
-_1 = class name
-
-_2 = member name
-_3 = output paramater index, :nil for entire list
-```code
-
 ### month-of-the-year
 
 ### mutate-buffer
@@ -2207,12 +1050,6 @@ _3 = output paramater index, :nil for entire list
 ### new_enum
 
 ### new_field
-
-### next-opcode
-
-### nextcaseif
-
-### nextcaseifnot
 
 ### nil?
 
@@ -2318,33 +1155,17 @@ _3 = output paramater index, :nil for entire list
 (opt var val [cond])
 ```code
 
-### opt-emit-list
-
-### opt-find-1
-
-### opt-find-2
-
-### opt-inst-list
-
 ### opt-mesh
 
 ```code
 (opt-mesh verts norms tris) -> (new_verts new_norms new_tris)
 ```code
 
-### opt-read-after-cpy
-
-### opt-read-after-read-write
-
-### opt-redundant-cpy
-
 ### opt-vectors
 
 ```code
 (opt-vectors vectors) -> (new_vectors new_indexs)
 ```code
-
-### opt-write-after-write
 
 ### options
 
@@ -2385,8 +1206,6 @@ scan the stdio args and process acording to the optlist
 ```code
 
 ### output
-
-### override
 
 ### pad
 
@@ -2476,16 +1295,6 @@ scan the stdio args and process acording to the optlist
 (pixmap-tga-info stream) -> (width height type) | (-1 -1 -1)
 ```code
 
-### pop-reg
-
-### pop-scope
-
-### pop-scope-checked
-
-### pop-scope-syms
-
-### pop-value
-
 ### pos?
 
 ```code
@@ -2499,8 +1308,6 @@ scan the stdio args and process acording to the optlist
 ```code
 (pow base exponent) -> integer
 ```code
-
-### print-inst
 
 ### print-mat
 
@@ -2522,10 +1329,6 @@ scan the stdio args and process acording to the optlist
 
 ### push-attributes
 
-### push-reg
-
-### push-scope
-
 ### quasi-quote?
 
 ```code
@@ -2542,27 +1345,6 @@ scan the stdio args and process acording to the optlist
 
 ```code
 (quote? form) -> :t | :nil
-```code
-
-### r-call
-
-```code
-_1 = class name
-
-_2 = member name
-_3 = in parameters
-_4 = out parameters
-_5 = dispatch reg
-```code
-
-### r-jump
-
-```code
-_1 = class name
-
-_2 = member name
-_3 = in parameters
-_4 = dispatch reg
 ```code
 
 ### raise
@@ -2629,29 +1411,15 @@ _4 = dispatch reg
 (reduce-rev lambda seq [accum]) -> form
 ```code
 
-### remake
-
-### remake-all
-
-### remake-all-platforms
-
-### remake-platforms
-
 ### render-object-tris
 
 ### render-object-verts
-
-### repeatif
-
-### repeatifnot
 
 ### replace
 
 ```code
 (replace seq start end seq) -> seq
 ```code
-
-### reset-reg-stack
 
 ### rest
 
@@ -2671,97 +1439,13 @@ restart a child
 restart a child
 ```code
 
-### return
-
 ### reverse
 
 ```code
 (reverse list) -> list
 ```code
 
-### riscv64-b
-
-### riscv64-bf
-
-### riscv64-branch
-
-### riscv64-cr
-
-### riscv64-dr
-
-### riscv64-i
-
-### riscv64-ir
-
-### riscv64-j
-
-### riscv64-mask
-
-### riscv64-r
-
-### riscv64-rd
-
-### riscv64-ri
-
-### riscv64-s
-
-### riscv64-u
-
-### riscv64-within
-
-### s-bind
-
-```code
-_1 = class name
-
-_2 = member name
-_3 = reg
-```code
-
-### s-call
-
-```code
-_1 = class name
-
-_2 = member name
-_3 = in parameters
-_4 = out parameters
-```code
-
-### s-jump
-
-```code
-_1 = class name
-
-_2 = member name
-_3 = in parameters
-```code
-
-### s-path
-
-```code
-_1 = class name
-
-_2 = slot method name
-```code
-
 ### s2i
-
-### scope-def-sym
-
-### scope-get
-
-### scope-get-sym
-
-### scope-new
-
-### scope-new-var
-
-### scope-operator
-
-### scope-unwind
-
-### scope-used
 
 ### search
 
@@ -2794,8 +1478,6 @@ for each char in text
 ```code
 
 ### set-line
-
-### set-type
 
 ### set?
 
@@ -2846,8 +1528,6 @@ adjust text offset
 ```code
 (shuffled list [start end]) -> list
 ```code
-
-### signature
 
 ### slot
 
@@ -2947,8 +1627,6 @@ stop a child
 (str? form) -> :t | :nil
 ```code
 
-### string-sym
-
 ### structure
 
 ```code
@@ -2966,8 +1644,6 @@ stop a child
 ```code
 (swap list index index)
 ```code
-
-### switch
 
 ### sym?
 
@@ -3005,8 +1681,6 @@ stop a child
 
 ### timezone-lookup
 
-### tmp-reg
-
 ### to-lower
 
 ```code
@@ -3032,12 +1706,6 @@ stop a child
 ```code
 
 ### tokenize
-
-### top-reg
-
-### top-value
-
-### trashes-reg?
 
 ### trim
 
@@ -3229,42 +1897,6 @@ stop a child
 (unzip seq buckets) -> buckets
 ```code
 
-### uses?
-
-### uses?
-
-### v-bind
-
-```code
-_1 = class name
-
-_2 = member name
-_3 = obj reg
-_4 = dispatch reg
-```code
-
-### v-call
-
-```code
-_1 = class name
-
-_2 = member name
-_3 = in parameters
-_4 = out parameters
-_5 = obj reg
-_6 = dispatch reg
-```code
-
-### v-jump
-
-```code
-_1 = class name
-
-_2 = member name
-_3 = in parameters
-_4 = dispatch reg
-```code
-
 ### vec-chebyshev-distance
 
 ### vec-clamp
@@ -3325,106 +1957,6 @@ _4 = dispatch reg
 (view-locate w h [flag]) -> (x y w h)
 ```code
 
-### vp-abs-rr
-
-### vp-align
-
-### vp-alloc
-
-### vp-bcr
-
-### vp-brr
-
-### vp-byte
-
-### vp-call-abi
-
-### vp-call-p
-
-### vp-call-r
-
-### vp-cstr
-
-### vp-def
-
-### vp-div-rrr
-
-### vp-int
-
-### vp-jmp
-
-### vp-jmp-i
-
-### vp-lea-i
-
-### vp-lea-p
-
-### vp-mem-dr
-
-### vp-mem-ir
-
-### vp-mem-rd
-
-### vp-mem-ri
-
-### vp-min-cr
-
-### vp-min-rr
-
-### vp-op-cr
-
-### vp-op-rr
-
-### vp-push
-
-### vp-reg?
-
-### vp-ret
-
-### vp-sync
-
-### vp64-beq
-
-### vp64-bge
-
-### vp64-ble
-
-### vp64-branch
-
-### vp64-call-jmp-i
-
-### vp64-call-jmp-p
-
-### vp64-cr
-
-### vp64-dr
-
-### vp64-ir
-
-### vp64-p
-
-### vp64-rd
-
-### vp64-ri
-
-### vp64-scr
-
-### vp64-shift-cr
-
-### vp64-within
-
-### vpcase
-
-### vpcasenot
-
-### vpif
-
-### vpifnot
-
-### vreg-sym
-
-### vtable-emit
-
 ### walk-list
 
 ```code
@@ -3469,30 +2001,6 @@ fnc_out is allways called to balence calls to fnc_in.
 ```code
 (write-short stream num|list) -> stream
 ```code
-
-### x64-branch
-
-### x64-call-jump-i
-
-### x64-call-jump-p
-
-### x64-call-jump-r
-
-### x64-cmp-cr
-
-### x64-cmp-rr
-
-### x64-dr
-
-### x64-dr-bs
-
-### x64-ir
-
-### x64-ir-bs
-
-### x64-pr
-
-### x64-rr
 
 ### zip
 
