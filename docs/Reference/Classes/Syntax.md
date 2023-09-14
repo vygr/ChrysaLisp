@@ -2,6 +2,8 @@
 
 ```code
 (Syntax) -> syntax
+
+default colours and state
 ```code
 
 ### :colorise
@@ -14,6 +16,8 @@
 
 ```code
 (. syntax :compress_tabs string tab_width) -> string
+
+tab compression of string
 ```code
 
 ### :set_colors
@@ -26,5 +30,7 @@
 
 ```code
 (. syntax :text_flow words line_width) -> lines
+
+word reflow
 ```code
 

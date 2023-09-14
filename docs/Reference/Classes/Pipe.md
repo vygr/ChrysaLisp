@@ -8,6 +8,8 @@
 
 ```code
 (. pipe :close) -> pipe
+
+clear the stdin stream, which will send stopping and stopped
 ```code
 
 ### :poll
@@ -20,6 +22,9 @@
 
 ```code
 (. pipe :read) -> :nil | :t | data
+
+:nil if pipe closed
+:t if user select
 ```code
 
 ### :write

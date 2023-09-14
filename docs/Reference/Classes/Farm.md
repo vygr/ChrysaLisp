@@ -10,17 +10,23 @@
 
 ```code
 (. farm :close)
+
+close tasks
 ```code
 
 ### :refresh
 
 ```code
 (. farm :refresh [timeout]) -> :t | :nil
+
+scan known nodes and update map
 ```code
 
 ### :restart
 
 ```code
 (. farm :restart key val)
+
+restart task
 ```code
 

@@ -7,6 +7,16 @@
 	(some! 2 -1 :nil (#
 		(if (<= (ascii-code "A") (code (first %0)) (ascii-code "Z")) %0)) (list info)))
 
+(defun information (stream info)
+	(when (nempty? info)
+		(write-line stream "```code")
+		(write-line stream (first info))
+		(setq info (slice 1 -1 info))
+		(when (nempty? info)
+			(write-line stream "")
+			(each (# (write-line stream %0)) info))
+		(write-line stream (cat "```code" (ascii-char 10)))))
+
 (defun make-docs ()
 	(defq *abi* (abi) *cpu* (cpu))
 	(defun chop (_)
@@ -98,8 +108,8 @@
 			(case state
 				((:function :class :method)
 					(defq s (split line (const (cat (ascii-char 9) " "))))
-					(if (and (> (length s) 1) (starts-with ";" (first s)) (starts-with "(" (second s)))
-						(push info (slice (find "(" line) -1 line))
+					(if (and (nempty? s) (starts-with ";" (first s)))
+						(push info (trim (slice (inc (find ";" line)) -1 line)))
 						(setq state :nil)))
 				(:t (when (> (length line) 9)
 						(defq _ (split line (const (cat (ascii-char 9) " ()'" (ascii-char 13)))))
@@ -135,17 +145,11 @@
 		(defq stream (file-stream (cat "docs/Reference/Classes/" name ".md") +file_open_write))
 		(write-line stream (cat "# " name (ascii-char 10)))
 		(if pname (write-line stream (cat "## " pname (ascii-char 10))))
-		(when (nempty? info)
-			(write-line stream "```code")
-			(each (# (write-line stream %0)) info)
-			(write-line stream (cat "```code" (ascii-char 10))))
+		(information stream info)
 		(sort (# (cmp (first %0) (first %1))) methods)
 		(each (lambda ((name info))
 			(write-line stream (cat "### " name (ascii-char 10)))
-			(when (nempty? info)
-				(write-line stream "```code")
-				(each (# (write-line stream %0)) info)
-				(write-line stream (cat "```code" (ascii-char 10))))) methods)
+			(information stream info)) methods)
 		(print (cat "-> docs/Reference/Classes/" name ".md"))) classes))
 
 (defq usage `(

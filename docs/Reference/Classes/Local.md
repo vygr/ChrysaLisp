@@ -10,23 +10,31 @@
 
 ```code
 (. local :add_node node)
+
+add new node
 ```code
 
 ### :close
 
 ```code
 (. local :close)
+
+close tasks
 ```code
 
 ### :refresh
 
 ```code
 (. local :refresh [timeout]) -> :t | :nil
+
+scan known nodes and update map
 ```code
 
 ### :restart
 
 ```code
 (. local :restart key val)
+
+restart task
 ```code
 

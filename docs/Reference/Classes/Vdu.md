@@ -4,6 +4,8 @@
 
 ```code
 (Vdu) -> vdu
+
+overide the default 'this' env with a Vdu component
 ```code
 
 ### :char_size

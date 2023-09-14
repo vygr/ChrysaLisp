@@ -304,12 +304,16 @@
 
 ```code
 (. edit :underlay_brackets) -> edit
+
+create the underlay for just bracket indicators
 ```code
 
 ### :underlay_clear
 
 ```code
 (. edit :underlay_clear) -> edit
+
+create the underlay for clear
 ```code
 
 ### :underlay_selection

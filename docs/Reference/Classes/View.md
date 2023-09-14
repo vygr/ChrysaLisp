@@ -2,6 +2,8 @@
 
 ```code
 (View) -> view
+
+overide the default 'this' env with a View component
 ```code
 
 ### :add_child

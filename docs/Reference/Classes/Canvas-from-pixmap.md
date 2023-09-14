@@ -4,5 +4,7 @@
 
 ```code
 (Canvas-from-pixmap pixmap) -> canvas
+
+overide the default 'this' env with a Canvas component
 ```code
 
