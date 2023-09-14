@@ -4,7 +4,7 @@
 
 ```code
 (Global fnc_create fnc_destroy) -> global
-```code
+```
 
 ### :close
 
@@ -12,7 +12,7 @@
 (. global :close)
 
 close tasks
-```code
+```
 
 ### :refresh
 
@@ -20,7 +20,7 @@ close tasks
 (. global :refresh [timeout]) -> :t | :nil
 
 scan known nodes and update node map
-```code
+```
 
 ### :size
 
@@ -28,5 +28,5 @@ scan known nodes and update node map
 (. global :size) -> size
 
 size of tasks
-```code
+```
 

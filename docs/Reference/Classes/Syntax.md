@@ -4,13 +4,13 @@
 (Syntax) -> syntax
 
 default colours and state
-```code
+```
 
 ### :colorise
 
 ```code
 (. syntax :colorise str) -> array
-```code
+```
 
 ### :compress_tabs
 
@@ -18,7 +18,7 @@ default colours and state
 (. syntax :compress_tabs string tab_width) -> string
 
 tab compression of string
-```code
+```
 
 ### :get_state
 
@@ -26,7 +26,7 @@ tab compression of string
 
 ```code
 (. syntax :set_colors fmap) -> syntax
-```code
+```
 
 ### :text_flow
 
@@ -34,5 +34,5 @@ tab compression of string
 (. syntax :text_flow words line_width) -> lines
 
 word reflow
-```code
+```
 

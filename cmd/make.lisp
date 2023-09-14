@@ -15,7 +15,7 @@
 		(when (nempty? info)
 			(write-line stream "")
 			(each (# (write-line stream %0)) info))
-		(write-line stream (cat "```code" (ascii-char 10)))))
+		(write-line stream (cat "```" (ascii-char 10)))))
 
 (defun sanitise (l)
 	(defq ll "" out (list))
@@ -110,9 +110,9 @@
 	(print "-> docs/Reference/COMMANDS.md")
 
 	;create lisp functions and classes docs
-	(defq classes (list) functions (list) info :nil methods :nil)
+	(defq classes (list) functions (list))
 	(each (lambda (file)
-		(defq state :nil)
+		(defq state :nil info :nil methods :nil)
 		(each-line (lambda (line)
 			(case state
 				((:function :class :method)

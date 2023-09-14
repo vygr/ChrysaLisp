@@ -4,13 +4,13 @@
 
 ```code
 (Tree event) -> tree
-```code
+```
 
 ### :action
 
 ```code
 (. tree :action event) -> tree
-```code
+```
 
 ### :add_route
 
@@ -20,13 +20,13 @@
 routes are:
 "a/b/c/file"
 "a/b/c/."
-```code
+```
 
 ### :collapse
 
 ```code
 (. tree :collapse) -> tree
-```code
+```
 
 ### :empty
 
@@ -34,13 +34,13 @@ routes are:
 (. tree ::empty) -> tree
 
 empty tree
-```code
+```
 
 ### :expand
 
 ```code
 (. tree :expand) -> tree
-```code
+```
 
 ### :find_node
 
@@ -49,7 +49,7 @@ empty tree
 
 routes are:
 "a/b/c/node"
-```code
+```
 
 ### :get_relative
 
@@ -57,13 +57,13 @@ routes are:
 (. tree :get_relative route) -> (x y w h)
 
 relative position of route
-```code
+```
 
 ### :get_route
 
 ```code
 (. tree :get_route node) -> tree
-```code
+```
 
 ### :populate
 
@@ -71,7 +71,7 @@ relative position of route
 (. tree :populate &optional root exts n) -> tree
 
 load up a file tree
-```code
+```
 
 ### :select
 
@@ -79,5 +79,5 @@ load up a file tree
 (. tree :select route) -> tree
 
 highlight a tree route
-```code
+```
 

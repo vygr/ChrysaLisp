@@ -4,7 +4,7 @@
 
 ```code
 (Farm fnc_create fnc_destroy size) -> farm
-```code
+```
 
 ### :close
 
@@ -12,7 +12,7 @@
 (. farm :close)
 
 close tasks
-```code
+```
 
 ### :refresh
 
@@ -20,7 +20,7 @@ close tasks
 (. farm :refresh [timeout]) -> :t | :nil
 
 scan known nodes and update map
-```code
+```
 
 ### :restart
 
@@ -28,5 +28,5 @@ scan known nodes and update map
 (. farm :restart key val)
 
 restart task
-```code
+```
 

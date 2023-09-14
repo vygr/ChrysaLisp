@@ -4,5 +4,5 @@
 
 ```code
 (Mesh-data num_verts num_norms num_tris data) -> mesh
-```code
+```
 

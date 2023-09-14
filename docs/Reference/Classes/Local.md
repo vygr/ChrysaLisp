@@ -4,7 +4,7 @@
 
 ```code
 (Local fnc_create fnc_destroy &optional max_size init_size size) -> local
-```code
+```
 
 ### :add_node
 
@@ -12,7 +12,7 @@
 (. local :add_node node)
 
 add new node
-```code
+```
 
 ### :close
 
@@ -20,7 +20,7 @@ add new node
 (. local :close)
 
 close tasks
-```code
+```
 
 ### :refresh
 
@@ -28,7 +28,7 @@ close tasks
 (. local :refresh [timeout]) -> :t | :nil
 
 scan known nodes and update map
-```code
+```
 
 ### :restart
 
@@ -36,5 +36,5 @@ scan known nodes and update map
 (. local :restart key val)
 
 restart task
-```code
+```
 
