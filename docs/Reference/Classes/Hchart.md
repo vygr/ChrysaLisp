@@ -12,6 +12,8 @@
 (. hchart :add_bar) -> progress
 ```code
 
+### :get_bar_grid
+
 ### :layout_bars
 
 ```code
@@ -23,6 +25,4 @@
 ```code
 (. hchart :update_scale) -> hchart
 ```code
-
-### bar_grid
 

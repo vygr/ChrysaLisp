@@ -4,6 +4,10 @@
 (Mesh) -> mesh
 ```code
 
+### :get_tris
+
+### :get_verts
+
 ### :normals
 
 ```code
@@ -15,8 +19,4 @@
 ```code
 (. mesh :optimise) -> mesh
 ```code
-
-### tris
-
-### verts
 

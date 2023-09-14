@@ -127,9 +127,14 @@
 									(push classes (list (second _) (parent? _)
 										(setq methods (list)) (setq info (list))))
 									(setq state :class))
-								(("defmethod" "deffimethod" "defabstractmethod"
-										"defgetmethod" "defsetmethod")
+								(("defmethod" "deffimethod" "defabstractmethod")
 									(push methods (list (second _) (setq info (list))))
+									(setq state :method))
+								("defgetmethod"
+									(push methods (list (cat ":get_" (second _)) (setq info (list))))
+									(setq state :method))
+								("defsetmethod"
+									(push methods (list (cat ":set_" (second _)) (setq info (list))))
 									(setq state :method))))))))
 			(file-stream file)))
 		(dedupe (cat (all-files "." '("lisp.inc") 2) (all-files "./lib/" '(".inc") 2)

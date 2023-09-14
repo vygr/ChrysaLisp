@@ -20,6 +20,8 @@ default colours and state
 tab compression of string
 ```code
 
+### :get_state
+
 ### :set_colors
 
 ```code
@@ -33,6 +35,4 @@ tab compression of string
 
 word reflow
 ```code
-
-### state
 
