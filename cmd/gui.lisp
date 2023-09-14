@@ -29,4 +29,4 @@
 			;convert from stdin
 			(each-line launch (io-stream 'stdin))
 			;convert from args
-			(each launch (slice 1 -1 args)))))
+			(each launch (rest args)))))

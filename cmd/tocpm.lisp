@@ -24,8 +24,8 @@
 	then paths are read from stdin.")
 (("-f" "--format")
 	,(lambda (args arg)
-		(setq format (str-as-num (elem-get 0 args)))
-		(slice 1 -1 args)))
+		(setq format (str-as-num (first args)))
+		(rest args)))
 ))
 
 (defun main ()
@@ -37,4 +37,4 @@
 			;convert from stdin
 			(each-line conv-file (io-stream 'stdin))
 			;convert from args
-			(each conv-file (slice 1 -1 args)))))
+			(each conv-file (rest args)))))

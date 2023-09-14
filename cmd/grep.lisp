@@ -41,8 +41,8 @@
 	then will grep stdin.")
 (("-e" "--exp")
 	,(lambda (args arg)
-		(setq pattern (elem-get 0 args))
-		(slice 1 -1 args)))
+		(setq pattern (first args))
+		(rest args)))
 ))
 
 (defun main ()
@@ -51,10 +51,10 @@
 			(defq stdio (create-stdio))
 			(defq pattern "" args (options stdio usage)))
 		(when (and (eql pattern "") (> (length args) 1))
-			(defq pattern (elem-get 1 args) args (erase args 1 2)))
+			(defq pattern (second args) args (erase args 1 2)))
 		(when (defq regexp (Regexp) cexp (. regexp :compile pattern)))
 			(if (<= (length args) 1)
 				;grep from stdin
 				(grep-file (io-stream 'stdin))
 				;grep from args as files
-				(each (# (grep-file (file-stream %0))) (slice 1 -1 args)))))
+				(each (# (grep-file (file-stream %0))) (rest args)))))

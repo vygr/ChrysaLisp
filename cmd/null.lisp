@@ -12,8 +12,8 @@
 		(options-print "handler for: " arg) args))
 (("-x" "--xtra")
 	,(lambda (args arg)
-		(options-print "handler for: " arg " " (elem-get 0 args))
-		(slice 1 -1 args)))
+		(options-print "handler for: " arg " " (first args))
+		(rest args)))
 ))
 
 (defun main ()

@@ -22,5 +22,5 @@
 			;sort stdin
 			(each-line (# (push lines %0)) (io-stream 'stdin))
 			;sort args
-			(setq lines (slice 1 -1 args)))
+			(setq lines (rest args)))
 		(each print (sort cmp lines))))

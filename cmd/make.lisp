@@ -11,7 +11,7 @@
 	(when (nempty? info)
 		(write-line stream "```code")
 		(write-line stream (first info))
-		(setq info (slice 1 -1 info))
+		(setq info (rest info))
 		(when (nempty? info)
 			(write-line stream "")
 			(each (# (write-line stream %0)) info))

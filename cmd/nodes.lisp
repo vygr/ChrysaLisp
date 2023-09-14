@@ -15,5 +15,5 @@
 	(when (and
 			(defq stdio (create-stdio))
 			(defq args (options stdio usage)))
-		(defq prefix (if (> (length args) 1) (elem-get 1 args) ""))
+		(defq prefix (if (> (length args) 1) (second args) ""))
 		(each (# (print (to-service-id %0))) (mail-nodes))))

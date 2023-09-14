@@ -22,5 +22,5 @@
 			;shuffle stdin
 			(each-line (# (push lines %0)) (io-stream 'stdin))
 			;shuffle args
-			(setq lines (slice 1 -1 args)))
+			(setq lines (rest args)))
 		(each print (shuffle lines))))
