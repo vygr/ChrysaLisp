@@ -946,19 +946,19 @@ returns true if argument is a map type
 ### open-child
 
 ```code
-(open-child task mode) -> str
+(open-child task mode) -> net_id
 ```
 
 ### open-pipe
 
 ```code
-(open-pipe tasks) -> (str ...)
+(open-pipe tasks) -> ([net_id | 0] ...)
 ```
 
 ### open-remote
 
 ```code
-(open-remote task node mode) -> str
+(open-remote task node mode) -> net_id
 ```
 
 ### open-task
@@ -1366,7 +1366,7 @@ static quasi-quoted
 ### stdio-get-args
 
 ```code
-(stdio-get-args stdio) -> list
+(stdio-get-args stdio) -> cmd_line
 ```
 
 ### stop

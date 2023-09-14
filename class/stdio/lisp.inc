@@ -12,5 +12,5 @@
 	(offset args))
 
 (defun stdio-get-args (stdio)
-	; (stdio-get-args stdio) -> list
+	; (stdio-get-args stdio) -> cmd_line
 	(getf stdio +stdio_args 0))

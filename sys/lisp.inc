@@ -55,21 +55,21 @@
 			reply task (char 0))))
 
 (defun open-child (task mode)
-	; (open-child task mode) -> str
+	; (open-child task mode) -> net_id
 	(defq mbox (mail-alloc-mbox))
 	(open-task task (slice +long_size -1 (task-netid)) mode 0 mbox)
 	(defq id (getf (mail-read mbox) +kn_msg_reply_id))
 	(mail-free-mbox mbox) id)
 
 (defun open-remote (task node mode)
-	; (open-remote task node mode) -> str
+	; (open-remote task node mode) -> net_id
 	(defq mbox (mail-alloc-mbox))
 	(open-task task node mode 0 mbox)
 	(defq id (getf (mail-read mbox) +kn_msg_reply_id))
 	(mail-free-mbox mbox) id)
 
 (defun open-pipe (tasks)
-	; (open-pipe tasks) -> (str ...)
+	; (open-pipe tasks) -> ([net_id | 0] ...)
 	(defq ids (cap (length tasks) (list)) mbox (mail-alloc-mbox)
 		index -1 tail (task-netid))
 	(while (< (setq index (inc index)) (length tasks))
