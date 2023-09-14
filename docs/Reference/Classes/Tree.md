@@ -62,7 +62,7 @@ relative position of route
 ### :get_route
 
 ```code
-(. tree :get_route node) -> tree
+(. tree :get_route node) -> route
 ```
 
 ### :populate

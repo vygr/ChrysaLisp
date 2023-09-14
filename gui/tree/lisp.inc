@@ -66,7 +66,7 @@
 					:nil))) route))
 
 	(defmethod :get_route (node)
-		; (. tree :get_route node) -> tree
+		; (. tree :get_route node) -> route
 		(defq route (list))
 		(until (eql node this)
 			(push route (get :text node))
