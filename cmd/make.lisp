@@ -17,9 +17,9 @@
 			(each (# (write-line stream %0)) info))
 		(write-line stream (cat "```code" (ascii-char 10)))))
 
-(defun dedupe (l)
-	(sort cmp l)
+(defun sanitise (l)
 	(defq ll "" out (list))
+	(sort cmp l)
 	(each (# (unless (eql ll %0) (push out (setq ll %0)))) l)
 	(filter (lambda (name)
 		(not (some (# (starts-with %0 name))
@@ -142,7 +142,7 @@
 									(push methods (list (cat ":set_" name) (setq info (list))))
 									(setq state :method))))))))
 			(file-stream file)))
-		(dedupe (cat (all-files "." '("lisp.inc") 2) (all-files "./lib" '(".inc") 2)
+		(sanitise (cat (all-files "." '("lisp.inc") 2) (all-files "./lib" '(".inc") 2)
 			'("class/lisp/root.inc" "apps/debug/app.inc"))))
 	;functions
 	(defq stream (file-stream "docs/Reference/FUNCTIONS.md" +file_open_write))
