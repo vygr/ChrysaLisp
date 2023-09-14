@@ -124,7 +124,8 @@
 						(defq _ (split line (const (cat (ascii-char 9) " ()'" (ascii-char 13))))
 							name (second _))
 						(unless (some (# (eql name %0))
-									'(":type_of" ",predn"))
+									'(":type_of" ",predn" ",n"
+									"_structure" "defun" "defmacro"))
 							(case (first _)
 								(("defun" "defmacro")
 									(push functions (list name (setq info (list))))

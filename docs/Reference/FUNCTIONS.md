@@ -6,10 +6,6 @@
 (# (< %9 %0 %3) ...) -> (lambda (%0 %3 %9) (< %9 %0 %3) ...)
 ```code
 
-### ,n
-
-### ,n
-
 ### .->
 
 ```code
@@ -139,8 +135,6 @@ parse the commands and attributes calling back to the user functions
 ```code
 (Xset-k [key ...]) -> xset
 ```code
-
-### _structure
 
 ### aand
 
@@ -473,24 +467,6 @@ should provide the concreate handler
 ```code
 (defsetmethod field)
 ```code
-
-### defun
-
-### defun
-
-```code
-(defun name ([arg ...]) body)
-
-(list [form ...])
-(progn [form ...])
-(prin [form ...])
-(print [form ...])
-(str [form ...])
-```code
-
-### defun
-
-### defun
 
 ### deg-to-rad
 
