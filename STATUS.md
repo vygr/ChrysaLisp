@@ -29,6 +29,8 @@ Editor support for block loading of files.
 New `(query)` function to build a variable engine instance and pattern based on
 whole word and regexp flags provided.
 
+New auto generated Lisp class reference documentation.
+
 ------
 
 New `Substr` string search class. Editor updated to use this new class.
