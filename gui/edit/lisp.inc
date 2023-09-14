@@ -73,6 +73,7 @@
 		(. buffer :push_undo (list :mark mark))))
 
 (defclass Edit () (View)
+	; (Edit) -> edit
 	(def this :vdu_text (defq vdu_text (Vdu))
 		:vdu_underlay (defq vdu_underlay (Vdu))
 		:anchor_x 0 :anchor_y 0

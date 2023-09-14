@@ -136,12 +136,12 @@ Usage: make [options] [all] [boot] [platforms] [doc] [it] [test]
 	options:
 		-h --help: this help info.
 
-	all:		include all .vp files.
-	boot:		create a boot image.
-	platforms:	for all platforms not just the host.
-	docs:		scan source files and create documentation.
-	it:			all of the above !
-	test:		test make timings.
+	all:        include all .vp files.
+	boot:       create a boot image.
+	platforms:  for all platforms not just the host.
+	docs:       scan source files and create documentation.
+	it:         all of the above !
+	test:       test make timings.
 
 ```
 ## nodes

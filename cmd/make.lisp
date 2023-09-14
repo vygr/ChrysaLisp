@@ -3,6 +3,10 @@
 (import "lib/options/options.inc")
 (import "lib/text/files.inc")
 
+(defun parent? (info)
+	(some! 2 -1 :nil (#
+		(if (<= (ascii-code "A") (code (first %0)) (ascii-code "Z")) %0)) (list info)))
+
 (defun make-docs ()
 	(defq *abi* (abi) *cpu* (cpu))
 	(defun chop (_)
@@ -87,45 +91,62 @@
 		(list)))
 	(print "-> docs/Reference/COMMANDS.md")
 
-	;create lisp syntax docs
+	;create lisp functions and classes docs
+	(defq classes (list) functions (list) info :nil methods :nil state :nil)
 	(each (lambda (file)
 		(each-line (lambda (line)
-			(when (eql state :y)
-				(defq s (split line (const (cat (ascii-char 9) " "))))
-				(if (and (> (length s) 1) (starts-with ";" (elem-get 0 s)) (starts-with "(" (elem-get 1 s)))
-					(merge-obj syntax (list (sym (slice (find "(" line) -1 line))))
-					(setq state :x)))
-			(when (and (eql state :x) (> (length line) 9))
-				(defq _ (elem-get 0 (split line (const (cat (ascii-char 9) " ()'" (ascii-char 13))))))
-				(cond
-					((or (eql _ "defun") (eql _ "defmacro") (eql _ "defclass")
-							(eql _ "defmethod") (eql _ "deffimethod") (eql _ "defabstractmethod"))
-						(setq state :y))))) (file-stream file)))
-		(cat (all-files "." '("lisp.inc") 2)
-			(all-files "./lib/" '(".inc") 2)
+			(case state
+				((:function :class :method)
+					(defq s (split line (const (cat (ascii-char 9) " "))))
+					(if (and (> (length s) 1) (starts-with ";" (first s)) (starts-with "(" (second s)))
+						(push info (slice (find "(" line) -1 line))
+						(setq state :nil)))
+				(:t (when (> (length line) 9)
+						(defq _ (split line (const (cat (ascii-char 9) " ()'" (ascii-char 13)))))
+						(case (first _)
+							(("defun" "defmacro")
+								(push functions (list (second _) (setq info (list))))
+								(setq state :function))
+							("defclass"
+								(push classes (list (second _) (parent? _)
+									(setq methods (list)) (setq info (list))))
+								(setq state :class))
+							(("defmethod")
+								(push methods (list (second _) (setq info (list))))
+								(setq state :method)))))))
+			(file-stream file)))
+		(cat (all-files "." '("lisp.inc") 2) (all-files "./lib/" '(".inc") 2)
 			'("class/lisp/root.inc" "apps/debug/app.inc")))
-	(sort cmp syntax)
-	(defq stream (file-stream "docs/Reference/SYNTAX.md" +file_open_write))
-	(write-line stream (const (str "# Syntax" (ascii-char 10))))
-	(each (lambda (line)
-		(defq form (elem-get 0 (defq body (split line (const (cat (ascii-char 9) " )"))))))
-		(cond
-			((and (starts-with "(." form) (eql (elem-get 1 body) "this"))
-				(write-line stream (cat "### " (slice 1 -1 form) (ascii-char 10)))
+;;     ;functions
+;;     (defq stream (file-stream "docs/Reference/FUNCTIONS.md" +file_open_write))
+;;     (sort (# (cmp (first %0) (first %1))) functions)
+;;     (write-line stream (cat "# Functions" (ascii-char 10)))
+;;     (each (lambda ((name info))
+;;         (write-line stream (cat "### " name (ascii-char 10)))
+;;         (when (nempty? info)
+;;             (write-line stream "```code")
+;;             (each (# (write-line stream %0)) info)
+;;             (write-line stream (cat "```code" (ascii-char 10))))) functions)
+;;     (print "-> docs/Reference/FUNCTIONS.md")
+	;classes
+	(defq stream (file-stream "docs/Reference/FUNCTIONS.md" +file_open_write))
+	(sort (# (cmp (first %0) (first %1))) classes)
+	(each (lambda ((name pname methods info))
+		(defq stream (file-stream (cat "docs/Reference/Classes/" name ".md") +file_open_write))
+		(write-line stream (cat "# " name (ascii-char 10)))
+		(if pname (write-line stream (cat "## " pname (ascii-char 10))))
+		(when (nempty? info)
+			(write-line stream "```code")
+			(each (# (write-line stream %0)) info)
+			(write-line stream (cat "```code" (ascii-char 10))))
+		(sort (# (cmp (first %0) (first %1))) methods)
+		(each (lambda ((name info))
+			(write-line stream (cat "### " name (ascii-char 10)))
+			(when (nempty? info)
 				(write-line stream "```code")
-				(write-line stream line)
-				(write-line stream (cat "```" (ascii-char 10))))
-			((starts-with "(." form)
-				(write-line stream (cat "### " (elem-get 1 body) " " (elem-get 2 body) (ascii-char 10)))
-				(write-line stream "```code")
-				(write-line stream line)
-				(write-line stream (cat "```" (ascii-char 10))))
-			((starts-with "(" form)
-				(write-line stream (cat "### " (slice 1 -1 form) (ascii-char 10)))
-				(write-line stream "```code")
-				(write-line stream line)
-				(write-line stream (cat "```" (ascii-char 10)))))) syntax)
-	(print "-> docs/Reference/SYNTAX.md"))
+				(each (# (write-line stream %0)) info)
+				(write-line stream (cat "```code" (ascii-char 10))))) methods)
+		(print (cat "-> docs/Reference/Classes/" name ".md"))) classes))
 
 (defq usage `(
 (("-h" "--help")
@@ -134,12 +155,12 @@
 	options:
 		-h --help: this help info.
 
-	all:		include all .vp files.
-	boot:		create a boot image.
-	platforms:	for all platforms not just the host.
-	docs:		scan source files and create documentation.
-	it:			all of the above !
-	test:		test make timings.")
+	all:        include all .vp files.
+	boot:       create a boot image.
+	platforms:  for all platforms not just the host.
+	docs:       scan source files and create documentation.
+	it:         all of the above !
+	test:       test make timings.")
 ))
 
 (defun main ()
