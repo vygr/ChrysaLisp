@@ -48,47 +48,11 @@
 (Fset-k [key ...]) -> fset
 ```
 
-### Gridcell
-
 ### Lmap-kv
 
 ```code
 (Lmap-kv [key val ...]) -> lmap
 ```
-
-### Mat3x2-f
-
-### Mat3x2-rotz-f
-
-### Mat3x2-skewx-f
-
-### Mat3x2-skewy-f
-
-### Mat3x3-rotx
-
-### Mat3x3-roty
-
-### Mat3x3-rotz
-
-### Mat3x3-scale
-
-### Mat3x3-unity
-
-### Mat4x4-frustum
-
-### Mat4x4-rotx
-
-### Mat4x4-roty
-
-### Mat4x4-rotz
-
-### Mat4x4-scale
-
-### Mat4x4-translate
-
-### Mat4x4-unity
-
-### Normal
 
 ### SVG-Canvas
 
@@ -101,18 +65,6 @@
 ```code
 (SVG-info stream) -> (width height type) | (-1 -1 -1)
 ```
-
-### Tri
-
-### Vec2-f
-
-### Vec3-f
-
-### Vec3-r
-
-### Vec4-f
-
-### Vec4-r
 
 ### XML-parse
 
@@ -266,10 +218,6 @@ all source files from root downwards, none recursive
 (bits name base [(bit field ...)] ...)
 ```
 
-### blank-line?
-
-### boot-image
-
 ### bounding-box
 
 ```code
@@ -287,8 +235,6 @@ all source files from root downwards, none recursive
 ```code
 (byte-to-hex-str num) -> str
 ```
-
-### cache
 
 ### canvas-brighter
 
@@ -323,15 +269,11 @@ flush any shared pixmaps that have no users.
 (char-to-num char) -> num
 ```
 
-### check-date
-
 ### circle
 
 ```code
 cached circle generation, quantised to 1/4 pixel
 ```
-
-### compile
 
 ### compose
 
@@ -362,14 +304,6 @@ cached circle generation, quantised to 1/4 pixel
 ```code
 (curry lambda var ...) -> lambda
 ```
-
-### date
-
-### day-of-the-week
-
-### days-in-month
-
-### days-in-year
 
 ### debug
 
@@ -407,10 +341,6 @@ cached circle generation, quantised to 1/4 pixel
 (dec num) -> num
 ```
 
-### decode-date
-
-### def_real
-
 ### defabstractmethod
 
 ```code
@@ -427,8 +357,6 @@ should provide the concreate handler
 ```code
 (defclass Name ([arg ...]) (super ...) body)
 ```
-
-### defcvar
 
 ### deffimethod
 
@@ -450,10 +378,6 @@ should provide the concreate handler
 (. this :method [arg ...])
 ```
 
-### defmethod
-
-### defmethod
-
 ### defmethod_
 
 ```code
@@ -467,8 +391,6 @@ should provide the concreate handler
 ```code
 (defsetmethod field)
 ```
-
-### deg-to-rad
 
 ### each
 
@@ -512,15 +434,11 @@ should provide the concreate handler
 (each-rev lambda seq ...)
 ```
 
-### elem-find
-
 ### empty?
 
 ```code
 (empty? form) -> :t | :nil
 ```
-
-### encode-date
 
 ### ends-with
 
@@ -545,8 +463,6 @@ should provide the concreate handler
 ```code
 (erase seq start end) -> seq
 ```
-
-### erase-line
 
 ### even?
 
@@ -596,12 +512,6 @@ should provide the concreate handler
 (first seq) -> el | :nil
 ```
 
-### firstelem
-
-### float-time
-
-### framed-lambda
-
 ### free-select
 
 ```code
@@ -615,8 +525,6 @@ should provide the concreate handler
 
 cache loading of function blobs etc
 ```
-
-### func-obj-path
 
 ### func-refs
 
@@ -644,8 +552,6 @@ gather a list of values
 (gen-norms verts tris) -> (norms new_tris)
 ```
 
-### get-by-val
-
 ### get-byte
 
 ```code
@@ -657,8 +563,6 @@ gather a list of values
 ```code
 (get-cstr str index) -> str
 ```
-
-### get-date
 
 ### get-int
 
@@ -684,8 +588,6 @@ gather a list of values
 (get-nodeid str index) -> nodeid
 ```
 
-### get-selection
-
 ### get-short
 
 ```code
@@ -710,23 +612,11 @@ gather a list of values
 (get-ushort str index) -> num
 ```
 
-### get-year
-
-### get-yeardays
-
 ### getf
 
 ```code
 (getf obj field [offset]) -> value
 ```
-
-### gui-add-back
-
-### gui-quit
-
-### gui-rpc
-
-### gui-sub
 
 ### identity
 
@@ -766,35 +656,17 @@ function that returns it's argument
 (inc num) -> num
 ```
 
-### include
-
 ### insert
 
 ```code
 (insert seq pos seq) -> seq
 ```
 
-### insert-line
-
-### insertelem
-
 ### int-to-hex-str
 
 ```code
 (int-to-hex-str num) -> str
 ```
-
-### intern
-
-### is-allowed-number-char?
-
-### is-bracket-char?
-
-### is-esc-char?
-
-### is-number-char?
-
-### is-symbol-char?
 
 ### iso-surface
 
@@ -804,8 +676,6 @@ function that returns it's argument
 determine the index into the edge table which
 tells us which vertices are inside the surface
 ```
-
-### jit
 
 ### join
 
@@ -830,14 +700,6 @@ tells us which vertices are inside the surface
 ```code
 (last seq) -> el | :nil
 ```
-
-### last-line
-
-### leapyear?
-
-### leapyear?
-
-### leapyears-since-epoch
 
 ### let
 
@@ -874,8 +736,6 @@ very basic attenuation, diffuse and specular
 ```code
 (lisp-nodes) -> nodes
 ```
-
-### list
 
 ### list?
 
@@ -969,8 +829,6 @@ returns true if argument is a map type
 (mat3x3-mul mat3x3_a mat3x3_b) -> mat3x3
 ```
 
-### mat3x3-vec3-mul
-
 ### mat4x4-invert
 
 ```code
@@ -982,10 +840,6 @@ returns true if argument is a map type
 ```code
 (mat4x4-mul mat4x4_a mat4x4_b) -> mat4x4
 ```
-
-### mat4x4-vec3-mul
-
-### mat4x4-vec4-mul
 
 ### match?
 
@@ -1005,10 +859,6 @@ returns true if argument is a map type
 (max-length list) -> max
 ```
 
-### month-of-the-year
-
-### mutate-buffer
-
 ### neg?
 
 ```code
@@ -1020,12 +870,6 @@ returns true if argument is a map type
 ```code
 (nempty? form) -> :t | :nil
 ```
-
-### new_bit
-
-### new_enum
-
-### new_field
 
 ### nil?
 
@@ -1050,8 +894,6 @@ returns true if argument is a map type
 ```code
 (not form) -> :t | :nil
 ```
-
-### not-whole-word-char?
 
 ### notany
 
@@ -1181,8 +1023,6 @@ scan the stdio args and process acording to the optlist
 (os) -> sym
 ```
 
-### output
-
 ### pad
 
 ```code
@@ -1194,8 +1034,6 @@ scan the stdio args and process acording to the optlist
 ```code
 (partition count seq) -> list of lists
 ```
-
-### path-fill-and-stroke
 
 ### path-gen-ellipse
 
@@ -1277,19 +1115,11 @@ scan the stdio args and process acording to the optlist
 (pos? num) -> :t | :nil
 ```
 
-### postfix
-
 ### pow
 
 ```code
 (pow base exponent) -> integer
 ```
-
-### print-mat
-
-### print-vec
-
-### profile-lambda
 
 ### profile-print
 
@@ -1302,8 +1132,6 @@ scan the stdio args and process acording to the optlist
 ```code
 (profile-report name [reset])
 ```
-
-### push-attributes
 
 ### quasi-quote?
 
@@ -1341,10 +1169,6 @@ scan the stdio args and process acording to the optlist
 (rcurry lambda var ...) -> lambda
 ```
 
-### read-attribute
-
-### read-col
-
 ### read-data
 
 ```code
@@ -1363,17 +1187,11 @@ scan the stdio args and process acording to the optlist
 (read-long stream) -> num
 ```
 
-### read-rgb
-
 ### read-short
 
 ```code
 (read-short stream) -> num
 ```
-
-### read-transform
-
-### redo
 
 ### reduce
 
@@ -1386,10 +1204,6 @@ scan the stdio args and process acording to the optlist
 ```code
 (reduce-rev lambda seq [accum]) -> form
 ```
-
-### render-object-tris
-
-### render-object-verts
 
 ### replace
 
@@ -1421,8 +1235,6 @@ restart a child
 (reverse list) -> list
 ```
 
-### s2i
-
 ### search
 
 ```code
@@ -1437,23 +1249,11 @@ for each char in text
 (second seq) -> el | :nil
 ```
 
-### select-buffer
-
-### select-lines
-
-### select-paragraph
-
-### select-word
-
-### selection?
-
 ### seq?
 
 ```code
 (seq? form) -> :t | :nil
 ```
-
-### set-line
 
 ### set?
 
@@ -1505,14 +1305,6 @@ adjust text offset
 (shuffled list [start end]) -> list
 ```
 
-### slot
-
-### slot
-
-### slot
-
-### slot
-
 ### some
 
 ```code
@@ -1530,8 +1322,6 @@ adjust text offset
 ```code
 (sort fcmp list [start end]) -> list
 ```
-
-### sort-selection
 
 ### sorted
 
@@ -1627,8 +1417,6 @@ stop a child
 (sym? form) -> :t | :nil
 ```
 
-### task-nodeid
-
 ### texture-metrics
 
 ```code
@@ -1653,10 +1441,6 @@ stop a child
 (times num body)
 ```
 
-### timezone-init
-
-### timezone-lookup
-
 ### to-lower
 
 ```code
@@ -1680,8 +1464,6 @@ stop a child
 ```code
 (to-upper str) -> str
 ```
-
-### tokenize
 
 ### trim
 
@@ -1851,10 +1633,6 @@ stop a child
 (ui-window name [props] [body]) -> window
 ```
 
-### undo
-
-### undoable
-
 ### unless
 
 ```code
@@ -1872,48 +1650,6 @@ stop a child
 ```code
 (unzip seq buckets) -> buckets
 ```
-
-### vec-chebyshev-distance
-
-### vec-clamp
-
-### vec-collide-lines-2d
-
-### vec-collide-thick-lines-2d
-
-### vec-cross-3d
-
-### vec-det
-
-### vec-dist
-
-### vec-dist-to-line
-
-### vec-euclidean-distance
-
-### vec-intersect-2d
-
-### vec-intersect-lines-2d
-
-### vec-length
-
-### vec-length-squared
-
-### vec-macro
-
-### vec-manhattan-distance
-
-### vec-norm
-
-### vec-perp-2d
-
-### vec-reflect
-
-### vec-sdist
-
-### vec-sdist-to-line
-
-### vec-squared-euclidean-distance
 
 ### vertex-interp
 

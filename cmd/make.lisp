@@ -156,8 +156,9 @@
 	(sort (# (cmp (first %0) (first %1))) functions)
 	(write-line stream (cat "# Functions" (ascii-char 10)))
 	(each (lambda ((name info))
-		(write-line stream (cat "### " name (ascii-char 10)))
-		(information stream info)) functions)
+		(when (nempty? info)
+			(write-line stream (cat "### " name (ascii-char 10)))
+			(information stream info))) functions)
 	(print "-> docs/Reference/FUNCTIONS.md")
 
 	;classes
