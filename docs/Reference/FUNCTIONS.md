@@ -1245,8 +1245,6 @@ restart a child
 
 ```code
 (search text cpat start) -> -1 | end
-
-for each char in text
 ```
 
 ### second

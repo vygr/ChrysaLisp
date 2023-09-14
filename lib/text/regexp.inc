@@ -158,7 +158,6 @@
 
 (defun search (text cpat start)
 	; (search text cpat start) -> -1 | end
-	;for each char in text
 	(defq end -2 si (dec start) s (if (< si 0) " " (elem-get si text))
 		tl (dec (length text)) current (firstelem cpat (list)) next (list))
 	(some! start -1 :nil
