@@ -5,8 +5,9 @@
 ;module
 (env-push)
 
-(defq +bracket_chars "()" +assert_chars "^$" +op_cat "'" +op_tac "`"
-	+op_chars "+*?|" +op_presidence "+*?'|`()")
+(defq +bracket_chars "()" +assert_chars "^${}" +op_cat "'" +op_tac "`"
+	+op_chars "+*?|" +op_presidence "+*?'|`()"
+	+not_whole_word_chars (cat " .,;'`(){}[]/" (ascii-char 9) (ascii-char 34)))
 (defmacro is-bracket-char? (_) `(find ,_ +bracket_chars))
 (defmacro is-assert-char? (_) `(find ,_ +assert_chars))
 (defmacro is-esc-char? (_) `(eql ,_ ,(ascii-char 92)))
@@ -112,8 +113,10 @@
 				(static-qq (((<= ,(code (first token)) (code s) ,(code (last token))) 1)))
 				(static-qq (((find s ,token) 1))))))
 			(:assert (case token
-				("^" (static-q ((:nil (if (= si -1) 1)))))
-				("$" (static-q ((:nil (if (= si (dec (length text))) 1)))))))
+				("^" (static-q ((:nil (if (< si 0) 1)))))
+				("$" (static-q ((:nil (if (>= si tl) 1)))))
+				("{" (static-q ((:nil (if (or (< si 0) (find s +not_whole_word_chars)) 1)))))
+				("}" (static-q ((:nil (if (or (>= si tl) (find (elem-get (inc si) text) +not_whole_word_chars)) 1)))))))
 			(:lrb (cache (static-qq ((:nil
 				(progn (while (<= (length sl) ,token) (push sl (list 0 0)))
 					(elem-set 0 (elem-get ,token sl) si) 1))))))
@@ -156,7 +159,8 @@
 (defun search (text cpat start)
 	; (search text cpat start) -> -1 | end
 	;for each char in text
-	(defq end -2 si (dec start) current (firstelem cpat (list)) next (list))
+	(defq end -2 si (dec start) s (if (< si 0) " " (elem-get si text))
+		tl (dec (length text)) current (firstelem cpat (list)) next (list))
 	(some! start -1 :nil
 		(lambda (s) (defq si _)
 			;for each current elem
