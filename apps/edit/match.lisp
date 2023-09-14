@@ -39,10 +39,10 @@
 				(mail-timeout (elem-get +select_timeout *select*) 0 0)
 				;read job
 				(defq *reply_key* (getf *msg* +job_key)
-					*reply_mbox* (getf *msg* +job_reply)
-					result (if (apply (const file-match?)
-						(first (read (string-stream (slice +job_params -1 *msg*)) (ascii-code " ")))) 1 0))
+					*reply_mbox* (getf *msg* +job_reply))
 				;send reply
 				(mail-send *reply_mbox* (setf (slice 0 +job_params *msg*)
-					+job_result result)))))
+					+job_result (if (apply (const file-match?)
+						(first (read (string-stream (slice +job_params -1 *msg*))
+									(ascii-code " ")))) 1 0))))))
 	(free-select *select*))
