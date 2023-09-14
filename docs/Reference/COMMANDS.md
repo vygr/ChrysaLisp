@@ -54,24 +54,26 @@ Usage: grep [options] [pattern] [path] ...
 		-e --exp pattern: regular expression.
 
 	pattern:
-		\s	space
-		\q	double quote
-		\t	tab
-		\r	return
-		\f	form feed
-		\n	line feed
-		\w	white space
-		\b	black space
-		\\	esc for \ etc
-		.	any char
-		+	one or more
-		*	zero or more
-		?	zero or one
-		|	or
-		^	start of line
-		$	end of line
-		[]	class, [0-9], [abc123]
-		()	group
+		\s  space
+		\q  double quote
+		\t  tab
+		\r  return
+		\f  form feed
+		\n  line feed
+		\w  white space
+		\b  black space
+		\\  esc for \ etc
+		.   any char
+		+   one or more
+		*   zero or more
+		?   zero or one
+		|   or
+		^   start of line
+		$   end of line
+		{   start of word
+		}   end of word
+		[]  class, [0-9], [abc123]
+		()  group
 
 	If no paths given on command line
 	then will grep stdin.
