@@ -9,6 +9,7 @@
 
 	(defmethod :draw ()
 		; (. progress :draw) -> progress
+
 		;border
 		(bind '(w h) (. this :get_size))
 		(.-> this (:ctx_set_color (defq col (get :color this))) (:ctx_box 0 0 w h))

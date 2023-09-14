@@ -10,8 +10,6 @@
 
 ```code
 (. progress :draw) -> progress
-
-border
 ```
 
 ### :pref_size
