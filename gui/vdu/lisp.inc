@@ -42,7 +42,7 @@
 		(list (* (if mw mw vdu_width) cw) (* (if mh mh vdu_height) ch)))
 
 	(defmethod :layout ()
-		; (. vdu :layout) -> this
+		; (. vdu :layout) -> vdu
 		((const (ffi _ "gui/vdu/lisp_configure" 0)) this)
 		this)
 	)

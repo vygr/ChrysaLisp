@@ -7,13 +7,13 @@
 ### :normals
 
 ```code
-(. mesh :normals) -> this
+(. mesh :normals) -> mesh
 ```code
 
 ### :optimise
 
 ```code
-(. mesh :optimise) -> this
+(. mesh :optimise) -> mesh
 ```code
 
 ### tris

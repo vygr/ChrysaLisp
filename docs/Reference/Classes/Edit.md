@@ -255,7 +255,7 @@
 ### :set_anchor
 
 ```code
-(. edit :set_anchor x y) -> this
+(. edit :set_anchor x y) -> edit
 ```code
 
 ### :set_buffer
@@ -267,13 +267,13 @@
 ### :set_cursor
 
 ```code
-(. edit :set_cursor x y) -> this
+(. edit :set_cursor x y) -> edit
 ```code
 
 ### :set_scroll
 
 ```code
-(. edit :set_scroll x y) -> this
+(. edit :set_scroll x y) -> edit
 ```code
 
 ### :set_underlay_color

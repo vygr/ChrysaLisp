@@ -149,16 +149,16 @@
 		(lower :buffer) this)
 
 	(defmethod :set_cursor (x y)
-		; (. edit :set_cursor x y) -> this
+		; (. edit :set_cursor x y) -> edit
 		(raise :buffer)
 		(. buffer :set_cursor x y) this)
 
 	(defmethod :set_anchor (anchor_x anchor_y)
-		; (. edit :set_anchor x y) -> this
+		; (. edit :set_anchor x y) -> edit
 		(lower :anchor_x :anchor_y) this)
 
 	(defmethod :set_scroll (scroll_x scroll_y)
-		; (. edit :set_scroll x y) -> this
+		; (. edit :set_scroll x y) -> edit
 		(lower :scroll_x :scroll_y) this)
 
 	(defmethod :char_pos (event)

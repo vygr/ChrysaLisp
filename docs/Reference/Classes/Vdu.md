@@ -17,7 +17,7 @@ overide the default 'this' env with a Vdu component
 ### :layout
 
 ```code
-(. vdu :layout) -> this
+(. vdu :layout) -> vdu
 ```code
 
 ### :load
