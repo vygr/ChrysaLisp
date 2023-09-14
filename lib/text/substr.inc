@@ -53,7 +53,7 @@
 		; (. substr :match? text pattern &optional meta) -> :t | :nil
 		(when (>= (defq l (length text)) (defq j (length pattern)))
 			(defq i 0)
-			(while (< j l)
+			(while (<= j l)
 				(if (every (const eql) (slice i j text) pattern)
 					(setq l -1)
 					(setq i (inc i) j (inc j))))
