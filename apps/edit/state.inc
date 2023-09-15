@@ -7,7 +7,7 @@
 (defun save-map (stream m i)
 	(defq ws (pad "" i (ascii-char 9)))
 	(write-line stream "")
-	(write-line stream (cat ws "("))
+	(write-line stream (cat ws "( ;map"))
 	(. m :each (lambda (k v)
 		(unless (or (eql k :buffer) (eql k ":nil"))
 			(write stream (cat ws (save-kv k) " "))
