@@ -93,6 +93,7 @@
 								(merge-obj syntax (list (sym line)))))))) (file-stream file))) *imports*)))
 
 	;create VP classes docs
+	(sort (# (cmp (first %0) (first %1))) classes)
 	(each (lambda ((cls super &rest methds))
 		(defq stream (file-stream (cat "docs/Reference/VP_Classes/" cls ".md") +file_open_write))
 		(write-line stream (cat "# " cls (ascii-char 10)))
