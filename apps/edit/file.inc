@@ -75,7 +75,7 @@
 (defun close-file (file)
 	(save-file file)
 	(when (and file (defq i (find file *open_files*)))
-		(. *meta_map* :erase file)
+		(.-> *meta_map* (:find :files) (:erase file))
 		(setq *open_files* (erase *open_files* i (inc i)))
 		(defq files (cat *open_files*))
 		(if (= (length files) 0) (push files :nil))
