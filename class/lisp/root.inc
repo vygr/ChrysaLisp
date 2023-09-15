@@ -526,10 +526,11 @@
 
 (defun partition (cnt seq)
 	; (partition count seq) -> list of lists
-	(defq l (length seq) out (cap (/ l cnt) (list)) i 0)
+	(defq l (length seq) out (cap (/ (+ l cnt -1) cnt) (list)) i 0)
 	(while (<= (defq j (+ i cnt)) l)
 		(push out (slice i j seq))
-		(setq i j)) out)
+		(setq i j))
+	(if (< i l) (push out (slice i -1 seq)) out))
 
 ;;;;;;;;;;;;;;;;
 ; Math functions
