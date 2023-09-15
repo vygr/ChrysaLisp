@@ -75,4 +75,6 @@
 
 (defun Lmap-kv (&rest _)
 	; (Lmap-kv [key val ...]) -> lmap
-	(reduce (lambda (m (k v)) (. m :insert k v)) (unzip _ (lists2)) (Lmap)))
+	(defq this (Lmap))
+	(each! 0 -1 (# (. this :insert %0 %1)) (unzip _ (lists2)))
+	this)

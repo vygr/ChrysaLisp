@@ -522,7 +522,7 @@
 
 (defun reverse (_)
 	; (reverse list) -> list
-	(map-rev progn _))
+	(map-rev (const progn) _))
 
 (defun partition (cnt seq)
 	; (partition count seq) -> list of lists
