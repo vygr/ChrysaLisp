@@ -8,8 +8,9 @@
 (import "lib/consts/chars.inc")
 (import "lib/text/buffer.inc")
 (import "lib/text/dictionary.inc")
-(import "././clipboard/app.inc")
 (import "lib/task/local.inc")
+(import "././clipboard/app.inc")
+(import "./state.inc")
 
 (enums +event 0
 	(enum close max min)
@@ -118,27 +119,33 @@
 
 (defun refresh-sliders ()
 	;set slider values for current file
-	(bind '(cx cy ax ay sx sy _ buffer) (. *meta_map* :find *current_file*))
+	(bind '(cx cy ax ay sx sy buffer)
+		(gather (.-> *meta_map* (:find :files) (:find (str *current_file*)))
+			:cx :cy :ax :ay :sx :sy :buffer))
 	(bind '(w h) (. buffer :get_size))
 	(bind '(vw vh) (.-> *edit* :get_vdu_text :vdu_size))
 	(defq smaxx (max 0 (- w vw -1)) smaxy (max 0 (- h vh -1))
 		sx (max 0 (min sx smaxx)) sy (max 0 (min sy smaxy)))
 	(def (. *xslider* :dirty) :maximum smaxx :portion vw :value sx)
 	(def (. *yslider* :dirty) :maximum smaxy :portion vh :value sy)
-	(. *meta_map* :insert *current_file* (list cx cy ax ay sx sy _ buffer))
+	(.-> *meta_map* (:find :files) (:insert (str *current_file*)
+		(Fmap-kv :cx cx :cy cy :ax ax :ay ay :sx sx :sy sy :buffer buffer)))
 	(. *edit* :set_scroll sx sy))
 
 (defun refresh ()
 	(unless (get :macro_playback)
 		;refresh display and ensure cursor is visible
-		(bind '(cx cy ax ay sx sy _ buffer) (. *meta_map* :find *current_file*))
+		(bind '(cx cy ax ay sx sy buffer)
+			(gather (.-> *meta_map* (:find :files) (:find (str *current_file*)))
+				:cx :cy :ax :ay :sx :sy :buffer))
 		(bind '(cx cy) (. buffer :get_cursor))
 		(bind '(w h) (.-> *edit* :get_vdu_text :vdu_size))
 		(if (< (- cx +margin) sx) (setq sx (- cx +margin)))
 		(if (< (- cy +margin) sy) (setq sy (- cy +margin)))
 		(if (>= (+ cx +margin) (+ sx w)) (setq sx (- (+ cx +margin) w -1)))
 		(if (>= (+ cy +margin) (+ sy h)) (setq sy (- (+ cy +margin) h -1)))
-		(. *meta_map* :insert *current_file* (list cx cy ax ay sx sy _ buffer))
+		(.-> *meta_map* (:find :files) (:insert (str *current_file*)
+			(Fmap-kv :cx cx :cy cy :ax ax :ay ay :sx sx :sy sy :buffer buffer)))
 		(refresh-sliders) (refresh-display)))
 
 (defun populate-dictionary (line)
@@ -149,20 +156,26 @@
 				(. dictionary :insert_word word)))
 		(split line +not_whole_word_chars)))
 
-(defun populate-buffer (file x y ax ay sx sy)
-	;create new file buffer
-	(unless (. *meta_map* :find file)
-		(defq mode (if (some (# (ends-with %0 file)) +text_types) :t :nil))
-		(. *meta_map* :insert file
-			(list x y ax ay sx sy :nil (defq buffer (Buffer mode *syntax*))))
-		(when file
-			(. buffer :file_load file)
-			(each populate-dictionary (. buffer :get_text_lines)))))
+(defun populate-buffer (file cx cy ax ay sx sy)
+	;create new file buffer ?
+	(defq mode (if (some (# (ends-with %0 file)) +text_types) :t :nil)
+		files (. *meta_map* :find :files) key (str file))
+	(unless (. files :find key)
+		(. files :insert key
+			(Fmap-kv :cx cx :cy cy :ax ax :ay ay :sx sx :sy sy :buffer :nil)))
+	(defq meta (. files :find key))
+	(unless (defq buffer (. meta :find :buffer))
+		(. meta :insert :buffer (setq buffer (Buffer mode *syntax*))))
+	(when file
+		(. buffer :file_load file)
+		(each populate-dictionary (. buffer :get_text_lines))))
 
 (defun populate-vdu (file)
 	;load up the vdu widget from this file
 	(populate-buffer file 0 0 0 0 0 0)
-	(bind '(cx cy ax ay sx sy _ buffer) (. *meta_map* :find file))
+	(bind '(cx cy ax ay sx sy buffer)
+		(gather (.-> *meta_map* (:find :files) (:find (str file)))
+			:cx :cy :ax :ay :sx :sy :buffer))
 	(setq *current_file* file)
 	(bind '(cx cy) (. buffer :constrain cx cy))
 	(bind '(ax ay) (. buffer :constrain ax ay))
@@ -171,7 +184,8 @@
 		(:set_cursor cx cy)
 		(:set_anchor ax ay)
 		(:set_scroll sx sy))
-	(. *meta_map* :insert file (list cx cy ax ay sx sy _ buffer))
+	(.-> *meta_map* (:find :files) (:insert (str file)
+		(Fmap-kv :cx cx :cy cy :ax ax :ay ay :sx sx :sy sy :buffer buffer)))
 	(refresh)
 	(def *title* :text (cat "Edit -> " (if file file "<scratch pad>")))
 	(.-> *title* :layout :dirty))
@@ -194,33 +208,6 @@
 	(.-> *open_tree* (:change 0 0 w h) :layout)
 	(.-> *open_tree_scroll* :layout :dirty_all)
 	(.-> *file_tree_scroll* :layout :dirty_all))
-
-(defun load-state ()
-	;load editor state
-	(when (defq stream (file-stream (cat *env_home* +state_filename)))
-		(defq last_file (read-line stream))
-		(set *find_text* :clear_text (read-line stream))
-		(set *replace_text* :clear_text (read-line stream))
-		(.-> *find_text* :layout :dirty)
-		(.-> *replace_text* :layout :dirty)
-		(each-line (lambda (line)
-				(bind '(form _) (read (string-stream line) +char_space))
-				(bind '(file (x y ax ay sx sy _)) form)
-				(when (/= (age file) 0)
-					(unless (find file *open_files*) (push *open_files* file))
-					(populate-buffer file x y ax ay sx sy)))
-			stream)
-		(if (find last_file *open_files*) last_file)))
-
-(defun save-state ()
-	;save editor state
-	(when (defq stream (file-stream (cat *env_home* +state_filename) +file_open_write))
-		(write-line stream (str *current_file*))
-		(write-line stream (get :clear_text *find_text*))
-		(write-line stream (get :clear_text *replace_text*))
-		(each (lambda (file)
-				(write-line stream (str (list file (slice 0 -2 (. *meta_map* :find file))))))
-			(sort cmp *open_files*))))
 
 (defun window-resize ()
 	;layout the window and size the vdu to fit
@@ -318,7 +305,12 @@
 	(bind '(cx cy) (. *edit* :get_cursor))
 	(bind '(ax ay) (. *edit* :get_anchor))
 	(bind '(sx sy) (. *edit* :get_scroll))
-	(. *meta_map* :insert *current_file* (list cx cy ax ay sx sy :nil buffer)))
+	(.-> *meta_map*
+		(:insert :file (str *current_file*))
+		(:insert :find (get :clear_text *find_text*))
+		(:insert :replace (get :clear_text *replace_text*)))
+	(.-> *meta_map* (:find :files) (:insert (str *current_file*)
+		(Fmap-kv :cx cx :cy cy :ax ax :ay ay :sx sx :sy sy :buffer buffer))))
 
 ;import actions, bindings and app ui classes
 (import "./actions.inc")
@@ -337,7 +329,8 @@
 	(defq select (alloc-select +select_size)
 		edit_service (mail-declare (task-netid) "Edit" "Edit Service 0.1")
 		*running* :t *edit* (Editor-edit) *page_scale* 1.0 *regexp* :nil
-		*current_file* :nil *meta_map* (Fmap) *open_files* (list) *syntax* (Syntax)
+		*current_file* :nil *meta_map* (Fmap-kv :files (Fmap))
+		*open_files* (list) *syntax* (Syntax)
 		*whole_words* :nil *macro_record* :nil *macro_actions* (list)
 		dictionary (Dictionary 1021) match_window :nil match_flow :nil match_index -1)
 	(.-> *edit* (:set_buffer (Buffer)) (:set_underlay_color +argb_grey6))
