@@ -32,6 +32,34 @@
 			(slice (inc (find-rev (char 0x22) _)) -1 _)))
 	(print "Scanning source files...")
 
+	;create commands docs
+	(defq target 'docs/Reference/COMMANDS.md)
+	(defun extract-cmd (el)
+		(first (split (second (split el "/")) ".")))
+	(defun cmd-collector (acc el)
+		(push acc (list (sym el) (str el " -h"))))
+	(defun wrap-block (content)
+		(if (/= (length content) 0)
+			(str
+				"```code" (ascii-char 10)
+				content (ascii-char 10)
+				"```" (ascii-char 10))
+			""))
+	(defun generate-cmd-help (lst)
+		(defq _eat_chunk "")
+		(defun _eat (_x)
+		(setq _eat_chunk (cat _eat_chunk (wrap-block _x))))
+		(each (lambda (el)
+		(setq _eat_chunk (cat _eat_chunk (str "## " (first el) (const (ascii-char 10)))))
+		(pipe-run (second el) _eat)) lst)
+		(save _eat_chunk target))
+	(generate-cmd-help (reduce
+		cmd-collector
+		(sort cmp (map extract-cmd (all-files "cmd" '(".lisp"))))
+		(list)))
+	(print "-> docs/Reference/COMMANDS.md")
+
+	;scan VP classes docs
 	(defq *imports* (all-vp-files) classes (list) functions (list) docs (list) syntax (list) state :x)
 	(within-compile-env (lambda ()
 		(include "lib/asm/func.inc")
@@ -65,49 +93,19 @@
 								(merge-obj syntax (list (sym line)))))))) (file-stream file))) *imports*)))
 
 	;create VP classes docs
-	(sort (# (cmp (first %0) (first %1))) classes)
-	(defq stream (file-stream "docs/Reference/VP_CLASSES.md" +file_open_write)
-		classes (map (lambda ((a b &rest c))
-			(sort (# (cmp (first %0) (first %1))) c)
-			(cat (list a b) c)) classes))
-	(write-line stream (const (str "# VP Classes" (ascii-char 10))))
 	(each (lambda ((cls super &rest methds))
-		(write-line stream (cat "## " cls (ascii-char 10)))
-		(write-line stream (cat "Super Class: " super (ascii-char 10)))
+		(defq stream (file-stream (cat "docs/Reference/VP_Classes/" cls ".md") +file_open_write))
+		(write-line stream (cat "# " cls (ascii-char 10)))
+		(unless (eql ":nil" super)
+			(write-line stream (cat "## " super (ascii-char 10))))
+		(sort (# (cmp (first %0) (first %1))) methds)
 		(each (lambda ((methd function))
-			(write-line stream (cat "### " cls " " methd " -> " function (ascii-char 10)))
+			(write-line stream (cat "### " methd " -> " function (ascii-char 10)))
 			(when (and (defq i (find function functions)) (/= 0 (length (elem-get i docs))))
 				(write-line stream "```code")
 				(each (# (write-line stream %0)) (elem-get i docs))
-				(write-line stream (const (str "```" (ascii-char 10)))))) methds)) classes)
-	(print "-> docs/Reference/VP_CLASSES.md")
-
-	;create commands docs
-	(defq target 'docs/Reference/COMMANDS.md)
-	(defun extract-cmd (el)
-		(first (split (second (split el "/")) ".")))
-	(defun cmd-collector (acc el)
-		(push acc (list (sym el) (str el " -h"))))
-	(defun wrap-block (content)
-		(if (/= (length content) 0)
-			(str
-				"```code" (ascii-char 10)
-				content (ascii-char 10)
-				"```" (ascii-char 10))
-			""))
-	(defun generate-cmd-help (lst)
-		(defq _eat_chunk "")
-		(defun _eat (_x)
-		(setq _eat_chunk (cat _eat_chunk (wrap-block _x))))
-		(each (lambda (el)
-		(setq _eat_chunk (cat _eat_chunk (str "## " (first el) (const (ascii-char 10)))))
-		(pipe-run (second el) _eat)) lst)
-		(save _eat_chunk target))
-	(generate-cmd-help (reduce
-		cmd-collector
-		(sort cmp (map extract-cmd (all-files "cmd" '(".lisp"))))
-		(list)))
-	(print "-> docs/Reference/COMMANDS.md")
+				(write-line stream (const (str "```" (ascii-char 10)))))) methds)
+		(print (cat "-> docs/Reference/VP_Classes/" cls ".md"))) classes)
 
 	;create lisp functions and classes docs
 	(defq classes (list) functions (list))
