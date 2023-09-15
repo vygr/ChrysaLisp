@@ -25,10 +25,9 @@
 (defun load-map (stream)
 	(defq root (Fmap) stack (list (first (read stream (ascii-code " "))) root))
 	(while (defq m (pop stack) form (pop stack))
-		(if (nempty? form)
-			(each (lambda ((k v))
-				(if (list? v) (push stack v (setq v (Fmap))))
-				(. m :insert k v)) (partition 2 form))))
+		(each (lambda ((k v))
+			(if (list? v) (push stack v (setq v (Fmap))))
+			(. m :insert k v)) (partition 2 form)))
 	root)
 
 (defun load-state ()
