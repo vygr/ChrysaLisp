@@ -300,10 +300,10 @@
 	(bind '(cx cy) (. *edit* :get_cursor))
 	(bind '(ax ay) (. *edit* :get_anchor))
 	(bind '(sx sy) (. *edit* :get_scroll))
-	(.-> *meta_map*
-		(:insert :file (str *current_file*))
-		(:insert :find (get :clear_text *find_text*))
-		(:insert :replace (get :clear_text *replace_text*)))
+	(scatter *meta_map*
+		:file (str *current_file*)
+		:find (get :clear_text *find_text*)
+		:replace (get :clear_text *replace_text*))
 	(scatter (.-> *meta_map* (:find :files) (:find (str *current_file*)))
 		:cx cx :cy cy :ax ax :ay ay :sx sx :sy sy :buffer buffer))
 
