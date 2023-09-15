@@ -5,7 +5,7 @@
 (defq *env_launcher_apps* '(
 	"terminal" "services"
 	"edit" "viewer"
-	"docs" "help"
+	"docs" "fonts"
 	"netmon" "netspeed"
 	"logout")
 	*env_launcher_auto_apps* '("terminal"))
