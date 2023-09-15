@@ -98,6 +98,4 @@
 
 (defun Fmap-kv (&rest _)
 	; (Fmap-kv [key val ...]) -> fmap
-	(defq this (Fmap))
-	(each! 0 -1 (# (. this :insert %0 %1)) (unzip _ (lists2)))
-	this)
+	(reduce (lambda (m (k v)) (. m :insert k v)) (partition 2 _) (Fmap)))
