@@ -23,3 +23,8 @@
 	; (gather map key ...) -> (val ...)
 	; gather a list of values
 	(map (# (. m :find %0)) _))
+
+(defun scatter (m &rest _)
+	; (scatter map key val ...) -> map
+	; scatter a list of values
+	(reduce (lambda (m (k v)) (. m :insert k v)) (partition 2 _) m))

@@ -109,8 +109,8 @@
 		; (. vdu :mouse_wheel event) -> vdu
 		(.super this :mouse_wheel event)
 		(clear-matches)
-		(bind '(x y ax ay sx sy _ buffer) (. *meta_map* :find *current_file*))
+		(defq meta (.-> *meta_map* (:find :files) (:find (str *current_file*))))
 		(bind '(sx sy) (. this :get_scroll))
-		(. *meta_map* :insert *current_file* (list x y ax ay sx sy _ buffer))
+		(scatter meta :sx sx :sy sy)
 		(refresh-sliders) (refresh-display) this)
 	)

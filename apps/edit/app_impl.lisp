@@ -119,17 +119,16 @@
 
 (defun refresh-sliders ()
 	;set slider values for current file
+	(defq meta (.-> *meta_map* (:find :files) (:find (str *current_file*))))
 	(bind '(cx cy ax ay sx sy buffer)
-		(gather (.-> *meta_map* (:find :files) (:find (str *current_file*)))
-			:cx :cy :ax :ay :sx :sy :buffer))
+		(gather meta :cx :cy :ax :ay :sx :sy :buffer))
 	(bind '(w h) (. buffer :get_size))
 	(bind '(vw vh) (.-> *edit* :get_vdu_text :vdu_size))
 	(defq smaxx (max 0 (- w vw -1)) smaxy (max 0 (- h vh -1))
 		sx (max 0 (min sx smaxx)) sy (max 0 (min sy smaxy)))
 	(def (. *xslider* :dirty) :maximum smaxx :portion vw :value sx)
 	(def (. *yslider* :dirty) :maximum smaxy :portion vh :value sy)
-	(.-> *meta_map* (:find :files) (:insert (str *current_file*)
-		(Fmap-kv :cx cx :cy cy :ax ax :ay ay :sx sx :sy sy :buffer buffer)))
+	(scatter meta :cx cx :cy cy :ax ax :ay ay :sx sx :sy sy :buffer buffer)
 	(. *edit* :set_scroll sx sy))
 
 (defun refresh ()

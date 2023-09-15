@@ -31,6 +31,8 @@ whole word and regexp flags provided.
 
 New auto generated Lisp class reference documentation.
 
+New `scatter` map class function to go with `gather`.
+
 ------
 
 New `Substr` string search class. Editor updated to use this new class.
