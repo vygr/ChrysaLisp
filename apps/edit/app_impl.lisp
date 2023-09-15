@@ -304,8 +304,8 @@
 		(:insert :file (str *current_file*))
 		(:insert :find (get :clear_text *find_text*))
 		(:insert :replace (get :clear_text *replace_text*)))
-	(.-> *meta_map* (:find :files) (:insert (str *current_file*)
-		(Fmap-kv :cx cx :cy cy :ax ax :ay ay :sx sx :sy sy :buffer buffer))))
+	(scatter (.-> *meta_map* (:find :files) (:find (str *current_file*)))
+		:cx cx :cy cy :ax ax :ay ay :sx sx :sy sy :buffer buffer))
 
 ;import actions, bindings and app ui classes
 (import "./actions.inc")
