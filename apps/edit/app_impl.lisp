@@ -324,10 +324,9 @@
 	(defq select (alloc-select +select_size)
 		edit_service (mail-declare (task-netid) "Edit" "Edit Service 0.1")
 		*running* :t *edit* (Editor-edit) *page_scale* 1.0 *regexp* :nil
-		*current_file* :nil *meta_map* (Fmap-kv :files (Fmap))
-		*open_files* (list) *syntax* (Syntax)
-		*whole_words* :nil *macro_record* :nil *macro_actions* (list)
-		dictionary (Dictionary 1021) match_window :nil match_flow :nil match_index -1)
+		*syntax* (Syntax) *whole_words* :nil *macro_record* :nil *macro_actions* (list)
+		dictionary (Dictionary 1021) match_window :nil match_flow :nil match_index -1
+		*meta_map* :nil *open_files* :nil *current_file* (load-state))
 	(.-> *edit* (:set_buffer (Buffer)) (:set_underlay_color +argb_grey6))
 	(def *edit* :min_width 0 :min_height 0
 		:vdu_width +vdu_min_width :vdu_height +vdu_min_height)
@@ -338,7 +337,6 @@
 	(each-line populate-dictionary (file-stream "class/lisp/root.inc"))
 	(each-line populate-dictionary (file-stream "lib/text/english.txt"))
 	(. *file_tree* :populate "." +file_types 2)
-	(setq *current_file* (load-state))
 	(populate-open-tree)
 	(populate-vdu *current_file*)
 	(select-node *current_file*)
