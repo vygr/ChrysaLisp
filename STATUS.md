@@ -33,6 +33,8 @@ New auto generated Lisp class reference documentation.
 
 New `scatter` map class function to go with `gather`.
 
+New format Editor state file. Nested Fmaps.
+
 ------
 
 New `Substr` string search class. Editor updated to use this new class.

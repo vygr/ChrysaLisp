@@ -8,6 +8,8 @@ In no particular order but to just to ensure I get thoughts down. I'll keep
 adding to this as I go along. If anybody would like to try helping out, then
 just get in touch.
 
+* Turn the Editor nested Fmap code into a library.
+
 * Add shift key selection to the Terminal app.
 
 * Add dynamic font scaling `cntrl-[ ]` to the Terminal app. Toolbar buttons for
@@ -18,9 +20,6 @@ common sizes, 80x40, 160x80 etc.
 * Gui remote desktop service that runs over CLB.
 
 * Add a mini display to the Edit app.
-
-* Edit app should use a more robust format for the `editor_state` file. Maybe a
-hash map of key values rather than an anonymous list !
 
 * Add find functions to the Viewer app. Just include them from the Editor
 actions. It would be nice to be able to find stuff in the Viewer.
