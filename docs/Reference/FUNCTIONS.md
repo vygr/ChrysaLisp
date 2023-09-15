@@ -1241,6 +1241,14 @@ restart a child
 (reverse list) -> list
 ```
 
+### scatter
+
+```code
+(scatter map key val ...) -> map
+
+scatter a list of values
+```
+
 ### search
 
 ```code
