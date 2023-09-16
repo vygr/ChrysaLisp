@@ -14,7 +14,6 @@
 	(enum layout xscroll yscroll)
 	(enum tree_action)
 	(enum file_folder_action file_leaf_action)
-	(enum open_folder_action open_leaf_action)
 	(enum copy paragraph block bracket_left bracket_right)
 	(enum whole_words regexp find_down find_up)
 	(enum file_tree_collapse file_tree_expand))
