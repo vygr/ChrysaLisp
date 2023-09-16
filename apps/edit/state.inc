@@ -61,5 +61,5 @@
 
 ;module
 (export-symbols
-	load-state save-state save-map encode decode)
+	load-state save-state save-map)
 (env-pop)
