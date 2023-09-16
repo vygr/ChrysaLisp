@@ -35,6 +35,8 @@ New `scatter` map class function to go with `gather`.
 
 New format Editor state file. Nested Fmaps.
 
+Complete refresh of the Viewer application.
+
 ------
 
 New `Substr` string search class. Editor updated to use this new class.
