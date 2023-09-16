@@ -15,8 +15,6 @@
 
 (defq
 event_map (Fmap-kv
-	+event_file_tree_expand action-file-tree-expand
-	+event_file_tree_collapse action-file-tree-collapse
 	+event_find_down action-find-down
 	+event_find_up action-find-up
 	+event_whole_words action-whole-words
@@ -33,6 +31,8 @@ event_map (Fmap-kv
 	+event_xscroll action-xscroll
 	+event_yscroll action-yscroll
 	+event_tree_action action-tree-action
+	+event_file_tree_expand action-file-tree-expand
+	+event_file_tree_collapse action-file-tree-collapse
 	+event_file_leaf_action action-file-leaf-action)
 
 key_map (Fmap-kv
@@ -75,8 +75,8 @@ find_actions (list
 
 ;module
 (export-symbols
-	find_actions
-	event_map key_map key_map_shift key_map_control action-maximise)
+	event_map key_map key_map_shift key_map_control
+	action-minimise find_actions)
 (export-classes
 	Viewer-edit)
 (env-pop)
