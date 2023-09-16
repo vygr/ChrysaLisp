@@ -1,3 +1,10 @@
+;;;;;;;;;;;;;;;;;
+; state load/save
+;;;;;;;;;;;;;;;;;
+
+;module
+(env-push)
+
 (defun save-kv (kv)
 	(cond
 		((sym? kv) kv)
@@ -51,3 +58,7 @@
 					(populate-buffer file cx cy ax ay sx sy)))))
 		(each (# (. files :erase %0)) dead_files)
 		(if (find file *open_files*) file)))
+
+;module
+(export-symbols load-state save-state save-map)
+(env-pop)
