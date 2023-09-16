@@ -56,5 +56,5 @@ key_map_control (Fmap-kv
 (export-symbols
 	event_map key_map key_map_shift key_map_control action-insert)
 (export-classes
-	Editor-edit Viewer-edit Terminal-edit)
+	Viewer-edit Terminal-edit)
 (env-pop)
