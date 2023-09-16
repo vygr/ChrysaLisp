@@ -47,7 +47,7 @@
 		(. *find_text* :set_text find_txt)
 		(. *replace_text* :set_text replace_txt)
 		(defq dead_files (list))
-		(. files :each (lambda (file meta)
+		(.-> files (:resize 101) (:each (lambda (file meta)
 			(cond
 				((= (age file) 0)
 					;no such file
@@ -55,7 +55,7 @@
 				(:t (bind '(cx cy ax ay sx sy) (gather meta :cx :cy :ax :ay :sx :sy))
 					(unless (find file *open_files*) (push *open_files* file))
 					(. meta :insert :buffer :nil)
-					(populate-buffer file cx cy ax ay sx sy)))))
+					(populate-buffer file cx cy ax ay sx sy))))))
 		(each (# (. files :erase %0)) dead_files)
 		(if (find file *open_files*) file)))
 
