@@ -48,7 +48,9 @@
 
 	(defmethod :mouse_enter (event)
 		; (. button :mouse_enter event) -> button
-		(and (def? :tip_text this) (defq tip_mbox (get :tip_mbox this))
+		(when (and (not (def? :tip_window this))
+				(def? :tip_text this)
+				(defq tip_mbox (get :tip_mbox this)))
 			(mail-timeout tip_mbox 1000000 (. this :get_id)))
 		this)
 
