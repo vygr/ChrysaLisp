@@ -2,10 +2,7 @@
 ; clipboard actions
 ;;;;;;;;;;;;;;;;;;;
 
-(defun action-copy ()
-	(bind '(ax ay) (. *edit* :get_anchor))
-	(clipboard-put (.-> *edit* :get_buffer (:copy ax ay)))
-	(refresh))
+(import "././edit/clipboard.inc")
 
 (defun action-paste ()
 	(unless (eql (defq data (clipboard-get)) "")
@@ -14,15 +11,3 @@
 			(action-insert (pop lines))
 			(if (ends-with (ascii-char +char_lf) data)
 				(action-break)))))
-
-(defun action-copy-word ()
-	(action-select-word)
-	(action-copy))
-
-(defun action-copy-line ()
-	(action-select-line)
-	(action-copy))
-
-(defun action-copy-paragraph ()
-	(action-select-paragraph)
-	(action-copy))
