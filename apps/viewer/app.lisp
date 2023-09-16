@@ -131,7 +131,7 @@
 		(:set_scroll sx sy))
 	(scatter meta :cx cx :cy cy :ax ax :ay ay :sx sx :sy sy)
 	(refresh)
-	(def *title* :text (cat "Viewer -> " file))
+	(def *title* :text (cat "Viewer" (if file (cat " -> " file) "")))
 	(.-> *title* :layout :dirty))
 
 (defun populate-file-trees ()
