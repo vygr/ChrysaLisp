@@ -71,7 +71,7 @@ key_map_control (Fmap-kv
 	(ascii-code "0") action-right-bracket)
 
 find_actions (list
-	action-find-down action-find-up action-find-global))
+	action-find-down action-find-up))
 
 ;module
 (export-symbols
