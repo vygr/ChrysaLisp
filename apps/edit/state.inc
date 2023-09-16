@@ -53,12 +53,13 @@
 					;no such file
 					(push dead_files file))
 				(:t (bind '(cx cy ax ay sx sy) (gather meta :cx :cy :ax :ay :sx :sy))
-					(unless (find file *open_files*) (push *open_files* file))
+					(push *open_files* file)
 					(. meta :insert :buffer :nil)
 					(populate-buffer file cx cy ax ay sx sy))))))
 		(each (# (. files :erase %0)) dead_files)
 		(if (find file *open_files*) file)))
 
 ;module
-(export-symbols load-state save-state save-map)
+(export-symbols
+	load-state save-state save-map)
 (env-pop)
