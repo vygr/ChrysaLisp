@@ -302,8 +302,8 @@
 	(bind '(sx sy) (. *edit* :get_scroll))
 	(scatter *meta_map*
 		:file (str *current_file*)
-		:find (. *find_text* :get_text)
-		:replace (. *replace_text* :get_text))
+		:find (encode (. *find_text* :get_text))
+		:replace (encode (. *replace_text* :get_text)))
 	(scatter (.-> *meta_map* (:find :files) (:find (str *current_file*)))
 		:cx cx :cy cy :ax ax :ay ay :sx sx :sy sy :buffer buffer))
 

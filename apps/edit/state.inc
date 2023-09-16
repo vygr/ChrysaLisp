@@ -5,6 +5,21 @@
 ;module
 (env-push)
 
+(defun decode (id)
+	(cond
+		((eql id "") "")
+		(:t	(bind '(e o) (unzip id (lists2)))
+			(apply cat (map (# (char
+				(+ (- (code %0) (ascii-code "a"))
+				(<< (- (code %1) (ascii-code "a")) 4)))) e o)))))
+
+(defun encode (id)
+	(cond
+		((eql id "") "")
+		(:t	(apply cat (map (# (cat
+			(char (+ (logand 0x0f (code %0)) (ascii-code "a")))
+			(char (+ (logand 0x0f (>> (code %0) 4)) (ascii-code "a"))))) id)))))
+
 (defun save-kv (kv)
 	(cond
 		((sym? kv) kv)
@@ -44,8 +59,8 @@
 		(setq *meta_map* (load-map stream))
 		(bind '(file find_txt replace_txt files)
 			(gather *meta_map* :file :find :replace :files))
-		(. *find_text* :set_text find_txt)
-		(. *replace_text* :set_text replace_txt)
+		(. *find_text* :set_text (decode find_txt))
+		(. *replace_text* :set_text (decode replace_txt))
 		(defq dead_files (list))
 		(.-> files (:resize 101) (:each (lambda (file meta)
 			(cond
@@ -61,5 +76,5 @@
 
 ;module
 (export-symbols
-	load-state save-state save-map)
+	load-state save-state save-map encode decode)
 (env-pop)

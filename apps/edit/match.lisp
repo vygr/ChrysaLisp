@@ -16,8 +16,16 @@
 	(int result)
 	(offset params))
 
+(defun decode (id)
+	(cond
+		((eql id "") "")
+		(:t (bind '(e o) (unzip id (lists2)))
+			(apply cat (map (# (char
+				(+ (- (code %0) (ascii-code "a"))
+				(<< (- (code %1) (ascii-code "a")) 4)))) e o)))))
+
 (defun file-match? (file pattern whole_words regexp)
-	(when (bind '(search pattern meta) (query pattern whole_words regexp))
+	(when (bind '(search pattern meta) (query (decode pattern) whole_words regexp))
 		(when (defq result :nil stream (file-stream file))
 			(while (and (not result) (defq line (read-line stream)))
 				(task-slice)
