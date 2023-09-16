@@ -249,18 +249,14 @@
 						(when (defq action (. key_map_control :find key))
 							(dispatch-action action)))
 					((/= 0 (logand mod +ev_key_mod_shift))
-						;call bound shift key action, else insert
+						;call bound shift key action
 						(cond
 							((defq action (. key_map_shift :find key))
-								(dispatch-action action))
-							((<= +char_space key +char_tilde)
-								(dispatch-action action-insert (char key)))))
+								(dispatch-action action))))
 					((defq action (. key_map :find key))
 						;call bound key action
 						(dispatch-action action))
-					((<= +char_space key +char_tilde)
-						;insert the char
-						(dispatch-action action-insert (char key)))))
+					))
 			(:t ;gui event
 				(. *window* :event *msg*)))
 		;update meta data
