@@ -70,6 +70,10 @@
 		(def this :clear_text text :cursor (length text) :anchor 0)
 		this)
 
+	(defmethod :get_text ()
+		; (. textfield :get_text text) -> text
+		(get :clear_text this))
+
 	(defmethod :key_down (event)
 		; (. textfield :key_down event) -> textfield
 		(raise :clear_text :cursor :anchor :mode)

@@ -302,8 +302,8 @@
 	(bind '(sx sy) (. *edit* :get_scroll))
 	(scatter *meta_map*
 		:file (str *current_file*)
-		:find (get :clear_text *find_text*)
-		:replace (get :clear_text *replace_text*))
+		:find (. *find_text* :get_text)
+		:replace (. *replace_text* :get_text))
 	(scatter (.-> *meta_map* (:find :files) (:find (str *current_file*)))
 		:cx cx :cy cy :ax ax :ay ay :sx sx :sy sy :buffer buffer))
 
@@ -313,9 +313,9 @@
 (defun dispatch-action (&rest action)
 	(defq func (elem-get 0 action))
 	(if (find func find_actions)
-		(push action *whole_words* *regexp* (get :clear_text *find_text*)))
+		(push action *whole_words* *regexp* (. *find_text* :get_text)))
 	(if (find func replace_actions)
-		(push action (get :clear_text *replace_text*)))
+		(push action (. *replace_text* :get_text)))
 	(and *macro_record* (find func recorded_actions)
 		(push *macro_actions* action))
 	(catch (eval action) (progn (print _)(print) :t)))

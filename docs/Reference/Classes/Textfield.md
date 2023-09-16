@@ -12,6 +12,12 @@
 (. textfield :draw) -> textfield
 ```
 
+### :get_text
+
+```code
+(. textfield :get_text text) -> text
+```
+
 ### :key_down
 
 ```code

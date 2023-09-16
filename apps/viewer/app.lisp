@@ -23,9 +23,9 @@
 
 (bind '(+edit_font +edit_size) (font-info *env_editor_font*))
 
-(defq +vdu_min_width 80 +vdu_min_height 40 +vdu_max_width 100 +vdu_max_height 46
-	+vdu_line_width 5 +min_word_size 3 +max_matches 20 +margin 2
-	+state_filename "viewer_state" +not_whole_word_chars (cat " .,;'`(){}[]/" (ascii-char 34))
+(defq +vdu_min_width 40 +vdu_min_height 20 +vdu_max_width 100
+	+vdu_max_height 46 +vdu_line_width 5 +margin 2
+	+not_whole_word_chars (cat " .,;'`(){}[]/" (ascii-char 34))
 	+text_types ''(".md" ".txt") +file_types ''(".lisp" ".inc" ".vp" ".md" ".txt"))
 
 (ui-window *window* (:color +argb_grey1)
@@ -193,7 +193,7 @@
 	(bind '(sx sy) (. *edit* :get_scroll))
 	(scatter *meta_map*
 		:file (str *current_file*)
-		:find (get :clear_text *find_text*))
+		:find (. *find_text* :get_text))
 	(scatter (.-> *meta_map* (:find :files) (:find (str *current_file*)))
 		:cx cx :cy cy :ax ax :ay ay :sx sx :sy sy :buffer buffer))
 
@@ -203,7 +203,7 @@
 (defun dispatch-action (&rest action)
 	(defq func (elem-get 0 action))
 	(if (find func find_actions)
-		(push action *whole_words* *regexp* (get :clear_text *find_text*)))
+		(push action *whole_words* *regexp* (. *find_text* :get_text)))
 	(catch (eval action) (progn (print _)(print) :t)))
 
 (defun main ()
