@@ -606,6 +606,10 @@
 ; Utilities
 ;;;;;;;;;;;
 
+(defun read (s &optional c)
+	; (read stream &optional last_char_code) -> (form next_char_code)
+	(read s (opt c (ascii-code " "))))
+
 (defun lists (n)
 	; (lists n) -> ((list0) ... (listn-1))
 	(defq out (cap n (list)))
@@ -969,19 +973,19 @@
 	; (os) -> sym
 	(defq o 'Linux)
 	(when (defq f (file-stream 'os))
-		(bind '(o _) (read f 32))) o)
+		(bind '(o _) (read f))) o)
 
 (defun cpu ()
 	; (cpu) -> sym
 	(defq o 'x86_64)
 	(when (defq f (file-stream 'cpu))
-		(bind '(o _) (read f 32))) o)
+		(bind '(o _) (read f))) o)
 
 (defun abi ()
 	; (abi) -> sym
 	(defq o 'AMD64)
 	(when (defq f (file-stream 'abi))
-		(bind '(o _) (read f 32))) o)
+		(bind '(o _) (read f))) o)
 
 (defun within-compile-env (_f)
 	; (within-compile-env lambda)

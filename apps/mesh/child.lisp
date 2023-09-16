@@ -1,6 +1,5 @@
 (import "sys/lisp.inc")
 (import "class/lisp.inc")
-(import "lib/consts/chars.inc")
 (import "lib/math/mesh.inc")
 (import "./app.inc")
 
@@ -8,7 +7,7 @@
 	(enum main timeout))
 
 (defun create-mesh (key mbox name command)
-	(defq mesh (exec (elem-get 0 (read (string-stream command) +char_space)))
+	(defq mesh (exec (first (read (string-stream command))))
 		verts (. mesh :get_verts) norms (. mesh :get_norms) tris (. mesh :get_tris)
 		reply_list (cap (+ +job_reply_size
 			(* (length verts) +vec4_size)

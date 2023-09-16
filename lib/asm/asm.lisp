@@ -39,7 +39,7 @@
 					(defq *reply_key* (getf *msg* +_job_key) *reply_mbox* (getf *msg* +_job_reply))
 					(each (# (def *compile_env* %0 %1))
 						'(*files* *abi* *cpu* *debug_mode* *debug_emit* *debug_inst*)
-						(elem-get 0 (read (string-stream (slice +_job_params -1 *msg*)) (ascii-code " "))))
+						(first (read (string-stream (slice +_job_params -1 *msg*)))))
 					;compile the file list and catch any errors
 					(setq *msg* (list))
 					(catch (each include *files*)

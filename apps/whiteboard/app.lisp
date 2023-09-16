@@ -206,7 +206,7 @@
 							(cat (slice 0 (if (defq i (find-rev "." *msg*)) i -1) *msg*) ".cwb")))
 					;load whiteboard
 					(:t	(when (ends-with ".cwb" *msg*)
-							(bind '(data _) (read (file-stream *msg*) (ascii-code " ")))
+							(bind '(data _) (read (file-stream *msg*)))
 							(when (eql (elem-get 0 data) "CWB Version 1.0")
 								(snapshot)
 								(setq *commited_polygons* (map (lambda ((c p))
