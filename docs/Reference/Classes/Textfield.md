@@ -15,7 +15,7 @@
 ### :get_text
 
 ```code
-(. textfield :get_text text) -> text
+(. textfield :get_text) -> text
 ```
 
 ### :key_down

@@ -71,7 +71,7 @@
 		this)
 
 	(defmethod :get_text ()
-		; (. textfield :get_text text) -> text
+		; (. textfield :get_text) -> text
 		(get :clear_text this))
 
 	(defmethod :key_down (event)
