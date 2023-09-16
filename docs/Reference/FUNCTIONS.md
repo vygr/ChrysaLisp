@@ -620,6 +620,18 @@ gather a list of values
 (getf obj field [offset]) -> value
 ```
 
+### id-decode
+
+```code
+(id-decode id) -> id
+```
+
+### id-encode
+
+```code
+(id-encode id) -> id
+```
+
 ### identity
 
 ```code

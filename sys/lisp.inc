@@ -33,19 +33,31 @@
 	; (free-select select)
 	(each! 1 -1 mail-free-mbox (list select)))
 
+(defun id-decode (id)
+	; (id-decode id) -> id
+	(cond
+		((eql id "") "")
+		(:t	(bind '(e o) (unzip id (lists2)))
+			(apply cat (map (# (char
+				(+ (- (code %0) (ascii-code "a"))
+				(<< (- (code %1) (ascii-code "a")) 4)))) e o)))))
+
+(defun id-encode (id)
+	; (id-encode id) -> id
+	(cond
+		((eql id "") "")
+		(:t	(apply cat (map (# (cat
+			(char (+ (logand 0x0f (code %0)) (ascii-code "a")))
+			(char (+ (logand 0x0f (>> (code %0) 4)) (ascii-code "a"))))) id)))))
+
 (defun to-net-id (id)
 	; (to-net-id service_id) -> net_id
-	(bind '(e o) (unzip id (lists2)))
-	(setq id (apply cat (map (# (char
-		(+ (- (code %0) (ascii-code "a"))
-		(<< (- (code %1) (ascii-code "a")) 4)))) e o)))
+	(setq id (id-decode id))
 	(cat (slice 16 -1 id) (slice 0 16 id)))
 
 (defun to-service-id (id)
 	; (to-service-id net_id) -> service_id
-	(defq id (apply cat (map (# (cat
-		(char (+ (logand 0x0f (code %0)) (ascii-code "a")))
-		(char (+ (logand 0x0f (>> (code %0) 4)) (ascii-code "a"))))) id)))
+	(setq id (id-encode id))
 	(if (= (length id) +net_id_size) (cat (slice 16 -1 id) (slice 0 16 id)) id))
 
 (defun open-task (task node mode key_num reply)

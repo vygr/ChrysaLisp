@@ -45,7 +45,7 @@
 		(defq timer_rate (/ 1000000 1) working :t
 			retry_timeout (if (starts-with "obj/vp64" (load-path)) 20000000 2000000)
 			select (list (mail-alloc-mbox) (mail-alloc-mbox) (mail-alloc-mbox))
-			jobs (map (# (list %0 (encode pattern) whole_words regexp)) files)
+			jobs (map (# (list %0 (id-encode pattern) whole_words regexp)) files)
 			farm (Local (const create) (const destroy) (length files) 4)
 			files (list))
 		(mail-timeout (elem-get +select_timer select) timer_rate 0)
