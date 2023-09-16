@@ -35,8 +35,8 @@
 	(refresh))
 
 (defun save-file (file)
-	(when (and file (defq state (. *meta_map* :find file)))
-		(bind '(_ _ _ _ _ _ _ buffer) state)
+	(when (and file (defq meta (.-> *meta_map* (:find :files) (:find file))))
+		(bind '(buffer) (gather meta :buffer))
 		(when (. (trim-buffer buffer) :get_modified)
 			(. buffer :file_save file))))
 
