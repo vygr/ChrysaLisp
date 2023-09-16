@@ -1175,6 +1175,12 @@ scan the stdio args and process acording to the optlist
 (rcurry lambda var ...) -> lambda
 ```
 
+### read
+
+```code
+(read stream &optional last_char_code) -> (form next_char_code)
+```
+
 ### read-data
 
 ```code
