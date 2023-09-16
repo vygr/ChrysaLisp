@@ -106,7 +106,7 @@
 	(defq files (sort cmp (all-files "." +file_types 2)))
 	(if (defq i (find "lib/text/english.txt" files))
 		(setq files (erase files i (inc i))))
-	(setq files (file-matches files pattern whole_words regexp))
+	(setq files (sort cmp (file-matches files pattern whole_words regexp)))
 	;paste into scratch buffer
 	(switch-file :nil)
 	(defq buffer (. *edit* :get_buffer))
