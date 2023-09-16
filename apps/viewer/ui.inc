@@ -9,6 +9,14 @@
 	(switch-file (defq file (. *file_tree* :get_route
 		(. *window* :find_id (getf *msg* +ev_msg_action_source_id))))))
 
+(defun action-whole-words ()
+	(setq *whole_words* (not *whole_words*))
+	(radio-select find_toolbar (list *whole_words* *regexp* :nil :nil)))
+
+(defun action-regexp ()
+	(setq *regexp* (not *regexp*))
+	(radio-select find_toolbar (list *whole_words* *regexp* :nil :nil)))
+
 ;;;;;;;;;;;;;;;;;;;;
 ; main edit subclass
 ;;;;;;;;;;;;;;;;;;;;
