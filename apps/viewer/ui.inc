@@ -6,7 +6,7 @@
 
 (defun action-file-leaf-action ()
 	;load the file selected
-	(open-file (defq file (. *file_tree* :get_route
+	(switch-file (defq file (. *file_tree* :get_route
 		(. *window* :find_id (getf *msg* +ev_msg_action_source_id))))))
 
 ;;;;;;;;;;;;;;;;;;;;

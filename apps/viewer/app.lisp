@@ -210,7 +210,7 @@
 	(defq select (alloc-select +select_size)
 		*running* :t *edit* (Viewer-edit) *page_scale* 1.0 *regexp* :nil
 		*syntax* (Syntax) *whole_words* :nil
-		*meta_map* (Fmap-kv :files (Fmap)) *open_files* (list) *current_file* :nil)
+		*meta_map* (Fmap-kv :files (Fmap)) *current_file* :nil)
 	(.-> *edit* (:set_buffer (Buffer)) (:set_underlay_color +argb_grey6))
 	(def *edit* :min_width 0 :min_height 0
 		:vdu_width +vdu_min_width :vdu_height +vdu_min_height)
