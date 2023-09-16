@@ -8,6 +8,9 @@ In no particular order but to just to ensure I get thoughts down. I'll keep
 adding to this as I go along. If anybody would like to try helping out, then
 just get in touch.
 
+* Fix the whole_words flag action of `(query)` to escape any clashing regexp
+chars within the pattern string.
+
 * Turn the Editor nested Fmap code into a library.
 
 * Add shift key selection to the Terminal app.
@@ -20,9 +23,6 @@ common sizes, 80x40, 160x80 etc.
 * Gui remote desktop service that runs over CLB.
 
 * Add a mini display to the Edit app.
-
-* Add find functions to the Viewer app. Just include them from the Editor
-actions. It would be nice to be able to find stuff in the Viewer.
 
 * Move `vp-min, vp-max, vp-abs` into the VP VM proper. ARM64 and x64 have
 native operations `cmov` that could implement these.
