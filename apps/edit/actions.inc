@@ -15,8 +15,8 @@
 (import "./select.inc")
 (import "./clipboard.inc")
 (import "./macros.inc")
-(import "./ui.inc")
 (import "./search.inc")
+(import "./ui.inc")
 
 (defq
 event_map (Fmap-kv

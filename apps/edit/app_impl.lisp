@@ -185,7 +185,7 @@
 	(def *title* :text (cat "Edit -> " (if file file "<scratch pad>")))
 	(.-> *title* :layout :dirty))
 
-(defun populate-open-tree ()
+(defun populate-file-trees ()
 	;reload open tree
 	(sort cmp *open_files*)
 	(. *open_tree* :empty)
@@ -337,7 +337,7 @@
 	(each-line populate-dictionary (file-stream "class/lisp/root.inc"))
 	(each-line populate-dictionary (file-stream "lib/text/english.txt"))
 	(. *file_tree* :populate "." +file_types 2)
-	(populate-open-tree)
+	(populate-file-trees)
 	(populate-vdu *current_file*)
 	(select-node *current_file*)
 	(tooltips)

@@ -4,52 +4,43 @@
 
 (import "././edit/ui.inc")
 
-;overload Edit app ui.inc
 (defun action-file-leaf-action ()
-	;load up the file selected
-	(defq file (. *file_tree* :get_route
-		(. *window* :find_id (getf *msg* +ev_msg_action_source_id))))
-	(select-node file)
-	(populate-vdu file))
-
-(defun action-scale-up ()
-	;scale font up
-	(setq *page_scale* (min 1.5 (+ (defq old_size *page_scale*) 0.125)))
-	(when (/= old_size *page_scale*)
-		(set *edit* :font (create-font +edit_font (page-scale +edit_size)))
-		(.-> *main_flow* :layout :dirty_all)
-		(window-resize)))
-
-(defun action-scale-down ()
-	;scale font down
-	(setq *page_scale* (max 0.75 (- (defq old_size *page_scale*) 0.125)))
-	(when (/= old_size *page_scale*)
-		(set *edit* :font (create-font +edit_font (page-scale +edit_size)))
-		(.-> *main_flow* :layout :dirty_all)
-		(window-resize)))
+	;load the file selected
+	(open-file (defq file (. *file_tree* :get_route
+		(. *window* :find_id (getf *msg* +ev_msg_action_source_id))))))
 
 ;;;;;;;;;;;;;;;;;;;;
 ; main edit subclass
 ;;;;;;;;;;;;;;;;;;;;
 
-(defclass Viewer-edit () (Editor-edit)
+(defclass Viewer-edit () (Edit)
+	(def this :min_width +vdu_min_width :min_height +vdu_min_height
+		:vdu_width +vdu_min_width :vdu_height +vdu_min_height
+		:font *env_editor_font* :ink_color +argb_white)
+
+	(defmethod :mouse_down (event)
+		; (. vdu :mouse_down event) -> vdu
+		(.super this :mouse_down event)
+		(refresh) this)
+
+	(defmethod :mouse_up (event)
+		; (. vdu :mouse_up event) -> vdu
+		(case (getf event +ev_msg_mouse_count)
+			(2 (action-select-word))
+			(3 (action-select-line))
+			(4 (action-select-paragraph)))
+		(refresh) this)
+
 	(defmethod :mouse_move (event)
-		; (. edit :mouse_move event) -> edit
-		(raise :buffer)
-		(bind '(x y) (. this :char_pos event))
-		(bind '(x y) (. buffer :constrain x y))
-		(. buffer :set_cursor x y)
+		; (. vdu :mouse_move event) -> vdu
+		(.super this :mouse_move event)
 		(refresh) this)
 
 	(defmethod :mouse_wheel (event)
-		; (. edit :mouse_wheel event) -> edit
-		(raise :scroll_x :scroll_y)
-		(setq scroll_x (+ scroll_x (getf event +ev_msg_wheel_x))
-			scroll_y (- scroll_y (getf event +ev_msg_wheel_y)))
-		(lower :scroll_x :scroll_y)
-		(bind '(x y ax ay sx sy) (. *meta_map* :find *current_file*))
-		(setq sx (+ sx (getf event +ev_msg_wheel_x))
-			sy (- sy (getf event +ev_msg_wheel_y)))
-		(. *meta_map* :insert *current_file* (list x y ax ay sx sy))
+		; (. vdu :mouse_wheel event) -> vdu
+		(.super this :mouse_wheel event)
+		(defq meta (.-> *meta_map* (:find :files) (:find (str *current_file*))))
+		(bind '(sx sy) (. this :get_scroll))
+		(scatter meta :sx sx :sy sy)
 		(refresh-sliders) (refresh-display) this)
 	)

@@ -5,14 +5,22 @@
 ; actions
 ;;;;;;;;;
 
+(import "./utils.inc")
 (import "././edit/cursor.inc")
 (import "././edit/block.inc")
 (import "././edit/select.inc")
 (import "././edit/clipboard.inc")
+(import "././edit/search.inc")
 (import "./ui.inc")
 
 (defq
 event_map (Fmap-kv
+	+event_file_tree_expand action-file-tree-expand
+	+event_file_tree_collapse action-file-tree-collapse
+	+event_find_down action-find-down
+	+event_find_up action-find-up
+	+event_whole_words action-whole-words
+	+event_regexp action-regexp
 	+event_close action-close
 	+event_min action-minimise
 	+event_max action-maximise
@@ -44,6 +52,7 @@ key_map_shift (Fmap-kv
 	0x4000004D action-end-select)
 
 key_map_control (Fmap-kv
+	(ascii-code "f") action-set-find-text
 	(ascii-code "a") action-select-all
 	(ascii-code "b") action-select-block
 	(ascii-code "B") action-copy-block
@@ -59,11 +68,15 @@ key_map_control (Fmap-kv
 	(ascii-code "]") action-scale-up
 	(ascii-code "[") action-scale-down
 	(ascii-code "9") action-left-bracket
-	(ascii-code "0") action-right-bracket))
+	(ascii-code "0") action-right-bracket)
+
+find_actions (list
+	action-find-down action-find-up action-find-global))
 
 ;module
 (export-symbols
+	find_actions
 	event_map key_map key_map_shift key_map_control action-maximise)
 (export-classes
-	Editor-edit Viewer-edit)
+	Viewer-edit)
 (env-pop)
