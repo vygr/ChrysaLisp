@@ -9,7 +9,8 @@
 (enums +event 0
 	(enum close max min)
 	(enum tree_action)
-	(enum file_folder_action file_leaf_action))
+	(enum file_folder_action file_leaf_action)
+	(enum file_tree_collapse file_tree_expand))
 
 (enums +select 0
 	(enum main tip))
@@ -22,10 +23,15 @@
 	(ui-title-bar _ "Docs" (0xea19 0xea1b 0xea1a) +event_close)
 	(ui-flow doc_flow (:flow_flags +flow_right_fill :color *env_toolbar_col*)
 		(ui-flow _ (:flow_flags +flow_stack_fill)
-			(ui-scroll *file_tree_scroll* +scroll_flag_vertical :nil
-				(. (ui-tree *file_tree* +event_file_folder_action
-						(:min_width 0 :color +argb_white :font *env_medium_terminal_font*))
-					:connect +event_tree_action))
+			(ui-flow _  (:flow_flags +flow_down_fill)
+				(ui-flow _ (:flow_flags +flow_left_fill :color +argb_grey14)
+					(ui-buttons (">" "^") +event_file_tree_collapse)
+					(ui-label _ (:text "Project")))
+				(ui-scroll *file_tree_scroll* +scroll_flag_vertical :nil
+					(. (ui-tree *file_tree* +event_file_folder_action
+							(:min_width 0 :color +argb_white
+							:font *env_medium_terminal_font*))
+						:connect +event_tree_action)))
 			(ui-backdrop _ (:color +argb_white)))
 		(ui-scroll page_scroll +scroll_flag_both (:min_height 900))))
 

@@ -13,6 +13,8 @@ event_map (Fmap-kv
 	+event_min action-minimise
 	+event_max action-maximise
 	+event_tree_action action-tree-action
+	+event_file_tree_expand action-file-tree-expand
+	+event_file_tree_collapse action-file-tree-collapse
 	+event_file_leaf_action action-file-leaf-action)
 
 key_map (Fmap-kv)
