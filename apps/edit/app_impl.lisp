@@ -155,16 +155,16 @@
 (defun populate-buffer (file cx cy ax ay sx sy)
 	;create new file buffer ?
 	(defq mode (if (some (# (ends-with %0 file)) +text_types) :t :nil)
-		files (. *meta_map* :find :files) key (str file))
-	(unless (. files :find key)
-		(. files :insert key
-			(Fmap-kv :cx cx :cy cy :ax ax :ay ay :sx sx :sy sy :buffer :nil)))
-	(defq meta (. files :find key))
+		files (. *meta_map* :find :files) key (str file)
+		meta (. files :find key))
+	(unless meta
+		(. files :insert key (setq meta
+			(Fmap-kv :cx cx :cy cy :ax ax :ay ay :sx sx :sy sy :buffer :nil))))
 	(unless (defq buffer (. meta :find :buffer))
-		(. meta :insert :buffer (setq buffer (Buffer mode *syntax*))))
-	(when file
-		(. buffer :file_load file)
-		(each populate-dictionary (. buffer :get_text_lines))))
+		(. meta :insert :buffer (setq buffer (Buffer mode *syntax*)))
+		(when file
+			(. buffer :file_load file)
+			(each populate-dictionary (. buffer :get_text_lines)))))
 
 (defun populate-vdu (file)
 	;load up the vdu widget from this file
@@ -339,11 +339,11 @@
 	(. *file_tree* :populate "." +file_types 2)
 	(populate-file-trees)
 	(populate-vdu *current_file*)
-	(select-node *current_file*)
 	(tooltips)
 	(bind '(x y w h) (apply view-locate (.-> *window* (:connect +event_layout) :pref_size)))
 	(gui-add-front (. *window* :change x y w h))
 	(action-maximise)
+	(select-node *current_file*)
 	(refresh)
 	(while *running*
 		(defq *msg* (mail-read (elem-get (defq idx (mail-select select)) select)))
