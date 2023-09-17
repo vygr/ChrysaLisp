@@ -85,9 +85,6 @@
 				found (cat found))
 			(undoable
 				(each (lambda ((indexes substrs))
-					(print indexes)
-					(print substrs)
-					(print)
 					(defq y _)
 					(each-rev (lambda ((x x1))
 						(when (defq rep (build-replace found rep_text rep_matchs x y x1))
