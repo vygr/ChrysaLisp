@@ -55,8 +55,7 @@
 	;switch to file or scratch (:nil)
 	(populate-file-trees)
 	(populate-vdu file)
-	(select-node file)
-	(save-state))
+	(select-node file))
 
 (defun open-file (file)
 	;open file or scratch (:nil)
@@ -69,5 +68,4 @@
 		(push *open_files* %0)
 		(populate-buffer %0 0 0 0 0 0 0))) files)
 	(populate-file-trees)
-	(select-node *current_file*)
-	(save-state))
+	(select-node *current_file*))
