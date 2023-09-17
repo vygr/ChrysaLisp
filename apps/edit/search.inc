@@ -72,7 +72,8 @@
 				rep_matchs (matches rep_text "\$([0-9]+)")
 				rep_text (build-replace found rep_text rep_matchs cx cy ax)))
 			(undoable
-				(.-> buffer (:set_cursor ax ay)
+				(.-> buffer
+					(:set_cursor ax ay)
 					(:delete (- cx ax))
 					(:insert rep_text)))
 			(refresh))
@@ -88,7 +89,8 @@
 				(defq y _)
 				(each-rev (lambda ((x x1))
 					(when (defq rep (build-replace found rep_text rep_matchs x y x1))
-						(.-> buffer (:set_cursor x y)
+						(.-> buffer
+							(:set_cursor x y)
 							(:delete (- x1 x))
 							(:insert rep)))) indexes)) found))
 		(bind '(cx cy) (. *edit* :get_cursor))
