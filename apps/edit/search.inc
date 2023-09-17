@@ -77,7 +77,7 @@
 			(refresh))
 		(action-find-down whole_words regexp pattern)))
 
-(defun action-replace-all (whole_words regexp pattern rep_text)
+(defun action-replace-all (whole_words regexp pattern rep_text &optional flag)
 	(unless (eql pattern "")
 		(defq buffer (. *edit* :get_buffer)
 			found (cat (. buffer :find pattern whole_words regexp))
@@ -92,13 +92,13 @@
 		(bind '(cx cy) (. *edit* :get_cursor))
 		(. *edit* :set_anchor cx cy)
 		(update-meta-data)
-		(refresh)))
+		(unless flag (refresh))))
 
 (defun action-replace-global (whole_words regexp pattern rep_text)
 	(unless (eql pattern "")
 		(when (defq exit :nil here *current_file*)
 			(until exit
-				(action-replace-all whole_words regexp pattern rep_text)
+				(action-replace-all whole_words regexp pattern rep_text :t)
 				(action-next-buffer)
 				(setq exit (eql *current_file* here))))))
 
