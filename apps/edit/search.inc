@@ -87,7 +87,7 @@
 				(defq y _)
 				(each-rev (lambda ((x x1))
 					(when (defq rep (build-replace found rep_text rep_matchs x y x1))
-						(.-> buffer (:set_cursor x y) (:cut x1 y))
+						(.-> buffer (:set_cursor x y) (:delete (- x1 x)))
 						(. buffer :insert rep))) indexes)) found))
 		(bind '(cx cy) (. *edit* :get_cursor))
 		(. *edit* :set_anchor cx cy)
