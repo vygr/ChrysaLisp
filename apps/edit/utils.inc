@@ -53,7 +53,6 @@
 
 (defun switch-file (file)
 	;switch to file or scratch (:nil)
-	(populate-file-trees)
 	(populate-vdu file)
 	(select-node file))
 
@@ -61,6 +60,7 @@
 	;open file or scratch (:nil)
 	(and file (not (find file *open_files*))
 		(push *open_files* file))
+	(populate-file-trees)
 	(switch-file file))
 
 (defun open-files (files)

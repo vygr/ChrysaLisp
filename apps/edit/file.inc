@@ -82,10 +82,13 @@
 		(elem-get (% i (length files)) files)))
 
 (defun action-close-buffer ()
-	(switch-file (close-file *current_file*)))
+	(defq file (close-file *current_file*))
+	(populate-file-trees)
+	(switch-file file))
 
 (defun action-close-all ()
 	(each (# (close-file %0)) (cat *open_files*))
+	(populate-file-trees)
 	(switch-file :nil))
 
 (defun action-load-all ()
