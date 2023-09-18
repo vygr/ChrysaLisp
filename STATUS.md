@@ -6,6 +6,8 @@
 
 Editor global undo and redo ! Use with caution.
 
+Fixed bug in Editor macro recording.
+
 ------
 
 New `(replace seq s e seq)` function in `root.inc`.
