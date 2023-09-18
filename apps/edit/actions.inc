@@ -7,7 +7,6 @@
 
 (import "./match.inc")
 (import "./utils.inc")
-(import "./undo.inc")
 (import "./cursor.inc")
 (import "./block.inc")
 (import "./edit.inc")
@@ -16,6 +15,7 @@
 (import "./clipboard.inc")
 (import "./macros.inc")
 (import "./search.inc")
+(import "./undo.inc")
 (import "./ui.inc")
 
 (defq
@@ -51,6 +51,8 @@ event_map (Fmap-kv
 	+event_undo action-undo
 	+event_redo action-redo
 	+event_rewind action-rewind
+	+event_gundo action-undo-global
+	+event_gredo action-redo-global
 	+event_cut action-cut
 	+event_copy action-copy
 	+event_paste action-paste

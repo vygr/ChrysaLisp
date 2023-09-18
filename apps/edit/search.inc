@@ -95,7 +95,6 @@
 							(:insert rep)))) indexes)) found))
 		(bind '(cx cy) (. *edit* :get_cursor))
 		(. *edit* :set_anchor cx cy)
-		(update-meta-data)
 		(refresh)))
 
 (defun action-replace-global (whole_words regexp pattern rep_text)
@@ -104,6 +103,7 @@
 			(push *refresh_mode* 1)
 			(until exit
 				(action-replace-all whole_words regexp pattern rep_text)
+				(update-meta-data)
 				(action-next-buffer)
 				(setq exit (eql *current_file* here)))
 			(pop *refresh_mode*)
