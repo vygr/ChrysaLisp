@@ -1,5 +1,5 @@
-;(import "lib/debug/frames.inc")
-;(import "lib/debug/profile.inc")
+(import "lib/debug/frames.inc")
+(import "lib/debug/profile.inc")
 
 (import "././login/env.inc")
 (import "sys/lisp.inc")
@@ -131,7 +131,7 @@
 	(. *edit* :set_scroll sx sy))
 
 (defun refresh ()
-	(unless (get :macro_playback)
+	(when (<= (last *refresh_mode*) 0)
 		;refresh display and ensure cursor is visible
 		(defq meta (.-> *meta_map* (:find :files) (:find (str *current_file*))))
 		(bind '(sx sy buffer) (gather meta :sx :sy :buffer))
@@ -318,14 +318,17 @@
 		(push action (. *replace_text* :get_text)))
 	(and *macro_record* (find func recorded_actions)
 		(push *macro_actions* action))
-	(catch (eval action) (progn (print _)(print) :t)))
+	(catch (eval action)
+		(progn (print _)(print)
+			(setq *refresh_mode* (list 0)) :t)))
 
 (defun main ()
 	(defq select (alloc-select +select_size)
 		edit_service (mail-declare (task-netid) "Edit" "Edit Service 0.1")
 		*running* :t *edit* (Editor-edit) *page_scale* 1.0 *regexp* :nil
-		*syntax* (Syntax) *whole_words* :nil *macro_record* :nil *macro_actions* (list)
-		dictionary (Dictionary 1021) match_window :nil match_flow :nil match_index -1
+		*syntax* (Syntax) *whole_words* :nil *refresh_mode* (list 0)
+		*macro_record* :nil *macro_actions* (list)
+		dictionary (Dictionary 1031) match_window :nil match_flow :nil match_index -1
 		*meta_map* :nil *open_files* :nil *current_file* (load-state))
 	(.-> *edit* (:set_buffer (Buffer)) (:set_underlay_color +argb_grey6))
 	(def *edit* :min_width 0 :min_height 0
@@ -405,6 +408,7 @@
 				(. *window* :event *msg*)))
 		;update meta data
 		(update-meta-data))
+	;(profile-report "Editor")
 	(action-save-all)
 	(free-select select)
 	(clear-matches)

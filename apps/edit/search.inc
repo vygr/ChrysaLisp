@@ -79,7 +79,7 @@
 			(refresh))
 		(action-find-down whole_words regexp pattern)))
 
-(defun action-replace-all (whole_words regexp pattern rep_text &optional flag)
+(defun action-replace-all (whole_words regexp pattern rep_text)
 	(unless (eql pattern "")
 		(defq buffer (. *edit* :get_buffer)
 			found (cat (. buffer :find pattern whole_words regexp))
@@ -96,15 +96,18 @@
 		(bind '(cx cy) (. *edit* :get_cursor))
 		(. *edit* :set_anchor cx cy)
 		(update-meta-data)
-		(unless flag (refresh))))
+		(refresh)))
 
 (defun action-replace-global (whole_words regexp pattern rep_text)
 	(unless (eql pattern "")
 		(when (defq exit :nil here *current_file*)
+			(push *refresh_mode* 1)
 			(until exit
-				(action-replace-all whole_words regexp pattern rep_text :t)
+				(action-replace-all whole_words regexp pattern rep_text)
 				(action-next-buffer)
-				(setq exit (eql *current_file* here))))))
+				(setq exit (eql *current_file* here)))
+			(pop *refresh_mode*)
+			(refresh))))
 
 (defun action-find-global (whole_words regexp pattern)
 	;find files match but not dictionaries !
