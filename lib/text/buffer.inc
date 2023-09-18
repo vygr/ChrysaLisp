@@ -62,7 +62,7 @@
 		(clear (get :redo_stack this))
 		(last-line)
 		(lower :buffer :buffer_colored :buffer_states :buffer_found
-			(:dirty_colored :t :dirty_find :t :modified :t))
+			(:dirty_colored :t :modified :t))
 		(. this :set_cursor x y)))
 
 (defmacro get-selection ()
@@ -84,8 +84,8 @@
 (defclass Buffer (&optional mode syntax) :nil
 	; (Buffer [mode syntax]) -> buffer
 	(def this :buffer (list "") :buffer_colored (list "")
-		:buffer_states (list '(:nil :nil)) :buffer_found (list :nil)
-		:dirty_colored :nil :dirty_find :nil
+		:buffer_states (list '(:nil :nil))
+		:buffer_found (list :nil) :dirty_colored :nil
 		:syntax (opt syntax (Syntax)) :undo_stack (list) :redo_stack (list)
 		:cursor_x 0 :cursor_y 0 :max_width 0 :tab_width 4 :wrap_width 80
 		:mode mode :next_mark -1 :modified :nil
@@ -164,7 +164,7 @@
 		(last-line)
 		(clear (get :undo_stack this) (get :redo_stack this))
 		(lower :buffer :buffer_colored :buffer_states :buffer_found :max_width
-			(:cursor_x 0 :cursor_y 0 :dirty_colored :t :dirty_find :t :modified :nil))
+			(:cursor_x 0 :cursor_y 0 :dirty_colored :t :modified :nil))
 		this)
 
 	(defmethod :file_save (filepath)
@@ -449,21 +449,19 @@
 					(eql rmode last_rmode)
 					(eql last_pattern pattern))
 			(lower (:last_wmode wmode :last_rmode rmode
-					:last_pattern pattern :dirty_find :t))
+					:last_pattern pattern))
 			(each (lambda (__) (elem-set _ buffer_found :nil)) buffer_found))
-		(when (get :dirty_find this)
-			(lower (:dirty_find :nil))
-			(bind '(engine pattern meta) (query pattern wmode rmode))
-			(defq allsubs (clear '()))
-			(each (lambda (line index)
-					(if (> (length line) 0)
-						(unless index
-							(task-slice)
-							(bind '(indexs substrs) (. engine :search line pattern meta))
-							(setq substrs (map (# (map (# (intern allsubs %0)) %0)) substrs))
-							(elem-set _ buffer_found (list indexs substrs)))
-						(elem-set _ buffer_found '(()()))))
-				(get :buffer this) buffer_found))
+		(bind '(engine pattern meta) (query pattern wmode rmode))
+		(defq allsubs (clear '()))
+		(each (lambda (line index)
+				(if (> (length line) 0)
+					(unless index
+						(task-slice)
+						(bind '(indexs substrs) (. engine :search line pattern meta))
+						(setq substrs (map (# (map (# (intern allsubs %0)) %0)) substrs))
+						(elem-set _ buffer_found (list indexs substrs)))
+					(elem-set _ buffer_found '(()()))))
+			(get :buffer this) buffer_found)
 		buffer_found)
 	)
 
