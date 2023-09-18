@@ -3,7 +3,8 @@
 ;;;;;;;;;;;;;;;
 
 (defun action-macro-record ()
-	(setq *macro_record* (not *macro_record*))
+	(if (setq *macro_record* (not *macro_record*))
+		(clear *macro_actions*))
 	(radio-select macro_toolbar (list :nil :nil *macro_record*))
 	(. *edit* :clear_selection)
 	(refresh))
