@@ -4,6 +4,10 @@
 
 ------
 
+Editor global undo and redo ! Use with caution.
+
+------
+
 New `(replace seq s e seq)` function in `root.inc`.
 
 Textfield widgets offset text to show cursor.
