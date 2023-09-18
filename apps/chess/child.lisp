@@ -220,7 +220,7 @@
 					(unless (eql (defq piece (elem-get (+ (* y 8) x) brd)) " ")
 						;not +empty square so yield piece
 						(setq yield (cat yield piece) len 0)))
-				(:t	;off the edge
+				(:t ;off the edge
 					(setq len 0))))) (list vectors)) yield)
 
 ;native versions
@@ -277,7 +277,7 @@
 						((and (= flag +must_capture) (= newtype +empty))
 							;must capture and got +empty square
 							(setq len 0))
-						(:t	;try this move
+						(:t ;try this move
 							(defq newbrd (cat (slice 0 index brd) " " (slice (inc index) -1 brd)))
 							(cond
 								((and (or (= y 0) (= y 7)) (or (eql piece "P") (eql piece "p")))
@@ -286,14 +286,14 @@
 										(setq newbrd (cat (slice 0 newindex newbrd) promote_piece (slice (inc newindex) -1 newbrd)))
 										(unless (in-check newbrd color)
 											(push yield newbrd))) promote))
-								(:t	;generate this as a possible move
+								(:t ;generate this as a possible move
 									(setq newbrd (cat (slice 0 newindex newbrd) piece (slice (inc newindex) -1 newbrd)))
 									(unless (in-check newbrd color)
 										(push yield newbrd))))
 							(if (and (= flag +may_capture) (/= newtype +empty))
 								;may capture and we did so !
 								(setq len 0)))))
-				(:t	;gone off the board
+				(:t ;gone off the board
 					(setq len 0))))) (list moves)))
 
 ;generate all moves (boards) for the given colours turn
@@ -316,12 +316,12 @@
 			+timeout_value)
 		((= ply 0)
 			(evaluate brd color))
-		(:t	(defq next_boards (all-moves brd color))
+		(:t (defq next_boards (all-moves brd color))
 			(some! 0 -1 :nil (lambda (brd)
 				(cond
 					((= _ 0)
 						(defq value (neg (pvs brd (neg color) (neg beta) (neg alpha) (dec ply)))))
-					(:t	(defq value (neg (pvs brd (neg color) (dec (neg alpha)) (neg alpha) (dec ply))))
+					(:t (defq value (neg (pvs brd (neg color) (dec (neg alpha)) (neg alpha) (dec ply))))
 						(if (< alpha value beta)
 							(setq value (neg (pvs brd (neg color) (neg beta) (neg value) (dec ply)))))))
 				(>= (setq alpha (max alpha value)) beta)) (list next_boards))
@@ -336,7 +336,7 @@
 			+timeout_value)
 		((= ply 0)
 			(evaluate brd color))
-		(:t	(defq value +min_int next_boards (all-moves brd color))
+		(:t (defq value +min_int next_boards (all-moves brd color))
 			(some! 0 -1 :nil (lambda (brd)
 				(setq value (max value (neg (negamax brd (neg color) (neg beta) (neg alpha) (dec ply))))
 					alpha (max alpha value))
@@ -370,7 +370,7 @@
 					(cond
 						((or (<= (- score bias) value) (= (abs score) +timeout_value))
 							(reply "s" "."))
-						(:t	(setq value score pbrd brd)
+						(:t (setq value score pbrd brd)
 							(reply "s" "*")))
 					(setq alpha (max alpha value))
 					(cond
@@ -414,5 +414,5 @@
 				((>= (reduce (lambda (cnt past_brd)
 						(if (eql past_brd brd) (inc cnt) cnt)) history 0) 3)
 					(reply "e" (cat (LF) "** Draw **" (LF))))
-				(:t	(reply "b" new_brd)))))
+				(:t (reply "b" new_brd)))))
 	(free-select select))

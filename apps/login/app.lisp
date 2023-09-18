@@ -50,7 +50,7 @@
 					(save user "apps/login/current")
 					(open-child "apps/wallpaper/app.lisp" +kn_call_open)
 					:nil)
-				(:t	:t)))
+				(:t :t)))
 		((= id +event_create)
 			;create button
 			(cond
@@ -62,6 +62,6 @@
 					(save user "apps/login/current")
 					(open-child "apps/wallpaper/app.lisp" +kn_call_open)
 					:nil)
-				(:t	:t)))
+				(:t :t)))
 		(:t (. *window* :event msg))))
 	(gui-sub *window*))

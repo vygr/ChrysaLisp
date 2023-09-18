@@ -46,7 +46,7 @@
 				;active pipe so feed it
 				(. *pipe* :write (cat (. buffer :get_text_line y) (ascii-char +char_lf)))
 				(. buffer :paste (ascii-char +char_lf)))
-			(:t	;no active pipe
+			(:t ;no active pipe
 				(defq prompt_len (length *env_terminal_prompt*)
 					cmd (slice prompt_len -1 (. buffer :get_text_line y)))
 				;push new line history entry if not same as last entry

@@ -94,7 +94,7 @@ So let's see a few examples:
 		(print "b is 0"))
 	((= b 1)
 		(print "b is 1"))
-	(:t	(print "no test is none :nil!")))
+	(:t (print "no test is none :nil!")))
 ```
 
 Here the tests using symbol `a` have precedence over those with symbol `b` and
@@ -123,7 +123,7 @@ of the symbols used at the entry to the `(cond ...)` !
 	((= id +event_max)
 		;maximize app
 		)
-	(:t	;ui event for window....
+	(:t ;ui event for window....
 		(. *window* :event msg)))
 ```
 
@@ -149,7 +149,7 @@ the matching body clause, or if no match, the optional `:t` clause.
 			((eql (elem-get 0 token) "-")
 				;is a negative number
 				(push col_list (get :ink_numbers this)))
-			(:t	;default text color)
+			(:t ;default text color)
 				(push col_list (get :ink_text this)))))
 	((:string1 :string2)
 		(push col_list (get :ink_strings this)))

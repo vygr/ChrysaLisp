@@ -12,7 +12,7 @@
 			((> (length _) 80)
 				(prin (slice 0 80 _))
 				(setq _ (slice 80 -1 _)))
-			(:t	(prin _)
+			(:t (prin _)
 				(setq _ "")))
 		(stream-flush (io-stream "stdout")))))
 (print)

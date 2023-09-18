@@ -152,7 +152,7 @@
 	(abi-push-trashed :r1 :r2 :r3 :r4)
 	(vp-cpy-rr :r2 :r3)
 	(vp-swp-rr :r0 :r1)
-	(vp-cpy-rr :rsp :r4)	;stack location
+	(vp-cpy-rr :rsp :r4)    ;stack location
 	(loop-start)
 		(vp-xor-rr :r2 :r2)
 		(vp-div-rrr-u :r3 :r2 :r0)

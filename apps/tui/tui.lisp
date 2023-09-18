@@ -15,7 +15,7 @@
 				(pii-write-char 1 (ascii-code " "))
 				(pii-write-char 1 (ascii-code " "))
 				(pii-write-char 1 (ascii-code " ")))
-			(:t	;print char
+			(:t ;print char
 				(pii-write-char 1 c)))) _))
 
 (defun prompt () ">")
@@ -29,7 +29,7 @@
 				(cmd
 					;feed active pipe
 					(. cmd :write (cat buffer (ascii-char 10))))
-				(:t	;start new pipe
+				(:t ;start new pipe
 					(cond
 						((/= (length buffer) 0)
 							;new pipe
@@ -71,5 +71,5 @@
 				(. cmd :close)
 				(setq cmd :nil)
 				(print (const (cat (ascii-char 10) ">"))))
-			(:t	;string from pipe
+			(:t ;string from pipe
 				(print data)))))

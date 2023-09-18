@@ -55,8 +55,8 @@
 
 	(entry 'sys_str :from_long '(:r0 :r1 :r2))
 
-	(vp-cpy-rr :r2 :r3)	;base
-	(vp-cpy-rr :r1 :r4)	;buffer start
+	(vp-cpy-rr :r2 :r3) ;base
+	(vp-cpy-rr :r1 :r4) ;buffer start
 	(loop-start)
 		(vp-xor-rr :r2 :r2)
 		(vp-div-rrr-u :r3 :r2 :r0)

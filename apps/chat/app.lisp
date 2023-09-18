@@ -32,7 +32,7 @@
 				;line feed and truncate
 				(if (> (length (push buf "")) (const vdu_height))
 					(setq buf (slice (const (dec (neg vdu_height))) -1 buf))))
-			(:t	;char
+			(:t ;char
 				(elem-set -2 buf (cat (elem-get -2 buf) c))))) s)
 	(. vdu :load buf 0 0 (length (elem-get -2 buf)) (dec (length buf))) buf)
 

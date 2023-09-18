@@ -28,7 +28,7 @@
 							(setq _mutated :t)
 							(_destroy _key _val)
 							(. this :insert _key (_create _key _now)))))
-				(:t	;not found
+				(:t ;not found
 					(setq _mutated :t)
 					(_destroy _key _val)
 					(. this :erase _key)))) _old_keys _old_vals)

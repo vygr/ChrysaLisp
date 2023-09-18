@@ -19,7 +19,7 @@
 			(def val :job job :timestamp (pii-time))
 			(mail-send (get :child val) (cat
 				(char key +long_size) (elem-get +select_reply select) job)))
-		(:t	;no jobs in que
+		(:t ;no jobs in que
 			(undef val :job :timestamp))))
 
 (defun cancel-job (key val)
@@ -82,7 +82,7 @@
 						(setq working :nil)
 						(. farm :each (lambda (key val)
 							(setq working (or working (get :job val)))))))
-				(:t	;timer event
+				(:t ;timer event
 					(mail-timeout (elem-get +select_timer select) timer_rate 0)
 					(. farm :refresh retry_timeout))))
 		(. farm :close)

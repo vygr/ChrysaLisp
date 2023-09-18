@@ -24,7 +24,7 @@
 	(cond
 		((starts-with "```" line)
 			:text)
-		(:t	(case line
+		(:t (case line
 				("root-funcs"
 					(paragraph (root-funcs)))
 				("root-macros"

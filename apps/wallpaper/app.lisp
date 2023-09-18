@@ -56,7 +56,7 @@
 								)
 							(:u ;was up last time
 								(setq mouse_state :d))))
-					(:t	;mouse button is up
+					(:t ;mouse button is up
 						(case mouse_state
 							(:d ;was down last time
 								;run launcher

@@ -88,7 +88,7 @@
 					((= (length pad_shape) 4)
 						;oval pad
 						(. canvas :fpoly pad_x pad_y +winding_odd_even (oval pad_radius pad_shape)))
-					(:t	;polygon pad
+					(:t ;polygon pad
 						(. canvas :fpoly pad_x pad_y +winding_odd_even (list pad_shape)))))) pads)
 		) (list pcb)))
 
@@ -131,7 +131,7 @@
 					((= (length pad_shape) 4)
 						;oval pad
 						(. canvas :fpoly pad_x pad_y +winding_odd_even (oval (+ pad_radius (if with_gaps pad_gap 0.0)) pad_shape)))
-					(:t	;polygon pad
+					(:t ;polygon pad
 						(if with_gaps
 							(. canvas :fpoly pad_x pad_y +winding_odd_even
 								(path-stroke-polygons (list) pad_gap +eps +join_round (list pad_shape)))

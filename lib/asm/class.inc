@@ -160,14 +160,14 @@
 					(assign _3 (elem-get 2 m))
 					(fn-call (elem-get 0 m)))
 				;v-call
-				(:t	(defq _ (elem-get 2 m))
+				(:t (defq _ (elem-get 2 m))
 					(if (find-rev :r14 _)
 						(throw "Dispatch register conflicts with arg !" (list :r14 _)))
 					(assign _3 _)
 					(vp-cpy-ir :r0 obj_vtable :r14)
 					(vp-call-i :r14 (elem-get 4 m))))
 			(if _4 (assign (elem-get 3 m) _4)))
-		(:t	;l-call
+		(:t ;l-call
 			(cond
 				((not _2))
 				((str? _2) (assign _2 (slice 0 (length (split _2 ",")) +vp_regs_calls)))
@@ -187,7 +187,7 @@
 			(assign _3 (elem-get 2 m))
 			(scope-unwind)
 			(fn-jump (elem-get 0 m)))
-		(:t	(defq _ (elem-get 2 m))
+		(:t (defq _ (elem-get 2 m))
 			(if (find-rev :r14 _)
 				(throw "Dispatch register conflicts with arg !" (list :r14 _)))
 			(assign _3 _)

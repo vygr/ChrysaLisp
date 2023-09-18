@@ -165,7 +165,7 @@ provided and if you included a default.
 			(each! 0 -1 (lambda (_key) (cond
 				((eql _key :t)
 					(setq _default_key :t _default_clause _clause_body))
-				(:t	(push (elem-get 0 _map) _key)
+				(:t (push (elem-get 0 _map) _key)
 					(push (elem-get 1 _map) _clause_body)))) (list _keys)) _map)
 			_body (list (list) (list))))
 	(cond
@@ -174,7 +174,7 @@ provided and if you included a default.
 			(if _atoms
 				`(elem-get (or (find ,_form ',(elem-get 0 _map)) -2) ',(elem-get 1 _map))
 				`(eval (elem-get (or (find ,_form ',(elem-get 0 _map)) -2) ',(elem-get 1 _map)))))
-		(:t	(if _atoms
+		(:t (if _atoms
 				`(if (defq ,(defq _i (gensym)) (find ,_form ',(elem-get 0 _map)))
 					(elem-get ,_i ',(elem-get 1 _map)))
 				`(if (defq ,(defq _i (gensym)) (find ,_form ',(elem-get 0 _map)))
@@ -302,12 +302,12 @@ These macros define an interface for creating and converting to/from a 'number'
 and the actual numeric type selected.
 
 ```vdu
-(cond	;pick number format :t/:nil
-	(:t	;reals
+(cond   ;pick number format :t/:nil
+	(:t ;reals
 		(defmacro vec (&rest _) `(reals ~_))
 		(defmacro i2n (_) `(n2r ,_))
 		(defmacro f2n (_) `(n2r ,_)))
-	(:t	;fixed point
+	(:t ;fixed point
 		(defmacro vec (&rest _) `(fixeds ~_))
 		(defmacro i2n (_) `(n2f ,_))
 		(defmacro f2n (_) _)))

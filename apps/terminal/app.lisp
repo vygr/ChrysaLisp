@@ -33,7 +33,7 @@
 		(*pipe*
 			;active pipe running
 			(. *pipe* :poll))
-		(:t	;no active pipe running
+		(:t ;no active pipe running
 			(mail-poll *select*))))
 
 (defun input-select ()
@@ -45,9 +45,9 @@
 				((eql msg :t)
 					;user select msg
 					(defq msg (mail-read (elem-get (defq idx (mail-select *select*)) *select*))))
-				(:t	;pipe closed or pipe data
+				(:t ;pipe closed or pipe data
 					(defq idx +select_pipe))))
-		(:t	;no active pipe running
+		(:t ;no active pipe running
 			(defq msg (mail-read (elem-get (defq idx (mail-select *select*)) *select*)))))
 	(list msg idx))
 
@@ -164,7 +164,7 @@
 					((<= +char_space key +char_tilde)
 						;insert the char
 						(action-insert (char key)))))
-			(:t	;gui event
+			(:t ;gui event
 				(. *window* :event *msg*))))
 	(if *pipe* (. *pipe* :close))
 	(free-select *select*)

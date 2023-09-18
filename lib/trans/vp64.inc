@@ -23,7 +23,7 @@
 			(emit-short (+ (inc o) (<< r 8) (<< c 12)) (>>> c 4)))
 		((vp64-within c 36)
 			(emit-short (+ (+ o 2) (<< r 8) (<< c 12)) (>>> c 4) (>>> c 20)))
-		(:t	(emit-short (+ (+ o 3) (<< r 8)) c (>>> c 16) (>>> c 32) (>>> c 48)))))
+		(:t (emit-short (+ (+ o 3) (<< r 8)) c (>>> c 16) (>>> c 32) (>>> c 48)))))
 
 (defun emit-cpy-cr (c r) (vp64-cr (next-opcode 4) c r))
 (defun emit-add-cr (c r) (unless (= c 0) (vp64-cr (next-opcode 4) c r)))
@@ -39,7 +39,7 @@
 		((= c 0))
 		((<= 1 c 63)
 			(emit-short (+ o (<< r 8)) c))
-		(:t	(throw "vp64-shift-cr constant out of range !" c))))
+		(:t (throw "vp64-shift-cr constant out of range !" c))))
 
 (defun emit-shl-cr (c r) (vp64-shift-cr (next-opcode) c r))
 (defun emit-shr-cr (c r) (vp64-shift-cr (next-opcode) c r))
@@ -71,7 +71,7 @@
 			(emit-short (+ (inc o) (<< d 8) (<< c 12)) (>>> c 4)))
 		((vp64-within c 36)
 			(emit-short (+ (+ o 2) (<< d 8) (<< c 12)) (>>> c 4) (>>> c 20)))
-		(:t	(throw "vp64-scr constant out of range !" c))))
+		(:t (throw "vp64-scr constant out of range !" c))))
 
 (defun emit-seq-cr (c d) (vp64-scr (next-opcode 3) c d))
 (defun emit-sne-cr (c d) (vp64-scr (next-opcode 3) c d))
@@ -95,7 +95,7 @@
 			(emit-short (+ o (<< (- l 2) 8))))
 		((vp64-within (- m 4) 24)
 			(emit-short (+ (inc o) (<< (- l 4) 8)) (>>> (- l 4) 8)))
-		(:t	(throw "vp64-branch constant out of range !" l))))
+		(:t (throw "vp64-branch constant out of range !" l))))
 
 (defun vp64-beq (l d) (vp64-branch (next-opcode 2) l d))
 (defun vp64-bne (l d) (vp64-branch (next-opcode 2) l d))
@@ -122,7 +122,7 @@
 	(cond
 		((vp64-within c 16)
 			(emit-short (+ o (<< d 8) (<< s 12)) c))
-		(:t	(throw "vp64-ir constant out of range !" c))))
+		(:t (throw "vp64-ir constant out of range !" c))))
 
 (defun emit-cpy-ir (s c d) (vp64-ir (next-opcode) s c d))
 (defun emit-cpy-ir-b (s c d) (vp64-ir (next-opcode) s c d))
@@ -137,7 +137,7 @@
 	(cond
 		((vp64-within c 16)
 			(emit-short (+ o (<< d 8) (<< s 12)) c))
-		(:t	(throw "vp64-ri constant out of range !" c))))
+		(:t (throw "vp64-ri constant out of range !" c))))
 
 (defun emit-cpy-ri (s d c) (vp64-ri (next-opcode) s d c))
 (defun emit-cpy-ri-b (s d c) (vp64-ri (next-opcode) s d c))
@@ -171,7 +171,7 @@
 	(cond
 		((vp64-within c 20)
 			(emit-short (+ o (<< r 8) (<< c 12)) (>>> c 4)))
-		(:t	(throw "vp64-call-jmp-i constant out of range !" c))))
+		(:t (throw "vp64-call-jmp-i constant out of range !" c))))
 
 (defun emit-call-i (r c) (vp64-call-jmp-i (next-opcode) r c))
 (defun emit-jmp-i (r c) (vp64-call-jmp-i (next-opcode) r c))
@@ -180,7 +180,7 @@
 	(cond
 		((vp64-within (defq c (- l *pc* 4)) 20)
 			(emit-short (+ o (<< r 8) (<< c 12)) (>>> c 4)))
-		(:t	(throw "vp64-p constant out of range !" c))))
+		(:t (throw "vp64-p constant out of range !" c))))
 
 (defun emit-cpy-pr (l r) (vp64-p (next-opcode) r l))
 (defun emit-lea-p (l r) (vp64-p (next-opcode) r l))
@@ -191,7 +191,7 @@
 			(emit-short (+ o (<< c 8))))
 		((vp64-within (defq c (- l *pc* 4)) 24)
 			(emit-short (+ (inc o) (<< c 8)) (>>> c 8)))
-		(:t	(throw "vp64-call-jmp-p constant out of range !" c))))
+		(:t (throw "vp64-call-jmp-p constant out of range !" c))))
 
 (defun emit-call (l) (vp64-call-jmp-p (next-opcode 2) l))
 (defun emit-jmp (l d) (vp64-call-jmp-p (next-opcode 2) l))
@@ -204,7 +204,7 @@
 	(cond
 		((<= 0 c (const (- 0x10000 +ptr_size)))
 			(emit-short (+ (next-opcode) (<< b 8) (<< n 12)) c))
-		(:t	(throw "emit-call-abi constant out of range !" c)))))
+		(:t (throw "emit-call-abi constant out of range !" c)))))
 (:t (throw (cat "Unknown ABI for CPU " *cpu* " !") *abi*)))
 
 (defun emit-alloc (c) (emit-sub-cr (align c stack_align) (const (emit-native-reg? :rsp))))

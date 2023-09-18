@@ -77,11 +77,11 @@
 						((is-symbol-char? c)
 							(push token c)
 							(setq c :nil))
-						(:t	(cond
+						(:t (cond
 								((find-rev (elem-get -2 (push out_tokens (apply cat token)))
 										'("pptr" "byte" "ubyte" "short" "ushort" "int" "uint" "long" "ulong" "ptr"))
 									(push out_types :operator))
-								(:t	(push out_types state)))
+								(:t (push out_types state)))
 							(clear token)
 							(setq state :space unary :nil))))
 				(:number
@@ -89,7 +89,7 @@
 						((is-folow-on-number-char? c)
 							(push token c)
 							(setq c :nil))
-						(:t	(push out_types state)
+						(:t (push out_types state)
 							(push out_tokens (apply cat token))
 							(clear token)
 							(setq state :space unary :nil))))
@@ -125,14 +125,14 @@
 						((is-folow-on-op-char? c)
 							(push token c)
 							(setq c :nil))
-						(:t	(cond
+						(:t (cond
 								(unary
 									(if (setq _ (find-rev (elem-get 0 token) "-*&~!"))
 										(push out_tokens (elem-get _ "_#:~!"))
 										(throw "Unknown unary operator !" (elem-get 0 token))))
-								(:t	(push out_tokens (apply cat token))
+								(:t (push out_tokens (apply cat token))
 									(setq unary :t)))
-						 	(push out_types state)
+							(push out_types state)
 							(clear token)
 							(setq state :space))))))) line)
 	(unless (eql state :space)
@@ -171,9 +171,9 @@
 						((>= v (elem-get 2 s))
 							(push out_tokens (pop token_stack))
 							(push out_types :operator))
-						(:t	(setq x :nil))))
+						(:t (setq x :nil))))
 				(push token_stack token))
-			(:t	;number, symbol, string, path, label
+			(:t ;number, symbol, string, path, label
 				(push out_tokens token)
 				(push out_types type)))) tokenize_output)
 	(while (defq _ (pop token_stack))
@@ -396,7 +396,7 @@
 			(throw "Compile op not defined !" _))
 		((not (eql 'op (elem-get 1 s)))
 			(throw "Not an operator !" _))
-		(:t	((elem-get 4 s) _))))
+		(:t ((elem-get 4 s) _))))
 
 (defun compile-string (_)
 	(add-inst (list 'fn-string _ (push-reg :nil))))

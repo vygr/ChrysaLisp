@@ -19,7 +19,7 @@
 						((:symbol)
 							(_fnc_text _token)
 							(setq _type :nil))
-						(:t	(setq _state :open))))
+						(:t (setq _state :open))))
 				(:open
 					(case _type
 						(:open
@@ -41,19 +41,19 @@
 						(:close
 							(case _token
 								(">" (setq _state :close))))
-						(:t	(setq _type :nil))))
+						(:t (setq _type :nil))))
 				(:line_comment2
 					(case _type
 						(:close
 							(case _token
 								("?>" (setq _state :close))))
-						(:t	(setq _type :nil))))
+						(:t (setq _type :nil))))
 				(:block_comment
 					(case _type
 						(:close
 							(case _token
 								("-->" (setq _state :close))))
-						(:t	(setq _type :nil))))
+						(:t (setq _type :nil))))
 				(:command
 					(case _type
 						(:symbol

@@ -48,7 +48,7 @@
 						(defq _then (get :timestamp _val))
 						(> (- _now _then) _timeout)
 						(restart)))
-				(:t	;not found child
+				(:t ;not found child
 					(restart)))) _old_keys _old_vals)
 		_mutated)
 

@@ -24,7 +24,7 @@
 
 ;field equation for a sphere
 ; (defun sphere (p c r)
-;	(- (vec-length (vec-sub p c)) r))
+;(- (vec-length (vec-sub p c)) r))
 
 ;the scene
 (defun scene (p)

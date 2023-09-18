@@ -48,7 +48,7 @@
 				(setf-> job
 					(+job_key key)
 					(+job_reply (elem-get +select_reply select)))))
-		(:t	;no jobs in que
+		(:t ;no jobs in que
 			(undef val :job :timestamp))))
 
 (defun create (key val nodes)
@@ -125,7 +125,7 @@
 					(dispatch-job key val))
 				(setq dirty :t)
 				(tile canvas msg))
-			(:t	;timer event
+			(:t ;timer event
 				(mail-timeout (elem-get +select_timer select) +timer_rate 0)
 				(. farm :refresh +retry_timeout)
 				(when dirty

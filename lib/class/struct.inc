@@ -29,7 +29,7 @@
 			(each! 1 -1 (lambda (line)
 				(setq max_base (max max_base (_structure union_base line)))) (list line))
 			(setq base max_base))
-		(:t	(each! 1 -1 (lambda (field)
+		(:t (each! 1 -1 (lambda (field)
 				(case (elem-get 0 line)
 					(byte (new_field "b" +byte_size +byte_size))
 					(ubyte (new_field "B" +byte_size +byte_size))

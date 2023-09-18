@@ -123,7 +123,7 @@
 		(vp-add-cr statics_sys_mail_mbox_heap :r1)
 		(hp-freecell :r1 :r0 :r2)
 
- 		;splice any dead mail to postman
+		;splice any dead mail to postman
 		(call 'sys_mail :junk_mail '((& :r0 mbox_list)))
 	(endif)
 	(vp-ret)

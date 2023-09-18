@@ -79,7 +79,7 @@
 			("skewY"
 				(bind '(a) vals)
 				(Mat3x2-skewy-f (deg-to-rad a)))
-			(:t	(throw "Unknown transform !" key))))
+			(:t (throw "Unknown transform !" key))))
 		(setq ma (mat3x2-mul-f ma mb)))
 	ma)
 
@@ -154,7 +154,7 @@
 				((throw "Unknown dominant-baseline !" val))))
 		("d"
 			(path-gen-paths val +eps))
-		(:t	val)))
+		(:t val)))
 
 (defun push-attributes (stack keys vals)
 	(push stack (defq entry (. (elem-get -2 stack) :copy)))
@@ -183,11 +183,11 @@
 				(map (lambda (p) (path-transform transform p p))
 					(reduce (lambda (l (f p))
 						(cond
-							(f	;closed
+							(f  ;closed
 								(bind '(p1 p2) (path-stroke-polygon p (* 0.5 stroke_width) +eps
 									stroke_linejoin))
 								(push l p1 p2))
-							(:t	;open
+							(:t ;open
 								(push l (path-stroke-polyline p (* 0.5 stroke_width) +eps
 									stroke_linejoin stroke_linecap stroke_linecap)))))
 							paths (list)))))))

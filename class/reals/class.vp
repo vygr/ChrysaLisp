@@ -285,7 +285,7 @@
 	(vp-add-rr src1 src_end)
 	(vec-loop-until `(,src1) `(,e0) src_end dst1
 		(lambda (e0)
- 			(vpif `(,e0 < 0))
+			(vpif `(,e0 < 0))
 				(call 'sys_math :r_sub `(0 ,e0) `(,e0))
 			(endif)
 			e0))

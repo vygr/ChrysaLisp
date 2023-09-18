@@ -96,13 +96,13 @@
 									(setq mouse_state :d)))
 							;use rx, ry ...
 							)
-						(:t	;mouse button is up
+						(:t ;mouse button is up
 							(case mouse_state
 								(:d ;was down last time
 									(setq mouse_state :u))
 								(:u ;was up last time, so we are hovering
 									)))))
-			(:t	;gui event
+			(:t ;gui event
 				(. *window* :event *msg*))))
 	(gui-sub *window*)
 	(free-select select))

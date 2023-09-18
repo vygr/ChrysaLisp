@@ -6,13 +6,13 @@
 (include "lib/consts/colors.inc")
 
 (def-struct cpm 0
-	(uint ident)		;ident .CPM or .FLM
-	(uint bytes)		;0 if not known, else total size
-	(uint version)		;version number
-	(uint type)			;image type
-	(uint width)		;image w
-	(uint height)		;image h
-	(uint trans))		;image transparent colour
+	(uint ident)        ;ident .CPM or .FLM
+	(uint bytes)        ;0 if not known, else total size
+	(uint version)      ;version number
+	(uint type)         ;image type
+	(uint width)        ;image w
+	(uint height)       ;image h
+	(uint trans))       ;image transparent colour
 
 (def-method 'pixmap :load_cpm)
 	;inputs

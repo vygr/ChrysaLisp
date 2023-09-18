@@ -114,7 +114,7 @@
 						(getf msg +reply_vops_reals))
 					(def node :timestamp (pii-time))
 					(push poll_que (get :child node))))
-			(:t	;polling timer event
+			(:t ;polling timer event
 				(mail-timeout (elem-get +select_nodes select) +poll_rate 0)
 				(when (. global_tasks :refresh +retry_timeout)
 					;nodes have mutated

@@ -229,7 +229,7 @@
 					((<= +char_space key +char_tilde)
 						;insert char etc ...
 						(char key))))
-			(:t	;gui event
+			(:t ;gui event
 				(. *window* :event *msg*))))
 	(gui-sub *window*)
 	(free-select select)

@@ -18,7 +18,7 @@
 						;file
 						(if (some (# (ends-with %0 file)) exts)
 							(push paths (cat root "/" file))))
-					(:t	;dir
+					(:t ;dir
 						(unless (starts-with "." file)
 							(push stack (cat root "/" file))))))
 				(unzip (split (pii-dirlist root) ",") (lists2)))))
