@@ -146,8 +146,7 @@ recorded_actions (list
 	action-right-bracket action-right-select action-right-tab action-select-all
 	action-select-block action-select-line action-select-paragraph
 	action-select-word action-set-find-text action-tab action-to-lower
-	action-to-upper action-trim action-undo action-up action-up-select
-	action-replace-global)
+	action-to-upper action-trim action-undo action-up action-up-select)
 
 replace_actions (list
 	action-replace action-replace-all action-replace-global)
