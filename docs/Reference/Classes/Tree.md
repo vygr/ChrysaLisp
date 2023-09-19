@@ -31,7 +31,7 @@ routes are:
 ### :empty
 
 ```code
-(. tree ::empty) -> tree
+(. tree :empty) -> tree
 
 empty tree
 ```

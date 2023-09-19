@@ -13,7 +13,7 @@
 		:border 0 :selected_node :nil)
 
 	(defmethod :empty ()
-		; (. tree ::empty) -> tree
+		; (. tree :empty) -> tree
 		;empty tree
 		(each (# (. %0 :sub)) (. this :children))
 		this)
