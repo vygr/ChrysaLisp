@@ -20,7 +20,7 @@ inputs
 outputs
 :r0 = heap (ptr)
 trashes
-:r1-:r11
+:r1-:r8
 ```
 
 ### :deinit -> sys/heap/deinit
@@ -31,7 +31,7 @@ inputs
 outputs
 :r0 = heap (ptr)
 trashes
-:r1-:r5
+:r1-:r6
 ```
 
 ### :free -> sys/heap/free

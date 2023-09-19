@@ -33,13 +33,13 @@
 
 	;free memory heaps
 	(fn-bind 'sys/statics/statics :r0)
-	(vp-cpy-cr mem_cell_min_size :r6)
+	(vp-cpy-cr mem_cell_min_size :r7)
 	(vp-add-cr statics_sys_mem_heaps :r0)
 	(loop-start)
 		(call 'sys_heap :deinit '(:r0) '(:r0))
 		(vp-add-cr hp_heap_size :r0)
-		(vp-add-rr :r6 :r6)
-	(loop-until (list :r6 '> mem_cell_max_size))
+		(vp-add-rr :r7 :r7)
+	(loop-until (list :r7 '> mem_cell_max_size))
 	(vp-ret)
 
 (def-func-end)
@@ -51,13 +51,13 @@
 	;free all unused blocks
 
 	(fn-bind 'sys/statics/statics :r0)
-	(vp-cpy-cr mem_cell_min_size :r12)
+	(vp-cpy-cr mem_cell_min_size :r9)
 	(vp-add-cr statics_sys_mem_heaps :r0)
 	(loop-start)
 		(call 'sys_heap :collect '(:r0) '(:r0))
 		(vp-add-cr hp_heap_size :r0)
-		(vp-add-rr :r12 :r12)
-	(loop-until (list :r12 '> mem_cell_max_size))
+		(vp-add-rr :r9 :r9)
+	(loop-until (list :r9 '> mem_cell_max_size))
 	(vp-ret)
 
 (def-func-end)
