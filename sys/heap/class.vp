@@ -140,11 +140,11 @@
 
 	(vp-def (_ _ _ this blk cel next tail total))
 
-    (entry 'sys_heap :collect `(,this))
+	(entry 'sys_heap :collect `(,this))
 
-    ;current total
-    (fn-bind 'sys/statics/statics :r0)
-    (assign '((:r0 statics_sys_mem_total)) `(,total))
+	;current total
+	(fn-bind 'sys/statics/statics :r0)
+	(assign '((:r0 statics_sys_mem_total)) `(,total))
 
 	;loop over free cells list
 	(assign `((,this hp_heap_free_flist)) `(,next))
@@ -172,28 +172,28 @@
 		(ln-remove-node :r0 :r2)
 		(vp-sub-rr :r1 total)
 		(call 'sys_pii :munmap `(,blk :r1 +mmap_data))
-    (loop-end)
+	(loop-end)
 
-    ;loop over all blocks
+	;loop over all blocks
 	(vp-xor-rr cel cel)
 	(assign `(,cel) `((,this hp_heap_free_flist)))
-    (loop-list-forward this 0 blk next)
-        ;splice any free cells onto free list
-        (assign `((,blk hp_block_free_flist)) '(:r0))
-        (continueif '(:r0 = 0))
-        (assign `((,blk hp_block_free_flist_tail) (,this hp_heap_free_flist)) '(:r1 :r2))
-        (assign '(:r0 :r2) `((,this hp_heap_free_flist) (:r1 ln_fnode_next)))
+	(loop-list-forward this 0 blk next)
+		;splice any free cells onto free list
+		(assign `((,blk hp_block_free_flist)) '(:r0))
+		(continueif '(:r0 = 0))
+		(assign `((,blk hp_block_free_flist_tail) (,this hp_heap_free_flist)) '(:r1 :r2))
+		(assign '(:r0 :r2) `((,this hp_heap_free_flist) (:r1 ln_fnode_next)))
 		;reset free count and free list
 		(assign `(,cel) `((,blk hp_block_free_flist)))
 		(assign `(,cel) `((,blk hp_block_free_flist_tail)))
 		(assign `(,cel) `((,blk hp_block_freecnt)))
-    (loop-end)
+	(loop-end)
 
-    ;current total
-    (fn-bind 'sys/statics/statics :r0)
-    (assign `(,total) '((:r0 statics_sys_mem_total)))
+	;current total
+	(fn-bind 'sys/statics/statics :r0)
+	(assign `(,total) '((:r0 statics_sys_mem_total)))
 
-    (exit 'sys_heap :collect `(,this))
-    (vp-ret)
+	(exit 'sys_heap :collect `(,this))
+	(vp-ret)
 
 (def-func-end)
