@@ -11,7 +11,6 @@
 	;:r2 = num cells (uint)
 	;outputs
 	;:r0 = heap (ptr)
-	;:r1 = cell size (bytes)
 	;trashes
 	;:r1-:r2
 
@@ -22,12 +21,13 @@
 	(vp-and-cr (neg +ptr_size) :r1)
 	(assign '(:r1) '((:r0 hp_heap_cellsize)))
 
-	;at least 1 cell !
-	(vp-mul-rr :r1 :r2)
-	(vpif '(:r1 > :r2))
-		(vp-cpy-rr :r1 :r2)
+	;size of block to contain these cells
+	(vpif '(:r2 <= 0))
+		(vp-cpy-cr 1 :r2)
 	(endif)
-
+	;allow for block pointer
+	(vp-add-cr hp_cell_next :r1)
+	(vp-mul-rr :r1 :r2)
 	;round up to next page size
 	(vp-add-cr (+ hp_block_size (dec ld_page_size)) :r2)
 	(vp-and-cr (neg ld_page_size) :r2)
@@ -38,7 +38,7 @@
 	(assign '(:r2) '((:r0 hp_heap_free_flist)))
 	(lh-init :r0 :r2)
 
-	(exit 'sys_heap :init '(:r0 :r1))
+	(exit 'sys_heap :init '(:r0))
 	(vp-ret)
 
 (def-func-end)
