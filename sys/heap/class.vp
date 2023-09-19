@@ -113,7 +113,7 @@
 	(assign `(,next) `((,block hp_block_free_flist_tail)))
 	(assign `(,cnt) `((,block hp_block_freecnt)))
 	(loop-start)
-		(assign `(,block) `((,cell (- hp_cell_block hp_cell_next))))
+		(assign `(,block) `((,cell ,(- hp_cell_block hp_cell_next))))
 		(assign `(,next) `((,cell ln_fnode_next)))
 		(vp-lea-d cell cellsize next)
 		(vp-add-cr 1 cnt)
@@ -153,7 +153,7 @@
 		(assign `((,next ln_fnode_next)) `(,next))
 
 		;transfer to blocks free list
-		(assign `((,cel (- hp_cell_block hp_cell_next))) `(,blk))
+		(assign `((,cel ,(- hp_cell_block hp_cell_next))) `(,blk))
 		(assign `((,blk hp_block_free_flist_tail)) `(,tail))
 		(ln-add-fnode blk hp_block_free_flist cel :r0)
 		(vpif `(,tail = 0))
