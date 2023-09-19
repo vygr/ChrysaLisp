@@ -56,7 +56,6 @@ inputs
 :r2 = num cells (uint)
 outputs
 :r0 = heap (ptr)
-:r1 = cell size (bytes)
 trashes
 :r1-:r2
 ```
