@@ -22,14 +22,6 @@
 	; (matches text regexp) -> (([(i0 i1)] ...) ([([(s0 s1)] ...)]...))
 	(. +regexp :search _t _p))
 
-(defmacro each-found (_f _t _p)
-	; (each-found lambda text substr)
-	`(each! 0 -1 ,_f (substr ,_t ,_p)))
-
-(defmacro each-match (_f _t _p)
-	; (each-match lambda text regexp)
-	`(each! 0 -1 ,_f (matches ,_t ,_p)))
-
 (defun query (_p _w _r)
 	; (query pattern whole_words regexp) -> (engine pattern meta)
 	(when (and (not (eql _p "")) _w (not _r))
@@ -43,5 +35,13 @@
 
 ;module
 (export-symbols
-	match? substr matches query each-found each-match)
+	match? substr matches query)
 (env-pop)
+
+(defmacro each-found (_f _t _p)
+	; (each-found lambda text substr)
+	`(each! 0 -1 ,_f (substr ,_t ,_p)))
+
+(defmacro each-match (_f _t _p)
+	; (each-match lambda text regexp)
+	`(each! 0 -1 ,_f (matches ,_t ,_p)))
