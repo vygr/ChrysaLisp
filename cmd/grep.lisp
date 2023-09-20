@@ -16,26 +16,29 @@
 		-e --exp pattern: regular expression.
 
 	pattern:
-		\s  space
-		\q  double quote
-		\t  tab
-		\r  return
-		\f  form feed
-		\n  line feed
-		\w  white space
-		\b  black space
-		\\  esc for \ etc
-		.   any char
-		+   one or more
-		*   zero or more
-		?   zero or one
-		|   or
-		^   start of line
-		$   end of line
-		{   start of word
-		}   end of word
-		[]  class, [0-9], [abc123]
-		()  group
+		^  start of line
+		$  end of line
+		{  start of word
+		}  end of word
+		.  any char
+		+  one or more
+		*  zero or more
+		?  zero or one
+		|  or
+		[] class, [0-9], [abc123]
+		() group
+		\s [ \t]
+		\S [^ \r\f\v\n\t]
+		\d [0-9]
+		\D [^0-9]
+		\l [a-z]
+		\u [A-Z]
+		\a [A-Za-z]
+		\p [A-Za-z0-9]
+		\w [A-Za-z0-9_]
+		\W [^A-Za-z0-9_]
+		\x [A-Fa-f0-9]
+		\\ esc for \ etc
 
 	If no paths given on command line
 	then will grep stdin.")
