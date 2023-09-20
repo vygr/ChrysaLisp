@@ -4,6 +4,25 @@
 
 ------
 
+Reminder of how to bridge Lisp subnets over ChrysaLib hubs !
+
+Remote machine, say my Raspberry Pi4 at 192.168.1.94, over in the living room:
+
+../../C++/ChrysaLib/hub_node -shm&
+./run.sh or ./run_tui.sh
+link CLB-L1
+
+Local machine, say my MacBook:
+
+../../C++/ChrysaLib/hub_node -shm 192.168.1.94&
+./run.sh or ./run_tui.sh
+link CLB-L1
+
+The link command is typed in at your ChrysaLisp TUI or Terminal. Notice that we
+run the hub_node's in the background.
+
+------
+
 Editor global undo and redo ! Use with caution.
 
 Fixed bug in Editor macro recording.

@@ -5,8 +5,8 @@ parallel operating system with features such as a GUI, terminal, OO Assembler,
 class libraries, C-Script compiler, Lisp interpreter, debugger, profiler,
 vector font engine, and more. It supports MacOS, Windows, and Linux for x64,
 Riscv64 and Arm64 and eventually will move to bare metal. It also allows the
-modeling of various network topologies and the use of USB-links for joining
-heterogeneous host networks. It has a virtual CPU instruction set and a
+modeling of various network topologies and the use of ChrysaLib hub_nodes to
+join heterogeneous host networks. It has a virtual CPU instruction set and a
 powerful object and class system for the assembler and high-level languages. It
 has function-level dynamic binding and loading and a command terminal with a
 familiar interface for pipe-style command line applications. A Common Lisp-like

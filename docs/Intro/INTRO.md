@@ -183,3 +183,23 @@ lisp
 
 You will see the sign on message for the Lisp interpreter and then you can use
 the REPL directly to experiment.
+
+## How to bridge ChrysaLisp Lisp subnets over ChrysaLib hubs !
+
+First go and install the ChrysaLib project and build it according to the
+README.md !
+
+Remote machine, say my Raspberry Pi4 at 192.168.1.94, over in the living room:
+
+../../C++/ChrysaLib/hub_node -shm&
+./run.sh or ./run_tui.sh
+link CLB-L1
+
+Local machine, say my MacBook:
+
+../../C++/ChrysaLib/hub_node -shm 192.168.1.94&
+./run.sh or ./run_tui.sh
+link CLB-L1
+
+The link command is typed in at your ChrysaLisp TUI or Terminal. Notice that we
+run the hub_node's in the background.
