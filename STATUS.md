@@ -8,15 +8,19 @@ Reminder of how to bridge Lisp subnets over ChrysaLib hubs !
 
 Remote machine, say my Raspberry Pi4 at 192.168.1.94, over in the living room:
 
+```code
 ../../C++/ChrysaLib/hub_node -shm&
 ./run.sh or ./run_tui.sh
 link CLB-L1
+```
 
 Local machine, say my MacBook:
 
+```code
 ../../C++/ChrysaLib/hub_node -shm 192.168.1.94&
 ./run.sh or ./run_tui.sh
 link CLB-L1
+```
 
 The link command is typed in at your ChrysaLisp TUI or Terminal. Notice that we
 run the hub_node's in the background.
