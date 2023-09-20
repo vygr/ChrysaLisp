@@ -47,8 +47,9 @@
 		ws (const (pad "" 8 (ascii-char 9))) wc 1)
 	(while (defq l (pop stack) m (pop stack))
 		(. m :each (lambda (k v)
-			(if (map? v) (push stack v (setq v (list))))
-			(push l (list k v)))))
+			(when (notany (# (eql k %0)) key_filter)
+				(if (map? v) (push stack v (setq v (list))))
+				(push l (list k v))))))
 	(push stack out 0)
 	(write-line stream "( ;map")
 	(while (defq i (pop stack) l (pop stack))
@@ -57,16 +58,15 @@
 			((< i (length l))
 				(bind '(k v) (elem-get i l))
 				(push stack l (inc i))
-				(when (notany (# (eql k %0)) key_filter)
-					(setq k (maptree-encode k))
-					(cond
-						((list? v)
-							;indent
-							(setq wc (inc wc))
-							(push stack v 0)
-							(write-line stream (cat p k))
-							(write-line stream (cat p "( ;map")))
-						(:t (write-line stream (cat p k " " (maptree-encode v)))))))
+				(setq k (maptree-encode k))
+				(cond
+					((list? v)
+						;indent
+						(setq wc (inc wc))
+						(push stack v 0)
+						(write-line stream (cat p k))
+						(write-line stream (cat p "( ;map")))
+					(:t (write-line stream (cat p k " " (maptree-encode v))))))
 			(:t ;outdent
 				(write-line stream (cat (rest p) ")"))
 				(setq wc (dec wc)))))
