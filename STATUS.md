@@ -4,6 +4,10 @@
 
 ------
 
+Editor now has global macro playback to EOF ! Really powerful stuff.
+
+------
+
 Reminder of how to bridge Lisp subnets over ChrysaLib hubs !
 
 Remote machine, say my Raspberry Pi4 at 192.168.1.94, over in the living room:
