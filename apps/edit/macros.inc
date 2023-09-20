@@ -5,7 +5,7 @@
 (defun action-macro-record ()
 	(if (setq *macro_record* (not *macro_record*))
 		(clear *macro_actions*))
-	(radio-select macro_toolbar (list :nil :nil *macro_record*))
+	(radio-select macro_toolbar (list :nil :nil :nil *macro_record*))
 	(refresh))
 
 (defun action-macro-playback ()
@@ -35,5 +35,16 @@
 				(setq old_eof_gap_x eof_gap_x old_eof_gap_y eof_gap_y
 					eof_gap_x (- (length (. buffer :get_text_line cy)) cx)
 					eof_gap_y (- (elem-get 1 (. buffer :get_size)) cy))))
+		(pop *refresh_mode*)
+		(refresh)))
+
+(defun action-macro-global ()
+	(when (defq exit :nil here *current_file*)
+		(push *refresh_mode* 1)
+		(until exit
+			(action-macro-to-eof)
+			(update-meta-data)
+			(action-next-buffer)
+			(setq exit (eql *current_file* here)))
 		(pop *refresh_mode*)
 		(refresh)))

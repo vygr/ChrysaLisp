@@ -27,7 +27,7 @@
 	(enum prev next scratch close_buffer close_all save save_all load_all new)
 	(enum global whole_words regexp find_down find_up)
 	(enum replace replace_all replace_global)
-	(enum macro_playback macro_to_eof macro_record)
+	(enum macro_playback macro_to_eof macro_global macro_record)
 	(enum open_tree_collapse open_tree_expand)
 	(enum file_tree_collapse file_tree_expand))
 
@@ -52,7 +52,7 @@
 				0xea36 0xea33 0xea27 0xea28
 				0xe9c4) +event_undo))
 		(ui-tool-bar macro_toolbar (:color (const *env_toolbar2_col*))
-			(ui-buttons (0xe95e 0xe95a 0xe95f) +event_macro_playback))
+			(ui-buttons (0xe95c 0xe95e 0xe95a 0xe95f) +event_macro_playback))
 		(ui-backdrop _ (:color (const *env_toolbar_col*))))
 	(ui-flow _ (:flow_flags +flow_right_fill)
 		(ui-tool-bar buffer_toolbar (:color (get :color macro_toolbar))
@@ -250,7 +250,7 @@
 	(each (# (def %0 :tip_text %1)) (. find_toolbar :children)
 		'("global search" "whole words" "regexp" "find down" "find up"))
 	(each (# (def %0 :tip_text %1)) (. macro_toolbar :children)
-		'("playback" "playback eof" "record"))
+		'("playback" "playback eof" "playback global" "record"))
 	(each (# (def %0 :tip_text %1)) (. replace_toolbar :children)
 		'("replace" "replace all" "replace global")))
 
