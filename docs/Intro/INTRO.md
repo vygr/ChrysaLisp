@@ -205,5 +205,5 @@ Local machine, say my MacBook:
 link CLB-L1
 ```
 
-The link command is typed in at your ChrysaLisp TUI or Terminal. Notice that we
-run the hub_node's in the background.
+The `link` command is typed in at your ChrysaLisp TUI or Terminal. Notice that
+we run the `hub_node`'s in the background.
