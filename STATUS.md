@@ -29,6 +29,39 @@ Fixed bug in Editor macro recording.
 
 Addition of `maptree-load` and ` maptree-save` to collection functions.
 
+Regexp now supports allmost all Vim shortcuts:
+
+```code
+^  start of line
+$  end of line
+{  start of word
+}  end of word
+.  any char
++  one or more
+*  zero or more
+?  zero or one
+|  or
+[] class, [0-9], [abc123]
+() group
+\  esc
+\r return
+\f form feed
+\v vertical tab
+\n line feed
+\t tab
+\s [ \t]
+\S [^ \r\f\v\n\t]
+\d [0-9]
+\D [^0-9]
+\l [a-z]
+\u [A-Z]
+\a [A-Za-z]
+\p [A-Za-z0-9]
+\w [A-Za-z0-9_]
+\W [^A-Za-z0-9_]
+\x [A-Fa-f0-9]
+```
+
 ------
 
 New `(replace seq s e seq)` function in `root.inc`.
