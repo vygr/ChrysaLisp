@@ -22,10 +22,19 @@
 		(. c :insert k (setq e elem))) e)
 
 (defun cache-class-range (k) ;class range cache
-	(defq c (const (Fmap 11)))
+	(defq c (const (Fmap 7)))
 	(unless (defq e (. c :find k))
 		(. c :insert k (setq e (apply (const cat)
 			(map (const char) (range (code (first k)) (inc (code (last k))))))))) e)
+
+(defun cache-class (k) ;class cache
+	(defq c (const (Fmap 7)))
+	(unless (defq e (. c :find k))
+		(setq e (apply (const cat)
+			(map (# (if (and (= (length %0) 3) (eql (second %0) "-"))
+						(cache-class-range %0) %0))
+				(partition 3 k))))
+		(. c :insert k e)) e)
 
 (defun tokenize (line)
 	(defq state :space concat :nil token :nil
@@ -66,10 +75,13 @@
 					(:t (push token c))))
 			(:esc
 				(case c
-					("s" (output :class (const (cat " " (ascii-char 9)))))
-					("S" (output :class (const (cat "^ " (ascii-char 13)
-											(ascii-char 12) (ascii-char 11)
-											(ascii-char 10) (ascii-char 9)))))
+					("r" (output :lit (const (unescape "\r"))))
+					("f" (output :lit (const (unescape "\f"))))
+					("v" (output :lit (const (unescape "\v"))))
+					("n" (output :lit (const (unescape "\n"))))
+					("t" (output :lit (const (unescape "\t"))))
+					("s" (output :class (const (unescape " \t"))))
+					("S" (output :class (const (unescape "^ \r\f\v\n\t"))))
 					("d" (output :class "0-9"))
 					("D" (output :class "^0-9"))
 					("l" (output :class "a-z"))
@@ -79,11 +91,6 @@
 					("w" (output :class "A-Za-z0-9_"))
 					("W" (output :class "^A-Za-z0-9_"))
 					("x" (output :class "A-Fa-f0-9"))
-					("r" (output :lit (ascii-char 13)))
-					("f" (output :lit (ascii-char 12)))
-					("v" (output :lit (ascii-char 11)))
-					("n" (output :lit (ascii-char 10)))
-					("t" (output :lit (ascii-char 9)))
 					(:t (output :lit c)))
 				(setq concat +op_cat state :space)))) line)
 	(unless (eql state :space) (throw "Regexp bad state !" state))
@@ -124,11 +131,10 @@
 			(:lit (cache (static-qq (((eql s ,token) 1)))))
 			(:wild (static-q ((:t 1))))
 			(:class
-				(if (eql (first token) "^") (defq n :t token (rest token)) (defq n :nil))
-				(setq token (apply (const cat)
-					(map (# (if (and (= (length %0) 3) (eql (second %0) "-"))
-								(cache-class-range %0) %0))
-						(partition 3 token))))
+				(if (eql (first token) "^")
+					(defq n :t token (rest token))
+					(defq n :nil))
+				(setq token (cache-class token))
 				(cache (if n
 					(static-qq (((not (find s ,token)) 1)))
 					(static-qq (((find s ,token) 1))))))

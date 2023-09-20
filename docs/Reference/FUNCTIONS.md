@@ -1681,6 +1681,12 @@ stop a child
 (ui-window name [props] [body]) -> window
 ```
 
+### unescape
+
+```code
+(unescape str) -> str
+```
+
 ### unless
 
 ```code
