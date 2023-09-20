@@ -65,6 +65,11 @@ Usage: grep [options] [pattern] [path] ...
 		|  or
 		[] class, [0-9], [abc123]
 		() group
+		\r return
+		\f form feed
+		\v vertical tab
+		\n line feed
+		\t tab
 		\s [ \t]
 		\S [^ \r\f\v\n\t]
 		\d [0-9]
