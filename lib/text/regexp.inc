@@ -75,6 +75,7 @@
 					(:t (push token c))))
 			(:esc
 				(case c
+					(:t (output :lit c))
 					("r" (output :lit (const (unescape "\r"))))
 					("f" (output :lit (const (unescape "\f"))))
 					("v" (output :lit (const (unescape "\v"))))
@@ -90,8 +91,7 @@
 					("p" (output :class "A-Za-z0-9"))
 					("w" (output :class "A-Za-z0-9_"))
 					("W" (output :class "^A-Za-z0-9_"))
-					("x" (output :class "A-Fa-f0-9"))
-					(:t (output :lit c)))
+					("x" (output :class "A-Fa-f0-9")))
 				(setq concat +op_cat state :space)))) line)
 	(unless (eql state :space) (throw "Regexp bad state !" state))
 	(list out_tokens out_types))
