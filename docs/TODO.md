@@ -8,18 +8,15 @@ In no particular order but to just to ensure I get thoughts down. I'll keep
 adding to this as I go along. If anybody would like to try helping out, then
 just get in touch.
 
-* Turn the Editor nested Fmap code into a library.
-
 * Add shift key selection to the Terminal app.
 
 * Add dynamic font scaling `cntrl-[ ]` to the Terminal app. Toolbar buttons for
 common sizes, 80x40, 160x80 etc.
 
-* Docs app needs some love. Toolbar with forward and back button etc.
+* Docs app needs some love. Toolbar with forward and back button etc. Auto
+indexing on load or index file created by the doc builder.
 
 * Gui remote desktop service that runs over CLB.
-
-* Add a mini display to the Edit app.
 
 * Move `vp-min, vp-max, vp-abs` into the VP VM proper. ARM64 and x64 have
 native operations `cmov` that could implement these.

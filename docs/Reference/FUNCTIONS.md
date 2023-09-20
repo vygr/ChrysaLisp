@@ -835,6 +835,24 @@ very basic attenuation, diffuse and specular
 returns true if argument is a map type
 ```
 
+### maptree-encode
+
+```code
+(maptree-encode atom) -> atom
+```
+
+### maptree-load
+
+```code
+(maptree-load stream) -> maptree
+```
+
+### maptree-save
+
+```code
+(maptree-save stream maptree &optional key_filter) -> maptree
+```
+
 ### mat3x2-mul-f
 
 ```code

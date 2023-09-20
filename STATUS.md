@@ -8,6 +8,8 @@ Editor global undo and redo ! Use with caution.
 
 Fixed bug in Editor macro recording.
 
+Addition of `maptree-load` and ` maptree-save` to collection functions.
+
 ------
 
 New `(replace seq s e seq)` function in `root.inc`.
