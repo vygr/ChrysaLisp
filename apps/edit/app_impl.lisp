@@ -99,6 +99,11 @@
 			(ui-flow *main_flow* (:flow_flags +flow_up_fill)
 				(. (ui-slider *xslider*) :connect +event_xscroll)))))
 
+(defun radio-select (toolbar states)
+	(each (# (undef (. %0 :dirty) :color)
+			(if %1 (def %0 :color *env_radio_col*)))
+		(. toolbar :children) states))
+
 (defun refresh-display ()
 	;load the vdu widgets with the text, selection and line numbers
 	(defq buffer (. *edit* :get_buffer))
@@ -187,6 +192,7 @@
 		(:set_scroll sx sy))
 	(scatter meta :cx cx :cy cy :ax ax :ay ay :sx sx :sy sy
 		:fx fx :fy fy :fx1 fx1 :fy1 fy1)
+	(radio-select find_toolbar (list :nil (> fy1 fy) *whole_words* *regexp* :nil :nil))
 	(refresh)
 	(def *title* :text (cat "Edit -> " (if file file "<scratch pad>")))
 	(.-> *title* :layout :dirty))
@@ -338,7 +344,7 @@
 		edit_service (mail-declare (task-netid) "Edit" "Edit Service 0.1")
 		*running* :t *edit* (Editor-edit) *page_scale* 1.0 *regexp* :nil
 		*syntax* (Syntax) *whole_words* :nil *refresh_mode* (list 0)
-		*selected* :nil *macro_record* :nil *macro_actions* (list)
+		*macro_record* :nil *macro_actions* (list)
 		dictionary (Dictionary 1031) match_window :nil match_flow :nil match_index -1
 		*meta_map* :nil *open_files* :nil *current_file* (load-state))
 	(.-> *edit* (:set_buffer (Buffer))

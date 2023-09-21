@@ -10,6 +10,8 @@ Editor block invert action.
 
 New `memoize` macro. Easy creation of Fmap or Lmap caches.
 
+Editor now has search/replace within selected region option.
+
 ------
 
 Reminder of how to bridge Lisp subnets over ChrysaLib hubs !

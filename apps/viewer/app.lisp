@@ -58,6 +58,11 @@
 			(ui-flow *main_flow* (:flow_flags +flow_up_fill)
 				(. (ui-slider *xslider*) :connect +event_xscroll)))))
 
+(defun radio-select (toolbar states)
+	(each (# (undef (. %0 :dirty) :color)
+			(if %1 (def %0 :color *env_radio_col*)))
+		(. toolbar :children) states))
+
 (defun refresh-display ()
 	;load the vdu widgets with the text, selection and line numbers
 	(defq buffer (. *edit* :get_buffer))

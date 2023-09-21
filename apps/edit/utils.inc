@@ -8,11 +8,6 @@
 (defun blank-line? (line)
 	(every (# (eql " " %0)) line))
 
-(defun radio-select (toolbar states)
-	(each (# (undef (. %0 :dirty) :color)
-			(if %1 (def %0 :color *env_radio_col*)))
-		(. toolbar :children) states))
-
 (defmacro undoable (&rest _)
 	`(progn
 		(bind '(cx cy) (. *edit* :get_cursor))
