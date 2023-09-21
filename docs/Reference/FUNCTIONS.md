@@ -898,7 +898,7 @@ returns true if argument is a map type
 ### memoize
 
 ```code
-(memoize key form &optional num_buckets)
+(memoize key form &optional num_buckets) -> (eval form)
 ```
 
 ### neg?

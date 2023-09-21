@@ -86,7 +86,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;
 
 (defmacro memoize (k f &optional num_buckets)
-	; (memoize key form &optional num_buckets)
+	; (memoize key form &optional num_buckets) -> (eval form)
 	(defq c (gensym) e (gensym))
 	(if num_buckets
 		`(progn
