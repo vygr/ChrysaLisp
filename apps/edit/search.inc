@@ -123,7 +123,7 @@
 (defun action-replace-global (selected whole_words regexp pattern rep_text)
 	(unless (eql pattern "")
 		(for-all-buffers
-			(action-replace-all selected whole_words regexp pattern rep_text))))
+			(action-replace-all :nil whole_words regexp pattern rep_text))))
 
 (defun action-find-global (selected whole_words regexp pattern)
 	;find files match but not dictionaries !
