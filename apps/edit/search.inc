@@ -104,14 +104,18 @@
 			found (cat (. buffer :find pattern whole_words regexp))
 			rep_matchs (matches rep_text "\$(\d+)"))
 		(undoable
-			(each (lambda ((indexes substrs))
+			(defq sy 0 sy1 (length found))
+			(when selected
+				(bind '(y y1) *selected_bounds*)
+				(setq sy (max sy y) sy1 (min sy1 y1)))
+			(each! sy sy1 (lambda ((indexes substrs))
 				(defq y _)
 				(each-rev (lambda ((x x1))
 					(when (defq rep (build-replace found rep_text rep_matchs x y x1))
 						(.-> buffer
 							(:set_cursor x y)
 							(:delete (- x1 x))
-							(:insert rep)))) indexes)) found))
+							(:insert rep)))) indexes)) (list found)))
 		(bind '(cx cy) (. *edit* :get_cursor))
 		(. *edit* :set_anchor cx cy)
 		(refresh)))
