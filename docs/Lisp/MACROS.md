@@ -60,7 +60,7 @@ key_map_control (Fmap-kv
 	(ascii-code "a") action-select-all
 	(ascii-code "b") action-select-block
 	...
-	(ascii-code "O") action-ordered-unique)
+	(ascii-code "O") action-unique)
 ```
 
 The `key_map_control` Fmap is a map of `numbers->lambda` not a map of

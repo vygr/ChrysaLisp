@@ -237,7 +237,7 @@ key_map_shift (Fmap-kv
 key_map_control (Fmap-kv
 	(ascii-code "M") action-macro-record
 	...
-	(ascii-code "O") action-ordered-unique)
+	(ascii-code "O") action-unique)
 
 	...
 )
