@@ -120,6 +120,12 @@
 (. edit :insert string) -> edit
 ```
 
+### :invert
+
+```code
+(. edit :invert) -> edit
+```
+
 ### :layout
 
 ```code
@@ -178,12 +184,6 @@
 
 ```code
 (. edit :ordered) -> edit
-```
-
-### :ordered_unique
-
-```code
-(. edit :ordered_unique) -> edit
 ```
 
 ### :pref_size
@@ -320,6 +320,12 @@ create the underlay for clear
 
 ```code
 (. edit :underlay_selection) -> edit
+```
+
+### :unique
+
+```code
+(. edit :unique) -> edit
 ```
 
 ### :up

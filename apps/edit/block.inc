@@ -26,8 +26,8 @@
 	(. *edit* :ordered)
 	(refresh))
 
-(defun action-ordered-unique ()
-	(. *edit* :ordered_unique)
+(defun action-unique ()
+	(. *edit* :unique)
 	(refresh))
 
 (defun action-reverse ()

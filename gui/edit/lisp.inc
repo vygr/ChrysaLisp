@@ -412,8 +412,8 @@
 					(ascii-char +char_lf)) (ascii-char +char_lf)))))
 		this)
 
-	(defmethod :ordered_unique ()
-		; (. edit :ordered_unique) -> edit
+	(defmethod :unique ()
+		; (. edit :unique) -> edit
 		(when (selection? this)
 			(undoable
 				(bind '(y y1) (select-lines this))
@@ -421,7 +421,7 @@
 				(. buffer :paste (cat (join
 					(reduce (# (if (or (<= (length %0) 0)
 									(not (eql (elem-get -2 %0) %1))) (push %0 %1) %0))
-					(sort cmp (split (.-> buffer (:set_cursor 0 y1) (:cut 0 y)) (ascii-char +char_lf)))
+					(split (.-> buffer (:set_cursor 0 y1) (:cut 0 y)) (ascii-char +char_lf))
 					(list)) (ascii-char +char_lf)) (ascii-char +char_lf)))))
 		this)
 
