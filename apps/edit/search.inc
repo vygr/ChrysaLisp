@@ -99,15 +99,8 @@
 
 (defun action-replace-global (whole_words regexp pattern rep_text)
 	(unless (eql pattern "")
-		(when (defq exit :nil here *current_file*)
-			(push *refresh_mode* 1)
-			(until exit
-				(action-replace-all whole_words regexp pattern rep_text)
-				(update-meta-data)
-				(action-next-buffer)
-				(setq exit (eql *current_file* here)))
-			(pop *refresh_mode*)
-			(refresh))))
+		(for-all-buffers
+			(action-replace-all whole_words regexp pattern rep_text))))
 
 (defun action-find-global (whole_words regexp pattern)
 	;find files match but not dictionaries !

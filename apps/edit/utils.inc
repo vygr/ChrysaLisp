@@ -69,3 +69,19 @@
 		(populate-buffer %0 0 0 0 0 0 0))) files)
 	(populate-file-trees)
 	(select-node *current_file*))
+
+(defun eof-gaps ()
+	(list (- (length (. buffer :get_text_line cy)) cx)
+		(- (elem-get 1 (. buffer :get_size)) cy)))
+
+(defmacro for-all-buffers (&rest _)
+	`(progn
+		(when (defq *exit* :nil *here* *current_file*)
+			(push *refresh_mode* 1)
+			(until *exit*
+				~_
+				(update-meta-data)
+				(action-next-buffer)
+				(setq *exit* (eql *current_file* *here*)))
+			(pop *refresh_mode*)
+			(refresh))))

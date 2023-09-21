@@ -20,23 +20,7 @@
 	(refresh))
 
 (defun action-undo-global ()
-	(when (defq exit :nil here *current_file*)
-		(push *refresh_mode* 1)
-		(until exit
-			(action-undo)
-			(update-meta-data)
-			(action-next-buffer)
-			(setq exit (eql *current_file* here)))
-		(pop *refresh_mode*)
-		(refresh)))
+	(for-all-buffers (action-undo)))
 
 (defun action-redo-global ()
-	(when (defq exit :nil here *current_file*)
-		(push *refresh_mode* 1)
-		(until exit
-			(action-redo)
-			(update-meta-data)
-			(action-next-buffer)
-			(setq exit (eql *current_file* here)))
-		(pop *refresh_mode*)
-		(refresh)))
+	(for-all-buffers (action-redo)))
