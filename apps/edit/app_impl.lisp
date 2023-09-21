@@ -113,6 +113,7 @@
 		(push lines (pad (str start_line) (const (dec +vdu_line_width)) "    ")))
 	(. *vdu_lines* :load lines 0 0 -1 -1)
 	(. buffer :vdu_load (. *edit* :get_vdu_text) sx sy)
+	(. *edit* :underlay_find)
 	(if (and (= cx ax) (= cy ay))
 		(. *edit* :underlay_brackets)
 		(. *edit* :underlay_selection)))
@@ -152,14 +153,15 @@
 				(. dictionary :insert_word word)))
 		(split line +not_whole_word_chars)))
 
-(defun populate-buffer (file cx cy ax ay sx sy)
+(defun populate-buffer (file cx cy ax ay sx sy fx fy fx1 fy1)
 	;create new file buffer ?
 	(defq mode (if (some (# (ends-with %0 file)) +text_types) :t :nil)
 		files (. *meta_map* :find :files) key (str file)
 		meta (. files :find key))
 	(unless meta
 		(. files :insert key (setq meta
-			(Fmap-kv :cx cx :cy cy :ax ax :ay ay :sx sx :sy sy :buffer :nil))))
+			(Fmap-kv :cx cx :cy cy :ax ax :ay ay :sx sx :sy sy
+				:fx fx :fy fy :fx1 fx1 :fy1 fy1 :buffer :nil))))
 	(unless (defq buffer (. meta :find :buffer))
 		(. meta :insert :buffer (setq buffer (Buffer mode *syntax*)))
 		(when file
@@ -168,19 +170,23 @@
 
 (defun populate-vdu (file)
 	;load up the vdu widget from this file
-	(populate-buffer file 0 0 0 0 0 0)
+	(populate-buffer file 0 0 0 0 0 0 0 0 0 0)
 	(defq meta (.-> *meta_map* (:find :files) (:find (str file))))
-	(bind '(cx cy ax ay sx sy buffer)
-		(gather meta :cx :cy :ax :ay :sx :sy :buffer))
+	(bind '(cx cy ax ay sx sy fx fy fx1 fy1 buffer)
+		(gather meta :cx :cy :ax :ay :sx :sy :fx :fy :fx1 :fy1 :buffer))
 	(setq *current_file* file)
 	(bind '(cx cy) (. buffer :constrain cx cy))
 	(bind '(ax ay) (. buffer :constrain ax ay))
 	(bind '(sx sy) (. buffer :constrain sx sy))
+	(bind '(fx fy) (. buffer :constrain fx fy))
+	(bind '(fx1 fy1) (. buffer :constrain fx1 fy1))
 	(.-> *edit* (:set_buffer buffer)
 		(:set_cursor cx cy)
 		(:set_anchor ax ay)
+		(:set_find fx fy fx1 fy1)
 		(:set_scroll sx sy))
-	(scatter meta :cx cx :cy cy :ax ax :ay ay :sx sx :sy sy)
+	(scatter meta :cx cx :cy cy :ax ax :ay ay :sx sx :sy sy
+		:fx fx :fy fy :fx1 fx1 :fy1 fy1)
 	(refresh)
 	(def *title* :text (cat "Edit -> " (if file file "<scratch pad>")))
 	(.-> *title* :layout :dirty))
@@ -303,12 +309,14 @@
 	(bind '(cx cy) (. *edit* :get_cursor))
 	(bind '(ax ay) (. *edit* :get_anchor))
 	(bind '(sx sy) (. *edit* :get_scroll))
+	(bind '(fx fy fx1 fy1) (. *edit* :get_find))
 	(scatter *meta_map*
 		:file (str *current_file*)
 		:find (id-encode (. *find_text* :get_text))
 		:replace (id-encode (. *replace_text* :get_text)))
 	(scatter (.-> *meta_map* (:find :files) (:find (str *current_file*)))
-		:cx cx :cy cy :ax ax :ay ay :sx sx :sy sy :buffer buffer))
+		:cx cx :cy cy :ax ax :ay ay :sx sx :sy sy
+		:fx fx :fy fy :fx1 fx1 :fy1 fy1 :buffer buffer))
 
 ;import actions, bindings and app ui classes
 (import "./actions.inc")
@@ -316,7 +324,7 @@
 (defun dispatch-action (&rest action)
 	(defq func (first action))
 	(if (find func find_actions)
-		(push action *selected* *whole_words* *regexp* (. *find_text* :get_text)))
+		(push action *whole_words* *regexp* (. *find_text* :get_text)))
 	(if (find func replace_actions)
 		(push action (. *replace_text* :get_text)))
 	(when (and *macro_record* (find func recorded_actions))
@@ -330,11 +338,12 @@
 		edit_service (mail-declare (task-netid) "Edit" "Edit Service 0.1")
 		*running* :t *edit* (Editor-edit) *page_scale* 1.0 *regexp* :nil
 		*syntax* (Syntax) *whole_words* :nil *refresh_mode* (list 0)
-		*selected* :nil *selected_bounds* :nil
-		*macro_record* :nil *macro_actions* (list)
+		*selected* :nil *macro_record* :nil *macro_actions* (list)
 		dictionary (Dictionary 1031) match_window :nil match_flow :nil match_index -1
 		*meta_map* :nil *open_files* :nil *current_file* (load-state))
-	(.-> *edit* (:set_buffer (Buffer)) (:set_underlay_color +argb_grey6))
+	(.-> *edit* (:set_buffer (Buffer))
+		(:set_underlay_color +argb_grey6)
+		(:set_underlay_find_color +argb_grey3))
 	(def *edit* :min_width 0 :min_height 0
 		:vdu_width +vdu_min_width :vdu_height +vdu_min_height)
 	(. *main_flow* :add_back *edit*)

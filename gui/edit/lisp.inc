@@ -76,15 +76,22 @@
 	; (Edit) -> edit
 	(def this :vdu_text (defq vdu_text (Vdu))
 		:vdu_underlay (defq vdu_underlay (Vdu))
+		:vdu_find (defq vdu_find (Vdu))
 		:anchor_x 0 :anchor_y 0
 		:scroll_x 0 :scroll_y 0
+		:find_x 0 :find_y 0
+		:find_x1 0 :find_y1 0
 		:buffer (Buffer :t) :underlay (list)
 		:selected +not_selected
+		:selected_find +not_selected
 		:vdu_width 80 :vdu_height 40
 		:min_width 0 :min_height 0)
 	(. vdu_text :set_flags 0 +view_flag_solid)
 	(. vdu_underlay :set_flags 0 +view_flag_solid)
-	(.-> this (:add_child vdu_text) (:add_child vdu_underlay))
+	(. vdu_find :set_flags 0 +view_flag_solid)
+	(.-> this (:add_child vdu_text)
+		(:add_child vdu_underlay)
+		(:add_child vdu_find))
 
 	(defmethod :max_size ()
 		; (. edit :max_size) -> (width height)
@@ -143,6 +150,15 @@
 	(defmethod :get_scroll ()
 		; (. edit :get_scroll) -> (x y)
 		(list (get :scroll_x this) (get :scroll_y this)))
+
+	(defmethod :get_find ()
+		; (. edit :get_find) -> (x y x1 y1)
+		(list (get :find_x this) (get :find_y this)
+			(get :find_x1 this) (get :find_y1 this)))
+
+	(defmethod :set_find (find_x find_y find_x1 find_y1)
+		; (. edit :set_find x y x1 y1) -> edit
+		(lower :find_x :find_y :find_x1 :find_y1) this)
 
 	(defmethod :set_buffer (buffer)
 		; (. edit :set_buffer text_buffer) -> this
@@ -460,6 +476,34 @@
 		; (. edit :set_underlay_color argb) -> edit
 		(lower (:selected (apply nums (map (lambda (_)
 			(<< (canvas-from-argb32 col 15) 48)) +not_selected))))
+		this)
+
+	(defmethod :set_underlay_find_color (col)
+		; (. edit :set_underlay_find_color argb) -> edit
+		(lower (:selected_find (apply nums (map (lambda (_)
+			(<< (canvas-from-argb32 col 15) 48)) +not_selected))))
+		this)
+
+	(defmethod :underlay_find ()
+		; (. edit :underlay_selection) -> edit
+		(raise :buffer :underlay :selected_find :vdu_find :scroll_x :scroll_y)
+		(bind '(cx cy ax ay) (. this :get_find))
+		(defq x1 ax y1 ay)
+		(if (> cy y1) (defq st cx cx x1 x1 st st cy cy y1 y1 st))
+		(and (= cy y1) (> cx x1) (defq st cx cx x1 x1 st))
+		(cap (inc y1) (clear underlay))
+		(defq uy -1 buffer (. buffer :get_text_lines))
+		(while (< (setq uy (inc uy)) cy) (push underlay ""))
+		(cond
+			((= cy y1)
+				(push underlay (cat (slice 0 cx +not_selected) (slice cx x1 selected_find))))
+			(:t (push underlay (cat
+					(slice 0 cx +not_selected)
+					(slice cx (inc (length (elem-get cy buffer))) selected_find)))
+				(while (< (setq cy (inc cy)) y1)
+					(push underlay (slice 0 (inc (length (elem-get cy buffer))) selected_find)))
+				(push underlay (slice 0 x1 selected_find))))
+		(. vdu_find :load underlay scroll_x scroll_y -1 -1)
 		this)
 
 	(defmethod :underlay_selection ()

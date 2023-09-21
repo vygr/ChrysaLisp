@@ -13,20 +13,21 @@
 (defun action-selected ()
 	(setq *selected* (not *selected*))
 	(radio-select find_toolbar (list :nil *selected* *whole_words* *regexp* :nil :nil))
+	(bind '(sy sy1) (select-lines))
 	(if *selected*
-		(setq *selected_bounds* (select-lines))
-		(setq *selected_bounds* :nil)))
+		(. *edit* :set_find 0 sy 0 sy1)
+		(. *edit* :set_find 0 0 0 0))
+	(refresh))
 
-(defun action-find-down (selected whole_words regexp pattern)
+(defun action-find-down (whole_words regexp pattern)
 	;return :nil if nothing found !
 	(unless (eql pattern "")
 		(defq buffer (. *edit* :get_buffer))
 		(when (> (length (defq found (. buffer :find pattern whole_words regexp))) 0)
 			(bind '(cx cy) (. *edit* :get_cursor))
 			(defq sy 0 sy1 (length found))
-			(when selected
-				(bind '(y y1) *selected_bounds*)
-				(setq sy (max sy y) sy1 (min sy1 y1)))
+			(bind '(_ fy _ fy1) (. *edit* :get_find))
+			(if (> fy1 fy) (setq sy (max sy fy) sy1 (min sy1 fy1)))
 			(setq cy (min (max cy sy) sy1))
 			(when (defq next (some! cy sy1 :nil (lambda ((indexes substrs))
 					(defq y _)
@@ -38,16 +39,15 @@
 				(. buffer :set_cursor x1 y)
 				(refresh) :t))))
 
-(defun action-find-up (selected whole_words regexp pattern)
+(defun action-find-up (whole_words regexp pattern)
 	;return :nil if nothing found !
 	(unless (eql pattern "")
 		(defq buffer (. *edit* :get_buffer))
 		(when (> (length (defq found (. buffer :find pattern whole_words regexp))) 0)
 			(bind '(cx cy) (. *edit* :get_cursor))
 			(defq sy 0 sy1 (length found))
-			(when selected
-				(bind '(y y1) *selected_bounds*)
-				(setq sy (max sy y) sy1 (min sy1 y1)))
+			(bind '(_ fy _ fy1) (. *edit* :get_find))
+			(if (> fy1 fy) (setq sy (max sy fy) sy1 (min sy1 fy1)))
 			(setq cy (min (max cy sy) sy1))
 			(when (defq next (some! (inc cy) sy :nil (lambda ((indexes substrs))
 					(defq y _)
@@ -81,7 +81,7 @@
 					rep_matchs))
 			rep_text)))
 
-(defun action-replace (selected whole_words regexp pattern rep_text)
+(defun action-replace (whole_words regexp pattern rep_text)
 	(unless (eql pattern "")
 		(defq buffer (. *edit* :get_buffer)
 			found (. buffer :find pattern whole_words regexp))
@@ -96,18 +96,18 @@
 					(:delete (- cx ax))
 					(:insert rep_text)))
 			(refresh))
-		(action-find-down selected whole_words regexp pattern)))
+		(action-find-down whole_words regexp pattern)))
 
-(defun action-replace-all (selected whole_words regexp pattern rep_text)
+(defun action-replace-all (whole_words regexp pattern rep_text &optional clip)
 	(unless (eql pattern "")
 		(defq buffer (. *edit* :get_buffer)
 			found (cat (. buffer :find pattern whole_words regexp))
 			rep_matchs (matches rep_text "\$(\d+)"))
 		(undoable
 			(defq sy 0 sy1 (length found))
-			(when selected
-				(bind '(y y1) *selected_bounds*)
-				(setq sy (max sy y) sy1 (min sy1 y1)))
+			(unless clip
+				(bind '(_ fy _ fy1) (. *edit* :get_find))
+				(if (> fy1 fy) (setq sy (max sy fy) sy1 (min sy1 fy1))))
 			(each! sy sy1 (lambda ((indexes substrs))
 				(defq y _)
 				(each-rev (lambda ((x x1))
@@ -120,12 +120,12 @@
 		(. *edit* :set_anchor cx cy)
 		(refresh)))
 
-(defun action-replace-global (selected whole_words regexp pattern rep_text)
+(defun action-replace-global (whole_words regexp pattern rep_text)
 	(unless (eql pattern "")
 		(for-all-buffers
-			(action-replace-all :nil whole_words regexp pattern rep_text))))
+			(action-replace-all whole_words regexp pattern rep_text :t))))
 
-(defun action-find-global (selected whole_words regexp pattern)
+(defun action-find-global (whole_words regexp pattern)
 	;find files match but not dictionaries !
 	(defq files (sort cmp (all-files "." +file_types 2)))
 	(if (defq i (find "lib/text/english.txt" files))
