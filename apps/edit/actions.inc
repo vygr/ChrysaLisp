@@ -46,6 +46,7 @@ event_map (Fmap-kv
 	+event_global action-find-global
 	+event_whole_words action-whole-words
 	+event_regexp action-regexp
+	+event_selected action-selected
 	+event_replace action-replace
 	+event_replace_all action-replace-all
 	+event_replace_global action-replace-global

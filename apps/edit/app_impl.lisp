@@ -25,7 +25,7 @@
 		toupper tolower sort unique
 		invert comment)
 	(enum prev next scratch close_buffer close_all save save_all load_all new)
-	(enum global whole_words regexp find_down find_up)
+	(enum global selected whole_words regexp find_down find_up)
 	(enum replace replace_all replace_global)
 	(enum macro_playback macro_to_eof macro_global macro_record)
 	(enum open_tree_collapse open_tree_expand)
@@ -62,7 +62,7 @@
 					:hint_text "new file" :clear_text "")) :connect +event_new)
 			(ui-flow _ (:flow_flags +flow_right_fill)
 				(ui-tool-bar find_toolbar (:color (get :color macro_toolbar))
-					(ui-buttons (0xe9a1 0xe9cd 0xe9a8 0xe914 0xe91b) +event_global))
+					(ui-buttons (0xe9a1 0xe962 0xe9cd 0xe9a8 0xe914 0xe91b) +event_global))
 				(. (ui-textfield *find_text* (:color +argb_white
 						:hint_text "find" :clear_text "")) :connect +event_find_down))
 			(ui-flow _ (:flow_flags +flow_right_fill)
@@ -250,7 +250,7 @@
 	(each (# (def %0 :tip_text %1)) (. buffer_toolbar :children)
 		'("previous" "next" "scratchpad" "close" "close all" "save" "save all" "load all" "new"))
 	(each (# (def %0 :tip_text %1)) (. find_toolbar :children)
-		'("global search" "whole words" "regexp" "find down" "find up"))
+		'("global search" "selected region" "whole words" "regexp" "find down" "find up"))
 	(each (# (def %0 :tip_text %1)) (. macro_toolbar :children)
 		'("playback" "playback eof" "playback global" "record"))
 	(each (# (def %0 :tip_text %1)) (. replace_toolbar :children)
@@ -316,7 +316,7 @@
 (defun dispatch-action (&rest action)
 	(defq func (first action))
 	(if (find func find_actions)
-		(push action *whole_words* *regexp* (. *find_text* :get_text)))
+		(push action *selected* *whole_words* *regexp* (. *find_text* :get_text)))
 	(if (find func replace_actions)
 		(push action (. *replace_text* :get_text)))
 	(when (and *macro_record* (find func recorded_actions))
@@ -330,7 +330,7 @@
 		edit_service (mail-declare (task-netid) "Edit" "Edit Service 0.1")
 		*running* :t *edit* (Editor-edit) *page_scale* 1.0 *regexp* :nil
 		*syntax* (Syntax) *whole_words* :nil *refresh_mode* (list 0)
-		*macro_record* :nil *macro_actions* (list)
+		*selected* :nil *macro_record* :nil *macro_actions* (list)
 		dictionary (Dictionary 1031) match_window :nil match_flow :nil match_index -1
 		*meta_map* :nil *open_files* :nil *current_file* (load-state))
 	(.-> *edit* (:set_buffer (Buffer)) (:set_underlay_color +argb_grey6))

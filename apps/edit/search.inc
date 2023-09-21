@@ -4,13 +4,17 @@
 
 (defun action-whole-words ()
 	(setq *whole_words* (not *whole_words*))
-	(radio-select find_toolbar (list :nil *whole_words* *regexp* :nil :nil)))
+	(radio-select find_toolbar (list :nil *selected* *whole_words* *regexp* :nil :nil)))
 
 (defun action-regexp ()
 	(setq *regexp* (not *regexp*))
-	(radio-select find_toolbar (list :nil *whole_words* *regexp* :nil :nil)))
+	(radio-select find_toolbar (list :nil *selected* *whole_words* *regexp* :nil :nil)))
 
-(defun action-find-down (whole_words regexp pattern)
+(defun action-selected ()
+	(setq *selected* (not *selected*))
+	(radio-select find_toolbar (list :nil *selected* *whole_words* *regexp* :nil :nil)))
+
+(defun action-find-down (selected whole_words regexp pattern)
 	;return :nil if nothing found !
 	(unless (eql pattern "")
 		(defq buffer (. *edit* :get_buffer))
@@ -26,7 +30,7 @@
 				(. buffer :set_cursor x1 y)
 				(refresh) :t))))
 
-(defun action-find-up (whole_words regexp pattern)
+(defun action-find-up (selected whole_words regexp pattern)
 	;return :nil if nothing found !
 	(unless (eql pattern "")
 		(defq buffer (. *edit* :get_buffer))
@@ -64,7 +68,7 @@
 					rep_matchs))
 			rep_text)))
 
-(defun action-replace (whole_words regexp pattern rep_text)
+(defun action-replace selected (whole_words regexp pattern rep_text)
 	(unless (eql pattern "")
 		(defq buffer (. *edit* :get_buffer)
 			found (. buffer :find pattern whole_words regexp))
@@ -81,7 +85,7 @@
 			(refresh))
 		(action-find-down whole_words regexp pattern)))
 
-(defun action-replace-all (whole_words regexp pattern rep_text)
+(defun action-replace-all (selected whole_words regexp pattern rep_text)
 	(unless (eql pattern "")
 		(defq buffer (. *edit* :get_buffer)
 			found (cat (. buffer :find pattern whole_words regexp))
@@ -99,7 +103,7 @@
 		(. *edit* :set_anchor cx cy)
 		(refresh)))
 
-(defun action-replace-global (whole_words regexp pattern rep_text)
+(defun action-replace-global (selected whole_words regexp pattern rep_text)
 	(unless (eql pattern "")
 		(for-all-buffers
 			(action-replace-all whole_words regexp pattern rep_text))))
