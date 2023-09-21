@@ -180,12 +180,6 @@
 (. edit :mouse_wheel event) -> edit
 ```
 
-### :ordered
-
-```code
-(. edit :ordered) -> edit
-```
-
 ### :pref_size
 
 ```code
@@ -280,6 +274,12 @@
 
 ```code
 (. edit :set_underlay_color argb) -> edit
+```
+
+### :sort
+
+```code
+(. edit :sort) -> edit
 ```
 
 ### :tab

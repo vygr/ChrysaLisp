@@ -22,7 +22,7 @@
 		cut copy paste
 		reflow paragraph tab_left tab_right
 		block bracket_left bracket_right
-		toupper tolower ordered unique
+		toupper tolower sort unique
 		reverse comment)
 	(enum prev next scratch close_buffer close_all save save_all load_all new)
 	(enum global whole_words regexp find_down find_up)

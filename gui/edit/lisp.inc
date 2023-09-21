@@ -401,8 +401,8 @@
 			(.-> this (:set_cursor x y) (:set_anchor x y)))
 		this)
 
-	(defmethod :ordered ()
-		; (. edit :ordered) -> edit
+	(defmethod :sort ()
+		; (. edit :sort) -> edit
 		(when (selection? this)
 			(undoable
 				(bind '(y y1) (select-lines this))

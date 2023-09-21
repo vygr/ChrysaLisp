@@ -22,8 +22,8 @@
 	(. *edit* :reflow)
 	(refresh))
 
-(defun action-ordered ()
-	(. *edit* :ordered)
+(defun action-sort ()
+	(. *edit* :sort)
 	(refresh))
 
 (defun action-unique ()
