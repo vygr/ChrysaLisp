@@ -36,7 +36,7 @@
 
 (bind '(+edit_font +edit_size) (font-info *env_editor_font*))
 
-(defq +vdu_min_width 80 +vdu_min_height 40 +vdu_max_width 100 +vdu_max_height 46
+(defq +vdu_min_width 40 +vdu_min_height 20 +vdu_max_width 120 +vdu_max_height 80
 	+vdu_line_width 5 +min_word_size 3 +max_matches 20 +margin 2
 	+state_filename "editor_state" +not_whole_word_chars (cat " .,;'`(){}[]/" (ascii-char 34))
 	+text_types ''(".md" ".txt") +file_types ''(".lisp" ".inc" ".vp" ".md" ".txt"))
@@ -219,6 +219,8 @@
 	(set *vdu_lines* :vdu_height h :min_height h)
 	(bind '(x y w h) (apply view-fit
 		(cat (. *window* :get_pos) (. *window* :pref_size))))
+	(set *edit* :min_width +vdu_min_width :min_height +vdu_min_height)
+	(set *vdu_lines* :min_height +vdu_min_height)
 	(. *window* :change_dirty x y w h)
 	(window-resize))
 
