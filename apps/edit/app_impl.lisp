@@ -330,7 +330,8 @@
 		edit_service (mail-declare (task-netid) "Edit" "Edit Service 0.1")
 		*running* :t *edit* (Editor-edit) *page_scale* 1.0 *regexp* :nil
 		*syntax* (Syntax) *whole_words* :nil *refresh_mode* (list 0)
-		*selected* :nil *macro_record* :nil *macro_actions* (list)
+		*selected* :nil *selected_bounds* :nil
+		*macro_record* :nil *macro_actions* (list)
 		dictionary (Dictionary 1031) match_window :nil match_flow :nil match_index -1
 		*meta_map* :nil *open_files* :nil *current_file* (load-state))
 	(.-> *edit* (:set_buffer (Buffer)) (:set_underlay_color +argb_grey6))

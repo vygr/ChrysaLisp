@@ -150,7 +150,8 @@ recorded_actions (list
 	action-right-bracket action-right-select action-right-tab action-select-all
 	action-select-block action-select-line action-select-paragraph
 	action-select-word action-tab action-to-lower action-to-upper
-	action-trim action-undo action-up action-up-select action-invert)
+	action-trim action-undo action-up action-up-select action-invert
+	action-selected)
 
 replace_actions (list
 	action-replace action-replace-all action-replace-global)

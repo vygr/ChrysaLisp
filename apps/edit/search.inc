@@ -12,7 +12,10 @@
 
 (defun action-selected ()
 	(setq *selected* (not *selected*))
-	(radio-select find_toolbar (list :nil *selected* *whole_words* *regexp* :nil :nil)))
+	(radio-select find_toolbar (list :nil *selected* *whole_words* *regexp* :nil :nil))
+	(if *selected*
+		(setq *selected_bounds* (select-lines))
+		(setq *selected_bounds* :nil)))
 
 (defun action-find-down (selected whole_words regexp pattern)
 	;return :nil if nothing found !
@@ -20,7 +23,11 @@
 		(defq buffer (. *edit* :get_buffer))
 		(when (> (length (defq found (. buffer :find pattern whole_words regexp))) 0)
 			(bind '(cx cy) (. *edit* :get_cursor))
-			(when (defq next (some! cy -1 :nil (lambda ((indexes substrs))
+			(defq sy 0 sy1 (length found))
+			(when selected
+				(bind '(y y1) *selected_bounds*)
+				(setq sy (max sy y) sy1 (min sy1 y1)))
+			(when (defq next (some! sy sy1 :nil (lambda ((indexes substrs))
 					(defq y _)
 					(some (lambda ((x x1)) (cond
 						((> y cy) (list x x1 y))
@@ -36,7 +43,11 @@
 		(defq buffer (. *edit* :get_buffer))
 		(when (> (length (defq found (. buffer :find pattern whole_words regexp))) 0)
 			(bind '(cx cy) (. *edit* :get_cursor))
-			(when (defq next (some! (inc cy) 0 :nil (lambda ((indexes substrs))
+			(defq sy 0 sy1 (length found))
+			(when selected
+				(bind '(y y1) *selected_bounds*)
+				(setq sy (max sy y) sy1 (min sy1 y1)))
+			(when (defq next (some! sy1 sy :nil (lambda ((indexes substrs))
 					(defq y _)
 					(some-rev (lambda ((x x1)) (cond
 						((< y cy) (list x x1 y))
@@ -68,7 +79,7 @@
 					rep_matchs))
 			rep_text)))
 
-(defun action-replace selected (whole_words regexp pattern rep_text)
+(defun action-replace (selected whole_words regexp pattern rep_text)
 	(unless (eql pattern "")
 		(defq buffer (. *edit* :get_buffer)
 			found (. buffer :find pattern whole_words regexp))
@@ -83,7 +94,7 @@
 					(:delete (- cx ax))
 					(:insert rep_text)))
 			(refresh))
-		(action-find-down whole_words regexp pattern)))
+		(action-find-down selected whole_words regexp pattern)))
 
 (defun action-replace-all (selected whole_words regexp pattern rep_text)
 	(unless (eql pattern "")
@@ -106,9 +117,9 @@
 (defun action-replace-global (selected whole_words regexp pattern rep_text)
 	(unless (eql pattern "")
 		(for-all-buffers
-			(action-replace-all whole_words regexp pattern rep_text))))
+			(action-replace-all selected whole_words regexp pattern rep_text))))
 
-(defun action-find-global (whole_words regexp pattern)
+(defun action-find-global (selected whole_words regexp pattern)
 	;find files match but not dictionaries !
 	(defq files (sort cmp (all-files "." +file_types 2)))
 	(if (defq i (find "lib/text/english.txt" files))
