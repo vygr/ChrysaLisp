@@ -27,7 +27,8 @@
 			(when selected
 				(bind '(y y1) *selected_bounds*)
 				(setq sy (max sy y) sy1 (min sy1 y1)))
-			(when (defq next (some! sy sy1 :nil (lambda ((indexes substrs))
+			(setq cy (min (max cy sy) sy1))
+			(when (defq next (some! cy sy1 :nil (lambda ((indexes substrs))
 					(defq y _)
 					(some (lambda ((x x1)) (cond
 						((> y cy) (list x x1 y))
@@ -47,7 +48,8 @@
 			(when selected
 				(bind '(y y1) *selected_bounds*)
 				(setq sy (max sy y) sy1 (min sy1 y1)))
-			(when (defq next (some! sy1 sy :nil (lambda ((indexes substrs))
+			(setq cy (min (max cy sy) sy1))
+			(when (defq next (some! (inc cy) sy :nil (lambda ((indexes substrs))
 					(defq y _)
 					(some-rev (lambda ((x x1)) (cond
 						((< y cy) (list x x1 y))
