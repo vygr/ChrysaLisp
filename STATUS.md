@@ -6,6 +6,8 @@
 
 Editor now has global macro playback to EOF ! Really powerful stuff.
 
+Editor block reverse action.
+
 ------
 
 Reminder of how to bridge Lisp subnets over ChrysaLib hubs !

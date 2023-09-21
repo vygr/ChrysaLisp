@@ -30,6 +30,10 @@
 	(. *edit* :ordered_unique)
 	(refresh))
 
+(defun action-reverse ()
+	(. *edit* :reverse)
+	(refresh))
+
 (defun action-comment-block ()
 	(. *edit* :comment)
 	(refresh))

@@ -425,6 +425,17 @@
 					(list)) (ascii-char +char_lf)) (ascii-char +char_lf)))))
 		this)
 
+	(defmethod :reverse ()
+		; (. edit :reverse) -> edit
+		(when (selection? this)
+			(undoable
+				(bind '(y y1) (select-lines this))
+				(. this :set_anchor 0 y)
+				(. buffer :paste (cat (join
+					(reverse (split (.-> buffer (:set_cursor 0 y1) (:cut 0 y)) (ascii-char +char_lf)))
+					(ascii-char +char_lf)) (ascii-char +char_lf)))))
+		this)
+
 	(defmethod :comment ()
 		; (. edit :comment) -> edit
 		(undoable

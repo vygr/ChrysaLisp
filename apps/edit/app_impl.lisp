@@ -23,7 +23,7 @@
 		reflow paragraph tab_left tab_right
 		block bracket_left bracket_right
 		toupper tolower ordered unique
-		comment)
+		reverse comment)
 	(enum prev next scratch close_buffer close_all save save_all load_all new)
 	(enum global whole_words regexp find_down find_up)
 	(enum replace replace_all replace_global)
@@ -50,7 +50,7 @@
 				0xe909 0xe90d 0xe90a 0xe90b
 				0xe955 0xe93c 0xe93d
 				0xea36 0xea33 0xea27 0xea28
-				0xe9c4) +event_undo))
+				0xea26 0xe9c4) +event_undo))
 		(ui-tool-bar macro_toolbar (:color (const *env_toolbar2_col*))
 			(ui-buttons (0xe95c 0xe95e 0xe95a 0xe95f) +event_macro_playback))
 		(ui-backdrop _ (:color (const *env_toolbar_col*))))
@@ -244,7 +244,7 @@
 		'("undo" "redo" "rewind" "global undo" "global redo"
 		"cut" "copy" "paste" "reflow" "select paragraph"
 		"outdent" "indent" "select form" "start form" "end form" "upper case"
-		"lower case" "sort" "unique" "comment"))
+		"lower case" "sort" "unique" "reverse" "comment"))
 	(each (# (def %0 :tip_text %1)) (. buffer_toolbar :children)
 		'("previous" "next" "scratchpad" "close" "close all" "save" "save all" "load all" "new"))
 	(each (# (def %0 :tip_text %1)) (. find_toolbar :children)
