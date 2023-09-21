@@ -11,6 +11,7 @@
 	(radio-select find_toolbar (list :nil *whole_words* *regexp* :nil :nil)))
 
 (defun action-find-down (whole_words regexp pattern)
+	;return :nil if nothing found !
 	(unless (eql pattern "")
 		(defq buffer (. *edit* :get_buffer))
 		(when (> (length (defq found (. buffer :find pattern whole_words regexp))) 0)
@@ -23,9 +24,10 @@
 				(bind '(x x1 y) next)
 				(. *edit* :set_anchor x y)
 				(. buffer :set_cursor x1 y)
-				(refresh)))))
+				(refresh) :t))))
 
 (defun action-find-up (whole_words regexp pattern)
+	;return :nil if nothing found !
 	(unless (eql pattern "")
 		(defq buffer (. *edit* :get_buffer))
 		(when (> (length (defq found (. buffer :find pattern whole_words regexp))) 0)
@@ -38,7 +40,7 @@
 				(bind '(x x1 y) next)
 				(. *edit* :set_anchor x1 y)
 				(. buffer :set_cursor x y)
-				(refresh)))))
+				(refresh) :t))))
 
 (defun action-set-find-text ()
 	(when (selection?)
@@ -69,7 +71,7 @@
 		(bind '(cx cy) (. *edit* :get_cursor))
 		(bind '(ax ay) (. *edit* :get_anchor))
 		(when (and (= cy ay) (defq
-				rep_matchs (matches rep_text "\$([0-9]+)")
+				rep_matchs (matches rep_text "\$(\d+)")
 				rep_text (build-replace found rep_text rep_matchs cx cy ax)))
 			(undoable
 				(.-> buffer
@@ -83,7 +85,7 @@
 	(unless (eql pattern "")
 		(defq buffer (. *edit* :get_buffer)
 			found (cat (. buffer :find pattern whole_words regexp))
-			rep_matchs (matches rep_text "\$([0-9]+)"))
+			rep_matchs (matches rep_text "\$(\d+)"))
 		(undoable
 			(each (lambda ((indexes substrs))
 				(defq y _)

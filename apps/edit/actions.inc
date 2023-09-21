@@ -13,9 +13,9 @@
 (import "./file.inc")
 (import "./select.inc")
 (import "./clipboard.inc")
-(import "./macros.inc")
 (import "./search.inc")
 (import "./undo.inc")
+(import "./macros.inc")
 (import "./ui.inc")
 
 (defq
@@ -146,8 +146,8 @@ recorded_actions (list
 	action-replace action-replace-all action-rewind action-right
 	action-right-bracket action-right-select action-right-tab action-select-all
 	action-select-block action-select-line action-select-paragraph
-	action-select-word action-set-find-text action-tab action-to-lower
-	action-to-upper action-trim action-undo action-up action-up-select)
+	action-select-word action-tab action-to-lower action-to-upper
+	action-trim action-undo action-up action-up-select)
 
 replace_actions (list
 	action-replace action-replace-all action-replace-global)
