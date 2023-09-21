@@ -6,7 +6,7 @@
 
 Editor now has global macro playback to EOF ! Really powerful stuff.
 
-Editor block reverse action.
+Editor block invert action.
 
 ------
 

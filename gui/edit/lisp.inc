@@ -425,8 +425,8 @@
 					(list)) (ascii-char +char_lf)) (ascii-char +char_lf)))))
 		this)
 
-	(defmethod :reverse ()
-		; (. edit :reverse) -> edit
+	(defmethod :invert ()
+		; (. edit :invert) -> edit
 		(when (selection? this)
 			(undoable
 				(bind '(y y1) (select-lines this))

@@ -31,7 +31,7 @@
 	(refresh))
 
 (defun action-reverse ()
-	(. *edit* :reverse)
+	(. *edit* :invert)
 	(refresh))
 
 (defun action-comment-block ()
