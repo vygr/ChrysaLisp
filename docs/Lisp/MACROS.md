@@ -74,7 +74,7 @@ key_map_control (Fmap-kv
 	97 action-select-all
 	98 action-select-block
 	...
-	79 action-ordered-unique)
+	79 action-unique)
 ```
 
 ## Macros can substitute a new list
