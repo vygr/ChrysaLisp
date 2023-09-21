@@ -18,7 +18,8 @@
 			(. syntax :set_state :text)
 			(.-> vdu
 				(:change 0 0 w h)
-				(:load (map (# (. syntax :colorise %0)) (cat '("") lines '(""))) 0 0 0 1000))
+				(:load (map (# (. syntax :colorise %0))
+					(cat '("") lines '(""))) 0 0 0 1000))
 			(def (defq backdrop (Backdrop))
 				:color +argb_grey1
 				:min_width w
