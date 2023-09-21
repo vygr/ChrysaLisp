@@ -1,5 +1,5 @@
-(import "lib/debug/frames.inc")
-(import "lib/debug/profile.inc")
+;; (import "lib/debug/frames.inc")
+;; (import "lib/debug/profile.inc")
 
 (import "././login/env.inc")
 (import "sys/lisp.inc")
@@ -411,7 +411,7 @@
 				(. *window* :event *msg*)))
 		;update meta data
 		(update-meta-data))
-	;(profile-report "Editor")
+;;     (profile-report "Editor")
 	(action-save-all)
 	(free-select select)
 	(clear-matches)
