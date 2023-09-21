@@ -30,7 +30,7 @@
 	(. *edit* :unique)
 	(refresh))
 
-(defun action-reverse ()
+(defun action-invert ()
 	(. *edit* :invert)
 	(refresh))
 

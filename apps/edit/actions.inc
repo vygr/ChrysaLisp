@@ -68,7 +68,7 @@ event_map (Fmap-kv
 	+event_tolower action-to-lower
 	+event_sort action-sort
 	+event_unique action-unique
-	+event_reverse action-reverse
+	+event_invert action-invert
 	+event_layout action-layout
 	+event_xscroll action-xscroll
 	+event_yscroll action-yscroll
@@ -133,7 +133,7 @@ key_map_control (Fmap-kv
 	(ascii-code "0") action-right-bracket
 	(ascii-code "u") action-to-upper
 	(ascii-code "U") action-to-lower
-	(ascii-code "i") action-reverse
+	(ascii-code "i") action-invert
 	(ascii-code "o") action-sort
 	(ascii-code "O") action-unique)
 
@@ -149,7 +149,7 @@ recorded_actions (list
 	action-right-bracket action-right-select action-right-tab action-select-all
 	action-select-block action-select-line action-select-paragraph
 	action-select-word action-tab action-to-lower action-to-upper
-	action-trim action-undo action-up action-up-select action-reverse)
+	action-trim action-undo action-up action-up-select action-invert)
 
 replace_actions (list
 	action-replace action-replace-all action-replace-global)
