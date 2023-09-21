@@ -8,6 +8,8 @@ Editor now has global macro playback to EOF ! Really powerful stuff.
 
 Editor block invert action.
 
+New `memoize` macro. Easy creation of Fmap or Lmap caches.
+
 ------
 
 Reminder of how to bridge Lisp subnets over ChrysaLib hubs !

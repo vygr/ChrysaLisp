@@ -17,24 +17,17 @@
 (defun concat? (&optional o) (if concat (output :op (opt o concat))))
 
 (defun cache (elem) ;graph element cache
-	(defq c (const (Fmap 11)) k (str elem))
-	(unless (defq e (. c :find k))
-		(. c :insert k (setq e elem))) e)
+	(defq k (str elem)) (memoize k elem 11))
 
 (defun cache-class-range (k) ;class range cache
-	(defq c (const (Fmap 7)))
-	(unless (defq e (. c :find k))
-		(. c :insert k (setq e (apply (const cat)
-			(map (const char) (range (code (first k)) (inc (code (last k))))))))) e)
+	(memoize k (apply (const cat)
+		(map (const char) (range (code (first k)) (inc (code (last k)))))) 7))
 
 (defun cache-class (k) ;class cache
-	(defq c (const (Fmap 7)))
-	(unless (defq e (. c :find k))
-		(setq e (apply (const cat)
-			(map (# (if (and (= (length %0) 3) (eql (second %0) "-"))
-						(cache-class-range %0) %0))
-				(partition 3 k))))
-		(. c :insert k e)) e)
+	(memoize k (apply (const cat)
+		(map (# (if (and (= (length %0) 3) (eql (second %0) "-"))
+					(cache-class-range %0) %0))
+			(partition 3 k))) 7))
 
 (defun tokenize (line)
 	(defq state :space concat :nil token :nil

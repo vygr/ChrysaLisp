@@ -80,3 +80,18 @@
 			(if (list? v) (push stack v (setq v (Fmap))))
 			(. m :insert k v)) (partition 2 form)))
 	root)
+
+;;;;;;;;;;;;;;;;;;;;;;;
+; Fmap/Lmap memoization
+;;;;;;;;;;;;;;;;;;;;;;;
+
+(defmacro memoize (k f &optional num_buckets)
+	; (memoize key form &optional num_buckets)
+	(defq c (gensym) e (gensym))
+	(if num_buckets
+		`(progn
+			(unless (defq ,c (const (Fmap ,num_buckets)) ,e (. ,c :find ,k))
+				(. ,c :insert ,k (setq ,e ,f))) ,e)
+		`(progn
+			(unless (defq ,c (const (Lmap)) ,e (. ,c :find ,k))
+				(. ,c :insert ,k (setq ,e ,f))) ,e)))

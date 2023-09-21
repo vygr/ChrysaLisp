@@ -12,11 +12,8 @@
 (defun circle (r)
 	; (circle r) -> path
 	;cached circle generation, quantised to 1/4 pixel
-	(defq cache (const (Fmap 13)) r (* (floor (* (n2f r) 4.0)) 0.25))
-	(unless (defq p (. cache :find r))
-		(. cache :insert r (defq p
-			(path-gen-arc 0.0 0.0 0.0 +fp_2pi r 0.25 (path)))))
-	p)
+	(defq r (* (floor (* (n2f r) 4.0)) 0.25))
+	(memoize r (path-gen-arc 0.0 0.0 0.0 +fp_2pi r 0.25 (path)) 13))
 
 (defun lighting (col at)
 	; (lighting col at)

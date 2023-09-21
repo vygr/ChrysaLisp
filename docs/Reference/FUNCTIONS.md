@@ -895,6 +895,12 @@ returns true if argument is a map type
 (max-length list) -> max
 ```
 
+### memoize
+
+```code
+(memoize key form &optional num_buckets)
+```
+
 ### neg?
 
 ```code

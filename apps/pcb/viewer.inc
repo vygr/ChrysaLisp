@@ -12,19 +12,12 @@
 
 (defun circle (r)
 	;cached circle generation
-	(defq cache (const (Fmap 11)))
-	(unless (defq p (. cache :find r))
-		(. cache :insert r (defq p
-			(list (path-gen-arc 0.0 0.0 0.0 +fp_2pi r 0.25 (path))))))
-	p)
+	(memoize r (list (path-gen-arc 0.0 0.0 0.0 +fp_2pi r 0.25 (path))) 11))
 
 (defun oval (r s)
 	;cached oval generation
-	(defq cache (const (Fmap 11)) key (str r s))
-	(unless (defq p (. cache :find key))
-		(. cache :insert key (defq p
-			(path-stroke-polylines (list) r +eps +join_bevel +cap_round +cap_round (list s)))))
-	p)
+	(defq key (str r s))
+	(memoize key (path-stroke-polylines (list) r +eps +join_bevel +cap_round +cap_round (list s)) 11))
 
 (defun batch (p)
 	(defq s 0 e 0 b (list))
