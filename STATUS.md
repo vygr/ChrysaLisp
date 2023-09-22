@@ -12,6 +12,11 @@ New `memoize` macro. Easy creation of Fmap or Lmap caches.
 
 Editor now has search/replace within selected region option.
 
+Editor can create 10 macro's. The recorder allways records into slot "0". You
+can save slot "0" to any other slot with shift-cntrl-[1-9]. Playback any slot
+with cntrl-[1-9]. Macros can record/playback other macros... Need to add some
+protection to that !
+
 ------
 
 Reminder of how to bridge Lisp subnets over ChrysaLib hubs !

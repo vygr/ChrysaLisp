@@ -100,6 +100,24 @@ key_map_shift (Fmap-kv
 	+char_tab action-left-tab)
 
 key_map_control (Fmap-kv
+	(ascii-code "1") action-macro-playback-1
+	(ascii-code "2") action-macro-playback-2
+	(ascii-code "3") action-macro-playback-3
+	(ascii-code "4") action-macro-playback-4
+	(ascii-code "5") action-macro-playback-5
+	(ascii-code "6") action-macro-playback-6
+	(ascii-code "7") action-macro-playback-7
+	(ascii-code "8") action-macro-playback-8
+	(ascii-code "9") action-macro-playback-9
+	(ascii-code "!") action-macro-save-1
+	(ascii-code "@") action-macro-save-2
+	(ascii-code "#") action-macro-save-3
+	(ascii-code "$") action-macro-save-4
+	(ascii-code "%") action-macro-save-5
+	(ascii-code "^") action-macro-save-6
+	(ascii-code "&") action-macro-save-7
+	(ascii-code "*") action-macro-save-8
+	(ascii-code "(") action-macro-save-9
 	(ascii-code "M") action-macro-record
 	(ascii-code "m") action-macro-playback
 	(ascii-code "/") action-comment-block
@@ -126,18 +144,18 @@ key_map_control (Fmap-kv
 	(ascii-code "v") action-paste
 	(ascii-code "=") action-maximise
 	(ascii-code "-") action-minimise
-	(ascii-code "]") action-scale-up
-	(ascii-code "[") action-scale-down
 	(ascii-code "n") action-next-buffer
 	(ascii-code "N") action-prev-buffer
 	(ascii-code "q") action-reflow
-	(ascii-code "9") action-left-bracket
-	(ascii-code "0") action-right-bracket
 	(ascii-code "u") action-to-upper
 	(ascii-code "U") action-to-lower
 	(ascii-code "i") action-invert
 	(ascii-code "o") action-sort
-	(ascii-code "O") action-unique)
+	(ascii-code "O") action-unique
+	(ascii-code "]") action-scale-up
+	(ascii-code "[") action-scale-down
+	(ascii-code "{") action-left-bracket
+	(ascii-code "}") action-right-bracket)
 
 recorded_actions (list
 	action-backspace action-break action-comment-block action-copy action-cut
@@ -145,14 +163,16 @@ recorded_actions (list
 	action-copy-block action-copy-line action-copy-paragraph action-copy-word
 	action-delete action-down action-down-select action-end action-end-select
 	action-find-down action-find-up action-home action-home-select action-insert
-	action-left action-left-bracket action-left-select action-left-tab
-	action-sort action-unique action-paste action-redo action-reflow
-	action-replace action-replace-all action-rewind action-right
-	action-right-bracket action-right-select action-right-tab action-select-all
-	action-select-block action-select-line action-select-paragraph
-	action-select-word action-tab action-to-lower action-to-upper
-	action-trim action-undo action-up action-up-select action-invert
-	action-region)
+	action-left action-left-bracket action-left-select action-left-tab action-sort
+	action-unique action-paste action-redo action-reflow action-replace
+	action-replace-all action-rewind action-right action-right-bracket
+	action-right-select action-right-tab action-select-all action-select-block
+	action-select-line action-select-paragraph action-select-word action-tab
+	action-to-lower action-to-upper action-trim action-undo action-up
+	action-up-select action-invert action-region action-macro-playback-1
+	action-macro-playback-2 action-macro-playback-3 action-macro-playback-4
+	action-macro-playback-5 action-macro-playback-6 action-macro-playback-7
+	action-macro-playback-8 action-macro-playback-9)
 
 replace_actions (list
 	action-replace action-replace-all action-replace-global)
@@ -165,7 +185,8 @@ find_actions (cat replace_actions (list
 	recorded_actions find_actions replace_actions
 	event_map key_map key_map_shift key_map_control
 	action-insert action-save-all action-maximise
-	select-word action-select-word action-insert)
+	select-word action-select-word action-insert
+	macro-record)
 (export-classes
 	Editor-edit)
 (env-pop)

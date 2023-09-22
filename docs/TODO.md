@@ -8,6 +8,8 @@ In no particular order but to just to ensure I get thoughts down. I'll keep
 adding to this as I go along. If anybody would like to try helping out, then
 just get in touch.
 
+* Add Fset and List support to maptree load/save.
+
 * Add shift key selection to the Terminal app.
 
 * Add dynamic font scaling `cntrl-[ ]` to the Terminal app. Toolbar buttons for
@@ -41,8 +43,6 @@ etc.
 
 * SDL2 Audio output, plus the implementation of a ChrysaLisp multi channel
 mixer service.
-
-* Add keyboard macro saving to Editor.
 
 * Add support for FPU to the VM. Scalar float/double support first of all maybe
 eventually create a FPU accelerated version of the vector math DSL.

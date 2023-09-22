@@ -328,7 +328,7 @@
 	(if (find func replace_actions)
 		(push action (. *replace_text* :get_text)))
 	(when (and *macro_record* (find func recorded_actions))
-		(push *macro_actions* action))
+		(macro-record action))
 	(catch (eval action)
 		(progn (print _)(print)
 			(setq *refresh_mode* (list 0)) :t)))
