@@ -68,8 +68,8 @@
 	(some (# (if (eql (first f) %0) _)) +playback_funcs))
 
 (defun action-macro-save (slot)
-	;check if recursive !
 	(. +macro_map :insert slot (cat (. +macro_map :find 0)))
+	;check if recursive !!!
 	(defq stack (list slot) cnt 10000)
 	(while (and (> (setq cnt (dec cnt)) 0) (defq s (pop stack)))
 		(setq stack (cat stack (filter (const num?)
@@ -89,28 +89,25 @@
 	(radio-select macro_toolbar (list :nil :nil :nil *macro_record*))
 	(refresh))
 
+(defun transcode (f p tc)
+	(if (eql f action-insert)
+		(elem-set 0 p (tc (elem-get 0 p))))
+	(if (some (# (eql %0 f)) *find_actions*)
+		(elem-set 2 p (tc (elem-get 2 p))))
+	(if (some (# (eql %0 f)) *replace_actions*)
+		(elem-set 3 p (tc (elem-get 3 p)))) p)
+
 (defun macro-encode (n)
 	(if (empty? (defq m (reduce
 			(lambda (m (f &rest p))
-				(if (eql f action-insert)
-					(elem-set 0 p (id-encode (elem-get 0 p))))
-				(if (some (# (eql %0 f)) *find_actions*)
-					(elem-set 2 p (id-encode (elem-get 2 p))))
-				(if (some (# (eql %0 f)) *replace_actions*)
-					(elem-set 3 p (id-encode (elem-get 3 p))))
-				(push m (str (cat (list (find f *recorded_actions*)) p))))
+				(push m (str (cat (list (find f *recorded_actions*))
+					(transcode f p id-encode)))))
 			(. +macro_map :find n) (list))))
 		"" (join m "|")))
 
 (defun macro-decode (n e)
 	(. +macro_map :insert n (map
 			(# (bind '(f &rest p) (first (read (string-stream %0))))
-				(setq f (elem-get f *recorded_actions*))
-				(if (eql f action-insert)
-					(elem-set 0 p (id-decode (elem-get 0 p))))
-				(if (some (# (eql %0 f)) *find_actions*)
-					(elem-set 2 p (id-decode (elem-get 2 p))))
-				(if (some (# (eql %0 f)) *replace_actions*)
-					(elem-set 3 p (id-decode (elem-get 3 p))))
-				(cat (list f) p))
+				(cat (list (setq f (elem-get f *recorded_actions*)))
+					(transcode f p id-decode)))
 		(split e "|"))))
