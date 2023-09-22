@@ -84,6 +84,12 @@
 (. edit :get_cursor) -> (x y)
 ```
 
+### :get_find
+
+```code
+(. edit :get_find) -> (x y x1 y1)
+```
+
 ### :get_scroll
 
 ```code
@@ -264,6 +270,12 @@
 (. edit :set_cursor x y) -> edit
 ```
 
+### :set_find
+
+```code
+(. edit :set_find x y x1 y1) -> edit
+```
+
 ### :set_scroll
 
 ```code
@@ -274,6 +286,12 @@
 
 ```code
 (. edit :set_underlay_color argb) -> edit
+```
+
+### :set_underlay_find_color
+
+```code
+(. edit :set_underlay_find_color argb) -> edit
 ```
 
 ### :sort
@@ -314,6 +332,12 @@ create the underlay for just bracket indicators
 (. edit :underlay_clear) -> edit
 
 create the underlay for clear
+```
+
+### :underlay_find
+
+```code
+(. edit :underlay_selection) -> edit
 ```
 
 ### :underlay_selection
