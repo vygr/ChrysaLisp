@@ -89,13 +89,11 @@
 	(radio-select macro_toolbar (list :nil :nil :nil *macro_record*))
 	(refresh))
 
+(defun tcode (i) (elem-set i p (tc (elem-get i p))))
 (defun transcode (f p tc)
-	(if (eql f action-insert)
-		(elem-set 0 p (tc (elem-get 0 p))))
-	(if (some (# (eql %0 f)) *find_actions*)
-		(elem-set 2 p (tc (elem-get 2 p))))
-	(if (some (# (eql %0 f)) *replace_actions*)
-		(elem-set 3 p (tc (elem-get 3 p)))) p)
+	(if (eql f action-insert) (tcode 0))
+	(if (some (# (eql %0 f)) *find_actions*) (tcode 2))
+	(if (some (# (eql %0 f)) *replace_actions*) (tcode 3)) p)
 
 (defun macro-encode (n)
 	(if (empty? (defq m (reduce
