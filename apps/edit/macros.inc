@@ -6,12 +6,11 @@
 	5 (list) 6 (list) 7 (list) 8 (list) 9 (list)))
 
 (defun macro-playback (actions)
-	(some! 0 -1 :t (# (defq func (elem-get 0 %0))
-			(cond
-				((or (eql func (const action-find-up))
-						(eql func (const action-find-down)))
-					(setq running (eval %0)))
-				(:t (eval %0) :t)))
+	(some! 0 -1 :t (# (cond
+			((or (eql (defq func (first %0)) (const action-find-up))
+					(eql func (const action-find-down)))
+				(setq running (eval %0)))
+			(:t (eval %0) :t)))
 		(list actions)))
 
 (defun macro-record (action)
