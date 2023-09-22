@@ -17,6 +17,8 @@ can save slot "0" to any other slot with shift-cntrl-[1-9]. Playback any slot
 with cntrl-[1-9]. Macros can record/playback other macros... Need to add some
 protection to that !
 
+Editor saves/loads the 10 macros to the users Editor state file.
+
 ------
 
 Reminder of how to bridge Lisp subnets over ChrysaLib hubs !
