@@ -2,7 +2,7 @@
 ; macro actions
 ;;;;;;;;;;;;;;;
 
-(defq +macro_set (Fmap-kv 0 (list)))
+(defq +macro_map (Lmap-kv 0 (list)))
 
 (defun macro-playback (actions)
 	(some! 0 -1 :t (# (defq func (elem-get 0 %0))
@@ -14,21 +14,21 @@
 		(list actions)))
 
 (defun macro-record (action)
-	(push (. +macro_set :find 0) action))
+	(push (. +macro_map :find 0) action))
 
 (defun action-macro-save (slot)
-	(. +macro_set :insert slot
-		(cat (. +macro_set :find 0))))
+	(. +macro_map :insert slot
+		(cat (. +macro_map :find 0))))
 
 (defun action-macro-record ()
 	(if (setq *macro_record* (not *macro_record*))
-		(clear (. +macro_set :find 0)))
+		(clear (. +macro_map :find 0)))
 	(radio-select macro_toolbar (list :nil :nil :nil *macro_record*))
 	(refresh))
 
 (defun action-macro-playback (&optional slot)
 	(setd slot 0)
-	(when (and (defq actions (. +macro_set :find slot))
+	(when (and (defq actions (. +macro_map :find slot))
 			(> (length actions) 0))
 		(defq buffer (. *edit* :get_buffer) running :t)
 		(push *refresh_mode* 1)
@@ -38,7 +38,7 @@
 
 (defun action-macro-to-eof (&optional slot)
 	(setd slot 0)
-	(when (and (defq actions (. +macro_set :find slot))
+	(when (and (defq actions (. +macro_map :find slot))
 			(> (length actions) 0))
 		(defq buffer (. *edit* :get_buffer) running :t)
 		(push *refresh_mode* 1)
