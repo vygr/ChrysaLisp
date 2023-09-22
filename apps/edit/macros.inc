@@ -91,7 +91,7 @@
 
 (defun tcode (i) (elem-set i p (tc (elem-get i p))))
 (defun transcode (f p tc)
-	(if (eql f action-insert) (tcode 0))
+	(if (eql f (const action-insert)) (tcode 0))
 	(if (some (# (eql %0 f)) *find_actions*) (tcode 2))
 	(if (some (# (eql %0 f)) *replace_actions*) (tcode 3)) p)
 
