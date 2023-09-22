@@ -99,7 +99,7 @@
 	(if (empty? (defq m (reduce
 			(lambda (m (f &rest p))
 				(push m (str (cat (list (find f *recorded_actions*))
-					(transcode f p id-encode)))))
+					(transcode f p (const id-encode))))))
 			(. +macro_map :find n) (list))))
 		"" (join m "|")))
 
@@ -107,5 +107,5 @@
 	(. +macro_map :insert n (map
 			(# (bind '(f &rest p) (first (read (string-stream %0))))
 				(cat (list (setq f (elem-get f *recorded_actions*)))
-					(transcode f p id-decode)))
+					(transcode f p (const id-decode))))
 		(split e "|"))))
