@@ -10,7 +10,6 @@
 (import "lib/text/dictionary.inc")
 (import "lib/task/local.inc")
 (import "././clipboard/app.inc")
-(import "./state.inc")
 
 (enums +event 0
 	(enum close max min)
@@ -312,9 +311,7 @@
 	(bind '(ax ay) (. *edit* :get_anchor))
 	(bind '(sx sy) (. *edit* :get_scroll))
 	(scatter *meta_map*
-		:file (str *current_file*)
-		:find (id-encode (. *find_text* :get_text))
-		:replace (id-encode (. *replace_text* :get_text)))
+		:file (str *current_file*))
 	(scatter (.-> *meta_map* (:find :files) (:find (str *current_file*)))
 		:cx cx :cy cy :ax ax :ay ay :sx sx :sy sy :buffer buffer))
 
@@ -323,11 +320,11 @@
 
 (defun dispatch-action (&rest action)
 	(defq func (first action))
-	(if (find func find_actions)
+	(if (find func *find_actions*)
 		(push action *whole_words* *regexp* (. *find_text* :get_text)))
-	(if (find func replace_actions)
+	(if (find func *replace_actions*)
 		(push action (. *replace_text* :get_text)))
-	(when (and *macro_record* (find func recorded_actions))
+	(when (and *macro_record* (find func *recorded_actions*))
 		(macro-record action))
 	(catch (eval action)
 		(progn (print _)(print)

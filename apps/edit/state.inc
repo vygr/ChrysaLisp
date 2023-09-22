@@ -5,6 +5,12 @@
 (defun save-state ()
 	;save editor state
 	(when (defq stream (file-stream (cat *env_home* +state_filename) +file_open_write))
+		(defq macros (Fmap))
+		(each (# (. macros :insert %0 (encode-macro %0))) +range_0_10)
+		(scatter *meta_map*
+			:find (id-encode (. *find_text* :get_text))
+			:replace (id-encode (. *replace_text* :get_text))
+			:macros macros)
 		(maptree-save stream *meta_map* '(":nil" :buffer :nil))))
 
 (defun load-state ()
@@ -12,10 +18,11 @@
 	(setq *meta_map* (Fmap-kv :files (Fmap)) *open_files* (list))
 	(when (defq stream (file-stream (cat *env_home* +state_filename)))
 		(setq *meta_map* (maptree-load stream))
-		(bind '(file find_txt replace_txt files)
-			(gather *meta_map* :file :find :replace :files))
+		(bind '(file find_txt replace_txt files macros)
+			(gather *meta_map* :file :find :replace :files :macros))
 		(. *find_text* :set_text (id-decode find_txt))
 		(. *replace_text* :set_text (id-decode replace_txt))
+		(if macros (. macros :each (lambda (k v) (decode-macro k v))))
 		(defq dead_files (list))
 		(.-> files (:resize 101) (:each (lambda (file meta)
 			(cond

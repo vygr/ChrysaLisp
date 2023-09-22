@@ -80,3 +80,5 @@
 				(setq *exit* (eql *current_file* *here*)))
 			(pop *refresh_mode*)
 			(refresh))))
+
+(defq +range_0_10 `'(~(range 0 10)))

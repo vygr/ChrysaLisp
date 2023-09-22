@@ -55,9 +55,9 @@
 		(action-macro-to-eof slot)))
 
 (each (# (def (penv (penv))
-		(sym (cat "action-macro-playback-" %0))
-			`(,lambda () (,action-macro-playback ,(str-to-num %0)))))
-	"0123456789")
+		(sym (str "action-macro-playback-" %0))
+			`(,lambda () (,action-macro-playback ,%0))))
+	+range_0_10)
 
 (defq +playback_funcs `'(,action-macro-playback-0 ,action-macro-playback-1
 	,action-macro-playback-2 ,action-macro-playback-3 ,action-macro-playback-4
@@ -79,12 +79,23 @@
 		(throw "Edit macro recursive error !" slot)))
 
 (each (# (def (penv (penv))
-		(sym (cat "action-macro-save-" %0))
-			`(,lambda () (,action-macro-save ,(str-to-num %0)))))
-	"123456789")
+		(sym (str "action-macro-save-" %0))
+			`(,lambda () (,action-macro-save ,%0))))
+	+range_0_10)
 
 (defun action-macro-record ()
 	(if (setq *macro_record* (not *macro_record*))
 		(clear (. +macro_map :find 0)))
 	(radio-select macro_toolbar (list :nil :nil :nil *macro_record*))
 	(refresh))
+
+(defun encode-macro (n)
+	(if (empty? (defq m (reduce
+			(# (push %0 (str (find (first %1) *recorded_actions*))))
+				(. +macro_map :find n) (list))))
+		"" (join m ":")))
+
+(defun decode-macro (n e)
+	(. +macro_map :insert n (map
+			(# (list (elem-get (str-to-num %0) *recorded_actions*)))
+		(split e ":"))))
