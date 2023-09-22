@@ -182,3 +182,7 @@
 (defmacro ui-view (n &optional p &rest x)
 	; (ui-view name [props] [body]) -> view
 	`(ui-element ,n (View) ,p ~x))
+
+(defun tool-tips (toolbar tips)
+	; (tool-tips toolbar tips)
+	(each (# (def %0 :tip_text %1)) (. toolbar :children) tips))

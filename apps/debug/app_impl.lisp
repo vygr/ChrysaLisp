@@ -87,9 +87,9 @@
 
 (defun tooltips ()
 	(def *window* :tip_mbox (elem-get +select_tip select))
-	(each (# (def %0 :tip_text %1)) (. main_toolbar :children)
+	(tool-tips main_toolbar
 		'("play" "pause" "step" "clear"))
-	(each (# (def %0 :tip_text %1)) (. main_toolbar2 :children)
+	(tool-tips main_toolbar2
 		'("play all" "pause all" "step all" "clear all")))
 
 (defun main ()

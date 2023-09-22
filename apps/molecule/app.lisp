@@ -63,9 +63,9 @@
 
 (defun tooltips ()
 	(def *window* :tip_mbox (elem-get +select_tip select))
-	(each (# (def %0 :tip_text %1)) (. main_toolbar :children)
+	(tool-tips main_toolbar
 		'("prev" "next" "auto"))
-	(each (# (def %0 :tip_text %1)) (. style_toolbar :children)
+	(tool-tips style_toolbar
 		'("plain" "grid" "axis")))
 
 (defun radio-select (toolbar idx)

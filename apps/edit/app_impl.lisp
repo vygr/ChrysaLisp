@@ -249,18 +249,21 @@
 
 (defun tooltips ()
 	(def *window* :tip_mbox (elem-get +select_tip select))
-	(each (# (def %0 :tip_text %1)) (. main_toolbar :children)
+	(tool-tips main_toolbar
 		'("undo" "redo" "rewind" "global undo" "global redo"
 		"cut" "copy" "paste" "reflow" "select paragraph"
-		"outdent" "indent" "select form" "start form" "end form" "upper case"
-		"lower case" "sort" "unique" "reverse" "comment"))
-	(each (# (def %0 :tip_text %1)) (. buffer_toolbar :children)
-		'("previous" "next" "scratchpad" "close" "close all" "save" "save all" "load all" "new"))
-	(each (# (def %0 :tip_text %1)) (. find_toolbar :children)
-		'("global search" "select region" "whole words" "regexp" "find down" "find up"))
-	(each (# (def %0 :tip_text %1)) (. macro_toolbar :children)
+		"outdent" "indent" "select form" "start form"
+		"end form" "upper case" "lower case" "sort" "unique"
+		"reverse" "comment"))
+	(tool-tips buffer_toolbar
+		'("previous" "next" "scratchpad" "close" "close all"
+		"save" "save all" "load all" "new"))
+	(tool-tips find_toolbar
+		'("global search" "select region" "whole words"
+		"regexp" "find down" "find up"))
+	(tool-tips macro_toolbar
 		'("playback" "playback eof" "playback global" "record"))
-	(each (# (def %0 :tip_text %1)) (. replace_toolbar :children)
+	(tool-tips replace_toolbar
 		'("replace" "replace all" "replace global")))
 
 (defun clear-matches ()
@@ -324,7 +327,7 @@
 		(push action *whole_words* *regexp* (. *find_text* :get_text)))
 	(if (find func *replace_actions*)
 		(push action (. *replace_text* :get_text)))
-	(when (and *macro_record* (find func *recorded_actions*))
+	(and *macro_record* (find func *recorded_actions*)
 		(macro-record action))
 	(catch (eval action)
 		(progn (print _)(print)

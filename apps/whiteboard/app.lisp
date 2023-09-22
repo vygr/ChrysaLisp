@@ -151,13 +151,13 @@
 
 (defun tooltips ()
 	(def *window* :tip_mbox (elem-get +select_tip select))
-	(each (# (def %0 :tip_text %1)) (. *main_toolbar* :children)
+	(tool-tips *main_toolbar*
 		'("save" "open" "clear" "undo" "redo"))
-	(each (# (def %0 :tip_text %1)) (. *style_toolbar* :children)
+	(tool-tips *style_toolbar*
 		'("plain" "grid" "lines" "axis"))
-	(each (# (def %0 :tip_text %1)) (. *radius_toolbar* :children)
+	(tool-tips *radius_toolbar*
 		'("small" "medium" "large"))
-	(each (# (def %0 :tip_text %1)) (. *mode_toolbar* :children)
+	(tool-tips *mode_toolbar*
 		'("pen" "line" "arrow" "double arrow" "rect"
 		"circle" "filled rect" "filled circle")))
 

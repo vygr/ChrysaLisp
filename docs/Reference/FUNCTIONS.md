@@ -1519,6 +1519,12 @@ stop a child
 (to-upper str) -> str
 ```
 
+### tool-tips
+
+```code
+(tool-tips toolbar tips)
+```
+
 ### trim
 
 ```code
