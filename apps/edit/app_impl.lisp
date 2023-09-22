@@ -189,9 +189,9 @@
 		(:set_scroll sx sy))
 	(scatter meta :cx cx :cy cy :ax ax :ay ay :sx sx :sy sy)
 	(radio-select find_toolbar (list :nil :nil *whole_words* *regexp* :nil :nil))
-	(refresh)
 	(def *title* :text (cat "Edit -> " (if file file "<scratch pad>")))
-	(.-> *title* :layout :dirty))
+	(.-> *title* :layout :dirty)
+	(refresh))
 
 (defun populate-file-trees ()
 	;reload open tree

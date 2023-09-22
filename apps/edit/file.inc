@@ -69,8 +69,8 @@
 	(switch-file (elem-get idx files)))
 
 (defun action-scratch-buffer ()
-	(select-node :nil)
-	(populate-vdu :nil))
+	(populate-vdu :nil)
+	(select-node :nil))
 
 (defun close-file (file)
 	(save-file file)
