@@ -2,7 +2,8 @@
 ; macro actions
 ;;;;;;;;;;;;;;;
 
-(defq +macro_map (Lmap-kv 0 (list)))
+(defq +macro_map (Lmap-kv 0 (list) 1 (list) 2 (list) 3 (list) 4 (list)
+	5 (list) 6 (list) 7 (list) 8 (list) 9 (list)))
 
 (defun macro-playback (actions)
 	(some! 0 -1 :t (# (defq func (elem-get 0 %0))
@@ -15,16 +16,6 @@
 
 (defun macro-record (action)
 	(push (. +macro_map :find 0) action))
-
-(defun action-macro-save (slot)
-	(. +macro_map :insert slot
-		(cat (. +macro_map :find 0))))
-
-(defun action-macro-record ()
-	(if (setq *macro_record* (not *macro_record*))
-		(clear (. +macro_map :find 0)))
-	(radio-select macro_toolbar (list :nil :nil :nil *macro_record*))
-	(refresh))
 
 (defun action-macro-playback (&optional slot)
 	(setd slot 0)
@@ -66,7 +57,35 @@
 
 (each (# (def (penv (penv))
 		(sym (cat "action-macro-playback-" %0))
-			`(,lambda () (,action-macro-playback ,(str-to-num %0)))
+			`(,lambda () (,action-macro-playback ,(str-to-num %0)))))
+	"0123456789")
+
+(defq +playback_funcs `'(,action-macro-playback-0 ,action-macro-playback-1
+	,action-macro-playback-2 ,action-macro-playback-3 ,action-macro-playback-4
+	,action-macro-playback-5 ,action-macro-playback-6 ,action-macro-playback-7
+	,action-macro-playback-8 ,action-macro-playback-9))
+
+(defun is-playback-func? (f)
+	(some (# (if (eql (first f) %0) _)) +playback_funcs))
+
+(defun action-macro-save (slot)
+	;check if recursive !
+	(. +macro_map :insert slot (cat (. +macro_map :find 0)))
+	(defq stack (list slot) cnt 10000)
+	(while (and (> (setq cnt (dec cnt)) 0) (defq s (pop stack)))
+		(setq stack (cat stack (filter (const num?)
+			(map (const is-playback-func?) (. +macro_map :find s))))))
+	(when (= cnt 0)
+		(.-> +macro_map (:insert 0 (list)) (:insert slot (list)))
+		(throw "Edit macro recursive error !" slot)))
+
+(each (# (def (penv (penv))
 		(sym (cat "action-macro-save-" %0))
 			`(,lambda () (,action-macro-save ,(str-to-num %0)))))
-	"0123456789")
+	"123456789")
+
+(defun action-macro-record ()
+	(if (setq *macro_record* (not *macro_record*))
+		(clear (. +macro_map :find 0)))
+	(radio-select macro_toolbar (list :nil :nil :nil *macro_record*))
+	(refresh))
