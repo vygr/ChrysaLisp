@@ -91,11 +91,13 @@
 
 (defun encode-macro (n)
 	(if (empty? (defq m (reduce
-			(# (push %0 (str (find (first %1) *recorded_actions*))))
-				(. +macro_map :find n) (list))))
-		"" (join m ":")))
+			(lambda (m (f &rest p))
+				(push m (str (cat (list (find f *recorded_actions*)) p))))
+			(. +macro_map :find n) (list))))
+		"" (join m "|")))
 
 (defun decode-macro (n e)
 	(. +macro_map :insert n (map
-			(# (list (elem-get (str-to-num %0) *recorded_actions*)))
-		(split e ":"))))
+			(# (bind '(f &rest p) (first (read (string-stream %0))))
+				(cat (list (elem-get f *recorded_actions*)) p))
+		(split e "|"))))

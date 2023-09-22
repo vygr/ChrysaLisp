@@ -38,7 +38,7 @@
 	(cond
 		((sym? atom) atom)
 		((num? atom) (str atom))
-		((cat {"} (str atom) {"}))))
+		((cat "{" (str atom) "}"))))
 
 (defun maptree-save (stream root &optional key_filter)
 	; (maptree-save stream maptree &optional key_filter) -> maptree
