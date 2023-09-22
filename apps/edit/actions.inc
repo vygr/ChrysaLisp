@@ -160,20 +160,20 @@ key_map_control (Fmap-kv
 
 recorded_actions (list
 	action-backspace action-break action-comment-block action-copy action-cut
-	action-cut-block action-cut-line action-cut-paragraph action-cut-word
 	action-copy-block action-copy-line action-copy-paragraph action-copy-word
+	action-cut-block action-cut-line action-cut-paragraph action-cut-word
 	action-delete action-down action-down-select action-end action-end-select
 	action-find-down action-find-up action-home action-home-select action-insert
-	action-left action-left-bracket action-left-select action-left-tab action-sort
-	action-unique action-paste action-redo action-reflow action-replace
-	action-replace-all action-rewind action-right action-right-bracket
-	action-right-select action-right-tab action-select-all action-select-block
-	action-select-line action-select-paragraph action-select-word action-tab
-	action-to-lower action-to-upper action-trim action-undo action-up
-	action-up-select action-invert action-region action-macro-playback-1
-	action-macro-playback-2 action-macro-playback-3 action-macro-playback-4
-	action-macro-playback-5 action-macro-playback-6 action-macro-playback-7
-	action-macro-playback-8 action-macro-playback-9)
+	action-invert action-left action-left-bracket action-left-select
+	action-left-tab action-macro-playback-1 action-macro-playback-2
+	action-macro-playback-3 action-macro-playback-4 action-macro-playback-5
+	action-macro-playback-6 action-macro-playback-7 action-macro-playback-8
+	action-macro-playback-9 action-paste action-redo action-reflow action-region
+	action-replace action-replace-all action-rewind action-right
+	action-right-bracket action-right-select action-right-tab action-select-all
+	action-select-block action-select-line action-select-paragraph
+	action-select-word action-sort action-tab action-to-lower action-to-upper
+	action-trim action-undo action-unique action-up action-up-select)
 
 replace_actions (list
 	action-replace action-replace-all action-replace-global)
