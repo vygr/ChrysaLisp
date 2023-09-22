@@ -30,13 +30,13 @@
 			(bind '(_ fy _ fy1) (. *edit* :get_find))
 			(if (> fy1 fy) (setq sy (max sy fy) sy1 (min sy1 fy1)))
 			(if (< cy sy) (setq cy sy cx 0))
-			(and (< cy sy1) (defq next (some! cy sy1 :nil
+			(when (and (< cy sy1) (defq next (some! cy sy1 :nil
 				(lambda ((indexes substrs))
 					(defq y _)
 					(some (lambda ((x x1)) (cond
 						((> y cy) (list x x1 y))
 						((>= x cx) (list x x1 y)))) indexes))
-					(list found)))
+					(list found))))
 				(bind '(x x1 y) next)
 				(. *edit* :set_anchor x y)
 				(. buffer :set_cursor x1 y)
@@ -52,13 +52,13 @@
 			(bind '(_ fy _ fy1) (. *edit* :get_find))
 			(if (> fy1 fy) (setq sy (max sy fy) sy1 (min sy1 fy1)))
 			(if (>= cy sy1) (setq cy (dec sy1) cx +max_int))
-			(and (>= cy sy) (defq next (some! (inc cy) sy :nil
+			(when (and (>= cy sy) (defq next (some! (inc cy) sy :nil
 				(lambda ((indexes substrs))
 					(defq y _)
 					(some-rev (lambda ((x x1)) (cond
 						((< y cy) (list x x1 y))
 						((< x cx) (list x x1 y)))) indexes))
-					(list found)))
+					(list found))))
 				(bind '(x x1 y) next)
 				(. *edit* :set_anchor x1 y)
 				(. buffer :set_cursor x y)
