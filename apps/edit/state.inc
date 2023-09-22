@@ -20,19 +20,22 @@
 		(setq *meta_map* (maptree-load stream))
 		(bind '(file find_txt replace_txt files macros)
 			(gather *meta_map* :file :find :replace :files :macros))
-		(. *find_text* :set_text (id-decode find_txt))
-		(. *replace_text* :set_text (id-decode replace_txt))
+		(if find_txt (. *find_text* :set_text (id-decode find_txt)))
+		(if replace_txt (. *replace_text* :set_text (id-decode replace_txt)))
 		(if macros (. macros :each (lambda (k v) (decode-macro k v))))
-		(defq dead_files (list))
-		(.-> files (:resize 101) (:each (lambda (file meta)
-			(cond
-				((= (age file) 0)
-					;no such file
-					(push dead_files file))
-				(:t (bind '(cx cy ax ay sx sy)
-						(gather meta :cx :cy :ax :ay :sx :sy))
-					(push *open_files* file)
-					(. meta :insert :buffer :nil)
-					(populate-buffer file cx cy ax ay sx sy))))))
-		(each (# (. files :erase %0)) dead_files)
+		(cond
+			(files
+				(defq dead_files (list))
+				(.-> files (:resize 101) (:each (lambda (file meta)
+					(cond
+						((= (age file) 0)
+							;no such file
+							(push dead_files file))
+						(:t (bind '(cx cy ax ay sx sy)
+								(gather meta :cx :cy :ax :ay :sx :sy))
+							(push *open_files* file)
+							(. meta :insert :buffer :nil)
+							(populate-buffer file cx cy ax ay sx sy))))))
+				(each (# (. files :erase %0)) dead_files))
+			((setq *meta_map* (Fmap-kv :files (Fmap)))))
 		(if (find file *open_files*) file)))
