@@ -46,7 +46,7 @@ event_map (Fmap-kv
 	+event_global action-find-global
 	+event_whole_words action-whole-words
 	+event_regexp action-regexp
-	+event_selected action-selected
+	+event_region action-region
 	+event_replace action-replace
 	+event_replace_all action-replace-all
 	+event_replace_global action-replace-global
@@ -104,6 +104,7 @@ key_map_control (Fmap-kv
 	(ascii-code "m") action-macro-playback
 	(ascii-code "/") action-comment-block
 	(ascii-code "a") action-select-all
+	(ascii-code "A") action-region
 	(ascii-code "b") action-select-block
 	(ascii-code "B") action-cut-block
 	(ascii-code "w") action-select-word
@@ -151,7 +152,7 @@ recorded_actions (list
 	action-select-block action-select-line action-select-paragraph
 	action-select-word action-tab action-to-lower action-to-upper
 	action-trim action-undo action-up action-up-select action-invert
-	action-selected)
+	action-region)
 
 replace_actions (list
 	action-replace action-replace-all action-replace-global)

@@ -12,7 +12,7 @@
 	(bind '(fx fy fx1 fy1) (. *edit* :get_find))
 	(radio-select find_toolbar (list :nil (> fy1 fy) *whole_words* *regexp* :nil :nil)))
 
-(defun action-selected ()
+(defun action-region ()
 	(bind '(sy sy1) (select-lines))
 	(bind '(fx fy fx1 fy1) (. *edit* :get_find))
 	(if (> fy1 fy) (setq fy 0 fy1 0) (setq fy sy fy1 sy1))

@@ -25,7 +25,7 @@
 		toupper tolower sort unique
 		invert comment)
 	(enum prev next scratch close_buffer close_all save save_all load_all new)
-	(enum global selected whole_words regexp find_down find_up)
+	(enum global region whole_words regexp find_down find_up)
 	(enum replace replace_all replace_global)
 	(enum macro_playback macro_to_eof macro_global macro_record)
 	(enum open_tree_collapse open_tree_expand)
@@ -258,7 +258,7 @@
 	(each (# (def %0 :tip_text %1)) (. buffer_toolbar :children)
 		'("previous" "next" "scratchpad" "close" "close all" "save" "save all" "load all" "new"))
 	(each (# (def %0 :tip_text %1)) (. find_toolbar :children)
-		'("global search" "selected region" "whole words" "regexp" "find down" "find up"))
+		'("global search" "select region" "whole words" "regexp" "find down" "find up"))
 	(each (# (def %0 :tip_text %1)) (. macro_toolbar :children)
 		'("playback" "playback eof" "playback global" "record"))
 	(each (# (def %0 :tip_text %1)) (. replace_toolbar :children)
