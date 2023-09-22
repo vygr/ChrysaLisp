@@ -1519,10 +1519,10 @@ stop a child
 (to-upper str) -> str
 ```
 
-### tool-tips
+### ui-tool-tips
 
 ```code
-(tool-tips toolbar tips)
+(ui-tool-tips toolbar tips)
 ```
 
 ### trim
@@ -1785,4 +1785,3 @@ fnc_out is allways called to balence calls to fnc_in.
 ```code
 (zip seq ...) -> list
 ```
-

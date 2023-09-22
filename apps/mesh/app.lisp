@@ -57,9 +57,9 @@
 
 (defun tooltips (mbox)
 	(def *window* :tip_mbox mbox)
-	(tool-tips main_toolbar
+	(ui-tool-tips main_toolbar
 		'("mode" "auto"))
-	(tool-tips style_toolbar
+	(ui-tool-tips style_toolbar
 		'("plain" "grid" "axis")))
 
 (defun radio-select (toolbar idx)

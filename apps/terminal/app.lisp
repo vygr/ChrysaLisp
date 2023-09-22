@@ -103,7 +103,7 @@
 
 (defun tooltips ()
 	(def *window* :tip_mbox (elem-get +select_tip *select*))
-	(tool-tips main_toolbar
+	(ui-tool-tips main_toolbar
 		'("copy" "paste" "select paragraph")))
 
 ;import actions, bindings and app ui classes

@@ -174,9 +174,9 @@
 
 (defun tooltips ()
 	(def *window* :tip_mbox (elem-get +select_tip select))
-	(tool-tips main_toolbar
+	(ui-tool-tips main_toolbar
 		'("copy" "select paragraph" "select form" "start form" "end form"))
-	(tool-tips find_toolbar
+	(ui-tool-tips find_toolbar
 		'("whole words" "regexp" "find down" "find up")))
 
 (defun page-scale (s)

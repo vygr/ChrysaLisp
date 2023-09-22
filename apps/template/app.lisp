@@ -27,7 +27,7 @@
 
 (defun tooltips ()
 	(def *window* :tip_mbox (elem-get +select_tip select))
-	(tool-tips main_toolbar
+	(ui-tool-tips main_toolbar
 		'("undo" "redo" "rewind" "cut" "copy" "paste")))
 
 ;import actions and bindings

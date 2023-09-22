@@ -249,21 +249,21 @@
 
 (defun tooltips ()
 	(def *window* :tip_mbox (elem-get +select_tip select))
-	(tool-tips main_toolbar
+	(ui-tool-tips main_toolbar
 		'("undo" "redo" "rewind" "global undo" "global redo"
 		"cut" "copy" "paste" "reflow" "select paragraph"
 		"outdent" "indent" "select form" "start form"
 		"end form" "upper case" "lower case" "sort" "unique"
 		"reverse" "comment"))
-	(tool-tips buffer_toolbar
+	(ui-tool-tips buffer_toolbar
 		'("previous" "next" "scratchpad" "close" "close all"
 		"save" "save all" "load all" "new"))
-	(tool-tips find_toolbar
+	(ui-tool-tips find_toolbar
 		'("global search" "select region" "whole words"
 		"regexp" "find down" "find up"))
-	(tool-tips macro_toolbar
+	(ui-tool-tips macro_toolbar
 		'("playback" "playback eof" "playback global" "record"))
-	(tool-tips replace_toolbar
+	(ui-tool-tips replace_toolbar
 		'("replace" "replace all" "replace global")))
 
 (defun clear-matches ()

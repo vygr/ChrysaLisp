@@ -151,13 +151,13 @@
 
 (defun tooltips ()
 	(def *window* :tip_mbox (elem-get +select_tip select))
-	(tool-tips *main_toolbar*
+	(ui-tool-tips *main_toolbar*
 		'("save" "open" "clear" "undo" "redo"))
-	(tool-tips *style_toolbar*
+	(ui-tool-tips *style_toolbar*
 		'("plain" "grid" "lines" "axis"))
-	(tool-tips *radius_toolbar*
+	(ui-tool-tips *radius_toolbar*
 		'("small" "medium" "large"))
-	(tool-tips *mode_toolbar*
+	(ui-tool-tips *mode_toolbar*
 		'("pen" "line" "arrow" "double arrow" "rect"
 		"circle" "filled rect" "filled circle")))
 

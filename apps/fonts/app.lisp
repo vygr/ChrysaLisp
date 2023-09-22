@@ -51,7 +51,7 @@
 
 (defun tooltips ()
 	(def *window* :tip_mbox (elem-get +select_tip select))
-	(tool-tips main_toolbar
+	(ui-tool-tips main_toolbar
 		'("prev" "next")))
 
 (defun main ()
