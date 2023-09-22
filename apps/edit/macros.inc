@@ -89,7 +89,7 @@
 	(radio-select macro_toolbar (list :nil :nil :nil *macro_record*))
 	(refresh))
 
-(defun encode-macro (n)
+(defun macro-encode (n)
 	(if (empty? (defq m (reduce
 			(lambda (m (f &rest p))
 				(if (eql f action-insert)
@@ -102,7 +102,7 @@
 			(. +macro_map :find n) (list))))
 		"" (join m "|")))
 
-(defun decode-macro (n e)
+(defun macro-decode (n e)
 	(. +macro_map :insert n (map
 			(# (bind '(f &rest p) (first (read (string-stream %0))))
 				(setq f (elem-get f *recorded_actions*))
