@@ -22,10 +22,10 @@
 				((= (age file) 0)
 					;no such file
 					(push dead_files file))
-				(:t (bind '(cx cy ax ay sx sy fx fy fx1 fy1)
-						(gather meta :cx :cy :ax :ay :sx :sy :fx :fy :fx1 :fy1))
+				(:t (bind '(cx cy ax ay sx sy)
+						(gather meta :cx :cy :ax :ay :sx :sy))
 					(push *open_files* file)
 					(. meta :insert :buffer :nil)
-					(populate-buffer file cx cy ax ay sx sy fx fy fx1 fy1))))))
+					(populate-buffer file cx cy ax ay sx sy))))))
 		(each (# (. files :erase %0)) dead_files)
 		(if (find file *open_files*) file)))

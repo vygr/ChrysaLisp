@@ -48,5 +48,5 @@
 
 (defun action-macro-global ()
 	(for-all-buffers
-		(.-> *edit* (:set_cursor 0 0) (:set_anchor 0 0))
+		(.-> *edit* (:set_cursor 0 0) (:set_anchor 0 0) (:set_find 0 0 0 0))
 		(action-macro-to-eof)))

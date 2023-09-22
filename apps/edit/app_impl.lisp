@@ -158,15 +158,14 @@
 				(. dictionary :insert_word word)))
 		(split line +not_whole_word_chars)))
 
-(defun populate-buffer (file cx cy ax ay sx sy fx fy fx1 fy1)
+(defun populate-buffer (file cx cy ax ay sx sy)
 	;create new file buffer ?
 	(defq mode (if (some (# (ends-with %0 file)) +text_types) :t :nil)
 		files (. *meta_map* :find :files) key (str file)
 		meta (. files :find key))
 	(unless meta
 		(. files :insert key (setq meta
-			(Fmap-kv :cx cx :cy cy :ax ax :ay ay :sx sx :sy sy
-				:fx fx :fy fy :fx1 fx1 :fy1 fy1 :buffer :nil))))
+			(Fmap-kv :cx cx :cy cy :ax ax :ay ay :sx sx :sy sy :buffer :nil))))
 	(unless (defq buffer (. meta :find :buffer))
 		(. meta :insert :buffer (setq buffer (Buffer mode *syntax*)))
 		(when file
@@ -175,24 +174,21 @@
 
 (defun populate-vdu (file)
 	;load up the vdu widget from this file
-	(populate-buffer file 0 0 0 0 0 0 0 0 0 0)
+	(populate-buffer file 0 0 0 0 0 0)
 	(defq meta (.-> *meta_map* (:find :files) (:find (str file))))
-	(bind '(cx cy ax ay sx sy fx fy fx1 fy1 buffer)
-		(gather meta :cx :cy :ax :ay :sx :sy :fx :fy :fx1 :fy1 :buffer))
+	(bind '(cx cy ax ay sx sy buffer) (gather meta :cx :cy :ax :ay :sx :sy :buffer))
 	(setq *current_file* file)
 	(bind '(cx cy) (. buffer :constrain cx cy))
 	(bind '(ax ay) (. buffer :constrain ax ay))
 	(bind '(sx sy) (. buffer :constrain sx sy))
-	(bind '(fx fy) (. buffer :constrain fx fy))
-	(bind '(fx1 fy1) (. buffer :constrain fx1 fy1))
+	(bind '(fx fy fx1 fy1) '(0 0 0 0))
 	(.-> *edit* (:set_buffer buffer)
 		(:set_cursor cx cy)
 		(:set_anchor ax ay)
 		(:set_find fx fy fx1 fy1)
 		(:set_scroll sx sy))
-	(scatter meta :cx cx :cy cy :ax ax :ay ay :sx sx :sy sy
-		:fx fx :fy fy :fx1 fx1 :fy1 fy1)
-	(radio-select find_toolbar (list :nil (> fy1 fy) *whole_words* *regexp* :nil :nil))
+	(scatter meta :cx cx :cy cy :ax ax :ay ay :sx sx :sy sy)
+	(radio-select find_toolbar (list :nil :nil *whole_words* *regexp* :nil :nil))
 	(refresh)
 	(def *title* :text (cat "Edit -> " (if file file "<scratch pad>")))
 	(.-> *title* :layout :dirty))
@@ -315,14 +311,12 @@
 	(bind '(cx cy) (. *edit* :get_cursor))
 	(bind '(ax ay) (. *edit* :get_anchor))
 	(bind '(sx sy) (. *edit* :get_scroll))
-	(bind '(fx fy fx1 fy1) (. *edit* :get_find))
 	(scatter *meta_map*
 		:file (str *current_file*)
 		:find (id-encode (. *find_text* :get_text))
 		:replace (id-encode (. *replace_text* :get_text)))
 	(scatter (.-> *meta_map* (:find :files) (:find (str *current_file*)))
-		:cx cx :cy cy :ax ax :ay ay :sx sx :sy sy
-		:fx fx :fy fy :fx1 fx1 :fy1 fy1 :buffer buffer))
+		:cx cx :cy cy :ax ax :ay ay :sx sx :sy sy :buffer buffer))
 
 ;import actions, bindings and app ui classes
 (import "./actions.inc")
