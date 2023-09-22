@@ -337,7 +337,7 @@
 		*syntax* (Syntax) *whole_words* :nil *refresh_mode* (list 0)
 		*macro_record* :nil *macro_actions* (list)
 		dictionary (Dictionary 1031) match_window :nil match_flow :nil match_index -1
-		*meta_map* :nil *open_files* :nil *current_file* (load-state))
+		*meta_map* :nil *open_files* :nil *current_file* (state-load))
 	(.-> *edit* (:set_buffer (Buffer))
 		(:set_underlay_color +argb_grey6)
 		(:set_underlay_find_color +argb_grey3))

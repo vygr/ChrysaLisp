@@ -42,11 +42,11 @@
 
 (defun action-save ()
 	(save-file *current_file*)
-	(save-state))
+	(state-save))
 
 (defun action-save-all ()
 	(each (# (save-file %0)) *open_files*)
-	(save-state))
+	(state-save))
 
 (defun action-new ()
 	(when (not (eql (defq file (get :clear_text *name_text*)) ""))

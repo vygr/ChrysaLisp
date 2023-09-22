@@ -2,7 +2,7 @@
 ; state load/save
 ;;;;;;;;;;;;;;;;;
 
-(defun save-state ()
+(defun state-save ()
 	;save editor state
 	(when (defq stream (file-stream (cat *env_home* +state_filename) +file_open_write))
 		(scatter *meta_map*
@@ -12,7 +12,7 @@
 						+range_0_10 (Fmap)))
 		(maptree-save stream *meta_map* '(":nil" :buffer :nil))))
 
-(defun load-state ()
+(defun state-load ()
 	;load editor state
 	(setq *meta_map* (Fmap-kv :files (Fmap)) *open_files* (list))
 	(when (defq stream (file-stream (cat *env_home* +state_filename)))
