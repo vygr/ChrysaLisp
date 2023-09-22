@@ -100,6 +100,7 @@ key_map_shift (Fmap-kv
 	+char_tab action-left-tab)
 
 key_map_control (Fmap-kv
+	(ascii-code "0") action-macro-playback-0
 	(ascii-code "1") action-macro-playback-1
 	(ascii-code "2") action-macro-playback-2
 	(ascii-code "3") action-macro-playback-3

@@ -66,7 +66,7 @@
 
 (each (# (def (penv (penv))
 		(sym (cat "action-macro-playback-" %0))
-			`(,lambda () (,action-macro-playback ,%0))
+			`(,lambda () (,action-macro-playback ,(str-to-num %0)))
 		(sym (cat "action-macro-save-" %0))
-			`(,lambda () (,action-macro-save ,%0))))
-	"123456789")
+			`(,lambda () (,action-macro-save ,(str-to-num %0)))))
+	"0123456789")
