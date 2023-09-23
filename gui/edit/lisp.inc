@@ -11,7 +11,7 @@
 
 (defq +not_whole_word_chars (cat " .,;'`(){}[]/" (ascii-char 34))
 	+block_comment ";; " +bracket_char (nums 0x7f)
-	+not_selected (apply nums (map (lambda (_) 0) (str-alloc 8192))))
+	+not_selected (apply nums (map (lambda (_) 0) (str-alloc 2048))))
 
 (defmacro not-whole-word-char? (_)
 	`(find ,_ +not_whole_word_chars))
