@@ -50,15 +50,15 @@
 
 (defun action-xrot ()
 	(if *auto_mode* (action-auto))
-	(setq *rotx* (get-rot xrot_slider) *dirty* :t))
+	(setq *rotx* (get-rot *xrot_slider*) *dirty* :t))
 
 (defun action-yrot ()
 	(if *auto_mode* (action-auto))
-	(setq *roty* (get-rot yrot_slider) *dirty* :t))
+	(setq *roty* (get-rot *yrot_slider*) *dirty* :t))
 
 (defun action-zrot ()
 	(if *auto_mode* (action-auto))
-	(setq *rotz* (get-rot zrot_slider) *dirty* :t))
+	(setq *rotz* (get-rot *zrot_slider*) *dirty* :t))
 
 (defun action-style-plain ()
 	(def (. *main_backdrop* :dirty) :style :plain)
