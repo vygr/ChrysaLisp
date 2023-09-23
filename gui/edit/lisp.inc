@@ -484,8 +484,8 @@
 			(<< (canvas-from-argb32 col 15) 48)) +not_selected))))
 		this)
 
-	(defmethod :underlay_find ()
-		; (. edit :underlay_find) -> edit
+	(defmethod :underlay_region ()
+		; (. edit :underlay_region) -> edit
 		(raise :buffer :underlay :selected_find :vdu_find :scroll_x :scroll_y)
 		(bind '(cx cy ax ay) (. this :get_find))
 		(defq x1 ax y1 ay)
@@ -503,6 +503,25 @@
 				(while (< (setq cy (inc cy)) y1)
 					(push underlay (slice 0 (inc (length (elem-get cy buffer))) selected_find)))
 				(push underlay (slice 0 x1 selected_find))))
+		(. vdu_find :load underlay scroll_x scroll_y -1 -1)
+		this)
+
+	(defmethod :underlay_find ()
+		; (. edit :underlay_find) -> edit
+		(raise :buffer :underlay :selected_find :vdu_find :scroll_x :scroll_y)
+		(defq found (. buffer :get_found) cy 0 cy1 (length found))
+		(cap (inc cy1) (clear underlay))
+		(while (< cy cy1)
+			(cond
+				((and (defq match (elem-get cy found))
+						(nempty? (defq match (elem-get 0 match))))
+					(defq cx 0 line (clear '()))
+					(each (lambda ((x x1))
+						(push line (slice cx x +not_selected) (slice x x1 selected_find))
+						(setq cx x1)) match)
+					(push underlay (apply cat line)))
+				(:t (push underlay +not_selected)))
+			(setq cy (inc cy)))
 		(. vdu_find :load underlay scroll_x scroll_y -1 -1)
 		this)
 

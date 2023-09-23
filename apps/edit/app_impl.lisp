@@ -110,6 +110,7 @@
 	(bind '(cx cy) (. *edit* :get_cursor))
 	(bind '(ax ay) (. *edit* :get_anchor))
 	(bind '(sx sy) (. *edit* :get_scroll))
+	(bind '(fx fy fx1 fy1) (. *edit* :get_find))
 	(defq lines (clear '()) start_line sy
 		end_line (inc (min
 			(elem-get 1 (. buffer :get_size))
@@ -118,7 +119,11 @@
 		(push lines (pad (str start_line) (const (dec +vdu_line_width)) "    ")))
 	(. *vdu_lines* :load lines 0 0 -1 -1)
 	(. buffer :vdu_load (. *edit* :get_vdu_text) sx sy)
-	(. *edit* :underlay_find)
+	(cond
+		((> fy1 fy)
+			(. *edit* :underlay_region))
+		(:t (. buffer :find (. *find_text* :get_text) *whole_words* *regexp*)
+			(. *edit* :underlay_find)))
 	(if (and (= cx ax) (= cy ay))
 		(. *edit* :underlay_brackets)
 		(. *edit* :underlay_selection)))

@@ -124,6 +124,10 @@
 		; (. buffer :get_modified) -> :t | :nil
 		(get :modified this))
 
+	(defmethod :get_found ()
+		; (. buffer :get_found) -> found
+		(get :buffer_found this))
+
 	(defmethod :get_size ()
 		; (. buffer :get_size) -> (width height)
 		(list (get :max_width this) (dec (length (get :buffer this)))))
