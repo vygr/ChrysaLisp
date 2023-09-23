@@ -4,20 +4,17 @@
 
 (defun action-whole-words ()
 	(setq *whole_words* (not *whole_words*))
-	(bind '(fx fy fx1 fy1) (. *edit* :get_find))
-	(radio-select *find_toolbar* (list :nil (> fy1 fy) *whole_words* *regexp* :nil :nil)))
+	(update-find-toolbar))
 
 (defun action-regexp ()
 	(setq *regexp* (not *regexp*))
-	(bind '(fx fy fx1 fy1) (. *edit* :get_find))
-	(radio-select *find_toolbar* (list :nil (> fy1 fy) *whole_words* *regexp* :nil :nil)))
+	(update-find-toolbar))
 
 (defun action-region ()
 	(bind '(sy sy1) (select-lines))
 	(bind '(fx fy fx1 fy1) (. *edit* :get_find))
 	(if (> fy1 fy) (setq fy 0 fy1 0) (setq fy sy fy1 sy1))
-	(. *edit* :set_find 0 fy 0 fy1)
-	(radio-select *find_toolbar* (list :nil (> fy1 fy) *whole_words* *regexp* :nil :nil))
+	(update-find-toolbar)
 	(refresh))
 
 (defun action-find-down (whole_words regexp pattern)

@@ -81,4 +81,9 @@
 			(pop *refresh_mode*)
 			(refresh))))
 
+(defun update-find-toolbar ()
+	(bind '(fx fy fx1 fy1) (. *edit* :get_find))
+	(radio-select *find_toolbar*
+		(list :nil (> fy1 fy) *whole_words* *regexp* :nil :nil)))
+
 (defq +range_0_10 `'(~(range 0 10)))
