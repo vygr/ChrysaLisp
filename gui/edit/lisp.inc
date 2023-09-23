@@ -74,24 +74,17 @@
 (defclass Edit () (View)
 	; (Edit) -> edit
 	(def this :vdu_text (defq vdu_text (Vdu))
-		:vdu_underlay (defq vdu_underlay (Vdu))
-		:vdu_find (defq vdu_find (Vdu))
-		:anchor_x 0 :anchor_y 0
-		:scroll_x 0 :scroll_y 0
-		:find_x 0 :find_y 0
-		:find_x1 0 :find_y1 0
-		:buffer (Buffer :t) :underlay (list)
-		:color_select +not_selected
-		:color_found +not_selected
+		:vdu_paper (defq vdu_paper (Vdu)) :vdu_ink (defq vdu_ink (Vdu))
+		:anchor_x 0 :anchor_y 0 :scroll_x 0 :scroll_y 0
+		:find_x 0 :find_y 0 :find_x1 0 :find_y1 0
+		:buffer (Buffer :t) :underlay '()
+		:color_select +not_selected :color_found +not_selected
 		:color_region +not_selected
-		:vdu_width 80 :vdu_height 40
-		:min_width 0 :min_height 0)
+		:vdu_width 80 :vdu_height 40 :min_width 0 :min_height 0)
 	(. vdu_text :set_flags 0 +view_flag_solid)
-	(. vdu_underlay :set_flags 0 +view_flag_solid)
-	(. vdu_find :set_flags 0 +view_flag_solid)
-	(.-> this (:add_child vdu_text)
-		(:add_child vdu_underlay)
-		(:add_child vdu_find))
+	(. vdu_paper :set_flags 0 +view_flag_solid)
+	(. vdu_ink :set_flags 0 +view_flag_solid)
+	(.-> this (:add_child vdu_text) (:add_child vdu_paper) (:add_child vdu_ink))
 
 	(defmethod :max_size ()
 		; (. edit :max_size) -> (width height)
@@ -133,10 +126,6 @@
 	(defmethod :get_vdu_text ()
 		; (. edit :get_vdu_text) -> vdu_text
 		(get :vdu_text this))
-
-	(defmethod :get_vdu_underlay ()
-		; (. edit :get_vdu_underlay) -> vdu_underlay
-		(get :vdu_underlay this))
 
 	(defmethod :get_cursor ()
 		; (. edit :get_cursor) -> (x y)
@@ -494,11 +483,11 @@
 		; (. edit :underlay_paper) -> edit
 		;create the underlay for selections
 		(raise :buffer :underlay :color_select :color_found :color_region
-			:vdu_find :scroll_x :scroll_y)
-		(defq found (. buffer :get_found) scroll_y1 (second (. vdu_find :vdu_size)))
+			:vdu_ink :scroll_x :scroll_y)
+		(defq found (. buffer :get_found) scroll_y1 (second (. vdu_ink :vdu_size)))
 		(bind '(fx fy fx1 fy1) (. this :get_find))
 		(bind '(sx sy sx1 sy1) (sort-selection this))
-		(cap scroll_y1 (clear underlay))
+		(clear underlay)
 		(setq scroll_y1 (min (length found) (+ scroll_y1 scroll_y)) fy1 (dec fy1))
 		(while (< scroll_y scroll_y1)
 			(defq background (if (<= fy scroll_y fy1) color_region +not_selected)
@@ -528,13 +517,13 @@
 							(slice tl -1 background))))))
 			(push underlay background)
 			(setq scroll_y (inc scroll_y)))
-		(. vdu_find :load underlay scroll_x 0 -1 -1)
+		(. vdu_ink :load underlay scroll_x 0 -1 -1)
 		this)
 
 	(defmethod :underlay_ink ()
 		; (. edit :underlay_ink) -> edit
 		;create the underlay for just bracket indicators
-		(raise :buffer :underlay :color_select :vdu_underlay :scroll_x :scroll_y)
+		(raise :buffer :underlay :color_select :vdu_paper :scroll_x :scroll_y)
 		(clear underlay)
 		(when (bind '(x y) (. buffer :left_bracket))
 			(when (bind '(x1 y1) (. buffer :right_bracket))
@@ -549,15 +538,15 @@
 					(:t (push underlay (cat (slice 0 x +not_selected) +bracket_char))
 						(while (< (setq y (inc y)) y1) (push underlay ""))
 						(push underlay (cat (slice 0 x1 +not_selected) +bracket_char))))))
-		(. vdu_underlay :load underlay scroll_x scroll_y -1 -1)
+		(. vdu_paper :load underlay scroll_x scroll_y -1 -1)
 		this)
 
 	(defmethod :underlay_clear ()
 		; (. edit :underlay_clear) -> edit
 		;create the underlay for clear
-		(raise :underlay :vdu_underlay :scroll_x :scroll_y)
+		(raise :underlay :vdu_paper :scroll_x :scroll_y)
 		(clear underlay)
-		(. vdu_underlay :load underlay scroll_x scroll_y -1 -1)
+		(. vdu_paper :load underlay scroll_x scroll_y -1 -1)
 		this)
 
 	(defmethod :mouse_down (event)

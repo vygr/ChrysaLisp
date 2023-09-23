@@ -102,12 +102,6 @@
 (. edit :get_vdu_text) -> vdu_text
 ```
 
-### :get_vdu_underlay
-
-```code
-(. edit :get_vdu_underlay) -> vdu_underlay
-```
-
 ### :home
 
 ```code
