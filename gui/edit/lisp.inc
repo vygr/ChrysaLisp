@@ -84,7 +84,7 @@
 	(. vdu_text :set_flags 0 +view_flag_solid)
 	(. vdu_paper :set_flags 0 +view_flag_solid)
 	(. vdu_ink :set_flags 0 +view_flag_solid)
-	(.-> this (:add_child vdu_text) (:add_child vdu_paper) (:add_child vdu_ink))
+	(.-> this (:add_child vdu_text) (:add_child vdu_ink) (:add_child vdu_paper))
 
 	(defmethod :max_size ()
 		; (. edit :max_size) -> (width height)
@@ -483,8 +483,8 @@
 		; (. edit :underlay_paper) -> edit
 		;create the underlay for selections
 		(raise :buffer :underlay :color_select :color_found :color_region
-			:vdu_ink :scroll_x :scroll_y)
-		(defq found (. buffer :get_found) scroll_y1 (second (. vdu_ink :vdu_size)))
+			:vdu_paper :scroll_x :scroll_y)
+		(defq found (. buffer :get_found) scroll_y1 (second (. vdu_paper :vdu_size)))
 		(bind '(fx fy fx1 fy1) (. this :get_find))
 		(bind '(sx sy sx1 sy1) (sort-selection this))
 		(clear underlay)
@@ -502,7 +502,7 @@
 						(apply cat line))
 					(:t background)))
 			(when (<= sy scroll_y sy1)
-				(defq tl (length (. buffer :get_text_line scroll_y)))
+				(defq tl (inc (length (. buffer :get_text_line scroll_y))))
 				(cond
 					((= sy scroll_y sy1)
 						(setq background (cat (slice 0 sx background)
@@ -513,40 +513,44 @@
 					((= sy1 scroll_y)
 						(setq background (cat (slice 0 sx1 color_select)
 							(slice sx1 -1 background))))
-					(:t	(setq background (cat (slice 0 tl color_select)
+					(:t (setq background (cat (slice 0 tl color_select)
 							(slice tl -1 background))))))
 			(push underlay background)
 			(setq scroll_y (inc scroll_y)))
-		(. vdu_ink :load underlay scroll_x 0 -1 -1)
+		(. vdu_paper :load underlay scroll_x 0 -1 -1)
 		this)
 
 	(defmethod :underlay_ink ()
 		; (. edit :underlay_ink) -> edit
 		;create the underlay for just bracket indicators
-		(raise :buffer :underlay :color_select :vdu_paper :scroll_x :scroll_y)
+		(raise :buffer :underlay :color_select :vdu_ink :scroll_x :scroll_y)
 		(clear underlay)
 		(when (bind '(x y) (. buffer :left_bracket))
 			(when (bind '(x1 y1) (. buffer :right_bracket))
-				(cap (inc y1) underlay)
-				(defq uy -1)
-				(while (< (setq uy (inc uy)) y) (push underlay ""))
-				(cond
-					((= y y1)
-						(push underlay (cat
-							(slice 0 x +not_selected) +bracket_char
-							(slice x (dec x1) +not_selected) +bracket_char)))
-					(:t (push underlay (cat (slice 0 x +not_selected) +bracket_char))
-						(while (< (setq y (inc y)) y1) (push underlay ""))
-						(push underlay (cat (slice 0 x1 +not_selected) +bracket_char))))))
-		(. vdu_paper :load underlay scroll_x scroll_y -1 -1)
+				(defq scroll_y1 (+ scroll_y (second (. vdu_ink :vdu_size))))
+				(while (< scroll_y scroll_y1)
+					(push underlay (cond
+						((= y scroll_y y1)
+							(cat (slice 0 x +not_selected) +bracket_char
+								(slice (inc x) x1 +not_selected) +bracket_char
+								(slice (inc x1) -1 +not_selected)))
+						((= y scroll_y)
+							(cat (slice 0 x +not_selected) +bracket_char
+								(slice (inc x) -1 +not_selected)))
+						((= y1 scroll_y)
+							(cat (slice 0 x1 +not_selected) +bracket_char
+								(slice (inc x1) -1 +not_selected)))
+						(:t +not_selected)))
+					(setq scroll_y (inc scroll_y)))))
+		(. vdu_ink :load underlay scroll_x 0 -1 -1)
 		this)
 
 	(defmethod :underlay_clear ()
 		; (. edit :underlay_clear) -> edit
 		;create the underlay for clear
-		(raise :underlay :vdu_paper :scroll_x :scroll_y)
+		(raise :underlay :vdu_ink :scroll_x :scroll_y)
 		(clear underlay)
-		(. vdu_paper :load underlay scroll_x scroll_y -1 -1)
+		(. vdu_ink :load underlay scroll_x scroll_y -1 -1)
 		this)
 
 	(defmethod :mouse_down (event)
