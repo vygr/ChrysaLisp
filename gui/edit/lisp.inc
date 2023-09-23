@@ -84,6 +84,7 @@
 		:buffer (Buffer :t) :underlay (list)
 		:selected +not_selected
 		:selected_find +not_selected
+		:selected_back +not_selected
 		:vdu_width 80 :vdu_height 40
 		:min_width 0 :min_height 0)
 	(. vdu_text :set_flags 0 +view_flag_solid)
@@ -484,35 +485,32 @@
 			(<< (canvas-from-argb32 col 15) 48)) +not_selected))))
 		this)
 
-	(defmethod :underlay_region ()
-		; (. edit :underlay_region) -> edit
-		(raise :buffer :underlay :selected_find :vdu_find :scroll_x :scroll_y)
-		(defq scroll_y1 (second (. vdu_find :vdu_size)))
-		(bind '(fx fy fx1 fy1) (. this :get_find))
-		(cap scroll_y1 (clear underlay))
-		(setq scroll_y1 (+ scroll_y1 scroll_y) fy1 (dec fy1))
-		(while (< scroll_y scroll_y1)
-			(push underlay (if (<= fy scroll_y fy1) selected_find +not_selected))
-			(setq scroll_y (inc scroll_y)))
-		(. vdu_find :load underlay scroll_x 0 -1 -1)
+	(defmethod :set_underlay_back_color (col)
+		; (. edit :set_underlay_back_color argb) -> edit
+		(lower (:selected_back (apply nums (map (lambda (_)
+			(<< (canvas-from-argb32 col 15) 48)) +not_selected))))
 		this)
 
 	(defmethod :underlay_find ()
 		; (. edit :underlay_find) -> edit
-		(raise :buffer :underlay :selected_find :vdu_find :scroll_x :scroll_y)
+		(raise :buffer :underlay :selected_find :selected_back
+			:vdu_find :scroll_x :scroll_y)
 		(defq found (. buffer :get_found) scroll_y1 (second (. vdu_find :vdu_size)))
+		(bind '(fx fy fx1 fy1) (. this :get_find))
 		(cap scroll_y1 (clear underlay))
-		(setq scroll_y1 (min (length found) (+ scroll_y1 scroll_y)))
+		(setq scroll_y1 (min (length found) (+ scroll_y1 scroll_y)) fy1 (dec fy1))
 		(while (< scroll_y scroll_y1)
+			(defq background (if (<= fy scroll_y fy1) selected_back +not_selected))
 			(cond
 				((and (defq match (elem-get scroll_y found))
 						(nempty? (defq match (elem-get 0 match))))
 					(defq cx 0 line (clear '()))
 					(each (lambda ((x x1))
-						(push line (slice cx x +not_selected) (slice x x1 selected_find))
+						(push line (slice cx x background) (slice x x1 selected_find))
 						(setq cx x1)) match)
+					(push line (slice cx -1 background))
 					(push underlay (apply cat line)))
-				(:t (push underlay +not_selected)))
+				(:t (push underlay background)))
 			(setq scroll_y (inc scroll_y)))
 		(. vdu_find :load underlay scroll_x 0 -1 -1)
 		this)
