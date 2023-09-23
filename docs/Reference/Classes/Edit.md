@@ -258,6 +258,12 @@
 (. edit :set_anchor x y) -> edit
 ```
 
+### :set_back_color
+
+```code
+(. edit :set_back_color argb) -> edit
+```
+
 ### :set_buffer
 
 ```code
@@ -276,22 +282,22 @@
 (. edit :set_find x y x1 y1) -> edit
 ```
 
+### :set_find_color
+
+```code
+(. edit :set_find_color argb) -> edit
+```
+
 ### :set_scroll
 
 ```code
 (. edit :set_scroll x y) -> edit
 ```
 
-### :set_underlay_color
+### :set_select_color
 
 ```code
-(. edit :set_underlay_color argb) -> edit
-```
-
-### :set_underlay_find_color
-
-```code
-(. edit :set_underlay_find_color argb) -> edit
+(. edit :set_select_color argb) -> edit
 ```
 
 ### :sort
@@ -318,14 +324,6 @@
 (. edit :to_upper) -> edit
 ```
 
-### :underlay_brackets
-
-```code
-(. edit :underlay_brackets) -> edit
-
-create the underlay for just bracket indicators
-```
-
 ### :underlay_clear
 
 ```code
@@ -334,22 +332,20 @@ create the underlay for just bracket indicators
 create the underlay for clear
 ```
 
-### :underlay_find
+### :underlay_ink
 
 ```code
-(. edit :underlay_find) -> edit
+(. edit :underlay_ink) -> edit
+
+create the underlay for just bracket indicators
 ```
 
-### :underlay_region
+### :underlay_paper
 
 ```code
-(. edit :underlay_region) -> edit
-```
+(. edit :underlay_paper) -> edit
 
-### :underlay_selection
-
-```code
-(. edit :underlay_selection) -> edit
+create the underlay for selections
 ```
 
 ### :unique

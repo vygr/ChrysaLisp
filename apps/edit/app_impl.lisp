@@ -110,7 +110,6 @@
 	(bind '(cx cy) (. *edit* :get_cursor))
 	(bind '(ax ay) (. *edit* :get_anchor))
 	(bind '(sx sy) (. *edit* :get_scroll))
-	(bind '(fx fy fx1 fy1) (. *edit* :get_find))
 	(defq lines (clear '()) start_line sy
 		end_line (inc (min
 			(elem-get 1 (. buffer :get_size))
@@ -120,10 +119,7 @@
 	(. *vdu_lines* :load lines 0 0 -1 -1)
 	(.-> buffer (:vdu_load (. *edit* :get_vdu_text) sx sy)
 		(:find (. *find_text* :get_text) *whole_words* *regexp*))
-	(. *edit* :underlay_find)
-	(if (and (= cx ax) (= cy ay))
-		(. *edit* :underlay_brackets)
-		(. *edit* :underlay_selection)))
+	(.-> *edit* :underlay_paper :underlay_ink))
 
 (defun refresh-sliders ()
 	;set slider values for current file
@@ -345,9 +341,9 @@
 		dictionary (Dictionary 1031) match_window :nil match_flow :nil match_index -1
 		*meta_map* :nil *open_files* :nil *current_file* (state-load))
 	(.-> *edit* (:set_buffer (Buffer))
-		(:set_underlay_color +argb_grey6)
-		(:set_underlay_find_color +argb_grey4)
-		(:set_underlay_back_color +argb_grey3))
+		(:set_select_color +argb_grey6)
+		(:set_find_color +argb_grey4)
+		(:set_back_color +argb_grey3))
 	(def *edit* :min_width 0 :min_height 0
 		:vdu_width +vdu_min_width :vdu_height +vdu_min_height)
 	(. *main_flow* :add_back *edit*)

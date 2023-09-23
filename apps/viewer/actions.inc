@@ -70,13 +70,14 @@
 	(ascii-code "9") action-left-bracket
 	(ascii-code "0") action-right-bracket)
 
-find_actions (list
+*find_actions* (list
 	action-find-down action-find-up))
 
 ;module
 (export-symbols
+	*find_actions*
 	*event_map* *key_map* *key_map_shift* *key_map_control*
-	action-minimise find_actions)
+	action-minimise)
 (export-classes
 	Viewer-edit)
 (env-pop)

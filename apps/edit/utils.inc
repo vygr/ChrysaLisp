@@ -23,9 +23,8 @@
 	(or (/= ax cx) (/= ay cy)))
 
 (defun sort-selection ()
-	(bind '(cx cy) (. *edit* :get_cursor))
-	(bind '(ax ay) (. *edit* :get_anchor))
-	(defq sx cx sy cy sx1 ax sy1 ay)
+	(bind '(sx sy) (. *edit* :get_cursor))
+	(bind '(sx1 sy1) (. *edit* :get_anchor))
 	(if (> sy sy1) (defq st sx sx sx1 sx1 st st sy sy sy1 sy1 st))
 	(and (= sy sy1) (> sx sx1) (defq st sx sx sx1 sx1 st))
 	(list sx sy sx1 sy1))

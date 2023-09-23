@@ -76,10 +76,9 @@
 	(while (< (setq start_line (inc start_line)) end_line)
 		(push lines (pad (str start_line) (const (dec +vdu_line_width)) "    ")))
 	(. *vdu_lines* :load lines 0 0 -1 -1)
-	(. buffer :vdu_load (. *edit* :get_vdu_text) sx sy)
-	(if (and (= cx ax) (= cy ay))
-		(. *edit* :underlay_brackets)
-		(. *edit* :underlay_selection)))
+	(.-> buffer (:vdu_load (. *edit* :get_vdu_text) sx sy)
+		(:find (. *find_text* :get_text) *whole_words* *regexp*))
+	(.-> *edit* :underlay_paper :underlay_ink))
 
 (defun refresh-sliders ()
 	;set slider values for current file
@@ -95,7 +94,7 @@
 	(. *edit* :set_scroll sx sy))
 
 (defun refresh ()
-	(unless (get :macro_playback)
+	(when (<= (last *refresh_mode*) 0)
 		;refresh display and ensure cursor is visible
 		(defq meta (.-> *meta_map* (:find :files) (:find (str *current_file*))))
 		(bind '(sx sy buffer) (gather meta :sx :sy :buffer))
@@ -197,17 +196,22 @@
 (import "./actions.inc")
 
 (defun dispatch-action (&rest action)
-	(defq func (elem-get 0 action))
-	(if (find func find_actions)
+	(defq func (first action))
+	(if (find func *find_actions*)
 		(push action *whole_words* *regexp* (. *find_text* :get_text)))
-	(catch (eval action) (progn (print _)(print) :t)))
+	(catch (eval action)
+		(progn (print _)(print)
+			(setq *refresh_mode* (list 0)) :t)))
 
 (defun main ()
 	(defq select (alloc-select +select_size)
 		*running* :t *edit* (Viewer-edit) *page_scale* 1.0 *regexp* :nil
-		*syntax* (Syntax) *whole_words* :nil
+		*syntax* (Syntax) *whole_words* :nil *refresh_mode* (list 0)
 		*meta_map* (Fmap-kv :files (Fmap)) *current_file* :nil)
-	(.-> *edit* (:set_buffer (Buffer)) (:set_underlay_color +argb_grey6))
+	(.-> *edit* (:set_buffer (Buffer))
+		(:set_select_color +argb_grey6)
+		(:set_find_color +argb_grey4)
+		(:set_back_color +argb_grey3))
 	(def *edit* :min_width 0 :min_height 0
 		:vdu_width +vdu_min_width :vdu_height +vdu_min_height)
 	(. *main_flow* :add_back *edit*)

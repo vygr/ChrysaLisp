@@ -57,9 +57,9 @@
 	(bind '(sx sy) (. *edit* :get_scroll))
 	(bind '(ax ay) (. *edit* :get_anchor))
 	(.-> *edit* :get_buffer (:vdu_load (. *edit* :get_vdu_text) sx sy))
+	(. *edit* :underlay_paper)
 	(if (and (= cx ax) (= cy ay))
-		(. *edit* :underlay_clear)
-		(. *edit* :underlay_selection)))
+		(. *edit* :underlay_clear)))
 
 (defun refresh-sliders ()
 	;set slider values
@@ -113,7 +113,7 @@
 	(defq *select* (alloc-select +select_size)
 		*cursor_x* 0 *cursor_y* 0 *running* :t *pipe* :nil
 		*history* (list) *history_idx* 0 *edit* (Terminal-edit))
-	(. *edit* :set_underlay_color +argb_green6)
+	(. *edit* :set_select_color +argb_green6)
 	(def *edit* :min_width +vdu_min_width :min_height +vdu_min_height
 		:vdu_width +vdu_min_width :vdu_height +vdu_min_height :font *env_terminal_font*)
 	(. *main_flow* :add_back *edit*)

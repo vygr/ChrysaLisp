@@ -25,9 +25,8 @@
 	(or (/= ax cx) (/= ay cy)))
 
 (defun sort-selection (this)
-	(bind '(cx cy) (. this :get_cursor))
-	(bind '(ax ay) (. this :get_anchor))
-	(defq sx cx sy cy sx1 ax sy1 ay)
+	(bind '(sx sy) (. this :get_cursor))
+	(bind '(sx1 sy1) (. this :get_anchor))
 	(if (> sy sy1) (defq st sx sx sx1 sx1 st st sy sy sy1 sy1 st))
 	(and (= sy sy1) (> sx sx1) (defq st sx sx sx1 sx1 st))
 	(list sx sy sx1 sy1))
@@ -82,9 +81,9 @@
 		:find_x 0 :find_y 0
 		:find_x1 0 :find_y1 0
 		:buffer (Buffer :t) :underlay (list)
-		:selected +not_selected
-		:selected_find +not_selected
-		:selected_back +not_selected
+		:color_select +not_selected
+		:color_find +not_selected
+		:color_back +not_selected
 		:vdu_width 80 :vdu_height 40
 		:min_width 0 :min_height 0)
 	(. vdu_text :set_flags 0 +view_flag_solid)
@@ -473,75 +472,69 @@
 			(. this :set_cursor x y))
 		this)
 
-	(defmethod :set_underlay_color (col)
-		; (. edit :set_underlay_color argb) -> edit
-		(lower (:selected (apply nums (map (lambda (_)
+	(defmethod :set_select_color (col)
+		; (. edit :set_select_color argb) -> edit
+		(lower (:color_select (apply nums (map (lambda (_)
 			(<< (canvas-from-argb32 col 15) 48)) +not_selected))))
 		this)
 
-	(defmethod :set_underlay_find_color (col)
-		; (. edit :set_underlay_find_color argb) -> edit
-		(lower (:selected_find (apply nums (map (lambda (_)
+	(defmethod :set_find_color (col)
+		; (. edit :set_find_color argb) -> edit
+		(lower (:color_find (apply nums (map (lambda (_)
 			(<< (canvas-from-argb32 col 15) 48)) +not_selected))))
 		this)
 
-	(defmethod :set_underlay_back_color (col)
-		; (. edit :set_underlay_back_color argb) -> edit
-		(lower (:selected_back (apply nums (map (lambda (_)
+	(defmethod :set_back_color (col)
+		; (. edit :set_back_color argb) -> edit
+		(lower (:color_back (apply nums (map (lambda (_)
 			(<< (canvas-from-argb32 col 15) 48)) +not_selected))))
 		this)
 
-	(defmethod :underlay_find ()
-		; (. edit :underlay_find) -> edit
-		(raise :buffer :underlay :selected_find :selected_back
+	(defmethod :underlay_paper ()
+		; (. edit :underlay_paper) -> edit
+		;create the underlay for selections
+		(raise :buffer :underlay :color_select :color_find :color_back
 			:vdu_find :scroll_x :scroll_y)
 		(defq found (. buffer :get_found) scroll_y1 (second (. vdu_find :vdu_size)))
 		(bind '(fx fy fx1 fy1) (. this :get_find))
+		(bind '(sx sy sx1 sy1) (sort-selection this))
 		(cap scroll_y1 (clear underlay))
 		(setq scroll_y1 (min (length found) (+ scroll_y1 scroll_y)) fy1 (dec fy1))
 		(while (< scroll_y scroll_y1)
-			(defq background (if (<= fy scroll_y fy1) selected_back +not_selected))
-			(cond
-				((and (defq match (elem-get scroll_y found))
-						(nempty? (defq match (elem-get 0 match))))
-					(defq cx 0 line (clear '()))
-					(each (lambda ((x x1))
-						(push line (slice cx x background) (slice x x1 selected_find))
-						(setq cx x1)) match)
-					(push line (slice cx -1 background))
-					(push underlay (apply cat line)))
-				(:t (push underlay background)))
+			(defq background (if (<= fy scroll_y fy1) color_back +not_selected)
+				background (cond
+					((and (defq match (elem-get scroll_y found))
+							(nempty? (defq match (elem-get 0 match))))
+						(defq cx 0 line (clear '()))
+						(each (lambda ((x x1))
+							(push line (slice cx x background) (slice x x1 color_find))
+							(setq cx x1)) match)
+						(push line (slice cx -1 background))
+						(apply cat line))
+					(:t background)))
+			(when (<= sy scroll_y sy1)
+				(defq tl (length (. buffer :get_text_line scroll_y)))
+				(cond
+					((= sy scroll_y sy1)
+						(setq background (cat (slice 0 sx background)
+							(slice sx sx1 color_select) (slice sx1 -1 background))))
+					((= sy scroll_y)
+						(setq background (cat (slice 0 sx background)
+							(slice sx tl color_select) (slice tl -1 background))))
+					((= sy1 scroll_y)
+						(setq background (cat (slice 0 sx1 color_select)
+							(slice sx1 -1 background))))
+					(:t	(setq background (cat (slice 0 tl color_select)
+							(slice tl -1 background))))))
+			(push underlay background)
 			(setq scroll_y (inc scroll_y)))
 		(. vdu_find :load underlay scroll_x 0 -1 -1)
 		this)
 
-	(defmethod :underlay_selection ()
-		; (. edit :underlay_selection) -> edit
-		(raise :buffer :underlay :selected :vdu_underlay :scroll_x :scroll_y)
-		(bind '(cx cy) (. this :get_cursor))
-		(bind '(ax ay) (. this :get_anchor))
-		(defq x1 ax y1 ay)
-		(if (> cy y1) (defq st cx cx x1 x1 st st cy cy y1 y1 st))
-		(and (= cy y1) (> cx x1) (defq st cx cx x1 x1 st))
-		(cap (inc y1) (clear underlay))
-		(defq uy -1 buffer (. buffer :get_text_lines))
-		(while (< (setq uy (inc uy)) cy) (push underlay ""))
-		(cond
-			((= cy y1)
-				(push underlay (cat (slice 0 cx +not_selected) (slice cx x1 selected))))
-			(:t (push underlay (cat
-					(slice 0 cx +not_selected)
-					(slice cx (inc (length (elem-get cy buffer))) selected)))
-				(while (< (setq cy (inc cy)) y1)
-					(push underlay (slice 0 (inc (length (elem-get cy buffer))) selected)))
-				(push underlay (slice 0 x1 selected))))
-		(. vdu_underlay :load underlay scroll_x scroll_y -1 -1)
-		this)
-
-	(defmethod :underlay_brackets ()
-		; (. edit :underlay_brackets) -> edit
+	(defmethod :underlay_ink ()
+		; (. edit :underlay_ink) -> edit
 		;create the underlay for just bracket indicators
-		(raise :buffer :underlay :selected :vdu_underlay :scroll_x :scroll_y)
+		(raise :buffer :underlay :color_select :vdu_underlay :scroll_x :scroll_y)
 		(clear underlay)
 		(when (bind '(x y) (. buffer :left_bracket))
 			(when (bind '(x1 y1) (. buffer :right_bracket))
