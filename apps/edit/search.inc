@@ -132,10 +132,9 @@
 
 (defun action-find-global (whole_words regexp pattern)
 	;find files match but not dictionaries !
-	(defq files (sort cmp (all-files "." +file_types 2)))
-	(if (defq i (find "lib/text/english.txt" files))
-		(setq files (erase files i (inc i))))
-	(setq files (sort cmp (file-matches files pattern whole_words regexp)))
+	(defq files (sort cmp (file-matches
+		(filter (lambda (f) (notany (# (eql f %0)) +dictionaries))
+			(all-files "." +file_types 2)) pattern whole_words regexp)))
 	;paste into scratch buffer
 	(switch-file :nil)
 	(defq buffer (. *edit* :get_buffer))

@@ -38,7 +38,8 @@
 (defq +vdu_min_width 40 +vdu_min_height 20 +vdu_max_width 120 +vdu_max_height 80
 	+vdu_line_width 5 +min_word_size 3 +max_matches 20 +margin 2
 	+state_filename "editor_state" +not_whole_word_chars (cat " .,;'`(){}[]/" (ascii-char 34))
-	+text_types ''(".md" ".txt") +file_types ''(".lisp" ".inc" ".vp" ".md" ".txt"))
+	+text_types ''(".md" ".txt") +file_types ''(".lisp" ".inc" ".vp" ".md" ".txt")
+	+dictionaries ''("lib/text/english.txt"))
 
 (ui-window *window* (:color +argb_grey1)
 	(ui-title-bar *title* "Edit" (0xea19 0xea1b 0xea1a) +event_close)
@@ -351,7 +352,7 @@
 	(each (lambda ((key val)) (. dictionary :insert_word (str key)))
 		(tolist (get :keywords *syntax* )))
 	(each-line populate-dictionary (file-stream "class/lisp/root.inc"))
-	(each-line populate-dictionary (file-stream "lib/text/english.txt"))
+	(each (# (each-line populate-dictionary (file-stream %0))) +dictionaries)
 	(. *file_tree* :populate "." +file_types 2)
 	(populate-file-trees)
 	(populate-vdu *current_file*)
