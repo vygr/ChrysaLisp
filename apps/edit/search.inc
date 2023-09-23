@@ -14,6 +14,7 @@
 	(bind '(sy sy1) (select-lines))
 	(bind '(fx fy fx1 fy1) (. *edit* :get_find))
 	(if (> fy1 fy) (setq fy 0 fy1 0) (setq fy sy fy1 sy1))
+	(. *edit* :set_find fx fy fx1 fy1)
 	(update-find-toolbar)
 	(refresh))
 
