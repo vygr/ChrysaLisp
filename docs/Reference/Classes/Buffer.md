@@ -82,6 +82,12 @@
 (. buffer :get_cursor) -> (x y)
 ```
 
+### :get_found
+
+```code
+(. buffer :get_found) -> found
+```
+
 ### :get_modified
 
 ```code

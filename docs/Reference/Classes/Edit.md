@@ -340,6 +340,12 @@ create the underlay for clear
 (. edit :underlay_find) -> edit
 ```
 
+### :underlay_region
+
+```code
+(. edit :underlay_region) -> edit
+```
+
 ### :underlay_selection
 
 ```code
