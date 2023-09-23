@@ -509,12 +509,11 @@
 	(defmethod :underlay_find ()
 		; (. edit :underlay_find) -> edit
 		(raise :buffer :underlay :selected_find :vdu_find :scroll_x :scroll_y)
-		(defq found (. buffer :get_found) cy 0 cy1 (second (vdu_find :get_size)))
+		(defq found (. buffer :get_found) cy 0 cy1 (second (. vdu_find :vdu_size)))
 		(cap (inc cy1) (clear underlay))
-		(while (< cy < scroll_y) (push underlay "") (setq cy (inc cy)))
 		(while (< cy cy1)
 			(cond
-				((and (defq match (elem-get cy found))
+				((and (defq match (elem-get (+ cy scroll_y) found))
 						(nempty? (defq match (elem-get 0 match))))
 					(defq cx 0 line (clear '()))
 					(each (lambda ((x x1))
@@ -523,7 +522,7 @@
 					(push underlay (apply cat line)))
 				(:t (push underlay +not_selected)))
 			(setq cy (inc cy)))
-		(. vdu_find :load underlay scroll_x scroll_y -1 -1)
+		(. vdu_find :load underlay scroll_x 0 -1 -1)
 		this)
 
 	(defmethod :underlay_selection ()
