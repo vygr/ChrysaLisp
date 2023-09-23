@@ -502,7 +502,7 @@
 		(raise :buffer :underlay :selected_find :vdu_find :scroll_x :scroll_y)
 		(defq found (. buffer :get_found) scroll_y1 (second (. vdu_find :vdu_size)))
 		(cap scroll_y1 (clear underlay))
-		(setq scroll_y1 (+ scroll_y1 scroll_y))
+		(setq scroll_y1 (min (length found) (+ scroll_y1 scroll_y)))
 		(while (< scroll_y scroll_y1)
 			(cond
 				((and (defq match (elem-get scroll_y found))
