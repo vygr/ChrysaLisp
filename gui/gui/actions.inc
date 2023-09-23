@@ -186,7 +186,7 @@
 	;launch logout app
 	(open-child "apps/logout/app.lisp" +kn_call_open))
 
-(defq event_map (Fmap-kv
+(defq *event_map* (Fmap-kv
 	+SDL_MOUSEWHEEL action-mouse-wheel
 	+SDL_MOUSEMOTION action-mouse-motion
 	+SDL_MOUSEBUTTONDOWN action-mouse-button-down
@@ -198,5 +198,5 @@
 
 ;module
 (export-symbols
-	event_map)
+	*event_map*)
 (env-pop)

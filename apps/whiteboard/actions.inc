@@ -63,7 +63,7 @@
 		(list (elem-get +select_picker select) "Load Whiteboard..." "." ".cwb")))
 
 (defq
-event_map (Fmap-kv
+*event_map* (Fmap-kv
 	+event_black action-ink
 	+event_white action-ink
 	+event_red action-ink
@@ -104,15 +104,15 @@ event_map (Fmap-kv
 	+event_min action-minimise
 	+event_max action-maximise)
 
-key_map (Fmap-kv)
+*key_map* (Fmap-kv)
 
-key_map_shift (Fmap-kv)
+*key_map_shift* (Fmap-kv)
 
-key_map_control (Fmap-kv
+*key_map_control* (Fmap-kv
 	(ascii-code "=") action-maximise
 	(ascii-code "-") action-minimise))
 
 ;module
 (export-symbols
-	event_map key_map key_map_shift key_map_control)
+	*event_map* *key_map* *key_map_shift* *key_map_control*)
 (env-pop)

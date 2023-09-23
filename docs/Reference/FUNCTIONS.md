@@ -1519,12 +1519,6 @@ stop a child
 (to-upper str) -> str
 ```
 
-### ui-tool-tips
-
-```code
-(ui-tool-tips toolbar tips)
-```
-
 ### trim
 
 ```code
@@ -1669,6 +1663,12 @@ stop a child
 (ui-tool-bar name [props] [body]) -> flow
 ```
 
+### ui-tool-tips
+
+```code
+(ui-tool-tips toolbar tips)
+```
+
 ### ui-tree
 
 ```code
@@ -1785,3 +1785,4 @@ fnc_out is allways called to balence calls to fnc_in.
 ```code
 (zip seq ...) -> list
 ```
+

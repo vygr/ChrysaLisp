@@ -53,7 +53,7 @@ does the work for you.
 For example these Editor key bindings:
 
 ```vdu
-key_map_control (Fmap-kv
+*key_map_control* (Fmap-kv
 	(ascii-code "M") action-macro-record
 	(ascii-code "m") action-macro-playback
 	(ascii-code "/") action-comment-block
@@ -63,11 +63,11 @@ key_map_control (Fmap-kv
 	(ascii-code "O") action-unique)
 ```
 
-The `key_map_control` Fmap is a map of `numbers->lambda` not a map of
+The `*key_map_control*` Fmap is a map of `numbers->lambda` not a map of
 `string->lambda` ! This source becomes:
 
 ```vdu
-key_map_control (Fmap-kv
+*key_map_control* (Fmap-kv
 	77 action-macro-record
 	109 action-macro-playback
 	47 action-comment-block
@@ -197,8 +197,8 @@ ui macros, for example the Pcb app UI:
 
 ```vdu
 (ui-window *window* ()
-	(ui-title-bar window_title "" (0xea19) +event_close)
-	(ui-tool-bar main_toolbar ()
+	(ui-title-bar *window_title* "" (0xea19) +event_close)
+	(ui-tool-bar *main_toolbar* ()
 		(ui-buttons (0xe91d 0xe91e 0xea00 0xea01 0xe9ac 0xe9ad) +event_prev)
 		(ui-buttons ("0" "1" "2" "3" "4") +event_show_all
 			(:color (const *env_toolbar2_col*)

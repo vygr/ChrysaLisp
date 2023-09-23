@@ -103,11 +103,11 @@ these three event blocks for each of the 3 button bars in this UI tree.
 (ui-window *window* ()
 	(ui-title-bar _ "Bubbles" (0xea19 0xea1b 0xea1a) +event_close)
 	(ui-flow _ (:flow_flags +flow_right_fill)
-		(ui-tool-bar main_toolbar ()
+		(ui-tool-bar *main_toolbar* ()
 			(ui-buttons (0xe938) +event_reset))
-		(ui-tool-bar style_toolbar ()
+		(ui-tool-bar *style_toolbar* ()
 			(ui-buttons (0xe976 0xe9a3 0xe9f0) +event_grid)))
-	(ui-scroll image_scroll +scroll_flag_both
+	(ui-scroll *image_scroll* +scroll_flag_both
 			(:min_width canvas_width :min_height canvas_height)
 		(ui-backdrop mybackdrop (:color +argb_black :ink_color +argb_grey8)
 			(ui-canvas layer1_canvas canvas_width canvas_height 1))))
@@ -218,23 +218,23 @@ Here is the Editor application action bindings, `apps/editor/actions.inc`:
 (import "./ui.inc")
 
 (defq
-event_map (Fmap-kv
+*event_map* (Fmap-kv
 	...
 	+event_close action-close
 	+event_min action-minimise
 	+event_max action-maximise)
 
-key_map (Fmap-kv
+*key_map* (Fmap-kv
 	0x40000050 action-left
 	...
 	+char_tab action-tab)
 
-key_map_shift (Fmap-kv
+*key_map_shift* (Fmap-kv
 	0x40000050 action-left-select
 	...
 	+char_tab action-left-tab)
 
-key_map_control (Fmap-kv
+*key_map_control* (Fmap-kv
 	(ascii-code "M") action-macro-record
 	...
 	(ascii-code "O") action-unique)
@@ -246,7 +246,7 @@ key_map_control (Fmap-kv
 
 ;module
 (export-symbols
-	event_map key_map key_map_shift key_map_control
+	*event_map* *key_map* *key_map_shift* *key_map_control*
 	...
 	)
 (env-pop)
@@ -278,7 +278,7 @@ event and key dispatching code.
 				...
 				)
 			((defq id (getf *msg* +ev_msg_target_id)
-				   action (. event_map :find id))
+				   action (. *event_map* :find id))
 				;call bound event action
 				(dispatch-action action))
 			...
@@ -293,20 +293,20 @@ event and key dispatching code.
 					((/= 0 (logand mod (const
 							(+ +ev_key_mod_control +ev_key_mod_alt +ev_key_mod_meta))))
 						;call bound control/command key action
-						(when (defq action (. key_map_control :find key))
+						(when (defq action (. *key_map_control* :find key))
 							...
 							(dispatch-action action)))
 					((/= 0 (logand mod +ev_key_mod_shift))
 						;call bound shift key action, else insert
 						(cond
-							((defq action (. key_map_shift :find key))
+							((defq action (. *key_map_shift* :find key))
 								...
 								(dispatch-action action))
 							((<= +char_space key +char_tilde)
 								(dispatch-action action-insert (char key))
 								...
 								)))
-					((defq action (. key_map :find key))
+					((defq action (. *key_map* :find key))
 						;call bound key action
 						...
 						(dispatch-action action))
@@ -324,7 +324,7 @@ event and key dispatching code.
 	(free-select select))
 ```
 
-Once we find an action binding within the `event_map` or the `key_map` (we have
+Once we find an action binding within the `*event_map*` or the `*key_map*` (we have
 several key action maps, for each key modifier state) we call the action
 function via the `(dispatch-action)` helper. This is just using a `(catch)`
 statement to make things a bit more robust in case we have actions that throw

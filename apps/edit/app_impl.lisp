@@ -43,29 +43,29 @@
 (ui-window *window* (:color +argb_grey1)
 	(ui-title-bar *title* "Edit" (0xea19 0xea1b 0xea1a) +event_close)
 	(ui-flow _ (:flow_flags +flow_right_fill)
-		(ui-tool-bar main_toolbar ()
+		(ui-tool-bar *main_toolbar* ()
 			(ui-buttons (0xe9fe 0xe99d 0xe9ff 0xe938 0xe971
 				0xea08 0xe9ca 0xe9c9
 				0xe909 0xe90d 0xe90a 0xe90b
 				0xe955 0xe93c 0xe93d
 				0xea36 0xea33 0xea27 0xea28
 				0xea26 0xe9c4) +event_undo))
-		(ui-tool-bar macro_toolbar (:color (const *env_toolbar2_col*))
+		(ui-tool-bar *macro_toolbar* (:color (const *env_toolbar2_col*))
 			(ui-buttons (0xe95c 0xe95e 0xe95a 0xe95f) +event_macro_playback))
 		(ui-backdrop _ (:color (const *env_toolbar_col*))))
 	(ui-flow _ (:flow_flags +flow_right_fill)
-		(ui-tool-bar buffer_toolbar (:color (get :color macro_toolbar))
+		(ui-tool-bar *buffer_toolbar* (:color (get :color *macro_toolbar*))
 			(ui-buttons (0xe91d 0xe91e 0xe94b 0xe94d 0xe94c 0xea07 0xe97e 0xea3d 0xe94e) +event_prev))
 		(ui-grid _ (:grid_height 1)
 			(. (ui-textfield *name_text* (:color +argb_white
 					:hint_text "new file" :clear_text "")) :connect +event_new)
 			(ui-flow _ (:flow_flags +flow_right_fill)
-				(ui-tool-bar find_toolbar (:color (get :color macro_toolbar))
+				(ui-tool-bar *find_toolbar* (:color (get :color *macro_toolbar*))
 					(ui-buttons (0xe9a1 0xe962 0xe9cd 0xe9a8 0xe914 0xe91b) +event_global))
 				(. (ui-textfield *find_text* (:color +argb_white
 						:hint_text "find" :clear_text "")) :connect +event_find_down))
 			(ui-flow _ (:flow_flags +flow_right_fill)
-				(ui-tool-bar replace_toolbar (:color (get :color macro_toolbar))
+				(ui-tool-bar *replace_toolbar* (:color (get :color *macro_toolbar*))
 					(ui-buttons (0xe95c 0xe95e 0xe95a) +event_replace))
 				(. (ui-textfield *replace_text* (:color +argb_white
 						:hint_text "replace" :clear_text "")) :connect +event_replace))))
@@ -187,7 +187,7 @@
 		(:set_find fx fy fx1 fy1)
 		(:set_scroll sx sy))
 	(scatter meta :cx cx :cy cy :ax ax :ay ay :sx sx :sy sy)
-	(radio-select find_toolbar (list :nil :nil *whole_words* *regexp* :nil :nil))
+	(radio-select *find_toolbar* (list :nil :nil *whole_words* *regexp* :nil :nil))
 	(def *title* :text (cat "Edit -> " (if file file "<scratch pad>")))
 	(.-> *title* :layout :dirty)
 	(refresh))
@@ -249,21 +249,21 @@
 
 (defun tooltips ()
 	(def *window* :tip_mbox (elem-get +select_tip select))
-	(ui-tool-tips main_toolbar
+	(ui-tool-tips *main_toolbar*
 		'("undo" "redo" "rewind" "global undo" "global redo"
 		"cut" "copy" "paste" "reflow" "select paragraph"
 		"outdent" "indent" "select form" "start form"
 		"end form" "upper case" "lower case" "sort" "unique"
 		"reverse" "comment"))
-	(ui-tool-tips buffer_toolbar
+	(ui-tool-tips *buffer_toolbar*
 		'("previous" "next" "scratchpad" "close" "close all"
 		"save" "save all" "load all" "new"))
-	(ui-tool-tips find_toolbar
+	(ui-tool-tips *find_toolbar*
 		'("global search" "select region" "whole words"
 		"regexp" "find down" "find up"))
-	(ui-tool-tips macro_toolbar
+	(ui-tool-tips *macro_toolbar*
 		'("playback" "playback eof" "playback global" "record"))
-	(ui-tool-tips replace_toolbar
+	(ui-tool-tips *replace_toolbar*
 		'("replace" "replace all" "replace global")))
 
 (defun clear-matches ()
@@ -368,7 +368,7 @@
 				;tip time mail
 				(if (defq view (. *window* :find_id (getf *msg* +mail_timeout_id)))
 					(. view :show_tip)))
-			((defq id (getf *msg* +ev_msg_target_id) action (. event_map :find id))
+			((defq id (getf *msg* +ev_msg_target_id) action (. *event_map* :find id))
 				;call bound event action
 				(dispatch-action action))
 			((= (getf *msg* +ev_msg_type) +ev_type_key_up)
@@ -396,19 +396,19 @@
 					((/= 0 (logand mod (const
 							(+ +ev_key_mod_control +ev_key_mod_alt +ev_key_mod_meta))))
 						;call bound control/command key action
-						(when (defq action (. key_map_control :find key))
+						(when (defq action (. *key_map_control* :find key))
 							(clear-matches)
 							(dispatch-action action)))
 					((/= 0 (logand mod +ev_key_mod_shift))
 						;call bound shift key action, else insert
 						(cond
-							((defq action (. key_map_shift :find key))
+							((defq action (. *key_map_shift* :find key))
 								(clear-matches)
 								(dispatch-action action))
 							((<= +char_space key +char_tilde)
 								(dispatch-action action-insert (char key))
 								(show-matches))))
-					((defq action (. key_map :find key))
+					((defq action (. *key_map* :find key))
 						;call bound key action
 						(clear-matches)
 						(dispatch-action action))

@@ -21,7 +21,7 @@
 
 (ui-window *window* (:color +argb_grey15)
 	(ui-title-bar _ "Docs" (0xea19 0xea1b 0xea1a) +event_close)
-	(ui-flow doc_flow (:flow_flags +flow_right_fill :color *env_toolbar_col*)
+	(ui-flow *doc_flow* (:flow_flags +flow_right_fill :color *env_toolbar_col*)
 		(ui-flow _ (:flow_flags +flow_stack_fill)
 			(ui-flow _  (:flow_flags +flow_down_fill)
 				(ui-flow _ (:flow_flags +flow_left_fill :color +argb_grey14)
@@ -33,7 +33,7 @@
 							:font *env_medium_terminal_font*))
 						:connect +event_tree_action)))
 			(ui-backdrop _ (:color +argb_white)))
-		(ui-scroll page_scroll +scroll_flag_both (:min_height 900))))
+		(ui-scroll *page_scroll* +scroll_flag_both (:min_height 900))))
 
 (defun handler-func (state)
 	(unless (defq handler (. handlers :find state))
@@ -64,11 +64,11 @@
 		((handler-func state) state page "")
 		(bind '(w h) (. page_flow :pref_size))
 		(. page_flow :change 0 0 w h)
-		(def page_scroll :min_width w)
-		(def (get :vslider page_scroll)
+		(def *page_scroll* :min_width w)
+		(def (get :vslider *page_scroll*)
 			:value (if (defq pos (. scroll_pos :find file)) pos 0))
-		(.-> page_scroll (:add_child page_flow) :layout)
-		(.-> doc_flow :layout :dirty_all)))
+		(.-> *page_scroll* (:add_child page_flow) :layout)
+		(.-> *doc_flow* :layout :dirty_all)))
 
 (defun select-node (file)
 	;highlight the selected file
@@ -102,7 +102,7 @@
 				(if (defq view (. *window* :find_id (getf *msg* +mail_timeout_id)))
 					(. view :show_tip)))
 			;mus be +select_main
-			((defq id (getf *msg* +ev_msg_target_id) action (. event_map :find id))
+			((defq id (getf *msg* +ev_msg_target_id) action (. *event_map* :find id))
 				;call bound event action
 				(action))
 			((and (not (Textfield? (. *window* :find_id id)))
@@ -114,17 +114,17 @@
 					((/= 0 (logand mod (const
 							(+ +ev_key_mod_control +ev_key_mod_alt +ev_key_mod_meta))))
 						;call bound control/command key action
-						(if (defq action (. key_map_control :find key))
+						(if (defq action (. *key_map_control* :find key))
 							(action)))
 					((/= 0 (logand mod +ev_key_mod_shift))
 						;call bound shift key action
-						(if (defq action (. key_map_shift :find key))
+						(if (defq action (. *key_map_shift* :find key))
 							(action)))
-					((defq action (. key_map :find key))
+					((defq action (. *key_map* :find key))
 						;call bound key action
 						(action))))
 			(:t (. *window* :event *msg*)
 				;save scroll position
-				(. scroll_pos :insert *current_file* (get :value (get :vslider page_scroll))))))
+				(. scroll_pos :insert *current_file* (get :value (get :vslider *page_scroll*))))))
 	(gui-sub *window*)
 	(free-select select))

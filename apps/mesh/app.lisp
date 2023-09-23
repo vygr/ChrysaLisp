@@ -34,9 +34,9 @@
 (ui-window *window* ()
 	(ui-title-bar *title* "Mesh" (0xea19 0xea1b 0xea1a) +event_close)
 	(ui-flow _ (:flow_flags +flow_right_fill)
-		(ui-tool-bar main_toolbar ()
+		(ui-tool-bar *main_toolbar* ()
 			(ui-buttons (0xe962 0xea43) +event_mode))
-		(ui-tool-bar style_toolbar ()
+		(ui-tool-bar *style_toolbar* ()
 			(ui-buttons (0xe976 0xe9a3 0xe9f0) +event_plain))
 		(ui-backdrop _ (:color (const *env_toolbar_col*))))
 	(ui-flow _ (:flow_flags +flow_right_fill)
@@ -51,15 +51,15 @@
 				:connect +event_yrot)
 			(. (ui-slider zrot_slider (:value 0 :maximum 1000 :portion 10 :color +argb_green))
 				:connect +event_zrot)))
-	(ui-backdrop main_backdrop (:style :plain :color +argb_black :ink_color +argb_grey8
+	(ui-backdrop *main_backdrop* (:style :plain :color +argb_black :ink_color +argb_grey8
 			:min_width +min_size :min_height +min_size)
-		(ui-canvas main_widget canvas_size canvas_size canvas_scale)))
+		(ui-canvas *main_widget* canvas_size canvas_size canvas_scale)))
 
 (defun tooltips (mbox)
 	(def *window* :tip_mbox mbox)
-	(ui-tool-tips main_toolbar
+	(ui-tool-tips *main_toolbar*
 		'("mode" "auto"))
-	(ui-tool-tips style_toolbar
+	(ui-tool-tips *style_toolbar*
 		'("plain" "grid" "axis")))
 
 (defun radio-select (toolbar idx)
@@ -142,8 +142,8 @@
 	;; (times 10 (Mesh-iso (Iso-capsule 30 30 30) (n2r 0.25)))
 	;; (prin (time-in-seconds (- (pii-time) then)))(print)
 	(bind '(x y w h) (apply view-locate (.-> *window* (:connect +event_layout) :pref_size)))
-	(.-> main_widget (:set_canvas_flags +canvas_mode) (:fill +argb_black) (:swap 0))
-	(radio-select style_toolbar 0)
+	(.-> *main_widget* (:set_canvas_flags +canvas_mode) (:fill +argb_black) (:swap 0))
+	(radio-select *style_toolbar* 0)
 	(gui-add-front (. *window* :change x y w h))
 	(defq select (alloc-select +select_size) *running* :t *dirty* :t
 		jobs (list) scene (create-scene jobs) farm (Local create destroy 4))
@@ -202,10 +202,10 @@
 					(setq *dirty* :nil)
 					(. scene :set_rotation +real_0 +real_0 *rotz*)
 					(each (# (. %0 :set_rotation *rotx* *roty* +real_0)) (. scene :children))
-					(. scene :render main_widget (* canvas_size canvas_scale)
+					(. scene :render *main_widget* (* canvas_size canvas_scale)
 						+left +right +top +bottom +near +far *render_mode*)))
 			;must be gui event to main mailbox
-			((defq id (getf *msg* +ev_msg_target_id) action (. event_map :find id))
+			((defq id (getf *msg* +ev_msg_target_id) action (. *event_map* :find id))
 				;call bound event action
 				(dispatch-action action))
 			((and (not (Textfield? (. *window* :find_id id)))
@@ -218,17 +218,17 @@
 					((/= 0 (logand mod (const
 							(+ +ev_key_mod_control +ev_key_mod_alt +ev_key_mod_meta))))
 						;call bound control/command key action
-						(when (defq action (. key_map_control :find key))
+						(when (defq action (. *key_map_control* :find key))
 							(dispatch-action action)))
 					((/= 0 (logand mod +ev_key_mod_shift))
 						;call bound shift key action, else insert
 						(cond
-							((defq action (. key_map_shift :find key))
+							((defq action (. *key_map_shift* :find key))
 								(dispatch-action action))
 							((<= +char_space key +char_tilde)
 								;insert char etc ...
 								(char key))))
-					((defq action (. key_map :find key))
+					((defq action (. *key_map* :find key))
 						;call bound key action
 						(dispatch-action action))
 					((<= +char_space key +char_tilde)

@@ -10,7 +10,7 @@
 
 (ui-window *window* ()
 	(ui-flow window_flow (:flow_flags +flow_down_fill)
-		(ui-title-bar window_title "Minefield" (0xea19) +event_close)
+		(ui-title-bar *window_title* "Minefield" (0xea19) +event_close)
 		(ui-flow view (:flow_flags +flow_flag_align_hcenter)
 			(ui-flow across (:flow_flags +flow_right_fill)
 					(ui-label left_pad (:text "" :min_width 25))

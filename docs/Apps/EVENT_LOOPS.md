@@ -411,8 +411,8 @@ This example is from the `apps/bubbles/app.lisp`, Bubbles application:
 
 (defun tooltips ()
 	(def *window* :tip_mbox (elem-get +select_tip select))
-	(ui-tool-tips main_toolbar '("refresh"))
-	(ui-tool-tips style_toolbar '("plain" "grid" "axis")))
+	(ui-tool-tips *main_toolbar* '("refresh"))
+	(ui-tool-tips *style_toolbar* '("plain" "grid" "axis")))
 ```
 
 We declare an extra selection mailbox to be used by the tip events, create a

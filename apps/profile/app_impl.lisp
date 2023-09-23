@@ -24,21 +24,21 @@
 	(ui-flow _ (:flow_flags +flow_down_fill)
 		(ui-title-bar _ "Profile" (0xea19) +event_close)
 		(ui-flow _ (:flow_flags +flow_right_fill)
-			(ui-tool-bar main_toolbar () (ui-buttons (0xe960) +event_clear))
-			(ui-tool-bar main_toolbar2 (:color (const *env_toolbar2_col*)) (ui-buttons (0xe960) +event_clear_all)))
-		(. (ui-slider hslider (:value 0)) :connect +event_hvalue)
+			(ui-tool-bar *main_toolbar* () (ui-buttons (0xe960) +event_clear))
+			(ui-tool-bar *main_toolbar2* (:color (const *env_toolbar2_col*)) (ui-buttons (0xe960) +event_clear_all)))
+		(. (ui-slider *hslider* (:value 0)) :connect +event_hvalue)
 		(ui-vdu vdu (:vdu_width vdu_width :vdu_height vdu_height :ink_color +argb_yellow))))
 
 (defun set-slider-values ()
-	(defq val (get :value hslider) mho (max 0 (dec (length buf_list))))
-	(def hslider :maximum mho :portion 1 :value (min val mho))
-	(. hslider :dirty))
+	(defq val (get :value *hslider*) mho (max 0 (dec (length buf_list))))
+	(def *hslider* :maximum mho :portion 1 :value (min val mho))
+	(. *hslider* :dirty))
 
 (defun reset (&optional _)
 	(setd _ -1)
 	(if (<= 0 _ (dec (length buf_list)))
 		(progn
-			(def hslider :value _)
+			(def *hslider* :value _)
 			(setq buf_index _)
 			(. vdu :load (elem-get +profile_rec_buf (elem-get buf_index buf_list)) 0 0 0 1000))
 		(progn
@@ -58,9 +58,9 @@
 
 (defun tooltips ()
 	(def *window* :tip_mbox (elem-get +select_tip select))
-	(ui-tool-tips main_toolbar
+	(ui-tool-tips *main_toolbar*
 		'("clear"))
-	(ui-tool-tips main_toolbar2
+	(ui-tool-tips *main_toolbar2*
 		'("clear all")))
 
 (defun main ()
@@ -94,7 +94,7 @@
 				(setq id :nil))
 			;moved task slider
 			((= id +event_hvalue)
-				(reset (get :value hslider)))
+				(reset (get :value *hslider*)))
 			;pressed clear button
 			((= id +event_clear)
 				(when buf_index

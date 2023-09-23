@@ -129,8 +129,8 @@ This from the `apps/font/app.lisp` demo:
 
 ```vdu
 (ui-window *window* ()
-	(ui-title-bar window_title "" (0xea19) +event_close)
-	(ui-tool-bar main_toolbar ()
+	(ui-title-bar *window_title* "" (0xea19) +event_close)
+	(ui-tool-bar *main_toolbar* ()
 		(ui-buttons (0xe91d 0xe91e) +event_prev))
 	(ui-scroll symbol_scroll +scroll_flag_vertical))
 ```

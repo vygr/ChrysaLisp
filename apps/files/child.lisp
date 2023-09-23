@@ -11,7 +11,7 @@
 
 (ui-window *window* :nil
 	(ui-flow _ (:flow_flags +flow_down_fill)
-		(ui-title-bar window_title "" (0xea19) +event_close)
+		(ui-title-bar *window_title* "" (0xea19) +event_close)
 		(ui-flow _ (:flow_flags +flow_right_fill)
 			(ui-buttons (0xe93a) +event_ok_action (:font *env_toolbar_font*))
 			(ui-label _ (:text "Filename:"))
@@ -79,7 +79,7 @@
 (defun main ()
 	;read paramaters from parent
 	(bind '(reply_mbox title dir exts) (mail-read (task-netid)))
-	(def window_title :text title)
+	(def *window_title* :text title)
 	(def ext_filter :clear_text exts)
 	(defq all_files (sort cmp (all-files dir '(""))) tree_buttons (list) file_buttons (list) current_dir (cat dir "/"))
 	(populate-files all_files current_dir exts)

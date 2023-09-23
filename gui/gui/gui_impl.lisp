@@ -47,7 +47,7 @@
 		(. *mouse* :change_dirty (- *mouse_x* hx) (- *mouse_y* hy) w w)))
 
 (defun dispatch (msg type)
-	(and (defq action (. event_map :find type)) (action)))
+	(and (defq action (. *event_map* :find type)) (action)))
 
 (defun close-apps (quit)
 	;send quit action to all GUI apps

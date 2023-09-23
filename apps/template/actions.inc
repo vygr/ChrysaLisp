@@ -11,7 +11,7 @@
 (import "./ui.inc")
 
 (defq
-event_map (Fmap-kv
+*event_map* (Fmap-kv
 	+event_close action-close
 	+event_min action-minimise
 	+event_max action-maximise
@@ -22,11 +22,11 @@ event_map (Fmap-kv
 	+event_copy action-copy
 	+event_paste action-paste)
 
-key_map (Fmap-kv)
+*key_map* (Fmap-kv)
 
-key_map_shift (Fmap-kv)
+*key_map_shift* (Fmap-kv)
 
-key_map_control (Fmap-kv
+*key_map_control* (Fmap-kv
 	(ascii-code "z") action-undo
 	(ascii-code "Z") action-redo
 	(ascii-code "x") action-cut
@@ -37,5 +37,5 @@ key_map_control (Fmap-kv
 
 ;module
 (export-symbols
-	event_map key_map key_map_shift key_map_control)
+	*event_map* *key_map* *key_map_shift* *key_map_control*)
 (env-pop)

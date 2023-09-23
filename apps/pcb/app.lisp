@@ -28,8 +28,8 @@
 	*running* :t pcb :nil pcb_data :nil child :nil +tag_min_size 104)
 
 (ui-window *window* ()
-	(ui-title-bar window_title "" (0xea19) +event_close)
-	(ui-tool-bar main_toolbar ()
+	(ui-title-bar *window_title* "" (0xea19) +event_close)
+	(ui-tool-bar *main_toolbar* ()
 		(ui-buttons (0xe91d 0xe91e 0xe972 0xea00 0xea01 0xe9ac 0xe9ad) +event_prev)
 		(ui-buttons ("0" "1" "2" "3" "4") +event_show_all
 			(:color (const *env_toolbar2_col*) :font (const (create-font "fonts/OpenSans-Regular.ctf" 20)))))
@@ -54,9 +54,9 @@
 	(setq pcb_data (load (defq file (elem-get (setq *index* _) *pcbs*))) pcb (pcb-read pcb_data))
 	(bind '(w h) (. (defq canvas (pcb-canvas pcb *mode* *show* *zoom* canvas_scale)) :pref_size))
 	(def pcb_scroll :min_width w :min_height h)
-	(def window_title :text (cat "Pcb -> " (slice (inc (find-rev "/" file)) -1 file)))
+	(def *window_title* :text (cat "Pcb -> " (slice (inc (find-rev "/" file)) -1 file)))
 	(. pcb_scroll :add_child (. canvas :swap 0))
-	(. window_title :layout)
+	(. *window_title* :layout)
 	(bind '(x y w h) (apply view-fit (cat (. *window* :get_pos) (. *window* :pref_size))))
 	(def pcb_scroll :min_width 32 :min_height 32)
 	(. *window* :change_dirty x y w h))
@@ -75,7 +75,7 @@
 (defun tooltips ()
 	(def *window* :tip_mbox (elem-get +select_tip select))
 	(each (# (def %0 :tip_text %1))
-		(. main_toolbar :children)
+		(. *main_toolbar* :children)
 		'("prev" "next" "route" "zoom out" "zoom in" "pcb" "gerber"
 		"all layers" "layer 1" "layer 2" "layer 3" "layer 4")))
 
@@ -127,7 +127,7 @@
 				(set (. progress :dirty) :value (getf *msg* +progress_current)
 					:maximum (getf *msg* +progress_total)))
 			;must be gui event to main mailbox
-			((defq *id* (getf *msg* +ev_msg_target_id) action (. event_map :find *id*))
+			((defq *id* (getf *msg* +ev_msg_target_id) action (. *event_map* :find *id*))
 				;call bound event action
 				(dispatch-action action))
 			((and (not (Textfield? (. *window* :find_id *id*)))
@@ -140,17 +140,17 @@
 					((/= 0 (logand mod (const
 							(+ +ev_key_mod_control +ev_key_mod_alt +ev_key_mod_meta))))
 						;call bound control/command key action
-						(when (defq action (. key_map_control :find key))
+						(when (defq action (. *key_map_control* :find key))
 							(dispatch-action action)))
 					((/= 0 (logand mod +ev_key_mod_shift))
 						;call bound shift key action, else insert
 						(cond
-							((defq action (. key_map_shift :find key))
+							((defq action (. *key_map_shift* :find key))
 								(dispatch-action action))
 							((<= +char_space key +char_tilde)
 								;insert char etc ...
 								(char key))))
-					((defq action (. key_map :find key))
+					((defq action (. *key_map* :find key))
 						;call bound key action
 						(dispatch-action action))
 					((<= +char_space key +char_tilde)

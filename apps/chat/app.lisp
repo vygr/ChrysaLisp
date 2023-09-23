@@ -15,7 +15,7 @@
 
 (ui-window *window* (:color +argb_grey4)
 	(ui-title-bar _ "Chat" (0xea19) +event_close)
-	(ui-tool-bar main_toolbar ()
+	(ui-tool-bar *main_toolbar* ()
 		(ui-buttons (0xe9ed 0xe9e8) +event_connect))
 	(ui-flow _ (:flow_flags +flow_right_fill :ink_color +argb_white :color +argb_white :ink_color +argb_black)
 		(ui-label _ (:text "User:"))
@@ -42,7 +42,7 @@
 
 (defun tooltips ()
 	(def *window* :tip_mbox (elem-get +select_tip select))
-	(ui-tool-tips main_toolbar
+	(ui-tool-tips *main_toolbar*
 		'("join" "leave")))
 
 (defun main ()

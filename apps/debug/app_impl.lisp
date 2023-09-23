@@ -21,9 +21,9 @@
 	(ui-flow _ (:flow_flags +flow_down_fill)
 		(ui-title-bar _ "Debug" (0xea19) +event_close)
 		(ui-flow _ (:flow_flags +flow_right_fill)
-			(ui-tool-bar main_toolbar () (ui-buttons (0xe95e 0xe95d 0xe95c 0xe960) +event_play))
-			(ui-tool-bar main_toolbar2 (:color (const *env_toolbar2_col*)) (ui-buttons (0xe95e 0xe95d 0xe95c 0xe960) +event_play_all)))
-		(. (ui-slider hslider (:value 0)) :connect +event_hvalue)
+			(ui-tool-bar *main_toolbar* () (ui-buttons (0xe95e 0xe95d 0xe95c 0xe960) +event_play))
+			(ui-tool-bar *main_toolbar2* (:color (const *env_toolbar2_col*)) (ui-buttons (0xe95e 0xe95d 0xe95c 0xe960) +event_play_all)))
+		(. (ui-slider *hslider* (:value 0)) :connect +event_hvalue)
 		(ui-vdu vdu (:vdu_width vdu_width :vdu_height vdu_height :ink_color +argb_yellow))))
 
 (defun vdu-print (vdu buf s)
@@ -38,9 +38,9 @@
 	(if vdu (. vdu :load buf 0 0 (length (elem-get -2 buf)) (dec (length buf)))) buf)
 
 (defun set-slider-values ()
-	(defq val (get :value hslider) mho (max 0 (dec (length buf_list))))
-	(def hslider :maximum mho :portion 1 :value (min val mho))
-	(. hslider :dirty))
+	(defq val (get :value *hslider*) mho (max 0 (dec (length buf_list))))
+	(def *hslider* :maximum mho :portion 1 :value (min val mho))
+	(. *hslider* :dirty))
 
 (defun play (_)
 	(unless (elem-get +debug_rec_state _)
@@ -59,7 +59,7 @@
 	(setd _ -1)
 	(if (<= 0 _ (dec (length buf_list)))
 		(progn
-			(def hslider :value _)
+			(def *hslider* :value _)
 			(setq buf_index _)
 			(vdu-print vdu (elem-get +debug_rec_buf (elem-get buf_index buf_list)) ""))
 		(progn
@@ -87,9 +87,9 @@
 
 (defun tooltips ()
 	(def *window* :tip_mbox (elem-get +select_tip select))
-	(ui-tool-tips main_toolbar
+	(ui-tool-tips *main_toolbar*
 		'("play" "pause" "step" "clear"))
-	(ui-tool-tips main_toolbar2
+	(ui-tool-tips *main_toolbar2*
 		'("play all" "pause all" "step all" "clear all")))
 
 (defun main ()
@@ -126,7 +126,7 @@
 				(setq id :nil))
 			;moved task slider
 			((= id +event_hvalue)
-				(reset (get :value hslider)))
+				(reset (get :value *hslider*)))
 			;pressed play button
 			((= id +event_play)
 				(when buf_index

@@ -13,7 +13,7 @@
 (import "./ui.inc")
 
 (defq
-event_map (Fmap-kv
+*event_map* (Fmap-kv
 	+event_close action-close
 	+event_min action-minimise
 	+event_max action-maximise
@@ -24,7 +24,7 @@ event_map (Fmap-kv
 	+event_xscroll action-xscroll
 	+event_yscroll action-yscroll)
 
-key_map (Fmap-kv
+*key_map* (Fmap-kv
 	0x40000050 action-left
 	0x4000004f action-right
 	0x40000052 action-up
@@ -38,9 +38,9 @@ key_map (Fmap-kv
 	+char_tab action-tab
 	+char_esc action-escape)
 
-key_map_shift (Fmap-kv)
+*key_map_shift* (Fmap-kv)
 
-key_map_control (Fmap-kv
+*key_map_control* (Fmap-kv
 	(ascii-code "w") action-select-word
 	(ascii-code "W") action-copy-word
 	(ascii-code "l") action-select-line
@@ -54,7 +54,7 @@ key_map_control (Fmap-kv
 
 ;module
 (export-symbols
-	event_map key_map key_map_shift key_map_control action-insert)
+	*event_map* *key_map* *key_map_shift* *key_map_control* action-insert)
 (export-classes
 	Viewer-edit Terminal-edit)
 (env-pop)

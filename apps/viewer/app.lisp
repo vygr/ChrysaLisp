@@ -31,9 +31,9 @@
 (ui-window *window* (:color +argb_grey1)
 	(ui-title-bar *title* "Viewer" (0xea19 0xea1b 0xea1a) +event_close)
 	(ui-flow _ (:flow_flags +flow_right_fill)
-		(ui-tool-bar main_toolbar ()
+		(ui-tool-bar *main_toolbar* ()
 			(ui-buttons (0xe9ca 0xe90d 0xe955 0xe93c 0xe93d) +event_copy))
-		(ui-tool-bar find_toolbar (:color (const *env_toolbar2_col*))
+		(ui-tool-bar *find_toolbar* (:color (const *env_toolbar2_col*))
 			(ui-buttons (0xe9cd 0xe9a8 0xe914 0xe91b) +event_whole_words))
 		(. (ui-textfield *find_text* (:color +argb_white
 				:hint_text "find" :clear_text "")) :connect +event_find_down))
@@ -174,9 +174,9 @@
 
 (defun tooltips ()
 	(def *window* :tip_mbox (elem-get +select_tip select))
-	(ui-tool-tips main_toolbar
+	(ui-tool-tips *main_toolbar*
 		'("copy" "select paragraph" "select form" "start form" "end form"))
-	(ui-tool-tips find_toolbar
+	(ui-tool-tips *find_toolbar*
 		'("whole words" "regexp" "find down" "find up")))
 
 (defun page-scale (s)
@@ -226,7 +226,7 @@
 				;tip time mail
 				(if (defq view (. *window* :find_id (getf *msg* +mail_timeout_id)))
 					(. view :show_tip)))
-			((defq id (getf *msg* +ev_msg_target_id) action (. event_map :find id))
+			((defq id (getf *msg* +ev_msg_target_id) action (. *event_map* :find id))
 				;call bound event action
 				(dispatch-action action))
 			((= (getf *msg* +ev_msg_type) +ev_type_key_up)
@@ -241,14 +241,14 @@
 					((/= 0 (logand mod (const
 							(+ +ev_key_mod_control +ev_key_mod_alt +ev_key_mod_meta))))
 						;call bound control/command key action
-						(when (defq action (. key_map_control :find key))
+						(when (defq action (. *key_map_control* :find key))
 							(dispatch-action action)))
 					((/= 0 (logand mod +ev_key_mod_shift))
 						;call bound shift key action
 						(cond
-							((defq action (. key_map_shift :find key))
+							((defq action (. *key_map_shift* :find key))
 								(dispatch-action action))))
-					((defq action (. key_map :find key))
+					((defq action (. *key_map* :find key))
 						;call bound key action
 						(dispatch-action action))
 					))

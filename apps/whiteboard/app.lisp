@@ -213,7 +213,7 @@
 									(list c (map (lambda (_)
 										(apply path _)) p))) (elem-get 1 data)))
 								(redraw-layers +layer_commited))))))
-			((defq *id* (getf *msg* +ev_msg_target_id) action (. event_map :find *id*))
+			((defq *id* (getf *msg* +ev_msg_target_id) action (. *event_map* :find *id*))
 				;call bound event action
 				(action))
 			((and (= *id* (. overlay_canvas :get_id)) (= (getf *msg* +ev_msg_type) +ev_type_mouse))
@@ -270,13 +270,13 @@
 					((/= 0 (logand mod (const
 							(+ +ev_key_mod_control +ev_key_mod_alt +ev_key_mod_meta))))
 						;call bound control/command key action
-						(if (defq action (. key_map_control :find key))
+						(if (defq action (. *key_map_control* :find key))
 							(action)))
 					((/= 0 (logand mod +ev_key_mod_shift))
 						;call bound shift key action
-						(if (defq action (. key_map_shift :find key))
+						(if (defq action (. *key_map_shift* :find key))
 							(action)))
-					((defq action (. key_map :find key))
+					((defq action (. *key_map* :find key))
 						;call bound key action
 						(action))))
 			(:t ;gui event

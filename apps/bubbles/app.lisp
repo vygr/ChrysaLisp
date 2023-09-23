@@ -20,11 +20,11 @@
 (ui-window *window* ()
 	(ui-title-bar _ "Bubbles" (0xea19 0xea1b 0xea1a) +event_close)
 	(ui-flow _ (:flow_flags +flow_right_fill)
-		(ui-tool-bar main_toolbar ()
+		(ui-tool-bar *main_toolbar* ()
 			(ui-buttons (0xe938) +event_reset))
-		(ui-tool-bar style_toolbar ()
+		(ui-tool-bar *style_toolbar* ()
 			(ui-buttons (0xe976 0xe9a3 0xe9f0) +event_grid)))
-	(ui-scroll image_scroll +scroll_flag_both
+	(ui-scroll *image_scroll* +scroll_flag_both
 			(:min_width +width :min_height +height)
 		(ui-backdrop mybackdrop (:color +argb_black :ink_color +argb_grey8)
 			(ui-canvas layer1_canvas +width +height 1))))
@@ -122,9 +122,9 @@
 
 (defun tooltips ()
 	(def *window* :tip_mbox (elem-get +select_tip select))
-	(ui-tool-tips main_toolbar
+	(ui-tool-tips *main_toolbar*
 		'("refresh"))
-	(ui-tool-tips style_toolbar
+	(ui-tool-tips *style_toolbar*
 		'("plain" "grid" "axis")))
 
 (defun main ()
@@ -133,10 +133,10 @@
 	(tooltips)
 	(. layer1_canvas :set_canvas_flags +canvas_flag_antialias)
 	(. mybackdrop :set_size +width +height)
-	(radio-select style_toolbar 0)
+	(radio-select *style_toolbar* 0)
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(gui-add-front (. *window* :change x y w h))
-	(def image_scroll :min_width +min_width :min_height +min_height)
+	(def *image_scroll* :min_width +min_width :min_height +min_height)
 
 	;random cloud of verts
 	(defq verts (vertex-cloud num_bubbles))
@@ -166,16 +166,16 @@
 				(. *window* :change_dirty x y w h))
 			((= id +event_max)
 				;max button
-				(def image_scroll :min_width +width :min_height +height)
+				(def *image_scroll* :min_width +width :min_height +height)
 				(bind '(x y w h) (apply view-fit (cat (. *window* :get_pos) (. *window* :pref_size))))
 				(. *window* :change_dirty x y w h)
-				(def image_scroll :min_width +min_width :min_height +min_height))
+				(def *image_scroll* :min_width +min_width :min_height +min_height))
 			((= id +event_reset)
 				;reset button
 				(setq verts (vertex-cloud num_bubbles)))
 			((<= +event_grid id +event_axis)
 				;styles
-				(def (. mybackdrop :dirty) :style (elem-get (radio-select style_toolbar (- id +event_grid)) '(:nil :grid :axis))))
+				(def (. mybackdrop :dirty) :style (elem-get (radio-select *style_toolbar* (- id +event_grid)) '(:nil :grid :axis))))
 			((and (= id (. layer1_canvas :get_id))
 				(= (getf *msg* +ev_msg_type) +ev_type_mouse))
 					;mouse event in canvas

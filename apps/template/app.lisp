@@ -19,15 +19,15 @@
 (ui-window *window* ()
 	(ui-title-bar *title* "Template" (0xea19 0xea1b 0xea1a) +event_close)
 	(ui-flow _ (:flow_flags +flow_right_fill)
-		(ui-tool-bar main_toolbar ()
+		(ui-tool-bar *main_toolbar* ()
 			(ui-buttons (0xe9fe 0xe99d 0xe9ff 0xea08 0xe9ca 0xe9c9) +event_undo))
 		(ui-backdrop _ (:color (const *env_toolbar_col*))))
-	(ui-backdrop main_widget (:color +argb_black :min_width 512 :min_height 256
+	(ui-backdrop *main_widget* (:color +argb_black :min_width 512 :min_height 256
 			:ink_color +argb_white :spacing 16 :style :grid)))
 
 (defun tooltips ()
 	(def *window* :tip_mbox (elem-get +select_tip select))
-	(ui-tool-tips main_toolbar
+	(ui-tool-tips *main_toolbar*
 		'("undo" "redo" "rewind" "cut" "copy" "paste")))
 
 ;import actions and bindings
@@ -52,7 +52,7 @@
 			((= idx +select_timer)
 				;timer event
 				(mail-timeout (elem-get +select_timer select) +rate 0))
-			((defq id (getf *msg* +ev_msg_target_id) action (. event_map :find id))
+			((defq id (getf *msg* +ev_msg_target_id) action (. *event_map* :find id))
 				;call bound event action
 				(dispatch-action action))
 			((and (not (Textfield? (. *window* :find_id id)))
@@ -65,23 +65,23 @@
 					((/= 0 (logand mod (const
 							(+ +ev_key_mod_control +ev_key_mod_alt +ev_key_mod_meta))))
 						;call bound control/command key action
-						(when (defq action (. key_map_control :find key))
+						(when (defq action (. *key_map_control* :find key))
 							(dispatch-action action)))
 					((/= 0 (logand mod +ev_key_mod_shift))
 						;call bound shift key action, else insert
 						(cond
-							((defq action (. key_map_shift :find key))
+							((defq action (. *key_map_shift* :find key))
 								(dispatch-action action))
 							((<= +char_space key +char_tilde)
 								;insert char etc ...
 								(char key))))
-					((defq action (. key_map :find key))
+					((defq action (. *key_map* :find key))
 						;call bound key action
 						(dispatch-action action))
 					((<= +char_space key +char_tilde)
 						;insert char etc ...
 						(char key))))
-			((and (= id (. main_widget :get_id))
+			((and (= id (. *main_widget* :get_id))
 				(= (getf *msg* +ev_msg_type) +ev_type_mouse))
 					;mouse event in main widget
 					(defq rx (getf *msg* +ev_msg_mouse_rx)

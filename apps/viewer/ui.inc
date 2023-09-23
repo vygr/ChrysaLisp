@@ -11,11 +11,11 @@
 
 (defun action-whole-words ()
 	(setq *whole_words* (not *whole_words*))
-	(radio-select find_toolbar (list *whole_words* *regexp* :nil :nil)))
+	(radio-select *find_toolbar* (list *whole_words* *regexp* :nil :nil)))
 
 (defun action-regexp ()
 	(setq *regexp* (not *regexp*))
-	(radio-select find_toolbar (list *whole_words* *regexp* :nil :nil)))
+	(radio-select *find_toolbar* (list *whole_words* *regexp* :nil :nil)))
 
 ;;;;;;;;;;;;;;;;;;;;
 ; main edit subclass

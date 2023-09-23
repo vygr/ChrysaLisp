@@ -40,9 +40,9 @@
 (ui-window *window* ()
 	(ui-title-bar *title* "" (0xea19 0xea1b 0xea1a) +event_close)
 	(ui-flow _ (:flow_flags +flow_right_fill)
-		(ui-tool-bar main_toolbar ()
+		(ui-tool-bar *main_toolbar* ()
 			(ui-buttons (0xe91d 0xe91e 0xea43) +event_prev))
-		(ui-tool-bar style_toolbar ()
+		(ui-tool-bar *style_toolbar* ()
 			(ui-buttons (0xe976 0xe9a3 0xe9f0) +event_plain))
 		(ui-backdrop _ (:color (const *env_toolbar_col*))))
 	(ui-flow _ (:flow_flags +flow_right_fill)
@@ -57,15 +57,15 @@
 				:connect +event_yrot)
 			(. (ui-slider zrot_slider (:value 0 :maximum 1000 :portion 10 :color +argb_green))
 				:connect +event_zrot)))
-	(ui-backdrop main_backdrop (:style :grid :color +argb_black :ink_color +argb_grey8
+	(ui-backdrop *main_backdrop* (:style :grid :color +argb_black :ink_color +argb_grey8
 			:min_width +min_size :min_height +min_size)
-		(ui-canvas main_widget canvas_size canvas_size canvas_scale)))
+		(ui-canvas *main_widget* canvas_size canvas_size canvas_scale)))
 
 (defun tooltips ()
 	(def *window* :tip_mbox (elem-get +select_tip select))
-	(ui-tool-tips main_toolbar
+	(ui-tool-tips *main_toolbar*
 		'("prev" "next" "auto"))
-	(ui-tool-tips style_toolbar
+	(ui-tool-tips *style_toolbar*
 		'("plain" "grid" "axis")))
 
 (defun radio-select (toolbar idx)
@@ -123,9 +123,9 @@
 		matrix (mat4x4-mul mfrust (mat4x4-mul mtrans mrot))
 		balls (sort-balls (clip-balls (map (lambda ((v r c))
 			(list (mat4x4-vec4-mul matrix v) r c)) balls))))
-	(. main_widget :fill 0)
-	(render-balls main_widget balls)
-	(. main_widget :swap 0))
+	(. *main_widget* :fill 0)
+	(render-balls *main_widget* balls)
+	(. *main_widget* :swap 0))
 
 (defun ball-file (index)
 	(when (defq stream (file-stream (defq file (elem-get index mol_files))))
@@ -170,8 +170,8 @@
 (defun main ()
 	(defq select (alloc-select +select_size) *running* :t)
 	(bind '(x y w h) (apply view-locate (.-> *window* (:connect +event_layout) :pref_size)))
-	(.-> main_widget (:set_canvas_flags +canvas_mode) (:fill +argb_black) (:swap 0))
-	(radio-select style_toolbar 1)
+	(.-> *main_widget* (:set_canvas_flags +canvas_mode) (:fill +argb_black) (:swap 0))
+	(radio-select *style_toolbar* 1)
 	(gui-add-front (. *window* :change x y w h))
 	(tooltips)
 	(reset)
@@ -197,7 +197,7 @@
 				(when *dirty*
 					(setq *dirty* :nil)
 					(render)))
-			((defq id (getf *msg* +ev_msg_target_id) action (. event_map :find id))
+			((defq id (getf *msg* +ev_msg_target_id) action (. *event_map* :find id))
 				;call bound event action
 				(dispatch-action action))
 			((and (not (Textfield? (. *window* :find_id id)))
@@ -210,17 +210,17 @@
 					((/= 0 (logand mod (const
 							(+ +ev_key_mod_control +ev_key_mod_alt +ev_key_mod_meta))))
 						;call bound control/command key action
-						(when (defq action (. key_map_control :find key))
+						(when (defq action (. *key_map_control* :find key))
 							(dispatch-action action)))
 					((/= 0 (logand mod +ev_key_mod_shift))
 						;call bound shift key action, else insert
 						(cond
-							((defq action (. key_map_shift :find key))
+							((defq action (. *key_map_shift* :find key))
 								(dispatch-action action))
 							((<= +char_space key +char_tilde)
 								;insert char etc ...
 								(char key))))
-					((defq action (. key_map :find key))
+					((defq action (. *key_map* :find key))
 						;call bound key action
 						(dispatch-action action))
 					((<= +char_space key +char_tilde)

@@ -14,7 +14,7 @@
 (import "./ui.inc")
 
 (defq
-event_map (Fmap-kv
+*event_map* (Fmap-kv
 	+event_find_down action-find-down
 	+event_find_up action-find-up
 	+event_whole_words action-whole-words
@@ -35,7 +35,7 @@ event_map (Fmap-kv
 	+event_file_tree_collapse action-file-tree-collapse
 	+event_file_leaf_action action-file-leaf-action)
 
-key_map (Fmap-kv
+*key_map* (Fmap-kv
 	0x40000050 action-left
 	0x4000004f action-right
 	0x40000052 action-up
@@ -43,7 +43,7 @@ key_map (Fmap-kv
 	0x4000004A action-home
 	0x4000004D action-end)
 
-key_map_shift (Fmap-kv
+*key_map_shift* (Fmap-kv
 	0x40000050 action-left-select
 	0x4000004f action-right-select
 	0x40000052 action-up-select
@@ -51,7 +51,7 @@ key_map_shift (Fmap-kv
 	0x4000004A action-home-select
 	0x4000004D action-end-select)
 
-key_map_control (Fmap-kv
+*key_map_control* (Fmap-kv
 	(ascii-code "f") action-set-find-text
 	(ascii-code "a") action-select-all
 	(ascii-code "b") action-select-block
@@ -75,7 +75,7 @@ find_actions (list
 
 ;module
 (export-symbols
-	event_map key_map key_map_shift key_map_control
+	*event_map* *key_map* *key_map_shift* *key_map_control*
 	action-minimise find_actions)
 (export-classes
 	Viewer-edit)

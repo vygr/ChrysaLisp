@@ -21,7 +21,7 @@
 (defun win-refresh (i)
 	(defq ctf (elem-get (setq index i) fonts) font (create-font ctf 42) grid_width 8 grid_height 0
 		ranges (font-glyph-ranges font) symbol_grid (Grid))
-	(def window_title :text (cat "Fonts -> " (slice (inc (find-rev "/" ctf)) -5 ctf)))
+	(def *window_title* :text (cat "Fonts -> " (slice (inc (find-rev "/" ctf)) -5 ctf)))
 	(while (defq e (pop ranges) s (pop ranges))
 		(defq s (logand s (neg grid_width)) e (align e grid_width) n (/ (- e s) grid_width))
 		(setq grid_height (+ grid_height n))
@@ -36,22 +36,22 @@
 		:color (const *env_toolbar_col*) :font font)
 	(bind '(w h) (. symbol_grid :pref_size))
 	(. symbol_grid :change 0 0 w h)
-	(def symbol_scroll :min_width w :min_height (min h 720))
-	(. symbol_scroll :add_child symbol_grid)
+	(def *symbol_scroll* :min_width w :min_height (min h 720))
+	(. *symbol_scroll* :add_child symbol_grid)
 	(bind '(x y w h) (apply view-fit (cat (. *window* :get_pos) (. *window* :pref_size))))
 	(. *window* :change_dirty x y w h))
 
 (defq index 1 id :t fonts (sort cmp (all-files "fonts/" '(".ctf"))))
 
 (ui-window *window* ()
-	(ui-title-bar window_title "" (0xea19) +event_close)
-	(ui-tool-bar main_toolbar ()
+	(ui-title-bar *window_title* "" (0xea19) +event_close)
+	(ui-tool-bar *main_toolbar* ()
 		(ui-buttons (0xe91d 0xe91e) +event_prev))
-	(ui-scroll symbol_scroll +scroll_flag_vertical))
+	(ui-scroll *symbol_scroll* +scroll_flag_vertical))
 
 (defun tooltips ()
 	(def *window* :tip_mbox (elem-get +select_tip select))
-	(ui-tool-tips main_toolbar
+	(ui-tool-tips *main_toolbar*
 		'("prev" "next")))
 
 (defun main ()
