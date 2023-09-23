@@ -31,7 +31,7 @@
 	+event_macro_playback action-macro-playback
 	+event_macro_to_eof action-macro-to-eof
 	+event_macro_global action-macro-global
-	+event_comment action-comment-block
+	+event_comment action-comment
 	+event_close action-close
 	+event_min action-minimise
 	+event_max action-maximise
@@ -122,7 +122,7 @@
 	(ascii-code "(") action-macro-save-9
 	(ascii-code "M") action-macro-record
 	(ascii-code "m") action-macro-playback
-	(ascii-code "/") action-comment-block
+	(ascii-code "/") action-comment
 	(ascii-code "a") action-select-all
 	(ascii-code "A") action-region
 	(ascii-code "b") action-select-block
@@ -160,7 +160,7 @@
 	(ascii-code "}") action-right-bracket)
 
 *recorded_actions* (list
-	action-backspace action-break action-comment-block action-copy action-cut
+	action-backspace action-break action-comment action-copy action-cut
 	action-copy-block action-copy-line action-copy-paragraph action-copy-word
 	action-cut-block action-cut-line action-cut-paragraph action-cut-word
 	action-delete action-down action-down-select action-end action-end-select

@@ -34,6 +34,6 @@
 	(. *edit* :invert)
 	(refresh))
 
-(defun action-comment-block ()
+(defun action-comment ()
 	(. *edit* :comment)
 	(refresh))
