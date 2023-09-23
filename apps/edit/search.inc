@@ -4,11 +4,13 @@
 
 (defun action-whole-words ()
 	(setq *whole_words* (not *whole_words*))
-	(update-find-toolbar))
+	(update-find-toolbar)
+	(refresh))
 
 (defun action-regexp ()
 	(setq *regexp* (not *regexp*))
-	(update-find-toolbar))
+	(update-find-toolbar)
+	(refresh))
 
 (defun action-region ()
 	(bind '(sy sy1) (select-lines))
