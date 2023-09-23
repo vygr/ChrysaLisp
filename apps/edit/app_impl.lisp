@@ -342,8 +342,8 @@
 		*meta_map* :nil *open_files* :nil *current_file* (state-load))
 	(.-> *edit* (:set_buffer (Buffer))
 		(:set_select_color +argb_grey6)
-		(:set_find_color +argb_grey4)
-		(:set_back_color +argb_grey3))
+		(:set_found_color +argb_grey4)
+		(:set_region_color +argb_grey3))
 	(def *edit* :min_width 0 :min_height 0
 		:vdu_width +vdu_min_width :vdu_height +vdu_min_height)
 	(. *main_flow* :add_back *edit*)

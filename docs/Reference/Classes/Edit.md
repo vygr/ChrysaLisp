@@ -258,12 +258,6 @@
 (. edit :set_anchor x y) -> edit
 ```
 
-### :set_back_color
-
-```code
-(. edit :set_back_color argb) -> edit
-```
-
 ### :set_buffer
 
 ```code
@@ -282,10 +276,16 @@
 (. edit :set_find x y x1 y1) -> edit
 ```
 
-### :set_find_color
+### :set_found_color
 
 ```code
-(. edit :set_find_color argb) -> edit
+(. edit :set_found_color argb) -> edit
+```
+
+### :set_region_color
+
+```code
+(. edit :set_region_color argb) -> edit
 ```
 
 ### :set_scroll

@@ -82,8 +82,8 @@
 		:find_x1 0 :find_y1 0
 		:buffer (Buffer :t) :underlay (list)
 		:color_select +not_selected
-		:color_find +not_selected
-		:color_back +not_selected
+		:color_found +not_selected
+		:color_region +not_selected
 		:vdu_width 80 :vdu_height 40
 		:min_width 0 :min_height 0)
 	(. vdu_text :set_flags 0 +view_flag_solid)
@@ -478,22 +478,22 @@
 			(<< (canvas-from-argb32 col 15) 48)) +not_selected))))
 		this)
 
-	(defmethod :set_find_color (col)
-		; (. edit :set_find_color argb) -> edit
-		(lower (:color_find (apply nums (map (lambda (_)
+	(defmethod :set_found_color (col)
+		; (. edit :set_found_color argb) -> edit
+		(lower (:color_found (apply nums (map (lambda (_)
 			(<< (canvas-from-argb32 col 15) 48)) +not_selected))))
 		this)
 
-	(defmethod :set_back_color (col)
-		; (. edit :set_back_color argb) -> edit
-		(lower (:color_back (apply nums (map (lambda (_)
+	(defmethod :set_region_color (col)
+		; (. edit :set_region_color argb) -> edit
+		(lower (:color_region (apply nums (map (lambda (_)
 			(<< (canvas-from-argb32 col 15) 48)) +not_selected))))
 		this)
 
 	(defmethod :underlay_paper ()
 		; (. edit :underlay_paper) -> edit
 		;create the underlay for selections
-		(raise :buffer :underlay :color_select :color_find :color_back
+		(raise :buffer :underlay :color_select :color_found :color_region
 			:vdu_find :scroll_x :scroll_y)
 		(defq found (. buffer :get_found) scroll_y1 (second (. vdu_find :vdu_size)))
 		(bind '(fx fy fx1 fy1) (. this :get_find))
@@ -501,13 +501,13 @@
 		(cap scroll_y1 (clear underlay))
 		(setq scroll_y1 (min (length found) (+ scroll_y1 scroll_y)) fy1 (dec fy1))
 		(while (< scroll_y scroll_y1)
-			(defq background (if (<= fy scroll_y fy1) color_back +not_selected)
+			(defq background (if (<= fy scroll_y fy1) color_region +not_selected)
 				background (cond
 					((and (defq match (elem-get scroll_y found))
 							(nempty? (defq match (elem-get 0 match))))
 						(defq cx 0 line (clear '()))
 						(each (lambda ((x x1))
-							(push line (slice cx x background) (slice x x1 color_find))
+							(push line (slice cx x background) (slice x x1 color_found))
 							(setq cx x1)) match)
 						(push line (slice cx -1 background))
 						(apply cat line))
