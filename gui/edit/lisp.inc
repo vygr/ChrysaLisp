@@ -532,14 +532,11 @@
 					(push underlay (cond
 						((= y scroll_y y1)
 							(cat (slice 0 x +not_selected) +bracket_char
-								(slice (inc x) x1 +not_selected) +bracket_char
-								(slice (inc x1) -1 +not_selected)))
+								(slice (inc x) x1 +not_selected) +bracket_char))
 						((= y scroll_y)
-							(cat (slice 0 x +not_selected) +bracket_char
-								(slice (inc x) -1 +not_selected)))
+							(cat (slice 0 x +not_selected) +bracket_char))
 						((= y1 scroll_y)
-							(cat (slice 0 x1 +not_selected) +bracket_char
-								(slice (inc x1) -1 +not_selected)))
+							(cat (slice 0 x1 +not_selected) +bracket_char))
 						(:t +not_selected)))
 					(setq scroll_y (inc scroll_y)))))
 		(. vdu_ink :load underlay scroll_x 0 -1 -1)
