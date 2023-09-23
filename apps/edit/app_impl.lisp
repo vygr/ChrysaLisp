@@ -334,7 +334,7 @@
 
 (defun main ()
 	(defq select (alloc-select +select_size)
-		edit_service (mail-declare (task-netid) "Edit" "Edit Service 0.1")
+		edit_service (mail-declare (task-netid) "Edit" "Edit Service 1.0")
 		*running* :t *edit* (Editor-edit) *page_scale* 1.0 *regexp* :nil
 		*syntax* (Syntax) *whole_words* :nil *refresh_mode* (list 0)
 		*macro_record* :nil *macro_actions* (list)
