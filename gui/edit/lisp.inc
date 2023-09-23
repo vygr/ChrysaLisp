@@ -509,8 +509,9 @@
 	(defmethod :underlay_find ()
 		; (. edit :underlay_find) -> edit
 		(raise :buffer :underlay :selected_find :vdu_find :scroll_x :scroll_y)
-		(defq found (. buffer :get_found) cy 0 cy1 (length found))
+		(defq found (. buffer :get_found) cy 0 cy1 (second (vdu_find :get_size)))
 		(cap (inc cy1) (clear underlay))
+		(while (< cy < scroll_y) (push underlay "") (setq cy (inc cy)))
 		(while (< cy cy1)
 			(cond
 				((and (defq match (elem-get cy found))
