@@ -337,7 +337,7 @@ create the underlay for clear
 ### :underlay_find
 
 ```code
-(. edit :underlay_selection) -> edit
+(. edit :underlay_find) -> edit
 ```
 
 ### :underlay_selection

@@ -485,7 +485,7 @@
 		this)
 
 	(defmethod :underlay_find ()
-		; (. edit :underlay_selection) -> edit
+		; (. edit :underlay_find) -> edit
 		(raise :buffer :underlay :selected_find :vdu_find :scroll_x :scroll_y)
 		(bind '(cx cy ax ay) (. this :get_find))
 		(defq x1 ax y1 ay)
