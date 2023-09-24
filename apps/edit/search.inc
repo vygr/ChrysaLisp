@@ -73,11 +73,10 @@
 			(.-> *find_text* (:set_text text) :layout :dirty)
 			(refresh))))
 
-(defun build-replace (found rep_text rep_matchs cx cy ax)
-	(when (< cy (length found))
-		(if (< ax cx) (defq tx cx cx ax ax tx))
-		(bind '(indexs substrs) (elem-get cy found))
-		(when (defq subs (some (lambda ((x x1)) (and (= x cx) (= x1 ax) _)) indexs))
+(defun build-replace (found rep_text rep_matchs sx sy sx1)
+	(when (< sy (length found))
+		(bind '(indexs substrs) (elem-get sy found))
+		(when (defq subs (some (lambda ((x x1)) (and (= x sx) (= x1 sx1) _)) indexs))
 			(when regexp
 				(setq subs (if (>= subs (length substrs)) '() (elem-get subs substrs)))
 				(each! -1 0 (lambda ((x x1) (s))
