@@ -91,15 +91,14 @@
 	(unless (eql pattern "")
 		(defq buffer (. *edit* :get_buffer)
 			found (. buffer :find pattern whole_words regexp))
-		(bind '(cx cy) (. *edit* :get_cursor))
-		(bind '(ax ay) (. *edit* :get_anchor))
-		(when (and (= cy ay) (defq
+		(bind '(sx sy sx1 sy1) (sort-selection))
+		(when (and (= sy sy1) (defq
 				rep_matchs (matches rep_text "\$(\d+)")
-				rep_text (build-replace found rep_text rep_matchs cx cy ax)))
+				rep_text (build-replace found rep_text rep_matchs sx sy sx1)))
 			(undoable
 				(.-> buffer
-					(:set_cursor ax ay)
-					(:delete (- cx ax))
+					(:set_cursor sx sy)
+					(:delete (- sx1 sx))
 					(:insert rep_text)))
 			(refresh))
 		(action-find-down whole_words regexp pattern)))
