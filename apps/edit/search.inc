@@ -5,12 +5,12 @@
 (defun action-whole-words ()
 	(setq *whole_words* (not *whole_words*))
 	(update-find-toolbar)
-	(refresh))
+	(refresh-display))
 
 (defun action-regexp ()
 	(setq *regexp* (not *regexp*))
 	(update-find-toolbar)
-	(refresh))
+	(refresh-display))
 
 (defun action-region ()
 	(bind '(sy sy1) (select-lines))
@@ -18,7 +18,7 @@
 	(if (> fy1 fy) (setq fy 0 fy1 0) (setq fy sy fy1 sy1))
 	(. *edit* :set_find fx fy fx1 fy1)
 	(update-find-toolbar)
-	(refresh))
+	(refresh-display))
 
 (defun action-find-down (whole_words regexp pattern)
 	;return :nil if nothing found !
