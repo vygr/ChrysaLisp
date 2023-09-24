@@ -8,6 +8,8 @@ In no particular order but to just to ensure I get thoughts down. I'll keep
 adding to this as I go along. If anybody would like to try helping out, then
 just get in touch.
 
+* Fix the Substr LPS table bug.
+
 * Add Fset and List support to maptree load/save.
 
 * Add shift key selection to the Terminal app.
