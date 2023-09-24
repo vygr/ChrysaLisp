@@ -10,7 +10,7 @@
 (env-push)
 
 (defq +not_whole_word_chars (cat " .,;'`(){}[]/" (ascii-char 34))
-	+block_comment ";; " +bracket_char (nums 0x7f)
+	+block_comment ";; " +bracket_char (nums 0x7f) +blank_line (nums)
 	+not_selected (apply nums (map (lambda (_) 0) (str-alloc 2048))))
 
 (defmacro not-whole-word-char? (_)
@@ -527,7 +527,7 @@
 		(clear underlay)
 		(when (bind '(x y) (. buffer :left_bracket))
 			(when (bind '(x1 y1) (. buffer :right_bracket))
-				(defq scroll_y1 (+ scroll_y (second (. vdu_ink :vdu_size))))
+				(defq scroll_y1 (min (inc y1) (+ scroll_y (second (. vdu_ink :vdu_size)))))
 				(while (< scroll_y scroll_y1)
 					(push underlay (cond
 						((= y scroll_y y1)
@@ -537,7 +537,7 @@
 							(cat (slice 0 x +not_selected) +bracket_char))
 						((= y1 scroll_y)
 							(cat (slice 0 x1 +not_selected) +bracket_char))
-						(:t +not_selected)))
+						(:t +blank_line)))
 					(setq scroll_y (inc scroll_y)))))
 		(. vdu_ink :load underlay scroll_x 0 -1 -1)
 		this)
