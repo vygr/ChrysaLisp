@@ -318,14 +318,6 @@
 (. edit :to_upper) -> edit
 ```
 
-### :underlay_clear
-
-```code
-(. edit :underlay_clear) -> edit
-
-create the underlay for clear
-```
-
 ### :underlay_ink
 
 ```code

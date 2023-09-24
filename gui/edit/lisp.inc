@@ -542,14 +542,6 @@
 		(. vdu_ink :load underlay scroll_x 0 -1 -1)
 		this)
 
-	(defmethod :underlay_clear ()
-		; (. edit :underlay_clear) -> edit
-		;create the underlay for clear
-		(raise :underlay :vdu_ink :scroll_x :scroll_y)
-		(clear underlay)
-		(. vdu_ink :load underlay scroll_x scroll_y -1 -1)
-		this)
-
 	(defmethod :mouse_down (event)
 		; (. edit :mouse_down event) -> edit
 		(raise :buffer)

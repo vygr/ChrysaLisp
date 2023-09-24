@@ -53,13 +53,9 @@
 
 (defun refresh-display ()
 	;load the vdu widgets with the text and selection
-	(bind '(cx cy) (. *edit* :get_cursor))
 	(bind '(sx sy) (. *edit* :get_scroll))
-	(bind '(ax ay) (. *edit* :get_anchor))
 	(.-> *edit* :get_buffer (:vdu_load (. *edit* :get_vdu_text) sx sy))
-	(. *edit* :underlay_paper)
-	(if (and (= cx ax) (= cy ay))
-		(. *edit* :underlay_clear)))
+	(. *edit* :underlay_paper))
 
 (defun refresh-sliders ()
 	;set slider values
