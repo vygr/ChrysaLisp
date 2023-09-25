@@ -19,6 +19,9 @@ protection to that !
 
 Editor saves/loads the 10 macros to the users Editor state file.
 
+Collections now has a generic `tree-save` and `tree-load` system. Lists, Maps
+and Sets can now be elements of the tree.
+
 ------
 
 Reminder of how to bridge Lisp subnets over ChrysaLib hubs !
