@@ -132,8 +132,8 @@
 
 (defun tree-load (stream)
 	; (tree-load stream) -> tree
-	(defq items (first (read stream (ascii-code " ")))
-		root (tree-node (first items)) stack (list (rest items) root))
+	(defq items (first (read stream)) root (tree-node (first items))
+		stack (list (rest items) root))
 	(while (defq node (pop stack) items (pop stack))
 		(case (tree-type node)
 			((:Emap :Lmap :Fmap :Xmap)
