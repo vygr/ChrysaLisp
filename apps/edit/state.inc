@@ -12,13 +12,13 @@
 			:regexp *regexp*
 			:macros (reduce (# (. %0 :insert %1 (macro-encode %1)))
 						+range_0_10 (Fmap)))
-		(maptree-save stream *meta_map* '(":nil" :buffer :nil))))
+		(tree-save stream *meta_map* '(":nil" :buffer :nil))))
 
 (defun state-load ()
 	;load editor state
 	(setq *meta_map* (Fmap-kv :files (Fmap)) *open_files* (list))
 	(when (defq stream (file-stream (cat *env_home* +state_filename)))
-		(setq *meta_map* (maptree-load stream))
+		(setq *meta_map* (tree-load stream))
 		(bind '(file find_txt replace_txt files macros wwords regx)
 			(gather *meta_map* :file :find :replace :files
 				:macros :whole_words :regexp))
@@ -30,7 +30,7 @@
 		(cond
 			(files
 				(defq dead_files (list))
-				(.-> files (:resize 101) (:each (lambda (file meta)
+				(. files :each (lambda (file meta)
 					(cond
 						((= (age file) 0)
 							;no such file
@@ -39,7 +39,7 @@
 								(gather meta :cx :cy :ax :ay :sx :sy))
 							(push *open_files* file)
 							(. meta :insert :buffer :nil)
-							(populate-buffer file cx cy ax ay sx sy))))))
+							(populate-buffer file cx cy ax ay sx sy)))))
 				(each (# (. files :erase %0)) dead_files))
 			((setq *meta_map* (Fmap-kv :files (Fmap)))))
 		(update-find-toolbar)

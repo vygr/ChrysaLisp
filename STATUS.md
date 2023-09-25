@@ -48,7 +48,7 @@ Editor global undo and redo ! Use with caution.
 
 Fixed bug in Editor macro recording.
 
-Addition of `maptree-load` and ` maptree-save` to collection functions.
+Addition of `tree-load` and ` tree-save` to collection functions.
 
 Regexp now supports allmost all Vim shortcuts:
 

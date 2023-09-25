@@ -29,56 +29,128 @@
 	; scatter a list of values
 	(reduce (lambda (m (k v)) (. m :insert k v)) (partition 2 _) m))
 
-;;;;;;;;;;;;;;;;;;;;
-; map tree load/save
-;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; collection tree load/save
+;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defun maptree-encode (atom)
-	; (maptree-encode atom) -> atom
+(defun tree-type (collection)
+	; (tree-type collection) -> type
+	(if (eql (defq type (last (type-of collection))) :hmap)
+		(setq type (last (. collection :type_of)))) type)
+
+(defun tree-collection? (type)
+	; (tree-collection? type) -> :nil | type
+	(some (# (if (eql %0 type) %0))
+		'(:list :Emap :Lmap :Fmap :Xmap :Fset :Xset)))
+
+(defun tree-encode (atom)
+	; (tree-encode atom) -> atom
 	(cond
 		((sym? atom) atom)
 		((num? atom) (str atom))
 		((cat "{" (str atom) "}"))))
 
-(defun maptree-save (stream root &optional key_filter)
-	; (maptree-save stream maptree &optional key_filter) -> maptree
+(defun tree-buckets (collection type)
+	; (tree-buckets collection type) -> num
+	(if (eql type :list)
+		(length collection)
+		(get :num_buckets collection)))
+
+(defun tree-node ((type &optional buckets))
+	; (tree-node ((type &optional buckets)) -> collection
+	(setd buckets 1)
+	(case type
+		(:Emap (Emap buckets))
+		(:Lmap (Lmap buckets))
+		(:Fmap (Fmap buckets))
+		(:Xmap (Xmap buckets))
+		(:Fset (Fset buckets))
+		(:Xset (Xset buckets))
+		(:t (cap buckets (list)))))
+
+(defun tree-save (stream root &optional key_filter)
+	; (tree-save stream tree &optional key_filter) -> tree
 	(setd key_filter '())
 	(defq out (list) stack (list root out)
 		ws (const (pad "" 8 (ascii-char 9))) wc 1)
-	(while (defq l (pop stack) m (pop stack))
-		(. m :each (lambda (k v)
-			(when (notany (# (eql k %0)) key_filter)
-				(if (map? v) (push stack v (setq v (list))))
-				(push l (list k v))))))
-	(push stack out 0)
-	(write-line stream "( ;map")
+	;convert to typed list tree
+	(while (defq l (pop stack) c (pop stack))
+		(push l (list (defq type (tree-type c)) (tree-buckets c type)))
+		(case type
+			((:Emap :Lmap :Fmap :Xmap)
+				(. c :each (lambda (k v)
+					(when (notany (# (eql k %0)) key_filter)
+						(if (tree-collection? (tree-type v))
+							(push stack v (setq v (list))))
+						(push l (list k v))))))
+			((:Fset :Xset)
+				(. c :each (lambda (k)
+					(when (notany (# (eql k %0)) key_filter)
+						(if (tree-collection? (tree-type k))
+							(push stack k (setq k (list))))
+						(push l k)))))
+			(:t	(each (lambda (k)
+					(when (notany (# (eql k %0)) key_filter)
+						(if (tree-collection? (tree-type k))
+							(push stack k (setq k (list))))
+						(push l k))) c))))
+	;pretty write the typed list tree
+	(push stack out 1)
+	(write-line stream (str "(" (first out)))
 	(while (defq i (pop stack) l (pop stack))
 		(defq p (pad "" wc ws))
+		(bind '(type buckets) (first l))
 		(cond
 			((< i (length l))
-				(bind '(k v) (elem-get i l))
-				(push stack l (inc i))
-				(setq k (maptree-encode k))
-				(cond
-					((list? v)
-						;indent
-						(setq wc (inc wc))
-						(push stack v 0)
-						(write-line stream (cat p k))
-						(write-line stream (cat p "( ;map")))
-					(:t (write-line stream (cat p k " " (maptree-encode v))))))
+				(case type
+					((:Emap :Lmap :Fmap :Xmap)
+						(bind '(k v) (elem-get i l))
+						(push stack l (inc i))
+						(setq k (tree-encode k))
+						(cond
+							((list? v)
+								;indent
+								(setq wc (inc wc))
+								(push stack v 1)
+								(write-line stream (cat p k))
+								(write-line stream (str p "(" (first v))))
+							(:t (write-line stream (cat p k " " (tree-encode v))))))
+					(:t (bind '(k) (elem-get i l))
+						(push stack l (inc i))
+						(setq k (tree-encode k))
+						(cond
+							((list? k)
+								;indent
+								(setq wc (inc wc))
+								(push stack k 1)
+								(write-line stream (cat p k))
+								(write-line stream (str p "(" (first k))))
+							(:t (write-line stream (cat p (tree-encode k))))))))
 			(:t ;outdent
 				(write-line stream (cat (rest p) ")"))
 				(setq wc (dec wc)))))
 	root)
 
-(defun maptree-load (stream)
-	; (maptree-load stream) -> maptree
-	(defq root (Fmap) stack (list (first (read stream (ascii-code " "))) root))
-	(while (defq m (pop stack) form (pop stack))
-		(each (lambda ((k v))
-			(if (list? v) (push stack v (setq v (Fmap))))
-			(. m :insert k v)) (partition 2 form)))
+(defun tree-load (stream)
+	; (tree-load stream) -> tree
+	(defq items (first (read stream (ascii-code " ")))
+		root (tree-node (first items)) stack (list (rest items) root))
+	(while (defq node (pop stack) items (pop stack))
+		(case (tree-type node)
+			((:Emap :Lmap :Fmap :Xmap)
+				(each (lambda ((k v))
+					(if (list? v)
+						(push stack (rest v) (setq v (tree-node (first v)))))
+					(. node :insert k v)) (partition 2 items)))
+			((:Fset :Xset)
+				(each (lambda (k)
+					(if (list? k)
+						(push stack (rest k) (setq k (tree-node (first k)))))
+					(. node :insert k)) items))
+			(:t (each (lambda (k)
+					(if (list? k)
+						(push stack (rest k) (setq k (tree-node (first k)))))
+					(push node k)) items))))
 	root)
 
 ;;;;;;;;;;;;;;;;;;;;;;;

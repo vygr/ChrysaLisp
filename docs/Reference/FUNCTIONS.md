@@ -835,24 +835,6 @@ very basic attenuation, diffuse and specular
 returns true if argument is a map type
 ```
 
-### maptree-encode
-
-```code
-(maptree-encode atom) -> atom
-```
-
-### maptree-load
-
-```code
-(maptree-load stream) -> maptree
-```
-
-### maptree-save
-
-```code
-(maptree-save stream maptree &optional key_filter) -> maptree
-```
-
 ### mat3x2-mul-f
 
 ```code
@@ -1517,6 +1499,48 @@ stop a child
 
 ```code
 (to-upper str) -> str
+```
+
+### tree-buckets
+
+```code
+(tree-buckets collection type) -> num
+```
+
+### tree-collection?
+
+```code
+(tree-collection? type) -> :nil | type
+```
+
+### tree-encode
+
+```code
+(tree-encode atom) -> atom
+```
+
+### tree-load
+
+```code
+(tree-load stream) -> tree
+```
+
+### tree-node
+
+```code
+(tree-node ((type &optional buckets)) -> collection
+```
+
+### tree-save
+
+```code
+(tree-save stream tree &optional key_filter) -> tree
+```
+
+### tree-type
+
+```code
+(tree-type collection) -> type
 ```
 
 ### trim
