@@ -16,7 +16,7 @@
 
 (defun state-load ()
 	;load editor state
-	(setq *meta_map* (Fmap-kv :files (Fmap)) *open_files* (list))
+	(setq *meta_map* (Fmap-kv :files (Fmap 101)) *open_files* (list))
 	(when (defq stream (file-stream (cat *env_home* +state_filename)))
 		(setq *meta_map* (tree-load stream))
 		(bind '(file find_txt replace_txt files macros wwords regx)
@@ -41,6 +41,6 @@
 							(. meta :insert :buffer :nil)
 							(populate-buffer file cx cy ax ay sx sy)))))
 				(each (# (. files :erase %0)) dead_files))
-			((setq *meta_map* (Fmap-kv :files (Fmap)))))
+			((setq *meta_map* (Fmap-kv :files (Fmap 101)))))
 		(update-find-toolbar)
 		(if (find file *open_files*) file)))
