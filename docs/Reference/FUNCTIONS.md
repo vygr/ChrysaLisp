@@ -1513,6 +1513,12 @@ stop a child
 (tree-collection? type) -> :nil | type
 ```
 
+### tree-decode
+
+```code
+(tree-decode atom) -> atom
+```
+
 ### tree-encode
 
 ```code
