@@ -47,8 +47,17 @@
 	; (tree-encode atom) -> atom
 	(cond
 		((sym? atom) atom)
-		((num? atom) (str atom))
-		((cat "{" (str atom) "}"))))
+		((num? atom) atom)
+		((str? atom) (cat "{" (id-encode atom) "}"))
+		((throw "Invalid tree encode !" atom))))
+
+(defun tree-decode (atom)
+	; (tree-decode atom) -> atom
+	(cond
+		((sym? atom) atom)
+		((num? atom) atom)
+		((str? atom) (id-decode atom))
+		((throw "Invalid tree decode !" atom))))
 
 (defun tree-buckets (collection type)
 	; (tree-buckets collection type) -> num
@@ -113,9 +122,9 @@
 								;indent
 								(setq wc (inc wc))
 								(push stack v 1)
-								(write-line stream (cat p k))
+								(write-line stream (str p k))
 								(write-line stream (str p "(" (first v))))
-							(:t (write-line stream (cat p k " " (tree-encode v))))))
+							(:t (write-line stream (str p k " " (tree-encode v))))))
 					(:t (defq k (elem-get i l))
 						(push stack l (inc i))
 						(cond
@@ -124,7 +133,7 @@
 								(setq wc (inc wc))
 								(push stack k 1)
 								(write-line stream (str p "(" (first k))))
-							(:t (write-line stream (cat p (tree-encode k))))))))
+							(:t (write-line stream (str p (tree-encode k))))))))
 			(:t ;outdent
 				(write-line stream (cat (rest p) ")"))
 				(setq wc (dec wc)))))
@@ -139,16 +148,19 @@
 			((:Emap :Lmap :Fmap :Xmap)
 				(each (lambda ((k v))
 					(if (list? v)
-						(push stack (rest v) (setq v (tree-node (first v)))))
-					(. node :insert k v)) (partition 2 items)))
+						(push stack (rest v) (setq v (tree-node (first v))))
+						(setq v (tree-decode v)))
+					(. node :insert (tree-decode k) v)) (partition 2 items)))
 			((:Fset :Xset)
 				(each (lambda (k)
 					(if (list? k)
-						(push stack (rest k) (setq k (tree-node (first k)))))
+						(push stack (rest k) (setq k (tree-node (first k))))
+						(setq k (tree-decode k)))
 					(. node :insert k)) items))
 			(:t (each (lambda (k)
 					(if (list? k)
-						(push stack (rest k) (setq k (tree-node (first k)))))
+						(push stack (rest k) (setq k (tree-node (first k))))
+						(setq k (tree-decode k)))
 					(push node k)) items))))
 	root)
 
