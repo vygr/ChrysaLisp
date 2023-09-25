@@ -95,23 +95,12 @@
 	(radio-select *macro_toolbar* (list :nil :nil :nil *macro_record*))
 	(refresh))
 
-(defun tcode (i) (elem-set i p (tc (elem-get i p))))
-(defun transcode (f p tc)
-	(if (eql f (const action-insert)) (tcode 0))
-	(if (some (# (eql %0 f)) *find_actions*) (tcode 2))
-	(if (some (# (eql %0 f)) *replace_actions*) (tcode 3)) p)
-
 (defun macro-encode (n)
-	(if (empty? (defq m (reduce
-			(lambda (m (f &rest p))
-				(push m (str (cat (list (find f *recorded_actions*))
-					(transcode f p (const id-encode))))))
-			(. +macro_map :find n) (list))))
-		"" (join m "|")))
+	(map (lambda ((f &rest p))
+			(cat (list (find f *recorded_actions*)) p))
+		(. +macro_map :find n)))
 
 (defun macro-decode (n e)
-	(. +macro_map :insert n (map
-			(# (bind '(f &rest p) (first (read (string-stream %0))))
-				(cat (list (setq f (elem-get f *recorded_actions*)))
-					(transcode f p (const id-decode))))
-		(split e "|"))))
+	(. +macro_map :insert n
+		(map (lambda ((f &rest p))
+			(cat (list (elem-get f *recorded_actions*)) p)) e)))
