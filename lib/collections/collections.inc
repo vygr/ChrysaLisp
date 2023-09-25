@@ -118,13 +118,11 @@
 							(:t (write-line stream (cat p k " " (tree-encode v))))))
 					(:t (bind '(k) (elem-get i l))
 						(push stack l (inc i))
-						(setq k (tree-encode k))
 						(cond
 							((list? k)
 								;indent
 								(setq wc (inc wc))
 								(push stack k 1)
-								(write-line stream (cat p k))
 								(write-line stream (str p "(" (first k))))
 							(:t (write-line stream (cat p (tree-encode k))))))))
 			(:t ;outdent
