@@ -54,14 +54,15 @@
 	; (tree-buckets collection type) -> num
 	(if (eql type :list)
 		(length collection)
-		(get :num_buckets collection)))
+		(if (eql type :Lmap) 1
+			(get :num_buckets collection))))
 
 (defun tree-node ((type &optional buckets))
 	; (tree-node ((type &optional buckets)) -> collection
 	(setd buckets 1)
 	(case type
+		(:Lmap (Lmap))
 		(:Emap (Emap buckets))
-		(:Lmap (Lmap buckets))
 		(:Fmap (Fmap buckets))
 		(:Xmap (Xmap buckets))
 		(:Fset (Fset buckets))

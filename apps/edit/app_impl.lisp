@@ -163,7 +163,7 @@
 		meta (. files :find key))
 	(unless meta
 		(. files :insert key (setq meta
-			(Fmap-kv :cx cx :cy cy :ax ax :ay ay :sx sx :sy sy :buffer :nil))))
+			(Lmap-kv :cx cx :cy cy :ax ax :ay ay :sx sx :sy sy :buffer :nil))))
 	(unless (defq buffer (. meta :find :buffer))
 		(. meta :insert :buffer (setq buffer (Buffer mode *syntax*)))
 		(when file
