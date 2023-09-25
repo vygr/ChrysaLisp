@@ -69,9 +69,9 @@
 		(:Xset (Xset buckets))
 		(:t (cap buckets (list)))))
 
-(defun tree-save (stream root &optional key_filter)
-	; (tree-save stream tree &optional key_filter) -> tree
-	(setd key_filter '())
+(defun tree-save (stream root &optional key_filters)
+	; (tree-save stream tree &optional key_filters) -> tree
+	(setd key_filters '())
 	(defq out (list) stack (list root out)
 		ws (const (pad "" 8 (ascii-char 9))) wc 1)
 	;convert to typed list tree
@@ -80,18 +80,18 @@
 		(case type
 			((:Emap :Lmap :Fmap :Xmap)
 				(. c :each (lambda (k v)
-					(when (notany (# (eql k %0)) key_filter)
+					(when (notany (# (eql k %0)) key_filters)
 						(if (tree-collection? (tree-type v))
 							(push stack v (setq v (list))))
 						(push l (list k v))))))
 			((:Fset :Xset)
 				(. c :each (lambda (k)
-					(when (notany (# (eql k %0)) key_filter)
+					(when (notany (# (eql k %0)) key_filters)
 						(if (tree-collection? (tree-type k))
 							(push stack k (setq k (list))))
 						(push l k)))))
-			(:t	(each (lambda (k)
-					(when (notany (# (eql k %0)) key_filter)
+			(:t (each (lambda (k)
+					(when (notany (# (eql k %0)) key_filters)
 						(if (tree-collection? (tree-type k))
 							(push stack k (setq k (list))))
 						(push l k))) c))))

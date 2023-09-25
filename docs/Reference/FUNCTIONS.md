@@ -1534,7 +1534,7 @@ stop a child
 ### tree-save
 
 ```code
-(tree-save stream tree &optional key_filter) -> tree
+(tree-save stream tree &optional key_filters) -> tree
 ```
 
 ### tree-type
