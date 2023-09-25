@@ -48,7 +48,7 @@
 	(cond
 		((sym? atom) atom)
 		((num? atom) atom)
-		((str? atom) (cat "{" (id-encode atom) "}"))
+		((str? atom) (cat {"} (id-encode atom) {"}))
 		((throw "Invalid tree encode !" atom))))
 
 (defun tree-decode (atom)
