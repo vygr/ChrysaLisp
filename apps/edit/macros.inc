@@ -14,7 +14,13 @@
 		(list actions)))
 
 (defun macro-record (action)
-	(push (. +macro_map :find 0) action))
+	(defq rec (. +macro_map :find 0))
+	(if (and (nempty? rec)
+			(eql (first action) (const action-insert))
+			(eql (first (defq last_action (last rec))) (const action-insert)))
+		;roll up inserts
+		(elem-set 1 last_action (cat (second last_action) (second action)))
+		(push rec action)))
 
 (defun action-macro-playback (&optional slot)
 	(setd slot 0)
