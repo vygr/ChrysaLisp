@@ -17,12 +17,12 @@
 (defun push-line (line)
 	(each (# (push %0 %1))
 		(list buffer buffer_syntax buffer_states buffer_found buffer_brackets)
-		(list line line '(:nil :nil) :nil :nil)))
+		`(,line ,line (:nil :nil) :nil :nil)))
 
 (defun set-line (y line)
 	(each (# (elem-set y %0 %1))
 		(list buffer buffer_syntax buffer_states buffer_found buffer_brackets)
-		(list line line '(:nil :nil) :nil :nil)))
+		`(,line ,line (:nil :nil) :nil :nil)))
 
 (defun last-line ()
 	(when (or (= (length buffer) 0) (not (eql (elem-get -2 buffer) "")))
@@ -36,7 +36,7 @@
 (defun insert-line (y line)
 	(each (# (set (penv) %0 (insert (eval %0) y %1)))
 		'(buffer buffer_syntax buffer_states buffer_found buffer_brackets)
-		(list (list line) (list line) '((:nil :nil)) '(:nil) '(:nil))))
+		`((,line) (,line) ((:nil :nil)) (:nil) (:nil))))
 
 (defun redo ()
 	(defq idx (length undo_stack))
