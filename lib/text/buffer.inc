@@ -11,30 +11,37 @@
 (defun intern (l s)
 	(cond ((defq i (find s l)) (elem-get i l)) ((push l s) s)))
 
-(defun last-line ()
-	(when (or (= (length buffer) 0) (not (eql (elem-get -2 buffer) "")))
-		(push buffer "")
-		(push buffer_colored "")
-		(push buffer_states '(:nil :nil))
-		(push buffer_found :nil)))
-
-(defun erase-line (y)
-	(setq buffer (erase buffer y (defq y1 (inc y)))
-		buffer_colored (erase buffer_colored y y1)
-		buffer_states (erase buffer_states y y1)
-		buffer_found (erase buffer_found y y1)))
-
-(defun insert-line (y line)
-	(setq buffer (insert buffer y (list line))
-		buffer_colored (insert buffer_colored y (list line))
-		buffer_states (insert buffer_states y '((:nil :nil)))
-		buffer_found (insert buffer_found y '(:nil))))
+(defun push-line (line)
+	(push buffer line)
+	(push buffer_syntax line)
+	(push buffer_states '(:nil :nil))
+	(push buffer_found :nil)
+	(push buffer_brackets :nil))
 
 (defun set-line (y line)
 	(elem-set y buffer line)
-	(elem-set y buffer_colored line)
+	(elem-set y buffer_syntax line)
 	(elem-set y buffer_states '(:nil :nil))
-	(elem-set y buffer_found :nil))
+	(elem-set y buffer_found :nil)
+	(elem-set y buffer_brackets :nil))
+
+(defun last-line ()
+	(when (or (= (length buffer) 0) (not (eql (elem-get -2 buffer) "")))
+		(push-line "")))
+
+(defun erase-line (y)
+	(setq buffer (erase buffer y (defq y1 (inc y)))
+		buffer_syntax (erase buffer_syntax y y1)
+		buffer_states (erase buffer_states y y1)
+		buffer_found (erase buffer_found y y1)
+		buffer_brackets (erase buffer_brackets y y1)))
+
+(defun insert-line (y line)
+	(setq buffer (insert buffer y (list line))
+		buffer_syntax (insert buffer_syntax y (list line))
+		buffer_states (insert buffer_states y '((:nil :nil)))
+		buffer_found (insert buffer_found y '(:nil))
+		buffer_brackets (insert buffer_brackets y '(:nil))))
 
 (defun redo ()
 	(defq idx (length undo_stack))
@@ -57,12 +64,12 @@
 		(bind '(x y) (. this :get_cursor))
 		(bind '(x y) (. this :constrain x y))
 		(bind '(w h) (. this :get_size))
-		(raise :buffer :buffer_colored :buffer_states :buffer_found)
+		(raise :buffer :buffer_syntax :buffer_states :buffer_found :buffer_brackets)
 		~_
 		(clear (get :redo_stack this))
 		(last-line)
-		(lower :buffer :buffer_colored :buffer_states :buffer_found
-			(:dirty_colored :t :modified :t))
+		(lower :buffer :buffer_syntax :buffer_states :buffer_found :buffer_brackets
+			(:dirty_syntax :t :modified :t))
 		(. this :set_cursor x y)))
 
 (defmacro get-selection ()
@@ -83,9 +90,9 @@
 
 (defclass Buffer (&optional mode syntax) :nil
 	; (Buffer [mode syntax]) -> buffer
-	(def this :buffer (list "") :buffer_colored (list "")
-		:buffer_states (list '(:nil :nil))
-		:buffer_found (list :nil) :dirty_colored :nil
+	(def this :buffer (list "") :buffer_syntax (list "")
+		:buffer_states (list '(:nil :nil)) :buffer_brackets (list :nil)
+		:buffer_found (list :nil) :dirty_syntax :nil
 		:syntax (opt syntax (Syntax)) :undo_stack (list) :redo_stack (list)
 		:cursor_x 0 :cursor_y 0 :max_width 0 :tab_width 4 :wrap_width 80
 		:mode mode :next_mark -1 :modified :nil
@@ -154,21 +161,19 @@
 
 	(defmethod :file_load (filepath)
 		; (. buffer :file_load filepath) -> buffer
-		(raise :syntax :tab_width (buffer (list) buffer_colored (list)
-			 buffer_states (list) buffer_found (list) max_width 0))
+		(raise :syntax :tab_width (buffer (list) buffer_syntax (list)
+			 buffer_states (list) buffer_found (list) buffer_brackets (list)
+			 max_width 0))
 		(each-line (lambda (line)
 				(task-slice)
 				(setq line (expand (trim-end line (const (char +char_cr))) tab_width)
 					max_width (max max_width (length line)))
-				(push buffer line)
-				(push buffer_colored line)
-				(push buffer_states '(:nil :nil))
-				(push buffer_found :nil))
+				(push-line line))
 			(file-stream filepath))
 		(last-line)
 		(clear (get :undo_stack this) (get :redo_stack this))
-		(lower :buffer :buffer_colored :buffer_states :buffer_found :max_width
-			(:cursor_x 0 :cursor_y 0 :dirty_colored :t :modified :nil))
+		(lower :buffer :buffer_syntax :buffer_states :buffer_found :buffer_brackets
+			:max_width (:cursor_x 0 :cursor_y 0 :dirty_syntax :t :modified :nil))
 		this)
 
 	(defmethod :file_save (filepath)
@@ -183,8 +188,8 @@
 
 	(defmethod :colorise ()
 		; (. buffer :colorise) -> buffer
-		(when (get :dirty_colored this)
-			(raise :syntax :buffer :buffer_colored :buffer_states :mode
+		(when (get :dirty_syntax this)
+			(raise :syntax :buffer :buffer_syntax :buffer_states :mode
 				 (state :text max_width 0))
 			(each (lambda (line line_array (start_state end_state))
 					(setq max_width (max max_width (length line)))
@@ -193,17 +198,17 @@
 						((and (array? line_array) (eql state start_state))
 							(setq state end_state))
 						(:t (task-slice)
-							(elem-set _ buffer_colored
+							(elem-set _ buffer_syntax
 								(.-> syntax (:set_state state) (:colorise line)))
 							(elem-set _ buffer_states
 								(list state (setq state (. syntax :get_state)))))))
-				buffer buffer_colored buffer_states)
-			(lower :max_width (:dirty_colored :nil)))
+				buffer buffer_syntax buffer_states)
+			(lower :max_width (:dirty_syntax :nil)))
 		this)
 
 	(defmethod :vdu_load (vdu scroll_x scroll_y)
 		; (. buffer :vdu_load vdu scroll_x scroll_y) -> buffer
-		(. vdu :load (get :buffer_colored (. this :colorise))
+		(. vdu :load (get :buffer_syntax (. this :colorise))
 			scroll_x scroll_y (get :cursor_x this) (get :cursor_y this))
 		this)
 
@@ -399,8 +404,8 @@
 		; (. buffer :left_bracket) -> (x y) | (:nil :nil)
 		(bind '(x y) (.-> this :colorise :get_cursor))
 		(bind '(x y) (. this :constrain x y))
-		(raise :buffer :buffer_colored (c 0 ink_text (get :ink_text (get :syntax this))))
-		(when (array? (elem-get y buffer_colored))
+		(raise :buffer :buffer_syntax (c 0 ink_text (get :ink_text (get :syntax this))))
+		(when (array? (elem-get y buffer_syntax))
 			(unless (eql "" (defq line (elem-get y buffer)))
 				(cond
 					((<= x 0) (setq x 0))
@@ -417,7 +422,7 @@
 								((eql cl ")") (setq c (inc c)) :nil)
 								((eql cl "(") (if (< (setq c (dec c)) 0) _))))
 						(list line line_colored))) _))
-				(list buffer buffer_colored))))
+				(list buffer buffer_syntax))))
 		(if (< c 0) (list x y) '(:nil :nil)))
 
 	(defmethod :right_bracket ()
@@ -425,8 +430,8 @@
 		(bind '(x y) (.-> this :colorise :get_cursor))
 		(bind '(x y) (. this :constrain x y))
 		(defq h (elem-get 1 (. this :get_size)))
-		(raise :buffer :buffer_colored (c 0 ink_text (get :ink_text (get :syntax this))))
-		(when (array? (elem-get y buffer_colored))
+		(raise :buffer :buffer_syntax (c 0 ink_text (get :ink_text (get :syntax this))))
+		(when (array? (elem-get y buffer_syntax))
 			(unless (eql "" (defq line (elem-get y buffer)))
 				(cond
 					((<= x 0) (setq x 0))
@@ -443,7 +448,7 @@
 								((eql cl "(") (setq c (dec c)) :nil)
 								((eql cl ")") (if (> (setq c (inc c)) 0) _))))
 						(list line line_colored))) _))
-				(list buffer buffer_colored))))
+				(list buffer buffer_syntax))))
 		(if (> c 0) (list x y) '(:nil :nil)))
 
 	(defmethod :find (pattern wmode rmode)
