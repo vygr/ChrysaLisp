@@ -83,6 +83,26 @@
 			(:t (bind '(w h) (. this :get_size))
 				~_))))
 
+(defun build_syntax (this)
+	(raise :dirty_flags)
+	(when (/= (logand +dirty_flag_syntax dirty_flags) 0)
+		(raise :syntax :buffer :buffer_syntax :buffer_states :mode
+				(state :text max_width 0))
+		(each (lambda (line line_array (start_state end_state))
+				(setq max_width (max max_width (length line)))
+				(cond
+					(mode)
+					((and (array? line_array) (eql state start_state))
+						(setq state end_state))
+					(:t (task-slice)
+						(elem-set _ buffer_syntax
+							(.-> syntax (:set_state state) (:colorise line)))
+						(elem-set _ buffer_states
+							(list state (setq state (. syntax :get_state)))))))
+			buffer buffer_syntax buffer_states)
+		(lower :max_width (:dirty_flags (logand dirty_flags (lognot +dirty_flag_syntax)))))
+	this)
+
 (defclass Buffer (&optional mode syntax) :nil
 	; (Buffer [mode syntax]) -> buffer
 	(def this :buffer (list "") :buffer_syntax (list "")
@@ -181,30 +201,9 @@
 		(lower (:modified :nil))
 		this)
 
-	(defmethod :build_syntax ()
-		; (. buffer :build_syntax) -> buffer
-		(raise :dirty_flags)
-		(when (/= (logand +dirty_flag_syntax dirty_flags) 0)
-			(raise :syntax :buffer :buffer_syntax :buffer_states :mode
-				 (state :text max_width 0))
-			(each (lambda (line line_array (start_state end_state))
-					(setq max_width (max max_width (length line)))
-					(cond
-						(mode)
-						((and (array? line_array) (eql state start_state))
-							(setq state end_state))
-						(:t (task-slice)
-							(elem-set _ buffer_syntax
-								(.-> syntax (:set_state state) (:colorise line)))
-							(elem-set _ buffer_states
-								(list state (setq state (. syntax :get_state)))))))
-				buffer buffer_syntax buffer_states)
-			(lower :max_width (:dirty_flags (logand dirty_flags (lognot +dirty_flag_syntax)))))
-		this)
-
 	(defmethod :vdu_load (vdu scroll_x scroll_y)
 		; (. buffer :vdu_load vdu scroll_x scroll_y) -> buffer
-		(. vdu :load (get :buffer_syntax (. this :build_syntax))
+		(. vdu :load (get :buffer_syntax (build_syntax this))
 			scroll_x scroll_y (get :cursor_x this) (get :cursor_y this))
 		this)
 
@@ -400,7 +399,7 @@
 		; (. buffer :build_brackets) -> buffer
 		(raise :dirty_flags)
 		(when (/= (logand +dirty_flag_bracket dirty_flags) 0)
-			(. this :build_syntax)
+			(build_syntax this)
 			(raise :dirty_flags :buffer_brackets :buffer_syntax)
 			(each (lambda (brackets syntax)
 				(unless brackets
