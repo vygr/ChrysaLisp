@@ -8,6 +8,9 @@
 ;module
 (env-push)
 
+(bits +dirty_flag 0
+	(bit syntax bracket))
+
 (defun intern (l s)
 	(cond ((defq i (find s l)) (elem-get i l)) ((push l s) s)))
 
@@ -69,7 +72,7 @@
 		(clear (get :redo_stack this))
 		(last-line)
 		(lower :buffer :buffer_syntax :buffer_states :buffer_found :buffer_brackets
-			(:dirty_syntax :t :modified :t))
+			(:dirty_flags -1 :modified :t))
 		(. this :set_cursor x y)))
 
 (defmacro get-selection ()
@@ -92,7 +95,7 @@
 	; (Buffer [mode syntax]) -> buffer
 	(def this :buffer (list "") :buffer_syntax (list "")
 		:buffer_states (list '(:nil :nil)) :buffer_brackets (list :nil)
-		:buffer_found (list :nil) :dirty_syntax :nil
+		:buffer_found (list :nil) :dirty_flags -1
 		:syntax (opt syntax (Syntax)) :undo_stack (list) :redo_stack (list)
 		:cursor_x 0 :cursor_y 0 :max_width 0 :tab_width 4 :wrap_width 80
 		:mode mode :next_mark -1 :modified :nil
@@ -173,7 +176,7 @@
 		(last-line)
 		(clear (get :undo_stack this) (get :redo_stack this))
 		(lower :buffer :buffer_syntax :buffer_states :buffer_found :buffer_brackets
-			:max_width (:cursor_x 0 :cursor_y 0 :dirty_syntax :t :modified :nil))
+			:max_width (:cursor_x 0 :cursor_y 0 :dirty_flags -1 :modified :nil))
 		this)
 
 	(defmethod :file_save (filepath)
@@ -186,9 +189,10 @@
 		(lower (:modified :nil))
 		this)
 
-	(defmethod :colorise ()
-		; (. buffer :colorise) -> buffer
-		(when (get :dirty_syntax this)
+	(defmethod :build_syntax ()
+		; (. buffer :build_syntax) -> buffer
+		(raise :dirty_flags)
+		(when (/= (logand +dirty_flag_syntax dirty_flags) 0)
 			(raise :syntax :buffer :buffer_syntax :buffer_states :mode
 				 (state :text max_width 0))
 			(each (lambda (line line_array (start_state end_state))
@@ -203,12 +207,12 @@
 							(elem-set _ buffer_states
 								(list state (setq state (. syntax :get_state)))))))
 				buffer buffer_syntax buffer_states)
-			(lower :max_width (:dirty_syntax :nil)))
+			(lower :max_width (:dirty_flags (logand dirty_flags (lognot +dirty_flag_syntax)))))
 		this)
 
 	(defmethod :vdu_load (vdu scroll_x scroll_y)
 		; (. buffer :vdu_load vdu scroll_x scroll_y) -> buffer
-		(. vdu :load (get :buffer_syntax (. this :colorise))
+		(. vdu :load (get :buffer_syntax (. this :build_syntax))
 			scroll_x scroll_y (get :cursor_x this) (get :cursor_y this))
 		this)
 
@@ -400,9 +404,22 @@
 			(set this :redo_stack redo_stack))
 		this)
 
+	(defmethod :build_brackets ()
+		; (. buffer :build_brackets) -> buffer
+		(raise :dirty_flags)
+		(when (/= (logand +dirty_flag_bracket dirty_flags) 0)
+			(. this :build_syntax)
+			(raise :dirty_flags :buffer_brackets :buffer_syntax)
+			(each (lambda (brackets syntax)
+				(unless brackets
+					(elem-set _ buffer_brackets 0)))
+				buffer_brackets buffer_syntax)
+			(lower (:dirty_flags (logand dirty_flags (lognot +dirty_flag_bracket)))))
+		this)
+
 	(defmethod :left_bracket ()
 		; (. buffer :left_bracket) -> (x y) | (:nil :nil)
-		(bind '(x y) (.-> this :colorise :get_cursor))
+		(bind '(x y) (.-> this :build_brackets :get_cursor))
 		(bind '(x y) (. this :constrain x y))
 		(raise :buffer :buffer_syntax (c 0 ink_text (get :ink_text (get :syntax this))))
 		(when (array? (elem-get y buffer_syntax))
@@ -427,7 +444,7 @@
 
 	(defmethod :right_bracket ()
 		; (. buffer :right_bracket) -> (x y) | (:nil :nil)
-		(bind '(x y) (.-> this :colorise :get_cursor))
+		(bind '(x y) (.-> this :build_brackets :get_cursor))
 		(bind '(x y) (. this :constrain x y))
 		(defq h (elem-get 1 (. this :get_size)))
 		(raise :buffer :buffer_syntax (c 0 ink_text (get :ink_text (get :syntax this))))
