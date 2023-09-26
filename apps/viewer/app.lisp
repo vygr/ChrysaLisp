@@ -219,9 +219,9 @@
 	(populate-file-trees)
 	(populate-vdu *current_file*)
 	(tooltips)
-	(bind '(x y w h) (apply view-locate (.-> *window* (:connect +event_layout) :pref_size)))
-	(gui-add-front (. *window* :change x y w h))
 	(action-minimise)
+	(bind '(x y w h) (apply view-locate (.-> *window* (:connect +event_layout) :get_size)))
+	(gui-add-front (. *window* :change x y w h))
 	(refresh)
 	(while *running*
 		(defq *msg* (mail-read (elem-get (defq idx (mail-select select)) select)))

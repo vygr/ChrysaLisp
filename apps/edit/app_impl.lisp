@@ -356,9 +356,9 @@
 	(populate-file-trees)
 	(populate-vdu *current_file*)
 	(tooltips)
-	(bind '(x y w h) (apply view-locate (.-> *window* (:connect +event_layout) :pref_size)))
-	(gui-add-front (. *window* :change x y w h))
 	(action-maximise)
+	(bind '(x y w h) (apply view-locate (.-> *window* (:connect +event_layout) :get_size)))
+	(gui-add-front (. *window* :change x y w h))
 	(select-node *current_file*)
 	(refresh)
 	(while *running*
