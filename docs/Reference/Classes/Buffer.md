@@ -16,12 +16,6 @@
 (. buffer :break) -> buffer
 ```
 
-### :build_brackets
-
-```code
-(. buffer :build_brackets) -> buffer
-```
-
 ### :clear_undo
 
 ```code
