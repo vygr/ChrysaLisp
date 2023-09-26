@@ -103,6 +103,18 @@
 		(lower :max_width (:dirty_flags (logand dirty_flags (lognot +dirty_flag_syntax)))))
 	this)
 
+(defun build_brackets (this)
+	(raise :dirty_flags)
+	(when (/= (logand +dirty_flag_bracket dirty_flags) 0)
+		(build_syntax this)
+		(raise :dirty_flags :buffer_brackets :buffer_syntax)
+		(each (lambda (brackets syntax)
+			(unless brackets
+				(elem-set _ buffer_brackets 0)))
+			buffer_brackets buffer_syntax)
+		(lower (:dirty_flags (logand dirty_flags (lognot +dirty_flag_bracket)))))
+	this)
+
 (defclass Buffer (&optional mode syntax) :nil
 	; (Buffer [mode syntax]) -> buffer
 	(def this :buffer (list "") :buffer_syntax (list "")
@@ -395,22 +407,9 @@
 			(set this :redo_stack redo_stack))
 		this)
 
-	(defmethod :build_brackets ()
-		; (. buffer :build_brackets) -> buffer
-		(raise :dirty_flags)
-		(when (/= (logand +dirty_flag_bracket dirty_flags) 0)
-			(build_syntax this)
-			(raise :dirty_flags :buffer_brackets :buffer_syntax)
-			(each (lambda (brackets syntax)
-				(unless brackets
-					(elem-set _ buffer_brackets 0)))
-				buffer_brackets buffer_syntax)
-			(lower (:dirty_flags (logand dirty_flags (lognot +dirty_flag_bracket)))))
-		this)
-
 	(defmethod :left_bracket ()
 		; (. buffer :left_bracket) -> (x y) | (:nil :nil)
-		(bind '(x y) (.-> this :build_brackets :get_cursor))
+		(bind '(x y) (.-> (build_brackets this) :get_cursor))
 		(bind '(x y) (. this :constrain x y))
 		(raise :buffer :buffer_syntax (c 0 ink_text (get :ink_text (get :syntax this))))
 		(when (array? (elem-get y buffer_syntax))
@@ -435,7 +434,7 @@
 
 	(defmethod :right_bracket ()
 		; (. buffer :right_bracket) -> (x y) | (:nil :nil)
-		(bind '(x y) (.-> this :build_brackets :get_cursor))
+		(bind '(x y) (.-> (build_brackets this) :get_cursor))
 		(bind '(x y) (. this :constrain x y))
 		(defq h (elem-get 1 (. this :get_size)))
 		(raise :buffer :buffer_syntax (c 0 ink_text (get :ink_text (get :syntax this))))
