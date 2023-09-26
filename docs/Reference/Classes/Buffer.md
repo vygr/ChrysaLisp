@@ -16,16 +16,22 @@
 (. buffer :break) -> buffer
 ```
 
+### :build_brackets
+
+```code
+(. buffer :build_brackets) -> buffer
+```
+
+### :build_syntax
+
+```code
+(. buffer :build_syntax) -> buffer
+```
+
 ### :clear_undo
 
 ```code
 (. buffer :clear_undo) -> buffer
-```
-
-### :colorise
-
-```code
-(. buffer :colorise) -> buffer
 ```
 
 ### :constrain
