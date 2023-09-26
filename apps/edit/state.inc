@@ -15,7 +15,7 @@
 
 (defun state-load ()
 	;load editor state
-	(defq default (Lmap-kv :files (Fmap 101)))
+	(defq default (Emap-kv :files (Fmap 101)))
 	(setq *meta_map* default *open_files* (list))
 	(when (defq stream (file-stream (cat *env_home* +state_filename)))
 		(setq *meta_map* (tree-load stream))

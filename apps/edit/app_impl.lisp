@@ -37,8 +37,8 @@
 
 (defq +vdu_min_width 40 +vdu_min_height 20 +vdu_max_width 120 +vdu_max_height 80
 	+vdu_line_width 5 +min_word_size 3 +max_matches 20 +margin 2
-	+state_filename "editor_state" +not_whole_word_chars (cat " .,;'`(){}[]/" (ascii-char 34))
-	+text_types ''(".md" ".txt") +file_types ''(".lisp" ".inc" ".vp" ".md" ".txt")
+	+state_filename "editor_state.tre" +not_whole_word_chars (cat " .,;'`(){}[]/" (ascii-char 34))
+	+text_types ''(".md" ".txt") +file_types ''(".lisp" ".inc" ".vp" ".md" ".txt" ".tre")
 	+dictionaries ''("lib/text/english.txt"))
 
 (ui-window *window* (:color +argb_grey1)
@@ -163,7 +163,7 @@
 		meta (. files :find key))
 	(unless meta
 		(. files :insert key (setq meta
-			(Lmap-kv :cx cx :cy cy :ax ax :ay ay :sx sx :sy sy :buffer :nil))))
+			(Emap-kv :cx cx :cy cy :ax ax :ay ay :sx sx :sy sy :buffer :nil))))
 	(unless (defq buffer (. meta :find :buffer))
 		(. meta :insert :buffer (setq buffer (Buffer mode *syntax*)))
 		(when file

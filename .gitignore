@@ -15,4 +15,4 @@ chrysalisp.exe
 *.o
 *.d
 *.dll
-*editor_state
+*editor_state.tre
