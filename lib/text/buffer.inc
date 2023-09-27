@@ -9,7 +9,7 @@
 (env-push)
 
 (bits +dirty_flag 0
-	(bit syntax bracket found))
+	(bit syntax bracket))
 
 (defun intern (l s)
 	(cond ((defq i (find s l)) (elem-get i l)) ((push l s) s)))
@@ -106,9 +106,9 @@
 	this)
 
 (defun build-brackets (this)
-	(build-syntax this)
 	(raise :dirty_flags)
 	(when (/= (logand +dirty_flag_bracket dirty_flags) 0)
+		(build-syntax this)
 		(raise :buffer_syntax :buffer_brackets)
 		(defq ink_text (get :ink_text (get :syntax_engine this)))
 		(each (lambda (syntax brackets)
@@ -137,8 +137,7 @@
 
 	(defmethod :set_mode (mode)
 		; (. buffer :set_mode mode) -> buffer
-		(lower :mode)
-		this)
+		(lower :mode) this)
 
 	(defmethod :next_mark ()
 		; (. buffer :next_mark) -> mark
@@ -157,8 +156,7 @@
 
 	(defmethod :set_cursor (cursor_x cursor_y)
 		; (. buffer :set_cursor x y) -> buffer
-		(lower :cursor_x :cursor_y)
-		this)
+		(lower :cursor_x :cursor_y) this)
 
 	(defmethod :get_cursor ()
 		; (. buffer :get_cursor) -> (x y)
@@ -220,8 +218,7 @@
 				(task-slice)
 				(write-line stream (. syntax_engine :compress_tabs line tab_width)))
 			(list (get :buffer_line this)))
-		(lower (:modified :nil))
-		this)
+		(lower (:modified :nil)) this)
 
 	(defmethod :vdu_load (vdu scroll_x scroll_y)
 		; (. buffer :vdu_load vdu scroll_x scroll_y) -> buffer
