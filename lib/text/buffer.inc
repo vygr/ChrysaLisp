@@ -439,20 +439,24 @@
 					(if (eql ")" (elem-get x line))
 						(setq x (dec x))))
 				(setq y (some! (inc y) 0 :nil (lambda (syntax brackets)
+					(defq oc c)
 					(cond
 						((< (setq c (+ c (cond
 								((= x -1) brackets)
-								(:t (defq brackets 0 z (min (inc x) (length syntax)))
-									(each! z 0 (# (setq brackets (+ brackets (cond
-										((/= (logand 0xffffff000000 %0) ink_text) 0)
-										((eql (logand 0xff %0) (ascii-code "(")) -1)
-										((eql (logand 0xff %0) (ascii-code ")")) 1)
-										(0))))) (list syntax)) brackets)))) 0)
-							(setq x (some! 0 -1 :nil (# (if (= 0 (setq c (- c (cond
-								((/= (logand 0xffffff000000 %0) ink_text) 0)
-								((eql (logand 0xff %0) (ascii-code "(")) -1)
-								((eql (logand 0xff %0) (ascii-code ")")) 1)
-								(0))))) _)) (list syntax))) _)
+								(:t (defq brackets 0)
+									(each! (min (inc x) (length syntax)) 0
+										(# (setq brackets (+ brackets (cond
+											((/= (logand 0xffffff000000 %0) ink_text) 0)
+											((eql (logand 0xff %0) (ascii-code "(")) -1)
+											((eql (logand 0xff %0) (ascii-code ")")) 1)
+											(0))))) (list syntax)) brackets)))) 0)
+							(setq x (some! (if (= x -1) (length syntax)
+										(min (inc x) (length syntax))) 0 :nil
+								(# (if (< (setq oc (+ oc (cond
+									((/= (logand 0xffffff000000 %0) ink_text) 0)
+									((eql (logand 0xff %0) (ascii-code "(")) -1)
+									((eql (logand 0xff %0) (ascii-code ")")) 1)
+									(0)))) 0) _)) (list syntax))) _)
 						(:t	(setq x -1) :nil)))
 					(list buffer_syntax buffer_brackets)))
 				(if y (list x y) '(:nil :nil)))
@@ -477,6 +481,7 @@
 					(if (eql "(" (elem-get x line))
 						(setq x (inc x))))
 				(setq y (some! y h :nil (lambda (syntax brackets)
+					(defq oc c)
 					(cond
 						((> (setq c (+ c (cond
 								((= x 0) brackets)
@@ -486,11 +491,11 @@
 										((eql (logand 0xff %0) (ascii-code "(")) -1)
 										((eql (logand 0xff %0) (ascii-code ")")) 1)
 										(0))))) (list syntax)) brackets)))) 0)
-							(setq x (some! -1 0 :nil (# (if (= 0 (setq c (- c (cond
+							(setq x (some! x -1 :nil (# (if (> (setq oc (+ oc (cond
 								((/= (logand 0xffffff000000 %0) ink_text) 0)
 								((eql (logand 0xff %0) (ascii-code "(")) -1)
 								((eql (logand 0xff %0) (ascii-code ")")) 1)
-								(0))))) _)) (list syntax))) _)
+								(0)))) 0) _)) (list syntax))) _)
 						(:t	(setq x 0) :nil)))
 					(list buffer_syntax buffer_brackets)))
 				(if y (list x y) '(:nil :nil)))
