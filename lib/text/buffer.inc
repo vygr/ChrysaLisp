@@ -9,7 +9,7 @@
 (env-push)
 
 (bits +dirty_flag 0
-	(bit syntax bracket))
+	(bit syntax bracket found))
 
 (defun intern (l s)
 	(cond ((defq i (find s l)) (elem-get i l)) ((push l s) s)))
@@ -87,7 +87,7 @@
 	(raise :dirty_flags)
 	(when (/= (logand +dirty_flag_syntax dirty_flags) 0)
 		(raise :buffer_line :buffer_syntax :buffer_states
-			:mode :syntax_engine (state :text max_width -1))
+			:mode :syntax_engine (state :text max_width 0))
 		(each (lambda (line syntax states)
 			(setq max_width (max max_width (length line)))
 			(bind '(start_state end_state) (opt states '(:nil :nil)))
@@ -101,9 +101,8 @@
 					(elem-set _ buffer_states
 						(list state (setq state (. syntax_engine :get_state)))))))
 			buffer_line buffer_syntax buffer_states)
-		(if (/= max_width -1) (lower :max_width))
-		(lower :buffer_line :buffer_syntax :buffer_states
-			(:dirty_flags (logand dirty_flags (const (lognot +dirty_flag_syntax))))))
+		(lower :max_width (:dirty_flags (logand dirty_flags
+			(const (lognot +dirty_flag_syntax))))))
 	this)
 
 (defun build-brackets (this)
@@ -122,8 +121,8 @@
 						(0))))
 					syntax 0))))
 			buffer_syntax buffer_brackets)
-		(lower :buffer_syntax :buffer_brackets
-			(:dirty_flags (logand dirty_flags (const (lognot +dirty_flag_bracket))))))
+		(lower (:dirty_flags (logand dirty_flags
+			(const (lognot +dirty_flag_bracket))))))
 	this)
 
 (defclass Buffer (&optional mode syntax) :nil
@@ -457,7 +456,7 @@
 									((eql (logand 0xff %0) (ascii-code "(")) -1)
 									((eql (logand 0xff %0) (ascii-code ")")) 1)
 									(0)))) 0) _)) (list syntax))) _)
-						(:t	(setq x -1) :nil)))
+						(:t (setq x -1) :nil)))
 					(list buffer_syntax buffer_brackets)))
 				(if y (list x y) '(:nil :nil)))
 			('(:nil :nil))))
@@ -496,7 +495,7 @@
 								((eql (logand 0xff %0) (ascii-code "(")) -1)
 								((eql (logand 0xff %0) (ascii-code ")")) 1)
 								(0)))) 0) _)) (list syntax))) _)
-						(:t	(setq x 0) :nil)))
+						(:t (setq x 0) :nil)))
 					(list buffer_syntax buffer_brackets)))
 				(if y (list x y) '(:nil :nil)))
 			('(:nil :nil))))
