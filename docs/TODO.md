@@ -8,6 +8,8 @@ In no particular order but to just to ensure I get thoughts down. I'll keep
 adding to this as I go along. If anybody would like to try helping out, then
 just get in touch.
 
+* Integrate the HOST clipboard and the CL Clipboard service.
+
 * Speed up the bracket matcher with a cache per line of the bracket count.
 
 * Fix the Substr LPS table bug.
