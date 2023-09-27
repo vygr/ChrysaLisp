@@ -34,9 +34,9 @@
 		'(buffer_line buffer_syntax buffer_states buffer_found buffer_brackets)))
 
 (defun insert-line (y line)
-	(each (# (set (penv) %0 (insert (eval %0) y %1)))
+	(each (# (set (penv) %0 (insert (eval %0) y (list %1))))
 		'(buffer_line buffer_syntax buffer_states buffer_found buffer_brackets)
-		`((,line) (,line) (:nil) (:nil) (:nil))))
+		`(,line ,line :nil :nil :nil)))
 
 (defun redo ()
 	(defq idx (length undo_stack))
@@ -423,72 +423,78 @@
 
 	(defmethod :left_bracket ()
 		; (. buffer :left_bracket) -> (x y) | (:nil :nil)
-		(bind '(x y) (.-> (build-brackets this) :get_cursor))
-		(bind '(x y) (. this :constrain x y))
-		(raise :buffer_syntax :buffer_brackets :buffer_line
-			(c 0 ink_text (get :ink_text (get :syntax_engine this))))
-		(unless (eql "" (defq line (elem-get y buffer_line)))
-			(cond
-				((<= x 0) (setq x 0))
-				((>= x (length line)) (setq x (dec (length line))))
-				((eql ")" (elem-get x line)))
-				((eql "(" (elem-get x line)))
-				((setq x (dec x))))
-			(if (eql ")" (elem-get x line))
-				(setq x (dec x))))
-		(setq y (some! (inc y) 0 :nil (lambda (syntax brackets)
-			(cond
-				((< (setq c (+ c (cond
-						((= x -1) brackets)
-						(:t (defq brackets 0 z (min (inc x) (length syntax)))
-							(each! z 0 (# (setq brackets (+ brackets (cond
+		(cond
+			((not (get :mode this))
+				(bind '(x y) (.-> (build-brackets this) :get_cursor))
+				(bind '(x y) (. this :constrain x y))
+				(raise :buffer_syntax :buffer_brackets :buffer_line
+					(c 0 ink_text (get :ink_text (get :syntax_engine this))))
+				(unless (eql "" (defq line (elem-get y buffer_line)))
+					(cond
+						((<= x 0) (setq x 0))
+						((>= x (length line)) (setq x (dec (length line))))
+						((eql ")" (elem-get x line)))
+						((eql "(" (elem-get x line)))
+						((setq x (dec x))))
+					(if (eql ")" (elem-get x line))
+						(setq x (dec x))))
+				(setq y (some! (inc y) 0 :nil (lambda (syntax brackets)
+					(cond
+						((< (setq c (+ c (cond
+								((= x -1) brackets)
+								(:t (defq brackets 0 z (min (inc x) (length syntax)))
+									(each! z 0 (# (setq brackets (+ brackets (cond
+										((/= (logand 0xffffff000000 %0) ink_text) 0)
+										((eql (logand 0xff %0) (ascii-code "(")) -1)
+										((eql (logand 0xff %0) (ascii-code ")")) 1)
+										(0))))) (list syntax)) brackets)))) 0)
+							(setq x (some! 0 -1 :nil (# (if (= 0 (setq c (- c (cond
 								((/= (logand 0xffffff000000 %0) ink_text) 0)
 								((eql (logand 0xff %0) (ascii-code "(")) -1)
 								((eql (logand 0xff %0) (ascii-code ")")) 1)
-								(0))))) (list syntax)) brackets)))) 0)
-					(setq x (some! 0 -1 :nil (# (if (= 0 (setq c (- c (cond
-						((/= (logand 0xffffff000000 %0) ink_text) 0)
-						((eql (logand 0xff %0) (ascii-code "(")) -1)
-						((eql (logand 0xff %0) (ascii-code ")")) 1)
-						(0))))) _)) (list syntax))) _)
-				(:t	(setq x -1) :nil)))
-			(list buffer_syntax buffer_brackets)))
-		(if y (list x y) '(:nil :nil)))
+								(0))))) _)) (list syntax))) _)
+						(:t	(setq x -1) :nil)))
+					(list buffer_syntax buffer_brackets)))
+				(if y (list x y) '(:nil :nil)))
+			('(:nil :nil))))
 
 	(defmethod :right_bracket ()
 		; (. buffer :right_bracket) -> (x y) | (:nil :nil)
-		(bind '(x y) (.-> (build-brackets this) :get_cursor))
-		(bind '(x y) (. this :constrain x y))
-		(defq h (second (. this :get_size)))
-		(raise :buffer_syntax :buffer_brackets :buffer_line
-			(c 0 ink_text (get :ink_text (get :syntax_engine this))))
-		(unless (eql "" (defq line (elem-get y buffer_line)))
-			(cond
-				((<= x 0) (setq x 0))
-				((>= x (length line)) (setq x (dec (length line))))
-				((eql ")" (elem-get x line)))
-				((eql "(" (elem-get x line)))
-				((setq x (dec x))))
-			(if (eql "(" (elem-get x line))
-				(setq x (inc x))))
-		(setq y (some! y h :nil (lambda (syntax brackets)
-			(cond
-				((> (setq c (+ c (cond
-						((= x 0) brackets)
-						(:t (defq brackets 0)
-							(each! x -1 (# (setq brackets (+ brackets (cond
+		(cond
+			((not (get :mode this))
+				(bind '(x y) (.-> (build-brackets this) :get_cursor))
+				(bind '(x y) (. this :constrain x y))
+				(defq h (second (. this :get_size)))
+				(raise :buffer_syntax :buffer_brackets :buffer_line
+					(c 0 ink_text (get :ink_text (get :syntax_engine this))))
+				(unless (eql "" (defq line (elem-get y buffer_line)))
+					(cond
+						((<= x 0) (setq x 0))
+						((>= x (length line)) (setq x (dec (length line))))
+						((eql ")" (elem-get x line)))
+						((eql "(" (elem-get x line)))
+						((setq x (dec x))))
+					(if (eql "(" (elem-get x line))
+						(setq x (inc x))))
+				(setq y (some! y h :nil (lambda (syntax brackets)
+					(cond
+						((> (setq c (+ c (cond
+								((= x 0) brackets)
+								(:t (defq brackets 0)
+									(each! x -1 (# (setq brackets (+ brackets (cond
+										((/= (logand 0xffffff000000 %0) ink_text) 0)
+										((eql (logand 0xff %0) (ascii-code "(")) -1)
+										((eql (logand 0xff %0) (ascii-code ")")) 1)
+										(0))))) (list syntax)) brackets)))) 0)
+							(setq x (some! -1 0 :nil (# (if (= 0 (setq c (- c (cond
 								((/= (logand 0xffffff000000 %0) ink_text) 0)
 								((eql (logand 0xff %0) (ascii-code "(")) -1)
 								((eql (logand 0xff %0) (ascii-code ")")) 1)
-								(0))))) (list syntax)) brackets)))) 0)
-					(setq x (some! -1 0 :nil (# (if (= 0 (setq c (- c (cond
-						((/= (logand 0xffffff000000 %0) ink_text) 0)
-						((eql (logand 0xff %0) (ascii-code "(")) -1)
-						((eql (logand 0xff %0) (ascii-code ")")) 1)
-						(0))))) _)) (list syntax))) _)
-				(:t	(setq x 0) :nil)))
-			(list buffer_syntax buffer_brackets)))
-		(if y (list x y) '(:nil :nil)))
+								(0))))) _)) (list syntax))) _)
+						(:t	(setq x 0) :nil)))
+					(list buffer_syntax buffer_brackets)))
+				(if y (list x y) '(:nil :nil)))
+			('(:nil :nil))))
 
 	(defmethod :find (pattern wmode rmode)
 		; (. buffer :find pattern wmode rmode) -> buffer_found
