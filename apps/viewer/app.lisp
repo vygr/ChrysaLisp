@@ -109,7 +109,7 @@
 
 (defun populate-buffer (file cx cy ax ay sx sy)
 	;create new file buffer ?
-	(defq mode (if (some (# (ends-with %0 file)) +text_types) :t :nil)
+	(defq mode (notany (# (ends-with %0 file)) +text_types)
 		files (. *meta_map* :find :files) key (str file))
 	(unless (. files :find key)
 		(. files :insert key

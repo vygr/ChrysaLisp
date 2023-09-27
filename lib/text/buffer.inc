@@ -92,7 +92,7 @@
 			(setq max_width (max max_width (length line)))
 			(bind '(start_state end_state) (opt states '(:nil :nil)))
 			(cond
-				(mode)
+				((not mode))
 				((and (array? syntax) (eql state start_state))
 					(setq state end_state))
 				(:t (task-slice)
@@ -108,8 +108,8 @@
 (defun build-brackets (this)
 	(raise :dirty_flags)
 	(when (/= (logand +dirty_flag_bracket dirty_flags) 0)
-		(build-syntax this)
-		(unless (get :mode this)
+		(when (get :mode this)
+			(build-syntax this)
 			(raise :buffer_syntax :buffer_brackets)
 			(defq ink_text (get :ink_text (get :syntax_engine this)))
 			(each (lambda (syntax brackets)
@@ -135,10 +135,6 @@
 		:cursor_x 0 :cursor_y 0 :max_width 0 :tab_width 4 :wrap_width 80
 		:mode mode :next_mark -1 :modified :nil
 		:last_pattern :nil :last_wmode :nil :last_rmode :nil)
-
-	(defmethod :set_mode (mode)
-		; (. buffer :set_mode mode) -> buffer
-		(lower :mode) this)
 
 	(defmethod :next_mark ()
 		; (. buffer :next_mark) -> mark
@@ -421,7 +417,7 @@
 	(defmethod :left_bracket ()
 		; (. buffer :left_bracket) -> (x y) | (:nil :nil)
 		(cond
-			((not (get :mode this))
+			((get :mode this)
 				(bind '(x y) (.-> (build-brackets this) :get_cursor))
 				(bind '(x y) (. this :constrain x y))
 				(raise :buffer_syntax :buffer_brackets :buffer_line
@@ -462,7 +458,7 @@
 	(defmethod :right_bracket ()
 		; (. buffer :right_bracket) -> (x y) | (:nil :nil)
 		(cond
-			((not (get :mode this))
+			((get :mode this)
 				(bind '(x y) (.-> (build-brackets this) :get_cursor))
 				(bind '(x y) (. this :constrain x y))
 				(defq h (second (. this :get_size)))

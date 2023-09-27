@@ -184,12 +184,6 @@
 (. buffer :set_cursor x y) -> buffer
 ```
 
-### :set_mode
-
-```code
-(. buffer :set_mode mode) -> buffer
-```
-
 ### :undo
 
 ```code

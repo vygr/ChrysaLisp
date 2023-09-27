@@ -77,7 +77,7 @@
 		:vdu_paper (defq vdu_paper (Vdu)) :vdu_ink (defq vdu_ink (Vdu))
 		:anchor_x 0 :anchor_y 0 :scroll_x 0 :scroll_y 0
 		:find_x 0 :find_y 0 :find_x1 0 :find_y1 0
-		:buffer (Buffer :t) :underlay '()
+		:buffer (Buffer) :underlay '()
 		:color_select +not_selected :color_found +not_selected
 		:color_region +not_selected
 		:vdu_width 80 :vdu_height 40 :min_width 0 :min_height 0)
