@@ -109,18 +109,19 @@
 	(raise :dirty_flags)
 	(when (/= (logand +dirty_flag_bracket dirty_flags) 0)
 		(build-syntax this)
-		(raise :buffer_syntax :buffer_brackets)
-		(defq ink_text (get :ink_text (get :syntax_engine this)))
-		(each (lambda (syntax brackets)
-			(unless brackets
-				(elem-set _ buffer_brackets (reduce
-					(# (+ %0 (cond
-						((/= (logand 0xffffff000000 %1) ink_text) 0)
-						((eql (logand 0xff %1) (ascii-code "(")) -1)
-						((eql (logand 0xff %1) (ascii-code ")")) 1)
-						(0))))
-					syntax 0))))
-			buffer_syntax buffer_brackets)
+		(unless (get :mode this)
+			(raise :buffer_syntax :buffer_brackets)
+			(defq ink_text (get :ink_text (get :syntax_engine this)))
+			(each (lambda (syntax brackets)
+				(unless brackets
+					(elem-set _ buffer_brackets (reduce
+						(# (+ %0 (cond
+							((/= (logand 0xffffff000000 %1) ink_text) 0)
+							((eql (logand 0xff %1) (ascii-code "(")) -1)
+							((eql (logand 0xff %1) (ascii-code ")")) 1)
+							(0))))
+						syntax 0))))
+				buffer_syntax buffer_brackets))
 		(lower (:dirty_flags (logand dirty_flags
 			(const (lognot +dirty_flag_bracket))))))
 	this)
