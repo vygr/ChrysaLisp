@@ -9,7 +9,7 @@
 	(def this :state 1)
 
 	(defmethod :draw ()
-		; (. text :draw) -> text
+		; (. node :draw) -> node
 		(bind '(w h) (. this :get_size))
 		(.super (.-> this (:ctx_set_color (get :color this))
 			(:ctx_filled_box 0 0 w h)) :draw))
