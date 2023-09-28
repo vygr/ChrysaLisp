@@ -10,8 +10,6 @@ just get in touch.
 
 * Integrate the HOST clipboard and the CL Clipboard service.
 
-* Speed up the bracket matcher with a cache per line of the bracket count.
-
 * Fix the Substr LPS table bug.
 
 * Add shift key selection to the Terminal app.
