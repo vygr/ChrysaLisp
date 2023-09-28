@@ -3,6 +3,7 @@
 ;;;;;;;;;;;;;
 
 (import "././button/lisp.inc")
+(import "././node/lisp.inc")
 (import "././flow/lisp.inc")
 (import "././backdrop/lisp.inc")
 (import "lib/text/files.inc")
@@ -36,17 +37,17 @@
 					(def (defq tab (Backdrop)) :min_width toggle_width)
 					(def (defq tab_child (Flow)) :flow_flags +flow_down_fill)
 					(def (defq title_flow (Flow)) :flow_flags +flow_right_fill)
-					(def (defq toggle (Button)) :text "^" :min_width toggle_width :border 0)
+					(def (defq toggle (Button)) :text "^" :min_width toggle_width)
 					(. toggle :connect (. this :get_id))
 					(.-> tab_flow (:add_child tab) (:add_child tab_child))
 					(.-> title_flow (:add_child toggle) (:add_child
-						(. (Button) :connect (get :action_event this))))
+						(. (Node) :connect (get :action_event this))))
 					(.-> node (:add_child title_flow) (:add_child tab_flow))
 					(. root :add_child node)
 					(setq root tab_child)))) (list route))
 		(unless (or (eql (defq file (last route)) ".")
 					(some (# (if (eql (def? :text %0) file) %0)) (. root :children)))
-			(def (defq node (Button)) :text file)
+			(def (defq node (Node)) :text file)
 			(. node :connect (inc (get :action_event this)))
 			(. root :add_child node))
 		this)
@@ -60,7 +61,8 @@
 			(cond
 				((defq node (some (# (if (eql (def? :text %0) branch) %0)) (. root :children)))
 					;existing route
-					(setq root (last (. (last (. node :children)) :children)))
+					(setq root (. node :children))
+					(if (nempty? root) (setq root (last (. (last root) :children))))
 					node)
 				(:t ;new route, so failed
 					:nil))) route))

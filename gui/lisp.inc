@@ -17,6 +17,7 @@
 (import "./tree/lisp.inc")
 (import "./vdu/lisp.inc")
 (import "./button/lisp.inc")
+(import "./node/lisp.inc")
 (import "./label/lisp.inc")
 (import "./path/lisp.inc")
 (import "./canvas/lisp.inc")

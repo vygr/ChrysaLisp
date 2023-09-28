@@ -25,6 +25,8 @@ and Sets can now be elements of the tree.
 Buffer class now hold a relative bracket nesting change cache per line. Much
 faster bracket matching.
 
+New Node widget, a clickable Text widget.
+
 ------
 
 Reminder of how to bridge Lisp subnets over ChrysaLib hubs !
