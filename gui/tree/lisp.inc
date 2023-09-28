@@ -2,7 +2,6 @@
 ; tree widget
 ;;;;;;;;;;;;;
 
-(import "././button/lisp.inc")
 (import "././node/lisp.inc")
 (import "././flow/lisp.inc")
 (import "././backdrop/lisp.inc")
@@ -37,7 +36,7 @@
 					(def (defq tab (Backdrop)) :min_width toggle_width)
 					(def (defq tab_child (Flow)) :flow_flags +flow_down_fill)
 					(def (defq title_flow (Flow)) :flow_flags +flow_right_fill)
-					(def (defq toggle (Button)) :text "^" :min_width toggle_width)
+					(def (defq toggle (Node)) :text "^" :min_width toggle_width)
 					(. toggle :connect (. this :get_id))
 					(.-> tab_flow (:add_child tab) (:add_child tab_child))
 					(.-> title_flow (:add_child toggle) (:add_child
@@ -81,7 +80,7 @@
 		(defq stack (list this))
 		(while (defq node (pop stack))
 			(each (# (cond
-				((and (Button? %0) (find (get :text %0) "^>"))
+				((and (Node? %0) (find (get :text %0) "^>"))
 					(defq flow (last (. (penv (penv %0)) :children)))
 					(. flow :set_flags +view_flag_hiden +view_flag_hiden)
 					(def %0 :text ">"))
@@ -95,7 +94,7 @@
 		(defq stack (list this))
 		(while (defq node (pop stack))
 			(each (# (cond
-				((and (Button? %0) (find (get :text %0) "^>"))
+				((and (Node? %0) (find (get :text %0) "^>"))
 					(defq flow (last (. (penv (penv %0)) :children)))
 					(. flow :set_flags 0 +view_flag_hiden)
 					(def %0 :text "^"))
