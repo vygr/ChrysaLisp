@@ -75,6 +75,7 @@
 	+event_xscroll action-xscroll
 	+event_yscroll action-yscroll
 	+event_file_leaf_action action-file-leaf-action
+	+event_file_folder_action action-file-folder-action
 	+event_tree_action action-tree-action
 	+event_open_leaf_action action-open-leaf-action)
 
