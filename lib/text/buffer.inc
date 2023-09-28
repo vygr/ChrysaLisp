@@ -453,7 +453,7 @@
 									(0)))) 0) _)) (list syntax))) _)
 						(:t (setq x -1) :nil)))
 					(list buffer_syntax buffer_brackets)))
-				(if y (list x y) '(:nil :nil)))
+				(if (and x y) (list x y) '(:nil :nil)))
 			('(:nil :nil))))
 
 	(defmethod :right_bracket ()
@@ -492,7 +492,7 @@
 								(0)))) 0) _)) (list syntax))) _)
 						(:t (setq x 0) :nil)))
 					(list buffer_syntax buffer_brackets)))
-				(if y (list x y) '(:nil :nil)))
+				(if (and x y) (list x y) '(:nil :nil)))
 			('(:nil :nil))))
 
 	(defmethod :find (pattern wmode rmode)
