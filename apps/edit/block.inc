@@ -22,6 +22,10 @@
 	(. *edit* :reflow)
 	(refresh))
 
+(defun action-split ()
+	(. *edit* :split)
+	(refresh))
+
 (defun action-sort ()
 	(. *edit* :sort)
 	(refresh))

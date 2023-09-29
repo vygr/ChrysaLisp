@@ -62,6 +62,7 @@
 	+event_tab_left action-left-tab
 	+event_tab_right action-right-tab
 	+event_reflow action-reflow
+	+event_split action-split
 	+event_paragraph action-select-paragraph
 	+event_block action-select-block
 	+event_bracket_left action-left-bracket
@@ -150,6 +151,7 @@
 	(ascii-code "n") action-next-buffer
 	(ascii-code "N") action-prev-buffer
 	(ascii-code "q") action-reflow
+	(ascii-code "Q") action-split
 	(ascii-code "u") action-to-upper
 	(ascii-code "U") action-to-lower
 	(ascii-code "i") action-invert
@@ -175,7 +177,7 @@
 	action-right-bracket action-right-select action-right-tab action-select-all
 	action-select-block action-select-line action-select-paragraph
 	action-select-word action-sort action-tab action-to-lower action-to-upper
-	action-trim action-undo action-unique action-up action-up-select)
+	action-trim action-undo action-unique action-up action-up-select action-split)
 
 *replace_actions* (list
 	action-replace action-replace-all action-replace-global)

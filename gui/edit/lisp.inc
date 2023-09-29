@@ -406,6 +406,20 @@
 			(.-> this (:set_cursor x y) (:set_anchor x y)))
 		this)
 
+	(defmethod :split ()
+		; (. edit :split) -> edit
+		(undoable
+			(bind '(y y1) (select-paragraph this))
+			(each (lambda (line)
+					(task-slice)
+					(.-> buffer (:insert line) :break))
+				(split (.-> buffer (:set_cursor 0 y) (:cut 0 y1))
+					(const (cat " " (ascii-char +char_lf)))))
+			(bind '(x y) (. buffer :get_cursor))
+			(bind '(x y) (. buffer :constrain x (inc y)))
+			(.-> this (:set_cursor x y) (:set_anchor x y)))
+		this)
+
 	(defmethod :sort ()
 		; (. edit :sort) -> edit
 		(when (selection? this)

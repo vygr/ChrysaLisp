@@ -19,7 +19,7 @@
 	(enum open_folder_action open_leaf_action)
 	(enum undo redo rewind gundo gredo
 		cut copy paste
-		reflow paragraph tab_left tab_right
+		split reflow paragraph tab_left tab_right
 		block bracket_left bracket_right
 		toupper tolower sort unique
 		invert comment)
@@ -47,7 +47,7 @@
 		(ui-tool-bar *main_toolbar* ()
 			(ui-buttons (0xe9fe 0xe99d 0xe9ff 0xe938 0xe971
 				0xea08 0xe9ca 0xe9c9
-				0xe909 0xe90d 0xe90a 0xe90b
+				0xe901 0xe909 0xe90d 0xe90a 0xe90b
 				0xe955 0xe93c 0xe93d
 				0xea36 0xea33 0xea27 0xea28
 				0xea26 0xe9c4) +event_undo))
@@ -250,7 +250,7 @@
 	(def *window* :tip_mbox (elem-get +select_tip select))
 	(ui-tool-tips *main_toolbar*
 		'("undo" "redo" "rewind" "global undo" "global redo"
-		"cut" "copy" "paste" "reflow" "select paragraph"
+		"cut" "copy" "paste" "split" "reflow" "select paragraph"
 		"outdent" "indent" "select form" "start form"
 		"end form" "upper case" "lower case" "sort" "unique"
 		"reverse" "comment"))
