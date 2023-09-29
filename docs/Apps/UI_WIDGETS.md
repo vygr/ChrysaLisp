@@ -145,6 +145,9 @@ Title bar has a single close Button that will send an action event of
 Creates a Window instance, with name (use _ if not required), optional property
 list and nested forms.
 
+This macro creates a Window with a `+flow_down_fill` Flow child, nested forms
+are added to that Flow.
+
 The `(ui-props)` function is used to merge default properties with user
 supplied overrides. For the Window widget you can see root defaults set for
 properties that are not used by the window directly but are defaults for the
@@ -180,6 +183,9 @@ Creates a Grid instance, with name, optional property list and nested forms.
 
 `:grid_width :grid_height`
 
+If `:grid_width` or `:grid_height` equals 0 then the other property will be
+calculated based on the number of child views contained.
+
 ```vdu
 (defmacro ui-grid (n &optional p &rest x)
 	; (ui-grid name [props] [body]) -> grid
@@ -193,6 +199,21 @@ Creates a Flow instance, with name, optional property list and nested forms.
 #### Properties
 
 `:flow_flags :min_width :min_height`
+
+Flow flags defined in `gui/flow/class.inc`.
+
+```
++flow_flag_left +flow_flag_right +flow_flag_up +flow_flag_down
++flow_flag_fillw +flow_flag_fillh +flow_flag_lastw +flow_flag_lasth
++flow_flag_align_hcenter +flow_flag_align_hleft +flow_flag_align_hright
++flow_flag_align_vcenter +flow_flag_align_vtop +flow_flag_align_vbottom
+```
+
+Useful flow combos:
+
+```
++flow_down_fill +flow_up_fill +flow_right_fill +flow_left_fill +flow_stack_fill
+```
 
 ```vdu
 (defmacro ui-flow (n &optional p &rest x)
@@ -283,6 +304,9 @@ application to find a unicode symbol value.
 
 Creates a Label instance, with name, optional property list and nested forms.
 
+Label allows `:flow_flags` that control position and alignment of the label
+text.
+
 #### Properties
 
 `:color :ink_color :text :font :border :min_width :min_height`
@@ -299,6 +323,9 @@ Creates a Label instance, with name, optional property list and nested forms.
 ### (ui-button name [props] [body]) -> button
 
 Creates a Button instance, with name, optional property list and nested forms.
+
+Button allows `:flow_flags` that control position and alignment of the label
+text.
 
 #### Properties
 
@@ -354,8 +381,8 @@ Creates a Textfield instance, with name and optional property list.
 
 #### Properties
 
-`:color :ink_color :text :font :border :hint_color :no_hint_color :hint_text
-:mode :cursor :anchor :min_width :min_height`
+`:color :ink_color :text :clear_text :font :border :hint_color :no_hint_color
+:hint_text :mode :cursor :anchor :min_width :min_height`
 
 ```vdu
 (defmacro ui-textfield (n &optional p)
@@ -385,7 +412,7 @@ Creates a Slider instance, with name and optional property list.
 ### (ui-scroll name flags [props] [body]) -> scroll
 
 Creates a Scroll instance, with name, flags, optional property list and nested
-forms.
+form.
 
 #### Properties
 
@@ -407,6 +434,10 @@ forms.
 #### Properties
 
 `:color :ink_color :style :spacing`
+
+Supported `:style` settings.
+
+`:grid :axis :lines :plain`
 
 ```vdu
 (defmacro ui-backdrop (n &optional p &rest x)
