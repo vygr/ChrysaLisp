@@ -67,8 +67,10 @@
 		; (. button :show_tip) -> button
 		(when (and (not (def? :tip_window this))
 				(defq tip_text (def? :tip_text this)))
-			(def (defq tip_window (Label)) :text tip_text :color +argb_white
-				:font *env_tip_font* :border 0 :flow_flags 0)
+			(def (defq tip_window (Node))
+				:text tip_text
+				:color +argb_white
+				:font *env_tip_font*)
 			(. tip_window :set_flags 0 +view_flag_solid)
 			(bind '(x y w h) (apply view-locate (push (. tip_window :pref_size) :bottom)))
 			(gui-add-front (. tip_window :change x y w h))
