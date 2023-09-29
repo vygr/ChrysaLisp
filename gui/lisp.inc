@@ -46,14 +46,14 @@
 	`(setq ,p (cat ',x (opt ,p '()))))
 
 (defmacro ui-root (n c &optional p &rest x)
-	; (ui-root name func [props] [body]) -> view
+	; (ui-root name constructor [props] [body]) -> view
 	(setq p (ui-merge-props p))
 	(if (/= 0 (length p))
 		`(progn (defq _ui (list (defq ,n ,c))) (def ,n ~p) ~x (setq _ui :nil))
 		`(progn (defq _ui (list (defq ,n ,c))) ~x (setq _ui :nil))))
 
 (defmacro ui-element (n c &optional p &rest x)
-	; (ui-element name func [props] [body]) -> view
+	; (ui-element name constructor [props] [body]) -> view
 	(setq p (ui-merge-props p))
 	(if (/= 0 (length p))
 		`(progn (. (elem-get -3 (push _ui (defq ,n ,c))) :add_child ,n) (def ,n ~p) ~x (pop _ui))
