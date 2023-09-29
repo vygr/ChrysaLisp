@@ -65,8 +65,10 @@
 	(ascii-code "c") action-copy
 	(ascii-code "=") action-maximise
 	(ascii-code "-") action-minimise
-	(ascii-code "]") action-scale-up
-	(ascii-code "[") action-scale-down
+	(ascii-code "{") action-scale-down
+	(ascii-code "}") action-scale-up
+	(ascii-code "[") action-left-bracket
+	(ascii-code "]") action-right-bracket
 	(ascii-code "9") action-left-bracket
 	(ascii-code "0") action-right-bracket)
 

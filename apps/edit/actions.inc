@@ -157,10 +157,10 @@
 	(ascii-code "i") action-invert
 	(ascii-code "o") action-sort
 	(ascii-code "O") action-unique
-	(ascii-code "]") action-scale-up
-	(ascii-code "[") action-scale-down
-	(ascii-code "{") action-left-bracket
-	(ascii-code "}") action-right-bracket)
+	(ascii-code "{") action-scale-down
+	(ascii-code "}") action-scale-up
+	(ascii-code "[") action-left-bracket
+	(ascii-code "]") action-right-bracket)
 
 *recorded_actions* (list
 	action-backspace action-break action-comment action-copy action-cut

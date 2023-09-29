@@ -22,8 +22,8 @@
 *key_map_shift* (Fmap-kv)
 
 *key_map_control* (Fmap-kv
-	(ascii-code "]") action-scale-up
-	(ascii-code "[") action-scale-down
+	(ascii-code "{") action-scale-down
+	(ascii-code "}") action-scale-up
 	(ascii-code "=") action-maximise
 	(ascii-code "-") action-minimise))
 
