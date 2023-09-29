@@ -39,7 +39,6 @@
 	; overide the default 'this' env with a View component
 	(defq super this this ((const (ffi _ "gui/view/lisp_create" 0))))
 	(each (lambda ((key val)) (def this key val)) (tolist super))
-	(def this :targets (array))
 
 	(deffimethod :find_id "gui/view/lisp_find_id")
 		; (. view :find_id target_id) -> :nil | target_view
@@ -212,17 +211,20 @@
 
 	(defmethod :connect (id)
 		; (. view :connect id) -> view
-		(push (get :targets this) id)
+		(unless (defq targets (def? :targets this))
+			(def this :targets (setq targets (array))))
+		(push targets id)
 		this)
 
 	(defmethod :emit ()
 		; (. view :emit) -> view
-		(when (defq mbox (. this :find_owner))
+		(when (and (defq targets (def? :targets this))
+				(defq mbox (. this :find_owner)))
 			(defq source_id (. this :get_id))
 			(each (lambda (id)
 				(mail-send mbox (setf-> (str-alloc +ev_msg_action_size)
 					(+ev_msg_type +ev_type_action)
 					(+ev_msg_target_id id)
-					(+ev_msg_action_source_id source_id)))) (get :targets this)))
+					(+ev_msg_action_source_id source_id)))) targets))
 		this)
 	)
