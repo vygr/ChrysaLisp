@@ -17,10 +17,12 @@
 			(when (>= (defq l (length text)) (defq j (length pattern)))
 				(defq i 0)
 				(while (<= j l)
-					(if (every (const eql) (slice i j text) pattern)
-						(push out (list i j)))
-					(setq i (inc i) j (inc j))))
-		(list out '())))
+					(cond
+						((every (const eql) (slice i j text) pattern)
+							(push out (list i j))
+							(setq i j j (+ j (length pattern))))
+						((setq i (inc i) j (inc j)))))))
+		(list out '()))
 
 	(defmethod :match? (text pattern &optional lps)
 		; (. substr :match? text pattern &optional meta) -> :t | :nil
