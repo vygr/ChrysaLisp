@@ -34,7 +34,7 @@ property would be a good candidate to be searched for with `(def?)`.
 Use of `(set this :color +argb_red)` and `(def this :color +argb_black)`
 likewise work exactly as they do in Lisp source programs. `(set)` will search
 the tree, `(def)` will not. All the mechanisms described in the properties
-section of the `ENVIRONMENT` document apply to UI trees !
+section of the `ENVIRONMENT.md` document apply to UI trees !
 
 ## View class
 
@@ -227,7 +227,7 @@ Creates a Tree instance, with name, base event id and optional property list.
 
 #### Properties
 
-`:action_event :border :font`
+`:action_event :font`
 
 ```vdu
 (defmacro ui-tree (n e &optional p)
