@@ -188,7 +188,7 @@
 	; (ui-tool-tips toolbar tips)
 	(each (# (def %0 :tip_text %1)) (. toolbar :children) tips))
 
-;; (defun ui-save (view stream)
+;; (defun ui-save (stream view)
 ;;     (defq tree (Lmap-kv :type (last (. view :type_of))) stack (list view tree))
 ;;     (while (defq props (pop stack) view (pop stack))
 ;;         (each (lambda ((k v))
