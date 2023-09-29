@@ -305,7 +305,7 @@ application to find a unicode symbol value.
 Creates a Label instance, with name, optional property list and nested forms.
 
 Label allows `:flow_flags` that control position and alignment of the label
-text.
+text, by default, set to `+flow_flag_right +flow_flag_align_vcenter`.
 
 #### Properties
 
@@ -325,7 +325,8 @@ text.
 Creates a Button instance, with name, optional property list and nested forms.
 
 Button allows `:flow_flags` that control position and alignment of the label
-text.
+text, by default, set to `+flow_flag_down +flow_flag_align_hcenter
++flow_flag_align_vcenter`.
 
 #### Properties
 
@@ -412,7 +413,7 @@ Creates a Slider instance, with name and optional property list.
 ### (ui-scroll name flags [props] [body]) -> scroll
 
 Creates a Scroll instance, with name, flags, optional property list and nested
-form.
+forms.
 
 #### Properties
 
