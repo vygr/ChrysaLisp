@@ -26,7 +26,7 @@
 (defq +vdu_min_width 40 +vdu_min_height 20 +vdu_max_width 100
 	+vdu_max_height 46 +vdu_line_width 5 +margin 2
 	+not_whole_word_chars (cat " .,;'`(){}[]/" (ascii-char 34))
-	+text_types ''(".md" ".txt") +file_types ''(".lisp" ".inc" ".vp" ".md" ".txt"))
+	+text_types ''(".md" ".txt") +file_types ''(".lisp" ".inc" ".vp" ".md" ".txt" ".tre"))
 
 (ui-window *window* (:color +argb_grey1)
 	(ui-title-bar *title* "Viewer" (0xea19 0xea1b 0xea1a) +event_close)
