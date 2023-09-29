@@ -300,6 +300,12 @@
 (. edit :sort) -> edit
 ```
 
+### :split
+
+```code
+(. edit :split) -> edit
+```
+
 ### :tab
 
 ```code
