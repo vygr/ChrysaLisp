@@ -419,6 +419,18 @@ forms.
 
 `:vslider :hslider :child :min_width :min_height`
 
+Scroll flags defined in `gui/scroll/class.inc`.
+
+```
++scroll_flag_vertical +scroll_flag_horizontal
+```
+
+Useful scroll combos:
+
+```
++scroll_flag_both
+```
+
 ```vdu
 (defmacro ui-scroll (n f &optional p &rest x)
 	; (ui-scroll name flags [props] [body]) -> scroll
