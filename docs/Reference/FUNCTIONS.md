@@ -1600,7 +1600,7 @@ stop a child
 ### ui-element
 
 ```code
-(ui-element name func [props] [body]) -> view
+(ui-element name constructor [props] [body]) -> view
 ```
 
 ### ui-flow
@@ -1648,7 +1648,7 @@ stop a child
 ### ui-root
 
 ```code
-(ui-root name func [props] [body]) -> view
+(ui-root name constructor [props] [body]) -> view
 ```
 
 ### ui-scroll
