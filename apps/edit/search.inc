@@ -65,13 +65,13 @@
 				(refresh) :t))))
 
 (defun action-set-find-text ()
+	(defq text "")
 	(when (selection?)
 		(bind '(ax ay) (. *edit* :get_anchor))
-		(when (> (length (defq text
-				(split (.-> *edit* :get_buffer (:copy ax ay)) (ascii-char +char_lf)))) 0)
-			(setq text (elem-get 0 text))
-			(.-> *find_text* (:set_text text) :layout :dirty)
-			(refresh))))
+		(when (defq lines (split (.-> *edit* :get_buffer (:copy ax ay)) (ascii-char +char_lf)))
+			(setq text (first lines))))
+	(.-> *find_text* (:set_text text) :layout :dirty)
+	(refresh))
 
 (defun build-replace (found rep_text rep_matchs sx sy sx1)
 	(when (< sy (length found))
