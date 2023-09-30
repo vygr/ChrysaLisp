@@ -29,9 +29,8 @@
 			(# (if (find %1 "^$.*+?\|[](){}")
 				(push %0 "\")) (push %0 %1)) _p (list)))))
 	(defq _e (if (or _w _r) +regexp +substr)
-		_p (if _w (cat "{" _p "}") _p)
-		_m (. _e :compile _p))
-	(list _e _p _m))
+		_p (if _w (cat "{" _p "}") _p))
+	(list _e _p (. _e :compile _p)))
 
 ;module
 (export-symbols
