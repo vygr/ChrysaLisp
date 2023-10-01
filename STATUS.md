@@ -4,6 +4,11 @@
 
 ------
 
+Font app now shows tooltips for the character codes. A click on the character
+button copies the tip text to the clipboard.
+
+------
+
 Editor now has global macro playback to EOF ! Really powerful stuff.
 
 Editor block invert action.

@@ -3,20 +3,18 @@
 (import "class/lisp.inc")
 (import "gui/lisp.inc")
 (import "lib/text/files.inc")
+(import "././clipboard/app.inc")
 
 (enums +event 0
 	(enum close)
-	(enum prev next))
+	(enum prev next)
+	(enum copy))
 
 (enums +select 0
 	(enum main tip))
 
 (defun num-to-hex-str (_)
-	(cat "0x"
-		(num-to-char (logand 0xf (>> _ 12)))
-		(num-to-char (logand 0xf (>> _ 8)))
-		(num-to-char (logand 0xf (>> _ 4)))
-		(num-to-char (logand 0xf _))))
+	(cat "0x" (short-to-hex-str _)))
 
 (defun win-refresh (i)
 	(defq ctf (elem-get (setq index i) fonts) font (create-font ctf 42) grid_width 8 grid_height 0
@@ -30,8 +28,13 @@
 				:border 0 :font (const *env_small_terminal_font*) :text (num-to-hex-str c))
 			(. symbol_grid :add_child l)
 			(each (lambda (c)
-				(def (defq l (Label)) :border -1 :flow_flags  +flow_flag_align_hcenter :text (num-to-utf8 c))
-				(. symbol_grid :add_child l)) (range c (+ c grid_width)))) (range 0 n)))
+					(def (. (defq l (Button)) :connect +event_copy)
+						:border 1
+						:flow_flags  +flow_flag_align_hcenter
+						:text (num-to-utf8 c)
+						:tip_text (num-to-hex-str c))
+					(. symbol_grid :add_child l))
+				(range c (+ c grid_width)))) (range 0 n)))
 	(def symbol_grid :grid_width (inc grid_width) :grid_height grid_height
 		:color (const *env_toolbar_col*) :font font)
 	(bind '(w h) (. symbol_grid :pref_size))
@@ -71,6 +74,9 @@
 				(setq id :nil))
 			((<= +event_prev id +event_next)
 				(win-refresh (% (+ index (dec (* 2 (- id +event_prev))) (length fonts)) (length fonts))))
+			((= +event_copy id)
+				(clipboard-put (get :tip_text
+					(. *window* :find_id (getf *msg* +ev_msg_action_source_id)))))
 			(:t (. *window* :event *msg*))))
 	(free-select select)
 	(gui-sub *window*))
