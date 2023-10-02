@@ -49,19 +49,20 @@
 			(:t ;no active pipe
 				(defq prompt_len (length *env_terminal_prompt*)
 					cmd (slice prompt_len -1 (. buffer :get_text_line y)))
-				;push new line history entry if not same as last entry
-				(unless (eql cmd "")
-					(bind '(history) (gather *meta_map* :history))
-					(and (> (length (push history cmd)) 1)
-						(eql (elem-get -3 history) cmd)
-						(pop history))
-					(setq *history_idx* (length history)))
 				(. buffer :paste (const (cat (ascii-char +char_lf) (ascii-char +char_lf))))
 				(cond
 					((> (length cmd) 0)
 						;start pipe
 						(catch (setq *pipe* (Pipe cmd *select*)) (progn (setq *pipe* :nil) :t))
-						(unless *pipe*
+						(if *pipe*
+							;push new line history entry if not same as last entry
+							(unless (eql cmd "")
+								(bind '(history) (gather *meta_map* :history))
+								(and (> (length (push history cmd)) 1)
+									(eql (elem-get -3 history) cmd)
+									(pop history))
+								(setq *history_idx* (length history)))
+							;error with pipe
 							(. buffer :paste (cat "Pipe Error !"
 								(ascii-char +char_lf) (ascii-char +char_lf)
 								*env_terminal_prompt*))))
