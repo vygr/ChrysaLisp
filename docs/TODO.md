@@ -14,9 +14,6 @@ just get in touch.
 
 * Add shift key selection to the Terminal app.
 
-* Add dynamic font scaling `cntrl-[ ]` to the Terminal app. Toolbar buttons for
-common sizes, 80x40, 160x80 etc.
-
 * Docs app needs some love. Toolbar with forward and back button etc. Auto
 indexing on load or index file created by the doc builder.
 

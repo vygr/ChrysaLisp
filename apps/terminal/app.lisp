@@ -13,9 +13,11 @@
 (enums +select 0
 	(enum main tip pipe))
 
+(bind '(+edit_font +edit_size) (font-info *env_editor_font*))
+
 (defq +vdu_min_width 60 +vdu_min_height 40
 	+vdu_max_width 120 +vdu_max_height 40
-	+state_filename "terminal_state.tre" *meta_map* (Fmap 31))
+	+state_filename "terminal_state.tre")
 
 (ui-window *window* (:color 0xc0000000)
 	(ui-title-bar *title* "Terminal" (0xea19 0xea1b 0xea1a) +event_close)
@@ -102,13 +104,16 @@
 	(ui-tool-tips *main_toolbar*
 		'("copy" "paste" "select paragraph")))
 
+(defun page-scale (s)
+	(n2i (* (n2f s) *page_scale*)))
+
 ;import actions, bindings and app ui classes
 (import "./actions.inc")
 
 (defun main ()
 	(defq *select* (alloc-select +select_size)
 		*cursor_x* 0 *cursor_y* 0 *running* :t *pipe* :nil
-		*edit* (Terminal-edit)
+		*page_scale* 1.0 *edit* (Terminal-edit)
 		*meta_map* :nil *history_idx* (state-load))
 	(. *edit* :set_select_color +argb_green6)
 	(def *edit* :min_width +vdu_min_width :min_height +vdu_min_height

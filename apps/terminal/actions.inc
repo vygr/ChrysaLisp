@@ -50,6 +50,8 @@
 	(ascii-code "P") action-copy-paragraph
 	(ascii-code "c") action-copy
 	(ascii-code "v") action-paste
+	(ascii-code "{") action-scale-down
+	(ascii-code "}") action-scale-up
 	(ascii-code "=") action-maximise
 	(ascii-code "-") action-minimise))
 
