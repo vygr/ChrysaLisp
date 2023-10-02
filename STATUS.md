@@ -7,6 +7,8 @@
 Font app now shows tooltips for the character codes. A click on the character
 button copies the tip text to the clipboard.
 
+Terminal app saves comman history to `terminal_state.tre`.
+
 ------
 
 Editor now has global macro playback to EOF ! Really powerful stuff.

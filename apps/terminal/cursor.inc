@@ -34,13 +34,14 @@
 (defun action-up ()
 	(unless *pipe*
 		(input-cursor
+			(bind '(history) (gather *meta_map* :history))
 			(.-> buffer
 				(:set_cursor 0 y)
 				(:delete (length (. buffer :get_text_line y))))
 			(defq cmd "")
 			(setq *history_idx* (max 0 (dec *history_idx*)))
-			(when (< *history_idx* (length *history*))
-				(setq cmd (elem-get *history_idx* *history*)))
+			(when (< *history_idx* (length history))
+				(setq cmd (elem-get *history_idx* history)))
 			(. buffer :insert (cat *env_terminal_prompt* cmd)))
 		(. *edit* :clear_selection)
 		(refresh)))
@@ -48,13 +49,14 @@
 (defun action-down ()
 	(unless *pipe*
 		(input-cursor
+			(bind '(history) (gather *meta_map* :history))
 			(.-> buffer
 				(:set_cursor 0 y)
 				(:delete (length (. buffer :get_text_line y))))
 			(defq cmd "")
-			(setq *history_idx* (min (inc *history_idx*) (length *history*)))
-			(when (< *history_idx* (length *history*))
-				(setq cmd (elem-get *history_idx* *history*)))
+			(setq *history_idx* (min (inc *history_idx*) (length history)))
+			(when (< *history_idx* (length history))
+				(setq cmd (elem-get *history_idx* history)))
 			(. buffer :insert (cat *env_terminal_prompt* cmd)))
 		(. *edit* :clear_selection)
 		(refresh)))

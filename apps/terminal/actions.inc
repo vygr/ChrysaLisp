@@ -10,6 +10,7 @@
 (import "./edit.inc")
 (import "././edit/select.inc")
 (import "./clipboard.inc")
+(import "./state.inc")
 (import "./ui.inc")
 
 (defq
@@ -54,7 +55,8 @@
 
 ;module
 (export-symbols
-	*event_map* *key_map* *key_map_shift* *key_map_control* action-insert)
+	*event_map* *key_map* *key_map_shift* *key_map_control*
+	action-insert state-load state-save)
 (export-classes
 	Viewer-edit Terminal-edit)
 (env-pop)

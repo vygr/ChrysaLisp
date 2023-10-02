@@ -16,3 +16,4 @@ chrysalisp.exe
 *.d
 *.dll
 *editor_state.tre
+*terminal_state.tre

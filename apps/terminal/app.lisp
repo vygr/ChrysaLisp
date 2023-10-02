@@ -15,7 +15,7 @@
 
 (defq +vdu_min_width 60 +vdu_min_height 40
 	+vdu_max_width 120 +vdu_max_height 40
-	*meta_map* (Fmap 31))
+	+state_filename "terminal_state.tre" *meta_map* (Fmap 31))
 
 (ui-window *window* (:color 0xc0000000)
 	(ui-title-bar *title* "Terminal" (0xea19 0xea1b 0xea1a) +event_close)
@@ -108,7 +108,8 @@
 (defun main ()
 	(defq *select* (alloc-select +select_size)
 		*cursor_x* 0 *cursor_y* 0 *running* :t *pipe* :nil
-		*history* (list) *history_idx* 0 *edit* (Terminal-edit))
+		*edit* (Terminal-edit)
+		*meta_map* :nil *history_idx* (state-load))
 	(. *edit* :set_select_color +argb_green6)
 	(def *edit* :min_width +vdu_min_width :min_height +vdu_min_height
 		:vdu_width +vdu_min_width :vdu_height +vdu_min_height :font *env_terminal_font*)
@@ -164,5 +165,6 @@
 			(:t ;gui event
 				(. *window* :event *msg*))))
 	(if *pipe* (. *pipe* :close))
+	(state-save)
 	(free-select *select*)
 	(gui-sub *window*))
