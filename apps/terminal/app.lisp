@@ -13,7 +13,7 @@
 (enums +select 0
 	(enum main tip pipe))
 
-(bind '(+edit_font +edit_size) (font-info *env_editor_font*))
+(bind '(+edit_font +edit_size) (font-info *env_terminal_font*))
 
 (defq +vdu_min_width 60 +vdu_min_height 40
 	+vdu_max_width 120 +vdu_max_height 40
