@@ -10,7 +10,11 @@
 	(when (defq stream (file-stream (cat *env_home* +state_filename) +file_open_write))
 		(bind '(old) (gather meta_map :history))
 		(bind '(current) (gather *meta_map* :history))
-		(each (# (unless (find %0 old) (push old %0))) current)
+		(each (# (if (defq i (find %0 old))
+			;old entry so pull to front
+			(setq old (erase old i (inc i))))
+			(push old %0)) current)
+		(scatter meta_map :history old)
 		(tree-save stream meta_map)))
 
 (defun state-load ()
