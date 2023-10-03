@@ -18,7 +18,8 @@
 	(defq default (Emap-kv :files (Fmap 101)))
 	(setq *meta_map* default *open_files* (list))
 	(when (defq stream (file-stream (cat *env_home* +state_filename)))
-		(setq *meta_map* (tree-load stream))
+		(catch (setq *meta_map* (tree-load stream))
+			(progn (setq *meta_map* default) :t))
 		(bind '(file find_txt replace_txt files macros wwords regx)
 			(gather *meta_map* :file :find :replace :files
 				:macros :whole_words :regexp))
