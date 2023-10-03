@@ -4,9 +4,10 @@
 
 (defun state-save ()
 	;save terminal state, merges in
-	(defq meta_map (Emap-kv :history (list)))
+	(defq default (Emap-kv :history (list)) meta_map default)
 	(when (defq stream (file-stream (cat *env_home* +state_filename)))
-		(setq meta_map (tree-load stream)))
+		(catch (setq meta_map (tree-load stream))
+			(progn (setq meta_map default) :t)))
 	(when (defq stream (file-stream (cat *env_home* +state_filename) +file_open_write))
 		(bind '(old) (gather meta_map :history))
 		(bind '(current) (gather *meta_map* :history))
@@ -22,6 +23,7 @@
 	(defq default (Emap-kv :history (list)))
 	(setq *meta_map* default)
 	(when (defq stream (file-stream (cat *env_home* +state_filename)))
-		(setq *meta_map* (tree-load stream)))
+		(catch (setq *meta_map* (tree-load stream))
+			(progn (setq *meta_map* default) :t)))
 	(bind '(history) (gather *meta_map* :history))
 	(length history))
