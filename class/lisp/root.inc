@@ -694,7 +694,7 @@
 
 (defun num-to-char (_)
 	; (num-to-char num) -> char
-	(elem-get _ "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"))
+	(elem-get _ "0123456789abcdefghijklmnopqrstuvwxyz"))
 
 (defun str-as-num (_)
 	; (str-as-num str) -> num
