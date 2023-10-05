@@ -17,16 +17,17 @@
 	;:r1-:r14
 
 	(def-vars
-		(ptr this stream list ast)
+		(ptr this stream list)
 		(int char))
 
 	(vp-def (this stream c v1 v2))
 
 	(push-scope)
-	(entry 'lisp :read_list {this, stream, char})
+	(entry 'lisp :read_list `(,this ,stream ,c))
+	(assign `(,this ,stream) {this, stream})
 
 	;skip initial "("
-	(call 'lisp :read_char {this, stream, char} {_, char})
+	(call 'lisp :read_char `(,this ,stream ,c) {_, char})
 
 	(call 'list :create :nil {list})
 	(loop-start)
@@ -45,23 +46,32 @@
 		(breakif `(,c = -1) `(,c = +char_rrb))
 
 		(assign {this, stream} `(,this ,stream))
-		(call 'lisp :read `(,this ,stream ,c) {_, ast, char})
-		(errorif (cat {ast->obj_vtable = @} (f-path 'error :vtable)) 'error)
-		(call 'list :push_back {list, ast})
+		(call 'lisp :read `(,this ,stream ,c) `(_ item ,c))
+		(assign `(,c) {char})
+		(assign `((,item obj_vtable)) `(,v1))
+		(f-bind 'error :vtable v2)
+		(errorif `(,v1 = ,v2) 'error)
+		(defq in (method-input 'list :push_back))
+		(assign {list} (slice 0 1 in))
+		(assign `(,item) (slice 1 -1 in))
+		(call 'list :push_back in)
 	(loop-end)
 
 	;skip trailing ")"
-	(call 'stream :read_char {stream} {_, char})
+	(call 'stream :read_char {stream} `(_ ,c))
 
-(vp-label 'funcexit)
-	(exit 'lisp :read_list {this, list, char})
+	(defq out (method-output 'lisp :read_list))
+	(assign {this, list} (slice 0 2 out))
+	(assign `(,c) (slice 2 -1 out))
+	(exit 'lisp :read_list out)
 	(return)
 
 (errorcase
 (vp-label 'error)
+	(assign `(,item) {stream})
 	(call 'obj :deref {list})
-	(assign {ast} {list})
-	(goto 'funcexit))
+	(exit 'lisp :read_list {this, stream, char})
+	(return))
 
 	(pop-scope-syms)
 
