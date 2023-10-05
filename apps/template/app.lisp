@@ -20,7 +20,7 @@
 	(ui-title-bar *title* "Template" (0xea19 0xea1b 0xea1a) +event_close)
 	(ui-flow _ (:flow_flags +flow_right_fill)
 		(ui-tool-bar *main_toolbar* ()
-			(ui-buttons (0xe9fe 0xe99d 0xe9ff 0xea08 0xe9ca 0xe9c9) +event_undo))
+			(ui-buttons (0xe9fe 0xe99d 0xe9ff 0xea08 0xe9c9 0xe9ca) +event_undo))
 		(ui-backdrop _ (:color (const *env_toolbar_col*))))
 	(ui-backdrop *main_widget* (:color +argb_black :min_width 512 :min_height 256
 			:ink_color +argb_white :spacing 16 :style :grid)))

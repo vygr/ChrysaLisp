@@ -32,7 +32,7 @@
 	(ui-title-bar *title* "Viewer" (0xea19 0xea1b 0xea1a) +event_close)
 	(ui-flow _ (:flow_flags +flow_right_fill)
 		(ui-tool-bar *main_toolbar* ()
-			(ui-buttons (0xe9ca 0xe90d 0xe955 0xe93c 0xe93d) +event_copy))
+			(ui-buttons (0xe9c9 0xe90d 0xe955 0xe93c 0xe93d) +event_copy))
 		(ui-tool-bar *find_toolbar* (:color (const *env_toolbar2_col*))
 			(ui-buttons (0xe9cd 0xe9a8 0xe914 0xe91b) +event_whole_words))
 		(. (ui-textfield *find_text* (:color +argb_white

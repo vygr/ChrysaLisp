@@ -23,7 +23,7 @@
 	(ui-title-bar *title* "Terminal" (0xea19 0xea1b 0xea1a) +event_close)
 	(ui-flow _ (:flow_flags +flow_right_fill)
 		(ui-tool-bar *main_toolbar* ()
-			(ui-buttons (0xe9ca 0xe9c9 0xe90d) +event_copy))
+			(ui-buttons (0xe9c9 0xe9ca 0xe90d) +event_copy))
 		(ui-backdrop _ (:color (const *env_toolbar_col*))))
 	(ui-flow _ (:flow_flags +flow_left_fill)
 		(. (ui-slider *yslider*) :connect +event_yscroll)
