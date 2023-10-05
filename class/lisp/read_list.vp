@@ -31,17 +31,7 @@
 	(call 'list :create :nil {list})
 	(loop-start)
 		;skip white space/comments
-		(assign {char} `(,c))
-		(loop-start)
-			(assign {this} `(,this))
-			(loop-while `(,c <= +char_space) `(,c /= -1))
-				(assign {stream} `(,stream))
-				(call 'lisp :read_char `(,this ,stream ,c) `(,this ,c))
-			(loop-end)
-			(breakif `(,c /= +char_semi))
-			(call 'stream :skip_not {stream, +char_lf} '(s))
-			(call 'stream :read_char `(,s) `(_ ,c))
-		(loop-end)
+		(call 'lisp :read_ws {this, stream, char} `(,this ,stream ,c))
 		(breakif `(,c = -1) `(,c = +char_rrb))
 
 		(assign {this, stream} `(,this ,stream))
