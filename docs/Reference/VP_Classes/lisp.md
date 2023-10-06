@@ -462,21 +462,6 @@ trashes
 :r1-:r14
 ```
 
-### :read_list -> class/lisp/read_list
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = stream object (ptr)
-:r2 = next char (uint)
-outputs
-:r0 = lisp object (ptr)
-:r1 = list object (ptr)
-:r2 = next char (uint)
-trashes
-:r1-:r14
-```
-
 ### :read_num -> class/lisp/read_num
 
 ```code
@@ -492,7 +477,7 @@ trashes
 :r1-:r14
 ```
 
-### :read_rmacro -> class/lisp/read_rmacro
+### :read_quasi -> class/lisp/read_quasi
 
 ```code
 inputs
@@ -533,21 +518,6 @@ inputs
 outputs
 :r0 = lisp object (ptr)
 :r1 = return value object (ptr)
-:r2 = next char (uint)
-trashes
-:r1-:r14
-```
-
-### :read_ws -> class/lisp/read_ws
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = stream object (ptr)
-:r2 = next char (uint)
-outputs
-:r0 = lisp object (ptr)
-:r1 = stream object (ptr)
 :r2 = next char (uint)
 trashes
 :r1-:r14

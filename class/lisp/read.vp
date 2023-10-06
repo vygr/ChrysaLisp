@@ -1,46 +1,8 @@
 (include "lib/asm/func.inc")
 (include "./class.inc")
 (include "././stream/class.inc")
+(include "././sym/class.inc")
 (include "lib/consts/chars.inc")
-
-(def-method 'lisp :read_ws)
-	;inputs
-	;:r0 = lisp object (ptr)
-	;:r1 = stream object (ptr)
-	;:r2 = next char (uint)
-	;outputs
-	;:r0 = lisp object (ptr)
-	;:r1 = stream object (ptr)
-	;:r2 = next char (uint)
-	;trashes
-	;:r1-:r14
-
-	(def-vars
-		(ptr this stream))
-
-	(vp-def (this stream c))
-
-	(push-scope)
-	(entry 'lisp :read_ws `(,this ,stream ,c))
-	(assign `(,this ,stream) {this, stream})
-
-	;skip white space and comments
-	(loop-start)
-		(loop-while `(,c <= +char_space) `(,c /= -1))
-			(call 'lisp :read_char `(,this ,stream ,c) `(,this ,c))
-			(assign {stream} `(,stream))
-		(loop-end)
-		(breakif `(,c /= +char_semi))
-		(call 'stream :skip_not `(,stream +char_lf) '(s))
-		(call 'stream :read_char `(,s) `(,stream ,c))
-		(assign {this} `(,this))
-	(loop-end)
-
-	(exit 'lisp :read `(,this ,stream ,c))
-	(pop-scope)
-	(return)
-
-(def-func-end)
 
 (def-method 'lisp :read)
 	;inputs
@@ -54,57 +16,99 @@
 	;trashes
 	;:r1-:r14
 
-	(vp-def (this stream c tmp))
+	(def-vars
+		(ptr this stream list item)
+		(int c) (uint start))
 
-	(entry 'lisp :read `(,this ,stream ,c))
+	(vp-def (this stream c item) '(:r0 :r1 :r2 :r1))
 
-	;skip white space and comments
-	(call 'lisp :read_ws `(,this ,stream ,c) `(,this ,stream ,c))
+	(push-scope)
+	(entry 'lisp :read {this, stream, c})
 
-	;what are we reading ?
-	(switch)
-	(vpcase `(,c = +char_lrb))
-		(jump 'lisp :read_list `(,this ,stream ,c))
-	(vpcase `(,c >= +char_0) `(,c <= +char_9))
-		(jump 'lisp :read_num `(,this ,stream ,c))
-	(vpcase `(,c = +char_minus))
-		(jump 'lisp :read_num `(,this ,stream ,c))
-	(vpcase `(,c = +char_double_quote))
-		(jump 'lisp :read_str `(,this ,stream ,c))
-	(vpcase `(,c = +char_lcb))
-		(jump 'lisp :read_str `(,this ,stream +char_rcb))
-	(vpcase `(,c = +char_quote))
-		(jump 'lisp :read_rmacro `(,this ,stream ,c (,this lisp_sym_quote)))
-	(vpcase `(,c = +char_tick))
-		(jump 'lisp :read_rmacro `(,this ,stream ,c (,this lisp_sym_qquote)))
-	(vpcase `(,c = +char_comma))
-		(jump 'lisp :read_rmacro `(,this ,stream ,c (,this lisp_sym_unquote)))
-	(vpcase `(,c = +char_tilde))
-		(jump 'lisp :read_rmacro `(,this ,stream ,c (,this lisp_sym_splicing)))
-	(vpcase `(,c = -1))
-		(assign `((,this lisp_sym_nil)) `(,stream))
-		(class/obj/ref stream tmp)
-		(break)
+	(call 'list :create {} {list})
+	(call 'array :get_length {this->lisp_stack} {_, start})
+
+	(loop-start)
+		;skip white space and comments
+		(assign {this, stream, c} `(,this ,stream ,c))
+		(loop-start)
+			(loop-while `(,c <= +char_space) `(,c /= -1))
+				(call 'lisp :read_char `(,this ,stream ,c) `(,this ,c))
+				(assign {stream} `(,stream))
+			(loop-end)
+			(breakif `(,c /= +char_semi))
+			(call 'stream :skip_not `(,stream +char_lf) '(s))
+			(call 'stream :read_char `(,s) `(,stream ,c))
+			(assign {this} `(,this))
+		(loop-end)
+		(assign `(,c) {c})
+
+		;what are we reading ?
+		(switch)
+		(vpcase `(,c = +char_lrb))
+			(call 'lisp :read_char `(,this ,stream ,c) {_, c})
+			(call 'array :push_back {this->lisp_stack, list})
+			(call 'list :create {} {item})
+			(call 'list :push_back {list, item})
+			(assign {item} {list})
+			(break)
+		(vpcase `(,c = +char_rrb))
+			(call 'lisp :read_char `(,this ,stream ,c) {_, c})
+		(errorcase
+			(errorif {this->lisp_stack->array_length = start} 'error))
+			(call 'array :pop_back {this->lisp_stack} {_, list})
+			(break)
+		(vpcase `(,c >= +char_0) `(,c <= +char_9))
+			(call 'lisp :read_num `(,this ,stream ,c) `(_ ,item ,c))
+			(goto 'push_item)
+		(vpcase `(,c = +char_minus))
+			(call 'lisp :read_num `(,this ,stream ,c) `(_ ,item ,c))
+			(goto 'push_item)
+		(vpcase `(,c = +char_double_quote))
+			(call 'lisp :read_str `(,this ,stream ,c) `(_ ,item ,c))
+			(goto 'push_item)
+		(vpcase `(,c = +char_lcb))
+			(call 'lisp :read_str `(,this ,stream +char_rcb) `(_ ,item ,c))
+			(goto 'push_item)
+		(vpcase `(,c = +char_quote))
+			(call 'lisp :read_quasi `(,this ,stream ,c (,this lisp_sym_quote)) `(_ ,item ,c))
+			(goto 'push_item)
+		(vpcase `(,c = +char_tick))
+			(call 'lisp :read_quasi `(,this ,stream ,c (,this lisp_sym_qquote)) `(_ ,item ,c))
+			(goto 'push_item)
+		(vpcase `(,c = +char_comma))
+			(call 'lisp :read_quasi `(,this ,stream ,c (,this lisp_sym_unquote)) `(_ ,item ,c))
+			(goto 'push_item)
+		(vpcase `(,c = +char_tilde))
+			(call 'lisp :read_quasi `(,this ,stream ,c (,this lisp_sym_splicing)) `(_ ,item ,c))
+			(goto 'push_item)
+		(vpcase `(,c = -1))
+			(call 'sym :ref {this->lisp_sym_nil} {item})
+			(goto 'push_item1)
+		(default)
+			(call 'lisp :read_sym `(,this ,stream ,c) `(_ ,item ,c))
+		(vp-label 'push_item)
+			(assign `(,item ,c) {item, c})
+		(vp-label 'push_item1)
+			(call 'list :push_back {list, item})
+		(endswitch)
+
+		;reached start point ?
+	(loop-until {start = this->lisp_stack->array_length})
+
+	(call 'list :pop_back {list} {_, item})
+	(call 'list :deref {list})
+
+	(exit 'lisp :read {this, item, c})
+	(return)
+
 (errorcase
-	(vpcase `(,c = +char_rrb))
-		(vp-push this stream)
-		(call 'stream :read_char `(,stream) '(_ (:rsp 0)))
-		(assign '((:rsp +ptr_size)) `(,this))
-		(call 'lisp :repl_error `(,this "unexpected )" 0 (,this lisp_sym_nil)) `(_ ,stream))
-		(vp-pop this c)
-		(break)
-	(vpcase `(,c = +char_rcb))
-		(vp-push this stream)
-		(call 'stream :read_char `(,stream) '(_ (:rsp 0)))
-		(assign '((:rsp +ptr_size)) `(,this))
-		(call 'lisp :repl_error `(,this "unexpected }" 0 (,this lisp_sym_nil)) `(_ ,stream))
-		(vp-pop this c)
-		(break))
-	(default)
-		(jump 'lisp :read_sym `(,this ,stream ,c))
-	(endswitch)
+(vp-label 'error)
+	(call 'list :deref {list})
+	(call 'lisp :repl_error {this, "unexpected )", 0, this->lisp_sym_nil} {_, item})
+	(exit 'lisp :read {this, item, c})
+	(return))
 
-	(exit 'lisp :read `(,this ,stream ,c))
-	(vp-ret)
+	(pop-scope-syms)
 
 (def-func-end)
