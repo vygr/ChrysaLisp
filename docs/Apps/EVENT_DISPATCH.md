@@ -179,7 +179,7 @@ start having a LOT of UI widgets and may want to handle key press actions and
 so forth, this `(cond)` statement is going to get very long and untidy. We are
 going to end up not being able to see the wood for the trees !
 
-## The `Fmap` or `Xmap` event action dispatch loop
+## The `Fmap` event action dispatch loop
 
 The Editor application takes this approach and it has started to become the `go
 to` way to arrange things. I encourage folks to adopt this style apart from the
