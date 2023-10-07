@@ -54,8 +54,7 @@
 			(break)
 		(vpcase `(,c = +char_rrb))
 			(call 'lisp :read_char `(,this ,stream ,c) {_, c})
-		(errorcase
-			(errorif {this->lisp_stack->array_length = start} 'error))
+			(errorif {this->lisp_stack->array_length = start} 'error)
 			(call 'array :pop_back {this->lisp_stack} {_, list})
 			(break)
 		(vpcase `(,c >= +char_0) `(,c <= +char_9))
