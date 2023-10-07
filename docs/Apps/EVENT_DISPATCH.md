@@ -352,10 +352,10 @@ This example is not about the dispatching of GUI events but illustrates an
 important technique that applications may find useful.
 
 The Docs application, `apps/docs/app.lisp`, uses the idea of a current state
-and searches an `Emap` of state to handler function in order to task each line
-of the document being scanned. If the state is not found in the `Emap` then it
-uses the state to create a module name and dynamically loads that module,
-entering it into the `Emap`.
+and searches an `Emap` of state to handler function in order to render each
+line of the document being scanned. If the state is not found in the `Emap`
+then it uses the state to create a module name and dynamically loads that
+module, entering it into the `Emap`.
 
 In this way the Docs application has the ability to be extended in
 functionality at runtime. The addition of a new document section handler
