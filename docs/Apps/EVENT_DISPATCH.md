@@ -408,7 +408,7 @@ apps/docs/image.inc
 ```
 
 This is the `:vdu` handler module, the very same module that's displaying the
-syntax highlighted source code that you are now looking at:
+syntax highlighted source code that you are now looking at !
 
 ```file
 apps/docs/vdu.inc
