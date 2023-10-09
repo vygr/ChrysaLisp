@@ -41,3 +41,17 @@
 (export-symbols
 	char-class unescape)
 (env-pop)
+
+;some standard char classes
+
+(defq
+	+char_class_space (char-class " \t")
+	+char_class_digit (char-class "0-9")
+	+char_class_digit_base (char-class "A-Za-z0-9.")
+	+char_class_lower (char-class "a-z")
+	+char_class_upper (char-class "A-Z")
+	+char_class_alpha (char-class "A-Za-z")
+	+char_class_alpha_num (char-class "A-Za-z0-9")
+	+char_class_word (char-class "A-Za-z0-9_")
+	+char_class_hex (char-class "A-Fa-f0-9")
+)

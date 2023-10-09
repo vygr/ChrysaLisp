@@ -9,15 +9,13 @@
 ;module
 (env-push)
 
-(defq +number_chars (char-class "0-9")
-	+allowed_number_chars (char-class "A-Za-z0-9.")
-	+symbol_chars (char-class "A-Za-z0-9-!@#$%^&*_+=[];\:|./<>?`~'"))
+(defq +symbol_chars (char-class "A-Za-z0-9-!@#$%^&*_+=[];\:|./<>?`~'"))
 
-(defmacro is-number-char? (_)
-	(list 'find-rev _ +number_chars))
+(defmacro is-digit-char? (_)
+	(list 'find-rev _ +char_class_digit))
 
-(defmacro is-allowed-number-char? (_)
-	(list 'find-rev _ +allowed_number_chars))
+(defmacro is-digit-base-char? (_)
+	(list 'find-rev _ +char_class_digit_base))
 
 (defmacro is-symbol-char? (_)
 	(list 'find-rev _ +symbol_chars))
@@ -73,7 +71,7 @@
 								(push state_list state)
 								(push token_list token)
 								(setq token (list c) state (elem-get _ '(:string1 :string2 :keysym :comment))))
-							((is-number-char? c)
+							((is-digit-char? c)
 								(push state_list state)
 								(push token_list token)
 								(setq token (list c) state :number))
@@ -96,7 +94,7 @@
 						(setq c :nil))
 					(:number
 						(cond
-							((is-allowed-number-char? c)
+							((is-digit-base-char? c)
 								(push token c)
 								(setq c :nil))
 							(:t (push state_list state)

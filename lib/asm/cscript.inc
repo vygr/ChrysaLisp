@@ -11,9 +11,6 @@
 
 (defq +symbol_chars (char-class "A-Za-z0-9+:_/")
 	+path_chars (char-class "A-Za-z0-9_/")
-	+label_chars (char-class "A-Za-z0-9_")
-	+number_chars (char-class "0-9")
-	+folow_on_number_chars (char-class "A-Za-z0-9.")
 	+op_chars "+-*/%~^<=>!&|."
 	+folow_on_op_chars "/%<=>&|"
 	+bracket_chars "()[]"
@@ -26,13 +23,13 @@
 	(list 'find-rev _ +path_chars))
 
 (defmacro is-label-char? (_)
-	(list 'find-rev _ +label_chars))
+	(list 'find-rev _ +char_class_word))
 
-(defmacro is-number-char? (_)
-	(list 'find-rev _ +number_chars))
+(defmacro is-digit-char? (_)
+	(list 'find-rev _ +char_class_digit))
 
-(defmacro is-folow-on-number-char? (_)
-	(list 'find-rev _ +folow_on_number_chars))
+(defmacro is-digit-base-char? (_)
+	(list 'find-rev _ +char_class_digit_base))
 
 (defmacro is-op-char? (_)
 	(list 'find-rev _ +op_chars))
@@ -61,7 +58,7 @@
 						((is-op-char? c)
 							(push token c)
 							(setq state :operator))
-						((is-number-char? c)
+						((is-digit-char? c)
 							(push token c)
 							(setq state :number))
 						((is-symbol-char? c)
@@ -86,7 +83,7 @@
 							(setq state :space unary :nil))))
 				(:number
 					(cond
-						((is-folow-on-number-char? c)
+						((is-digit-base-char? c)
 							(push token c)
 							(setq c :nil))
 						(:t (push out_types state)
