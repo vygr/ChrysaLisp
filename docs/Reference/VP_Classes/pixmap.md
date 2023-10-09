@@ -99,6 +99,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(pixmap-load-cpm stream)
 ```
 
 ### :lisp_load_tga -> gui/pixmap/lisp_load_tga
@@ -112,6 +114,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(pixmap-load-tga stream)
 ```
 
 ### :lisp_save_cpm -> gui/pixmap/lisp_save_cpm
@@ -125,6 +129,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(pixmap-save-cpm pixmap stream format)
 ```
 
 ### :load_cpm -> gui/pixmap/load_cpm

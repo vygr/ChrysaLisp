@@ -73,6 +73,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(gensym)
 ```
 
 ### :lisp_sym -> class/sym/lisp_sym
@@ -86,6 +88,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(sym str)
 ```
 
 ### :print -> class/sym/print

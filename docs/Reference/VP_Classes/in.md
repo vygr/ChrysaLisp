@@ -40,6 +40,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(in-stream)
 ```
 
 ### :lisp_next_msg -> class/in/lisp_next_msg
@@ -53,6 +55,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(in-next-msg in)
 ```
 
 ### :next_msg -> class/in/next_msg

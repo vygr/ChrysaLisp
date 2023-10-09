@@ -68,6 +68,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(pii-dirlist path)
 ```
 
 ### :lisp_fstat -> sys/pii/lisp_fstat
@@ -81,6 +83,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(pii-fstat path)
 ```
 
 ### :lisp_readchar -> sys/pii/lisp_readchar
@@ -94,6 +98,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(pii-read-char fd)
 ```
 
 ### :lisp_remove -> sys/pii/lisp_remove
@@ -107,6 +113,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(pii-remove path)
 ```
 
 ### :lisp_time -> sys/pii/lisp_time
@@ -120,6 +128,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(pii-time)
 ```
 
 ### :lisp_writechar -> sys/pii/lisp_writechar
@@ -133,6 +143,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(pii-write-char fd char)
 ```
 
 ### :mmap -> sys/pii/mmap

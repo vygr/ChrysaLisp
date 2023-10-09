@@ -66,6 +66,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(fixeds-floor fixeds [fixeds])
 ```
 
 ### :lisp_frac -> class/fixeds/lisp_frac
@@ -79,6 +81,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(fixeds-frac fixeds [fixeds])
 ```
 
 ### :mod -> class/fixeds/mod

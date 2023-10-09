@@ -60,7 +60,8 @@
 	(print "-> docs/Reference/COMMANDS.md")
 
 	;scan VP classes docs
-	(defq *imports* (all-vp-files) classes (list) functions (list) docs (list) syntax (list) state :x)
+	(defq *imports* (all-vp-files) classes (list) functions (list)
+		docs (list) syntax (list) state :x)
 	(within-compile-env (lambda ()
 		(include "lib/asm/func.inc")
 		(each include (all-class-files))
@@ -89,8 +90,9 @@
 							(push docs (list))
 							(push functions (sym (second s))))
 						((and (or (eql _ "call") (eql _ "jump")) (eql (third s) ":repl_error"))
-							(if (setq line (chop line))
-								(merge-obj syntax (list (sym line)))))))) (file-stream file))) *imports*)))
+							(when (and (setq line (chop line)) (not (find line syntax)))
+								(push syntax line)
+								(push (last docs) ";lisp binding" (cat ";" line))))))) (file-stream file))) *imports*)))
 
 	;create VP classes docs
 	(sort (# (cmp (first %0) (first %1))) classes)

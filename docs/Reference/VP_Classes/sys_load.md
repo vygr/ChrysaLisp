@@ -50,6 +50,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(load-path)
 ```
 
 ### :load -> sys/load/load

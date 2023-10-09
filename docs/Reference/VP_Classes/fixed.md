@@ -64,6 +64,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(cos angle)
 ```
 
 ### :lisp_floor -> class/fixed/lisp_floor
@@ -77,6 +79,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(floor num)
 ```
 
 ### :lisp_frac -> class/fixed/lisp_frac
@@ -90,6 +94,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(frac num)
 ```
 
 ### :lisp_recip -> class/fixed/lisp_recip
@@ -103,6 +109,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(recip fixed)
 ```
 
 ### :lisp_sin -> class/fixed/lisp_sin
@@ -116,6 +124,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(sin angle)
 ```
 
 ### :mod -> class/fixed/mod

@@ -41,6 +41,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(dim nums array)
 ```
 
 ### :lisp_get -> class/dim/lisp_get
@@ -54,6 +56,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(dim-get nums dim)
 ```
 
 ### :lisp_set -> class/dim/lisp_set
@@ -67,6 +71,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(dim-set nums dim form)
 ```
 
 ### :vtable -> class/dim/vtable

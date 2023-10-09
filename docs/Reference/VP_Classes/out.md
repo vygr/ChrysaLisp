@@ -51,6 +51,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(out-stream mbox)
 ```
 
 ### :set_state -> class/out/set_state

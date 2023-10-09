@@ -41,6 +41,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(task-netid)
 ```
 
 ### :lisp_sleep -> sys/task/lisp_sleep
@@ -54,6 +56,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(task-sleep usec)
 ```
 
 ### :lisp_timeslice -> sys/task/lisp_timeslice

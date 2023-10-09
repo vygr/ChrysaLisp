@@ -193,6 +193,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(bfind char str)
 ```
 
 ### :lisp_char -> class/str/lisp_char
@@ -206,6 +208,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(char num [width])
 ```
 
 ### :lisp_cmp -> class/str/lisp_cmp
@@ -219,6 +223,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(cmp str str)
 ```
 
 ### :lisp_code -> class/str/lisp_code
@@ -232,6 +238,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(code str [width index])
 ```
 
 ### :lisp_create -> class/str/lisp_create
@@ -245,6 +253,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(str-alloc size)
 ```
 
 ### :lisp_expand -> class/str/lisp_expand
@@ -258,6 +268,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(expand str tab_width)
 ```
 
 ### :lisp_load -> class/str/lisp_load
@@ -271,6 +283,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(load path)
 ```
 
 ### :lisp_save -> class/str/lisp_save
@@ -284,6 +298,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(save str path)
 ```
 
 ### :lisp_split -> class/str/lisp_split
@@ -297,6 +313,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(split str chars)
 ```
 
 ### :lisp_str -> class/str/lisp_str
@@ -323,6 +341,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(str-to-num str)
 ```
 
 ### :print -> class/str/print

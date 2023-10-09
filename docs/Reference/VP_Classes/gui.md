@@ -27,6 +27,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(gui-deinit)
 ```
 
 ### :lisp_event -> gui/gui/lisp_event
@@ -40,6 +42,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(gui-event)
 ```
 
 ### :lisp_info -> gui/gui/lisp_info
@@ -53,6 +57,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(gui-info)
 ```
 
 ### :lisp_init -> gui/gui/lisp_init
@@ -66,6 +72,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(gui-init screen)
 ```
 
 ### :lisp_update -> gui/gui/lisp_update
@@ -79,6 +87,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(gui-update mx my flags)
 ```
 
 ### :update -> gui/gui/update

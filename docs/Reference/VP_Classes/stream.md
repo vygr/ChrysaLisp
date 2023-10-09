@@ -66,6 +66,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(stream-avail stream)
 ```
 
 ### :lisp_fstream -> class/stream/lisp_fstream
@@ -79,6 +81,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(file-stream path [mode])
 ```
 
 ### :lisp_iostream -> class/stream/lisp_iostream
@@ -92,6 +96,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(io-stream io)
 ```
 
 ### :lisp_readavail -> class/stream/lisp_readavail
@@ -105,6 +111,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(read-avail stream)
 ```
 
 ### :lisp_readchar -> class/stream/lisp_readchar
@@ -118,6 +126,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(read-char stream [width])
 ```
 
 ### :lisp_readline -> class/stream/lisp_readline
@@ -131,6 +141,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(read-line stream)
 ```
 
 ### :lisp_seek -> class/stream/lisp_seek
@@ -144,6 +156,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(stream-seek stream offset pos)
 ```
 
 ### :lisp_sstream -> class/stream/lisp_sstream
@@ -157,6 +171,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(string-stream str)
 ```
 
 ### :lisp_write -> class/stream/lisp_write
@@ -170,6 +186,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(write stream str)
 ```
 
 ### :lisp_write_flush -> class/stream/lisp_write_flush
@@ -183,6 +201,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(stream-flush stream)
 ```
 
 ### :lisp_write_next -> class/stream/lisp_write_next
@@ -198,6 +218,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(write-char stream list|num [width])
 ```
 
 ### :read -> class/stream/read

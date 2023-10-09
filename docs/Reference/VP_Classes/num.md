@@ -154,6 +154,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(abs num)
 ```
 
 ### :lisp_add -> class/num/lisp_add
@@ -167,6 +169,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(+ num num ...)
 ```
 
 ### :lisp_and -> class/num/lisp_and
@@ -180,6 +184,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(logand [num] ...)
 ```
 
 ### :lisp_asr -> class/num/lisp_asr
@@ -193,6 +199,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(>>> num cnt)
 ```
 
 ### :lisp_div -> class/num/lisp_div
@@ -206,6 +214,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(/ num num ...)
 ```
 
 ### :lisp_eq -> class/num/lisp_eq
@@ -219,6 +229,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(= num num ...)
 ```
 
 ### :lisp_ge -> class/num/lisp_ge
@@ -232,6 +244,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(>= num num ...)
 ```
 
 ### :lisp_gt -> class/num/lisp_gt
@@ -245,6 +259,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(> num num ...)
 ```
 
 ### :lisp_intern -> class/num/lisp_intern
@@ -258,6 +274,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(num-intern num)
 ```
 
 ### :lisp_le -> class/num/lisp_le
@@ -271,6 +289,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(<= num num ...)
 ```
 
 ### :lisp_lt -> class/num/lisp_lt
@@ -284,6 +304,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(< num num ...)
 ```
 
 ### :lisp_max -> class/num/lisp_max
@@ -297,6 +319,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(max num num ...)
 ```
 
 ### :lisp_min -> class/num/lisp_min
@@ -310,6 +334,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(min num num ...)
 ```
 
 ### :lisp_mod -> class/num/lisp_mod
@@ -323,6 +349,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(% num num ...)
 ```
 
 ### :lisp_mul -> class/num/lisp_mul
@@ -336,6 +364,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(* num num ...)
 ```
 
 ### :lisp_n2f -> class/num/lisp_n2f
@@ -349,6 +379,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(n2f num)
 ```
 
 ### :lisp_n2i -> class/num/lisp_n2i
@@ -362,6 +394,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(n2i num)
 ```
 
 ### :lisp_n2r -> class/num/lisp_n2r
@@ -375,6 +409,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(n2r num)
 ```
 
 ### :lisp_ne -> class/num/lisp_ne
@@ -388,6 +424,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(/= num num ...)
 ```
 
 ### :lisp_neg -> class/num/lisp_neg
@@ -401,6 +439,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(neg num)
 ```
 
 ### :lisp_or -> class/num/lisp_or
@@ -414,6 +454,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(logior [num] ...)
 ```
 
 ### :lisp_random -> class/num/lisp_random
@@ -427,6 +469,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(random num)
 ```
 
 ### :lisp_shl -> class/num/lisp_shl
@@ -440,6 +484,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(<< num cnt)
 ```
 
 ### :lisp_shr -> class/num/lisp_shr
@@ -453,6 +499,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(>> num cnt)
 ```
 
 ### :lisp_sign -> class/num/lisp_sign
@@ -466,6 +514,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(sign num)
 ```
 
 ### :lisp_sqrt -> class/num/lisp_sqrt
@@ -479,6 +529,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(sqrt num)
 ```
 
 ### :lisp_sub -> class/num/lisp_sub
@@ -492,6 +544,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(- num num ...)
 ```
 
 ### :lisp_xor -> class/num/lisp_xor
@@ -505,6 +559,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(logxor [num] ...)
 ```
 
 ### :lt -> class/num/lt

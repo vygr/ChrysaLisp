@@ -269,6 +269,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(array [num ...])
 ```
 
 ### :lisp_cap -> class/array/lisp_cap
@@ -282,6 +284,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(cap len array ...)
 ```
 
 ### :lisp_clear -> class/array/lisp_clear
@@ -295,6 +299,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(clear array ...)
 ```
 
 ### :lisp_elemset -> class/array/lisp_elemset
@@ -308,6 +314,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(elem-set index array val)
 ```
 
 ### :lisp_fixeds -> class/array/lisp_fixeds
@@ -321,6 +329,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(fixeds [num ...])
 ```
 
 ### :lisp_nums -> class/array/lisp_nums
@@ -334,6 +344,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(nums [num ...])
 ```
 
 ### :lisp_path -> class/array/lisp_path
@@ -347,6 +359,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(path [num ...])
 ```
 
 ### :lisp_pop -> class/array/lisp_pop
@@ -360,6 +374,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(pop array)
 ```
 
 ### :lisp_push -> class/array/lisp_push
@@ -373,6 +389,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(push array form ...)
 ```
 
 ### :lisp_reals -> class/array/lisp_reals
@@ -386,6 +404,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(reals [num ...])
 ```
 
 ### :partition -> class/array/partition

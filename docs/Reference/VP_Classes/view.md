@@ -214,6 +214,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(view-add-front parent child)
 ```
 
 ### :lisp_add_back -> gui/view/lisp_add_back
@@ -227,6 +229,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(view-add-back parent child)
 ```
 
 ### :lisp_add_dirty -> gui/view/lisp_add_dirty
@@ -240,6 +244,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(view-add-dirty view x y w h)
 ```
 
 ### :lisp_add_opaque -> gui/view/lisp_add_opaque
@@ -253,6 +259,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(view-add-opaque view x y w h)
 ```
 
 ### :lisp_children -> gui/view/lisp_children
@@ -266,6 +274,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(view-children view)
 ```
 
 ### :lisp_clr_opaque -> gui/view/lisp_clr_opaque
@@ -279,6 +289,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(view-clr-opaque view)
 ```
 
 ### :lisp_create -> gui/view/lisp_create
@@ -292,6 +304,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(create-view)
 ```
 
 ### :lisp_find_id -> gui/view/lisp_find_id
@@ -305,6 +319,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(view-find-id view id)
 ```
 
 ### :lisp_hide -> gui/view/lisp_hide
@@ -318,6 +334,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(view-hide view)
 ```
 
 ### :lisp_hit_tree -> gui/view/lisp_hit_tree
@@ -331,6 +349,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(view-hit-tree view x y)
 ```
 
 ### :lisp_set_flags -> gui/view/lisp_set_flags
@@ -344,6 +364,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(view-set-flags view flags mask)
 ```
 
 ### :lisp_sub -> gui/view/lisp_sub
@@ -357,6 +379,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(view-sub view)
 ```
 
 ### :lisp_sub_opaque -> gui/view/lisp_sub_opaque
@@ -370,6 +394,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(view-sub-opaque view x y w h)
 ```
 
 ### :lisp_to_back -> gui/view/lisp_to_back
@@ -383,6 +409,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(view-to-back view)
 ```
 
 ### :lisp_to_front -> gui/view/lisp_to_front
@@ -396,6 +424,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(view-to-front view)
 ```
 
 ### :lisp_trans_dirty -> gui/view/lisp_trans_dirty
@@ -409,6 +439,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(view-trans-dirty view rx ry)
 ```
 
 ### :ref_prop -> gui/view/ref_prop

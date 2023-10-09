@@ -19,6 +19,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(cat seq ...)
 ```
 
 ### :lisp_each -> class/seq/lisp_each
@@ -32,6 +34,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(each! start end lambda (seq ...))
 ```
 
 ### :lisp_elem -> class/seq/lisp_elem
@@ -45,6 +49,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(elem-get index seq)
 ```
 
 ### :lisp_find -> class/seq/lisp_find
@@ -58,6 +64,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(find elem seq)
 ```
 
 ### :lisp_length -> class/seq/lisp_length
@@ -71,6 +79,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(length seq)
 ```
 
 ### :lisp_rfind -> class/seq/lisp_rfind
@@ -84,6 +94,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(find-rev elem seq)
 ```
 
 ### :lisp_slice -> class/seq/lisp_slice
@@ -97,6 +109,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(slice start end seq)
 ```
 
 ### :lisp_some -> class/seq/lisp_some
@@ -110,6 +124,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(some! start end mode lambda (seq ...))
 ```
 
 ### :ref_element -> class/obj/null

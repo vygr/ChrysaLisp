@@ -93,6 +93,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(nums-abs nums [nums])
 ```
 
 ### :lisp_add -> class/nums/lisp_add
@@ -106,6 +108,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(nums-add nums nums [nums])
 ```
 
 ### :lisp_div -> class/nums/lisp_div
@@ -119,6 +123,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(nums-div nums nums [nums])
 ```
 
 ### :lisp_dot -> class/nums/lisp_dot
@@ -132,6 +138,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(nums-dot nums nums)
 ```
 
 ### :lisp_max -> class/nums/lisp_max
@@ -145,6 +153,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(nums-max nums nums [nums])
 ```
 
 ### :lisp_min -> class/nums/lisp_min
@@ -158,6 +168,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(nums-min nums nums [nums])
 ```
 
 ### :lisp_mod -> class/nums/lisp_mod
@@ -171,6 +183,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(nums-mod nums nums [nums])
 ```
 
 ### :lisp_mul -> class/nums/lisp_mul
@@ -184,6 +198,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(nums-mul nums nums [nums])
 ```
 
 ### :lisp_scale -> class/nums/lisp_scale
@@ -197,6 +213,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(nums-scale nums scale [nums])
 ```
 
 ### :lisp_sub -> class/nums/lisp_sub
@@ -210,6 +228,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(nums-sub nums nums [nums])
 ```
 
 ### :lisp_sum -> class/nums/lisp_sum
@@ -223,6 +243,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(nums-sum nums)
 ```
 
 ### :lisp_vecop1 -> class/nums/lisp_vecop1

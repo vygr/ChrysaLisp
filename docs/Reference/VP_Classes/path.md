@@ -119,6 +119,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(path-filter tol src dst)
 ```
 
 ### :lisp_gen_arc -> gui/path/lisp_gen_arc
@@ -132,6 +134,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(path-gen-arc cx cy start end radius tol dst) -> dst
 ```
 
 ### :lisp_gen_cubic -> gui/path/lisp_gen_cubic
@@ -145,6 +149,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(path-gen-cubic p1x p1y p2x p2y p3x p3y p4x p4y tol dst) -> dst
 ```
 
 ### :lisp_gen_quadratic -> gui/path/lisp_gen_quadratic
@@ -158,6 +164,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(path-gen-quadratic p1x p1y p2x p2y p3x p3y tol dst) -> dst
 ```
 
 ### :lisp_simplify -> gui/path/lisp_simplify
@@ -171,6 +179,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(path-simplify tol src dst)
 ```
 
 ### :lisp_stroke_polygon -> gui/path/lisp_stroke_polygon
@@ -184,6 +194,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(path-stroke-polygon path radius tol join) -> paths
 ```
 
 ### :lisp_stroke_polyline -> gui/path/lisp_stroke_polyline
@@ -197,6 +209,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(path-stroke-polyline path radius tol join cap1 cap2) -> path
 ```
 
 ### :lisp_svg -> gui/path/lisp_svg
@@ -210,6 +224,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(path-svg d) -> commands
 ```
 
 ### :lisp_transform -> gui/path/lisp_transform
@@ -223,6 +239,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(path-transform m3x2 src dst)
 ```
 
 ### :simplify -> gui/path/simplify

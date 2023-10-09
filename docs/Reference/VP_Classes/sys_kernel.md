@@ -29,6 +29,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(kernel-stats)
 ```
 
 ### :ping -> sys/kernel/ping

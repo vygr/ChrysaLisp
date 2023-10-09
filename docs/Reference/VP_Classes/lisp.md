@@ -77,6 +77,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(bind (param ...) seq)
 ```
 
 ### :env_pop -> class/lisp/env_pop
@@ -130,6 +132,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(apply lambda list)
 ```
 
 ### :lisp_bind -> class/lisp/lisp_bind
@@ -156,6 +160,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(catch form eform)
 ```
 
 ### :lisp_cond -> class/lisp/lisp_cond
@@ -169,6 +175,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(cond [(tst [body])] ...)
 ```
 
 ### :lisp_copy -> class/lisp/lisp_copy
@@ -184,6 +192,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(env-pop [env])
 ```
 
 ### :lisp_env_push -> class/lisp/lisp_env_push
@@ -197,6 +207,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(env-push [env])
 ```
 
 ### :lisp_eql -> class/lisp/lisp_eql
@@ -210,6 +222,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(eql form form)
 ```
 
 ### :lisp_eval -> class/lisp/lisp_eval
@@ -223,6 +237,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(eval form [env])
 ```
 
 ### :lisp_ffi -> class/lisp/lisp_ffi
@@ -236,6 +252,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(ffi sym path flags)
 ```
 
 ### :lisp_if -> class/lisp/lisp_if
@@ -249,6 +267,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(if tst form [else_form])
 ```
 
 ### :lisp_lambda -> class/lisp/lisp_lambda
@@ -288,6 +308,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(macroexpand form)
 ```
 
 ### :lisp_mcall -> class/lisp/lisp_mcall
@@ -301,6 +323,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(. env sym [...])
 ```
 
 ### :lisp_prebind -> class/lisp/lisp_bindfun
@@ -314,6 +338,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(prebind form)
 ```
 
 ### :lisp_prin -> class/lisp/lisp_prin
@@ -366,6 +392,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(quasi-quote form)
 ```
 
 ### :lisp_quote -> class/lisp/lisp_quote
@@ -379,6 +407,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(quote form)
 ```
 
 ### :lisp_read -> class/lisp/lisp_read
@@ -392,6 +422,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(read stream last_char)
 ```
 
 ### :lisp_repl -> class/lisp/lisp_repl
@@ -405,6 +437,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(repl stream path)
 ```
 
 ### :lisp_throw -> class/lisp/lisp_throw
@@ -418,6 +452,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(throw str form)
 ```
 
 ### :lisp_while -> class/lisp/lisp_while
@@ -431,6 +467,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(while tst body)
 ```
 
 ### :read -> class/lisp/read
@@ -446,6 +484,8 @@ outputs
 :r2 = next char (uint)
 trashes
 :r1-:r14
+;lisp binding
+;unexpected )
 ```
 
 ### :read_char -> class/lisp/read_char
@@ -535,6 +575,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(lambda ([arg ...]) body)
 ```
 
 ### :repl_bind -> class/lisp/repl_bind

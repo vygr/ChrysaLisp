@@ -78,6 +78,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(get-field obj field size|0)
 ```
 
 ### :lisp_hash -> class/obj/lisp_hash
@@ -91,6 +93,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(hash obj)
 ```
 
 ### :lisp_obj_ref -> class/obj/lisp_obj_ref
@@ -104,6 +108,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(obj-ref num)
 ```
 
 ### :lisp_set_field -> class/obj/lisp_set_field
@@ -117,6 +123,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(set-field obj field size|0 val)
 ```
 
 ### :lisp_type -> class/obj/lisp_type
@@ -130,6 +138,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(type-of obj)
 ```
 
 ### :lisp_weak_ref -> class/obj/lisp_weak_ref
@@ -143,6 +153,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(weak-ref obj)
 ```
 
 ### :null -> class/obj/null

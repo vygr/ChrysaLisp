@@ -105,6 +105,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(create-canvas width height scale)
 ```
 
 ### :lisp_create_pixmap -> gui/canvas/lisp_create_pixmap
@@ -118,6 +120,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(create-canvas-pixmap pixmap)
 ```
 
 ### :lisp_fbox -> gui/canvas/lisp_fbox
@@ -131,6 +135,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(canvas-fbox canvas x y w h)
 ```
 
 ### :lisp_fill -> gui/canvas/lisp_fill
@@ -144,6 +150,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(canvas-fill canvas argb)
 ```
 
 ### :lisp_fpoly -> gui/canvas/lisp_fpoly
@@ -157,6 +165,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(canvas-fpoly canvas x y mode list)
 ```
 
 ### :lisp_from_argb32 -> gui/canvas/lisp_from_argb32
@@ -170,6 +180,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(canvas-from-argb32 pixel type)
 ```
 
 ### :lisp_ftri -> gui/canvas/lisp_ftri
@@ -183,6 +195,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(canvas-ftri canvas path)
 ```
 
 ### :lisp_next_frame -> gui/canvas/lisp_next_frame
@@ -196,6 +210,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(canvas-next-frame canvas)
 ```
 
 ### :lisp_plot -> gui/canvas/lisp_plot
@@ -209,6 +225,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(canvas-plot canvas x y)
 ```
 
 ### :lisp_resize -> gui/canvas/lisp_resize
@@ -222,6 +240,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(canvas-resize canvas canvas)
 ```
 
 ### :lisp_swap -> gui/canvas/lisp_swap
@@ -235,6 +255,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(canvas-swap canvas flags)
 ```
 
 ### :lisp_to_argb32 -> gui/canvas/lisp_to_argb32
@@ -248,6 +270,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(canvas-to-argb32 pixel type)
 ```
 
 ### :pick -> gui/canvas/pick

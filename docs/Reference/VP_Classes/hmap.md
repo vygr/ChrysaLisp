@@ -115,6 +115,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(def env var val [var val] ...)
 ```
 
 ### :lisp_defq -> class/hmap/lisp_defq
@@ -128,6 +130,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(defq var val [var val] ...)
 ```
 
 ### :lisp_defx -> class/hmap/lisp_defx
@@ -141,6 +145,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(def? var [env])
 ```
 
 ### :lisp_env -> class/hmap/lisp_env
@@ -154,6 +160,8 @@ outputs
 :r1 = environment hmap object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(env [num])
 ```
 
 ### :lisp_get -> class/hmap/lisp_get
@@ -167,6 +175,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(get var [env])
 ```
 
 ### :lisp_list -> class/hmap/lisp_list
@@ -180,6 +190,8 @@ outputs
 :r1 = environment hmap object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(tolist env)
 ```
 
 ### :lisp_parent -> class/hmap/lisp_parent
@@ -193,6 +205,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(penv [env])
 ```
 
 ### :lisp_resize -> class/hmap/lisp_resize
@@ -206,6 +220,8 @@ outputs
 :r1 = environment hmap object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(env-resize num [env])
 ```
 
 ### :lisp_set -> class/hmap/lisp_set
@@ -219,6 +235,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(set env var val [var val] ...)
 ```
 
 ### :lisp_setq -> class/hmap/lisp_setq
@@ -232,6 +250,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(setq var val [var val] ...)
 ```
 
 ### :lisp_undef -> class/hmap/lisp_undef
@@ -245,6 +265,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(undef env var [var] ...)
 ```
 
 ### :list -> class/hmap/list

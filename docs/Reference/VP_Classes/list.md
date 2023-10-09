@@ -104,6 +104,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(copy form)
 ```
 
 ### :lisp_list -> class/list/lisp_list
@@ -130,6 +132,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(lmatch? list list)
 ```
 
 ### :lisp_merge -> class/list/lisp_merge
@@ -143,6 +147,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(merge-obj dlist slist) -> dlist
 ```
 
 ### :lisp_part -> class/list/lisp_part
@@ -156,6 +162,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+;lisp binding
+;(pivot lambda list start end)
 ```
 
 ### :print -> class/list/print
