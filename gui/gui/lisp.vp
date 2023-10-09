@@ -74,12 +74,16 @@
 
 	(errorif-lisp-args-len :r1 /= 0 'error)
 
-	;kernel callback for deinit
-	(assign '(:r0) '((:rsp local_this)))
-	(call 'sys_task :callback '(:rsp ($ deinit_callback)))
-	(assign '((:rsp local_this)) '(:r0))
-	(assign '((:r0 lisp_sym_nil)) '(:r1))
-	(class/obj/ref :r1 :r2)
+	;kernel callback for deinit ?
+	(fn-bind 'sys/statics/statics :r1)
+	(assign '((:r1 statics_gui_init)) '(:r2))
+	(vpif '(:r2 /= 0))
+		(assign '(:r0) '((:rsp local_this)))
+		(call 'sys_task :callback '(:rsp ($ deinit_callback)))
+		(assign '((:rsp local_this)) '(:r0))
+		(assign '((:r0 lisp_sym_nil)) '(:r1))
+		(class/obj/ref :r1 :r2)
+	(endif)
 
 	;pii exit ! for now
 	(call 'sys_pii :exit '(0))
