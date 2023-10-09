@@ -513,7 +513,7 @@
 							(push line (slice cx x background) (slice x x1 color_found))
 							(setq cx x1)) match)
 						(push line (slice cx -1 background))
-						(apply cat line))
+						(apply (const cat) line))
 					(:t background)))
 			(when (<= sy scroll_y sy1)
 				(defq tl (inc (length (. buffer :get_text_line scroll_y))))

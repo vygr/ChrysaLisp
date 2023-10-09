@@ -75,7 +75,7 @@
 							(push token c)
 							(setq c :nil))
 						(:t (cond
-								((find-rev (elem-get -2 (push out_tokens (apply cat token)))
+								((find-rev (elem-get -2 (push out_tokens (apply (const cat) token)))
 										'("pptr" "byte" "ubyte" "short" "ushort" "int" "uint" "long" "ulong" "ptr"))
 									(push out_types :operator))
 								(:t (push out_types state)))
@@ -87,14 +87,14 @@
 							(push token c)
 							(setq c :nil))
 						(:t (push out_types state)
-							(push out_tokens (apply cat token))
+							(push out_tokens (apply (const cat) token))
 							(clear token)
 							(setq state :space unary :nil))))
 				(:string
 					(cond
 						((eql c (ascii-char 34))
 							(push out_types state)
-							(push out_tokens (apply cat token))
+							(push out_tokens (apply (const cat) token))
 							(clear token)
 							(setq state :space unary :nil))
 						(:t (push token c)))
@@ -105,7 +105,7 @@
 							(push token c)
 							(setq c :nil))
 						(:t (push out_types state)
-							(push out_tokens (apply cat token))
+							(push out_tokens (apply (const cat) token))
 							(clear token)
 							(setq state :space unary :nil))))
 				(:label
@@ -114,7 +114,7 @@
 							(push token c)
 							(setq c :nil))
 						(:t (push out_types state)
-							(push out_tokens (apply cat token))
+							(push out_tokens (apply (const cat) token))
 							(clear token)
 							(setq state :space unary :nil))))
 				(:operator
@@ -127,14 +127,14 @@
 									(if (setq _ (find-rev (elem-get 0 token) "-*&~!"))
 										(push out_tokens (elem-get _ "_#:~!"))
 										(throw "Unknown unary operator !" (elem-get 0 token))))
-								(:t (push out_tokens (apply cat token))
+								(:t (push out_tokens (apply (const cat) token))
 									(setq unary :t)))
 							(push out_types state)
 							(clear token)
 							(setq state :space))))))) line)
 	(unless (eql state :space)
 		(push out_types state)
-		(push out_tokens (apply cat token)))
+		(push out_tokens (apply (const cat) token)))
 	(list out_tokens out_types))
 
 ;;;;;;;;;;;;;;;;

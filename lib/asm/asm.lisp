@@ -46,6 +46,6 @@
 						(progn (setq *working* :nil) (print _)))
 					;send reply
 					(print *reply_key*)
-					(mail-send *reply_mbox* (apply cat *msg*)))))))
+					(mail-send *reply_mbox* (apply (const cat) *msg*)))))))
 	;(profile-report "Asm")
 	(free-select *select*))

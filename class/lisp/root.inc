@@ -508,7 +508,7 @@
 	; (join list seq) -> seq
 	(pop (setq l (reduce (lambda (x y) (push x y j))
 		l (cap (* (length l) 2) (list)))))
-	(apply cat l))
+	(apply (const cat) l))
 
 (defun unzip (l b)
 	; (unzip seq buckets) -> buckets
@@ -519,7 +519,7 @@
 	; (zip seq ...) -> list
 	(defq l (cap (length (elem-get 0 _)) (list)))
 	(each! 0 -1 (lambda (&rest _) (push l _)) _)
-	(if (= 0 (length l)) l (apply cat l)))
+	(if (= 0 (length l)) l (apply (const cat) l)))
 
 (defun reverse (_)
 	; (reverse list) -> list
@@ -658,12 +658,12 @@
 (defun to-upper (_)
 	; (to-upper str) -> str
 	(if (eql _ "") ""
-		(apply cat (map (lambda (_) (char (ascii-upper (code _)))) _))))
+		(apply (const cat) (map (lambda (_) (char (ascii-upper (code _)))) _))))
 
 (defun to-lower (_)
 	; (to-lower str) -> str
 	(if (eql _ "") ""
-		(apply cat (map (lambda (_) (char (ascii-lower (code _)))) _))))
+		(apply (const cat) (map (lambda (_) (char (ascii-lower (code _)))) _))))
 
 (defun starts-with (p _)
 	; (starts-with str str) -> :t | :nil
@@ -959,7 +959,7 @@
 	(defq data (cap bytes (list)))
 	(while (and (>= (setq bytes (dec bytes)) 0) (defq _ (read-char s)))
 		(push data (char _)))
-	(apply cat data))
+	(apply (const cat) data))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Compilation environment

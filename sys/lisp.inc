@@ -38,7 +38,7 @@
 	(cond
 		((eql id "") "")
 		(:t (bind '(e o) (unzip id (lists2)))
-			(apply cat (map (# (char
+			(apply (const cat) (map (# (char
 				(+ (- (code %0) (ascii-code "a"))
 				(<< (- (code %1) (ascii-code "a")) 4)))) e o)))))
 
@@ -46,7 +46,7 @@
 	; (id-encode id) -> id
 	(cond
 		((eql id "") "")
-		(:t (apply cat (map (# (cat
+		(:t (apply (const cat) (map (# (cat
 			(char (+ (logand 0x0f (code %0)) (ascii-code "a")))
 			(char (+ (logand 0x0f (>> (code %0) 4)) (ascii-code "a"))))) id)))))
 

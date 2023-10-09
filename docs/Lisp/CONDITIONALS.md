@@ -137,7 +137,7 @@ the matching body clause, or if no match, the optional `:t` clause.
 (case state
 	(:symbol
 		(cond
-			((defq ink (get (sym (apply cat token)) (get :keywords this)))
+			((defq ink (get (sym (apply (const cat) token)) (get :keywords this)))
 				;present in keyword map
 				(push col_list ink))
 			((eql (elem-get 0 token) "+")

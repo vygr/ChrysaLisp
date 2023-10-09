@@ -51,7 +51,7 @@
 	;send job to child
 	(def val :timestamp (pii-time))
 	(mail-send (get :child val)
-		(setf-> (cat (str-alloc +job_size) brd (apply cat history))
+		(setf-> (cat (str-alloc +job_size) brd (apply (const cat) history))
 			(+job_reply (elem-get +select_reply select))
 			(+job_move_time max_move_time)
 			(+job_color color)))

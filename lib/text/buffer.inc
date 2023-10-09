@@ -351,7 +351,7 @@
 						(push lines (slice sx (+ sx sx1) (elem-get sy buffer_line)))
 						(. this :delete sx1))))
 			(. this :push_undo (list :mark mark))
-			(apply cat lines)))
+			(apply (const cat) lines)))
 
 	(defmethod :copy (anchor_x anchor_y)
 		; (. buffer :copy anchor_x anchor_y) -> string
@@ -366,7 +366,7 @@
 						(push lines (elem-get sy buffer_line) (ascii-char +char_lf)))
 					(if (< sy h)
 						(push lines (slice 0 sx1 (elem-get sy buffer_line))))
-					(apply cat lines)))))
+					(apply (const cat) lines)))))
 
 	(defmethod :paste (string)
 		; (. buffer :paste string) -> buffer

@@ -20,7 +20,7 @@
 			(if (> (length val) 36)
 				(setq val (cat (slice 0 36 val) " ...")))
 			(if (> (length val) 0)
-				(setq val (apply cat (map (# (if (<= 32 (code %0) 126) %0 ".")) val))))
+				(setq val (apply (const cat) (map (# (if (<= 32 (code %0) 126) %0 ".")) val))))
 			(write msg (cat var " : " val (ascii-char 10)))) e)
 		(debug-send (str msg (ascii-char 10))))
 

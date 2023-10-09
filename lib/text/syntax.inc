@@ -124,7 +124,7 @@
 			(case state
 				(:symbol
 					(cond
-						((defq ink (get (sym (apply cat token)) (get :keywords this)))
+						((defq ink (get (sym (apply (const cat) token)) (get :keywords this)))
 							;present in keyword map
 							(push col_list ink))
 						((eql (elem-get 0 token) "+")
@@ -155,7 +155,7 @@
 		(each (lambda (token ink)
 				(push state_list (apply array (map (# (+ (code %0) ink)) token))))
 			token_list col_list)
-		(apply cat state_list))
+		(apply (const cat) state_list))
 
 	(defmethod :compress_tabs (string tab_width)
 		; (. syntax :compress_tabs string tab_width) -> string
@@ -163,7 +163,7 @@
 		(cond
 			((> (length string) 0)
 				(defq whitespace "")
-				(apply cat (reduce (#
+				(apply (const cat) (reduce (#
 					(cond
 						((eql whitespace "X")
 							(push %0 %1))

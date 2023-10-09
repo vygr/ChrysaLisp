@@ -22,7 +22,7 @@
 	(each (# (each (# (push reply_list (char %1 +long_size))) %0)) verts)
 	(each (# (each (# (push reply_list (char %1 +long_size))) %0)) norms)
 	(each (# (each (# (push reply_list (char %1 +int_size))) %0)) tris)
-	(mail-send mbox (apply cat reply_list)))
+	(mail-send mbox (apply (const cat) reply_list)))
 
 (defun main ()
 	(defq select (alloc-select +select_size) running :t +timeout 1000000)

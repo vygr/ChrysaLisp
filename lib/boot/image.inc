@@ -66,7 +66,7 @@
 		(+ offset (length links))) blobs 0)
 	;create new link sections with offsets to header path
 	(each (# (defq u (elem-get _ links_offsets))
-		(elem-set +blob_links %0 (apply cat (push (map
+		(elem-set +blob_links %0 (apply (const cat) (push (map
 			(# (char (-
 				(+ (elem-get (find %0 boot_funcs) header_offsets) +fn_header_pathname)
 				(+ u (* _ +ptr_size))) +ptr_size)) (elem-get +blob_refs %0)) "")))) blobs)

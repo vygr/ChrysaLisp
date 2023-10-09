@@ -8,7 +8,7 @@
 (each (# (defcvar %0 %0)) +vp_regs)
 
 (defmacro vp-def (_ &optional l)
-	(setq l (apply cat (map (lambda (x y)
+	(setq l (apply (const cat) (map (lambda (x y)
 		(list (list quote x) y)) _ (if l (merge-obj (cat (eval l)) +vp_regs_0_14) +vp_regs_0_14))))
 	`(progn (deffvar ~l)))
 

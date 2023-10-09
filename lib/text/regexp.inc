@@ -53,7 +53,7 @@
 			(:class
 				(cond
 					((eql c "]")
-						(output :class (apply cat token))
+						(output :class (apply (const cat) token))
 						(setq concat +op_cat state :space))
 					(:t (push token c))))
 			(:esc

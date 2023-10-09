@@ -14,10 +14,10 @@
 	(when stream
 		(defq adr 0)
 		(while (defq c (read-chunk stream))
-			(prin (int-to-hex-str adr) " " (apply cat (map (#
+			(prin (int-to-hex-str adr) " " (apply (const cat) (map (#
 				(cat (byte-to-hex-str %0) " ")) c)))
 			(times (- chunk_size (length c)) (prin "   "))
-			(print (apply cat (map (#
+			(print (apply (const cat) (map (#
 				(if (<= 32 %0 126) (char %0) ".")) c)))
 			(setq adr (+ adr chunk_size)))))
 
