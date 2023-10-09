@@ -17,19 +17,19 @@
 	+stringy_chars (cat (ascii-char 34) "$@"))
 
 (defmacro is-symbol-char? (_)
-	(list 'find-rev _ +symbol_chars))
+	(list 'bfind _ +symbol_chars))
 
 (defmacro is-path-char? (_)
-	(list 'find-rev _ +path_chars))
+	(list 'bfind _ +path_chars))
 
 (defmacro is-label-char? (_)
-	(list 'find-rev _ +char_class_word))
+	(list 'bfind _ +char_class_word))
 
 (defmacro is-digit-char? (_)
-	(list 'find-rev _ +char_class_digit))
+	(list 'bfind _ +char_class_digit))
 
 (defmacro is-digit-base-char? (_)
-	(list 'find-rev _ +char_class_digit_base))
+	(list 'bfind _ +char_class_digit_base))
 
 (defmacro is-op-char? (_)
 	(list 'find-rev _ +op_chars))

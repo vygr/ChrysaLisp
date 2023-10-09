@@ -119,8 +119,8 @@
 					(defq n :nil))
 				(setq token (char-class token))
 				(cache (if n
-					(static-qq (((not (find s ,token)) 1)))
-					(static-qq (((find s ,token) 1))))))
+					(static-qq (((not (bfind s ,token)) 1)))
+					(static-qq (((bfind s ,token) 1))))))
 			(:assert (case token
 				("^" (static-q ((:nil (if (< si 0) 1)))))
 				("$" (static-q ((:nil (if (>= si tl) 1)))))

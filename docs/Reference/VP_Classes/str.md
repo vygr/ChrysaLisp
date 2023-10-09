@@ -182,6 +182,19 @@ trashes
 :r1-:r6
 ```
 
+### :lisp_bfind -> class/str/lisp_bfind
+
+```code
+inputs
+:r0 = lisp object (ptr)
+:r1 = args list object (ptr)
+outputs
+:r0 = lisp object (ptr)
+:r1 = return value object (ptr)
+trashes
+:r1-:r14
+```
+
 ### :lisp_char -> class/str/lisp_char
 
 ```code

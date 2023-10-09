@@ -9,16 +9,16 @@
 ;module
 (env-push)
 
-(defq +symbol_chars (char-class "A-Za-z0-9-!@#$%^&*_+=[];\:|./<>?`~'"))
+(defq +char_class_symbol (char-class "A-Za-z0-9-!@#$%^&*_+=[];\:|./<>?`~'"))
 
 (defmacro is-digit-char? (_)
-	(list 'find-rev _ +char_class_digit))
+	(list 'bfind _ +char_class_digit))
 
 (defmacro is-digit-base-char? (_)
-	(list 'find-rev _ +char_class_digit_base))
+	(list 'bfind _ +char_class_digit_base))
 
 (defmacro is-symbol-char? (_)
-	(list 'find-rev _ +symbol_chars))
+	(list 'bfind _ +char_class_symbol))
 
 (defclass Syntax () :nil
 	; (Syntax) -> syntax
