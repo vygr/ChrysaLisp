@@ -9,17 +9,9 @@
 ;module
 (env-push)
 
-(defq +number_chars
-		"0123456789"
-	+allowed_number_chars (cat
-		"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-		"abcdefghijklmnopqrstuvwxyz"
-		".0123456789")
-	+symbol_chars (cat
-		"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-		"0123456789"
-		"!@#$%^&*_+-=[];\:|./<>?`~'"
-		"abcdefghijklmnopqrstuvwxyz"))
+(defq +number_chars (char-class "0-9")
+	+allowed_number_chars (char-class "A-Za-z0-9.")
+	+symbol_chars (char-class "A-Za-z0-9-!@#$%^&*_+=[];\:|./<>?`~'"))
 
 (defmacro is-number-char? (_)
 	(list 'find-rev _ +number_chars))

@@ -263,6 +263,16 @@ flush any shared pixmaps that have no users.
 (case form [(key|(key ...) body)] ...)
 ```
 
+### char-class
+
+```code
+(char-class key) -> str
+
+create char class
+these are sorted interend char strings
+can be searched with (bfind)
+```
+
 ### char-to-num
 
 ```code

@@ -19,16 +19,6 @@
 (defun cache (elem) ;graph element cache
 	(defq k (str elem)) (memoize k elem 11))
 
-(defun cache-class-range (k) ;class range cache
-	(memoize k (apply (const cat)
-		(map (const char) (range (code (first k)) (inc (code (last k)))))) 7))
-
-(defun cache-class (k) ;class cache
-	(memoize k (apply (const cat)
-		(map (# (if (and (= (length %0) 3) (eql (second %0) "-"))
-					(cache-class-range %0) %0))
-			(partition 3 k))) 7))
-
 (defun tokenize (line)
 	(defq state :space concat :nil token :nil
 		out_types (clear '()) out_tokens (clear '()))
@@ -127,7 +117,7 @@
 				(if (eql (first token) "^")
 					(defq n :t token (rest token))
 					(defq n :nil))
-				(setq token (cache-class token))
+				(setq token (char-class token))
 				(cache (if n
 					(static-qq (((not (find s ,token)) 1)))
 					(static-qq (((find s ,token) 1))))))

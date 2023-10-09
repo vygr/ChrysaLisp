@@ -9,11 +9,11 @@
 ; tokenizer
 ;;;;;;;;;;;
 
-(defq +symbol_chars "+:ABCDEFGHIJKLMNOPQRSTUVWXYZ_/0123456789abcdefghijklmnopqrstuvwxyz"
-	+path_chars "ABCDEFGHIJKLMNOPQRSTUVWXYZ_/0123456789abcdefghijklmnopqrstuvwxyz"
-	+label_chars "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_abcdefghijklmnopqrstuvwxyz"
-	+number_chars "0123456789"
-	+folow_on_number_chars "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz.0123456789"
+(defq +symbol_chars (char-class "A-Za-z0-9+:_/")
+	+path_chars (char-class "A-Za-z0-9_/")
+	+label_chars (char-class "A-Za-z0-9_")
+	+number_chars (char-class "0-9")
+	+folow_on_number_chars (char-class "A-Za-z0-9.")
 	+op_chars "+-*/%~^<=>!&|."
 	+folow_on_op_chars "/%<=>&|"
 	+bracket_chars "()[]"

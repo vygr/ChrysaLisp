@@ -2,8 +2,9 @@
 ; pattern searching
 ;;;;;;;;;;;;;;;;;;;
 
-(import "lib/text/substr.inc")
-(import "lib/text/regexp.inc")
+(import "./charclass.inc")
+(import "./substr.inc")
+(import "./regexp.inc")
 
 ;module
 (env-push)
