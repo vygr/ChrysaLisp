@@ -460,7 +460,7 @@
 
 	(list-bind-args args `(,c ,s) '(:char :obj))
 	(assign `(0 (,s str_length)) `(,i ,j))
-	(vpif `(,i < ,j))
+	(vpif `(,i /= ,j))
 		(assign `((& ,s str_data)) `(,s))
 		(loop-start)
 			(vp-lea-d i j k)
@@ -473,7 +473,7 @@
 			(else)
 				(vp-lea-i k 1 i)
 			(endif)
-		(loop-until `(,i >= ,j))
+		(loop-until `(,i = ,j))
 	(endif)
 
 	(assign `((,this lisp_sym_nil)) `(,args))
