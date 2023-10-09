@@ -25,7 +25,7 @@
 		; (. xset :insert key) -> xset
 		(slot)
 		(cond
-			(e (elem-set e (elem-get b x) key))
+			(e)
 			(:t (push (elem-get b x) key)))
 		this)
 
