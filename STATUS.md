@@ -11,6 +11,11 @@ Terminal app saves common history to `terminal_state.tre`.
 
 Terminal supports dynamic page scaling.
 
+New `lib/text/charclass.inc` module. Parsers and Regexp changed to use this as
+standard. A new `(bfind char string) -> :nil | index` function is provided to
+perform a binary search find in any sorted char string, which all `(char-class
+class_key) -> str` generated strings now are !
+
 ------
 
 Editor now has global macro playback to EOF ! Really powerful stuff.
