@@ -1,5 +1,7 @@
 # sys_heap
 
+## VP methods
+
 ### :alloc -> sys/heap/alloc
 
 ```code

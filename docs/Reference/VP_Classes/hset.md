@@ -2,6 +2,8 @@
 
 ## obj
 
+## VP methods
+
 ### :clear -> class/hset/clear
 
 ```code

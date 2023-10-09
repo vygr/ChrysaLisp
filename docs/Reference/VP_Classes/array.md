@@ -2,6 +2,30 @@
 
 ## seq
 
+## Lisp Bindings
+
+### (array [num ...])
+
+### (cap len array ...)
+
+### (clear array ...)
+
+### (elem-set index array val)
+
+### (fixeds [num ...])
+
+### (nums [num ...])
+
+### (path [num ...])
+
+### (pop array)
+
+### (push array form ...)
+
+### (reals [num ...])
+
+## VP methods
+
 ### :append -> class/array/append
 
 ```code
@@ -256,156 +280,6 @@ outputs
 :r1 = 0 if error, else ok
 trashes
 :r1-:r2
-```
-
-### :lisp_array -> class/array/lisp_array
-
-### (array [num ...])
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_cap -> class/array/lisp_cap
-
-### (cap len array ...)
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_clear -> class/array/lisp_clear
-
-### (clear array ...)
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_elemset -> class/array/lisp_elemset
-
-### (elem-set index array val)
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_fixeds -> class/array/lisp_fixeds
-
-### (fixeds [num ...])
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_nums -> class/array/lisp_nums
-
-### (nums [num ...])
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_path -> class/array/lisp_path
-
-### (path [num ...])
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_pop -> class/array/lisp_pop
-
-### (pop array)
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_push -> class/array/lisp_push
-
-### (push array form ...)
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_reals -> class/array/lisp_reals
-
-### (reals [num ...])
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
 ```
 
 ### :partition -> class/array/partition

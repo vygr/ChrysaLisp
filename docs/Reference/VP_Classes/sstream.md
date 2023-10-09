@@ -2,6 +2,8 @@
 
 ## stream
 
+## VP methods
+
 ### :claim_string -> class/sstream/claim_string
 
 ```code

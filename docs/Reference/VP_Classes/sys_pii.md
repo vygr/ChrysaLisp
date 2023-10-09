@@ -1,5 +1,21 @@
 # sys_pii
 
+## Lisp Bindings
+
+### (pii-dirlist path)
+
+### (pii-fstat path)
+
+### (pii-read-char fd)
+
+### (pii-remove path)
+
+### (pii-time)
+
+### (pii-write-char fd char)
+
+## VP methods
+
 ### :clear_icache -> sys/pii/clear_icache
 
 ```code
@@ -53,98 +69,6 @@ trashes
 ```code
 inputs
 :r0 = code (long)
-```
-
-### :lisp_age -> sys/pii/lisp_age
-
-### :lisp_dirlist -> sys/pii/lisp_dirlist
-
-### (pii-dirlist path)
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_fstat -> sys/pii/lisp_fstat
-
-### (pii-fstat path)
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_readchar -> sys/pii/lisp_readchar
-
-### (pii-read-char fd)
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_remove -> sys/pii/lisp_remove
-
-### (pii-remove path)
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_time -> sys/pii/lisp_time
-
-### (pii-time)
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_writechar -> sys/pii/lisp_writechar
-
-### (pii-write-char fd char)
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
 ```
 
 ### :mmap -> sys/pii/mmap

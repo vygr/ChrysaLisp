@@ -2,6 +2,32 @@
 
 ## array
 
+## Lisp Bindings
+
+### (nums-abs nums [nums])
+
+### (nums-add nums nums [nums])
+
+### (nums-div nums nums [nums])
+
+### (nums-dot nums nums)
+
+### (nums-max nums nums [nums])
+
+### (nums-min nums nums [nums])
+
+### (nums-mod nums nums [nums])
+
+### (nums-mul nums nums [nums])
+
+### (nums-scale nums scale [nums])
+
+### (nums-sub nums nums [nums])
+
+### (nums-sum nums)
+
+## VP methods
+
 ### :abs -> class/nums/abs
 
 ```code
@@ -80,199 +106,6 @@ outputs
 :r1 = hash code (long)
 trashes
 :r1-:r4
-```
-
-### :lisp_abs -> class/nums/lisp_abs
-
-### (nums-abs nums [nums])
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_add -> class/nums/lisp_add
-
-### (nums-add nums nums [nums])
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_div -> class/nums/lisp_div
-
-### (nums-div nums nums [nums])
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_dot -> class/nums/lisp_dot
-
-### (nums-dot nums nums)
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_max -> class/nums/lisp_max
-
-### (nums-max nums nums [nums])
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_min -> class/nums/lisp_min
-
-### (nums-min nums nums [nums])
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_mod -> class/nums/lisp_mod
-
-### (nums-mod nums nums [nums])
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_mul -> class/nums/lisp_mul
-
-### (nums-mul nums nums [nums])
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_scale -> class/nums/lisp_scale
-
-### (nums-scale nums scale [nums])
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_sub -> class/nums/lisp_sub
-
-### (nums-sub nums nums [nums])
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_sum -> class/nums/lisp_sum
-
-### (nums-sum nums)
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_vecop1 -> class/nums/lisp_vecop1
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-:r2 = nums method (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = 0 if error, else value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_vecop2 -> class/nums/lisp_vecop2
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-:r2 = nums method (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = 0 if error, else value object (ptr)
-trashes
-:r1-:r14
 ```
 
 ### :max -> class/nums/max

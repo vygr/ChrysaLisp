@@ -2,6 +2,42 @@
 
 ## hmap
 
+## Lisp Bindings
+
+### (view-add-front parent child)
+
+### (view-add-back parent child)
+
+### (view-add-dirty view x y w h)
+
+### (view-add-opaque view x y w h)
+
+### (view-children view)
+
+### (view-clr-opaque view)
+
+### (create-view)
+
+### (view-find-id view id)
+
+### (view-hide view)
+
+### (view-hit-tree view x y)
+
+### (view-set-flags view flags mask)
+
+### (view-sub view)
+
+### (view-sub-opaque view x y w h)
+
+### (view-to-back view)
+
+### (view-to-front view)
+
+### (view-trans-dirty view rx ry)
+
+## VP methods
+
 ### :add_back -> gui/view/add_back
 
 ```code
@@ -199,246 +235,6 @@ inputs
 outputs
 :r0 = view object (ptr)
 :r1 = 0 if error, else ok
-trashes
-:r1-:r14
-```
-
-### :lisp_add -> gui/view/lisp_add
-
-### (view-add-front parent child)
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_add_back -> gui/view/lisp_add_back
-
-### (view-add-back parent child)
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_add_dirty -> gui/view/lisp_add_dirty
-
-### (view-add-dirty view x y w h)
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_add_opaque -> gui/view/lisp_add_opaque
-
-### (view-add-opaque view x y w h)
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_children -> gui/view/lisp_children
-
-### (view-children view)
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_clr_opaque -> gui/view/lisp_clr_opaque
-
-### (view-clr-opaque view)
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_create -> gui/view/lisp_create
-
-### (create-view)
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_find_id -> gui/view/lisp_find_id
-
-### (view-find-id view id)
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_hide -> gui/view/lisp_hide
-
-### (view-hide view)
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_hit_tree -> gui/view/lisp_hit_tree
-
-### (view-hit-tree view x y)
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_set_flags -> gui/view/lisp_set_flags
-
-### (view-set-flags view flags mask)
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_sub -> gui/view/lisp_sub
-
-### (view-sub view)
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_sub_opaque -> gui/view/lisp_sub_opaque
-
-### (view-sub-opaque view x y w h)
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_to_back -> gui/view/lisp_to_back
-
-### (view-to-back view)
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_to_front -> gui/view/lisp_to_front
-
-### (view-to-front view)
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_trans_dirty -> gui/view/lisp_trans_dirty
-
-### (view-trans-dirty view rx ry)
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
 trashes
 :r1-:r14
 ```

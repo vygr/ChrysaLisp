@@ -1,5 +1,7 @@
 # sys_mem
 
+## VP methods
+
 ### :alloc -> sys/mem/alloc
 
 ```code

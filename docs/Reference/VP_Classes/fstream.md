@@ -2,6 +2,8 @@
 
 ## stream
 
+## VP methods
+
 ### :create -> class/fstream/create
 
 ### :deinit -> class/fstream/deinit

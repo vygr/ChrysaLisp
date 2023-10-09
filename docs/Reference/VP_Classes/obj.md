@@ -1,5 +1,21 @@
 # obj
 
+## Lisp Bindings
+
+### (get-field obj field size|0)
+
+### (hash obj)
+
+### (obj-ref num)
+
+### (set-field obj field size|0 val)
+
+### (type-of obj)
+
+### (weak-ref obj)
+
+## VP methods
+
 ### :deinit -> class/obj/null
 
 ### :deref -> class/obj/deref
@@ -65,96 +81,6 @@ outputs
 :r1 = 0 if not, else vtable of object (ptr)
 trashes
 :r1-:r2
-```
-
-### :lisp_get_field -> class/obj/lisp_get_field
-
-### (get-field obj field size|0)
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_hash -> class/obj/lisp_hash
-
-### (hash obj)
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_obj_ref -> class/obj/lisp_obj_ref
-
-### (obj-ref num)
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_set_field -> class/obj/lisp_set_field
-
-### (set-field obj field size|0 val)
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_type -> class/obj/lisp_type
-
-### (type-of obj)
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_weak_ref -> class/obj/lisp_weak_ref
-
-### (weak-ref obj)
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
 ```
 
 ### :null -> class/obj/null

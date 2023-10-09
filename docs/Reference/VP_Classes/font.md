@@ -2,6 +2,22 @@
 
 ## obj
 
+## Lisp Bindings
+
+### (create-font name pixels)
+
+### (font-glyph-bounds font str)
+
+### (font-glyph-paths font str)
+
+### (font-glyph-ranges font)
+
+### (font-info font)
+
+### (font-sym-texture font sym)
+
+## VP methods
+
 ### :ascii_textures -> gui/font/ascii_textures
 
 ```code
@@ -128,96 +144,6 @@ inputs
 outputs
 :r0 = font object (ptr)
 :r1 = 0 if error, else ok
-trashes
-:r1-:r14
-```
-
-### :lisp_create -> gui/font/lisp_create
-
-### (create-font name pixels)
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_glyph_bounds -> gui/font/lisp_glyph_bounds
-
-### (font-glyph-bounds font str)
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_glyph_paths -> gui/font/lisp_glyph_paths
-
-### (font-glyph-paths font str)
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_glyph_ranges -> gui/font/lisp_glyph_ranges
-
-### (font-glyph-ranges font)
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_info -> gui/font/lisp_info
-
-### (font-info font)
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_texture -> gui/font/lisp_texture
-
-### (font-sym-texture font sym)
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
 trashes
 :r1-:r14
 ```

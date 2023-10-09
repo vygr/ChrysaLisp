@@ -2,6 +2,28 @@
 
 ## fixeds
 
+## Lisp Bindings
+
+### (path-filter tol src dst)
+
+### (path-gen-arc cx cy start end radius tol dst) -> dst
+
+### (path-gen-cubic p1x p1y p2x p2y p3x p3y p4x p4y tol dst) -> dst
+
+### (path-gen-quadratic p1x p1y p2x p2y p3x p3y tol dst) -> dst
+
+### (path-simplify tol src dst)
+
+### (path-stroke-polygon path radius tol join) -> paths
+
+### (path-stroke-polyline path radius tol join cap1 cap2) -> path
+
+### (path-svg d) -> commands
+
+### (path-transform m3x2 src dst)
+
+## VP methods
+
 ### :create -> gui/path/create
 
 ### :filter_polygon -> gui/path/filter_polygon
@@ -104,141 +126,6 @@ inputs
 :r8 = tolerance (fixed)
 outputs
 :r0 = path object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_filter -> gui/path/lisp_filter
-
-### (path-filter tol src dst)
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_gen_arc -> gui/path/lisp_gen_arc
-
-### (path-gen-arc cx cy start end radius tol dst) -> dst
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_gen_cubic -> gui/path/lisp_gen_cubic
-
-### (path-gen-cubic p1x p1y p2x p2y p3x p3y p4x p4y tol dst) -> dst
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_gen_quadratic -> gui/path/lisp_gen_quadratic
-
-### (path-gen-quadratic p1x p1y p2x p2y p3x p3y tol dst) -> dst
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_simplify -> gui/path/lisp_simplify
-
-### (path-simplify tol src dst)
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_stroke_polygon -> gui/path/lisp_stroke_polygon
-
-### (path-stroke-polygon path radius tol join) -> paths
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_stroke_polyline -> gui/path/lisp_stroke_polyline
-
-### (path-stroke-polyline path radius tol join cap1 cap2) -> path
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_svg -> gui/path/lisp_svg
-
-### (path-svg d) -> commands
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_transform -> gui/path/lisp_transform
-
-### (path-transform m3x2 src dst)
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
 trashes
 :r1-:r14
 ```

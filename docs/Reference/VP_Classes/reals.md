@@ -2,6 +2,8 @@
 
 ## fixeds
 
+## VP methods
+
 ### :abs -> class/reals/abs
 
 ```code

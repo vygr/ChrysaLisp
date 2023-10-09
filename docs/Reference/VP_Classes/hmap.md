@@ -2,6 +2,32 @@
 
 ## hset
 
+## Lisp Bindings
+
+### (def env var val [var val] ...)
+
+### (defq var val [var val] ...)
+
+### (def? var [env])
+
+### (env [num])
+
+### (get var [env])
+
+### (tolist env)
+
+### (penv [env])
+
+### (env-resize num [env])
+
+### (set env var val [var val] ...)
+
+### (setq var val [var val] ...)
+
+### (undef env var [var] ...)
+
+## VP methods
+
 ### :copy -> class/hmap/copy
 
 ```code
@@ -100,171 +126,6 @@ outputs
 :r0 = hmap object (ptr)
 :r1 = iterator (pptr)
 :r2 = bucket list (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_def -> class/hmap/lisp_def
-
-### (def env var val [var val] ...)
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_defq -> class/hmap/lisp_defq
-
-### (defq var val [var val] ...)
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_defx -> class/hmap/lisp_defx
-
-### (def? var [env])
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_env -> class/hmap/lisp_env
-
-### (env [num])
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = environment hmap object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_get -> class/hmap/lisp_get
-
-### (get var [env])
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_list -> class/hmap/lisp_list
-
-### (tolist env)
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = environment hmap object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_parent -> class/hmap/lisp_parent
-
-### (penv [env])
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_resize -> class/hmap/lisp_resize
-
-### (env-resize num [env])
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = environment hmap object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_set -> class/hmap/lisp_set
-
-### (set env var val [var val] ...)
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_setq -> class/hmap/lisp_setq
-
-### (setq var val [var val] ...)
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_undef -> class/hmap/lisp_undef
-
-### (undef env var [var] ...)
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
 trashes
 :r1-:r14
 ```

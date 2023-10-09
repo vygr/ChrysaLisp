@@ -2,6 +2,16 @@
 
 ## view
 
+## Lisp Bindings
+
+### (vdu-configure vdu)
+
+### (create-vdu)
+
+### (vdu-load vdu lines ox oy cx cy)
+
+## VP methods
+
 ### :create -> gui/vdu/create
 
 ### :deinit -> gui/vdu/deinit
@@ -35,51 +45,6 @@ inputs
 outputs
 :r0 = vdu object (ptr)
 :r1 = 0 if error, else ok
-trashes
-:r1-:r14
-```
-
-### :lisp_configure -> gui/vdu/lisp_configure
-
-### (vdu-configure vdu)
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_create -> gui/vdu/lisp_create
-
-### (create-vdu)
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_load -> gui/vdu/lisp_load
-
-### (vdu-load vdu lines ox oy cx cy)
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
 trashes
 :r1-:r14
 ```

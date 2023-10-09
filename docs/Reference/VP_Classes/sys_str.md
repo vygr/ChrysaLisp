@@ -1,5 +1,7 @@
 # sys_str
 
+## VP methods
+
 ### :compare -> sys/str/compare
 
 ```code

@@ -1,5 +1,13 @@
 # sys_task
 
+## Lisp Bindings
+
+### (task-netid)
+
+### (task-sleep usec)
+
+## VP methods
+
 ### :callback -> sys/task/callback
 
 ```code
@@ -28,49 +36,6 @@ inputs
 :rsp = task stack pointer (ptr)
 trashes
 none
-```
-
-### :lisp_mailbox -> sys/task/lisp_mailbox
-
-### (task-netid)
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_sleep -> sys/task/lisp_sleep
-
-### (task-sleep usec)
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_timeslice -> sys/task/lisp_timeslice
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
 ```
 
 ### :mailbox -> sys/task/mailbox

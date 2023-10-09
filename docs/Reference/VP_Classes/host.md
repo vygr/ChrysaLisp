@@ -1,5 +1,7 @@
 # host
 
+## VP methods
+
 ### :clear_icache -> :nil
 
 ### :close -> :nil

@@ -2,6 +2,20 @@
 
 ## num
 
+## Lisp Bindings
+
+### (cos angle)
+
+### (floor num)
+
+### (frac num)
+
+### (recip fixed)
+
+### (sin angle)
+
+## VP methods
+
 ### :cos -> class/fixed/cos
 
 ```code
@@ -49,81 +63,6 @@ inputs
 outputs
 :r0 = fixed object (ptr)
 :r1 = result fixed object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_cos -> class/fixed/lisp_cos
-
-### (cos angle)
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_floor -> class/fixed/lisp_floor
-
-### (floor num)
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_frac -> class/fixed/lisp_frac
-
-### (frac num)
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_recip -> class/fixed/lisp_recip
-
-### (recip fixed)
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_sin -> class/fixed/lisp_sin
-
-### (sin angle)
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
 trashes
 :r1-:r14
 ```

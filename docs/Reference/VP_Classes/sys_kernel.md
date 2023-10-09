@@ -1,5 +1,11 @@
 # sys_kernel
 
+## Lisp Bindings
+
+### (kernel-stats)
+
+## VP methods
+
 ### :id -> sys/kernel/id
 
 ```code
@@ -16,21 +22,6 @@ inputs
 :r0 = argv pointer (pptr)
 info
 loader is already initialized when we get here !
-```
-
-### :lisp_stats -> sys/kernel/lisp_stats
-
-### (kernel-stats)
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
 ```
 
 ### :ping -> sys/kernel/ping

@@ -2,6 +2,18 @@
 
 ## array
 
+## Lisp Bindings
+
+### (copy form)
+
+### (lmatch? list list)
+
+### (merge-obj dlist slist) -> dlist
+
+### (pivot lambda list start end)
+
+## VP methods
+
 ### :append -> class/list/append
 
 ```code
@@ -91,79 +103,6 @@ outputs
 :r2 = -1, else index (int)
 trashes
 :r2-:r14
-```
-
-### :lisp_copy -> class/list/lisp_copy
-
-### (copy form)
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_list -> class/list/lisp_list
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_match -> class/list/lisp_match
-
-### (lmatch? list list)
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_merge -> class/list/lisp_merge
-
-### (merge-obj dlist slist) -> dlist
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_part -> class/list/lisp_part
-
-### (pivot lambda list start end)
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
 ```
 
 ### :print -> class/list/print

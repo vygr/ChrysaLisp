@@ -1,5 +1,17 @@
 # ctx
 
+## Lisp Bindings
+
+### (ctx-blit view tid col x y w h)
+
+### (ctx-box view x y w h)
+
+### (ctx-filled-box view x y w h)
+
+### (ctx-set-color view col)
+
+## VP methods
+
 ### :blit -> gui/ctx/blit
 
 ```code
@@ -39,66 +51,6 @@ inputs
 :r10 = height (pixels)
 trashes
 :r0-:r14
-```
-
-### :lisp_blit -> gui/ctx/lisp_blit
-
-### (ctx-blit view tid col x y w h)
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_box -> gui/ctx/lisp_box
-
-### (ctx-box view x y w h)
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_filled_box -> gui/ctx/lisp_filled_box
-
-### (ctx-filled-box view x y w h)
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_set_color -> gui/ctx/lisp_set_color
-
-### (ctx-set-color view col)
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
 ```
 
 ### :set_color -> gui/ctx/set_color

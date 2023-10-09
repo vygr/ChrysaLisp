@@ -1,5 +1,11 @@
 # sys_load
 
+## Lisp Bindings
+
+### (load-path)
+
+## VP methods
+
 ### :bind -> sys/load/bind
 
 ```code
@@ -37,21 +43,6 @@ we need to keep the statics function on the front
 of the tail block, even though it dosn't get used
 because the boot image has relative link references
 to the 'sys/statics/statics' string in its header !
-```
-
-### :lisp_path -> sys/load/lisp_path
-
-### (load-path)
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
 ```
 
 ### :load -> sys/load/load

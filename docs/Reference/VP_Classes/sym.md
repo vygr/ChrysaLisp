@@ -2,6 +2,14 @@
 
 ## str
 
+## Lisp Bindings
+
+### (gensym)
+
+### (sym str)
+
+## VP methods
+
 ### :get_static_sym -> class/sym/get_static_sym
 
 ```code
@@ -60,36 +68,6 @@ outputs
 :r1 = list of sym objects (ptr)
 trashes
 :r0-:r14
-```
-
-### :lisp_gensym -> class/sym/lisp_gensym
-
-### (gensym)
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_sym -> class/sym/lisp_sym
-
-### (sym str)
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
 ```
 
 ### :print -> class/sym/print

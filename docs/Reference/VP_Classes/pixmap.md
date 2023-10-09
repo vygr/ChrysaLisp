@@ -2,6 +2,16 @@
 
 ## obj
 
+## Lisp Bindings
+
+### (pixmap-load-cpm stream)
+
+### (pixmap-load-tga stream)
+
+### (pixmap-save-cpm pixmap stream format)
+
+## VP methods
+
 ### :as_argb -> gui/pixmap/as_argb
 
 ```code
@@ -84,51 +94,6 @@ inputs
 outputs
 :r0 = pixmap object (ptr)
 :r1 = 0 if error, else ok
-trashes
-:r1-:r14
-```
-
-### :lisp_load_cpm -> gui/pixmap/lisp_load_cpm
-
-### (pixmap-load-cpm stream)
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_load_tga -> gui/pixmap/lisp_load_tga
-
-### (pixmap-load-tga stream)
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_save_cpm -> gui/pixmap/lisp_save_cpm
-
-### (pixmap-save-cpm pixmap stream format)
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
 trashes
 :r1-:r14
 ```

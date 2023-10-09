@@ -2,6 +2,46 @@
 
 ## obj
 
+## Lisp Bindings
+
+### (apply lambda list)
+
+### (catch form eform)
+
+### (cond [(tst [body])] ...)
+
+### (env-pop [env])
+
+### (env-push [env])
+
+### (eql form form)
+
+### (eval form [env])
+
+### (ffi sym path flags)
+
+### (if tst form [else_form])
+
+### (macroexpand form)
+
+### (. env sym [...])
+
+### (prebind form)
+
+### (quasi-quote form)
+
+### (quote form)
+
+### (read stream last_char)
+
+### (repl stream path)
+
+### (throw str form)
+
+### (while tst body)
+
+## VP methods
+
 ### :create -> class/lisp/create
 
 ### :deinit -> class/lisp/deinit
@@ -67,8 +107,6 @@ trashes
 
 ### :env_bind -> class/lisp/env_bind
 
-### (bind (param ...) seq)
-
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -79,6 +117,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+lisp binding
+(bind (param ...) seq)
 ```
 
 ### :env_pop -> class/lisp/env_pop
@@ -121,359 +161,7 @@ trashes
 :r1-:r14
 ```
 
-### :lisp_apply -> class/lisp/lisp_apply
-
-### (apply lambda list)
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_bind -> class/lisp/lisp_bind
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_catch -> class/lisp/lisp_catch
-
-### (catch form eform)
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_cond -> class/lisp/lisp_cond
-
-### (cond [(tst [body])] ...)
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_copy -> class/lisp/lisp_copy
-
-### :lisp_env_pop -> class/lisp/lisp_env_pop
-
-### (env-pop [env])
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_env_push -> class/lisp/lisp_env_push
-
-### (env-push [env])
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_eql -> class/lisp/lisp_eql
-
-### (eql form form)
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_eval -> class/lisp/lisp_eval
-
-### (eval form [env])
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_ffi -> class/lisp/lisp_ffi
-
-### (ffi sym path flags)
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_if -> class/lisp/lisp_if
-
-### (if tst form [else_form])
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_lambda -> class/lisp/lisp_lambda
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_macro -> class/lisp/lisp_macro
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_macroexpand -> class/lisp/lisp_macroexpand
-
-### (macroexpand form)
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_mcall -> class/lisp/lisp_mcall
-
-### (. env sym [...])
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_prebind -> class/lisp/lisp_bindfun
-
-### (prebind form)
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_prin -> class/lisp/lisp_prin
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_print -> class/lisp/lisp_print
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_progn -> class/lisp/lisp_progn
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_qquote -> class/lisp/lisp_qquote
-
-### (quasi-quote form)
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_quote -> class/lisp/lisp_quote
-
-### (quote form)
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_read -> class/lisp/lisp_read
-
-### (read stream last_char)
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_repl -> class/lisp/lisp_repl
-
-### (repl stream path)
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_throw -> class/lisp/lisp_throw
-
-### (throw str form)
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_while -> class/lisp/lisp_while
-
-### (while tst body)
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
 ### :read -> class/lisp/read
-
-### unexpected )
 
 ```code
 inputs
@@ -486,6 +174,8 @@ outputs
 :r2 = next char (uint)
 trashes
 :r1-:r14
+lisp binding
+unexpected )
 ```
 
 ### :read_char -> class/lisp/read_char
@@ -565,8 +255,6 @@ trashes
 
 ### :repl_apply -> class/lisp/repl_apply
 
-### (lambda ([arg ...]) body)
-
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -577,6 +265,8 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
+lisp binding
+(lambda ([arg ...]) body)
 ```
 
 ### :repl_bind -> class/lisp/repl_bind

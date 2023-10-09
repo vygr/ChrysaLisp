@@ -2,6 +2,34 @@
 
 ## view
 
+## Lisp Bindings
+
+### (create-canvas width height scale)
+
+### (create-canvas-pixmap pixmap)
+
+### (canvas-fbox canvas x y w h)
+
+### (canvas-fill canvas argb)
+
+### (canvas-fpoly canvas x y mode list)
+
+### (canvas-from-argb32 pixel type)
+
+### (canvas-ftri canvas path)
+
+### (canvas-next-frame canvas)
+
+### (canvas-plot canvas x y)
+
+### (canvas-resize canvas canvas)
+
+### (canvas-swap canvas flags)
+
+### (canvas-to-argb32 pixel type)
+
+## VP methods
+
 ### :create -> gui/canvas/create
 
 ### :create_pixmap -> gui/canvas/create_pixmap
@@ -90,186 +118,6 @@ inputs
 outputs
 :r0 = canvas object (ptr)
 :r1 = 0 if error, else ok
-trashes
-:r1-:r14
-```
-
-### :lisp_create -> gui/canvas/lisp_create
-
-### (create-canvas width height scale)
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_create_pixmap -> gui/canvas/lisp_create_pixmap
-
-### (create-canvas-pixmap pixmap)
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_fbox -> gui/canvas/lisp_fbox
-
-### (canvas-fbox canvas x y w h)
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_fill -> gui/canvas/lisp_fill
-
-### (canvas-fill canvas argb)
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_fpoly -> gui/canvas/lisp_fpoly
-
-### (canvas-fpoly canvas x y mode list)
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_from_argb32 -> gui/canvas/lisp_from_argb32
-
-### (canvas-from-argb32 pixel type)
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_ftri -> gui/canvas/lisp_ftri
-
-### (canvas-ftri canvas path)
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_next_frame -> gui/canvas/lisp_next_frame
-
-### (canvas-next-frame canvas)
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_plot -> gui/canvas/lisp_plot
-
-### (canvas-plot canvas x y)
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_resize -> gui/canvas/lisp_resize
-
-### (canvas-resize canvas canvas)
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_swap -> gui/canvas/lisp_swap
-
-### (canvas-swap canvas flags)
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_to_argb32 -> gui/canvas/lisp_to_argb32
-
-### (canvas-to-argb32 pixel type)
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
 trashes
 :r1-:r14
 ```

@@ -2,6 +2,30 @@
 
 ## seq
 
+## Lisp Bindings
+
+### (bfind char str)
+
+### (char num [width])
+
+### (cmp str str)
+
+### (code str [width index])
+
+### (str-alloc size)
+
+### (expand str tab_width)
+
+### (load path)
+
+### (save str path)
+
+### (split str chars)
+
+### (str-to-num str)
+
+## VP methods
+
 ### :append -> class/str/append
 
 ```code
@@ -180,169 +204,6 @@ outputs
 :r1 = 0 if error, else ok
 trashes
 :r1-:r6
-```
-
-### :lisp_bfind -> class/str/lisp_bfind
-
-### (bfind char str)
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_char -> class/str/lisp_char
-
-### (char num [width])
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_cmp -> class/str/lisp_cmp
-
-### (cmp str str)
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_code -> class/str/lisp_code
-
-### (code str [width index])
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_create -> class/str/lisp_create
-
-### (str-alloc size)
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_expand -> class/str/lisp_expand
-
-### (expand str tab_width)
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_load -> class/str/lisp_load
-
-### (load path)
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_save -> class/str/lisp_save
-
-### (save str path)
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_split -> class/str/lisp_split
-
-### (split str chars)
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_str -> class/str/lisp_str
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_to_num -> class/str/lisp_to_num
-
-### (str-to-num str)
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
 ```
 
 ### :print -> class/str/print

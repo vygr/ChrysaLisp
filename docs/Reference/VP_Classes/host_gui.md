@@ -1,5 +1,7 @@
 # host_gui
 
+## VP methods
+
 ### :begin_composite -> :nil
 
 ### :blit -> :nil

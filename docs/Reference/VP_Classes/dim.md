@@ -2,6 +2,16 @@
 
 ## obj
 
+## Lisp Bindings
+
+### (dim nums array)
+
+### (dim-get nums dim)
+
+### (dim-set nums dim form)
+
+## VP methods
+
 ### :create -> class/dim/create
 
 ### :deinit -> class/dim/deinit
@@ -28,51 +38,6 @@ outputs
 :r1 = 0 if error, else ok
 trashes
 :r1-:r6
-```
-
-### :lisp_dim -> class/dim/lisp_dim
-
-### (dim nums array)
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_get -> class/dim/lisp_get
-
-### (dim-get nums dim)
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
-```
-
-### :lisp_set -> class/dim/lisp_set
-
-### (dim-set nums dim form)
-
-```code
-inputs
-:r0 = lisp object (ptr)
-:r1 = args list object (ptr)
-outputs
-:r0 = lisp object (ptr)
-:r1 = return value object (ptr)
-trashes
-:r1-:r14
 ```
 
 ### :vtable -> class/dim/vtable

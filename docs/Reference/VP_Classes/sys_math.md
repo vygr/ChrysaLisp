@@ -1,5 +1,7 @@
 # sys_math
 
+## VP methods
+
 ### :f_cos -> sys/math/f_cos
 
 ```code
