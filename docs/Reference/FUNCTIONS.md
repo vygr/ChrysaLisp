@@ -269,7 +269,7 @@ flush any shared pixmaps that have no users.
 (char-class key) -> str
 
 create char class
-these are sorted interend char strings
+these are sorted interend unescaped char strings
 can be searched with (bfind)
 ```
 
