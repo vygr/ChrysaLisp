@@ -134,6 +134,8 @@ trashes
 
 ### :lisp_create -> gui/font/lisp_create
 
+### (create-font name pixels)
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -143,12 +145,12 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(create-font name pixels)
 ```
 
 ### :lisp_glyph_bounds -> gui/font/lisp_glyph_bounds
 
+### (font-glyph-bounds font str)
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -158,12 +160,12 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(font-glyph-bounds font str)
 ```
 
 ### :lisp_glyph_paths -> gui/font/lisp_glyph_paths
 
+### (font-glyph-paths font str)
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -173,12 +175,12 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(font-glyph-paths font str)
 ```
 
 ### :lisp_glyph_ranges -> gui/font/lisp_glyph_ranges
 
+### (font-glyph-ranges font)
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -188,12 +190,12 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(font-glyph-ranges font)
 ```
 
 ### :lisp_info -> gui/font/lisp_info
 
+### (font-info font)
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -203,12 +205,12 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(font-info font)
 ```
 
 ### :lisp_texture -> gui/font/lisp_texture
 
+### (font-sym-texture font sym)
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -218,8 +220,6 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(font-sym-texture font sym)
 ```
 
 ### :open -> gui/font/open

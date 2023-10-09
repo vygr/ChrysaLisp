@@ -92,7 +92,7 @@
 						((and (or (eql _ "call") (eql _ "jump")) (eql (third s) ":repl_error"))
 							(when (and (setq line (chop line)) (not (find line syntax)))
 								(push syntax line)
-								(push (last docs) ";lisp binding" (cat ";" line))))))) (file-stream file))) *imports*)))
+								(push (last docs) "lisp binding" line)))))) (file-stream file))) *imports*)))
 
 	;create VP classes docs
 	(sort (# (cmp (first %0) (first %1))) classes)
@@ -104,9 +104,13 @@
 		(sort (# (cmp (first %0) (first %1))) methds)
 		(each (lambda ((methd function))
 			(write-line stream (cat "### " methd " -> " function (ascii-char 10)))
-			(when (and (defq i (find function functions)) (/= 0 (length (elem-get i docs))))
+			(when (and (defq i (find function functions))
+					(/= 0 (length (defq info (elem-get i docs)))))
+				(when (defq i (find "lisp binding" info))
+					(write-line stream (cat "### " (elem-get (inc i) info) (ascii-char 10)))
+					(setq info (slice 0 i info)))
 				(write-line stream "```code")
-				(each (# (write-line stream %0)) (elem-get i docs))
+				(each (# (write-line stream %0)) info)
 				(write-line stream (const (str "```" (ascii-char 10)))))) methds)
 		(print (cat "-> docs/Reference/VP_Classes/" cls ".md"))) classes)
 

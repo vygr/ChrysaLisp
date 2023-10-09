@@ -20,6 +20,8 @@ loader is already initialized when we get here !
 
 ### :lisp_stats -> sys/kernel/lisp_stats
 
+### (kernel-stats)
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -29,8 +31,6 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(kernel-stats)
 ```
 
 ### :ping -> sys/kernel/ping

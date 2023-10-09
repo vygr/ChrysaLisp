@@ -32,6 +32,8 @@ none
 
 ### :lisp_mailbox -> sys/task/lisp_mailbox
 
+### (task-netid)
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -41,12 +43,12 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(task-netid)
 ```
 
 ### :lisp_sleep -> sys/task/lisp_sleep
 
+### (task-sleep usec)
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -56,8 +58,6 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(task-sleep usec)
 ```
 
 ### :lisp_timeslice -> sys/task/lisp_timeslice

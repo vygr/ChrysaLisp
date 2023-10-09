@@ -95,6 +95,8 @@ trashes
 
 ### :lisp_copy -> class/list/lisp_copy
 
+### (copy form)
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -104,8 +106,6 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(copy form)
 ```
 
 ### :lisp_list -> class/list/lisp_list
@@ -123,6 +123,8 @@ trashes
 
 ### :lisp_match -> class/list/lisp_match
 
+### (lmatch? list list)
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -132,12 +134,12 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(lmatch? list list)
 ```
 
 ### :lisp_merge -> class/list/lisp_merge
 
+### (merge-obj dlist slist) -> dlist
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -147,12 +149,12 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(merge-obj dlist slist) -> dlist
 ```
 
 ### :lisp_part -> class/list/lisp_part
 
+### (pivot lambda list start end)
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -162,8 +164,6 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(pivot lambda list start end)
 ```
 
 ### :print -> class/list/print

@@ -43,6 +43,8 @@ trashes
 
 ### :lisp_blit -> gui/ctx/lisp_blit
 
+### (ctx-blit view tid col x y w h)
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -52,12 +54,12 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(ctx-blit view tid col x y w h)
 ```
 
 ### :lisp_box -> gui/ctx/lisp_box
 
+### (ctx-box view x y w h)
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -67,12 +69,12 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(ctx-box view x y w h)
 ```
 
 ### :lisp_filled_box -> gui/ctx/lisp_filled_box
 
+### (ctx-filled-box view x y w h)
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -82,12 +84,12 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(ctx-filled-box view x y w h)
 ```
 
 ### :lisp_set_color -> gui/ctx/lisp_set_color
 
+### (ctx-set-color view col)
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -97,8 +99,6 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(ctx-set-color view col)
 ```
 
 ### :set_color -> gui/ctx/set_color

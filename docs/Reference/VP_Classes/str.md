@@ -184,6 +184,8 @@ trashes
 
 ### :lisp_bfind -> class/str/lisp_bfind
 
+### (bfind char str)
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -193,12 +195,12 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(bfind char str)
 ```
 
 ### :lisp_char -> class/str/lisp_char
 
+### (char num [width])
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -208,12 +210,12 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(char num [width])
 ```
 
 ### :lisp_cmp -> class/str/lisp_cmp
 
+### (cmp str str)
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -223,12 +225,12 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(cmp str str)
 ```
 
 ### :lisp_code -> class/str/lisp_code
 
+### (code str [width index])
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -238,12 +240,12 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(code str [width index])
 ```
 
 ### :lisp_create -> class/str/lisp_create
 
+### (str-alloc size)
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -253,12 +255,12 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(str-alloc size)
 ```
 
 ### :lisp_expand -> class/str/lisp_expand
 
+### (expand str tab_width)
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -268,12 +270,12 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(expand str tab_width)
 ```
 
 ### :lisp_load -> class/str/lisp_load
 
+### (load path)
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -283,12 +285,12 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(load path)
 ```
 
 ### :lisp_save -> class/str/lisp_save
 
+### (save str path)
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -298,12 +300,12 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(save str path)
 ```
 
 ### :lisp_split -> class/str/lisp_split
 
+### (split str chars)
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -313,8 +315,6 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(split str chars)
 ```
 
 ### :lisp_str -> class/str/lisp_str
@@ -332,6 +332,8 @@ trashes
 
 ### :lisp_to_num -> class/str/lisp_to_num
 
+### (str-to-num str)
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -341,8 +343,6 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(str-to-num str)
 ```
 
 ### :print -> class/str/print

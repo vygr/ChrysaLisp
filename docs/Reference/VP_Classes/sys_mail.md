@@ -128,6 +128,8 @@ trashes
 
 ### :lisp_alloc_mbox -> sys/mail/lisp_alloc_mbox
 
+### (mail-alloc-mbox)
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -137,12 +139,12 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(mail-alloc-mbox)
 ```
 
 ### :lisp_declare -> sys/mail/lisp_declare
 
+### (mail-declare mbox name info)
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -152,12 +154,12 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(mail-declare mbox name info)
 ```
 
 ### :lisp_devices -> sys/mail/lisp_devices
 
+### (mail-nodes)
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -167,12 +169,12 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(mail-nodes)
 ```
 
 ### :lisp_enquire -> sys/mail/lisp_enquire
 
+### (mail-enquire prefix)
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -182,12 +184,12 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(mail-enquire prefix)
 ```
 
 ### :lisp_forget -> sys/mail/lisp_forget
 
+### (mail-forget key)
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -197,12 +199,12 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(mail-forget key)
 ```
 
 ### :lisp_free_mbox -> sys/mail/lisp_free_mbox
 
+### (mail-free-mbox mbox)
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -212,12 +214,12 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(mail-free-mbox mbox)
 ```
 
 ### :lisp_poll -> sys/mail/lisp_poll
 
+### (mail-poll mboxs)
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -227,12 +229,12 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(mail-poll mboxs)
 ```
 
 ### :lisp_read -> sys/mail/lisp_read
 
+### (mail-read mbox)
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -242,12 +244,12 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(mail-read mbox)
 ```
 
 ### :lisp_select -> sys/mail/lisp_select
 
+### (mail-select mboxs)
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -257,12 +259,12 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(mail-select mboxs)
 ```
 
 ### :lisp_send -> sys/mail/lisp_send
 
+### (mail-send mbox obj)
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -272,12 +274,12 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(mail-send mbox obj)
 ```
 
 ### :lisp_timeout -> sys/mail/lisp_timeout
 
+### (mail-timeout mbox ns id)
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -287,12 +289,12 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(mail-timeout mbox ns id)
 ```
 
 ### :lisp_validate -> sys/mail/lisp_validate
 
+### (mail-validate mbox)
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -302,8 +304,6 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(mail-validate mbox)
 ```
 
 ### :mymail -> sys/mail/mymail

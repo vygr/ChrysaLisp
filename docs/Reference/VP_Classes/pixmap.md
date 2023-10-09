@@ -90,6 +90,8 @@ trashes
 
 ### :lisp_load_cpm -> gui/pixmap/lisp_load_cpm
 
+### (pixmap-load-cpm stream)
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -99,12 +101,12 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(pixmap-load-cpm stream)
 ```
 
 ### :lisp_load_tga -> gui/pixmap/lisp_load_tga
 
+### (pixmap-load-tga stream)
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -114,12 +116,12 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(pixmap-load-tga stream)
 ```
 
 ### :lisp_save_cpm -> gui/pixmap/lisp_save_cpm
 
+### (pixmap-save-cpm pixmap stream format)
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -129,8 +131,6 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(pixmap-save-cpm pixmap stream format)
 ```
 
 ### :load_cpm -> gui/pixmap/load_cpm

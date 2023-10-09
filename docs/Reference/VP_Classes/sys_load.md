@@ -41,6 +41,8 @@ to the 'sys/statics/statics' string in its header !
 
 ### :lisp_path -> sys/load/lisp_path
 
+### (load-path)
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -50,8 +52,6 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(load-path)
 ```
 
 ### :load -> sys/load/load

@@ -59,6 +59,8 @@ inputs
 
 ### :lisp_dirlist -> sys/pii/lisp_dirlist
 
+### (pii-dirlist path)
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -68,12 +70,12 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(pii-dirlist path)
 ```
 
 ### :lisp_fstat -> sys/pii/lisp_fstat
 
+### (pii-fstat path)
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -83,12 +85,12 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(pii-fstat path)
 ```
 
 ### :lisp_readchar -> sys/pii/lisp_readchar
 
+### (pii-read-char fd)
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -98,12 +100,12 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(pii-read-char fd)
 ```
 
 ### :lisp_remove -> sys/pii/lisp_remove
 
+### (pii-remove path)
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -113,12 +115,12 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(pii-remove path)
 ```
 
 ### :lisp_time -> sys/pii/lisp_time
 
+### (pii-time)
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -128,12 +130,12 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(pii-time)
 ```
 
 ### :lisp_writechar -> sys/pii/lisp_writechar
 
+### (pii-write-char fd char)
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -143,8 +145,6 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(pii-write-char fd char)
 ```
 
 ### :mmap -> sys/pii/mmap

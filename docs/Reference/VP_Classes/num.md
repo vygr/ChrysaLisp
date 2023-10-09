@@ -145,6 +145,8 @@ trashes
 
 ### :lisp_abs -> class/num/lisp_abs
 
+### (abs num)
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -154,12 +156,12 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(abs num)
 ```
 
 ### :lisp_add -> class/num/lisp_add
 
+### (+ num num ...)
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -169,12 +171,12 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(+ num num ...)
 ```
 
 ### :lisp_and -> class/num/lisp_and
 
+### (logand [num] ...)
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -184,12 +186,12 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(logand [num] ...)
 ```
 
 ### :lisp_asr -> class/num/lisp_asr
 
+### (>>> num cnt)
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -199,12 +201,12 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(>>> num cnt)
 ```
 
 ### :lisp_div -> class/num/lisp_div
 
+### (/ num num ...)
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -214,12 +216,12 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(/ num num ...)
 ```
 
 ### :lisp_eq -> class/num/lisp_eq
 
+### (= num num ...)
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -229,12 +231,12 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(= num num ...)
 ```
 
 ### :lisp_ge -> class/num/lisp_ge
 
+### (>= num num ...)
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -244,12 +246,12 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(>= num num ...)
 ```
 
 ### :lisp_gt -> class/num/lisp_gt
 
+### (> num num ...)
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -259,12 +261,12 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(> num num ...)
 ```
 
 ### :lisp_intern -> class/num/lisp_intern
 
+### (num-intern num)
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -274,12 +276,12 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(num-intern num)
 ```
 
 ### :lisp_le -> class/num/lisp_le
 
+### (<= num num ...)
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -289,12 +291,12 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(<= num num ...)
 ```
 
 ### :lisp_lt -> class/num/lisp_lt
 
+### (< num num ...)
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -304,12 +306,12 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(< num num ...)
 ```
 
 ### :lisp_max -> class/num/lisp_max
 
+### (max num num ...)
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -319,12 +321,12 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(max num num ...)
 ```
 
 ### :lisp_min -> class/num/lisp_min
 
+### (min num num ...)
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -334,12 +336,12 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(min num num ...)
 ```
 
 ### :lisp_mod -> class/num/lisp_mod
 
+### (% num num ...)
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -349,12 +351,12 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(% num num ...)
 ```
 
 ### :lisp_mul -> class/num/lisp_mul
 
+### (* num num ...)
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -364,12 +366,12 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(* num num ...)
 ```
 
 ### :lisp_n2f -> class/num/lisp_n2f
 
+### (n2f num)
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -379,12 +381,12 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(n2f num)
 ```
 
 ### :lisp_n2i -> class/num/lisp_n2i
 
+### (n2i num)
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -394,12 +396,12 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(n2i num)
 ```
 
 ### :lisp_n2r -> class/num/lisp_n2r
 
+### (n2r num)
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -409,12 +411,12 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(n2r num)
 ```
 
 ### :lisp_ne -> class/num/lisp_ne
 
+### (/= num num ...)
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -424,12 +426,12 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(/= num num ...)
 ```
 
 ### :lisp_neg -> class/num/lisp_neg
 
+### (neg num)
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -439,12 +441,12 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(neg num)
 ```
 
 ### :lisp_or -> class/num/lisp_or
 
+### (logior [num] ...)
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -454,12 +456,12 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(logior [num] ...)
 ```
 
 ### :lisp_random -> class/num/lisp_random
 
+### (random num)
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -469,12 +471,12 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(random num)
 ```
 
 ### :lisp_shl -> class/num/lisp_shl
 
+### (<< num cnt)
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -484,12 +486,12 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(<< num cnt)
 ```
 
 ### :lisp_shr -> class/num/lisp_shr
 
+### (>> num cnt)
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -499,12 +501,12 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(>> num cnt)
 ```
 
 ### :lisp_sign -> class/num/lisp_sign
 
+### (sign num)
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -514,12 +516,12 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(sign num)
 ```
 
 ### :lisp_sqrt -> class/num/lisp_sqrt
 
+### (sqrt num)
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -529,12 +531,12 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(sqrt num)
 ```
 
 ### :lisp_sub -> class/num/lisp_sub
 
+### (- num num ...)
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -544,12 +546,12 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(- num num ...)
 ```
 
 ### :lisp_xor -> class/num/lisp_xor
 
+### (logxor [num] ...)
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -559,8 +561,6 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(logxor [num] ...)
 ```
 
 ### :lt -> class/num/lt

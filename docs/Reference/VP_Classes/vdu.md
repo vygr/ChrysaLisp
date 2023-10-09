@@ -41,6 +41,8 @@ trashes
 
 ### :lisp_configure -> gui/vdu/lisp_configure
 
+### (vdu-configure vdu)
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -50,12 +52,12 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(vdu-configure vdu)
 ```
 
 ### :lisp_create -> gui/vdu/lisp_create
 
+### (create-vdu)
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -65,12 +67,12 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(create-vdu)
 ```
 
 ### :lisp_load -> gui/vdu/lisp_load
 
+### (vdu-load vdu lines ox oy cx cy)
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -80,8 +82,6 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(vdu-load vdu lines ox oy cx cy)
 ```
 
 ### :vtable -> gui/vdu/vtable

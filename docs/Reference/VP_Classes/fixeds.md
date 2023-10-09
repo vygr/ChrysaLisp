@@ -57,6 +57,8 @@ trashes
 
 ### :lisp_floor -> class/fixeds/lisp_floor
 
+### (fixeds-floor fixeds [fixeds])
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -66,12 +68,12 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(fixeds-floor fixeds [fixeds])
 ```
 
 ### :lisp_frac -> class/fixeds/lisp_frac
 
+### (fixeds-frac fixeds [fixeds])
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -81,8 +83,6 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(fixeds-frac fixeds [fixeds])
 ```
 
 ### :mod -> class/fixeds/mod

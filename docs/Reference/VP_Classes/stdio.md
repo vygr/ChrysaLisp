@@ -30,6 +30,8 @@ trashes
 
 ### :lisp_create -> class/stdio/lisp_create
 
+### (create-stdio)
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -39,8 +41,6 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(create-stdio)
 ```
 
 ### :vtable -> class/stdio/vtable

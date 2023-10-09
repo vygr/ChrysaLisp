@@ -55,6 +55,8 @@ trashes
 
 ### :lisp_cos -> class/fixed/lisp_cos
 
+### (cos angle)
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -64,12 +66,12 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(cos angle)
 ```
 
 ### :lisp_floor -> class/fixed/lisp_floor
 
+### (floor num)
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -79,12 +81,12 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(floor num)
 ```
 
 ### :lisp_frac -> class/fixed/lisp_frac
 
+### (frac num)
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -94,12 +96,12 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(frac num)
 ```
 
 ### :lisp_recip -> class/fixed/lisp_recip
 
+### (recip fixed)
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -109,12 +111,12 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(recip fixed)
 ```
 
 ### :lisp_sin -> class/fixed/lisp_sin
 
+### (sin angle)
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -124,8 +126,6 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(sin angle)
 ```
 
 ### :mod -> class/fixed/mod

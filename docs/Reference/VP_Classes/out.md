@@ -42,6 +42,8 @@ trashes
 
 ### :lisp_create -> class/out/lisp_create
 
+### (out-stream mbox)
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -51,8 +53,6 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(out-stream mbox)
 ```
 
 ### :set_state -> class/out/set_state

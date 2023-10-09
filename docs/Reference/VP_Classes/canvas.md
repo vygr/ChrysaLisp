@@ -96,6 +96,8 @@ trashes
 
 ### :lisp_create -> gui/canvas/lisp_create
 
+### (create-canvas width height scale)
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -105,12 +107,12 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(create-canvas width height scale)
 ```
 
 ### :lisp_create_pixmap -> gui/canvas/lisp_create_pixmap
 
+### (create-canvas-pixmap pixmap)
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -120,12 +122,12 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(create-canvas-pixmap pixmap)
 ```
 
 ### :lisp_fbox -> gui/canvas/lisp_fbox
 
+### (canvas-fbox canvas x y w h)
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -135,12 +137,12 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(canvas-fbox canvas x y w h)
 ```
 
 ### :lisp_fill -> gui/canvas/lisp_fill
 
+### (canvas-fill canvas argb)
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -150,12 +152,12 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(canvas-fill canvas argb)
 ```
 
 ### :lisp_fpoly -> gui/canvas/lisp_fpoly
 
+### (canvas-fpoly canvas x y mode list)
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -165,12 +167,12 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(canvas-fpoly canvas x y mode list)
 ```
 
 ### :lisp_from_argb32 -> gui/canvas/lisp_from_argb32
 
+### (canvas-from-argb32 pixel type)
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -180,12 +182,12 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(canvas-from-argb32 pixel type)
 ```
 
 ### :lisp_ftri -> gui/canvas/lisp_ftri
 
+### (canvas-ftri canvas path)
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -195,12 +197,12 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(canvas-ftri canvas path)
 ```
 
 ### :lisp_next_frame -> gui/canvas/lisp_next_frame
 
+### (canvas-next-frame canvas)
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -210,12 +212,12 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(canvas-next-frame canvas)
 ```
 
 ### :lisp_plot -> gui/canvas/lisp_plot
 
+### (canvas-plot canvas x y)
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -225,12 +227,12 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(canvas-plot canvas x y)
 ```
 
 ### :lisp_resize -> gui/canvas/lisp_resize
 
+### (canvas-resize canvas canvas)
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -240,12 +242,12 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(canvas-resize canvas canvas)
 ```
 
 ### :lisp_swap -> gui/canvas/lisp_swap
 
+### (canvas-swap canvas flags)
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -255,12 +257,12 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(canvas-swap canvas flags)
 ```
 
 ### :lisp_to_argb32 -> gui/canvas/lisp_to_argb32
 
+### (canvas-to-argb32 pixel type)
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -270,8 +272,6 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(canvas-to-argb32 pixel type)
 ```
 
 ### :pick -> gui/canvas/pick

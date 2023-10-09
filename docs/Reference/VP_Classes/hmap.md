@@ -106,6 +106,8 @@ trashes
 
 ### :lisp_def -> class/hmap/lisp_def
 
+### (def env var val [var val] ...)
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -115,12 +117,12 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(def env var val [var val] ...)
 ```
 
 ### :lisp_defq -> class/hmap/lisp_defq
 
+### (defq var val [var val] ...)
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -130,12 +132,12 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(defq var val [var val] ...)
 ```
 
 ### :lisp_defx -> class/hmap/lisp_defx
 
+### (def? var [env])
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -145,12 +147,12 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(def? var [env])
 ```
 
 ### :lisp_env -> class/hmap/lisp_env
 
+### (env [num])
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -160,12 +162,12 @@ outputs
 :r1 = environment hmap object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(env [num])
 ```
 
 ### :lisp_get -> class/hmap/lisp_get
 
+### (get var [env])
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -175,12 +177,12 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(get var [env])
 ```
 
 ### :lisp_list -> class/hmap/lisp_list
 
+### (tolist env)
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -190,12 +192,12 @@ outputs
 :r1 = environment hmap object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(tolist env)
 ```
 
 ### :lisp_parent -> class/hmap/lisp_parent
 
+### (penv [env])
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -205,11 +207,11 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(penv [env])
 ```
 
 ### :lisp_resize -> class/hmap/lisp_resize
+
+### (env-resize num [env])
 
 ```code
 inputs
@@ -220,12 +222,12 @@ outputs
 :r1 = environment hmap object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(env-resize num [env])
 ```
 
 ### :lisp_set -> class/hmap/lisp_set
 
+### (set env var val [var val] ...)
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -235,12 +237,12 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(set env var val [var val] ...)
 ```
 
 ### :lisp_setq -> class/hmap/lisp_setq
 
+### (setq var val [var val] ...)
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -250,12 +252,12 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(setq var val [var val] ...)
 ```
 
 ### :lisp_undef -> class/hmap/lisp_undef
 
+### (undef env var [var] ...)
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -265,8 +267,6 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(undef env var [var] ...)
 ```
 
 ### :list -> class/hmap/list

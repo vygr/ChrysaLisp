@@ -18,6 +18,8 @@ the dirty region bounds is returned for use by the :flush call !
 
 ### :lisp_deinit -> gui/gui/lisp_deinit
 
+### (gui-deinit)
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -27,12 +29,12 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(gui-deinit)
 ```
 
 ### :lisp_event -> gui/gui/lisp_event
 
+### (gui-event)
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -42,12 +44,12 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(gui-event)
 ```
 
 ### :lisp_info -> gui/gui/lisp_info
 
+### (gui-info)
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -57,12 +59,12 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(gui-info)
 ```
 
 ### :lisp_init -> gui/gui/lisp_init
 
+### (gui-init screen)
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -72,12 +74,12 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(gui-init screen)
 ```
 
 ### :lisp_update -> gui/gui/lisp_update
 
+### (gui-update mx my flags)
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -87,8 +89,6 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(gui-update mx my flags)
 ```
 
 ### :update -> gui/gui/update

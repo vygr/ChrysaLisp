@@ -57,6 +57,8 @@ trashes
 
 ### :lisp_available -> class/stream/lisp_available
 
+### (stream-avail stream)
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -66,12 +68,12 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(stream-avail stream)
 ```
 
 ### :lisp_fstream -> class/stream/lisp_fstream
 
+### (file-stream path [mode])
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -81,12 +83,12 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(file-stream path [mode])
 ```
 
 ### :lisp_iostream -> class/stream/lisp_iostream
 
+### (io-stream io)
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -96,12 +98,12 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(io-stream io)
 ```
 
 ### :lisp_readavail -> class/stream/lisp_readavail
 
+### (read-avail stream)
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -111,12 +113,12 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(read-avail stream)
 ```
 
 ### :lisp_readchar -> class/stream/lisp_readchar
 
+### (read-char stream [width])
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -126,12 +128,12 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(read-char stream [width])
 ```
 
 ### :lisp_readline -> class/stream/lisp_readline
 
+### (read-line stream)
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -141,12 +143,12 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(read-line stream)
 ```
 
 ### :lisp_seek -> class/stream/lisp_seek
 
+### (stream-seek stream offset pos)
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -156,12 +158,12 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(stream-seek stream offset pos)
 ```
 
 ### :lisp_sstream -> class/stream/lisp_sstream
 
+### (string-stream str)
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -171,12 +173,12 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(string-stream str)
 ```
 
 ### :lisp_write -> class/stream/lisp_write
 
+### (write stream str)
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -186,12 +188,12 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(write stream str)
 ```
 
 ### :lisp_write_flush -> class/stream/lisp_write_flush
 
+### (stream-flush stream)
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -201,14 +203,14 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(stream-flush stream)
 ```
 
 ### :lisp_write_next -> class/stream/lisp_write_next
 
 ### :lisp_writechar -> class/stream/lisp_writechar
 
+### (write-char stream list|num [width])
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -218,8 +220,6 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(write-char stream list|num [width])
 ```
 
 ### :read -> class/stream/read

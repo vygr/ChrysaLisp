@@ -32,6 +32,8 @@ trashes
 
 ### :lisp_dim -> class/dim/lisp_dim
 
+### (dim nums array)
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -41,12 +43,12 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(dim nums array)
 ```
 
 ### :lisp_get -> class/dim/lisp_get
 
+### (dim-get nums dim)
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -56,12 +58,12 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(dim-get nums dim)
 ```
 
 ### :lisp_set -> class/dim/lisp_set
 
+### (dim-set nums dim form)
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -71,8 +73,6 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(dim-set nums dim form)
 ```
 
 ### :vtable -> class/dim/vtable

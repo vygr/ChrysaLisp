@@ -260,6 +260,8 @@ trashes
 
 ### :lisp_array -> class/array/lisp_array
 
+### (array [num ...])
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -269,12 +271,12 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(array [num ...])
 ```
 
 ### :lisp_cap -> class/array/lisp_cap
 
+### (cap len array ...)
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -284,12 +286,12 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(cap len array ...)
 ```
 
 ### :lisp_clear -> class/array/lisp_clear
 
+### (clear array ...)
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -299,12 +301,12 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(clear array ...)
 ```
 
 ### :lisp_elemset -> class/array/lisp_elemset
 
+### (elem-set index array val)
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -314,12 +316,12 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(elem-set index array val)
 ```
 
 ### :lisp_fixeds -> class/array/lisp_fixeds
 
+### (fixeds [num ...])
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -329,12 +331,12 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(fixeds [num ...])
 ```
 
 ### :lisp_nums -> class/array/lisp_nums
 
+### (nums [num ...])
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -344,12 +346,12 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(nums [num ...])
 ```
 
 ### :lisp_path -> class/array/lisp_path
 
+### (path [num ...])
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -359,12 +361,12 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(path [num ...])
 ```
 
 ### :lisp_pop -> class/array/lisp_pop
 
+### (pop array)
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -374,12 +376,12 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(pop array)
 ```
 
 ### :lisp_push -> class/array/lisp_push
 
+### (push array form ...)
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -389,12 +391,12 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(push array form ...)
 ```
 
 ### :lisp_reals -> class/array/lisp_reals
 
+### (reals [num ...])
+
 ```code
 inputs
 :r0 = lisp object (ptr)
@@ -404,8 +406,6 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-;lisp binding
-;(reals [num ...])
 ```
 
 ### :partition -> class/array/partition
