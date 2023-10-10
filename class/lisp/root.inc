@@ -504,6 +504,10 @@
 	; (replace seq start end seq) -> seq
 	(cat (slice 0 b s) i (slice e -1 s)))
 
+(defun rotate (s i j k)
+	; (rotate seq start mid end) -> seq
+	(cat (slice 0 i s) (slice j k s) (slice i j s) (slice k -1 s)))
+
 (defun join (l j)
 	; (join list seq) -> seq
 	(pop (setq l (reduce (lambda (x y) (push x y j))

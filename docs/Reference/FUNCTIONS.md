@@ -1275,6 +1275,12 @@ restart a child
 (reverse list) -> list
 ```
 
+### rotate
+
+```code
+(rotate seq start mid end) -> seq
+```
+
 ### scatter
 
 ```code
