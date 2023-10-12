@@ -462,7 +462,7 @@
 	(assign `((,s str_length)) `(,j))
 	(vpif `(,j /= 0))
 		(assign `((& ,s str_data)) `(,s))
-		(vpif `(,j <= 8))
+		(vpif `(,j <= 10))
 			(assign '(0) `(,k))
 			(loop-start)
 				(vp-cpy-dr-ub s k ck)
