@@ -47,23 +47,6 @@
 
 (def-func-end)
 
-(def-method 'sys_pii :flush)
-	;inputs
-	;:r0 = fd (ulong)
-	;outputs
-	;:r0 = error code (ulong)
-	;trashes
-	;:r0
-
-	(entry 'sys_pii :flush '(:r0))
-	(abi-push-trashed :r13 :r14)
-	(host-os-call 'host :flush '(:r0) '(:r0))
-	(abi-pop-trashed :r13 :r14)
-	(exit 'sys_pii :flush '(:r0))
-	(vp-ret)
-
-(def-func-end)
-
 (def-method 'sys_pii :seek)
 	;inputs
 	;:r0 = fd (ulong)

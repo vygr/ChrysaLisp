@@ -12,8 +12,6 @@
 
 ### :exit -> :nil
 
-### :flush -> :nil
-
 ### :gettime -> :nil
 
 ### :mmap -> :nil

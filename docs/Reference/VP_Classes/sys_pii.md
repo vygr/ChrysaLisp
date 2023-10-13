@@ -4,8 +4,6 @@
 
 ### (pii-dirlist path)
 
-### (pii-flush fd)
-
 ### (pii-fstat path)
 
 ### (pii-read-char fd)
@@ -74,15 +72,6 @@ inputs
 ```
 
 ### :flush -> sys/pii/flush
-
-```code
-inputs
-:r0 = fd (ulong)
-outputs
-:r0 = error code (ulong)
-trashes
-:r0
-```
 
 ### :mmap -> sys/pii/mmap
 

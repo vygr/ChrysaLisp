@@ -72,4 +72,5 @@
 				(setq cmd :nil)
 				(print (const (cat (ascii-char 10) ">"))))
 			(:t ;string from pipe
-				(print data)))))
+				(print data)
+				(stream-flush (io-stream "stdout"))))))

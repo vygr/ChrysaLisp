@@ -132,7 +132,6 @@
 (ffi pii-fstat "sys/pii/lisp_fstat" 0) ; -> (array filetime filesize filemode)
 (ffi pii-read-char "sys/pii/lisp_readchar" 0)
 (ffi pii-remove "sys/pii/lisp_remove" 0)
-;(ffi pii-flush "sys/pii/lisp_flush" 0)
 (ffi pii-time "sys/pii/lisp_time" 0)
 (ffi pii-write-char "sys/pii/lisp_writechar" 0)
 

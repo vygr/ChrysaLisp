@@ -20,8 +20,7 @@
 	(dec-method :remove :nil :virtual (abi-args 1) (:r0))
 	(dec-method :seek :nil :virtual (abi-args 3) (:r0))
 	(dec-method :rand :nil :virtual (abi-args 2) (:r0))
-	(dec-method :sleep :nil :virtual (abi-args 1) (:r0))
-	(dec-method :flush :nil :virtual (abi-args 1) (:r0)))
+	(dec-method :sleep :nil :virtual (abi-args 1) (:r0)))
 
 (def-class host_gui :nil
 	(dec-method :init :nil :virtual (abi-args 2) (:r0))
@@ -113,8 +112,7 @@
 	(dec-method :lisp_age sys/pii/lisp_age :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_dirlist sys/pii/lisp_dirlist :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_fstat sys/pii/lisp_fstat :static (:r0 :r1) (:r0 :r1))
-	(dec-method :lisp_remove sys/pii/lisp_remove :static (:r0 :r1) (:r0 :r1))
-	(dec-method :lisp_flush sys/pii/lisp_flush :static (:r0 :r1) (:r0 :r1)))
+	(dec-method :lisp_remove sys/pii/lisp_remove :static (:r0 :r1) (:r0 :r1)))
 
 ;debug helpers
 (defun debug-num (s n)
