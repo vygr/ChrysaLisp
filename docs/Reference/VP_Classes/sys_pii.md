@@ -4,6 +4,8 @@
 
 ### (pii-dirlist path)
 
+### (pii-flush fd)
+
 ### (pii-fstat path)
 
 ### (pii-read-char fd)
@@ -69,6 +71,17 @@ trashes
 ```code
 inputs
 :r0 = code (long)
+```
+
+### :flush -> sys/pii/flush
+
+```code
+inputs
+:r0 = fd (ulong)
+outputs
+:r0 = error code (ulong)
+trashes
+:r0
 ```
 
 ### :mmap -> sys/pii/mmap
@@ -218,39 +231,6 @@ trashes
 ```code
 inputs
 :r0 = c string filename (pubyte)
-outputs
-:r0 = error code (ulong)
-trashes
-:r0
-```
-
-### :usb_running -> sys/pii/usb_running
-
-```code
-inputs
-:r0 = link buffer (pubyte)
-outputs
-:r0 = error code (ulong)
-trashes
-:r0
-```
-
-### :usb_start -> sys/pii/usb_start
-
-```code
-inputs
-:r0 = link buffer (pubyte)
-outputs
-:r0 = error code (ulong)
-trashes
-:r0
-```
-
-### :usb_stop -> sys/pii/usb_stop
-
-```code
-inputs
-:r0 = link buffer (pubyte)
 outputs
 :r0 = error code (ulong)
 trashes

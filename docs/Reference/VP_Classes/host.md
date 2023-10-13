@@ -12,6 +12,8 @@
 
 ### :exit -> :nil
 
+### :flush -> :nil
+
 ### :gettime -> :nil
 
 ### :mmap -> :nil
@@ -37,12 +39,6 @@
 ### :stat -> :nil
 
 ### :unlink -> :nil
-
-### :usb_running -> :nil
-
-### :usb_start -> :nil
-
-### :usb_stop -> :nil
 
 ### :write -> :nil
 

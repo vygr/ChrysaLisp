@@ -21,9 +21,7 @@
 	(dec-method :seek :nil :virtual (abi-args 3) (:r0))
 	(dec-method :rand :nil :virtual (abi-args 2) (:r0))
 	(dec-method :sleep :nil :virtual (abi-args 1) (:r0))
-	(dec-method :usb_start :nil :virtual (abi-args 1) (:r0))
-	(dec-method :usb_stop :nil :virtual (abi-args 1) (:r0))
-	(dec-method :usb_running :nil :virtual (abi-args 1) (:r0)))
+	(dec-method :flush :nil :virtual (abi-args 1) (:r0)))
 
 (def-class host_gui :nil
 	(dec-method :init :nil :virtual (abi-args 2) (:r0))
@@ -108,16 +106,15 @@
 	(dec-method :remove sys/pii/remove :static (:r0) (:r0))
 	(dec-method :seek sys/pii/seek :static (:r0 :r1 :r2) (:r0))
 	(dec-method :rand sys/pii/rand :static (:r0 :r1) (:r0))
-	(dec-method :usb_start sys/pii/usb_start :static (:r0) (:r0))
-	(dec-method :usb_stop sys/pii/usb_stop :static (:r0) (:r0))
-	(dec-method :usb_running sys/pii/usb_running :static (:r0) (:r0))
+	(dec-method :flush sys/pii/flush :static (:r0) (:r0))
 	(dec-method :lisp_readchar sys/pii/lisp_readchar :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_writechar sys/pii/lisp_writechar :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_time sys/pii/lisp_time :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_age sys/pii/lisp_age :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_dirlist sys/pii/lisp_dirlist :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_fstat sys/pii/lisp_fstat :static (:r0 :r1) (:r0 :r1))
-	(dec-method :lisp_remove sys/pii/lisp_remove :static (:r0 :r1) (:r0 :r1)))
+	(dec-method :lisp_remove sys/pii/lisp_remove :static (:r0 :r1) (:r0 :r1))
+	(dec-method :lisp_flush sys/pii/lisp_flush :static (:r0 :r1) (:r0 :r1)))
 
 ;debug helpers
 (defun debug-num (s n)

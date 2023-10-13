@@ -369,6 +369,11 @@ uint64_t pii_close(uint64_t fd)
 	return close((int)fd);
 }
 
+uint64_t pii_flush(uint64_t fd)
+{
+	return fsync((int)fd);
+}
+
 uint64_t pii_unlink(const char *path)
 {
 	return unlink(path);
@@ -394,6 +399,7 @@ void (*host_os_funcs[]) = {
 	(void*)pii_seek,
 	(void*)pii_random,
 	(void*)pii_sleep,
+	(void*)pii_flush,
 };
 
 #endif
