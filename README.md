@@ -21,7 +21,8 @@ interpreter is also provided.
 ![](./screen_shot_7.png)
 ![](./screen_shot_8.png)
 
-Join us at #ChrysaLisp-OS:matrix.org for banter. https://element.io/
+Join us at #ChrysaLisp-OS:matrix.org for banter.
+[element.io room](https://app.element.io/#/room/#ChrysaLisp-OS:matrix.org)
 recommended.
 
 ChrysaLisp can be used on MacOS, Windows and Linux. Supports x64, arm64 and
