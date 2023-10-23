@@ -9,6 +9,17 @@ Usage: cat [options] [path] ...
 	then paths are read from stdin.
 
 ```
+## diff
+```code
+Usage: diff [options] file_a file_b
+
+	options:
+		-h --help: this help info.
+
+	Calculate difference between text file a and text file b.
+
+
+```
 ## dump
 ```code
 Usage: dump [options] [path] ...
