@@ -13,7 +13,7 @@
 })
 ))
 
-(defq +max_paths 6)
+(defq +min_paths 4 +max_paths 64)
 
 (defun goal-distance (p)
 	(bind '(x y) p)
@@ -50,7 +50,7 @@
 								(:t (setq run :nil) p)))) ps)
 						(setq ps (cat nps)) (clear nps)
 						(when (> (length ps) +max_paths)
-							(setq ps (slice 0 +max_paths (sort (# (-
+							(setq ps (slice 0 +min_paths (sort (# (-
 								(goal-distance (last %0)) (goal-distance (last %1)))) ps)))))
 					(defq a -1 b -1 oa 0)
 					(each (lambda ((pa pb))
