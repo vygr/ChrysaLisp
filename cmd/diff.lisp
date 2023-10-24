@@ -13,12 +13,16 @@
 })
 ))
 
-(defq +min_paths 4 +max_paths 64)
+(defq +max_q 64)
 
-(defun goal-distance (p)
-	(bind '(x y) p)
+(defun goal-distance ((x y _))
 	(setq x (inc x) y (inc y))
 	(+ (* x x) (* y y)))
+
+(defun free-wf (wf)
+	(defq stack '())
+	(while (defq n (pop wf)) (while (bind '(_ _ n) n) (push stack n)))
+	(clear stack))
 
 (defun main ()
 	;initialize pipe details and command args, abort on error
@@ -34,31 +38,34 @@
 				((and (= lal 0) (= lbl 0)))
 				((= lal 0) (each (# (print "+ " _ " " %0)) bl))
 				((= lbl 0) (each (# (print "- " _ " " %0)) al))
-				(:t (defq ps (list (list (list (dec lal) (dec lbl)))) nps (list) run :t)
+				(:t (defq wf (list (list (dec lal) (dec lbl) :nil)) nwf (list) run :t)
 					(while run
-						(each (lambda (p)
-							(bind '(a b) (last p))
-							(push nps (cond
+						(each (lambda (n)
+							(bind '(a b _) n)
+							(push nwf (cond
 								((or (/= a -1) (/= b -1))
 									(cond
-										((= a -1) (push p (list a (dec b))))
-										((= b -1) (push p (list (dec a) b)))
+										((= a -1) (list a (dec b) n))
+										((= b -1) (list (dec a) b n))
 										((eql (elem-get a al) (elem-get b bl))
-											(push p (list (dec a) (dec b))))
-										(:t (push nps (push (cat p) (list a (dec b))))
-											(push p (list (dec a) b)))))
-								(:t (setq run :nil) p)))) ps)
-						(setq ps (cat nps)) (clear nps)
-						(when (> (length ps) +max_paths)
-							(setq ps (slice 0 +min_paths (sort (# (-
-								(goal-distance (last %0)) (goal-distance (last %1)))) ps)))))
-					(defq a -2 b -2 oa 0)
-					(each-rev (lambda ((pa pb))
-							(cond
-								((and (/= pa a) (/= pb b)))
-								((= pa a)
-									(print "+ " (+ a oa) " " (elem-get pb bl))
-									(setq oa (inc oa)))
-								(:t (print "- " (+ a oa) " " (elem-get pa al))))
-							(setq a pa b pb))
-						(first (sort (# (- (length %0) (length %1))) ps))))))))
+											(list (dec a) (dec b) n))
+										(:t (push nwf (list a (dec b) n))
+											(list (dec a) b n))))
+								(:t (setq run :nil) n)))) wf)
+						(free-wf wf) (setq wf nwf nwf (list))
+						(when (>= (length wf) +max_q)
+							(setq nwf (sort (# (- (goal-distance %0) (goal-distance %1))) wf))
+							(setq wf (slice 0 1 nwf))
+							(free-wf nwf)))
+					(sort (# (- (goal-distance %0) (goal-distance %1))) wf)
+					(defq a -2 b -2 oa 1 n (first wf))
+					(free-wf wf)
+					(while n
+						(bind '(na nb _) n) (setq n (pop n))
+						(cond
+							((and (/= na a) (/= nb b)))
+							((= na a)
+								(print "+ " (+ a oa) " " (elem-get nb bl))
+								(setq oa (inc oa)))
+							(:t (print "- " (+ a oa) " " (elem-get na al))))
+						(setq a na b nb)))))))
