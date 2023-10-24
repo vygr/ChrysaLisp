@@ -13,7 +13,7 @@
 })
 ))
 
-(defq +min_paths 4 +max_paths 64)
+(defq +min_paths 4 +max_paths 16)
 
 (defun goal-distance (p)
 	(bind '(x y) p)
@@ -53,6 +53,7 @@
 							(setq ps (slice 0 +min_paths (sort (# (-
 								(goal-distance (last %0)) (goal-distance (last %1)))) ps)))))
 					(defq a -1 b -1 oa 0)
+					(sort (# (- (length %0) (length %1))) ps)
 					(each (lambda ((pa pb))
 							(cond
 								((and (/= pa a) (/= pb b)))
@@ -61,4 +62,4 @@
 									(setq oa (inc oa)))
 								(:t (print "- " (+ a oa) " " (elem-get a al))))
 							(setq a pa b pb))
-						(first (sort (# (- (length %0) (length %1))) ps))))))))
+						(first ps)))))))
