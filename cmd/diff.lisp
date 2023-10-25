@@ -24,7 +24,7 @@
 			(defq stdio (create-stdio))
 			(defq args (options stdio usage))
 			(= (length args) 3))
-		(defq a (file-stream (second args)) b (file-stream (third args)))
+		(bind '(a b) (map file-stream (rest args)))
 		(when (and a b)
 			(defq al (list) la (each-line (# (push al %0)) a) la (length al)
 				bl (list) lb (each-line (# (push bl %0)) b) lb (length bl))
