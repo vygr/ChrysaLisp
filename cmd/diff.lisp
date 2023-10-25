@@ -26,8 +26,8 @@
 			(= (length args) 3))
 		(defq a (file-stream (second args)) b (file-stream (third args)))
 		(when (and a b)
-			(defq al (list) _ (each-line (# (push al %0)) a) lal (length al)
-				bl (list) _ (each-line (# (push bl %0)) b) lbl (length bl)
+			(defq al (list) lal (each-line (# (push al %0)) a) lal (length al)
+				bl (list) lbl (each-line (# (push bl %0)) b) lbl (length bl)
 				goal (nums lal lbl))
 			(cond
 				((and (= lal 0) (= lbl 0)))
