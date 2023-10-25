@@ -15,8 +15,8 @@
 
 (defq +min_paths 4 +max_paths 16)
 
-(defun goal-distance (p)
-	(defq _ (slice -3 -1 p))
+(defun goal-distance (_)
+	(defq _ (slice -3 -1 _))
 	(nums-sum (nums-mul (nums-sub goal _ _) _ _)))
 
 (defun main ()
