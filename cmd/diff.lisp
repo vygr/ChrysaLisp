@@ -16,8 +16,7 @@
 (defq +min_paths 4 +max_paths 16)
 
 (defun goal-distance (_)
-	(defq _ (slice -3 -1 _))
-	(nums-sum (nums-mul (nums-sub goal _ _) _ _)))
+	(nums-sum (nums-mul (nums-sub goal (defq _ (slice -3 -1 _)) _) _ _)))
 
 (defun main ()
 	;initialize pipe details and command args, abort on error
