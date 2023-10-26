@@ -117,10 +117,10 @@
 	(nums-sum (nums-abs (nums-sub p1 p2))))
 
 (defun vec-euclidean-distance (p1 p2)
-	(sqrt (nums-sum (nums-mul (defq _ (nums-sub p1 p2)) _))))
+	(sqrt (nums-dot (defq _ (nums-sub p1 p2)) _)))
 
 (defun vec-squared-euclidean-distance (p1 p2)
-	(nums-sum (nums-mul (defq _ (nums-sub p1 p2)) _)))
+	(nums-dot (defq _ (nums-sub p1 p2)) _))
 
 (defun vec-chebyshev-distance (p1 p2)
 	(reduce max (nums-abs (nums-sub p1 p2))))
