@@ -19,23 +19,22 @@
 	(nums-sum (nums-mul (nums-sub goal (defq _ (slice -3 -1 _)) _) _ _)))
 
 (defun iron (p)
-	(defq out (list) a -1 b -1 x 0 y 0 s :diag)
+	(defq out (cap (length p) (list)) a -1 b -1 x 0 y 0 s :diag)
 	(each (lambda ((pa pb))
 		(if (and (/= pa a) (/= pb b))
 			(when (eql s :flat)
 				(while (/= x a) (push out (nums x y)) (setq x (inc x)))
 				(while (/= y b) (push out (nums x y)) (setq y (inc y)))
-				(setq x a y b s :diag))
+				(setq s :diag))
 			(when (eql s :diag)
 				(while (/= x a) (push out (nums x y)) (setq x (inc x) y (inc y)))
-				(setq x a y b s :flat)))
+				(setq s :flat)))
 		(setq a pa b pb)) p)
-	(case s
-		(:flat
+	(cond
+		((eql s :flat)
 			(while (/= x a) (push out (nums x y)) (setq x (inc x)))
 			(while (/= y b) (push out (nums x y)) (setq y (inc y))))
-		(:diag
-			(while (/= x a) (push out (nums x y)) (setq x (inc x) y (inc y)))))
+		(:t	(while (/= x a) (push out (nums x y)) (setq x (inc x) y (inc y)))))
 	(push out (nums a b)))
 
 (defun main ()
