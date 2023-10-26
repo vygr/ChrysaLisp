@@ -16,7 +16,7 @@
 (defq +min_paths 4 +max_paths 16)
 
 (defun goal-distance (_)
-	(nums-sum (nums-mul (nums-sub goal (defq _ (slice -3 -1 _)) _) _ _)))
+	(nums-dot (nums-sub goal (defq _ (slice -3 -1 _)) _) _))
 
 (defun iron (p)
 	(defq out (cap (length p) (list)) a -1 b -1 x 0 y 0 s :diag)
