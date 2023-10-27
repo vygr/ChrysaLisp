@@ -25,7 +25,7 @@
 			(defq opt_s :nil args (options stdio usage))
 			(<= 2 (length args) 3))
 		(bind '(a &optional b) (map file-stream (rest args)))
-		(unless b (setq b (io-stream 'stdin)))
+		(setd b (io-stream 'stdin))
 		(when (and a b)
 			(if opt_s (defq c a a b b c c :nil))
 			(stream-diff a b (io-stream 'stdout)))))
