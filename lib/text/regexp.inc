@@ -213,7 +213,7 @@
 				(when (> (defq x1 (search text cpat x)) x)
 					(push out (list x x1))
 					(push outs (map (lambda ((s s1))
-						(if (< (max s 0) s1) (slice (inc s) (inc s1) text) (slice 0 0 text))) sl))
+						(if (< (max s -1) s1) (slice (inc s) (inc s1) text) (slice 0 0 text))) sl))
 					(setq x (dec x1)))))
 		(list out outs))
 	)
