@@ -71,7 +71,18 @@
 (defun stream-patch (a b c)
 	; (stream-patch a b c)
 	;patch stream a with stream b, write to stream c
-	(while (defq ch (read-char a)) (write-char c ch)))
+	(defq ln 0)
+	(while (defq p (read-line b))
+		(bind '(_ (s)) (matches p "^(\+|\-) (\d+) (.*)"))
+		(defq nl (str-to-num (second s)))
+		(while (< ln nl)
+			(write-line c (read-line a))
+			(setq ln (inc ln)))
+		(if (eql (first s) "+")
+			(write-line c (third s))
+			(read-line a))
+		(setq ln (inc ln)))
+	(while (defq l (read-line a)) (write-line c l)))
 
 ;module
 (export-symbols stream-diff stream-patch)
