@@ -27,5 +27,6 @@
 		(bind '(a &optional b) (map file-stream (rest args)))
 		(setd b (io-stream 'stdin))
 		(when (and a b)
-			(if opt_s (defq c a a b b c c :nil))
-			(stream-diff a b (io-stream 'stdout)))))
+			(if opt_s
+				(stream-diff b a (io-stream 'stdout))
+				(stream-diff a b (io-stream 'stdout))))))
