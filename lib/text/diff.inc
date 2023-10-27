@@ -54,6 +54,7 @@
 					(:t (setq run :nil) p)))) ps)
 			(setq ps (cat nps)) (clear nps)
 			(when (> (length ps) +max_paths)
+				(task-slice)
 				(setq ps (slice 0 +min_paths (sort (# (-
 					(goal-distance %0) (goal-distance %1))) ps)))))
 		(defq a -1 b -1 oa 0)
