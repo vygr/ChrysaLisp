@@ -11,12 +11,14 @@ Usage: cat [options] [path] ...
 ```
 ## diff
 ```code
-Usage: diff [options] file_a file_b
+Usage: diff [options] file_a [file_b]
 
 	options:
 		-h --help: this help info.
+		-r --reverse: switch sources.
 
 	Calculate difference between text file a and text file b.
+	If no second file is given it will be read from stdin.
 
 
 ```

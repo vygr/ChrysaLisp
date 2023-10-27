@@ -1445,6 +1445,14 @@ stop a child
 (str? form) -> :t | :nil
 ```
 
+### stream-diff
+
+```code
+(stream-diff a b c)
+
+write difference between streams a and b to stream c
+```
+
 ### structure
 
 ```code
