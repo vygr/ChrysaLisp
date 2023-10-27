@@ -59,6 +59,7 @@
 		(defq a -1 b -1 oa 0)
 		(sort (# (- (length %0) (length %1))) ps)
 		(each (lambda ((pa pb))
+				(task-slice)
 				(cond
 					((and (/= pa a) (/= pb b)))
 					((= pa a)
@@ -73,6 +74,7 @@
 	;patch stream a with stream b, write to stream c
 	(defq ln 0 run :t)
 	(while (and run (defq p (read-line b)))
+		(task-slice)
 		(bind '(m s) (matches p "^(\+|\-) (\d+) (.*)"))
 		(cond
 			((empty? m) (setq run :nil))
