@@ -1450,7 +1450,15 @@ stop a child
 ```code
 (stream-diff a b c)
 
-write difference between streams a and b to stream c
+difference between streams a and b, write to stream c
+```
+
+### stream-patch
+
+```code
+(stream-patch a b c)
+
+patch stream a with stream b, write to stream c
 ```
 
 ### structure

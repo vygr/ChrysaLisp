@@ -31,7 +31,7 @@
 
 (defun stream-diff (a b c)
 	; (stream-diff a b c)
-	;write difference between streams a and b to stream c
+	;difference between streams a and b, write to stream c
 	(defq al (list) la (each-line (# (push al %0)) a) la (length al)
 		bl (list) lb (each-line (# (push bl %0)) b) lb (length bl))
 	(cond
@@ -68,6 +68,11 @@
 				(setq a pa b pb))
 			(iron (partition 2 (first ps)))))))
 
+(defun stream-patch (a b c)
+	; (stream-patch a b c)
+	;patch stream a with stream b, write to stream c
+	(while (defq ch (read-char a)) (write-char c ch)))
+
 ;module
-(export-symbols stream-diff)
+(export-symbols stream-diff stream-patch)
 (env-pop)

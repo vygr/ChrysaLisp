@@ -188,6 +188,19 @@ Usage: null [options]
 		-h --help: this help info.
 
 ```
+## patch
+```code
+Usage: patch [options] file_a [file_b]
+
+	options:
+		-h --help: this help info.
+		-s --swap: swap sources.
+
+	Patch text file a with text file b.
+	If no second file is given it will be read from stdin.
+
+
+```
 ## sdir
 ```code
 Usage: sdir [options] [prefix]
