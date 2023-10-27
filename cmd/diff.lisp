@@ -9,7 +9,7 @@
 
 	options:
 		-h --help: this help info.
-		-r --reverse: switch sources.
+		-s --swap: swap sources.
 
 	Calculate difference between text file a and text file b.
 	If no second file is given it will be read from stdin.
