@@ -11,7 +11,7 @@
 		-h --help: this help info.
 		-s --swap: swap sources.
 
-	Calculate difference between text file a and text file b.
+	Calculate patch between text file a and text file b.
 	If no second file is given it will be read from stdin.
 })
 (("-s" "--swap")
