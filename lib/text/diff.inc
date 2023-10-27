@@ -26,7 +26,7 @@
 		((eql s :flat)
 			(while (/= x a) (push out (nums x y)) (setq x (inc x)))
 			(while (/= y b) (push out (nums x y)) (setq y (inc y))))
-		(:t	(while (/= x a) (push out (nums x y)) (setq x (inc x) y (inc y)))))
+		(:t (while (/= x a) (push out (nums x y)) (setq x (inc x) y (inc y)))))
 	(push out (nums a b)))
 
 (defun stream-diff (a b c)
