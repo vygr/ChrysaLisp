@@ -16,7 +16,7 @@ standard. A new `(bfind char string) -> :nil | index` function is provided to
 perform a binary search find in any sorted char string, which all `(char-class
 class_key) -> str` generated strings now are !
 
-New `diff` command.
+New `diff` and `patch` commands. Plus associated `lib/text/diff.inc` library.
 
 ------
 
