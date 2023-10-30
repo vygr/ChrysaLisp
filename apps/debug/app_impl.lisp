@@ -68,7 +68,7 @@
 			(clear buf_keys)
 			(setq buf_index :nil)
 			(. vdu :load '(
-				{ChrysaLisp Debug 0.4}
+				{ChrysaLisp Debug 0.5}
 				{Toolbar1 buttons act on a single task.}
 				{Toolbar2 buttons act on all tasks.}
 				{Slider to switch between tasks.}
