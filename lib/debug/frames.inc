@@ -17,7 +17,7 @@
 
 (defmacro defun (n a &rest _)
 	(static-qq (defq ,n (lambda ,a ~(macroexpand
-		(stack-frame (str n) _))))))
+		(stack-frame n _))))))
 
 (defmacro defmethod (n a &rest _)
 	(static-qq (def (def? :vtable this) ,n (lambda (this ~a) ~(macroexpand
