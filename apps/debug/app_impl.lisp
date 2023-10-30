@@ -163,4 +163,5 @@
 			(:t (. *window* :event *msg*))))
 	(mail-forget entry)
 	(free-select select)
+	(each play buf_list)
 	(gui-sub *window*))
