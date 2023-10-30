@@ -54,7 +54,7 @@
 		(or (func? form) (lambda-func? form))))
 
 (defun debug-fun (name form)
-	; (debug-fun name form) -> list
+	; (debug-fun name form) -> form
 	(defq stack (list form))
 	(while (defq l (pop stack))
 		(each (lambda (e)
