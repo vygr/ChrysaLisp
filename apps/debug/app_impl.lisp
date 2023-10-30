@@ -15,7 +15,8 @@
 (enums +select 0
 	(enum main service tip))
 
-(defq vdu_width 60 vdu_height 40 buf_keys (list) buf_list (list) buf_index :nil id :t)
+(defq vdu_width 60 vdu_height 40 *syntax* (Syntax)
+	buf_keys (list) buf_list (list) buf_index :nil id :t)
 
 (ui-window *window* (:color 0xc0000000)
 	(ui-flow _ (:flow_flags +flow_down_fill)
@@ -110,7 +111,7 @@
 					index (find-rev key buf_keys))
 				(unless index
 					(push buf_keys key)
-					(push buf_list (list (Buffer :t) :nil :nil))
+					(push buf_list (list (Buffer :t *syntax*) :nil :nil))
 					(reset (setq index (dec (length buf_list)))))
 				(elem-set +debug_rec_buf (defq buf_rec (elem-get index buf_list))
 					(vdu-print (if (= index buf_index) vdu) (elem-get +debug_rec_buf buf_rec) data))
