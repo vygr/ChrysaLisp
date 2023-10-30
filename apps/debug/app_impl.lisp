@@ -27,14 +27,15 @@
 		(ui-vdu vdu (:vdu_width vdu_width :vdu_height vdu_height :ink_color +argb_yellow))))
 
 (defun vdu-print (vdu buf s)
-	(defq ch (dec vdu_height))
-	(. buf :paste s)
-	(bind '(w h) (. buf :get_size))
-	(when (> h ch)
-		(.-> buf (:set_cursor 0 0) (:cut 0 (- h ch)))
-		(. buf :set_cursor 0 ch))
-	(. buf :clear_undo)
-	(if vdu (. buf :vdu_load vdu 0 0)))
+	(when buf
+		(defq ch (dec vdu_height))
+		(. buf :paste s)
+		(bind '(w h) (. buf :get_size))
+		(when (> h ch)
+			(.-> buf (:set_cursor 0 0) (:cut 0 (- h ch)))
+			(. buf :set_cursor 0 ch))
+		(. buf :clear_undo)
+		(if vdu (. buf :vdu_load vdu 0 0))))
 
 (defun set-slider-values ()
 	(defq val (get :value *hslider*) mho (max 0 (dec (length buf_list))))
