@@ -72,7 +72,7 @@
 
 (defmacro defmethod (n a &rest _)
 	(static-qq (def (def? :vtable this) ,n (lambda (this ~a) ~(macroexpand
-		(debug-fun (str n) _))))))
+		(debug-fun (cat *class* " " n) _))))))
 
 ;module
 (export-symbols defun defmethod)
