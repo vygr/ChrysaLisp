@@ -4,6 +4,11 @@
 
 ------
 
+Improvements to Debug stepper app. Now shows the current executed form, its
+return value and a syntax highlighted local environment list.
+
+------
+
 Font app now shows tooltips for the character codes. A click on the character
 button copies the tip text to the clipboard.
 
