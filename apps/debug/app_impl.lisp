@@ -25,18 +25,18 @@
 			(ui-tool-bar *main_toolbar* () (ui-buttons (0xe95e 0xe95d 0xe95c 0xe960) +event_play))
 			(ui-tool-bar *main_toolbar2* (:color (const *env_toolbar2_col*)) (ui-buttons (0xe95e 0xe95d 0xe95c 0xe960) +event_play_all)))
 		(. (ui-slider *hslider* (:value 0)) :connect +event_hvalue)
-		(ui-vdu vdu (:vdu_width vdu_width :vdu_height vdu_height :ink_color +argb_yellow))))
+		(ui-vdu *vdu* (:vdu_width vdu_width :vdu_height vdu_height :ink_color +argb_yellow))))
 
 (defun vdu-print (vdu buf s)
-	(when buf
-		(defq ch (dec vdu_height))
-		(. buf :paste s)
-		(bind '(w h) (. buf :get_size))
-		(when (> h ch)
-			(.-> buf (:set_cursor 0 0) (:cut 0 (- h ch)))
-			(. buf :set_cursor 0 ch))
-		(. buf :clear_undo)
-		(if vdu (. buf :vdu_load vdu 0 0))))
+	(defq ch (dec vdu_height))
+	(. buf :paste s)
+	(bind '(w h) (. buf :get_size))
+	(when (> h ch)
+		(.-> buf (:set_cursor 0 0) (:cut 0 (- h ch)))
+		(. buf :set_cursor 0 ch))
+	(. buf :clear_undo)
+	(if vdu (. buf :vdu_load vdu 0 0))
+	buf)
 
 (defun set-slider-values ()
 	(defq val (get :value *hslider*) mho (max 0 (dec (length buf_list))))
@@ -62,12 +62,12 @@
 		(progn
 			(def *hslider* :value _)
 			(setq buf_index _)
-			(vdu-print vdu (elem-get +debug_rec_buf (elem-get buf_index buf_list)) ""))
+			(vdu-print *vdu* (elem-get +debug_rec_buf (elem-get buf_index buf_list)) ""))
 		(progn
 			(clear buf_list)
 			(clear buf_keys)
 			(setq buf_index :nil)
-			(. vdu :load '(
+			(. *vdu* :load '(
 				{ChrysaLisp Debug 0.5}
 				{Toolbar1 buttons act on a single task.}
 				{Toolbar2 buttons act on all tasks.}
@@ -114,7 +114,7 @@
 					(push buf_list (list (Buffer :t *syntax*) :nil :nil))
 					(reset (setq index (dec (length buf_list)))))
 				(elem-set +debug_rec_buf (defq buf_rec (elem-get index buf_list))
-					(vdu-print (if (= index buf_index) vdu) (elem-get +debug_rec_buf buf_rec) data))
+					(vdu-print (if (= index buf_index) *vdu*) (elem-get +debug_rec_buf buf_rec) data))
 				(if (elem-get +debug_rec_state buf_rec)
 					(mail-send reply_id "")
 					(elem-set +debug_rec_reply_id buf_rec reply_id)))
