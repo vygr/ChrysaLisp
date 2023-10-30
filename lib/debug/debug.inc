@@ -33,7 +33,7 @@
 				(const (cat (ascii-char 10) "; ")) (str n) (const (cat " ;" (ascii-char 10)))
 				u (ascii-char 10) (ascii-char 10)
 				(debug-sanitise sform 56) (ascii-char 10) (ascii-char 10)
-				(debug-sanitise (str rval) 56) (ascii-char 10)))
+				(debug-sanitise (str rval) 56) (ascii-char 10) (ascii-char 10)))
 		(each (lambda (binding)
 			(bind '(var val) binding)
 			(elem-set 0 binding (setq var (str var)))
