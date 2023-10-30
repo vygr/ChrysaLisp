@@ -3,7 +3,6 @@
 ;;;;;;;;;;;
 
 (import "sys/lisp.inc")
-
 (defq *profile_map* (env 401) *profile_rvals* (list))
 
 ;module
@@ -34,8 +33,8 @@
 		(if reset (setq *profile_map* (env 401)))))
 
 (defun profile-fun (name form)
-	(static-qq (progn
-		(cond
+	(static-qq
+		((cond
 			((defq _e_ (get ',name *profile_map*))
 				(elem-set +prof_cnt _e_ (inc (elem-get +prof_cnt _e_)))
 				(elem-set +prof_rcnt _e_ (inc (elem-get +prof_rcnt _e_)))

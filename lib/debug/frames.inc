@@ -9,8 +9,8 @@
 
 (defun stack-frame (name form)
 	; (stack-frame name form) -> form
-	(static-qq (progn
-		(push *stack_frame* ,(str n " -> " *stream_name* "(" *stream_line* ")"))
+	(static-qq
+		((push *stack_frame* ,(str n " -> " *stream_name* "(" *stream_line* ")"))
 		(push *stack_rvals* (progn ~_))
 		(pop *stack_frame*)
 		(pop *stack_rvals*))))
