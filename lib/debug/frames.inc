@@ -2,21 +2,27 @@
 ; Stack frames
 ;;;;;;;;;;;;;;
 
-(when (> *debug_mode* 0)
-	(import "sys/lisp.inc")
+(defq *stack_frame* (list) *stack_return_vals* (list))
 
-	(defq *stack_frame* (list) *stack_return_vals* (list))
+;module
+(env-push)
 
-	(defmacro framed-lambda (n a &rest _)
-		`(lambda ,a
-			(push *stack_frame* ,(str n " -> " *stream_name* "(" *stream_line* ")"))
-			(push *stack_return_vals* (progn ~_))
-			(pop *stack_frame*)
-			(pop *stack_return_vals*)))
+(defun stack-frame (name form)
+	; (stack-frame name form) -> form
+	(static-qq (progn
+		(push *stack_frame* ,(str n " -> " *stream_name* "(" *stream_line* ")"))
+		(push *stack_return_vals* (progn ~_))
+		(pop *stack_frame*)
+		(pop *stack_return_vals*))))
 
-	(defmacro defun (n a &rest _)
-		`(defq ,n (framed-lambda ,n ,a ~(macroexpand _))))
+(defmacro defun (n a &rest _)
+	(static-qq (defq ,n (lambda ,a ~(macroexpand
+		(stack-frame (str n) _))))))
 
-	(defmacro defmethod (n a &rest _)
-		`(def (def? :vtable this) ,n (framed-lambda ,(sym (cat *class* " " n)) (this ~a) ~(macroexpand _))))
-)
+(defmacro defmethod (n a &rest _)
+	(static-qq (def (def? :vtable this) ,n (lambda (this ~a) ~(macroexpand
+		(stack_frame (cat *class* " " n) _))))))
+
+;module
+(export-symbols defun defmethod)
+(env-pop)
