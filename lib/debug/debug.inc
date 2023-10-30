@@ -26,7 +26,6 @@
 			(if (odd? q) (cat s (ascii-char 34)) s))))
 
 (defun debug-format (n sform rval e)
-	; (debug-format name sform rval env)
 	(defq e (tolist e) max_var_size 0)
 	(sort (# (cmp (first %0) (first %1))) e)
 	(write (defq msg (string-stream (cat "")))
@@ -47,14 +46,12 @@
 	(debug-send (str msg (ascii-char 10))))
 
 (defun debug-fun? (form)
-	; (debug-fun? form)
 	(and (list? form) (nempty? form)
 		(not (or (quote? (first form)) (quasi-quote? (first form))))
 		(sym? (first form)) (setq form (get (first form)))
 		(or (func? form) (lambda-func? form))))
 
 (defun debug-fun (name form)
-	; (debug-fun name form) -> form
 	(defq stack (list form))
 	(while (defq l (pop stack))
 		(each (lambda (e)
