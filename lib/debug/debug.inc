@@ -24,15 +24,16 @@
 						(:t "."))) s)))
 				(if (odd? q) (cat s (ascii-char 34)) s))))
 
-	(defun debug-format (n sform e)
-		; (debug-format name sform env)
+	(defun debug-format (n sform rval e)
+		; (debug-format name sform rval env)
 		(defq e (tolist e) max_var_size 0)
 		(sort (# (cmp (first %0) (first %1))) e)
 		(write (defq msg (string-stream (cat "")))
 			(cat (defq u (pad "" (+ (length n) 4) ";;;;;;;;;;;;;;;;;;;;;;;;"))
 				(const (cat (ascii-char 10) "; ")) (str n) (const (cat " ;" (ascii-char 10)))
 				u (ascii-char 10) (ascii-char 10)
-				(debug-sanitise sform 56) (ascii-char 10) (ascii-char 10)))
+				(debug-sanitise sform 56) (ascii-char 10) (ascii-char 10)
+				(debug-sanitise (str rval) 56) (ascii-char 10)))
 		(each (lambda (binding)
 			(bind '(var val) binding)
 			(elem-set 0 binding (setq var (str var)))
@@ -48,7 +49,7 @@
 		; (debug name sform form)
 		`(progn
 			(push *debug_return_vals* ,form)
-			(debug-format ,n ,sform (env))
+			(debug-format ,n ,sform (last *debug_return_vals*) (env))
 			(pop *debug_return_vals*)))
 
 	(defun debug-fun? (form)
