@@ -40,8 +40,6 @@
 		(setq max_var_size (max (length var) max_var_size))) e)
 	(each (lambda ((var val))
 		(setq var (pad var max_var_size) val (debug-sanitise (str val) (- 53 max_var_size)))
-		(if (> (length val) 0)
-			(setq val (apply (const cat) (map (# (if (<= 32 (code %0) 126) %0 ".")) val))))
 		(write msg (cat var " : " val (ascii-char 10)))) e)
 	(debug-send (str msg (ascii-char 10))))
 
