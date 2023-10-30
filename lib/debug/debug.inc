@@ -7,21 +7,34 @@
 
 	(defq *debug_return_vals* (list))
 
-	(defun debug-trunc (s)
-		(if (> (length s) 36)
-			(cat (slice 0 36 s) " ...") s))
+	(defun debug-trunc (s &optional w)
+		(setd w 37)
+		(if (> (length s) w)
+			(cat (slice 0 w s) " ...") s))
+
+	(defun debug-sanitise (s &optional w)
+		(defq s (debug-trunc s w) q 0)
+		(cond
+			((eql s "") s)
+			(:t (setq s (apply (const cat) (map (#
+					(cond
+						((<= 32 (code %0) 126)
+							(if (= (code %0) 34) (setq q (inc q)))
+							%0)
+						(:t "."))) s)))
+				(if (odd? q) (cat s (ascii-char 34)) s))))
 
 	(defun debug-format (n sform e)
 		; (debug-format name sform env)
 		(setq e (tolist e))
 		(sort (# (cmp (first %0) (first %1))) e)
 		(write (defq msg (string-stream (cat "")))
-			(cat (defq u (cat "+" (pad "" (+ (length n) 2) "--------") "+"))
-				(const (cat (ascii-char 10) "| ")) (str n) (const (cat " |" (ascii-char 10)))
+			(cat (defq u (pad "" (+ (length n) 4) ";;;;;;;;;;;;;;;;;;;;;;;;"))
+				(const (cat (ascii-char 10) "; ")) (str n) (const (cat " ;" (ascii-char 10)))
 				u (ascii-char 10) (ascii-char 10)
-				(debug-trunc sform) (ascii-char 10) (ascii-char 10)))
+				(debug-sanitise sform 56) (ascii-char 10) (ascii-char 10)))
 		(each (lambda ((var val))
-			(setq var (pad (str var) 16) val (debug-trunc (str val)))
+			(setq var (pad (str var) 16) val (debug-sanitise (str val)))
 			(if (> (length val) 0)
 				(setq val (apply (const cat) (map (# (if (<= 32 (code %0) 126) %0 ".")) val))))
 			(write msg (cat var " : " val (ascii-char 10)))) e)
@@ -52,4 +65,7 @@
 
 	(defmacro defun (n a &rest _)
 		`(defq ,n (lambda ,a ~(macroexpand (debug-fun (str n) _)))))
+
+	(defmacro defmethod (n a &rest _)
+		`(def (def? :vtable this) ,n (lambda (this ~a) ~(macroexpand (debug-fun (str n) _)))))
 )
