@@ -27,15 +27,14 @@
 		(ui-vdu vdu (:vdu_width vdu_width :vdu_height vdu_height :ink_color +argb_yellow))))
 
 (defun vdu-print (vdu buf s)
-	(each (lambda (c)
-		(cond
-			((eql c (ascii-char 10))
-				;line feed and truncate
-				(if (> (length (push buf "")) (const vdu_height))
-					(setq buf (slice (const (dec (neg vdu_height))) -1 buf))))
-			(:t ;char
-				(elem-set -2 buf (cat (elem-get -2 buf) c))))) s)
-	(if vdu (. vdu :load buf 0 0 (length (elem-get -2 buf)) (dec (length buf)))) buf)
+	(defq ch (dec vdu_height))
+	(. buf :paste s)
+	(bind '(w h) (. buf :get_size))
+	(when (> h ch)
+		(.-> buf (:set_cursor 0 0) (:cut 0 (- h ch)))
+		(. buf :set_cursor 0 ch))
+	(. buf :clear_undo)
+	(if vdu (. buf :vdu_load vdu 0 0)))
 
 (defun set-slider-values ()
 	(defq val (get :value *hslider*) mho (max 0 (dec (length buf_list))))
@@ -110,7 +109,7 @@
 					index (find-rev key buf_keys))
 				(unless index
 					(push buf_keys key)
-					(push buf_list (list (list "") :nil :nil))
+					(push buf_list (list (Buffer :t) :nil :nil))
 					(reset (setq index (dec (length buf_list)))))
 				(elem-set +debug_rec_buf (defq buf_rec (elem-get index buf_list))
 					(vdu-print (if (= index buf_index) vdu) (elem-get +debug_rec_buf buf_rec) data))
