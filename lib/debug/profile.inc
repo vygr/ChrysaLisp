@@ -4,10 +4,13 @@
 
 (import "sys/lisp.inc")
 
+(defq *profile_meta_map* (env 401) *profile_rvals* (list))
+
+;module
+(env-push)
+
 (enums +prof 0
 	(enum cnt rcnt acc))
-
-(defq *profile_meta_map* (env 401) *profile_return_vals* (list))
 
 (defun profile-print (n &optional s)
 	; (profile-print name [stream]) -> stdout | stream
@@ -30,21 +33,27 @@
 			(str (profile-print n (string-stream (cat "")))))
 		(if reset (setq *profile_meta_map* (env 401)))))
 
-(defmacro profile-lambda (n a &rest _)
-	`(lambda ,a
+(defun profile-fun (name form)
+	(static-qq (progn
 		(cond
-			((defq _e_ (get ',n *profile_meta_map*))
+			((defq _e_ (get ',name *profile_meta_map*))
 				(elem-set +prof_cnt _e_ (inc (elem-get +prof_cnt _e_)))
 				(elem-set +prof_rcnt _e_ (inc (elem-get +prof_rcnt _e_)))
 				(if (= (elem-get +prof_rcnt _e_) 1) (push _e_ (pii-time))))
-			(:t (def *profile_meta_map* ',n (setq _e_ (list 1 1 0 (pii-time))))))
-		(push *profile_return_vals* (progn ~_))
+			(:t (def *profile_meta_map* ',name (setq _e_ (list 1 1 0 (pii-time))))))
+		(push *profile_rvals* (progn ~_))
 		(elem-set +prof_rcnt _e_ (dec (elem-get +prof_rcnt _e_)))
 		(if (= (elem-get +prof_rcnt _e_) 0) (push _e_ (+ (- (pii-time) (pop _e_)) (pop _e_))))
-		(pop *profile_return_vals*)))
+		(pop *profile_rvals*))))
 
 (defmacro defun (n a &rest _)
-	`(defq ,n (profile-lambda ,n ,a ~(macroexpand _))))
+	(static-qq (defq ,n (lambda ,a ~(macroexpand
+		(profile-fun n _))))))
 
 (defmacro defmethod (n a &rest _)
-	`(def (def? :vtable this) ,n (profile-lambda ,(sym (cat *class* " " n)) (this ~a) ~(macroexpand _))))
+	(static-qq (def (def? :vtable this) ,n (lambda (this ~a) ~(macroexpand
+		(profile-fun (sym (cat *class* " " n)) _))))))
+
+;module
+(export-symbols defun defmethod profile-report)
+(env-pop)
