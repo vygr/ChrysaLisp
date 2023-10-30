@@ -8,10 +8,9 @@
 (env-push)
 
 (defun stack-frame (name form)
-	; (stack-frame name form) -> form
 	(static-qq
 		((push *stack_frame* ,(str n " -> " *stream_name* "(" *stream_line* ")"))
-		(push *stack_rvals* (progn ~_))
+		(push *stack_rvals* (progn ~form))
 		(pop *stack_frame*)
 		(pop *stack_rvals*))))
 
