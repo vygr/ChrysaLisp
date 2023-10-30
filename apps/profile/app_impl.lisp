@@ -20,7 +20,7 @@
 
 (defq vdu_width 60 vdu_height 40 buf_keys (list) buf_list (list) buf_index :nil id :t)
 
-(ui-window *window* (:color 0xc0000000)
+(ui-window *window* (:color +argb_grey1)
 	(ui-flow _ (:flow_flags +flow_down_fill)
 		(ui-title-bar _ "Profile" (0xea19) +event_close)
 		(ui-flow _ (:flow_flags +flow_right_fill)
