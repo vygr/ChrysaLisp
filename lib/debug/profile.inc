@@ -40,7 +40,7 @@
 				(elem-set +prof_rcnt _e_ (inc (elem-get +prof_rcnt _e_)))
 				(if (= (elem-get +prof_rcnt _e_) 1) (push _e_ (pii-time))))
 			(:t (def *profile_map* ',name (setq _e_ (list 1 1 0 (pii-time))))))
-		(push *profile_rvals* (progn ~_))
+		(push *profile_rvals* (progn ~form))
 		(elem-set +prof_rcnt _e_ (dec (elem-get +prof_rcnt _e_)))
 		(if (= (elem-get +prof_rcnt _e_) 0) (push _e_ (+ (- (pii-time) (pop _e_)) (pop _e_))))
 		(pop *profile_rvals*))))
@@ -54,5 +54,6 @@
 		(profile-fun (sym (cat *class* " " n)) _))))))
 
 ;module
-(export-symbols defun defmethod profile-report)
+(export-symbols defun defmethod
+	profile-report profile-print)
 (env-pop)
