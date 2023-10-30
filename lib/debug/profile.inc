@@ -4,7 +4,7 @@
 
 (import "sys/lisp.inc")
 
-(defq *profile_meta_map* (env 401) *profile_rvals* (list))
+(defq *profile_map* (env 401) *profile_rvals* (list))
 
 ;module
 (env-push)
@@ -15,7 +15,7 @@
 (defun profile-print (n &optional s)
 	; (profile-print name [stream]) -> stdout | stream
 	(setd s (io-stream 'stdout))
-	(defq e (tolist *profile_meta_map*) m (reduce (lambda (a (k v)) (max a (length k))) e 0))
+	(defq e (tolist *profile_map*) m (reduce (lambda (a (k v)) (max a (length k))) e 0))
 	(write s (cat (task-netid) n (ascii-char 10)))
 	(each (lambda ((k v))
 		(write s (cat
@@ -31,16 +31,16 @@
    (when (/= 0 (length (defq services (mail-enquire "*Profile"))))
 		(mail-send (to-net-id (elem-get 1 (split (pop services) ",")))
 			(str (profile-print n (string-stream (cat "")))))
-		(if reset (setq *profile_meta_map* (env 401)))))
+		(if reset (setq *profile_map* (env 401)))))
 
 (defun profile-fun (name form)
 	(static-qq (progn
 		(cond
-			((defq _e_ (get ',name *profile_meta_map*))
+			((defq _e_ (get ',name *profile_map*))
 				(elem-set +prof_cnt _e_ (inc (elem-get +prof_cnt _e_)))
 				(elem-set +prof_rcnt _e_ (inc (elem-get +prof_rcnt _e_)))
 				(if (= (elem-get +prof_rcnt _e_) 1) (push _e_ (pii-time))))
-			(:t (def *profile_meta_map* ',name (setq _e_ (list 1 1 0 (pii-time))))))
+			(:t (def *profile_map* ',name (setq _e_ (list 1 1 0 (pii-time))))))
 		(push *profile_rvals* (progn ~_))
 		(elem-set +prof_rcnt _e_ (dec (elem-get +prof_rcnt _e_)))
 		(if (= (elem-get +prof_rcnt _e_) 0) (push _e_ (+ (- (pii-time) (pop _e_)) (pop _e_))))

@@ -2,7 +2,7 @@
 ; Stack frames
 ;;;;;;;;;;;;;;
 
-(defq *stack_frame* (list) *stack_return_vals* (list))
+(defq *stack_frame* (list) *stack_rvals* (list))
 
 ;module
 (env-push)
@@ -11,9 +11,9 @@
 	; (stack-frame name form) -> form
 	(static-qq (progn
 		(push *stack_frame* ,(str n " -> " *stream_name* "(" *stream_line* ")"))
-		(push *stack_return_vals* (progn ~_))
+		(push *stack_rvals* (progn ~_))
 		(pop *stack_frame*)
-		(pop *stack_return_vals*))))
+		(pop *stack_rvals*))))
 
 (defmacro defun (n a &rest _)
 	(static-qq (defq ,n (lambda ,a ~(macroexpand
