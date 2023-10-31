@@ -49,7 +49,10 @@
 (defun debug-fun? (form)
 	(cond
 		((and (list? form) (nempty? form)
-				(not (or (quote? (defq ff (first form))) (quasi-quote? ff))))
+				(not (or (quote? (defq ff (first form))) (quasi-quote? ff)
+						(some (# (eql %0 ff))
+							'(profile-report profile-print
+							debug-send debug-brk)))))
 			;valid form
 			(cond
 				((or (lambda? ff) (macro? ff) (eql 'const ff))

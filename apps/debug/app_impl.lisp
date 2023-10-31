@@ -110,6 +110,7 @@
 			((= idx +select_service)
 				(defq reply_id (getf *msg* +debug_reply)
 					key (sym (getf *msg* +debug_origin))
+					type (getf *msg* +debug_type)
 					data (slice +debug_data -1 *msg*)
 					index (find-rev key buf_keys))
 				(unless index
@@ -118,6 +119,7 @@
 					(reset (setq index (dec (length buf_list)))))
 				(elem-set +debug_rec_buf (defq buf_rec (elem-get index buf_list))
 					(vdu-print (if (= index buf_index) *vdu*) (elem-get +debug_rec_buf buf_rec) data))
+				(if (> type 0) (pause (elem-get buf_index buf_list)))
 				(if (elem-get +debug_rec_state buf_rec)
 					(mail-send reply_id "")
 					(elem-set +debug_rec_reply_id buf_rec reply_id)))
