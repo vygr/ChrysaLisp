@@ -8,21 +8,19 @@
 ;module
 (env-push)
 
-(defun debug-trunc (s &optional w)
-	(setd w 37)
+(defun debug-trunc (s w)
 	(if (> (length s) w)
 		(cat (slice 0 w s) " ...") s))
 
-(defun debug-sanitise (s &optional w)
-	(defq s (debug-trunc s w) q 0)
+(defun debug-sanitise (s w)
 	(cond
 		((eql s "") s)
-		(:t (setq s (apply (const cat) (map (#
+		(:t (defq q 0 s (apply (const cat) (map (#
 				(cond
 					((<= 32 (code %0) 126)
 						(if (= (code %0) 34) (setq q (inc q)))
 						%0)
-					(:t "."))) s)))
+					(:t "."))) (debug-trunc s w))))
 			(if (odd? q) (cat s (ascii-char 34)) s))))
 
 (defun debug-format (n sform rval e)
