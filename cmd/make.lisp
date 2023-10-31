@@ -161,8 +161,7 @@
 		(sanitise (cat
 			(all-files "." '("lisp.inc") 2)
 			(all-files "./lib" '(".inc") 2)
-			'("class/lisp/root.inc"
-			"apps/debug/app.inc"))))
+			'("class/lisp/root.inc"))))
 
 	;functions
 	(defq stream (file-stream "docs/Reference/FUNCTIONS.md" +file_open_write))

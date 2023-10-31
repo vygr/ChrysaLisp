@@ -1,13 +1,17 @@
 (import "././login/env.inc")
 (import "class/lisp.inc")
 (import "gui/lisp.inc")
-(import "./app.inc")
 
 (enums +event 0
 	(enum close)
 	(enum hvalue)
 	(enum play pause step clear)
 	(enum play_all pause_all step_all clear_all))
+
+(structure +debug 0
+	(netid reply origin)
+	(int type)
+	(offset data))
 
 (enums +debug_rec 0
 	(enum buf state reply_id))
@@ -78,13 +82,11 @@
 				{In Lisp files:}
 				{}
 				{add (import "lib/debug/debug.inc")}
-				{to debug all functions.}
-				{}
-				{Or:}
-				{}
-				{add (import "apps/debug/app.inc")}
-				{then use}
-				{(debug-send xxx yyy zzz ...)}
+				{to debug all functions/methods.}
+				{and use:}
+				{(debug-brk xxx form)}
+				{as a conditional breakpoint.}
+				{(debug-send xxx ...)}
 				{as a single stepping debug print.}) 0 0 0 1000)))
 	(set-slider-values))
 

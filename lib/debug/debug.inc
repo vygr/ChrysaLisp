@@ -2,13 +2,17 @@
 ; Debuging
 ;;;;;;;;;;
 
-(import "apps/debug/app.inc")
 (defq *debug_rvals* (list))
 
 ;module
 (env-push)
 
 (defq +debug_width 60)
+
+(structure +debug 0
+	(netid reply origin)
+	(int type)
+	(offset data))
 
 (defun debug-send (&rest s)
 	; (debug-send form ...)
