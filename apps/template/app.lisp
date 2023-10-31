@@ -1,5 +1,6 @@
 (import "lib/debug/frames.inc")
 ;(import "lib/debug/profile.inc")
+;(import "lib/debug/debug.inc")
 
 (import "././login/env.inc")
 (import "sys/lisp.inc")
