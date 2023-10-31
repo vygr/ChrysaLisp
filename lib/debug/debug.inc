@@ -45,21 +45,33 @@
 	(debug-send (str msg (ascii-char 10))))
 
 (defun debug-fun? (form)
-	(and (list? form) (nempty? form)
-		(not (or (quote? (first form)) (quasi-quote? (first form))))
-		(sym? (first form)) (setq form (get (first form)))
-		(or (func? form) (lambda-func? form))))
+	(cond
+		((and (list? form) (nempty? form)
+				(not (or (quote? (defq ff (first form))) (quasi-quote? ff))))
+			;valid form
+			(cond
+				((or (lambda? ff) (macro? ff) (eql 'const ff))
+					;just step in, but don't wrap
+					0)
+				((and (sym? ff) (setq form (get ff))
+					(or (func? form) (lambda-func? form) (macro-func? form)))
+					;step in and wrap
+					1)))))
 
 (defun debug-fun (name form)
 	(defq stack (list form))
 	(while (defq l (pop stack))
 		(each (lambda (e)
-			(when (debug-fun? e)
-				(elem-set _ l
-					(static-qq (progn
-						(push *debug_rvals* ,e)
-						(debug-format ,name ,(str e) (last *debug_rvals*) (env))
-						(pop *debug_rvals*))))
+			;valid form ?
+			(when (defq m (debug-fun? e))
+				;wrap the form ?
+				(when (> m 0)
+					(elem-set _ l
+						(static-qq (progn
+							(push *debug_rvals* ,e)
+							(debug-format ,name ,(str e) (last *debug_rvals*) (env))
+							(pop *debug_rvals*)))))
+				;step into form
 				(push stack e))) l)) form)
 
 (defmacro defun (n a &rest _)
