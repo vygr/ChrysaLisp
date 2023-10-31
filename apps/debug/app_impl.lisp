@@ -13,10 +13,9 @@
 	(enum buf state reply_id))
 
 (enums +select 0
-	(enum main service tip))
+	(enum main service tip exit))
 
-(defq vdu_width 60 vdu_height 40 *syntax* (Syntax)
-	buf_keys (list) buf_list (list) buf_index :nil id :t)
+(defq +width 60 +height 40 +rate_exit 1000000)
 
 (ui-window *window* (:color +argb_grey1)
 	(ui-flow _ (:flow_flags +flow_down_fill)
@@ -28,10 +27,10 @@
 				(ui-buttons (0xe95e 0xe95d 0xe95c 0xe960) +event_play_all))
 			(ui-backdrop _ (:color (const *env_toolbar_col*))))
 		(. (ui-slider *hslider* (:value 0)) :connect +event_hvalue)
-		(ui-vdu *vdu* (:vdu_width vdu_width :vdu_height vdu_height :ink_color +argb_yellow))))
+		(ui-vdu *vdu* (:vdu_width +width :vdu_height +height :ink_color +argb_yellow))))
 
 (defun vdu-print (vdu buf s)
-	(defq ch (dec vdu_height))
+	(defq ch (const (dec +height)))
 	(. buf :paste s)
 	(bind '(w h) (. buf :get_size))
 	(when (> h ch)
@@ -97,7 +96,8 @@
 		'("play all" "pause all" "step all" "clear all")))
 
 (defun main ()
-	(defq select (alloc-select +select_size)
+	(defq select (alloc-select +select_size) syntax (Syntax)
+		buf_keys (list) buf_list (list) buf_index :nil id :t
 		entry (mail-declare (elem-get +select_service select) "*Debug" "Debug Service 0.4"))
 	(tooltips)
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
@@ -114,7 +114,7 @@
 					index (find-rev key buf_keys))
 				(unless index
 					(push buf_keys key)
-					(push buf_list (list (Buffer :t *syntax*) :nil :nil))
+					(push buf_list (list (Buffer :t syntax) :nil :nil))
 					(reset (setq index (dec (length buf_list)))))
 				(elem-set +debug_rec_buf (defq buf_rec (elem-get index buf_list))
 					(vdu-print (if (= index buf_index) *vdu*) (elem-get +debug_rec_buf buf_rec) data))
@@ -125,9 +125,16 @@
 				;tip time mail
 				(if (defq view (. *window* :find_id (getf *msg* +mail_timeout_id)))
 					(. view :show_tip)))
+			((= idx +select_exit)
+				;exit mail
+				(setq id :nil))
 			;close ?
 			((= (setq id (getf *msg* +ev_msg_target_id)) +event_close)
-				(setq id :nil))
+				;drop the service entry now !
+				(mail-forget entry)
+				;few seconds delay till exit !
+				;just let any stray debug sends arrive.
+				(mail-timeout (elem-get +select_exit select) +rate_exit 0))
 			;moved task slider
 			((= id +event_hvalue)
 				(reset (get :value *hslider*)))
@@ -142,6 +149,7 @@
 			;pressed step button
 			((= id +event_step)
 				(when buf_index
+					(pause (elem-get buf_index buf_list))
 					(step (elem-get buf_index buf_list))))
 			;pressed clear button
 			((= id +event_clear)
@@ -158,6 +166,7 @@
 				(each pause buf_list))
 			;pressed step all button
 			((= id +event_step_all)
+				(pause (elem-get buf_index buf_list))
 				(each step buf_list))
 			;pressed clear all button
 			((= id +event_clear_all)
@@ -165,7 +174,7 @@
 				(reset))
 			;otherwise
 			(:t (. *window* :event *msg*))))
-	(mail-forget entry)
 	(free-select select)
-	(each play buf_list)
-	(gui-sub *window*))
+	(gui-sub *window*)
+	;restart any paused debug sends
+	(each play buf_list))
