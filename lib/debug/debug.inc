@@ -10,6 +10,18 @@
 
 (defq +debug_width 60)
 
+(defun debug-send (&rest s)
+	; (debug-send form ...)
+	(when (/= 0 (length (defq services (mail-enquire "*Debug"))))
+		(defq mbox (mail-alloc-mbox) debug_mbox (to-net-id (elem-get 1 (split (pop services) ",")))
+			s (apply str s) s (cat s (if (eql (elem-get -2 s) (ascii-char 10)) "" (ascii-char 10))))
+		(mail-send debug_mbox (setf-> (cat (str-alloc +debug_size) s)
+			(+debug_reply mbox)
+			(+debug_origin (task-netid))
+			(+debug_type 0)))
+		(mail-read mbox)
+		(mail-free-mbox mbox)))
+
 (defun debug-trunc (s w &optional d)
 	(if (> (length s) (setq w (- w 4)))
 		(if d
@@ -44,7 +56,10 @@
 		(setq var (pad var max_var_size)
 			val (debug-sanitise (str val) (- (const (- +debug_width 3)) max_var_size) :t))
 		(write msg (cat var " : " val (ascii-char 10)))) e)
-	(debug-send (str msg (ascii-char 10))))
+	(str msg (ascii-char 10)))
+
+(defun debug-msg (n sform rval e)
+	(debug-send (debug-format n sform rval e)))
 
 (defun debug-fun? (form)
 	(cond
@@ -74,10 +89,22 @@
 					(elem-set _ l
 						(static-qq (progn
 							(push *debug_rvals* ,e)
-							(debug-format ,name ,(str e) (last *debug_rvals*) (env))
+							(debug-msg ,name ,(str e) (last *debug_rvals*) (env))
 							(pop *debug_rvals*)))))
 				;step into form
 				(push stack e))) l)) form)
+
+(defun debug-brk (name flag)
+	; (debug-brk name flag)
+	(when (and flag (/= 0 (length (defq services (mail-enquire "*Debug")))))
+		(defq mbox (mail-alloc-mbox) debug_mbox (to-net-id (elem-get 1 (split (pop services) ","))))
+		(mail-send debug_mbox (setf-> (cat (str-alloc +debug_size) (debug-format
+				(cat "<break> -> " name) :nil :nil (penv)))
+			(+debug_reply mbox)
+			(+debug_origin (task-netid))
+			(+debug_type 1)))
+		(mail-read mbox)
+		(mail-free-mbox mbox)))
 
 (defmacro defun (n a &rest _)
 	(static-qq (defq ,n (lambda ,a ~(macroexpand
@@ -88,5 +115,7 @@
 		(debug-fun (cat *class* " " n) _))))))
 
 ;module
-(export-symbols defun defmethod)
+(export-symbols
+	defun defmethod
+	debug-send debug-brk)
 (env-pop)
