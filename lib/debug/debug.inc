@@ -8,11 +8,13 @@
 ;module
 (env-push)
 
-(defun debug-trunc (s w)
+(defun debug-trunc (s w &optional d)
 	(if (> (length s) w)
-		(cat (slice 0 w s) " ...") s))
+		(if d
+			(cat "... " (slice (- -1 w) -1 s))
+			(cat (slice 0 w s) " ...")) s))
 
-(defun debug-sanitise (s w)
+(defun debug-sanitise (s w &optional d)
 	(cond
 		((eql s "") s)
 		(:t (defq q 0 s (apply (const cat) (map (#
@@ -20,7 +22,7 @@
 					((<= 32 (code %0) 126)
 						(if (= (code %0) 34) (setq q (inc q)))
 						%0)
-					(:t "."))) (debug-trunc s w))))
+					(:t "."))) (debug-trunc s w d))))
 			(if (odd? q) (cat s (ascii-char 34)) s))))
 
 (defun debug-format (n sform rval e)
@@ -37,7 +39,8 @@
 		(elem-set 0 binding (setq var (str var)))
 		(setq max_var_size (max (length var) max_var_size))) e)
 	(each (lambda ((var val))
-		(setq var (pad var max_var_size) val (debug-sanitise (str val) (- 53 max_var_size)))
+		(setq var (pad var max_var_size)
+			val (debug-sanitise (str val) (- 53 max_var_size) :t))
 		(write msg (cat var " : " val (ascii-char 10)))) e)
 	(debug-send (str msg (ascii-char 10))))
 
