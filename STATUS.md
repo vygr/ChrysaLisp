@@ -7,6 +7,9 @@
 Improvements to Debug stepper app. Now shows the current executed form, its
 return value and a syntax highlighted local environment list.
 
+Addition of `(debug-brk name exp)` conditional breakpoints. Set `exp` to `:t`
+for unconditional.
+
 ------
 
 Font app now shows tooltips for the character codes. A click on the character

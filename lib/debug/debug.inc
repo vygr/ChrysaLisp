@@ -99,7 +99,7 @@
 	(when (and flag (/= 0 (length (defq services (mail-enquire "*Debug")))))
 		(defq mbox (mail-alloc-mbox) debug_mbox (to-net-id (elem-get 1 (split (pop services) ","))))
 		(mail-send debug_mbox (setf-> (cat (str-alloc +debug_size) (debug-format
-				(cat "<break> -> " name) :nil :nil (penv)))
+				(cat "<break> " name) :nil :nil (penv)))
 			(+debug_reply mbox)
 			(+debug_origin (task-netid))
 			(+debug_type 1)))
