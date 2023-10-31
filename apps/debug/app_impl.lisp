@@ -22,8 +22,11 @@
 	(ui-flow _ (:flow_flags +flow_down_fill)
 		(ui-title-bar _ "Debug" (0xea19) +event_close)
 		(ui-flow _ (:flow_flags +flow_right_fill)
-			(ui-tool-bar *main_toolbar* () (ui-buttons (0xe95e 0xe95d 0xe95c 0xe960) +event_play))
-			(ui-tool-bar *main_toolbar2* (:color (const *env_toolbar2_col*)) (ui-buttons (0xe95e 0xe95d 0xe95c 0xe960) +event_play_all)))
+			(ui-tool-bar *main_toolbar* ()
+				(ui-buttons (0xe95e 0xe95d 0xe95c 0xe960) +event_play))
+			(ui-tool-bar *main_toolbar2* (:color (const *env_toolbar2_col*))
+				(ui-buttons (0xe95e 0xe95d 0xe95c 0xe960) +event_play_all))
+			(ui-backdrop _ (:color (const *env_toolbar_col*))))
 		(. (ui-slider *hslider* (:value 0)) :connect +event_hvalue)
 		(ui-vdu *vdu* (:vdu_width vdu_width :vdu_height vdu_height :ink_color +argb_yellow))))
 
