@@ -18,7 +18,7 @@
 	(when (/= 0 (length (defq services (mail-enquire "*Debug"))))
 		(to-net-id (elem-get 1 (split (pop services) ",")))))
 
-(defun debug-send (service type s)
+(defun debug-ipc (service type s)
 	(mail-send service (setf-> (cat (str-alloc +debug_size) s)
 		(+debug_reply (defq mbox (mail-alloc-mbox)))
 		(+debug_origin (task-netid))
@@ -64,14 +64,14 @@
 
 (defun debug-msg (n sform rval e)
 	(when (defq service (debug-service))
-		(debug-send service 0 (debug-info n sform rval e))))
+		(debug-ipc service 0 (debug-info n sform rval e))))
 
 (defun debug-brk (name condtion)
 	; (debug-brk name condtion)
 	(when (defq service (debug-service))
-		(debug-send service 1 (debug-info (cat "<break> " name) :nil :nil (penv)))))
+		(debug-ipc service 1 (debug-info (cat "<break> " name) :nil :nil (penv)))))
 
-(defun debug-fun? (form)
+(defun debug-form? (form)
 	(cond
 		((and (list? form) (nempty? form) (defq ff (first form))
 			(notany (# (eql %0 ff))
@@ -87,12 +87,12 @@
 					;step in and wrap
 					1)))))
 
-(defun debug-fun (name form)
+(defun debug-instrument (name form)
 	(defq stack (list form))
 	(while (defq l (pop stack))
 		(each (lambda (e)
 			;valid form ?
-			(when (defq m (debug-fun? e))
+			(when (defq m (debug-form? e))
 				;wrap the form ?
 				(when (> m 0)
 					(elem-set _ l
@@ -105,11 +105,11 @@
 
 (defmacro defun (n a &rest _)
 	(static-qq (defq ,n (lambda ,a ~(macroexpand
-		(debug-fun (str n) _))))))
+		(debug-instrument (str n) _))))))
 
 (defmacro defmethod (n a &rest _)
 	(static-qq (def (def? :vtable this) ,n (lambda (this ~a) ~(macroexpand
-		(debug-fun (cat *class* " " n) _))))))
+		(debug-instrument (cat *class* " " n) _))))))
 
 ;module
 (export-symbols defun defmethod debug-brk)

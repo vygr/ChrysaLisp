@@ -195,5 +195,5 @@
 			(:t (. *window* :event *msg*))))
 	(free-select select)
 	(gui-sub *window*)
-	;restart any paused debug sends
+	;restart any paused debug ipc
 	(each play buf_list))
