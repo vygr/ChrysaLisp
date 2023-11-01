@@ -5,8 +5,8 @@
 (enums +event 0
 	(enum close)
 	(enum hvalue)
-	(enum play pause step clear)
-	(enum play_all pause_all step_all clear_all))
+	(enum play forward pause step clear)
+	(enum play_all forward_all pause_all step_all clear_all))
 
 (structure +debug 0
 	(netid reply origin)
@@ -26,9 +26,9 @@
 		(ui-title-bar _ "Debug" (0xea19) +event_close)
 		(ui-flow _ (:flow_flags +flow_right_fill)
 			(ui-tool-bar *main_toolbar* ()
-				(ui-buttons (0xe95e 0xe95d 0xe95c 0xe960) +event_play))
+				(ui-buttons (0xe95e 0xe95a 0xe95d 0xe95c 0xe960) +event_play))
 			(ui-tool-bar *main_toolbar2* (:color (const *env_toolbar2_col*))
-				(ui-buttons (0xe95e 0xe95d 0xe95c 0xe960) +event_play_all))
+				(ui-buttons (0xe95e 0xe95a 0xe95d 0xe95c 0xe960) +event_play_all))
 			(ui-backdrop _ (:color (const *env_toolbar_col*))))
 		(. (ui-slider *hslider* (:value 0)) :connect +event_hvalue)
 		(ui-vdu *vdu* (:vdu_width +width :vdu_height +height :ink_color +argb_yellow))))
@@ -41,26 +41,28 @@
 		(.-> buf (:set_cursor 0 0) (:cut 0 (- h ch)))
 		(. buf :set_cursor 0 ch))
 	(. buf :clear_undo)
-	(if vdu (. buf :vdu_load vdu 0 0))
-	buf)
+	(if vdu (. buf :vdu_load vdu 0 0)))
 
 (defun set-slider-values ()
 	(defq val (get :value *hslider*) mho (max 0 (dec (length buf_list))))
 	(def *hslider* :maximum mho :portion 1 :value (min val mho))
 	(. *hslider* :dirty))
 
-(defun play (_)
-	(unless (elem-get +debug_rec_state _)
-		(step _))
-	(elem-set +debug_rec_state _ :t))
-
-(defun pause (_)
-	(elem-set +debug_rec_state _ :nil))
-
 (defun step (_)
 	(when (elem-get +debug_rec_reply_id _)
 		(mail-send (elem-get +debug_rec_reply_id _) "")
-		(elem-set +debug_rec_reply_id _ :nil)))
+		(elem-set +debug_rec_reply_id _ :paused)))
+
+(defun play (_)
+	(if (eql (elem-get +debug_rec_state _) :paused) (step _))
+	(elem-set +debug_rec_state _ :play))
+
+(defun forward (_)
+	(if (eql (elem-get +debug_rec_state _) :paused) (step _))
+	(elem-set +debug_rec_state _ :forward))
+
+(defun pause (_)
+	(elem-set +debug_rec_state _ :paused))
 
 (defun reset (&optional _)
 	(setd _ -1)
@@ -93,9 +95,9 @@
 (defun tooltips ()
 	(def *window* :tip_mbox (elem-get +select_tip select))
 	(ui-tool-tips *main_toolbar*
-		'("play" "pause" "step" "clear"))
+		'("play" "forward" "pause" "step" "clear"))
 	(ui-tool-tips *main_toolbar2*
-		'("play all" "pause all" "step all" "clear all")))
+		'("play all" "forward all" "pause all" "step all" "clear all")))
 
 (defun main ()
 	(defq select (alloc-select +select_size) syntax (Syntax)
@@ -117,12 +119,18 @@
 					index (find-rev key buf_keys))
 				(unless index
 					(push buf_keys key)
-					(push buf_list (list (Buffer :t syntax) :nil :nil))
+					(push buf_list (list (Buffer :t syntax) :paused :nil))
 					(reset (setq index (dec (length buf_list)))))
-				(elem-set +debug_rec_buf (defq buf_rec (elem-get index buf_list))
-					(vdu-print (if (= index buf_index) *vdu*) (elem-get +debug_rec_buf buf_rec) data))
-				(if (> type 0) (pause (elem-get buf_index buf_list)))
-				(if (elem-get +debug_rec_state buf_rec)
+				(defq buf_rec (elem-get index buf_list)
+					buf (elem-get +debug_rec_buf buf_rec)
+					state (elem-get +debug_rec_state buf_rec))
+				(when (> type 0)
+					(vdu-print (if (= index buf_index) *vdu*) buf data)
+					(pause (elem-get buf_index buf_list)))
+				(unless (eql state :forward)
+					(vdu-print (if (= index buf_index) *vdu*) buf data))
+				(if (or (eql (defq state (elem-get +debug_rec_state buf_rec)) :play)
+						(eql state :forward))
 					(mail-send reply_id "")
 					(elem-set +debug_rec_reply_id buf_rec reply_id)))
 			((= idx +select_tip)
@@ -146,6 +154,10 @@
 			((= id +event_play)
 				(when buf_index
 					(play (elem-get buf_index buf_list))))
+			;pressed forward button
+			((= id +event_forward)
+				(when buf_index
+					(forward (elem-get buf_index buf_list))))
 			;pressed pause button
 			((= id +event_pause)
 				(when buf_index
@@ -165,12 +177,15 @@
 			;pressed play all button
 			((= id +event_play_all)
 				(each play buf_list))
+			;pressed foward all button
+			((= id +event_forward_all)
+				(each forward buf_list))
 			;pressed pause all button
 			((= id +event_pause_all)
 				(each pause buf_list))
 			;pressed step all button
 			((= id +event_step_all)
-				(pause (elem-get buf_index buf_list))
+				(each pause buf_list)
 				(each step buf_list))
 			;pressed clear all button
 			((= id +event_clear_all)
