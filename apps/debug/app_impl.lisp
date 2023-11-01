@@ -87,7 +87,7 @@
 				{to debug all functions/methods.}
 				{and use:}
 				{}
-				{(debug-brk xxx form)}
+				{(debug-brk name form)}
 				{}
 				{as a conditional breakpoint.}) 0 0 0 1000)))
 	(set-slider-values))
