@@ -86,7 +86,7 @@
 				{to debug all functions/methods.}
 				{and use:}
 				{}
-				{(debug-brk name form)}
+				{(debug-brk name condtion)}
 				{}
 				{as a conditional breakpoint.}) 0 0 0 1000)))
 	(set-slider-values))
@@ -129,7 +129,8 @@
 						(pause (elem-get index buf_list)))
 					((not (eql state :forward))
 						(vdu-print (if (= index selected_index) *vdu*) buf data)))
-				(if (or (eql state :play) (eql state :forward))
+				(if (or (eql (defq state (elem-get +debug_rec_state buf_rec)) :play)
+						(eql state :forward))
 					(mail-send reply_id "")
 					(elem-set +debug_rec_reply_id buf_rec reply_id)))
 			((= idx +select_tip)
