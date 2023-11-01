@@ -73,14 +73,13 @@
 
 (defun debug-fun? (form)
 	(cond
-		((and (list? form) (nempty? form)
-				(not (or (quote? (defq ff (first form))) (quasi-quote? ff)
-						(some (# (eql %0 ff))
-							'(profile-report profile-print debug-send debug-brk
-							static-q static-qq)))))
+		((and (list? form) (nempty? form) (defq ff (first form))
+			(notany (# (eql %0 ff))
+				'(profile-report profile-print debug-brk
+				quote quasi-quote static-q static-qq)))
 			;valid form
 			(cond
-				((or (lambda? ff) (macro? ff) (eql 'const ff))
+				((some (# (eql %0 ff)) '(lambda macro const))
 					;just step in, but don't wrap
 					0)
 				((and (sym? ff) (setq form (get ff))
