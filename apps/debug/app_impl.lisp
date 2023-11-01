@@ -126,7 +126,7 @@
 					state (elem-get +debug_rec_state buf_rec))
 				(when (> type 0)
 					(vdu-print (if (= index buf_index) *vdu*) buf data)
-					(pause (elem-get buf_index buf_list)))
+					(pause (elem-get index buf_list)))
 				(unless (eql state :forward)
 					(vdu-print (if (= index buf_index) *vdu*) buf data))
 				(if (or (eql (defq state (elem-get +debug_rec_state buf_rec)) :play)
