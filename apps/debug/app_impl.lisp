@@ -50,8 +50,7 @@
 
 (defun step (_)
 	(when (elem-get +debug_rec_reply_id _)
-		(mail-send (elem-get +debug_rec_reply_id _) "")
-		(elem-set +debug_rec_reply_id _ :paused)))
+		(mail-send (elem-get +debug_rec_reply_id _) "")))
 
 (defun play (_)
 	(if (eql (elem-get +debug_rec_state _) :paused) (step _))
@@ -130,8 +129,7 @@
 						(pause (elem-get index buf_list)))
 					((not (eql state :forward))
 						(vdu-print (if (= index selected_index) *vdu*) buf data)))
-				(if (or (eql (defq state (elem-get +debug_rec_state buf_rec)) :play)
-						(eql state :forward))
+				(if (or (eql state :play) (eql state :forward))
 					(mail-send reply_id "")
 					(elem-set +debug_rec_reply_id buf_rec reply_id)))
 			((= idx +select_tip)
