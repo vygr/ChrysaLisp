@@ -19,13 +19,12 @@
 		(to-net-id (elem-get 1 (split (pop services) ",")))))
 
 (defun debug-send (service type s)
-		(defq mbox (mail-alloc-mbox))
-		(mail-send service (setf-> (cat (str-alloc +debug_size) s)
-			(+debug_reply mbox)
-			(+debug_origin (task-netid))
-			(+debug_type type)))
-		(mail-read mbox)
-		(mail-free-mbox mbox))
+	(mail-send service (setf-> (cat (str-alloc +debug_size) s)
+		(+debug_reply (defq mbox (mail-alloc-mbox)))
+		(+debug_origin (task-netid))
+		(+debug_type type)))
+	(mail-read mbox)
+	(mail-free-mbox mbox))
 
 (defun debug-trunc (s w &optional d)
 	(if (> (length s) (setq w (- w 4)))
@@ -67,8 +66,8 @@
 	(when (defq service (debug-service))
 		(debug-send service 0 (debug-info n sform rval e))))
 
-(defun debug-brk (name flag)
-	; (debug-brk name flag)
+(defun debug-brk (name condtion)
+	; (debug-brk name condtion)
 	(when (defq service (debug-service))
 		(debug-send service 1 (debug-info (cat "<break> " name) :nil :nil (penv)))))
 
