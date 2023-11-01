@@ -14,17 +14,18 @@
 	(int type)
 	(offset data))
 
-(defun debug-send (&rest s)
-	; (debug-send form ...)
+(defun debug-service ()
 	(when (/= 0 (length (defq services (mail-enquire "*Debug"))))
-		(defq mbox (mail-alloc-mbox) debug_mbox (to-net-id (elem-get 1 (split (pop services) ",")))
-			s (apply str s) s (cat s (if (eql (elem-get -2 s) (ascii-char 10)) "" (ascii-char 10))))
-		(mail-send debug_mbox (setf-> (cat (str-alloc +debug_size) s)
+		(to-net-id (elem-get 1 (split (pop services) ",")))))
+
+(defun debug-send (service type s)
+		(defq mbox (mail-alloc-mbox))
+		(mail-send service (setf-> (cat (str-alloc +debug_size) s)
 			(+debug_reply mbox)
 			(+debug_origin (task-netid))
-			(+debug_type 0)))
+			(+debug_type type)))
 		(mail-read mbox)
-		(mail-free-mbox mbox)))
+		(mail-free-mbox mbox))
 
 (defun debug-trunc (s w &optional d)
 	(if (> (length s) (setq w (- w 4)))
@@ -43,7 +44,7 @@
 					(:t "."))) (debug-trunc s w d))))
 			(if (odd? q) (cat s (ascii-char 34)) s))))
 
-(defun debug-format (n sform rval e)
+(defun debug-info (n sform rval e)
 	(defq e (tolist e) max_var_size 0)
 	(sort (# (cmp (first %0) (first %1))) e)
 	(write (defq msg (string-stream (cat "")))
@@ -63,15 +64,21 @@
 	(str msg (ascii-char 10)))
 
 (defun debug-msg (n sform rval e)
-	(debug-send (debug-format n sform rval e)))
+	(when (defq service (debug-service))
+		(debug-send service 0 (debug-info n sform rval e))))
+
+(defun debug-brk (name flag)
+	; (debug-brk name flag)
+	(when (defq service (debug-service))
+		(debug-send service 1 (debug-info (cat "<break> " name) :nil :nil (penv)))))
 
 (defun debug-fun? (form)
 	(cond
 		((and (list? form) (nempty? form)
 				(not (or (quote? (defq ff (first form))) (quasi-quote? ff)
 						(some (# (eql %0 ff))
-							'(profile-report profile-print
-							debug-send debug-brk)))))
+							'(profile-report profile-print debug-send debug-brk
+							static-q static-qq)))))
 			;valid form
 			(cond
 				((or (lambda? ff) (macro? ff) (eql 'const ff))
@@ -98,18 +105,6 @@
 				;step into form
 				(push stack e))) l)) form)
 
-(defun debug-brk (name flag)
-	; (debug-brk name flag)
-	(when (and flag (/= 0 (length (defq services (mail-enquire "*Debug")))))
-		(defq mbox (mail-alloc-mbox) debug_mbox (to-net-id (elem-get 1 (split (pop services) ","))))
-		(mail-send debug_mbox (setf-> (cat (str-alloc +debug_size) (debug-format
-				(cat "<break> " name) :nil :nil (penv)))
-			(+debug_reply mbox)
-			(+debug_origin (task-netid))
-			(+debug_type 1)))
-		(mail-read mbox)
-		(mail-free-mbox mbox)))
-
 (defmacro defun (n a &rest _)
 	(static-qq (defq ,n (lambda ,a ~(macroexpand
 		(debug-fun (str n) _))))))
@@ -119,7 +114,5 @@
 		(debug-fun (cat *class* " " n) _))))))
 
 ;module
-(export-symbols
-	defun defmethod
-	debug-send debug-brk)
+(export-symbols defun defmethod debug-brk)
 (env-pop)

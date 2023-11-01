@@ -84,10 +84,10 @@
 				{add (import "lib/debug/debug.inc")}
 				{to debug all functions/methods.}
 				{and use:}
+				{}
 				{(debug-brk xxx form)}
-				{as a conditional breakpoint.}
-				{(debug-send xxx ...)}
-				{as a single stepping debug print.}) 0 0 0 1000)))
+				{}
+				{as a conditional breakpoint.}) 0 0 0 1000)))
 	(set-slider-values))
 
 (defun tooltips ()
