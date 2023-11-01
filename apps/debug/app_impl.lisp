@@ -84,7 +84,8 @@
 				{}
 				{add (import "lib/debug/debug.inc")}
 				{to debug all functions/methods.}
-				{and use:}
+				{}
+				{Use:}
 				{}
 				{(debug-brk name condtion)}
 				{}
