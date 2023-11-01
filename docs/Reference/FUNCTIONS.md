@@ -317,10 +317,10 @@ cached circle generation, quantised to 1/4 pixel
 (curry lambda var ...) -> lambda
 ```
 
-### debug-send
+### debug-brk
 
 ```code
-(debug-send form ...)
+(debug-brk name flag)
 ```
 
 ### dec
