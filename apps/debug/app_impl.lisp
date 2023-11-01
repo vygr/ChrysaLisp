@@ -19,7 +19,7 @@
 (enums +select 0
 	(enum main service tip exit))
 
-(defq +width 60 +height 40 +rate_exit 1000000)
+(defq +width 60 +height 48 +rate_exit 1000000)
 
 (ui-window *window* (:color +argb_grey1)
 	(ui-flow _ (:flow_flags +flow_down_fill)
@@ -69,12 +69,12 @@
 	(if (<= 0 _ (dec (length buf_list)))
 		(progn
 			(def *hslider* :value _)
-			(setq buf_index _)
-			(vdu-print *vdu* (elem-get +debug_rec_buf (elem-get buf_index buf_list)) ""))
+			(setq selected_index _)
+			(vdu-print *vdu* (elem-get +debug_rec_buf (elem-get selected_index buf_list)) ""))
 		(progn
 			(clear buf_list)
 			(clear buf_keys)
-			(setq buf_index :nil)
+			(setq selected_index :nil)
 			(. *vdu* :load '(
 				{ChrysaLisp Debug 0.5}
 				{Toolbar1 buttons act on a single task.}
@@ -101,7 +101,7 @@
 
 (defun main ()
 	(defq select (alloc-select +select_size) syntax (Syntax)
-		buf_keys (list) buf_list (list) buf_index :nil id :t
+		buf_keys (list) buf_list (list) selected_index :nil id :t
 		entry (mail-declare (elem-get +select_service select) "*Debug" "Debug Service 0.4"))
 	(tooltips)
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
@@ -124,11 +124,12 @@
 				(defq buf_rec (elem-get index buf_list)
 					buf (elem-get +debug_rec_buf buf_rec)
 					state (elem-get +debug_rec_state buf_rec))
-				(when (> type 0)
-					(vdu-print (if (= index buf_index) *vdu*) buf data)
-					(pause (elem-get index buf_list)))
-				(unless (eql state :forward)
-					(vdu-print (if (= index buf_index) *vdu*) buf data))
+				(cond
+					((> type 0)
+						(vdu-print (if (= index selected_index) *vdu*) buf data)
+						(pause (elem-get index buf_list)))
+					((not (eql state :forward))
+						(vdu-print (if (= index selected_index) *vdu*) buf data)))
 				(if (or (eql (defq state (elem-get +debug_rec_state buf_rec)) :play)
 						(eql state :forward))
 					(mail-send reply_id "")
@@ -152,28 +153,28 @@
 				(reset (get :value *hslider*)))
 			;pressed play button
 			((= id +event_play)
-				(when buf_index
-					(play (elem-get buf_index buf_list))))
+				(when selected_index
+					(play (elem-get selected_index buf_list))))
 			;pressed forward button
 			((= id +event_forward)
-				(when buf_index
-					(forward (elem-get buf_index buf_list))))
+				(when selected_index
+					(forward (elem-get selected_index buf_list))))
 			;pressed pause button
 			((= id +event_pause)
-				(when buf_index
-					(pause (elem-get buf_index buf_list))))
+				(when selected_index
+					(pause (elem-get selected_index buf_list))))
 			;pressed step button
 			((= id +event_step)
-				(when buf_index
-					(pause (elem-get buf_index buf_list))
-					(step (elem-get buf_index buf_list))))
+				(when selected_index
+					(pause (elem-get selected_index buf_list))
+					(step (elem-get selected_index buf_list))))
 			;pressed clear button
 			((= id +event_clear)
-				(when buf_index
-					(step (elem-get buf_index buf_list))
-					(setq buf_keys (cat (slice 0 buf_index buf_keys) (slice (inc buf_index) -1 buf_keys)))
-					(setq buf_list (cat (slice 0 buf_index buf_list) (slice (inc buf_index) -1 buf_list)))
-					(reset (min buf_index (dec (length buf_list))))))
+				(when selected_index
+					(step (elem-get selected_index buf_list))
+					(setq buf_keys (cat (slice 0 selected_index buf_keys) (slice (inc selected_index) -1 buf_keys)))
+					(setq buf_list (cat (slice 0 selected_index buf_list) (slice (inc selected_index) -1 buf_list)))
+					(reset (min selected_index (dec (length buf_list))))))
 			;pressed play all button
 			((= id +event_play_all)
 				(each play buf_list))
