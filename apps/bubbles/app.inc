@@ -4,9 +4,11 @@
 (import "class/lisp.inc")
 (import "gui/lisp.inc")
 
-;quick debug switch
-;; (import "lib/debug/debug.inc")
-;; (defmacro defun (&rest _) `(defun-debug ~_))
+;debug options
+(case :nil
+(0 (import "lib/debug/frames.inc"))
+(1 (import "lib/debug/profile.inc"))
+(2 (import "lib/debug/debug.inc")))
 
 (cond   ;pick number format :t/:nil
 	(:t ;reals
