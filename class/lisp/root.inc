@@ -173,6 +173,18 @@
 	; (exec form)
 	(eval (prebind (macroexpand _))))
 
+;;;;;;;;;;;;;
+; Debug stubs
+;;;;;;;;;;;;;
+
+(defun debug-brk (name condtion)
+	; (debug-brk name condtion)
+)
+
+(defun profile-report (name &optional reset)
+	; (profile-report name [reset])
+)
+
 ;;;;;;;;;;;;
 ; Predicates
 ;;;;;;;;;;;;

@@ -320,7 +320,7 @@ cached circle generation, quantised to 1/4 pixel
 ### debug-brk
 
 ```code
-(debug-brk name flag)
+(debug-brk name condtion)
 ```
 
 ### dec
