@@ -2,7 +2,7 @@
 ; Debuging
 ;;;;;;;;;;
 
-(defq *debug_rvals* (list))
+(defq *debug_rvals* (list) *debug_state* :nil)
 
 ;module
 (env-push)
@@ -23,7 +23,7 @@
 		(+debug_reply (defq mbox (mail-alloc-mbox)))
 		(+debug_origin (task-netid))
 		(+debug_type type)))
-	(mail-read mbox)
+	(setq *debug_state* (mail-read mbox))
 	(mail-free-mbox mbox))
 
 (defun debug-trunc (s w &optional d)
@@ -64,7 +64,8 @@
 
 (defun debug-msg (n sform rval e)
 	(when (defq service (debug-service))
-		(debug-ipc service 0 (debug-info n sform rval e))))
+		(debug-ipc service 0 (if (eql *debug_state* ":forward")
+			"" (debug-info n sform rval e)))))
 
 (defun debug-brk (name condtion)
 	; (debug-brk name condtion)
