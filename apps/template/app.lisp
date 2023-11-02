@@ -1,6 +1,7 @@
-(import "lib/debug/frames.inc")
-;(import "lib/debug/profile.inc")
-;(import "lib/debug/debug.inc")
+(case 2
+(0 (import "lib/debug/frames.inc"))
+(1 (import "lib/debug/profile.inc"))
+(2 (import "lib/debug/debug.inc")))
 
 (import "././login/env.inc")
 (import "sys/lisp.inc")

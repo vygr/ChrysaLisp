@@ -2,8 +2,11 @@
 ; undo actions
 ;;;;;;;;;;;;;;
 
-(defun action-undo ())
+(defun action-undo ()
+	(debug-brk "undo" :t))
 
-(defun action-redo ())
+(defun action-redo ()
+	(debug-brk "redo" :t))
 
-(defun action-rewind ())
+(defun action-rewind ()
+	(debug-brk "rewind" :t))
