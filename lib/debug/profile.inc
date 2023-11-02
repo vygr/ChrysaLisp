@@ -12,7 +12,6 @@
 	(enum cnt rcnt acc))
 
 (defun profile-print (n &optional s)
-	; (profile-print name [stream]) -> stdout | stream
 	(setd s (io-stream 'stdout))
 	(defq e (tolist *profile_map*) m (reduce (lambda (a (k v)) (max a (length k))) e 0))
 	(write s (cat (task-netid) n (ascii-char 10)))
@@ -26,7 +25,6 @@
 			(- (elem-get +prof_acc v2) (elem-get +prof_acc v1))) e)) s)
 
 (defun profile-report (n &optional reset)
-	; (profile-report name [reset])
    (when (/= 0 (length (defq services (mail-enquire "*Profile"))))
 		(mail-send (to-net-id (elem-get 1 (split (pop services) ",")))
 			(str (profile-print n (string-stream (cat "")))))
@@ -54,6 +52,5 @@
 		(profile-fun (sym (cat *class* " " n)) _))))))
 
 ;module
-(export-symbols defun defmethod
-	profile-report profile-print)
+(export-symbols defun defmethod profile-report)
 (env-pop)
