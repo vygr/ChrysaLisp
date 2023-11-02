@@ -27,10 +27,10 @@
 	(mail-free-mbox mbox))
 
 (defun debug-trunc (s w &optional d)
-	(if (> (length s) (setq w (- w 4)))
+	(if (> (length s) w)
 		(if d
-			(cat "... " (slice (- -1 w) -1 s))
-			(cat (slice 0 w s) " ...")) s))
+			(cat "... " (slice (- 3 w) -1 s))
+			(cat (slice 0 (- w 4) s) " ...")) s))
 
 (defun debug-sanitise (s w &optional d)
 	(cond
