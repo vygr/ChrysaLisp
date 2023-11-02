@@ -78,7 +78,7 @@
 				quote quasi-quote static-q static-qq)))
 			;valid form
 			(cond
-				((some (# (eql %0 ff)) '(lambda macro const defun defmacro))
+				((or (list? ff) (some (# (eql %0 ff)) '(lambda macro const defun defmacro)))
 					;just step in, but don't wrap
 					0)
 				((and (sym? ff) (setq form (get ff))
