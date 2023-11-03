@@ -44,21 +44,20 @@
 			(if (odd? q) (cat s (ascii-char 34)) s))))
 
 (defun debug-info (n sform rval e)
-	(defq e (tolist e) max_var_size 0)
-	(sort (# (cmp (first %0) (first %1))) e)
-	(write (defq msg (string-stream (cat "")))
-		(cat (defq u (pad "" (+ (length n) 4) ";;;;;;;;;;;;;;;;;;;;;;;;"))
-			(const (cat (ascii-char 10) "; ")) n (const (cat " ;" (ascii-char 10)))
-			u (ascii-char 10) (ascii-char 10)
-			(debug-sanitise sform +debug_width) (ascii-char 10) (ascii-char 10)
-			(debug-sanitise (str rval) +debug_width) (ascii-char 10) (ascii-char 10)))
+	(defq e (tolist e) max_var_size 0 msg (list)
+		u (pad "" (+ (length n) 4) ";;;;;;;;;;;;;;;;;;;;;;;;"))
+	(push msg u (ascii-char 10)
+		"; " n " ;" (ascii-char 10)
+		u (ascii-char 10) (ascii-char 10)
+		(debug-sanitise sform +debug_width) (ascii-char 10) (ascii-char 10)
+		(debug-sanitise (str rval) +debug_width) (ascii-char 10) (ascii-char 10))
 	(each (lambda ((var val))
 		(setq max_var_size (max (length var) max_var_size))) e)
 	(each (lambda ((var val))
 		(setq var (pad var max_var_size)
 			val (debug-sanitise (str val) (- (const (- +debug_width 3)) max_var_size) :t))
-		(write msg (cat var " : " val (ascii-char 10)))) e)
-	(str msg (ascii-char 10)))
+		(push msg var " : " val (ascii-char 10))) (sort (# (cmp (first %0) (first %1))) e))
+	(apply cat (push msg (ascii-char 10))))
 
 (defun debug-msg (n sform rval e)
 	(when (defq service (debug-service))
@@ -74,10 +73,10 @@
 		((and (list? form) (nempty? form) (defq ff (first form))
 			(notany (# (eql %0 ff))
 				'(profile-report profile-print debug-brk
-				quote quasi-quote static-q static-qq)))
+				quote quasi-quote static-q static-qq const)))
 			;valid form
 			(cond
-				((or (list? ff) (some (# (eql %0 ff)) '(lambda macro const defun defmacro)))
+				((or (list? ff) (some (# (eql %0 ff)) '(lambda macro defun defmacro #)))
 					;just step in, but don't wrap
 					0)
 				((and (sym? ff) (setq form (get ff))
