@@ -44,7 +44,8 @@
 			(if (odd? q) (cat s (ascii-char 34)) s))))
 
 (defun debug-info (n sform rval e)
-	(defq e (tolist e) max_var_size 0 msg (list)
+	(defq e (tolist e) max_var_size 0
+		msg (cap (+ (* (length e) 4) 16) (list))
 		u (pad "" (+ (length n) 4) ";;;;;;;;;;;;;;;;;;;;;;;;"))
 	(push msg u (ascii-char 10)
 		"; " n " ;" (ascii-char 10)
