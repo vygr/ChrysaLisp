@@ -12,8 +12,7 @@
 		-s --swap: swap sources.
 
 	Calculate patch between text file a and text file b.
-	If no second file is given it will be read from stdin.
-})
+	If no second file is given it will be read from stdin.})
 (("-s" "--swap")
 	,(lambda (args arg) (setq opt_s :t) args))
 ))

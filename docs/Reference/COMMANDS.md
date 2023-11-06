@@ -30,7 +30,6 @@ Usage: diff [options] file_a [file_b]
 	Calculate patch between text file a and text file b.
 	If no second file is given it will be read from stdin.
 
-
 ```
 ## dump
 ```code
@@ -218,7 +217,6 @@ Usage: patch [options] file_a [file_b]
 
 	Patch text file a with text file b.
 	If no second file is given it will be read from stdin.
-
 
 ```
 ## rm
