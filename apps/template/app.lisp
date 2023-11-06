@@ -107,5 +107,6 @@
 									)))))
 			(:t ;gui event
 				(. *window* :event *msg*))))
+	(profile-report "Template" :t)
 	(gui-sub *window*)
 	(free-select select))
