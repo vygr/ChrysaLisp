@@ -9,6 +9,16 @@ Usage: cat [options] [path] ...
 	then paths are read from stdin.
 
 ```
+## cp
+```code
+Usage: cp [options] path1 path2
+
+	options:
+		-h --help: this help info.
+
+	Copy file path1 to path2.
+
+```
 ## diff
 ```code
 Usage: diff [options] file_a [file_b]
@@ -172,6 +182,16 @@ Usage: make [options] [all] [boot] [platforms] [doc] [it] [test]
 	test:       test make timings.
 
 ```
+## mv
+```code
+Usage: mv [options] path1 path2
+
+	options:
+		-h --help: this help info.
+
+	Move file path1 to path2.
+
+```
 ## nodes
 ```code
 Usage: nodes [options]
@@ -199,6 +219,17 @@ Usage: patch [options] file_a [file_b]
 	Patch text file a with text file b.
 	If no second file is given it will be read from stdin.
 
+
+```
+## rm
+```code
+Usage: rm [options] [path] ...
+
+	options:
+		-h --help: this help info.
+
+	If no paths given on command line
+	then paths are read from stdin.
 
 ```
 ## sdir

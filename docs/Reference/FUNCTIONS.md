@@ -1131,12 +1131,6 @@ scan the stdio args and process acording to the optlist
 (pow base exponent) -> integer
 ```
 
-### profile-print
-
-```code
-(profile-print name [stream]) -> stdout | stream
-```
-
 ### profile-report
 
 ```code

@@ -10,6 +10,8 @@ return value and a syntax highlighted local environment list.
 Addition of `(debug-brk name exp)` conditional breakpoints. Set `exp` to `:t`
 for unconditional.
 
+New `rm`, `cp` and `mv` commands apps.
+
 ------
 
 Font app now shows tooltips for the character codes. A click on the character
