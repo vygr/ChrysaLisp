@@ -34,7 +34,7 @@
 (("-c" "--chunk")
 	,(lambda (args arg)
 		(setq chunk_size (str-as-num (elem-get 0 args)))
-		(slice 1 -1 args)))
+		(rest args)))
 ))
 
 (defun main ()
@@ -46,4 +46,4 @@
 			;dump from stdin
 			(dump-file (io-stream 'stdin))
 			;dump from args as files
-			(each (# (dump-file (file-stream %0))) (slice 1 -1 args)))))
+			(each (# (dump-file (file-stream %0))) (rest args)))))

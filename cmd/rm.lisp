@@ -21,4 +21,4 @@
 			;rm from stdin
 			(each-line pii-remove (io-stream 'stdin))
 			;rm from args
-			(each pii-remove (slice 1 -1 args)))))
+			(each pii-remove (rest args)))))

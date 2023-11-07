@@ -28,4 +28,4 @@
 			;cat from stdin
 			(each-line cat-file (io-stream 'stdin))
 			;cat from args
-			(each cat-file (slice 1 -1 args)))))
+			(each cat-file (rest args)))))
