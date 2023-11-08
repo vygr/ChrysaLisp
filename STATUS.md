@@ -7,7 +7,7 @@
 If you want to have a play with the Debug stepper service app, then just run
 the Template app and then bring up the Debug app. You'll notice that until you
 bring up the Debug service, everything seams like normal, then soon as the
-service appears, the Template app wil break. You can then hit fast forward and
+service appears, the Template app will break. You can then hit fast forward and
 each of the toolbar actions and the min/max/close actions will breakpoint. If
 you hit play mode, you can see the 1 second timer demo on Template firing.
 
