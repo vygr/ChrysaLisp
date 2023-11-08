@@ -58,7 +58,7 @@
 		(setq var (pad var max_var_size)
 			val (debug-sanitise (str val) (- (const (- +debug_width 3)) max_var_size) :t))
 		(push msg var " : " val (ascii-char 10))) (sort (# (cmp (first %0) (first %1))) e))
-	(apply cat (push msg (ascii-char 10))))
+	(apply (const cat) (push msg (ascii-char 10))))
 
 (defun debug-msg (n rval sform e)
 	(when (defq service (debug-service))
