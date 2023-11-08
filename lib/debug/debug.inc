@@ -2,6 +2,7 @@
 ; Debuging
 ;;;;;;;;;;
 
+(import "sys/lisp.inc")
 (defq *debug_state* :nil)
 
 ;module
