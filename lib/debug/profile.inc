@@ -30,7 +30,7 @@
 			(str (profile-print n (string-stream (cat "")))))
 		(if reset (setq *profile_map* (env 401)))))
 
-(defun profile-fun (name form)
+(defun profile-instrument (name form)
 	(static-qq
 		((cond
 			((defq _e_ (get ',name *profile_map*))
@@ -45,11 +45,11 @@
 
 (defmacro defun (n a &rest _)
 	(static-qq (defq ,n (lambda ,a ~(macroexpand
-		(profile-fun n _))))))
+		(profile-instrument n _))))))
 
 (defmacro defmethod (n a &rest _)
 	(static-qq (def (def? :vtable this) ,n (lambda (this ~a) ~(macroexpand
-		(profile-fun (sym (cat *class* " " n)) _))))))
+		(profile-instrument (sym (cat *class* " " n)) _))))))
 
 ;module
 (export-symbols defun defmethod profile-report)
