@@ -8,6 +8,10 @@ In no particular order but to just to ensure I get thoughts down. I'll keep
 adding to this as I go along. If anybody would like to try helping out, then
 just get in touch.
 
+* Add cycle protection to the `(debug-sanitise)` call.
+
+* Add nesting protection for `{}` as well as {"} to `(debug-sanitise)` call.
+
 * Add status bar to Editor. Carrying info such as cursor position and various
 other useful metrics.
 
