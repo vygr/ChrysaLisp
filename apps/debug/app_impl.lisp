@@ -113,7 +113,7 @@
 	(while id
 		(defq idx (mail-select select) *msg* (mail-read (elem-get idx select)))
 		(cond
-			;new debug *msg*
+			;new debug msg
 			((= idx +select_service)
 				(defq reply_id (getf *msg* +debug_reply)
 					key (sym (getf *msg* +debug_origin))

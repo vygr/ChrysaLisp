@@ -18,7 +18,7 @@
 (enums +select 0
 	(enum main service tip))
 
-(defq vdu_width 60 vdu_height 40 buf_keys (list) buf_list (list) buf_index :nil id :t)
+(defq +width 60 +height 48)
 
 (ui-window *window* (:color +argb_grey1)
 	(ui-flow _ (:flow_flags +flow_down_fill)
@@ -30,7 +30,7 @@
 				(ui-buttons (0xe960) +event_clear_all))
 			(ui-backdrop _ (:color (const *env_toolbar_col*))))
 		(. (ui-slider *hslider* (:value 0)) :connect +event_hvalue)
-		(ui-vdu vdu (:vdu_width vdu_width :vdu_height vdu_height :ink_color +argb_yellow))))
+		(ui-vdu vdu (:vdu_width +width :vdu_height +height :ink_color +argb_yellow))))
 
 (defun set-slider-values ()
 	(defq val (get :value *hslider*) mho (max 0 (dec (length buf_list))))
@@ -49,14 +49,21 @@
 			(clear buf_keys)
 			(setq buf_index :nil)
 			(. vdu :load '(
-				{ChrysaLisp Profile 0.1}
+				{ChrysaLisp Profile 0.2}
 				{Toolbar1 buttons act on a single task.}
 				{Toolbar2 buttons act on all tasks.}
 				{Slider to switch between tasks.}
 				{}
 				{In Lisp files:}
+				{}
 				{add (import "lib/debug/profile.inc")}
-				{then use (profile-report name) to send.}) 0 0 0 1000)))
+				{to profile all functions/methods.}
+				{}
+				{Use:}
+				{}
+				{(profile-report name [reset])}
+				{}
+				{to send the report.}) 0 0 0 1000)))
 	(set-slider-values))
 
 (defun tooltips ()
@@ -68,6 +75,7 @@
 
 (defun main ()
 	(defq select (alloc-select +select_size)
+		buf_keys (list) buf_list (list) buf_index :nil id :t
 		entry (mail-declare (elem-get +select_service select) "*Profile" "Profile Service 0.1"))
 	(tooltips)
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
@@ -76,7 +84,7 @@
 	(while id
 		(defq idx (mail-select select) *msg* (mail-read (elem-get idx select)))
 		(cond
-			;new profile *msg*
+			;new profile msg
 			((= idx +select_service)
 				(defq tcb (getf *msg* +profile_msg_tcb)
 					data (slice +profile_msg_data -1 *msg*)
