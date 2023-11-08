@@ -2,7 +2,7 @@
 ; Debuging
 ;;;;;;;;;;
 
-(defq *debug_rvals* (list) *debug_state* :nil)
+(defq *debug_state* :nil)
 
 ;module
 (env-push)
@@ -43,7 +43,7 @@
 					(:t "."))) (debug-trunc s w d))))
 			(if (odd? q) (cat s (ascii-char 34)) s))))
 
-(defun debug-info (n sform rval e)
+(defun debug-info (n rval sform e)
 	(defq e (tolist e) max_var_size 0
 		msg (cap (+ (* (length e) 4) 16) (list))
 		u (pad "" (+ (length n) 4) ";;;;;;;;;;;;;;;;;;;;;;;;"))
@@ -60,10 +60,11 @@
 		(push msg var " : " val (ascii-char 10))) (sort (# (cmp (first %0) (first %1))) e))
 	(apply cat (push msg (ascii-char 10))))
 
-(defun debug-msg (n sform rval e)
+(defun debug-msg (n rval sform e)
 	(when (defq service (debug-service))
 		(debug-ipc service 0 (if (eql *debug_state* ":forward")
-			"" (debug-info n sform rval e)))))
+			"" (debug-info n rval sform e))))
+	rval)
 
 (defun debug-brk (name condtion)
 	(when (defq service (debug-service))
@@ -94,10 +95,7 @@
 				;wrap the form ?
 				(when (> m 0)
 					(elem-set _ l
-						(static-qq (progn
-							(push *debug_rvals* ,e)
-							(debug-msg ,name ,(str e) (last *debug_rvals*) (env))
-							(pop *debug_rvals*)))))
+						(static-qq (debug-msg ,name ,e ,(str e) (env)))))
 				;step into form
 				(push stack e))) l)) form)
 
