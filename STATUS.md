@@ -4,6 +4,20 @@
 
 ------
 
+If you want to have a play with the Debug stepper service app, then just run
+the Template app and then bring up the Debug app. You'll notice that until you
+bring up the Debug service, everything seams like normal, then soon as the
+service appears, the Template app wil break. You can then hit fast forward and
+each of the toolbar actions and the min/max/close actions will breakpoint. If
+you hit play mode, you can see the 1 second timer demo on Template firing.
+
+Template app also now has a call to `(profile-report)` after the close action.
+So you can switch the debug mode to 1, at the front of the Template app source
+and check out profiling info on closing the app. Make sure you run the Profile
+service app if you want to see the profile results !
+
+------
+
 Improvements to Debug stepper app. Now shows the current executed form, its
 return value and a syntax highlighted local environment list.
 
