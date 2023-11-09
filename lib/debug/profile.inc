@@ -3,7 +3,7 @@
 ;;;;;;;;;;;
 
 (import "sys/lisp.inc")
-(defq *profile_map* (env 401) *profile_rvals* (list))
+(defq *profile_map* (env 101) *profile_rvals* (list))
 
 ;module
 (env-push)
@@ -19,7 +19,7 @@
 	(mail-send service (cat (task-netid) s)))
 
 (defun profile-info (n)
-	(defq e (tolist *profile_map*)
+	(defq e (tolist *profile_map*) n (str n " -> (" (length e) ")")
 		m (reduce (lambda (a (k v)) (max a (length k))) e 0)
 		msg (cap (+ (* (length e) 6) 16) (list))
 		u (pad "" (+ (length n) 4) ";;;;;;;;;;;;;;;;;;;;;;;;"))
@@ -37,7 +37,7 @@
 (defun profile-report (n &optional reset)
 	(when (defq service (profile-service))
 		(profile-ipc service (profile-info n)))
-	(if reset (setq *profile_map* (env 401))))
+	(if reset (setq *profile_map* (env 101))))
 
 (defun profile-instrument (name form)
 	(static-qq
