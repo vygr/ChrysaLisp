@@ -51,7 +51,7 @@
 			retry_timeout (if (starts-with "obj/vp64" (load-path)) 20000000 2000000)
 			select (list (mail-alloc-mbox) (mail-alloc-mbox) (mail-alloc-mbox))
 			jobs (map (# (str (list (list %0) *abi* *cpu* *debug_mode* *debug_emit* *debug_inst*))) files)
-			farm (Local (const create) (const destroy) (length files) 4))
+			farm (Local (const create) (const destroy) (length files) (max 1 (min 4 (length (lisp-nodes))))))
 		(mail-timeout (elem-get +select_timer select) timer_rate 0)
 		(while working
 			(defq msg (mail-read (elem-get (defq idx (mail-select select)) select)))
