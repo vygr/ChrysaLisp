@@ -33,10 +33,13 @@
 		(ui-vdu *vdu* (:vdu_width +width :vdu_height +height :ink_color +argb_yellow))))
 
 (defun vdu-print (vdu buf s)
-	(defq ch (const (dec +height)))
-	(. buf :paste s)
+	(defq ch (const (dec +height)) cl 0
+		cl (some (# (if (eql %0 (ascii-char 10)) (if (= (setq cl (inc cl)) ch) _))) s))
+	(. buf :paste (slice 0 (if cl (inc cl) -1) s))
 	(bind '(w h) (. buf :get_size))
-	(when (> h ch) (.-> buf (:set_cursor 0 ch) (:cut 0 h)))
+	(when (> h ch)
+		(.-> buf (:set_cursor 0 0) (:cut 0 (- h ch)))
+		(. buf :set_cursor 0 ch))
 	(. buf :clear_undo)
 	(if vdu (. buf :vdu_load vdu 0 0)))
 
