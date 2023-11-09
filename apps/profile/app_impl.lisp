@@ -36,9 +36,7 @@
 	(defq ch (const (dec +height)))
 	(. buf :paste s)
 	(bind '(w h) (. buf :get_size))
-	(when (> h ch)
-		(.-> buf (:set_cursor 0 0) (:cut 0 (- h ch)))
-		(. buf :set_cursor 0 ch))
+	(when (> h ch) (.-> buf (:set_cursor 0 ch) (:cut 0 h)))
 	(. buf :clear_undo)
 	(if vdu (. buf :vdu_load vdu 0 0)))
 
