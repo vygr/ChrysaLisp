@@ -19,7 +19,11 @@
 (defun print (&rest args)
 	(push *msg* (apply str (push args (ascii-char 10)))))
 
-;(import "././debug/profile.inc")
+;debug options
+(case :nil
+(0 (import "lib/debug/frames.inc"))
+(1 (import "lib/debug/profile.inc"))
+(2 (import "lib/debug/debug.inc")))
 
 (defun main ()
 	(defq *select* (alloc-select +_select_size) *working* :t *msg* :nil)
@@ -47,5 +51,5 @@
 					;send reply
 					(print *reply_key*)
 					(mail-send *reply_mbox* (apply (const cat) *msg*)))))))
-	;(profile-report "Asm")
+	(profile-report "Asm")
 	(free-select *select*))
