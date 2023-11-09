@@ -30,7 +30,17 @@
 				(ui-buttons (0xe960) +event_clear_all))
 			(ui-backdrop _ (:color (const *env_toolbar_col*))))
 		(. (ui-slider *hslider* (:value 0)) :connect +event_hvalue)
-		(ui-vdu vdu (:vdu_width +width :vdu_height +height :ink_color +argb_yellow))))
+		(ui-vdu *vdu* (:vdu_width +width :vdu_height +height :ink_color +argb_yellow))))
+
+(defun vdu-print (vdu buf s)
+	(defq ch (const (dec +height)))
+	(. buf :paste s)
+	(bind '(w h) (. buf :get_size))
+	(when (> h ch)
+		(.-> buf (:set_cursor 0 0) (:cut 0 (- h ch)))
+		(. buf :set_cursor 0 ch))
+	(. buf :clear_undo)
+	(if vdu (. buf :vdu_load vdu 0 0)))
 
 (defun set-slider-values ()
 	(defq val (get :value *hslider*) mho (max 0 (dec (length buf_list))))
@@ -42,13 +52,13 @@
 	(if (<= 0 _ (dec (length buf_list)))
 		(progn
 			(def *hslider* :value _)
-			(setq buf_index _)
-			(. vdu :load (elem-get +profile_rec_buf (elem-get buf_index buf_list)) 0 0 0 1000))
+			(setq selected_index _)
+			(vdu-print *vdu* (elem-get +profile_rec_buf (elem-get selected_index buf_list)) ""))
 		(progn
 			(clear buf_list)
 			(clear buf_keys)
-			(setq buf_index :nil)
-			(. vdu :load '(
+			(setq selected_index :nil)
+			(. *vdu* :load '(
 				{ChrysaLisp Profile 0.2}
 				{Toolbar1 buttons act on a single task.}
 				{Toolbar2 buttons act on all tasks.}
@@ -74,8 +84,8 @@
 		'("clear all")))
 
 (defun main ()
-	(defq select (alloc-select +select_size)
-		buf_keys (list) buf_list (list) buf_index :nil id :t
+	(defq select (alloc-select +select_size) syntax (Syntax)
+		buf_keys (list) buf_list (list) selected_index :nil id :t
 		entry (mail-declare (elem-get +select_service select) "*Profile" "Profile Service 0.1"))
 	(tooltips)
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
@@ -92,10 +102,11 @@
 					index (find-rev key buf_keys))
 				(unless index
 					(push buf_keys key)
-					(push buf_list (list (list "")))
+					(push buf_list (list (Buffer :t syntax)))
 					(reset (setq index (dec (length buf_list)))))
-				(elem-set +profile_rec_buf (elem-get index buf_list) (split data (ascii-char 10)))
-				(. vdu :load (elem-get +profile_rec_buf (elem-get buf_index buf_list)) 0 0 0 1000))
+				(defq buf_rec (elem-get index buf_list)
+					buf (elem-get +profile_rec_buf buf_rec))
+				(vdu-print (if (= index selected_index) *vdu*) buf data))
 			((= idx +select_tip)
 				;tip time mail
 				(if (defq view (. *window* :find_id (getf *msg* +mail_timeout_id)))
@@ -108,10 +119,10 @@
 				(reset (get :value *hslider*)))
 			;pressed clear button
 			((= id +event_clear)
-				(when buf_index
-					(setq buf_keys (cat (slice 0 buf_index buf_keys) (slice (inc buf_index) -1 buf_keys)))
-					(setq buf_list (cat (slice 0 buf_index buf_list) (slice (inc buf_index) -1 buf_list)))
-					(reset (min buf_index (dec (length buf_list))))))
+				(when selected_index
+					(setq buf_keys (cat (slice 0 selected_index buf_keys) (slice (inc selected_index) -1 buf_keys)))
+					(setq buf_list (cat (slice 0 selected_index buf_list) (slice (inc selected_index) -1 buf_list)))
+					(reset (min selected_index (dec (length buf_list))))))
 			;pressed clear all button
 			((= id +event_clear_all)
 				(reset))

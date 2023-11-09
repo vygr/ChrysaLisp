@@ -11,24 +11,33 @@
 (enums +prof 0
 	(enum cnt rcnt acc))
 
-(defun profile-print (n &optional s)
-	(setd s (io-stream 'stdout))
-	(defq e (tolist *profile_map*) m (reduce (lambda (a (k v)) (max a (length k))) e 0))
-	(write s (cat (task-netid) n (ascii-char 10)))
+(defun profile-service ()
+	(when (/= 0 (length (defq services (mail-enquire "*Profile"))))
+		(to-net-id (elem-get 1 (split (pop services) ",")))))
+
+(defun profile-ipc (service s)
+	(mail-send service (cat (task-netid) s)))
+
+(defun profile-info (n)
+	(defq e (tolist *profile_map*)
+		m (reduce (lambda (a (k v)) (max a (length k))) e 0)
+		msg (cap (+ (* (length e) 6) 16) (list))
+		u (pad "" (+ (length n) 4) ";;;;;;;;;;;;;;;;;;;;;;;;"))
+	(push msg u (ascii-char 10)
+		"; " n " ;" (ascii-char 10)
+		u (ascii-char 10) (ascii-char 10))
 	(each (lambda ((k v))
-		(write s (cat
-			(pad k m)
-			" cnt: " (pad (elem-get +prof_cnt v) 8)
-			" ns: " (pad (elem-get +prof_acc v) 8)
-			(ascii-char 10))))
+		(push msg
+			(pad k m) " cnt: " (pad (elem-get +prof_cnt v) 8)
+			" ns: " (pad (elem-get +prof_acc v) 8) (ascii-char 10)))
 		(sort (lambda ((k1 v1) (k2 v2))
-			(- (elem-get +prof_acc v2) (elem-get +prof_acc v1))) e)) s)
+			(- (elem-get +prof_acc v2) (elem-get +prof_acc v1))) e))
+	(apply (const cat) (push msg (ascii-char 10))))
 
 (defun profile-report (n &optional reset)
-   (when (/= 0 (length (defq services (mail-enquire "*Profile"))))
-		(mail-send (to-net-id (elem-get 1 (split (pop services) ",")))
-			(str (profile-print n (string-stream (cat "")))))
-		(if reset (setq *profile_map* (env 401)))))
+	(when (defq service (profile-service))
+		(profile-ipc service (profile-info n)))
+	(if reset (setq *profile_map* (env 401))))
 
 (defun profile-instrument (name form)
 	(static-qq
