@@ -4,6 +4,11 @@
 
 ------
 
+Profile app updated to use a syntax highlighted buffer, and to follow the Debug
+app style.
+
+------
+
 If you want to have a play with the Debug stepper service app, then just run
 the Template app and then bring up the Debug app. You'll notice that until you
 bring up the Debug service, everything seams like normal, then soon as the
