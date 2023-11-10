@@ -501,7 +501,7 @@
 	(and (> (length _) 0) (elem-get -2 _)))
 
 (defun rest (_)
-	; (rest seq) -> :nil | seq
+	; (rest seq) -> seq
 	(if (> (length _) 0) (slice 1 -1 _) _))
 
 (defun erase (s b e)
