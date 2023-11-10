@@ -20,7 +20,7 @@
 	(push *msg* (apply str (push args (ascii-char 10)))))
 
 ;debug options
-(case 3
+(case :nil
 (0 (import "lib/debug/frames.inc"))
 (1 (import "lib/debug/profile.inc"))
 (2 (import "lib/debug/debug.inc"))
