@@ -77,9 +77,9 @@
 
 ;module
 (export-symbols
-	*find_actions*
+	'(*find_actions*
 	*event_map* *key_map* *key_map_shift* *key_map_control*
-	action-minimise)
+	action-minimise))
 (export-classes
-	Viewer-edit)
+	'(Viewer-edit))
 (env-pop)

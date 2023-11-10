@@ -473,19 +473,19 @@ should provide the concreate handler
 ### export
 
 ```code
-(export env sym ...)
+(export env symbols)
 ```
 
 ### export-classes
 
 ```code
-(export-classes class ...)
+(export-classes classes)
 ```
 
 ### export-symbols
 
 ```code
-(export-symbols sym ...)
+(export-symbols symbols)
 ```
 
 ### filter
@@ -630,6 +630,12 @@ function that returns it's argument
 
 ```code
 (import path [env]) -> env
+```
+
+### import-from
+
+```code
+(import-from &optional symbols classes)
 ```
 
 ### in-get-state

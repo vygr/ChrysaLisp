@@ -209,8 +209,6 @@
 	(lower :verts :norms :tris))
 
 ;module
-(export-symbols
-	+tri_size)
-(export-classes
-	Mesh Mesh-data Mesh-torus Mesh-sphere Mesh-iso)
+(export-symbols '(+tri_size))
+(export-classes '(Mesh Mesh-data Mesh-torus Mesh-sphere Mesh-iso))
 (env-pop)

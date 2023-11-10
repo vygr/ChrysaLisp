@@ -138,6 +138,5 @@
 	root)
 
 ;module
-(export-symbols
-	tree-load tree-save)
+(export-symbols '(tree-load tree-save))
 (env-pop)

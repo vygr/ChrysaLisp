@@ -67,5 +67,5 @@
 	)
 
 ;module
-(export-classes Farm)
+(export-classes '(Farm))
 (env-pop)

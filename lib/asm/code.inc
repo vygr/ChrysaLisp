@@ -266,7 +266,7 @@
 
 ;module
 (export-symbols
-	def-enum def-struct def-bit
+	'(def-enum def-struct def-bit
 	errorcase noterrorcase errorif errorifnot
 	errorif-lisp-args-len errorif-lisp-args-sig errorif-lisp-args-sig-range
 	errorif-lisp-args-match errorif-lisp-args-type
@@ -274,5 +274,5 @@
 	vpif vpifnot else elseif elseifnot endif
 	break breakif breakifnot goto gotoif gotoifnot exitif exitifnot
 	loop-start loop-end loop-while loop-whilenot loop-until loop-untilnot
-	continue continueif continueifnot repeatif repeatifnot)
+	continue continueif continueifnot repeatif repeatifnot))
 (env-pop)

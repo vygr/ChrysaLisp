@@ -2,6 +2,9 @@
 ; RISCV64 Emit Functions
 ;;;;;;;;;;;;;;;;;;;;;;;;
 
+;module
+(env-push)
+
 (defcvar 'stack_align 16 'stack_state '(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14 :r30))
 (each (# (defcvar %0 %0)) '(:r15 :r16 :r17 :r18 :r19 :r20 :r21 :r22 :r23 :r24 :r25 :r26 :r27 :r28 :r29 :r30))
 
@@ -440,3 +443,7 @@
 	(emit-cpy-ir +riscv64_rsp (* +ptr_size (dec l)) +riscv64_rlnk)
 	(emit-free (* +ptr_size l))))
 (:t (throw (cat "Unknown ABI for CPU " *cpu* " !") *abi*)))
+
+;module, that exports everything !
+(export-symbols (map (const first) (tolist (env))))
+(env-pop)

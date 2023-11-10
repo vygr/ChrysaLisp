@@ -310,5 +310,5 @@
 	(list width height 32))
 
 ;module
-(export-symbols SVG-Canvas SVG-info)
+(export-symbols '(SVG-Canvas SVG-info))
 (env-pop)

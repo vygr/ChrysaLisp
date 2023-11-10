@@ -13,5 +13,5 @@
 			state)))
 
 ;module
-(export-symbols handler)
+(export-symbols '(handler))
 (env-pop)

@@ -92,8 +92,7 @@
 	)
 
 ;module
-(export-classes
-	Fmap)
+(export-classes '(Fmap))
 (env-pop)
 
 (defun Fmap-kv (&rest _)

@@ -237,10 +237,10 @@
 
 ;module
 (export-symbols
-	all-vp-files all-class-files
+	'(all-vp-files all-class-files
 	make make-all make-merge
 	make-platforms make-all-platforms
 	remake remake-all
 	remake-platforms remake-all-platforms
-	compile-test make-test)
+	compile-test make-test))
 (env-pop)

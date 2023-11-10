@@ -2,6 +2,9 @@
 ; x64 Emit Functions
 ;;;;;;;;;;;;;;;;;;;;
 
+;module
+(env-push)
+
 (defcvar 'stack_align 8 'stack_state '(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14))
 
 (defun emit-native-reg? (r) (find r '(:r0 :r1 :r2 :r3 :rsp :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14)))
@@ -663,3 +666,7 @@
 			(x64-call-jump-i 0x10 b c)
 			(emit-cpy-ir (const (emit-native-reg? :rsp)) (* +ptr_size (+ (length x) 4)) (const (emit-native-reg? :rsp)))))))
 (:t (throw (cat "Unknown ABI for CPU " *cpu* " !") *abi*)))
+
+;module, that exports everything !
+(export-symbols (map (const first) (tolist (env))))
+(env-pop)

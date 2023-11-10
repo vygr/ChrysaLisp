@@ -519,6 +519,5 @@
 	)
 
 ;module
-(export-classes
-	Buffer)
+(export-classes '(Buffer))
 (env-pop)

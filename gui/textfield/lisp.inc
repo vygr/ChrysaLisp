@@ -208,5 +208,5 @@
 	)
 
 ;module
-(export-classes Textfield)
+(export-classes '(Textfield))
 (env-pop)

@@ -657,8 +657,6 @@
 	)
 
 ;module
-(export-symbols
-	Node)
-(export-classes
-	Pcb Track Net Pad)
+(export-symbols '(Node))
+(export-classes '(Pcb Track Net Pad))
 (env-pop)

@@ -7,6 +7,10 @@
 Profile app updated to use a syntax highlighted buffer, and to follow the Debug
 app style.
 
+New `(import-from lib ['(sym1 ...) '(class1 ...)])` function. As a result of
+this work the `export` functions now take the list of symbols as an explicite
+list rather than rest arguments.
+
 ------
 
 If you want to have a play with the Debug stepper service app, then just run

@@ -219,5 +219,5 @@
 	)
 
 ;module
-(export-classes Regexp)
+(export-classes '(Regexp))
 (env-pop)

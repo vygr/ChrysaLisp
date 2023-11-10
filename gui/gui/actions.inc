@@ -198,5 +198,5 @@
 
 ;module
 (export-symbols
-	*event_map*)
+	'(*event_map*))
 (env-pop)

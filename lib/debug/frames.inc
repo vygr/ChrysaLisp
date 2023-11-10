@@ -2,8 +2,6 @@
 ; Stack frames
 ;;;;;;;;;;;;;;
 
-(defq *stack_frame* (list) *stack_rvals* (list))
-
 ;module
 (env-push)
 
@@ -23,5 +21,5 @@
 		(stack-instrument (cat *class* " " n) _))))))
 
 ;module
-(export-symbols defun defmethod)
+(export-symbols '(defun defmethod))
 (env-pop)

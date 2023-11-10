@@ -2,6 +2,9 @@
 ; VP64 Emit Functions
 ;;;;;;;;;;;;;;;;;;;;;
 
+;module
+(env-push)
+
 (defcvar 'stack_align 8 'stack_state '(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14))
 
 (defun emit-native-reg? (r) (find r +vp_regs))
@@ -230,3 +233,7 @@
 	(emit-sub-cr (+ tk_state_size (* +ptr_size 2)) s)
 	(emit-cpy-ri f s tk_state_size)
 	(emit-cpy-ri x s (+ tk_state_size +ptr_size)))
+
+;module, that exports everything !
+(export-symbols (map (const first) (tolist (env))))
+(env-pop)

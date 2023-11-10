@@ -20,10 +20,11 @@
 	(push *msg* (apply str (push args (ascii-char 10)))))
 
 ;debug options
-(case :nil
+(case 3
 (0 (import "lib/debug/frames.inc"))
 (1 (import "lib/debug/profile.inc"))
-(2 (import "lib/debug/debug.inc")))
+(2 (import "lib/debug/debug.inc"))
+(3 (import-from "lib/debug/profile.inc" '(profile-report))))
 
 (defun main ()
 	(defq *select* (alloc-select +_select_size) *working* :t *msg* :nil)

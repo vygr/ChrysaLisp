@@ -87,5 +87,5 @@
 	(while (defq l (read-line a)) (write-line c l)))
 
 ;module
-(export-symbols stream-diff stream-patch)
+(export-symbols '(stream-diff stream-patch))
 (env-pop)

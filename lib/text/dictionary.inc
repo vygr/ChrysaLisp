@@ -58,6 +58,5 @@
 	)
 
 ;module
-(export-classes
-	Dictionary)
+(export-classes '(Dictionary))
 (env-pop)

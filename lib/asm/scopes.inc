@@ -153,7 +153,7 @@
 
 ;module
 (export-symbols
-	scope-operator scope-new scope-get pop-scope-checked
+	'(scope-operator scope-new scope-get pop-scope-checked
 	scope-get-sym scope-def-sym scope-unwind
-	def-vars push-scope pop-scope pop-scope-syms scope-used return)
+	def-vars push-scope pop-scope pop-scope-syms scope-used return))
 (env-pop)

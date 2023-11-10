@@ -446,6 +446,5 @@
 	)
 
 ;module
-(export-classes
-	Iso Iso-sphere Iso-tetra Iso-capsule Iso-cube)
+(export-classes '(Iso Iso-sphere Iso-tetra Iso-capsule Iso-cube))
 (env-pop)

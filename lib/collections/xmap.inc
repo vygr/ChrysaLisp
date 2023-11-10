@@ -93,8 +93,7 @@
 	)
 
 ;module
-(export-classes
-	Xmap)
+(export-classes '(Xmap))
 (env-pop)
 
 (defun Xmap-kv (&rest _)

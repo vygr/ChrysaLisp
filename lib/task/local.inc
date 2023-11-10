@@ -80,5 +80,5 @@
 	)
 
 ;module
-(export-classes Local)
+(export-classes '(Local))
 (env-pop)

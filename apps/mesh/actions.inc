@@ -34,5 +34,5 @@
 
 ;module
 (export-symbols
-	*event_map* *key_map* *key_map_shift* *key_map_control*)
+	'(*event_map* *key_map* *key_map_shift* *key_map_control*))
 (env-pop)

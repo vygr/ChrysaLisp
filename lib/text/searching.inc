@@ -34,8 +34,7 @@
 	(list _e _p (. _e :compile _p)))
 
 ;module
-(export-symbols
-	match? substr matches query)
+(export-symbols '(match? substr matches query))
 (env-pop)
 
 (defmacro each-found (_f _t _p)

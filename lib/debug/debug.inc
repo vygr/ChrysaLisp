@@ -3,7 +3,6 @@
 ;;;;;;;;;;
 
 (import "sys/lisp.inc")
-(defq *debug_state* :nil)
 
 ;module
 (env-push)
@@ -109,5 +108,5 @@
 		(debug-instrument (cat *class* " " n) _))))))
 
 ;module
-(export-symbols defun defmethod debug-brk)
+(export-symbols '(defun defmethod debug-brk))
 (env-pop)

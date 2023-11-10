@@ -196,6 +196,5 @@
 			(assign-asm-to-asm src dst))))
 
 ;module
-(export-symbols
-	assign assign-src-type)
+(export-symbols '(assign assign-src-type))
 (env-pop)

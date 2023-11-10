@@ -116,8 +116,7 @@
 	)
 
 ;module
-(export-classes
-	Xset)
+(export-classes '(Xset))
 (env-pop)
 
 (defun Xset-k (&rest _)

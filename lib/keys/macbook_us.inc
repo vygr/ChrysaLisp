@@ -50,6 +50,5 @@
 )
 
 ;module
-(export-symbols
-	*normal_map* *shift_map*)
+(export-symbols '(*normal_map* *shift_map*))
 (env-pop)

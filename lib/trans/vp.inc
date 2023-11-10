@@ -81,5 +81,5 @@
 	out_buf)
 
 ;module
-(export-symbols emit-translate)
+(export-symbols '(emit-translate))
 (env-pop)

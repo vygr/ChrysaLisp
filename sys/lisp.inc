@@ -110,3 +110,8 @@
 
 (enums +file_open 0
 	(enum read write append))
+
+;debug lib vars on per app thread
+(defq *debug_state* :nil
+	*stack_frame* (list) *stack_rvals* (list)
+	*profile_map* (env 101) *profile_rvals* (list))

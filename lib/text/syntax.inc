@@ -195,6 +195,5 @@
 	)
 
 ;module
-(export-classes
-	Syntax)
+(export-classes '(Syntax))
 (env-pop)

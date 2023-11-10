@@ -583,6 +583,5 @@
 	)
 
 ;module
-(export-classes
-	Edit)
+(export-classes '(Edit))
 (env-pop)

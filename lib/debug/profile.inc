@@ -3,7 +3,6 @@
 ;;;;;;;;;;;
 
 (import "sys/lisp.inc")
-(defq *profile_map* (env 101) *profile_rvals* (list))
 
 ;module
 (env-push)
@@ -61,5 +60,5 @@
 		(profile-instrument (sym (cat *class* " " n)) _))))))
 
 ;module
-(export-symbols defun defmethod profile-report)
+(export-symbols '(defun defmethod profile-report))
 (env-pop)

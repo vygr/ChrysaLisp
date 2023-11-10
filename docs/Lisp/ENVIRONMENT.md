@@ -252,8 +252,8 @@ First of all a new empty environment is pushed using `(env-push)`. Then you are
 free to define new functions and variables, constants etc and use them to
 construct other functions and classes. These symbols will not be visible to the
 outside world, only the symbols, functions and classes you deliberately export
-with the `(export env sym1 ...)`, `(export-symbols sym1 ...)` and
-`(export-classes class1 ...)` macros.
+with the `(export env symbols)`, `(export-symbols symbols)` and
+`(export-classes classes)` functions.
 
 In effect all your 'workings' will be turned into anonymous references due to
 the effect of `(prebind)` as the library is read in via the `(repl ...)` !

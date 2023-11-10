@@ -152,6 +152,5 @@
 	canvas)
 
 ;module
-(export-symbols
-	pcb-canvas)
+(export-symbols '(pcb-canvas))
 (env-pop)

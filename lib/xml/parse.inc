@@ -101,5 +101,5 @@
 				))) ((const (ffi xml-parse "lib/xml/parse" 0)) stream)))
 
 ;module
-(export-symbols XML-parse)
+(export-symbols '(XML-parse))
 (env-pop)

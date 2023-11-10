@@ -34,6 +34,5 @@
 			(push dirs dir) dirs)) paths (list)))
 
 ;module
-(export-symbols
-	all-files all-dirs)
+(export-symbols '(all-files all-dirs))
 (env-pop)

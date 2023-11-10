@@ -38,8 +38,7 @@
 				(partition 3 (unescape k))))))) 7))
 
 ;module
-(export-symbols
-	char-class unescape)
+(export-symbols '(char-class unescape))
 (env-pop)
 
 ;some standard char classes

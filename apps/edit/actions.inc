@@ -187,11 +187,11 @@
 
 ;module
 (export-symbols
-	*recorded_actions* *find_actions* *replace_actions*
+	'(*recorded_actions* *find_actions* *replace_actions*
 	*event_map* *key_map* *key_map_shift* *key_map_control*
 	action-insert action-save-all action-maximise
 	select-word action-select-word action-insert
-	macro-record state-load state-save)
+	macro-record state-load state-save))
 (export-classes
-	Editor-edit)
+	'(Editor-edit))
 (env-pop)

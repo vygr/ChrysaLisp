@@ -211,8 +211,6 @@
 	)
 
 ;module
-(export-symbols
-	Layer-line Layers-line)
-(export-classes
-	Layer Layers)
+(export-symbols '(Layer-line Layers-line))
+(export-classes '(Layer Layers))
 (env-pop)

@@ -83,6 +83,5 @@
 	(print "-> " (func-obj-path 'sys/boot_image) " (" boot_len ")") :nil)
 
 ;module
-(export-symbols
-	boot-image func-obj-path)
+(export-symbols '(boot-image func-obj-path))
 (env-pop)

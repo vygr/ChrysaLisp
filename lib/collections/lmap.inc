@@ -69,8 +69,7 @@
 	)
 
 ;module
-(export-classes
-	Lmap)
+(export-classes '(Lmap))
 (env-pop)
 
 (defun Lmap-kv (&rest _)

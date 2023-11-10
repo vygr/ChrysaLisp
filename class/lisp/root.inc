@@ -637,21 +637,18 @@
 	; (lists2) -> ((list) (list))
 	'(list (list) (list)))
 
-(defmacro export (e &rest syms)
-	; (export env sym ...)
-	`(def ,e ~(reduce (lambda (l _)
-		(push l (list quote _) _)) syms (list))))
+(defun export (e symbols)
+	; (export env symbols)
+	(each (lambda (s) (def e s (get s))) symbols))
 
-(defmacro export-symbols (&rest syms)
-	; (export-symbols sym ...)
-	`(export (penv) ~syms))
+(defun export-symbols (symbols)
+	; (export-symbols symbols)
+	(export (penv (penv)) symbols))
 
-(defmacro export-classes (&rest syms)
-	; (export-classes class ...)
-	`(export (penv) ~(reduce (lambda (l _)
-		(push l _
-			(sym (cat "*class_" _ "*"))
-			(sym (cat _ "?")))) syms (list))))
+(defun export-classes (classes)
+	; (export-classes classes)
+	(export (penv (penv)) (reduce (lambda (l s)
+		(push l s (sym (cat "*class_" s "*")) (sym (cat s "?")))) classes (list))))
 
 (defmacro ascii-code (_)
 	; (ascii-code char) -> num
@@ -928,7 +925,7 @@
 	(setq lib_path (abs-path lib_path))
 	(if (= (age lib_path) 0) (throw "No such file !" lib_path))
 	(setd _e (penv)) (defq _ee _e)
-	; does the import allready exist in the environments tree ?
+	; does the import allready exist in the environment tree ?
 	(while (env? _ee)
 		(cond
 			((and (defq file_list (def? '*file_includes* _ee))
@@ -941,6 +938,18 @@
 			(def _e '*file_includes* (list)))
 		(push (get '*file_includes* _e) lib_path)
 		(eval `(repl (file-stream ,lib_path) ,lib_path) _e)))
+
+(defun import-from (lib_path &optional symbols classes)
+	; (import-from &optional symbols classes)
+	(unless (eql :str (pop (type-of lib_path))) (throw "Not a string !" lib_path))
+	(setq lib_path (abs-path lib_path))
+	(if (= (age lib_path) 0) (throw "No such file !" lib_path))
+	(setd symbols '() classes '())
+	;import it here, we will discard it on exit
+	(repl (file-stream lib_path) lib_path)
+	;export only what was requested
+	(export-symbols symbols)
+	(export-classes classes))
 
 (defmacro read-long (s)
 	; (read-long stream) -> num
@@ -1006,7 +1015,7 @@
 
 (defun within-compile-env (_f)
 	; (within-compile-env lambda)
-	(defq *compile_env* (env-resize 503))
+	(defq *compile_env* (env-resize 401))
 	(defmacro defcvar (&rest b) `(def *compile_env* ~b))
 	(defmacro deffvar (&rest b) `(def *func_env* ~b))
 	(defun include (lib_path) (import lib_path *compile_env*))

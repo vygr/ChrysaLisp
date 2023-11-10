@@ -250,6 +250,5 @@
 	)
 
 ;module
-(export-classes
-	Scene-node Scene-object Scene)
+(export-classes '(Scene-node Scene-object Scene))
 (env-pop)

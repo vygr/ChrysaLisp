@@ -115,8 +115,7 @@
 	)
 
 ;module
-(export-classes
-	Fset)
+(export-classes '(Fset))
 (env-pop)
 
 (defun Fset-k (&rest _)

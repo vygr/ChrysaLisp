@@ -115,6 +115,5 @@
 			)))
 
 ;module
-(export-symbols
-	opt-inst-list)
+(export-symbols '(opt-inst-list))
 (env-pop)

@@ -469,7 +469,7 @@
 
 ;module
 (export-symbols
-	cscript
+	'(cscript
 	reset-reg-stack def-reg-map
-	compile-deref? compile-arrow)
+	compile-deref? compile-arrow))
 (env-pop)

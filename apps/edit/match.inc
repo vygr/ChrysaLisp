@@ -79,5 +79,5 @@
 	files)
 
 ;module
-(export-symbols file-matches)
+(export-symbols '(file-matches))
 (env-pop)

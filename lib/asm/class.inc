@@ -458,8 +458,8 @@
 
 ;module
 (export-symbols
-	gen-type gen-create gen-vtable def-class def-method
+	'(gen-type gen-create gen-vtable def-class def-method
 	entry exit call jump s-call d-call s-jump v-call d-jump r-call v-bind
 	f-entry f-exit l-entry l-exit f-path f-bind
-	method-input method-output method-lookup signature)
+	method-input method-output method-lookup signature))
 (env-pop)

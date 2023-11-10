@@ -88,6 +88,5 @@
 
 ;module
 (export-symbols
-	pixmap-info pixmap-tga-info pixmap-cpm-info
-	pixmap-save pixmap-load)
+	'(pixmap-info pixmap-tga-info pixmap-cpm-info pixmap-save pixmap-load))
 (env-pop)
