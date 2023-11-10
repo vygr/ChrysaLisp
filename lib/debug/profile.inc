@@ -7,6 +7,8 @@
 ;module
 (env-push)
 
+(setq *profile_map* (env 101) *profile_rvals* (list))
+
 (enums +prof 0
 	(enum cnt rcnt acc))
 

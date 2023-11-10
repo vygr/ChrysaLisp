@@ -5,6 +5,8 @@
 ;module
 (env-push)
 
+(setq *stack_frame* (list) *stack_rvals* (list))
+
 (defun stack-instrument (name form)
 	(static-qq
 		((push *stack_frame* ,(str name " -> " *stream_name* "(" *stream_line* ")"))
