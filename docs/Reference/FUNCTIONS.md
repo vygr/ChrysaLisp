@@ -1230,7 +1230,7 @@ scan the stdio args and process acording to the optlist
 ### rest
 
 ```code
-(rest seq) -> :nil | seq
+(rest seq) -> seq
 ```
 
 ### restart
