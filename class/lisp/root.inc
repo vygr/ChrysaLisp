@@ -502,7 +502,7 @@
 
 (defun rest (_)
 	; (rest seq) -> seq
-	(if (> (length _) 0) (slice 1 -1 _) _))
+	(bind '(&optional _ &rest _) _))
 
 (defun erase (s b e)
 	; (erase seq start end) -> seq
