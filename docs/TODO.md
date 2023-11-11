@@ -8,6 +8,9 @@ In no particular order but to just to ensure I get thoughts down. I'll keep
 adding to this as I go along. If anybody would like to try helping out, then
 just get in touch.
 
+* Extra bind options ? Like &ignore, &null etc. Should be able to express
+`(ninety-ninth _)` as a bind action with no overhead.
+
 * Dynamic doc reference pages for the translators ! Plugin for VP -> native
 codes etc.
 
