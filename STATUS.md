@@ -11,6 +11,11 @@ New `(import-from lib ['(sym1 ...) '(class1 ...)])` function. As a result of
 this work the `export` functions now take the list of symbols as an explicite
 list rather than rest arguments.
 
+New `class/lisp/task.inc` file. This file is imported by the `lisp :init`
+method for ALL Lisp tasks. So all tasks started by `class/lisp/run.vp`. While
+the `class/lisp/root.inc` environment is shared by all tasks, the new
+`class/lisp/task.inc` is a per task environment.
+
 ------
 
 If you want to have a play with the Debug stepper service app, then just run
