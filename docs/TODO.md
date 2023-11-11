@@ -10,7 +10,7 @@ just get in touch.
 
 * Extra bind options ? Like &ignore, &null etc. Should be able to express
 `(ninety-ninth _)` as a bind action with no overhead. Someone should sit in the
-Zen garden and listen to the tap of the bamboo spigot.... just think about the
+Zen garden and listen to the tap of the bamboo spigot..... just think about the
 decomposition of sequences... I don't think we have got there yet.
 
 * Dynamic doc reference pages for the translators ! Plugin for VP -> native
