@@ -1048,7 +1048,7 @@ scan the stdio args and process acording to the optlist
 ### partition
 
 ```code
-(partition count seq) -> list of lists
+(partition count seq) -> list of slices
 ```
 
 ### path-gen-ellipse

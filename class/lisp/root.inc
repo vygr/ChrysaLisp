@@ -542,7 +542,7 @@
 	(map-rev (const progn) _))
 
 (defun partition (cnt seq)
-	; (partition count seq) -> list of lists
+	; (partition count seq) -> list of slices
 	(defq l (length seq) out (cap (/ (+ l cnt -1) cnt) (list)) i 0)
 	(while (<= (defq j (+ i cnt)) l)
 		(push out (slice i j seq))
