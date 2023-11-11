@@ -1,10 +1,6 @@
 ;jit compile apps native functions
-(import "sys/lisp.inc")
 (jit "apps/pcb/" "lisp.vp" '("hit_line" "add_line" "sub_line"))
 
-(import "class/lisp.inc")
-;(import "lib/debug/frames.inc")
-;(import "lib/debug/profile.inc")
 (import "./app.inc")
 (import "./reader.inc")
 (import "./router.inc")

@@ -2,9 +2,6 @@
 ; global match?
 ;;;;;;;;;;;;;;;
 
-(import "sys/lisp.inc")
-(import "class/lisp.inc")
-
 (defq +timeout 5000000)
 
 (enums +select 0

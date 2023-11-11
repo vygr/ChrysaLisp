@@ -1,4 +1,3 @@
-(import "sys/lisp.inc")
 (import "./app.inc")
 
 (enums +select 0

@@ -2,8 +2,6 @@
 ; global task object
 ;;;;;;;;;;;;;;;;;;;;
 
-(import "sys/lisp.inc")
-
 (defclass Global (fnc_create fnc_destroy) (Fmap)
 	; (Global fnc_create fnc_destroy) -> global
 	(def this :size 0 :create fnc_create :destroy fnc_destroy)

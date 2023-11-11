@@ -5,8 +5,6 @@
 (2 (import "lib/debug/debug.inc")))
 
 (import "././login/env.inc")
-(import "sys/lisp.inc")
-(import "class/lisp.inc")
 (import "gui/lisp.inc")
 (import "././clipboard/app.inc")
 

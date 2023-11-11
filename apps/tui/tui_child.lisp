@@ -1,5 +1,3 @@
-(import "sys/lisp.inc")
-
 ;read args from parent
 (defq mbox (mail-read (task-netid)))
 

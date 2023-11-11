@@ -2,9 +2,6 @@
 ; pipe task object
 ;;;;;;;;;;;;;;;;;;
 
-(import "sys/lisp.inc")
-(import "class/lisp.inc")
-
 (defun pipe-split (cmdline)
 	; (pipe-split cmdline) -> (e0 [e1] ...)
 	(defq i 0)

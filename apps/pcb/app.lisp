@@ -1,8 +1,5 @@
 (import "././login/env.inc")
-(import "sys/lisp.inc")
-(import "class/lisp.inc")
 (import "gui/lisp.inc")
-;(import "lib/debug/frames.inc")
 (import "./app.inc")
 (import "./reader.inc")
 (import "./viewer.inc")

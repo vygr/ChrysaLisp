@@ -1,6 +1,4 @@
 (import "././login/env.inc")
-(import "sys/lisp.inc")
-(import "class/lisp.inc")
 (import "gui/lisp.inc")
 (import "lib/math/vector.inc")
 

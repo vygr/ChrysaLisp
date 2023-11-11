@@ -2,8 +2,6 @@
 ; local tasks object
 ;;;;;;;;;;;;;;;;;;;;
 
-(import "sys/lisp.inc")
-
 ;module
 (env-push)
 

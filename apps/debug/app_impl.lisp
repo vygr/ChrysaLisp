@@ -1,5 +1,4 @@
 (import "././login/env.inc")
-(import "class/lisp.inc")
 (import "gui/lisp.inc")
 
 (enums +event 0

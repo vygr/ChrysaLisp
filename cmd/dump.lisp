@@ -1,4 +1,3 @@
-(import "class/lisp.inc")
 (import "lib/options/options.inc")
 
 ;read up to chunk_size chars from stream

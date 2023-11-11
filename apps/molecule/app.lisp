@@ -1,9 +1,4 @@
-;(import "lib/debug/frames.inc")
-;(import "lib/debug/profile.inc")
-
 (import "././login/env.inc")
-(import "sys/lisp.inc")
-(import "class/lisp.inc")
 (import "gui/lisp.inc")
 (import "lib/math/matrix.inc")
 (import "lib/text/files.inc")

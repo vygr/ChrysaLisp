@@ -1,4 +1,3 @@
-(import "sys/lisp.inc")
 (import "lib/task/pipe.inc")
 (print)
 (print "ChrysaLisp Installer v0.1")

@@ -1,6 +1,4 @@
 (import "././login/env.inc")
-(import "sys/lisp.inc")
-(import "class/lisp.inc")
 (import "gui/lisp.inc")
 
 (enums +select 0

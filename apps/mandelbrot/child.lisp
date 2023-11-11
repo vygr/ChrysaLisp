@@ -1,5 +1,4 @@
 ;jit compile apps native functions
-(import "sys/lisp.inc")
 (jit "apps/mandelbrot/" "lisp.vp" '("depth"))
 
 (import "./app.inc")

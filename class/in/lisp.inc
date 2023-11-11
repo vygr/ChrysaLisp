@@ -1,4 +1,3 @@
-(import "sys/lisp.inc")
 (import "class/stream/lisp.inc")
 (import "sys/list/lisp.inc")
 

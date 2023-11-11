@@ -1,5 +1,4 @@
 ;jit compile apps native functions
-(import "sys/lisp.inc")
 (jit "apps/netspeed/" "lisp.vp" '("vops"))
 
 (import "./app.inc")

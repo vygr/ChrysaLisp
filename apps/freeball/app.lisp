@@ -1,6 +1,4 @@
 (import "././login/env.inc")
-(import "sys/lisp.inc")
-(import "class/lisp.inc")
 (import "gui/lisp.inc")
 
 (defq id :t index 0 xv 4 yv 0 i 512

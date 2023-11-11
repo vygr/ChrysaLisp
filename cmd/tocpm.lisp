@@ -1,4 +1,3 @@
-(import "class/lisp.inc")
 (import "gui/lisp.inc")
 (import "lib/options/options.inc")
 

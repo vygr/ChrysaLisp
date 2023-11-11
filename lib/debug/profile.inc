@@ -2,8 +2,6 @@
 ; Profiling
 ;;;;;;;;;;;
 
-(import "sys/lisp.inc")
-
 ;module
 (env-push)
 

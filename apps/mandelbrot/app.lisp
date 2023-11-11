@@ -1,9 +1,7 @@
 (import "././login/env.inc")
 ;jit compile apps native functions
-(import "sys/lisp.inc")
 (jit "apps/mandelbrot/" "lisp.vp" '("tile"))
 
-(import "class/lisp.inc")
 (import "gui/lisp.inc")
 (import "lib/task/farm.inc")
 (import "./app.inc")

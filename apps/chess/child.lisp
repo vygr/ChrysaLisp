@@ -1,8 +1,6 @@
 ;jit compile apps native functions
-(import "sys/lisp.inc")
 (jit "apps/chess/" "lisp.vp" '("piece_scans"))
 
-(import "class/lisp.inc")
 (import "./app.inc")
 
 ;piece map accses

@@ -2,9 +2,6 @@
 ; VP Assembler Child
 ;;;;;;;;;;;;;;;;;;;;
 
-(import "sys/lisp.inc")
-(import "class/lisp.inc")
-
 (defq +_timeout 5000000)
 
 (enums +_select 0

@@ -2,8 +2,6 @@
 ; Debuging
 ;;;;;;;;;;
 
-(import "sys/lisp.inc")
-
 ;module
 (env-push)
 

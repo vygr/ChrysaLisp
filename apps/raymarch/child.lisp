@@ -1,8 +1,6 @@
 ;jit compile apps native functions
-(import "sys/lisp.inc")
 (jit "apps/raymarch/" "lisp.vp" '("ray_march" "scene"))
 
-(import "class/lisp.inc")
 (import "gui/lisp.inc")
 (import "lib/math/vector.inc")
 (import "./app.inc")

@@ -1,6 +1,5 @@
 ;can this node host a GUI ?
 (env-push)
-(import "sys/lisp.inc")
 (import "./lisp.inc")
 (if (gui-info)
 	;single instance per node only

@@ -5,8 +5,6 @@
 ;distribution is expressed or implied by the works' original copyright holder.
 
 (import "././login/env.inc")
-(import "sys/lisp.inc")
-(import "class/lisp.inc")
 (import "gui/lisp.inc")
 
 (enums +event 0

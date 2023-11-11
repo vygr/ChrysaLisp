@@ -1,5 +1,3 @@
-(import "sys/lisp.inc")
-(import "class/lisp.inc")
 (import "lib/math/mesh.inc")
 (import "./app.inc")
 
