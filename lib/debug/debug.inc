@@ -41,7 +41,7 @@
 					(:t "."))) (debug-trunc s w d))))
 			(if (odd? q) (cat s (ascii-char 34)) s))))
 
-(defun debug-info (n rval sform e)
+(defun debug-info (rval sform e n)
 	(defq e (tolist e) max_var_size 0
 		msg (cap (+ (* (length e) 4) 16) (list))
 		u (pad "" (+ (length n) 4) ";;;;;;;;;;;;;;;;;;;;;;;;"))
@@ -61,12 +61,12 @@
 (defun debug-msg (rval sform e n)
 	(when (defq service (debug-service))
 		(debug-ipc service 0 (if (eql *debug_state* ":forward")
-			"" (debug-info n rval sform e))))
+			"" (debug-info rval sform e n))))
 	rval)
 
 (defun debug-brk (name condtion)
 	(when (defq service (debug-service))
-		(debug-ipc service 1 (debug-info (cat "<break> " name) :nil :nil (penv)))))
+		(debug-ipc service 1 (debug-info :nil :nil (penv) (cat "<break> " name)))))
 
 (defun debug-form? (form)
 	(cond
