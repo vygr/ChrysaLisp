@@ -58,7 +58,7 @@
 		(push msg var " : " val (ascii-char 10))) (sort (# (cmp (first %0) (first %1))) e))
 	(apply (const cat) (push msg (ascii-char 10))))
 
-(defun debug-msg (n rval sform e)
+(defun debug-msg (rval sform e n)
 	(when (defq service (debug-service))
 		(debug-ipc service 0 (if (eql *debug_state* ":forward")
 			"" (debug-info n rval sform e))))
@@ -93,7 +93,7 @@
 				;wrap the form ?
 				(when (> m 0)
 					(elem-set _ l
-						(static-qq (debug-msg ,name ,e ,(str e) (env)))))
+						(static-qq (debug-msg ,e ,(str e) (env) ,name))))
 				;step into form
 				(push stack e))) l)) form)
 
