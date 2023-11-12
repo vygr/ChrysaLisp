@@ -5,14 +5,13 @@
 ;module
 (env-push)
 
-(setq *stack_frame* (list) *stack_rvals* (list))
+(setq *stack_frame* (list))
 
 (defun stack-instrument (name form)
 	(static-qq
 		((push *stack_frame* ,(str name " -> " *stream_name* "(" *stream_line* ")"))
-		(push *stack_rvals* (progn ~form))
-		(pop *stack_frame*)
-		(pop *stack_rvals*))))
+		(defq __r__ (progn ~form))
+		(pop *stack_frame*) __r__)))
 
 (defmacro defun (n a &rest _)
 	(static-qq (defq ,n (lambda ,a ~(macroexpand

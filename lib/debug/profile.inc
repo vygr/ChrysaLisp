@@ -5,7 +5,7 @@
 ;module
 (env-push)
 
-(setq *profile_map* (env 101) *profile_rvals* (list))
+(setq *profile_map* (env 101))
 
 (enums +prof 0
 	(enum cnt rcnt acc))
@@ -41,15 +41,15 @@
 (defun profile-instrument (name form)
 	(static-qq
 		((cond
-			((defq _e_ (get ',name *profile_map*))
-				(elem-set +prof_cnt _e_ (inc (elem-get +prof_cnt _e_)))
-				(elem-set +prof_rcnt _e_ (inc (elem-get +prof_rcnt _e_)))
-				(if (= (elem-get +prof_rcnt _e_) 1) (push _e_ (pii-time))))
-			(:t (def *profile_map* ',name (setq _e_ (list 1 1 0 (pii-time))))))
-		(push *profile_rvals* (progn ~form))
-		(elem-set +prof_rcnt _e_ (dec (elem-get +prof_rcnt _e_)))
-		(if (= (elem-get +prof_rcnt _e_) 0) (push _e_ (+ (- (pii-time) (pop _e_)) (pop _e_))))
-		(pop *profile_rvals*))))
+			((defq __e__ (get ',name *profile_map*))
+				(elem-set +prof_cnt __e__ (inc (elem-get +prof_cnt __e__)))
+				(elem-set +prof_rcnt __e__ (inc (elem-get +prof_rcnt __e__)))
+				(if (= (elem-get +prof_rcnt __e__) 1) (push __e__ (pii-time))))
+			(:t (def *profile_map* ',name (setq __e__ (list 1 1 0 (pii-time))))))
+		(defq __r__ (progn ~form))
+		(elem-set +prof_rcnt __e__ (dec (elem-get +prof_rcnt __e__)))
+		(if (= (elem-get +prof_rcnt __e__) 0) (push __e__ (+ (- (pii-time) (pop __e__)) (pop __e__))))
+		__r__)))
 
 (defmacro defun (n a &rest _)
 	(static-qq (defq ,n (lambda ,a ~(macroexpand

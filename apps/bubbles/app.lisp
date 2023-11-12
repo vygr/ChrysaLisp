@@ -201,5 +201,6 @@
 									:t)))))
 			(:t (. *window* :event *msg*))))
 	;close window
+	(profile-report "Bubbles" :t)
 	(free-select select)
 	(gui-sub *window*))
