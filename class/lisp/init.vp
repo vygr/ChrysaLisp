@@ -106,14 +106,12 @@
 
 (vp-label 'import)
 	(def-vars
-		(ptr this obj stream args)
-		(ulong ok))
+		(ptr this obj stream args))
 
 	(push-scope)
 	(entry {this, obj})
 
 	;import a file
-	(assign {-1} {ok})
 	(call 'fstream :create {obj, +file_open_read} {stream})
 	(vpif {stream})
 		(call 'list :create :nil {args})
@@ -124,13 +122,13 @@
 			(call 'lisp :repl_print {this, this->lisp_stderr, obj})
 			(call 'stream :write_char {this->lisp_stderr, +char_lf})
 			(call 'stream :flush {this->lisp_stderr})
-			(assign {0} {ok})
+			(assign {0} {stream})
 		(endif)
 		(call 'obj :deref {args})
 		(call 'obj :deref {obj})
 	(endif)
 
-	(exit {ok})
+	(exit {stream})
 	(pop-scope)
 	(return)
 
