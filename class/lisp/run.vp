@@ -37,7 +37,7 @@
 		(breakifnot {obj})
 		(call 'list :create :nil {args})
 		(call 'lisp :repl_apply {lisp, args, obj} {_, obj})
-		(vpif {value->obj_vtable = @class/error/vtable})
+		(vpif {obj->obj_vtable = @class/error/vtable})
 			;error in main
 			(call 'obj :print {obj, lisp->lisp_stderr})
 			(call 'stream :write_char {lisp->lisp_stderr, +char_lf})
