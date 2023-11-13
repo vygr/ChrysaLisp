@@ -2,7 +2,7 @@
 (include "sys/task/class.inc")
 (include "././hset/class.inc")
 (include "././hmap/class.inc")
-(include "././sstream/class.inc")
+(include "././fstream/class.inc")
 (include "././func/class.inc")
 (include "././sym/class.inc")
 (include "./class.inc")
@@ -23,9 +23,10 @@
 	;inputs
 	;:r0 = lisp object object (ptr)
 	;:r1 = vtable (pptr)
-	;:r2 = stdin stream object (ptr)
-	;:r3 = stdout stream object (ptr)
-	;:r4 = stderr stream object (ptr)
+	;:r2 = script string object (ptr)
+	;:r3 = stdin stream object (ptr)
+	;:r4 = stdout stream object (ptr)
+	;:r5 = stderr stream object (ptr)
 	;outputs
 	;:r0 = lisp object object (ptr)
 	;:r1 = 0 if error, else ok
@@ -33,11 +34,11 @@
 	;:r1-:r14
 
 	(def-vars
-		(ptr this vtable stdin stdout stderr func)
+		(ptr this vtable script stdin stdout stderr func)
 		(ulong ok))
 
 	(push-scope)
-	(entry 'lisp :init {this, vtable, stdin, stdout, stderr})
+	(entry 'lisp :init {this, vtable, script, stdin, stdout, stderr})
 
 	;init parent
 	(s-call 'lisp :init {this, vtable} {_, ok})
@@ -47,8 +48,11 @@
 		(call 'obj :ref {stdout} {this->lisp_stdout})
 		(call 'obj :ref {stderr} {this->lisp_stderr})
 		(assign {0} {this->lisp_nextsym})
-		;tls stack
-		(assign {@sys/statics/statics.statics_sys_task_current_tcb->tk_node_tls} {this->lisp_stack})
+
+		;tls stack and object tls
+		(assign {@sys/statics/statics.statics_sys_task_current_tcb} {func})
+		(assign {this} {func->tk_node_lisp})
+		(assign {func->tk_node_tls} {this->lisp_stack})
 
 		;spin lock if boot env busy
 		(loop-while {@sys/statics/statics.statics_lisp_root_env = -1})
@@ -89,7 +93,10 @@
 			(call 'create_env_info {this})
 			(call 'lookup_env_funcs {this})
 			;run any task.inc
-			(call 'import {this, "class/lisp/task.inc"})
+			(call 'import {this, "class/lisp/task.inc"} {ok})
+			(breakifnot {ok})
+			;run any script
+			(call 'import {this, &script->str_data} {ok})
 		(endif)
 	(endif)
 
@@ -99,30 +106,28 @@
 
 (vp-label 'import)
 	(def-vars
-		(ptr this file stream repl_args value)
+		(ptr this file stream args value)
 		(ulong ok))
 
 	(push-scope)
 	(entry {this, file})
 
-	;import file
+	;import a file
 	(assign {-1} {ok})
-	(call 'str :create_from_file {file} {stream})
+	(call 'fstream :create {file, +file_open_read} {stream})
 	(vpif {stream})
-		;REPL from file stream
-		(call 'list :create :nil {repl_args})
-		(call 'sstream :create {stream} {stream})
+		(call 'list :create :nil {args})
 		(call 'str :create_from_cstr {file} {file})
-		(call 'list :push_back2 {repl_args, stream, file})
-		(call 'lisp :lisp_repl {this, repl_args} {_, value})
+		(call 'list :push_back2 {args, stream, file})
+		(call 'lisp :lisp_repl {this, args} {_, value})
 		(vpif (cat {value->obj_vtable = @} (f-path 'error :vtable)))
 			(call 'lisp :repl_print {this, this->lisp_stderr, value})
 			(call 'stream :write_char {this->lisp_stderr, +char_lf})
 			(call 'stream :flush {this->lisp_stderr})
 			(assign {0} {ok})
 		(endif)
+		(call 'obj :deref {args})
 		(call 'obj :deref {value})
-		(call 'obj :deref {repl_args})
 	(endif)
 
 	(exit {ok})

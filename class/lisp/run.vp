@@ -1,6 +1,7 @@
 (include "lib/asm/func.inc")
 (include "sys/mail/class.inc")
 (include "sys/task/class.inc")
+(include "././fstream/class.inc")
 (include "././sstream/class.inc")
 (include "./class.inc")
 (include "././sym/class.inc")
@@ -14,7 +15,7 @@
 	;msg of lisp filename
 
 	(def-vars
-		(ptr script stream lisp file value args))
+		(ptr script stream lisp value args))
 
 	;init app vars
 	(push-scope)
@@ -28,38 +29,22 @@
 	(call 'sstream :create {value} {stream})
 
 	;create lisp class
-	(call 'lisp :create {stream, stream, stream} {lisp})
+	(call 'lisp :create {script, stream, stream, stream} {lisp})
 	(call 'obj :deref {stream})
 	(vpif {lisp})
-		;fill in lisp object tls
-		(assign {lisp} {@sys/statics/statics.statics_sys_task_current_tcb->tk_node_lisp})
-		;run lisp file
-		(call 'str :create_from_file {&script->str_data} {file})
-		(vpif {file})
-			;REPL from file stream
-			(call 'list :create :nil {args})
-			(call 'sstream :create {file} {stream})
-			(call 'str :ref {script})
-			(call 'list :push_back2 {args, stream, script})
-			(call 'lisp :lisp_repl {lisp, args} {_, value})
-			(call 'list :clear {args})
-			(vpif (cat {value->obj_vtable = @} (f-path 'error :vtable)))
-			(vp-label 'error)
-				;error in repl
-				(call 'obj :print {value, lisp->lisp_stderr})
-				(call 'stream :write_char {lisp->lisp_stderr, +char_lf})
-				(call 'stream :flush {lisp->lisp_stderr})
-			(else)
-				;do we have a main ?
-				(call 'view :get_prop {lisp->lisp_environment, static_sym_main} {_, stream})
-				(breakifnot {stream})
-				(call 'obj :deref {value})
-				(call 'lisp :repl_apply {lisp, args, stream} {_, value})
-				(gotoif {value->obj_vtable = @class/error/vtable} 'error)
-			(endif)
-			(call 'list :deref {args})
-			(call 'obj :deref {value})
+		;do we have a main ?
+		(call 'view :get_prop {lisp->lisp_environment, static_sym_main} {_, value})
+		(breakifnot {value})
+		(call 'list :create :nil {args})
+		(call 'lisp :repl_apply {lisp, args, value} {_, value})
+		(vpif {value->obj_vtable = @class/error/vtable})
+			;error in main
+			(call 'obj :print {value, lisp->lisp_stderr})
+			(call 'stream :write_char {lisp->lisp_stderr, +char_lf})
+			(call 'stream :flush {lisp->lisp_stderr})
 		(endif)
+		(call 'obj :deref {args})
+		(call 'obj :deref {value})
 		(call 'lisp :deref {lisp})
 	(endif)
 	(call 'str :deref {script})

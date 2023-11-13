@@ -151,9 +151,10 @@ trashes
 inputs
 :r0 = lisp object object (ptr)
 :r1 = vtable (pptr)
-:r2 = stdin stream object (ptr)
-:r3 = stdout stream object (ptr)
-:r4 = stderr stream object (ptr)
+:r2 = script string object (ptr)
+:r3 = stdin stream object (ptr)
+:r4 = stdout stream object (ptr)
+:r5 = stderr stream object (ptr)
 outputs
 :r0 = lisp object object (ptr)
 :r1 = 0 if error, else ok
