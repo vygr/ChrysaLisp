@@ -30,24 +30,26 @@
 
 	;create lisp class
 	(call 'lisp :create {script, obj, obj, obj} {lisp})
+	(call 'str :deref {script})
 	(call 'obj :deref {obj})
 	(vpif {lisp})
 		;do we have a main ?
 		(call 'view :get_prop {lisp->lisp_environment, static_sym_main} {_, obj})
-		(breakifnot {obj})
-		(call 'list :create :nil {args})
-		(call 'lisp :repl_apply {lisp, args, obj} {_, obj})
-		(vpif {obj->obj_vtable = @class/error/vtable})
-			;error in main
-			(call 'obj :print {obj, lisp->lisp_stderr})
-			(call 'stream :write_char {lisp->lisp_stderr, +char_lf})
-			(call 'stream :flush {lisp->lisp_stderr})
+		(vpif {obj})
+			;run main
+			(call 'list :create :nil {args})
+			(call 'lisp :repl_apply {lisp, args, obj} {_, obj})
+			(vpif {obj->obj_vtable = @class/error/vtable})
+				;error in main
+				(call 'obj :print {obj, lisp->lisp_stderr})
+				(call 'stream :write_char {lisp->lisp_stderr, +char_lf})
+				(call 'stream :flush {lisp->lisp_stderr})
+			(endif)
+			(call 'obj :deref {args})
+			(call 'obj :deref {obj})
 		(endif)
-		(call 'obj :deref {args})
-		(call 'obj :deref {obj})
 		(call 'lisp :deref {lisp})
 	(endif)
-	(call 'str :deref {script})
 
 	;flush interned symbols, nums and mem blocks
 	(fn-bind 'sys/statics/statics :r0)
