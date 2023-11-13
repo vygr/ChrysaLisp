@@ -15,7 +15,7 @@
 	;msg of lisp filename
 
 	(def-vars
-		(ptr script stream lisp value args))
+		(ptr script lisp args obj))
 
 	;init app vars
 	(push-scope)
@@ -25,26 +25,26 @@
 	(call 'sys_mail :free_obj {script} {script, _, _})
 
 	;string output stream
-	(call 'str :create_from_buffer {0, str_gap} {value})
-	(call 'sstream :create {value} {stream})
+	(call 'str :create_from_buffer {0, str_gap} {obj})
+	(call 'sstream :create {obj} {obj})
 
 	;create lisp class
-	(call 'lisp :create {script, stream, stream, stream} {lisp})
-	(call 'obj :deref {stream})
+	(call 'lisp :create {script, obj, obj, obj} {lisp})
+	(call 'obj :deref {obj})
 	(vpif {lisp})
 		;do we have a main ?
-		(call 'view :get_prop {lisp->lisp_environment, static_sym_main} {_, value})
-		(breakifnot {value})
+		(call 'view :get_prop {lisp->lisp_environment, static_sym_main} {_, obj})
+		(breakifnot {obj})
 		(call 'list :create :nil {args})
-		(call 'lisp :repl_apply {lisp, args, value} {_, value})
+		(call 'lisp :repl_apply {lisp, args, obj} {_, obj})
 		(vpif {value->obj_vtable = @class/error/vtable})
 			;error in main
-			(call 'obj :print {value, lisp->lisp_stderr})
+			(call 'obj :print {obj, lisp->lisp_stderr})
 			(call 'stream :write_char {lisp->lisp_stderr, +char_lf})
 			(call 'stream :flush {lisp->lisp_stderr})
 		(endif)
 		(call 'obj :deref {args})
-		(call 'obj :deref {value})
+		(call 'obj :deref {obj})
 		(call 'lisp :deref {lisp})
 	(endif)
 	(call 'str :deref {script})
