@@ -62,7 +62,7 @@ started the VP node `boot_image`. A lot of host OS calls require that you only
 call them via their own `stack` !
 
 You can view a VP node as what happens when you run a `boot_image`, doesn't
-matter how your running it ! From an host OS thread, process, bare metal, EMU,
+matter how your running it ! From a host OS thread, process, bare metal, EMU,
 it's all irrelevant. If you `launched` a `boot_image` then you are running a VP
 node.
 

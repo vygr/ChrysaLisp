@@ -111,7 +111,7 @@ conversion does to them.
 (:symbol :symbol :operator :symbol :operator :symbol :operator :operator))
 ```
 
-Notice how on that last example the entires for the `:lrb` and `:rrb` tokens
+Notice how on that last example the entries for the `:lrb` and `:rrb` tokens
 have mysteriously vanished... ;) That's because they don't mean anything other
 than a change in order of the reverse polish output !
 
