@@ -219,7 +219,7 @@
 		(lower (:modified :nil)) this)
 
 	(defmethod :vdu_load (vdu scroll_x scroll_y &optional end_state)
-		; (. buffer :vdu_load vdu scroll_x scroll_y) -> buffer
+		; (. buffer :vdu_load vdu scroll_x scroll_y &optional end_state) -> buffer
 		(. vdu :load (get :buffer_syntax (build-syntax this end_state))
 			scroll_x scroll_y (get :cursor_x this) (get :cursor_y this))
 		this)

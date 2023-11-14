@@ -199,6 +199,6 @@
 ### :vdu_load
 
 ```code
-(. buffer :vdu_load vdu scroll_x scroll_y) -> buffer
+(. buffer :vdu_load vdu scroll_x scroll_y &optional end_state) -> buffer
 ```
 
