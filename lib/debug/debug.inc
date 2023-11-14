@@ -32,7 +32,9 @@
 
 (defun debug-sanitise (s w &optional d)
 	(if (eql s "") s
-		(apply (const cat) (map (# (if (<= 32 (code %0) 126) %0 "."))
+		(apply (const cat) (map
+			(# (if (<= 0x20 (code %0) 0x7e)
+				(if (find %0 "{}") "." %0) "."))
 			(debug-trunc s w d)))))
 
 (defun debug-info (rval sform e n)
