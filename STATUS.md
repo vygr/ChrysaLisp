@@ -16,6 +16,8 @@ method for ALL Lisp tasks. So all tasks started by `class/lisp/run.vp`. While
 the `class/lisp/root.inc` environment is shared by all tasks, the new
 `class/lisp/task.inc` is a per task environment.
 
+Editor and Viewer apps now have a status bar.
+
 ------
 
 If you want to have a play with the Debug stepper service app, then just run

@@ -34,7 +34,7 @@
 	+vdu_line_width 5 +min_word_size 3 +max_matches 20 +margin 2
 	+state_filename "editor_state.tre" +not_whole_word_chars (cat " .,;'`(){}[]/" (ascii-char 34))
 	+text_types ''(".md" ".txt") +file_types ''(".lisp" ".inc" ".vp" ".md" ".txt" ".tre")
-	+dictionaries ''("lib/text/english.txt"))
+	+dictionaries ''("lib/text/english.txt") +status_min_size 32)
 
 (ui-window *window* (:color +argb_grey1)
 	(ui-title-bar *title* "Edit" (0xea19 0xea1b 0xea1a) +event_close)
@@ -85,14 +85,23 @@
 								(:min_width 0 :color (get :color *open_tree*)
 								:font (get :font *open_tree*))) :connect +event_tree_action))))
 			(ui-backdrop _ (:color +argb_white)))
-		(ui-vdu *vdu_lines* (:min_width +vdu_line_width :min_height 0
-				:vdu_width +vdu_line_width :vdu_height +vdu_min_height
-				:ink_color +argb_grey12 :font *env_editor_font*))
-		(ui-backdrop _ (:color (get :ink_color *vdu_lines*) :min_width 1))
-		(ui-flow _ (:flow_flags +flow_left_fill)
-			(. (ui-slider *yslider*) :connect +event_yscroll)
-			(ui-flow *main_flow* (:flow_flags +flow_up_fill)
-				(. (ui-slider *xslider*) :connect +event_xscroll)))))
+		(ui-flow _ (:flow_flags +flow_up_fill)
+			(ui-flow _ (:flow_flags +flow_right_fill
+					:color +argb_white :font *env_medium_terminal_font*)
+				(ui-label _ (:text "cx: ")) (ui-label *cx* (:min_width +status_min_size))
+				(ui-label _ (:text "cy: ")) (ui-label *cy* (:min_width +status_min_size))
+				(ui-label _ (:text "sw: ")) (ui-label *sw* (:min_width +status_min_size))
+				(ui-label _ (:text "sh: ")) (ui-label *sh* (:min_width +status_min_size))
+				(ui-backdrop _ (:color +argb_white)))
+			(ui-flow _ (:flow_flags +flow_right_fill)
+				(ui-vdu *vdu_lines* (:min_width +vdu_line_width :min_height 0
+						:vdu_width +vdu_line_width :vdu_height +vdu_min_height
+						:ink_color +argb_grey12 :font *env_editor_font*))
+				(ui-backdrop _ (:color (get :ink_color *vdu_lines*) :min_width 1))
+				(ui-flow _ (:flow_flags +flow_left_fill)
+					(. (ui-slider *yslider*) :connect +event_yscroll)
+					(ui-flow *main_flow* (:flow_flags +flow_up_fill)
+						(. (ui-slider *xslider*) :connect +event_xscroll)))))))
 
 (defun radio-select (toolbar states)
 	(each (# (undef (. %0 :dirty) :color)
@@ -114,7 +123,11 @@
 	(. *vdu_lines* :load lines 0 0 -1 -1)
 	(.-> buffer (:vdu_load (. *edit* :get_vdu_text) sx sy)
 		(:find (. *find_text* :get_text) *whole_words* *regexp*))
-	(.-> *edit* :underlay_paper :underlay_ink))
+	(.-> *edit* :underlay_paper :underlay_ink)
+	;update status bar
+	(each (# (def %0 :text (str %1)) (.-> %0 :layout :dirty_all))
+		(list *cx* *cy* *sw* *sh*)
+		(list (inc cx) (inc cy) (abs (- cx ax)) (abs (- cy ay)))))
 
 (defun refresh-sliders ()
 	;set slider values for current file
