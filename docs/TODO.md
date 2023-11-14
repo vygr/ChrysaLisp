@@ -21,9 +21,6 @@ codes etc.
 
 * Add cycle protection to the `(debug-sanitise)` call.
 
-* Add status bar to Editor. Carrying info such as cursor position and various
-other useful metrics.
-
 * Integrate the HOST clipboard and the CL Clipboard service.
 
 * Fix the Substr LPS table bug.
