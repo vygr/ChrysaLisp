@@ -31,15 +31,9 @@
 			(cat (slice 0 (- w 4) s) " ...")) s))
 
 (defun debug-sanitise (s w &optional d)
-	(cond
-		((eql s "") s)
-		(:t (defq q 0 s (apply (const cat) (map (#
-				(cond
-					((<= 32 (code %0) 126)
-						(if (= (code %0) 34) (setq q (inc q)))
-						%0)
-					(:t "."))) (debug-trunc s w d))))
-			(if (odd? q) (cat s (ascii-char 34)) s))))
+	(if (eql s "") s
+		(apply (const cat) (map (# (if (<= 32 (code %0) 126) %0 "."))
+			(debug-trunc s w d)))))
 
 (defun debug-info (rval sform e n)
 	(defq e (tolist e) max_var_size 0

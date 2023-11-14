@@ -83,7 +83,7 @@
 			(:t (bind '(w h) (. this :get_size))
 				~_))))
 
-(defun build-syntax (this)
+(defun build-syntax (this &optional estate)
 	(raise :dirty_flags)
 	(when (/= (logand +dirty_flag_syntax dirty_flags) 0)
 		(raise :buffer_line :buffer_syntax :buffer_states
@@ -99,7 +99,8 @@
 					(elem-set _ buffer_syntax
 						(.-> syntax_engine (:set_state state) (:colorise line)))
 					(elem-set _ buffer_states
-						(list state (setq state (. syntax_engine :get_state)))))))
+						(list state (setq state
+							(if estate estate (. syntax_engine :get_state))))))))
 			buffer_line buffer_syntax buffer_states)
 		(lower :max_width (:dirty_flags (logand dirty_flags
 			(const (lognot +dirty_flag_syntax))))))
@@ -217,9 +218,9 @@
 			(list (get :buffer_line this)))
 		(lower (:modified :nil)) this)
 
-	(defmethod :vdu_load (vdu scroll_x scroll_y)
+	(defmethod :vdu_load (vdu scroll_x scroll_y &optional end_state)
 		; (. buffer :vdu_load vdu scroll_x scroll_y) -> buffer
-		(. vdu :load (get :buffer_syntax (build-syntax this))
+		(. vdu :load (get :buffer_syntax (build-syntax this end_state))
 			scroll_x scroll_y (get :cursor_x this) (get :cursor_y this))
 		this)
 

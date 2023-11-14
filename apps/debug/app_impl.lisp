@@ -40,7 +40,7 @@
 		(.-> buf (:set_cursor 0 0) (:cut 0 (- h ch)))
 		(. buf :set_cursor 0 ch))
 	(. buf :clear_undo)
-	(if vdu (. buf :vdu_load vdu 0 0)))
+	(if vdu (. buf :vdu_load vdu 0 0 :text)))
 
 (defun set-slider-values ()
 	(defq val (get :value *hslider*) mho (max 0 (dec (length buf_list))))
