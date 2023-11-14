@@ -126,7 +126,7 @@
 		(:find (. *find_text* :get_text) *whole_words* *regexp*))
 	(.-> *edit* :underlay_paper :underlay_ink)
 	;update status bar
-	(each (# (def %0 :text (str %1)) (. %0 :dirty))
+	(each (# (def (. %0 :dirty) :text (str %1)))
 		(list *cx* *cy* *sw* *sh*)
 		(list (inc cx) (inc cy) (abs (- cx ax)) (abs (- cy ay)))))
 
