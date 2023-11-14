@@ -72,7 +72,7 @@
 	(when (/= old_size *page_scale*)
 		(set *edit* :font (create-font +edit_font (page-scale +edit_size)))
 		(set *vdu_lines* :font (get :font *edit*))
-		(.-> *edit_flow* :layout :dirty_all)
+		(.-> *scale_flow* :layout :dirty_all)
 		(window-resize)))
 
 (defun action-scale-down ()
@@ -81,7 +81,7 @@
 	(when (/= old_size *page_scale*)
 		(set *edit* :font (create-font +edit_font (page-scale +edit_size)))
 		(set *vdu_lines* :font (get :font *edit*))
-		(.-> *edit_flow* :layout :dirty_all)
+		(.-> *scale_flow* :layout :dirty_all)
 		(window-resize)))
 
 ;;;;;;;;;;;;;;;;;;;;

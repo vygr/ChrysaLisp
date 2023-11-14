@@ -32,7 +32,7 @@
 			(ui-buttons (0xe9cd 0xe9a8 0xe914 0xe91b) +event_whole_words))
 		(. (ui-textfield *find_text* (:color +argb_white
 				:hint_text "find" :clear_text "")) :connect +event_find_down))
-	(ui-flow *edit_flow* (:flow_flags +flow_right_fill)
+	(ui-flow _ (:flow_flags +flow_right_fill)
 		(ui-flow _ (:flow_flags +flow_stack_fill)
 			(ui-grid _ (:color +argb_grey14 :grid_width 1)
 				(ui-flow _  (:flow_flags +flow_down_fill)
@@ -52,14 +52,14 @@
 				(ui-label _ (:text "sw: ")) (ui-label *sw* (:min_width +status_min_size))
 				(ui-label _ (:text "sh: ")) (ui-label *sh* (:min_width +status_min_size))
 				(ui-backdrop _ (:color +argb_white)))
-			(ui-flow _ (:flow_flags +flow_right_fill)
+			(ui-flow *scale_flow* (:flow_flags +flow_right_fill)
 				(ui-vdu *vdu_lines* (:min_width +vdu_line_width :min_height 0
 						:vdu_width +vdu_line_width :vdu_height +vdu_min_height
 						:ink_color +argb_grey12 :font *env_editor_font*))
 				(ui-backdrop _ (:color (get :ink_color *vdu_lines*) :min_width 1))
 				(ui-flow _ (:flow_flags +flow_left_fill)
 					(. (ui-slider *yslider*) :connect +event_yscroll)
-					(ui-flow *main_flow* (:flow_flags +flow_up_fill)
+					(ui-flow *edit_flow* (:flow_flags +flow_up_fill)
 						(. (ui-slider *xslider*) :connect +event_xscroll)))))))
 
 (defun radio-select (toolbar states)
@@ -222,7 +222,7 @@
 		(:set_region_color +argb_grey3))
 	(def *edit* :min_width 0 :min_height 0
 		:vdu_width +vdu_min_width :vdu_height +vdu_min_height)
-	(. *main_flow* :add_back *edit*)
+	(. *edit_flow* :add_back *edit*)
 	(. *file_tree* :populate "." +file_types 2)
 	(populate-file-trees)
 	(populate-vdu *current_file*)

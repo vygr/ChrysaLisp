@@ -9,7 +9,7 @@
 	(setq *page_scale* (min 1.5 (+ (defq old_size *page_scale*) 0.125)))
 	(when (/= old_size *page_scale*)
 		(set *edit* :font (create-font +edit_font (page-scale +edit_size)))
-		(.-> *main_flow* :layout :dirty_all)
+		(.-> *edit_flow* :layout :dirty_all)
 		(window-resize)))
 
 (defun action-scale-down ()
@@ -17,7 +17,7 @@
 	(setq *page_scale* (max 0.75 (- (defq old_size *page_scale*) 0.125)))
 	(when (/= old_size *page_scale*)
 		(set *edit* :font (create-font +edit_font (page-scale +edit_size)))
-		(.-> *main_flow* :layout :dirty_all)
+		(.-> *edit_flow* :layout :dirty_all)
 		(window-resize)))
 
 ;;;;;;;;;;;;;;;;;;;;
