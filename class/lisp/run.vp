@@ -39,7 +39,7 @@
 			;run main
 			(call 'list :create :nil {args})
 			(call 'lisp :repl_apply {lisp, args, obj} {_, obj})
-			(vpif {obj->obj_vtable = @class/error/vtable})
+			(vpif (cat {obj->obj_vtable = @} (f-path 'error :vtable)))
 				;error in main
 				(call 'obj :print {obj, lisp->lisp_stderr})
 				(call 'stream :write_char {lisp->lisp_stderr, +char_lf})
@@ -52,10 +52,8 @@
 	(endif)
 
 	;flush interned symbols, nums and mem blocks
-	(fn-bind 'sys/statics/statics :r0)
-	(call 'hset :flush '((:r0 statics_sym_intern)))
-	(fn-bind 'sys/statics/statics :r0)
-	(call 'hset :flush '((:r0 statics_num_intern)))
+	(call 'hset :flush {@sys/statics/statics.statics_sym_intern})
+	(call 'hset :flush {@sys/statics/statics.statics_num_intern})
 	(call 'sys_mem :collect)
 
 	(pop-scope)

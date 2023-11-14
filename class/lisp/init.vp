@@ -74,10 +74,11 @@
 			;run any root.inc
 			(call 'import {this, "class/lisp/root.inc"} {ok})
 			(vpifnot {ok})
-				;deinit myself and parent
-				(call 'lisp :deinit {this})
 				;mark as free
 				(assign {0} {@sys/statics/statics.statics_lisp_root_env})
+			(vp-label 'error)
+				;deinit myself and parent
+				(call 'lisp :deinit {this})
 			(else)
 				;save shared boot env
 				(call 'obj :ref {this->lisp_environment} {@sys/statics/statics.statics_lisp_root_env})
@@ -94,9 +95,10 @@
 			(call 'lookup_env_funcs {this})
 			;run any task.inc
 			(call 'import {this, "class/lisp/task.inc"} {ok})
-			(breakifnot {ok})
+			(gotoifnot {ok} 'error)
 			;run any script
 			(call 'import {this, &script->str_data} {ok})
+			(gotoifnot {ok} 'error)
 		(endif)
 	(endif)
 
