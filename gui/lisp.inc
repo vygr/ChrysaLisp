@@ -169,8 +169,7 @@
 
 (defmacro ui-canvas (n w h s &optional p)
 	; (ui-canvas name width height scale [props]) -> canvas
-	(ui-props p
-		:color 0)
+	(ui-props p :color 0)
 	`(ui-element ,n (Canvas ,w ,h ,s) ,p))
 
 (defmacro ui-vdu (n &optional p)
@@ -179,6 +178,10 @@
 		:font *env_terminal_font*
 		:color 0)
 	`(ui-element ,n (Vdu) ,p))
+
+(defmacro ui-text (n &optional p)
+	; (ui-text name [props]) -> text
+	`(ui-element ,n (Text) ,p))
 
 (defmacro ui-view (n &optional p &rest x)
 	; (ui-view name [props] [body]) -> view

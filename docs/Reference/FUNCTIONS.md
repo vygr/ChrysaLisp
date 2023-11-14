@@ -1677,6 +1677,12 @@ patch stream a with stream b, write to stream c
 (ui-spinner name [props]) -> spinner
 ```
 
+### ui-text
+
+```code
+(ui-text name [props]) -> text
+```
+
 ### ui-textfield
 
 ```code

@@ -300,6 +300,20 @@ application to find a unicode symbol value.
 		(ui-title ,n (:text ,s))))
 ```
 
+### (ui-text name [props]) -> text
+
+Creates a Text instance, with name and optional property list.
+
+#### Properties
+
+`:color :ink_color :text :font :min_width :min_height :offset`
+
+```vdu
+(defmacro ui-text (n &optional p)
+	; (ui-text name [props]) -> text
+	`(ui-element ,n (Text) ,p))
+```
+
 ### (ui-label name [props] [body]) -> label
 
 Creates a Label instance, with name, optional property list and nested forms.

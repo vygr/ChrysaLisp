@@ -23,7 +23,10 @@
 
 	(defmethod :pref_size ()
 		; (. text :pref_size) -> (width height)
-		(defq font (get :font this) text (get :text this) w 0 h 0)
+		(defq font (get :font this) text (get :text this)
+			mw (def? :min_width this) mh (def? :min_height this)
+			w 0 h 0)
+		(setd mw 0 mh 0)
 		(and font text (bind '(w h) (font-glyph-bounds font text)))
-		(list w h))
+		(list (max w mw) (max h mh)))
 	)

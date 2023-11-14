@@ -45,12 +45,13 @@
 								:font *env_medium_terminal_font*)) :connect +event_tree_action))))
 			(ui-backdrop _ (:color +argb_white)))
 		(ui-flow _ (:flow_flags +flow_up_fill)
-			(ui-flow _ (:flow_flags +flow_right_fill
-					:color +argb_white :font *env_medium_terminal_font*)
-				(ui-label _ (:text "cx: ")) (ui-label *cx* (:min_width +status_min_size))
-				(ui-label _ (:text "cy: ")) (ui-label *cy* (:min_width +status_min_size))
-				(ui-label _ (:text "sw: ")) (ui-label *sw* (:min_width +status_min_size))
-				(ui-label _ (:text "sh: ")) (ui-label *sh* (:min_width +status_min_size))
+			(ui-flow _ (:flow_flags +flow_stack_fill :color +argb_white
+					:font *env_medium_terminal_font*)
+				(ui-flow _ (:flow_flags +flow_right_fill)
+					(ui-text _ (:text "cx: ")) (ui-text *cx* (:min_width +status_min_size))
+					(ui-text _ (:text "cy: ")) (ui-text *cy* (:min_width +status_min_size))
+					(ui-text _ (:text "sw: ")) (ui-text *sw* (:min_width +status_min_size))
+					(ui-text _ (:text "sh: ")) (ui-text *sh* (:min_width +status_min_size)))
 				(ui-backdrop _ (:color +argb_white)))
 			(ui-flow *scale_flow* (:flow_flags +flow_right_fill)
 				(ui-vdu *vdu_lines* (:min_width +vdu_line_width :min_height 0
@@ -84,7 +85,7 @@
 		(:find (. *find_text* :get_text) *whole_words* *regexp*))
 	(.-> *edit* :underlay_paper :underlay_ink)
 	;update status bar
-	(each (# (def %0 :text (str %1)) (.-> %0 :layout :dirty_all))
+	(each (# (def %0 :text (str %1)) (. %0 :dirty))
 		(list *cx* *cy* *sw* *sh*)
 		(list (inc cx) (inc cy) (abs (- cx ax)) (abs (- cy ay)))))
 
