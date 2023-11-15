@@ -29,18 +29,6 @@
 +char_tab action-tab
 ```
 
-### *key_map_shift*
-
-```code
-0x40000050 action-left-select
-0x4000004f action-right-select
-0x40000052 action-up-select
-0x40000051 action-down-select
-0x4000004A action-home-select
-0x4000004D action-end-select
-+char_tab action-left-tab
-```
-
 ### *key_map_control*
 
 ```code
@@ -104,20 +92,32 @@
 (ascii-code "]") action-right-bracket
 ```
 
-## apps/mesh/actions.inc
-
-### *key_map_control*
+### *key_map_shift*
 
 ```code
-(ascii-code "=") action-maximise
-(ascii-code "-") action-minimise
+0x40000050 action-left-select
+0x4000004f action-right-select
+0x40000052 action-up-select
+0x40000051 action-down-select
+0x4000004A action-home-select
+0x4000004D action-end-select
++char_tab action-left-tab
 ```
+
+## apps/mesh/actions.inc
 
 ### *key_map*
 
 ```code
 (ascii-code "a") action-auto
 (ascii-code "m") action-mode
+```
+
+### *key_map_control*
+
+```code
+(ascii-code "=") action-maximise
+(ascii-code "-") action-minimise
 ```
 
 ## apps/molecule/actions.inc
@@ -224,17 +224,6 @@
 0x4000004D action-end
 ```
 
-### *key_map_shift*
-
-```code
-0x40000050 action-left-select
-0x4000004f action-right-select
-0x40000052 action-up-select
-0x40000051 action-down-select
-0x4000004A action-home-select
-0x4000004D action-end-select
-```
-
 ### *key_map_control*
 
 ```code
@@ -257,6 +246,17 @@
 (ascii-code "]") action-right-bracket
 (ascii-code "9") action-left-bracket
 (ascii-code "0") action-right-bracket
+```
+
+### *key_map_shift*
+
+```code
+0x40000050 action-left-select
+0x4000004f action-right-select
+0x40000052 action-up-select
+0x40000051 action-down-select
+0x4000004A action-home-select
+0x4000004D action-end-select
 ```
 
 ## apps/whiteboard/actions.inc

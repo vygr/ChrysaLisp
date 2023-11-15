@@ -161,7 +161,8 @@
 	;key bindings
 	(defq stream (file-stream "docs/Reference/KEYS.md" +file_open_write)
 		current_file "")
-	(sort (# (cmp (first %0) (first %1))) keys)
+	(sort (# (if (/= 0 (defq _ (cmp (first %0) (first %1))))
+		_ (cmp (second %0) (second %1)))) keys)
 	(write-line stream (cat "# Key Bindings" (ascii-char 10)))
 	(each (lambda ((file name info))
 		(unless (eql file current_file)
