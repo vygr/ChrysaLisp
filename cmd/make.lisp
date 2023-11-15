@@ -110,7 +110,7 @@
 				(:keys
 					(defq s (split line +char_class_space))
 					(if (nempty? s)
-						(push info (trim-end line ")"))
+						(push info (trim-start (trim-end line ")") (ascii-char 9)))
 						(setq state :nil)))
 				(:t (when (> (length line) 9)
 						(defq words (split line (const (cat (ascii-char 9) " ()'" (ascii-char 13))))
