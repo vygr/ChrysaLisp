@@ -157,8 +157,8 @@
 ### *key_map_control*
 
 ```code
-(ascii-code "=") action-zoom-in
-(ascii-code "-") action-zoom-out
+(ascii-code "{") action-scale-down
+(ascii-code "}") action-scale-up
 ```
 
 ## apps/template/actions.inc

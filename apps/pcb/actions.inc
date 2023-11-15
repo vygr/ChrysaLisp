@@ -13,8 +13,8 @@
 	+event_reset action-reset
 	+event_prev action-prev
 	+event_next action-next
-	+event_zoom_in action-zoom-in
-	+event_zoom_out action-zoom-out
+	+event_zoom_in action-scale-up
+	+event_zoom_out action-scale-down
 	+event_show_all action-show-all
 	+event_show_1 action-show1
 	+event_show_2 action-show2
@@ -38,8 +38,8 @@
 *key_map_shift* (Fmap-kv)
 
 *key_map_control* (Fmap-kv
-	(ascii-code "=") action-zoom-in
-	(ascii-code "-") action-zoom-out))
+	(ascii-code "{") action-scale-down
+	(ascii-code "}") action-scale-up))
 
 ;module
 (export-symbols

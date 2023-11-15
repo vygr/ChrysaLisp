@@ -157,7 +157,7 @@
 			(write-line stream (cat "### " name (ascii-char 10)))
 			(information stream info)) methods)
 		(print (cat "-> docs/Reference/Classes/" name ".md"))) classes)
-		
+
 	;key bindings
 	(defq stream (file-stream "docs/Reference/KEYS.md" +file_open_write)
 		current_file "")

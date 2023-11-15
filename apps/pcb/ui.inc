@@ -16,11 +16,11 @@
 	(win-load (% (+ (inc *index*) (length *pcbs*)) (length *pcbs*)))
 	(stop-route))
 
-(defun action-zoom-in ()
+(defun action-scale-up ()
 	(setq *zoom* (max (min (+ *zoom* 1.0) +max_zoom) +min_zoom))
 	(win-zoom))
 
-(defun action-zoom-out ()
+(defun action-scale-down ()
 	(setq *zoom* (max (min (- *zoom* 1.0) +max_zoom) +min_zoom))
 	(win-zoom))
 
