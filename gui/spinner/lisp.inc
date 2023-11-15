@@ -19,7 +19,7 @@
 	(.-> button_grid (:add_child up_button) (:add_child down_button))
 	(. up_button :connect (. this :get_id))
 	(. down_button :connect (. this :get_id))
-	(def this :flow_flags (+ +flow_flag_right +flow_flag_fillh)
+	(def this :flow_flags +flow_right
 		:value 0 :maximum 0 :minimum 0 :value_label label
 		:up_id (. up_button :get_id) :down_id (. down_button :get_id))
 

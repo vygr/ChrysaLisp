@@ -212,7 +212,9 @@ Flow flags defined in `gui/flow/class.inc`.
 Useful flow combos:
 
 ```
-+flow_down_fill +flow_up_fill +flow_right_fill +flow_left_fill +flow_stack_fill
++flow_down +flow_up +flow_right +flow_left
++flow_down_fill +flow_up_fill +flow_right_fill +flow_left_fill
++flow_stack_fill
 ```
 
 ```vdu

@@ -47,7 +47,7 @@
 		(ui-flow _ (:flow_flags +flow_up_fill)
 			(ui-flow _ (:flow_flags +flow_stack_fill :color +argb_white
 					:font *env_medium_terminal_font*)
-				(ui-flow _ (:flow_flags +flow_right_fill)
+				(ui-flow _ (:flow_flags +flow_right)
 					(ui-text _ (:text "cx: ")) (ui-text *cx* (:min_width +status_min_size))
 					(ui-text _ (:text "cy: ")) (ui-text *cy* (:min_width +status_min_size))
 					(ui-text _ (:text "sw: ")) (ui-text *sw* (:min_width +status_min_size))

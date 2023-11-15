@@ -133,7 +133,7 @@
 (defmacro ui-tool-bar (n &optional p &rest x)
 	; (ui-tool-bar name [props] [body]) -> flow
 	(ui-props p
-		:flow_flags (num-intern (logior +flow_flag_right +flow_flag_fillh))
+		:flow_flags +flow_right
 		:color *env_toolbar_col* :font *env_toolbar_font*)
 	`(ui-flow ,n ,p ~x))
 
