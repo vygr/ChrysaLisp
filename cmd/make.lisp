@@ -32,33 +32,6 @@
 			(slice (inc (find-rev (char 0x22) _)) -1 _)))
 	(print "Scanning source files...")
 
-	;create commands docs
-	(defq target 'docs/Reference/COMMANDS.md)
-	(defun extract-cmd (el)
-		(first (split (second (split el "/")) ".")))
-	(defun cmd-collector (acc el)
-		(push acc (list (sym el) (str el " -h"))))
-	(defun wrap-block (content)
-		(if (/= (length content) 0)
-			(str
-				"```code" (ascii-char 10)
-				content (ascii-char 10)
-				"```" (ascii-char 10))
-			""))
-	(defun generate-cmd-help (lst)
-		(defq _eat_chunk "")
-		(defun _eat (_x)
-		(setq _eat_chunk (cat _eat_chunk (wrap-block _x))))
-		(each (lambda (el)
-		(setq _eat_chunk (cat _eat_chunk (str "## " (first el) (const (ascii-char 10)))))
-		(pipe-run (second el) _eat)) lst)
-		(save _eat_chunk target))
-	(generate-cmd-help (reduce
-		cmd-collector
-		(sort cmp (map extract-cmd (all-files "cmd" '(".lisp"))))
-		(list)))
-	(print "-> docs/Reference/COMMANDS.md")
-
 	;scan VP classes docs
 	(defq *imports* (all-vp-files) classes (list) functions (list)
 		docs (list) syntax (list) state :x)
@@ -172,6 +145,19 @@
 			(all-files "./lib" '(".inc") 2)
 			'("class/lisp/root.inc"))))
 
+	;classes
+	(sort (# (cmp (first %0) (first %1))) classes)
+	(each (lambda ((name pname methods info))
+		(defq stream (file-stream (cat "docs/Reference/Classes/" name ".md") +file_open_write))
+		(write-line stream (cat "# " name (ascii-char 10)))
+		(if pname (write-line stream (cat "## " pname (ascii-char 10))))
+		(information stream info)
+		(sort (# (cmp (first %0) (first %1))) methods)
+		(each (lambda ((name info))
+			(write-line stream (cat "### " name (ascii-char 10)))
+			(information stream info)) methods)
+		(print (cat "-> docs/Reference/Classes/" name ".md"))) classes)
+		
 	;key bindings
 	(defq stream (file-stream "docs/Reference/KEYS.md" +file_open_write)
 		current_file "")
@@ -198,18 +184,32 @@
 			(information stream info))) functions)
 	(print "-> docs/Reference/FUNCTIONS.md")
 
-	;classes
-	(sort (# (cmp (first %0) (first %1))) classes)
-	(each (lambda ((name pname methods info))
-		(defq stream (file-stream (cat "docs/Reference/Classes/" name ".md") +file_open_write))
-		(write-line stream (cat "# " name (ascii-char 10)))
-		(if pname (write-line stream (cat "## " pname (ascii-char 10))))
-		(information stream info)
-		(sort (# (cmp (first %0) (first %1))) methods)
-		(each (lambda ((name info))
-			(write-line stream (cat "### " name (ascii-char 10)))
-			(information stream info)) methods)
-		(print (cat "-> docs/Reference/Classes/" name ".md"))) classes))
+	;create commands docs
+	(defq target 'docs/Reference/COMMANDS.md)
+	(defun extract-cmd (el)
+		(first (split (second (split el "/")) ".")))
+	(defun cmd-collector (acc el)
+		(push acc (list (sym el) (str el " -h"))))
+	(defun wrap-block (content)
+		(if (/= (length content) 0)
+			(str
+				"```code" (ascii-char 10)
+				content (ascii-char 10)
+				"```" (ascii-char 10))
+			""))
+	(defun generate-cmd-help (lst)
+		(defq _eat_chunk "")
+		(defun _eat (_x)
+		(setq _eat_chunk (cat _eat_chunk (wrap-block _x))))
+		(each (lambda (el)
+		(setq _eat_chunk (cat _eat_chunk (str "## " (first el) (const (ascii-char 10)))))
+		(pipe-run (second el) _eat)) lst)
+		(save _eat_chunk target))
+	(generate-cmd-help (reduce
+		cmd-collector
+		(sort cmp (map extract-cmd (all-files "cmd" '(".lisp"))))
+		(list)))
+	(print "-> docs/Reference/COMMANDS.md"))
 
 (defq usage `(
 (("-h" "--help")
