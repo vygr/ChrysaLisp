@@ -68,7 +68,7 @@
 		(each-mergeable (lambda (file)
 			(each-line (lambda (line)
 				(when (eql state :y)
-					(defq s (split line (const (cat (ascii-char 9) " "))))
+					(defq s (split line +char_class_space))
 					(if (and (> (length s) 0) (starts-with ";" (first s)))
 						(push (last docs) (slice (inc (find ";" line)) -1 line))
 						(setq state :x)))
@@ -124,23 +124,32 @@
 		(print (cat "-> docs/Reference/VP_Classes/" cls ".md"))) classes)
 
 	;create lisp functions and classes docs
-	(defq classes (list) functions (list))
+	(defq classes (list) functions (list) keys (list))
 	(each (lambda (file)
 		(defq state :nil info :nil methods :nil)
 		(each-line (lambda (line)
 			(case state
 				((:function :class :method)
-					(defq s (split line (const (cat (ascii-char 9) " "))))
+					(defq s (split line +char_class_space))
 					(if (and (nempty? s) (starts-with ";" (first s)))
 						(push info (trim (slice (inc (find ";" line)) -1 line)))
 						(setq state :nil)))
+				(:keys
+					(defq s (split line +char_class_space))
+					(if (nempty? s)
+						(push info (trim-end line ")"))
+						(setq state :nil)))
 				(:t (when (> (length line) 9)
 						(defq words (split line (const (cat (ascii-char 9) " ()'" (ascii-char 13))))
-							name (second words))
-						(unless (some (# (eql name %0))
-									'(":type_of" ",predn" ",n"
-									"_structure" "defun" "defmacro"))
-							(case (first words)
+							type (first words) name (second words))
+						(unless (or (some (# (eql name %0))
+										'(":type_of" ",predn" ",n"
+										"_structure" "defun" "defmacro"))
+									(starts-with "action-" name))
+							(case type
+								(("*key_map*" "*key_map_shift*" "*key_map_control*")
+									(push keys (list file type (setq info (list))))
+									(setq state :keys))
 								(("defun" "defmacro")
 									(push functions (list name (setq info (list))))
 									(setq state :function))
@@ -159,9 +168,25 @@
 									(setq state :method))))))))
 			(file-stream file)))
 		(sanitise (cat
-			(all-files "." '("lisp.inc") 2)
+			(all-files "." '("lisp.inc" "actions.inc") 2)
 			(all-files "./lib" '(".inc") 2)
 			'("class/lisp/root.inc"))))
+
+	;key bindings
+	(defq stream (file-stream "docs/Reference/KEYS.md" +file_open_write)
+		current_file "")
+	(sort (# (cmp (first %0) (first %1))) keys)
+	(write-line stream (cat "# Key Bindings" (ascii-char 10)))
+	(each (lambda ((file name info))
+		(unless (eql file current_file)
+			(write-line stream (cat "## " file (ascii-char 10)))
+			(setq current_file file))
+		(when (nempty? info)
+			(write-line stream (cat "### " name (ascii-char 10)))
+			(write-line stream "```code")
+			(each (# (write-line stream %0)) info)
+			(write-line stream (cat "```" (ascii-char 10))))) keys)
+	(print "-> docs/Reference/KEYS.md")
 
 	;functions
 	(defq stream (file-stream "docs/Reference/FUNCTIONS.md" +file_open_write))
