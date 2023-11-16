@@ -189,13 +189,13 @@
 
 	;create commands docs
 	(defq document "docs/Reference/COMMANDS.md"
-		stream (file-stream document +file_open_write)
-		commands (sort cmp (map (# (slice 0 -6 %0))
-			(all-files "cmd" '(".lisp") 4))))
+		stream (file-stream document +file_open_write))
 	(each (# (write-line stream (cat "## " %0))
-		(write-line stream "```code")
-		(pipe-run (cat %0 " -h") (# (write stream %0)))
-		(write-line stream "```")) commands)
+			(write-line stream "```code")
+			(pipe-run (cat %0 " -h") (# (write stream %0)))
+			(write-line stream "```"))
+		(sort cmp (map (# (slice 0 -6 %0))
+			(all-files "cmd" '(".lisp") 4))))
 	(print "-> " document))
 
 (defq usage `(
