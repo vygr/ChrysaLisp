@@ -7,7 +7,6 @@ Usage: cat [options] [path] ...
 
 	If no paths given on command line
 	then paths are read from stdin.
-
 ```
 ## cp
 ```code
@@ -17,7 +16,6 @@ Usage: cp [options] path1 path2
 		-h --help: this help info.
 
 	Copy file path1 to path2.
-
 ```
 ## diff
 ```code
@@ -29,7 +27,6 @@ Usage: diff [options] file_a [file_b]
 
 	Calculate patch between text file a and text file b.
 	If no second file is given it will be read from stdin.
-
 ```
 ## dump
 ```code
@@ -41,7 +38,6 @@ Usage: dump [options] [path] ...
 
 	If no paths given on command line
 	then will dump stdin.
-
 ```
 ## echo
 ```code
@@ -49,7 +45,6 @@ Usage: echo [options] arg ...
 
 	options:
 		-h --help: this help info.
-
 ```
 ## files
 ```code
@@ -65,7 +60,6 @@ Usage: file [options] [prefix] [postfix]
 
 	eg.
 	files ./apps/wallpaper/ .tga
-
 ```
 ## grep
 ```code
@@ -107,7 +101,6 @@ Usage: grep [options] [pattern] [path] ...
 
 	If no paths given on command line
 	then will grep stdin.
-
 ```
 ## gui
 ```code
@@ -120,7 +113,6 @@ Usage: gui [node ...]
 
 	If none present on command line then
 	will read from stdin.
-
 ```
 ## head
 ```code
@@ -133,7 +125,6 @@ Usage: head [options file]
 	Returns lines from start of file or stdin.
 
 	Defaults to first 10 lines.
-
 ```
 ## link
 ```code
@@ -153,7 +144,6 @@ Usage: link [options] CLB-L1 CLB-L2 000-000 ...
 
 	If no links names given on command line
 	then names are read from stdin.
-
 ```
 ## lisp
 ```code
@@ -164,7 +154,6 @@ Usage: lisp [options] [path] ...
 
 	If no paths given on command line
 	then will REPL from stdin.
-
 ```
 ## make
 ```code
@@ -179,7 +168,6 @@ Usage: make [options] [all] [boot] [platforms] [doc] [it] [test]
 	docs:       scan source files and create documentation.
 	it:         all of the above !
 	test:       test make timings.
-
 ```
 ## mv
 ```code
@@ -189,7 +177,6 @@ Usage: mv [options] path1 path2
 		-h --help: this help info.
 
 	Move file path1 to path2.
-
 ```
 ## nodes
 ```code
@@ -197,7 +184,6 @@ Usage: nodes [options]
 
 	options:
 		-h --help: this help info.
-
 ```
 ## null
 ```code
@@ -205,7 +191,6 @@ Usage: null [options]
 
 	options:
 		-h --help: this help info.
-
 ```
 ## patch
 ```code
@@ -217,7 +202,6 @@ Usage: patch [options] file_a [file_b]
 
 	Patch text file a with text file b.
 	If no second file is given it will be read from stdin.
-
 ```
 ## rm
 ```code
@@ -228,7 +212,6 @@ Usage: rm [options] [path] ...
 
 	If no paths given on command line
 	then paths are read from stdin.
-
 ```
 ## sdir
 ```code
@@ -236,7 +219,6 @@ Usage: sdir [options] [prefix]
 
 	options:
 		-h --help: this help info.
-
 ```
 ## shuffle
 ```code
@@ -247,7 +229,6 @@ Usage: shuffle [options] [line] ...
 
 	If no lines given on command line
 	then will shuffle lines from stdin.
-
 ```
 ## slice
 ```code
@@ -259,7 +240,6 @@ Usage: slice [options]
 		-e --end num: end char index, default -1.
 
 	Slice the lines from stdin to stdout.
-
 ```
 ## sort
 ```code
@@ -270,7 +250,6 @@ Usage: sort [options] [line] ...
 
 	If no lines given on command line
 	then will sort lines from stdin.
-
 ```
 ## split
 ```code
@@ -285,7 +264,6 @@ Usage: split [options]
 
 	Optionaly select a specific element of
 	the split.
-
 ```
 ## tail
 ```code
@@ -298,7 +276,6 @@ Usage: tail [options file]
 	Returns lines from end of file or stdin.
 
 	Defaults to last 10 lines.
-
 ```
 ## tee
 ```code
@@ -308,7 +285,6 @@ Usage: tee [options] [path] ...
 		-h --help: this help info.
 
 	Read from stdin, write to stdout and all given paths.
-
 ```
 ## time
 ```code
@@ -320,7 +296,6 @@ Usage: time [options]
 	Time the duration of the stdin stream.
 
 	Print result to stderr.
-
 ```
 ## tocpm
 ```code
@@ -334,7 +309,6 @@ Usage: tocmp [options] [path] ...
 
 	If no paths given on command line
 	then paths are read from stdin.
-
 ```
 ## unique
 ```code
@@ -345,5 +319,4 @@ Usage: unique [options] [line] ...
 
 	If no lines given on command line
 	then will read lines from stdin.
-
 ```

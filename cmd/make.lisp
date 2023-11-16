@@ -186,31 +186,15 @@
 	(print "-> docs/Reference/FUNCTIONS.md")
 
 	;create commands docs
-	(defq target 'docs/Reference/COMMANDS.md)
-	(defun extract-cmd (el)
-		(first (split (second (split el "/")) ".")))
-	(defun cmd-collector (acc el)
-		(push acc (list (sym el) (str el " -h"))))
-	(defun wrap-block (content)
-		(if (/= (length content) 0)
-			(str
-				"```code" (ascii-char 10)
-				content (ascii-char 10)
-				"```" (ascii-char 10))
-			""))
-	(defun generate-cmd-help (lst)
-		(defq _eat_chunk "")
-		(defun _eat (_x)
-		(setq _eat_chunk (cat _eat_chunk (wrap-block _x))))
-		(each (lambda (el)
-		(setq _eat_chunk (cat _eat_chunk (str "## " (first el) (const (ascii-char 10)))))
-		(pipe-run (second el) _eat)) lst)
-		(save _eat_chunk target))
-	(generate-cmd-help (reduce
-		cmd-collector
-		(sort cmp (map extract-cmd (all-files "cmd" '(".lisp"))))
-		(list)))
-	(print "-> docs/Reference/COMMANDS.md"))
+	(defq document "docs/Reference/COMMANDS.md"
+		stream (file-stream document +file_open_write)
+		commands (sort (const cmp) (map (# (slice 0 -6 %0))
+			(all-files "cmd" '(".lisp") 4))))
+	(each (# (write-line stream (cat "## " %0))
+		(write-line stream "```code")
+		(pipe-run (cat %0 " -h") (# (write stream %0)))
+		(write-line stream "```")) commands)
+	(print "-> " document))
 
 (defq usage `(
 (("-h" "--help")
