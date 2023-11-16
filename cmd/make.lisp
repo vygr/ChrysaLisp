@@ -145,18 +145,19 @@
 			(all-files "./lib" '(".inc") 2)
 			'("class/lisp/root.inc"))))
 
-	;classes
-	(sort (# (cmp (first %0) (first %1))) classes)
+	;create classes docs
 	(each (lambda ((name pname methods info))
-		(defq stream (file-stream (cat "docs/Reference/Classes/" name ".md") +file_open_write))
-		(write-line stream (cat "# " name (ascii-char 10)))
-		(if pname (write-line stream (cat "## " pname (ascii-char 10))))
-		(information stream info)
-		(sort (# (cmp (first %0) (first %1))) methods)
-		(each (lambda ((name info))
-			(write-line stream (cat "### " name (ascii-char 10)))
-			(information stream info)) methods)
-		(print (cat "-> docs/Reference/Classes/" name ".md"))) classes)
+			(defq document (cat "docs/Reference/Classes/" name ".md")
+				stream (file-stream document +file_open_write))
+			(write-line stream (cat "# " name (ascii-char 10)))
+			(if pname (write-line stream (cat "## " pname (ascii-char 10))))
+			(information stream info)
+			(each (lambda ((name info))
+					(write-line stream (cat "### " name (ascii-char 10)))
+					(information stream info))
+				(sort (# (cmp (first %0) (first %1))) methods))
+			(print "-> " document))
+		(sort (# (cmp (first %0) (first %1))) classes))
 
 	;create key bindings docs
 	(defq document "docs/Reference/KEYS.md" current_file ""
