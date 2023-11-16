@@ -5,10 +5,10 @@
 ;module
 (env-push)
 
-(defun all-files (&optional root exts n)
-	; (all-files &optional root exts n) -> paths
+(defun all-files (&optional root exts cut_start cut_end)
+	; (all-files &optional root exts cut_start cut_end) -> paths
 	;all source files from root downwards, none recursive
-	(setd root "." exts '("") n 0)
+	(setd root "." exts '("") cut_start 0 cut_end 0)
 	(defq stack (list root) paths (list))
 	(while (setq root (pop stack))
 		(unless (starts-with "./obj" root)
@@ -22,7 +22,8 @@
 						(unless (starts-with "." file)
 							(push stack (cat root "/" file))))))
 				(unzip (split (pii-dirlist root) ",") (lists2)))))
-	(if (/= n 0) (setq paths (map (# (slice n -1 %0)) paths)))
+	(if (or (/= cut_start 0) (/= cut_end 0))
+		(setq paths (map (# (slice cut_start (dec (neg cut_end)) %0)) paths)))
 	paths)
 
 (defun all-dirs (paths)

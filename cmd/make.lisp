@@ -196,8 +196,7 @@
 			(write-line stream "```code")
 			(pipe-run (cat %0 " -h") (# (write stream %0)))
 			(write-line stream "```"))
-		(sort cmp (map (# (slice 0 -6 %0))
-			(all-files "cmd" '(".lisp") 4))))
+		(sort cmp (all-files "cmd" '(".lisp") 4 5)))
 	(print "-> " document))
 
 (defq usage `(

@@ -147,7 +147,7 @@ return all the dir paths
 ### all-files
 
 ```code
-(all-files &optional root exts n) -> paths
+(all-files &optional root exts cut_start cut_end) -> paths
 
 all source files from root downwards, none recursive
 ```
