@@ -175,20 +175,21 @@
 			(write-line stream (cat "```" (ascii-char 10))))) keys)
 	(print "-> docs/Reference/KEYS.md")
 
-	;functions
-	(defq stream (file-stream "docs/Reference/FUNCTIONS.md" +file_open_write))
-	(sort (# (cmp (first %0) (first %1))) functions)
+	;create functions docs
+	(defq document "docs/Reference/FUNCTIONS.md"
+		stream (file-stream document +file_open_write))
 	(write-line stream (cat "# Functions" (ascii-char 10)))
 	(each (lambda ((name info))
-		(when (nempty? info)
-			(write-line stream (cat "### " name (ascii-char 10)))
-			(information stream info))) functions)
-	(print "-> docs/Reference/FUNCTIONS.md")
+			(when (nempty? info)
+				(write-line stream (cat "### " name (ascii-char 10)))
+				(information stream info)))
+		(sort (# (cmp (first %0) (first %1))) functions))
+	(print "-> " document)
 
 	;create commands docs
 	(defq document "docs/Reference/COMMANDS.md"
 		stream (file-stream document +file_open_write)
-		commands (sort (const cmp) (map (# (slice 0 -6 %0))
+		commands (sort cmp (map (# (slice 0 -6 %0))
 			(all-files "cmd" '(".lisp") 4))))
 	(each (# (write-line stream (cat "## " %0))
 		(write-line stream "```code")
