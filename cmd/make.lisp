@@ -32,7 +32,7 @@
 			(slice (inc (find-rev (char 0x22) _)) -1 _)))
 	(print "Scanning source files...")
 
-	;scan VP classes docs
+	;scan for VP classes info
 	(defq *imports* (all-vp-files) classes (list) functions (list)
 		docs (list) syntax (list) state :x)
 	(within-compile-env (lambda ()
@@ -96,7 +96,7 @@
 					(write-line stream (const (str "```" (ascii-char 10)))))) methds))
 		(print (cat "-> docs/Reference/VP_Classes/" cls ".md"))) classes)
 
-	;create lisp functions and classes docs
+	;scan for Lisp functions and classes info
 	(defq classes (list) functions (list) keys (list))
 	(each (lambda (file)
 		(defq state :nil info :nil methods :nil)
