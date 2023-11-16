@@ -158,22 +158,22 @@
 			(information stream info)) methods)
 		(print (cat "-> docs/Reference/Classes/" name ".md"))) classes)
 
-	;key bindings
-	(defq stream (file-stream "docs/Reference/KEYS.md" +file_open_write)
-		current_file "")
-	(sort (# (if (/= 0 (defq _ (cmp (first %0) (first %1))))
-		_ (cmp (second %0) (second %1)))) keys)
+	;create key bindings docs
+	(defq document "docs/Reference/KEYS.md" current_file ""
+		stream (file-stream document +file_open_write))
 	(write-line stream (cat "# Key Bindings" (ascii-char 10)))
 	(each (lambda ((file name info))
-		(unless (eql file current_file)
-			(write-line stream (cat "## " file (ascii-char 10)))
-			(setq current_file file))
-		(when (nempty? info)
-			(write-line stream (cat "### " name (ascii-char 10)))
-			(write-line stream "```code")
-			(each (# (write-line stream %0)) info)
-			(write-line stream (cat "```" (ascii-char 10))))) keys)
-	(print "-> docs/Reference/KEYS.md")
+			(unless (eql file current_file)
+				(write-line stream (cat "## " file (ascii-char 10)))
+				(setq current_file file))
+			(when (nempty? info)
+				(write-line stream (cat "### " name (ascii-char 10)))
+				(write-line stream "```code")
+				(each (# (write-line stream %0)) info)
+				(write-line stream (cat "```" (ascii-char 10)))))
+		(sort (# (if (/= 0 (defq _ (cmp (first %0) (first %1))))
+			_ (cmp (second %0) (second %1)))) keys))
+	(print "-> " document)
 
 	;create functions docs
 	(defq document "docs/Reference/FUNCTIONS.md"
