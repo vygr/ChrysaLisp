@@ -1,6 +1,6 @@
 (import "lib/task/pipe.inc")
 
-(defq tmbox (mail-alloc-mbox))
+(defq tmbox (mail-alloc-mbox) +LF (ascii-char 10))
 (mail-declare tmbox "Terminal" "Terminal Services 0.1")
 
 ;override print for TUI output
@@ -28,13 +28,13 @@
 			(cond
 				(cmd
 					;feed active pipe
-					(. cmd :write (cat buffer (ascii-char 10))))
+					(. cmd :write (cat buffer +LF)))
 				(:t ;start new pipe
 					(cond
 						((/= (length buffer) 0)
 							;new pipe
 							(catch (setq cmd (Pipe buffer (list (task-netid)))) (progn (setq cmd :nil) :t))
-							(unless cmd (print (cat (const (cat "Pipe Error !" (ascii-char 10))) (prompt)))))
+							(unless cmd (print (cat (const (cat "Pipe Error !" +LF)) (prompt)))))
 						(:t (print (prompt))))))
 			(setq buffer ""))
 		((= c 27)
@@ -45,7 +45,7 @@
 					(. cmd :write buffer))
 				(. cmd :close)
 				(setq cmd :nil buffer "")
-				(print (cat (ascii-char 10) (prompt)))))
+				(print (cat +LF (prompt)))))
 		((and (= c 8) (/= (length buffer) 0))
 			;backspace
 			(setq buffer (slice 0 -2 buffer)))
@@ -55,7 +55,7 @@
 
 (defun main ()
 	;sign on msg
-	(print (cat (const (cat "ChrysaLisp Terminal 1.5" (ascii-char 10))) (prompt)))
+	(print (cat (const (cat "ChrysaLisp Terminal 1.5" +LF)) (prompt)))
 	;create child and send args
 	(mail-send (open-child "apps/tui/tui_child.lisp" +kn_call_open) (task-netid))
 	(defq cmd :nil buffer "")
@@ -70,6 +70,6 @@
 				;pipe is closed
 				(. cmd :close)
 				(setq cmd :nil)
-				(print (const (cat (ascii-char 10) ">"))))
+				(print (const (cat +LF ">"))))
 			(:t ;string from pipe
 				(print data)))))
