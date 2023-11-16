@@ -34,15 +34,14 @@
 				:hint_text "find" :clear_text "")) :connect +event_find_down))
 	(ui-flow _ (:flow_flags +flow_right_fill)
 		(ui-flow _ (:flow_flags +flow_stack_fill)
-			(ui-grid _ (:color +argb_grey14 :grid_width 1)
-				(ui-flow _  (:flow_flags +flow_down_fill)
-					(ui-flow _ (:flow_flags +flow_left_fill)
-						(ui-buttons (">" "^") +event_file_tree_collapse)
-						(ui-label _ (:text "Project")))
-					(ui-scroll *file_tree_scroll* +scroll_flag_vertical :nil
-						(. (ui-tree *file_tree* +event_file_folder_action
-								(:min_width 0 :color +argb_white
-								:font *env_medium_terminal_font*)) :connect +event_tree_action))))
+			(ui-flow _  (:flow_flags +flow_down_fill :color +argb_grey14)
+				(ui-flow _ (:flow_flags +flow_left_fill)
+					(ui-buttons (">" "^") +event_file_tree_collapse)
+					(ui-label _ (:text "Project")))
+				(ui-scroll *file_tree_scroll* +scroll_flag_vertical :nil
+					(. (ui-tree *file_tree* +event_file_folder_action
+							(:min_width 0 :color +argb_white
+							:font *env_medium_terminal_font*)) :connect +event_tree_action)))
 			(ui-backdrop _ (:color +argb_white)))
 		(ui-flow _ (:flow_flags +flow_up_fill)
 			(ui-flow _ (:flow_flags +flow_stack_fill :color +argb_white
