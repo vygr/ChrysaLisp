@@ -22,7 +22,7 @@
 						(unless (starts-with "." file)
 							(push stack (cat root "/" file))))))
 				(unzip (split (pii-dirlist root) ",") (lists2)))))
-	(if (or (/= cut_start 0) (/= cut_end 0))
+	(if (/= 0 (logior cut_start cut_end))
 		(setq paths (map (# (slice cut_start (dec (neg cut_end)) %0)) paths)))
 	paths)
 
