@@ -2,6 +2,9 @@
 ; pipe task object
 ;;;;;;;;;;;;;;;;;;
 
+;module
+(env-push)
+
 (defun pipe-split (cmdline)
 	; (pipe-split cmdline) -> (e0 [e1] ...)
 	(defq i 0)
@@ -93,3 +96,8 @@
 				(setq pipe :nil))
 			(:t ;string from pipe
 				(out data)))))
+
+;module
+(export-classes '(Pipe))
+(export-symbols '(pipe-run))
+(env-pop)
