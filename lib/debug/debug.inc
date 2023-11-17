@@ -68,7 +68,9 @@
 	(cond
 		((and (list? form) (nempty? form) (defq ff (first form))
 			(notany (# (eql %0 ff))
-				'(profile-report profile-print debug-brk
+				'(profile-instrument profile-report
+				stack-instrument
+				debug-brk debug-msg debug-instrument
 				quote quasi-quote static-q static-qq const)))
 			;valid form
 			(cond
