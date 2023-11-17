@@ -68,13 +68,14 @@
 	(cond
 		((and (list? form) (nempty? form) (defq ff (first form))
 			(notany (# (eql %0 ff))
-				'(profile-instrument profile-report
-				stack-instrument
-				debug-brk debug-msg debug-instrument
-				quote quasi-quote static-q static-qq const)))
+				'(profile-instrument profile-report debug-msg
+				stack-instrument debug-brk debug-instrument
+				quote quasi-quote static-q static-qq const
+				defmethod)))
 			;valid form
 			(cond
-				((or (list? ff) (some (# (eql %0 ff)) '(lambda macro defun defmacro #)))
+				((or (list? ff) (some (# (eql %0 ff))
+						'(lambda macro # defun defmacro)))
 					;just step in, but don't wrap
 					0)
 				((and (sym? ff) (setq form (get ff))
