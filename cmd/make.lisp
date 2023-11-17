@@ -21,6 +21,11 @@
 		(:t ;no jobs in que
 			(undef val :job :timestamp))))
 
+(defun cancel-job (key val)
+	;cancel this job
+	(undef val :job :timestamp)
+	(. farm :restart key val))
+
 (defun create (key val nodes)
 	; (create key val nodes)
 	;function called when entry is created
@@ -37,7 +42,7 @@
 		(undef val :job :timestamp)))
 
 (defun commands ()
-	(defq timer_rate (/ 1000000 1) working :t results (list)
+	(defq timer_rate (/ 1000000 1) working :t results (list) errors (list)
 		retry_timeout (if (starts-with "obj/vp64" (load-path)) 20000000 2000000)
 		select (list (mail-alloc-mbox) (mail-alloc-mbox) (mail-alloc-mbox))
 		jobs (map (# (cat +DQ %0 " -h" +DQ)) (all-files "cmd" '(".lisp") 4 -6))
@@ -58,10 +63,14 @@
 				(defq key_pos (inc (find-rev +LF msg))
 					key (str-as-num (slice key_pos -1 msg))
 					msg (slice 0 key_pos msg))
-				(bind '(_ ((name))) (matches msg "^\S+ (\S+)"))
+				(bind '(_ ((usage name))) (matches msg "^(\S+) (\S+)"))
 				(when (defq val (. farm :find key))
-					(push results (list name msg))
-					(dispatch-job key val))
+					(cond
+						((eql usage "Error:")
+							(push errors (slice 0 -2 msg))
+							(cancel-job key val))
+						(:t (push results (list name msg))
+							(dispatch-job key val))))
 				;all jobs done ?
 				(when (= 0 (length jobs))
 					(setq working :nil)
@@ -71,7 +80,7 @@
 				(mail-timeout (elem-get +select_timer select) timer_rate 0)
 				(. farm :refresh retry_timeout))))
 	(. farm :close)
-	results)
+	(list results errors))
 
 ;module
 (export-symbols '(commands))
@@ -264,12 +273,14 @@
 	;create commands docs
 	(defq document "docs/Reference/COMMANDS.md"
 		stream (file-stream document +file_open_write))
+	(bind '(results errors) (commands))
 	(each (lambda ((name info))
 			(write-line stream (cat "## " name))
 			(write-line stream "```code")
 			(write stream info)
 			(write-line stream "```"))
-		(sort (# (cmp (first %0) (first %1))) (commands)))
+		(sort (# (cmp (first %0) (first %1))) results))
+	(each (const print) errors)
 	(print "-> " document))
 
 (defq usage `(
