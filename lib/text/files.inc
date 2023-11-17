@@ -8,7 +8,7 @@
 (defun all-files (&optional root exts cut_start cut_end)
 	; (all-files &optional root exts cut_start cut_end) -> paths
 	;all source files from root downwards, none recursive
-	(setd root "." exts '("") cut_start 0 cut_end 0)
+	(setd root "." exts '("") cut_start 0 cut_end -1)
 	(defq stack (list root) paths (list))
 	(while (setq root (pop stack))
 		(unless (starts-with "./obj" root)
@@ -22,9 +22,9 @@
 						(unless (starts-with "." file)
 							(push stack (cat root "/" file))))))
 				(unzip (split (pii-dirlist root) ",") (lists2)))))
-	(if (/= 0 (logior cut_start cut_end))
-		(setq paths (map (# (slice cut_start (dec (neg cut_end)) %0)) paths)))
-	paths)
+	(if (or (/= 0 cut_start) (/= -1 cut_end))
+		(map (# (slice cut_start cut_end %0)) paths)
+		paths))
 
 (defun all-dirs (paths)
 	; (all-dirs paths) -> paths
