@@ -48,7 +48,7 @@ Usage: echo [options] arg ...
 ```
 ## files
 ```code
-Usage: file [options] [prefix] [postfix]
+Usage: files [options] [prefix] [postfix]
 
 	options:
 		-h --help: this help info.
@@ -299,7 +299,7 @@ Usage: time [options]
 ```
 ## tocpm
 ```code
-Usage: tocmp [options] [path] ...
+Usage: tocpm [options] [path] ...
 
 	options:
 		-h --help: this help info.
