@@ -87,20 +87,19 @@
 			;valid form ?
 			(when (defq m (debug-form? e))
 				;wrap the form ?
-				(when (> m 0)
-					(elem-set _ l
-						(static-qq (debug-msg ,e ,(str e) (env) ,name))))
+				(when (> m 0) (elem-set _ l `(debug-msg ,e ,(str e) (env) ,name)))
 				;step into form
 				(push stack e))) l)) form)
 
 (defmacro defun (n a &rest _)
-	(static-qq (defq ,n (lambda ,a ~(macroexpand
-		(debug-instrument (str n) _))))))
+	`(defq ,n (lambda ,a ~(macroexpand
+		(debug-instrument (str n) _)))))
 
 (defmacro defmethod (n a &rest _)
-	(static-qq (def (def? :vtable this) ,n (lambda (this ~a) ~(macroexpand
-		(debug-instrument (cat *class* " " n) _))))))
+	`(def (def? :vtable this) ,n (lambda (this ~a) ~(macroexpand
+		(debug-instrument (cat *class* " " n) _)))))
 
 ;module
-(export-symbols '(defun defmethod debug-brk))
+(export-symbols
+	'(defun defmethod debug-brk debug-msg debug-instrument))
 (env-pop)
