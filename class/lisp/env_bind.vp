@@ -104,7 +104,11 @@
 (vp-label 'error4)
 	(call 'obj :deref {value})
 (vp-label 'error)
-	(jump 'lisp :repl_error {this, "(bind (param ...) seq)", +error_msg_wrong_num_of_args, vals}))
+	(call 'list :create :nil {value})
+	(call 'obj :ref {vars})
+	(call 'obj :ref {vals})
+	(call 'list :push_back2 {value, vars, vals})
+	(jump 'lisp :repl_error {this, "(bind (param ...) seq)", +error_msg_wrong_num_of_args, value}))
 
 	(pop-scope-syms)
 
