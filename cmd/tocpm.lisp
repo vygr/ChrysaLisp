@@ -11,7 +11,7 @@
 
 (defq usage `(
 (("-h" "--help")
-"Usage: tocmp [options] [path] ...
+"Usage: tocpm [options] [path] ...
 
 	options:
 		-h --help: this help info.

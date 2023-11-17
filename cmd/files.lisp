@@ -3,7 +3,7 @@
 
 (defq usage `(
 (("-h" "--help")
-{Usage: file [options] [prefix] [postfix]
+{Usage: files [options] [prefix] [postfix]
 
 	options:
 		-h --help: this help info.
