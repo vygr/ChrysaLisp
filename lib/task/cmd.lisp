@@ -32,7 +32,8 @@
 					*cmd* (first (read (string-stream (slice +_job_params -1 *msg*)))))
 				;run the command and catch output
 				(setq *msg* (string-stream (cat "")))
-				(pipe-run *cmd* (# (write *msg* (str %0))))
+				(catch (pipe-run *cmd* (# (write *msg* (str %0))))
+					(progn (write-line *msg* (str _ " " *cmd*)) :t))
 				;send reply
 				(write *msg* (str *reply_key*))
 				(mail-send *reply_mbox* (str *msg*)))))
