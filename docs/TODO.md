@@ -23,6 +23,10 @@ codes etc.
 
 * Add cycle protection to the `(debug-sanitise)` call.
 
+* Track down why the debug libs have a difference between wrapping code in
+`(progn ~form)` and `((lambda () ~form))`. One does not create a new temp env,
+one does, but is that really it ?
+
 * Integrate the HOST clipboard and the CL Clipboard service.
 
 * Fix the Substr LPS table bug.
