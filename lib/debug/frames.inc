@@ -9,7 +9,7 @@
 
 (defun stack-instrument (name form)
 	`((push *stack_frame* ,(str name " -> " *stream_name* "(" *stream_line* ")"))
-	(defq __r__ (progn ~form))
+	(defq __r__ ((lambda () ~form)))
 	(pop *stack_frame*) __r__))
 
 (defmacro defun (n a &rest _)
