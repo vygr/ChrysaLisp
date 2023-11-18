@@ -430,7 +430,7 @@
 				(. *window* :event *msg*)))
 		;update meta data
 		(update-meta-data))
-;;     (profile-report "Editor")
+	(profile-report "Editor")
 	(action-save-all)
 	(free-select select)
 	(clear-matches)
