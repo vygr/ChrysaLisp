@@ -18,7 +18,7 @@
 	(enum main timer mouse))
 
 ;profiling and stack frame callbacks on the GUI thread from :draw method etc !!!
-(defq *profile_map* (env 1) *stack_frame* (list))
+(setq *profile_map* (env 1) *stack_frame* (list) *debug_state* :gui)
 
 ;frame rate
 (defq +rate (/ 1000000 60))

@@ -13,7 +13,8 @@
 	(offset data))
 
 (defun debug-service ()
-	(when (/= 0 (length (defq services (mail-enquire "*Debug"))))
+	(when (and (not (eql *debug_state* :gui))
+			(/= 0 (length (defq services (mail-enquire "*Debug")))))
 		(to-net-id (elem-get 1 (split (pop services) ",")))))
 
 (defun debug-ipc (service type s)
