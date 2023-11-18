@@ -99,5 +99,5 @@
 
 ;module
 (export-classes '(Pipe))
-(export-symbols '(pipe-run))
+(export-symbols '(pipe-run pipe-split))
 (env-pop)
