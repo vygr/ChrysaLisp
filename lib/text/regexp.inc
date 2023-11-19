@@ -21,7 +21,7 @@
 
 (defun tokenize (line)
 	(defq state :space concat :nil token :nil
-		out_types (clear '()) out_tokens (clear '()))
+		out_types (list) out_tokens (list))
 	(each (lambda (c)
 		(case state
 			(:space
@@ -42,7 +42,7 @@
 						(setq concat +op_cat))
 					((eql c "[")
 						(concat?)
-						(setq token (clear '()) state :class))
+						(setq token (list) state :class))
 					((eql c ".")
 						(concat?)
 						(output :wild c)
@@ -80,8 +80,8 @@
 	(list out_tokens out_types))
 
 (defun postfix (tokenize_output)
-	(defq stack (clear '()) parens (clear '())
-		out_tokens (clear '()) out_types (clear '()) label -1)
+	(defq stack (list) parens (list)
+		out_tokens (list) out_types (list) label -1)
 	(each! 0 -1 (lambda (token type)
 		(case type
 			(:lrb
@@ -108,7 +108,7 @@
 	(list out_tokens out_types))
 
 (defun compile (postfix_output)
-	(defq stack (clear '()))
+	(defq stack (list))
 	(each! 0 -1 (lambda (token type)
 		(push stack (case type
 			(:lit (cache (static-qq (((eql s ,token) 1)))))
@@ -198,7 +198,7 @@
 		; (. regexp :match? text pattern &optional meta) -> :t | :nil
 		(defq cpat (opt cpat (. this :compile pattern)))
 		(when cpat
-			(defq x -1 x1 -1 sl '())
+			(defq x -1 x1 -1 sl (list))
 			(while (and (= x1 -1) (< (setq x (inc x)) (length text)))
 				(setq x1 (search text cpat x)))
 			(/= x1 -1)))
@@ -209,7 +209,7 @@
 		(when cpat
 			(defq x -1)
 			(while (< (setq x (inc x)) (length text))
-				(defq sl (clear '()))
+				(defq sl (list))
 				(when (> (defq x1 (search text cpat x)) x)
 					(push out (list x x1))
 					(push outs (map (lambda ((s s1))
