@@ -4,7 +4,7 @@
 
 (import "lib/task/pipe.inc")
 
-(defq +_timeout 5000000)
+(defq +_timeout 2000000)
 
 (enums +_select 0
 	(enum main timeout))
