@@ -1083,6 +1083,14 @@ scan the stdio args and process acording to the optlist
 (path-stroke-polylines dst radius tol join cap1 cap2 src) -> dst
 ```
 
+### pipe-farm
+
+```code
+(pipe-farm jobs &optional retry_timeout) -> ((job result) ...)
+
+run pipe farm and collect output
+```
+
 ### pipe-run
 
 ```code

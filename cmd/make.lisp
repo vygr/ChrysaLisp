@@ -1,90 +1,9 @@
 (import "lib/asm/asm.inc")
-(import "lib/task/pipe.inc")
 (import "lib/options/options.inc")
 (import "lib/text/files.inc")
+(import "lib/task/cmd.inc")
 
 (defq +LF (ascii-char 10))
-
-;module
-(env-push)
-
-(enums +select 0
-	(enum task reply timer))
-
-(defun dispatch-job (key val)
-	;send another job to child
-	(cond
-		((defq job (pop jobs))
-			(def val :job job :timestamp (pii-time))
-			(mail-send (get :child val) (cat
-				(char key +long_size) (elem-get +select_reply select) job)))
-		(:t ;no jobs in que
-			(undef val :job :timestamp))))
-
-(defun cancel-job (key val)
-	;cancel this job
-	(undef val :job :timestamp)
-	(. farm :restart key val))
-
-(defun create (key val nodes)
-	; (create key val nodes)
-	;function called when entry is created
-	(open-task "lib/task/cmd.lisp" (elem-get (random (length nodes)) nodes)
-		+kn_call_child key (elem-get +select_task select)))
-
-(defun destroy (key val)
-	; (destroy key val)
-	;function called when entry is destroyed
-	(when (defq child (get :child val)) (mail-send child ""))
-	(when (defq job (get :job val))
-		(print "Restarting cmd job ! -> " job)
-		(push jobs job)
-		(undef val :job :timestamp)))
-
-(defun commands ()
-	(defq timer_rate (/ 1000000 1) working :t results (list) errors (list)
-		retry_timeout (if (starts-with "obj/vp64" (load-path)) 10000000 1000000)
-		select (list (mail-alloc-mbox) (mail-alloc-mbox) (mail-alloc-mbox))
-		jobs (map (# (cat %0 " -h")) (all-files "cmd" '(".lisp") 4 -6))
-		farm (Local (const create) (const destroy) (length jobs) (max 1 (min 4 (length (lisp-nodes))))))
-	(mail-timeout (elem-get +select_timer select) timer_rate 0)
-	(while working
-		(defq msg (mail-read (elem-get (defq idx (mail-select select)) select)))
-		(cond
-			((= idx +select_task)
-				;child launch responce
-				(defq key (getf msg +kn_msg_key) child (getf msg +kn_msg_reply_id))
-				(when (defq val (. farm :find key))
-					(. farm :add_node (slice +mailbox_id_size -1 child))
-					(def val :child child)
-					(dispatch-job key val)))
-			((= idx +select_reply)
-				;child worker responce
-				(defq key_pos (find +LF msg)
-					key (str-as-num (slice 0 key_pos msg))
-					msg (slice (inc key_pos) -1 msg))
-				(bind '(usage name &rest _) (split (slice 0 (find +LF msg) msg) " "))
-				(when (defq val (. farm :find key))
-					(cond
-						((eql usage "Error:")
-							(push errors (slice 0 -2 msg))
-							(cancel-job key val))
-						(:t (push results (list name msg))
-							(dispatch-job key val))))
-				;all jobs done ?
-				(when (= 0 (length jobs))
-					(setq working :nil)
-					(. farm :each (lambda (key val)
-						(setq working (or working (get :job val)))))))
-			(:t ;timer event
-				(mail-timeout (elem-get +select_timer select) timer_rate 0)
-				(. farm :refresh retry_timeout))))
-	(. farm :close)
-	(list results errors))
-
-;module
-(export-symbols '(commands))
-(env-pop)
 
 (defun parent? (info)
 	(some! 2 -1 :nil (#
@@ -273,14 +192,14 @@
 	;create commands docs
 	(defq document "docs/Reference/COMMANDS.md"
 		stream (file-stream document +file_open_write))
-	(bind '(results errors) (commands))
-	(each (lambda ((name info))
-			(write-line stream (cat "## " name))
+	(each (lambda ((job result))
+			(write-line stream (cat "## " (first (split job " "))))
 			(write-line stream "```code")
-			(write stream info)
+			(write stream result)
 			(write-line stream "```"))
-		(sort (# (cmp (first %0) (first %1))) results))
-	(each (const print) errors)
+		(sort (# (cmp (first %0) (first %1)))
+			(pipe-farm (map (# (cat %0 " -h"))
+				(all-files "cmd" '(".lisp") 4 -6)))))
 	(print "-> " document))
 
 (defq usage `(
