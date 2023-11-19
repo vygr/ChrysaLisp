@@ -61,8 +61,8 @@
 			"" (debug-info rval sform e n))))
 	rval)
 
-(defun debug-brk (name condtion)
-	(when (defq service (debug-service))
+(defun debug-brk (name condition)
+	(and condition (defq service (debug-service))
 		(debug-ipc service 1 (debug-info :nil :nil (penv) (cat "<break> " name)))))
 
 (defun debug-form? (form)
