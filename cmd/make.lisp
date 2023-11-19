@@ -193,7 +193,7 @@
 	(defq document "docs/Reference/COMMANDS.md"
 		stream (file-stream document +file_open_write))
 	(each (lambda ((job result))
-			(write-line stream (cat "## " (first (split job " "))))
+			(write-line stream (cat "## " (slice 0 -4 job)))
 			(write-line stream "```code")
 			(write stream result)
 			(write-line stream "```"))
