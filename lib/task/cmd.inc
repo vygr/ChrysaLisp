@@ -2,6 +2,8 @@
 ; pipe farm object
 ;;;;;;;;;;;;;;;;;;
 
+(import "./local.inc")
+
 ;module
 (env-push)
 

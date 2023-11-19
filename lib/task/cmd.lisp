@@ -2,7 +2,7 @@
 ; Cmd Child
 ;;;;;;;;;;;
 
-(import "lib/task/pipe.inc")
+(import "./pipe.inc")
 
 (defq +timeout 2000000)
 
