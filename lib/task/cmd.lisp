@@ -28,13 +28,14 @@
 				;clear timeout
 				(mail-timeout (elem-get +_select_timeout *select*) 0 0)
 				;read job
-				(defq *reply_key* (getf *msg* +_job_key) *reply_mbox* (getf *msg* +_job_reply)
-					*cmd* (first (read (string-stream (slice +_job_params -1 *msg*)))))
+				(defq *reply_key* (getf *msg* +_job_key)
+					*reply_mbox* (getf *msg* +_job_reply)
+					*cmd* (slice +_job_params -1 *msg*))
 				;run the command and catch output
 				(setq *msg* (string-stream (cat "")))
+				(write-line *msg* (str *reply_key*))
 				(catch (pipe-run *cmd* (# (write *msg* (str %0))))
 					(progn (write-line *msg* (str _ " " *cmd*)) :t))
 				;send reply
-				(write *msg* (str *reply_key*))
 				(mail-send *reply_mbox* (str *msg*)))))
 	(free-select *select*))

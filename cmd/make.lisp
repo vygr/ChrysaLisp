@@ -3,7 +3,7 @@
 (import "lib/options/options.inc")
 (import "lib/text/files.inc")
 
-(defq +LF (ascii-char 10) +DQ (ascii-char 34))
+(defq +LF (ascii-char 10))
 
 ;module
 (env-push)
@@ -43,9 +43,9 @@
 
 (defun commands ()
 	(defq timer_rate (/ 1000000 1) working :t results (list) errors (list)
-		retry_timeout (if (starts-with "obj/vp64" (load-path)) 20000000 2000000)
+		retry_timeout (if (starts-with "obj/vp64" (load-path)) 10000000 1000000)
 		select (list (mail-alloc-mbox) (mail-alloc-mbox) (mail-alloc-mbox))
-		jobs (map (# (cat +DQ %0 " -h" +DQ)) (all-files "cmd" '(".lisp") 4 -6))
+		jobs (map (# (cat %0 " -h")) (all-files "cmd" '(".lisp") 4 -6))
 		farm (Local (const create) (const destroy) (length jobs) (max 1 (min 4 (length (lisp-nodes))))))
 	(mail-timeout (elem-get +select_timer select) timer_rate 0)
 	(while working
@@ -60,10 +60,10 @@
 					(dispatch-job key val)))
 			((= idx +select_reply)
 				;child worker responce
-				(defq key_pos (inc (find-rev +LF msg))
-					key (str-as-num (slice key_pos -1 msg))
-					msg (slice 0 key_pos msg))
-				(bind '(_ ((usage name))) (matches msg "^(\S+) (\S+)"))
+				(defq key_pos (find +LF msg)
+					key (str-as-num (slice 0 key_pos msg))
+					msg (slice (inc key_pos) -1 msg))
+				(bind '(usage name &rest _) (split (slice 0 (find +LF msg) msg) " "))
 				(when (defq val (. farm :find key))
 					(cond
 						((eql usage "Error:")
