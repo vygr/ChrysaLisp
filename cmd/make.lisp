@@ -195,9 +195,9 @@
 					(if (nempty? s)
 						(push info (trim-start (trim-end line ")") (ascii-char 9)))
 						(setq state :nil)))
-				(:t (when (> (length line) 9)
-						(defq words (split line (const (cat (ascii-char 9) " ()'" (ascii-char 13))))
-							type (first words) name (second words))
+				(:t (defq words (split line (const (cat (ascii-char 9) " ()'" (ascii-char 13)))))
+					(when (>= (length words) 2)
+						(defq type (first words) name (second words))
 						(unless (or (some (# (eql name %0))
 										'(":type_of" ",predn" ",n"
 										"_structure" "defun" "defmacro"))
