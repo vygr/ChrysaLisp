@@ -88,7 +88,7 @@
 
 (defun parent? (info)
 	(some! 2 -1 :nil (#
-		(if (<= (ascii-code "A") (code (first %0)) (ascii-code "Z")) %0)) (list info)))
+		(if (bfind %0 +char_class_upper) %0)) (list info)))
 
 (defun information (stream info)
 	(when (nempty? info)
@@ -129,7 +129,7 @@
 						(push (last docs) (slice (inc (find ";" line)) -1 line))
 						(setq state :x)))
 				(when (and (eql state :x) (>= (length line) 9))
-					(defq s (split line (const (cat (ascii-char 9) " ()'" (ascii-char 34) (ascii-char 13)))) _ (first s))
+					(defq s (split line (unescape { ()'\t\r\""})) _ (first s))
 					(cond
 						((eql _ "include")
 							(make-merge *imports* (list (abs-path (second s) file))))
@@ -195,7 +195,7 @@
 					(if (nempty? s)
 						(push info (trim-start (trim-end line ")") (ascii-char 9)))
 						(setq state :nil)))
-				(:t (defq words (split line (const (cat (ascii-char 9) " ()'" (ascii-char 13)))))
+				(:t (defq words (split line (const (unescape " ()'\t\r"))))
 					(when (>= (length words) 2)
 						(defq type (first words) name (second words))
 						(unless (or (some (# (eql name %0))
