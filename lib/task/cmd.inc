@@ -7,8 +7,6 @@
 ;module
 (env-push)
 
-(defq +LF (ascii-char 10))
-
 (enums +select 0
 	(enum task reply timer))
 
@@ -53,7 +51,7 @@
 					(dispatch-job key val)))
 			((= idx +select_reply)
 				;child worker responce
-				(defq key_pos (find +LF msg)
+				(defq key_pos (find (ascii-char 10) msg)
 					key (str-as-num (slice 0 key_pos msg))
 					msg (slice (inc key_pos) -1 msg))
 				(when (defq val (. farm :find key))
