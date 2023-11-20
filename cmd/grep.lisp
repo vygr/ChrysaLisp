@@ -2,9 +2,16 @@
 (import "lib/text/regexp.inc")
 
 ;grep a stream to stdout
-(defun grep-file (stream)
-	(each-line (# (if (. regexp :match? %0 pattern cexp) (print %0)))
+(defun grep-stream (stream)
+	(each-line (# (if (. search :match? %0 pattern meta) (print %0)))
 		stream))
+
+;grep a file to stdout
+(defun grep-file (file)
+	(when (defq result :nil stream (file-stream file))
+		(while (and (not result) (defq line (read-line stream)))
+			(if (setq result (. search :match? line pattern meta))
+				(print file)))))
 
 (defq usage `(
 (("-h" "--help")
@@ -13,6 +20,10 @@
 	options:
 		-h --help: this help info.
 		-e --exp pattern: regular expression.
+		-f --file: file mode, default :nil.
+		-w --words: whole words mode, default :nil.
+		-r --regexp: regexp mode, default :nil.
+		-c --coded: encoded pattern mode, default :nil.
 
 	pattern:
 		^  start of line
@@ -45,23 +56,45 @@
 		\\ esc for \ etc
 
 	If no paths given on command line
-	then will grep stdin.")
+	then will grep from stdin.")
 (("-e" "--exp")
 	,(lambda (args arg)
-		(setq pattern (first args))
-		(rest args)))
+		(setq pattern (first args)) (rest args)))
+(("-f" "--file")
+	,(lambda (args arg)
+		(setq file_flag :t) args))
+(("-w" "--words")
+	,(lambda (args arg)
+		(setq words_flag :t) args))
+(("-r" "--regexp")
+	,(lambda (args arg)
+		(setq regexp_flag :t) args))
+(("-c" "--coded")
+	,(lambda (args arg)
+		(setq coded_flag :t) args))
 ))
 
 (defun main ()
 	;initialize pipe details and command args, abort on error
 	(when (and
 			(defq stdio (create-stdio))
-			(defq pattern "" args (options stdio usage)))
+			(defq pattern "" file_flag :nil words_flag :nil
+				regexp_flag :nil coded_flag :nil
+				args (options stdio usage)))
 		(when (and (eql pattern "") (> (length args) 1))
 			(defq pattern (second args) args (erase args 1 2)))
-		(when (defq regexp (Regexp) cexp (. regexp :compile pattern)))
-			(if (<= (length args) 1)
-				;grep from stdin
-				(grep-file (io-stream 'stdin))
-				;grep from args as files
-				(each (# (grep-file (file-stream %0))) (rest args)))))
+		(if coded_flag (setq pattern (id-decode pattern)))
+		(when (bind '(search pattern meta) (query pattern words_flag regexp_flag))
+			(cond
+				(file_flag
+					(if (<= (length args) 1)
+						;grep file from stdin
+						(each-line (# (grep-file %0)) (io-stream 'stdin))
+						;grep file from args
+						(each (# (grep-file %0)) (rest args))))
+				(:t (if (<= (length args) 1)
+						;grep stream from stdin
+						(grep-stream (io-stream 'stdin))
+						;grep stream from args
+						(each (# (grep-stream (file-stream %0))) (rest args))))))))
+

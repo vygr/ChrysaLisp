@@ -68,6 +68,10 @@ Usage: grep [options] [pattern] [path] ...
 	options:
 		-h --help: this help info.
 		-e --exp pattern: regular expression.
+		-f --file: file mode, default :nil.
+		-w --words: whole words mode, default :nil.
+		-r --regexp: regexp mode, default :nil.
+		-c --coded: encoded pattern mode, default :nil.
 
 	pattern:
 		^  start of line
@@ -100,7 +104,7 @@ Usage: grep [options] [pattern] [path] ...
 		\\ esc for \ etc
 
 	If no paths given on command line
-	then will grep stdin.
+	then will grep from stdin.
 ```
 ## gui
 ```code
