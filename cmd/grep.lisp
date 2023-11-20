@@ -3,13 +3,15 @@
 
 ;grep a stream to stdout
 (defun grep-stream (stream)
-	(each-line (# (if (. search :match? %0 pattern meta) (print %0)))
+	(each-line (# (task-slice)
+			(if (. search :match? %0 pattern meta) (print %0)))
 		stream))
 
 ;grep a file to stdout
 (defun grep-file (file)
 	(when (defq result :nil stream (file-stream file))
 		(while (and (not result) (defq line (read-line stream)))
+			(task-slice)
 			(if (setq result (. search :match? line pattern meta))
 				(print file)))))
 
