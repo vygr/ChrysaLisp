@@ -1,5 +1,4 @@
 (import "lib/options/options.inc")
-(import "lib/text/regexp.inc")
 
 ;grep a stream to stdout
 (defun grep-stream (stream)
