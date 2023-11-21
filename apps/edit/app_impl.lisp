@@ -3,7 +3,7 @@
 (import "lib/consts/chars.inc")
 (import "lib/text/buffer.inc")
 (import "lib/text/dictionary.inc")
-(import "lib/task/local.inc")
+(import "lib/task/cmd.inc")
 (import "././clipboard/app.inc")
 
 (enums +event 0

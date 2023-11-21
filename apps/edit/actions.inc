@@ -6,7 +6,6 @@
 ;;;;;;;;;
 
 (import "./utils.inc")
-(import "./match.inc")
 (import "./cursor.inc")
 (import "./block.inc")
 (import "./edit.inc")
