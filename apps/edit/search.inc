@@ -130,16 +130,17 @@
 			(action-replace-all whole_words regexp pattern rep_text :t))))
 
 (defun action-find-global (whole_words regexp pattern)
-	;find files match but not dictionaries !
-	(defq results (apply (const cat) (sort cmp (map (# (second %0))
-		(pipe-farm
-			(map (# (cat "grep -c -f "
-					(if whole_words "-w " "")
-					(if regexp "-r " "")
-					(id-encode pattern) " " %0))
-				(filter (lambda (f) (notany (# (eql f %0)) +dictionaries))
-					(all-files "." +file_types 2))) 2000000)))))
-	;paste into scratch buffer
-	(switch-file :nil)
-	(.-> *edit* :get_buffer (:paste results))
-	(refresh))
+	(unless (eql pattern "")
+		;find files match but not dictionaries !
+		(defq results (apply (const cat) (sort (const cmp) (map (const second)
+			(pipe-farm
+				(map (# (cat "grep -c -f "
+						(if whole_words "-w " "")
+						(if regexp "-r " "")
+						(id-encode pattern) " " %0))
+					(filter (lambda (f) (notany (# (eql f %0)) +dictionaries))
+						(all-files "." +file_types 2))) 2000000)))))
+		;paste into scratch buffer
+		(switch-file :nil)
+		(.-> *edit* :get_buffer (:paste results))
+		(refresh)))
