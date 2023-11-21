@@ -1359,12 +1359,6 @@ adjust text offset
 (sort fcmp list [start end]) -> list
 ```
 
-### sorted
-
-```code
-(sorted fcmp list [start end]) -> list
-```
-
 ### start
 
 ```code

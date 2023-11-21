@@ -789,11 +789,6 @@
 			(defq _p (pivot _f _a _l _h))
 			(push (push _q _l _p) (inc _p) _h))) _a)
 
-(defun sorted (_f _a &optional _l _h)
-	; (sorted fcmp list [start end]) -> list
-	(setd _l 0 _h (length _a))
-	(sort _f (slice _l _h _a)))
-
 (defmacro get-ubyte (s o)
 	; (get-ubyte str index) -> num
 	`(get-field ,s (+ ,+str_data ,o) ,(neg +byte_size)))
