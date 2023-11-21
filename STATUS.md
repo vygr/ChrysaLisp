@@ -18,6 +18,12 @@ the `class/lisp/root.inc` environment is shared by all tasks, the new
 
 Editor and Viewer apps now have a status bar.
 
+Addition of `-f -c -r -w` options to `grep` command app.
+
+Addition of the `lib/task/cmd.inc` `(pipe-farm)` library. Editor GUI
+application and `make docs` now use this library to do multiple command app
+farms.
+
 ------
 
 If you want to have a play with the Debug stepper service app, then just run
