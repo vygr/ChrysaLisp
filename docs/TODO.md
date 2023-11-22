@@ -9,7 +9,7 @@ adding to this as I go along. If anybody would like to try helping out, then
 just get in touch.
 
 * Fix the auto addition of whole words only mode in the `query` function.
-Either by changing the `Regexp` class ot wrapping code.
+Either by changing the `Regexp` class or the wrapping code.
 
 * Extend `(bfind)` to full `(find)` set of options. Test with Dictionary class
 to speed up typing completions.
