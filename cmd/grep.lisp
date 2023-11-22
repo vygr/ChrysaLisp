@@ -2,9 +2,10 @@
 
 ;grep a stream to stdout
 (defun grep-stream (stream)
-	(each-line (# (task-slice)
-			(if (. search :match? %0 pattern meta) (print %0)))
-		stream))
+	(when stream
+		(each-line (# (task-slice)
+				(if (. search :match? %0 pattern meta) (print %0)))
+			stream)))
 
 ;grep a file to stdout
 (defun grep-file (file)
