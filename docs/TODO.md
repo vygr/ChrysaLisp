@@ -8,8 +8,8 @@ In no particular order but to just to ensure I get thoughts down. I'll keep
 adding to this as I go along. If anybody would like to try helping out, then
 just get in touch.
 
-* Investigate `grep` word mode search issue. `files cmd | grep -f -w -r
-impo|bert`.
+* Fix the auto addition of whole words only mode in the `query` function.
+Either by changing the `Regexp` class ot wrapping code.
 
 * Extend `(bfind)` to full `(find)` set of options. Test with Dictionary class
 to speed up typing completions.
