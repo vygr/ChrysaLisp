@@ -29,8 +29,7 @@
 				(while (<= j n)
 					(cond
 						((eql (elem-get j text) (elem-get k pattern))
-							(setq k (inc k) j (inc j))
-							(when (= k m)
+							(when (= m (setq j (inc j) k (inc k)))
 								(push out (list (- j k) j))
 								(setq k 0)))
 						((= k 0) (setq j (inc j)))
@@ -45,8 +44,8 @@
 				(while (<= j n)
 					(cond
 						((eql (elem-get j text) (elem-get k pattern))
-							(setq k (inc k) j (inc j))
-							(if (= k m) (setq n -1)))
+							(when (= m (setq j (inc j) k (inc k)))
+								(setq n -1)))
 						((= k 0) (setq j (inc j)))
 						((setq k (elem-get (dec k) lps)))))
 				(= n -1)))
