@@ -24,6 +24,8 @@ Addition of the `lib/task/cmd.inc` `(pipe-farm)` library. Editor GUI
 application and `make docs` now use this library to do multiple command app
 farms.
 
+Fix for the LPS table search algorithm for `Substr` class.
+
 ------
 
 If you want to have a play with the Debug stepper service app, then just run
