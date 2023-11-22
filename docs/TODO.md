@@ -30,8 +30,6 @@ one does, but is that really it ?
 
 * Integrate the HOST clipboard and the CL Clipboard service.
 
-* Fix the Substr LPS table bug.
-
 * Add shift key selection to the Terminal app.
 
 * Docs app needs some love. Toolbar with forward and back button etc. Auto
