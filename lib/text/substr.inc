@@ -27,8 +27,6 @@
 			(when (defq lps (opt lps (. this :compile pattern)))
 				(defq j 0 k 0)
 				(while (< j n)
-					(prin (elem-get j text) " " (elem-get k pattern))
-					(print)
 					(cond
 						((eql (elem-get j text) (elem-get k pattern))
 							(when (= m (setq j (inc j) k (inc k)))
