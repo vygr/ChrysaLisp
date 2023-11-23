@@ -50,7 +50,8 @@
 					(ui-text _ (:text "cx: ")) (ui-text *cx* (:min_width +status_min_size))
 					(ui-text _ (:text "cy: ")) (ui-text *cy* (:min_width +status_min_size))
 					(ui-text _ (:text "sw: ")) (ui-text *sw* (:min_width +status_min_size))
-					(ui-text _ (:text "sh: ")) (ui-text *sh* (:min_width +status_min_size)))
+					(ui-text _ (:text "sh: ")) (ui-text *sh* (:min_width +status_min_size))
+					(ui-text _ (:text "fc: ")) (ui-text *fc* (:min_width +status_min_size)))
 				(ui-backdrop _ (:color +argb_white)))
 			(ui-flow *scale_flow* (:flow_flags +flow_right_fill)
 				(ui-vdu *vdu_lines* (:min_width +vdu_line_width :min_height 0
@@ -83,10 +84,12 @@
 	(.-> buffer (:vdu_load (. *edit* :get_vdu_text) sx sy)
 		(:find (. *find_text* :get_text) *whole_words* *regexp*))
 	(.-> *edit* :underlay_paper :underlay_ink)
+	(defq fc (reduce (# (+ %0 (if %1 (length (first %1)) 0)))
+		(. buffer :get_found) 0))
 	;update status bar
 	(each (# (def (. %0 :dirty) :text (str %1)))
-		(list *cx* *cy* *sw* *sh*)
-		(list (inc cx) (inc cy) (abs (- cx ax)) (abs (- cy ay)))))
+		(list *cx* *cy* *sw* *sh* *fc*)
+		(list (inc cx) (inc cy) (abs (- cx ax)) (abs (- cy ay)) fc)))
 
 (defun refresh-sliders ()
 	;set slider values for current file
