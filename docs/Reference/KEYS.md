@@ -163,6 +163,15 @@
 
 ## apps/template/actions.inc
 
+### *key_map*
+
+```code
+(ascii-code "1") action-main-tab
+(ascii-code "2") action-settings-tab
+(ascii-code "3") action-status-tab
+(ascii-code "4") action-info-tab
+```
+
 ### *key_map_control*
 
 ```code
