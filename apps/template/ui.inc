@@ -15,10 +15,6 @@
 	(bind '(x y w h) (view-fit x y (* w 2) (* h 2)))
 	(. *window* :change_dirty x y w h))
 
-
-(defun select-panel (panel)
-	(. panel :to_front))
-
 (defun action-close ()
 	(debug-brk "close" :t)
 	(setq *running* :nil))
