@@ -1,10 +1,5 @@
 ;can this node host a GUI ?
-(env-push)
-(import "./lisp.inc")
-(if (gui-info)
-	;single instance per node only
-	(when (= 0 (length (mail-enquire "Gui,")))
-		(env-pop)
-		(import "./gui_impl.lisp")
-		(env-push)))
-(env-pop)
+(and ((ffi _ "gui/gui/lisp_info" 0))
+	;single instance per node only !
+	(= 0 (length (mail-enquire "Gui,")))
+	(import "./gui_impl.lisp"))
