@@ -7,6 +7,7 @@
 (import "class/lisp.inc" _)
 (import "gui/lisp.inc" _)
 (setq _ :nil)
+(task-slice)
 
 (import "sys/pii/lisp.inc")
 (defq *env_user* "Guest")
