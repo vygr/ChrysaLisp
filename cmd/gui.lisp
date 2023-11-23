@@ -1,4 +1,3 @@
-(import "gui/lisp.inc")
 (import "lib/options/options.inc")
 
 (defun launch (node)
