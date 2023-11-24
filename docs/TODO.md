@@ -8,6 +8,8 @@ In no particular order but to just to ensure I get thoughts down. I'll keep
 adding to this as I go along. If anybody would like to try helping out, then
 just get in touch.
 
+* Update Whiteboard app to use a `.tre` for data storage and file format.
+
 * Break out the Terminal tab completion into a separate library. Add this to
 the Editor new file Textfield. Also add this to the File picker apps file
 Textfields.
