@@ -372,10 +372,10 @@ can use the Fonts application to find a unicode symbol value.
 ```vdu
 (defmacro ui-buttons (s e &optional p)
 	; (ui-buttons symbols event [props])
-	(setq s (map (lambda (_) (if (num? _) (num-to-utf8 _) _)) s))
+	(setq s (map (# (if (num? %0) (num-to-utf8 %0) %0)) s))
 	(ui-props p
-		:text _s)
-	`(each (lambda (_s) (. (ui-button __ ,p) :connect (+ _ ,e))) '(~s)))
+		:text %0)
+	`(each (# (. (ui-button __ ,p) :connect (+ _ ,e))) '(~s)))
 ```
 
 ### (ui-tool-bar name [props] [body]) -> flow

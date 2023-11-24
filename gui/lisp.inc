@@ -125,10 +125,10 @@
 
 (defmacro ui-buttons (s e &optional p)
 	; (ui-buttons symbols event [props])
-	(setq s (map (lambda (_) (if (num? _) (num-to-utf8 _) _)) s))
+	(setq s (map (# (if (num? %0) (num-to-utf8 %0) %0)) s))
 	(ui-props p
-		:text _s)
-	`(each (lambda (_s) (. (ui-button __ ,p) :connect (+ _ ,e))) '(~s)))
+		:text %0)
+	`(each (# (. (ui-button __ ,p) :connect (+ _ ,e))) '(~s)))
 
 (defmacro ui-tool-bar (n &optional p &rest x)
 	; (ui-tool-bar name [props] [body]) -> flow
@@ -166,7 +166,8 @@
 
 (defmacro ui-canvas (n w h s &optional p)
 	; (ui-canvas name width height scale [props]) -> canvas
-	(ui-props p :color 0)
+	(ui-props p
+		:color 0)
 	`(ui-element ,n (Canvas ,w ,h ,s) ,p))
 
 (defmacro ui-vdu (n &optional p)
