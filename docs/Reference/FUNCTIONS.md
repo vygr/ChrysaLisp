@@ -1335,12 +1335,6 @@ adjust text offset
 (shuffle list [start end]) -> list
 ```
 
-### shuffled
-
-```code
-(shuffled list [start end]) -> list
-```
-
 ### some
 
 ```code

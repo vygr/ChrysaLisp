@@ -775,11 +775,6 @@
 	(each! _h _l (lambda (x)
 		(swap _a _ (random (inc _)))) (list _a)) _a)
 
-(defun shuffled (_a &optional _l _h)
-	; (shuffled list [start end]) -> list
-	(setd _l 0 _h (length _a))
-	(shuffle (slice _l _h _a)))
-
 (defun sort (_f _a &optional _l _h)
 	; (sort fcmp list [start end]) -> list
 	(setd _l 0 _h (length _a))
