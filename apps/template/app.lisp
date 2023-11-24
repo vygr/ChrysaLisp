@@ -28,15 +28,15 @@
 		(ui-tool-bar *tab_toolbar* (:font *env_window_font*)
 			(ui-buttons ("main" "settings" "status" "info") +event_main))
 		(ui-backdrop _ (:color (const *env_toolbar_col*))))
-	(ui-flow *tab_flow* (:flow_flags +flow_stack_fill)
+	(ui-flow *tab_flow* (:flow_flags +flow_stack_fill :color +argb_black)
 		(ui-backdrop *main_widget* (:min_width 512 :min_height 256
 				:spacing 16 :style :grid
-				:color +argb_black :ink_color +argb_white))
-		(ui-backdrop *settings_widget* (:color +argb_black :ink_color +argb_red
+				:ink_color +argb_white))
+		(ui-backdrop *settings_widget* (:ink_color +argb_red
 				:spacing 16 :style :lines))
-		(ui-backdrop *status_widget* (:color +argb_black :ink_color +argb_green
+		(ui-backdrop *status_widget* (:ink_color +argb_green
 				:spacing 16 :style :axis))
-		(ui-backdrop *info_widget* (:color +argb_black :ink_color +argb_blue
+		(ui-backdrop *info_widget* (:ink_color +argb_blue
 				:spacing 16 :style :plain))))
 
 (defun tooltips ()

@@ -471,9 +471,6 @@ Supported `:style` settings.
 ```vdu
 (defmacro ui-backdrop (n &optional p &rest x)
 	; (ui-backdrop name [props] [body]) -> backdrop
-	(ui-props p
-		:color *env_backdrop_col*
-		:ink_color *env_backdrop_ink_col*)
 	`(ui-element ,n (Backdrop) ,p ~x))
 ```
 

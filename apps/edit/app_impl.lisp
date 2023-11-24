@@ -94,7 +94,7 @@
 					(ui-text _ (:text "sw: ")) (ui-text *sw* (:min_width +status_min_size))
 					(ui-text _ (:text "sh: ")) (ui-text *sh* (:min_width +status_min_size))
 					(ui-text _ (:text "fc: ")) (ui-text *fc* (:min_width +status_min_size)))
-				(ui-backdrop _ (:color +argb_white)))
+				(ui-backdrop _))
 			(ui-flow *scale_flow* (:flow_flags +flow_right_fill)
 				(ui-vdu *vdu_lines* (:min_width +vdu_line_width :min_height 0
 						:vdu_width +vdu_line_width :vdu_height +vdu_min_height
