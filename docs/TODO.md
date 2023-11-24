@@ -87,20 +87,6 @@ applications to have native coded versions of functions available and those
 functions would be bound to in preference to the VP versions when a task finds
 itself on such an architecture.
 
-* Live hot patching of functions. This should be relatively easy because all
-calls and jumps between functions go via a local Vtable at the end of the
-function or via a class Vtable. Therefore all that needs to happen is a new sys
-load function that doesn't check the existing function list but just loads the
-new function and walks the existing function list patching all the Vtable
-addresses. Re-claiming any existing space used by the old function is probably
-not worth it at the moment. Although eventually the function list and function
-blocks could be garbage collected, or functions could be compacted or moved
-around using exactly the same hot patching mechanism.
-
-* Live tracing and runtime statistics gathering. Like the live hot patching of
-functions it should be possible to walk the function list and patch all the
-Vtables to call via a debugging tracer or statistics gathering app.
-
 * Investigate getting LLVM/GCC to produce functions in ChrysaLisp format. One
 of the advantages of the simple function format using a local Vtable for all
 calls and jumps is that there is no code patching needed. The loader does not
