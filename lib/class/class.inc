@@ -13,12 +13,12 @@
 (defmacro defmethod (n a &rest _)
 	; (defmethod name ([arg ...]) body)
 	; (. this :method [arg ...])
-	`(def (def? :vtable this) ,n (lambda (this ~a) ~(macroexpand _))))
+	`(def (def? :vtable this) ,n (lambda (this ~a) ~_)))
 
 (defmacro defmethod_ (n a &rest _)
 	; (defmethod_ name ([arg ...]) body)
 	; (. _this :method [arg ...])
-	`(def (def? :vtable this) ,n (lambda (_this ~a) ~(macroexpand _))))
+	`(def (def? :vtable this) ,n (lambda (_this ~a) ~_)))
 
 (defmacro defabstractmethod (n a &rest _)
 	; (defabstractmethod ([arg ...]) body)

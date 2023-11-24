@@ -13,12 +13,10 @@
 	(pop *stack_frame*) __r__))
 
 (defmacro defun (n a &rest _)
-	`(defq ,n (lambda ,a ~(macroexpand
-		(stack-instrument n _)))))
+	`(defq ,n (lambda ,a ~(stack-instrument n _))))
 
 (defmacro defmethod (n a &rest _)
-	`(def (def? :vtable this) ,n (lambda (this ~a) ~(macroexpand
-		(stack-instrument (cat *class* " " n) _)))))
+	`(def (def? :vtable this) ,n (lambda (this ~a) ~(stack-instrument (cat *class* " " n) _))))
 
 ;module
 (export-symbols '(defun defmethod stack-instrument))

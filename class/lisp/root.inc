@@ -143,12 +143,7 @@
 (defq *root_env* (env)
 	+byte_size 1 +short_size 2 +int_size 4 +long_size 8 +ptr_size 8
 	+str_data 24 +mailbox_id_size 8 +node_id_size 16 +net_id_size 24
-	defmacro (list macro '(n a &rest _)
-		(list list defq 'n (list cat (list list macro 'a) '_))))
-
-(defmacro const (_)
-	; (const form)
-	(eval (macroexpand _)))
+	defmacro `(,macro (n a &rest _) `(defq ,n (macro ,a ~_))))
 
 (defmacro defun (n a &rest _)
 	; (defun name ([arg ...]) body)
@@ -157,7 +152,7 @@
 	; (prin [form ...])
 	; (print [form ...])
 	; (str [form ...])
-	(list (const defq) n (cat (list (const lambda) a) _)))
+	`(defq ,n (lambda ,a ~_)))
 
 (defmacro static-q (_)
 	; (static-q form) -> 'form
@@ -168,6 +163,10 @@
 	; (static-qq form) -> `form
 	;static quasi-quoted
 	(push `(,quasi-quote) (prebind (macroexpand _))))
+
+(defmacro const (_)
+	; (const form)
+	(eval (macroexpand _)))
 
 (defun exec (_)
 	; (exec form)

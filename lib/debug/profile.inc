@@ -49,12 +49,10 @@
 	__r__))
 
 (defmacro defun (n a &rest _)
-	`(defq ,n (lambda ,a ~(macroexpand
-		(profile-instrument n _)))))
+	`(defq ,n (lambda ,a ~(profile-instrument n _))))
 
 (defmacro defmethod (n a &rest _)
-	`(def (def? :vtable this) ,n (lambda (this ~a) ~(macroexpand
-		(profile-instrument (sym (cat *class* " " n)) _)))))
+	`(def (def? :vtable this) ,n (lambda (this ~a) ~(profile-instrument (sym (cat *class* " " n)) _))))
 
 ;module
 (export-symbols

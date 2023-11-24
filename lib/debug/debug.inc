@@ -96,12 +96,10 @@
 				(push stack e))) l)) form)
 
 (defmacro defun (n a &rest _)
-	`(defq ,n (lambda ,a ~(macroexpand
-		(debug-instrument (str n) _)))))
+	`(defq ,n (lambda ,a ~(debug-instrument (str n) _))))
 
 (defmacro defmethod (n a &rest _)
-	`(def (def? :vtable this) ,n (lambda (this ~a) ~(macroexpand
-		(debug-instrument (cat *class* " " n) _)))))
+	`(def (def? :vtable this) ,n (lambda (this ~a) ~(debug-instrument (cat *class* " " n) _))))
 
 ;module
 (export-symbols
