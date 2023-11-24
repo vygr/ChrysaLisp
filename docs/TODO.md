@@ -35,7 +35,8 @@ codes etc.
 
 * Track down why the debug libs have a difference between wrapping code in
 `(progn ~form)` and `((lambda () ~form))`. One does not create a new temp env,
-one does, but is that really it ?
+one does, but is that really it ? Also `((lambda () (progn ~form)))` fails to
+work !
 
 * Integrate the HOST clipboard and the CL Clipboard service.
 
