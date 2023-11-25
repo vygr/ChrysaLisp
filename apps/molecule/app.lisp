@@ -128,9 +128,9 @@
 			(cat "Molecule -> " (slice (inc (find-rev "/" file)) -1 file)))
 		(clear balls)
 		(times 3 (read-line stream))
-		(defq num_atoms (str-as-num (elem-get 0 (split (read-line stream) " "))))
+		(defq num_atoms (str-as-num (elem-get 0 (split (read-line stream) +char_class_space))))
 		(times num_atoms
-			(defq line (split (read-line stream) " "))
+			(defq line (split (read-line stream) +char_class_space))
 			(bind '(x y z) (map
 					(# (/ (n2r (str-as-num %0)) (const (n2r 65536))))
 				(slice 0 3 line)))
