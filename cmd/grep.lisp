@@ -30,8 +30,7 @@
 	pattern:
 		^  start of line
 		$  end of line
-		{  start of word
-		}  end of word
+		!  start/end of word
 		.  any char
 		+  one or more
 		*  zero or more
@@ -99,4 +98,3 @@
 						(grep-stream (io-stream 'stdin))
 						;grep stream from args
 						(each (# (grep-stream (file-stream %0))) (rest args))))))))
-

@@ -32,7 +32,7 @@
 
 (defq +vdu_min_width 40 +vdu_min_height 20 +vdu_max_width 120 +vdu_max_height 80
 	+vdu_line_width 5 +min_word_size 3 +max_matches 20 +margin 2
-	+state_filename "editor_state.tre" +not_whole_word_chars (cat " .,;'`(){}[]/" (ascii-char 34))
+	+state_filename "editor_state.tre"
 	+text_types ''(".md" ".txt") +file_types ''(".lisp" ".inc" ".vp" ".md" ".txt" ".tre")
 	+dictionaries ''("lib/text/english.txt") +status_min_size 32)
 
@@ -166,7 +166,7 @@
 	(each (lambda (word)
 			(if (>= (length word) +min_word_size)
 				(. dictionary :insert_word word)))
-		(split line +not_whole_word_chars)))
+		(split line +char_class_not_whole_word)))
 
 (defun populate-buffer (file cx cy ax ay sx sy)
 	;create new file buffer ?

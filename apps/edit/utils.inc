@@ -3,7 +3,7 @@
 ;;;;;;;
 
 (defmacro not-whole-word-char? (_)
-	`(find ,_ +not_whole_word_chars))
+	`(bfind ,_ +char_class_not_whole_word))
 
 (defun blank-line? (line)
 	(every (# (eql " " %0)) line))

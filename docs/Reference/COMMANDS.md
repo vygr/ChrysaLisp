@@ -76,8 +76,7 @@ Usage: grep [options] [pattern] [path] ...
 	pattern:
 		^  start of line
 		$  end of line
-		{  start of word
-		}  end of word
+		!  start/end of word
 		.  any char
 		+  one or more
 		*  zero or more

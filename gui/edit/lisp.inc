@@ -9,12 +9,11 @@
 ;module
 (env-push)
 
-(defq +not_whole_word_chars (cat " .,;'`(){}[]/" (ascii-char 34))
-	+block_comment ";; " +bracket_char (nums 0x7f) +blank_line (nums)
+(defq +block_comment ";; " +bracket_char (nums 0x7f) +blank_line (nums)
 	+not_selected (apply nums (map (lambda (_) 0) (str-alloc 2048))))
 
 (defmacro not-whole-word-char? (_)
-	`(find ,_ +not_whole_word_chars))
+	`(bfind ,_ +char_class_not_whole_word))
 
 (defun blank-line? (line)
 	(every (# (eql " " %0)) line))

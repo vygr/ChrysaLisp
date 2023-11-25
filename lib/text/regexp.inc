@@ -5,9 +5,8 @@
 ;module
 (env-push)
 
-(defq +bracket_chars "()" +assert_chars "^${}" +op_cat "'" +op_tac "`"
-	+op_chars "+*?|" +op_presidence "+*?'|`()"
-	+not_whole_word_chars (cat " .,;'`(){}[]/" (ascii-char 9) (ascii-char 34)))
+(defq +bracket_chars "()" +assert_chars "^$!" +op_cat "'" +op_tac "`"
+	+op_chars "+*?|" +op_presidence "+*?'|`()")
 (defmacro is-bracket-char? (_) `(find ,_ +bracket_chars))
 (defmacro is-assert-char? (_) `(find ,_ +assert_chars))
 (defmacro is-esc-char? (_) `(eql ,_ ,(ascii-char 92)))
@@ -124,8 +123,9 @@
 			(:assert (case token
 				("^" (static-q ((:nil (if (< si 0) 1)))))
 				("$" (static-q ((:nil (if (>= si tl) 1)))))
-				("{" (static-q ((:nil (if (or (< si 0) (find s +not_whole_word_chars)) 1)))))
-				("}" (static-q ((:nil (if (or (>= si tl) (find (elem-get (inc si) text) +not_whole_word_chars)) 1)))))))
+				("!" (static-q ((:nil (if (or (< si 0) (>= si tl)
+					(bfind s +char_class_not_whole_word)
+					(bfind (elem-get (inc si) text) +char_class_not_whole_word)) 1)))))))
 			(:lrb (cache (static-qq ((:nil
 				(progn (while (<= (length sl) ,token) (push sl (list 0 0)))
 					(elem-set 0 (elem-get ,token sl) si) 1))))))
