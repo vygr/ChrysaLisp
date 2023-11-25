@@ -8,6 +8,9 @@ In no particular order but to just to ensure I get thoughts down. I'll keep
 adding to this as I go along. If anybody would like to try helping out, then
 just get in touch.
 
+* Update found count status bar entry to only count the selected region if
+there is one.
+
 * Update File picker app to use a Tree widget for the folder list. With
 collapse and expand buttons.
 
