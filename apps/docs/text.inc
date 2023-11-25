@@ -2,7 +2,7 @@
 (env-push)
 
 (defun line-words (line)
-	(map (# (cat %0 " ")) (split line " ")))
+	(map (# (cat %0 " ")) (split line +char_class_space)))
 
 (defun line-flow (&optional size)
 	(def (defq flow (Flow)) :flow_flags +flow_right_fill)
