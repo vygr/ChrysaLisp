@@ -17,6 +17,9 @@ Textfields.
 
 * Update Whiteboard app to use a `.tre` for data storage and file format.
 
+* Fix the auto addition of whole words only mode in the `query` function.
+Either by changing the `Regexp` class or the wrapping code.
+
 * Extend `(bfind)` to full `(find)` set of options. Test with Dictionary class
 to speed up typing completions.
 
