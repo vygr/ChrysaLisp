@@ -145,7 +145,7 @@
 				))))) postfix_output) (pop stack))
 
 (defun insertelem (cpat next trace elem)
-	(defq stack (rest elem) index (last trace))
+	(defq stack (slice 1 -1 elem) index (elem-get -2 trace))
 	(while (defq offset (pop stack))
 		;offsets can be expressions !
 		(if (setq offset (eval offset))
@@ -153,16 +153,16 @@
 				;stopped, so matched somthing !
 				(when (> si end) (setq end si end_trace trace))
 				;not stopped
-				(if (first (defq elem (elem-get new_index cpat)))
+				(if (elem-get 0 (defq elem (elem-get new_index cpat)))
 					;not a split
-					(if (notany (# (= (last %0) new_index)) next)
+					(if (notany (# (= (elem-get -2 %0) new_index)) next)
 						(push next (push (slice 0 -2 trace) new_index)))
 					;a split
 					(each! 1 -1 (# (if (setq %0 (eval %0))
 						(push stack (+ offset %0)))) (list elem)))))) next)
 
 (defun firstelem (cpat current)
-	(if (first (defq elem (first cpat)))
+	(if (elem-get 0 (defq elem (elem-get 0 cpat)))
 		;not a split
 		(push current (array 0))
 		;a split
@@ -176,7 +176,7 @@
 	(some! start -1 :nil
 		(lambda (s) (defq si (inc _))
 			;for each current trace
-			(each (# (if (eval (first (defq elem (elem-get (last %0) cpat))))
+			(each (# (if (eval (elem-get 0 (defq elem (elem-get (elem-get -2 %0) cpat))))
 				;matched text char, so insert next traces
 				(insertelem cpat next %0 elem))) current)
 			;swap to new traces
@@ -195,7 +195,7 @@
 	(some! start -1 :nil
 		(lambda (s) (defq si (inc _))
 			;for each current trace
-			(each (# (if (eval (first (defq elem (elem-get (last %0) cpat))))
+			(each (# (if (eval (elem-get 0 (defq elem (elem-get (elem-get -2 %0) cpat))))
 				;matched text char, so insert next traces
 				(insertelem cpat next %0 elem))) current)
 			;swap to new traces
