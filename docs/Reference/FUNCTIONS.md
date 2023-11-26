@@ -386,22 +386,10 @@ should provide the concreate handler
 (each lambda seq ...)
 ```
 
-### each-found
-
-```code
-(each-found lambda text substr)
-```
-
 ### each-line
 
 ```code
 (each-line lambda stream)
-```
-
-### each-match
-
-```code
-(each-match lambda text regexp)
 ```
 
 ### each-mergeable
@@ -851,6 +839,12 @@ returns true if argument is a map type
 (mat4x4-mul mat4x4_a mat4x4_b) -> mat4x4
 ```
 
+### match
+
+```code
+(match text cpat start) -> -1 | end
+```
+
 ### match?
 
 ```code
@@ -860,7 +854,7 @@ returns true if argument is a map type
 ### matches
 
 ```code
-(matches text regexp) -> (([(i0 i1)] ...) ([([(s0 s1)] ...)]...))
+(matches text regexp) -> (slices subslices submatches)
 ```
 
 ### max-length
@@ -1276,7 +1270,7 @@ scatter a list of values
 ### search
 
 ```code
-(search text cpat start) -> -1 | end
+(search text cpat start) -> (list submatches {-1 | end})
 ```
 
 ### second
@@ -1442,7 +1436,7 @@ patch stream a with stream b, write to stream c
 ### substr
 
 ```code
-(substr text substr) -> (([(i0 i1)] ...) ())
+(substr text substr) -> (slices () ())
 ```
 
 ### swap
