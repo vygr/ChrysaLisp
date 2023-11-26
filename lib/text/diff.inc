@@ -76,7 +76,7 @@
 	(defq ln 0 run :t)
 	(while (and run (defq p (read-line b)))
 		(task-slice)
-		(bind '(m s) (matches p "^([-+]) (\d+) (.*)"))
+		(bind '(m _ s) (matches p "^([-+]) (\d+) (.*)"))
 		(cond
 			((empty? m) (setq run :nil))
 			(:t (bind '((op nl l)) s)

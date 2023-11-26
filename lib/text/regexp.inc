@@ -80,16 +80,16 @@
 
 (defun postfix (tokenize_output)
 	(defq stack (list) parens (list)
-		out_tokens (list) out_types (list) label -1)
+		out_tokens (list) out_types (list) label -2)
 	(each! 0 -1 (lambda (token type)
 		(case type
 			(:lrb
 				(push stack token)
-				(push parens (setq label (inc label)))
+				(push parens (setq label (+ label 2)))
 				(output :lrb label))
 			(:rrb
 				(unless (setq type (pop parens)) (throw "Regexp bad parens !" parens))
-				(output :rrb type)
+				(output :rrb (inc type))
 				(until (eql "(" (setq token (pop stack)))
 					(output :op token)))
 			(:op ;precidence
@@ -121,16 +121,17 @@
 					(static-qq (((not (bfind s ,token)) 1)))
 					(static-qq (((bfind s ,token) 1))))))
 			(:assert (case token
-				("^" (static-q ((:nil (if (< si 0) 1)))))
+				("^" (static-q ((:nil (if (<= si 0) 1)))))
 				("$" (static-q ((:nil (if (>= si tl) 1)))))
-				("!" (static-q ((:nil (if (or (< si 0) (>= si tl)
+				("!" (static-q ((:nil (if (or (<= si 0) (>= si tl)
 					(bfind s +char_class_not_whole_word)
-					(bfind (elem-get (inc si) text) +char_class_not_whole_word)) 1)))))))
+					(bfind (elem-get si text) +char_class_not_whole_word)) 1)))))))
 			(:lrb (cache (static-qq ((:nil
-				(progn (while (<= (length sl) ,token) (push sl (list 0 0)))
-					(elem-set 0 (elem-get ,token sl) si) 1))))))
+				(progn (defq i (pop trace))
+					(while (<= (length trace) ,token) (push trace 0 0))
+					(elem-set ,token (push trace i) si) 1))))))
 			(:rrb (cache (static-qq ((:nil
-				(progn (elem-set 1 (elem-get ,token sl) si) 1))))))
+				(progn (elem-set ,token trace si) 1))))))
 			(:op (defq a (pop stack)) (case token
 				((+op_cat +op_tac) (cat (pop stack) a))
 				("|" (defq b (pop stack) ob (+ (length b) 2) oa (inc (length a)))
@@ -143,44 +144,65 @@
 					(cat a (cache `((:nil 1 ,oa)))))
 				))))) postfix_output) (pop stack))
 
-(defun insertelem (cpat next index elem)
-	(defq stack (slice 1 -1 elem))
+(defun insertelem (cpat next trace elem)
+	(defq stack (rest elem) index (last trace))
 	(while (defq offset (pop stack))
 		;offsets can be expressions !
 		(if (setq offset (eval offset))
 			(if (= (defq new_index (+ index offset)) (length cpat))
 				;stopped, so matched somthing !
-				(setq end (max end si))
+				(when (> si end) (setq end si end_trace trace))
 				;not stopped
-				(if (elem-get 0 (defq elem (elem-get new_index cpat)))
+				(if (first (defq elem (elem-get new_index cpat)))
 					;not a split
-					(unless (find new_index next) (push next new_index))
+					(if (notany (# (= (last %0) new_index)) next)
+						(push next (push (slice 0 -2 trace) new_index)))
 					;a split
 					(each! 1 -1 (# (if (setq %0 (eval %0))
 						(push stack (+ offset %0)))) (list elem)))))) next)
 
 (defun firstelem (cpat current)
-	(if (elem-get 0 (defq elem (elem-get 0 cpat)))
+	(if (first (defq elem (first cpat)))
 		;not a split
-		(push current 0)
+		(push current (array 0))
 		;a split
-		(insertelem cpat current 0 elem)))
+		(insertelem cpat current (array 0) elem)))
 
 (defun search (text cpat start)
-	; (search text cpat start) -> -1 | end
-	(defq end -2 si (dec start) s (if (< si 0) " " (elem-get si text))
-		tl (dec (length text)) current (firstelem cpat (list)) next (list))
+	; (search text cpat start) -> (list submatches {-1 | end})
+	(defq end -1 end_trace (array 0) tl (length text)
+		si start s (if (<= si 0) " " (elem-get (dec si) text))
+		current (firstelem cpat (list)) next (list))
 	(some! start -1 :nil
-		(lambda (s) (defq si _)
-			;for each current elem
-			(each (# (if (eval (elem-get 0 (defq elem (elem-get %0 cpat))))
-				;matched text char, so insert next elems
+		(lambda (s) (defq si (inc _))
+			;for each current trace
+			(each (# (if (eval (first (defq elem (elem-get (last %0) cpat))))
+				;matched text char, so insert next traces
 				(insertelem cpat next %0 elem))) current)
-			;swap to new elems
+			;swap to new traces
 			(defq tmp current) (setq current next next (clear tmp))
-			;break out if no elems
+			;break out if no traces
 			(= (length current) 0))
-		(list text)) (inc end))
+		(list text))
+	(pop end_trace)
+	(list (partition 2 end_trace) end))
+
+(defun match (text cpat start)
+	; (match text cpat start) -> -1 | end
+	(defq end -1 end_trace (array 0) tl (length text)
+		si start s (if (<= si 0) " " (elem-get (dec si) text))
+		current (firstelem cpat (list)) next (list))
+	(some! start -1 :nil
+		(lambda (s) (defq si (inc _))
+			;for each current trace
+			(each (# (if (eval (first (defq elem (elem-get (last %0) cpat))))
+				;matched text char, so insert next traces
+				(insertelem cpat next %0 elem))) current)
+			;swap to new traces
+			(defq tmp current) (setq current next next (clear tmp))
+			;break out if no traces OR found any match !
+			(or (/= end -1) (= (length current) 0)))
+		(list text)) end)
 
 (defclass Regexp (&optional num_buckets) :nil
 	; (Regexp) -> regexp
@@ -199,24 +221,25 @@
 		; (. regexp :match? text pattern &optional meta) -> :t | :nil
 		(defq cpat (opt cpat (. this :compile pattern)))
 		(when cpat
-			(defq x -1 x1 -1 sl (list))
+			(defq x -1 x1 -1)
 			(while (and (= x1 -1) (< (setq x (inc x)) (length text)))
-				(setq x1 (search text cpat x)))
+				(setq x1 (match text cpat x)))
 			(/= x1 -1)))
 
 	(defmethod :search (text pattern &optional cpat)
-		; (. regexp :search text pattern &optional meta) -> (matches submatches)
-		(defq out (list) outs (list) cpat (opt cpat (. this :compile pattern)))
+		; (. regexp :search text pattern &optional meta) -> (slices subslices submatches)
+		(defq out (list) outr (list) outs (list)
+			cpat (opt cpat (. this :compile pattern)))
 		(when cpat
 			(defq x -1)
 			(while (< (setq x (inc x)) (length text))
-				(defq sl (list))
-				(when (> (defq x1 (search text cpat x)) x)
+				(when (> (bind '(sl x1) (search text cpat x)) x)
 					(push out (list x x1))
+					(push outr sl)
 					(push outs (map (lambda ((s s1))
-						(if (< (max s -1) s1) (slice (inc s) (inc s1) text) (slice 0 0 text))) sl))
+						(if (< s s1) (slice s s1 text) (slice 0 0 text))) sl))
 					(setq x (dec x1)))))
-		(list out outs))
+		(list out outr outs))
 	)
 
 ;module

@@ -19,6 +19,6 @@
 ### :search
 
 ```code
-(. kmplps :search text pattern &optional meta) -> (matches submatches)
+(. kmplps :search text pattern &optional meta) -> (slices subslices submatches)
 ```
 
