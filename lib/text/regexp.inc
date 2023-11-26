@@ -221,9 +221,9 @@
 		; (. regexp :match? text pattern &optional meta) -> :t | :nil
 		(defq cpat (opt cpat (. this :compile pattern)))
 		(when cpat
-			(defq x -1 x1 -1)
-			(while (and (= x1 -1) (< (setq x (inc x)) (length text)))
-				(setq x1 (match text cpat x)))
+			(defq x 0 x1 -1)
+			(while (and (= x1 -1) (< x (length text)))
+				(setq x1 (match text cpat x) x (inc x)))
 			(/= x1 -1)))
 
 	(defmethod :search (text pattern &optional cpat)
