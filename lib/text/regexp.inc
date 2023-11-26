@@ -129,7 +129,8 @@
 			(:lrb (cache (static-qq ((:nil
 				(progn (while (<= (length sl) ,token) (push sl (list 0 0)))
 					(elem-set 0 (elem-get ,token sl) si) 1))))))
-			(:rrb (cache (static-qq ((:nil (progn (elem-set 1 (elem-get ,token sl) si) 1))))))
+			(:rrb (cache (static-qq ((:nil
+				(progn (elem-set 1 (elem-get ,token sl) si) 1))))))
 			(:op (defq a (pop stack)) (case token
 				((+op_cat +op_tac) (cat (pop stack) a))
 				("|" (defq b (pop stack) ob (+ (length b) 2) oa (inc (length a)))
