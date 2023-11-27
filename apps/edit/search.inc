@@ -147,3 +147,38 @@
 		(switch-file :nil)
 		(.-> *edit* :get_buffer (:paste results))
 		(refresh)))
+
+(defun collect (&optional clip)
+	(defq buffer (. *edit* :get_buffer)
+		found (. buffer :find pattern whole_words regexp)
+		lines (. buffer :get_text_lines)
+		sy 0 sy1 (length found))
+	(unless clip
+		(bind '(_ fy _ fy1) (. *edit* :get_find))
+		(if (> fy1 fy) (setq sy (max sy fy) sy1 (min sy1 fy1))))
+	(each! sy sy1 (lambda (line found)
+			(if found (each (lambda ((x x1))
+				(push results (slice x x1 line))) (first found))))
+		(list lines found)))
+
+(defun action-collect (whole_words regexp pattern)
+	(unless (eql pattern "")
+		(defq results (list))
+		(collect)
+		(when (nempty? results)
+			(setq results (cat (join results (ascii-char 10)) (ascii-char 10)))
+			;paste into scratch buffer
+			(switch-file :nil)
+			(.-> *edit* :get_buffer (:paste results))
+			(refresh))))
+
+(defun action-collect-global (whole_words regexp pattern)
+	(unless (eql pattern "")
+		(defq results (list))
+		(for-all-buffers (collect :t))
+		(when (nempty? results)
+			(setq results (cat (join results (ascii-char 10)) (ascii-char 10)))
+			;paste into scratch buffer
+			(switch-file :nil)
+			(.-> *edit* :get_buffer (:paste results))
+			(refresh))))

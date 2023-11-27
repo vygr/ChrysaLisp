@@ -20,7 +20,7 @@
 		invert comment)
 	(enum prev next scratch close_buffer close_all save save_all load_all new)
 	(enum global region whole_words regexp find_down find_up)
-	(enum replace replace_all replace_global)
+	(enum collect collect_global replace replace_all replace_global)
 	(enum macro_playback macro_to_eof macro_global macro_record)
 	(enum open_tree_collapse open_tree_expand)
 	(enum file_tree_collapse file_tree_expand))
@@ -52,9 +52,10 @@
 	(ui-flow _ (:flow_flags +flow_right_fill)
 		(ui-tool-bar *buffer_toolbar* (:color (get :color *macro_toolbar*))
 			(ui-buttons (0xe91d 0xe91e 0xe94b 0xe94d 0xe94c 0xea07 0xe97e 0xea3d 0xe94e) +event_prev))
+		(. (ui-textfield *name_text* (:color +argb_white
+				:hint_text "new file" :clear_text "")) :connect +event_new))
+	(ui-flow _ (:flow_flags +flow_right_fill)
 		(ui-grid _ (:grid_height 1)
-			(. (ui-textfield *name_text* (:color +argb_white
-					:hint_text "new file" :clear_text "")) :connect +event_new)
 			(ui-flow _ (:flow_flags +flow_right_fill)
 				(ui-tool-bar *find_toolbar* (:color (get :color *macro_toolbar*))
 					(ui-buttons (0xe9a1 0xe962 0xe9cd 0xe9a8 0xe914 0xe91b) +event_global))
@@ -62,7 +63,7 @@
 						:hint_text "find" :clear_text "")) :connect +event_find_down))
 			(ui-flow _ (:flow_flags +flow_right_fill)
 				(ui-tool-bar *replace_toolbar* (:color (get :color *macro_toolbar*))
-					(ui-buttons (0xe95c 0xe95e 0xe95a) +event_replace))
+					(ui-buttons (0xe95b 0xe959 0xe95c 0xe95e 0xe95a) +event_collect))
 				(. (ui-textfield *replace_text* (:color +argb_white
 						:hint_text "replace" :clear_text "")) :connect +event_replace))))
 	(ui-flow _ (:flow_flags +flow_right_fill)
@@ -275,7 +276,8 @@
 	(ui-tool-tips *macro_toolbar*
 		'("playback" "playback eof" "playback global" "record"))
 	(ui-tool-tips *replace_toolbar*
-		'("replace" "replace all" "replace global")))
+		'("collect" "collect global" "replace" "replace all"
+		"replace global")))
 
 (defun clear-matches ()
 	(if match_window (gui-sub match_window))

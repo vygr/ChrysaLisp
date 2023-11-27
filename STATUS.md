@@ -7,6 +7,8 @@
 Remove the double macroexpand calls that `defun` and `defmethod` have been
 doing ! Fairly embarrassing this one, as it's been like that for years now.
 
+New Editor collection actions. `action-collect` and `action-collect-global`.
+
 ------
 
 Profile app updated to use a syntax highlighted buffer, and to follow the Debug

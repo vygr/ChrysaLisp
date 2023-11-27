@@ -8,8 +8,7 @@ In no particular order but to just to ensure I get thoughts down. I'll keep
 adding to this as I go along. If anybody would like to try helping out, then
 just get in touch.
 
-* Add found matches collect/yank action to Editor. Local or Global. Results
-pasted to scratch buffer.
+* Add optional flags to (join) to allow wrapping in join sequence.
 
 * Update found count status bar entry to only count the selected region if
 there is one.

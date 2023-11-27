@@ -67,6 +67,8 @@
 (ascii-code "f") action-set-find-text
 (ascii-code "r") action-replace
 (ascii-code "R") action-replace-all
+(ascii-code "y") action-collect
+(ascii-code "Y") action-collect-global
 (ascii-code "z") action-undo
 (ascii-code "Z") action-redo
 (ascii-code "s") action-save

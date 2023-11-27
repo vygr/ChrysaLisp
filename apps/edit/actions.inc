@@ -50,6 +50,8 @@
 	+event_replace action-replace
 	+event_replace_all action-replace-all
 	+event_replace_global action-replace-global
+	+event_collect action-collect
+	+event_collect_global action-collect-global
 	+event_undo action-undo
 	+event_redo action-redo
 	+event_rewind action-rewind
@@ -137,6 +139,8 @@
 	(ascii-code "f") action-set-find-text
 	(ascii-code "r") action-replace
 	(ascii-code "R") action-replace-all
+	(ascii-code "y") action-collect
+	(ascii-code "Y") action-collect-global
 	(ascii-code "z") action-undo
 	(ascii-code "Z") action-redo
 	(ascii-code "s") action-save
@@ -176,13 +180,15 @@
 	action-right-bracket action-right-select action-right-tab action-select-all
 	action-select-block action-select-line action-select-paragraph
 	action-select-word action-sort action-tab action-to-lower action-to-upper
-	action-trim action-undo action-unique action-up action-up-select action-split)
+	action-trim action-undo action-unique action-up action-up-select action-split
+	action-collect)
 
 *replace_actions* (list
 	action-replace action-replace-all action-replace-global)
 
 *find_actions* (cat *replace_actions* (list
-	action-find-down action-find-up action-find-global)))
+	action-find-down action-find-up action-find-global
+	action-collect action-collect-global)))
 
 ;module
 (export-symbols
