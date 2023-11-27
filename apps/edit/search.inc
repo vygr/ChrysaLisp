@@ -107,14 +107,14 @@
 			(refresh))
 		(action-find-down whole_words regexp pattern)))
 
-(defun action-replace-all (whole_words regexp pattern rep_text &optional clip)
+(defun action-replace-all (whole_words regexp pattern rep_text &optional noclip)
 	(unless (eql pattern "")
 		(defq buffer (. *edit* :get_buffer)
 			found (cat (. buffer :find pattern whole_words regexp))
 			rep_matchs (matches rep_text "\$(\d+)"))
 		(undoable
 			(defq sy 0 sy1 (length found))
-			(unless clip
+			(unless noclip
 				(bind '(_ fy _ fy1) (. *edit* :get_find))
 				(if (> fy1 fy) (setq sy (max sy fy) sy1 (min sy1 fy1))))
 			(each! sy sy1 (lambda ((indexes substrs))
@@ -149,12 +149,12 @@
 		(.-> *edit* :get_buffer (:paste results))
 		(refresh)))
 
-(defun collect (&optional clip)
+(defun collect (&optional noclip)
 	(defq buffer (. *edit* :get_buffer)
 		found (. buffer :find pattern whole_words regexp)
 		lines (. buffer :get_text_lines)
 		sy 0 sy1 (length found))
-	(unless clip
+	(unless noclip
 		(bind '(_ fy _ fy1) (. *edit* :get_find))
 		(if (> fy1 fy) (setq sy (max sy fy) sy1 (min sy1 fy1))))
 	(each! sy sy1 (lambda (line found)
