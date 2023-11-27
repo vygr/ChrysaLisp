@@ -70,6 +70,7 @@
 
 (defmacro for-all-buffers (&rest _)
 	`(progn
+		(unless *current_file* (action-next-buffer))
 		(when (defq *exit* :nil *here* *current_file*)
 			(push *refresh_mode* 1)
 			(until *exit*
