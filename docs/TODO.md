@@ -48,6 +48,9 @@ work !
 * Docs app needs some love. Toolbar with forward and back button etc. Auto
 indexing on load or index file created by the doc builder.
 
+* Change Regexp compiler to produce VP code and hold a cache of translated
+expressions.
+
 * Gui remote desktop service that runs over CLB.
 
 * Move `vp-min, vp-max, vp-abs` into the VP VM proper. ARM64 and x64 have
