@@ -180,8 +180,7 @@
 	action-right-bracket action-right-select action-right-tab action-select-all
 	action-select-block action-select-line action-select-paragraph
 	action-select-word action-sort action-tab action-to-lower action-to-upper
-	action-trim action-undo action-unique action-up action-up-select action-split
-	action-collect)
+	action-trim action-undo action-unique action-up action-up-select action-split)
 
 *replace_actions* (list
 	action-replace action-replace-all action-replace-global)
