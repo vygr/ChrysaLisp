@@ -132,17 +132,20 @@
 					(elem-set ,token (push trace i) si) 1))))))
 			(:rrb (cache (static-qq ((:nil
 				(progn (elem-set ,token trace si) 1))))))
-			(:op (defq a (pop stack)) (case token
-				((+op_cat +op_tac) (cat (pop stack) a))
-				("|" (defq b (pop stack) ob (+ (length b) 2) oa (inc (length a)))
-					(cat (cache `((:nil 1 ,ob))) b (cache `((:nil ,oa))) a))
-				("?" (defq oa (inc (length a)))
-					(cat (cache `((:nil 1 ,oa))) a))
-				("*" (defq b (length a) oa (+ b 2) ob (neg b))
-					(cat (cache `((:nil 1 ,oa))) a (cache `((:nil 1 ,ob)))))
-				("+" (defq oa (neg (length a)))
-					(cat a (cache `((:nil 1 ,oa)))))
-				))))) postfix_output) (pop stack))
+			(:op (defq a (pop stack))
+				(and (find token "+*?|") (notany first a)
+					(throw "Regexp bad operator !" token))
+				(case token
+					((+op_cat +op_tac) (cat (pop stack) a))
+					("|" (defq b (pop stack) ob (+ (length b) 2) oa (inc (length a)))
+						(cat (cache `((:nil 1 ,ob))) b (cache `((:nil ,oa))) a))
+					("?" (defq oa (inc (length a)))
+						(cat (cache `((:nil 1 ,oa))) a))
+					("*" (defq b (length a) oa (+ b 2) ob (neg b))
+						(cat (cache `((:nil 1 ,oa))) a (cache `((:nil 1 ,ob)))))
+					("+" (defq oa (neg (length a)))
+						(cat a (cache `((:nil 1 ,oa)))))
+					))))) postfix_output) (pop stack))
 
 (defun insertelem (cpat next seen trace elem)
 	(defq stack (slice 1 -1 elem) index (elem-get -2 trace))
@@ -240,9 +243,8 @@
 		(raise :meta_cache)
 		(unless (defq cpat (. meta_cache :find pattern))
 			(setq cpat (catch (compile (postfix (tokenize pattern))) :t))
-			(if (eql cpat :t) (setq cpat :nil))
 			(. meta_cache :insert pattern cpat))
-		cpat)
+		(unless (eql cpat :t) cpat))
 
 	(defmethod :match? (text pattern &optional cpat)
 		; (. regexp :match? text pattern &optional meta) -> :t | :nil
