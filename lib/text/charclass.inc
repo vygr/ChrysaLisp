@@ -5,6 +5,14 @@
 ;module
 (env-push)
 
+(defun escape (string)
+	; (escape str) -> str
+	(when (>= (length string) 1)
+		(setq string (apply (const cat) (reduce
+			(# (if (find %1 "^$!.*+?\|[]()")
+				(push %0 "\")) (push %0 %1)) string (list)))))
+	string)
+
 (defun unescape (string)
 	; (unescape str) -> str
 	(when (>= (length string) 2)
@@ -38,7 +46,7 @@
 				(partition 3 (unescape k))))))) 7))
 
 ;module
-(export-symbols '(char-class unescape))
+(export-symbols '(char-class escape unescape))
 (env-pop)
 
 ;some standard char classes

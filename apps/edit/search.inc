@@ -74,6 +74,7 @@
 		(bind '(ax ay) (. *edit* :get_anchor))
 		(when (defq lines (split (.-> *edit* :get_buffer (:copy ax ay)) (ascii-char +char_lf)))
 			(setq text (first lines))))
+	(if *regexp* (setq text (escape text)))
 	(.-> *find_text* (:set_text text) :layout :dirty)
 	(refresh))
 

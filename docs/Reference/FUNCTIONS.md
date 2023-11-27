@@ -440,6 +440,12 @@ should provide the concreate handler
 (erase seq start end) -> seq
 ```
 
+### escape
+
+```code
+(escape str) -> str
+```
+
 ### even?
 
 ```code
