@@ -8,7 +8,11 @@ In no particular order but to just to ensure I get thoughts down. I'll keep
 adding to this as I go along. If anybody would like to try helping out, then
 just get in touch.
 
-* Add optional flags to (join) to allow wrapping in join sequence.
+* Add optional flags to `(join)` to allow wrapping in the join sequence.
+
+* Extend `(split)` to allow splitting of any sequence by any sequence. Any
+element that `(find)` returns true for, within the splitter, counts as a
+splitting element.
 
 * Update found count status bar entry to only count the selected region if
 there is one.
