@@ -151,7 +151,7 @@
 		(if (setq offset (eval offset))
 			(if (= (defq new_index (+ index offset)) (length cpat))
 				;stopped, so matched somthing !
-				(when (> si end) (setq end si end_trace trace))
+				(if (> si end) (setq end si end_trace trace))
 				;not stopped
 				(if (elem-get 0 (defq elem (elem-get new_index cpat)))
 					;not a split
@@ -162,12 +162,35 @@
 					(each! 1 -1 (# (if (setq %0 (eval %0))
 						(push stack (+ offset %0)))) (list elem)))))) next)
 
+(defun insertelem-no-trace (cpat next index elem)
+	(defq stack (slice 1 -1 elem))
+	(while (defq offset (pop stack))
+		;offsets can be expressions !
+		(if (setq offset (eval offset))
+			(if (= (defq new_index (+ index offset)) (length cpat))
+				;stopped, so matched somthing !
+				(if (> si end) (setq end si))
+				;not stopped
+				(if (elem-get 0 (defq elem (elem-get new_index cpat)))
+					;not a split
+					(unless (find new_index next) (push next new_index))
+					;a split
+					(each! 1 -1 (# (if (setq %0 (eval %0))
+						(push stack (+ offset %0)))) (list elem)))))) next)
+
 (defun firstelem (cpat current)
 	(if (elem-get 0 (defq elem (elem-get 0 cpat)))
 		;not a split
 		(push current (array 0))
 		;a split
 		(insertelem cpat current (list) (array 0) elem)))
+
+(defun firstelem-no-trace (cpat current)
+	(if (elem-get 0 (defq elem (elem-get 0 cpat)))
+		;not a split
+		(push current 0)
+		;a split
+		(insertelem-no-trace cpat current 0 elem)))
 
 (defun search (text cpat start)
 	; (search text cpat start) -> (list submatches {-1 | end})
@@ -192,19 +215,18 @@
 
 (defun match (text cpat start)
 	; (match text cpat start) -> -1 | end
-	(defq end -1 end_trace (array 0) tl (length text)
+	(defq end -1 tl (length text) trace (array 0)
 		si start s (if (<= si 0) " " (elem-get (dec si) text))
-		current (firstelem cpat (list)) seen (list) next (list))
+		current (firstelem-no-trace cpat (list)) next (list))
 	(some! start -1 :nil
 		(lambda (s) (defq si (inc _))
-			;for each current trace
-			(each (# (if (eval (elem-get 0 (defq elem (elem-get (elem-get -2 %0) cpat))))
-				;matched text char, so insert next traces
-				(insertelem cpat next seen %0 elem))) current)
-			;swap to new traces
+			;for each current index
+			(each (# (if (eval (elem-get 0 (defq elem (elem-get %0 cpat))))
+				;matched text char, so insert next index
+				(insertelem-no-trace cpat next %0 elem))) current)
+			;swap to new indexs
 			(defq tmp current)
-			(setq current next next tmp)
-			(clear next seen)
+			(setq current next next (clear tmp))
 			;break out if no traces OR found any match !
 			(or (/= end -1) (= (length current) 0)))
 		(list text)) end)
