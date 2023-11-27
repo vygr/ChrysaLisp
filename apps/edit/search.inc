@@ -83,7 +83,7 @@
 		(when (defq subs (some (lambda ((x x1)) (and (= x sx) (= x1 sx1) _)) indexs))
 			(when regexp
 				(setq subs (if (>= subs (length substrs)) '() (elem-get subs substrs)))
-				(each! -1 0 (lambda ((x x1) (s))
+				(each! -1 0 (lambda ((x x1) _ (s))
 						(setq rep_text (replace rep_text x x1
 							(if (< (defq s (str-to-num s)) (length subs))
 								(elem-get s subs) ""))))
