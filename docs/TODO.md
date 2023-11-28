@@ -8,9 +8,6 @@ In no particular order but to just to ensure I get thoughts down. I'll keep
 adding to this as I go along. If anybody would like to try helping out, then
 just get in touch.
 
-* Make it possible to show the tooltips of any embedded widget in the Docs app
-widget handler. This would make a nice documentation feature.
-
 * WYSIWYG UI tree Editor.
 
 * Investigate the embedded Window clipping bug.

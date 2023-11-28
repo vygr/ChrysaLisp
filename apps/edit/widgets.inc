@@ -89,3 +89,25 @@
 					(. (ui-slider *yslider*) :connect +event_yscroll)
 					(ui-flow *edit_flow* (:flow_flags +flow_up_fill)
 						(. (ui-slider *xslider*) :connect +event_xscroll)))))))
+
+(ui-tool-tips *main_toolbar*
+	'("undo" "redo" "rewind" "global undo" "global redo"
+	"cut" "copy" "paste" "split" "reflow" "select paragraph"
+	"outdent" "indent" "select form" "start form"
+	"end form" "upper case" "lower case" "sort" "unique"
+	"reverse" "comment"))
+
+(ui-tool-tips *buffer_toolbar*
+	'("previous" "next" "scratchpad" "close" "close all"
+	"save" "save all" "load all" "new"))
+
+(ui-tool-tips *find_toolbar*
+	'("global search" "select region" "whole words"
+	"regexp" "find down" "find up"))
+
+(ui-tool-tips *macro_toolbar*
+	'("playback" "playback eof" "playback global" "record"))
+
+(ui-tool-tips *replace_toolbar*
+	'("collect" "collect global" "replace" "replace all"
+	"replace global"))

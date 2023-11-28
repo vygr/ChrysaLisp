@@ -173,26 +173,6 @@
 	(visible-node *open_tree* file)
 	(visible-node *file_tree* file))
 
-(defun tooltips ()
-	(def *window* :tip_mbox (elem-get +select_tip select))
-	(ui-tool-tips *main_toolbar*
-		'("undo" "redo" "rewind" "global undo" "global redo"
-		"cut" "copy" "paste" "split" "reflow" "select paragraph"
-		"outdent" "indent" "select form" "start form"
-		"end form" "upper case" "lower case" "sort" "unique"
-		"reverse" "comment"))
-	(ui-tool-tips *buffer_toolbar*
-		'("previous" "next" "scratchpad" "close" "close all"
-		"save" "save all" "load all" "new"))
-	(ui-tool-tips *find_toolbar*
-		'("global search" "select region" "whole words"
-		"regexp" "find down" "find up"))
-	(ui-tool-tips *macro_toolbar*
-		'("playback" "playback eof" "playback global" "record"))
-	(ui-tool-tips *replace_toolbar*
-		'("collect" "collect global" "replace" "replace all"
-		"replace global")))
-
 (defun clear-matches ()
 	(if match_window (gui-sub match_window))
 	(setq match_window :nil match_flow :nil match_index -1))
@@ -275,6 +255,7 @@
 	(def *edit* :min_width 0 :min_height 0
 		:vdu_width +vdu_min_width :vdu_height +vdu_min_height)
 	(. *edit_flow* :add_back *edit*)
+	(def *window* :tip_mbox (elem-get +select_tip select))
 	;load up the base Syntax keywords, root.inc and dictionaries for matching
 	(each (lambda ((key val)) (. dictionary :insert_word (str key)))
 		(tolist (get :keywords *syntax* )))
@@ -283,7 +264,6 @@
 	(. *file_tree* :populate "." +file_types 2)
 	(populate-file-trees)
 	(populate-vdu *current_file*)
-	(tooltips)
 	(action-maximise)
 	(bind '(x y w h) (apply view-locate (.-> *window* (:connect +event_layout) :get_size)))
 	(gui-add-front (. *window* :change x y w h))
