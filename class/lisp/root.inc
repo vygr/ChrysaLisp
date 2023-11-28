@@ -499,14 +499,19 @@
 	; (rotate seq start mid end) -> seq
 	(cat (slice 0 i s) (slice j k s) (slice i j s) (slice k -1 s)))
 
+(defun slices (seq)
+	; (slices seq) -> seqs
+	(map (lambda (x) (slice _ (inc _) seq)) seq))
+
 (defun join (seqs seq &optional mode)
 	; (join seqs seq &optional mode) -> seq
 	(setd mode 0)
-	(setq seqs (reduce (lambda (x y) (push x y seq))
-			seqs (cap (+ (* (length seqs) 2) mode)
-		(if (= (logand mode 1) 0) (list) (list seq)))))
-	(if (= (logand mode 2) 0) (pop seqs))
-	(apply (const cat) seqs))
+	(defq seq (slices seq) seqs (slices seqs)
+		out (if (= (logand mode 1) 0) (list) (cat seq))
+		out (reduce (lambda (x y) (push x y) (each (lambda (y) (push x y)) seq) x)
+			seqs (cap (+ (length seqs) (* (length seqs) (length seq)) mode) out)))
+	(if (= (logand mode 2) 0) (each (lambda (x) (pop out)) seq))
+	(apply (const cat) out))
 
 (defun unzip (l b)
 	; (unzip seq buckets) -> buckets
