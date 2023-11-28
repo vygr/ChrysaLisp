@@ -133,7 +133,7 @@
 			(:rrb (cache (static-qq ((:nil
 				(progn (elem-set ,token trace si) 1))))))
 			(:op (defq a (pop stack))
-				(and (find token "+*?|") (notany first a)
+				(and (find token "+*?|") (notany (const first) a)
 					(throw "Regexp bad operator !" token))
 				(case token
 					((+op_cat +op_tac) (cat (pop stack) a))
