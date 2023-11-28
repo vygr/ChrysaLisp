@@ -158,7 +158,7 @@ set these in their own private `env.inc` file. See the `apps/login/` folder.
 
 #### Properties
 
-`:color :border :shadow :child`
+`:color :border :shadow :child :min_width :min_height`
 
 ```vdu
 (defmacro ui-window (n &optional p &rest x)

@@ -32,7 +32,10 @@
 	(defmethod :pref_size ()
 		; (. window :pref_size) -> (width height)
 		(raise :border :shadow :child)
+		(defq mw (def? :min_width this) mh (def? :min_height this))
+		(setd mw 0 mh 0)
 		(bind '(w h) (. child :pref_size))
+		(setq w (max w mw) h (max h mh))
 		(list (+ (* (+ shadow border) 2) w) (+ (* (+ shadow border) 2) h)))
 
 	(defmethod :layout ()
