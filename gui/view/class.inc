@@ -15,7 +15,6 @@
 	(dec-method :hit_tree gui/view/hit_tree :static (:r0 :r7 :r8) (:r0 :r1 :r7 :r8))
 	(dec-method :find_id gui/view/find_id :static (:r0 :r1) (:r0 :r1))
 	(dec-method :set_flags gui/view/set_flags :static (:r0 :r1 :r2) (:r0 :r1))
-	(dec-method :find_owner gui/view/find_owner :static (:r0) (:r0 :r1 :r2 :r3))
 	(dec-method :get_prop gui/view/get_prop :static (:r0 :r1) (:r0 :r1))
 	(dec-method :ref_prop gui/view/ref_prop :static (:r0 :r1) (:r0 :r1))
 	(dec-method :get_long_prop gui/view/get_long_prop :static (:r0 :r1) (:r0 :r1))
