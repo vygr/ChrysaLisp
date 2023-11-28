@@ -674,7 +674,7 @@ tells us which vertices are inside the surface
 ### join
 
 ```code
-(join list seq) -> seq
+(join seqs seq &optional mode) -> seq
 ```
 
 ### lambda-func?

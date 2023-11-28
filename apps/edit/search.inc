@@ -167,7 +167,7 @@
 		(defq results (list))
 		(collect)
 		(when (nempty? results)
-			(setq results (cat (join results (ascii-char 10)) (ascii-char 10)))
+			(setq results (join results (ascii-char 10) 2))
 			;paste into scratch buffer
 			(switch-file :nil)
 			(.-> *edit* :get_buffer (:paste results))
@@ -178,7 +178,7 @@
 		(defq results (list))
 		(for-all-buffers (collect :t))
 		(when (nempty? results)
-			(setq results (cat (join results (ascii-char 10)) (ascii-char 10)))
+			(setq results (join results (ascii-char 10) 2))
 			;paste into scratch buffer
 			(switch-file :nil)
 			(.-> *edit* :get_buffer (:paste results))
