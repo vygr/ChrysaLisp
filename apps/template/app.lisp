@@ -29,15 +29,17 @@
 			(ui-buttons ("main" "settings" "status" "info") +event_main))
 		(ui-backdrop _ (:color (const *env_toolbar_col*))))
 	(ui-flow *tab_flow* (:flow_flags +flow_stack_fill :color +argb_black)
-		(ui-backdrop *main_widget* (:min_width 512 :min_height 256
-				:spacing 16 :style :grid
-				:ink_color +argb_white))
-		(ui-backdrop *settings_widget* (:ink_color +argb_red
-				:spacing 16 :style :lines))
+		(ui-grid *main_widget* (:grid_width 2 :grid_height 2 :color +argb_orange)
+			(ui-button _ (:text "1"))
+			(ui-button _ (:text "2"))
+			(ui-button _ (:text "3"))
+			(ui-button _ (:text "4")))
+		(ui-backdrop *settings_widget* (:min_width 512 :min_height 256
+				:ink_color +argb_red :spacing 16 :style :lines))
 		(ui-backdrop *status_widget* (:ink_color +argb_green
 				:spacing 16 :style :axis))
 		(ui-backdrop *info_widget* (:ink_color +argb_blue
-				:spacing 16 :style :plain))))
+				:spacing 16 :style :grid))))
 
 (defun tooltips ()
 	(def *window* :tip_mbox (elem-get +select_tip select))
