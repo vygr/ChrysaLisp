@@ -6,14 +6,14 @@
 (defun clipboard-put (string)
 	; (clipboard-put string)
 	(when (/= 0 (length (defq service (mail-enquire "Clipboard,"))))
-		(setq service (to-net-id (elem-get 1 (split (pop service) ","))))
+		(setq service (to-net-id (second (split (pop service) ","))))
 		(mail-send service (list +clip_type_put string))))
 
 (defun clipboard-get ()
 	; (clipboard-get) -> string
 	(defq data "")
 	(when (/= 0 (length (defq service (mail-enquire "Clipboard,"))))
-		(setq service (to-net-id (elem-get 1 (split (pop service) ","))))
+		(setq service (to-net-id (second (split (pop service) ","))))
 		(defq mbox (mail-alloc-mbox))
 		(mail-send service (list +clip_type_get mbox))
 		(setq data (mail-read mbox))

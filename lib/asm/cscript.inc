@@ -75,7 +75,7 @@
 							(push token c)
 							(setq c :nil))
 						(:t (cond
-								((find-rev (elem-get -2 (push out_tokens (apply (const cat) token)))
+								((find-rev (last (push out_tokens (apply (const cat) token)))
 										'("pptr" "byte" "ubyte" "short" "ushort" "int" "uint" "long" "ulong" "ptr"))
 									(push out_types :operator))
 								(:t (push out_types state)))
@@ -124,9 +124,9 @@
 							(setq c :nil))
 						(:t (cond
 								(unary
-									(if (setq _ (find-rev (elem-get 0 token) "-*&~!"))
+									(if (setq _ (find-rev (first token) "-*&~!"))
 										(push out_tokens (elem-get _ "_#:~!"))
-										(throw "Unknown unary operator !" (elem-get 0 token))))
+										(throw "Unknown unary operator !" (first token))))
 								(:t (push out_tokens (apply (const cat) token))
 									(setq unary :t)))
 							(push out_types state)
@@ -161,11 +161,11 @@
 				;precidence
 				(unless (defq s (scope-get-sym token))
 					(throw "Operator not defined !" token))
-				(defq v (- (elem-get 2 s) (elem-get 3 s)) x :t)
+				(defq v (- (third s) (elem-get 3 s)) x :t)
 				(while (and x (/= 0 (length token_stack)))
-					(setq s (scope-get-sym (elem-get -2 token_stack)))
+					(setq s (scope-get-sym (last token_stack)))
 					(cond
-						((>= v (elem-get 2 s))
+						((>= v (third s))
 							(push out_tokens (pop token_stack))
 							(push out_types :operator))
 						(:t (setq x :nil))))
@@ -194,7 +194,7 @@
 	(list 'elem-set -2 '*vregt* _))
 
 (defmacro get-type ()
-	'(elem-get -2 *vregt*))
+	'(last *vregt*))
 
 (defmacro top-reg ()
 	'(vreg-sym (dec (length *vregt*))))
@@ -218,7 +218,7 @@
 
 (defun compile-deref ()
 	(if (defq x (top-reg) w (get-type))
-		(defq z (slice 1 -1 w) z (if (eql z "") :nil z) w (elem-get 0 w))
+		(defq z (rest w) z (if (eql z "") :nil z) w (first w))
 		(throw "No type info !" x))
 	(set-type z)
 	(setq w (elem-get (find-rev w "bBsSiIlLp")
@@ -268,10 +268,10 @@
 					;equate
 					(compile-const _))
 				(:t (throw "Symbol not defined !" _))))
-		((eql 'var (elem-get 1 s))
+		((eql 'var (second s))
 			;variable
 			(add-inst (list 'vp-lea-i :rsp
-				(+ (scope-get (elem-get 0 s)) (elem-get 2 s))
+				(+ (scope-get (first s)) (third s))
 				(push-reg (elem-get 3 s)))))
 		(:t (throw "Symbol not a variable !" _))))
 
@@ -391,7 +391,7 @@
 	(cond
 		((not (defq s (scope-get-sym _)))
 			(throw "Compile op not defined !" _))
-		((not (eql 'op (elem-get 1 s)))
+		((not (eql 'op (second s)))
 			(throw "Not an operator !" _))
 		(:t ((elem-get 4 s) _))))
 

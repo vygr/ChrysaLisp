@@ -31,12 +31,12 @@
 				(if (> (length (push buf "")) (const vdu_height))
 					(setq buf (slice (const (dec (neg vdu_height))) -1 buf))))
 			(:t ;char
-				(elem-set -2 buf (cat (elem-get -2 buf) c))))) s)
-	(. vdu :load buf 0 0 (length (elem-get -2 buf)) (dec (length buf))) buf)
+				(elem-set -2 buf (cat (last buf) c))))) s)
+	(. vdu :load buf 0 0 (length (last buf)) (dec (length buf))) buf)
 
 (defun broadcast (text)
 	(setq text (cat "<" (get :clear_text chat_user) "> " text (ascii-char 10)))
-	(each (# (mail-send (to-net-id (elem-get 1 (split %0 ","))) text)) (mail-enquire "*Chat")))
+	(each (# (mail-send (to-net-id (second (split %0 ","))) text)) (mail-enquire "*Chat")))
 
 (defun tooltips ()
 	(def *window* :tip_mbox (elem-get +select_tip select))

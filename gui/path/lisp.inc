@@ -152,7 +152,7 @@
 			(("Z" "z")
 				(bind '(cpx cpy) (slice 0 2 p))
 				(push p cpx cpy)
-				(elem-set 0 (elem-get -2 paths) :t)))
+				(elem-set 0 (last paths) :t)))
 		(setq last_cmd cmd))
 	paths)
 

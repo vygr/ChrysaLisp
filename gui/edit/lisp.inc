@@ -438,7 +438,7 @@
 				(. this :set_anchor 0 y)
 				(. buffer :paste (cat (join
 					(reduce (# (if (or (<= (length %0) 0)
-									(not (eql (elem-get -2 %0) %1))) (push %0 %1) %0))
+									(not (eql (last %0) %1))) (push %0 %1) %0))
 					(split (.-> buffer (:set_cursor 0 y1) (:cut 0 y)) (ascii-char +char_lf))
 					(list)) (ascii-char +char_lf)) (ascii-char +char_lf)))))
 		this)
@@ -506,7 +506,7 @@
 			(defq background (if (<= fy scroll_y fy1) color_region +not_selected)
 				background (cond
 					((and (defq match (elem-get scroll_y found))
-							(nempty? (defq match (elem-get 0 match))))
+							(nempty? (defq match (first match))))
 						(defq cx 0 line (clear '()))
 						(each (lambda ((x x1))
 							(push line (slice cx x background) (slice x x1 color_found))

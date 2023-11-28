@@ -75,7 +75,7 @@
 	(bind '(sx sy) (. *edit* :get_scroll))
 	(defq lines (clear '()) start_line sy
 		end_line (inc (min
-			(elem-get 1 (. buffer :get_size))
+			(second (. buffer :get_size))
 			(+ start_line (get :vdu_height *edit*)))))
 	(while (< (setq start_line (inc start_line)) end_line)
 		(push lines (pad (str start_line) (const (dec +vdu_line_width)) "    ")))

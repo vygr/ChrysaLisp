@@ -158,27 +158,27 @@ provided and if you included a default.
 			(unless (list? _keys) (setq _keys (list _keys)))
 			(setq _clause_body (prebind (macroexpand
 				(if (= (length _clause_body) 1)
-					(elem-get 0 _clause_body)
+					(first _clause_body)
 					(cat '(progn) _clause_body)))))
 			(or (eql :num (defq _clause_type (pop (type-of _clause_body))))
 				(eql :str _clause_type) (setq _atoms :nil))
 			(each! 0 -1 (lambda (_key) (cond
 				((eql _key :t)
 					(setq _default_key :t _default_clause _clause_body))
-				(:t (push (elem-get 0 _map) _key)
-					(push (elem-get 1 _map) _clause_body)))) (list _keys)) _map)
+				(:t (push (first _map) _key)
+					(push (second _map) _clause_body)))) (list _keys)) _map)
 			_body (list (list) (list))))
 	(cond
 		(_default_key
-			(push (elem-get 1 _map) _default_clause)
+			(push (second _map) _default_clause)
 			(if _atoms
-				`(elem-get (or (find ,_form ',(elem-get 0 _map)) -2) ',(elem-get 1 _map))
-				`(eval (elem-get (or (find ,_form ',(elem-get 0 _map)) -2) ',(elem-get 1 _map)))))
+				`(elem-get (or (find ,_form ',(first _map)) -2) ',(second _map))
+				`(eval (elem-get (or (find ,_form ',(first _map)) -2) ',(second _map)))))
 		(:t (if _atoms
-				`(if (defq ,(defq _i (gensym)) (find ,_form ',(elem-get 0 _map)))
-					(elem-get ,_i ',(elem-get 1 _map)))
-				`(if (defq ,(defq _i (gensym)) (find ,_form ',(elem-get 0 _map)))
-					(eval (elem-get ,_i ',(elem-get 1 _map))))))))
+				`(if (defq ,(defq _i (gensym)) (find ,_form ',(first _map)))
+					(elem-get ,_i ',(second _map)))
+				`(if (defq ,(defq _i (gensym)) (find ,_form ',(first _map)))
+					(eval (elem-get ,_i ',(second _map))))))))
 ```
 
 ## Macros can be nested

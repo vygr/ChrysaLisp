@@ -32,7 +32,7 @@
 		; (. fset :erase key) -> fset
 		(slot)
 		(when e
-			(elem-set e (defq b (elem-get b x)) (elem-get -2 b))
+			(elem-set e (defq b (elem-get b x)) (last b))
 			(pop b))
 		this)
 

@@ -45,10 +45,10 @@
 		(when dst
 			(vp-cpy-ri r dst 0)
 			(vp-add-cr +long_size dst))
-	(loop-until `(,(elem-get 0 srcs) = ,src_end)))
+	(loop-until `(,(first srcs) = ,src_end)))
 
 (defun vec-loop-while (srcs elms src_end dst func)
-	(loop-while `(,(elem-get 0 srcs) /= ,src_end))
+	(loop-while `(,(first srcs) /= ,src_end))
 		(each (# (vp-cpy-ir %0 0 %1)) srcs elms)
 		(each (# (vp-add-cr +long_size %0)) srcs)
 		(defq r (apply func elms))
@@ -58,7 +58,7 @@
 	(loop-end))
 
 (defun vec-loop-while-endswitch (srcs elms src_end func)
-	(loop-while `(,(elem-get 0 srcs) /= ,src_end))
+	(loop-while `(,(first srcs) /= ,src_end))
 		(each (# (vp-cpy-ir %0 0 %1)) srcs elms)
 		(each (# (vp-add-cr +long_size %0)) srcs)
 		(apply func elms)

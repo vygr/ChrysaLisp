@@ -37,7 +37,7 @@
 	(defq i 0)
 	(while (every (lambda (url)
 			(and (< i (length url))
-				(eql (elem-get i url) (elem-get i (elem-get 0 urls))))) urls)
+				(eql (elem-get i url) (elem-get i (first urls))))) urls)
 		(setq i (inc i))) i)
 
 (defun url-ext (url cx)
@@ -45,4 +45,4 @@
 	(bind '(url file) (url-split url ctx))
 	(defq urls (map (lambda (_) (if (= ctx 0) (cat (slice (length file) -7 _) " ") (slice (length file) -1 _)))
 		(filter (lambda (_) (and (starts-with file _) (if (= ctx 0) (ends-with ".lisp " _) :t))) (url-list url))))
-	(if (= 0 (length urls)) "" (slice 0 (url-ext-index urls) (elem-get 0 urls))))
+	(if (= 0 (length urls)) "" (slice 0 (url-ext-index urls) (first urls))))

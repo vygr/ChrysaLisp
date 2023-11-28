@@ -33,8 +33,8 @@
 		(slot)
 		(when e
 			(defq bv (elem-get (inc b) x) b (elem-get b x))
-			(elem-set e b (elem-get -2 b))
-			(elem-set e bv (elem-get -2 bv))
+			(elem-set e b (last b))
+			(elem-set e bv (last bv))
 			(pop b) (pop bv))
 		this)
 

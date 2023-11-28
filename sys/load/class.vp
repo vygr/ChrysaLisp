@@ -44,7 +44,7 @@
 	;relocate statics and tail to their own mmap regions
 	(defq in (method-input 'host :mmap))
 	(assign '((:rsp local_os) (:rsp local_boot_static_len) -1 +mmap_data) `(,os ~in))
-	(vp-add-cr statics_size (elem-get 0 in))
+	(vp-add-cr statics_size (first in))
 	(abi-call-table 'host :mmap os in '(:r0))
 	(assign '(:r0) '((:rsp local_new_static_func)))
 	(assign '((:rsp local_os)) `(,os))

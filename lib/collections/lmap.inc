@@ -25,8 +25,8 @@
 		; (. lmap :erase key) -> lmap
 		(raise :keys :vals)
 		(when (defq e (find key keys))
-			(elem-set e keys (elem-get -2 keys))
-			(elem-set e vals (elem-get -2 vals))
+			(elem-set e keys (last keys))
+			(elem-set e vals (last vals))
 			(pop keys) (pop vals))
 		this)
 

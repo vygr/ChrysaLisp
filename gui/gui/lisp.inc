@@ -48,7 +48,7 @@
 
 (defun gui-rpc (view cmd)
 	(when (/= 0 (length (defq service (mail-enquire "Gui,"))))
-		(setq service (to-net-id (elem-get 1 (split (pop service) ","))))
+		(setq service (to-net-id (second (split (pop service) ","))))
 		(defq mbox (mail-alloc-mbox))
 		(mail-send service (list cmd view (task-netid) mbox))
 		(mail-read mbox)

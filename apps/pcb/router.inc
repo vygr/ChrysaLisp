@@ -131,7 +131,7 @@
 				(push pad_lines (Layers-line x y z1 x y z2 radius gap)))
 			(:t (defq z z1)
 				(while (<= z z2)
-					(bind '(xs ys) (elem-get 0 shape))
+					(bind '(xs ys) (first shape))
 					(defq cx x cy y cz z
 						p0x :nil p0y :nil p0z :nil
 						p1x (+ x xs) p1y (+ y ys) p1z cz)
@@ -151,7 +151,7 @@
 
 	;build wires collision lines and visited
 	(each (lambda (wire)
-		(defq p0 :nil p1 (elem-get 0 wire))
+		(defq p0 :nil p1 (first wire))
 		(each! 1 -1 (lambda (p)
 			(setq p0 p1 p1 p)
 			(cond
@@ -231,7 +231,7 @@
 		(raise :pcb :radius :via :gap)
 		(defq depth (n2f (dec (. pcb :get_depth))))
 		(reduce (lambda (lines pth)
-			(defq p0 :nil p1 (. pcb :node_to_pad_point (elem-get 0 pth)))
+			(defq p0 :nil p1 (. pcb :node_to_pad_point (first pth)))
 			(each! 1 -1 (lambda (p)
 				(setq p0 p1 p1 (. pcb :node_to_pad_point p))
 				(bind '(x0 y0 z0) p0)
@@ -277,14 +277,14 @@
 		(reduce (lambda (opt_paths pth)
 			(defq opt_path (list)
 				d0 (Vec3-f 0.0 0.0 0.0) d1 :nil
-				p0 :nil p1 (. pcb :node_to_pad_point (elem-get 0 pth)))
+				p0 :nil p1 (. pcb :node_to_pad_point (first pth)))
 			(each! 1 -1 (lambda (p)
 				(setq p0 p1 p1 (. pcb :node_to_pad_point p)
 					d1 (vec-norm (vec-sub p1 p0)))
 				(unless (eql d0 d1)
 					(push opt_path (elem-get (dec _) pth))
 					(setq d0 d1))) (list pth))
-			(push opt_path (elem-get -2 pth))
+			(push opt_path (last pth))
 			(push opt_paths opt_path)) paths (list)))
 
 	(defmethod :backtrack_path (visited end_node radius via gap)
@@ -312,10 +312,10 @@
 					;found existing track
 					(setq exit (push pth n)))
 				(:t ;sort nodes and take the first
-					(setq path_node (elem-get 1 (elem-get 0
-						(sort (# (- (elem-get 0 %0) (elem-get 0 %1)))
+					(setq path_node (second (elem-get 0
+						(sort (# (- (first %0) (first %1)))
 						(map (# (list (vec-squared-euclidean-distance path_node %0) %0))
-						(filter (# (= (. pcb :get_node %0) (. pcb :get_node (elem-get 0 nearer_nodes))))
+						(filter (# (= (. pcb :get_node %0) (. pcb :get_node (first nearer_nodes))))
 						(sort (# (- (. pcb :get_node %0) (. pcb :get_node %1))) nearer_nodes))))))))))
 		exit)
 
@@ -335,7 +335,7 @@
 						(unless (some (# (. visited :find %0)) ends)
 							(. pcb :mark_distances radius via gap visited ends)
 							(sort (# (- (. pcb :get_node %0) (. pcb :get_node %1))) ends)
-							(defq nodes (. this :backtrack_path visited (elem-get 0 ends) radius via gap))
+							(defq nodes (. this :backtrack_path visited (first ends) radius via gap))
 							(. pcb :unmark_distances)
 							(cond
 								((/= (length nodes) 0)

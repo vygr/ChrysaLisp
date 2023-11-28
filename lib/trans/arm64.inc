@@ -251,30 +251,30 @@
 	(cond
 		((= 0 (defq l (length b))))
 		((= 1 l)
-			(emit-int (+ 0xf81f0c00 (const (<< +arm64_rsp 5)) (elem-get 0 b))))
+			(emit-int (+ 0xf81f0c00 (const (<< +arm64_rsp 5)) (first b))))
 		((= 2 l)
 			(emit-int (+ 0xa9bf0000
-				(<< (elem-get 0 b) 10) (const (<< +arm64_rsp 5)) (elem-get 1 b))))
+				(<< (first b) 10) (const (<< +arm64_rsp 5)) (second b))))
 		(:t (emit-sub-cr (align (* +ptr_size l) stack_align) +arm64_rsp)
 			(defq _ l)
 			(while (>= (setq _ (- _ 2)) 0)
 				(emit-int (+ 0xa9000000 (<< (- l _ 2) 15)
 					(<< (elem-get _ b) 10) (const (<< +arm64_rsp 5)) (elem-get (inc _) b))))
-			(if (/= -2 _) (emit-cpy-ri (elem-get 0 b) +arm64_rsp (* +ptr_size (dec l)))))))
+			(if (/= -2 _) (emit-cpy-ri (first b) +arm64_rsp (* +ptr_size (dec l)))))))
 
 (defun emit-pop (&rest b)
 	(cond
 		((= 0 (defq l (length b))))
 		((= 1 l)
-			(emit-int (+ 0xf8410400 (const (<< +arm64_rsp 5)) (elem-get 0 b))))
+			(emit-int (+ 0xf8410400 (const (<< +arm64_rsp 5)) (first b))))
 		((= 2 l)
 			(emit-int (+ 0xa8c10000
-				(<< (elem-get 0 b) 10) (const (<< +arm64_rsp 5)) (elem-get 1 b))))
+				(<< (first b) 10) (const (<< +arm64_rsp 5)) (second b))))
 		(:t (defq _ l)
 			(while (>= (setq _ (- _ 2)) 0)
 				(emit-int (+ 0xa9400000 (<< (- l _ 2) 15)
 					(<< (elem-get _ b) 10) (const (<< +arm64_rsp 5)) (elem-get (inc _) b))))
-			(if (/= -2 _) (emit-cpy-ir +arm64_rsp (* +ptr_size (dec l)) (elem-get 0 b)))
+			(if (/= -2 _) (emit-cpy-ir +arm64_rsp (* +ptr_size (dec l)) (first b)))
 			(emit-add-cr (align (* +ptr_size l) stack_align) +arm64_rsp))))
 
 (defun emit-beq-cr (c d l m) (arm64-cmp-cr c d) (arm64-branch 0x0 l))

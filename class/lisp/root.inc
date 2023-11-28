@@ -41,6 +41,11 @@
 
 (ffi length "class/seq/lisp_length" 0)
 (ffi elem-get "class/seq/lisp_elem" 0)
+(ffi first "class/seq/lisp_first" 0)
+(ffi second "class/seq/lisp_second" 0)
+(ffi third "class/seq/lisp_third" 0)
+(ffi last "class/seq/lisp_last" 0)
+(ffi rest "class/seq/lisp_rest" 0)
 (ffi find "class/seq/lisp_find" 0)
 (ffi find-rev "class/seq/lisp_rfind" 0)
 (ffi slice "class/seq/lisp_slice" 0)
@@ -147,11 +152,6 @@
 
 (defmacro defun (n a &rest _)
 	; (defun name ([arg ...]) body)
-	; (list [form ...])
-	; (progn [form ...])
-	; (prin [form ...])
-	; (print [form ...])
-	; (str [form ...])
 	`(defq ,n (lambda ,a ~_)))
 
 (defmacro static-q (_)
@@ -243,11 +243,11 @@
 
 (defun lambda-func? (_)
 	; (lambda-func? form) -> :t | :nil
-	(if (list? _) (if (> (length _) 0) (lambda? (elem-get 0 _)))))
+	(if (list? _) (if (> (length _) 0) (lambda? (first _)))))
 
 (defun macro-func? (_)
 	; (macro-func? form) -> :t | :nil
-	(if (list? _) (if (> (length _) 0) (macro? (elem-get 0 _)))))
+	(if (list? _) (if (> (length _) 0) (macro? (first _)))))
 
 (defun nil? (_)
 	; (nil? o) -> :t | :nil
@@ -263,11 +263,11 @@
 
 (defun lisp-node? (_)
 	; (lisp_node? node) -> :t | :nil
-	(= (logand (code (elem-get 0 _)) 1) 1))
+	(= (logand (code (first _)) 1) 1))
 
 (defun cpp-node? (_)
 	; (cpp_node? node) -> :t | :nil
-	(= (logand (code (elem-get 0 _)) 1) 0))
+	(= (logand (code (first _)) 1) 0))
 
 ;;;;;;;;;;;;;;
 ; default opts
@@ -323,8 +323,8 @@
 	; (and [tst] ...) -> :t | :nil | tst
 	(cond
 		((= (length _) 0))
-		((= (length _) 1) (elem-get 0 _))
-		(:t `(if ,(elem-get 0 _) (and ~(slice 1 -1 _))))))
+		((= (length _) 1) (first _))
+		(:t `(if ,(first _) (and ~(rest _))))))
 
 (defmacro case (_form &rest _body)
 	; (case form [(key|(key ...) body)] ...)
@@ -333,7 +333,7 @@
 			(unless (list? _keys) (setq _keys (list _keys)))
 			(setq _clause_body (pop (prebind (list (macroexpand
 				(if (= (length _clause_body) 1)
-					(elem-get 0 _clause_body)
+					(first _clause_body)
 					(cat '(progn) _clause_body)))))))
 			(or (eql :num (defq _clause_type (pop (type-of _clause_body))))
 				(eql :str _clause_type) (setq _atoms :nil))
@@ -342,20 +342,20 @@
 				(cond
 					((eql _key :t)
 						(setq _default_key :t _default_clause _clause_body))
-					(:t (push (elem-get 0 _map) _key)
-						(push (elem-get 1 _map) _clause_body)))) (list _keys)) _map)
+					(:t (push (first _map) _key)
+						(push (second _map) _clause_body)))) (list _keys)) _map)
 			_body (list (list) (list))))
 	(cond
 		(_default_key
-			(push (elem-get 1 _map) _default_clause)
+			(push (second _map) _default_clause)
 			(if _atoms
-				`(elem-get (or (find ,_form ',(elem-get 0 _map)) -2) ',(elem-get 1 _map))
-				`(eval (elem-get (or (find ,_form ',(elem-get 0 _map)) -2) ',(elem-get 1 _map)))))
+				`(elem-get (or (find ,_form ',(first _map)) -2) ',(second _map))
+				`(eval (elem-get (or (find ,_form ',(first _map)) -2) ',(second _map)))))
 		(:t (if _atoms
-				`(if (defq ,(defq _i (gensym)) (find ,_form ',(elem-get 0 _map)))
-					(elem-get ,_i ',(elem-get 1 _map)))
-				`(if (defq ,(defq _i (gensym)) (find ,_form ',(elem-get 0 _map)))
-					(eval (elem-get ,_i ',(elem-get 1 _map))))))))
+				`(if (defq ,(defq _i (gensym)) (find ,_form ',(first _map)))
+					(elem-get ,_i ',(second _map)))
+				`(if (defq ,(defq _i (gensym)) (find ,_form ',(first _map)))
+					(eval (elem-get ,_i ',(second _map))))))))
 
 (defmacro times (c &rest _)
 	; (times num body)
@@ -409,13 +409,13 @@
 
 (defun map (_f &rest _)
 	; (map lambda seq ...) -> list
-	(defq _l (cap (length (elem-get 0 _)) (list)))
+	(defq _l (cap (length (first _)) (list)))
 	(each! 0 -1 (lambda (&rest _p)
 		(push _l (apply _f _p))) _) _l)
 
 (defun map-rev (_f &rest _)
 	; (map-rev lambda seq ...) -> list
-	(defq _l (cap (length (elem-get 0 _)) (list)))
+	(defq _l (cap (length (first _)) (list)))
 	(each! -1 0 (lambda (&rest _p)
 		(push _l (apply _f _p))) _) _l)
 
@@ -430,7 +430,7 @@
 	(cond
 		(_a (each! 0 -1 (lambda (_e)
 				(setq _a (_f _a _e))) (list _l)))
-		(:t (setq _a (elem-get 0 _l))
+		(:t (setq _a (first _l))
 			(each! 1 -1 (lambda (_e)
 				(setq _a (_f _a _e))) (list _l)))) _a)
 
@@ -439,7 +439,7 @@
 	(cond
 		(_a (each! -1 0 (lambda (_e)
 				(setq _a (_f _a _e))) (list _l)))
-		(:t (setq _a (elem-get -2 _l))
+		(:t (setq _a (last _l))
 			(each! -2 0 (lambda (_e)
 				(setq _a (_f _a _e))) (list _l)))) _a)
 
@@ -449,7 +449,7 @@
 
 (defmacro let (l &rest _)
 	; (let ([(var val) ...]) body)
-	`((lambda ,(map (lambda (_) (elem-get 0 _)) l) ~_) ~(map (lambda (_) (elem-get 1 _)) l)))
+	`((lambda ,(map (lambda (_) (first _)) l) ~_) ~(map (lambda (_) (second _)) l)))
 
 (defmacro let* (l &rest _)
 	; (let* ([(var val) ...]) body)
@@ -483,26 +483,6 @@
 ; Sequences
 ;;;;;;;;;;;
 
-(defun first (_)
-	; (first seq) -> el | :nil
-	(and (> (length _) 0) (elem-get 0 _)))
-
-(defun second (_)
-	; (second seq) -> el | :nil
-	(and (> (length _) 1) (elem-get 1 _)))
-
-(defun third (_)
-	; (third seq) -> el | :nil
-	(and (> (length _) 2) (elem-get 2 _)))
-
-(defun last (_)
-	; (last seq) -> el | :nil
-	(and (> (length _) 0) (elem-get -2 _)))
-
-(defun rest (_)
-	; (rest seq) -> seq
-	(bind '(&optional _ &rest _) _))
-
 (defun erase (s b e)
 	; (erase seq start end) -> seq
 	(cat (slice 0 b s) (slice e -1 s)))
@@ -532,7 +512,7 @@
 
 (defun zip (&rest _)
 	; (zip seq ...) -> list
-	(defq l (cap (length (elem-get 0 _)) (list)))
+	(defq l (cap (length (first _)) (list)))
 	(each! 0 -1 (lambda (&rest _) (push l _)) _)
 	(if (= 0 (length l)) l (apply (const cat) l)))
 
@@ -841,7 +821,7 @@
 					((_fi _l)
 						(_fo _l))
 					(:t (push _stack _l 1)
-						(if (list? (defq _e (elem-get 0 _l))) (push _stack _e 0))
+						(if (list? (defq _e (first _l))) (push _stack _e 0))
 						(_f _e))))
 			((< _ (length _l))
 				;element of list
@@ -861,7 +841,7 @@
 				(merge-obj args (list _))))
 		;enter list func
 		(lambda (_)
-			(and (> (length _) 0) (eql (elem-get 0 _) '#)))
+			(and (> (length _) 0) (eql (first _) '#)))
 		;exit list func
 		progn)
 	`(lambda ,(sort cmp args) ~_))
@@ -884,7 +864,7 @@
 
 (defun age (_)
 	; (age path) -> 0 | time ns
-	(if (setq _ (pii-fstat _)) (elem-get 0 _) 0))
+	(if (setq _ (pii-fstat _)) (first _) 0))
 
 (defun load-stream (_)
 	; (load-stream path) -> :nil | stream

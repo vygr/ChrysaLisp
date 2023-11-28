@@ -89,7 +89,7 @@
 				(path-gen-arc
 					(* +f_width -0.2) (* +f_height -0.2) 4.0 2.0
 					(* +f_width 0o0.1) +eps (path))))))))
-	(fpoly 0xa0ffffff +winding_odd_even (list (elem-get 1 polygons) (elem-get 3 polygons)))
+	(fpoly 0xa0ffffff +winding_odd_even (list (second polygons) (elem-get 3 polygons)))
 	(fpoly 0xff000000 +winding_odd_even (transform-copy (/ angle 2.0) +fp1))
 	(fpoly 0xff000000 +winding_odd_even (transform-copy (+ (/ angle 2.0) +fp_pi) +fp2))
 	(fpoly 0xffffffff +winding_odd_even (transform-copy (+ (/ angle 2.0) +fp_hpi) +fp3))

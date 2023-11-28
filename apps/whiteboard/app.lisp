@@ -39,10 +39,10 @@
 	(+ (logand 0xffffff _) 0x60000000))
 
 (defq +canvas_width 1024 +canvas_height 768 +min_width 320 +min_height 240 +eps 0.25 +tol 3.0
-	*radiuss* (map n2f '(2 6 12)) *stroke_radius* (elem-get 0 *radiuss*)
+	*radiuss* (map n2f '(2 6 12)) *stroke_radius* (first *radiuss*)
 	*palette* (list +argb_black +argb_white +argb_red +argb_green +argb_blue +argb_cyan +argb_yellow +argb_magenta)
 	*palette* (cat *palette* (map trans *palette*)) *undo_stack* (list) *redo_stack* (list)
-	*stroke_col* (elem-get 0 *palette*) *stroke_mode* +event_pen *commited_polygons* (list) overlay_paths (list)
+	*stroke_col* (first *palette*) *stroke_mode* +event_pen *commited_polygons* (list) overlay_paths (list)
 	*picker_mbox* :nil *picker_mode* :nil *running* :t
 	rate (/ 1000000 60) +layer_all (+ +layer_commited +layer_overlay))
 
@@ -82,7 +82,7 @@
 			'())
 		((= 2 (length pnts))
 			;just a point
-			(list (path-gen-arc (elem-get 0 pnts) (elem-get 1 pnts) 0.0 +fp_2pi rad +eps (path))))
+			(list (path-gen-arc (first pnts) (second pnts) 0.0 +fp_2pi rad +eps (path))))
 		(:t ;is a polyline draw
 			(bind '(x y x1 y1 &rest _) pnts)
 			(cond
@@ -205,11 +205,11 @@
 					;load whiteboard
 					(:t (when (ends-with ".cwb" *msg*)
 							(bind '(data _) (read (file-stream *msg*)))
-							(when (eql (elem-get 0 data) "CWB Version 1.0")
+							(when (eql (first data) "CWB Version 1.0")
 								(snapshot)
 								(setq *commited_polygons* (map (lambda ((c p))
 									(list c (map (lambda (_)
-										(apply path _)) p))) (elem-get 1 data)))
+										(apply path _)) p))) (second data)))
 								(redraw-layers +layer_commited))))))
 			((defq *id* (getf *msg* +ev_msg_target_id) action (. *event_map* :find *id*))
 				;call bound event action
@@ -226,20 +226,20 @@
 								(cond
 									((= *stroke_mode* +event_pen)
 										;pen mode, so extend last stroke ?
-										(defq stroke (elem-get +path_path (elem-get -2 overlay_paths))
+										(defq stroke (elem-get +path_path (last overlay_paths))
 											mid_vec (vec-sub new_point last_point))
 										(when (>= (vec-length-squared mid_vec) (* *stroke_radius* *stroke_radius*))
 											(defq mid_point (vec-add last_point (vec-scale mid_vec 0.5)))
 											(path-gen-quadratic
-												(elem-get 0 last_mid_point) (elem-get 1 last_mid_point)
-												(elem-get 0 last_point) (elem-get 1 last_point)
-												(elem-get 0 mid_point) (elem-get 1 mid_point)
+												(first last_mid_point) (second last_mid_point)
+												(first last_point) (second last_point)
+												(first mid_point) (second mid_point)
 												+eps stroke)
 											(path-filter +tol stroke stroke)
 											(setq last_point new_point last_mid_point mid_point)
 											(redraw-layers +layer_overlay)))
 									(:t ;a shape mode
-										(elem-set +path_path (elem-get -2 overlay_paths) (cat last_point new_point))
+										(elem-set +path_path (last overlay_paths) (cat last_point new_point))
 										(redraw-layers +layer_overlay)))
 								)
 							(:u ;was up last time, so start new stroke
@@ -251,8 +251,8 @@
 							(:d ;was down last time, so last point and commit stroke
 								(snapshot)
 								(setq last_state :u)
-								(defq stroke (elem-get +path_path (elem-get -2 overlay_paths)))
-								(push stroke (elem-get 0 new_point) (elem-get 1 new_point))
+								(defq stroke (elem-get +path_path (last overlay_paths)))
+								(push stroke (first new_point) (second new_point))
 								(path-filter 0.5 stroke stroke)
 								(each commit overlay_paths)
 								(clear overlay_paths)

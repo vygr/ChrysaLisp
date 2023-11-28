@@ -12,8 +12,8 @@
 	(enum main tip))
 
 (defq +margin_width (* 8 3)
-	+doc_font (elem-get 0 (font-info *env_window_font*))
-	+term_font (elem-get 0 (font-info *env_terminal_font*)))
+	+doc_font (first (font-info *env_window_font*))
+	+term_font (first (font-info *env_terminal_font*)))
 
 (ui-window *window* (:color +argb_grey15)
 	(ui-title-bar _ "Docs" (0xea19 0xea1b 0xea1a) +event_close)
@@ -33,7 +33,7 @@
 
 (defun handler-func (state)
 	(unless (defq handler (. handlers :find state))
-		(defq module (cat "apps/docs/" (slice 1 -1 state) ".inc"))
+		(defq module (cat "apps/docs/" (rest state) ".inc"))
 		(repl (file-stream module) module)
 		(. handlers :insert state handler))
 	handler)
@@ -49,7 +49,7 @@
 				:color (get :color *window*))
 			(ui-label _ (:min_width +margin_width))
 			(ui-flow page (:flow_flags +flow_down_fill
-					:min_width (elem-get 0 (. vdu :pref_size))))
+					:min_width (first (. vdu :pref_size))))
 			(ui-label _ (:min_width +margin_width)))
 		(defq state :text)
 		(each-line (lambda (line)

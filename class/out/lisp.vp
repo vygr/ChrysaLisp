@@ -19,10 +19,10 @@
 
 	(vp-push :r0)
 	(defq in (method-input 'out :create))
-	(list-bind-args :r1 `(,(elem-get 2 in)) '(:obj))
-	(vp-cpy-ir (elem-get 2 in) (+ str_data net_id_mbox_id) (elem-get 0 in))
-	(vp-cpy-ir (elem-get 2 in) (+ str_data net_id_node_id node_id_node1) (elem-get 1 in))
-	(vp-cpy-ir (elem-get 2 in) (+ str_data net_id_node_id node_id_node2) (elem-get 2 in))
+	(list-bind-args :r1 `(,(third in)) '(:obj))
+	(vp-cpy-ir (third in) (+ str_data net_id_mbox_id) (first in))
+	(vp-cpy-ir (third in) (+ str_data net_id_node_id node_id_node1) (second in))
+	(vp-cpy-ir (third in) (+ str_data net_id_node_id node_id_node2) (third in))
 	(call 'out :create in '(:r1))
 	(vp-pop :r0)
 

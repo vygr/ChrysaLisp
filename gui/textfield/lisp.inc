@@ -178,7 +178,7 @@
 			(raise :text :font :label_text)
 			(defq rx (- (getf event +ev_msg_mouse_rx) (get :offset label_text)) anchor -1)
 			(while (and (<= (setq anchor (inc anchor)) (length text))
-						(> rx (elem-get 0 (font-glyph-bounds font (slice 0 anchor text))))))
+						(> rx (first (font-glyph-bounds font (slice 0 anchor text))))))
 			(setq anchor (max 0 (dec anchor)))
 			(lower :anchor (:cursor anchor :state -1))
 			;adjust text offset
@@ -198,7 +198,7 @@
 			(raise :text :font :label_text)
 			(defq rx (- (getf event +ev_msg_mouse_rx) (get :offset label_text)) cursor -1)
 			(while (and (<= (setq cursor (inc cursor)) (length text))
-						(> rx (elem-get 0 (font-glyph-bounds font (slice 0 cursor text))))))
+						(> rx (first (font-glyph-bounds font (slice 0 cursor text))))))
 			(setq cursor (max 0 (dec cursor)))
 			(lower :cursor)
 			;adjust text offset

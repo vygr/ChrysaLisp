@@ -10,7 +10,7 @@
 
 (defun profile-service ()
 	(when (/= 0 (length (defq services (mail-enquire "*Profile"))))
-		(to-net-id (elem-get 1 (split (pop services) ",")))))
+		(to-net-id (second (split (pop services) ",")))))
 
 (defun profile-ipc (service s)
 	(mail-send service (cat (task-netid) s)))
@@ -25,10 +25,10 @@
 		u +LF +LF)
 	(each (lambda ((k v))
 		(push msg
-			(pad k m) " cnt: " (pad (elem-get 0 v) 8)
-			" ns: " (pad (elem-get 2 v) 8) +LF))
+			(pad k m) " cnt: " (pad (first v) 8)
+			" ns: " (pad (third v) 8) +LF))
 		(sort (lambda ((k1 v1) (k2 v2))
-			(- (elem-get 2 v2) (elem-get 2 v1))) e))
+			(- (third v2) (third v1))) e))
 	(apply (const cat) (push msg +LF)))
 
 (defun profile-report (n &optional reset)
@@ -39,13 +39,13 @@
 (defun profile-instrument (name form)
 	`((cond
 		((defq __e__ (get ',name *profile_map*))
-			(elem-set 0 __e__ (inc (elem-get 0 __e__)))
-			(elem-set 1 __e__ (inc (elem-get 1 __e__)))
-			(if (= (elem-get 1 __e__) 1) (push __e__ (pii-time))))
+			(elem-set 0 __e__ (inc (first __e__)))
+			(elem-set 1 __e__ (inc (second __e__)))
+			(if (= (second __e__) 1) (push __e__ (pii-time))))
 		(:t (def *profile_map* ',name (setq __e__ (list 1 1 0 (pii-time))))))
 	(defq __r__ ((lambda () ~form)))
-	(elem-set 1 __e__ (dec (elem-get 1 __e__)))
-	(if (= (elem-get 1 __e__) 0) (push __e__ (+ (- (pii-time) (pop __e__)) (pop __e__))))
+	(elem-set 1 __e__ (dec (second __e__)))
+	(if (= (second __e__) 0) (push __e__ (+ (- (pii-time) (pop __e__)) (pop __e__))))
 	__r__))
 
 (defmacro defun (n a &rest _)

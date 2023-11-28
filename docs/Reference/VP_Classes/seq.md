@@ -12,9 +12,17 @@
 
 ### (find elem seq)
 
+### (first seq)
+
+### (last seq)
+
 ### (length seq)
 
+### (rest seq)
+
 ### (find-rev elem seq)
+
+### (second seq)
 
 ### (slice start end seq)
 

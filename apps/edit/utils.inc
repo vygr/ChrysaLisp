@@ -66,7 +66,7 @@
 
 (defun eof-gaps ()
 	(list (- (length (. buffer :get_text_line cy)) cx)
-		(- (elem-get 1 (. buffer :get_size)) cy)))
+		(- (second (. buffer :get_size)) cy)))
 
 (defmacro for-all-buffers (&rest _)
 	`(progn

@@ -127,13 +127,13 @@
 						((defq ink (get (sym (apply (const cat) token)) (get :keywords this)))
 							;present in keyword map
 							(push col_list ink))
-						((eql (elem-get 0 token) "+")
+						((eql (first token) "+")
 							;is a constant symbol
 							(push col_list (get :ink_constants this)))
-						((eql (elem-get 0 token) "*")
+						((eql (first token) "*")
 							;is a global symbol
 							(push col_list (get :ink_globals this)))
-						((eql (elem-get 0 token) "-")
+						((eql (first token) "-")
 							;is a negative number
 							(push col_list (get :ink_numbers this)))
 						(:t ;default text color)

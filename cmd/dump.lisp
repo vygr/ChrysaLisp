@@ -32,7 +32,7 @@
 	then will dump stdin.")
 (("-c" "--chunk")
 	,(lambda (args arg)
-		(setq chunk_size (str-as-num (elem-get 0 args)))
+		(setq chunk_size (str-as-num (first args)))
 		(rest args)))
 ))
 

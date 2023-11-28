@@ -32,7 +32,7 @@
 			(:Slider 12)
 			(:Window
 				(case (if (= *mouse_buttons* 0)
-						(elem-get 0 (. view :drag_mode rx ry))
+						(first (. view :drag_mode rx ry))
 						(get :drag_mode view))
 					(1 10) (2 8) (3 5) (4 10) (6 4) (8 8) (9 4) (12 5) (:t 0)))
 			(:t 0)))

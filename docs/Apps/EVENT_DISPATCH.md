@@ -377,7 +377,7 @@ The relevant parts of this function that do the dynamic module loading are:
 ```vdu
 (defun handler-func (state)
 	(unless (defq handler (. handlers :find state))
-		(defq module (cat "apps/docs/" (slice 1 -1 state) ".inc"))
+		(defq module (cat "apps/docs/" (rest state) ".inc"))
 		(repl (file-stream module) module)
 		(. handlers :insert state handler))
 	handler)

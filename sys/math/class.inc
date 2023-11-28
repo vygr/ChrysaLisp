@@ -233,7 +233,7 @@
 	(vec-asr n +fp_shift v))
 
 (defun vec-scale (n &optional s v)
-	(setd s (elem-get 0 (vec-pop 1)) v (vec-top n))
+	(setd s (first (vec-pop 1)) v (vec-top n))
 	(each (# (if (vp-reg? s)
 		(vp-mul-rr s %0)
 		(vp-mul-cr s %0))) v))

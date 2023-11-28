@@ -138,11 +138,11 @@
 		((= id +event_intermediate) (setq started :t) (board-layout (setq difficulty intermediate_settings)))
 		((= id +event_expert) (setq started :t) (board-layout (setq difficulty expert_settings)))
 		((and started (not game_over)
-			(<= +event_click id (+ +event_click (dec (* (elem-get 0 difficulty) (elem-get 1 difficulty))))))
+			(<= +event_click id (+ +event_click (dec (* (first difficulty) (second difficulty))))))
 			(defq cid (- id click_offset))
 			(bind '(gw gh gn) difficulty)
-			(when first_click (setq first_click :nil game (create-game gw gh gn cid) game_board (elem-get 0 game)
-				game_map (elem-get 1 game) game_adj (elem-get 2 game)))
+			(when first_click (setq first_click :nil game (create-game gw gh gn cid) game_board (first game)
+				game_map (second game) game_adj (third game)))
 			(cond
 				((= mouse_down 1)
 					(cond

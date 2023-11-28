@@ -6,8 +6,8 @@
 	+sframes `'(~(map (lambda (_) (Canvas-from-file (cat "apps/freeball/data/staoball_s_" (str _) ".cpm") +load_flag_shared)) (range 1 13))))
 
 (ui-root view (View) (:color 0)
-	(ui-element frame (elem-get 0 +frames))
-	(ui-element sframe (elem-get 0 +sframes)))
+	(ui-element frame (first +frames))
+	(ui-element sframe (first +sframes)))
 
 (defun main ()
 	(defq screen (penv (gui-add-front view)))

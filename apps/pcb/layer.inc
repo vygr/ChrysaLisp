@@ -76,7 +76,7 @@
 						(lambda (record)
 							(if (eql (elem-get +record_layer_line record) layer_line) _))
 						bucket))
-					(elem-set idx bucket (elem-get -2 bucket))
+					(elem-set idx bucket (last bucket))
 					(pop bucket)))
 			(list buckets))))
 

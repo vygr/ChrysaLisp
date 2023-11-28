@@ -488,12 +488,6 @@ should provide the concreate handler
 (filter lambda seq) -> list
 ```
 
-### first
-
-```code
-(first seq) -> el | :nil
-```
-
 ### free-select
 
 ```code
@@ -693,12 +687,6 @@ tells us which vertices are inside the surface
 
 ```code
 (lambda? form) -> :t | :nil
-```
-
-### last
-
-```code
-(last seq) -> el | :nil
 ```
 
 ### let
@@ -1235,12 +1223,6 @@ run pipe farm and collect output
 (replace seq start end seq) -> seq
 ```
 
-### rest
-
-```code
-(rest seq) -> seq
-```
-
 ### restart
 
 ```code
@@ -1277,12 +1259,6 @@ scatter a list of values
 
 ```code
 (search text cpat start) -> (list submatches {-1 | end})
-```
-
-### second
-
-```code
-(second seq) -> el | :nil
 ```
 
 ### seq?
@@ -1461,12 +1437,6 @@ patch stream a with stream b, write to stream c
 
 ```code
 (texture-metrics texture) -> (handle width height)
-```
-
-### third
-
-```code
-(third seq) -> el | :nil
 ```
 
 ### time-in-seconds

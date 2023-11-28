@@ -174,7 +174,7 @@ stack.
 	(list 'elem-set -2 '*vregt* _))
 
 (defmacro get-type ()
-	'(elem-get -2 *vregt*))
+	'(last *vregt*))
 
 (defmacro top-reg ()
 	'(vreg-sym (dec (length *vregt*))))
@@ -250,7 +250,7 @@ Look closer at the `(pop-value)` and `(top-value)` functions.
 ```vdu
 (defun compile-deref ()
 	(if (defq x (top-reg) w (get-type))
-		(defq z (slice 1 -1 w) z (if (eql z "") :nil z) w (elem-get 0 w))
+		(defq z (rest w) z (if (eql z "") :nil z) w (first w))
 		(throw "No type info !" x))
 	(set-type z)
 	(setq w (elem-get (find-rev w "bBsSiIlLp")
@@ -302,10 +302,10 @@ Let's look at what compiling a `:symbol` does.
 					;equate
 					(compile-const _))
 				(:t (throw "Symbol not defined !" _))))
-		((eql 'var (elem-get 1 s))
+		((eql 'var (second s))
 			;variable
 			(add-inst (list 'vp-lea-i :rsp
-				(+ (scope-get (elem-get 0 s)) (elem-get 2 s))
+				(+ (scope-get (first s)) (third s))
 				(push-reg (elem-get 3 s)))))
 		(:t (throw "Symbol not a variable !" _))))
 ```

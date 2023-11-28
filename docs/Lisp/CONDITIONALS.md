@@ -44,7 +44,7 @@ is true. Not just a single form but an implicit `(progn ...)`.
 form and evaluates the body if the result is `:nil`.
 
 ```vdu
-(unless (eql (defq file (elem-get -2 route)) ".")
+(unless (eql (defq file (last route)) ".")
 	(def (defq node (Button)) :text file :border 0)
 	(. node :connect (inc (get :action_event this)))
 	(. root :add_child node))
@@ -140,13 +140,13 @@ the matching body clause, or if no match, the optional `:t` clause.
 			((defq ink (get (sym (apply (const cat) token)) (get :keywords this)))
 				;present in keyword map
 				(push col_list ink))
-			((eql (elem-get 0 token) "+")
+			((eql (first token) "+")
 				;is a constant symbol
 				(push col_list (get :ink_constants this)))
-			((eql (elem-get 0 token) "*")
+			((eql (first token) "*")
 				;is a global symbol
 				(push col_list (get :ink_globals this)))
-			((eql (elem-get 0 token) "-")
+			((eql (first token) "-")
 				;is a negative number
 				(push col_list (get :ink_numbers this)))
 			(:t ;default text color)

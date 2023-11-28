@@ -42,8 +42,8 @@
 				(if (> (length (push buf "")) (const vdu_height))
 					(setq buf (slice (const (dec (neg vdu_height))) -1 buf))))
 			(:t ;char
-				(elem-set -2 buf (cat (elem-get -2 buf) c))))) s)
-	(. vdu :load buf 0 0 (length (elem-get -2 buf)) (dec (length buf))) buf)
+				(elem-set -2 buf (cat (last buf) c))))) s)
+	(. vdu :load buf 0 0 (length (last buf)) (dec (length buf))) buf)
 
 (defun dispatch-job (key val)
 	;send job to child
@@ -100,7 +100,7 @@
 				;child reply, process in sequence order
 				(sort (# (- (getf %1 +reply_seq) (getf %0 +reply_seq))) (push replys msg))
 				(while (and (/= (length replys) 0)
-							(= (getf (elem-get -2 replys) +reply_seq) next_seq))
+							(= (getf (last replys) +reply_seq) next_seq))
 					(setq msg (pop replys) next_seq (inc next_seq))
 					(defq data_type (getf msg +reply_type) data (slice +reply_data -1 msg))
 					(cond

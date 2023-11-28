@@ -49,9 +49,9 @@ Extraction of a single element with `(elem-get index seq)`. Negative indexes
 mean to index from the back of the sequence ! Very useful !
 
 ```vdu
-(elem-get 1 "abcd")
+(second "abcd")
 "b"
-(elem-get -2 (array 9 8 7))
+(last (array 9 8 7))
 7
 ```
 

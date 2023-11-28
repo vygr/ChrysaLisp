@@ -44,7 +44,7 @@
 
 (defun smooth-result (results val)
 	(if (> (length (push results val)) +smooth_steps)
-		(setq results (slice 1 -1 results)))
+		(setq results (rest results)))
 	(list results (/ (reduce (const +) results 0) (length results))))
 
 (defun update-result (node &rest vals)

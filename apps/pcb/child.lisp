@@ -11,7 +11,7 @@
 (defun route (select reply_mbox prog_mbox
 		grid_res vias_cost quant flood_range even_range odd_range data)
 	(defq pcb_list (pcb-read data))
-	(bind '(width height depth) (elem-get 0 pcb_list))
+	(bind '(width height depth) (first pcb_list))
 	(bind '(verb) '(1))
 	(defq pcb (Pcb width height depth grid_res verb quant vias_cost flood_range even_range odd_range))
 	(each! 1 -1 (lambda ((id track_radius via_radius track_gap pads wires &optional paths))

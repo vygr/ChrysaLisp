@@ -18,7 +18,7 @@
 (defun lighting (col at)
 	; (lighting col at)
 	;very basic attenuation and diffuse
-	(defq alpha (elem-get 0 col) col (slice 1 -1 col))
+	(defq alpha (first col) col (rest col))
 	(bind '(r g b) (vec-min (vec-add
 		;attenuation
 		(vec-scale col (* (n2f at) 255.0) (const (cat +fixeds_tmp3)))
@@ -30,7 +30,7 @@
 (defun lighting-at3 (col at sp)
 	; (lighting-at3 col at sp)
 	;very basic attenuation, diffuse and specular
-	(defq alpha (elem-get 0 col) col (slice 1 -1 col))
+	(defq alpha (first col) col (rest col))
 	(bind '(r g b) (vec-min (vec-add (vec-add
 		;attenuation
 		(vec-scale col (* (n2f at) (const (/ 255.0 3.0))) (const (cat +fixeds_tmp3)))
@@ -224,7 +224,7 @@
 		(raise :poly_buckets)
 		(. scene :walk_nodes
 			(lambda (object children)
-				(defq mat4x4_obj (mat4x4-mul (elem-get -2 matrix_stack) (. object :get_matrix))
+				(defq mat4x4_obj (mat4x4-mul (last matrix_stack) (. object :get_matrix))
 					imat4x4_obj (mat4x4-invert mat4x4_obj))
 				(push matrix_stack mat4x4_obj)
 				(when (def? :mesh object)

@@ -32,16 +32,16 @@
 	; (mat3x2-mul-f mat3x2_a mat3x2_b) -> mat3x2-f
 	(defq mar0 (slice 0 3 ma) mar1 (slice 3 -1 ma)
 		mbr0 (slice 0 3 mb) mbr1 (slice 3 -1 mb)
-		mbc0 (fixeds (elem-get 0 mbr0) (elem-get 0 mbr1))
-		mbc1 (fixeds (elem-get 1 mbr0) (elem-get 1 mbr1))
-		mbc2 (fixeds (elem-get 2 mbr0) (elem-get 2 mbr1) 1.0))
+		mbc0 (fixeds (first mbr0) (first mbr1))
+		mbc1 (fixeds (second mbr0) (second mbr1))
+		mbc2 (fixeds (third mbr0) (third mbr1) 1.0))
 	(Mat3x2-f (nums-dot mbc0 mar0) (nums-dot mbc1 mar0) (nums-dot mbc2 mar0)
 		(nums-dot mbc0 mar1) (nums-dot mbc1 mar1) (nums-dot mbc2 mar1)))
 
 (defun read-col (val)
 	(case (length val)
-		(4 (canvas-to-argb32 (str-to-num (cat "0xf" (slice 1 -1 val))) 12))
-		(7 (canvas-to-argb32 (str-to-num (cat "0x" (slice 1 -1 val))) 24))
+		(4 (canvas-to-argb32 (str-to-num (cat "0xf" (rest val))) 12))
+		(7 (canvas-to-argb32 (str-to-num (cat "0x" (rest val))) 24))
 		(:t (throw "Unknown # val !" val))))
 
 (defun read-rgb (val)
@@ -52,8 +52,8 @@
 	(defq stack (reverse (split val ")")) ma (. entry :find "transform"))
 	(while (defq transform (pop stack))
 		(defq args (split transform (const (cat "(, " (ascii-char 9) (ascii-char 10))))
-			key (elem-get 0 args)
-			vals (map (# (n2f (str-to-num %0))) (slice 1 -1 args))
+			key (first args)
+			vals (map (# (n2f (str-to-num %0))) (rest args))
 			mb (case key
 			("matrix"
 				(bind '(m00 m01 m10 m11 tx ty) vals)
@@ -157,7 +157,7 @@
 		(:t val)))
 
 (defun push-attributes (stack keys vals)
-	(push stack (defq entry (. (elem-get -2 stack) :copy)))
+	(push stack (defq entry (. (last stack) :copy)))
 	(each (lambda (key val)
 		(cond
 			((eql key "style")
@@ -271,7 +271,7 @@
 		(lambda (text)
 			;render text
 			(bind '(x y family weight size anchor baseline)
-				(gather (defq entry (elem-get -2 stack))
+				(gather (defq entry (last stack))
 					"x" "y" "font-family" "font-weight" "font-size"
 					"text-anchor" "dominant-baseline"))
 			(defq font (create-font (cat "fonts/" family "-" weight ".ctf") (n2i size)))

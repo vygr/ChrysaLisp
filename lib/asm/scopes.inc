@@ -98,18 +98,18 @@
 	; (def-vars [(byte field ...)] ...)
 	(defq prog (list progn))
 	(each (lambda (line)
-		(case (elem-get 0 line)
+		(case (first line)
 			(align
 				(if (> (length line) 1)
-					(push prog `(setq *scopes_sp* (align *scopes_sp* ,(eval (elem-get 1 line)))))
+					(push prog `(setq *scopes_sp* (align *scopes_sp* ,(eval (second line)))))
 					(push prog '(setq *scopes_sp* (align *scopes_sp* +long_size)))))
 			(offset
 				(push prog
-					`(scope-def-sym ',(elem-get 1 line) 'var *scopes_sp* 0 "")))
+					`(scope-def-sym ',(second line) 'var *scopes_sp* 0 "")))
 			(struct
 				(push prog
-					`(scope-def-sym ',(elem-get 1 line) 'var *scopes_sp* 0 "")
-					`(setq *scopes_sp* (+ *scopes_sp* ,(eval (elem-get 2 line))))))
+					`(scope-def-sym ',(second line) 'var *scopes_sp* 0 "")
+					`(setq *scopes_sp* (+ *scopes_sp* ,(eval (third line))))))
 			(union
 				(defq o (gensym) m (gensym))
 				(push prog `(defq ,o *scopes_sp* ,m *scopes_sp*))
@@ -119,7 +119,7 @@
 						`(setq ,m (max ,m *scopes_sp*) *scopes_sp* ,o))) (list line))
 				(push prog `(setq *scopes_sp* ,m)))
 			(:t
-				(if (defq alignment (find (elem-get 0 line)
+				(if (defq alignment (find (first line)
 						'(short int long ushort uint ulong ptr pptr
 							pubyte pushort puint pulong pbyte pshort pint plong)))
 					(push prog
@@ -129,7 +129,7 @@
 								+ptr_size +ptr_size +ptr_size +ptr_size
 								+ptr_size +ptr_size +ptr_size +ptr_size))))))
 				(each! 1 -1 (lambda (var)
-					(case (elem-get 0 line)
+					(case (first line)
 						(byte (scope-new-var "b" +byte_size))
 						(short (scope-new-var "s" +short_size))
 						(int (scope-new-var "i" +int_size))

@@ -84,7 +84,7 @@ in the right direction. To see it run, just copy this into a file called
 16:         ; args   - List of command line arguments
 17:
 18:         ; Get the args and omit command name at position 0
-19:         (defq args (slice 1 -1 (stdio-get-args stdio)))
+19:         (defq args (rest (stdio-get-args stdio)))
 20:         ; prin to stdout without CR
 21:         (prin "Hello World")
 22:         ; Test for greeting

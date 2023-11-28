@@ -47,8 +47,8 @@
 	;_4 = out parameters
 	;_6 = temp reg
 	(setd _6 :r13)
-	(defq m (method-lookup _1 _2) x (list) s (elem-get 2 m))
-	(if (eql (elem-get 1 m) :static)
+	(defq m (method-lookup _1 _2) x (list) s (third m))
+	(if (eql (second m) :static)
 		(throw "Abi methods must be virtual !" (list _1 _2)))
 	(if (or (find-rev _5 s) (find-rev _6 s))
 		(throw "Dispatch/Temp register conflicts with arg !" (list _5 _6 s)))

@@ -30,7 +30,7 @@
 	(let ((final 0) (index 1) (iszero :nil) (isnum :t) (isneg :nil))
 		(cond
 			((and (= (length s) 1) (eql (code s) 48)) (setq iszero :t))
-			((starts-with "-" s) (setq isneg :t s (slice 1 -1 s)))
+			((starts-with "-" s) (setq isneg :t s (rest s)))
 			(:t :nil))
 		(if (some (lambda (c) (not (< 47 (code c) 58))) s) (setq final :nil))
 		(if (and final (not iszero)) (each (lambda (c)
@@ -42,7 +42,7 @@
 (defun get-by-val (n v in)
 	(let ((out :nil))
 		(cond
-			((list? (defq element (elem-get n (elem-get 0 in))))
+			((list? (defq element (elem-get n (first in))))
 				(each (lambda (e) (if (elem-find v (elem-get +tz_locations e)) (setq out e))) in))
 			((num? element) (each (lambda (e) (if (=  (elem-get n e) v) (setq out e))) in))
 			(:t (each (lambda (e) (if (eql (elem-get n e) v) (setq out e))) in)))

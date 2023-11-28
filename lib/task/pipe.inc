@@ -63,7 +63,7 @@
 
 	(defmethod :write (string)
 		; (. pipe :write string) -> pipe
-		(stream-flush (write (elem-get -2 (get :streams this)) string))
+		(stream-flush (write (last (get :streams this)) string))
 		this)
 
 	(defmethod :close ()

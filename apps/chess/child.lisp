@@ -5,7 +5,7 @@
 
 ;piece map accses
 (defmacro piece-map (_ i)
-	`(elem-get (find-rev ,i ,(elem-get 0 (eval _))) (elem-get 1 ,_)))
+	`(elem-get (find-rev ,i ,(first (eval _))) (second ,_)))
 
 ;description of a pieces check influence
 (enums +vector 0
@@ -375,7 +375,7 @@
 						((= (abs score) +timeout_value)
 							+timeout_value)
 						((>= alpha beta))))
-				(list (sort (lambda (a b) (- (elem-get 0 b) (elem-get 0 a))) ply0_brds))))
+				(list (sort (lambda (a b) (- (first b) (first a))) ply0_brds))))
 		(if (num? timeout) :t
 			(setq nbrd (if pbrd pbrd nbrd) pbrd :nil))) (list (range 1 max_ply)))
 	nbrd)

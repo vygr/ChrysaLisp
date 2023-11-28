@@ -23,13 +23,13 @@
 	(defq out (push (clear '()) 'progn) labels (env 11)
 		last_e :nil pc -1 pc_sym :nil)
 	(each (lambda (op)
-		(unless (lambda? (defq e (elem-get 0 op)))
+		(unless (lambda? (defq e (first op)))
 			(cond
 				((eql e 'emit-label)
 					(unless (eql e last_e)
 						(setq pc_sym (sym (str "_" (setq pc (inc pc)))))
 						(push out op))
-					(def labels (elem-get -2 (elem-get -2 op)) pc_sym))
+					(def labels (last (last op)) pc_sym))
 				((push out op))))
 		(setq last_e e)) emit_list)
 	(walk-list out
@@ -136,6 +136,6 @@
 (defun vp-max-rr (a b) (vpif (list a '> b)) (vp-cpy-rr a b) (endif))
 (defun vp-abs-rr (a b) (vp-cpy-rr a b) (vpif (list a '< 0)) (vp-mul-cr -1 b) (endif))
 (defun vp-simd (op &rest v)
-	(unless (every (# (= (length %0) (length (elem-get 0 v)))) v)
+	(unless (every (# (= (length %0) (length (first v)))) v)
 		(throw "Mismatched vectors !" v))
 	(each! 0 -1 op v))
