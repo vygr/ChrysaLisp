@@ -213,7 +213,3 @@
 			(setq radius (* (+ radius rv) +real_1/2))
 			(vec-sub p (vec-scale (vec-norm pv) radius +reals_tmp3) center))) verts)
 	(list center radius))
-
-(defun print-vec (v)
-	(prin (join (map (# (pad (n2f %0) 8)) v) " "))
-	(print))
