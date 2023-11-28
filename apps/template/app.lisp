@@ -11,7 +11,8 @@
 (enums +event 0
 	(enum close max min)
 	(enum undo redo rewind cut copy paste)
-	(enum main settings status info))
+	(enum main settings status info)
+	(enum button_1 button_2 button_3 button_4))
 
 (enums +select 0
 	(enum main tip timer))
@@ -30,10 +31,10 @@
 		(ui-backdrop _ (:color (const *env_toolbar_col*))))
 	(ui-flow *tab_flow* (:flow_flags +flow_stack_fill :color +argb_black)
 		(ui-grid *main_widget* (:grid_width 2 :grid_height 2 :color +argb_orange)
-			(ui-button _ (:text "1"))
-			(ui-button _ (:text "2"))
-			(ui-button _ (:text "3"))
-			(ui-button _ (:text "4")))
+			(. (ui-button _ (:text "1")) :connect +event_button_1)
+			(. (ui-button _ (:text "2")) :connect +event_button_2)
+			(. (ui-button _ (:text "3")) :connect +event_button_3)
+			(. (ui-button _ (:text "4")) :connect +event_button_4))
 		(ui-backdrop *settings_widget* (:min_width 512 :min_height 256
 				:ink_color +argb_red :spacing 16 :style :lines))
 		(ui-backdrop *status_widget* (:ink_color +argb_green

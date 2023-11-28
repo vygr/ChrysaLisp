@@ -34,3 +34,15 @@
 (defun action-info-tab ()
 	(debug-brk "info" :t)
 	(select-panel *info_widget*))
+
+(defun action-button-1 ()
+	(debug-brk "button1" :t))
+
+(defun action-button-2 ()
+	(debug-brk "button2" :t))
+
+(defun action-button-3 ()
+	(debug-brk "button3" :t))
+
+(defun action-button-4 ()
+	(debug-brk "button4" :t))

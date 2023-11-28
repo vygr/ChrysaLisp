@@ -21,18 +21,26 @@
 	+event_cut action-cut
 	+event_copy action-copy
 	+event_paste action-paste
+	+event_button_1 action-button-1
+	+event_button_2 action-button-2
+	+event_button_3 action-button-3
+	+event_button_4 action-button-4
 	+event_main action-main-tab
 	+event_settings action-settings-tab
 	+event_status action-status-tab
 	+event_info action-info-tab)
 
 *key_map* (Fmap-kv
-	(ascii-code "1") action-main-tab
-	(ascii-code "2") action-settings-tab
-	(ascii-code "3") action-status-tab
-	(ascii-code "4") action-info-tab)
+	(ascii-code "1") action-button-1
+	(ascii-code "2") action-button-2
+	(ascii-code "3") action-button-3
+	(ascii-code "4") action-button-4)
 
-*key_map_shift* (Fmap-kv)
+*key_map_shift* (Fmap-kv
+	(ascii-code "!") action-main-tab
+	(ascii-code "@") action-settings-tab
+	(ascii-code "#") action-status-tab
+	(ascii-code "$") action-info-tab)
 
 *key_map_control* (Fmap-kv
 	(ascii-code "z") action-undo
