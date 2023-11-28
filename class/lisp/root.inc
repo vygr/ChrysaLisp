@@ -501,7 +501,9 @@
 
 (defun slices (seq)
 	; (slices seq) -> seqs
-	(map (lambda (x) (slice _ (inc _) seq)) seq))
+	(defq out (cap (length seq) (list)) i 0)
+	(while (< i (length seq)) (push out (slice i (setq i (inc i)) seq)))
+	out)
 
 (defun join (seqs seq &optional mode)
 	; (join seqs seq &optional mode) -> seq
