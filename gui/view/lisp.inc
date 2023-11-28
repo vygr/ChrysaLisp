@@ -207,7 +207,14 @@
 		(while (and root (eql (defq id (getf root +view_owner_id 0))
 					(const (pad "" +net_id_size (ascii-char 0)))))
 			(setq root (penv root)))
+		(if (eql id (const (pad "" +net_id_size (ascii-char -1))))
+			(setq id :nil))
 		(if root id))
+
+	(defmethod :set_owner (id)
+		; (. view :set_owner netid) -> view
+		(setf this +view_owner_id id 0)
+		this)
 
 	(defmethod :connect (id)
 		; (. view :connect id) -> view

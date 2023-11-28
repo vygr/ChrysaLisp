@@ -192,6 +192,12 @@ overide the default 'this' env with a View component
 (. view :set_flags value mask) -> view
 ```
 
+### :set_owner
+
+```code
+(. view :set_owner netid) -> view
+```
+
 ### :set_pos
 
 ```code

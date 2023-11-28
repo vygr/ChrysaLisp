@@ -105,12 +105,12 @@
 							(.-> view :hide :sub))
 						((= cmd 3)
 							;add view at front
-							(setf view +view_owner_id owner 0)
+							(. view :set_owner owner)
 							(. *screen* :add_back view)
 							(. view :to_front))
 						((= cmd 4)
 							;add view at back
-							(setf view +view_owner_id owner 0)
+							(. view :set_owner owner)
 							(. *screen* :add_back view)
 							(. view :set_flags +view_flag_dirty_all +view_flag_dirty_all)))
 					(mail-send reply msg))

@@ -122,18 +122,6 @@ trashes
 :r1-:r3
 ```
 
-### :find_owner -> gui/view/find_owner
-
-```code
-inputs
-:r0 = view object (ptr)
-outputs
-:r0 = view object (ptr)
-:r1-:r3 = 0, else mailbox ID of owner (net_id)
-trashes
-:r1-:r4
-```
-
 ### :forward_tree -> gui/view/forward_tree
 
 ```code
