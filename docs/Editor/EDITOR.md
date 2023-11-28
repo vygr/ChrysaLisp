@@ -7,5 +7,5 @@ file tree.
 ## UI
 
 ```widget
-apps/edit/widgets.inc
+apps/edit/widgets.inc *window* 0 512
 ```
