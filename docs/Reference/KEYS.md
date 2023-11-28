@@ -168,10 +168,10 @@
 ### *key_map*
 
 ```code
-(ascii-code "1") action-main-tab
-(ascii-code "2") action-settings-tab
-(ascii-code "3") action-status-tab
-(ascii-code "4") action-info-tab
+(ascii-code "1") action-button-1
+(ascii-code "2") action-button-2
+(ascii-code "3") action-button-3
+(ascii-code "4") action-button-4
 ```
 
 ### *key_map_control*
@@ -184,6 +184,15 @@
 (ascii-code "v") action-paste
 (ascii-code "=") action-maximise
 (ascii-code "-") action-minimise
+```
+
+### *key_map_shift*
+
+```code
+(ascii-code "!") action-main-tab
+(ascii-code "@") action-settings-tab
+(ascii-code "#") action-status-tab
+(ascii-code "$") action-info-tab
 ```
 
 ## apps/terminal/actions.inc
