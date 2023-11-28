@@ -8,6 +8,8 @@ In no particular order but to just to ensure I get thoughts down. I'll keep
 adding to this as I go along. If anybody would like to try helping out, then
 just get in touch.
 
+* Investigate the embedded Window clipping bug.
+
 * Extend `(split)` to allow splitting of any sequence by any sequence. Any
 element that `(find)` returns true for, within the splitter, counts as a
 splitting element.
