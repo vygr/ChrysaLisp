@@ -10,8 +10,6 @@ just get in touch.
 
 * WYSIWYG UI tree Editor.
 
-* Investigate the embedded Window clipping bug.
-
 * Extend `(split)` to allow splitting of any sequence by any sequence. Any
 element that `(find)` returns true for, within the splitter, counts as a
 splitting element.
