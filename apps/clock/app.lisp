@@ -10,7 +10,7 @@
 	(enum main timer))
 
 (defq clock_size 256 clock_scale 1 dotw :nil face (list) eps 0.25
-	seconds 0.0 second 0 minutes 0.0 minute 0 hours 0.0 hour 0 id :t
+	seconds 0.0 sec 0 minutes 0.0 minute 0 hours 0.0 hour 0 id :t
 	+rate (/ 1000000 1))
 
 (ui-window *window* ()
@@ -26,7 +26,7 @@
 
 (defun make-digital-time ()
 	(bind '(sc mn hr _ _ _ wk) (date))
-	(setq second sc minute mn hour hr dotw wk))
+	(setq sec sc minute mn hour hr dotw wk))
 
 (defun make-analog-time ()
 	(bind '(s m h) (float-time))
@@ -36,7 +36,7 @@
 	(if (and *env_clock_twelve_hour* (> hour 12)) (setq hour (- hour 12)))
 	(cat (if *env_clock_dotw* (day-of-the-week dotw) "") " "
 		(if *env_clock_pad_hour* (pad hour 2 "0") (str hour)) (str ":" (pad minute 2 "0"))
-		(if (eql *env_clock_seconds* :t) (str ":" (pad second 2 "0")) "")))
+		(if (eql *env_clock_seconds* :t) (str ":" (pad sec 2 "0")) "")))
 
 (defun transform (_ a s &optional x y)
 	(defq sa (sin a) ca (cos a) x (opt x 0.0) y (opt y 0.0))
