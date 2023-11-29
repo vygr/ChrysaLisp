@@ -12,6 +12,9 @@ New Editor collection actions. `action-collect` and `action-collect-global`.
 New `(escape string)` charclass lib function. Editor now uses this to auto
 escape the pattern if in regexp mode when useing `action-set-find-text`.
 
+New Docs application section handler for widget embedding. The `EDITOR.md` and
+`VIEWER.md` docs show the idea.
+
 ------
 
 Profile app updated to use a syntax highlighted buffer, and to follow the Debug

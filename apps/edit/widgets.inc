@@ -88,7 +88,8 @@
 				(ui-flow _ (:flow_flags +flow_left_fill)
 					(. (ui-slider *yslider*) :connect +event_yscroll)
 					(ui-flow *edit_flow* (:flow_flags +flow_up_fill)
-						(. (ui-slider *xslider*) :connect +event_xscroll)))))))
+						(. (ui-slider *xslider*) :connect +event_xscroll)
+						(ui-backdrop *placeholder* (:style :lines :ink_color +argb_white))))))))
 
 (ui-tool-tips *main_toolbar*
 	'("undo" "redo" "rewind" "global undo" "global redo"
