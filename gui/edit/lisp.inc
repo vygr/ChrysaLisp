@@ -508,7 +508,7 @@
 					((and (defq match (elem-get scroll_y found))
 							(nempty? (defq match (first match))))
 						(defq cx 0 line (clear '()))
-						(each (lambda ((x x1))
+						(each (lambda (((x x1) &rest _))
 							(push line (slice cx x background) (slice x x1 color_found))
 							(setq cx x1)) match)
 						(push line (slice cx -1 background))

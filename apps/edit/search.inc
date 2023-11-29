@@ -32,11 +32,11 @@
 				(if (> fy1 fy) (setq sy (max sy fy) sy1 (min sy1 fy1)))
 				(if (< cy sy) (setq cy sy cx 0))
 				(when (and (< cy sy1) (defq next (some! cy sy1 :nil
-					(lambda ((indexes substrs))
+					(lambda ((sr sm))
 						(defq y _)
-						(some (lambda ((x x1)) (cond
+						(some (lambda (((x x1) &rest _)) (cond
 							((> y cy) (list x x1 y))
-							((>= x cx) (list x x1 y)))) indexes))
+							((>= x cx) (list x x1 y)))) sr))
 						(list found))))
 					(bind '(x x1 y) next)
 					(. *edit* :set_anchor x y)
@@ -56,11 +56,11 @@
 				(if (> fy1 fy) (setq sy (max sy fy) sy1 (min sy1 fy1)))
 				(if (>= cy sy1) (setq cy (dec sy1) cx +max_int))
 				(when (and (>= cy sy) (defq next (some! (inc cy) sy :nil
-					(lambda ((indexes substrs))
+					(lambda ((sr sm))
 						(defq y _)
-						(some-rev (lambda ((x x1)) (cond
+						(some-rev (lambda (((x x1) &rest _)) (cond
 							((< y cy) (list x x1 y))
-							((< x cx) (list x x1 y)))) indexes))
+							((< x cx) (list x x1 y)))) sr))
 						(list found))))
 					(bind '(x x1 y) next)
 					(. *edit* :set_anchor x1 y)
@@ -80,14 +80,15 @@
 
 (defun build-replace (found rep_text rep_matchs sx sy sx1)
 	(when (< sy (length found))
-		(bind '(indexs substrs) (elem-get sy found))
-		(when (defq subs (some (lambda ((x x1)) (and (= x sx) (= x1 sx1) _)) indexs))
+		(bind '(sr sm) (elem-get sy found))
+		(when (defq mi (some (lambda (((x x1) &rest __))
+					(and (= x sx) (= x1 sx1) _)) sr))
 			(when regexp
-				(setq subs (if (>= subs (length substrs)) '() (elem-get subs substrs)))
-				(each! -1 0 (lambda ((x x1) _ (s))
+				(setq sm (elem-get mi sm))
+				(each! -1 0 (lambda (((x x1) _) (_ s))
 						(setq rep_text (replace rep_text x x1
-							(if (< (defq s (str-to-num s)) (length subs))
-								(elem-get s subs) ""))))
+							(if (< (defq s (str-to-num s)) (length sm))
+								(elem-get s sm) ""))))
 					rep_matchs))
 			rep_text)))
 
@@ -117,14 +118,14 @@
 			(unless noclip
 				(bind '(_ fy _ fy1) (. *edit* :get_find))
 				(if (> fy1 fy) (setq sy (max sy fy) sy1 (min sy1 fy1))))
-			(each! sy sy1 (lambda ((indexes substrs))
+			(each! sy sy1 (lambda ((sr sm))
 				(defq y _)
-				(each-rev (lambda ((x x1))
+				(each-rev (lambda (((x x1) &rest _))
 					(when (defq rep (build-replace found rep_text rep_matchs x y x1))
 						(.-> buffer
 							(:set_cursor x y)
 							(:delete (- x1 x))
-							(:insert rep)))) indexes)) (list found)))
+							(:insert rep)))) sr)) (list found)))
 		(bind '(cx cy) (. *edit* :get_cursor))
 		(. *edit* :set_anchor cx cy)
 		(refresh)))

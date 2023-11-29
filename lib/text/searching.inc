@@ -16,11 +16,11 @@
 	(. +regexp :match? _t _p))
 
 (defun substr (_t _p)
-	; (substr text substr) -> (slices () ())
+	; (substr text substr) -> (subslices submatches)
 	(. +substr :search _t _p))
 
 (defun matches (_t _p)
-	; (matches text regexp) -> (slices subslices submatches)
+	; (matches text regexp) -> (subslices submatches)
 	(. +regexp :search _t _p))
 
 (defun query (_p _w _r)

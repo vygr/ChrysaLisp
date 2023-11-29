@@ -133,7 +133,7 @@
 			(:rrb (cache (static-qq ((:nil
 				(progn (elem-set ,token trace si) 1))))))
 			(:op (defq a (pop stack))
-				(and (find token "+*?|") (notany (const first) a)
+				(and (find token +op_chars) (notany (const first) a)
 					(throw "Regexp bad operator !" token))
 				(case token
 					((+op_cat +op_tac) (cat (pop stack) a))
@@ -241,6 +241,7 @@
 	(defmethod :compile (pattern)
 		; (. regexp :compile pattern) -> :nil | meta
 		(raise :meta_cache)
+		(setq pattern (cat "(" pattern ")"))
 		(unless (defq cpat (. meta_cache :find pattern))
 			(setq cpat (catch (compile (postfix (tokenize pattern))) :t))
 			(. meta_cache :insert pattern cpat))
@@ -256,19 +257,18 @@
 			(/= x1 -1)))
 
 	(defmethod :search (text pattern &optional cpat)
-		; (. regexp :search text pattern &optional meta) -> (slices subslices submatches)
-		(defq out (list) outr (list) outs (list)
-			cpat (opt cpat (. this :compile pattern)))
-		(when cpat
-			(defq x -1)
-			(while (< (setq x (inc x)) (length text))
-				(when (> (bind '(sl x1) (search text cpat x)) x)
-					(push out (list x x1))
-					(push outr sl)
-					(push outs (map (lambda ((s s1))
-						(if (< s s1) (slice s s1 text) (slice 0 0 text))) sl))
-					(setq x (dec x1)))))
-		(list out outr outs))
+		; (. regexp :search text pattern &optional meta) -> (subslices submatches)
+		(when (defq outr (list) outs (list) cpat (opt cpat (. this :compile pattern)))
+			(defq x 0)
+			(while (< x (length text))
+				(cond
+					((> (bind '(sl x1) (search text cpat x)) x)
+						(push outr sl)
+						(push outs (map (lambda ((s s1))
+							(if (< s s1) (slice s s1 text) (slice 0 0 text))) sl))
+						(setq x x1))
+					((setq x (inc x))))))
+		(list outr outs))
 	)
 
 ;module

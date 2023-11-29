@@ -511,9 +511,9 @@
 				(if (> (length line) 0)
 					(unless index
 						(task-slice)
-						(bind '(indexs sm substrs) (. engine :search line pattern meta))
-						(setq substrs (map (# (map (# (intern allsubs %0)) %0)) substrs))
-						(elem-set _ buffer_found (list indexs substrs)))
+						(bind '(sr sm) (. engine :search line pattern meta))
+						(setq sm (map (# (map (# (intern allsubs %0)) %0)) sm))
+						(elem-set _ buffer_found (list sr sm)))
 					(elem-set _ buffer_found '(()()))))
 				(get :buffer_line this) buffer_found))
 		buffer_found)
