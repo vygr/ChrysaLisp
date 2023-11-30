@@ -23,3 +23,6 @@
 
 (ui-tool-tips *main_toolbar*
 	'("undo" "redo" "rewind" "cut" "copy" "paste"))
+
+(ui-tool-tips *stack_flow*
+	'("main_view" "settings_view" "status_view" "info_view"))

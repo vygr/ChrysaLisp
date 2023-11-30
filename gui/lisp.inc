@@ -190,9 +190,10 @@
 	; (ui-view name [props] [body]) -> view
 	`(ui-element ,n (View) ,p ~x))
 
-(defun ui-tool-tips (toolbar tips)
-	; (ui-tool-tips toolbar tips)
-	(each (# (def %0 :tip_text %1)) (. toolbar :children) tips))
+(defun ui-tool-tips (view tips)
+	; (ui-tool-tips view tips)
+	(if (Stack? view) (setq view (get :tab_flow view)))
+	(each (# (def %0 :tip_text %1)) (. view :children) tips))
 
 ;; (defun ui-save (stream view)
 ;;     (defq tree (Lmap-kv :type (last (. view :type_of))) stack (list view tree))
