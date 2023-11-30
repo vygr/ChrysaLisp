@@ -142,8 +142,23 @@ Title bar has a single close Button that will send an action event of
 
 ### (ui-window name [props] [body]) -> window
 
+```vdu
+(defmacro ui-window (n &optional p &rest x)
+	; (ui-window name [props] [body]) -> window
+	(ui-props p
+		:font *env_window_font*
+		:ink_color *env_ink_col*
+		:color *env_window_col*
+		:hint_color *env_hint_col*
+		:no_hint_color *env_no_hint_col*
+		:border *env_window_border*
+		:shadow *env_window_shadow*)
+	`(ui-root ,n (Window) ,p
+		(ui-flow _ (:flow_flags +flow_down_fill) ~x)))
+```
+
 ```widget
-apps/docs/widgets.inc *ui_window* 0 0
+apps/docs/ui/window.inc *ui_window* 0 0
 ```
 
 Creates a Window instance, with name (use _ if not required), optional property
@@ -164,25 +179,16 @@ set these in their own private `env.inc` file. See the `apps/login/` folder.
 
 `:color :border :shadow :child :min_width :min_height`
 
-```vdu
-(defmacro ui-window (n &optional p &rest x)
-	; (ui-window name [props] [body]) -> window
-	(ui-props p
-		:font *env_window_font*
-		:ink_color *env_ink_col*
-		:color *env_window_col*
-		:hint_color *env_hint_col*
-		:no_hint_color *env_no_hint_col*
-		:border *env_window_border*
-		:shadow *env_window_shadow*)
-	`(ui-root ,n (Window) ,p
-		(ui-flow _ (:flow_flags +flow_down_fill) ~x)))
-```
-
 ### (ui-grid name [props] [body]) -> grid
 
+```vdu
+(defmacro ui-grid (n &optional p &rest x)
+	; (ui-grid name [props] [body]) -> grid
+	`(ui-element ,n (Grid) ,p ~x))
+```
+
 ```widget
-apps/docs/widgets.inc *ui_grid* 0 0
+apps/docs/ui/grid.inc *ui_grid* 0 0
 ```
 
 Creates a Grid instance, with name, optional property list and nested forms.
@@ -194,16 +200,16 @@ Creates a Grid instance, with name, optional property list and nested forms.
 If `:grid_width` or `:grid_height` equals 0 then the other property will be
 calculated based on the number of child views contained.
 
-```vdu
-(defmacro ui-grid (n &optional p &rest x)
-	; (ui-grid name [props] [body]) -> grid
-	`(ui-element ,n (Grid) ,p ~x))
-```
-
 ### (ui-flow name [props] [body]) -> flow
 
+```vdu
+(defmacro ui-flow (n &optional p &rest x)
+	; (ui-flow name [props] [body]) -> flow
+	`(ui-element ,n (Flow) ,p ~x))
+```
+
 ```widget
-apps/docs/widgets.inc *ui_flow* 0 0
+apps/docs/ui/flow.inc *ui_flow* 0 0
 ```
 
 Creates a Flow instance, with name, optional property list and nested forms.
@@ -229,16 +235,16 @@ Useful flow combos:
 +flow_stack_fill
 ```
 
-```vdu
-(defmacro ui-flow (n &optional p &rest x)
-	; (ui-flow name [props] [body]) -> flow
-	`(ui-element ,n (Flow) ,p ~x))
-```
-
 ### (ui-stack name tabs [props] [body]) -> stack
 
+```vdu
+(defmacro ui-stack (n t &optional p &rest x)
+	; (ui-stack name tabs [props] [body]) -> stack
+	`(ui-element ,n (Stack ,t) ,p ~x))
+```
+
 ```widget
-apps/docs/widgets.inc *ui_stack* 0 0
+apps/docs/ui/stack.inc *ui_stack* 0 0
 ```
 
 Creates a Stack instance, with name, selection tabs from the given list,
@@ -248,16 +254,16 @@ optional property list and nested forms.
 
 `:font`
 
-```vdu
-(defmacro ui-stack (n t &optional p &rest x)
-	; (ui-stack name tabs [props] [body]) -> stack
-	`(ui-element ,n (Stack ,t) ,p ~x))
-```
-
 ### (ui-tree name event [props]) -> tree
 
+```vdu
+(defmacro ui-tree (n e &optional p)
+	; (ui-tree name event [props]) -> tree
+	`(ui-element ,n (Tree ,e) ,p))
+```
+
 ```widget
-apps/docs/widgets.inc *ui_tree* 0 0
+apps/docs/ui/tree.inc *ui_tree* 0 0
 ```
 
 Creates a Tree instance, with name, base event id and optional property list.
@@ -266,16 +272,16 @@ Creates a Tree instance, with name, base event id and optional property list.
 
 `:action_event :font`
 
-```vdu
-(defmacro ui-tree (n e &optional p)
-	; (ui-tree name event [props]) -> tree
-	`(ui-element ,n (Tree ,e) ,p))
-```
-
 ### (ui-spinner name [props]) -> spinner
 
+```vdu
+(defmacro ui-spinner (n &optional p)
+	; (ui-spinner name [props]) -> spinner
+	`(ui-element ,n (Spinner) ,p))
+```
+
 ```widget
-apps/docs/widgets.inc *ui_spinner* 0 0
+apps/docs/ui/spinner.inc *ui_spinner* 0 0
 ```
 
 Creates a value Spinner instance, with name and optional property list.
@@ -284,16 +290,16 @@ Creates a value Spinner instance, with name and optional property list.
 
 `:value :maximum :minimum`
 
-```vdu
-(defmacro ui-spinner (n &optional p)
-	; (ui-spinner name [props]) -> spinner
-	`(ui-element ,n (Spinner) ,p))
-```
-
 ### (ui-hchart name title marks [props]) -> hchart
 
+```vdu
+(defmacro ui-hchart (n t m &optional p)
+	; (ui-hchart name title num_marks [props]) -> hchart
+	`(ui-element ,n (Hchart ,t ,m) ,p))
+```
+
 ```widget
-apps/docs/widgets.inc *ui_hchart* 0 0
+apps/docs/ui/hchart.inc *ui_hchart* 0 0
 ```
 
 Creates a hchart instance, with name, title, marks and optional property list.
@@ -302,23 +308,7 @@ Creates a hchart instance, with name, title, marks and optional property list.
 
 `:units :maximum`
 
-```vdu
-(defmacro ui-hchart (n t m &optional p)
-	; (ui-hchart name title num_marks [props]) -> hchart
-	`(ui-element ,n (Hchart ,t ,m) ,p))
-```
-
 ### (ui-title name [props]) -> title
-
-```widget
-apps/docs/widgets.inc *ui_title* 0 0
-```
-
-Creates a Title instance, with name and optional property list.
-
-#### Properties
-
-`:border :font :text :color :ink_color`
 
 ```vdu
 (defmacro ui-title (n &optional p)
@@ -329,17 +319,17 @@ Creates a Title instance, with name and optional property list.
 	`(ui-element ,n (Title) ,p))
 ```
 
-### (ui-title-bar name title symbols event [props]) -> flow
-
 ```widget
-apps/docs/widgets.inc *ui_title_bar* 0 0
+apps/docs/ui/title.inc *ui_title* 0 0
 ```
 
-Creates a title bar, consisting of a Flow instance that contains Buttons and a
-named Title instance.
+Creates a Title instance, with name and optional property list.
 
-The symbols list consists of unicode symbol values. You can use the Fonts
-application to find a unicode symbol value.
+#### Properties
+
+`:border :font :text :color :ink_color`
+
+### (ui-title-bar name title symbols event [props]) -> flow
 
 ```vdu
 (defmacro ui-title-bar (n s b e &optional p)
@@ -353,10 +343,26 @@ application to find a unicode symbol value.
 		(ui-title ,n (:text ,s))))
 ```
 
+```widget
+apps/docs/ui/titlebar.inc *ui_title_bar* 0 0
+```
+
+Creates a title bar, consisting of a Flow instance that contains Buttons and a
+named Title instance.
+
+The symbols list consists of unicode symbol values. You can use the Fonts
+application to find a unicode symbol value.
+
 ### (ui-text name [props]) -> text
 
+```vdu
+(defmacro ui-text (n &optional p)
+	; (ui-text name [props]) -> text
+	`(ui-element ,n (Text) ,p))
+```
+
 ```widget
-apps/docs/widgets.inc *ui_text* 0 0
+apps/docs/ui/text.inc *ui_text* 0 0
 ```
 
 Creates a Text instance, with name and optional property list.
@@ -365,16 +371,19 @@ Creates a Text instance, with name and optional property list.
 
 `:color :ink_color :text :font :min_width :min_height :offset`
 
-```vdu
-(defmacro ui-text (n &optional p)
-	; (ui-text name [props]) -> text
-	`(ui-element ,n (Text) ,p))
-```
-
 ### (ui-label name [props] [body]) -> label
 
+```vdu
+(defmacro ui-label (n &optional p &rest x)
+	; (ui-label name [props] [body]) -> label
+	(ui-props p
+		:flow_flags (num-intern (logior +flow_flag_right +flow_flag_align_vcenter))
+		:border *env_label_border*)
+	`(ui-element ,n (Label) ,p ~x))
+```
+
 ```widget
-apps/docs/widgets.inc *ui_label* 0 0
+apps/docs/ui/label.inc *ui_label* 0 0
 ```
 
 Creates a Label instance, with name, optional property list and nested forms.
@@ -386,19 +395,19 @@ text, by default, set to `+flow_flag_right +flow_flag_align_vcenter`.
 
 `:color :ink_color :text :font :border :min_width :min_height`
 
-```vdu
-(defmacro ui-label (n &optional p &rest x)
-	; (ui-label name [props] [body]) -> label
-	(ui-props p
-		:flow_flags (num-intern (logior +flow_flag_right +flow_flag_align_vcenter))
-		:border *env_label_border*)
-	`(ui-element ,n (Label) ,p ~x))
-```
-
 ### (ui-button name [props] [body]) -> button
 
+```vdu
+(defmacro ui-button (n &optional p &rest x)
+	; (ui-button name [props] [body]) -> button
+	(ui-props p
+		:flow_flags (num-intern (logior +flow_flag_down +flow_flag_align_hcenter +flow_flag_align_vcenter))
+		:border *env_button_border*)
+	`(ui-element ,n (Button) ,p ~x))
+```
+
 ```widget
-apps/docs/widgets.inc *ui_button* 0 0
+apps/docs/ui/button.inc *ui_button* 0 0
 ```
 
 Creates a Button instance, with name, optional property list and nested forms.
@@ -411,19 +420,19 @@ text, by default, set to `+flow_flag_down +flow_flag_align_hcenter
 
 `:color :ink_color :text :font :border :min_width :min_height`
 
-```vdu
-(defmacro ui-button (n &optional p &rest x)
-	; (ui-button name [props] [body]) -> button
-	(ui-props p
-		:flow_flags (num-intern (logior +flow_flag_down +flow_flag_align_hcenter +flow_flag_align_vcenter))
-		:border *env_button_border*)
-	`(ui-element ,n (Button) ,p ~x))
-```
-
 ### (ui-buttons symbols event [props])
 
+```vdu
+(defmacro ui-buttons (s e &optional p)
+	; (ui-buttons symbols event [props])
+	(setq s (map (# (if (num? %0) (num-to-utf8 %0) %0)) s))
+	(ui-props p
+		:text %0)
+	`(each (# (. (ui-button __ ,p) :connect (+ _ ,e))) '(~s)))
+```
+
 ```widget
-apps/docs/widgets.inc *ui_buttons* 0 0
+apps/docs/ui/buttons.inc *ui_buttons* 0 0
 ```
 
 Creates a set of Button instances, with symbols list, event base and optional
@@ -436,22 +445,7 @@ can use the Fonts application to find a unicode symbol value.
 
 `:color :ink_color :text :font :border`
 
-```vdu
-(defmacro ui-buttons (s e &optional p)
-	; (ui-buttons symbols event [props])
-	(setq s (map (# (if (num? %0) (num-to-utf8 %0) %0)) s))
-	(ui-props p
-		:text %0)
-	`(each (# (. (ui-button __ ,p) :connect (+ _ ,e))) '(~s)))
-```
-
 ### (ui-tool-bar name [props] [body]) -> flow
-
-```widget
-apps/docs/widgets.inc *ui_toolbar* 0 0
-```
-
-Creates a Toolbar instance, with name, optional property list and nested forms.
 
 ```vdu
 (defmacro ui-tool-bar (n &optional p &rest x)
@@ -463,18 +457,13 @@ Creates a Toolbar instance, with name, optional property list and nested forms.
 	`(ui-flow ,n ,p ~x))
 ```
 
-### (ui-textfield name [props]) -> textfield
-
 ```widget
-apps/docs/widgets.inc *ui_textfield* 0 0
+apps/docs/ui/toolbar.inc *ui_toolbar* 0 0
 ```
 
-Creates a Textfield instance, with name and optional property list.
+Creates a Toolbar instance, with name, optional property list and nested forms.
 
-#### Properties
-
-`:color :ink_color :text :clear_text :font :border :hint_color :no_hint_color
-:hint_text :mode :cursor :anchor :min_width :min_height`
+### (ui-textfield name [props]) -> textfield
 
 ```vdu
 (defmacro ui-textfield (n &optional p)
@@ -485,17 +474,18 @@ Creates a Textfield instance, with name and optional property list.
 	`(ui-element ,n (Textfield) ,p))
 ```
 
-### (ui-slider name [props]) -> slider
-
 ```widget
-apps/docs/widgets.inc *ui_slider* 0 0
+apps/docs/ui/textfield.inc *ui_textfield* 0 0
 ```
 
-Creates a Slider instance, with name and optional property list.
+Creates a Textfield instance, with name and optional property list.
 
 #### Properties
 
-`:color :value :maximum :portion`
+`:color :ink_color :text :clear_text :font :border :hint_color :no_hint_color
+:hint_text :mode :cursor :anchor :min_width :min_height`
+
+### (ui-slider name [props]) -> slider
 
 ```vdu
 (defmacro ui-slider (n &optional p)
@@ -505,10 +495,28 @@ Creates a Slider instance, with name and optional property list.
 	`(ui-element ,n (Slider) ,p))
 ```
 
+```widget
+apps/docs/ui/slider.inc *ui_slider* 0 0
+```
+
+Creates a Slider instance, with name and optional property list.
+
+#### Properties
+
+`:color :value :maximum :portion`
+
 ### (ui-scroll name flags [props] [body]) -> scroll
 
+```vdu
+(defmacro ui-scroll (n f &optional p &rest x)
+	; (ui-scroll name flags [props] [body]) -> scroll
+	(ui-props p
+		:color *env_slider_col*)
+	`(ui-element ,n (Scroll ,f) ,p ~x))
+```
+
 ```widget
-apps/docs/widgets.inc *ui_scroll* 0 0
+apps/docs/ui/scroll.inc *ui_scroll* 0 0
 ```
 
 Creates a Scroll instance, with name, flags, optional property list and nested
@@ -530,18 +538,16 @@ Useful scroll combos:
 +scroll_flag_both
 ```
 
-```vdu
-(defmacro ui-scroll (n f &optional p &rest x)
-	; (ui-scroll name flags [props] [body]) -> scroll
-	(ui-props p
-		:color *env_slider_col*)
-	`(ui-element ,n (Scroll ,f) ,p ~x))
-```
-
 ### (ui-backdrop name [props] [body]) -> backdrop
 
+```vdu
+(defmacro ui-backdrop (n &optional p &rest x)
+	; (ui-backdrop name [props] [body]) -> backdrop
+	`(ui-element ,n (Backdrop) ,p ~x))
+```
+
 ```widget
-apps/docs/widgets.inc *ui_backdrop* 0 0
+apps/docs/ui/backdrop.inc *ui_backdrop* 0 0
 ```
 
 Creates a Backdrop instance, with name, optional property list and nested
@@ -555,16 +561,16 @@ Supported `:style` settings.
 
 `:grid :axis :lines :plain`
 
-```vdu
-(defmacro ui-backdrop (n &optional p &rest x)
-	; (ui-backdrop name [props] [body]) -> backdrop
-	`(ui-element ,n (Backdrop) ,p ~x))
-```
-
 ### (ui-progress name [props]) -> progress
 
+```vdu
+(defmacro ui-progress (n &optional p)
+	; (ui-progress name [props]) -> progress
+	`(ui-element ,n (Progress) ,p))
+```
+
 ```widget
-apps/docs/widgets.inc *ui_progress* 0 0
+apps/docs/ui/progress.inc *ui_progress* 0 0
 ```
 
 Creates a Progress instance, with name and optional property list.
@@ -573,16 +579,7 @@ Creates a Progress instance, with name and optional property list.
 
 `:color :value :maximum`
 
-```vdu
-(defmacro ui-progress (n &optional p)
-	; (ui-progress name [props]) -> progress
-	`(ui-element ,n (Progress) ,p))
-```
-
 ### (ui-canvas name width height scale &optional p) -> canvas
-
-Creates a Canvas instance, with name, width, height, scale and optional
-property list.
 
 ```vdu
 (defmacro ui-canvas (n w h s &optional p)
@@ -592,17 +589,10 @@ property list.
 	`(ui-element ,n (Canvas ,w ,h ,s) ,p))
 ```
 
+Creates a Canvas instance, with name, width, height, scale and optional
+property list.
+
 ### (ui-vdu name [props]) -> vdu
-
-```widget
-apps/docs/widgets.inc *ui_vdu* 0 0
-```
-
-Creates a Vdu instance, with name and optional property list.
-
-#### Properties
-
-`:vdu_width :vdu_height :min_width :min_height`
 
 ```vdu
 (defmacro ui-vdu (n &optional p)
@@ -613,16 +603,26 @@ Creates a Vdu instance, with name and optional property list.
 	`(ui-element ,n (Vdu) ,p))
 ```
 
-### (ui-view name [props]) -> view
+```widget
+apps/docs/ui/vdu.inc *ui_vdu* 0 0
+```
 
-Creates a raw View instance, with name and optional property list.
+Creates a Vdu instance, with name and optional property list.
 
 #### Properties
 
-`:min_width :min_height`
+`:vdu_width :vdu_height :min_width :min_height`
+
+### (ui-view name [props]) -> view
 
 ```vdu
 (defmacro ui-view (n &optional p &rest x)
 	; (ui-view name [props] [body]) -> view
 	`(ui-element ,n (View) ,p ~x))
 ```
+
+Creates a raw View instance, with name and optional property list.
+
+#### Properties
+
+`:min_width :min_height`
