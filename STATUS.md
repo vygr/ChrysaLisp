@@ -15,6 +15,10 @@ escape the pattern if in regexp mode when useing `action-set-find-text`.
 New Docs application section handler for widget embedding. The `EDITOR.md` and
 `VIEWER.md` docs show the idea.
 
+New API for the `(matches)` and `(substr)` functions. Simplified to just return
+a list of slices for each match. Just the slice ranges, and no substrings
+stored.
+
 ------
 
 Profile app updated to use a syntax highlighted buffer, and to follow the Debug
