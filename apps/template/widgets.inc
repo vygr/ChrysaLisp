@@ -1,7 +1,6 @@
 (enums +event 0
 	(enum close max min)
 	(enum undo redo rewind cut copy paste)
-	(enum main settings status info)
 	(enum button_1 button_2 button_3 button_4))
 
 (ui-window *window* ()
@@ -10,11 +9,8 @@
 		(ui-tool-bar *main_toolbar* ()
 			(ui-buttons (0xe9fe 0xe99d 0xe9ff 0xea08 0xe9c9 0xe9ca) +event_undo))
 		(ui-backdrop _ (:color (const *env_toolbar_col*))))
-	(ui-flow _ (:flow_flags +flow_right_fill)
-		(ui-tool-bar *tab_toolbar* (:font *env_window_font*)
-			(ui-buttons ("main" "settings" "status" "info") +event_main))
-		(ui-backdrop _ (:color (const *env_toolbar_col*))))
-	(ui-flow *tab_flow* (:flow_flags +flow_stack_fill :color +argb_black)
+	(ui-stack *stack_flow* '("main" "settings" "status" "info")
+			(:color +argb_black)
 		(ui-grid *main_widget* (:grid_width 2 :grid_height 2 :color +argb_orange)
 			(. (ui-button _ (:text "1")) :connect +event_button_1)
 			(. (ui-button _ (:text "2")) :connect +event_button_2)
@@ -29,6 +25,3 @@
 
 (ui-tool-tips *main_toolbar*
 	'("undo" "redo" "rewind" "cut" "copy" "paste"))
-
-(ui-tool-tips *tab_toolbar*
-	'("main view" "settings view" "status view" "info view"))

@@ -14,6 +14,7 @@
 (import "./title/lisp.inc")
 (import "./grid/lisp.inc")
 (import "./flow/lisp.inc")
+(import "./stack/lisp.inc")
 (import "./tree/lisp.inc")
 (import "./vdu/lisp.inc")
 (import "./button/lisp.inc")
@@ -79,6 +80,10 @@
 (defmacro ui-grid (n &optional p &rest x)
 	; (ui-grid name [props] [body]) -> grid
 	`(ui-element ,n (Grid) ,p ~x))
+
+(defmacro ui-stack (n t &optional p &rest x)
+	; (ui-stack name tabs [props] [body]) -> stack
+	`(ui-element ,n (Stack ,t) ,p ~x))
 
 (defmacro ui-tree (n e &optional p)
 	; (ui-tree name event [props]) -> tree

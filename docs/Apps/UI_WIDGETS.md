@@ -223,6 +223,21 @@ Useful flow combos:
 	`(ui-element ,n (Flow) ,p ~x))
 ```
 
+### (ui-stack name tabs [props] [body]) -> stack
+
+Creates a Stack instance, with name, selection tabs from the given list,
+optional property list and nested forms.
+
+#### Properties
+
+`:font`
+
+```vdu
+(defmacro ui-stack (n t &optional p &rest x)
+	; (ui-stack name tabs [props] [body]) -> stack
+	`(ui-element ,n (Stack ,t) ,p ~x))
+```
+
 ### (ui-tree name event [props]) -> tree
 
 Creates a Tree instance, with name, base event id and optional property list.
