@@ -1,5 +1,27 @@
 # Terminal
 
+The `Terminal` application is a simple text terminal with a familiar feel to
+traditional pipeing terminals.
+
+The commands you use come from the `cmd/` folder. You can see the list of
+available commands in the `COMMANDS.md` document.
+
+Command history is saved and loaded to your user folder under the name
+`terminal_state.tre`. The cursor up and down keys let you scroll through the
+history, just hit enter when you find the command you wish to run. Or type in a
+new one. Only successfully started pipes of commands will be saved in the
+history file.
+
+If you hover the mouse over the embedded UI below you can see the kind of
+features available. There are more features available through the key bindings
+which can be found in the `KEYS.md` documentation.
+
+## UI
+
+```widget
+apps/terminal/widgets.inc *window* 0 512
+```
+
 ## Overview
 
 ChrysaLisp provides a rudimentary console shell. This is made possible from the

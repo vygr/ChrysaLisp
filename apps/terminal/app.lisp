@@ -3,30 +3,14 @@
 (import "lib/text/buffer.inc")
 (import "lib/task/pipe.inc")
 
-(enums +event 0
-	(enum close max min)
-	(enum layout xscroll yscroll)
-	(enum copy paste paragraph))
+;our UI widgets
+(import "./widgets.inc")
 
 (enums +select 0
 	(enum main tip pipe))
 
 (bind '(+edit_font +edit_size) (font-info *env_terminal_font*))
-
-(defq +vdu_min_width 60 +vdu_min_height 40
-	+vdu_max_width 120 +vdu_max_height 40
-	+state_filename "terminal_state.tre")
-
-(ui-window *window* (:color 0xc0000000)
-	(ui-title-bar *title* "Terminal" (0xea19 0xea1b 0xea1a) +event_close)
-	(ui-flow _ (:flow_flags +flow_right_fill)
-		(ui-tool-bar *main_toolbar* ()
-			(ui-buttons (0xe9c9 0xe9ca 0xe90d) +event_copy))
-		(ui-backdrop _ (:color (const *env_toolbar_col*))))
-	(ui-flow _ (:flow_flags +flow_left_fill)
-		(. (ui-slider *yslider*) :connect +event_yscroll)
-		(ui-flow *edit_flow* (:flow_flags +flow_up_fill)
-			(. (ui-slider *xslider*) :connect +event_xscroll))))
+(defq +state_filename "terminal_state.tre")
 
 (defun input-poll ()
 	(cond
@@ -97,11 +81,6 @@
 	(. *window* :change_dirty x y w h)
 	(window-resize))
 
-(defun tooltips ()
-	(def *window* :tip_mbox (elem-get +select_tip *select*))
-	(ui-tool-tips *main_toolbar*
-		'("copy" "paste" "select paragraph")))
-
 (defun page-scale (s)
 	(n2i (* (n2f s) *page_scale*)))
 
@@ -117,7 +96,7 @@
 	(def *edit* :min_width +vdu_min_width :min_height +vdu_min_height
 		:vdu_width +vdu_min_width :vdu_height +vdu_min_height :font *env_terminal_font*)
 	(. *edit_flow* :add_back *edit*)
-	(tooltips)
+	(def *window* :tip_mbox (elem-get +select_tip *select*))
 	(bind '(x y w h) (apply view-locate (.-> *window* (:connect +event_layout) :pref_size)))
 	(gui-add-front (. *window* :change x y w h))
 	(window-resize)
