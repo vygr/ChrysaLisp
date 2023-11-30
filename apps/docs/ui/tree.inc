@@ -8,7 +8,7 @@
 		:color 0
 		:font *env_medium_terminal_font*)))
 
-(. view :populate "apps/docs/" ".inc")
+(. view :populate "apps/docs/ui/" ".inc")
 (bind '(w h) (. view :pref_size))
 (. view :change 0 0 w h)
 (. view :set_flags +view_flag_solid (lognot +view_flag_solid))
