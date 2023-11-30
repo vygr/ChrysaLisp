@@ -29,7 +29,7 @@
 					(cond
 						((eql (elem-get j text) (elem-get k pattern))
 							(when (= m (setq j (inc j) k (inc k)))
-								(push out (list (list (list (- j k) j) (slice (- j k) j text))))
+								(push out (list (list (- j k) j)))
 								(setq k 0)))
 						((= k 0) (setq j (inc j)))
 						((setq k (elem-get (dec k) lps)))))))

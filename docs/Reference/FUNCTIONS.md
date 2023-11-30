@@ -848,7 +848,7 @@ returns true if argument is a map type
 ### matches
 
 ```code
-(matches text regexp) -> (slices subslices submatches)
+(matches text regexp) -> matches
 ```
 
 ### max-length
@@ -1424,7 +1424,7 @@ patch stream a with stream b, write to stream c
 ### substr
 
 ```code
-(substr text substr) -> (slices () ())
+(substr text substr) -> matches
 ```
 
 ### swap

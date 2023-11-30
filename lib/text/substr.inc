@@ -21,7 +21,7 @@
 				(while (<= j l)
 					(cond
 						((every (const eql) (slice i j text) lps)
-							(push out (list (list (list i j) (slice i j text))))
+							(push out (list (list i j)))
 							(setq i j j (+ j (length lps))))
 						((setq i (inc i) j (inc j)))))))
 		out)

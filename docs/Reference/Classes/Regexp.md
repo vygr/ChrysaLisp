@@ -19,6 +19,6 @@
 ### :search
 
 ```code
-(. regexp :search text pattern &optional meta) -> (slices subslices submatches)
+(. regexp :search text pattern &optional meta) -> matches
 ```
 

@@ -79,8 +79,9 @@
 		(defq match (matches p "^([-+]) (\d+) (.*)"))
 		(cond
 			((empty? match) (setq run :nil))
-			(:t (bind '(((_ (op nl l)))) match)
-				(defq nl (str-to-num nl))
+			(:t (bind '((_ (x x1) (x2 x3) (x4 x5))) match)
+				(defq op (slice x x1 p) l (slice x4 x5 p)
+					nl (str-to-num (slice x2 x3 p)))
 				(while (< ln nl) (write-line c (read-line a)) (setq ln (inc ln)))
 				(if (eql op "+") (write-line c l) (read-line a))
 				(setq ln (inc ln)))))

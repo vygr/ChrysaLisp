@@ -257,17 +257,13 @@
 			(/= x1 -1)))
 
 	(defmethod :search (text pattern &optional cpat)
-		; (. regexp :search text pattern &optional meta) -> (subslices submatches)
+		; (. regexp :search text pattern &optional meta) -> matches
 		(when (defq out (list) cpat (opt cpat (. this :compile pattern)))
 			(defq x 0)
 			(while (< x (length text))
 				(cond
 					((> (bind '(sl x1) (search text cpat x)) x)
-						(push out (map (lambda (slc)
-							(bind '(s s1) slc)
-							(list slc (if (< s s1)
-								(slice s s1 text)
-								(slice 0 0 text)))) sl))
+						(push out sl)
 						(setq x x1))
 					((setq x (inc x))))))
 		out)
