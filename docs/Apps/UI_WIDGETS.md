@@ -142,6 +142,10 @@ Title bar has a single close Button that will send an action event of
 
 ### (ui-window name [props] [body]) -> window
 
+```widget
+apps/docs/widgets.inc *ui_window* 0 0
+```
+
 Creates a Window instance, with name (use _ if not required), optional property
 list and nested forms.
 
@@ -177,6 +181,10 @@ set these in their own private `env.inc` file. See the `apps/login/` folder.
 
 ### (ui-grid name [props] [body]) -> grid
 
+```widget
+apps/docs/widgets.inc *ui_grid* 0 0
+```
+
 Creates a Grid instance, with name, optional property list and nested forms.
 
 #### Properties
@@ -193,6 +201,10 @@ calculated based on the number of child views contained.
 ```
 
 ### (ui-flow name [props] [body]) -> flow
+
+```widget
+apps/docs/widgets.inc *ui_flow* 0 0
+```
 
 Creates a Flow instance, with name, optional property list and nested forms.
 
@@ -225,6 +237,10 @@ Useful flow combos:
 
 ### (ui-stack name tabs [props] [body]) -> stack
 
+```widget
+apps/docs/widgets.inc *ui_stack* 0 0
+```
+
 Creates a Stack instance, with name, selection tabs from the given list,
 optional property list and nested forms.
 
@@ -240,6 +256,10 @@ optional property list and nested forms.
 
 ### (ui-tree name event [props]) -> tree
 
+```widget
+apps/docs/widgets.inc *ui_tree* 0 0
+```
+
 Creates a Tree instance, with name, base event id and optional property list.
 
 #### Properties
@@ -253,6 +273,10 @@ Creates a Tree instance, with name, base event id and optional property list.
 ```
 
 ### (ui-spinner name [props]) -> spinner
+
+```widget
+apps/docs/widgets.inc *ui_spinner* 0 0
+```
 
 Creates a value Spinner instance, with name and optional property list.
 
@@ -268,6 +292,10 @@ Creates a value Spinner instance, with name and optional property list.
 
 ### (ui-hchart name title marks [props]) -> hchart
 
+```widget
+apps/docs/widgets.inc *ui_hchart* 0 0
+```
+
 Creates a hchart instance, with name, title, marks and optional property list.
 
 #### Properties
@@ -281,6 +309,10 @@ Creates a hchart instance, with name, title, marks and optional property list.
 ```
 
 ### (ui-title name [props]) -> title
+
+```widget
+apps/docs/widgets.inc *ui_title* 0 0
+```
 
 Creates a Title instance, with name and optional property list.
 
@@ -298,6 +330,10 @@ Creates a Title instance, with name and optional property list.
 ```
 
 ### (ui-title-bar name title symbols event [props]) -> flow
+
+```widget
+apps/docs/widgets.inc *ui_title_bar* 0 0
+```
 
 Creates a title bar, consisting of a Flow instance that contains Buttons and a
 named Title instance.
@@ -319,6 +355,10 @@ application to find a unicode symbol value.
 
 ### (ui-text name [props]) -> text
 
+```widget
+apps/docs/widgets.inc *ui_text* 0 0
+```
+
 Creates a Text instance, with name and optional property list.
 
 #### Properties
@@ -332,6 +372,10 @@ Creates a Text instance, with name and optional property list.
 ```
 
 ### (ui-label name [props] [body]) -> label
+
+```widget
+apps/docs/widgets.inc *ui_label* 0 0
+```
 
 Creates a Label instance, with name, optional property list and nested forms.
 
@@ -352,6 +396,10 @@ text, by default, set to `+flow_flag_right +flow_flag_align_vcenter`.
 ```
 
 ### (ui-button name [props] [body]) -> button
+
+```widget
+apps/docs/widgets.inc *ui_button* 0 0
+```
 
 Creates a Button instance, with name, optional property list and nested forms.
 
@@ -374,6 +422,10 @@ text, by default, set to `+flow_flag_down +flow_flag_align_hcenter
 
 ### (ui-buttons symbols event [props])
 
+```widget
+apps/docs/widgets.inc *ui_buttons* 0 0
+```
+
 Creates a set of Button instances, with symbols list, event base and optional
 property list.
 
@@ -395,6 +447,10 @@ can use the Fonts application to find a unicode symbol value.
 
 ### (ui-tool-bar name [props] [body]) -> flow
 
+```widget
+apps/docs/widgets.inc *ui_toolbar* 0 0
+```
+
 Creates a Toolbar instance, with name, optional property list and nested forms.
 
 ```vdu
@@ -408,6 +464,10 @@ Creates a Toolbar instance, with name, optional property list and nested forms.
 ```
 
 ### (ui-textfield name [props]) -> textfield
+
+```widget
+apps/docs/widgets.inc *ui_textfield* 0 0
+```
 
 Creates a Textfield instance, with name and optional property list.
 
@@ -427,6 +487,10 @@ Creates a Textfield instance, with name and optional property list.
 
 ### (ui-slider name [props]) -> slider
 
+```widget
+apps/docs/widgets.inc *ui_slider* 0 0
+```
+
 Creates a Slider instance, with name and optional property list.
 
 #### Properties
@@ -442,6 +506,10 @@ Creates a Slider instance, with name and optional property list.
 ```
 
 ### (ui-scroll name flags [props] [body]) -> scroll
+
+```widget
+apps/docs/widgets.inc *ui_scroll* 0 0
+```
 
 Creates a Scroll instance, with name, flags, optional property list and nested
 forms.
@@ -472,6 +540,10 @@ Useful scroll combos:
 
 ### (ui-backdrop name [props] [body]) -> backdrop
 
+```widget
+apps/docs/widgets.inc *ui_backdrop* 0 0
+```
+
 Creates a Backdrop instance, with name, optional property list and nested
 forms.
 
@@ -490,6 +562,10 @@ Supported `:style` settings.
 ```
 
 ### (ui-progress name [props]) -> progress
+
+```widget
+apps/docs/widgets.inc *ui_progress* 0 0
+```
 
 Creates a Progress instance, with name and optional property list.
 
@@ -517,6 +593,10 @@ property list.
 ```
 
 ### (ui-vdu name [props]) -> vdu
+
+```widget
+apps/docs/widgets.inc *ui_vdu* 0 0
+```
 
 Creates a Vdu instance, with name and optional property list.
 

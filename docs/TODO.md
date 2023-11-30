@@ -8,7 +8,7 @@ In no particular order but to just to ensure I get thoughts down. I'll keep
 adding to this as I go along. If anybody would like to try helping out, then
 just get in touch.
 
-* Built in GUI Tabbed stack flow selection container.
+* Investigate :min_width and :min_height issue with Window widget.
 
 * WYSIWYG UI tree Editor.
 
