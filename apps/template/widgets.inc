@@ -5,10 +5,9 @@
 
 (ui-window *window* ()
 	(ui-title-bar *title* "Template" (0xea19 0xea1b 0xea1a) +event_close)
-	(ui-flow _ (:flow_flags +flow_right_fill)
+	(ui-flow _ (:flow_flags +flow_right)
 		(ui-tool-bar *main_toolbar* ()
-			(ui-buttons (0xe9fe 0xe99d 0xe9ff 0xea08 0xe9c9 0xe9ca) +event_undo))
-		(ui-backdrop _ (:color (const *env_toolbar_col*))))
+			(ui-buttons (0xe9fe 0xe99d 0xe9ff 0xea08 0xe9c9 0xe9ca) +event_undo)))
 	(ui-stack *stack_flow* '("main" "settings" "status" "info")
 			(:color +argb_black)
 		(ui-grid *main_widget* (:grid_width 2 :grid_height 2 :color +argb_orange)
