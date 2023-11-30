@@ -17,8 +17,9 @@
 
 (defun options-split (args)
 	; (options-split args) -> (a0 [a1] ...)
-	(map (lambda (((x x1))) (trim (slice x x1 args) (ascii-char 34)))
-		(first (matches args {".*"|\S+}))))
+	(map (lambda ((((x x1) _)))
+			(trim (slice x x1 args) (ascii-char 34)))
+		(matches args {".*"|\S+})))
 
 (defun options (stdio optlist)
 	; (options stdio optlist) -> :nil | args

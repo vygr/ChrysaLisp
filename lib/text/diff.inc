@@ -76,10 +76,10 @@
 	(defq ln 0 run :t)
 	(while (and run (defq p (read-line b)))
 		(task-slice)
-		(bind '(m _ s) (matches p "^([-+]) (\d+) (.*)"))
+		(defq match (matches p "^([-+]) (\d+) (.*)"))
 		(cond
-			((empty? m) (setq run :nil))
-			(:t (bind '((op nl l)) s)
+			((empty? match) (setq run :nil))
+			(:t (bind '(((_ (op nl l)))) match)
 				(defq nl (str-to-num nl))
 				(while (< ln nl) (write-line c (read-line a)) (setq ln (inc ln)))
 				(if (eql op "+") (write-line c l) (read-line a))

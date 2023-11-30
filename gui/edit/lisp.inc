@@ -505,10 +505,9 @@
 		(while (< scroll_y scroll_y1)
 			(defq background (if (<= fy scroll_y fy1) color_region +not_selected)
 				background (cond
-					((and (defq match (elem-get scroll_y found))
-							(nempty? (defq match (first match))))
+					((and (defq match (elem-get scroll_y found)) (nempty? match))
 						(defq cx 0 line (clear '()))
-						(each (lambda (((x x1) &rest _))
+						(each (lambda ((((x x1) _) &rest _))
 							(push line (slice cx x background) (slice x x1 color_found))
 							(setq cx x1)) match)
 						(push line (slice cx -1 background))

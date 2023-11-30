@@ -11,9 +11,6 @@
 (bits +dirty_flag 0
 	(bit syntax bracket))
 
-(defun intern (l s)
-	(cond ((defq i (find s l)) (elem-get i l)) ((push l s) s)))
-
 (defun push-line (line)
 	(each (# (push %0 %1))
 		(list buffer_line buffer_syntax buffer_states buffer_found buffer_brackets)
@@ -506,15 +503,13 @@
 			(each (lambda (__) (elem-set _ buffer_found :nil)) buffer_found))
 		(unless (eql pattern "")
 			(bind '(engine pattern meta) (query pattern wmode rmode))
-			(defq allsubs (clear '()))
 			(each (lambda (line index)
 				(if (> (length line) 0)
 					(unless index
 						(task-slice)
-						(bind '(sr sm) (. engine :search line pattern meta))
-						(setq sm (map (# (map (# (intern allsubs %0)) %0)) sm))
-						(elem-set _ buffer_found (list sr sm)))
-					(elem-set _ buffer_found '(()()))))
+						(elem-set _ buffer_found
+							(. engine :search line pattern meta)))
+					(elem-set _ buffer_found '())))
 				(get :buffer_line this) buffer_found))
 		buffer_found)
 	)

@@ -14,18 +14,17 @@
 		lps)
 
 	(defmethod :search (text pattern &optional lps)
-		; (. substr :search text pattern &optional meta) -> (subslices submatches)
-		(defq outr (list) outs (list))
+		; (. substr :search text pattern &optional meta) -> matches
+		(defq out (list))
 		(when (>= (defq l (length text)) (defq j (length pattern)))
 			(when (defq i 0 lps (opt lps (. this :compile pattern)))
 				(while (<= j l)
 					(cond
 						((every (const eql) (slice i j text) lps)
-							(push outr (list (list i j)))
-							(push outs (list (slice i j text)))
+							(push out (list (list (list i j) (slice i j text))))
 							(setq i j j (+ j (length lps))))
 						((setq i (inc i) j (inc j)))))))
-		(list outr outs))
+		out)
 
 	(defmethod :match? (text pattern &optional lps)
 		; (. substr :match? text pattern &optional meta) -> :t | :nil

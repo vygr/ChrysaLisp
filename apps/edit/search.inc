@@ -32,11 +32,11 @@
 				(if (> fy1 fy) (setq sy (max sy fy) sy1 (min sy1 fy1)))
 				(if (< cy sy) (setq cy sy cx 0))
 				(when (and (< cy sy1) (defq next (some! cy sy1 :nil
-					(lambda ((sr sm))
-						(defq y _)
-						(some (lambda (((x x1) &rest _)) (cond
-							((> y cy) (list x x1 y))
-							((>= x cx) (list x x1 y)))) sr))
+						(lambda (match)
+							(defq y _)
+							(some (lambda ((((x x1) _) &rest _)) (cond
+								((> y cy) (list x x1 y))
+								((>= x cx) (list x x1 y)))) match))
 						(list found))))
 					(bind '(x x1 y) next)
 					(. *edit* :set_anchor x y)
@@ -56,11 +56,11 @@
 				(if (> fy1 fy) (setq sy (max sy fy) sy1 (min sy1 fy1)))
 				(if (>= cy sy1) (setq cy (dec sy1) cx +max_int))
 				(when (and (>= cy sy) (defq next (some! (inc cy) sy :nil
-					(lambda ((sr sm))
-						(defq y _)
-						(some-rev (lambda (((x x1) &rest _)) (cond
-							((< y cy) (list x x1 y))
-							((< x cx) (list x x1 y)))) sr))
+						(lambda (match)
+							(defq y _)
+							(some-rev (lambda ((((x x1) _) &rest _)) (cond
+								((< y cy) (list x x1 y))
+								((< x cx) (list x x1 y)))) match))
 						(list found))))
 					(bind '(x x1 y) next)
 					(. *edit* :set_anchor x1 y)
@@ -78,18 +78,19 @@
 	(.-> *find_text* (:set_text text) :layout :dirty)
 	(refresh))
 
-(defun build-replace (found rep_text rep_matchs sx sy sx1)
+(defun build-replace (found rep_text rep_matches sx sy sx1)
 	(when (< sy (length found))
-		(bind '(sr sm) (elem-get sy found))
-		(when (defq mi (some (lambda (((x x1) &rest __))
-					(and (= x sx) (= x1 sx1) _)) sr))
+		(defq match (elem-get sy found))
+		(when (defq mi (some (lambda ((((x x1) __) &rest __))
+					(and (= x sx) (= x1 sx1) _)) match))
 			(when regexp
-				(setq sm (elem-get mi sm))
-				(each! -1 0 (lambda (((x x1) _) (_ s))
+				(setq match (elem-get mi match))
+				(each-rev (lambda ((((x x1) _) ((x2 x3) _)))
 						(setq rep_text (replace rep_text x x1
-							(if (< (defq s (str-to-num s)) (length sm))
-								(elem-get s sm) ""))))
-					rep_matchs))
+							(if (< (defq s (str-to-num (slice x2 x3 rep_text)))
+									(length match))
+								(second (elem-get s match)) ""))))
+					rep_matches))
 			rep_text)))
 
 (defun action-replace (whole_words regexp pattern rep_text)
@@ -98,8 +99,8 @@
 			found (. buffer :find pattern whole_words regexp))
 		(bind '(sx sy sx1 sy1) (sort-selection))
 		(when (and (= sy sy1) (defq
-				rep_matchs (matches rep_text "\$(\d+)")
-				rep_text (build-replace found rep_text rep_matchs sx sy sx1)))
+				rep_matches (matches rep_text "\$(\d+)")
+				rep_text (build-replace found rep_text rep_matches sx sy sx1)))
 			(undoable
 				(.-> buffer
 					(:set_cursor sx sy)
@@ -112,7 +113,7 @@
 	(unless (eql pattern "")
 		(defq buffer (. *edit* :get_buffer)
 			found (cat (. buffer :find pattern whole_words regexp))
-			rep_matchs (matches rep_text "\$(\d+)"))
+			rep_matches (matches rep_text "\$(\d+)"))
 		(undoable
 			(defq sy 0 sy1 (length found))
 			(unless noclip
@@ -121,7 +122,7 @@
 			(each! sy sy1 (lambda ((sr sm))
 				(defq y _)
 				(each-rev (lambda (((x x1) &rest _))
-					(when (defq rep (build-replace found rep_text rep_matchs x y x1))
+					(when (defq rep (build-replace found rep_text rep_matches x y x1))
 						(.-> buffer
 							(:set_cursor x y)
 							(:delete (- x1 x))

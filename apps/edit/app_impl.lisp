@@ -41,7 +41,7 @@
 	(.-> buffer (:vdu_load (. *edit* :get_vdu_text) sx sy)
 		(:find (. *find_text* :get_text) *whole_words* *regexp*))
 	(.-> *edit* :underlay_paper :underlay_ink)
-	(defq fc (reduce (# (+ %0 (if %1 (length (first %1)) 0)))
+	(defq fc (reduce (# (+ %0 (if %1 (length %1) 0)))
 		(. buffer :get_found) 0))
 	;update status bar
 	(each (# (def (. %0 :dirty) :text (str %1)))

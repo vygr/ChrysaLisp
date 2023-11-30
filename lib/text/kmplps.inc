@@ -21,20 +21,19 @@
 		lps)
 
 	(defmethod :search (text pattern &optional lps)
-		; (. kmplps :search text pattern &optional meta) -> (subslices submatches)
-		(defq outr (list) outs (list))
+		; (. kmplps :search text pattern &optional meta) -> matches
+		(defq out (list))
 		(when (>= (defq n (length text)) (defq m (length pattern)))
 			(when (defq j 0 k 0 lps (opt lps (. this :compile pattern)))
 				(while (< j n)
 					(cond
 						((eql (elem-get j text) (elem-get k pattern))
 							(when (= m (setq j (inc j) k (inc k)))
-								(push outr (list (list (- j k) j)))
-								(push outs (list (slice (- j k) j text)))
+								(push out (list (list (list (- j k) j) (slice (- j k) j text))))
 								(setq k 0)))
 						((= k 0) (setq j (inc j)))
 						((setq k (elem-get (dec k) lps)))))))
-		(list outr outs))
+		out)
 
 	(defmethod :match? (text pattern &optional lps)
 		; (. kmplps :match? text pattern &optional meta) -> :t | :nil

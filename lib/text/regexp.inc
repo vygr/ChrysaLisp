@@ -258,17 +258,19 @@
 
 	(defmethod :search (text pattern &optional cpat)
 		; (. regexp :search text pattern &optional meta) -> (subslices submatches)
-		(when (defq outr (list) outs (list) cpat (opt cpat (. this :compile pattern)))
+		(when (defq out (list) cpat (opt cpat (. this :compile pattern)))
 			(defq x 0)
 			(while (< x (length text))
 				(cond
 					((> (bind '(sl x1) (search text cpat x)) x)
-						(push outr sl)
-						(push outs (map (lambda ((s s1))
-							(if (< s s1) (slice s s1 text) (slice 0 0 text))) sl))
+						(push out (map (lambda (slc)
+							(bind '(s s1) slc)
+							(list slc (if (< s s1)
+								(slice s s1 text)
+								(slice 0 0 text)))) sl))
 						(setq x x1))
 					((setq x (inc x))))))
-		(list outr outs))
+		out)
 	)
 
 ;module
