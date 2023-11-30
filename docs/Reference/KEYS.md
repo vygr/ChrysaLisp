@@ -186,15 +186,6 @@
 (ascii-code "-") action-minimise
 ```
 
-### *key_map_shift*
-
-```code
-(ascii-code "!") action-main-tab
-(ascii-code "@") action-settings-tab
-(ascii-code "#") action-status-tab
-(ascii-code "$") action-info-tab
-```
-
 ## apps/terminal/actions.inc
 
 ### *key_map*

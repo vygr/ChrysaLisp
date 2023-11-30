@@ -1649,6 +1649,12 @@ patch stream a with stream b, write to stream c
 (ui-spinner name [props]) -> spinner
 ```
 
+### ui-stack
+
+```code
+(ui-stack name tabs [props] [body]) -> stack
+```
+
 ### ui-text
 
 ```code
@@ -1682,7 +1688,7 @@ patch stream a with stream b, write to stream c
 ### ui-tool-tips
 
 ```code
-(ui-tool-tips toolbar tips)
+(ui-tool-tips view tips)
 ```
 
 ### ui-tree
