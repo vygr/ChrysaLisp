@@ -15,6 +15,6 @@
 ### :pref_size
 
 ```code
-(. slider :pref_size) -> (width height)
+(. progress :pref_size) -> (width height)
 ```
 
