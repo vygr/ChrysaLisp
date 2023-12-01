@@ -37,7 +37,9 @@
 
 	(defmethod :pref_size ()
 		; (. slider :pref_size) -> (width height)
-		(list 10 10))
+		(defq mw (def? :min_width this) mh (def? :min_height this))
+		(setd mw 10 mh 10)
+		(list mw mh))
 
 	(defmethod :mouse_down (event)
 		; (. slider :mouse_down event) -> slider
