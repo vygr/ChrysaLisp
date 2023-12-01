@@ -20,7 +20,7 @@
 		(.-> this (:ctx_set_color (canvas-darker col)) (:ctx_filled_box (inc gap) 1 (- w 2 gap) (- h 2))))
 
 	(defmethod :pref_size ()
-		; (. slider :pref_size) -> (width height)
+		; (. progress :pref_size) -> (width height)
 		(defq mw (def? :min_width this) mh (def? :min_height this))
 		(setd mw 256 mh 10)
 		(list mw mh))
