@@ -14,8 +14,10 @@
 			(import-from (str file) (list widget))
 			(def (defq widget (eval widget)) :min_width mw :min_height mh
 				:tip_mbox (elem-get +select_tip select))
-			(. widget :set_owner (elem-get +select_embeded select))
-			(. page :add_child widget)
+			(def (defq flow (Flow)) :flow_flags +flow_right)
+			(. page :add_child (.-> flow
+				(:set_owner (elem-get +select_embeded select))
+				(:add_child widget)))
 			state)))
 
 ;module

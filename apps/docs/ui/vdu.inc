@@ -1,5 +1,6 @@
-(ui-root *ui_vdu* (Flow)
-	(:flow_flags +flow_right)
+(ui-window *ui_vdu*
+	(:min_width 128
+	:min_height 128)
 	(ui-flow _
 		(:flow_flags +flow_stack_fill)
 		(ui-vdu view

@@ -1,5 +1,6 @@
-(ui-root *ui_text* (Flow)
-	(:flow_flags +flow_right)
+(ui-window *ui_text*
+	(:min_width 128
+	:min_height 128)
 	(ui-text _
 		(:offset 0
 		:color 0

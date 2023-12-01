@@ -1,9 +1,9 @@
-(ui-root *ui_grid* (Flow)
-	(:flow_flags +flow_right)
+(ui-window *ui_grid*
+	(:min_width 128
+	:min_height 128)
 	(ui-grid _
 		(:grid_width 3
-		:grid_height 2
-		:color *env_window_col*)
+		:grid_height 2)
 		(ui-button _ (:text "Cell 1"))
 		(ui-button _ (:text "Cell 2"))
 		(ui-button _ (:text "Cell 3"))

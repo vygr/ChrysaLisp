@@ -1,5 +1,6 @@
-(ui-root *ui_hchart* (Flow)
-	(:flow_flags +flow_right)
+(ui-window *ui_hchart*
+	(:min_width 128
+	:min_height 128)
 	(ui-hchart view "My Chart" 10
 		(:color +argb_green
 		:units 1024)))

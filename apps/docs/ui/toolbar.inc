@@ -1,8 +1,9 @@
 (enums +event 0
 	(enum undo redo rewind))
 
-(ui-root *ui_toolbar* (Flow)
-	(:flow_flags +flow_right)
+(ui-window *ui_toolbar*
+	(:min_width 128
+	:min_height 128)
 	(ui-tool-bar view ()
 		(ui-buttons (0xe9fe 0xe99d 0xe9ff) +event_undo)))
 

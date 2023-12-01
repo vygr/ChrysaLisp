@@ -1,9 +1,11 @@
-(ui-root *ui_textfield* (Flow)
-	(:flow_flags +flow_right)
+(ui-window *ui_textfield*
+	(:min_width 128
+	:min_height 128)
 	(ui-textfield _
 		(:offset 0
 		:cursor 0
 		:anchor 0
+		:color +argb_white
 		:ink_color *env_ink_col*
 		:border *env_textfield_border*
 		:font *env_window_font*

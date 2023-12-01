@@ -177,7 +177,7 @@ set these in their own private `env.inc` file. See the `apps/login/` folder.
 
 #### Properties
 
-`:color :border :shadow :child :min_width :min_height`
+`:color :border :shadow :child :min_width :min_height :tip_mbox`
 
 ### (ui-grid name [props] [body]) -> grid
 
@@ -418,7 +418,7 @@ text, by default, set to `+flow_flag_down +flow_flag_align_hcenter
 
 #### Properties
 
-`:color :ink_color :text :font :border :min_width :min_height`
+`:color :ink_color :text :font :border :min_width :min_height :tip_text`
 
 ### (ui-buttons symbols event [props])
 

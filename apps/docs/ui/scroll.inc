@@ -1,5 +1,6 @@
-(ui-root *ui_scroll* (Flow)
-	(:flow_flags +flow_right)
+(ui-window *ui_scroll*
+	(:min_width 128
+	:min_height 128)
 	(ui-scroll _ +scroll_flag_both
 		(:color *env_slider_col*
 		:min_width 128
