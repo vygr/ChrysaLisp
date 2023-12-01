@@ -20,6 +20,7 @@ interpreter is also provided.
 ![](./screen_shot_6.png)
 ![](./screen_shot_7.png)
 ![](./screen_shot_8.png)
+![](./screen_shot_9.png)
 
 Join us at #ChrysaLisp-OS:matrix.org for banter.
 [element.io room](https://app.element.io/#/room/#ChrysaLisp-OS:matrix.org)
