@@ -27,13 +27,13 @@ flags.
 
 * object alloc failure case is redundant ?
 
-* should fixed and real have (type-of) :fixed :real etc
+* should fixed and real have (type-of) :fixed :real etc.
 
-* matrix lib should use raw nums- calls not vec-xxx
+* matrix lib should use raw nums- calls not vec-xxx.
 
-* gen-ellipse needs better eps scaling
+* gen-ellipse needs better eps scaling.
 
-* 'sys_str :to_long and :to_num should take bufe, romable
+* 'sys_str :to_long and :to_num should take bufe, romable.
 
 * Create a `bindings` document.
 
