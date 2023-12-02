@@ -24,5 +24,5 @@
 			(defq args (options stdio usage)))
 		(defq postfix (if (< (length args) 2) "." (second args))
 			prefix (if (< (length args) 3) "" (third args)))
-		(if (ends-with "/" postfix) (setq postfix (slice 0 -2 postfix)))
+		(if (ends-with "/" postfix) (setq postfix (most postfix)))
 		(each print (all-files postfix `(,prefix)))))

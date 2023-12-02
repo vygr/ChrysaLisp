@@ -18,6 +18,9 @@
 		(ptr this vars vals symbol value args)
 		(uint index_vars index_vals len_vars len_vals state))
 
+	(enums +state 0
+		(enum normal optional rest most))
+
 	(push-scope)
 	(entry 'lisp :env_bind {this, vars, vals})
 
@@ -26,25 +29,28 @@
 	(call 'obj :inst_of (cat {vals, @} (f-path 'seq :vtable)) '(_ tmp))
 	(gotoif (list tmp '= 0) 'error2))
 
-	(assign {0 => index_vars => index_vals} {state})
+	(assign {+state_normal => index_vars => index_vals} {state})
 	(call 'obj :ref {this->lisp_sym_nil} {value})
 	(d-call 'list :get_length {vars} {_, len_vars})
 	(call 'seq :get_length {vals} {_, len_vals})
 	(loop-start)
-		(vp-def (this vars state symbol index_vars len_vars rst optional))
+		(vp-def (this vars state symbol index_vars len_vars optn rst mst))
 		(assign {index_vars, len_vars} (list index_vars len_vars))
 		(breakif `(,index_vars = ,len_vars))
 
 		;next symbol and state
 		(assign {this, vars, state} (list this vars state))
-		(assign `(,index_vars (,this lisp_sym_rest) (,this lisp_sym_optional))
-			`(,symbol ,rst ,optional))
+		(assign `(,index_vars (,this lisp_sym_optional) (,this lisp_sym_rest) (,this lisp_sym_most))
+			`(,symbol ,optn ,rst ,mst))
 		(class/array/get_element vars symbol symbol this)
-		(vpif (list symbol '= rst))
-			(vp-cpy-cr 1 state)
+		(vpif (list symbol '= optn))
+			(vp-cpy-cr +state_optional state)
 			(vp-add-cr 1 index_vars)
-		(elseif (list symbol '= optional))
-			(vp-cpy-cr 2 state)
+		(elseif (list symbol '= rst))
+			(vp-cpy-cr +state_rest state)
+			(vp-add-cr 1 index_vars)
+		(elseif (list symbol '= mst))
+			(vp-cpy-cr +state_most state)
 			(vp-add-cr 1 index_vars)
 		(endif)
 		(breakif (list index_vars '= len_vars))
@@ -56,22 +62,27 @@
 			;standard symbol
 			(vp-def (vals index_vals len_vals value index_vars len_vars state))
 			(assign {vals, index_vals, len_vals, state} (list vals index_vals len_vals state))
-			(vpif (list state '= 1))
-				;rest
-				(call 'seq :slice (list vals index_vals len_vals) (list '_ value))
-				(assign {len_vals} (list index_vals))
-			(elseif (list state '= 2))
+			(vpif (list state '= +state_optional))
 				;optional
 				(gotoif (list index_vals '/= len_vals) 'normal)
 				(call 'obj :ref {this->lisp_sym_nil} (list value))
 				(assign {index_vals} (list index_vals))
+			(elseif (list state '= +state_rest))
+				;rest
+				(call 'seq :slice (list vals index_vals len_vals) (list '_ value))
+				(assign {len_vals} (list index_vals))
+			(elseif (list state '= +state_most))
+				;most
+				(vp-sub-cr 1 len_vals)
+				(call 'seq :slice (list vals index_vals len_vals) (list '_ value))
+				(assign {len_vals - 1} (list index_vals))
+				(assign {+state_normal} {state})
 			(else)
 				;normal
 				(errorif (list index_vals '= len_vals) 'error)
 			(vp-label 'normal)
 				(call 'seq :ref_element (list vals index_vals) (list '_ value))
-				(assign {index_vals} (list index_vals))
-				(vp-add-cr 1 index_vals)
+				(assign {index_vals + 1} (list index_vals))
 			(endif)
 			(assign {index_vars} (list index_vars))
 			(vp-add-cr 1 index_vars)

@@ -18,6 +18,8 @@
 
 ### (length seq)
 
+### (most seq)
+
 ### (rest seq)
 
 ### (find-rev elem seq)

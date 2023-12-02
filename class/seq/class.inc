@@ -16,6 +16,7 @@
 	(dec-method :lisp_third class/seq/lisp_third :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_last class/seq/lisp_last :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_rest class/seq/lisp_rest :static (:r0 :r1) (:r0 :r1))
+	(dec-method :lisp_most class/seq/lisp_most :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_find class/seq/lisp_find :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_rfind class/seq/lisp_rfind :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_slice class/seq/lisp_slice :static (:r0 :r1) (:r0 :r1))

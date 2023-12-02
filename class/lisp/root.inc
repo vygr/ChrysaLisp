@@ -46,6 +46,7 @@
 (ffi third "class/seq/lisp_third" 0)
 (ffi last "class/seq/lisp_last" 0)
 (ffi rest "class/seq/lisp_rest" 0)
+(ffi most "class/seq/lisp_most" 0)
 (ffi find "class/seq/lisp_find" 0)
 (ffi find-rev "class/seq/lisp_rfind" 0)
 (ffi slice "class/seq/lisp_slice" 0)

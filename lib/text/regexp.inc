@@ -160,7 +160,7 @@
 					;not a split
 					(unless (find new_index seen)
 						(push seen new_index)
-						(push next (push (slice 0 -2 trace) new_index)))
+						(push next (push (most trace) new_index)))
 					;a split
 					(each! 1 -1 (# (if (setq %0 (eval %0))
 						(push stack (+ offset %0)))) (list elem)))))) next)
