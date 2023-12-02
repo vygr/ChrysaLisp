@@ -4,6 +4,12 @@
 
 ------
 
+Region selection added to Viewer app.
+
+Find count on status bar shows only count in selected region active.
+
+------
+
 Remove the double macroexpand calls that `defun` and `defmethod` have been
 doing ! Fairly embarrassing this one, as it's been like that for years now.
 

@@ -19,6 +19,7 @@
 	+event_find_up action-find-up
 	+event_whole_words action-whole-words
 	+event_regexp action-regexp
+	+event_region action-region
 	+event_close action-close
 	+event_min action-minimise
 	+event_max action-maximise
@@ -54,6 +55,7 @@
 *key_map_control* (Fmap-kv
 	(ascii-code "f") action-set-find-text
 	(ascii-code "a") action-select-all
+	(ascii-code "A") action-region
 	(ascii-code "b") action-select-block
 	(ascii-code "B") action-copy-block
 	(ascii-code "w") action-select-word
@@ -79,7 +81,7 @@
 (export-symbols
 	'(*find_actions*
 	*event_map* *key_map* *key_map_shift* *key_map_control*
-	action-minimise))
+	action-minimise find-count))
 (export-classes
 	'(Viewer-edit))
 (env-pop)

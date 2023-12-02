@@ -36,12 +36,10 @@
 	(.-> buffer (:vdu_load (. *edit* :get_vdu_text) sx sy)
 		(:find (. *find_text* :get_text) *whole_words* *regexp*))
 	(.-> *edit* :underlay_paper :underlay_ink)
-	(defq fc (reduce (# (+ %0 (if %1 (length %1) 0)))
-		(. buffer :get_found) 0))
 	;update status bar
 	(each (# (def (. %0 :dirty) :text (str %1)))
 		(list *cx* *cy* *sw* *sh* *fc*)
-		(list (inc cx) (inc cy) (abs (- cx ax)) (abs (- cy ay)) fc)))
+		(list (inc cx) (inc cy) (abs (- cx ax)) (abs (- cy ay)) (find-count))))
 
 (defun refresh-sliders ()
 	;set slider values for current file

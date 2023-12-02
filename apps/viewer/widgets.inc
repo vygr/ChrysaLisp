@@ -4,7 +4,7 @@
 	(enum tree_action)
 	(enum file_folder_action file_leaf_action)
 	(enum copy paragraph block bracket_left bracket_right)
-	(enum whole_words regexp find_down find_up)
+	(enum region whole_words regexp find_down find_up)
 	(enum file_tree_collapse file_tree_expand))
 
 (defq +vdu_min_width 40 +vdu_min_height 20 +vdu_max_width 100
@@ -16,7 +16,7 @@
 		(ui-tool-bar *main_toolbar* ()
 			(ui-buttons (0xe9c9 0xe90d 0xe955 0xe93c 0xe93d) +event_copy))
 		(ui-tool-bar *find_toolbar* (:color (const *env_toolbar2_col*))
-			(ui-buttons (0xe9cd 0xe9a8 0xe914 0xe91b) +event_whole_words))
+			(ui-buttons (0xe962 0xe9cd 0xe9a8 0xe914 0xe91b) +event_region))
 		(. (ui-textfield *find_text* (:color +argb_white
 				:hint_text "find" :clear_text "")) :connect +event_find_down))
 	(ui-flow _ (:flow_flags +flow_right_fill)
@@ -55,4 +55,4 @@
 	'("copy" "select paragraph" "select form" "start form" "end form"))
 
 (ui-tool-tips *find_toolbar*
-	'("whole words" "regexp" "find down" "find up"))
+	'("select region" "whole words" "regexp" "find down" "find up"))

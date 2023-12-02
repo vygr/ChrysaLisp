@@ -86,4 +86,12 @@
 	(radio-select *find_toolbar*
 		(list :nil (> fy1 fy) *whole_words* *regexp* :nil :nil)))
 
+(defun find-count ()
+	(defq buffer (. *edit* :get_buffer)
+		found (. buffer :get_found) fc 0)
+	(bind '(fx fy fx1 fy1) (. *edit* :get_find))
+	(if (>= fy fy1) (setq fy 0 fy1 (length found)))
+	(each! fy fy1 (# (setq fc (+ fc (if %0 (length %0) 0)))) (list found))
+	fc)
+
 (defq +range_0_10 `'(~(range 0 10)))

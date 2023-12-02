@@ -240,6 +240,7 @@
 ```code
 (ascii-code "f") action-set-find-text
 (ascii-code "a") action-select-all
+(ascii-code "A") action-region
 (ascii-code "b") action-select-block
 (ascii-code "B") action-copy-block
 (ascii-code "w") action-select-word
