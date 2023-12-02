@@ -88,7 +88,7 @@
 
 	(defmethod :fbox (x y width height)
 		; (. canvas :fbox x y width height) -> canvas
-		((const (ffi _ "gui/canvas/lisp_fbox" 0)) this x y))
+		((const (ffi _ "gui/canvas/lisp_fbox" 0)) this x y width height))
 
 	(defmethod :fpoly (x y winding_mode paths)
 		; (. canvas :fpoly x y winding_mode paths) -> canvas
