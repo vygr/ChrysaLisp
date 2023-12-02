@@ -208,6 +208,7 @@
 	(built-in "_" lisp_sym_underscore)
 	(built-in "&optional" lisp_sym_optional)
 	(built-in "&rest" lisp_sym_rest)
+	(built-in "&ignore" lisp_sym_ignore)
 	(built-in "&most" lisp_sym_most)
 	(built-in ":nil" lisp_sym_nil)
 	(built-in ":t" lisp_sym_t)

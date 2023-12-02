@@ -34,7 +34,7 @@
 				(when (and (< cy sy1) (defq next (some! cy sy1 :nil
 						(lambda (match)
 							(defq y _)
-							(some (lambda (((x x1) &rest _)) (cond
+							(some (lambda (((x x1) &ignore)) (cond
 								((> y cy) (list x x1 y))
 								((>= x cx) (list x x1 y)))) match))
 						(list found))))
@@ -58,7 +58,7 @@
 				(when (and (>= cy sy) (defq next (some! (inc cy) sy :nil
 						(lambda (match)
 							(defq y _)
-							(some-rev (lambda (((x x1) &rest _)) (cond
+							(some-rev (lambda (((x x1) &ignore)) (cond
 								((< y cy) (list x x1 y))
 								((< x cx) (list x x1 y)))) match))
 						(list found))))
@@ -81,7 +81,7 @@
 (defun build-replace (lines found rep_text rep_matches sx sy sx1)
 	(when (< sy (length found))
 		(defq match (elem-get sy found) line (elem-get sy lines))
-		(when (defq mi (some (lambda (((x x1) &rest __))
+		(when (defq mi (some (lambda (((x x1) &ignore))
 					(and (= x sx) (= x1 sx1) _)) match))
 			(when regexp
 				(setq match (elem-get mi match))
@@ -126,7 +126,7 @@
 				(if (> fy1 fy) (setq sy (max sy fy) sy1 (min sy1 fy1))))
 			(each! sy sy1 (lambda (match)
 				(defq y _)
-				(each-rev (lambda (((x x1) &rest _))
+				(each-rev (lambda (((x x1) &ignore))
 					(when (defq rep (build-replace lines found rep_text rep_matches x y x1))
 						(.-> buffer
 							(:set_cursor x y)
