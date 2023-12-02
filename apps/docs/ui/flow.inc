@@ -1,6 +1,6 @@
 (ui-window *ui_flow*
 	(:min_width 128
-	:min_height 128)
+	:min_height 0)
 	(ui-flow _
 		(:flow_flags +flow_right)
 		(ui-button _ (:text "Cell 1"))

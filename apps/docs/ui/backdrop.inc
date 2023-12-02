@@ -5,6 +5,4 @@
 		(:color +argb_black
 		:ink_color +argb_white
 		:style :grid
-		:spacing 8
-		:min_width 128
-		:min_height 128)))
+		:spacing 8)))

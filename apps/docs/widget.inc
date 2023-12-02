@@ -12,8 +12,9 @@
 				(first (read (string-stream (cat "(" line ")")))))
 			(setd widget '*window* mw 0 mh 0)
 			(import-from (str file) (list widget))
-			(def (defq widget (eval widget)) :min_width mw :min_height mh
-				:tip_mbox (elem-get +select_tip select))
+			(def (defq widget (eval widget)) :tip_mbox (elem-get +select_tip select))
+			(unless (def? :min_width widget) (def widget :min_width mw))
+			(unless (def? :min_height widget) (def widget :min_height mh))
 			(def (defq flow (Flow)) :flow_flags +flow_right)
 			(. page :add_child (.-> flow
 				(:set_owner (elem-get +select_embeded select))

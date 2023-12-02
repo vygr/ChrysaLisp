@@ -1,6 +1,6 @@
 (ui-window *ui_title*
-	(:min_width 128
-	:min_height 128)
+	(:min_width 0
+	:min_height 0)
 	(ui-title _
 		(:color *env_title_col*
 		:ink_color *env_ink_col*

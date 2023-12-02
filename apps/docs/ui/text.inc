@@ -1,6 +1,6 @@
 (ui-window *ui_text*
-	(:min_width 128
-	:min_height 128)
+	(:min_width 0
+	:min_height 0)
 	(ui-text _
 		(:offset 0
 		:color 0

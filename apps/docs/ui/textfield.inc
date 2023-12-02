@@ -1,6 +1,6 @@
 (ui-window *ui_textfield*
-	(:min_width 128
-	:min_height 128)
+	(:min_width 256
+	:min_height 0)
 	(ui-textfield _
 		(:offset 0
 		:cursor 0
