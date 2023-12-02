@@ -10,5 +10,5 @@ which can be found in the `KEYS.md` documentation.
 ## UI
 
 ```widget
-apps/template/widgets.inc *window* 0 512
+apps/template/widgets.inc *window* 512 512
 ```

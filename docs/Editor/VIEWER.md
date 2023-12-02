@@ -18,5 +18,5 @@ is no user persistent state stored.
 ## UI
 
 ```widget
-apps/viewer/widgets.inc *window* 0 512
+apps/viewer/widgets.inc *window* 512 512
 ```

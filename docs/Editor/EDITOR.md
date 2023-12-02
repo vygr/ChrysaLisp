@@ -17,5 +17,5 @@ environment between sessions in your user folder under the name
 ## UI
 
 ```widget
-apps/edit/widgets.inc *window* 0 512
+apps/edit/widgets.inc *window* 512 512
 ```

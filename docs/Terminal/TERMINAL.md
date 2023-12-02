@@ -19,7 +19,7 @@ which can be found in the `KEYS.md` documentation.
 ## UI
 
 ```widget
-apps/terminal/widgets.inc *window* 0 512
+apps/terminal/widgets.inc *window* 512 512
 ```
 
 ## Overview
