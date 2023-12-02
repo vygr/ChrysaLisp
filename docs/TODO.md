@@ -8,6 +8,33 @@ In no particular order but to just to ensure I get thoughts down. I'll keep
 adding to this as I go along. If anybody would like to try helping out, then
 just get in touch.
 
+* Recode quasi quote non recursive?
+
+* optimise write after write vp opts.
+
+* canvas to support stretched or aspect correct drawing, entered, and aligned
+flags.
+
+* ui-load-icon .... for button images.
+
+* lisp_scale has to match enums and num types.
+
+* inc/dec polymorphic ??
+
+* Real div and mod could be div by zero once normalised ?
+
+* (mail-length) call to ask how much mail is there.
+
+* object alloc failure case is redundant ?
+
+* should fixed and real have (type-of) :fixed :real etc
+
+* matrix lib should use raw nums- calls not vec-xxx
+
+* gen-ellipse needs better eps scaling
+
+* 'sys_str :to_long and :to_num should take bufe, romable
+
 * Create a `bindings` document.
 
 * WYSIWYG UI tree Editor.
