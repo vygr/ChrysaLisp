@@ -10,9 +10,9 @@ just get in touch.
 
 * Recode quasi quote non recursive?
 
-* optimise write after write vp opts.
+* optimize write after write vp opts.
 
-* canvas to support stretched or aspect correct drawing, entered, and aligned
+* canvas to support stretched or aspect correct drawing, centered, and aligned
 flags.
 
 * ui-load-icon .... for button images.
@@ -21,7 +21,7 @@ flags.
 
 * inc/dec polymorphic ??
 
-* Real div and mod could be div by zero once normalised ?
+* Real div and mod could be div by zero once normalized ?
 
 * (mail-length) call to ask how much mail is there.
 
@@ -29,7 +29,7 @@ flags.
 
 * should fixed and real have (type-of) :fixed :real etc.
 
-* matrix lib should use raw nums- calls not vec-xxx.
+* matrix lib should use raw nums calls not vec-xxx.
 
 * gen-ellipse needs better eps scaling.
 
