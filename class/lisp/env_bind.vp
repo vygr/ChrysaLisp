@@ -74,8 +74,13 @@
 			(elseif (list state '= +state_most))
 				;most
 				(vp-sub-cr 1 len_vals)
-				(call 'seq :slice (list vals index_vals len_vals) (list '_ value))
-				(assign {len_vals - 1} (list index_vals))
+				(vpif (list index_vals '< len_vals))
+					(call 'seq :slice (list vals index_vals len_vals) (list '_ value))
+					(assign {len_vals - 1} (list index_vals))
+				(else)
+					(call 'seq :slice (list vals 0 0) (list '_ value))
+					(assign {index_vals} (list index_vals))
+				(endif)
 				(assign {+state_normal} {state})
 			(else)
 				;normal
