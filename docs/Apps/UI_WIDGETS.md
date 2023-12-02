@@ -589,6 +589,10 @@ Creates a Progress instance, with name and optional property list.
 	`(ui-element ,n (Canvas ,w ,h ,s) ,p))
 ```
 
+```widget
+apps/docs/ui/canvas.inc *ui_canvas* 0 0
+```
+
 Creates a Canvas instance, with name, width, height, scale and optional
 property list.
 
