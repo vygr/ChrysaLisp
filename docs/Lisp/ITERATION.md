@@ -96,6 +96,34 @@ Search for an element with `(find elem seq)` and `(find-rev elem seq)`:
 6
 ```
 
+## Implicit indexing and slicing
+
+Special functions are provided that mirror the binding actions available via
+the `(bind)` call. `(first seq)`, `(second seq)`, `(third seq)`, `(last seq)`,
+`(rest seq)` and `(most seq)`.
+
+You can view theses as an error free way to get elements and slices. They
+return `:nil` if the element or slice range is unavailable.
+
+```vdu
+(first "")
+:nil
+(second "ab")
+"b"
+(third '(1 2 3 4 5))
+3
+(last '(1 2 3 4 5))
+5
+(rest "abcdef")
+"bcdef"
+(most "abcdef")
+"abcde"
+(rest '(1 2 3 4 5))
+(2 3 4 5)
+(most '(1 2 3 4 5))
+(1 2 3 4)
+```
+
 ## Iteration
 
 You can iterate over a sequence or slice of a sequence, forwards or backwards

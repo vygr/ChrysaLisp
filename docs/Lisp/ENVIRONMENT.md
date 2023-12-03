@@ -81,7 +81,7 @@ y2
 ```
 
 Destructuring can be done as follows. Just use nested list syntax for the
-parameters to descend into the structure of the given arguments. `&optional`
+parameters to descend into the structure of the given arguments. `&optional`,
 `&rest`, `&ignore` and `&most` also work as expected within these destructuring
 bindings. If you wish to ignore an argument the standard is to bind it to the _
 symbol.
