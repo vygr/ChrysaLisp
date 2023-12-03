@@ -27,7 +27,7 @@
 (errorcase
 	(gotoif (cat {vars->obj_vtable /= @} (f-path 'list :vtable)) 'error1)
 	(call 'obj :inst_of (cat {vals, @} (f-path 'seq :vtable)) '(_ tmp))
-	(gotoif (list tmp '= 0) 'error2))
+	(gotoif `(,tmp = 0) 'error2))
 
 	(assign {+state_normal => index_vars => index_vals} {state})
 	(call 'obj :ref {this->lisp_sym_nil} {value})
@@ -67,19 +67,19 @@
 			;standard symbol
 			(vp-def (vals index_vals len_vals value index_vars len_vars state))
 			(assign {vals, index_vals, len_vals, state} (list vals index_vals len_vals state))
-			(vpif (list state '= +state_optional))
+			(vpif `(,state = ,+state_optional))
 				;optional
-				(gotoif (list index_vals '/= len_vals) 'normal)
+				(gotoif `(,index_vals /= ,len_vals) 'normal)
 				(call 'obj :ref {this->lisp_sym_nil} (list value))
 				(assign {index_vals} (list index_vals))
-			(elseif (list state '= +state_rest))
+			(elseif `(,state = ,+state_rest))
 				;rest
 				(call 'seq :slice (list vals index_vals len_vals) (list '_ value))
 				(assign {len_vals} (list index_vals))
-			(elseif (list state '= +state_most))
+			(elseif `(,state = ,+state_most))
 				;most
 				(vp-sub-cr 1 len_vals)
-				(vpif (list index_vals '< len_vals))
+				(vpif `(,index_vals < ,len_vals))
 					(call 'seq :slice (list vals index_vals len_vals) (list '_ value))
 					(assign {len_vals - 1} (list index_vals))
 				(else)
@@ -89,7 +89,7 @@
 				(assign {+state_normal} {state})
 			(else)
 				;normal
-				(errorif (list index_vals '= len_vals) 'error)
+				(errorif `(,index_vals = ,len_vals) 'error)
 			(vp-label 'normal)
 				(call 'seq :ref_element (list vals index_vals) (list '_ value))
 				(assign {index_vals + 1} (list index_vals))
