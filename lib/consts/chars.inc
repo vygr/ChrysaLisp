@@ -15,6 +15,7 @@
 	+char_pound 156
 	+char_space (ascii-code " ")
 	+char_underscore (ascii-code "_")
+	+char_ampersand (ascii-code "&")
 	+char_pipe (ascii-code "|")
 	+char_hash (ascii-code "#")
 	+char_lrb (ascii-code "(")
