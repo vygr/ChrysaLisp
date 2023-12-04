@@ -68,10 +68,11 @@
 			(ui-canvas overlay_canvas +canvas_width +canvas_height 1)
 			(ui-canvas commited_canvas +canvas_width +canvas_height 1))))
 
+
 (defun radio-select (toolbar idx)
-	(each (lambda (button)
-			(undef (. button :dirty) :color)
-			(if (= _ idx) (def button :color *env_radio_col*)))
+	(defq radio_col (canvas-brighter (get :color toolbar)))
+	(each (# (undef (. %0 :dirty) :color)
+			(if (= _ idx) (def %0 :color radio_col)))
 		(. toolbar :children)) idx)
 
 (defun flatten ((mode col rad pnts))

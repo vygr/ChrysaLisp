@@ -16,8 +16,9 @@
 	+file_types ''(".lisp" ".inc" ".vp" ".md" ".txt" ".tre"))
 
 (defun radio-select (toolbar states)
+	(defq radio_col (canvas-brighter (get :color toolbar)))
 	(each (# (undef (. %0 :dirty) :color)
-			(if %1 (def %0 :color *env_radio_col*)))
+			(if %1 (def %0 :color radio_col)))
 		(. toolbar :children) states))
 
 (defun refresh-display ()
