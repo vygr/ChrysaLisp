@@ -10,8 +10,6 @@ just get in touch.
 
 * add radio button behavior to the PCB app toolbar.
 
-* Use `(brighter)` to set the radio button highlight `:color` !
-
 * Recode quasi quote non recursive?
 
 * optimize write after write vp opts.
