@@ -44,7 +44,7 @@
 				layers (lists 6))
 			(each (lambda (p path_2d)
 				(each (lambda (seg seg_2d)
-					(when (or (= show (defq z (% (>> (third (first seg)) +fp_shift) pcb_depth))) (= show -1))
+					(when (or (= show (defq z (% (>> (third (first seg)) +fp_shift) pcb_depth))) (= show 0))
 						(path-stroke-polylines (elem-get z layers) track_radius +eps +join_round +cap_round +cap_round (list seg_2d)))
 					) p path_2d)
 				) batched_paths batched_paths_2d)
@@ -69,7 +69,7 @@
 				) batched_paths_2d))
 		;draw pads
 		(each (lambda ((pad_radius pad_gap (pad_x pad_y pad_z) pad_shape))
-			(when (or (= show -1) (= show (>> pad_z +fp_shift)))
+			(when (or (= show 0) (= show (>> pad_z +fp_shift)))
 				(setq pad_radius (* zoom pad_radius) pad_gap (* zoom pad_gap)
 					pad_x (+ (* zoom pad_x) pcb_border) pad_y (+ (* zoom pad_y) pcb_border)
 					pad_shape (to-path pad_shape))

@@ -25,29 +25,29 @@
 	(win-zoom))
 
 (defun action-show-all ()
-	(setq *show* -1)
+	(radio-select *layer_toolbar* (setq *show* 0))
 	(win-show))
 
 (defun action-show1 ()
-	(setq *show* 0)
+	(radio-select *layer_toolbar* (setq *show* 1))
 	(win-show))
 
 (defun action-show2 ()
-	(setq *show* 1)
+	(radio-select *layer_toolbar* (setq *show* 2))
 	(win-show))
 
 (defun action-show3 ()
-	(setq *show* 2)
+	(radio-select *layer_toolbar* (setq *show* 3))
 	(win-show))
 
 (defun action-show4 ()
-	(setq *show* 3)
+	(radio-select *layer_toolbar* (setq *show* 4))
 	(win-show))
 
 (defun action-mode-normal ()
-	(setq *mode* 0)
+	(radio-select *mode_toolbar* (setq *mode* 0))
 	(win-show))
 
 (defun action-mode-gerber ()
-	(setq *mode* 1)
+	(radio-select *mode_toolbar* (setq *mode* 1))
 	(win-show))
