@@ -4,7 +4,7 @@
 
 ## Lisp Bindings
 
-### (apply lambda list)
+### (apply lambda seq)
 
 ### (catch form eform)
 

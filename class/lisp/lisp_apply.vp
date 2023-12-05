@@ -22,8 +22,8 @@
 
 (errorcase
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(apply lambda list)" +error_msg_wrong_types :r1))
-	(signature '(obj list)))
+	(jump 'lisp :repl_error '(:r0 "(apply lambda seq)" +error_msg_wrong_types :r1))
+	(signature '(obj seq)))
 
 (def-func-end)
 
