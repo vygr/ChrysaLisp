@@ -104,6 +104,8 @@ trashes
 :r1-:r5
 ```
 
+### :type -> class/fixeds/type
+
 ### :vcreate -> class/fixeds/create
 
 ### :velement -> class/fixed/create

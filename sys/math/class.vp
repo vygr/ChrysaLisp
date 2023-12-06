@@ -115,7 +115,7 @@
 		(vp-sub-cr +fp_pi :r0)
 		(vp-mul-cr -1 :r0)
 		(goto 'sin-hpi)
-	(elseif `(:r0 < ,(+ +fp_pi +fp_hpi)))
+	(elseif '(:r0 < (+ +fp_pi +fp_hpi)))
 		(vp-sub-cr +fp_pi :r0)
 		(vp-call 'sin-hpi)
 	(else)

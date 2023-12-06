@@ -29,6 +29,11 @@
 
 (def-static-sym ":vtable")
 (def-static-sym ":num")
+(def-static-sym ":fixed")
+(def-static-sym ":real")
+(def-static-sym ":nums")
+(def-static-sym ":fixeds")
+(def-static-sym ":reals")
 (def-static-sym ":func")
 (def-static-sym ":seq")
 (def-static-sym ":str")

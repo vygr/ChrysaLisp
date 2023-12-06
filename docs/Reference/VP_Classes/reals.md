@@ -178,6 +178,8 @@ trashes
 :r1-:r14
 ```
 
+### :type -> class/reals/type
+
 ### :vcreate -> class/reals/create
 
 ### :velement -> class/real/create

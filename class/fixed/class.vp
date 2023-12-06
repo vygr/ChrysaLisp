@@ -2,12 +2,13 @@
 (include "sys/math/class.inc")
 (include "././list/class.inc")
 (include "./class.inc")
-(include "././str/class.inc")
+(include "././sym/class.inc")
 (include "././stream/class.inc")
 (include "lib/consts/chars.inc")
 
 (gen-create 'fixed)
 (gen-vtable 'fixed)
+(gen-type 'fixed)
 
 (def-method 'fixed :print)
 	;inputs

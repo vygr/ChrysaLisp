@@ -1,9 +1,12 @@
 (include "lib/asm/func.inc")
 (include "sys/math/class.inc")
 (include "./class.inc")
+(include "././sym/class.inc")
+(include "././list/class.inc")
 
 (gen-create 'reals)
 (gen-vtable 'reals)
+(gen-type 'reals)
 
 (def-method 'reals :add)
 	;inputs

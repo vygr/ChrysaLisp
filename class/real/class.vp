@@ -2,11 +2,12 @@
 (include "sys/math/class.inc")
 (include "././list/class.inc")
 (include "./class.inc")
-(include "././str/class.inc")
+(include "././sym/class.inc")
 (include "././stream/class.inc")
 
 (gen-create 'real)
 (gen-vtable 'real)
+(gen-type 'real)
 
 (def-method 'real :print)
 	;inputs

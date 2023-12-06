@@ -153,6 +153,8 @@ trashes
 :r1-:r14
 ```
 
+### :type -> class/fixed/type
+
 ### :vcreate -> class/fixed/create
 
 ### :vtable -> class/fixed/vtable

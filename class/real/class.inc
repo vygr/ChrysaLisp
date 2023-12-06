@@ -3,6 +3,7 @@
 (def-class real fixed
 	(dec-method :vtable class/real/vtable)
 	(dec-method :create class/real/create)
+	(dec-method :type class/real/type :override (:r0) (:r0 :r1))
 	(dec-method :print class/real/print :override)
 	(dec-method :vcreate class/real/create :override)
 	(dec-method :add class/real/add :override)

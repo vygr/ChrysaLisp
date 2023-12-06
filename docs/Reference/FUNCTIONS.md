@@ -488,6 +488,18 @@ should provide the concreate handler
 (filter lambda seq) -> list
 ```
 
+### fixed?
+
+```code
+(fixed? form) -> :t | :nil
+```
+
+### fixeds?
+
+```code
+(fixeds? form) -> :t | :nil
+```
+
 ### free-select
 
 ```code
@@ -941,6 +953,12 @@ returns true if argument is a map type
 (num? form) -> :t | :nil
 ```
 
+### nums?
+
+```code
+(nums? form) -> :t | :nil
+```
+
 ### odd?
 
 ```code
@@ -1203,6 +1221,18 @@ run pipe farm and collect output
 
 ```code
 (read-short stream) -> num
+```
+
+### real?
+
+```code
+(real? form) -> :t | :nil
+```
+
+### reals?
+
+```code
+(reals? form) -> :t | :nil
 ```
 
 ### reduce

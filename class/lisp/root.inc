@@ -222,6 +222,26 @@
 	; (num? form) -> :t | :nil
 	(find :num (type-of _)))
 
+(defun fixed? (_)
+	; (fixed? form) -> :t | :nil
+	(find :fixed (type-of _)))
+
+(defun real? (_)
+	; (real? form) -> :t | :nil
+	(find :real (type-of _)))
+
+(defun nums? (_)
+	; (nums? form) -> :t | :nil
+	(find :nums (type-of _)))
+
+(defun fixeds? (_)
+	; (fixeds? form) -> :t | :nil
+	(find :fixeds (type-of _)))
+
+(defun reals? (_)
+	; (reals? form) -> :t | :nil
+	(find :reals (type-of _)))
+
 (defun func? (_)
 	; (func? form) -> :t | :nil
 	(find :func (type-of _)))

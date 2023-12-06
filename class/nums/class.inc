@@ -4,6 +4,7 @@
 	(dec-method :vtable class/nums/vtable)
 	(dec-method :create class/nums/create)
 	(dec-method :vcreate class/nums/create :override)
+	(dec-method :type class/nums/type :override (:r0) (:r0 :r1))
 	(dec-method :add class/nums/add :virtual (:r0 :r1 :r2) (:r0 :r1))
 	(dec-method :sub class/nums/sub :virtual (:r0 :r1 :r2) (:r0 :r1))
 	(dec-method :mul class/nums/mul :virtual (:r0 :r1 :r2) (:r0 :r1))

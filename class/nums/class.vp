@@ -1,8 +1,11 @@
 (include "lib/asm/func.inc")
 (include "./class.inc")
+(include "././sym/class.inc")
+(include "././list/class.inc")
 
 (gen-create 'nums)
 (gen-vtable 'nums)
+(gen-type 'nums)
 
 (def-method 'nums :add)
 	;inputs

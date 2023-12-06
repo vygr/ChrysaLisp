@@ -27,8 +27,6 @@ flags.
 
 * object alloc failure case is redundant ?
 
-* should fixed and real have (type-of) :fixed :real etc.
-
 * gen-ellipse needs better eps scaling.
 
 * 'sys_str :to_long and :to_num should take bufe, romable.

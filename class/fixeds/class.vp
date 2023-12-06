@@ -1,8 +1,11 @@
 (include "lib/asm/func.inc")
 (include "./class.inc")
+(include "././sym/class.inc")
+(include "././list/class.inc")
 
 (gen-create 'fixeds)
 (gen-vtable 'fixeds)
+(gen-type 'fixeds)
 
 (def-method 'fixeds :mul)
 	;inputs
