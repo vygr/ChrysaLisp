@@ -78,20 +78,20 @@
 		(Vec4-r +real_0 +real_0 +real_-1 +real_0)))
 
 (defun mat3x3-vec3-mul (m v)
-	(Vec3-r (vec-dot v (elem-get +mat3x3_r0 m))
-		(vec-dot v (elem-get +mat3x3_r1 m))
-		(vec-dot v (elem-get +mat3x3_r2 m))))
+	(Vec3-r (nums-dot v (elem-get +mat3x3_r0 m))
+		(nums-dot v (elem-get +mat3x3_r1 m))
+		(nums-dot v (elem-get +mat3x3_r2 m))))
 
 (defun mat4x4-vec3-mul (m v)
-	(Vec3-r (vec-dot v (elem-get +mat4x4_r0 m))
-		(vec-dot v (elem-get +mat4x4_r1 m))
-		(vec-dot v (elem-get +mat4x4_r2 m))))
+	(Vec3-r (nums-dot v (elem-get +mat4x4_r0 m))
+		(nums-dot v (elem-get +mat4x4_r1 m))
+		(nums-dot v (elem-get +mat4x4_r2 m))))
 
 (defun mat4x4-vec4-mul (m v)
-	(Vec4-r (vec-dot v (elem-get +mat4x4_r0 m))
-		(vec-dot v (elem-get +mat4x4_r1 m))
-		(vec-dot v (elem-get +mat4x4_r2 m))
-		(vec-dot v (elem-get +mat4x4_r3 m))))
+	(Vec4-r (nums-dot v (elem-get +mat4x4_r0 m))
+		(nums-dot v (elem-get +mat4x4_r1 m))
+		(nums-dot v (elem-get +mat4x4_r2 m))
+		(nums-dot v (elem-get +mat4x4_r3 m))))
 
 (defun mat3x3-mul (ma mb)
 	; (mat3x3-mul mat3x3_a mat3x3_b) -> mat3x3
@@ -100,9 +100,9 @@
 	(defq mbc0 (Vec3-r (first mbr0) (first mbr1) (first mbr2))
 		mbc1 (Vec3-r (second mbr0) (second mbr1) (second mbr2))
 		mbc2 (Vec3-r (third mbr0) (third mbr1) (third mbr2)))
-	(list (Vec3-r (vec-dot mar0 mbc0) (vec-dot mar0 mbc1) (vec-dot mar0 mbc2))
-		(Vec3-r (vec-dot mar1 mbc0) (vec-dot mar1 mbc1) (vec-dot mar1 mbc2))
-		(Vec3-r (vec-dot mar2 mbc0) (vec-dot mar2 mbc1) (vec-dot mar2 mbc2))))
+	(list (Vec3-r (nums-dot mar0 mbc0) (nums-dot mar0 mbc1) (nums-dot mar0 mbc2))
+		(Vec3-r (nums-dot mar1 mbc0) (nums-dot mar1 mbc1) (nums-dot mar1 mbc2))
+		(Vec3-r (nums-dot mar2 mbc0) (nums-dot mar2 mbc1) (nums-dot mar2 mbc2))))
 
 (defun mat4x4-mul (ma mb)
 	; (mat4x4-mul mat4x4_a mat4x4_b) -> mat4x4
@@ -112,10 +112,10 @@
 		mbc1 (Vec4-r (second mbr0) (second mbr1) (second mbr2) (second mbr3))
 		mbc2 (Vec4-r (third mbr0) (third mbr1) (third mbr2) (third mbr3))
 		mbc3 (Vec4-r (elem-get 3 mbr0) (elem-get 3 mbr1) (elem-get 3 mbr2) (elem-get 3 mbr3)))
-	(list (Vec4-r (vec-dot mar0 mbc0) (vec-dot mar0 mbc1) (vec-dot mar0 mbc2) (vec-dot mar0 mbc3))
-		(Vec4-r (vec-dot mar1 mbc0) (vec-dot mar1 mbc1) (vec-dot mar1 mbc2) (vec-dot mar1 mbc3))
-		(Vec4-r (vec-dot mar2 mbc0) (vec-dot mar2 mbc1) (vec-dot mar2 mbc2) (vec-dot mar2 mbc3))
-		(Vec4-r (vec-dot mar3 mbc0) (vec-dot mar3 mbc1) (vec-dot mar3 mbc2) (vec-dot mar3 mbc3))))
+	(list (Vec4-r (nums-dot mar0 mbc0) (nums-dot mar0 mbc1) (nums-dot mar0 mbc2) (nums-dot mar0 mbc3))
+		(Vec4-r (nums-dot mar1 mbc0) (nums-dot mar1 mbc1) (nums-dot mar1 mbc2) (nums-dot mar1 mbc3))
+		(Vec4-r (nums-dot mar2 mbc0) (nums-dot mar2 mbc1) (nums-dot mar2 mbc2) (nums-dot mar2 mbc3))
+		(Vec4-r (nums-dot mar3 mbc0) (nums-dot mar3 mbc1) (nums-dot mar3 mbc2) (nums-dot mar3 mbc3))))
 
 (defun mat4x4-invert (m)
 	; (mat4x4-invert mat4x4) -> mat4x4
@@ -149,22 +149,22 @@
 			(* m02 (+ (* m10 a1323) (neg (* m11 a0323)) (* m13 a0123)))
 			(* m03 (+ (* m11 a0223) (* m10 a1223) (* m12 a0123))))))
 	(list
-		(vec-scale (Vec4-r
+		(nums-scale (Vec4-r
 			(+ (* m11 a2323) (neg (* m12 a1323)) (* m13 a1223))
 			(- (* m02 a1323) (* m01 a2323) (* m03 a1223))
 			(+ (* m01 a2313) (neg (* m02 a1313)) (* m03 a1213))
 			(- (* m02 a1312) (* m01 a2312) (* m03 a1212))) det)
-		(vec-scale (Vec4-r
+		(nums-scale (Vec4-r
 			(- (* m12 a0323) (* m10 a2323) (* m13 a0223))
 			(+ (* m00 a2323) (neg (* m02 a0323)) (* m03 a0223))
 			(- (* m02 a0313) (* m00 a2313) (* m03 a0213))
 			(+ (* m00 a2312) (neg (* m02 a0312)) (* m03 a0212))) det)
-		(vec-scale (Vec4-r
+		(nums-scale (Vec4-r
 			(+ (* m10 a1323) (neg (* m11 a0323)) (* m13 a0123))
 			(- (* m01 a0323) (* m00 a1323) (* m03 a0123))
 			(+ (* m00 a1313) (neg (* m01 a0313)) (* m03 a0113))
 			(- (* m01 a0312) (* m00 a1312) (* m03 a0112))) det)
-		(vec-scale (Vec4-r
+		(nums-scale (Vec4-r
 			(- (* m11 a0223) (* m10 a1223) (* m12 a0123))
 			(+ (* m00 a1223) (neg (* m01 a0223)) (* m02 a0123))
 			(- (* m01 a0213) (* m00 a1213) (* m02 a0113))
