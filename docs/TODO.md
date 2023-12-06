@@ -17,8 +17,6 @@ flags.
 
 * ui-load-icon .... for button images.
 
-* lisp_scale has to match enums and num types.
-
 * inc/dec polymorphic ??
 
 * Real div and mod could be div by zero once normalized ?
