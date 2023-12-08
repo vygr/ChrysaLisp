@@ -19,6 +19,8 @@ flags.
 
 * inc/dec polymorphic ??
 
+* Real div and mod could be div by zero once normalized ?
+
 * (mail-length) call to ask how much mail is there.
 
 * object alloc failure case is redundant ?
