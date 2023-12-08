@@ -70,7 +70,8 @@ the environment chain is searched to see if a macro exists.
 ### Built in symbols
 
 ```vdu
-&optional &rest &most &ignore :nil :t
+&optional &rest &ignore &most :nil :t lambda macro unquote unquote-splicing
+quote quasi-quote ffi *stream_name* *stream_line* *file_includes* *stack_frame*
 ```
 
 ### Built in functions
