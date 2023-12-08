@@ -1,4 +1,4 @@
-# Environments and Symbols
+# Binding
 
 In this document we explore the way in which symbols are bound to values during
 function calls. The primitives used to achieve this and the way a user can use
@@ -146,7 +146,7 @@ If you wish to cleanly, ignore remaining arguments, you can use `&ignore`.
 Again, you can use bind directly to access this mechanism yourself.
 
 ```vdu
-(bind '(x &optional y &rest z) (array 1 2 3 4 5 6 7 8 9)
+(bind '(x &optional y &rest z) (array 1 2 3 4 5 6 7 8 9))
 x
 1
 y
@@ -179,7 +179,7 @@ y1
  message, just `:nil`, or the empty sequence, if the element or range does not
  exist.
 
- ```vdu
+```vdu
 (first '(1 2 3))
 1
 (second '(1 2 3))
@@ -203,3 +203,6 @@ y1
 (rest "")
 ""
 ```
+
+These functions can be extremely useful in conjunction with the mapping,
+filtering and looping constructs.
