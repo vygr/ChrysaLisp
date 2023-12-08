@@ -134,7 +134,7 @@ slice.
 ```
 
 In a similar manner to `&rest`, taking the remaining slice, `&most` takes all,
-but the last item. Notice ypu can also combine these various binding options !
+but the last item. Notice you can also combine these various binding options !
 
 ```vdu
 (defun test (&most a &optional b) (print a " " b))
