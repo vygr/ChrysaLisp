@@ -19,7 +19,7 @@ flags.
 
 * inc/dec polymorphic ??
 
-* Why does the Mesh demo break with the optimized normalized reals ?
+* Nested user `(vp-label)` need protection/detection !
 
 * (mail-length) call to ask how much mail is there.
 
