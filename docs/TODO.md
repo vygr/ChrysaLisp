@@ -27,8 +27,6 @@ flags.
 
 * 'sys_str :to_long and :to_num should take bufe, romable.
 
-* Create a `bindings` document.
-
 * WYSIWYG UI tree Editor.
 
 * Extend `(split)` to allow splitting of any sequence by any sequence. Any

@@ -48,58 +48,6 @@ so.
 bind the symbol within is the current environment `(env)` and that the symbols
 don't need to be quoted, hence the name `(defq)`.
 
-`(bind)` is a more sophisticated way of binding a group of symbols within the
-current environment. It is used at function invocation to bind the initial
-parameter symbols to the given argument list, but it can also be used by users
-as well. You may like to do this as it implements a concept known as
-destructuring, plus you can bind to any type of sequence not just a list !
-
-```vdu
-(bind '(a b c) (list 34 "Chris" '(3 Q)))
-a
-34
-b
-"Chris"
-c
-(3 Q)
-
-(bind '(&most a &rest b) "xyz")
-a
-"xy"
-b
-"z"
-
-(bind '(x1 y1 x2 y2 &ignore) (array 0 1 2 3 4 5 6 7 8 9))
-x1
-0
-y1
-1
-x2
-2
-y2
-3
-```
-
-Destructuring can be done as follows. Just use nested list syntax for the
-parameters to descend into the structure of the given arguments. `&optional`,
-`&rest`, `&ignore` and `&most` also work as expected within these destructuring
-bindings. If you wish to ignore an argument the standard is to bind it to the _
-symbol.
-
-```vdu
-(bind '((x y (z0 z1 z2) _)) (list (list 1 2 (list 3 4 5) 6)))
-x
-1
-y
-2
-z0
-3
-z1
-4
-z2
-5
-```
-
 To change the binding of an existing bound symbol, and this will raise an error
 if the symbol is not bound, you use the `(set)` and `(setq)` functions like so.
 
