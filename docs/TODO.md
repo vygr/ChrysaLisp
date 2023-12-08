@@ -8,8 +8,6 @@ In no particular order but to just to ensure I get thoughts down. I'll keep
 adding to this as I go along. If anybody would like to try helping out, then
 just get in touch.
 
-* Benchmark if `real-norm` is faster inline or as a subroutine.
-
 * Recode quasi quote non recursive?
 
 * optimize write after write vp opts.
