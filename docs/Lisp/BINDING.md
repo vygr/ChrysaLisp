@@ -122,7 +122,8 @@ Alf Smith
 ```
 
 You can ask to take the rest of the parameters as a single slice. Regardless of
-how many there are. If there are no more remaining, you will receive the slice.
+how many there are. If there are no more remaining, you will receive the empty
+slice.
 
 ```vdu
 (defun test (a &rest b) (print a " " b))
