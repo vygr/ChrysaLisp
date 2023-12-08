@@ -137,11 +137,9 @@ In a similar manner to `&rest`, taking the remaining slice, `&most` takes all,
 but the last item. Notice you can also combine these various binding options !
 
 ```vdu
-(defun test (&most a &optional b) (print a " " b))
+(defun test (&most a b &optional c) (print a " " b " " c))
 (test 1 2 3)
-(1 2) 3
-(test 3)
-(3) :nil
+(1 2) 3 :nil
 ```
 
 If you wish to cleanly, ignore remaining arguments, you can use `&ignore`.
