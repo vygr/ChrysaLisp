@@ -165,8 +165,8 @@
 		(bind '(_ fy _ fy1) (. *edit* :get_find))
 		(if (> fy1 fy) (setq sy (max sy fy) sy1 (min sy1 fy1))))
 	(each! sy sy1 (lambda (line found)
-			(if found (each (lambda ((x x1))
-				(push results (slice x x1 line))) (first found))))
+			(if found (each (lambda (((x x1) &ignore))
+				(push results (slice x x1 line))) found)))
 		(list lines found)))
 
 (defun action-collect (whole_words regexp pattern)
