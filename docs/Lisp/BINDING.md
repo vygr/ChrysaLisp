@@ -12,7 +12,7 @@ object being bound to a value object. This was achieved by use of the `(def)`
 and `(set)` family of functions. This is the most obvious way this can be done.
 
 When a function is called you are using the same concept, but the binding of
-symbols to values is done, automatically by the function call mechanism.
+symbols to values is done automatically, by the function call mechanism.
 Internally, this is done by use of the `(apply)` and `(bind)` functions. BUT
 you can have direct access to these for your own purposes.
 
@@ -45,7 +45,7 @@ it returns a value, the last thing that was evaluated, and then the local
 environment is disposed of. So the bindings for `a` and `b` go out of scope.
 
 When the function call was made in effect this happened, under the hood, by the
-`(apply)` and `(bind)` combo, which you also have direct access to !.
+`(apply)` and `(bind)` combo, which you also have direct access to !
 
 ```vdu
 ... (test "Fred" "Blogs")
@@ -108,6 +108,17 @@ act just like normal parameters, if not present, they will be bound to `:nil`.
 1 2
 (test 3)
 3 :nil
+```
+
+Often you will use `(setd)`, set defaults, in conjunction with `&optional`
+parameters.
+
+```vdu
+(defun test (a &optional b)
+	(setd b "Smith")
+	(print a " " b))
+(test "Alf")
+Alf Smith
 ```
 
 You can ask to take the rest of the parameters as a single list. Regardless of how many there are. If there are no more remaining, you will receive an empty list.
