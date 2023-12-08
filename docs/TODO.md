@@ -19,7 +19,7 @@ flags.
 
 * inc/dec polymorphic ??
 
-* Real div and mod could be div by zero once normalized ?
+* Why does the Mesh demo break with the optimized normalized reals ?
 
 * (mail-length) call to ask how much mail is there.
 
