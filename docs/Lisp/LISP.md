@@ -70,7 +70,7 @@ the environment chain is searched to see if a macro exists.
 ### Built in symbols
 
 ```vdu
-&rest &optional &most &ignore :nil :t
+&optional &rest &most &ignore :nil :t
 ```
 
 ### Built in functions
