@@ -121,7 +121,9 @@ parameters.
 Alf Smith
 ```
 
-You can ask to take the rest of the parameters as a single list. Regardless of how many there are. If there are no more remaining, you will receive an empty list.
+You can ask to take the rest of the parameters as a single slice. Regardless of
+how many there are. If there are no more remaining, you will receive an empty
+list.
 
 ```vdu
 (defun test (a &rest b) (print a " " b))
@@ -131,7 +133,7 @@ You can ask to take the rest of the parameters as a single list. Regardless of h
 3 ()
 ```
 
-In a similar manner to `&rest`, taking the remaining list, `&most` takes all,
+In a similar manner to `&rest`, taking the remaining slice, `&most` takes all,
 but the last item. Notice ypu can also combine these various binding options !
 
 ```vdu
