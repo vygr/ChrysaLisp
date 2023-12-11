@@ -8,6 +8,9 @@ In no particular order but to just to ensure I get thoughts down. I'll keep
 adding to this as I go along. If anybody would like to try helping out, then
 just get in touch.
 
+* Investigate if the `(progn)` implementation can drop all the references to
+the input args array in some way.
+
 * Recode quasi quote non recursive?
 
 * optimize write after write vp opts.
@@ -54,11 +57,6 @@ to speed up typing completions.
 codes etc.
 
 * Add cycle protection to the `(debug-sanitise)` call.
-
-* Track down why the debug libs have a difference between wrapping code in
-`(progn ~form)` and `((lambda () ~form))`. One does not create a new temp env,
-one does, but is that really it ? Also `((lambda () (progn ~form)))` fails to
-work !
 
 * Integrate the HOST clipboard and the CL Clipboard service.
 

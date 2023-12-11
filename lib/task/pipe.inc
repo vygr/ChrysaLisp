@@ -69,17 +69,17 @@
 	(defmethod :close ()
 		; (. pipe :close) -> pipe
 		;clear the stdin stream, which will send stopping and stopped
-		(pop (get :select this))
-		(pop (get :streams this))
+		(raise :select :streams)
+		(elem-set -2 select :nil) (pop select)
+		(elem-set -2 streams :nil) (pop streams)
 		;wait for stdout and stderr streams to stop
 		(defq user_select_len (length (get :user_select this)))
-		(while (> (length (get :select this)) user_select_len)
+		(while (> (length select) user_select_len)
 			(if (= (in-get-state (in-next-msg (elem-get (defq idx (mail-select
-						(slice user_select_len -1 (get :select this)))) (get :streams this))))
+						(slice user_select_len -1 select))) streams)))
 					+stream_mail_state_stopped)
-				(def this
-					:streams (erase (get :streams this) idx (inc idx))
-					:select (erase (get :select this) (+ idx user_select_len) (+ idx user_select_len 1)))))
+				(setq streams (erase streams idx (inc idx))
+					select (erase select (+ idx user_select_len) (+ idx user_select_len 1)))))
 		this)
 	)
 

@@ -43,7 +43,7 @@
 			(elem-set 1 __e__ (inc (second __e__)))
 			(if (= (second __e__) 1) (push __e__ (pii-time))))
 		(:t (def *profile_map* ',name (setq __e__ (list 1 1 0 (pii-time))))))
-	(defq __r__ ((lambda () ~form)))
+	(defq __r__ (progn ~form))
 	(elem-set 1 __e__ (dec (second __e__)))
 	(if (= (second __e__) 0) (push __e__ (+ (- (pii-time) (pop __e__)) (pop __e__))))
 	__r__))
