@@ -28,12 +28,11 @@
 		(union
 			(ptr argv)
 			(ptr link))
-		(ptr statics mbox_addr msg data tuple key)
+		(ptr statics mbox_addr msg data tuple key best_nodes)
 		(pptr iter_begin iter_end)
-		(struct best_id node_id_size)
 		(struct node_id node_id_size)
 		(ulong time)
-		(uint best_cnt))
+		(uint link_cnt best_cnt best_rand))
 
 	(push-scope)
 	(entry {argv})
@@ -57,6 +56,9 @@
 
 	;init mailer
 	(call 'sys_mail :statics_init1)
+
+	;allocate best choice nodes array
+	(call 'array :create :nil {best_nodes})
 
 	;set random node ID
 	(call 'sys_pii :rand {&statics->statics_sys_task_kernel_node_id, +node_id_size})
@@ -107,23 +109,30 @@
 			(vpcase '(:r0 = kn_call_child))
 				;find best cpu to run task
 				(assign {statics->statics_sys_task_task_count} {best_cnt})
-				(assign {node_id.node_id_node1} {best_id.node_id_node1})
-				(assign {node_id.node_id_node2} {best_id.node_id_node2})
-				(call 'array :get_both {statics->statics_sys_mail_links_array} {_, iter_begin, iter_end})
+				(call 'array :get_both {statics->statics_sys_mail_links_array}
+					{_, iter_begin, iter_end})
 				(loop-while {iter_begin /= iter_end})
 					(assign {*iter_begin} {link})
 					(assign {iter_begin + +ptr_size} {iter_begin})
-					(continueifnot {link->lk_node_task_count})
-					(continueif {link->lk_node_task_count >= best_cnt})
-					(assign {link->lk_node_task_count} {best_cnt})
-					(assign {link->lk_node_peer_node_id.node_id_node1} {best_id.node_id_node1})
-					(assign {link->lk_node_peer_node_id.node_id_node2} {best_id.node_id_node2})
+					(assign {link->lk_node_task_count} {link_cnt})
+					(continueifnot {link_cnt})
+					(continueif {link_cnt > best_cnt})
+					(vpif {link_cnt < best_cnt})
+						(assign {link_cnt} {best_cnt})
+						(call 'array :clear {best_nodes})
+					(endif)
+					(call 'array :push_back2 {best_nodes,
+						link->lk_node_peer_node_id.node_id_node1,
+						link->lk_node_peer_node_id.node_id_node2})
 				(loop-end)
-				(gotoifnot {(best_id.node_id_node1 - node_id.node_id_node1)
-						| (best_id.node_id_node2 - node_id.node_id_node2)} 'run_here)
-				;send to better kernel
-				(assign {best_id.node_id_node1} {msg->msg_dest.net_id_node_id.node_id_node1})
-				(assign {best_id.node_id_node2} {msg->msg_dest.net_id_node_id.node_id_node2})
+				(gotoif {statics->statics_sys_task_task_count <= best_cnt} 'run_here)
+				;send to random better kernel
+				(call 'array :get_length {best_nodes} {_, best_cnt})
+				(assign {(best_rand + 1 => best_rand) % (best_cnt >> 1)} {best_cnt})
+				(call 'array :get_element2 {best_nodes, best_cnt << 1} {_,
+					msg->msg_dest.net_id_node_id.node_id_node1,
+					msg->msg_dest.net_id_node_id.node_id_node2})
+				(call 'array :clear {best_nodes})
 				(call 'sys_mail :send {msg})
 				(break)
 			(vpcase '(:r0 = kn_call_ping))
@@ -262,6 +271,9 @@
 		(vp-sub-rr :r0 :r6)
 		(host-os-call 'host :sleep '(:r6))
 	(loop-end)
+
+	;deinit best choice array
+	(call 'array :deref {best_nodes})
 
 	;deinit allocator
 	(call 'sys_mem :statics_deinit)
