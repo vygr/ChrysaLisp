@@ -9,8 +9,18 @@
 ;module
 (env-push)
 
-(defq +block_comment ";; " +bracket_char (nums 0x7f) +blank_line (nums)
-	+not_selected (apply nums (map (lambda (_) 0) (str-alloc 2048))))
+(defq +block_comment ";; " +bracket_char (nums 0x7f)
+	+blank_line (nums) +max_line_len 2048
+	+not_selected (apply nums (map (lambda (_) 0) (str-alloc +max_line_len))))
+
+(defun chunk (color len)
+	(while (> len (length color))
+		(setq color (cat color color)))
+	(slice 0 len color))
+
+(defun overlay (color x x1)
+	(if (and (<= 0 x (length color)) (<= 0 x1 (length color)))
+		(slice x x1 color) color))
 
 (defmacro not-whole-word-char? (_)
 	`(bfind ,_ +char_class_not_whole_word))
@@ -508,25 +518,33 @@
 					((and (defq match (elem-get scroll_y found)) (nempty? match))
 						(defq cx 0 line (clear '()))
 						(each (lambda (((x x1) &rest _))
-							(push line (slice cx x background) (slice x x1 color_found))
+							(push line
+								(chunk background (- x cx))
+								(chunk color_found (- x1 x)))
 							(setq cx x1)) match)
-						(push line (slice cx -1 background))
+						(push line (chunk background (max 0 (- +max_line_len cx))))
 						(apply (const cat) line))
 					(:t background)))
 			(when (<= sy scroll_y sy1)
 				(defq tl (inc (length (. buffer :get_text_line scroll_y))))
 				(cond
 					((= sy scroll_y sy1)
-						(setq background (cat (slice 0 sx background)
-							(slice sx sx1 color_select) (slice sx1 -1 background))))
+						(setq background (cat
+							(overlay background 0 sx)
+							(chunk color_select (- sx1 sx))
+							(overlay background sx1 +max_line_len))))
 					((= sy scroll_y)
-						(setq background (cat (slice 0 sx background)
-							(slice sx tl color_select) (slice tl -1 background))))
+						(setq background (cat
+							(overlay background 0 sx)
+							(chunk color_select (- tl sx))
+							(overlay background tl +max_line_len))))
 					((= sy1 scroll_y)
-						(setq background (cat (slice 0 sx1 color_select)
-							(slice sx1 -1 background))))
-					(:t (setq background (cat (slice 0 tl color_select)
-							(slice tl -1 background))))))
+						(setq background (cat
+							(chunk color_select sx1)
+							(overlay background sx1 +max_line_len))))
+					(:t (setq background (cat
+							(chunk color_select tl)
+							(overlay background tl +max_line_len))))))
 			(push underlay background)
 			(setq scroll_y (inc scroll_y)))
 		(. vdu_paper :load underlay scroll_x 0 -1 -1)
