@@ -130,9 +130,9 @@
 				;send to random better kernel
 				(call 'array :get_length {best_nodes} {_, best_cnt})
 				(assign {(best_rand + 1 => best_rand) % (best_cnt >> 1)} {best_cnt})
-				(call 'array :get_element2 {best_nodes, best_cnt << 1} {_,
-					msg->msg_dest.net_id_node_id.node_id_node1,
-					msg->msg_dest.net_id_node_id.node_id_node2})
+				(call 'array :get_element2 {best_nodes, best_cnt << 1}
+					{_, msg->msg_dest.net_id_node_id.node_id_node1,
+						msg->msg_dest.net_id_node_id.node_id_node2})
 				(call 'sys_mail :send {msg})
 				(break)
 			(vpcase '(:r0 = kn_call_ping))

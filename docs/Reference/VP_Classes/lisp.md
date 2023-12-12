@@ -348,6 +348,21 @@ trashes
 :r1-:r14
 ```
 
+### :repl_progn -> class/lisp/repl_progn
+
+```code
+inputs
+:r0 = lisp object (ptr)
+:r1 = initial value object (ptr)
+:r2 = list iter_begin (pptr)
+:r3 = list iter_end (pptr)
+outputs
+:r0 = lisp object (ptr)
+:r1 = return value object (ptr)
+trashes
+:r1-:r14
+```
+
 ### :run -> class/lisp/run
 
 ```code
