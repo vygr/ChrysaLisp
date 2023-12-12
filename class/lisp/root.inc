@@ -1016,7 +1016,7 @@
 
 (defun within-compile-env (_f)
 	; (within-compile-env lambda)
-	(defq *compile_env* (env-resize 401))
+	(defq *compile_env* (env-resize 499))
 	(defmacro defcvar (&rest b) `(def *compile_env* ~b))
 	(defmacro deffvar (&rest b) `(def *func_env* ~b))
 	(defun include (lib_path) (import lib_path *compile_env*))
