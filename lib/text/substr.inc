@@ -10,7 +10,7 @@
 		; (. substr :compile pattern) -> :nil | meta
 		(raise :meta_cache)
 		(unless (defq lps (. meta_cache :find pattern))
-			(. meta_cache :insert pattern (setq lps (map (const progn) pattern))))
+			(. meta_cache :insert pattern (setq lps (map (const identity) pattern))))
 		lps)
 
 	(defmethod :search (text pattern &optional lps)

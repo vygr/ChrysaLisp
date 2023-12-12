@@ -177,19 +177,14 @@
 	;trashes
 	;:r1-:r14
 
-	(entry 'lisp :lisp_progn '(:r0 :r1))
+	(vp-def (this args iter_begin iter_end tmp))
 
-	(assign '((:r1 array_length)) '(:r2))
-	(vpif '(:r2 = 0))
-		(assign '((:r0 lisp_sym_nil)) '(:r1))
-	(else)
-		(vp-sub-cr 1 :r2)
-		(class/array/get_element :r1 :r2 :r1 :r1)
-	(endif)
-	(class/obj/ref :r1 :r2)
+	(entry 'lisp :lisp_progn `(,this ,args))
 
-	(exit 'lisp :lisp_progn '(:r0 :r1))
-	(vp-ret)
+	(class/array/get_both args iter_begin iter_end)
+	(assign `((,this lisp_sym_nil)) `(,args))
+	(class/obj/ref args tmp)
+	(jump 'lisp :repl_progn `(,this ,args (& ,iter_begin ,+ptr_size) ,iter_end))
 
 (def-func-end)
 

@@ -70,8 +70,8 @@
 		; (. pipe :close) -> pipe
 		;clear the stdin stream, which will send stopping and stopped
 		(raise :select :streams)
-		(elem-set -2 select :nil) (pop select)
-		(elem-set -2 streams :nil) (pop streams)
+		(pop streams)
+		(pop select)
 		;wait for stdout and stderr streams to stop
 		(defq user_select_len (length (get :user_select this)))
 		(while (> (length select) user_select_len)

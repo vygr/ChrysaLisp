@@ -42,7 +42,7 @@
 		(apply (const cat) (sort (const cmp) (apply (const cat)
 			(map (# (if (and (= (length %0) 3) (eql (second %0) "-"))
 						(map (const char) (range (code (first %0)) (inc (code (last %0)))))
-						(map (const progn) %0)))
+						(map (const identity) %0)))
 				(partition 3 (unescape k))))))) 7))
 
 ;module

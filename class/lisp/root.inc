@@ -120,7 +120,7 @@
 (ffi bind "class/lisp/lisp_bind" 0)
 (ffi read "class/lisp/lisp_read" 0)
 (ffi eval "class/lisp/lisp_eval" 0)
-(ffi progn "class/lisp/lisp_progn" 0)
+(ffi progn "class/lisp/lisp_progn" 1)
 (ffi apply "class/lisp/lisp_apply" 0)
 (ffi repl "class/lisp/lisp_repl" 0)
 (ffi catch "class/lisp/lisp_catch" 1)
@@ -549,7 +549,9 @@
 
 (defun reverse (_)
 	; (reverse list) -> list
-	(map-rev (const progn) _))
+	(defq out (cap (length _) (list)))
+	(each-rev (lambda (_) (push out _)) _)
+	out)
 
 (defun partition (cnt seq)
 	; (partition count seq) -> list of slices
