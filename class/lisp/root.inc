@@ -189,10 +189,9 @@
 ; Predicates
 ;;;;;;;;;;;;
 
-(defun identity (_)
+(defun identity (_))
 	; (identity any) -> any
 	; function that returns it's argument
-	_)
 
 (defun lambda? (_)
 	; (lambda? form) -> :t | :nil
