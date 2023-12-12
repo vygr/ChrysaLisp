@@ -87,9 +87,11 @@
 		(class/array/get_both tmp iter_begin iter_end)
 		(call 'lisp :repl_progn `(,this ,args (& ,iter_begin ,(* 2 +ptr_size)) ,iter_end)
 			`(,this ,args))
+
 	(errorcase
 		(assign `((,args obj_vtable) (@ ,(f-path 'error :vtable))) `(,vtable ,tmp))
 		(breakif `(,vtable = ,tmp)))
+
 		(call 'obj :deref `(,args))
 		(assign {this, args} `(,this ,args))
 	(loop-end)
@@ -209,6 +211,7 @@
 	(push-scope)
 	(entry 'lisp :repl_progn `(,this ,value ,iter_begin ,iter_end))
 	(gotoif `(,iter_begin = ,iter_end) 'prognexit)
+
 (errorcase
 	(assign `((,value obj_vtable) (@ ,(f-path 'error :vtable))) `(,vtable ,tmp))
 	(gotoif `(,vtable = ,tmp) 'prognexit))
@@ -221,9 +224,11 @@
 		(assign `(,iter_begin) {iter_begin})
 		(call 'obj :deref `(,value))
 		(call 'lisp :repl_eval {this, *iter_begin} `(,this ,value))
+
 	(errorcase
 		(assign `((,value obj_vtable) (@ ,(f-path 'error :vtable))) `(,vtable ,tmp))
 		(gotoif `(,vtable = ,tmp) 'prognexit))
+
 		(assign {iter_begin, iter_end} `(,iter_begin ,iter_end))
 		(vp-add-cr +ptr_size iter_begin)
 	(loop-until `(,iter_begin = ,iter_end))
