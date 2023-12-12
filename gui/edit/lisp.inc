@@ -10,7 +10,7 @@
 (env-push)
 
 (defq +block_comment ";; " +bracket_char (nums 0x7f)
-	+blank_line (nums) +max_line_len 2048
+	+blank_line (nums) +max_line_len 1024
 	+not_selected (apply nums (map (lambda (_) 0) (str-alloc +max_line_len))))
 
 (defun chunk (color len)
@@ -561,12 +561,12 @@
 				(while (< scroll_y scroll_y1)
 					(push underlay (cond
 						((= y scroll_y y1)
-							(cat (slice 0 x +not_selected) +bracket_char
-								(slice (inc x) x1 +not_selected) +bracket_char))
+							(cat (chunk +not_selected x) +bracket_char
+								(chunk +not_selected (- x1 x 1)) +bracket_char))
 						((= y scroll_y)
-							(cat (slice 0 x +not_selected) +bracket_char))
+							(cat (chunk +not_selected x) +bracket_char))
 						((= y1 scroll_y)
-							(cat (slice 0 x1 +not_selected) +bracket_char))
+							(cat (chunk +not_selected x1) +bracket_char))
 						(:t +blank_line)))
 					(setq scroll_y (inc scroll_y)))))
 		(. vdu_ink :load underlay scroll_x 0 -1 -1)
