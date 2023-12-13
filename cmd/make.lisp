@@ -19,7 +19,7 @@
 			(each (# (write-line stream %0)) info))
 		(write-line stream (cat "```" +LF))))
 
-(defun sanitise (_)
+(defun sanitize (_)
 	(defq out (cap (length _) (list)))
 	(. (reduce (# (. %0 :insert %1)) _ (Fset 31)) :each
 		(# (unless (some (lambda (_) (starts-with _ %0))
@@ -142,7 +142,7 @@
 									(push methods (list (cat ":set_" name) (setq info (list))))
 									(setq state :method))))))))
 			(file-stream file)))
-		(sanitise (cat
+		(sanitize (cat
 			(all-files "." '("lisp.inc" "actions.inc") 2)
 			(all-files "./lib" '(".inc") 2)
 			'("class/lisp/root.inc"))))

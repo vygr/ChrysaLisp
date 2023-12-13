@@ -31,7 +31,7 @@
 			(cat "... " (slice (- 3 w) -1 s))
 			(cat (slice 0 (- w 4) s) " ...")) s))
 
-(defun debug-sanitise (s w &optional d)
+(defun debug-sanitize (s w &optional d)
 	(if (eql s "") s
 		(apply (const cat) (map
 			(# (if (<= 0x20 (code %0) 0x7e)
@@ -45,13 +45,13 @@
 	(push msg u +LF
 		"; " n " ;" +LF
 		u +LF +LF
-		(debug-sanitise sform +debug_width) +LF +LF
-		(debug-sanitise (str rval) +debug_width) +LF +LF)
+		(debug-sanitize sform +debug_width) +LF +LF
+		(debug-sanitize (str rval) +debug_width) +LF +LF)
 	(each (lambda ((var val))
 		(setq max_var_size (max (length var) max_var_size))) e)
 	(each (lambda ((var val))
 		(setq var (pad var max_var_size)
-			val (debug-sanitise (str val) (- (const (- +debug_width 3)) max_var_size) :t))
+			val (debug-sanitize (str val) (- (const (- +debug_width 3)) max_var_size) :t))
 		(push msg var " : " val +LF)) (sort (# (cmp (first %0) (first %1))) e))
 	(apply (const cat) (push msg +LF)))
 

@@ -55,7 +55,7 @@ to speed up typing completions.
 * Dynamic doc reference pages for the translators ! Plugin for VP -> native
 codes etc.
 
-* Add cycle protection to the `(debug-sanitise)` call.
+* Add cycle protection to the `(debug-sanitize)` call.
 
 * Integrate the HOST clipboard and the CL Clipboard service.
 
