@@ -521,8 +521,8 @@
 
 (defun slices (seq)
 	; (slices seq) -> seqs
-	(defq out (cap (length seq) (list)) i 0)
-	(while (< i (length seq)) (push out (slice i (setq i (inc i)) seq)))
+	(defq out (cap (length seq) (list)))
+	(each (lambda (&ignore) (push out (slice _ (inc _) seq))) seq)
 	out)
 
 (defun join (seqs seq &optional mode)
@@ -546,11 +546,20 @@
 	(each! 0 -1 (lambda (&rest _) (push l _)) _)
 	(if (= 0 (length l)) l (apply (const cat) l)))
 
-(defun reverse (_)
-	; (reverse list) -> list
-	(defq out (cap (length _) (list)))
-	(each-rev (lambda (_) (push out _)) _)
+(defun reverse-list (lst)
+	; (reverse-list list) -> list
+	(defq lst (cat lst) out (cap (length lst) (list)))
+	(while (defq i (pop lst)) (push out i))
 	out)
+
+(defun reverse (seq)
+	; (reverse seq) -> seq
+	(cond
+		((> (length seq) 0)
+			(defq out (cap (length seq) (list)))
+			(each-rev (lambda (&ignore) (push out (slice _ (inc _) seq))) seq)
+			(apply cat out))
+		((rest seq))))
 
 (defun partition (cnt seq)
 	; (partition count seq) -> list of slices

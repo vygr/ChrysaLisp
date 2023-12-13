@@ -147,7 +147,7 @@
 		(when *debug_inst*
 			(print "post opt:")
 			(each (const print-inst) *inst*))
-		(def-reg-map (reverse src) _)
+		(def-reg-map (reverse-list src) _)
 		(eval *inst* *func_env*)))
 
 (defun assign-script-to-asm (src dst _)

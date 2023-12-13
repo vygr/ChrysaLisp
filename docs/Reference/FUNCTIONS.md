@@ -1268,7 +1268,13 @@ restart a child
 ### reverse
 
 ```code
-(reverse list) -> list
+(reverse seq) -> seq
+```
+
+### reverse-list
+
+```code
+(reverse-list list) -> list
 ```
 
 ### rotate

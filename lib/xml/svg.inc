@@ -49,7 +49,7 @@
 	(+ +argb_black (<< r 16) (<< g 8) b))
 
 (defun read-transform (entry val)
-	(defq stack (reverse (split val ")")) ma (. entry :find "transform"))
+	(defq stack (reverse-list (split val ")")) ma (. entry :find "transform"))
 	(while (defq transform (pop stack))
 		(defq args (split transform (const (cat "(, " (ascii-char 9) (ascii-char 10))))
 			key (first args)

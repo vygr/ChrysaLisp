@@ -19,6 +19,8 @@ bodies, now used the exact same code for implicit and explicit progn.
 Change to the task distribution system to randomly pick from the group of best
 niebours with the lowest loading.
 
+Faster `(slices)`, `(reverse-list)` functions, and new `(reverse seq)`.
+
 ------
 
 Remove the double macroexpand calls that `defun` and `defmethod` have been
