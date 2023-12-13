@@ -19,9 +19,6 @@ bodies, now used the exact same code for implicit and explicit progn.
 Change to the task distribution system to randomly pick from the group of best
 niebours with the lowest loading.
 
-New simplified API for the `(substr)` and `(matches)` functions and text search
-classes.
-
 ------
 
 Remove the double macroexpand calls that `defun` and `defmethod` have been
