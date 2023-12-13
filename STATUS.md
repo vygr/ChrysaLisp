@@ -23,6 +23,8 @@ Faster `(slices)`, `(reverse-list)` functions, and new `(reverse seq)`.
 
 `Buffer :paste` now takes optional wrap_width.
 
+`(#)` macro does NOT descend into quote or quasi-quote forms.
+
 ------
 
 Remove the double macroexpand calls that `defun` and `defmethod` have been
