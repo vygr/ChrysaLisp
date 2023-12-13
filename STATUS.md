@@ -17,7 +17,7 @@ Reference free `(progn)` implementation, `(cond)`, `(while)` and `(lambda)`
 bodies, now used the exact same code for implicit and explicit progn.
 
 Change to the task distribution system to randomly pick from the group of best
-niebours with the lowest loading.
+neighbor with the lowest loading.
 
 Faster `(slices)`, `(reverse-list)` functions, and new `(reverse seq)`.
 
@@ -33,7 +33,7 @@ doing ! Fairly embarrassing this one, as it's been like that for years now.
 New Editor collection actions. `action-collect` and `action-collect-global`.
 
 New `(escape string)` charclass lib function. Editor now uses this to auto
-escape the pattern if in regexp mode when useing `action-set-find-text`.
+escape the pattern if in regexp mode when using `action-set-find-text`.
 
 New Docs application section handler for widget embedding. The `EDITOR.md` and
 `VIEWER.md` docs show the idea.
@@ -48,7 +48,7 @@ Profile app updated to use a syntax highlighted buffer, and to follow the Debug
 app style.
 
 New `(import-from lib ['(sym1 ...) '(class1 ...)])` function. As a result of
-this work the `export` functions now take the list of symbols as an explicite
+this work the `export` functions now take the list of symbols as an explicit
 list rather than rest arguments.
 
 New `class/lisp/task.inc` file. This file is imported by the `lisp :init`
