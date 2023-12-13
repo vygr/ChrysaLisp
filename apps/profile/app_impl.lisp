@@ -1,11 +1,8 @@
 (import "././login/env.inc")
 (import "gui/lisp.inc")
 
-(enums +event 0
-	(enum close)
-	(enum hvalue)
-	(enum clear)
-	(enum clear_all))
+;our UI widgets and events
+(import "./widgets.inc")
 
 (structure +profile_msg 0
 	(netid tcb)
@@ -16,20 +13,6 @@
 
 (enums +select 0
 	(enum main service tip))
-
-(defq +width 60 +height 48)
-
-(ui-window *window* (:color +argb_grey1)
-	(ui-flow _ (:flow_flags +flow_down_fill)
-		(ui-title-bar _ "Profile" (0xea19) +event_close)
-		(ui-flow _ (:flow_flags +flow_right_fill)
-			(ui-tool-bar *main_toolbar* ()
-				(ui-buttons (0xe960) +event_clear))
-			(ui-tool-bar *main_toolbar2* (:color (const *env_toolbar2_col*))
-				(ui-buttons (0xe960) +event_clear_all))
-			(ui-backdrop _ (:color (const *env_toolbar_col*))))
-		(. (ui-slider *hslider* (:value 0)) :connect +event_hvalue)
-		(ui-vdu *vdu* (:vdu_width +width :vdu_height +height :ink_color +argb_yellow))))
 
 (defun vdu-print (vdu buf s)
 	(defq ch (const (dec +height)) cl 0
@@ -76,24 +59,29 @@
 				{to send the report.}) 0 0 0 1000)))
 	(set-slider-values))
 
-(defun tooltips ()
-	(def *window* :tip_mbox (elem-get +select_tip select))
-	(ui-tool-tips *main_toolbar*
-		'("clear"))
-	(ui-tool-tips *main_toolbar2*
-		'("clear all")))
+;import actions, bindings and app ui classes
+(import "./actions.inc")
+
+(defun dispatch-action (&rest action)
+	(catch (eval action)
+		(progn (print _)(print)
+			(setq *refresh_mode* (list 0)) :t)))
 
 (defun main ()
 	(defq select (alloc-select +select_size) syntax (Syntax)
-		buf_keys (list) buf_list (list) selected_index :nil id :t
+		buf_keys (list) buf_list (list) selected_index :nil *running* :t
 		entry (mail-declare (elem-get +select_service select) "*Profile" "Profile Service 0.1"))
-	(tooltips)
+	(def *window* :tip_mbox (elem-get +select_tip select))
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(gui-add-front (. *window* :change x y w h))
 	(reset)
-	(while id
-		(defq idx (mail-select select) *msg* (mail-read (elem-get idx select)))
+	(while *running*
+		(defq *msg* (mail-read (elem-get (defq idx (mail-select select)) select)))
 		(cond
+			((= idx +select_tip)
+				;tip time mail
+				(if (defq view (. *window* :find_id (getf *msg* +mail_timeout_id)))
+					(. view :show_tip)))
 			;new profile msg
 			((= idx +select_service)
 				(defq tcb (getf *msg* +profile_msg_tcb)
@@ -107,25 +95,36 @@
 				(defq buf_rec (elem-get index buf_list)
 					buf (elem-get +profile_rec_buf buf_rec))
 				(vdu-print (if (= index selected_index) *vdu*) buf data))
-			((= idx +select_tip)
-				;tip time mail
-				(if (defq view (. *window* :find_id (getf *msg* +mail_timeout_id)))
-					(. view :show_tip)))
-			;close ?
-			((= (setq id (getf *msg* +ev_msg_target_id)) +event_close)
-				(setq id :nil))
-			;moved task slider
-			((= id +event_hvalue)
-				(reset (get :value *hslider*)))
-			;pressed clear button
-			((= id +event_clear)
-				(when selected_index
-					(setq buf_keys (cat (slice 0 selected_index buf_keys) (slice (inc selected_index) -1 buf_keys)))
-					(setq buf_list (cat (slice 0 selected_index buf_list) (slice (inc selected_index) -1 buf_list)))
-					(reset (min selected_index (dec (length buf_list))))))
-			;pressed clear all button
-			((= id +event_clear_all)
-				(reset))
+			;must be GUI event
+			((defq id (getf *msg* +ev_msg_target_id) action (. *event_map* :find id))
+				;call bound event action
+				(dispatch-action action))
+			((and (not (Textfield? (. *window* :find_id id)))
+					(= (getf *msg* +ev_msg_type) +ev_type_key_down)
+					(> (getf *msg* +ev_msg_key_scode) 0))
+				;key event
+				(defq key (getf *msg* +ev_msg_key_key)
+					mod (getf *msg* +ev_msg_key_mod))
+				(cond
+					((/= 0 (logand mod (const
+							(+ +ev_key_mod_control +ev_key_mod_alt +ev_key_mod_meta))))
+						;call bound control/command key action
+						(when (defq action (. *key_map_control* :find key))
+							(dispatch-action action)))
+					((/= 0 (logand mod +ev_key_mod_shift))
+						;call bound shift key action, else insert
+						(cond
+							((defq action (. *key_map_shift* :find key))
+								(dispatch-action action))
+							((<= +char_space key +char_tilde)
+								;insert char etc ...
+								(char key))))
+					((defq action (. *key_map* :find key))
+						;call bound key action
+						(dispatch-action action))
+					((<= +char_space key +char_tilde)
+						;insert char etc ...
+						(char key))))
 			;otherwise
 			(:t (. *window* :event *msg*))))
 	(mail-forget entry)

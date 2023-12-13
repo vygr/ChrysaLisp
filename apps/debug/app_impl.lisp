@@ -1,11 +1,8 @@
 (import "././login/env.inc")
 (import "gui/lisp.inc")
 
-(enums +event 0
-	(enum close)
-	(enum hvalue)
-	(enum play forward pause step clear)
-	(enum play_all forward_all pause_all step_all clear_all))
+;our UI widgets and events
+(import "./widgets.inc")
 
 (structure +debug 0
 	(netid reply origin)
@@ -18,19 +15,7 @@
 (enums +select 0
 	(enum main service tip exit))
 
-(defq +width 60 +height 48 +rate_exit 1000000)
-
-(ui-window *window* (:color +argb_grey1)
-	(ui-flow _ (:flow_flags +flow_down_fill)
-		(ui-title-bar _ "Debug" (0xea19) +event_close)
-		(ui-flow _ (:flow_flags +flow_right_fill)
-			(ui-tool-bar *main_toolbar* ()
-				(ui-buttons (0xe95e 0xe95a 0xe95d 0xe95c 0xe960) +event_play))
-			(ui-tool-bar *main_toolbar2* (:color (const *env_toolbar2_col*))
-				(ui-buttons (0xe95e 0xe95a 0xe95d 0xe95c 0xe960) +event_play_all))
-			(ui-backdrop _ (:color (const *env_toolbar_col*))))
-		(. (ui-slider *hslider* (:value 0)) :connect +event_hvalue)
-		(ui-vdu *vdu* (:vdu_width +width :vdu_height +height :ink_color +argb_yellow))))
+(defq +rate_exit 1000000)
 
 (defun vdu-print (vdu buf s)
 	(defq ch (const (dec +height)))
@@ -94,24 +79,29 @@
 				{as a conditional breakpoint.}) 0 0 0 1000)))
 	(set-slider-values))
 
-(defun tooltips ()
-	(def *window* :tip_mbox (elem-get +select_tip select))
-	(ui-tool-tips *main_toolbar*
-		'("play" "forward" "pause" "step" "clear"))
-	(ui-tool-tips *main_toolbar2*
-		'("play all" "forward all" "pause all" "step all" "clear all")))
+;import actions, bindings and app ui classes
+(import "./actions.inc")
+
+(defun dispatch-action (&rest action)
+	(catch (eval action)
+		(progn (print _)(print)
+			(setq *refresh_mode* (list 0)) :t)))
 
 (defun main ()
 	(defq select (alloc-select +select_size) syntax (Syntax)
-		buf_keys (list) buf_list (list) selected_index :nil id :t
+		buf_keys (list) buf_list (list) selected_index :nil *running* :t
 		entry (mail-declare (elem-get +select_service select) "*Debug" "Debug Service 0.4"))
-	(tooltips)
+	(def *window* :tip_mbox (elem-get +select_tip select))
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(gui-add-front (. *window* :change x y w h))
 	(reset)
-	(while id
-		(defq idx (mail-select select) *msg* (mail-read (elem-get idx select)))
+	(while *running*
+		(defq *msg* (mail-read (elem-get (defq idx (mail-select select)) select)))
 		(cond
+			((= idx +select_tip)
+				;tip time mail
+				(if (defq view (. *window* :find_id (getf *msg* +mail_timeout_id)))
+					(. view :show_tip)))
 			;new debug msg
 			((= idx +select_service)
 				(defq reply_id (getf *msg* +debug_reply)
@@ -136,64 +126,39 @@
 						(eql state :forward))
 					(mail-send reply_id (str state))
 					(elem-set +debug_rec_reply_id buf_rec reply_id)))
-			((= idx +select_tip)
-				;tip time mail
-				(if (defq view (. *window* :find_id (getf *msg* +mail_timeout_id)))
-					(. view :show_tip)))
 			((= idx +select_exit)
 				;exit mail
-				(setq id :nil))
-			;close ?
-			((= (setq id (getf *msg* +ev_msg_target_id)) +event_close)
-				;drop the service entry now !
-				(mail-forget entry)
-				;few seconds delay till exit !
-				;just let any stray debug sends arrive.
-				(mail-timeout (elem-get +select_exit select) +rate_exit 0))
-			;moved task slider
-			((= id +event_hvalue)
-				(reset (get :value *hslider*)))
-			;pressed play button
-			((= id +event_play)
-				(when selected_index
-					(play (elem-get selected_index buf_list))))
-			;pressed forward button
-			((= id +event_forward)
-				(when selected_index
-					(forward (elem-get selected_index buf_list))))
-			;pressed pause button
-			((= id +event_pause)
-				(when selected_index
-					(pause (elem-get selected_index buf_list))))
-			;pressed step button
-			((= id +event_step)
-				(when selected_index
-					(pause (elem-get selected_index buf_list))
-					(step (elem-get selected_index buf_list))))
-			;pressed clear button
-			((= id +event_clear)
-				(when selected_index
-					(step (elem-get selected_index buf_list))
-					(setq buf_keys (cat (slice 0 selected_index buf_keys) (slice (inc selected_index) -1 buf_keys)))
-					(setq buf_list (cat (slice 0 selected_index buf_list) (slice (inc selected_index) -1 buf_list)))
-					(reset (min selected_index (dec (length buf_list))))))
-			;pressed play all button
-			((= id +event_play_all)
-				(each play buf_list))
-			;pressed foward all button
-			((= id +event_forward_all)
-				(each forward buf_list))
-			;pressed pause all button
-			((= id +event_pause_all)
-				(each pause buf_list))
-			;pressed step all button
-			((= id +event_step_all)
-				(each pause buf_list)
-				(each step buf_list))
-			;pressed clear all button
-			((= id +event_clear_all)
-				(each step buf_list)
-				(reset))
+				(setq *running* :nil))
+			;must be GUI event
+			((defq id (getf *msg* +ev_msg_target_id) action (. *event_map* :find id))
+				;call bound event action
+				(dispatch-action action))
+			((and (not (Textfield? (. *window* :find_id id)))
+					(= (getf *msg* +ev_msg_type) +ev_type_key_down)
+					(> (getf *msg* +ev_msg_key_scode) 0))
+				;key event
+				(defq key (getf *msg* +ev_msg_key_key)
+					mod (getf *msg* +ev_msg_key_mod))
+				(cond
+					((/= 0 (logand mod (const
+							(+ +ev_key_mod_control +ev_key_mod_alt +ev_key_mod_meta))))
+						;call bound control/command key action
+						(when (defq action (. *key_map_control* :find key))
+							(dispatch-action action)))
+					((/= 0 (logand mod +ev_key_mod_shift))
+						;call bound shift key action, else insert
+						(cond
+							((defq action (. *key_map_shift* :find key))
+								(dispatch-action action))
+							((<= +char_space key +char_tilde)
+								;insert char etc ...
+								(char key))))
+					((defq action (. *key_map* :find key))
+						;call bound key action
+						(dispatch-action action))
+					((<= +char_space key +char_tilde)
+						;insert char etc ...
+						(char key))))
 			;otherwise
 			(:t (. *window* :event *msg*))))
 	(free-select select)

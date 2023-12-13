@@ -1,5 +1,33 @@
 # Key Bindings
 
+## apps/debug/actions.inc
+
+### *key_map*
+
+```code
+(ascii-code "p") action-play
+(ascii-code "f") action-forward
+(ascii-code "s") action-step
+(ascii-code "h") action-pause
+(ascii-code "x") action-clear
+```
+
+### *key_map_control*
+
+```code
+
+```
+
+### *key_map_shift*
+
+```code
+(ascii-code "P") action-play-all
+(ascii-code "F") action-forward-all
+(ascii-code "S") action-step-all
+(ascii-code "H") action-pause-all
+(ascii-code "X") action-clear-all
+```
+
 ## apps/docs/actions.inc
 
 ### *key_map_control*
@@ -161,6 +189,26 @@
 ```code
 (ascii-code "{") action-scale-down
 (ascii-code "}") action-scale-up
+```
+
+## apps/profile/actions.inc
+
+### *key_map*
+
+```code
+(ascii-code "x") action-clear
+```
+
+### *key_map_control*
+
+```code
+
+```
+
+### *key_map_shift*
+
+```code
+(ascii-code "X") action-clear-all
 ```
 
 ## apps/template/actions.inc
