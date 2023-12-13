@@ -23,7 +23,7 @@
 	(entry 'nums :add `(,dst ,src1 ,src2))
 
 	(assign `((,src1 array_length)) `(,src_end))
-	(assign (map (# `(,%0 array_begin)) `(,src1 ,src2 ,dst)) `(,src1 ,src2 ,dst1))
+	(assign (map (# (list %0 array_begin)) `(,src1 ,src2 ,dst)) `(,src1 ,src2 ,dst1))
 	(vp-shl-cr (log2 +ptr_size) src_end)
 	(vp-add-rr src1 src_end)
 	(vec-loop-until `(,src1 ,src2) `(,e0 ,e1) src_end dst1
@@ -50,7 +50,7 @@
 	(entry 'nums :sub `(,dst ,src1 ,src2))
 
 	(assign `((,src1 array_length)) `(,src_end))
-	(assign (map (# `(,%0 array_begin)) `(,src1 ,src2 ,dst)) `(,src1 ,src2 ,dst1))
+	(assign (map (# (list %0 array_begin)) `(,src1 ,src2 ,dst)) `(,src1 ,src2 ,dst1))
 	(vp-shl-cr (log2 +ptr_size) src_end)
 	(vp-add-rr src1 src_end)
 	(vec-loop-until `(,src1 ,src2) `(,e0 ,e1) src_end dst1
@@ -77,7 +77,7 @@
 	(entry 'nums :min `(,dst ,src1 ,src2))
 
 	(assign `((,src1 array_length)) `(,src_end))
-	(assign (map (# `(,%0 array_begin)) `(,src1 ,src2 ,dst)) `(,src1 ,src2 ,dst1))
+	(assign (map (# (list %0 array_begin)) `(,src1 ,src2 ,dst)) `(,src1 ,src2 ,dst1))
 	(vp-shl-cr (log2 +ptr_size) src_end)
 	(vp-add-rr src1 src_end)
 	(vec-loop-until `(,src1 ,src2) `(,e0 ,e1) src_end dst1
@@ -104,7 +104,7 @@
 	(entry 'nums :max `(,dst ,src1 ,src2))
 
 	(assign `((,src1 array_length)) `(,src_end))
-	(assign (map (# `(,%0 array_begin)) `(,src1 ,src2 ,dst)) `(,src1 ,src2 ,dst1))
+	(assign (map (# (list %0 array_begin)) `(,src1 ,src2 ,dst)) `(,src1 ,src2 ,dst1))
 	(vp-shl-cr (log2 +ptr_size) src_end)
 	(vp-add-rr src1 src_end)
 	(vec-loop-until `(,src1 ,src2) `(,e0 ,e1) src_end dst1
@@ -131,7 +131,7 @@
 	(entry 'nums :mul `(,dst ,src1 ,src2))
 
 	(assign `((,src1 array_length)) `(,src_end))
-	(assign (map (# `(,%0 array_begin)) `(,src1 ,src2 ,dst)) `(,src1 ,src2 ,dst1))
+	(assign (map (# (list %0 array_begin)) `(,src1 ,src2 ,dst)) `(,src1 ,src2 ,dst1))
 	(vp-shl-cr (log2 +ptr_size) src_end)
 	(vp-add-rr src1 src_end)
 	(vec-loop-until `(,src1 ,src2) `(,e0 ,e1) src_end dst1
@@ -158,7 +158,7 @@
 	(entry 'nums :div `(,dst ,e1 ,high))
 
 	(assign `((,e1 array_length)) `(,src_end))
-	(assign (map (# `(,%0 array_begin)) `(,e1 ,high ,dst)) `(,src1 ,src2 ,dst1))
+	(assign (map (# (list %0 array_begin)) `(,e1 ,high ,dst)) `(,src1 ,src2 ,dst1))
 	(vp-shl-cr (log2 +ptr_size) src_end)
 	(vp-add-rr src1 src_end)
 	(vec-loop-until `(,src1 ,src2) `(,e0 ,e1) src_end dst1
@@ -192,7 +192,7 @@
 	(entry 'nums :mod `(,dst ,e1 ,high))
 
 	(assign `((,e1 array_length)) `(,src_end))
-	(assign (map (# `(,%0 array_begin)) `(,e1 ,high ,dst)) `(,src1 ,src2 ,dst1))
+	(assign (map (# (list %0 array_begin)) `(,e1 ,high ,dst)) `(,src1 ,src2 ,dst1))
 	(vp-shl-cr (log2 +ptr_size) src_end)
 	(vp-add-rr src1 src_end)
 	(vec-loop-until `(,src1 ,src2) `(,e0 ,e1) src_end dst1
@@ -224,7 +224,7 @@
 	(entry 'nums :abs `(,dst ,src1))
 
 	(assign `((,src1 array_length)) `(,src_end))
-	(assign (map (# `(,%0 array_begin)) `(,src1 ,dst)) `(,src1 ,dst1))
+	(assign (map (# (list %0 array_begin)) `(,src1 ,dst)) `(,src1 ,dst1))
 	(vp-shl-cr (log2 +ptr_size) src_end)
 	(vp-add-rr src1 src_end)
 	(vec-loop-until `(,src1) `(,e0) src_end dst1
@@ -249,7 +249,7 @@
 	(entry 'nums :sum `(,dst))
 
 	(assign `((,dst array_length)) `(,dst_end))
-	(assign (map (# `(,%0 array_begin)) `(,dst)) `(,dst1))
+	(assign (map (# (list %0 array_begin)) `(,dst)) `(,dst1))
 	(vp-xor-rr sum sum)
 	(vp-shl-cr (log2 +ptr_size) dst_end)
 	(vp-add-rr dst1 dst_end)
@@ -276,7 +276,7 @@
 	(entry 'nums :scale `(,dst ,src1 ,scale))
 
 	(assign `((,src1 array_length)) `(,src_end))
-	(assign (map (# `(,%0 array_begin)) `(,src1 ,dst)) `(,src1 ,dst1))
+	(assign (map (# (list %0 array_begin)) `(,src1 ,dst)) `(,src1 ,dst1))
 	(vp-shl-cr (log2 +ptr_size) src_end)
 	(vp-add-rr src1 src_end)
 	(vec-loop-until `(,src1) `(,e0) src_end dst1
@@ -302,7 +302,7 @@
 	(entry 'nums :dot `(,src1 ,dot))
 
 	(assign `((,src1 array_length)) `(,src_end))
-	(assign (map (# `(,%0 array_begin)) `(,dot ,src)) `(,src1 ,src2))
+	(assign (map (# (list %0 array_begin)) `(,dot ,src)) `(,src1 ,src2))
 	(vp-xor-rr dot dot)
 	(vp-shl-cr (log2 +ptr_size) src_end)
 	(vp-add-rr src1 src_end)
@@ -330,7 +330,7 @@
 	(gotoif `(,src = ,val) 'same)
 
 	(assign `((,val array_length)) `(,src_end))
-	(assign (map (# `(,%0 array_begin)) `(,val ,src)) `(,src1 ,src2))
+	(assign (map (# (list %0 array_begin)) `(,val ,src)) `(,src1 ,src2))
 	(vp-xor-rr val val)
 	(vp-shl-cr (log2 +ptr_size) src_end)
 	(vp-add-rr src1 src_end)
@@ -361,7 +361,7 @@
 	(entry 'nums :hash `(,src))
 
 	(assign `((,src array_length)) `(,src_end))
-	(assign (map (# `(,%0 array_begin)) `(,src)) `(,src1))
+	(assign (map (# (list %0 array_begin)) `(,src)) `(,src1))
 	(vp-xor-rr val val)
 	(vp-shl-cr (log2 +ptr_size) src_end)
 	(vp-add-rr src1 src_end)

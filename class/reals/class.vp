@@ -24,7 +24,7 @@
 	(entry 'reals :add `(,dst ,src1 ,src2))
 
 	(assign `((,src1 array_length)) `(,src_end))
-	(assign (map (# `(,%0 array_begin)) `(,src1 ,src2 ,dst)) `(,src1 ,src2 ,dst1))
+	(assign (map (# (list %0 array_begin)) `(,src1 ,src2 ,dst)) `(,src1 ,src2 ,dst1))
 	(vp-shl-cr (log2 +ptr_size) src_end)
 	(vp-add-rr src1 src_end)
 	(vec-loop-until `(,src1 ,src2) `(,e0 ,e1) src_end dst1
@@ -51,7 +51,7 @@
 	(entry 'reals :sub `(,dst ,src1 ,src2))
 
 	(assign `((,src1 array_length)) `(,src_end))
-	(assign (map (# `(,%0 array_begin)) `(,src1 ,src2 ,dst)) `(,src1 ,src2 ,dst1))
+	(assign (map (# (list %0 array_begin)) `(,src1 ,src2 ,dst)) `(,src1 ,src2 ,dst1))
 	(vp-shl-cr (log2 +ptr_size) src_end)
 	(vp-add-rr src1 src_end)
 	(vec-loop-until `(,src1 ,src2) `(,e0 ,e1) src_end dst1
@@ -78,7 +78,7 @@
 	(entry 'reals :min `(,dst ,src1 ,src2))
 
 	(assign `((,src1 array_length)) `(,src_end))
-	(assign (map (# `(,%0 array_begin)) `(,src1 ,src2 ,dst)) `(,src1 ,src2 ,dst1))
+	(assign (map (# (list %0 array_begin)) `(,src1 ,src2 ,dst)) `(,src1 ,src2 ,dst1))
 	(vp-shl-cr (log2 +ptr_size) src_end)
 	(vp-add-rr src1 src_end)
 	(vec-loop-until `(,src1 ,src2) `(,e0 ,e1) src_end dst1
@@ -111,7 +111,7 @@
 	(entry 'reals :max `(,dst ,src1 ,src2))
 
 	(assign `((,src1 array_length)) `(,src_end))
-	(assign (map (# `(,%0 array_begin)) `(,src1 ,src2 ,dst)) `(,src1 ,src2 ,dst1))
+	(assign (map (# (list %0 array_begin)) `(,src1 ,src2 ,dst)) `(,src1 ,src2 ,dst1))
 	(vp-shl-cr (log2 +ptr_size) src_end)
 	(vp-add-rr src1 src_end)
 	(vec-loop-until `(,src1 ,src2) `(,e0 ,e1) src_end dst1
@@ -144,7 +144,7 @@
 	(entry 'reals :mul `(,dst ,src1 ,src2))
 
 	(assign `((,src1 array_length)) `(,src_end))
-	(assign (map (# `(,%0 array_begin)) `(,src1 ,src2 ,dst)) `(,src1 ,src2 ,dst1))
+	(assign (map (# (list %0 array_begin)) `(,src1 ,src2 ,dst)) `(,src1 ,src2 ,dst1))
 	(vp-shl-cr (log2 +ptr_size) src_end)
 	(vp-add-rr src1 src_end)
 	(vec-loop-until `(,src1 ,src2) `(,e0 ,e1) src_end dst1
@@ -171,7 +171,7 @@
 	(entry 'reals :div `(,dst ,src1 ,src2))
 
 	(assign `((,src1 array_length)) `(,src_end))
-	(assign (map (# `(,%0 array_begin)) `(,src1 ,src2 ,dst)) `(,src1 ,src2 ,dst1))
+	(assign (map (# (list %0 array_begin)) `(,src1 ,src2 ,dst)) `(,src1 ,src2 ,dst1))
 	(vp-shl-cr (log2 +ptr_size) src_end)
 	(vp-add-rr src1 src_end)
 	(vec-loop-until `(,src1 ,src2) `(,e0 ,e1) src_end dst1
@@ -203,7 +203,7 @@
 	(entry 'reals :mod `(,dst ,src1 ,src2))
 
 	(assign `((,src1 array_length)) `(,src_end))
-	(assign (map (# `(,%0 array_begin)) `(,src1 ,src2 ,dst)) `(,src1 ,src2 ,dst1))
+	(assign (map (# (list %0 array_begin)) `(,src1 ,src2 ,dst)) `(,src1 ,src2 ,dst1))
 	(vp-shl-cr (log2 +ptr_size) src_end)
 	(vp-add-rr src1 src_end)
 	(vec-loop-until `(,src1 ,src2) `(,e0 ,e1) src_end dst1
@@ -233,7 +233,7 @@
 	(entry 'reals :frac `(,dst ,src1))
 
 	(assign `((,src1 array_length)) `(,src_end))
-	(assign (map (# `(,%0 array_begin)) `(,src1 ,dst)) `(,src1 ,dst1))
+	(assign (map (# (list %0 array_begin)) `(,src1 ,dst)) `(,src1 ,dst1))
 	(vp-shl-cr (log2 +ptr_size) src_end)
 	(vp-add-rr src1 src_end)
 	(vec-loop-until `(,src1) `(,e0) src_end dst1
@@ -258,7 +258,7 @@
 	(entry 'reals :floor `(,dst ,src1))
 
 	(assign `((,src1 array_length)) `(,src_end))
-	(assign (map (# `(,%0 array_begin)) `(,src1 ,dst)) `(,src1 ,dst1))
+	(assign (map (# (list %0 array_begin)) `(,src1 ,dst)) `(,src1 ,dst1))
 	(vp-shl-cr (log2 +ptr_size) src_end)
 	(vp-add-rr src1 src_end)
 	(vec-loop-until `(,src1) `(,e0) src_end dst1
@@ -283,7 +283,7 @@
 	(entry 'reals :abs `(,dst ,src1))
 
 	(assign `((,src1 array_length)) `(,src_end))
-	(assign (map (# `(,%0 array_begin)) `(,src1 ,dst)) `(,src1 ,dst1))
+	(assign (map (# (list %0 array_begin)) `(,src1 ,dst)) `(,src1 ,dst1))
 	(vp-shl-cr (log2 +ptr_size) src_end)
 	(vp-add-rr src1 src_end)
 	(vec-loop-until `(,src1) `(,e0) src_end dst1
@@ -313,7 +313,7 @@
 	(entry 'reals :scale `(,dst ,src1 ,scale))
 
 	(assign `((,src1 array_length)) `(,src_end))
-	(assign (map (# `(,%0 array_begin)) `(,src1 ,dst)) `(,src1 ,dst1))
+	(assign (map (# (list %0 array_begin)) `(,src1 ,dst)) `(,src1 ,dst1))
 	(vp-shl-cr (log2 +ptr_size) src_end)
 	(vp-add-rr src1 src_end)
 	(vec-loop-until `(,src1) `(,e0) src_end dst1
