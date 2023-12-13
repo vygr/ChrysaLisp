@@ -11,7 +11,7 @@
 
 (defq +block_comment ";; " +bracket_char (nums 0x7f)
 	+blank_line (nums) +max_line_len 1024
-	+not_selected (apply nums (map (lambda (_) 0) (str-alloc +max_line_len))))
+	+not_selected (apply nums (map (lambda (&ignore) 0) (str-alloc +max_line_len))))
 
 (defun chunk (color len)
 	(while (> len (length color))
