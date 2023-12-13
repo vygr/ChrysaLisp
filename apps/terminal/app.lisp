@@ -112,7 +112,7 @@
 						(. *pipe* :close)
 						(setq *pipe* :nil)
 						(action-insert (cat (ascii-char +char_lf) *env_terminal_prompt*)))
-					((action-insert *msg*))))
+					((action-insert *msg* +line_wrap_len))))
 			((= idx +select_tip)
 				;tip time mail
 				(if (defq view (. *window* :find_id (getf *msg* +mail_timeout_id)))

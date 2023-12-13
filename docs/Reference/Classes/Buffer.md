@@ -151,7 +151,7 @@
 ### :paste
 
 ```code
-(. buffer :paste string) -> buffer
+(. buffer :paste string &optional wrap_width) -> buffer
 ```
 
 ### :push_undo
