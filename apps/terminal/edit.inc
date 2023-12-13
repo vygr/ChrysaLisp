@@ -3,8 +3,7 @@
 ;;;;;;;;;;;;;;;;;
 
 (defun action-insert (string)
-	(input-cursor
-		(. buffer :paste string))
+	(input-cursor (. buffer :paste string +line_wrap_len))
 	(bind '(w h) (. buffer :get_size))
 	(when (> h *env_terminal_lines*)
 		(.-> buffer (:set_cursor 0 0) (:cut 0 (- h *env_terminal_lines*)))

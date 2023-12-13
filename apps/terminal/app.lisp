@@ -10,7 +10,7 @@
 	(enum main tip pipe))
 
 (bind '(+edit_font +edit_size) (font-info *env_terminal_font*))
-(defq +state_filename "terminal_state.tre")
+(defq +state_filename "terminal_state.tre" +line_wrap_len 120)
 
 (defun input-poll ()
 	(cond

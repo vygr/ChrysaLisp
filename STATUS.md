@@ -21,6 +21,8 @@ niebours with the lowest loading.
 
 Faster `(slices)`, `(reverse-list)` functions, and new `(reverse seq)`.
 
+`Buffer :paste` now takes optional wrap_width.
+
 ------
 
 Remove the double macroexpand calls that `defun` and `defmethod` have been
