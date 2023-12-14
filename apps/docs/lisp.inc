@@ -16,8 +16,17 @@
 				(progn (print _)(print) (defq result :nil) :t))
 			(export-symbols '(result))
 			(env-pop)
-			((handler-func :vdu) :vdu page (str result))
-			((handler-func :vdu) :vdu page "```")
+			(cond
+				((View? result)
+					(def result :tip_mbox (elem-get +select_tip select))
+					(def (defq flow (Flow)) :flow_flags +flow_right)
+					(def (defq text (Text)) :text "")
+					(.-> page
+						(:add_child (. flow :add_child
+							(. result :set_owner (elem-get +select_embeded select))))
+						(:add_child text)))
+				(:t ((handler-func :vdu) :vdu page (str result))
+					((handler-func :vdu) :vdu page "```")))
 			(clear lines)
 			:text)
 		(:t (push lines line)
