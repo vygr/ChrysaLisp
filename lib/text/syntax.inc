@@ -67,7 +67,7 @@
 				(case state
 					(:text
 						(cond
-							((defq _ (find-rev c (const (cat (ascii-char 34) "{:;"))))
+							((defq _ (find-rev -1 c (const (cat (ascii-char 34) "{:;"))))
 								(push state_list state)
 								(push token_list token)
 								(setq token (list c) state (elem-get _ '(:string1 :string2 :keysym :comment))))
@@ -117,7 +117,7 @@
 			line)
 		(push state_list state)
 		(push token_list token)
-		(set this :state (if (find state '(:string1 :string2)) state :text))
+		(set this :state (if (find 0 state '(:string1 :string2)) state :text))
 
 		;assign colours
 		(each (lambda (state token)

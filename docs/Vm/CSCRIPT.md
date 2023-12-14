@@ -253,7 +253,7 @@ Look closer at the `(pop-value)` and `(top-value)` functions.
 		(defq z (rest w) z (if (eql z "") :nil z) w (first w))
 		(throw "No type info !" x))
 	(set-type z)
-	(setq w (elem-get (find-rev w "bBsSiIlLp")
+	(setq w (elem-get (find-rev -1 w "bBsSiIlLp")
 		'(vp-cpy-ir-b vp-cpy-ir-ub vp-cpy-ir-s vp-cpy-ir-us
 		vp-cpy-ir-i vp-cpy-ir-ui vp-cpy-ir vp-cpy-ir vp-cpy-ir)))
 	(add-inst (list w x 0 x)))

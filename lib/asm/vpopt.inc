@@ -32,13 +32,13 @@
 		''(emit-pop))
 
 (defmacro uses? (r op)
-	`(find-rev ,r ,op))
+	`(find-rev -1 ,r ,op))
 
 (defmacro trashes-reg? (r op)
 	`(cond
 		((eql ,r (last ,op)))
-		((find-rev (first ,op) ,'+opt_emit_two_out_ops) (eql ,r (elem-get -3 ,op)))
-		((find-rev (first ,op) ,'+opt_emit_multi_out_ops) (uses? ,r ,op))))
+		((find-rev -1 (first ,op) ,'+opt_emit_two_out_ops) (eql ,r (elem-get -3 ,op)))
+		((find-rev -1 (first ,op) ,'+opt_emit_multi_out_ops) (uses? ,r ,op))))
 
 (defmacro find-past (&rest _)
 	`(and (defq _ (some! _ emit_start :nil
@@ -57,7 +57,7 @@
 				(= i (eval (third op))))
 			(setq c 3) _)
 		((trashes-reg? b op) -1)
-		((find-rev (first op) +opt_emit_read_kill_ops) -1)))
+		((find-rev -1 (first op) +opt_emit_read_kill_ops) -1)))
 
 (defun find-past-rw1 (_ rop1 rop2 wop b i)
 	(find-past
@@ -71,22 +71,22 @@
 				(= i (eval (third op))))
 			(setq c 3) _)
 		((trashes-reg? b op) -1)
-		((find-rev (first op) +opt_emit_kill_ops) -1)
-		((find-rev (first op) +opt_emit_call_ops) -1)))
+		((find-rev -1 (first op) +opt_emit_kill_ops) -1)
+		((find-rev -1 (first op) +opt_emit_call_ops) -1)))
 
 (defun find-past-rr (_ rs rd)
 	(find-past
 		((lmatch? op `(emit-cpy-rr ,rs ,rd)) _)
 		((trashes-reg? rs op) -1)
 		((trashes-reg? rd op) -1)
-		((find-rev (first op) +opt_emit_call_ops) -1)))
+		((find-rev -1 (first op) +opt_emit_call_ops) -1)))
 
 (defun find-past-r (_ rd)
 	(find-past
 		((lmatch? op `(emit-cpy-rr _ ,rd)) _)
 		((uses? rd op) -1)
-		((find-rev (first op) +opt_emit_kill_ops) -1)
-		((find-rev (first op) +opt_emit_call_ops) -1)))
+		((find-rev -1 (first op) +opt_emit_kill_ops) -1)
+		((find-rev -1 (first op) +opt_emit_call_ops) -1)))
 
 (defun opt-read-after-read-write ()
 	(when (defq i (find-past-rw _
@@ -126,17 +126,17 @@
 (defun opt-emit-list (emit_list emit_start emit_end)
 	(each! emit_start emit_end (lambda (op)
 			(cond
-				((defq c (find-rev (first op) +opt_emit_read_ops))
+				((defq c (find-rev -1 (first op) +opt_emit_read_ops))
 					(opt-read-after-read-write)
-					(if (find-rev (first op) +opt_emit_read_ops)
+					(if (find-rev -1 (first op) +opt_emit_read_ops)
 						(opt-read-after-cpy)))
-				((defq c (find-rev (first op) +opt_emit_write_ops_signed))
+				((defq c (find-rev -1 (first op) +opt_emit_write_ops_signed))
 					(opt-write-after-write))
 				((eql (first op) 'emit-cpy-rr)
 					(opt-redundant-cpy))))
 		(list emit_list))
 	(each! emit_start emit_end (lambda (op)
-			(if (defq c (find-rev (first op) +opt_emit_read_ops))
+			(if (defq c (find-rev -1 (first op) +opt_emit_read_ops))
 				(opt-read-after-read-write)))
 		(list emit_list)))
 

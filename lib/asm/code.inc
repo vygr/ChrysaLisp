@@ -19,7 +19,7 @@
 	(bind '(d o s) (cond
 		((str? e) (assign e '(:r0)) '(:r0 /= 0))
 		(e)))
-	(defq e (find-rev o '(= /= <= >= > <)))
+	(defq e (find-rev -1 o '(= /= <= >= > <)))
 	(case (assign-src-type s)
 		(:c (if e ((eval (elem-get e '(vp-beq-cr vp-bne-cr vp-ble-cr vp-bge-cr vp-bgt-cr vp-blt-cr))) s d l)
 			(throw "No such comparator" o)))
@@ -31,7 +31,7 @@
 	(bind '(d o s) (cond
 		((str? e) (assign e '(:r0)) '(:r0 /= 0))
 		(e)))
-	(defq e (find-rev o '(/= = > < <= >=)))
+	(defq e (find-rev -1 o '(/= = > < <= >=)))
 	(case (assign-src-type s)
 		(:c (if e ((eval (elem-get e '(vp-beq-cr vp-bne-cr vp-ble-cr vp-bge-cr vp-bgt-cr vp-blt-cr))) s d l)
 			(throw "No such comparator" o)))

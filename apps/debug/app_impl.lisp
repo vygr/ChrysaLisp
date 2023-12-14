@@ -106,7 +106,7 @@
 					key (sym (getf *msg* +debug_origin))
 					type (getf *msg* +debug_type)
 					data (slice +debug_data -1 *msg*)
-					index (find-rev key buf_keys))
+					index (find-rev -1 key buf_keys))
 				(unless index
 					(push buf_keys key)
 					(push buf_list (list (Buffer :t syntax) :paused :nil))

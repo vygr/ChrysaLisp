@@ -33,7 +33,7 @@
 
 (defun tree-buckets (collection type)
 	; (tree-buckets collection type) -> num
-	(if (find type '(:list :array))
+	(if (find 0 type '(:list :array))
 		(length collection)
 		(if (eql type :Lmap) 1
 			(get :num_buckets collection))))

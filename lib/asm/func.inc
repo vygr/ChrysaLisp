@@ -78,7 +78,7 @@
 	(if (= i (length *strings*)) (push *strings* s)) i)
 
 (defun fn-add-path (p)
-	(if (defq i (find-rev p *paths*)) i
+	(if (defq i (find-rev -1 p *paths*)) i
 		(dec (length (push *paths* p)))))
 
 (defun fn-add-link (p)

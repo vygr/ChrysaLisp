@@ -34,7 +34,7 @@
 		; (. local :refresh [timeout]) -> :t | :nil
 		;scan known nodes and update map
 		(defq _known_nodes (map cat (mail-nodes))
-			_nodes (filter (# (find %0 _known_nodes)) (get :nodes this))
+			_nodes (filter (# (find 0 %0 _known_nodes)) (get :nodes this))
 			_old_keys (list) _old_vals (list)
 			_create (get :create this) _destroy (get :destroy this)
 			_mutated :nil _now (pii-time))
@@ -44,7 +44,7 @@
 		(each (lambda (_key _val)
 			(cond
 				((or (not (defq _child (get :child _val)))
-					(find (slice +mailbox_id_size -1 _child) _nodes))
+					(find 0 (slice +mailbox_id_size -1 _child) _nodes))
 					;waiting on child launching, or found child in nodes, so check timestamp
 					(and _timeout
 						(defq _then (get :timestamp _val))
@@ -66,7 +66,7 @@
 		;add new node
 		(defq _nodes (get :nodes this)
 			_headroom (- (get :max_size this) (length _nodes)))
-		(unless (or (<= _headroom 0) (find node _nodes))
+		(unless (or (<= _headroom 0) (find 0 node _nodes))
 			(def this :nodes (push _nodes node))
 			(defq _now (pii-time) _create (get :create this))
 			(times (min (get :size this) _headroom) (start))))

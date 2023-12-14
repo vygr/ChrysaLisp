@@ -81,18 +81,18 @@ Splice sequences together by using `(cat seq ...)`:
 "abc"
 ```
 
-Search for an element with `(find elem seq)` and `(find-rev elem seq)`:
+Search for an element with `(find idx elem seq)` and `(find-rev idx elem seq)`:
 
 ```vdu
-(find "a" "defopqaui")
+(find 0 "a" "defopqaui")
 6
 (find 5 (array 1 2 3 4 5))
 4
-(find "a" "def")
+(find 0 "a" "def")
 :nil
-(find 'a (list 'd 't 'y 'a 'j 'k 'd))
+(find 0 'a (list 'd 't 'y 'a 'j 'k 'd))
 3
-(find-rev 'd (list 'd 't 'y 'a 'j 'k 'd))
+(find-rev -1 'd (list 'd 't 'y 'a 'j 'k 'd))
 6
 ```
 

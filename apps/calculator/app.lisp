@@ -35,7 +35,7 @@
 			(cond
 				((eql op "AC")
 					(setq accum 0 value 0 num 0 lastop :nil))
-				((find op "=+-/*")
+				((find 0 op "=+-/*")
 					(if lastop
 						(setq value (do_lastop))
 						(setq value num accum num))

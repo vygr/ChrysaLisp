@@ -53,7 +53,7 @@
 		(defq matches (. this :find_matches prefix))
 		(each (# (push matches %0)) (. this :find_matches (to-lower prefix)))
 		(each (# (push matches %0)) (. this :find_matches (to-upper prefix)))
-		(reduce (# (if (find %1 %0) %0 (push %0 %1)))
+		(reduce (# (if (find 0 %1 %0) %0 (push %0 %1)))
 			(map (# (cat prefix (slice (length prefix) -1 %0))) matches) (list)))
 	)
 

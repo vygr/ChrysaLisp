@@ -36,7 +36,7 @@
 	(if (= (length (setq exts (split exts ", "))) 0) (setq exts '("")))
 	(defq dirs_with_exts (list) files_within_dir (list))
 	(each (lambda (_)
-			(defq i (inc (find-rev "/" _)) d (slice 0 i _) f (slice i -1 _))
+			(defq i (inc (find-rev -1 "/" _)) d (slice 0 i _) f (slice i -1 _))
 			(if (notany (lambda (_) (eql d _)) dirs_with_exts)
 				(push dirs_with_exts d))
 			(if (eql dir d)

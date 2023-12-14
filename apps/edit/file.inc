@@ -58,13 +58,13 @@
 
 (defun action-next-buffer ()
 	(defq files (cat *open_files* '(:nil))
-		idx (% (inc (find *current_file* files)) (length files)))
+		idx (% (inc (find 0 *current_file* files)) (length files)))
 	(unless (elem-get idx files) (setq idx (% (inc idx) (length files))))
 	(switch-file (elem-get idx files)))
 
 (defun action-prev-buffer ()
 	(defq files (cat *open_files* '(:nil))
-		idx (% (+ (dec (find *current_file* files)) (length files)) (length files)))
+		idx (% (+ (dec (find 0 *current_file* files)) (length files)) (length files)))
 	(unless (elem-get idx files) (setq idx (% (+ (dec idx) (length files)) (length files))))
 	(switch-file (elem-get idx files)))
 
@@ -74,7 +74,7 @@
 
 (defun close-file (file)
 	(save-file file)
-	(when (and file (defq i (find file *open_files*)))
+	(when (and file (defq i (find 0 file *open_files*)))
 		(.-> *meta_map* (:find :files) (:erase file))
 		(setq *open_files* (erase *open_files* i (inc i)))
 		(defq files (cat *open_files*))

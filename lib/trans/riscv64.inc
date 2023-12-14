@@ -9,7 +9,7 @@
 (each (# (defcvar %0 %0)) '(:r15 :r16 :r17 :r18 :r19 :r20 :r21 :r22 :r23 :r24 :r25 :r26 :r27 :r28 :r29 :r30))
 
 (defun emit-native-reg? (r)
-	(find r '(:r29 :r30 :rsp                            ;zero, ra, sp (x0-x2)
+	(find 0 r '(:r29 :r30 :rsp                            ;zero, ra, sp (x0-x2)
 		:r15 :r16                                       ;gp, tp (x3-x4)
 		:r17 :r18 :r19                                  ;t0-t1, t2 (x5-x7)
 		:r20 :r21                                       ;s0-s1 (x8-x9) saved

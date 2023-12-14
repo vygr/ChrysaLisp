@@ -211,55 +211,55 @@
 
 (defun array? (_)
 	; (array? form) -> :t | :nil
-	(find :array (type-of _)))
+	(find 0 :array (type-of _)))
 
 (defun list? (_)
 	; (list? form) -> :t | :nil
-	(find-rev :list (type-of _)))
+	(find-rev -1 :list (type-of _)))
 
 (defun num? (_)
 	; (num? form) -> :t | :nil
-	(find :num (type-of _)))
+	(find 0 :num (type-of _)))
 
 (defun fixed? (_)
 	; (fixed? form) -> :t | :nil
-	(find :fixed (type-of _)))
+	(find 0 :fixed (type-of _)))
 
 (defun real? (_)
 	; (real? form) -> :t | :nil
-	(find :real (type-of _)))
+	(find 0 :real (type-of _)))
 
 (defun nums? (_)
 	; (nums? form) -> :t | :nil
-	(find :nums (type-of _)))
+	(find 0 :nums (type-of _)))
 
 (defun fixeds? (_)
 	; (fixeds? form) -> :t | :nil
-	(find :fixeds (type-of _)))
+	(find 0 :fixeds (type-of _)))
 
 (defun reals? (_)
 	; (reals? form) -> :t | :nil
-	(find :reals (type-of _)))
+	(find 0 :reals (type-of _)))
 
 (defun func? (_)
 	; (func? form) -> :t | :nil
-	(find :func (type-of _)))
+	(find 0 :func (type-of _)))
 
 (defun str? (_)
 	; (str? form) -> :t | :nil
-	(find :str (type-of _)))
+	(find 0 :str (type-of _)))
 
 (defun sym? (_)
 	; (sym? form) -> :t | :nil
-	(find-rev :sym (type-of _)))
+	(find-rev -1 :sym (type-of _)))
 
 (defun env? (_)
 	; (env? form) -> :t | :nil
-	(find :hmap (type-of _)))
+	(find 0 :hmap (type-of _)))
 
 (defun seq? (_)
 	; (seq? form) -> :t | :nil
-	(find :seq (type-of _)))
+	(find 0 :seq (type-of _)))
 
 (defun lambda-func? (_)
 	; (lambda-func? form) -> :t | :nil
@@ -369,12 +369,12 @@
 		(_default_key
 			(push (second _map) _default_clause)
 			(if _atoms
-				`(elem-get (or (find ,_form ',(first _map)) -2) ',(second _map))
-				`(eval (elem-get (or (find ,_form ',(first _map)) -2) ',(second _map)))))
+				`(elem-get (or (find 0 ,_form ',(first _map)) -2) ',(second _map))
+				`(eval (elem-get (or (find 0 ,_form ',(first _map)) -2) ',(second _map)))))
 		(:t (if _atoms
-				`(if (defq ,(defq _i (gensym)) (find ,_form ',(first _map)))
+				`(if (defq ,(defq _i (gensym)) (find 0 ,_form ',(first _map)))
 					(elem-get ,_i ',(second _map)))
-				`(if (defq ,(defq _i (gensym)) (find ,_form ',(first _map)))
+				`(if (defq ,(defq _i (gensym)) (find 0 ,_form ',(first _map)))
 					(eval (elem-get ,_i ',(second _map))))))))
 
 (defmacro times (c &rest _)
@@ -877,11 +877,11 @@
 	(walk-list _
 		;element func
 		(lambda (_)
-			(and (sym? _) (find _ '(%0 %1 %2 %3 %4 %5 %6 %7 %8 %9))
+			(and (sym? _) (find 0 _ '(%0 %1 %2 %3 %4 %5 %6 %7 %8 %9))
 				(merge-obj args (list _))))
 		;enter list func
 		(lambda (_)
-			(and (> (length _) 0) (find (first _) '(# quote quasi-quote))))
+			(and (> (length _) 0) (find 0 (first _) '(# quote quasi-quote))))
 		;exit list func
 		progn)
 	`(lambda ,(sort cmp args) ~_))
@@ -922,7 +922,7 @@
 			lib_path)
 		(:t (setd current *stream_name*)
 			(while (starts-with "./" lib_path)
-				(unless (defq i (find-rev "/" current))
+				(unless (defq i (find-rev -1 "/" current))
 					(throw "No relative path !" lib_path))
 				(setq current (slice 0 i current)
 					lib_path (slice 2 -1 lib_path)))
@@ -938,7 +938,7 @@
 	(while (env? _ee)
 		(cond
 			((and (defq file_list (def? '*file_includes* _ee))
-					(find lib_path file_list))
+					(find 0 lib_path file_list))
 				(setq _ee :t))
 			(:t (setq _ee (penv _ee)))))
 	; if not existing import it here
