@@ -51,7 +51,7 @@
 					(dispatch-job key val)))
 			((= idx +select_reply)
 				;child worker responce
-				(defq key_pos (find 0 (ascii-char 10) msg)
+				(defq key_pos (find (ascii-char 10) msg)
 					key (str-as-num (slice 0 key_pos msg))
 					msg (slice (inc key_pos) -1 msg))
 				(when (defq val (. farm :find key))

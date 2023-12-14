@@ -17,7 +17,7 @@
 (defun win-refresh (i)
 	(defq ctf (elem-get (setq index i) fonts) font (create-font ctf 42) grid_width 8 grid_height 0
 		ranges (font-glyph-ranges font) symbol_grid (Grid))
-	(def *window_title* :text (cat "Fonts -> " (slice (inc (find-rev -1 "/" ctf)) -5 ctf)))
+	(def *window_title* :text (cat "Fonts -> " (slice (inc (find-rev "/" ctf)) -5 ctf)))
 	(while (defq e (pop ranges) s (pop ranges))
 		(defq s (logand s (neg grid_width)) e (align e grid_width) n (/ (- e s) grid_width))
 		(setq grid_height (+ grid_height n))

@@ -97,7 +97,7 @@
 (defun make-merge (l sl)
 	;merge string into string list
 	(each (lambda (s)
-		(unless (find 0 s l) (push l s))) sl))
+		(unless (find s l) (push l s))) sl))
 
 (defun all-vp-files ()
 	;filter to only the .vp files, strip off the leading "./"

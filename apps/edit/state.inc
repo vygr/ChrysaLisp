@@ -44,4 +44,4 @@
 				(each (# (. files :erase %0)) dead_files))
 			((setq *meta_map* default)))
 		(update-find-toolbar)
-		(if (find 0 file *open_files*) file)))
+		(if (find file *open_files*) file)))

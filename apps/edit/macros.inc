@@ -97,7 +97,7 @@
 
 (defun macro-encode (n)
 	(map (lambda ((f &rest p))
-			(cat (list (find 0 f *recorded_actions*)) p))
+			(cat (list (find f *recorded_actions*)) p))
 		(. +macro_map :find n)))
 
 (defun macro-decode (n e)

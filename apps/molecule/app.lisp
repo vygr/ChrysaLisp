@@ -125,7 +125,7 @@
 (defun ball-file (index)
 	(when (defq stream (file-stream (defq file (elem-get index mol_files))))
 		(def (.-> *title* :layout :dirty) :text
-			(cat "Molecule -> " (slice (inc (find-rev -1 "/" file)) -1 file)))
+			(cat "Molecule -> " (slice (inc (find-rev "/" file)) -1 file)))
 		(clear balls)
 		(times 3 (read-line stream))
 		(defq num_atoms (str-as-num (first (split (read-line stream) +char_class_space))))

@@ -11,20 +11,20 @@
 
 	(defmethod :find (key)
 		; (. lmap :find key) -> :nil | val
-		(if (defq e (find 0 key (get :keys this))) (elem-get e (get :vals this))))
+		(if (defq e (find key (get :keys this))) (elem-get e (get :vals this))))
 
 	(defmethod :insert (key val)
 		; (. lmap :insert key val) -> lmap
 		(raise :keys :vals)
 		(cond
-			((defq e (find 0 key keys)) (elem-set e vals val))
+			((defq e (find key keys)) (elem-set e vals val))
 			(:t (push keys key) (push vals val)))
 		this)
 
 	(defmethod :erase (key)
 		; (. lmap :erase key) -> lmap
 		(raise :keys :vals)
-		(when (defq e (find 0 key keys))
+		(when (defq e (find key keys))
 			(elem-set e keys (last keys))
 			(elem-set e vals (last vals))
 			(pop keys) (pop vals))

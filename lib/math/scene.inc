@@ -119,7 +119,7 @@
 		; (. scene_node :sub_node) -> scene_node
 		(when (defq parent (. child :get_parent))
 			(. child :set_parent :nil)
-			(defq children (get :children parent) idx (find 0 child children))
+			(defq children (get :children parent) idx (find child children))
 			(set parent :children (erase children idx (inc idx))))
 		this)
 

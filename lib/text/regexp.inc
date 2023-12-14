@@ -7,10 +7,10 @@
 
 (defq +bracket_chars "()" +assert_chars "^$!" +op_cat "'" +op_tac "`"
 	+op_chars "+*?|" +op_presidence "+*?'|`()")
-(defmacro is-bracket-char? (_) `(find 0 ,_ +bracket_chars))
-(defmacro is-assert-char? (_) `(find 0 ,_ +assert_chars))
+(defmacro is-bracket-char? (_) `(find ,_ +bracket_chars))
+(defmacro is-assert-char? (_) `(find ,_ +assert_chars))
 (defmacro is-esc-char? (_) `(eql ,_ ,(ascii-char 92)))
-(defmacro is-op-char? (_) `(find 0 ,_ +op_chars))
+(defmacro is-op-char? (_) `(find ,_ +op_chars))
 
 (defun output (op token) (push out_types op) (push out_tokens token))
 (defun concat? (&optional o) (if concat (output :op (opt o concat))))
@@ -93,9 +93,9 @@
 				(until (eql "(" (setq token (pop stack)))
 					(output :op token)))
 			(:op ;precidence
-				(defq p (find 0 token +op_presidence) x :t)
+				(defq p (find token +op_presidence) x :t)
 				(while (and x (/= 0 (length stack)))
-					(defq ps (find 0 (last stack) +op_presidence))
+					(defq ps (find (last stack) +op_presidence))
 					(cond
 						((>= p ps) (output :op (pop stack)))
 						(:t (setq x :nil))))
@@ -133,7 +133,7 @@
 			(:rrb (cache (static-qq ((:nil
 				(progn (elem-set ,token trace si) 1))))))
 			(:op (defq a (pop stack))
-				(and (find 0 token +op_chars) (notany (const first) a)
+				(and (find token +op_chars) (notany (const first) a)
 					(throw "Regexp bad operator !" token))
 				(case token
 					((+op_cat +op_tac) (cat (pop stack) a))
@@ -158,7 +158,7 @@
 				;not stopped
 				(if (first (defq elem (elem-get new_index cpat)))
 					;not a split
-					(unless (find 0 new_index seen)
+					(unless (find new_index seen)
 						(push seen new_index)
 						(push next (push (most trace) new_index)))
 					;a split
@@ -176,7 +176,7 @@
 				;not stopped
 				(if (first (defq elem (elem-get new_index cpat)))
 					;not a split
-					(unless (find 0 new_index next) (push next new_index))
+					(unless (find new_index next) (push next new_index))
 					;a split
 					(each! 1 -1 (# (if (setq %0 (eval %0))
 						(push stack (+ offset %0)))) (list elem)))))) next)

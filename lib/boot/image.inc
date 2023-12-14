@@ -68,7 +68,7 @@
 	(each (# (defq u (elem-get _ links_offsets))
 		(elem-set +blob_links %0 (apply (const cat) (push (map
 			(# (char (-
-				(+ (elem-get (find 0 %0 boot_funcs) header_offsets) +fn_header_pathname)
+				(+ (elem-get (find %0 boot_funcs) header_offsets) +fn_header_pathname)
 				(+ u (* _ +ptr_size))) +ptr_size)) (elem-get +blob_refs %0)) "")))) blobs)
 	;build list of all sections of boot image
 	(defq stream (file-stream (func-obj-path 'sys/boot_image) +file_open_write)

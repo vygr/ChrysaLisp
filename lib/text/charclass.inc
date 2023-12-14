@@ -9,7 +9,7 @@
 	; (escape str) -> str
 	(when (>= (length string) 1)
 		(setq string (apply (const cat) (reduce
-			(# (if (find 0 %1 "^$!.*+?\|[]()")
+			(# (if (find %1 "^$!.*+?\|[]()")
 				(push %0 "\")) (push %0 %1)) string (list)))))
 	string)
 
@@ -18,7 +18,7 @@
 	(when (>= (length string) 2)
 		(defq out (cap (length string) (list)) state :nil)
 		(each (# (case state
-				(:\ (push out (if (defq i (find 0 %0 "rfvnt"))
+				(:\ (push out (if (defq i (find %0 "rfvnt"))
 						(elem-get i (static-q
 							((ascii-char 13) (ascii-char 12)
 							(ascii-char 11) (ascii-char 10)

@@ -172,12 +172,12 @@ provided and if you included a default.
 		(_default_key
 			(push (second _map) _default_clause)
 			(if _atoms
-				`(elem-get (or (find 0 ,_form ',(first _map)) -2) ',(second _map))
-				`(eval (elem-get (or (find 0 ,_form ',(first _map)) -2) ',(second _map)))))
+				`(elem-get (or (find ,_form ',(first _map)) -2) ',(second _map))
+				`(eval (elem-get (or (find ,_form ',(first _map)) -2) ',(second _map)))))
 		(:t (if _atoms
-				`(if (defq ,(defq _i (gensym)) (find 0 ,_form ',(first _map)))
+				`(if (defq ,(defq _i (gensym)) (find ,_form ',(first _map)))
 					(elem-get ,_i ',(second _map)))
-				`(if (defq ,(defq _i (gensym)) (find 0 ,_form ',(first _map)))
+				`(if (defq ,(defq _i (gensym)) (find ,_form ',(first _map)))
 					(eval (elem-get ,_i ',(second _map))))))))
 ```
 
@@ -337,7 +337,7 @@ This example is from the `lib/math/vector.inc` library:
 ```vdu
 ;macro to define macros that take optional output vector
 (defmacro vec-macro (op &rest v)
-	`(defmacro ,(sym (cat "vec" (slice (find 0 "-" op) -1 op))) (~v &optional _)
+	`(defmacro ,(sym (cat "vec" (slice (find "-" op) -1 op))) (~v &optional _)
 		(if _ `(,,(sym op) ~(list ~v) ,_) `(,,(sym op) ~(list ~v)))))
 
 (vec-macro "nums-add" v0 v1)

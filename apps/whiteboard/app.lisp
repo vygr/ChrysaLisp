@@ -202,7 +202,7 @@
 					;save whiteboard
 					(*picker_mode*
 						(save (str (list "CWB Version 1.0" *commited_polygons*))
-							(cat (slice 0 (if (defq i (find-rev -1 "." *msg*)) i -1) *msg*) ".cwb")))
+							(cat (slice 0 (if (defq i (find-rev "." *msg*)) i -1) *msg*) ".cwb")))
 					;load whiteboard
 					(:t (when (ends-with ".cwb" *msg*)
 							(bind '(data _) (read (file-stream *msg*)))

@@ -105,7 +105,7 @@
 							(setq clear_text (erase clear_text sx sx1)
 								cursor sx anchor cursor))
 						(unless (eql (defq data (clipboard-get)) "")
-							(unless (defq lf (find 0 (ascii-char +char_lf) data))
+							(unless (defq lf (find (ascii-char +char_lf) data))
 								(setq lf (length data)))
 							(setq clear_text (insert clear_text cursor (slice 0 lf data))
 								cursor (+ cursor lf) anchor cursor)))))

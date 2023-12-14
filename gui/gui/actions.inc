@@ -17,13 +17,13 @@
 		,+sc_capslock ,+sc_numlockclear))
 
 (defun update-mods-down (scode)
-	(and (not (find 0 scode +mod_toggles))
-		(defq i (find 0 scode +mod_scodes))
+	(and (not (find scode +mod_toggles))
+		(defq i (find scode +mod_scodes))
 		(setq *mods* (logior *mods* (elem-get i +mod_masks)))))
 
 (defun update-mods-up (scode)
-	(if (defq i (find 0 scode +mod_scodes))
-		(if (find 0 scode +mod_toggles)
+	(if (defq i (find scode +mod_scodes))
+		(if (find scode +mod_toggles)
 			(setq *mods* (logxor *mods* (elem-get i +mod_masks)))
 			(setq *mods* (logand *mods* (lognot (elem-get i +mod_masks)))))))
 

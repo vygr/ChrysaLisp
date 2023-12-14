@@ -152,7 +152,7 @@
 
 (defun dispatch-action (&rest action)
 	(defq func (first action))
-	(if (find 0 func *find_actions*)
+	(if (find func *find_actions*)
 		(push action *whole_words* *regexp* (. *find_text* :get_text)))
 	(catch (eval action)
 		(progn (print _)(print)

@@ -80,7 +80,7 @@
 		(defq stack (list this))
 		(while (defq node (pop stack))
 			(each (# (cond
-				((and (Node? %0) (find 0 (get :text %0) "^>"))
+				((and (Node? %0) (find (get :text %0) "^>"))
 					(defq flow (last (. (penv (penv %0)) :children)))
 					(. flow :set_flags +view_flag_hiden +view_flag_hiden)
 					(def %0 :text ">"))
@@ -94,7 +94,7 @@
 		(defq stack (list this))
 		(while (defq node (pop stack))
 			(each (# (cond
-				((and (Node? %0) (find 0 (get :text %0) "^>"))
+				((and (Node? %0) (find (get :text %0) "^>"))
 					(defq flow (last (. (penv (penv %0)) :children)))
 					(. flow :set_flags 0 +view_flag_hiden)
 					(def %0 :text "^"))

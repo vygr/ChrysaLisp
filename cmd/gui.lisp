@@ -1,7 +1,7 @@
 (import "lib/options/options.inc")
 
 (defun launch (node)
-	(if (find 0 (setq node (to-net-id node)) nodes)
+	(if (find (setq node (to-net-id node)) nodes)
 		(open-remote "gui/gui/gui.lisp" node +kn_call_child)))
 
 (defq usage `(

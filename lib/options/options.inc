@@ -13,7 +13,7 @@
 (defun options-find (optlist arg)
 	; (options-find optlist arg) -> :nil | opt_entry
 	(some (lambda (opt_entry)
-		(if (find 0 arg (first opt_entry)) opt_entry)) optlist))
+		(if (find arg (first opt_entry)) opt_entry)) optlist))
 
 (defun options-split (args)
 	; (options-split args) -> (a0 [a1] ...)

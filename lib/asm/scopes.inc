@@ -70,7 +70,7 @@
 	(vp-ret))
 
 (defun scope-def-sym (name type &rest attribs)
-	(if (find-rev -1 (setq name (sym name))
+	(if (find-rev (setq name (sym name))
 			(elem-get +scope_names (defq scope (pop *scopes*))))
 		(throw "Symbol redefined !" name))
 	(push (elem-get +scope_names scope) name)
@@ -79,7 +79,7 @@
 
 (defun scope-get-sym (name)
 	(defq name (sym name) attrib (some! -2 0 :nil (lambda (scope)
-		(if (defq _ (find-rev -1 name (elem-get +scope_names scope)))
+		(if (defq _ (find-rev name (elem-get +scope_names scope)))
 			(elem-get _ (elem-get +scope_attribs scope)))) (list *scopes*)))
 	(when attrib (elem-set +attrib_used attrib :t)) attrib)
 
@@ -119,7 +119,7 @@
 						`(setq ,m (max ,m *scopes_sp*) *scopes_sp* ,o))) (list line))
 				(push prog `(setq *scopes_sp* ,m)))
 			(:t
-				(if (defq alignment (find 0 (first line)
+				(if (defq alignment (find (first line)
 						'(short int long ushort uint ulong ptr pptr
 							pubyte pushort puint pulong pbyte pshort pint plong)))
 					(push prog

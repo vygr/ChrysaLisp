@@ -28,7 +28,7 @@
 		''(vp-add-cr vp-sub-cr))
 
 (defmacro uses? (r op)
-	`(find-rev -1 ,r ,op))
+	`(find-rev ,r ,op))
 
 (defmacro find-past (&rest _)
 	`(and (defq _ (some! _ 1 :nil
@@ -51,7 +51,7 @@
 	(while (< (setq _ (inc _)) (length inst_list))
 		(cond
 			;variable loading and offset folding
-			((find-rev -1 (defq op (elem-get _ inst_list) o (first op)) +opt_read_ops)
+			((find-rev (defq op (elem-get _ inst_list) o (first op)) +opt_read_ops)
 				(when (defq p (opt-find-2 _ (defq r (second op)) `(vp-lea-i :rsp _ ,r) `(vp-add-cr _ ,r)))
 					(cond
 						((= m 0)
@@ -62,7 +62,7 @@
 							(setq _ (dec _))))
 					(elem-set p inst_list +opt_nop)))
 			;variable writing and offset folding
-			((find-rev -1 o +opt_write_ops)
+			((find-rev o +opt_write_ops)
 				(when (defq p (opt-find-2 _ (defq r (third op)) `(vp-lea-i :rsp _ ,r) `(vp-add-cr _ ,r)))
 					(cond
 						((= m 0)
@@ -78,14 +78,14 @@
 				(elem-set 1 op s)
 				(setq _ (dec _)))
 			;constant propagation
-			((defq c (find-rev -1 o +opt_rr_ops))
+			((defq c (find-rev o +opt_rr_ops))
 				(when (defq p (opt-find-1 _ (defq r (second op)) `(vp-cpy-cr _ ,r)))
 					(elem-set 0 op (elem-get c +opt_cr_ops))
 					(elem-set 1 op (second (elem-get p inst_list)))
 					(elem-set p inst_list +opt_nop)
 					(setq _ (dec _))))
 			;arithmetic reassignment and constant folding
-			((and (defq c (find-rev -1 o +opt_cr_ops))
+			((and (defq c (find-rev o +opt_cr_ops))
 					(defq p (opt-find-2 _ (defq r (third op)) `(vp-cpy-cr _ ,r) `(,o _ ,r))))
 				(cond
 					((= m 0)
@@ -96,7 +96,7 @@
 				(elem-set 1 op (list c (second (elem-get p inst_list)) (second op)))
 				(elem-set p inst_list +opt_nop))
 			;constant fusion
-			((and (defq c (find-rev -1 o +opt_cr_fuse_ops))
+			((and (defq c (find-rev o +opt_cr_fuse_ops))
 					(defq p (opt-find-2 _ (defq r (third op)) `(vp-add-cr _ ,r) `(vp-sub-cr _ ,r))))
 				(cond
 					((= m 0)
@@ -106,7 +106,7 @@
 				(elem-set 1 op (list c (second op) (second (elem-get p inst_list))))
 				(elem-set p inst_list +opt_nop))
 			;compare constant forwarding
-			((and (defq c (find-rev -1 o +opt_sxx_rr_ops))
+			((and (defq c (find-rev o +opt_sxx_rr_ops))
 					(defq p (opt-find-1 _ (defq r (second op)) `(vp-cpy-cr _ ,r)))
 					(<= -0x80000000 (defq v (eval (second (elem-get p inst_list)))) 0x7fffffff))
 				(elem-set 0 op (elem-get c +opt_sxx_cr_ops))

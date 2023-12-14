@@ -380,7 +380,7 @@
 		; (. buffer :paste string &optional wrap_width) -> buffer
 		(setd wrap_width +max_int)
 		(. this :push_undo (list :mark (defq mark (. this :next_mark))))
-		(while (defq idx (find 0 (ascii-char +char_lf) string))
+		(while (defq idx (find (ascii-char +char_lf) string))
 			(when (> idx 0) (task-slice)
 				(insert-line-wrapped this (slice 0 idx string) wrap_width))
 			(. this :break)

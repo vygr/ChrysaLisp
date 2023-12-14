@@ -17,7 +17,7 @@
 		;test for vanished and timeout nodes
 		(each (lambda (_key _val)
 			(cond
-				((find 0 _key _keys)
+				((find _key _keys)
 					;found, so check timestamp
 					(and _timeout
 						(defq _then (get :timestamp _val))
@@ -32,7 +32,7 @@
 					(. this :erase _key)))) _old_keys _old_vals)
 		;test for new nodes
 		(each (lambda (_key)
-			(unless (find 0 _key _old_keys)
+			(unless (find _key _old_keys)
 				(setq _mutated :t)
 				;must (cat _key) to convert to pure string key !
 				(. this :insert (cat _key) (_create _key _now)))) _keys)

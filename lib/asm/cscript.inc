@@ -75,7 +75,7 @@
 							(push token c)
 							(setq c :nil))
 						(:t (cond
-								((find-rev -1 (last (push out_tokens (apply (const cat) token)))
+								((find-rev (last (push out_tokens (apply (const cat) token)))
 										'("pptr" "byte" "ubyte" "short" "ushort" "int" "uint" "long" "ulong" "ptr"))
 									(push out_types :operator))
 								(:t (push out_types state)))
@@ -124,7 +124,7 @@
 							(setq c :nil))
 						(:t (cond
 								(unary
-									(if (setq _ (find-rev -1 (first token) "-*&~!"))
+									(if (setq _ (find-rev (first token) "-*&~!"))
 										(push out_tokens (elem-get _ "_#:~!"))
 										(throw "Unknown unary operator !" (first token))))
 								(:t (push out_tokens (apply (const cat) token))
@@ -221,7 +221,7 @@
 		(defq z (rest w) z (if (eql z "") :nil z) w (first w))
 		(throw "No type info !" x))
 	(set-type z)
-	(setq w (elem-get (find-rev -1 w "bBsSiIlLp")
+	(setq w (elem-get (find-rev w "bBsSiIlLp")
 		'(vp-cpy-ir-b vp-cpy-ir-ub vp-cpy-ir-s vp-cpy-ir-us
 		vp-cpy-ir-i vp-cpy-ir-ui vp-cpy-ir vp-cpy-ir vp-cpy-ir)))
 	(add-inst (list w x 0 x)))
@@ -250,7 +250,7 @@
 (defun compile-arrow (&optional _)
 	(bind '((y w) x) (list (pop-reg) (pop-value)))
 	(if _ (push-reg :nil))
-	(setq w (elem-get (find-rev -1 w "bBsSiIlLp")
+	(setq w (elem-get (find-rev w "bBsSiIlLp")
 		'(vp-cpy-ri-b vp-cpy-ri-b vp-cpy-ri-s vp-cpy-ri-s
 		vp-cpy-ri-i vp-cpy-ri-i vp-cpy-ri vp-cpy-ri vp-cpy-ri)))
 	(add-inst (list w x y 0)))
@@ -276,7 +276,7 @@
 		(:t (throw "Symbol not a variable !" _))))
 
 (defun compile-cast (_)
-	(if (defq c (find-rev -1 (sym _) '(pptr byte ubyte short ushort int uint long ulong ptr)))
+	(if (defq c (find-rev (sym _) '(pptr byte ubyte short ushort int uint long ulong ptr)))
 		(set-type (elem-get c '("pp" "b" "B" "s" "S" "i" "I" "l" "L" "p")))
 		(throw "Unknown type cast" _)))
 
@@ -365,7 +365,7 @@
 	(add-inst (list 'vp-asr-rr (pop-value) (top-value))))
 
 (defun compile-cmp (_)
-	(add-inst (list (elem-get (find-rev -1 _ '(= /= <= >= > <))
+	(add-inst (list (elem-get (find-rev _ '(= /= <= >= > <))
 		'(vp-seq-rr vp-sne-rr vp-sle-rr vp-sge-rr vp-sgt-rr vp-slt-rr))
 		(pop-value) (top-value))))
 

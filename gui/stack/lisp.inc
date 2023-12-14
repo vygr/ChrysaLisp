@@ -33,7 +33,7 @@
 		; (. stack :action event) -> stack
 		(raise :stack_children :tab_flow)
 		(defq tab (. tab_flow :find_id (getf event +ev_msg_action_source_id))
-			tab_index (find 0 tab (. tab_flow :children)))
+			tab_index (find tab (. tab_flow :children)))
 		(when (< tab_index (length stack_children))
 			(. (elem-get tab_index stack_children) :to_front))
 		this)

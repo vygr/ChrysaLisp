@@ -4,7 +4,7 @@
 
 (defq +vp_regs ''(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14 :rsp)
 	+vp_regs_0_14 ''(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14))
-(defun vp-reg? (_) (find 0 _ +vp_regs))
+(defun vp-reg? (_) (find _ +vp_regs))
 (each (# (defcvar %0 %0)) +vp_regs)
 
 (defmacro vp-def (_ &optional l)

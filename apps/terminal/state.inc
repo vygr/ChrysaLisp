@@ -11,7 +11,7 @@
 	(when (defq stream (file-stream (cat *env_home* +state_filename) +file_open_write))
 		(bind '(old) (gather meta_map :history))
 		(bind '(current) (gather *meta_map* :history))
-		(each (# (if (defq i (find 0 %0 old))
+		(each (# (if (defq i (find %0 old))
 			;old entry so pull to front
 			(setq old (erase old i (inc i))))
 			(push old %0)) current)

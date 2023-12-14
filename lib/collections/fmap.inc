@@ -8,7 +8,7 @@
 (defmacro slot ()
 	`(defq x (get :buckets this)
 		b (* (% (hash key) (get :num_buckets this)) 2)
-		e (find 0 key (elem-get b x))))
+		e (find key (elem-get b x))))
 
 (defclass Fmap (&optional num_buckets) :nil
 	; (Fmap [num_buckets]) -> fmap
