@@ -415,7 +415,7 @@
 	;:r1-:r14
 
 	(mathop1 :recip
-		'(call 'sys_math :r_div '(0x4000000000000001 :r14) '(:r13)))
+		'(call 'sys_math :r_div `(,(logand (n2r 1)) :r14) '(:r13)))
 
 (def-func-end)
 
@@ -433,8 +433,7 @@
 	(vp-push :r0)
 	(assign '((:r0 num_value)) '(:r13))
 	(vpif '(:r13 < 0))
-		; (n2r -1) for the sake of the C++ version
-		(call 'sys_math :r_mul '(:r13 -0x3FFFFFFFFFFFFFFF) '(:r13))
+		(call 'sys_math :r_mul `(:r13 ,(logand (n2r -1))) '(:r13))
 		(call 'real :create '(:r13) '(:r1))
 	(else)
 		(assign '((:rsp 0)) '(:r1))
@@ -457,7 +456,7 @@
 	;:r1-:r14
 
 	(mathop :neg
-		'(call 'sys_math :r_mul '(:r13 -0x3FFFFFFFFFFFFFFF) '(:r13)))
+		'(call 'sys_math :r_mul `(:r13 ,(logand (n2r -1))) '(:r13)))
 
 (def-func-end)
 
@@ -473,11 +472,9 @@
 	(mathop :sign
 		'(progn
 			(vpif '(:r13 < 0))
-				; (n2r -1) for the sake of the C++ version
-				(assign '(-0x3FFFFFFFFFFFFFFF) '(:r13))
+				(assign `(,(logand (n2r -1))) '(:r13))
 			(elseif '(:r13 > 0))
-				; (n2r 1) for the sake of the C++ version
-				(assign '(0x4000000000000001) '(:r13))
+				(assign `(,(logand (n2r 1))) '(:r13))
 			(else)
 				(vp-xor-rr :r13 :r13)
 			(endif)))
