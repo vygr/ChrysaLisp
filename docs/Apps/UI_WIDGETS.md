@@ -322,7 +322,7 @@ optional property list and nested forms.
 		:color 0
 		:font *env_medium_terminal_font*)))
 
-(. view :populate "apps/docs/ui/" ".inc")
+(. view :populate "docs/lisp/" ".md")
 (bind '(w h) (. view :pref_size))
 (. view :change 0 0 w h)
 
