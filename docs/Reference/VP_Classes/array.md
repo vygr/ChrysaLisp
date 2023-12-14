@@ -108,7 +108,6 @@ trashes
 inputs
 :r0 = array object (ptr)
 :r1 = element (long)
-:r2 = start index (uint)
 outputs
 :r0 = array object (ptr)
 :r1 = element (long)
@@ -408,7 +407,6 @@ trashes
 inputs
 :r0 = array object (ptr)
 :r1 = element (long)
-:r2 = start index (uint)
 outputs
 :r0 = array object (ptr)
 :r1 = element (long)

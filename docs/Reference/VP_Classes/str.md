@@ -115,7 +115,6 @@ trashes
 inputs
 :r0 = str object (ptr)
 :r1 = search char (uint)
-:r2 = start index (uint)
 outputs
 :r0 = str object (ptr)
 :r1 = search char (uint)
@@ -238,7 +237,6 @@ trashes
 inputs
 :r0 = str object (ptr)
 :r1 = search char (uint)
-:r2 = start index (uint)
 outputs
 :r0 = str object (ptr)
 :r1 = search char (uint)

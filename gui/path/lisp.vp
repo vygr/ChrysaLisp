@@ -308,7 +308,7 @@
 	(call 'str :create_from_buffer {"-0123456789", 11} {num_start_chars})
 	(call 'str :create_from_buffer {".0123456789", 11} {num_mid_chars})
 
-	(bind '(st ch _) (method-input 'str :find))
+	(bind '(st ch) (method-input 'str :find))
 	(vp-xor-rr state state)
 	(loop-start)
 		(vp-cpy-ir-ub d 0 c)
@@ -320,7 +320,7 @@
 			(breakif `(,c = +char_comma))
 			(assign `(,c) `(,ch))
 			(assign {num_start_chars} `(,st))
-			(d-call 'str :find `(,st ,ch 0) '(_ _ idx))
+			(d-call 'str :find `(,st ,ch) '(_ _ idx))
 			(vpif `(,idx /= -1))
 				;number
 				(vp-cpy-rr d d_start)
@@ -330,7 +330,7 @@
 		(errorcase
 			(assign `(,c) `(,ch))
 			(assign {command_chars} `(,st))
-			(d-call 'str :find `(,st ,ch 0) '(_ _ idx))
+			(d-call 'str :find `(,st ,ch) '(_ _ idx))
 			(gotoif `(,idx = -1) 'error1))
 			;command
 			(call 'str :create_from_buffer {&c, 1} '(sstr))
@@ -341,7 +341,7 @@
 		(else)
 			(assign `(,c) `(,ch))
 			(assign {num_mid_chars} `(,st))
-			(d-call 'str :find `(,st ,ch 0) '(_ _ idx))
+			(d-call 'str :find `(,st ,ch) '(_ _ idx))
 			(breakif `(,idx /= -1))
 			(vp-xor-rr :r0 :r0)
 			(vp-cpy-ri-b :r0 d 0)
