@@ -412,7 +412,7 @@
 		(lisp-elem-index idx :r1)
 	(errorcase
 		(gotoif `(,idx < 0) 'error2)
-		(gotoif `(,idx > :r1) 'error2))
+		(gotoif `(,idx >= :r1) 'error2))
 		(call 'seq :find `(:r0 ,element ,idx) '(_ _ idx))
 		(vpif `(,idx = -1))
 		(vp-label 'empty)
@@ -482,7 +482,7 @@
 		(gotoif '(:r1 = 0) 'empty)
 		(lisp-elem-index idx :r1)
 	(errorcase
-		(gotoif `(,idx < 0) 'error2)
+		(gotoif `(,idx <= 0) 'error2)
 		(gotoif `(,idx > :r1) 'error2))
 		(call 'seq :rfind `(:r0 ,element ,idx) '(_ _ idx))
 		(vpif `(,idx = -1))
