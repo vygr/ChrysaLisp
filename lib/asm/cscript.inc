@@ -32,16 +32,16 @@
 	(list 'bfind _ +char_class_digit_base))
 
 (defmacro is-op-char? (_)
-	(list 'find-rev _ +op_chars))
+	(list 'find-rev -1 _ +op_chars))
 
 (defmacro is-folow-on-op-char? (_)
-	(list 'find-rev _ +folow_on_op_chars))
+	(list 'find-rev -1 _ +folow_on_op_chars))
 
 (defmacro is-bracket-char? (_)
-	(list 'find-rev _ +bracket_chars))
+	(list 'find-rev -1 _ +bracket_chars))
 
 (defmacro is-stringy-char? (_)
-	(list 'find-rev _ +stringy_chars))
+	(list 'find-rev -1 _ +stringy_chars))
 
 (defun cscript-tokenize (line)
 	(defq state :space unary :t token (clear '()) out_types (clear '()) out_tokens (clear '()))
