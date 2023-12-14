@@ -92,14 +92,17 @@ If the method takes no arguments you can omit that forms enclosing `()`.
 Example from the Editor app actions on a text buffer and a View :mouse_down
 method:
 
-```vdu
-(.-> buffer
-	(:set_cursor (length trimed_line) _)
-	(:delete (- (length line) (length trimed_line))))
+```live
+(macroexpand
+	'(.-> this :layout :dirty_all))
 ```
 
-```vdu
-(.-> this :layout :dirty_all)
+```live
+(macroexpand
+	'(.-> obj :reset
+		(:set_cursor 0 1)
+		(:insert "blah")
+		(:reflow)))
 ```
 
 ## (.? this method) -> :nil | lambda

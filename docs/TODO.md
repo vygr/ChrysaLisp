@@ -8,9 +8,6 @@ In no particular order but to just to ensure I get thoughts down. I'll keep
 adding to this as I go along. If anybody would like to try helping out, then
 just get in touch.
 
-* Add a Doc app section handler that executes Lisp snippets and embeds the
-output following them.
-
 * Recode quasi quote non recursive?
 
 * optimize write after write vp opts.
