@@ -19,10 +19,6 @@ flags.
 
 * ui-load-icon .... for button images.
 
-* inc/dec polymorphic ??
-
-* Nested user `(vp-label)` need protection/detection !
-
 * (mail-length) call to ask how much mail is there.
 
 * object alloc failure case is redundant ?
