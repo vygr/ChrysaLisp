@@ -89,8 +89,7 @@ compact form.
 
 If the method takes no arguments you can omit that forms enclosing `()`.
 
-Example from the Editor app actions on a text buffer and a View :mouse_down
-method:
+For example:
 
 ```live
 (macroexpand
