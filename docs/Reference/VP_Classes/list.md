@@ -97,6 +97,7 @@ trashes
 inputs
 :r0 = list object (ptr)
 :r1 = element object (ptr)
+:r2 = start index (uint)
 outputs
 :r0 = list object (ptr)
 :r1 = element object (ptr)
@@ -148,6 +149,7 @@ trashes
 inputs
 :r0 = list object (ptr)
 :r1 = element object (ptr)
+:r2 = start index (uint)
 outputs
 :r0 = list object (ptr)
 :r1 = element object (ptr)

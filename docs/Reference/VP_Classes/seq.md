@@ -10,7 +10,7 @@
 
 ### (elem-get index seq)
 
-### (find elem seq)
+### (find elem seq idx)
 
 ### (first seq)
 
@@ -22,7 +22,7 @@
 
 ### (rest seq)
 
-### (find-rev elem seq)
+### (find-rev elem seq [idx])
 
 ### (second seq)
 
