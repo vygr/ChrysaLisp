@@ -20,8 +20,7 @@
 *key_map_shift* (Fmap-kv
 	(ascii-code "X") action-clear-all)
 
-*key_map_control* (Fmap-kv)
-)
+*key_map_control* (Fmap-kv))
 
 ;module
 (export-symbols

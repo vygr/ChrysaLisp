@@ -12,12 +12,6 @@
 (ascii-code "x") action-clear
 ```
 
-### *key_map_control*
-
-```code
-
-```
-
 ### *key_map_shift*
 
 ```code
@@ -197,12 +191,6 @@
 
 ```code
 (ascii-code "x") action-clear
-```
-
-### *key_map_control*
-
-```code
-
 ```
 
 ### *key_map_shift*
