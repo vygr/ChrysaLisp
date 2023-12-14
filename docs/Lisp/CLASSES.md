@@ -91,12 +91,12 @@ If the method takes no arguments you can omit that forms enclosing `()`.
 
 For example:
 
-```live
+```lisp
 (macroexpand
 	'(.-> this :layout :dirty_all))
 ```
 
-```live
+```lisp
 (macroexpand
 	'(.-> obj :reset
 		(:set_cursor 0 1)
