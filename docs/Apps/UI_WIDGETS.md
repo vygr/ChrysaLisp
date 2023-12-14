@@ -157,8 +157,22 @@ Title bar has a single close Button that will send an action event of
 		(ui-flow _ (:flow_flags +flow_down_fill) ~x)))
 ```
 
-```widget
-apps/docs/ui/window.inc *ui_window* 0 0
+```lisp
+(ui-window *ui_window*
+	(:min_width 128
+	:min_height 128
+	:font *env_window_font*
+	:ink_color *env_ink_col*
+	:color *env_window_col*
+	:hint_color *env_hint_col*
+	:no_hint_color *env_no_hint_col*
+	:border *env_window_border*
+	:shadow *env_window_shadow*)
+	(ui-button _
+		(:text "Main Area"
+		:border 0)))
+
+*ui_window*
 ```
 
 Creates a Window instance, with name (use _ if not required), optional property
@@ -187,8 +201,21 @@ set these in their own private `env.inc` file. See the `apps/login/` folder.
 	`(ui-element ,n (Grid) ,p ~x))
 ```
 
-```widget
-apps/docs/ui/grid.inc *ui_grid* 0 0
+```lisp
+(ui-window *ui_grid*
+	(:min_width 128
+	:min_height 0)
+	(ui-grid _
+		(:grid_width 3
+		:grid_height 2)
+		(ui-button _ (:text "Cell 1"))
+		(ui-button _ (:text "Cell 2"))
+		(ui-button _ (:text "Cell 3"))
+		(ui-button _ (:text "Cell 4"))
+		(ui-button _ (:text "Cell 5"))
+		(ui-button _ (:text "Cell 6"))))
+
+*ui_grid*
 ```
 
 Creates a Grid instance, with name, optional property list and nested forms.
@@ -208,8 +235,20 @@ calculated based on the number of child views contained.
 	`(ui-element ,n (Flow) ,p ~x))
 ```
 
-```widget
-apps/docs/ui/flow.inc *ui_flow* 0 0
+```lisp
+(ui-window *ui_flow*
+	(:min_width 128
+	:min_height 0)
+	(ui-flow _
+		(:flow_flags +flow_right)
+		(ui-button _ (:text "Cell 1"))
+		(ui-button _ (:text "Cell 2"))
+		(ui-button _ (:text "Cell 3"))
+		(ui-button _ (:text "Cell 4"))
+		(ui-button _ (:text "Cell 5"))
+		(ui-button _ (:text "Cell 6"))))
+
+*ui_flow*
 ```
 
 Creates a Flow instance, with name, optional property list and nested forms.
@@ -243,8 +282,17 @@ Useful flow combos:
 	`(ui-element ,n (Stack ,t) ,p ~x))
 ```
 
-```widget
-apps/docs/ui/stack.inc *ui_stack* 0 0
+```lisp
+(ui-window *ui_stack*
+	(:min_width 128
+	:min_height 128)
+	(ui-stack _ '("Tab 1" "Tab 2" "Tab 3")
+		(:color +argb_white)
+		(ui-button _ (:text "View 1"))
+		(ui-button _ (:text "View 2"))
+		(ui-button _ (:text "View 3"))))
+
+*ui_stack*
 ```
 
 Creates a Stack instance, with name, selection tabs from the given list,
@@ -262,8 +310,23 @@ optional property list and nested forms.
 	`(ui-element ,n (Tree ,e) ,p))
 ```
 
-```widget
-apps/docs/ui/tree.inc *ui_tree* 0 0
+```lisp
+(enums +event 0
+	(enum file_folder_action file_leaf_action))
+
+(ui-window *ui_tree*
+	(:min_width 128
+	:min_height 128)
+	(ui-tree view +event_file_folder_action
+		(:min_width 0
+		:color 0
+		:font *env_medium_terminal_font*)))
+
+(. view :populate "apps/docs/ui/" ".inc")
+(bind '(w h) (. view :pref_size))
+(. view :change 0 0 w h)
+
+*ui_tree*
 ```
 
 Creates a Tree instance, with name, base event id and optional property list.
@@ -280,8 +343,16 @@ Creates a Tree instance, with name, base event id and optional property list.
 	`(ui-element ,n (Spinner) ,p))
 ```
 
-```widget
-apps/docs/ui/spinner.inc *ui_spinner* 0 0
+```lisp
+(ui-window *ui_spinner*
+	(:min_width 0
+	:min_height 0)
+	(ui-spinner _
+		(:value 50
+		:maximum 100
+		:minimum 0)))
+
+*ui_spinner*
 ```
 
 Creates a value Spinner instance, with name and optional property list.
@@ -298,8 +369,17 @@ Creates a value Spinner instance, with name and optional property list.
 	`(ui-element ,n (Hchart ,t ,m) ,p))
 ```
 
-```widget
-apps/docs/ui/hchart.inc *ui_hchart* 0 0
+```lisp
+(ui-window *ui_hchart*
+	(:min_width 128
+	:min_height 0)
+	(ui-hchart view "My Chart" 10
+		(:color +argb_green
+		:units 1024)))
+
+(times 3 (. view :add_bar))
+
+*ui_hchart*
 ```
 
 Creates a hchart instance, with name, title, marks and optional property list.
@@ -319,8 +399,18 @@ Creates a hchart instance, with name, title, marks and optional property list.
 	`(ui-element ,n (Title) ,p))
 ```
 
-```widget
-apps/docs/ui/title.inc *ui_title* 0 0
+```lisp
+(ui-window *ui_title*
+	(:min_width 0
+	:min_height 0)
+	(ui-title _
+		(:color *env_title_col*
+		:ink_color *env_ink_col*
+		:border *env_title_border*
+		:font *env_title_font*
+		:text "My Title")))
+
+*ui_title*
 ```
 
 Creates a Title instance, with name and optional property list.
@@ -343,8 +433,16 @@ Creates a Title instance, with name and optional property list.
 		(ui-title ,n (:text ,s))))
 ```
 
-```widget
-apps/docs/ui/titlebar.inc *ui_title_bar* 0 0
+```lisp
+(enums +event 0
+	(enum close max min))
+
+(ui-window *ui_title_bar*
+	(:min_width 256
+	:min_height 0)
+	(ui-title-bar _ "My Title Bar" (0xea19 0xea1b 0xea1a) +event_close))
+
+*ui_title_bar*
 ```
 
 Creates a title bar, consisting of a Flow instance that contains Buttons and a
@@ -361,8 +459,18 @@ application to find a unicode symbol value.
 	`(ui-element ,n (Text) ,p))
 ```
 
-```widget
-apps/docs/ui/text.inc *ui_text* 0 0
+```lisp
+(ui-window *ui_text*
+	(:min_width 0
+	:min_height 0)
+	(ui-text _
+		(:offset 0
+		:color 0
+		:ink_color *env_ink_col*
+		:font *env_window_font*
+		:text "Look At Me")))
+
+*ui_text*
 ```
 
 Creates a Text instance, with name and optional property list.
@@ -382,8 +490,18 @@ Creates a Text instance, with name and optional property list.
 	`(ui-element ,n (Label) ,p ~x))
 ```
 
-```widget
-apps/docs/ui/label.inc *ui_label* 0 0
+```lisp
+(ui-window *ui_label*
+	(:min_width 0
+	:min_height 0)
+	(ui-label _
+		(:color *env_window_col*
+		:ink_color *env_ink_col*
+		:border *env_label_border*
+		:font *env_window_font*
+		:text "Look At Me")))
+
+*ui_label*
 ```
 
 Creates a Label instance, with name, optional property list and nested forms.
@@ -406,8 +524,19 @@ text, by default, set to `+flow_flag_right +flow_flag_align_vcenter`.
 	`(ui-element ,n (Button) ,p ~x))
 ```
 
-```widget
-apps/docs/ui/button.inc *ui_button* 0 0
+```lisp
+(ui-window *ui_button*
+	(:min_width 0
+	:min_height 0)
+	(ui-button _
+		(:color *env_window_col*
+		:ink_color *env_ink_col*
+		:border *env_button_border*
+		:font *env_window_font*
+		:text "Click Me"
+		:tip_text "a button")))
+
+*ui_button*
 ```
 
 Creates a Button instance, with name, optional property list and nested forms.
@@ -431,8 +560,17 @@ text, by default, set to `+flow_flag_down +flow_flag_align_hcenter
 	`(each (# (. (ui-button __ ,p) :connect (+ _ ,e))) '(~s)))
 ```
 
-```widget
-apps/docs/ui/buttons.inc *ui_buttons* 0 0
+```lisp
+(enums +event 0
+	(enum undo redo rewind))
+
+(ui-window *ui_buttons*
+	(:min_width 0
+	:min_height 0
+	:font *env_toolbar_font*)
+	(ui-buttons (0xe9fe 0xe99d 0xe9ff) +event_undo))
+
+*ui_buttons*
 ```
 
 Creates a set of Button instances, with symbols list, event base and optional
@@ -457,8 +595,19 @@ can use the Fonts application to find a unicode symbol value.
 	`(ui-flow ,n ,p ~x))
 ```
 
-```widget
-apps/docs/ui/toolbar.inc *ui_toolbar* 0 0
+```lisp
+(enums +event 0
+	(enum undo redo rewind))
+
+(ui-window *ui_toolbar*
+	(:min_width 0
+	:min_height 0)
+	(ui-tool-bar view ()
+		(ui-buttons (0xe9fe 0xe99d 0xe9ff) +event_undo)))
+
+(ui-tool-tips view '("undo" "redo" "rewind"))
+
+*ui_toolbar*
 ```
 
 Creates a Toolbar instance, with name, optional property list and nested forms.
@@ -474,8 +623,25 @@ Creates a Toolbar instance, with name, optional property list and nested forms.
 	`(ui-element ,n (Textfield) ,p))
 ```
 
-```widget
-apps/docs/ui/textfield.inc *ui_textfield* 0 0
+```lisp
+(ui-window *ui_textfield*
+	(:min_width 256
+	:min_height 0)
+	(ui-textfield _
+		(:offset 0
+		:cursor 0
+		:anchor 0
+		:color +argb_white
+		:ink_color *env_ink_col*
+		:border *env_textfield_border*
+		:font *env_window_font*
+		:hint_text "type somthing"
+		:hint_color *env_hint_col*
+		:no_hint_color *env_no_hint_col*
+		:text ""
+		:clear_text "")))
+
+*ui_textfield*
 ```
 
 Creates a Textfield instance, with name and optional property list.
@@ -495,8 +661,17 @@ Creates a Textfield instance, with name and optional property list.
 	`(ui-element ,n (Slider) ,p))
 ```
 
-```widget
-apps/docs/ui/slider.inc *ui_slider* 0 0
+```lisp
+(ui-window *ui_slider*
+	(:min_width 256
+	:min_height 0)
+	(ui-slider _
+		(:color *env_slider_col*
+		:value 50
+		:maximum 100
+		:portion 25)))
+
+*ui_slider*
 ```
 
 Creates a Slider instance, with name and optional property list.
@@ -515,8 +690,25 @@ Creates a Slider instance, with name and optional property list.
 	`(ui-element ,n (Scroll ,f) ,p ~x))
 ```
 
-```widget
-apps/docs/ui/scroll.inc *ui_scroll* 0 0
+```lisp
+(ui-window *ui_scroll*
+	(:min_width 128
+	:min_height 128)
+	(ui-scroll _ +scroll_flag_both
+		(:color *env_slider_col*
+		:min_width 128
+		:min_height 128)
+		(ui-button view
+			(:color +argb_orange
+			:min_width 192
+			:min_height 192
+			:font *env_window_font*
+			:text "Scroll View"))))
+
+(bind '(w h) (. view :pref_size))
+(. view :change 0 0 w h)
+
+*ui_scroll*
 ```
 
 Creates a Scroll instance, with name, flags, optional property list and nested
@@ -546,8 +738,17 @@ Useful scroll combos:
 	`(ui-element ,n (Backdrop) ,p ~x))
 ```
 
-```widget
-apps/docs/ui/backdrop.inc *ui_backdrop* 0 0
+```lisp
+(ui-window *ui_backdrop*
+	(:min_width 128
+	:min_height 128)
+	(ui-backdrop _
+		(:color +argb_black
+		:ink_color +argb_white
+		:style :grid
+		:spacing 8)))
+
+*ui_backdrop*
 ```
 
 Creates a Backdrop instance, with name, optional property list and nested
@@ -569,8 +770,16 @@ Supported `:style` settings.
 	`(ui-element ,n (Progress) ,p))
 ```
 
-```widget
-apps/docs/ui/progress.inc *ui_progress* 0 0
+```lisp
+(ui-window *ui_progress*
+	(:min_width 256
+	:min_height 0)
+	(ui-progress _
+		(:color +argb_green
+		:value 50
+		:maximum 100)))
+
+*ui_progress*
 ```
 
 Creates a Progress instance, with name and optional property list.
@@ -589,8 +798,23 @@ Creates a Progress instance, with name and optional property list.
 	`(ui-element ,n (Canvas ,w ,h ,s) ,p))
 ```
 
-```widget
-apps/docs/ui/canvas.inc *ui_canvas* 0 0
+```lisp
+(ui-window *ui_canvas*
+	(:min_width 0
+	:min_height 0)
+	(ui-canvas view 128 128 1))
+
+(.-> view
+	(:fill +argb_white)
+	(:set_color +argb_red)
+	(:fbox 8 8 64 64)
+	(:set_color +argb_green)
+	(:fbox 32 48 88 64)
+	(:set_color +argb_blue)
+	(:fbox 16 100 90 16)
+	(:swap 0))
+
+*ui_canvas*
 ```
 
 Creates a Canvas instance, with name, width, height, scale and optional
@@ -607,8 +831,31 @@ property list.
 	`(ui-element ,n (Vdu) ,p))
 ```
 
-```widget
-apps/docs/ui/vdu.inc *ui_vdu* 0 0
+```lisp
+(ui-window *ui_vdu*
+	(:min_width 0
+	:min_height 0)
+	(ui-flow _
+		(:flow_flags +flow_stack_fill)
+		(ui-vdu view
+			(:vdu_width 16
+			:vdu_height 4
+			:ink_color +argb_green
+			:font *env_editor_font*))
+		(ui-backdrop _
+			(:color +argb_grey1
+			:style :plain))))
+
+(bind '(w h) (. view :pref_size))
+(. view :change 0 0 w h)
+(. view :load
+	'("This is line 1."
+	"This is line 2."
+	"This is line 3."
+	"This is line 4.")
+	0 0 0 0)
+
+*ui_vdu*
 ```
 
 Creates a Vdu instance, with name and optional property list.
