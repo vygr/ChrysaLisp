@@ -25,7 +25,7 @@ Faster `(slices)`, `(reverse-list)` functions, and new `(reverse seq)`.
 
 `(#)` macro does NOT descend into quote or quasi-quote forms.
 
-New `lisp` docs app section handler ! `UI_WIDGETS.md` now shows live Lisp code
+New `lisp` Docs app section handler ! `UI_WIDGETS.md` now shows live Lisp code
 and the widget created by it.
 
 ------
