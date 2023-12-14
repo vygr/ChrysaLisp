@@ -15,8 +15,8 @@
 (defun action-clear ()
 	(when selected_index
 		(step (elem-get selected_index buf_list))
-		(setq buf_keys (cat (slice 0 selected_index buf_keys) (slice (inc selected_index) -1 buf_keys)))
-		(setq buf_list (cat (slice 0 selected_index buf_list) (slice (inc selected_index) -1 buf_list)))
+		(setq buf_keys (erase buf_keys selected_index (inc selected_index)))
+		(setq buf_list (erase buf_list selected_index (inc selected_index)))
 		(reset (min selected_index (dec (length buf_list))))))
 
 (defun action-clear-all ()
