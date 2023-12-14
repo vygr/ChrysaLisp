@@ -206,9 +206,9 @@ y1
 (first "")
 :nil
 (rest "abcdef")
-"abcde"
-(most "abcdef")
 "bcdef"
+(most "abcdef")
+"abcde"
 (most "")
 ""
 (rest "")

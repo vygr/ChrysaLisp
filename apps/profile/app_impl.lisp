@@ -63,9 +63,7 @@
 (import "./actions.inc")
 
 (defun dispatch-action (&rest action)
-	(catch (eval action)
-		(progn (print _)(print)
-			(setq *refresh_mode* (list 0)) :t)))
+	(catch (eval action) (progn (print _)(print) :t)))
 
 (defun main ()
 	(defq select (alloc-select +select_size) syntax (Syntax)
