@@ -15,6 +15,9 @@
 	+doc_font (first (font-info *env_window_font*))
 	+term_font (first (font-info *env_terminal_font*)))
 
+;lisp handler environment
+((# (def (penv) '*handler_env* (env))))
+
 (ui-window *window* (:color +argb_grey15)
 	(ui-title-bar _ "Docs" (0xea19 0xea1b 0xea1a) +event_close)
 	(ui-flow *doc_flow* (:flow_flags +flow_right_fill :color *env_toolbar_col*)
@@ -56,10 +59,10 @@
 				(task-slice)
 				(catch (setq state ((handler-func state)
 							state page (trim-end line (ascii-char 13))))
-					(progn (print _)(print) (setq state :text) :t)))
+					(progn (prin _) (print) (setq state :text) :t)))
 			(file-stream file))
 		(catch ((handler-func state) state page "")
-			(progn (print _)(print) (setq state :text) :t))
+			(progn (prin _) (print) (setq state :text) :t))
 		(bind '(w h) (. page_flow :pref_size))
 		(. page_flow :change 0 0 w h)
 		(def *page_scroll* :min_width w)

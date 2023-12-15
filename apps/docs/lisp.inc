@@ -10,12 +10,16 @@
 					((handler-func :vdu) :vdu page (trim-end line (ascii-char 13))))
 				lines)
 			((handler-func :vdu) :vdu page "```")
-			(env-push)
-			(catch (defq result (repl (string-stream
-					(apply cat (join lines (list (ascii-char 10))))) "Lisp handler"))
-				(progn (print _)(print) (defq result :nil) :t))
-			(export-symbols '(result))
-			(env-pop)
+			(defq ss (string-stream (apply cat (join lines (list (ascii-char 10)))))
+				result (eval
+					(static-qq (progn
+						(env-push)
+						(catch (defq *result* (repl ,ss "Lisp handler"))
+							(progn (prin _) (print) (defq result :nil) :t))
+						(export-symbols '(*result*))
+						(env-pop)
+						*result*))
+					*handler_env*))
 			(cond
 				((View? result)
 					(def result :tip_mbox (elem-get +select_tip select))
