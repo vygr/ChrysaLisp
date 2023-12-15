@@ -606,6 +606,12 @@ gather a list of values
 (getf obj field [offset]) -> value
 ```
 
+### handler
+
+```code
+(handler state page line) -> state
+```
+
 ### id-decode
 
 ```code
