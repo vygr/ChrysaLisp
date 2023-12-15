@@ -30,7 +30,7 @@
 					((handler-func :vdu) :vdu page "```")))
 			(clear lines)
 			:text)
-		(:t (push lines (trim-end line (ascii-char 13)))
+		(:t (push lines line)
 			state)))
 
 ;module
