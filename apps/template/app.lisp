@@ -20,7 +20,7 @@
 (import "./actions.inc")
 
 (defun dispatch-action (&rest action)
-	(catch (eval action) (progn (print _)(print) :t)))
+	(catch (eval action) (progn (prin _) (print) :t)))
 
 (defun main ()
 	(defq select (alloc-select +select_size) *running* :t mouse_state :u)

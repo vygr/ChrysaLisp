@@ -236,7 +236,7 @@
 	(and *macro_record* (find func *recorded_actions*)
 		(macro-record action))
 	(catch (eval action)
-		(progn (print _)(print)
+		(progn (prin _) (print)
 			(setq *refresh_mode* (list 0)) :t)))
 
 (defun main ()

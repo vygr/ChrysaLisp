@@ -130,7 +130,7 @@
 (import "./actions.inc")
 
 (defun dispatch-action (&rest action)
-	(catch (eval action) (progn (print _)(print) :t)))
+	(catch (eval action) (progn (prin _) (print) :t)))
 
 (defun main ()
 	;; (defq then (pii-time))
