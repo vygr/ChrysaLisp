@@ -1028,8 +1028,8 @@
 	(defmacro defcvar (&rest b) `(def *compile_env* ~b))
 	(defmacro deffvar (&rest b) `(def *func_env* ~b))
 	(defun include (lib_path) (import lib_path *compile_env*))
-	(catch (progn (setq _f (_f) *compile_env* :nil) _f)
-		(setq *compile_env* :nil)))
+	(catch (progn (setq _f (_f)) (undef (env) '*func_env* '*compile_env*) _f)
+		(progn (undef (env) '*func_env* '*compile_env*) :nil)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;
 ; Boot extension imports
