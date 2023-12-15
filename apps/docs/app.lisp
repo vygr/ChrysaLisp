@@ -134,5 +134,6 @@
 			(:t (. *window* :event *msg*)
 				;save scroll position
 				(. scroll_pos :insert *current_file* (get :value (get :vslider *page_scroll*))))))
+	(undef (penv) '*handler_env*)
 	(gui-sub *window*)
 	(free-select select))
