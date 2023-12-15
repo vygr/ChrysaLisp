@@ -147,7 +147,7 @@ This from the `apps/fonts/app.lisp` demo:
 Here we define a Window that has a Title bar, Toolbar and Scroll region. The
 Title bar has a single close Button that will send an action event of
 `+event_close`. The Toolbar contains two Buttons who's action events will be
-`+event_prev` and `(+ +event_prev 1)`.
+`+event_prev` and `+event_next`.
 
 ### (ui-window name [props] [body]) -> window
 
