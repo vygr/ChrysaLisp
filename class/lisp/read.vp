@@ -82,6 +82,7 @@
 			(call 'lisp :read_quasi `(,this ,stream ,c (,this lisp_sym_splicing)) `(_ ,item ,c))
 			(goto 'push_item)
 		(vpcase `(,c = -1))
+			(assign {start} {this->lisp_stack->array_length})
 			(call 'sym :ref {this->lisp_sym_nil} {item})
 			(goto 'push_item1)
 		(default)
