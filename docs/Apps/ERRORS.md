@@ -113,49 +113,30 @@ with the `:lisp_`.
 
 ### Specific number of arguments, or minium, or maximum.
 
-```vdu
-(defmacro errorif-lisp-args-len (args cnd len err)
-	`(errorcase
-		(assign '((,args array_length)) '(:r2))
-		(gotoif '(:r2 ,cnd ,len) ,err)))
+```file
+lib/asm/code.inc "(defmacro errorif-lisp-args-len " ""
 ```
 
 ### Specific type signature for the Lisp arguments.
 
-```vdu
-(defmacro errorif-lisp-args-sig (args len l)
-	`(errorcase
-		(call 'lisp :env_args_sig '(,args ($ sig) ,len) '(tmp))
-		(gotoif `(,tmp = 0) ,l)))
+```file
+lib/asm/code.inc "(defmacro errorif-lisp-args-sig " ""
 ```
 
 ### Specific type signature and length range.
 
-```vdu
-(defmacro errorif-lisp-args-sig-range (args len1 len2 l)
-	`(errorcase
-		(bind '(e_args e_sig e_num) (method-input 'lisp :env_args_sig))
-		(assign '((,args array_length)) `(,e_num))
-		(if (> ,len1 0) (gotoif `(,e_num < ,,len1) ,l))
-		(gotoif `(,e_num > ,,len2) ,l)
-		(call 'lisp :env_args_sig `(,,args ($ sig) ,e_num) '(tmp))
-		(gotoif `(,tmp = 0) ,l)))
+```file
+lib/asm/code.inc "(defmacro errorif-lisp-args-sig-range " ""
 ```
 
 ### Minimum length of arguments of exact same type.
 
-```vdu
-(defmacro errorif-lisp-args-match (args class len l)
-	`(errorcase
-		(call 'lisp :env_args_match '(,args (@ ,(f-path class :vtable)) ,len) '(tmp))
-		(gotoif `(,tmp = 0) ,l)))
+```file
+lib/asm/code.inc "(defmacro errorif-lisp-args-match " ""
 ```
 
 ### Minimum length of arguments of the same type inheritance.
 
-```vdu
-(defmacro errorif-lisp-args-type (args class len l)
-	`(errorcase
-		(call 'lisp :env_args_type '(,args (@ ,(f-path class :vtable)) ,len) '(tmp))
-		(gotoif `(,tmp = 0) ,l)))
+```file
+lib/asm/code.inc "(defmacro errorif-lisp-args-type " ""
 ```
