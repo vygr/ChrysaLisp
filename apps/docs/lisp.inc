@@ -1,15 +1,17 @@
 ;module
 (env-push)
 
+(defun redirect (state lines)
+	(each (# (task-slice) ((handler-func state) state page %0)) lines)
+	((handler-func state) state page "```"))
+
 (defun handler (state page line)
 	; (handler state page line) -> state
 	(defq lines '())
 	(cond
 		((starts-with "```" line)
-			(each (# (task-slice) ((handler-func :vdu) :vdu page %0)) lines)
-			((handler-func :vdu) :vdu page "```")
-			(each (# (task-slice) ((handler-func :lispq) :lispq page %0)) lines)
-			((handler-func :lispq) :lispq page "```")
+			(redirect :vdu lines)
+			(redirect :lispq lines)
 			(clear lines)
 			:text)
 		(:t (push lines (trim-end line (ascii-char 13)))
