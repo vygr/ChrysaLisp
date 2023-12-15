@@ -380,10 +380,9 @@
 		; (. buffer :paste string &optional wrap_width) -> buffer
 		(setd wrap_width +max_int)
 		(. this :push_undo (list :mark (defq mark (. this :next_mark))))
-		(defq sstream (string-stream string) line (read-line sstream))
-		(while (defq next_line (read-line sstream))
-			(insert-line-wrapped this line wrap_width)
-			(. this :break) (setq line next_line))
+		(defq ss (string-stream string) line (read-line ss))
+		(each-line (# (insert-line-wrapped this line wrap_width)
+			(. this :break) (setq line %0)) ss)
 		(when line
 			(insert-line-wrapped this line wrap_width)
 			(if (eql (last string) (ascii-char 10)) (. this :break)))
