@@ -72,11 +72,8 @@ these user action events.
 
 Lets look at the `apps/bubbles/app.lisp`, Bubbles demo:
 
-```vdu
-(enums +event 0
-	(enum close max min)
-	(enum reset)
-	(enum grid plain axis))
+```file
+apps/bubbles/app.lisp "(enums +event" ""
 ```
 
 We are going to use these target ids when we construct the UI tree for the
@@ -99,18 +96,8 @@ Here is the UI tree for the application. We will cover the UI builder macros in
 another document in detail, but just note for now that we use the start of
 these three event blocks for each of the 3 button bars in this UI tree.
 
-```vdu
-(ui-window *window* ()
-	(ui-title-bar _ "Bubbles" (0xea19 0xea1b 0xea1a) +event_close)
-	(ui-flow _ (:flow_flags +flow_right_fill)
-		(ui-tool-bar *main_toolbar* ()
-			(ui-buttons (0xe938) +event_reset))
-		(ui-tool-bar *style_toolbar* ()
-			(ui-buttons (0xe976 0xe9a3 0xe9f0) +event_grid)))
-	(ui-scroll *image_scroll* +scroll_flag_both
-			(:min_width canvas_width :min_height canvas_height)
-		(ui-backdrop mybackdrop (:color +argb_black :ink_color +argb_grey8)
-			(ui-canvas layer1_canvas canvas_width canvas_height 1))))
+```file
+apps/bubbles/app.lisp "(ui-window *window* " ""
 ```
 
 The UI macros build our widget tree for us and automate calling the View class
@@ -374,24 +361,12 @@ of text and the page instance and to do whatever that handler does.
 
 The relevant parts of this function that do the dynamic module loading are:
 
-```vdu
-(defun handler-func (state)
-	(unless (defq handler (. handlers :find state))
-		(defq module (cat "apps/docs/" (rest state) ".inc"))
-		(repl (file-stream module) module)
-		(. handlers :insert state handler))
-	handler)
+```file
+apps/docs/app.lisp "(defun handler-func " ""
+```
 
-(defun populate-page (file)
-	...
-	(defq state :text)
-	(each-line (lambda (line)
-			(task-slice)
-			(setq state ((handler-func state)
-				state page (trim-end line (ascii-char 13)))))
-		(file-stream (cat "docs/" file ".md")))
-	((handler-func state) state page "")
-	...)
+```file
+apps/docs/app.lisp "(defq state :text)" "(bind '(w h)"
 ```
 
 Each module takes the current line of the file and decides what other UI

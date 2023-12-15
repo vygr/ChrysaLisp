@@ -114,12 +114,8 @@ actually built in primitives but macros, supplied in the `root.inc` file.
 
 Take the `(when)` construct:
 
-```vdu
-(defmacro when (x &rest _)
-	; (when tst body)
-	(if (= (length _) 1)
-		`(if ,x ~_)
-		`(cond (,x ~_))))
+```file
+class/lisp/root.inc "(defmacro when " ""
 ```
 
 This replaces your use of `(when ...)` with either an `(if ...)` or `(cond
@@ -134,12 +130,8 @@ macro can do complex work and return the result of that work, for example the
 `(or)` construct substitutes a single `(cond)` but builds the clauses before
 returning it.
 
-```vdu
-(defmacro or (&rest _)
-	; (or [tst] ...) -> :nil | tst
-	(defq out (list cond))
-	(each! 0 -1 (lambda (&rest c) (push out c)) (list _))
-	out)
+```file
+class/lisp/root.inc "(defmacro or " ""
 ```
 
 Here the `(or ...)` is replaced with the `out` list, which starts life as
@@ -150,35 +142,8 @@ And how about the `(case)` construct !!! This replaces your simple use of
 checking if it can optimise the result based on the type of clauses you
 provided and if you included a default.
 
-```vdu
-(defmacro case (_form &rest _body)
-	; (case form [(key|(key ...) body)] ...)
-	(defq _default_key :nil _default_clause :nil _atoms :t
-		_map (reduce (lambda (_map (_keys &rest _clause_body))
-			(unless (list? _keys) (setq _keys (list _keys)))
-			(setq _clause_body (prebind (macroexpand
-				(if (= (length _clause_body) 1)
-					(first _clause_body)
-					(cat '(progn) _clause_body)))))
-			(or (eql :num (defq _clause_type (pop (type-of _clause_body))))
-				(eql :str _clause_type) (setq _atoms :nil))
-			(each! 0 -1 (lambda (_key) (cond
-				((eql _key :t)
-					(setq _default_key :t _default_clause _clause_body))
-				(:t (push (first _map) _key)
-					(push (second _map) _clause_body)))) (list _keys)) _map)
-			_body (list (list) (list))))
-	(cond
-		(_default_key
-			(push (second _map) _default_clause)
-			(if _atoms
-				`(elem-get (or (find ,_form ',(first _map)) -2) ',(second _map))
-				`(eval (elem-get (or (find ,_form ',(first _map)) -2) ',(second _map)))))
-		(:t (if _atoms
-				`(if (defq ,(defq _i (gensym)) (find ,_form ',(first _map)))
-					(elem-get ,_i ',(second _map)))
-				`(if (defq ,(defq _i (gensym)) (find ,_form ',(first _map)))
-					(eval (elem-get ,_i ',(second _map))))))))
+```file
+class/lisp/root.inc "(defmacro case " ""
 ```
 
 ## Macros can be nested
@@ -195,16 +160,8 @@ macro function calls.
 Most of the GUI widget trees, for application UIs, are constructed with nested
 ui macros, for example the Pcb app UI:
 
-```vdu
-(ui-window *window* ()
-	(ui-title-bar *window_title* "" (0xea19) +event_close)
-	(ui-tool-bar *main_toolbar* ()
-		(ui-buttons (0xe91d 0xe91e 0xea00 0xea01 0xe9ac 0xe9ad) +event_prev)
-		(ui-buttons ("0" "1" "2" "3" "4") +event_show_all
-			(:color (const *env_toolbar2_col*)
-			:font (const (create-font "fonts/OpenSans-Regular.ctf" 20)))))
-	(ui-scroll pcb_scroll +scroll_flag_both
-			(:min_width 512 :min_height 256)))
+```file
+apps/pcb/app.lisp "(ui-window *window* " ""
 ```
 
 This expands into a program to build the UI tree !
@@ -217,10 +174,8 @@ your source starts to 'run'. Thus you can use macros to move calculations to
 
 A simple example is the `(const)` macro:
 
-```vdu
-(defmacro const (_)
-	; (const form)
-	(eval (macroexpand _)))
+```file
+class/lisp/root.inc "(defmacro const " ""
 ```
 
 This macro replaces the source form with the evaluation of that form at 'read
@@ -256,36 +211,14 @@ Another example of wrapping code in a decorator macro is the Editor application
 `(undoable)` macro. This macro can be used to wrap any code that mutates the
 text to ensure its effects can be undone.
 
-```vdu
-(defmacro undoable (&rest _)
-	`(progn
-		(raise :buffer)
-		(bind '(cx cy) (. this :get_cursor))
-		(. buffer :push_undo
-			(list :mark (defq mark (. buffer :next_mark)))
-			(list :cursor cx cy))
-		~_
-		(. buffer :push_undo (list :mark mark))))
+```file
+apps/edit/utils.inc "(defmacro undoable " ""
 ```
 
 And an example of the macro in use:
 
-```vdu
-(defmethod :reflow ()
-	; (. edit :reflow) -> edit
-	(undoable
-		(bind '(y y1) (select-paragraph this))
-		(each (lambda (line)
-				(task-slice)
-				(.-> buffer (:insert line) :break))
-			(.-> buffer :get_syntax (:text_flow
-				(split (.-> buffer (:set_cursor 0 y) (:cut 0 y1))
-					(const (cat " " (ascii-char +char_lf))))
-				(. buffer :get_wrap_width))))
-		(bind '(x y) (. buffer :get_cursor))
-		(bind '(x y) (. buffer :constrain x (inc y)))
-		(.-> this (:set_cursor x y) (:set_anchor x y)))
-	this)
+```file
+gui/edit/lisp.inc "(defmethod :reflow " ""
 ```
 
 Here the paragraph reflow action mutations can be undone in a single step.
@@ -301,29 +234,15 @@ Here is a section of the `apps/bubbles/app.inc` file:
 These macros define an interface for creating and converting to/from a 'number'
 and the actual numeric type selected.
 
-```vdu
-(cond   ;pick number format :t/:nil
-	(:t ;reals
-		(defmacro vec (&rest _) `(reals ~_))
-		(defmacro i2n (_) `(n2r ,_))
-		(defmacro f2n (_) `(n2r ,_)))
-	(:t ;fixed point
-		(defmacro vec (&rest _) `(fixeds ~_))
-		(defmacro i2n (_) `(n2f ,_))
-		(defmacro f2n (_) _)))
+```file
+apps/bubbles/app.inc "(cond  " ""
 ```
 
 These macros are then used instead of the raw types, for example in the
 lighting function:
 
-```vdu
-(defun lighting ((r g b) z)
-	;very basic attenuation
-	(defq at (/ (const (i2n box_size)) z) r (* r at) g (* g at) b (* b at))
-	(+ 0xd0000000
-		(<< (n2i (* r (const (i2n 0xff)))) 16)
-		(<< (n2i (* g (const (i2n 0xff)))) 8)
-		(n2i (* b (const (i2n 0xff))))))
+```file
+apps/bubbles/app.lisp "(defun lighting " ""
 ```
 
 ## Macros can define macros
@@ -402,10 +321,8 @@ effort later on etc etc.
 
 If you look in `apps/netspeed/lisp.vp` you will see this macro:
 
-```vdu
-(defmacro test-block (n &rest _)
-	(while (< (length _) n) (setq _ (cat _ _)))
-	`(progn ~(copy (slice 0 n _))))
+```file
+apps/netspeed/lisp.vp "(defmacro test-block " ""
 ```
 
 What this macro does is to take a count of lines wanted, and a set of lines to
