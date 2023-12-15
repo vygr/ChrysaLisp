@@ -11,13 +11,17 @@
 
 (defq +substr (Substr 11) +regexp (Regexp 11))
 
-(defun match? (_t _p)
-	; (match? text regexp) -> :t | :nil
-	(. +regexp :match? _t _p))
+(defun found? (_t _p)
+	; (found? text substr) -> :t | :nil
+	(. +substr :match? _t _p))
 
 (defun substr (_t _p)
 	; (substr text substr) -> matches
 	(. +substr :search _t _p))
+
+(defun match? (_t _p)
+	; (match? text regexp) -> :t | :nil
+	(. +regexp :match? _t _p))
 
 (defun matches (_t _p)
 	; (matches text regexp) -> matches
@@ -32,5 +36,5 @@
 	(list _e _p (. _e :compile _p)))
 
 ;module
-(export-symbols '(match? substr matches query))
+(export-symbols '(found? match? substr matches query))
 (env-pop)

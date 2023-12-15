@@ -151,19 +151,8 @@ Title bar has a single close Button that will send an action event of
 
 ### (ui-window name [props] [body]) -> window
 
-```vdu
-(defmacro ui-window (n &optional p &rest x)
-	; (ui-window name [props] [body]) -> window
-	(ui-props p
-		:font *env_window_font*
-		:ink_color *env_ink_col*
-		:color *env_window_col*
-		:hint_color *env_hint_col*
-		:no_hint_color *env_no_hint_col*
-		:border *env_window_border*
-		:shadow *env_window_shadow*)
-	`(ui-root ,n (Window) ,p
-		(ui-flow _ (:flow_flags +flow_down_fill) ~x)))
+```file
+gui/lisp.inc "(defmacro ui-window " ""
 ```
 
 ```lisp
@@ -204,10 +193,8 @@ set these in their own private `env.inc` file. See the `apps/login/` folder.
 
 ### (ui-grid name [props] [body]) -> grid
 
-```vdu
-(defmacro ui-grid (n &optional p &rest x)
-	; (ui-grid name [props] [body]) -> grid
-	`(ui-element ,n (Grid) ,p ~x))
+```file
+gui/lisp.inc "(defmacro ui-grid " ""
 ```
 
 ```lisp
@@ -238,10 +225,8 @@ calculated based on the number of child views contained.
 
 ### (ui-flow name [props] [body]) -> flow
 
-```vdu
-(defmacro ui-flow (n &optional p &rest x)
-	; (ui-flow name [props] [body]) -> flow
-	`(ui-element ,n (Flow) ,p ~x))
+```file
+gui/lisp.inc "(defmacro ui-flow " ""
 ```
 
 ```lisp
@@ -285,10 +270,8 @@ Useful flow combos:
 
 ### (ui-stack name tabs [props] [body]) -> stack
 
-```vdu
-(defmacro ui-stack (n t &optional p &rest x)
-	; (ui-stack name tabs [props] [body]) -> stack
-	`(ui-element ,n (Stack ,t) ,p ~x))
+```file
+gui/lisp.inc "(defmacro ui-stack " ""
 ```
 
 ```lisp
@@ -313,10 +296,8 @@ optional property list and nested forms.
 
 ### (ui-tree name event [props]) -> tree
 
-```vdu
-(defmacro ui-tree (n e &optional p)
-	; (ui-tree name event [props]) -> tree
-	`(ui-element ,n (Tree ,e) ,p))
+```file
+gui/lisp.inc "(defmacro ui-tree " ""
 ```
 
 ```lisp
@@ -346,10 +327,8 @@ Creates a Tree instance, with name, base event id and optional property list.
 
 ### (ui-spinner name [props]) -> spinner
 
-```vdu
-(defmacro ui-spinner (n &optional p)
-	; (ui-spinner name [props]) -> spinner
-	`(ui-element ,n (Spinner) ,p))
+```file
+gui/lisp.inc "(defmacro ui-spinner " ""
 ```
 
 ```lisp
@@ -372,10 +351,8 @@ Creates a value Spinner instance, with name and optional property list.
 
 ### (ui-hchart name title marks [props]) -> hchart
 
-```vdu
-(defmacro ui-hchart (n t m &optional p)
-	; (ui-hchart name title num_marks [props]) -> hchart
-	`(ui-element ,n (Hchart ,t ,m) ,p))
+```file
+gui/lisp.inc "(defmacro ui-hchart " ""
 ```
 
 ```lisp
@@ -399,13 +376,8 @@ Creates a hchart instance, with name, title, marks and optional property list.
 
 ### (ui-title name [props]) -> title
 
-```vdu
-(defmacro ui-title (n &optional p)
-	; (ui-title name [props]) -> title
-	(ui-props p
-		:font *env_title_font*
-		:border *env_title_border*)
-	`(ui-element ,n (Title) ,p))
+```file
+gui/lisp.inc "(defmacro ui-title " ""
 ```
 
 ```lisp
@@ -430,16 +402,8 @@ Creates a Title instance, with name and optional property list.
 
 ### (ui-title-bar name title symbols event [props]) -> flow
 
-```vdu
-(defmacro ui-title-bar (n s b e &optional p)
-	; (ui-title-bar name title symbols event [props]) -> flow
-	(ui-props p
-		:flow_flags +flow_left_fill
-		:color *env_title_col*
-		:font *env_title_buttons_font*)
-	`(ui-flow _ ,p
-		(ui-buttons ,b ,e (:border *env_title_buttons_border*))
-		(ui-title ,n (:text ,s))))
+```file
+gui/lisp.inc "(defmacro ui-title-bar " ""
 ```
 
 ```lisp
@@ -462,10 +426,8 @@ application to find a unicode symbol value.
 
 ### (ui-text name [props]) -> text
 
-```vdu
-(defmacro ui-text (n &optional p)
-	; (ui-text name [props]) -> text
-	`(ui-element ,n (Text) ,p))
+```file
+gui/lisp.inc "(defmacro ui-text " ""
 ```
 
 ```lisp
@@ -490,13 +452,8 @@ Creates a Text instance, with name and optional property list.
 
 ### (ui-label name [props] [body]) -> label
 
-```vdu
-(defmacro ui-label (n &optional p &rest x)
-	; (ui-label name [props] [body]) -> label
-	(ui-props p
-		:flow_flags (num-intern (logior +flow_flag_right +flow_flag_align_vcenter))
-		:border *env_label_border*)
-	`(ui-element ,n (Label) ,p ~x))
+```file
+gui/lisp.inc "(defmacro ui-label " ""
 ```
 
 ```lisp
@@ -524,13 +481,8 @@ text, by default, set to `+flow_flag_right +flow_flag_align_vcenter`.
 
 ### (ui-button name [props] [body]) -> button
 
-```vdu
-(defmacro ui-button (n &optional p &rest x)
-	; (ui-button name [props] [body]) -> button
-	(ui-props p
-		:flow_flags (num-intern (logior +flow_flag_down +flow_flag_align_hcenter +flow_flag_align_vcenter))
-		:border *env_button_border*)
-	`(ui-element ,n (Button) ,p ~x))
+```file
+gui/lisp.inc "(defmacro ui-button " ""
 ```
 
 ```lisp
@@ -560,13 +512,8 @@ text, by default, set to `+flow_flag_down +flow_flag_align_hcenter
 
 ### (ui-buttons symbols event [props])
 
-```vdu
-(defmacro ui-buttons (s e &optional p)
-	; (ui-buttons symbols event [props])
-	(setq s (map (# (if (num? %0) (num-to-utf8 %0) %0)) s))
-	(ui-props p
-		:text %0)
-	`(each (# (. (ui-button __ ,p) :connect (+ _ ,e))) '(~s)))
+```file
+gui/lisp.inc "(defmacro ui-buttons " ""
 ```
 
 ```lisp
@@ -594,14 +541,8 @@ can use the Fonts application to find a unicode symbol value.
 
 ### (ui-tool-bar name [props] [body]) -> flow
 
-```vdu
-(defmacro ui-tool-bar (n &optional p &rest x)
-	; (ui-tool-bar name [props] [body]) -> flow
-	(ui-props p
-		:flow_flags (num-intern (logior +flow_flag_right +flow_flag_fillh))
-		:color *env_toolbar_col*
-		:font *env_toolbar_font*)
-	`(ui-flow ,n ,p ~x))
+```file
+gui/lisp.inc "(defmacro ui-tool-bar " ""
 ```
 
 ```lisp
@@ -623,13 +564,8 @@ Creates a Toolbar instance, with name, optional property list and nested forms.
 
 ### (ui-textfield name [props]) -> textfield
 
-```vdu
-(defmacro ui-textfield (n &optional p)
-	; (ui-textfield name [props]) -> textfield
-	(ui-props p
-		:flow_flags (num-intern (logior +flow_flag_right +flow_flag_align_vcenter))
-		:border *env_textfield_border*)
-	`(ui-element ,n (Textfield) ,p))
+```file
+gui/lisp.inc "(defmacro ui-textfield " ""
 ```
 
 ```lisp
@@ -662,12 +598,8 @@ Creates a Textfield instance, with name and optional property list.
 
 ### (ui-slider name [props]) -> slider
 
-```vdu
-(defmacro ui-slider (n &optional p)
-	; (ui-slider name [props]) -> slider
-	(ui-props p
-		:color *env_slider_col*)
-	`(ui-element ,n (Slider) ,p))
+```file
+gui/lisp.inc "(defmacro ui-slider " ""
 ```
 
 ```lisp
@@ -691,12 +623,8 @@ Creates a Slider instance, with name and optional property list.
 
 ### (ui-scroll name flags [props] [body]) -> scroll
 
-```vdu
-(defmacro ui-scroll (n f &optional p &rest x)
-	; (ui-scroll name flags [props] [body]) -> scroll
-	(ui-props p
-		:color *env_slider_col*)
-	`(ui-element ,n (Scroll ,f) ,p ~x))
+```file
+gui/lisp.inc "(defmacro ui-scroll " ""
 ```
 
 ```lisp
@@ -741,10 +669,8 @@ Useful scroll combos:
 
 ### (ui-backdrop name [props] [body]) -> backdrop
 
-```vdu
-(defmacro ui-backdrop (n &optional p &rest x)
-	; (ui-backdrop name [props] [body]) -> backdrop
-	`(ui-element ,n (Backdrop) ,p ~x))
+```file
+gui/lisp.inc "(defmacro ui-backdrop " ""
 ```
 
 ```lisp
@@ -773,10 +699,8 @@ Supported `:style` settings.
 
 ### (ui-progress name [props]) -> progress
 
-```vdu
-(defmacro ui-progress (n &optional p)
-	; (ui-progress name [props]) -> progress
-	`(ui-element ,n (Progress) ,p))
+```file
+gui/lisp.inc "(defmacro ui-progress " ""
 ```
 
 ```lisp
@@ -799,12 +723,8 @@ Creates a Progress instance, with name and optional property list.
 
 ### (ui-canvas name width height scale &optional p) -> canvas
 
-```vdu
-(defmacro ui-canvas (n w h s &optional p)
-	; (ui-canvas name width height scale [props]) -> canvas
-	(ui-props p
-		:color 0)
-	`(ui-element ,n (Canvas ,w ,h ,s) ,p))
+```file
+gui/lisp.inc "(defmacro ui-canvas " ""
 ```
 
 ```lisp
@@ -831,13 +751,8 @@ property list.
 
 ### (ui-vdu name [props]) -> vdu
 
-```vdu
-(defmacro ui-vdu (n &optional p)
-	; (ui-vdu name [props]) -> vdu
-	(ui-props p
-		:font *env_terminal_font*
-		:color 0)
-	`(ui-element ,n (Vdu) ,p))
+```file
+gui/lisp.inc "(defmacro ui-vdu " ""
 ```
 
 ```lisp
@@ -875,10 +790,8 @@ Creates a Vdu instance, with name and optional property list.
 
 ### (ui-view name [props]) -> view
 
-```vdu
-(defmacro ui-view (n &optional p &rest x)
-	; (ui-view name [props] [body]) -> view
-	`(ui-element ,n (View) ,p ~x))
+```file
+gui/lisp.inc "(defmacro ui-view " ""
 ```
 
 Creates a raw View instance, with name and optional property list.
