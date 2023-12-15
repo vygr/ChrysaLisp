@@ -127,12 +127,21 @@ options.
 
 This from the `apps/fonts/app.lisp` demo:
 
-```vdu
+```lisp
+(enums +event 0
+	(enum close)
+	(enum prev next))
+
 (ui-window *window* ()
-	(ui-title-bar *window_title* "" (0xea19) +event_close)
+	(ui-title-bar *window_title* "Fonts" (0xea19) +event_close)
 	(ui-tool-bar *main_toolbar* ()
 		(ui-buttons (0xe91d 0xe91e) +event_prev))
-	(ui-scroll *symbol_scroll* +scroll_flag_vertical))
+	(ui-scroll *symbol_scroll* +scroll_flag_vertical
+			(:min_width 256 :min_height 128)))
+
+(ui-tool-tips *main_toolbar* '("prev" "next"))
+
+*window*
 ```
 
 Here we define a Window that has a Title bar, Toolbar and Scroll region. The
