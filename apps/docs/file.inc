@@ -32,7 +32,8 @@
 						(push lines line))))
 			;trim and left align
 			(defq margin +max_int lines (map
-				(# (if (defq m (find "(" %0)) (setq margin (min m margin)))
+				(# (and (> margin 0) (defq m (find "(" %0))
+						(setq margin (min m margin)))
 					(trim-end %0 (ascii-char 13))) lines))
 			(and (/= margin 0) (/= margin +max_int)
 				(setq lines (map
