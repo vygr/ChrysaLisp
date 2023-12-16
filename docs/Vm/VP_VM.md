@@ -302,7 +302,7 @@ list from the parent class declaration.
 An example from the array class.inc.
 
 ```file
-class/array/class.inc ":find" ""
+class/array/class.inc "def-class" ":sort"
 ```
 
 Core functions in the kernel and class libs are very careful to track and
