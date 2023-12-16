@@ -881,7 +881,8 @@
 				(merge-obj args (list _))))
 		;enter list func
 		(lambda (_)
-			(and (> (length _) 0) (find (first _) '(# quote quasi-quote))))
+			(and (> (length _) 0) (find (first _)
+				'(# quote quasi-quote static-q static-qq))))
 		;exit list func
 		progn)
 	`(lambda ,(sort cmp args) ~_))
