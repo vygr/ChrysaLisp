@@ -97,7 +97,7 @@ another document in detail, but just note for now that we use the start of
 these three event blocks for each of the 3 button bars in this UI tree.
 
 ```file
-apps/bubbles/app.lisp "(ui-window *window* " ""
+apps/bubbles/app.lisp "(ui-window *window*" ""
 ```
 
 The UI macros build our widget tree for us and automate calling the View class
@@ -362,7 +362,7 @@ of text and the page instance and to do whatever that handler does.
 The relevant parts of this function that do the dynamic module loading are:
 
 ```file
-apps/docs/app.lisp "(defun handler-func " ""
+apps/docs/app.lisp "(defun handler-func" ""
 apps/docs/app.lisp "(defq state :text)" "(bind '(w h)"
 ```
 

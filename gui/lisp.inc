@@ -114,6 +114,10 @@
 		(ui-buttons ,b ,e (:border *env_title_buttons_border*))
 		(ui-title ,n (:text ,s))))
 
+(defmacro ui-text (n &optional p)
+	; (ui-text name [props]) -> text
+	`(ui-element ,n (Text) ,p))
+
 (defmacro ui-label (n &optional p &rest x)
 	; (ui-label name [props] [body]) -> label
 	(ui-props p
@@ -181,10 +185,6 @@
 		:font *env_terminal_font*
 		:color 0)
 	`(ui-element ,n (Vdu) ,p))
-
-(defmacro ui-text (n &optional p)
-	; (ui-text name [props]) -> text
-	`(ui-element ,n (Text) ,p))
 
 (defmacro ui-view (n &optional p &rest x)
 	; (ui-view name [props] [body]) -> view

@@ -115,7 +115,7 @@ actually built in primitives but macros, supplied in the `root.inc` file.
 Take the `(when)` construct:
 
 ```file
-class/lisp/root.inc "(defmacro when " ""
+class/lisp/root.inc "(defmacro when" ""
 ```
 
 This replaces your use of `(when ...)` with either an `(if ...)` or `(cond
@@ -131,7 +131,7 @@ macro can do complex work and return the result of that work, for example the
 returning it.
 
 ```file
-class/lisp/root.inc "(defmacro or " ""
+class/lisp/root.inc "(defmacro or" ""
 ```
 
 Here the `(or ...)` is replaced with the `out` list, which starts life as
@@ -143,7 +143,7 @@ checking if it can optimise the result based on the type of clauses you
 provided and if you included a default.
 
 ```file
-class/lisp/root.inc "(defmacro case " ""
+class/lisp/root.inc "(defmacro case" ""
 ```
 
 ## Macros can be nested
@@ -161,7 +161,7 @@ Most of the GUI widget trees, for application UIs, are constructed with nested
 ui macros, for example the Pcb app UI:
 
 ```file
-apps/pcb/app.lisp "(ui-window *window* " ""
+apps/pcb/app.lisp "(ui-window *window*" ""
 ```
 
 This expands into a program to build the UI tree !
@@ -175,7 +175,7 @@ your source starts to 'run'. Thus you can use macros to move calculations to
 A simple example is the `(const)` macro:
 
 ```file
-class/lisp/root.inc "(defmacro const " ""
+class/lisp/root.inc "(defmacro const" ""
 ```
 
 This macro replaces the source form with the evaluation of that form at 'read
@@ -212,13 +212,13 @@ Another example of wrapping code in a decorator macro is the Editor application
 text to ensure its effects can be undone.
 
 ```file
-apps/edit/utils.inc "(defmacro undoable " ""
+apps/edit/utils.inc "(defmacro undoable" ""
 ```
 
 And an example of the macro in use:
 
 ```file
-gui/edit/lisp.inc "(defmethod :reflow " ""
+gui/edit/lisp.inc "(defmethod :reflow" ""
 ```
 
 Here the paragraph reflow action mutations can be undone in a single step.
@@ -235,14 +235,14 @@ These macros define an interface for creating and converting to/from a 'number'
 and the actual numeric type selected.
 
 ```file
-apps/bubbles/app.inc "(cond  " ""
+apps/bubbles/app.inc "(cond " ""
 ```
 
 These macros are then used instead of the raw types, for example in the
 lighting function:
 
 ```file
-apps/bubbles/app.lisp "(defun lighting " ""
+apps/bubbles/app.lisp "(defun lighting" ""
 ```
 
 ## Macros can define macros
@@ -322,7 +322,7 @@ effort later on etc etc.
 If you look in `apps/netspeed/lisp.vp` you will see this macro:
 
 ```file
-apps/netspeed/lisp.vp "(defmacro test-block " ""
+apps/netspeed/lisp.vp "(defmacro test-block" ""
 ```
 
 What this macro does is to take a count of lines wanted, and a set of lines to

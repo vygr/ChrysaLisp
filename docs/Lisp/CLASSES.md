@@ -114,7 +114,7 @@ for this object ! The `Window` class does this within the event dispatch code
 to avoid throwing any errors due to a method not found.
 
 ```file
-gui/window/lisp.inc "(defmethod :event " ""
+gui/window/lisp.inc "(defmethod :event" ""
 ```
 
 Another use of the `(.?)` function is that you can use it before a tight loop
@@ -125,7 +125,7 @@ This is the `lib/math/surface.inc` Iso class `:get_gridcell` method, it caches
 the `:get_scalar` method.
 
 ```file
-lib/math/surface.inc "(defmethod :get_gridcell " ""
+lib/math/surface.inc "(defmethod :get_gridcell" ""
 ```
 
 ## (.super this :method [arg ...])
@@ -140,7 +140,7 @@ the underling parent method without having to know what it was.
 An example from the `:draw` method of the Textfield class:
 
 ```file
-gui/textfield/lisp.inc "(defmethod :draw " ""
+gui/textfield/lisp.inc "(defmethod :draw" ""
 ```
 
 ## (raise field | (var val) ...) -> (defq var (get field this) ...)
