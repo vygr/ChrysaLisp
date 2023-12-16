@@ -363,9 +363,6 @@ The relevant parts of this function that do the dynamic module loading are:
 
 ```file
 apps/docs/app.lisp "(defun handler-func " ""
-```
-
-```file
 apps/docs/app.lisp "(defq state :text)" "(bind '(w h)"
 ```
 
