@@ -32,27 +32,14 @@ level code.
 
 In the `obj` base class there exists this virtual method declaration:
 
-```vdu
-(dec-method :hash class/obj/hash :virtual (:r0) (:r0 :r1))
+```file
+class/obj/class.inc ":hash" "dec-method"
 ```
 
 The implementation for the `obj` class is:
 
-```vdu
-(def-method 'obj :hash)
-	;inputs
-	;:r0 = object (ptr)
-	;outputs
-	;:r0 = object (ptr)
-	;:r1 = hash code (ulong)
-	;trashes
-	;:r1-:r14
-
-	(entry 'obj :hash '(:r0))
-	(exit 'obj :hash '(:r0 :r0))
-	(vp-ret)
-
-(def-func-end)
+```file
+class/obj/class.vp ":hash" "def-method"
 ```
 
 It's defined to trash all registers because this is a `:virtual` method, who
@@ -72,61 +59,14 @@ objects, the core of the ChrysaLisp environment system.
 The method override, which happens to be `:final` in this case, is declared in
 the `class/str/class.inc` file.
 
-```vdu
-(dec-method :hash class/str/hash :final)
+```file
+class/str/class.inc ":hash" "dec-method"
 ```
 
 And the implementation of this is in the `class/str/class.vp` file:
 
-```vdu
-(def-method 'str :hash)
-	;inputs
-	;:r0 = str object (ptr)
-	;outputs
-	;:r0 = str object (ptr)
-	;:r1 = hash code (ulong)
-	;trashes
-	;:r1-:r4
-
-	(entry 'str :hash '(:r0))
-
-	(assign '((:r0 str_hashcode)) '(:r1))
-	(vpif '(:r1 = 0))
-		(assign '((:r0 str_length)) '(:r4))
-		(vp-lea-i :r0 str_data :r3)
-		(vp-add-rr :r3 :r4)
-		(vp-xor-rr :r1 :r1)
-		(vpif '(:r3 /= :r4))
-			(loop-start)
-				(vp-cpy-ir-ub :r3 0 :r2)
-				(vp-add-cr +byte_size :r3)
-				(vp-add-rr :r2 :r1)
-				(vp-cpy-rr :r1 :r2)
-				(vp-shl-cr 10 :r1)
-				(vp-add-rr :r1 :r2)
-				(vp-cpy-rr :r2 :r1)
-				(vp-shr-cr 6 :r2)
-				(vp-xor-rr :r2 :r1)
-			(loop-until '(:r3 = :r4))
-		(endif)
-		(vp-cpy-rr :r1 :r2)
-		(vp-shl-cr 3 :r1)
-		(vp-add-rr :r1 :r2)
-		(vp-cpy-rr :r2 :r1)
-		(vp-shr-cr 11 :r2)
-		(vp-xor-rr :r1 :r2)
-		(vp-cpy-rr :r2 :r1)
-		(vp-shl-cr 15 :r2)
-		(vp-add-rr :r2 :r1)
-		(vp-cpy-cr 0xffffffff :r2)
-		(vp-and-rr :r2 :r1)
-		(assign '(:r1) '((:r0 str_hashcode)))
-	(endif)
-
-	(exit 'str :hash '(:r0 :r1))
-	(vp-ret)
-
-(def-func-end)
+```file
+class/str/class.vp ":hash" "def-method"
 ```
 
 Yes, that's a big mouthful of VP assembler code, but this method is a critical
@@ -166,42 +106,14 @@ in that file for other functions so we will just add one to the end.
 
 First we need to add a declaration to `class/obj/class.inc` for the new method:
 
-```vdu
-(dec-method :lisp_hash class/obj/lisp_hash :static (:r0 :r1) (:r0 :r1))
+```file
+class/obj/class.inc ":lisp_hash" "dec-method"
 ```
 
 And here is the new binding method we add to `class/obj/lisp.vp`:
 
-```vdu
-(def-method 'obj :lisp_hash)
-	;inputs
-	;:r0 = lisp object (ptr)
-	;:r1 = args list object (ptr)
-	;outputs
-	;:r0 = lisp object (ptr)
-	;:r1 = return value object (ptr)
-	;trashes
-	;:r1-:r14
-
-	(entry 'obj :lisp_hash '(:r0 :r1))
-
-	(errorif-lisp-args-len :r1 /= 1 'error)
-
-	(vp-push :r0)
-	(defq in (method-input 'obj :hash))
-	(array-bind-args :r1 in)
-	(call 'obj :hash in '(_ :r0))
-	(call 'num :create '(:r0) '(:r1))
-	(vp-pop :r0)
-
-	(exit 'obj :lisp_hash '(:r0 :r1))
-	(vp-ret)
-
-(errorcase
-(vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(hash obj)" +error_msg_wrong_num_of_args :r1)))
-
-(def-func-end)
+```file
+class/obj/lisp.vp ":lisp_hash" "def-method"
 ```
 
 ## Compiling
