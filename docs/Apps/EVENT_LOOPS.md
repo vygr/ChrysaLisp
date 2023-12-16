@@ -121,13 +121,13 @@ your application calls, via the `(gui-add-front)` and `(gui-sub)` macros to add
 and remove your application window from the screen.
 
 ```file
-gui/gui/lisp.inc "(defun gui-rpc "
+gui/gui/lisp.inc "gui-rpc"
 ```
 
 Don't worry about the service lookup code, just the RPC part:
 
 ```file
-gui/gui/lisp.inc "(defq mbox " "view))"
+gui/gui/lisp.inc "mbox" "view))"
 ```
 
 A temp mailbox is allocated, we send off the request to the GUI service, and
@@ -333,7 +333,7 @@ selection in order to safely ignore any `in flight` messages to the old
 mailbox.
 
 ```file
-apps/mandelbrot/app.lisp "(defun reset" ""
+apps/mandelbrot/app.lisp "reset" ""
 ```
 
 ## Delayed actions with `(mail-timeout)`
@@ -348,7 +348,7 @@ by the tooltip code.
 This example is from the `apps/bubbles/app.lisp`, Bubbles application:
 
 ```file
-apps/bubbles/app.lisp "(defun tooltips" ""
+apps/bubbles/app.lisp "tooltips" ""
 ```
 
 We declare an extra selection mailbox to be used by the tip events, create a
@@ -364,7 +364,7 @@ this to find which button wants the tip shown.
 Here is the Button class `:mouse_enter` method:
 
 ```file
-gui/button/lisp.inc "(defmethod :mouse_enter" ""
+gui/button/lisp.inc ":mouse_enter" ""
 ```
 
 As the mouse enters a button instance it tests to see if a `:tip_text` property
