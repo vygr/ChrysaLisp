@@ -20,7 +20,7 @@
 			(cond
 				((eql end_exp "")
 					(while (and end_exp (defq line (read-line stream)))
-						(if (eql line "")
+						(if (or (eql line "") (eql line (ascii-char 13)))
 							(setq end_exp :nil)
 							(push lines line))))
 				(end_exp
