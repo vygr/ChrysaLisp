@@ -301,10 +301,8 @@ list from the parent class declaration.
 
 An example from the array class.inc.
 
-```vdu
-(dec-method :find class/array/find :static (:r0 :r1) (:r0 :r1))
-(dec-method :sort class/array/sort :static (:r0 :r1 :r2 :r3 :r4 :r5) (:r0))
-(dec-method :partition class/array/partition :static (:r0 :r1 :r2 :r3 :r4) (:r0 :r1))
+```file
+class/array/class.inc ":find" ""
 ```
 
 Core functions in the kernel and class libs are very careful to track and
@@ -325,9 +323,8 @@ This is the system level string compare function. `'sys_str :compare`
 
 Register inputs and outputs are declared in the `sys/str/class.inc` file.
 
-```vdu
-(def-class sys_str :nil
-	(dec-method :compare sys/str/compare :static (:r0 :r1) (:r0)))
+```file
+sys/str/class.inc ":compare" "dec-method"
 ```
 
 So this function will take the C style input char*'s in registers `:r0` and
@@ -335,29 +332,8 @@ So this function will take the C style input char*'s in registers `:r0` and
 
 Implementation of the function is defined in the `sys/str/class.vp` file.
 
-```vdu
-(def-method 'sys_str :compare)
-	;inputs
-	;:r0 = c string1 (pubyte)
-	;:r1 = c string2 (pubyte)
-	;outputs
-	;:r0 = 0 if same, else -, +
-	;trashes
-	;:r0-:r3
-
-	(entry 'sys_str :compare '(:r0 :r1))
-	(loop-start)
-		(vp-cpy-ir-ub :r0 0 :r2)
-		(vp-cpy-ir-ub :r1 0 :r3)
-		(vp-sub-rr :r3 :r2)
-		(breakif '(:r2 /= 0) '(:r3 = 0))
-		(vp-add-cr +byte_size :r0)
-		(vp-add-cr +byte_size :r1)
-	(loop-end)
-	(exit 'sys_str :compare '(:r2))
-	(vp-ret)
-
-(def-func-end)
+```file
+sys/str/class.vp ":compare" "def-method"
 ```
 
 So let's go through the important lines in this function.
