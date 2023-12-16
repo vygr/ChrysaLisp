@@ -103,12 +103,15 @@
 		(bind '(w h) (. this :pref_size))
 		(.-> this (:change x y w h) :emit))
 
-	(defmethod :populate (&optional root exts n)
-		; (. tree :populate &optional root exts n) -> tree
+	(defmethod :populate (&optional root exts n mode)
+		; (. tree :populate &optional root exts n mode) -> tree
 		;load up a file tree
+		(setd mode 3)
 		(defq files (sort cmp (all-files root exts n)))
-		(each (# (. this :add_route %0)) (all-dirs files))
-		(each (# (. this :add_route %0)) files)
+		(if (/= (logand 1 mode) 0)
+			(each (# (. this :add_route %0)) (all-dirs files)))
+		(if (/= (logand 2 mode) 0)
+			(each (# (. this :add_route %0)) files))
 		this)
 
 	(defmethod :select (route)

@@ -68,7 +68,7 @@ relative position of route
 ### :populate
 
 ```code
-(. tree :populate &optional root exts n) -> tree
+(. tree :populate &optional root exts n mode) -> tree
 
 load up a file tree
 ```
