@@ -120,30 +120,14 @@ Here is the GUI RPC function from `gui/gui/lisp.inc`. This is the function that
 your application calls, via the `(gui-add-front)` and `(gui-sub)` macros to add
 and remove your application window from the screen.
 
-```vdu
-(defun gui-rpc (view cmd)
-	(when (/= 0 (length (defq service (mail-enquire "Gui,"))))
-		(setq service (to-net-id (second (split (pop service) ","))))
-		(defq mbox (mail-alloc-mbox))
-		(mail-send service (list cmd view (task-netid) mbox))
-		(mail-read mbox)
-		(mail-free-mbox mbox)
-		view))
-
-(defmacro gui-quit () `(gui-rpc :nil 0))
-(defmacro gui-logout () `(gui-rpc :nil 1))
-(defmacro gui-sub (view) `(gui-rpc ,view 2))
-(defmacro gui-add-front (view) `(gui-rpc ,view 3))
-(defmacro gui-add-back (view) `(gui-rpc ,view 4))
+```file
+gui/gui/lisp.inc "(defun gui-rpc "
 ```
 
 Don't worry about the service lookup code, just the RPC part:
 
-```vdu
-(defq mbox (mail-alloc-mbox))
-(mail-send ...)
-(mail-read mbox)
-(mail-free-mbox mbox)
+```file
+gui/gui/lisp.inc "(defq mbox " "view))"
 ```
 
 A temp mailbox is allocated, we send off the request to the GUI service, and
@@ -205,32 +189,8 @@ Let's not get bogged down in all the specifics of this application but
 concentrate on what happens when we get the callbacks from the library and how
 to send off a job.
 
-```vdu
-(defun dispatch-job (key val)
-	;send another job to child
-	(cond
-		((defq job (pop jobs))
-			(def val :job job :timestamp (pii-time))
-			(mail-send (get :child val)
-				(setf-> job
-					(+job_key key)
-					(+job_reply (elem-get +select_reply select)))))
-		(:t ;no jobs in que
-			(undef val :job :timestamp))))
-
-(defun create (key val nodes)
-	; (create key val nodes)
-	;function called when entry is created
-	(open-task "apps/raymarch/child.lisp" (elem-get (random (length nodes)) nodes)
-		+kn_call_child key (elem-get +select_task select)))
-
-(defun destroy (key val)
-	; (destroy key val)
-	;function called when entry is destroyed
-	(when (defq child (get :child val)) (mail-send child ""))
-	(when (defq job (get :job val))
-		(push jobs job)
-		(undef val :job)))
+```file
+apps/raymarch/app.lisp "(defun dispatch-job" "(defun main"
 ```
 
 When the library wishes to create a new child task, it'll call our `(create)`
@@ -372,24 +332,8 @@ that recreates the farm, job que and the `+select_reply` mailbox of the
 selection in order to safely ignore any `in flight` messages to the old
 mailbox.
 
-```vdu
-(defun reset ()
-	(if farm (. farm :close))
-	(mail-free-mbox (elem-get +select_reply select))
-	(elem-set +select_reply select (mail-alloc-mbox))
-	(setq jobs (map (lambda (y)
-			(setf-> (str-alloc +job_size)
-				(+job_x 0)
-				(+job_y y)
-				(+job_x1 (* canvas_width canvas_scale))
-				(+job_y1 (inc y))
-				(+job_w (* canvas_width canvas_scale))
-				(+job_h (* canvas_height canvas_scale))
-				(+job_cx center_x)
-				(+job_cy center_y)
-				(+job_z zoom)))
-			(range (dec (* canvas_height canvas_scale)) -1))
-		farm (Farm create destroy (* 2 (length (lisp-nodes))))))
+```file
+apps/mandelbrot/app.lisp "(defun reset" ""
 ```
 
 ## Delayed actions with `(mail-timeout)`
@@ -403,16 +347,8 @@ by the tooltip code.
 
 This example is from the `apps/bubbles/app.lisp`, Bubbles application:
 
-```vdu
-(enums +select 0
-	(enum main timer tip))
-
-...
-
-(defun tooltips ()
-	(def *window* :tip_mbox (elem-get +select_tip select))
-	(ui-tool-tips *main_toolbar* '("refresh"))
-	(ui-tool-tips *style_toolbar* '("plain" "grid" "axis")))
+```file
+apps/bubbles/app.lisp "(defun tooltips" ""
 ```
 
 We declare an extra selection mailbox to be used by the tip events, create a
@@ -427,12 +363,8 @@ this to find which button wants the tip shown.
 
 Here is the Button class `:mouse_enter` method:
 
-```vdu
-(defmethod :mouse_enter (event)
-	; (. button :mouse_enter event) -> button
-	(and (def? :tip_text this) (defq tip_mbox (get :tip_mbox this))
-		(mail-timeout tip_mbox 1000000 (. this :get_id)))
-	this)
+```file
+gui/button/lisp.inc "(defmethod :mouse_enter" ""
 ```
 
 As the mouse enters a button instance it tests to see if a `:tip_text` property
@@ -441,9 +373,6 @@ remember we added this to our root window, it creates the timed mail event.
 
 And here is the event loop case in the Bubbles `(main)` function:
 
-```vdu
-((= idx +select_tip)
-	;tip time mail
-	(if (defq view (. *window* :find_id (getf *msg* +mail_timeout_id)))
-		(. view :show_tip)))
+```file
+apps/bubbles/app.lisp "((= idx +select_tip)" "((="
 ```
