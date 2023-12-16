@@ -176,21 +176,6 @@ Allows you to define a VP level implemented method.
 
 An example from the `View` class:
 
-```vdu
-...
-	(deffimethod :find_id "gui/view/lisp_find_id")
-		; (. view :find_id target_id) -> :nil | target_view
-
-	(deffimethod :hit_tree "gui/view/lisp_hit_tree")
-		; (. view :hit_tree x y) -> (hit_view | :nil rx ry)
-
-	(deffimethod :set_flags "gui/view/lisp_set_flags")
-		; (. view :set_flags value mask) -> view
-
-	(deffimethod :add_dirty "gui/view/lisp_add_dirty")
-		; (. view :add_dirty x y width height) -> view
-
-	(deffimethod :trans_dirty "gui/view/lisp_trans_dirty")
-		; (. view :trans_dirty rx ry) -> view
-...
+```file
+gui/view/lisp.inc ":find_id" ":trans_dirty"
 ```
