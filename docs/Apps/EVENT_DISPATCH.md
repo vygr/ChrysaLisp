@@ -25,37 +25,15 @@ not many event types to handle.
 
 There are various GUI event types, listed in `gui/gui/lisp.inc`:
 
-```vdu
-(enums +ev_type 0
-	(enum mouse key_down key_up action gui wheel enter exit))
+```file
+gui/gui/lisp.inc "(enums +ev_type" ""
 ```
 
 These event messages follow a standard format, have a common header that they
 inherit from, and extended fields for each individual event type.
 
-```vdu
-(structure +ev_msg 0
-	(ulong target_id type))
-
-(structure +ev_msg_mouse +ev_msg_size
-	(uint buttons count)
-	(int x y rx ry))
-
-(structure +ev_msg_wheel +ev_msg_size
-	(uint direction)
-	(int x y))
-
-(structure +ev_msg_key +ev_msg_size
-	(uint scode key mod))
-
-(structure +ev_msg_action +ev_msg_size
-	(ulong source_id))
-
-(structure +ev_msg_gui +ev_msg_size)
-
-(structure +ev_msg_enter +ev_msg_size)
-
-(structure +ev_msg_exit +ev_msg_size)
+```file
+gui/gui/lisp.inc "(structure +ev_msg" "defq"
 ```
 
 When an event is received, it'll be targeted at a particular target object,
