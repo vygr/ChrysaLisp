@@ -733,12 +733,14 @@ gui/lisp.inc "(defmacro ui-canvas" ""
 	:min_height 0)
 	(ui-canvas canvas +width +height 1))
 
-(times 100
+(times 25
 	(defq x (random +width) y (random +height)
 		x1 (random +width) y1 (random +height)
 		col (elem-get (random 8)
 			(list +argb_red +argb_green +argb_blue +argb_cyan
 				+argb_yellow +argb_magenta +argb_black +argb_white)))
+	(if (> x x1) (defq s x x x1 x1 s))
+	(if (> y y1) (defq s y y y1 y1 s))
 	(.-> canvas
 		(:set_color col)
 		(:fbox x y (- x1 x) (- y1 y))))
