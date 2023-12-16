@@ -34,7 +34,7 @@
 			(defq margin +max_int lines (map
 				(# (if (defq m (find "(" %0)) (setq margin (min m margin)))
 					(trim-end %0 (ascii-char 13))) lines))
-			(if (/= margin +max_int)
+			(and (/= margin 0) (/= margin +max_int)
 				(setq lines (map
 					(# (if (> (length %0) margin) (slice margin -1 %0) %0)) lines)))
 			(while (eql (last lines) "") (pop lines))
