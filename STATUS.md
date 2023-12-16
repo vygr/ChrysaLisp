@@ -31,6 +31,9 @@ anything they export persists within a `*handler_env*` and is visible to the
 next `lisp` section ! The repl return value is auto exported as `*result*`,
 this return value if not `:nil` is embedded in the document.
 
+Docs `file` section handler now takes optional start and end markers. Docs can
+now `snip` a small section of a file for inclusion.
+
 ------
 
 Remove the double macroexpand calls that `defun` and `defmethod` have been
