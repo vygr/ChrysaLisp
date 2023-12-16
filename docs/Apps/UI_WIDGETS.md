@@ -733,7 +733,6 @@ gui/lisp.inc "(defmacro ui-canvas" ""
 	:min_height 0)
 	(ui-canvas canvas +width +height 1))
 
-(. canvas :fill +argb_white)
 (times 100
 	(defq x (random +width) y (random +height)
 		x1 (random +width) y1 (random +height)
