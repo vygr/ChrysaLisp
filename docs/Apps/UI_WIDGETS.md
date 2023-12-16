@@ -157,8 +157,8 @@ gui/lisp.inc "(defmacro ui-window" ""
 
 ```lisp
 (ui-window *ui_window*
-	(:min_width 128
-	:min_height 128
+	(:min_width 192
+	:min_height 192
 	:font *env_window_font*
 	:ink_color *env_ink_col*
 	:color *env_window_col*
@@ -276,8 +276,8 @@ gui/lisp.inc "(defmacro ui-stack" ""
 
 ```lisp
 (ui-window *ui_stack*
-	(:min_width 128
-	:min_height 128)
+	(:min_width 192
+	:min_height 192)
 	(ui-stack _ '("Tab 1" "Tab 2" "Tab 3")
 		(:color +argb_white)
 		(ui-button _ (:text "View 1"))
@@ -629,16 +629,14 @@ gui/lisp.inc "(defmacro ui-scroll" ""
 
 ```lisp
 (ui-window *ui_scroll*
-	(:min_width 128
-	:min_height 128)
+	(:min_width 192
+	:min_height 192)
 	(ui-scroll _ +scroll_flag_both
-		(:color *env_slider_col*
-		:min_width 128
-		:min_height 128)
+		(:color *env_slider_col*)
 		(ui-button view
 			(:color +argb_orange
-			:min_width 192
-			:min_height 192
+			:min_width 256
+			:min_height 256
 			:font *env_window_font*
 			:text "Scroll View"))))
 
@@ -675,8 +673,8 @@ gui/lisp.inc "(defmacro ui-backdrop" ""
 
 ```lisp
 (ui-window *ui_backdrop*
-	(:min_width 128
-	:min_height 128)
+	(:min_width 192
+	:min_height 192)
 	(ui-backdrop _
 		(:color +argb_black
 		:ink_color +argb_white
