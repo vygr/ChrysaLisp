@@ -740,8 +740,8 @@ gui/lisp.inc "(defmacro ui-canvas" ""
 	(defq x (random +width) y (random +height)
 		x1 (random +width) y1 (random +height)
 		col (elem-get (random 8)
-			(list +argb_red +argb_green +argb_blue +argb_cyan +argb_yellow
-				+argb_magenta +argb_cyan +argb_black +argb_white)))
+			(list +argb_red +argb_green +argb_blue +argb_cyan
+				+argb_yellow +argb_magenta +argb_black +argb_white)))
 	(.-> view
 		(:set_color col)
 		(:fbox x y (- x1 x) (- y1 y))))
