@@ -728,20 +728,24 @@ gui/lisp.inc "(defmacro ui-canvas" ""
 ```
 
 ```lisp
+(defq +width 192 +height 192)
+
 (ui-window *ui_canvas*
 	(:min_width 0
 	:min_height 0)
-	(ui-canvas view 128 128 1))
+	(ui-canvas view +width +height 1))
 
-(.-> view
-	(:fill +argb_white)
-	(:set_color +argb_red)
-	(:fbox 8 8 64 64)
-	(:set_color +argb_green)
-	(:fbox 32 48 88 64)
-	(:set_color +argb_blue)
-	(:fbox 16 100 90 16)
-	(:swap 0))
+(. view :fill +argb_white)
+(times 100
+	(defq x (random +width) y (random +height)
+		x1 (random +width) y1 (random +height)
+		col (elem-get (random 8)
+			(list +argb_red +argb_green +argb_blue +argb_cyan +argb_yellow
+				+argb_magenta +argb_cyan +argb_black +argb_white)))
+	(.-> view
+		(:set_color col)
+		(:fbox x y (- x1 x) (- y1 y))))
+(. view :swap 0)
 
 *ui_canvas*
 ```
