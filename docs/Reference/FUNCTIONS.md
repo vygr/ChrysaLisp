@@ -500,6 +500,12 @@ should provide the concreate handler
 (fixeds? form) -> :t | :nil
 ```
 
+### found?
+
+```code
+(found? text substr) -> :t | :nil
+```
+
 ### free-select
 
 ```code
