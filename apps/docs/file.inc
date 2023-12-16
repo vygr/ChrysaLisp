@@ -1,9 +1,6 @@
 ;module
 (env-push)
 
-(defun output (line)
-	((handler-func :vdu) :vdu page (trim-end line (ascii-char 13))))
-
 (defun handler (state page line)
 	; (handler state page line) -> state
 	(cond
@@ -11,26 +8,32 @@
 			:text)
 		(:t (bind '(file &optional start_exp end_exp)
 				(first (read (string-stream (cat "(" line ")")))))
+			;collect file lines
+			(defq lines (list))
 			;skip to start
 			(defq stream (file-stream file))
 			(while (and start_exp (defq line (read-line stream)))
 				(when (found? line start_exp)
-					(output line)
+					(push lines line)
 					(setq start_exp :nil)))
-			;show to end
+			;skip to end
 			(cond
 				((eql end_exp "")
 					(while (and end_exp (defq line (read-line stream)))
 						(if (eql line "")
 							(setq end_exp :nil)
-							(output line))))
+							(push lines line))))
 				(end_exp
 					(while (and end_exp (defq line (read-line stream)))
 						(if (found? line end_exp)
 							(setq end_exp :nil)
-							(output line))))
+							(push lines line))))
 				(:t (while (defq line (read-line stream))
-						(output line))))
+						(push lines line))))
+			;trim
+			(defq lines (map (# (trim-end %0 (ascii-char 13))) lines))
+			(while (eql (last lines) "") (pop lines))
+			(each (# ((handler-func :vdu) :vdu page %0)) lines)
 			((handler-func :vdu) :vdu page "```")
 			state)))
 
