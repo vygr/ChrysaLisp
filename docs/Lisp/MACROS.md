@@ -253,23 +253,8 @@ rarely myself as it can be quite tricky to get correct.
 
 This example is from the `lib/math/vector.inc` library:
 
-```vdu
-;macro to define macros that take optional output vector
-(defmacro vec-macro (op &rest v)
-	`(defmacro ,(sym (cat "vec" (slice (find "-" op) -1 op))) (~v &optional _)
-		(if _ `(,,(sym op) ~(list ~v) ,_) `(,,(sym op) ~(list ~v)))))
-
-(vec-macro "nums-add" v0 v1)
-(vec-macro "nums-sub" v0 v1)
-(vec-macro "nums-min" v0 v1)
-(vec-macro "nums-max" v0 v1)
-(vec-macro "nums-mul" v0 v1)
-(vec-macro "nums-div" v0 v1)
-(vec-macro "nums-mod" v0 v1)
-(vec-macro "nums-abs" v)
-(vec-macro "nums-scale" v s)
-(vec-macro "fixeds-frac" v)
-(vec-macro "fixeds-floor" v)
+```file
+lib/math/vector.inc ";macro to define" "undef"
 ```
 
 What we are trying to achieve is a set of macros along the lines of:
@@ -330,26 +315,8 @@ replicate, to fill that number of lines.
 
 Here is the use case for the register ops test block:
 
-```vdu
-(test-block 1000
-	(vp-cpy-cr 1 rt1)
-	(vp-cpy-cr 2 rt2)
-	(vp-add-cr 3 rt1)
-	(vp-sub-cr 4 rt1)
-	(vp-and-cr 5 rt1)
-	(vp-or-cr 6 rt1)
-	(vp-xor-cr 7 rt1)
-	(vp-add-rr rt2 rt1)
-	(vp-sub-rr rt2 rt1)
-	(vp-and-rr rt2 rt1)
-	(vp-or-rr rt2 rt1)
-	(vp-xor-rr rt2 rt1)
-	(vp-shl-cr 3 rt1)
-	(vp-shr-cr 2 rt1)
-	(vp-asr-cr 1 rt1)
-	(vp-shl-rr rt2 rt1)
-	(vp-shr-rr rt2 rt1)
-	(vp-asr-rr rt2 rt1))
+```file
+apps/netspeed/lisp.vp "(test-block " "loop"
 ```
 
 This will generate for us 1000 lines of code, replicating this block as many
