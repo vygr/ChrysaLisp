@@ -30,8 +30,13 @@
 							(push lines line))))
 				(:t (while (defq line (read-line stream))
 						(push lines line))))
-			;trim
-			(defq lines (map (# (trim-end %0 (ascii-char 13))) lines))
+			;trim and left align
+			(defq margin +max_int lines (map
+				(# (if (defq m (find "(" %0)) (setq margin (min m margin)))
+					(trim-end %0 (ascii-char 13))) lines))
+			(if (/= margin +max_int)
+				(setq lines (map
+					(# (if (> (length %0) margin) (slice margin -1 %0) %0)) lines)))
 			(while (eql (last lines) "") (pop lines))
 			(each (# ((handler-func :vdu) :vdu page %0)) lines)
 			((handler-func :vdu) :vdu page "```")
