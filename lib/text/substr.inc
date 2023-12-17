@@ -19,7 +19,7 @@
 		(and (>= (defq l (length text)) (defq j (length pattern)))
 			(defq lps (opt lps (. this :compile pattern)))
 			(defq i (find (first lps) text))
-			(progn (defq j (+ i j))
+			(progn (setq j (+ i j))
 				(while (<= j l)
 					(cond
 						((eql (slice i j text) lps)
@@ -33,7 +33,7 @@
 		(and (>= (defq l (length text)) (defq j (length pattern)))
 			(defq lps (opt lps (. this :compile pattern)))
 			(defq i (find (first lps) text))
-			(progn (defq j (+ i j))
+			(progn (setq j (+ i j))
 				(while (<= j l)
 					(if (eql (slice i j text) lps)
 						(setq l -1)
