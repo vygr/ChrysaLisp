@@ -9,7 +9,7 @@
 
 (defclass Tree (event) (Flow)
 	; (Tree event) -> tree
-	(def this :flow_flags +flow_down_fill :action_event event
+	(def this :flow_flags +flow_down :action_event event
 		:border 0 :selected_node :nil)
 
 	(defmethod :empty ()
@@ -144,6 +144,6 @@
 			(def toggle :text (if (= hiden +view_flag_hiden) ">" "^"))
 			(bind '(x y) (. this :get_pos))
 			(bind '(w h) (. this :pref_size))
-			(.-> this (:change x y w h) :emit))
+			(.-> this (:change_dirty x y w h) :emit))
 		this)
 	)
