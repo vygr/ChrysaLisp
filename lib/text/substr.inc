@@ -10,17 +10,19 @@
 		; (. substr :compile pattern) -> :nil | meta
 		(raise :meta_cache)
 		(unless (defq lps (. meta_cache :find pattern))
-			(. meta_cache :insert pattern (setq lps (map (const identity) pattern))))
+			(. meta_cache :insert pattern (setq lps pattern)))
 		lps)
 
 	(defmethod :search (text pattern &optional lps)
 		; (. substr :search text pattern &optional meta) -> matches
 		(defq out (list))
-		(when (>= (defq l (length text)) (defq j (length pattern)))
-			(when (defq i 0 lps (opt lps (. this :compile pattern)))
+		(and (>= (defq l (length text)) (defq j (length pattern)))
+			(defq lps (opt lps (. this :compile pattern)))
+			(defq i (find (first lps) text))
+			(progn (defq j (+ i j))
 				(while (<= j l)
 					(cond
-						((every (const eql) (slice i j text) lps)
+						((eql (slice i j text) lps)
 							(push out (list (list i j)))
 							(setq i j j (+ j (length lps))))
 						((setq i (inc i) j (inc j)))))))
@@ -28,10 +30,12 @@
 
 	(defmethod :match? (text pattern &optional lps)
 		; (. substr :match? text pattern &optional meta) -> :t | :nil
-		(when (>= (defq l (length text)) (defq j (length pattern)))
-			(when (defq i 0 lps (opt lps (. this :compile pattern)))
+		(and (>= (defq l (length text)) (defq j (length pattern)))
+			(defq lps (opt lps (. this :compile pattern)))
+			(defq i (find (first lps) text))
+			(progn (defq j (+ i j))
 				(while (<= j l)
-					(if (every (const eql) (slice i j text) lps)
+					(if (eql (slice i j text) lps)
 						(setq l -1)
 						(setq i (inc i) j (inc j))))
 				(= l -1))))
