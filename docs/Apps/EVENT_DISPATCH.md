@@ -26,14 +26,14 @@ not many event types to handle.
 There are various GUI event types, listed in `gui/gui/lisp.inc`:
 
 ```file
-gui/gui/lisp.inc "(enums +ev_type" ""
+gui/gui/lisp.inc "+ev_type" ""
 ```
 
 These event messages follow a standard format, have a common header that they
 inherit from, and extended fields for each individual event type.
 
 ```file
-gui/gui/lisp.inc "(structure +ev_msg" "defq"
+gui/gui/lisp.inc "+ev_msg" "defq"
 ```
 
 When an event is received, it'll be targeted at a particular target object,
@@ -51,7 +51,7 @@ these user action events.
 Lets look at the `apps/bubbles/app.lisp`, Bubbles demo:
 
 ```file
-apps/bubbles/app.lisp "(enums +event" ""
+apps/bubbles/app.lisp "+event" ""
 ```
 
 We are going to use these target ids when we construct the UI tree for the
@@ -75,7 +75,7 @@ another document in detail, but just note for now that we use the start of
 these three event blocks for each of the 3 button bars in this UI tree.
 
 ```file
-apps/bubbles/app.lisp "(ui-window *window*" ""
+apps/bubbles/app.lisp "*window*" ""
 ```
 
 The UI macros build our widget tree for us and automate calling the View class
@@ -340,8 +340,8 @@ of text and the page instance and to do whatever that handler does.
 The relevant parts of this function that do the dynamic module loading are:
 
 ```file
-apps/docs/app.lisp "(defun handler-func" ""
-apps/docs/app.lisp "(defq state :text)" "(bind '(w h)"
+apps/docs/app.lisp "handler-func" ""
+apps/docs/app.lisp "state :text" "bind"
 ```
 
 Each module takes the current line of the file and decides what other UI

@@ -114,29 +114,29 @@ with the `:lisp_`.
 ### Specific number of arguments, or minium, or maximum.
 
 ```file
-lib/asm/code.inc "(defmacro errorif-lisp-args-len" ""
+lib/asm/code.inc "args-len" ""
 ```
 
 ### Specific type signature for the Lisp arguments.
 
 ```file
-lib/asm/code.inc "(defmacro errorif-lisp-args-sig" ""
+lib/asm/code.inc "args-sig" ""
 ```
 
 ### Specific type signature and length range.
 
 ```file
-lib/asm/code.inc "(defmacro errorif-lisp-args-sig-range" ""
+lib/asm/code.inc "args-sig-range" ""
 ```
 
 ### Minimum length of arguments of exact same type.
 
 ```file
-lib/asm/code.inc "(defmacro errorif-lisp-args-match" ""
+lib/asm/code.inc "args-match" ""
 ```
 
 ### Minimum length of arguments of the same type inheritance.
 
 ```file
-lib/asm/code.inc "(defmacro errorif-lisp-args-type" ""
+lib/asm/code.inc "args-type" ""
 ```

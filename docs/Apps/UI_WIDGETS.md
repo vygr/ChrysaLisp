@@ -152,7 +152,7 @@ Title bar has a single close Button that will send an action event of
 ### (ui-window name [props] [body]) -> window
 
 ```file
-gui/lisp.inc "(defmacro ui-window" ""
+gui/lisp.inc "macro ui-window" ""
 ```
 
 ```lisp
@@ -194,7 +194,7 @@ set these in their own private `env.inc` file. See the `apps/login/` folder.
 ### (ui-grid name [props] [body]) -> grid
 
 ```file
-gui/lisp.inc "(defmacro ui-grid" ""
+gui/lisp.inc "macro ui-grid" ""
 ```
 
 ```lisp
@@ -226,7 +226,7 @@ calculated based on the number of child views contained.
 ### (ui-flow name [props] [body]) -> flow
 
 ```file
-gui/lisp.inc "(defmacro ui-flow" ""
+gui/lisp.inc "macro ui-flow" ""
 ```
 
 ```lisp
@@ -271,7 +271,7 @@ Useful flow combos:
 ### (ui-stack name tabs [props] [body]) -> stack
 
 ```file
-gui/lisp.inc "(defmacro ui-stack" ""
+gui/lisp.inc "macro ui-stack" ""
 ```
 
 ```lisp
@@ -297,7 +297,7 @@ optional property list and nested forms.
 ### (ui-tree name event [props]) -> tree
 
 ```file
-gui/lisp.inc "(defmacro ui-tree" ""
+gui/lisp.inc "macro ui-tree" ""
 ```
 
 ```lisp
@@ -328,7 +328,7 @@ Creates a Tree instance, with name, base event id and optional property list.
 ### (ui-spinner name [props]) -> spinner
 
 ```file
-gui/lisp.inc "(defmacro ui-spinner" ""
+gui/lisp.inc "macro ui-spinner" ""
 ```
 
 ```lisp
@@ -352,7 +352,7 @@ Creates a value Spinner instance, with name and optional property list.
 ### (ui-hchart name title marks [props]) -> hchart
 
 ```file
-gui/lisp.inc "(defmacro ui-hchart" ""
+gui/lisp.inc "macro ui-hchart" ""
 ```
 
 ```lisp
@@ -377,7 +377,7 @@ Creates a hchart instance, with name, title, marks and optional property list.
 ### (ui-title name [props]) -> title
 
 ```file
-gui/lisp.inc "(defmacro ui-title" ""
+gui/lisp.inc "macro ui-title" ""
 ```
 
 ```lisp
@@ -403,7 +403,7 @@ Creates a Title instance, with name and optional property list.
 ### (ui-title-bar name title symbols event [props]) -> flow
 
 ```file
-gui/lisp.inc "(defmacro ui-title-bar" ""
+gui/lisp.inc "macro ui-title-bar" ""
 ```
 
 ```lisp
@@ -427,7 +427,7 @@ application to find a unicode symbol value.
 ### (ui-text name [props]) -> text
 
 ```file
-gui/lisp.inc "(defmacro ui-text" ""
+gui/lisp.inc "macro ui-text" ""
 ```
 
 ```lisp
@@ -453,7 +453,7 @@ Creates a Text instance, with name and optional property list.
 ### (ui-label name [props] [body]) -> label
 
 ```file
-gui/lisp.inc "(defmacro ui-label" ""
+gui/lisp.inc "macro ui-label" ""
 ```
 
 ```lisp
@@ -482,7 +482,7 @@ text, by default, set to `+flow_flag_right +flow_flag_align_vcenter`.
 ### (ui-button name [props] [body]) -> button
 
 ```file
-gui/lisp.inc "(defmacro ui-button" ""
+gui/lisp.inc "macro ui-button" ""
 ```
 
 ```lisp
@@ -513,7 +513,7 @@ text, by default, set to `+flow_flag_down +flow_flag_align_hcenter
 ### (ui-buttons symbols event [props])
 
 ```file
-gui/lisp.inc "(defmacro ui-buttons" ""
+gui/lisp.inc "macro ui-buttons" ""
 ```
 
 ```lisp
@@ -542,7 +542,7 @@ can use the Fonts application to find a unicode symbol value.
 ### (ui-tool-bar name [props] [body]) -> flow
 
 ```file
-gui/lisp.inc "(defmacro ui-tool-bar" ""
+gui/lisp.inc "macro ui-tool-bar" ""
 ```
 
 ```lisp
@@ -565,7 +565,7 @@ Creates a Toolbar instance, with name, optional property list and nested forms.
 ### (ui-textfield name [props]) -> textfield
 
 ```file
-gui/lisp.inc "(defmacro ui-textfield" ""
+gui/lisp.inc "macro ui-textfield" ""
 ```
 
 ```lisp
@@ -599,7 +599,7 @@ Creates a Textfield instance, with name and optional property list.
 ### (ui-slider name [props]) -> slider
 
 ```file
-gui/lisp.inc "(defmacro ui-slider" ""
+gui/lisp.inc "macro ui-slider" ""
 ```
 
 ```lisp
@@ -624,7 +624,7 @@ Creates a Slider instance, with name and optional property list.
 ### (ui-scroll name flags [props] [body]) -> scroll
 
 ```file
-gui/lisp.inc "(defmacro ui-scroll" ""
+gui/lisp.inc "macro ui-scroll" ""
 ```
 
 ```lisp
@@ -668,7 +668,7 @@ Useful scroll combos:
 ### (ui-backdrop name [props] [body]) -> backdrop
 
 ```file
-gui/lisp.inc "(defmacro ui-backdrop" ""
+gui/lisp.inc "macro ui-backdrop" ""
 ```
 
 ```lisp
@@ -698,7 +698,7 @@ Supported `:style` settings.
 ### (ui-progress name [props]) -> progress
 
 ```file
-gui/lisp.inc "(defmacro ui-progress" ""
+gui/lisp.inc "macro ui-progress" ""
 ```
 
 ```lisp
@@ -722,7 +722,7 @@ Creates a Progress instance, with name and optional property list.
 ### (ui-canvas name width height scale &optional p) -> canvas
 
 ```file
-gui/lisp.inc "(defmacro ui-canvas" ""
+gui/lisp.inc "macro ui-canvas" ""
 ```
 
 ```lisp
@@ -755,7 +755,7 @@ property list.
 ### (ui-vdu name [props]) -> vdu
 
 ```file
-gui/lisp.inc "(defmacro ui-vdu" ""
+gui/lisp.inc "macro ui-vdu" ""
 ```
 
 ```lisp
@@ -794,7 +794,7 @@ Creates a Vdu instance, with name and optional property list.
 ### (ui-view name [props]) -> view
 
 ```file
-gui/lisp.inc "(defmacro ui-view" ""
+gui/lisp.inc "macro ui-view" ""
 ```
 
 Creates a raw View instance, with name and optional property list.

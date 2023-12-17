@@ -127,7 +127,7 @@ gui/gui/lisp.inc "gui-rpc"
 Don't worry about the service lookup code, just the RPC part:
 
 ```file
-gui/gui/lisp.inc "mbox" "view))"
+gui/gui/lisp.inc "mbox" "view)"
 ```
 
 A temp mailbox is allocated, we send off the request to the GUI service, and
@@ -190,7 +190,7 @@ concentrate on what happens when we get the callbacks from the library and how
 to send off a job.
 
 ```file
-apps/raymarch/app.lisp "(defun dispatch-job" "(defun main"
+apps/raymarch/app.lisp "dispatch-job" "main"
 ```
 
 When the library wishes to create a new child task, it'll call our `(create)`
@@ -374,5 +374,5 @@ remember we added this to our root window, it creates the timed mail event.
 And here is the event loop case in the Bubbles `(main)` function:
 
 ```file
-apps/bubbles/app.lisp "((= idx +select_tip)" "((="
+apps/bubbles/app.lisp "idx +select_tip)" "((="
 ```
