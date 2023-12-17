@@ -31,10 +31,10 @@
 					;existing route
 					(setq root (last (. (last (. node :children)) :children))))
 				(:t ;new route, so new node
-					(def (defq node (Flow)) :flow_flags +flow_down_fill :text branch)
+					(def (defq node (Flow)) :flow_flags +flow_down :text branch)
 					(def (defq tab_flow (Flow)) :flow_flags +flow_right_fill)
 					(def (defq tab (Backdrop)) :min_width toggle_width)
-					(def (defq tab_child (Flow)) :flow_flags +flow_down_fill)
+					(def (defq tab_child (Flow)) :flow_flags +flow_down)
 					(def (defq title_flow (Flow)) :flow_flags +flow_right_fill)
 					(def (defq toggle (Node)) :text "^" :min_width toggle_width)
 					(. toggle :connect (. this :get_id))
