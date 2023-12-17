@@ -54,17 +54,13 @@
 		(ui-flow _ (:flow_flags +flow_stack_fill)
 			(ui-grid _ (:color +argb_grey14 :grid_width 1)
 				(ui-flow _ (:flow_flags +flow_down_fill)
-					(ui-flow _ (:flow_flags +flow_left_fill)
-						(ui-buttons (">" "^") +event_open_tree_collapse)
-						(ui-label _ (:text "Open")))
+					(ui-title-bar _ "Open" (0xe940 0xe941) +event_open_tree_collapse)
 					(ui-scroll *open_tree_scroll* +scroll_flag_vertical :nil
 						(. (ui-tree *open_tree* +event_open_folder_action
 								(:min_width 0 :color +argb_white
 								:font *env_medium_terminal_font*)) :connect +event_tree_action)))
 				(ui-flow _  (:flow_flags +flow_down_fill)
-					(ui-flow _ (:flow_flags +flow_left_fill)
-						(ui-buttons (">" "^") +event_file_tree_collapse)
-						(ui-label _ (:text "Project")))
+					(ui-title-bar _ "Project" (0xe940 0xe941) +event_file_tree_collapse)
 					(ui-scroll *file_tree_scroll* +scroll_flag_vertical :nil
 						(. (ui-tree *file_tree* +event_file_folder_action
 								(:min_width 0 :color (get :color *open_tree*)
