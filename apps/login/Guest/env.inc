@@ -17,7 +17,7 @@
 	"raymarch" "mandelbrot"
 	"chess" "minefield"
 	"mesh" "template"
-	"logout")
+	"files" "logout")
 	*env_launcher_auto_apps* '("terminal"))
 
 ;default gui window size/pos
