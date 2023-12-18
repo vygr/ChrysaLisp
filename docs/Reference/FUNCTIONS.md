@@ -1733,6 +1733,12 @@ patch stream a with stream b, write to stream c
 (ui-title-bar name title symbols event [props]) -> flow
 ```
 
+### ui-toggle-bar
+
+```code
+(ui-toggle-bar name symbols [props])
+```
+
 ### ui-tool-bar
 
 ```code
