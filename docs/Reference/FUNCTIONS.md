@@ -1673,6 +1673,12 @@ patch stream a with stream b, write to stream c
 (ui-props props [props]) -> props
 ```
 
+### ui-radio-bar
+
+```code
+(ui-radio-bar name symbols [props])
+```
+
 ### ui-root
 
 ```code

@@ -169,10 +169,10 @@
 (ascii-code "a") action-mode-normal
 (ascii-code "g") action-mode-gerber
 (ascii-code "0") action-show-all
-(ascii-code "1") action-show1
-(ascii-code "2") action-show2
-(ascii-code "3") action-show3
-(ascii-code "4") action-show4
+(ascii-code "1") action-show-1
+(ascii-code "2") action-show-2
+(ascii-code "3") action-show-3
+(ascii-code "4") action-show-4
 (ascii-code "r") action-reset
 (ascii-code "n") action-next
 (ascii-code "p") action-prev
