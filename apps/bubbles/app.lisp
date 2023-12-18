@@ -7,7 +7,7 @@
 (enums +event 0
 	(enum close max min)
 	(enum reset)
-	(enum grid plain axis))
+	(enum style))
 
 (defq +width 600 +height 600 +min_width 300 +min_height 300
 	+rate (/ 1000000 60) +base 0.3
@@ -22,18 +22,12 @@
 	(ui-flow _ (:flow_flags +flow_right_fill)
 		(ui-tool-bar *main_toolbar* ()
 			(ui-buttons (0xe938) +event_reset))
-		(ui-tool-bar *style_toolbar* ()
-			(ui-buttons (0xe976 0xe9a3 0xe9f0) +event_grid)))
+		(. (ui-radio-bar *style_toolbar* (0xe976 0xe9a3 0xe9f0)
+			(:color *env_toolbar2_col*)) :connect +event_style))
 	(ui-scroll *image_scroll* +scroll_flag_both
 			(:min_width +width :min_height +height)
 		(ui-backdrop mybackdrop (:color +argb_black :ink_color +argb_grey8)
 			(ui-canvas layer1_canvas +width +height 1))))
-
-(defun radio-select (toolbar idx)
-	(defq radio_col (canvas-brighter (get :color toolbar)))
-	(each (# (undef (. %0 :dirty) :color)
-			(if (= _ idx) (def %0 :color radio_col)))
-		(. toolbar :children)) idx)
 
 (defun redraw-layers (verts mask)
 	;redraw layer/s
@@ -133,7 +127,7 @@
 	(tooltips)
 	(. layer1_canvas :set_canvas_flags +canvas_flag_antialias)
 	(. mybackdrop :set_size +width +height)
-	(radio-select *style_toolbar* 0)
+	(. *style_toolbar* :set_selected 0)
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(gui-add-front (. *window* :change x y w h))
 	(def *image_scroll* :min_width +min_width :min_height +min_height)
@@ -173,9 +167,10 @@
 			((= id +event_reset)
 				;reset button
 				(setq verts (vertex-cloud num_bubbles)))
-			((<= +event_grid id +event_axis)
+			((= id +event_style)
 				;styles
-				(def (. mybackdrop :dirty) :style (elem-get (radio-select *style_toolbar* (- id +event_grid)) '(:nil :grid :axis))))
+				(def (. mybackdrop :dirty) :style
+					(elem-get (. *style_toolbar* :get_selected) '(:plain :grid :axis))))
 			((and (= id (. layer1_canvas :get_id))
 				(= (getf *msg* +ev_msg_type) +ev_type_mouse))
 					;mouse event in canvas
