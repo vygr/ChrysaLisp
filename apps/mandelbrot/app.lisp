@@ -19,7 +19,7 @@
 
 (ui-window *window* ()
 	(ui-title-bar _ "Mandelbrot" (0xea19) +event_close)
-	(ui-canvas canvas +width +height +scale))
+	(ui-canvas *canvas* +width +height +scale))
 
 (defun tile (canvas data)
 	; (tile canvas data) -> area
@@ -83,7 +83,7 @@
 
 (defun main ()
 	(defq select (alloc-select +select_size))
-	(.-> canvas (:fill +argb_black) (:swap 0))
+	(.-> *canvas* (:fill +argb_black) (:swap 0))
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(gui-add-front (. *window* :change x y w h))
 	(reset)
@@ -97,11 +97,11 @@
 					((= (setq id (getf msg +ev_msg_target_id)) +event_close)
 						;close button
 						(setq id :nil))
-					((and (= id (. canvas :get_id))
+					((and (= id (. *canvas* :get_id))
 							(= (getf msg +ev_msg_type) +ev_type_mouse)
 							(/= (getf msg +ev_msg_mouse_buttons) 0))
 						;mouse click on the canvas view, zoom in/out, re-center
-						(bind '(w h) (. canvas :get_size))
+						(bind '(w h) (. *canvas* :get_size))
 						(defq rx (- (getf msg +ev_msg_mouse_rx) (/ (- w +width) 2))
 							ry (- (getf msg +ev_msg_mouse_ry) (/ (- h +height) 2)))
 						(setq center_x (+ center_x (mbfp-offset rx +width zoom))
@@ -122,13 +122,13 @@
 				(when (defq val (. farm :find key))
 					(dispatch-job key val))
 				(setq dirty :t)
-				(tile canvas msg))
+				(tile *canvas* msg))
 			(:t ;timer event
 				(mail-timeout (elem-get +select_timer select) +timer_rate 0)
 				(. farm :refresh +retry_timeout)
 				(when dirty
 					(setq dirty :nil)
-					(. canvas :swap 0)
+					(. *canvas* :swap 0)
 					(when (= 0 (length jobs))
 						(defq working :nil)
 						(. farm :each (lambda (key val)

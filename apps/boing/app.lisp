@@ -13,7 +13,7 @@
 
 (ui-window *window* ()
 	(ui-title-bar _ "Boing" (0xea19 0xea1b 0xea1a) +event_close)
-	(ui-backdrop mybackdrop (:color +argb_black :ink_color +argb_white :style :grid
+	(ui-backdrop *backdrop* (:color +argb_black :ink_color +argb_white :style :grid
 			:spacing 64 :min_width 640 :min_height 480)
 		(ui-element frame (first +frames))
 		(ui-element sframe (first +sframes))))
@@ -45,13 +45,13 @@
 			(+select_timer
 				;timer event
 				(mail-timeout (elem-get +select_timer select) +rate 0)
-				(bind '(_ _ backdrop_width backdrop_height) (. mybackdrop :get_bounds))
+				(bind '(_ _ backdrop_width backdrop_height) (. *backdrop* :get_bounds))
 				(defq index (% (inc index) (length +frames))
 					old_frame frame frame (elem-get index +frames)
 					old_sframe sframe sframe (elem-get index +sframes))
 				(bind '(x y w h) (. old_frame :get_bounds))
 				(bind '(sx sy sw sh) (. old_sframe :get_bounds))
-				(.-> mybackdrop (:add_dirty sx sy sw sh) (:add_dirty x y w h))
+				(.-> *backdrop* (:add_dirty sx sy sw sh) (:add_dirty x y w h))
 				(setq x (+ x xv) y (+ y yv) yv (inc yv))
 				(if (> y (- backdrop_height h)) (setq y (- backdrop_height h) yv -22))
 				(if (< x 0) (setq x 0 xv (abs xv)))
@@ -60,7 +60,7 @@
 				(. sframe :set_bounds (+ x 8) (+ y 64) sw sh)
 				(. old_sframe :sub)
 				(. old_frame :sub)
-				(.-> mybackdrop (:add_back sframe) (:add_front frame))
+				(.-> *backdrop* (:add_back sframe) (:add_front frame))
 				(. sframe :dirty)
 				(. frame :dirty))))
 	(gui-sub *window*)

@@ -16,7 +16,7 @@
 
 (ui-window *window* ()
 	(ui-title-bar _ "Network Monitor" (0xea19 0xea1b 0xea1a) +event_close)
-	(ui-grid charts (:grid_height 1)
+	(ui-grid *charts* (:grid_height 1)
 		(ui-hchart _ "Tasks" +task_scale_size (:color +argb_green))
 		(ui-hchart _ "Alloc (kb)" +mem_scale_size (:units 1024 :color +argb_yellow))
 		(ui-hchart _ "Used (kb)" +mem_scale_size (:units 1024 :color +argb_red))))
@@ -43,7 +43,7 @@
 (defun main ()
 	(defq id :t select (alloc-select +select_size)
 		global_tasks (Global create destroy) poll_que (list)
-		charts (. charts :children))
+		charts (. *charts* :children))
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(. *window* :set_flags +view_flag_at_front +view_flag_at_front)
 	(gui-add-front (. *window* :change_dirty x y w h))

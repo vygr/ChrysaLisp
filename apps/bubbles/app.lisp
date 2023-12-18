@@ -26,8 +26,8 @@
 			(:color *env_toolbar2_col*)) :connect +event_style))
 	(ui-scroll *image_scroll* +scroll_flag_both
 			(:min_width +width :min_height +height)
-		(ui-backdrop mybackdrop (:color +argb_black :ink_color +argb_grey8)
-			(ui-canvas layer1_canvas +width +height 1))))
+		(ui-backdrop *backdrop* (:color +argb_black :ink_color +argb_grey8)
+			(ui-canvas *layer1_canvas* +width +height 1))))
 
 (defun redraw-layers (verts mask)
 	;redraw layer/s
@@ -123,10 +123,10 @@
 
 (defun main ()
 	;ui tree initial setup
-	(defq dlist (list 0 light_pos layer1_canvas (list)) select (alloc-select +select_size))
+	(defq dlist (list 0 light_pos *layer1_canvas* (list)) select (alloc-select +select_size))
 	(tooltips)
-	(. layer1_canvas :set_canvas_flags +canvas_flag_antialias)
-	(. mybackdrop :set_size +width +height)
+	(. *layer1_canvas* :set_canvas_flags +canvas_flag_antialias)
+	(. *backdrop* :set_size +width +height)
 	(. *style_toolbar* :set_selected 0)
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(gui-add-front (. *window* :change x y w h))
@@ -169,12 +169,12 @@
 				(setq verts (vertex-cloud num_bubbles)))
 			((= id +event_style)
 				;styles
-				(def (. mybackdrop :dirty) :style
+				(def (. *backdrop* :dirty) :style
 					(elem-get (. *style_toolbar* :get_selected) '(:plain :grid :axis))))
-			((and (= id (. layer1_canvas :get_id))
+			((and (= id (. *layer1_canvas* :get_id))
 				(= (getf *msg* +ev_msg_type) +ev_type_mouse))
 					;mouse event in canvas
-					(bind '(w h) (. layer1_canvas :get_size))
+					(bind '(w h) (. *layer1_canvas* :get_size))
 					(defq rx (- (getf *msg* +ev_msg_mouse_rx) (/ w 2))
 						ry (- (getf *msg* +ev_msg_mouse_ry) (/ h 2)))
 					(cond

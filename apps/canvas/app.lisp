@@ -19,7 +19,7 @@
 
 (ui-window *window* ()
 	(ui-title-bar _ "Canvas" (0xea19) +event_close)
-	(ui-canvas canvas +width +height +scale))
+	(ui-canvas *canvas* +width +height +scale))
 
 (defun transform-copy (angle _)
 	(defq sa (sin angle) ca (cos angle))
@@ -46,10 +46,10 @@
 			_ _)) _))
 
 (defun fpoly (col mode _)
-	(.-> canvas (:set_color col) (:fpoly 0.0 0.0 mode _)))
+	(.-> *canvas* (:set_color col) (:fpoly 0.0 0.0 mode _)))
 
 (defun redraw ()
-	(. canvas :fill 0)
+	(. *canvas* :fill 0)
 	(fpoly +argb_red +winding_odd_even (transform-norm (* angle (n2f 2)) (list
 		(path -0.5 -0.5 -0.25 0.5 0.0 -0.5 0.25 0.5 0.5 -0.5 -0.05 0.5))))
 	(fpoly 0xff0ff0ff +winding_odd_even (transform (* angle -1.0)
@@ -94,11 +94,11 @@
 	(fpoly 0xff000000 +winding_odd_even (transform-copy (+ (/ angle 2.0) +fp_pi) +fp2))
 	(fpoly 0xffffffff +winding_odd_even (transform-copy (+ (/ angle 2.0) +fp_hpi) +fp3))
 	(fpoly 0xffffffff +winding_odd_even (transform-copy (+ (/ angle 2.0) (* -1.0 +fp_hpi)) +fp4))
-	(. canvas :swap 0))
+	(. *canvas* :swap 0))
 
 (defun main ()
 	(defq select (alloc-select +select_size) id :t)
-	(.-> canvas (:fill 0) (:set_canvas_flags +canvas_flag_antialias))
+	(.-> *canvas* (:fill 0) (:set_canvas_flags +canvas_flag_antialias))
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(gui-add-front (. *window* :change x y w h))
 	(mail-timeout (elem-get +select_timer select) +rate 0)

@@ -7,7 +7,7 @@
 
 (ui-window *window* ()
 	(ui-title-bar _ "Calculator" (0xea19 0xea1b 0xea1a) +event_close)
-	(ui-label display (:text "0" :color +argb_white :flow_flags +flow_flag_align_hright :font (create-font "fonts/OpenSans-Regular.ctf" 24)))
+	(ui-label *display* (:text "0" :color +argb_white :flow_flags +flow_flag_align_hright :font (create-font "fonts/OpenSans-Regular.ctf" 24)))
 	(ui-grid _ (:grid_width 4 :grid_height 4 :color *env_toolbar_col* :font (create-font "fonts/OpenSans-Regular.ctf" 42))
 		(each (lambda (text)
 			(. (ui-button _ (:text (if (eql text "C") "AC" text))) :connect +event_button))
@@ -47,8 +47,8 @@
 								(setq num (str-as-num op)))
 						(:t (setq num (str-as-num (cat (str num) op)))))
 					(setq value num)))
-			(set display :text (str value))
-			(.-> display :layout :dirty))
+			(set *display* :text (str value))
+			(.-> *display* :layout :dirty))
 		((= id +event_close)
 			;close button
 			:nil)

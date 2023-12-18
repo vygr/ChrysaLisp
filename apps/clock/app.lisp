@@ -19,10 +19,10 @@
 		(ui-canvas clock clock_size clock_size clock_scale)
 		(defq clock :nil))
 	(if (eql *env_clock_digital* :t)
-		(ui-label display (:text "xxx hh:mm:ss"
+		(ui-label *display* (:text "xxx hh:mm:ss"
 			:flow_flags (logior +flow_flag_align_hcenter +flow_flag_align_vcenter)
 			:font (create-font "fonts/Hack-Regular.ctf" 44)))
-		(defq display :nil)))
+		(defq *display* :nil)))
 
 (defun make-digital-time ()
 	(bind '(sc mn hr _ _ _ wk) (date))
@@ -106,9 +106,9 @@
 					(make-analog-time)
 					(view-analog-time (* (n2f clock_size) (n2f clock_scale)))
 					(. clock :swap 0))
-				(when display
+				(when *display*
 					(make-digital-time)
-					(set display :text (view-digital-time))
-					(.-> display :layout :dirty)))))
+					(set *display* :text (view-digital-time))
+					(.-> *display* :layout :dirty)))))
 	(free-select select)
 	(gui-sub *window*))

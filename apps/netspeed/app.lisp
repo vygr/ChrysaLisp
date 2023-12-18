@@ -19,11 +19,11 @@
 
 (ui-window *window* ()
 	(ui-title-bar _ "Network Speed" (0xea19 0xea1b 0xea1a) +event_close)
-	(ui-grid net_charts (:grid_height 1)
+	(ui-grid *net_charts* (:grid_height 1)
 		(ui-hchart _ "Net Regs (bops/s)" +scale_size (:units +bops :color +argb_green))
 		(ui-hchart _ "Net Memory (bops/s)" +scale_size (:units +bops :color +argb_yellow))
 		(ui-hchart _ "Net Reals (mops/s)" +scale_size (:units +mops :color +argb_red)))
-	(ui-grid charts (:grid_height 1)
+	(ui-grid *charts* (:grid_height 1)
 		(ui-hchart _ "Regs (bops/s)" +scale_size (:units +bops :color +argb_green))
 		(ui-hchart _ "Memory (bops/s)" +scale_size (:units +bops :color +argb_yellow))
 		(ui-hchart _ "Reals (mops/s)" +scale_size (:units +mops :color +argb_red))))
@@ -68,7 +68,7 @@
 
 (defun main ()
 	(defq id :t select (alloc-select +select_size)
-		charts (. charts :children) net_charts (. net_charts :children)
+		charts (. *charts* :children) net_charts (. *net_charts* :children)
 		net_bars (map (# (. %0 :add_bar)) net_charts)
 		net_results (lists (length net_charts))
 		global_tasks (Global create destroy) poll_que (list))
