@@ -4,7 +4,7 @@
 
 ------
 
-New `Radiobar` widget.
+New `Radiobar` widget. Can be used in radio or toggles mode.
 
 ------
 
