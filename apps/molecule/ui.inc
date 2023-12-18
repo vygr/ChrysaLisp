@@ -61,14 +61,6 @@
 	(if *auto_mode* (action-auto))
 	(setq *rotz* (get-rot *zrot_slider*) *dirty* :t))
 
-(defun action-style-plain ()
-	(def (. *main_backdrop* :dirty) :style :plain)
-	(radio-select *style_toolbar* 0))
-
-(defun action-style-grid ()
-	(def (. *main_backdrop* :dirty) :style :grid)
-	(radio-select *style_toolbar* 1))
-
-(defun action-style-axis ()
-	(def (. *main_backdrop* :dirty) :style :axis)
-	(radio-select *style_toolbar* 2))
+(defun action-style ()
+	(def (. *main_backdrop* :dirty) :style
+		(elem-get (. *style_toolbar* :get_selected) '(:plain :grid :axis))))

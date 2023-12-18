@@ -8,7 +8,7 @@
 	(enum prev next auto)
 	(enum xrot yrot zrot)
 	(enum layout)
-	(enum plain grid axis))
+	(enum style))
 
 (enums +select 0
 	(enum main tip timer))
@@ -37,8 +37,8 @@
 	(ui-flow _ (:flow_flags +flow_right_fill)
 		(ui-tool-bar *main_toolbar* ()
 			(ui-buttons (0xe91d 0xe91e 0xea43) +event_prev))
-		(ui-tool-bar *style_toolbar* ()
-			(ui-buttons (0xe976 0xe9a3 0xe9f0) +event_plain))
+		(. (ui-radio-bar *style_toolbar* (0xe976 0xe9a3 0xe9f0)
+			(:color *env_toolbar2_col*)) :connect +event_style)
 		(ui-backdrop _ (:color (const *env_toolbar_col*))))
 	(ui-flow _ (:flow_flags +flow_right_fill)
 		(ui-grid _ (:grid_width 1 :font *env_body_font*)
@@ -62,12 +62,6 @@
 		'("prev" "next" "auto"))
 	(ui-tool-tips *style_toolbar*
 		'("plain" "grid" "axis")))
-
-(defun radio-select (toolbar idx)
-	(defq radio_col (canvas-brighter (get :color toolbar)))
-	(each (# (undef (. %0 :dirty) :color)
-			(if (= _ idx) (def %0 :color radio_col)))
-		(. toolbar :children)) idx)
 
 (defun set-rot (slider angle)
 	(set (. slider :dirty) :value
@@ -166,7 +160,7 @@
 	(defq select (alloc-select +select_size) *running* :t)
 	(bind '(x y w h) (apply view-locate (.-> *window* (:connect +event_layout) :pref_size)))
 	(.-> *main_widget* (:set_canvas_flags +canvas_mode) (:fill +argb_black) (:swap 0))
-	(radio-select *style_toolbar* 1)
+	(. *style_toolbar* :set_selected 1)
 	(gui-add-front (. *window* :change x y w h))
 	(tooltips)
 	(reset)

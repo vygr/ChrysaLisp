@@ -57,12 +57,6 @@
 	(ui-tool-tips *style_toolbar*
 		'("plain" "grid" "axis")))
 
-(defun radio-select (toolbar idx)
-	(defq radio_col (canvas-brighter (get :color toolbar)))
-	(each (# (undef (. %0 :dirty) :color)
-			(if (= _ idx) (def %0 :color radio_col)))
-		(. toolbar :children)) idx)
-
 (defun set-rot (slider angle)
 	(set (. slider :dirty) :value
 		(n2i (/ (* angle (const (n2r 1000))) +real_2pi))))
