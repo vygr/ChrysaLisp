@@ -1,6 +1,6 @@
 (enums +event 0
 	(enum close max min)
-	(enum save load clear undo redo)
+	(enum undo redo save load clear)
 	(enum style radius ink)
 	(enum pen line arrow1 arrow2 box circle fbox fcircle))
 
@@ -16,10 +16,12 @@
 	(ui-title-bar _ "Whiteboard" (0xea19 0xea1b 0xea1a) +event_close)
 	(ui-flow _ (:flow_flags +flow_right_fill)
 		(ui-tool-bar *main_toolbar* ()
-			(ui-buttons (0xea07 0xe9e9 0xe970 0xe9fe 0xe99d) +event_save))
-		(. (ui-radio-bar *style_toolbar* (0xe976 0xe9a3 0xe9d4 0xe9f0)) :connect +event_style)
+			(ui-buttons (0xe9fe 0xe99d 0xea07 0xe9e9 0xe970) +event_undo))
+		(. (ui-radio-bar *style_toolbar* (0xe976 0xe9a3 0xe9d4 0xe9f0)
+			(:color *env_toolbar2_col*)) :connect +event_style)
 		(. (ui-radio-bar *radius_toolbar* (0xe979 0xe97d 0xe97b)) :connect +event_radius)
-		(. (ui-radio-bar *mode_toolbar* (0xe9ec 0xe9d8 0xe917 0xea20 0xe9f6 0xe94b 0xe960 0xe95f)) :connect +event_pen))
+		(. (ui-radio-bar *mode_toolbar* (0xe9ec 0xe9d8 0xe917 0xea20 0xe9f6 0xe94b 0xe960 0xe95f)
+			(:color *env_toolbar2_col*)) :connect +event_pen))
 	(. (ui-radio-bar *ink_toolbar* (0xe982 0xe982 0xe982 0xe982 0xe982 0xe982 0xe982 0xe982
 			0xea04 0xea04 0xea04 0xea04 0xea04 0xea04 0xea04 0xea04)
 			(:font *env_medium_toolbar_font* :color *env_toolbar2_col*))
@@ -31,7 +33,7 @@
 			(ui-canvas *commited_canvas* +canvas_width +canvas_height 1))))
 
 (ui-tool-tips *main_toolbar*
-	'("save" "open" "clear" "undo" "redo"))
+	'("undo" "redo" "save" "open" "clear"))
 
 (ui-tool-tips *style_toolbar*
 	'("plain" "grid" "lines" "axis"))
