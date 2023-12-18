@@ -6,7 +6,7 @@ ChrysaLisp file tree.
 
 If you hover the mouse over the embedded UI below you can see the kind of
 features available. There are more features available through the key bindings
-which can be found in the `KEYS.md` documentation.
+which can be found in the `keys.md` documentation.
 
 The viewer can only open a single file at a time, and you can't change any file
 contents. But you can copy content to the clipboard and search for things same

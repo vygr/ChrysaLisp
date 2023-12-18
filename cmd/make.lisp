@@ -72,7 +72,7 @@
 	;create VP classes docs
 	(sort (# (cmp (first %0) (first %1))) classes)
 	(each (lambda ((cls super &rest methds))
-		(defq stream (file-stream (cat "docs/Reference/VP_Classes/" cls ".md") +file_open_write))
+		(defq stream (file-stream (cat "docs/reference/vp_classes/" cls ".md") +file_open_write))
 		(write-line stream (cat "# " cls +LF))
 		(unless (eql ":nil" super)
 			(write-line stream (cat "## " super +LF)))
@@ -96,7 +96,7 @@
 					(write-line stream "```code")
 					(each (# (write-line stream %0)) info)
 					(write-line stream (const (str "```" +LF))))) methds))
-		(print (cat "-> docs/Reference/VP_Classes/" cls ".md"))) classes)
+		(print (cat "-> docs/reference/vp_classes/" cls ".md"))) classes)
 
 	;scan for Lisp functions and classes info
 	(defq classes (list) functions (list) keys (list))
@@ -149,7 +149,7 @@
 
 	;create classes docs
 	(each (lambda ((name pname methods info))
-			(defq document (cat "docs/Reference/Classes/" name ".md")
+			(defq document (cat "docs/reference/classes/" name ".md")
 				stream (file-stream document +file_open_write))
 			(write-line stream (cat "# " name +LF))
 			(if pname (write-line stream (cat "## " pname +LF)))
@@ -162,7 +162,7 @@
 		(sort (# (cmp (first %0) (first %1))) classes))
 
 	;create key bindings docs
-	(defq document "docs/Reference/KEYS.md" current_file ""
+	(defq document "docs/reference/keys.md" current_file ""
 		stream (file-stream document +file_open_write))
 	(write-line stream (cat "# Key Bindings" +LF))
 	(each (lambda ((file name info))
@@ -179,7 +179,7 @@
 	(print "-> " document)
 
 	;create functions docs
-	(defq document "docs/Reference/FUNCTIONS.md"
+	(defq document "docs/reference/functions.md"
 		stream (file-stream document +file_open_write))
 	(write-line stream (cat "# Functions" +LF))
 	(each (lambda ((name info))
@@ -190,7 +190,7 @@
 	(print "-> " document)
 
 	;create commands docs
-	(defq document "docs/Reference/COMMANDS.md"
+	(defq document "docs/reference/commands.md"
 		stream (file-stream document +file_open_write))
 	(each (lambda ((job result))
 			(write-line stream (cat "## " (slice 0 -4 job)))

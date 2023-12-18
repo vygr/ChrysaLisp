@@ -7,7 +7,7 @@ calls that work in a similar manner to these function call mechanisms.
 
 ## Symbols
 
-We already covered, in the `ENVIRONMENT.md` document, the idea of a symbol
+We already covered, in the `environment.md` document, the idea of a symbol
 object being bound to a value object. This was achieved by use of the `(def)`
 and `(set)` family of functions. This is the most obvious way this can be done.
 

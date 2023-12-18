@@ -75,7 +75,7 @@ corresponding `mailbox_id`.
 A VP network consists of a group of VP nodes, each connected to a neighbor by a
 point to point link. Each node is executing a group of VP tasks. These tasks
 are communicating with each other via sending and receiving messages, see the
-`COMMS.md` document for that discussion.
+`comms.md` document for that discussion.
 
 This is an abstract model ! On a particular native machine or collection of
 native machines, a VP node might be a Host OS process, OS Thread, or be running

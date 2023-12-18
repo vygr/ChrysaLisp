@@ -86,7 +86,7 @@
 
 (defun main ()
 	(defq select (alloc-select +select_size) syntax (Syntax) handlers (Emap)
-		scroll_pos (Fmap) *running* :t *current_file* "docs/Vm/VP_VM.md"
+		scroll_pos (Fmap) *running* :t *current_file* "docs/vm/vp_vm.md"
 		*page_scale* 1.0)
 	(. *file_tree* :populate "docs" '(".md"))
 	(populate-page *current_file*)

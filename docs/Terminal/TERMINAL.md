@@ -4,7 +4,7 @@ The `Terminal` application is a simple text terminal with a familiar feel to
 traditional pipeing terminals.
 
 The commands you use come from the `cmd/` folder. You can see the list of
-available commands in the `COMMANDS.md` document.
+available commands in the `commands.md` document.
 
 Command history is saved and loaded to your user folder under the name
 `terminal_state.tre`. The cursor up and down keys let you scroll through the
@@ -14,7 +14,7 @@ history file.
 
 If you hover the mouse over the embedded UI below you can see the kind of
 features available. There are more features available through the key bindings
-which can be found in the `KEYS.md` documentation.
+which can be found in the `keys.md` documentation.
 
 ## UI
 
@@ -69,7 +69,7 @@ Note that some of the commands may include optional arguments to be passed to
 the command. Typically, commands do provide argument help and can be displayed
 by `command -h`.
 
-You can find additional command information in `docs/Reference/COMMANDS.md`.
+You can find additional command information in `docs/reference/commands.md`.
 
 ## Library Files
 

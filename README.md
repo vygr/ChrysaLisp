@@ -154,7 +154,7 @@ An example network viewed with ps looks like this for a 4x4 mesh network:
 
 ## Getting Started
 
-Take a look at the `docs/INTRO.md` for instructions to get started on all the
+Take a look at the `docs/intro.md` for instructions to get started on all the
 supported platforms.
 
 The experimental GUI requires the **SDL2** library to be installed.
@@ -173,7 +173,7 @@ brew install sdl2
 
 ## Make/Run/Stop
 
-Take a look at the `docs/INTRO.md` for platform specific instructions. The
+Take a look at the `docs/intro.md` for platform specific instructions. The
 following is for OSX and Linux systems. Windows has a pre-built main.exe
 provided, or you can configure Visual Studio to compile things yourself if you
 wish.

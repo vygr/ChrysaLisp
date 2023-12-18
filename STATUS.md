@@ -29,7 +29,7 @@ Faster `(slices)`, `(reverse-list)` functions, and new `(reverse seq)`.
 
 `(#)` macro does NOT descend into quote or quasi-quote forms.
 
-New `lisp` Docs app section handler ! `UI_WIDGETS.md` now shows live Lisp code
+New `lisp` Docs app section handler ! `ui_widgets.md` now shows live Lisp code
 and the widget created by it. These section handlers run in an auto module and
 anything they export persists within a `*handler_env*` and is visible to the
 next `lisp` section ! The repl return value is auto exported as `*result*`,
@@ -48,8 +48,8 @@ New Editor collection actions. `action-collect` and `action-collect-global`.
 New `(escape string)` charclass lib function. Editor now uses this to auto
 escape the pattern if in regexp mode when using `action-set-find-text`.
 
-New Docs application section handler for widget embedding. The `EDITOR.md` and
-`VIEWER.md` docs show the idea.
+New Docs application section handler for widget embedding. The `editor.md` and
+`viewer.md` docs show the idea.
 
 New API for the `(matches)` and `(substr)` functions. Simplified to just return
 a list of slices for each match. Just the slice ranges, and no substrings
@@ -346,9 +346,9 @@ channel calculations.
 
 `gui_fb.c` driver updated to use same 8bit glyph textures.
 
-New `ERRORS.md` doc.
+New `errors.md` doc.
 
-New `CSCRIPT.md` doc.
+New `cscript.md` doc.
 
 Separate stack scoped variables into its own module `lib/asm/scopes.inc`.
 
@@ -664,11 +664,11 @@ Updated remaining GUI apps with tooltips.
 
 Mouse/shift selection and cut/paste/copy added to Textfield widgets.
 
-New MACROS.md document.
+New macros.md document.
 
 Correct the quote skipping in the `(split)` function.
 
-New CLASSES.md document.
+New `classes.md` document.
 
 Addition of `(let* ...)` macro to `root.inc`.
 
@@ -679,11 +679,11 @@ View class :ctx_panel method moved to Lisp code.
 Removal of redundant VP class methods. A lot of code has moved over to Lisp
 recently and so these methods are no longer referenced.
 
-New EVENT_LOOPS.md doc.
+New `event_loops.md` doc.
 
-New EVENT_DISPATCH.md doc.
+New `event_dispatch.md` doc.
 
-New UI_WIDGETS.md doc.
+New `ui_widgets.md` doc.
 
 New application Template. Copy to new folder to get the framework for your new
 app.
@@ -1227,9 +1227,9 @@ functionality.
 
 Unordered list support in the docs viewer added by Nuclearfall.
 
-Added DIARY.md doc to show the creation of a new feature as it happens !
+Added `diary.md` doc to show the creation of a new feature as it happens !
 
-New autogen of COMMANDS.md via 'make docs' for all the commands in 'cmd/'
+New autogen of `commands.md` via 'make docs' for all the commands in 'cmd/'
 folder.
 
 Restructure of library files into own directory. Updated all command files
@@ -1273,7 +1273,7 @@ parser lists. Shaved a few milliseconds off the build time.
 
 Add (make-tree) function to the 'make doc' command to include all Lisp binding
 files. Filled in all the missing syntax comments so they appear in the
-SYNTAX.md file.
+`syntax.md` file.
 
 Added a Lisp.tmLanguage file to the project for those that use VSCode editor.
 This is a drop in replacement for Mattn's Lisp syntax colouring extension to

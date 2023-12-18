@@ -6,7 +6,7 @@ file tree.
 
 If you hover the mouse over the embedded UI below you can see the kind of
 features available. There are more features available through the key bindings
-which can be found in the `KEYS.md` documentation.
+which can be found in the `keys.md` documentation.
 
 The editor can open multiple files at a time, but you can only have a single
 instance of the editor open at once, as there is user persistent state stored.

@@ -12,7 +12,7 @@ this document, but take a look at the `'canvas :fpoly` method to see what you
 can do ! That's a mixture of CScript, VP register defs and `(method-input)`
 calls !
 
-As discussed in the `VP_ASSIGNMENT.md` document you call the CScript compiler
+As discussed in the `vp_assignment.md` document you call the CScript compiler
 each time you use a string argument as an input or output to the `(assign)`
 function.
 
@@ -502,7 +502,7 @@ hanging memory references.
 * Evaluate the compiler output instruction list.
 
 The other types of `(assign)` are variations on this theme. In the
-`VP_ASSIGNMENT.md` doc we talked about the 4 principle possibilities but there
+`vp_assignment.md` doc we talked about the 4 principle possibilities but there
 are other things that could be done.
 
 There are further extensions to the operators that could be added, user custom
