@@ -109,9 +109,10 @@
 	(ui-props p
 		:flow_flags +flow_left_fill
 		:color *env_title_col*
+		:border *env_title_buttons_border*
 		:font *env_title_buttons_font*)
 	`(ui-flow _ ,p
-		(ui-buttons ,b ,e (:border *env_title_buttons_border*))
+		(ui-buttons ,b ,e)
 		(ui-title ,n (:text ,s))))
 
 (defmacro ui-text (n &optional p)
