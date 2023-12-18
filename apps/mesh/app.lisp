@@ -9,7 +9,7 @@
 	(enum mode auto)
 	(enum xrot yrot zrot)
 	(enum layout)
-	(enum plain grid axis))
+	(enum style))
 
 (enums +select 0
 	(enum main task reply tip frame_timer retry_timer))
@@ -31,8 +31,8 @@
 	(ui-flow _ (:flow_flags +flow_right_fill)
 		(ui-tool-bar *main_toolbar* ()
 			(ui-buttons (0xe962 0xea43) +event_mode))
-		(ui-tool-bar *style_toolbar* ()
-			(ui-buttons (0xe976 0xe9a3 0xe9f0) +event_plain))
+		(. (ui-radio-bar *style_toolbar* (0xe976 0xe9a3 0xe9f0)
+			(:color *env_toolbar2_col*)) :connect +event_style)
 		(ui-backdrop _ (:color (const *env_toolbar_col*))))
 	(ui-flow _ (:flow_flags +flow_right_fill)
 		(ui-grid _ (:grid_width 1 :font *env_body_font*)
@@ -138,7 +138,7 @@
 	;; (prin (time-in-seconds (- (pii-time) then)))(print)
 	(bind '(x y w h) (apply view-locate (.-> *window* (:connect +event_layout) :pref_size)))
 	(.-> *main_widget* (:set_canvas_flags +canvas_mode) (:fill +argb_black) (:swap 0))
-	(radio-select *style_toolbar* 0)
+	(. *style_toolbar* :set_selected 0)
 	(gui-add-front (. *window* :change x y w h))
 	(defq select (alloc-select +select_size) *running* :t *dirty* :t
 		jobs (list) scene (create-scene jobs) farm (Local create destroy 4))

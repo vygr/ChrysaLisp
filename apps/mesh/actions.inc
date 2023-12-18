@@ -14,9 +14,7 @@
 	+event_zrot action-zrot
 	+event_auto action-auto
 	+event_mode action-mode
-	+event_grid action-style-grid
-	+event_plain action-style-plain
-	+event_axis action-style-axis
+	+event_style action-style
 	+event_close action-close
 	+event_layout action-layout
 	+event_min action-minimise
