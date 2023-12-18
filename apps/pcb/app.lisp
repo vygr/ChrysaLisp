@@ -7,8 +7,8 @@
 (enums +event 0
 	(enum close)
 	(enum prev next reset zoom_out zoom_in)
-	(enum mode_normal mode_gerber)
-	(enum show_all show_1 show_2 show_3 show_4))
+	(enum mode)
+	(enum layer))
 
 (enums +select 0
 	(enum main reply prog tip))
@@ -30,11 +30,11 @@
 	(ui-flow _ (:flow_flags +flow_right_fill)
 		(ui-tool-bar *main_toolbar* ()
 			(ui-buttons (0xe91d 0xe91e 0xe972 0xea00 0xea01) +event_prev))
-		(ui-tool-bar *mode_toolbar* ()
-			(ui-buttons (0xe9ac 0xe9ad) +event_mode_normal))
-		(ui-tool-bar *layer_toolbar* (:color *env_toolbar2_col*)
-			(ui-buttons ("0" "1" "2" "3" "4") +event_show_all
-				(:color (const *env_toolbar2_col*) :font (const (create-font "fonts/OpenSans-Regular.ctf" 20))))))
+		(. (ui-radio-bar *mode_toolbar* (0xe9ac 0xe9ad)) :connect +event_mode)
+		(. (ui-radio-bar *layer_toolbar* ("0" "1" "2" "3" "4")
+				(:color (const *env_toolbar2_col*)
+				:font (const (create-font "fonts/OpenSans-Regular.ctf" 20))))
+			:connect +event_layer))
 	(ui-flow _ (:flow_flags +flow_right_fill)
 		(ui-label _ (:text "grid_res:" :min_width +tag_min_size :flow_flags +flow_flag_align_hright))
 		(ui-spinner res_spinner (:value 1 :maximum 3 :minimum 1))
@@ -51,12 +51,6 @@
 		(ui-spinner odd_spinner (:value 1 :maximum 2 :minimum 1)))
 	(ui-progress progress (:value 100 :maximum 100))
 	(ui-scroll pcb_scroll +scroll_flag_both (:min_width 512 :min_height 256)))
-
-(defun radio-select (toolbar idx)
-	(defq radio_col (canvas-brighter (get :color toolbar)))
-	(each (# (undef (. %0 :dirty) :color)
-			(if (= _ idx) (def %0 :color radio_col)))
-		(. toolbar :children)) idx)
 
 (defun win-load (_)
 	(setq pcb_data (load (defq file (elem-get (setq *index* _) *pcbs*))) pcb (pcb-read pcb_data))
@@ -117,8 +111,8 @@
 (defun main ()
 	(defq select (alloc-select +select_size))
 	(tooltips)
-	(radio-select *layer_toolbar* 0)
-	(radio-select *mode_toolbar* 0)
+	(. *layer_toolbar* :set_selected 0)
+	(. *mode_toolbar* :set_selected 0)
 	(bind '(x y w h) (apply view-locate (. (win-load *index*) :get_size)))
 	(gui-add-front (. *window* :change x y w h))
 	(while *running*

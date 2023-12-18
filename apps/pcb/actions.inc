@@ -15,22 +15,17 @@
 	+event_next action-next
 	+event_zoom_in action-scale-up
 	+event_zoom_out action-scale-down
-	+event_show_all action-show-all
-	+event_show_1 action-show1
-	+event_show_2 action-show2
-	+event_show_3 action-show3
-	+event_show_4 action-show4
-	+event_mode_normal action-mode-normal
-	+event_mode_gerber action-mode-gerber)
+	+event_layer action-layer
+	+event_mode action-mode)
 
 *key_map* (Fmap-kv
 	(ascii-code "a") action-mode-normal
 	(ascii-code "g") action-mode-gerber
 	(ascii-code "0") action-show-all
-	(ascii-code "1") action-show1
-	(ascii-code "2") action-show2
-	(ascii-code "3") action-show3
-	(ascii-code "4") action-show4
+	(ascii-code "1") action-show-1
+	(ascii-code "2") action-show-2
+	(ascii-code "3") action-show-3
+	(ascii-code "4") action-show-4
 	(ascii-code "r") action-reset
 	(ascii-code "n") action-next
 	(ascii-code "p") action-prev)
