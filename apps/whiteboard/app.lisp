@@ -1,17 +1,13 @@
+;debug options
+(case :nil
+(0 (import "lib/debug/frames.inc"))
+(1 (import "lib/debug/profile.inc"))
+(2 (import "lib/debug/debug.inc")))
+
 (import "././login/env.inc")
 (import "gui/lisp.inc")
 (import "lib/math/vector.inc")
-
-;quick stack frame switch
-(if :nil   ;:t for stack frame recording
-	(import "lib/debug/frames.inc"))
-;quick profiling switch
-(if :t   ;:t for profiling
-	(import "lib/debug/profile.inc")
-	(defun profile-report (&rest _)))
-;quick debug switch
-(if :nil   ;:t for debug
-	(import "lib/debug/debug.inc"))
+(import "./widgets.inc")
 
 (enums +dlist 0
 	(enum mask commited_canvas overlay_canvas commited_polygons overlay_paths))
@@ -19,55 +15,19 @@
 (enums +path 0
 	(enum mode color radius path))
 
-(enums +event 0
-	(enum close max min)
-	(enum save load clear undo redo)
-	(enum grid plain axis lines)
-	(enum radius1 radius2 radius3)
-	(enum pen line arrow1 arrow2 box circle fbox fcircle)
-	(enum black white red green blue cyan yellow magenta
-		tblack twhite tred tgreen tblue tcyan tyellow tmagenta))
-
 (enums +select 0
 	(enum main picker timer tip))
 
 (bits +layer 0
 	(bit commited overlay))
 
-(defun trans (_)
-	;transparent colour
-	(+ (logand 0xffffff _) 0x60000000))
-
-(defq +canvas_width 1024 +canvas_height 768 +min_width 320 +min_height 240 +eps 0.25 +tol 3.0
+(defq +eps 0.25 +tol 3.0
 	*radiuss* (map n2f '(2 6 12)) *stroke_radius* (first *radiuss*)
-	*palette* (list +argb_black +argb_white +argb_red +argb_green +argb_blue +argb_cyan +argb_yellow +argb_magenta)
-	*palette* (cat *palette* (map trans *palette*)) *undo_stack* (list) *redo_stack* (list)
-	*stroke_col* (first *palette*) *stroke_mode* +event_pen *commited_polygons* (list) overlay_paths (list)
+	*undo_stack* (list) *redo_stack* (list)
+	*stroke_col* (first *palette*) *stroke_mode* +event_pen
+	*commited_polygons* (list) overlay_paths (list)
 	*picker_mbox* :nil *picker_mode* :nil *running* :t
 	rate (/ 1000000 60) +layer_all (+ +layer_commited +layer_overlay))
-
-(ui-window *window* ()
-	(ui-title-bar _ "Whiteboard" (0xea19 0xea1b 0xea1a) +event_close)
-	(ui-flow _ (:flow_flags +flow_right_fill)
-		(ui-tool-bar *main_toolbar* ()
-			(ui-buttons (0xea07 0xe9e9 0xe970 0xe9fe 0xe99d) +event_save))
-		(ui-tool-bar *style_toolbar* ()
-			(ui-buttons (0xe976 0xe9a3 0xe9d4 0xe9f0) +event_grid))
-		(ui-tool-bar *radius_toolbar* ()
-			(ui-buttons (0xe979 0xe97d 0xe97b) +event_radius1))
-		(ui-tool-bar *mode_toolbar* ()
-			(ui-buttons (0xe9ec 0xe9d8 0xe917 0xea20 0xe9f6 0xe94b 0xe960 0xe95f) +event_pen)))
-	(ui-tool-bar *ink_toolbar* (:font *env_medium_toolbar_font* :color (const *env_toolbar2_col*))
-		(each (lambda (col)
-			(. (ui-button __ (:ink_color col :text
-				(if (< _ 8) (const (num-to-utf8 0xe982)) (const (num-to-utf8 0xea04))))) :connect
-					(+ _ +event_black))) *palette*))
-	(ui-scroll *image_scroll* +scroll_flag_both
-			(:min_width +canvas_width :min_height +canvas_height)
-		(ui-backdrop mybackdrop (:color 0xffF8F8FF :ink_color 0xffADD8E6)
-			(ui-canvas overlay_canvas +canvas_width +canvas_height 1)
-			(ui-canvas commited_canvas +canvas_width +canvas_height 1))))
-
 
 (defun radio-select (toolbar idx)
 	(defq radio_col (canvas-brighter (get :color toolbar)))
@@ -148,18 +108,6 @@
 		(. canvas :swap 0))
 	(elem-set +dlist_mask dlist 0))
 
-(defun tooltips ()
-	(def *window* :tip_mbox (elem-get +select_tip select))
-	(ui-tool-tips *main_toolbar*
-		'("save" "open" "clear" "undo" "redo"))
-	(ui-tool-tips *style_toolbar*
-		'("plain" "grid" "lines" "axis"))
-	(ui-tool-tips *radius_toolbar*
-		'("small" "medium" "large"))
-	(ui-tool-tips *mode_toolbar*
-		'("pen" "line" "arrow" "double arrow" "rect"
-		"circle" "filled rect" "filled circle")))
-
 ;import actions and bindings
 (import "./actions.inc")
 
@@ -173,7 +121,7 @@
 	(radio-select *mode_toolbar* 0)
 	(radio-select *radius_toolbar* 0)
 	(radio-select *style_toolbar* 0)
-	(tooltips)
+	(def *window* :tip_mbox (elem-get +select_tip select))
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(gui-add-front (. *window* :change x y w h))
 	(def *image_scroll* :min_width +min_width :min_height +min_height)
