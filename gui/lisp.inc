@@ -149,6 +149,14 @@
 		:border *env_button_border*)
 	`(ui-element ,n (Radiobar '(~s)) ,p))
 
+(defmacro ui-toggle-bar (n s &optional p)
+	; (ui-toggle-bar name symbols [props])
+	(ui-props p
+		:color *env_toolbar_col*
+		:font *env_toolbar_font*
+		:border *env_button_border*)
+	`(ui-element ,n (Radiobar '(~s) :t) ,p))
+
 (defmacro ui-tool-bar (n &optional p &rest x)
 	; (ui-tool-bar name [props] [body]) -> flow
 	(ui-props p

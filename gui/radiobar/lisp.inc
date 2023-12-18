@@ -5,9 +5,9 @@
 (import "././flow/lisp.inc")
 (import "././button/lisp.inc")
 
-(defclass Radiobar (symbols) (Flow)
-	; (Radiobar symbols) -> radiobar
-	(def this :flow_flags +flow_right)
+(defclass Radiobar (symbols &optional mode) (Flow)
+	; (Radiobar symbols &optional mode) -> radiobar
+	(def this :flow_flags +flow_right :mode mode)
 	(setq symbols (map (# (if (num? %0) (num-to-utf8 %0) %0)) symbols))
 	(each (# (def (defq button (Button)) :text %0)
 		(. this :add_child (. button :connect (. this :get_id)))) symbols)
@@ -41,8 +41,14 @@
 		(defq button (. this :find_id (getf event +ev_msg_action_source_id))
 			children (. this :children) idx (find button children)
 			radio_col (canvas-brighter (get :color this)))
-		(each (# (undef (. %0 :dirty) :color)
-				(if (= _ idx) (def %0 :color radio_col)))
-			children)
+		(if (get :mode this)
+			;toggle mode
+			(if (def? :color (. button :dirty))
+				(undef button :color)
+				(def button :color radio_col))
+			;radio mode
+			(each (# (undef (. %0 :dirty) :color)
+					(if (= _ idx) (def %0 :color radio_col)))
+				children))
 		(. this :emit))
 	)

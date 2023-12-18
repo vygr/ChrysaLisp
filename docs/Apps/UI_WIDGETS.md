@@ -580,7 +580,29 @@ gui/lisp.inc "macro ui-radio-bar" ""
 *ui_radiobar*
 ```
 
-Creates a Radiobar instance, with name and optional property list.
+Creates a Radiobar instance running in radio mode, with name and optional
+property list.
+
+### (ui-toggle-bar name symbols [props]) -> radiobar
+
+```file
+gui/lisp.inc "macro ui-toggle-bar" ""
+```
+
+```lisp
+(ui-window *ui_togglebar*
+	(:min_width 0
+	:min_height 0)
+	(ui-toggle-bar view (0xe976 0xe9a3 0xe9d4 0xe9f0)
+		(:color *env_toolbar2_col*)))
+
+(ui-tool-tips view '("plain" "grid" "lines" "axis"))
+(. view :set_states '(:nil :t :nil :t))
+*ui_togglebar*
+```
+
+Creates a Radiobar instance running in toggle mode, with name and optional
+property list.
 
 ### (ui-textfield name [props]) -> textfield
 
