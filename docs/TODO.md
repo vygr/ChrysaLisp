@@ -17,13 +17,7 @@ flags.
 
 * ui-load-icon .... for button images.
 
-* (mail-length) call to ask how much mail is there.
-
-* object alloc failure case is redundant ?
-
 * gen-ellipse needs better eps scaling.
-
-* 'sys_str :to_long and :to_num should take bufe, romable.
 
 * WYSIWYG UI tree Editor.
 
