@@ -4,6 +4,10 @@
 
 ------
 
+New `Radiobar` widget.
+
+------
+
 Region selection added to Viewer app.
 
 Find count on status bar shows only count in selected region active.

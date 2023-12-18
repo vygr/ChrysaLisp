@@ -562,6 +562,26 @@ gui/lisp.inc "macro ui-tool-bar" ""
 
 Creates a Toolbar instance, with name, optional property list and nested forms.
 
+### (ui-radio-bar name symbols [props]) -> radiobar
+
+```file
+gui/lisp.inc "macro ui-radio-bar" ""
+```
+
+```lisp
+(ui-window *ui_radiobar*
+	(:min_width 0
+	:min_height 0)
+	(ui-radio-bar view (0xe976 0xe9a3 0xe9d4 0xe9f0)
+		(:color *env_toolbar2_col*)))
+
+(ui-tool-tips view '("plain" "grid" "lines" "axis"))
+(. view :set_selected 0)
+*ui_radiobar*
+```
+
+Creates a Radiobar instance, with name and optional property list.
+
 ### (ui-textfield name [props]) -> textfield
 
 ```file

@@ -16,17 +16,17 @@
 	(def *image_scroll* :min_width +min_width :min_height +min_height))
 
 (defun action-ink ()
-	(setq *stroke_col* (elem-get (radio-select *ink_toolbar* (- *id* +event_black)) *palette*)))
+	(setq *stroke_col* (elem-get (. *ink_toolbar* :get_selected) *palette*)))
 
 (defun action-mode ()
-	(setq *stroke_mode* (+ (radio-select *mode_toolbar* (- *id* +event_pen)) +event_pen)))
+	(setq *stroke_mode* (+ (. *mode_toolbar* :get_selected) +event_pen)))
 
 (defun action-radius ()
-	(setq *stroke_radius* (elem-get (radio-select *radius_toolbar* (- *id* +event_radius1)) *radiuss*)))
+	(setq *stroke_radius* (elem-get (. *radius_toolbar* :get_selected) *radiuss*)))
 
 (defun action-style ()
-	(def (. mybackdrop :dirty) :style
-		(elem-get (radio-select *style_toolbar* (- *id* +event_grid)) '(:nil :grid :lines :axis))))
+	(def (. *backdrop* :dirty) :style
+		(elem-get (. *style_toolbar* :get_selected) '(:plain :grid :lines :axis))))
 
 (defun action-clear ()
 	(snapshot)

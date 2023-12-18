@@ -29,12 +29,6 @@
 	*picker_mbox* :nil *picker_mode* :nil *running* :t
 	rate (/ 1000000 60) +layer_all (+ +layer_commited +layer_overlay))
 
-(defun radio-select (toolbar idx)
-	(defq radio_col (canvas-brighter (get :color toolbar)))
-	(each (# (undef (. %0 :dirty) :color)
-			(if (= _ idx) (def %0 :color radio_col)))
-		(. toolbar :children)) idx)
-
 (defun flatten ((mode col rad pnts))
 	;flatten path to polygon
 	(list col (cond
@@ -116,10 +110,6 @@
 		dlist (list +layer_all *commited_canvas* *overlay_canvas* (list) (list)))
 	(. *commited_canvas* :set_canvas_flags +canvas_flag_antialias)
 	(. *overlay_canvas* :set_canvas_flags +canvas_flag_antialias)
-	(radio-select *ink_toolbar* 0)
-	(radio-select *mode_toolbar* 0)
-	(radio-select *radius_toolbar* 0)
-	(radio-select *style_toolbar* 1)
 	(def *window* :tip_mbox (elem-get +select_tip select))
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(gui-add-front (. *window* :change x y w h))

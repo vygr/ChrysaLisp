@@ -1,11 +1,8 @@
 (enums +event 0
 	(enum close max min)
 	(enum save load clear undo redo)
-	(enum grid plain axis lines)
-	(enum radius1 radius2 radius3)
-	(enum pen line arrow1 arrow2 box circle fbox fcircle)
-	(enum black white red green blue cyan yellow magenta
-		tblack twhite tred tgreen tblue tcyan tyellow tmagenta))
+	(enum style radius ink)
+	(enum pen line arrow1 arrow2 box circle fbox fcircle))
 
 (defun trans (_)
 	;transparent colour
@@ -20,17 +17,13 @@
 	(ui-flow _ (:flow_flags +flow_right_fill)
 		(ui-tool-bar *main_toolbar* ()
 			(ui-buttons (0xea07 0xe9e9 0xe970 0xe9fe 0xe99d) +event_save))
-		(ui-tool-bar *style_toolbar* ()
-			(ui-buttons (0xe976 0xe9a3 0xe9d4 0xe9f0) +event_grid))
-		(ui-tool-bar *radius_toolbar* ()
-			(ui-buttons (0xe979 0xe97d 0xe97b) +event_radius1))
-		(ui-tool-bar *mode_toolbar* ()
-			(ui-buttons (0xe9ec 0xe9d8 0xe917 0xea20 0xe9f6 0xe94b 0xe960 0xe95f) +event_pen)))
-	(ui-tool-bar *ink_toolbar* (:font *env_medium_toolbar_font* :color (const *env_toolbar2_col*))
-		(each (lambda (col)
-			(. (ui-button __ (:ink_color col :text
-				(if (< _ 8) (const (num-to-utf8 0xe982)) (const (num-to-utf8 0xea04))))) :connect
-					(+ _ +event_black))) *palette*))
+		(. (ui-radio-bar *style_toolbar* (0xe976 0xe9a3 0xe9d4 0xe9f0)) :connect +event_style)
+		(. (ui-radio-bar *radius_toolbar* (0xe979 0xe97d 0xe97b)) :connect +event_radius)
+		(. (ui-radio-bar *mode_toolbar* (0xe9ec 0xe9d8 0xe917 0xea20 0xe9f6 0xe94b 0xe960 0xe95f)) :connect +event_pen))
+	(. (ui-radio-bar *ink_toolbar* (0xe982 0xe982 0xe982 0xe982 0xe982 0xe982 0xe982 0xe982
+			0xea04 0xea04 0xea04 0xea04 0xea04 0xea04 0xea04 0xea04)
+			(:font *env_medium_toolbar_font* :color *env_toolbar2_col*))
+		:connect +event_ink)
 	(ui-scroll *image_scroll* +scroll_flag_both
 			(:min_width +min_width :min_height +min_height)
 		(ui-backdrop *backdrop* (:color 0xffF8F8FF :ink_color 0xffADD8E6 :style :grid)
@@ -50,5 +43,10 @@
 	'("pen" "line" "arrow" "double arrow" "rect"
 	"circle" "filled rect" "filled circle"))
 
+(each (# (def %0 :ink_color %1)) (. *ink_toolbar* :children) *palette*)
+(. *ink_toolbar* :set_selected 0)
+(. *mode_toolbar* :set_selected 0)
+(. *radius_toolbar* :set_selected 0)
+(. *style_toolbar* :set_selected 1)
 (. *backdrop* :set_size +canvas_width +canvas_height)
 (. *image_scroll* :layout)

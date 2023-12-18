@@ -20,6 +20,7 @@
 (import "./button/lisp.inc")
 (import "./node/lisp.inc")
 (import "./label/lisp.inc")
+(import "./radiobar/lisp.inc")
 (import "./path/lisp.inc")
 (import "./canvas/lisp.inc")
 (import "./texture/lisp.inc")
@@ -139,6 +140,14 @@
 	(ui-props p
 		:text %0)
 	`(each (# (. (ui-button __ ,p) :connect (+ _ ,e))) '(~s)))
+
+(defmacro ui-radio-bar (n s &optional p)
+	; (ui-radio-bar name symbols [props])
+	(ui-props p
+		:color *env_toolbar_col*
+		:font *env_toolbar_font*
+		:border *env_button_border*)
+	`(ui-element ,n (Radiobar '(~s)) ,p))
 
 (defmacro ui-tool-bar (n &optional p &rest x)
 	; (ui-tool-bar name [props] [body]) -> flow

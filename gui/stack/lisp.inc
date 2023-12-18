@@ -3,6 +3,7 @@
 ;;;;;;;;;;;;;;
 
 (import "././flow/lisp.inc")
+(import "././button/lisp.inc")
 
 (defclass Stack (tabs) (Flow)
 	; (Stack tabs) -> stack
