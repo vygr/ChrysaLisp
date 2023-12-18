@@ -577,6 +577,7 @@ gui/lisp.inc "macro ui-radio-bar" ""
 
 (ui-tool-tips view '("plain" "grid" "lines" "axis"))
 (. view :set_selected 0)
+
 *ui_radiobar*
 ```
 
@@ -598,6 +599,7 @@ gui/lisp.inc "macro ui-toggle-bar" ""
 
 (ui-tool-tips view '("plain" "grid" "lines" "axis"))
 (. view :set_states '(:nil :t :nil :t))
+
 *ui_togglebar*
 ```
 
