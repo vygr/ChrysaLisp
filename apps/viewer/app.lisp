@@ -15,7 +15,7 @@
 (defq +margin 2  +text_types ''(".md" ".txt")
 	+file_types ''(".lisp" ".inc" ".vp" ".md" ".txt" ".tre"))
 
-(defun radio-select (toolbar states)
+(defun toolbar-states (toolbar states)
 	(defq radio_col (canvas-brighter (get :color toolbar)))
 	(each (# (undef (. %0 :dirty) :color)
 			(if %1 (def %0 :color radio_col)))

@@ -83,7 +83,7 @@
 
 (defun update-find-toolbar ()
 	(bind '(fx fy fx1 fy1) (. *edit* :get_find))
-	(radio-select *find_toolbar*
+	(toolbar-states *find_toolbar*
 		(list :nil (> fy1 fy) *whole_words* *regexp* :nil :nil)))
 
 (defun find-count ()

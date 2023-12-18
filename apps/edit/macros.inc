@@ -92,7 +92,7 @@
 (defun action-macro-record ()
 	(if (setq *macro_record* (not *macro_record*))
 		(clear (. +macro_map :find 0)))
-	(radio-select *macro_toolbar* (list :nil :nil :nil *macro_record*))
+	(toolbar-states *macro_toolbar* (list :nil :nil :nil *macro_record*))
 	(refresh))
 
 (defun macro-encode (n)

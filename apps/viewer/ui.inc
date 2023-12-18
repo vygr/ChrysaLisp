@@ -12,13 +12,13 @@
 (defun action-whole-words ()
 	(setq *whole_words* (not *whole_words*))
 	(bind '(fx fy fx1 fy1) (. *edit* :get_find))
-	(radio-select *find_toolbar* (list (> fy1 fy) *whole_words* *regexp* :nil :nil))
+	(toolbar-states *find_toolbar* (list (> fy1 fy) *whole_words* *regexp* :nil :nil))
 	(refresh-display))
 
 (defun action-regexp ()
 	(setq *regexp* (not *regexp*))
 	(bind '(fx fy fx1 fy1) (. *edit* :get_find))
-	(radio-select *find_toolbar* (list (> fy1 fy) *whole_words* *regexp* :nil :nil))
+	(toolbar-states *find_toolbar* (list (> fy1 fy) *whole_words* *regexp* :nil :nil))
 	(refresh-display))
 
 (defun action-region ()
@@ -26,7 +26,7 @@
 	(bind '(fx fy fx1 fy1) (. *edit* :get_find))
 	(if (> fy1 fy) (setq fy 0 fy1 0) (setq fy sy fy1 sy1))
 	(. *edit* :set_find fx fy fx1 fy1)
-	(radio-select *find_toolbar* (list (> fy1 fy) *whole_words* *regexp* :nil :nil))
+	(toolbar-states *find_toolbar* (list (> fy1 fy) *whole_words* *regexp* :nil :nil))
 	(refresh-display))
 
 ;;;;;;;;;;;;;;;;;;;;

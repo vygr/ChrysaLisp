@@ -20,7 +20,7 @@
 	+file_types ''(".lisp" ".inc" ".vp" ".md" ".txt" ".tre")
 	+dictionaries ''("lib/text/english.txt"))
 
-(defun radio-select (toolbar states)
+(defun toolbar-states (toolbar states)
 	(defq radio_col (canvas-brighter (get :color toolbar)))
 	(each (# (undef (. %0 :dirty) :color)
 			(if %1 (def %0 :color radio_col)))
@@ -112,7 +112,7 @@
 		(:set_find fx fy fx1 fy1)
 		(:set_scroll sx sy))
 	(scatter meta :cx cx :cy cy :ax ax :ay ay :sx sx :sy sy)
-	(radio-select *find_toolbar* (list :nil :nil *whole_words* *regexp* :nil :nil))
+	(toolbar-states *find_toolbar* (list :nil :nil *whole_words* *regexp* :nil :nil))
 	(def *title* :text (cat "Edit -> " (if file file "<scratch pad>")))
 	(.-> *title* :layout :dirty)
 	(refresh))
