@@ -10,7 +10,7 @@
 (import "./widgets.inc")
 
 (enums +dlist 0
-	(enum mask commited_canvas overlay_canvas commited_polygons overlay_paths))
+	(enum mask *commited_canvas* *overlay_canvas* commited_polygons overlay_paths))
 
 (enums +path 0
 	(enum mode color radius path))
@@ -94,13 +94,13 @@
 (defun redraw (dlist)
 	;redraw layer/s
 	(when (/= 0 (logand (elem-get +dlist_mask dlist) +layer_commited))
-		(defq canvas (elem-get +dlist_commited_canvas dlist))
+		(defq canvas (elem-get +dlist_*commited_canvas* dlist))
 		(. canvas :fill 0)
 		(each (lambda ((col poly))
 			(fpoly canvas col +winding_none_zero poly)) (elem-get +dlist_commited_polygons dlist))
 		(. canvas :swap 0))
 	(when (/= 0 (logand (elem-get +dlist_mask dlist) +layer_overlay))
-		(defq canvas (elem-get +dlist_overlay_canvas dlist))
+		(defq canvas (elem-get +dlist_*overlay_canvas* dlist))
 		(. canvas :fill 0)
 		(each (lambda (p)
 			(bind '(col poly) (flatten p))
@@ -113,18 +113,16 @@
 
 (defun main ()
 	(defq select (alloc-select +select_size)
-		dlist (list +layer_all commited_canvas overlay_canvas (list) (list)))
-	(. commited_canvas :set_canvas_flags +canvas_flag_antialias)
-	(. overlay_canvas :set_canvas_flags +canvas_flag_antialias)
-	(. mybackdrop :set_size +canvas_width +canvas_height)
+		dlist (list +layer_all *commited_canvas* *overlay_canvas* (list) (list)))
+	(. *commited_canvas* :set_canvas_flags +canvas_flag_antialias)
+	(. *overlay_canvas* :set_canvas_flags +canvas_flag_antialias)
 	(radio-select *ink_toolbar* 0)
 	(radio-select *mode_toolbar* 0)
 	(radio-select *radius_toolbar* 0)
-	(radio-select *style_toolbar* 0)
+	(radio-select *style_toolbar* 1)
 	(def *window* :tip_mbox (elem-get +select_tip select))
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(gui-add-front (. *window* :change x y w h))
-	(def *image_scroll* :min_width +min_width :min_height +min_height)
 
 	;main event loop
 	(defq last_state :u last_point :nil last_mid_point :nil *id* :t)
@@ -163,7 +161,7 @@
 			((defq *id* (getf *msg* +ev_msg_target_id) action (. *event_map* :find *id*))
 				;call bound event action
 				(action))
-			((and (= *id* (. overlay_canvas :get_id)) (= (getf *msg* +ev_msg_type) +ev_type_mouse))
+			((and (= *id* (. *overlay_canvas* :get_id)) (= (getf *msg* +ev_msg_type) +ev_type_mouse))
 				;mouse event for canvas
 				(defq new_point (path (n2f (getf *msg* +ev_msg_mouse_rx))
 					(n2f (getf *msg* +ev_msg_mouse_ry))))

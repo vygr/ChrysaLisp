@@ -32,10 +32,10 @@
 				(if (< _ 8) (const (num-to-utf8 0xe982)) (const (num-to-utf8 0xea04))))) :connect
 					(+ _ +event_black))) *palette*))
 	(ui-scroll *image_scroll* +scroll_flag_both
-			(:min_width +canvas_width :min_height +canvas_height)
-		(ui-backdrop mybackdrop (:color 0xffF8F8FF :ink_color 0xffADD8E6)
-			(ui-canvas overlay_canvas +canvas_width +canvas_height 1)
-			(ui-canvas commited_canvas +canvas_width +canvas_height 1))))
+			(:min_width +min_width :min_height +min_height)
+		(ui-backdrop *backdrop* (:color 0xffF8F8FF :ink_color 0xffADD8E6 :style :grid)
+			(ui-canvas *overlay_canvas* +canvas_width +canvas_height 1)
+			(ui-canvas *commited_canvas* +canvas_width +canvas_height 1))))
 
 (ui-tool-tips *main_toolbar*
 	'("save" "open" "clear" "undo" "redo"))
@@ -49,3 +49,6 @@
 (ui-tool-tips *mode_toolbar*
 	'("pen" "line" "arrow" "double arrow" "rect"
 	"circle" "filled rect" "filled circle"))
+
+(. *backdrop* :set_size +canvas_width +canvas_height)
+(. *image_scroll* :layout)
