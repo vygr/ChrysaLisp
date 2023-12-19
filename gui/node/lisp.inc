@@ -11,7 +11,9 @@
 	(defmethod :draw ()
 		; (. node :draw) -> node
 		(bind '(w h) (. this :get_size))
-		(.super (.-> this (:ctx_set_color (get :color this))
+		(unless (defq paper (def? :highlight_color this))
+			(setq paper (get :color this)))
+		(.super (.-> this (:ctx_set_color paper)
 			(:ctx_filled_box 0 0 w h)) :draw))
 
 	(defmethod :layout ()

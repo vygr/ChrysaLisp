@@ -35,11 +35,3 @@
 	;scale font down
 	(setq *page_scale* (max 0.75 (- (defq old_size *page_scale*) 0.125)))
 	(if (/= old_size *page_scale*) (populate-page *current_file*)))
-
-(defun action-whole-words ()
-	(setq *whole_words* (not *whole_words*))
-	(toolbar-states *find_toolbar* (list *whole_words* *regexp* :nil :nil)))
-
-(defun action-regexp ()
-	(setq *regexp* (not *regexp*))
-	(toolbar-states *find_toolbar* (list *whole_words* *regexp* :nil :nil)))

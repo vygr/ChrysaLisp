@@ -116,12 +116,22 @@
 
 	(defmethod :select (route)
 		; (. tree :select route) -> tree
-		;highlight a tree route
+		;select a tree route
 		(raise :selected_node)
 		(if selected_node (undef (. selected_node :dirty) :color))
 		(and route (setq selected_node (. this :find_node route))
 			(def (. selected_node :dirty) :color +argb_grey12))
 		(lower :selected_node)
+		this)
+
+	(defmethod :highlight (route &optional state)
+		; (. tree :highlight route &optional state) -> tree
+		;highlight/lolight a tree route
+		(when (and route (defq node (. this :find_node route)))
+			(if state
+				(undef node :highlight_color)
+				(def node :highlight_color +argb_yellow))
+			(. node :dirty))
 		this)
 
 	(defmethod :get_relative (route)

@@ -1,6 +1,7 @@
 (import "././login/env.inc")
 (import "gui/lisp.inc")
 (import "lib/text/syntax.inc")
+(import "lib/task/cmd.inc")
 
 ;our UI widgets and events
 (import "./widgets.inc")
@@ -76,7 +77,8 @@
 (defun main ()
 	(defq select (alloc-select +select_size) syntax (Syntax) handlers (Emap)
 		scroll_pos (Fmap) *running* :t *current_file* "docs/vm/vp_vm.md"
-		*page_scale* 1.0 *regexp* :nil *whole_words* :nil)
+		*page_scale* 1.0 *regexp* :nil *whole_words* :nil
+		*last_pattern* "" *last_files* (list))
 	(. *file_tree* :populate "docs" '(".md"))
 	(def *window* :tip_mbox (elem-get +select_tip select))
 	(def *page_scroll* :min_height 900)
