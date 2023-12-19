@@ -12,12 +12,6 @@
 (. node :draw) -> node
 ```
 
-### :layout
-
-```code
-(. node :layout) -> node
-```
-
 ### :mouse_down
 
 ```code
