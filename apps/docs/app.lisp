@@ -85,7 +85,7 @@
 	(. *file_tree* :change 0 0 w h)
 	(def *file_tree_scroll* :min_width w)
 	(def *window* :tip_mbox (elem-get +select_tip select))
-	(def *page_scroll* :min_height 900)
+	(def *page_scroll* :min_height 800)
 	(populate-page *current_file*)
 	(visible-node *file_tree* *current_file*)
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
