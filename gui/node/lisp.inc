@@ -25,12 +25,6 @@
 		(.super (.-> this (:ctx_set_color color)
 			(:ctx_filled_box 0 0 w h)) :draw))
 
-	(defmethod :layout ()
-		; (. node :layout) -> node
-		(if (= (>> (get :color this) 24) 0xff)
-			(. this :set_flags +view_flag_opaque +view_flag_opaque)
-			this))
-
 	(defmethod :mouse_down (event)
 		; (. node :mouse_down event) -> node
 		(raise :state)
