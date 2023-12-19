@@ -65,6 +65,14 @@ relative position of route
 (. tree :get_route node) -> route
 ```
 
+### :highlight
+
+```code
+(. tree :highlight route &optional state) -> tree
+
+highlight/lolight a tree route
+```
+
 ### :populate
 
 ```code
@@ -78,6 +86,6 @@ load up a file tree
 ```code
 (. tree :select route) -> tree
 
-highlight a tree route
+select a tree route
 ```
 
