@@ -15,6 +15,8 @@
 	+event_max action-maximise
 	+event_whole_words action-whole-words
 	+event_regexp action-regexp
+	+event_next action-next-doc
+	+event_prev action-prev-doc
 	+event_find_down action-find-down
 	+event_find_up action-find-up
 	+event_tree_action action-tree-action
@@ -27,6 +29,8 @@
 *key_map_shift* (Fmap-kv)
 
 *key_map_control* (Fmap-kv
+	(ascii-code "n") action-next-doc
+	(ascii-code "N") action-prev-doc
 	(ascii-code "{") action-scale-down
 	(ascii-code "}") action-scale-up
 	(ascii-code "=") action-maximise

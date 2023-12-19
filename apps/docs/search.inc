@@ -61,3 +61,23 @@
 	(setq *regexp* (not *regexp*))
 	(toolbar-states *find_toolbar* (list *whole_words* *regexp* :nil :nil))
 	(refresh-matches))
+
+(defun action-next-doc ()
+	(refresh-matches)
+	(when (nempty? *last_files*)
+		(if (defq idx (find *current_file* *last_files*))
+			(setq *current_file* (elem-get
+				(% (inc idx) (length *last_files*)) *last_files*))
+			(setq *current_file* (first *last_files*)))
+		(populate-page *current_file*)
+		(visible-node *file_tree* *current_file*)))
+
+(defun action-prev-doc ()
+	(refresh-matches)
+	(when (nempty? *last_files*)
+		(if (defq idx (find *current_file* *last_files*))
+			(setq *current_file* (elem-get
+				(% (+ idx (length *last_files*) -1) (length *last_files*)) *last_files*))
+			(setq *current_file* (first *last_files*)))
+		(populate-page *current_file*)
+		(visible-node *file_tree* *current_file*)))
