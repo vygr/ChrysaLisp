@@ -49,9 +49,6 @@ codes etc.
 
 * Add shift key selection to the Terminal app.
 
-* Docs app needs some love. Toolbar with forward and back button etc. Auto
-indexing on load or index file created by the doc builder.
-
 * Change Regexp compiler to produce VP code and hold a cache of translated
 expressions.
 
