@@ -6,6 +6,8 @@
 
 New `Radiobar` widget. Can be used in radio or toggles mode.
 
+Basic search added to Docs application.
+
 ------
 
 Region selection added to Viewer app.
