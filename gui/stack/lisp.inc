@@ -37,5 +37,5 @@
 			tab_index (find tab (. tab_flow :children)))
 		(when (< tab_index (length stack_children))
 			(. (elem-get tab_index stack_children) :to_front))
-		this)
+		(. this :emit))
 	)
