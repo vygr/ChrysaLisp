@@ -118,9 +118,14 @@
 		; (. tree :select route) -> tree
 		;select a tree route
 		(raise :selected_node)
-		(if selected_node (undef (. selected_node :dirty) :color))
-		(and route (setq selected_node (. this :find_node route))
-			(def (. selected_node :dirty) :color *env_selected_col*))
+		(when selected_node
+			(defq state (get :state selected_node))
+			(def (. selected_node :dirty) :state
+				(logand (lognot +node_state_selected) state)))
+		(when (and route (setq selected_node (. this :find_node route)))
+			(defq state (get :state selected_node))
+			(def (. selected_node :dirty) :state
+				(logior +node_state_selected state)))
 		(lower :selected_node)
 		this)
 
@@ -128,10 +133,11 @@
 		; (. tree :highlight route &optional state) -> tree
 		;highlight/lolight a tree route
 		(when (and route (defq node (. this :find_node route)))
+			(defq node_state (get :state node))
 			(if state
-				(undef node :highlight_color)
-				(def node :highlight_color *env_highlight_col*))
-			(. node :dirty))
+				(setq node_state (logand (lognot +node_state_highlight) node_state))
+				(setq node_state (logior +node_state_highlight node_state)))
+			(def (. node :dirty) :state node_state))
 		this)
 
 	(defmethod :get_relative (route)
