@@ -29,7 +29,7 @@ Faster `(slices)`, `(reverse-list)` functions, and new `(reverse seq)`.
 
 `(#)` macro does NOT descend into quote or quasi-quote forms.
 
-New `lisp` Docs app section handler ! `ui_widgets.md` now shows live Lisp code
+New `lisp` Docs app section handler ! `widgets.md` now shows live Lisp code
 and the widget created by it. These section handlers run in an auto module and
 anything they export persists within a `*handler_env*` and is visible to the
 next `lisp` section ! The repl return value is auto exported as `*result*`,
@@ -683,7 +683,7 @@ New `event_loops.md` doc.
 
 New `event_dispatch.md` doc.
 
-New `ui_widgets.md` doc.
+New `widgets.md` doc.
 
 New application Template. Copy to new folder to get the framework for your new
 app.
