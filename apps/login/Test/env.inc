@@ -32,6 +32,7 @@
 (defq *env_window_col* 0xff00c000 *env_title_col* 0xff00e000 *env_slider_col* 0xff00e000
 	*env_toolbar_col* 0xff00c000 *env_toolbar2_col* 0xff00a000 *env_ink_col* 0xff000000
 	*env_hint_col* 0xff00b000 *env_no_hint_col* *env_ink_col*
+	*env_highlight_col* 0xfffffdaf *env_selected_col* 0xffc0c0c0
 	*env_window_border* 1 *env_window_shadow* 5 *env_label_border* 0 *env_button_border* 1
 	*env_textfield_border* -1 *env_title_border* 1 *env_title_buttons_border* 1
 	*env_window_font* (create-font "fonts/OpenSans-Regular.ctf" 18)

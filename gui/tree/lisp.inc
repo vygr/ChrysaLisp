@@ -120,7 +120,7 @@
 		(raise :selected_node)
 		(if selected_node (undef (. selected_node :dirty) :color))
 		(and route (setq selected_node (. this :find_node route))
-			(def (. selected_node :dirty) :color +argb_grey12))
+			(def (. selected_node :dirty) :color *env_selected_col*))
 		(lower :selected_node)
 		this)
 
@@ -130,7 +130,7 @@
 		(when (and route (defq node (. this :find_node route)))
 			(if state
 				(undef node :highlight_color)
-				(def node :highlight_color +argb_yellow))
+				(def node :highlight_color *env_highlight_col*))
 			(. node :dirty))
 		this)
 
