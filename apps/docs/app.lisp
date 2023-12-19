@@ -2,11 +2,8 @@
 (import "gui/lisp.inc")
 (import "lib/text/syntax.inc")
 
-(enums +event 0
-	(enum close max min)
-	(enum tree_action)
-	(enum file_folder_action file_leaf_action)
-	(enum file_tree_collapse file_tree_expand))
+;our UI widgets and events
+(import "./widgets.inc")
 
 (enums +select 0
 	(enum main tip embeded))
@@ -17,20 +14,6 @@
 
 ;lisp handler environment
 ((# (def (penv) '*handler_env* (env))))
-
-(ui-window *window* (:color +argb_grey15)
-	(ui-title-bar _ "Docs" (0xea19 0xea1b 0xea1a) +event_close)
-	(ui-flow *doc_flow* (:flow_flags +flow_right_fill :color *env_toolbar_col*)
-		(ui-flow _ (:flow_flags +flow_stack_fill)
-			(ui-flow _  (:flow_flags +flow_down_fill)
-				(ui-title-bar _ "Project" (0xe940 0xe941) +event_file_tree_collapse)
-				(ui-scroll *file_tree_scroll* +scroll_flag_vertical :nil
-					(. (ui-tree *file_tree* +event_file_folder_action
-							(:min_width 0 :color +argb_white
-							:font *env_medium_terminal_font*))
-						:connect +event_tree_action)))
-			(ui-backdrop _ (:color +argb_white)))
-		(ui-scroll *page_scroll* +scroll_flag_both (:min_height 900))))
 
 (defun handler-func (state)
 	(unless (defq handler (. handlers :find state))
@@ -69,6 +52,12 @@
 		(.-> *page_scroll* (:add_child page_flow) :layout)
 		(.-> *doc_flow* :layout :dirty_all)))
 
+(defun toolbar-states (toolbar states)
+	(defq radio_col (canvas-brighter (get :color toolbar)))
+	(each (# (undef (. %0 :dirty) :color)
+			(if %1 (def %0 :color radio_col)))
+		(. toolbar :children) states))
+
 (defun select-node (file)
 	;highlight the selected file
 	(. *file_tree* :select file)
@@ -87,8 +76,10 @@
 (defun main ()
 	(defq select (alloc-select +select_size) syntax (Syntax) handlers (Emap)
 		scroll_pos (Fmap) *running* :t *current_file* "docs/vm/vp_vm.md"
-		*page_scale* 1.0)
+		*page_scale* 1.0 *regexp* :nil *whole_words* :nil)
 	(. *file_tree* :populate "docs" '(".md"))
+	(def *window* :tip_mbox (elem-get +select_tip select))
+	(def *page_scroll* :min_height 900)
 	(populate-page *current_file*)
 	(select-node *current_file*)
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))

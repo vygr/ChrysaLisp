@@ -12,6 +12,8 @@
 	+event_close action-close
 	+event_min action-minimise
 	+event_max action-maximise
+	+event_whole_words action-whole-words
+	+event_regexp action-regexp
 	+event_tree_action action-tree-action
 	+event_file_tree_expand action-file-tree-expand
 	+event_file_tree_collapse action-file-tree-collapse
