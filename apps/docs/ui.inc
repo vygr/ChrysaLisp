@@ -9,7 +9,7 @@
 	;load up the file selected
 	(setq *current_file* (. *file_tree* :get_route
 		(. *window* :find_id (getf *msg* +ev_msg_action_source_id))))
-	(select-node *current_file*)
+	(visible-node *file_tree* *current_file*)
 	(populate-page *current_file*))
 
 (defun action-close ()

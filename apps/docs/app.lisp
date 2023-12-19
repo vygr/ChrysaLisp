@@ -59,14 +59,16 @@
 			(if %1 (def %0 :color radio_col)))
 		(. toolbar :children) states))
 
-(defun select-node (file)
-	;highlight the selected file
-	(. *file_tree* :select file)
-	(bind '(w h) (. *file_tree* :pref_size))
-	(. *file_tree* :change 0 0 w h)
-	(def *file_tree* :min_width w)
-	(def *file_tree_scroll* :min_width w)
-	(.-> *file_tree_scroll* :layout :dirty_all))
+(defun visible-node (tree file)
+	;highlight and show the selected file
+	(. tree :select file)
+	(bind '(_ y _ h) (. tree :get_relative file))
+	(defq tree (penv tree) scroll (get :vslider tree))
+	(bind '(_ th) (. tree :get_size))
+	(defq val (get :value scroll))
+	(if (< y val) (def scroll :value y))
+	(if (> (+ y h) (+ val th)) (def scroll :value (- (+ y h) th)))
+	(.-> tree :layout :dirty_all))
 
 (defun page-scale (s)
 	(n2i (* (n2f s) *page_scale*)))
@@ -79,11 +81,13 @@
 		scroll_pos (Fmap) *running* :t *current_file* "docs/vm/vp_vm.md"
 		*page_scale* 1.0 *regexp* :nil *whole_words* :nil
 		*last_pattern* "" *last_files* (list))
-	(. *file_tree* :populate "docs" '(".md"))
+	(bind '(w h) (.-> *file_tree* (:populate "docs" '(".md")) :pref_size))
+	(. *file_tree* :change 0 0 w h)
+	(def *file_tree_scroll* :min_width w)
 	(def *window* :tip_mbox (elem-get +select_tip select))
 	(def *page_scroll* :min_height 900)
 	(populate-page *current_file*)
-	(select-node *current_file*)
+	(visible-node *file_tree* *current_file*)
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(gui-add-front (. *window* :change x y w h))
 	(while *running*
