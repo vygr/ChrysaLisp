@@ -28,6 +28,13 @@
 			(:t (push (elem-get b x) key)))
 		this)
 
+	(defmethod :intern (key)
+		; (. fset :intern key) -> key
+		(slot)
+		(cond
+			(e (elem-get e (elem-get b x)))
+			(:t (push (elem-get b x) key) key)))
+
 	(defmethod :erase (key)
 		; (. fset :erase key) -> fset
 		(slot)

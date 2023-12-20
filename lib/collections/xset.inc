@@ -29,6 +29,13 @@
 			(:t (push (elem-get b x) key)))
 		this)
 
+	(defmethod :intern (key)
+		; (. xset :intern key) -> key
+		(slot)
+		(cond
+			(e (elem-get e (elem-get b x)))
+			(:t (push (elem-get b x) key) key)))
+
 	(defmethod :erase (key)
 		; (. xset :erase key) -> xset
 		(slot)

@@ -12,6 +12,8 @@ New `:visible` method added to Scroll widget.
 
 Added `-m` option to `grep` command.
 
+New Fset/Xset `:intern` method.
+
 ------
 
 Region selection added to Viewer app.

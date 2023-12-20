@@ -52,6 +52,12 @@
 (. fset :insert key) -> fset
 ```
 
+### :intern
+
+```code
+(. fset :intern key) -> key
+```
+
 ### :intersect
 
 ```code

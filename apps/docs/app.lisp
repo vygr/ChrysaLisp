@@ -24,7 +24,7 @@
 	handler)
 
 (defun intern-word (word)
-	(.-> *page_words* (:insert word) (:find word)))
+	(. *page_words* :intern word))
 
 (defun populate-page (file)
 	(clear *search_widgets*)

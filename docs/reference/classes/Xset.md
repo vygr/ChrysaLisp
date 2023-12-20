@@ -52,6 +52,12 @@
 (. xset :insert key) -> xset
 ```
 
+### :intern
+
+```code
+(. xset :intern key) -> key
+```
+
 ### :intersect
 
 ```code
