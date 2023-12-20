@@ -24,6 +24,8 @@
 	handler)
 
 (defun populate-page (file)
+	(clear *search_widgets*)
+	(setq *last_widget* :nil)
 	(when file
 		;min width of an 80 column terminal !
 		(def (defq vdu (Vdu))
@@ -61,14 +63,9 @@
 
 (defun visible-node (tree file)
 	;highlight and show the selected file
-	(. tree :select file)
-	(bind '(_ y _ h) (. tree :get_relative file))
-	(defq tree (penv tree) scroll (get :vslider tree))
-	(bind '(_ th) (. tree :get_size))
-	(defq val (get :value scroll))
-	(if (< y val) (def scroll :value y))
-	(if (> (+ y h) (+ val th)) (def scroll :value (- (+ y h) th)))
-	(.-> tree :layout :dirty_all))
+	(when (defq node (. tree :find_node file))
+		(. tree :select file)
+		(. (penv tree) :visible node)))
 
 (defun page-scale (s)
 	(n2i (* (n2f s) *page_scale*)))
@@ -80,7 +77,8 @@
 	(defq select (alloc-select +select_size) syntax (Syntax) handlers (Emap)
 		scroll_pos (Fmap) *running* :t *current_file* "docs/vm/vp_vm.md"
 		*page_scale* 1.0 *regexp* :nil *whole_words* :nil
-		*last_key* "" *last_files* (list))
+		*last_key* "" *last_files* (list)
+		*last_widget* :nil *search_widgets* (list))
 	(bind '(w h) (.-> *file_tree* (:populate "docs" '(".md")) :pref_size))
 	(. *file_tree* :change 0 0 w h)
 	(def *file_tree_scroll* :min_width w)
