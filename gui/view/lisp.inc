@@ -195,6 +195,14 @@
 		(setd mw 0 mh 0)
 		(list mw mh))
 
+	(defmethod :get_relative (child)
+		; (. view :get_relative child) -> (x y w h)
+		(bind '(x y w h) (. child :get_bounds))
+		(until (eql (defq p (penv child)) this)
+			(bind '(x1 y1) (. p :get_pos))
+			(setq x (+ x x1) y (+ y y1) child p))
+		(list x y w h))
+
 	(defmethod :layout ()
 		; (. view :layout) -> view
 		(if (= (>> (get :color this) 24) 0xff)
