@@ -51,14 +51,6 @@ routes are:
 "a/b/c/node"
 ```
 
-### :get_relative
-
-```code
-(. tree :get_relative route) -> (x y w h)
-
-relative position of route
-```
-
 ### :get_route
 
 ```code

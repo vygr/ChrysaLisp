@@ -27,6 +27,8 @@
 ### *key_map_control*
 
 ```code
+(ascii-code "n") action-next-doc
+(ascii-code "N") action-prev-doc
 (ascii-code "{") action-scale-down
 (ascii-code "}") action-scale-up
 (ascii-code "=") action-maximise

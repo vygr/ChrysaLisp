@@ -150,6 +150,12 @@ overide the default 'this' env with a View component
 (. view :get_pos) -> (x y)
 ```
 
+### :get_relative
+
+```code
+(. view :get_relative child) -> (x y w h)
+```
+
 ### :get_size
 
 ```code

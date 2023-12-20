@@ -36,3 +36,9 @@
 (. scroll :pref_size) -> (width height)
 ```
 
+### :visible
+
+```code
+(. scroll :visible decendant) -> scroll
+```
+

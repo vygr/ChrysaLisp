@@ -6,12 +6,6 @@
 (Node) -> node
 ```
 
-### :draw
-
-```code
-(. node :draw) -> node
-```
-
 ### :mouse_down
 
 ```code
