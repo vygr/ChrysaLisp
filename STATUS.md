@@ -10,6 +10,8 @@ Basic search added to Docs application.
 
 New `:visible` method added to Scroll widget.
 
+Added `-m` option to `grep` command.
+
 ------
 
 Region selection added to Viewer app.

@@ -6,7 +6,7 @@
 
 (defun find-global (pattern whole_words regexp)
 	;find file matches
-	(defq cmd (cat "grep -c -f "
+	(defq cmd (cat "grep -c -f -m "
 			(if whole_words "-w " "") (if regexp "-r " "")
 			(id-encode pattern) " ")
 		results (sort (const cmp) (map (# (trim-end %0 (ascii-char 10)))

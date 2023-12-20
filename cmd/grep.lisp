@@ -3,17 +3,33 @@
 ;grep a stream to stdout
 (defun grep-stream (stream)
 	(when stream
+		(defq state :nil)
 		(each-line (# (task-slice)
-				(if (. search :match? %0 pattern meta) (print %0)))
+			(if md_flag
+				(if state
+					(if (starts-with "```" %0)
+						(setq state :nil))
+					(if (starts-with "```" %0)
+						(setq state :t)
+						(if (. search :match? %0 pattern meta) (print %0))))
+				(if (. search :match? %0 pattern meta) (print %0))))
 			stream)))
 
 ;grep a file to stdout
 (defun grep-file (file)
-	(when (defq result :nil stream (file-stream file))
+	(when (defq state :nil result :nil stream (file-stream file))
 		(while (and (not result) (defq line (read-line stream)))
 			(task-slice)
-			(if (setq result (. search :match? line pattern meta))
-				(print file)))))
+			(if md_flag
+				(if state
+					(if (starts-with "```" line)
+						(setq state :nil))
+					(if (starts-with "```" line)
+						(setq state :t)
+						(if (setq result (. search :match? line pattern meta))
+							(print file))))
+				(if (setq result (. search :match? line pattern meta))
+					(print file))))))
 
 (defq usage `(
 (("-h" "--help")
@@ -26,6 +42,7 @@
 		-w --words: whole words mode, default :nil.
 		-r --regexp: regexp mode, default :nil.
 		-c --coded: encoded pattern mode, default :nil.
+		-m --md: md doc mode, default :nil.
 
 	pattern:
 		^  start of line
@@ -59,20 +76,17 @@
 	If no paths given on command line
 	then will grep from stdin.")
 (("-e" "--exp")
-	,(lambda (args arg)
-		(setq pattern (first args)) (rest args)))
+	,(lambda (args arg) (setq pattern (first args)) (rest args)))
 (("-f" "--file")
-	,(lambda (args arg)
-		(setq file_flag :t) args))
+	,(lambda (args arg) (setq file_flag :t) args))
 (("-w" "--words")
-	,(lambda (args arg)
-		(setq words_flag :t) args))
+	,(lambda (args arg) (setq words_flag :t) args))
 (("-r" "--regexp")
-	,(lambda (args arg)
-		(setq regexp_flag :t) args))
+	,(lambda (args arg) (setq regexp_flag :t) args))
 (("-c" "--coded")
-	,(lambda (args arg)
-		(setq coded_flag :t) args))
+	,(lambda (args arg) (setq coded_flag :t) args))
+(("-m" "--md")
+	,(lambda (args arg) (setq md_flag :t) args))
 ))
 
 (defun main ()
@@ -80,7 +94,7 @@
 	(when (and
 			(defq stdio (create-stdio))
 			(defq pattern "" file_flag :nil words_flag :nil
-				regexp_flag :nil coded_flag :nil
+				regexp_flag :nil coded_flag :nil md_flag :nil
 				args (options stdio usage)))
 		(when (and (eql pattern "") (> (length args) 1))
 			(defq pattern (second args) args (erase args 1 2)))

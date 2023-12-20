@@ -72,6 +72,7 @@ Usage: grep [options] [pattern] [path] ...
 		-w --words: whole words mode, default :nil.
 		-r --regexp: regexp mode, default :nil.
 		-c --coded: encoded pattern mode, default :nil.
+		-m --md: md doc mode, default :nil.
 
 	pattern:
 		^  start of line
