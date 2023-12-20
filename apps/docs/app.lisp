@@ -23,9 +23,13 @@
 		(. handlers :insert state handler))
 	handler)
 
+(defun intern-word (word)
+	(.-> *page_words* (:insert word) (:find word)))
+
 (defun populate-page (file)
 	(clear *search_widgets*)
 	(setq *last_widget* :nil)
+	(. *page_words* :empty)
 	(when file
 		;min width of an 80 column terminal !
 		(def (defq vdu (Vdu))
@@ -77,7 +81,7 @@
 	(defq select (alloc-select +select_size) syntax (Syntax) handlers (Emap)
 		scroll_pos (Fmap) *running* :t *current_file* "docs/vm/vp_vm.md"
 		*page_scale* 1.0 *regexp* :nil *whole_words* :nil
-		*last_key* "" *last_files* (list)
+		*last_key* "" *last_files* (list) *page_words* (Fset 101)
 		*last_widget* :nil *search_widgets* (list))
 	(bind '(w h) (.-> *file_tree* (:populate "docs" '(".md")) :pref_size))
 	(. *file_tree* :change 0 0 w h)
