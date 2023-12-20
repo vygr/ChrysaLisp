@@ -80,7 +80,8 @@
 				(% (inc idx) (length *last_files*)) *last_files*))
 			(setq *current_file* (first *last_files*)))
 		(populate-page *current_file*)
-		(visible-node *file_tree* *current_file*)))
+		(visible-node *file_tree* *current_file*)
+		(action-find-down)))
 
 (defun action-prev-doc ()
 	(refresh-matches)
@@ -90,4 +91,5 @@
 				(% (+ idx (length *last_files*) -1) (length *last_files*)) *last_files*))
 			(setq *current_file* (first *last_files*)))
 		(populate-page *current_file*)
-		(visible-node *file_tree* *current_file*)))
+		(visible-node *file_tree* *current_file*)
+		(action-find-down)))
