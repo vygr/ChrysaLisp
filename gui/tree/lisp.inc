@@ -121,11 +121,11 @@
 		(when selected_node
 			(defq state (get :state selected_node))
 			(def (. selected_node :dirty) :state
-				(logand (lognot +node_state_selected) state)))
+				(logand (lognot +text_state_selected) state)))
 		(when (and route (setq selected_node (. this :find_node route)))
 			(defq state (get :state selected_node))
 			(def (. selected_node :dirty) :state
-				(logior +node_state_selected state)))
+				(logior +text_state_selected state)))
 		(lower :selected_node)
 		this)
 
@@ -135,21 +135,10 @@
 		(when (and route (defq node (. this :find_node route)))
 			(defq node_state (get :state node))
 			(if state
-				(setq node_state (logand (lognot +node_state_highlight) node_state))
-				(setq node_state (logior +node_state_highlight node_state)))
+				(setq node_state (logand (lognot +text_state_highlight) node_state))
+				(setq node_state (logior +text_state_highlight node_state)))
 			(def (. node :dirty) :state node_state))
 		this)
-
-	(defmethod :get_relative (route)
-		; (. tree :get_relative route) -> (x y w h)
-		;relative position of route
-		(defq x 0 y 0 w 0 h 0)
-		(when (and route (defq node (. this :find_node route)))
-			(bind '(x y w h) (. node :get_bounds))
-			(until (eql (defq p (penv node)) this)
-				(bind '(x1 y1) (. p :get_pos))
-				(setq x (+ x x1) y (+ y y1) node p)))
-		(list x y w h))
 
 	(defmethod :action (event)
 		; (. tree :action event) -> tree
