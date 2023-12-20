@@ -71,9 +71,33 @@
 			(. child :set_bounds (neg hval) (neg vval) cw ch))
 		this)
 
+	(defmethod :visible (decendant)
+		; (. scroll :visible decendant) -> scroll
+		(raise :hslider :vslider :child (flag :nil))
+		(when child
+			(bind '(x y w h) (. child :get_relative decendant))
+			(bind '(tw th) (. this :get_size))
+			(when hslider
+				(defq val (get :value hslider))
+				(when (< x val)
+					(def hslider :value x)
+					(setq flag :t))
+				(when (> (+ x w) (+ val tw))
+					(def hslider :value (- (+ x w) tw))
+					 (setq flag :t)))
+			(when vslider
+				(defq val (get :value vslider))
+				(when (< y val)
+					(def vslider :value y)
+					 (setq flag :t))
+				(when (> (+ y h) (+ val th))
+					(def vslider :value (- (+ y h) th))
+					 (setq flag :t))))
+		(if flag (.-> this :layout :dirty_all) this))
+
 	(defmethod :mouse_wheel (event)
 		; (. scroll :mouse_wheel event) -> scroll
-		(defq hslider (get :hslider this) vslider (get :vslider this))
+		(raise :hslider :vslider)
 		(if hslider (def hslider :value (+ (get :value hslider) (* 16 (getf event +ev_msg_wheel_x)))))
 		(if vslider (def vslider :value (- (get :value vslider) (* 16 (getf event +ev_msg_wheel_y)))))
 		;dispatch wheel events to parent if not used
