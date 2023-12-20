@@ -8,6 +8,8 @@ New `Radiobar` widget. Can be used in radio or toggles mode.
 
 Basic search added to Docs application.
 
+New `:visible` method added to Scroll widget.
+
 ------
 
 Region selection added to Viewer app.
