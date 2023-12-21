@@ -16,6 +16,8 @@ New Fset/Xset `:intern` method.
 
 New Stroke widget. Whiteboard updated to use this for multi stroke capture.
 
+New `(path-smooth src tol) -> dst` function.
+
 ------
 
 Region selection added to Viewer app.
