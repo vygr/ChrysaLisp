@@ -14,6 +14,7 @@
 (import "./title/lisp.inc")
 (import "./grid/lisp.inc")
 (import "./flow/lisp.inc")
+(import "./stroke/lisp.inc")
 (import "./stack/lisp.inc")
 (import "./tree/lisp.inc")
 (import "./vdu/lisp.inc")
@@ -119,6 +120,10 @@
 (defmacro ui-text (n &optional p)
 	; (ui-text name [props]) -> text
 	`(ui-element ,n (Text) ,p))
+
+(defmacro ui-stroke (n &optional p)
+	; (ui-text name [props]) -> stroke
+	`(ui-element ,n (Stroke) ,p))
 
 (defmacro ui-label (n &optional p &rest x)
 	; (ui-label name [props] [body]) -> label

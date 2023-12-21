@@ -1709,6 +1709,12 @@ patch stream a with stream b, write to stream c
 (ui-stack name tabs [props] [body]) -> stack
 ```
 
+### ui-stroke
+
+```code
+(ui-text name [props]) -> stroke
+```
+
 ### ui-text
 
 ```code

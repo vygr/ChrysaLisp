@@ -58,3 +58,23 @@
 	(mail-send (setq *picker_mode* :nil *picker_mbox*
 		(open-child "apps/files/child.lisp" +kn_call_open))
 		(list (elem-get +select_picker select) "Load Whiteboard..." "." ".cwb")))
+
+(defun action-stroke ()
+	(defq strokes (. *strokes* :get_strokes) states (. *strokes* :get_states))
+	;display in flight strokes
+	(clear overlay_paths)
+	(each (# (unless (= *stroke_mode* +event_pen)
+				(if (> (length %0) 4)
+					(setq %0 (cat (slice 0 2 %0) (slice -3 -1 %0)))))
+			(setq %0 (apply (const path) (map (const n2f) %0)))
+			(path-filter +tol %0 %0)
+			(push overlay_paths (list *stroke_mode* *stroke_col* *stroke_radius* %0)))
+		strokes)
+	(redraw-layers +layer_overlay)
+	;commit completed strokes
+	(when (some (const identity) states)
+		(snapshot)
+		(each (# (if %1 (commit %0))) overlay_paths states)
+		(clear overlay_paths)
+		(redraw-layers +layer_all)
+		(. *strokes* :clear)))

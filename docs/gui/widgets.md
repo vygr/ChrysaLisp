@@ -796,6 +796,14 @@ gui/lisp.inc "macro ui-canvas" ""
 Creates a Canvas instance, with name, width, height, scale and optional
 property list.
 
+### (ui-stroke name &optional p) -> stroke
+
+```file
+gui/lisp.inc "macro ui-stroke" ""
+```
+
+Creates a Stoke capture instance, with name and optional property list.
+
 ### (ui-vdu name [props]) -> vdu
 
 ```file

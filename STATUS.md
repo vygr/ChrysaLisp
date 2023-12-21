@@ -14,6 +14,8 @@ Added `-m` option to `grep` command.
 
 New Fset/Xset `:intern` method.
 
+New Stroke widget. Whiteboard updated to use this for multi stroke capture.
+
 ------
 
 Region selection added to Viewer app.

@@ -106,7 +106,7 @@
 (import "./actions.inc")
 
 (defun main ()
-	(defq select (alloc-select +select_size)
+	(defq select (alloc-select +select_size) *id* :t
 		dlist (list +layer_all *commited_canvas* *overlay_canvas* (list) (list)))
 	(. *commited_canvas* :set_canvas_flags +canvas_flag_antialias)
 	(. *overlay_canvas* :set_canvas_flags +canvas_flag_antialias)
@@ -115,7 +115,6 @@
 	(gui-add-front (. *window* :change x y w h))
 
 	;main event loop
-	(defq last_state :u last_point :nil last_mid_point :nil *id* :t)
 	(mail-timeout (elem-get +select_timer select) rate 0)
 	(while *running*
 		(defq *msg* (mail-read (elem-get (defq idx (mail-select select)) select)))
@@ -151,51 +150,6 @@
 			((defq *id* (getf *msg* +ev_msg_target_id) action (. *event_map* :find *id*))
 				;call bound event action
 				(action))
-			((and (= *id* (. *overlay_canvas* :get_id)) (= (getf *msg* +ev_msg_type) +ev_type_mouse))
-				;mouse event for canvas
-				(defq new_point (path (n2f (getf *msg* +ev_msg_mouse_rx))
-					(n2f (getf *msg* +ev_msg_mouse_ry))))
-				(cond
-					((/= (getf *msg* +ev_msg_mouse_buttons) 0)
-						;mouse button is down
-						(case last_state
-							(:d ;was down last time, what draw mode ?
-								(cond
-									((= *stroke_mode* +event_pen)
-										;pen mode, so extend last stroke ?
-										(defq stroke (elem-get +path_path (last overlay_paths))
-											mid_vec (vec-sub new_point last_point))
-										(when (>= (vec-length-squared mid_vec) (* *stroke_radius* *stroke_radius*))
-											(defq mid_point (vec-add last_point (vec-scale mid_vec 0.5)))
-											(path-gen-quadratic
-												(first last_mid_point) (second last_mid_point)
-												(first last_point) (second last_point)
-												(first mid_point) (second mid_point)
-												+eps stroke)
-											(path-filter +tol stroke stroke)
-											(setq last_point new_point last_mid_point mid_point)
-											(redraw-layers +layer_overlay)))
-									(:t ;a shape mode
-										(elem-set +path_path (last overlay_paths) (cat last_point new_point))
-										(redraw-layers +layer_overlay)))
-								)
-							(:u ;was up last time, so start new stroke
-								(setq last_state :d last_point new_point last_mid_point new_point)
-								(push overlay_paths (list *stroke_mode* *stroke_col* *stroke_radius* new_point))
-								(redraw-layers +layer_overlay))))
-					(:t ;mouse button is up
-						(case last_state
-							(:d ;was down last time, so last point and commit stroke
-								(snapshot)
-								(setq last_state :u)
-								(defq stroke (elem-get +path_path (last overlay_paths)))
-								(push stroke (first new_point) (second new_point))
-								(path-filter 0.5 stroke stroke)
-								(each commit overlay_paths)
-								(clear overlay_paths)
-								(redraw-layers +layer_all))
-							(:u ;was up last time, so we are hovering
-								:t)))))
 			((and (not (Textfield? (. *window* :find_id *id*)))
 					(= (getf *msg* +ev_msg_type) +ev_type_key_down)
 					(> (getf *msg* +ev_msg_key_scode) 0))

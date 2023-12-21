@@ -10,6 +10,7 @@
 (defq
 *event_map* (Fmap-kv
 	+event_ink action-ink
+	+event_stroke action-stroke
 	+event_close action-close
 	+event_style action-style
 	+event_radius action-radius

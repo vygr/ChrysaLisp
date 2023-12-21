@@ -1,6 +1,7 @@
 (enums +event 0
 	(enum close max min)
 	(enum undo redo save load clear)
+	(enum stroke)
 	(enum style radius ink)
 	(enum pen line arrow1 arrow2 box circle fbox fcircle))
 
@@ -28,9 +29,11 @@
 		:connect +event_ink)
 	(ui-scroll *image_scroll* +scroll_flag_both
 			(:min_width +min_width :min_height +min_height)
-		(ui-backdrop *backdrop* (:color 0xffF8F8FF :ink_color 0xffADD8E6 :style :grid)
-			(ui-canvas *overlay_canvas* +canvas_width +canvas_height 1)
-			(ui-canvas *commited_canvas* +canvas_width +canvas_height 1))))
+		(ui-flow *strokes_stack* (:flow_flags +flow_stack_fill)
+			(. (ui-stroke *strokes*) :connect +event_stroke)
+			(ui-backdrop *backdrop* (:color 0xffF8F8FF :ink_color 0xffADD8E6 :style :grid)
+				(ui-canvas *overlay_canvas* +canvas_width +canvas_height 1)
+				(ui-canvas *commited_canvas* +canvas_width +canvas_height 1)))))
 
 (ui-tool-tips *main_toolbar*
 	'("undo" "redo" "save" "open" "clear"))
@@ -50,5 +53,5 @@
 (. *mode_toolbar* :set_selected 0)
 (. *radius_toolbar* :set_selected 0)
 (. *style_toolbar* :set_selected 1)
-(. *backdrop* :set_size +canvas_width +canvas_height)
+(. *strokes_stack* :change 0 0 +canvas_width +canvas_height)
 (. *image_scroll* :layout)
