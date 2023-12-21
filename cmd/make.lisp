@@ -137,10 +137,10 @@
 									(setq state :method))
 								("defgetmethod"
 									(push methods (list (cat ":get_" name) (setq info (list))))
-									(setq state :method))
+									(setq state :nil))
 								("defsetmethod"
 									(push methods (list (cat ":set_" name) (setq info (list))))
-									(setq state :method))))))))
+									(setq state :nil))))))))
 			(file-stream file)))
 		(sanitize (cat
 			(all-files "." '("lisp.inc" "actions.inc") 2)

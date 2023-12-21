@@ -28,6 +28,8 @@ tab compression of string
 (. syntax :set_colors fmap) -> syntax
 ```
 
+### :set_state
+
 ### :text_flow
 
 ```code

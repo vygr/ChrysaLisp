@@ -8,6 +8,8 @@
 (. stroke :clear) -> stroke
 ```
 
+### :get_states
+
 ### :get_strokes
 
 ### :mouse_down

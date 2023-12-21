@@ -4,6 +4,8 @@
 (Mesh) -> mesh
 ```
 
+### :get_norms
+
 ### :get_tris
 
 ### :get_verts
