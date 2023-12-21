@@ -60,7 +60,6 @@
 		(list (elem-get +select_picker select) "Load Whiteboard..." "." ".cwb")))
 
 (defun action-stroke ()
-	(defq strokes (. *strokes* :get_strokes) states (. *strokes* :get_states))
 	;display in flight strokes
 	(clear overlay_paths)
 	(each (# (unless (= *stroke_mode* +event_pen)
@@ -69,10 +68,10 @@
 			(setq %0 (apply (const path) (map (const n2f) %0)))
 			(path-filter +tol %0 %0)
 			(push overlay_paths (list *stroke_mode* *stroke_col* *stroke_radius* %0)))
-		strokes)
+		(. *strokes* :get_strokes))
 	(redraw-layers +layer_overlay)
 	;commit completed strokes
-	(when (some (const identity) states)
+	(when (some (const identity) (defq states (. *strokes* :get_states)))
 		(snapshot)
 		(each (# (if %1 (commit %0))) overlay_paths states)
 		(clear overlay_paths)
