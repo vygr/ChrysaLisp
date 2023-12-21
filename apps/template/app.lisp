@@ -67,27 +67,6 @@
 					((<= +char_space key +char_tilde)
 						;insert char etc ...
 						(char key))))
-			((and (= id (. *main_widget* :get_id))
-				(= (getf *msg* +ev_msg_type) +ev_type_mouse))
-					;mouse event in main widget
-					(defq rx (getf *msg* +ev_msg_mouse_rx)
-						ry (getf *msg* +ev_msg_mouse_ry))
-					(cond
-						((/= (getf *msg* +ev_msg_mouse_buttons) 0)
-							;mouse button is down
-							(case mouse_state
-								(:d ;was down last time
-									)
-								(:u ;was up last time
-									(setq mouse_state :d)))
-							;use rx, ry ...
-							)
-						(:t ;mouse button is up
-							(case mouse_state
-								(:d ;was down last time
-									(setq mouse_state :u))
-								(:u ;was up last time, so we are hovering
-									)))))
 			(:t ;gui event
 				(. *window* :event *msg*))))
 	(profile-report "Template" :t)
