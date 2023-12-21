@@ -1089,6 +1089,12 @@ scan the stdio args and process acording to the optlist
 (path-gen-rect x y x1 y1 rx ry tol dst) -> dst
 ```
 
+### path-smooth
+
+```code
+(path-smooth src tol) -> dst
+```
+
 ### path-stroke-polygons
 
 ```code

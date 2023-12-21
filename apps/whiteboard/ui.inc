@@ -59,23 +59,6 @@
 		(open-child "apps/files/child.lisp" +kn_call_open))
 		(list (elem-get +select_picker select) "Load Whiteboard..." "." ".cwb")))
 
-(defun smooth-path (stroke)
-	(cond
-		((> (length stroke) 4)
-			(defq out (path) stroke (partition 2 stroke)
-				last_point (first stroke) last_mid_point last_point
-				mid_point last_mid_point)
-			(each (# (setq last_mid_point mid_point
-				mid_point (vec-add last_point (vec-scale (vec-sub %0 last_point) 0.5)))
-				(path-gen-quadratic
-					(first last_mid_point) (second last_mid_point)
-					(first last_point) (second last_point)
-					(first mid_point) (second mid_point)
-					+eps out)
-				(setq last_point %0)) stroke)
-			(push out (first last_point) (second last_point)))
-		(stroke)))
-
 (defun action-stroke ()
 	;display in flight strokes
 	(clear overlay_paths)
@@ -83,7 +66,7 @@
 				(if (> (length %0) 4)
 					(setq %0 (cat (slice 0 2 %0) (slice -3 -1 %0)))))
 			(setq %0 (apply (const path) (map (const n2f) %0)))
-			(if (= *stroke_mode* +event_pen) (setq %0 (smooth-path %0)))
+			(if (= *stroke_mode* +event_pen) (setq %0 (path-smooth %0 +eps)))
 			(path-filter +tol %0 %0)
 			(push overlay_paths (list *stroke_mode* *stroke_col* *stroke_radius* %0)))
 		(. *strokes* :get_strokes))

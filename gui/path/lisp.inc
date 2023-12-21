@@ -15,6 +15,24 @@
 (enums +cap 0
 	(enum butt square tri arrow round))
 
+(defun path-smooth (src tol)
+	; (path-smooth src tol) -> dst
+	(cond
+		((> (length src) 4)
+			(defq out (path) src (partition 2 src)
+				last_point (first src) last_mid_point last_point
+				mid_point last_mid_point)
+			(each (# (setq last_mid_point mid_point
+				mid_point (nums-add last_point (nums-scale (nums-sub %0 last_point) 0.5)))
+				(path-gen-quadratic
+					(first last_mid_point) (second last_mid_point)
+					(first last_point) (second last_point)
+					(first mid_point) (second mid_point)
+					tol out)
+				(setq last_point %0)) src)
+			(push out (first last_point) (second last_point)))
+		(src)))
+
 (defun path-gen-rect (x y x1 y1 rx ry tol dst)
 	; (path-gen-rect x y x1 y1 rx ry tol dst) -> dst
 	(cond
@@ -24,7 +42,7 @@
 			(path-gen-arc x y1 (const (+ +fp_pi +fp_hpi)) +fp_hpi rx tol dst)
 			(path-gen-arc x1 y1 0.0 +fp_hpi rx tol dst)
 			(path-gen-arc x1 y +fp_hpi +fp_hpi rx tol dst))
-		(:t (path x y x y1 x1 y1 x1 y))))
+		((path x y x y1 x1 y1 x1 y))))
 
 (defun path-gen-ellipse (cx cy rx ry tol dst)
 	; (path-gen-ellipse cx cy rx ry tol dst) -> dst
