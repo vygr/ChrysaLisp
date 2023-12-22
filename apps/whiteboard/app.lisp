@@ -10,7 +10,7 @@
 (import "./widgets.inc")
 
 (enums +dlist 0
-	(enum mask *commited_canvas* *overlay_canvas* commited_polygons overlay_paths))
+	(enum mask commited_canvas overlay_canvas commited_polygons overlay_paths))
 
 (enums +path 0
 	(enum mode color radius path))
@@ -88,13 +88,13 @@
 (defun redraw (dlist)
 	;redraw layer/s
 	(when (/= 0 (logand (elem-get +dlist_mask dlist) +layer_commited))
-		(defq canvas (elem-get +dlist_*commited_canvas* dlist))
+		(defq canvas (elem-get +dlist_commited_canvas dlist))
 		(. canvas :fill 0)
 		(each (lambda ((col poly))
 			(fpoly canvas col +winding_none_zero poly)) (elem-get +dlist_commited_polygons dlist))
 		(. canvas :swap 0))
 	(when (/= 0 (logand (elem-get +dlist_mask dlist) +layer_overlay))
-		(defq canvas (elem-get +dlist_*overlay_canvas* dlist))
+		(defq canvas (elem-get +dlist_overlay_canvas dlist))
 		(. canvas :fill 0)
 		(each (lambda (p)
 			(bind '(col poly) (flatten p))
