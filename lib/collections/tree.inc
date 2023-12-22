@@ -107,8 +107,8 @@
 								(push stack k 1)
 								(write-line stream (str p "(" (first k))))
 							(:t	(push stack l (length l))
-								(write-line stream (str p
-									(slice 1 -2 (str (slice 1 -1 l))))))))
+								(each (# (write-line stream (cat p (slice 1 -2 (str %0)))))
+									(partition 16 (slice 1 -1 l))))))
 					(:t (defq k (elem-get i l))
 						(push stack l (inc i))
 						(cond
