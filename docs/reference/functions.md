@@ -1092,7 +1092,7 @@ scan the stdio args and process acording to the optlist
 ### path-smooth
 
 ```code
-(path-smooth src tol) -> dst
+(path-smooth tol src) -> dst
 ```
 
 ### path-stroke-polygons
