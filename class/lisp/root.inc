@@ -105,6 +105,7 @@
 (ffi array "class/array/lisp_array" 0)
 (ffi nums "class/array/lisp_nums" 0)
 (ffi fixeds "class/array/lisp_fixeds" 0)
+(ffi path "class/array/lisp_path" 0)
 (ffi reals "class/array/lisp_reals" 0)
 (ffi dim "class/dim/lisp_dim" 0)
 (ffi dim-get "class/dim/lisp_get" 0)
@@ -1030,7 +1031,7 @@
 	(defmacro deffvar (&rest b) `(def *func_env* ~b))
 	(defun include (lib_path) (import lib_path *compile_env*))
 	(catch (progn (setq _f (_f)) (undef (env) '*func_env* '*compile_env*) _f)
-		(progn (undef (env) '*func_env* '*compile_env*) :nil)))
+		(progn (undef (penv) '*func_env* '*compile_env*) :nil)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;
 ; Boot extension imports

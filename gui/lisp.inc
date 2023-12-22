@@ -2,7 +2,6 @@
 (import "lib/consts/colors.inc")
 
 ;lisp bindings
-(ffi path "class/array/lisp_path" 0)
 (import "./view/lisp.inc")
 (import "./window/lisp.inc")
 (import "./backdrop/lisp.inc")

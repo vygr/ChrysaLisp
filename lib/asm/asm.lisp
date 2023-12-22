@@ -44,8 +44,7 @@
 						(first (read (string-stream (slice +_job_params -1 *msg*)))))
 					;compile the file list and catch any errors
 					(setq *msg* (list))
-					(catch (each include *files*)
-						(progn (setq *working* :nil) (print _)))
+					(catch (each include *files*) (progn (print _) :t))
 					;send reply
 					(print *reply_key*)
 					(mail-send *reply_mbox* (apply (const cat) *msg*)))))))

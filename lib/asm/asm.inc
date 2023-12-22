@@ -128,7 +128,10 @@
 					(push p (f-path (sym (second s))
 						(if (> (length s) 2) (sym (cat :create_ (third s))) :create))))
 				((eql _ "(def-func")
-					(push p (sym (second s))))))) (file-stream (defq file _)))
+					(push p (sym (second s)))))))
+		(if (= (age _) 0)
+			(throw "No such file !" _)
+			(file-stream (defq file _))))
 	(list d p))
 
 (defun make (&optional files *abi* *cpu*)
