@@ -1,5 +1,8 @@
 (include "lib/asm/func.inc")
+(include "class/sym/class.inc")
+(include "class/list/class.inc")
 (include "./class.inc")
 
 (gen-create 'path)
 (gen-vtable 'path)
+(gen-type 'path)

@@ -4,6 +4,7 @@
 	(dec-method :vtable gui/path/vtable)
 	(dec-method :create gui/path/create)
 	(dec-method :vcreate gui/path/create :final)
+	(dec-method :type gui/path/type :override (:r0) (:r0 :r1))
 	(dec-method :filter_polyline gui/path/filter_polyline :static (:r0 :r1 :r2) (:r0))
 	(dec-method :filter_polygon gui/path/filter_polygon :static (:r0 :r1 :r2) (:r0))
 	(dec-method :transform gui/path/transform :static (:r0 :r1 :r2) (:r0))

@@ -40,6 +40,7 @@
 (def-static-sym ":sym")
 (def-static-sym ":array")
 (def-static-sym ":list")
+(def-static-sym ":path")
 (def-static-sym ":hmap")
 (def-static-sym ":font")
 (def-static-sym ":text")
