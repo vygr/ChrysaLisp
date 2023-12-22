@@ -18,7 +18,9 @@ New Stroke widget. Whiteboard updated to use this for multi stroke capture.
 
 New `(path-smooth src tol) -> dst` function.
 
-Whiteboard now uses `.tre` for files for data storage.
+`(load-tree)` and `(save-tree)` now handle `:path` data types.
+
+Whiteboard now uses `.tre` format files for data storage.
 
 ------
 
