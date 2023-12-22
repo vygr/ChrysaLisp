@@ -136,16 +136,20 @@
 					((eql *msg* ""))
 					;save whiteboard
 					(*picker_mode*
-						(save (str (list "CWB Version 1.0" *commited_polygons*))
-							(cat (slice 0 (if (defq i (find-rev "." *msg*)) i -1) *msg*) ".cwb")))
+						(tree-save
+							(file-stream
+								(cat (slice 0 (if (defq i (find-rev "." *msg*)) i -1) *msg*) ".cwb")
+								+file_open_write)
+							(Fmap-kv
+								:version "CWB Version 2.0"
+								:polygons *commited_polygons*)))
 					;load whiteboard
 					(:t (when (ends-with ".cwb" *msg*)
-							(bind '(data _) (read (file-stream *msg*)))
-							(when (eql (first data) "CWB Version 1.0")
+							(defq data_map (tree-load (file-stream *msg*)))
+							(bind '(version polygons) (gather data_map :version :polygons))
+							(when (eql version "CWB Version 2.0")
 								(snapshot)
-								(setq *commited_polygons* (map (lambda ((c p))
-									(list c (map (lambda (_)
-										(apply path _)) p))) (second data)))
+								(setq *commited_polygons* polygons)
 								(redraw-layers +layer_commited))))))
 			((defq *id* (getf *msg* +ev_msg_target_id) action (. *event_map* :find *id*))
 				;call bound event action
