@@ -32,8 +32,6 @@ collapse and expand buttons.
 the Editor new file Textfield. Also add this to the File picker apps file
 Textfields.
 
-* Update Whiteboard app to use a `.tre` for data storage and file format.
-
 * Fix the auto addition of whole words only mode in the `query` function.
 Either by changing the `Regexp` class or the wrapping code.
 
