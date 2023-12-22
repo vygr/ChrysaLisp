@@ -145,8 +145,9 @@
 								:polygons *commited_polygons*)))
 					;load whiteboard
 					(:t (when (ends-with ".cwb" *msg*)
-							(defq data_map (tree-load (file-stream *msg*)))
-							(bind '(version polygons) (gather data_map :version :polygons))
+							(bind '(version polygons)
+								(gather (tree-load (file-stream *msg*))
+									:version :polygons))
 							(when (eql version "CWB Version 2.0")
 								(snapshot)
 								(setq *commited_polygons* polygons)
