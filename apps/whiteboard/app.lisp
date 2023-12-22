@@ -140,7 +140,7 @@
 							(file-stream
 								(cat (slice 0 (if (defq i (find-rev "." *msg*)) i -1) *msg*) ".cwb")
 								+file_open_write)
-							(Fmap-kv
+							(Emap-kv
 								:version "CWB Version 2.0"
 								:polygons *commited_polygons*)))
 					;load whiteboard
