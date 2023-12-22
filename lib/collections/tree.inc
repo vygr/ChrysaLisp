@@ -97,6 +97,18 @@
 								(write-line stream (str p k))
 								(write-line stream (str p "(" (first v))))
 							(:t (write-line stream (str p k " " (tree-encode v))))))
+					((:array :path)
+						(defq k (elem-get i l))
+						(cond
+							((list? k)
+								;indent
+								(push stack l (inc i))
+								(setq wc (inc wc))
+								(push stack k 1)
+								(write-line stream (str p "(" (first k))))
+							(:t	(push stack l (length l))
+								(write-line stream (str p
+									(slice 1 -2 (str (slice 1 -1 l))))))))
 					(:t (defq k (elem-get i l))
 						(push stack l (inc i))
 						(cond
