@@ -17,7 +17,7 @@
 (defq +min_word_size 3 +max_matches 20 +margin 2
 	+state_filename "editor_state.tre"
 	+text_types ''(".md" ".txt")
-	+file_types ''(".lisp" ".inc" ".vp" ".md" ".txt" ".tre")
+	+file_types ''(".lisp" ".inc" ".vp" ".md" ".txt" ".tre" ".cwb")
 	+dictionaries ''("lib/text/english.txt"))
 
 (defun toolbar-states (toolbar states)

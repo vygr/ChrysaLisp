@@ -13,7 +13,7 @@
 (bind '(+edit_font +edit_size) (font-info *env_editor_font*))
 
 (defq +margin 2  +text_types ''(".md" ".txt")
-	+file_types ''(".lisp" ".inc" ".vp" ".md" ".txt" ".tre"))
+	+file_types ''(".lisp" ".inc" ".vp" ".md" ".txt" ".tre" ".cwb"))
 
 (defun toolbar-states (toolbar states)
 	(defq radio_col (canvas-brighter (get :color toolbar)))
