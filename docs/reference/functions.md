@@ -1205,12 +1205,6 @@ run pipe farm and collect output
 (rcurry lambda var ...) -> lambda
 ```
 
-### read
-
-```code
-(read stream [last_char_code]) -> (form next_char_code)
-```
-
 ### read-data
 
 ```code

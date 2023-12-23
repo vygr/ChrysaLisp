@@ -32,7 +32,7 @@
 
 ### (quote form)
 
-### (read stream last_char)
+### (read stream [last_char])
 
 ### (repl stream path)
 

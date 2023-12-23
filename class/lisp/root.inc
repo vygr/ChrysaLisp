@@ -647,10 +647,6 @@
 ; Utilities
 ;;;;;;;;;;;
 
-(defun read (s &optional c)
-	; (read stream [last_char_code]) -> (form next_char_code)
-	(read s (opt c (ascii-code " "))))
-
 (defun lists (n)
 	; (lists n) -> ((list0) ... (listn-1))
 	(defq out (cap n (list)))

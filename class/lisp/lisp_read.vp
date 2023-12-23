@@ -13,32 +13,32 @@
 	;trashes
 	;:r1-:r14
 
-	(def-vars
-		(ptr this args value form)
-		(int next_char))
+	(vp-def (form value this args stream) '(:r12 :r13))
 
-	(push-scope)
-	(entry 'lisp :lisp_read {this, args})
+	(entry 'lisp :lisp_read `(,this ,args))
 
-	(errorif-lisp-args-sig :r1 2 'error1)
+	(errorif-lisp-args-sig-range :r1 1 2 'error1)
 
-	(call 'list :get_first {args} {_, value})
-	(call 'list :get_second {args} {_, args})
-	(call 'num :get_value {args} {_, next_char})
-	(call 'lisp :read {this, value, next_char} {_, form, next_char})
+	(assign `((,args array_length)) `(,value))
+	(vpif `(,value = 1))
+		(list-bind-args args `(,stream) '(:stream))
+		(assign `(,(ascii-code " ")) `(,value))
+	(else)
+		(list-bind-args args `(,stream ,value) '(:stream :num))
+	(endif)
+	(call 'lisp :read `(,this ,stream ,value) `(,this ,form ,value))
+	(vp-push this)
+	(call 'num :create `(,value) `(,value))
+	(call 'list :create :nil `(,args))
+	(call 'list :push_back2 `(,args ,form ,value) `(,args _ _ _ _))
+	(vp-pop this)
 
-	(call 'num :create {next_char} {args})
-	(call 'list :create :nil {value})
-	(call 'list :push_back2 {value, form, args})
-
-	(exit 'lisp :lisp_read {this, value})
-	(return)
+	(exit 'lisp :lisp_read `(,this ,args))
+	(vp-ret)
 
 (errorcase
 (vp-label 'error1)
-	(jump 'lisp :repl_error {this, "(read stream last_char)", +error_msg_wrong_types, args})
+	(jump 'lisp :repl_error `(,this "(read stream [last_char])" +error_msg_wrong_types ,args))
 	(signature '(stream num)))
-
-	(pop-scope-syms)
 
 (def-func-end)
