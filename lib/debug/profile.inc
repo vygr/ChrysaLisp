@@ -49,10 +49,10 @@
 	__r__))
 
 (defmacro defun (n a &rest _)
-	(static-qq (defq ,n (lambda ,a ~(profile-instrument n _)))))
+	(static-qq (defq ,n (,'lambda ,a ~(profile-instrument n _)))))
 
 (defmacro defmethod (n a &rest _)
-	(static-qq (def (def? :vtable this) ,n (lambda (this ~a)
+	(static-qq (def (def? :vtable this) ,n (,'lambda (this ~a)
 		~(profile-instrument (sym (cat *class* " " n)) _)))))
 
 ;module

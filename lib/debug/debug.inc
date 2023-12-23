@@ -97,10 +97,10 @@
 				(push stack e))) l)) form)
 
 (defmacro defun (n a &rest _)
-	(static-qq (defq ,n (lambda ,a ~(debug-instrument (str n) _)))))
+	(static-qq (defq ,n (,'lambda ,a ~(debug-instrument (str n) _)))))
 
 (defmacro defmethod (n a &rest _)
-	(static-qq (def (def? :vtable this) ,n (lambda (this ~a)
+	(static-qq (def (def? :vtable this) ,n (,'lambda (this ~a)
 		~(debug-instrument (cat *class* " " n) _)))))
 
 ;module
