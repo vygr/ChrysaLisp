@@ -520,16 +520,16 @@
 	; (rotate seq start mid end) -> seq
 	(cat (slice 0 i s) (slice j k s) (slice i j s) (slice k -1 s)))
 
-(defun slices (seq)
-	; (slices seq) -> seqs
-	(defq out (cap (length seq) (list)))
-	(each (lambda (&ignore) (push out (slice _ (inc _) seq))) seq)
-	out)
+(defun partition (seq cnt)
+	; (partition seq cnt) -> seqs
+	(defq i 0 l (length seq) out (cap (/ (+ l cnt -1) cnt) (list)))
+	(while (<= (defq j (+ i cnt)) l) (push out (slice i (setq i j) seq)))
+	(if (< i l) (push out (slice i -1 seq)) out))
 
 (defun join (seqs seq &optional mode)
-	; (join seqs seq &optional mode) -> seq
+	; (join seqs seq [mode]) -> seq
 	(setd mode 0)
-	(defq seq (slices seq) seqs (slices seqs)
+	(defq seq (partition seq 1) seqs (partition seqs 1)
 		out (if (= (logand mode 1) 0) (list) (cat seq))
 		out (reduce (lambda (x y) (push x y) (each (lambda (y) (push x y)) seq) x)
 			seqs (cap (+ (length seqs) (* (length seqs) (length seq)) mode) out)))
@@ -561,13 +561,6 @@
 			(each-rev (lambda (&ignore) (push out (slice _ (inc _) seq))) seq)
 			(apply cat out))
 		((rest seq))))
-
-(defun partition (cnt seq)
-	; (partition count seq) -> seqs
-	(defq l (length seq) out (cap (/ (+ l cnt -1) cnt) (list)) i 0)
-	(while (<= (defq j (+ i cnt)) l)
-		(push out (slice i j seq)) (setq i j))
-	(if (< i l) (push out (if (= i 0) seq (slice i -1 seq))) out))
 
 ;;;;;;;;;;;;;;;;
 ; Math functions
@@ -644,7 +637,7 @@
 ;;;;;;;;;;;
 
 (defun read (s &optional c)
-	; (read stream &optional last_char_code) -> (form next_char_code)
+	; (read stream [last_char_code]) -> (form next_char_code)
 	(read s (opt c (ascii-code " "))))
 
 (defun lists (n)
@@ -951,7 +944,7 @@
 		(eval `(repl (file-stream ,lib_path) ,lib_path) _e)))
 
 (defun import-from (lib_path &optional symbols classes)
-	; (import-from &optional symbols classes)
+	; (import-from [symbols classes])
 	(unless (eql :str (pop (type-of lib_path))) (throw "Not a string !" lib_path))
 	(setq lib_path (abs-path lib_path))
 	(if (= (age lib_path) 0) (throw "No such file !" lib_path))
