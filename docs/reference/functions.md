@@ -765,12 +765,6 @@ very basic attenuation, diffuse and specular
 (lists n) -> ((list0) ... (listn-1))
 ```
 
-### lists2
-
-```code
-(lists2) -> ((list) (list))
-```
-
 ### load-stream
 
 ```code
@@ -1066,7 +1060,7 @@ scan the stdio args and process acording to the optlist
 ### partition
 
 ```code
-(partition seq cnt) -> seqs
+(partition seq [cnt]) -> seqs
 ```
 
 ### path-gen-ellipse
@@ -1802,7 +1796,7 @@ patch stream a with stream b, write to stream c
 ### unzip
 
 ```code
-(unzip seq buckets) -> buckets
+(unzip seq cnt) -> seqs
 ```
 
 ### vertex-interp
@@ -1871,6 +1865,6 @@ fnc_out is allways called to balence calls to fnc_in.
 ### zip
 
 ```code
-(zip seq ...) -> list
+(zip seq ...) -> seq
 ```
 

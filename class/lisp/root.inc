@@ -520,8 +520,9 @@
 	; (rotate seq start mid end) -> seq
 	(cat (slice 0 i s) (slice j k s) (slice i j s) (slice k -1 s)))
 
-(defun partition (seq cnt)
-	; (partition seq cnt) -> seqs
+(defun partition (seq &optional cnt)
+	; (partition seq [cnt]) -> seqs
+	(setd cnt 1)
 	(defq i 0 l (length seq) out (cap (/ (+ l cnt -1) cnt) (list)))
 	(while (<= (defq j (+ i cnt)) l) (push out (slice i (setq i j) seq)))
 	(if (< i l) (push out (slice i -1 seq)) out))
@@ -529,23 +530,25 @@
 (defun join (seqs seq &optional mode)
 	; (join seqs seq [mode]) -> seq
 	(setd mode 0)
-	(defq seq (partition seq 1) seqs (partition seqs 1)
+	(defq seq (partition seq) seqs (partition seqs)
 		out (if (= (logand mode 1) 0) (list) (cat seq))
 		out (reduce (lambda (x y) (push x y) (each (lambda (y) (push x y)) seq) x)
 			seqs (cap (+ (length seqs) (* (length seqs) (length seq)) mode) out)))
 	(if (= (logand mode 2) 0) (each (lambda (x) (pop out)) seq))
 	(apply (const cat) out))
 
-(defun unzip (l b)
-	; (unzip seq buckets) -> buckets
-	(reduce (lambda (b e)
-		(push (elem-get (% _ (length b)) b) e) b) l b))
+(defun unzip (seq cnt)
+	; (unzip seq cnt) -> seqs
+	(map (lambda (_) (if (= (length _) 0) (slice 0 0 seq) (apply (const cat) _)))
+		(reduce (lambda (ls e) (push (elem-get (% _ cnt) ls) e) ls)
+			(partition seq) (lists cnt))))
 
 (defun zip (&rest _)
-	; (zip seq ...) -> list
-	(defq l (cap (length (first _)) (list)))
-	(each! 0 -1 (lambda (&rest _) (push l _)) _)
-	(if (= 0 (length l)) l (apply (const cat) l)))
+	; (zip seq ...) -> seq
+	(defq out (cap (length (first _)) (list)))
+	(each! 0 -1 (lambda (&rest _) (push out (apply (const cat) _)))
+		(map (lambda (_) (partition _)) _))
+	(if (= (length out) 0) (slice 0 0 (first _)) (apply (const cat) out)))
 
 (defun reverse-list (lst)
 	; (reverse-list list) -> list
@@ -645,10 +648,6 @@
 	(defq out (cap n (list)))
 	(while (>= (setq n (dec n)) 0) (push out (list)))
 	out)
-
-(defmacro lists2 ()
-	; (lists2) -> ((list) (list))
-	'(list (list) (list)))
 
 (defun export (e symbols)
 	; (export env symbols)

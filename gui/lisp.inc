@@ -40,7 +40,7 @@
 			((defq i (find-rev s ps))
 				(elem-set i ps s) (elem-set i pv v))
 			(:t (push ps s) (push pv v))))
-		(unzip (opt p '()) (lists2)))
+		(unzip (opt p '()) 2))
 	(zip ps pv))
 
 (defmacro ui-props (p &rest x)
