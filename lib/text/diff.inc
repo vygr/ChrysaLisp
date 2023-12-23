@@ -68,7 +68,7 @@
 							(setq oa (inc oa)))
 						(:t (write-line c (str "- " (+ a oa) " " (elem-get a al)))))
 					(setq a pa b pb))
-				(iron (partition 2 (first ps)))))))
+				(iron (partition (first ps) 2))))))
 
 (defun stream-patch (a b c)
 	; (stream-patch a b c)

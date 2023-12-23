@@ -1,7 +1,7 @@
 # Pipe
 
 ```code
-(Pipe cmdline &optional user_select) -> pipe | :nil
+(Pipe cmdline [user_select]) -> pipe | :nil
 ```
 
 ### :close

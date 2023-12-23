@@ -3,7 +3,7 @@
 ## Scene-node
 
 ```code
-(Scene-object mesh color &optional name) -> scene_node
+(Scene-object mesh color [name]) -> scene_node
 ```
 
 ### :get_color

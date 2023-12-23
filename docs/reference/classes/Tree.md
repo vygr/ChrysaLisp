@@ -60,7 +60,7 @@ routes are:
 ### :highlight
 
 ```code
-(. tree :highlight route &optional state) -> tree
+(. tree :highlight route [state]) -> tree
 
 highlight/lolight a tree route
 ```
@@ -68,7 +68,7 @@ highlight/lolight a tree route
 ### :populate
 
 ```code
-(. tree :populate &optional root exts n mode) -> tree
+(. tree :populate [root exts n mode]) -> tree
 
 load up a file tree
 ```

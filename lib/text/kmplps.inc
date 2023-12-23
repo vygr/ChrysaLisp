@@ -21,7 +21,7 @@
 		lps)
 
 	(defmethod :search (text pattern &optional lps)
-		; (. kmplps :search text pattern &optional meta) -> matches
+		; (. kmplps :search text pattern [meta]) -> matches
 		(defq out (list))
 		(when (>= (defq n (length text)) (defq m (length pattern)))
 			(when (defq j 0 k 0 lps (opt lps (. this :compile pattern)))
@@ -36,7 +36,7 @@
 		out)
 
 	(defmethod :match? (text pattern &optional lps)
-		; (. kmplps :match? text pattern &optional meta) -> :t | :nil
+		; (. kmplps :match? text pattern [meta]) -> :t | :nil
 		(when (>= (defq n (length text)) (defq m (length pattern)))
 			(when (defq j 0 k 0 lps (opt lps (. this :compile pattern)))
 				(while (< j n)

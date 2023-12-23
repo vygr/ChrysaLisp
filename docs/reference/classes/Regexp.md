@@ -13,12 +13,12 @@
 ### :match?
 
 ```code
-(. regexp :match? text pattern &optional meta) -> :t | :nil
+(. regexp :match? text pattern [meta]) -> :t | :nil
 ```
 
 ### :search
 
 ```code
-(. regexp :search text pattern &optional meta) -> matches
+(. regexp :search text pattern [meta]) -> matches
 ```
 

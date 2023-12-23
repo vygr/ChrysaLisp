@@ -3,7 +3,7 @@
 ## Fmap
 
 ```code
-(Local fnc_create fnc_destroy &optional max_size init_size size) -> local
+(Local fnc_create fnc_destroy [max_size init_size size]) -> local
 ```
 
 ### :add_node

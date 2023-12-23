@@ -97,4 +97,4 @@
 
 (defun Fmap-kv (&rest _)
 	; (Fmap-kv [key val ...]) -> fmap
-	(reduce (lambda (m (k v)) (. m :insert k v)) (partition 2 _) (Fmap)))
+	(reduce (lambda (m (k v)) (. m :insert k v)) (partition _ 2) (Fmap)))

@@ -13,12 +13,12 @@
 ### :match?
 
 ```code
-(. kmplps :match? text pattern &optional meta) -> :t | :nil
+(. kmplps :match? text pattern [meta]) -> :t | :nil
 ```
 
 ### :search
 
 ```code
-(. kmplps :search text pattern &optional meta) -> matches
+(. kmplps :search text pattern [meta]) -> matches
 ```
 

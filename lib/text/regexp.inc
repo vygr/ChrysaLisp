@@ -214,7 +214,7 @@
 			(= (length current) 0))
 		(list text))
 	(pop end_trace)
-	(list (partition 2 end_trace) end))
+	(list (partition end_trace 2) end))
 
 (defun match (text cpat start)
 	; (match text cpat start) -> -1 | end
@@ -248,7 +248,7 @@
 		(unless (eql cpat :t) cpat))
 
 	(defmethod :match? (text pattern &optional cpat)
-		; (. regexp :match? text pattern &optional meta) -> :t | :nil
+		; (. regexp :match? text pattern [meta]) -> :t | :nil
 		(defq cpat (opt cpat (. this :compile pattern)))
 		(when cpat
 			(defq x 0 x1 -1)
@@ -257,7 +257,7 @@
 			(/= x1 -1)))
 
 	(defmethod :search (text pattern &optional cpat)
-		; (. regexp :search text pattern &optional meta) -> matches
+		; (. regexp :search text pattern [meta]) -> matches
 		(when (defq out (list) cpat (opt cpat (. this :compile pattern)))
 			(defq x 0)
 			(while (< x (length text))

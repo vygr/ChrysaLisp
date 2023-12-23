@@ -6,7 +6,7 @@
 (env-push)
 
 (defun all-files (&optional root exts cut_start cut_end)
-	; (all-files &optional root exts cut_start cut_end) -> paths
+	; (all-files [root exts cut_start cut_end]) -> paths
 	;all source files from root downwards, none recursive
 	(setd root "." exts '("") cut_start 0 cut_end -1)
 	(defq stack (list root) paths (list))

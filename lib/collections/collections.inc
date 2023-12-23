@@ -28,14 +28,14 @@
 (defun scatter (m &rest _)
 	; (scatter map key val ...) -> map
 	; scatter a list of values
-	(reduce (lambda (m (k v)) (. m :insert k v)) (partition 2 _) m))
+	(reduce (lambda (m (k v)) (. m :insert k v)) (partition _ 2) m))
 
 ;;;;;;;;;;;;;;;;;;;;;;;
 ; Fmap/Lmap memoization
 ;;;;;;;;;;;;;;;;;;;;;;;
 
 (defmacro memoize (k f &optional num_buckets)
-	; (memoize key form &optional num_buckets) -> (eval form)
+	; (memoize key form [num_buckets]) -> (eval form)
 	(defq c (gensym) e (gensym))
 	(if num_buckets
 		`(progn

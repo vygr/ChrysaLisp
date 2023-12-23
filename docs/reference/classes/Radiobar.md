@@ -3,7 +3,7 @@
 ## Flow
 
 ```code
-(Radiobar symbols &optional mode) -> radiobar
+(Radiobar symbols [mode]) -> radiobar
 ```
 
 ### :action

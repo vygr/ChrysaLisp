@@ -3,7 +3,7 @@
 ## Scene-node
 
 ```code
-(Scene &optional name) -> scene_node
+(Scene [name]) -> scene_node
 ```
 
 ### :render

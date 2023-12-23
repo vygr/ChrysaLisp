@@ -98,4 +98,4 @@
 
 (defun Xmap-kv (&rest _)
 	; (Xmap-kv [key val ...]) -> xmap
-	(reduce (lambda (m (k v)) (. m :insert k v)) (partition 2 _) (Xmap)))
+	(reduce (lambda (m (k v)) (. m :insert k v)) (partition _ 2) (Xmap)))

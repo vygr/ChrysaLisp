@@ -13,12 +13,12 @@
 ### :match?
 
 ```code
-(. substr :match? text pattern &optional meta) -> :t | :nil
+(. substr :match? text pattern [meta]) -> :t | :nil
 ```
 
 ### :search
 
 ```code
-(. substr :search text pattern &optional meta) -> matches
+(. substr :search text pattern [meta]) -> matches
 ```
 

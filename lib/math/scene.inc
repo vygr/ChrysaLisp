@@ -86,7 +86,7 @@
 		(. object :get_tris)))
 
 (defclass Scene-node (&optional name) :nil
-	; (Scene-node &optional name) -> scene_node
+	; (Scene-node [name]) -> scene_node
 	(def this
 		:children (list) :parent :nil
 		:rot_x +real_0 :rot_y +real_0 :rot_z +real_0
@@ -183,7 +183,7 @@
 	)
 
 (defclass Scene-object (mesh color &optional name) (Scene-node name)
-	; (Scene-object mesh color &optional name) -> scene_node
+	; (Scene-object mesh color [name]) -> scene_node
 	(def this :mesh mesh :color color)
 
 	(defmethod :get_mesh ()
@@ -212,7 +212,7 @@
 	)
 
 (defclass Scene (&optional name) (Scene-node name)
-	; (Scene &optional name) -> scene_node
+	; (Scene [name]) -> scene_node
 	(def this :poly_buckets (defq poly_buckets (cap +num_poly_buckets (list))))
 	(times +num_poly_buckets (push poly_buckets (list)))
 

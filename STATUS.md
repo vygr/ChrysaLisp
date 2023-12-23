@@ -39,7 +39,7 @@ bodies, now used the exact same code for implicit and explicit progn.
 Change to the task distribution system to randomly pick from the group of best
 neighbor with the lowest loading.
 
-Faster `(slices)`, `(reverse-list)` functions, and new `(reverse seq)`.
+Faster `(reverse-list)` functions, and new `(reverse seq)`.
 
 `Buffer :paste` now takes optional wrap_width.
 

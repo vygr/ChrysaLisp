@@ -130,7 +130,7 @@
 		(.-> this (:insert (slice 0 (setq cx (- wrap_width cx)) line)) :break)
 		(setq line (slice cx -1 line)))
 	(when (> (length line) wrap_width)
-		(defq lines (partition wrap_width line) line (pop lines))
+		(defq lines (partition line wrap_width) line (pop lines))
 		(each (# (.-> this (:insert %0) :break)) lines))
 	(. this :insert line))
 
@@ -226,7 +226,7 @@
 		(lower (:modified :nil)) this)
 
 	(defmethod :vdu_load (vdu scroll_x scroll_y &optional end_state)
-		; (. buffer :vdu_load vdu scroll_x scroll_y &optional end_state) -> buffer
+		; (. buffer :vdu_load vdu scroll_x scroll_y [end_state]) -> buffer
 		(. vdu :load (get :buffer_syntax (build-syntax this end_state))
 			scroll_x scroll_y (get :cursor_x this) (get :cursor_y this))
 		this)
@@ -297,7 +297,7 @@
 								(list :mark mark))))))))
 
 	(defmethod :backspace (&optional num)
-		; (. buffer :backspace &optional num) -> buffer
+		; (. buffer :backspace [num]) -> buffer
 		(mutate-buffer
 			(setd num 1)
 			(cond
@@ -313,7 +313,7 @@
 					(. this :push_undo (list :insert x y undo))))))
 
 	(defmethod :delete (&optional num)
-		; (. buffer :delete &optional num) -> buffer
+		; (. buffer :delete [num]) -> buffer
 		(mutate-buffer
 			(setd num 1)
 			(cond
@@ -377,7 +377,7 @@
 					(apply (const cat) lines)))))
 
 	(defmethod :paste (string &optional wrap_width)
-		; (. buffer :paste string &optional wrap_width) -> buffer
+		; (. buffer :paste string [wrap_width]) -> buffer
 		(setd wrap_width +max_int)
 		(. this :push_undo (list :mark (defq mark (. this :next_mark))))
 		(defq ss (string-stream string) line (read-line ss))

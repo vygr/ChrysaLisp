@@ -12,7 +12,7 @@
 		(push (substr cmdline " | ") '((-1 0)))))
 
 (defclass Pipe (cmdline &optional user_select) :nil
-	; (Pipe cmdline &optional user_select) -> pipe | :nil
+	; (Pipe cmdline [user_select]) -> pipe | :nil
 	(setd user_select '())
 	(bind '(cmdpipe args) (reduce (#
 		(bind '(((x x1))) (matches %1 "^\S+"))
@@ -84,7 +84,7 @@
 	)
 
 (defun pipe-run (cmdline &optional out)
-	; (pipe-run cmdline &optional outfun)
+	; (pipe-run cmdline [outfun])
 	(setd out print)
 	(defq pipe (Pipe cmdline))
 	(while pipe

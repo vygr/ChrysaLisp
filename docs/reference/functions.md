@@ -147,7 +147,7 @@ return all the dir paths
 ### all-files
 
 ```code
-(all-files &optional root exts cut_start cut_end) -> paths
+(all-files [root exts cut_start cut_end]) -> paths
 
 all source files from root downwards, none recursive
 ```
@@ -647,7 +647,7 @@ function that returns it's argument
 ### import-from
 
 ```code
-(import-from &optional symbols classes)
+(import-from [symbols classes])
 ```
 
 ### in-get-state
@@ -698,7 +698,7 @@ tells us which vertices are inside the surface
 ### join
 
 ```code
-(join seqs seq &optional mode) -> seq
+(join seqs seq [mode]) -> seq
 ```
 
 ### lambda-func?
@@ -884,7 +884,7 @@ returns true if argument is a map type
 ### memoize
 
 ```code
-(memoize key form &optional num_buckets) -> (eval form)
+(memoize key form [num_buckets]) -> (eval form)
 ```
 
 ### neg?
@@ -1066,7 +1066,7 @@ scan the stdio args and process acording to the optlist
 ### partition
 
 ```code
-(partition count seq) -> seqs
+(partition seq cnt) -> seqs
 ```
 
 ### path-gen-ellipse
@@ -1110,7 +1110,7 @@ scan the stdio args and process acording to the optlist
 ### pipe-farm
 
 ```code
-(pipe-farm jobs &optional retry_timeout) -> ((job result) ...)
+(pipe-farm jobs [retry_timeout]) -> ((job result) ...)
 
 run pipe farm and collect output
 ```
@@ -1118,7 +1118,7 @@ run pipe farm and collect output
 ### pipe-run
 
 ```code
-(pipe-run cmdline &optional outfun)
+(pipe-run cmdline [outfun])
 ```
 
 ### pipe-split
@@ -1214,7 +1214,7 @@ run pipe farm and collect output
 ### read
 
 ```code
-(read stream &optional last_char_code) -> (form next_char_code)
+(read stream [last_char_code]) -> (form next_char_code)
 ```
 
 ### read-data
@@ -1363,12 +1363,6 @@ adjust text offset
 
 ```code
 (shuffle list [start end]) -> list
-```
-
-### slices
-
-```code
-(slices seq) -> seqs
 ```
 
 ### some
@@ -1568,13 +1562,13 @@ patch stream a with stream b, write to stream c
 ### tree-node
 
 ```code
-(tree-node ((type &optional buckets)) -> collection
+(tree-node ((type [buckets])) -> collection
 ```
 
 ### tree-save
 
 ```code
-(tree-save stream tree &optional key_filters) -> tree
+(tree-save stream tree [key_filters]) -> tree
 ```
 
 ### tree-type

@@ -31,7 +31,7 @@
 		(undef val :job :timestamp)))
 
 (defun pipe-farm (jobs &optional retry_timeout)
-	; (pipe-farm jobs &optional retry_timeout) -> ((job result) ...)
+	; (pipe-farm jobs [retry_timeout]) -> ((job result) ...)
 	;run pipe farm and collect output
 	(setd retry_timeout 1000000)
 	(defq timer_rate (/ 1000000 1) working :t results (cap (length jobs) (list))

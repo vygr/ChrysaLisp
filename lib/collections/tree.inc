@@ -39,7 +39,7 @@
 			(get :num_buckets collection))))
 
 (defun tree-node ((type &optional buckets))
-	; (tree-node ((type &optional buckets)) -> collection
+	; (tree-node ((type [buckets])) -> collection
 	(setd buckets 1)
 	(case type
 		(:Lmap (Lmap))
@@ -51,7 +51,7 @@
 		(:t (cap buckets (list)))))
 
 (defun tree-save (stream root &optional key_filters)
-	; (tree-save stream tree &optional key_filters) -> tree
+	; (tree-save stream tree [key_filters]) -> tree
 	(setd key_filters '())
 	(defq out (list) stack (list root out)
 		ws (const (pad "" 8 (ascii-char 9))) wc 1)
@@ -108,7 +108,7 @@
 								(write-line stream (str p "(" (first k))))
 							(:t	(push stack l (length l))
 								(each (# (write-line stream (cat p (slice 1 -2 (str %0)))))
-									(partition 16 (slice 1 -1 l))))))
+									(partition (slice 1 -1 l) 16)))))
 					(:t (defq k (elem-get i l))
 						(push stack l (inc i))
 						(cond
@@ -134,7 +134,7 @@
 					(if (list? v)
 						(push stack (rest v) (setq v (tree-node (first v))))
 						(setq v (tree-decode v)))
-					(. node :insert (tree-decode k) v)) (partition 2 items)))
+					(. node :insert (tree-decode k) v)) (partition items 2)))
 			(:Fset
 				(each (lambda (k)
 					(if (list? k)

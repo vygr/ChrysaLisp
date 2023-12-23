@@ -1,7 +1,7 @@
 # Scene-node
 
 ```code
-(Scene-node &optional name) -> scene_node
+(Scene-node [name]) -> scene_node
 ```
 
 ### :add_node

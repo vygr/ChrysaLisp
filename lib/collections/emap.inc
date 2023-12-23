@@ -56,4 +56,4 @@
 
 (defun Emap-kv (&rest _)
 	; (Emap-kv [key val ...]) -> emap
-	(reduce (lambda (m (k v)) (. m :insert k v)) (partition 2 _) (Emap)))
+	(reduce (lambda (m (k v)) (. m :insert k v)) (partition _ 2) (Emap)))

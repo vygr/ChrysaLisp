@@ -6,7 +6,7 @@
 (import "././button/lisp.inc")
 
 (defclass Radiobar (symbols &optional mode) (Flow)
-	; (Radiobar symbols &optional mode) -> radiobar
+	; (Radiobar symbols [mode]) -> radiobar
 	(def this :flow_flags +flow_right :mode mode)
 	(setq symbols (map (# (if (num? %0) (num-to-utf8 %0) %0)) symbols))
 	(each (# (def (defq button (Button)) :text %0)

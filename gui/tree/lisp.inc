@@ -104,7 +104,7 @@
 		(.-> this (:change x y w h) :emit))
 
 	(defmethod :populate (&optional root exts n mode)
-		; (. tree :populate &optional root exts n mode) -> tree
+		; (. tree :populate [root exts n mode]) -> tree
 		;load up a file tree
 		(setd mode 3)
 		(defq files (sort cmp (all-files root exts n)))
@@ -130,7 +130,7 @@
 		this)
 
 	(defmethod :highlight (route &optional state)
-		; (. tree :highlight route &optional state) -> tree
+		; (. tree :highlight route [state]) -> tree
 		;highlight/lolight a tree route
 		(when (and route (defq node (. this :find_node route)))
 			(defq node_state (get :state node))

@@ -43,7 +43,7 @@
 			(map (# (if (and (= (length %0) 3) (eql (second %0) "-"))
 						(map (const char) (range (code (first %0)) (inc (code (last %0)))))
 						(map (const identity) %0)))
-				(partition 3 (unescape k))))))) 7))
+				(partition (unescape k) 3)))))) 7))
 
 ;module
 (export-symbols '(char-class escape unescape))

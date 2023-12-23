@@ -7,7 +7,7 @@
 ### :backspace
 
 ```code
-(. buffer :backspace &optional num) -> buffer
+(. buffer :backspace [num]) -> buffer
 ```
 
 ### :break
@@ -43,7 +43,7 @@
 ### :delete
 
 ```code
-(. buffer :delete &optional num) -> buffer
+(. buffer :delete [num]) -> buffer
 ```
 
 ### :down
@@ -151,7 +151,7 @@
 ### :paste
 
 ```code
-(. buffer :paste string &optional wrap_width) -> buffer
+(. buffer :paste string [wrap_width]) -> buffer
 ```
 
 ### :push_undo
@@ -199,6 +199,6 @@
 ### :vdu_load
 
 ```code
-(. buffer :vdu_load vdu scroll_x scroll_y &optional end_state) -> buffer
+(. buffer :vdu_load vdu scroll_x scroll_y [end_state]) -> buffer
 ```
 

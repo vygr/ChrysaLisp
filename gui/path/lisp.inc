@@ -19,7 +19,7 @@
 	; (path-smooth tol src) -> dst
 	(cond
 		((> (length src) 4)
-			(defq out (path) src (partition 2 src)
+			(defq out (path) src (partition src 2)
 				last_point (first src) last_mid_point last_point
 				mid_point last_mid_point)
 			(each (# (setq last_mid_point mid_point
