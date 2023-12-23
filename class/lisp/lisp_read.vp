@@ -29,8 +29,8 @@
 	(call 'lisp :read `(,this ,stream ,value) `(,this ,form ,value))
 	(vp-push this)
 	(call 'num :create `(,value) `(,value))
-	(call 'list :create :nil `(,args))
-	(call 'list :push_back2 `(,args ,form ,value) `(,args _ _ _ _))
+	(call 'list :create :nil '(tmp))
+	(call 'list :push_back2 `(,tmp ,form ,value) `(,args _ _ _ _))
 	(vp-pop this)
 
 	(exit 'lisp :lisp_read `(,this ,args))
