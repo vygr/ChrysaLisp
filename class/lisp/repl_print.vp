@@ -60,7 +60,8 @@
 		(vpif '(:r1 /= :r2))
 			(assign '(:r1 :r2) '((:rsp local_iter_begin) (:rsp local_iter_end)))
 			(loop-start)
-				(call 'lisp :repl_print '((:rsp local_this) (:rsp local_stream) (:r1 0)))
+				(call 'trunc_func '((:rsp local_this) (:r1 0)) '(:r0 :r1))
+				(call 'lisp :repl_print '(:r0 (:rsp local_stream) :r1))
 				(assign '((:rsp local_iter_begin) (:rsp local_iter_end)) '(:r1 :r2))
 				(vp-add-cr +long_size :r1)
 				(breakif '(:r1 = :r2))
@@ -78,6 +79,36 @@
 
 	(exit 'lisp :repl_print '((:rsp local_this)))
 	(vp-free local_size)
+	(vp-ret)
+
+(vp-label 'trunc_func)
+	;inputs
+	;:r0 = lisp object (ptr)
+	;:r1 = object (ptr)
+	;outputs
+	;:r0 = lisp object (ptr)
+	;:r1 = object (ptr)
+	;trashes
+	;:r1-:r4
+	(vp-def (this obj iter_begin iter_end func))
+	(assign `((,obj obj_vtable) (@ ,(f-path 'list :vtable)))
+		`(,iter_begin ,iter_end))
+	(vpif `(,iter_begin = ,iter_end))
+		(class/array/get_both obj iter_begin iter_end)
+		(vpif `(,iter_begin /= ,iter_end))
+			(array-get-args iter_begin `(,iter_end))
+			(assign `((,this lisp_func_lambda)) `(,func))
+			(gotoif `(,iter_end = ,func) 'trunc)
+			(assign `((,this lisp_func_macro)) `(,func))
+			(gotoif `(,iter_end = ,func) 'trunc)
+			(assign `((,this lisp_sym_lambda)) `(,func))
+			(gotoif `(,iter_end = ,func) 'trunc)
+			(assign `((,this lisp_sym_macro)) `(,func))
+			(breakif `(,iter_end /= ,func))
+		(vp-label 'trunc)
+			(assign `((,this lisp_sym_anon)) `(,obj))
+		(endif)
+	(endif)
 	(vp-ret)
 
 (def-func-end)
