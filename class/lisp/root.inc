@@ -537,6 +537,14 @@
 	(if (= (logand mode 2) 0) (each (lambda (x) (pop out)) seq))
 	(apply (const cat) out))
 
+(defun split (seq sseq)
+	; (split seq sseq) -> seqs
+	(defq i :nil out (list))
+	(each (lambda (e) (if i
+		(when (find e sseq) (push out (slice i _ seq)) (setq i :nil))
+		(unless (find e sseq) (setq i _)))) seq)
+	(if i (push out (slice i -1 seq)) out))
+
 (defun unzip (seq cnt)
 	; (unzip seq cnt) -> seqs
 	(map (lambda (_) (if (= (length _) 0) (slice 0 0 seq) (apply (const cat) _)))

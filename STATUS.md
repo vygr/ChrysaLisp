@@ -22,6 +22,11 @@ New `(path-smooth tol src) -> dst` function.
 
 Whiteboard now uses `.tre` format files for data storage.
 
+`(zip)` and `(unzip)` now work on any sequence types.
+
+New generic `(split seq sseq) -> seqs` and string specific `(split-str str
+sstr)` functions.
+
 ------
 
 Region selection added to Viewer app.

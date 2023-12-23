@@ -23,10 +23,6 @@ flags.
 
 * WYSIWYG UI tree Editor.
 
-* Extend `(split)` to allow splitting of any sequence by any sequence. Any
-element that `(find)` returns true for, within the splitter, counts as a
-splitting element.
-
 * Update File picker app to use a Tree widget for the folder list. With
 collapse and expand buttons.
 

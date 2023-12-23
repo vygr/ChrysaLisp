@@ -1377,6 +1377,12 @@ adjust text offset
 (sort fcmp list [start end]) -> list
 ```
 
+### split
+
+```code
+(split seq sseq) -> seqs
+```
+
 ### start
 
 ```code
