@@ -369,7 +369,7 @@
 	(defun pipeline (&rest pipes)
 		(defq plen (max-length pipes))
 		(each (# (while (< (length %0) plen) (push %0 :nil))) pipes)
-		(each (const eval) (apply zip pipes)))
+		(each (const eval) (apply (const zip) pipes)))
 
 	(defun to-argb32 (am rm gm bm)
 		(cond
