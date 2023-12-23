@@ -184,7 +184,7 @@ time'.
 A simple use:
 
 ```vdu
-	(split data (const (cat " " (ascii-char +char_lf))))
+	(split-str data (const (cat " " (ascii-char +char_lf))))
 ```
 
 Here we know the splitting chars string is going to be constant at run time,

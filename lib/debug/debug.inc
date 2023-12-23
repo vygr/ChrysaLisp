@@ -15,7 +15,7 @@
 (defun debug-service ()
 	(when (and (not (eql *debug_state* :gui))
 			(/= 0 (length (defq services (mail-enquire "*Debug")))))
-		(to-net-id (second (split (pop services) ",")))))
+		(to-net-id (second (split-str (pop services) ",")))))
 
 (defun debug-ipc (service type s)
 	(mail-send service (setf-> (cat (str-alloc +debug_size) s)

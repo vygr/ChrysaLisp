@@ -30,7 +30,7 @@
 			(defq sep "," sel :nil args (options stdio usage)))
 		;split stdin
 		(each-line (#
-			(defq elms (split %0 sep))
+			(defq elms (split-str %0 sep))
 			(if (and sel (> (length elms) sel))
 				(setq elms (list (elem-get sel elms))))
 			(each print elms)) (io-stream 'stdin))))

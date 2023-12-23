@@ -10,7 +10,7 @@
 
 (defun profile-service ()
 	(when (/= 0 (length (defq services (mail-enquire "*Profile"))))
-		(to-net-id (second (split (pop services) ",")))))
+		(to-net-id (second (split-str (pop services) ",")))))
 
 (defun profile-ipc (service s)
 	(mail-send service (cat (task-netid) s)))

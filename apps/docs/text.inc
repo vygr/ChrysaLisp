@@ -2,7 +2,7 @@
 (env-push)
 
 (defun line-words (line)
-	(map (# (cat %0 " ")) (split line +char_class_space)))
+	(map (# (cat %0 " ")) (split-str line +char_class_space)))
 
 (defun line-flow (&optional size)
 	(def (defq flow (Flow)) :flow_flags +flow_right)
@@ -20,7 +20,7 @@
 			(setq state :t word (rest word)))
 		(if state (def text :ink_color +argb_blue))
 		(if (find "`" word)
-			(setq state :nil word (apply (const cat) (split word "`"))))
+			(setq state :nil word (apply (const cat) (split-str word "`"))))
 		(def text :text (intern-word word))
 		(bind '(w _) (. text :pref_size))
 		(when (> (setq cnt (+ cnt w)) page_width)
@@ -46,7 +46,7 @@
 			(setq state :t word (rest word)))
 		(if state (def text :ink_color +argb_blue))
 		(if (find "`" word)
-			(setq state :nil word (apply (const cat) (split word "`"))))
+			(setq state :nil word (apply (const cat) (split-str word "`"))))
 		(def text :text (intern-word word))
 		(bind '(w _) (. text :pref_size))
 		(when (> (setq cnt (+ cnt w)) page_width)

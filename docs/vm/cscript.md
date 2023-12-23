@@ -470,7 +470,7 @@ mind.
 
 ```vdu
 (defun assign-script-to-asm (src dst _)
-	(unless (= (length (setq src (split src ","))) (length dst))
+	(unless (= (length (setq src (split-str src ","))) (length dst))
 		(throw "Mismatching number of src/dst parameters !" (list src dst)))
 	(when (/= 0 (length dst))
 		(reset-reg-stack 0)

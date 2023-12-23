@@ -20,7 +20,7 @@
 
 ### (save str path)
 
-### (split str chars)
+### (split-str str chars)
 
 ### (str-to-num str)
 

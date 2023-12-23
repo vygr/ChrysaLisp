@@ -45,13 +45,13 @@
 		(:t (throw "Unknown # val !" val))))
 
 (defun read-rgb (val)
-	(bind '(r g b) (map (const str-to-num) (slice 1 4 (split val "(), "))))
+	(bind '(r g b) (map (const str-to-num) (slice 1 4 (split-str val "(), "))))
 	(+ +argb_black (<< r 16) (<< g 8) b))
 
 (defun read-transform (entry val)
-	(defq stack (reverse-list (split val ")")) ma (. entry :find "transform"))
+	(defq stack (reverse-list (split-str val ")")) ma (. entry :find "transform"))
 	(while (defq transform (pop stack))
-		(defq args (split transform (const (cat "(, " (ascii-char 9) (ascii-char 10))))
+		(defq args (split-str transform (const (cat "(, " (ascii-char 9) (ascii-char 10))))
 			key (first args)
 			vals (map (# (n2f (str-to-num %0))) (rest args))
 			mb (case key
@@ -89,9 +89,9 @@
 			"width" "height" "stroke-width" "fill-opacity" "stroke-opacity")
 			(n2f (str-to-num val)))
 		("viewBox"
-			(map (# (n2f (str-to-num %0))) (split val ", ")))
+			(map (# (n2f (str-to-num %0))) (split-str val ", ")))
 		("points"
-			(reduce (# (push %0 (n2f (str-to-num %1)))) (split val ", ") (path)))
+			(reduce (# (push %0 (n2f (str-to-num %1)))) (split-str val ", ") (path)))
 		("transform"
 			(read-transform entry val))
 		(("stroke" "fill")
@@ -137,7 +137,7 @@
 				("lighter" "Lighter")
 				((throw "Unknown font-weight !" val))))
 		("font-size"
-			(n2f (str-to-num (pop (split val "pt")))))
+			(n2f (str-to-num (pop (split-str val "pt")))))
 		("font-family"
 			"OpenSans")
 		("text-anchor"
@@ -163,7 +163,7 @@
 			((eql key "style")
 				(each (lambda ((k v))
 						(. entry :insert k (read-attribute entry k v)))
-					(map (# (split %0 ":")) (split val ";"))))
+					(map (# (split-str %0 ":")) (split-str val ";"))))
 			(:t (setq val (read-attribute entry key val))))
 		(. entry :insert key val)) keys vals)
 	entry)

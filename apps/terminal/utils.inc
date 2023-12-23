@@ -17,7 +17,7 @@
 (defun url-list (url)
 	(defq out (list))
 	(each! 0 -1 (lambda (f m) (push out (cat f (if (eql m "4") "/" " "))))
-		(unzip (split (pii-dirlist url) ",") 2)) out)
+		(unzip (split-str (pii-dirlist url) ",") 2)) out)
 
 (defun url-split (url ctx)
 	(if (defq i (find-rev "/" url))

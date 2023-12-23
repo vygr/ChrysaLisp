@@ -65,7 +65,7 @@
 						(dispatch-job key val)))
 				((= idx +select_reply)
 					;child worker responce
-					(defq key (str-as-num (pop (defq msg (split msg (ascii-char 10)))))
+					(defq key (str-as-num (pop (defq msg (split-str msg (ascii-char 10)))))
 						error_flag :nil)
 					(each (# (cond
 						((starts-with "Error:" %0)
@@ -112,7 +112,7 @@
 	(defq d (list "lib/asm/asm.inc" "class/lisp/root.inc" _) p (list))
 	(each-line (lambda (_)
 		(when (and (> (length _) 10) (eql "(" (first _))
-				(<= 2 (length (defq s (split _ (const (cat " ')" (ascii-char 34) (ascii-char 13)))))) 4))
+				(<= 2 (length (defq s (split-str _ (const (cat " ')" (ascii-char 34) (ascii-char 13)))))) 4))
 			(cond
 				((eql (setq _ (first s)) "(include")
 					(push d (abs-path (second s) file)))
