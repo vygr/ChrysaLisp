@@ -61,6 +61,16 @@ Usage: files [options] [prefix] [postfix]
 	eg.
 	files ./apps/wallpaper/ .tga
 ```
+## forward
+```code
+Usage: forward [options] [path] ...
+
+	options:
+		-h --help: this help info.
+
+	If no paths given on command line
+	then will test files from stdin.
+```
 ## grep
 ```code
 Usage: grep [options] [pattern] [path] ...

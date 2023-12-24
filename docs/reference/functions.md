@@ -389,7 +389,7 @@ should provide the concreate handler
 ### each-line
 
 ```code
-(each-line lambda stream)
+(each-line lambda stream [line_num])
 ```
 
 ### each-mergeable
