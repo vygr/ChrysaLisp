@@ -1,4 +1,5 @@
 (import "lib/options/options.inc")
+(import "lib/task/cmd.inc")
 
 ;test a file
 (defun test-file (file)
@@ -17,12 +18,9 @@
 					(setd line_nums (list))
 					(. uses_map :insert use (push line_nums line_num))) uses)))
 		(file-stream file))
-	(defq uses (list))
 	(. uses_map :each (lambda (k v)
 		(when (defq n (. defs_map :find k))
-			(each (# (if (< %0 n) (push uses (list file (inc %0) k)))) v))))
-	(each (# (print (first %0) " (" (second %0) ") " (third %0)))
-		(sort (# (- (second %0) (second %1))) uses)))
+			(each (# (if (< %0 n) (print file " (" (inc %0)  ") " k))) v)))))
 
 (defq usage `(
 (("-h" "--help")
@@ -40,8 +38,17 @@
 	(when (and
 			(defq stdio (create-stdio))
 			(defq args (options stdio usage)))
+		(defq files (list))
 		(if (<= (length args) 1)
 			;test files from stdin
-			(each-line (# (test-file %0)) (io-stream 'stdin))
+			(each-line (# (push files %0)) (io-stream 'stdin))
 			;test files from args
-			(each (# (test-file %0)) (rest args)))))
+			(each (# (push files %0)) (rest args)))
+		(if (= (length files) 1)
+			;have do do the work when just 1 file !
+			(test-file (pop files))
+			;do them all out there, by calling myself !
+			(each (lambda ((job result))
+					(unless (eql result "") (print result)))
+				(sort (# (cmp (second %0) (second %1)))
+					(pipe-farm (map (# (cat "forward " %0)) files)))))))
