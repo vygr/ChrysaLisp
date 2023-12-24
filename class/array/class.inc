@@ -57,6 +57,55 @@
 	(uint length capacity)
 	(ulong e0 e1 e2 e3))
 
+;;;;;;;;;;;;;;;;;;;
+; paramater helpers
+;;;;;;;;;;;;;;;;;;;
+
+(defun array-set-args (i regs &optional type)
+	;inputs
+	;iter
+	; (reg ...)
+	;outputs
+	;save register list to iter
+	(setq i (get i))
+	(cond
+		((eql type :nil)
+			(assign regs (map (lambda (r) (list i (* +long_size _))) regs)))
+		(:t (defq s (type-to-size type))
+			(assign regs (map (lambda (r) (list i (* s _) type)) regs)))))
+
+(defun array-get-args (i regs &optional type)
+	;inputs
+	;iter
+	; (reg ...)
+	;outputs
+	;load register list from iter
+	(cond
+		((eql type :nil)
+			(assign (map (lambda (r) (list i (* +long_size _))) regs) regs))
+		(:t (defq s (type-to-size type))
+			(assign (map (lambda (r) (list i (* s _) type)) regs) regs))))
+
+(defun array-map-args (regs pos)
+	;inputs
+	; (reg reg ...)
+	; (p1 p2 ...)
+	;outputs
+	;reordered register list
+	(defq out (cat regs))
+	(each (lambda (r p)
+		(elem-set p out r)) regs pos) out)
+
+(defun array-bind-args (a regs)
+	;inputs
+	;array object
+	; (reg ...)
+	;outputs
+	;load register list from array
+	(defq b (get (last regs)))
+	(assign `((,(get a) array_begin)) `(,b))
+	(array-get-args b regs))
+
 ;;;;;;;;;;;;;;;;
 ; inline methods
 ;;;;;;;;;;;;;;;;
@@ -302,52 +351,3 @@
 	(vp-shl-cr (log2 +long_size) :r1)
 	(vp-add-rr :r1 :r2)
 	(array-get-args :r2 '(:r1 :r2)))
-
-;;;;;;;;;;;;;;;;;;;
-; paramater helpers
-;;;;;;;;;;;;;;;;;;;
-
-(defun array-set-args (i regs &optional type)
-	;inputs
-	;iter
-	; (reg ...)
-	;outputs
-	;save register list to iter
-	(setq i (get i))
-	(cond
-		((eql type :nil)
-			(assign regs (map (lambda (r) (list i (* +long_size _))) regs)))
-		(:t (defq s (type-to-size type))
-			(assign regs (map (lambda (r) (list i (* s _) type)) regs)))))
-
-(defun array-get-args (i regs &optional type)
-	;inputs
-	;iter
-	; (reg ...)
-	;outputs
-	;load register list from iter
-	(cond
-		((eql type :nil)
-			(assign (map (lambda (r) (list i (* +long_size _))) regs) regs))
-		(:t (defq s (type-to-size type))
-			(assign (map (lambda (r) (list i (* s _) type)) regs) regs))))
-
-(defun array-map-args (regs pos)
-	;inputs
-	; (reg reg ...)
-	; (p1 p2 ...)
-	;outputs
-	;reordered register list
-	(defq out (cat regs))
-	(each (lambda (r p)
-		(elem-set p out r)) regs pos) out)
-
-(defun array-bind-args (a regs)
-	;inputs
-	;array object
-	; (reg ...)
-	;outputs
-	;load register list from array
-	(defq b (get (last regs)))
-	(assign `((,(get a) array_begin)) `(,b))
-	(array-get-args b regs))
