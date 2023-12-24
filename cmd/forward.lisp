@@ -41,7 +41,7 @@
 			(defq stdio (create-stdio))
 			(defq args (options stdio usage)))
 		(if (<= (length args) 1)
-			;test file from stdin
+			;test files from stdin
 			(each-line (# (test-file %0)) (io-stream 'stdin))
-			;test file from args
+			;test files from args
 			(each (# (test-file %0)) (rest args)))))
