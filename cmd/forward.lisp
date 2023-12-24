@@ -3,7 +3,7 @@
 ;test a file
 (defun test-file (file)
 	(defq defs_map (Fmap 11) uses_map (Fmap 31))
-	(each-line (lambda (line)
+	(each-line (lambda (line) (task-slice)
 			(defq line_num _
 				defs (matches line "^\(de(fun|macro)\s+([^ \r\f\v\n\t\(\)]+)")
 				uses (matches line "\(\s*([^ \r\f\v\n\t\(\)]+)"))
