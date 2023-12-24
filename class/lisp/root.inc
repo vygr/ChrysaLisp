@@ -386,18 +386,6 @@
 ; Functional
 ;;;;;;;;;;;;
 
-(defmacro curry (f &rest _)
-	; (curry lambda var ...) -> lambda
-	`(lambda (&rest _) (apply ,f (cat (list ~_) _))))
-
-(defmacro rcurry (f &rest _)
-	; (rcurry lambda var ...) -> lambda
-	`(lambda (&rest _) (apply ,f (cat _ (list ~_)))))
-
-(defmacro compose (&rest _)
-	; (compose lambda lambda) -> lambda
-	`(lambda (_) ,(reduce (lambda (x y) (list y x)) _ '_)))
-
 (defun range (b e &optional s)
 	; (range start end [step]) -> list
 	(defq s (opt s 1 (abs s)) l (cap (/ (abs (- b e)) s) (list)))
@@ -462,6 +450,18 @@
 		(:t (setq _a (last _l))
 			(each! -2 0 (lambda (_e)
 				(setq _a (_f _a _e))) (list _l)))) _a)
+
+(defmacro curry (f &rest _)
+	; (curry lambda var ...) -> lambda
+	`(lambda (&rest _) (apply ,f (cat (list ~_) _))))
+
+(defmacro rcurry (f &rest _)
+	; (rcurry lambda var ...) -> lambda
+	`(lambda (&rest _) (apply ,f (cat _ (list ~_)))))
+
+(defmacro compose (&rest _)
+	; (compose lambda lambda) -> lambda
+	`(lambda (_) ,(reduce (lambda (x y) (list y x)) _ '_)))
 
 ;;;;;;;;
 ; Scopes
