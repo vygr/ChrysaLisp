@@ -98,6 +98,11 @@
 			(if (eql (leapyear? y) :t) (setq leap_count (inc leap_count)) :nil))
 			(range (elem-get +time_year unix_epoch) (inc year))) leap_count))
 
+(defun get-year (days)
+	(defq year (elem-get +time_year unix_epoch) yeardays (days-in-year year))
+	(while (> days (setq yeardays (days-in-year year)))
+		(setq days (- days yeardays) year (inc year))) year)
+
 ;;;since day starts at 1 add 1.
 (defun get-yeardays (days)
 	(defq year (get-year days) years (- year (elem-get +time_year unix_epoch))
@@ -105,11 +110,6 @@
 		nonleapyears (- years leapyears))
 		(inc (- days (+ (* leapyears 366)
 			(* nonleapyears 365)))))
-
-(defun get-year (days)
-	(defq year (elem-get +time_year unix_epoch) yeardays (days-in-year year))
-	(while (> days (setq yeardays (days-in-year year)))
-		(setq days (- days yeardays) year (inc year))) year)
 
 (defun get-date (days)
 	(let ((month 0))

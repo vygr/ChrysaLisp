@@ -17,6 +17,31 @@
 (defun coord-elem ((x y) w h) (+ x (* y w)))
 (defun elem-coord (e w h) (list (% e w) (/ e w)))
 
+(defun adjacent-elem (c w h)
+	(defq coords (list))
+	(aeach ord_vals
+		(defq ord_pos (sum-xy c it))
+		(when (in-bounds ord_pos w h)
+			(push coords (coord-elem ord_pos w h)))) coords)
+
+(defun mine-list (l n s w h)
+	(defq count 0 m (list))
+	(while (< count n)
+		(defq r (% (random l) (/ (pii-time) 1000000)))
+		(unless (or (eql r s) (sfind r m) (some (lambda (_) (= _ r)) (adjacent-elem (elem-coord s w h) w h)))
+			(setq count (inc count)) (push m r))) m)
+
+(defun cell-set-value (c a b)
+	(defq count 0)
+	(each (# (when (= (elem-get %0 b) 9) (setq count (inc count)))) (elem-get c a))
+	(elem-set c b count))
+
+(defun board-set-mines (m b n s w h)
+	(each (# (elem-set %0 b 9)) (mine-list (length b) n s w h)) b)
+
+(defun board-set-values (a b)
+	(each (# (when (/= (elem-get %0 b) 9) (cell-set-value %0 a b))) (range 0 (length b))))
+
 (defun create-game (w h n s)
 	(defq a (list) b (list) p (list) x_index 0 y_index 0 m (mine-list (* w h) n s w h))
 	(each (lambda (_)
@@ -26,28 +51,3 @@
 		(range 0 (* w h)))
 	(board-set-mines m b n s w h)
 	(board-set-values a b) (list b p a))
-
-(defun mine-list (l n s w h)
-	(defq count 0 m (list))
-	(while (< count n)
-		(defq r (% (random l) (/ (pii-time) 1000000)))
-		(unless (or (eql r s) (sfind r m) (some (lambda (_) (= _ r)) (adjacent-elem (elem-coord s w h) w h)))
-			(setq count (inc count)) (push m r))) m)
-
-(defun board-set-mines (m b n s w h)
-	(each (# (elem-set %0 b 9)) (mine-list (length b) n s w h)) b)
-
-(defun board-set-values (a b)
-	(each (# (when (/= (elem-get %0 b) 9) (cell-set-value %0 a b))) (range 0 (length b))))
-
-(defun cell-set-value (c a b)
-	(defq count 0)
-	(each (# (when (= (elem-get %0 b) 9) (setq count (inc count)))) (elem-get c a))
-	(elem-set c b count))
-
-(defun adjacent-elem (c w h)
-	(defq coords (list))
-	(aeach ord_vals
-		(defq ord_pos (sum-xy c it))
-		(when (in-bounds ord_pos w h)
-			(push coords (coord-elem ord_pos w h)))) coords)

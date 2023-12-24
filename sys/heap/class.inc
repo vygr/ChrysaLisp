@@ -27,21 +27,6 @@
 (def-struct hp_cell 0
 	(ptr block next))
 
-;;;;;;;;;;;;;;;;
-; inline methods
-;;;;;;;;;;;;;;;;
-
-(defun sys/heap/free ()
-	;inputs
-	;:r0 = heap (ptr)
-	;:r1 = cell (ptr)
-	;outputs
-	;:r0 = heap (ptr)
-	;:r1 = cell (ptr)
-	;trashes
-	;:r2
-	(hp-freecell :r0 :r1 :r2))
-
 ;;;;;;;;;;;;;
 ; heap macros
 ;;;;;;;;;;;;;
@@ -57,3 +42,18 @@
 	;_3 = old first cell (ptr)
 
 	(ln-add-fnode _1 hp_heap_free_flist _2 _3))
+
+;;;;;;;;;;;;;;;;
+; inline methods
+;;;;;;;;;;;;;;;;
+
+(defun sys/heap/free ()
+	;inputs
+	;:r0 = heap (ptr)
+	;:r1 = cell (ptr)
+	;outputs
+	;:r0 = heap (ptr)
+	;:r1 = cell (ptr)
+	;trashes
+	;:r2
+	(hp-freecell :r0 :r1 :r2))
