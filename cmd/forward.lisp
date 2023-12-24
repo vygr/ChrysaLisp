@@ -51,4 +51,4 @@
 			(each (lambda ((job result))
 					(unless (eql result "") (print result)))
 				(sort (# (cmp (second %0) (second %1)))
-					(pipe-farm (map (# (cat "forward " %0)) files)))))))
+					(pipe-farm (map (# (cat (first args) " " %0)) files)))))))
