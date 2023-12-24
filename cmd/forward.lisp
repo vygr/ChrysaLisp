@@ -1,6 +1,10 @@
 (import "lib/options/options.inc")
 (import "lib/task/cmd.inc")
 
+; (work)
+; (work)
+; (work)
+
 ;do the work on a file
 (defun work (file)
 	(defq defs_map (Fmap 11) uses_map (Fmap 31))
@@ -48,7 +52,5 @@
 			;have do do the work when just 1 file !
 			(work (pop files))
 			;do them all out there, by calling myself !
-			(each (lambda ((job result))
-					(unless (eql result "") (print result)))
-				(sort (# (cmp (second %0) (second %1)))
-					(pipe-farm (map (# (cat (first args) " " %0)) files)))))))
+			(each (lambda ((job result)) (prin result))
+				(pipe-farm (map (# (cat (first args) " " %0)) files))))))
