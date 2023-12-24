@@ -65,11 +65,11 @@ Usage: files [options] [prefix] [postfix]
 ```code
 Usage: forward [options] [path] ...
 
-	Scan a source file for use of forward
-	references to functions or macros.
-
 	options:
 		-h --help: this help info.
+
+	Scan a source file for use of forward
+	references to functions or macros.
 
 	If no paths given on command line
 	then will test files from stdin.
