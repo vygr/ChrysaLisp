@@ -29,7 +29,7 @@
 	options:
 		-h --help: this help info.
 
-	Scan a source file for use of forward
+	Scan source files for use of forward
 	references to functions or macros.
 
 	If no paths given on command line
