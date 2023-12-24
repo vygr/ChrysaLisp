@@ -16,7 +16,7 @@
 					(defq func (slice x x1 line))
 					(and (defq line (. func_map :find func))
 						(< line_num line)
-						(print file " (" (inc line) ") " func))) m)))
+						(print file " (" (inc line_num) ") " func))) m)))
 		(file-stream file)))
 
 (defq usage `(
