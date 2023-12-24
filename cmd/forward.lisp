@@ -5,7 +5,7 @@
 	(defq defs_map (Fmap 11) uses_map (Fmap 11))
 	(each-line (lambda (line)
 			(defq line_num _
-				defs (matches line "^\(de(fun|macro)\s*([^ \r\f\v\n\t\(\)]+)")
+				defs (matches line "^\(de(fun|macro)\s+([^ \r\f\v\n\t\(\)]+)")
 				uses (matches line "\(\s*([^ \r\f\v\n\t\(\)]+)"))
 			(when (nempty? defs)
 				(bind '((_ _ (x x1)) &ignore) defs)
