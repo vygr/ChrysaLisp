@@ -346,37 +346,6 @@
 		((= (length _) 1) (first _))
 		(:t `(if ,(first _) (and ~(rest _))))))
 
-(defmacro case (_form &rest _body)
-	; (case form [(key|(key ...) body)] ...)
-	(defq _default_key :nil _default_clause :nil _atoms :t
-		_map (reduce (lambda (_map (_keys &rest _clause_body))
-			(unless (list? _keys) (setq _keys (list _keys)))
-			(setq _clause_body (pop (prebind (list (macroexpand
-				(if (= (length _clause_body) 1)
-					(first _clause_body)
-					(cat '(progn) _clause_body)))))))
-			(or (eql :num (defq _clause_type (pop (type-of _clause_body))))
-				(eql :str _clause_type) (setq _atoms :nil))
-			(each! 0 -1 (lambda (_key)
-				(and (sym? _key) (starts-with "+" _key) (setq _key (eval _key)))
-				(cond
-					((eql _key :t)
-						(setq _default_key :t _default_clause _clause_body))
-					(:t (push (first _map) _key)
-						(push (second _map) _clause_body)))) (list _keys)) _map)
-			_body (list (list) (list))))
-	(cond
-		(_default_key
-			(push (second _map) _default_clause)
-			(if _atoms
-				`(elem-get (or (find ,_form ',(first _map)) -2) ',(second _map))
-				`(eval (elem-get (or (find ,_form ',(first _map)) -2) ',(second _map)))))
-		(:t (if _atoms
-				`(if (defq ,(defq _i (gensym)) (find ,_form ',(first _map)))
-					(elem-get ,_i ',(second _map)))
-				`(if (defq ,(defq _i (gensym)) (find ,_form ',(first _map)))
-					(eval (elem-get ,_i ',(second _map))))))))
-
 (defmacro times (c &rest _)
 	; (times num body)
 	`(progn (defq ,(defq _c (gensym)) ,c)
@@ -509,6 +478,14 @@
 	(while (>= (setq n (dec n)) 0) (push out (list)))
 	out)
 
+(defun starts-with (p _)
+	; (starts-with str str) -> :t | :nil
+	(and (>= (length _) (length p)) (eql p (slice 0 (length p) _))))
+
+(defun ends-with (p _)
+	; (ends-with str str) -> :t | :nil
+	(and (>= (length _) (length p)) (eql p (slice (dec (neg (length p))) -1 _))))
+
 (defun erase (s b e)
 	; (erase seq start end) -> seq
 	(cat (slice 0 b s) (slice e -1 s)))
@@ -577,6 +554,41 @@
 			(each-rev (lambda (&ignore) (push out (slice _ (inc _) seq))) seq)
 			(apply cat out))
 		((rest seq))))
+
+;;;;;;
+; case
+;;;;;;
+
+(defmacro case (_form &rest _body)
+	; (case form [(key|(key ...) body)] ...)
+	(defq _default_key :nil _default_clause :nil _atoms :t
+		_map (reduce (lambda (_map (_keys &rest _clause_body))
+			(unless (list? _keys) (setq _keys (list _keys)))
+			(setq _clause_body (pop (prebind (list (macroexpand
+				(if (= (length _clause_body) 1)
+					(first _clause_body)
+					(cat '(progn) _clause_body)))))))
+			(or (eql :num (defq _clause_type (pop (type-of _clause_body))))
+				(eql :str _clause_type) (setq _atoms :nil))
+			(each! 0 -1 (lambda (_key)
+				(and (sym? _key) (starts-with "+" _key) (setq _key (eval _key)))
+				(cond
+					((eql _key :t)
+						(setq _default_key :t _default_clause _clause_body))
+					(:t (push (first _map) _key)
+						(push (second _map) _clause_body)))) (list _keys)) _map)
+			_body (list (list) (list))))
+	(cond
+		(_default_key
+			(push (second _map) _default_clause)
+			(if _atoms
+				`(elem-get (or (find ,_form ',(first _map)) -2) ',(second _map))
+				`(eval (elem-get (or (find ,_form ',(first _map)) -2) ',(second _map)))))
+		(:t (if _atoms
+				`(if (defq ,(defq _i (gensym)) (find ,_form ',(first _map)))
+					(elem-get ,_i ',(second _map)))
+				`(if (defq ,(defq _i (gensym)) (find ,_form ',(first _map)))
+					(eval (elem-get ,_i ',(second _map))))))))
 
 ;;;;;;;;;;;;;;;;
 ; Math functions
@@ -692,14 +704,6 @@
 	; (to-lower str) -> str
 	(if (eql _ "") ""
 		(apply (const cat) (map (lambda (_) (char (ascii-lower (code _)))) _))))
-
-(defun starts-with (p _)
-	; (starts-with str str) -> :t | :nil
-	(and (>= (length _) (length p)) (eql p (slice 0 (length p) _))))
-
-(defun ends-with (p _)
-	; (ends-with str str) -> :t | :nil
-	(and (>= (length _) (length p)) (eql p (slice (dec (neg (length p))) -1 _))))
 
 (defun align (num div)
 	; (align num div) -> num
