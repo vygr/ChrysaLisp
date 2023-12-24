@@ -5,7 +5,7 @@
 	(defq func_map (Fmap 11))
 	(each-line (# (defq m (matches %0 "^\(defun (\S+)"))
 			(when (nempty? m)
-				(bind '((__ (x x1))) m)
+				(bind '((__ (x x1)) &ignore) m)
 				(defq func (slice x x1 %0))
 				(. func_map :insert func _)))
 		(file-stream file))
