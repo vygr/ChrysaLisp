@@ -41,15 +41,13 @@
 	(when (and
 			(defq stdio (create-stdio))
 			(defq args (options stdio usage)))
-		(defq files (list))
-		(if (<= (length args) 1)
-			;files from stdin
-			(each-line (# (push files %0)) (io-stream 'stdin))
-			;files from args
-			(setq files (rest args)))
-		(if (<= (length files) 1)
+		;from args ?
+		(if (empty? (defq jobs (rest args)))
+			;no, so from stdin
+			(each-line (# (push jobs %0)) (io-stream 'stdin)))
+		(if (<= (length jobs) 1)
 			;have do do the work when just 1 file !
-			(work (pop files))
+			(work (pop jobs))
 			;do them all out there, by calling myself !
 			(each (lambda ((job result)) (prin result))
-				(pipe-farm (map (# (cat (first args) " " %0)) files))))))
+				(pipe-farm (map (# (cat (first args) " " %0)) jobs))))))
