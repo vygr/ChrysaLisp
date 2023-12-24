@@ -13,6 +13,9 @@
 	+doc_font (first (font-info *env_window_font*))
 	+term_font (first (font-info *env_terminal_font*)))
 
+(defun page-scale (s)
+	(n2i (* (n2f s) *page_scale*)))
+
 ;lisp handler environment
 ((# (def (penv) '*handler_env* (env))))
 
@@ -70,9 +73,6 @@
 	(when (defq node (. tree :find_node file))
 		(. tree :select file)
 		(. (penv tree) :visible node)))
-
-(defun page-scale (s)
-	(n2i (* (n2f s) *page_scale*)))
 
 ;import actions
 (import "./actions.inc")
