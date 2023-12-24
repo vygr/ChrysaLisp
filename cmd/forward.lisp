@@ -1,8 +1,8 @@
 (import "lib/options/options.inc")
 (import "lib/task/cmd.inc")
 
-;test a file
-(defun test-file (file)
+;do the work on a file
+(defun work (file)
 	(defq defs_map (Fmap 11) uses_map (Fmap 31))
 	(each-line (lambda (line) (task-slice)
 			(defq line_num _
@@ -40,13 +40,13 @@
 			(defq args (options stdio usage)))
 		(defq files (list))
 		(if (<= (length args) 1)
-			;test files from stdin
+			;files from stdin
 			(each-line (# (push files %0)) (io-stream 'stdin))
-			;test files from args
+			;files from args
 			(each (# (push files %0)) (rest args)))
 		(if (= (length files) 1)
 			;have do do the work when just 1 file !
-			(test-file (pop files))
+			(work (pop files))
 			;do them all out there, by calling myself !
 			(each (lambda ((job result))
 					(unless (eql result "") (print result)))
