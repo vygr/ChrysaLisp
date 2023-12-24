@@ -503,6 +503,12 @@
 ; Sequences
 ;;;;;;;;;;;
 
+(defun lists (n)
+	; (lists n) -> ((list0) ... (listn-1))
+	(defq out (cap n (list)))
+	(while (>= (setq n (dec n)) 0) (push out (list)))
+	out)
+
 (defun erase (s b e)
 	; (erase seq start end) -> seq
 	(cat (slice 0 b s) (slice e -1 s)))
@@ -645,12 +651,6 @@
 ;;;;;;;;;;;
 ; Utilities
 ;;;;;;;;;;;
-
-(defun lists (n)
-	; (lists n) -> ((list0) ... (listn-1))
-	(defq out (cap n (list)))
-	(while (>= (setq n (dec n)) 0) (push out (list)))
-	out)
 
 (defun export (e symbols)
 	; (export env symbols)
