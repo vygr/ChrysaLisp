@@ -26,33 +26,9 @@
 					(ui-label right_pad (:text "" :min_width 25))))
 		(ui-label status_bar (:text " "))))
 
-(defun clicked-blank (cell)
-	(defq work (list cell))
-	(while (defq cell (pop work))
-		(unless (eql (elem-get cell game_map) "r")
-			(elem-set cell game_map "r")
-			(aeach (elem-get cell game_adj)
-				(cond
-					((= (elem-get it game_board) 0) (push work it))
-					((< 0 (elem-get it game_board) 9) (elem-set it game_map "r"))))))
-	(rebuild-board))
-
-(defun clicked-flag (cell)
-	(elem-set cell game_map "b")
-	(rebuild-board))
-
-(defun right-clicked-button (cell)
-	(elem-set cell game_map "f")
-	(rebuild-board)
-	(is-game-over?))
-
-(defun clicked-value (cell)
-	(elem-set cell game_map "r")
-	(rebuild-board))
-
-(defun clicked-mine (cell)
-	(elem-set cell game_map "r")
-	(rebuild-board))
+(defun colorize (value)
+	(elem-get value '(+argb_black 0x000000ff 0x00006600 0x00ff0000 +argb_magenta
+		+argb_black 0x00700000 +argb_grey1 0x0002bbdd +argb_black)))
 
 (defun is-game-over? (&optional lost)
 	(defq message "")
@@ -63,28 +39,6 @@
 		(:t :nil))
 	(set status_bar :text message)
 	(.-> status_bar :layout :dirty))
-
-(defun colorize (value)
-	(elem-get value '(+argb_black 0x000000ff 0x00006600 0x00ff0000 +argb_magenta
-		+argb_black 0x00700000 +argb_grey1 0x0002bbdd +argb_black)))
-
-(defun board-layout ((gw gh nm))
-	(. across :sub)
-	(setq game_grid (Grid))
-	(defq gwh (* gw gh))
-		; (ui-grid game_grid (:grid_width 1 :grid_height 5)
-	(each (lambda (_)
-		(. (defq mc (Button)) :connect (+ _ +event_click))
-		(def mc :text "" :border 1 :flow_flags
-			(logior +flow_flag_align_hcenter +flow_flag_align_vcenter) :min_width 32 :min_height 32)
-		(. game_grid :add_child mc)) (range 0 gwh))
-	(def game_grid :grid_width gw :grid_height gh :color (const *env_toolbar_col*) :font *env_window_font*)
-	(bind '(w h) (. game_grid :pref_size))
-	(. game_grid :change 0 0 w h)
-	(def view :min_width w :min_height h)
-	(. view :add_child game_grid)
-	(bind '(x y w h) (apply view-fit (cat (. *window* :get_pos) (. *window* :pref_size))))
-	(. *window* :change_dirty x y w h))
 
 (defun rebuild-board ()
 	(bind '(gw gh nm) difficulty)
@@ -118,6 +72,52 @@
 					:border 0 :ink_color (colorize value) :color (if (= value 9) +argb_red *env_toolbar_col*) :min_width 32 :min_height 32)
 				(. game_grid :add_child mc))
 			(:t :nil))) (range 0 gwh))
+	(def game_grid :grid_width gw :grid_height gh :color (const *env_toolbar_col*) :font *env_window_font*)
+	(bind '(w h) (. game_grid :pref_size))
+	(. game_grid :change 0 0 w h)
+	(def view :min_width w :min_height h)
+	(. view :add_child game_grid)
+	(bind '(x y w h) (apply view-fit (cat (. *window* :get_pos) (. *window* :pref_size))))
+	(. *window* :change_dirty x y w h))
+
+(defun clicked-blank (cell)
+	(defq work (list cell))
+	(while (defq cell (pop work))
+		(unless (eql (elem-get cell game_map) "r")
+			(elem-set cell game_map "r")
+			(aeach (elem-get cell game_adj)
+				(cond
+					((= (elem-get it game_board) 0) (push work it))
+					((< 0 (elem-get it game_board) 9) (elem-set it game_map "r"))))))
+	(rebuild-board))
+
+(defun clicked-flag (cell)
+	(elem-set cell game_map "b")
+	(rebuild-board))
+
+(defun right-clicked-button (cell)
+	(elem-set cell game_map "f")
+	(rebuild-board)
+	(is-game-over?))
+
+(defun clicked-value (cell)
+	(elem-set cell game_map "r")
+	(rebuild-board))
+
+(defun clicked-mine (cell)
+	(elem-set cell game_map "r")
+	(rebuild-board))
+
+(defun board-layout ((gw gh nm))
+	(. across :sub)
+	(setq game_grid (Grid))
+	(defq gwh (* gw gh))
+		; (ui-grid game_grid (:grid_width 1 :grid_height 5)
+	(each (lambda (_)
+		(. (defq mc (Button)) :connect (+ _ +event_click))
+		(def mc :text "" :border 1 :flow_flags
+			(logior +flow_flag_align_hcenter +flow_flag_align_vcenter) :min_width 32 :min_height 32)
+		(. game_grid :add_child mc)) (range 0 gwh))
 	(def game_grid :grid_width gw :grid_height gh :color (const *env_toolbar_col*) :font *env_window_font*)
 	(bind '(w h) (. game_grid :pref_size))
 	(. game_grid :change 0 0 w h)
