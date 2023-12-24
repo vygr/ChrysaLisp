@@ -5,8 +5,8 @@
 	(defq defs_map (Fmap 11) uses_map (Fmap 11))
 	(each-line (lambda (line)
 			(defq line_num _
-				defs (matches line "^\(defun ([a-z0-9-_?/]+)")
-				uses (matches line "\(([a-z0-9-_?/]+)"))
+				defs (matches line "^\(defun ([^ \r\f\v\n\t\(\)]+)")
+				uses (matches line "\(([^ \r\f\v\n\t\(\)]+)"))
 			(when (nempty? defs)
 				(bind '((_ (x x1)) &ignore) defs)
 				(. defs_map :insert (slice x x1 line) line_num))
