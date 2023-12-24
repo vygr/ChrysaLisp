@@ -1,10 +1,6 @@
 (import "lib/options/options.inc")
 (import "lib/task/cmd.inc")
 
-; (work)
-; (work)
-; (work)
-
 ;do the work on a file
 (defun work (file)
 	(defq defs_map (Fmap 11) uses_map (Fmap 31))
