@@ -26,6 +26,9 @@ Whiteboard now uses `.tre` format files for data storage.
 
 New generic `(split seq sseq) -> seqs` function.
 
+New `forward [path] ...` command app. This detects forward referenced function
+calls, to help you optimize your source.
+
 ------
 
 Region selection added to Viewer app.
