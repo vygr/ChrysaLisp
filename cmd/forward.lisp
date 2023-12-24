@@ -26,6 +26,9 @@
 (("-h" "--help")
 "Usage: forward [options] [path] ...
 
+	Scan a source file for use of forward
+	references to functions or macros.
+
 	options:
 		-h --help: this help info.
 
