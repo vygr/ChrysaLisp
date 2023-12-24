@@ -44,7 +44,7 @@
 			(each-line (# (push files %0)) (io-stream 'stdin))
 			;files from args
 			(setq files (rest args)))
-		(if (= (length files) 1)
+		(if (<= (length files) 1)
 			;have do do the work when just 1 file !
 			(work (pop files))
 			;do them all out there, by calling myself !
