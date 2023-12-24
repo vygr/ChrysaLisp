@@ -346,9 +346,9 @@ apps/docs/app.lisp "state :text" "bind"
 
 Each module takes the current line of the file and decides what other UI
 widgets need to be created to populate the page widget. In general these
-modules build up their own widget sub tree and when they see the section close
-line, "```", they add that sub tree to the page and switch the state back to
-`:text` state.
+modules build up their own widget sub tree and, when they see the section close
+line, they add that sub tree to the page and switch the state back to `:text`
+state.
 
 Here is the `:image` handler module:
 
