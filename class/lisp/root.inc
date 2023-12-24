@@ -290,7 +290,7 @@
 	(= (logand (code (first _)) 1) 0))
 
 ;;;;;;;;;;;;;;
-; default opts
+; Default opts
 ;;;;;;;;;;;;;;
 
 (defmacro inc (_)
@@ -556,7 +556,7 @@
 		((rest seq))))
 
 ;;;;;;
-; case
+; Case
 ;;;;;;
 
 (defmacro case (_form &rest _body)
