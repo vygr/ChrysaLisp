@@ -135,7 +135,7 @@
 (ffi env-pop "class/lisp/lisp_env_pop" 0)
 
 (ffi pii-dirlist "sys/pii/lisp_dirlist" 0)
-(ffi pii-fstat "sys/pii/lisp_fstat" 0) ; -> (array filetime filesize filemode)
+(ffi pii-fstat "sys/pii/lisp_fstat" 0)
 (ffi pii-read-char "sys/pii/lisp_readchar" 0)
 (ffi pii-remove "sys/pii/lisp_remove" 0)
 (ffi pii-time "sys/pii/lisp_time" 0)
