@@ -907,10 +907,11 @@
 	; (load-stream path) -> :nil | stream
 	(if (defq _ (load _)) (string-stream _)))
 
-(defun each-line (_f _)
-	; (each-line lambda stream)
-	(while (defq _l (read-line _))
-		(_f _l)))
+(defun each-line (_f _s &optional _)
+	; (each-line lambda stream [line_num])
+	(setd _ 0)
+	(while (defq _l (read-line _s))
+		(_f _l) (setq _ (inc _))))
 
 (defun abs-path (lib_path &optional current)
 	; (abs-path path [current]) -> path
