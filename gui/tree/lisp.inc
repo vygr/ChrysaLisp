@@ -24,7 +24,7 @@
 		; "a/b/c/file"
 		; "a/b/c/."
 		(bind '(toggle_width _) (font-glyph-bounds (get :font this) ">"))
-		(defq route (split-str route "/") root this)
+		(defq route (split route "/") root this)
 		(each! 0 -2 (lambda (branch)
 			(cond
 				((defq node (some (# (if (eql (def? :text %0) branch) %0)) (. root :children)))
@@ -55,7 +55,7 @@
 		; (. tree :find_node route) -> node | :nil
 		; routes are:
 		; "a/b/c/node"
-		(defq route (split-str route "/") root this)
+		(defq route (split route "/") root this)
 		(every (lambda (branch)
 			(cond
 				((defq node (some (# (if (eql (def? :text %0) branch) %0)) (. root :children)))

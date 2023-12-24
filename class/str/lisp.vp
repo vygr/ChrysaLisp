@@ -6,42 +6,6 @@
 (include "sys/str/class.inc")
 (include "././fixed/class.inc")
 
-(def-method 'str :lisp_split)
-	;inputs
-	;:r0 = lisp object (ptr)
-	;:r1 = args list object (ptr)
-	;outputs
-	;:r0 = lisp object (ptr)
-	;:r1 = return value object (ptr)
-	;trashes
-	;:r1-:r14
-
-	(entry 'str :lisp_split '(:r0 :r1))
-
-	(errorif-lisp-args-sig :r1 2 'error1)
-
-	(vp-push :r0)
-	(defq in (method-input 'str :split))
-	(array-bind-args :r1 in)
-	(assign `((,(second in) str_length)) '(:r14))
-	(vpif '(:r14 = 1))
-		(assign `((,(second in) str_data ub)) `(,(second in)))
-		(call 'str :split_char in '(_ :r1))
-	(else)
-		(call 'str :split in '(_ :r1))
-	(endif)
-	(vp-pop :r0)
-
-	(exit 'str :lisp_split '(:r0 :r1))
-	(vp-ret)
-
-(errorcase
-(vp-label 'error1)
-	(jump 'lisp :repl_error '(:r0 "(split-str str chars)" +error_msg_wrong_types :r1))
-	(signature '(str str)))
-
-(def-func-end)
-
 (def-method 'str :lisp_code)
 	;inputs
 	;:r0 = lisp object (ptr)

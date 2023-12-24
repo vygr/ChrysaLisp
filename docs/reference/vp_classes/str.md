@@ -20,8 +20,6 @@
 
 ### (save str path)
 
-### (split-str str chars)
-
 ### (str-to-num str)
 
 ## VP methods
@@ -273,19 +271,6 @@ trashes
 ```
 
 ### :split -> class/str/split
-
-```code
-inputs
-:r0 = str object (ptr)
-:r1 = split chars str object (ptr)
-outputs
-:r0 = str object (ptr)
-:r1 = list of str objects (ptr)
-trashes
-:r1-:r14
-```
-
-### :split_char -> class/str/split_char
 
 ```code
 inputs

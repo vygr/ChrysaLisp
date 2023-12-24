@@ -407,7 +407,7 @@
 					(task-slice)
 					(.-> buffer (:insert line) :break))
 				(.-> buffer :get_syntax (:text_flow
-					(split-str (.-> buffer (:set_cursor 0 y) (:cut 0 y1))
+					(split (.-> buffer (:set_cursor 0 y) (:cut 0 y1))
 						(const (cat " " (ascii-char +char_lf))))
 					(. buffer :get_wrap_width))))
 			(bind '(x y) (. buffer :get_cursor))
@@ -422,7 +422,7 @@
 			(each (lambda (line)
 					(task-slice)
 					(.-> buffer (:insert line) :break))
-				(split-str (.-> buffer (:set_cursor 0 y) (:cut 0 y1))
+				(split (.-> buffer (:set_cursor 0 y) (:cut 0 y1))
 					(const (cat " " (ascii-char +char_lf)))))
 			(bind '(x y) (. buffer :get_cursor))
 			(bind '(x y) (. buffer :constrain x (inc y)))
@@ -436,7 +436,7 @@
 				(bind '(y y1) (select-lines this))
 				(. this :set_anchor 0 y)
 				(. buffer :paste (apply (const cat) (join
-					(sort cmp (split-str (.-> buffer (:set_cursor 0 y1) (:cut 0 y)) (ascii-char +char_lf)))
+					(sort cmp (split (.-> buffer (:set_cursor 0 y1) (:cut 0 y)) (ascii-char +char_lf)))
 					(list (ascii-char +char_lf)) 2)))))
 		this)
 
@@ -449,7 +449,7 @@
 				(. buffer :paste (apply (const cat) (join
 					(reduce (# (if (or (<= (length %0) 0)
 									(not (eql (last %0) %1))) (push %0 %1) %0))
-					(split-str (.-> buffer (:set_cursor 0 y1) (:cut 0 y)) (ascii-char +char_lf))
+					(split (.-> buffer (:set_cursor 0 y1) (:cut 0 y)) (ascii-char +char_lf))
 					(list)) (list (ascii-char +char_lf)) 2)))))
 		this)
 
@@ -460,7 +460,7 @@
 				(bind '(y y1) (select-lines this))
 				(. this :set_anchor 0 y)
 				(. buffer :paste (apply (const cat) (join
-					(reverse-list (split-str (.-> buffer (:set_cursor 0 y1) (:cut 0 y)) (ascii-char +char_lf)))
+					(reverse-list (split (.-> buffer (:set_cursor 0 y1) (:cut 0 y)) (ascii-char +char_lf)))
 					(list (ascii-char +char_lf)) 2)))))
 		this)
 

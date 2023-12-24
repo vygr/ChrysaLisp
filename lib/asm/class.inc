@@ -62,14 +62,14 @@
 	;_1 = in parameters
 	(cond
 		((not _1))
-		((str? _1) (assign (slice 0 (length (split-str _1 ",")) +vp_regs_calls) _1))
+		((str? _1) (assign (slice 0 (length (split _1 ",")) +vp_regs_calls) _1))
 		(:t (assign (slice 0 (length _1) +vp_regs_calls) _1))))
 
 (defun l-exit (_1)
 	;_1 = out parameters
 	(cond
 		((not _1))
-		((str? _1) (assign _1 (slice 0 (length (split-str _1 ",")) +vp_regs_calls)))
+		((str? _1) (assign _1 (slice 0 (length (split _1 ",")) +vp_regs_calls)))
 		(:t (assign _1 (slice 0 (length _1) +vp_regs_calls)))))
 
 ;;;;;;;;;;;;;;;;;;
@@ -170,12 +170,12 @@
 		(:t ;l-call
 			(cond
 				((not _2))
-				((str? _2) (assign _2 (slice 0 (length (split-str _2 ",")) +vp_regs_calls)))
+				((str? _2) (assign _2 (slice 0 (length (split _2 ",")) +vp_regs_calls)))
 				(:t (assign _2 (slice 0 (length _2) +vp_regs_calls))))
 			(vp-call _1)
 			(cond
 				((not _3))
-				((str? _3) (assign (slice 0 (length (split-str _3 ",")) +vp_regs_calls) _3))
+				((str? _3) (assign (slice 0 (length (split _3 ",")) +vp_regs_calls) _3))
 				(:t (assign (slice 0 (length _3) +vp_regs_calls) _3))))))
 
 (defun jump (_1 _2 &optional _3)
@@ -386,12 +386,12 @@
 	;_3 = out parameters
 	(cond
 		((not _2))
-		((str? _2) (assign _2 (slice 0 (length (split-str _2 ",")) +vp_regs_calls)))
+		((str? _2) (assign _2 (slice 0 (length (split _2 ",")) +vp_regs_calls)))
 		(:t (assign _2 (slice 0 (length _2) +vp_regs_calls))))
 	(vp-call _1)
 	(cond
 		((not _3))
-		((str? _3) (assign (slice 0 (length (split-str _3 ",")) +vp_regs_calls) _3))
+		((str? _3) (assign (slice 0 (length (split _3 ",")) +vp_regs_calls) _3))
 		(:t (assign (slice 0 (length _3) +vp_regs_calls) _3))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;

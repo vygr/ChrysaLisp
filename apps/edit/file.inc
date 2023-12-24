@@ -96,7 +96,7 @@
 		(bind '(y y1) (select-lines))
 		(defq buffer (. *edit* :get_buffer) fset (Fset 11))
 		(each (# (. fset :insert %0))
-			(split-str (.-> buffer (:set_cursor 0 y1) (:copy 0 y)) (ascii-char +char_lf)))
+			(split (.-> buffer (:set_cursor 0 y1) (:copy 0 y)) (ascii-char +char_lf)))
 		(defq files (list))
 		(. fset :each (# (push files %0)))
 		(open-files (filter (# (/= (age %0) 0)) files))))

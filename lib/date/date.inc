@@ -150,13 +150,13 @@
 			(elem-get +tz_abbreviation (get :local_timezone)) " " (str yr))))
 
 (defun decode-date (dts)
-	(defq space_split (split-str dts " ") rdt (list) index 0)
-	(bind '(wd mo dy hms tz yr) (defq space_split (split-str dts " ")))
+	(defq space_split (split dts " ") rdt (list) index 0)
+	(bind '(wd mo dy hms tz yr) (defq space_split (split dts " ")))
 	(each (lambda (w_) (if (eql w_ wd) (setq wd _) :nil) (setq index (inc index))) week_abbr)
 	(setq index 0)
 	(each (lambda (m_) (if (eql m_ mo) (setq mo _)) (setq index (inc index))) month_abbr)
-	(defq smh (reverse-list (split-str hms ":")))
-	(each (lambda (_) (push rdt (s2i _))) (reverse-list (split-str hms ":")))
+	(defq smh (reverse-list (split hms ":")))
+	(each (lambda (_) (push rdt (s2i _))) (reverse-list (split hms ":")))
 	(push rdt (s2i dy) mo (s2i yr) wd))
 
 (when (not (get :local_timezone))

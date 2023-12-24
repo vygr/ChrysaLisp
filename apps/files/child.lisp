@@ -33,7 +33,7 @@
 
 (defun populate-files (files dir exts)
 	;filter files and dirs to only those that match and are unique
-	(if (= (length (setq exts (split-str exts ", "))) 0) (setq exts '("")))
+	(if (= (length (setq exts (split exts ", "))) 0) (setq exts '("")))
 	(defq dirs_with_exts (list) files_within_dir (list))
 	(each (lambda (_)
 			(defq i (inc (find-rev "/" _)) d (slice 0 i _) f (slice i -1 _))

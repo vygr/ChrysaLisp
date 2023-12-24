@@ -490,7 +490,7 @@
 	(call 'obj :ref {info})
 	(call 'list :create :nil {cat})
 	(call 'list :push_back {cat, name})
-	(call 'str :create_from_buffer {",", 1} {tmp1})
+	(call 'str :create_from_buffer '("," 1) {tmp1})
 	(call 'list :push_back {cat, tmp1})
 	(call 'str :create_from_buffer {0, +net_id_size * 2} {tmp2})
 	;node_id

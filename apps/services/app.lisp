@@ -37,7 +37,7 @@
 		(clear service_labels mbox_labels info_labels)
 		(setq services new_services)
 		(each (#
-			(defq info (split-str %0 ","))
+			(defq info (split %0 ","))
 			(def (defq _ (Label)) :border -1 :text (first info))
 			(. service_flow :add_child _) (push service_labels _)
 			(def (defq _ (Label)) :border -1 :text (second info))

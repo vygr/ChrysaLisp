@@ -200,7 +200,7 @@
 							| (node_id.node_id_node2 - data->kn_msg_ping_origin.node_id_node2)})
 				(default)
 					(call 'str :create_from_buffer {&data->kn_msg_ping_services, msg->msg_frag_length - kn_msg_ping_services} {services})
-					(call 'str :split_char {services, +char_lf} {_, entries})
+					(call 'str :split {services, +char_lf} {_, entries})
 					(call 'str :destroy {services})
 					(call 'list :get_both {entries} {_, iter_begin, iter_end})
 					(call 'array :get_first {tuple} {_, set})

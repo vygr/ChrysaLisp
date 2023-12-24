@@ -67,7 +67,6 @@
 
 (ffi str "class/str/lisp_str" 0)
 (ffi str-to-num "class/str/lisp_to_num" 0)
-(ffi split-str "class/str/lisp_split" 0)
 (ffi expand "class/str/lisp_expand" 0)
 (ffi char "class/str/lisp_char" 0)
 (ffi code "class/str/lisp_code" 0)

@@ -36,7 +36,7 @@
 
 (defun broadcast (text)
 	(setq text (cat "<" (get :clear_text chat_user) "> " text (ascii-char 10)))
-	(each (# (mail-send (to-net-id (second (split-str %0 ","))) text)) (mail-enquire "*Chat")))
+	(each (# (mail-send (to-net-id (second (split %0 ","))) text)) (mail-enquire "*Chat")))
 
 (defun tooltips ()
 	(def *window* :tip_mbox (elem-get +select_tip select))
