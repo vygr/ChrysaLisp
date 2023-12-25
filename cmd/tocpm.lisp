@@ -7,8 +7,7 @@
 		(defq out_file (cat (slice 0 (find-rev "." file) file) ".cpm")
 			canvas (Canvas-from-file file +load_flag_noswap))
 		(. canvas :save out_file format)
-		(print file " -> " out_file)
-		(stream-flush (io-stream 'stdout))))
+		(print file " -> " out_file)))
 
 (defq usage `(
 (("-h" "--help")
