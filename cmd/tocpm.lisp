@@ -40,4 +40,5 @@
 			(work (pop jobs))
 			;do them all out there, by calling myself !
 			(each (lambda ((job result)) (prin result))
-				(pipe-farm (map (# (str (first args) " -f " format " " %0)) jobs))))))
+				(pipe-farm (map (# (str (first args) " -f " format " " %0)) jobs)
+					10000000)))))
