@@ -1,12 +1,13 @@
 (import "gui/lisp.inc")
 (import "lib/options/options.inc")
+(import "lib/task/cmd.inc")
 
-(defun conv-file (in_file)
-	(unless (eql in_file "")
-		(defq out_file (cat (slice 0 (find-rev "." in_file) in_file) ".cpm")
-			canvas (Canvas-from-file in_file +load_flag_noswap))
+(defun work (file)
+	(unless (eql file "")
+		(defq out_file (cat (slice 0 (find-rev "." file) file) ".cpm")
+			canvas (Canvas-from-file file +load_flag_noswap))
 		(. canvas :save out_file format)
-		(print in_file " -> " out_file)
+		(print file " -> " out_file)
 		(stream-flush (io-stream 'stdout))))
 
 (defq usage `(
@@ -32,8 +33,12 @@
 	(when (and
 			(defq stdio (create-stdio))
 			(defq format 32 args (options stdio usage)))
-		(if (<= (length args) 1)
-			;convert from stdin
-			(each-line conv-file (io-stream 'stdin))
-			;convert from args
-			(each conv-file (rest args)))))
+		(if (empty? (defq jobs (rest args)))
+			;no, so from stdin
+			(each-line (# (push jobs %0)) (io-stream 'stdin)))
+		(if (<= (length jobs) 1)
+			;have do do the work when just 1 file !
+			(work (pop jobs))
+			;do them all out there, by calling myself !
+			(each (lambda ((job result)) (prin result))
+				(pipe-farm (map (# (str (first args) " -f " format " " %0)) jobs))))))
