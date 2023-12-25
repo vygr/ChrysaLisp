@@ -3,8 +3,8 @@
 (import "lib/task/cmd.inc")
 
 (defun work (file)
-	(unless (eql file "")
-		(defq out_file (cat (slice 0 (find-rev "." file) file) ".cpm")
+	(when (and file (defq i (find-rev "." file)))
+		(defq out_file (cat (slice 0 i file) ".cpm")
 			canvas (Canvas-from-file file +load_flag_noswap))
 		(. canvas :save out_file format)
 		(print file " -> " out_file)))
