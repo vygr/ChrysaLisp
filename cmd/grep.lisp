@@ -1,4 +1,5 @@
 (import "lib/options/options.inc")
+(import "lib/task/cmd.inc")
 
 ;grep a stream to stdout
 (defun grep-stream (stream)
@@ -102,13 +103,21 @@
 		(when (bind '(search pattern meta) (query pattern words_flag regexp_flag))
 			(cond
 				(file_flag
-					(if (<= (length args) 1)
-						;grep file from stdin
-						(each-line (# (grep-file %0)) (io-stream 'stdin))
-						;grep file from args
-						(each (# (grep-file %0)) (rest args))))
-				(:t (if (<= (length args) 1)
+					;from args ?
+					(if (empty? (defq jobs (rest args)))
+						;no, so from stdin
+						(each-line (# (push jobs %0)) (io-stream 'stdin)))
+					(if (<= (length jobs) 1)
+						;have do do the work when just 1 file !
+						(grep-file (pop jobs))
+						;do them all out there, by calling myself !
+						(each (lambda ((job result)) (prin result))
+							(pipe-farm (map (# (cat (first args)
+								" -c -f -e " (id-encode pattern)
+								(if words_flag " -w" "") (if regexp_flag " -r" "")
+								(if md_flag " -m" "") " " %0)) jobs)))))
+				(:t (if (empty? (defq jobs (rest args)))
 						;grep stream from stdin
 						(grep-stream (io-stream 'stdin))
 						;grep stream from args
-						(each (# (grep-stream (file-stream %0))) (rest args))))))))
+						(each (# (grep-stream (file-stream %0))) jobs)))))))
