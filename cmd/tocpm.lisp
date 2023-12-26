@@ -24,7 +24,7 @@
 	(when (and file
 			(defq i (find-rev "." file))
 			(defq x (slice i -1 file))
-			(some (# (eql x)) '(".cpm" ".tga")))
+			(some (# (eql x %0)) '(".cpm" ".tga" ".svg")))
 		(defq out_file (cat (slice 0 i file) ".cpm")
 			canvas (Canvas-from-file file +load_flag_noswap))
 		(. canvas :save out_file format)
