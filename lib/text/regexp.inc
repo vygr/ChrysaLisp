@@ -250,15 +250,14 @@
 	(defmethod :match? (text pattern &optional cpat)
 		; (. regexp :match? text pattern [meta]) -> :t | :nil
 		(when (defq cpat (opt cpat (. this :compile pattern)))
-			(bind '(x &ignore) (second cpat))
 			(cond
-				((and (list? x) (eql (first x) (const eql)))
+				((eql (first (defq x (first (second cpat)))) (const eql))
 					;can skip to first char !
 					(when (defq x1 -1 x (find (third x) text))
 						(while (and (= x1 -1) (< x (length text)))
 							(setq x1 (match text cpat x) x (inc x)))
 						(/= x1 -1)))
-				(:t (defq x 0 x1 -1)
+				(:t (defq x1 -1 x 0)
 					(while (and (= x1 -1) (< x (length text)))
 						(setq x1 (match text cpat x) x (inc x)))
 					(/= x1 -1)))))
@@ -266,9 +265,8 @@
 	(defmethod :search (text pattern &optional cpat)
 		; (. regexp :search text pattern [meta]) -> matches
 		(when (defq out (list) cpat (opt cpat (. this :compile pattern)))
-			(bind '(x &ignore) (second cpat))
 			(cond
-				((and (list? x) (eql (first x) (const eql)))
+				((eql (first (defq x (first (second cpat)))) (const eql))
 					;can skip to first char !
 					(when (defq x (find (third x) text))
 						(while (< x (length text))
