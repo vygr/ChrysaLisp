@@ -251,21 +251,38 @@
 		; (. regexp :match? text pattern [meta]) -> :t | :nil
 		(defq cpat (opt cpat (. this :compile pattern)))
 		(when cpat
-			(defq x 0 x1 -1)
-			(while (and (= x1 -1) (< x (length text)))
-				(setq x1 (match text cpat x) x (inc x)))
-			(/= x1 -1)))
+			(cond
+				((or (find "|" pattern) (bfind (first pattern) +char_class_regexp))
+					(defq x 0 x1 -1)
+					(while (and (= x1 -1) (< x (length text)))
+						(setq x1 (match text cpat x) x (inc x)))
+					(/= x1 -1))
+				;skip to first char !
+				((defq x1 -1 x (find (first pattern) text))
+					(while (and (= x1 -1) (< x (length text)))
+						(setq x1 (match text cpat x) x (inc x)))
+					(/= x1 -1)))))
 
 	(defmethod :search (text pattern &optional cpat)
 		; (. regexp :search text pattern [meta]) -> matches
 		(when (defq out (list) cpat (opt cpat (. this :compile pattern)))
-			(defq x 0)
-			(while (< x (length text))
-				(cond
-					((> (bind '(sl x1) (search text cpat x)) x)
-						(push out sl)
-						(setq x x1))
-					((setq x (inc x))))))
+			(cond
+				((or (find "|" pattern) (bfind (first pattern) +char_class_regexp))
+					(defq x 0)
+					(while (< x (length text))
+						(cond
+							((> (bind '(sl x1) (search text cpat x)) x)
+								(push out sl)
+								(setq x x1))
+							((setq x (inc x))))))
+				;skip to first char !
+				((defq x (find (first pattern) text))
+					(while (< x (length text))
+						(cond
+							((> (bind '(sl x1) (search text cpat x)) x)
+								(push out sl)
+								(setq x x1))
+							((setq x (inc x))))))))
 		out)
 	)
 

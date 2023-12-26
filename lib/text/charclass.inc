@@ -61,5 +61,6 @@
 	+char_class_alpha_num (char-class "A-Za-z0-9")
 	+char_class_word (char-class "A-Za-z0-9_")
 	+char_class_hex (char-class "A-Fa-f0-9")
+	+char_class_regexp (char-class ".\\(^$!+*?|")
 	+char_class_not_whole_word (char-class (cat { .,;'`()[]/\r\f\v\n\t\"} "{}"))
 )
