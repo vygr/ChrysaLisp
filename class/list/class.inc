@@ -13,7 +13,7 @@
 	(dec-method :ref_back class/list/ref_back :final)
 	(dec-method :set_element class/list/set_element :final)
 	(dec-method :append class/list/append :final)
-	(dec-method :print class/obj/print :final)
+	(dec-method :print class/list/print :final)
 	(dec-method :find class/list/find :final)
 	(dec-method :rfind class/list/rfind :final)
 	(dec-method :erase class/list/erase :final)
