@@ -1,6 +1,20 @@
 (import "lib/options/options.inc")
 (import "lib/task/cmd.inc")
 
+(defq usage `(
+(("-h" "--help")
+"Usage: forward [options] [path] ...
+
+	options:
+		-h --help: this help info.
+
+	Scan source files for use of forward
+	references to functions or macros.
+
+	If no paths given on command line
+	then will test files from stdin.")
+))
+
 ;do the work on a file
 (defun work (file)
 	(defq defs_map (Fmap 11) uses_map (Fmap 101))
@@ -21,20 +35,6 @@
 	(. uses_map :each (lambda (k v)
 		(when (defq n (. defs_map :find k))
 			(each (# (if (< %0 n) (print file " (" (inc %0)  ") " k))) v)))))
-
-(defq usage `(
-(("-h" "--help")
-"Usage: forward [options] [path] ...
-
-	options:
-		-h --help: this help info.
-
-	Scan source files for use of forward
-	references to functions or macros.
-
-	If no paths given on command line
-	then will test files from stdin.")
-))
 
 (defun main ()
 	;initialize pipe details and command args, abort on error

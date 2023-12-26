@@ -3,6 +3,21 @@
 (import "lib/text/files.inc")
 (import "lib/task/cmd.inc")
 
+(defq usage `(
+(("-h" "--help")
+"Usage: make [options] [all] [boot] [platforms] [doc] [it] [test]
+
+	options:
+		-h --help: this help info.
+
+	all:        include all .vp files.
+	boot:       create a boot image.
+	platforms:  for all platforms not just the host.
+	docs:       scan source files and create documentation.
+	it:         all of the above !
+	test:       test make timings.")
+))
+
 (defq +LF (ascii-char 10))
 
 (defun parent? (info)
@@ -201,21 +216,6 @@
 			(pipe-farm (map (# (cat %0 " -h"))
 				(all-files "cmd" '(".lisp") 4 -6)))))
 	(print "-> " document))
-
-(defq usage `(
-(("-h" "--help")
-"Usage: make [options] [all] [boot] [platforms] [doc] [it] [test]
-
-	options:
-		-h --help: this help info.
-
-	all:        include all .vp files.
-	boot:       create a boot image.
-	platforms:  for all platforms not just the host.
-	docs:       scan source files and create documentation.
-	it:         all of the above !
-	test:       test make timings.")
-))
 
 (defun main ()
 	;initialize pipe details and command args, abort on error

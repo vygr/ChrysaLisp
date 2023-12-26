@@ -1,9 +1,5 @@
 (import "lib/options/options.inc")
 
-(defun launch (node)
-	(if (find (setq node (to-net-id node)) nodes)
-		(open-remote "gui/gui/gui.lisp" node +kn_call_child)))
-
 (defq usage `(
 (("-h" "--help")
 "Usage: gui [node ...]
@@ -16,6 +12,10 @@
 	If none present on command line then
 	will read from stdin.")
 ))
+
+(defun launch (node)
+	(if (find (setq node (to-net-id node)) nodes)
+		(open-remote "gui/gui/gui.lisp" node +kn_call_child)))
 
 (defun main ()
 	;initialize pipe details and command args, abort on error

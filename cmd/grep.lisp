@@ -1,37 +1,6 @@
 (import "lib/options/options.inc")
 (import "lib/task/cmd.inc")
 
-;grep a stream to stdout
-(defun grep-stream (stream)
-	(when stream
-		(defq state :nil)
-		(each-line (# (task-slice)
-			(if md_flag
-				(if state
-					(if (starts-with "```" %0)
-						(setq state :nil))
-					(if (starts-with "```" %0)
-						(setq state :t)
-						(if (. search :match? %0 pattern meta) (print %0))))
-				(if (. search :match? %0 pattern meta) (print %0))))
-			stream)))
-
-;grep a file to stdout
-(defun grep-file (file)
-	(when (defq state :nil result :nil stream (file-stream file))
-		(while (and (not result) (defq line (read-line stream)))
-			(task-slice)
-			(if md_flag
-				(if state
-					(if (starts-with "```" line)
-						(setq state :nil))
-					(if (starts-with "```" line)
-						(setq state :t)
-						(if (setq result (. search :match? line pattern meta))
-							(print file))))
-				(if (setq result (. search :match? line pattern meta))
-					(print file))))))
-
 (defq usage `(
 (("-h" "--help")
 "Usage: grep [options] [pattern] [path] ...
@@ -89,6 +58,37 @@
 (("-m" "--md")
 	,(lambda (args arg) (setq md_flag :t) args))
 ))
+
+;grep a stream to stdout
+(defun grep-stream (stream)
+	(when stream
+		(defq state :nil)
+		(each-line (# (task-slice)
+			(if md_flag
+				(if state
+					(if (starts-with "```" %0)
+						(setq state :nil))
+					(if (starts-with "```" %0)
+						(setq state :t)
+						(if (. search :match? %0 pattern meta) (print %0))))
+				(if (. search :match? %0 pattern meta) (print %0))))
+			stream)))
+
+;grep a file to stdout
+(defun grep-file (file)
+	(when (defq state :nil result :nil stream (file-stream file))
+		(while (and (not result) (defq line (read-line stream)))
+			(task-slice)
+			(if md_flag
+				(if state
+					(if (starts-with "```" line)
+						(setq state :nil))
+					(if (starts-with "```" line)
+						(setq state :t)
+						(if (setq result (. search :match? line pattern meta))
+							(print file))))
+				(if (setq result (. search :match? line pattern meta))
+					(print file))))))
 
 (defun main ()
 	;initialize pipe details and command args, abort on error

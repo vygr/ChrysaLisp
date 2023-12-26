@@ -1,12 +1,5 @@
 (import "lib/options/options.inc")
 
-;cat a file to stdout
-(defun cat-file (_)
-	(if (setq _ (file-stream _))
-		(while (defq c (read-char _))
-			(prin (char c)))
-		(stream-flush (io-stream 'stdout))))
-
 (defq usage `(
 (("-h" "--help")
 "Usage: cat [options] [path] ...
@@ -17,6 +10,13 @@
 	If no paths given on command line
 	then paths are read from stdin.")
 ))
+
+;cat a file to stdout
+(defun cat-file (_)
+	(if (setq _ (file-stream _))
+		(while (defq c (read-char _))
+			(prin (char c)))
+		(stream-flush (io-stream 'stdout))))
 
 (defun main ()
 	;initialize pipe details and command args, abort on error
