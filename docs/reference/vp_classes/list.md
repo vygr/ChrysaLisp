@@ -105,14 +105,14 @@ trashes
 :r2-:r14
 ```
 
-### :print -> class/obj/print
+### :print -> class/list/print
 
 ```code
 inputs
-:r0 = object (ptr)
+:r0 = list object (ptr)
 :r1 = stream object (ptr)
 outputs
-:r0 = object (ptr)
+:r0 = list object (ptr)
 trashes
 :r1-:r14
 ```
