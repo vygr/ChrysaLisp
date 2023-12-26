@@ -72,10 +72,9 @@
 							(push stack k (setq k (list))))
 						(push l k)))))
 			(:t (each (lambda (k)
-					(when (notany (# (eql k %0)) key_filters)
-						(if (tree-collection? (tree-type k))
-							(push stack k (setq k (list))))
-						(push l k))) c))))
+					(if (tree-collection? (tree-type k))
+						(push stack k (setq k (list))))
+					(push l k)) c))))
 	;pretty write the typed list tree
 	(push stack out 1)
 	(write-line stream (str "(" (first out)))
