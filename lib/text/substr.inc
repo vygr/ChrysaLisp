@@ -16,7 +16,7 @@
 	(defmethod :search (text pattern &optional lps)
 		; (. substr :search text pattern [meta]) -> matches
 		(defq out (list))
-		(and (>= (defq l (length text)) (defq j (length pattern)))
+		(and (>= (defq l (length text)) (length pattern))
 			(defq lps (opt lps (. this :compile pattern)) j 0)
 			(while (and (defq i (find (first lps) text j))
 						(<= (setq j (+ i (length lps))) l))
@@ -28,7 +28,7 @@
 	(defmethod :match? (text pattern &optional lps)
 		; (. substr :match? text pattern [meta]) -> :t | :nil
 		(defq out :nil)
-		(and (>= (defq l (length text)) (defq j (length pattern)))
+		(and (>= (defq l (length text)) (length pattern))
 			(defq lps (opt lps (. this :compile pattern)) j 0)
 			(while (and (defq i (find (first lps) text j))
 						(<= (setq j (+ i (length lps))) l))
