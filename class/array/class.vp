@@ -51,6 +51,7 @@
 	;inputs
 	;:r0 = array object (ptr)
 	;:r1 = element (long)
+	;:r2 = start index (uint)
 	;outputs
 	;:r0 = array object (ptr)
 	;:r1 = element (long)
@@ -58,27 +59,33 @@
 	;trashes
 	;:r2-:r4
 
-	(entry 'array :find '(:r0 :r1))
+	(vp-def (this elm idx base tmp))
 
-	(class/array/get_both :r0 :r2 :r3)
-	(vpif '(:r2 /= :r3))
+	(entry 'array :find `(,this ,elm ,idx))
+
+	(assign `((,this array_length) (,this array_begin)) `(,tmp ,base))
+	(vp-shl-cr (log2 +long_size) idx)
+	(vp-shl-cr (log2 +long_size) tmp)
+	(vp-add-rr base idx)
+	(vp-add-rr tmp base)
+	(vpif `(,idx /= ,base))
 		(loop-start)
-			(assign '((:r2 0)) '(:r4))
-			(vp-add-cr +long_size :r2)
-			(gotoif '(:r1 = :r4) 'found)
-		(loop-until '(:r2 = :r3))
+			(assign `((,idx 0)) `(,tmp))
+			(vp-add-cr +long_size idx)
+			(gotoif `(,elm = ,tmp) 'found)
+		(loop-until `(,idx = ,base))
 	(endif)
 
-	(exit 'array :find '(:r0 :r1 -1))
+	(exit 'array :find `(,this ,elm -1))
 	(vp-ret)
 
 (vp-label 'found)
-	(assign '((:r0 array_begin)) '(:r3))
-	(vp-sub-cr +long_size :r2)
-	(vp-sub-rr :r3 :r2)
-	(vp-shr-cr (log2 +long_size) :r2)
+	(assign `((,this array_begin)) `(,base))
+	(vp-sub-cr +long_size idx)
+	(vp-sub-rr base idx)
+	(vp-shr-cr (log2 +long_size) idx)
 
-	(exit 'array :find '(:r0 :r1 :r2))
+	(exit 'array :find `(,this ,elm ,idx))
 	(vp-ret)
 
 (def-func-end)
@@ -87,6 +94,7 @@
 	;inputs
 	;:r0 = array object (ptr)
 	;:r1 = element (long)
+	;:r2 = start index (uint)
 	;outputs
 	;:r0 = array object (ptr)
 	;:r1 = element (long)
@@ -94,18 +102,22 @@
 	;trashes
 	;:r2-:r4
 
-	(entry 'array :rfind '(:r0 :r1))
+	(vp-def (this elm idx base tmp))
 
-	(class/array/get_both :r0 :r3 :r2)
+	(entry 'array :rfind `(,this ,elm ,idx))
+
+	(assign `((,this array_begin)) `(,base))
+	(vp-shl-cr (log2 +long_size) idx)
+	(vp-add-rr base idx)
 	(loop-start)
-		(assign `((:r2 ,(neg +long_size))) '(:r4))
-		(vp-sub-cr +long_size :r2)
-		(breakif '(:r2 < :r3))
-	(loop-until '(:r1 = :r4))
-	(vp-sub-rr :r3 :r2)
-	(vp-asr-cr (log2 +long_size) :r2)
+		(assign `((,idx ,(neg +long_size))) `(,tmp))
+		(vp-sub-cr +long_size idx)
+		(breakif `(,idx < ,base))
+	(loop-until `(,elm = ,tmp))
+	(vp-sub-rr base idx)
+	(vp-asr-cr (log2 +long_size) idx)
 
-	(exit 'array :rfind '(:r0 :r1 :r2))
+	(exit 'array :rfind `(,this ,elm ,idx))
 	(vp-ret)
 
 (def-func-end)

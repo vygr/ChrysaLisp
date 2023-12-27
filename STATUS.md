@@ -29,6 +29,8 @@ New generic `(split seq sseq) -> seqs` function.
 New `forward [path] ...` command app. This detects forward referenced function
 calls, to help you optimize your source.
 
+`(find)` and `(find-rev)` take an optional start index position.
+
 ------
 
 Region selection added to Viewer app.
