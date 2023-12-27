@@ -142,7 +142,7 @@
 		:syntax_engine (opt syntax (Syntax)) :undo_stack (list) :redo_stack (list)
 		:cursor_x 0 :cursor_y 0 :max_width 0 :tab_width 4 :wrap_width 80
 		:mode mode :next_mark -1 :modified :nil
-		:last_pattern :nil :last_wmode :nil :last_rmode :nil)
+		:last_key :nil)
 
 	(defmethod :next_mark ()
 		; (. buffer :next_mark) -> mark
@@ -505,11 +505,9 @@
 
 	(defmethod :find (pattern wmode rmode)
 		; (. buffer :find pattern wmode rmode) -> buffer_found
-		(raise :last_pattern :last_wmode :last_rmode :buffer_found)
-		(unless (and (eql wmode last_wmode)
-					(eql rmode last_rmode)
-					(eql last_pattern pattern))
-			(lower (:last_wmode wmode :last_rmode rmode :last_pattern pattern))
+		(raise :last_key :buffer_found)
+		(unless (eql (defq key (str (list wmode rmode pattern))) last_key)
+			(lower (:last_key key))
 			(each (lambda (__) (elem-set _ buffer_found :nil)) buffer_found))
 		(unless (eql pattern "")
 			(bind '(engine pattern meta) (query pattern wmode rmode))
