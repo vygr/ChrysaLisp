@@ -249,39 +249,44 @@
 
 	(defmethod :match? (text pattern &optional cpat)
 		; (. regexp :match? text pattern [meta]) -> :t | :nil
-		(when (defq cpat (opt cpat (. this :compile pattern)))
+		(when (defq out :nil cpat (opt cpat (. this :compile pattern)))
 			(cond
-				((eql (first (defq x (first (second cpat)))) (const eql))
-					;can skip to first char !
-					(when (defq x1 -1 x (find (third x) text))
-						(while (and (= x1 -1) (< x (length text)))
-							(setq x1 (match text cpat x) x (inc x)))
-						(/= x1 -1)))
-				(:t (defq x1 -1 x 0)
-					(while (and (= x1 -1) (< x (length text)))
-						(setq x1 (match text cpat x) x (inc x)))
-					(/= x1 -1)))))
+				((eql (first (defq i (first (second cpat)))) (const eql))
+					;literal first !
+					(defq lit (third i) j 0)
+					(while (defq i (find lit text j))
+						(if (> (bind '(l j) (search text cpat i)) i)
+							(setq j -1 out :t)
+							(setq j (inc i)))))
+				(:t ;do it the hard way :(
+					(defq i 0)
+					(while (< i (length text))
+						(cond
+							((> (bind '(l j) (search text cpat i)) i)
+								(setq i +max_int out :t)
+								(setq i j))
+							((setq i (inc i))))))))
+		out)
 
 	(defmethod :search (text pattern &optional cpat)
 		; (. regexp :search text pattern [meta]) -> matches
 		(when (defq out (list) cpat (opt cpat (. this :compile pattern)))
 			(cond
-				((eql (first (defq x (first (second cpat)))) (const eql))
-					;can skip to first char !
-					(when (defq x (find (third x) text))
-						(while (< x (length text))
-							(cond
-								((> (bind '(sl x1) (search text cpat x)) x)
-									(push out sl)
-									(setq x x1))
-								((setq x (inc x)))))))
-				(:t (defq x 0)
-					(while (< x (length text))
+				((eql (first (defq i (first (second cpat)))) (const eql))
+					;literal first !
+					(defq lit (third i) j 0)
+					(while (defq i (find lit text j))
+						(if (> (bind '(l j) (search text cpat i)) i)
+							(push out l)
+							(setq j (inc i)))))
+				(:t ;do it the hard way :(
+					(defq i 0)
+					(while (< i (length text))
 						(cond
-							((> (bind '(sl x1) (search text cpat x)) x)
-								(push out sl)
-								(setq x x1))
-							((setq x (inc x))))))))
+							((> (bind '(l j) (search text cpat i)) i)
+								(push out l)
+								(setq i j))
+							((setq i (inc i))))))))
 		out)
 	)
 
