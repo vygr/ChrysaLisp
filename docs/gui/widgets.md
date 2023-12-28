@@ -220,7 +220,7 @@ Creates a Grid instance, with name, optional property list and nested forms.
 
 `:grid_width :grid_height`
 
-If `:grid_width` or `:grid_height` equals 0 then the other property will be
+If `:grid_width` or `:grid_height` equals 0 then that property will be
 calculated based on the number of child views contained.
 
 ### (ui-flow name [props] [body]) -> flow
