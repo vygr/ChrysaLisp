@@ -55,9 +55,6 @@ native operations `cmov` that could implement these.
 
 * Environment browser GUI app to aid debugging and housekeeping.
 
-* `env.inc` for Guest should always run prior to the user `env.inc` file to
-ensure defaults present for all env vars.
-
 * Forth that outputs words compiled to VP ops !!! I will do this just to honor
 Chuck !
 
