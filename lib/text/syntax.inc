@@ -71,7 +71,7 @@
 		;tokenise the string starting with the current state
 		;save the state at the end as we may wish to continue
 		(defq j 0 l (length line) state (get :state this) i 0
-			state_list (list) token_list (list) col_list (list))
+			token_list (list) state_list (cap l (list)))
 		(while (< j l)
 			(case state
 				(:text
@@ -111,34 +111,35 @@
 		(set this :state state)
 
 		;assign colours
-		(each (lambda (state token)
-			(case state
+		(defq state (cap (length token_list) (list)))
+		(each (lambda (type token)
+			(case type
 				(:symbol
 					(cond
 						((defq ink (get (sym token) (get :keywords this)))
 							;present in keyword map
-							(push col_list ink))
+							(push state ink))
 						((eql (first token) "+")
 							;is a constant symbol
-							(push col_list (get :ink_constants this)))
+							(push state (get :ink_constants this)))
 						((eql (first token) "*")
 							;is a global symbol
-							(push col_list (get :ink_globals this)))
+							(push state (get :ink_globals this)))
 						((eql (first token) "-")
 							;is a negative number
-							(push col_list (get :ink_numbers this)))
+							(push state (get :ink_numbers this)))
 						(:t ;default text color)
-							(push col_list (get :ink_text this)))))
+							(push state (get :ink_text this)))))
 				((:string1 :string2)
-					(push col_list (get :ink_strings this)))
+					(push state (get :ink_strings this)))
 				(:number
-					(push col_list (get :ink_numbers this)))
+					(push state (get :ink_numbers this)))
 				(:keysym
-					(push col_list (get :ink_keysyms this)))
+					(push state (get :ink_keysyms this)))
 				(:comment
-					(push col_list (get :ink_comments this)))
+					(push state (get :ink_comments this)))
 				(:text
-					(push col_list (get :ink_text this)))))
+					(push state (get :ink_text this)))))
 			state_list token_list)
 
 		;build line array
@@ -147,7 +148,7 @@
 				(clear state_list)
 				(each (lambda (token ink)
 						(each (# (push state_list (+ (code %0) ink))) token))
-					token_list col_list)
+					token_list state)
 				(apply (const array) state_list))
 			((array))))
 
