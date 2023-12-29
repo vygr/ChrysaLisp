@@ -31,6 +31,8 @@ calls, to help you optimize your source.
 
 `(find)` and `(find-rev)` take an optional start index position.
 
+Faster, approximately 20%, `Syntax :colorise` method.
+
 ------
 
 Region selection added to Viewer app.
