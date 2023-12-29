@@ -9,16 +9,25 @@
 ;module
 (env-push)
 
-(defq +char_class_symbol (char-class "A-Za-z0-9-!@#$%^&*_+=[];\:|./<>?`~'"))
+(defq +char_class_not_symbol (char-class " \r\f\v\n\t()")
+	+char_class_not_text (char-class (cat (ascii-char 34) ":;{")))
 
 (defmacro is-digit-char? (_)
-	(list 'bfind _ +char_class_digit))
+	`(bfind ,_ +char_class_digit))
 
 (defmacro is-digit-base-char? (_)
-	(list 'bfind _ +char_class_digit_base))
+	`(bfind ,_ +char_class_digit_base))
 
 (defmacro is-symbol-char? (_)
-	(list 'bfind _ +char_class_symbol))
+	`(not (bfind ,_ +char_class_not_symbol)))
+
+(defun is-text-char? (_)
+	(cond
+		((defq i (bfind _ +char_class_not_text))
+			(elem-get i '(:string1 :keysym :comment :string2)))
+		((is-digit-char? _) :number)
+		((is-symbol-char? _) :symbol)
+		(:text)))
 
 (defclass Syntax () :nil
 	; (Syntax) -> syntax
@@ -61,70 +70,52 @@
 
 		;tokenise the string starting with the current state
 		;save the state at the end as we may wish to continue
-		(raise :state (token (list) state_list (list) token_list (list) col_list (list)))
-		(each (lambda (c)
-			(while c
-				(case state
-					(:text
-						(cond
-							((defq _ (find-rev c (const (cat (ascii-char 34) "{:;"))))
-								(push state_list state)
-								(push token_list token)
-								(setq token (list c) state (elem-get _ '(:string1 :string2 :keysym :comment))))
-							((is-digit-char? c)
-								(push state_list state)
-								(push token_list token)
-								(setq token (list c) state :number))
-							((is-symbol-char? c)
-								(push state_list state)
-								(push token_list token)
-								(setq token (list c) state :symbol))
-							((push token c)))
-						(setq c :nil))
-					((:symbol :keysym)
-						(cond
-							((is-symbol-char? c)
-								(push token c)
-								(setq c :nil))
-							(:t (push state_list state)
-								(push token_list token)
-								(setq token (list) state :text))))
-					(:comment
-						(push token c)
-						(setq c :nil))
-					(:number
-						(cond
-							((is-digit-base-char? c)
-								(push token c)
-								(setq c :nil))
-							(:t (push state_list state)
-								(push token_list token)
-								(setq token (list) state :text))))
-					(:string1
-						(push token c)
-						(when (eql c (ascii-char +char_double_quote))
-							(push state_list state)
-							(push token_list token)
-							(setq token (list) state :text))
-						(setq c :nil))
-					(:string2
-						(push token c)
-						(when (eql c "}")
-							(push state_list state)
-							(push token_list token)
-							(setq token (list) state :text))
-						(setq c :nil)))))
-			line)
-		(push state_list state)
-		(push token_list token)
-		(set this :state (if (find state '(:string1 :string2)) state :text))
+		(defq j 0 l (length line) state (get :state this) i 0
+			state_list (list) token_list (list) col_list (list))
+		(while (< j l)
+			(case state
+				(:text
+					(while (and (< j l)
+							(eql (setq state (is-text-char? (elem-get j line))) :text))
+						(setq j (inc j)))
+					(when (/= i j)
+						(push state_list :text)
+						(push token_list (slice i (setq i j) line))))
+				((:symbol :keysym)
+					(while (and (< (setq j (inc j)) l)
+								(is-symbol-char? (elem-get j line))))
+					(push state_list state)
+					(push token_list (slice i (setq state :text i j) line)))
+				(:number
+					(while (and (< (setq j (inc j)) l)
+								(is-digit-base-char? (elem-get j line))))
+					(push state_list state)
+					(push token_list (slice i (setq state :text i j) line)))
+				(:comment
+					(push state_list state)
+					(push token_list (slice i (setq state :text j l) line)))
+				(:string1
+					(push state_list state)
+					(cond
+						((setq j (find (ascii-char 34) line (inc i)))
+							(push token_list (slice i (setq state :text j (inc j) i j) line)))
+						(:t (push token_list (slice i -1 line))
+							(setq j l))))
+				(:string2
+					(push state_list state)
+					(cond
+						((setq j (find "}" line (inc i)))
+							(push token_list (slice i (setq state :text j (inc j) i j) line)))
+						(:t (push token_list (slice i -1 line))
+							(setq j l))))))
+		(set this :state state)
 
 		;assign colours
 		(each (lambda (state token)
 			(case state
 				(:symbol
 					(cond
-						((defq ink (get (sym (apply (const cat) token)) (get :keywords this)))
+						((defq ink (get (sym token) (get :keywords this)))
 							;present in keyword map
 							(push col_list ink))
 						((eql (first token) "+")
@@ -151,11 +142,14 @@
 			state_list token_list)
 
 		;build line array
-		(clear state_list)
-		(each (lambda (token ink)
-				(push state_list (apply array (map (# (+ (code %0) ink)) token))))
-			token_list col_list)
-		(apply (const cat) state_list))
+		(cond
+			((nempty? state_list)
+				(clear state_list)
+				(each (lambda (token ink)
+						(each (# (push state_list (+ (code %0) ink))) token))
+					token_list col_list)
+				(apply (const array) state_list))
+			((array))))
 
 	(defmethod :compress_tabs (string tab_width)
 		; (. syntax :compress_tabs string tab_width) -> string
