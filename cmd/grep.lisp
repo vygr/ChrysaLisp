@@ -108,7 +108,7 @@
 						;no, so from stdin
 						(each-line (# (push jobs %0)) (io-stream 'stdin)))
 					(if (<= (length jobs) 1)
-						;have do do the work when just 1 file !
+						;have to do the work when just 1 file !
 						(grep-file (pop jobs))
 						;do them all out there, by calling myself !
 						(each (lambda ((job result)) (prin result))
