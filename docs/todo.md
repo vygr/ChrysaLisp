@@ -8,6 +8,9 @@ In no particular order but to just to ensure I get thoughts down. I'll keep
 adding to this as I go along. If anybody would like to try helping out, then
 just get in touch.
 
+* VP accelerated string search for index of next class membership or none
+membership. For parsers.
+
 * Lower `partition` function to VP code.
 
 * Recode quasi quote non recursive?
