@@ -89,18 +89,14 @@
 					(push token_list (slice i (setq state :text j l) line)))
 				(:string1
 					(push state_list state)
-					(cond
-						((setq j (find (ascii-char 34) line (inc i)))
-							(push token_list (slice i (setq state :text j (inc j) i j) line)))
-						(:t (push token_list (slice i -1 line))
-							(setq j l))))
+					(if (setq j (find (ascii-char 34) line (inc i)))
+						(push token_list (slice i (setq state :text j (inc j) i j) line))
+						(push token_list (slice i (setq j l) line))))
 				(:string2
 					(push state_list state)
-					(cond
-						((setq j (find "}" line (inc i)))
-							(push token_list (slice i (setq state :text j (inc j) i j) line)))
-						(:t (push token_list (slice i -1 line))
-							(setq j l))))))
+					(if (setq j (find "}" line (inc i)))
+						(push token_list (slice i (setq state :text j (inc j) i j) line))
+						(push token_list (slice i (setq j l) line))))))
 		(set this :state state)
 
 		;assign colours
