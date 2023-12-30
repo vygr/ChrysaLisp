@@ -68,38 +68,37 @@
 		(defq j 0 l (length line) state (get :state this) i 0
 			token_list (list) state_list (cap l (list)))
 		(while (< j l)
+			(while (and (< j l)
+					(eql (setq state (is-text-char? (elem-get j line))) :text))
+				(setq j (inc j)))
+			(when (/= i j)
+				(push state_list :text)
+				(push token_list (slice i (setq i j) line)))
 			(case state
-				(:text
-					(while (and (< j l)
-							(eql (setq state (is-text-char? (elem-get j line))) :text))
-						(setq j (inc j)))
-					(when (/= i j)
-						(push state_list :text)
-						(push token_list (slice i (setq i j) line))))
 				(:symbol
 					(push state_list :symbol)
-					(push token_list (slice i (setq state :text i
-						(setq j (bskipn +char_class_not_symbol line (inc j)))) line)))
+					(push token_list (slice i (setq j
+						(bskipn +char_class_not_symbol line (inc j)) i j) line)))
 				(:keysym
 					(push state_list :keysym)
-					(push token_list (slice i (setq state :text i
-						(setq j (bskipn +char_class_not_symbol line (inc j)))) line)))
+					(push token_list (slice i (setq j
+						(bskipn +char_class_not_symbol line (inc j)) i j) line)))
 				(:number
 					(push state_list :number)
-					(push token_list (slice i (setq state :text i
-						(setq j (bskip +char_class_digit_base line (inc j)))) line)))
+					(push token_list (slice i (setq j
+						(bskip +char_class_digit_base line (inc j)) i j) line)))
 				(:comment
 					(push state_list :comment)
-					(push token_list (slice i (setq state :text j l) line)))
+					(push token_list (slice i (setq j l) line)))
 				(:string1
 					(push state_list :string1)
 					(if (setq j (find (ascii-char 34) line (inc i)))
-						(push token_list (slice i (setq state :text j (inc j) i j) line))
+						(push token_list (slice i (setq j (inc j) i j) line))
 						(push token_list (slice i (setq j l) line))))
 				(:string2
 					(push state_list :string2)
 					(if (setq j (find "}" line (inc i)))
-						(push token_list (slice i (setq state :text j (inc j) i j) line))
+						(push token_list (slice i (setq j (inc j) i j) line))
 						(push token_list (slice i (setq j l) line))))))
 		(set this :state state)
 
