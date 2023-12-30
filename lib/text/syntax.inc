@@ -76,24 +76,28 @@
 					(when (/= i j)
 						(push state_list :text)
 						(push token_list (slice i (setq i j) line))))
-				((:symbol :keysym)
-					(push state_list state)
+				(:symbol
+					(push state_list :symbol)
+					(push token_list (slice i (setq state :text i
+						(setq j (bskipn +char_class_not_symbol line (inc j)))) line)))
+				(:keysym
+					(push state_list :keysym)
 					(push token_list (slice i (setq state :text i
 						(setq j (bskipn +char_class_not_symbol line (inc j)))) line)))
 				(:number
-					(push state_list state)
+					(push state_list :number)
 					(push token_list (slice i (setq state :text i
 						(setq j (bskip +char_class_digit_base line (inc j)))) line)))
 				(:comment
-					(push state_list state)
+					(push state_list :comment)
 					(push token_list (slice i (setq state :text j l) line)))
 				(:string1
-					(push state_list state)
+					(push state_list :string1)
 					(if (setq j (find (ascii-char 34) line (inc i)))
 						(push token_list (slice i (setq state :text j (inc j) i j) line))
 						(push token_list (slice i (setq j l) line))))
 				(:string2
-					(push state_list state)
+					(push state_list :string2)
 					(if (setq j (find "}" line (inc i)))
 						(push token_list (slice i (setq state :text j (inc j) i j) line))
 						(push token_list (slice i (setq j l) line))))))
