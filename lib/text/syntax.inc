@@ -77,13 +77,13 @@
 						(push state_list :text)
 						(push token_list (slice i (setq i j) line))))
 				((:symbol :keysym)
-					(setq j (bskipn +char_class_not_symbol line (inc j)))
 					(push state_list state)
-					(push token_list (slice i (setq state :text i j) line)))
+					(push token_list (slice i (setq state :text i
+						(setq j (bskipn +char_class_not_symbol line (inc j)))) line)))
 				(:number
-					(setq j (bskip +char_class_digit_base line (inc j)))
 					(push state_list state)
-					(push token_list (slice i (setq state :text i j) line)))
+					(push token_list (slice i (setq state :text i
+						(setq j (bskip +char_class_digit_base line (inc j)))) line)))
 				(:comment
 					(push state_list state)
 					(push token_list (slice i (setq state :text j l) line)))

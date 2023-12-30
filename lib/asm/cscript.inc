@@ -43,37 +43,33 @@
 							(push out_tokens c)
 							(setq i (inc i) unary (elem-get j '(:t :nil :t :nil)))))))
 			(:number
-				(setq j (bskip +char_class_digit_base line (inc i)))
 				(push out_types state)
-				(push out_tokens (slice i (setq unary :nil state :space i j) line)))
+				(push out_tokens (slice i (setq unary :nil state :space i
+					(bskip +char_class_digit_base line (inc i))) line)))
 			(:path
-				(setq j (bskip +char_class_path line i))
 				(push out_types state)
-				(push out_tokens (slice i (setq unary :nil state :space i j) line)))
+				(push out_tokens (slice i (setq unary :nil state :space i
+					(bskip +char_class_path line i)) line)))
 			(:label
-				(setq j (bskip +char_class_word line i))
 				(push out_types state)
-				(push out_tokens (slice i (setq unary :nil state :space i j) line)))
+				(push out_tokens (slice i (setq unary :nil state :space i
+					(bskip +char_class_word line i)) line)))
+			(:string
+				(push out_types state)
+				(push out_tokens (slice i (setq j (bskipn (ascii-char 34) line i)) line))
+				(setq state :space unary :nil i (inc j)))
 			(:symbol
-				(setq j (bskip +symbol_chars line (inc i)))
-				(if (find-rev (last (push out_tokens (slice i j line)))
+				(if (find-rev (last (push out_tokens (slice i
+							(setq i (bskip +symbol_chars line (inc i))) line)))
 						'("pptr" "byte" "ubyte" "short" "ushort"
 						"int" "uint" "long" "ulong" "ptr"))
 					(push out_types :operator)
 					(push out_types state))
-				(setq unary :nil state :space i j))
-			(:string
-				(push out_types state)
-				(cond
-					((setq j (find (ascii-char 34) line i))
-						(push out_tokens (slice i j line))
-						(setq state :space unary :nil i (inc j)))
-					(:t (push out_tokens (slice i -1 line))
-						(setq i l))))
+				(setq unary :nil state :space))
 			(:operator
-				(setq j (bskip +folow_on_op_chars line (inc i)))
 				(push out_types state)
-				(setq c (slice i (setq state :space i j) line))
+				(setq c (slice i (setq state :space i
+					(setq j (bskip +folow_on_op_chars line (inc i)))) line))
 				(cond
 					(unary
 						(if (setq j (find-rev (first c) "-*&~!"))
