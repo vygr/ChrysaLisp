@@ -44,7 +44,8 @@
 	(list 'find-rev _ +stringy_chars))
 
 (defun cscript-tokenize (line)
-	(defq state :space unary :t token (clear '()) out_types (clear '()) out_tokens (clear '()))
+	(defq token (clear '()) state :space unary :t
+		out_types (clear '()) out_tokens (clear '()))
 	(each (lambda (c)
 		(while c
 			(case state
