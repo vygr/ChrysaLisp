@@ -13,8 +13,6 @@
 	(dec-method :write_char class/stream/write_char :static (:r0 :r1) (:r0))
 	(dec-method :write class/stream/write :static (:r0 :r1 :r2) (:r0))
 	(dec-method :write_cstr class/stream/write_cstr :static (:r0 :r1) (:r0))
-	(dec-method :skip class/stream/skip :static (:r0 :r1) (:r0))
-	(dec-method :skip_not class/stream/skip_not :static (:r0 :r1) (:r0))
 	(dec-method :deinit class/stream/deinit :override)
 	(dec-method :read_next class/stream/read_next :virtual (:r0) (:r0 :r1))
 	(dec-method :write_next class/stream/flush :virtual (:r0) (:r0))

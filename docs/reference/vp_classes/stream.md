@@ -162,30 +162,6 @@ trashes
 :r1-:r14
 ```
 
-### :skip -> class/stream/skip
-
-```code
-inputs
-:r0 = stream object (ptr)
-:r1 = char to skip (uint)
-outputs
-:r0 = stream object (ptr)
-trashes
-:r1-:r14
-```
-
-### :skip_not -> class/stream/skip_not
-
-```code
-inputs
-:r0 = stream object (ptr)
-:r1 = char to not skip (uint)
-outputs
-:r0 = stream object (ptr)
-trashes
-:r1-:r14
-```
-
 ### :vtable -> class/stream/vtable
 
 ### :write -> class/stream/write
