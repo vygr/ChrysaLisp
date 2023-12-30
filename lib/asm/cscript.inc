@@ -10,132 +10,77 @@
 ;;;;;;;;;;;
 
 (defq +symbol_chars (char-class "A-Za-z0-9+:_/")
-	+path_chars (char-class "A-Za-z0-9_/")
-	+op_chars "+-*/%~^<=>!&|."
-	+folow_on_op_chars "/%<=>&|"
+	+op_chars (char-class "-+*/%~^<=>!&|.")
+	+folow_on_op_chars (char-class "/%<=>&|")
 	+bracket_chars "()[]"
 	+stringy_chars (cat (ascii-char 34) "$@"))
 
-(defmacro is-symbol-char? (_)
-	(list 'bfind _ +symbol_chars))
-
-(defmacro is-path-char? (_)
-	(list 'bfind _ +path_chars))
-
-(defmacro is-label-char? (_)
-	(list 'bfind _ +char_class_word))
-
-(defmacro is-digit-char? (_)
-	(list 'bfind _ +char_class_digit))
-
-(defmacro is-digit-base-char? (_)
-	(list 'bfind _ +char_class_digit_base))
-
-(defmacro is-op-char? (_)
-	(list 'find-rev _ +op_chars))
-
-(defmacro is-folow-on-op-char? (_)
-	(list 'find-rev _ +folow_on_op_chars))
-
-(defmacro is-bracket-char? (_)
-	(list 'find-rev _ +bracket_chars))
-
-(defmacro is-stringy-char? (_)
-	(list 'find-rev _ +stringy_chars))
+(defmacro is-symbol-char? (_) `(bfind ,_ +symbol_chars))
+(defmacro is-path-char? (_) `(bfind ,_ +char_class_path))
+(defmacro is-label-char? (_) `(bfind ,_ +char_class_word))
+(defmacro is-digit-char? (_) `(bfind ,_ +char_class_digit))
+(defmacro is-op-char? (_) `(bfind ,_ +op_chars))
+(defmacro is-bracket-char? (_) `(find ,_ +bracket_chars))
+(defmacro is-stringy-char? (_) `(find ,_ +stringy_chars))
 
 (defun cscript-tokenize (line)
-	(defq token (clear '()) state :space unary :t
+	(defq i 0 j 0 c 0 l (length line) state :space unary :t
 		out_types (clear '()) out_tokens (clear '()))
-	(each (lambda (c)
-		(while c
-			(case state
-				(:space
+	(while (< i l)
+		(case state
+			(:space
+				(when (< (setq i (bskip +char_class_white_space line i)) l)
+					(setq c (elem-get i line))
 					(cond
-						((defq _ (is-stringy-char? c))
-							(setq state (elem-get _ '(:string :label :path))))
-						((and (eql c "+") unary)
-							(push token c)
-							(setq state :symbol))
-						((is-op-char? c)
-							(push token c)
-							(setq state :operator))
-						((is-digit-char? c)
-							(push token c)
-							(setq state :number))
-						((is-symbol-char? c)
-							(push token c)
-							(setq state :symbol))
-						((defq _ (is-bracket-char? c))
-							(push out_types (elem-get _ '(:lrb :rrb :lsb :rsb)))
+						((setq j (is-stringy-char? c))
+							(setq state (elem-get j '(:string :label :path)) i (inc i)))
+						((and (eql c "+") unary) (setq state :symbol))
+						((is-op-char? c) (setq state :operator))
+						((is-digit-char? c) (setq state :number))
+						((is-symbol-char? c) (setq state :symbol))
+						((setq j (is-bracket-char? c))
+							(push out_types (elem-get j '(:lrb :rrb :lsb :rsb)))
 							(push out_tokens c)
-							(setq unary (elem-get _ '(:t :nil :t :nil)))))
-					(setq c :nil))
-				(:symbol
-					(cond
-						((is-symbol-char? c)
-							(push token c)
-							(setq c :nil))
-						(:t (cond
-								((find-rev (last (push out_tokens (apply (const cat) token)))
-										'("pptr" "byte" "ubyte" "short" "ushort" "int" "uint" "long" "ulong" "ptr"))
-									(push out_types :operator))
-								(:t (push out_types state)))
-							(clear token)
-							(setq state :space unary :nil))))
-				(:number
-					(cond
-						((is-digit-base-char? c)
-							(push token c)
-							(setq c :nil))
-						(:t (push out_types state)
-							(push out_tokens (apply (const cat) token))
-							(clear token)
-							(setq state :space unary :nil))))
-				(:string
-					(cond
-						((eql c (ascii-char 34))
-							(push out_types state)
-							(push out_tokens (apply (const cat) token))
-							(clear token)
-							(setq state :space unary :nil))
-						(:t (push token c)))
-					(setq c :nil))
-				(:path
-					(cond
-						((is-path-char? c)
-							(push token c)
-							(setq c :nil))
-						(:t (push out_types state)
-							(push out_tokens (apply (const cat) token))
-							(clear token)
-							(setq state :space unary :nil))))
-				(:label
-					(cond
-						((is-label-char? c)
-							(push token c)
-							(setq c :nil))
-						(:t (push out_types state)
-							(push out_tokens (apply (const cat) token))
-							(clear token)
-							(setq state :space unary :nil))))
-				(:operator
-					(cond
-						((is-folow-on-op-char? c)
-							(push token c)
-							(setq c :nil))
-						(:t (cond
-								(unary
-									(if (setq _ (find-rev (first token) "-*&~!"))
-										(push out_tokens (elem-get _ "_#:~!"))
-										(throw "Unknown unary operator !" (first token))))
-								(:t (push out_tokens (apply (const cat) token))
-									(setq unary :t)))
-							(push out_types state)
-							(clear token)
-							(setq state :space))))))) line)
-	(unless (eql state :space)
-		(push out_types state)
-		(push out_tokens (apply (const cat) token)))
+							(setq i (inc i) unary (elem-get j '(:t :nil :t :nil)))))))
+			(:number
+				(setq j (bskip +char_class_digit_base line (inc i)))
+				(push out_types state)
+				(push out_tokens (slice i (setq unary :nil state :space i j) line)))
+			(:path
+				(setq j (bskip +char_class_path line i))
+				(push out_types state)
+				(push out_tokens (slice i (setq unary :nil state :space i j) line)))
+			(:label
+				(setq j (bskip +char_class_word line i))
+				(push out_types state)
+				(push out_tokens (slice i (setq unary :nil state :space i j) line)))
+			(:symbol
+				(setq j (bskip +symbol_chars line (inc i)))
+				(if (find-rev (last (push out_tokens (slice i j line)))
+						'("pptr" "byte" "ubyte" "short" "ushort"
+						"int" "uint" "long" "ulong" "ptr"))
+					(push out_types :operator)
+					(push out_types state))
+				(setq unary :nil state :space i j))
+			(:string
+				(push out_types state)
+				(cond
+					((setq j (find (ascii-char 34) line i))
+						(push out_tokens (slice i j line))
+						(setq state :space unary :nil i (inc j)))
+					(:t (push out_tokens (slice i -1 line))
+						(setq i l))))
+			(:operator
+				(setq j (bskip +folow_on_op_chars line (inc i)))
+				(push out_types state)
+				(setq c (slice i (setq state :space i j) line))
+				(cond
+					(unary
+						(if (setq j (find-rev (first c) "-*&~!"))
+							(push out_tokens (elem-get j "_#:~!"))
+							(throw "Unknown unary operator !" (first c))))
+					(:t (push out_tokens c)
+						(setq unary :t))))))
 	(list out_tokens out_types))
 
 ;;;;;;;;;;;;;;;;

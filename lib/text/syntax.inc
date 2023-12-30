@@ -12,14 +12,9 @@
 (defq +char_class_not_symbol (char-class " \r\f\v\n\t()")
 	+char_class_not_text (char-class (cat (ascii-char 34) ":;{")))
 
-(defmacro is-digit-char? (_)
-	`(bfind ,_ +char_class_digit))
-
-(defmacro is-digit-base-char? (_)
-	`(bfind ,_ +char_class_digit_base))
-
-(defmacro is-symbol-char? (_)
-	`(not (bfind ,_ +char_class_not_symbol)))
+(defmacro is-digit-char? (_) `(bfind ,_ +char_class_digit))
+(defmacro is-digit-base-char? (_) `(bfind ,_ +char_class_digit_base))
+(defmacro is-symbol-char? (_) `(not (bfind ,_ +char_class_not_symbol)))
 
 (defun is-text-char? (_)
 	(cond
@@ -82,13 +77,11 @@
 						(push state_list :text)
 						(push token_list (slice i (setq i j) line))))
 				((:symbol :keysym)
-					(while (and (< (setq j (inc j)) l)
-								(is-symbol-char? (elem-get j line))))
+					(setq j (bskipn +char_class_not_symbol line (inc j)))
 					(push state_list state)
 					(push token_list (slice i (setq state :text i j) line)))
 				(:number
-					(while (and (< (setq j (inc j)) l)
-								(is-digit-base-char? (elem-get j line))))
+					(setq j (bskip +char_class_digit_base line (inc j)))
 					(push state_list state)
 					(push token_list (slice i (setq state :text i j) line)))
 				(:comment

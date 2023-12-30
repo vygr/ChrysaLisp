@@ -6,6 +6,10 @@
 
 ### (bfind char str)
 
+### (bskip class str idx)
+
+### (bskipn class str idx)
+
 ### (char num [width])
 
 ### (cmp str str)

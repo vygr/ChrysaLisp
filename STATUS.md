@@ -33,6 +33,8 @@ calls, to help you optimize your source.
 
 Faster, approximately 20%, `Syntax :colorise` method.
 
+New `bskip` and `bskipn` functions.
+
 ------
 
 Region selection added to Viewer app.
