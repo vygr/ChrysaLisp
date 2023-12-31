@@ -120,16 +120,8 @@ than a change in order of the reverse polish output !
 After you have converted your expression into reverse polish form the
 compilation is as simple as:
 
-```vdu
-(defun cscript-compile (rpn_output)
-	(each! 0 -1 (lambda (token type)
-		(case type
-			(:operator (compile-operator (sym token)))
-			(:number (compile-const (str-as-num token)))
-			(:symbol (compile-ref (sym token)))
-			(:path (compile-bind (sym token)))
-			(:label (compile-label (sym token)))
-			(:string (compile-string token)))) rpn_output))
+```file
+lib/asm/cscript.inc "defun cscript-compile" ""
 ```
 
 OK, that's a bit flippant. What the reverse polish stage did was to arrange
@@ -161,40 +153,22 @@ Items are added to this stack on operations such as `(compile-const)` and
 `(compile-ref)` and are removed or transformed when operator actions are
 compiled.
 
-```vdu
-(defq +vreg ''(_v0 _v1 _v2 _v3 _v4 _v5 _v6 _v7 _v8 _v9 _v10 _v11 _v12 _v13 _v14)
-	*vregt* (list))
+```file
+lib/asm/cscript.inc "+vreg" ""
 ```
 
 Functions and macros are provided to push, pop and extract items from the
 stack.
 
-```vdu
-(defmacro set-type (_)
-	(list 'elem-set -2 '*vregt* _))
-
-(defmacro get-type ()
-	'(last *vregt*))
-
-(defmacro top-reg ()
-	'(vreg-sym (dec (length *vregt*))))
-
-(defmacro tmp-reg ()
-	'(vreg-sym (length *vregt*)))
-
-(defun push-reg (_)
-	(vreg-sym (dec (length (push *vregt* _)))))
-
-(defun pop-reg ()
-	(list (vreg-sym (dec (length *vregt*))) (pop *vregt*)))
+```file
+lib/asm/cscript.inc "set-type" "reset-reg-stack"
 ```
 
 We also keep a list of the generated VP instructions, that we add to as we go,
 and a macro to push items onto it for us.
 
-```vdu
-(defmacro add-inst (&rest b)
-	`(push *inst* ~b))
+```file
+lib/asm/cscript.inc "add-inst" ""
 ```
 
 ### Code generation
@@ -204,9 +178,8 @@ constant as we scan the reverse polish input. What we want to do is add a new
 item onto the type stack, in this case its type is `:nil`. We also want to add
 a new instruction to the output that will perform this operation.
 
-```vdu
-(defun compile-const (_)
-	(add-inst (list 'vp-cpy-cr _ (push-reg :nil))))
+```file
+lib/asm/cscript.inc "compile-const" ""
 ```
 
 We use `(push-reg) -> sym` to stack the type, `:nil`, and return the symbol
@@ -219,12 +192,8 @@ will look something like:
 
 Let's see what simple operators like addition and subtraction do.
 
-```vdu
-(defun compile-plus (_)
-	(add-inst (list 'vp-add-rr (pop-value) (top-value))))
-
-(defun compile-minus (_)
-	(add-inst (list 'vp-sub-rr (pop-value) (top-value))))
+```file
+lib/asm/cscript.inc "compile-plus" "compile-lshift"
 ```
 
 These are simple operators that take a value from the stack and transform the
@@ -247,31 +216,8 @@ on.
 
 Look closer at the `(pop-value)` and `(top-value)` functions.
 
-```vdu
-(defun compile-deref ()
-	(if (defq x (top-reg) w (get-type))
-		(defq z (rest w) z (if (eql z "") :nil z) w (first w))
-		(throw "No type info !" x))
-	(set-type z)
-	(setq w (elem-get (find-rev w "bBsSiIlLp")
-		'(vp-cpy-ir-b vp-cpy-ir-ub vp-cpy-ir-s vp-cpy-ir-us
-		vp-cpy-ir-i vp-cpy-ir-ui vp-cpy-ir vp-cpy-ir vp-cpy-ir)))
-	(add-inst (list w x 0 x)))
-
-(defun compile-deref? ()
-	(if (get-type)
-		(compile-deref)))
-
-(defun pop-value ()
-	(compile-deref?)
-	(pop *vregt*)
-	(vreg-sym (length *vregt*)))
-
-(defun top-value ()
-	(when (get-type)
-		(compile-deref)
-		(set-type :nil))
-	(top-reg))
+```file
+lib/asm/cscript.inc "compile-deref" "compile-null"
 ```
 
 The stack items are tested to see if they are boring types like `:nil`, and if
@@ -288,26 +234,8 @@ We push typed items onto the stack with the opposite function to
 
 Let's look at what compiling a `:symbol` does.
 
-```vdu
-(defun compile-ref (_)
-	(cond
-		((not (defq s (scope-get-sym _)))
-			;not in symbol table so figure out what it is
-			(cond
-				((get (sym (str _ "_t")))
-					;field/member
-					(add-inst (list 'vp-cpy-cr
-						_ (push-reg (eval (sym (str _ "_t")))))))
-				((get _)
-					;equate
-					(compile-const _))
-				(:t (throw "Symbol not defined !" _))))
-		((eql 'var (second s))
-			;variable
-			(add-inst (list 'vp-lea-i :rsp
-				(+ (scope-get (first s)) (third s))
-				(push-reg (elem-get 3 s)))))
-		(:t (throw "Symbol not a variable !" _))))
+```file
+lib/asm/cscript.inc "compile-ref" ""
 ```
 
 We examine what the symbol is, by first looking it up in the `(def-vars)`
@@ -449,14 +377,8 @@ stack that a CScript output can consume.
 
 This is what these register map functions provide.
 
-```vdu
-(defmacro reset-reg-stack (_)
-	`(defq *inst* (push (clear '()) progn)
-		*vregt* (slice 0 ,_ '(:nil :nil :nil :nil :nil :nil :nil :nil :nil :nil :nil :nil :nil :nil :nil))))
-
-(defun def-reg-map (pre spill)
-	(setd spill '(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14))
-	(each (# (def *func_env* %0 %1)) +vreg (if pre (merge-obj pre spill) spill)))
+```file
+lib/asm/cscript.inc "reset-reg-stack" "compile-deref"
 ```
 
 By default, if you don't provide a list of VP registers to `(def-reg-map)` it
@@ -468,22 +390,8 @@ means you must accept that all VP registers may be trashed.
 Take a look at `(assign-script-to-asm)` now with fresh eyes and these ideas in
 mind.
 
-```vdu
-(defun assign-script-to-asm (src dst _)
-	(unless (= (length (setq src (split src ","))) (length dst))
-		(throw "Mismatching number of src/dst parameters !" (list src dst)))
-	(when (/= 0 (length dst))
-		(reset-reg-stack 0)
-		(each (# (cscript %0) (compile-deref?)) src)
-		(when *debug_inst*
-			(print "pre opt:")
-			(each (const print-inst) *inst*))
-		(opt-inst-list *inst*)
-		(when *debug_inst*
-			(print "post opt:")
-			(each (const print-inst) *inst*))
-		(def-reg-map (cat dst) _)
-		(eval *inst* *func_env*)))
+```file
+lib/asm/assign.inc "assign-script-to-asm" ""
 ```
 
 * Split up the CScript expression by ",".
