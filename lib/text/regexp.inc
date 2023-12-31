@@ -110,7 +110,7 @@
 	(defq stack (list))
 	(each! 0 -1 (lambda (token type)
 		(push stack (case type
-			(:lit (cache (static-qq (((eql s ,token) 1)))))
+			(:lit (cache (static-qq (((bfind s ,token) 1)))))
 			(:wild (static-q ((:t 1))))
 			(:class
 				(if (eql (first token) "^")
@@ -118,7 +118,7 @@
 					(defq n :nil))
 				(setq token (char-class token))
 				(cache (if n
-					(static-qq (((not (bfind s ,token)) 1)))
+					(static-qq (((if (bfind s ,token) :nil :t) 1)))
 					(static-qq (((bfind s ,token) 1))))))
 			(:assert (case token
 				("^" (static-q ((:nil (if (<= si 0) 1)))))
@@ -251,12 +251,19 @@
 		; (. regexp :match? text pattern [meta]) -> :t | :nil
 		(when (defq out :nil cpat (opt cpat (. this :compile pattern)))
 			(cond
-				((eql (first (defq i (first (second cpat)))) (const eql))
-					;literal first !
-					(defq lit (third i) j 0)
-					(while (defq i (find lit text j))
+				((eql (first (defq i (first (second cpat)))) (const bfind))
+					;class first !
+					(defq cls (third i) j 0)
+					(while (< (defq i (bskipn cls text j)) (length text))
 						(if (> (bind '(l j) (search text cpat i)) i)
-							(setq j -1 out :t)
+							(setq j (length text) out :t)
+							(setq j (inc i)))))
+				((eql (first i) (const if))
+					;not class first !
+					(defq cls (third (second i)) j 0)
+					(while (< (defq i (bskip cls text j)) (length text))
+						(if (> (bind '(l j) (search text cpat i)) i)
+							(setq j (length text) out :t)
 							(setq j (inc i)))))
 				(:t ;do it the hard way :(
 					(defq i 0)
@@ -272,10 +279,17 @@
 		; (. regexp :search text pattern [meta]) -> matches
 		(when (defq out (list) cpat (opt cpat (. this :compile pattern)))
 			(cond
-				((eql (first (defq i (first (second cpat)))) (const eql))
-					;literal first !
-					(defq lit (third i) j 0)
-					(while (defq i (find lit text j))
+				((eql (first (defq i (first (second cpat)))) (const bind))
+					;class first !
+					(defq cls (third i) j 0)
+					(while (< (defq i (bskipn cls text j)) (length text))
+						(if (> (bind '(l j) (search text cpat i)) i)
+							(push out l)
+							(setq j (inc i)))))
+				((eql (first i) (const if))
+					;not class first !
+					(defq cls (third (second i)) j 0)
+					(while (< (defq i (bskip cls text j)) (length text))
 						(if (> (bind '(l j) (search text cpat i)) i)
 							(push out l)
 							(setq j (inc i)))))
