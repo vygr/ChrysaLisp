@@ -44,32 +44,32 @@
 							(setq i (inc i) unary (elem-get j '(:t :nil :t :nil)))))))
 			(:number
 				(push out_types :number)
-				(push out_tokens (slice i (setq unary :nil state :space i
+				(push out_tokens (slice i (setq state :space unary :nil i
 					(bskip +char_class_digit_base line (inc i))) line)))
 			(:path
 				(push out_types :path)
-				(push out_tokens (slice i (setq unary :nil state :space i
+				(push out_tokens (slice i (setq state :space unary :nil i
 					(bskip +char_class_path line i)) line)))
 			(:label
 				(push out_types :label)
-				(push out_tokens (slice i (setq unary :nil state :space i
+				(push out_tokens (slice i (setq state :space unary :nil i
 					(bskip +char_class_word line i)) line)))
 			(:string
 				(push out_types :string)
-				(push out_tokens (slice i (setq j (bskipn (ascii-char 34) line i)) line))
-				(setq state :space unary :nil i (inc j)))
+				(push out_tokens (slice i (setq state :space j
+					(bskipn (ascii-char 34) line i)) line))
+				(setq unary :nil i (inc j)))
 			(:symbol
 				(push out_types
-					(if (find (last (push out_tokens (slice i
-							(setq unary :nil state :space i
-								(bskip +symbol_chars line (inc i))) line)))
+					(if (find (last (push out_tokens (slice i (setq state :space unary :nil i
+							(bskip +symbol_chars line (inc i))) line)))
 						'("pptr" "byte" "ubyte" "short" "ushort"
 						"int" "uint" "long" "ulong" "ptr"))
 					:operator :symbol)))
 			(:operator
 				(push out_types :operator)
-				(setq c (slice i (setq state :space i
-					(setq j (bskip +folow_on_op_chars line (inc i)))) line))
+				(setq c (slice i (setq state :space j
+					(bskip +folow_on_op_chars line (inc i)) i j) line))
 				(cond
 					(unary
 						(if (setq j (find-rev (first c) "-*&~!"))
