@@ -97,9 +97,9 @@
 						(push token_list (slice i (setq j l) line))))
 				(:string2
 					(push state_list :string2)
-					(if (setq j (find "}" line (inc i)))
-						(push token_list (slice i (setq j (inc j) i j) line))
-						(push token_list (slice i (setq j l) line))))))
+					(push token_list (if (setq j (find "}" line (inc i)))
+						(slice i (setq j (inc j) i j) line)
+						(slice i (setq j l) line))))))
 		(set this :state state)
 
 		;assign colours
