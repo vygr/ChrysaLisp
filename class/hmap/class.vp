@@ -159,7 +159,7 @@
 (def-method 'hmap :find)
 	;inputs
 	;:r0 = hmap object (ptr)
-	;:r1 = key object (ptr)
+	;:r1 = key str object (ptr)
 	;outputs
 	;:r0 = hmap object (ptr)
 	;:r1 = 0, else found iterator (pptr)
@@ -181,11 +181,20 @@
 		(call 'hmap :get_bucket '(:r0 :r1) '(:r0 :r2))
 		(class/array/get_both :r2 :r1 :r3)
 		(breakif '(:r1 = :r3))
-		(assign '((:rsp local_key)) '(:r4))
+		;test last known index
+		(assign '((:rsp local_key) :r1) '(:r4 :r5))
+		(assign '((:r4 str_hashindex)) '(:r6))
+		(vp-sub-rr :r6 :r5)
+		(vpif '(:r5 < :r3))
+			(assign '((:r5 0)) '(:r6))
+			(gotoif '(:r4 = :r6) 'exit3)
+		(endif)
+		;a miss, so scan the bucket
+		(vp-cpy-rr :r1 :r5)
 		(loop-start)
-			(assign '((:r1 0)) '(:r5))
+			(assign '((:r1 0)) '(:r6))
 			(vp-add-cr (* +ptr_size 2) :r1)
-			(gotoif '(:r4 = :r5) 'exit1)
+			(gotoif '(:r4 = :r6) 'exit1)
 		(loop-until '(:r1 = :r3))
 	(else)
 		;search hash bucket
@@ -216,7 +225,14 @@
 
 (vp-label 'exit1)
 	(vp-sub-cr (* +ptr_size 2) :r1)
+	(vp-sub-rr :r1 :r5)
+	(assign '(:r5) '((:r4 str_hashindex)))
 	(exit 'hmap :find '(:r0 :r1 :r2))
+	(vp-free local_size)
+	(vp-ret)
+
+(vp-label 'exit3)
+	(exit 'hmap :find '(:r0 :r5 :r2))
 	(vp-free local_size)
 	(vp-ret)
 
@@ -225,7 +241,7 @@
 (def-method 'hmap :insert)
 	;inputs
 	;:r0 = hmap object (ptr)
-	;:r1 = key object (ptr)
+	;:r1 = key str object (ptr)
 	;:r2 = value object (ptr)
 	;outputs
 	;:r0 = hmap object (ptr)
@@ -250,8 +266,11 @@
 		(assign '((:rsp local_key) (:rsp local_value)) '(:r1 :r2))
 		(class/obj/ref :r1 :r0)
 		(class/obj/ref :r2 :r0)
-		(call 'list :push_back2 '((:rsp local_bucket) :r1 :r2) '(:r0 _ _ _ :r4))
-		(assign '((& :r4 (neg (* +ptr_size 2))) :r0) '(:r1 :r2))
+		(call 'list :push_back2 '((:rsp local_bucket) :r1 :r2) '(:r0 :r1 _ :r3 :r4))
+		;initial known index
+		(assign '((& :r4 (neg (* +ptr_size 2))) :r0) '(:r4 :r2))
+		(vp-sub-rr :r4 :r3)
+		(assign '(:r3 :r4) '((:r1 str_hashindex) :r1))
 	(else)
 		;old key
 		(assign '((:rsp local_value) (:r1 +ptr_size) :r1) '(:r2 :r0 (:rsp local_iter)))
@@ -270,7 +289,7 @@
 (def-method 'hmap :search)
 	;inputs
 	;:r0 = hmap object (ptr)
-	;:r1 = key object (ptr)
+	;:r1 = key str object (ptr)
 	;outputs
 	;:r0 = hmap object (ptr)
 	;:r1 = 0, else iterator (pptr)
@@ -302,7 +321,7 @@
 (def-method 'hmap :set)
 	;inputs
 	;:r0 = hmap object (ptr)
-	;:r1 = key object (ptr)
+	;:r1 = key str object (ptr)
 	;:r2 = value object (ptr)
 	;outputs
 	;:r0 = hmap object (ptr)
@@ -334,7 +353,7 @@
 (def-method 'hmap :get)
 	;inputs
 	;:r0 = hmap object (ptr)
-	;:r1 = key object (ptr)
+	;:r1 = key str object (ptr)
 	;outputs
 	;:r0 = hmap object (ptr)
 	;:r1 = 0 if not found, else value object (ptr)

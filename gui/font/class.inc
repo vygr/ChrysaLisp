@@ -23,8 +23,8 @@
 	(dec-method :lisp_texture gui/font/lisp_texture :static (:r0 :r1) (:r0 :r1)))
 
 (def-struct font obj_size
-	(ptr data sym_map name chars)
-	(uint pixels))
+	(uint pixels)
+	(ptr data sym_map name chars))
 
 (def-struct font_data 0
 	(int ascent descent))

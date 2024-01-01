@@ -59,7 +59,7 @@ trashes
 ```code
 inputs
 :r0 = hmap object (ptr)
-:r1 = key object (ptr)
+:r1 = key str object (ptr)
 outputs
 :r0 = hmap object (ptr)
 :r1 = 0, else found iterator (pptr)
@@ -92,7 +92,7 @@ trashes
 ```code
 inputs
 :r0 = hmap object (ptr)
-:r1 = key object (ptr)
+:r1 = key str object (ptr)
 outputs
 :r0 = hmap object (ptr)
 :r1 = 0 if not found, else value object (ptr)
@@ -120,7 +120,7 @@ trashes
 ```code
 inputs
 :r0 = hmap object (ptr)
-:r1 = key object (ptr)
+:r1 = key str object (ptr)
 :r2 = value object (ptr)
 outputs
 :r0 = hmap object (ptr)
@@ -159,7 +159,7 @@ trashes
 ```code
 inputs
 :r0 = hmap object (ptr)
-:r1 = key object (ptr)
+:r1 = key str object (ptr)
 outputs
 :r0 = hmap object (ptr)
 :r1 = 0, else iterator (pptr)
@@ -173,7 +173,7 @@ trashes
 ```code
 inputs
 :r0 = hmap object (ptr)
-:r1 = key object (ptr)
+:r1 = key str object (ptr)
 :r2 = value object (ptr)
 outputs
 :r0 = hmap object (ptr)
