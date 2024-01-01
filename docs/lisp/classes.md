@@ -143,7 +143,7 @@ An example from the `:draw` method of the Textfield class:
 gui/textfield/lisp.inc ":draw" ""
 ```
 
-## (raise field | (var val) ...) -> (defq var (get field this) ...)
+## (raise field | (sym val) ...) -> (defq sym (get field this) ...)
 
 This, and `(lower ...)` the opposite, is a macro to pull instance data
 properties into the method lambda. it'll declare, with `(defq ...)`, each
@@ -154,7 +154,7 @@ wrapping them in '()'.
 
 This is called `lifting` in some other languages.
 
-## (lower field | (field val) ...) -> (set this field var ...)
+## (lower field | (field val) ...) -> (set this field sym ...)
 
 The opposite of `(raise ...)`, this macro uses `(set this ...)` to lower the
 local variables to the object property.

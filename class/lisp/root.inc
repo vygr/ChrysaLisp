@@ -303,10 +303,10 @@
 	`(- ,_ 1))
 
 (defmacro opt (x y &optional z)
-	; (opt var val [cond])
+	; (opt sym val [cond])
 	(if z `(if ,x ,z ,y) `(if ,x ,x ,y)))
 (defmacro setd (&rest _)
-	; (setd var val [var val] ...)
+	; (setd sym val [sym val] ...)
 	(defq i -2 l (list 'setq))
 	(while (< (setq i (+ i 2)) (length _))
 		(push l (elem-get i _) (list 'opt (elem-get i _) (elem-get (inc i) _)))) l)
@@ -423,11 +423,11 @@
 				(setq _a (_f _a _e))) (list _l)))) _a)
 
 (defmacro curry (f &rest _)
-	; (curry lambda var ...) -> lambda
+	; (curry lambda sym ...) -> lambda
 	`(lambda (&rest _) (apply ,f (cat (list ~_) _))))
 
 (defmacro rcurry (f &rest _)
-	; (rcurry lambda var ...) -> lambda
+	; (rcurry lambda sym ...) -> lambda
 	`(lambda (&rest _) (apply ,f (cat _ (list ~_)))))
 
 (defmacro compose (&rest _)
@@ -439,11 +439,11 @@
 ;;;;;;;;
 
 (defmacro let (l &rest _)
-	; (let ([(var val) ...]) body)
+	; (let ([(sym val) ...]) body)
 	`((lambda ,(map (lambda (_) (first _)) l) ~_) ~(map (lambda (_) (second _)) l)))
 
 (defmacro let* (l &rest _)
-	; (let* ([(var val) ...]) body)
+	; (let* ([(sym val) ...]) body)
 	`((lambda () ,(reduce (lambda (l (var val)) (push l var val)) l (list defq)) ~_)))
 
 ;;;;;;;;;;;;;;;;;;;;;

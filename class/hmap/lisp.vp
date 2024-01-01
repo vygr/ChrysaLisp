@@ -68,7 +68,7 @@
 (vp-label 'error)
 	(assign '((:rsp local_this) (:rsp local_args)) '(:r0 :r3))
 	(vp-free local_size)
-	(jump 'lisp :repl_error '(:r0 "(def env var val [var val] ...)" :r2 :r3)))
+	(jump 'lisp :repl_error '(:r0 "(def env sym val [sym val] ...)" :r2 :r3)))
 
 (def-func-end)
 
@@ -108,7 +108,7 @@
 (vp-label 'error)
 	(assign '((:rsp local_this) (:rsp local_args)) '(:r0 :r3))
 	(vp-free local_size)
-	(jump 'lisp :repl_error '(:r0 "(set env var val [var val] ...)" :r2 :r3)))
+	(jump 'lisp :repl_error '(:r0 "(set env sym val [sym val] ...)" :r2 :r3)))
 
 (def-func-end)
 
@@ -176,7 +176,7 @@
 (vp-label 'error)
 	(assign '((:rsp local_this) (:rsp local_args)) '(:r0 :r3))
 	(vp-free local_size)
-	(jump 'lisp :repl_error '(:r0 "(defq var val [var val] ...)" :r2 :r3)))
+	(jump 'lisp :repl_error '(:r0 "(defq sym val [sym val] ...)" :r2 :r3)))
 
 (def-func-end)
 
@@ -213,7 +213,7 @@
 (vp-label 'error)
 	(assign '((:rsp local_this) (:rsp local_args)) '(:r0 :r3))
 	(vp-free local_size)
-	(jump 'lisp :repl_error '(:r0 "(setq var val [var val] ...)" :r2 :r3)))
+	(jump 'lisp :repl_error '(:r0 "(setq sym val [sym val] ...)" :r2 :r3)))
 
 (def-func-end)
 
@@ -253,7 +253,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(get var [env])" +error_msg_wrong_types :r1))
+	(jump 'lisp :repl_error '(:r0 "(get sym [env])" +error_msg_wrong_types :r1))
 	(signature '(sym hmap)))
 
 (def-func-end)
@@ -294,7 +294,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(def? var [env])" +error_msg_wrong_types :r1))
+	(jump 'lisp :repl_error '(:r0 "(def? sym [env])" +error_msg_wrong_types :r1))
 	(signature '(sym hmap)))
 
 (def-func-end)
@@ -426,7 +426,7 @@
 (vp-label 'error)
 	(assign '((:rsp local_this) (:rsp local_args)) '(:r0 :r3))
 	(vp-free local_size)
-	(jump 'lisp :repl_error '(:r0 "(undef env var [var] ...)" :r2 :r3)))
+	(jump 'lisp :repl_error '(:r0 "(undef env sym [sym] ...)" :r2 :r3)))
 
 (def-func-end)
 

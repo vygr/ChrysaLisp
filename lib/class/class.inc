@@ -92,14 +92,14 @@
 			(list '. res frm))) frm res))
 
 (defmacro raise (&rest fields)
-	; (raise field | (var val) ...) -> (defq var (get field this) ...)
+	; (raise field | (sym val) ...) -> (defq sym (get field this) ...)
 	(reduce (# (if (list? %1)
 			(cat %0 %1)
 			(push %0 (sym (rest %1)) `(get ,%1 this))))
 		fields (list defq)))
 
 (defmacro lower (&rest fields)
-	; (lower field | (field val) ...) -> (set this field var ...)
+	; (lower field | (field sym) ...) -> (set this field sym ...)
 	(reduce (# (if (list? %1)
 			(cat %0 %1)
 			(push %0 %1 (sym (rest %1)))))

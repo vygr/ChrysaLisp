@@ -314,7 +314,7 @@ cached circle generation, quantised to 1/4 pixel
 ### curry
 
 ```code
-(curry lambda var ...) -> lambda
+(curry lambda sym ...) -> lambda
 ```
 
 ### debug-brk
@@ -716,13 +716,13 @@ tells us which vertices are inside the surface
 ### let
 
 ```code
-(let ([(var val) ...]) body)
+(let ([(sym val) ...]) body)
 ```
 
 ### let*
 
 ```code
-(let* ([(var val) ...]) body)
+(let* ([(sym val) ...]) body)
 ```
 
 ### lighting
@@ -792,7 +792,7 @@ very basic attenuation, diffuse and specular
 ### lower
 
 ```code
-(lower field | (field val) ...) -> (set this field var ...)
+(lower field | (field sym) ...) -> (set this field sym ...)
 ```
 
 ### macro-func?
@@ -998,7 +998,7 @@ returns true if argument is a map type
 ### opt
 
 ```code
-(opt var val [cond])
+(opt sym val [cond])
 ```
 
 ### opt-mesh
@@ -1190,7 +1190,7 @@ run pipe farm and collect output
 ### raise
 
 ```code
-(raise field | (var val) ...) -> (defq var (get field this) ...)
+(raise field | (sym val) ...) -> (defq sym (get field this) ...)
 ```
 
 ### range
@@ -1202,7 +1202,7 @@ run pipe farm and collect output
 ### rcurry
 
 ```code
-(rcurry lambda var ...) -> lambda
+(rcurry lambda sym ...) -> lambda
 ```
 
 ### read-data
@@ -1320,7 +1320,7 @@ returns true if argument is a set type
 ### setd
 
 ```code
-(setd var val [var val] ...)
+(setd sym val [sym val] ...)
 ```
 
 ### setf

@@ -87,11 +87,8 @@ report me in your "hash code I have written" blog :)
 
 Here we see the field defined in the `str` instance.
 
-```vdu
-(def-struct str seq_size
-	(uint length hashcode)
-	(align)
-	(offset data))
+```file
+class/str/class.inc "seq_size" ""
 ```
 
 ## Lisp level binding
