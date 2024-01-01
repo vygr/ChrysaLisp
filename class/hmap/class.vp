@@ -179,18 +179,18 @@
 	(vpif '(:r2 = 0))
 		;search hash bucket
 		(call 'hmap :get_bucket '(:r0 :r1) '(:r0 :r2))
-		(class/array/get_both :r2 :r1 :r3)
-		(breakif '(:r1 = :r3))
+		(class/array/get_both :r2 :r5 :r3)
+		(breakif '(:r5 = :r3))
 		;test last known index
-		(assign '((:rsp local_key) :r1) '(:r4 :r5))
+		(assign '((:rsp local_key) :r5) '(:r4 :r1))
 		(assign '((:r4 str_hashindex)) '(:r6))
-		(vp-sub-rr :r6 :r5)
-		(vpif '(:r5 < :r3))
-			(assign '((:r5 0)) '(:r6))
-			(gotoif '(:r4 = :r6) 'exit3)
+		(vp-sub-rr :r6 :r1)
+		(vpif '(:r1 < :r3))
+			(assign '((:r1 0)) '(:r6))
+			(gotoif '(:r4 = :r6) 'exit2)
 		(endif)
 		;a miss, so scan the bucket
-		(vp-cpy-rr :r1 :r5)
+		(vp-cpy-rr :r5 :r1)
 		(loop-start)
 			(assign '((:r1 0)) '(:r6))
 			(vp-add-cr (* +ptr_size 2) :r1)
@@ -231,11 +231,6 @@
 	(vp-free local_size)
 	(vp-ret)
 
-(vp-label 'exit3)
-	(exit 'hmap :find '(:r0 :r5 :r2))
-	(vp-free local_size)
-	(vp-ret)
-
 (def-func-end)
 
 (def-method 'hmap :insert)
@@ -268,9 +263,9 @@
 		(class/obj/ref :r2 :r0)
 		(call 'list :push_back2 '((:rsp local_bucket) :r1 :r2) '(:r0 :r1 _ :r3 :r4))
 		;initial known index
-		(assign '((& :r4 (* +ptr_size -2)) :r0) '(:r4 :r2))
+		(vp-sub-cr (* +ptr_size 2) :r4)
 		(vp-sub-rr :r4 :r3)
-		(assign '(:r3 :r4) '((:r1 str_hashindex) :r1))
+		(assign '(:r3 :r4 :r0) '((:r1 str_hashindex) :r1 :r2))
 	(else)
 		;old key
 		(assign '((:rsp local_value) (:r1 +ptr_size) :r1) '(:r2 :r0 (:rsp local_iter)))
