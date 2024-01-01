@@ -268,7 +268,7 @@
 		(class/obj/ref :r2 :r0)
 		(call 'list :push_back2 '((:rsp local_bucket) :r1 :r2) '(:r0 :r1 _ :r3 :r4))
 		;initial known index
-		(assign '((& :r4 (neg (* +ptr_size 2))) :r0) '(:r4 :r2))
+		(assign '((& :r4 (* +ptr_size -2)) :r0) '(:r4 :r2))
 		(vp-sub-rr :r4 :r3)
 		(assign '(:r3 :r4) '((:r1 str_hashindex) :r1))
 	(else)
