@@ -133,34 +133,8 @@ of the symbols used at the entry to the `(cond ...)` !
 acts like a fast switch. The `key` form is evaluated and a jump is then made to
 the matching body clause, or if no match, the optional `:t` clause.
 
-```vdu
-(case state
-	(:symbol
-		(cond
-			((defq ink (get (sym (apply (const cat) token)) (get :keywords this)))
-				;present in keyword map
-				(push col_list ink))
-			((eql (first token) "+")
-				;is a constant symbol
-				(push col_list (get :ink_constants this)))
-			((eql (first token) "*")
-				;is a global symbol
-				(push col_list (get :ink_globals this)))
-			((eql (first token) "-")
-				;is a negative number
-				(push col_list (get :ink_numbers this)))
-			(:t ;default text color)
-				(push col_list (get :ink_text this)))))
-	((:string1 :string2)
-		(push col_list (get :ink_strings this)))
-	(:number
-		(push col_list (get :ink_numbers this)))
-	(:keysym
-		(push col_list (get :ink_keysyms this)))
-	(:comment
-		(push col_list (get :ink_comments this)))
-	(:text
-		(push col_list (get :ink_text this))))
+```file
+lib/text/syntax.inc "case state" "this"
 ```
 
 ## Tricks with logical statements
