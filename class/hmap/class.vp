@@ -181,9 +181,9 @@
 		(call 'hmap :get_bucket '(:r0 :r1) '(:r0 :r2))
 		(class/array/get_both :r2 :r5 :r3)
 		(breakif '(:r5 = :r3))
-		;test last known index
+		;test last known slot
 		(assign '((:rsp local_key) :r5) '(:r4 :r1))
-		(assign '((:r4 str_hashindex)) '(:r6))
+		(assign '((:r4 str_hashslot)) '(:r6))
 		(vp-sub-rr :r6 :r1)
 		(vpif '(:r1 < :r3))
 			(assign '((:r1 0)) '(:r6))
@@ -226,7 +226,7 @@
 (vp-label 'exit1)
 	(vp-sub-cr (* +ptr_size 2) :r1)
 	(vp-sub-rr :r1 :r5)
-	(assign '(:r5) '((:r4 str_hashindex)))
+	(assign '(:r5) '((:r4 str_hashslot)))
 	(exit 'hmap :find '(:r0 :r1 :r2))
 	(vp-free local_size)
 	(vp-ret)
@@ -262,10 +262,10 @@
 		(class/obj/ref :r1 :r0)
 		(class/obj/ref :r2 :r0)
 		(call 'list :push_back2 '((:rsp local_bucket) :r1 :r2) '(:r0 :r1 _ :r3 :r4))
-		;initial known index
+		;initial known slot
 		(vp-sub-cr (* +ptr_size 2) :r4)
 		(vp-sub-rr :r4 :r3)
-		(assign '(:r3 :r4 :r0) '((:r1 str_hashindex) :r1 :r2))
+		(assign '(:r3 :r4 :r0) '((:r1 str_hashslot) :r1 :r2))
 	(else)
 		;old key
 		(assign '((:rsp local_value) (:r1 +ptr_size) :r1) '(:r2 :r0 (:rsp local_iter)))

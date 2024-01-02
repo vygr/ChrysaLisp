@@ -156,7 +156,7 @@
 		;init myself
 		(vp-xor-rr :r1 :r1)
 		(assign '(:r0 :r1 :r1 :r3 (& :r0 str_data))
-			'(:r6 (:r0 str_hashindex) (:r0 str_hashcode) (:r0 str_length) :r1))
+			'(:r6 (:r0 str_hashslot) (:r0 str_hashcode) (:r0 str_length) :r1))
 		(vpif '(:r2 /= 0))
 			(call 'sys_mem :copy '(:r2 :r1 :r3) '(_ :r1))
 		(else)
@@ -191,7 +191,7 @@
 		;init myself
 		(vp-xor-rr :r1 :r1)
 		(assign '(:r0 :r1 :r1 :r2 :r3)
-			'(:r6 (:r0 str_hashindex) (:r0 str_hashcode) :r4 :r5))
+			'(:r6 (:r0 str_hashslot) (:r0 str_hashcode) :r4 :r5))
 		(assign '((:r4 str_length) (:r5 str_length)) '(:r1 :r2))
 		(vp-add-rr :r2 :r1)
 		(assign '(:r1) '((:r0 str_length)))
@@ -227,7 +227,7 @@
 		;init myself
 		(vp-xor-rr :r1 :r1)
 		(assign '(:r0 :r1 :r1 :r3)
-			'(:r6 (:r0 str_hashindex) (:r0 str_hashcode) (:r0 str_length)))
+			'(:r6 (:r0 str_hashslot) (:r0 str_hashcode) (:r0 str_length)))
 
 		;open file
 		(call 'sys_pii :open '(:r2 +file_open_read) '(:r4))
@@ -269,7 +269,7 @@
 		;init myself
 		(vp-xor-rr :r1 :r1)
 		(assign '(:r0 :r1 :r1 (& :r0 str_data))
-			'(:r6 (:r0 str_hashindex) (:r0 str_hashcode) :r1))
+			'(:r6 (:r0 str_hashslot) (:r0 str_hashcode) :r1))
 		(class/array/get_both :r2 :r4 :r5)
 		(loop-while '(:r4 /= :r5))
 			(vp-cpy-ir :r4 0 :r0)

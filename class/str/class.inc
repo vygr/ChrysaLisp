@@ -38,7 +38,7 @@
 	(dec-method :lisp_create class/str/lisp_create :static (:r0 :r1) (:r0 :r1)))
 
 (def-struct str seq_size
-	(int hashindex)
+	(int hashslot)
 	(uint hashcode length)
 	(align)
 	(offset data))
