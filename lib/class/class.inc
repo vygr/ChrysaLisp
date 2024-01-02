@@ -26,7 +26,8 @@
 	; throw an error if invoked. Concrete
 	; classes deriving from a class with abstractions
 	; should provide the concreate handler
-	`(def (def? :vtable this) ,n (lambda (this ~a) (throw "Is abstract method !" ,n))))
+	`(def (def? :vtable this) ,n (lambda (this ~a)
+		(throw "Is abstract method !" ,n))))
 
 (defmacro deffimethod (n _)
 	; (deffimethod name ffi)
@@ -44,7 +45,7 @@
 
 (defmacro defclass (n a s &rest _)
 	; (defclass Name ([arg ...]) (super ...) body)
-	(defq vtmax 50 module (str *stream_name*)
+	(defq module (str *stream_name*)
 		predn (sym (cat n "?")) kwn (sym (cat : n))
 		super (sym (cat "*class_" (if s (first s)) "*"))
 		class (sym (cat "*class_" n "*"))
@@ -58,30 +59,27 @@
 	(if s
 		`(progn
 			(defq ,class (env 1))
-			(defun ,predn (_o) (and (env? _o) (def? :vtable _o) (find ,kwn (. _o :type_of))))
+			(defun ,predn (_o)
+				(and (env? _o) (def? :vtable _o) (find ,kwn (. _o :type_of))))
 			(defun ,n ,a
 				(def (defq this ,s) :vtable ,class)
 				(unless (def? :vtable ,class)
-					(defq _smethods (tolist ,super)
-						_vtnum (+ (/ (+ ,(+ (length methods) 1) (length _smethods)) ,vtmax) 1))
-					(if (> _vtnum 1) (env-resize _vtnum ,class))
 					(def this :vtable (reduce (lambda (e (key val))
-						(def e key val) e) _smethods ,class))
+						(def e key val) e) (tolist ,super) ,class))
 					(def ,class :vtable ,super :module ,module)
-					~methods
-					(defmethod :type_of ()
-						(push (.super this :type_of) ,kwn)))
+					(defmethod :type_of () (push (.super this :type_of) ,kwn))
+					~methods)
 				~inits this))
 		`(progn
-			(defq ,class (env ,(+ (/ (+ (length methods) 1) vtmax) 1)))
-			(defun ,predn (_o) (and (env? _o) (def? :vtable _o) (find ,kwn (. _o :type_of))))
+			(defq ,class (env 1))
+			(defun ,predn (_o)
+				(and (env? _o) (def? :vtable _o) (find ,kwn (. _o :type_of))))
 			(defun ,n ,a
 				(def (defq this (env 1)) :vtable ,class)
 				(unless (def? :vtable ,class)
 					(def ,class :vtable :t :module ,module)
-					~methods
-					(defmethod :type_of ()
-						(push (type-of this) ,kwn)))
+					(defmethod :type_of () (push (type-of this) ,kwn))
+					~methods)
 				~inits this))))
 
 (defmacro .-> (res &rest frm)
