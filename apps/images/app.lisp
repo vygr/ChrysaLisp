@@ -21,7 +21,7 @@
 
 (defun win-refresh (_)
 	(defq file (elem-get (setq index _) images))
-	(bind '(w h) (. (defq canvas (Canvas-from-file file 0)) :pref_size))
+	(bind '(w h) (. (defq canvas (canvas-load file 0)) :pref_size))
 	(def *image_scroll* :min_width w :min_height h)
 	(def *window_title* :text (cat "Images -> " (slice (inc (find-rev "/" file)) -1 file)))
 	(. *image_scroll* :add_child canvas)

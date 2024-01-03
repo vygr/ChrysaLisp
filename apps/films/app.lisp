@@ -20,7 +20,7 @@
 
 (defun win-refresh (_)
 	(defq file (elem-get (setq index _) films))
-	(bind '(w h) (. (setq canvas (Canvas-from-file file +load_flag_film)) :pref_size))
+	(bind '(w h) (. (setq canvas (canvas-load file +load_flag_film)) :pref_size))
 	(def *image_scroll* :min_width w :min_height h)
 	(def *window_title* :text (cat "Films -> " (slice (inc (find-rev "/" file)) -1 file)))
 	(. *image_scroll* :add_child canvas)

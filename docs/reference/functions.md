@@ -24,12 +24,6 @@
 (.super this :method [arg ...])
 ```
 
-### Canvas-from-file
-
-```code
-(Canvas-from-file file flags) -> :nil | canvas
-```
-
 ### Emap-kv
 
 ```code
@@ -255,6 +249,12 @@ all source files from root downwards, none recursive
 
 flush any shared pixmaps that have no users.
 4 refs are held by the cache Lmap and this loop !
+```
+
+### canvas-load
+
+```code
+(canvas-load file flags) -> :nil | canvas
 ```
 
 ### case
