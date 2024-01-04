@@ -4,7 +4,7 @@
 
 (import "././task/local.inc")
 (import "././boot/image.inc")
-(import "././text/files.inc")
+(import "././files/files.inc")
 
 ;module
 (env-push)
