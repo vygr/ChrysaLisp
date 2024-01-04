@@ -26,10 +26,6 @@ flags.
 * Update File picker app to use a Tree widget for the folder list. With
 collapse and expand buttons.
 
-* Break out the Terminal tab completion into a separate library. Add this to
-the Editor new file Textfield. Also add this to the File picker apps file
-Textfield's.
-
 * Fix the auto addition of whole words only mode in the `query` function.
 Either by changing the `Regexp` class or the wrapping code.
 

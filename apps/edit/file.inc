@@ -49,7 +49,7 @@
 	(state-save))
 
 (defun action-new ()
-	(when (not (eql (defq file (get :clear_text *name_text*)) ""))
+	(when (not (eql (defq file (trim (get :clear_text *name_text*))) ""))
 		;file does not exist ?
 		(if (= (age file) 0) (save "" file))
 		(def *name_text* :cursor 0 :anchor 0 :clear_text "")

@@ -21,8 +21,8 @@
 		(if (= (const (ascii-code "|")) (defq c (code (elem-get i url))))
 			(setq ctx 0 s 'w)
 			(case s
-				(w  (when (<= 33 c 126) (setq s 'b)))
-				(b  (unless (<= 33 c 126) (setq s 'w ctx (inc ctx))))))) ctx)
+				(w (when (<= 33 c 126) (setq s 'b)))
+				(b (unless (<= 33 c 126) (setq s 'w ctx (inc ctx))))))) ctx)
 
 (defun url-ext-index (urls)
 	(defq i 0)
@@ -31,11 +31,13 @@
 				(eql (elem-get i url) (elem-get i (first urls))))) urls)
 		(setq i (inc i))) i)
 
-(defun url-ext (url cx)
-	(defq ctx (url-ctx url cx) url (slice (if (defq i (find-rev " " (slice 0 cx url))) (inc i) 0) cx url))
+(defun url-ext (url cx &optional ctx)
+	(setd ctx (url-ctx url cx))
+	(defq url (slice (if (defq i (find-rev " " (slice 0 cx url))) (inc i) 0) cx url))
 	(bind '(url file) (url-split url ctx))
-	(defq urls (map (lambda (_) (if (= ctx 0) (cat (slice (length file) -7 _) " ") (slice (length file) -1 _)))
-		(filter (lambda (_) (and (starts-with file _) (if (= ctx 0) (ends-with ".lisp " _) :t))) (url-list url))))
+	(defq urls (map (# (if (= ctx 0) (cat (slice (length file) -7 %0) " ") (slice (length file) -1 %0)))
+		(filter (# (and (starts-with file %0) (if (= ctx 0) (ends-with ".lisp " %0) :t)))
+			(url-list url))))
 	(if (= 0 (length urls)) "" (slice 0 (url-ext-index urls) (first urls))))
 
 ;module

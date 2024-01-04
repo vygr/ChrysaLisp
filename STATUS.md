@@ -4,6 +4,12 @@
 
 ------
 
+New Tab path completion lib `lib/files/urls.inc`.
+
+Tab path completion added to Textfields.
+
+------
+
 New `Radiobar` widget. Can be used in radio or toggles mode.
 
 Basic search added to Docs application.
