@@ -1,6 +1,6 @@
 (import "lib/asm/asm.inc")
 (import "lib/options/options.inc")
-(import "lib/text/files.inc")
+(import "lib/files/files.inc")
 (import "lib/task/cmd.inc")
 
 (defq usage `(

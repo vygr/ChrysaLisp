@@ -1,6 +1,6 @@
-;;;;;;;;;;;;;;;;;;;;;;
-; directory text utils
-;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;
+; directory utils
+;;;;;;;;;;;;;;;;;
 
 ;module
 (env-push)

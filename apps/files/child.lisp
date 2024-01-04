@@ -1,6 +1,6 @@
 (import "././login/env.inc")
 (import "gui/lisp.inc")
-(import "lib/text/files.inc")
+(import "lib/files/files.inc")
 
 (enums +event 0
 	(enum close)

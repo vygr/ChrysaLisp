@@ -5,7 +5,7 @@
 (import "././node/lisp.inc")
 (import "././flow/lisp.inc")
 (import "././backdrop/lisp.inc")
-(import "lib/text/files.inc")
+(import "lib/files/files.inc")
 
 (defclass Tree (event) (Flow)
 	; (Tree event) -> tree

@@ -1,5 +1,5 @@
 (import "lib/options/options.inc")
-(import "lib/text/files.inc")
+(import "lib/files/files.inc")
 
 (defq usage `(
 (("-h" "--help")
