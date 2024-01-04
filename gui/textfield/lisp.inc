@@ -151,7 +151,8 @@
 				(setq anchor cursor))
 			((= key +char_tab)
 				;tab
-				(setq clear_text (cat clear_text (url-ext clear_text cursor 1))
+				(setq clear_text (cat (slice 0 cursor clear_text)
+						(url-ext clear_text cursor 1))
 					anchor (length clear_text) cursor anchor))
 			((= key 0x40000050)
 				;left
