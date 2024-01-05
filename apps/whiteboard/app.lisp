@@ -129,6 +129,7 @@
 				(redraw dlist))
 			((= idx +select_picker)
 				;save/load picker responce
+				(setq *msg* (trim *msg*))
 				(mail-send *picker_mbox* "")
 				(setq *picker_mbox* :nil)
 				(cond
