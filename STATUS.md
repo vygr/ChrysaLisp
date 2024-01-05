@@ -8,6 +8,8 @@ New Tab path completion lib `lib/files/urls.inc`.
 
 Tab path completion added to Textfields.
 
+File picker now uses a Tree widget.
+
 ------
 
 New `Radiobar` widget. Can be used in radio or toggles mode.
