@@ -1,6 +1,5 @@
 (import "././login/env.inc")
 (import "gui/lisp.inc")
-(import "lib/files/files.inc")
 
 ;our UI widgets and events
 (import "./widgets.inc")
