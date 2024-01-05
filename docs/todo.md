@@ -8,8 +8,6 @@ In no particular order but to just to ensure I get thoughts down. I'll keep
 adding to this as I go along. If anybody would like to try helping out, then
 just get in touch.
 
-* Lower `partition` function to VP code.
-
 * Recode quasi quote non recursive?
 
 * optimize write after write vp opts.
@@ -28,9 +26,6 @@ collapse and expand buttons.
 
 * Fix the auto addition of whole words only mode in the `query` function.
 Either by changing the `Regexp` class or the wrapping code.
-
-* Extend `(bfind)` to full `(find)` set of options. Test with Dictionary class
-to speed up typing completions.
 
 * Dynamic doc reference pages for the translators ! Plugin for VP -> native
 codes etc.
