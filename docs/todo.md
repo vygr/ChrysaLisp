@@ -21,9 +21,6 @@ flags.
 
 * WYSIWYG UI tree Editor.
 
-* Update File picker app to use a Tree widget for the folder list. With
-collapse and expand buttons.
-
 * Fix the auto addition of whole words only mode in the `query` function.
 Either by changing the `Regexp` class or the wrapping code.
 
