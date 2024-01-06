@@ -20,21 +20,18 @@
 
 	(defmethod :find (key)
 		; (. xmap :find key) -> :nil | val
-		(slot)
-		(if e (elem-get e (elem-get (inc b) x))))
+		(if (slot) (elem-get e (elem-get (inc b) x))))
 
 	(defmethod :insert (key val)
 		; (. xmap :insert key val) -> xmap
-		(slot)
 		(cond
-			(e (elem-set e (elem-get (inc b) x) val))
+			((slot) (elem-set e (elem-get (inc b) x) val))
 			(:t (push (elem-get b x) key) (push (elem-get (inc b) x) val)))
 		this)
 
 	(defmethod :erase (key)
 		; (. xmap :erase key) -> xmap
-		(slot)
-		(when e
+		(when (slot)
 			(defq bv (elem-get (inc b) x) b (elem-get b x))
 			(elem-set e b (last b))
 			(elem-set e bv (last bv))
