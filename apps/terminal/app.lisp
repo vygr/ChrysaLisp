@@ -53,8 +53,9 @@
 	(. *edit* :set_scroll sx sy))
 
 (defun refresh ()
-	(unless (input-poll)
+	(when (or *key* (not (input-poll)))
 		;refresh display and ensure cursor is visible
+		(setq *key* :nil)
 		(bind '(cx cy) (. *edit* :get_cursor))
 		(bind '(sx sy) (. *edit* :get_scroll))
 		(bind '(w h) (.-> *edit* :get_vdu_text :vdu_size))
@@ -90,7 +91,7 @@
 (defun main ()
 	(defq *select* (alloc-select +select_size)
 		*cursor_x* 0 *cursor_y* 0 *running* :t *pipe* :nil
-		*page_scale* 1.0 *edit* (Terminal-edit)
+		*page_scale* 1.0 *edit* (Terminal-edit) *key* :nil
 		*meta_map* :nil *history_idx* (state-load))
 	(. *edit* :set_select_color +argb_green6)
 	(def *edit* :min_width +vdu_min_width :min_height +vdu_min_height
@@ -125,6 +126,7 @@
 					(> (getf *msg* +ev_msg_key_scode) 0))
 				;key event
 				(defq key (getf *msg* +ev_msg_key_key) mod (getf *msg* +ev_msg_key_mod))
+				(setq *key* :t)
 				(cond
 					((/= 0 (logand mod (const
 							(+ +ev_key_mod_control +ev_key_mod_alt +ev_key_mod_meta))))
