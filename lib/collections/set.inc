@@ -2,9 +2,6 @@
 ; set object
 ;;;;;;;;;;;;
 
-;module
-(env-push)
-
 (defclass Set () :nil
 	; (Set) -> set
 	(defabstractmethod :find (key))
@@ -38,7 +35,3 @@
 	(defabstractmethod :empty? ())
 		; (. set :empty?) -> :t | :nil
 	)
-
-;module
-(export-classes '(Set))
-(env-pop)

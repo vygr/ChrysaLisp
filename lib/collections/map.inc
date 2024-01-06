@@ -2,9 +2,6 @@
 ; map object
 ;;;;;;;;;;;;
 
-;module
-(env-push)
-
 (defclass Map () :nil
 	; (Map) -> map
 	(defabstractmethod :find (key))
@@ -28,7 +25,3 @@
 	(defabstractmethod :empty? ())
 		; (. map :empty?) -> :t | :nil
 	)
-
-;module
-(export-classes '(Map))
-(env-pop)
