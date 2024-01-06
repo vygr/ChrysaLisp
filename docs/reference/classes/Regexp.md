@@ -1,5 +1,7 @@
 # Regexp
 
+## Search
+
 ```code
 (Regexp) -> regexp
 ```

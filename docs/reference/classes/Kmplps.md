@@ -1,5 +1,7 @@
 # Kmplps
 
+## Search
+
 ```code
 (Kmplps) -> kmplps
 ```

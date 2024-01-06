@@ -1,5 +1,7 @@
 # Substr
 
+## Search
+
 ```code
 (Substr) -> substr
 ```

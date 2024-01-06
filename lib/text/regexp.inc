@@ -2,6 +2,8 @@
 ; regexp search class
 ;;;;;;;;;;;;;;;;;;;;;
 
+(import "./search.inc")
+
 ;module
 (env-push)
 
@@ -234,7 +236,7 @@
 			(or (/= end -1) (= (length current) 0)))
 		(list text)) end)
 
-(defclass Regexp (&optional num_buckets) :nil
+(defclass Regexp (&optional num_buckets) (Search)
 	; (Regexp) -> regexp
 	(def this :meta_cache (Fmap num_buckets))
 

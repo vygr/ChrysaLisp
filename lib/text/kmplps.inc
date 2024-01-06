@@ -2,7 +2,9 @@
 ; kmplps search class
 ;;;;;;;;;;;;;;;;;;;;;
 
-(defclass Kmplps (&optional num_buckets) :nil
+(import "./search.inc")
+
+(defclass Kmplps (&optional num_buckets) (Search)
 	; (Kmplps) -> kmplps
 	(def this :meta_cache (Fmap num_buckets))
 

@@ -2,7 +2,9 @@
 ; substr search class
 ;;;;;;;;;;;;;;;;;;;;;
 
-(defclass Substr (&optional num_buckets) :nil
+(import "./search.inc")
+
+(defclass Substr (&optional num_buckets) (Search)
 	; (Substr) -> substr
 	(def this :meta_cache (Fmap num_buckets))
 
