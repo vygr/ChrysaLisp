@@ -2,6 +2,8 @@
 ; generic hash set object
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(import "./set.inc")
+
 ;module
 (env-push)
 
@@ -10,7 +12,7 @@
 		b (% ((get :hash_fnc this) key) (get :num_buckets this))
 		e (some (# (if ((get :cmp_fnc this) %0 key) _)) (elem-get b x))))
 
-(defclass Xset (&optional num_buckets cmp_fnc hash_fnc) :nil
+(defclass Xset (&optional num_buckets cmp_fnc hash_fnc) (Set)
 	; (Xset [num_buckets cmp_fnc hash_fnc]) -> xset
 	(def this :num_buckets (setq num_buckets (opt num_buckets 1))
 		:buckets (lists num_buckets)

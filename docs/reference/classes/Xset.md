@@ -1,5 +1,7 @@
 # Xset
 
+## Set
+
 ```code
 (Xset [num_buckets cmp_fnc hash_fnc]) -> xset
 ```

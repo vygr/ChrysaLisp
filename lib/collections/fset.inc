@@ -2,6 +2,8 @@
 ; fast hash set object
 ;;;;;;;;;;;;;;;;;;;;;;
 
+(import "./set.inc")
+
 ;module
 (env-push)
 
@@ -10,7 +12,7 @@
 		b (% (hash key) (get :num_buckets this))
 		e (find key (elem-get b x))))
 
-(defclass Fset (&optional num_buckets) :nil
+(defclass Fset (&optional num_buckets) (Set)
 	; (Fset [num_buckets]) -> fset
 	(def this :num_buckets (setq num_buckets (opt num_buckets 1))
 		:buckets (lists num_buckets))

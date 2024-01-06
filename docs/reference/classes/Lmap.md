@@ -1,5 +1,7 @@
 # Lmap
 
+## Map
+
 ```code
 (Lmap) -> lmap
 ```

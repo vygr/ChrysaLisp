@@ -819,14 +819,6 @@ very basic attenuation, diffuse and specular
 (map-rev lambda seq ...) -> list
 ```
 
-### map?
-
-```code
-(map? object) -> :t | :nil
-
-returns true if argument is a map type
-```
-
 ### mat3x2-mul-f
 
 ```code
@@ -1307,14 +1299,6 @@ scatter a list of values
 
 ```code
 (seq? form) -> :t | :nil
-```
-
-### set?
-
-```code
-(set? object) -> :t | :nil
-
-returns true if argument is a set type
 ```
 
 ### setd

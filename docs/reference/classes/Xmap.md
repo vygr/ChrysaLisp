@@ -1,5 +1,7 @@
 # Xmap
 
+## Map
+
 ```code
 (Xmap [num_buckets cmp_fnc hash_fnc]) -> xmap
 ```

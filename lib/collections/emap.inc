@@ -2,7 +2,9 @@
 ; generic env map object
 ;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defclass Emap (&optional num_buckets) :nil
+(import "./map.inc")
+
+(defclass Emap (&optional num_buckets) (Map)
 	; (Emap [num_buckets]) -> emap
 	(def this :num_buckets (setq num_buckets (opt num_buckets 1))
 		:buckets (env num_buckets))

@@ -1,5 +1,7 @@
 # Fmap
 
+## Map
+
 ```code
 (Fmap [num_buckets]) -> fmap
 ```

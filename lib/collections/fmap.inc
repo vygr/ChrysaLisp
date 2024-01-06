@@ -2,6 +2,8 @@
 ; fast map object
 ;;;;;;;;;;;;;;;;;
 
+(import "./map.inc")
+
 ;module
 (env-push)
 
@@ -10,7 +12,7 @@
 		b (* (% (hash key) (get :num_buckets this)) 2)
 		e (find key (elem-get b x))))
 
-(defclass Fmap (&optional num_buckets) :nil
+(defclass Fmap (&optional num_buckets) (Map)
 	; (Fmap [num_buckets]) -> fmap
 	(def this :num_buckets (setq num_buckets (opt num_buckets 1))
 		:buckets (lists (* num_buckets 2)))

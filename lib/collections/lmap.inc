@@ -2,10 +2,12 @@
 ; linear map object
 ;;;;;;;;;;;;;;;;;;;
 
+(import "./map.inc")
+
 ;module
 (env-push)
 
-(defclass Lmap () :nil
+(defclass Lmap () (Map)
 	; (Lmap) -> lmap
 	(def this :keys (list) :vals (list))
 

@@ -2,6 +2,8 @@
 ; generic hash map object
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(import "./map.inc")
+
 ;module
 (env-push)
 
@@ -10,7 +12,7 @@
 		b (* (% ((get :hash_fnc this) key) (get :num_buckets this)) 2)
 		e (some (# (if ((get :cmp_fnc this) %0 key) _)) (elem-get b x))))
 
-(defclass Xmap (&optional num_buckets cmp_fnc hash_fnc) :nil
+(defclass Xmap (&optional num_buckets cmp_fnc hash_fnc) (Map)
 	; (Xmap [num_buckets cmp_fnc hash_fnc]) -> xmap
 	(def this :num_buckets (setq num_buckets (opt num_buckets 1))
 		:buckets (lists (* num_buckets 2))

@@ -1,5 +1,7 @@
 # Emap
 
+## Map
+
 ```code
 (Emap [num_buckets]) -> emap
 ```
