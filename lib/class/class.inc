@@ -44,7 +44,7 @@
 		(def this ,(sym (cat ":" field)) val) this))
 
 (defmacro defclass (n a s &rest _)
-	; (defclass Name ([arg ...]) (super ...) body)
+	; (defclass Name ([arg ...]) (super ...)|:nil body)
 	(defq module (str *stream_name*)
 		predn (sym (cat n "?")) kwn (sym (cat : n))
 		super (sym (cat "*class_" (if s (first s)) "*"))

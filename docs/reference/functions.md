@@ -343,7 +343,7 @@ should provide the concreate handler
 ### defclass
 
 ```code
-(defclass Name ([arg ...]) (super ...) body)
+(defclass Name ([arg ...]) (super ...)|:nil body)
 ```
 
 ### deffimethod
