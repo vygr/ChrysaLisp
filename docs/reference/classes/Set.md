@@ -10,10 +10,34 @@
 (. set :copy) -> set
 ```
 
+### :deep_copy
+
+```code
+(. set :deep_copy) -> set
+```
+
+### :difference
+
+```code
+(. set :difference set) -> set
+```
+
+### :each
+
+```code
+(. set :each lambda)
+```
+
 ### :empty
 
 ```code
 (. set :empty) -> set
+```
+
+### :empty?
+
+```code
+(. set :empty?) -> :t | :nil
 ```
 
 ### :erase
@@ -22,16 +46,40 @@
 (. set :erase key) -> set
 ```
 
+### :find
+
+```code
+(. set :find key) -> :nil | key
+```
+
 ### :insert
 
 ```code
 (. set :insert key) -> set
 ```
 
+### :intern
+
+```code
+(. set :intern key) -> key
+```
+
 ### :intersect
 
 ```code
 (. set :intersect set) -> set
+```
+
+### :move
+
+```code
+(. set :move) -> set
+```
+
+### :not_intersect
+
+```code
+(. set :not_intersect set) -> set
 ```
 
 ### :resize

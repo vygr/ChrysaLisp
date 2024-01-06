@@ -117,19 +117,22 @@
 	(defq classes (list) functions (list) keys (list))
 	(each (lambda (file)
 		(defq state :nil info :nil methods :nil)
-		(each-line (lambda (line)
+		(each-line (lambda (line) (while line
 			(case state
 				((:function :class :method)
-					(defq s (split line +char_class_space))
-					(if (and (nempty? s) (starts-with ";" (first s)))
-						(push info (trim (slice (inc (find ";" line)) -1 line)))
-						(setq state :nil)))
+					(cond
+						((and (nempty? (defq s (split line +char_class_space)))
+								(starts-with ";" (first s)))
+							(push info (trim (slice (inc (find ";" line)) -1 line)))
+							(setq line :nil))
+						((setq state :nil))))
 				(:keys
-					(defq s (split line +char_class_space))
-					(if (nempty? s)
-						(push info (trim-start (trim-end line ")") (ascii-char 9)))
-						(setq state :nil)))
-				(:t (defq words (split line (const (unescape " ()'\t\r"))))
+					(cond
+						((nempty? (defq s (split line +char_class_space)))
+							(push info (trim-start (trim-end line ")") (ascii-char 9)))
+							(setq line :nil))
+						((setq state :nil))))
+				(:t (defq words (split line (const (unescape " ()'\t\r"))) line :nil)
 					(when (>= (length words) 2)
 						(defq type (first words) name (second words))
 						(unless (or (some (# (eql name %0))
@@ -155,7 +158,7 @@
 									(setq state :nil))
 								("defsetmethod"
 									(push methods (list (cat ":set_" name) (setq info (list))))
-									(setq state :nil))))))))
+									(setq state :nil)))))))))
 			(file-stream file)))
 		(sanitize (cat
 			(all-files "." '("lisp.inc" "actions.inc") 2)
