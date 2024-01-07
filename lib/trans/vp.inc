@@ -48,11 +48,10 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defq +emit_funcs (reduce (lambda (e (k v))
-	(if (starts-with "emit" k) (def e k v)) e) (tolist (env)) (env 11)))
+	(if (starts-with "emit" k) (def e k v)) e) (tolist (env)) (env 1)))
 
 (defun emit-translate (emit_code)
 	; (emit-translate emit_code) -> func_binary
-	(env-resize 11)
 	(defq out_buf "" old_out_buf "" *pass* 0 *pc* 0 *branches* (clear '())
 		*out_stream* (string-stream out_buf))
 	(each! 1 -1 (lambda (op)
