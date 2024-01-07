@@ -7,9 +7,13 @@
 
 (defun pipe-split (cmdline)
 	; (pipe-split cmdline) -> (e0 [e1] ...)
-	(defq i 0)
-	(map (lambda (((x x1))) (defq j i) (setq i x1) (trim (slice j x cmdline)))
-		(push (substr cmdline " | ") '((-1 0)))))
+	(defq i 0 out (list) quotes (partition (substr cmdline (ascii-char 34)) 2))
+	(each (lambda (((x x1)))
+		(unless (some (lambda ((((qx _)) ((_ qx1))))
+					(and (>= x qx) (<= x1 qx1))) quotes)
+			(defq j i) (setq i x1) (push out (trim (slice j x cmdline)))))
+		(push (substr cmdline " | ") '((-1 0))))
+	out)
 
 (defclass Pipe (cmdline &optional user_select) :nil
 	; (Pipe cmdline [user_select]) -> pipe | :nil
