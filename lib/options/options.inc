@@ -17,8 +17,21 @@
 
 (defun options-split (args)
 	; (options-split args) -> (a0 [a1] ...)
-	(map (lambda (((x x1))) (trim (slice x x1 args) (ascii-char 34)))
-		(matches args {".*"|\S+})))
+	(defq out (list) i 0 state :space)
+	(while (< i (length args))
+		(case state
+			(:space
+				(when (< (setq i (bskip +char_class_white_space args i)) (length args))
+					(if (eql (elem-get i args) (ascii-char 34))
+						(setq i (inc i) state :quote)
+						(setq state :normal))))
+			(:normal
+				(push out (slice i (setq state :space i
+					(bskipn +char_class_white_space args i)) args)))
+			(:quote
+				(push out (slice i (setq i (bskipn (ascii-char 34) args i)) args))
+				(setq i (inc i) state :space))))
+	out)
 
 (defun options (stdio optlist)
 	; (options stdio optlist) -> :nil | args
