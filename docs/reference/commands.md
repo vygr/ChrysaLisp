@@ -220,6 +220,16 @@ Usage: patch [options] file_a [file_b]
 	Patch text file a with text file b.
 	If no second file is given it will be read from stdin.
 ```
+## repeat
+```code
+Usage: repeat [options] command_line
+
+	options:
+		-h --help: this help info.
+		-c --count: count, defult 10.
+		
+	Repeat run command line.
+```
 ## rm
 ```code
 Usage: rm [options] [path] ...
