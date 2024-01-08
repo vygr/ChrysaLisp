@@ -46,7 +46,6 @@
 	(setd *abi* (abi) *cpu* (cpu))
 	(unless (list? files) (setq files (list files)))
 	(when (nempty? files)
-		(shuffle files)
 		(defq timer_rate (/ 1000000 1) working :t errors (list)
 			retry_timeout (if (starts-with "obj/vp64" (load-path)) 20000000 2000000)
 			select (list (mail-alloc-mbox) (mail-alloc-mbox) (mail-alloc-mbox))
