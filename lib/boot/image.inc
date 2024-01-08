@@ -80,7 +80,8 @@
 	(elem-set 0 blobs (cat (char boot_len +long_size) (slice +long_size -1 (first blobs))))
 	;write out boot image
 	(each (# (write stream %0)) blobs)
-	(print "-> " (func-obj-path 'sys/boot_image) " (" boot_len ")") :nil)
+	(print "-> " (func-obj-path 'sys/boot_image) " (" boot_len ")")
+	:nil)
 
 ;module
 (export-symbols '(boot-image func-obj-path))
