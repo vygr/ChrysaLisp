@@ -12,6 +12,8 @@ File picker now uses a Tree widget.
 
 New `repeat` command.
 
+Reduction of translation passes by 25%.
+
 ------
 
 New `Radiobar` widget. Can be used in radio or toggles mode.
