@@ -10,6 +10,8 @@ Tab path completion added to Textfields.
 
 File picker now uses a Tree widget.
 
+New `repeat` command.
+
 ------
 
 New `Radiobar` widget. Can be used in radio or toggles mode.
