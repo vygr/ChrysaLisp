@@ -52,7 +52,8 @@
 
 (defun emit-translate (emit_code)
 	; (emit-translate emit_code) -> func_binary
-	(defq out_buf "" old_out_buf "" *pass* 0 *pc* 0 *branches* (clear '())
+	(defq out_buf "" old_out_buf "" *pass* 0 *pc* 0
+		*branches* (cap 64 (list))
 		*out_stream* (string-stream out_buf))
 	(each! 1 -1 (lambda (op)
 			;map vp key syms to native reg nums
