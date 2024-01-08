@@ -56,9 +56,9 @@
 		*branches* (cap 64 (list))
 		*out_stream* (string-stream out_buf))
 	(each! 1 -1 (lambda (op)
-			;map vp key syms to native reg nums
+			;map vp reg syms to native reg nums
 			(each! 1 -1 (lambda (e)
-				(and (sym? e) (defq e (emit-native-reg? e))
+				(if (defq e (emit-native-reg? e))
 					(elem-set _ op e))) (list op))
 			;create label and branch initial values
 			(cond
