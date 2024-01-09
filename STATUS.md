@@ -14,6 +14,8 @@ New `repeat` command.
 
 Reduction of translation passes by 25%.
 
+New `charclass` document.
+
 ------
 
 New `Radiobar` widget. Can be used in radio or toggles mode.
