@@ -75,8 +75,8 @@ ARE NOT members of the given character class.
 
 ## Simple line parsers
 
-It's very easy to create simple fast state machines to parse lines of text
-given these primatives.
+It's very easy to create fast state machines to parse lines of text given these
+primatives.
 
 For example look at the Syntax highlighting class !
 
