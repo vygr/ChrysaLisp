@@ -1,4 +1,4 @@
-# Character classes, `bfind`, `bskip` and `bskipn`
+# Character classes, and membership testing.
 
 In ChrysaLisp a character class is represented by a simple string. But these
 strings are created by the `(char-class str) -> cls` function.
