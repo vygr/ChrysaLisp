@@ -544,9 +544,8 @@
 
 (defun reverse-list (lst)
 	; (reverse-list list) -> list
-	(defq lst (cat lst) out (cap (length lst) (list)))
-	(while (defq i (pop lst)) (push out i))
-	out)
+	(defq out (cap (length lst) (list)))
+	(each-rev (lambda (el) (push out el)) lst) out)
 
 (defun reverse (seq)
 	; (reverse seq) -> seq
