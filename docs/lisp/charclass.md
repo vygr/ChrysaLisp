@@ -31,8 +31,8 @@ lib/text/charclass.inc "(defq +char" ""
 
 ## Testing for membership with `bfind`
 
-`(bfind char cls) -> idx | :nil` is simply a binary search of a string for a
-given character. It returns the index of the found character or `:nil`.
+`(bfind char cls) -> idx | :nil` is a binary search of a string for a given
+character. It returns the index of the found character or `:nil`.
 
 ```lisp
 (bfind "C" +char_class_upper)
@@ -47,8 +47,17 @@ ARE members of the given character class.
 (bskip +char_class_lower "abcdABCD" 0)
 ```
 
+If no characters can be skipped then the index is unchanged.
+
 ```lisp
 (bskip +char_class_lower "abcdABCD" 4)
+```
+
+Likewise if the index hits the end of the string, the index is the length of
+the string.
+
+```lisp
+(bskip +char_class_lower "abcdABCD" 8)
 ```
 
 ## Skipping none members with `bskipn`
