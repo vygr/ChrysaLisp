@@ -20,7 +20,7 @@ The `Fset` is a set class built with multiple lists, buckets, holding the keys.
 It uses the `(hash)` function on the key to find the bucket and the `(find)`
 function to search that bucket for the key.
 
-When you are dealing with a large number of keys. This type of map reduces the
+When you are dealing with a large number of keys. This type of set reduces the
 maximum number of keys that need to be tested during `find` operations.
 
 ### Xset
