@@ -14,7 +14,9 @@ New `repeat` command.
 
 Reduction of translation passes by 25%.
 
-New `charclass` document.
+New `charclass.md` document.
+
+New `searching.md` document.
 
 ------
 
