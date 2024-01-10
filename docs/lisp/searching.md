@@ -41,7 +41,7 @@ pattern) -> slices` functions.
 And likewise for regular expressions:
 
 ```lisp
-(matches "abc xyz 123 abc" "[x-y]+|[0-9]+")
+(matches "abc xyz 123 abc" "[x-z]+|[0-9]+")
 ```
 
 Within regular expression patterns placing brackets around an expression will
