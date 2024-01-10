@@ -40,7 +40,7 @@ character. It returns the index of the found character or `:nil`.
 
 ## Skipping members with `bskip`
 
-`(bskip cls str idx) -> idx` will skip all charaters from the given index that
+`(bskip cls str idx) -> idx` will skip all characters from the given index that
 ARE members of the given character class.
 
 ```lisp
@@ -62,8 +62,8 @@ the string.
 
 ## Skipping none members with `bskipn`
 
-`(bskipn cls str idx) -> idx` will skip all charaters from the given index that
-ARE NOT members of the given character class.
+`(bskipn cls str idx) -> idx` will skip all characters from the given index
+that ARE NOT members of the given character class.
 
 ```lisp
 (bskipn +char_class_lower "ABCDabcd" 0)
