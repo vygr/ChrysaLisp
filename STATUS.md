@@ -18,6 +18,8 @@ New `charclass.md` document.
 
 New `searching.md` document.
 
+New `collections.md` document.
+
 ------
 
 New `Radiobar` widget. Can be used in radio or toggles mode.
