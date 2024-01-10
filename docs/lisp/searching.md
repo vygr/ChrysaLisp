@@ -76,7 +76,7 @@ You can use the `(query pattern word_flag regexp_flag) -> (search pattern
 meta)` function and let it build you the correct query to use, including the
 correct search instance and meta data.
 
-Here, in the `Docs` app find down action, you can see the it passes the search
+Here, in the `Docs` app find down action, you can see that it passes the search
 settings into the query function and uses the returned engine and resulting
 meta data to perform the search.
 
