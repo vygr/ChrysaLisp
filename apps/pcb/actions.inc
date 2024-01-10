@@ -8,7 +8,7 @@
 (import "./ui.inc")
 
 (defq
-*event_map* (Fmap-kv
+*event_map* (scatter (Fmap)
 	+event_close action-close
 	+event_reset action-reset
 	+event_prev action-prev
@@ -18,7 +18,7 @@
 	+event_layer action-layer
 	+event_mode action-mode)
 
-*key_map* (Fmap-kv
+*key_map* (scatter (Fmap)
 	(ascii-code "a") action-mode-normal
 	(ascii-code "g") action-mode-gerber
 	(ascii-code "0") action-show-all
@@ -30,9 +30,9 @@
 	(ascii-code "n") action-next
 	(ascii-code "p") action-prev)
 
-*key_map_shift* (Fmap-kv)
+*key_map_shift* (scatter (Fmap))
 
-*key_map_control* (Fmap-kv
+*key_map_control* (scatter (Fmap)
 	(ascii-code "{") action-scale-down
 	(ascii-code "}") action-scale-up))
 

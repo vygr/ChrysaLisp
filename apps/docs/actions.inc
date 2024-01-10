@@ -9,7 +9,7 @@
 (import "./search.inc")
 
 (defq
-*event_map* (Fmap-kv
+*event_map* (scatter (Fmap)
 	+event_close action-close
 	+event_min action-minimise
 	+event_max action-maximise
@@ -24,11 +24,11 @@
 	+event_file_tree_collapse action-file-tree-collapse
 	+event_file_leaf_action action-file-leaf-action)
 
-*key_map* (Fmap-kv)
+*key_map* (scatter (Fmap))
 
-*key_map_shift* (Fmap-kv)
+*key_map_shift* (scatter (Fmap))
 
-*key_map_control* (Fmap-kv
+*key_map_control* (scatter (Fmap)
 	(ascii-code "n") action-next-doc
 	(ascii-code "N") action-prev-doc
 	(ascii-code "{") action-scale-down

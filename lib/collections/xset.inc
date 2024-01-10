@@ -123,7 +123,3 @@
 ;module
 (export-classes '(Xset))
 (env-pop)
-
-(defun Xset-k (&rest _)
-	; (Xset-k [key ...]) -> xset
-	(reduce (# (. %0 :insert %1)) _ (Xset)))

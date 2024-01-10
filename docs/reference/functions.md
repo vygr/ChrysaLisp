@@ -24,30 +24,6 @@
 (.super this :method [arg ...])
 ```
 
-### Emap-kv
-
-```code
-(Emap-kv [key val ...]) -> emap
-```
-
-### Fmap-kv
-
-```code
-(Fmap-kv [key val ...]) -> fmap
-```
-
-### Fset-k
-
-```code
-(Fset-k [key ...]) -> fset
-```
-
-### Lmap-kv
-
-```code
-(Lmap-kv [key val ...]) -> lmap
-```
-
 ### SVG-Canvas
 
 ```code
@@ -68,18 +44,6 @@
 calls back to user code, so _ used for vars that would be in scope
 break the stream into svg tokens, symbols, strings etc
 parse the commands and attributes calling back to the user functions
-```
-
-### Xmap-kv
-
-```code
-(Xmap-kv [key val ...]) -> xmap
-```
-
-### Xset-k
-
-```code
-(Xset-k [key ...]) -> xset
 ```
 
 ### aand

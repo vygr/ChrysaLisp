@@ -8,7 +8,7 @@
 (import "./ui.inc")
 
 (defq
-*event_map* (Fmap-kv
+*event_map* (scatter (Fmap)
 	+event_close action-close
 	+event_hvalue action-hvalue
 	+event_clear action-clear
@@ -22,21 +22,21 @@
 	+event_pause_all action-pause-all
 	+event_step_all action-step-all)
 
-*key_map* (Fmap-kv
+*key_map* (scatter (Fmap)
 	(ascii-code "p") action-play
 	(ascii-code "f") action-forward
 	(ascii-code "s") action-step
 	(ascii-code "h") action-pause
 	(ascii-code "x") action-clear)
 
-*key_map_shift* (Fmap-kv
+*key_map_shift* (scatter (Fmap)
 	(ascii-code "P") action-play-all
 	(ascii-code "F") action-forward-all
 	(ascii-code "S") action-step-all
 	(ascii-code "H") action-pause-all
 	(ascii-code "X") action-clear-all)
 
-*key_map_control* (Fmap-kv))
+*key_map_control* (scatter (Fmap)))
 
 ;module
 (export-symbols

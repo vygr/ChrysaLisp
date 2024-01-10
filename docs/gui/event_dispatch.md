@@ -183,23 +183,23 @@ Here is the Editor application action bindings, `apps/editor/actions.inc`:
 (import "./ui.inc")
 
 (defq
-*event_map* (Fmap-kv
+*event_map* (scatter (Fmap)
 	...
 	+event_close action-close
 	+event_min action-minimise
 	+event_max action-maximise)
 
-*key_map* (Fmap-kv
+*key_map* (scatter (Fmap)
 	0x40000050 action-left
 	...
 	+char_tab action-tab)
 
-*key_map_shift* (Fmap-kv
+*key_map_shift* (scatter (Fmap)
 	0x40000050 action-left-select
 	...
 	+char_tab action-left-tab)
 
-*key_map_control* (Fmap-kv
+*key_map_control* (scatter (Fmap)
 	(ascii-code "M") action-macro-record
 	...
 	(ascii-code "O") action-unique)

@@ -94,7 +94,3 @@
 ;module
 (export-classes '(Xmap))
 (env-pop)
-
-(defun Xmap-kv (&rest _)
-	; (Xmap-kv [key val ...]) -> xmap
-	(reduce (lambda (m (k v)) (. m :insert k v)) (partition _ 2) (Xmap)))

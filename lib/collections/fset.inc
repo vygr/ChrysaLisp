@@ -122,7 +122,3 @@
 ;module
 (export-classes '(Fset))
 (env-pop)
-
-(defun Fset-k (&rest _)
-	; (Fset-k [key ...]) -> fset
-	(reduce (# (. %0 :insert %1)) _ (Fset)))

@@ -8,7 +8,7 @@
 (import "./ui.inc")
 
 (defq
-*event_map* (Fmap-kv
+*event_map* (scatter (Fmap)
 	+event_xrot action-xrot
 	+event_yrot action-yrot
 	+event_zrot action-zrot
@@ -21,14 +21,14 @@
 	+event_min action-minimise
 	+event_max action-maximise)
 
-*key_map* (Fmap-kv
+*key_map* (scatter (Fmap)
 	(ascii-code "a") action-auto
 	(ascii-code "n") action-next
 	(ascii-code "p") action-prev)
 
-*key_map_shift* (Fmap-kv)
+*key_map_shift* (scatter (Fmap))
 
-*key_map_control* (Fmap-kv
+*key_map_control* (scatter (Fmap)
 	(ascii-code "=") action-maximise
 	(ascii-code "-") action-minimise))
 

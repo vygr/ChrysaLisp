@@ -14,7 +14,7 @@
 (import "./ui.inc")
 
 (defq
-*event_map* (Fmap-kv
+*event_map* (scatter (Fmap)
 	+event_find_down action-find-down
 	+event_find_up action-find-up
 	+event_whole_words action-whole-words
@@ -36,7 +36,7 @@
 	+event_file_tree_collapse action-file-tree-collapse
 	+event_file_leaf_action action-file-leaf-action)
 
-*key_map* (Fmap-kv
+*key_map* (scatter (Fmap)
 	0x40000050 action-left
 	0x4000004f action-right
 	0x40000052 action-up
@@ -44,7 +44,7 @@
 	0x4000004A action-home
 	0x4000004D action-end)
 
-*key_map_shift* (Fmap-kv
+*key_map_shift* (scatter (Fmap)
 	0x40000050 action-left-select
 	0x4000004f action-right-select
 	0x40000052 action-up-select
@@ -52,7 +52,7 @@
 	0x4000004A action-home-select
 	0x4000004D action-end-select)
 
-*key_map_control* (Fmap-kv
+*key_map_control* (scatter (Fmap)
 	(ascii-code "f") action-set-find-text
 	(ascii-code "a") action-select-all
 	(ascii-code "A") action-region

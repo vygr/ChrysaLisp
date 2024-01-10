@@ -218,7 +218,7 @@
 	(each (# (def %0 :tip_text %1)) (. view :children) tips))
 
 ;; (defun ui-save (stream view)
-;;     (defq tree (Lmap-kv :type (last (. view :type_of))) stack (list view tree))
+;;     (defq tree (scatter (Lmap) :type (last (. view :type_of))) stack (list view tree))
 ;;     (while (defq props (pop stack) view (pop stack))
 ;;         (each (lambda ((k v))
 ;;             (unless (View? v)
@@ -226,6 +226,6 @@
 ;;                 (. props :insert k v))) (tolist view))
 ;;         (when (nempty? (defq children (. view :children)))
 ;;             (. props :insert :children (defq child_props (list)))
-;;             (each (# (push stack %0 (defq props (Lmap-kv :type (last (. %0 :type_of)))))
+;;             (each (# (push stack %0 (defq props (scatter (Lmap) :type (last (. %0 :type_of)))))
 ;;                     (push child_props props)) children)))
 ;;     (tree-save stream tree))

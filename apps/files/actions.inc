@@ -8,7 +8,7 @@
 (import "./ui.inc")
 
 (defq
-*event_map* (Fmap-kv
+*event_map* (scatter (Fmap)
 	+event_file_tree_expand action-file-tree-expand
 	+event_file_tree_collapse action-file-tree-collapse
 	+event_close action-close

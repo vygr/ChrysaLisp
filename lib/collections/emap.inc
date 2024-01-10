@@ -55,7 +55,3 @@
 		(env-resize num_buckets (get :buckets this))
 		this)
 	)
-
-(defun Emap-kv (&rest _)
-	; (Emap-kv [key val ...]) -> emap
-	(reduce (lambda (m (k v)) (. m :insert k v)) (partition _ 2) (Emap)))

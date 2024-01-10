@@ -89,7 +89,7 @@
 		meta (. files :find key))
 	(unless meta
 		(. files :insert key (setq meta
-			(Emap-kv :cx cx :cy cy :ax ax :ay ay :sx sx :sy sy :buffer :nil))))
+			(scatter (Emap) :cx cx :cy cy :ax ax :ay ay :sx sx :sy sy :buffer :nil))))
 	(unless (defq buffer (. meta :find :buffer))
 		(. meta :insert :buffer (setq buffer (Buffer mode *syntax*)))
 		(when file

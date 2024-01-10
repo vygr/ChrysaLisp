@@ -4,7 +4,7 @@
 
 (defun state-save ()
 	;save terminal state, merges in
-	(defq default (Emap-kv :history (list)) meta_map default)
+	(defq default (scatter (Emap) :history (list)) meta_map default)
 	(when (defq stream (file-stream (cat *env_home* +state_filename)))
 		(catch (setq meta_map (tree-load stream))
 			(progn (setq meta_map default) :t)))
@@ -20,7 +20,7 @@
 
 (defun state-load ()
 	;load terminal state
-	(defq default (Emap-kv :history (list)))
+	(defq default (scatter (Emap) :history (list)))
 	(setq *meta_map* default)
 	(when (defq stream (file-stream (cat *env_home* +state_filename)))
 		(catch (setq *meta_map* (tree-load stream))

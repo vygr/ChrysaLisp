@@ -19,7 +19,7 @@
 (import "./state.inc")
 
 (defq
-*event_map* (Fmap-kv
+*event_map* (scatter (Fmap)
 	+event_open_tree_expand action-open-tree-expand
 	+event_open_tree_collapse action-open-tree-collapse
 	+event_file_tree_expand action-file-tree-expand
@@ -81,7 +81,7 @@
 	+event_tree_action action-tree-action
 	+event_open_leaf_action action-open-leaf-action)
 
-*key_map* (Fmap-kv
+*key_map* (scatter (Fmap)
 	0x40000050 action-left
 	0x4000004f action-right
 	0x40000052 action-up
@@ -94,7 +94,7 @@
 	+char_delete action-delete
 	+char_tab action-tab)
 
-*key_map_shift* (Fmap-kv
+*key_map_shift* (scatter (Fmap)
 	0x40000050 action-left-select
 	0x4000004f action-right-select
 	0x40000052 action-up-select
@@ -103,7 +103,7 @@
 	0x4000004D action-end-select
 	+char_tab action-left-tab)
 
-*key_map_control* (Fmap-kv
+*key_map_control* (scatter (Fmap)
 	(ascii-code "0") action-macro-playback-0
 	(ascii-code "1") action-macro-playback-1
 	(ascii-code "2") action-macro-playback-2

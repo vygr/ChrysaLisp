@@ -53,7 +53,7 @@ does the work for you.
 For example these Editor key bindings:
 
 ```vdu
-*key_map_control* (Fmap-kv
+*key_map_control* (scatter (Fmap)
 	(ascii-code "M") action-macro-record
 	(ascii-code "m") action-macro-playback
 	(ascii-code "/") action-comment-block
@@ -67,7 +67,7 @@ The `*key_map_control*` Fmap is a map of `numbers->lambda` not a map of
 `string->lambda` ! This source becomes:
 
 ```vdu
-*key_map_control* (Fmap-kv
+*key_map_control* (scatter (Fmap)
 	77 action-macro-record
 	109 action-macro-playback
 	47 action-comment-block

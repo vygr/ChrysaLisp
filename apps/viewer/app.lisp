@@ -75,7 +75,7 @@
 		files (. *meta_map* :find :files) key (str file))
 	(unless (. files :find key)
 		(. files :insert key
-			(Fmap-kv :cx cx :cy cy :ax ax :ay ay :sx sx :sy sy :buffer :nil)))
+			(scatter (Fmap) :cx cx :cy cy :ax ax :ay ay :sx sx :sy sy :buffer :nil)))
 	(defq meta (. files :find key))
 	(unless (defq buffer (. meta :find :buffer))
 		(. meta :insert :buffer (setq buffer (Buffer mode *syntax*))))
@@ -164,7 +164,7 @@
 	(defq select (alloc-select +select_size)
 		*running* :t *edit* (Viewer-edit) *page_scale* 1.0 *regexp* :nil
 		*syntax* (Syntax) *whole_words* :nil *refresh_mode* (list 0)
-		*meta_map* (Fmap-kv :files (Fmap)) *current_file* :nil)
+		*meta_map* (scatter (Fmap) :files (Fmap)) *current_file* :nil)
 	(.-> *edit* (:set_buffer (Buffer))
 		(:set_select_color +argb_grey6)
 		(:set_found_color +argb_grey4)

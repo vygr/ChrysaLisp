@@ -93,7 +93,3 @@
 ;module
 (export-classes '(Fmap))
 (env-pop)
-
-(defun Fmap-kv (&rest _)
-	; (Fmap-kv [key val ...]) -> fmap
-	(reduce (lambda (m (k v)) (. m :insert k v)) (partition _ 2) (Fmap)))

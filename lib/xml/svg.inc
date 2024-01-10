@@ -196,7 +196,7 @@
 	; (SVG-Canvas stream [scale]) -> :nil | canvas
 	(setq scale (n2f (opt scale 1)))
 	(defq canvas :nil stack
-		(list (Lmap-kv
+		(list (scatter (Lmap)
 			;this block of defaults are in order !
 			"stroke" 0
 			"fill" +argb_black

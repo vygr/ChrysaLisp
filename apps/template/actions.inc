@@ -11,7 +11,7 @@
 (import "./ui.inc")
 
 (defq
-*event_map* (Fmap-kv
+*event_map* (scatter (Fmap)
 	+event_close action-close
 	+event_min action-minimise
 	+event_max action-maximise
@@ -26,15 +26,15 @@
 	+event_button_3 action-button-3
 	+event_button_4 action-button-4)
 
-*key_map* (Fmap-kv
+*key_map* (scatter (Fmap)
 	(ascii-code "1") action-button-1
 	(ascii-code "2") action-button-2
 	(ascii-code "3") action-button-3
 	(ascii-code "4") action-button-4)
 
-*key_map_shift* (Fmap-kv)
+*key_map_shift* (scatter (Fmap))
 
-*key_map_control* (Fmap-kv
+*key_map_control* (scatter (Fmap)
 	(ascii-code "z") action-undo
 	(ascii-code "Z") action-redo
 	(ascii-code "x") action-cut
