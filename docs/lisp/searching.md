@@ -60,7 +60,7 @@ There can also be more than one match within a search.
 The results are slice indices that you can use to retrieve the resulting
 substrings or matches from the original string.
 
-For example, the `forward` command, work function:
+For example, the `forward` command, `(work)` function:
 
 ```file
 cmd/forward.lisp "defun work" ""
@@ -69,7 +69,7 @@ cmd/forward.lisp "defun work" ""
 ## Building a query
 
 Often, you won't know whether the pattern is a regular expression or not. For
-example, in the `Editor`, toggles all provided for search features, whole
+example, in the `Editor`, toggles are provided for search features, whole
 words, regular expression, etc.
 
 You can use the `(query pattern word_flag regexp_flag) -> (search pattern
