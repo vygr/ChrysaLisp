@@ -37,7 +37,7 @@
 (defmacro trashes-reg? (r op)
 	`(cond
 		((eql ,r (last ,op)))
-		((find-rev (first ,op) ,'+opt_emit_two_out_ops) (eql ,r (elem-get -3 ,op)))
+		((find (first ,op) ,'+opt_emit_two_out_ops) (eql ,r (elem-get -3 ,op)))
 		((find-rev (first ,op) ,'+opt_emit_multi_out_ops) (uses? ,r ,op))))
 
 (defmacro find-past (&rest _)

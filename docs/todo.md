@@ -47,10 +47,6 @@ Chuck !
 * Separate the VP instruction for div and rem into individual operations. The
 x64 isn't really the way things should be done anymore.
 
-* Add a faster way to test for trashed registers from `emit` ops. Maybe
-redesign the format to make it easier to test. This will speed up most of the
-optimization stages of the compiler and assembler.
-
 * Add support for `(vp-simd)` instructions at the translator level. MMX, SSX
 etc.
 
