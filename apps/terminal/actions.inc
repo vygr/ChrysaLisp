@@ -40,7 +40,11 @@
 	+char_tab action-tab
 	+char_esc action-escape)
 
-*key_map_shift* (scatter (Fmap))
+*key_map_shift* (scatter (Fmap)
+	0x40000050 action-left-select
+	0x4000004f action-right-select
+	0x4000004A action-home-select
+	0x4000004D action-end-select)
 
 *key_map_control* (scatter (Fmap)
 	(ascii-code "w") action-select-word

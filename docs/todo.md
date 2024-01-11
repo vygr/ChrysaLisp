@@ -29,8 +29,6 @@ codes etc.
 
 * Integrate the HOST clipboard and the CL Clipboard service.
 
-* Add shift key selection to the Terminal app.
-
 * Change Regexp compiler to produce VP code and hold a cache of translated
 expressions.
 

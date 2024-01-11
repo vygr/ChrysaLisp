@@ -3,7 +3,9 @@
 ;;;;;;;;;;;;;;;;;
 
 (defun action-insert (string &optional wrap_len)
-	(input-cursor (. buffer :paste string wrap_len))
+	(input-cursor
+		(. buffer :cut ax ay)
+		(. buffer :paste string wrap_len))
 	(bind '(w h) (. buffer :get_size))
 	(when (> h *env_terminal_lines*)
 		(.-> buffer (:set_cursor 0 0) (:cut 0 (- h *env_terminal_lines*)))
@@ -17,13 +19,16 @@
 	(input-cursor
 		(cond
 			(*pipe* (if (> x 0) (. buffer :backspace)))
+			((not (eql (. buffer :cut ax ay) "")))
 			((if (> x (length *env_terminal_prompt*)) (. buffer :backspace)))))
 	(. *edit* :clear_selection)
 	(refresh))
 
 (defun action-delete ()
 	(input-cursor
-		(. buffer :delete))
+		(cond
+			((not (eql (. buffer :cut ax ay) "")))
+			((. buffer :delete))))
 	(. *edit* :clear_selection)
 	(refresh))
 
