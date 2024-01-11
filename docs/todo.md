@@ -10,8 +10,6 @@ just get in touch.
 
 * Recode quasi quote non recursive?
 
-* optimize write after write vp opts.
-
 * canvas to support stretched or aspect correct drawing, centered, and aligned
 flags.
 
