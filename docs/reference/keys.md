@@ -260,6 +260,15 @@
 (ascii-code "-") action-minimise
 ```
 
+### *key_map_shift*
+
+```code
+0x40000050 action-left-select
+0x4000004f action-right-select
+0x4000004A action-home-select
+0x4000004D action-end-select
+```
+
 ## apps/viewer/actions.inc
 
 ### *key_map*
