@@ -38,12 +38,14 @@
 	;create char class
 	;these are sorted interend unescaped char strings
 	;can be searched with (bfind)
-	(memoize k (char-class-intern
-		(apply (const cat) (sort (const cmp) (apply (const cat)
-			(map (# (if (and (= (length %0) 3) (eql (second %0) "-"))
-						(map (const char) (range (code (first %0)) (inc (code (last %0)))))
+	(memoize k (char-class-intern (apply (const cat)
+		(reduce (# (if (eql (last %0) %1) %0 (push %0 %1)))
+			(sort (const cmp) (apply (const cat)
+				(map (# (if (and (= (length %0) 3) (eql (second %0) "-"))
+						(map (const char)
+							(range (code (first %0)) (inc (code (last %0)))))
 						(map (const identity) %0)))
-				(partition (unescape k) 3)))))) 7))
+					(partition (unescape k) 3)))) (list)))) 7))
 
 ;module
 (export-symbols '(char-class escape unescape))
