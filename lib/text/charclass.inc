@@ -30,8 +30,7 @@
 	string)
 
 (defun char-class-intern (s)
-	(unless (defq c (const (Fset 3)) e (. c :find s))
-		(. c :insert (setq e s))) e)
+	(. (const (Fset 5)) :intern s))
 
 (defun char-class (k)
 	; (char-class key) -> str
