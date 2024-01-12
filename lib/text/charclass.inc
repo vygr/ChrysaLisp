@@ -2,9 +2,6 @@
 ; character classes
 ;;;;;;;;;;;;;;;;;;;
 
-;module
-(env-push)
-
 (defun escape (string)
 	; (escape str) -> str
 	(when (>= (length string) 1)
@@ -42,10 +39,6 @@
 							(range (code (first %0)) (inc (code (last %0)))))
 						(map (const identity) %0)))
 					(partition (unescape k) 3)))) (list)))) 7))
-
-;module
-(export-symbols '(char-class escape unescape))
-(env-pop)
 
 ;some standard char classes
 
