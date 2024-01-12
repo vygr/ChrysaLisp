@@ -8,8 +8,6 @@ In no particular order but to just to ensure I get thoughts down. I'll keep
 adding to this as I go along. If anybody would like to try helping out, then
 just get in touch.
 
-* Recode quasi quote non recursive?
-
 * canvas to support stretched or aspect correct drawing, centered, and aligned
 flags.
 
