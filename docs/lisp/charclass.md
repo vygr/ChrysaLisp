@@ -26,7 +26,7 @@ characters and ranges have been processed.
 Some predefined character classes in `lib/text/charclass.inc`.
 
 ```file
-lib/text/charclass.inc "(defq +char" ""
+lib/text/charclass.inc "+char" ""
 ```
 
 ## Testing for membership with `bfind`
