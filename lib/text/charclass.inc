@@ -29,15 +29,12 @@
 		(setq string (apply (const cat) out)))
 	string)
 
-(defun char-class-intern (s)
-	(. (const (Fset 5)) :intern s))
-
 (defun char-class (k)
 	; (char-class key) -> str
 	;create char class
 	;these are sorted interend unescaped char strings
 	;can be searched with (bfind)
-	(memoize k (char-class-intern (apply (const cat)
+	(memoize k (. (const (Fset 5)) :intern (apply (const cat)
 		(reduce (# (if (eql (last %0) %1) %0 (push %0 %1)))
 			(sort (const cmp) (apply (const cat)
 				(map (# (if (and (= (length %0) 3) (eql (second %0) "-"))
