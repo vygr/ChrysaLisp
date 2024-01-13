@@ -1,5 +1,5 @@
 (import "lib/options/options.inc")
-(import "lib/text/diff.inc")
+(import "lib/streams/diff.inc")
 
 (defq usage `(
 (("-h" "--help")
