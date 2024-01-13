@@ -1,6 +1,6 @@
 # Lisp Classes
 
-Lisp level Classes are implanted via a macro set in the `lib/class/class.inc`
+Lisp level Classes are implamented via a macro set in the `lib/class/class.inc`
 file. This is included via `root.inc` so is available to all applications
 without need to import the library.
 
