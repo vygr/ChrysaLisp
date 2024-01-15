@@ -447,8 +447,7 @@
 				(bind '(y y1) (select-lines this))
 				(. this :set_anchor 0 y)
 				(. buffer :paste (apply (const cat) (join
-					(reduce (# (if (or (<= (length %0) 0)
-									(not (eql (last %0) %1))) (push %0 %1) %0))
+					(reduce (# (if (eql (last %0) %1) %0 (push %0 %1)))
 					(split (.-> buffer (:set_cursor 0 y1) (:cut 0 y)) (ascii-char +char_lf))
 					(list)) (list (ascii-char +char_lf)) 2)))))
 		this)
