@@ -1729,6 +1729,12 @@ patch stream a with stream b, write to stream c
 (unescape str) -> str
 ```
 
+### unique
+
+```code
+(unique seq) -> seq
+```
+
 ### unless
 
 ```code

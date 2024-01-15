@@ -447,9 +447,10 @@
 				(bind '(y y1) (select-lines this))
 				(. this :set_anchor 0 y)
 				(. buffer :paste (apply (const cat) (join
-					(reduce (# (if (eql (last %0) %1) %0 (push %0 %1)))
-					(split (.-> buffer (:set_cursor 0 y1) (:cut 0 y)) (ascii-char +char_lf))
-					(list)) (list (ascii-char +char_lf)) 2)))))
+					(unique	(split (.-> buffer
+						(:set_cursor 0 y1)
+						(:cut 0 y)) (ascii-char +char_lf)))
+					(list (ascii-char +char_lf)) 2)))))
 		this)
 
 	(defmethod :invert ()

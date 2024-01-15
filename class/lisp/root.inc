@@ -553,8 +553,18 @@
 		((> (length seq) 0)
 			(defq out (cap (length seq) (list)))
 			(each-rev (lambda (&ignore) (push out (slice _ (inc _) seq))) seq)
-			(apply cat out))
+			(apply (const cat) out))
 		((rest seq))))
+
+(defun unique (seq)
+	; (unique seq) -> seq
+	(if (= (length seq) 0) seq
+		(apply (const cat)
+			(reduce (lambda (%0 %1) (cond
+					((= (length %0) 0) (push %0 %1))
+					((eql (last (last %0)) (last %1)) %0)
+					((push %0 %1))))
+				(partition seq) (list)))))
 
 ;;;;;;
 ; Case
