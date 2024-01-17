@@ -18,6 +18,8 @@
 
 ### (length seq)
 
+### (map! start end lambda (seq ...))
+
 ### (most seq)
 
 ### (rest seq)

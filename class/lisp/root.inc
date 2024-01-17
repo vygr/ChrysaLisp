@@ -52,6 +52,7 @@
 (ffi slice "class/seq/lisp_slice" 0)
 (ffi cat "class/seq/lisp_cat" 0)
 (ffi each! "class/seq/lisp_each" 0)
+(ffi map! "class/seq/lisp_map" 0)
 (ffi some! "class/seq/lisp_some" 0)
 
 (ffi cap "class/array/lisp_cap" 0)
@@ -386,17 +387,13 @@
 	; (each-rev lambda seq ...)
 	`(each! -1 0 ,f (list ~_)))
 
-(defun map (_f &rest _)
+(defmacro map (f &rest _)
 	; (map lambda seq ...) -> list
-	(defq _l (cap (length (first _)) (list)))
-	(each! 0 -1 (lambda (&rest _p)
-		(push _l (apply _f _p))) _) _l)
+	`(map! 0 -1 ,f (list ~_)))
 
-(defun map-rev (_f &rest _)
+(defmacro map-rev (f &rest _)
 	; (map-rev lambda seq ...) -> list
-	(defq _l (cap (length (first _)) (list)))
-	(each! -1 0 (lambda (&rest _p)
-		(push _l (apply _f _p))) _) _l)
+	`(map! -1 0 ,f (list ~_)))
 
 (defun filter (_f _b)
 	; (filter lambda seq) -> list
@@ -525,23 +522,19 @@
 
 (defun zip (&rest seqs)
 	; (zip seq ...) -> seq
-	(defq out (cap (length (first seqs)) (list)))
-	(each! 0 -1 (lambda (&rest seq) (push out (apply (const cat) seq)))
-		(map (const partition) seqs))
-	(if (= (length out) 0) (slice 0 0 (first seqs)) (apply (const cat) out)))
+	(if (= (length (defq out (map! 0 -1 (const cat) (map (const partition) seqs)))) 0)
+		(slice 0 0 (first seqs)) (apply (const cat) out)))
 
 (defun reverse-list (lst)
 	; (reverse-list list) -> list
-	(defq out (cap (length lst) (list)))
-	(each-rev (lambda (el) (push out el)) lst) out)
+	(map-rev (const identity) lst))
 
 (defun reverse (seq)
 	; (reverse seq) -> seq
 	(cond
 		((> (length seq) 0)
-			(defq out (cap (length seq) (list)))
-			(each-rev (lambda (&ignore) (push out (slice _ (inc _) seq))) seq)
-			(apply (const cat) out))
+			(apply (const cat) (map-rev (lambda (&ignore)
+				(slice _ (inc _) seq)) seq)))
 		((rest seq))))
 
 (defun unique (seq)
