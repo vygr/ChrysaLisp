@@ -558,13 +558,14 @@
 
 (defun unique (seq)
 	; (unique seq) -> seq
-	(if (= (length seq) 0) (rest seq)
-		(apply (const cat)
-			(reduce (lambda (%0 %1) (cond
-					((= (length %0) 0) (push %0 %1))
-					((eql (last (last %0)) (last %1)) %0)
-					((push %0 %1))))
-				(partition seq) (list)))))
+	(cond
+		((> (length seq) 0)
+			(defq out (cap (length seq) (list (slice 0 1 seq))))
+			(each! 1 -1 (lambda (el)
+				(unless (eql el (last (last out)))
+					(push out (slice _ (inc _) seq)))) (list seq))
+			(apply (const cat) out))
+		((rest seq))))
 
 ;;;;;;
 ; Case
