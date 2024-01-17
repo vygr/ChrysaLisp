@@ -251,12 +251,6 @@ can be searched with (bfind)
 cached circle generation, quantised to 1/4 pixel
 ```
 
-### compose
-
-```code
-(compose lambda lambda) -> lambda
-```
-
 ### const
 
 ```code
@@ -273,12 +267,6 @@ cached circle generation, quantised to 1/4 pixel
 
 ```code
 (cpu) -> sym
-```
-
-### curry
-
-```code
-(curry lambda sym ...) -> lambda
 ```
 
 ### debug-brk
@@ -1153,12 +1141,6 @@ run pipe farm and collect output
 
 ```code
 (range start end [step]) -> list
-```
-
-### rcurry
-
-```code
-(rcurry lambda sym ...) -> lambda
 ```
 
 ### read-data
