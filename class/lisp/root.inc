@@ -523,12 +523,12 @@
 		(reduce (lambda (ls e) (push (elem-get (% _ cnt) ls) e) ls)
 			(partition seq) (lists cnt))))
 
-(defun zip (&rest _)
+(defun zip (&rest seqs)
 	; (zip seq ...) -> seq
-	(defq out (cap (length (first _)) (list)))
-	(each! 0 -1 (lambda (&rest _) (push out (apply (const cat) _)))
-		(map (lambda (_) (partition _)) _))
-	(if (= (length out) 0) (slice 0 0 (first _)) (apply (const cat) out)))
+	(defq out (cap (length (first seqs)) (list)))
+	(each! 0 -1 (lambda (&rest seq) (push out (apply (const cat) seq)))
+		(map (const partition) seqs))
+	(if (= (length out) 0) (slice 0 0 (first seqs)) (apply (const cat) out)))
 
 (defun reverse-list (lst)
 	; (reverse-list list) -> list
