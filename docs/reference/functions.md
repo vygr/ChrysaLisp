@@ -350,12 +350,6 @@ should provide the concreate handler
 (each-mergeable lambda seq) -> seq
 ```
 
-### each-mergeable-rev
-
-```code
-(each-mergeable-rev lambda seq) -> seq
-```
-
 ### each-rev
 
 ```code

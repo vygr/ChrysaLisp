@@ -375,10 +375,6 @@
 	(while (< (setq _ (inc _)) (length _l))
 		(_f (elem-get _ _l))) _l)
 
-(defun each-mergeable-rev (_f _l)
-	; (each-mergeable-rev lambda seq) -> seq
-	(each! -1 0 _f (list _l)) _l)
-
 (defmacro each (f &rest _)
 	; (each lambda seq ...)
 	`(each! 0 -1 ,f (list ~_)))
