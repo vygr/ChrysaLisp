@@ -558,7 +558,7 @@
 
 (defun unique (seq)
 	; (unique seq) -> seq
-	(if (= (length seq) 0) seq
+	(if (= (length seq) 0) (rest seq)
 		(apply (const cat)
 			(reduce (lambda (%0 %1) (cond
 					((= (length %0) 0) (push %0 %1))
