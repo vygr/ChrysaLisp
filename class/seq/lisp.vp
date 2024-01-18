@@ -122,7 +122,7 @@
 	;trashes
 	;:r1-:r14
 
-	(def-struct local 0
+	(def-vars
 		(ptr this args value func params)
 		(int dir start end))
 
@@ -130,11 +130,11 @@
 
 	(errorif-lisp-args-sig :r1 4 'error1)
 
-	(vp-alloc local_size)
-	(assign '(:r0 :r1) '((:rsp local_this) (:rsp local_args)))
+	(push-scope)
+	(assign '(:r0 :r1) {this, args})
 	(call 'lisp :env_push '(:r0))
 
-	(assign '((:rsp local_args)) '(:r0))
+	(assign {args} '(:r0))
 	(list-bind-args :r0 '(:r9 :r10 :r11 :r12) '(:num :num :obj :list))
 	(vp-cpy-cr +max_int :r8)
 	(class/array/get_both :r12 :r6 :r7)
@@ -150,8 +150,7 @@
 		(vp-add-cr +ptr_size :r6)
 	(loop-end)
 
-	(assign '((:rsp local_this)) '(:r0))
-	(call 'obj :ref '((:r0 lisp_sym_nil)) '((:rsp local_value)))
+	(call 'obj :ref {this->lisp_sym_nil} {value})
 
 	(vpif '(:r8 /= +max_int))
 		(lisp-elem-index :r9 :r8)
@@ -168,56 +167,60 @@
 			(vp-sub-cr 1 :r10)
 		(endif)
 
-		(assign '(:r8 :r9 :r10 :r11 :r12)
-			'((:rsp local_dir) (:rsp local_start) (:rsp local_end) (:rsp local_func) (:rsp local_args)))
+		(assign '(:r8 :r9 :r10 :r11 :r12) {dir, start, end, func, args})
 
 		(loop-while '(:r9 /= :r10) 'done)
-			(call 'obj :deref '((:rsp local_value)))
+			(call 'obj :deref {value})
 
-			(call 'list :create :nil '((:rsp local_params)))
-			(assign '((:rsp local_args) (:rsp local_start)) '(:r0 :r9))
+			(call 'list :create :nil {params})
+			(assign {args, start} '(:r0 :r9))
 			(class/array/get_both :r0 :r10 :r11)
 			(loop-start)
 				(call 'seq :ref_element '((:r10 0) :r9) '(_ :r1))
-				(call 'list :push_back '((:rsp local_params) :r1))
+				(assign {params} '(:r0))
+				(call 'list :push_back '(:r0 :r1))
 				(vp-add-cr +ptr_size :r10)
 			(loop-until '(:r10 = :r11))
 
 			(call 'num :create '(:r9) '(:r2))
-			(assign '((:rsp local_this) :r2) '(:r1 (:rsp local_value)))
+			(assign {this} '(:r1))
+			(assign '(:r2) {value})
 			(call 'hmap :insert '((:r1 lisp_environment) (:r1 lisp_sym_underscore) :r2))
-			(call 'obj :deref '((:rsp local_value)))
+			(call 'obj :deref {value})
 
-			(call 'lisp :repl_apply '((:rsp local_this) (:rsp local_params) (:rsp local_func)) '(_ (:rsp local_value)))
-			(call 'list :deref '((:rsp local_params)))
+			(call 'lisp :repl_apply {this, params, func} {_, value})
+			(call 'list :deref {params})
+
 		(errorcase
-			(assign '((:rsp local_value)) '(:r1))
+			(assign {value} '(:r1))
 			(f-bind 'error :vtable :r4)
 			(assign '((:r1 obj_vtable)) '(:r3))
 			(breakif '(:r3 = :r4) 'done))
 
-			(assign '((:rsp local_dir) (:rsp local_start) (:rsp local_end)) '(:r8 :r9 :r10))
+			(assign {dir, start, end} '(:r8 :r9 :r10))
 			(vp-add-rr :r8 :r9)
-			(assign '(:r9) '((:rsp local_start)))
+			(assign '(:r9) {start})
 		(loop-end)
 	(endif)
 
 (vp-label 'funcexit)
-	(call 'lisp :env_pop '((:rsp local_this)) '(:r0 _))
-	(exit 'seq :lisp_each '(:r0 (:rsp local_value)))
-	(vp-free local_size)
-	(vp-ret)
+	(call 'lisp :env_pop {this} '(:r0 _))
+	(assign {value} '(:r1))
+	(exit 'seq :lisp_each '(:r0 :r1))
+	(return)
 
 (errorcase
 (vp-label 'error1)
 	(jump 'lisp :repl_error '(:r0 "(each! start end lambda (seq ...))" +error_msg_wrong_num_of_args :r1))
 (vp-label 'error3)
-	(call 'lisp :repl_error '((:rsp local_this) "(each! start end lambda (seq ...))" +error_msg_not_a_sequence (:rsp local_args)) '(_ (:rsp local_value)))
+	(call 'lisp :repl_error {this, "(each! start end lambda (seq ...))", +error_msg_not_a_sequence, args} {_, value})
 	(goto 'funcexit)
 (vp-label 'error4)
-	(call 'lisp :repl_error '((:rsp local_this) "(each! start end lambda (seq ...))" +error_msg_not_valid_index (:rsp local_args)) '(_ (:rsp local_value)))
+	(call 'lisp :repl_error {this, "(each! start end lambda (seq ...))", +error_msg_not_valid_index, args} {_, value})
 	(goto 'funcexit)
 	(signature '(num num obj list)))
+
+	(pop-scope-syms)
 
 (def-func-end)
 
@@ -737,7 +740,7 @@
 	;trashes
 	;:r1-:r14
 
-	(def-struct local 0
+	(def-vars
 		(ptr this args value out func params)
 		(int dir start end))
 
@@ -745,11 +748,11 @@
 
 	(errorif-lisp-args-sig :r1 4 'error1)
 
-	(vp-alloc local_size)
-	(assign '(:r0 :r1) '((:rsp local_this) (:rsp local_args)))
+	(push-scope)
+	(assign '(:r0 :r1) {this, args})
 	(call 'lisp :env_push '(:r0))
 
-	(assign '((:rsp local_args)) '(:r0))
+	(assign {args} '(:r0))
 	(list-bind-args :r0 '(:r9 :r10 :r11 :r12) '(:num :num :obj :list))
 	(vp-cpy-cr +max_int :r8)
 	(class/array/get_both :r12 :r6 :r7)
@@ -765,9 +768,10 @@
 		(vp-add-cr +ptr_size :r6)
 	(loop-end)
 
-	(call 'list :create :nil '((:rsp local_out)))
+	(call 'list :create :nil {out})
 	(vpif '(:r8 /= +max_int))
-		(call 'list :set_capacity '((:rsp local_out) :r8))
+		(assign {out} '(:r0))
+		(call 'list :set_capacity '(:r0 :r8))
 
 		(lisp-elem-index :r9 :r8)
 		(lisp-elem-index :r10 :r8)
@@ -783,55 +787,58 @@
 			(vp-sub-cr 1 :r10)
 		(endif)
 
-		(assign '(:r8 :r9 :r10 :r11 :r12)
-			'((:rsp local_dir) (:rsp local_start) (:rsp local_end) (:rsp local_func) (:rsp local_args)))
+		(assign '(:r8 :r9 :r10 :r11 :r12) {dir, start, end, func, args})
 
 		(loop-while '(:r9 /= :r10) 'done)
-			(call 'list :create :nil '((:rsp local_params)))
-			(assign '((:rsp local_args) (:rsp local_start)) '(:r0 :r9))
+			(call 'list :create :nil {params})
+			(assign {args, start} '(:r0 :r9))
 			(class/array/get_both :r0 :r10 :r11)
 			(loop-start)
 				(call 'seq :ref_element '((:r10 0) :r9) '(_ :r1))
-				(call 'list :push_back '((:rsp local_params) :r1))
+				(assign {params} '(:r0))
+				(call 'list :push_back '(:r0 :r1))
 				(vp-add-cr +ptr_size :r10)
 			(loop-until '(:r10 = :r11))
 
 			(call 'num :create '(:r9) '(:r2))
-			(assign '((:rsp local_this) :r2) '(:r1 (:rsp local_value)))
+			(assign {this} '(:r1))
+			(assign '(:r2) {value})
 			(call 'hmap :insert '((:r1 lisp_environment) (:r1 lisp_sym_underscore) :r2))
-			(call 'obj :deref '((:rsp local_value)))
+			(call 'obj :deref {value})
 
-			(call 'lisp :repl_apply '((:rsp local_this) (:rsp local_params) (:rsp local_func)) '(_ (:rsp local_value)))
-			(call 'list :deref '((:rsp local_params)))
+			(call 'lisp :repl_apply {this, params, func} {_, value})
+			(call 'list :deref {params})
 
 		(errorcase
-			(assign '((:rsp local_value)) '(:r1))
+			(assign {value} '(:r1))
 			(f-bind 'error :vtable :r4)
 			(assign '((:r1 obj_vtable)) '(:r3))
 			(breakif '(:r3 = :r4) 'done))
 
-			(call 'list :push_back '((:rsp local_out) (:rsp local_value)))
-			(assign '((:rsp local_dir) (:rsp local_start) (:rsp local_end)) '(:r8 :r9 :r10))
+			(call 'list :push_back {out, value})
+			(assign {dir, start, end} '(:r8 :r9 :r10))
 			(vp-add-rr :r8 :r9)
-			(assign '(:r9) '((:rsp local_start)))
+			(assign '(:r9) {start})
 		(loop-end)
 	(endif)
 
 (vp-label 'funcexit)
-	(call 'lisp :env_pop '((:rsp local_this)) '(:r0 _))
-	(exit 'seq :lisp_map '(:r0 (:rsp local_out)))
-	(vp-free local_size)
-	(vp-ret)
+	(call 'lisp :env_pop {this} '(:r0 _))
+	(assign {out} '(:r1))
+	(exit 'seq :lisp_map '(:r0 :r1))
+	(return)
 
 (errorcase
 (vp-label 'error1)
 	(jump 'lisp :repl_error '(:r0 "(map! start end lambda (seq ...))" +error_msg_wrong_num_of_args :r1))
 (vp-label 'error3)
-	(call 'lisp :repl_error '((:rsp local_this) "(map! start end lambda (seq ...))" +error_msg_not_a_sequence (:rsp local_args)) '(_ (:rsp local_out)))
+	(call 'lisp :repl_error {this, "(map! start end lambda (seq ...))", +error_msg_not_a_sequence, args} {_, out})
 	(goto 'funcexit)
 (vp-label 'error4)
-	(call 'lisp :repl_error '((:rsp local_this) "(map! start end lambda (seq ...))" +error_msg_not_valid_index (:rsp local_args)) '(_ (:rsp local_out)))
+	(call 'lisp :repl_error {this, "(map! start end lambda (seq ...))", +error_msg_not_valid_index, args} {_, out})
 	(goto 'funcexit)
 	(signature '(num num obj list)))
+
+	(pop-scope-syms)
 
 (def-func-end)
