@@ -126,11 +126,11 @@
 		(ptr this args value func params)
 		(int dir start end))
 
+	(push-scope)
 	(entry 'seq :lisp_each '(:r0 :r1))
 
 	(errorif-lisp-args-sig :r1 4 'error1)
 
-	(push-scope)
 	(assign '(:r0 :r1) {this, args})
 	(call 'lisp :env_push '(:r0))
 
@@ -744,11 +744,11 @@
 		(ptr this args value out func params)
 		(int dir start end))
 
+	(push-scope)
 	(entry 'seq :lisp_map '(:r0 :r1))
 
 	(errorif-lisp-args-sig :r1 4 'error1)
 
-	(push-scope)
 	(assign '(:r0 :r1) {this, args})
 	(call 'lisp :env_push '(:r0))
 
