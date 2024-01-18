@@ -845,3 +845,59 @@
 	(pop-scope-syms)
 
 (def-func-end)
+
+(def-method 'seq :lisp_partition)
+	;inputs
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
+	;outputs
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
+	;trashes
+	;:r1-:r14
+
+	(vp-def (seq cnt idx len lst this args slc idx1)
+		'(:r13 :r12 :r11 :r10 :r9 :r0 :r1 :r1 :r2))
+
+	(entry 'seq :lisp_partition `(,this ,args))
+
+	(errorif-lisp-args-sig-range :r1 1 2 'error)
+
+	(assign `((,args array_length)) `(,len))
+	(vpif `(,len = 1))
+		(list-bind-args args `(,seq) '(:seq))
+		(vp-cpy-cr 1 cnt)
+	(else)
+		(list-bind-args args `(,seq ,cnt) '(:seq :num))
+		(errorif `(,cnt <= 0) 'error)
+	(endif)
+
+	(vp-push this)
+	(call 'list :create :nil `(,lst))
+	(call 'seq :get_length `(,seq) `(_ ,len))
+
+	(vp-lea-d cnt len :r0)
+	(vp-sub-cr 1 :r0)
+	(vp-ext-rr :r0 :r2)
+	(vp-div-rrr-u cnt :r2 :r0)
+	(call 'list :set_capacity `(,lst :r0))
+
+	(vp-cpy-cr 0 idx)
+	(loop-while `(,idx < ,len))
+		(vp-lea-d idx cnt idx1)
+		(vp-min-rr len idx1)
+		(call 'seq :slice `(,seq ,idx ,idx1) `(_ ,slc))
+		(call 'list :push_back `(,lst ,slc))
+		(vp-add-rr cnt idx)
+	(loop-end)
+	(vp-pop this)
+
+	(exit 'seq :lisp_partition `(,this ,lst))
+	(vp-ret)
+
+(errorcase
+(vp-label 'error)
+	(jump 'lisp :repl_error `(,this "(partition seq [cnt])" +error_msg_not_valid_index ,args))
+	(signature '(seq num)))
+
+(def-func-end)

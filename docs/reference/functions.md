@@ -995,12 +995,6 @@ scan the stdio args and process acording to the optlist
 (pad form width [str]) -> str
 ```
 
-### partition
-
-```code
-(partition seq [cnt]) -> seqs
-```
-
 ### path-gen-ellipse
 
 ```code

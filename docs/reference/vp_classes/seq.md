@@ -22,6 +22,8 @@
 
 ### (most seq)
 
+### (partition seq [cnt])
+
 ### (rest seq)
 
 ### (find-rev elem seq [idx])

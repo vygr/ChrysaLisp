@@ -50,6 +50,7 @@
 (ffi find "class/seq/lisp_find" 0)
 (ffi find-rev "class/seq/lisp_rfind" 0)
 (ffi slice "class/seq/lisp_slice" 0)
+(ffi partition "class/seq/lisp_partition" 0)
 (ffi cat "class/seq/lisp_cat" 0)
 (ffi each! "class/seq/lisp_each" 0)
 (ffi map! "class/seq/lisp_map" 0)
@@ -484,13 +485,6 @@
 (defun rotate (s i j k)
 	; (rotate seq start mid end) -> seq
 	(cat (slice 0 i s) (slice j k s) (slice i j s) (slice k -1 s)))
-
-(defun partition (seq &optional cnt)
-	; (partition seq [cnt]) -> seqs
-	(setd cnt 1)
-	(defq i 0 l (length seq) out (cap (/ (+ l cnt -1) cnt) (list)))
-	(while (<= (defq j (+ i cnt)) l) (push out (slice i (setq i j) seq)))
-	(if (< i l) (push out (slice i -1 seq)) out))
 
 (defun join (seqs seq &optional mode)
 	; (join seqs seq [mode]) -> seq
