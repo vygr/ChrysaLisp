@@ -6,7 +6,7 @@
 (import "sys/lisp.inc" _)
 (import "class/lisp.inc" _)
 (import "gui/lisp.inc" _)
-(setq _ :nil)
+(undef (env) '_)
 (task-slice)
 
 (import "sys/pii/lisp.inc")

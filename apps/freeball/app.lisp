@@ -2,8 +2,8 @@
 (import "gui/lisp.inc")
 
 (defq id :t index 0 xv 4 yv 0 i 512
-	+frames `'(~(map (lambda (_) (canvas-load (cat "apps/freeball/data/staoball_" (str _) ".cpm") +load_flag_shared)) (range 1 13)))
-	+sframes `'(~(map (lambda (_) (canvas-load (cat "apps/freeball/data/staoball_s_" (str _) ".cpm") +load_flag_shared)) (range 1 13))))
+	+frames `'(~(map! 0 -1 (lambda (_) (canvas-load (cat "apps/freeball/data/staoball_" (str _) ".cpm") +load_flag_shared)) (list (range 1 13))))
+	+sframes `'(~(map! 0 -1 (lambda (_) (canvas-load (cat "apps/freeball/data/staoball_s_" (str _) ".cpm") +load_flag_shared)) (list (range 1 13)))))
 
 (ui-root view (View) (:color 0)
 	(ui-element frame (first +frames))

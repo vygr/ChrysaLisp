@@ -421,11 +421,11 @@
 
 (defmacro let (l &rest _)
 	; (let ([(sym val) ...]) body)
-	`((lambda ,(map (lambda (_) (first _)) l) ~_) ~(map (lambda (_) (second _)) l)))
+	(static-qq ((lambda ,(map (const first) l) ~_) ~(map (const second) l))))
 
 (defmacro let* (l &rest _)
 	; (let* ([(sym val) ...]) body)
-	`((lambda () ,(reduce (lambda (l (var val)) (push l var val)) l (list defq)) ~_)))
+	(static-qq ((lambda () ,(reduce (lambda (l (var val)) (push l var val)) l (list defq)) ~_))))
 
 ;;;;;;;;;;;;;;;;;;;;;
 ; Sequence predicates

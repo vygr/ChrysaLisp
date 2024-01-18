@@ -19,13 +19,13 @@
 		(defmacro f2n (_) _)))
 
 (defmacro vec-n2f (&rest _)
-	`(fixeds ~(map (lambda (_) (list 'n2f _)) _)))
+	(static-qq (fixeds ~(map (lambda (_) (list 'n2f _)) _))))
 
 (defmacro vec-i2n (&rest _)
-	`(vec ~(map (lambda (_) (list 'i2n _)) _)))
+	(static-qq (vec ~(map (lambda (_) (list 'i2n _)) _))))
 
 (defmacro vec-f2n (&rest _)
-	`(vec ~(map (lambda (_) (list 'f2n _)) _)))
+	(static-qq (vec ~(map (lambda (_) (list 'f2n _)) _))))
 
 (enums +dlist 0
 	(enum mask light_pos layer1_canvas layer1_verts))
