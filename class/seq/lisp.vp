@@ -773,9 +773,6 @@
 
 	(call 'list :create :nil {out})
 	(vpif '(:r8 /= +max_int))
-		(assign {out} '(:r0))
-		(call 'list :set_capacity '(:r0 :r8))
-
 		(lisp-elem-index :r9 :r8)
 		(lisp-elem-index :r10 :r8)
 	(errorcase
@@ -783,14 +780,18 @@
 		(gotoif '(:r10 < 0) 'error4)
 		(gotoif '(:r9 > :r8) 'error4)
 		(gotoif '(:r10 > :r8) 'error4))
+
 		(vp-cpy-cr 1 :r8)
 		(vpif '(:r9 > :r10))
 			(vp-cpy-cr -1 :r8)
 			(vp-sub-cr 1 :r9)
 			(vp-sub-cr 1 :r10)
 		(endif)
-
 		(assign '(:r8 :r9 :r10 :r11 :r12) {dir, start, end, func, args})
+		(assign {out} '(:r0))
+		(vp-cpy-rr :r10 :r1)
+		(vp-sub-rr :r9 :r1)
+		(call 'list :set_capacity '(:r0 :r1))
 
 		(loop-while '(:r9 /= :r10) 'done)
 			(call 'list :create :nil {params})
@@ -897,7 +898,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump 'lisp :repl_error `(,this "(partition seq [cnt])" +error_msg_not_valid_index ,args))
+	(jump 'lisp :repl_error `(,this "(partition seq [cnt])" +error_msg_wrong_types ,args))
 	(signature '(seq num)))
 
 (def-func-end)
