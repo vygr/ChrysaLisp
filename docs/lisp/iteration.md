@@ -126,9 +126,9 @@ return `:nil` if the element or slice range is unavailable.
 
 ## Iteration
 
-You can iterate over a sequence or slice of a sequence, forwards or backwards
-by use of the `(each! start end lambda (list seq ...))` function. You provide
-the function that will be called for the group of elements from each index
+You can iterate over sequences or slices of sequences, forwards or backwards by
+use of the `(each! start end lambda (list seq ...))` function. You provide a
+function that will be called for the group of elements from each index
 position. `(each)` and `(each-rev)` are macros that assume the index values
 cover the full extent of the sequence and take the sequence list as arguments
 rather than an explicit list.
@@ -163,9 +163,9 @@ B2
 
 ## Predication
 
-You can predicate over a sequence or slice of a sequence, forwards or backwards
+You can predicate over sequences or slices of sequences, forwards or backwards
 by use of the `(some! start end mode lambda (list seq ...))` function. You
-provide the function that will be called for the group of elements from each
+provide a function that will be called for the group of elements from each
 index position, you can decide if it'll exit if that function returns a `:nil`
 or not. `(some)` `(every)` `(notany)` and `(notevery)` are macros that assume
 the index values cover the full extent of the sequence and set the break out
@@ -192,13 +192,12 @@ bound to the '_' symbol ! Very useful !
 
 ## Map, Reduce and Filter
 
-You can iterate over a sequence or slice of a sequence, forwards or backwards
-by use of the `(map! start end lambda (list seq ...) [list])` function. You
-provide the function that will be called for the group of elements from each
-index position, the results of which are collected into the result list.
-`(map)` and `(map-rev)` are macros that assume the index values cover the full
-extent of the sequence and take the sequence list as arguments rather than an
-explicit list.
+You can iterate over sequences or slices of sequences, forwards or backwards,
+while collecting the results of calling a function that will be called for the
+group of elements from each index position by use of the `(map! start end
+lambda (list seq ...) [list])` function. `(map)` and `(map-rev)` are macros
+that assume the index values cover the full extent of the sequence and take the
+sequence list as arguments rather than an explicit list.
 
 Reduction, with `(reduce lambda seq [init])`, transforms a sequence by
 combining each element to produce a single result. Reduction can take an
