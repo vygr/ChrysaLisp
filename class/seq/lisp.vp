@@ -857,8 +857,8 @@
 	;trashes
 	;:r1-:r14
 
-	(vp-def (seq cnt idx len lst this args slc idx1)
-		'(:r13 :r12 :r11 :r10 :r9 :r0 :r1 :r1 :r2))
+	(vp-def (seq cnt idx len lst this args idx1)
+		'(:r13 :r12 :r11 :r10 :r9 :r0 :r1 :r2))
 
 	(entry 'seq :lisp_partition `(,this ,args))
 
@@ -887,7 +887,7 @@
 	(loop-while `(,idx < ,len))
 		(vp-lea-d idx cnt idx1)
 		(vp-min-rr len idx1)
-		(call 'seq :slice `(,seq ,idx ,idx1) `(_ ,slc))
+		(call 'seq :slice `(,seq ,idx ,idx1) '(_ slc))
 		(call 'list :push_back `(,lst ,slc))
 		(vp-add-rr cnt idx)
 	(loop-end)
