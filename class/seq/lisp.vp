@@ -800,6 +800,7 @@
 		(assign '((:r0 array_length)) '(:r1))
 		(vp-cpy-rr :r10 :r2)
 		(vp-sub-rr :r9 :r2)
+		(vp-mul-rr :r8 :r2)
 		(vp-add-rr :r2 :r1)
 		(call 'list :set_capacity '(:r0 :r1))
 
