@@ -18,7 +18,7 @@
 
 ### (length seq)
 
-### (map! start end lambda (seq ...))
+### (map! start end lambda (seq ...) [out])
 
 ### (most seq)
 

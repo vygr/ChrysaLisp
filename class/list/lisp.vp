@@ -62,7 +62,7 @@
 
 (def-func-end)
 
-(def-method 'list :lisp_part)
+(def-method 'list :lisp_pivot)
 	;inputs
 	;:r0 = lisp object (ptr)
 	;:r1 = args list object (ptr)
@@ -88,7 +88,7 @@
 		(int length)))
 
 	(push-scope)
-	(entry 'list :lisp_part {this, args})
+	(entry 'list :lisp_pivot {this, args})
 
 	(errorif-lisp-args-sig :r1 4 'error1)
 
@@ -110,7 +110,7 @@
 	(call 'list :deref {params})
 	(call 'sys_task :sleep '(0))
 
-	(exit 'list :lisp_part {this, value})
+	(exit 'list :lisp_pivot {this, value})
 	(return)
 
 (errorcase

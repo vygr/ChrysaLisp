@@ -750,13 +750,22 @@
 	(push-scope)
 	(entry 'seq :lisp_map '(:r0 :r1))
 
-	(errorif-lisp-args-sig :r1 4 'error1)
+	(errorif-lisp-args-sig-range :r1 4 5 'error1)
 
 	(assign '(:r0 :r1) {this, args})
 	(call 'lisp :env_push '(:r0))
 
 	(assign {args} '(:r0))
-	(list-bind-args :r0 '(:r9 :r10 :r11 :r12) '(:num :num :obj :list))
+	(assign '((:r0 array_length)) '(:r2))
+	(vpif '(:r2 = 4))
+		(list-bind-args :r0 '(:r9 :r10 :r11 :r12) '(:num :num :obj :list))
+		(call 'list :create :nil '(:r0))
+	(else)
+		(list-bind-args :r0 '(:r9 :r10 :r11 :r12 :r0) '(:num :num :obj :list :list))
+		(class/obj/ref :r0 :r1)
+	(endif)
+	(assign '(:r0) {out})
+
 	(vp-cpy-cr +max_int :r8)
 	(class/array/get_both :r12 :r6 :r7)
 	(loop-while '(:r6 /= :r7))
@@ -771,7 +780,6 @@
 		(vp-add-cr +ptr_size :r6)
 	(loop-end)
 
-	(call 'list :create :nil {out})
 	(vpif '(:r8 /= +max_int))
 		(lisp-elem-index :r9 :r8)
 		(lisp-elem-index :r10 :r8)
@@ -789,8 +797,10 @@
 		(endif)
 		(assign '(:r8 :r9 :r10 :r11 :r12) {dir, start, end, func, args})
 		(assign {out} '(:r0))
-		(vp-cpy-rr :r10 :r1)
-		(vp-sub-rr :r9 :r1)
+		(assign '((:r0 array_length)) '(:r1))
+		(vp-cpy-rr :r10 :r2)
+		(vp-sub-rr :r9 :r2)
+		(vp-add-rr :r2 :r1)
 		(call 'list :set_capacity '(:r0 :r1))
 
 		(loop-while '(:r9 /= :r10) 'done)
@@ -834,14 +844,14 @@
 
 (errorcase
 (vp-label 'error1)
-	(jump 'lisp :repl_error '(:r0 "(map! start end lambda (seq ...))" +error_msg_wrong_num_of_args :r1))
+	(jump 'lisp :repl_error '(:r0 "(map! start end lambda (seq ...) [out])" +error_msg_wrong_types :r1))
 (vp-label 'error3)
-	(call 'lisp :repl_error {this, "(map! start end lambda (seq ...))", +error_msg_not_a_sequence, args} {_, out})
+	(call 'lisp :repl_error {this, "(map! start end lambda (seq ...) [out])", +error_msg_not_a_sequence, args} {_, out})
 	(goto 'funcexit)
 (vp-label 'error4)
-	(call 'lisp :repl_error {this, "(map! start end lambda (seq ...))", +error_msg_not_valid_index, args} {_, out})
+	(call 'lisp :repl_error {this, "(map! start end lambda (seq ...) [out])", +error_msg_not_valid_index, args} {_, out})
 	(goto 'funcexit)
-	(signature '(num num obj list)))
+	(signature '(num num obj list list)))
 
 	(pop-scope-syms)
 

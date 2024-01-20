@@ -6,9 +6,8 @@
 (env-push)
 
 (defun url-list (url)
-	(defq out (list))
-	(each! 0 -1 (lambda (f m) (push out (cat f (if (eql m "4") "/" " "))))
-		(unzip (split (pii-dirlist url) ",") 2)) out)
+	(map! 0 -1 (lambda (f m) (cat f (if (eql m "4") "/" " ")))
+		(unzip (split (pii-dirlist url) ",") 2) (list)))
 
 (defun url-split (url ctx)
 	(if (defq i (find-rev "/" url))

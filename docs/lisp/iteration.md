@@ -193,12 +193,12 @@ bound to the '_' symbol ! Very useful !
 ## Map, Reduce and Filter
 
 You can iterate over a sequence or slice of a sequence, forwards or backwards
-by use of the `(map! start end lambda (list seq ...))` function. You provide
-the function that will be called for the group of elements from each index
-position, the results of which are collected into the result list. `(map)` and
-`(map-rev)` are macros that assume the index values cover the full extent of
-the sequence and take the sequence list as arguments rather than an explicit
-list.
+by use of the `(map! start end lambda (list seq ...) [list])` function. You
+provide the function that will be called for the group of elements from each
+index position, the results of which are collected into the result list.
+`(map)` and `(map-rev)` are macros that assume the index values cover the full
+extent of the sequence and take the sequence list as arguments rather than an
+explicit list.
 
 Reduction, with `(reduce lambda seq [init])`, transforms a sequence by
 combining each element to produce a single result. Reduction can take an

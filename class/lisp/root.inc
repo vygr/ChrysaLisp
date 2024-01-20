@@ -63,7 +63,7 @@
 (ffi elem-set "class/array/lisp_elemset" 0)
 
 (ffi merge-obj "class/list/lisp_merge" 0)
-(ffi pivot "class/list/lisp_part" 0)
+(ffi pivot "class/list/lisp_pivot" 0)
 (ffi lmatch? "class/list/lisp_match" 0)
 (ffi copy "class/list/lisp_copy" 0)
 
@@ -339,9 +339,7 @@
 
 (defmacro or (&rest _)
 	; (or [tst] ...) -> :nil | tst
-	(defq out (list cond))
-	(each! 0 -1 (lambda (&rest c) (push out c)) (list _))
-	out)
+	(map! 0 -1 (const list) (list _) (list cond)))
 
 (defmacro and (&rest _)
 	; (and [tst] ...) -> :t | :nil | tst
