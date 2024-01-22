@@ -313,6 +313,15 @@ Usage: tee [options] [path] ...
 
 	Read from stdin, write to stdout and all given paths.
 ```
+## test
+```code
+Usage: test [options]
+
+	options:
+		-h --help: this help info.
+	
+	Simple timing test framework.
+```
 ## time
 ```code
 Usage: time [options]
