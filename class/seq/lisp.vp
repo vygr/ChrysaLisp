@@ -617,12 +617,11 @@
 			(call 'obj :deref {value})
 
 			(call 'list :create :nil {params})
-			(assign {args, start} '(:r0 :r9))
+			(assign {params, args, start} '(:r12 :r0 :r9))
 			(class/array/get_both :r0 :r10 :r11)
 			(loop-start)
 				(call 'seq :ref_element '((:r10 0) :r9) '(_ :r1))
-				(assign {params} '(:r0))
-				(call 'list :push_back '(:r0 :r1))
+				(call 'list :push_back '(:r12 :r1))
 				(vp-add-cr +ptr_size :r10)
 			(loop-until '(:r10 = :r11))
 
@@ -728,12 +727,11 @@
 			(call 'obj :deref {value})
 
 			(call 'list :create :nil {params})
-			(assign {args, start} '(:r0 :r9))
+			(assign {params, args, start} '(:r12 :r0 :r9))
 			(class/array/get_both :r0 :r10 :r11)
 			(loop-start)
 				(call 'seq :ref_element '((:r10 0) :r9) '(_ :r1))
-				(assign {params} '(:r0))
-				(call 'list :push_back '(:r0 :r1))
+				(call 'list :push_back '(:r12 :r1))
 				(vp-add-cr +ptr_size :r10)
 			(loop-until '(:r10 = :r11))
 
@@ -859,12 +857,11 @@
 
 		(loop-while '(:r9 /= :r10))
 			(call 'list :create :nil {params})
-			(assign {args, start} '(:r0 :r9))
+			(assign {params, args, start} '(:r12 :r0 :r9))
 			(class/array/get_both :r0 :r10 :r11)
 			(loop-start)
 				(call 'seq :ref_element '((:r10 0) :r9) '(_ :r1))
-				(assign {params} '(:r0))
-				(call 'list :push_back '(:r0 :r1))
+				(call 'list :push_back '(:r12 :r1))
 				(vp-add-cr +ptr_size :r10)
 			(loop-until '(:r10 = :r11))
 
@@ -977,13 +974,12 @@
 
 		(loop-while '(:r9 /= :r10))
 			(call 'list :create :nil {params})
-			(call 'list :push_back {params, value})
+			(call 'list :push_back {params, value} '(:r12 _ _ _))
 			(assign {args, start} '(:r0 :r9))
 			(class/array/get_both :r0 :r10 :r11)
 			(loop-start)
 				(call 'seq :ref_element '((:r10 0) :r9) '(_ :r1))
-				(assign {params} '(:r0))
-				(call 'list :push_back '(:r0 :r1))
+				(call 'list :push_back '(:r12 :r1))
 				(vp-add-cr +ptr_size :r10)
 			(loop-until '(:r10 = :r11))
 
