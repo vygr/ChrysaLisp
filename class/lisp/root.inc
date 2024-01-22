@@ -340,7 +340,7 @@
 
 (defmacro or (&rest _)
 	; (or [tst] ...) -> :nil | tst
-	(map! 0 -1 (const list) (list _) (list cond)))
+	(map! 0 -1 (const list) (list _) (list (const cond))))
 
 (defmacro and (&rest _)
 	; (and [tst] ...) -> :t | :nil | tst
