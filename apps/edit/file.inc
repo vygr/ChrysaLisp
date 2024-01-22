@@ -94,7 +94,7 @@
 (defun action-load-all ()
 	(when (selection?)
 		(bind '(y y1) (select-lines))
-		(open-files (filter (# (/= (age %0) 0))
+		(open-files (filter-array (# (/= (age %0) 0))
 			(unique (sort (const cmp)
 				(split (.-> (. *edit* :get_buffer)
 					(:set_cursor 0 y1)

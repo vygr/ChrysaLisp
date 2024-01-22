@@ -428,10 +428,10 @@ should provide the concreate handler
 (export-symbols symbols)
 ```
 
-### filter
+### filter-array
 
 ```code
-(filter lambda seq) -> list
+(filter-array lambda array) -> array
 ```
 
 ### fixed?

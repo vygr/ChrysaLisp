@@ -101,7 +101,7 @@
 
 (defun all-vp-files ()
 	;filter to only the .vp files, strip off the leading "./"
-	(filter (# (not (starts-with "apps/" %0))) (all-files "." '(".vp") 2)))
+	(filter-array (# (not (starts-with "apps/" %0))) (all-files "." '(".vp") 2)))
 
 (defun all-class-files ()
 	;filter to only the class.inc files, strip off the leading "./"
@@ -150,9 +150,9 @@
 				(make-merge files d)
 				(def info (sym %0) (list d (map func-obj-path p)))) files)))
 		;filter to only the .vp files
-		(setq files (filter (# (ends-with ".vp" %0)) files))
+		(setq files (filter-array (# (ends-with ".vp" %0)) files))
 		;filter to only the files who's oldest product is older than any dependency
-		(setq files (filter (#
+		(setq files (filter-array (#
 			(bind '(d p) (get (sym %0) info))
 			(setq p (reduce min (map file-age p)))
 			(each-mergeable (# (make-merge d (first (get (sym %0) info)))) d)

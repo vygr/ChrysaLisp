@@ -10,11 +10,19 @@
 	Simple timing test framework.")
 ))
 
-(defun f1 (lst)
-	(map-rev (const identity) lst))
+(defun f0 (_f _b)
+	(defq _l (list))
+	(each! 0 -1 (lambda (_p)
+		(if (apply _f (list _p)) (push _l _p))) (list _b)) _l)
 
-(defun f2 (lst)
-	(reduce! -1 0 (const push) (list lst) (cap (length lst) (list))))
+(defun f1 (_f _b)
+	(defq _l (slice 0 0 _b))
+	(each! 0 -1 (lambda (_p)
+		(if (apply _f (list _p)) (push _l _p))) (list _b)) _l)
+
+(defun f2 (_f _b)
+	(reduce! 0 -1 (lambda (_l _p)
+		(if (apply _f (list _p)) (push _l _p) _l)) (list _b) (slice 0 0 _b)))
 
 (defmacro time-it (name cnt &rest _)
 	`(progn
@@ -30,9 +38,11 @@
 	(when (and
 			(defq stdio (create-stdio))
 			(defq args (options stdio usage)))
-		(defq l (range 0 100000))
-		(time-it "f1" 1000 (f1 l))
-		(time-it "f2" 1000 (f2 l))
-		(time-it "f1" 1000 (f1 l))
-		(time-it "f2" 1000 (f2 l))
+		(defq l (range 0 20000) c 1000)
+		(time-it "f0" c (f0 odd? l))
+		(time-it "f1" c (f1 odd? l))
+		(time-it "f2" c (f2 odd? l))
+		(time-it "f0" c (f0 odd? l))
+		(time-it "f1" c (f1 odd? l))
+		(time-it "f2" c (f2 odd? l))
 		))

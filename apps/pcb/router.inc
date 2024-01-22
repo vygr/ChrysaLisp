@@ -315,7 +315,7 @@
 					(setq path_node (second (elem-get 0
 						(sort (# (- (first %0) (first %1)))
 						(map (# (list (vec-squared-euclidean-distance path_node %0) %0))
-						(filter (# (= (. pcb :get_node %0) (. pcb :get_node (first nearer_nodes))))
+						(filter-array (# (= (. pcb :get_node %0) (. pcb :get_node (first nearer_nodes))))
 						(sort (# (- (. pcb :get_node %0) (. pcb :get_node %1))) nearer_nodes))))))))))
 		exit)
 

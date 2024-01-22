@@ -8,6 +8,8 @@ New `map!`, `reduce!` VP primitives.
 
 Faster and more generic `(reverse-array)` function. Replaces `(reverse-list)`
 
+Faster and more generic `(filter-array)` function. Replaces `(filter)`
+
 ------
 
 New Tab path completion lib `lib/files/urls.inc`.

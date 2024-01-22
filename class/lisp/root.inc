@@ -403,12 +403,6 @@
 		`(reduce! -1 0 ,f (list ,s) ,i)
 		`(reduce! -2 0 ,f (list (defq ,(defq i (gensym)) ,s)) (last ,i))))
 
-(defun filter (_f _b)
-	; (filter lambda seq) -> list
-	(defq _l (list))
-	(each! 0 -1 (lambda (&rest _p)
-		(if (apply _f _p) (push _l (elem-get _ _b)))) (list _b)) _l)
-
 ;;;;;;;;
 ; Scopes
 ;;;;;;;;
@@ -511,6 +505,12 @@
 (defun reverse-array (a)
 	; (reverse-array array) -> array
 	(reduce! -1 0 (const push) (list a) (cap (length a) (slice 0 0 a))))
+
+(defun filter-array (_f _a)
+	; (filter-array lambda array) -> array
+	(defq _l (slice 0 0 _a))
+	(each! 0 -1 (lambda (_p)
+		(if (apply _f (list _p)) (push _l _p))) (list _a)) _l)
 
 (defun reverse (seq)
 	; (reverse seq) -> seq
@@ -869,7 +869,7 @@
 
 (defun lisp-nodes ()
 	; (lisp-nodes) -> nodes
-	(filter (const lisp-node?) (mail-nodes)))
+	(filter-array (const lisp-node?) (mail-nodes)))
 
 (defun max-length (_)
 	; (max-length list) -> max

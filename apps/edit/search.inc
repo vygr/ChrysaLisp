@@ -149,7 +149,7 @@
 				(id-encode pattern) " ")
 			results (apply (const cat) (sort (const cmp) (map (const second)
 				(pipe-farm (map (# (cat cmd %0))
-					(filter (lambda (f) (notany (# (eql f %0)) +dictionaries))
+					(filter-array (lambda (f) (notany (# (eql f %0)) +dictionaries))
 						(all-files "." +file_types 2))) 20000000)))))
 		;paste into scratch buffer
 		(switch-file :nil)

@@ -207,8 +207,8 @@ value for the next iteration and is the returned result. `(reduce)` and
 a sequence and take that sequence as an argument, they allow an optional
 initial value.
 
-Filtering, with `(filter lambda seq)`, transforms a sequence by producing a
-list of all the elements that pass the filter test function.
+Filtering, with `(filter-array lambda array)`, transforms an array by producing
+an array of all the elements that pass the filter test function.
 
 ```vdu
 (map + '(1 2 3) '(6 7 8) '(1 7 6))
@@ -223,7 +223,7 @@ list of all the elements that pass the filter test function.
 ("A" "B" "C" "D")
 (reduce-rev (# (push %0 %1)) "ABCD" (list))
 ("D" "C" "B" "A")
-(filter (# (< %0 3)) '(0 1 2 3 4 5 6 7 8 9))
+(filter-array (# (< %0 3)) '(0 1 2 3 4 5 6 7 8 9))
 (0 1 2)
 ```
 

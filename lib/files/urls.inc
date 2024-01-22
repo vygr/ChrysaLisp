@@ -35,7 +35,7 @@
 	(defq url (slice (if (defq i (find-rev " " (slice 0 cx url))) (inc i) 0) cx url))
 	(bind '(url file) (url-split url ctx))
 	(defq urls (map (# (if (= ctx 0) (cat (slice (length file) -7 %0) " ") (slice (length file) -1 %0)))
-		(filter (# (and (starts-with file %0) (if (= ctx 0) (ends-with ".lisp " %0) :t)))
+		(filter-array (# (and (starts-with file %0) (if (= ctx 0) (ends-with ".lisp " %0) :t)))
 			(url-list url))))
 	(if (= 0 (length urls)) "" (slice 0 (url-ext-index urls) (first urls))))
 
