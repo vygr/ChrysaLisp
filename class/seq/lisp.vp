@@ -589,9 +589,7 @@
 		(call 'obj :inst_of `(:r0 (@ ,(f-path 'seq :vtable))) '(:r0 :r1))
 		(gotoif '(:r1 = 0) 'error3))
 		(call 'seq :get_length '(:r0) '(_ :r1))
-		(vpif '(:r1 < :r8))
-			(vp-cpy-rr :r1 :r8)
-		(endif)
+		(vp-min-rr :r1 :r8)
 		(vp-add-cr +ptr_size :r6)
 	(loop-end)
 
@@ -701,10 +699,8 @@
 	(errorcase
 		(call 'obj :inst_of `(:r0 (@ ,(f-path 'seq :vtable))) '(:r0 tmp))
 		(gotoif `(,tmp = 0) 'error3))
-		(call 'seq :get_length '(:r0) '(_ len))
-		(vpif `(,len < :r8))
-			(vp-cpy-rr len :r8)
-		(endif)
+		(call 'seq :get_length '(:r0) '(_ :r1))
+		(vp-min-rr :r1 :r8)
 		(vp-add-cr +ptr_size :r6)
 	(loop-end)
 
@@ -832,9 +828,7 @@
 		(call 'obj :inst_of `(:r0 (@ ,(f-path 'seq :vtable))) '(:r0 :r1))
 		(gotoif '(:r1 = 0) 'error3))
 		(call 'seq :get_length '(:r0) '(_ :r1))
-		(vpif '(:r1 < :r8))
-			(vp-cpy-rr :r1 :r8)
-		(endif)
+		(vp-min-rr :r1 :r8)
 		(vp-add-cr +ptr_size :r6)
 	(loop-end)
 
@@ -956,9 +950,7 @@
 		(call 'obj :inst_of `(:r0 (@ ,(f-path 'seq :vtable))) '(:r0 :r1))
 		(gotoif '(:r1 = 0) 'error3))
 		(call 'seq :get_length '(:r0) '(_ :r1))
-		(vpif '(:r1 < :r8))
-			(vp-cpy-rr :r1 :r8)
-		(endif)
+		(vp-min-rr :r1 :r8)
 		(vp-add-cr +ptr_size :r6)
 	(loop-end)
 
