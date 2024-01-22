@@ -28,7 +28,7 @@ function on the grouped elements. Standard `(some)` and `(each)` are built on
 these but they also allow other constructs to be built and gain the advantage
 of machine coded iteration. I try to stick to a functional approach in my Lisp
 code, and manipulate collections of things in a functional way with operations
-like `(map)`, `(filter)`, `(reduce)`, `(each)` etc. I've not found the lack of
+like `(map)`, `(reduce)`, `(each)`, `(some)` etc. I've not found the lack of
 tail recursion a problem.
 
 There is no `(return)` statement !!! Functions run till they naturally exit,
