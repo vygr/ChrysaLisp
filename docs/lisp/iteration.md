@@ -251,6 +251,8 @@ Classes that inherit from `class/array`:
 
 * class/reals
 
+* gui/path
+
 Writing of a single element with `(elem-set)`. Negative indexes mean to index
 from the back of the sequence ! Very useful !
 
