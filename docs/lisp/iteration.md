@@ -190,7 +190,7 @@ bound to the '_' symbol ! Very useful !
 :t
 ```
 
-## Map, Reduce
+## Map and Reduce
 
 You can iterate over sequences or slices of sequences, forwards or backwards,
 while collecting the results of calling a function that will be called with the
