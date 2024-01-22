@@ -508,9 +508,9 @@
 	(if (= (length (defq out (map! 0 -1 (const cat) (map (const partition) seqs)))) 0)
 		(slice 0 0 (first seqs)) (apply (const cat) out)))
 
-(defun reverse-list (lst)
-	; (reverse-list list) -> list
-	(reduce! -1 0 (const push) (list lst) (cap (length lst) (list))))
+(defun reverse-array (a)
+	; (reverse-array array) -> array
+	(reduce! -1 0 (const push) (list a) (cap (length a) (slice 0 0 a))))
 
 (defun reverse (seq)
 	; (reverse seq) -> seq

@@ -4,6 +4,12 @@
 
 ------
 
+New `map!`, `reduce!` VP primitives.
+
+Faster and more generic `(reverse-array)` function. Replaces `(reverse-list)`
+
+------
+
 New Tab path completion lib `lib/files/urls.inc`.
 
 Tab path completion added to Textfields.
