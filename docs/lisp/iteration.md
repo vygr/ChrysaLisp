@@ -190,7 +190,7 @@ bound to the '_' symbol ! Very useful !
 :t
 ```
 
-## Map, Reduce and Filter
+## Map, Reduce
 
 You can iterate over sequences or slices of sequences, forwards or backwards,
 while collecting the results of calling a function that will be called with the
@@ -207,9 +207,6 @@ value for the next iteration and is the returned result. `(reduce)` and
 a sequence and take that sequence as an argument, they allow an optional
 initial value.
 
-Filtering, with `(filter-array lambda array)`, transforms an array by producing
-an array of all the elements that pass the filter test function.
-
 ```vdu
 (map + '(1 2 3) '(6 7 8) '(1 7 6))
 (8 16 17)
@@ -223,8 +220,6 @@ an array of all the elements that pass the filter test function.
 ("A" "B" "C" "D")
 (reduce-rev (# (push %0 %1)) "ABCD" (list))
 ("D" "C" "B" "A")
-(filter-array (# (< %0 3)) '(0 1 2 3 4 5 6 7 8 9))
-(0 1 2)
 ```
 
 ## Arrays
@@ -238,6 +233,9 @@ array)`.
 They can be acted on as a stack by use of `(push array val ...)` and `(pop
 array)`. These functions act on the array 'in place', existing references to
 the array are still valid but the contents will be mutated !
+
+Filtering, with `(filter-array lambda array)`, transforms an array by producing
+an array of all the elements that pass the filter test function.
 
 Arrays can be cleared using `(clear array ...)` and the capacity set with `(cap
 length array ...)`. These functions act on the arrays 'in place', existing
@@ -296,4 +294,13 @@ y
 z
 8
 6
+```
+
+Filtering.
+
+```vdu
+(filter-array (# (< %0 3)) '(0 1 2 3 4 5 6 7 8 9))
+(0 1 2)
+(filter-array odd? (nums 3 4 5))
+(3 5)
 ```
