@@ -10,12 +10,10 @@
 	Simple timing test framework.")
 ))
 
-(defun reverse-list1 (lst)
-	; (reverse-list list) -> list
+(defun f1 (lst)
 	(map-rev (const identity) lst))
 
-(defun reverse-list2 (lst)
-	; (reverse-list list) -> list
+(defun f2 (lst)
 	(reduce! -1 0 (const push) (list lst) (cap (length lst) (list))))
 
 (defmacro time-it (name cnt &rest _)
@@ -33,8 +31,8 @@
 			(defq stdio (create-stdio))
 			(defq args (options stdio usage)))
 		(defq l (range 0 100000))
-		(time-it "reverse-list1" 1000 (reverse-list1 l))
-		(time-it "reverse-list2" 1000 (reverse-list2 l))
-		(time-it "reverse-list1" 1000 (reverse-list1 l))
-		(time-it "reverse-list2" 1000 (reverse-list2 l))
+		(time-it "f1" 1000 (f1 l))
+		(time-it "f2" 1000 (f2 l))
+		(time-it "f1" 1000 (f1 l))
+		(time-it "f2" 1000 (f2 l))
 		))
