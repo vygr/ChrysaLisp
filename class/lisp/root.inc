@@ -510,7 +510,7 @@
 
 (defun reverse-list (lst)
 	; (reverse-list list) -> list
-	(map-rev (const identity) lst))
+	(reduce! -1 0 (const push) (list lst) (cap (length lst) (list))))
 
 (defun reverse (seq)
 	; (reverse seq) -> seq
