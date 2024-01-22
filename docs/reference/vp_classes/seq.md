@@ -6,7 +6,7 @@
 
 ### (cat seq ...)
 
-### (each! start end lambda (seq ...))
+### (each! start end lambda seqs)
 
 ### (elem-get index seq)
 
@@ -18,11 +18,13 @@
 
 ### (length seq)
 
-### (map! start end lambda (seq ...) [out])
+### (map! start end lambda seqs [out])
 
 ### (most seq)
 
 ### (partition seq [cnt])
+
+### (reduce! start end lambda seqs init)
 
 ### (rest seq)
 
@@ -32,7 +34,7 @@
 
 ### (slice start end seq)
 
-### (some! start end mode lambda (seq ...))
+### (some! start end mode lambda seqs)
 
 ## VP methods
 

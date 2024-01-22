@@ -53,8 +53,9 @@
 (ffi partition "class/seq/lisp_partition" 0)
 (ffi cat "class/seq/lisp_cat" 0)
 (ffi each! "class/seq/lisp_each" 0)
-(ffi map! "class/seq/lisp_map" 0)
 (ffi some! "class/seq/lisp_some" 0)
+(ffi map! "class/seq/lisp_map" 0)
+(ffi reduce! "class/seq/lisp_reduce" 0)
 
 (ffi cap "class/array/lisp_cap" 0)
 (ffi clear "class/array/lisp_clear" 0)
@@ -390,29 +391,23 @@
 	; (map-rev lambda seq ...) -> list
 	`(map! -1 0 ,f (list ~_)))
 
+(defmacro reduce (f s &optional i)
+	; (reduce lambda seq [init]) -> form
+	(if i
+		`(reduce! 0 -1 ,f (list ,s) ,i)
+		`(reduce! 1 -1 ,f (list (defq ,(defq i (gensym)) ,s)) (first ,i))))
+
+(defmacro reduce-rev (f s &optional i)
+	; (reduce-rev lambda seq [init]) -> form
+	(if i
+		`(reduce! -1 0 ,f (list ,s) ,i)
+		`(reduce! -2 0 ,f (list (defq ,(defq i (gensym)) ,s)) (last ,i))))
+
 (defun filter (_f _b)
 	; (filter lambda seq) -> list
 	(defq _l (list))
 	(each! 0 -1 (lambda (&rest _p)
 		(if (apply _f _p) (push _l (elem-get _ _b)))) (list _b)) _l)
-
-(defun reduce (_f _l &optional _a)
-	; (reduce lambda seq [accum]) -> form
-	(cond
-		(_a (each! 0 -1 (lambda (_e)
-				(setq _a (_f _a _e))) (list _l)))
-		(:t (setq _a (first _l))
-			(each! 1 -1 (lambda (_e)
-				(setq _a (_f _a _e))) (list _l)))) _a)
-
-(defun reduce-rev (_f _l &optional _a)
-	; (reduce-rev lambda seq [accum]) -> form
-	(cond
-		(_a (each! -1 0 (lambda (_e)
-				(setq _a (_f _a _e))) (list _l)))
-		(:t (setq _a (last _l))
-			(each! -2 0 (lambda (_e)
-				(setq _a (_f _a _e))) (list _l)))) _a)
 
 ;;;;;;;;
 ; Scopes

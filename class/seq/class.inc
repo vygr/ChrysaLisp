@@ -24,6 +24,7 @@
 	(dec-method :lisp_cat class/seq/lisp_cat :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_each class/seq/lisp_each :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_map class/seq/lisp_map :static (:r0 :r1) (:r0 :r1))
+	(dec-method :lisp_reduce class/seq/lisp_reduce :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_some class/seq/lisp_some :static (:r0 :r1) (:r0 :r1)))
 
 (def-struct seq obj_size)

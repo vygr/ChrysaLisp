@@ -127,11 +127,11 @@ return `:nil` if the element or slice range is unavailable.
 ## Iteration
 
 You can iterate over sequences or slices of sequences, forwards or backwards by
-use of the `(each! start end lambda (list seq ...))` function. You provide a
-function that will be called for the group of elements from each index
-position. `(each)` and `(each-rev)` are macros that assume the index values
-cover the full extent of the sequence and take the sequence list as arguments
-rather than an explicit list.
+use of the `(each! start end lambda seqs)` function. You provide a function
+that will be called for the group of elements from each index position.
+`(each)` and `(each-rev)` are macros that assume the index values cover the
+full extent of the sequence and take the sequence list as arguments rather than
+an explicit list.
 
 Any elements over the minimum length of the given sequences are ignored.
 
@@ -164,11 +164,11 @@ B2
 ## Predication
 
 You can predicate over sequences or slices of sequences, forwards or backwards
-by use of the `(some! start end mode lambda (list seq ...))` function. You
-provide a function that will be called for the group of elements from each
-index position, you can decide if it'll exit if that function returns a `:nil`
-or not. `(some)` `(every)` `(notany)` and `(notevery)` are macros that assume
-the index values cover the full extent of the sequence and set the break out
+by use of the `(some! start end mode lambda seqs)` function. You provide a
+function that will be called for the group of elements from each index
+position, you can decide if it'll exit if that function returns a `:nil` or
+not. `(some)` `(every)` `(notany)` and `(notevery)` are macros that assume the
+index values cover the full extent of the sequence and set the break out
 option, plus take the sequence list as arguments rather than an explicit list.
 
 The break out value is returned ! This means you can use these functions as a
@@ -193,21 +193,22 @@ bound to the '_' symbol ! Very useful !
 ## Map, Reduce and Filter
 
 You can iterate over sequences or slices of sequences, forwards or backwards,
-while collecting the results of calling a function that will be called for the
-group of elements from each index position by use of the `(map! start end
-lambda (list seq ...) [list])` function. `(map)` and `(map-rev)` are macros
-that assume the index values cover the full extent of the sequence and take the
-sequence list as arguments rather than an explicit list.
+while collecting the results of calling a function that will be called with the
+grouped elements from each index position by use of the `(map! start end lambda
+seqs [list])` function. `(map)` and `(map-rev)` are macros that assume the
+index values cover the full extent of the sequences and take those sequences as
+arguments rather than an explicit list.
 
-Reduction, with `(reduce lambda seq [init])`, transforms a sequence by
-combining each element to produce a single result. Reduction can take an
-optional start value.
+Reduction, with `(reduce! start end lambda seqs init)`, transforms sequences or
+slices of sequences by providing an accumulated value along with each grouped
+elements to the function you provide. The output of that function becomes the
+value for the next interaction and is the returned result. `(reduce)` and
+`(reduce-rev)` are macros that assume the index values cover the full extent of
+a sequence and take that sequence as an argument, they allow an optional
+initial value.
 
 Filtering, with `(filter lambda seq)`, transforms a sequence by producing a
 list of all the elements that pass the filter test function.
-
-These also come in `(map-rev lambda seq ...)` and `(reduce-rev lambda seq
-[init])` flavours.
 
 ```vdu
 (map + '(1 2 3) '(6 7 8) '(1 7 6))

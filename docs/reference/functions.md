@@ -1170,13 +1170,13 @@ run pipe farm and collect output
 ### reduce
 
 ```code
-(reduce lambda seq [accum]) -> form
+(reduce lambda seq [init]) -> form
 ```
 
 ### reduce-rev
 
 ```code
-(reduce-rev lambda seq [accum]) -> form
+(reduce-rev lambda seq [init]) -> form
 ```
 
 ### replace
