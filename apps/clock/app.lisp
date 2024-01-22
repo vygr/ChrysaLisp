@@ -49,11 +49,9 @@
 	(path-stroke-polygons face (* scale 0.02) eps +join_miter
 		(list (path-gen-arc (* scale 0.5) (* scale 0.5) 0.0 +fp_2pi (* scale 0.48) eps (path))))
 	(path-stroke-polylines face (* scale 0.03) eps +join_miter +cap_butt +cap_butt
-		(reduce (lambda (l a)
-			(push l (transform (path 0.0 0.35 0.0 0.44) (* (n2f a) +fp_hpi) scale))) (range 0 4) (list)))
+		(map (lambda (a) (transform (path 0.0 0.35 0.0 0.44) (* (n2f a) +fp_hpi) scale)) (range 0 4)))
 	(path-stroke-polylines face (* scale 0.01) eps +join_miter +cap_butt +cap_butt
-		(reduce (lambda (l a)
-			(push l (transform (path 0.0 0.35 0.0 0.44) (/ (* (n2f a) +fp_2pi) 12.0) scale))) (range 0 12) (list))))
+		(map (lambda (a) (transform (path 0.0 0.35 0.0 0.44) (/ (* (n2f a) +fp_2pi) 12.0) scale)) (range 0 12))))
 
 (defun view-analog-time (scale)
 	(.-> clock
