@@ -283,7 +283,7 @@ trashes
 :r1-:r2
 ```
 
-### :partition -> class/array/partition
+### :pivot -> class/array/pivot
 
 ```code
 inputs

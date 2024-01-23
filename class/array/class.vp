@@ -317,7 +317,7 @@
 
 (def-func-end)
 
-(def-method 'array :partition)
+(def-method 'array :pivot)
 	;inputs
 	;:r0 = array object (ptr)
 	;:r1 = lower partition iter (plong)
@@ -343,7 +343,7 @@
 		(ptr this func ctx pivot iter lower upper))
 
 	(vp-alloc local_size)
-	(entry 'array :partition '(:r0 :r1 :r2 :r3 :r4))
+	(entry 'array :pivot '(:r0 :r1 :r2 :r3 :r4))
 	(assign '(:r0 :r1 :r2 :r3 :r4 :r1)
 		'((:rsp local_this) (:rsp local_lower) (:rsp local_upper) (:rsp local_func)
 		(:rsp local_ctx) (:rsp local_pivot)))
@@ -368,7 +368,7 @@
 		(assign '(:r2 :r3) '((:r1 0) (:r0 0)))
 	(endif)
 
-	(exit 'array :partition '((:rsp local_this) :r1))
+	(exit 'array :pivot '((:rsp local_this) :r1))
 	(vp-free local_size)
 	(vp-ret)
 
@@ -414,7 +414,7 @@
 	(d-call 'array :get_length {stack} {_, start})
 	(loop-start)
 		(vpif {low < high})
-			(call 'array :partition {this, low * +long_size + iter_begin, high * +long_size + iter_begin, func, ctx}
+			(call 'array :pivot {this, low * +long_size + iter_begin, high * +long_size + iter_begin, func, ctx}
 				{_, pivot})
 			(assign {high} {length})
 			(assign {(pivot - iter_begin) >> 3} {high})

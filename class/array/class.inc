@@ -8,7 +8,7 @@
 	(dec-method :set_capacity class/array/set_capacity :static (:r0 :r1) (:r0))
 	(dec-method :set_length class/array/set_length :static (:r0 :r1) (:r0 :r1))
 	(dec-method :sort class/array/sort :static (:r0 :r1 :r2 :r3 :r4 :r5) (:r0))
-	(dec-method :partition class/array/partition :static (:r0 :r1 :r2 :r3 :r4) (:r0 :r1))
+	(dec-method :pivot class/array/pivot :static (:r0 :r1 :r2 :r3 :r4) (:r0 :r1))
 	(dec-method :get_first class/array/get_first :static (:r0) (:r0 :r1))
 	(dec-method :get_first2 class/array/get_first2 :static (:r0) (:r0 :r1 :r2))
 	(dec-method :get_second class/array/get_second :static (:r0) (:r0 :r1))
