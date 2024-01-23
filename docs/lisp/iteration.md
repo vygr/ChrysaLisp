@@ -52,11 +52,11 @@ Extraction of a single element with `(elem-get index seq)`. Negative indexes
 mean to index from the back of the sequence ! Very useful !
 
 ```lisp
-(second "abcd")
+(elem-get 1 "abcd")
 ```
 
 ```lisp
-(last (array 9 8 7))
+(elem-get -2 (array 9 8 7))
 ```
 
 Note that negative indexes start at -1 representing the element that would be 1
