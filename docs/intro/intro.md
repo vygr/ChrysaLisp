@@ -51,9 +51,9 @@ zlib1.dll
 
 ### Mac, Linux, PI64
 
-Go into the ChrysaLisp directory and type `make`. This will unpack the boot
-image files, create the ChrysaLisp directory structures and use your C compiler
-to compile and link the platform bootstrap executable.
+Go into the ChrysaLisp directory and type `make install`. This will unpack the
+boot image files, create the ChrysaLisp directory structures and use your C
+compiler to compile and link the platform bootstrap executable.
 
 There are a few other options available `clean` `boot` that you might need as
 you get further involved, details are in the README.md file.
@@ -73,7 +73,7 @@ After a successful `make` of the platform bootstrap you can now run the TUI
 For a TUI or GUI type:
 
 ```code
-./run_tui.sh
+./run_tui.sh  # see available cmds in ./cmd/
 ./run.sh
 ```
 
