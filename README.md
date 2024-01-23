@@ -173,7 +173,7 @@ brew install sdl2
 
 ## Make/Run/Stop
 
-Take a look at the `docs/intro.md` for platform specific instructions. The
+Take a look at the `docs/intro/intro.md` for platform specific instructions. The
 following is for OSX and Linux systems. Windows has a pre-built main.exe
 provided, or you can configure Visual Studio to compile things yourself if you
 wish.
