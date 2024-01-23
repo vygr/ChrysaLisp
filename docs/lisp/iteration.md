@@ -305,8 +305,8 @@ Filtering and reversing.
 (0 1 2)
 (filter-array odd? (nums 3 4 5))
 (3 5)
-(reverse-array '(0 1 2 3 4 5 6 7 8 9))
+(reverse '(0 1 2 3 4 5 6 7 8 9))
 (9 8 7 6 5 4 3 2 1 0)
-(reverse-array (path 1.0 2.0 3.0 5.5))
+(reverse (path 1.0 2.0 3.0 5.5))
 (5.50000 3.00000 2.00000 1.00000)
 ```

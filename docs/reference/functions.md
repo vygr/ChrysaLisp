@@ -1203,12 +1203,6 @@ restart a child
 (reverse seq) -> seq
 ```
 
-### reverse-array
-
-```code
-(reverse-array array) -> array
-```
-
 ### rotate
 
 ```code

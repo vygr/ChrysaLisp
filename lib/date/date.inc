@@ -34,7 +34,7 @@
 			(:t :nil))
 		(if (some (lambda (c) (not (< 47 (code c) 58))) s) (setq final :nil))
 		(if (and final (not iszero)) (each (lambda (c)
-			(setq final (+ final (* (- (code c) 48) index)) index (* index 10))) (reverse-array s)))
+			(setq final (+ final (* (- (code c) 48) index)) index (* index 10))) (reverse s)))
 		(if isneg (setq final (- 0 final)))
 		final))
 
@@ -155,8 +155,8 @@
 	(each (lambda (w_) (if (eql w_ wd) (setq wd _) :nil) (setq index (inc index))) week_abbr)
 	(setq index 0)
 	(each (lambda (m_) (if (eql m_ mo) (setq mo _)) (setq index (inc index))) month_abbr)
-	(defq smh (reverse-array (split hms ":")))
-	(each (lambda (_) (push rdt (s2i _))) (reverse-array (split hms ":")))
+	(defq smh (reverse (split hms ":")))
+	(each (lambda (_) (push rdt (s2i _))) (reverse (split hms ":")))
 	(push rdt (s2i dy) mo (s2i yr) wd))
 
 (when (not (get :local_timezone))

@@ -48,6 +48,8 @@
 
 ### :rfind -> class/obj/null
 
+### :rslice -> class/obj/null
+
 ### :slice -> class/obj/null
 
 ### :type -> class/seq/type

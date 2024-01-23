@@ -472,6 +472,45 @@
 
 (def-func-end)
 
+(def-method 'array :rslice)
+	;inputs
+	;:r0 = array object (ptr)
+	;:r1 = element start index (uint)
+	;:r2 = element end index (uint)
+	;outputs
+	;:r0 = array object (ptr)
+	;:r1 = slice array object (ptr)
+	;trashes
+	;:r1-:r8
+
+	;save inputs
+	(entry 'array :rslice '(:r6 :r7 :r8))
+
+	;create new array
+	(call 'array :vcreate '(:r0) '(:r0))
+	(vp-cpy-rr :r8 :r1)
+	(vp-sub-rr :r7 :r1)
+	(assign '(:r1) '((:r0 array_length)))
+	(call 'array :set_capacity '(:r0 :r1) '(:r1))
+	(vp-cpy-rr :r6 :r0)
+
+	;copy elements
+	(vpif '(:r7 /= :r8))
+		(class/array/get_iters :r0 :r7 :r8 :r2)
+		(assign '((:r1 array_begin)) '(:r3))
+		(loop-start)
+			(assign `((:r8 ,(neg +ptr_size))) '(:r2))
+			(vp-add-cr +ptr_size :r3)
+			(vp-sub-cr +ptr_size :r8)
+			(assign '(:r2) `((:r3 ,(neg +ptr_size))))
+		(loop-until '(:r7 = :r8))
+	(endif)
+
+	(exit 'array :rslice '(:r0 :r1))
+	(vp-ret)
+
+(def-func-end)
+
 (def-method 'array :append)
 	;inputs
 	;:r0 = array object (ptr)

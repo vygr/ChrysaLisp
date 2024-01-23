@@ -620,6 +620,41 @@
 
 (def-func-end)
 
+(def-method 'str :rslice)
+	;inputs
+	;:r0 = str object (ptr)
+	;:r1 = element start index (uint)
+	;:r2 = element end index (uint)
+	;outputs
+	;:r0 = str object (ptr)
+	;:r1 = string slice object (ptr)
+	;trashes
+	;:r1-:r7
+
+	(entry 'str :rslice '(:r0 :r1 :r2))
+
+	(assign '((:r0 str_length) :r0) '(:r3 :r7))
+	(vp-sub-rr :r1 :r2)
+	(vp-add-cr str_data :r0)
+	(call 'str :create_from_buffer '((& :r0 :r1) :r2) '(:r0))
+	(assign '((:r0 str_length) (& :r0 str_data)) '(:r1 :r2))
+	(vpif '(:r1 > 1))
+		(vp-add-rr :r2 :r1)
+		(loop-start)
+			(vp-cpy-ir-ub :r1 -1 :r3)
+			(vp-cpy-ir-ub :r2 0 :r4)
+			(vp-add-cr +byte_size :r2)
+			(vp-sub-cr +byte_size :r1)
+			(vp-cpy-ri-b :r4 :r1 0)
+			(vp-cpy-ri-b :r3 :r2 -1)
+		(loop-until '(:r1 <= :r2))
+	(endif)
+
+	(exit 'str :rslice '(:r7 :r0))
+	(vp-ret)
+
+(def-func-end)
+
 (def-method 'str :split)
 	;inputs
 	;:r0 = str object (ptr)

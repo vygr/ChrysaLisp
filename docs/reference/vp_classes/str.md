@@ -249,6 +249,20 @@ trashes
 :r2-:r4
 ```
 
+### :rslice -> class/str/rslice
+
+```code
+inputs
+:r0 = str object (ptr)
+:r1 = element start index (uint)
+:r2 = element end index (uint)
+outputs
+:r0 = str object (ptr)
+:r1 = string slice object (ptr)
+trashes
+:r1-:r7
+```
+
 ### :same -> class/str/same
 
 ```code

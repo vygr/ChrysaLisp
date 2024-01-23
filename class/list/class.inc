@@ -9,6 +9,7 @@
 	(dec-method :deinit class/list/deinit :final)
 	(dec-method :ref_element class/list/ref_element :final)
 	(dec-method :slice class/list/slice :final)
+	(dec-method :rslice class/list/rslice :final)
 	(dec-method :clear class/list/clear :final)
 	(dec-method :ref_back class/list/ref_back :final)
 	(dec-method :set_element class/list/set_element :final)

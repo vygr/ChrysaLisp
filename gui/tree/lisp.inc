@@ -73,7 +73,7 @@
 			(push route (get :text node))
 			(setq node (penv node))
 			(unless (eql node this) (setq node (penv (penv node)))))
-		(apply cat (join (reverse-array route) '("/"))))
+		(apply cat (join (reverse route) '("/"))))
 
 	(defmethod :expand ()
 		; (. tree :expand) -> tree

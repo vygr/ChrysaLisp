@@ -94,11 +94,17 @@
 	(call 'seq :get_length '(:r0) '(:r0 :r1))
 	(lisp-elem-index :r10 :r1)
 	(lisp-elem-index :r11 :r1)
-(errorcase
-	(gotoif '(:r10 < 0) 'error2)
-	(gotoif '(:r10 > :r11) 'error2)
-	(gotoif '(:r11 > :r1) 'error2))
-	(call 'seq :slice '(:r0 :r10 :r11) '(_ :r1))
+	(vpif '(:r10 <= :r11))
+	(errorcase
+		(gotoif '(:r10 < 0) 'error2)
+		(gotoif '(:r11 > :r1) 'error2))
+		(call 'seq :slice '(:r0 :r10 :r11) '(_ :r1))
+	(else)
+	(errorcase
+		(gotoif '(:r11 < 0) 'error2)
+		(gotoif '(:r10 > :r1) 'error2))
+		(call 'seq :rslice '(:r0 :r11 :r10) '(_ :r1))
+	(endif)
 
 	(exit 'seq :lisp_slice '(:r12 :r1))
 	(vp-ret)

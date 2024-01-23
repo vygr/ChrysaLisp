@@ -403,6 +403,10 @@
 		`(reduce! -1 0 ,f (list ,s) ,i)
 		`(reduce! -2 0 ,f (list (defq ,(defq i (gensym)) ,s)) (last ,i))))
 
+(defmacro reverse (s)
+	; (reverse seq) -> seq
+	`(slice -1 0 ,s))
+
 ;;;;;;;;
 ; Scopes
 ;;;;;;;;
@@ -502,23 +506,11 @@
 	(if (= (length (defq out (map! 0 -1 (const cat) (map (const partition) seqs)))) 0)
 		(slice 0 0 (first seqs)) (apply (const cat) out)))
 
-(defun reverse-array (a)
-	; (reverse-array array) -> array
-	(reduce! -1 0 (const push) (list a) (cap (length a) (slice 0 0 a))))
-
 (defun filter-array (_f _a)
 	; (filter-array lambda array) -> array
 	(defq _l (slice 0 0 _a))
 	(each! 0 -1 (lambda (_p)
 		(if (apply _f (list _p)) (push _l _p))) (list _a)) _l)
-
-(defun reverse (seq)
-	; (reverse seq) -> seq
-	(cond
-		((> (length seq) 0)
-			(apply (const cat) (map-rev (lambda (&ignore)
-				(slice _ (inc _) seq)) seq)))
-		((rest seq))))
 
 (defun unique (seq)
 	; (unique seq) -> seq

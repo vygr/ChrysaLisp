@@ -21,6 +21,7 @@
 	(dec-method :get_length class/str/get_length :final)
 	(dec-method :ref_element class/str/ref_element :final)
 	(dec-method :slice class/str/slice :final)
+	(dec-method :rslice class/str/rslice :final)
 	(dec-method :cat class/str/cat :final)
 	(dec-method :find class/str/find :final)
 	(dec-method :rfind class/str/rfind :final)

@@ -158,6 +158,20 @@ trashes
 :r2-:r14
 ```
 
+### :rslice -> class/list/rslice
+
+```code
+inputs
+:r0 = list object (ptr)
+:r1 = element start index (uint)
+:r2 = element end index (uint)
+outputs
+:r0 = list object (ptr)
+:r1 = slice list object (ptr)
+trashes
+:r1-:r8
+```
+
 ### :set_element -> class/list/set_element
 
 ```code

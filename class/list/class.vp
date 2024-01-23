@@ -155,6 +155,46 @@
 
 (def-func-end)
 
+(def-method 'list :rslice)
+	;inputs
+	;:r0 = list object (ptr)
+	;:r1 = element start index (uint)
+	;:r2 = element end index (uint)
+	;outputs
+	;:r0 = list object (ptr)
+	;:r1 = slice list object (ptr)
+	;trashes
+	;:r1-:r8
+
+	;save inputs
+	(entry 'list :rslice '(:r6 :r7 :r8))
+
+	;create new list
+	(call 'list :create :nil '(:r0))
+	(vp-cpy-rr :r8 :r1)
+	(vp-sub-rr :r7 :r1)
+	(assign '(:r1) '((:r0 array_length)))
+	(call 'list :set_capacity '(:r0 :r1) '(:r1))
+	(vp-cpy-rr :r6 :r0)
+
+	;copy and ref elements
+	(vpif '(:r7 /= :r8))
+		(class/array/get_iters :r0 :r7 :r8 :r2)
+		(assign '((:r1 array_begin)) '(:r3))
+		(loop-start)
+			(assign `((:r8 ,(neg +ptr_size))) '(:r2))
+			(vp-add-cr +ptr_size :r3)
+			(vp-sub-cr +ptr_size :r8)
+			(assign '(:r2) `((:r3 ,(neg +ptr_size))))
+			(class/obj/ref :r2 :r4)
+		(loop-until '(:r7 = :r8))
+	(endif)
+
+	(exit 'list :rslice '(:r0 :r1))
+	(vp-ret)
+
+(def-func-end)
+
 (def-method 'list :append)
 	;inputs
 	;:r0 = list object (ptr)

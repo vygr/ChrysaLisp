@@ -417,6 +417,20 @@ trashes
 :r2-:r4
 ```
 
+### :rslice -> class/array/rslice
+
+```code
+inputs
+:r0 = array object (ptr)
+:r1 = element start index (uint)
+:r2 = element end index (uint)
+outputs
+:r0 = array object (ptr)
+:r1 = slice array object (ptr)
+trashes
+:r1-:r8
+```
+
 ### :set_capacity -> class/array/set_capacity
 
 ```code
