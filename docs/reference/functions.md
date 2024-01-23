@@ -1,29 +1,5 @@
 # Functions
 
-### #
-
-```code
-(# (< %9 %0 %3) ...) -> (lambda (%0 %3 %9) (< %9 %0 %3) ...)
-```
-
-### .->
-
-```code
-(.-> this form ...)
-```
-
-### .?
-
-```code
-(.? this method) -> :nil | lambda
-```
-
-### .super
-
-```code
-(.super this :method [arg ...])
-```
-
 ### SVG-Canvas
 
 ```code
@@ -46,12 +22,6 @@ break the stream into svg tokens, symbols, strings etc
 parse the commands and attributes calling back to the user functions
 ```
 
-### aand
-
-```code
-(aand [form] ...)
-```
-
 ### abi
 
 ```code
@@ -64,28 +34,10 @@ parse the commands and attributes calling back to the user functions
 (abs-path path [current]) -> path
 ```
 
-### acond
-
-```code
-(acond (tst body) ...)
-```
-
-### aeach
-
-```code
-(aeach seq body)
-```
-
 ### age
 
 ```code
 (age path) -> 0 | time ns
-```
-
-### aif
-
-```code
-(aif form form [form])
 ```
 
 ### align
@@ -116,28 +68,10 @@ all source files from root downwards, none recursive
 (alloc-select size) -> ((task-netid) [temp_mbox] ...)
 ```
 
-### and
-
-```code
-(and [tst] ...) -> :t | :nil | tst
-```
-
 ### array?
 
 ```code
 (array? form) -> :t | :nil
-```
-
-### ascii-char
-
-```code
-(ascii-char num) -> char
-```
-
-### ascii-code
-
-```code
-(ascii-code char) -> num
 ```
 
 ### ascii-lower
@@ -150,30 +84,6 @@ all source files from root downwards, none recursive
 
 ```code
 (ascii-upper num) -> num
-```
-
-### asome
-
-```code
-(asome seq body)
-```
-
-### awhen
-
-```code
-(awhen form body)
-```
-
-### awhile
-
-```code
-(awhile form body)
-```
-
-### bits
-
-```code
-(bits name base [(bit field ...)] ...)
 ```
 
 ### bounding-box
@@ -221,12 +131,6 @@ flush any shared pixmaps that have no users.
 (canvas-load file flags) -> :nil | canvas
 ```
 
-### case
-
-```code
-(case form [(key|(key ...) body)] ...)
-```
-
 ### char-class
 
 ```code
@@ -251,12 +155,6 @@ can be searched with (bfind)
 cached circle generation, quantised to 1/4 pixel
 ```
 
-### const
-
-```code
-(const form)
-```
-
 ### cpp-node?
 
 ```code
@@ -275,69 +173,6 @@ cached circle generation, quantised to 1/4 pixel
 (debug-brk name condtion)
 ```
 
-### dec
-
-```code
-(dec num) -> num
-```
-
-### defabstractmethod
-
-```code
-(defabstractmethod ([arg ...]) body)
-
-Declare a method as abstract and will
-throw an error if invoked. Concrete
-classes deriving from a class with abstractions
-should provide the concreate handler
-```
-
-### defclass
-
-```code
-(defclass Name ([arg ...]) (super ...)|:nil body)
-```
-
-### deffimethod
-
-```code
-(deffimethod name ffi)
-```
-
-### defgetmethod
-
-```code
-(defgetmethod field)
-```
-
-### defmethod
-
-```code
-(defmethod name ([arg ...]) body)
-
-(. this :method [arg ...])
-```
-
-### defmethod_
-
-```code
-(defmethod_ name ([arg ...]) body)
-
-(. _this :method [arg ...])
-```
-
-### defsetmethod
-
-```code
-(defsetmethod field)
-```
-
-### each
-
-```code
-(each lambda seq ...)
-```
-
 ### each-line
 
 ```code
@@ -350,12 +185,6 @@ should provide the concreate handler
 (each-mergeable lambda seq) -> seq
 ```
 
-### each-rev
-
-```code
-(each-rev lambda seq ...)
-```
-
 ### empty?
 
 ```code
@@ -366,12 +195,6 @@ should provide the concreate handler
 
 ```code
 (ends-with str str) -> :t | :nil
-```
-
-### enums
-
-```code
-(enums name base [(enum field ...)] ...)
 ```
 
 ### env?
@@ -396,12 +219,6 @@ should provide the concreate handler
 
 ```code
 (even? num) -> :t | :nil
-```
-
-### every
-
-```code
-(every lambda seq ...) -> :nil | form
 ```
 
 ### exec
@@ -492,70 +309,10 @@ gather a list of values
 (gen-norms verts tris) -> (norms new_tris)
 ```
 
-### get-byte
-
-```code
-(get-byte str index) -> num
-```
-
 ### get-cstr
 
 ```code
 (get-cstr str index) -> str
-```
-
-### get-int
-
-```code
-(get-int str index) -> num
-```
-
-### get-long
-
-```code
-(get-long str index) -> num
-```
-
-### get-netid
-
-```code
-(get-netid str index) -> netid
-```
-
-### get-nodeid
-
-```code
-(get-nodeid str index) -> nodeid
-```
-
-### get-short
-
-```code
-(get-short str index) -> num
-```
-
-### get-ubyte
-
-```code
-(get-ubyte str index) -> num
-```
-
-### get-uint
-
-```code
-(get-uint str index) -> num
-```
-
-### get-ushort
-
-```code
-(get-ushort str index) -> num
-```
-
-### getf
-
-```code
-(getf obj field [offset]) -> value
 ```
 
 ### handler
@@ -606,12 +363,6 @@ gather a list of values
 (in-set-state in num) -> in
 ```
 
-### inc
-
-```code
-(inc num) -> num
-```
-
 ### insert
 
 ```code
@@ -649,18 +400,6 @@ tells us which vertices are inside the surface
 
 ```code
 (lambda? form) -> :t | :nil
-```
-
-### let
-
-```code
-(let ([(sym val) ...]) body)
-```
-
-### let*
-
-```code
-(let* ([(sym val) ...]) body)
 ```
 
 ### lighting
@@ -727,12 +466,6 @@ very basic attenuation, diffuse and specular
 (long-to-hex-str num) -> str
 ```
 
-### lower
-
-```code
-(lower field | (field sym) ...) -> (set this field sym ...)
-```
-
 ### macro-func?
 
 ```code
@@ -743,18 +476,6 @@ very basic attenuation, diffuse and specular
 
 ```code
 (macro? form) -> :t | :nil
-```
-
-### map
-
-```code
-(map lambda seq ...) -> list
-```
-
-### map-rev
-
-```code
-(map-rev lambda seq ...) -> list
 ```
 
 ### mat3x2-mul-f
@@ -805,12 +526,6 @@ very basic attenuation, diffuse and specular
 (max-length list) -> max
 ```
 
-### memoize
-
-```code
-(memoize key form [num_buckets]) -> (eval form)
-```
-
 ### neg?
 
 ```code
@@ -839,24 +554,6 @@ very basic attenuation, diffuse and specular
 
 ```code
 (nlz num) -> num
-```
-
-### not
-
-```code
-(not form) -> :t | :nil
-```
-
-### notany
-
-```code
-(notany lambda seq ...) -> :t | :nil
-```
-
-### notevery
-
-```code
-(notevery lambda seq ...) -> :t | :nil
 ```
 
 ### nto
@@ -925,12 +622,6 @@ very basic attenuation, diffuse and specular
 (open-task task node mode key_num reply)
 ```
 
-### opt
-
-```code
-(opt sym val [cond])
-```
-
 ### opt-mesh
 
 ```code
@@ -967,12 +658,6 @@ scan the stdio args and process acording to the optlist
 
 ```code
 (options-split args) -> (a0 [a1] ...)
-```
-
-### or
-
-```code
-(or [tst] ...) -> :nil | tst
 ```
 
 ### os
@@ -1111,12 +796,6 @@ run pipe farm and collect output
 (quote? form) -> :t | :nil
 ```
 
-### raise
-
-```code
-(raise field | (sym val) ...) -> (defq sym (get field this) ...)
-```
-
 ### range
 
 ```code
@@ -1129,24 +808,6 @@ run pipe farm and collect output
 (read-data stream bytes) -> str
 ```
 
-### read-int
-
-```code
-(read-int stream) -> num
-```
-
-### read-long
-
-```code
-(read-long stream) -> num
-```
-
-### read-short
-
-```code
-(read-short stream) -> num
-```
-
 ### real?
 
 ```code
@@ -1157,18 +818,6 @@ run pipe farm and collect output
 
 ```code
 (reals? form) -> :t | :nil
-```
-
-### reduce
-
-```code
-(reduce lambda seq [init]) -> form
-```
-
-### reduce-rev
-
-```code
-(reduce-rev lambda seq [init]) -> form
 ```
 
 ### replace
@@ -1187,12 +836,6 @@ restart a child
 
 ```code
 restart a child
-```
-
-### reverse
-
-```code
-(reverse seq) -> seq
 ```
 
 ### rotate
@@ -1221,24 +864,6 @@ scatter a list of values
 (seq? form) -> :t | :nil
 ```
 
-### setd
-
-```code
-(setd sym val [sym val] ...)
-```
-
-### setf
-
-```code
-(setf obj field value [offset]) -> obj
-```
-
-### setf->
-
-```code
-(setf-> msg form ...)
-```
-
 ### setoffset
 
 ```code
@@ -1255,18 +880,6 @@ adjust text offset
 
 ```code
 (shuffle list [start end]) -> list
-```
-
-### some
-
-```code
-(some lambda seq ...) -> :nil | form
-```
-
-### some-rev
-
-```code
-(some-rev lambda seq ...) -> :nil | form
 ```
 
 ### sort
@@ -1297,22 +910,6 @@ start a child
 
 ```code
 (starts-with str str) -> :t | :nil
-```
-
-### static-q
-
-```code
-(static-q form) -> 'form
-
-static quoted
-```
-
-### static-qq
-
-```code
-(static-qq form) -> `form
-
-static quasi-quoted
 ```
 
 ### stdio-get-args
@@ -1361,12 +958,6 @@ difference between streams a and b, write to stream c
 patch stream a with stream b, write to stream c
 ```
 
-### structure
-
-```code
-(structure name base [(byte field ...)] ...)
-```
-
 ### substr
 
 ```code
@@ -1395,12 +986,6 @@ patch stream a with stream b, write to stream c
 
 ```code
 (time-in-seconds time) -> str
-```
-
-### times
-
-```code
-(times num body)
 ```
 
 ### to-lower
@@ -1499,184 +1084,16 @@ patch stream a with stream b, write to stream c
 (type-to-size sym) -> num
 ```
 
-### ui-backdrop
-
-```code
-(ui-backdrop name [props] [body]) -> backdrop
-```
-
-### ui-button
-
-```code
-(ui-button name [props] [body]) -> button
-```
-
-### ui-buttons
-
-```code
-(ui-buttons symbols event [props])
-```
-
-### ui-canvas
-
-```code
-(ui-canvas name width height scale [props]) -> canvas
-```
-
-### ui-element
-
-```code
-(ui-element name constructor [props] [body]) -> view
-```
-
-### ui-flow
-
-```code
-(ui-flow name [props] [body]) -> flow
-```
-
-### ui-grid
-
-```code
-(ui-grid name [props] [body]) -> grid
-```
-
-### ui-hchart
-
-```code
-(ui-hchart name title num_marks [props]) -> hchart
-```
-
-### ui-label
-
-```code
-(ui-label name [props] [body]) -> label
-```
-
 ### ui-merge-props
 
 ```code
 (ui-merge-props props) -> props
 ```
 
-### ui-progress
-
-```code
-(ui-progress name [props]) -> progress
-```
-
-### ui-props
-
-```code
-(ui-props props [props]) -> props
-```
-
-### ui-radio-bar
-
-```code
-(ui-radio-bar name symbols [props])
-```
-
-### ui-root
-
-```code
-(ui-root name constructor [props] [body]) -> view
-```
-
-### ui-scroll
-
-```code
-(ui-scroll name flags [props] [body]) -> scroll
-```
-
-### ui-slider
-
-```code
-(ui-slider name [props]) -> slider
-```
-
-### ui-spinner
-
-```code
-(ui-spinner name [props]) -> spinner
-```
-
-### ui-stack
-
-```code
-(ui-stack name tabs [props] [body]) -> stack
-```
-
-### ui-stroke
-
-```code
-(ui-text name [props]) -> stroke
-```
-
-### ui-text
-
-```code
-(ui-text name [props]) -> text
-```
-
-### ui-textfield
-
-```code
-(ui-textfield name [props]) -> textfield
-```
-
-### ui-title
-
-```code
-(ui-title name [props]) -> title
-```
-
-### ui-title-bar
-
-```code
-(ui-title-bar name title symbols event [props]) -> flow
-```
-
-### ui-toggle-bar
-
-```code
-(ui-toggle-bar name symbols [props])
-```
-
-### ui-tool-bar
-
-```code
-(ui-tool-bar name [props] [body]) -> flow
-```
-
 ### ui-tool-tips
 
 ```code
 (ui-tool-tips view tips)
-```
-
-### ui-tree
-
-```code
-(ui-tree name event [props]) -> tree
-```
-
-### ui-vdu
-
-```code
-(ui-vdu name [props]) -> vdu
-```
-
-### ui-view
-
-```code
-(ui-view name [props] [body]) -> view
-```
-
-### ui-window
-
-```code
-(ui-window name [props] [body]) -> window
 ```
 
 ### unescape
@@ -1689,18 +1106,6 @@ patch stream a with stream b, write to stream c
 
 ```code
 (unique seq) -> seq
-```
-
-### unless
-
-```code
-(unless tst body)
-```
-
-### until
-
-```code
-(until tst body)
 ```
 
 ### unzip
@@ -1736,40 +1141,16 @@ if fnc_in returns :nil, it'll step down into that list.
 fnc_out is allways called to balence calls to fnc_in.
 ```
 
-### when
-
-```code
-(when tst body)
-```
-
 ### within-compile-env
 
 ```code
 (within-compile-env lambda)
 ```
 
-### write-int
-
-```code
-(write-int stream num|list) -> stream
-```
-
 ### write-line
 
 ```code
 (write-line stream str) -> stream
-```
-
-### write-long
-
-```code
-(write-long stream num|list) -> stream
-```
-
-### write-short
-
-```code
-(write-short stream num|list) -> stream
 ```
 
 ### zip

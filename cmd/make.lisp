@@ -114,7 +114,7 @@
 		(print (cat "-> docs/reference/vp_classes/" cls ".md"))) classes)
 
 	;scan for Lisp functions and classes info
-	(defq classes (list) functions (list) keys (list))
+	(defq classes (list) functions (list) macros (list) keys (list))
 	(each (lambda (file)
 		(defq state :nil info :nil methods :nil)
 		(each-line (lambda (line) (while line
@@ -143,8 +143,11 @@
 								(("*key_map*" "*key_map_shift*" "*key_map_control*")
 									(push keys (list file type (setq info (list))))
 									(setq state :keys))
-								(("defun" "defmacro")
+								("defun"
 									(push functions (list name (setq info (list))))
+									(setq state :function))
+								("defmacro"
+									(push macros (list name (setq info (list))))
 									(setq state :function))
 								("defclass"
 									(push classes (list name (parent? words)
@@ -205,6 +208,17 @@
 				(write-line stream (cat "### " name +LF))
 				(information stream info)))
 		(sort (# (cmp (first %0) (first %1))) functions))
+	(print "-> " document)
+
+	;create macros docs
+	(defq document "docs/reference/macros.md"
+		stream (file-stream document +file_open_write))
+	(write-line stream (cat "# Macros" +LF))
+	(each (lambda ((name info))
+			(when (nempty? info)
+				(write-line stream (cat "### " name +LF))
+				(information stream info)))
+		(sort (# (cmp (first %0) (first %1))) macros))
 	(print "-> " document)
 
 	;create commands docs
