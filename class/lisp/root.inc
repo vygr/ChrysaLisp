@@ -130,6 +130,7 @@
 (ffi bind "class/lisp/lisp_bind" 0)
 (ffi read "class/lisp/lisp_read" 0)
 (ffi eval "class/lisp/lisp_eval" 0)
+(ffi identity "class/lisp/lisp_identity" 0)
 (ffi apply "class/lisp/lisp_apply" 0)
 (ffi repl "class/lisp/lisp_repl" 0)
 (ffi prin "class/lisp/lisp_prin" 0)
@@ -193,10 +194,6 @@
 ;;;;;;;;;;;;
 ; Predicates
 ;;;;;;;;;;;;
-
-(defun identity (_))
-	; (identity any) -> any
-	; function that returns it's argument
 
 (defun lambda? (_)
 	; (lambda? form) -> :t | :nil

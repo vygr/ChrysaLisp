@@ -576,14 +576,6 @@ gather a list of values
 (id-encode id) -> id
 ```
 
-### identity
-
-```code
-(identity any) -> any
-
-function that returns it's argument
-```
-
 ### import
 
 ```code

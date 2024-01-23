@@ -53,6 +53,7 @@
 	(dec-method :lisp_mcall class/lisp/lisp_mcall :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_env_push class/lisp/lisp_env_push :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_env_pop class/lisp/lisp_env_pop :static (:r0 :r1) (:r0 :r1))
+	(dec-method :lisp_identity class/lisp/lisp_identity :static (:r0 :r1) (:r0 :r1))
 	(dec-method :run class/lisp/run))
 
 (def-struct lisp obj_size
