@@ -28,6 +28,8 @@ Classes that inherit from `class/seq`:
 
 * class/sym
 
+* gui/path
+
 ```vdu
 (list 1 2 3 4)
 (list "a" "b")
@@ -38,21 +40,23 @@ Classes that inherit from `class/seq`:
 
 To discover the length of a sequence, use the `(length seq)` function:
 
-```vdu
+```lisp
 (length (list 1 2 3))
-3
+```
+
+```lisp
 (length "ABCDEF")
-6
 ```
 
 Extraction of a single element with `(elem-get index seq)`. Negative indexes
 mean to index from the back of the sequence ! Very useful !
 
-```vdu
+```lisp
 (second "abcd")
-"b"
+```
+
+```lisp
 (last (array 9 8 7))
-7
 ```
 
 Note that negative indexes start at -1 representing the element that would be 1
@@ -61,39 +65,49 @@ good reason for this as will be illustrated with the `(slice)` function below.
 
 Extracting a 'slice' of a sequence with `(slice start end seq)`:
 
-```vdu
+```lisp
 (slice 0 3 "ABCDEF")
-"ABC"
+```
+
+```lisp
 (slice 1 -2 "ABCDEF")
-"BCDE"
 ```
 
 Splice sequences together by using `(cat seq ...)`:
 
-```vdu
+```lisp
 (cat (list 1 2 3) (list 5 6 7))
-(1 2 3 5 6 7)
-(cat "ABC" 'def "qwerty")
-"ABCdefqwerty"
-(cat (fixeds 1.5 6.7 8.9) (fixeds 5.6 1.23 9.01 8.9))
-(1.50000 6.69999 8.89999 5.59999 1.22999 9.00999 8.89999)
-(apply cat (list "a" "b" "c"))
-"abc"
 ```
 
-Search for an element with `(find elem seq)` and `(find-rev elem seq)`:
+```lisp
+(cat "ABC" 'def "qwerty")
+```
 
-```vdu
+```lisp
+(cat (fixeds 1.5 6.7 8.9) (fixeds 5.6 1.23 9.01 8.9))
+```
+
+```lisp
+(apply cat (list "a" "b" "c"))
+```
+
+Search for an element with `(find elem seq)` and `(find-rev elem seq)`, they
+return `:nil` if the element is not found.
+
+```lisp
 (find "a" "defopqaui")
-6
+```
+
+```lisp
 (find 5 (array 1 2 3 4 5))
-4
-(find "a" "def")
-:nil
+```
+
+```lisp
 (find 'a (list 'd 't 'y 'a 'j 'k 'd))
-3
+```
+
+```lisp
 (find-rev 'd (list 'd 't 'y 'a 'j 'k 'd))
-6
 ```
 
 ## Implicit indexing and slicing
@@ -105,23 +119,36 @@ the `(bind)` call. `(first seq)`, `(second seq)`, `(third seq)`, `(last seq)`,
 You can view theses as an error free way to get elements and slices. They
 return `:nil` if the element or slice range is unavailable.
 
-```vdu
-(first "")
-:nil
+```lisp
+(first "ab")
+```
+
+```lisp
 (second "ab")
-"b"
+```
+
+```lisp
 (third '(1 2 3 4 5))
-3
+```
+
+```lisp
 (last '(1 2 3 4 5))
-5
+```
+
+```lisp
 (rest "abcdef")
-"bcdef"
+```
+
+```lisp
 (most "abcdef")
-"abcde"
+```
+
+```lisp
 (rest '(1 2 3 4 5))
-(2 3 4 5)
+```
+
+```lisp
 (most '(1 2 3 4 5))
-(1 2 3 4)
 ```
 
 ## Iteration
@@ -140,21 +167,42 @@ symbol ! Very useful !
 
 ```vdu
 (each! 0 -1 print (list '(1 2 3) "ABC" (array 7 8 9 0)))
+```
+
+```vdu
 1A7
 2B8
 3C9
+```
+
+```vdu
 (each! 0 -1 (# (print (+ %0 %1))) (list '(1 2 3) '(7 2 4)))
+```
+
+```vdu
 8
 4
 7
+```
+
+```vdu
 (each print "ABCDEF" "123456")
+```
+
+```vdu
 A1
 B2
 C3
 D4
 E5
 F6
+```
+
+```vdu
 (each! -2 1 print (list "ABCDEF" "123456"))
+```
+
+```vdu
 E5
 D4
 C3
@@ -177,17 +225,28 @@ breakable for loop or a search loop !
 As with `(each!)` the function being called is passed the current index value
 bound to the '_' symbol ! Very useful !
 
-```vdu
+```lisp
 (some! 0 -1 :nil = (list '(1 2 3) '(5 6 3)))
-:t
+```
+
+```lisp
 (some (# (if (eql %0 "a") _)) "defhqaio")
-5
+```
+
+```vdu
 (some > (array 1 2 3) (array 5 6 7))
+```
+
+```vdu
 :nil
+```
+
+```lisp
 (some < (array 1 2 3) (array 5 6 7))
-:t
+```
+
+```lisp
 (every < (array 1 2 3) (array 5 6 7))
-:t
 ```
 
 ## Map and Reduce
@@ -207,19 +266,28 @@ value for the next iteration and is the returned result. `(reduce)` and
 a sequence and take that sequence as an argument, they allow an optional
 initial value.
 
-```vdu
+```lisp
 (map + '(1 2 3) '(6 7 8) '(1 7 6))
-(8 16 17)
+```
+
+```lisp
 (map-rev + '(1 2 3) '(6 7 8) '(1 7 6))
-(17 16 8)
+```
+
+```lisp
 (map (# (str %0 %1 %2)) '(1 2 3) '(6 7 8) '(1 7 6))
-("161" "277" "386")
+```
+
+```lisp
 (reduce + '(1 2 3))
-6
+```
+
+```lisp
 (reduce (# (push %0 %1)) "ABCD" (list))
-("A" "B" "C" "D")
+```
+
+```lisp
 (reduce-rev (# (push %0 %1)) "ABCD" (list))
-("D" "C" "B" "A")
 ```
 
 ## Arrays
@@ -256,27 +324,35 @@ Classes that inherit from `class/array`:
 Writing of a single element with `(elem-set)`. Negative indexes mean to index
 from the back of the sequence ! Very useful !
 
-```vdu
-(elem-set 1 (defq a (list "a" "b" "c")) "z")
+```lisp
+(defq a (list "a" "b" "c"))
+(elem-set 1 a "z")
 a
-("a" "z" "c")
-(elem-set -2 (defq a (array 9 8 7)) 10)
+```
+
+```lisp
+(defq a (array 9 8 7))
+(elem-set -2 a 10)
 a
-(9 8 10)
 ```
 
 Writing and reading of single elements using `(dim-get)` and `(dim-set)`.
 
-```vdu
+```lisp
 (defq d (dim (nums 2 2) (defq a (list 0 1 2 3))))
 (dim-get (nums 0 1) d)
-2
+```
+
+```lisp
+(defq d (dim (nums 2 2) (defq a (list 0 1 2 3))))
 (dim-set (nums 0 1) d "z")
 a
-(0 1 "z" 3)
+```
+
+```lisp
+(defq d (dim (nums 2 2) (defq a (list 0 1 2 3))))
 (dim-set (nums 1 1) d "x")
 a
-(0 1 "z" "x")
 ```
 
 Pushing and popping elements.
@@ -284,29 +360,47 @@ Pushing and popping elements.
 ```vdu
 (defq a (list 0 1 2 3))
 (while (defq e (pop a)) (print e))
+```
+
+```vdu
 3
 2
 1
 0
+```
+
+```lisp
+(defq a (list))
 (push a 6 8 "z" "y" 'q)
-(6 8 "z" "y" q)
+```
+
+```vdu
+(defq a (list 'q 'y 'z 8 6))
 (while (defq e (pop a)) (print e))
-q
-y
-z
-8
+```
+
+```vdu
 6
+8
+z
+y
+q
 ```
 
 Filtering and reversing.
 
-```vdu
+```lisp
 (filter-array (# (< %0 3)) '(0 1 2 3 4 5 6 7 8 9))
-(0 1 2)
+```
+
+```lisp
 (filter-array odd? (nums 3 4 5))
-(3 5)
+```
+
+```lisp
 (reverse '(0 1 2 3 4 5 6 7 8 9))
-(9 8 7 6 5 4 3 2 1 0)
+```
+
+```lisp
 (reverse (path 1.0 2.0 3.0 5.5))
-(5.50000 3.00000 2.00000 1.00000)
 ```
