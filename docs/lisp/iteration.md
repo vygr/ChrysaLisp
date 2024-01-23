@@ -412,3 +412,7 @@ Filtering and reversing.
 ```lisp
 (reverse (path 1.0 2.0 3.0 5.5))
 ```
+
+```lisp
+(reverse "hi there!")
+```
