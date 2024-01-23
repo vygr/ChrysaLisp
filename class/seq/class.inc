@@ -10,7 +10,7 @@
 	(dec-method :rfind class/obj/null :virtual (:r0 :r1 :r2) (:r0 :r1 :r2))
 	(dec-method :type class/seq/type :override (:r0) (:r0 :r1))
 	(dec-method :lisp_length class/seq/lisp_length :static (:r0 :r1) (:r0 :r1))
-	(dec-method :lisp_elem class/seq/lisp_elem :static (:r0 :r1) (:r0 :r1))
+	(dec-method :lisp_elem class/seq/lisp_eget :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_first class/seq/lisp_first :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_second class/seq/lisp_second :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_third class/seq/lisp_third :static (:r0 :r1) (:r0 :r1))

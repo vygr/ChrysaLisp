@@ -29,7 +29,7 @@
 	(dec-method :repl_bind class/lisp/repl_bind :static (:r0 :r1) (:r0))
 	(dec-method :repl_progn class/lisp/repl_progn :static (:r0 :r1 :r2 :r3) (:r0 :r1))
 	(dec-method :lisp_ffi class/lisp/lisp_ffi :static (:r0 :r1) (:r0 :r1))
-	(dec-method :lisp_prebind class/lisp/lisp_bindfun :static (:r0 :r1) (:r0 :r1))
+	(dec-method :lisp_prebind class/lisp/lisp_prebind :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_macroexpand class/lisp/lisp_macroexpand :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_lambda class/lisp/lisp_lambda :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_macro class/lisp/lisp_macro :static (:r0 :r1) (:r0 :r1))

@@ -40,7 +40,7 @@
 (ffi logxor "class/num/lisp_xor" 0)
 
 (ffi length "class/seq/lisp_length" 0)
-(ffi elem-get "class/seq/lisp_elem" 0)
+(ffi elem-get "class/seq/lisp_eget" 0)
 (ffi first "class/seq/lisp_first" 0)
 (ffi second "class/seq/lisp_second" 0)
 (ffi third "class/seq/lisp_third" 0)
@@ -61,7 +61,7 @@
 (ffi clear "class/array/lisp_clear" 0)
 (ffi push "class/array/lisp_push" 0)
 (ffi pop "class/array/lisp_pop" 0)
-(ffi elem-set "class/array/lisp_elemset" 0)
+(ffi elem-set "class/array/lisp_eset" 0)
 
 (ffi merge-obj "class/list/lisp_merge" 0)
 (ffi pivot "class/list/lisp_pivot" 0)
@@ -69,7 +69,7 @@
 (ffi copy "class/list/lisp_copy" 0)
 
 (ffi str "class/str/lisp_str" 0)
-(ffi str-to-num "class/str/lisp_to_num" 0)
+(ffi str-to-num "class/str/lisp_tonum" 0)
 (ffi expand "class/str/lisp_expand" 0)
 (ffi char "class/str/lisp_char" 0)
 (ffi code "class/str/lisp_code" 0)
@@ -92,9 +92,9 @@
 (ffi def? "class/hmap/lisp_defx" 0)
 (ffi undef "class/hmap/lisp_undef" 0)
 (ffi env "class/hmap/lisp_env" 0)
-(ffi penv "class/hmap/lisp_parent" 0)
+(ffi penv "class/hmap/lisp_penv" 0)
 (ffi env-resize "class/hmap/lisp_resize" 0)
-(ffi tolist "class/hmap/lisp_list" 0)
+(ffi tolist "class/hmap/lisp_tolist" 0)
 
 (ffi io-stream "class/stream/lisp_iostream" 0)
 (ffi string-stream "class/stream/lisp_sstream" 0)
@@ -112,8 +112,8 @@
 (ffi path "class/array/lisp_path" 0)
 (ffi reals "class/array/lisp_reals" 0)
 (ffi dim "class/dim/lisp_dim" 0)
-(ffi dim-get "class/dim/lisp_get" 0)
-(ffi dim-set "class/dim/lisp_set" 0)
+(ffi dim-get "class/dim/lisp_dget" 0)
+(ffi dim-set "class/dim/lisp_dset" 0)
 
 (ffi hash "class/obj/lisp_hash" 0)
 (ffi eql "class/lisp/lisp_eql" 0)
@@ -134,7 +134,7 @@
 (ffi repl "class/lisp/lisp_repl" 0)
 (ffi prin "class/lisp/lisp_prin" 0)
 (ffi print "class/lisp/lisp_print" 0)
-(ffi prebind "class/lisp/lisp_bindfun" 0)
+(ffi prebind "class/lisp/lisp_prebind" 0)
 (ffi . "class/lisp/lisp_mcall" 0)
 (ffi env-push "class/lisp/lisp_env_push" 0)
 (ffi env-pop "class/lisp/lisp_env_pop" 0)
@@ -148,8 +148,8 @@
 
 (ffi get-field "class/obj/lisp_get_field" 0)
 (ffi set-field "class/obj/lisp_set_field" 0)
-(ffi weak-ref "class/obj/lisp_weak_ref" 0)
-(ffi obj-ref "class/obj/lisp_obj_ref" 0)
+(ffi weak-ref "class/obj/lisp_wref" 0)
+(ffi obj-ref "class/obj/lisp_oref" 0)
 
 (defq *root_env* (env)
 	+byte_size 1 +short_size 2 +int_size 4 +long_size 8 +ptr_size 8

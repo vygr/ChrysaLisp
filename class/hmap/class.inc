@@ -24,8 +24,8 @@
 	(dec-method :lisp_get class/hmap/lisp_get :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_defx class/hmap/lisp_defx :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_undef class/hmap/lisp_undef :static (:r0 :r1) (:r0 :r1))
-	(dec-method :lisp_parent class/hmap/lisp_parent :static (:r0 :r1) (:r0 :r1))
-	(dec-method :lisp_list class/hmap/lisp_list :static (:r0 :r1) (:r0 :r1))
+	(dec-method :lisp_parent class/hmap/lisp_penv :static (:r0 :r1) (:r0 :r1))
+	(dec-method :lisp_list class/hmap/lisp_tolist :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_resize class/hmap/lisp_resize :static (:r0 :r1) (:r0 :r1)))
 
 (def-struct hmap hset_size
