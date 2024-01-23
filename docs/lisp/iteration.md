@@ -95,6 +95,10 @@ Search for an element with `(find elem seq)` and `(find-rev elem seq)`, they
 return `:nil` if the element is not found.
 
 ```lisp
+(find "a" "def")
+```
+
+```lisp
 (find "a" "defopqaui")
 ```
 
@@ -120,6 +124,10 @@ You can view theses as an error free way to get elements and slices. They
 return `:nil` if the element or slice range is unavailable.
 
 ```lisp
+(first "")
+```
+
+```lisp
 (first "ab")
 ```
 
@@ -133,6 +141,10 @@ return `:nil` if the element or slice range is unavailable.
 
 ```lisp
 (last '(1 2 3 4 5))
+```
+
+```lisp
+(rest '())
 ```
 
 ```lisp
@@ -233,12 +245,8 @@ bound to the '_' symbol ! Very useful !
 (some (# (if (eql %0 "a") _)) "defhqaio")
 ```
 
-```vdu
+```lisp
 (some > (array 1 2 3) (array 5 6 7))
-```
-
-```vdu
-:nil
 ```
 
 ```lisp

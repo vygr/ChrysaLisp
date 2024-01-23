@@ -17,7 +17,6 @@
 						*result*))
 					*handler_env*))
 			(cond
-				((eql result :nil))
 				((View? result)
 					(def result :tip_mbox (elem-get +select_tip select))
 					(def (defq flow (Flow)) :flow_flags +flow_right)
