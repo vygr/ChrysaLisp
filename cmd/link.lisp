@@ -12,7 +12,7 @@
 	`CLB-L1 CLB-L2`, are the names of the ChrysaLib `-shm` links.
 	If you're bridging Lisp subnets over CLB.
 
-	Internel Lisp subnet links are of the form `001-002`, or if
+	Internal Lisp subnet links are of the form `001-002`, or if
 	connecting local Lisp subnets the recommended form is
 	`000-000` for subnet bridge 1, `001-001` for subnet bridge 2 etc.
 
