@@ -134,7 +134,7 @@ returning it.
 class/lisp/root.inc "macro or" ""
 ```
 
-Here the `(or ...)` is replaced with the `out` list, which starts life as
+Here the `(or ...)` is replaced with the map output, which starts life as
 `(cond)` and for each parameter a new clause is pushed.
 
 And how about the `(case)` construct !!! This replaces your simple use of
