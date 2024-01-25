@@ -44,10 +44,10 @@
 			(vpcase {last - first > 2})
 				;find max distance point
 				(assign {eps, first + 2} {max, length})
-				(call 'path :get_element2 {that, first} {_, p2x, p2y})
-				(call 'path :get_element2 {that, last} {_, p3x, p3y})
+				(call 'path :get_elem2 {that, first} {_, p2x, p2y})
+				(call 'path :get_elem2 {that, last} {_, p3x, p3y})
 				(loop-start)
-					(call 'path :get_element2 {that, length} {_, p1x, p1y})
+					(call 'path :get_elem2 {that, length} {_, p1x, p1y})
 					(call 'sys_math :f_dist_sqd {p1x, p2y, p2x, p2y, p3x, p3y} {dist})
 					(vpif {dist > max})
 						(assign {dist, length} {max, index})
@@ -63,7 +63,7 @@
 				(endif)
 			(default)
 				;output point
-				(call 'path :get_element2 {that, last} {_, p1x, p1y})
+				(call 'path :get_elem2 {that, last} {_, p1x, p1y})
 				(call 'path :push_back2 {this, p1x, p1y})
 			(endswitch)
 

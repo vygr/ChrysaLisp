@@ -329,7 +329,7 @@ For example the `'array :append` method.
 (emit-label '_5)
 (emit-long (- _6 *pc*))
 (emit-label '_6)
-(emit-string "class/array/set_capacity")
+(emit-string "class/array/set_cap")
 (emit-byte 0)
 (emit-align 8 :nil)
 (emit-label '_7)

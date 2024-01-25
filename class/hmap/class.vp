@@ -91,7 +91,7 @@
 	(assign '((:r0 hmap_parent)) '(:r0))
 	(call 'hmap :ref_if '(:r0) '(:r0))
 	(call 'hmap :set_parent '((:rsp local_obj) :r0) '(:r0))
-	(call 'hmap :for_each '((:rsp local_this) ($ callback) :r0) '(:r0))
+	(call 'hmap :each '((:rsp local_this) ($ callback) :r0) '(:r0))
 
 	(exit 'hmap :copy '(:r0 (:rsp local_obj)))
 	(vp-free local_size)
@@ -109,7 +109,7 @@
 	(class/obj/ref :r1 :r3)
 	(class/obj/ref :r2 :r3)
 	(vp-push :r1 :r2)
-	(call 'hmap :get_bucket '(:r0 :r1) '(_ :r0))
+	(call 'hmap :bucket '(:r0 :r1) '(_ :r0))
 	(vp-pop :r1 :r2)
 	(jump 'list :push_back2 '(:r0 :r1 :r2))
 
@@ -133,7 +133,7 @@
 
 	(call 'list :create :nil '(:r0))
 	(assign '(:r0) '((:rsp local_obj)))
-	(call 'hmap :for_each '((:rsp local_this) ($ callback) :r0) '(:r0))
+	(call 'hmap :each '((:rsp local_this) ($ callback) :r0) '(:r0))
 
 	(exit 'hmap :list '(:r0 (:rsp local_obj)))
 	(vp-free local_size)
@@ -178,7 +178,7 @@
 	(assign '((:r0 hset_key_callback) :r1) '(:r2 (:rsp local_key)))
 	(vpif '(:r2 = 0))
 		;search hash bucket
-		(call 'hmap :get_bucket '(:r0 :r1) '(:r0 :r2))
+		(call 'hmap :bucket '(:r0 :r1) '(:r0 :r2))
 		(class/array/get_both :r2 :r5 :r3)
 		(breakif '(:r5 = :r3))
 		;test last known slot
@@ -198,7 +198,7 @@
 		(loop-until '(:r1 = :r3))
 	(else)
 		;search hash bucket
-		(call 'hmap :get_bucket '(:r0 :r1) '(:r0 :r1))
+		(call 'hmap :bucket '(:r0 :r1) '(:r0 :r1))
 		(assign '(:r0 :r1) '((:rsp local_this) (:rsp local_bucket)))
 		(class/array/get_both :r1 :r1 :r2)
 		(assign '(:r2) '((:rsp local_iter_end)))
@@ -368,7 +368,7 @@
 
 (def-func-end)
 
-(def-method 'hmap :for_each)
+(def-method 'hmap :each)
 	;inputs
 	;:r0 = hmap object (ptr)
 	;:r1 = predicate function (ptr)
@@ -390,7 +390,7 @@
 
 	;save inputs
 	(vp-alloc local_size)
-	(entry 'hmap :for_each '(:r0 (:rsp local_predicate) (:rsp local_predicate_data)))
+	(entry 'hmap :each '(:r0 (:rsp local_predicate) (:rsp local_predicate_data)))
 	(assign '(:r0) '((:rsp local_this)))
 
 	;for all buckets
@@ -430,7 +430,7 @@
 		(loop-until '(:r1 = :r2))
 	(endif)
 
-	(exit 'hmap :for_each '((:rsp local_this)))
+	(exit 'hmap :each '((:rsp local_this)))
 	(vp-free local_size)
 	(vp-ret)
 

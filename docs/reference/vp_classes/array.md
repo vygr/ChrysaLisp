@@ -10,8 +10,6 @@
 
 ### (clear array ...)
 
-### (elem-set index array val)
-
 ### (fixeds [num ...])
 
 ### (nums [num ...])
@@ -23,6 +21,8 @@
 ### (push array form ...)
 
 ### (reals [num ...])
+
+### (elem-set index array val)
 
 ## VP methods
 
@@ -142,7 +142,7 @@ trashes
 :r1-:r2
 ```
 
-### :get_capacity -> class/array/get_capacity
+### :get_cap -> class/array/get_cap
 
 ```code
 inputs
@@ -154,7 +154,7 @@ trashes
 :r1
 ```
 
-### :get_element -> class/array/get_element
+### :get_elem -> class/array/get_elem
 
 ```code
 inputs
@@ -167,7 +167,7 @@ trashes
 :r1-:r2
 ```
 
-### :get_element2 -> class/array/get_element2
+### :get_elem2 -> class/array/get_elem2
 
 ```code
 inputs
@@ -389,7 +389,7 @@ trashes
 :r1-:r3
 ```
 
-### :ref_element -> class/array/ref_element
+### :ref_elem -> class/array/ref_elem
 
 ```code
 inputs
@@ -431,7 +431,7 @@ trashes
 :r1-:r8
 ```
 
-### :set_capacity -> class/array/set_capacity
+### :set_cap -> class/array/set_cap
 
 ```code
 inputs
@@ -443,7 +443,7 @@ trashes
 :r1-:r5
 ```
 
-### :set_element -> class/array/set_element
+### :set_elem -> class/array/set_elem
 
 ```code
 inputs

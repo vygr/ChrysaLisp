@@ -4,16 +4,16 @@
 	(dec-method :vtable class/array/vtable)
 	(dec-method :create class/array/create :static :nil (:r0))
 	(dec-method :init class/array/init)
-	(dec-method :get_capacity class/array/get_capacity :static (:r0) (:r0 :r1))
-	(dec-method :set_capacity class/array/set_capacity :static (:r0 :r1) (:r0))
+	(dec-method :get_cap class/array/get_cap :static (:r0) (:r0 :r1))
+	(dec-method :set_cap class/array/set_cap :static (:r0 :r1) (:r0))
 	(dec-method :set_length class/array/set_length :static (:r0 :r1) (:r0 :r1))
 	(dec-method :sort class/array/sort :static (:r0 :r1 :r2 :r3 :r4 :r5) (:r0))
 	(dec-method :pivot class/array/pivot :static (:r0 :r1 :r2 :r3 :r4) (:r0 :r1))
 	(dec-method :get_first class/array/get_first :static (:r0) (:r0 :r1))
 	(dec-method :get_first2 class/array/get_first2 :static (:r0) (:r0 :r1 :r2))
 	(dec-method :get_second class/array/get_second :static (:r0) (:r0 :r1))
-	(dec-method :get_element class/array/get_element :static (:r0 :r1) (:r0 :r1))
-	(dec-method :get_element2 class/array/get_element2 :static (:r0 :r1) (:r0 :r1 :r2))
+	(dec-method :get_elem class/array/get_elem :static (:r0 :r1) (:r0 :r1))
+	(dec-method :get_elem2 class/array/get_elem2 :static (:r0 :r1) (:r0 :r1 :r2))
 	(dec-method :push_back class/array/push_back :static (:r0 :r1) (:r0 :r1 :r2 :r3))
 	(dec-method :push_back2 class/array/push_back2 :static (:r0 :r1 :r2) (:r0 :r1 :r2 :r3 :r4))
 	(dec-method :pop_back class/array/pop_back :static (:r0) (:r0 :r1))
@@ -27,7 +27,7 @@
 	(dec-method :deinit class/array/deinit :override)
 	(dec-method :type class/array/type :override (:r0) (:r0 :r1))
 	(dec-method :print class/array/print :override)
-	(dec-method :ref_element class/array/ref_element :override)
+	(dec-method :ref_elem class/array/ref_elem :override)
 	(dec-method :slice class/array/slice :override)
 	(dec-method :rslice class/array/rslice :override)
 	(dec-method :cat class/array/cat :override)
@@ -38,7 +38,7 @@
 	(dec-method :velement class/num/create :virtual (:r0) (:r0))
 	(dec-method :clear class/array/clear :virtual (:r0) (:r0))
 	(dec-method :ref_back class/array/ref_back :virtual (:r0) (:r0 :r1))
-	(dec-method :set_element class/array/set_element :virtual (:r0 :r1 :r2) (:r0))
+	(dec-method :set_elem class/array/set_elem :virtual (:r0 :r1 :r2) (:r0))
 	(dec-method :append class/array/append :virtual (:r0 :r1 :r2 :r3) (:r0))
 	(dec-method :erase class/array/erase :virtual (:r0 :r1) (:r0 :r1))
 	(dec-method :erase2 class/array/erase2 :virtual (:r0 :r1) (:r0 :r1))
@@ -47,7 +47,7 @@
 	(dec-method :lisp_fixeds class/array/lisp_fixeds :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_reals class/array/lisp_reals :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_path class/array/lisp_path :static (:r0 :r1) (:r0 :r1))
-	(dec-method :lisp_elemset class/array/lisp_eset :static (:r0 :r1) (:r0 :r1))
+	(dec-method :lisp_set class/array/lisp_eset :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_clear class/array/lisp_clear :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_push class/array/lisp_push :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_pop class/array/lisp_pop :static (:r0 :r1) (:r0 :r1))
@@ -127,7 +127,7 @@
 	(assign '(:r2) '((:r0 array_begin)))
 	(s-call 'array :init '(:r0 :r1) '(:r0 :r1)))
 
-(defun class/array/get_capacity ()
+(defun class/array/get_cap ()
 	;inputs
 	;:r0 = array object (ptr)
 	;outputs
@@ -258,7 +258,7 @@
 	(vp-add-rr b bi)
 	(vp-add-rr b ei))
 
-(defun class/array/get_element (&optional o ei e b)
+(defun class/array/get_elem (&optional o ei e b)
 	;inputs
 	;:r0 = array object (ptr)
 	;:r1 = element index (uint)
@@ -274,7 +274,7 @@
 	(vp-shl-cr (log2 +long_size) ei)
 	(vp-cpy-dr b ei e))
 
-(defun class/array/set_element ()
+(defun class/array/set_elem ()
 	;inputs
 	;:r0 = array object (ptr)
 	;:r1 = element (long)
@@ -338,7 +338,7 @@
 	;:r1-:r2
 	(array-bind-args :r0 '(:r1 :r2)))
 
-(defun class/array/get_element2 ()
+(defun class/array/get_elem2 ()
 	;inputs
 	;:r0 = array object (ptr)
 	;:r1 = element index (uint)

@@ -572,7 +572,7 @@
 
 (def-func-end)
 
-(def-method 'str :ref_element)
+(def-method 'str :ref_elem)
 	;inputs
 	;:r0 = str object (ptr)
 	;:r1 = char index (uint)
@@ -582,13 +582,13 @@
 	;trashes
 	;:r1-:r7
 
-	(entry 'str :ref_element '(:r0 :r1))
+	(entry 'str :ref_elem '(:r0 :r1))
 
 	(vp-add-cr str_data :r1)
 	(vp-cpy-rr :r0 :r7)
 	(call 'str :create_from_buffer '((& :r0 :r1) +byte_size) '(:r0))
 
-	(exit 'str :ref_element '(:r7 :r0))
+	(exit 'str :ref_elem '(:r7 :r0))
 	(vp-ret)
 
 (def-func-end)

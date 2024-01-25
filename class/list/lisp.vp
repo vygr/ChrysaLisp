@@ -40,7 +40,7 @@
 	(array-bind-args :r1 '(:r0 :r1))
 	(class/array/get_both :r1 :r8 :r7)
 	(assign '((:r0 array_length)) '(:r1))
-	(call 'list :set_capacity '(:r0 :r1) '(:r0))
+	(call 'list :set_cap '(:r0 :r1) '(:r0))
 	(loop-while '(:r8 /= :r7))
 		(assign '((:r8 0)) '(:r1))
 		(vp-add-cr +ptr_size :r8)

@@ -255,7 +255,7 @@
 	(entry 'font :glyph_info `(,this ,utf8))
 
 	(call 'array :create :nil `(,info))
-	(call 'array :set_capacity `(,info (,utf8 str_length)) `(,info))
+	(call 'array :set_cap `(,info (,utf8 str_length)) `(,info))
 	(assign `((& ,utf8 str_data)) `(,data))
 	(loop-start)
 		(call 'sys_str :read_utf8 `(,data) `(,data ,c))
@@ -504,7 +504,7 @@
 	(vpifnot {this->font_chars})
 		;note, don't write to member var yet in case flush gets called !
 		(call 'list :create :nil {chars})
-		(call 'list :set_capacity {chars, 128 - 33})
+		(call 'list :set_cap {chars, 128 - 33})
 		(assign {33} {code})
 		(loop-start)
 			(call 'sym :intern_cstr {&code} {sym})
@@ -544,7 +544,7 @@
 	(loop-start)
 		(call 'list :get_length {flat_set} {_, length})
 		(breakif {index = length})
-		(call 'list :get_element {flat_set, index} {_, font})
+		(call 'list :get_elem {flat_set, index} {_, font})
 		(vpif {font->font_chars})
 			(vpif {font->font_chars->obj_count = 1})
 				;during deref font_chars could be written to !
@@ -555,7 +555,7 @@
 		(endif)
 		(call 'hmap :create {font->font_sym_map->hset_key_callback,
 			font->font_sym_map->hset_num_buckets} {new_map})
-		(call 'hmap :for_each {font->font_sym_map, $flush_callback, new_map})
+		(call 'hmap :each {font->font_sym_map, $flush_callback, new_map})
 		;during deref font_sym_map could be written to !
 		(assign {font->font_sym_map} {tmp})
 		(assign {new_map} {font->font_sym_map})
@@ -582,7 +582,7 @@
 		(class/obj/ref :r1 :r3)
 		(class/obj/ref :r2 :r3)
 		(vp-push :r1 :r2)
-		(call 'hmap :get_bucket '(:r0 :r1) '(_ :r0))
+		(call 'hmap :bucket '(:r0 :r1) '(_ :r0))
 		(vp-pop :r1 :r2)
 		(jump 'list :push_back2 '(:r0 :r1 :r2))
 	(default)

@@ -117,7 +117,7 @@
 				(endif)
 				(vpif {(c & 0x7fffffff => c) > +char_space})
 					(breakif {c > 0x7f})
-					(call 'list :get_element {this->vdu_textures, c - 33} {_, txt})
+					(call 'list :get_elem {this->vdu_textures, c - 33} {_, txt})
 					(call 'texture :get_metrics {txt} {_, handle, w ,h})
 					(vpif {handle})
 						(call 'ctx :blit {this, handle, ink, x * this->vdu_char_width + ((this->vdu_char_width - w) >>> 1), by * this->vdu_char_height, w, h})

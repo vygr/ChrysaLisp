@@ -4,6 +4,19 @@
 
 ## VP methods
 
+### :bucket -> class/hset/bucket
+
+```code
+inputs
+:r0 = hset object (ptr)
+:r1 = key object (ptr)
+outputs
+:r0 = hset object (ptr)
+:r1 = bucket list object (ptr)
+trashes
+:r1-:r14
+```
+
 ### :clear -> class/hset/clear
 
 ```code
@@ -26,6 +39,26 @@ outputs
 :r0 = hset object (ptr)
 trashes
 :r1-:r14
+```
+
+### :each -> class/hset/each
+
+```code
+inputs
+:r0 = hset object (ptr)
+:r1 = predicate function (ptr)
+:r2 = predicate data (ptr)
+outputs
+:r0 = hset object (ptr)
+trashes
+:r1-:r4...
+callback predicate
+inputs
+:r0 = predicate data (ptr)
+:r1 = element iterator (pptr)
+:r2 = bucket list pointer (ptr)
+trashes
+...
 ```
 
 ### :each_callback -> class/obj/null
@@ -51,39 +84,6 @@ inputs
 :r0 = hset object (ptr)
 outputs
 :r0 = hset object (ptr)
-trashes
-:r1-:r14
-```
-
-### :for_each -> class/hset/for_each
-
-```code
-inputs
-:r0 = hset object (ptr)
-:r1 = predicate function (ptr)
-:r2 = predicate data (ptr)
-outputs
-:r0 = hset object (ptr)
-trashes
-:r1-:r4...
-callback predicate
-inputs
-:r0 = predicate data (ptr)
-:r1 = element iterator (pptr)
-:r2 = bucket list pointer (ptr)
-trashes
-...
-```
-
-### :get_bucket -> class/hset/get_bucket
-
-```code
-inputs
-:r0 = hset object (ptr)
-:r1 = key object (ptr)
-outputs
-:r0 = hset object (ptr)
-:r1 = bucket list object (ptr)
 trashes
 :r1-:r14
 ```

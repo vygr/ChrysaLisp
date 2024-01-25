@@ -130,7 +130,7 @@
 				;send to random better kernel
 				(call 'array :get_length {best_nodes} {_, best_cnt})
 				(assign {(best_rand + 1 => best_rand) % (best_cnt >> 1)} {best_cnt})
-				(call 'array :get_element2 {best_nodes, best_cnt << 1}
+				(call 'array :get_elem2 {best_nodes, best_cnt << 1}
 					{_, msg->msg_dest.net_id_node_id.node_id_node1,
 						msg->msg_dest.net_id_node_id.node_id_node2})
 				(call 'sys_mail :send {msg})
@@ -518,7 +518,7 @@
 		;purge stale nodes
 		(call 'sys_pii :time :nil '((:rsp local_now)))
 		(fn-bind 'sys/statics/statics :r0)
-		(call 'hmap :for_each '((:r0 statics_sys_mail_node_map) ($ purge_callback) :rsp))
+		(call 'hmap :each '((:r0 statics_sys_mail_node_map) ($ purge_callback) :rsp))
 
 		;purge stale messages and parcels
 		(fn-bind 'sys/statics/statics :r0)

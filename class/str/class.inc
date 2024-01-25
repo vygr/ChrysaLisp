@@ -19,7 +19,7 @@
 	(dec-method :print class/str/print :override)
 	(dec-method :hash class/str/hash :override)
 	(dec-method :get_length class/str/get_length :final)
-	(dec-method :ref_element class/str/ref_element :final)
+	(dec-method :ref_elem class/str/ref_elem :final)
 	(dec-method :slice class/str/slice :final)
 	(dec-method :rslice class/str/rslice :final)
 	(dec-method :cat class/str/cat :final)

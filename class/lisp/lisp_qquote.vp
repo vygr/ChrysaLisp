@@ -45,7 +45,7 @@
 	(class/array/get_both :r4 :r1 :r2)
 	(assign '(:r1 :r2) '((:rsp local_iter_begin) (:rsp local_iter_end)))
 	(call 'list :create :nil '(:r0))
-	(call 'list :set_capacity '(:r0 (:r4 array_length)) '((:rsp local_list)))
+	(call 'list :set_cap '(:r0 (:r4 array_length)) '((:rsp local_list)))
 	(loop-start 'next_elem)
 		(assign '((:rsp local_iter_begin) (:rsp local_iter_end)) '(:r2 :r3))
 		(breakif '(:r2 = :r3))

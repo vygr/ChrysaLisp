@@ -81,7 +81,7 @@
 		(else)
 			;continue subdivision
 			(d-call 'array :get_length {stack} {_, length})
-			(call 'array :set_capacity {stack, length + 4})
+			(call 'array :set_cap {stack, length + 4})
 			(call 'array :get_end {stack} {_, iter_end})
 			(call 'array :set_length {stack, length + 4})
 			(vec-load 5 {bv, v2, v1, bv, iter_end})

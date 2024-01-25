@@ -43,7 +43,7 @@
 		(assign `(,index_vars (,this lisp_sym_optional) (,this lisp_sym_rest)
 					(,this lisp_sym_ignore) (,this lisp_sym_most))
 			`(,symbol ,optn ,rst ,ign ,mst))
-		(class/array/get_element vars symbol symbol this)
+		(class/array/get_elem vars symbol symbol this)
 		(switch)
 		(vpcase `(,symbol = ,optn))
 			(assign `(,+state_optional) `(,state))
@@ -62,7 +62,7 @@
 		(assign `(,index_vars ,state) {index_vars, state})
 
 		(call 'obj :deref {value})
-		(call 'list :get_element {vars, index_vars} {_, symbol})
+		(call 'list :get_elem {vars, index_vars} {_, symbol})
 		(vpif (cat {symbol->obj_vtable = @} (f-path 'sym :vtable)))
 			;standard symbol
 			(vp-def (vals index_vals len_vals value index_vars len_vars state))
@@ -91,7 +91,7 @@
 				;normal
 				(errorif `(,index_vals = ,len_vals) 'error)
 			(vp-label 'normal)
-				(call 'seq :ref_element (list vals index_vals) (list '_ value))
+				(call 'seq :ref_elem (list vals index_vals) (list '_ value))
 				(assign {index_vals + 1} (list index_vals))
 			(endif)
 			(assign {index_vars} (list index_vars))
@@ -102,7 +102,7 @@
 			;destructureing ?
 			(errorif (cat {symbol->obj_vtable /= @} (f-path 'list :vtable)) 'error1)
 			(errorif {index_vals = len_vals} 'error)
-			(call 'seq :ref_element {vals, index_vals} {_, args})
+			(call 'seq :ref_elem {vals, index_vals} {_, args})
 			(assign {index_vars + 1, index_vals + 1} {index_vars, index_vals})
 			(call 'lisp :env_bind {this, symbol, args} {_, value})
 			(call 'obj :deref {args})

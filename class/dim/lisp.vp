@@ -57,7 +57,7 @@
 
 	(vp-def (elems index dims indexs dims_len indexs_len
 			dims_iter_begin dims_iter_end indexs_iter_begin acc d i)
-		(method-input 'array :ref_element))
+		(method-input 'array :ref_elem))
 
 	(vp-push :r0 :r1)
 	(list-bind-args :r1 `(,indexs ,dims) '(:nums :dim))
@@ -86,7 +86,7 @@
 	(gotoif `(,index < 0) 'error1)
 	(gotoif `(,index >= ,indexs_len) 'error1))
 
-	(call 'array :ref_element `(,elems ,index) '(_ :r1))
+	(call 'array :ref_elem `(,elems ,index) '(_ :r1))
 	(vp-pop :r0 :r2)
 
 	(exit 'dim :lisp_get '(:r0 :r1))
@@ -118,7 +118,7 @@
 
 	(vp-def (elems obj index dims indexs dims_len indexs_len
 			dims_iter_begin dims_iter_end indexs_iter_begin acc d i)
-		(method-input 'array :set_element))
+		(method-input 'array :set_elem))
 
 	(vp-push :r0 :r1)
 	(list-bind-args :r1 `(,indexs ,dims ,obj) '(:nums :dim :obj))
@@ -160,7 +160,7 @@
 		(endif)
 		(vp-simd vp-cpy-rr '(:r12 :r13 :r14) `(,elems ,obj ,index))
 	(endif)
-	(call 'array :set_element `(,elems ,obj ,index))
+	(call 'array :set_elem `(,elems ,obj ,index))
 	(vp-pop :r0 :r1)
 
 	(exit 'dim :lisp_set '(:r0 :r1))

@@ -130,7 +130,7 @@ trashes
 :r1-:r2
 ```
 
-### :ref_element -> class/list/ref_element
+### :ref_elem -> class/list/ref_elem
 
 ```code
 inputs
@@ -172,7 +172,7 @@ trashes
 :r1-:r8
 ```
 
-### :set_element -> class/list/set_element
+### :set_elem -> class/list/set_elem
 
 ```code
 inputs

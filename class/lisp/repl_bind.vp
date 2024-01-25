@@ -165,7 +165,7 @@
 			(breakif '(:r1 = :r3))
 			(vp-sub-cr 1 :r1)
 			(assign '(:r1) '((:r2 array_length)))
-			(class/array/get_element :r2 :r1 :r1 :r2)
+			(class/array/get_elem :r2 :r1 :r1 :r2)
 		(loop-end)
 
 		(assign '((:rsp local_form)) '(:r1))

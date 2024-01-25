@@ -221,7 +221,7 @@ trashes
 :r1-:r14
 ```
 
-### :ref_element -> class/str/ref_element
+### :ref_elem -> class/str/ref_elem
 
 ```code
 inputs

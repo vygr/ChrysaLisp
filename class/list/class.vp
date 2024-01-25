@@ -53,7 +53,7 @@
 
 (def-func-end)
 
-(def-method 'list :ref_element)
+(def-method 'list :ref_elem)
 	;inputs
 	;:r0 = list object (ptr)
 	;:r1 = element index (uint)
@@ -63,12 +63,12 @@
 	;trashes
 	;:r1-:r2
 
-	(entry 'list :ref_element '(:r0 :r1))
+	(entry 'list :ref_elem '(:r0 :r1))
 
-	(class/array/get_element :r0 :r1 :r1 :r2)
+	(class/array/get_elem :r0 :r1 :r1 :r2)
 	(class/obj/ref :r1 :r2)
 
-	(exit 'list :ref_element '(:r0 :r1))
+	(exit 'list :ref_elem '(:r0 :r1))
 	(vp-ret)
 
 (def-func-end)
@@ -91,7 +91,7 @@
 
 (def-func-end)
 
-(def-method 'list :set_element)
+(def-method 'list :set_elem)
 	;inputs
 	;:r0 = list object (ptr)
 	;:r1 = element object (ptr)
@@ -101,7 +101,7 @@
 	;trashes
 	;:r1-:r14
 
-	(entry 'list :set_element '(:r0 :r1 :r2))
+	(entry 'list :set_elem '(:r0 :r1 :r2))
 
 	(assign '((:r0 array_begin)) '(:r3))
 	(vp-shl-cr (log2 +ptr_size) :r2)
@@ -110,7 +110,7 @@
 	(call 'obj :deref '(:r0))
 	(vp-pop :r0)
 
-	(exit 'list :set_element '(:r0))
+	(exit 'list :set_elem '(:r0))
 	(vp-ret)
 
 (def-func-end)
@@ -134,7 +134,7 @@
 	(vp-cpy-rr :r8 :r1)
 	(vp-sub-rr :r7 :r1)
 	(assign '(:r1) '((:r0 array_length)))
-	(call 'list :set_capacity '(:r0 :r1) '(:r1))
+	(call 'list :set_cap '(:r0 :r1) '(:r1))
 	(vp-cpy-rr :r6 :r0)
 
 	;copy and ref elements
@@ -174,7 +174,7 @@
 	(vp-cpy-rr :r8 :r1)
 	(vp-sub-rr :r7 :r1)
 	(assign '(:r1) '((:r0 array_length)))
-	(call 'list :set_capacity '(:r0 :r1) '(:r1))
+	(call 'list :set_cap '(:r0 :r1) '(:r1))
 	(vp-cpy-rr :r6 :r0)
 
 	;copy and ref elements
@@ -217,7 +217,7 @@
 		(vp-sub-rr :r2 :r3)
 		(assign '((& :r3 :r9)) '(:r1))
 		(assign '(:r1) '((:r0 array_length)))
-		(call 'list :set_capacity '(:r0 :r1) '(:r0))
+		(call 'list :set_cap '(:r0 :r1) '(:r0))
 
 		;append and ref elements
 		(class/array/get_iters :r6 :r7 :r8 :r1)
@@ -507,7 +507,7 @@
 		(breakif '(:r1 = :r11))
 		(vp-sub-cr 1 :r1)
 		(assign '(:r1) '((:r0 array_length)))
-		(class/array/get_element :r0 :r1 :r9 :r2)
+		(class/array/get_elem :r0 :r1 :r9 :r2)
 	(loop-end)
 	(vp-pop :r0 :r1)
 

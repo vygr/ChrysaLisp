@@ -44,7 +44,7 @@
 
 ### :get_length -> class/obj/null
 
-### :ref_element -> class/obj/null
+### :ref_elem -> class/obj/null
 
 ### :rfind -> class/obj/null
 

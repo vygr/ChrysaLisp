@@ -22,7 +22,7 @@
 	(entry 'sym :statics_init {})
 
 	(call 'list :create :nil {syms})
-	(call 'list :set_capacity (cat {syms, } (str (length *static_syms*))))
+	(call 'list :set_cap (cat {syms, } (str (length *static_syms*))))
 	(assign {$props} {next})
 	(loop-start)
 		(call 'sym :intern_cstr {next} {sym})
@@ -57,7 +57,7 @@
 
 	(fn-bind 'sys/statics/statics :r3)
 	(assign '((:r3 statics_sym_syms)) '(:r3))
-	(class/array/get_element :r3 :r1 :r1 :r3)
+	(class/array/get_elem :r3 :r1 :r1 :r3)
 
 	(exit 'sym :get_static_sym '(:r1))
 	(vp-ret)
