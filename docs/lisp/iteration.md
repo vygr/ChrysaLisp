@@ -291,11 +291,11 @@ initial value.
 ```
 
 ```lisp
-(reduce (# (push %0 %1)) "ABCD" (list))
+(reduce push "ABCD" (list))
 ```
 
 ```lisp
-(reduce-rev (# (push %0 %1)) "ABCD" (list))
+(reduce-rev push "ABCD" (list))
 ```
 
 ## Arrays
