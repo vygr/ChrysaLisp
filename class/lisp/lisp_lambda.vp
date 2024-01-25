@@ -51,8 +51,13 @@
 
 	(entry 'lisp :lisp_identity '(:r0 :r1))
 
-	(assign '((:r1 array_begin)) '(:r1))
-	(assign '((:r1 0)) '(:r1))
+	(assign '((:r1 array_length)) '(:r2))
+	(vpif '(:r2 = 0))
+		(assign '((:r0 lisp_sym_nil)) '(:r1))
+	(else)
+		(assign '((:r1 array_begin)) '(:r1))
+		(assign '((:r1 0)) '(:r1))
+	(endif)
 	(class/obj/ref :r1 :r2)
 
 	(exit 'lisp :lisp_identity '(:r0 :r1))
