@@ -741,12 +741,12 @@
 			(f-bind 'error :vtable vt2)
 			(gotoif `(,vt1 = ,vt2) 'funcexit))
 
-			(assign {this, value, mode} '(:r0 :r1 :r2))
+			(assign {this, mode, value} '(:r0 :r1 :r2))
 			(assign '((:r0 lisp_sym_nil)) '(:r0))
-			(vpif '(:r2 /= :r0))
-				(gotoif '(:r1 = :r0) 'funcexit)
+			(vpif '(:r1 /= :r0))
+				(gotoif '(:r2 = :r0) 'funcexit)
 			(else)
-				(gotoif '(:r1 /= :r0) 'funcexit)
+				(gotoif '(:r2 /= :r0) 'funcexit)
 			(endif)
 
 			(assign {dir, start, end} '(:r8 :r9 :r10))
