@@ -49,8 +49,7 @@
 	;trashes
 	;:r1
 	(setd o :r0 c :r1 x 1)
-	(if (eql (setq o (get o)) (setq c (get c)))
-		(throw "Invalid object or count !" (list o c)))
+	(if (eql o c) (throw "Invalid object or count !" (list o c)))
 	(assign `((,o obj_count)) `(,c))
 	(if (vp-reg? x)
 		(vp-add-rr x c)
