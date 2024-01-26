@@ -613,7 +613,7 @@
 		(endif)
 		(assign '(:r8 :r9 :r10 :r11 :r12) {dir, start, end, func, args})
 
-		(loop-while '(:r9 /= :r10) 'done)
+		(loop-while '(:r9 /= :r10))
 			(call 'obj :deref {value})
 
 			(call 'list :create :nil {params})
@@ -635,10 +635,10 @@
 			(call 'list :deref {params})
 
 		(errorcase
-			(assign {value} '(:r1))
-			(f-bind 'error :vtable :r4)
-			(assign '((:r1 obj_vtable)) '(:r3))
-			(breakif '(:r3 = :r4) 'done))
+			(vp-def (vt1 vt2))
+			(assign {value->obj_vtable} `(,vt1))
+			(f-bind 'error :vtable vt2)
+			(gotoif `(,vt1 = ,vt2) 'funcexit))
 
 			(assign {dir, start, end} '(:r8 :r9 :r10))
 			(vp-add-rr :r8 :r9)
@@ -714,7 +714,7 @@
 		(endif)
 		(assign '(:r8 :r9 :r10 :r11 :r12 :r13) {dir, start, end, mode, func, args})
 
-		(loop-while '(:r9 /= :r10) 'done)
+		(loop-while '(:r9 /= :r10))
 			(call 'obj :deref {value})
 
 			(call 'list :create :nil {params})
@@ -734,19 +734,19 @@
 
 			(call 'lisp :repl_apply {this, params, func} {_, value})
 			(call 'list :deref {params})
-			(assign {value} '(:r1))
 
 		(errorcase
-			(f-bind 'error :vtable :r4)
-			(assign '((:r1 obj_vtable)) '(:r3))
-			(breakif '(:r3 = :r4) 'done))
+			(vp-def (vt1 vt2))
+			(assign {value->obj_vtable} `(,vt1))
+			(f-bind 'error :vtable vt2)
+			(gotoif `(,vt1 = ,vt2) 'funcexit))
 
-			(assign {this, mode} '(:r0 :r2))
+			(assign {this, value, mode} '(:r0 :r1 :r2))
 			(assign '((:r0 lisp_sym_nil)) '(:r0))
 			(vpif '(:r2 /= :r0))
-				(breakif '(:r1 = :r0) 'done)
+				(gotoif '(:r1 = :r0) 'funcexit)
 			(else)
-				(breakif '(:r1 /= :r0) 'done)
+				(gotoif '(:r1 /= :r0) 'funcexit)
 			(endif)
 
 			(assign {dir, start, end} '(:r8 :r9 :r10))
@@ -856,10 +856,10 @@
 			(call 'list :deref {params})
 
 		(errorcase
-			(assign {value} '(:r1))
-			(f-bind 'error :vtable :r4)
-			(assign '((:r1 obj_vtable)) '(:r3))
-			(gotoif '(:r3 = :r4) 'error3))
+			(vp-def (vt1 vt2))
+			(assign {value->obj_vtable} `(,vt1))
+			(f-bind 'error :vtable vt2)
+			(gotoif `(,vt1 = ,vt2) 'error3))
 
 			(call 'list :push_back {out, value})
 			(assign {dir, start, end} '(:r8 :r9 :r10))
@@ -963,10 +963,10 @@
 			(call 'list :deref {params})
 
 		(errorcase
-			(assign {value} '(:r1))
-			(f-bind 'error :vtable :r4)
-			(assign '((:r1 obj_vtable)) '(:r3))
-			(gotoif '(:r3 = :r4) 'funcexit))
+			(vp-def (vt1 vt2))
+			(assign {value->obj_vtable} `(,vt1))
+			(f-bind 'error :vtable vt2)
+			(gotoif `(,vt1 = ,vt2) 'funcexit))
 
 			(assign {dir, start, end} '(:r8 :r9 :r10))
 			(vp-add-rr :r8 :r9)
