@@ -554,3 +554,29 @@
 	(vp-ret)
 
 (def-func-end)
+
+(def-method 'list :min_length)
+	;inputs
+	;:r0 = list of seq objects (ptr)
+	;outputs
+	;:r0 = list of seq objects (ptr)
+	;:r1 = +max_int, or minimum length (int)
+	;trashes
+	;:r1-:r5
+
+	(vp-def (this min_len iter_begin iter_end) '(:r2 :r3 :r4 :r5))
+
+	(entry 'list :min_length `(,this))
+
+	(vp-cpy-cr +max_int min_len)
+	(class/array/get_both this iter_begin iter_end)
+	(loop-while `(,iter_begin /= ,iter_end))
+		(call 'seq :get_length `((,iter_begin 0)) '(_ len))
+		(vp-min-rr len min_len)
+		(vp-add-cr +ptr_size iter_begin)
+	(loop-end)
+
+	(exit 'list :min_length `(,this ,min_len))
+	(vp-ret)
+
+(def-func-end)

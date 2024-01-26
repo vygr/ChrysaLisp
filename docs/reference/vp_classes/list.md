@@ -106,6 +106,18 @@ trashes
 :r2-:r14
 ```
 
+### :min_length -> class/list/min_length
+
+```code
+inputs
+:r0 = list of seq objects (ptr)
+outputs
+:r0 = list of seq objects (ptr)
+:r1 = +max_int, or minimum length (int)
+trashes
+:r1-:r5
+```
+
 ### :print -> class/list/print
 
 ```code

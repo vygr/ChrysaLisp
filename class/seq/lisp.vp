@@ -578,26 +578,20 @@
 		(int dir start end))
 
 	(push-scope)
-	(entry 'seq :lisp_each '(:r0 :r1))
+	(entry 'seq :lisp_each {this, args})
 
+(errorcase
 	(errorif-lisp-args-sig :r1 4 'error1)
+	(assign '((:r1 array_begin)) '(:r1))
+	(assign `((:r1 ,(* +ptr_size 3))) '(:r1))
+	(errorif-lisp-args-type :r1 seq 0 'error1))
 
-	(assign '(:r0 :r1) {this, args})
-	(call 'lisp :env_push '(:r0))
+	(call 'lisp :env_push {this})
 
 	(assign {args} '(:r0))
 	(list-bind-args :r0 '(:r9 :r10 :r11 :r12) '(:num :num :obj :list))
-	(vp-cpy-cr +max_int :r8)
-	(class/array/get_both :r12 :r6 :r7)
-	(loop-while '(:r6 /= :r7))
-		(vp-cpy-ir :r6 0 :r0)
-	(errorcase
-		(call 'obj :inst_of `(:r0 (@ ,(f-path 'seq :vtable))) '(:r0 :r1))
-		(gotoif '(:r1 = 0) 'error3))
-		(call 'seq :get_length '(:r0) '(_ :r1))
-		(vp-min-rr :r1 :r8)
-		(vp-add-cr +ptr_size :r6)
-	(loop-end)
+
+	(call 'list :min_length '(:r12) '(_ :r8))
 
 	(call 'obj :ref {this->lisp_sym_nil} {value})
 
@@ -606,10 +600,10 @@
 		(lisp-elem-index :r10 :r8)
 
 	(errorcase
-		(gotoif '(:r9 < 0) 'error4)
-		(gotoif '(:r10 < 0) 'error4)
-		(gotoif '(:r9 > :r8) 'error4)
-		(gotoif '(:r10 > :r8) 'error4))
+		(gotoif '(:r9 < 0) 'error2)
+		(gotoif '(:r10 < 0) 'error2)
+		(gotoif '(:r9 > :r8) 'error2)
+		(gotoif '(:r10 > :r8) 'error2))
 
 		(vp-cpy-cr 1 :r8)
 		(vpif '(:r9 > :r10))
@@ -660,11 +654,8 @@
 
 (errorcase
 (vp-label 'error1)
-	(jump 'lisp :repl_error '(:r0 "(each! start end lambda seqs)" +error_msg_wrong_num_of_args :r1))
-(vp-label 'error3)
-	(call 'lisp :repl_error {this, "(each! start end lambda seqs)", +error_msg_not_a_sequence, args} {_, value})
-	(goto 'funcexit)
-(vp-label 'error4)
+	(jump 'lisp :repl_error {this, "(each! start end lambda seqs)", +error_msg_wrong_types, args})
+(vp-label 'error2)
 	(call 'lisp :repl_error {this, "(each! start end lambda seqs)", +error_msg_not_valid_index, args} {_, value})
 	(goto 'funcexit)
 	(signature '(num num obj list)))
@@ -688,26 +679,20 @@
 		(int dir start end))
 
 	(push-scope)
-	(entry 'seq :lisp_some '(:r0 :r1))
+	(entry 'seq :lisp_some {this, args})
 
+(errorcase
 	(errorif-lisp-args-sig :r1 5 'error1)
+	(assign '((:r1 array_begin)) '(:r1))
+	(assign `((:r1 ,(* +ptr_size 4))) '(:r1))
+	(errorif-lisp-args-type :r1 seq 0 'error1))
 
-	(assign '(:r0 :r1) {this, args})
-	(call 'lisp :env_push '(:r0))
+	(call 'lisp :env_push {this})
 
 	(assign {args} '(:r0))
 	(list-bind-args :r0 '(:r9 :r10 :r11 :r12 :r13) '(:num :num :obj :obj :list))
-	(vp-cpy-cr +max_int :r8)
-	(class/array/get_both :r13 :r6 :r7)
-	(loop-while '(:r6 /= :r7))
-		(vp-cpy-ir :r6 0 :r0)
-	(errorcase
-		(call 'obj :inst_of `(:r0 (@ ,(f-path 'seq :vtable))) '(:r0 tmp))
-		(gotoif `(,tmp = 0) 'error3))
-		(call 'seq :get_length '(:r0) '(_ :r1))
-		(vp-min-rr :r1 :r8)
-		(vp-add-cr +ptr_size :r6)
-	(loop-end)
+
+	(call 'list :min_length '(:r13) '(_ :r8))
 
 	(call 'obj :ref '(:r11) {value})
 
@@ -716,10 +701,10 @@
 		(lisp-elem-index :r10 :r8)
 
 	(errorcase
-		(gotoif '(:r9 < 0) 'error4)
-		(gotoif '(:r10 < 0) 'error4)
-		(gotoif '(:r9 > :r8) 'error4)
-		(gotoif '(:r10 > :r8) 'error4))
+		(gotoif '(:r9 < 0) 'error2)
+		(gotoif '(:r10 < 0) 'error2)
+		(gotoif '(:r9 > :r8) 'error2)
+		(gotoif '(:r10 > :r8) 'error2))
 
 		(vp-cpy-cr 1 :r8)
 		(vpif '(:r9 > :r10))
@@ -778,11 +763,8 @@
 
 (errorcase
 (vp-label 'error1)
-	(jump 'lisp :repl_error '(:r0 "(some! start end mode lambda seqs)" +error_msg_wrong_num_of_args :r1))
-(vp-label 'error3)
-	(call 'lisp :repl_error {this, "(some! start end mode lambda seqs)", +error_msg_not_a_sequence, args} {_, value})
-	(goto 'funcexit)
-(vp-label 'error4)
+	(jump 'lisp :repl_error {this, "(some! start end mode lambda seqs)", +error_msg_wrong_types, args})
+(vp-label 'error2)
 	(call 'lisp :repl_error {this, "(some! start end mode lambda seqs)", +error_msg_not_valid_index, args} {_, value})
 	(goto 'funcexit)
 	(signature '(num num obj obj list)))
@@ -806,12 +788,15 @@
 		(int dir start end))
 
 	(push-scope)
-	(entry 'seq :lisp_map '(:r0 :r1))
+	(entry 'seq :lisp_map {this, args})
 
+(errorcase
 	(errorif-lisp-args-sig-range :r1 4 5 'error1)
+	(assign '((:r1 array_begin)) '(:r1))
+	(assign `((:r1 ,(* +ptr_size 3))) '(:r1))
+	(errorif-lisp-args-type :r1 seq 0 'error1))
 
-	(assign '(:r0 :r1) {this, args})
-	(call 'lisp :env_push '(:r0))
+	(call 'lisp :env_push {this})
 
 	(assign {args} '(:r0))
 	(assign '((:r0 array_length)) '(:r2))
@@ -824,27 +809,17 @@
 	(endif)
 	(assign '(:r0) {out})
 
-	(vp-cpy-cr +max_int :r8)
-	(class/array/get_both :r12 :r6 :r7)
-	(loop-while '(:r6 /= :r7))
-		(vp-cpy-ir :r6 0 :r0)
-	(errorcase
-		(call 'obj :inst_of `(:r0 (@ ,(f-path 'seq :vtable))) '(:r0 :r1))
-		(gotoif '(:r1 = 0) 'error3))
-		(call 'seq :get_length '(:r0) '(_ :r1))
-		(vp-min-rr :r1 :r8)
-		(vp-add-cr +ptr_size :r6)
-	(loop-end)
+	(call 'list :min_length '(:r12) '(_ :r8))
 
 	(vpif '(:r8 /= +max_int))
 		(lisp-elem-index :r9 :r8)
 		(lisp-elem-index :r10 :r8)
 
 	(errorcase
-		(gotoif '(:r9 < 0) 'error4)
-		(gotoif '(:r10 < 0) 'error4)
-		(gotoif '(:r9 > :r8) 'error4)
-		(gotoif '(:r10 > :r8) 'error4))
+		(gotoif '(:r9 < 0) 'error2)
+		(gotoif '(:r10 < 0) 'error2)
+		(gotoif '(:r9 > :r8) 'error2)
+		(gotoif '(:r10 > :r8) 'error2))
 
 		(vp-cpy-cr 1 :r8)
 		(vpif '(:r9 > :r10))
@@ -884,7 +859,7 @@
 			(assign {value} '(:r1))
 			(f-bind 'error :vtable :r4)
 			(assign '((:r1 obj_vtable)) '(:r3))
-			(gotoif '(:r3 = :r4) 'error2))
+			(gotoif '(:r3 = :r4) 'error3))
 
 			(call 'list :push_back {out, value})
 			(assign {dir, start, end} '(:r8 :r9 :r10))
@@ -901,18 +876,14 @@
 
 (errorcase
 (vp-label 'error1)
-	(jump 'lisp :repl_error '(:r0 "(map! start end lambda seqs [out])" +error_msg_wrong_types :r1))
+	(jump 'lisp :repl_error {this, "(map! start end lambda seqs [out])", +error_msg_wrong_types, args})
 (vp-label 'error2)
 	(call 'obj :deref {out})
-	(assign {value} {out})
+	(call 'lisp :repl_error {this, "(map! start end lambda seqs [out])", +error_msg_not_valid_index, args} {_, out})
 	(goto 'funcexit)
 (vp-label 'error3)
 	(call 'obj :deref {out})
-	(call 'lisp :repl_error {this, "(map! start end lambda seqs [out])", +error_msg_not_a_sequence, args} {_, out})
-	(goto 'funcexit)
-(vp-label 'error4)
-	(call 'obj :deref {out})
-	(call 'lisp :repl_error {this, "(map! start end lambda seqs [out])", +error_msg_not_valid_index, args} {_, out})
+	(assign {value} {out})
 	(goto 'funcexit)
 	(signature '(num num obj list list)))
 
@@ -935,27 +906,20 @@
 		(int dir start end))
 
 	(push-scope)
-	(entry 'seq :lisp_reduce '(:r0 :r1))
+	(entry 'seq :lisp_reduce {this, args})
 
+(errorcase
 	(errorif-lisp-args-sig :r1 5 'error1)
+	(assign '((:r1 array_begin)) '(:r1))
+	(assign `((:r1 ,(* +ptr_size 3))) '(:r1))
+	(errorif-lisp-args-type :r1 seq 0 'error1))
 
-	(assign '(:r0 :r1) {this, args})
-	(call 'lisp :env_push '(:r0))
+	(call 'lisp :env_push {this})
 
 	(assign {args} '(:r0))
 	(list-bind-args :r0 '(:r9 :r10 :r11 :r12 :r13) '(:num :num :obj :list :obj))
 
-	(vp-cpy-cr +max_int :r8)
-	(class/array/get_both :r12 :r6 :r7)
-	(loop-while '(:r6 /= :r7))
-		(vp-cpy-ir :r6 0 :r0)
-	(errorcase
-		(call 'obj :inst_of `(:r0 (@ ,(f-path 'seq :vtable))) '(:r0 :r1))
-		(gotoif '(:r1 = 0) 'error3))
-		(call 'seq :get_length '(:r0) '(_ :r1))
-		(vp-min-rr :r1 :r8)
-		(vp-add-cr +ptr_size :r6)
-	(loop-end)
+	(call 'list :min_length '(:r12) '(_ :r8))
 
 	(assign '(:r13) {value})
 	(class/obj/ref :r13 :r0)
@@ -965,10 +929,10 @@
 		(lisp-elem-index :r10 :r8)
 
 	(errorcase
-		(gotoif '(:r9 < 0) 'error4)
-		(gotoif '(:r10 < 0) 'error4)
-		(gotoif '(:r9 > :r8) 'error4)
-		(gotoif '(:r10 > :r8) 'error4))
+		(gotoif '(:r9 < 0) 'error2)
+		(gotoif '(:r10 < 0) 'error2)
+		(gotoif '(:r9 > :r8) 'error2)
+		(gotoif '(:r10 > :r8) 'error2))
 
 		(vp-cpy-cr 1 :r8)
 		(vpif '(:r9 > :r10))
@@ -1018,11 +982,8 @@
 
 (errorcase
 (vp-label 'error1)
-	(jump 'lisp :repl_error '(:r0 "(reduce! start end lambda seqs init)" +error_msg_wrong_types :r1))
-(vp-label 'error3)
-	(call 'lisp :repl_error {this, "(reduce! start end lambda seqs init)", +error_msg_not_a_sequence, args} {_, value})
-	(goto 'funcexit)
-(vp-label 'error4)
+	(jump 'lisp :repl_error {this, "(reduce! start end lambda seqs init)", +error_msg_wrong_types, args})
+(vp-label 'error2)
 	(call 'lisp :repl_error {this, "(reduce! start end lambda seqs init)", +error_msg_not_valid_index, args} {_, value})
 	(goto 'funcexit)
 	(signature '(num num obj list obj)))
