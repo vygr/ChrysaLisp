@@ -575,9 +575,9 @@
 
 	(def-vars
 		(ptr this seqs value func args)
-		(int dir start end))
+		(int dir idx end))
 
-	(vp-def (dir start end func seqs)
+	(vp-def (dir idx end func seqs)
 		'(:r8 :r9 :r10 :r11 :r12))
 
 	(push-scope)
@@ -592,37 +592,37 @@
 	(call 'lisp :env_push {this})
 
 	(assign {seqs} '(:r1))
-	(list-bind-args :r1 `(,start ,end ,func ,seqs) '(:num :num :obj :list))
+	(list-bind-args :r1 `(,idx ,end ,func ,seqs) '(:num :num :obj :list))
 	(call 'obj :ref {this->lisp_sym_nil} {value})
 
 	(call 'list :min_length `(,seqs) '(_ len))
 	(vpif `(,len /= +max_int))
-		(lisp-elem-index start len)
+		(lisp-elem-index idx len)
 		(lisp-elem-index end len)
 
 	(errorcase
-		(gotoif `(,start < 0) 'error2)
+		(gotoif `(,idx < 0) 'error2)
 		(gotoif `(,end < 0) 'error2)
-		(gotoif `(,start > ,len) 'error2)
+		(gotoif `(,idx > ,len) 'error2)
 		(gotoif `(,end > ,len) 'error2))
 
-		(breakif `(,start = ,end))
+		(breakif `(,idx = ,end))
 		(vp-cpy-cr 1 dir)
-		(vpif `(,start > ,end))
+		(vpif `(,idx > ,end))
 			(vp-cpy-cr -1 dir)
-			(vp-sub-cr 1 start)
+			(vp-sub-cr 1 idx)
 			(vp-sub-cr 1 end)
 		(endif)
 		(assign `(,dir ,end ,func ,seqs) {dir, end, func, seqs})
 
 		(loop-start)
-			(assign `(,start) {start})
+			(assign `(,idx) {idx})
 			(call 'obj :deref {value})
 
 			(call 'list :create :nil {args})
-			(call 'list :collect {args, seqs, start})
+			(call 'list :collect {args, seqs, idx})
 
-			(call 'num :create {start} {value})
+			(call 'num :create {idx} {value})
 			(call 'hmap :insert {this->lisp_environment, this->lisp_sym_underscore, value})
 			(call 'obj :deref {value})
 
@@ -635,9 +635,9 @@
 			(f-bind 'error :vtable vt2)
 			(gotoif `(,vt1 = ,vt2) 'funcexit))
 
-			(assign {dir, start, end} `(,dir ,start ,end))
-			(vp-add-rr dir start)
-		(loop-until `(,start = ,end))
+			(assign {dir, idx, end} `(,dir ,idx ,end))
+			(vp-add-rr dir idx)
+		(loop-until `(,idx = ,end))
 	(endif)
 
 (vp-label 'funcexit)
@@ -670,9 +670,9 @@
 
 	(def-vars
 		(ptr this seqs value mode func args)
-		(int dir start end))
+		(int dir idx end))
 
-	(vp-def (this value dir start end mode func seqs)
+	(vp-def (this value dir idx end mode func seqs)
 		'(:r0 :r1 :r8 :r9 :r10 :r11 :r12 :r13))
 
 	(push-scope)
@@ -687,37 +687,37 @@
 	(call 'lisp :env_push {this})
 
 	(assign {seqs} '(:r1))
-	(list-bind-args :r1 `(,start ,end ,mode ,func ,seqs) '(:num :num :obj :obj :list))
+	(list-bind-args :r1 `(,idx ,end ,mode ,func ,seqs) '(:num :num :obj :obj :list))
 	(call 'obj :ref `(,mode) {value})
 
 	(call 'list :min_length `(,seqs) '(_ len))
 	(vpif `(,len /= +max_int))
-		(lisp-elem-index start len)
+		(lisp-elem-index idx len)
 		(lisp-elem-index end len)
 
 	(errorcase
-		(gotoif `(,start < 0) 'error2)
+		(gotoif `(,idx < 0) 'error2)
 		(gotoif `(,end < 0) 'error2)
-		(gotoif `(,start > ,len) 'error2)
+		(gotoif `(,idx > ,len) 'error2)
 		(gotoif `(,end > ,len) 'error2))
 
-		(breakif `(,start = ,end))
+		(breakif `(,idx = ,end))
 		(vp-cpy-cr 1 dir)
-		(vpif `(,start > ,end))
+		(vpif `(,idx > ,end))
 			(vp-cpy-cr -1 dir)
-			(vp-sub-cr 1 start)
+			(vp-sub-cr 1 idx)
 			(vp-sub-cr 1 end)
 		(endif)
 		(assign `(,dir ,end ,mode ,func ,seqs) {dir, end, mode, func, seqs})
 
 		(loop-start)
-			(assign `(,start) {start})
+			(assign `(,idx) {idx})
 			(call 'obj :deref {value})
 
 			(call 'list :create :nil {args})
-			(call 'list :collect {args, seqs, start})
+			(call 'list :collect {args, seqs, idx})
 
-			(call 'num :create {start} {value})
+			(call 'num :create {idx} {value})
 			(call 'hmap :insert {this->lisp_environment, this->lisp_sym_underscore, value})
 			(call 'obj :deref {value})
 
@@ -738,9 +738,9 @@
 				(gotoif `(,this /= ,value) 'funcexit)
 			(endif)
 
-			(assign {dir, start, end} `(,dir ,start ,end))
-			(vp-add-rr dir start)
-		(loop-until `(,start = ,end))
+			(assign {dir, idx, end} `(,dir ,idx ,end))
+			(vp-add-rr dir idx)
+		(loop-until `(,idx = ,end))
 	(endif)
 
 (vp-label 'funcexit)
@@ -773,9 +773,9 @@
 
 	(def-vars
 		(ptr this seqs value func args out)
-		(int dir start end))
+		(int dir idx end))
 
-	(vp-def (dir start end func seqs)
+	(vp-def (dir idx end func seqs)
 		'(:r8 :r9 :r10 :r11 :r12))
 
 	(push-scope)
@@ -792,46 +792,46 @@
 	(assign {seqs} '(:r1))
 	(assign '((:r1 array_length)) '(:r2))
 	(vpif '(:r2 = 4))
-		(list-bind-args :r1 `(,start ,end ,func ,seqs) '(:num :num :obj :list))
+		(list-bind-args :r1 `(,idx ,end ,func ,seqs) '(:num :num :obj :list))
 		(call 'list :create :nil '(:r0))
 	(else)
-		(list-bind-args :r1 `(,start ,end ,func ,seqs :r0) '(:num :num :obj :list :list))
+		(list-bind-args :r1 `(,idx ,end ,func ,seqs :r0) '(:num :num :obj :list :list))
 		(class/obj/ref :r0 :r1)
 	(endif)
 	(assign '(:r0) {out})
 
 	(call 'list :min_length `(,seqs) '(_ len))
 	(vpif `(,len /= +max_int))
-		(lisp-elem-index start len)
+		(lisp-elem-index idx len)
 		(lisp-elem-index end len)
 
 	(errorcase
-		(gotoif `(,start < 0) 'error2)
+		(gotoif `(,idx < 0) 'error2)
 		(gotoif `(,end < 0) 'error2)
-		(gotoif `(,start > ,len) 'error2)
+		(gotoif `(,idx > ,len) 'error2)
 		(gotoif `(,end > ,len) 'error2))
 
-		(breakif `(,start = ,end))
+		(breakif `(,idx = ,end))
 		(vp-cpy-cr 1 dir)
-		(vpif `(,start > ,end))
+		(vpif `(,idx > ,end))
 			(vp-cpy-cr -1 dir)
-			(vp-sub-cr 1 start)
+			(vp-sub-cr 1 idx)
 			(vp-sub-cr 1 end)
 		(endif)
-		(assign `(,dir ,start ,end ,func ,seqs) {dir, start, end, func, seqs})
+		(assign `(,dir ,idx ,end ,func ,seqs) {dir, idx, end, func, seqs})
 		(assign {out} '(:r0))
 		(assign '((:r0 array_length)) '(:r1))
 		(vp-cpy-rr end :r2)
-		(vp-sub-rr start :r2)
+		(vp-sub-rr idx :r2)
 		(vp-mul-rr dir :r2)
 		(vp-add-rr :r2 :r1)
 		(call 'list :set_cap '(:r0 :r1))
 
 		(loop-start)
 			(call 'list :create :nil {args})
-			(call 'list :collect {args, seqs, start})
+			(call 'list :collect {args, seqs, idx})
 
-			(call 'num :create {start} {value})
+			(call 'num :create {idx} {value})
 			(call 'hmap :insert {this->lisp_environment, this->lisp_sym_underscore, value})
 			(call 'obj :deref {value})
 
@@ -846,10 +846,10 @@
 
 			(call 'list :push_back {out, value})
 
-			(assign {dir, start, end} `(,dir ,start ,end))
-			(vp-add-rr dir start)
-			(assign `(,start) {start})
-		(loop-until `(,start = ,end))
+			(assign {dir, idx, end} `(,dir ,idx ,end))
+			(vp-add-rr dir idx)
+			(assign `(,idx) {idx})
+		(loop-until `(,idx = ,end))
 	(endif)
 
 (vp-label 'funcexit)
@@ -886,9 +886,9 @@
 
 	(def-vars
 		(ptr this seqs value func args)
-		(int dir start end))
+		(int dir idx end))
 
-	(vp-def (dir start end func value seqs)
+	(vp-def (dir idx end func value seqs)
 		'(:r8 :r9 :r10 :r11 :r12))
 
 	(push-scope)
@@ -903,38 +903,38 @@
 	(call 'lisp :env_push {this})
 
 	(assign {seqs} `(,seqs))
-	(list-bind-args seqs `(,start ,end ,func ,seqs ,value) '(:num :num :obj :list :obj))
+	(list-bind-args seqs `(,idx ,end ,func ,seqs ,value) '(:num :num :obj :list :obj))
 	(assign `(,value) {value})
 	(class/obj/ref value dir)
 
 	(call 'list :min_length `(,seqs) `(,seqs len))
 	(vpif `(,len /= +max_int))
-		(lisp-elem-index start len)
+		(lisp-elem-index idx len)
 		(lisp-elem-index end len)
 
 	(errorcase
-		(gotoif `(,start < 0) 'error2)
+		(gotoif `(,idx < 0) 'error2)
 		(gotoif `(,end < 0) 'error2)
-		(gotoif `(,start > ,len) 'error2)
+		(gotoif `(,idx > ,len) 'error2)
 		(gotoif `(,end > ,len) 'error2))
 
-		(breakif `(,start = ,end))
+		(breakif `(,idx = ,end))
 		(vp-cpy-cr 1 dir)
-		(vpif `(,start > ,end))
+		(vpif `(,idx > ,end))
 			(vp-cpy-cr -1 dir)
-			(vp-sub-cr 1 start)
+			(vp-sub-cr 1 idx)
 			(vp-sub-cr 1 end)
 		(endif)
 		(assign `(,dir ,end ,func ,seqs) {dir, end, func, seqs})
 
 		(loop-start)
-			(assign `(,start) {start})
+			(assign `(,idx) {idx})
 
 			(call 'list :create :nil {args})
 			(call 'list :push_back {args, value})
-			(call 'list :collect {args, seqs, start})
+			(call 'list :collect {args, seqs, idx})
 
-			(call 'num :create {start} {value})
+			(call 'num :create {idx} {value})
 			(call 'hmap :insert {this->lisp_environment, this->lisp_sym_underscore, value})
 			(call 'obj :deref {value})
 
@@ -947,9 +947,9 @@
 			(f-bind 'error :vtable vt2)
 			(gotoif `(,vt1 = ,vt2) 'funcexit))
 
-			(assign {dir, start, end} `(,dir ,start ,end))
-			(vp-add-rr dir start)
-		(loop-until `(,start = ,end))
+			(assign {dir, idx, end} `(,dir ,idx ,end))
+			(vp-add-rr dir idx)
+		(loop-until `(,idx = ,end))
 	(endif)
 
 (vp-label 'funcexit)
