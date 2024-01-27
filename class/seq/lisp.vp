@@ -619,13 +619,12 @@
 			(assign `(,idx) {idx})
 			(call 'obj :deref {value})
 
-			(call 'list :create :nil {args})
-			(call 'list :collect {args, seqs, idx})
-
 			(call 'num :create {idx} {value})
 			(call 'hmap :insert {this->lisp_environment, this->lisp_sym_underscore, value})
 			(call 'obj :deref {value})
 
+			(call 'list :create :nil {args})
+			(call 'list :collect {args, seqs, idx})
 			(call 'lisp :repl_apply {this, args, func} {_, value})
 			(call 'list :deref {args})
 
@@ -714,13 +713,12 @@
 			(assign `(,idx) {idx})
 			(call 'obj :deref {value})
 
-			(call 'list :create :nil {args})
-			(call 'list :collect {args, seqs, idx})
-
 			(call 'num :create {idx} {value})
 			(call 'hmap :insert {this->lisp_environment, this->lisp_sym_underscore, value})
 			(call 'obj :deref {value})
 
+			(call 'list :create :nil {args})
+			(call 'list :collect {args, seqs, idx})
 			(call 'lisp :repl_apply {this, args, func} {_, value})
 			(call 'list :deref {args})
 
@@ -828,13 +826,12 @@
 		(call 'list :set_cap '(:r0 :r1))
 
 		(loop-start)
-			(call 'list :create :nil {args})
-			(call 'list :collect {args, seqs, idx})
-
 			(call 'num :create {idx} {value})
 			(call 'hmap :insert {this->lisp_environment, this->lisp_sym_underscore, value})
 			(call 'obj :deref {value})
 
+			(call 'list :create :nil {args})
+			(call 'list :collect {args, seqs, idx})
 			(call 'lisp :repl_apply {this, args, func} {_, value})
 			(call 'list :deref {args})
 
