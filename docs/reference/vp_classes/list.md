@@ -39,6 +39,19 @@ trashes
 :r1-:r14
 ```
 
+### :collect -> class/list/collect
+
+```code
+inputs
+:r0 = list object (ptr)
+:r1 = list of seq objects (ptr)
+:r2 = element index (int)
+outputs
+:r0 = list object (ptr)
+trashes
+:r1-:r11
+```
+
 ### :create -> class/list/create
 
 ### :deep_copy -> class/list/deep_copy

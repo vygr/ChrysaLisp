@@ -560,7 +560,7 @@
 	;:r0 = list of seq objects (ptr)
 	;outputs
 	;:r0 = list of seq objects (ptr)
-	;:r1 = +max_int, or minimum length (int)
+	;:r1 = +max_int, or minimum length (uint)
 	;trashes
 	;:r1-:r5
 
@@ -577,6 +577,34 @@
 	(loop-end)
 
 	(exit 'list :min_length `(,this ,min_len))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'list :collect)
+	;inputs
+	;:r0 = list object (ptr)
+	;:r1 = list of seq objects (ptr)
+	;:r2 = element index (uint)
+	;outputs
+	;:r0 = list object (ptr)
+	;trashes
+	;:r1-:r11
+
+	(vp-def (this iter_begin iter_end index) '(:r8 :r9 :r10 :r11))
+
+	(entry 'list :collect `(,this :r1 ,index))
+
+	(class/array/get_both :r1 iter_begin iter_end)
+	(vpif `(,iter_begin /= ,iter_end))
+		(loop-start)
+			(call 'seq :ref_elem `((,iter_begin 0) ,index) '(_ elm))
+			(call 'list :push_back `(,this ,elm))
+			(vp-add-cr +ptr_size iter_begin)
+		(loop-until `(,iter_begin = ,iter_end))
+	(endif)
+
+	(exit 'list :collect `(,this))
 	(vp-ret)
 
 (def-func-end)

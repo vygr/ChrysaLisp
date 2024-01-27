@@ -12,6 +12,10 @@ Faster and more generic `(filter-array)` function. Replaces `(filter)`
 
 Generic `(reverse)` macro that wraps `(slice)`.
 
+New `'list :collect` and `'list :min_length` methods.
+
+`each!`, `some!`, `map!` and `reduce!` recoded to use new list methods.
+
 ------
 
 New Tab path completion lib `lib/files/urls.inc`.
