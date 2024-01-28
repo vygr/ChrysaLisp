@@ -614,16 +614,15 @@
 
 		(call 'lisp :env_push {this})
 		(loop-start)
-			(call 'obj :deref {value})
+			(call 'num :create {idx} {args})
+			(call 'hmap :insert {this->lisp_environment, this->lisp_sym_underscore, args})
+			(call 'obj :deref {args})
 
-			(call 'num :create {idx} {value})
-			(call 'hmap :insert {this->lisp_environment, this->lisp_sym_underscore, value})
 			(call 'obj :deref {value})
-
 			(call 'list :create :nil {args})
 			(call 'list :collect {args, seqs, idx})
 			(call 'lisp :repl_apply {this, args, func} {_, value})
-			(call 'list :deref {args})
+			(call 'obj :deref {args})
 
 		(errorcase
 			(vp-def (vt1 vt2))
@@ -705,16 +704,15 @@
 
 		(call 'lisp :env_push {this})
 		(loop-start 'exit)
-			(call 'obj :deref {value})
+			(call 'num :create {idx} {args})
+			(call 'hmap :insert {this->lisp_environment, this->lisp_sym_underscore, args})
+			(call 'obj :deref {args})
 
-			(call 'num :create {idx} {value})
-			(call 'hmap :insert {this->lisp_environment, this->lisp_sym_underscore, value})
 			(call 'obj :deref {value})
-
 			(call 'list :create :nil {args})
 			(call 'list :collect {args, seqs, idx})
 			(call 'lisp :repl_apply {this, args, func} {_, value})
-			(call 'list :deref {args})
+			(call 'obj :deref {args})
 
 		(errorcase
 			(vp-def (vt1 vt2))
@@ -817,14 +815,14 @@
 
 		(call 'lisp :env_push {this})
 		(loop-start)
-			(call 'num :create {idx} {value})
-			(call 'hmap :insert {this->lisp_environment, this->lisp_sym_underscore, value})
-			(call 'obj :deref {value})
+			(call 'num :create {idx} {args})
+			(call 'hmap :insert {this->lisp_environment, this->lisp_sym_underscore, args})
+			(call 'obj :deref {args})
 
 			(call 'list :create :nil {args})
 			(call 'list :collect {args, seqs, idx})
 			(call 'lisp :repl_apply {this, args, func} {_, value})
-			(call 'list :deref {args})
+			(call 'obj :deref {args})
 
 		(errorcase
 			(vp-def (vt1 vt2))
@@ -912,16 +910,15 @@
 
 		(call 'lisp :env_push {this})
 		(loop-start)
+			(call 'num :create {idx} {args})
+			(call 'hmap :insert {this->lisp_environment, this->lisp_sym_underscore, args})
+			(call 'obj :deref {args})
+
 			(call 'list :create :nil {args})
 			(call 'list :push_back {args, value})
 			(call 'list :collect {args, seqs, idx})
-
-			(call 'num :create {idx} {value})
-			(call 'hmap :insert {this->lisp_environment, this->lisp_sym_underscore, value})
-			(call 'obj :deref {value})
-
 			(call 'lisp :repl_apply {this, args, func} {_, value})
-			(call 'list :deref {args})
+			(call 'obj :deref {args})
 
 		(errorcase
 			(vp-def (vt1 vt2))
