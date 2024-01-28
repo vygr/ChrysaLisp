@@ -45,7 +45,7 @@ trashes
 inputs
 :r0 = list object (ptr)
 :r1 = list of seq objects (ptr)
-:r2 = element index (int)
+:r2 = element index (uint)
 outputs
 :r0 = list object (ptr)
 trashes
@@ -126,7 +126,7 @@ inputs
 :r0 = list of seq objects (ptr)
 outputs
 :r0 = list of seq objects (ptr)
-:r1 = +max_int, or minimum length (int)
+:r1 = +max_int, or minimum length (uint)
 trashes
 :r1-:r5
 ```

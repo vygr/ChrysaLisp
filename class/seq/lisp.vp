@@ -577,8 +577,7 @@
 		(ptr this seqs value func args)
 		(int dir idx end))
 
-	(vp-def (dir idx end func seqs)
-		'(:r8 :r9 :r10 :r11 :r12))
+	(vp-def (dir idx end func seqs) '(:r8 :r9 :r10 :r11 :r12))
 
 	(push-scope)
 	(entry 'seq :lisp_each {this, seqs})
@@ -588,8 +587,6 @@
 	(assign '((:r1 array_begin)) '(:r1))
 	(assign `((:r1 ,(* +ptr_size 3))) '(:r1))
 	(errorif-lisp-args-type :r1 seq 0 'error1))
-
-	(call 'lisp :env_push {this})
 
 	(assign {seqs} '(:r1))
 	(list-bind-args :r1 `(,idx ,end ,func ,seqs) '(:num :num :obj :list))
@@ -613,10 +610,10 @@
 			(vp-sub-cr 1 idx)
 			(vp-sub-cr 1 end)
 		(endif)
-		(assign `(,dir ,end ,func ,seqs) {dir, end, func, seqs})
+		(assign `(,dir ,idx ,end ,func ,seqs) {dir, idx, end, func, seqs})
 
+		(call 'lisp :env_push {this})
 		(loop-start)
-			(assign `(,idx) {idx})
 			(call 'obj :deref {value})
 
 			(call 'num :create {idx} {value})
@@ -632,15 +629,15 @@
 			(vp-def (vt1 vt2))
 			(assign {value->obj_vtable} `(,vt1))
 			(f-bind 'error :vtable vt2)
-			(gotoif `(,vt1 = ,vt2) 'funcexit))
+			(breakif `(,vt1 = ,vt2)))
 
 			(assign {dir, idx, end} `(,dir ,idx ,end))
 			(vp-add-rr dir idx)
+			(assign `(,idx) {idx})
 		(loop-until `(,idx = ,end))
+		(call 'lisp :env_pop {this})
 	(endif)
 
-(vp-label 'funcexit)
-	(call 'lisp :env_pop {this})
 	(exit 'seq :lisp_each {this, value})
 	(return)
 
@@ -649,8 +646,7 @@
 	(jump 'lisp :repl_error {this, "(each! start end lambda seqs)", +error_msg_wrong_types, seqs})
 (vp-label 'error2)
 	(call 'obj :deref {value})
-	(call 'lisp :repl_error {this, "(each! start end lambda seqs)", +error_msg_not_valid_index, seqs} {_, value})
-	(goto 'funcexit)
+	(jump 'lisp :repl_error {this, "(each! start end lambda seqs)", +error_msg_not_valid_index, seqs})
 	(signature '(num num obj list)))
 
 	(pop-scope-syms)
@@ -683,8 +679,6 @@
 	(assign `((:r1 ,(* +ptr_size 4))) '(:r1))
 	(errorif-lisp-args-type :r1 seq 0 'error1))
 
-	(call 'lisp :env_push {this})
-
 	(assign {seqs} '(:r1))
 	(list-bind-args :r1 `(,idx ,end ,mode ,func ,seqs) '(:num :num :obj :obj :list))
 	(call 'obj :ref `(,mode) {value})
@@ -707,10 +701,10 @@
 			(vp-sub-cr 1 idx)
 			(vp-sub-cr 1 end)
 		(endif)
-		(assign `(,dir ,end ,mode ,func ,seqs) {dir, end, mode, func, seqs})
+		(assign `(,dir ,idx ,end ,mode ,func ,seqs) {dir, idx, end, mode, func, seqs})
 
-		(loop-start)
-			(assign `(,idx) {idx})
+		(call 'lisp :env_push {this})
+		(loop-start 'exit)
 			(call 'obj :deref {value})
 
 			(call 'num :create {idx} {value})
@@ -726,23 +720,23 @@
 			(vp-def (vt1 vt2))
 			(assign {value->obj_vtable} `(,vt1))
 			(f-bind 'error :vtable vt2)
-			(gotoif `(,vt1 = ,vt2) 'funcexit))
+			(breakif `(,vt1 = ,vt2)))
 
 			(assign {this, mode, value} `(,this ,mode ,value))
 			(assign `((,this lisp_sym_nil)) `(,this))
 			(vpif `(,this /= ,mode))
-				(gotoif `(,this = ,value) 'funcexit)
+				(breakif `(,this = ,value) 'exit)
 			(else)
-				(gotoif `(,this /= ,value) 'funcexit)
+				(breakif `(,this /= ,value) 'exit)
 			(endif)
 
 			(assign {dir, idx, end} `(,dir ,idx ,end))
 			(vp-add-rr dir idx)
+			(assign `(,idx) {idx})
 		(loop-until `(,idx = ,end))
+		(call 'lisp :env_pop {this})
 	(endif)
 
-(vp-label 'funcexit)
-	(call 'lisp :env_pop {this})
 	(exit 'seq :lisp_some {this, value})
 	(return)
 
@@ -751,8 +745,7 @@
 	(jump 'lisp :repl_error {this, "(some! start end mode lambda seqs)", +error_msg_wrong_types, args})
 (vp-label 'error2)
 	(call 'obj :deref {value})
-	(call 'lisp :repl_error {this, "(some! start end mode lambda seqs)", +error_msg_not_valid_index, args} {_, value})
-	(goto 'funcexit)
+	(jump 'lisp :repl_error {this, "(some! start end mode lambda seqs)", +error_msg_not_valid_index, args})
 	(signature '(num num obj obj list)))
 
 	(pop-scope-syms)
@@ -773,8 +766,7 @@
 		(ptr this seqs value func args out)
 		(int dir idx end))
 
-	(vp-def (dir idx end func seqs)
-		'(:r8 :r9 :r10 :r11 :r12))
+	(vp-def (dir idx end func seqs) '(:r8 :r9 :r10 :r11 :r12))
 
 	(push-scope)
 	(entry 'seq :lisp_map {this, seqs})
@@ -784,8 +776,6 @@
 	(assign '((:r1 array_begin)) '(:r1))
 	(assign `((:r1 ,(* +ptr_size 3))) '(:r1))
 	(errorif-lisp-args-type :r1 seq 0 'error1))
-
-	(call 'lisp :env_push {this})
 
 	(assign {seqs} '(:r1))
 	(assign '((:r1 array_length)) '(:r2))
@@ -825,6 +815,7 @@
 		(vp-add-rr :r2 :r1)
 		(call 'list :set_cap '(:r0 :r1))
 
+		(call 'lisp :env_push {this})
 		(loop-start)
 			(call 'num :create {idx} {value})
 			(call 'hmap :insert {this->lisp_environment, this->lisp_sym_underscore, value})
@@ -847,10 +838,9 @@
 			(vp-add-rr dir idx)
 			(assign `(,idx) {idx})
 		(loop-until `(,idx = ,end))
+		(call 'lisp :env_pop {this})
 	(endif)
 
-(vp-label 'funcexit)
-	(call 'lisp :env_pop {this})
 	(exit 'seq :lisp_map {this, out})
 	(return)
 
@@ -859,12 +849,11 @@
 	(jump 'lisp :repl_error {this, "(map! start end lambda seqs [out])", +error_msg_wrong_types, seqs})
 (vp-label 'error2)
 	(call 'obj :deref {out})
-	(call 'lisp :repl_error {this, "(map! start end lambda seqs [out])", +error_msg_not_valid_index, seqs} {_, out})
-	(goto 'funcexit)
+	(jump 'lisp :repl_error {this, "(map! start end lambda seqs [out])", +error_msg_not_valid_index, seqs})
 (vp-label 'error3)
 	(call 'obj :deref {out})
-	(assign {value} {out})
-	(goto 'funcexit)
+	(exit 'seq :lisp_map {this, value})
+	(return)
 	(signature '(num num obj list list)))
 
 	(pop-scope-syms)
@@ -885,8 +874,7 @@
 		(ptr this seqs value func args)
 		(int dir idx end))
 
-	(vp-def (dir idx end func value seqs)
-		'(:r8 :r9 :r10 :r11 :r12))
+	(vp-def (dir idx end func value seqs) '(:r8 :r9 :r10 :r11 :r12))
 
 	(push-scope)
 	(entry 'seq :lisp_reduce {this, seqs})
@@ -896,8 +884,6 @@
 	(assign '((:r1 array_begin)) '(:r1))
 	(assign `((:r1 ,(* +ptr_size 3))) '(:r1))
 	(errorif-lisp-args-type :r1 seq 0 'error1))
-
-	(call 'lisp :env_push {this})
 
 	(assign {seqs} `(,seqs))
 	(list-bind-args seqs `(,idx ,end ,func ,seqs ,value) '(:num :num :obj :list :obj))
@@ -922,11 +908,10 @@
 			(vp-sub-cr 1 idx)
 			(vp-sub-cr 1 end)
 		(endif)
-		(assign `(,dir ,end ,func ,seqs) {dir, end, func, seqs})
+		(assign `(,dir ,idx ,end ,func ,seqs) {dir, idx, end, func, seqs})
 
+		(call 'lisp :env_push {this})
 		(loop-start)
-			(assign `(,idx) {idx})
-
 			(call 'list :create :nil {args})
 			(call 'list :push_back {args, value})
 			(call 'list :collect {args, seqs, idx})
@@ -942,15 +927,15 @@
 			(vp-def (vt1 vt2))
 			(assign {value->obj_vtable} `(,vt1))
 			(f-bind 'error :vtable vt2)
-			(gotoif `(,vt1 = ,vt2) 'funcexit))
+			(breakif `(,vt1 = ,vt2)))
 
 			(assign {dir, idx, end} `(,dir ,idx ,end))
 			(vp-add-rr dir idx)
+			(assign `(,idx) {idx})
 		(loop-until `(,idx = ,end))
+		(call 'lisp :env_pop {this})
 	(endif)
 
-(vp-label 'funcexit)
-	(call 'lisp :env_pop {this})
 	(exit 'seq :lisp_reduce {this, value})
 	(return)
 
@@ -959,8 +944,7 @@
 	(jump 'lisp :repl_error {this, "(reduce! start end lambda seqs init)", +error_msg_wrong_types, seqs})
 (vp-label 'error2)
 	(call 'obj :deref {value})
-	(call 'lisp :repl_error {this, "(reduce! start end lambda seqs init)", +error_msg_not_valid_index, seqs} {_, value})
-	(goto 'funcexit)
+	(jump 'lisp :repl_error {this, "(reduce! start end lambda seqs init)", +error_msg_not_valid_index, seqs})
 	(signature '(num num obj list obj)))
 
 	(pop-scope-syms)
