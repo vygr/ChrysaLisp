@@ -732,7 +732,7 @@
 			(f-bind 'error :vtable vt2)
 			(breakif `(,vt1 = ,vt2)))
 
-			;break out based on new value
+			;break out based on mode and new value
 			(assign {this, mode, value} `(,this ,mode ,value))
 			(assign `((,this lisp_sym_nil)) `(,this))
 			(vpif `(,this /= ,mode))
