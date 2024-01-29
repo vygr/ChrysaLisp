@@ -614,14 +614,20 @@
 
 		(call 'lisp :env_push {this})
 		(loop-start)
+			;create _ index
+			(bind '(_0 _1 _2) (method-input 'hmap :insert))
 			(call 'num :create {idx} {args})
-			(call 'hmap :insert {this->lisp_environment, this->lisp_sym_underscore, args})
+			(assign {args, this} `(,_2 ,_1))
+			(call 'hmap :insert `((,_1 lisp_environment) (,_1 lisp_sym_underscore) ,_2))
 			(call 'obj :deref {args})
 
+			;dicard old value, get new value of function call
+			(bind '(_0 _1 _2) (method-input 'lisp :repl_apply))
 			(call 'obj :deref {value})
 			(call 'list :create :nil {args})
-			(call 'list :collect {args, seqs, idx})
-			(call 'lisp :repl_apply {this, args, func} {_, value})
+			(call 'list :collect {args, seqs, idx} `(,_1))
+			(assign {this, func} `(,_0 ,_2))
+			(call 'lisp :repl_apply `(,_0 ,_1 ,_2) {_, value})
 			(call 'obj :deref {args})
 
 		(errorcase
@@ -704,14 +710,20 @@
 
 		(call 'lisp :env_push {this})
 		(loop-start 'exit)
+			;create _ index
+			(bind '(_0 _1 _2) (method-input 'hmap :insert))
 			(call 'num :create {idx} {args})
-			(call 'hmap :insert {this->lisp_environment, this->lisp_sym_underscore, args})
+			(assign {args, this} `(,_2 ,_1))
+			(call 'hmap :insert `((,_1 lisp_environment) (,_1 lisp_sym_underscore) ,_2))
 			(call 'obj :deref {args})
 
+			;dicard old value, get new value of function call
+			(bind '(_0 _1 _2) (method-input 'lisp :repl_apply))
 			(call 'obj :deref {value})
 			(call 'list :create :nil {args})
-			(call 'list :collect {args, seqs, idx})
-			(call 'lisp :repl_apply {this, args, func} {_, value})
+			(call 'list :collect {args, seqs, idx} `(,_1))
+			(assign {this, func} `(,_0 ,_2))
+			(call 'lisp :repl_apply `(,_0 ,_1 ,_2) {_, value})
 			(call 'obj :deref {args})
 
 		(errorcase
@@ -720,6 +732,7 @@
 			(f-bind 'error :vtable vt2)
 			(breakif `(,vt1 = ,vt2)))
 
+			;break out based on new value
 			(assign {this, mode, value} `(,this ,mode ,value))
 			(assign `((,this lisp_sym_nil)) `(,this))
 			(vpif `(,this /= ,mode))
@@ -815,13 +828,19 @@
 
 		(call 'lisp :env_push {this})
 		(loop-start)
+			;create _ index
+			(bind '(_0 _1 _2) (method-input 'hmap :insert))
 			(call 'num :create {idx} {args})
-			(call 'hmap :insert {this->lisp_environment, this->lisp_sym_underscore, args})
+			(assign {args, this} `(,_2 ,_1))
+			(call 'hmap :insert `((,_1 lisp_environment) (,_1 lisp_sym_underscore) ,_2))
 			(call 'obj :deref {args})
 
+			;get new value of function call
+			(bind '(_0 _1 _2) (method-input 'lisp :repl_apply))
 			(call 'list :create :nil {args})
-			(call 'list :collect {args, seqs, idx})
-			(call 'lisp :repl_apply {this, args, func} {_, value})
+			(call 'list :collect {args, seqs, idx} `(,_1))
+			(assign {this, func} `(,_0 ,_2))
+			(call 'lisp :repl_apply `(,_0 ,_1 ,_2) {_, value})
 			(call 'obj :deref {args})
 
 		(errorcase
@@ -830,6 +849,7 @@
 			(f-bind 'error :vtable vt2)
 			(gotoif `(,vt1 = ,vt2) 'error3))
 
+			;collect value of function call
 			(call 'list :push_back {out, value})
 
 			(assign {dir, idx, end} `(,dir ,idx ,end))
@@ -910,14 +930,22 @@
 
 		(call 'lisp :env_push {this})
 		(loop-start)
+			;create _ index
+			(bind '(_0 _1 _2) (method-input 'hmap :insert))
 			(call 'num :create {idx} {args})
-			(call 'hmap :insert {this->lisp_environment, this->lisp_sym_underscore, args})
+			(assign {args, this} `(,_2 ,_1))
+			(call 'hmap :insert `((,_1 lisp_environment) (,_1 lisp_sym_underscore) ,_2))
 			(call 'obj :deref {args})
 
+			;recycle value as arg 0, get new value of function call
+			(bind '(_0 _1 _2) (method-input 'lisp :repl_apply))
+			(bind '(_3 _4 _5) (method-input 'list :collect))
 			(call 'list :create :nil {args})
-			(call 'list :push_back {args, value})
-			(call 'list :collect {args, seqs, idx})
-			(call 'lisp :repl_apply {this, args, func} {_, value})
+			(call 'list :push_back {args, value} `(,_3 _ _ _))
+			(assign {seqs, idx} `(,_4 ,_5))
+			(call 'list :collect `(,_3 ,_4 ,_5) `(,_1))
+			(assign {this, func} `(,_0 ,_2))
+			(call 'lisp :repl_apply `(,_0 ,_1 ,_2) {_, value})
 			(call 'obj :deref {args})
 
 		(errorcase
