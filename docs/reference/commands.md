@@ -323,10 +323,10 @@ Usage: template [options] [path] ...
 	Template command app for you to copy as
 	a starting point.
 
-	Add your descrition here.
+	Add your description here.
 
 	If no paths given on command line
-	then will test files from stdin.
+	then will take paths from stdin.
 ```
 ## test
 ```code

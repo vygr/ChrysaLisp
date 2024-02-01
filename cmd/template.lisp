@@ -11,7 +11,7 @@
 	Template command app for you to copy as
 	a starting point.
 
-	Add your descrition here.
+	Add your description here.
 
 	If no paths given on command line
 	then will take paths from stdin.")
