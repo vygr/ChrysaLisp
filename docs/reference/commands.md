@@ -313,6 +313,21 @@ Usage: tee [options] [path] ...
 
 	Read from stdin, write to stdout and all given paths.
 ```
+## template
+```code
+Usage: template [options] [path] ...
+
+	options:
+		-h --help: this help info.
+
+	Template command app for you to copy as
+	a starting point.
+
+	Add your descrition here.
+
+	If no paths given on command line
+	then will test files from stdin.
+```
 ## test
 ```code
 Usage: test [options]
