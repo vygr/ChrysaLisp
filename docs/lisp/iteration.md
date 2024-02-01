@@ -121,47 +121,10 @@ the `(bind)` call. `(first seq)`, `(second seq)`, `(third seq)`, `(last seq)`,
 `(rest seq)` and `(most seq)`.
 
 You can view theses as an error free way to get elements and slices. They
-return `:nil` if the element or slice range is unavailable.
+return `:nil` or `'()` if the element or slice range is unavailable.
 
-```lisp
-(first "")
-```
-
-```lisp
-(first "ab")
-```
-
-```lisp
-(second "ab")
-```
-
-```lisp
-(third '(1 2 3 4 5))
-```
-
-```lisp
-(last '(1 2 3 4 5))
-```
-
-```lisp
-(rest '())
-```
-
-```lisp
-(rest "abcdef")
-```
-
-```lisp
-(most "abcdef")
-```
-
-```lisp
-(rest '(1 2 3 4 5))
-```
-
-```lisp
-(most '(1 2 3 4 5))
-```
+More detail is provided on these and function binding options in the
+`binding.md` document.
 
 ## Iteration
 
