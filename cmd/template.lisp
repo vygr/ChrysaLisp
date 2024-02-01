@@ -14,7 +14,7 @@
 	Add your descrition here.
 
 	If no paths given on command line
-	then will take file paths from stdin.")
+	then will take paths from stdin.")
 ))
 
 ;do the work on a file
