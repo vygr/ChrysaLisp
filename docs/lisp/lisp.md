@@ -6,9 +6,9 @@ apps/images/data/chrysalisp.svg
 
 It's probably worth a few words specifically about the included Lisp and how it
 works, and how many rules it breaks ! The reason for doing the Lisp was to
-allow me to create an assembler to replace NASM, I was not concerned with
-sticking to 'the lisp way', or whatever your local Lisp guru says. No doubt I
-will have many demons in hell awaiting me...
+allow me to create an assembler to replace NASM, I was not, and am not,
+concerned with sticking to 'the lisp way', or whatever your local Lisp guru
+says. No doubt I will have many demons in hell awaiting me...
 
 First of all there is no garbage collector by choice. All objects used by the
 Lisp are reference counted objects from the VP class library. Early on the Lisp
