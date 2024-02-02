@@ -228,3 +228,12 @@ lib/options/options.inc
 ```
 
 Here only the final function `(options)` is visible to the outside.
+
+The command application `forward` is available to scan your source code and
+tell you if you are using a forward reference to a function or macro not yet
+defined ! Such a function will not be available to be prebound !. It's easy to
+use it to scan the entire source tree, like so:
+
+```code
+files | grep -r "\.(inc|lisp|vp)" | forward | sort
+```
