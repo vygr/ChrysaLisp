@@ -23,14 +23,14 @@ do have to be careful not to create cycles, so think about how your code works.
 No tail recursion optimization ! There is a single looping function provided in
 native code, `(while)`, every other looping construct builds on this primitive.
 There are also, now, four native primitives `(each!)`, `(some!)`, `(map!)` and
-`(reduce!)` (the four horseman) that provide generic access to iterating over a
-slice of a sequence/s, while calling a function on the grouped elements.
-Standard, simple, `(each)`, `(some)`, `(map)` and `(reduce)` are macros build
-on these but they also allow other constructs to be built and gain the
-advantage of machine coded iteration. I try to stick to a functional approach
-in my Lisp code, and manipulate collections of things in a functional way with
-operations like `(map)`, `(reduce)`, `(each)`, `(some)` etc. I've not found the
-lack of tail recursion a problem.
+`(reduce!)` (the four horseman, private joke...) that provide generic access to
+iterating over a slice of a sequence/s, while calling a function on the grouped
+elements. Standard, simple, `(each)`, `(some)`, `(map)` and `(reduce)` are
+macros build on these but they also allow other constructs to be built and gain
+the advantage of machine coded iteration. I try to stick to a functional
+approach in my Lisp code, and manipulate collections of things in a functional
+way with operations like `(map)`, `(reduce)`, `(each)`, `(some)` etc. I've not
+found the lack of tail recursion a problem.
 
 There is no `(return)` statement at the Lisp level !!! Functions run till they
 naturally exit, there is no option to break out in the middle of a loop and
