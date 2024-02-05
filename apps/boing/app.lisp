@@ -7,8 +7,8 @@
 (enums +event 0
 	(enum close max min))
 
-(defq +frames `'(~(map! 0 -1 (lambda (_) (canvas-load (cat "apps/boing/data/taoball_" (str _) ".cpm") +load_flag_shared)) (list (range 1 13))))
-	+sframes `'(~(map! 0 -1 (lambda (_) (canvas-load (cat "apps/boing/data/taoball_s_" (str _) ".cpm") +load_flag_shared)) (list (range 1 13))))
+(defq +frames `',(exec '(map (# (canvas-load (cat "apps/boing/data/taoball_" (str %0) ".cpm") +load_flag_shared)) (range 1 13)))
+	+sframes `',(exec '(map (# (canvas-load (cat "apps/boing/data/taoball_s_" (str %0) ".cpm") +load_flag_shared)) (range 1 13)))
 	+rate (/ 1000000 30))
 
 (ui-window *window* ()
