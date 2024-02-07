@@ -155,12 +155,12 @@
 
 	(entry 'path :lisp_gen_cubic '(:r0 :r1))
 
-	(errorif-lisp-args-sig :r1 10 'error)
+	(errorif-lisp-args-sig :r1 9 'error)
 
 	(vp-push :r0)
 	(defq in (method-input 'path :gen_cubic))
-	(list-bind-args :r1 (array-map-args in '(10 9 0 1 2 3 4 5 6 7 8))
-		'(:fixed :fixed :fixed :fixed :fixed :fixed :fixed :fixed :fixed _ :path))
+	(list-bind-args :r1 (array-map-args in '(9 8 0 1 2 3 4 5 6 7))
+		'(:fixed :fixed :fixed :fixed :fixed :fixed :fixed :fixed _ :path))
 	(assign '((:rsp 0)) `(,(second in)))
 	(assign `((,(second in) lisp_stack)) `(,(second in)))
 	(call 'path :gen_cubic in '(:r0))
@@ -172,8 +172,8 @@
 
 (errorcase
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(path-gen-cubic p1x p1y p2x p2y p3x p3y p4x p4y tol dst) -> dst" +error_msg_wrong_types :r1))
-	(signature '(fixed fixed fixed fixed fixed fixed fixed fixed fixed path)))
+	(jump 'lisp :repl_error '(:r0 "(path-gen-cubic p1x p1y p2x p2y p3x p3y p4x p4y dst) -> dst" +error_msg_wrong_types :r1))
+	(signature '(fixed fixed fixed fixed fixed fixed fixed fixed path)))
 
 (def-func-end)
 

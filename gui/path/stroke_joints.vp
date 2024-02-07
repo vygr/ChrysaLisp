@@ -107,7 +107,7 @@
 				(call 'path :push_back2 {this, p1x, p1y})
 			(else)
 				;rounded join
-				(call 'path :gen_clerp {this, stack, p1x, p1y, l1_rvx, l1_rvy, l2_rvx, l2_rvy, radius, eps})
+				(call 'path :gen_clerp {this, stack, p1x, p1y, l1_rvx, l1_rvy, l2_rvx, l2_rvy, radius})
 			(endswitch)
 		(loop-until {iter_i = iter_j})
 	(endif)

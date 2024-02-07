@@ -13,7 +13,6 @@
 	;:r6 = v2x (fixed)
 	;:r7 = v2y (fixed)
 	;:r8 = radius (fixed)
-	;:r9 = tolerance (fixed)
 	;outputs
 	;:r0 = path object (ptr)
 	;trashes
@@ -25,11 +24,11 @@
 		(union
 			(ulong v1 v2 bv)
 			(int v1x v1y v2x v2y bvx bvy))
-		(int cx cy radius eps)
+		(int cx cy radius)
 		(uint start length))
 
 	(push-scope)
-	(entry 'path :gen_clerp {this, stack, cx, cy, v1x, v1y, v2x, v2y, radius, eps})
+	(entry 'path :gen_clerp {this, stack, cx, cy, v1x, v1y, v2x, v2y, radius})
 
 	(vec-set 0)
 
@@ -70,7 +69,7 @@
 		(vec-abs 2)
 		(vec-sum 2)
 
-		(vec-load 1 {eps})
+		(vec-load 1 {0.5})
 		(bind '(d e) (vec-pop 2))
 		(vpif (list d '<= e))
 			;output point

@@ -46,7 +46,7 @@
 		(vec-load 5 {sa1, ca1, sa2, ca2, radius})
 		(vec-fscale 4)
 		(vec-store 2 {v2x, v2y} {v1x, v1y})
-		(call 'path :gen_clerp {this, stack, cx, cy, v1x, v1y, v2x, v2y, radius, eps})
+		(call 'path :gen_clerp {this, stack, cx, cy, v1x, v1y, v2x, v2y, radius})
 	(else)
 		(assign {a2 >>> 1} {ah})
 		(assign {a2 - ah} {a2})

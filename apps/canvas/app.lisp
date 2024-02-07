@@ -72,7 +72,7 @@
 					(* +f_width -0.3) (* +f_height -0.3)
 					(* +f_width 0.45) (* +f_height 0.6)
 					(* +f_width 0.4) (* +f_height -0.4)
-					+eps (path))))))))
+					(path))))))))
 	(fpoly 0x80000000 +winding_odd_even (slice 1 2 p))
 	(fpoly 0xd0ff00ff +winding_odd_even (defq p (transform angle
 		(path-stroke-polygons (list) (* +f_width 0.02) +eps +join_miter

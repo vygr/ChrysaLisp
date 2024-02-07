@@ -100,7 +100,7 @@
 			("C"
 				(while (num? (elem-get i d))
 					(bind '(x1 y1 x2 y2 x y) (slice i (setq i (+ i 6)) d))
-					(path-gen-cubic cpx cpy x1 y1 x2 y2 x y eps p)
+					(path-gen-cubic cpx cpy x1 y1 x2 y2 x y p)
 					(setq cpx x cpy y cx x2 cy y2)))
 			("c"
 				(while (num? (elem-get i d))
@@ -108,7 +108,7 @@
 					(setq x1 (+ cpx x1) y1 (+ cpy y1)
 						x2 (+ cpx x2) y2 (+ cpy y2)
 						x (+ cpx x) y (+ cpy y))
-					(path-gen-cubic cpx cpy x1 y1 x2 y2 x y eps p)
+					(path-gen-cubic cpx cpy x1 y1 x2 y2 x y p)
 					(setq cpx x cpy y cx x2 cy y2)))
 			("S"
 				(while (num? (elem-get i d))
@@ -116,7 +116,7 @@
 					(if (find last_cmd "CScs")
 						(defq x1 (- (* cpx 2.0) cx) y1 (- (* cpy 2.0) cy))
 						(defq x1 cpx y1 cpy))
-					(path-gen-cubic cpx cpy x1 y1 x2 y2 x y eps p)
+					(path-gen-cubic cpx cpy x1 y1 x2 y2 x y p)
 					(setq cpx x cpy y cx x2 cy y2)))
 			("s"
 				(while (num? (elem-get i d))
@@ -126,7 +126,7 @@
 					(if (find last_cmd "CScs")
 						(defq x1 (- (* cpx 2.0) cx) y1 (- (* cpy 2.0) cy))
 						(defq x1 cpx y1 cpy))
-					(path-gen-cubic cpx cpy x1 y1 x2 y2 x y eps p)
+					(path-gen-cubic cpx cpy x1 y1 x2 y2 x y p)
 					(setq cpx x cpy y cx x2 cy y2)))
 			("Q"
 				(while (num? (elem-get i d))
