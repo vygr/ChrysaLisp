@@ -15,8 +15,8 @@
 (enums +cap 0
 	(enum butt square tri arrow round))
 
-(defun path-smooth (tol src)
-	; (path-smooth tol src) -> dst
+(defun path-smooth (src)
+	; (path-smooth src) -> dst
 	(cond
 		((> (length src) 4)
 			(defq out (path) src (partition src 2)

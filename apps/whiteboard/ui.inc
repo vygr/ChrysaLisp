@@ -66,7 +66,7 @@
 				(if (> (length %0) 4)
 					(setq %0 (cat (slice 0 2 %0) (slice -3 -1 %0)))))
 			(setq %0 (apply (const path) (map (const n2f) %0)))
-			(if (= *stroke_mode* +event_pen) (setq %0 (path-smooth +eps %0)))
+			(if (= *stroke_mode* +event_pen) (setq %0 (path-smooth %0)))
 			(push overlay_paths (list *stroke_mode* *stroke_col* *stroke_radius*
 				(path-filter +tol %0 %0))))
 		(. *strokes* :get_strokes))
