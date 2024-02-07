@@ -15,7 +15,6 @@
 	;:r7 = p2y (fixed)
 	;:r8 = radius (fixed)
 	;:r9 = tolerance (fixed)
-	;:r10 = join style (byte)
 	;outputs
 	;:r0 = path object (ptr)
 	;trashes
@@ -29,12 +28,12 @@
 				l1_vx l1_vy l1_npvx l1_npvy l1_rvx l1_rvy))
 		(plong iter_i iter_j)
 		(ptr this stack)
-		(int radius eps step c c1)
+		(int radius step c c1)
 		(byte join_style))
 
 	(push-scope)
 	(scope-used l2_pv l1_vx l1_vy p3)
-	(entry 'path :stroke_joints {this, stack, iter_i, iter_j, p1x, p1y, p2x, p2y, radius, eps, join_style})
+	(entry 'path :stroke_joints {this, stack, iter_i, iter_j, p1x, p1y, p2x, p2y, radius, join_style})
 
 	(vpif {iter_i /= iter_j})
 		(vpif {iter_j > iter_i})
