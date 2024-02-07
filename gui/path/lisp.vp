@@ -223,11 +223,11 @@
 
 	(entry 'path :lisp_stroke_polyline '(:r0 :r1))
 
-	(errorif-lisp-args-sig :r1 6 'error)
+	(errorif-lisp-args-sig :r1 5 'error)
 
 	(vp-push :r0)
 	(defq in (method-input 'path :stroke_polyline))
-	(list-bind-args :r1 in '(:path _ :fixed :fixed :num :num :num))
+	(list-bind-args :r1 in '(:path _ :fixed :num :num :num))
 	(assign '((:rsp 0)) `(,(second in)))
 	(assign `((,(second in) lisp_stack)) `(,(second in)))
 	(call 'path :stroke_polyline in '(_ :r1))
@@ -238,8 +238,8 @@
 
 (errorcase
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(path-stroke-polyline path radius tol join cap1 cap2) -> path" +error_msg_wrong_types :r1))
-	(signature '(path fixed fixed num num num)))
+	(jump 'lisp :repl_error '(:r0 "(path-stroke-polyline path radius join cap1 cap2) -> path" +error_msg_wrong_types :r1))
+	(signature '(path fixed num num num)))
 
 (def-func-end)
 
@@ -255,11 +255,11 @@
 
 	(entry 'path :lisp_stroke_polygon '(:r0 :r1))
 
-	(errorif-lisp-args-sig :r1 4 'error)
+	(errorif-lisp-args-sig :r1 3 'error)
 
 	(vp-push :r0)
 	(defq in (method-input 'path :stroke_polygon))
-	(list-bind-args :r1 in '(:path _ :fixed :fixed :num))
+	(list-bind-args :r1 in '(:path _ :fixed :num))
 	(assign '((:rsp 0)) `(,(second in)))
 	(assign `((,(second in) lisp_stack)) `(,(second in)))
 	(call 'path :stroke_polygon in '(_ :r12 :r13))
@@ -272,8 +272,8 @@
 
 (errorcase
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(path-stroke-polygon path radius tol join) -> paths" +error_msg_wrong_types :r1))
-	(signature '(path fixed fixed num)))
+	(jump 'lisp :repl_error '(:r0 "(path-stroke-polygon path radius join) -> paths" +error_msg_wrong_types :r1))
+	(signature '(path fixed num)))
 
 (def-func-end)
 

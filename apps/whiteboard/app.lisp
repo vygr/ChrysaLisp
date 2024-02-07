@@ -21,7 +21,7 @@
 (bits +layer 0
 	(bit commited overlay))
 
-(defq +eps 0.5 +tol 3.0
+(defq +tol 3.0
 	*radiuss* (map n2f '(2 6 12)) *stroke_radius* (first *radiuss*)
 	*undo_stack* (list) *redo_stack* (list)
 	*stroke_col* (first *palette*) *stroke_mode* +event_pen
@@ -43,16 +43,16 @@
 			(cond
 				((= mode +event_arrow1)
 					;flatten to arrow1
-					(path-stroke-polylines (list) rad +eps +join_bevel +cap_butt +cap_arrow (list pnts)))
+					(path-stroke-polylines (list) rad +join_bevel +cap_butt +cap_arrow (list pnts)))
 				((= mode +event_arrow2)
 					;flatten to arrow2
-					(path-stroke-polylines (list) rad +eps +join_bevel +cap_arrow +cap_arrow (list pnts)))
+					(path-stroke-polylines (list) rad +join_bevel +cap_arrow +cap_arrow (list pnts)))
 				((= mode +event_box)
 					;flatten to box
-					(path-stroke-polygons (list) rad +eps +join_miter (list (path x y x1 y x1 y1 x y1))))
+					(path-stroke-polygons (list) rad +join_miter (list (path x y x1 y x1 y1 x y1))))
 				((= mode +event_circle)
 					;flatten to circle
-					(path-stroke-polygons (list) rad +eps +join_bevel
+					(path-stroke-polygons (list) rad +join_bevel
 						(list (path-gen-arc x y 0.0 +fp_2pi (vec-length (vec-sub (path x y) (path x1 y1))) (path)))))
 				((= mode +event_fbox)
 					;flatten to filled box
@@ -61,7 +61,7 @@
 					;flatten to filled circle
 					(list (path-gen-arc x y 0.0 +fp_2pi (vec-length (vec-sub (path x y) (path x1 y1))) (path))))
 				(:t ;flatten to pen stroke
-					(path-stroke-polylines (list) rad +eps +join_bevel +cap_round +cap_round (list pnts))))))))
+					(path-stroke-polylines (list) rad +join_bevel +cap_round +cap_round (list pnts))))))))
 
 (defun snapshot ()
 	;take a snapshot of the canvas state

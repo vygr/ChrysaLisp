@@ -7,7 +7,7 @@
 
 (defun trans (_) (+ (logand 0xffffff _) 0xa0000000))
 
-(defq +eps 0.25 +colors `'(~(map! 0 -1 trans (list (list
+(defq +colors `'(~(map! 0 -1 trans (list (list
 	+argb_red +argb_green +argb_blue +argb_yellow +argb_cyan +argb_magenta)))))
 
 (defun circle (r)
@@ -17,7 +17,7 @@
 (defun oval (r s)
 	;cached oval generation
 	(defq key (str r s))
-	(memoize key (path-stroke-polylines (list) r +eps +join_bevel +cap_round +cap_round (list s)) 11))
+	(memoize key (path-stroke-polylines (list) r +join_bevel +cap_round +cap_round (list s)) 11))
 
 (defun batch (p)
 	(defq s 0 e 0 b (list))
@@ -45,7 +45,7 @@
 			(each (lambda (p path_2d)
 				(each (lambda (seg seg_2d)
 					(when (or (= show (defq z (% (>> (third (first seg)) +fp_shift) pcb_depth))) (= show -1))
-						(path-stroke-polylines (elem-get z layers) track_radius +eps +join_round +cap_round +cap_round (list seg_2d)))
+						(path-stroke-polylines (elem-get z layers) track_radius +join_round +cap_round +cap_round (list seg_2d)))
 					) p path_2d)
 				) batched_paths batched_paths_2d)
 			(each! 0 pcb_depth
@@ -98,7 +98,7 @@
 				(each (lambda (seg seg_2d)
 					(when (= show (defq z (% (>> (third (first seg)) +fp_shift) pcb_depth)))
 						(path-stroke-polylines layer (+ track_radius (if with_gaps track_gap 0.0))
-							+eps +join_round +cap_round +cap_round (list seg_2d)))
+							+join_round +cap_round +cap_round (list seg_2d)))
 					) p path_2d)
 				) batched_paths batched_paths_2d)
 			(. canvas :fpoly pcb_border pcb_border +winding_none_zero layer)
@@ -127,7 +127,7 @@
 					(:t ;polygon pad
 						(if with_gaps
 							(. canvas :fpoly pad_x pad_y +winding_odd_even
-								(path-stroke-polygons (list) pad_gap +eps +join_round (list pad_shape)))
+								(path-stroke-polygons (list) pad_gap +join_round (list pad_shape)))
 							(. canvas :fpoly pad_x pad_y +winding_odd_even
 								(list pad_shape))))))
 			) pads)

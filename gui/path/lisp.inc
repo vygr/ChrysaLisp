@@ -174,15 +174,15 @@
 		(setq last_cmd cmd))
 	paths)
 
-(defun path-stroke-polylines (dst radius tol joint cap1 cap2 src)
-	; (path-stroke-polylines dst radius tol join cap1 cap2 src) -> dst
+(defun path-stroke-polylines (dst radius joint cap1 cap2 src)
+	; (path-stroke-polylines dst radius join cap1 cap2 src) -> dst
 	(each (lambda (p)
-		(push dst (path-stroke-polyline p radius tol joint cap1 cap2))) src)
+		(push dst (path-stroke-polyline p radius joint cap1 cap2))) src)
 	dst)
 
-(defun path-stroke-polygons (dst radius tol joint src)
-	; (path-stroke-polygons dst radius tol join src) -> dst
+(defun path-stroke-polygons (dst radius joint src)
+	; (path-stroke-polygons dst radius join src) -> dst
 	(each (lambda (p)
-		(bind '(p p1) (path-stroke-polygon p radius tol joint))
+		(bind '(p p1) (path-stroke-polygon p radius joint))
 		(push dst p p1)) src)
 	dst)

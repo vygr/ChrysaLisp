@@ -9,7 +9,7 @@
 (enums +select 0
 	(enum main timer))
 
-(defq clock_size 256 clock_scale 1 dotw :nil face (list) eps 0.25
+(defq clock_size 256 clock_scale 1 dotw :nil face (list)
 	seconds 0.0 sec 0 minutes 0.0 minute 0 hours 0.0 hour 0 id :t
 	+rate (/ 1000000 1))
 
@@ -46,11 +46,11 @@
 
 (defun create-clockface (scale)
 	;create static clock face
-	(path-stroke-polygons face (* scale 0.02) eps +join_miter
+	(path-stroke-polygons face (* scale 0.02) +join_miter
 		(list (path-gen-arc (* scale 0.5) (* scale 0.5) 0.0 +fp_2pi (* scale 0.48) (path))))
-	(path-stroke-polylines face (* scale 0.03) eps +join_miter +cap_butt +cap_butt
+	(path-stroke-polylines face (* scale 0.03) +join_miter +cap_butt +cap_butt
 		(map (lambda (a) (transform (path 0.0 0.35 0.0 0.44) (* (n2f a) +fp_hpi) scale)) (range 0 4)))
-	(path-stroke-polylines face (* scale 0.01) eps +join_miter +cap_butt +cap_butt
+	(path-stroke-polylines face (* scale 0.01) +join_miter +cap_butt +cap_butt
 		(map (lambda (a) (transform (path 0.0 0.35 0.0 0.44) (/ (* (n2f a) +fp_2pi) 12.0) scale)) (range 0 12))))
 
 (defun view-analog-time (scale)
@@ -61,7 +61,7 @@
 		(:set_color +argb_black)
 		(:fpoly 0.0 0.0 +winding_odd_even face))
 	;hour and minute hands
-	(defq _ (path-stroke-polylines (list) (* scale 0.02) eps +join_miter +cap_round +cap_tri
+	(defq _ (path-stroke-polylines (list) (* scale 0.02) +join_miter +cap_round +cap_tri
 		(list (transform (path 0.0 0.04 0.0 -0.22) (/ (* hours +fp_2pi) 12.0) scale)
 			(transform (path 0.0 0.04 0.0 -0.33) (/ (* minutes +fp_2pi) 60.0) scale))))
 	(.-> clock
@@ -70,7 +70,7 @@
 		(:set_color +argb_green)
 		(:fpoly 0.0 0.0 +winding_none_zero _))
 	;second hand
-	(defq _ (path-stroke-polylines (list) (* scale 0.01) eps +join_miter +cap_round +cap_tri
+	(defq _ (path-stroke-polylines (list) (* scale 0.01) +join_miter +cap_round +cap_tri
 		(list (transform (path 0.0 0.04 0.0 -0.38) (/ (* (% seconds 60.0) +fp_2pi) 60.0) scale))))
 	(.-> clock
 		(:set_color 0xa0000000)

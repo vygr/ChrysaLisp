@@ -10,7 +10,7 @@
 
 (defq +width 600 +height 600 +scale 1
 	+f_width (n2f +width) +f_height (n2f +height) +f_scale (n2f +scale)
-	+rate (/ 1000000 30) +eps 0.5 angle 0.0
+	+rate (/ 1000000 30) angle 0.0
 	+font (create-font "fonts/OpenSans-Regular.ctf" 36)
 	+fp1 `',(font-glyph-paths +font "    Glyphs!")
 	+fp2 `',(font-glyph-paths +font "    Easy!")
@@ -53,20 +53,20 @@
 	(fpoly +argb_red +winding_odd_even (transform-norm (* angle (n2f 2)) (list
 		(path -0.5 -0.5 -0.25 0.5 0.0 -0.5 0.25 0.5 0.5 -0.5 -0.05 0.5))))
 	(fpoly 0xff0ff0ff +winding_odd_even (transform (* angle -1.0)
-		(path-stroke-polylines (list) (* +f_width 0.05) +eps +join_bevel +cap_square +cap_square
+		(path-stroke-polylines (list) (* +f_width 0.05) +join_bevel +cap_square +cap_square
 			(list (path-gen-quadratic
 				(* +f_width -0.4) (* +f_height 0.4)
 				(* +f_width -0.2) (* +f_height -1.1)
 				(* +f_width 0.4) (* +f_height 0.2)
 				(path))))))
 	(fpoly 0xc000ff00 +winding_odd_even (transform angle
-		(path-stroke-polylines (list) (* +f_width 0x0.1) +eps +join_round +cap_round +cap_round
+		(path-stroke-polylines (list) (* +f_width 0x0.1) +join_round +cap_round +cap_round
 			(list (path (* +f_width -0.4) (* +f_height -0.4)
 				(* +f_width 0.3) (* +f_height -0.3)
 				(* +f_width 0.4) (* +f_height 0.4))))))
 	(fpoly +argb_yellow +winding_odd_even (defq p (transform (* angle (n2f -2))
-		(path-stroke-polygons (list) (* +f_width 0.011) +eps +join_miter
-			(path-stroke-polylines (list) (* +f_width 0.033) +eps +join_bevel +cap_round +cap_arrow
+		(path-stroke-polygons (list) (* +f_width 0.011) +join_miter
+			(path-stroke-polylines (list) (* +f_width 0.033) +join_bevel +cap_round +cap_arrow
 				(list (path-gen-cubic
 					(* +f_width -0.45) (* +f_height 0.3)
 					(* +f_width -0.3) (* +f_height -0.3)
@@ -75,14 +75,14 @@
 					(path))))))))
 	(fpoly 0x80000000 +winding_odd_even (slice 1 2 p))
 	(fpoly 0xd0ff00ff +winding_odd_even (defq p (transform angle
-		(path-stroke-polygons (list) (* +f_width 0.02) +eps +join_miter
+		(path-stroke-polygons (list) (* +f_width 0.02) +join_miter
 			(list (path-gen-arc
 				(* +f_width 0.2) (* +f_height 0.3) 0.0 +fp_2pi
 				(* +f_width 0.125) (path)))))))
 	(fpoly 0x60000000 +winding_odd_even (slice 0 1 p))
 	(fpoly 0xc00000ff +winding_odd_even (defq polygons (transform angle
-		(path-stroke-polygons (list) (* +f_width 0.025) +eps +join_miter
-			(path-stroke-polylines (list) (* +f_width 0.05) +eps +join_bevel +cap_square +cap_tri (list
+		(path-stroke-polygons (list) (* +f_width 0.025) +join_miter
+			(path-stroke-polylines (list) (* +f_width 0.05) +join_bevel +cap_square +cap_tri (list
 				(path-gen-arc
 					(* +f_width -0.1) (* +f_height -0.2) 0.9 1.5
 					(* +f_width 0.2) (path))

@@ -13,8 +13,6 @@ flags.
 
 * ui-load-icon .... for button images.
 
-* gen-ellipse needs better eps scaling.
-
 * WYSIWYG UI tree Editor.
 
 * Fix the auto addition of whole words only mode in the `query` function.
