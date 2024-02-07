@@ -675,13 +675,13 @@ scan the stdio args and process acording to the optlist
 ### path-gen-ellipse
 
 ```code
-(path-gen-ellipse cx cy rx ry tol dst) -> dst
+(path-gen-ellipse cx cy rx ry dst) -> dst
 ```
 
 ### path-gen-paths
 
 ```code
-(path-gen-paths svg_d tol) -> ((:nil|:t path) ...)
+(path-gen-paths svg_d) -> ((:nil|:t path) ...)
 
 :t closed, :nil open
 ```
@@ -689,7 +689,7 @@ scan the stdio args and process acording to the optlist
 ### path-gen-rect
 
 ```code
-(path-gen-rect x y x1 y1 rx ry tol dst) -> dst
+(path-gen-rect x y x1 y1 rx ry dst) -> dst
 ```
 
 ### path-smooth
@@ -701,13 +701,13 @@ scan the stdio args and process acording to the optlist
 ### path-stroke-polygons
 
 ```code
-(path-stroke-polygons dst radius tol join src) -> dst
+(path-stroke-polygons dst radius join src) -> dst
 ```
 
 ### path-stroke-polylines
 
 ```code
-(path-stroke-polylines dst radius tol join cap1 cap2 src) -> dst
+(path-stroke-polylines dst radius join cap1 cap2 src) -> dst
 ```
 
 ### pipe-farm

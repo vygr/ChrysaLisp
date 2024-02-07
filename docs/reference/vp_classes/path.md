@@ -6,17 +6,17 @@
 
 ### (path-filter tol src dst)
 
-### (path-gen-arc cx cy start end radius tol dst) -> dst
+### (path-gen-arc cx cy start end radius dst) -> dst
 
-### (path-gen-cubic p1x p1y p2x p2y p3x p3y p4x p4y tol dst) -> dst
+### (path-gen-cubic p1x p1y p2x p2y p3x p3y p4x p4y dst) -> dst
 
-### (path-gen-quadratic p1x p1y p2x p2y p3x p3y tol dst) -> dst
+### (path-gen-quadratic p1x p1y p2x p2y p3x p3y dst) -> dst
 
 ### (path-simplify tol src dst)
 
-### (path-stroke-polygon path radius tol join) -> paths
+### (path-stroke-polygon path radius join) -> paths
 
-### (path-stroke-polyline path radius tol join cap1 cap2) -> path
+### (path-stroke-polyline path radius join cap1 cap2) -> path
 
 ### (path-svg d) -> commands
 
@@ -63,7 +63,6 @@ inputs
 :r4 = start angle (fixed)
 :r5 = end angle (fixed)
 :r6 = radius (fixed)
-:r7 = tolerance (fixed)
 outputs
 :r0 = path object (ptr)
 trashes
@@ -83,7 +82,6 @@ inputs
 :r6 = v2x (fixed)
 :r7 = v2y (fixed)
 :r8 = radius (fixed)
-:r9 = tolerance (fixed)
 outputs
 :r0 = path object (ptr)
 trashes
@@ -104,7 +102,6 @@ inputs
 :r7 = p3y (fixed)
 :r8 = p4x (fixed)
 :r9 = p4y (fixed)
-:r10 = tolerance (fixed)
 outputs
 :r0 = path object (ptr)
 trashes
@@ -123,7 +120,6 @@ inputs
 :r5 = p2y (fixed)
 :r6 = p3x (fixed)
 :r7 = p3y (fixed)
-:r8 = tolerance (fixed)
 outputs
 :r0 = path object (ptr)
 trashes
@@ -158,7 +154,6 @@ inputs
 :r7 = p2y (fixed)
 :r8 = radius (fixed)
 :r9 = tolerance (fixed)
-:r10 = join style (byte)
 outputs
 :r0 = path object (ptr)
 trashes
@@ -172,8 +167,7 @@ inputs
 :r0 = path object (ptr)
 :r1 = stack array object (ptr)
 :r2 = radius (fixed)
-:r3 = tolerance (fixed)
-:r4 = join style (byte)
+:r3 = join style (byte)
 outputs
 :r0 = path object (ptr)
 :r1 = output path1 object (ptr)

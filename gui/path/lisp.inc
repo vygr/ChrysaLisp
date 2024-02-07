@@ -33,8 +33,8 @@
 			(push out (first last_point) (second last_point)))
 		(src)))
 
-(defun path-gen-rect (x y x1 y1 rx ry tol dst)
-	; (path-gen-rect x y x1 y1 rx ry tol dst) -> dst
+(defun path-gen-rect (x y x1 y1 rx ry dst)
+	; (path-gen-rect x y x1 y1 rx ry dst) -> dst
 	(cond
 		((and rx ry)
 			(defq x (+ x rx) y (+ y ry) x1 (- x1 rx) y1 (- y1 ry))
@@ -44,15 +44,15 @@
 			(path-gen-arc x1 y +fp_hpi +fp_hpi rx dst))
 		((path x y x y1 x1 y1 x1 y))))
 
-(defun path-gen-ellipse (cx cy rx ry tol dst)
-	; (path-gen-ellipse cx cy rx ry tol dst) -> dst
+(defun path-gen-ellipse (cx cy rx ry dst)
+	; (path-gen-ellipse cx cy rx ry dst) -> dst
 	(defq s 0.1 a (neg s))
 	(while (< (setq a (+ a s)) +fp_2pi)
 		(push dst (+ cx (* rx (sin a))) (+ cy (* ry (cos a)))))
 	dst)
 
-(defun path-gen-paths (d eps)
-	; (path-gen-paths svg_d tol) -> ((:nil|:t path) ...)
+(defun path-gen-paths (d)
+	; (path-gen-paths svg_d) -> ((:nil|:t path) ...)
 	; :t closed, :nil open
 	(defq i 0 paths (list) d (path-svg (cat d " "))
 		cx 0.0 cy 0.0 cpx 0.0 cpy 0.0 last_cmd " ")

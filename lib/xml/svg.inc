@@ -8,8 +8,6 @@
 ;module
 (env-push)
 
-(defq +eps 0.5)
-
 (defun deg-to-rad (d)
 	(/ (* d +fp_pi) 180.0))
 
@@ -153,7 +151,7 @@
 				("hanging" "hanging")
 				((throw "Unknown dominant-baseline !" val))))
 		("d"
-			(path-gen-paths val +eps))
+			(path-gen-paths val))
 		(:t val)))
 
 (defun push-attributes (stack keys vals)
@@ -184,11 +182,11 @@
 					(reduce (lambda (l (f p))
 						(cond
 							(f  ;closed
-								(bind '(p1 p2) (path-stroke-polygon p (* 0.5 stroke_width) +eps
+								(bind '(p1 p2) (path-stroke-polygon p (* 0.5 stroke_width)
 									stroke_linejoin))
 								(push l p1 p2))
 							(:t ;open
-								(push l (path-stroke-polyline p (* 0.5 stroke_width) +eps
+								(push l (path-stroke-polyline p (* 0.5 stroke_width)
 									stroke_linejoin stroke_linecap stroke_linecap)))))
 							paths (list)))))))
 
@@ -234,7 +232,7 @@
 					(bind '(cx cy rx ry) (gather (defq entry (push-attributes stack keys vals))
 						"cx" "cy" "rx" "ry"))
 					(setd rx ry ry rx)
-					(defq d (path-gen-ellipse cx cy rx ry +eps (path)))
+					(defq d (path-gen-ellipse cx cy rx ry (path)))
 					(path-fill-and-stroke canvas entry (list (list :t d))))
 				("line"
 					(bind '(x1 y1 x2 y2) (gather (defq entry (push-attributes stack keys vals))
@@ -246,7 +244,7 @@
 						"x" "y" "rx" "ry" "width" "height"))
 					(setq x1 (+ x x1) y1 (+ y y1))
 					(setd rx ry ry rx)
-					(defq d (path-gen-rect x y x1 y1 rx ry +eps (path)))
+					(defq d (path-gen-rect x y x1 y1 rx ry (path)))
 					(path-fill-and-stroke canvas entry (list (list :t d))))
 				("polygon"
 					(defq entry (push-attributes stack keys vals)
