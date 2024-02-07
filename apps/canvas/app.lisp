@@ -10,7 +10,7 @@
 
 (defq +width 600 +height 600 +scale 1
 	+f_width (n2f +width) +f_height (n2f +height) +f_scale (n2f +scale)
-	+rate (/ 1000000 30) +eps 0.25 angle 0.0
+	+rate (/ 1000000 30) +eps 0.5 angle 0.0
 	+font (create-font "fonts/OpenSans-Regular.ctf" 36)
 	+fp1 `',(font-glyph-paths +font "    Glyphs!")
 	+fp2 `',(font-glyph-paths +font "    Easy!")

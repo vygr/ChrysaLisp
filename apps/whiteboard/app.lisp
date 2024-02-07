@@ -21,7 +21,7 @@
 (bits +layer 0
 	(bit commited overlay))
 
-(defq +eps 0.25 +tol 3.0
+(defq +eps 0.5 +tol 3.0
 	*radiuss* (map n2f '(2 6 12)) *stroke_radius* (first *radiuss*)
 	*undo_stack* (list) *redo_stack* (list)
 	*stroke_col* (first *palette*) *stroke_mode* +event_pen
