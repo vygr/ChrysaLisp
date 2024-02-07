@@ -37,7 +37,7 @@
 			'())
 		((= 2 (length pnts))
 			;just a point
-			(list (path-gen-arc (first pnts) (second pnts) 0.0 +fp_2pi rad +eps (path))))
+			(list (path-gen-arc (first pnts) (second pnts) 0.0 +fp_2pi rad (path))))
 		(:t ;is a polyline draw
 			(bind '(x y x1 y1 &rest _) pnts)
 			(cond
@@ -53,15 +53,13 @@
 				((= mode +event_circle)
 					;flatten to circle
 					(path-stroke-polygons (list) rad +eps +join_bevel
-						(list (path-gen-arc x y 0.0 +fp_2pi (vec-length (vec-sub (path x y) (path x1 y1)))
-							+eps (path)))))
+						(list (path-gen-arc x y 0.0 +fp_2pi (vec-length (vec-sub (path x y) (path x1 y1))) (path)))))
 				((= mode +event_fbox)
 					;flatten to filled box
 					(list (path x y x1 y x1 y1 x y1)))
 				((= mode +event_fcircle)
 					;flatten to filled circle
-					(list (path-gen-arc x y 0.0 +fp_2pi (vec-length (vec-sub (path x y) (path x1 y1)))
-						+eps (path))))
+					(list (path-gen-arc x y 0.0 +fp_2pi (vec-length (vec-sub (path x y) (path x1 y1))) (path))))
 				(:t ;flatten to pen stroke
 					(path-stroke-polylines (list) rad +eps +join_bevel +cap_round +cap_round (list pnts))))))))
 

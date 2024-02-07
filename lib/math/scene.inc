@@ -13,7 +13,7 @@
 	; (circle r) -> path
 	;cached circle generation, quantised to 1/4 pixel
 	(defq r (* (floor (* (n2f r) 4.0)) 0.25))
-	(memoize r (path-gen-arc 0.0 0.0 0.0 +fp_2pi r 0.25 (path)) 13))
+	(memoize r (path-gen-arc 0.0 0.0 0.0 +fp_2pi r (path)) 13))
 
 (defun lighting (col at)
 	; (lighting col at)

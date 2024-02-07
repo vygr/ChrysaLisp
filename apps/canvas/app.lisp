@@ -58,7 +58,7 @@
 				(* +f_width -0.4) (* +f_height 0.4)
 				(* +f_width -0.2) (* +f_height -1.1)
 				(* +f_width 0.4) (* +f_height 0.2)
-				+eps (path))))))
+				(path))))))
 	(fpoly 0xc000ff00 +winding_odd_even (transform angle
 		(path-stroke-polylines (list) (* +f_width 0x0.1) +eps +join_round +cap_round +cap_round
 			(list (path (* +f_width -0.4) (* +f_height -0.4)
@@ -78,17 +78,17 @@
 		(path-stroke-polygons (list) (* +f_width 0.02) +eps +join_miter
 			(list (path-gen-arc
 				(* +f_width 0.2) (* +f_height 0.3) 0.0 +fp_2pi
-				(* +f_width 0.125) +eps (path)))))))
+				(* +f_width 0.125) (path)))))))
 	(fpoly 0x60000000 +winding_odd_even (slice 0 1 p))
 	(fpoly 0xc00000ff +winding_odd_even (defq polygons (transform angle
 		(path-stroke-polygons (list) (* +f_width 0.025) +eps +join_miter
 			(path-stroke-polylines (list) (* +f_width 0.05) +eps +join_bevel +cap_square +cap_tri (list
 				(path-gen-arc
 					(* +f_width -0.1) (* +f_height -0.2) 0.9 1.5
-					(* +f_width 0.2) +eps (path))
+					(* +f_width 0.2) (path))
 				(path-gen-arc
 					(* +f_width -0.2) (* +f_height -0.2) 4.0 2.0
-					(* +f_width 0o0.1) +eps (path))))))))
+					(* +f_width 0o0.1) (path))))))))
 	(fpoly 0xa0ffffff +winding_odd_even (list (second polygons) (elem-get 3 polygons)))
 	(fpoly 0xff000000 +winding_odd_even (transform-copy (/ angle 2.0) +fp1))
 	(fpoly 0xff000000 +winding_odd_even (transform-copy (+ (/ angle 2.0) +fp_pi) +fp2))

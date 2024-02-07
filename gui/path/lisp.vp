@@ -121,12 +121,12 @@
 
 	(entry 'path :lisp_gen_quadratic '(:r0 :r1))
 
-	(errorif-lisp-args-sig :r1 8 'error)
+	(errorif-lisp-args-sig :r1 7 'error)
 
 	(vp-push :r0)
 	(defq in (method-input 'path :gen_quadratic))
-	(list-bind-args :r1 (array-map-args in '(8 7 0 1 2 3 4 5 6))
-		'(:fixed :fixed :fixed :fixed :fixed :fixed :fixed _ :path))
+	(list-bind-args :r1 (array-map-args in '(7 6 0 1 2 3 4 5))
+		'(:fixed :fixed :fixed :fixed :fixed :fixed _ :path))
 	(assign '((:rsp 0)) `(,(second in)))
 	(assign `((,(second in) lisp_stack)) `(,(second in)))
 	(call 'path :gen_quadratic in '(:r0))
@@ -138,8 +138,8 @@
 
 (errorcase
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(path-gen-quadratic p1x p1y p2x p2y p3x p3y tol dst) -> dst" +error_msg_wrong_types :r1))
-	(signature '(fixed fixed fixed fixed fixed fixed fixed path)))
+	(jump 'lisp :repl_error '(:r0 "(path-gen-quadratic p1x p1y p2x p2y p3x p3y dst) -> dst" +error_msg_wrong_types :r1))
+	(signature '(fixed fixed fixed fixed fixed fixed path)))
 
 (def-func-end)
 
@@ -189,12 +189,12 @@
 
 	(entry 'path :lisp_gen_arc '(:r0 :r1))
 
-	(errorif-lisp-args-sig :r1 7 'error)
+	(errorif-lisp-args-sig :r1 6 'error)
 
 	(vp-push :r0)
 	(defq in (method-input 'path :gen_arc))
-	(list-bind-args :r1 (array-map-args in '(7 6 0 1 2 3 4 5))
-		'(:fixed :fixed :fixed :fixed :fixed :fixed _ :path))
+	(list-bind-args :r1 (array-map-args in '(6 5 0 1 2 3 4))
+		'(:fixed :fixed :fixed :fixed :fixed _ :path))
 	(assign '((:rsp 0)) `(,(second in)))
 	(assign `((,(second in) lisp_stack)) `(,(second in)))
 	(call 'path :gen_arc in '(:r0))
@@ -206,8 +206,8 @@
 
 (errorcase
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(path-gen-arc cx cy start end radius tol dst) -> dst" +error_msg_wrong_types :r1))
-	(signature '(fixed fixed fixed fixed fixed fixed path)))
+	(jump 'lisp :repl_error '(:r0 "(path-gen-arc cx cy start end radius dst) -> dst" +error_msg_wrong_types :r1))
+	(signature '(fixed fixed fixed fixed fixed path)))
 
 (def-func-end)
 

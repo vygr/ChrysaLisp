@@ -12,7 +12,7 @@
 
 (defun circle (r)
 	;cached circle generation
-	(memoize r (list (path-gen-arc 0.0 0.0 0.0 +fp_2pi r 0.25 (path))) 11))
+	(memoize r (list (path-gen-arc 0.0 0.0 0.0 +fp_2pi r (path))) 11))
 
 (defun oval (r s)
 	;cached oval generation

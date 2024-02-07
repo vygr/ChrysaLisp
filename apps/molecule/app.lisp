@@ -73,7 +73,7 @@
 (defun circle (r)
 	;cached circle generation, quantised to 1/4 pixel
 	(defq r (* (floor (* (n2f r) 4.0)) 0.25))
-	(memoize r (list (path-gen-arc 0.0 0.0 0.0 +fp_2pi r 0.25 (path))) 13))
+	(memoize r (list (path-gen-arc 0.0 0.0 0.0 +fp_2pi r (path))) 13))
 
 (defun fpoly (canvas col x y _)
 	;draw a polygon on a canvas

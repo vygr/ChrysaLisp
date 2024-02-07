@@ -28,7 +28,7 @@
 					(first last_mid_point) (second last_mid_point)
 					(first last_point) (second last_point)
 					(first mid_point) (second mid_point)
-					tol out)
+					out)
 				(setq last_point %0)) src)
 			(push out (first last_point) (second last_point)))
 		(src)))
@@ -38,10 +38,10 @@
 	(cond
 		((and rx ry)
 			(defq x (+ x rx) y (+ y ry) x1 (- x1 rx) y1 (- y1 ry))
-			(path-gen-arc x y +fp_pi +fp_hpi rx tol dst)
-			(path-gen-arc x y1 (const (+ +fp_pi +fp_hpi)) +fp_hpi rx tol dst)
-			(path-gen-arc x1 y1 0.0 +fp_hpi rx tol dst)
-			(path-gen-arc x1 y +fp_hpi +fp_hpi rx tol dst))
+			(path-gen-arc x y +fp_pi +fp_hpi rx dst)
+			(path-gen-arc x y1 (const (+ +fp_pi +fp_hpi)) +fp_hpi rx dst)
+			(path-gen-arc x1 y1 0.0 +fp_hpi rx dst)
+			(path-gen-arc x1 y +fp_hpi +fp_hpi rx dst))
 		((path x y x y1 x1 y1 x1 y))))
 
 (defun path-gen-ellipse (cx cy rx ry tol dst)
@@ -131,14 +131,14 @@
 			("Q"
 				(while (num? (elem-get i d))
 					(bind '(x1 y1 x y) (slice i (setq i (+ i 4)) d))
-					(path-gen-quadratic cpx cpy x1 y1 x y eps p)
+					(path-gen-quadratic cpx cpy x1 y1 x y p)
 					(setq cpx x cpy y cx x1 cy y1)))
 			("q"
 				(while (num? (elem-get i d))
 					(bind '(x1 y1 x y) (slice i (setq i (+ i 4)) d))
 					(setq x1 (+ cpx x1) y1 (+ cpy y1)
 						x (+ cpx x) y (+ cpy y))
-					(path-gen-quadratic cpx cpy x1 y1 x y eps p)
+					(path-gen-quadratic cpx cpy x1 y1 x y p)
 					(setq cpx x cpy y cx x1 cy y1)))
 			("T"
 				(while (num? (elem-get i d))
@@ -146,7 +146,7 @@
 					(if (find last_cmd "QTqt")
 						(defq x1 (- (* cpx 2.0) cx) y1 (- (* cpy 2.0) cy))
 						(defq x1 cpx y1 cpy))
-					(path-gen-quadratic cpx cpy x1 y1 x y eps p)
+					(path-gen-quadratic cpx cpy x1 y1 x y p)
 					(setq cpx x cpy y cx x1 cy y1)))
 			("t"
 				(while (num? (elem-get i d))
@@ -155,7 +155,7 @@
 					(if (find last_cmd "QTqt")
 						(defq x1 (- (* cpx 2.0) cx) y1 (- (* cpy 2.0) cy))
 						(defq x1 cpx y1 cpy))
-					(path-gen-quadratic cpx cpy x1 y1 x y eps p)
+					(path-gen-quadratic cpx cpy x1 y1 x y p)
 					(setq cpx x cpy y cx x1 cy y1)))
 			("A"
 				(while (num? (elem-get i d))

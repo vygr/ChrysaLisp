@@ -12,7 +12,6 @@
 	;:r5 = p2y (fixed)
 	;:r6 = p3x (fixed)
 	;:r7 = p3y (fixed)
-	;:r8 = tolerance (fixed)
 	;outputs
 	;:r0 = path object (ptr)
 	;trashes
@@ -25,11 +24,10 @@
 			(ulong p1 p2 p3 p12 p23 p123)
 			(int p1x p1y p2x p2y p3x p3y
 				p12x p12y p23x p23y p123x p123y))
-		(uint start length)
-		(int eps))
+		(uint start length))
 
 	(push-scope)
-	(entry 'path :gen_quadratic {this, stack, p1x, p1y, p2x, p2y, p3x, p3y, eps})
+	(entry 'path :gen_quadratic {this, stack, p1x, p1y, p2x, p2y, p3x, p3y})
 
 	;output first point
 	(vec-set 0)
@@ -62,7 +60,7 @@
 		(vec-abs 2)
 		(vec-sum 2)
 
-		(vec-load 1 {eps})
+		(vec-load 1 {0.5})
 		(bind '(d e) (vec-pop 2))
 		(vpif (list d '<= e))
 			;output point

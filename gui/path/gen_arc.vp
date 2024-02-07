@@ -11,7 +11,6 @@
 	;:r4 = start angle (fixed)
 	;:r5 = end angle (fixed)
 	;:r6 = radius (fixed)
-	;:r7 = tolerance (fixed)
 	;outputs
 	;:r0 = path object (ptr)
 	;trashes
@@ -19,13 +18,13 @@
 
 	(def-vars
 		(ptr this stack)
-		(int v1x v1y v2x v2y cx cy radius eps)
+		(int v1x v1y v2x v2y cx cy radius)
 		(union
 			(int ca1 ca2 sa1 sa2)
 			(int a1 a2 ah)))
 
 	(push-scope)
-	(entry 'path :gen_arc {this, stack, cx, cy, a1, a2, radius, eps})
+	(entry 'path :gen_arc {this, stack, cx, cy, a1, a2, radius})
 
 	(vec-set 0)
 	(vec-load 2 {a1, +fp_2pi})
@@ -50,8 +49,8 @@
 	(else)
 		(assign {a2 >>> 1} {ah})
 		(assign {a2 - ah} {a2})
-		(call 'path :gen_arc {this, stack, cx, cy, a1, ah, radius, eps})
-		(call 'path :gen_arc {this, stack, cx, cy, a1 + ah, a2, radius, eps})
+		(call 'path :gen_arc {this, stack, cx, cy, a1, ah, radius})
+		(call 'path :gen_arc {this, stack, cx, cy, a1 + ah, a2, radius})
 	(endif)
 
 	(exit 'path :gen_arc {this})

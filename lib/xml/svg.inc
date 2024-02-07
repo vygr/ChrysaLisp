@@ -228,7 +228,7 @@
 				("circle"
 					(bind '(cx cy r) (gather (defq entry (push-attributes stack keys vals))
 						"cx" "cy" "r"))
-					(defq d (path-gen-arc cx cy 0.0 +fp_2pi r +eps (path)))
+					(defq d (path-gen-arc cx cy 0.0 +fp_2pi r (path)))
 					(path-fill-and-stroke canvas entry (list (list :t d))))
 				("ellipse"
 					(bind '(cx cy rx ry) (gather (defq entry (push-attributes stack keys vals))
