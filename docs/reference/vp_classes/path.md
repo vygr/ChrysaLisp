@@ -153,7 +153,7 @@ inputs
 :r6 = p2x (fixed)
 :r7 = p2y (fixed)
 :r8 = radius (fixed)
-:r9 = tolerance (fixed)
+:r9 = join style (byte)
 outputs
 :r0 = path object (ptr)
 trashes
