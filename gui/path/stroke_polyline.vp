@@ -8,10 +8,9 @@
 	;:r0 = path object (ptr)
 	;:r1 = stack array object (ptr)
 	;:r2 = radius (fixed)
-	;:r3 = tolerance (fixed)
-	;:r4 = join style (byte)
-	;:r5 = cap style1 (byte)
-	;:r6 = cap style2 (byte)
+	;:r3 = join style (byte)
+	;:r4 = cap style1 (byte)
+	;:r5 = cap style2 (byte)
 	;outputs
 	;:r0 = path object (ptr)
 	;:r1 = output path object (ptr)
@@ -26,12 +25,12 @@
 				l1_vx l1_vy l1_npvx l1_npvy l1_rvx l1_rvy))
 		(plong iter iter_begin iter_end)
 		(ptr this stack path1)
-		(int radius eps step c c1)
+		(int radius step c c1)
 		(byte join_style cap1_style cap2_style))
 
 	(push-scope)
 	(scope-used l2_pv p3 p4)
-	(entry 'path :stroke_polyline {this, stack, radius, eps, join_style, cap1_style, cap2_style})
+	(entry 'path :stroke_polyline {this, stack, radius, join_style, cap1_style, cap2_style})
 
 	(vec-set 0)
 	(call 'path :filter_polyline {this, this, 0.5})

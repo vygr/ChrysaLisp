@@ -176,8 +176,6 @@ trashes
 :r1-:r14
 ```
 
-### :stroke_polygons -> gui/path/stroke_polygons
-
 ### :stroke_polyline -> gui/path/stroke_polyline
 
 ```code
@@ -185,18 +183,15 @@ inputs
 :r0 = path object (ptr)
 :r1 = stack array object (ptr)
 :r2 = radius (fixed)
-:r3 = tolerance (fixed)
-:r4 = join style (byte)
-:r5 = cap style1 (byte)
-:r6 = cap style2 (byte)
+:r3 = join style (byte)
+:r4 = cap style1 (byte)
+:r5 = cap style2 (byte)
 outputs
 :r0 = path object (ptr)
 :r1 = output path object (ptr)
 trashes
 :r1-:r14
 ```
-
-### :stroke_polylines -> gui/path/stroke_polylines
 
 ### :transform -> gui/path/transform
 
