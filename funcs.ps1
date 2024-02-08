@@ -99,17 +99,17 @@ function boot_cpu_tui
     $cmd = "./obj/$($NHCPU)/$($NHABI)/$($NHOS)/main_tui";
 	if ( $cpu -lt 1 ){
 		if ( $front -eq $FALSE ){
-			Start-Process -FilePath $cmd -NoNewWindow -ArgumentList "obj/$(HCPU)/$(HABI)/sys/boot_image $link -run apps/tui/tui.lisp"
+			Start-Process -FilePath $cmd -NoNewWindow -ArgumentList "obj/$($HCPU)/$($HABI)/sys/boot_image $link -run apps/tui/tui.lisp"
 		}
 		else {
-			$process = Start-Process -FilePath $cmd -NoNewWindow -ArgumentList "obj/$(HCPU)/$(HABI)/sys/boot_image $link -run apps/tui/tui.lisp" -PassThru -Wait
+			$process = Start-Process -FilePath $cmd -NoNewWindow -ArgumentList "obj/$($HCPU)/$($HABI)/sys/boot_image $link -run apps/tui/tui.lisp" -PassThru -Wait
 			if ( $process.ExitCode -eq 0){
 				Stop-Process -Name main_tui -Force 2>&1 | out-null
 			}
 		}
 	}
 	else {
-		Start-Process -FilePath $cmd -NoNewWindow -ArgumentList "obj/$(HCPU)/$(HABI)/sys/boot_image $link"
+		Start-Process -FilePath $cmd -NoNewWindow -ArgumentList "obj/$($HCPU)/$($HABI)/sys/boot_image $link"
 	}
 }
 
