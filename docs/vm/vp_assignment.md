@@ -39,7 +39,7 @@ constant `42` to `:r3`. Sounds simple enough. So we just emit:
 
 Job done, yes ? Err, no. You've just corrupted what was in `:r1` prior to
 copying it to `:r2` ! The `(assign)` function does a topological sort on the
-parameters you provide to make sure this does not happen ! If it cannot
+parameters you provide to make sure this does not happen ! If it can't
 guarantee a cycle free set of copy instructions then it'll throw an error and
 expect you to sort the problem out. This happens far less often than you might
 imagine, but occasionally you will need to break the cycle with a temp

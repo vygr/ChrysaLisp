@@ -71,7 +71,7 @@ Fred Blogs
 
 You may like to use `(bind)` directly as it implements a concept known as
 destructuring, plus you can bind to any type of sequence not just a list ! You
-can also `(apply)` any type of sequence to a function ! Whereas you cannot do
+can also `(apply)` any type of sequence to a function ! Whereas you can't do
 that by using a function call. Normal function calling always passes the `rest`
 arguments as a list.
 

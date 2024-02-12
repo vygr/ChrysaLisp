@@ -21,10 +21,10 @@ A Mailbox can be freed using the mailbox free function, `'sys_mail :free_mbox`.
 A mailbox ID can be turned into the address of the message containing structure
 using the `'sys_mail :validate` function. This mailbox address function
 validates that this ID is an existing mailbox and will return `null` if the
-mailbox cannot be found.
+mailbox can't be found.
 
 Mailbox IDs are always a unique 64 bit non repeated identifier. During mail
-delivery any messages using an ID that cannot be validated are treated as junk
+delivery any messages using an ID that can't be validated are treated as junk
 mail and sent to this nodes Postman task. This postman task just currently
 frees the message but later versions of the system may use this information for
 debugging purposes.
