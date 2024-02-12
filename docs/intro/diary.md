@@ -155,9 +155,9 @@ Reboot the system and lets try this out in the repl:
 
 ```vdu
 ./run_tui.sh
-ChrysaLisp Terminal 1.5
+ChrysaLisp Terminal
 >lisp
-ChrysaLisp 1.3
+ChrysaLisp
 Press ESC/Enter to exit.
 (hash)
 Error: (hash obj) wrong_num_of_args ! < () > File: stdin(1)

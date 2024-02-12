@@ -21,7 +21,7 @@
 		(if (<= (length args) 1)
 			;run asm.inc, and print sign on
 			(progn
-				(print "ChrysaLisp 1.3")
+				(print "ChrysaLisp")
 				(print "Press ESC/Enter to exit.")
 				(stream-flush stdout)
 				(stream-flush stderr))
