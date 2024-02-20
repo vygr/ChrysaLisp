@@ -322,7 +322,7 @@
 	(defmethod :route ()
 		; (. net :route) -> :t | :nil
 		;attempt to route this net on the current boards state
-		(raise :pcb :radius :via :gap :paths :pad_end_nodes)
+		(raise :pcb :paths :radius :gap :via :pad_end_nodes)
 		(cond
 			((= radius 0.0) :t)
 			(:t (clear paths)
@@ -333,7 +333,7 @@
 					failed (some! 1 -1 :nil (lambda (ends)
 						(each (# (. visited :insert %0)) (elem-get (dec _) pad_end_nodes))
 						(unless (some (# (. visited :find %0)) ends)
-							(. pcb :mark_distances radius via gap visited ends)
+							(. pcb :mark_distances visited ends radius gap via)
 							(sort (# (- (. pcb :get_node %0) (. pcb :get_node %1))) ends)
 							(defq nodes (. this :backtrack_path visited (first ends) radius via gap))
 							(. pcb :unmark_distances)
@@ -520,8 +520,8 @@
 					(push out new_node)))) gather)
 		out)
 
-	(defmethod :mark_distances (radius via gap starts ends)
-		; (. pcb :mark_distances radius via gap starts ends) -> pcb
+	(defmethod :mark_distances (starts ends radius gap via)
+		; (. pcb :mark_distances starts ends radius gap via) -> pcb
 		;generate all grid points surrounding node that are not shorting with an existing track
 		(raise :flood_vectors :vias_cost (distance 1 vias_map (const (Fmap 11))
 			frontier (. starts :copy) exit :t))
