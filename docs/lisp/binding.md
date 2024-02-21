@@ -16,7 +16,7 @@ symbols to values is done automatically, by the function call mechanism.
 Internally, this is done by use of the `(apply)` and `(bind)` functions. BUT
 you can have direct access to these for your own purposes.
 
-## Apply and Bind
+## (apply) and (bind)
 
 When you call a function, the arguments that you provide after the function
 name are collected together into a list (this is the `rest` of the list) and
