@@ -69,6 +69,6 @@
 						(char key))))
 			(:t ;gui event
 				(. *window* :event *msg*))))
-	(profile-report "Template" :t)
 	(gui-sub *window*)
-	(free-select select))
+	(free-select select)
+	(profile-report "Template"))

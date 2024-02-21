@@ -48,5 +48,5 @@
 					;send reply
 					(print *reply_key*)
 					(mail-send *reply_mbox* (apply (const cat) *msg*)))))))
-	(profile-report "Asm")
-	(free-select *select*))
+	(free-select *select*)
+	(profile-report "Asm"))

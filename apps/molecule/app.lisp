@@ -219,5 +219,4 @@
 				(. *window* :event *msg*))))
 	(gui-sub *window*)
 	(free-select select)
-	(if (get 'profile-report)
-		(profile-report "Molecule")))
+	(profile-report "Molecule"))

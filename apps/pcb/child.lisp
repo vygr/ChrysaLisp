@@ -45,5 +45,4 @@
 					(getf msg +job_odd_range)
 					(slice +job_data -1 msg)))))
 	(free-select select)
-	(if (get 'profile-report)
-		(profile-report "Pcb")))
+	(profile-report "Pcb"))

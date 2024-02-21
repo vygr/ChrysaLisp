@@ -323,9 +323,9 @@
 				(. *window* :event *msg*)))
 		;update meta data
 		(update-meta-data))
-	(profile-report "Editor")
 	(action-save-all)
 	(free-select select)
 	(clear-matches)
 	(gui-sub *window*)
-	(mail-forget edit_service))
+	(mail-forget edit_service)
+	(profile-report "Editor"))

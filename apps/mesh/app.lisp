@@ -228,5 +228,4 @@
 	(. farm :close)
 	(gui-sub *window*)
 	(free-select select)
-	(if (get 'profile-report)
-		(profile-report "Mesh")))
+	(profile-report "Mesh"))
