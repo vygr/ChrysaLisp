@@ -177,8 +177,8 @@
 	(call 'list :get_begin {args} {_, iter_begin})
 
 (errorcase
-	(call 'obj :inst_of (cat {iter_begin[0], @} (f-path 'stream :vtable)))
-	(gotoif (list (method-output 'obj :inst_of 1) '= 0) 'error2))
+	(call 'obj :inst_of (cat {iter_begin[0], @} (f-path 'stream :vtable)) '(_ tmp))
+	(gotoif `(,tmp = 0) 'error2))
 
 	(assign {length, 1} '(:r0 :r1))
 	(vpif '(:r0 = 2))

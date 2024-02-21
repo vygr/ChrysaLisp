@@ -174,14 +174,14 @@
 	(errorif-lisp-args-sig :r1 2 'error)
 
 	(call 'lisp :env_args_set {args, 0, &arg0})
-	(call 'obj :inst_of (cat {arg1, @} (f-path 'str :vtable)))
-	(vpif (list (method-output 'obj :inst_of 1) '/= 0))
+	(call 'obj :inst_of (cat {arg1, @} (f-path 'str :vtable)) '(_ tmp))
+	(vpif `(,tmp /= 0))
 		(call 'sys_mail :alloc_obj {arg1, &arg1->str_data, arg1->str_length} {arg2})
 		(goto 'sendit)
 	(endif)
 (errorcase
-	(call 'obj :inst_of (cat {arg1, @} (f-path 'list :vtable)))
-	(gotoif (list (method-output 'obj :inst_of 1) '= 0) 'error))
+	(call 'obj :inst_of (cat {arg1, @} (f-path 'list :vtable)) '(_ tmp))
+	(gotoif `(,tmp = 0) 'error))
 	(call 'sys_mail :alloc_obj {arg1, arg1->array_begin, arg1->array_length * +long_size} {arg2})
 (vp-label 'sendit)
 	(assign {arg0, arg2} '(:r1 :r0))
