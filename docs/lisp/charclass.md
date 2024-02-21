@@ -38,6 +38,10 @@ character. It returns the index of the found character or `:nil`.
 (bfind "C" +char_class_upper)
 ```
 
+```lisp
+(bfind "c" +char_class_upper)
+```
+
 ## Skipping members with `bskip`
 
 `(bskip cls str idx) -> idx` will skip all characters from the given index that
