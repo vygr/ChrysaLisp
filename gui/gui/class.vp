@@ -97,13 +97,10 @@
 	(assign `(,root) '((:rsp local_root)))
 
 	;iterate through views back to front
-	;setting abs cords
+	;setting abs cords, plus
+	;create visible region at root
 	(vp-xor-rr x x)
 	(vp-xor-rr y y)
-	(call 'view :backward_tree `(,root ,root ($ abs_down_callback) ($ abs_up_callback)))
-
-	;iterate through views back to front
-	;create visible region at root
 	(call 'view :backward_tree `(,root ,root ($ visible_down_callback) ($ visible_up_callback)))
 
 	;save bounds for :flush
@@ -142,29 +139,6 @@
 	(vp-free local_size)
 	(vp-ret)
 
-(vp-label 'abs_down_callback)
-	(vp-def (view user x y x1 y1) '(:r0 :r1 :r7 :r8 :r9 :r10))
-
-	(entry 'view :forward_tree_callback `(,view ,user))
-
-	(vp-simd vp-cpy-ir-i `(,view ,view) `(,view_x ,view_y) `(,x1 ,y1))
-	(vp-simd vp-add-rr `(,x1 ,y1) `(,x ,y))
-	(vp-simd vp-cpy-ri-i `(,x ,y) `(,view ,view) `(,view_ctx_x ,view_ctx_y))
-
-	(exit 'view :forward_tree_callback `(,view ,user))
-	(vp-ret)
-
-(vp-label 'abs_up_callback)
-	(vp-def (view user x y x1 y1) '(:r0 :r1 :r7 :r8 :r9 :r10))
-
-	(entry 'view :forward_tree_callback `(,view ,user))
-
-	(vp-simd vp-cpy-ir-i `(,view ,view) `(,view_x ,view_y) `(,x1 ,y1))
-	(vp-simd vp-sub-rr `(,x1 ,y1) `(,x ,y))
-
-	(exit 'view :forward_tree_callback `(,view ,user))
-	(vp-ret)
-
 (vp-label 'visible_down_callback)
 	(vp-def (heap view1 view2 tmp x y x1 y1 vx vy vx1 vy1)
 		'(:r0 :r1 :r2 :r3 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14))
@@ -176,6 +150,11 @@
 	(vp-alloc vis_size)
 	(entry 'view :forward_tree_callback `(,view1 ,view2))
 	(assign `(,view1 ,view2) '((:rsp vis_this) (:rsp vis_root)))
+
+	;abs of this view !
+	(vp-simd vp-cpy-ir-i `(,view1 ,view1) `(,view_x ,view_y) `(,x1 ,y1))
+	(vp-simd vp-add-rr `(,x1 ,y1) `(,x ,y))
+	(vp-simd vp-cpy-ri-i `(,x ,y) `(,view1 ,view1) `(,view_ctx_x ,view_ctx_y))
 
 	;if not root
 	(vpif `(,view1 /= ,view2))
@@ -253,7 +232,11 @@
 		(endif)
 	(endif)
 
-	(exit 'view :forward_tree_callback `((:rsp vis_this) ,heap))
+	;abs of this view !
+	(assign `((:rsp vis_this)) `(,view2))
+	(vp-simd vp-cpy-ir-i `(,view2 ,view2) `(,view_ctx_x ,view_ctx_y) `(,x ,y))
+
+	(exit 'view :forward_tree_callback `(,view2 ,heap))
 	(vp-free vis_size)
 	(vp-ret)
 
@@ -312,7 +295,13 @@
 		(call 'region :free `(,heap (& ,view1 view_dirty_region)) `(,heap _))
 	(endif)
 
-	(exit 'view :forward_tree_callback `((:rsp vis_this) ,view1))
+	;abs of parent view !
+	(assign `((:rsp vis_this)) `(,view2))
+	(vp-simd vp-cpy-ir-i `(,view2 ,view2) `(,view_ctx_x ,view_ctx_y) `(,x ,y))
+	(vp-simd vp-cpy-ir-i `(,view2 ,view2) `(,view_x ,view_y) `(,x1 ,y1))
+	(vp-simd vp-sub-rr `(,x1 ,y1) `(,x ,y))
+
+	(exit 'view :forward_tree_callback `(,view2 ,view1))
 	(vp-free vis_size)
 	(vp-ret)
 
