@@ -409,8 +409,8 @@ maybe you want to test a return value for an error condition or such. While
 it's possible to use the `(method-output 'class :method)` call to access them,
 there is a shortcut available that uses the `(assign)` function to do the job.
 
-If you provide a none key symbol as an output the register name will be bound
-to that symbol within the `*func_env*` environment.
+If you provide a none key symbol as an output, the corresponding output
+register name will be bound to that symbol within the `*func_env*` environment.
 
 For example, checking the error return value from type checking code could be
 done as follows:
