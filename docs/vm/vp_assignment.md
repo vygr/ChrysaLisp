@@ -401,3 +401,24 @@ following.
 ```vdu
 	(vp-cpy-ir-ui :r0 str_length :r0)
 ```
+
+## Output register assignment
+
+Often you may wish to know what the output register/s are from a method call,
+maybe you want test a return value for an error condition or such. While it's
+possible to use the `(method-output class method)` call to access them, there
+is a shortcut available that uses the assignment function to do the job.
+
+If you provide a none key symbol as an output the register name will be bound
+to that symbol within the `*func_env*` environment.
+
+For example, checking the error return value from type checking code could be
+done as follows:
+
+```file
+class/seq/lisp.vp ":env_args_type" ""
+```
+
+Here `tmp` is bound to the register coming out of the calls to `:env_args_type`
+and later the call to `:env_args_match` ! You can then use that register,
+whatever it is, in subsequent code.
