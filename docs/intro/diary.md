@@ -56,8 +56,8 @@ Subclasses `:override` this method to provide better support for the type of
 object of the subclass. For example a very important one is for `str` and `sym`
 objects, the core of the ChrysaLisp environment system.
 
-The method override, which happens to be `:final` in this case, is declared in
-the `class/str/class.inc` file.
+The method override, in this case, is declared in the `class/str/class.inc`
+file.
 
 ```file
 class/str/class.inc ":hash" "dec-method"
