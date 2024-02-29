@@ -506,8 +506,8 @@
 (defun filter-array (_f _a)
 	; (filter-array lambda array) -> array
 	(defq _l (slice 0 0 _a))
-	(each! 0 -1 (lambda (_p)
-		(if (apply _f (list _p)) (push _l _p))) (list _a)) _l)
+	(each (lambda (_p) (if (_f _p) (push _l _p))) _a)
+	_l)
 
 (defun unique (seq)
 	; (unique seq) -> seq
@@ -535,13 +535,13 @@
 					(cat '(progn) _clause_body)))))))
 			(or (eql :num (defq _clause_type (pop (type-of _clause_body))))
 				(eql :str _clause_type) (setq _atoms :nil))
-			(each! 0 -1 (lambda (_key)
+			(each (lambda (_key)
 				(and (sym? _key) (starts-with "+" _key) (setq _key (eval _key)))
 				(cond
 					((eql _key :t)
 						(setq _default_key :t _default_clause _clause_body))
 					(:t (push (first _map) _key)
-						(push (second _map) _clause_body)))) (list _keys)) _map)
+						(push (second _map) _clause_body)))) _keys) _map)
 			_body (list (list) (list))))
 	(cond
 		(_default_key
