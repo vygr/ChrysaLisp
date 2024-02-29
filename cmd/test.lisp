@@ -6,29 +6,26 @@
 
 	options:
 		-h --help: this help info.
-	
+
 	Simple timing test framework.")
 ))
 
-(defun f0 (_f _b)
-	(defq _l (list))
-	(each! 0 -1 (lambda (_p)
-		(if (apply _f (list _p)) (push _l _p))) (list _b)) _l)
+(defun f0 (&rest seqs)
+	; (zip seq ...) -> seq
+	(if (= (length (defq out (map! 0 -1 (const cat) (map (const partition) seqs)))) 0)
+		(slice 0 0 (first seqs)) (apply (const cat) out)))
 
-(defun f1 (_f _b)
-	(defq _l (slice 0 0 _b))
-	(each! 0 -1 (lambda (_p)
-		(if (apply _f (list _p)) (push _l _p))) (list _b)) _l)
-
-(defun f2 (_f _b)
-	(reduce! 0 -1 (lambda (_l _p)
-		(if (apply _f (list _p)) (push _l _p) _l)) (list _b) (slice 0 0 _b)))
+(defun f1 (&rest seqs)
+	; (zip seq ...) -> seq
+	(apply (const cat)
+		(map! 0 -1 (const cat) (map (const partition) seqs)
+			(list (slice 0 0 (first seqs))))))
 
 (defmacro time-it (name cnt &rest _)
 	`(progn
 		(print ,name)
 		(stream-flush (io-stream 'stdout))
-		(task-sleep 10)
+		(task-sleep 100)
 		(defq then (pii-time))
 		(times ,cnt ~_)
 		(print (time-in-seconds (- (pii-time) then)))))
@@ -38,11 +35,13 @@
 	(when (and
 			(defq stdio (create-stdio))
 			(defq args (options stdio usage)))
-		(defq l (range 0 20000) c 1000)
-		(time-it "f0" c (f0 odd? l))
-		(time-it "f1" c (f1 odd? l))
-		(time-it "f2" c (f2 odd? l))
-		(time-it "f0" c (f0 odd? l))
-		(time-it "f1" c (f1 odd? l))
-		(time-it "f2" c (f2 odd? l))
+		(defq l (range 0 20000) c 10000)
+		(time-it "f0" c (f0 l l l))
+		(time-it "f1" c (f1 l l l))
+		(time-it "f0" c (f0 l l l))
+		(time-it "f1" c (f1 l l l))
+		(time-it "f0" c (f0 l l l))
+		(time-it "f1" c (f1 l l l))
+		(time-it "f0" c (f0 l l l))
+		(time-it "f1" c (f1 l l l))
 		))
