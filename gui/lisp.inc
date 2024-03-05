@@ -61,6 +61,18 @@
 		`(progn (. (elem-get -3 (push _ui (defq ,n ,c))) :add_child ,n) (def ,n ~p) ~x (pop _ui))
 		`(progn (. (elem-get -3 (push _ui (defq ,n ,c))) :add_child ,n) ~x (pop _ui))))
 
+(defmacro ui-flow (n &optional p &rest x)
+	; (ui-flow name [props] [body]) -> flow
+	`(ui-element ,n (Flow) ,p ~x))
+
+(defmacro ui-grid (n &optional p &rest x)
+	; (ui-grid name [props] [body]) -> grid
+	`(ui-element ,n (Grid) ,p ~x))
+
+(defmacro ui-stack (n t &optional p &rest x)
+	; (ui-stack name tabs [props] [body]) -> stack
+	`(ui-element ,n (Stack ,t) ,p ~x))
+
 (defmacro ui-window (n &optional p &rest x)
 	; (ui-window name [props] [body]) -> window
 	(ui-props p
@@ -73,18 +85,6 @@
 		:shadow *env_window_shadow*)
 	`(ui-root ,n (Window) ,p
 		(ui-flow _ (:flow_flags +flow_down_fill) ~x)))
-
-(defmacro ui-flow (n &optional p &rest x)
-	; (ui-flow name [props] [body]) -> flow
-	`(ui-element ,n (Flow) ,p ~x))
-
-(defmacro ui-grid (n &optional p &rest x)
-	; (ui-grid name [props] [body]) -> grid
-	`(ui-element ,n (Grid) ,p ~x))
-
-(defmacro ui-stack (n t &optional p &rest x)
-	; (ui-stack name tabs [props] [body]) -> stack
-	`(ui-element ,n (Stack ,t) ,p ~x))
 
 (defmacro ui-tree (n e &optional p)
 	; (ui-tree name event [props]) -> tree
@@ -104,6 +104,20 @@
 		:font *env_title_font*
 		:border *env_title_border*)
 	`(ui-element ,n (Title) ,p))
+
+(defmacro ui-button (n &optional p &rest x)
+	; (ui-button name [props] [body]) -> button
+	(ui-props p
+		:flow_flags (num-intern (logior +flow_flag_down +flow_flag_align_hcenter +flow_flag_align_vcenter))
+		:border *env_button_border*)
+	`(ui-element ,n (Button) ,p ~x))
+
+(defmacro ui-buttons (s e &optional p)
+	; (ui-buttons symbols event [props])
+	(setq s (map (# (if (num? %0) (num-to-utf8 %0) %0)) s))
+	(ui-props p
+		:text %0)
+	`(each (# (. (ui-button __ ,p) :connect (+ _ ,e))) '(~s)))
 
 (defmacro ui-title-bar (n s b e &optional p)
 	; (ui-title-bar name title symbols event [props]) -> flow
@@ -130,20 +144,6 @@
 		:flow_flags (num-intern (logior +flow_flag_right +flow_flag_align_vcenter))
 		:border *env_label_border*)
 	`(ui-element ,n (Label) ,p ~x))
-
-(defmacro ui-button (n &optional p &rest x)
-	; (ui-button name [props] [body]) -> button
-	(ui-props p
-		:flow_flags (num-intern (logior +flow_flag_down +flow_flag_align_hcenter +flow_flag_align_vcenter))
-		:border *env_button_border*)
-	`(ui-element ,n (Button) ,p ~x))
-
-(defmacro ui-buttons (s e &optional p)
-	; (ui-buttons symbols event [props])
-	(setq s (map (# (if (num? %0) (num-to-utf8 %0) %0)) s))
-	(ui-props p
-		:text %0)
-	`(each (# (. (ui-button __ ,p) :connect (+ _ ,e))) '(~s)))
 
 (defmacro ui-radio-bar (n s &optional p)
 	; (ui-radio-bar name symbols [props])

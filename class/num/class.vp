@@ -91,7 +91,7 @@
 
 (def-func-end)
 
-(defun addop (_ p)
+(redefun addop (_ p)
 	(entry 'num _ '(:r0 :r1))
 	(vp-push :r0)
 	(class/array/get_both :r1 :r1 :r2)
@@ -154,7 +154,7 @@
 
 (def-func-end)
 
-(defun minop (_ p)
+(redefun minop (_ p)
 	(vp-def (this args obj iter_begin iter_end val new_val))
 	(entry 'num _ `(,this ,args))
 	(class/array/get_both args iter_begin iter_end)
@@ -209,7 +209,7 @@
 
 (def-func-end)
 
-(defun divop (_ p)
+(redefun divop (_ p)
 	(entry 'num _ '(:r0 :r1))
 	(vp-push :r0)
 	(class/array/get_both :r1 :r1 :r4)
@@ -269,7 +269,7 @@
 (def-func-end)
 
 ;generic int math op
-(defun mathop (_ p)
+(redefun mathop (_ p)
 	(entry 'num _ '(:r0))
 	(vp-push :r0)
 	(assign '((:r0 num_value)) '(:r0))
@@ -360,7 +360,7 @@
 
 (def-func-end)
 
-(defun compare (_ p)
+(redefun compare (_ p)
 	(entry 'num _ '(:r0 :r1))
 	(vp-push :r0)
 	(class/array/get_both :r1 :r1 :r2)

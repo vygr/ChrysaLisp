@@ -4,6 +4,11 @@
 
 ------
 
+Fix `forward.lisp` defs regexp !
+
+Introduce `(redefun)` and `(redefmacro)` ! If you are overriding an existing
+function or macro you must now use this declaration.
+
 ------
 
 New `map!`, `reduce!` VP primitives.

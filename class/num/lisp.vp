@@ -34,7 +34,7 @@
 
 (def-func-end)
 
-(defun addop (_)
+(redefun addop (_)
 	(entry 'num (sym (cat :lisp_ (rest _))) '(:r0 :r1))
 	(errorif-lisp-args-match :r1 num 2 'error)
 	(vp-push :r0)
@@ -134,7 +134,7 @@
 
 (def-func-end)
 
-(defun divop (_)
+(redefun divop (_)
 	(entry 'num (sym (cat :lisp_ (rest _))) '(:r0 :r1))
 	(errorif-lisp-args-match :r1 num 2 'error1)
 	(vp-push :r0 :r1)
@@ -186,7 +186,7 @@
 
 (def-func-end)
 
-(defun andop (_ i p)
+(redefun andop (_ i p)
 	(entry 'num (sym (cat :lisp_ (rest _))) '(:r0 :r1))
 	(errorif-lisp-args-type :r1 num 0 'error)
 	(vp-push :r0)
@@ -262,7 +262,7 @@
 
 (def-func-end)
 
-(defun shift (_ p)
+(redefun shift (_ p)
 	(entry 'num (sym (cat :lisp_ (rest _))) '(:r0 :r1))
 	(errorif-lisp-args-sig :r1 2 'error)
 	(vp-push :r0)
@@ -333,7 +333,7 @@
 
 (def-func-end)
 
-(defun compare (_)
+(redefun compare (_)
 	(entry 'num (sym (cat :lisp_ (rest _))) '(:r0 :r1))
 	(errorif-lisp-args-type :r1 num 2 'error)
 	(vp-push :r0)
@@ -458,7 +458,7 @@
 (def-func-end)
 
 ;generic math op
-(defun mathop (_)
+(redefun mathop (_)
 	(entry 'num (sym (cat :lisp_ (rest _))) '(:r0 :r1))
 	(errorif-lisp-args-sig :r1 1 'error)
 	(vp-push :r0)

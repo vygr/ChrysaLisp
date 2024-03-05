@@ -12,10 +12,10 @@
 	(defq __r__ (progn ~form))
 	(pop *stack_frame*) __r__))
 
-(defmacro defun (n a &rest _)
+(redefmacro defun (n a &rest _)
 	(static-qq (defq ,n (,'lambda ,a ~(stack-instrument n _)))))
 
-(defmacro defmethod (n a &rest _)
+(redefmacro defmethod (n a &rest _)
 	(static-qq (def (def? :vtable this) ,n (,'lambda (this ~a)
 		~(stack-instrument (cat *class* " " n) _)))))
 

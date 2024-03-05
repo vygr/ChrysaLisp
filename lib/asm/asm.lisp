@@ -13,7 +13,7 @@
 	(offset params))
 
 ;redirect print
-(defun print (&rest args)
+(redefun print (&rest args)
 	(push *msg* (apply str (push args (ascii-char 10)))))
 
 ;debug options

@@ -31,7 +31,7 @@
 			(- (third v2) (third v1))) e))
 	(apply (const cat) (push msg +LF)))
 
-(defun profile-report (n &optional reset)
+(redefun profile-report (n &optional reset)
 	(when (defq service (profile-service))
 		(profile-ipc service (profile-info n)))
 	(if reset (setq *profile_map* (env 101))))
@@ -48,10 +48,10 @@
 	(if (= (second __e__) 0) (push __e__ (+ (- (pii-time) (pop __e__)) (pop __e__))))
 	__r__))
 
-(defmacro defun (n a &rest _)
+(redefmacro defun (n a &rest _)
 	(static-qq (defq ,n (,'lambda ,a ~(profile-instrument n _)))))
 
-(defmacro defmethod (n a &rest _)
+(redefmacro defmethod (n a &rest _)
 	(static-qq (def (def? :vtable this) ,n (,'lambda (this ~a)
 		~(profile-instrument (sym (cat *class* " " n)) _)))))
 

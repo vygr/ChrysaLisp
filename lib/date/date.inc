@@ -14,6 +14,7 @@
 (structure +tz 0
 	(byte abbreviation offset dls title locations))
 
+;ensure that leapyears are not divisible by 100 unless also divisible by 400.
 (defmacro leapyear? (y)
 	`(cond
 		((and (= (% ,y 100) 0) (/= (% ,y 400) 0)) :nil)
@@ -38,6 +39,12 @@
 		(if isneg (setq final (- 0 final)))
 		final))
 
+;returns first occurrence index or :nil if not found
+(defmacro elem-find (v in)
+	`(let ((out :nil))
+		(each (lambda (e_) (if (eql e_ ,v) (unless out (setq out _)))) ,in)
+			out))
+
 ;returns the first list as out by finding v at elem n of a list within in.
 (defun get-by-val (n v in)
 	(let ((out :nil))
@@ -47,12 +54,6 @@
 			((num? element) (each (lambda (e) (if (=  (elem-get n e) v) (setq out e))) in))
 			(:t (each (lambda (e) (if (eql (elem-get n e) v) (setq out e))) in)))
 		out))
-
-;returns first occurrence index or :nil if not found
-(defmacro elem-find (v in)
-	`(let ((out :nil))
-		(each (lambda (e_) (if (eql e_ ,v) (unless out (setq out _)))) ,in)
-			out))
 
 ;timezone-lookup will attempt return tz list
 (defmacro timezone-lookup (p v)
@@ -71,13 +72,6 @@
 		(setq ltz (timezone-lookup :location ,tz_loc))
 		(elem-set +tz_locations ltz ,tz_loc)
 		(def (penv (env)) :local_timezone ltz)))
-
-;ensure that leapyears are not divisible by 100 unless also divisible by 400.
-(defmacro leapyear? (y)
-	`(cond
-		((and (= (% ,y 100) 0) (/= (% ,y 400) 0)) :nil)
-		((= (% ,y 4) 0) :t)
-		(:t :nil)))
 
 (defmacro day-of-the-week (d)
 	`(elem-get ,d week_abbr))

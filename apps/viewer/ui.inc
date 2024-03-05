@@ -4,24 +4,24 @@
 
 (import "././edit/ui.inc")
 
-(defun action-file-leaf-action ()
+(redefun action-file-leaf-action ()
 	;load the file selected
 	(switch-file (defq file (. *file_tree* :get_route
 		(. *window* :find_id (getf *msg* +ev_msg_action_source_id))))))
 
-(defun action-whole-words ()
+(redefun action-whole-words ()
 	(setq *whole_words* (not *whole_words*))
 	(bind '(fx fy fx1 fy1) (. *edit* :get_find))
 	(toolbar-states *find_toolbar* (list (> fy1 fy) *whole_words* *regexp* :nil :nil))
 	(refresh-display))
 
-(defun action-regexp ()
+(redefun action-regexp ()
 	(setq *regexp* (not *regexp*))
 	(bind '(fx fy fx1 fy1) (. *edit* :get_find))
 	(toolbar-states *find_toolbar* (list (> fy1 fy) *whole_words* *regexp* :nil :nil))
 	(refresh-display))
 
-(defun action-region ()
+(redefun action-region ()
 	(bind '(sy sy1) (select-lines))
 	(bind '(fx fy fx1 fy1) (. *edit* :get_find))
 	(if (> fy1 fy) (setq fy 0 fy1 0) (setq fy sy fy1 sy1))

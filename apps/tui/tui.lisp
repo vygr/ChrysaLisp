@@ -4,7 +4,7 @@
 (mail-declare tmbox "Terminal" "Terminal Services 0.1")
 
 ;override print for TUI output
-(defun print (_)
+(redefun print (_)
 	(each (lambda (c)
 		(setq c (code c))
 		(if (= c 13) (setq c 10))

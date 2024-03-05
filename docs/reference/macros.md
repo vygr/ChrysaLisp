@@ -339,6 +339,18 @@ should provide the concreate handler
 (read-short stream) -> num
 ```
 
+### redefmacro
+
+```code
+(redefmacro name ([arg ...]) body)
+```
+
+### redefun
+
+```code
+(redefun name ([arg ...]) body)
+```
+
 ### reduce
 
 ```code

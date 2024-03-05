@@ -61,7 +61,7 @@
 			"" (debug-info rval sform e n))))
 	rval)
 
-(defun debug-brk (name condition)
+(redefun debug-brk (name condition)
 	(and condition (defq service (debug-service))
 		(debug-ipc service 1 (debug-info :nil :nil (penv) (cat "<break> " name)))))
 
@@ -96,10 +96,10 @@
 				;step into form
 				(push stack e))) l)) form)
 
-(defmacro defun (n a &rest _)
+(redefmacro defun (n a &rest _)
 	(static-qq (defq ,n (,'lambda ,a ~(debug-instrument (str n) _)))))
 
-(defmacro defmethod (n a &rest _)
+(redefmacro defmethod (n a &rest _)
 	(static-qq (def (def? :vtable this) ,n (,'lambda (this ~a)
 		~(debug-instrument (cat *class* " " n) _)))))
 

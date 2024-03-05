@@ -209,7 +209,7 @@
 ; enums
 ;;;;;;;
 
-(defun def-enum (size)
+(defun def-enum-f (size)
 	(push syms (sym (cat name "_" field)))
 	(push values (num-intern base))
 	(setq base (+ base size)))
@@ -221,7 +221,7 @@
 	(each (lambda (line)
 		(each! 1 -1 (lambda (field)
 			(case (first line)
-				(enum (def-enum +byte_size))))
+				(enum (def-enum-f +byte_size))))
 			(list line))) lines)
 	(push syms (sym (cat name "_size")))
 	(push values (num-intern base))
@@ -231,7 +231,7 @@
 ; bits
 ;;;;;;
 
-(defun def-bit ()
+(defun def-bit-f ()
 	(push syms (sym (cat name "_" field)))
 	(push values (num-intern (<< 1 base)))
 	(setq base (inc base)))
@@ -243,7 +243,7 @@
 	(each (lambda (line)
 		(each! 1 -1 (lambda (field)
 			(case (first line)
-				(bit (def-bit))))
+				(bit (def-bit-f))))
 			(list line))) lines)
 	(push syms (sym (cat name "_size")))
 	(push values (num-intern base))

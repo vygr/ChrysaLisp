@@ -4,7 +4,7 @@
 
 (import "././viewer/ui.inc")
 
-(defun action-scale-up ()
+(redefun action-scale-up ()
 	;scale font up
 	(setq *page_scale* (min 1.5 (+ (defq old_size *page_scale*) 0.125)))
 	(when (/= old_size *page_scale*)
@@ -12,7 +12,7 @@
 		(.-> *edit_flow* :layout :dirty_all)
 		(window-resize)))
 
-(defun action-scale-down ()
+(redefun action-scale-down ()
 	;scale font down
 	(setq *page_scale* (max 0.75 (- (defq old_size *page_scale*) 0.125)))
 	(when (/= old_size *page_scale*)
