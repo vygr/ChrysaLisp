@@ -20,7 +20,7 @@
 	(defq defs_map (Fmap 11) uses_map (Fmap 101))
 	(each-line (lambda (line) (task-slice)
 			(defq line_num _
-				defs (matches line "^\(de(fun|macro)\s+([^ \r\f\v\n\t()]+)")
+				defs (matches line "^\(def(un|macro)\s+([^ \r\f\v\n\t()]+)")
 				uses (matches line "\(\s*(\D[^ \r\f\v\n\t()]*)"))
 			(when (nempty? defs)
 				(bind '((_ _ (x x1)) &ignore) defs)
