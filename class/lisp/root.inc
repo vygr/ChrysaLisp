@@ -156,12 +156,12 @@
 	+byte_size 1 +short_size 2 +int_size 4 +long_size 8 +ptr_size 8
 	+str_data 24 +mailbox_id_size 8 +node_id_size 16 +net_id_size 24
 	defmacro `(,macro (n a &rest _)
-		(if (get n (penv)) (throw "Macro override !" n))
+		(if (get n (penv)) (throw "Macro override !, use redefmacro ? !" n))
 		`(defq ,n (macro ,a ~_))))
 
 (defmacro defun (n a &rest _)
 	; (defun name ([arg ...]) body)
-	(if (get n (penv)) (throw "Function override !" n))
+	(if (get n (penv)) (throw "Function override !, use redefun ?" n))
 	`(defq ,n (lambda ,a ~_)))
 
 (defmacro redefun (n a &rest _)
