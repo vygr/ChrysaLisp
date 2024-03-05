@@ -864,6 +864,11 @@
 	; (max-length list) -> max
 	(reduce (# (max %0 (length %1))) _ 0))
 
+(defun min-length (_)
+	; (min-length list) -> min
+	(if (= (length _) 0) 0
+		(reduce (# (min %0 (length %1))) _ +max_long)))
+
 ;;;;;;;;;
 ; Streams
 ;;;;;;;;;

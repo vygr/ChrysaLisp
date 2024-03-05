@@ -334,7 +334,7 @@ Usage: test [options]
 
 	options:
 		-h --help: this help info.
-	
+
 	Simple timing test framework.
 ```
 ## time

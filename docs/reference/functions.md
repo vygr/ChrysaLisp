@@ -526,6 +526,12 @@ very basic attenuation, diffuse and specular
 (max-length list) -> max
 ```
 
+### min-length
+
+```code
+(min-length list) -> min
+```
+
 ### neg?
 
 ```code
