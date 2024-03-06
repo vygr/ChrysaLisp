@@ -444,12 +444,8 @@
 	; (range start end [step]) -> list
 	(defq s (opt s 1 (abs s)) l (cap (/ (abs (- b e)) s) (list)))
 	(if (<= b e)
-		(while (< b e)
-			(push l b)
-			(setq b (+ b s)))
-		(while (> b e)
-			(push l b)
-			(setq b (- b s)))) l)
+		(while (< b e) (push l b) (setq b (+ b s)))
+		(while (> b e) (push l b) (setq b (- b s)))) l)
 
 (defun each-mergeable (_f _l)
 	; (each-mergeable lambda seq) -> seq
