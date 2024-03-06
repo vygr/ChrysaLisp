@@ -209,6 +209,7 @@
 (defmacro inc (_)
 	; (inc num) -> num
 	`(+ ,_ 1))
+
 (defmacro dec (_)
 	; (dec num) -> num
 	`(- ,_ 1))
