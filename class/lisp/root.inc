@@ -364,9 +364,9 @@
 	`(progn (defq ,(defq _c (gensym)) ,c)
 		(while (<= 0 (setq ,_c (dec ,_c))) ~_)))
 
-;;;;;;;;;;;;;;;;;
-; lambda shorcuts
-;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;
+; sort and randomise
+;;;;;;;;;;;;;;;;;;;;
 
 (defun sort (_f _a &optional _l _h)
 	; (sort fcmp list [start end]) -> list
@@ -376,6 +376,23 @@
 		(when (< _l _h)
 			(defq _p (pivot _f _a _l _h))
 			(push (push _q _l _p) (inc _p) _h))) _a)
+
+(defun swap (_ _1 _2)
+	; (swap list index index)
+	(when (/= _1 _2)
+		(defq _t (elem-get _1 _))
+		(elem-set _1 _ (elem-get _2 _))
+		(elem-set _2 _ _t)))
+
+(defun shuffle (_a &optional _l _h)
+	; (shuffle list [start end]) -> list
+	(setd _l 0 _h (length _a))
+	(each! _h _l (lambda (x)
+		(swap _a _ (random (inc _)))) (list _a)) _a)
+
+;;;;;;;;;;;;;;;;;
+; lambda shorcuts
+;;;;;;;;;;;;;;;;;
 
 (defun walk-list (_l _f _fi _fo)
 	; (walk-list list fnc_element fnc_in fnc_out)
@@ -811,19 +828,6 @@
 	(defq f (opt f " ") v (str v) l (length v) c (- (max c l) l))
 	(while (> c (length f)) (setq f (cat f f)))
 	(cat (slice 0 c f) v))
-
-(defun swap (_ _1 _2)
-	; (swap list index index)
-	(when (/= _1 _2)
-		(defq _t (elem-get _1 _))
-		(elem-set _1 _ (elem-get _2 _))
-		(elem-set _2 _ _t)))
-
-(defun shuffle (_a &optional _l _h)
-	; (shuffle list [start end]) -> list
-	(setd _l 0 _h (length _a))
-	(each! _h _l (lambda (x)
-		(swap _a _ (random (inc _)))) (list _a)) _a)
 
 (defmacro get-ubyte (s o)
 	; (get-ubyte str index) -> num
