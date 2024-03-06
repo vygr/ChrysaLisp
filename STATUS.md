@@ -9,6 +9,9 @@ Fix `forward.lisp` defs regexp !
 Introduce `(redefun)` and `(redefmacro)` ! If you are overriding an existing
 function or macro you must now use this declaration.
 
+`(char-to-num)` recoded to use `(static-q)`. This was not available when this
+was first written.
+
 ------
 
 New `map!`, `reduce!` VP primitives.
