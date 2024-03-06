@@ -202,6 +202,27 @@
 	; (profile-report name [reset])
 )
 
+;;;;;;;;;;;;;;
+; Default opts
+;;;;;;;;;;;;;;
+
+(defmacro inc (_)
+	; (inc num) -> num
+	`(+ ,_ 1))
+(defmacro dec (_)
+	; (dec num) -> num
+	`(- ,_ 1))
+
+(defmacro opt (x y &optional z)
+	; (opt sym val [cond])
+	(if z `(if ,x ,z ,y) `(if ,x ,x ,y)))
+
+(defmacro setd (&rest _)
+	; (setd sym val [sym val] ...)
+	(defq i -2 l (list 'setq))
+	(while (< (setq i (+ i 2)) (length _))
+		(push l (elem-get i _) (list 'opt (elem-get i _) (elem-get (inc i) _)))) l)
+
 ;;;;;;;;;;;;
 ; Predicates
 ;;;;;;;;;;;;
@@ -303,26 +324,6 @@
 	(= (logand (code (first _)) 1) 0))
 
 ;;;;;;;;;;;;;;
-; Default opts
-;;;;;;;;;;;;;;
-
-(defmacro inc (_)
-	; (inc num) -> num
-	`(+ ,_ 1))
-(defmacro dec (_)
-	; (dec num) -> num
-	`(- ,_ 1))
-
-(defmacro opt (x y &optional z)
-	; (opt sym val [cond])
-	(if z `(if ,x ,z ,y) `(if ,x ,x ,y)))
-(defmacro setd (&rest _)
-	; (setd sym val [sym val] ...)
-	(defq i -2 l (list 'setq))
-	(while (< (setq i (+ i 2)) (length _))
-		(push l (elem-get i _) (list 'opt (elem-get i _) (elem-get (inc i) _)))) l)
-
-;;;;;;;;;;;;;;
 ; Control flow
 ;;;;;;;;;;;;;;
 
@@ -361,6 +362,61 @@
 	; (times num body)
 	`(progn (defq ,(defq _c (gensym)) ,c)
 		(while (<= 0 (setq ,_c (dec ,_c))) ~_)))
+
+;;;;;;;;;;;;;;;;;
+; lambda shorcuts
+;;;;;;;;;;;;;;;;;
+
+(defun sort (_f _a &optional _l _h)
+	; (sort fcmp list [start end]) -> list
+	(setd _l 0 _h (length _a))
+	(defq _q (list _l _h))
+	(while (setq _h (pop _q) _l (pop _q))
+		(when (< _l _h)
+			(defq _p (pivot _f _a _l _h))
+			(push (push _q _l _p) (inc _p) _h))) _a)
+
+(defun walk-list (_l _f _fi _fo)
+	; (walk-list list fnc_element fnc_in fnc_out)
+	;if fnc_in returns :nil, it'll step down into that list.
+	;fnc_out is allways called to balence calls to fnc_in.
+	(defq _stack (list _l 0))
+	(while (defq _ (pop _stack) _l (pop _stack))
+		(cond
+			((= (length _l) 0)
+				;zero length list
+				(_fi _l) (_fo _l))
+			((= _ 0)
+				;enter list ?
+				(cond
+					((_fi _l)
+						(_fo _l))
+					(:t (push _stack _l 1)
+						(if (list? (defq _e (first _l))) (push _stack _e 0))
+						(_f _e))))
+			((< _ (length _l))
+				;element of list
+				(push _stack _l (inc _))
+				(if (list? (defq _e (elem-get _ _l))) (push _stack _e 0))
+				(_f _e))
+			(:t ;exit list
+				(_fo _l)))))
+
+(defmacro # (&rest _)
+	; (# (< %9 %0 %3) ...) -> (lambda (%0 %3 %9) (< %9 %0 %3) ...)
+	(defq args (list))
+	(walk-list _
+		;element func
+		(lambda (_)
+			(and (sym? _) (find _ '(%0 %1 %2 %3 %4 %5 %6 %7 %8 %9))
+				(merge-obj args (list _))))
+		;enter list func
+		(lambda (_)
+			(and (> (length _) 0) (find (first _)
+				'(# quote quasi-quote static-q static-qq))))
+		;exit list func
+		progn)
+	`(lambda ,(sort cmp args) ~_))
 
 ;;;;;;;;;;;;
 ; Functional
@@ -498,15 +554,15 @@
 (defun split (seq sseq)
 	; (split seq sseq) -> seqs
 	(defq i :nil out (list))
-	(each (lambda (e) (if i
-		(when (find e sseq) (push out (slice i _ seq)) (setq i :nil))
-		(unless (find e sseq) (setq i _)))) seq)
+	(each (# (if i
+		(when (find %0 sseq) (push out (slice i _ seq)) (setq i :nil))
+		(unless (find %0 sseq) (setq i _)))) seq)
 	(if i (push out (slice i -1 seq)) out))
 
 (defun unzip (seq cnt)
 	; (unzip seq cnt) -> seqs
-	(map (lambda (_) (if (= (length _) 0) (slice 0 0 seq) (apply (const cat) _)))
-		(reduce (lambda (ls e) (push (elem-get (% _ cnt) ls) e) ls)
+	(map (# (if (= (length %0) 0) (slice 0 0 seq) (apply (const cat) %0)))
+		(reduce (# (push (elem-get (% _ cnt) %0) %1) %0)
 			(partition seq) (lists cnt))))
 
 (defun zip (&rest seqs)
@@ -525,9 +581,8 @@
 	(cond
 		((> (length seq) 0)
 			(defq out (cap (length seq) (list (slice 0 1 seq))))
-			(each! 1 -1 (lambda (el)
-				(unless (eql el (last (last out)))
-					(push out (slice _ (inc _) seq)))) (list seq))
+			(each! 1 -1 (# (unless (eql %0 (last (last out)))
+				(push out (slice _ (inc _) seq)))) (list seq))
 			(apply (const cat) out))
 		((rest seq))))
 
@@ -546,12 +601,12 @@
 					(cat '(progn) _clause_body)))))))
 			(or (eql :num (defq _clause_type (pop (type-of _clause_body))))
 				(eql :str _clause_type) (setq _atoms :nil))
-			(each (lambda (_key)
-				(and (sym? _key) (starts-with "+" _key) (setq _key (eval _key)))
+			(each (#
+				(and (sym? %0) (starts-with "+" %0) (setq %0 (eval %0)))
 				(cond
-					((eql _key :t)
+					((eql %0 :t)
 						(setq _default_key :t _default_clause _clause_body))
-					(:t (push (first _map) _key)
+					(:t (push (first _map) %0)
 						(push (second _map) _clause_body)))) _keys) _map)
 			_body (list (list) (list))))
 	(cond
@@ -642,7 +697,7 @@
 
 (defun export (e symbols)
 	; (export env symbols)
-	(each (lambda (s) (def e s (get s))) symbols))
+	(each (# (def e %0 (get %0))) symbols))
 
 (defun export-symbols (symbols)
 	; (export-symbols symbols)
@@ -650,8 +705,8 @@
 
 (defun export-classes (classes)
 	; (export-classes classes)
-	(export (penv (penv)) (reduce (lambda (l s)
-		(push l s (sym (cat "*class_" s "*")) (sym (cat s "?")))) classes (list))))
+	(export (penv (penv)) (reduce
+		(# (push %0 %1 (sym (cat "*class_" %1 "*")) (sym (cat %1 "?")))) classes (list))))
 
 (defmacro ascii-code (_)
 	; (ascii-code char) -> num
@@ -674,12 +729,12 @@
 (defun to-upper (_)
 	; (to-upper str) -> str
 	(if (eql _ "") ""
-		(apply (const cat) (map (lambda (_) (char (ascii-upper (code _)))) _))))
+		(apply (const cat) (map (# (char (ascii-upper (code %0)))) _))))
 
 (defun to-lower (_)
 	; (to-lower str) -> str
 	(if (eql _ "") ""
-		(apply (const cat) (map (lambda (_) (char (ascii-lower (code _)))) _))))
+		(apply (const cat) (map (# (char (ascii-lower (code %0)))) _))))
 
 (defun align (num div)
 	; (align num div) -> num
@@ -689,13 +744,13 @@
 (defun char-to-num (_)
 	; (char-to-num char) -> num
 	(elem-get (code _) (const (cat (list quote) (list (map num-intern (cat
-		(map (lambda (_) -1) (range 0 (code "0")))                                  ;-1
-		(map (lambda (_) (- _ (code "0"))) (range (code "0") (inc (code "9"))))     ;0-9
-		(map (lambda (_) -1) (range (inc (code "9")) (code "A")))                   ;-1
-		(map (lambda (_) (- _ (code "A") -10)) (range (code "A") (inc (code "Z")))) ;10-35
-		(map (lambda (_) -1) (range (inc (code "Z")) (code "a")))                   ;-1
-		(map (lambda (_) (- _ (code "a") -10)) (range (code "a") (inc (code "z")))) ;10-35
-		(map (lambda (_) -1) (range (inc (code "z")) 256)))))))))                   ;-1
+		(map (# (logior %0 -1)) (range 0 (code "0")))                       ;-1
+		(map (# (- %0 (code "0"))) (range (code "0") (inc (code "9"))))     ;0-9
+		(map (# (logior %0 -1)) (range (inc (code "9")) (code "A")))        ;-1
+		(map (# (- %0 (code "A") -10)) (range (code "A") (inc (code "Z")))) ;10-35
+		(map (# (logior %0 -1)) (range (inc (code "Z")) (code "a")))        ;-1
+		(map (# (- %0 (code "a") -10)) (range (code "a") (inc (code "z")))) ;10-35
+		(map (# (logior %0 -1)) (range (inc (code "z")) 256)))))))))        ;-1
 
 (defun num-to-char (_)
 	; (num-to-char num) -> char
@@ -721,12 +776,15 @@
 (defun byte-to-hex-str (_)
 	; (byte-to-hex-str num) -> str
 	(cat (num-to-char (logand (>> _ 4) 0xf)) (num-to-char (logand _ 0xf))))
+
 (defun short-to-hex-str (_)
 	; (short-to-hex-str num) -> str
 	(cat (byte-to-hex-str (>> _ 8)) (byte-to-hex-str (logand _ 0xff))))
+
 (defun int-to-hex-str (_)
 	; (int-to-hex-str num) -> str
 	(cat (short-to-hex-str (>> _ 16)) (short-to-hex-str (logand _ 0xffff))))
+
 (defun long-to-hex-str (_)
 	; (long-to-hex-str num) -> str
 	(cat (int-to-hex-str (>> _ 32)) (int-to-hex-str (logand _ 0xffffffff))))
@@ -766,42 +824,42 @@
 	(each! _h _l (lambda (x)
 		(swap _a _ (random (inc _)))) (list _a)) _a)
 
-(defun sort (_f _a &optional _l _h)
-	; (sort fcmp list [start end]) -> list
-	(setd _l 0 _h (length _a))
-	(defq _q (list _l _h))
-	(while (setq _h (pop _q) _l (pop _q))
-		(when (< _l _h)
-			(defq _p (pivot _f _a _l _h))
-			(push (push _q _l _p) (inc _p) _h))) _a)
-
 (defmacro get-ubyte (s o)
 	; (get-ubyte str index) -> num
 	`(get-field ,s (+ ,+str_data ,o) ,(neg +byte_size)))
+
 (defmacro get-ushort (s o)
 	; (get-ushort str index) -> num
 	`(get-field ,s (+ ,+str_data ,o) ,(neg +short_size)))
+
 (defmacro get-uint (s o)
 	; (get-uint str index) -> num
 	`(get-field ,s (+ ,+str_data ,o) ,(neg +int_size)))
+
 (defmacro get-long (s o)
 	; (get-long str index) -> num
 	`(get-field ,s (+ ,+str_data ,o) ,+long_size))
+
 (defmacro get-byte (s o)
 	; (get-byte str index) -> num
 	`(get-field ,s (+ ,+str_data ,o) ,+byte_size))
+
 (defmacro get-short (s o)
 	; (get-short str index) -> num
 	`(get-field ,s (+ ,+str_data ,o) ,+short_size))
+
 (defmacro get-int (s o)
 	; (get-int str index) -> num
 	`(get-field ,s (+ ,+str_data ,o) ,+int_size))
+
 (defmacro get-nodeid (s o)
 	; (get-nodeid str index) -> nodeid
 	`(slice ,o (+ ,o ,+node_id_size) ,s))
+
 (defmacro get-netid (s o)
 	; (get-netid str index) -> netid
 	`(slice ,o (+ ,o ,+net_id_size) ,s))
+
 (defun get-cstr (s o)
 	; (get-cstr str index) -> str
 	(defq k o)
@@ -816,48 +874,6 @@
 		((s us) +short_size)
 		((b ub) +byte_size)
 		(:t +long_size)))
-
-(defun walk-list (_l _f _fi _fo)
-	; (walk-list list fnc_element fnc_in fnc_out)
-	;if fnc_in returns :nil, it'll step down into that list.
-	;fnc_out is allways called to balence calls to fnc_in.
-	(defq _stack (list _l 0))
-	(while (defq _ (pop _stack) _l (pop _stack))
-		(cond
-			((= (length _l) 0)
-				;zero length list
-				(_fi _l) (_fo _l))
-			((= _ 0)
-				;enter list ?
-				(cond
-					((_fi _l)
-						(_fo _l))
-					(:t (push _stack _l 1)
-						(if (list? (defq _e (first _l))) (push _stack _e 0))
-						(_f _e))))
-			((< _ (length _l))
-				;element of list
-				(push _stack _l (inc _))
-				(if (list? (defq _e (elem-get _ _l))) (push _stack _e 0))
-				(_f _e))
-			(:t ;exit list
-				(_fo _l)))))
-
-(defmacro # (&rest _)
-	; (# (< %9 %0 %3) ...) -> (lambda (%0 %3 %9) (< %9 %0 %3) ...)
-	(defq args (list))
-	(walk-list _
-		;element func
-		(lambda (_)
-			(and (sym? _) (find _ '(%0 %1 %2 %3 %4 %5 %6 %7 %8 %9))
-				(merge-obj args (list _))))
-		;enter list func
-		(lambda (_)
-			(and (> (length _) 0) (find (first _)
-				'(# quote quasi-quote static-q static-qq))))
-		;exit list func
-		progn)
-	`(lambda ,(sort cmp args) ~_))
 
 (defun time-in-seconds (_)
 	; (time-in-seconds time) -> str

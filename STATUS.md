@@ -11,6 +11,8 @@ function or macro you must now use this declaration.
 
 `(char-to-num)` recoded to use ranges to specify the character regions.
 
+Introduce the lambda shortcut macro early in the `root.inc` file.
+
 ------
 
 New `map!`, `reduce!` VP primitives.
