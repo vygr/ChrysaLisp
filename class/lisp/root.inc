@@ -172,16 +172,6 @@
 	; (redefmacro name ([arg ...]) body)
 	`(defq ,n (macro ,a ~_)))
 
-(defmacro static-q (_)
-	; (static-q form) -> 'form
-	;static quoted
-	(push `(,quote) (prebind (macroexpand _))))
-
-(defmacro static-qq (_)
-	; (static-qq form) -> `form
-	;static quasi-quoted
-	(push `(,quasi-quote) (prebind (macroexpand _))))
-
 (defmacro const (_)
 	; (const form)
 	(eval (macroexpand _)))
@@ -189,6 +179,16 @@
 (defun exec (_)
 	; (exec form)
 	(eval (prebind (macroexpand _))))
+
+(defmacro static-q (_)
+	; (static-q form) -> 'form
+	;static quoted
+	(push (list (const quote)) (prebind (macroexpand _))))
+
+(defmacro static-qq (_)
+	; (static-qq form) -> `form
+	;static quasi-quoted
+	(push (list (const quasi-quote)) (prebind (macroexpand _))))
 
 ;;;;;;;;;;;;;
 ; Debug stubs
