@@ -64,7 +64,8 @@
 			(assign {-1} {@sys/statics/statics.statics_lisp_root_env})
 
 			;intern standard built in symbols
-			(call 'hmap :create {0, 101} {this->lisp_environment})
+			;slot caching kills it here, so 1 bucket, no div !
+			(call 'hmap :create {0, 1} {this->lisp_environment})
 
 			;local defines and symbols
 			(call 'create_env_info {this})
