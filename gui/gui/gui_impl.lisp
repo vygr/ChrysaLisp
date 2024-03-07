@@ -1,8 +1,7 @@
 (defq _ (env))
 ;import into the shared boot env of this node !
-;comment next two lines out if need to profile...
+;comment next two line out if need to profile...
 (defq _ *root_env*)
-(env-resize 307)
 (import "sys/lisp.inc" _)
 (import "class/lisp.inc" _)
 (import "gui/lisp.inc" _)
