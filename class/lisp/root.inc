@@ -434,7 +434,8 @@
 				'(# quote quasi-quote static-q static-qq))))
 		;exit list func
 		progn)
-	`(lambda ,(sort cmp args) ~_))
+	(setq args (sort (const cmp) args))
+	`(lambda ,args ~_))
 
 ;;;;;;;;;;;;
 ; Functional
