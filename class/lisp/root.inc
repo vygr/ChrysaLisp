@@ -194,13 +194,11 @@
 ; Debug stubs
 ;;;;;;;;;;;;;
 
-(defun debug-brk (name condtion)
+(defun debug-brk (name condtion))
 	; (debug-brk name condtion)
-)
 
-(defun profile-report (name &optional reset)
+(defun profile-report (name &optional reset))
 	; (profile-report name [reset])
-)
 
 ;;;;;;;;;;;;;;
 ; Default opts
