@@ -3,11 +3,8 @@
 ;module
 (env-push)
 
-(defmacro Node (x y z)
-	`(nums ,x ,y ,z))
-
 (defq +via_vectors (push `(,quote)
-	(list (list (Node 0 0 -1) (Node 0 0 1)) (list (Node 0 0 -1) (Node 0 0 1))))
+	(list (list (nums 0 0 -1) (nums 0 0 1)) (list (nums 0 0 -1) (nums 0 0 1))))
 	+spacial_hash_res 1.0 +path_scale 1 +node_sets ''())
 
 (defun alloc-node-set ()
@@ -25,7 +22,7 @@
 		(while (<= x x_range)
 			(defq l (vec-length (Vec2-f (n2f x) (n2f y))))
 			(and (> l 0.1) (<= l vec_range)
-				(push out (Node x y 0)))
+				(push out (nums x y 0)))
 			(setq x (inc x)))
 		(setq y (inc y)))
 	out)
@@ -463,7 +460,7 @@
 	(defmethod :point_to_node ((x y z))
 		; (. pcb :point_to_node point) -> node
 		;convert point to node
-		(Node (n2i (+ x 0.5)) (n2i (+ y 0.5)) (n2i z)))
+		(nums (n2i (+ x 0.5)) (n2i (+ y 0.5)) (n2i z)))
 
 	(defmethod :node_to_pad_point (node)
 		; (. pcb :node_to_pad_point node) -> point
@@ -481,7 +478,7 @@
 		; (. pcb :all_not_marked vec node) -> nodes
 		;generate all grid points surrounding node, that are value 0
 		(defq out (clear '())
-			vecm (Node (dec (get :width this)) (dec (get :height this)) (dec (get :depth this))))
+			vecm (nums (dec (get :width this)) (dec (get :height this)) (dec (get :depth this))))
 		(each (lambda (v)
 			(and (eql (vec-min vecm (vec-max (defq n (vec-add node v)) +nums_zero3 +nums_tmp3) +nums_tmp3) n)
 					(= (. this :get_node n) 0)
@@ -492,7 +489,7 @@
 		; (. pcb :all_marked vec node) -> nodes
 		;generate all grid points surrounding node, that are not value 0, but less than node
 		(defq out (clear '()) d (. this :get_node node)
-			vecm (Node (dec (get :width this)) (dec (get :height this)) (dec (get :depth this))))
+			vecm (nums (dec (get :width this)) (dec (get :height this)) (dec (get :depth this))))
 		(each (lambda (v)
 			(and (eql (vec-min vecm (vec-max (defq n (vec-add node v)) +nums_zero3 +nums_tmp3) +nums_tmp3) n)
 					(< 0 (. this :get_node n) d)
