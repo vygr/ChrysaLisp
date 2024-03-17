@@ -305,9 +305,8 @@
 
 	(assign `((,a obj_vtable) (@ ,(f-path 'list :vtable))) '(:r12 :r13))
 	(vpif '(:r12 = :r13))
-		(class/obj/ref v :r14 2)
+		(class/obj/ref v :r14)
 	(else)
-		(class/obj/ref v :r14 1)
 		(vp-simd vp-cpy-rr `(,a ,v ,i) '(:r12 :r13 :r14))
 		(call 'obj :inst_of `(,v (@ ,(f-path 'num :vtable))) '(_ tmp))
 		(vpif `(,tmp /= 0))
@@ -315,8 +314,9 @@
 		(endif)
 		(vp-simd vp-cpy-rr '(:r12 :r13 :r14) `(,a ,v ,i))
 	(endif)
-	(call 'array :set_elem `(,a ,v ,i))
-	(vp-pop :r0 :r1)
+	(call 'array :set_elem `(,a ,v ,i) '(:r1))
+	(class/obj/ref :r1 :r2)
+	(vp-pop :r0 :r2)
 
 	(exit 'array :lisp_set '(:r0 :r1))
 	(vp-ret)

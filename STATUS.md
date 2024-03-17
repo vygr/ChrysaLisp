@@ -13,6 +13,8 @@ function or macro you must now use this declaration.
 
 Introduce the lambda shortcut macro early in the `root.inc` file.
 
+`(elem-set)` and `(dim-set)` now return the target array not the value.
+
 ------
 
 New `map!`, `reduce!` VP primitives.

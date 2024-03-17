@@ -132,9 +132,9 @@
 					(push (first vtable) mname)
 					(push (second vtable) (list mfunc mtype regs_in regs_out)))
 				((:virtual :final)
+					(elem-set 2 vtable (setq _ (+ (third vtable) +ptr_size)))
 					(push (first vtable) mname)
-					(push (second vtable) (list mfunc mtype regs_in regs_out
-						(elem-set 2 vtable (+ (third vtable) +ptr_size)))))
+					(push (second vtable) (list mfunc mtype regs_in regs_out _)))
 				(:override
 					(throw "Method does not exist !" mname))
 				(:t (throw "Must use static, virtual, final or override ! " mtype))))) lines)
