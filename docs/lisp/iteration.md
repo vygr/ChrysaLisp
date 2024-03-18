@@ -224,7 +224,7 @@ bound to the '_' symbol ! Very useful !
 
 You can iterate over sequences or slices of sequences, forwards or backwards,
 while collecting the results of a function that will be called with the grouped
-elements from each index position by use of the `(map! start end lambda seqs
+elements from each index position, by use of the `(map! start end lambda seqs
 [list])` function. `(map)` and `(map-rev)` are macros that assume the index
 values cover the full extent of the sequences and take those sequences as
 arguments rather than an explicit list.
