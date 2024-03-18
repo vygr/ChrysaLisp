@@ -121,7 +121,7 @@ the `(bind)` call. `(first seq)`, `(second seq)`, `(third seq)`, `(last seq)`,
 `(rest seq)` and `(most seq)`.
 
 You can view theses as an error free way to get elements and slices. They
-return `:nil` or `'()` if the element or slice range is unavailable.
+return `:nil` or the empty slice if the element or slice range is unavailable.
 
 More detail is provided on these and function binding options in the
 `binding.md` document.
