@@ -230,12 +230,12 @@ values cover the full extent of the sequences and take those sequences as
 arguments rather than an explicit list.
 
 Reduction, with `(reduce! start end lambda seqs init)`, transforms sequences or
-slices of sequences by providing an accumulated value along with each grouped
+slices of sequences by providing an accumulated item along with each grouped
 elements to the function you provide. The output of that function becomes the
-value for the next iteration and is the returned result. `(reduce)` and
+item for the next iteration and is the returned result. `(reduce)` and
 `(reduce-rev)` are macros that assume the index values cover the full extent of
 a sequence and take that sequence as an argument, they allow an optional
-initial value.
+initial item.
 
 ```lisp
 (map + '(1 2 3) '(6 7 8) '(1 7 6))
