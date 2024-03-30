@@ -100,10 +100,3 @@
 	;trashes
 	;none
 	(assign '(:r1) '((:r0 num_value))))
-
-;;;;;;;;;;;;;;;;;;
-; paramater macros
-;;;;;;;;;;;;;;;;;;
-
-(defun class/num/get_values (src &optional dst)
-	(assign (map (lambda (_) (list _ num_value)) src) (opt dst src)))

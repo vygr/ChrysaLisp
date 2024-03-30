@@ -35,7 +35,7 @@
 	(default)
 		(call 'obj :inst_of `(,obj1 (@ ,(f-path 'num :vtable))) '(_ tmp))
 		(nextcaseif `(,tmp = 0))
-		(class/num/get_values `(,obj1 ,obj2))
+		(list-cast-args `(,obj1 ,obj2) '(:num :num))
 		(gotoif (list obj1 '= obj2) 'same)
 		(break)
 	(default)
