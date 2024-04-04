@@ -44,17 +44,9 @@
 	(align)
 	(offset data))
 
-(defun roundup (_)
-	(setq _ (dec _))
-	(setq _ (logior _ (>> _ 32)))
-	(setq _ (logior _ (>> _ 16)))
-	(setq _ (logior _ (>> _ 8)))
-	(setq _ (logior _ (>> _ 4)))
-	(setq _ (logior _ (>> _ 2)))
-	(setq _ (logior _ (>> _ 1)))
-	(inc _))
-
-(defcvar 'str_gap (- (* 2 (roundup (+ str_data +byte_size))) (+ str_data +byte_size)))
+(defcvar 'str_gap (- (* 2
+	(inc (reduce (# (logior %0 (>> %0 %1))) '(32 16 8 4 2 1) str_data)))
+	(+ str_data +byte_size)))
 
 ;;;;;;;;;;;;;;;;
 ; inline methods
