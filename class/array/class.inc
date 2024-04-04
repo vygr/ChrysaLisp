@@ -88,9 +88,8 @@
 	; (reg ...)
 	;outputs
 	;load register list from array
-	(defq b (last regs))
-	(assign `((,a array_begin)) `(,b))
-	(array-get-args b regs))
+	(assign `((,a array_begin)) `(,(last regs)))
+	(array-get-args (last regs) regs))
 
 ;;;;;;;;;;;;;;;;
 ; inline methods
