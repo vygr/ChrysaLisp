@@ -80,9 +80,7 @@
 	; (p1 p2 ...)
 	;outputs
 	;reordered register list
-	(defq out (cat regs))
-	(each (lambda (r p)
-		(elem-set p out r)) regs pos) out)
+	(reduce! 0 -1 (# (elem-set %2 %0 %1)) (list regs pos) (cat regs)))
 
 (defun array-bind-args (a regs)
 	;inputs
