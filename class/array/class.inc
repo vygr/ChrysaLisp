@@ -62,18 +62,6 @@
 ; paramater helpers
 ;;;;;;;;;;;;;;;;;;;
 
-(defun array-set-args (i regs &optional type)
-	;inputs
-	;iter
-	; (reg ...)
-	;outputs
-	;save register list to iter
-	(cond
-		((eql type :nil)
-			(assign regs (map (lambda (r) (list i (* +long_size _))) regs)))
-		(:t (defq s (type-to-size type))
-			(assign regs (map (lambda (r) (list i (* s _) type)) regs)))))
-
 (defun array-get-args (i regs &optional type)
 	;inputs
 	;iter
