@@ -36,7 +36,7 @@
 		(push (last strokes)
 			(getf event +ev_msg_mouse_rx)
 			(getf event +ev_msg_mouse_ry))
-		(elem-set -2 states :t)
+		(elem-set states -2 :t)
 		(. this :emit))
 
 	(defmethod :mouse_move (event)

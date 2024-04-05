@@ -17,11 +17,11 @@
 
 	(defmacro test-block (n &rest _)
 		(while (< (length _) n) (setq _ (cat _ _)))
-		`(progn ~(copy (slice 0 n _))))
+		`(progn ~(copy (slice _ 0 n))))
 
 	(defmacro test-block-s (n &rest _)
 		(while (< (length _) n) (setq _ (cat _ _)))
-		`(progn ~(shuffle (copy (slice 0 n _)))))
+		`(progn ~(shuffle (copy (slice _ 0 n)))))
 
 	(def-vars
 		(ptr this args mem1 mem2)

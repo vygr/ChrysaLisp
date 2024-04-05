@@ -6,9 +6,9 @@
 
 ### (dim nums array)
 
-### (dim-get nums dim)
+### (dim-get dim nums)
 
-### (dim-set nums dim form)
+### (dim-set dim nums form)
 
 ## VP methods
 

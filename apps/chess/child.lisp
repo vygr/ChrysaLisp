@@ -5,7 +5,7 @@
 
 ;piece map accses
 (defmacro piece-map (_ i)
-	`(elem-get (find-rev ,i ,(first (eval _))) (second ,_)))
+	`(elem-get (second ,_) (find-rev ,i ,(first (eval _)))))
 
 ;description of a pieces check influence
 (enums +vector 0
@@ -215,7 +215,7 @@
 			(cond
 				((and (<= 0 (setq x (+ x dx)) 7) (<= 0 (setq y (+ y dy)) 7))
 					;still on the board
-					(unless (eql (defq piece (elem-get (+ (* y 8) x) brd)) " ")
+					(unless (eql (defq piece (elem-get brd (+ (* y 8) x))) " ")
 						;not +empty square so yield piece
 						(setq yield (cat yield piece) len 0)))
 				(:t ;off the edge
@@ -244,13 +244,13 @@
 		(unless (eql piece " ")
 			(defq eval_values (piece-map piece_evaluation_map piece))
 			(if (> (code piece) (ascii-code "Z"))
-				(setq white_score (+ white_score (elem-get 64 eval_values) (elem-get _ eval_values)))
-				(setq black_score (+ black_score (elem-get 64 eval_values) (elem-get _ eval_values)))))) (list brd))
+				(setq white_score (+ white_score (elem-get eval_values 64) (elem-get eval_values _)))
+				(setq black_score (+ black_score (elem-get eval_values 64) (elem-get eval_values _)))))) (list brd))
 	(* (- white_score black_score) color))
 
 ;generate all boards for a piece index and moves possibility, filtering out boards where king is in check
 (defun piece-moves (yield brd index color moves)
-	(defq piece (elem-get index brd) cx (logand index 7) cy (>> index 3)
+	(defq piece (elem-get brd index) cx (logand index 7) cy (>> index 3)
 		promote (if (= color +black) '("QRBN") '("qrbn")))
 	(each! 0 -1 (lambda ((dx dy len flag))
 		(defq x cx y cy)
@@ -263,7 +263,7 @@
 		(while (>= (setq len (dec len)) 0)
 			(cond
 				((and (<= 0 (setq x (+ x dx)) 7) (<= 0 (setq y (+ y dy)) 7))
-					(defq newindex (+ (* y 8) x) newpiece (elem-get newindex brd)
+					(defq newindex (+ (* y 8) x) newpiece (elem-get brd newindex)
 						newtype (piece-map piece_type_map newpiece))
 					(cond
 						((= newtype color)
@@ -276,16 +276,16 @@
 							;must capture and got +empty square
 							(setq len 0))
 						(:t ;try this move
-							(defq newbrd (cat (slice 0 index brd) " " (slice (inc index) -1 brd)))
+							(defq newbrd (cat (slice brd 0 index) " " (slice brd (inc index) -1)))
 							(cond
 								((and (or (= y 0) (= y 7)) (or (eql piece "P") (eql piece "p")))
 									;try all the pawn promotion possibilities
 									(each! 0 -1 (lambda (promote_piece)
-										(setq newbrd (cat (slice 0 newindex newbrd) promote_piece (slice (inc newindex) -1 newbrd)))
+										(setq newbrd (cat (slice newbrd 0 newindex) promote_piece (slice newbrd (inc newindex) -1)))
 										(unless (in-check newbrd color)
 											(push yield newbrd))) promote))
 								(:t ;generate this as a possible move
-									(setq newbrd (cat (slice 0 newindex newbrd) piece (slice (inc newindex) -1 newbrd)))
+									(setq newbrd (cat (slice newbrd 0 newindex) piece (slice newbrd (inc newindex) -1)))
 									(unless (in-check newbrd color)
 										(push yield newbrd))))
 							(if (and (= flag +may_capture) (/= newtype +empty))
@@ -363,7 +363,7 @@
 		(defq value +min_int alpha +min_int beta +max_int timeout
 			(some! 0 -1 :nil (lambda (ply0_brd)
 					(bind '(_ bias brd) ply0_brd)
-					(elem-set 0 ply0_brd (defq score
+					(elem-set ply0_brd 0 (defq score
 						(neg (negamax brd (neg color) (neg beta) (neg alpha) (dec ply)))))
 					(cond
 						((or (<= (- score bias) value) (= (abs score) +timeout_value))
@@ -385,23 +385,23 @@
 
 (defun main ()
 	(defq select (alloc-select +select_size))
-	(mail-timeout (elem-get +select_timeout select) 1000000 0)
-	(defq msg (mail-read (elem-get (defq idx (mail-select select)) select)))
+	(mail-timeout (elem-get select +select_timeout) 1000000 0)
+	(defq msg (mail-read (elem-get select (defq idx (mail-select select)))))
 	(cond
 		;timeout or quit
 		((or (= idx +select_timeout) (eql msg "")))
 		;main mailbox, reset timeout and reply with move
 		((= idx +select_main)
-			(mail-timeout (elem-get +select_timeout select) 0 0)
+			(mail-timeout (elem-get select +select_timeout) 0 0)
 			;read job
 			(defq reply_mbox (getf msg +job_reply)
 				max_time_per_move (getf msg +job_move_time)
 				color (getf msg +job_color)
-				brd (slice +job_board (+ +job_board 64) msg)
+				brd (slice msg +job_board (+ +job_board 64))
 				history (list) history_offset (+ +job_board 64)
 				next_seq 0)
 			(while (< history_offset (length msg))
-				(push history (slice history_offset (setq history_offset (+ history_offset 64)) msg)))
+				(push history (slice msg history_offset (setq history_offset (+ history_offset 64)))))
 			;next move
 			(defq new_brd (best-move brd color history))
 			(cond

@@ -51,15 +51,15 @@
 			(mail-send (get :child val)
 				(setf-> job
 					(+job_key key)
-					(+job_reply (elem-get +select_reply select)))))
+					(+job_reply (elem-get select +select_reply)))))
 		(:t ;no jobs in que
 			(undef val :job :timestamp))))
 
 (defun create (key val nodes)
 	; (create key val nodes)
 	;function called when entry is created
-	(open-task "apps/raymarch/child.lisp" (elem-get (random (length nodes)) nodes)
-		+kn_call_child key (elem-get +select_task select)))
+	(open-task "apps/raymarch/child.lisp" (elem-get nodes (random (length nodes)))
+		+kn_call_child key (elem-get select +select_task)))
 
 (defun destroy (key val)
 	; (destroy key val)
@@ -75,9 +75,9 @@
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(gui-add-front (. *window* :change x y w h))
 	(defq farm (Farm create destroy (* 2 (length (lisp-nodes)))))
-	(mail-timeout (elem-get +select_timer select) +timer_rate 0)
+	(mail-timeout (elem-get select +select_timer) +timer_rate 0)
 	(while id
-		(defq msg (mail-read (elem-get (defq idx (mail-select select)) select)))
+		(defq msg (mail-read (elem-get select (defq idx (mail-select select)))))
 		(case idx
 			(+select_main
 				;main mailbox
@@ -100,7 +100,7 @@
 				(setq dirty :t)
 				(tile canvas msg))
 			(:t ;timer event
-				(mail-timeout (elem-get +select_timer select) +timer_rate 0)
+				(mail-timeout (elem-get select +select_timer) +timer_rate 0)
 				(. farm :refresh +retry_timeout)
 				(when dirty
 					(setq dirty :nil)
@@ -110,7 +110,7 @@
 						(. farm :each (lambda (key val)
 							(setq working (or working (get :job val)))))
 						(unless working
-							(mail-timeout (elem-get +select_timer select) 0 0)
+							(mail-timeout (elem-get select +select_timer) 0 0)
 							(. farm :close)))))))
 	;close window and children
 	(. farm :close)

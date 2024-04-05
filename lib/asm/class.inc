@@ -18,14 +18,14 @@
 	;_2 = member name
 	(defq c (eval (class-sym _1)) _ (find-rev _2 (first c)))
 	(unless _ (throw "No such method !" (list _1 _2)))
-	(elem-get _ (second c)))
+	(elem-get (second c) _))
 
 (defun method-input (_1 _2 &optional _3)
 	;_1 = class name
 	;_2 = member name
 	;_3 = input paramater index, :nil for entire list
 	(if _3
-		(elem-get _3 (third (method-lookup _1 _2)))
+		(elem-get (third (method-lookup _1 _2)) _3)
 		(third (method-lookup _1 _2))))
 
 (defun method-output (_1 _2 &optional _3)
@@ -33,8 +33,8 @@
 	;_2 = member name
 	;_3 = output paramater index, :nil for entire list
 	(if _3
-		(elem-get _3 (elem-get 3 (method-lookup _1 _2)))
-		(elem-get 3 (method-lookup _1 _2))))
+		(elem-get (elem-get (method-lookup _1 _2) 3) _3)
+		(elem-get (method-lookup _1 _2) 3)))
 
 (defun f-path (_1 _2)
 	;_1 = class name
@@ -56,21 +56,21 @@
 	;_1 = class name
 	;_2 = slot method name
 	;_3 = out parameters
-	(assign _3 (elem-get 3 (method-lookup _1 _2))))
+	(assign _3 (elem-get (method-lookup _1 _2) 3)))
 
 (defun l-entry (_1)
 	;_1 = in parameters
 	(cond
 		((not _1))
-		((str? _1) (assign (slice 0 (length (split _1 ",")) +vp_regs_calls) _1))
-		(:t (assign (slice 0 (length _1) +vp_regs_calls) _1))))
+		((str? _1) (assign (slice +vp_regs_calls 0 (length (split _1 ","))) _1))
+		(:t (assign (slice +vp_regs_calls 0 (length _1)) _1))))
 
 (defun l-exit (_1)
 	;_1 = out parameters
 	(cond
 		((not _1))
-		((str? _1) (assign _1 (slice 0 (length (split _1 ",")) +vp_regs_calls)))
-		(:t (assign _1 (slice 0 (length _1) +vp_regs_calls)))))
+		((str? _1) (assign _1 (slice +vp_regs_calls 0 (length (split _1 ",")))))
+		(:t (assign _1 (slice +vp_regs_calls 0 (length _1))))))
 
 ;;;;;;;;;;;;;;;;;;
 ; class definition
@@ -88,10 +88,10 @@
 
 (defun override ()
 	(setq m (cat m))
-	(elem-set 0 m mfunc)
-	(elem-set s (second vtable) m)
-	(if regs_in (elem-set 2 m regs_in))
-	(if regs_out (elem-set 3 m regs_out)))
+	(elem-set m 0 mfunc)
+	(elem-set (second vtable) s m)
+	(if regs_in (elem-set m 2 regs_in))
+	(if regs_out (elem-set m 3 regs_out)))
 
 (defmacro def-class (class super &rest lines)
 	(defq _ (eval (class-sym super))
@@ -100,7 +100,7 @@
 	(each (lambda ((_ mname mfunc &optional mtype regs_in regs_out))
 		(setd mtype :static)
 		(and regs_in (lmatch? regs_in '(abi-args _)) (setq regs_in (eval regs_in)))
-		(defq m (if (defq s (find-rev mname (first vtable))) (elem-get s (second vtable))))
+		(defq m (if (defq s (find-rev mname (first vtable))) (elem-get (second vtable) s)))
 		(if m
 			(case mtype
 				;existing method
@@ -112,7 +112,7 @@
 					(case (second m)
 						(:virtual
 							(override)
-							(elem-set 1 m mtype))
+							(elem-set m 1 mtype))
 						(:final
 							(throw "Virtual method is final !" mname))
 						(:t (throw "Static method already exists !" mname))))
@@ -132,7 +132,7 @@
 					(push (first vtable) mname)
 					(push (second vtable) (list mfunc mtype regs_in regs_out)))
 				((:virtual :final)
-					(elem-set 2 vtable (setq _ (+ (third vtable) +ptr_size)))
+					(elem-set vtable 2 (setq _ (+ (third vtable) +ptr_size)))
 					(push (first vtable) mname)
 					(push (second vtable) (list mfunc mtype regs_in regs_out _)))
 				(:override
@@ -165,18 +165,18 @@
 						(throw "Dispatch register conflicts with arg !" (list :r14 _)))
 					(assign _3 _)
 					(vp-cpy-ir :r0 obj_vtable :r14)
-					(vp-call-i :r14 (elem-get 4 m))))
-			(if _4 (assign (elem-get 3 m) _4)))
+					(vp-call-i :r14 (elem-get m 4))))
+			(if _4 (assign (elem-get m 3) _4)))
 		(:t ;l-call
 			(cond
 				((not _2))
-				((str? _2) (assign _2 (slice 0 (length (split _2 ",")) +vp_regs_calls)))
-				(:t (assign _2 (slice 0 (length _2) +vp_regs_calls))))
+				((str? _2) (assign _2 (slice +vp_regs_calls 0 (length (split _2 ",")))))
+				(:t (assign _2 (slice +vp_regs_calls 0 (length _2)))))
 			(vp-call _1)
 			(cond
 				((not _3))
-				((str? _3) (assign (slice 0 (length (split _3 ",")) +vp_regs_calls) _3))
-				(:t (assign (slice 0 (length _3) +vp_regs_calls) _3))))))
+				((str? _3) (assign (slice +vp_regs_calls 0 (length (split _3 ","))) _3))
+				(:t (assign (slice +vp_regs_calls 0 (length _3)) _3))))))
 
 (defun jump (_1 _2 &optional _3)
 	;_1 = class name
@@ -193,7 +193,7 @@
 			(assign _3 _)
 			(vp-cpy-ir :r0 obj_vtable :r14)
 			(scope-unwind)
-			(vp-jmp-i :r14 (elem-get 4 m)))))
+			(vp-jmp-i :r14 (elem-get m 4)))))
 
 (defmacro entry (&rest _)
 	;either
@@ -226,7 +226,7 @@
 		(throw "Method is not static ! Use v-call ?" (list _1 _2)))
 	(assign _3 (third m))
 	(fn-call (first m))
-	(if _4 (assign (elem-get 3 m) _4)))
+	(if _4 (assign (elem-get m 3) _4)))
 
 (defun f-jmp (_1 _2 &optional _3)
 	;_1 = class name
@@ -257,7 +257,7 @@
 	(assign _3 (third m))
 	(unless (eql (first m) 'class/obj/null)
 		(fn-call (first m))
-		(if _4 (assign (elem-get 3 m) _4))))
+		(if _4 (assign (elem-get m 3) _4))))
 
 (defun s-jump (_1 _2 &optional _3)
 	;_1 = class name
@@ -295,8 +295,8 @@
 		(throw "Dispatch register conflicts with arg !" (list _6 _)))
 	(assign _3 _)
 	(vp-cpy-ir _5 obj_vtable _6)
-	(vp-call-i _6 (elem-get 4 m))
-	(if _4 (assign (elem-get 3 m) _4)))
+	(vp-call-i _6 (elem-get m 4))
+	(if _4 (assign (elem-get m 3) _4)))
 
 (defun v-jump (_1 _2 &optional _3 _4)
 	;_1 = class name
@@ -311,7 +311,7 @@
 	(assign _3 _)
 	(vp-cpy-ir :r0 obj_vtable _4)
 	(scope-unwind)
-	(vp-jmp-i _4 (elem-get 4 m)))
+	(vp-jmp-i _4 (elem-get m 4)))
 
 (defun v-bind (_1 _2 &optional _3 _4)
 	;_1 = class name
@@ -322,7 +322,7 @@
 	(if (eql (second (defq m (method-lookup _1 _2))) :static)
 		(throw "Method is static ! Use f-bind ?" (list _1 _2)))
 	(vp-cpy-ir _3 obj_vtable _4)
-	(vp-cpy-ir _4 (elem-get 4 m) _4))
+	(vp-cpy-ir _4 (elem-get m 4) _4))
 
 (defun d-call (_1 _2 &optional _3 _4)
 	;_1 = class name
@@ -333,7 +333,7 @@
 		(throw "Method is static ! Use f-call ?" (list _1 _2)))
 	(assign _3 (third m))
 	(fn-call (first m))
-	(if _4 (assign (elem-get 3 m) _4)))
+	(if _4 (assign (elem-get m 3) _4)))
 
 (defun d-jump (_1 _2 &optional _3)
 	;_1 = class name
@@ -365,7 +365,7 @@
 		(throw "Dispatch register conflicts with arg !" (list _5 _)))
 	(assign _3 (cat _ (list _5)))
 	(vp-call-r _5)
-	(if _4 (assign (elem-get 3 m) _4)))
+	(if _4 (assign (elem-get m 3) _4)))
 
 (defun r-jump (_1 _2 &optional _3 _4)
 	;_1 = class name
@@ -386,13 +386,13 @@
 	;_3 = out parameters
 	(cond
 		((not _2))
-		((str? _2) (assign _2 (slice 0 (length (split _2 ",")) +vp_regs_calls)))
-		(:t (assign _2 (slice 0 (length _2) +vp_regs_calls))))
+		((str? _2) (assign _2 (slice +vp_regs_calls 0 (length (split _2 ",")))))
+		(:t (assign _2 (slice +vp_regs_calls 0 (length _2)))))
 	(vp-call _1)
 	(cond
 		((not _3))
-		((str? _3) (assign (slice 0 (length (split _3 ",")) +vp_regs_calls) _3))
-		(:t (assign (slice 0 (length _3) +vp_regs_calls) _3))))
+		((str? _3) (assign (slice +vp_regs_calls 0 (length (split _3 ","))) _3))
+		(:t (assign (slice +vp_regs_calls 0 (length _3)) _3))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; generic class construction
@@ -414,7 +414,7 @@
 	;_1 = class name
 	;_2 = create/init name
 	(defq m (method-lookup _1 (if _2 (sym (cat :create_ _2)) :create)) _3 (opt (third m) '())
-		_4 (slice 0 (length _3) '(:r14 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13)))
+		_4 (slice '(:r14 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13) 0 (length _3)))
 	(def-func (f-path _1 (if _2 (sym (cat :create_ _2)) :create)))
 		;inputs
 		;...

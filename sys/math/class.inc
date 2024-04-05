@@ -64,19 +64,19 @@
 	(goto l))
 
 (defmacro vec-assign (_1 _2)
-	(list 'assign _1 _2 '(slice *vsp* -1 +vp_regs_0_14)))
+	(list 'assign _1 _2 '(slice +vp_regs_0_14 *vsp* -1)))
 
 (defun vec-push (n)
-	(slice *vsp* (setq *vsp* (+ *vsp* n)) +vp_regs_0_14))
+	(slice +vp_regs_0_14 *vsp* (setq *vsp* (+ *vsp* n))))
 
 (defun vec-pop (n)
-	(slice (setq *vsp* (- *vsp* n)) (+ *vsp* n) +vp_regs_0_14))
+	(slice +vp_regs_0_14 (setq *vsp* (- *vsp* n)) (+ *vsp* n)))
 
 (defun vec-top (n)
-	(slice (- *vsp* n) *vsp* +vp_regs_0_14))
+	(slice +vp_regs_0_14 (- *vsp* n) *vsp*))
 
 (defun vec-tmp (n)
-	(slice *vsp* (+ *vsp* n) +vp_regs_0_14))
+	(slice +vp_regs_0_14 *vsp* (+ *vsp* n)))
 
 (defun vec-load (n &rest _)
 	(each (# (vec-assign %0 (vec-push n))) _))
@@ -200,7 +200,7 @@
 	(each (# (vp-and-cr +fp_int_mask %0)) v))
 
 (defun vec-frecip (n &optional v1)
-	(defq v (vec-tmp (* n 2)) v2 (slice 0 n v) v3 (slice n -1 v))
+	(defq v (vec-tmp (* n 2)) v2 (slice v 0 n) v3 (slice v n -1))
 	(setd v1 (vec-top n))
 	(vp-simd vp-cpy-rr v1 v2)
 	(each (# (vp-cpy-cr (<< 1 (* 2 +fp_shift)) %0)) v1)
@@ -269,7 +269,7 @@
 
 (defun vec-fdet (n &optional v2)
 	(setd v2 (vec-pop n))
-	(each (# (vp-mul-rr (elem-get (- n _ 1) v2) %0)) (vec-top n))
+	(each (# (vp-mul-rr (elem-get v2 (- n _ 1)) %0)) (vec-top n))
 	(vec-asr n +fp_shift)
 	(vec-dif n))
 
@@ -279,7 +279,7 @@
 
 (defun vec-flength (n)
 	(vec-flength-squared n)
-	(defq r (slice 0 (dec (if (>= *vsp* 4) 5 *vsp*)) +vp_regs_0_14))
+	(defq r (slice +vp_regs_0_14 0 (dec (if (>= *vsp* 4) 5 *vsp*))))
 	(if (/= (length r) 0) (apply vp-push r))
 	(call 'sys_math :f_sqrt (vec-top 1) (vec-top 1))
 	(if (/= (length r) 0) (apply vp-pop r)))

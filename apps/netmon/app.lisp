@@ -26,7 +26,7 @@
 	;function called when entry is created
 	(def (defq node (env 1)) :timestamp now)
 	(each (# (def node %0 (. %1 :add_bar))) +bars charts)
-	(open-task "apps/netmon/child.lisp" key +kn_call_open 0 (elem-get +select_task select))
+	(open-task "apps/netmon/child.lisp" key +kn_call_open 0 (elem-get select +select_task))
 	node)
 
 (defun destroy (key node)
@@ -47,9 +47,9 @@
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(. *window* :set_flags +view_flag_at_front +view_flag_at_front)
 	(gui-add-front (. *window* :change_dirty x y w h))
-	(mail-timeout (elem-get +select_nodes select) 1 0)
+	(mail-timeout (elem-get select +select_nodes) 1 0)
 	(while id
-		(defq msg (mail-read (elem-get (defq idx (mail-select select)) select)))
+		(defq msg (mail-read (elem-get select (defq idx (mail-select select)))))
 		(case idx
 			(+select_main
 				;main mailbox
@@ -72,7 +72,7 @@
 			(+select_task
 				;child launch responce
 				(defq child (getf msg +kn_msg_reply_id)
-					node (. global_tasks :find (slice +long_size -1 child)))
+					node (. global_tasks :find (slice child +long_size -1)))
 				(when node
 					(def node :child child :timestamp (pii-time))
 					(push poll_que child)))
@@ -86,7 +86,7 @@
 					(def node :timestamp (pii-time))
 					(push poll_que (get :child node))))
 			(:t ;polling timer event
-				(mail-timeout (elem-get +select_nodes select) +poll_rate 0)
+				(mail-timeout (elem-get select +select_nodes) +poll_rate 0)
 				(when (. global_tasks :refresh +retry_timeout)
 					;nodes have mutated
 					(bind '(x y w h) (apply view-fit
@@ -96,7 +96,7 @@
 				;set scales
 				(each (# (. %0 :update_scale)) charts)
 				;poll any ready children
-				(each (# (mail-send %0 (elem-get +select_reply select))) poll_que)
+				(each (# (mail-send %0 (elem-get select +select_reply))) poll_que)
 				(clear poll_que))))
 	;close window and children
 	(. global_tasks :close)

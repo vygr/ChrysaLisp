@@ -24,12 +24,12 @@
 
 (defun main ()
 	(defq select (alloc-select +select_size) *running* :t mouse_state :u)
-	(def *window* :tip_mbox (elem-get +select_tip select))
+	(def *window* :tip_mbox (elem-get select +select_tip))
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(gui-add-front (. *window* :change x y w h))
-	(mail-timeout (elem-get +select_timer select) +rate 0)
+	(mail-timeout (elem-get select +select_timer) +rate 0)
 	(while *running*
-		(defq *msg* (mail-read (elem-get (defq idx (mail-select select)) select)))
+		(defq *msg* (mail-read (elem-get select (defq idx (mail-select select)))))
 		(cond
 			((= idx +select_tip)
 				;tip event
@@ -37,7 +37,7 @@
 					(. view :show_tip)))
 			((= idx +select_timer)
 				;timer event
-				(mail-timeout (elem-get +select_timer select) +rate 0))
+				(mail-timeout (elem-get select +select_timer) +rate 0))
 			((defq id (getf *msg* +ev_msg_target_id) action (. *event_map* :find id))
 				;call bound event action
 				(dispatch-action action))

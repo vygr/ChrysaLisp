@@ -48,29 +48,29 @@ To discover the length of a sequence, use the `(length seq)` function:
 (length "ABCDEF")
 ```
 
-Extraction of a single element with `(elem-get index seq)`. Negative indexes
+Extraction of a single element with `(elem-get seq index)`. Negative indexes
 mean to index from the back of the sequence ! Very useful !
 
 ```lisp
-(elem-get 1 "abcd")
+(elem-get "abcd" 1)
 ```
 
 ```lisp
-(elem-get -2 (array 9 8 7))
+(elem-get (array 9 8 7) -2)
 ```
 
 Note that negative indexes start at -1 representing the element that would be 1
 off the end of the sequence, so -2 means the final elements index. There is a
 good reason for this as will be illustrated with the `(slice)` function below.
 
-Extracting a 'slice' of a sequence with `(slice start end seq)`:
+Extracting a 'slice' of a sequence with `(slice seq start end)`:
 
 ```lisp
-(slice 0 3 "ABCDEF")
+(slice "ABCDEF" 0 3)
 ```
 
 ```lisp
-(slice 1 -2 "ABCDEF")
+(slice "ABCDEF" 1 -2)
 ```
 
 Splice sequences together by using `(cat seq ...)`:
@@ -264,10 +264,10 @@ initial item.
 ## Arrays
 
 Arrays are sequences that also allow for writing to elements with the
-`(elem-set index array val)` function. They can be wrapped by the `(dim (nums x
-y z ...) array)` function to allow dimensioned accsess to the underling array
-with `(dim-set (nums x y z ...) array val)` and `(dim-get (nums x y z ...)
-array)`.
+`(elem-set array index val)` function. They can be wrapped by the `(dim (nums x
+y z ...) array)` function to allow dimensioned access to the underling array
+with `(dim-set array (nums x y z ...) val)` and `(dim-get array (nums x y z
+...))`.
 
 They can be acted on as a stack by use of `(push array val ...)` and `(pop
 array)`. These functions act on the array 'in place', existing references to
@@ -297,13 +297,13 @@ from the back of the sequence ! Very useful !
 
 ```lisp
 (defq a (list "a" "b" "c"))
-(elem-set 1 a "z")
+(elem-set a 1 "z")
 a
 ```
 
 ```lisp
 (defq a (array 9 8 7))
-(elem-set -2 a 10)
+(elem-set a -2 10)
 a
 ```
 
@@ -311,18 +311,18 @@ Writing and reading of single elements using `(dim-get)` and `(dim-set)`.
 
 ```lisp
 (defq d (dim (nums 2 2) (defq a (list 0 1 2 3))))
-(dim-get (nums 0 1) d)
+(dim-get d (nums 0 1))
 ```
 
 ```lisp
 (defq d (dim (nums 2 2) (defq a (list 0 1 2 3))))
-(dim-set (nums 0 1) d "z")
+(dim-set d (nums 0 1) "z")
 a
 ```
 
 ```lisp
 (defq d (dim (nums 2 2) (defq a (list 0 1 2 3))))
-(dim-set (nums 1 1) d "x")
+(dim-set d (nums 1 1) "x")
 a
 ```
 

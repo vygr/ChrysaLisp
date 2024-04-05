@@ -18,12 +18,12 @@
 					*handler_env*))
 			(cond
 				((View? result)
-					(def result :tip_mbox (elem-get +select_tip select))
+					(def result :tip_mbox (elem-get select +select_tip))
 					(def (defq flow (Flow)) :flow_flags +flow_right)
 					(def (defq text (Text)) :text "")
 					(.-> page
 						(:add_child (. flow :add_child
-							(. result :set_owner (elem-get +select_embeded select))))
+							(. result :set_owner (elem-get select +select_embeded))))
 						(:add_child text)))
 				(:t ((handler-func :vdu) :vdu page (str result))
 					((handler-func :vdu) :vdu page "```")))

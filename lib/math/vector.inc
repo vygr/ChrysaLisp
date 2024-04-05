@@ -58,7 +58,7 @@
 
 ;macro to define macros that take optional output vector
 (defmacro vec-macro (op &rest v)
-	`(defmacro ,(sym (cat "vec" (slice (find "-" op) -1 op))) (~v &optional _)
+	`(defmacro ,(sym (cat "vec" (slice op (find "-" op) -1))) (~v &optional _)
 		(if _ `(,,(sym op) ~(list ~v) ,_) `(,,(sym op) ~(list ~v)))))
 
 (vec-macro "nums-add" v0 v1)

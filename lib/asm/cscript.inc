@@ -30,50 +30,50 @@
 		(case state
 			(:space
 				(when (< (setq i (bskip +char_class_white_space line i)) l)
-					(setq c (elem-get i line))
+					(setq c (elem-get line i))
 					(cond
 						((setq j (is-stringy-char? c))
-							(setq state (elem-get j '(:string :label :path)) i (inc i)))
+							(setq state (elem-get '(:string :label :path) j) i (inc i)))
 						((and (eql c "+") unary) (setq state :symbol))
 						((is-op-char? c) (setq state :operator))
 						((is-digit-char? c) (setq state :number))
 						((is-symbol-char? c) (setq state :symbol))
 						((setq j (is-bracket-char? c))
-							(push out_types (elem-get j '(:lrb :rrb :lsb :rsb)))
+							(push out_types (elem-get '(:lrb :rrb :lsb :rsb) j))
 							(push out_tokens c)
-							(setq i (inc i) unary (elem-get j '(:t :nil :t :nil)))))))
+							(setq i (inc i) unary (elem-get '(:t :nil :t :nil) j))))))
 			(:number
 				(push out_types :number)
-				(push out_tokens (slice i (setq state :space unary :nil i
-					(bskip +char_class_digit_base line (inc i))) line)))
+				(push out_tokens (slice line i (setq state :space unary :nil i
+					(bskip +char_class_digit_base line (inc i))))))
 			(:path
 				(push out_types :path)
-				(push out_tokens (slice i (setq state :space unary :nil i
-					(bskip +char_class_path line i)) line)))
+				(push out_tokens (slice line i (setq state :space unary :nil i
+					(bskip +char_class_path line i)))))
 			(:label
 				(push out_types :label)
-				(push out_tokens (slice i (setq state :space unary :nil i
-					(bskip +char_class_word line i)) line)))
+				(push out_tokens (slice line i (setq state :space unary :nil i
+					(bskip +char_class_word line i)))))
 			(:string
 				(push out_types :string)
-				(push out_tokens (slice i (setq state :space j
-					(bskipn (ascii-char 34) line i)) line))
+				(push out_tokens (slice line i (setq state :space j
+					(bskipn (ascii-char 34) line i))))
 				(setq unary :nil i (inc j)))
 			(:symbol
 				(push out_types
-					(if (find (last (push out_tokens (slice i (setq state :space unary :nil i
-							(bskip +symbol_chars line (inc i))) line)))
+					(if (find (last (push out_tokens (slice line i (setq state :space unary :nil i
+							(bskip +symbol_chars line (inc i))))))
 						'("pptr" "byte" "ubyte" "short" "ushort"
 						"int" "uint" "long" "ulong" "ptr"))
 					:operator :symbol)))
 			(:operator
 				(push out_types :operator)
-				(setq c (slice i (setq state :space j
-					(bskip +folow_on_op_chars line (inc i)) i j) line))
+				(setq c (slice line i (setq state :space j
+					(bskip +folow_on_op_chars line (inc i)) i j)))
 				(cond
 					(unary
 						(if (setq j (find-rev (first c) "-*&~!"))
-							(push out_tokens (elem-get j "_#:~!"))
+							(push out_tokens (elem-get "_#:~!" j))
 							(throw "Unknown unary operator !" (first c))))
 					(:t (push out_tokens c)
 						(setq unary :t))))))
@@ -103,7 +103,7 @@
 				;precidence
 				(unless (defq s (scope-get-sym token))
 					(throw "Operator not defined !" token))
-				(defq v (- (third s) (elem-get 3 s)) x :t)
+				(defq v (- (third s) (elem-get s 3)) x :t)
 				(while (and x (/= 0 (length token_stack)))
 					(setq s (scope-get-sym (last token_stack)))
 					(cond
@@ -127,13 +127,13 @@
 (defq +vreg ''(_v0 _v1 _v2 _v3 _v4 _v5 _v6 _v7 _v8 _v9 _v10 _v11 _v12 _v13 _v14))
 
 (defmacro vreg-sym (_)
-	`(elem-get ,_ ,+vreg))
+	`(elem-get ,+vreg ,_))
 
 (defmacro add-inst (&rest b)
 	`(push *inst* ~b))
 
 (defmacro set-type (_)
-	(list 'elem-set -2 '*vregt* _))
+	(list 'elem-set '*vregt* -2 _))
 
 (defmacro get-type ()
 	'(last *vregt*))
@@ -152,8 +152,8 @@
 
 (defmacro reset-reg-stack (_)
 	`(defq *inst* (push (clear '()) progn)
-		*vregt* (slice 0 ,_ '(:nil :nil :nil :nil :nil :nil :nil
-			:nil :nil :nil :nil :nil :nil :nil :nil))))
+		*vregt* (slice '(:nil :nil :nil :nil :nil :nil :nil
+			:nil :nil :nil :nil :nil :nil :nil :nil) 0 ,_)))
 
 (defun def-reg-map (pre spill)
 	(setd spill '(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7
@@ -165,9 +165,10 @@
 		(defq z (rest w) z (if (eql z "") :nil z) w (first w))
 		(throw "No type info !" x))
 	(set-type z)
-	(setq w (elem-get (find-rev w "bBsSiIlLp")
+	(setq w (elem-get
 		'(vp-cpy-ir-b vp-cpy-ir-ub vp-cpy-ir-s vp-cpy-ir-us
-		vp-cpy-ir-i vp-cpy-ir-ui vp-cpy-ir vp-cpy-ir vp-cpy-ir)))
+		vp-cpy-ir-i vp-cpy-ir-ui vp-cpy-ir vp-cpy-ir vp-cpy-ir)
+		(find-rev w "bBsSiIlLp")))
 	(add-inst (list w x 0 x)))
 
 (defun compile-deref? ()
@@ -194,9 +195,10 @@
 (defun compile-arrow (&optional _)
 	(bind '((y w) x) (list (pop-reg) (pop-value)))
 	(if _ (push-reg :nil))
-	(setq w (elem-get (find-rev w "bBsSiIlLp")
+	(setq w (elem-get
 		'(vp-cpy-ri-b vp-cpy-ri-b vp-cpy-ri-s vp-cpy-ri-s
-		vp-cpy-ri-i vp-cpy-ri-i vp-cpy-ri vp-cpy-ri vp-cpy-ri)))
+		vp-cpy-ri-i vp-cpy-ri-i vp-cpy-ri vp-cpy-ri vp-cpy-ri)
+		 (find-rev w "bBsSiIlLp")))
 	(add-inst (list w x y 0)))
 
 (defun compile-ref (_)
@@ -216,12 +218,12 @@
 			;variable
 			(add-inst (list 'vp-lea-i :rsp
 				(+ (scope-get (first s)) (third s))
-				(push-reg (elem-get 3 s)))))
+				(push-reg (elem-get s 3)))))
 		(:t (throw "Symbol not a variable !" _))))
 
 (defun compile-cast (_)
 	(if (defq c (find-rev (sym _) '(pptr byte ubyte short ushort int uint long ulong ptr)))
-		(set-type (elem-get c '("pp" "b" "B" "s" "S" "i" "I" "l" "L" "p")))
+		(set-type (elem-get '("pp" "b" "B" "s" "S" "i" "I" "l" "L" "p") c))
 		(throw "Unknown type cast" _)))
 
 (defun compile-member (_)
@@ -309,8 +311,9 @@
 	(add-inst (list 'vp-asr-rr (pop-value) (top-value))))
 
 (defun compile-cmp (_)
-	(add-inst (list (elem-get (find-rev _ '(= /= <= >= > <))
-		'(vp-seq-rr vp-sne-rr vp-sle-rr vp-sge-rr vp-sgt-rr vp-slt-rr))
+	(add-inst (list (elem-get
+		'(vp-seq-rr vp-sne-rr vp-sle-rr vp-sge-rr vp-sgt-rr vp-slt-rr)
+			(find-rev _ '(= /= <= >= > <)))
 		(pop-value) (top-value))))
 
 (defun compile-and (_)
@@ -337,7 +340,7 @@
 			(throw "Compile op not defined !" _))
 		((not (eql 'op (second s)))
 			(throw "Not an operator !" _))
-		(:t ((elem-get 4 s) _))))
+		(:t ((elem-get s 4) _))))
 
 (defun compile-string (_)
 	(add-inst (list 'fn-string _ (push-reg :nil))))

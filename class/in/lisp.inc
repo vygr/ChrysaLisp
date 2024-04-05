@@ -13,7 +13,7 @@
 (defun in-mbox (in)
 	; (in-mbox in) -> mbox
 	(cat (char (getf in +in_mbox_id 0) +long_size)
-		(slice +long_size -1 (task-netid))))
+		(slice (task-netid) +long_size -1)))
 
 (defun in-get-state (in)
 	; (in-get-state in) -> num

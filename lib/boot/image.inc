@@ -33,8 +33,8 @@
 			(defq links_offset (get-short fobj +fn_header_links)
 				paths_offset (get-short fobj +fn_header_paths)
 				body (cat (char -1 +ptr_size) (char paths_offset +short_size)
-					(slice +fn_header_entry links_offset fobj))
-				links (slice links_offset paths_offset fobj))
+					(slice fobj +fn_header_entry links_offset))
+				links (slice fobj links_offset paths_offset))
 			(def *blob_map* name (list body links (func-refs fobj))))))
 
 (defun boot-image (&optional *funcs* *abi* *cpu*)
@@ -52,7 +52,7 @@
 		(map sym *funcs*)))
 	;load refs recursively
 	(each-mergeable
-		(# (merge-obj boot_funcs (elem-get +blob_refs (func-load %0))))
+		(# (merge-obj boot_funcs (elem-get (func-load %0) +blob_refs)))
 		boot_funcs)
 	;sort into order, leaving the init/statics first !
 	(sort cmp boot_funcs 2)
@@ -65,19 +65,19 @@
 		(push links_offsets (setq offset (+ offset (length body))))
 		(+ offset (length links))) blobs 0)
 	;create new link sections with offsets to header path
-	(each (# (defq u (elem-get _ links_offsets))
-		(elem-set +blob_links %0 (apply (const cat) (push (map
+	(each (# (defq u (elem-get links_offsets _))
+		(elem-set %0 +blob_links (apply (const cat) (push (map
 			(# (char (-
-				(+ (elem-get (find %0 boot_funcs) header_offsets) +fn_header_pathname)
-				(+ u (* _ +ptr_size))) +ptr_size)) (elem-get +blob_refs %0)) "")))) blobs)
+				(+ (elem-get header_offsets (find %0 boot_funcs)) +fn_header_pathname)
+				(+ u (* _ +ptr_size))) +ptr_size)) (elem-get %0 +blob_refs)) "")))) blobs)
 	;build list of all sections of boot image
 	(defq stream (file-stream (func-obj-path 'sys/boot_image) +file_open_write)
 		blobs (push (reduce (# (push %0
-			(elem-get +blob_body %1)
-			(elem-get +blob_links %1))) blobs (list)) zero)
+			(elem-get %1 +blob_body)
+			(elem-get %1 +blob_links))) blobs (list)) zero)
 		boot_len (reduce (# (+ %0 (length %1))) blobs 0))
 	;save size in boot image
-	(elem-set 0 blobs (cat (char boot_len +long_size) (slice +long_size -1 (first blobs))))
+	(elem-set blobs 0 (cat (char boot_len +long_size) (slice (first blobs) +long_size -1)))
 	;write out boot image
 	(each (# (write stream %0)) blobs)
 	(print "-> " (func-obj-path 'sys/boot_image) " (" boot_len ")")

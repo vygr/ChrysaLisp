@@ -28,8 +28,8 @@
 
 (defun mat3x2-mul-f (ma mb)
 	; (mat3x2-mul-f mat3x2_a mat3x2_b) -> mat3x2-f
-	(defq mar0 (slice 0 3 ma) mar1 (slice 3 -1 ma)
-		mbr0 (slice 0 3 mb) mbr1 (slice 3 -1 mb)
+	(defq mar0 (slice ma 0 3) mar1 (slice ma 3 -1)
+		mbr0 (slice mb 0 3) mbr1 (slice mb 3 -1)
 		mbc0 (fixeds (first mbr0) (first mbr1))
 		mbc1 (fixeds (second mbr0) (second mbr1))
 		mbc2 (fixeds (third mbr0) (third mbr1) 1.0))
@@ -43,7 +43,7 @@
 		(:t (throw "Unknown # val !" val))))
 
 (defun read-rgb (val)
-	(bind '(r g b) (map (const str-to-num) (slice 1 4 (split val "(), "))))
+	(bind '(r g b) (map (const str-to-num) (slice (split val "(), ") 1 4)))
 	(+ +argb_black (<< r 16) (<< g 8) b))
 
 (defun read-transform (entry val)

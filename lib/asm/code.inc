@@ -21,9 +21,9 @@
 		(e)))
 	(defq e (find-rev o '(= /= <= >= > <)))
 	(case (assign-src-type s)
-		(:c (if e ((eval (elem-get e '(vp-beq-cr vp-bne-cr vp-ble-cr vp-bge-cr vp-bgt-cr vp-blt-cr))) s d l)
+		(:c (if e ((eval (elem-get '(vp-beq-cr vp-bne-cr vp-ble-cr vp-bge-cr vp-bgt-cr vp-blt-cr) e)) s d l)
 			(throw "No such comparator" o)))
-		(:r (if e ((eval (elem-get e '(vp-beq-rr vp-bne-rr vp-ble-rr vp-bge-rr vp-bgt-rr vp-blt-rr))) s d l)
+		(:r (if e ((eval (elem-get '(vp-beq-rr vp-bne-rr vp-ble-rr vp-bge-rr vp-bgt-rr vp-blt-rr) e)) s d l)
 			(throw "No such comparator" o)))
 		(:t (throw "No such compare mode" (assign-src-type s)))))
 
@@ -33,9 +33,9 @@
 		(e)))
 	(defq e (find-rev o '(/= = > < <= >=)))
 	(case (assign-src-type s)
-		(:c (if e ((eval (elem-get e '(vp-beq-cr vp-bne-cr vp-ble-cr vp-bge-cr vp-bgt-cr vp-blt-cr))) s d l)
+		(:c (if e ((eval (elem-get '(vp-beq-cr vp-bne-cr vp-ble-cr vp-bge-cr vp-bgt-cr vp-blt-cr) e)) s d l)
 			(throw "No such comparator" o)))
-		(:r (if e ((eval (elem-get e '(vp-beq-rr vp-bne-rr vp-ble-rr vp-bge-rr vp-bgt-rr vp-blt-rr))) s d l)
+		(:r (if e ((eval (elem-get '(vp-beq-rr vp-bne-rr vp-ble-rr vp-bge-rr vp-bgt-rr vp-blt-rr) e)) s d l)
 			(throw "No such comparator" o)))
 		(:t (throw "No such compare mode" (assign-src-type s)))))
 

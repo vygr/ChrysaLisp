@@ -33,14 +33,14 @@
 
 (defun cell-set-value (c a b)
 	(defq count 0)
-	(each (# (when (= (elem-get %0 b) 9) (setq count (inc count)))) (elem-get c a))
-	(elem-set c b count))
+	(each (# (when (= (elem-get b %0) 9) (setq count (inc count)))) (elem-get a c))
+	(elem-set b c count))
 
 (defun board-set-mines (m b n s w h)
-	(each (# (elem-set %0 b 9)) (mine-list (length b) n s w h)) b)
+	(each (# (elem-set b %0 9)) (mine-list (length b) n s w h)) b)
 
 (defun board-set-values (a b)
-	(each (# (when (/= (elem-get %0 b) 9) (cell-set-value %0 a b))) (range 0 (length b))))
+	(each (# (when (/= (elem-get b %0) 9) (cell-set-value %0 a b))) (range 0 (length b))))
 
 (defun create-game (w h n s)
 	(defq a (list) b (list) p (list) x_index 0 y_index 0 m (mine-list (* w h) n s w h))

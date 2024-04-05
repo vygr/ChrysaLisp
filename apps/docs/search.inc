@@ -42,7 +42,7 @@
 			(if *last_widget* (def (. *last_widget* :dirty) :color 0))
 			(if (defq idx (find *last_widget* found))
 				(setq *last_widget* (elem-get
-					(% (inc idx) (length found)) found))
+					found (% (inc idx) (length found))))
 				(setq *last_widget* (first found)))
 			(def (. *last_widget* :dirty) :color *env_highlight_col*)
 			(. *page_scroll* :visible *last_widget*))))
@@ -57,7 +57,7 @@
 			(if *last_widget* (def (. *last_widget* :dirty) :color 0))
 			(if (defq idx (find *last_widget* found))
 				(setq *last_widget* (elem-get
-					(% (+ idx (length found) -1) (length found)) found))
+					found (% (+ idx (length found) -1) (length found))))
 				(setq *last_widget* (first found)))
 			(def (. *last_widget* :dirty) :color *env_highlight_col*)
 			(. *page_scroll* :visible *last_widget*))))
@@ -77,7 +77,7 @@
 	(when (nempty? *last_files*)
 		(if (defq idx (find *current_file* *last_files*))
 			(setq *current_file* (elem-get
-				(% (inc idx) (length *last_files*)) *last_files*))
+				*last_files* (% (inc idx) (length *last_files*))))
 			(setq *current_file* (first *last_files*)))
 		(populate-page *current_file*)
 		(visible-node *file_tree* *current_file*)
@@ -88,7 +88,7 @@
 	(when (nempty? *last_files*)
 		(if (defq idx (find *current_file* *last_files*))
 			(setq *current_file* (elem-get
-				(% (+ idx (length *last_files*) -1) (length *last_files*)) *last_files*))
+				*last_files* (% (+ idx (length *last_files*) -1) (length *last_files*))))
 			(setq *current_file* (first *last_files*)))
 		(populate-page *current_file*)
 		(visible-node *file_tree* *current_file*)

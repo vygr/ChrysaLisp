@@ -51,7 +51,7 @@
 			(when (<= +real_-1 z +real_1)
 				(defq x (* x rw) y (* y rw) at (recip (+ z +real_2)) r (* (const (n2r 0.02)) sp rw)
 					sx (* (+ x +real_1) sp) sy (* (+ y +real_1) sp))
-				(push (elem-get (n2i (* (+ z +real_1) (const (n2r (/ +num_poly_buckets 2))))) poly_buckets)
+				(push (elem-get poly_buckets (n2i (* (+ z +real_1) (const (n2r (/ +num_poly_buckets 2))))))
 					(list (circle r) (lighting col at) (n2f sx) (n2f sy)))))
 		proj_verts))
 
@@ -72,16 +72,16 @@
 			(push ats at))
 		proj_verts)
 	(each (lambda ((i0 i1 i2 in))
-			(when (and (> (vec-dot (defq n (elem-get in norms)) (vec-sub (elem-get i0 verts) cam_pos)) +real_0)
-					(<= +real_-1 (elem-get i1 screen_zs) +real_1)
-					(<= +real_-1 (elem-get i2 screen_zs) +real_1)
-					(<= +real_-1 (defq z0 (elem-get i0 screen_zs)) +real_1))
+			(when (and (> (vec-dot (defq n (elem-get norms in)) (vec-sub (elem-get verts i0) cam_pos)) +real_0)
+					(<= +real_-1 (elem-get screen_zs i1) +real_1)
+					(<= +real_-1 (elem-get screen_zs i2) +real_1)
+					(<= +real_-1 (defq z0 (elem-get screen_zs i0)) +real_1))
 				(defq sp (max +real_0 (vec-dot n light_vec))
 					sp (* sp sp sp sp sp sp)
-					at (+ (elem-get i0 ats) (elem-get i1 ats) (elem-get i2 ats))
+					at (+ (elem-get ats i0) (elem-get ats i1) (elem-get ats i2))
 					bucket (n2i (* (+ z0 +real_1) (const (n2r (/ +num_poly_buckets 2))))))
-				(push (elem-get bucket poly_buckets) (list
-					(cat (elem-get i0 screen_verts) (elem-get i1 screen_verts) (elem-get i2 screen_verts))
+				(push (elem-get poly_buckets bucket) (list
+					(cat (elem-get screen_verts i0) (elem-get screen_verts i1) (elem-get screen_verts i2))
 					(lighting-at3 col at sp)))))
 		(. object :get_tris)))
 
@@ -165,7 +165,7 @@
 				((< _idx (length _children))
 					;step into child node
 					(push _stack _this _children (inc _idx)
-						(defq _this (elem-get _idx _children)) (get :children _this) 0))
+						(defq _this (elem-get _children _idx)) (get :children _this) 0))
 				(:t ;step out
 					(_fo _this _children))))
 		this)

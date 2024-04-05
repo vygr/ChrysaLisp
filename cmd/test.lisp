@@ -13,13 +13,13 @@
 (defun f0 (&rest seqs)
 	; (zip seq ...) -> seq
 	(if (= (length (defq out (map! 0 -1 (const cat) (map (const partition) seqs)))) 0)
-		(slice 0 0 (first seqs)) (apply (const cat) out)))
+		(slice (first seqs) 0 0) (apply (const cat) out)))
 
 (defun f1 (&rest seqs)
 	; (zip seq ...) -> seq
 	(apply (const cat)
 		(map! 0 -1 (const cat) (map (const partition) seqs)
-			(list (slice 0 0 (first seqs))))))
+			(list (slice (first seqs) 0 0)))))
 
 (defmacro time-it (name cnt &rest _)
 	`(progn

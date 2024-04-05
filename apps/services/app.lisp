@@ -63,7 +63,7 @@
 		;next event
 		(while (defq idx (mail-poll select))
 			(cond
-				((= (setq id (getf (defq msg (mail-read (elem-get idx select))) +ev_msg_target_id)) +event_close)
+				((= (setq id (getf (defq msg (mail-read (elem-get select idx))) +ev_msg_target_id)) +event_close)
 					;close button
 					(setq id :nil))
 				((= id +event_min)

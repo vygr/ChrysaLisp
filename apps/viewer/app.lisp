@@ -171,7 +171,7 @@
 		(:set_region_color +argb_grey3))
 	(def *edit* :min_width 0 :min_height 0
 		:vdu_width +vdu_min_width :vdu_height +vdu_min_height)
-	(def *window* :tip_mbox (elem-get +select_tip select))
+	(def *window* :tip_mbox (elem-get select +select_tip))
 	(. *edit_flow* :add_back *edit*)
 	(. *file_tree* :populate "." +file_types 2)
 	(populate-file-trees)
@@ -181,7 +181,7 @@
 	(gui-add-front (. *window* :change x y w h))
 	(refresh)
 	(while *running*
-		(defq *msg* (mail-read (elem-get (defq idx (mail-select select)) select)))
+		(defq *msg* (mail-read (elem-get select (defq idx (mail-select select)))))
 		(cond
 			((= idx +select_tip)
 				;tip time mail

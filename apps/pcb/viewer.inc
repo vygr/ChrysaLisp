@@ -22,8 +22,8 @@
 (defun batch (p)
 	(defq s 0 e 0 b (list))
 	(while (<= (setq e (inc e)) (length p))
-		(when (or (= e (length p)) (/= (third (elem-get s p)) (third (elem-get e p))))
-			(push b (slice s e p))
+		(when (or (= e (length p)) (/= (third (elem-get p s)) (third (elem-get p e))))
+			(push b (slice p s e))
 			(setq s e))) b)
 
 (defun to-path (_)
@@ -45,7 +45,7 @@
 			(each (lambda (p path_2d)
 				(each (lambda (seg seg_2d)
 					(when (or (= show (defq z (% (>> (third (first seg)) +fp_shift) pcb_depth))) (= show -1))
-						(path-stroke-polylines (elem-get z layers) track_radius +join_round +cap_round +cap_round (list seg_2d)))
+						(path-stroke-polylines (elem-get layers z) track_radius +join_round +cap_round +cap_round (list seg_2d)))
 					) p path_2d)
 				) batched_paths batched_paths_2d)
 			(each! 0 pcb_depth
@@ -58,7 +58,7 @@
 			(each (lambda (path_2d)
 				(each! 1 -1
 					(lambda (seg_2d)
-						(bind '(x y) (slice 0 2 seg_2d))
+						(bind '(x y) (slice seg_2d 0 2))
 						(setq x (+ x pcb_border) y (+ y pcb_border))
 						(.-> canvas
 							(:set_color (const (trans +argb_white)))
@@ -106,7 +106,7 @@
 			(each (lambda (path_2d)
 				(each! 1 -1
 					(lambda (seg_2d)
-						(bind '(x y) (slice 0 2 seg_2d))
+						(bind '(x y) (slice seg_2d 0 2))
 						(setq x (+ x pcb_border) y (+ y pcb_border))
 						(. canvas :fpoly x y +winding_odd_even (circle (+ via_radius (if with_gaps track_gap 0.0)))))
 					(list path_2d))

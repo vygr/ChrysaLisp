@@ -17,7 +17,7 @@
 (defun vdu-print (vdu buf s)
 	(defq ch (const (dec +height)) cl 0
 		cl (some (# (if (eql %0 (ascii-char 10)) (if (= (setq cl (inc cl)) ch) _))) s))
-	(. buf :paste (slice 0 (if cl (inc cl) -1) s))
+	(. buf :paste (slice s 0 (if cl (inc cl) -1)))
 	(bind '(w h) (. buf :get_size))
 	(when (> h ch)
 		(.-> buf (:set_cursor 0 0) (:cut 0 (- h ch)))
@@ -36,7 +36,7 @@
 		(progn
 			(def *hslider* :value _)
 			(setq selected_index _)
-			(vdu-print *vdu* (elem-get +profile_rec_buf (elem-get selected_index buf_list)) ""))
+			(vdu-print *vdu* (elem-get (elem-get buf_list selected_index) +profile_rec_buf) ""))
 		(progn
 			(clear buf_list)
 			(clear buf_keys)
@@ -68,13 +68,13 @@
 (defun main ()
 	(defq select (alloc-select +select_size) syntax (Syntax)
 		buf_keys (list) buf_list (list) selected_index :nil *running* :t
-		entry (mail-declare (elem-get +select_service select) "*Profile" "Profile Service 0.1"))
-	(def *window* :tip_mbox (elem-get +select_tip select))
+		entry (mail-declare (elem-get select +select_service) "*Profile" "Profile Service 0.1"))
+	(def *window* :tip_mbox (elem-get select +select_tip))
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(gui-add-front (. *window* :change x y w h))
 	(reset)
 	(while *running*
-		(defq *msg* (mail-read (elem-get (defq idx (mail-select select)) select)))
+		(defq *msg* (mail-read (elem-get select (defq idx (mail-select select)))))
 		(cond
 			((= idx +select_tip)
 				;tip time mail
@@ -83,15 +83,15 @@
 			;new profile msg
 			((= idx +select_service)
 				(defq tcb (getf *msg* +profile_msg_tcb)
-					data (slice +profile_msg_data -1 *msg*)
+					data (slice *msg* +profile_msg_data -1)
 					key (sym (str tcb))
 					index (find-rev key buf_keys))
 				(unless index
 					(push buf_keys key)
 					(push buf_list (list (Buffer :t syntax)))
 					(reset (setq index (dec (length buf_list)))))
-				(defq buf_rec (elem-get index buf_list)
-					buf (elem-get +profile_rec_buf buf_rec))
+				(defq buf_rec (elem-get buf_list index)
+					buf (elem-get buf_rec +profile_rec_buf))
 				(vdu-print (if (= index selected_index) *vdu*) buf data))
 			;must be GUI event
 			((defq id (getf *msg* +ev_msg_target_id) action (. *event_map* :find id))

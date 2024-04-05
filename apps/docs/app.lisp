@@ -86,14 +86,14 @@
 	(bind '(w h) (.-> *file_tree* (:populate "docs" '(".md")) :pref_size))
 	(. *file_tree* :change 0 0 w h)
 	(def *file_tree_scroll* :min_width w)
-	(def *window* :tip_mbox (elem-get +select_tip select))
+	(def *window* :tip_mbox (elem-get select +select_tip))
 	(def *page_scroll* :min_height 800)
 	(populate-page *current_file*)
 	(visible-node *file_tree* *current_file*)
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(gui-add-front (. *window* :change x y w h))
 	(while *running*
-		(defq *msg* (mail-read (elem-get (defq idx (mail-select select)) select)))
+		(defq *msg* (mail-read (elem-get select (defq idx (mail-select select)))))
 		(cond
 			((= idx +select_tip)
 				;tip event

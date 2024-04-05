@@ -72,15 +72,15 @@
 			(mail-send (get :child val)
 				(setf-> job
 					(+job_key key)
-					(+job_reply (elem-get +select_reply select)))))
+					(+job_reply (elem-get select +select_reply)))))
 		(:t ;no jobs in que
 			(undef val :job :timestamp))))
 
 (defun create (key val nodes)
 	; (create key val nodes)
 	;function called when entry is created
-	(open-task "apps/mesh/child.lisp" (elem-get (random (length nodes)) nodes)
-		+kn_call_child key (elem-get +select_task select)))
+	(open-task "apps/mesh/child.lisp" (elem-get nodes (random (length nodes)))
+		+kn_call_child key (elem-get select +select_task)))
 
 (defun destroy (key val)
 	; (destroy key val)
@@ -136,11 +136,11 @@
 	(gui-add-front (. *window* :change x y w h))
 	(defq select (alloc-select +select_size) *running* :t *dirty* :t
 		jobs (list) scene (create-scene jobs) farm (Local create destroy 4))
-	(tooltips (elem-get +select_tip select))
-	(mail-timeout (elem-get +select_frame_timer select) frame_timer_rate 0)
-	(mail-timeout (elem-get +select_retry_timer select) retry_timer_rate 0)
+	(tooltips (elem-get select +select_tip))
+	(mail-timeout (elem-get select +select_frame_timer) frame_timer_rate 0)
+	(mail-timeout (elem-get select +select_retry_timer) retry_timer_rate 0)
 	(while *running*
-		(defq *msg* (mail-read (elem-get (defq idx (mail-select select)) select)))
+		(defq *msg* (mail-read (elem-get select (defq idx (mail-select select)))))
 		(cond
 			((= idx +select_tip)
 				;tip event
@@ -155,30 +155,30 @@
 			((= idx +select_reply)
 				;child mesh responce
 				(defq key (getf *msg* +job_reply_key)
-					mesh_name (trim-start (slice +job_reply_name +job_reply_data *msg*))
+					mesh_name (trim-start (slice *msg* +job_reply_name +job_reply_data))
 					mesh (Mesh-data
 							(getf *msg* +job_reply_num_verts)
 							(getf *msg* +job_reply_num_norms)
 							(getf *msg* +job_reply_num_tris)
-							(slice +job_reply_data -1 *msg*)))
+							(slice *msg* +job_reply_data -1)))
 				(each (# (. %0 :set_mesh mesh)) (. scene :find_nodes mesh_name))
 				(setq *dirty* :t)
 				(when (defq val (. farm :find key))
 					(dispatch-job key val)))
 			((= idx +select_retry_timer)
 				;retry timer event
-				(mail-timeout (elem-get +select_retry_timer select) retry_timer_rate 0)
+				(mail-timeout (elem-get select +select_retry_timer) retry_timer_rate 0)
 				(. farm :refresh retry_timeout)
 				(when (= 0 (length jobs))
 					(defq working :nil)
 					(. farm :each (lambda (key val)
 						(setq working (or working (get :job val)))))
 					(unless working
-						(mail-timeout (elem-get +select_retry_timer select) 0 0)
+						(mail-timeout (elem-get select +select_retry_timer) 0 0)
 						(. farm :close))))
 			((= idx +select_frame_timer)
 				;frame timer event
-				(mail-timeout (elem-get +select_frame_timer select) frame_timer_rate 0)
+				(mail-timeout (elem-get select +select_frame_timer) frame_timer_rate 0)
 				(when *auto_mode*
 					(setq *rotx* (% (+ *rotx* (n2r 0.01)) +real_2pi)
 						*roty* (% (+ *roty* (n2r 0.02)) +real_2pi)

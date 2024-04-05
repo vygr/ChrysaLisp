@@ -16,11 +16,11 @@
 (defun chunk (color len)
 	(while (> len (length color))
 		(setq color (cat color color)))
-	(slice 0 len color))
+	(slice color 0 len))
 
 (defun overlay (color x x1)
 	(if (and (<= 0 x (length color)) (<= 0 x1 (length color)))
-		(slice x x1 color) color))
+		(slice color x x1) color))
 
 (defmacro not-whole-word-char? (_)
 	`(bfind ,_ +char_class_not_whole_word))
@@ -363,7 +363,7 @@
 					(while (and
 						(< (setq idx (inc idx)) (length line))
 						(< idx tab_width)
-						(eql (elem-get idx line) " ")))
+						(eql (elem-get line idx) " ")))
 					(if (> idx 0)
 						(.-> buffer (:set_cursor 0 _) (:delete (min tab_width idx)))))
 				(list (. buffer :get_text_lines)))
@@ -515,7 +515,7 @@
 		(while (< scroll_y scroll_y1)
 			(defq background (if (<= fy scroll_y fy1) color_region +not_selected)
 				background (cond
-					((and (defq match (elem-get scroll_y found)) (nempty? match))
+					((and (defq match (elem-get found scroll_y)) (nempty? match))
 						(defq cx 0 line (clear '()))
 						(each (lambda (((x x1) &rest _))
 							(push line

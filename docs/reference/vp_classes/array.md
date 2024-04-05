@@ -22,7 +22,7 @@
 
 ### (reals [num ...])
 
-### (elem-set index array val)
+### (elem-set array index val)
 
 ## VP methods
 

@@ -354,13 +354,13 @@
 		(emit-sub-cr (align (* +ptr_size l) stack_align) +riscv64_rsp)
 		(defq _ l)
 		(while (>= (setq _ (dec _)) 0)
-			(emit-cpy-ri (elem-get _ b) +riscv64_rsp (* +ptr_size (- l _ 1))))))
+			(emit-cpy-ri (elem-get b _) +riscv64_rsp (* +ptr_size (- l _ 1))))))
 
 (defun emit-pop (&rest b)
 	(when (/= 0 (defq l (length b)))
 		(defq _ l)
 		(while (>= (setq _ (dec _)) 0)
-			(emit-cpy-ir +riscv64_rsp (* +ptr_size (- l _ 1)) (elem-get _ b)))
+			(emit-cpy-ir +riscv64_rsp (* +ptr_size (- l _ 1)) (elem-get b _)))
 		(emit-add-cr (align (* +ptr_size l) stack_align) +riscv64_rsp)))
 
 (defun emit-call (l)

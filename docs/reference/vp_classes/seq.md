@@ -8,7 +8,7 @@
 
 ### (each! start end lambda seqs)
 
-### (elem-get index seq)
+### (elem-get seq index)
 
 ### (find elem seq [idx])
 
@@ -32,7 +32,7 @@
 
 ### (second seq)
 
-### (slice start end seq)
+### (slice seq start end)
 
 ### (some! start end mode lambda seqs)
 

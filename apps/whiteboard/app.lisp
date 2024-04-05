@@ -70,9 +70,9 @@
 
 (defun redraw-layers (mask)
 	;redraw layer/s
-	(elem-set +dlist_commited_polygons dlist (cat *commited_polygons*))
-	(elem-set +dlist_overlay_paths dlist (cat overlay_paths))
-	(elem-set +dlist_mask dlist (logior (elem-get +dlist_mask dlist) mask)))
+	(elem-set dlist +dlist_commited_polygons (cat *commited_polygons*))
+	(elem-set dlist +dlist_overlay_paths (cat overlay_paths))
+	(elem-set dlist +dlist_mask (logior (elem-get dlist +dlist_mask) mask)))
 
 (defun commit (p)
 	;commit a stroke to the canvas
@@ -85,20 +85,20 @@
 
 (defun redraw (dlist)
 	;redraw layer/s
-	(when (/= 0 (logand (elem-get +dlist_mask dlist) +layer_commited))
-		(defq canvas (elem-get +dlist_commited_canvas dlist))
+	(when (/= 0 (logand (elem-get dlist +dlist_mask) +layer_commited))
+		(defq canvas (elem-get dlist +dlist_commited_canvas))
 		(. canvas :fill 0)
 		(each (lambda ((col poly))
-			(fpoly canvas col +winding_none_zero poly)) (elem-get +dlist_commited_polygons dlist))
+			(fpoly canvas col +winding_none_zero poly)) (elem-get dlist +dlist_commited_polygons))
 		(. canvas :swap 0))
-	(when (/= 0 (logand (elem-get +dlist_mask dlist) +layer_overlay))
-		(defq canvas (elem-get +dlist_overlay_canvas dlist))
+	(when (/= 0 (logand (elem-get dlist +dlist_mask) +layer_overlay))
+		(defq canvas (elem-get dlist +dlist_overlay_canvas))
 		(. canvas :fill 0)
 		(each (lambda (p)
 			(bind '(col poly) (flatten p))
-			(fpoly canvas col +winding_none_zero poly)) (elem-get +dlist_overlay_paths dlist))
+			(fpoly canvas col +winding_none_zero poly)) (elem-get dlist +dlist_overlay_paths))
 		(. canvas :swap 0))
-	(elem-set +dlist_mask dlist 0))
+	(elem-set dlist +dlist_mask 0))
 
 ;import actions and bindings
 (import "./actions.inc")
@@ -108,14 +108,14 @@
 		dlist (list +layer_all *commited_canvas* *overlay_canvas* (list) (list)))
 	(. *commited_canvas* :set_canvas_flags +canvas_flag_antialias)
 	(. *overlay_canvas* :set_canvas_flags +canvas_flag_antialias)
-	(def *window* :tip_mbox (elem-get +select_tip select))
+	(def *window* :tip_mbox (elem-get select +select_tip))
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(gui-add-front (. *window* :change x y w h))
 
 	;main event loop
-	(mail-timeout (elem-get +select_timer select) rate 0)
+	(mail-timeout (elem-get select +select_timer) rate 0)
 	(while *running*
-		(defq *msg* (mail-read (elem-get (defq idx (mail-select select)) select)))
+		(defq *msg* (mail-read (elem-get select (defq idx (mail-select select)))))
 		(cond
 			((= idx +select_tip)
 				;tip time mail
@@ -123,7 +123,7 @@
 					(. view :show_tip)))
 			((= idx +select_timer)
 				;timer event
-				(mail-timeout (elem-get +select_timer select) rate 0)
+				(mail-timeout (elem-get select +select_timer) rate 0)
 				(redraw dlist))
 			((= idx +select_picker)
 				;save/load picker responce
@@ -137,7 +137,7 @@
 					(*picker_mode*
 						(tree-save
 							(file-stream
-								(cat (slice 0 (if (defq i (find-rev "." *msg*)) i -1) *msg*) ".cwb")
+								(cat (slice *msg* 0 (if (defq i (find-rev "." *msg*)) i -1)) ".cwb")
 								+file_open_write)
 							(scatter (Emap)
 								:version "CWB Version 2.0"

@@ -9,7 +9,7 @@
 
 (defun assign-type-t (_)
 	(if (setq _ (find-rev (first _) "bBsSiI"))
-		(elem-get _ '(b ub s us i ui)) ""))
+		(elem-get '(b ub s us i ui) _) ""))
 
 (defun assign-src-type (o)
 	(case (pop (type-of o))
@@ -70,7 +70,7 @@
 (defun assign-topology-sort ()
 	(defq s src d dst i 0 c 1000 l (dec (length d)))
 	(while (and (< i l) (/= c 0))
-		(if (setq j (unless (list? (defq j (elem-get i d)))
+		(if (setq j (unless (list? (defq j (elem-get d i)))
 				(some! -1 (inc i) :nil (lambda (s d)
 					(cond
 						((and (list? s) (find-rev j s)) _)

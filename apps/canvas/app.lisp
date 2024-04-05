@@ -73,13 +73,13 @@
 					(* +f_width 0.45) (* +f_height 0.6)
 					(* +f_width 0.4) (* +f_height -0.4)
 					(path))))))))
-	(fpoly 0x80000000 +winding_odd_even (slice 1 2 p))
+	(fpoly 0x80000000 +winding_odd_even (slice p 1 2))
 	(fpoly 0xd0ff00ff +winding_odd_even (defq p (transform angle
 		(path-stroke-polygons (list) (* +f_width 0.02) +join_miter
 			(list (path-gen-arc
 				(* +f_width 0.2) (* +f_height 0.3) 0.0 +fp_2pi
 				(* +f_width 0.125) (path)))))))
-	(fpoly 0x60000000 +winding_odd_even (slice 0 1 p))
+	(fpoly 0x60000000 +winding_odd_even (slice p 0 1))
 	(fpoly 0xc00000ff +winding_odd_even (defq polygons (transform angle
 		(path-stroke-polygons (list) (* +f_width 0.025) +join_miter
 			(path-stroke-polylines (list) (* +f_width 0.05) +join_bevel +cap_square +cap_tri (list
@@ -89,7 +89,7 @@
 				(path-gen-arc
 					(* +f_width -0.2) (* +f_height -0.2) 4.0 2.0
 					(* +f_width 0o0.1) (path))))))))
-	(fpoly 0xa0ffffff +winding_odd_even (list (second polygons) (elem-get 3 polygons)))
+	(fpoly 0xa0ffffff +winding_odd_even (list (second polygons) (elem-get polygons 3)))
 	(fpoly 0xff000000 +winding_odd_even (transform-copy (/ angle 2.0) +fp1))
 	(fpoly 0xff000000 +winding_odd_even (transform-copy (+ (/ angle 2.0) +fp_pi) +fp2))
 	(fpoly 0xffffffff +winding_odd_even (transform-copy (+ (/ angle 2.0) +fp_hpi) +fp3))
@@ -101,9 +101,9 @@
 	(.-> *canvas* (:fill 0) (:set_canvas_flags +canvas_flag_antialias))
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(gui-add-front (. *window* :change x y w h))
-	(mail-timeout (elem-get +select_timer select) +rate 0)
+	(mail-timeout (elem-get select +select_timer) +rate 0)
 	(while id
-		(defq msg (mail-read (elem-get (defq idx (mail-select select)) select)))
+		(defq msg (mail-read (elem-get select (defq idx (mail-select select)))))
 		(case idx
 			(+select_main
 				;main mailbox
@@ -113,7 +113,7 @@
 					(:t (. *window* :event msg))))
 			(+select_timer
 				;timer event
-				(mail-timeout (elem-get +select_timer select) +rate 0)
+				(mail-timeout (elem-get select +select_timer) +rate 0)
 				(redraw)
 				(setq angle (+ angle 0.0025)))))
 	;close window

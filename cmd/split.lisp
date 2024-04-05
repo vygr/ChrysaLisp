@@ -32,5 +32,5 @@
 		(each-line (#
 			(defq elms (split %0 sep))
 			(if (and sel (> (length elms) sel))
-				(setq elms (list (elem-get sel elms))))
+				(setq elms (list (elem-get elms sel))))
 			(each print elms)) (io-stream 'stdin))))

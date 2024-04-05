@@ -29,8 +29,9 @@
 
 (defun display-board (board)
 	(each (lambda (square piece)
-		(def square :text (elem-get (find piece "QKRBNPqkrbnp ")
-			(if (= (logand (+ _ (>> _ 3)) 1) 0) "wltvmoqkrbnp " "qkrbnpwltvmo ")))
+		(def square :text (elem-get
+			(if (= (logand (+ _ (>> _ 3)) 1) 0) "wltvmoqkrbnp " "qkrbnpwltvmo ")
+			(find piece "QKRBNPqkrbnp ")))
 		(. square :layout)) (. chess_grid :children) board)
 	(. chess_grid :dirty_all))
 
@@ -40,9 +41,9 @@
 			((eql c (ascii-char 10))
 				;line feed and truncate
 				(if (> (length (push buf "")) (const vdu_height))
-					(setq buf (slice (const (dec (neg vdu_height))) -1 buf))))
+					(setq buf (slice buf (const (dec (neg vdu_height))) -1))))
 			(:t ;char
-				(elem-set -2 buf (cat (last buf) c))))) s)
+				(elem-set buf -2 (cat (last buf) c))))) s)
 	(. vdu :load buf 0 0 (length (last buf)) (dec (length buf))) buf)
 
 (defun dispatch-job (key val)
@@ -50,7 +51,7 @@
 	(def val :timestamp (pii-time))
 	(mail-send (get :child val)
 		(setf-> (cat (str-alloc +job_size) brd (apply (const cat) history))
-			(+job_reply (elem-get +select_reply select))
+			(+job_reply (elem-get select +select_reply))
 			(+job_move_time max_move_time)
 			(+job_color color)))
 	;update display
@@ -64,24 +65,24 @@
 (defun create (key val nodes)
 	; (create key val nodes)
 	;function called when entry is created
-	(open-task "apps/chess/child.lisp" (elem-get (random (length nodes)) nodes)
-		+kn_call_child key (elem-get +select_task select)))
+	(open-task "apps/chess/child.lisp" (elem-get nodes (random (length nodes)))
+		+kn_call_child key (elem-get select +select_task)))
 
 (defun destroy (key val)
 	; (destroy key val)
 	;function called when entry is destroyed
 	(when (defq child (get :child val)) (mail-send child ""))
-	(mail-free-mbox (elem-get +select_reply select))
-	(elem-set +select_reply select (mail-alloc-mbox)))
+	(mail-free-mbox (elem-get select +select_reply))
+	(elem-set select +select_reply (mail-alloc-mbox)))
 
 (defun main ()
 	(display-board brd)
 	(defq select (alloc-select +select_size) farm (Farm create destroy 1))
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(gui-add-front (. *window* :change x y w h))
-	(mail-timeout (elem-get +select_timer select) timer_rate 0)
+	(mail-timeout (elem-get select +select_timer) timer_rate 0)
 	(while id
-		(defq msg (mail-read (elem-get (defq idx (mail-select select)) select)))
+		(defq msg (mail-read (elem-get select (defq idx (mail-select select)))))
 		(cond
 			((= idx +select_main)
 				;main mailbox
@@ -102,7 +103,7 @@
 				(while (and (/= (length replys) 0)
 							(= (getf (last replys) +reply_seq) next_seq))
 					(setq msg (pop replys) next_seq (inc next_seq))
-					(defq data_type (getf msg +reply_type) data (slice +reply_data -1 msg))
+					(defq data_type (getf msg +reply_type) data (slice msg +reply_data -1))
 					(cond
 						;move
 						((= data_type (ascii-code "b"))
@@ -122,7 +123,7 @@
 						((= data_type (ascii-code "s"))
 							(vdu-print vdu text_buf data)))))
 			(:t ;timer event
-				(mail-timeout (elem-get +select_timer select) timer_rate 0)
+				(mail-timeout (elem-get select +select_timer) timer_rate 0)
 				(. farm :refresh (+ max_move_time 1000000)))))
 	;close window and children
 	(. farm :close)

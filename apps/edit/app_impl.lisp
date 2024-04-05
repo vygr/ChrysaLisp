@@ -179,10 +179,10 @@
 	(bind '(x x1) (select-word))
 	(when (>= (- x1 x) +min_word_size)
 		(defq match_words (. dictionary :find_matches_case
-			(slice x x1 (. buffer :get_text_line cy))))
+			(slice (. buffer :get_text_line cy) x x1)))
 		(when (> (length match_words) 0)
 			(if (> (length match_words) +max_matches)
-				(setq match_words (slice 0 +max_matches match_words)))
+				(setq match_words (slice match_words 0 +max_matches)))
 			(ui-window window (:color (get :color *window*)
 					:ink_color (get :ink_color *edit*) :font (get :font *edit*))
 				(ui-flow flow (:flow_flags +flow_down_fill)
@@ -200,11 +200,11 @@
 (defun select-match (dir)
 	(when match_window
 		(defq matches (. match_flow :children))
-		(if (>= match_index 0) (undef (. (elem-get match_index matches) :dirty) :color))
+		(if (>= match_index 0) (undef (. (elem-get matches match_index) :dirty) :color))
 		(setq match_index (+ match_index dir))
 		(if (< match_index 0) (setq match_index (dec (length matches))))
 		(if (> match_index (dec (length matches))) (setq match_index 0))
-		(def (. (elem-get match_index matches) :dirty) :color +argb_red)))
+		(def (. (elem-get matches match_index) :dirty) :color +argb_red)))
 
 (defun page-scale (s)
 	(n2i (* (n2f s) *page_scale*)))
@@ -249,7 +249,7 @@
 	(def *edit* :min_width 0 :min_height 0
 		:vdu_width +vdu_min_width :vdu_height +vdu_min_height)
 	(. *edit_flow* :add_back *edit*)
-	(def *window* :tip_mbox (elem-get +select_tip select))
+	(def *window* :tip_mbox (elem-get select +select_tip))
 	;load up the base Syntax keywords, root.inc and dictionaries for matching
 	(each (lambda ((key val)) (. dictionary :insert_word (str key)))
 		(tolist (get :keywords *syntax* )))
@@ -264,7 +264,7 @@
 	(select-node *current_file*)
 	(refresh)
 	(while *running*
-		(defq *msg* (mail-read (elem-get (defq idx (mail-select select)) select)))
+		(defq *msg* (mail-read (elem-get select (defq idx (mail-select select)))))
 		(cond
 			((= idx +select_tip)
 				;tip time mail
@@ -289,7 +289,7 @@
 						(cond
 							((or (= key +char_lf) (= key +char_cr) (= key +char_space))
 								;choose a match
-								(defq word (get :text (elem-get match_index (. match_flow :children))))
+								(defq word (get :text (elem-get (. match_flow :children) match_index)))
 								(if (= key +char_space) (setq word (cat word " ")))
 								(clear-matches)
 								(dispatch-action action-select-word)

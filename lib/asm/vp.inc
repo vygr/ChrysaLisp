@@ -35,7 +35,7 @@
 	(walk-list out
 		(lambda (e)
 			(and (sym? e) (defq e (def? e labels))
-				(elem-set _ _l e)))
+				(elem-set _l _ e)))
 		(lambda (l) :nil)
 		(lambda (l) :t))
 	out)

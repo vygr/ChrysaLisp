@@ -15,10 +15,10 @@
 			(defq j 0 i 1 l (length pattern) lps (cap l (list 0)))
 			(while (< (length lps) l)
 				(cond
-					((eql (elem-get i pattern) (elem-get j pattern))
+					((eql (elem-get pattern i) (elem-get pattern j))
 						(push lps (setq i (inc i) j (inc j))))
 					((= j 0) (push lps 0) (setq i (inc i)))
-					((setq j (elem-get (dec j) lps)))))
+					((setq j (elem-get lps (dec j))))))
 			(. meta_cache :insert pattern lps))
 		lps)
 
@@ -29,12 +29,12 @@
 			(when (defq j 0 k 0 lps (opt lps (. this :compile pattern)))
 				(while (< j n)
 					(cond
-						((eql (elem-get j text) (elem-get k pattern))
+						((eql (elem-get text j) (elem-get pattern k))
 							(when (= m (setq j (inc j) k (inc k)))
 								(push out (list (list (- j k) j)))
 								(setq k 0)))
 						((= k 0) (setq j (inc j)))
-						((setq k (elem-get (dec k) lps)))))))
+						((setq k (elem-get lps (dec k))))))))
 		out)
 
 	(defmethod :match? (text pattern &optional lps)
@@ -43,10 +43,10 @@
 			(when (defq j 0 k 0 lps (opt lps (. this :compile pattern)))
 				(while (< j n)
 					(cond
-						((eql (elem-get j text) (elem-get k pattern))
+						((eql (elem-get text j) (elem-get pattern k))
 							(when (= m (setq j (inc j) k (inc k)))
 								(setq n -1)))
 						((= k 0) (setq j (inc j)))
-						((setq k (elem-get (dec k) lps)))))
+						((setq k (elem-get lps (dec k))))))
 				(= n -1))))
 	)

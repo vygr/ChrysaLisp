@@ -36,7 +36,7 @@
 	(unless *pipe*
 		(input-cursor
 			(defq prompt_len (length *env_terminal_prompt*)
-				cmd (slice prompt_len -1 (. buffer :get_text_line y)))
+				cmd (slice (. buffer :get_text_line y) prompt_len -1))
 			(. buffer :insert (url-ext cmd (- x prompt_len))))
 		(. *edit* :clear_selection)
 		(refresh)))
@@ -52,7 +52,7 @@
 				(. buffer :paste (ascii-char +char_lf)))
 			(:t ;no active pipe
 				(defq prompt_len (length *env_terminal_prompt*)
-					cmd (slice prompt_len -1 (. buffer :get_text_line y)))
+					cmd (slice (. buffer :get_text_line y) prompt_len -1))
 				(. buffer :paste (const (cat (ascii-char +char_lf) (ascii-char +char_lf))))
 				(cond
 					((> (length cmd) 0)
@@ -63,7 +63,7 @@
 							(unless (eql cmd "")
 								(bind '(history) (gather *meta_map* :history))
 								(and (> (length (push history cmd)) 1)
-									(eql (elem-get -3 history) cmd)
+									(eql (elem-get history -3) cmd)
 									(pop history))
 								(setq *history_idx* (length history)))
 							;error with pipe

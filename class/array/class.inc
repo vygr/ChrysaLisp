@@ -80,7 +80,7 @@
 	; (p1 p2 ...)
 	;outputs
 	;reordered register list
-	(reduce! 0 -1 (# (elem-set %2 %0 %1)) (list regs pos) (cat regs)))
+	(reduce! 0 -1 (const elem-set) (list pos regs) (cat regs)))
 
 (defun array-bind-args (a regs)
 	;inputs

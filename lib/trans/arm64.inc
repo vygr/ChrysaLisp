@@ -160,7 +160,7 @@
 	`(progn
 		(unless (eql ,s ,d) (emit-xor-rr ,d ,d))
 		(arm64-ir ,w ,o ,s ,c ,d)
-		(if (eql ,s ,d) (arm64-ux ,(elem-get w '(7 15 31)) ,d ,d))))
+		(if (eql ,s ,d) (arm64-ux ,(elem-get '(7 15 31) w) ,d ,d))))
 
 (defmacro arm64-rd (o s d1 d2)
 	`(emit-int (+ ,o (<< ,d2 16) (<< ,d1 5) ,s)))
@@ -259,7 +259,7 @@
 			(defq _ l)
 			(while (>= (setq _ (- _ 2)) 0)
 				(emit-int (+ 0xa9000000 (<< (- l _ 2) 15)
-					(<< (elem-get _ b) 10) (const (<< +arm64_rsp 5)) (elem-get (inc _) b))))
+					(<< (elem-get b _) 10) (const (<< +arm64_rsp 5)) (elem-get b (inc _)))))
 			(if (/= -2 _) (emit-cpy-ri (first b) +arm64_rsp (* +ptr_size (dec l)))))))
 
 (defun emit-pop (&rest b)
@@ -273,7 +273,7 @@
 		(:t (defq _ l)
 			(while (>= (setq _ (- _ 2)) 0)
 				(emit-int (+ 0xa9400000 (<< (- l _ 2) 15)
-					(<< (elem-get _ b) 10) (const (<< +arm64_rsp 5)) (elem-get (inc _) b))))
+					(<< (elem-get b _) 10) (const (<< +arm64_rsp 5)) (elem-get b (inc _)))))
 			(if (/= -2 _) (emit-cpy-ir +arm64_rsp (* +ptr_size (dec l)) (first b)))
 			(emit-add-cr (align (* +ptr_size l) stack_align) +arm64_rsp))))
 

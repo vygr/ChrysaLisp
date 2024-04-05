@@ -39,12 +39,12 @@
 (defun profile-instrument (name form)
 	`((cond
 		((defq __e__ (get ',name *profile_map*))
-			(elem-set 0 __e__ (inc (first __e__)))
-			(elem-set 1 __e__ (inc (second __e__)))
+			(elem-set __e__ 0 (inc (first __e__)))
+			(elem-set __e__ 1 (inc (second __e__)))
 			(if (= (second __e__) 1) (push __e__ (pii-time))))
 		(:t (def *profile_map* ',name (setq __e__ (list 1 1 0 (pii-time))))))
 	(defq __r__ (progn ~form))
-	(elem-set 1 __e__ (dec (second __e__)))
+	(elem-set __e__ 1 (dec (second __e__)))
 	(if (= (second __e__) 0) (push __e__ (+ (- (pii-time) (pop __e__)) (pop __e__))))
 	__r__))
 

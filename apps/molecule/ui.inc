@@ -63,4 +63,4 @@
 
 (defun action-style ()
 	(def (. *main_backdrop* :dirty) :style
-		(elem-get (. *style_toolbar* :get_selected) '(:plain :grid :axis))))
+		(elem-get '(:plain :grid :axis) (. *style_toolbar* :get_selected))))

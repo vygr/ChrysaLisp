@@ -23,13 +23,13 @@
 (defun scope-get (level)
 	(defq offset 0)
 	(each! (inc level) -2
-		(# (setq offset (+ offset (elem-get +scope_offset %0))))
+		(# (setq offset (+ offset (elem-get %0 +scope_offset))))
 		(list *scopes*))
 	offset)
 
 (defun push-scope ()
 	(setq *scopes_sp* (align *scopes_sp* stack_align))
-	(elem-set +scope_offset (elem-get -3 (scope-new)) *scopes_sp*)
+	(elem-set (elem-get (scope-new) -3) +scope_offset *scopes_sp*)
 	(when (/= *scopes_sp* 0)
 		(if *debug_inst* (print "(vp-alloc " *scopes_sp* ")"))
 		(vp-alloc *scopes_sp*)
@@ -40,14 +40,14 @@
 	(defq unused (list))
 	(each! 0 -1
 		(lambda (attrib)
-			(unless (elem-get +attrib_used attrib)
-				(push unused (elem-get _ (elem-get +scope_names scope)))))
-		(list (elem-get +scope_attribs (defq scope (pop *scopes*)))))
+			(unless (elem-get attrib +attrib_used)
+				(push unused (elem-get (elem-get scope +scope_names) _))))
+		(list (elem-get (defq scope (pop *scopes*)) +scope_attribs)))
 	(if (/= 0 (length unused))
 		(throw "Unused symbols !" unused))
 	(scope-new)
 	(setq *scopes_sp* 0)
-	(elem-get +scope_offset scope))
+	(elem-get scope +scope_offset))
 
 (defun pop-scope ()
 	(when (/= (defq offset (pop-scope-syms)) 0)
@@ -71,17 +71,17 @@
 
 (defun scope-def-sym (name type &rest attribs)
 	(if (find-rev (setq name (sym name))
-			(elem-get +scope_names (defq scope (pop *scopes*))))
+			(elem-get (defq scope (pop *scopes*)) +scope_names))
 		(throw "Symbol redefined !" name))
-	(push (elem-get +scope_names scope) name)
-	(push (elem-get +scope_attribs scope) (cat (list (length *scopes*) type) attribs '(:nil)))
+	(push (elem-get scope +scope_names) name)
+	(push (elem-get scope +scope_attribs) (cat (list (length *scopes*) type) attribs '(:nil)))
 	(push *scopes* scope))
 
 (defun scope-get-sym (name)
 	(defq name (sym name) attrib (some! -2 0 :nil (lambda (scope)
-		(if (defq _ (find-rev name (elem-get +scope_names scope)))
-			(elem-get _ (elem-get +scope_attribs scope)))) (list *scopes*)))
-	(when attrib (elem-set +attrib_used attrib :t)) attrib)
+		(if (defq _ (find-rev name (elem-get scope +scope_names)))
+			(elem-get (elem-get scope +scope_attribs) _))) (list *scopes*)))
+	(when attrib (elem-set attrib +attrib_used :t)) attrib)
 
 (defmacro scope-used (&rest names)
 	(each scope-get-sym names) :nil)
@@ -123,11 +123,12 @@
 						'(short int long ushort uint ulong ptr pptr
 							pubyte pushort puint pulong pbyte pshort pint plong)))
 					(push prog
-						`(setq *scopes_sp* (align *scopes_sp* ,(elem-get alignment
+						`(setq *scopes_sp* (align *scopes_sp* ,(elem-get
 							'(+short_size +int_size +long_size +short_size
 								+int_size +long_size +ptr_size +ptr_size
 								+ptr_size +ptr_size +ptr_size +ptr_size
-								+ptr_size +ptr_size +ptr_size +ptr_size))))))
+								+ptr_size +ptr_size +ptr_size +ptr_size)
+							alignment)))))
 				(each! 1 -1 (lambda (var)
 					(case (first line)
 						(byte (scope-new-var "b" +byte_size))

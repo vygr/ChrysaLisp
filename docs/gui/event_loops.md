@@ -93,9 +93,9 @@ We read the message from that selection index mailbox and then decide what
 action to take based on the index value:
 
 ```vdu
-	(mail-timeout (elem-get +select_timer select) rate 0)
+	(mail-timeout (elem-get select +select_timer) rate 0)
 	(while ...
-		(defq msg (mail-read (elem-get (defq idx (mail-select select)) select)))
+		(defq msg (mail-read (elem-get select (defq idx (mail-select select)))))
 		(cond
 			((= idx +select_main)
 				;main mailbox
@@ -103,7 +103,7 @@ action to take based on the index value:
 				)
 			((= idx +select_timer)
 				;timer event
-				(mail-timeout (elem-get +select_timer select) rate 0)
+				(mail-timeout (elem-get select +select_timer) rate 0)
 				...
 				)))
 ```
@@ -223,9 +223,9 @@ task.
 	(defq select (alloc-select +select_size))
 	...
 	(defq farm (Farm create destroy (* 2 (length (lisp-nodes)))))
-	(mail-timeout (elem-get +select_timer select) timer_rate 0)
+	(mail-timeout (elem-get select +select_timer) timer_rate 0)
 	(while ...
-		(defq msg (mail-read (elem-get (defq idx (mail-select select)) select)))
+		(defq msg (mail-read (elem-get select (defq idx (mail-select select)))))
 		(cond
 			((= idx +select_main)
 				;main mailbox
@@ -247,7 +247,7 @@ task.
 				...
 				)
 			(:t ;timer event
-				(mail-timeout (elem-get +select_timer select) timer_rate 0)
+				(mail-timeout (elem-get select +select_timer) timer_rate 0)
 				(. farm :refresh retry_timeout)
 				(when dirty
 					(setq dirty :nil)
@@ -299,18 +299,18 @@ long to receive some work, 5 seconds here, and it goes away.
 (defun main ()
 	(defq select (alloc-select +select_size) running :t +timeout 5000000)
 	(while running
-		(mail-timeout (elem-get +select_timeout select) +timeout 0)
-		(defq msg (mail-read (elem-get (defq idx (mail-select select)) select)))
+		(mail-timeout (elem-get select +select_timeout) +timeout 0)
+		(defq msg (mail-read (elem-get select (defq idx (mail-select select)))))
 		(cond
 			((or (= idx +select_timeout) (eql msg ""))
 				;timeout or quit
 				(setq running :nil))
 			((= idx +select_main)
 				;main mailbox, reset timeout and reply with result
-				(mail-timeout (elem-get +select_timeout select) 0 0)
+				(mail-timeout (elem-get select +select_timeout) 0 0)
 				(defq key (getf msg +job_key)
 					mbox (getf msg +job_reply)
-					msg (slice +job_x -1 msg))
+					msg (slice msg +job_x -1))
 				...)))
 	(free-select select))
 ```

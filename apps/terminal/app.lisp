@@ -28,11 +28,11 @@
 			(cond
 				((eql msg :t)
 					;user select msg
-					(defq msg (mail-read (elem-get (defq idx (mail-select *select*)) *select*))))
+					(defq msg (mail-read (elem-get *select* (defq idx (mail-select *select*))))))
 				(:t ;pipe closed or pipe data
 					(defq idx +select_pipe))))
 		(:t ;no active pipe running
-			(defq msg (mail-read (elem-get (defq idx (mail-select *select*)) *select*)))))
+			(defq msg (mail-read (elem-get *select* (defq idx (mail-select *select*)))))))
 	(list msg idx))
 
 (defun refresh-display ()
@@ -97,7 +97,7 @@
 	(def *edit* :min_width +vdu_min_width :min_height +vdu_min_height
 		:vdu_width +vdu_min_width :vdu_height +vdu_min_height :font *env_terminal_font*)
 	(. *edit_flow* :add_back *edit*)
-	(def *window* :tip_mbox (elem-get +select_tip *select*))
+	(def *window* :tip_mbox (elem-get *select* +select_tip))
 	(bind '(x y w h) (apply view-locate (.-> *window* (:connect +event_layout) :pref_size)))
 	(gui-add-front (. *window* :change x y w h))
 	(window-resize)

@@ -27,8 +27,8 @@
 		(ui-label status_bar (:text " "))))
 
 (defun colorize (value)
-	(elem-get value '(+argb_black 0x000000ff 0x00006600 0x00ff0000 +argb_magenta
-		+argb_black 0x00700000 +argb_grey1 0x0002bbdd +argb_black)))
+	(elem-get '(+argb_black 0x000000ff 0x00006600 0x00ff0000 +argb_magenta
+		+argb_black 0x00700000 +argb_grey1 0x0002bbdd +argb_black) value))
 
 (defun is-game-over? (&optional lost)
 	(defq message "")
@@ -49,23 +49,23 @@
 	(each (lambda (_)
 		(defq value :nil)
 		(cond
-			((eql (elem-get _ game_map) "f")
+			((eql (elem-get game_map _) "f")
 				(. (defq mc (Button)) :connect (+ +event_click _))
 				(def mc :text "F" :border 1 :flow_flags
 					(logior +flow_flag_align_hcenter +flow_flag_align_vcenter) :min_width 32 :min_height 32)
 				(. game_grid :add_child mc))
-			((eql (elem-get _ game_map) "b")
+			((eql (elem-get game_map _) "b")
 				(. (defq mc (Button)) :connect (+ +event_click _))
 				(def mc :text "" :border 1 :flow_flags
 					(logior +flow_flag_align_hcenter +flow_flag_align_vcenter) :min_width 32 :min_height 32)
 				(. game_grid :add_child mc))
-			((eql (elem-get _ game_map) "r")
-				(if (< 0 (elem-get _ game_board) 9)
+			((eql (elem-get game_map _) "r")
+				(if (< 0 (elem-get game_board _) 9)
 					(. (defq mc (Label)) :connect (+ +event_click _))
 					(defq mc (Label)))
 				(def mc :text
 					(cond
-						((= (defq value (elem-get _ game_board)) 0) "")
+						((= (defq value (elem-get game_board _)) 0) "")
 						((< 0 value 9) (str value))
 						((= value 9) "X"))
 					:flow_flags (logior +flow_flag_align_hcenter +flow_flag_align_vcenter)
@@ -83,29 +83,29 @@
 (defun clicked-blank (cell)
 	(defq work (list cell))
 	(while (defq cell (pop work))
-		(unless (eql (elem-get cell game_map) "r")
-			(elem-set cell game_map "r")
-			(aeach (elem-get cell game_adj)
+		(unless (eql (elem-get game_map cell) "r")
+			(elem-set game_map cell "r")
+			(aeach (elem-get game_adj cell)
 				(cond
-					((= (elem-get it game_board) 0) (push work it))
-					((< 0 (elem-get it game_board) 9) (elem-set it game_map "r"))))))
+					((= (elem-get game_board it) 0) (push work it))
+					((< 0 (elem-get game_board it) 9) (elem-set game_map it "r"))))))
 	(rebuild-board))
 
 (defun clicked-flag (cell)
-	(elem-set cell game_map "b")
+	(elem-set game_map cell "b")
 	(rebuild-board))
 
 (defun right-clicked-button (cell)
-	(elem-set cell game_map "f")
+	(elem-set game_map cell "f")
 	(rebuild-board)
 	(is-game-over?))
 
 (defun clicked-value (cell)
-	(elem-set cell game_map "r")
+	(elem-set game_map cell "r")
 	(rebuild-board))
 
 (defun clicked-mine (cell)
-	(elem-set cell game_map "r")
+	(elem-set game_map cell "r")
 	(rebuild-board))
 
 (defun board-layout ((gw gh nm))
@@ -146,15 +146,15 @@
 			(cond
 				((= mouse_down 1)
 					(cond
-						((eql (elem-get cid game_map) "f") (clicked-flag cid))
-						((= (elem-get cid game_board) 9) (clicked-mine cid) (setq game_over :t))
-						((= (elem-get cid game_board) 0) (clicked-blank cid))
-						((< 0 (elem-get cid game_board) 9) (clicked-value cid))
+						((eql (elem-get game_map cid) "f") (clicked-flag cid))
+						((= (elem-get game_board cid) 9) (clicked-mine cid) (setq game_over :t))
+						((= (elem-get game_board cid) 0) (clicked-blank cid))
+						((< 0 (elem-get game_board cid) 9) (clicked-value cid))
 						(:t :nil)))
 				((/= mouse_down 1)
 					(cond
-						((eql (elem-get cid game_map) "b") (right-clicked-button cid))
-						((eql (elem-get cid game_map) "f") (clicked-flag cid))
+						((eql (elem-get game_map cid) "b") (right-clicked-button cid))
+						((eql (elem-get game_map cid) "f") (clicked-flag cid))
 						(:t :nil)))
 				(:t :nil))
 			(is-game-over?))

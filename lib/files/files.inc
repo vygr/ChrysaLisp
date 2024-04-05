@@ -23,14 +23,14 @@
 							(push stack (cat root "/" file))))))
 				(unzip (split (pii-dirlist root) ",") 2))))
 	(if (or (/= 0 cut_start) (/= -1 cut_end))
-		(map (# (slice cut_start cut_end %0)) paths)
+		(map (# (slice %0 cut_start cut_end)) paths)
 		paths))
 
 (defun all-dirs (paths)
 	; (all-dirs paths) -> paths
 	;return all the dir paths
 	(reduce (lambda (dirs file)
-		(defq dir (find-rev "/" file) dir (if dir (cat (slice 0 dir file) "/.")))
+		(defq dir (find-rev "/" file) dir (if dir (cat (slice file 0 dir) "/.")))
 		(if (and dir (not (find dir dirs)))
 			(push dirs dir) dirs)) paths (list)))
 

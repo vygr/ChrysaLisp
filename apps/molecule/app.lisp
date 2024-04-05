@@ -57,7 +57,7 @@
 		(ui-canvas *main_widget* canvas_size canvas_size canvas_scale)))
 
 (defun tooltips ()
-	(def *window* :tip_mbox (elem-get +select_tip select))
+	(def *window* :tip_mbox (elem-get select +select_tip))
 	(ui-tool-tips *main_toolbar*
 		'("prev" "next" "auto"))
 	(ui-tool-tips *style_toolbar*
@@ -99,7 +99,7 @@
 
 (defun sort-balls (balls)
 	(sort (lambda ((v1 _ _) (v2 _ _))
-		(if (<= (elem-get +vec4_w v1) (elem-get +vec4_w v2)) 1 -1)) balls))
+		(if (<= (elem-get v1 +vec4_w) (elem-get v2 +vec4_w)) 1 -1)) balls))
 
 (defun clip-balls (balls)
 	(filter-array (lambda (((_ _ _ w) _ _)) (<= +near w +far)) balls))
@@ -117,9 +117,9 @@
 	(. *main_widget* :swap 0))
 
 (defun ball-file (index)
-	(when (defq stream (file-stream (defq file (elem-get index mol_files))))
+	(when (defq stream (file-stream (defq file (elem-get mol_files index))))
 		(def (.-> *title* :layout :dirty) :text
-			(cat "Molecule -> " (slice (inc (find-rev "/" file)) -1 file)))
+			(cat "Molecule -> " (slice file (inc (find-rev "/" file)) -1)))
 		(clear balls)
 		(times 3 (read-line stream))
 		(defq num_atoms (str-as-num (first (split (read-line stream) +char_class_space))))
@@ -127,24 +127,24 @@
 			(defq line (split (read-line stream) +char_class_space))
 			(bind '(x y z) (map
 					(# (/ (n2r (str-as-num %0)) (const (n2r 65536))))
-				(slice 0 3 line)))
-			(bind '(radius col) (case (elem-get 3 line)
+				(slice line 0 3)))
+			(bind '(radius col) (case (elem-get line 3)
 				("C" (list (const (n2r (* 70 canvas_scale))) (first +palette)))
 				("H" (list (const (n2r (* 25 canvas_scale))) (second +palette)))
 				("O" (list (const (n2r (* 60 canvas_scale))) (third +palette)))
-				("N" (list (const (n2r (* 65 canvas_scale))) (elem-get 3 +palette)))
-				("F" (list (const (n2r (* 50 canvas_scale))) (elem-get 4 +palette)))
-				("S" (list (const (n2r (* 88 canvas_scale))) (elem-get 6 +palette)))
-				("Si" (list (const (n2r (* 111 canvas_scale))) (elem-get 6 +palette)))
-				("P" (list (const (n2r (* 98 canvas_scale))) (elem-get 7 +palette)))
+				("N" (list (const (n2r (* 65 canvas_scale))) (elem-get +palette 3)))
+				("F" (list (const (n2r (* 50 canvas_scale))) (elem-get +palette 4)))
+				("S" (list (const (n2r (* 88 canvas_scale))) (elem-get +palette 6)))
+				("Si" (list (const (n2r (* 111 canvas_scale))) (elem-get +palette 6)))
+				("P" (list (const (n2r (* 98 canvas_scale))) (elem-get +palette 7)))
 				(:t (list (const (n2r (* 100 canvas_scale))) (const (Vec3-f 1.0 1.0 0.0))))))
 			(push balls (list (Vec3-r x y z) radius col)))
-		(bind '(center radius) (bounding-sphere balls (# (elem-get +ball_vertex %0))))
+		(bind '(center radius) (bounding-sphere balls (# (elem-get %0 +ball_vertex))))
 		(defq scale_p (/ (const (n2r 2.0)) radius) scale_r (/ (const (n2r 0.0625)) radius))
 		(each (lambda (ball)
 			(bind '(v r _) ball)
 			(push (vec-scale (vec-sub v center v) scale_p v) +real_1)
-			(elem-set +ball_radius ball (* scale_r r))) balls)))
+			(elem-set ball +ball_radius (* scale_r r))) balls)))
 
 (defun reset ()
 	(ball-file 0)
@@ -164,9 +164,9 @@
 	(gui-add-front (. *window* :change x y w h))
 	(tooltips)
 	(reset)
-	(mail-timeout (elem-get +select_timer select) timer_rate 0)
+	(mail-timeout (elem-get select +select_timer) timer_rate 0)
 	(while *running*
-		(defq *msg* (mail-read (elem-get (defq idx (mail-select select)) select)))
+		(defq *msg* (mail-read (elem-get select (defq idx (mail-select select)))))
 		(cond
 			((= idx +select_tip)
 				;tip event
@@ -174,7 +174,7 @@
 					(. view :show_tip)))
 			((= idx +select_timer)
 				;timer event
-				(mail-timeout (elem-get +select_timer select) timer_rate 0)
+				(mail-timeout (elem-get select +select_timer) timer_rate 0)
 				(when *auto_mode*
 					(setq *rotx* (% (+ *rotx* (n2r 0.01)) +real_2pi)
 						*roty* (% (+ *roty* (n2r 0.02)) +real_2pi)

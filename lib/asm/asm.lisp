@@ -27,8 +27,8 @@
 	(defq *select* (alloc-select +_select_size) *working* :t *msg* :nil)
 	(within-compile-env (lambda ()
 		(while *working*
-			(mail-timeout (elem-get +_select_timeout *select*) +_timeout 0)
-			(setq *msg* (mail-read (elem-get (defq *idx* (mail-select *select*)) *select*)))
+			(mail-timeout (elem-get *select* +_select_timeout) +_timeout 0)
+			(setq *msg* (mail-read (elem-get *select* (defq *idx* (mail-select *select*)))))
 			(cond
 				;timeout or quit
 				((or (= *idx* +_select_timeout) (eql *msg* ""))
@@ -36,12 +36,12 @@
 				;main mailbox
 				((= *idx* +_select_main)
 					;clear timeout
-					(mail-timeout (elem-get +_select_timeout *select*) 0 0)
+					(mail-timeout (elem-get *select* +_select_timeout) 0 0)
 					;read job
 					(defq *reply_key* (getf *msg* +_job_key) *reply_mbox* (getf *msg* +_job_reply))
 					(each (# (def *compile_env* %0 %1))
 						'(*files* *abi* *cpu* *debug_mode* *debug_emit* *debug_inst*)
-						(first (read (string-stream (slice +_job_params -1 *msg*)))))
+						(first (read (string-stream (slice *msg* +_job_params -1)))))
 					;compile the file list and catch any errors
 					(setq *msg* (list))
 					(catch (each include *files*) (progn (print _) :t))

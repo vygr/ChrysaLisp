@@ -58,7 +58,7 @@
 			;map vp reg syms to native reg nums
 			(each! 1 -1 (lambda (e)
 				(if (defq e (emit-native-reg? e))
-					(elem-set _ op e))) (list op))
+					(elem-set op _ e))) (list op))
 			;create label and branch initial values
 			(cond
 				((eql (defq e (first op)) 'emit-label)
@@ -67,7 +67,7 @@
 						emit-beq-rr emit-bne-rr emit-bge-rr emit-blt-rr emit-ble-rr emit-bgt-rr emit-jmp))
 					(push op (dec (length (push *branches* 0))))))
 			;bind emit func
-			(elem-set 0 op (def? e +emit_funcs)))
+			(elem-set op 0 (def? e +emit_funcs)))
 		(list emit_code))
 	;multi pass of native emit functions
 	(eval emit_code)

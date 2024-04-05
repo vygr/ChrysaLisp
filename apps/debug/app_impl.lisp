@@ -33,22 +33,22 @@
 	(. *hslider* :dirty))
 
 (defun step (_)
-	(when (elem-get +debug_rec_reply_id _)
-		(mail-send (elem-get +debug_rec_reply_id _)
-			(str (elem-get +debug_rec_state _)))))
+	(when (elem-get _ +debug_rec_reply_id)
+		(mail-send (elem-get _ +debug_rec_reply_id)
+			(str (elem-get _ +debug_rec_state)))))
 
 (defun play (_)
-	(defq state (elem-get +debug_rec_state _))
-	(elem-set +debug_rec_state _ :play)
+	(defq state (elem-get _ +debug_rec_state))
+	(elem-set _ +debug_rec_state :play)
 	(if (eql state :paused) (step _)))
 
 (defun forward (_)
-	(defq state (elem-get +debug_rec_state _))
-	(elem-set +debug_rec_state _ :forward)
+	(defq state (elem-get _ +debug_rec_state))
+	(elem-set _ +debug_rec_state :forward)
 	(if (eql state :paused) (step _)))
 
 (defun pause (_)
-	(elem-set +debug_rec_state _ :paused))
+	(elem-set _ +debug_rec_state :paused))
 
 (defun reset (&optional _)
 	(setd _ -1)
@@ -56,7 +56,7 @@
 		(progn
 			(def *hslider* :value _)
 			(setq selected_index _)
-			(vdu-print *vdu* (elem-get +debug_rec_buf (elem-get selected_index buf_list)) ""))
+			(vdu-print *vdu* (elem-get (elem-get buf_list selected_index) +debug_rec_buf) ""))
 		(progn
 			(clear buf_list)
 			(clear buf_keys)
@@ -88,13 +88,13 @@
 (defun main ()
 	(defq select (alloc-select +select_size) syntax (Syntax)
 		buf_keys (list) buf_list (list) selected_index :nil *running* :t
-		entry (mail-declare (elem-get +select_service select) "*Debug" "Debug Service 0.4"))
-	(def *window* :tip_mbox (elem-get +select_tip select))
+		entry (mail-declare (elem-get select +select_service) "*Debug" "Debug Service 0.4"))
+	(def *window* :tip_mbox (elem-get select +select_tip))
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(gui-add-front (. *window* :change x y w h))
 	(reset)
 	(while *running*
-		(defq *msg* (mail-read (elem-get (defq idx (mail-select select)) select)))
+		(defq *msg* (mail-read (elem-get select (defq idx (mail-select select)))))
 		(cond
 			((= idx +select_tip)
 				;tip time mail
@@ -105,25 +105,25 @@
 				(defq reply_id (getf *msg* +debug_reply)
 					key (sym (getf *msg* +debug_origin))
 					type (getf *msg* +debug_type)
-					data (slice +debug_data -1 *msg*)
+					data (slice *msg* +debug_data -1)
 					index (find-rev key buf_keys))
 				(unless index
 					(push buf_keys key)
 					(push buf_list (list (Buffer :t syntax) :paused :nil))
 					(reset (setq index (dec (length buf_list)))))
-				(defq buf_rec (elem-get index buf_list)
-					buf (elem-get +debug_rec_buf buf_rec)
-					state (elem-get +debug_rec_state buf_rec))
+				(defq buf_rec (elem-get buf_list index)
+					buf (elem-get buf_rec +debug_rec_buf)
+					state (elem-get buf_rec +debug_rec_state))
 				(cond
 					((> type 0)
 						(vdu-print (if (= index selected_index) *vdu*) buf data)
-						(pause (elem-get index buf_list)))
+						(pause (elem-get buf_list index)))
 					((not (eql state :forward))
 						(vdu-print (if (= index selected_index) *vdu*) buf data)))
-				(if (or (eql (defq state (elem-get +debug_rec_state buf_rec)) :play)
+				(if (or (eql (defq state (elem-get buf_rec +debug_rec_state)) :play)
 						(eql state :forward))
 					(mail-send reply_id (str state))
-					(elem-set +debug_rec_reply_id buf_rec reply_id)))
+					(elem-set buf_rec +debug_rec_reply_id reply_id)))
 			((= idx +select_exit)
 				;exit mail
 				(setq *running* :nil))

@@ -57,7 +57,7 @@
 	(.-> clock
 		(:fill 0)
 		(:set_color +argb_white)
-		(:fpoly 0.0 0.0 +winding_odd_even (slice 0 1 face))
+		(:fpoly 0.0 0.0 +winding_odd_even (slice face 0 1))
 		(:set_color +argb_black)
 		(:fpoly 0.0 0.0 +winding_odd_even face))
 	;hour and minute hands
@@ -87,9 +87,9 @@
 		(create-clockface (* (n2f clock_size) (n2f clock_scale))))
 	(bind '(w h) (. *window* :pref_size))
 	(gui-add-front (. *window* :change 0 0 w h))
-	(mail-timeout (elem-get +select_timer select) 1 0)
+	(mail-timeout (elem-get select +select_timer) 1 0)
 	(while id
-		(defq msg (mail-read (elem-get (defq idx (mail-select select)) select)))
+		(defq msg (mail-read (elem-get select (defq idx (mail-select select)))))
 		(cond
 			((= idx +select_main)
 				;main mailbox
@@ -99,7 +99,7 @@
 					(:t (. *window* :event msg))))
 			((= idx +select_timer)
 				;timer event
-				(mail-timeout (elem-get +select_timer select) +rate 0)
+				(mail-timeout (elem-get select +select_timer) +rate 0)
 				(when clock
 					(make-analog-time)
 					(view-analog-time (* (n2f clock_size) (n2f clock_scale)))

@@ -53,10 +53,10 @@
 	(ui-scroll pcb_scroll +scroll_flag_both (:min_width 512 :min_height 256)))
 
 (defun win-load (_)
-	(setq pcb_data (load (defq file (elem-get (setq *index* _) *pcbs*))) pcb (pcb-read pcb_data))
+	(setq pcb_data (load (defq file (elem-get *pcbs* (setq *index* _)))) pcb (pcb-read pcb_data))
 	(bind '(w h) (. (defq canvas (pcb-canvas pcb *mode* *show* *zoom* canvas_scale)) :pref_size))
 	(def pcb_scroll :min_width w :min_height h)
-	(def *window_title* :text (cat "Pcb -> " (slice (inc (find-rev "/" file)) -1 file)))
+	(def *window_title* :text (cat "Pcb -> " (slice file (inc (find-rev "/" file)) -1)))
 	(. pcb_scroll :add_child (. canvas :swap 0))
 	(. *window_title* :layout)
 	(bind '(x y w h) (apply view-fit (cat (. *window* :get_pos) (. *window* :pref_size))))
@@ -75,7 +75,7 @@
 	(.-> pcb_scroll (:add_child (. (pcb-canvas pcb *mode* *show* *zoom* canvas_scale) :swap 0)) :layout))
 
 (defun tooltips ()
-	(def *window* :tip_mbox (elem-get +select_tip select))
+	(def *window* :tip_mbox (elem-get select +select_tip))
 	(each (# (def %0 :tip_text %1))
 		(. *main_toolbar* :children)
 		'("prev" "next" "route" "zoom out" "zoom in" "pcb" "gerber"
@@ -84,10 +84,10 @@
 (defun stop-route ()
 	(when child
 		(mail-send child "")
-		(mail-free-mbox (elem-get +select_reply select))
-		(mail-free-mbox (elem-get +select_prog select))
-		(elem-set +select_reply select (mail-alloc-mbox))
-		(elem-set +select_prog select (mail-alloc-mbox))))
+		(mail-free-mbox (elem-get select +select_reply))
+		(mail-free-mbox (elem-get select +select_prog))
+		(elem-set select +select_reply (mail-alloc-mbox))
+		(elem-set select +select_prog (mail-alloc-mbox))))
 
 (defun route ()
 	(stop-route)
@@ -99,8 +99,8 @@
 			(+job_flood_range (get :value flood_spinner))
 			(+job_even_range (get :value even_spinner))
 			(+job_odd_range (get :value odd_spinner))
-			(+job_reply (elem-get +select_reply select))
-			(+job_prog (elem-get +select_prog select)))))
+			(+job_reply (elem-get select +select_reply))
+			(+job_prog (elem-get select +select_prog)))))
 
 ;import actions and bindings
 (import "./actions.inc")
@@ -116,7 +116,7 @@
 	(bind '(x y w h) (apply view-locate (. (win-load *index*) :get_size)))
 	(gui-add-front (. *window* :change x y w h))
 	(while *running*
-		(defq *msg* (mail-read (elem-get (defq idx (mail-select select)) select)))
+		(defq *msg* (mail-read (elem-get select (defq idx (mail-select select)))))
 		(cond
 			((= idx +select_reply)
 				;child pcb data

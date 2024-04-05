@@ -8,8 +8,15 @@ In no particular order but to just to ensure I get thoughts down. I'll keep
 adding to this as I go along. If anybody would like to try helping out, then
 just get in touch.
 
+* add a `select_form` action to the Editor. This should select the current atom
+or matching brackets.
+
+* reorder the `(array-map-args)` mapping paramaters.
+
 * canvas to support stretched or aspect correct drawing, centered, and aligned
 flags.
+
+* add default paramaters for `(slice)`.
 
 * ui-load-icon .... for button images.
 

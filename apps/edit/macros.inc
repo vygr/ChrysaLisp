@@ -19,7 +19,7 @@
 			(eql (first action) (const action-insert))
 			(eql (first (defq last_action (last rec))) (const action-insert)))
 		;roll up inserts
-		(elem-set 1 last_action (cat (second last_action) (second action)))
+		(elem-set last_action 1 (cat (second last_action) (second action)))
 		(push rec action)))
 
 (defun action-macro-playback (&optional slot)
@@ -103,4 +103,4 @@
 (defun macro-decode (n e)
 	(. +macro_map :insert n
 		(map (lambda ((f &rest p))
-			(cat (list (elem-get f *recorded_actions*)) p)) e)))
+			(cat (list (elem-get *recorded_actions* f)) p)) e)))

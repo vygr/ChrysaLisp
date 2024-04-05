@@ -30,9 +30,9 @@
 		;bsearch
 		(while (< j k)
 			(setq i (>> (+ j k) 1))
-			(if (starts-with prefix (elem-get i word_list))
+			(if (starts-with prefix (elem-get word_list i))
 				(setq k -1)
-				(if (> (cmp prefix (elem-get i word_list)) 0)
+				(if (> (cmp prefix (elem-get word_list i)) 0)
 					(setq j (inc i)) (setq k i))))
 		;bounds
 		(cond
@@ -45,7 +45,7 @@
 					(list word_list)))
 				(unless j (setq j 0))
 				(unless k (setq k (length word_list)))
-				(slice j k word_list))
+				(slice word_list j k))
 			((list))))
 
 	(defmethod :find_matches_case (prefix)
@@ -54,7 +54,7 @@
 		(each (# (push matches %0)) (. this :find_matches (to-lower prefix)))
 		(each (# (push matches %0)) (. this :find_matches (to-upper prefix)))
 		(reduce (# (if (find %1 %0) %0 (push %0 %1)))
-			(map (# (cat prefix (slice (length prefix) -1 %0))) matches) (list)))
+			(map (# (cat prefix (slice %0 (length prefix) -1))) matches) (list)))
 	)
 
 ;module

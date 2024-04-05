@@ -30,9 +30,8 @@
 
 (def-struct seq obj_size)
 
-(defmacro lisp-elem-index (idx len)
-	`(progn
-		(vpif '(,idx < 0))
-			(vp-add-rr ,len ,idx)
-			(vp-add-cr 1 ,idx)
-		(endif)))
+(defun lisp-elem-index (idx len)
+	(vpif `(,idx < 0))
+		(vp-add-rr len idx)
+		(vp-add-cr 1 idx)
+	(endif))

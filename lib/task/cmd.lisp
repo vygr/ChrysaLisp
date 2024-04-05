@@ -17,8 +17,8 @@
 (defun main ()
 	(defq *select* (alloc-select +select_size) *working* :t *msg* :nil)
 	(while *working*
-		(mail-timeout (elem-get +select_timeout *select*) +timeout 0)
-		(setq *msg* (mail-read (elem-get (defq *idx* (mail-select *select*)) *select*)))
+		(mail-timeout (elem-get *select* +select_timeout) +timeout 0)
+		(setq *msg* (mail-read (elem-get *select* (defq *idx* (mail-select *select*)))))
 		(cond
 			;timeout or quit
 			((or (= *idx* +select_timeout) (eql *msg* ""))
@@ -26,11 +26,11 @@
 			;main mailbox
 			((= *idx* +select_main)
 				;clear timeout
-				(mail-timeout (elem-get +select_timeout *select*) 0 0)
+				(mail-timeout (elem-get *select* +select_timeout) 0 0)
 				;read job
 				(defq *reply_key* (getf *msg* +job_key)
 					*reply_mbox* (getf *msg* +job_reply)
-					*cmd* (slice +job_params -1 *msg*))
+					*cmd* (slice *msg* +job_params -1))
 				;run the command and catch output
 				(setq *msg* (string-stream (cat "")))
 				(write-line *msg* (str *reply_key*))

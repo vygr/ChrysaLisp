@@ -18,7 +18,7 @@
 		((defq job (pop jobs))
 			(def val :job job :timestamp (pii-time))
 			(mail-send (get :child val) (cat
-				(char key +long_size) (elem-get +select_reply select) job)))
+				(char key +long_size) (elem-get select +select_reply) job)))
 		(:t ;no jobs in que
 			(undef val :job :timestamp))))
 
@@ -30,8 +30,8 @@
 (defun create (key val nodes)
 	; (create key val nodes)
 	;function called when entry is created
-	(open-task "lib/asm/asm.lisp" (elem-get (random (length nodes)) nodes)
-		+kn_call_child key (elem-get +select_task select)))
+	(open-task "lib/asm/asm.lisp" (elem-get nodes (random (length nodes)))
+		+kn_call_child key (elem-get select +select_task)))
 
 (defun destroy (key val)
 	; (destroy key val)
@@ -52,15 +52,15 @@
 			select (list (mail-alloc-mbox) (mail-alloc-mbox) (mail-alloc-mbox))
 			jobs (map (# (str (list (list %0) *abi* *cpu* *debug_mode* *debug_emit* *debug_inst*))) files)
 			farm (Local (const create) (const destroy) (length files) (max 1 (min 4 (length (lisp-nodes))))))
-		(mail-timeout (elem-get +select_timer select) timer_rate 0)
+		(mail-timeout (elem-get select +select_timer) timer_rate 0)
 		(while working
-			(defq msg (mail-read (elem-get (defq idx (mail-select select)) select)))
+			(defq msg (mail-read (elem-get select (defq idx (mail-select select)))))
 			(cond
 				((= idx +select_task)
 					;child launch responce
 					(defq key (getf msg +kn_msg_key) child (getf msg +kn_msg_reply_id))
 					(when (defq val (. farm :find key))
-						(. farm :add_node (slice +mailbox_id_size -1 child))
+						(. farm :add_node (slice child +mailbox_id_size -1))
 						(def val :child child)
 						(dispatch-job key val)))
 				((= idx +select_reply)
@@ -83,7 +83,7 @@
 						(. farm :each (lambda (key val)
 							(setq working (or working (get :job val)))))))
 				(:t ;timer event
-					(mail-timeout (elem-get +select_timer select) timer_rate 0)
+					(mail-timeout (elem-get select +select_timer) timer_rate 0)
 					(. farm :refresh retry_timeout))))
 		(. farm :close)
 		(each mail-free-mbox select)

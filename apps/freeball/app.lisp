@@ -14,8 +14,8 @@
 	(while id
 		(bind '(_ _ screen_width screen_height) (. screen :get_bounds))
 		(defq index (% (inc index) (length +frames))
-			old_frame frame frame (elem-get index +frames)
-			old_sframe sframe sframe (elem-get index +sframes))
+			old_frame frame frame (elem-get +frames index)
+			old_sframe sframe sframe (elem-get +sframes index))
 		(bind '(ox oy w h) (. view :get_bounds))
 		(bind '(_ _ fw fh) (. old_frame :get_bounds))
 		(bind '(_ _ sw sh) (. old_sframe :get_bounds))

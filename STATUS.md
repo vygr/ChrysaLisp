@@ -15,6 +15,11 @@ Introduce the lambda shortcut macro early in the `root.inc` file.
 
 `(elem-set)` and `(dim-set)` now return the target array not the value.
 
+`(elem-get)`, `(elem-set)`, `(dim-set)` and `(dim-set)` now take the target
+array as the first argument.
+
+`(slice)` now takes the target sequence as the first argument.
+
 ------
 
 New `map!`, `reduce!` VP primitives.
@@ -633,8 +638,8 @@ lengthy inquest. My focus is my sister at this time, thank you.
 Rename `(elem)` to `(elem-get)`, will now be inline with new `(dim-get)` and
 `(dim-set)` multi dimensional element get and set functions.
 
-New `(dim (nums x y z ...) array)` `(dim-get (nums x y z ...) dim)` and
-`(dim-set (nums x y z ...) dim obj)` built in functions.
+New `(dim (nums x y z ...) array)`, `(dim-get dim (nums x y z ...))` and
+`(dim-set dim (nums x y z ...) obj)` built in functions.
 
 VP pseudo instructions `(vp-abs) (vp-min) (vp-max) (vp-vec)` added and the
 `sys/math/class.inc` vector DSL now uses this to perform operations.

@@ -53,7 +53,7 @@
 	(assign '(:r1) '(:r13)))
 
 	(assign '(:r0) '(:r12))
-	(list-bind-args :r1 '(:r11 :r0) '(:num :seq))
+	(list-bind-args :r1 '(:r0 :r11) '(:seq :num))
 	(call 'seq :get_length '(:r0) '(:r0 :r1))
 	(lisp-elem-index :r11 :r1)
 (errorcase
@@ -66,10 +66,10 @@
 
 (errorcase
 (vp-label 'error1)
-	(jump 'lisp :repl_error '(:r0 "(elem-get index seq)" +error_msg_wrong_types :r1))
+	(jump 'lisp :repl_error '(:r0 "(elem-get seq index)" +error_msg_wrong_types :r1))
 (vp-label 'error2)
-	(jump 'lisp :repl_error '(:r12 "(elem-get index seq)" +error_msg_not_valid_index :r13))
-	(signature '(num seq)))
+	(jump 'lisp :repl_error '(:r12 "(elem-get seq index)" +error_msg_not_valid_index :r13))
+	(signature '(seq num)))
 
 (def-func-end)
 
@@ -90,7 +90,7 @@
 	(assign '(:r1) '(:r13)))
 
 	(assign '(:r0) '(:r12))
-	(list-bind-args :r1 '(:r10 :r11 :r0) '(:num :num :seq))
+	(list-bind-args :r1 '(:r0 :r10 :r11) '(:seq :num :num))
 	(call 'seq :get_length '(:r0) '(:r0 :r1))
 	(lisp-elem-index :r10 :r1)
 	(lisp-elem-index :r11 :r1)
@@ -111,10 +111,10 @@
 
 (errorcase
 (vp-label 'error1)
-	(jump 'lisp :repl_error '(:r0 "(slice start end seq)" +error_msg_wrong_types :r1))
+	(jump 'lisp :repl_error '(:r0 "(slice seq start end)" +error_msg_wrong_types :r1))
 (vp-label 'error2)
-	(jump 'lisp :repl_error '(:r12 "(slice start end seq)" +error_msg_not_valid_index :r13))
-	(signature '(num num seq)))
+	(jump 'lisp :repl_error '(:r12 "(slice seq start end)" +error_msg_not_valid_index :r13))
+	(signature '(seq num num)))
 
 (def-func-end)
 

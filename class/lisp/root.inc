@@ -220,7 +220,7 @@
 	; (setd sym val [sym val] ...)
 	(defq i -2 l (list 'setq))
 	(while (< (setq i (+ i 2)) (length _))
-		(push l (elem-get i _) (list 'opt (elem-get i _) (elem-get (inc i) _)))) l)
+		(push l (elem-get _ i) (list 'opt (elem-get _ i) (elem-get _ (inc i))))) l)
 
 ;;;;;;;;;;;;
 ; Predicates
@@ -378,9 +378,9 @@
 (defun swap (_ _1 _2)
 	; (swap list index index)
 	(when (/= _1 _2)
-		(defq _t (elem-get _1 _))
-		(elem-set _1 _ (elem-get _2 _))
-		(elem-set _2 _ _t)))
+		(defq _t (elem-get _ _1))
+		(elem-set _ _1 (elem-get _ _2))
+		(elem-set _ _2 _t)))
 
 (defun shuffle (_a &optional _l _h)
 	; (shuffle list [start end]) -> list
@@ -413,7 +413,7 @@
 			((< _ (length _l))
 				;element of list
 				(push _stack _l (inc _))
-				(if (list? (defq _e (elem-get _ _l))) (push _stack _e 0))
+				(if (list? (defq _e (elem-get _l _))) (push _stack _e 0))
 				(_f _e))
 			(:t ;exit list
 				(_fo _l)))))
@@ -450,7 +450,7 @@
 	; (each-mergeable lambda seq) -> seq
 	(defq _ -1)
 	(while (< (setq _ (inc _)) (length _l))
-		(_f (elem-get _ _l))) _l)
+		(_f (elem-get _l _))) _l)
 
 (defmacro each (f &rest _)
 	; (each lambda seq ...)
@@ -482,7 +482,7 @@
 
 (defmacro reverse (s)
 	; (reverse seq) -> seq
-	`(slice -1 0 ,s))
+	`(slice ,s -1 0))
 
 ;;;;;;;;
 ; Scopes
@@ -532,27 +532,27 @@
 
 (defun starts-with (p _)
 	; (starts-with str str) -> :t | :nil
-	(and (>= (length _) (length p)) (eql p (slice 0 (length p) _))))
+	(and (>= (length _) (length p)) (eql p (slice _ 0 (length p)))))
 
 (defun ends-with (p _)
 	; (ends-with str str) -> :t | :nil
-	(and (>= (length _) (length p)) (eql p (slice (dec (neg (length p))) -1 _))))
+	(and (>= (length _) (length p)) (eql p (slice _ (dec (neg (length p))) -1))))
 
 (defun erase (s b e)
 	; (erase seq start end) -> seq
-	(cat (slice 0 b s) (slice e -1 s)))
+	(cat (slice s 0 b) (slice s e -1)))
 
 (defun insert (s p i)
 	; (insert seq pos seq) -> seq
-	(cat (slice 0 p s) i (slice p -1 s)))
+	(cat (slice s 0 p) i (slice s p -1)))
 
 (defun replace (s b e i)
 	; (replace seq start end seq) -> seq
-	(cat (slice 0 b s) i (slice e -1 s)))
+	(cat (slice s 0 b) i (slice s e -1)))
 
 (defun rotate (s i j k)
 	; (rotate seq start mid end) -> seq
-	(cat (slice 0 i s) (slice j k s) (slice i j s) (slice k -1 s)))
+	(cat (slice s 0 i) (slice s j k) (slice s i j) (slice s k -1)))
 
 (defun join (seqs seq &optional mode)
 	; (join seqs seq [mode]) -> seq
@@ -568,24 +568,24 @@
 	; (split seq sseq) -> seqs
 	(defq i :nil out (list))
 	(each (# (if i
-		(when (find %0 sseq) (push out (slice i _ seq)) (setq i :nil))
+		(when (find %0 sseq) (push out (slice seq i _)) (setq i :nil))
 		(unless (find %0 sseq) (setq i _)))) seq)
-	(if i (push out (slice i -1 seq)) out))
+	(if i (push out (slice seq i -1)) out))
 
 (defun unzip (seq cnt)
 	; (unzip seq cnt) -> seqs
-	(map (# (if (= (length %0) 0) (slice 0 0 seq) (apply (const cat) %0)))
-		(reduce (# (push (elem-get (% _ cnt) %0) %1) %0)
+	(map (# (if (= (length %0) 0) (slice seq 0 0) (apply (const cat) %0)))
+		(reduce (# (push (elem-get %0 (% _ cnt)) %1) %0)
 			(partition seq) (lists cnt))))
 
 (defun zip (&rest seqs)
 	; (zip seq ...) -> seq
 	(if (= (length (defq out (map! 0 -1 (const cat) (map (const partition) seqs)))) 0)
-		(slice 0 0 (first seqs)) (apply (const cat) out)))
+		(slice (first seqs) 0 0) (apply (const cat) out)))
 
 (defun filter-array (_f _a)
 	; (filter-array lambda array) -> array
-	(defq _l (slice 0 0 _a))
+	(defq _l (slice _a 0 0))
 	(each (lambda (_p) (if (_f _p) (push _l _p))) _a)
 	_l)
 
@@ -593,9 +593,9 @@
 	; (unique seq) -> seq
 	(cond
 		((> (length seq) 0)
-			(defq out (cap (length seq) (list (slice 0 1 seq))))
+			(defq out (cap (length seq) (list (slice seq 0 1))))
 			(each! 1 -1 (# (unless (eql %0 (last (last out)))
-				(push out (slice _ (inc _) seq)))) (list seq))
+				(push out (slice seq _ (inc _))))) (list seq))
 			(apply (const cat) out))
 		((rest seq))))
 
@@ -626,13 +626,13 @@
 		(_default_key
 			(push (second _map) _default_clause)
 			(if _atoms
-				`(elem-get (or (find ,_form ',(first _map)) -2) ',(second _map))
-				`(eval (elem-get (or (find ,_form ',(first _map)) -2) ',(second _map)))))
+				`(elem-get ',(second _map) (or (find ,_form ',(first _map)) -2))
+				`(eval (elem-get ',(second _map) (or (find ,_form ',(first _map)) -2)))))
 		(:t (if _atoms
 				`(if (defq ,(defq _i (gensym)) (find ,_form ',(first _map)))
-					(elem-get ,_i ',(second _map)))
+					(elem-get ',(second _map) ,_i))
 				`(if (defq ,(defq _i (gensym)) (find ,_form ',(first _map)))
-					(eval (elem-get ,_i ',(second _map))))))))
+					(eval (elem-get ',(second _map) ,_i)))))))
 
 ;;;;;;;;;;;;;;;;
 ; Math functions
@@ -756,18 +756,19 @@
 
 (defun char-to-num (_)
 	; (char-to-num char) -> num
-	(elem-get (code _) (const (cat (list quote) (list (map num-intern (cat
+	(elem-get (const (cat (list quote) (list (map num-intern (cat
 		(map (# (logior %0 -1)) (range 0 (code "0")))                       ;-1
 		(map (# (- %0 (code "0"))) (range (code "0") (inc (code "9"))))     ;0-9
 		(map (# (logior %0 -1)) (range (inc (code "9")) (code "A")))        ;-1
 		(map (# (- %0 (code "A") -10)) (range (code "A") (inc (code "Z")))) ;10-35
 		(map (# (logior %0 -1)) (range (inc (code "Z")) (code "a")))        ;-1
 		(map (# (- %0 (code "a") -10)) (range (code "a") (inc (code "z")))) ;10-35
-		(map (# (logior %0 -1)) (range (inc (code "z")) 256)))))))))        ;-1
+		(map (# (logior %0 -1)) (range (inc (code "z")) 256)))))))			;-1
+		(code _)))
 
 (defun num-to-char (_)
 	; (num-to-char num) -> char
-	(elem-get _ "0123456789abcdefghijklmnopqrstuvwxyz"))
+	(elem-get "0123456789abcdefghijklmnopqrstuvwxyz" _))
 
 (defun str-as-num (_)
 	; (str-as-num str) -> num
@@ -806,13 +807,13 @@
 	; (trim-start str [str]) -> str
 	(defq c (if c (code c) (ascii-code " ")) i -1)
 	(while (and (/= (setq i (inc i)) (length s)) (eql (code s 1 i) c)))
-	(slice i -1 s))
+	(slice s i -1))
 
 (defun trim-end (s &optional c)
 	; (trim-end str [str]) -> str
 	(defq c (if c (code c) (ascii-code " ")) i (length s))
 	(while (and (/= (setq i (dec i)) -1) (eql (code s 1 i) c)))
-	(slice 0 (inc i) s))
+	(slice s 0 (inc i)))
 
 (defun trim (s &optional c)
 	; (trim str [str]) -> str
@@ -822,7 +823,7 @@
 	; (pad form width [str]) -> str
 	(defq f (opt f " ") v (str v) l (length v) c (- (max c l) l))
 	(while (> c (length f)) (setq f (cat f f)))
-	(cat (slice 0 c f) v))
+	(cat (slice f 0 c) v))
 
 (defmacro get-ubyte (s o)
 	; (get-ubyte str index) -> num
@@ -854,18 +855,18 @@
 
 (defmacro get-nodeid (s o)
 	; (get-nodeid str index) -> nodeid
-	`(slice ,o (+ ,o ,+node_id_size) ,s))
+	`(slice ,s ,o (+ ,o ,+node_id_size)))
 
 (defmacro get-netid (s o)
 	; (get-netid str index) -> netid
-	`(slice ,o (+ ,o ,+net_id_size) ,s))
+	`(slice ,s ,o (+ ,o ,+net_id_size)))
 
 (defun get-cstr (s o)
 	; (get-cstr str index) -> str
 	(defq k o)
 	(while (/= 0 (get-byte s o))
 		(setq o (inc o)))
-	(slice k o s))
+	(slice s k o))
 
 (defun type-to-size (_)
 	; (type-to-size sym) -> num
@@ -919,8 +920,8 @@
 			(while (starts-with "./" lib_path)
 				(unless (defq i (find-rev "/" current))
 					(throw "No relative path !" lib_path))
-				(setq current (slice 0 i current)
-					lib_path (slice 2 -1 lib_path)))
+				(setq current (slice current 0 i)
+					lib_path (slice lib_path 2 -1)))
 			(cat current "/" lib_path))))
 
 (defun import (lib_path &optional _e)

@@ -24,6 +24,6 @@
 			(defq count 10 args (options stdio usage)))
 		(defq lines (list))
 		(each-line (# (push lines %0)
-			(if (> (length lines) count) (setq lines (slice (- -1 count) -1 lines))))
+			(if (> (length lines) count) (setq lines (slice lines (- -1 count) -1))))
 				(if (<= (length args) 1) (io-stream 'stdin) (file-stream (second args))))
 		(each print lines)))

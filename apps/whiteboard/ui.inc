@@ -16,17 +16,17 @@
 	(def *image_scroll* :min_width +min_width :min_height +min_height))
 
 (defun action-ink ()
-	(setq *stroke_col* (elem-get (. *ink_toolbar* :get_selected) *palette*)))
+	(setq *stroke_col* (elem-get *palette* (. *ink_toolbar* :get_selected))))
 
 (defun action-mode ()
 	(setq *stroke_mode* (+ (. *mode_toolbar* :get_selected) +event_pen)))
 
 (defun action-radius ()
-	(setq *stroke_radius* (elem-get (. *radius_toolbar* :get_selected) *radiuss*)))
+	(setq *stroke_radius* (elem-get *radiuss* (. *radius_toolbar* :get_selected))))
 
 (defun action-style ()
 	(def (. *backdrop* :dirty) :style
-		(elem-get (. *style_toolbar* :get_selected) '(:plain :grid :lines :axis))))
+		(elem-get '(:plain :grid :lines :axis) (. *style_toolbar* :get_selected))))
 
 (defun action-clear ()
 	(snapshot)
@@ -51,20 +51,20 @@
 	(if *picker_mbox* (mail-send *picker_mbox* ""))
 	(mail-send (setq *picker_mode* :t *picker_mbox*
 		(open-child "apps/files/child.lisp" +kn_call_open))
-		(list (elem-get +select_picker select) "Save Whiteboard..." "." "")))
+		(list (elem-get select +select_picker) "Save Whiteboard..." "." "")))
 
 (defun action-load ()
 	(if *picker_mbox* (mail-send *picker_mbox* ""))
 	(mail-send (setq *picker_mode* :nil *picker_mbox*
 		(open-child "apps/files/child.lisp" +kn_call_open))
-		(list (elem-get +select_picker select) "Load Whiteboard..." "." ".cwb")))
+		(list (elem-get select +select_picker) "Load Whiteboard..." "." ".cwb")))
 
 (defun action-stroke ()
 	;display in flight strokes
 	(clear overlay_paths)
 	(each (# (unless (= *stroke_mode* +event_pen)
 				(if (> (length %0) 4)
-					(setq %0 (cat (slice 0 2 %0) (slice -3 -1 %0)))))
+					(setq %0 (cat (slice %0 0 2) (slice %0 -3 -1)))))
 			(setq %0 (apply (const path) (map (const n2f) %0)))
 			(if (= *stroke_mode* +event_pen) (setq %0 (path-smooth %0)))
 			(push overlay_paths (list *stroke_mode* *stroke_col* *stroke_radius*

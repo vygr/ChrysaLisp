@@ -36,6 +36,6 @@
 		(defq tab (. tab_flow :find_id (getf event +ev_msg_action_source_id))
 			tab_index (find tab (. tab_flow :children)))
 		(when (< tab_index (length stack_children))
-			(. (elem-get tab_index stack_children) :to_front))
+			(. (elem-get stack_children tab_index) :to_front))
 		(. this :emit))
 	)

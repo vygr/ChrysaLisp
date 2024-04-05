@@ -37,7 +37,7 @@
 					(trim-end %0 (ascii-char 13))) lines))
 			(and (/= margin 0) (/= margin +max_int)
 				(setq lines (map
-					(# (if (> (length %0) margin) (slice margin -1 %0) %0)) lines)))
+					(# (if (> (length %0) margin) (slice lines margin -1 %0) %0)))))
 			(while (eql (last lines) "") (pop lines))
 			(each (# ((handler-func :vdu) :vdu page %0)) lines)
 			((handler-func :vdu) :vdu page "```")

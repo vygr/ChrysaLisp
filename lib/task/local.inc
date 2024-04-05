@@ -44,7 +44,7 @@
 		(each (lambda (_key _val)
 			(cond
 				((or (not (defq _child (get :child _val)))
-					(find (slice +mailbox_id_size -1 _child) _nodes))
+					(find (slice _child +mailbox_id_size -1) _nodes))
 					;waiting on child launching, or found child in nodes, so check timestamp
 					(and _timeout
 						(defq _then (get :timestamp _val))

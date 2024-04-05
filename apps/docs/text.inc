@@ -73,7 +73,7 @@
 	(cond
 		((starts-with "```" line)
 			;section start
-			(if (eql (setq state (sym (cat ":" (slice 3 -1 line)))) :) :code state))
+			(if (eql (setq state (sym (cat ":" (slice line 3 -1)))) :) :code state))
 		(:t ;body text
 			(cond
 				((eql line "")
@@ -83,17 +83,17 @@
 						(blank-line)
 						(clear words)))
 				((starts-with "#### " line)
-					(heading (line-words (slice 5 -1 line)) 22)
+					(heading (line-words (slice line 5 -1)) 22)
 					(blank-line))
 				((starts-with "### " line)
-					(heading (line-words (slice 4 -1 line)) 26)
+					(heading (line-words (slice line 4 -1)) 26)
 					(blank-line))
 				((starts-with "## " line)
-					(heading (line-words (slice 3 -1 line)) 30)
+					(heading (line-words (slice line 3 -1)) 30)
 					(under-line 2)
 					(blank-line))
 				((starts-with "# " line)
-					(heading (line-words (slice 2 -1 line)) 34)
+					(heading (line-words (slice line 2 -1)) 34)
 					(under-line 4)
 					(blank-line))
 				(:t (each (lambda (word)

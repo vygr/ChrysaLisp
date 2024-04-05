@@ -38,7 +38,7 @@
 	(each! 0 -1 (lambda (s v)
 		(cond
 			((defq i (find-rev s ps))
-				(elem-set i ps s) (elem-set i pv v))
+				(elem-set ps i s) (elem-set pv i v))
 			(:t (push ps s) (push pv v))))
 		(unzip (opt p '()) 2))
 	(zip ps pv))
@@ -58,8 +58,8 @@
 	; (ui-element name constructor [props] [body]) -> view
 	(setq p (ui-merge-props p))
 	(if (/= 0 (length p))
-		`(progn (. (elem-get -3 (push _ui (defq ,n ,c))) :add_child ,n) (def ,n ~p) ~x (pop _ui))
-		`(progn (. (elem-get -3 (push _ui (defq ,n ,c))) :add_child ,n) ~x (pop _ui))))
+		`(progn (. (elem-get (push _ui (defq ,n ,c)) -3) :add_child ,n) (def ,n ~p) ~x (pop _ui))
+		`(progn (. (elem-get (push _ui (defq ,n ,c)) -3) :add_child ,n) ~x (pop _ui))))
 
 (defmacro ui-flow (n &optional p &rest x)
 	; (ui-flow name [props] [body]) -> flow

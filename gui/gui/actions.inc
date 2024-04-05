@@ -19,13 +19,13 @@
 (defun update-mods-down (scode)
 	(and (not (find scode +mod_toggles))
 		(defq i (find scode +mod_scodes))
-		(setq *mods* (logior *mods* (elem-get i +mod_masks)))))
+		(setq *mods* (logior *mods* (elem-get +mod_masks i)))))
 
 (defun update-mods-up (scode)
 	(if (defq i (find scode +mod_scodes))
 		(if (find scode +mod_toggles)
-			(setq *mods* (logxor *mods* (elem-get i +mod_masks)))
-			(setq *mods* (logand *mods* (lognot (elem-get i +mod_masks)))))))
+			(setq *mods* (logxor *mods* (elem-get +mod_masks i)))
+			(setq *mods* (logand *mods* (lognot (elem-get +mod_masks i)))))))
 
 (defun cook-key (scode)
 	(defq key :nil)

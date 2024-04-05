@@ -29,4 +29,4 @@
 				(print (defq ll (second args)))
 				(each (lambda (nl)
 					(unless (eql ll nl)
-						(print (setq ll nl)))) (slice 2 -1 args))))))
+						(print (setq ll nl)))) (slice args 2 -1))))))

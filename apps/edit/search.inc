@@ -80,18 +80,18 @@
 
 (defun build-replace (lines found rep_text rep_matches sx sy sx1)
 	(when (< sy (length found))
-		(defq match (elem-get sy found) line (elem-get sy lines))
+		(defq match (elem-get found sy) line (elem-get lines sy))
 		(when (defq mi (some (lambda (((x x1) &ignore))
 					(and (= x sx) (= x1 sx1) _)) match))
 			(when regexp
-				(setq match (elem-get mi match))
+				(setq match (elem-get match mi))
 				(each-rev (lambda (((x x1) (x2 x3)))
 						(setq rep_text (replace rep_text x x1
 							(cond
-								((< (defq s (str-to-num (slice x2 x3 rep_text)))
+								((< (defq s (str-to-num (slice rep_text x2 x3)))
 										(length match))
-									(bind '(x x1) (elem-get s match))
-									(slice x x1 line))
+									(bind '(x x1) (elem-get match s))
+									(slice line x x1))
 								("")))))
 					rep_matches))
 			rep_text)))
@@ -166,7 +166,7 @@
 		(if (> fy1 fy) (setq sy (max sy fy) sy1 (min sy1 fy1))))
 	(each! sy sy1 (lambda (line found)
 			(if found (each (lambda (((x x1) &ignore))
-				(push results (slice x x1 line))) found)))
+				(push results (slice line x x1))) found)))
 		(list lines found)))
 
 (defun action-collect (whole_words regexp pattern)

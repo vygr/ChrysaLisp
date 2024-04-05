@@ -19,7 +19,7 @@
 (defun is-text-char? (_)
 	(cond
 		((defq i (bfind _ +char_class_not_text))
-			(elem-get i '(:string1 :keysym :comment :string2)))
+			(elem-get '(:string1 :keysym :comment :string2) i))
 		((is-digit-char? _) :number)
 		((is-symbol-char? _) :symbol)
 		(:text)))
@@ -71,39 +71,39 @@
 			(case state
 				(:text
 					(while (and (< j l)
-							(eql (setq state (is-text-char? (elem-get j line))) :text))
+							(eql (setq state (is-text-char? (elem-get line j))) :text))
 						(setq j (inc j)))
 					(when (/= i j)
 						(push state_list :text)
-						(push token_list (slice i (setq i j) line))))
+						(push token_list (slice line i (setq i j)))))
 				(:symbol
 					(push state_list :symbol)
-					(push token_list (slice i (setq j
-						(bskipn +char_class_not_symbol line (inc j)) i j) line))
+					(push token_list (slice line i (setq j
+						(bskipn +char_class_not_symbol line (inc j)) i j)))
 					(setq state :text))
 				(:keysym
 					(push state_list :keysym)
-					(push token_list (slice i (setq j
-						(bskipn +char_class_not_symbol line (inc j)) i j) line))
+					(push token_list (slice line i (setq j
+						(bskipn +char_class_not_symbol line (inc j)) i j)))
 					(setq state :text))
 				(:number
 					(push state_list :number)
-					(push token_list (slice i (setq j
-						(bskip +char_class_digit_base line (inc j)) i j) line))
+					(push token_list (slice line i (setq j
+						(bskip +char_class_digit_base line (inc j)) i j)))
 					(setq state :text))
 				(:comment
 					(push state_list :comment)
-					(push token_list (slice i (setq state :text j l) line)))
+					(push token_list (slice line i (setq state :text j l))))
 				(:string1
 					(push state_list :string1)
 					(if (setq j (find (ascii-char 34) line (inc i)))
-						(push token_list (slice i (setq state :text j (inc j) i j) line))
-						(push token_list (slice i (setq j l) line))))
+						(push token_list (slice line i (setq state :text j (inc j) i j)))
+						(push token_list (slice line i (setq j l)))))
 				(:string2
 					(push state_list :string2)
 					(push token_list (if (setq j (find "}" line (inc i)))
-						(slice i (setq state :text j (inc j) i j) line)
-						(slice i (setq j l) line))))))
+						(slice line i (setq state :text j (inc j) i j))
+						(slice line i (setq j l)))))))
 		(set this :state state)
 
 		;assign colours

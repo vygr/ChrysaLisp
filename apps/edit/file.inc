@@ -59,14 +59,14 @@
 (defun action-next-buffer ()
 	(defq files (cat *open_files* '(:nil))
 		idx (% (inc (find *current_file* files)) (length files)))
-	(unless (elem-get idx files) (setq idx (% (inc idx) (length files))))
-	(switch-file (elem-get idx files)))
+	(unless (elem-get files idx) (setq idx (% (inc idx) (length files))))
+	(switch-file (elem-get files idx)))
 
 (defun action-prev-buffer ()
 	(defq files (cat *open_files* '(:nil))
 		idx (% (+ (dec (find *current_file* files)) (length files)) (length files)))
-	(unless (elem-get idx files) (setq idx (% (+ (dec idx) (length files)) (length files))))
-	(switch-file (elem-get idx files)))
+	(unless (elem-get files idx) (setq idx (% (+ (dec idx) (length files)) (length files))))
+	(switch-file (elem-get files idx)))
 
 (defun action-scratch-buffer ()
 	(populate-vdu :nil)
@@ -79,7 +79,7 @@
 		(setq *open_files* (erase *open_files* i (inc i)))
 		(defq files (cat *open_files*))
 		(if (= (length files) 0) (push files :nil))
-		(elem-get (% i (length files)) files)))
+		(elem-get files (% i (length files)))))
 
 (defun action-close-buffer ()
 	(defq file (close-file *current_file*))

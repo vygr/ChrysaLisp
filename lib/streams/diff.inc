@@ -8,7 +8,7 @@
 (defq +min_paths 4 +max_paths 16)
 
 (defun goal-distance (_)
-	(nums-dot (nums-sub goal (defq _ (slice -3 -1 _)) _) _))
+	(nums-dot (nums-sub goal (defq _ (slice _ -3 -1)) _) _))
 
 (defun iron (p)
 	(defq out (cap (length p) (list)) a -1 b -1 x 0 y 0 s :diag)
@@ -41,13 +41,13 @@
 		(:t (defq ps (list (nums 0 0)) nps (list) goal (nums la lb) run :t)
 			(while run
 				(each (lambda (p)
-					(bind '(a b) (slice -3 -1 p))
+					(bind '(a b) (slice p -3 -1))
 					(push nps (cond
 						((or (/= a la) (/= b lb))
 							(cond
 								((= a la) (push p a (inc b)))
 								((= b lb) (push p (inc a) b))
-								((eql (elem-get a al) (elem-get b bl))
+								((eql (elem-get al a) (elem-get bl b))
 									(push p (inc a) (inc b)))
 								(:t (push nps (push (cat p) a (inc b)))
 									(push p (inc a) b))))
@@ -55,8 +55,8 @@
 				(setq ps (cat nps)) (clear nps)
 				(when (> (length ps) +max_paths)
 					(task-slice)
-					(setq ps (slice 0 +min_paths (sort (# (-
-						(goal-distance %0) (goal-distance %1))) ps)))))
+					(setq ps (slice (sort (# (- (goal-distance %0) (goal-distance %1))) ps)
+						0 +min_paths))))
 			(defq a -1 b -1 oa 0)
 			(sort (# (- (length %0) (length %1))) ps)
 			(each (lambda ((pa pb))
@@ -64,9 +64,9 @@
 					(cond
 						((and (/= pa a) (/= pb b)))
 						((= pa a)
-							(write-line c (str "+ " (+ a oa) " " (elem-get b bl)))
+							(write-line c (str "+ " (+ a oa) " " (elem-get bl b)))
 							(setq oa (inc oa)))
-						(:t (write-line c (str "- " (+ a oa) " " (elem-get a al)))))
+						(:t (write-line c (str "- " (+ a oa) " " (elem-get al a)))))
 					(setq a pa b pb))
 				(iron (partition (first ps) 2))))))
 
@@ -80,8 +80,8 @@
 		(cond
 			((empty? match) (setq run :nil))
 			(:t (bind '((_ (x x1) (x2 x3) (x4 x5))) match)
-				(defq op (slice x x1 p) l (slice x4 x5 p)
-					nl (str-to-num (slice x2 x3 p)))
+				(defq op (slice p x x1) l (slice p x4 x5)
+					nl (str-to-num (slice p x2 x3)))
 				(while (< ln nl) (write-line c (read-line a)) (setq ln (inc ln)))
 				(if (eql op "+") (write-line c l) (read-line a))
 				(setq ln (inc ln)))))

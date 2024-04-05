@@ -60,7 +60,7 @@
 		(method-input 'array :ref_elem))
 
 	(vp-push :r0 :r1)
-	(list-bind-args :r1 `(,indexs ,dims) '(:nums :dim))
+	(list-bind-args :r1 `(,dims ,indexs) '(:dim :nums))
 	(assign `((,dims dim_dims) (,dims dim_elems)) `(,dims ,elems))
 	(assign `((,dims array_length) (,indexs array_length)) `(,dims_len ,indexs_len))
 
@@ -95,10 +95,10 @@
 (errorcase
 (vp-label 'error1)
 	(vp-pop :r0 :r1)
-	(jump 'lisp :repl_error '(:r0 "(dim-get nums dim)" +error_msg_not_valid_index :r1))
+	(jump 'lisp :repl_error '(:r0 "(dim-get dim nums)" +error_msg_not_valid_index :r1))
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(dim-get nums dim)" +error_msg_wrong_types :r1))
-	(signature '(nums dim)))
+	(jump 'lisp :repl_error '(:r0 "(dim-get dim nums)" +error_msg_wrong_types :r1))
+	(signature '(dim nums)))
 
 (def-func-end)
 
@@ -121,7 +121,7 @@
 		(method-input 'array :set_elem))
 
 	(vp-push :r0 :r1)
-	(list-bind-args :r1 `(,indexs ,dims ,obj) '(:nums :dim :obj))
+	(list-bind-args :r1 `(,dims ,indexs ,obj) '(:dim :nums :obj))
 	(assign `((,dims dim_dims) (,dims dim_elems)) `(,dims ,elems))
 	(assign `((,dims array_length) (,indexs array_length)) `(,dims_len ,indexs_len))
 
@@ -169,9 +169,9 @@
 (errorcase
 (vp-label 'error1)
 	(vp-pop :r0 :r1)
-	(jump 'lisp :repl_error '(:r0 "(dim-set nums dim form)" +error_msg_not_valid_index :r1))
+	(jump 'lisp :repl_error '(:r0 "(dim-set dim nums form)" +error_msg_not_valid_index :r1))
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(dim-set nums dim form)" +error_msg_wrong_types :r1))
-	(signature '(nums dim obj)))
+	(jump 'lisp :repl_error '(:r0 "(dim-set dim nums form)" +error_msg_wrong_types :r1))
+	(signature '(dim nums obj)))
 
 (def-func-end)

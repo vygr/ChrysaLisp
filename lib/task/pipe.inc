@@ -10,7 +10,7 @@
 	(defq i 0 out (list) quotes (partition (substr cmdline (ascii-char 34)) 2))
 	(each (lambda (((x x1)))
 		(unless (some (lambda ((((qx _)) ((_ qx1)))) (<= qx x x1 qx1)) quotes)
-			(defq j i) (setq i x1) (push out (trim (slice j x cmdline)))))
+			(defq j i) (setq i x1) (push out (trim (slice cmdline j x)))))
 		(push (substr cmdline " | ") '((-1 0))))
 	out)
 
@@ -19,7 +19,7 @@
 	(setd user_select '())
 	(bind '(cmdpipe args) (reduce (#
 		(bind '(((x x1))) (matches %1 "^\S+"))
-		(push (first %0) (cat "cmd/" (slice x x1 %1) ".lisp"))
+		(push (first %0) (cat "cmd/" (slice %1 x x1) ".lisp"))
 		(push (second %0) %1) %0) (pipe-split cmdline) (lists 2)))
 	(cond
 		;error with pipe element ?
@@ -59,7 +59,7 @@
 				((< (defq idx (mail-select (get :select this))) user_select_len))
 				(:t ;must be stdout or one of the stderr's
 					(if (/= (in-get-state (in-next-msg (defq msg_in
-								(elem-get (- idx user_select_len) (get :streams this)))))
+								(elem-get (get :streams this) (- idx user_select_len)))))
 							+stream_mail_state_started)
 						(def this :state :nil))
 					(read-avail msg_in)))))
@@ -78,8 +78,8 @@
 		;wait for stdout and stderr streams to stop
 		(defq user_select_len (length (get :user_select this)))
 		(while (> (length select) user_select_len)
-			(if (= (in-get-state (in-next-msg (elem-get (defq idx (mail-select
-						(slice user_select_len -1 select))) streams)))
+			(if (= (in-get-state (in-next-msg (elem-get streams
+						(defq idx (mail-select (slice select user_select_len -1))))))
 					+stream_mail_state_stopped)
 				(setq streams (erase streams idx (inc idx))
 					select (erase select (+ idx user_select_len) (+ idx user_select_len 1)))))

@@ -15,9 +15,9 @@
 	(cat "0x" (short-to-hex-str _)))
 
 (defun win-refresh (i)
-	(defq ctf (elem-get (setq index i) fonts) font (create-font ctf 42) grid_width 8 grid_height 0
+	(defq ctf (elem-get fonts (setq index i)) font (create-font ctf 42) grid_width 8 grid_height 0
 		ranges (font-glyph-ranges font) symbol_grid (Grid))
-	(def *window_title* :text (cat "Fonts -> " (slice (inc (find-rev "/" ctf)) -5 ctf)))
+	(def *window_title* :text (cat "Fonts -> " (slice ctf (inc (find-rev "/" ctf)) -5)))
 	(while (defq e (pop ranges) s (pop ranges))
 		(defq s (logand s (neg grid_width)) e (align e grid_width) n (/ (- e s) grid_width))
 		(setq grid_height (+ grid_height n))
@@ -57,7 +57,7 @@
 	(ui-scroll *symbol_scroll* +scroll_flag_vertical))
 
 (defun tooltips ()
-	(def *window* :tip_mbox (elem-get +select_tip select))
+	(def *window* :tip_mbox (elem-get select +select_tip))
 	(ui-tool-tips *main_toolbar*
 		'("prev" "next")))
 
@@ -68,7 +68,7 @@
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(gui-add-front (. *window* :change x y w h))
 	(while id
-		(defq *msg* (mail-read (elem-get (defq idx (mail-select select)) select)))
+		(defq *msg* (mail-read (elem-get select (defq idx (mail-select select)))))
 		(cond
 			((= idx +select_tip)
 				;tip time mail

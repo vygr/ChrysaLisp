@@ -14,7 +14,7 @@
 (defun setoffset ()
 	;adjust text offset
 	(raise :clear_text :label_text :font :border :cursor)
-	(bind '(tw th) (font-glyph-bounds font (slice 0 cursor clear_text)))
+	(bind '(tw th) (font-glyph-bounds font (slice clear_text 0 cursor)))
 	(bind '(w h) (. this :get_size))
 	(defq offset (get :offset label_text) border (abs border))
 	(cond
@@ -36,10 +36,10 @@
 		(raise :font :text :cursor :anchor :label_text)
 		(when (and font text)
 			(defq offset (get :offset label_text))
-			(bind '(tw th) (font-glyph-bounds font (slice 0 cursor text)))
+			(bind '(tw th) (font-glyph-bounds font (slice text 0 cursor)))
 			(when (/= cursor anchor)
-				(bind '(sw _) (font-glyph-bounds font (slice 0 (min anchor cursor) text)))
-				(bind '(sw1 _) (font-glyph-bounds font (slice 0 (max anchor cursor) text)))
+				(bind '(sw _) (font-glyph-bounds font (slice text 0 (min anchor cursor))))
+				(bind '(sw1 _) (font-glyph-bounds font (slice text 0 (max anchor cursor))))
 				(.-> this
 					(:ctx_set_color (get :hint_color this))
 					(:ctx_filled_box (+ sw offset) (>>> (- h th) 1) (- sw1 sw) th)))
@@ -91,14 +91,14 @@
 						;cut
 						(unless (or mode (= cursor anchor))
 							(defq sx (min anchor cursor) sx1 (max anchor cursor))
-							(clipboard-put (slice sx sx1 clear_text))
+							(clipboard-put (slice clear_text sx sx1))
 							(setq clear_text (erase clear_text sx sx1)
 								cursor sx anchor cursor)))
 					((= key (ascii-code "c"))
 						;copy
 						(unless (or mode (= cursor anchor))
 							(defq sx (min anchor cursor) sx1 (max anchor cursor))
-							(clipboard-put (slice sx sx1 clear_text))))
+							(clipboard-put (slice clear_text sx sx1))))
 					((= key (ascii-code "v"))
 						;paste
 						(when (/= cursor anchor)
@@ -108,7 +108,7 @@
 						(unless (eql (defq data (clipboard-get)) "")
 							(unless (defq lf (find (ascii-char +char_lf) data))
 								(setq lf (length data)))
-							(setq clear_text (insert clear_text cursor (slice 0 lf data))
+							(setq clear_text (insert clear_text cursor (slice data 0 lf))
 								cursor (+ cursor lf) anchor cursor)))))
 			((/= 0 (logand mod +ev_key_mod_shift))
 				;shift key
@@ -151,7 +151,7 @@
 				(setq anchor cursor))
 			((= key +char_tab)
 				;tab
-				(setq clear_text (cat (slice 0 cursor clear_text)
+				(setq clear_text (cat (slice clear_text 0 cursor)
 						(url-ext clear_text cursor 1))
 					anchor (length clear_text) cursor anchor))
 			((= key 0x40000050)
@@ -184,7 +184,7 @@
 			(raise :text :font :label_text)
 			(defq rx (- (getf event +ev_msg_mouse_rx) (get :offset label_text)) anchor -1)
 			(while (and (<= (setq anchor (inc anchor)) (length text))
-						(> rx (first (font-glyph-bounds font (slice 0 anchor text))))))
+						(> rx (first (font-glyph-bounds font (slice text 0 anchor))))))
 			(setq anchor (max 0 (dec anchor)))
 			(lower :anchor (:cursor anchor :state -1))
 			;adjust text offset
@@ -204,7 +204,7 @@
 			(raise :text :font :label_text)
 			(defq rx (- (getf event +ev_msg_mouse_rx) (get :offset label_text)) cursor -1)
 			(while (and (<= (setq cursor (inc cursor)) (length text))
-						(> rx (first (font-glyph-bounds font (slice 0 cursor text))))))
+						(> rx (first (font-glyph-bounds font (slice text 0 cursor))))))
 			(setq cursor (max 0 (dec cursor)))
 			(lower :cursor)
 			;adjust text offset

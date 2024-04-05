@@ -28,8 +28,8 @@
 (defun debug-trunc (s w &optional d)
 	(if (> (length s) w)
 		(if d
-			(cat "... " (slice (- 3 w) -1 s))
-			(cat (slice 0 (- w 4) s) " ...")) s))
+			(cat "... " (slice s (- 3 w) -1))
+			(cat (slice s 0 (- w 4) s) " ..."))))
 
 (defun debug-sanitize (s w &optional d)
 	(if (eql s "") s
@@ -91,7 +91,7 @@
 			;valid form ?
 			(when (defq m (debug-form? e))
 				;wrap the form ?
-				(when (> m 0) (elem-set _ l
+				(when (> m 0) (elem-set l _
 					(static-qq (debug-msg ,e ,(str e) (env) ,name))))
 				;step into form
 				(push stack e))) l)) form)

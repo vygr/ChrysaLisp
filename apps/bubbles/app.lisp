@@ -31,8 +31,8 @@
 
 (defun redraw-layers (verts mask)
 	;redraw layer/s
-	(elem-set +dlist_layer1_verts dlist verts)
-	(elem-set +dlist_mask dlist (logior (elem-get +dlist_mask dlist) mask)))
+	(elem-set dlist +dlist_layer1_verts verts)
+	(elem-set dlist +dlist_mask (logior (elem-get dlist +dlist_mask) mask)))
 
 (defun vertex-cloud (num)
 	;array of random verts
@@ -47,7 +47,7 @@
 				(- (random (const (inc (* max_vel 2)))) (const max_vel)))
 			(i2n (const bubble_radius))
 			(vec-add (const (vec-f2n +base +base +base))
-				(vec-scale (elem-get (random (length +palette)) +palette)
+				(vec-scale (elem-get +palette (random (length +palette)))
 					(f2n (random (const (- 1.0 +base))))))))) out)
 
 (defun vertex-update (verts)
@@ -62,7 +62,7 @@
 			(setq vy (neg vy)))
 		(if (or (> z (const (i2n box_size))) (< z (const (i2n (neg box_size)))))
 			(setq vz (neg vz)))
-		(elem-set +vertex_v vert (vec vx vy vz))) verts))
+		(elem-set vert +vertex_v (vec vx vy vz))) verts))
 
 (defun fpoly (canvas col x y _)
 	;draw a polygon on a canvas
@@ -88,7 +88,7 @@
 		(when (> z (const (i2n focal_len)))
 			(defq v (vec x y z) w (/ hsw z) h (/ hsh z))
 			(bind '(sx sy sz) (vec-add v (vec-scale (vec-norm
-				(vec-add v (vec-sub (elem-get +dlist_light_pos dlist) v))) r)))
+				(vec-add v (vec-sub (elem-get dlist +dlist_light_pos) v))) r)))
 			(defq x (+ (* x h) hsw) y (+ (* y h) hsh) r (* r h)
 				sx (+ (* sx h) hsw) sy (+ (* sy h) hsh))
 			(push out (list (vec-n2f x y z) (vec-n2f sx sy) (n2f r)
@@ -103,19 +103,19 @@
 
 (defun redraw (dlist)
 	;redraw layer/s
-	(when (/= 0 (logand (elem-get +dlist_mask dlist) 1))
-		(defq canvas (elem-get +dlist_layer1_canvas dlist))
+	(when (/= 0 (logand (elem-get dlist +dlist_mask) 1))
+		(defq canvas (elem-get dlist +dlist_layer1_canvas))
 		(. canvas :fill 0)
 		(bind '(sw sh) (. canvas :pref_size))
 		(defq hsw (i2n (>> sw 1)) hsh (i2n (>> sh 1)))
 		(render-verts canvas
 			(sort (# (if (<= (last (first %0)) (last (first %1))) 1 -1))
-				(clip-verts hsw hsh (elem-get +dlist_layer1_verts dlist))))
+				(clip-verts hsw hsh (elem-get dlist +dlist_layer1_verts))))
 		(. canvas :swap 0))
-	(elem-set +dlist_mask dlist 0))
+	(elem-set dlist +dlist_mask 0))
 
 (defun tooltips ()
-	(def *window* :tip_mbox (elem-get +select_tip select))
+	(def *window* :tip_mbox (elem-get select +select_tip))
 	(ui-tool-tips *main_toolbar*
 		'("refresh"))
 	(ui-tool-tips *style_toolbar*
@@ -138,13 +138,13 @@
 
 	;main event loop
 	(defq last_state :u id :t)
-	(mail-timeout (elem-get +select_timer select) +rate 0)
+	(mail-timeout (elem-get select +select_timer) +rate 0)
 	(while id
-		(defq *msg* (mail-read (elem-get (defq idx (mail-select select)) select)))
+		(defq *msg* (mail-read (elem-get select (defq idx (mail-select select)))))
 		(cond
 			((= idx +select_timer)
 				;timer event
-				(mail-timeout (elem-get +select_timer select) +rate 0)
+				(mail-timeout (elem-get select +select_timer) +rate 0)
 				(vertex-update verts)
 				(redraw-layers verts 1)
 				(redraw dlist))
@@ -170,7 +170,7 @@
 			((= id +event_style)
 				;styles
 				(def (. *backdrop* :dirty) :style
-					(elem-get (. *style_toolbar* :get_selected) '(:plain :grid :axis))))
+					(elem-get '(:plain :grid :axis) (. *style_toolbar* :get_selected))))
 			((and (= id (. *layer1_canvas* :get_id))
 				(= (getf *msg* +ev_msg_type) +ev_type_mouse))
 					;mouse event in canvas
@@ -186,7 +186,7 @@
 								(:u ;was up last time
 									(setq last_state :d)))
 							;set light pos
-							(elem-set +dlist_light_pos dlist
+							(elem-set dlist +dlist_light_pos
 								(vec-i2n (* rx 4) (* ry 4) (neg (* box_size 4)))))
 						(:t ;mouse button is up
 							(case last_state

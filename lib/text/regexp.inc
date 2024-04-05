@@ -32,11 +32,11 @@
 						(setq state :esc))
 					((defq _ (is-op-char? c))
 						(output :op c)
-						(setq concat (elem-get _ (static-q (+op_cat +op_cat +op_cat :nil)))))
+						(setq concat (elem-get (static-q (+op_cat +op_cat +op_cat :nil)) _)))
 					((defq _ (is-bracket-char? c))
-						(concat? (elem-get _ (list concat +op_tac)))
-						(output (elem-get _ '(:lrb :rrb)) c)
-						(setq concat (elem-get _ (static-q (+op_tac +op_cat)))))
+						(concat? (elem-get (list concat +op_tac) _))
+						(output (elem-get '(:lrb :rrb) _) c)
+						(setq concat (elem-get (static-q (+op_tac +op_cat)) _)))
 					((is-assert-char? c)
 						(concat?)
 						(output :assert c)
@@ -127,13 +127,13 @@
 				("$" (static-q ((:nil (if (>= si tl) 1)))))
 				("!" (static-q ((:nil (if (or (<= si 0) (>= si tl)
 					(bfind s +char_class_not_whole_word)
-					(bfind (elem-get si text) +char_class_not_whole_word)) 1)))))))
+					(bfind (elem-get text si) +char_class_not_whole_word)) 1)))))))
 			(:lrb (cache (static-qq ((:nil
 				(progn (defq i (pop trace))
 					(while (<= (length trace) ,token) (push trace 0 0))
-					(elem-set ,token (push trace i) si) 1))))))
+					(elem-set (push trace i) ,token si) 1))))))
 			(:rrb (cache (static-qq ((:nil
-				(progn (elem-set ,token trace si) 1))))))
+				(progn (elem-set trace ,token si) 1))))))
 			(:op (defq a (pop stack))
 				(and (find token +op_chars) (notany (const first) a)
 					(throw "Regexp bad operator !" token))
@@ -158,7 +158,7 @@
 				;stopped, so matched somthing !
 				(if (> si end) (setq end si end_trace trace))
 				;not stopped
-				(if (first (defq elem (elem-get new_index cpat)))
+				(if (first (defq elem (elem-get cpat new_index)))
 					;not a split
 					(unless (find new_index seen)
 						(push seen new_index)
@@ -176,7 +176,7 @@
 				;stopped, so matched somthing !
 				(if (> si end) (setq end si))
 				;not stopped
-				(if (first (defq elem (elem-get new_index cpat)))
+				(if (first (defq elem (elem-get cpat new_index)))
 					;not a split
 					(unless (find new_index next) (push next new_index))
 					;a split
@@ -200,12 +200,12 @@
 (defun search (text cpat start)
 	; (search text cpat start) -> (list submatches {-1 | end})
 	(defq end -1 end_trace (array 0) tl (length text)
-		si start s (if (<= si 0) " " (elem-get (dec si) text))
+		si start s (if (<= si 0) " " (elem-get text (dec si)))
 		current (firstelem cpat (list)) seen (list) next (list))
 	(some! start -1 :nil
 		(lambda (s) (defq si (inc _))
 			;for each current trace
-			(each (# (if (eval (first (defq elem (elem-get (last %0) cpat))))
+			(each (# (if (eval (first (defq elem (elem-get cpat (last %0)))))
 				;matched text char, so insert next traces
 				(insertelem cpat next seen %0 elem))) current)
 			;swap to new traces
@@ -221,12 +221,12 @@
 (defun match (text cpat start)
 	; (match text cpat start) -> -1 | end
 	(defq end -1 tl (length text) trace (array 0)
-		si start s (if (<= si 0) " " (elem-get (dec si) text))
+		si start s (if (<= si 0) " " (elem-get text (dec si)))
 		current (firstelem-no-trace cpat (list)) next (list))
 	(some! start -1 :nil
 		(lambda (s) (defq si (inc _))
 			;for each current index
-			(each (# (if (eval (first (defq elem (elem-get %0 cpat))))
+			(each (# (if (eval (first (defq elem (elem-get cpat %0))))
 				;matched text char, so insert next index
 				(insertelem-no-trace cpat next %0 elem))) current)
 			;swap to new indexs

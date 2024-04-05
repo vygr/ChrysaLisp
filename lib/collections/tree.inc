@@ -85,7 +85,7 @@
 			((< i (length l))
 				(case type
 					((:Emap :Lmap :Fmap)
-						(bind '(k v) (elem-get i l))
+						(bind '(k v) (elem-get l i))
 						(push stack l (inc i))
 						(setq k (tree-encode k))
 						(cond
@@ -97,7 +97,7 @@
 								(write-line stream (str p "(" (first v))))
 							(:t (write-line stream (str p k " " (tree-encode v))))))
 					((:array :path)
-						(defq k (elem-get i l))
+						(defq k (elem-get l i))
 						(cond
 							((list? k)
 								;indent
@@ -106,9 +106,9 @@
 								(push stack k 1)
 								(write-line stream (str p "(" (first k))))
 							(:t	(push stack l (length l))
-								(each (# (write-line stream (cat p (slice 1 -2 (str %0)))))
-									(partition (slice 1 -1 l) 16)))))
-					(:t (defq k (elem-get i l))
+								(each (# (write-line stream (cat p (slice (str %0) 1 -2))))
+									(partition (slice l 1 -1) 16)))))
+					(:t (defq k (elem-get l i))
 						(push stack l (inc i))
 						(cond
 							((list? k)

@@ -77,17 +77,17 @@
 	(gui-update 0 0 0)
 	;init mouse widget
 	(defq *mouse* (canvas-load "apps/images/data/mice.cpm" 0))
-	(setf *mouse* +view_owner_id (elem-get +select_mouse select) 0)
+	(setf *mouse* +view_owner_id (elem-get select +select_mouse) 0)
 	(. *mouse* :set_flags +view_flag_at_front (const (+ +view_flag_solid +view_flag_at_front)))
 	(. *screen* :add_front *mouse*)
 	(mouse-type *screen* 0 0)
 	;fire up the login app and clipboard service
 	(open-child "apps/login/app.lisp" +kn_call_open)
 	(open-child "apps/clipboard/app.lisp" +kn_call_open)
-	(mail-timeout (elem-get +select_timer select) +rate 0)
+	(mail-timeout (elem-get select +select_timer) +rate 0)
 	(while *running*
 		(let* ((idx (mail-select select))
-			  (msg (mail-read (elem-get idx select))))
+			  (msg (mail-read (elem-get select idx))))
 			(cond
 				((= idx +select_main)
 					;main mailbox
@@ -118,7 +118,7 @@
 					)
 				((= idx +select_timer)
 					;timer event
-					(mail-timeout (elem-get +select_timer select) +rate 0)
+					(mail-timeout (elem-get select +select_timer) +rate 0)
 					(gui-update *mouse_x* *mouse_y* 0)
 					;dispatch events, roll up mouse motion
 					(defq last_motion :nil)
