@@ -8,13 +8,13 @@ In no particular order but to just to ensure I get thoughts down. I'll keep
 adding to this as I go along. If anybody would like to try helping out, then
 just get in touch.
 
-* add a `select_form` action to the Editor. This should select the current atom
-or matching brackets.
+* add a `select_form` and `cut_form` actions to the Editor. This should select
+the current atom or matched brackets.
 
 * canvas to support stretched or aspect correct drawing, centered, and aligned
 flags.
 
-* add default paramaters for `(slice)`.
+* add default parameters for `(slice)`.
 
 * ui-load-icon .... for button images.
 
