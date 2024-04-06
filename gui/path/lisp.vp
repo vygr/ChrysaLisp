@@ -21,9 +21,6 @@
 	(entry 'path :lisp_transform '(:r0 :r1))
 
 	(errorif-lisp-args-sig :r1 3 'error)
-	;:r0 = path object (ptr)
-	;:r1 = source path object, can be same (ptr)
-	;:r2 = m3x2 fixeds object (ptr)
 
 	(vp-push :r0 :r1)
 	(bind '(dst sp m3x2) (method-input 'path :transform))
