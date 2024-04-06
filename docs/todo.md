@@ -11,8 +11,6 @@ just get in touch.
 * add a `select_form` action to the Editor. This should select the current atom
 or matching brackets.
 
-* reorder the `(array-map-args)` mapping paramaters.
-
 * canvas to support stretched or aspect correct drawing, centered, and aligned
 flags.
 

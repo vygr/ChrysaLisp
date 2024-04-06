@@ -74,14 +74,6 @@
 		(:t (defq s (type-to-size type))
 			(assign (map (lambda (r) (list i (* s _) type)) regs) regs))))
 
-(defun array-map-args (regs pos)
-	;inputs
-	; (reg reg ...)
-	; (p1 p2 ...)
-	;outputs
-	;reordered register list
-	(reduce! 0 -1 (const elem-set) (list pos regs) (cat regs)))
-
 (defun array-bind-args (a regs)
 	;inputs
 	;array object
