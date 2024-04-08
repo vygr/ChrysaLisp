@@ -42,8 +42,7 @@
 			(:r0 canvas_edges_start) (:r0 canvas_coverage) (:r0 canvas_texture) (:r0 canvas_color)))
 		(assign '(:r0 (:r0 canvas_cx1) (:r0 canvas_cy1) (:r0 canvas_scale)) '(:r3 :r0 :r1 :r2))
 		(assign '(:r0 :r1) '((:r3 view_w) (:r3 view_h)))
-		(vp-mul-rr :r2 :r0)
-		(vp-mul-rr :r2 :r1)
+		(vp-simd vp-mul-rr '(:r2 :r2) '(:r0 :r1))
 		(assign '(:r0 :r1) '((:r3 canvas_cx1) (:r3 canvas_cy1)))
 
 		;alloc pixmap

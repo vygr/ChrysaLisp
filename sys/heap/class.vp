@@ -22,9 +22,7 @@
 	(assign '(:r1) '((:r0 hp_heap_cellsize)))
 
 	;size of block to contain these cells
-	(vpif '(:r2 <= 0))
-		(vp-cpy-cr 1 :r2)
-	(endif)
+	(vp-max-cr 1 :r2)
 	;allow for block pointer
 	(vp-add-cr hp_cell_next :r1)
 	(vp-mul-rr :r1 :r2)
