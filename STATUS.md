@@ -15,7 +15,7 @@ Introduce the lambda shortcut macro early in the `root.inc` file.
 
 `(elem-set)` and `(dim-set)` now return the target array not the value.
 
-`(elem-get)`, `(elem-set)`, `(dim-set)` and `(dim-set)` now take the target
+`(elem-get)`, `(elem-set)`, `(dim-get)` and `(dim-set)` now take the target
 array as the first argument.
 
 `(slice)` now takes the target sequence as the first argument.
