@@ -11,6 +11,9 @@ just get in touch.
 * add a `select_form` and `cut_form` actions to the Editor. This should select
 the current atom or matched brackets.
 
+* add a `jump_to_function` action to the Editor. Possibly in conjunction with a
+push/pop cursor breadcrumbs system.
+
 * canvas to support stretched or aspect correct drawing, centered, and aligned
 flags.
 
