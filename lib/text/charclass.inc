@@ -52,4 +52,4 @@
 	+char_class_word (char-class "A-Za-z0-9_")
 	+char_class_path (char-class "A-Za-z0-9_/")
 	+char_class_hex (char-class "A-Fa-f0-9")
-	+char_class_not_whole_word (char-class (cat { .,;'`()[]/\r\f\v\n\t\"} "{}")))
+	+char_class_not_whole_word (char-class " .,;'`()[]/\r\f\v\n\t\q{}"))
