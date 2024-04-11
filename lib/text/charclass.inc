@@ -7,7 +7,7 @@
 	(when (>= (length string) 1)
 		(setq string (apply (const cat) (reduce
 			(# (if (find %1 "^$!.*+?\|[]()")
-				(push %0 "\")) (push %0 %1)) string (list)))))
+				(push %0 {\})) (push %0 %1)) string (list)))))
 	string)
 
 (defun unescape (string)
@@ -21,7 +21,7 @@
 							(ascii-char 11) (ascii-char 10)
 							(ascii-char 9)(ascii-char 34))) i) %0))
 					(setq state :nil))
-				(:t (if (eql %0 "\") (setq state :\) (push out %0)))))
+				(:t (if (eql %0 {\}) (setq state :\) (push out %0)))))
 			string)
 		(setq string (apply (const cat) out)))
 	string)

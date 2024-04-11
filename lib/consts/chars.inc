@@ -53,5 +53,5 @@
 	+char_X (ascii-code "X")
 	+char_z (ascii-code "z")
 	+char_Z (ascii-code "Z")
-	+char_backslash (ascii-code "\")
+	+char_backslash (ascii-code {\})
 )
