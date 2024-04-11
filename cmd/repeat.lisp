@@ -8,7 +8,7 @@
 	options:
 		-h --help: this help info.
 		-c --count: count, defult 10.
-		
+
 	Repeat run command line.")
 (("-c" "--count")
 	,(lambda (args arg)
