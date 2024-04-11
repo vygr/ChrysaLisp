@@ -29,6 +29,7 @@
 		\f form feed
 		\v vertical tab
 		\n line feed
+		\q double quote
 		\t tab
 		\s [ \t]
 		\S [^ \r\f\v\n\t]

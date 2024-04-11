@@ -112,7 +112,7 @@
 	(defq d (list "lib/asm/asm.inc" "class/lisp/root.inc" _) p (list))
 	(each-line (lambda (_)
 		(when (and (> (length _) 10) (eql "(" (first _))
-				(<= 2 (length (defq s (split _ (const (cat " ')" (ascii-char 34) (ascii-char 13)))))) 4))
+				(<= 2 (length (defq s (split _ (const (unescape " ')\q\r"))))) 4))
 			(cond
 				((eql (setq _ (first s)) "(include")
 					(push d (abs-path (second s) file)))

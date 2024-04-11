@@ -60,6 +60,7 @@
 			(:esc
 				(case c
 					(:t (output :lit c))
+					("q" (output :lit (char-class "\q")))
 					("r" (output :lit (char-class "\r")))
 					("f" (output :lit (char-class "\f")))
 					("v" (output :lit (char-class "\v")))
