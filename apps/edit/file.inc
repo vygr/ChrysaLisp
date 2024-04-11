@@ -91,7 +91,7 @@
 	(populate-file-trees)
 	(switch-file :nil))
 
-(defun action-load-all ()
+(defun action-load-selected ()
 	(when (selection?)
 		(bind '(y y1) (select-lines))
 		(open-files (filter-array (# (/= (age %0) 0))

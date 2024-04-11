@@ -10,7 +10,7 @@
 		block bracket_left bracket_right
 		toupper tolower sort unique
 		invert comment)
-	(enum prev next scratch close_buffer close_all save save_all load_all new)
+	(enum prev next scratch close_buffer close_all save save_all load_selected new)
 	(enum global region whole_words regexp find_down find_up)
 	(enum collect collect_global replace replace_all replace_global)
 	(enum macro_playback macro_to_eof macro_global macro_record)
@@ -96,7 +96,7 @@
 
 (ui-tool-tips *buffer_toolbar*
 	'("previous" "next" "scratchpad" "close" "close all"
-	"save" "save all" "load all" "new"))
+	"save" "save all" "load selected" "new"))
 
 (ui-tool-tips *find_toolbar*
 	'("global search" "select region" "whole words"

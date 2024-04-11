@@ -278,6 +278,15 @@
 			(. this :set_cursor cx cy))
 		(. this :clear_selection))
 
+	(defmethod :top ()
+		; (. edit :top) -> edit
+		(.-> this (:set_cursor 0 0) :clear_selection))
+
+	(defmethod :bottom ()
+		; (. edit :bottom) -> edit
+		(bind '(w h) (. (get :buffer this) :get_size))
+		(.-> this (:set_cursor 0 h) :clear_selection))
+
 	(defmethod :select_all ()
 		; (. edit :select_all) -> edit
 		(bind '(w h) (. (get :buffer this) :get_size))

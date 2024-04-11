@@ -36,7 +36,7 @@
 	+event_max action-maximise
 	+event_save action-save
 	+event_save_all action-save-all
-	+event_load_all action-load-all
+	+event_load_selected action-load-selected
 	+event_new action-new
 	+event_next action-next-buffer
 	+event_prev action-prev-buffer
@@ -163,7 +163,9 @@
 	(ascii-code "{") action-scale-down
 	(ascii-code "}") action-scale-up
 	(ascii-code "[") action-left-bracket
-	(ascii-code "]") action-right-bracket)
+	(ascii-code "]") action-right-bracket
+	0x40000052 action-top
+	0x40000051 action-bottom)
 
 *recorded_actions* (list
 	action-backspace action-break action-comment action-copy action-cut
@@ -180,7 +182,8 @@
 	action-right-bracket action-right-select action-right-tab action-select-all
 	action-select-block action-select-line action-select-paragraph
 	action-select-word action-sort action-tab action-to-lower action-to-upper
-	action-trim action-undo action-unique action-up action-up-select action-split)
+	action-trim action-undo action-unique action-up action-up-select action-split
+	action-top action-bottom)
 
 *replace_actions* (list
 	action-replace action-replace-all action-replace-global)

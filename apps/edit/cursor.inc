@@ -2,6 +2,14 @@
 ; cursor actions
 ;;;;;;;;;;;;;;;;
 
+(defun action-top ()
+	(. *edit* :top)
+	(refresh))
+
+(defun action-bottom ()
+	(. *edit* :bottom)
+	(refresh))
+
 (defun action-home ()
 	(. *edit* :home)
 	(refresh))

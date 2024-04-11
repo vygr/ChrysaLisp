@@ -12,6 +12,12 @@
 (. edit :backspace) -> edit
 ```
 
+### :bottom
+
+```code
+(. edit :bottom) -> edit
+```
+
 ### :break
 
 ```code
@@ -322,6 +328,12 @@
 
 ```code
 (. edit :to_upper) -> edit
+```
+
+### :top
+
+```code
+(. edit :top) -> edit
 ```
 
 ### :underlay_ink

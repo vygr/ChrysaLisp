@@ -153,7 +153,7 @@
 						(all-files "." +file_types 2))) 20000000)))))
 		;paste into scratch buffer
 		(switch-file :nil)
-		(.-> *edit* :get_buffer (:paste results))
+		(.-> *edit* :bottom :get_buffer (:paste results))
 		(refresh)))
 
 (defun collect (&optional noclip)
@@ -177,7 +177,7 @@
 			(setq results (apply cat (join results (const `'(,(char 10))) 2)))
 			;paste into scratch buffer
 			(switch-file :nil)
-			(.-> *edit* :get_buffer (:paste results))
+			(.-> *edit* :bottom :get_buffer (:paste results))
 			(refresh))))
 
 (defun action-collect-global (whole_words regexp pattern)
@@ -188,5 +188,5 @@
 			(setq results (apply cat (join results (const `'(,(char 10))) 2)))
 			;paste into scratch buffer
 			(switch-file :nil)
-			(.-> *edit* :get_buffer (:paste results))
+			(.-> *edit* :bottom :get_buffer (:paste results))
 			(refresh))))

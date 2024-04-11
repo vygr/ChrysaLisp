@@ -116,6 +116,8 @@
 (ascii-code "}") action-scale-up
 (ascii-code "[") action-left-bracket
 (ascii-code "]") action-right-bracket
+0x40000052 action-top
+0x40000051 action-bottom
 ```
 
 ### *key_map_shift*
