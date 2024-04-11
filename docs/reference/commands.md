@@ -227,7 +227,7 @@ Usage: repeat [options] command_line
 	options:
 		-h --help: this help info.
 		-c --count: count, defult 10.
-		
+
 	Repeat run command line.
 ```
 ## rm

@@ -143,6 +143,8 @@
 
 (defun action-find-global (whole_words regexp pattern)
 	(unless (eql pattern "")
+		;flush buffers to filesystem
+		(action-save-all)
 		;find files match but not dictionaries !
 		(defq cmd (cat "grep -c -f "
 				(if whole_words "-w " "") (if regexp "-r " "")
