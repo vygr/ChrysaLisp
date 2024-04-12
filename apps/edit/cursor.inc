@@ -68,7 +68,10 @@
 
 (defun action-push ()
 	(bind '(cx cy) (. *edit* :get_cursor))
-	(push *cursor_stack* (list *current_file* cx cy)))
+	(defq pos (list *current_file* cx cy))
+	(when (or (empty? *cursor_stack*)
+			(not (eql (str (last *cursor_stack*)) (str pos))))
+		(push *cursor_stack* pos)))
 
 (defun action-pop ()
 	(when (defq pos (pop *cursor_stack*))
