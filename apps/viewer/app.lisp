@@ -164,7 +164,8 @@
 	(defq select (alloc-select +select_size)
 		*running* :t *edit* (Viewer-edit) *page_scale* 1.0 *regexp* :nil
 		*syntax* (Syntax) *whole_words* :nil *refresh_mode* (list 0)
-		*meta_map* (scatter (Fmap) :files (Fmap)) *current_file* :nil)
+		*meta_map* (scatter (Fmap) :files (Fmap)) *current_file* :nil
+		*cursor_stack* (list))
 	(.-> *edit* (:set_buffer (Buffer))
 		(:set_select_color +argb_grey6)
 		(:set_found_color +argb_grey4)

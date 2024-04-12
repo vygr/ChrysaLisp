@@ -72,7 +72,11 @@
 	(ascii-code "[") action-left-bracket
 	(ascii-code "]") action-right-bracket
 	(ascii-code "9") action-left-bracket
-	(ascii-code "0") action-right-bracket)
+	(ascii-code "0") action-right-bracket
+	(ascii-code "d") action-push
+	(ascii-code "D") action-pop
+	0x40000052 action-top
+	0x40000051 action-bottom)
 
 *find_actions* (list
 	action-find-down action-find-up))

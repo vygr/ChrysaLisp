@@ -29,6 +29,15 @@
 	(toolbar-states *find_toolbar* (list (> fy1 fy) *whole_words* *regexp* :nil :nil))
 	(refresh-display))
 
+(redefun action-pop ()
+	(when (defq pos (pop *cursor_stack*))
+		(bind '(file cx cy) pos)
+		(when (/= 0 (age file))
+			;file exists
+			(switch-file file)
+			(.-> *edit* (:set_cursor cx cy) :clear_selection)
+			(refresh))))
+
 ;;;;;;;;;;;;;;;;;;;;
 ; main edit subclass
 ;;;;;;;;;;;;;;;;;;;;

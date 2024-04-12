@@ -65,3 +65,16 @@
 (defun action-right-bracket ()
 	(. *edit* :right_bracket)
 	(refresh))
+
+(defun action-push ()
+	(bind '(cx cy) (. *edit* :get_cursor))
+	(push *cursor_stack* (list *current_file* cx cy)))
+
+(defun action-pop ()
+	(when (defq pos (pop *cursor_stack*))
+		(bind '(file cx cy) pos)
+		(when (/= 0 (age file))
+			;file exists
+			(open-file file)
+			(.-> *edit* (:set_cursor cx cy) :clear_selection)
+			(refresh))))

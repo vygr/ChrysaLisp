@@ -164,6 +164,8 @@
 	(ascii-code "}") action-scale-up
 	(ascii-code "[") action-left-bracket
 	(ascii-code "]") action-right-bracket
+	(ascii-code "d") action-push
+	(ascii-code "D") action-pop
 	0x40000052 action-top
 	0x40000051 action-bottom)
 
@@ -183,7 +185,7 @@
 	action-select-block action-select-line action-select-paragraph
 	action-select-word action-sort action-tab action-to-lower action-to-upper
 	action-trim action-undo action-unique action-up action-up-select action-split
-	action-top action-bottom)
+	action-top action-bottom action-push action-pop)
 
 *replace_actions* (list
 	action-replace action-replace-all action-replace-global)
