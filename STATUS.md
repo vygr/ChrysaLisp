@@ -4,6 +4,17 @@
 
 ------
 
+Addition of `\q` wildcard, double quote, to regexp and charclass libs.
+
+Editor and Viewer app now support `:top` and `:bottom` cursor actions. cntl-up
+and cntl-down bindings.
+
+Editor and Viewer app support for a cursor stack. cntl-d and cntl-D bindings
+for `action-push` and `action-pop`. File will reload on pop, unless they have
+been deleted.
+
+------
+
 Fix `forward.lisp` defs regexp !
 
 Introduce `(redefun)` and `(redefmacro)` ! If you are overriding an existing
