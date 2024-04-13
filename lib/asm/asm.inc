@@ -109,7 +109,7 @@
 
 (defun make-info (_)
 	;create lists of immediate dependencies and products
-	(defq d (list "lib/asm/asm.inc" "class/lisp/root.inc" _) p (list))
+	(defq d (list "lib/asm/asm.inc" "class/lisp/root.inc" "class/lisp/task.inc" _) p (list))
 	(each-line (lambda (_)
 		(when (and (> (length _) 10) (eql "(" (first _))
 				(<= 2 (length (defq s (split _ (const (unescape " ')\q\r"))))) 4))

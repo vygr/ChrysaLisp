@@ -166,7 +166,7 @@
 		(sanitize (cat
 			(all-files "." '("lisp.inc" "actions.inc") 2)
 			(all-files "./lib" '(".inc") 2)
-			'("class/lisp/root.inc"))))
+			'("class/lisp/root.inc" "class/lisp/task.inc"))))
 
 	;create classes docs
 	(each (lambda ((name pname methods info))
