@@ -133,8 +133,10 @@
 	(window-resize))
 
 (defun select-node (file)
-	;highlight selected file
-	(. *file_tree* :select file))
+	;highlight and show the selected file
+	(when (defq node (. *file_tree* :find_node file))
+		(. *file_tree* :select file)
+		(. (penv *file_tree*) :visible node)))
 
 (defun page-scale (s)
 	(n2i (* (n2f s) *page_scale*)))
