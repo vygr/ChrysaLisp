@@ -118,6 +118,8 @@
 (ascii-code "]") action-right-bracket
 (ascii-code "d") action-push
 (ascii-code "D") action-pop
+(ascii-code "e") action-load-depends
+(ascii-code "E") action-load-all-depends
 0x40000052 action-top
 0x40000051 action-bottom
 ```
