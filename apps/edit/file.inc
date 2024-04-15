@@ -106,4 +106,4 @@
 
 (defun action-load-all-depends ()
 	(action-save-all)
-	(open-files (all-file-depends (list *current_file*))))
+	(open-files (all-file-depends (list *current_file*) '())))
