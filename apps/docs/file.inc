@@ -31,14 +31,14 @@
 				(:t (while (defq line (read-line stream))
 						(push lines line))))
 			;trim and left align
-			(defq margin +max_int lines (map
-				(# (and (> margin 0) (defq m (find "(" %0))
-						(setq margin (min m margin)))
-					(trim-end %0 (ascii-char 13))) lines))
+			(defq margin +max_int lines (map (#
+				(defq line (trim %0 (ascii-char 13)))
+				(and (defq m (find "(" line)) (< m margin) (setq margin m))
+				line) lines))
 			(and (/= margin 0) (/= margin +max_int)
-				(setq lines (map
-					(# (if (> (length %0) margin) (slice lines margin -1 %0) %0)))))
+				(defq lines (map (# (slice %0 margin -1)) lines)))
 			(while (eql (last lines) "") (pop lines))
+			;embed the text
 			(each (# ((handler-func :vdu) :vdu page %0)) lines)
 			((handler-func :vdu) :vdu page "```")
 			state)))
