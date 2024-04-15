@@ -34,6 +34,29 @@
 		(if (and dir (not (find dir dirs)))
 			(push dirs dir) dirs)) paths (list)))
 
+(defun file-depends (file)
+	; (file-depends path) -> paths
+	;create list of immediate dependencies
+	(defq files (list "class/lisp/root.inc" "class/lisp/task.inc" file))
+	(each-line (lambda (line)
+		(when (and (> (length line) 8) (eql "(" (first line))
+				(<= 2 (length (defq s (split line (const (unescape " '()\q\r\t"))))) 4))
+			(cond
+				((eql (first s) "include")
+					(push files (abs-path (second s) file)))
+				((eql (first s) "import")
+					(push files (abs-path (second s) file))))))
+		(if (= (age file) 0)
+			(throw "No such file !" file)
+			(file-stream file))) files)
+
+(defun all-file-depends (&rest files)
+	; (all-file-depends path ...) -> paths
+	;create list of all dependencies
+	(each-mergeable (lambda (file)
+		(each (# (unless (find %0 files) (push files %0)))
+			(file-depends file))) files))
+
 ;module
-(export-symbols '(all-files all-dirs))
+(export-symbols '(all-files all-dirs all-file-depends file-depends))
 (env-pop)

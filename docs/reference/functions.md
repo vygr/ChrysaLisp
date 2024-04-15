@@ -54,6 +54,14 @@ parse the commands and attributes calling back to the user functions
 return all the dir paths
 ```
 
+### all-file-depends
+
+```code
+(all-file-depends path ...) -> paths
+
+create list of all dependencies
+```
+
 ### all-files
 
 ```code
@@ -243,6 +251,14 @@ cached circle generation, quantised to 1/4 pixel
 
 ```code
 (export-symbols symbols)
+```
+
+### file-depends
+
+```code
+(file-depends path) -> paths
+
+create list of immediate dependencies
 ```
 
 ### filter-array
