@@ -32,11 +32,11 @@
 						(push lines line))))
 			;trim and left align
 			(defq margin +max_int lines (map (#
-				(defq line (trim %0 (ascii-char 13)))
-				(and (defq m (find "(" line)) (< m margin) (setq margin m))
-				line) lines))
+				(setq %0 (trim %0 (ascii-char 13)))
+				(and (defq m (find "(" %0)) (setq margin (min m margin)))
+				%0) lines))
 			(and (/= margin 0) (/= margin +max_int)
-				(defq lines (map (# (slice %0 margin -1)) lines)))
+				(defq lines (map (# (slice %0 (min margin (length %0)) -1)) lines)))
 			(while (eql (last lines) "") (pop lines))
 			;embed the text
 			(each (# ((handler-func :vdu) :vdu page %0)) lines)
