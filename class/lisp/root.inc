@@ -803,9 +803,9 @@
 	; (long-to-hex-str num) -> str
 	(cat (int-to-hex-str (>> _ 32)) (int-to-hex-str (logand _ 0xffffffff))))
 
-(defun trim-start (s &optional c)
-	; (trim-start str [char]) -> str
-	(if (= (setq c (bskip (setd c " ") s 0)) 0) s (slice s c -1)))
+(defun trim-start (s &optional cls)
+	; (trim-start str [cls]) -> str
+	(if (= (setq cls (bskip (setd cls " ") s 0)) 0) s (slice s cls -1)))
 
 (defun trim-end (s &optional c)
 	; (trim-end str [char]) -> str

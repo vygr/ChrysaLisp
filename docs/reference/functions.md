@@ -1097,7 +1097,7 @@ patch stream a with stream b, write to stream c
 ### trim-start
 
 ```code
-(trim-start str [char]) -> str
+(trim-start str [cls]) -> str
 ```
 
 ### type-to-size
