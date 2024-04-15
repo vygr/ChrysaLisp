@@ -11,7 +11,10 @@
 ))
 
 (defun f0 (s &optional c)
-	(slice s (defq i (bskip (setd c " ") s 0)) -1))
+	; (trim-start str [str]) -> str
+	(defq c (if c (code c) (ascii-code " ")) i -1)
+	(while (and (/= (setq i (inc i)) (length s)) (eql (code s 1 i) c)))
+	(slice s i -1))
 
 (defun f1 (s &optional c)
 	(if (= (defq i (bskip (setd c " ") s 0)) 0) s (slice s i -1)))
