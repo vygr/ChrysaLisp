@@ -809,9 +809,8 @@
 
 (defun trim-end (s &optional c)
 	; (trim-end str [char]) -> str
-	(defq c (if c (code c) (ascii-code " ")) i (length s))
-	(while (and (/= (setq i (dec i)) -1) (eql (code s 1 i) c)))
-	(slice s 0 (inc i)))
+	(setd c " ")
+	(while (eql (last s) c) (setq s (slice s 0 -2))) s)
 
 (defun trim (s &optional c)
 	; (trim str [char]) -> str

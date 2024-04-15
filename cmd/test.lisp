@@ -11,13 +11,13 @@
 ))
 
 (defun f0 (s &optional c)
-	; (trim-start str [str]) -> str
-	(defq c (if c (code c) (ascii-code " ")) i -1)
-	(while (and (/= (setq i (inc i)) (length s)) (eql (code s 1 i) c)))
-	(slice s i -1))
+	(defq c (if c (code c) (ascii-code " ")) i (length s))
+	(while (and (/= (setq i (dec i)) -1) (eql (code s 1 i) c)))
+	(slice s 0 (inc i)))
 
 (defun f1 (s &optional c)
-	(if (= (setq c (bskip (setd c " ") s 0)) 0) s (slice s c -1)))
+	(setd c " ")
+	(while (eql (last s) c) (setq s (slice s 0 -2))) s)
 
 (defmacro time-it (name cnt &rest _)
 	`(progn
@@ -33,9 +33,9 @@
 	(when (and
 			(defq stdio (create-stdio))
 			(defq args (options stdio usage)))
-		(defq s "t!" c 10000000)
-		(time-it "f0" c (f0 s (ascii-char 13)))
-		(time-it "f1" c (f1 s (ascii-char 13)))
-		(time-it "f0" c (f0 s (ascii-char 13)))
-		(time-it "f1" c (f1 s (ascii-char 13)))
+		(defq s "   tttttttttdtdtdtdtdtdtdtdtdtdtdtdtdtdtdtdtdtdtdtdtdtd!" c 10000000)
+		(time-it "f0" c (f0 s " "))
+		(time-it "f1" c (f1 s " "))
+		(time-it "f0" c (f0 s " "))
+		(time-it "f1" c (f1 s " "))
 		))
