@@ -804,19 +804,17 @@
 	(cat (int-to-hex-str (>> _ 32)) (int-to-hex-str (logand _ 0xffffffff))))
 
 (defun trim-start (s &optional c)
-	; (trim-start str [str]) -> str
-	(defq c (if c (code c) (ascii-code " ")) i -1)
-	(while (and (/= (setq i (inc i)) (length s)) (eql (code s 1 i) c)))
-	(slice s i -1))
+	; (trim-start str [char]) -> str
+	(if (= (defq i (bskip (setd c " ") s 0)) 0) s (slice s i -1)))
 
 (defun trim-end (s &optional c)
-	; (trim-end str [str]) -> str
+	; (trim-end str [char]) -> str
 	(defq c (if c (code c) (ascii-code " ")) i (length s))
 	(while (and (/= (setq i (dec i)) -1) (eql (code s 1 i) c)))
 	(slice s 0 (inc i)))
 
 (defun trim (s &optional c)
-	; (trim str [str]) -> str
+	; (trim str [char]) -> str
 	(trim-start (trim-end s c) c))
 
 (defun pad (v c &optional f)
