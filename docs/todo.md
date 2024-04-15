@@ -8,6 +8,10 @@ In no particular order but to just to ensure I get thoughts down. I'll keep
 adding to this as I go along. If anybody would like to try helping out, then
 just get in touch.
 
+* `bskip-rev` and `bskipn-rev` primitives should be added, trim-end should use
+them to maximize the line read function speed and bring the API into line with
+the split function.
+
 * add a `select_form` and `cut_form` actions to the Editor. This should select
 the current atom or matched brackets.
 
