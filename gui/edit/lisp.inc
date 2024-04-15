@@ -417,7 +417,7 @@
 					(.-> buffer (:insert line) :break))
 				(.-> buffer :get_syntax (:text_flow
 					(split (.-> buffer (:set_cursor 0 y) (:cut 0 y1))
-						(const (cat " " (ascii-char +char_lf))))
+						(const (char-class " \n\r")))
 					(. buffer :get_wrap_width))))
 			(bind '(x y) (. buffer :get_cursor))
 			(bind '(x y) (. buffer :constrain x (inc y)))
@@ -432,7 +432,7 @@
 					(task-slice)
 					(.-> buffer (:insert line) :break))
 				(split (.-> buffer (:set_cursor 0 y) (:cut 0 y1))
-					(const (cat " " (ascii-char +char_lf)))))
+					(const (char-class " \n\r"))))
 			(bind '(x y) (. buffer :get_cursor))
 			(bind '(x y) (. buffer :constrain x (inc y)))
 			(.-> this (:set_cursor x y) (:set_anchor x y)))

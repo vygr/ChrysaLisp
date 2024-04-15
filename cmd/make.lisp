@@ -63,7 +63,7 @@
 						(push (last docs) (slice line (inc (find ";" line)) -1))
 						(setq state :x)))
 				(when (and (eql state :x) (>= (length line) 9))
-					(defq s (split line (unescape { ()'\t\r\""})) _ (first s))
+					(defq s (split line (const (char-class { ()'\t\r\q}))) _ (first s))
 					(cond
 						((eql _ "include")
 							(make-merge *imports* (list (abs-path (second s) file))))
@@ -132,7 +132,7 @@
 							(push info (trim-start (trim-end line ")") (ascii-char 9)))
 							(setq line :nil))
 						((setq state :nil))))
-				(:t (defq words (split line (const (unescape " ()'\t\r"))) line :nil)
+				(:t (defq words (split line (const (char-class " ()'\t\r"))) line :nil)
 					(when (>= (length words) 2)
 						(defq type (first words) name (second words))
 						(unless (or (some (# (eql name %0))

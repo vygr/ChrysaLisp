@@ -913,7 +913,9 @@ adjust text offset
 ### split
 
 ```code
-(split seq sseq) -> seqs
+(split seq cls) -> seqs
+
+split a string with a char class sequence
 ```
 
 ### start

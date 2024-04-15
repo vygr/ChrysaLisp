@@ -40,7 +40,7 @@
 	(defq files (list file))
 	(each-line (lambda (line)
 		(when (and (> (length line) 8) (eql "(" (first line))
-				(<= 2 (length (defq s (split line (const (unescape " '()\q\r\t"))))) 4))
+				(<= 2 (length (defq s (split line (const (char-class " '()\q\r\t"))))) 4))
 			(cond
 				((eql (first s) "include")
 					(push files (abs-path (second s) file)))

@@ -43,13 +43,13 @@
 		(:t (throw "Unknown # val !" val))))
 
 (defun read-rgb (val)
-	(bind '(r g b) (map (const str-to-num) (slice (split val "(), ") 1 4)))
+	(bind '(r g b) (map (const str-to-num) (slice (split val (const (char-class "(), "))) 1 4)))
 	(+ +argb_black (<< r 16) (<< g 8) b))
 
 (defun read-transform (entry val)
 	(defq stack (reverse (split val ")")) ma (. entry :find "transform"))
 	(while (defq transform (pop stack))
-		(defq args (split transform (const (cat "(, " (ascii-char 9) (ascii-char 10))))
+		(defq args (split transform (const (char-class "(, \t\n")))
 			key (first args)
 			vals (map (# (n2f (str-to-num %0))) (rest args))
 			mb (case key
@@ -87,9 +87,9 @@
 			"width" "height" "stroke-width" "fill-opacity" "stroke-opacity")
 			(n2f (str-to-num val)))
 		("viewBox"
-			(map (# (n2f (str-to-num %0))) (split val ", ")))
+			(map (# (n2f (str-to-num %0))) (split val (const (char-class ", ")))))
 		("points"
-			(reduce (# (push %0 (n2f (str-to-num %1)))) (split val ", ") (path)))
+			(reduce (# (push %0 (n2f (str-to-num %1)))) (split val (const (char-class ", "))) (path)))
 		("transform"
 			(read-transform entry val))
 		(("stroke" "fill")

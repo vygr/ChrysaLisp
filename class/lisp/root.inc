@@ -564,12 +564,13 @@
 	(if (= (logand mode 2) 0) (each (lambda (x) (pop out)) seq))
 	(apply (const cat) out))
 
-(defun split (seq sseq)
-	; (split seq sseq) -> seqs
+(defun split (seq cls)
+	; (split seq cls) -> seqs
+	; split a string with a char class sequence
 	(defq i :nil out (list))
 	(each (# (if i
-		(when (find %0 sseq) (push out (slice seq i _)) (setq i :nil))
-		(unless (find %0 sseq) (setq i _)))) seq)
+		(when (bfind %0 cls) (push out (slice seq i _)) (setq i :nil))
+		(unless (bfind %0 cls) (setq i _)))) seq)
 	(if i (push out (slice seq i -1)) out))
 
 (defun unzip (seq cnt)
