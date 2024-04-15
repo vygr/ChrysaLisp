@@ -99,3 +99,9 @@
 				(split (.-> (. *edit* :get_buffer)
 					(:set_cursor 0 y1)
 					(:copy 0 y)) (ascii-char +char_lf))))))))
+
+(defun action-load-depends ()
+	(open-files (file-depends *current_file*)))
+
+(defun action-load-all-depends ()
+	(open-files (all-file-depends *current_file*)))
