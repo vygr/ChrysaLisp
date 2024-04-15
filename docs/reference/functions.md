@@ -1085,19 +1085,19 @@ patch stream a with stream b, write to stream c
 ### trim
 
 ```code
-(trim str [str]) -> str
+(trim str [char]) -> str
 ```
 
 ### trim-end
 
 ```code
-(trim-end str [str]) -> str
+(trim-end str [char]) -> str
 ```
 
 ### trim-start
 
 ```code
-(trim-start str [str]) -> str
+(trim-start str [char]) -> str
 ```
 
 ### type-to-size
