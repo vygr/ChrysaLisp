@@ -57,9 +57,9 @@ return all the dir paths
 ### all-file-depends
 
 ```code
-(all-file-depends paths &optional imp) -> paths
+(all-file-depends paths &optional imps) -> paths
 
-create list of all dependencies, with implicte option
+create list of all dependencies, with implicit options
 ```
 
 ### all-files

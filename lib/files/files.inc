@@ -50,13 +50,13 @@
 			(throw "No such file !" file)
 			(file-stream file))) files)
 
-(defun all-file-depends (files &optional imp)
-	; (all-file-depends paths &optional imp) -> paths
-	;create list of all dependencies, with implicte option
+(defun all-file-depends (files &optional imps)
+	; (all-file-depends paths &optional imps) -> paths
+	;create list of all dependencies, with implicit options
 	(setq files (unique (sort (const cmp) (cat files))))
-	(when imp
+	(when imps
 		(each (# (unless (find %0 files) (push files %0)))
-			(list "class/lisp/root.inc" "class/lisp/task.inc")))
+			(cat (list "class/lisp/root.inc" "class/lisp/task.inc") imps)))
 	(each-mergeable (lambda (file)
 		(each (# (unless (find %0 files) (push files %0)))
 			(file-depends file))) files))
