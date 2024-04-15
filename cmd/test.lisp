@@ -17,7 +17,7 @@
 	(slice s i -1))
 
 (defun f1 (s &optional c)
-	(if (= (defq i (bskip (setd c " ") s 0)) 0) s (slice s i -1)))
+	(if (= (setq c (bskip (setd c " ") s 0)) 0) s (slice s c -1)))
 
 (defmacro time-it (name cnt &rest _)
 	`(progn

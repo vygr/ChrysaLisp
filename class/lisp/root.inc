@@ -805,7 +805,7 @@
 
 (defun trim-start (s &optional c)
 	; (trim-start str [char]) -> str
-	(if (= (defq i (bskip (setd c " ") s 0)) 0) s (slice s i -1)))
+	(if (= (setq c (bskip (setd c " ") s 0)) 0) s (slice s c -1)))
 
 (defun trim-end (s &optional c)
 	; (trim-end str [char]) -> str
