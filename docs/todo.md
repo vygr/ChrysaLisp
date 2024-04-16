@@ -12,9 +12,6 @@ just get in touch.
 them to maximize the line read function speed and bring the API into line with
 the split function.
 
-* make the trim functions and the split function default to the
-`+char_class_whitespace` splitter string ! Rather than " ".
-
 * add a `select_form` and `cut_form` actions to the Editor. This should select
 the current atom or matched brackets.
 
