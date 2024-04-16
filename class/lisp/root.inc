@@ -564,15 +564,6 @@
 	(if (= (logand mode 2) 0) (each (lambda (x) (pop out)) seq))
 	(apply (const cat) out))
 
-(defun split (seq cls)
-	; (split seq cls) -> seqs
-	; split a string with a char class sequence
-	(defq i :nil out (list))
-	(each (# (if i
-		(when (bfind %0 cls) (push out (slice seq i _)) (setq i :nil))
-		(unless (bfind %0 cls) (setq i _)))) seq)
-	(if i (push out (slice seq i -1)) out))
-
 (defun unzip (seq cnt)
 	; (unzip seq cnt) -> seqs
 	(map (# (if (= (length %0) 0) (slice seq 0 0) (apply (const cat) %0)))
@@ -806,16 +797,23 @@
 
 (defun trim-start (s &optional cls)
 	; (trim-start str [cls]) -> str
-	(if (= (setq cls (bskip (setd cls " ") s 0)) 0) s (slice s cls -1)))
+	(if (= (setq cls (bskip (opt cls " ") s 0)) 0) s (slice s cls -1)))
 
-(defun trim-end (s &optional c)
-	; (trim-end str [char]) -> str
-	(setd c " ")
-	(while (eql (last s) c) (setq s (slice s 0 -2))) s)
+(defun trim-end (s &optional cls)
+	; (trim-end str [cls]) -> str
+	(setd cls " ")
+	(while (bfind (last s) cls) (setq s (slice s 0 -2))) s)
 
-(defun trim (s &optional c)
-	; (trim str [char]) -> str
-	(trim-start (trim-end s c) c))
+(defun trim (s &optional cls)
+	; (trim str [cls]) -> str
+	(trim-start (trim-end s cls) cls))
+
+(defun split (s &optional cls)
+	; (split str [cls]) -> strs
+	(defq i 0 out (list) l (length s) cls (opt cls " "))
+	(while (< i l)
+		(if (/= (defq j (bskip cls s i)) i) (setq i j))
+		(if (/= (defq j (bskipn cls s i)) i) (push out (slice s i (setq i j))))) out)
 
 (defun pad (v c &optional f)
 	; (pad form width [str]) -> str

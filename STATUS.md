@@ -20,7 +20,8 @@ Editor now has key bindings for `(action-load-depends)` and
 `(action-load-all-depends)` on cntl-e and cntl-E. Acts on the current file as
 the source for the action.
 
-`(split)` function now takes a charclass as the splitting string !
+`(split)`, `(trim)`, `(trim-start)` and `(trim-end)` functions now takes an
+optional char-class as the split/trim string !
 
 ------
 

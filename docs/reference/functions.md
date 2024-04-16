@@ -913,9 +913,7 @@ adjust text offset
 ### split
 
 ```code
-(split seq cls) -> seqs
-
-split a string with a char class sequence
+(split str [cls]) -> strs
 ```
 
 ### start
@@ -1087,13 +1085,13 @@ patch stream a with stream b, write to stream c
 ### trim
 
 ```code
-(trim str [char]) -> str
+(trim str [cls]) -> str
 ```
 
 ### trim-end
 
 ```code
-(trim-end str [char]) -> str
+(trim-end str [cls]) -> str
 ```
 
 ### trim-start
