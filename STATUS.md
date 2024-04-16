@@ -859,7 +859,7 @@ main `(task-netid)`.
 Truncate error report `Obj:` field to 256 characters.
 
 Enhanced error reports, including Lisp stack frame, files and line numbers. To
-opt in to this extra tracking add `(import 'lib/debug/frames.inc)` to the top
+opt in to this extra tracking add `(import "lib/debug/frames.inc")` to the top
 of your application.
 
 ------

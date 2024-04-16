@@ -112,22 +112,20 @@
 	(defq d (list "lib/asm/asm.inc" "class/lisp/root.inc" "class/lisp/task.inc" _) p (list))
 	(each-line (lambda (_)
 		(when (and (> (length _) 10) (eql "(" (first _))
-				(<= 2 (length (defq s (split _ (const (char-class " ')\q\r"))))) 4))
-			(cond
-				((eql (setq _ (first s)) "(include")
+				(<= 2 (length (defq s (split _ (const (char-class " '()\q\r"))))) 4))
+			(case (first s)
+				(("include" "import")
 					(push d (abs-path (second s) file)))
-				((eql _ "(import")
-					(push d (abs-path (second s) file)))
-				((eql _ "(def-method")
+				("def-method"
 					(push p (f-path (sym (second s)) (sym (third s)))))
-				((eql _ "(gen-vtable")
+				("gen-vtable"
 					(push p (f-path (sym (second s)) :vtable)))
-				((eql _ "(gen-type")
+				("gen-type"
 					(push p (f-path (sym (second s)) :type)))
-				((eql _ "(gen-create")
+				("gen-create"
 					(push p (f-path (sym (second s))
 						(if (> (length s) 2) (sym (cat :create_ (third s))) :create))))
-				((eql _ "(def-func")
+				("def-func"
 					(push p (sym (second s)))))))
 		(if (= (age _) 0)
 			(throw "No such file !" _)
