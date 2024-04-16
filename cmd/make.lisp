@@ -63,7 +63,7 @@
 						(push (last docs) (slice line (inc (find ";" line)) -1))
 						(setq state :x)))
 				(when (and (eql state :x) (>= (length line) 9))
-					(defq s (split line (const (char-class { ()'\t\r\q}))) _ (first s))
+					(defq s (split line (const (char-class " ()'\t\r\q"))) _ (first s))
 					(cond
 						((eql _ "include")
 							(make-merge *imports* (list (abs-path (second s) file))))
