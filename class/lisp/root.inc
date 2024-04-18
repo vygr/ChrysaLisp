@@ -10,17 +10,17 @@
 ; (ffi quasi-quote "class/lisp/lisp_qquote" 1)
 
 (ffi = "class/num/lisp_eq" 0)
-; (= num num ...) -> num
+; (= num num ...) -> :t | :nil
 (ffi /= "class/num/lisp_ne" 0)
-; (/= num num ...) -> num
+; (/= num num ...) -> :t | :nil
 (ffi < "class/num/lisp_lt" 0)
-; (< num num ...) -> num
+; (< num num ...) -> :t | :nil
 (ffi > "class/num/lisp_gt" 0)
-; (> num num ...) -> num
+; (> num num ...) -> :t | :nil
 (ffi <= "class/num/lisp_le" 0)
-; (<= num num ...) -> num
+; (<= num num ...) -> :t | :nil
 (ffi >= "class/num/lisp_ge" 0)
-; (>= num num ...) -> num
+; (>= num num ...) -> :t | :nil
 
 (ffi + "class/num/lisp_add" 0)
 ; (+ num num ...) -> num
