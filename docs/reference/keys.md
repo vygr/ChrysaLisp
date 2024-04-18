@@ -120,6 +120,8 @@
 (ascii-code "D") action-pop
 (ascii-code "e") action-load-depends
 (ascii-code "E") action-load-all-depends
+(ascii-code "j") action-find-function
+(ascii-code "J") action-pop
 0x40000052 action-top
 0x40000051 action-bottom
 ```
