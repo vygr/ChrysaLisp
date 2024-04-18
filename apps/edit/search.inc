@@ -205,7 +205,8 @@
 				(when (and (> (length line) 10) (eql "(" (first line))
 						(>= (length (defq s (split line (const (char-class " ()\r\t"))))) 2))
 					(case (first s)
-						(("defun" "defmacro" "redefun" "redefmacro" "defclass")
+						(("defun" "defmacro" "redefun"
+							"redefmacro" "defclass" "ffi")
 							(if (eql (second s) name)
 								(setq pos (list file 0 _)))))))
 				(file-stream file)) pos)
