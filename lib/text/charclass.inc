@@ -19,7 +19,7 @@
 						(elem-get (static-q
 							((ascii-char 13) (ascii-char 12)
 							(ascii-char 11) (ascii-char 10)
-							(ascii-char 9)(ascii-char 34))) i) %0))
+							(ascii-char 9) (ascii-char 34))) i) %0))
 					(setq state :nil))
 				(:t (if (eql %0 {\}) (setq state :\) (push out %0)))))
 			string)
