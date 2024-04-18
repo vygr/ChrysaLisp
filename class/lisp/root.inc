@@ -10,58 +10,106 @@
 ; (ffi quasi-quote "class/lisp/lisp_qquote" 1)
 
 (ffi = "class/num/lisp_eq" 0)
+; (= num num ...) -> num
 (ffi /= "class/num/lisp_ne" 0)
+; (/= num num ...) -> num
 (ffi < "class/num/lisp_lt" 0)
+; (< num num ...) -> num
 (ffi > "class/num/lisp_gt" 0)
+; (> num num ...) -> num
 (ffi <= "class/num/lisp_le" 0)
+; (<= num num ...) -> num
 (ffi >= "class/num/lisp_ge" 0)
+; (>= num num ...) -> num
 
 (ffi + "class/num/lisp_add" 0)
+; (+ num num ...) -> num
 (ffi - "class/num/lisp_sub" 0)
+; (- num num ...) -> num
 (ffi * "class/num/lisp_mul" 0)
+; (* num num ...) -> num
 (ffi / "class/num/lisp_div" 0)
+; (/ num num ...) -> num
 (ffi % "class/num/lisp_mod" 0)
+; (% num num ...) -> num
 (ffi min "class/num/lisp_min" 0)
+; (min num num ...) -> num
 (ffi max "class/num/lisp_max" 0)
+; (max num num ...) -> num
 (ffi neg "class/num/lisp_neg" 0)
+; (neg num) -> num
 (ffi abs "class/num/lisp_abs" 0)
+; (abs num) -> num
 
 (ffi n2i "class/num/lisp_n2i" 0)
+; (n2i num) -> num
 (ffi n2f "class/num/lisp_n2f" 0)
+; (n2f num) -> fixed
 (ffi n2r "class/num/lisp_n2r" 0)
+; (n2r num) -> real
 (ffi random "class/num/lisp_random" 0)
+; (random num) -> num
 (ffi num-intern "class/num/lisp_intern" 0)
+; (num-intern num) -> num
 
 (ffi >> "class/num/lisp_shr" 0)
+; (>> num cnt) -> num
 (ffi >>> "class/num/lisp_asr" 0)
+; (>>> num cnt) -> num
 (ffi << "class/num/lisp_shl" 0)
+; (<< num cnt) -> num
 (ffi logand "class/num/lisp_and" 0)
+; (logand [num] ...) -> num
 (ffi logior "class/num/lisp_or" 0)
+; (logior [num] ...) -> num
 (ffi logxor "class/num/lisp_xor" 0)
+; (logxor [num] ...) -> num
 
 (ffi length "class/seq/lisp_length" 0)
+; (length seq) -> num
 (ffi elem-get "class/seq/lisp_eget" 0)
+; (elem-get seq idx) -> elem
 (ffi first "class/seq/lisp_first" 0)
+; (first seq) -> :nil | elem
 (ffi second "class/seq/lisp_second" 0)
+; (second seq) -> :nil | elem
 (ffi third "class/seq/lisp_third" 0)
+; (third seq) -> :nil | elem
 (ffi last "class/seq/lisp_last" 0)
+; (last seq) -> :nil | elem
 (ffi rest "class/seq/lisp_rest" 0)
+; (rest seq) -> empty | seq
 (ffi most "class/seq/lisp_most" 0)
+; (most seq) -> empty | seq
 (ffi find "class/seq/lisp_find" 0)
+; (find elem seq [idx]) -> :nil | idx
 (ffi find-rev "class/seq/lisp_rfind" 0)
+; (find-rev elem seq [idx]) -> :nil | idx
 (ffi slice "class/seq/lisp_slice" 0)
+; (slice seq start end) -> seq
 (ffi partition "class/seq/lisp_partition" 0)
+; (partition seq [cnt]) -> (seq ...)
 (ffi cat "class/seq/lisp_cat" 0)
+; (cat seq ...) -> seq
 (ffi each! "class/seq/lisp_each" 0)
+; (each! start end lambda seqs)
 (ffi some! "class/seq/lisp_some" 0)
+; (some! start end mode lambda seqs) -> :nil | val
 (ffi map! "class/seq/lisp_map" 0)
+; (map! start end lambda seqs [out]) -> out | (...)
 (ffi reduce! "class/seq/lisp_reduce" 0)
+; (reduce! start end lambda seqs init) -> val
 
 (ffi cap "class/array/lisp_cap" 0)
+; (cap len array ...) -> array
 (ffi clear "class/array/lisp_clear" 0)
+; (clear array ...) -> array
 (ffi push "class/array/lisp_push" 0)
+; (push array elem ...) -> array
 (ffi pop "class/array/lisp_pop" 0)
+; (push array elem ...) -> array
 (ffi elem-set "class/array/lisp_eset" 0)
+; (elem-set array idx val) -> array
 
 (ffi merge-obj "class/list/lisp_merge" 0)
 (ffi pivot "class/list/lisp_pivot" 0)
@@ -755,7 +803,7 @@
 		(map (# (- %0 (code "A") -10)) (range (code "A") (inc (code "Z")))) ;10-35
 		(map (# (logior %0 -1)) (range (inc (code "Z")) (code "a")))        ;-1
 		(map (# (- %0 (code "a") -10)) (range (code "a") (inc (code "z")))) ;10-35
-		(map (# (logior %0 -1)) (range (inc (code "z")) 256)))))))			;-1
+		(map (# (logior %0 -1)) (range (inc (code "z")) 256)))))))          ;-1
 		(code _)))
 
 (defun num-to-char (_)

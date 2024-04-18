@@ -8,7 +8,7 @@
 
 ### (each! start end lambda seqs)
 
-### (elem-get seq index)
+### (elem-get seq idx)
 
 ### (find elem seq [idx])
 

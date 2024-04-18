@@ -48,8 +48,8 @@ To discover the length of a sequence, use the `(length seq)` function:
 (length "ABCDEF")
 ```
 
-Extraction of a single element with `(elem-get seq index)`. Negative indexes
-mean to index from the back of the sequence ! Very useful !
+Extraction of a single element with `(elem-get seq idx)`. Negative indexes mean
+to index from the back of the sequence ! Very useful !
 
 ```lisp
 (elem-get "abcd" 1)

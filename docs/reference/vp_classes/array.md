@@ -18,11 +18,11 @@
 
 ### (pop array)
 
-### (push array form ...)
+### (push array elem ...)
 
 ### (reals [num ...])
 
-### (elem-set array index val)
+### (elem-set array idx val)
 
 ## VP methods
 
