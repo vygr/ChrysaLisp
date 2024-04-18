@@ -753,10 +753,10 @@
 
 (errorcase
 (vp-label 'error1)
-	(jump 'lisp :repl_error {this, "(some! start end mode lambda seqs)", +error_msg_wrong_types, args})
+	(jump 'lisp :repl_error {this, "(some! start end mode lambda seqs)", +error_msg_wrong_types, seqs})
 (vp-label 'error2)
 	(call 'obj :deref {value})
-	(jump 'lisp :repl_error {this, "(some! start end mode lambda seqs)", +error_msg_not_valid_index, args})
+	(jump 'lisp :repl_error {this, "(some! start end mode lambda seqs)", +error_msg_not_valid_index, seqs})
 	(signature '(num num obj obj list)))
 
 	(pop-scope-syms)
