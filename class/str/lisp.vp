@@ -464,7 +464,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump 'lisp :repl_error `(,this "(bfind char ccls)" +error_msg_wrong_types ,args))
+	(jump 'lisp :repl_error `(,this "(bfind char cls)" +error_msg_wrong_types ,args))
 	(signature '(str str)))
 
 (def-func-end)
@@ -532,7 +532,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump 'lisp :repl_error `(,this "(bskip ccls str idx)" +error_msg_wrong_types ,args))
+	(jump 'lisp :repl_error `(,this "(bskip cls str idx)" +error_msg_wrong_types ,args))
 	(signature '(str str num)))
 
 (def-func-end)
@@ -597,7 +597,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump 'lisp :repl_error `(,this "(bskipn ccls str idx)" +error_msg_wrong_types ,args))
+	(jump 'lisp :repl_error `(,this "(bskipn cls str idx)" +error_msg_wrong_types ,args))
 	(signature '(str str num)))
 
 (def-func-end)

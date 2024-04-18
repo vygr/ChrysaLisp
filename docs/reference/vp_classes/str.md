@@ -4,11 +4,11 @@
 
 ## Lisp Bindings
 
-### (bfind char ccls)
+### (bfind char cls)
 
-### (bskip ccls str idx)
+### (bskip cls str idx)
 
-### (bskipn ccls str idx)
+### (bskipn cls str idx)
 
 ### (char num [width])
 
