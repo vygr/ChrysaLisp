@@ -23,6 +23,9 @@ the source for the action.
 `(split)`, `(trim)`, `(trim-start)` and `(trim-end)` functions now takes an
 optional char-class as the split/trim string !
 
+Editor `(action-find-function)` binding on cntl-j, with `(action-pop)` on
+cntl-J for convenience.
+
 ------
 
 Fix `forward.lisp` defs regexp !
