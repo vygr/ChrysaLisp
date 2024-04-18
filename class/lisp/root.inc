@@ -151,16 +151,27 @@
 ; (gensym) -> sym
 
 (ffi defq "class/hmap/lisp_defq" 1)
+; (defq sym val [sym val] ...) -> val
 (ffi setq "class/hmap/lisp_setq" 1)
+; (setq sym val [sym val] ...) -> val
 (ffi def "class/hmap/lisp_def" 0)
+; (def env sym val [sym val] ...) -> val
 (ffi set "class/hmap/lisp_set" 0)
+; (set env sym val [sym val] ...) -> val
 (ffi get "class/hmap/lisp_get" 0)
+; (get sym [env]) -> :nil | val
 (ffi def? "class/hmap/lisp_defx" 0)
+; (def? sym [env]) -> :nil | val
 (ffi undef "class/hmap/lisp_undef" 0)
+; (undef env sym [sym] ...) -> env
 (ffi env "class/hmap/lisp_env" 0)
+; (env [num]) -> env
 (ffi penv "class/hmap/lisp_penv" 0)
+; (penv [env]) -> :nil | env
 (ffi env-resize "class/hmap/lisp_resize" 0)
+; (env-resize num [env]) -> env
 (ffi tolist "class/hmap/lisp_tolist" 0)
+; (tolist env) -> ((sym val) ...)
 
 (ffi io-stream "class/stream/lisp_iostream" 0)
 (ffi string-stream "class/stream/lisp_sstream" 0)
