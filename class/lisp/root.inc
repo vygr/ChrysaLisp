@@ -112,25 +112,43 @@
 ; (elem-set array idx val) -> array
 
 (ffi merge-obj "class/list/lisp_merge" 0)
+; (merge-obj dlist slist) -> dlist
 (ffi pivot "class/list/lisp_pivot" 0)
+; (pivot lambda list start end)
 (ffi lmatch? "class/list/lisp_match" 0)
+; (lmatch? list list) -> :nil | :t
 (ffi copy "class/list/lisp_copy" 0)
+; (copy form) -> 'form
 
 (ffi str "class/str/lisp_str" 0)
+; (str form) -> str
 (ffi str-to-num "class/str/lisp_tonum" 0)
+; (str-to-num str) -> num
 (ffi expand "class/str/lisp_expand" 0)
+; (expand str tab_width) -> str
 (ffi char "class/str/lisp_char" 0)
+; (char num [width]) -> str
 (ffi code "class/str/lisp_code" 0)
+; (code str [width index]) -> num
 (ffi cmp "class/str/lisp_cmp" 0)
+; (cmp str str) -> + | 0 | -
 (ffi save "class/str/lisp_save" 0)
+; (save str path) -> str
 (ffi load "class/str/lisp_load" 0)
+; (load path) -> str
 (ffi str-alloc "class/str/lisp_create" 0)
+; (str-alloc size) -> str
 (ffi bfind "class/str/lisp_bfind" 0)
+; (bfind char cls) -> :nil | idx
 (ffi bskip "class/str/lisp_bskip" 0)
+; (bskip cls str idx) -> idx
 (ffi bskipn "class/str/lisp_bskipn" 0)
+; (bskipn cls str idx) -> idx
 
 (ffi sym "class/sym/lisp_sym" 0)
+; (sym str) -> sym
 (ffi gensym "class/sym/lisp_gensym" 0)
+; (gensym) -> sym
 
 (ffi defq "class/hmap/lisp_defq" 1)
 (ffi setq "class/hmap/lisp_setq" 1)
