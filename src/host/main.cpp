@@ -64,7 +64,6 @@ int main(int argc, char *argv[])
 						int64_t* stack = (int64_t*)pii_mmap(VP64_STACK_SIZE, -1, mmap_data);
 						if (stack)
 						{
-							std::cout << "ChrysaLisp vp64 emulator v0.1" << std::endl;
 						#ifdef _HOST_GUI
 							ret_val = vp64((uint8_t*)data, (int64_t*)((char*)stack + VP64_STACK_SIZE), (int64_t*)argv, (int64_t*)host_os_funcs, (int64_t*)host_gui_funcs);
 						#else
