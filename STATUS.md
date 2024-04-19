@@ -26,6 +26,9 @@ optional char-class as the split/trim string !
 Editor `(action-find-function)` binding on cntl-j, with `(action-pop)` on
 cntl-J for convenience.
 
+Slowly but surely adding the usage lines for all the `ffi` bindings. This is
+particularly important now we have the jump to function, push/pop actions.
+
 ------
 
 Fix `forward.lisp` defs regexp !
