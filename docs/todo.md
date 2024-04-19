@@ -8,6 +8,8 @@ In no particular order but to just to ensure I get thoughts down. I'll keep
 adding to this as I go along. If anybody would like to try helping out, then
 just get in touch.
 
+* Finish off the usage specs for all the `ffi` bindings.
+
 * `bskip-rev` and `bskipn-rev` primitives should be added.
 
 * add a `select_form` and `cut_form` actions to the Editor. This should select
