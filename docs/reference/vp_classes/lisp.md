@@ -38,7 +38,7 @@
 
 ### (throw str form)
 
-### (while tst body)
+### (while tst [body])
 
 ## VP methods
 
