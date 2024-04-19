@@ -109,7 +109,7 @@
 (ffi pop "class/array/lisp_pop" 0)
 ; (push array elem ...) -> array
 (ffi elem-set "class/array/lisp_eset" 0)
-; (elem-set array idx val) -> array
+; (elem-set array idx elem) -> array
 
 (ffi merge-obj "class/list/lisp_merge" 0)
 ; (merge-obj dlist slist) -> dlist
@@ -190,21 +190,33 @@
 (ffi write "class/stream/lisp_write" 0)
 ; (write stream str) -> stream
 
-(ffi list "class/list/lisp_list" 0)
 (ffi array "class/array/lisp_array" 0)
+; (array [num ...]) -> array
+(ffi list "class/list/lisp_list" 0)
+; (list [elem] ...) -> list
 (ffi nums "class/array/lisp_nums" 0)
+; (nums [num ...]) -> nums
 (ffi fixeds "class/array/lisp_fixeds" 0)
-(ffi path "class/array/lisp_path" 0)
+; (fixeds [fixed ...]) -> fixeds
 (ffi reals "class/array/lisp_reals" 0)
+; (reals [real ...]) -> reals
+(ffi path "class/array/lisp_path" 0)
+; (path [fixed ...]) -> path
 (ffi dim "class/dim/lisp_dim" 0)
+; (dim nums array) -> dim
 (ffi dim-get "class/dim/lisp_dget" 0)
+; (dim-get dim nums) -> elem
 (ffi dim-set "class/dim/lisp_dset" 0)
+; (dim-set dim nums elem) -> array
 
 (ffi hash "class/obj/lisp_hash" 0)
+; (hash form) -> num
 (ffi eql "class/lisp/lisp_eql" 0)
+; (eql form form) -> :nil | :t
 (ffi type-of "class/obj/lisp_type" 0)
-
+; (type-of form) -> (... :obj)
 (ffi macroexpand "class/lisp/lisp_macroexpand" 0)
+; (macroexpand form) -> 'form
 
 (ffi progn "class/lisp/lisp_progn" 1)
 (ffi catch "class/lisp/lisp_catch" 1)
