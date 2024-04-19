@@ -334,7 +334,7 @@ gather a list of values
 ### gui-rpc
 
 ```code
-(gui-rpc (view action) -> :nil | view
+(gui-rpc (view cmd) -> :nil | view
 ```
 
 ### handler

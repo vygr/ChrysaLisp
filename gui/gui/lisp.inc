@@ -52,7 +52,7 @@
 ;add/sub from screen
 
 (defun gui-rpc (view cmd)
-	; (gui-rpc (view action) -> :nil | view
+	; (gui-rpc (view cmd) -> :nil | view
 	(when (/= 0 (length (defq service (mail-enquire "Gui,"))))
 		(setq service (to-net-id (second (split (pop service) ","))))
 		(defq mbox (mail-alloc-mbox))
