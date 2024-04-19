@@ -174,13 +174,21 @@
 ; (tolist env) -> ((sym val) ...)
 
 (ffi io-stream "class/stream/lisp_iostream" 0)
+; (io-stream io) -> :nil | stream
 (ffi string-stream "class/stream/lisp_sstream" 0)
+; (string-stream str) -> stream
 (ffi file-stream "class/stream/lisp_fstream" 0)
+; (file-stream path [mode]) -> :nil | stream
 (ffi read-char "class/stream/lisp_readchar" 0)
+; (read-char stream [width]) -> :nil | char
 (ffi read-line "class/stream/lisp_readline" 0)
+; (read-line stream) -> :nil | str
 (ffi read-avail "class/stream/lisp_readavail" 0)
+; (read-avail stream) -> :nil | num
 (ffi write-char "class/stream/lisp_writechar" 0)
+; (write-char stream list|num [width]) -> stream
 (ffi write "class/stream/lisp_write" 0)
+; (write stream str) -> stream
 
 (ffi list "class/list/lisp_list" 0)
 (ffi array "class/array/lisp_array" 0)
