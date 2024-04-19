@@ -180,7 +180,7 @@
 (ffi file-stream "class/stream/lisp_fstream" 0)
 ; (file-stream path [mode]) -> :nil | stream
 (ffi read-char "class/stream/lisp_readchar" 0)
-; (read-char stream [width]) -> :nil | char
+; (read-char stream [width]) -> :nil | str
 (ffi read-line "class/stream/lisp_readline" 0)
 ; (read-line stream) -> :nil | str
 (ffi read-avail "class/stream/lisp_readavail" 0)
