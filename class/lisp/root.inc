@@ -219,35 +219,63 @@
 ; (macroexpand form) -> 'form
 
 (ffi progn "class/lisp/lisp_progn" 1)
+; (progn [body]) -> 'form
 (ffi catch "class/lisp/lisp_catch" 1)
+; (catch form eform) -> 'form
 (ffi cond "class/lisp/lisp_cond" 1)
+; (cond [(tst body)] ...) -> 'form
 (ffi if "class/lisp/lisp_if" 1)
+; (if tst form [else_form]) -> 'form
 (ffi while "class/lisp/lisp_while" 1)
+; (while tst [body]) -> :nil
 (ffi throw "class/lisp/lisp_throw" 0)
+; (throw str form)
 (ffi bind "class/lisp/lisp_bind" 0)
+; (bind (sym ...) seq) -> val
 (ffi read "class/lisp/lisp_read" 0)
+; (read stream [last_char]) -> :nil | form
 (ffi eval "class/lisp/lisp_eval" 0)
+; (eval form [env]) -> 'form
 (ffi identity "class/lisp/lisp_identity" 0)
+; (identity [form]) -> :nil | form
 (ffi apply "class/lisp/lisp_apply" 0)
+; (apply lambda seq) -> form
 (ffi repl "class/lisp/lisp_repl" 0)
+; (repl stream name) -> form
 (ffi prin "class/lisp/lisp_prin" 0)
+; (prin [form] ...) -> form
 (ffi print "class/lisp/lisp_print" 0)
+; (print [form] ...) -> form
 (ffi prebind "class/lisp/lisp_prebind" 0)
+; (prebind form) -> form
 (ffi . "class/lisp/lisp_mcall" 0)
+; (. env sym [...]) -> form
 (ffi env-push "class/lisp/lisp_env_push" 0)
+; (env-push [env]) -> 'env
 (ffi env-pop "class/lisp/lisp_env_pop" 0)
+; (env-pop [env]) -> 'env
 
 (ffi pii-dirlist "sys/pii/lisp_dirlist" 0)
+; (pii-dirlist path) -> info
 (ffi pii-fstat "sys/pii/lisp_fstat" 0)
+; (pii-fstat path) -> info
 (ffi pii-read-char "sys/pii/lisp_readchar" 0)
-(ffi pii-remove "sys/pii/lisp_remove" 0)
-(ffi pii-time "sys/pii/lisp_time" 0)
+; (pii-read-char fd) -> char
 (ffi pii-write-char "sys/pii/lisp_writechar" 0)
+; (pii-write-char fd char) -> char
+(ffi pii-remove "sys/pii/lisp_remove" 0)
+; (pii-remove path)
+(ffi pii-time "sys/pii/lisp_time" 0)
+; (pii-time) -> ns
 
 (ffi get-field "class/obj/lisp_get_field" 0)
+; (get-field obj field size|0) -> val
 (ffi set-field "class/obj/lisp_set_field" 0)
+; (set-field obj field size|0 val) -> val
 (ffi weak-ref "class/obj/lisp_wref" 0)
+; (weak-ref form) -> num
 (ffi obj-ref "class/obj/lisp_oref" 0)
+; (obj-ref num) -> form
 
 (defq *root_env* (env)
 	+byte_size 1 +short_size 2 +int_size 4 +long_size 8 +ptr_size 8
