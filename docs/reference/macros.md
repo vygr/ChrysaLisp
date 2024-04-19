@@ -243,6 +243,36 @@ should provide the concreate handler
 (getf obj field [offset]) -> value
 ```
 
+### gui-add-back
+
+```code
+(gui-add-back view) -> view
+```
+
+### gui-add-front
+
+```code
+(gui-add-front view) -> view
+```
+
+### gui-logout
+
+```code
+(gui-logout) -> :nil
+```
+
+### gui-quit
+
+```code
+(gui-quit) -> :nil
+```
+
+### gui-sub
+
+```code
+(gui-sub view) -> view
+```
+
 ### inc
 
 ```code

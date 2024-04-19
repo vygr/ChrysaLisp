@@ -331,6 +331,12 @@ gather a list of values
 (get-cstr str index) -> str
 ```
 
+### gui-rpc
+
+```code
+(gui-rpc (view action) -> :nil | view
+```
+
 ### handler
 
 ```code

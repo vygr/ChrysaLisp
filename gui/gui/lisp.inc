@@ -52,6 +52,7 @@
 ;add/sub from screen
 
 (defun gui-rpc (view cmd)
+	; (gui-rpc (view action) -> :nil | view
 	(when (/= 0 (length (defq service (mail-enquire "Gui,"))))
 		(setq service (to-net-id (second (split (pop service) ","))))
 		(defq mbox (mail-alloc-mbox))
@@ -61,7 +62,12 @@
 		view))
 
 (defmacro gui-quit () `(gui-rpc :nil 0))
+; (gui-quit) -> :nil
 (defmacro gui-logout () `(gui-rpc :nil 1))
+; (gui-logout) -> :nil
 (defmacro gui-sub (view) `(gui-rpc ,view 2))
+; (gui-sub view) -> view
 (defmacro gui-add-front (view) `(gui-rpc ,view 3))
+; (gui-add-front view) -> view
 (defmacro gui-add-back (view) `(gui-rpc ,view 4))
+; (gui-add-back view) -> view
