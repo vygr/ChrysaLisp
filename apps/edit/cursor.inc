@@ -76,8 +76,8 @@
 (defun action-pop ()
 	(when (defq pos (pop *cursor_stack*))
 		(bind '(file cx cy) pos)
-		(when (/= 0 (age file))
-			;file exists
+		(when (or (eql :nil file) (/= 0 (age file)))
+			;file exists or scratch
 			(open-file file)
 			(.-> *edit* (:set_cursor cx cy) :clear_selection)
 			(refresh))))
