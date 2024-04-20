@@ -16,7 +16,7 @@
 	(map (# (. m :find %0)) _))
 
 (defun scatter (m &rest _)
-	; (scatter map key val ...) -> map
+	; (scatter map [key val] ...) -> map
 	; scatter a list of values
 	(reduce (lambda (m (k v)) (. m :insert k v)) (partition _ 2) m))
 
