@@ -875,7 +875,7 @@ restart a child
 ### scatter
 
 ```code
-(scatter map key val ...) -> map
+(scatter map [key val] ...) -> map
 
 scatter a list of values
 ```
