@@ -6,8 +6,8 @@
 
 Addition of `\q` wildcard, double quote, to regexp and charclass libs.
 
-Editor and Viewer app now support `:top` and `:bottom` cursor actions. cntl-up
-and cntl-down bindings.
+Editor and Viewer app now support `:top` and `:bottom` cursor actions.
+cntl-home and cntl-end bindings.
 
 Editor and Viewer app support for a cursor stack. cntl-d and cntl-D bindings
 for `(action-push)` and `(action-pop)`. File will reload on pop, unless they
