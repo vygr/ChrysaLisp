@@ -1,6 +1,7 @@
 (import "class/obj/lisp.inc")
 
 (ffi create-stdio "class/stdio/lisp_create" 0)
+; (create-stdio) -> stdio
 
 (structure +stdio +obj_size
 	(ptr stdin stdout stderr args))
