@@ -154,6 +154,7 @@
 					(filter-array (lambda (f) (notany (# (eql f %0)) +dictionaries))
 						(all-files "." +file_types 2))) 20000000)))))
 		;paste into scratch buffer
+		(action-push)
 		(switch-file :nil)
 		(.-> *edit* :bottom :get_buffer (:paste results))
 		(refresh)))
@@ -178,6 +179,7 @@
 		(when (nempty? results)
 			(setq results (apply cat (join results (const `'(,(char 10))) 2)))
 			;paste into scratch buffer
+			(action-push)
 			(switch-file :nil)
 			(.-> *edit* :bottom :get_buffer (:paste results))
 			(refresh))))
@@ -189,6 +191,7 @@
 		(when (nempty? results)
 			(setq results (apply cat (join results (const `'(,(char 10))) 2)))
 			;paste into scratch buffer
+			(action-push)
 			(switch-file :nil)
 			(.-> *edit* :bottom :get_buffer (:paste results))
 			(refresh))))
