@@ -3,7 +3,9 @@
 
 ;lisp bindings
 (ffi in-stream "class/in/lisp_create" 0)
+; (in-stream) -> in_stream
 (ffi in-next-msg "class/in/lisp_next_msg" 0)
+; (in-next-msg in_stream) -> msg
 
 (structure +in +stream_size
 	(struct list +lh_list_size)
