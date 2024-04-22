@@ -8,7 +8,7 @@
 	options:
 		-h --help: this help info.
 		-i --imm: immediate dependencies.
-		-a --all: recursive dependencies.
+		-a --all: all dependencies.
 		-d --dirs: directories.
 
 	Find all paths that match the prefix and postfix.
