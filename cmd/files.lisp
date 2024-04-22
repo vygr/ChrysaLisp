@@ -7,22 +7,39 @@
 
 	options:
 		-h --help: this help info.
+		-i --imm: immediate dependencies.
+		-a --all: recursive dependencies.
+		-d --dirs: directories.
 
-	Find all files that match the prefix and postfix.
+	Find all paths that match the prefix and postfix.
 
 		prefix default "."
 		postfix default ""
 
 	eg.
 	files ./apps/wallpaper/ .tga})
+(("-d" "--dirs")
+	,(lambda (args arg) (setq opt_d :t) args))
+(("-i" "--imm:")
+	,(lambda (args arg) (setq opt_i :t) args))
+(("-a" "--all")
+	,(lambda (args arg) (setq opt_a :t) args))
 ))
 
 (defun main ()
 	;initialize pipe details and command args, abort on error
 	(when (and
 			(defq stdio (create-stdio))
-			(defq args (options stdio usage)))
+			(defq opt_d :nil opt_i :nil opt_a :nil
+				 args (options stdio usage)))
 		(defq postfix (if (< (length args) 2) "." (second args))
 			prefix (if (< (length args) 3) "" (third args)))
 		(if (ends-with "/" postfix) (setq postfix (most postfix)))
-		(each print (files-all postfix `(,prefix)))))
+		(defq files (files-all postfix `(,prefix)))
+		(when opt_i
+			(defq out (list))
+			(each (# (each (# (push out %0)) %0)) (map (const files-depends) files))
+			(setq files (unique (sort (const cmp) out))))
+		(if opt_a (setq files (files-all-depends files)))
+		(if opt_d (setq files (files-dirs files)))
+		(each print files)))

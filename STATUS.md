@@ -29,6 +29,8 @@ cntl-J for convenience.
 Slowly but surely adding the usage lines for all the `ffi` bindings. This is
 particularly important now we have the jump to function, push/pop actions.
 
+Added `-d`, `-i` and `-a` options to `files` command.
+
 ------
 
 Fix `forward.lisp` defs regexp !

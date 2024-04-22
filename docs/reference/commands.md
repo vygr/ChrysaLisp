@@ -52,8 +52,11 @@ Usage: files [options] [prefix] [postfix]
 
 	options:
 		-h --help: this help info.
+		-i --imm: immediate dependencies.
+		-a --all: recursive dependencies.
+		-d --dirs: directories.
 
-	Find all files that match the prefix and postfix.
+	Find all paths that match the prefix and postfix.
 
 		prefix default "."
 		postfix default ""
