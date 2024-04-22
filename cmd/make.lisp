@@ -164,8 +164,8 @@
 									(setq state :nil)))))))))
 			(file-stream file)))
 		(sanitize (cat
-			(all-files "." '("lisp.inc" "actions.inc") 2)
-			(all-files "./lib" '(".inc") 2)
+			(files-all "." '("lisp.inc" "actions.inc") 2)
+			(files-all "./lib" '(".inc") 2)
 			'("class/lisp/root.inc" "class/lisp/task.inc"))))
 
 	;create classes docs
@@ -231,7 +231,7 @@
 			(write-line stream "```"))
 		(sort (# (cmp (first %0) (first %1)))
 			(pipe-farm (map (# (cat %0 " -h"))
-				(all-files "cmd" '(".lisp") 4 -6)))))
+				(files-all "cmd" '(".lisp") 4 -6)))))
 	(print "-> " document))
 
 (defun main ()

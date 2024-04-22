@@ -5,8 +5,8 @@
 ;module
 (env-push)
 
-(defun all-files (&optional root exts cut_start cut_end)
-	; (all-files [root exts cut_start cut_end]) -> paths
+(defun files-all (&optional root exts cut_start cut_end)
+	; (files-all [root exts cut_start cut_end]) -> paths
 	;all source files from root downwards, none recursive
 	(setd root "." exts '("") cut_start 0 cut_end -1)
 	(defq stack (list root) paths (list))
@@ -26,16 +26,16 @@
 		(map (# (slice %0 cut_start cut_end)) paths)
 		paths))
 
-(defun all-dirs (paths)
-	; (all-dirs paths) -> paths
+(defun files-dirs (paths)
+	; (files-dirs paths) -> paths
 	;return all the dir paths
 	(reduce (lambda (dirs file)
 		(defq dir (find-rev "/" file) dir (if dir (cat (slice file 0 dir) "/.")))
 		(if (and dir (not (find dir dirs)))
 			(push dirs dir) dirs)) paths (list)))
 
-(defun file-depends (file)
-	; (file-depends path) -> paths
+(defun files-depends (file)
+	; (files-depends path) -> paths
 	;create list of immediate dependencies
 	(defq files (list file))
 	(each-line (lambda (line)
@@ -47,8 +47,8 @@
 			(throw "No such file !" file)
 			(file-stream file))) files)
 
-(defun all-file-depends (files &optional imps)
-	; (all-file-depends paths &optional imps) -> paths
+(defun files-all-depends (files &optional imps)
+	; (files-all-depends paths &optional imps) -> paths
 	;create list of all dependencies, with implicit options
 	(setq files (unique (sort (const cmp) (cat files))))
 	(when imps
@@ -56,8 +56,8 @@
 			(cat (list "class/lisp/root.inc" "class/lisp/task.inc") imps)))
 	(each-mergeable (lambda (file)
 		(each (# (unless (find %0 files) (push files %0)))
-			(file-depends file))) files))
+			(files-depends file))) files))
 
 ;module
-(export-symbols '(all-files all-dirs all-file-depends file-depends))
+(export-symbols '(files-all files-dirs files-all-depends files-depends))
 (env-pop)

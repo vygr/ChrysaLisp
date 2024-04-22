@@ -12,7 +12,7 @@
 		results (sort (const cmp) (map (# (trim-end %0 (ascii-char 10)))
 			(filter-array nempty? (map (const second)
 				(pipe-farm (map (# (cat cmd %0))
-					(all-files "docs" '(".md"))) 20000000)))))))
+					(files-all "docs" '(".md"))) 20000000)))))))
 
 (defun show-matches (files)
 	;show file matches

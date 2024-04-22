@@ -13,8 +13,8 @@ Editor and Viewer app support for a cursor stack. cntl-d and cntl-D bindings
 for `(action-push)` and `(action-pop)`. File will reload on pop, unless they
 have been deleted.
 
-Addition of `(all-file-depends)` and `(file-depends)` to `lib/files/files.inc`
-library.
+Addition of `(files-all-depends)` and `(files-depends)` to
+`lib/files/files.inc` library.
 
 Editor now has key bindings for `(action-load-depends)` and
 `(action-load-all-depends)` on cntl-e and cntl-E. Acts on the current file as

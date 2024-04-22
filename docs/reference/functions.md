@@ -46,30 +46,6 @@ parse the commands and attributes calling back to the user functions
 (align num div) -> num
 ```
 
-### all-dirs
-
-```code
-(all-dirs paths) -> paths
-
-return all the dir paths
-```
-
-### all-file-depends
-
-```code
-(all-file-depends paths &optional imps) -> paths
-
-create list of all dependencies, with implicit options
-```
-
-### all-files
-
-```code
-(all-files [root exts cut_start cut_end]) -> paths
-
-all source files from root downwards, none recursive
-```
-
 ### alloc-select
 
 ```code
@@ -253,12 +229,36 @@ cached circle generation, quantised to 1/4 pixel
 (export-symbols symbols)
 ```
 
-### file-depends
+### files-all
 
 ```code
-(file-depends path) -> paths
+(files-all [root exts cut_start cut_end]) -> paths
+
+all source files from root downwards, none recursive
+```
+
+### files-all-depends
+
+```code
+(files-all-depends paths &optional imps) -> paths
+
+create list of all dependencies, with implicit options
+```
+
+### files-depends
+
+```code
+(files-depends path) -> paths
 
 create list of immediate dependencies
+```
+
+### files-dirs
+
+```code
+(files-dirs paths) -> paths
+
+return all the dir paths
 ```
 
 ### filter-array

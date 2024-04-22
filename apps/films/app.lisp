@@ -9,7 +9,7 @@
 	(enum close)
 	(enum prev next))
 
-(defq films (all-files "apps/films/data" '(".flm")) index 0 canvas :nil id :t
+(defq films (files-all "apps/films/data" '(".flm")) index 0 canvas :nil id :t
 	+rate (/ 1000000 30))
 
 (ui-window *window* ()

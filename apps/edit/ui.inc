@@ -57,7 +57,7 @@
 	;load all files in this folder
 	(defq folder (. *file_tree* :get_route
 		(. *window* :find_id (getf *msg* +ev_msg_action_source_id))))
-	(open-files (defq files (sort cmp (all-files folder +file_types))))
+	(open-files (defq files (sort cmp (files-all folder +file_types))))
 	(switch-file (first files)))
 
 (defun action-file-leaf-action ()
