@@ -1148,6 +1148,12 @@ patch stream a with stream b, write to stream c
 (unzip seq cnt) -> seqs
 ```
 
+### usort
+
+```code
+(usort list [fcmp start end]) -> list
+```
+
 ### vertex-interp
 
 ```code

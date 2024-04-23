@@ -95,10 +95,10 @@
 	(when (selection?)
 		(bind '(y y1) (select-lines))
 		(open-files (filter-array (# (/= (age %0) 0))
-			(unique (sort
+			(usort
 				(split (.-> (. *edit* :get_buffer)
 					(:set_cursor 0 y1)
-					(:copy 0 y)) (ascii-char +char_lf))))))))
+					(:copy 0 y)) (ascii-char +char_lf)))))))
 
 (defun action-load-depends ()
 	(action-save-all)

@@ -836,6 +836,10 @@
 ; Utilities
 ;;;;;;;;;;;
 
+(defun usort (_a &optional _f _l _h)
+	; (usort list [fcmp start end]) -> list
+	(unique (sort _a _f _l _h)))
+
 (defun export (e symbols)
 	; (export env symbols)
 	(each (# (def e %0 (get %0))) symbols))

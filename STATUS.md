@@ -33,8 +33,10 @@ Added `-d`, `-i` and `-a` options to `files` command.
 
 New `(flatten list) -> list` function in `root.inc`.
 
-Change the argument ordering for the `(sort list [cmp])` function and made the
-comparison function optional and default to `cmp`.
+Change the argument ordering for the `(sort list [cmp start end])` function and
+made the comparison function optional and default to `cmp`.
+
+New `(usort list [cmp start end])` utility function.
 
 ------
 
