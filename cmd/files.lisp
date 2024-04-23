@@ -31,7 +31,7 @@
 	(when (and
 			(defq stdio (create-stdio))
 			(defq opt_d :nil opt_i :nil opt_a :nil
-				 args (options stdio usage)))
+				args (options stdio usage)))
 		(defq postfix (if (< (length args) 2) "." (second args))
 			prefix (if (< (length args) 3) "" (third args)))
 		(if (ends-with "/" postfix) (setq postfix (most postfix)))
