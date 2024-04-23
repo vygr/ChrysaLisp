@@ -279,6 +279,12 @@ return all the dir paths
 (fixeds? form) -> :t | :nil
 ```
 
+### flatten
+
+```code
+(flatten list) -> list
+```
+
 ### found?
 
 ```code

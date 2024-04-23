@@ -17,7 +17,7 @@
 		postfix default ""
 
 	eg.
-	files -a ./apps/ .lisp})
+	files -a apps/ .lisp})
 (("-d" "--dirs")
 	,(lambda (args arg) (setq opt_d :t) args))
 (("-i" "--imm:")
@@ -38,10 +38,9 @@
 		(defq files (map (# (if (starts-with "./" %0)
 				(slice %0 2 -1) %0))
 			(files-all postfix `(,prefix))))
-		(when opt_i
-			(defq out (list))
-			(each (# (each (# (push out %0)) %0)) (map (const files-depends) files))
-			(setq files (unique (sort (const cmp) out))))
+		(if opt_i
+			(setq files (unique (sort (const cmp)
+				(flatten (map (const files-depends) files))))))
 		(if opt_a (setq files (files-all-depends files)))
 		(if opt_d (setq files (files-dirs files)))
 		(each print (unique (sort (const cmp) files)))))

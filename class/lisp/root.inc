@@ -716,6 +716,17 @@
 			(apply (const cat) out))
 		((rest seq))))
 
+(defun flatten (_)
+	; (flatten list) -> list
+	(defq out (list))
+	(walk-list _
+		;element func
+		(lambda (_) (unless (list? _) (push out _)))
+		;enter list func
+		(lambda (_) :nil)
+		;exit list func
+		progn) out)
+
 ;;;;;;
 ; Case
 ;;;;;;

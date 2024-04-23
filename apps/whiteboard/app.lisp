@@ -29,8 +29,8 @@
 	*picker_mbox* :nil *picker_mode* :nil *running* :t
 	rate (/ 1000000 60) +layer_all (+ +layer_commited +layer_overlay))
 
-(defun flatten ((mode col rad pnts))
-	;flatten path to polygon
+(defun flatten_path ((mode col rad pnts))
+	;flatten_path path to polygon
 	(list col (cond
 		((< (length pnts) 2)
 			;a runt so nothing
@@ -76,7 +76,7 @@
 
 (defun commit (p)
 	;commit a stroke to the canvas
-	(push *commited_polygons* (flatten p)))
+	(push *commited_polygons* (flatten_path p)))
 
 (defun fpoly (canvas col mode _)
 	;draw a polygon on a canvas
@@ -95,7 +95,7 @@
 		(defq canvas (elem-get dlist +dlist_overlay_canvas))
 		(. canvas :fill 0)
 		(each (lambda (p)
-			(bind '(col poly) (flatten p))
+			(bind '(col poly) (flatten_path p))
 			(fpoly canvas col +winding_none_zero poly)) (elem-get dlist +dlist_overlay_paths))
 		(. canvas :swap 0))
 	(elem-set dlist +dlist_mask 0))

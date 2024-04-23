@@ -31,6 +31,8 @@ particularly important now we have the jump to function, push/pop actions.
 
 Added `-d`, `-i` and `-a` options to `files` command.
 
+New `(flatten list) -> list` function in `root.inc`.
+
 ------
 
 Fix `forward.lisp` defs regexp !
