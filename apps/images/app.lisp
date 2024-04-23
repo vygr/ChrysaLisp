@@ -9,7 +9,7 @@
 (enums +select 0
 	(enum main tip))
 
-(defq images (sort cmp (files-all "apps/images/data" '(".cpm" ".tga" ".svg")))
+(defq images (sort (files-all "apps/images/data" '(".cpm" ".tga" ".svg")))
 	index (some (# (if (eql "apps/images/data/tiger.svg" %0) _)) images)
 	id :t)
 

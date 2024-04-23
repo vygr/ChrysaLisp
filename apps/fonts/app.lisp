@@ -48,7 +48,7 @@
 	(bind '(x y w h) (apply view-fit (cat (. *window* :get_pos) (. *window* :pref_size))))
 	(. *window* :change_dirty x y w h))
 
-(defq index 1 id :t fonts (sort cmp (files-all "fonts/" '(".ctf"))))
+(defq index 1 id :t fonts (sort (files-all "fonts/" '(".ctf"))))
 
 (ui-window *window* ()
 	(ui-title-bar *window_title* "" (0xea19) +event_close)

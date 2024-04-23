@@ -85,13 +85,13 @@
 								(push (last docs) "lisp binding" line)))))) (file-stream file))) *imports*)))
 
 	;create VP classes docs
-	(sort (# (cmp (first %0) (first %1))) classes)
+	(sort classes (# (cmp (first %0) (first %1))))
 	(each (lambda ((cls super &rest methds))
 		(defq stream (file-stream (cat "docs/reference/vp_classes/" cls ".md") +file_open_write))
 		(write-line stream (cat "# " cls +LF))
 		(unless (eql ":nil" super)
 			(write-line stream (cat "## " super +LF)))
-		(sort (# (cmp (first %0) (first %1))) methds)
+		(sort methds (# (cmp (first %0) (first %1))))
 		(defq lisp_methds (filter-array (# (starts-with ":lisp_" (first %0))) methds)
 			methds (filter-array (# (not (starts-with ":lisp_" (first %0)))) methds))
 		(when (nempty? lisp_methds)
@@ -178,9 +178,9 @@
 			(each (lambda ((name info))
 					(write-line stream (cat "### " name +LF))
 					(information stream info))
-				(sort (# (cmp (first %0) (first %1))) methods))
+				(sort methods (# (cmp (first %0) (first %1)))))
 			(print "-> " document))
-		(sort (# (cmp (first %0) (first %1))) classes))
+		(sort classes (# (cmp (first %0) (first %1)))))
 
 	;create key bindings docs
 	(defq document "docs/reference/keys.md" current_file ""
@@ -195,8 +195,8 @@
 				(write-line stream "```code")
 				(each (# (write-line stream %0)) info)
 				(write-line stream (cat "```" +LF))))
-		(sort (# (if (/= 0 (defq _ (cmp (first %0) (first %1))))
-			_ (cmp (second %0) (second %1)))) keys))
+		(sort keys (# (if (/= 0 (defq _ (cmp (first %0) (first %1))))
+			_ (cmp (second %0) (second %1))))))
 	(print "-> " document)
 
 	;create functions docs
@@ -207,7 +207,7 @@
 			(when (nempty? info)
 				(write-line stream (cat "### " name +LF))
 				(information stream info)))
-		(sort (# (cmp (first %0) (first %1))) functions))
+		(sort functions (# (cmp (first %0) (first %1)))))
 	(print "-> " document)
 
 	;create macros docs
@@ -218,7 +218,7 @@
 			(when (nempty? info)
 				(write-line stream (cat "### " name +LF))
 				(information stream info)))
-		(sort (# (cmp (first %0) (first %1))) macros))
+		(sort macros (# (cmp (first %0) (first %1)))))
 	(print "-> " document)
 
 	;create commands docs
@@ -229,9 +229,9 @@
 			(write-line stream "```code")
 			(write stream result)
 			(write-line stream "```"))
-		(sort (# (cmp (first %0) (first %1)))
-			(pipe-farm (map (# (cat %0 " -h"))
-				(files-all "cmd" '(".lisp") 4 -6)))))
+		(sort (pipe-farm (map (# (cat %0 " -h"))
+					(files-all "cmd" '(".lisp") 4 -6)))
+			(# (cmp (first %0) (first %1)))))
 	(print "-> " document))
 
 (defun main ()

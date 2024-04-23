@@ -2,15 +2,15 @@
 (env-push)
 
 (defun root-funcs ()
-	(sort cmp (reduce (lambda (_ (k v))
+	(sort (reduce (lambda (_ (k v))
 		(if (func? v) (push _ k) _)) (tolist *root_env*) (list))))
 
 (defun root-lambdas ()
-	(sort cmp (reduce (lambda (_ (k v))
+	(sort (reduce (lambda (_ (k v))
 		(if (lambda-func? v) (push _ k) _)) (tolist *root_env*) (list))))
 
 (defun root-macros ()
-	(sort cmp (reduce (lambda (_ (k v))
+	(sort (reduce (lambda (_ (k v))
 		(if (macro-func? v) (push _ k) _)) (tolist *root_env*) (list))))
 
 (defun paragraph (words)

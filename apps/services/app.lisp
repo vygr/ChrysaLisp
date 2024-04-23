@@ -27,7 +27,7 @@
 
 (defun populate ()
 	(defq new_services (mail-enquire ""))
-	(sort cmp new_services)
+	(sort new_services)
 	(unless (and (= (length new_services) (length services))
 				(if (empty? new_services) :t (every eql new_services services)))
 		;service directory has changed

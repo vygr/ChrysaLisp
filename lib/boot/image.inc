@@ -55,7 +55,7 @@
 		(# (merge-obj boot_funcs (elem-get (func-load %0) +blob_refs)))
 		boot_funcs)
 	;sort into order, leaving the init/statics first !
-	(sort cmp boot_funcs 2)
+	(sort boot_funcs (const cmp) 2)
 	;list of function blobs and links in order
 	;list of offsets of header and link sections
 	(defq blobs (map (# (get %0 *blob_map*)) boot_funcs)

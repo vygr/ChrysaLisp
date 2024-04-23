@@ -17,7 +17,7 @@
 	(defq out (list))
 	(each! 0 -1 (lambda (f m) (and (eql m "8") (ends-with ".pcb" f) (push out (cat p f))))
 		(unzip (split (pii-dirlist p) ",") 2))
-	(sort cmp out))
+	(sort out))
 
 (defq *pcbs* (all-pcbs "apps/pcb/data/")
 	*index* (some (# (if (eql "apps/pcb/data/test1.pcb" %0) _)) *pcbs*)

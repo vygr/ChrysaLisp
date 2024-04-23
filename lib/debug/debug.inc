@@ -52,7 +52,7 @@
 	(each (lambda ((var val))
 		(setq var (pad var max_var_size)
 			val (debug-sanitize (str val) (- (const (- +debug_width 3)) max_var_size) :t))
-		(push msg var " : " val +LF)) (sort (# (cmp (first %0) (first %1))) e))
+		(push msg var " : " val +LF)) (sort e (# (cmp (first %0) (first %1)))))
 	(apply (const cat) (push msg +LF)))
 
 (defun debug-msg (rval sform e n)

@@ -33,6 +33,9 @@ Added `-d`, `-i` and `-a` options to `files` command.
 
 New `(flatten list) -> list` function in `root.inc`.
 
+Change the argument ordering for the `(sort list [cmp])` function and made the
+comparison function optional and default to `cmp`.
+
 ------
 
 Fix `forward.lisp` defs regexp !

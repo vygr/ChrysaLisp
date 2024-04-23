@@ -491,9 +491,9 @@
 ; sort and randomise
 ;;;;;;;;;;;;;;;;;;;;
 
-(defun sort (_f _a &optional _l _h)
-	; (sort fcmp list [start end]) -> list
-	(setd _l 0 _h (length _a))
+(defun sort (_a &optional _f _l _h)
+	; (sort list [fcmp start end]) -> list
+	(setd _f (const cmp) _l 0 _h (length _a))
 	(defq _q (list _l _h))
 	(while (setq _h (pop _q) _l (pop _q))
 		(when (< _l _h)
@@ -557,7 +557,7 @@
 				'(# quote quasi-quote static-q static-qq))))
 		;exit list func
 		progn)
-	(setq args (sort (const cmp) args))
+	(setq args (sort args))
 	`(lambda ,args ~_))
 
 ;;;;;;;;;;;;

@@ -107,7 +107,7 @@
 		; (. tree :populate [root exts n mode]) -> tree
 		;load up a file tree
 		(setd mode 3)
-		(defq files (sort cmp (files-all root exts n)))
+		(defq files (sort (files-all root exts n)))
 		(if (/= (logand 1 mode) 0)
 			(each (# (. this :add_route %0)) (files-dirs files)))
 		(if (/= (logand 2 mode) 0)

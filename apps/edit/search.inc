@@ -149,7 +149,7 @@
 		(defq cmd (cat "grep -c -f "
 				(if whole_words "-w " "") (if regexp "-r " "")
 				(id-encode pattern) " ")
-			results (apply (const cat) (sort (const cmp) (map (const second)
+			results (apply (const cat) (sort (map (const second)
 				(pipe-farm (map (# (cat cmd %0))
 					(filter-array (lambda (f) (notany (# (eql f %0)) +dictionaries))
 						(files-all "." +file_types 2))) 20000000)))))
@@ -209,7 +209,7 @@
 					(find (first s) '("defun" "defmacro" "redefun" "redefmacro" "defclass" "ffi"))
 					(eql (second s) name) (setq pos (list file 0 _))))
 				(file-stream file)) pos)
-			(sort (const cmp) (cat *open_files*)))
+			(sort (cat *open_files*)))
 		(when pos
 			(action-push)
 			(push *cursor_stack* pos)

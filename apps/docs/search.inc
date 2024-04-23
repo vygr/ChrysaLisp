@@ -9,7 +9,7 @@
 	(defq cmd (cat "grep -c -f -m "
 			(if whole_words "-w " "") (if regexp "-r " "")
 			(id-encode pattern) " ")
-		results (sort (const cmp) (map (# (trim-end %0 (ascii-char 10)))
+		results (sort (map (# (trim-end %0 (ascii-char 10)))
 			(filter-array nempty? (map (const second)
 				(pipe-farm (map (# (cat cmd %0))
 					(files-all "docs" '(".md"))) 20000000)))))))

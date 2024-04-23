@@ -109,8 +109,8 @@
 		(bind '(sw sh) (. canvas :pref_size))
 		(defq hsw (i2n (>> sw 1)) hsh (i2n (>> sh 1)))
 		(render-verts canvas
-			(sort (# (if (<= (last (first %0)) (last (first %1))) 1 -1))
-				(clip-verts hsw hsh (elem-get dlist +dlist_layer1_verts))))
+			(sort (clip-verts hsw hsh (elem-get dlist +dlist_layer1_verts))
+				(# (if (<= (last (first %0)) (last (first %1))) 1 -1))))
 		(. canvas :swap 0))
 	(elem-set dlist +dlist_mask 0))
 

@@ -375,7 +375,7 @@
 						((= (abs score) +timeout_value)
 							+timeout_value)
 						((>= alpha beta))))
-				(list (sort (lambda (a b) (- (first b) (first a))) ply0_brds))))
+				(list (sort ply0_brds (lambda (a b) (- (first b) (first a)))))))
 		(if (num? timeout) :t
 			(setq nbrd (if pbrd pbrd nbrd) pbrd :nil))) (list (range 1 max_ply)))
 	nbrd)

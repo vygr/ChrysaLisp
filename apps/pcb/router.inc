@@ -41,7 +41,7 @@
 		(list minx miny maxx maxy)))
 
 (defun sort-netlist (netlist)
-	(sort (# (- (. %0 :get_area) (. %1 :get_area))) netlist))
+	(sort netlist (# (- (. %0 :get_area) (. %1 :get_area)))))
 
 (defclass Pad (radius gap pos shape) :nil
 	; (Pad radius gap pos shape) -> pad
@@ -97,12 +97,12 @@
 			(elem-set wire _ (Vec3-f (* x grid_res) (* y grid_res) z))) wire)) wires)
 
 	;sort pads
-	(sort (lambda (p1 p2)
+	(sort pads (lambda (p1 p2)
 		(bind '(x1 y1 z1) (. p1 :get_pos))
 		(bind '(x2 y2 z2) (. p2 :get_pos))
 		(if (= (defq s (- x1 x2)) 0)
 			(if (= (defq s (- y1 y2)) 0)
-				(defq s (- z1 z2)))) s) pads)
+				(defq s (- z1 z2)))) s))
 
 	;build pad collision lines and endpoint nodes
 	(defq i 0)
@@ -310,10 +310,11 @@
 					(setq exit (push pth n)))
 				(:t ;sort nodes and take the first
 					(setq path_node (second (elem-get
-						(sort (# (- (first %0) (first %1)))
-						(map (# (list (vec-squared-euclidean-distance path_node %0) %0))
-						(filter-array (# (= (. pcb :get_node %0) (. pcb :get_node (first nearer_nodes))))
-						(sort (# (- (. pcb :get_node %0) (. pcb :get_node %1))) nearer_nodes)))) 0))))))
+						(sort
+							(map (# (list (vec-squared-euclidean-distance path_node %0) %0))
+							(filter-array (# (= (. pcb :get_node %0) (. pcb :get_node (first nearer_nodes))))
+							(sort nearer_nodes (# (- (. pcb :get_node %0) (. pcb :get_node %1))))))
+							(# (- (first %0) (first %1)))) 0))))))
 		exit)
 
 	(defmethod :route ()
@@ -331,7 +332,7 @@
 						(each (# (. visited :insert %0)) (elem-get pad_end_nodes (dec _)))
 						(unless (some (# (. visited :find %0)) ends)
 							(. pcb :mark_distances visited ends radius gap via)
-							(sort (# (- (. pcb :get_node %0) (. pcb :get_node %1))) ends)
+							(sort ends (# (- (. pcb :get_node %0) (. pcb :get_node %1))))
 							(defq nodes (. this :backtrack_path visited (first ends) radius via gap))
 							(. pcb :unmark_distances)
 							(cond

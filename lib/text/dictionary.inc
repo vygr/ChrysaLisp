@@ -19,7 +19,7 @@
 		; (. dictionary :sort) -> dictionary
 		(defq word_list (clear (get :word_list this)))
 		(. (get :word_set this) :each (# (push word_list %0)))
-		(sort cmp word_list)
+		(sort word_list)
 		(lower (:dirty :nil))
 		this)
 

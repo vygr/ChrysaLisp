@@ -50,7 +50,7 @@
 (defun files-all-depends (files &optional imps)
 	; (files-all-depends paths &optional imps) -> paths
 	;create list of all dependencies, with implicit options
-	(setq files (unique (sort (const cmp) (cat files))))
+	(setq files (unique (sort (cat files))))
 	(when imps
 		(each (# (unless (find %0 files) (push files %0)))
 			(cat (list "class/lisp/root.inc" "class/lisp/task.inc") imps)))

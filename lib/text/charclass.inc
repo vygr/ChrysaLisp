@@ -32,7 +32,7 @@
 	;these are sorted interend unescaped char strings
 	;can be searched with (bfind)
 	(memoize k (. (const (Fset 5)) :intern (apply (const cat)
-		(unique (sort (const cmp) (apply (const cat)
+		(unique (sort (apply (const cat)
 			(map (# (if (and (= (length %0) 3) (eql (second %0) "-"))
 					(map (const char)
 						(range (code (first %0)) (inc (code (last %0)))))

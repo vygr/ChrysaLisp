@@ -99,7 +99,7 @@
 					(dispatch-job key val)))
 			((= idx +select_reply)
 				;child reply, process in sequence order
-				(sort (# (- (getf %1 +reply_seq) (getf %0 +reply_seq))) (push replys msg))
+				(sort (push replys msg) (# (- (getf %1 +reply_seq) (getf %0 +reply_seq))))
 				(while (and (/= (length replys) 0)
 							(= (getf (last replys) +reply_seq) next_seq))
 					(setq msg (pop replys) next_seq (inc next_seq))

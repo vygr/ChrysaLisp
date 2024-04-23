@@ -445,7 +445,7 @@
 				(bind '(y y1) (select-lines this))
 				(. this :set_anchor 0 y)
 				(. buffer :paste (apply (const cat) (join
-					(sort cmp (split (.-> buffer (:set_cursor 0 y1) (:cut 0 y)) (ascii-char +char_lf)))
+					(sort (split (.-> buffer (:set_cursor 0 y1) (:cut 0 y)) (ascii-char +char_lf)))
 					(list (ascii-char +char_lf)) 2)))))
 		this)
 

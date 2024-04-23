@@ -22,4 +22,4 @@
 			(each-line (# (push lines %0)) (io-stream 'stdin))
 			;sort args
 			(setq lines (rest args)))
-		(each print (sort cmp lines))))
+		(each print (sort lines))))

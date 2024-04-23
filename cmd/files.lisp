@@ -35,10 +35,10 @@
 		(defq postfix (if (< (length args) 2) "." (second args))
 			prefix (if (< (length args) 3) "" (third args)))
 		(if (ends-with "/" postfix) (setq postfix (most postfix)))
-		(each (const print) (unique (sort (const cmp)
+		(each (const print) (unique (sort
 			(reduce (lambda (files (option func)) (if option (func files) files))
 				(list
-					(list opt_i (# (unique (sort (const cmp) (flatten (map (const files-depends) %0))))))
+					(list opt_i (# (unique (sort (flatten (map (const files-depends) %0))))))
 					(list opt_a (const files-all-depends))
 					(list opt_d (const files-dirs)))
 				(map (# (if (starts-with "./" %0) (slice %0 2 -1) %0))

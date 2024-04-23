@@ -27,8 +27,8 @@
 		(push msg
 			(pad k m) " cnt: " (pad (first v) 8)
 			" ns: " (pad (third v) 8) +LF))
-		(sort (lambda ((k1 v1) (k2 v2))
-			(- (third v2) (third v1))) e))
+		(sort e (lambda ((k1 v1) (k2 v2))
+			(- (third v2) (third v1)))))
 	(apply (const cat) (push msg +LF)))
 
 (redefun profile-report (n &optional reset)

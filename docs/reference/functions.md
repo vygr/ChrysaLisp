@@ -919,7 +919,7 @@ adjust text offset
 ### sort
 
 ```code
-(sort fcmp list [start end]) -> list
+(sort list [fcmp start end]) -> list
 ```
 
 ### split

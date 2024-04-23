@@ -55,10 +55,10 @@
 				(setq ps (cat nps)) (clear nps)
 				(when (> (length ps) +max_paths)
 					(task-slice)
-					(setq ps (slice (sort (# (- (goal-distance %0) (goal-distance %1))) ps)
+					(setq ps (slice (sort ps (# (- (goal-distance %0) (goal-distance %1))))
 						0 +min_paths))))
 			(defq a -1 b -1 oa 0)
-			(sort (# (- (length %0) (length %1))) ps)
+			(sort ps (# (- (length %0) (length %1))))
 			(each (lambda ((pa pb))
 					(task-slice)
 					(cond
