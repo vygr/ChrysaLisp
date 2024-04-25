@@ -709,12 +709,15 @@
 (defun unique (seq)
 	; (unique seq) -> seq
 	(cond
-		((> (length seq) 0)
-			(defq out (cap (length seq) (list (slice seq 0 1))))
-			(each! 1 -1 (# (unless (eql %0 (last (last out)))
-				(push out (slice seq _ (inc _))))) (list seq))
-			(apply (const cat) out))
-		((rest seq))))
+		((= (length seq) 0)
+			(rest seq))
+		((array? seq)
+			(reduce! 1 -1 (# (if (eql %1 (last %0)) %0 (push %0 %1)))
+				(list seq) (slice seq 0 1)))
+		(:t ;string
+			(apply (const cat)
+				(reduce (# (if (eql %1 (last %0)) %0 (push %0 %1)))
+					seq (list))))))
 
 (defun flatten (_)
 	; (flatten list) -> list

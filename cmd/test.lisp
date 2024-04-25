@@ -10,19 +10,23 @@
 	Simple timing test framework.")
 ))
 
-(defun f0 (s &optional cls)
-	(defq i :nil out (list) cls (opt cls " "))
-	(each (# (if i
-		(when (bfind %0 cls) (push out (slice s i _)) (setq i :nil))
-		(unless (bfind %0 cls) (setq i _)))) s)
-	(if i (push out (slice s i -1)) out))
+(defun f0 (seq)
+	(cond
+		((> (length seq) 0)
+			(defq out (cap (length seq) (list (slice seq 0 1))))
+			(each! 1 -1 (# (unless (eql %0 (last (last out)))
+				(push out (slice seq _ (inc _))))) (list seq))
+			(apply (const cat) out))
+		((rest seq))))
 
-(defun f1 (s &optional cls)
-	(defq i 0 out (list) l (length s) cls (opt cls " "))
-	(while (< i l)
-		(if (/= (defq j (bskip cls s i)) i) (setq i j))
-		(if (/= (defq j (bskipn cls s i)) i) (push out (slice s i (setq i j)))))
-	out)
+(defun f1 (seq)
+	(cond
+		((= (length seq) 0)
+			(rest seq))
+		((array? seq)
+			(reduce! 1 -1 (# (if (eql %1 (last %0)) %0 (push %0 %1))) (list seq) (slice seq 0 1)))
+		(:t ;string
+			(apply (const cat) (reduce (# (if (eql %1 (last %0)) %0 (push %0 %1))) seq (list))))))
 
 (defmacro time-it (name cnt &rest _)
 	`(progn
@@ -38,7 +42,12 @@
 	(when (and
 			(defq stdio (create-stdio))
 			(defq args (options stdio usage)))
-		(defq s "ttt  ttt  tttd  tdtdt  dtd  tdt  dtdt  dtdtd tdt dtd" c 1000000)
+		(defq s (map identity "abbttkkddiieowkfkbsk463463775484fgohfskcvbc823765872kuyrgcbkzrckzgvbzgvfyg") c 100000)
+		(time-it "f0" c (f0 s))
+		(time-it "f1" c (f1 s))
+		(time-it "f0" c (f0 s))
+		(time-it "f1" c (f1 s))
+		(defq s "abbttkkddiieowkfkbsk463463775484fgohfskcvbc823765872kuyrgcbkzrckzgvbzgvfyg" c 100000)
 		(time-it "f0" c (f0 s))
 		(time-it "f1" c (f1 s))
 		(time-it "f0" c (f0 s))
