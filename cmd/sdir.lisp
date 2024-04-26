@@ -14,4 +14,4 @@
 			(defq stdio (create-stdio))
 			(defq args (options stdio usage)))
 		(defq prefix (if (> (length args) 1) (second args) "*"))
-		(each print (mail-enquire prefix))))
+		(each (const print) (mail-enquire prefix))))

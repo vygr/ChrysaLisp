@@ -87,7 +87,7 @@
 					(. farm :refresh retry_timeout))))
 		(. farm :close)
 		(each mail-free-mbox select)
-		(each print errors))
+		(each (const print) errors))
 	(print "Done") :nil)
 
 ;;;;;;;;;;;;;

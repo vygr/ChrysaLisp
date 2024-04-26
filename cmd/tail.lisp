@@ -13,7 +13,7 @@
 	Defaults to last 10 lines.")
 (("-c" "--count")
 	,(lambda (args arg)
-		(setq count (str-as-num (first args)))
+		(setq opt_c (str-as-num (first args)))
 		(rest args)))
 ))
 
@@ -21,9 +21,9 @@
 	;initialize pipe details and command args, abort on error
 	(when (and
 			(defq stdio (create-stdio))
-			(defq count 10 args (options stdio usage)))
+			(defq opt_c 10 args (options stdio usage)))
 		(defq lines (list))
 		(each-line (# (push lines %0)
-			(if (> (length lines) count) (setq lines (slice lines (- -1 count) -1))))
+			(if (> (length lines) opt_c) (setq lines (slice lines (- -1 opt_c) -1))))
 				(if (<= (length args) 1) (io-stream 'stdin) (file-stream (second args))))
-		(each print lines)))
+		(each (const print) lines)))

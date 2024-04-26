@@ -161,7 +161,7 @@ symbol ! Very useful !
 ```
 
 ```vdu
-(each print "ABCDEF" "123456")
+(each (const print) "ABCDEF" "123456")
 ```
 
 ```vdu
