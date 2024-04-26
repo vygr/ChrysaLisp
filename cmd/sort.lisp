@@ -20,4 +20,4 @@
 		(if (empty? (defq lines (rest args)))
 			;no, so from stdin
 			(each-line (# (push lines %0)) (io-stream 'stdin)))
-		(each print (sort lines))))
+		(each (const print) (sort lines))))
