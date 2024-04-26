@@ -16,10 +16,8 @@
 	(when (and
 			(defq stdio (create-stdio))
 			(defq args (options stdio usage)))
-		(defq lines (list))
-		(if (<= (length args) 1)
-			;sort stdin
-			(each-line (# (push lines %0)) (io-stream 'stdin))
-			;sort args
-			(setq lines (rest args)))
+		;from args ?
+		(if (empty? (defq lines (rest args)))
+			;no, so from stdin
+			(each-line (# (push lines %0)) (io-stream 'stdin)))
 		(each print (sort lines))))
