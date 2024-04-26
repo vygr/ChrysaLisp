@@ -12,7 +12,7 @@
 	Repeat run command line.")
 (("-c" "--count")
 	,(lambda (args arg)
-		(setq count (str-as-num (first args)))
+		(setq opt_c (str-as-num (first args)))
 		(rest args)))
 ))
 
@@ -20,8 +20,8 @@
 	;initialize pipe details and command args, abort on error
 	(when (and
 			(defq stdio (create-stdio))
-			(defq count 10 args (options stdio usage)))
+			(defq opt_c 10 args (options stdio usage)))
 		(defq pipe (apply cat (join (rest args) '(" "))))
-		(times count
+		(times opt_c
 			(pipe-run pipe prin)
 			(stream-flush (io-stream 'stdout)))))

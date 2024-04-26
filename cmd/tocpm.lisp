@@ -16,7 +16,7 @@
 	then paths are read from stdin.")
 (("-f" "--format")
 	,(lambda (args arg)
-		(setq format (str-as-num (first args)))
+		(setq opt_f (str-as-num (first args)))
 		(rest args)))
 ))
 
@@ -27,14 +27,14 @@
 			(some (# (eql x %0)) '(".cpm" ".tga" ".svg")))
 		(defq out_file (cat (slice file 0 i) ".cpm")
 			canvas (canvas-load file +load_flag_noswap))
-		(. canvas :save out_file format)
+		(. canvas :save out_file opt_f)
 		(print file " -> " out_file)))
 
 (defun main ()
 	;initialize pipe details and command args, abort on error
 	(when (and
 			(defq stdio (create-stdio))
-			(defq format 32 args (options stdio usage)))
+			(defq opt_f 32 args (options stdio usage)))
 		(if (empty? (defq jobs (rest args)))
 			;no, so from stdin
 			(each-line (# (push jobs %0)) (io-stream 'stdin)))
@@ -43,5 +43,5 @@
 			(work (pop jobs))
 			;do them all out there, by calling myself !
 			(each (lambda ((job result)) (prin result))
-				(pipe-farm (map (# (str (first args) " -f " format " " %0)) jobs)
+				(pipe-farm (map (# (str (first args) " -f " opt_f " " %0)) jobs)
 					10000000)))))

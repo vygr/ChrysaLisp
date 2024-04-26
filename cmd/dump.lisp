@@ -12,14 +12,14 @@
 	then will dump stdin.")
 (("-c" "--chunk")
 	,(lambda (args arg)
-		(setq chunk_size (str-as-num (first args)))
+		(setq opt_c (str-as-num (first args)))
 		(rest args)))
 ))
 
-;read up to chunk_size chars from stream
+;read up to opt_c chars from stream
 (defun read-chunk (stream)
 	(defq chunk (list))
-	(while (and (/= chunk_size (length chunk))
+	(while (and (/= opt_c (length chunk))
 			(defq c (read-char stream))
 			(push chunk c)))
 	(if (/= 0 (length chunk)) chunk))
@@ -31,16 +31,16 @@
 		(while (defq c (read-chunk stream))
 			(prin (int-to-hex-str adr) " " (apply (const cat) (map (#
 				(cat (byte-to-hex-str %0) " ")) c)))
-			(times (- chunk_size (length c)) (prin "   "))
+			(times (- opt_c (length c)) (prin "   "))
 			(print (apply (const cat) (map (#
 				(if (<= 32 %0 126) (char %0) ".")) c)))
-			(setq adr (+ adr chunk_size)))))
+			(setq adr (+ adr opt_c)))))
 
 (defun main ()
 	;initialize pipe details and command args, abort on error
 	(when (and
 			(defq stdio (create-stdio))
-			(defq chunk_size 8 args (options stdio usage)))
+			(defq opt_c 8 args (options stdio usage)))
 		(if (<= (length args) 1)
 			;dump from stdin
 			(dump-file (io-stream 'stdin))

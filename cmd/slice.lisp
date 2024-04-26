@@ -12,11 +12,11 @@
 	Slice the lines from stdin to stdout.")
 (("-s" "--start")
 	,(lambda (args arg)
-		(setq start (str-as-num (first args)))
+		(setq opt_s (str-as-num (first args)))
 		(rest args)))
 (("-e" "--end")
 	,(lambda (args arg)
-		(setq end (str-as-num (first args)))
+		(setq opt_e (str-as-num (first args)))
 		(rest args)))
 ))
 
@@ -24,6 +24,6 @@
 	;initialize pipe details and command args, abort on error
 	(when (and
 			(defq stdio (create-stdio))
-			(defq start 0 end -1 args (options stdio usage)))
+			(defq opt_s 0 opt_e -1 args (options stdio usage)))
 		;slice stdin
-		(each-line (# (print (slice %0 start end))) (io-stream 'stdin))))
+		(each-line (# (print (slice %0 opt_s opt_e))) (io-stream 'stdin))))
