@@ -10,23 +10,22 @@
 	Simple timing test framework.")
 ))
 
-(defun f0 (seq)
-	(cond
-		((> (length seq) 0)
-			(defq out (cap (length seq) (list (slice seq 0 1))))
-			(each! 1 -1 (# (unless (eql %0 (last (last out)))
-				(push out (slice seq _ (inc _))))) (list seq))
-			(apply (const cat) out))
-		((rest seq))))
+(defun f0 (_)
+	(defq out (list))
+	(walk-list _
+		;element func
+		(lambda (_) (unless (list? _) (push out _)))
+		;enter list func
+		(lambda (_) :nil)
+		;exit list func
+		progn) out)
 
-(defun f1 (seq)
-	(cond
-		((= (length seq) 0)
-			(rest seq))
-		((array? seq)
-			(reduce! 1 -1 (# (if (eql %1 (last %0)) %0 (push %0 %1))) (list seq) (slice seq 0 1)))
-		(:t ;string
-			(apply (const cat) (reduce (# (if (eql %1 (last %0)) %0 (push %0 %1))) seq (list))))))
+(defun f1 (lst)
+	(defq out (list) stack (list lst 0))
+	(while (defq idx (pop stack) lst (pop stack))
+		(some! idx -1 :nil (# (cond
+			((list? %0) (push stack lst (inc _) %0 0))
+			(:t (push out %0) :nil))) (list lst))) out)
 
 (defmacro time-it (name cnt &rest _)
 	`(progn
@@ -42,12 +41,11 @@
 	(when (and
 			(defq stdio (create-stdio))
 			(defq args (options stdio usage)))
-		(defq s (map identity "abbttkkddiieowkfkbsk463463775484fgohfskcvbc823765872kuyrgcbkzrckzgvbzgvfyg") c 100000)
+		(defq s '(1 2 3(4 5)((6 7)(8 9))) c 1000000)
 		(time-it "f0" c (f0 s))
 		(time-it "f1" c (f1 s))
 		(time-it "f0" c (f0 s))
 		(time-it "f1" c (f1 s))
-		(defq s "abbttkkddiieowkfkbsk463463775484fgohfskcvbc823765872kuyrgcbkzrckzgvbzgvfyg" c 100000)
 		(time-it "f0" c (f0 s))
 		(time-it "f1" c (f1 s))
 		(time-it "f0" c (f0 s))

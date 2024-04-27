@@ -719,16 +719,13 @@
 				(reduce (# (if (eql %1 (last %0)) %0 (push %0 %1)))
 					seq (list))))))
 
-(defun flatten (_)
+(defun flatten (lst)
 	; (flatten list) -> list
-	(defq out (list))
-	(walk-list _
-		;element func
-		(lambda (_) (unless (list? _) (push out _)))
-		;enter list func
-		(lambda (_) :nil)
-		;exit list func
-		progn) out)
+	(defq out (list) stack (list lst 0))
+	(while (defq idx (pop stack) lst (pop stack))
+		(some! idx -1 :nil (# (cond
+			((list? %0) (push stack lst (inc _) %0 0))
+			(:t (push out %0) :nil))) (list lst))) out)
 
 ;;;;;;
 ; Case
