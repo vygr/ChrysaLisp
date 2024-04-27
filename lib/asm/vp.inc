@@ -32,7 +32,7 @@
 					(def labels (last (last op)) pc_sym))
 				((push out op))))
 		(setq last_e e)) emit_list)
-	(defq stack (list out 1))
+	(defq stack (reduce! 1 -1 (# (push %0 %1 1)) (list out) (list)))
 	(while (defq _ (pop stack) lst (pop stack))
 		(some! _ -1 :nil (lambda (e)
 			(if (list? e)
