@@ -1172,15 +1172,6 @@ patch stream a with stream b, write to stream c
 (view-locate w h [flag]) -> (x y w h)
 ```
 
-### walk-list
-
-```code
-(walk-list list fnc_element fnc_in fnc_out)
-
-if fnc_in returns :nil, it'll step down into that list.
-fnc_out is allways called to balence calls to fnc_in.
-```
-
 ### within-compile-env
 
 ```code

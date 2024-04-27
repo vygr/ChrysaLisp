@@ -976,8 +976,7 @@ function.
 ------
 
 Added nesting to the `(#)` macro ! Plus arbitrary % parameters not just
-starting from %0. This comes with the addition to `root.inc` of a `(walk-list
-list elm_fnc down_fnc up_fnc)` function ! Enjoy.
+starting from %0.
 
 Promotion of `(get-field)` `(set-field)` `(obj-ref)` and `(weak-ref)` to
 `root.inc`.

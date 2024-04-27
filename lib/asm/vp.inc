@@ -32,13 +32,16 @@
 					(def labels (last (last op)) pc_sym))
 				((push out op))))
 		(setq last_e e)) emit_list)
-	(walk-list out
-		(lambda (e)
-			(and (sym? e) (defq e (def? e labels))
-				(elem-set _l _ e)))
-		(lambda (l) :nil)
-		(lambda (l) :t))
-	out)
+	(defq stack (list out 0))
+	(while (defq _ (pop stack) lst (pop stack))
+		(some! _ -1 :nil (lambda (e)
+			(if (list? e)
+				(push stack lst (inc _) e 0)
+				(and (sym? e)
+					(defq e (def? e labels))
+					(elem-set lst _ e)
+					:nil)))
+			(list lst))) out)
 
 ;;;;;;;;;;;;;;;;;
 ; VP Instructions

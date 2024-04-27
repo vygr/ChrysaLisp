@@ -522,15 +522,13 @@
 	(defq args (list) stack (list body 0))
 	(while (defq _ (pop stack) lst (pop stack))
 		(some! _ -1 :nil (lambda (%0)
-			(cond
-				((list? %0)
-					(and (> (length %0) 0)
-						(not (find (first %0) '(# quote quasi-quote static-q static-qq)))
-						(push stack lst (inc _) %0 0)))
-				((and (sym? %0)
+			(if (list? %0)
+				(unless (find (first %0) '(# quote quasi-quote static-q static-qq))
+					(push stack lst (inc _) %0 0))
+				(and (sym? %0)
 					(find %0 '(%0 %1 %2 %3 %4 %5 %6 %7 %8 %9))
 					(merge-obj args (list %0))
-					:nil))))
+					:nil)))
 			(list lst)))
 	(setq args (sort args))
 	`(lambda ,args ~body))
@@ -1003,32 +1001,6 @@
 	; (min-length list) -> min
 	(if (= (length _) 0) 0
 		(reduce (# (min %0 (length %1))) _ +max_long)))
-
-(defun walk-list (_l _f _fi _fo)
-	; (walk-list list fnc_element fnc_in fnc_out)
-	;if fnc_in returns :nil, it'll step down into that list.
-	;fnc_out is allways called to balence calls to fnc_in.
-	(defq _stack (list _l 0))
-	(while (defq _ (pop _stack) _l (pop _stack))
-		(cond
-			((= (length _l) 0)
-				;zero length list
-				(_fi _l) (_fo _l))
-			((= _ 0)
-				;enter list ?
-				(cond
-					((_fi _l)
-						(_fo _l))
-					(:t (push _stack _l 1)
-						(if (list? (defq _e (first _l))) (push _stack _e 0))
-						(_f _e))))
-			((< _ (length _l))
-				;element of list
-				(push _stack _l (inc _))
-				(if (list? (defq _e (elem-get _l _))) (push _stack _e 0))
-				(_f _e))
-			(:t ;exit list
-				(_fo _l)))))
 
 ;;;;;;;;;
 ; Streams
