@@ -723,9 +723,9 @@
 	; (flatten list) -> list
 	(defq out (list) stack (list lst 0))
 	(while (defq idx (pop stack) lst (pop stack))
-		(some! idx -1 :nil (# (cond
-			((list? %0) (push stack lst (inc _) %0 0))
-			(:t (push out %0) :nil))) (list lst))) out)
+		(some! idx -1 :t (# (cond
+			((list? %0) (push stack lst (inc _) %0 0) :nil)
+			((push out %0)))) (list lst))) out)
 
 ;;;;;;
 ; Case
