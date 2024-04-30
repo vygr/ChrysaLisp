@@ -22,9 +22,8 @@
 
 (defun scope-get (level)
 	(defq offset 0)
-	(each! (inc level) -2
-		(# (setq offset (+ offset (elem-get %0 +scope_offset))))
-		(list *scopes*))
+	(each! (# (setq offset (+ offset (elem-get %0 +scope_offset))))
+		(list *scopes*) (inc level) -2)
 	offset)
 
 (defun push-scope ()
@@ -38,10 +37,9 @@
 (defun pop-scope-syms ()
 	(pop *scopes*)
 	(defq unused (list))
-	(each! 0 -1
-		(lambda (attrib)
-			(unless (elem-get attrib +attrib_used)
-				(push unused (elem-get (elem-get scope +scope_names) _))))
+	(each! (lambda (attrib)
+		(unless (elem-get attrib +attrib_used)
+			(push unused (elem-get (elem-get scope +scope_names) _))))
 		(list (elem-get (defq scope (pop *scopes*)) +scope_attribs)))
 	(if (/= 0 (length unused))
 		(throw "Unused symbols !" unused))
@@ -78,9 +76,9 @@
 	(push *scopes* scope))
 
 (defun scope-get-sym (name)
-	(defq name (sym name) attrib (some! -2 0 :nil (lambda (scope)
+	(defq name (sym name) attrib (some! (lambda (scope)
 		(if (defq _ (find-rev name (elem-get scope +scope_names)))
-			(elem-get (elem-get scope +scope_attribs) _))) (list *scopes*)))
+			(elem-get (elem-get scope +scope_attribs) _))) (list *scopes*) :nil -2 0))
 	(when attrib (elem-set attrib +attrib_used :t)) attrib)
 
 (defmacro scope-used (&rest names)
@@ -113,10 +111,10 @@
 			(union
 				(defq o (gensym) m (gensym))
 				(push prog `(defq ,o *scopes_sp* ,m *scopes_sp*))
-				(each! 1 -1 (lambda (_)
+				(each! (lambda (_)
 					(push prog
 						`(def-vars ,_)
-						`(setq ,m (max ,m *scopes_sp*) *scopes_sp* ,o))) (list line))
+						`(setq ,m (max ,m *scopes_sp*) *scopes_sp* ,o))) (list line) 1)
 				(push prog `(setq *scopes_sp* ,m)))
 			(:t
 				(if (defq alignment (find (first line)
@@ -129,7 +127,7 @@
 								+ptr_size +ptr_size +ptr_size +ptr_size
 								+ptr_size +ptr_size +ptr_size +ptr_size)
 							alignment)))))
-				(each! 1 -1 (lambda (var)
+				(each! (lambda (var)
 					(case (first line)
 						(byte (scope-new-var "b" +byte_size))
 						(short (scope-new-var "s" +short_size))
@@ -149,7 +147,7 @@
 						(pshort (scope-new-var "ps" +ptr_size))
 						(pint (scope-new-var "pi" +ptr_size))
 						(plong (scope-new-var "pl" +ptr_size))))
-					(list line))))) lines)
+					(list line) 1)))) lines)
 	prog)
 
 ;module

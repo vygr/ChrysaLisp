@@ -92,13 +92,13 @@
 (ffi cat "class/seq/lisp_cat" 0)
 ; (cat seq ...) -> seq
 (ffi each! "class/seq/lisp_each" 0)
-; (each! start end lambda seqs)
+; (each! lambda seqs [start end])
 (ffi some! "class/seq/lisp_some" 0)
-; (some! start end mode lambda seqs) -> :nil | val
+; (some! lambda seqs [mode start end]) -> :nil | val
 (ffi map! "class/seq/lisp_map" 0)
-; (map! start end lambda seqs [out]) -> out | (...)
+; (map! lambda seqs [out start end]) -> out | (...)
 (ffi reduce! "class/seq/lisp_reduce" 0)
-; (reduce! start end lambda seqs init) -> val
+; (reduce! lambda seqs init [start end]) -> val
 
 (ffi cap "class/array/lisp_cap" 0)
 ; (cap len array ...) -> array
@@ -473,7 +473,7 @@
 
 (defmacro or (&rest _)
 	; (or [tst] ...) -> :nil | tst
-	(map! 0 -1 (const list) (list _) (list (const cond))))
+	(map! (const list) (list _) (list (const cond))))
 
 (defmacro and (&rest _)
 	; (and [tst] ...) -> :t | :nil | tst
@@ -510,8 +510,8 @@
 (defun shuffle (_a &optional _l _h)
 	; (shuffle list [start end]) -> list
 	(setd _l 0 _h (length _a))
-	(each! _h _l (lambda (x)
-		(swap _a _ (random (inc _)))) (list _a)) _a)
+	(each! (lambda (x) (swap _a _ (random (inc _))))
+		(list _a) _h _l) _a)
 
 ;;;;;;;;;;;;;;;;;
 ; lambda shorcuts
@@ -521,7 +521,7 @@
 	; (# (< %9 %0 %3) ...) -> (lambda (%0 %3 %9) (< %9 %0 %3) ...)
 	(defq args (list) stack (list body))
 	(while (defq lst (pop stack))
-		(each! 0 -1 (lambda (%0)
+		(each! (lambda (%0)
 			(if (list? %0)
 				(unless (find (first %0) '(# quote quasi-quote static-q static-qq))
 					(push stack %0))
@@ -551,31 +551,31 @@
 
 (defmacro each (f &rest _)
 	; (each lambda seq ...)
-	`(each! 0 -1 ,f (list ~_)))
+	`(each! ,f (list ~_)))
 
 (defmacro each-rev (f &rest _)
 	; (each-rev lambda seq ...)
-	`(each! -1 0 ,f (list ~_)))
+	`(each! ,f (list ~_) -1 0))
 
 (defmacro map (f &rest _)
 	; (map lambda seq ...) -> list
-	`(map! 0 -1 ,f (list ~_)))
+	`(map! ,f (list ~_)))
 
 (defmacro map-rev (f &rest _)
 	; (map-rev lambda seq ...) -> list
-	`(map! -1 0 ,f (list ~_)))
+	`(map! ,f (list ~_) -1 0))
 
 (defmacro reduce (f s &optional i)
 	; (reduce lambda seq [init]) -> form
 	(if i
-		`(reduce! 0 -1 ,f (list ,s) ,i)
-		`(reduce! 1 -1 ,f (list (defq ,(defq i (gensym)) ,s)) (first ,i))))
+		`(reduce! ,f (list ,s) ,i)
+		`(reduce! ,f (list (defq ,(defq i (gensym)) ,s)) (first ,i) 1)))
 
 (defmacro reduce-rev (f s &optional i)
 	; (reduce-rev lambda seq [init]) -> form
 	(if i
-		`(reduce! -1 0 ,f (list ,s) ,i)
-		`(reduce! -2 0 ,f (list (defq ,(defq i (gensym)) ,s)) (last ,i))))
+		`(reduce! ,f (list ,s) ,i -1 0)
+		`(reduce! ,f (list (defq ,(defq i (gensym)) ,s)) (last ,i) -2 0)))
 
 (defmacro reverse (s)
 	; (reverse seq) -> seq
@@ -599,23 +599,23 @@
 
 (defmacro some (f &rest _)
 	; (some lambda seq ...) -> :nil | form
-	`(some! 0 -1 :nil ,f (list ~_)))
+	`(some! ,f (list ~_)))
 
 (defmacro some-rev (f &rest _)
 	; (some-rev lambda seq ...) -> :nil | form
-	`(some! -1 0 :nil ,f (list ~_)))
+	`(some! ,f (list ~_) :nil -1 0))
 
 (defmacro every (f &rest _)
 	; (every lambda seq ...) -> :nil | form
-	`(some! 0 -1 :t ,f (list ~_)))
+	`(some! ,f (list ~_) :t))
 
 (defmacro notany (f &rest _)
 	; (notany lambda seq ...) -> :t | :nil
-	`(not (some! 0 -1 :nil ,f (list ~_))))
+	`(not (some! ,f (list ~_))))
 
 (defmacro notevery (f &rest _)
 	; (notevery lambda seq ...) -> :t | :nil
-	`(not (some! 0 -1 :t ,f (list ~_))))
+	`(not (some! ,f (list ~_) :t)))
 
 ;;;;;;;;;;;
 ; Sequences
@@ -669,7 +669,7 @@
 
 (defun zip (&rest seqs)
 	; (zip seq ...) -> seq
-	(if (= (length (defq out (map! 0 -1 (const cat) (map (const partition) seqs)))) 0)
+	(if (= (length (defq out (map! (const cat) (map (const partition) seqs)))) 0)
 		(slice (first seqs) 0 0) (apply (const cat) out)))
 
 (defun filter-array (_f _a)
@@ -684,8 +684,8 @@
 		((= (length seq) 0)
 			(rest seq))
 		((array? seq)
-			(reduce! 1 -1 (# (if (eql %1 (last %0)) %0 (push %0 %1)))
-				(list seq) (slice seq 0 1)))
+			(reduce! (# (if (eql %1 (last %0)) %0 (push %0 %1)))
+				(list seq) (slice seq 0 1) 1))
 		(:t ;string
 			(apply (const cat)
 				(reduce (# (if (eql %1 (last %0)) %0 (push %0 %1)))
@@ -695,9 +695,9 @@
 	; (flatten list) -> list
 	(defq out (list) stack (list lst 0))
 	(while (defq idx (pop stack) lst (pop stack))
-		(some! idx -1 :t (# (cond
+		(some! (# (cond
 			((list? %0) (push stack lst (inc _) %0 0) :nil)
-			((push out %0)))) (list lst))) out)
+			((push out %0)))) (list lst) :t idx)) out)
 
 ;;;;;;
 ; Case

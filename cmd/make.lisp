@@ -21,8 +21,8 @@
 (defq +LF (ascii-char 10))
 
 (defun parent? (info)
-	(some! 2 -1 :nil (#
-		(if (bfind %0 +char_class_upper) %0)) (list info)))
+	(some! (# (if (bfind %0 +char_class_upper) %0))
+		(list info) :nil 2))
 
 (defun information (stream info)
 	(when (nempty? info)

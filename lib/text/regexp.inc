@@ -84,7 +84,7 @@
 (defun postfix (tokenize_output)
 	(defq stack (list) parens (list)
 		out_tokens (list) out_types (list) label -2)
-	(each! 0 -1 (lambda (token type)
+	(each! (lambda (token type)
 		(case type
 			(:lrb
 				(push stack token)
@@ -111,7 +111,7 @@
 
 (defun compile (postfix_output)
 	(defq stack (list))
-	(each! 0 -1 (lambda (token type)
+	(each! (lambda (token type)
 		(push stack (case type
 			(:lit (cache (static-qq (((bfind s ,token) 1)))))
 			(:wild (static-q ((:t 1))))
@@ -165,8 +165,8 @@
 						(push seen new_index)
 						(push next (push (most trace) new_index)))
 					;a split
-					(each! 1 -1 (# (if (setq %0 (eval %0))
-						(push stack (+ offset %0)))) (list elem)))))) next)
+					(each! (# (if (setq %0 (eval %0)) (push stack (+ offset %0))))
+						(list elem) 1))))) next)
 
 (defun insertelem-no-trace (cpat next index elem)
 	(defq stack (rest elem))
@@ -181,8 +181,8 @@
 					;not a split
 					(unless (find new_index next) (push next new_index))
 					;a split
-					(each! 1 -1 (# (if (setq %0 (eval %0))
-						(push stack (+ offset %0)))) (list elem)))))) next)
+					(each! (# (if (setq %0 (eval %0)) (push stack (+ offset %0))))
+						(list elem) 1))))) next)
 
 (defun firstelem (cpat current)
 	(if (first (defq elem (first cpat)))
@@ -203,8 +203,7 @@
 	(defq end -1 end_trace (array 0) tl (length text)
 		si start s (if (<= si 0) " " (elem-get text (dec si)))
 		current (firstelem cpat (list)) seen (list) next (list))
-	(some! start -1 :nil
-		(lambda (s) (defq si (inc _))
+	(some! (lambda (s) (defq si (inc _))
 			;for each current trace
 			(each (# (if (eval (first (defq elem (elem-get cpat (last %0)))))
 				;matched text char, so insert next traces
@@ -215,7 +214,7 @@
 			(clear next seen)
 			;break out if no traces
 			(= (length current) 0))
-		(list text))
+		(list text) :nil start)
 	(pop end_trace)
 	(list (partition end_trace 2) end))
 
@@ -224,8 +223,7 @@
 	(defq end -1 tl (length text) trace (array 0)
 		si start s (if (<= si 0) " " (elem-get text (dec si)))
 		current (firstelem-no-trace cpat (list)) next (list))
-	(some! start -1 :nil
-		(lambda (s) (defq si (inc _))
+	(some! (lambda (s) (defq si (inc _))
 			;for each current index
 			(each (# (if (eval (first (defq elem (elem-get cpat %0))))
 				;matched text char, so insert next index
@@ -235,7 +233,7 @@
 			(setq current next next (clear tmp))
 			;break out if no traces OR found any match !
 			(or (/= end -1) (= (length current) 0)))
-		(list text)) end)
+		(list text) :nil start) end)
 
 (defclass Regexp (&optional num_buckets) (Search)
 	; (Regexp) -> regexp

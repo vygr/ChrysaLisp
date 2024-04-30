@@ -132,12 +132,12 @@
 					(defq cx x cy y cz z
 						p0x :nil p0y :nil p0z :nil
 						p1x (+ x xs) p1y (+ y ys) p1z cz)
-					(each! 1 -1 (lambda ((xs ys))
+					(each! (lambda ((xs ys))
 						;add pad entries to via only spacial cache
 						(.-> pcb :get_via_layers (:add_layers_line (Layers-line cx cy cz p1x p1y p1z radius gap)))
 						;pad lines
 						(setq p0x p1x p0y p1y p0z p1z p1x (+ x xs) p1y (+ y ys) p1z cz)
-						(push pad_lines (Layers-line p0x p0y p0z p1x p1y p1z radius gap))) (list shape))
+						(push pad_lines (Layers-line p0x p0y p0z p1x p1y p1z radius gap))) (list shape) 1)
 					(setq z (+ z 1.0)))))
 		;ends and deformations
 		(push pad_end_nodes (defq ends (list)))
@@ -149,7 +149,7 @@
 	;build wires collision lines and visited
 	(each (lambda (wire)
 		(defq p0 :nil p1 (first wire))
-		(each! 1 -1 (lambda (p)
+		(each! (lambda (p)
 			(setq p0 p1 p1 p)
 			(cond
 				((/= (elem-get p0 +vec3_z) (elem-get p1 +vec3_z))
@@ -171,7 +171,7 @@
 						(bind '(x y) (vec-add p (vec-scale norm i)))
 						(. wire_nodes :insert (. pcb :pad_point_to_node (Vec3-f x y z0)))
 						(setq i (+ i 0.25)))
-					(. wire_nodes :insert (. pcb :pad_point_to_node p1))))) (list wire))) wires)
+					(. wire_nodes :insert (. pcb :pad_point_to_node p1))))) (list wire) 1)) wires)
 
 	;add pad entries to via only spacial cache
 	(each (# (.-> pcb :get_via_layers (:add_layers_line %0))) pad_lines)
@@ -229,13 +229,13 @@
 		(defq depth (n2f (dec (. pcb :get_depth))))
 		(reduce (lambda (lines pth)
 			(defq p0 :nil p1 (. pcb :node_to_pad_point (first pth)))
-			(each! 1 -1 (lambda (p)
+			(each! (lambda (p)
 				(setq p0 p1 p1 (. pcb :node_to_pad_point p))
 				(bind '(x0 y0 z0) p0)
 				(bind '(x1 y1 z1) p1)
 				(if (/= z0 z1)
 					(push lines (Layers-line x0 y0 0.0 x0 y0 depth via gap))
-					(push lines (Layers-line x0 y0 z0 x1 y1 z1 radius gap)))) (list pth))
+					(push lines (Layers-line x0 y0 z0 x1 y1 z1 radius gap)))) (list pth) 1)
 			lines) (get :paths this) (list)))
 
 	(defmethod :add_paths_lines ()
@@ -275,12 +275,12 @@
 			(defq opt_path (list)
 				d0 (Vec3-f 0.0 0.0 0.0) d1 :nil
 				p0 :nil p1 (. pcb :node_to_pad_point (first pth)))
-			(each! 1 -1 (lambda (p)
+			(each! (lambda (p)
 				(setq p0 p1 p1 (. pcb :node_to_pad_point p)
 					d1 (vec-norm (vec-sub p1 p0)))
 				(unless (eql d0 d1)
 					(push opt_path (elem-get pth (dec _)))
-					(setq d0 d1))) (list pth))
+					(setq d0 d1))) (list pth) 1)
 			(push opt_path (last pth))
 			(push opt_paths opt_path)) paths (list)))
 
@@ -328,7 +328,7 @@
 					:sub_pad_lines
 					:sub_wire_lines)
 				(defq visited (. (get :wire_nodes this) :copy)
-					failed (some! 1 -1 :nil (lambda (ends)
+					failed (some! (lambda (ends)
 						(each (# (. visited :insert %0)) (elem-get pad_end_nodes (dec _)))
 						(unless (some (# (. visited :find %0)) ends)
 							(. pcb :mark_distances visited ends radius gap via)
@@ -339,7 +339,7 @@
 								((/= (length nodes) 0)
 									(each (# (. visited :insert %0)) nodes)
 									(push paths nodes) :nil)
-								(:t)))) (list pad_end_nodes)))
+								(:t)))) (list pad_end_nodes) :nil 1))
 				(cond
 					(failed
 						(. this :remove) :nil)
@@ -576,7 +576,7 @@
 		; (. pcb :hoist_net index) -> (netlist new_index)
 		;move net to top of area group
 		(raise :netlist (area (. (elem-get netlist index) :get_area)
-			new_index (some! index 0 :nil (# (if (< (. %0 :get_area) area) (inc _))) (list netlist))))
+			new_index (some! (# (if (< (. %0 :get_area) area) (inc _))) (list netlist) :nil index 0)))
 		(unless new_index (setq new_index 0))
 		(when (/= index new_index)
 			(defq net (slice netlist index (inc index))

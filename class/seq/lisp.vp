@@ -583,13 +583,22 @@
 	(entry 'seq :lisp_each {this, seqs})
 
 (errorcase
-	(errorif-lisp-args-sig :r1 4 'error1)
+	(errorif-lisp-args-sig-range :r1 2 4 'error1)
 	(assign '((:r1 array_begin)) '(:r1))
-	(assign `((:r1 ,(* +ptr_size 3))) '(:r1))
+	(assign `((:r1 +ptr_size)) '(:r1))
 	(errorif-lisp-args-type :r1 seq 0 'error1))
 
 	(assign {seqs} '(:r1))
-	(list-bind-args :r1 `(,idx ,end ,func ,seqs) '(:num :num :obj :list))
+	(assign '((:r1 array_length)) '(:r2))
+	(vpif '(:r2 = 2))
+		(list-bind-args :r1 `(,func ,seqs) '(:obj :list))
+		(assign '(0 -1) `(,idx ,end))
+	(elseif '(:r2 = 3))
+		(list-bind-args :r1 `(,func ,seqs ,idx) '(:obj :list :num))
+		(assign '(-1) `(,end))
+	(else)
+		(list-bind-args :r1 `(,func ,seqs ,idx ,end) '(:obj :list :num :num))
+	(endif)
 	(call 'obj :ref {this->lisp_sym_nil} {value})
 
 	(call 'list :min_length `(,seqs) '(_ len))
@@ -648,11 +657,11 @@
 
 (errorcase
 (vp-label 'error1)
-	(jump 'lisp :repl_error {this, "(each! start end lambda seqs)", +error_msg_wrong_types, seqs})
+	(jump 'lisp :repl_error {this, "(each! lambda seqs [start end])", +error_msg_wrong_types, seqs})
 (vp-label 'error2)
 	(call 'obj :deref {value})
-	(jump 'lisp :repl_error {this, "(each! start end lambda seqs)", +error_msg_not_valid_index, seqs})
-	(signature '(num num obj list)))
+	(jump 'lisp :repl_error {this, "(each! lambda seqs [start end])", +error_msg_not_valid_index, seqs})
+	(signature '(obj list num num)))
 
 	(pop-scope-syms)
 
@@ -679,13 +688,26 @@
 	(entry 'seq :lisp_some {this, seqs})
 
 (errorcase
-	(errorif-lisp-args-sig :r1 5 'error1)
+	(errorif-lisp-args-sig-range :r1 2 5 'error1)
 	(assign '((:r1 array_begin)) '(:r1))
-	(assign `((:r1 ,(* +ptr_size 4))) '(:r1))
+	(assign `((:r1 +ptr_size)) '(:r1))
 	(errorif-lisp-args-type :r1 seq 0 'error1))
 
 	(assign {seqs} '(:r1))
-	(list-bind-args :r1 `(,idx ,end ,mode ,func ,seqs) '(:num :num :obj :obj :list))
+	(assign '((:r1 array_length)) '(:r2))
+	(vpif '(:r2 = 2))
+		(list-bind-args :r1 `(,func ,seqs) '(:obj :list))
+		(assign {this->lisp_sym_nil} `(,mode))
+		(assign '(0 -1) `(,idx ,end))
+	(elseif '(:r2 = 3))
+		(list-bind-args :r1 `(,func ,seqs ,mode) '(:obj :list :obj))
+		(assign '(0 -1) `(,idx ,end))
+	(elseif '(:r2 = 4))
+		(list-bind-args :r1 `(,func ,seqs ,mode ,idx) '(:obj :list :obj :num))
+		(assign '(-1) `(,end))
+	(else)
+		(list-bind-args :r1 `(,func ,seqs ,mode ,idx ,end) '(:obj :list :obj :num :num))
+	(endif)
 	(call 'obj :ref `(,mode) {value})
 
 	(call 'list :min_length `(,seqs) '(_ len))
@@ -753,11 +775,11 @@
 
 (errorcase
 (vp-label 'error1)
-	(jump 'lisp :repl_error {this, "(some! start end mode lambda seqs)", +error_msg_wrong_types, seqs})
+	(jump 'lisp :repl_error {this, "(some! lambda seqs [mode start end])", +error_msg_wrong_types, seqs})
 (vp-label 'error2)
 	(call 'obj :deref {value})
-	(jump 'lisp :repl_error {this, "(some! start end mode lambda seqs)", +error_msg_not_valid_index, seqs})
-	(signature '(num num obj obj list)))
+	(jump 'lisp :repl_error {this, "(some! lambda seqs [mode start end])", +error_msg_not_valid_index, seqs})
+	(signature '(obj list obj num num)))
 
 	(pop-scope-syms)
 
@@ -783,18 +805,27 @@
 	(entry 'seq :lisp_map {this, seqs})
 
 (errorcase
-	(errorif-lisp-args-sig-range :r1 4 5 'error1)
+	(errorif-lisp-args-sig-range :r1 2 5 'error1)
 	(assign '((:r1 array_begin)) '(:r1))
-	(assign `((:r1 ,(* +ptr_size 3))) '(:r1))
+	(assign `((:r1 +ptr_size)) '(:r1))
 	(errorif-lisp-args-type :r1 seq 0 'error1))
 
 	(assign {seqs} '(:r1))
 	(assign '((:r1 array_length)) '(:r2))
-	(vpif '(:r2 = 4))
-		(list-bind-args :r1 `(,idx ,end ,func ,seqs) '(:num :num :obj :list))
+	(vpif '(:r2 = 2))
+		(list-bind-args :r1 `(,func ,seqs) '(:obj :list))
 		(call 'list :create :nil '(:r0))
+		(assign '(0 -1) `(,idx ,end))
+	(elseif '(:r2 = 3))
+		(list-bind-args :r1 `(,func ,seqs :r0) '(:obj :list :list))
+		(class/obj/ref :r0 :r1)
+		(assign '(0 -1) `(,idx ,end))
+	(elseif '(:r2 = 4))
+		(list-bind-args :r1 `(,func ,seqs :r0 ,idx) '(:obj :list :list :num))
+		(class/obj/ref :r0 :r1)
+		(assign '(-1) `(,end))
 	(else)
-		(list-bind-args :r1 `(,idx ,end ,func ,seqs :r0) '(:num :num :obj :list :list))
+		(list-bind-args :r1 `(,func ,seqs :r0 ,idx ,end) '(:obj :list :list :num :num))
 		(class/obj/ref :r0 :r1)
 	(endif)
 	(assign '(:r0) {out})
@@ -864,15 +895,15 @@
 
 (errorcase
 (vp-label 'error1)
-	(jump 'lisp :repl_error {this, "(map! start end lambda seqs [out])", +error_msg_wrong_types, seqs})
+	(jump 'lisp :repl_error {this, "(map! lambda seqs [out start end])", +error_msg_wrong_types, seqs})
 (vp-label 'error2)
 	(call 'obj :deref {out})
-	(jump 'lisp :repl_error {this, "(map! start end lambda seqs [out])", +error_msg_not_valid_index, seqs})
+	(jump 'lisp :repl_error {this, "(map! lambda seqs [out start end])", +error_msg_not_valid_index, seqs})
 (vp-label 'error3)
 	(call 'obj :deref {out})
 	(exit 'seq :lisp_map {this, value})
 	(return)
-	(signature '(num num obj list list)))
+	(signature '(obj list list num num)))
 
 	(pop-scope-syms)
 
@@ -898,13 +929,22 @@
 	(entry 'seq :lisp_reduce {this, seqs})
 
 (errorcase
-	(errorif-lisp-args-sig :r1 5 'error1)
+	(errorif-lisp-args-sig-range :r1 3 5 'error1)
 	(assign '((:r1 array_begin)) '(:r1))
-	(assign `((:r1 ,(* +ptr_size 3))) '(:r1))
+	(assign `((:r1 +ptr_size)) '(:r1))
 	(errorif-lisp-args-type :r1 seq 0 'error1))
 
 	(assign {seqs} `(,seqs))
-	(list-bind-args seqs `(,idx ,end ,func ,seqs ,value) '(:num :num :obj :list :obj))
+	(assign `((,seqs array_length)) '(:r2))
+	(vpif '(:r2 = 3))
+		(list-bind-args seqs `(,func ,seqs ,value) '(:obj :list :obj))
+		(assign '(0 -1) `(,idx ,end))
+	(elseif '(:r2 = 4))
+		(list-bind-args seqs `(,func ,seqs ,value ,idx) '(:obj :list :obj :num))
+		(assign '(-1) `(,end))
+	(else)
+		(list-bind-args seqs `(,func ,seqs ,value ,idx ,end) '(:obj :list :obj :num :num))
+	(endif)
 	(assign `(,value) {value})
 	(class/obj/ref value dir)
 
@@ -966,11 +1006,11 @@
 
 (errorcase
 (vp-label 'error1)
-	(jump 'lisp :repl_error {this, "(reduce! start end lambda seqs init)", +error_msg_wrong_types, seqs})
+	(jump 'lisp :repl_error {this, "(reduce! lambda seqs init [start end])", +error_msg_wrong_types, seqs})
 (vp-label 'error2)
 	(call 'obj :deref {value})
-	(jump 'lisp :repl_error {this, "(reduce! start end lambda seqs init)", +error_msg_not_valid_index, seqs})
-	(signature '(num num obj list obj)))
+	(jump 'lisp :repl_error {this, "(reduce! lambda seqs init [start end])", +error_msg_not_valid_index, seqs})
+	(signature '(obj list obj num num)))
 
 	(pop-scope-syms)
 

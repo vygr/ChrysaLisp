@@ -38,6 +38,9 @@ made the comparison function optional and default to `cmp`.
 
 New `(usort list [cmp start end])` utility function.
 
+Iterator functions `(each!)`, `(some!)`, `(map!)` and `(reduce!)` now take
+arguments other than the lambda and the list of sequences as optionals !
+
 ------
 
 Fix `forward.lisp` defs regexp !

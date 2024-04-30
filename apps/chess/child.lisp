@@ -209,7 +209,7 @@
 ;generate all first hit pieces from index position along given vectors
 (defun piece-scans (brd index vectors)
 	(defq yield "" cx (logand index 7) cy (>> index 3))
-	(each! 0 -1 (lambda ((dx dy len))
+	(each! (lambda ((dx dy len))
 		(defq x cx y cy)
 		(while (>= (setq len (dec len)) 0)
 			(cond
@@ -231,15 +231,15 @@
 		(defq king_index (find-rev "K" brd) tests black_tests)
 		(defq king_index (find-rev "k" brd) tests white_tests))
 	;return in check or not
-	(some! 0 -1 :nil (lambda ((pieces vectors))
+	(some! (lambda ((pieces vectors))
 		(defq hit_pieces (piece-scans brd king_index vectors) pieces (list pieces))
-		(some! 0 -1 :nil (lambda (piece)
+		(some! (lambda (piece)
 			(find-rev piece hit_pieces)) pieces)) (list tests)))
 
 ;evaluate (score) a board for the color given
 (defun evaluate (brd color)
 	(defq black_score 0 white_score 0)
-	(each! 0 -1 (lambda (piece)
+	(each! (lambda (piece)
 		;add score for position on the board, piece type, near center, clear lines etc
 		(unless (eql piece " ")
 			(defq eval_values (piece-map piece_evaluation_map piece))
@@ -252,7 +252,7 @@
 (defun piece-moves (yield brd index color moves)
 	(defq piece (elem-get brd index) cx (logand index 7) cy (>> index 3)
 		promote (if (= color +black) '("QRBN") '("qrbn")))
-	(each! 0 -1 (lambda ((dx dy len flag))
+	(each! (lambda ((dx dy len flag))
 		(defq x cx y cy)
 		;special length for pawns so we can adjust for starting 2 hop
 		(when (= len 0)
@@ -280,7 +280,7 @@
 							(cond
 								((and (or (= y 0) (= y 7)) (or (eql piece "P") (eql piece "p")))
 									;try all the pawn promotion possibilities
-									(each! 0 -1 (lambda (promote_piece)
+									(each! (lambda (promote_piece)
 										(setq newbrd (cat (slice newbrd 0 newindex) promote_piece (slice newbrd (inc newindex) -1)))
 										(unless (in-check newbrd color)
 											(push yield newbrd))) promote))
@@ -298,7 +298,7 @@
 (defun all-moves (brd color)
 	;enumarate the board square by square
 	(defq yield (list) is_black (= color +black))
-	(each! 0 -1 (lambda (piece)
+	(each! (lambda (piece)
 		(unless (eql piece " ")
 			(when (eql (< (code piece) (ascii-code "Z")) is_black)
 				;one of our pieces ! so gather all boards from possible moves of this piece
@@ -315,7 +315,7 @@
 		((= ply 0)
 			(evaluate brd color))
 		(:t (defq next_boards (all-moves brd color))
-			(some! 0 -1 :nil (lambda (brd)
+			(some! (lambda (brd)
 				(cond
 					((= _ 0)
 						(defq value (neg (pvs brd (neg color) (neg beta) (neg alpha) (dec ply)))))
@@ -335,7 +335,7 @@
 		((= ply 0)
 			(evaluate brd color))
 		(:t (defq value +min_int next_boards (all-moves brd color))
-			(some! 0 -1 :nil (lambda (brd)
+			(some! (lambda (brd)
 				(setq value (max value (neg (negamax brd (neg color) (neg beta) (neg alpha) (dec ply))))
 					alpha (max alpha value))
 				(>= alpha beta)) (list next_boards))
@@ -358,10 +358,10 @@
 				(* +queen_value (reduce (lambda (cnt past_brd) (if (eql past_brd brd) (inc cnt) cnt)) history 0))
 				brd)) (all-moves brd color)))
 	;iterative deepening of ply so we allways have a best move to go with if the time expires
-	(some! 0 -1 :nil (lambda (ply)
+	(some! (lambda (ply)
 		(reply "s" (str (LF) "Ply" ply " "))
 		(defq value +min_int alpha +min_int beta +max_int timeout
-			(some! 0 -1 :nil (lambda (ply0_brd)
+			(some! (lambda (ply0_brd)
 					(bind '(_ bias brd) ply0_brd)
 					(elem-set ply0_brd 0 (defq score
 						(neg (negamax brd (neg color) (neg beta) (neg alpha) (dec ply)))))

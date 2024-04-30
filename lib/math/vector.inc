@@ -197,9 +197,9 @@
 (defun bounding-box (verts fnc)
 	; (bounding-box verts vec3-extract-fnc) -> (min_v3 max_v3)
 	(defq min_v (cat (fnc (first verts))) max_v (cat min_v))
-	(each! 1 -1 (#
+	(each! (#
 		(vec-min (defq v (fnc %0)) min_v min_v)
-		(vec-max v max_v max_v)) (list verts))
+		(vec-max v max_v max_v)) (list verts) 1)
 	(list min_v max_v))
 
 (defun bounding-sphere (verts fnc)

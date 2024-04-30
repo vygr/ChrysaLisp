@@ -37,12 +37,10 @@
 		;bounds
 		(cond
 			((= k -1)
-				(setq j (some! i 0 :nil
-						(# (unless (starts-with prefix %0) (inc _)))
-					(list word_list)))
-				(setq k (some! i -1 :nil
-						(# (unless (starts-with prefix %0) _))
-					(list word_list)))
+				(setq j (some! (# (unless (starts-with prefix %0) (inc _)))
+					(list word_list) :nil i 0))
+				(setq k (some! (# (unless (starts-with prefix %0) _))
+					(list word_list) :nil i -1))
 				(unless j (setq j 0))
 				(unless k (setq k (length word_list)))
 				(slice word_list j k))

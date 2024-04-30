@@ -49,36 +49,33 @@
 (defun hit-line (buckets minx miny maxx maxy width id func line)
 	(defq miny (* (dec miny) width) maxy (* maxy width))
 	(while (and (<= (setq miny (+ miny width)) maxy)
-				(not (defq hit (some! (+ miny minx) (+ miny maxx 1) :nil
+				(not (defq hit (some!
 					(lambda (bucket)
 						(some (lambda (record)
 							(when (/= (elem-get record +record_id) id)
 								(elem-set record +record_id id)
 								(func record line)))
 							bucket))
-					(list buckets)))))
+					(list buckets) :nil (+ miny minx) (+ miny maxx 1)))))
 	hit))
 
 (defun add-line (buckets minx miny maxx maxy width record)
 	(defq miny (* (dec miny) width) maxy (* maxy width))
 	(while (<= (setq miny (+ miny width)) maxy)
-		(each! (+ miny minx) (+ miny maxx 1)
-			(lambda (bucket)
-				(push bucket record))
-			(list buckets))))
+		(each! (lambda (bucket) (push bucket record))
+			(list buckets) (+ miny minx) (+ miny maxx 1))))
 
 (defun sub-line (buckets minx miny maxx maxy width layer_line)
 	(defq miny (* (dec miny) width) maxy (* maxy width))
 	(while (<= (setq miny (+ miny width)) maxy)
-		(each! (+ miny minx) (+ miny maxx 1)
-			(lambda (bucket)
-				(when (defq idx (some
-						(lambda (record)
-							(if (eql (elem-get record +record_layer_line) layer_line) _))
-						bucket))
-					(elem-set bucket idx (last bucket))
-					(pop bucket)))
-			(list buckets))))
+		(each! (lambda (bucket)
+			(when (defq idx (some
+					(lambda (record)
+						(if (eql (elem-get record +record_layer_line) layer_line) _))
+					bucket))
+				(elem-set bucket idx (last bucket))
+				(pop bucket)))
+			(list buckets) (+ miny minx) (+ miny maxx 1))))
 
 ;native versions
 (ffi hit-line "apps/pcb/hit_line" 0)

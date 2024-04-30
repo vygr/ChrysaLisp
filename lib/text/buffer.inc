@@ -219,10 +219,10 @@
 	(defmethod :file_save (filepath)
 		; (. buffer :file_save filepath) -> buffer
 		(raise :syntax_engine :tab_width (stream (file-stream filepath +file_open_write)))
-		(each! 0 (bind '(w h) (. this :get_size)) (lambda (line)
+		(each! (lambda (line)
 				(task-slice)
 				(write-line stream (. syntax_engine :compress_tabs line tab_width)))
-			(list (get :buffer_line this)))
+			(list (get :buffer_line this)) 0 (bind '(w h) (. this :get_size)))
 		(lower (:modified :nil)) this)
 
 	(defmethod :vdu_load (vdu scroll_x scroll_y &optional end_state)
@@ -440,27 +440,25 @@
 						((setq x (dec x))))
 					(if (eql ")" (elem-get line x))
 						(setq x (dec x))))
-				(setq y (some! (inc y) 0 :nil (lambda (syntax brackets)
+				(setq y (some! (lambda (syntax brackets)
 					(defq oc c)
 					(cond
 						((< (setq c (+ c (cond
 								((= x -1) brackets)
 								(:t (defq brackets 0)
-									(each! (min (inc x) (length syntax)) 0
-										(# (setq brackets (+ brackets (cond
-											((/= (logand 0xffffff000000 %0) ink_text) 0)
-											((eql (logand 0xff %0) (ascii-code "(")) -1)
-											((eql (logand 0xff %0) (ascii-code ")")) 1)
-											(0))))) (list syntax)) brackets)))) 0)
-							(setq x (some! (if (= x -1) (length syntax)
-										(min (inc x) (length syntax))) 0 :nil
-								(# (if (< (setq oc (+ oc (cond
+									(each! (# (setq brackets (+ brackets (cond
+										((/= (logand 0xffffff000000 %0) ink_text) 0)
+										((eql (logand 0xff %0) (ascii-code "(")) -1)
+										((eql (logand 0xff %0) (ascii-code ")")) 1)
+										(0))))) (list syntax) (min (inc x) (length syntax)) 0) brackets)))) 0)
+							(setq x (some! (# (if (< (setq oc (+ oc (cond
 									((/= (logand 0xffffff000000 %0) ink_text) 0)
 									((eql (logand 0xff %0) (ascii-code "(")) -1)
 									((eql (logand 0xff %0) (ascii-code ")")) 1)
-									(0)))) 0) _)) (list syntax))) _)
+									(0)))) 0) _))
+								(list syntax) :nil (if (= x -1) (length syntax) (min (inc x) (length syntax))) 0)) _)
 						(:t (setq x -1) :nil)))
-					(list buffer_syntax buffer_brackets)))
+					(list buffer_syntax buffer_brackets) :nil (inc y) 0))
 				(if (and x y) (list x y) '(:nil :nil)))
 			('(:nil :nil))))
 
@@ -482,24 +480,24 @@
 						((setq x (dec x))))
 					(if (eql "(" (elem-get line x))
 						(setq x (inc x))))
-				(setq y (some! y h :nil (lambda (syntax brackets)
+				(setq y (some! (lambda (syntax brackets)
 					(defq oc c)
 					(cond
 						((> (setq c (+ c (cond
 								((= x 0) brackets)
 								(:t (defq brackets 0)
-									(each! x -1 (# (setq brackets (+ brackets (cond
+									(each! (# (setq brackets (+ brackets (cond
 										((/= (logand 0xffffff000000 %0) ink_text) 0)
 										((eql (logand 0xff %0) (ascii-code "(")) -1)
 										((eql (logand 0xff %0) (ascii-code ")")) 1)
-										(0))))) (list syntax)) brackets)))) 0)
-							(setq x (some! x -1 :nil (# (if (> (setq oc (+ oc (cond
+										(0))))) (list syntax) x) brackets)))) 0)
+							(setq x (some! (# (if (> (setq oc (+ oc (cond
 								((/= (logand 0xffffff000000 %0) ink_text) 0)
 								((eql (logand 0xff %0) (ascii-code "(")) -1)
 								((eql (logand 0xff %0) (ascii-code ")")) 1)
-								(0)))) 0) _)) (list syntax))) _)
+								(0)))) 0) _)) (list syntax) :nil x)) _)
 						(:t (setq x 0) :nil)))
-					(list buffer_syntax buffer_brackets)))
+					(list buffer_syntax buffer_brackets) :nil y h))
 				(if (and x y) (list x y) '(:nil :nil)))
 			('(:nil :nil))))
 

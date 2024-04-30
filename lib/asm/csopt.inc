@@ -31,9 +31,8 @@
 	`(find-rev ,r ,op))
 
 (defmacro find-past (&rest _)
-	`(and (defq _ (some! _ 1 :nil
-			(lambda (op) (cond ~_))
-		(list inst_list))) (> _ -1) _))
+	`(and (defq _ (some! (lambda (op) (cond ~_))
+		(list inst_list) :nil _ 1)) (> _ -1) _))
 
 (defun opt-find-1 (_ r x)
 	(find-past

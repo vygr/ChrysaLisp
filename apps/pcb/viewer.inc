@@ -7,7 +7,7 @@
 
 (defun trans (_) (+ (logand 0xffffff _) 0xa0000000))
 
-(defq +colors `'(~(map! 0 -1 trans (list (list
+(defq +colors `'(~(map! trans (list (list
 	+argb_red +argb_green +argb_blue +argb_yellow +argb_cyan +argb_magenta)))))
 
 (defun circle (r)
@@ -34,7 +34,7 @@
 	(map (const to-path) _))
 
 (defun pcb-draw-normal ()
-	(each! 1 -1 (lambda ((id track_radius via_radius track_gap pads wires &optional paths))
+	(each! (lambda ((id track_radius via_radius track_gap pads wires &optional paths))
 		(if paths (setq wires (cat wires paths)))
 		(setq track_radius (* zoom track_radius) via_radius (* zoom via_radius) track_gap (* zoom track_gap))
 		(when (/= track_radius 0.0)
@@ -48,24 +48,22 @@
 						(path-stroke-polylines (elem-get layers z) track_radius +join_round +cap_round +cap_round (list seg_2d)))
 					) p path_2d)
 				) batched_paths batched_paths_2d)
-			(each! 0 pcb_depth
-				(lambda (layer color)
-					(.-> canvas
-						(:set_color color)
-						(:fpoly pcb_border pcb_border +winding_none_zero layer)))
-				(list layers +colors))
+			(each! (lambda (layer color)
+				(.-> canvas
+					(:set_color color)
+					(:fpoly pcb_border pcb_border +winding_none_zero layer)))
+				(list layers +colors) 0 pcb_depth)
 			;draw vias
 			(each (lambda (path_2d)
-				(each! 1 -1
-					(lambda (seg_2d)
-						(bind '(x y) (slice seg_2d 0 2))
-						(setq x (+ x pcb_border) y (+ y pcb_border))
-						(.-> canvas
-							(:set_color (const (trans +argb_white)))
-							(:fpoly x y +winding_odd_even (circle via_radius))
-							(:set_color (const (trans +argb_black)))
-							(:fpoly x y +winding_odd_even (circle (/ via_radius 2.0)))))
-					(list path_2d))
+				(each! (lambda (seg_2d)
+					(bind '(x y) (slice seg_2d 0 2))
+					(setq x (+ x pcb_border) y (+ y pcb_border))
+					(.-> canvas
+						(:set_color (const (trans +argb_white)))
+						(:fpoly x y +winding_odd_even (circle via_radius))
+						(:set_color (const (trans +argb_black)))
+						(:fpoly x y +winding_odd_even (circle (/ via_radius 2.0)))))
+					(list path_2d) 1)
 				) batched_paths_2d))
 		;draw pads
 		(each (lambda ((pad_radius pad_gap (pad_x pad_y pad_z) pad_shape))
@@ -83,10 +81,10 @@
 						(. canvas :fpoly pad_x pad_y +winding_odd_even (oval pad_radius pad_shape)))
 					(:t ;polygon pad
 						(. canvas :fpoly pad_x pad_y +winding_odd_even (list pad_shape)))))) pads)
-		) (list pcb)))
+		) (list pcb) 1))
 
 (defun pcb-draw-gerber-layer (with_gaps)
-	(each! 1 -1 (lambda ((id track_radius via_radius track_gap pads wires &optional paths))
+	(each! (lambda ((id track_radius via_radius track_gap pads wires &optional paths))
 		(if paths (setq wires (cat wires paths)))
 		(setq track_radius (* zoom track_radius) via_radius (* zoom via_radius) track_gap (* zoom track_gap))
 		(when (/= track_radius 0.0)
@@ -104,12 +102,11 @@
 			(. canvas :fpoly pcb_border pcb_border +winding_none_zero layer)
 			;draw vias
 			(each (lambda (path_2d)
-				(each! 1 -1
-					(lambda (seg_2d)
-						(bind '(x y) (slice seg_2d 0 2))
-						(setq x (+ x pcb_border) y (+ y pcb_border))
-						(. canvas :fpoly x y +winding_odd_even (circle (+ via_radius (if with_gaps track_gap 0.0)))))
-					(list path_2d))
+				(each! (lambda (seg_2d)
+					(bind '(x y) (slice seg_2d 0 2))
+					(setq x (+ x pcb_border) y (+ y pcb_border))
+					(. canvas :fpoly x y +winding_odd_even (circle (+ via_radius (if with_gaps track_gap 0.0)))))
+					(list path_2d) 1)
 				) batched_paths_2d))
 		;draw pads
 		(each (lambda ((pad_radius pad_gap (pad_x pad_y pad_z) pad_shape))
@@ -131,7 +128,7 @@
 							(. canvas :fpoly pad_x pad_y +winding_odd_even
 								(list pad_shape))))))
 			) pads)
-		) (list pcb)))
+		) (list pcb) 1))
 
 (defun pcb-draw-gerber ()
 	;first draw in white with gaps

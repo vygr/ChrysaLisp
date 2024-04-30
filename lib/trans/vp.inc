@@ -54,11 +54,11 @@
 	(defq out_buf "" old_out_buf "" *pass* 0 *pc* 0
 		*branches* (cap 64 (list))
 		*out_stream* (string-stream out_buf))
-	(each! 1 -1 (lambda (op)
+	(each! (lambda (op)
 			;map vp reg syms to native reg nums
-			(each! 1 -1 (lambda (e)
+			(each! (lambda (e)
 				(if (defq e (emit-native-reg? e))
-					(elem-set op _ e))) (list op))
+					(elem-set op _ e))) (list op) 1)
 			;create label and branch initial values
 			(cond
 				((eql (defq e (first op)) 'emit-label)
@@ -68,7 +68,7 @@
 					(push op (dec (length (push *branches* 0))))))
 			;bind emit func
 			(elem-set op 0 (def? e +emit_funcs)))
-		(list emit_code))
+		(list emit_code) 1)
 	;multi pass of native emit functions
 	(eval emit_code)
 	(setq out_buf (str *out_stream*) *pass* (inc *pass*))

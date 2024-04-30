@@ -6,12 +6,12 @@
 	5 (list) 6 (list) 7 (list) 8 (list) 9 (list)))
 
 (defun macro-playback (actions)
-	(some! 0 -1 :t (# (cond
+	(some! (# (cond
 			((or (eql (defq func (first %0)) (const action-find-up))
 					(eql func (const action-find-down)))
 				(setq running (eval %0)))
 			(:t (eval %0) :t)))
-		(list actions)))
+		(list actions) :t))
 
 (defun macro-record (action)
 	(defq rec (. +macro_map :find 0))
@@ -45,8 +45,8 @@
 			(while (and running (> eof_gap_y 0)
 						(or (< eof_gap_y old_eof_gap_y)
 							(and (= eof_gap_y old_eof_gap_y) (< eof_gap_x old_eof_gap_x)))
-						(not (some! cy -1 :t (const blank-line?)
-							(list (. buffer :get_text_lines)))))
+						(not (some! (const blank-line?)
+							(list (. buffer :get_text_lines)) :t cy)))
 				(macro-playback actions)
 				(when running
 					(setq old_eof_gap_x eof_gap_x old_eof_gap_y eof_gap_y)

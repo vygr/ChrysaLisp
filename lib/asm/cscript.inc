@@ -85,7 +85,7 @@
 
 (defun cscript-reverse-polish (tokenize_output)
 	(defq token_stack '() out_tokens (clear '()) out_types (clear '()))
-	(each! 0 -1 (lambda (token type)
+	(each! (lambda (token type)
 		(case type
 			((:lrb :lsb)
 				(push token_stack token))
@@ -352,7 +352,7 @@
 	(add-inst (list 'vp-lea-p (list quote _) (push-reg :nil))))
 
 (defun cscript-compile (rpn_output)
-	(each! 0 -1 (lambda (token type)
+	(each! (lambda (token type)
 		(case type
 			(:operator (compile-operator (sym token)))
 			(:number (compile-const (str-as-num token)))

@@ -37,10 +37,10 @@
 (defun select-word ()
 	(bind '(cx cy) (. *edit* :get_cursor))
 	(defq line (.-> *edit* :get_buffer (:get_text_line cy))
-		x (some! cx 0 :nil (#
-			(if (not-whole-word-char? %0) (inc _))) (list line))
-		x1 (some! cx -1 :nil (#
-		   (if (not-whole-word-char? %0) _)) (list line)))
+		x (some! (# (if (not-whole-word-char? %0) (inc _)))
+			(list line) :nil cx 0)
+		x1 (some! (# (if (not-whole-word-char? %0) _))
+			(list line) :nil cx))
 	(unless x (setq x 0))
 	(unless x1 (setq x1 (length line)))
 	(list x x1))
@@ -91,7 +91,7 @@
 		found (. buffer :get_found) fc 0)
 	(bind '(fx fy fx1 fy1) (. *edit* :get_find))
 	(if (>= fy fy1) (setq fy 0 fy1 (length found)))
-	(each! fy fy1 (# (setq fc (+ fc (if %0 (length %0) 0)))) (list found))
+	(each! (# (setq fc (+ fc (if %0 (length %0) 0)))) (list found) fy fy1)
 	fc)
 
 (defq +range_0_10 `'(~(range 0 10)))

@@ -11,7 +11,7 @@
 	;break the stream into svg tokens, symbols, strings etc
 	;parse the commands and attributes calling back to the user functions
 	(defq _stack (list) _keys (list) _vals (list) _state :text)
-	(each! 0 -1 (lambda (_type _token)
+	(each! (lambda (_type _token)
 		(while _type
 			(case _state
 				(:text

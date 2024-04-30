@@ -15,7 +15,7 @@
 
 (defun all-pcbs (p)
 	(defq out (list))
-	(each! 0 -1 (lambda (f m) (and (eql m "8") (ends-with ".pcb" f) (push out (cat p f))))
+	(each! (lambda (f m) (and (eql m "8") (ends-with ".pcb" f) (push out (cat p f))))
 		(unzip (split (pii-dirlist p) ",") 2))
 	(sort out))
 

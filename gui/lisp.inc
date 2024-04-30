@@ -35,7 +35,7 @@
 (defun ui-merge-props (p)
 	; (ui-merge-props props) -> props
 	(defq ps (clear '()) pv (clear '()))
-	(each! 0 -1 (lambda (s v)
+	(each! (lambda (s v)
 		(cond
 			((defq i (find-rev s ps))
 				(elem-set ps i s) (elem-set pv i v))

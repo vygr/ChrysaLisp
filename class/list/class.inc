@@ -54,7 +54,7 @@
 	;outputs
 	;load and cast register list from list
 	(defq rl (list) tp (list))
-	(each! 0 -1 (lambda (x y)
+	(each! (lambda (x y)
 		(when (not (eql '_ y))
 			(push rl x)
 			(push tp y))) (list regs types))

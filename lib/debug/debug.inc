@@ -29,7 +29,7 @@
 	(if (> (length s) w)
 		(if d
 			(cat "... " (slice s (- 3 w) -1))
-			(cat (slice s 0 (- w 4) s) " ..."))))
+			(cat (slice s 0 (- w 4)) " ..."))))
 
 (defun debug-sanitize (s w &optional d)
 	(if (eql s "") s

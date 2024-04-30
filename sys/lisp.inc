@@ -31,7 +31,7 @@
 
 (defun free-select (select)
 	; (free-select select)
-	(each! 1 -1 mail-free-mbox (list select)))
+	(each! mail-free-mbox (list select) 1))
 
 (defun id-decode (id)
 	; (id-decode id) -> id

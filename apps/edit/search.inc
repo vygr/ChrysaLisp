@@ -31,13 +31,13 @@
 				(bind '(_ fy _ fy1) (. *edit* :get_find))
 				(if (> fy1 fy) (setq sy (max sy fy) sy1 (min sy1 fy1)))
 				(if (< cy sy) (setq cy sy cx 0))
-				(when (and (< cy sy1) (defq next (some! cy sy1 :nil
+				(when (and (< cy sy1) (defq next (some!
 						(lambda (match)
 							(defq y _)
 							(some (lambda (((x x1) &ignore)) (cond
 								((> y cy) (list x x1 y))
 								((>= x cx) (list x x1 y)))) match))
-						(list found))))
+						(list found) :nil cy sy1)))
 					(bind '(x x1 y) next)
 					(. *edit* :set_anchor x y)
 					(. buffer :set_cursor x1 y)
@@ -55,13 +55,13 @@
 				(bind '(_ fy _ fy1) (. *edit* :get_find))
 				(if (> fy1 fy) (setq sy (max sy fy) sy1 (min sy1 fy1)))
 				(if (>= cy sy1) (setq cy (dec sy1) cx +max_int))
-				(when (and (>= cy sy) (defq next (some! (inc cy) sy :nil
+				(when (and (>= cy sy) (defq next (some!
 						(lambda (match)
 							(defq y _)
 							(some-rev (lambda (((x x1) &ignore)) (cond
 								((< y cy) (list x x1 y))
 								((< x cx) (list x x1 y)))) match))
-						(list found))))
+						(list found) :nil (inc cy) sy)))
 					(bind '(x x1 y) next)
 					(. *edit* :set_anchor x1 y)
 					(. buffer :set_cursor x y)
@@ -124,14 +124,14 @@
 			(unless noclip
 				(bind '(_ fy _ fy1) (. *edit* :get_find))
 				(if (> fy1 fy) (setq sy (max sy fy) sy1 (min sy1 fy1))))
-			(each! sy sy1 (lambda (match)
+			(each! (lambda (match)
 				(defq y _)
 				(each-rev (lambda (((x x1) &ignore))
 					(when (defq rep (build-replace lines found rep_text rep_matches x y x1))
 						(.-> buffer
 							(:set_cursor x y)
 							(:delete (- x1 x))
-							(:insert rep)))) match)) (list found)))
+							(:insert rep)))) match)) (list found) sy sy1))
 		(bind '(cx cy) (. *edit* :get_cursor))
 		(. *edit* :set_anchor cx cy)
 		(refresh)))
@@ -167,10 +167,10 @@
 	(unless noclip
 		(bind '(_ fy _ fy1) (. *edit* :get_find))
 		(if (> fy1 fy) (setq sy (max sy fy) sy1 (min sy1 fy1))))
-	(each! sy sy1 (lambda (line found)
+	(each! (lambda (line found)
 			(if found (each (lambda (((x x1) &ignore))
 				(push results (slice line x x1))) found)))
-		(list lines found)))
+		(list lines found) sy sy1))
 
 (defun action-collect (whole_words regexp pattern)
 	(unless (eql pattern "")

@@ -34,11 +34,11 @@
 			(setq last_e e))) emit_list)
 	(defq stack (rest out))
 	(while (defq lst (pop stack))
-		(each! 1 -1 (lambda (e)
+		(each! (lambda (e)
 			(if (list? e)
 				(push stack e)
 				(and (sym? e) (defq e (def? e labels)) (elem-set lst _ e))))
-			(list lst))) out)
+			(list lst) 1 -1)) out)
 
 ;;;;;;;;;;;;;;;;;
 ; VP Instructions
@@ -138,4 +138,4 @@
 (defun vp-simd (op &rest v)
 	(unless (every (# (= (length %0) (length (first v)))) v)
 		(throw "Mismatched vectors !" v))
-	(each! 0 -1 op v))
+	(each! op v))

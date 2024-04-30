@@ -12,7 +12,7 @@
 	(defq stack (list root) paths (list))
 	(while (setq root (pop stack))
 		(unless (starts-with "./obj" root)
-			(each! 0 -1 (lambda (file type)
+			(each! (lambda (file type)
 				(cond
 					((eql type "8")
 						;file

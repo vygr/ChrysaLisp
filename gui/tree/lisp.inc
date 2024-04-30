@@ -25,7 +25,7 @@
 		; "a/b/c/."
 		(bind '(toggle_width _) (font-glyph-bounds (get :font this) ">"))
 		(defq route (split route "/") root this)
-		(each! 0 -2 (lambda (branch)
+		(each! (lambda (branch)
 			(cond
 				((defq node (some (# (if (eql (def? :text %0) branch) %0)) (. root :children)))
 					;existing route
@@ -43,7 +43,7 @@
 						(. (Node) :connect (get :action_event this))))
 					(.-> node (:add_child title_flow) (:add_child tab_flow))
 					(. root :add_child node)
-					(setq root tab_child)))) (list route))
+					(setq root tab_child)))) (list route) 0 -2)
 		(unless (or (eql (defq file (last route)) ".")
 					(some (# (if (eql (def? :text %0) file) %0)) (. root :children)))
 			(def (defq node (Node)) :text file)

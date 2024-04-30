@@ -39,7 +39,7 @@
 			:font (create-font "fonts/Entypo.ctf" (page-scale 10)))
 		(. flow :add_child text)
 		(setq index 1 cnt (defq indent_width (first (. text :pref_size)))))
-	(each! index -1 (lambda (word)
+	(each! (lambda (word)
 		(. flow :add_child (defq text (Text)))
 		(push *search_widgets* text)
 		(if (starts-with "`" word)
@@ -57,7 +57,7 @@
 				(. flow :add_child indent)
 				(setq w (+ w indent_width)))
 			(. flow :add_child text)
-			(setq cnt w))) (list words)))
+			(setq cnt w))) (list words) index))
 
 (defun blank-line ()
 	(def (defq text (Text)) :text "")
