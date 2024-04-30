@@ -187,7 +187,7 @@ B2
 ## Predication
 
 You can predicate over sequences or slices of sequences, forwards or backwards
-by use of the `(some! mode lambda seqs [start end])` function. You provide a
+by use of the `(some! lambda seqs [mode start end])` function. You provide a
 function that will be called for the group of elements from each index
 position, you can decide if it'll exit if that function returns a `:nil` or
 not. `(some)` `(every)` `(notany)` and `(notevery)` are macros that assume the
