@@ -193,7 +193,7 @@
 (ffi array "class/array/lisp_array" 0)
 ; (array [num ...]) -> array
 (ffi list "class/list/lisp_list" 0)
-; (list [elem] ...) -> list
+; (list [elem ...]) -> list
 (ffi nums "class/array/lisp_nums" 0)
 ; (nums [num ...]) -> nums
 (ffi fixeds "class/array/lisp_fixeds" 0)
