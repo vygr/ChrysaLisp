@@ -504,8 +504,7 @@
 	; (swap list index index)
 	(when (/= _1 _2)
 		(defq _t (elem-get _ _1))
-		(elem-set _ _1 (elem-get _ _2))
-		(elem-set _ _2 _t)))
+		(elem-set (elem-set _ _1 (elem-get _ _2)) _2 _t)))
 
 (defun shuffle (_a &optional _l _h)
 	; (shuffle list [start end]) -> list
@@ -513,9 +512,9 @@
 	(each! (lambda (x) (swap _a _ (random (inc _))))
 		(list _a) _h _l) _a)
 
-;;;;;;;;;;;;;;;;;
-; lambda shorcuts
-;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;
+; lambda shortcuts
+;;;;;;;;;;;;;;;;;;
 
 (defmacro # (&rest body)
 	; (# (< %9 %0 %3) ...) -> (lambda (%0 %3 %9) (< %9 %0 %3) ...)
