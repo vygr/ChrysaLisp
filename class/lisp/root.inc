@@ -107,7 +107,7 @@
 (ffi push "class/array/lisp_push" 0)
 ; (push array elem ...) -> array
 (ffi pop "class/array/lisp_pop" 0)
-; (push array elem ...) -> array
+; (pop array) -> elem
 (ffi elem-set "class/array/lisp_eset" 0)
 ; (elem-set array idx elem) -> array
 
