@@ -480,7 +480,7 @@
 	(cond
 		((= (length _) 0))
 		((= (length _) 1) (first _))
-		(:t `(if ,(first _) (and ~(rest _))))))
+		(`(if ,(first _) (and ~(rest _))))))
 
 (defmacro times (c &rest _)
 	; (times num body)
@@ -685,8 +685,7 @@
 		((array? seq)
 			(reduce! (# (if (eql %1 (last %0)) %0 (push %0 %1)))
 				(list seq) (slice seq 0 1) 1))
-		(:t ;string
-			(apply (const cat)
+		((apply (const cat)
 				(reduce (# (if (eql %1 (last %0)) %0 (push %0 %1)))
 					seq (list))))))
 
@@ -727,11 +726,11 @@
 			(if _atoms
 				`(elem-get ',(second _map) (or (find ,_form ',(first _map)) -2))
 				`(eval (elem-get ',(second _map) (or (find ,_form ',(first _map)) -2)))))
-		(:t (if _atoms
-				`(if (defq ,(defq _i (gensym)) (find ,_form ',(first _map)))
-					(elem-get ',(second _map) ,_i))
-				`(if (defq ,(defq _i (gensym)) (find ,_form ',(first _map)))
-					(eval (elem-get ',(second _map) ,_i)))))))
+		((if _atoms
+			`(if (defq ,(defq _i (gensym)) (find ,_form ',(first _map)))
+				(elem-get ',(second _map) ,_i))
+			`(if (defq ,(defq _i (gensym)) (find ,_form ',(first _map)))
+				(eval (elem-get ',(second _map) ,_i)))))))
 
 ;;;;;;;;;;;;;;;;
 ; Math functions
@@ -1043,7 +1042,7 @@
 			((and (defq file_list (def? '*file_includes* _ee))
 					(find lib_path file_list))
 				(setq _ee :t))
-			(:t (setq _ee (penv _ee)))))
+			((setq _ee (penv _ee)))))
 	; if not existing import it here
 	(unless _ee
 		(unless (def? '*file_includes* _e)
