@@ -562,7 +562,7 @@
 
 (defmacro map-rev (f &rest _)
 	; (map-rev lambda seq ...) -> list
-	`(map! ,f (list ~_) -1 0))
+	`(map! ,f (list ~_) (list) -1 0))
 
 (defmacro reduce (f s &optional i)
 	; (reduce lambda seq [init]) -> form
