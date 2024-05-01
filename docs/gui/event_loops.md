@@ -260,7 +260,6 @@ task.
 	...
 	(. farm :close)
 	(free-select select))
-
 ```
 
 I've cut out the specifics of what we do in this application with the job
