@@ -94,16 +94,14 @@ So let's see a few examples:
 		(print "b is 0"))
 	((= b 1)
 		(print "b is 1"))
-	(:t (print "no test is none :nil!")))
+	((print "no test is none :nil!")))
 ```
 
 Here the tests using symbol `a` have precedence over those with symbol `b` and
 the final clause will happen if no other clause.
 
 ```vdu
-(cond
-	(a :nil)
-	(:t))
+(cond (a :nil) (:t))
 ```
 
 Here if `a` is true then return `:nil` else return `:t`. So a simple logical not.
@@ -123,8 +121,8 @@ of the symbols used at the entry to the `(cond ...)` !
 	((= id +event_max)
 		;maximize app
 		)
-	(:t ;ui event for window....
-		(. *window* :event msg)))
+	;ui event for window....
+	((. *window* :event msg)))
 ```
 
 ### case

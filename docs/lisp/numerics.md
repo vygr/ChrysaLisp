@@ -4,7 +4,7 @@ ChrysaLisp supports a variety of number formats. Integers, fixed point and
 reals. Functions are provided to convert between these formats.
 
 Vectors are arrays of these primitives. There are functions that operate on
-every member of the array with a single call.
+every member of the vector with a single call.
 
 ## Numbers
 
@@ -133,7 +133,8 @@ Standard constructor macros are provided for common types. `(Vec3-f ...)`,
 
 All base vector operations take an optional output vector. This avoids a memory
 allocation and can provide faster operation. But be aware that the given
-optional output vector will be the returned value from the call !
+optional output vector will be the returned value from the call, be aware you
+may mutate an input vector !
 
 Temp vector constants are defined in the `lib/math/vector.inc` file, such as
 `+fixeds_tmp3`, `+fixeds_tmp4`, `+reals_tmp3`, `+reals_tmp4`, `+fixeds_zero3`,
