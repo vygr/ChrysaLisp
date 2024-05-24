@@ -224,7 +224,7 @@
 	(vpif '(:r2 = :r3))
 		(vp-push :r0)
 		(vp-swp-rr :r0 :r1)
-		(call 'list :deep_copy '(:r0 (:r1 lisp_stack)) '(_ :r1))
+		(call 'list :copy '(:r0 (:r1 lisp_stack)) '(_ :r1))
 		(vp-pop :r0)
 	(else)
 		(class/obj/ref :r1 :r2)

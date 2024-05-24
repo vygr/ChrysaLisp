@@ -52,9 +52,7 @@ trashes
 :r1-:r11
 ```
 
-### :create -> class/list/create
-
-### :deep_copy -> class/list/deep_copy
+### :copy -> class/list/copy
 
 ```code
 inputs
@@ -66,6 +64,8 @@ outputs
 trashes
 :r1-:r14
 ```
+
+### :create -> class/list/create
 
 ### :deinit -> class/list/deinit
 
