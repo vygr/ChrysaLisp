@@ -16,7 +16,7 @@
 
 	(entry 'pixmap :lisp_save_cpm '(:r0 :r1))
 
-	(errorif-lisp-args-sig :r1 3 'error)
+	(errorif-lisp-args-sig 'error :r1 3)
 
 	(vp-push :r0)
 	(defq in (method-input 'pixmap :save_cpm))
@@ -47,7 +47,7 @@
 
 	(entry 'pixmap :lisp_load_cpm '(:r0 :r1))
 
-	(errorif-lisp-args-sig :r1 1 'error)
+	(errorif-lisp-args-sig 'error :r1 1)
 
 	(vp-push :r0)
 	(defq in (method-input 'pixmap :load_cpm))
@@ -81,7 +81,7 @@
 
 	(entry 'pixmap :lisp_load_tga '(:r0 :r1))
 
-	(errorif-lisp-args-sig :r1 1 'error)
+	(errorif-lisp-args-sig 'error :r1 1)
 
 	(vp-push :r0)
 	(defq in (method-input 'pixmap :load_tga))

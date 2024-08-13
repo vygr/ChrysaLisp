@@ -18,7 +18,7 @@
 
 	(entry 'seq :lisp_length '(:r0 :r1))
 
-	(errorif-lisp-args-sig :r1 1 'error1)
+	(errorif-lisp-args-sig 'error1 :r1 1)
 
 	(vp-cpy-rr :r0 :r13)
 	(defq in (method-input 'seq :get_length))
@@ -48,7 +48,7 @@
 
 	(entry 'seq :lisp_elem '(:r0 :r1))
 
-	(errorif-lisp-args-sig :r1 2 'error1)
+	(errorif-lisp-args-sig 'error1 :r1 2)
 (errorcase
 	(assign '(:r1) '(:r13)))
 
@@ -85,7 +85,7 @@
 
 	(entry 'seq :lisp_slice '(:r0 :r1))
 
-	(errorif-lisp-args-sig :r1 3 'error1)
+	(errorif-lisp-args-sig 'error1 :r1 3)
 (errorcase
 	(assign '(:r1) '(:r13)))
 
@@ -165,7 +165,7 @@
 
 	(entry 'seq :lisp_find '(:r0 :r1))
 
-	(errorif-lisp-args-sig-range :r1 2 3 'error)
+	(errorif-lisp-args-sig 'error :r1 2 3)
 
 	(assign '((:r1 array_length)) '(:r2))
 	(vp-cpy-rr :r1 args)
@@ -242,7 +242,7 @@
 
 	(entry 'seq :lisp_rfind '(:r0 :r1))
 
-	(errorif-lisp-args-sig-range :r1 2 3 'error)
+	(errorif-lisp-args-sig 'error :r1 2 3)
 
 	(assign '((:r1 array_length)) '(:r2))
 	(vp-cpy-rr :r1 args)
@@ -316,7 +316,7 @@
 
 	(entry 'seq :lisp_first '(:r0 :r1))
 
-	(errorif-lisp-args-sig :r1 1 'error)
+	(errorif-lisp-args-sig 'error :r1 1)
 
 	(assign '(:r0) '(:r13))
 	(list-bind-args :r1 '(:r0) '(:seq))
@@ -350,7 +350,7 @@
 
 	(entry 'seq :lisp_second '(:r0 :r1))
 
-	(errorif-lisp-args-sig :r1 1 'error)
+	(errorif-lisp-args-sig 'error :r1 1)
 
 	(assign '(:r0) '(:r13))
 	(list-bind-args :r1 '(:r0) '(:seq))
@@ -384,7 +384,7 @@
 
 	(entry 'seq :lisp_third '(:r0 :r1))
 
-	(errorif-lisp-args-sig :r1 1 'error)
+	(errorif-lisp-args-sig 'error :r1 1)
 
 	(assign '(:r0) '(:r13))
 	(list-bind-args :r1 '(:r0) '(:seq))
@@ -418,7 +418,7 @@
 
 	(entry 'seq :lisp_last '(:r0 :r1))
 
-	(errorif-lisp-args-sig :r1 1 'error)
+	(errorif-lisp-args-sig 'error :r1 1)
 
 	(assign '(:r0) '(:r13))
 	(list-bind-args :r1 '(:r0) '(:seq))
@@ -452,7 +452,7 @@
 
 	(entry 'seq :lisp_rest '(:r0 :r1))
 
-	(errorif-lisp-args-sig :r1 1 'error)
+	(errorif-lisp-args-sig 'error :r1 1)
 
 	(assign '(:r0) '(:r13))
 	(list-bind-args :r1 '(:r0) '(:seq))
@@ -485,7 +485,7 @@
 
 	(entry 'seq :lisp_most '(:r0 :r1))
 
-	(errorif-lisp-args-sig :r1 1 'error)
+	(errorif-lisp-args-sig 'error :r1 1)
 
 	(assign '(:r0) '(:r13))
 	(list-bind-args :r1 '(:r0) '(:seq))
@@ -522,7 +522,7 @@
 
 	(entry 'seq :lisp_partition `(,this ,args))
 
-	(errorif-lisp-args-sig-range :r1 1 2 'error)
+	(errorif-lisp-args-sig 'error :r1 1 2)
 
 	(assign `((,args array_length)) `(,len))
 	(vpif `(,len = 1))
@@ -583,10 +583,10 @@
 	(entry 'seq :lisp_each {this, seqs})
 
 (errorcase
-	(errorif-lisp-args-sig-range :r1 2 4 'error1)
+	(errorif-lisp-args-sig 'error1 :r1 2 4)
 	(assign '((:r1 array_begin)) '(:r1))
 	(assign `((:r1 +ptr_size)) '(:r1))
-	(errorif-lisp-args-type :r1 seq 0 'error1))
+	(errorif-lisp-args-type 'error1 :r1 seq 0))
 
 	(assign {seqs} '(:r1))
 	(assign '((:r1 array_length)) '(:r2))
@@ -688,10 +688,10 @@
 	(entry 'seq :lisp_some {this, seqs})
 
 (errorcase
-	(errorif-lisp-args-sig-range :r1 2 5 'error1)
+	(errorif-lisp-args-sig 'error1 :r1 2 5)
 	(assign '((:r1 array_begin)) '(:r1))
 	(assign `((:r1 +ptr_size)) '(:r1))
-	(errorif-lisp-args-type :r1 seq 0 'error1))
+	(errorif-lisp-args-type 'error1 :r1 seq 0))
 
 	(assign {seqs} '(:r1))
 	(assign '((:r1 array_length)) '(:r2))
@@ -805,10 +805,10 @@
 	(entry 'seq :lisp_map {this, seqs})
 
 (errorcase
-	(errorif-lisp-args-sig-range :r1 2 5 'error1)
+	(errorif-lisp-args-sig 'error1 :r1 2 5)
 	(assign '((:r1 array_begin)) '(:r1))
 	(assign `((:r1 +ptr_size)) '(:r1))
-	(errorif-lisp-args-type :r1 seq 0 'error1))
+	(errorif-lisp-args-type 'error1 :r1 seq 0))
 
 	(assign {seqs} '(:r1))
 	(assign '((:r1 array_length)) '(:r2))
@@ -929,10 +929,10 @@
 	(entry 'seq :lisp_reduce {this, seqs})
 
 (errorcase
-	(errorif-lisp-args-sig-range :r1 3 5 'error1)
+	(errorif-lisp-args-sig 'error1 :r1 3 5)
 	(assign '((:r1 array_begin)) '(:r1))
 	(assign `((:r1 +ptr_size)) '(:r1))
-	(errorif-lisp-args-type :r1 seq 0 'error1))
+	(errorif-lisp-args-type 'error1 :r1 seq 0))
 
 	(assign {seqs} `(,seqs))
 	(assign `((,seqs array_length)) '(:r2))

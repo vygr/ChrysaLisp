@@ -15,7 +15,7 @@
 
 	(entry 'out :lisp_create '(:r0 :r1))
 
-	(errorif-lisp-args-sig :r1 1 'error)
+	(errorif-lisp-args-sig 'error :r1 1)
 
 	(vp-push :r0)
 	(defq in (method-input 'out :create))

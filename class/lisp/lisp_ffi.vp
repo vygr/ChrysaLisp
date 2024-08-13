@@ -22,7 +22,7 @@
 	(push-scope)
 	(entry 'lisp :lisp_ffi {this, args})
 
-	(errorif-lisp-args-sig :r1 4 'error)
+	(errorif-lisp-args-sig 'error :r1 4)
 
 	(call 'list :get_begin {args} {_, iter_begin})
 	(call 'sys_load :bind {&iter_begin[+ptr_size * 2]->str_data} {value})

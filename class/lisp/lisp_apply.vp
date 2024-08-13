@@ -15,7 +15,7 @@
 
 	(entry 'lisp :lisp_apply '(:r0 :r1))
 
-	(errorif-lisp-args-sig :r1 2 'error)
+	(errorif-lisp-args-sig 'error :r1 2)
 
 	(array-bind-args :r1 '(:r2 :r1))
 	(jump 'lisp :repl_apply '(:r0 :r1 :r2))
@@ -44,7 +44,7 @@
 	(entry 'lisp :lisp_mcall '(:r0 :r1))
 	(assign '(:r0 :r1) '((:rsp local_this) (:rsp local_args)))
 
-	(errorif-lisp-args-len :r1 < 2 'error)
+	(errorif-lisp-args-len 'error :r1 < 2)
 
 	(array-bind-args :r1 '(:r0 :r13))
 

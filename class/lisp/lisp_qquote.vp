@@ -14,7 +14,7 @@
 
 	(entry 'lisp :lisp_qquote '(:r0 :r1))
 
-	(errorif-lisp-args-len :r1 /= 2 'error)
+	(errorif-lisp-args-len 'error :r1 /= 2)
 
 	(vp-push :r0 :r1)
 	(class/obj/ref :r1 :r2)

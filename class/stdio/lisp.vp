@@ -17,7 +17,7 @@
 
 	(entry 'stdio :lisp_create '(:r0 :r1))
 
-	(errorif-lisp-args-len :r1 /= 0 'error)
+	(errorif-lisp-args-len 'error :r1 /= 0)
 
 	(vp-alloc local_size)
 	(assign '(:r0) '((:rsp local_this)))

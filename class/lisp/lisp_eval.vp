@@ -20,7 +20,7 @@
 		(jump 'lisp :repl_eval '(:r0 :r1))
 	(endif)
 
-	(errorif-lisp-args-sig :r1 2 'error)
+	(errorif-lisp-args-sig 'error :r1 2)
 
 	(array-bind-args :r1 '(:r1 :r2))
 	(assign '((:r0 lisp_environment) :r2) '(:r3 (:r0 lisp_environment)))

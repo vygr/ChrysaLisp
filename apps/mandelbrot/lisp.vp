@@ -20,7 +20,7 @@
 
 	(entry '(:r0 :r1))
 
-	(errorif-lisp-args-sig :r1 2 'error)
+	(errorif-lisp-args-sig 'error :r1 2)
 
 	(vp-push :r0)
 	(list-bind-args :r1 `(,x0 ,y0) '(:num :num))
@@ -76,7 +76,7 @@
 
 	(entry '(:r0 :r1))
 
-	(errorif-lisp-args-sig :r1 2 'error)
+	(errorif-lisp-args-sig 'error :r1 2)
 
 	(push-scope)
 	(assign '(:r0) {this})

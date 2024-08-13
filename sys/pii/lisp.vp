@@ -16,7 +16,7 @@
 
 	(entry 'sys_pii :lisp_readchar '(:r0 :r1))
 
-	(errorif-lisp-args-type :r1 num 1 'error)
+	(errorif-lisp-args-type 'error :r1 num 1)
 
 	(vp-push :r0)
 	(defq in (method-input 'sys_pii :read_char))
@@ -46,7 +46,7 @@
 
 	(entry 'sys_pii :lisp_writechar '(:r0 :r1))
 
-	(errorif-lisp-args-type :r1 num 2 'error)
+	(errorif-lisp-args-type 'error :r1 num 2)
 
 	(vp-push :r0)
 	(defq in (method-input 'sys_pii :write_char))
@@ -79,7 +79,7 @@
 
 	(entry 'sys_pii :lisp_time '(:r0 :r1))
 
-	(errorif-lisp-args-len :r1 /= 0 'error)
+	(errorif-lisp-args-len 'error :r1 /= 0)
 
 	(vp-push :r0)
 	(call 'sys_pii :time :nil '(:r0))
@@ -107,7 +107,7 @@
 
 	(entry 'sys_pii :lisp_dirlist '(:r0 :r1))
 
-	(errorif-lisp-args-sig :r1 1 'error)
+	(errorif-lisp-args-sig 'error :r1 1)
 
 	(vp-push :r0)
 	(list-bind-args :r1 '(:r6) '(:str))
@@ -144,7 +144,7 @@
 
 	(entry 'sys_pii :lisp_fstat '(:r0 :r1))
 
-	(errorif-lisp-args-sig :r1 1 'error)
+	(errorif-lisp-args-sig 'error :r1 1)
 
 	(vp-push :r0)
 	(assign '((:r1 array_begin) (@ sys/statics/statics)) '(:r0 :r1))
@@ -184,7 +184,7 @@
 
 	(entry 'sys_pii :lisp_remove '(:r0 :r1))
 
-	(errorif-lisp-args-sig :r1 1 'error)
+	(errorif-lisp-args-sig 'error :r1 1)
 
 	(vp-push :r0)
 	(defq in (method-input 'sys_pii :remove))

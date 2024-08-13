@@ -11,7 +11,7 @@
 	(dec-method :env_pop class/lisp/env_pop :static (:r0) (:r0 :r1))
 	(dec-method :env_bind class/lisp/env_bind :static (:r0 :r1 :r2) (:r0 :r1))
 	(dec-method :env_args_set class/lisp/env_args_set :static (:r0 :r3 :r5))
-	(dec-method :env_args_sig class/lisp/env_args_sig :static (:r1 :r3 :r4) (:r2))
+	(dec-method :env_args_sig class/lisp/env_args_sig :static (:r1 :r3 :r4 :r5) (:r2))
 	(dec-method :env_args_type class/lisp/env_args_type :static (:r1 :r3 :r4) (:r2))
 	(dec-method :env_args_match class/lisp/env_args_match :static (:r1 :r3 :r4) (:r2))
 	(dec-method :read class/lisp/read :static (:r0 :r1 :r2) (:r0 :r1 :r2))

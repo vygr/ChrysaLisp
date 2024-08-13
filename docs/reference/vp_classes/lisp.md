@@ -61,7 +61,7 @@ trashes
 inputs
 :r1 = args list object (ptr)
 :r3 = vtable pointer (ptr)
-:r4 = minimum number of args (int)
+:r4 = min number of args (int)
 outputs
 :r2 = 0 if error, else ok
 trashes
@@ -84,8 +84,9 @@ trashes
 ```code
 inputs
 :r1 = args list object (ptr)
-:r3 = signiture pointer (pushort)
-:r4 = number of args (int)
+:r3 = signature pointer (pushort)
+:r4 = min number of args (int)
+:r5 = max number of args (int)
 outputs
 :r2 = 0 if error, else ok
 trashes
@@ -98,7 +99,7 @@ trashes
 inputs
 :r1 = args list object (ptr)
 :r3 = vtable pointer (ptr)
-:r4 = minimum number of args (int)
+:r4 = min number of args (int)
 outputs
 :r2 = 0 if error, else ok
 trashes

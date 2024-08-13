@@ -20,7 +20,7 @@
 
 	(entry 'stream :lisp_iostream '(:r0 :r1))
 
-	(errorif-lisp-args-sig :r1 1 'error)
+	(errorif-lisp-args-sig 'error :r1 1)
 
 	(vp-cpy-rr :r0 :r8)
 	(list-bind-args :r1 '(:r5) '(:str))
@@ -62,7 +62,7 @@
 
 	(entry 'stream :lisp_fstream '(:r0 :r1))
 
-	(errorif-lisp-args-sig-range :r1 1 2 'error)
+	(errorif-lisp-args-sig 'error :r1 1 2)
 
 	(assign '((:r1 array_length)) '(:r2))
 	(vp-push :r0)
@@ -102,7 +102,7 @@
 
 	(entry 'stream :lisp_sstream '(:r0 :r1))
 
-	(errorif-lisp-args-sig :r1 1 'error)
+	(errorif-lisp-args-sig 'error :r1 1)
 
 	(vp-push :r0)
 	(defq in (method-input 'sstream :create))
@@ -133,7 +133,7 @@
 
 	(entry 'stream :lisp_available '(:r0 :r1))
 
-	(errorif-lisp-args-sig :r1 1 'error)
+	(errorif-lisp-args-sig 'error :r1 1)
 
 	(vp-push :r0)
 	(defq in (method-input 'stream :available))
@@ -243,7 +243,7 @@
 
 	(entry 'stream :lisp_readline '(:r0 :r1))
 
-	(errorif-lisp-args-sig :r1 1 'error)
+	(errorif-lisp-args-sig 'error :r1 1)
 
 	(vp-push :r0)
 	(defq in (method-input 'stream :read_line))
@@ -277,7 +277,7 @@
 
 	(entry 'stream :lisp_readavail '(:r0 :r1))
 
-	(errorif-lisp-args-sig :r1 1 'error)
+	(errorif-lisp-args-sig 'error :r1 1)
 
 	(vp-push :r0)
 	(list-bind-args :r1 '(:r2) '(:stream))
@@ -309,7 +309,7 @@
 
 	(entry 'stream :lisp_write '(:r0 :r1))
 
-	(errorif-lisp-args-sig :r1 2 'error)
+	(errorif-lisp-args-sig 'error :r1 2)
 
 	(vp-push :r0)
 	(defq in (method-input 'stream :write))
@@ -345,7 +345,7 @@
 
 	(entry 'stream :lisp_writechar `(,this ,args))
 
-	(errorif-lisp-args-sig-range :r1 2 3 'error)
+	(errorif-lisp-args-sig 'error :r1 2 3)
 
 	(assign `((,args array_length)) `(,value))
 	(assign `((,args array_begin)) `(,iter_begin))
@@ -419,7 +419,7 @@
 
 	(entry 'stream :lisp_write_flush '(:r0 :r1))
 
-	(errorif-lisp-args-sig :r1 1 'error)
+	(errorif-lisp-args-sig 'error :r1 1)
 
 	(vp-push :r0)
 	(defq in (method-input 'stream :flush))
@@ -450,7 +450,7 @@
 
 	(entry 'stream :lisp_seek '(:r0 :r1))
 
-	(errorif-lisp-args-sig :r1 3 'error)
+	(errorif-lisp-args-sig 'error :r1 3)
 
 	(vp-push :r0)
 	(defq in (method-input 'stream :seek))

@@ -17,7 +17,7 @@
 
 	(entry 'lisp :lisp_read `(,this ,args))
 
-	(errorif-lisp-args-sig-range :r1 1 2 'error1)
+	(errorif-lisp-args-sig 'error1 :r1 1 2)
 
 	(assign `((,args array_length)) `(,value))
 	(vpif `(,value = 1))

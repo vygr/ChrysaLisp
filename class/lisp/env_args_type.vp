@@ -4,19 +4,20 @@
 (def-method 'lisp :env_args_sig)
 	;inputs
 	;:r1 = args list object (ptr)
-	;:r3 = signiture pointer (pushort)
-	;:r4 = number of args (int)
+	;:r3 = signature pointer (pushort)
+	;:r4 = min number of args (int)
+	;:r5 = max number of args (int)
 	;outputs
 	;:r2 = 0 if error, else ok
 	;trashes
 	;:r2-:r7
 
-	(entry 'lisp :env_args_sig '(:r1 :r3 :r4))
+	(entry 'lisp :env_args_sig '(:r1 :r3 :r4 :r5))
 
 	(assign '(:r0 :r1 (:r1 array_length)) '(:r6 :r7 :r2))
 	(switch 'fail)
-		;must be exactly this number and match signiture
-		(breakif '(:r2 /= :r4) 'fail)
+		;must be in range and match signature
+		(breakif '(:r2 < :r4) '(:r2 > :r5) 'fail)
 		(class/array/get_both :r1 :r4 :r5)
 		(loop-while '(:r4 /= :r5))
 			(vp-cpy-ir-us :r3 0 :r1)
@@ -42,7 +43,7 @@
 	;inputs
 	;:r1 = args list object (ptr)
 	;:r3 = vtable pointer (ptr)
-	;:r4 = minimum number of args (int)
+	;:r4 = min number of args (int)
 	;outputs
 	;:r2 = 0 if error, else ok
 	;trashes
@@ -52,7 +53,7 @@
 
 	(assign '(:r0 :r1 (:r1 array_length)) '(:r6 :r7 :r2))
 	(switch 'fail)
-		;must be at least this number of this type
+		;must be in range and of this type
 		(breakif '(:r2 < :r4) 'fail)
 		(class/array/get_both :r1 :r4 :r5)
 		(loop-while '(:r4 /= :r5))
@@ -76,7 +77,7 @@
 	;inputs
 	;:r1 = args list object (ptr)
 	;:r3 = vtable pointer (ptr)
-	;:r4 = minimum number of args (int)
+	;:r4 = min number of args (int)
 	;outputs
 	;:r2 = 0 if error, else ok
 	;trashes
@@ -86,7 +87,7 @@
 
 	(assign '(:r0 :r1 (:r1 array_length)) '(:r6 :r7 :r2))
 	(switch 'fail)
-		;must be at least this number of this type and all identical
+		;must be in range and of this type and all identical
 		(breakif '(:r2 < :r4) 'fail)
 		(vpif '(:r2 /= 0))
 			(class/array/get_both :r1 :r4 :r5)

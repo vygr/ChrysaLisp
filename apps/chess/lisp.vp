@@ -22,7 +22,7 @@
 
 	(entry '(:r0 :r1))
 
-	(errorif-lisp-args-sig :r1 3 'error)
+	(errorif-lisp-args-sig 'error :r1 3)
 
 	(vp-alloc local_size)
 	(assign '(:r0 :r1) '((:rsp local_this) (:rsp local_args)))

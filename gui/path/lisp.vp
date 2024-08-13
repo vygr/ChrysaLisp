@@ -20,7 +20,7 @@
 
 	(entry 'path :lisp_transform '(:r0 :r1))
 
-	(errorif-lisp-args-sig :r1 3 'error)
+	(errorif-lisp-args-sig 'error :r1 3)
 
 	(vp-push :r0 :r1)
 	(bind '(dst sp m3x2) (method-input 'path :transform))
@@ -56,7 +56,7 @@
 
 	(entry 'path :lisp_simplify '(:r0 :r1))
 
-	(errorif-lisp-args-sig :r1 3 'error)
+	(errorif-lisp-args-sig 'error :r1 3)
 
 	(vp-push :r0)
 	(bind '(dst src sp tol) (method-input 'path :simplify))
@@ -89,7 +89,7 @@
 
 	(entry 'path :lisp_filter '(:r0 :r1))
 
-	(errorif-lisp-args-sig :r1 3 'error)
+	(errorif-lisp-args-sig 'error :r1 3)
 
 	(vp-push :r0)
 	(bind '(dst sp tol) (method-input 'path :filter_polyline))
@@ -120,7 +120,7 @@
 
 	(entry 'path :lisp_gen_quadratic '(:r0 :r1))
 
-	(errorif-lisp-args-sig :r1 7 'error)
+	(errorif-lisp-args-sig 'error :r1 7)
 
 	(vp-push :r0)
 	(bind '(dst sp p1x p1y p2x p2y p3x p3y) (method-input 'path :gen_quadratic))
@@ -154,7 +154,7 @@
 
 	(entry 'path :lisp_gen_cubic '(:r0 :r1))
 
-	(errorif-lisp-args-sig :r1 9 'error)
+	(errorif-lisp-args-sig 'error :r1 9)
 
 	(vp-push :r0)
 	(bind '(dst sp p1x p1y p2x p2y p3x p3y p4x p4y) (method-input 'path :gen_cubic))
@@ -188,7 +188,7 @@
 
 	(entry 'path :lisp_gen_arc '(:r0 :r1))
 
-	(errorif-lisp-args-sig :r1 6 'error)
+	(errorif-lisp-args-sig 'error :r1 6)
 
 	(vp-push :r0)
 	(bind '(dst sp cx cy start end radius) (method-input 'path :gen_arc))
@@ -222,7 +222,7 @@
 
 	(entry 'path :lisp_stroke_polyline '(:r0 :r1))
 
-	(errorif-lisp-args-sig :r1 5 'error)
+	(errorif-lisp-args-sig 'error :r1 5)
 
 	(vp-push :r0)
 	(defq in (method-input 'path :stroke_polyline))
@@ -254,7 +254,7 @@
 
 	(entry 'path :lisp_stroke_polygon '(:r0 :r1))
 
-	(errorif-lisp-args-sig :r1 3 'error)
+	(errorif-lisp-args-sig 'error :r1 3)
 
 	(vp-push :r0)
 	(defq in (method-input 'path :stroke_polygon))
@@ -295,7 +295,7 @@
 
 	(entry 'path :lisp_svg '(:r0 :r1))
 
-	(errorif-lisp-args-sig :r1 1 'error)
+	(errorif-lisp-args-sig 'error :r1 1)
 
 	(push-scope)
 	(assign '(:r0 :r1) {this, args})

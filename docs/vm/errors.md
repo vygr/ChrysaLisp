@@ -111,32 +111,26 @@ Lisp function arguments, while not being present in release mode. You will see
 plenty of example uses of these macros in the Lisp binding methods that start
 with the `:lisp_`.
 
-### Specific number of arguments, or minium, or maximum.
+### Specific number of arguments
 
 ```file
 lib/asm/code.inc "args-len" ""
 ```
 
-### Specific type signature for the Lisp arguments.
+### Specific type signatures and length range
 
 ```file
 lib/asm/code.inc "args-sig" ""
 ```
 
-### Specific type signature and length range.
-
-```file
-lib/asm/code.inc "args-sig-range" ""
-```
-
-### Minimum length of arguments of exact same type.
-
-```file
-lib/asm/code.inc "args-match" ""
-```
-
-### Minimum length of arguments of the same type inheritance.
+### Minimum length of the same type inheritance
 
 ```file
 lib/asm/code.inc "args-type" ""
+```
+
+### Minimum length of exact matching type
+
+```file
+lib/asm/code.inc "args-match" ""
 ```
