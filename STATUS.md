@@ -4,6 +4,10 @@
 
 ------
 
+Simplification of VP level Lisp type checking code.
+
+------
+
 Addition of `\q` wildcard, double quote, to regexp and charclass libs.
 
 Editor and Viewer app now support `:top` and `:bottom` cursor actions.
