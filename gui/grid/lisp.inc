@@ -31,7 +31,7 @@
 		(if (= grid_height 0)
 			(setq grid_height (inc (/ (dec (length children)) grid_width))))
 		(each (lambda (child)
-			(defq row (/ _ grid_width) col (% _ grid_width)
+			(defq row (/ (!) grid_width) col (% (!) grid_width)
 				x (>> (/ (* col w) grid_width) +fp_shift)
 				y (>> (/ (* row h) grid_height) +fp_shift)
 				x1 (>> (/ (* (inc col) w) grid_width) +fp_shift)

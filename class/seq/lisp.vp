@@ -563,6 +563,25 @@
 
 (def-func-end)
 
+(def-method 'seq :lisp_pling)
+	;inputs
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
+	;outputs
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
+	;trashes
+	;:r1-:r14
+
+	(entry 'seq :lisp_pling '(:r13 :r1))
+
+	(call 'num :create '((:r0 lisp_seq_idx)) '(:r1))
+
+	(exit 'seq :lisp_pling '(:r13 :r1))
+	(vp-ret)
+
+(def-func-end)
+
 (def-method 'seq :lisp_each)
 	;inputs
 	;:r0 = lisp object (ptr)
@@ -575,7 +594,7 @@
 
 	(def-vars
 		(ptr this seqs value func args)
-		(int dir idx end))
+		(int dir old_idx end))
 
 	(vp-def (dir idx end func seqs) '(:r8 :r9 :r10 :r11 :r12))
 
@@ -619,22 +638,16 @@
 			(vp-sub-cr 1 idx)
 			(vp-sub-cr 1 end)
 		(endif)
-		(assign `(,dir ,idx ,end ,func ,seqs) {dir, idx, end, func, seqs})
 
-		(call 'lisp :env_push {this})
+		(assign {this->lisp_seq_idx} {old_idx})
+		(assign `(,dir ,end ,func ,seqs ,idx) {dir, end, func, seqs, this->lisp_seq_idx})
+
 		(loop-start)
-			;create _ index
-			(bind '(_0 _1 _2) (method-input 'hmap :insert))
-			(call 'num :create {idx} {args})
-			(assign {args, this} `(,_2 ,_1))
-			(call 'hmap :insert `((,_1 lisp_environment) (,_1 lisp_sym_underscore) ,_2))
-			(call 'obj :deref {args})
-
 			;dicard old value, get new value of function call
 			(bind '(_0 _1 _2) (method-input 'lisp :repl_apply))
 			(call 'obj :deref {value})
 			(call 'list :create :nil {args})
-			(call 'list :collect {args, seqs, idx} `(,_1))
+			(call 'list :collect {args, seqs, this->lisp_seq_idx} `(,_1))
 			(assign {this, func} `(,_0 ,_2))
 			(call 'lisp :repl_apply `(,_0 ,_1 ,_2) {_, value})
 			(call 'obj :deref {args})
@@ -645,11 +658,12 @@
 			(f-bind 'error :vtable vt2)
 			(breakif `(,vt1 = ,vt2)))
 
-			(assign {dir, idx, end} `(,dir ,idx ,end))
+			(assign {this->lisp_seq_idx, dir, end} `(,idx ,dir ,end))
 			(vp-add-rr dir idx)
-			(assign `(,idx) {idx})
+			(assign `(,idx) {this->lisp_seq_idx})
 		(loop-until `(,idx = ,end))
-		(call 'lisp :env_pop {this})
+
+		(assign {old_idx} {this->lisp_seq_idx})
 	(endif)
 
 	(exit 'seq :lisp_each {this, value})
@@ -679,7 +693,7 @@
 
 	(def-vars
 		(ptr this seqs value mode func args)
-		(int dir idx end))
+		(int dir old_idx end))
 
 	(vp-def (this value dir idx end mode func seqs)
 		'(:r0 :r1 :r8 :r9 :r10 :r11 :r12 :r13))
@@ -728,22 +742,16 @@
 			(vp-sub-cr 1 idx)
 			(vp-sub-cr 1 end)
 		(endif)
-		(assign `(,dir ,idx ,end ,mode ,func ,seqs) {dir, idx, end, mode, func, seqs})
 
-		(call 'lisp :env_push {this})
+		(assign {this->lisp_seq_idx} {old_idx})
+		(assign `(,dir ,end ,mode ,func ,seqs ,idx) {dir, end, mode, func, seqs, this->lisp_seq_idx})
+
 		(loop-start 'exit)
-			;create _ index
-			(bind '(_0 _1 _2) (method-input 'hmap :insert))
-			(call 'num :create {idx} {args})
-			(assign {args, this} `(,_2 ,_1))
-			(call 'hmap :insert `((,_1 lisp_environment) (,_1 lisp_sym_underscore) ,_2))
-			(call 'obj :deref {args})
-
 			;dicard old value, get new value of function call
 			(bind '(_0 _1 _2) (method-input 'lisp :repl_apply))
 			(call 'obj :deref {value})
 			(call 'list :create :nil {args})
-			(call 'list :collect {args, seqs, idx} `(,_1))
+			(call 'list :collect {args, seqs, this->lisp_seq_idx} `(,_1))
 			(assign {this, func} `(,_0 ,_2))
 			(call 'lisp :repl_apply `(,_0 ,_1 ,_2) {_, value})
 			(call 'obj :deref {args})
@@ -763,11 +771,12 @@
 				(breakif `(,this /= ,value) 'exit)
 			(endif)
 
-			(assign {dir, idx, end} `(,dir ,idx ,end))
+			(assign {this->lisp_seq_idx, dir, end} `(,idx ,dir ,end))
 			(vp-add-rr dir idx)
-			(assign `(,idx) {idx})
+			(assign `(,idx) {this->lisp_seq_idx})
 		(loop-until `(,idx = ,end))
-		(call 'lisp :env_pop {this})
+
+		(assign {old_idx} {this->lisp_seq_idx})
 	(endif)
 
 	(exit 'seq :lisp_some {this, value})
@@ -797,7 +806,7 @@
 
 	(def-vars
 		(ptr this seqs value func args out)
-		(int dir idx end))
+		(int dir old_idx end))
 
 	(vp-def (dir idx end func seqs) '(:r8 :r9 :r10 :r11 :r12))
 
@@ -848,7 +857,10 @@
 			(vp-sub-cr 1 idx)
 			(vp-sub-cr 1 end)
 		(endif)
-		(assign `(,dir ,idx ,end ,func ,seqs) {dir, idx, end, func, seqs})
+
+		(assign {this->lisp_seq_idx} {old_idx})
+		(assign `(,dir ,end ,func ,seqs ,idx) {dir, end, func, seqs, this->lisp_seq_idx})
+
 		(assign {out} '(:r0))
 		(assign '((:r0 array_length)) '(:r1))
 		(vp-cpy-rr end :r2)
@@ -857,19 +869,11 @@
 		(vp-add-rr :r2 :r1)
 		(call 'list :set_cap '(:r0 :r1))
 
-		(call 'lisp :env_push {this})
 		(loop-start)
-			;create _ index
-			(bind '(_0 _1 _2) (method-input 'hmap :insert))
-			(call 'num :create {idx} {args})
-			(assign {args, this} `(,_2 ,_1))
-			(call 'hmap :insert `((,_1 lisp_environment) (,_1 lisp_sym_underscore) ,_2))
-			(call 'obj :deref {args})
-
 			;get new value of function call
 			(bind '(_0 _1 _2) (method-input 'lisp :repl_apply))
 			(call 'list :create :nil {args})
-			(call 'list :collect {args, seqs, idx} `(,_1))
+			(call 'list :collect {args, seqs, this->lisp_seq_idx} `(,_1))
 			(assign {this, func} `(,_0 ,_2))
 			(call 'lisp :repl_apply `(,_0 ,_1 ,_2) {_, value})
 			(call 'obj :deref {args})
@@ -883,11 +887,12 @@
 			;collect value of function call
 			(call 'list :push_back {out, value})
 
-			(assign {dir, idx, end} `(,dir ,idx ,end))
+			(assign {this->lisp_seq_idx, dir, end} `(,idx ,dir ,end))
 			(vp-add-rr dir idx)
-			(assign `(,idx) {idx})
+			(assign `(,idx) {this->lisp_seq_idx})
 		(loop-until `(,idx = ,end))
-		(call 'lisp :env_pop {this})
+
+		(assign {old_idx} {this->lisp_seq_idx})
 	(endif)
 
 	(exit 'seq :lisp_map {this, out})
@@ -921,9 +926,9 @@
 
 	(def-vars
 		(ptr this seqs value func args)
-		(int dir idx end))
+		(int dir old_idx end))
 
-	(vp-def (dir idx end func value seqs) '(:r8 :r9 :r10 :r11 :r12))
+	(vp-def (dir idx end func value seqs) '(:r8 :r9 :r10 :r11 :r12 :r13))
 
 	(push-scope)
 	(entry 'seq :lisp_reduce {this, seqs})
@@ -966,23 +971,17 @@
 			(vp-sub-cr 1 idx)
 			(vp-sub-cr 1 end)
 		(endif)
-		(assign `(,dir ,idx ,end ,func ,seqs) {dir, idx, end, func, seqs})
 
-		(call 'lisp :env_push {this})
+		(assign {this->lisp_seq_idx} {old_idx})
+		(assign `(,dir ,end ,func ,seqs ,idx) {dir, end, func, seqs, this->lisp_seq_idx})
+
 		(loop-start)
-			;create _ index
-			(bind '(_0 _1 _2) (method-input 'hmap :insert))
-			(call 'num :create {idx} {args})
-			(assign {args, this} `(,_2 ,_1))
-			(call 'hmap :insert `((,_1 lisp_environment) (,_1 lisp_sym_underscore) ,_2))
-			(call 'obj :deref {args})
-
 			;recycle value as arg 0, get new value of function call
 			(bind '(_0 _1 _2) (method-input 'lisp :repl_apply))
 			(bind '(_3 _4 _5) (method-input 'list :collect))
 			(call 'list :create :nil {args})
 			(call 'list :push_back {args, value} `(,_3 _ _ _))
-			(assign {seqs, idx} `(,_4 ,_5))
+			(assign {seqs, this->lisp_seq_idx} `(,_4 ,_5))
 			(call 'list :collect `(,_3 ,_4 ,_5) `(,_1))
 			(assign {this, func} `(,_0 ,_2))
 			(call 'lisp :repl_apply `(,_0 ,_1 ,_2) {_, value})
@@ -994,11 +993,12 @@
 			(f-bind 'error :vtable vt2)
 			(breakif `(,vt1 = ,vt2)))
 
-			(assign {dir, idx, end} `(,dir ,idx ,end))
+			(assign {this->lisp_seq_idx, dir, end} `(,idx ,dir ,end))
 			(vp-add-rr dir idx)
-			(assign `(,idx) {idx})
+			(assign `(,idx) {this->lisp_seq_idx})
 		(loop-until `(,idx = ,end))
-		(call 'lisp :env_pop {this})
+
+		(assign {old_idx} {this->lisp_seq_idx})
 	(endif)
 
 	(exit 'seq :lisp_reduce {this, value})

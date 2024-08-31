@@ -42,7 +42,7 @@
 ;returns first occurrence index or :nil if not found
 (defmacro elem-find (v in)
 	`(let ((out :nil))
-		(each (lambda (e_) (if (eql e_ ,v) (unless out (setq out _)))) ,in)
+		(each (lambda (e_) (if (eql e_ ,v) (unless out (setq out (!))))) ,in)
 			out))
 
 ;returns the first list as out by finding v at elem n of a list within in.
@@ -118,7 +118,7 @@
 	(defq maxarg (list 59 59 23 (days-in-month (elem-get td +time_month) (elem-get td +time_year)) 11 :nil 6)
 		 minarg (list 0 0 0 1 0 :nil 0) index -1)
 	(notany (lambda (a_)
-		(eql (and (not (= _ 5)) (or (> a_ (elem-get maxarg _)) (< a_ (elem-get minarg _)))) :t)) td))
+		(eql (and (not (= (!) 5)) (or (> a_ (elem-get maxarg (!))) (< a_ (elem-get minarg (!))))) :t)) td))
 
 (defun float-time ()
 	(defq seconds (n2f (/ (pii-time) 1000000)) minutes (+ (* 60.0 (n2f
@@ -146,9 +146,9 @@
 (defun decode-date (dts)
 	(defq space_split (split dts " ") rdt (list) index 0)
 	(bind '(wd mo dy hms tz yr) (defq space_split (split dts " ")))
-	(each (lambda (w_) (if (eql w_ wd) (setq wd _) :nil) (setq index (inc index))) week_abbr)
+	(each (lambda (w_) (if (eql w_ wd) (setq wd (!)) :nil) (setq index (inc index))) week_abbr)
 	(setq index 0)
-	(each (lambda (m_) (if (eql m_ mo) (setq mo _)) (setq index (inc index))) month_abbr)
+	(each (lambda (m_) (if (eql m_ mo) (setq mo (!))) (setq index (inc index))) month_abbr)
 	(defq smh (reverse (split hms ":")))
 	(each (lambda (_) (push rdt (s2i _))) (reverse (split hms ":")))
 	(push rdt (s2i dy) mo (s2i yr) wd))

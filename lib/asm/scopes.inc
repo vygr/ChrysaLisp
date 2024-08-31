@@ -39,7 +39,7 @@
 	(defq unused (list))
 	(each! (lambda (attrib)
 		(unless (elem-get attrib +attrib_used)
-			(push unused (elem-get (elem-get scope +scope_names) _))))
+			(push unused (elem-get (elem-get scope +scope_names) (!)))))
 		(list (elem-get (defq scope (pop *scopes*)) +scope_attribs)))
 	(if (/= 0 (length unused))
 		(throw "Unused symbols !" unused))

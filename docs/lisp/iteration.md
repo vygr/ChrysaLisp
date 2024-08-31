@@ -137,8 +137,8 @@ an explicit list.
 
 Any elements over the minimum length of the given sequences are ignored.
 
-The function being called is passed the current index value bound to the '_'
-symbol ! Very useful !
+The function being called can access the current index value by use of the
+'(!)' function ! Very useful !
 
 ```vdu
 (each! print (list '(1 2 3) "ABC" (array 7 8 9 0)))
@@ -197,15 +197,15 @@ option, plus take the sequence list as arguments rather than an explicit list.
 The break out value is returned ! This means you can use these functions as a
 breakable for loop or a search loop !
 
-As with `(each!)` the function being called is passed the current index value
-bound to the '_' symbol ! Very useful !
+The function being called can access the current index value by use of the
+'(!)' function ! Very useful !
 
 ```lisp
 (some! = (list '(1 2 3) '(5 6 3)))
 ```
 
 ```lisp
-(some (# (if (eql %0 "a") _)) "defhqaio")
+(some (# (if (eql %0 "a") (!))) "defhqaio")
 ```
 
 ```lisp
@@ -236,6 +236,9 @@ item for the next iteration and is the returned result. `(reduce)` and
 `(reduce-rev)` are macros that assume the index values cover the full extent of
 a sequence and take that sequence as an argument, they allow an optional
 initial item.
+
+The function being called can access the current index value by use of the
+'(!)' function ! Very useful !
 
 ```lisp
 (map + '(1 2 3) '(6 7 8) '(1 7 6))

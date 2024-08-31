@@ -7,12 +7,12 @@
 		(undoable
 			(bind '(cx cy) (. buffer :get_cursor))
 			;trim front
-			(defq y (some! (# (unless (blank-line? %0) _))
+			(defq y (some! (# (unless (blank-line? %0) (!)))
 				(list (. buffer :get_text_lines)) :nil 0 h))
 			(unless y (setq y h))
 			(.-> buffer (:set_cursor 0 y) (:cut 0 0))
 			;trim end
-			(defq y (some! (# (unless (blank-line? %0) (inc _)))
+			(defq y (some! (# (unless (blank-line? %0) (inc (!))))
 				(list (. buffer :get_text_lines)) :nil (bind '(w h) (. buffer :get_size)) 0))
 			(unless y (setq y 0))
 			(.-> buffer (:set_cursor 0 y) (:cut 0 h))
@@ -20,7 +20,7 @@
 			(each! (lambda (line)
 					(unless (eql (defq trimed_line (trim-end line)) line)
 						(.-> buffer
-							(:set_cursor (length trimed_line) _)
+							(:set_cursor (length trimed_line) (!))
 							(:delete (- (length line) (length trimed_line))))))
 				(list (. buffer :get_text_lines)) 0 (bind '(w h) (. buffer :get_size)))
 			(bind '(cx cy) (. buffer :constrain cx cy))

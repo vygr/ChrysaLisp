@@ -30,19 +30,19 @@
 (defmacro uses? (r op)
 	`(find-rev ,r ,op))
 
-(defmacro find-past (&rest _)
-	`(and (defq _ (some! (lambda (op) (cond ~_))
+(defmacro find-past (&rest body)
+	`(and (defq _ (some! (lambda (op) (cond ~body))
 		(list inst_list) :nil _ 1)) (> _ -1) _))
 
 (defun opt-find-1 (_ r x)
 	(find-past
-		((lmatch? op x) _)
+		((lmatch? op x) (!))
 		((uses? r op) -1)))
 
 (defun opt-find-2 (_ r x y)
 	(find-past
-		((lmatch? op x) (setq m 0) _)
-		((lmatch? op y) (setq m 1) _)
+		((lmatch? op x) (setq m 0) (!))
+		((lmatch? op y) (setq m 1) (!))
 		((uses? r op) -1)))
 
 (defun opt-inst-list (inst_list)

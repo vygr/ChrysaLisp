@@ -70,9 +70,9 @@
 	;load register list from iter
 	(cond
 		((eql type :nil)
-			(assign (map (lambda (r) (list i (* +long_size _))) regs) regs))
+			(assign (map (lambda (r) (list i (* +long_size (!)))) regs) regs))
 		(:t (defq s (type-to-size type))
-			(assign (map (lambda (r) (list i (* s _) type)) regs) regs))))
+			(assign (map (lambda (r) (list i (* s (!)) type)) regs) regs))))
 
 (defun array-bind-args (a regs)
 	;inputs

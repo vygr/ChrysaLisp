@@ -14,14 +14,14 @@
 	(defq out (list) stack (list lst 0))
 	(while (defq idx (pop stack) lst (pop stack))
 		(some! (# (cond
-			((list? %0) (push stack lst (inc _) %0 0))
+			((list? %0) (push stack lst (inc (!)) %0 0))
 			(:t (push out %0) :nil))) (list lst) :nil idx)) out)
 
 (defun f1 (lst)
 	(defq out (list) stack (list lst 0))
 	(while (defq idx (pop stack) lst (pop stack))
 		(some! (# (cond
-			((list? %0) (push stack lst (inc _) %0 0) :nil)
+			((list? %0) (push stack lst (inc (!)) %0 0) :nil)
 			((push out %0)))) (list lst) :t idx)) out)
 
 (defmacro time-it (name cnt &rest _)

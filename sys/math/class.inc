@@ -89,19 +89,19 @@
 
 (defun vec-load-int (n r &optional i)
 	(setd i 0)
-	(each (# (vp-cpy-ir-i r (+ i (* _ +int_size)) %0)) (vec-push n)))
+	(each (# (vp-cpy-ir-i r (+ i (* (!) +int_size)) %0)) (vec-push n)))
 
 (defun vec-store-int (n r &optional i)
 	(setd i 0)
-	(each (# (vp-cpy-ri-i %0 r (+ i (* _ +int_size)))) (vec-pop n)))
+	(each (# (vp-cpy-ri-i %0 r (+ i (* (!) +int_size)))) (vec-pop n)))
 
 (defun vec-load-long (n r &optional i)
 	(setd i 0)
-	(each (# (vp-cpy-ir r (+ i (* _ +long_size)) %0)) (vec-push n)))
+	(each (# (vp-cpy-ir r (+ i (* (!) +long_size)) %0)) (vec-push n)))
 
 (defun vec-store-long (n r &optional i)
 	(setd i 0)
-	(each (# (vp-cpy-ri %0 r (+ i (* _ +long_size)))) (vec-pop n)))
+	(each (# (vp-cpy-ri %0 r (+ i (* (!) +long_size)))) (vec-pop n)))
 
 (defun vec-clr (n &optional v)
 	(setd v (vec-top n))
@@ -269,7 +269,7 @@
 
 (defun vec-fdet (n &optional v2)
 	(setd v2 (vec-pop n))
-	(each (# (vp-mul-rr (elem-get v2 (- n _ 1)) %0)) (vec-top n))
+	(each (# (vp-mul-rr (elem-get v2 (- n (!) 1)) %0)) (vec-top n))
 	(vec-asr n +fp_shift)
 	(vec-dif n))
 

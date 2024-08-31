@@ -6,6 +6,10 @@
 
 Simplification of VP level Lisp type checking code.
 
+`(each!)`, `(some!)`, `(map!)` and `(reduce!)` now 25% faster and use `(!)`
+function to retrieve the current sequence index. They no longer create an extra
+environment to hold the `_` binding.
+
 ------
 
 Addition of `\q` wildcard, double quote, to regexp and charclass libs.

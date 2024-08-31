@@ -71,7 +71,7 @@
 	,action-macro-playback-8 ,action-macro-playback-9))
 
 (defun is-playback-func? (f)
-	(some (# (if (eql (first f) %0) _)) +playback_funcs))
+	(some (# (if (eql (first f) %0) (!))) +playback_funcs))
 
 (defun action-macro-save (slot)
 	(. +macro_map :insert slot (cat (. +macro_map :find 0)))

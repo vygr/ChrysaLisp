@@ -36,7 +36,7 @@
 		(raise :maximum :units)
 		(defq scale (.-> (get :scale_grid this) :dirty_all :children))
 		(each (lambda (mark)
-			(defq val (/ (* maximum (inc _)) (length scale)))
+			(defq val (/ (* maximum (inc (!))) (length scale)))
 			(def mark :text (str (/ val units) "|"))
 			(. mark :layout)) scale)
 		this)

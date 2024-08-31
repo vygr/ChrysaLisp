@@ -37,7 +37,7 @@
 		(each! (lambda (e)
 			(if (list? e)
 				(push stack e)
-				(and (sym? e) (defq e (def? e labels)) (elem-set lst _ e))))
+				(and (sym? e) (defq e (def? e labels)) (elem-set lst (!) e))))
 			(list lst) 1 -1)) out)
 
 ;;;;;;;;;;;;;;;;;

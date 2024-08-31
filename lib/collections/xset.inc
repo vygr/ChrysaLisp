@@ -10,7 +10,7 @@
 (defmacro slot ()
 	`(defq x (get :buckets this)
 		b (% ((get :hash_fnc this) key) (get :num_buckets this))
-		e (some (# (if ((get :cmp_fnc this) %0 key) _)) (elem-get x b))))
+		e (some (# (if ((get :cmp_fnc this) %0 key) (!))) (elem-get x b))))
 
 (defclass Xset (&optional num_buckets cmp_fnc hash_fnc) (Set)
 	; (Xset [num_buckets cmp_fnc hash_fnc]) -> xset
@@ -79,7 +79,7 @@
 	(defmethod :intersect (that)
 		; (. xset :intersect xset) -> xset
 		(unless (eql this that)
-			(each (# (elem-set b _ (filter-array (# (. that :find %0)) %0)))
+			(each (# (elem-set b (!) (filter-array (# (. that :find %0)) %0)))
 				(defq b (get :buckets this))))
 		this)
 

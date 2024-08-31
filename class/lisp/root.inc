@@ -91,6 +91,9 @@
 ; (partition seq [cnt]) -> (seq ...)
 (ffi cat "class/seq/lisp_cat" 0)
 ; (cat seq ...) -> seq
+
+(ffi ! "class/seq/lisp_pling" 1)
+; (!) -> index
 (ffi each! "class/seq/lisp_each" 0)
 ; (each! lambda seqs [start end])
 (ffi some! "class/seq/lisp_some" 0)
@@ -509,7 +512,7 @@
 (defun shuffle (_a &optional _l _h)
 	; (shuffle list [start end]) -> list
 	(setd _l 0 _h (length _a))
-	(each! (lambda (x) (swap _a _ (random (inc _))))
+	(each! (lambda (x) (swap _a (!) (random (inc (!)))))
 		(list _a) _h _l) _a)
 
 ;;;;;;;;;;;;;;;;;;
@@ -544,6 +547,7 @@
 
 (defun each-mergeable (_f _l)
 	; (each-mergeable lambda seq) -> seq
+	; _ bound to seq index !
 	(defq _ -1)
 	(while (< (setq _ (inc _)) (length _l))
 		(_f (elem-get _l _))) _l)
@@ -663,7 +667,7 @@
 (defun unzip (seq cnt)
 	; (unzip seq cnt) -> seqs
 	(map (# (if (= (length %0) 0) (slice seq 0 0) (apply (const cat) %0)))
-		(reduce (# (push (elem-get %0 (% _ cnt)) %1) %0)
+		(reduce (# (push (elem-get %0 (% (!) cnt)) %1) %0)
 			(partition seq) (lists cnt))))
 
 (defun zip (&rest seqs)
@@ -1013,6 +1017,7 @@
 
 (defun each-line (_f _s &optional _)
 	; (each-line lambda stream [line_num])
+	; _ bound to line index !
 	(setd _ 0)
 	(while (defq _l (read-line _s))
 		(_f _l) (setq _ (inc _))))

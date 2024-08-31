@@ -28,13 +28,13 @@
 		; (. radiobar :set_selected index) -> this
 		(defq radio_col (canvas-brighter (get :color this)))
 		(each (# (undef (. %0 :dirty) :color)
-				(if (= _ index) (def %0 :color radio_col)))
+				(if (= (!) index) (def %0 :color radio_col)))
 			(. this :children))
 		this)
 
 	(defmethod :get_selected ()
 		; (. radiobar :get_selected) -> :nil | index
-		(some (# (if (def? :color %0) _)) (. this :children)))
+		(some (# (if (def? :color %0) (!))) (. this :children)))
 
 	(defmethod :action (event)
 		; (. radiobar :action event) -> radiobar
@@ -48,7 +48,7 @@
 				(def button :color radio_col))
 			;radio mode
 			(each (# (undef (. %0 :dirty) :color)
-					(if (= _ idx) (def %0 :color radio_col)))
+					(if (= (!) idx) (def %0 :color radio_col)))
 				children))
 		(. this :emit))
 	)

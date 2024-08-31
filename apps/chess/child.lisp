@@ -244,8 +244,8 @@
 		(unless (eql piece " ")
 			(defq eval_values (piece-map piece_evaluation_map piece))
 			(if (> (code piece) (ascii-code "Z"))
-				(setq white_score (+ white_score (elem-get eval_values 64) (elem-get eval_values _)))
-				(setq black_score (+ black_score (elem-get eval_values 64) (elem-get eval_values _)))))) (list brd))
+				(setq white_score (+ white_score (elem-get eval_values 64) (elem-get eval_values (!))))
+				(setq black_score (+ black_score (elem-get eval_values 64) (elem-get eval_values (!))))))) (list brd))
 	(* (- white_score black_score) color))
 
 ;generate all boards for a piece index and moves possibility, filtering out boards where king is in check
@@ -303,7 +303,7 @@
 			(when (eql (< (code piece) (ascii-code "Z")) is_black)
 				;one of our pieces ! so gather all boards from possible moves of this piece
 				(task-slice)
-				(piece-moves yield brd _ color (piece-map moves_map piece))))) (list brd)) yield)
+				(piece-moves yield brd (!) color (piece-map moves_map piece))))) (list brd)) yield)
 
 ;pvs search
 (defun pvs (brd color alpha beta ply)
@@ -317,7 +317,7 @@
 		(:t (defq next_boards (all-moves brd color))
 			(some! (lambda (brd)
 				(cond
-					((= _ 0)
+					((= (!) 0)
 						(defq value (neg (pvs brd (neg color) (neg beta) (neg alpha) (dec ply)))))
 					(:t (defq value (neg (pvs brd (neg color) (dec (neg alpha)) (neg alpha) (dec ply))))
 						(if (< alpha value beta)

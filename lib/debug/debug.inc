@@ -91,7 +91,7 @@
 			;valid form ?
 			(when (defq m (debug-form? e))
 				;wrap the form ?
-				(when (> m 0) (elem-set l _
+				(when (> m 0) (elem-set l (!)
 					(static-qq (debug-msg ,e ,(str e) (env) ,name))))
 				;step into form
 				(push stack e))) l)) form)

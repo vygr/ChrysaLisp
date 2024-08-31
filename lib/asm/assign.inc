@@ -73,9 +73,9 @@
 		(if (setq j (unless (list? (defq j (elem-get d i)))
 				(some! (lambda (s d)
 					(cond
-						((and (list? s) (find-rev j s)) _)
-						((and (list? d) (find-rev j d)) _)
-						((eql j s) _))) (list s d) :nil -1 (inc i))))
+						((and (list? s) (find-rev j s)) (!))
+						((and (list? d) (find-rev j d)) (!))
+						((eql j s) (!)))) (list s d) :nil -1 (inc i))))
 			(setq s (rotate s i j (inc j)) d (rotate d i j (inc j)) c (dec c))
 			(setq i (inc i))))
 	(if (= c 0)

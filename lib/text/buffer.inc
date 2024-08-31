@@ -93,9 +93,9 @@
 				((and (array? syntax) (eql state start_state))
 					(setq state end_state))
 				(:t (task-slice)
-					(elem-set buffer_syntax _
+					(elem-set buffer_syntax (!)
 						(.-> syntax_engine (:set_state state) (:colorise line)))
-					(elem-set buffer_states _
+					(elem-set buffer_states (!)
 						(list state (setq state
 							(if estate estate (. syntax_engine :get_state))))))))
 			buffer_line buffer_syntax buffer_states)
@@ -112,7 +112,7 @@
 			(defq ink_text (get :ink_text (get :syntax_engine this)))
 			(each (lambda (syntax brackets)
 				(unless brackets
-					(elem-set buffer_brackets _ (reduce
+					(elem-set buffer_brackets (!) (reduce
 						(# (+ %0 (cond
 							((/= (logand 0xffffff000000 %1) ink_text) 0)
 							((eql (logand 0xff %1) (ascii-code "(")) -1)
@@ -455,8 +455,8 @@
 									((/= (logand 0xffffff000000 %0) ink_text) 0)
 									((eql (logand 0xff %0) (ascii-code "(")) -1)
 									((eql (logand 0xff %0) (ascii-code ")")) 1)
-									(0)))) 0) _))
-								(list syntax) :nil (if (= x -1) (length syntax) (min (inc x) (length syntax))) 0)) _)
+									(0)))) 0) (!)))
+								(list syntax) :nil (if (= x -1) (length syntax) (min (inc x) (length syntax))) 0)) (!))
 						(:t (setq x -1) :nil)))
 					(list buffer_syntax buffer_brackets) :nil (inc y) 0))
 				(if (and x y) (list x y) '(:nil :nil)))
@@ -495,7 +495,7 @@
 								((/= (logand 0xffffff000000 %0) ink_text) 0)
 								((eql (logand 0xff %0) (ascii-code "(")) -1)
 								((eql (logand 0xff %0) (ascii-code ")")) 1)
-								(0)))) 0) _)) (list syntax) :nil x)) _)
+								(0)))) 0) (!))) (list syntax) :nil x)) (!))
 						(:t (setq x 0) :nil)))
 					(list buffer_syntax buffer_brackets) :nil y h))
 				(if (and x y) (list x y) '(:nil :nil)))
@@ -506,16 +506,16 @@
 		(raise :last_key :buffer_found)
 		(unless (eql (defq key (str (list wmode rmode pattern))) last_key)
 			(lower (:last_key key))
-			(each (lambda (__) (elem-set buffer_found _ :nil)) buffer_found))
+			(each (lambda (__) (elem-set buffer_found (!) :nil)) buffer_found))
 		(unless (eql pattern "")
 			(bind '(engine pattern meta) (query pattern wmode rmode))
 			(each (lambda (line index)
 				(if (> (length line) 0)
 					(unless index
 						(task-slice)
-						(elem-set buffer_found _
+						(elem-set buffer_found (!)
 							(. engine :search line pattern meta)))
-					(elem-set buffer_found _ '())))
+					(elem-set buffer_found (!) '())))
 				(get :buffer_line this) buffer_found))
 		buffer_found)
 	)

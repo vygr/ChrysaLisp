@@ -30,7 +30,7 @@
 (defun display-board (board)
 	(each (lambda (square piece)
 		(def square :text (elem-get
-			(if (= (logand (+ _ (>> _ 3)) 1) 0) "wltvmoqkrbnp " "qkrbnpwltvmo ")
+			(if (= (logand (+ (!) (>> (!) 3)) 1) 0) "wltvmoqkrbnp " "qkrbnpwltvmo ")
 			(find piece "QKRBNPqkrbnp ")))
 		(. square :layout)) (. chess_grid :children) board)
 	(. chess_grid :dirty_all))

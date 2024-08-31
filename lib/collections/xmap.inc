@@ -10,7 +10,7 @@
 (defmacro slot ()
 	`(defq x (get :buckets this)
 		b (* (% ((get :hash_fnc this) key) (get :num_buckets this)) 2)
-		e (some (# (if ((get :cmp_fnc this) %0 key) _)) (elem-get x b))))
+		e (some (# (if ((get :cmp_fnc this) %0 key) (!))) (elem-get x b))))
 
 (defclass Xmap (&optional num_buckets cmp_fnc hash_fnc) (Map)
 	; (Xmap [num_buckets cmp_fnc hash_fnc]) -> xmap

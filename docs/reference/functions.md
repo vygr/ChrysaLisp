@@ -161,12 +161,16 @@ cached circle generation, quantised to 1/4 pixel
 
 ```code
 (each-line lambda stream [line_num])
+
+_ bound to line index !
 ```
 
 ### each-mergeable
 
 ```code
 (each-mergeable lambda seq) -> seq
+
+_ bound to seq index !
 ```
 
 ### empty?

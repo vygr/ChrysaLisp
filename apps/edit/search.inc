@@ -33,7 +33,7 @@
 				(if (< cy sy) (setq cy sy cx 0))
 				(when (and (< cy sy1) (defq next (some!
 						(lambda (match)
-							(defq y _)
+							(defq y (!))
 							(some (lambda (((x x1) &ignore)) (cond
 								((> y cy) (list x x1 y))
 								((>= x cx) (list x x1 y)))) match))
@@ -57,7 +57,7 @@
 				(if (>= cy sy1) (setq cy (dec sy1) cx +max_int))
 				(when (and (>= cy sy) (defq next (some!
 						(lambda (match)
-							(defq y _)
+							(defq y (!))
 							(some-rev (lambda (((x x1) &ignore)) (cond
 								((< y cy) (list x x1 y))
 								((< x cx) (list x x1 y)))) match))
@@ -82,7 +82,7 @@
 	(when (< sy (length found))
 		(defq match (elem-get found sy) line (elem-get lines sy))
 		(when (defq mi (some (lambda (((x x1) &ignore))
-					(and (= x sx) (= x1 sx1) _)) match))
+					(and (= x sx) (= x1 sx1) (!))) match))
 			(when regexp
 				(setq match (elem-get match mi))
 				(each-rev (lambda (((x x1) (x2 x3)))

@@ -88,7 +88,7 @@
 							(:t (setq cy (/ (- fh ch) 2)))))
 
 					;last one ?
-					(when (= _ end)
+					(when (= (!) end)
 						(when (/= 0 (logand flow_flags +flow_flag_lastw))
 							(if (/= 0 (logand flow_flags +flow_flag_right))
 								(setq cw (- fw cx)))

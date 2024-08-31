@@ -8,9 +8,9 @@
 (defmacro eql-xy (c1 c2)
 	`(and (eql (first ,c1) (elm 0 ,c2)) (eql (second ,c1) (second ,c2))))
 (defmacro find-xy (c s)
-	`(some (lambda (_e) (if (eql-xy ,c _e) _)) ,s))
+	`(some (lambda (_e) (if (eql-xy ,c _e) (!))) ,s))
 (defmacro sfind (x s)
-	`(some (lambda (_e) (if (eql _e ,x) _)) ,s))
+	`(some (lambda (_e) (if (eql _e ,x) (!))) ,s))
 (defmacro in-bounds (c w h)
 	`(and (< -1 (first ,c) ,w) (< -1 (second ,c) ,h)))
 ;need test h or w greater, flip if wrong

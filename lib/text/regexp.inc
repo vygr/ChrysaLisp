@@ -203,7 +203,7 @@
 	(defq end -1 end_trace (array 0) tl (length text)
 		si start s (if (<= si 0) " " (elem-get text (dec si)))
 		current (firstelem cpat (list)) seen (list) next (list))
-	(some! (lambda (s) (defq si (inc _))
+	(some! (lambda (s) (defq si (inc (!)))
 			;for each current trace
 			(each (# (if (eval (first (defq elem (elem-get cpat (last %0)))))
 				;matched text char, so insert next traces
@@ -223,7 +223,7 @@
 	(defq end -1 tl (length text) trace (array 0)
 		si start s (if (<= si 0) " " (elem-get text (dec si)))
 		current (firstelem-no-trace cpat (list)) next (list))
-	(some! (lambda (s) (defq si (inc _))
+	(some! (lambda (s) (defq si (inc (!)))
 			;for each current index
 			(each (# (if (eval (first (defq elem (elem-get cpat %0))))
 				;matched text char, so insert next index

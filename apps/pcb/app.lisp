@@ -20,7 +20,7 @@
 	(sort out))
 
 (defq *pcbs* (all-pcbs "apps/pcb/data/")
-	*index* (some (# (if (eql "apps/pcb/data/test1.pcb" %0) _)) *pcbs*)
+	*index* (some (# (if (eql "apps/pcb/data/test1.pcb" %0) (!))) *pcbs*)
 	canvas_scale 1 *mode* 0 *show* -1
 	+max_zoom 15.0 +min_zoom 5.0 *zoom* (/ (+ +min_zoom +max_zoom) 2.0)
 	*running* :t pcb :nil pcb_data :nil child :nil +tag_min_size 104)

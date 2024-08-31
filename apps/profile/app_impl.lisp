@@ -16,7 +16,7 @@
 
 (defun vdu-print (vdu buf s)
 	(defq ch (const (dec +height)) cl 0
-		cl (some (# (if (eql %0 (ascii-char 10)) (if (= (setq cl (inc cl)) ch) _))) s))
+		cl (some (# (if (eql %0 (ascii-char 10)) (if (= (setq cl (inc cl)) ch) (!)))) s))
 	(. buf :paste (slice s 0 (if cl (inc cl) -1)))
 	(bind '(w h) (. buf :get_size))
 	(when (> h ch)

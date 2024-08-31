@@ -36,8 +36,8 @@
 		bl (list) lb (each-line (# (push bl %0)) b) lb (length bl))
 	(cond
 		((and (= la 0) (= lb 0)))
-		((= la 0) (each (# (write-line c (str "+ " _ " " %0))) bl))
-		((= lb 0) (each (# (write-line c (str "- " _ " " %0))) al))
+		((= la 0) (each (# (write-line c (str "+ " (!) " " %0))) bl))
+		((= lb 0) (each (# (write-line c (str "- " (!) " " %0))) al))
 		(:t (defq ps (list (nums 0 0)) nps (list) goal (nums la lb) run :t)
 			(while run
 				(each (lambda (p)

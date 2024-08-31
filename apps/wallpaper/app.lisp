@@ -20,7 +20,7 @@
 	(each (lambda ((iw ih it))
 		(defq iw (- w iw) ih (- h ih) new_err (+ (* iw iw) (* ih ih)))
 		(when (< new_err err)
-			(setq err new_err index _ flag (if (= it 32) 0 +view_flag_opaque)))) images_info)
+			(setq err new_err index (!) flag (if (= it 32) 0 +view_flag_opaque)))) images_info)
 	(. wallpaper :sub)
 	(gui-add-back (.-> (setq wallpaper (Canvas w h 1))
 		(:resize (canvas-load (elem-get *env_wallpaper_images* index) +load_flag_noswap))

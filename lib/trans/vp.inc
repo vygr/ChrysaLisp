@@ -58,7 +58,7 @@
 			;map vp reg syms to native reg nums
 			(each! (lambda (e)
 				(if (defq e (emit-native-reg? e))
-					(elem-set op _ e))) (list op) 1)
+					(elem-set op (!) e))) (list op) 1)
 			;create label and branch initial values
 			(cond
 				((eql (defq e (first op)) 'emit-label)

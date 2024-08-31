@@ -65,11 +65,11 @@
 		(push links_offsets (setq offset (+ offset (length body))))
 		(+ offset (length links))) blobs 0)
 	;create new link sections with offsets to header path
-	(each (# (defq u (elem-get links_offsets _))
+	(each (# (defq u (elem-get links_offsets (!)))
 		(elem-set %0 +blob_links (apply (const cat) (push (map
 			(# (char (-
 				(+ (elem-get header_offsets (find %0 boot_funcs)) +fn_header_pathname)
-				(+ u (* _ +ptr_size))) +ptr_size)) (elem-get %0 +blob_refs)) "")))) blobs)
+				(+ u (* (!) +ptr_size))) +ptr_size)) (elem-get %0 +blob_refs)) "")))) blobs)
 	;build list of all sections of boot image
 	(defq stream (file-stream (func-obj-path 'sys/boot_image) +file_open_write)
 		blobs (push (reduce (# (push %0

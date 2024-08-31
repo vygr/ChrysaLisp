@@ -117,7 +117,7 @@
 	(setq s (map (# (if (num? %0) (num-to-utf8 %0) %0)) s))
 	(ui-props p
 		:text %0)
-	`(each (# (. (ui-button __ ,p) :connect (+ _ ,e))) '(~s)))
+	`(each (# (. (ui-button __ ,p) :connect (+ (!) ,e))) '(~s)))
 
 (defmacro ui-title-bar (n s b e &optional p)
 	; (ui-title-bar name title symbols event [props]) -> flow
