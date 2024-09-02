@@ -594,9 +594,9 @@
 
 	(def-vars
 		(ptr this seqs value func args)
-		(int dir old_idx end))
+		(int dir end old_idx))
 
-	(vp-def (dir idx end func seqs) '(:r8 :r9 :r10 :r11 :r12))
+	(vp-def (dir idx end func seqs this old_idx) '(:r8 :r9 :r10 :r11 :r12))
 
 	(push-scope)
 	(entry 'seq :lisp_each {this, seqs})
@@ -639,8 +639,11 @@
 			(vp-sub-cr 1 end)
 		(endif)
 
-		(assign {this->lisp_seq_idx} {old_idx})
-		(assign `(,dir ,end ,func ,seqs ,idx) {dir, end, func, seqs, this->lisp_seq_idx})
+		(assign {this} `(,this))
+		(assign `(,dir ,end ,func ,seqs) {dir, end, func, seqs})
+		(assign `((,this lisp_seq_idx)) `(,old_idx))
+		(assign `(,idx) `((,this lisp_seq_idx)))
+		(assign `(,old_idx) {old_idx})
 
 		(loop-start)
 			;dicard old value, get new value of function call
@@ -693,10 +696,10 @@
 
 	(def-vars
 		(ptr this seqs value mode func args)
-		(int dir old_idx end))
+		(int dir end old_idx))
 
-	(vp-def (this value dir idx end mode func seqs)
-		'(:r0 :r1 :r8 :r9 :r10 :r11 :r12 :r13))
+	(vp-def (dir idx end mode func seqs this value old_idx)
+		'(:r8 :r9 :r10 :r11 :r12 :r13))
 
 	(push-scope)
 	(entry 'seq :lisp_some {this, seqs})
@@ -743,8 +746,11 @@
 			(vp-sub-cr 1 end)
 		(endif)
 
-		(assign {this->lisp_seq_idx} {old_idx})
-		(assign `(,dir ,end ,mode ,func ,seqs ,idx) {dir, end, mode, func, seqs, this->lisp_seq_idx})
+		(assign {this} `(,this))
+		(assign `(,dir ,end ,mode ,func ,seqs) {dir, end, mode, func, seqs})
+		(assign `((,this lisp_seq_idx)) `(,old_idx))
+		(assign `(,idx) `((,this lisp_seq_idx)))
+		(assign `(,old_idx) {old_idx})
 
 		(loop-start 'exit)
 			;dicard old value, get new value of function call
@@ -806,9 +812,9 @@
 
 	(def-vars
 		(ptr this seqs value func args out)
-		(int dir old_idx end))
+		(int dir end old_idx))
 
-	(vp-def (dir idx end func seqs) '(:r8 :r9 :r10 :r11 :r12))
+	(vp-def (dir idx end func seqs this old_idx) '(:r8 :r9 :r10 :r11 :r12))
 
 	(push-scope)
 	(entry 'seq :lisp_map {this, seqs})
@@ -858,8 +864,11 @@
 			(vp-sub-cr 1 end)
 		(endif)
 
-		(assign {this->lisp_seq_idx} {old_idx})
-		(assign `(,dir ,end ,func ,seqs ,idx) {dir, end, func, seqs, this->lisp_seq_idx})
+		(assign {this} `(,this))
+		(assign `(,dir ,end ,func ,seqs) {dir, end, func, seqs})
+		(assign `((,this lisp_seq_idx)) `(,old_idx))
+		(assign `(,idx) `((,this lisp_seq_idx)))
+		(assign `(,old_idx) {old_idx})
 
 		(assign {out} '(:r0))
 		(assign '((:r0 array_length)) '(:r1))
@@ -926,9 +935,9 @@
 
 	(def-vars
 		(ptr this seqs value func args)
-		(int dir old_idx end))
+		(int dir end old_idx))
 
-	(vp-def (dir idx end func value seqs) '(:r8 :r9 :r10 :r11 :r12 :r13))
+	(vp-def (dir idx end func seqs this value old_idx) '(:r8 :r9 :r10 :r11 :r12))
 
 	(push-scope)
 	(entry 'seq :lisp_reduce {this, seqs})
@@ -972,8 +981,11 @@
 			(vp-sub-cr 1 end)
 		(endif)
 
-		(assign {this->lisp_seq_idx} {old_idx})
-		(assign `(,dir ,end ,func ,seqs ,idx) {dir, end, func, seqs, this->lisp_seq_idx})
+		(assign {this} `(,this))
+		(assign `(,dir ,end ,func ,seqs) {dir, end, func, seqs})
+		(assign `((,this lisp_seq_idx)) `(,old_idx))
+		(assign `(,idx) `((,this lisp_seq_idx)))
+		(assign `(,old_idx) {old_idx})
 
 		(loop-start)
 			;recycle value as arg 0, get new value of function call
