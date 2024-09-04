@@ -594,7 +594,8 @@
 
 	(def-vars
 		(ptr this seqs value func args)
-		(int dir end old_idx))
+		(int dir end)
+		(uint old_idx))
 
 	(vp-def (dir idx end func seqs this old_idx) '(:r8 :r9 :r10 :r11 :r12))
 
@@ -696,7 +697,8 @@
 
 	(def-vars
 		(ptr this seqs value mode func args)
-		(int dir end old_idx))
+		(int dir end)
+		(uint old_idx))
 
 	(vp-def (dir idx end mode func seqs this value old_idx)
 		'(:r8 :r9 :r10 :r11 :r12 :r13))
@@ -812,7 +814,8 @@
 
 	(def-vars
 		(ptr this seqs value func args out)
-		(int dir end old_idx))
+		(int dir end)
+		(uint old_idx))
 
 	(vp-def (dir idx end func seqs this old_idx) '(:r8 :r9 :r10 :r11 :r12))
 
@@ -935,7 +938,8 @@
 
 	(def-vars
 		(ptr this seqs value func args)
-		(int dir end old_idx))
+		(int dir end)
+		(uint old_idx))
 
 	(vp-def (dir idx end func seqs this value old_idx) '(:r8 :r9 :r10 :r11 :r12))
 
