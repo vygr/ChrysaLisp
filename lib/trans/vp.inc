@@ -62,7 +62,7 @@
 			;create label and branch initial values
 			(cond
 				((eql (defq e (first op)) 'emit-label)
-					(def (penv (penv)) (last (last op)) 0))
+					(def (penv) (last (last op)) 0))
 				((find e '(emit-beq-cr emit-bne-cr emit-bge-cr emit-blt-cr emit-ble-cr emit-bgt-cr
 						emit-beq-rr emit-bne-rr emit-bge-rr emit-blt-rr emit-ble-rr emit-bgt-rr emit-jmp))
 					(push op (dec (length (push *branches* 0))))))
