@@ -60,7 +60,7 @@
 		(.-> *edit* (:set_cursor 0 0) (:set_anchor 0 0) (:set_find 0 0 0 0))
 		(action-macro-to-eof slot)))
 
-(each (# (def (penv (penv))
+(each (# (def (penv)
 		(sym (str "action-macro-playback-" %0))
 			`(,lambda () (,action-macro-playback ,%0))))
 	+range_0_10)
@@ -84,7 +84,7 @@
 		(.-> +macro_map (:insert 0 (list)) (:insert slot (list)))
 		(throw "Edit macro recursive error !" slot)))
 
-(each (# (def (penv (penv))
+(each (# (def (penv)
 		(sym (str "action-macro-save-" %0))
 			`(,lambda () (,action-macro-save ,%0))))
 	+range_0_10)
