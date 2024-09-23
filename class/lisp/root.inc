@@ -715,7 +715,8 @@
 					(first _clause_body)
 					(cat '(progn) _clause_body)))))))
 			(or (eql :num (defq _clause_type (pop (type-of _clause_body))))
-				(eql :str _clause_type) (setq _atoms :nil))
+				(eql :str _clause_type)
+				(setq _atoms :nil))
 			(each (#
 				(and (sym? %0) (starts-with "+" %0) (setq %0 (eval %0)))
 				(cond
