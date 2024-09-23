@@ -698,7 +698,7 @@
 	(defq out (list) stack (list lst 0))
 	(while (defq idx (pop stack) lst (pop stack))
 		(some! (# (cond
-			((list? %0) (push stack lst (inc _) %0 0) :nil)
+			((list? %0) (push stack lst (inc (!)) %0 0) :nil)
 			((push out %0)))) (list lst) :t idx)) out)
 
 ;;;;;;
