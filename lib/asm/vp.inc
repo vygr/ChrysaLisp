@@ -19,26 +19,26 @@
 (defmacro emit (&rest _) `(push *emit_list* ~_))
 
 (defun emit-vp-code (emit_list)
-	;remove redundant labels and rename
+	;remove nops and rename labels
 	(defq out (push (clear '()) 'progn) labels (env 11)
 		last_e :nil pc -1 pc_sym :nil)
 	(each (lambda (op)
-		(unless (lambda? (defq e (first op)))
-			(cond
-				((eql e 'emit-label)
-					(unless (eql e last_e)
-						(setq pc_sym (sym (str "_" (setq pc (inc pc)))))
-						(push out op))
-					(def labels (last (last op)) pc_sym))
-				((push out op)))
-			(setq last_e e))) emit_list)
+		(cond
+			((eql (defq e (first op)) 'lambda))
+			((eql e 'emit-label)
+				(unless (eql e last_e)
+					(setq pc_sym (sym (str "_" (setq pc (inc pc)))))
+					(push out op))
+				(def labels (last (last op)) pc_sym))
+			((push out op)))
+		(setq last_e e)) emit_list)
 	(defq stack (rest out))
 	(while (defq lst (pop stack))
 		(each! (lambda (e)
 			(if (list? e)
 				(push stack e)
 				(and (sym? e) (defq e (def? e labels)) (elem-set lst (!) e))))
-			(list lst) 1 -1)) out)
+			(list lst) 1)) out)
 
 ;;;;;;;;;;;;;;;;;
 ; VP Instructions
