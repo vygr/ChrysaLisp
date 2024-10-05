@@ -7,7 +7,7 @@
 
 (defq
 	+opt_nop
-		'(lambda)
+		''(emit-vp-nop)
 	+opt_emit_read_ops
 		''(emit-cpy-ir-ui emit-cpy-ir-us emit-cpy-ir-ub emit-cpy-ir-i emit-cpy-ir-s emit-cpy-ir-b emit-cpy-ir)
 	+opt_emit_write_ops

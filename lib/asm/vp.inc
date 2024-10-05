@@ -24,7 +24,7 @@
 		last_e :nil pc -1 pc_sym :nil)
 	(each (lambda (op)
 		(cond
-			((eql (defq e (first op)) 'lambda))
+			((eql (defq e (first op)) 'emit-vp-nop))
 			((eql e 'emit-label)
 				(unless (eql e last_e)
 					(setq pc_sym (sym (str "_" (setq pc (inc pc)))))
