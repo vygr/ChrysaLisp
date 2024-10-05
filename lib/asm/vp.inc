@@ -22,6 +22,7 @@
 	;remove nops and rename labels
 	(defq out (push (clear '()) 'progn) labels (env 11)
 		last_op :nil pc -1 pc_sym :nil)
+	;scan the emit list and filter while gathering the label renames
 	(each (lambda (inst)
 		(cond
 			((eql (defq op (first inst)) 'emit-vp-nop))
@@ -32,6 +33,7 @@
 				(def labels (last (last inst)) pc_sym))
 			((push out inst)))
 		(setq last_op op)) emit_list)
+	;scan the tree ! and rename any label symbol elements
 	(defq stack (rest out))
 	(while (defq lst (pop stack))
 		(each! (#
