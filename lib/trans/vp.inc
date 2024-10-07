@@ -18,9 +18,13 @@
 	(setq *pc* (+ *pc* (length string))))
 
 (defmacro emit-data (type size)
-	`(defun ,(sym (str "emit-" type)) (&rest data)
-		(write-char *out_stream* data ,size)
-		(setq *pc* (+ *pc* (* (length data) ,size)))))
+	(if (= size 1)
+		`(defun ,(sym (str "emit-" type)) (&rest data)
+			(write-char *out_stream* data)
+			(setq *pc* (+ *pc* (length data))))
+		`(defun ,(sym (str "emit-" type)) (&rest data)
+			(write-char *out_stream* data ,size)
+			(setq *pc* (+ *pc* (* (length data) ,size))))))
 
 (emit-data byte 1) (emit-data short 2) (emit-data int 4) (emit-data long 8)
 
