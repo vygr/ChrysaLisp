@@ -42,22 +42,22 @@
 (defun emit-translate (emit_code)
 	; (emit-translate emit_code) -> func_binary
 	(defq out_buf "" old_out_buf "" *pass* 0 *pc* 0
-		*branches* (cap 64 (list))
-		*out_stream* (string-stream out_buf))
-	(each! (lambda (op)
+		*branches* (cap 64 (list)) *out_stream* (string-stream out_buf))
+	(each! (lambda (inst)
 			;map vp reg syms to native reg nums
-			(each! (lambda (e)
-				(if (defq e (emit-native-reg? e))
-					(elem-set op (!) e))) (list op) 1)
+			(each! (lambda (%0)
+				(if (defq %0 (emit-native-reg? %0))
+					(elem-set inst (!) %0))) (list inst) 1)
 			;create label and branch initial values
 			(cond
-				((eql (defq e (first op)) 'emit-label)
-					(def (penv) (last (last op)) 0))
-				((find e '(emit-beq-cr emit-bne-cr emit-bge-cr emit-blt-cr emit-ble-cr emit-bgt-cr
-						emit-beq-rr emit-bne-rr emit-bge-rr emit-blt-rr emit-ble-rr emit-bgt-rr emit-jmp))
-					(push op (dec (length (push *branches* 0))))))
+				((eql (defq op (first inst)) 'emit-label)
+					(def (penv) (last (last inst)) 0))
+				((find op '(emit-beq-cr emit-bne-cr emit-bge-cr emit-blt-cr
+						emit-ble-cr emit-bgt-cr emit-beq-rr emit-bne-rr
+						emit-bge-rr emit-blt-rr emit-ble-rr emit-bgt-rr emit-jmp))
+					(push inst (dec (length (push *branches* 0))))))
 			;bind emit func
-			(elem-set op 0 (def? e +emit_funcs)))
+			(elem-set inst 0 (def? op +emit_funcs)))
 		(list emit_code) 1)
 	;multi pass of native emit functions
 	(eval emit_code)
