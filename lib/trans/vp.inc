@@ -5,34 +5,24 @@
 ;module
 (env-push)
 
-(defun emit-label (_)
-	(set (penv) _ *pc*))
+(defun emit-label (label) (set (penv) label *pc*))
 
-(defun emit-byte (&rest _)
-	(write-char *out_stream* _)
-	(setq *pc* (+ *pc* (length _))))
+(defun emit-align (size &optional fill)
+	(defq pc *pc* fill (opt fill 0) stream *out_stream*)
+	(setq *pc* (align pc size))
+	(while (<= (setq pc (inc pc)) *pc*)
+		(write-char stream fill)))
 
-(defun emit-short (&rest _)
-	(write-char *out_stream* _ 2)
-	(setq *pc* (+ *pc* (* (length _) 2))))
+(defun emit-string (string)
+	(write *out_stream* string)
+	(setq *pc* (+ *pc* (length string))))
 
-(defun emit-int (&rest _)
-	(write-char *out_stream* _ 4)
-	(setq *pc* (+ *pc* (* (length _) 4))))
+(defmacro emit-data (type size)
+	`(defun ,(sym (str "emit-" type)) (&rest data)
+		(write-char *out_stream* data ,size)
+		(setq *pc* (+ *pc* (* (length data) ,size)))))
 
-(defun emit-long (&rest _)
-	(write-char *out_stream* _ 8)
-	(setq *pc* (+ *pc* (* (length _) 8))))
-
-(defun emit-string (_)
-	(write *out_stream* _)
-	(setq *pc* (+ *pc* (length _))))
-
-(defun emit-align (a &optional b)
-	(defq p *pc* b (opt b 0) s *out_stream*)
-	(setq *pc* (align p a))
-	(while (<= (setq p (inc p)) *pc*)
-		(write-char s b)))
+(emit-data byte 1) (emit-data short 2) (emit-data int 4) (emit-data long 8)
 
 ;;;;;;;;;;;;;;;;;;;;;;;
 ; native emit functions
