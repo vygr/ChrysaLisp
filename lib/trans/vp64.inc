@@ -91,8 +91,8 @@
 (defun emit-sge-rr (s d) (emit-short (+ (next-opcode) (<< d 8) (<< s 12))))
 
 (defun vp64-branch (o l d)
-	(defq m (elem-get *branches* d) l (- l *pc*))
-	(and (> *pass* 0) (> (abs l) (abs m)) (elem-set *branches* d (setq m l)))
+	(defq m (elem-get *offsets* d) l (- l *pc*))
+	(and (> *pass* 0) (> (abs l) (abs m)) (elem-set *offsets* d (setq m l)))
 	(cond
 		((vp64-within (- m 2) 8)
 			(emit-short (+ o (<< (- l 2) 8))))

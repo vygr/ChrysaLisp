@@ -137,8 +137,8 @@
 				(:t (throw "x64-cmp-cr constant out of range !" c))))))
 
 (defun x64-branch (o l d)
-	(defq m (elem-get *branches* d) l (- l *pc*))
-	(and (> *pass* 0) (> (abs l) (abs m)) (elem-set *branches* d (setq m l)))
+	(defq m (elem-get *offsets* d) l (- l *pc*))
+	(and (> *pass* 0) (> (abs l) (abs m)) (elem-set *offsets* d (setq m l)))
 	(cond
 		((<= -0x80 (- m 2) 0x7f)
 			(emit-byte o (- l 2)))
@@ -220,8 +220,8 @@
 (defun emit-call-p (l) (x64-call-jump-p 0x15 l))
 
 (defun emit-jmp (l d)
-	(defq m (elem-get *branches* d) c (- l *pc*))
-	(and (> *pass* 0) (> (abs c) (abs m)) (elem-set *branches* d (setq m c)))
+	(defq m (elem-get *offsets* d) c (- l *pc*))
+	(and (> *pass* 0) (> (abs c) (abs m)) (elem-set *offsets* d (setq m c)))
 	(cond
 		((<= -0x80 (- m 2) 0x7f)
 			(emit-byte (+ 0x2 0xe9) (- c 2)))

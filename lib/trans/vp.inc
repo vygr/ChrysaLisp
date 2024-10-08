@@ -47,7 +47,7 @@
 (defun emit-translate (emit_code)
 	; (emit-translate emit_code) -> func_binary
 	(defq buf "" last_buf "" *pass* 0 *pc* 0
-		*branches* (cap 64 (list)) *stream* (string-stream buf))
+		*offsets* (cap 64 (list)) *stream* (string-stream buf))
 	(each! (lambda (inst)
 			;map vp reg syms to native reg nums
 			(each! (# (if (defq %0 (emit-native-reg? %0)) (elem-set inst (!) %0)))
@@ -59,7 +59,7 @@
 				((find op '(emit-beq-cr emit-bne-cr emit-bge-cr emit-blt-cr
 						emit-ble-cr emit-bgt-cr emit-beq-rr emit-bne-rr
 						emit-bge-rr emit-blt-rr emit-ble-rr emit-bgt-rr emit-jmp))
-					(push inst (dec (length (push *branches* 0))))))
+					(push inst (dec (length (push *offsets* 0))))))
 			;bind emit func
 			(elem-set inst 0 (def? op +emit_funcs)))
 		(list emit_code) 1)
