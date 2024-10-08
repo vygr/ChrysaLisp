@@ -17,16 +17,18 @@
 	(write *out_stream* string)
 	(setq *pc* (+ *pc* (length string))))
 
-(defmacro emit-data (type size)
-	(if (= size 1)
-		`(defun ,(sym (str "emit-" type)) (&rest data)
+(defmacro emit-data (type)
+	(defq func_sym (sym (cat "emit-" type))
+		size_sym (sym (cat "+" type "_size")))
+	(if (eql type 'byte)
+		`(defun ,func_sym (&rest data)
 			(write-char *out_stream* data)
 			(setq *pc* (+ *pc* (length data))))
-		`(defun ,(sym (str "emit-" type)) (&rest data)
-			(write-char *out_stream* data ,size)
-			(setq *pc* (+ *pc* (* (length data) ,size))))))
+		`(defun ,func_sym (&rest data)
+			(write-char *out_stream* data ,size_sym)
+			(setq *pc* (+ *pc* (* (length data) ,size_sym))))))
 
-(emit-data byte 1) (emit-data short 2) (emit-data int 4) (emit-data long 8)
+(emit-data byte) (emit-data short) (emit-data int) (emit-data long)
 
 ;;;;;;;;;;;;;;;;;;;;;;;
 ; native emit functions
