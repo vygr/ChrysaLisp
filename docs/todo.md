@@ -18,7 +18,7 @@ the current atom or matched brackets.
 * canvas to support stretched or aspect correct drawing, centered, and aligned
 flags.
 
-* add default parameters for `(slice)`.
+* add default parameters for `(slice)` ?.
 
 * ui-load-icon .... for button images.
 
@@ -35,7 +35,8 @@ codes etc.
 * Integrate the HOST clipboard and the CL Clipboard service.
 
 * Change Regexp compiler to produce VP code and hold a cache of translated
-expressions.
+expressions. This is less relevant since the `charclass` VP functions, but
+still a very good exercise in Jit tech.
 
 * Gui remote desktop service that runs over CLB.
 
