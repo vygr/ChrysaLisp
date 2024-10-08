@@ -8,23 +8,23 @@
 (defun emit-label (label) (set (penv) label *pc*))
 
 (defun emit-align (size &optional fill)
-	(defq pc *pc* fill (opt fill 0) stream *out_stream*)
+	(defq pc *pc* fill (opt fill 0) stream *stream*)
 	(setq *pc* (align pc size))
 	(while (<= (setq pc (inc pc)) *pc*)
 		(write-char stream fill)))
 
 (defun emit-string (string)
-	(write *out_stream* string)
+	(write *stream* string)
 	(setq *pc* (+ *pc* (length string))))
 
 (defmacro emit-data (type)
 	(defq func_sym (sym (cat "emit-" type)) size_sym (sym (cat "+" type "_size")))
 	(if (eql type 'byte)
 		`(defun ,func_sym (&rest data)
-			(write-char *out_stream* data)
+			(write-char *stream* data)
 			(setq *pc* (+ *pc* (length data))))
 		`(defun ,func_sym (&rest data)
-			(write-char *out_stream* data ,size_sym)
+			(write-char *stream* data ,size_sym)
 			(setq *pc* (+ *pc* (* (length data) ,size_sym))))))
 
 (emit-data byte) (emit-data short) (emit-data int) (emit-data long)
@@ -46,8 +46,8 @@
 
 (defun emit-translate (emit_code)
 	; (emit-translate emit_code) -> func_binary
-	(defq out_buf "" old_out_buf "" *pass* 0 *pc* 0
-		*branches* (cap 64 (list)) *out_stream* (string-stream out_buf))
+	(defq buf "" last_buf "" *pass* 0 *pc* 0
+		*branches* (cap 64 (list)) *stream* (string-stream buf))
 	(each! (lambda (inst)
 			;map vp reg syms to native reg nums
 			(each! (# (if (defq %0 (emit-native-reg? %0)) (elem-set inst (!) %0)))
@@ -65,13 +65,13 @@
 		(list emit_code) 1)
 	;multi pass of native emit functions
 	(eval emit_code)
-	(setq out_buf (str *out_stream*) *pass* (inc *pass*))
-	(until (eql out_buf old_out_buf)
+	(setq buf (str *stream*) *pass* (inc *pass*))
+	(until (eql buf last_buf)
 		(task-slice)
-		(defq b old_out_buf old_out_buf out_buf *out_stream* (string-stream b) *pc* 0)
+		(defq b last_buf last_buf buf *stream* (string-stream b) *pc* 0)
 		(eval emit_code)
-		(setq out_buf (str *out_stream*) *pass* (inc *pass*)))
-	out_buf)
+		(setq buf (str *stream*) *pass* (inc *pass*)))
+	buf)
 
 ;module
 (export-symbols '(emit-translate))
