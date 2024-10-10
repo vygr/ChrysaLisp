@@ -17,17 +17,36 @@
 	(write *stream* string)
 	(setq *pc* (+ *pc* (length string))))
 
-(defmacro emit-data (type)
-	(defq func_sym (sym (cat "emit-" type)) size_sym (sym (cat "+" type "_size")))
+(defmacro data (type)
+	(defq func_sym (sym (cat "emit-" type))
+		size (eval (sym (cat "+" type "_size"))))
 	(if (eql type 'byte)
 		`(defun ,func_sym (&rest data)
 			(write-char *stream* data)
 			(setq *pc* (+ *pc* (length data))))
 		`(defun ,func_sym (&rest data)
-			(write-char *stream* data ,size_sym)
-			(setq *pc* (+ *pc* (* (length data) ,size_sym))))))
+			(write-char *stream* data ,size)
+			(setq *pc* (+ *pc* (* (length data) ,size))))))
 
-(emit-data byte) (emit-data short) (emit-data int) (emit-data long)
+(defmacro data-macro (type)
+	(defq func_sym (sym (cat "emitm-" type))
+		size (eval (sym (cat "+" type "_size"))))
+	(if (eql type 'byte)
+		`(defmacro ,func_sym (&rest data)
+			(if (= (length data) 1)
+				`(progn (write-char *stream* ~data)
+					(setq *pc* (+ *pc* 1)))
+				`(progn (write-char *stream* (list ~data))
+					(setq *pc* (+ *pc* ,(length data))))))
+		`(defmacro ,func_sym (&rest data)
+			(if (= (length data) 1)
+				`(progn (write-char *stream* ~data ,,size)
+					(setq *pc* (+ *pc* ,,size)))
+				`(progn (write-char *stream* (list ~data) ,,size)
+					(setq *pc* (+ *pc* (const (* ,(length data) ,,size)))))))))
+
+(data byte) (data short) (data int) (data long)
+(data-macro byte) (data-macro short) (data-macro int) (data-macro long)
 
 ;;;;;;;;;;;;;;;;;;;;;;;
 ; native emit functions
@@ -42,12 +61,12 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defq +emit_funcs (reduce (lambda (e (k v))
-	(if (starts-with "emit" k) (def e k v)) e) (tolist (env)) (env 1)))
+	(if (starts-with "emit-" k) (def e k v)) e) (tolist (env)) (env 1)))
 
 (defun emit-translate (emit_code)
 	; (emit-translate emit_code) -> func_binary
-	(defq buf "" last_buf "" *pass* 0 *pc* 0
-		*offsets* (cap 64 (list)) *stream* (string-stream buf))
+	(defq buf "" last_buf "" *offsets* (cap 64 (list))
+		*pass* 0 *stream* (string-stream buf) *pc* 0)
 	(each! (lambda (inst)
 			;map vp reg syms to native reg nums
 			(each! (# (if (defq %0 (emit-native-reg? %0)) (elem-set inst (!) %0)))

@@ -36,30 +36,30 @@
 		`(<< (logand ,n (riscv64-mask ,r ,s)) ,(- p s))))
 
 (defmacro riscv64-r (o rd rs1 rs2 f3 f7)
-	`(emit-int (+ ,o (<< ,rd 7) (<< ,rs1 15) (<< ,rs2 20) (<< ,f3 12) (<< ,f7 25))))
+	`(emitm-int (+ ,o (<< ,rd 7) (<< ,rs1 15) (<< ,rs2 20) (<< ,f3 12) (<< ,f7 25))))
 
 (defmacro riscv64-i (o rd rs1 f3 imm12)
-	`(emit-int (+ ,o (<< ,rd 7) (<< ,rs1 15) (<< ,f3 12)
+	`(emitm-int (+ ,o (<< ,rd 7) (<< ,rs1 15) (<< ,f3 12)
 		(riscv64-bf ,imm12 12 0 20))))
 
 (defmacro riscv64-s (o rs1 rs2 f3 imm12)
-	`(emit-int (+ ,o (<< ,rs1 15) (<< ,rs2 20) (<< ,f3 12)
+	`(emitm-int (+ ,o (<< ,rs1 15) (<< ,rs2 20) (<< ,f3 12)
 		(riscv64-bf ,imm12 5 0 7)
 		(riscv64-bf ,imm12 7 5 25))))
 
 (defmacro riscv64-u (o rd imm32)
-	`(emit-int (+ ,o (<< ,rd 7)
+	`(emitm-int (+ ,o (<< ,rd 7)
 		(riscv64-bf ,imm32 20 12 12))))
 
 (defmacro riscv64-b (o rs1 rs2 f3 imm13)
-	`(emit-int (+ ,o (<< ,rs1 15) (<< ,rs2 20) (<< ,f3 12)
+	`(emitm-int (+ ,o (<< ,rs1 15) (<< ,rs2 20) (<< ,f3 12)
 		(riscv64-bf ,imm13 1 11 7)
 		(riscv64-bf ,imm13 4 1 8)
 		(riscv64-bf ,imm13 6 5 25)
 		(riscv64-bf ,imm13 1 12 31))))
 
 (defmacro riscv64-j (o rd imm21)
-	`(emit-int (+ ,o (<< ,rd 7)
+	`(emitm-int (+ ,o (<< ,rd 7)
 		(riscv64-bf ,imm21 8 12 12)
 		(riscv64-bf ,imm21 1 11 20)
 		(riscv64-bf ,imm21 10 1 21)
@@ -416,7 +416,7 @@
 (defun emit-alloc (c) (emit-sub-cr (align c stack_align) +riscv64_rsp))
 (defun emit-free (c) (emit-add-cr (align c stack_align) +riscv64_rsp))
 (defun emit-ret () (emit-jmp-r +riscv64_rlnk))
-(defun emit-sync (n) (emit-int 0x0ff0000f))
+(defun emit-sync (n) (emitm-int 0x0ff0000f))
 (defun emit-brk (n))
 
 (defun emit-stack-init (s f x)

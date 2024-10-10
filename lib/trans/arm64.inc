@@ -21,20 +21,20 @@
 	+arm64_rsp (emit-native-reg? :rsp))
 
 (defmacro arm64-rrr (o m n d)
-	`(emit-int (+ ,o (<< ,m 16) (<< ,n 5) ,d)))
+	`(emitm-int (+ ,o (<< ,m 16) (<< ,n 5) ,d)))
 
 (defmacro arm64-ux (x s d)
-	`(emit-int (+ 0xd3400000 (<< ,x 10) (<< ,s 5) ,d)))
+	`(emitm-int (+ 0xd3400000 (<< ,x 10) (<< ,s 5) ,d)))
 
 (defmacro arm64-bf (o x y s d)
-	`(emit-int (+ ,o (<< ,x 16) (<< ,y 10) (<< ,s 5) ,d)))
+	`(emitm-int (+ ,o (<< ,x 16) (<< ,y 10) (<< ,s 5) ,d)))
 
 (defmacro arm64-ri (w o s d c)
 	`(cond
 		((<= -0x100 ,c 0xff)
-			(emit-int (+ ,o (<< (logand ,c 0x1ff) 12) (<< ,d 5) ,s)))
+			(emitm-int (+ ,o (<< (logand ,c 0x1ff) 12) (<< ,d 5) ,s)))
 		((<= 0 ,c (<< 0xfff ,w))
-			(emit-int (+ 0x1000000 ,o (<< ,c (- 10 ,w)) (<< ,d 5) ,s)))
+			(emitm-int (+ 0x1000000 ,o (<< ,c (- 10 ,w)) (<< ,d 5) ,s)))
 		(:t (throw "arm64-ri/ir constant out of range !" ,c))))
 
 (defmacro arm64-ir (w o s c d)
@@ -45,32 +45,32 @@
 	(if (< c 0)
 		(cond
 			((>= c -0x10000)
-				(emit-int (+ 0x92800000 (<< (lognot c) 5) r)))
+				(emitm-int (+ 0x92800000 (<< (lognot c) 5) r)))
 			((>= c -0x100000000)
-				(emit-int (+ 0x92a00000 (>> (logand (lognot c) 0xffff0000) 11) r))
-				(if (/= z 0xffff) (emit-int (+ 0xf2800000 (<< z 5) r))))
+				(emitm-int (+ 0x92a00000 (>> (logand (lognot c) 0xffff0000) 11) r))
+				(if (/= z 0xffff) (emitm-int (+ 0xf2800000 (<< z 5) r))))
 			((>= c -0x1000000000000)
-				(emit-int (+ 0x92c00000 (>> (logand (lognot c) 0xffff00000000) 27) r))
-				(if (/= y 0xffff0000) (emit-int (+ 0xf2a00000 (>> y 11) r)))
-				(if (/= z 0xffff) (emit-int (+ 0xf2800000 (<< z 5) r))))
-			(:t (emit-int (+ 0x92e00000 (>> (logand (lognot c) 0xffff000000000000) 43) r))
-				(if (/= x 0xffff00000000) (emit-int (+ 0xf2c00000 (>> x 27) r)))
-				(if (/= y 0xffff0000) (emit-int (+ 0xf2a00000 (>> y 11) r)))
-				(if (/= z 0xffff) (emit-int (+ 0xf2800000 (<< z 5) r)))))
+				(emitm-int (+ 0x92c00000 (>> (logand (lognot c) 0xffff00000000) 27) r))
+				(if (/= y 0xffff0000) (emitm-int (+ 0xf2a00000 (>> y 11) r)))
+				(if (/= z 0xffff) (emitm-int (+ 0xf2800000 (<< z 5) r))))
+			(:t (emitm-int (+ 0x92e00000 (>> (logand (lognot c) 0xffff000000000000) 43) r))
+				(if (/= x 0xffff00000000) (emitm-int (+ 0xf2c00000 (>> x 27) r)))
+				(if (/= y 0xffff0000) (emitm-int (+ 0xf2a00000 (>> y 11) r)))
+				(if (/= z 0xffff) (emitm-int (+ 0xf2800000 (<< z 5) r)))))
 		(cond
 			((<= c 0xffff)
-				(emit-int (+ 0xd2800000 (<< c 5) r)))
+				(emitm-int (+ 0xd2800000 (<< c 5) r)))
 			((<= c 0xffffffff)
-				(emit-int (+ 0xd2a00000 (>> (logand c 0xffff0000) 11) r))
-				(if (/= z 0) (emit-int (+ 0xf2800000 (<< z 5) r))))
+				(emitm-int (+ 0xd2a00000 (>> (logand c 0xffff0000) 11) r))
+				(if (/= z 0) (emitm-int (+ 0xf2800000 (<< z 5) r))))
 			((<= c 0xffffffffffff)
-				(emit-int (+ 0xd2c00000 (>> (logand c 0xffff00000000) 27) r))
-				(if (/= y 0) (emit-int (+ 0xf2a00000 (>> y 11) r)))
-				(if (/= z 0) (emit-int (+ 0xf2800000 (<< z 5) r))))
-			(:t (emit-int (+ 0xd2e00000 (>> (logand c 0xffff000000000000) 43) r))
-				(if (/= x 0) (emit-int (+ 0xf2c00000 (>> x 27) r)))
-				(if (/= y 0) (emit-int (+ 0xf2a00000 (>> y 11) r)))
-				(if (/= z 0) (emit-int (+ 0xf2800000 (<< z 5) r)))))))
+				(emitm-int (+ 0xd2c00000 (>> (logand c 0xffff00000000) 27) r))
+				(if (/= y 0) (emitm-int (+ 0xf2a00000 (>> y 11) r)))
+				(if (/= z 0) (emitm-int (+ 0xf2800000 (<< z 5) r))))
+			(:t (emitm-int (+ 0xd2e00000 (>> (logand c 0xffff000000000000) 43) r))
+				(if (/= x 0) (emitm-int (+ 0xf2c00000 (>> x 27) r)))
+				(if (/= y 0) (emitm-int (+ 0xf2a00000 (>> y 11) r)))
+				(if (/= z 0) (emitm-int (+ 0xf2800000 (<< z 5) r)))))))
 
 (defmacro arm64-is-mask (_)
 	`(and (/= 0 ,_) (= 0 (logand ,_ (inc ,_)))))
@@ -113,8 +113,8 @@
 	(cond
 		((eql s d))
 		((or (eql s +arm64_rsp) (eql d +arm64_rsp))
-			(emit-int (+ 0x91000000 (<< s 5) d)))
-		(:t (emit-int (+ 0xaa0003e0 (<< s 16) d)))))
+			(emitm-int (+ 0x91000000 (<< s 5) d)))
+		(:t (emitm-int (+ 0xaa0003e0 (<< s 16) d)))))
 
 (defun emit-xor-rr (s d)
 	(cond
@@ -137,15 +137,15 @@
 
 (defun emit-cpy-cr (c r)
 	(if (/= -1 (defq i (arm64-limm c)))
-		(emit-int (+ 0xb2000000 (<< i 10) (const (<< +arm64_rsp 5)) r))
+		(emitm-int (+ 0xb2000000 (<< i 10) (const (<< +arm64_rsp 5)) r))
 		(arm64-mov-cr c r)))
 
 (defun arm64-cmp-cr (c r)
 	(cond
 		((<= 0 c 0xfff)
-			(emit-int (+ 0xf100001f (<< c 10) (<< r 5))))
+			(emitm-int (+ 0xf100001f (<< c 10) (<< r 5))))
 		((<= -0xfff c 0)
-			(emit-int (+ 0xb100001f (<< (neg c) 10) (<< r 5))))
+			(emitm-int (+ 0xb100001f (<< (neg c) 10) (<< r 5))))
 		(:t (emit-cpy-cr c +arm64_rtmp)
 			(arm64-cmp-rr +arm64_rtmp r))))
 
@@ -163,10 +163,10 @@
 		(if (eql ,s ,d) (arm64-ux ,(elem-get '(7 15 31) w) ,d ,d))))
 
 (defmacro arm64-rd (o s d1 d2)
-	`(emit-int (+ ,o (<< ,d2 16) (<< ,d1 5) ,s)))
+	`(emitm-int (+ ,o (<< ,d2 16) (<< ,d1 5) ,s)))
 
 (defmacro arm64-dr (o s1 s2 d)
-	`(emit-int (+ ,o (<< ,s2 16) (<< ,s1 5) ,d)))
+	`(emitm-int (+ ,o (<< ,s2 16) (<< ,s1 5) ,d)))
 
 (defmacro arm64-dru (o x s1 s2 d)
 	`(progn
@@ -177,7 +177,7 @@
 (defmacro arm64-branch (o l)
 	`(cond
 		((<= -0x100000 (defq ,(defq c (gensym)) (- ,l *pc*)) 0xffffc)
-			(emit-int (+ 0x54000000 (<< (logand ,c 0x1ffffc) 3) ,o)))
+			(emitm-int (+ 0x54000000 (<< (logand ,c 0x1ffffc) 3) ,o)))
 		(:t (throw "arm64-branch constant out of range !" ,c))))
 
 (defun emit-add-cr (c r)
@@ -189,16 +189,16 @@
 				((<= (setq c (neg c)) 0xffffff)
 					(defq f (logand c 0xfff) c (logand c 0xfff000))
 					(if (/= 0 f)
-						(emit-int (+ 0xd1000000 (<< f 10) (<< r 5) r)))
+						(emitm-int (+ 0xd1000000 (<< f 10) (<< r 5) r)))
 					(if (/= 0 c)
-						(emit-int (+ 0xd1400000 (>> c 2) (<< r 5) r))))
+						(emitm-int (+ 0xd1400000 (>> c 2) (<< r 5) r))))
 				(:t (throw "emit-add-cr constant out of range !" c))))
 		((<= c 0xffffff)
 			(defq f (logand c 0xfff) c (logand c 0xfff000))
 			(if (/= 0 f)
-				(emit-int (+ 0x91000000 (<< f 10) (<< r 5) r)))
+				(emitm-int (+ 0x91000000 (<< f 10) (<< r 5) r)))
 			(if (/= 0 c)
-				(emit-int (+ 0x91400000 (>> c 2) (<< r 5) r))))
+				(emitm-int (+ 0x91400000 (>> c 2) (<< r 5) r))))
 		(:t (throw "emit-add-cr constant out of range !" c))))
 
 (defun emit-sub-cr (c r)
@@ -210,16 +210,16 @@
 				((<= (setq c (neg c)) 0xffffff)
 					(defq f (logand c 0xfff) c (logand c 0xfff000))
 					(if (/= 0 f)
-						(emit-int (+ 0x91000000 (<< f 10) (<< r 5) r)))
+						(emitm-int (+ 0x91000000 (<< f 10) (<< r 5) r)))
 					(if (/= 0 c)
-						(emit-int (+ 0x91400000 (>> c 2) (<< r 5) r))))
+						(emitm-int (+ 0x91400000 (>> c 2) (<< r 5) r))))
 				(:t (throw "emit-sub-cr constant out of range !" c))))
 		((<= c 0xffffff)
 			(defq f (logand c 0xfff) c (logand c 0xfff000))
 			(if (/= 0 f)
-				(emit-int (+ 0xd1000000 (<< f 10) (<< r 5) r)))
+				(emitm-int (+ 0xd1000000 (<< f 10) (<< r 5) r)))
 			(if (/= 0 c)
-				(emit-int (+ 0xd1400000 (>> c 2) (<< r 5) r))))
+				(emitm-int (+ 0xd1400000 (>> c 2) (<< r 5) r))))
 		(:t (throw "emit-sub-cr constant out of range !" c))))
 
 (defun emit-or-rr (s d)
@@ -236,7 +236,7 @@
 			(emit-cpy-cr -1 r))
 		(:t (defq i (arm64-limm c))
 			(if (/= i -1)
-				(emit-int (+ 0xb2000000 (<< i 10) (<< r 5) r))
+				(emitm-int (+ 0xb2000000 (<< i 10) (<< r 5) r))
 				(progn
 					(arm64-mov-cr c +arm64_rtmp)
 					(emit-or-rr +arm64_rtmp r))))))
@@ -251,14 +251,14 @@
 	(cond
 		((= 0 (defq l (length b))))
 		((= 1 l)
-			(emit-int (+ 0xf81f0c00 (const (<< +arm64_rsp 5)) (first b))))
+			(emitm-int (+ 0xf81f0c00 (const (<< +arm64_rsp 5)) (first b))))
 		((= 2 l)
-			(emit-int (+ 0xa9bf0000
+			(emitm-int (+ 0xa9bf0000
 				(<< (first b) 10) (const (<< +arm64_rsp 5)) (second b))))
 		(:t (emit-sub-cr (align (* +ptr_size l) stack_align) +arm64_rsp)
 			(defq _ l)
 			(while (>= (setq _ (- _ 2)) 0)
-				(emit-int (+ 0xa9000000 (<< (- l _ 2) 15)
+				(emitm-int (+ 0xa9000000 (<< (- l _ 2) 15)
 					(<< (elem-get b _) 10) (const (<< +arm64_rsp 5)) (elem-get b (inc _)))))
 			(if (/= -2 _) (emit-cpy-ri (first b) +arm64_rsp (* +ptr_size (dec l)))))))
 
@@ -266,13 +266,13 @@
 	(cond
 		((= 0 (defq l (length b))))
 		((= 1 l)
-			(emit-int (+ 0xf8410400 (const (<< +arm64_rsp 5)) (first b))))
+			(emitm-int (+ 0xf8410400 (const (<< +arm64_rsp 5)) (first b))))
 		((= 2 l)
-			(emit-int (+ 0xa8c10000
+			(emitm-int (+ 0xa8c10000
 				(<< (first b) 10) (const (<< +arm64_rsp 5)) (second b))))
 		(:t (defq _ l)
 			(while (>= (setq _ (- _ 2)) 0)
-				(emit-int (+ 0xa9400000 (<< (- l _ 2) 15)
+				(emitm-int (+ 0xa9400000 (<< (- l _ 2) 15)
 					(<< (elem-get b _) 10) (const (<< +arm64_rsp 5)) (elem-get b (inc _)))))
 			(if (/= -2 _) (emit-cpy-ir +arm64_rsp (* +ptr_size (dec l)) (first b)))
 			(emit-add-cr (align (* +ptr_size l) stack_align) +arm64_rsp))))
@@ -292,48 +292,48 @@
 (defun emit-ble-rr (s d l m) (arm64-cmp-rr s d) (arm64-branch 0xd l))
 
 (defun emit-seq-cr (c d)
-	(arm64-cmp-cr c d) (emit-int 0x54000060) (emit-xor-rr d d) (emit-int 0x14000002) (emit-or-cr -1 d))
+	(arm64-cmp-cr c d) (emitm-int 0x54000060) (emit-xor-rr d d) (emitm-int 0x14000002) (emit-or-cr -1 d))
 (defun emit-sne-cr (c d)
-	(arm64-cmp-cr c d) (emit-int 0x54000061) (emit-xor-rr d d) (emit-int 0x14000002) (emit-or-cr -1 d))
+	(arm64-cmp-cr c d) (emitm-int 0x54000061) (emit-xor-rr d d) (emitm-int 0x14000002) (emit-or-cr -1 d))
 (defun emit-slt-cr (c d)
-	(arm64-cmp-cr c d) (emit-int 0x5400006b) (emit-xor-rr d d) (emit-int 0x14000002) (emit-or-cr -1 d))
+	(arm64-cmp-cr c d) (emitm-int 0x5400006b) (emit-xor-rr d d) (emitm-int 0x14000002) (emit-or-cr -1 d))
 (defun emit-sle-cr (c d)
-	(arm64-cmp-cr c d) (emit-int 0x5400006d) (emit-xor-rr d d) (emit-int 0x14000002) (emit-or-cr -1 d))
+	(arm64-cmp-cr c d) (emitm-int 0x5400006d) (emit-xor-rr d d) (emitm-int 0x14000002) (emit-or-cr -1 d))
 (defun emit-sgt-cr (c d)
-	(arm64-cmp-cr c d) (emit-int 0x5400006c) (emit-xor-rr d d) (emit-int 0x14000002) (emit-or-cr -1 d))
+	(arm64-cmp-cr c d) (emitm-int 0x5400006c) (emit-xor-rr d d) (emitm-int 0x14000002) (emit-or-cr -1 d))
 (defun emit-sge-cr (c d)
-	(arm64-cmp-cr c d) (emit-int 0x5400006a) (emit-xor-rr d d) (emit-int 0x14000002) (emit-or-cr -1 d))
+	(arm64-cmp-cr c d) (emitm-int 0x5400006a) (emit-xor-rr d d) (emitm-int 0x14000002) (emit-or-cr -1 d))
 
 (defun emit-seq-rr (s d)
-	(arm64-cmp-rr s d) (emit-int 0x54000060) (emit-xor-rr d d) (emit-int 0x14000002) (emit-or-cr -1 d))
+	(arm64-cmp-rr s d) (emitm-int 0x54000060) (emit-xor-rr d d) (emitm-int 0x14000002) (emit-or-cr -1 d))
 (defun emit-sne-rr (s d)
-	(arm64-cmp-rr s d) (emit-int 0x54000061) (emit-xor-rr d d) (emit-int 0x14000002) (emit-or-cr -1 d))
+	(arm64-cmp-rr s d) (emitm-int 0x54000061) (emit-xor-rr d d) (emitm-int 0x14000002) (emit-or-cr -1 d))
 (defun emit-slt-rr (s d)
-	(arm64-cmp-rr s d) (emit-int 0x5400006b) (emit-xor-rr d d) (emit-int 0x14000002) (emit-or-cr -1 d))
+	(arm64-cmp-rr s d) (emitm-int 0x5400006b) (emit-xor-rr d d) (emitm-int 0x14000002) (emit-or-cr -1 d))
 (defun emit-sle-rr (s d)
-	(arm64-cmp-rr s d) (emit-int 0x5400006d) (emit-xor-rr d d) (emit-int 0x14000002) (emit-or-cr -1 d))
+	(arm64-cmp-rr s d) (emitm-int 0x5400006d) (emit-xor-rr d d) (emitm-int 0x14000002) (emit-or-cr -1 d))
 (defun emit-sgt-rr (s d)
-	(arm64-cmp-rr s d) (emit-int 0x5400006c) (emit-xor-rr d d) (emit-int 0x14000002) (emit-or-cr -1 d))
+	(arm64-cmp-rr s d) (emitm-int 0x5400006c) (emit-xor-rr d d) (emitm-int 0x14000002) (emit-or-cr -1 d))
 (defun emit-sge-rr (s d)
-	(arm64-cmp-rr s d) (emit-int 0x5400006a) (emit-xor-rr d d) (emit-int 0x14000002) (emit-or-cr -1 d))
+	(arm64-cmp-rr s d) (emitm-int 0x5400006a) (emit-xor-rr d d) (emitm-int 0x14000002) (emit-or-cr -1 d))
 
 (defun emit-call (l)
 	(emit-push +arm64_rlnk)
 	(cond
 		((<= -0x8000000 (defq c (- l *pc*)) 0x7fffffc)
-			(emit-int (+ 0x94000000 (>> (logand c 0xfffffff) 2))))
+			(emitm-int (+ 0x94000000 (>> (logand c 0xfffffff) 2))))
 		(:t (throw "emit-call constant out of range !" c)))
 	(emit-pop +arm64_rlnk))
 
 (defun emit-cpy-pr (l d)
 	(cond
 		((<= -0x100000 (defq c (- l *pc*)) 0xffffc)
-			(emit-int (+ 0x58000000 (<< (logand c 0x1fffff) 3) d)))
+			(emitm-int (+ 0x58000000 (<< (logand c 0x1fffff) 3) d)))
 		(:t (throw "emit-cpy-pr constant out of range !" c))))
 
 (defun emit-call-r (r)
 	(emit-push +arm64_rlnk)
-	(emit-int (+ 0xd63f0000 (<< r 5)))
+	(emitm-int (+ 0xd63f0000 (<< r 5)))
 	(emit-pop +arm64_rlnk))
 
 (defun emit-call-i (d c)
@@ -347,11 +347,11 @@
 (defun emit-jmp (l d)
 	(cond
 		((<= -0x8000000 (defq c (- l *pc*)) 0x7fffffc)
-			(emit-int (+ 0x14000000 (>> (logand c 0xfffffff) 2))))
+			(emitm-int (+ 0x14000000 (>> (logand c 0xfffffff) 2))))
 		(:t (throw "emit-jmp constant out of range !" c))))
 
 (defun emit-jmp-r (r)
-	(emit-int (+ 0xd61f0000 (<< r 5))))
+	(emitm-int (+ 0xd61f0000 (<< r 5))))
 
 (defun emit-jmp-i (d c)
 	(emit-cpy-ir d c +arm64_rtmp)
@@ -366,8 +366,8 @@
 		((and (= c 0) (eql s d)))
 		((<= -0x1000 c 0xfff)
 			(if (>= c 0)
-				(emit-int (+ 0x91000000 (<< (logand c 0xfff) 10) (<< s 5) d))
-				(emit-int (+ 0xd1000000 (<< (logand (neg c) 0xfff) 10) (<< s 5) d))))
+				(emitm-int (+ 0x91000000 (<< (logand c 0xfff) 10) (<< s 5) d))
+				(emitm-int (+ 0xd1000000 (<< (logand (neg c) 0xfff) 10) (<< s 5) d))))
 		(:t (throw "emit-lea-i constant out of range !" c))))
 
 (defun emit-lea-d (s1 s2 d) (arm64-rrr 0x8b000000 s1 s2 d))
@@ -375,7 +375,7 @@
 (defun emit-lea-p (l d)
 	(cond
 		((<= -0x100000 (defq c (- l *pc*)) 0xfffff)
-			(emit-int (+ 0x10000000 (<< (logand c 0x3) 29) (<< (logand c 0x1ffffc) 3) d)))
+			(emitm-int (+ 0x10000000 (<< (logand c 0x3) 29) (<< (logand c 0x1ffffc) 3) d)))
 		(:t (throw "emit-lea-p constant out of range !" c))))
 
 (defun emit-cpy-ir-b (s c d) (arm64-ir 0 0x38800000 s c d))
@@ -412,13 +412,13 @@
 			(if (/= -1 (defq i (arm64-limm c)))
 				(progn
 					(emit-cpy-rr +arm64_rsp +arm64_rtmp)
-					(emit-int (+ 0x92000000 (<< i 10) (<< +arm64_rtmp 5) r)))
+					(emitm-int (+ 0x92000000 (<< i 10) (<< +arm64_rtmp 5) r)))
 				(progn
 					(arm64-mov-cr c +arm64_rtmp)
 					(emit-and-rr +arm64_rtmp r))))
 		(:t (defq i (arm64-limm c))
 			(if (/= i -1)
-				(emit-int (+ 0x92000000 (<< i 10) (<< r 5) r))
+				(emitm-int (+ 0x92000000 (<< i 10) (<< r 5) r))
 				(progn
 					(arm64-mov-cr c +arm64_rtmp)
 					(emit-and-rr +arm64_rtmp r))))))
@@ -428,7 +428,7 @@
 		((= c 0))
 		(:t (defq i (arm64-limm c))
 			(if (/= i -1)
-				(emit-int (+ 0xd2000000 (<< i 10) (<< r 5) r))
+				(emitm-int (+ 0xd2000000 (<< i 10) (<< r 5) r))
 				(progn
 					(arm64-mov-cr c +arm64_rtmp)
 					(emit-xor-rr +arm64_rtmp r))))))
@@ -444,12 +444,12 @@
 
 (defun emit-lnot-rr (r d)
 	(arm64-cmp-cr 0 d)
-	(emit-int (+ 0x9a9f17e0 d)))
+	(emitm-int (+ 0x9a9f17e0 d)))
 
 (defun emit-land-rr (s d)
 	(arm64-cmp-cr 0 d)
-	(emit-int (+ 0xfa401804 (<< s 5)))
-	(emit-int (+ 0x9a9f07e0 d)))
+	(emitm-int (+ 0xfa401804 (<< s 5)))
+	(emitm-int (+ 0x9a9f07e0 d)))
 
 (defmacro arm64-shift-cr (e o c x y r)
 	`(cond
@@ -481,7 +481,7 @@
 (defun emit-mul-rr (s d)
 	(if (or (eql s +arm64_rsp) (eql d +arm64_rsp))
 		(throw "emit-mul-rr src/dst can't be :rsp !" (list s d)))
-	(emit-int (+ 0x9b000000 (<< d 16) (const (<< 31 10)) (<< s 5) d)))
+	(emitm-int (+ 0x9b000000 (<< d 16) (const (<< 31 10)) (<< s 5) d)))
 
 (defun emit-mul-cr (c r)
 	(cond
@@ -489,7 +489,7 @@
 		((= c 0)
 			(emit-xor-rr r r))
 		((= c -1)
-			(emit-int (+ 0xcb000000 (<< r 16) (const (<< 31 5)) r)))
+			(emitm-int (+ 0xcb000000 (<< r 16) (const (<< 31 5)) r)))
 		((defq s (log2 c))
 			(emit-shl-cr s r))
 		(:t (emit-cpy-cr c +arm64_rtmp)
@@ -500,19 +500,19 @@
 	(emit-asr-cr 63 d))
 
 (defun emit-div-rrr (s d1 d2)
-	(emit-int (+ 0x9ac00c00 (<< s 16) (<< d2 5) +arm64_rtmp))
-	(emit-int (+ 0x9b008000 (const (<< +arm64_rtmp 16)) (<< d2 10) (<< s 5) d1))
+	(emitm-int (+ 0x9ac00c00 (<< s 16) (<< d2 5) +arm64_rtmp))
+	(emitm-int (+ 0x9b008000 (const (<< +arm64_rtmp 16)) (<< d2 10) (<< s 5) d1))
 	(emit-cpy-rr +arm64_rtmp d2))
 
 (defun emit-div-rrr-u (s d1 d2)
-	(emit-int (+ 0x9ac00800 (<< s 16) (<< d2 5) +arm64_rtmp))
-	(emit-int (+ 0x9b008000 (const (<< +arm64_rtmp 16)) (<< d2 10) (<< s 5) d1))
+	(emitm-int (+ 0x9ac00800 (<< s 16) (<< d2 5) +arm64_rtmp))
+	(emitm-int (+ 0x9b008000 (const (<< +arm64_rtmp 16)) (<< d2 10) (<< s 5) d1))
 	(emit-cpy-rr +arm64_rtmp d2))
 
 (defun emit-alloc (c) (emit-sub-cr (align c stack_align) +arm64_rsp))
 (defun emit-free (c) (emit-add-cr (align c stack_align) +arm64_rsp))
-(defun emit-ret () (emit-int 0xd65f03c0))
-(defun emit-sync (n) (emit-int 0xd5033fbf))
+(defun emit-ret () (emitm-int 0xd65f03c0))
+(defun emit-sync (n) (emitm-int 0xd5033fbf))
 (defun emit-brk (n))
 
 (defun emit-stack-init (s f x)
@@ -535,7 +535,7 @@
 	(setq x (cat (list +arm64_rlnk) x))
 	(apply (const emit-push) x)
 	(emit-cpy-ir b c +arm64_rtmp)
-	(emit-int (const (+ 0xd63f0000 (<< +arm64_rtmp 5))))
+	(emitm-int (const (+ 0xd63f0000 (<< +arm64_rtmp 5))))
 	(cond
 		((= 1 (defq l (length x)))
 			(emit-pop +arm64_rlnk))
