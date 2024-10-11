@@ -189,9 +189,9 @@
 (ffi read-avail "class/stream/lisp_readavail" 0)
 ; (read-avail stream) -> :nil | num
 (ffi write-char "class/stream/lisp_writechar" 0)
-; (write-char stream list|num [width]) -> stream
+; (write-char stream list|num [width]) -> bytes
 (ffi write "class/stream/lisp_write" 0)
-; (write stream str) -> stream
+; (write stream str) -> bytes
 
 (ffi array "class/array/lisp_array" 0)
 ; (array [num ...]) -> array
@@ -1093,8 +1093,8 @@
 	`(write-char ,s ,n 2))
 
 (defun write-line (s _)
-	; (write-line stream str) -> stream
-	(write-char (write s _) 10))
+	; (write-line stream str) -> bytes
+	(+ (write s _) (write-char s 10)))
 
 (defun read-data (s bytes)
 	; (read-data stream bytes) -> str

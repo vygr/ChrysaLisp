@@ -1185,7 +1185,7 @@ patch stream a with stream b, write to stream c
 ### write-line
 
 ```code
-(write-line stream str) -> stream
+(write-line stream str) -> bytes
 ```
 
 ### zip

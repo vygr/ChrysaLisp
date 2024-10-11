@@ -4,6 +4,11 @@
 
 ------
 
+`(write-char)` and `(write)` now return the number of bytes written to the
+stream. Translators updated to use this info to improve performance.
+
+------
+
 Simplification of VP level Lisp type checking code.
 
 `(each!)`, `(some!)`, `(map!)` and `(reduce!)` now 25% faster and use `(!)`
