@@ -16,7 +16,7 @@
 (defun emit-string (string)
 	(setq *pc* (+ *pc* (write *stream* string))))
 
-(defmacro data (type)
+(defmacro data-func (type)
 	(defq func_sym (sym (cat "emit-" type))
 		size (eval (sym (cat "+" type "_size"))))
 	(if (eql type 'byte)
@@ -38,7 +38,7 @@
 				`(setq *pc* (+ *pc* (write-char *stream* ~data ,,size)))
 				`(setq *pc* (+ *pc* (write-char *stream* (list ~data) ,,size)))))))
 
-(data byte) (data short) (data int) (data long)
+(data-func byte) (data-func short) (data-func int) (data-func long)
 (data-macro byte) (data-macro short) (data-macro int) (data-macro long)
 
 ;;;;;;;;;;;;;;;;;;;;;;;

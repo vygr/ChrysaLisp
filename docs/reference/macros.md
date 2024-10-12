@@ -646,18 +646,18 @@ static quasi-quoted
 ### write-int
 
 ```code
-(write-int stream num|list) -> stream
+(write-int stream list|num) -> bytes
 ```
 
 ### write-long
 
 ```code
-(write-long stream num|list) -> stream
+(write-long stream list|num) -> bytes
 ```
 
 ### write-short
 
 ```code
-(write-short stream num|list) -> stream
+(write-short stream list|num) -> bytes
 ```
 

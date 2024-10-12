@@ -1081,15 +1081,15 @@
 	`(read-char ,s 2))
 
 (defmacro write-long (s n)
-	; (write-long stream num|list) -> stream
+	; (write-long stream list|num) -> bytes
 	`(write-char ,s ,n 8))
 
 (defmacro write-int (s n)
-	; (write-int stream num|list) -> stream
+	; (write-int stream list|num) -> bytes
 	`(write-char ,s ,n 4))
 
 (defmacro write-short (s n)
-	; (write-short stream num|list) -> stream
+	; (write-short stream list|num) -> bytes
 	`(write-char ,s ,n 2))
 
 (defun write-line (s _)
