@@ -296,6 +296,15 @@ Usage: split [options]
 	Optionaly select a specific element of
 	the split.
 ```
+## stats
+```code
+Usage: stats [options]
+
+	options:
+		-h --help: this help info.
+
+	Some simple object statistics.
+```
 ## tail
 ```code
 Usage: tail [options file]
