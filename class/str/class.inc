@@ -44,9 +44,7 @@
 	(align)
 	(offset data))
 
-(defcvar 'str_gap (- (* 2
-	(inc (reduce (# (logior %0 (>> %0 %1))) '(32 16 8 4 2 1) str_data)))
-	(+ str_data +byte_size)))
+(defcvar 'str_gap (- 64 (+ str_data +byte_size)))
 
 ;;;;;;;;;;;;;;;;
 ; inline methods
