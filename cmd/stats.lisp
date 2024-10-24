@@ -15,9 +15,8 @@
 	(when (and
 			(defq stdio (create-stdio))
 			(defq args (options stdio usage)))
-		(defq node_set (Fset 101) len_map (Fmap 101) res (list))
 		;scan root for lists and envs
-		(defq stack (list *root_env*))
+		(defq node_set (Fset 101) len_map (Fmap 101) stack (list *root_env*))
 		(while (defq node (pop stack))
 			(unless (. node_set :find node)
 				(. node_set :insert node)
@@ -28,8 +27,8 @@
 			(unless (defq cnt (. len_map :find (length %0))) (setq cnt 0))
 			(. len_map :insert (length %0) (inc cnt)))))
 		;display results
-		(. len_map :each (# (push res (list %0 %1))))
+		(. len_map :each (# (push stack (list %0 %1))))
 		(print "Root environment lists")
 		(each (# (print "len: " (pad (first %0) 3) " cnt: " (pad (second %0) 4)))
-			(sort res (# (- (first %0) (first %1)))))
+			(sort stack (# (- (first %0) (first %1)))))
 		))
