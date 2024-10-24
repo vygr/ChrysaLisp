@@ -15,24 +15,24 @@
 	(when (and
 			(defq stdio (create-stdio))
 			(defq args (options stdio usage)))
-		(defq list_set (Fset 101) len_map (Fmap 101) res (list))
-		;scan root env for lists
-		(each (lambda ((s o))
-				(when (list? o)
-					(. list_set :insert o)
-					(defq stack (list o))
-					(while (defq lst (pop stack))
-						(each (#
-							(when (list? %0)
-								(unless (. list_set :find %0)
-									(. list_set :insert %0)
-									(push stack %0))))
-							lst))))
-			(tolist *root_env*))
+		(defq node_set (Fset 101) len_map (Fmap 101) res (list))
+		;scan root for lists and envs
+		(defq stack (list *root_env*))
+		(while (defq node (pop stack))
+			(unless (. node_set :find node)
+				(. node_set :insert node)
+				(cond
+					((list? node)
+						(each (# (if (or (list? %0) (env? %0)) (push stack %0)))
+							node))
+					((env? node)
+						(each (lambda ((%0 %0)) (if (or (list? %0) (env? %0)) (push stack %0)))
+							(tolist node))))))
 		;gather length stats
-		(. list_set :each (#
-			(unless (defq cnt (. len_map :find (length %0))) (setq cnt 0))
-			(. len_map :insert (length %0) (inc cnt))))
+		(. node_set :each (#
+			(when (list? %0)
+				(unless (defq cnt (. len_map :find (length %0))) (setq cnt 0))
+				(. len_map :insert (length %0) (inc cnt)))))
 		;display results
 		(. len_map :each (# (push res (list %0 %1))))
 		(print "Root environment lists")
