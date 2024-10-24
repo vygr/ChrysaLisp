@@ -21,8 +21,8 @@
 		(while (defq node (pop stack))
 			(unless (. node_set :find node)
 				(. node_set :insert node)
-				(if (env? node) (setq node (map (const second) (tolist node))))
-				(each (# (if (or (list? %0) (env? %0)) (push stack %0))) node)))
+				(each (# (if (or (list? %0) (env? %0)) (push stack %0)))
+					(if (env? node) (map (const second) (tolist node)) node))))
 		;gather length stats
 		(. node_set :each (# (when (list? %0)
 			(unless (defq cnt (. len_map :find (length %0))) (setq cnt 0))
