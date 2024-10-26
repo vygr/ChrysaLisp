@@ -54,6 +54,12 @@
 (. xset :insert key) -> xset
 ```
 
+### :inserted
+
+```code
+(. xset :inserted key) -> :nil | xset
+```
+
 ### :intern
 
 ```code

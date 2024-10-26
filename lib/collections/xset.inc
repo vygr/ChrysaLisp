@@ -24,16 +24,20 @@
 
 	(defmethod :insert (key)
 		; (. xset :insert key) -> xset
-		(cond
-			((slot))
-			(:t (push (elem-get x b) key)))
+		(if (slot) :nil (push (elem-get x b) key))
 		this)
+
+	(defmethod :inserted (key)
+		; (. xset :inserted key) -> :nil | xset
+		(cond
+			((slot) this)
+			((push (elem-get x b) key) :nil)))
 
 	(defmethod :intern (key)
 		; (. xset :intern key) -> key
 		(cond
 			((slot) (elem-get (elem-get x b) e))
-			(:t (push (elem-get x b) key) key)))
+			((push (elem-get x b) key) key)))
 
 	(defmethod :erase (key)
 		; (. xset :erase key) -> xset

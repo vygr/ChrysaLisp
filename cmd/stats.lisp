@@ -16,10 +16,9 @@
 			(defq stdio (create-stdio))
 			(defq args (options stdio usage)))
 		;scan root for lists and envs
-		(defq node_set (Fset 101) len_map (Fmap 101) stack (list *root_env*))
+		(defq node_set (Fset 101) len_map (Fmap 3) stack (list *root_env*))
 		(while (defq node (pop stack))
-			(unless (. node_set :find node)
-				(. node_set :insert node)
+			(if (. node_set :inserted node)
 				(each (# (if (or (list? %0) (env? %0)) (push stack %0)))
 					(if (env? node) (map (const second) (tolist node)) node))))
 		;gather length stats

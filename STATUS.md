@@ -7,6 +7,11 @@
 `(write-char)` and `(write)` now return the number of bytes written to the
 stream. Translators updated to use this info to improve performance.
 
+New `stats` command  for gathering basic runtime info.
+
+New Set `(. set :inserted key) -> :nil | set` method, to avoid double search
+test/insert operations.
+
 ------
 
 Simplification of VP level Lisp type checking code.

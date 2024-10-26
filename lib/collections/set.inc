@@ -8,6 +8,8 @@
 		; (. set :find key) -> :nil | key
 	(defabstractmethod :insert (key))
 		; (. set :insert key) -> set
+	(defabstractmethod :inserted (key))
+		; (. set :inserted key) -> :nil | set
 	(defabstractmethod :intern (key))
 		; (. set :intern key) -> key
 	(defabstractmethod :erase (key))

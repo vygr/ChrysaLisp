@@ -58,6 +58,12 @@
 (. set :insert key) -> set
 ```
 
+### :inserted
+
+```code
+(. set :inserted key) -> :nil | set
+```
+
 ### :intern
 
 ```code
