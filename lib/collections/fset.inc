@@ -8,9 +8,9 @@
 (env-push)
 
 (defmacro slot ()
-	`(defq x (get :buckets this)
-		b (% (hash key) (get :num_buckets this))
-		e (find key (elem-get x b))))
+	`(defq _x (get :buckets this)
+		_b (% (hash key) (get :num_buckets this))
+		_e (find key (elem-get _x _b))))
 
 (defclass Fset (&optional num_buckets) (Set)
 	; (Fset [num_buckets]) -> fset
@@ -19,30 +19,30 @@
 
 	(defmethod :find (key)
 		; (. fset :find key) -> :nil | key
-		(if (slot) (elem-get (elem-get x b) e)))
+		(if (slot) (elem-get (elem-get _x _b) _e)))
 
 	(defmethod :insert (key)
 		; (. fset :insert key) -> fset
-		(if (slot) :nil (push (elem-get x b) key))
+		(if (slot) :nil (push (elem-get _x _b) key))
 		this)
 
 	(defmethod :inserted (key)
 		; (. fset :inserted key) -> :nil | fset
 		(cond
 			((slot) :nil)
-			((push (elem-get x b) key) this)))
+			((push (elem-get _x _b) key) this)))
 
 	(defmethod :intern (key)
 		; (. fset :intern key) -> key
 		(cond
-			((slot) (elem-get (elem-get x b) e))
-			((push (elem-get x b) key) key)))
+			((slot) (elem-get (elem-get _x _b) _e))
+			((push (elem-get _x _b) key) key)))
 
 	(defmethod :erase (key)
 		; (. fset :erase key) -> fset
 		(when (slot)
-			(elem-set (defq b (elem-get x b)) e (last b))
-			(pop b))
+			(elem-set (defq _b (elem-get _x _b)) _e (last _b))
+			(pop _b))
 		this)
 
 	(defmethod_ :each (_fnc)
@@ -82,8 +82,8 @@
 	(defmethod :intersect (that)
 		; (. fset :intersect fset) -> fset
 		(unless (eql this that)
-			(each (# (elem-set b (!) (filter-array (# (. that :find %0)) %0)))
-				(defq b (get :buckets this))))
+			(each (# (elem-set _b (!) (filter-array (# (. that :find %0)) %0)))
+				(defq _b (get :buckets this))))
 		this)
 
 	(defmethod :not_intersect (that)
