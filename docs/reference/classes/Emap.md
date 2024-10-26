@@ -54,3 +54,9 @@
 (. emap :resize num_buckets) -> emap
 ```
 
+### :update
+
+```code
+(. emap :update key lambda) -> emap
+```
+

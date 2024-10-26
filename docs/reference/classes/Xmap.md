@@ -60,3 +60,9 @@
 (. xmap :resize num_buckets) -> xmap
 ```
 
+### :update
+
+```code
+(. xmap :insert key lambda) -> xmap
+```
+

@@ -28,6 +28,13 @@
 			((push (elem-get x b) key) (push (elem-get x (inc b)) val)))
 		this)
 
+	(defmethod :update (key f)
+		; (. fmap :update key lambda) -> fmap
+		(cond
+			((slot) (elem-set (setq x (elem-get x (inc b))) e (f (elem-get x e))))
+			((push (elem-get x b) key) (push (elem-get x (inc b)) (f :nil))))
+		this)
+
 	(defmethod :erase (key)
 		; (. fmap :erase key) -> fmap
 		(when (slot)

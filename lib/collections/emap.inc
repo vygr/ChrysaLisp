@@ -18,6 +18,11 @@
 		(def (get :buckets this) key val)
 		this)
 
+	(defmethod :update (key f)
+		; (. emap :update key lambda) -> emap
+		(def (defq x (get :buckets this)) key (f (def? x)))
+		this)
+
 	(defmethod :erase (key)
 		; (. emap :erase key) -> emap
 		(undef (get :buckets this) key)

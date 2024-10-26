@@ -64,3 +64,9 @@
 (. map :resize num_buckets) -> map
 ```
 
+### :update
+
+```code
+(. map :update key lambda) -> map
+```
+

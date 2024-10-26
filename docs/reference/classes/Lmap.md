@@ -60,3 +60,9 @@
 (. lmap :resize num_buckets) -> lmap
 ```
 
+### :update
+
+```code
+(. lmap :update key lambda) -> lmap
+```
+

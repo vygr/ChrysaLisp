@@ -12,6 +12,9 @@ New `stats` command  for gathering basic runtime info.
 New Set `(. set :inserted key) -> :nil | set` method, to avoid double search
 test/insert operations.
 
+New Map `(. map :update key lambda) -> map` method, to avoid double search
+test/update operations.
+
 ------
 
 Simplification of VP level Lisp type checking code.

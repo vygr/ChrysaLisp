@@ -60,3 +60,9 @@
 (. fmap :resize num_buckets) -> fmap
 ```
 
+### :update
+
+```code
+(. fmap :update key lambda) -> fmap
+```
+
