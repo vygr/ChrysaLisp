@@ -20,7 +20,7 @@
 
 	(defmethod :update (key f)
 		; (. emap :update key lambda) -> emap
-		(def (defq x (get :buckets this)) key (f (def? x)))
+		(def (defq _x (get :buckets this)) key (f (def? _x)))
 		this)
 
 	(defmethod :erase (key)
