@@ -25,7 +25,7 @@
 		; (. fmap :insert key val) -> fmap
 		(cond
 			((slot) (elem-set (elem-get x (inc b)) e val))
-			(:t (push (elem-get x b) key) (push (elem-get x (inc b)) val)))
+			((push (elem-get x b) key) (push (elem-get x (inc b)) val)))
 		this)
 
 	(defmethod :erase (key)

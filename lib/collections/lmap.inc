@@ -20,7 +20,7 @@
 		(raise :keys :vals)
 		(cond
 			((defq e (find key keys)) (elem-set vals e val))
-			(:t (push keys key) (push vals val)))
+			((push keys key) (push vals val)))
 		this)
 
 	(defmethod :erase (key)
