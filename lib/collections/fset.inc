@@ -10,7 +10,7 @@
 (defmacro slot ()
 	`(defq _x (get :buckets this)
 		_b (% (hash key) (get :num_buckets this))
-		_e (find key (elem-get _x _b))))
+		_i (find key (elem-get _x _b))))
 
 (defclass Fset (&optional num_buckets) (Set)
 	; (Fset [num_buckets]) -> fset
@@ -19,7 +19,7 @@
 
 	(defmethod :find (key)
 		; (. fset :find key) -> :nil | key
-		(if (slot) (elem-get (elem-get _x _b) _e)))
+		(if (slot) (elem-get (elem-get _x _b) _i)))
 
 	(defmethod :insert (key)
 		; (. fset :insert key) -> fset
@@ -35,13 +35,13 @@
 	(defmethod :intern (key)
 		; (. fset :intern key) -> key
 		(cond
-			((slot) (elem-get (elem-get _x _b) _e))
+			((slot) (elem-get (elem-get _x _b) _i))
 			((push (elem-get _x _b) key) key)))
 
 	(defmethod :erase (key)
 		; (. fset :erase key) -> fset
 		(when (slot)
-			(elem-set (defq _b (elem-get _x _b)) _e (last _b))
+			(elem-set (defq _b (elem-get _x _b)) _i (last _b))
 			(pop _b))
 		this)
 
