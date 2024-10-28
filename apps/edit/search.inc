@@ -125,7 +125,7 @@
 				(bind '(_ fy _ fy1) (. *edit* :get_find))
 				(if (> fy1 fy) (setq sy (max sy fy) sy1 (min sy1 fy1))))
 			(each! (lambda (match)
-				(defq y _)
+				(defq y (!))
 				(each-rev (lambda (((x x1) &ignore))
 					(when (defq rep (build-replace lines found rep_text rep_matches x y x1))
 						(.-> buffer
