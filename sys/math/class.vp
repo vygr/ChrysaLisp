@@ -320,7 +320,7 @@
 	;:r13 = exponent (long)
 	;:r14 = mantisa (long)
 	;outputs
-	;:r13 = real (32:r32)
+	;:r13 = real (32:32)
 	;trashes
 	;:r12-:r14
 
@@ -338,10 +338,10 @@
 
 (def-method 'sys_math :r_add)
 	;inputs
-	;:r13 = real (32:r32)
-	;:r14 = real (32:r32)
+	;:r13 = real (32:32)
+	;:r14 = real (32:32)
 	;outputs
-	;:r13 = real (32:r32)
+	;:r13 = real (32:32)
 	;trashes
 	;:r11-:r14
 
@@ -373,10 +373,10 @@
 
 (def-method 'sys_math :r_sub)
 	;inputs
-	;:r13 = real (32:r32)
-	;:r14 = real (32:r32)
+	;:r13 = real (32:32)
+	;:r14 = real (32:32)
 	;outputs
-	;:r13 = real (32:r32)
+	;:r13 = real (32:32)
 	;trashes
 	;:r11-:r14
 
@@ -410,10 +410,10 @@
 
 (def-method 'sys_math :r_mul)
 	;inputs
-	;:r13 = real (32:r32)
-	;:r14 = real (32:r32)
+	;:r13 = real (32:32)
+	;:r14 = real (32:32)
 	;outputs
-	;:r13 = real (32:r32)
+	;:r13 = real (32:32)
 	;trashes
 	;:r11-:r14
 
@@ -433,10 +433,10 @@
 
 (def-method 'sys_math :r_div)
 	;inputs
-	;:r13 = real (32:r32)
-	;:r14 = real (32:r32)
+	;:r13 = real (32:32)
+	;:r14 = real (32:32)
 	;outputs
-	;:r13 = real (32:r32)
+	;:r13 = real (32:32)
 	;trashes
 	;:r11-:r14
 
@@ -458,10 +458,10 @@
 
 (def-method 'sys_math :r_mod)
 	;inputs
-	;:r13 = real (32:r32)
-	;:r14 = real (32:r32)
+	;:r13 = real (32:32)
+	;:r14 = real (32:32)
 	;outputs
-	;:r13 = real (32:r32)
+	;:r13 = real (32:32)
 	;trashes
 	;:r9-:r14
 
@@ -483,9 +483,9 @@
 
 (def-method 'sys_math :r_frac)
 	;inputs
-	;:r13 = real (32:r32)
+	;:r13 = real (32:32)
 	;outputs
-	;:r13 = real (32:r32)
+	;:r13 = real (32:32)
 	;trashes
 	;:r10-:r14
 
@@ -508,9 +508,9 @@
 
 (def-method 'sys_math :r_floor)
 	;inputs
-	;:r13 = real (32:r32)
+	;:r13 = real (32:32)
 	;outputs
-	;:r13 = real (32:r32)
+	;:r13 = real (32:32)
 	;trashes
 	;:r12-:r14
 
@@ -528,9 +528,9 @@
 
 (def-method 'sys_math :r_sqrt)
 	;inputs
-	;:r13 = real (32:r32)
+	;:r13 = real (32:32)
 	;outputs
-	;:r13 = real (32:r32)
+	;:r13 = real (32:32)
 	;trashes
 	;:r6-:r14
 
@@ -566,9 +566,9 @@
 
 (def-method 'sys_math :r_sin)
 	;inputs
-	;:r13 = real (32:r32)
+	;:r13 = real (32:32)
 	;outputs
-	;:r13 = real (32:r32)
+	;:r13 = real (32:32)
 	;trashes
 	;all
 
@@ -585,9 +585,9 @@
 
 (def-method 'sys_math :r_cos)
 	;inputs
-	;:r13 = real (32:r32)
+	;:r13 = real (32:32)
 	;outputs
-	;:r13 = real (32:r32)
+	;:r13 = real (32:32)
 	;trashes
 	;all
 
@@ -606,7 +606,7 @@
 	;inputs
 	;:r14 = num (long)
 	;outputs
-	;:r13 = real (32:r32)
+	;:r13 = real (32:32)
 	;trashes
 	;:r12-:r14
 
@@ -620,7 +620,7 @@
 	;inputs
 	;:r14 = num (fixed)
 	;outputs
-	;:r13 = real (32:r32)
+	;:r13 = real (32:32)
 	;trashes
 	;:r12-:r14
 
@@ -632,7 +632,7 @@
 
 (def-method 'sys_math :r_r2i)
 	;inputs
-	;:r13 = real (32:r32)
+	;:r13 = real (32:32)
 	;outputs
 	;:r14 = num (long)
 	;trashes
@@ -664,7 +664,7 @@
 
 (def-method 'sys_math :r_r2f)
 	;inputs
-	;:r13 = real (32:r32)
+	;:r13 = real (32:32)
 	;outputs
 	;:r14 = num (fixed)
 	;trashes

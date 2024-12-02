@@ -96,10 +96,10 @@ trashes
 
 ```code
 inputs
-:r13 = real (32:r32)
-:r14 = real (32:r32)
+:r13 = real (32:32)
+:r14 = real (32:32)
 outputs
-:r13 = real (32:r32)
+:r13 = real (32:32)
 trashes
 :r11-:r14
 ```
@@ -108,9 +108,9 @@ trashes
 
 ```code
 inputs
-:r13 = real (32:r32)
+:r13 = real (32:32)
 outputs
-:r13 = real (32:r32)
+:r13 = real (32:32)
 trashes
 all
 ```
@@ -119,10 +119,10 @@ all
 
 ```code
 inputs
-:r13 = real (32:r32)
-:r14 = real (32:r32)
+:r13 = real (32:32)
+:r14 = real (32:32)
 outputs
-:r13 = real (32:r32)
+:r13 = real (32:32)
 trashes
 :r11-:r14
 ```
@@ -133,7 +133,7 @@ trashes
 inputs
 :r14 = num (fixed)
 outputs
-:r13 = real (32:r32)
+:r13 = real (32:32)
 trashes
 :r12-:r14
 ```
@@ -142,9 +142,9 @@ trashes
 
 ```code
 inputs
-:r13 = real (32:r32)
+:r13 = real (32:32)
 outputs
-:r13 = real (32:r32)
+:r13 = real (32:32)
 trashes
 :r12-:r14
 ```
@@ -153,9 +153,9 @@ trashes
 
 ```code
 inputs
-:r13 = real (32:r32)
+:r13 = real (32:32)
 outputs
-:r13 = real (32:r32)
+:r13 = real (32:32)
 trashes
 :r10-:r14
 ```
@@ -166,7 +166,7 @@ trashes
 inputs
 :r14 = num (long)
 outputs
-:r13 = real (32:r32)
+:r13 = real (32:32)
 trashes
 :r12-:r14
 ```
@@ -175,10 +175,10 @@ trashes
 
 ```code
 inputs
-:r13 = real (32:r32)
-:r14 = real (32:r32)
+:r13 = real (32:32)
+:r14 = real (32:32)
 outputs
-:r13 = real (32:r32)
+:r13 = real (32:32)
 trashes
 :r9-:r14
 ```
@@ -187,10 +187,10 @@ trashes
 
 ```code
 inputs
-:r13 = real (32:r32)
-:r14 = real (32:r32)
+:r13 = real (32:32)
+:r14 = real (32:32)
 outputs
-:r13 = real (32:r32)
+:r13 = real (32:32)
 trashes
 :r11-:r14
 ```
@@ -202,7 +202,7 @@ inputs
 :r13 = exponent (long)
 :r14 = mantisa (long)
 outputs
-:r13 = real (32:r32)
+:r13 = real (32:32)
 trashes
 :r12-:r14
 ```
@@ -211,7 +211,7 @@ trashes
 
 ```code
 inputs
-:r13 = real (32:r32)
+:r13 = real (32:32)
 outputs
 :r14 = num (fixed)
 trashes
@@ -222,7 +222,7 @@ trashes
 
 ```code
 inputs
-:r13 = real (32:r32)
+:r13 = real (32:32)
 outputs
 :r14 = num (long)
 trashes
@@ -233,9 +233,9 @@ trashes
 
 ```code
 inputs
-:r13 = real (32:r32)
+:r13 = real (32:32)
 outputs
-:r13 = real (32:r32)
+:r13 = real (32:32)
 trashes
 all
 ```
@@ -244,9 +244,9 @@ all
 
 ```code
 inputs
-:r13 = real (32:r32)
+:r13 = real (32:32)
 outputs
-:r13 = real (32:r32)
+:r13 = real (32:32)
 trashes
 :r6-:r14
 ```
@@ -255,10 +255,10 @@ trashes
 
 ```code
 inputs
-:r13 = real (32:r32)
-:r14 = real (32:r32)
+:r13 = real (32:32)
+:r14 = real (32:32)
 outputs
-:r13 = real (32:r32)
+:r13 = real (32:32)
 trashes
 :r11-:r14
 ```
