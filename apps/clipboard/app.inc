@@ -1,21 +1,35 @@
-;clipboard messages
+;clipboard RPC calls
 
 (enums +clip_type 0
 	(enum put get))
 
-(defun clipboard-put (string)
-	; (clipboard-put string)
-	(when (/= 0 (length (defq service (mail-enquire "Clipboard,"))))
-		(setq service (to-net-id (second (split (pop service) ","))))
-		(mail-send service (list +clip_type_put string))))
+(structure +clip_rpc 0
+	(netid reply_id)
+	(uint type))
 
-(defun clipboard-get ()
-	; (clipboard-get) -> string
-	(defq data "")
-	(when (/= 0 (length (defq service (mail-enquire "Clipboard,"))))
+(structure +clip_get +clip_rpc_size)
+(structure +clip_put +clip_rpc_size)
+
+(defun clip-put-rpc (string)
+	; (clip-put-rpc string)
+	(when (nempty? (defq service (mail-enquire "Clipboard,")))
 		(setq service (to-net-id (second (split (pop service) ","))))
 		(defq mbox (mail-alloc-mbox))
-		(mail-send service (list +clip_type_get mbox))
+		(mail-send service (setf-> (cat (str-alloc +clip_put_size) string)
+			(+clip_rpc_reply_id mbox)
+			(+clip_rpc_type +clip_type_put)))
+		(mail-read mbox)
+		(mail-free-mbox mbox)))
+
+(defun clip-get-rpc ()
+	; (clip-get-rpc) -> string
+	(defq data "")
+	(when (nempty? (defq service (mail-enquire "Clipboard,")))
+		(setq service (to-net-id (second (split (pop service) ","))))
+		(defq mbox (mail-alloc-mbox))
+		(mail-send service (setf-> (str-alloc +clip_get_size)
+			(+clip_rpc_reply_id mbox)
+			(+clip_rpc_type +clip_type_get)))
 		(setq data (mail-read mbox))
 		(mail-free-mbox mbox))
 	data)

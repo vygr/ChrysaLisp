@@ -5,11 +5,14 @@
 		clipboard "")
 	(while :t
 		(let ((msg (mail-read (task-netid))))
-			(cond
-				((= (defq type (first msg)) +clip_type_put)
+			(defq reply_id (getf msg +clip_rpc_reply_id)
+				type (getf msg +clip_rpc_type))
+			(case type
+				(+clip_type_put
 					;put string on clipboard
-					(setq clipboard (second msg)))
-				((= type +clip_type_get)
+					(setq clipboard (slice msg +clip_put_size -1))
+					(mail-send reply_id ""))
+				(+clip_type_get
 					;get string from clipboard
-					(mail-send (second msg) clipboard)))))
+					(mail-send reply_id clipboard)))))
 	(mail-forget clip_service))

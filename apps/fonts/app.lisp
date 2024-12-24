@@ -79,7 +79,7 @@
 			((<= +event_prev id +event_next)
 				(win-refresh (% (+ index (dec (* 2 (- id +event_prev))) (length fonts)) (length fonts))))
 			((= +event_copy id)
-				(clipboard-put (get :tip_text
+				(clip-put-rpc (get :tip_text
 					(. *window* :find_id (getf *msg* +ev_msg_action_source_id)))))
 			(:t (. *window* :event *msg*))))
 	(free-select select)

@@ -4,14 +4,14 @@
 
 (defun action-cut ()
 	(debug-brk "cut" :t)
-	(clipboard-put "cut data"))
+	(clip-put-rpc "cut data"))
 
 (defun action-copy ()
 	(debug-brk "copy" :t)
-	(clipboard-put "copy data"))
+	(clip-put-rpc "copy data"))
 
 (defun action-paste ()
 	(debug-brk "paste" :t)
-	(unless (eql (defq data (clipboard-get)) "")
+	(unless (eql (defq data (clip-get-rpc)) "")
 		;do stuff with data
 		))
