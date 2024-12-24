@@ -298,29 +298,30 @@ reclaimed.
 	(call 'xxx :destroy)
 ```
 
-For any given class there are `create` methods for that class that take any
-construction parameters and return a fully initialized instance. If the `alloc`
-or `init` methods fail then it'll tidy up and return 0 to indicate a problem.
+For any given class there are `:create` methods for that class that take any
+construction parameters and return a fully initialized instance. If the
+`:alloc` or `:init` methods fail then it'll tidy up and return 0 to indicate a
+problem.
 
-The `init` method is responsible for taking an allocated chunk of memory and
+The `:init` method is responsible for taking an allocated chunk of memory and
 setting the fields of that object to the initial state, allocating any
 resources etc, and failing with an error if not able to do so.
 
-The `deinit` is the counterpart to `init`, it takes an instance to the final
+The `:deinit` is the counterpart to `:init`, it takes an instance to the final
 state, releasing any resources, and preparing for the object to be freed.
 
-The `alloc` method is responsible for allocating a chunk of memory for the
+The `:alloc` method is responsible for allocating a chunk of memory for the
 object instance.
 
-The `free` method frees the object instance, reversing the action of the
-`alloc` method.
+The `:free` method frees the object instance, reversing the action of the
+`:alloc` method.
 
-The `ref` or `ref_if` methods just increment the object reference counter.
+The `:ref` or `:ref_if` methods just increment the object reference counter.
 
-The `deref` or `deref_if` methods decrement the object reference counter and if
-it becomes 0 automatically call the `destroy` method !
+The `:deref` or `:deref_if` methods decrement the object reference counter and
+if it becomes 0 automatically call the `:destroy` method !
 
-The `destroy` method just calls `deinit` followed by `free`.
+The `:destroy` method just calls `:deinit` followed by `:free`.
 
 ### VP Class and Object declaration
 
@@ -507,8 +508,8 @@ Second the `class.vp` file.
 (def-func-end)
 ```
 
-Note that the `init` and `deinit` methods make an `(s-call)` and `(s-jump)` to
-the superclass `init` and `deinit` methods !
+Note that the `:init` and `:deinit` methods make an `(s-call)` and `(s-jump)`
+to the superclass `:init` and `:deinit` methods !
 
 Although this is a very simple class, one that just holds references to two
 other objects, it covers all the basic requirements of any VP level class.
