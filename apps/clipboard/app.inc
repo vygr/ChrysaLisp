@@ -23,13 +23,13 @@
 
 (defun clip-get-rpc ()
 	; (clip-get-rpc) -> string
-	(defq data "")
+	(defq string "")
 	(when (nempty? (defq service (mail-enquire "Clipboard,")))
 		(defq service (to-net-id (second (split (pop service) ",")))
 			mbox (mail-alloc-mbox))
 		(mail-send service (setf-> (str-alloc +clip_get_size)
 			(+clip_rpc_reply_id mbox)
 			(+clip_rpc_type +clip_type_get)))
-		(setq data (mail-read mbox))
+		(setq string (mail-read mbox))
 		(mail-free-mbox mbox))
-	data)
+	string)
