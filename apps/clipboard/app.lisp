@@ -1,3 +1,3 @@
 ;single instance per node only
-(if (= 0 (length (mail-enquire "Clipboard,")))
+(if (empty? (mail-enquire "Clipboard,"))
 	(import "./app_impl.lisp"))
