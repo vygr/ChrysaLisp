@@ -243,5 +243,5 @@
 	make-platforms make-all-platforms
 	remake remake-all
 	remake-platforms remake-all-platforms
-	compile-test make-test))
+	compile compile-test make-test))
 (env-pop)
