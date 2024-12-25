@@ -252,7 +252,7 @@ void host_gui_filled_box(const SDL_Rect *rect)
     if (!r) return;
     pixel_t *dst = (pixel_t *)(bb.pixels + r->y * bb.pitch + r->x * bb.bytespp);
     int span = (bb.pitch >> 2) - r->w;      /* in pixels, not bytes */
-    
+
     int h = r->h;
     if (color_a == 0xff) {  /* source copy */
         do {
@@ -947,7 +947,7 @@ static int read_mouse(int *dx, int *dy, int *dw, int *bp)
             button |= BUTTON_SCROLLDN;
     }
     *dx = x;
-    *dy = y;       
+    *dy = y;
     *dw = w;
     *bp = button;
     return 1;
