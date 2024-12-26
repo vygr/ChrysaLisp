@@ -152,7 +152,7 @@
 		;filter to only the files who's oldest product is older than any dependency
 		(setq files (filter-array (#
 			(bind '(d p) (get (sym %0) info))
-			(setq p (reduce min (map file-age p)))
+			(setq p (reduce min (map file-age p) +max_long))
 			(each-mergeable (# (make-merge d (first (get (sym %0) info)))) d)
 			(some (# (>= %0 p)) (map file-age d))) files))
 		;return the list to compile
@@ -243,5 +243,5 @@
 	make-platforms make-all-platforms
 	remake remake-all
 	remake-platforms remake-all-platforms
-	compile compile-test make-test))
+	compile-test make-test))
 (env-pop)
