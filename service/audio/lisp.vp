@@ -140,7 +140,7 @@
 
 	(entry 'host_audio :lisp_add_sfx '(:r0 :r1))
 
-	;check 2 args with given types
+	;check 1 arg with given type
 	(errorif-lisp-args-sig 'error :r1 1)
 
 	;allocate stack for locals
