@@ -4,7 +4,7 @@
 (import "lib/text/buffer.inc")
 (import "lib/text/dictionary.inc")
 (import "lib/task/cmd.inc")
-(import "././clipboard/app.inc")
+(import "service/clipboard/app.inc")
 
 ;our UI widgets and events
 (import "./widgets.inc")

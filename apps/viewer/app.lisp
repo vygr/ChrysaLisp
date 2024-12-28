@@ -2,7 +2,7 @@
 (import "gui/lisp.inc")
 (import "lib/consts/chars.inc")
 (import "lib/text/buffer.inc")
-(import "././clipboard/app.inc")
+(import "service/clipboard/app.inc")
 
 ;our UI widgets and events
 (import "./widgets.inc")

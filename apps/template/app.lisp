@@ -6,7 +6,7 @@
 
 (import "././login/env.inc")
 (import "gui/lisp.inc")
-(import "././clipboard/app.inc")
+(import "service/clipboard/app.inc")
 
 ;our UI widgets
 (import "./widgets.inc")

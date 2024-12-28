@@ -1,7 +1,7 @@
 (import "././login/env.inc")
 (import "gui/lisp.inc")
 (import "lib/files/files.inc")
-(import "././clipboard/app.inc")
+(import "service/clipboard/app.inc")
 
 (enums +event 0
 	(enum close)
