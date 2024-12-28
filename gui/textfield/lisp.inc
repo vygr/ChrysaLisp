@@ -6,7 +6,7 @@
 (import "././font/lisp.inc")
 (import "lib/consts/chars.inc")
 (import "lib/files/urls.inc")
-(import "apps/clipboard/app.inc")
+(import "service/clipboard/app.inc")
 
 ;module
 (env-push)

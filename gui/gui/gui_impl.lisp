@@ -83,7 +83,7 @@
 	(mouse-type *screen* 0 0)
 	;fire up the login app and clipboard service
 	(open-child "apps/login/app.lisp" +kn_call_open)
-	(open-child "apps/clipboard/app.lisp" +kn_call_open)
+	(open-child "service/clipboard/app.lisp" +kn_call_open)
 	(mail-timeout (elem-get select +select_timer) +rate 0)
 	(while *running*
 		(let* ((idx (mail-select select))
