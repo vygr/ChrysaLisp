@@ -36,6 +36,7 @@ inputs
 system argv
 host OS function table
 host GUI function table
+host audio function table
 info
 register inputs are dependant on the platform ABI
 they are extracted via (abi-arg 0)-(abi-arg 2).

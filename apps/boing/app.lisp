@@ -1,5 +1,6 @@
 (import "././login/env.inc")
 (import "gui/lisp.inc")
+(import "service/audio/app.inc")
 
 (enums +select 0
 	(enum main timer))
@@ -19,7 +20,8 @@
 		(ui-element sframe (first +sframes))))
 
 (defun main ()
-	(defq select (alloc-select +select_size) id :t index 0 xv 4 yv 0)
+	(defq select (alloc-select +select_size) id :t index 0 xv 4 yv 0
+		handle (audio-add-sfx-rpc "apps/boing/data/boing.wav"))
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(gui-add-front (. *window* :change x y w h))
 	(mail-timeout (elem-get select +select_timer) +rate 0)
@@ -53,7 +55,9 @@
 				(bind '(sx sy sw sh) (. old_sframe :get_bounds))
 				(.-> *backdrop* (:add_dirty sx sy sw sh) (:add_dirty x y w h))
 				(setq x (+ x xv) y (+ y yv) yv (inc yv))
-				(if (> y (- backdrop_height h)) (setq y (- backdrop_height h) yv -22))
+				(when (> y (- backdrop_height h))
+					(setq y (- backdrop_height h) yv -22)
+					(audio-play-sfx-rpc handle))
 				(if (< x 0) (setq x 0 xv (abs xv)))
 				(if (> x (- backdrop_width w)) (setq x (- backdrop_width w) xv (neg (abs xv))))
 				(. frame :set_bounds x y w h)
@@ -63,5 +67,6 @@
 				(.-> *backdrop* (:add_back sframe) (:add_front frame))
 				(. sframe :dirty)
 				(. frame :dirty))))
+	(audio-remove-sfx-rpc handle)
 	(gui-sub *window*)
 	(free-select select))

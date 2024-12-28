@@ -11,6 +11,7 @@
 	;system argv
 	;host OS function table
 	;host GUI function table
+	;host audio function table
 	;info
 	;register inputs are dependant on the platform ABI
 	;they are extracted via (abi-arg 0)-(abi-arg 2).
@@ -20,7 +21,7 @@
 	;to the 'sys/statics/statics' string in its header !
 
 	(def-struct local 0
-		(ptr argv os gui statics)
+		(ptr argv os gui audio statics)
 		(ptr boot_static_func boot_tail_func)
 		(ptr new_static_func new_tail_func)
 		(uint boot_static_len boot_tail_len))
@@ -30,7 +31,7 @@
 	;save inputs
 	(tk-save-state)
 	(vp-alloc local_size)
-	(entry 'sys_load :init '((:rsp local_argv) (:rsp local_os) (:rsp local_gui)))
+	(entry 'sys_load :init '((:rsp local_argv) (:rsp local_os) (:rsp local_gui) (:rsp local_audio)))
 
 	;get boot block info
 	(assign '(($ fn_start) ($ fn_end)) '(:r0 :r1))
@@ -69,9 +70,11 @@
 	(assign '(:r0) `((,statics statics_sys_load_stat_buffer)))
 
 	;save host abi tables
-	(assign '((:rsp local_os) (:rsp local_gui)) '(:r0 :r1))
+	(assign '((:rsp local_os) (:rsp local_gui) (:rsp local_audio)) '(:r0 :r1 :r2))
 	(assign '(:r0) `((,statics statics_sys_load_host_os_funcs)))
 	(assign '(:r1) `((,statics statics_sys_load_host_gui_funcs)))
+	(assign '(:r2) `((,statics statics_sys_load_host_audio_funcs)))
+
 
 	;add statics function to function list
 	(assign '((:rsp local_new_static_func)) `(,func))

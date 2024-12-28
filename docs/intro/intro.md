@@ -21,7 +21,7 @@ https://brew.sh/
 Install the SDL framework from Homebrew with:
 
 ```code
-brew install sdl2
+brew install sdl2 sdl2_mixer
 ```
 
 ### Linux, PI64
@@ -38,13 +38,14 @@ sudo apt-get install libsdl2-dev
 Unzip the snapshot.zip file with your favorite Zip application. With 7Zip just
 right click on the snapshot.zip file and choose 'Extract Here'.
 
-Download and install the SDL frameworks from:
+Download and install the SDL/SDL_mixer frameworks from:
 https://www.libsdl.org/download-2.0.php
 
 Get the development versions for both frameworks and unzip them somewhere. Copy
 the .dll files from the lib folders into your ChrysaLisp folder.
 
 SDL2.dll
+SDL2_mixer.dll
 zlib1.dll
 
 ## Building the platform bootstrap

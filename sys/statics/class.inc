@@ -41,7 +41,7 @@
 	(align)
 
 	;sys_load statics
-	(ptr sys_load_host_os_funcs sys_load_host_gui_funcs
+	(ptr sys_load_host_os_funcs sys_load_host_gui_funcs sys_load_host_audio_funcs
 		sys_load_function_flist sys_load_block_flist
 		sys_load_block_start sys_load_block_end
 		sys_load_reloc_stack sys_load_reloc_buffer

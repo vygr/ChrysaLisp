@@ -4,6 +4,13 @@
 
 ------
 
+Audio SFX service from Martyn Blyss. Many thanks ! Boing demo updated with a
+little nostalgia.
+
+Moved Clipboard service to new `service/` folder.
+
+------
+
 `(write-char)` and `(write)` now return the number of bytes written to the
 stream. Translators updated to use this info to improve performance.
 

@@ -168,7 +168,7 @@ sudo apt-get install libsdl2-dev
 Or on Mac via Homebrew.
 
 ```code
-brew install sdl2
+brew install sdl2 sdl2_mixer
 ```
 
 ## Make/Run/Stop
