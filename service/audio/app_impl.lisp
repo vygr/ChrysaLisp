@@ -10,8 +10,7 @@
 
 (defun main ()
 	; Declare the audio service
-	(defq audio_service (mail-declare (task-netid) "Audio" "Audio Service 0.1")
-		  audio "")
+	(defq audio_service (mail-declare (task-netid) "Audio" "Audio Service 0.1"))
 	(audio-init)
 	; Main loop
 	(while :t
