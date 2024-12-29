@@ -54,8 +54,7 @@ x64 isn't really the way things should be done anymore.
 * Add support for `(vp-simd)` instructions at the translator level. MMX, SSX
 etc.
 
-* SDL2 Audio output, plus the implementation of a ChrysaLisp multi channel
-mixer service.
+* Audio service at the VP level should share and reference count the handles.
 
 * Add support for FPU to the VM. Scalar float/double support first of all maybe
 eventually create a FPU accelerated version of the vector math DSL.
