@@ -65,7 +65,7 @@ uint32_t host_audio_add_sfx(const char* filePath) {
     Mix_Chunk* chunk = Mix_LoadWAV(filePath);
     if (!chunk) {
         logSDLError("Mix_LoadWAV");
-        return 0-1;
+        return -1;
     }
 
     SoundEffect soundEffect = { chunk, filePath };
