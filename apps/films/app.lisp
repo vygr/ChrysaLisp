@@ -38,7 +38,7 @@
 	(defq select (alloc-select +select_size))
 	(tooltips)
 	(bind '(x y w h) (apply view-locate (. (win-refresh index) :get_size)))
-	(gui-add-front (. *window* :change x y w h))
+	(gui-add-front-rpc (. *window* :change x y w h))
 	(mail-timeout (elem-get select +select_timer) +rate 0)
 	(while id
 		(defq *msg* (mail-read (elem-get select (defq idx (mail-select select)))))
@@ -58,4 +58,4 @@
 			(:t (. *window* :event *msg*))))
 	;close window
 	(free-select select)
-	(gui-sub *window*))
+	(gui-sub-rpc *window*))

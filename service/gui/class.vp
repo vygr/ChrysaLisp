@@ -5,8 +5,8 @@
 (include "./class.inc")
 (include "class/sym/class.inc")
 (include "class/list/class.inc")
-(include "././region/class.inc")
-(include "././view/class.inc")
+(include "gui/region/class.inc")
+(include "gui/view/class.inc")
 (include "sys/statics/class.inc")
 
 (def-method 'gui :update 16)

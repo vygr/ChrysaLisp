@@ -9,7 +9,7 @@
 (include "class/fstream/class.inc")
 (include "././ctx/class.inc")
 (include "././texture/class.inc")
-(include "././gui/class.inc")
+(include "service/gui/class.inc")
 (include "lib/consts/colors.inc")
 
 (gen-vtable 'canvas)

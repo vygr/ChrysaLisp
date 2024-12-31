@@ -23,17 +23,17 @@ not many event types to handle.
 
 ## GUI events
 
-There are various GUI event types, listed in `gui/gui/lisp.inc`:
+There are various GUI event types, listed in `service/gui/lisp.inc`:
 
 ```file
-gui/gui/lisp.inc "+ev_type" ""
+service/gui/lisp.inc "+ev_type" ""
 ```
 
 These event messages follow a standard format, have a common header that they
 inherit from, and extended fields for each individual event type.
 
 ```file
-gui/gui/lisp.inc "+ev_msg" "defq"
+service/gui/lisp.inc "+ev_msg" "defq"
 ```
 
 When an event is received, it'll be targeted at a particular target object,

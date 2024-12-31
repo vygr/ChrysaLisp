@@ -91,7 +91,7 @@
 	(populate-page *current_file*)
 	(visible-node *file_tree* *current_file*)
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
-	(gui-add-front (. *window* :change x y w h))
+	(gui-add-front-rpc (. *window* :change x y w h))
 	(while *running*
 		(defq *msg* (mail-read (elem-get select (defq idx (mail-select select)))))
 		(cond
@@ -132,5 +132,5 @@
 				;save scroll position
 				(. scroll_pos :insert *current_file* (get :value (get :vslider *page_scroll*))))))
 	(undef (penv) '*handler_env*)
-	(gui-sub *window*)
+	(gui-sub-rpc *window*)
 	(free-select select))

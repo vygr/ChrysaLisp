@@ -100,7 +100,7 @@
 	(defq select (alloc-select +select_size) id :t)
 	(.-> *canvas* (:fill 0) (:set_canvas_flags +canvas_flag_antialias))
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
-	(gui-add-front (. *window* :change x y w h))
+	(gui-add-front-rpc (. *window* :change x y w h))
 	(mail-timeout (elem-get select +select_timer) +rate 0)
 	(while id
 		(defq msg (mail-read (elem-get select (defq idx (mail-select select)))))
@@ -118,4 +118,4 @@
 				(setq angle (+ angle 0.0025)))))
 	;close window
 	(free-select select)
-	(gui-sub *window*))
+	(gui-sub-rpc *window*))

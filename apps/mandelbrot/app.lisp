@@ -85,7 +85,7 @@
 	(defq select (alloc-select +select_size))
 	(.-> *canvas* (:fill +argb_black) (:swap 0))
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
-	(gui-add-front (. *window* :change x y w h))
+	(gui-add-front-rpc (. *window* :change x y w h))
 	(reset)
 	(mail-timeout (elem-get select +select_timer) +timer_rate 0)
 	(while id
@@ -137,4 +137,4 @@
 	;close window and children
 	(. farm :close)
 	(free-select select)
-	(gui-sub *window*))
+	(gui-sub-rpc *window*))

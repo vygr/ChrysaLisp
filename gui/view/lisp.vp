@@ -1,7 +1,7 @@
 (include "lib/asm/func.inc")
 (include "./class.inc")
 (include "././region/class.inc")
-(include "././gui/class.inc")
+(include "service/gui/class.inc")
 (include "class/num/class.inc")
 (include "class/str/class.inc")
 (include "class/lisp/class.inc")

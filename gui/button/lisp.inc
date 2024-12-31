@@ -59,7 +59,7 @@
 		(if (defq tip_mbox (get :tip_mbox this))
 			(mail-timeout tip_mbox 0 0))
 		(when (defq tip_window (def? :tip_window this))
-			(gui-sub tip_window)
+			(gui-sub-rpc tip_window)
 			(undef this :tip_window))
 		this)
 
@@ -73,7 +73,7 @@
 				:font *env_tip_font*)
 			(. tip_window :set_flags 0 +view_flag_solid)
 			(bind '(x y w h) (apply view-locate (push (. tip_window :pref_size) :bottom)))
-			(gui-add-front (. tip_window :change x y w h))
+			(gui-add-front-rpc (. tip_window :change x y w h))
 			(def this :tip_window tip_window))
 		this)
 	)

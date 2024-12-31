@@ -168,7 +168,7 @@
 	(visible-node *file_tree* file))
 
 (defun clear-matches ()
-	(if match_window (gui-sub match_window))
+	(if match_window (gui-sub-rpc match_window))
 	(setq match_window :nil match_flow :nil match_index -1))
 
 (defun show-matches ()
@@ -195,7 +195,7 @@
 			(if (> (+ x w) sw) (setq x (+ (- x w) cw)))
 			(if (> (+ y h) sh) (setq y (- y h ch)))
 			(. window :change x y w h)
-			(gui-add-front (setq match_flow flow match_window window)))))
+			(gui-add-front-rpc (setq match_flow flow match_window window)))))
 
 (defun select-match (dir)
 	(when match_window
@@ -260,7 +260,7 @@
 	(populate-vdu *current_file*)
 	(action-maximise)
 	(bind '(x y w h) (apply view-locate (.-> *window* (:connect +event_layout) :get_size)))
-	(gui-add-front (. *window* :change x y w h))
+	(gui-add-front-rpc (. *window* :change x y w h))
 	(select-node *current_file*)
 	(refresh)
 	(while *running*
@@ -326,6 +326,6 @@
 	(action-save-all)
 	(free-select select)
 	(clear-matches)
-	(gui-sub *window*)
+	(gui-sub-rpc *window*)
 	(mail-forget edit_service)
 	(profile-report "Editor"))

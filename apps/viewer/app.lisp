@@ -181,7 +181,7 @@
 	(populate-vdu *current_file*)
 	(action-minimise)
 	(bind '(x y w h) (apply view-locate (.-> *window* (:connect +event_layout) :get_size)))
-	(gui-add-front (. *window* :change x y w h))
+	(gui-add-front-rpc (. *window* :change x y w h))
 	(refresh)
 	(while *running*
 		(defq *msg* (mail-read (elem-get select (defq idx (mail-select select)))))
@@ -221,4 +221,4 @@
 		;update meta data
 		(update-meta-data))
 	(free-select select)
-	(gui-sub *window*))
+	(gui-sub-rpc *window*))

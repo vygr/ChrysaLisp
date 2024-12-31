@@ -20,4 +20,4 @@
 (print "GUI with './run.bat'")
 (print "stop the network with './stop.bat'")
 (print)
-((ffi _ "gui/gui/lisp_deinit" 0))
+((ffi _ "service/gui/lisp_deinit" 0))

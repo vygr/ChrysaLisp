@@ -30,7 +30,7 @@
 
 (defun main ()
 	;add centered
-	(gui-add-front *window*)
+	(gui-add-front-rpc *window*)
 	(position-window)
 	(while (cond
 		((and (< (defq id (getf (defq msg (mail-read (task-netid))) +ev_msg_target_id)) 0)
@@ -62,4 +62,4 @@
 					:nil)
 				(:t :t)))
 		(:t (. *window* :event msg))))
-	(gui-sub *window*))
+	(gui-sub-rpc *window*))

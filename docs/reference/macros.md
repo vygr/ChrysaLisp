@@ -243,34 +243,34 @@ should provide the concreate handler
 (getf obj field [offset]) -> value
 ```
 
-### gui-add-back
+### gui-add-back-rpc
 
 ```code
-(gui-add-back view) -> view
+(gui-add-back-rpc view) -> view
 ```
 
-### gui-add-front
+### gui-add-front-rpc
 
 ```code
-(gui-add-front view) -> view
+(gui-add-front-rpc view) -> view
 ```
 
-### gui-logout
+### gui-logout-rpc
 
 ```code
-(gui-logout) -> :nil
+(gui-logout-rpc) -> :nil
 ```
 
-### gui-quit
+### gui-quit-rpc
 
 ```code
-(gui-quit) -> :nil
+(gui-quit-rpc) -> :nil
 ```
 
-### gui-sub
+### gui-sub-rpc
 
 ```code
-(gui-sub view) -> view
+(gui-sub-rpc view) -> view
 ```
 
 ### inc

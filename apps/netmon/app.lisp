@@ -46,7 +46,7 @@
 		charts (. *charts* :children))
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(. *window* :set_flags +view_flag_at_front +view_flag_at_front)
-	(gui-add-front (. *window* :change_dirty x y w h))
+	(gui-add-front-rpc (. *window* :change_dirty x y w h))
 	(mail-timeout (elem-get select +select_nodes) 1 0)
 	(while id
 		(defq msg (mail-read (elem-get select (defq idx (mail-select select)))))
@@ -101,4 +101,4 @@
 	;close window and children
 	(. global_tasks :close)
 	(free-select select)
-	(gui-sub *window*))
+	(gui-sub-rpc *window*))

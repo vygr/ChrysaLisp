@@ -91,7 +91,7 @@
 		entry (mail-declare (elem-get select +select_service) "*Debug" "Debug Service 0.4"))
 	(def *window* :tip_mbox (elem-get select +select_tip))
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
-	(gui-add-front (. *window* :change x y w h))
+	(gui-add-front-rpc (. *window* :change x y w h))
 	(reset)
 	(while *running*
 		(defq *msg* (mail-read (elem-get select (defq idx (mail-select select)))))
@@ -160,6 +160,6 @@
 			;otherwise
 			(:t (. *window* :event *msg*))))
 	(free-select select)
-	(gui-sub *window*)
+	(gui-sub-rpc *window*)
 	;restart any paused debug ipc
 	(each play buf_list))

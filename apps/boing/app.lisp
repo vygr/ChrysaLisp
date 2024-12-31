@@ -23,7 +23,7 @@
 	(defq select (alloc-select +select_size) id :t index 0 xv 4 yv 0
 		handle (audio-add-sfx-rpc "apps/boing/data/boing.wav"))
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
-	(gui-add-front (. *window* :change x y w h))
+	(gui-add-front-rpc (. *window* :change x y w h))
 	(mail-timeout (elem-get select +select_timer) +rate 0)
 	(while id
 		(defq msg (mail-read (elem-get select (defq idx (mail-select select)))))
@@ -68,5 +68,5 @@
 				(. sframe :dirty)
 				(. frame :dirty))))
 	(audio-remove-sfx-rpc handle)
-	(gui-sub *window*)
+	(gui-sub-rpc *window*)
 	(free-select select))

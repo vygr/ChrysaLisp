@@ -47,7 +47,7 @@
 	(defq id :t text_buf (list "") entry :nil select (alloc-select (dec +select_size)))
 	(tooltips)
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
-	(gui-add-front (. *window* :change x y w h))
+	(gui-add-front-rpc (. *window* :change x y w h))
 	(while id
 		(defq *msg* (mail-read (elem-get select (defq idx (mail-select select)))))
 		(cond
@@ -84,4 +84,4 @@
 		(broadcast "Has left the chat !")
 		(mail-forget entry))
 	(free-select select)
-	(gui-sub *window*))
+	(gui-sub-rpc *window*))

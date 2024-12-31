@@ -1,13 +1,13 @@
 ;lisp bindings
-(ffi gui-info "gui/gui/lisp_info" 0)
+(ffi gui-info "service/gui/lisp_info" 0)
 ; (gui-info) -> (mx my sw sh)
-(ffi gui-init "gui/gui/lisp_init" 0)
+(ffi gui-init "service/gui/lisp_init" 0)
 ; (gui-init screen) -> screen
-(ffi gui-deinit "gui/gui/lisp_deinit" 0)
+(ffi gui-deinit "service/gui/lisp_deinit" 0)
 ; (gui-deinit) -> :nil
-(ffi gui-update "gui/gui/lisp_update" 0)
+(ffi gui-update "service/gui/lisp_update" 0)
 ; (gui-update mx my flags) -> :nil
-(ffi gui-event "gui/gui/lisp_event" 0)
+(ffi gui-event "service/gui/lisp_event" 0)
 ; (gui-event) -> :nil | str
 
 ;gui events for Lisp level (getf)
@@ -53,21 +53,21 @@
 
 (defun gui-rpc (view cmd)
 	; (gui-rpc (view cmd) -> :nil | view
-	(when (/= 0 (length (defq service (mail-enquire "Gui,"))))
-		(setq service (to-net-id (second (split (pop service) ","))))
-		(defq mbox (mail-alloc-mbox))
+	(when (nempty? (defq service (mail-enquire "Gui,")))
+		(defq service (to-net-id (second (split (pop service) ",")))
+			mbox (mail-alloc-mbox))
 		(mail-send service (list cmd view (task-netid) mbox))
 		(mail-read mbox)
 		(mail-free-mbox mbox)
 		view))
 
-(defmacro gui-quit () `(gui-rpc :nil 0))
-; (gui-quit) -> :nil
-(defmacro gui-logout () `(gui-rpc :nil 1))
-; (gui-logout) -> :nil
-(defmacro gui-sub (view) `(gui-rpc ,view 2))
-; (gui-sub view) -> view
-(defmacro gui-add-front (view) `(gui-rpc ,view 3))
-; (gui-add-front view) -> view
-(defmacro gui-add-back (view) `(gui-rpc ,view 4))
-; (gui-add-back view) -> view
+(defmacro gui-quit-rpc () `(gui-rpc :nil 0))
+; (gui-quit-rpc) -> :nil
+(defmacro gui-logout-rpc () `(gui-rpc :nil 1))
+; (gui-logout-rpc) -> :nil
+(defmacro gui-sub-rpc (view) `(gui-rpc ,view 2))
+; (gui-sub-rpc view) -> view
+(defmacro gui-add-front-rpc (view) `(gui-rpc ,view 3))
+; (gui-add-front-rpc view) -> view
+(defmacro gui-add-back-rpc (view) `(gui-rpc ,view 4))
+; (gui-add-back-rpc view) -> view

@@ -79,7 +79,7 @@
 	(display-board brd)
 	(defq select (alloc-select +select_size) farm (Farm create destroy 1))
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
-	(gui-add-front (. *window* :change x y w h))
+	(gui-add-front-rpc (. *window* :change x y w h))
 	(mail-timeout (elem-get select +select_timer) timer_rate 0)
 	(while id
 		(defq msg (mail-read (elem-get select (defq idx (mail-select select)))))
@@ -128,4 +128,4 @@
 	;close window and children
 	(. farm :close)
 	(free-select select)
-	(gui-sub *window*))
+	(gui-sub-rpc *window*))

@@ -54,9 +54,9 @@ function boot_cpu_gui
 	then
 		if [ "$front" == "" ]
 		then
-			./obj/$CPU/$ABI/$OS/main_gui obj/$CPU/$ABI/sys/boot_image $2 $emu -run gui/gui/gui.lisp &
+			./obj/$CPU/$ABI/$OS/main_gui obj/$CPU/$ABI/sys/boot_image $2 $emu -run service/gui/app.lisp &
 		else
-			./obj/$CPU/$ABI/$OS/main_gui obj/$CPU/$ABI/sys/boot_image $2 $emu -run gui/gui/gui.lisp
+			./obj/$CPU/$ABI/$OS/main_gui obj/$CPU/$ABI/sys/boot_image $2 $emu -run service/gui/app.lisp
 			if [ $? -eq 0 ]
 			then
 				{

@@ -1,5 +1,5 @@
 (include "lib/asm/func.inc")
-(include "././gui/class.inc")
+(include "service/gui/class.inc")
 (include "././ctx/class.inc")
 (include "././region/class.inc")
 (include "././font/class.inc")

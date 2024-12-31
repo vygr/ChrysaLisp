@@ -161,7 +161,7 @@
 	(bind '(x y w h) (apply view-locate (.-> *window* (:connect +event_layout) :pref_size)))
 	(.-> *main_widget* (:set_canvas_flags +canvas_mode) (:fill +argb_black) (:swap 0))
 	(. *style_toolbar* :set_selected 1)
-	(gui-add-front (. *window* :change x y w h))
+	(gui-add-front-rpc (. *window* :change x y w h))
 	(tooltips)
 	(reset)
 	(mail-timeout (elem-get select +select_timer) timer_rate 0)
@@ -217,6 +217,6 @@
 						(char key))))
 			(:t ;gui event
 				(. *window* :event *msg*))))
-	(gui-sub *window*)
+	(gui-sub-rpc *window*)
 	(free-select select)
 	(profile-report "Molecule"))

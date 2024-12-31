@@ -5,7 +5,7 @@
 (include "././str/class.inc")
 (include "././math/class.inc")
 (include "././pii/class.inc")
-(include "gui/gui/class.inc")
+(include "service/gui/class.inc")
 (include "class/sym/class.inc")
 (include "class/num/class.inc")
 (include "class/node/class.inc")

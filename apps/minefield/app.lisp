@@ -130,7 +130,7 @@
 	(defq started :nil game (list) game_board (list) game_adj (list) game_map (list)
 		first_click :t difficulty (list) game_grid :nil click_offset 4 game_over :nil mouse_down 0)
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
-	(gui-add-front (. *window* :change x y w h))
+	(gui-add-front-rpc (. *window* :change x y w h))
 	(while (cond
 		((= (defq id (getf (defq msg (mail-read (task-netid))) +ev_msg_target_id)) +event_close)
 			:nil)
@@ -163,4 +163,4 @@
 				(/= 0 (getf msg +ev_msg_mouse_buttons))
 				(setq mouse_down (getf msg +ev_msg_mouse_buttons)))
 			(. *window* :event msg))))
-	(gui-sub *window*))
+	(gui-sub-rpc *window*))

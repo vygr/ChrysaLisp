@@ -9,6 +9,8 @@ little nostalgia.
 
 Moved Clipboard service to new `service/` folder.
 
+Moved GUI service to new `service/` folder.
+
 ------
 
 `(write-char)` and `(write)` now return the number of bytes written to the
@@ -1633,7 +1635,7 @@ of frames. This can now cope with triple buffering etc, but it still relies on
 the previously rendered frames being available uncorrupted as they come back to
 being the new back buffer !
 
-The setting is now in gui/gui/class.inc, `(defcvar 'num_old_regions 1)`,
+The setting is now in service/gui/class.inc, `(defcvar 'num_old_regions 1)`,
 defaults to 1 for double buffered preserved previous frame rendering.
 
 You can set the value to 0, and rebuild the system, if you can't rely on any

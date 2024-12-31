@@ -121,7 +121,7 @@ fragments on sending and reconstructed at the destination to maximize use of
 available routes.
 
 The `-run` command line option launches tasks on booting that CPU, such as the
-experimental GUI (a work in progress, `-run gui/gui/gui.lisp`). You can change
+experimental GUI (a work in progress, `-run service/gui/app.lisp`). You can change
 the network launch script to run more than one GUI session if you want, try
 launching the GUI on more than CPU 0, look in *funcs.sh* at the `boot_cpu_gui`
 function ! :)

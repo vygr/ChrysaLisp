@@ -66,7 +66,7 @@
 	(tooltips)
 	(win-refresh index)
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
-	(gui-add-front (. *window* :change x y w h))
+	(gui-add-front-rpc (. *window* :change x y w h))
 	(while id
 		(defq *msg* (mail-read (elem-get select (defq idx (mail-select select)))))
 		(cond
@@ -83,4 +83,4 @@
 					(. *window* :find_id (getf *msg* +ev_msg_action_source_id)))))
 			(:t (. *window* :event *msg*))))
 	(free-select select)
-	(gui-sub *window*))
+	(gui-sub-rpc *window*))

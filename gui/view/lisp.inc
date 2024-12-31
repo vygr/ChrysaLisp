@@ -1,5 +1,5 @@
 ;lisp bindings
-(import "././gui/lisp.inc")
+(import "service/gui/lisp.inc")
 (import "sys/list/lisp.inc")
 (import "class/hmap/lisp.inc")
 

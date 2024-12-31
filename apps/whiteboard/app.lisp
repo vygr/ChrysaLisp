@@ -110,7 +110,7 @@
 	(. *overlay_canvas* :set_canvas_flags +canvas_flag_antialias)
 	(def *window* :tip_mbox (elem-get select +select_tip))
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
-	(gui-add-front (. *window* :change x y w h))
+	(gui-add-front-rpc (. *window* :change x y w h))
 
 	;main event loop
 	(mail-timeout (elem-get select +select_timer) rate 0)
@@ -177,5 +177,5 @@
 	;close window
 	(free-select select)
 	(if *picker_mbox* (mail-send *picker_mbox* ""))
-	(gui-sub *window*)
+	(gui-sub-rpc *window*)
 	(profile-report "Whiteboard App"))

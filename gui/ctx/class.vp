@@ -1,7 +1,7 @@
 (include "lib/asm/func.inc")
 (include "sys/pii/class.inc")
 (include "./class.inc")
-(include "././gui/class.inc")
+(include "service/gui/class.inc")
 (include "././view/class.inc")
 (include "././region/class.inc")
 (include "././pixmap/class.inc")

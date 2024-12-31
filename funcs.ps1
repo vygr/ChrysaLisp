@@ -75,10 +75,10 @@ function boot_cpu_gui
     $cmd = "./obj/$($NHCPU)/$($NHABI)/$($NHOS)/main_gui"
 	if ( $cpu -lt 1 ){
 		if ( $front -eq $FALSE ){
-			Start-Process -FilePath $cmd -NoNewWindow -ArgumentList "obj/$($HCPU)/$($HABI)/sys/boot_image $link -run gui/gui/gui.lisp"
+			Start-Process -FilePath $cmd -NoNewWindow -ArgumentList "obj/$($HCPU)/$($HABI)/sys/boot_image $link -run service/gui/app.lisp"
 		}
 		else {
-			$process = Start-Process -FilePath $cmd -NoNewWindow -ArgumentList "obj/$($HCPU)/$($HABI)/sys/boot_image $link -run gui/gui/gui.lisp" -PassThru -Wait
+			$process = Start-Process -FilePath $cmd -NoNewWindow -ArgumentList "obj/$($HCPU)/$($HABI)/sys/boot_image $link -run service/gui/app.lisp" -PassThru -Wait
 			if ( $process.ExitCode -eq 0){
 				Stop-Process -Name main_gui -Force 2>&1 | out-null
 			}

@@ -99,7 +99,7 @@
 	(. *edit_flow* :add_back *edit*)
 	(def *window* :tip_mbox (elem-get *select* +select_tip))
 	(bind '(x y w h) (apply view-locate (.-> *window* (:connect +event_layout) :pref_size)))
-	(gui-add-front (. *window* :change x y w h))
+	(gui-add-front-rpc (. *window* :change x y w h))
 	(window-resize)
 	(action-insert (cat "ChrysaLisp Terminal" (ascii-char +char_lf) *env_terminal_prompt*))
 	(while *running*
@@ -151,4 +151,4 @@
 	(if *pipe* (. *pipe* :close))
 	(state-save)
 	(free-select *select*)
-	(gui-sub *window*))
+	(gui-sub-rpc *window*))

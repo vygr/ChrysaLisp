@@ -25,7 +25,7 @@
 	(. *exts* :set_text exts)
 	(populate-files *current_root* *current_exts*)
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
-	(gui-add-front (. *window* :change x y w h))
+	(gui-add-front-rpc (. *window* :change x y w h))
 	(while *running*
 		(defq *msg* (mail-read (task-netid)))
 		(cond
@@ -34,4 +34,4 @@
 				(action))
 			(:t ;gui event
 				(. *window* :event *msg*))))
-	(gui-sub *window*))
+	(gui-sub-rpc *window*))

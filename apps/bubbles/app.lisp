@@ -129,7 +129,7 @@
 	(. *backdrop* :set_size +width +height)
 	(. *style_toolbar* :set_selected 0)
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
-	(gui-add-front (. *window* :change x y w h))
+	(gui-add-front-rpc (. *window* :change x y w h))
 	(def *image_scroll* :min_width +min_width :min_height +min_height)
 
 	;random cloud of verts
@@ -197,5 +197,5 @@
 			(:t (. *window* :event *msg*))))
 	;close window
 	(free-select select)
-	(gui-sub *window*)
+	(gui-sub-rpc *window*)
 	(profile-report "Bubbles"))

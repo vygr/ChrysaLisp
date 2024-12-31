@@ -114,7 +114,7 @@
 	(. *layer_toolbar* :set_selected 0)
 	(. *mode_toolbar* :set_selected 0)
 	(bind '(x y w h) (apply view-locate (. (win-load *index*) :get_size)))
-	(gui-add-front (. *window* :change x y w h))
+	(gui-add-front-rpc (. *window* :change x y w h))
 	(while *running*
 		(defq *msg* (mail-read (elem-get select (defq idx (mail-select select)))))
 		(cond
@@ -163,4 +163,4 @@
 			(:t (. *window* :event *msg*))))
 	(stop-route)
 	(free-select select)
-	(gui-sub *window*))
+	(gui-sub-rpc *window*))

@@ -1,6 +1,6 @@
 (include "././task/class.inc")
 (include "././mem/class.inc")
-(include "gui/gui/class.inc")
+(include "service/gui/class.inc")
 
 ;;;;;;;;;;;;;;;;;;;;;;
 ; system statics class

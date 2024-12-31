@@ -30,7 +30,7 @@
 
 (defun main ()
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
-	(gui-add-front (. *window* :change x y w h))
+	(gui-add-front-rpc (. *window* :change x y w h))
 	(defq accum 0 value 0 num 0 lastop :nil)
 	(while (cond
 		((>= (defq id (getf (defq msg (mail-read (task-netid))) +ev_msg_target_id)) +event_button)
@@ -64,4 +64,4 @@
 			(bind '(x y w h) (apply view-fit (cat (. *window* :get_pos) '(512 512))))
 			(. *window* :change_dirty x y w h))
 		(:t (. *window* :event msg))))
-	(gui-sub *window*))
+	(gui-sub-rpc *window*))

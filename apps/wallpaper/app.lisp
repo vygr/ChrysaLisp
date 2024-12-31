@@ -22,7 +22,7 @@
 		(when (< new_err err)
 			(setq err new_err index (!) flag (if (= it 32) 0 +view_flag_opaque)))) images_info)
 	(. wallpaper :sub)
-	(gui-add-back (.-> (setq wallpaper (Canvas w h 1))
+	(gui-add-back-rpc (.-> (setq wallpaper (Canvas w h 1))
 		(:resize (canvas-load (elem-get *env_wallpaper_images* index) +load_flag_noswap))
 		(:swap 0)
 		(:set_flags (+ (const (+ +view_flag_at_back +view_flag_dirty_all)) flag)
@@ -31,7 +31,7 @@
 
 (defun main ()
 	(defq images_info (map pixmap-info *env_wallpaper_images*) wallpaper (View)
-			screen (penv (gui-add-back wallpaper)) mouse_state :u)
+			screen (penv (gui-add-back-rpc wallpaper)) mouse_state :u)
 	(each (lambda (_)
 		(open-child (app-path _) +kn_call_open)) *env_launcher_auto_apps*)
 	(refresh-wallpaper)

@@ -15,7 +15,7 @@
 
 (defun launch (node)
 	(if (find (setq node (to-net-id node)) nodes)
-		(open-remote "gui/gui/gui.lisp" node +kn_call_child)))
+		(open-remote "service/gui/app.lisp" node +kn_call_child)))
 
 (defun main ()
 	;initialize pipe details and command args, abort on error

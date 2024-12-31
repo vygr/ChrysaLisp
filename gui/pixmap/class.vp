@@ -9,7 +9,7 @@
 (include "class/sstream/class.inc")
 (include "class/fstream/class.inc")
 (include "sys/str/class.inc")
-(include "././gui/class.inc")
+(include "service/gui/class.inc")
 (include "lib/consts/colors.inc")
 (include "sys/statics/class.inc")
 

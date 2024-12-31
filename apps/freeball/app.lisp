@@ -10,7 +10,7 @@
 	(ui-element sframe (first +sframes)))
 
 (defun main ()
-	(defq screen (penv (gui-add-front view)))
+	(defq screen (penv (gui-add-front-rpc view)))
 	(while id
 		(bind '(_ _ screen_width screen_height) (. screen :get_bounds))
 		(defq index (% (inc index) (length +frames))
@@ -38,4 +38,4 @@
 						(/= (getf msg +ev_msg_mouse_buttons) 0)))
 				(setq id :nil)))
 		(task-sleep 40000))
-	(gui-sub view))
+	(gui-sub-rpc view))

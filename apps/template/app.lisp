@@ -26,7 +26,7 @@
 	(defq select (alloc-select +select_size) *running* :t mouse_state :u)
 	(def *window* :tip_mbox (elem-get select +select_tip))
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
-	(gui-add-front (. *window* :change x y w h))
+	(gui-add-front-rpc (. *window* :change x y w h))
 	(mail-timeout (elem-get select +select_timer) +rate 0)
 	(while *running*
 		(defq *msg* (mail-read (elem-get select (defq idx (mail-select select)))))
@@ -69,6 +69,6 @@
 						(char key))))
 			(:t ;gui event
 				(. *window* :event *msg*))))
-	(gui-sub *window*)
+	(gui-sub-rpc *window*)
 	(free-select select)
 	(profile-report "Template"))

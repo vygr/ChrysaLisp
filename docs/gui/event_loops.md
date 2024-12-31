@@ -116,18 +116,18 @@ reply then return. You don't wish to use any of your application mailboxes as
 this will really mess up the application logic and state machine. So use a
 transient mailbox !
 
-Here is the GUI RPC function from `gui/gui/lisp.inc`. This is the function that
-your application calls, via the `(gui-add-front)` and `(gui-sub)` macros to add
+Here is the GUI RPC function from `service/gui/lisp.inc`. This is the function that
+your application calls, via the `(gui-add-front-rpc)` and `(gui-sub-rpc)` macros to add
 and remove your application window from the screen.
 
 ```file
-gui/gui/lisp.inc "gui-rpc"
+service/gui/lisp.inc "gui-rpc"
 ```
 
 Don't worry about the service lookup code, just the RPC part:
 
 ```file
-gui/gui/lisp.inc "mbox" "view)"
+service/gui/lisp.inc "mbox" "view)"
 ```
 
 A temp mailbox is allocated, we send off the request to the GUI service, and

@@ -14,7 +14,7 @@
 
 ## VP methods
 
-### :composite -> gui/gui/composite
+### :composite -> service/gui/composite
 
 ```code
 inputs
@@ -30,7 +30,7 @@ info
 the dirty region bounds is returned for use by the :flush call !
 ```
 
-### :update -> gui/gui/update
+### :update -> service/gui/update
 
 ```code
 inputs
