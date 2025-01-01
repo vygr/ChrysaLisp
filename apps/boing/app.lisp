@@ -21,7 +21,7 @@
 
 (defun main ()
 	(defq select (alloc-select +select_size) id :t index 0 xv 4 yv 0
-		handle (audio-add-sfx-rpc "apps/boing/data/boing.wav"))
+		handle (audio-add-rpc "apps/boing/data/boing.wav"))
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(gui-add-front-rpc (. *window* :change x y w h))
 	(mail-timeout (elem-get select +select_timer) +rate 0)
@@ -57,7 +57,7 @@
 				(setq x (+ x xv) y (+ y yv) yv (inc yv))
 				(when (> y (- backdrop_height h))
 					(setq y (- backdrop_height h) yv -22)
-					(audio-play-sfx-rpc handle))
+					(audio-play-rpc handle))
 				(if (< x 0) (setq x 0 xv (abs xv)))
 				(if (> x (- backdrop_width w)) (setq x (- backdrop_width w) xv (neg (abs xv))))
 				(. frame :set_bounds x y w h)
@@ -67,6 +67,6 @@
 				(.-> *backdrop* (:add_back sframe) (:add_front frame))
 				(. sframe :dirty)
 				(. frame :dirty))))
-	(audio-remove-sfx-rpc handle)
+	(audio-remove-rpc handle)
 	(gui-sub-rpc *window*)
 	(free-select select))

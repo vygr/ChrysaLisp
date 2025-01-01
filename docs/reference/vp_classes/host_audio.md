@@ -2,29 +2,29 @@
 
 ## Lisp Bindings
 
-### (audio-add-sfx path)
+### (audio-add path)
 
-### (audio-change_sfx handle state)
+### (audio-change handle state)
 
 ### (audio-deinit)
 
 ### (audio-init)
 
-### (audio-play-sfx handle)
+### (audio-play handle)
 
-### (audio-remove-sfx handle)
+### (audio-remove handle)
 
 ## VP methods
 
-### :add_sfx -> :nil
+### :add -> :nil
 
-### :change_sfx -> :nil
+### :change -> :nil
 
 ### :deinit -> :nil
 
 ### :init -> :nil
 
-### :play_sfx -> :nil
+### :play -> :nil
 
-### :remove_sfx -> :nil
+### :remove -> :nil
 
