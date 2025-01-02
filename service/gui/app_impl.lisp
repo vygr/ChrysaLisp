@@ -87,8 +87,7 @@
 	(open-child "service/audio/app.lisp" +kn_call_open)
 	(mail-timeout (elem-get select +select_timer) +rate 0)
 	(while *running*
-		(let* ((idx (mail-select select))
-			  (msg (mail-read (elem-get select idx))))
+		(let* ((idx (mail-select select)) (msg (mail-read (elem-get select idx))))
 			(cond
 				((= idx +select_main)
 					;main mailbox

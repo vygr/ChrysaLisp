@@ -4,10 +4,8 @@
 	(defq clip_service (mail-declare (task-netid) "Clipboard" "Clipboard Service 0.2")
 		clipboard "")
 	(while :t
-		(let ((msg (mail-read (task-netid))))
-			(defq reply_id (getf msg +clip_rpc_reply_id)
-				type (getf msg +clip_rpc_type))
-			(case type
+		(let* ((msg (mail-read (task-netid))) (reply_id (getf msg +clip_rpc_reply_id)))
+			(case (getf msg +clip_rpc_type)
 				(+clip_type_put
 					;put string on clipboard
 					(setq clipboard (slice msg +clip_put_size -1))

@@ -11,8 +11,7 @@
 	((ffi _ "service/audio/lisp_init" 0))
 	; Main loop
 	(while :t
-		(let ((msg (mail-read (task-netid))))
-			(defq reply_id (getf msg +audio_rpc_reply_id))
+		(let* ((msg (mail-read (task-netid))) (reply_id (getf msg +audio_rpc_reply_id)))
 			(case (getf msg +audio_rpc_type)
 				(+audio_type_add
 					; Add sound effect
