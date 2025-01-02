@@ -12,9 +12,8 @@
 	; Main loop
 	(while :t
 		(let ((msg (mail-read (task-netid))))
-			(defq reply_id (getf msg +audio_rpc_reply_id)
-				  type (getf msg +audio_rpc_type))
-			(case type
+			(defq reply_id (getf msg +audio_rpc_reply_id))
+			(case (getf msg +audio_rpc_type)
 				(+audio_type_add
 					; Add sound effect
 					(audio-call add (slice msg +audio_add_size -1)))
