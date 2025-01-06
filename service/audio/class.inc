@@ -1,8 +1,8 @@
 (include "lib/asm/class.inc")
 
-;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;
 ; audio static class
-;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;
 
 (def-class host_audio :nil
 	(dec-method :init :nil :virtual (abi-args 0) (:r0))

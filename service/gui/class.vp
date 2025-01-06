@@ -1,15 +1,11 @@
 (include "lib/asm/func.inc")
-(include "sys/heap/class.inc")
-(include "sys/kernel/class.inc")
-(include "sys/pii/class.inc")
 (include "./class.inc")
-(include "class/sym/class.inc")
+(include "sys/statics/class.inc")
+(include "gui/view/class.inc")
 (include "class/list/class.inc")
 (include "gui/region/class.inc")
-(include "gui/view/class.inc")
-(include "sys/statics/class.inc")
 
-(def-method 'gui :update 16)
+(def-method 'host_gui :update 16)
 	;inputs
 	;:r0 = mouse x
 	;:r1 = mouse y
@@ -19,7 +15,7 @@
 		(ptr statics old_stack)
 		(struct rect host_gui_rect_size))
 
-	(entry 'gui :update '(:r0 :r1 :r2))
+	(entry 'host_gui :update '(:r0 :r1 :r2))
 
 	;kernel callback for update
 	(fn-bind 'sys/statics/statics :r3)
@@ -53,7 +49,7 @@
 	(vpif {statics->statics_gui_dirty_flag})
 		;render to the backbuffer
 		(host-gui-call 'host_gui :begin_composite)
-		(call 'gui :composite {statics->statics_gui_screen}
+		(call 'host_gui :composite {statics->statics_gui_screen}
 			{rect.host_gui_rect_x, rect.host_gui_rect_y, rect.host_gui_rect_w, rect.host_gui_rect_h})
 		(host-gui-call 'host_gui :end_composite)
 
@@ -69,7 +65,7 @@
 
 (def-func-end)
 
-(def-method 'gui :composite)
+(def-method 'host_gui :composite)
 	;inputs
 	;:r0 = root view object (ptr)
 	;outputs
@@ -93,7 +89,7 @@
 
 	;save inputs
 	(vp-alloc local_size)
-	(entry 'gui :composite `(,root))
+	(entry 'host_gui :composite `(,root))
 	(assign `(,root) '((:rsp local_root)))
 
 	;iterate through views back to front
@@ -135,7 +131,7 @@
 		`(,local_x ,local_y ,local_w ,local_h)
 		`(,x ,y ,x1 ,y1))
 
-	(exit 'gui :composite `(,x ,y ,x1 ,y1))
+	(exit 'host_gui :composite `(,x ,y ,x1 ,y1))
 	(vp-free local_size)
 	(vp-ret)
 

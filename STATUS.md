@@ -505,7 +505,7 @@ Separate stack scoped variables into its own module `lib/asm/scopes.inc`.
 Renamed the `vp-vec` op to `vp-simd` as this carries better info at the source
 level.
 
-Recoded the `'region` class methods and the `'gui :composite` method to clarify
+Recoded the `'region` class methods and the `'host_gui :composite` method to clarify
 what happens and use `vp-simd`.
 
 Added strength reduction optimization to the `emit-mul-cr` operation.

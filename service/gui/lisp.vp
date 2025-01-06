@@ -1,15 +1,13 @@
 (include "lib/asm/func.inc")
-(include "sys/load/class.inc")
 (include "./class.inc")
-(include "gui/region/class.inc")
-(include "gui/view/class.inc")
+(include "class/lisp/class.inc")
 (include "class/num/class.inc")
 (include "class/str/class.inc")
-(include "class/lisp/class.inc")
 (include "sys/statics/class.inc")
-(include "sys/pii/class.inc")
+(include "gui/view/class.inc")
+(include "gui/region/class.inc")
 
-(def-method 'gui :lisp_init)
+(def-method 'host_gui :lisp_init)
 	;inputs
 	;:r0 = lisp object (ptr)
 	;:r1 = args list object (ptr)
@@ -19,7 +17,7 @@
 	;trashes
 	;:r1-:r14
 
-	(entry 'gui :lisp_init '(:r0 :r1))
+	(entry 'host_gui :lisp_init '(:r0 :r1))
 
 	(errorif-lisp-args-sig 'error :r1 1)
 
@@ -46,7 +44,7 @@
 	(vp-pop :r0 :r1)
 	(class/obj/ref :r1 :r2)
 
-	(exit 'gui :lisp_init '(:r0 :r1))
+	(exit 'host_gui :lisp_init '(:r0 :r1))
 	(vp-ret)
 
 (errorcase
@@ -56,7 +54,7 @@
 
 (def-func-end)
 
-(def-method 'gui :lisp_deinit 16)
+(def-method 'host_gui :lisp_deinit 16)
 	;inputs
 	;:r0 = lisp object (ptr)
 	;:r1 = args list object (ptr)
@@ -70,7 +68,7 @@
 		(ptr this old_stack))
 
 	(vp-alloc local_size)
-	(entry 'gui :lisp_deinit '(:r0 :r1))
+	(entry 'host_gui :lisp_deinit '(:r0 :r1))
 
 	(errorif-lisp-args-len 'error :r1 /= 0)
 
@@ -88,7 +86,7 @@
 	;pii exit ! for now
 	(call 'sys_pii :exit '(0))
 
-	(exit 'gui :lisp_deinit '(:r0 :r1))
+	(exit 'host_gui :lisp_deinit '(:r0 :r1))
 	(vp-free local_size)
 	(vp-ret)
 
@@ -130,7 +128,7 @@
 
 (def-func-end)
 
-(def-method 'gui :lisp_update)
+(def-method 'host_gui :lisp_update)
 	;inputs
 	;:r0 = lisp object (ptr)
 	;:r1 = args list object (ptr)
@@ -140,18 +138,18 @@
 	;trashes
 	;:r1-:r14
 
-	(entry 'gui :lisp_update '(:r0 :r1))
+	(entry 'host_gui :lisp_update '(:r0 :r1))
 
 	(errorif-lisp-args-sig 'error :r1 3)
 
 	(list-bind-args :r1 '(:r3 :r1 :r2) '(:num :num :num))
 	(vp-push :r0)
-	(call 'gui :update '(:r3 :r1 :r2))
+	(call 'host_gui :update '(:r3 :r1 :r2))
 	(vp-pop :r0)
 	(assign '((:r0 lisp_sym_nil)) '(:r1))
 	(class/obj/ref :r1 :r2)
 
-	(exit 'gui :lisp_update '(:r0 :r1))
+	(exit 'host_gui :lisp_update '(:r0 :r1))
 	(vp-ret)
 
 (errorcase
@@ -161,7 +159,7 @@
 
 (def-func-end)
 
-(def-method 'gui :lisp_event 16)
+(def-method 'host_gui :lisp_event 16)
 	;inputs
 	;:r0 = lisp object (ptr)
 	;:r1 = args list object (ptr)
@@ -175,7 +173,7 @@
 		(ptr this event old_stack))
 
 	(vp-alloc local_size)
-	(entry 'gui :lisp_event '(:r0 :r1))
+	(entry 'host_gui :lisp_event '(:r0 :r1))
 
 	(errorif-lisp-args-len 'error :r1 /= 0)
 
@@ -184,7 +182,7 @@
 	(call 'sys_task :callback '(:rsp ($ event_callback)))
 	(assign '((:rsp local_this) (:rsp local_event)) '(:r0 :r1))
 
-	(exit 'gui :lisp_event '(:r0 :r1))
+	(exit 'host_gui :lisp_event '(:r0 :r1))
 	(vp-free local_size)
 	(vp-ret)
 
@@ -221,7 +219,7 @@
 
 (def-func-end)
 
-(def-method 'gui :lisp_info)
+(def-method 'host_gui :lisp_info)
 	;inputs
 	;:r0 = lisp object (ptr)
 	;:r1 = args list object (ptr)
@@ -231,7 +229,7 @@
 	;trashes
 	;:r1-:r14
 
-	(entry 'gui :lisp_info '(:r0 :r1))
+	(entry 'host_gui :lisp_info '(:r0 :r1))
 
 	(errorif-lisp-args-len 'error :r1 /= 0)
 
@@ -261,7 +259,7 @@
 	(endif)
 	(vp-pop :r0)
 
-	(exit 'gui :lisp_info '(:r0 :r1))
+	(exit 'host_gui :lisp_info '(:r0 :r1))
 	(vp-ret)
 
 (errorcase
