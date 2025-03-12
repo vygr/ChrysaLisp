@@ -36,7 +36,7 @@
 
 	(def-struct local 0
 		(ptr this)
-		(plong iter_begin iter_end))
+		(pptr iter_begin iter_end))
 
 	(vp-def (this iter_begin iter_end))
 
