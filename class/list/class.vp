@@ -55,8 +55,8 @@
 		(loop-until `(,iter_begin = ,iter_end))
 		(assign '((:rsp local_this)) `(,this))
 		(vp-free local_size)
+		(s-call 'list :clear `(,this) `(,this))
 	(endif)
-	(s-call 'list :clear `(,this) `(,this))
 
 	(exit 'list :clear `(,this))
 	(vp-ret)
