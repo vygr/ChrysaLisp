@@ -48,6 +48,7 @@
 		(vp-alloc local_size)
 		(assign `(,this) '((:rsp local_this)))
 		(loop-start)
+			;must preserve what we care about as :deref can trash all !
 			(assign `(,iter_begin ,iter_end) '((:rsp local_iter_begin) (:rsp local_iter_end)))
 			(call 'obj :deref `((,iter_begin 0)))
 			(assign '((:rsp local_iter_begin) (:rsp local_iter_end)) `(,iter_begin ,iter_end))
@@ -55,6 +56,7 @@
 		(loop-until `(,iter_begin = ,iter_end))
 		(assign '((:rsp local_this)) `(,this))
 		(vp-free local_size)
+		;only need to do this is we actually had a none emtpy list !
 		(s-call 'list :clear `(,this) `(,this))
 	(endif)
 
