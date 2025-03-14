@@ -46,10 +46,10 @@
 	(class/array/get_both this iter_begin iter_end)
 	(vpif `(,iter_begin /= ,iter_end))
 		(vp-alloc local_size)
-		(assign `(,this) '((:rsp local_this)))
+		(assign `(,this ,iter_end) '((:rsp local_this) (:rsp local_iter_end)))
 		(loop-start)
 			;must preserve what we care about as :deref can trash all !
-			(assign `(,iter_begin ,iter_end) '((:rsp local_iter_begin) (:rsp local_iter_end)))
+			(assign `(,iter_begin) '((:rsp local_iter_begin)))
 			(call 'obj :deref `((,iter_begin 0)))
 			(assign '((:rsp local_iter_begin) (:rsp local_iter_end)) `(,iter_begin ,iter_end))
 			(vp-add-cr +ptr_size iter_begin)
