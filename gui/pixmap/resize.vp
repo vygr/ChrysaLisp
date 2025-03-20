@@ -278,13 +278,13 @@
 			(vp-simd vp-mul-rr `(,q) `(,sga ,srb ,ga ,rb))
 			(vp-simd vp-shr-cr '(32) `(,sga ,srb ,ga ,rb))
 			(vp-simd vp-shl-cr '(8 16 24) `(,ga ,srb ,sga))
-			(vp-simd vp-add-rr `(,ga ,srb ,sga) `(,rb))
+			(vp-add-rr ga rb) (vp-add-rr srb rb) (vp-add-rr sga rb)
 			(vp-cpy-ri-i rb data 0)
 
 			(vp-add-cr +int_size data)
 			(vp-add-cr (* 3 +int_size) sdata)
 		(loop-end)
-		(vp-simd vp-add-rr `(,sw) `(,sdata ,sdata))
+		(vp-add-rr sw sdata) (vp-add-rr sw sdata)
 	(loop-end)
 
 	(exit 'pixmap :resize_3 (list this))

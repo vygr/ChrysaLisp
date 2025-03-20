@@ -276,7 +276,7 @@
 			(vp-simd vp-mul-rr '(:r6) '(:r2 :r3))
 			(vp-simd vp-shr-cr '(8) '(:r2 :r3))
 			(vp-simd vp-and-rr '(:r4 :r5) '(:r2 :r3))
-			(vp-simd vp-add-rr '(:r3 :r1) '(:r2))
+			(vp-add-rr :r3 :r2) (vp-add-rr :r1 :r2)
 
 			(vp-cpy-ri-i :r2 :r7 0)
 			(vp-add-cr +int_size :r7)
@@ -396,7 +396,7 @@
 		(vp-simd vp-mul-rr '(:r6) '(:r2 :r3))
 		(vp-simd vp-shr-cr '(8) '(:r2 :r3))
 		(vp-simd vp-and-rr '(:r4 :r5) '(:r2 :r3))
-		(vp-simd vp-add-rr '(:r3 :r1) '(:r2))
+		(vp-add-rr :r3 :r2) (vp-add-rr :r1 :r2)
 
 		(vp-cpy-ri-i :r2 :r7 0)
 	(endswitch)
