@@ -179,12 +179,12 @@
 
 	(entry 'pixmap :to_premul `(,col))
 
-	(vp-simd vp-cpy-rr `(,col ,col) `(,rb ,g))
+	(vp-simd vp-cpy-rr `(,col) `(,rb ,g))
 	(vp-shr-cr 24 col)
 	(vp-simd vp-and-cr '(0xff00ff 0xff00) `(,rb ,g))
-	(vp-simd vp-mul-rr `(,col ,col) `(,rb ,g))
+	(vp-simd vp-mul-rr `(,col) `(,rb ,g))
 	(vp-shl-cr 24 col)
-	(vp-simd vp-shr-cr '(8 8) `(,rb ,g))
+	(vp-simd vp-shr-cr '(8) `(,rb ,g))
 	(vp-simd vp-and-cr '(0xff00ff 0xff00) `(,rb ,g))
 	(vp-add-rr rb col)
 	(vp-add-rr g col)
@@ -213,12 +213,12 @@
 		(vp-xor-rr g g)
 		(vp-cpy-cr 0xff00 c)
 		(vp-div-rrr-u rb g c)
-		(vp-simd vp-cpy-rr `(,col ,col) `(,rb ,g))
+		(vp-simd vp-cpy-rr `(,col) `(,rb ,g))
 		(vp-simd vp-and-cr '(0xff00ff 0xff00) `(,rb ,g))
-		(vp-simd vp-mul-rr `(,c ,c) `(,rb ,g))
+		(vp-simd vp-mul-rr `(,c) `(,rb ,g))
 		(vp-shr-cr 24 col)
 		(vp-shl-cr 24 col)
-		(vp-simd vp-shr-cr '(8 8) `(,rb ,g))
+		(vp-simd vp-shr-cr '(8) `(,rb ,g))
 		(vp-simd vp-and-cr '(0xff00ff 0xff00) `(,rb ,g))
 		(vp-add-rr rb col)
 		(vp-add-rr g col)
@@ -445,7 +445,7 @@
 	(defun from-argb32 (am rm gm bm)
 		(cond
 			((= 0 am)
-				(vp-simd vp-cpy-rr `(,col ,col) `(,g ,b))
+				(vp-simd vp-cpy-rr `(,col) `(,g ,b))
 				(vp-simd vp-shr-cr
 					`(,(- (nlz rm) 40) ,(- (nlz gm) 48) ,(- (nlz bm) 56))
 					`(,col ,g ,b))
@@ -453,7 +453,7 @@
 				(vp-add-rr g col)
 				(vp-add-rr b col))
 			(:t
-				(vp-simd vp-cpy-rr `(,col ,col ,col) `(,r ,g ,b))
+				(vp-simd vp-cpy-rr `(,col) `(,r ,g ,b))
 				(vp-simd vp-shr-cr
 					`(,(- (nlz am) 32) ,(- (nlz rm) 40) ,(- (nlz gm) 48) ,(- (nlz bm) 56))
 					`(,col ,r ,g ,b))

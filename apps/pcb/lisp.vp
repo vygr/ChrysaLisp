@@ -94,12 +94,12 @@
 	;bump record ref count for pushes and return
 	(vp-simd vp-cpy-rr `(,maxx ,maxy) '(:r13 :r14))
 	(vp-simd vp-sub-rr `(,minx ,miny) '(:r13 :r14))
-	(vp-simd vp-add-cr '(1 1) '(:r13 :r14))
+	(vp-simd vp-add-cr '(1) '(:r13 :r14))
 	(vp-mul-rr :r13 :r14)
 	(vp-add-cr 1 :r14)
 	(class/obj/ref record :r13 :r14)
 
-	(vp-simd vp-mul-rr `(,width ,width) `(,miny ,maxy))
+	(vp-simd vp-mul-rr `(,width) `(,miny ,maxy))
 	(loop-start)
 		(vp-simd vp-cpy-rr `(,minx ,maxx) `(,buckets_iter ,buckets_iter_end))
 		(vp-simd vp-add-rr `(,miny ,miny) `(,buckets_iter ,buckets_iter_end))

@@ -36,9 +36,9 @@
 	;fill edges, find min and max xy, clip edges not visible or redundant
 	(assign '((:r0 canvas_cy) (:r0 canvas_cy1)) (list cy cy1))
 	(vp-xor-rr :r0 :r0)
-	(vp-simd vp-add-cr '(0.5 0.5) '(:r2 :r3))
+	(vp-simd vp-add-cr '(0.5) '(:r2 :r3))
 	(vp-simd vp-cpy-cr `(,+max_int ,+min_int) `(,xs ,xe))
-	(vp-simd vp-mul-rr '(:r4 :r4) `(,cy ,cy1))
+	(vp-simd vp-mul-rr '(:r4) `(,cy ,cy1))
 	(assign '(:r0 :r2 :r3) '((:rsp local_length) (:rsp local_x) (:rsp local_y)))
 	(assign (list xs xe) (list ys ye))
 

@@ -20,7 +20,7 @@
 
 	(assign '(:r1 :r1 :r1 :r1) `(,a ,r ,g ,b))
 	(vp-simd vp-shr-cr '(24 16 8) `(,a ,r ,g))
-	(vp-simd vp-and-cr '(0xff 0xff 0xff 0xff) `(,a ,r ,g ,b))
+	(vp-simd vp-and-cr '(0xff) `(,a ,r ,g ,b))
 	(host-gui-call 'host_gui :set_color `(,r ,g ,b ,a))
 	(vp-ret)
 
@@ -86,9 +86,9 @@
 		(:rsp (+ local_srect host_gui_rect_w) i) (:rsp (+ local_srect host_gui_rect_h) i)))
 
 	;set the color mod
-	(vp-simd vp-cpy-rr '(:r2 :r2) '(:r3 :r4))
+	(vp-simd vp-cpy-rr '(:r2) '(:r3 :r4))
 	(vp-simd vp-shr-cr '(16 8) '(:r3 :r2))
-	(vp-simd vp-and-cr '(0xff 0xff 0xff) '(:r3 :r2 :r4))
+	(vp-simd vp-and-cr '(0xff) '(:r3 :r2 :r4))
 	(host-gui-call 'host_gui :set_texture_color '((:rsp local_texture) :r3 :r2 :r4))
 
 	(for-each-visible-rect

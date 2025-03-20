@@ -139,6 +139,6 @@
 (defun vp-max-rr (a b) (vpif (list a '> b)) (vp-cpy-rr a b) (endif))
 (defun vp-abs-rr (a b) (vp-cpy-rr a b) (vpif (list a '< 0)) (vp-mul-cr -1 b) (endif))
 (defun vp-simd (op &rest v)
-	(unless (every (# (= (length %0) (length (first v)))) v)
-		(throw "Mismatched vectors !" v))
+	(defq max_len (max-length v))
+	(each (# (while (< (length %0) max_len) (push %0 (last %0)))) v)
 	(each! op v))
