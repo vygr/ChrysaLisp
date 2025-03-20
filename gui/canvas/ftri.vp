@@ -34,8 +34,7 @@
 	(vp-simd vp-max-rr `(,x1 ,y1) `(,bx1 ,by1))
 	(vp-simd vp-min-rr `(,x2 ,y2) `(,bx ,by))
 	(vp-simd vp-max-rr `(,x2 ,y2) `(,bx1 ,by1))
-	(vp-simd vp-shl-cr '(+fp_shift) `(,cx ,cy))
-	(vp-simd vp-shl-cr '(+fp_shift) `(,cx1 ,cy1))
+	(vp-simd vp-shl-cr '(+fp_shift) `(,cx ,cy ,cx1 ,cy1))
 
 	(vpif (list bx1 '> cx) (list by1 '> cy) (list bx '< cx1) (list by '< cy1))
 		(vp-simd vp-and-cr '((<< -1 +fp_shift)) `(,by ,by1))
