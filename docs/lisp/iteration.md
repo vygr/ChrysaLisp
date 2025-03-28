@@ -91,8 +91,8 @@ Splice sequences together by using `(cat seq ...)`:
 (apply cat (list "a" "b" "c"))
 ```
 
-Search for an element with `(find elem seq)` and `(rfind elem seq)`, they
-return `:nil` if the element is not found.
+Search for an element with `(find elem seq [idx])` and `(rfind elem seq
+[idx])`, they return `:nil` if the element is not found.
 
 ```lisp
 (find "a" "def")
