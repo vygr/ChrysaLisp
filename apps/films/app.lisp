@@ -22,7 +22,7 @@
 	(defq file (elem-get films (setq index _)))
 	(bind '(w h) (. (setq canvas (canvas-load file +load_flag_film)) :pref_size))
 	(def *image_scroll* :min_width w :min_height h)
-	(def *window_title* :text (cat "Films -> " (slice file (inc (find-rev "/" file)) -1)))
+	(def *window_title* :text (cat "Films -> " (slice file (inc (rfind "/" file)) -1)))
 	(. *image_scroll* :add_child canvas)
 	(. *window_title* :layout)
 	(bind '(x y w h) (apply view-fit (cat (. *window* :get_pos) (. *window* :pref_size))))

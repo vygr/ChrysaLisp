@@ -219,12 +219,12 @@
 (defun emit-push (&rest b)
 	(when (/= 0 (length b))
 		(emit-alloc (* +ptr_size (length b)))
-		(each-rev (lambda (r)
+		(reach (lambda (r)
 			(emit-cpy-ri r (const (emit-native-reg? :rsp)) (* (- (length b) 1 (!)) +ptr_size))) b)))
 
 (defun emit-pop (&rest b)
 	(when (/= 0 (length b))
-		(each-rev (lambda (r)
+		(reach (lambda (r)
 			(emit-cpy-ir (const (emit-native-reg? :rsp)) (* (- (length b) 1 (!)) +ptr_size) r)) b))
 		(emit-free (* +ptr_size (length b))))
 

@@ -137,7 +137,7 @@
 					(*picker_mode*
 						(tree-save
 							(file-stream
-								(cat (slice *msg* 0 (if (defq i (find-rev "." *msg*)) i -1)) ".cwb")
+								(cat (slice *msg* 0 (if (defq i (rfind "." *msg*)) i -1)) ".cwb")
 								+file_open_write)
 							(scatter (Emap)
 								:version "CWB Version 2.0"

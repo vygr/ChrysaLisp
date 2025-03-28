@@ -44,9 +44,9 @@
 (defun make-docs ()
 	(defq *abi* (abi) *cpu* (cpu))
 	(defun chop (_)
-		(when (defq e (find-rev (char 0x22) _))
+		(when (defq e (rfind (char 0x22) _))
 			(setq _ (slice _ 0 e))
-			(slice _ (inc (find-rev (char 0x22) _)) -1)))
+			(slice _ (inc (rfind (char 0x22) _)) -1)))
 	(print "Scanning source files...")
 
 	;scan for VP classes info
@@ -239,9 +239,9 @@
 	(when (and
 			(defq stdio (create-stdio))
 			(defq args (options stdio usage)))
-		(defq all (find-rev "all" args) boot (find-rev "boot" args)
-			platforms (find-rev "platforms" args) docs (find-rev "docs" args)
-			it (find-rev "it" args) test (find-rev "test" args))
+		(defq all (rfind "all" args) boot (rfind "boot" args)
+			platforms (rfind "platforms" args) docs (rfind "docs" args)
+			it (rfind "it" args) test (rfind "test" args))
 		(cond
 			(test (make-test))
 			(it (make-docs) (remake-all-platforms))

@@ -91,7 +91,7 @@ Splice sequences together by using `(cat seq ...)`:
 (apply cat (list "a" "b" "c"))
 ```
 
-Search for an element with `(find elem seq)` and `(find-rev elem seq)`, they
+Search for an element with `(find elem seq)` and `(rfind elem seq)`, they
 return `:nil` if the element is not found.
 
 ```lisp
@@ -111,7 +111,7 @@ return `:nil` if the element is not found.
 ```
 
 ```lisp
-(find-rev 'd (list 'd 't 'y 'a 'j 'k 'd))
+(rfind 'd (list 'd 't 'y 'a 'j 'k 'd))
 ```
 
 ## Implicit indexing and slicing
@@ -131,7 +131,7 @@ More detail is provided on these and function binding options in the
 You can iterate over sequences or slices of sequences, forwards or backwards by
 use of the `(each! lambda seqs [start end])` function. You provide a function
 that will be called for the group of elements from each index position.
-`(each)` and `(each-rev)` are macros that assume the index values cover the
+`(each)` and `(reach)` are macros that assume the index values cover the
 full extent of the sequence and take the sequence list as arguments rather than
 an explicit list.
 
@@ -225,7 +225,7 @@ The function being called can access the current index value by use of the
 You can iterate over sequences or slices of sequences, forwards or backwards,
 while collecting the results of a function that will be called with the grouped
 elements from each index position, by use of the `(map! lambda seqs [list start
-end])` function. `(map)` and `(map-rev)` are macros that assume the index
+end])` function. `(map)` and `(rmap)` are macros that assume the index
 values cover the full extent of the sequences and take those sequences as
 arguments rather than an explicit list.
 
@@ -233,7 +233,7 @@ Reduction, with `(reduce! lambda seqs init [start end])`, transforms sequences
 or slices of sequences by providing an accumulated item along with each grouped
 elements to the function you provide. The output of that function becomes the
 item for the next iteration and is the returned result. `(reduce)` and
-`(reduce-rev)` are macros that assume the index values cover the full extent of
+`(rreduce)` are macros that assume the index values cover the full extent of
 a sequence and take that sequence as an argument, they allow an optional
 initial item.
 
@@ -245,7 +245,7 @@ The function being called can access the current index value by use of the
 ```
 
 ```lisp
-(map-rev + '(1 2 3) '(6 7 8) '(1 7 6))
+(rmap + '(1 2 3) '(6 7 8) '(1 7 6))
 ```
 
 ```lisp
@@ -261,7 +261,7 @@ The function being called can access the current index value by use of the
 ```
 
 ```lisp
-(reduce-rev push "ABCD" (list))
+(rreduce push "ABCD" (list))
 ```
 
 ## Arrays

@@ -22,7 +22,7 @@
 
 (defun work (file)
 	(when (and file
-			(defq i (find-rev "." file))
+			(defq i (rfind "." file))
 			(defq x (slice file i -1))
 			(some (# (eql x %0)) '(".cpm" ".tga" ".svg")))
 		(defq out_file (cat (slice file 0 i) ".cpm")

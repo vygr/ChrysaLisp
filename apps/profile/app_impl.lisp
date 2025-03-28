@@ -85,7 +85,7 @@
 				(defq tcb (getf *msg* +profile_msg_tcb)
 					data (slice *msg* +profile_msg_data -1)
 					key (sym (str tcb))
-					index (find-rev key buf_keys))
+					index (rfind key buf_keys))
 				(unless index
 					(push buf_keys key)
 					(push buf_list (list (Buffer :t syntax)))

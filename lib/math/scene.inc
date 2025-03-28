@@ -236,7 +236,7 @@
 				:nil)
 			(lambda (object children)
 				(pop matrix_stack)))
-		(each-rev (lambda (path_list)
+		(reach (lambda (path_list)
 				(while (defq p (pop path_list))
 					(bind '(p col &optional sx sy) p)
 					(. canvas :set_color col)

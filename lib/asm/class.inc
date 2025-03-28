@@ -16,7 +16,7 @@
 (defun method-lookup (_1 _2)
 	;_1 = class name
 	;_2 = member name
-	(defq c (eval (class-sym _1)) _ (find-rev _2 (first c)))
+	(defq c (eval (class-sym _1)) _ (rfind _2 (first c)))
 	(unless _ (throw "No such method !" (list _1 _2)))
 	(elem-get (second c) _))
 
@@ -100,7 +100,7 @@
 	(each (lambda ((_ mname mfunc &optional mtype regs_in regs_out))
 		(setd mtype :static)
 		(and regs_in (lmatch? regs_in '(abi-args _)) (setq regs_in (eval regs_in)))
-		(defq m (if (defq s (find-rev mname (first vtable))) (elem-get (second vtable) s)))
+		(defq m (if (defq s (rfind mname (first vtable))) (elem-get (second vtable) s)))
 		(if m
 			(case mtype
 				;existing method
@@ -161,7 +161,7 @@
 					(fn-call (first m)))
 				;v-call
 				(:t (defq _ (third m))
-					(if (find-rev :r14 _)
+					(if (rfind :r14 _)
 						(throw "Dispatch register conflicts with arg !" (list :r14 _)))
 					(assign _3 _)
 					(vp-cpy-ir :r0 obj_vtable :r14)
@@ -188,7 +188,7 @@
 			(scope-unwind)
 			(fn-jump (first m)))
 		(:t (defq _ (third m))
-			(if (find-rev :r14 _)
+			(if (rfind :r14 _)
 				(throw "Dispatch register conflicts with arg !" (list :r14 _)))
 			(assign _3 _)
 			(vp-cpy-ir :r0 obj_vtable :r14)
@@ -291,7 +291,7 @@
 	(setd _5 :r0 _6 :r14)
 	(if (eql (second (defq m (method-lookup _1 _2))) :static)
 		(throw "Method is static ! Use f-call ?" (list _1 _2)))
-	(if (find-rev _6 (defq _ (third m)))
+	(if (rfind _6 (defq _ (third m)))
 		(throw "Dispatch register conflicts with arg !" (list _6 _)))
 	(assign _3 _)
 	(vp-cpy-ir _5 obj_vtable _6)
@@ -306,7 +306,7 @@
 	(setd _4 :r14)
 	(if (eql (second (defq m (method-lookup _1 _2))) :static)
 		(throw "Method is static ! Use f-jmp ?" (list _1 _2)))
-	(if (find-rev _4 (defq _ (third m)))
+	(if (rfind _4 (defq _ (third m)))
 		(throw "Dispatch register conflicts with arg !" (list _4 _)))
 	(assign _3 _)
 	(vp-cpy-ir :r0 obj_vtable _4)
@@ -361,7 +361,7 @@
 	;_5 = dispatch reg
 	(setd _5 :r14)
 	(defq m (method-lookup _1 _2) _ (third m))
-	(if (find-rev _5 _)
+	(if (rfind _5 _)
 		(throw "Dispatch register conflicts with arg !" (list _5 _)))
 	(assign _3 (cat _ (list _5)))
 	(vp-call-r _5)
@@ -374,7 +374,7 @@
 	;_4 = dispatch reg
 	(setd _4 :r14)
 	(defq m (method-lookup _1 _2) _ (third m))
-	(if (find-rev _4 _)
+	(if (rfind _4 _)
 		(throw "Dispatch register conflicts with arg !" (list _4 _)))
 	(assign _3 (cat _ (list _4)))
 	(scope-unwind)

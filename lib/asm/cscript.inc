@@ -72,7 +72,7 @@
 					(bskip +folow_on_op_chars line (inc i)) i j)))
 				(cond
 					(unary
-						(if (setq j (find-rev (first c) "-*&~!"))
+						(if (setq j (rfind (first c) "-*&~!"))
 							(push out_tokens (elem-get "_#:~!" j))
 							(throw "Unknown unary operator !" (first c))))
 					(:t (push out_tokens c)
@@ -168,7 +168,7 @@
 	(setq w (elem-get
 		'(vp-cpy-ir-b vp-cpy-ir-ub vp-cpy-ir-s vp-cpy-ir-us
 		vp-cpy-ir-i vp-cpy-ir-ui vp-cpy-ir vp-cpy-ir vp-cpy-ir)
-		(find-rev w "bBsSiIlLp")))
+		(rfind w "bBsSiIlLp")))
 	(add-inst (list w x 0 x)))
 
 (defun compile-deref? ()
@@ -198,7 +198,7 @@
 	(setq w (elem-get
 		'(vp-cpy-ri-b vp-cpy-ri-b vp-cpy-ri-s vp-cpy-ri-s
 		vp-cpy-ri-i vp-cpy-ri-i vp-cpy-ri vp-cpy-ri vp-cpy-ri)
-		 (find-rev w "bBsSiIlLp")))
+		 (rfind w "bBsSiIlLp")))
 	(add-inst (list w x y 0)))
 
 (defun compile-ref (_)
@@ -222,7 +222,7 @@
 		(:t (throw "Symbol not a variable !" _))))
 
 (defun compile-cast (_)
-	(if (defq c (find-rev (sym _) '(pptr byte ubyte short ushort int uint long ulong ptr)))
+	(if (defq c (rfind (sym _) '(pptr byte ubyte short ushort int uint long ulong ptr)))
 		(set-type (elem-get '("pp" "b" "B" "s" "S" "i" "I" "l" "L" "p") c))
 		(throw "Unknown type cast" _)))
 
@@ -313,7 +313,7 @@
 (defun compile-cmp (_)
 	(add-inst (list (elem-get
 		'(vp-seq-rr vp-sne-rr vp-sle-rr vp-sge-rr vp-sgt-rr vp-slt-rr)
-			(find-rev _ '(= /= <= >= > <)))
+			(rfind _ '(= /= <= >= > <)))
 		(pop-value) (top-value))))
 
 (defun compile-and (_)

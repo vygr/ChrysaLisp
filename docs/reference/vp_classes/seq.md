@@ -28,7 +28,7 @@
 
 ### (rest seq)
 
-### (find-rev elem seq [idx])
+### (rfind elem seq [idx])
 
 ### (second seq)
 

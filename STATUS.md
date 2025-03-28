@@ -13,6 +13,8 @@ Moved GUI service to new `service/` folder.
 
 `(vp-simd)` now does vector padding, rather than raise an error !
 
+Rename all `(xxx-rev)` functions to `(rxxx)`.
+
 ------
 
 `(write-char)` and `(write)` now return the number of bytes written to the

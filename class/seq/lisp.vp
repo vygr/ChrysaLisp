@@ -294,12 +294,12 @@
 (errorcase
 (vp-label 'error2)
 	(vp-pop :r0)
-	(jump 'lisp :repl_error `(:r0 "(find-rev elem seq [idx])" +error_msg_not_valid_index ,args))
+	(jump 'lisp :repl_error `(:r0 "(rfind elem seq [idx])" +error_msg_not_valid_index ,args))
 (vp-label 'error1)
 	(vp-pop :r0)
 	(vp-cpy-rr args :r1)
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(find-rev elem seq [idx])" +error_msg_wrong_types :r1))
+	(jump 'lisp :repl_error '(:r0 "(rfind elem seq [idx])" +error_msg_wrong_types :r1))
 	(signature '(obj seq num)))
 
 (def-func-end)

@@ -8,7 +8,7 @@
 (defmacro assign-type-sym (_) `(sym (str ,_ "_t")))
 
 (defun assign-type-t (_)
-	(if (setq _ (find-rev (first _) "bBsSiI"))
+	(if (setq _ (rfind (first _) "bBsSiI"))
 		(elem-get '(b ub s us i ui) _) ""))
 
 (defun assign-src-type (o)
@@ -73,8 +73,8 @@
 		(if (setq j (unless (list? (defq j (elem-get d i)))
 				(some! (lambda (s d)
 					(cond
-						((and (list? s) (find-rev j s)) (!))
-						((and (list? d) (find-rev j d)) (!))
+						((and (list? s) (rfind j s)) (!))
+						((and (list? d) (rfind j d)) (!))
 						((eql j s) (!)))) (list s d) :nil -1 (inc i))))
 			(setq s (rotate s i j (inc j)) d (rotate d i j (inc j)) c (dec c))
 			(setq i (inc i))))
@@ -174,7 +174,7 @@
 	(when (/= 0 (length dst))
 		(reset-reg-stack 0)
 		(each cscript src)
-		(each-rev (# (cscript %0) (compile-arrow)) dst)
+		(reach (# (cscript %0) (compile-arrow)) dst)
 		(when *debug_inst*
 			(print "pre opt:")
 			(each (const print-inst) *inst*))

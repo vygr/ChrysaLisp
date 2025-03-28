@@ -81,7 +81,7 @@
 			(emitm-byte (+ 0x50 r)))) b))
 
 (defun emit-pop (&rest b)
-	(each-rev (lambda (r)
+	(reach (lambda (r)
 		(if (>= r 8)
 			(emitm-byte 0x41 (+ 0x50 r))
 			(emitm-byte (+ 0x58 r)))) b))

@@ -10,7 +10,7 @@
 		(unzip (split (pii-dirlist url) ",") 2) (list)))
 
 (defun url-split (url ctx)
-	(if (defq i (find-rev "/" url))
+	(if (defq i (rfind "/" url))
 		(list (cat "./" (slice url 0 (inc i))) (slice url (inc i) -1))
 		(list (if (= ctx 0) "./cmd/" "./") url)))
 
@@ -32,7 +32,7 @@
 
 (defun url-ext (url cx &optional ctx)
 	(setd ctx (url-ctx url cx))
-	(defq url (slice url (if (defq i (find-rev " " (slice url 0 cx))) (inc i) 0) cx))
+	(defq url (slice url (if (defq i (rfind " " (slice url 0 cx))) (inc i) 0) cx))
 	(bind '(url file) (url-split url ctx))
 	(defq urls (map (# (if (= ctx 0) (cat (slice %0 (length file) -7) " ") (slice %0 (length file) -1)))
 		(filter-array (# (and (starts-with file %0) (if (= ctx 0) (ends-with ".lisp " %0) :t)))

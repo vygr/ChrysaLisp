@@ -83,8 +83,8 @@
 ; (most seq) -> empty | seq
 (ffi find "class/seq/lisp_find" 0)
 ; (find elem seq [idx]) -> :nil | idx
-(ffi find-rev "class/seq/lisp_rfind" 0)
-; (find-rev elem seq [idx]) -> :nil | idx
+(ffi rfind "class/seq/lisp_rfind" 0)
+; (rfind elem seq [idx]) -> :nil | idx
 (ffi slice "class/seq/lisp_slice" 0)
 ; (slice seq start end) -> seq
 (ffi partition "class/seq/lisp_partition" 0)
@@ -376,7 +376,7 @@
 
 (defun list? (_)
 	; (list? form) -> :t | :nil
-	(find-rev :list (type-of _)))
+	(rfind :list (type-of _)))
 
 (defun num? (_)
 	; (num? form) -> :t | :nil
@@ -412,7 +412,7 @@
 
 (defun sym? (_)
 	; (sym? form) -> :t | :nil
-	(find-rev :sym (type-of _)))
+	(rfind :sym (type-of _)))
 
 (defun env? (_)
 	; (env? form) -> :t | :nil
@@ -556,16 +556,16 @@
 	; (each lambda seq ...)
 	`(each! ,f (list ~_)))
 
-(defmacro each-rev (f &rest _)
-	; (each-rev lambda seq ...)
+(defmacro reach (f &rest _)
+	; (reach lambda seq ...)
 	`(each! ,f (list ~_) -1 0))
 
 (defmacro map (f &rest _)
 	; (map lambda seq ...) -> list
 	`(map! ,f (list ~_)))
 
-(defmacro map-rev (f &rest _)
-	; (map-rev lambda seq ...) -> list
+(defmacro rmap (f &rest _)
+	; (rmap lambda seq ...) -> list
 	`(map! ,f (list ~_) (list) -1 0))
 
 (defmacro reduce (f s &optional i)
@@ -574,8 +574,8 @@
 		`(reduce! ,f (list ,s) ,i)
 		`(reduce! ,f (list (defq ,(defq i (gensym)) ,s)) (first ,i) 1)))
 
-(defmacro reduce-rev (f s &optional i)
-	; (reduce-rev lambda seq [init]) -> form
+(defmacro rreduce (f s &optional i)
+	; (rreduce lambda seq [init]) -> form
 	(if i
 		`(reduce! ,f (list ,s) ,i -1 0)
 		`(reduce! ,f (list (defq ,(defq i (gensym)) ,s)) (last ,i) -2 0)))
@@ -604,8 +604,8 @@
 	; (some lambda seq ...) -> :nil | form
 	`(some! ,f (list ~_)))
 
-(defmacro some-rev (f &rest _)
-	; (some-rev lambda seq ...) -> :nil | form
+(defmacro rsome (f &rest _)
+	; (rsome lambda seq ...) -> :nil | form
 	`(some! ,f (list ~_) :nil -1 0))
 
 (defmacro every (f &rest _)
@@ -1030,7 +1030,7 @@
 			lib_path)
 		(:t (setd current *stream_name*)
 			(while (starts-with "./" lib_path)
-				(unless (defq i (find-rev "/" current))
+				(unless (defq i (rfind "/" current))
 					(throw "No relative path !" lib_path))
 				(setq current (slice current 0 i)
 					lib_path (slice lib_path 2 -1)))

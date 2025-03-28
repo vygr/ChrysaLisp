@@ -32,7 +32,7 @@
 				(push (first %0) (defq in (in-stream)))
 				(push (second %0) (in-mbox in)) %0) mboxs (lists 2)))
 			(defq stdout (in-stream) stdout_mbox (in-mbox stdout) ack_mbox (mail-alloc-mbox))
-			(each-rev (lambda (mbox arg stderr_mbox)
+			(reach (lambda (mbox arg stderr_mbox)
 				(mail-send mbox (setf-> (cat (str-alloc +stdio_msg_init_size) arg)
 					(+stdio_msg_init_stdout stdout_mbox)
 					(+stdio_msg_init_stderr stderr_mbox)

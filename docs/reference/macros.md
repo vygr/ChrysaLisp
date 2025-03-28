@@ -165,12 +165,6 @@ should provide the concreate handler
 (each lambda seq ...)
 ```
 
-### each-rev
-
-```code
-(each-rev lambda seq ...)
-```
-
 ### enums
 
 ```code
@@ -303,12 +297,6 @@ should provide the concreate handler
 (map lambda seq ...) -> list
 ```
 
-### map-rev
-
-```code
-(map-rev lambda seq ...) -> list
-```
-
 ### memoize
 
 ```code
@@ -351,6 +339,12 @@ should provide the concreate handler
 (raise field | (sym val) ...) -> (defq sym (get field this) ...)
 ```
 
+### reach
+
+```code
+(reach lambda seq ...)
+```
+
 ### read-int
 
 ```code
@@ -387,16 +381,28 @@ should provide the concreate handler
 (reduce lambda seq [init]) -> form
 ```
 
-### reduce-rev
-
-```code
-(reduce-rev lambda seq [init]) -> form
-```
-
 ### reverse
 
 ```code
 (reverse seq) -> seq
+```
+
+### rmap
+
+```code
+(rmap lambda seq ...) -> list
+```
+
+### rreduce
+
+```code
+(rreduce lambda seq [init]) -> form
+```
+
+### rsome
+
+```code
+(rsome lambda seq ...) -> :nil | form
 ```
 
 ### setd
@@ -421,12 +427,6 @@ should provide the concreate handler
 
 ```code
 (some lambda seq ...) -> :nil | form
-```
-
-### some-rev
-
-```code
-(some-rev lambda seq ...) -> :nil | form
 ```
 
 ### static-q
