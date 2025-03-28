@@ -34,7 +34,7 @@
 	(vp-simd vp-max-rr `(,x1 ,y1) `(,bx1 ,by1))
 	(vp-simd vp-min-rr `(,x2 ,y2) `(,bx ,by))
 	(vp-simd vp-max-rr `(,x2 ,y2) `(,bx1 ,by1))
-	(vp-simd vp-shl-cr '(+fp_shift) `(,cx ,cy ,cx1 ,cy1))
+	(vp-simd vp-shl-cr `(,+fp_shift) `(,cx ,cy ,cx1 ,cy1))
 
 	(vpif (list bx1 '> cx) (list by1 '> cy) (list bx '< cx1) (list by '< cy1))
 		(vp-simd vp-and-cr '((<< -1 +fp_shift)) `(,by ,by1))
@@ -69,7 +69,7 @@
 		(vp-asr-cr +fp_shift by)
 		(vp-simd vp-add-rr `(,a0 ,a1 ,a2) `(,c0 ,c1 ,c2))
 		(vp-simd vp-add-rr `(,b0 ,b1 ,b2) `(,c0 ,c1 ,c2))
-		(vp-simd vp-asr-cr '(+fp_shift) `(,c0 ,c1 ,c2))
+		(vp-simd vp-asr-cr `(,+fp_shift) `(,c0 ,c1 ,c2))
 		(assign (list c0 c1 c2 by) {c0, c1, c2, by})
 
 		;recip of a terms
@@ -100,7 +100,7 @@
 			(assign {a0, a1, a2} (list i0 i1 i2))
 			(vp-simd vp-xor-rr `(,x0 ,x1 ,x2) `(,x0 ,x1 ,x2))
 			(vp-simd vp-mul-rr `(,i0 ,i1 ,i2) `(,c0 ,c1 ,c2))
-			(vp-simd vp-asr-cr '(+fp_shift) `(,c0 ,c1 ,c2))
+			(vp-simd vp-asr-cr `(,+fp_shift) `(,c0 ,c1 ,c2))
 			(vpif (list i0 '<= 0))
 				(vp-simd vp-cpy-rr `(,c0 ,bx1) `(,x0 ,c0))
 			(endif)
@@ -113,7 +113,7 @@
 			(vp-max-rr x1 x0) (vp-min-rr c1 c0)
 			(vp-max-rr x2 x0) (vp-min-rr c2 c0)
 			(vp-simd vp-add-rr `(,bx) `(,x0 ,c0))
-			(vp-simd vp-asr-cr '(+fp_shift) `(,x0 ,c0))
+			(vp-simd vp-asr-cr `(,+fp_shift) `(,x0 ,c0))
 			(vpif (list x0 '< c0))
 				(call 'canvas :span_noclip (list this 0x80 x0 by c0) (list this))
 			(endif)

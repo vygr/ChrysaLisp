@@ -288,7 +288,7 @@
 						(vp-add-rr :r0 :r2)
 						(loop-start)
 							(vp-cpy-ir :r0 0 :r3)
-							(vp-simd vp-add-cr '(+ptr_size) '(:r1 :r0))
+							(vp-simd vp-add-cr `(,+ptr_size) '(:r1 :r0))
 							(vp-cpy-ri :r3 :r1 (neg +ptr_size))
 						(loop-until '(:r0 = :r2))
 
@@ -302,7 +302,7 @@
 		(vp-add-rr :r0 :r2)
 		(loop-start)
 			(vp-cpy-ir-ub :r0 0 :r3)
-			(vp-simd vp-add-cr '(+byte_size) '(:r1 :r0))
+			(vp-simd vp-add-cr `(,+byte_size) '(:r1 :r0))
 			(vp-cpy-ri-b :r3 :r1 (neg +byte_size))
 		(loop-until '(:r0 = :r2))
 	(endif)
