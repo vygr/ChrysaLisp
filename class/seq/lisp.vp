@@ -401,7 +401,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(first seq)" +error_msg_not_a_sequence :r1))
+	(jump 'lisp :repl_error '(:r0 "(third seq)" +error_msg_not_a_sequence :r1))
 	(signature '(seq)))
 
 (def-func-end)

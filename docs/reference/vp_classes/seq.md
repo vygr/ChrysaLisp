@@ -36,6 +36,8 @@
 
 ### (some! lambda seqs [mode start end])
 
+### (third seq)
+
 ## VP methods
 
 ### :cat -> class/obj/null
