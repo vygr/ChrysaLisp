@@ -30,7 +30,7 @@
 		(:change 0 0 w h))))
 
 (defun main ()
-	(defq images_info (map pixmap-info *env_wallpaper_images*) wallpaper (View)
+	(defq images_info (map (const pixmap-info) *env_wallpaper_images*) wallpaper (View)
 			screen (penv (gui-add-back-rpc wallpaper)) mouse_state :u)
 	(each (lambda (_)
 		(open-child (app-path _) +kn_call_open)) *env_launcher_auto_apps*)

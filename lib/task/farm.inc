@@ -25,13 +25,13 @@
 (defclass Farm (_create _destroy size) (Fmap)
 	; (Farm fnc_create fnc_destroy size) -> farm
 	(def this :create _create :destroy _destroy :key -1)
-	(defq _nodes (map cat (lisp-nodes)) _now (pii-time))
+	(defq _nodes (map (const cat) (lisp-nodes)) _now (pii-time))
 	(times size (start))
 
 	(defmethod :refresh (&optional _timeout)
 		; (. farm :refresh [timeout]) -> :t | :nil
 		;scan known nodes and update map
-		(defq _nodes (map cat (lisp-nodes))
+		(defq _nodes (map (const cat) (lisp-nodes))
 			_old_keys (list) _old_vals (list)
 			_create (get :create this) _destroy (get :destroy this)
 			_mutated :nil _now (pii-time))
@@ -53,7 +53,7 @@
 	(defmethod :restart (_key _val)
 		; (. farm :restart key val)
 		;restart task
-		(defq _nodes (map cat (lisp-nodes))
+		(defq _nodes (map (const cat) (lisp-nodes))
 			_create (get :create this) _destroy (get :destroy this)
 			_mutated :nil _now (pii-time))
 		(restart))

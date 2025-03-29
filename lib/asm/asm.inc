@@ -132,13 +132,14 @@
 			(file-stream (defq file _))))
 	(list d p))
 
+(defun file-age (_)
+	;modification time of a file, cached
+	(or (get (setq _ (sym _)) ages) (def ages _ (age _))))
+
 (defun make (&optional files *abi* *cpu*)
 	(setd files (all-vp-files) *abi* (abi) *cpu* (cpu))
 	(compile ((lambda ()
 		(defq ages (env 31) info (env 31))
-		(defun file-age (_)
-			;modification time of a file, cached
-			(or (get (setq _ (sym _)) ages) (def ages _ (age _))))
 		;list of all file imports while defining dependencies and products
 		(within-compile-env (lambda ()
 			(include "lib/asm/func.inc")
@@ -146,15 +147,15 @@
 			(each-mergeable (#
 				(bind '(d p) (make-info %0))
 				(make-merge files d)
-				(def info (sym %0) (list d (map func-obj-path p)))) files)))
+				(def info (sym %0) (list d (map (const func-obj-path) p)))) files)))
 		;filter to only the .vp files
 		(setq files (filter-array (# (ends-with ".vp" %0)) files))
 		;filter to only the files who's oldest product is older than any dependency
 		(setq files (filter-array (#
 			(bind '(d p) (get (sym %0) info))
-			(setq p (reduce min (map file-age p) +max_long))
+			(setq p (reduce min (map (const file-age) p) +max_long))
 			(each-mergeable (# (make-merge d (first (get (sym %0) info)))) d)
-			(some (# (>= %0 p)) (map file-age d))) files))
+			(some (# (>= %0 p)) (map (const file-age) d))) files))
 		;return the list to compile
 		files)) *abi* *cpu*))
 

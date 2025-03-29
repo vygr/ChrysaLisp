@@ -134,7 +134,7 @@
 	(and (list? _) (not (lambda? (first _))) (print (ascii-char 9) _)))
 
 (defun assign-asm-to-script (src dst _)
-	(unless (= (length src) (length (setq dst (map trim (split dst ",")))))
+	(unless (= (length src) (length (setq dst (map (const trim) (split dst ",")))))
 		(throw "Mismatching number of src/dst parameters !" (list src dst)))
 	(assign-ignored-to-script)
 	(when (/= 0 (length dst))
@@ -167,7 +167,7 @@
 		(eval *inst* *func_env*)))
 
 (defun assign-script-to-script (src dst _)
-	(setq src (split src ",") dst (map trim (split dst ",")))
+	(setq src (split src ",") dst (map (const trim) (split dst ",")))
 	(unless (= (length src) (length dst))
 		(throw "Mismatching number of src/dst parameters !" (list src dst)))
 	(assign-ignored-to-script)

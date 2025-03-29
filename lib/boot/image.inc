@@ -49,7 +49,7 @@
 		'sys/statics/statics
 		;must be included !
 		'sys/kernel/kernel)
-		(map sym *funcs*)))
+		(map (const sym) *funcs*)))
 	;load refs recursively
 	(each-mergeable
 		(# (merge-obj boot_funcs (elem-get (func-load %0) +blob_refs)))

@@ -168,8 +168,8 @@
 	(bind '(p1x p1y p2x p2y v1x v1y v2x v2y) (vec-top 8))
 	(defq p1 (list p1x p1y) p2 (list p2x p2y)
 		v1 (list v1x v1y) v2 (list v2x v2y))
-	(bind '(v1x v1y) (map list v1))
-	(bind '(v2x v2y) (map list v2))
+	(bind '(v1x v1y) (map (const list) v1))
+	(bind '(v2x v2y) (map (const list) v2))
 
 	(vec-dup 2 v2)
 	(vec-dup 2 p2)

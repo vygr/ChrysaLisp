@@ -9,7 +9,7 @@
 	(defmethod :refresh (&optional _timeout)
 		; (. global :refresh [timeout]) -> :t | :nil
 		;scan known nodes and update node map
-		(defq _keys (map cat (lisp-nodes))
+		(defq _keys (map (const cat) (lisp-nodes))
 			_old_keys (list) _old_vals (list)
 			_create (get :create this) _destroy (get :destroy this)
 			_mutated :nil _now (pii-time))

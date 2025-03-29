@@ -22,7 +22,7 @@
 	(bit commited overlay))
 
 (defq +tol 3.0
-	*radiuss* (map n2f '(2 6 12)) *stroke_radius* (first *radiuss*)
+	*radiuss* (map (const n2f) '(2 6 12)) *stroke_radius* (first *radiuss*)
 	*undo_stack* (list) *redo_stack* (list)
 	*stroke_col* (first *palette*) *stroke_mode* +event_pen
 	*commited_polygons* (list) overlay_paths (list)
