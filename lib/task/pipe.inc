@@ -90,6 +90,7 @@
 
 (defun pipe-run (cmdline &optional out)
 	; (pipe-run cmdline [outfun])
+	(task-count -1)	;we will be only collating results !
 	(setd out print)
 	(defq pipe (Pipe cmdline))
 	(while pipe
@@ -100,7 +101,8 @@
 				(. pipe :close)
 				(setq pipe :nil))
 			(:t ;string from pipe
-				(out data)))))
+				(out data))))
+	(task-count 1))	;we where only collating results !
 
 ;module
 (export-classes '(Pipe))

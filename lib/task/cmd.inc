@@ -33,6 +33,7 @@
 (defun pipe-farm (jobs &optional retry_timeout)
 	; (pipe-farm jobs [retry_timeout]) -> ((job result) ...)
 	;run pipe farm and collect output
+	(task-count -1)	;we will be only collating results !
 	(setd retry_timeout 1000000)
 	(defq timer_rate (/ 1000000 1) working :t results (cap (length jobs) (list))
 		retry_timeout (if (starts-with "obj/vp64" (load-path)) (* 10 retry_timeout) retry_timeout)
@@ -66,6 +67,7 @@
 				(mail-timeout (elem-get select +select_timer) timer_rate 0)
 				(. farm :refresh retry_timeout))))
 	(. farm :close)
+	(task-count 1)	;we where only collating results !
 	results)
 
 ;module
