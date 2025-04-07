@@ -19,10 +19,10 @@
 
 	;decrement task count
 	;don't count links in load balancing
-	(assign {@sys/statics/statics} {statics})
-	(assign {statics->statics_sys_task_task_count - 3} {statics->statics_sys_task_task_count})
+	(call 'sys_task :count '(-3))
 
 	;init and add link node to link array
+	(assign {@sys/statics/statics} {statics})
 	(call 'sys_kernel :id :nil {node_id.node_id_node1, node_id.node_id_node2})
 	(assign {0 => lk_node.lk_node_task_count => lk_node.lk_node_peer_node_id.node_id_node1}
 		{lk_node.lk_node_peer_node_id.node_id_node2})
@@ -74,7 +74,7 @@
 	(call 'sys_mail :free {params})
 
 	;restore task count
-	(assign {statics->statics_sys_task_task_count + 3} {statics->statics_sys_task_task_count})
+	(call 'sys_task :count '(3))
 	(pop-scope)
 	(return)
 

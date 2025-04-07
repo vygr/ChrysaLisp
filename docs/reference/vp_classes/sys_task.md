@@ -2,6 +2,8 @@
 
 ## Lisp Bindings
 
+### (task-count bias)
+
 ### (task-netid)
 
 ### (task-sleep usec)
@@ -16,6 +18,17 @@ inputs
 :r1 = callback address (ptr)
 trashes
 :r0-:r14
+```
+
+### :count -> sys/task/count
+
+```code
+inputs
+:r0 = task count bias (int)
+outputs
+:r0 = new task count (int)
+trashes
+:r0-:r2
 ```
 
 ### :defer -> sys/task/defer

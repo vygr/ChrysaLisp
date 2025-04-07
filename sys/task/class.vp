@@ -24,6 +24,26 @@
 
 (def-func-end)
 
+(def-method 'sys_task :count)
+	;inputs
+	;:r0 = task count bias (int)
+	;outputs
+	;:r0 = new task count (int)
+	;trashes
+	;:r0-:r2
+
+	(entry 'sys_task :count '(:r0))
+
+	(fn-bind 'sys/statics/statics :r1)
+	(assign '((:r1 statics_sys_task_task_count)) '(:r2))
+	(vp-add-rr :r0 :r2)
+	(assign '(:r2) '((:r1 statics_sys_task_task_count)))
+
+	(exit 'sys_task :count '(:r2))
+	(vp-ret)
+
+(def-func-end)
+
 (def-method 'sys_task :callback)
 	;inputs
 	;:r0 = user data address (ptr)
@@ -266,8 +286,7 @@
 	(entry 'sys_task :start {func})
 
 	;increment task count
-	(assign {@sys/statics/statics} {statics})
-	(assign {statics->statics_sys_task_task_count + 1} {statics->statics_sys_task_task_count})
+	(call 'sys_task :count '(1))
 
 	;create new task control block and stack
 	(call 'sys_mem :alloc {ushort(func - ubyte(func - +byte_size) - +short_size) + tk_node_size} {tcb, tcb_size})
@@ -291,6 +310,7 @@
 	(call 'sys_task :resume {tcb})
 
 	;return tcb and mailbox info
+	(assign {@sys/statics/statics} {statics})
 	(exit 'sys_task :start
 		{tcb, tcb->tk_node_mbox_addr, tcb->tk_node_mbox_id,
 		statics->statics_sys_task_kernel_node_id.node_id_node1,
@@ -313,10 +333,10 @@
 	(push-scope)
 
 	;decrement task count
-	(assign {@sys/statics/statics} {statics})
-	(assign {statics->statics_sys_task_task_count - 1} {statics->statics_sys_task_task_count})
+	(call 'sys_task :count '(-1))
 
 	;free task mailbox and tls
+	(assign {@sys/statics/statics} {statics})
 	(assign {statics->statics_sys_task_current_tcb} {tcb})
 	(call 'sys_mail :free_mbox {tcb->tk_node_mbox_id})
 	(call 'array :deref {tcb->tk_node_tls})

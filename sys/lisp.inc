@@ -4,6 +4,7 @@
 (ffi kernel-stats "sys/kernel/lisp_stats" 0)
 (ffi load-path "sys/load/lisp_path" 0)
 (ffi task-netid "sys/task/lisp_mailbox" 0)
+(ffi task-count "sys/task/lisp_count" 0)
 (ffi task-sleep "sys/task/lisp_sleep" 0)
 (ffi task-slice "sys/task/lisp_timeslice" 0)
 (ffi mail-alloc-mbox "sys/mail/lisp_alloc_mbox" 0)
