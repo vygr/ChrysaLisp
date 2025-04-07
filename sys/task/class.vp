@@ -36,10 +36,10 @@
 
 	(fn-bind 'sys/statics/statics :r1)
 	(assign '((:r1 statics_sys_task_task_count)) '(:r2))
-	(vp-add-rr :r0 :r2)
-	(assign '(:r2) '((:r1 statics_sys_task_task_count)))
+	(vp-add-rr :r2 :r0)
+	(assign '(:r0) '((:r1 statics_sys_task_task_count)))
 
-	(exit 'sys_task :count '(:r2))
+	(exit 'sys_task :count '(:r0))
 	(vp-ret)
 
 (def-func-end)
