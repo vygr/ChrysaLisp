@@ -15,6 +15,9 @@ Moved GUI service to new `service/` folder.
 
 Rename all `(xxx-rev)` functions to `(rxxx)`.
 
+New `'sys_task :count` method and `(task-count bias) -> cnt` Lisp level
+function.
+
 ------
 
 `(write-char)` and `(write)` now return the number of bytes written to the
