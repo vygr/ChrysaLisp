@@ -81,30 +81,30 @@
 (defun breakif (&rest e)
 	(unless (sym? (defq i -2 l (last e)))
 		(setq i -1 l :nil))
-	(each! exitif (list e) 0 i))
+	(each! (const exitif) (list e) 0 i))
 
 (defun breakifnot (&rest e)
 	(unless (sym? (defq i -2 l (last e)))
 		(setq i -1 l :nil))
-	(each! exitifnot (list e) 0 i))
+	(each! (const exitifnot) (list e) 0 i))
 
 (defun continueif (&rest e)
 	(unless (sym? (defq i -2 l (last e)))
 		(setq i -1 l :nil))
-	(each! repeatif (list e) 0 i))
+	(each! (const repeatif) (list e) 0 i))
 
 (defun continueifnot (&rest e)
 	(unless (sym? (defq i -2 l (last e)))
 		(setq i -1 l :nil))
-	(each! repeatifnot (list e) 0 i))
+	(each! (const repeatifnot) (list e) 0 i))
 
 (defun vpcase (&rest e)
 	(default)
-	(each! nextcaseifnot (list e)))
+	(each! (const nextcaseifnot) (list e)))
 
 (defun vpcasenot (&rest e)
 	(default)
-	(each! nextcaseif (list e)))
+	(each! (const nextcaseif) (list e)))
 
 (defun loop-start (&optional l)
 	(switch l)
@@ -115,14 +115,14 @@
 		(setq i -1 l :nil))
 	(switch l)
 	(vp-label (beg-sym))
-	(each! exitifnot (list e) 0 i))
+	(each! (const exitifnot) (list e) 0 i))
 
 (defun loop-whilenot (&rest e)
 	(unless (sym? (defq i -2 l (last e)))
 		(setq i -1 l :nil))
 	(switch l)
 	(vp-label (beg-sym))
-	(each! exitif (list e) 0 i))
+	(each! (const exitif) (list e) 0 i))
 
 (defun loop-end ()
 	(continue)
@@ -131,26 +131,26 @@
 (defun loop-until (&rest e)
 	(unless (sym? (defq i -2 l (last e)))
 		(setq i -1 l :nil))
-	(each! repeatifnot (list e) 0 i)
+	(each! (const repeatifnot) (list e) 0 i)
 	(endswitch))
 
 (defun loop-untilnot (&rest e)
 	(unless (sym? (defq i -2 l (last e)))
 		(setq i -1 l :nil))
-	(each! repeatif (list e) 0 i)
+	(each! (const repeatif) (list e) 0 i)
 	(endswitch))
 
 (defun vpif (&rest e)
 	(unless (sym? (defq i -2 l (last e)))
 		(setq i -1 l :nil))
 	(switch l)
-	(each! nextcaseifnot (list e) 0 i))
+	(each! (const nextcaseifnot) (list e) 0 i))
 
 (defun vpifnot (&rest e)
 	(unless (sym? (defq i -2 l (last e)))
 		(setq i -1 l :nil))
 	(switch l)
-	(each! nextcaseif (list e) 0 i))
+	(each! (const nextcaseif) (list e) 0 i))
 
 (defun else ()
 	(break)
@@ -158,11 +158,11 @@
 
 (defun elseif (&rest e)
 	(else)
-	(each! nextcaseifnot (list e)))
+	(each! (const nextcaseifnot) (list e)))
 
 (defun elseifnot (&rest e)
 	(else)
-	(each! nextcaseif (list e)))
+	(each! (const nextcaseif) (list e)))
 
 (defun endif ()
 	(endswitch))
