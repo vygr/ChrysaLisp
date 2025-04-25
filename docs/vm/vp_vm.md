@@ -209,7 +209,7 @@ functions.
 ```
 
 ```vdu
-(vp-abs rs rd)
+(vp-abs-rr rs rd)
 (vp-min-cr c rd)
 (vp-max-cr c rd)
 (vp-min-rr rs rd)
