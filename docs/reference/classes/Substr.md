@@ -3,7 +3,7 @@
 ## Search
 
 ```code
-(Substr) -> substr
+(Substr [num_buckets]) -> substr
 ```
 
 ### :compile

@@ -3,7 +3,7 @@
 ## Search
 
 ```code
-(Regexp) -> regexp
+(Regexp [num_buckets]) -> regexp
 ```
 
 ### :compile

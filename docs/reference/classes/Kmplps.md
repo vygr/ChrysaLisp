@@ -3,7 +3,7 @@
 ## Search
 
 ```code
-(Kmplps) -> kmplps
+(Kmplps [num_buckets]) -> kmplps
 ```
 
 ### :compile

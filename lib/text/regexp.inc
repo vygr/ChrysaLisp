@@ -236,7 +236,7 @@
 		(list text) :nil start) end)
 
 (defclass Regexp (&optional num_buckets) (Search)
-	; (Regexp) -> regexp
+	; (Regexp [num_buckets]) -> regexp
 	(def this :meta_cache (Fmap num_buckets))
 
 	(defmethod :compile (pattern)
