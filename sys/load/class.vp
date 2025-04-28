@@ -43,20 +43,20 @@
 	(assign '(:r2) '((:rsp local_boot_tail_len)))
 
 	;relocate statics and tail to their own mmap regions
-	(defq in (method-input 'host :mmap))
+	(defq in (method-input 'host_os :mmap))
 	(assign '((:rsp local_os) (:rsp local_boot_static_len) -1 +mmap_data) `(,os ~in))
 	(vp-add-cr statics_size (first in))
-	(abi-call-table 'host :mmap os in '(:r0))
+	(abi-call-table 'host_os :mmap os in '(:r0))
 	(assign '(:r0) '((:rsp local_new_static_func)))
 	(assign '((:rsp local_os)) `(,os))
-	(abi-call-table 'host :mmap os '((:rsp local_boot_tail_len) -1 +mmap_data) '(:r0))
+	(abi-call-table 'host_os :mmap os '((:rsp local_boot_tail_len) -1 +mmap_data) '(:r0))
 	(assign '(:r0) '((:rsp local_new_tail_func)))
 	(call 'memcpy '((:rsp local_boot_static_func) (:rsp local_new_static_func) (:rsp local_boot_static_len)))
 	(call 'memcpy '((:rsp local_boot_tail_func) (:rsp local_new_tail_func) (:rsp local_boot_tail_len)))
 
 	;allocate relloc/stat/name buffer
 	(assign '((:rsp local_os)) `(,os))
-	(abi-call-table 'host :mmap os '(ld_reloc_buf_size -1 +mmap_data) '(:r0))
+	(abi-call-table 'host_os :mmap os '(ld_reloc_buf_size -1 +mmap_data) '(:r0))
 
 	;init reloc buffer address etc
 	(assign '((:rsp local_new_static_func)) `(,statics))
@@ -112,9 +112,9 @@
 
 	;set functions to RX
 	(assign '((:rsp local_os)) `(,os))
-	(abi-call-table 'host :mprotect os '((:rsp local_new_tail_func) (:rsp local_boot_tail_len) +mmap_exec))
+	(abi-call-table 'host_os :mprotect os '((:rsp local_new_tail_func) (:rsp local_boot_tail_len) +mmap_exec))
 	(assign '((:rsp local_os)) `(,os))
-	(abi-call-table 'host :clear_icache os '((:rsp local_new_tail_func) (:rsp local_boot_tail_len)))
+	(abi-call-table 'host_os :clear_icache os '((:rsp local_new_tail_func) (:rsp local_boot_tail_len)))
 
 	;call the kernel
 	(call 'bind '(($ bind_kernel) (:rsp local_statics)) '(:r1))
@@ -123,11 +123,11 @@
 
 	;free new statics and tail regions etc
 	(assign '((:rsp local_statics) (:rsp local_os)) `(,statics ,os))
-	(abi-call-table 'host :munmap os `((,statics statics_sys_load_reloc_buffer) ld_reloc_buf_size +mmap_data))
+	(abi-call-table 'host_os :munmap os `((,statics statics_sys_load_reloc_buffer) ld_reloc_buf_size +mmap_data))
 	(assign '((:rsp local_os)) `(,os))
-	(abi-call-table 'host :munmap os '((:rsp local_new_static_func) (:rsp local_boot_static_len) +mmap_exec))
+	(abi-call-table 'host_os :munmap os '((:rsp local_new_static_func) (:rsp local_boot_static_len) +mmap_exec))
 	(assign '((:rsp local_os)) `(,os))
-	(abi-call-table 'host :munmap os '((:rsp local_new_tail_func) (:rsp local_boot_tail_len) +mmap_exec))
+	(abi-call-table 'host_os :munmap os '((:rsp local_new_tail_func) (:rsp local_boot_tail_len) +mmap_exec))
 
 	;return with code 0
 	(vp-free local_size)
@@ -213,7 +213,7 @@
 
 	;set the function buffers to RW
 	(loop-flist :r7 statics_sys_load_block_flist :r3 :r3)
-		(call 'sys_pii :mprotect '(:r3 ld_block_size +mmap_data) '(:r0))
+		(call 'host_os :pii_mprotect '(:r3 ld_block_size +mmap_data) '(:r0))
 		(assert '(:r0 = 0))
 	(loop-end)
 
@@ -223,7 +223,7 @@
 	;set the function buffers to RX
 	(fn-bind 'sys/statics/statics :r7)
 	(loop-flist :r7 statics_sys_load_block_flist :r3 :r3)
-		(call 'sys_pii :mprotect '(:r3 ld_block_size +mmap_exec) '(:r0))
+		(call 'host_os :pii_mprotect '(:r3 ld_block_size +mmap_exec) '(:r0))
 		(assert '(:r0 = 0))
 	(loop-end)
 
@@ -262,7 +262,7 @@
 	(assign '((:r7 statics_sys_load_name_buffer)) '(:r6))
 
 	;get length of function on disk
-	(call 'sys_pii :stat '(:r6 (:r7 statics_sys_load_stat_buffer)) '(:r0))
+	(call 'host_os :pii_stat '(:r6 (:r7 statics_sys_load_stat_buffer)) '(:r0))
 	(vpif '(:r0 /= 0))
 	(vp-label 'funcexit)
 		(vp-xor-rr :r0 :r0)
@@ -282,7 +282,7 @@
 	(assign '((:r0 stat_fsize)) '(:r0))
 	(vpif '(:r2 < :r0))
 		;not enough so allocate new function buffer
-		(call 'sys_pii :mmap '(ld_block_size -1 +mmap_data) '(:r0))
+		(call 'host_os :pii_mmap '(ld_block_size -1 +mmap_data) '(:r0))
 		(assert '(:r0 /= 0))
 
 		;add to block list for freeing
@@ -296,23 +296,23 @@
 	(endif)
 
 	;open function file
-	(call 'sys_pii :open '(:r6 +file_open_read) '(:r6))
+	(call 'host_os :pii_open '(:r6 +file_open_read) '(:r6))
 
 	;read into buffer
 	(assign '((:r7 statics_sys_load_stat_buffer)) '(:r2))
-	(call 'sys_pii :read '(:r6 (:r7 statics_sys_load_block_start) (:r2 stat_fsize)))
+	(call 'host_os :pii_read '(:r6 (:r7 statics_sys_load_block_start) (:r2 stat_fsize)))
 	(assign '((:r7 statics_sys_load_stat_buffer)) '(:r2))
-	(call 'sys_pii :clear_icache '((:r7 statics_sys_load_block_start) (:r2 stat_fsize)))
+	(call 'host_os :pii_clear_icache '((:r7 statics_sys_load_block_start) (:r2 stat_fsize)))
 
 	;close function file
-	(call 'sys_pii :close '(:r6))
+	(call 'host_os :pii_close '(:r6))
 
 	;check loaded length equals file size
 	(assign '((:r7 statics_sys_load_block_start) (:r7 statics_sys_load_stat_buffer)) '(:r3 :r2))
 	(assign '((:r3 +fn_header_length) (:r2 stat_fsize)) '(:r0 :r1))
 	(vpif '(:r0 /= :r1))
-		(call 'sys_pii :write_str '(2 "Length field error !"))
-		(call 'sys_pii :exit '(1))
+		(call 'host_os :pii_write_str '(2 "Length field error !"))
+		(call 'host_os :pii_exit '(1))
 	(endif)
 
 	;add to function list
@@ -341,8 +341,8 @@
 	;overflow check
 	(assign '((:r7 statics_sys_load_name_buffer)) '(:r2))
 	(vpif '(:r1 > :r2))
-		(call 'sys_pii :write_str '(2 "Reloc buffer overflow !"))
-		(call 'sys_pii :exit '(1))
+		(call 'host_os :pii_write_str '(2 "Reloc buffer overflow !"))
+		(call 'host_os :pii_exit '(1))
 	(endif)
 
 	;bind links to paths in reloc buffer
@@ -377,11 +377,11 @@
 		(call 'fn_entry '((:r0 0)))
 		(vpif '(:r0 = 0))
 			;no such file
-			(call 'sys_pii :write_str '(2 "Bind error: "))
+			(call 'host_os :pii_write_str '(2 "Bind error: "))
 			(assign '((:rsp 0)) '(:r0))
-			(call 'sys_pii :write_str '(2 (:r0 0)))
-			(call 'sys_pii :write_char '(2 +char_lf))
-			(call 'sys_pii :exit '(1))
+			(call 'host_os :pii_write_str '(2 (:r0 0)))
+			(call 'host_os :pii_write_char '(2 +char_lf))
+			(call 'host_os :pii_exit '(1))
 		(endif)
 		(vp-cpy-rr :r0 :r1)
 		(vp-pop :r3 :r0)

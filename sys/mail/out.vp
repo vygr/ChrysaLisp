@@ -34,7 +34,7 @@
 		(assign {statics->statics_sys_mail_session + 1} {statics->statics_sys_mail_session})
 
 		;for each fragment
-		(call 'sys_pii :time :nil {time})
+		(call 'host_os :pii_time :nil {time})
 		(assign {0} {offset})
 		(assign {msg->msg_frag_length} {ammount})
 		(loop-start)

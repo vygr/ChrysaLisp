@@ -33,7 +33,7 @@
 	(errorif-lisp-args-sig 'error :r1 0)
 
 	;reg ops test
-	(call 'sys_pii :time :nil {start})
+	(call 'host_os :pii_time :nil {start})
 	(assign {0} {cnt})
 	(loop-start)
 
@@ -80,13 +80,13 @@
 		(loop-until `(,loop = 1000))
 		(call 'sys_task :sleep '(0))
 
-		(call 'sys_pii :time :nil {end})
+		(call 'host_os :pii_time :nil {end})
 		(assign {end - start, 1000 * 1000 + cnt} {end, cnt})
 	(loop-until {end >= 100000})
 	(call 'num :create {1000000 * cnt / end} {regs_vops})
 
 	;memory ops test
-	(call 'sys_pii :time :nil {start})
+	(call 'host_os :pii_time :nil {start})
 	(assign {0} {cnt})
 	(loop-start)
 
@@ -115,13 +115,13 @@
 		(loop-until `(,loop = 1000))
 		(call 'sys_task :sleep '(0))
 
-		(call 'sys_pii :time :nil {end})
+		(call 'host_os :pii_time :nil {end})
 		(assign {end - start, 1000 * 1000 + cnt} {end, cnt})
 	(loop-until {end >= 100000})
 	(call 'num :create {1000000 * cnt / end} {memory_vops})
 
 	;reals ops test
-	(call 'sys_pii :time :nil {start})
+	(call 'host_os :pii_time :nil {start})
 	(assign {0} {cnt})
 	(loop-start)
 
@@ -139,7 +139,7 @@
 		(loop-until `(,loop = 100))
 		(call 'sys_task :sleep '(0))
 
-		(call 'sys_pii :time :nil {end})
+		(call 'host_os :pii_time :nil {end})
 		(assign {end - start, 6 * 100 + cnt} {end, cnt})
 	(loop-until {end >= 100000})
 	(call 'num :create {1000000 * cnt / end} {reals_vops})

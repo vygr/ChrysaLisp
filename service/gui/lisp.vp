@@ -84,7 +84,7 @@
 	(endif)
 
 	;pii exit ! for now
-	(call 'sys_pii :exit '(0))
+	(call 'host_os :pii_exit '(0))
 
 	(exit 'host_gui :lisp_deinit '(:r0 :r1))
 	(vp-free local_size)

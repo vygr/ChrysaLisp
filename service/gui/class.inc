@@ -44,6 +44,9 @@
 ; gui structures
 ;;;;;;;;;;;;;;;;
 
+(def-struct host_gui_rect 0
+	(int x y w h))
+
 (def-enum ev_type 0
 	(enum mouse key action gui wheel enter exit))
 

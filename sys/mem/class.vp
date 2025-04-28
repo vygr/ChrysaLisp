@@ -120,9 +120,9 @@
 (errorcase
 (vp-label 'error)
 	(vp-cpy-rr :r0 :r2)
-	(call 'sys_pii :write_str `(2 "Malloc fail !!! "))
-	(call 'sys_pii :write_num `(2 :r2 16))
-	(call 'sys_pii :write_str `(2 ,(ascii-char 10)))
+	(call 'host_os :pii_write_str `(2 "Malloc fail !!! "))
+	(call 'host_os :pii_write_num `(2 :r2 16))
+	(call 'host_os :pii_write_str `(2 ,(ascii-char 10)))
 	(call 'sys_task :dump)
 	(exit 'sys_mem :alloc '(0 0))
 	(vp-ret))

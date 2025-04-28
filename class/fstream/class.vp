@@ -29,7 +29,7 @@
 	(s-call 'fstream :init '(:r0 (:rsp local_vtable) 0 :r3 :r3 0) '(:r0 :r1))
 	(vpif '(:r1 /= 0))
 		;init myself
-		(call 'sys_pii :open '((:rsp local_path) (:r0 fstream_mode)) '(:r1))
+		(call 'host_os :pii_open '((:rsp local_path) (:r0 fstream_mode)) '(:r1))
 		(assign '((:rsp local_this)) '(:r0))
 		(vpif '(:r1 >= 3))
 			(assign '((:r0 fstream_mode) :r1) '(:r2 (:r0 fstream_handle)))
@@ -68,7 +68,7 @@
 
 	;close file
 	(vp-push :r0)
-	(call 'sys_pii :close '((:r0 fstream_handle)))
+	(call 'host_os :pii_close '((:r0 fstream_handle)))
 	(vp-pop :r0)
 
 	;deinit parent
@@ -93,7 +93,7 @@
 		(vp-sub-rr :r1 :r2)
 		(vpif '(:r2 /= 0))
 			(vp-push :r0)
-			(call 'sys_pii :write '((:r0 fstream_handle) :r1 :r2))
+			(call 'host_os :pii_write '((:r0 fstream_handle) :r1 :r2))
 			(vp-pop :r0)
 		(endif)
 	(endif)
@@ -126,7 +126,7 @@
 
 	;read next block of data
 	(vp-push :r0)
-	(call 'sys_pii :read '((:r0 fstream_handle) (:r0 stream_buffer) (:r0 fstream_buf_len)) '(:r1))
+	(call 'host_os :pii_read '((:r0 fstream_handle) (:r0 stream_buffer) (:r0 fstream_buf_len)) '(:r1))
 	(vp-pop :r0)
 	(vpif '(:r1 = 0))
 		;eof
@@ -190,7 +190,7 @@
 	(assign '(:r0) '((:rsp local_this)))
 
 	(call 'fstream :flush '(:r0) '(:r0))
-	(call 'sys_pii :seek '((:r0 fstream_handle) (:rsp local_off) (:rsp local_pos)) '(:r1))
+	(call 'host_os :pii_seek '((:r0 fstream_handle) (:rsp local_off) (:rsp local_pos)) '(:r1))
 
 	(exit 'fstream :seek '((:rsp local_this) :r1))
 	(vp-free local_size)

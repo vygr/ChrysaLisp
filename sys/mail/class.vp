@@ -368,7 +368,7 @@
 			(goto 'post_it)
 		(default)
 			;timestamp it and queue it on the outgoing packet list
-			(call 'sys_pii :time :nil '(:r0))
+			(call 'host_os :pii_time :nil '(:r0))
 			(vp-cpy-ri :r0 :r4 msg_timestamp)
 			(vp-add-cr statics_sys_mail_offchip_list :r1)
 			(lh-add-at-tail :r1 :r4 :r0)
@@ -558,7 +558,7 @@
 		(assign {tuple[+ptr_size]} {tuple})
 		(call 'node :destroy {key})
 	(endif)
-	(call 'sys_pii :time :nil {time})
+	(call 'host_os :pii_time :nil {time})
 	(call 'array :set_elem {tuple, time, 1})
 	(call 'array :get_first {tuple} {_, set})
 	(call 'sys_mail :service {name, id, info} {name})

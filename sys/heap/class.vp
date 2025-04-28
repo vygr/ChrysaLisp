@@ -58,7 +58,7 @@
 		(ln-remove-node :r6 :r1)
 		(assign '((:r5 hp_heap_blocksize)) '(:r1))
 		(vp-sub-rr :r1 :r3)
-		(call 'sys_pii :munmap '(:r0 :r1 +mmap_data))
+		(call 'host_os :pii_munmap '(:r0 :r1 +mmap_data))
 	(loop-end)
 	(fn-bind 'sys/statics/statics :r1)
 	(vp-cpy-ri :r3 :r1 statics_sys_mem_total)
@@ -93,7 +93,7 @@
 	(vp-push blocksize cellsize block blockend cnt this)
 	(assign `((,this hp_heap_cellsize)) `(,cellsize))
 	(assign `((,this hp_heap_blocksize)) `(,blocksize))
-	(call 'sys_pii :mmap `(,blocksize -1 +mmap_data) `(,block))
+	(call 'host_os :pii_mmap `(,blocksize -1 +mmap_data) `(,block))
 	(errorif `(,block = 0) 'error)
 	(fn-bind 'sys/statics/statics statics)
 	(assign `((:rsp 0)) `(,this))
@@ -169,7 +169,7 @@
 		(assign `((,this hp_heap_blocksize) ,blk) '(:r1 :r0))
 		(ln-remove-node :r0 :r2)
 		(vp-sub-rr :r1 total)
-		(call 'sys_pii :munmap `(,blk :r1 +mmap_data))
+		(call 'host_os :pii_munmap `(,blk :r1 +mmap_data))
 	(loop-end)
 
 	;loop over all blocks

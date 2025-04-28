@@ -80,7 +80,7 @@
 
 	(entry 'sys_task :lisp_timeslice '(:r3 :r4))
 
-	(call 'sys_pii :time :nil '(:r0))
+	(call 'host_os :pii_time :nil '(:r0))
 	(fn-bind 'sys/statics/statics :r2)
 	(assign '((:r2 statics_sys_task_then)) '(:r1))
 	(vp-sub-rr :r0 :r1)

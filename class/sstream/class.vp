@@ -133,7 +133,7 @@
 	(vp-add-cr str_data :r2)
 	(vpif '(:r1 > :r2))
 		(assign '(:r2 :r0) '((:r0 stream_bufp) :r3))
-		(call 'sys_pii :write_str '(1 :r2))
+		(call 'host_os :pii_write_str '(1 :r2))
 		(vp-cpy-rr :r3 :r0)
 	(endif)
 

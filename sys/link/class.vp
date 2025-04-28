@@ -32,10 +32,10 @@
 	(call 'sys_mail :mymail :nil {params, pdata})
 
 	;open shared memory file
-	(call 'sys_pii :open_shared {pdata, lk_shmem_size} {handle})
+	(call 'host_os :pii_open_shared {pdata, lk_shmem_size} {handle})
 
 	;map shared object
-	(call 'sys_pii :mmap {lk_shmem_size, handle, +mmap_shared} {mem})
+	(call 'host_os :pii_mmap {lk_shmem_size, handle, +mmap_shared} {mem})
 
 	;put my towel down if seams available
 	(vpifnot {mem->lk_shmem_towel})
@@ -65,10 +65,10 @@
 	(loop-end)
 
 	;unmap object
-	(call 'sys_pii :munmap {mem, lk_shmem_size, +mmap_shared})
+	(call 'host_os :pii_munmap {mem, lk_shmem_size, +mmap_shared})
 
 	;close it
-	(call 'sys_pii :close_shared {pdata, handle})
+	(call 'host_os :pii_close_shared {pdata, handle})
 
 	;free params msg
 	(call 'sys_mail :free {params})

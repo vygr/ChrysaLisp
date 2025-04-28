@@ -105,8 +105,8 @@
 		(vp-jmp-p (link-sym (fn-find-link p)))))
 
 (defun abort (&optional s)
-	(call 'sys_pii :write_str (list 2 (opt s "Abort !")))
-	(jump 'sys_pii :exit '(1)))
+	(call 'host_os :pii_write_str (list 2 (opt s "Abort !")))
+	(jump 'host_os :pii_exit '(1)))
 
 (defun assert (b &optional d)
 	(when (> *debug_mode* 0)

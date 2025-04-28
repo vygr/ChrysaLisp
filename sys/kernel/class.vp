@@ -61,7 +61,7 @@
 	(call 'array :create :nil {best_nodes})
 
 	;set random node ID
-	(call 'sys_pii :rand {&statics->statics_sys_task_kernel_node_id, +node_id_size})
+	(call 'host_os :pii_rand {&statics->statics_sys_task_kernel_node_id, +node_id_size})
 	;lisp nodes allways have bit 0 set !
 	(assign {&statics->statics_sys_task_kernel_node_id} '(:r0))
 	(assign '((:r0 0 ub)) '(:r1))
@@ -146,7 +146,7 @@
 				(push-scope)
 
 				;timestamp
-				(call 'sys_pii :time :nil '{time})
+				(call 'host_os :pii_time :nil '{time})
 
 				;find/create the routing tuple for the origin
 				(assign {data, key} '(:r0 :r1))
@@ -269,7 +269,7 @@
 			(vp-cpy-rr :r7 :r6)
 		(endif)
 		(vp-sub-rr :r0 :r6)
-		(host-os-call 'host :sleep '(:r6))
+		(host-os-call 'host_os :sleep '(:r6))
 	(loop-end)
 
 	;deinit best choice array
@@ -410,7 +410,7 @@
 	(endif)
 	(vpifnot {length})
 		;yup it's a .lisp file, check it exists
-		(call 'sys_pii :stat {arg, @sys/statics/statics.statics_sys_load_stat_buffer} {func})
+		(call 'host_os :pii_stat {arg, @sys/statics/statics.statics_sys_load_stat_buffer} {func})
 		(breakif {func})
 		;start lisp run task and send args
 		(call 'sys_load :bind `(,(str (f-path 'lisp :run))) '(:r0))
@@ -513,7 +513,7 @@
 		(call 'sys_mail :ping)
 
 		;purge stale nodes
-		(call 'sys_pii :time :nil '((:rsp local_now)))
+		(call 'host_os :pii_time :nil '((:rsp local_now)))
 		(fn-bind 'sys/statics/statics :r0)
 		(call 'hmap :each '((:r0 statics_sys_mail_node_map) ($ purge_callback) :rsp))
 

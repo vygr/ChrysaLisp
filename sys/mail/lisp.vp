@@ -423,7 +423,7 @@
 		(endswitch)
 	(else)
 		;calculate wake time
-		(call 'sys_pii :time :nil '(:r0))
+		(call 'host_os :pii_time :nil '(:r0))
 		(vp-add-rr :r0 :r13)
 		(call 'sys_mail :alloc `(,(* 2 +long_size)) '(:r0 :r1))
 		(assign '(:r13 :r14) '((:r1 0) (:r1 +long_size)))

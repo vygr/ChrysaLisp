@@ -227,7 +227,7 @@
 	(else)
 		;calculate wake time
 		(vp-cpy-rr :r0 :r2)
-		(call 'sys_pii :time :nil '(:r0))
+		(call 'host_os :pii_time :nil '(:r0))
 		(vp-add-rr :r2 :r0)
 		(assign '(:r0) '((:r1 tk_node_time)))
 
@@ -386,7 +386,7 @@
 	;resume tasks ready to run.
 	;mail mailboxes on timouts.
 
-	(call 'sys_pii :time :nil '(:r6))
+	(call 'host_os :pii_time :nil '(:r6))
 	(fn-bind 'sys/statics/statics :r3)
 	(loop-list-forward :r3 statics_sys_task_timer_list :r0 :r7)
 		(assign '((:r0 tk_node_time)) '(:r1))
@@ -431,11 +431,11 @@
 		(call 'sys_load :find `((,sptr 0)) `(,node ,node_offset))
 		(vpif (list node '/= 0))
 			(vp-push node_offset)
-			(call 'sys_pii :write_str `(2 (& ,node +fn_header_pathname)))
-			(call 'sys_pii :write_str `(2 " ("))
+			(call 'host_os :pii_write_str `(2 (& ,node +fn_header_pathname)))
+			(call 'host_os :pii_write_str `(2 " ("))
 			(vp-pop node_offset)
-			(call 'sys_pii :write_num `(2 ,node_offset 10))
-			(call 'sys_pii :write_str `(2 ,(cat ")" (ascii-char 10))))
+			(call 'host_os :pii_write_num `(2 ,node_offset 10))
+			(call 'host_os :pii_write_str `(2 ,(cat ")" (ascii-char 10))))
 		(endif)
 		(vp-add-cr +ptr_size sptr)
 	(loop-end)
