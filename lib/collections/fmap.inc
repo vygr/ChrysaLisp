@@ -52,18 +52,14 @@
 
 	(defmethod :copy ()
 		; (. fmap :copy) -> fmap
-		(defq that ((get 'Fmap) (get :num_buckets this)))
-		(each (lambda (this_bucket that_bucket)
-			(each (lambda (key_val)
-				(push that_bucket key_val)) this_bucket)) (get :buckets this) (get :buckets that))
+		(defq that ((get 'Fmap) (get :num_buckets this)) buckets (get :buckets that))
+		(each (# (elem-set buckets (!) (cat %0))) (get :buckets this))
 		that)
 
 	(defmethod :deep_copy ()
 		; (. fmap :deep_copy) -> fmap
-		(defq that ((get 'Fmap) (get :num_buckets this)))
-		(each (lambda (this_bucket that_bucket)
-			(each (lambda (key_val)
-				(push that_bucket (copy key_val))) this_bucket)) (get :buckets this) (get :buckets that))
+		(defq that ((get 'Fmap) (get :num_buckets this)) buckets (get :buckets that))
+		(each (# (elem-set buckets (!) (copy %0))) (get :buckets this))
 		that)
 
 	(defmethod :empty ()
