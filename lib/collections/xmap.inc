@@ -31,11 +31,11 @@
 			((push _kl key) (push _vl val)))
 		this)
 
-	(defmethod :update (key f)
+	(defmethod :update (key _fnc)
 		; (. xmap :insert key lambda) -> val
 		(cond
-			((slot) (elem-set _vl _si (f (elem-get _vl _si))))
-			((push _kl key) (last (push _vl (f :nil))))))
+			((slot) (elem-get (elem-set _vl _si (_fnc (elem-get _vl _si))) _si))
+			((push _kl key) (last (push _vl (_fnc :nil))))))
 
 	(defmethod :erase (key)
 		; (. xmap :erase key) -> xmap

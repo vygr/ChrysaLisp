@@ -23,12 +23,12 @@
 			((push keys key) (push vals val)))
 		this)
 
-	(defmethod :update (key f)
+	(defmethod :update (key _fnc)
 		; (. lmap :update key lambda) -> val
 		(raise :keys :vals)
 		(cond
-			((defq _si (find key keys)) (elem-set vals _si (f (elem-get vals _si))))
-			((push keys key) (last (push vals (f :nil))))))
+			((defq _si (find key keys)) (elem-get (elem-set vals _si (_fnc (elem-get vals _si))) _si))
+			((push keys key) (last (push vals (_fnc :nil))))))
 
 	(defmethod :erase (key)
 		; (. lmap :erase key) -> lmap
