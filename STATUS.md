@@ -18,6 +18,9 @@ Rename all `(xxx-rev)` functions to `(rxxx)`.
 New `'sys_task :count` method and `(task-count bias) -> cnt` Lisp level
 function.
 
+Updated `map` class `:update` method to return the update function value ! So
+now `(. map :update key lambda) -> val`.
+
 ------
 
 `(write-char)` and `(write)` now return the number of bytes written to the

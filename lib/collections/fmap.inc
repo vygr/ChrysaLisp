@@ -8,9 +8,11 @@
 (env-push)
 
 (defmacro slot ()
-	`(defq _x (get :buckets this)
-		_b (* (% (hash key) (get :num_buckets this)) 2)
-		_i (find key (elem-get _x _b))))
+	`(defq _b (get :buckets this)
+		_ki (* (% (hash key) (get :num_buckets this)) 2)
+		_kl (elem-get _b _ki)
+		_vl (elem-get _b (inc _ki))
+		_si (find key _kl)))
 
 (defclass Fmap (&optional num_buckets) (Map)
 	; (Fmap [num_buckets]) -> fmap
@@ -19,36 +21,34 @@
 
 	(defmethod :find (key)
 		; (. fmap :find key) -> :nil | val
-		(if (slot) (elem-get (elem-get _x (inc _b)) _i)))
+		(if (slot) (elem-get _vl _si)))
 
 	(defmethod :insert (key val)
 		; (. fmap :insert key val) -> fmap
 		(cond
-			((slot) (elem-set (elem-get _x (inc _b)) _i val))
-			((push (elem-get _x _b) key) (push (elem-get _x (inc _b)) val)))
+			((slot) (elem-set _vl _si val))
+			((push _kl key) (push _vl val)))
 		this)
 
 	(defmethod :update (key f)
-		; (. fmap :update key lambda) -> fmap
+		; (. fmap :update key lambda) -> val
 		(cond
-			((slot) (elem-set (setq _x (elem-get _x (inc _b))) _i (f (elem-get _x _i))))
-			((push (elem-get _x _b) key) (push (elem-get _x (inc _b)) (f :nil))))
-		this)
+			((slot) (elem-set _vl _si (f (elem-get _vl _si))))
+			((push _kl key) (last (push _vl (f :nil))))))
 
 	(defmethod :erase (key)
 		; (. fmap :erase key) -> fmap
 		(when (slot)
-			(defq bv (elem-get _x (inc _b)) _b (elem-get _x _b))
-			(elem-set _b _i (last _b))
-			(elem-set bv _i (last bv))
-			(pop _b) (pop bv))
+			(elem-set _kl _si (last _kl))
+			(elem-set _vl _si (last _vl))
+			(pop _kl) (pop _vl))
 		this)
 
 	(defmethod_ :each (_fnc)
 		; (. fmap :each lambda)
-		(defq _i -2 _b (get :buckets _this))
-		(while (< (setq _i (+ _i 2)) (length _b))
-			(each _fnc (elem-get _b _i) (elem-get _b (inc _i)))) _this)
+		(defq _si -2 _b (get :buckets _this))
+		(while (< (setq _si (+ _si 2)) (length _b))
+			(each _fnc (elem-get _b _si) (elem-get _b (inc _si)))) _this)
 
 	(defmethod :copy ()
 		; (. fmap :copy) -> fmap

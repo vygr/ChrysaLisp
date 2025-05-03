@@ -63,6 +63,6 @@
 ### :update
 
 ```code
-(. lmap :update key lambda) -> lmap
+(. lmap :update key lambda) -> val
 ```
 

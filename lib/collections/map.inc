@@ -9,7 +9,7 @@
 	(defabstractmethod :insert (key val))
 		; (. map :insert key val) -> map
 	(defabstractmethod :update (key func))
-		; (. map :update key lambda) -> map
+		; (. map :update key lambda) -> val
 	(defabstractmethod :erase (key))
 		; (. map :erase key) -> map
 	(defabstractmethod :each (fnc))

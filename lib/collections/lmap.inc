@@ -13,30 +13,29 @@
 
 	(defmethod :find (key)
 		; (. lmap :find key) -> :nil | val
-		(if (defq _i (find key (get :keys this))) (elem-get (get :vals this) _i)))
+		(if (defq _si (find key (get :keys this))) (elem-get (get :vals this) _si)))
 
 	(defmethod :insert (key val)
 		; (. lmap :insert key val) -> lmap
 		(raise :keys :vals)
 		(cond
-			((defq _i (find key keys)) (elem-set vals _i val))
+			((defq _si (find key keys)) (elem-set vals _si val))
 			((push keys key) (push vals val)))
 		this)
 
 	(defmethod :update (key f)
-		; (. lmap :update key lambda) -> lmap
+		; (. lmap :update key lambda) -> val
 		(raise :keys :vals)
 		(cond
-			((defq _i (find key keys)) (elem-set vals _i (f (elem-get vals _i))))
-			((push keys key) (push vals (f :nil))))
-		this)
+			((defq _si (find key keys)) (elem-set vals _si (f (elem-get vals _si))))
+			((push keys key) (last (push vals (f :nil))))))
 
 	(defmethod :erase (key)
 		; (. lmap :erase key) -> lmap
 		(raise :keys :vals)
-		(when (defq _i (find key keys))
-			(elem-set keys _i (last keys))
-			(elem-set vals _i (last vals))
+		(when (defq _si (find key keys))
+			(elem-set keys _si (last keys))
+			(elem-set vals _si (last vals))
 			(pop keys) (pop vals))
 		this)
 

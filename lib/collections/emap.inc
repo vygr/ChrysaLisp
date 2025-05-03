@@ -19,9 +19,8 @@
 		this)
 
 	(defmethod :update (key f)
-		; (. emap :update key lambda) -> emap
-		(def (defq _x (get :buckets this)) key (f (def? _x)))
-		this)
+		; (. emap :update key lambda) -> val
+		(def (defq _b (get :buckets this)) key (f (def? _b))))
 
 	(defmethod :erase (key)
 		; (. emap :erase key) -> emap

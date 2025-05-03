@@ -57,6 +57,6 @@
 ### :update
 
 ```code
-(. emap :update key lambda) -> emap
+(. emap :update key lambda) -> val
 ```
 

@@ -67,6 +67,6 @@
 ### :update
 
 ```code
-(. map :update key lambda) -> map
+(. map :update key lambda) -> val
 ```
 

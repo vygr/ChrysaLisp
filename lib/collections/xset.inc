@@ -8,9 +8,9 @@
 (env-push)
 
 (defmacro slot ()
-	`(defq _x (get :buckets this)
-		_b (% ((get :hash_fnc this) key) (get :num_buckets this))
-		_i (some (# (if ((get :cmp_fnc this) %0 key) (!))) (elem-get _x _b))))
+	`(defq _b (get :buckets this)
+		_kl (elem-get _b (% ((get :hash_fnc this) key) (get :num_buckets this)))
+		_si (some (# (if ((get :cmp_fnc this) %0 key) (!))) _kl)))
 
 (defclass Xset (&optional num_buckets cmp_fnc hash_fnc) (Set)
 	; (Xset [num_buckets cmp_fnc hash_fnc]) -> xset
@@ -20,30 +20,30 @@
 
 	(defmethod :find (key)
 		; (. xset :find key) -> :nil | key
-		(if (slot) (elem-get (elem-get _x _b) _i)))
+		(if (slot) (elem-get _kl _si)))
 
 	(defmethod :insert (key)
 		; (. xset :insert key) -> xset
-		(if (slot) :nil (push (elem-get _x _b) key))
+		(if (slot) :nil (push _kl key))
 		this)
 
 	(defmethod :inserted (key)
 		; (. xset :inserted key) -> :nil | xset
 		(cond
 			((slot) this)
-			((push (elem-get _x _b) key) :nil)))
+			((push _kl key) :nil)))
 
 	(defmethod :intern (key)
 		; (. xset :intern key) -> key
 		(cond
-			((slot) (elem-get (elem-get _x _b) _i))
-			((push (elem-get _x _b) key) key)))
+			((slot) (elem-get _kl _si))
+			((push _kl key) key)))
 
 	(defmethod :erase (key)
 		; (. xset :erase key) -> xset
 		(when (slot)
-			(elem-set (defq _b (elem-get _x _b)) _i (last _b))
-			(pop _b))
+			(elem-set _kl _si (last _kl))
+			(pop _kl))
 		this)
 
 	(defmethod_ :each (_fnc)

@@ -63,6 +63,6 @@
 ### :update
 
 ```code
-(. xmap :insert key lambda) -> xmap
+(. xmap :insert key lambda) -> val
 ```
 
