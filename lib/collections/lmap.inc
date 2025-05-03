@@ -28,7 +28,7 @@
 		(raise :keys :vals)
 		(cond
 			((defq _si (find key keys)) (elem-get (elem-set vals _si (_fnc (elem-get vals _si))) _si))
-			((push keys key) (last (push vals (_fnc :nil))))))
+			((push vals (_fnc :nil)) (push keys key) (last vals))))
 
 	(defmethod :erase (key)
 		; (. lmap :erase key) -> lmap

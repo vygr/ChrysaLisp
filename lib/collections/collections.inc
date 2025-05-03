@@ -28,9 +28,5 @@
 	; (memoize key form [num_buckets]) -> (eval form)
 	(defq c (gensym) e (gensym))
 	(if num_buckets
-		`(progn
-			(unless (defq ,c (const (Fmap ,num_buckets)) ,e (. ,c :find ,k))
-				(. ,c :insert ,k (setq ,e ,f))) ,e)
-		`(progn
-			(unless (defq ,c (const (Lmap)) ,e (. ,c :find ,k))
-				(. ,c :insert ,k (setq ,e ,f))) ,e)))
+		`(. (const (Fmap ,num_buckets)) :update ,k (# (if %0 %0 ,f)))
+		`(. (const (Lmap)) :update ,k (# (if %0 %0 ,f)))))

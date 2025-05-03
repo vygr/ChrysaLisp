@@ -34,7 +34,7 @@
 		; (. fmap :update key lambda) -> val
 		(cond
 			((slot) (elem-get (elem-set _vl _si (_fnc (elem-get _vl _si))) _si))
-			((push _kl key) (last (push _vl (_fnc :nil))))))
+			((push _vl (_fnc :nil)) (push _kl key) (last _vl))))
 
 	(defmethod :erase (key)
 		; (. fmap :erase key) -> fmap
