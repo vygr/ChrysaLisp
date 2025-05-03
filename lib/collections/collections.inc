@@ -26,7 +26,6 @@
 
 (defmacro memoize (k f &optional num_buckets)
 	; (memoize key form [num_buckets]) -> (eval form)
-	(defq c (gensym) e (gensym))
 	(if num_buckets
 		`(. (const (Fmap ,num_buckets)) :update ,k (# (if %0 %0 ,f)))
 		`(. (const (Lmap)) :update ,k (# (if %0 %0 ,f)))))
