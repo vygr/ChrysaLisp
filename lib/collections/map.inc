@@ -8,8 +8,6 @@
 		; (. map :find key) -> :nil | val
 	(defabstractmethod :insert (key val))
 		; (. map :insert key val) -> map
-	(defabstractmethod :update (key func))
-		; (. map :update key lambda) -> val
 	(defabstractmethod :erase (key))
 		; (. map :erase key) -> map
 	(defabstractmethod :each (fnc))
@@ -26,4 +24,6 @@
 		; (. map :resize num_buckets) -> map
 	(defabstractmethod :empty? ())
 		; (. map :empty?) -> :t | :nil
+	(defabstractmethod :update (key func))
+		; (. map :update key lambda) -> val
 	)

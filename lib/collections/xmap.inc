@@ -8,10 +8,10 @@
 (env-push)
 
 (defmacro slot ()
-	`(defq _b (get :buckets this)
-		_ki (* (% ((get :hash_fnc this) key) (get :num_buckets this)) 2)
-		_kl (elem-get _b _ki)
-		_vl (elem-get _b (inc _ki))
+	`(defq _vl (get :buckets this)
+		_si (* (% ((get :hash_fnc this) key) (get :num_buckets this)) 2)
+		_kl (elem-get _vl _si)
+		_vl (elem-get _vl (inc _si))
 		_si (some (# (if ((get :cmp_fnc this) %0 key) (!))) _kl)))
 
 (defclass Xmap (&optional num_buckets cmp_fnc hash_fnc) (Map)
@@ -33,9 +33,11 @@
 
 	(defmethod :update (key _fnc)
 		; (. xmap :insert key lambda) -> val
-		(cond
-			((slot) (elem-get (elem-set _vl _si (_fnc (elem-get _vl _si))) _si))
-			((push _vl (_fnc :nil)) (push _kl key) (last _vl))))
+		(unless (slot)
+			(setq _si (length _kl))
+			(push _kl key)
+			(push _vl :nil))
+		(elem-get (elem-set _vl _si (_fnc (elem-get _vl _si))) _si))
 
 	(defmethod :erase (key)
 		; (. xmap :erase key) -> xmap
