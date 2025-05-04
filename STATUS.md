@@ -21,6 +21,8 @@ function.
 Updated `map` class `:update` method to return the update function value ! So
 now `(. map :update key lambda) -> val`.
 
+New `(. map :defer key lambda) -> val` method.
+
 ------
 
 `(write-char)` and `(write)` now return the number of bytes written to the
