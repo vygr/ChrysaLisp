@@ -18,7 +18,7 @@
 (defun concat? (&optional o) (if concat (output :op (opt o concat))))
 
 (defun cache (elem) ;graph element cache
-	(defq k (str elem)) (memoize k elem 11))
+	(memoize (str elem) elem 11))
 
 (defun tokenize (line)
 	(defq state :space concat :nil token :nil

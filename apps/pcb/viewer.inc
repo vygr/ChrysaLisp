@@ -16,8 +16,7 @@
 
 (defun oval (r s)
 	;cached oval generation
-	(defq key (str r s))
-	(memoize key (path-stroke-polylines (list) r +join_bevel +cap_round +cap_round (list s)) 11))
+	(memoize (str r s) (path-stroke-polylines (list) r +join_bevel +cap_round +cap_round (list s)) 11))
 
 (defun batch (p)
 	(defq s 0 e 0 b (list))
