@@ -32,6 +32,13 @@
 			(push vals :nil))
 		(elem-get (elem-set vals _si (_fnc (elem-get vals _si))) _si))
 
+	(defmethod :defer (key _fnc)
+		; (. lmap :defer key lambda) -> val
+		(raise :keys :vals)
+		(cond
+			((defq _si (find key keys)) (elem-get vals _si))
+			((push vals (_fnc)) (push keys key) (last vals))))
+
 	(defmethod :erase (key)
 		; (. lmap :erase key) -> lmap
 		(raise :keys :vals)

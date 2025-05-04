@@ -26,4 +26,6 @@
 		; (. map :empty?) -> :t | :nil
 	(defabstractmethod :update (key func))
 		; (. map :update key lambda) -> val
+	(defabstractmethod :defer (key func))
+		; (. map :defer key lambda) -> val
 	)

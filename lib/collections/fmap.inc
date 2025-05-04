@@ -38,6 +38,12 @@
 			(push _vl :nil))
 		(elem-get (elem-set _vl _si (_fnc (elem-get _vl _si))) _si))
 
+	(defmethod :defer (key _fnc)
+		; (. fmap :defer key lambda) -> val
+		(cond
+			((slot) (elem-get _vl _si))
+			((push _vl (_fnc)) (push _kl key) (last _vl))))
+
 	(defmethod :erase (key)
 		; (. fmap :erase key) -> fmap
 		(when (slot)
