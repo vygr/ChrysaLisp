@@ -42,8 +42,12 @@
 	(defmethod :defer (key _fnc)
 		; (. fmap :defer key lambda) -> val
 		(cond
-			((slot) (elem-get _vl _si))
-			((push _vl (_fnc)) (push _kl key) (last _vl))))
+			((slot)
+				(until (setq _kl (elem-get _vl _si))
+					((const (ffi _ "sys/task/lisp_sleep" 0)) 0)))
+			((setq _si (length _kl))
+				(push _kl key) (push _vl :nil)
+				(elem-set _vl _si (setq _kl (_fnc))))) _kl)
 
 	(defmethod :erase (key)
 		; (. xmap :erase key) -> xmap

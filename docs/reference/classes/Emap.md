@@ -18,6 +18,12 @@
 (. emap :deep_copy) -> emap
 ```
 
+### :defer
+
+```code
+(. emap :defer key lambda) -> val
+```
+
 ### :empty
 
 ```code

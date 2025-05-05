@@ -16,6 +16,12 @@
 (. map :deep_copy) -> map
 ```
 
+### :defer
+
+```code
+(. map :defer key lambda) -> val
+```
+
 ### :each
 
 ```code
