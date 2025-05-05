@@ -8,8 +8,8 @@
 (env-push)
 
 (defmacro slot ()
-	`(defq _b (get :buckets this)
-		_kl (elem-get _b (% (hash key) (get :num_buckets this)))
+	`(defq _kl (get :buckets this)
+		_kl (elem-get _kl (% (hash key) (get :num_buckets this)))
 		_si (find key _kl)))
 
 (defclass Fset (&optional num_buckets) (Set)
