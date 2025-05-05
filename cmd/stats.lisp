@@ -23,7 +23,7 @@
 					(if (env? node) (map (const second) (tolist node)) node))))
 		;gather length stats
 		(. node_set :each (# (when (list? %0)
-			(. len_map :update (length %0) (# (if %0 (inc %0) 0))))))
+			(. len_map :update (length %0) (# (if %0 (inc %0) 1))))))
 		;display results
 		(. len_map :each (# (push stack (list %0 %1))))
 		(print "Root environment lists")
