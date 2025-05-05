@@ -18,12 +18,6 @@
 (. fmap :deep_copy) -> fmap
 ```
 
-### :defer
-
-```code
-(. fmap :defer key lambda) -> val
-```
-
 ### :empty
 
 ```code
@@ -52,6 +46,12 @@
 
 ```code
 (. fmap :insert key val) -> fmap
+```
+
+### :memoize
+
+```code
+(. fmap :memoize key lambda) -> val
 ```
 
 ### :move

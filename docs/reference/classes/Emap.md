@@ -18,12 +18,6 @@
 (. emap :deep_copy) -> emap
 ```
 
-### :defer
-
-```code
-(. emap :defer key lambda) -> val
-```
-
 ### :empty
 
 ```code
@@ -46,6 +40,12 @@
 
 ```code
 (. emap :insert key val) -> emap
+```
+
+### :memoize
+
+```code
+(. emap :memoize key lambda) -> val
 ```
 
 ### :move

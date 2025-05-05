@@ -42,8 +42,8 @@
 				(push _kl key) (push _vl :nil)
 				(elem-set _vl _si (setq _kl (_fnc :nil))))) _kl)
 
-	(defmethod :defer (key _fnc)
-		; (. fmap :defer key lambda) -> val
+	(defmethod :memoize (key _fnc)
+		; (. fmap :memoize key lambda) -> val
 		(cond
 			((slot)
 				(until (setq _kl (elem-get _vl _si))

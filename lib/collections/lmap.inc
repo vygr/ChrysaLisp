@@ -36,8 +36,8 @@
 				(push keys key) (push vals :nil)
 				(elem-set vals _si (defq _v (_fnc :nil))))) _v)
 
-	(defmethod :defer (key _fnc)
-		; (. lmap :defer key lambda) -> val
+	(defmethod :memoize (key _fnc)
+		; (. lmap :memoize key lambda) -> val
 		(raise :keys :vals)
 		(cond
 			((defq _si (find key keys))

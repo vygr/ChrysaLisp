@@ -22,8 +22,8 @@
 		; (. emap :update key lambda) -> val
 		(def (defq _b (get :buckets this)) key (_fnc (def? key _b))))
 
-	(defmethod :defer (key _fnc)
-		; (. emap :defer key lambda) -> val
+	(defmethod :memoize (key _fnc)
+		; (. emap :memoize key lambda) -> val
 		(defq _b (get :buckets this))
 		(cond
 			((get key _b))

@@ -16,12 +16,6 @@
 (. map :deep_copy) -> map
 ```
 
-### :defer
-
-```code
-(. map :defer key lambda) -> val
-```
-
 ### :each
 
 ```code
@@ -56,6 +50,12 @@
 
 ```code
 (. map :insert key val) -> map
+```
+
+### :memoize
+
+```code
+(. map :memoize key lambda) -> val
 ```
 
 ### :move

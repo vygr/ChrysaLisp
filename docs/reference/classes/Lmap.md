@@ -18,12 +18,6 @@
 (. lmap :deep_copy) -> lmap
 ```
 
-### :defer
-
-```code
-(. lmap :defer key lambda) -> val
-```
-
 ### :empty
 
 ```code
@@ -52,6 +46,12 @@
 
 ```code
 (. lmap :insert key val) -> lmap
+```
+
+### :memoize
+
+```code
+(. lmap :memoize key lambda) -> val
 ```
 
 ### :move
