@@ -32,11 +32,15 @@
 
 	(defmethod :update (key _fnc)
 		; (. fmap :update key lambda) -> val
-		(unless (slot)
-			(setq _si (length _kl))
-			(push _kl key)
-			(push _vl :nil))
-		(elem-get (elem-set _vl _si (_fnc (elem-get _vl _si))) _si))
+		(cond
+			((slot)
+				(until (setq _kl (elem-get _vl _si))
+					((const (ffi _ "sys/task/lisp_sleep" 0)) 0))
+				(elem-set _vl _si :nil)
+				(elem-set _vl _si (setq _kl (_fnc _kl))))
+			((setq _si (length _kl))
+				(push _kl key) (push _vl :nil)
+				(elem-set _vl _si (setq _kl (_fnc :nil))))) _kl)
 
 	(defmethod :defer (key _fnc)
 		; (. fmap :defer key lambda) -> val

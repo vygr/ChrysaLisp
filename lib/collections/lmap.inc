@@ -26,11 +26,15 @@
 	(defmethod :update (key _fnc)
 		; (. lmap :update key lambda) -> val
 		(raise :keys :vals)
-		(unless (defq _si (find key keys))
-			(setq _si (length keys))
-			(push keys key)
-			(push vals :nil))
-		(elem-get (elem-set vals _si (_fnc (elem-get vals _si))) _si))
+		(cond
+			((defq _si (find key keys))
+				(until (defq _v (elem-get vals _si))
+					((const (ffi _ "sys/task/lisp_sleep" 0)) 0))
+				(elem-set vals _si :nil)
+				(elem-set vals _si (setq _v (_fnc _v))))
+			((setq _si (length keys))
+				(push keys key) (push vals :nil)
+				(elem-set vals _si (defq _v (_fnc :nil))))) _v)
 
 	(defmethod :defer (key _fnc)
 		; (. lmap :defer key lambda) -> val
