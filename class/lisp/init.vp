@@ -216,7 +216,7 @@
 	(built-in ":t" lisp_sym_t)
 	(built-in "lambda" lisp_sym_lambda)
 	(built-in "macro" lisp_sym_macro)
-	(built-in "(lambda ...)" lisp_sym_anon)
+	(built-in "(...)" lisp_sym_trunc)
 	(built-in "unquote" lisp_sym_unquote)
 	(built-in "unquote-splicing" lisp_sym_splicing)
 	(built-in "quote" lisp_sym_quote)

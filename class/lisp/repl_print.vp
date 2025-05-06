@@ -114,7 +114,7 @@
 			(assign `((,this lisp_sym_macro)) `(,func))
 			(breakif `(,iter_end /= ,func))
 		(vp-label 'trunc)
-			(assign `((,this lisp_sym_anon)) `(,obj))
+			(assign `((,this lisp_sym_trunc)) `(,obj))
 		(endif)
 	(endif)
 	(vp-ret)
