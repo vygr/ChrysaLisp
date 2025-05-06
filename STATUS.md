@@ -21,7 +21,7 @@ function.
 Updated `map` class `:update` method to return the update function value ! So
 now `(. map :update key lambda) -> val`.
 
-New `(. map :defer key lambda) -> val` method.
+New `(. map :memoize key lambda) -> val` method.
 
 ------
 
