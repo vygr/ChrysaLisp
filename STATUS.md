@@ -23,6 +23,9 @@ now `(. map :update key lambda) -> val`.
 
 New `(. map :memoize key lambda) -> val` method.
 
+Added support for nested bullet lists, italic and bold fonts, to Docs
+application.
+
 ------
 
 `(write-char)` and `(write)` now return the number of bytes written to the

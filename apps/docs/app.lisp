@@ -11,6 +11,8 @@
 
 (defq +margin_width (* 8 3)
 	+doc_font (first (font-info *env_window_font*))
+	+doc_font_bold (cat (first (split (first (font-info *env_window_font*)) "-")) "-Bold.ctf")
+	+doc_font_italic (cat (first (split (first (font-info *env_window_font*)) "-")) "-Italic.ctf")
 	+term_font (first (font-info *env_terminal_font*)))
 
 (defun page-scale (s)
