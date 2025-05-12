@@ -7,7 +7,7 @@
 	(cond
 		((starts-with "```" line)
 			(def (defq mw (max-length lines) vdu (Vdu))
-				:font *term_font*
+				:font (get :font_term_small page)
 				:vdu_width 80
 				:vdu_height (+ (length lines) 2)
 				:color 0

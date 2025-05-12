@@ -36,23 +36,21 @@
 	(setq *last_widget* :nil)
 	(. *page_words* :empty)
 	(when file
-		;fonts we will be using on this page
-		(defq *doc_font_italic* (create-font +doc_font_italic (page-scale 18))
-			*doc_font_bold* (create-font +doc_font_bold (page-scale 18))
-			*doc_font* (create-font +doc_font (page-scale 18))
-			*doc_symbol_font* (create-font "fonts/Entypo.ctf" (page-scale 10))
-			*doc_term_font* (create-font +term_font (page-scale 18))
-			*term_font* (create-font +term_font (page-scale 16)))
 		;min width of an 80 column terminal !
 		(def (defq vdu (Vdu))
-			:font *term_font*
+			:font (create-font +term_font (page-scale 16))
 			:vdu_width 80 :vdu_height 1)
 		(ui-root page_flow (Flow) (:flow_flags +flow_right_fill
-				:font *doc_font*
+				:font (create-font +doc_font (page-scale 18))
 				:color (get :color *window*))
 			(ui-label _ (:min_width +margin_width))
 			(ui-flow page (:flow_flags +flow_down_fill
-					:min_width (first (. vdu :pref_size))))
+				:font_bold (create-font +doc_font_bold (page-scale 18))
+				:font_italic (create-font +doc_font_italic (page-scale 18))
+				:font_symbol (create-font "fonts/Entypo.ctf" (page-scale 10))
+				:font_term (create-font +term_font (page-scale 18))
+				:font_term_small (get :font vdu)
+				:min_width (first (. vdu :pref_size))))
 			(ui-label _ (:min_width +margin_width)))
 		(defq state :text)
 		(each-line (lambda (line)
