@@ -35,7 +35,7 @@
 	(def text :text (intern-word (cat word " ")))
 	(if (/= 0 (logand state +state_italic)) (def text :font (get :font_italic flow)))
 	(if (/= 0 (logand state +state_bold)) (def text :font (get :font_bold flow)))
-	(when (/= 0 (logand state +state_code)) (def text :ink_color +argb_blue :font (get :font_term flow)))
+	(if (/= 0 (logand state +state_code)) (def text :ink_color +argb_blue :font (get :font_term flow)))
 	text)
 
 (defun line-flow (&optional size)
