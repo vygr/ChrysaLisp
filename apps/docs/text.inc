@@ -4,22 +4,23 @@
 (bits +state 0
 	(bit code bold italic))
 
-(defun parse-line (line)
-	(reach (lambda (((x x1)))
-			(setq line (cat (slice line 0 x)
-				" <c> " (slice line (+ x 1) (- x1 1)) " </c> "
-				(slice line x1 -1)))) (matches line "`[^`]+`"))
-	(reach (lambda (((x x1)))
-			(setq line (cat (slice line 0 x)
-				" <b> " (slice line (+ x 2) (- x1 2)) " </b> "
-				(slice line x1 -1)))) (matches line "\*\*[^*]+\*\*"))
-	(reach (lambda (((x x1)))
-			(setq line (cat (slice line 0 x)
-				" <i> " (slice line (+ x 1) (- x1 1)) " </i> "
-				(slice line x1 -1)))) (matches line "\*[^*]+\*"))
-	line)
+(defun parse-style (line pattern tag c)
+	(cond
+		((nempty? (defq match (matches line pattern)))
+			(defq seqs (list) x 0)
+			(each (lambda (((x1 x2)))
+				(push seqs (slice line x x1) " <" tag "> "
+					(slice line (+ x1 c) (- x2 c)) " </" tag "> ")
+				(setq x x2)) match)
+			(push seqs (slice line x -1))
+			(apply (const cat) seqs))
+		(line)))
 
-(defun state-change (word)
+(defun parse-line (line)
+	(reduce! (# (parse-style %0 %1 %2 %3))
+		'(("`[^`]+`" "\*\*[^*]+\*\*" "\*[^*]+\*") "cbi" (1 2 1)) line))
+
+(defun word-state (word)
 	(case word
 		("<c>" (setq state (logior state +state_code)))
 		("</c>" (setq state (logand state (lognot +state_code))))
@@ -51,7 +52,7 @@
 	(defq size (page-scale size) cnt 0 state 0
 		page_width (get :min_width page) flow (line-flow size))
 	(each (lambda (word) (cond
-		((/= (state-change word) -1))
+		((/= (word-state word) -1))
 		(:t (defq text (create-word word state))
 			(bind '(w _) (. text :pref_size))
 			(when (> (setq cnt (+ cnt w)) page_width)
@@ -69,7 +70,7 @@
 		(. flow :add_child text)
 		(setq cnt (defq indent_width (first (. text :pref_size)))))
 	(each (lambda (word) (cond
-		((/= (state-change word) -1))
+		((/= (word-state word) -1))
 		(:t	(defq text (create-word word state))
 			(bind '(w _) (. text :pref_size))
 			(when (> (setq cnt (+ cnt w)) page_width)
