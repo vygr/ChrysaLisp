@@ -334,7 +334,7 @@ register `:r2`.*
 The `emit-translate` function in `lib/trans/vp.inc` uses a multi-pass approach
 primarily to resolve forward branches and jumps.
 
-1.  **Problem:** When a branch instruction like `(vp-beq-rr :r0 :r1 my_label)` is encountered, `my_label` might be defined later in the code. The translator doesn't know the address of `my_label` on the first pass.
+1. **Problem:** When a branch instruction like `(vp-beq-rr :r0 :r1 my_label)` is encountered, `my_label` might be defined later in the code. The translator doesn't know the address of `my_label` on the first pass.
 
 2. **Solution:**
 

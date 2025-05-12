@@ -15,7 +15,7 @@ At the lowest level, ChrysaLisp's memory management is handled by the static
 `sys_mem` class. This class is the primary interface for all memory allocation
 and deallocation requests within the system.
 
-1.  **`sys_mem` - The Central Allocator:**
+1. **`sys_mem` - The Central Allocator:**
 
     * **Tiered Heap Management:** `sys_mem` doesn't typically allocate directly
     from the host OS for every small request. Instead, it manages an array of
@@ -276,9 +276,9 @@ their FFI implementations (which call the appropriate VP class methods like
 
         * Common sources of cycles mentioned in `lisp.md`:
 
-            * ` (push my-list my-list)`
+            * `(push my-list my-list)`
 
-            * ` (elem-set my-list 0 my-list)`
+            * `(elem-set my-list 0 my-list)`
 
             * Binding an environment to a symbol within itself or a child
             environment.
