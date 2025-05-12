@@ -33,13 +33,9 @@
 	(. flow :add_child (defq text (Text)))
 	(push *search_widgets* text)
 	(def text :text (intern-word (cat word " ")))
-	(if (/= 0 (logand state +state_italic))
-		(def text :font (create-font +doc_font_italic (page-scale 18))))
-	(if (/= 0 (logand state +state_bold))
-		(def text :font (create-font +doc_font_bold (page-scale 18))))
-	(when (/= 0 (logand state +state_code))
-		(def text :ink_color +argb_blue
-			:font (create-font +term_font (page-scale 18))))
+	(if (/= 0 (logand state +state_italic)) (def text :font *doc_font_italic*))
+	(if (/= 0 (logand state +state_bold)) (def text :font *doc_font_bold*))
+	(when (/= 0 (logand state +state_code)) (def text :ink_color +argb_blue :font *doc_term_font*))
 	text)
 
 (defun line-words (line)
@@ -69,7 +65,7 @@
 		;needs a bullet and indent
 		(def (defq text (Text))
 			:text (pad (cat (num-to-utf8 0xe95f) "    ") (* 24 (dec indent)))
-			:font (create-font "fonts/Entypo.ctf" (page-scale 10)))
+			:font *doc_symbol_font*)
 		(. flow :add_child text)
 		(setq cnt (defq indent_width (first (. text :pref_size)))))
 	(each (lambda (word) (cond
