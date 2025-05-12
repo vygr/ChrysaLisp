@@ -12,8 +12,7 @@
 				(push seqs (slice line x x1) " <" tag "> "
 					(slice line (+ x1 c) (- x2 c)) " </" tag "> ")
 				(setq x x2)) match)
-			(push seqs (slice line x -1))
-			(apply (const cat) seqs))
+			(apply (const cat) (push seqs (slice line x -1))))
 		(line)))
 
 (defun parse-line (line)
