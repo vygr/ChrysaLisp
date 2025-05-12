@@ -63,13 +63,13 @@ and deallocation requests within the system.
     * **Collection (`sys_heap :collect`):** This method performs two main
     passes:
 
-        1. It iterates through the global `hp_heap_free_flist`, moving each
+        * It iterates through the global `hp_heap_free_flist`, moving each
         free cell to the local free list of its parent `hp_block` and
         incrementing the block's `freecnt`. If a block's `freecnt` equals its
         `cellcnt` (meaning all its cells are free), the entire `hp_block` is
         unmapped using `host_os :pii_munmap`, returning memory to the OS.
 
-        2. It then iterates through all remaining `hp_block`s and splices their
+        * It then iterates through all remaining `hp_block`s and splices their
         local free lists (if any) onto the global `hp_heap_free_flist`,
         consolidating available cells.
 
