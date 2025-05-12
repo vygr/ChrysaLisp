@@ -98,18 +98,12 @@
 				((eql line "")
 					;body paragraph end
 					(when (nempty? lines)
-						(defq line (first lines) indent 0)
-						(cond
-							((starts-with "* " line)
-								(setq line (slice line 2 -1) indent 1))
-							((starts-with "    * " line)
-								(setq line (slice line 6 -1) indent 2))
-							((starts-with "        * " line)
-								(setq line (slice line 10 -1) indent 3))
-							((starts-with "            * " line)
-								(setq line (slice line 14 -1) indent 4))
-							((starts-with "                * " line)
-								(setq line (slice line 18 -1) indent 5)))
+						(if (defq line (first lines) indent
+								(some (# (if (starts-with %0 line) (!)))
+									'("* " "    * " "        * " "            * "
+									"                * " "                    * ")))
+							(setq line (slice line (+ (* indent 4) 2) -1) indent (inc indent))
+							(setq indent 0))
 						(setq line (apply (const cat) (join (elem-set lines 0 line) '(" "))))
 						(when (nempty? (defq words (parse-line line)))
 							(paragraph words indent)
