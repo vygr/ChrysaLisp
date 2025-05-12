@@ -58,10 +58,10 @@
 
 (defun paragraph (words indent)
 	(defq cnt 0 state 0 page_width (get :min_width page) flow (line-flow))
-	(when (> indent 0)
+	(when indent
 		;needs a bullet and indent
 		(def (defq text (Text))
-			:text (pad (cat (num-to-utf8 0xe95f) "    ") (* 24 (dec indent)))
+			:text (pad (cat (num-to-utf8 0xe95f) "    ") (* 24 indent))
 			:font *doc_symbol_font*)
 		(. flow :add_child text)
 		(setq cnt (defq indent_width (first (. text :pref_size)))))
@@ -71,7 +71,7 @@
 			(bind '(w _) (. text :pref_size))
 			(when (> (setq cnt (+ cnt w)) page_width)
 				(setq flow (line-flow))
-				(when (> indent 0)
+				(when indent
 					(def (defq indent_tab (Backdrop)) :min_width indent_width)
 					(. flow :add_child indent_tab)
 					(setq w (+ w indent_width)))
@@ -102,8 +102,7 @@
 								(some (# (if (starts-with %0 line) (!)))
 									'("* " "    * " "        * " "            * "
 									"                * " "                    * ")))
-							(setq line (slice line (+ (* indent 4) 2) -1) indent (inc indent))
-							(setq indent 0))
+							(setq line (slice line (+ (* indent 4) 2) -1)))
 						(setq line (apply (const cat) (join (elem-set lines 0 line) '(" "))))
 						(when (nempty? (defq words (parse-line line)))
 							(paragraph words indent)
