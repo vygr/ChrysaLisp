@@ -17,8 +17,7 @@
 		(line)))
 
 (defun parse-line (line)
-	(reduce! (# (parse-style %0 %1 %2 %3))
-		'(("`[^`]+`" "\*\*[^*]+\*\*" "\*[^*]+\*") "cbi" (1 2 1)) line))
+	(reduce! (const parse-style) '(("`[^`]+`" "\*\*[^*]+\*\*" "\*[^*]+\*") "cbi" (1 2 1)) line))
 
 (defun word-state (word)
 	(case word
