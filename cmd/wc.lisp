@@ -32,10 +32,11 @@
 		(setq line_count (inc line_count))
 
 		; Word count for the current line
-		(setq word_count (+ word_count (length (split line)))) ; split by default splits on whitespace
+		(defq words_on_line (split line)) ; Store the result of split
+		(setq word_count (+ word_count (length words_on_line)))
 
 		; Paragraph count logic
-		(if (empty? (trim line)) ; A line is empty if it's empty after trimming whitespace
+		(if (empty? words_on_line) ; Check if the list of words is empty
 			(setq in_paragraph_flag :nil)
 			(when (not in_paragraph_flag)
 				(setq paragraph_count (inc paragraph_count))
@@ -70,7 +71,7 @@
 			;have to do the work when just 1 file !
 			(if (nempty? jobs) (work (pop jobs))) ; Handle case of no input at all
 			;do them all out there, by calling myself !
-			(each (lambda ((job result)) (prin result)) ; prin to avoid extra newline from print
+			(each (lambda ((job result)) (prin result))
 				(pipe-farm (map (# (cat
 									(first args) ; This will be "wc"
 									(if wc_flag " -wc" "")
