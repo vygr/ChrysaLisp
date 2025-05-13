@@ -395,7 +395,8 @@ Usage: wc [options] [path] ...
 		-lc: count lines.
 		-pc: count paragraphs.
 
-	If no count options are given, defaults to all (words, lines, paragraphs).
+	If no count options are given, defaults
+	to all (words, lines, paragraphs).
 
 	If no paths given on command line
 	then paths are read from stdin.
