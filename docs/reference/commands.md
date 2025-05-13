@@ -384,3 +384,16 @@ Usage: unique [options] [line] ...
 	If no lines given on command line
 	then will read lines from stdin.
 ```
+## wordcount
+```code
+Usage: wordcount [options] [path]
+
+  Counts words, lines, and/or paragraphs in a file or from stdin.
+  If no count option is specified, all counts are performed.
+
+  options:
+    -h, --help:       This help information.
+    -wc, --wordcount: Perform word count.
+    -lc, --linecount: Perform line count.
+    -pc, --paracount: Perform paragraph count.
+```
