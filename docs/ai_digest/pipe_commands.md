@@ -47,7 +47,7 @@ detailed examples using the `grep`, `forward`, and `make` commands.
 ### Key Components of the Pipe System
 
 The distributed pipe functionality is primarily managed by components found in
-`lib/task/pipe.inc` and `lib/task/pipefarm.inc`.
+`lib/task/pipe.inc` and `lib/task/cmd.inc`.
 
 1. **`pipe-split cmdline_string -> list_of_commands`** (from
 `lib/task/pipe.inc`):
@@ -130,7 +130,7 @@ The distributed pipe functionality is primarily managed by components found in
     of data received.
 
 4. **`pipe-farm jobs_list [&optional retry_timeout]`** (from
-`lib/task/pipefarm.inc`):
+`lib/task/cmd.inc`):
 
     * **Purpose:** To execute a list of *independent* command-line jobs in
     parallel, distributing them across available nodes using a farm of worker
