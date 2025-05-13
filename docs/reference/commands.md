@@ -4,6 +4,7 @@ Usage: cat [options] [path] ...
 
 	options:
 		-h --help: this help info.
+		-f --file: preprend file name.
 
 	If no paths given on command line
 	then paths are read from stdin.

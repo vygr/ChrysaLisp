@@ -6,15 +6,22 @@
 
 	options:
 		-h --help: this help info.
+		-f --file: preprend file name.
 
 	If no paths given on command line
 	then paths are read from stdin.")
+(("-f" "--file")
+	,(lambda (args arg) (setq file_flag :t) args))
 ))
 
 ;cat a file to stdout
-(defun cat-file (_)
-	(if (setq _ (file-stream _))
-		(while (defq c (read-char _))
+(defun cat-file (file)
+	(when (defq stream (file-stream file))
+		(when file_flag
+			(print (defq banner (pad "" (+ (length file) 2) ";;;;;;;;")))
+			(print "; " file)
+			(print banner))
+		(while (defq c (read-char stream))
 			(prin (char c)))
 		(stream-flush (io-stream 'stdout))))
 
@@ -22,7 +29,7 @@
 	;initialize pipe details and command args, abort on error
 	(when (and
 			(defq stdio (create-stdio))
-			(defq args (options stdio usage)))
+			(defq file_flag :nil args (options stdio usage)))
 		(if (<= (length args) 1)
 			;cat from stdin
 			(each-line cat-file (io-stream 'stdin))
