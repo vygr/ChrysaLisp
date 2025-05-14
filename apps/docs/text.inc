@@ -16,8 +16,7 @@
 		(line)))
 
 (defun parse-line (line)
-	(defq quoted (list))
-	(when (nempty? (defq match (matches line "\q[^\q]+\q")))
+	(when (nempty? (defq quoted (list) match (matches line "\q[^\q]+\q")))
 		(defq seqs (list) x 0)
 		(each (lambda (((x1 x2)))
 			(push seqs (slice line x x1) " <q> ")
