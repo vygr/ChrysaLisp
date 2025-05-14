@@ -44,7 +44,6 @@
 			(ui-flow page (:flow_flags +flow_down_fill
 				:font_bold (create-font +doc_font_bold (page-scale 18))
 				:font_italic (create-font +doc_font_italic (page-scale 18))
-				:font_symbol (create-font "fonts/Entypo.ctf" (page-scale 10))
 				:font_term (create-font +term_font (page-scale 18))
 				:font_term_small (get :font vdu)
 				:min_width (first (. vdu :pref_size))))
