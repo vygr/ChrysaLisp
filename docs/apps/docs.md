@@ -5,9 +5,9 @@ display tutorials as well as reference material auto generated from the source
 code files.
 
 Section handlers are loaded dynamically as required and given responsibility
-for the embeding of content. Content ranges from wrapped text to images and
-live Lisp code snippets, including embeding the entire UI of applications. The
-mechanisation for the section handlers is explained in the `event_dispatch.md`
+for the embedding of content. Content ranges from wrapped text to images and
+live Lisp code snippets, including embedding the entire UI of applications. The
+mechanization for the section handlers is explained in the `event_dispatch.md`
 document.
 
 The Terminal command app `make docs` is used to scan the source files and
