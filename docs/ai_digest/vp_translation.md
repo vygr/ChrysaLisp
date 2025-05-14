@@ -1,6 +1,6 @@
-## The ChrysaLisp Virtual Processor (VP) and Translation System
+# The ChrysaLisp Virtual Processor (VP) and Translation System
 
-### Introduction
+## Introduction
 
 The ChrysaLisp Virtual Processor (VP) is an imaginary 64-bit RISC-like
 processor. It serves as the primary compilation target for all ChrysaLisp code,
@@ -25,7 +25,7 @@ The **Translation System** is responsible for converting this VP bytecode into
 executable machine code for a specific target CPU and ABI (Application Binary
 Interface).
 
-### VP Architecture
+## VP Architecture
 
 * **Registers:** The VP has 16 general-purpose 64-bit registers:
 
@@ -65,7 +65,7 @@ list):
     * **Stack Operations:** e.g., `(vp-push rs ...)`, `(vp-pop rd ...)`,
     `(vp-alloc size)`, `(vp-free size)`.
 
-### The Compilation and Translation Pipeline
+## The Compilation and Translation Pipeline
 
 The process of going from ChrysaLisp source to native executable code involves
 several stages:
@@ -142,7 +142,7 @@ allocation/mapping, or stay symbolic for a bit longer.
 machine code for the compiled function, which is then saved to an object file
 (e.g., `obj/x86_64/AMD64/my_function`).
 
-### VP Instruction Emitters (CPU-Specific)
+## VP Instruction Emitters (CPU-Specific)
 
 For each target CPU architecture (x86-64, ARM64, RISC-V 64, VP64), there's a
 corresponding `.inc` file in `lib/trans/` (e.g., `lib/trans/x86_64.inc`). These
@@ -164,7 +164,7 @@ numbers/encodings.
 
     * Writing these bytes to the `*stream*` and updating `*pc*`.
 
-### Architecture-Specific Examples
+## Architecture-Specific Examples
 
 Let's look at how a couple of VP instructions might be translated.
 
@@ -329,7 +329,7 @@ register `:r2`.*
         * **Resulting shorts (example):** `[opcode_cpy_cr_1 | 0x0200 | 0x4000,
         0x0006]`
 
-### Multi-Pass Translation for Forward References
+## Multi-Pass Translation for Forward References
 
 The `emit-translate` function in `lib/trans/vp.inc` uses a multi-pass approach
 primarily to resolve forward branches and jumps.
@@ -370,7 +370,7 @@ primarily to resolve forward branches and jumps.
     identical to the previous pass. This indicates all label addresses and
     branch offsets have stabilized.
 
-### Conclusion
+## Conclusion
 
 The ChrysaLisp VP and its translation system provide a flexible and portable
 way to compile code. The VP offers a consistent target, while the CPU-specific

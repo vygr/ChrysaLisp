@@ -1,4 +1,4 @@
-## ChrysaLisp Memory Architecture: From Low-Level Allocation to Lisp Objects
+# ChrysaLisp Memory Architecture: From Low-Level Allocation to Lisp Objects
 
 ChrysaLisp employs a manual memory management scheme based on reference
 counting, deliberately eschewing an automatic garbage collector. This design
@@ -9,7 +9,7 @@ starting from a fundamental system memory allocator, building up to a
 sophisticated VP (Virtual Processor) class library, which then forms the basis
 for all Lisp language objects and the interpreter itself.
 
-### Level 1: The Foundation - System Memory Allocation (`sys_mem` and `sys_heap`)
+## Level 1: The Foundation - System Memory Allocation (`sys_mem` and `sys_heap`)
 
 At the lowest level, ChrysaLisp's memory management is handled by the static
 `sys_mem` class. This class is the primary interface for all memory allocation
@@ -77,7 +77,7 @@ and deallocation requests within the system.
     heap (aligned to `+ptr_size`) and calculates an appropriate `blocksize`
     (rounded up to `ld_page_size`) to hold a number of these cells.
 
-### Level 2: The VP Object System and Lifecycle
+## Level 2: The VP Object System and Lifecycle
 
 Built upon `sys_mem`, the ChrysaLisp VP class library defines a common object
 model. All objects in this system inherit, directly or indirectly, from the
@@ -159,7 +159,7 @@ base `obj` class.
     if it wasn't using the small internal `e0-e3` buffer, before calling `obj
     :deinit`.
 
-### Level 3: Lisp Objects as VP Class Instances
+## Level 3: Lisp Objects as VP Class Instances
 
 A fundamental design principle in ChrysaLisp is that **Lisp data types are
 directly implemented as instances of VP classes.** There isn't a separate layer
@@ -242,7 +242,7 @@ of Lisp "cells" or "tagging" on top of the VP objects for common types.
     `:repl_apply`, `:lisp_add`) implement the Lisp language primitives and REPL
     functionality, operating on other VP objects.
 
-### Level 4: Memory Management in Lisp Code
+## Level 4: Memory Management in Lisp Code
 
 Given the direct mapping of Lisp objects to reference-counted VP objects and
 the absence of a GC:
@@ -305,7 +305,7 @@ their FFI implementations (which call the appropriate VP class methods like
     * **Lisp Objects:** All Lisp data objects (`num`, `str`, `list`, etc.) are
     heap-allocated VP objects managed by `sys_mem`.
 
-### Level 5: Boot Image and Compiled Function Objects
+## Level 5: Boot Image and Compiled Function Objects
 
 1. **Compiled Functions as VP Objects:**
 
@@ -340,7 +340,7 @@ their FFI implementations (which call the appropriate VP class methods like
     * The boot image itself is loaded into memory, and `sys/load/init` sets up
     the initial state for execution.
 
-### Summary
+## Summary
 
 ChrysaLisp's memory architecture is a carefully layered system designed for
 control and performance:

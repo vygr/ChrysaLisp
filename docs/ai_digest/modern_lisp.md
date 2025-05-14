@@ -1,4 +1,4 @@
-## ChrysaLisp's Lisp: A Modern, Performant, Sequence-Centric Dialect
+# ChrysaLisp's Lisp: A Modern, Performant, Sequence-Centric Dialect
 
 Lisp, the venerable ancestor of so many powerful programming paradigms, has
 always excelled at symbol manipulation and working with list structures. Its
@@ -11,7 +11,7 @@ them.
 The core philosophy driving ChrysaLisp's Lisp can be summarized as:
 **performance, pragmatism, and the primacy of the sequence.**
 
-### Breaking the Mold: Pragmatism Over Dogma
+## Breaking the Mold: Pragmatism Over Dogma
 
 As stated in its own documentation (`lisp.md`), ChrysaLisp is "not concerned
 with sticking to 'the lisp way', or whatever your local Lisp guru says." This
@@ -45,7 +45,7 @@ variables) live in the same environment, which is a chain of hash maps
 (`hmap`). Lambdas and macros achieve lexical scoping through this environment
 chain, getting a new local environment pushed upon invocation.
 
-### The Sequence is King: Lisp for a Vectorized World
+## The Sequence is King: Lisp for a Vectorized World
 
 This is where ChrysaLisp truly shines and makes its most compelling argument
 for a modern Lisp. **ChrysaLisp redefines Lisp's fundamental data structure not

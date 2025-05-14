@@ -1,4 +1,4 @@
-## The ChrysaLisp Distributed Pipe System and Build Commands
+# The ChrysaLisp Distributed Pipe System and Build Commands
 
 ChrysaLisp features a powerful command-line environment that extends the
 familiar concept of Unix-like pipes into a distributed computing paradigm. This
@@ -7,7 +7,7 @@ across multiple VP (Virtual Processor) nodes in a network. This document
 explores the core concepts, key components, options processing, and provides
 detailed examples using the `grep`, `forward`, and `make` commands.
 
-### Core Concepts
+## Core Concepts
 
 1. **Individual Command Applications:**
 
@@ -44,7 +44,7 @@ detailed examples using the `grep`, `forward`, and `make` commands.
     can themselves spawn multiple worker tasks that may be distributed across
     available nodes to perform sub-operations in parallel.
 
-### Key Components of the Pipe System
+## Key Components of the Pipe System
 
 The distributed pipe functionality is primarily managed by components found in
 `lib/task/pipe.inc` and `lib/task/cmd.inc`.
@@ -186,7 +186,7 @@ The distributed pipe functionality is primarily managed by components found in
     * It has an inactivity timeout; if it doesn't receive a job for a period,
     it exits.
 
-### Options Processing (`lib/options/options.inc`)
+## Options Processing (`lib/options/options.inc`)
 
 ChrysaLisp command-line applications use a standardized library for parsing
 options.
@@ -233,7 +233,7 @@ valid options. An entry in this list typically looks like:
     * It returns the list of collected non-option arguments, or `:nil` if help
     was displayed or a parsing error occurred.
 
-### Detailed Command Examples
+## Detailed Command Examples
 
 1. **`grep` (`cmd/grep.lisp`)**
 
@@ -339,7 +339,7 @@ valid options. An entry in this list typically looks like:
         process for different targets if the underlying `compile` uses the farm
         for each.
 
-### Advanced Distribution Concepts
+## Advanced Distribution Concepts
 
 * **Layered Distribution:** ChrysaLisp demonstrates multiple layers of
 distribution:
@@ -366,7 +366,7 @@ location on the VP network.
 for managing a pool of worker tasks, including launching, monitoring (via
 timestamps and `:refresh`), and restarting them.
 
-### Error Handling and Robustness
+## Error Handling and Robustness
 
 * **`Pipe` Class:** If a command in the pipeline fails to launch during `Pipe`
 construction, it attempts to send abort signals to already launched commands.
@@ -385,7 +385,7 @@ result string. It also has an inactivity timeout to self-terminate if orphaned.
 specific exit codes/statuses, which can be captured if they are run within a
 `pipe-run` managed by `lib/task/cmd.lisp`.
 
-### Conclusion
+## Conclusion
 
 The ChrysaLisp distributed pipe system, coupled with its command-line
 applications and options processing, provides a remarkably flexible and

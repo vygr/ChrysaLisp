@@ -1,4 +1,4 @@
-## The ChrysaLisp GUI: A Lisp-Centric Approach
+# The ChrysaLisp GUI: A Lisp-Centric Approach
 
 The ChrysaLisp GUI system is designed to be deeply integrated with the Lisp
 environment, leveraging its dynamic nature and object system to provide a
@@ -7,7 +7,7 @@ toolkits that might rely on rigid class hierarchies and explicit property
 setters/getters for every attribute, ChrysaLisp takes a unique approach by
 treating UI widgets themselves as Lisp environments.
 
-### Core Concepts
+## Core Concepts
 
 1. **The `View` Class: Foundation of All Widgets**
 
@@ -43,7 +43,7 @@ treating UI widgets themselves as Lisp environments.
     * This tree structure is fundamental to both layout and the property
     system.
 
-### Widgets as Lisp Environments: The Property System
+## Widgets as Lisp Environments: The Property System
 
 This is the cornerstone of the ChrysaLisp GUI's Lisp architecture. Because
 every widget (inheriting from `View`, which inherits from `hmap`) is a Lisp
@@ -99,7 +99,7 @@ environment.
     modifying a property defined at a higher level in the tree from a child
     widget.
 
-### Advantages of the "Widget as Environment" Property System
+## Advantages of the "Widget as Environment" Property System
 
 This architectural choice offers several significant advantages:
 
@@ -163,7 +163,7 @@ This architectural choice offers several significant advantages:
     * This makes it easy to attach arbitrary data or behavioral flags to
     widgets.
 
-### Event Handling in the GUI
+## Event Handling in the GUI
 
 As described in `event_dispatch.md` and `event_loops.md`:
 
@@ -193,7 +193,7 @@ widget the event is for.
     `(get ... this)` to access properties that might influence their behavior
     (e.g., a button's `:action_handler` property or its `:enabled?` state).
 
-### Drawing and Rendering
+## Drawing and Rendering
 
 * The GUI compositor (managed by the GUI task) determines which widgets need
 redrawing.
@@ -207,7 +207,7 @@ appearance using VP-level drawing commands (from `canvas.md` and `ctx.md`).
 `:ink_color`, `:font`, `:text`, `:style`, etc., from itself (or its ancestors)
 to determine how to draw.
 
-### Layout Management
+## Layout Management
 
 * Layout widgets (e.g., `Flow`, `Grid`) override the `:layout` method
 (`widgets.md`).
@@ -219,7 +219,7 @@ to determine how to draw.
 `:flow_flags`, `:grid_width`) and the preferred sizes of its children (obtained
 via `(. child :pref_size)`).
 
-### UI Builder Macros
+## UI Builder Macros
 
 * Macros like `(ui-window ...)`, `(ui-button ...)`, etc. (from `gui/lisp.inc`,
 listed in `widgets.md` and `macros.md`) greatly simplify the construction of UI
@@ -238,7 +238,7 @@ trees.
 
 * The nesting of these macros directly reflects the UI tree structure.
 
-### Conclusion
+## Conclusion
 
 The ChrysaLisp GUI architecture, by making widgets Lisp environments, creates
 an exceptionally dynamic and flexible system. The property inheritance via the
