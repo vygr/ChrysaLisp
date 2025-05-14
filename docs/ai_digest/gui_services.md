@@ -270,6 +270,8 @@ available via `gui/lisp.inc`.
 )
 ```
 
+---
+
 ### `Window`
 
 * **Inherits:** `View`
@@ -319,6 +321,8 @@ available via `gui/lisp.inc`.
 )
 ```
 
+---
+
 ### `Backdrop`
 
 * **Inherits:** `View`
@@ -351,6 +355,8 @@ available via `gui/lisp.inc`.
 (ui-backdrop *my-grid-bg*
     (:color +argb_grey2 :ink_color +argb_grey5 :style :grid :spacing 16))
 ```
+
+---
 
 ### `Button`
 
@@ -393,6 +399,8 @@ available via `gui/lisp.inc`.
 ```vdu
 (ui-button *ok_button* (:text "OK" :action_event +event_ok :tip_text "Confirm action"))
 ```
+
+---
 
 ### `Canvas` / `Canvas-pixmap`
 
@@ -442,6 +450,8 @@ available via `gui/lisp.inc`.
     (:on_draw (lambda (this)
         (.-> this (:set_color +argb_red) (:fbox 10 10 50 50) (:swap 0)))))
 ```
+
+---
 
 ### `Edit`
 
@@ -503,6 +513,8 @@ available via `gui/lisp.inc`.
 (ui-element *my_editor_widget* (Editor-edit))
 ```
 
+---
+
 ### `Flow`
 
 * **Inherits:** `View`
@@ -539,6 +551,8 @@ available via `gui/lisp.inc`.
 )
 ```
 
+---
+
 ### `Grid`
 
 * **Inherits:** `View`
@@ -572,6 +586,8 @@ available via `gui/lisp.inc`.
     ;; ... 12 buttons for a keypad ...
 )
 ```
+
+---
 
 ### `Hchart`
 
@@ -607,6 +623,8 @@ available via `gui/lisp.inc`.
 (def bar1 :value 50)
 (. *cpu_usage_chart* :update_scale)
 ```
+
+---
 
 ### `Label`
 
@@ -648,6 +666,8 @@ available via `gui/lisp.inc`.
 (ui-label *status_message* (:text "Ready." :font *env_body_font*))
 ```
 
+---
+
 ### `Node` (Interactive Text)
 
 * **Inherits:** `Text`
@@ -672,6 +692,8 @@ available via `gui/lisp.inc`.
 ```vdu
 (ui-element *tree-node-label* (Node) (:text "Expandable Item"))
 ```
+
+---
 
 ### `Progress`
 
@@ -702,6 +724,8 @@ available via `gui/lisp.inc`.
 ```vdu
 (ui-progress *download_progress* (:value 50 :maximum 100 :color +argb_green))
 ```
+
+---
 
 ### `Radiobar`
 
@@ -745,6 +769,8 @@ available via `gui/lisp.inc`.
 (ui-toggle-bar *style_options* '("Bold" "Italic" "Underline")
     (:action_event +event_style_change))
 ```
+
+---
 
 ### `Scroll`
 
@@ -791,6 +817,8 @@ available via `gui/lisp.inc`.
 )
 ```
 
+---
+
 ### `Slider`
 
 * **Inherits:** `View`
@@ -827,6 +855,8 @@ available via `gui/lisp.inc`.
 (ui-slider *volume_slider* (:maximum 100 :value 50 :action_event +event_volume_change))
 ```
 
+---
+
 ### `Spinner`
 
 * **Inherits:** `Flow`
@@ -856,6 +886,8 @@ available via `gui/lisp.inc`.
 ```vdu
 (ui-spinner *quantity_spinner* (:value 1 :minimum 1 :maximum 10 :action_event +event_quantity_change))
 ```
+
+---
 
 ### `Stack`
 
@@ -889,6 +921,8 @@ available via `gui/lisp.inc`.
 )
 ```
 
+---
+
 ### `Stroke`
 
 * **Inherits:** `View`
@@ -920,6 +954,8 @@ available via `gui/lisp.inc`.
 (ui-stroke *drawing_pad* (:action_event +event_stroke_updated))
 ```
 
+---
+
 ### `Text`
 
 * **Inherits:** `View`
@@ -950,6 +986,8 @@ available via `gui/lisp.inc`.
 ```vdu
 (ui-text *welcome_message* (:text "Welcome to ChrysaLisp!" :font *env_title_font*))
 ```
+
+---
 
 ### `Textfield`
 
@@ -1000,6 +1038,8 @@ available via `gui/lisp.inc`.
 (ui-textfield *password_field* (:hint_text "Password" :mode :t :action_event +event_password_entered))
 ```
 
+---
+
 ### `Title`
 
 * **Inherits:** `Label`
@@ -1024,6 +1064,8 @@ available via `gui/lisp.inc`.
 ```vdu
 (ui-title *app_title* (:text "My Application"))
 ```
+
+---
 
 ### `Tree`
 
@@ -1071,6 +1113,8 @@ available via `gui/lisp.inc`.
 (. *file_browser_tree* :populate "." '(".lisp" ".inc"))
 ```
 
+---
+
 ### `Vdu`
 
 * **Inherits:** `View`
@@ -1108,6 +1152,8 @@ available via `gui/lisp.inc`.
     (:vdu_width 80 :vdu_height 25 :ink_color +argb_green))
 (. *log_output_vdu* :load '("Line 1" "Line 2") 0 0 0 0)
 ```
+
+---
 
 ## UI Combination Macros
 
