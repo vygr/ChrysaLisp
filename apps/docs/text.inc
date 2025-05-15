@@ -77,9 +77,9 @@
 			:text (cat (pad "" (* (+ indent 4) 2)) style))
 		(. flow :add_child text)
 		(setq cnt (defq indent_width (first (. text :pref_size)))))
-	(each (lambda (word) (cond
-		((/= (word-state word) -1))
-		(:t	(defq text (create-word word state))
+	(each (lambda (word)
+		(when (= (word-state word) -1)
+			(defq text (create-word word state))
 			(bind '(w _) (. text :pref_size))
 			(when (> (setq cnt (+ cnt w)) page_width)
 				(setq flow (line-flow font_size))
@@ -88,7 +88,7 @@
 					(. flow :add_child indent_tab)
 					(setq w (+ w indent_width)))
 				(. flow :add_child text)
-				(setq cnt w))))) words)
+				(setq cnt w)))) words)
 	(under-line underline)
 	(blank-line))
 
