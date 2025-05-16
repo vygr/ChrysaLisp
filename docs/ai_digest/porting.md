@@ -114,7 +114,7 @@ the new host.
 
 ### 2.2. Makefile Adaptations (`src/host/Makefile`)
 
-The `src/host/Makefile` (structure described in `host.txt`) needs to be modified:
+The `src/host/Makefile` needs to be modified:
 
 1. **OS and CPU Detection:**
 
