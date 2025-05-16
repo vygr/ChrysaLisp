@@ -5,9 +5,9 @@
 	(bit code bold italic))
 
 (defun parse-line (line)
-	(when (nempty? (defq quoted (list) match (matches line "(\q[^\q]+\q)|(`[^`]+`)")))
+	(when (nempty? (defq quoted (list) match (matches line "\q[^\q]+\q|`[^`]+`")))
 		(defq seqs (list) x 0)
-		(each (lambda (((x1 x2) &ignore))
+		(each (lambda (((x1 x2)))
 			(cond
 				((eql (elem-get line x1) "`")
 					(push seqs (slice line x x1) " <c> <q> </c> ")
