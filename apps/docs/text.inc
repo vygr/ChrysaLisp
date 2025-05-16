@@ -4,27 +4,29 @@
 (bits +state 0
 	(bit code bold italic))
 
-(defun parse-style (line pattern tag c)
-	(cond
-		((nempty? (defq match (matches line pattern)))
-			(defq seqs (list) x 0)
-			(each (lambda (((x1 x2)))
-				(push seqs (slice line x x1) " <" tag "> "
-					(slice line (+ x1 c) (- x2 c)) " </" tag "> ")
-				(setq x x2)) match)
-			(apply (const cat) (push seqs (slice line x -1))))
-		(line)))
-
 (defun parse-line (line)
-	(when (nempty? (defq quoted (list) match (matches line "\q[^\q]+\q")))
+	(when (nempty? (defq quoted (list) match (matches line "(\q[^\q]+\q)|(`[^`]+`)")))
 		(defq seqs (list) x 0)
-		(each (lambda (((x1 x2)))
-			(push seqs (slice line x x1) " <q> ")
-			(push quoted (split (slice line x1 x2)))
+		(each (lambda (((x1 x2) &ignore))
+			(cond
+				((eql (elem-get line x1) "`")
+					(push seqs (slice line x x1) " <c> <q> </c> ")
+					(push quoted (split (slice line (inc x1) (dec x2)))))
+				((push seqs (slice line x x1) " <q> ")
+					(push quoted (split (slice line x1 x2)))))
 			(setq x x2)) match)
 		(setq line (apply (const cat) (push seqs (slice line x -1)))))
-	(defq words (split (reduce! (const parse-style)
-		'(("`[^`]+`" "\*\*[^*]+\*\*" "\*[^*]+\*") "cbi" (1 2 1)) line)))
+	(defq words (split (reduce! (lambda (line pattern tag c)
+			(cond
+				((nempty? (defq match (matches line pattern)))
+					(defq seqs (list) x 0)
+					(each (lambda (((x1 x2)))
+						(push seqs (slice line x x1) " <" tag "> "
+							(slice line (+ x1 c) (- x2 c)) " </" tag "> ")
+						(setq x x2)) match)
+					(apply (const cat) (push seqs (slice line x -1))))
+				(line)))
+		'(("\*\*[^*]+\*\*" "\*[^*]+\*") "bi" (2 1)) line)))
 	(cond
 		((nempty? quoted)
 			(reach (# (if (eql %0 "<q>") (elem-set words (!) (pop quoted)))) words)
