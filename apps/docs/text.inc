@@ -107,9 +107,9 @@
 				((eql line "")
 					;body paragraph end
 					(when (nempty? lines)
-						(defq line (first lines)
+						(defq line (first lines) style ""
 							indent (slice line 0 (bskip +char_class_space line 0))
-							style "" match (matches line "^\s*((\p\.)+\s+|\*\s+)"))
+							match (matches line "^\s*((\p\.)+\s+|\*\s+)"))
 						(when (nempty? match)
 							(bind '(((_ cx2) (sx1 sx2) &ignore)) match)
 							(setq style (slice line sx1 sx2) line (slice line cx2 -1)))
