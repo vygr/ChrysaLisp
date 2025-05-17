@@ -71,21 +71,22 @@
 		(def (defq backdrop (Backdrop)) :color +argb_black :min_height (max 1 (page-scale size)))
 		(. page :add_child backdrop)))
 
-(defun paragraph (words &optional indent style underline font_size)
-	(defq cnt 0 state 0 page_width (get :min_width page) flow (line-flow font_size))
-	(when indent
-		;needs a bullet and indent
+(defun paragraph (words indent style &optional underline font_size)
+	(defq cnt 0 state 0 page_width (get :min_width page)
+		indent_width :nil flow (line-flow font_size))
+	(unless (and (eql indent "") (eql style ""))
+		;needs an indent or bullet style
 		(def (defq text (Text))
-			:text (cat (pad "" (* (+ indent 4) 2)) style))
+			:text (cat indent indent style))
 		(. flow :add_child text)
-		(setq cnt (defq indent_width (first (. text :pref_size)))))
+		(setq cnt (setq indent_width (first (. text :pref_size)))))
 	(each (lambda (word)
 		(when (= (word-state word) -1)
 			(defq text (create-word word state))
 			(bind '(w _) (. text :pref_size))
 			(when (> (setq cnt (+ cnt w)) page_width)
 				(setq flow (line-flow font_size))
-				(when indent
+				(when indent_width
 					(def (defq indent_tab (Backdrop)) :min_width indent_width)
 					(. flow :add_child indent_tab)
 					(setq w (+ w indent_width)))
@@ -106,12 +107,12 @@
 				((eql line "")
 					;body paragraph end
 					(when (nempty? lines)
-						(defq line (first lines) indent :nil style :nil
-							match (matches line "^\s*(((\p\.)+)|\*)\s"))
+						(defq line (first lines)
+							indent (slice line 0 (bskip +char_class_space line 0))
+							style "" match (matches line "^\s*((\p\.)+\s+|\*\s+)"))
 						(when (nempty? match)
-							(bind '(((cx1 cx2) (bx1 bx2) &ignore)) match)
-							(setq style (slice line bx1 (inc bx2))
-								line (slice line cx2 -1) indent bx1))
+							(bind '(((_ cx2) (sx1 sx2) &ignore)) match)
+							(setq style (slice line sx1 sx2) line (slice line cx2 -1)))
 						(setq line (apply (const cat) (join (elem-set lines 0 line) '(" "))))
 						(when (nempty? (defq words (parse-line line)))
 							(paragraph words indent style))
@@ -122,7 +123,7 @@
 				((defq indent (some (# (if (starts-with %0 line) (!)))
 						'("# " "## " "### " "#### ")))
 					(setq line (slice line (+ indent 2) -1))
-					(paragraph (parse-line line) :nil :nil (- 4 (* indent 2)) (- 34 (* indent 4))))
+					(paragraph (parse-line line) "" "" (- 4 (* indent 2)) (- 34 (* indent 4))))
 				(:t (push lines line)))
 			state)))
 
