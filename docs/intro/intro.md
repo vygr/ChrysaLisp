@@ -104,10 +104,11 @@ Here's a summary of the setup:
 
 1. **Install Raspberry Pi OS (64-bit)**:
 
-    * Use the Raspberry Pi Imager (from [raspberrypi.com/software](https://www.raspberrypi.com/software/)).
+    * Use the Raspberry Pi Imager (from
+    [raspberrypi.com/software](https://www.raspberrypi.com/software/)).
 
-    * Choose "Raspberry Pi OS (other)" then "Raspberry Pi OS (64-bit)" (Lite or 
-      Desktop version).
+    * Choose "Raspberry Pi OS (other)" then "Raspberry Pi OS (64-bit)" (Lite or
+    Desktop version).
 
     * Configure settings (hostname, SSH, user, Wi-Fi) before writing the image.
 
