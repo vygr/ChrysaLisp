@@ -124,7 +124,7 @@
 						'("# " "## " "### " "#### ")))
 					(setq line (slice line (+ indent 2) -1))
 					(paragraph (parse-line line) "" "" (- 4 (* indent 2)) (- 34 (* indent 4))))
-				(:t (push lines line)))
+				((push lines line)))
 			state)))
 
 ;module
