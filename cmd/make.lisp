@@ -234,6 +234,17 @@
 			(# (cmp (first %0) (first %1)))))
 	(print "-> " document))
 
+(defun make-ai ()
+	(defq folders (Lmap)cmds (list))
+	(each (lambda (file)
+			(defq folder "host")
+			(if (defq i (find "/" file)) (setq folder (slice file 0 i)))
+			(. folders :update folder (# (if %0 (push %0 file) (list file)))))
+		(files-all "." '(".vp" ".inc" ".lisp" ".c" ".cpp" ".h" ".sh" ".ps1" ".bat") 2))
+	(. folders :each
+		(# (push cmds (cat "cat -f " (apply cat (join %1 '(" "))) " | tee " %0 ".txt | null"))))
+	(pipe-farm cmds))
+
 (defun main ()
 	;initialize pipe details and command args, abort on error
 	(when (and
@@ -241,7 +252,8 @@
 			(defq args (options stdio usage)))
 		(defq all (rfind "all" args) boot (rfind "boot" args)
 			platforms (rfind "platforms" args) docs (rfind "docs" args)
-			it (rfind "it" args) test (rfind "test" args))
+			it (rfind "it" args) test (rfind "test" args)
+			ai (rfind "ai" args))
 		(cond
 			(test (make-test))
 			(it (make-docs) (remake-all-platforms))
@@ -253,4 +265,5 @@
 			(platforms (make-platforms))
 			(boot (remake))
 			(docs (make-docs))
+			(ai (make-ai))
 			(:t (make)))))
