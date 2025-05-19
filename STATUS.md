@@ -26,6 +26,9 @@ New `(. map :memoize key lambda) -> val` method.
 Added support for nested bullet lists, italic and bold fonts, to Docs
 application.
 
+New `if not` special form. `(ifn tst form [form])`. Produces same results as
+`(if (not tst) form [form])`.
+
 ------
 
 `(write-char)` and `(write)` now return the number of bytes written to the

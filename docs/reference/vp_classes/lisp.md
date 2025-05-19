@@ -22,6 +22,8 @@
 
 ### (if tst form [else_form])
 
+### (ifn tst form [else_form])
+
 ### (macroexpand form)
 
 ### (. env sym [...])

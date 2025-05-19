@@ -229,6 +229,8 @@
 ; (cond [(tst body)] ...) -> 'form
 (ffi if "class/lisp/lisp_if" 1)
 ; (if tst form [else_form]) -> 'form
+(ffi ifn "class/lisp/lisp_ifn" 1)
+; (ifn tst form [else_form]) -> 'form
 (ffi while "class/lisp/lisp_while" 1)
 ; (while tst [body]) -> :nil
 (ffi throw "class/lisp/lisp_throw" 0)
@@ -456,7 +458,7 @@
 
 (defmacro not (_)
 	; (not form) -> :t | :nil
-	`(if ,_ :nil :t))
+	`(ifn ,_ :t))
 
 (defmacro when (x &rest _)
 	; (when tst body)
@@ -467,7 +469,7 @@
 (defmacro unless (x &rest _)
 	; (unless tst body)
 	(if (= (length _) 1)
-		`(if ,x :nil ~_)
+		`(ifn ,x ~_)
 		`(cond (,x :nil) (:t ~_))))
 
 (defmacro until (x &rest _)

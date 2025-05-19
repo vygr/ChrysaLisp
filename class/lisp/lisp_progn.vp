@@ -54,6 +54,64 @@
 
 (def-func-end)
 
+(def-method 'lisp :lisp_ifn)
+	;inputs
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
+	;outputs
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
+	;trashes
+	;:r1-:r14
+
+	(entry 'lisp :lisp_ifn '(:r0 :r1))
+
+	(assign '((:r1 array_length)) '(:r2))
+(errorcase
+	(gotoif '(:r2 < 3) 'error)
+	(gotoif '(:r2 > 4) 'error))
+
+	(assign '((:r1 array_begin)) '(:r1))
+	(vp-push :r0 :r1 :r2)
+
+	(call 'lisp :repl_eval '(:r0 (:r1 +ptr_size)) '(:r0 :r1))
+(errorcase
+	(assign `((:r1 obj_vtable) (@ ,(f-path 'error :vtable))) '(:r2 :r3))
+	(gotoif '(:r2 = :r3) 'error1))
+
+	(assign '((:r0 lisp_sym_nil)) '(:r2))
+	(vpif '(:r1 = :r2))
+		(call 'obj :deref '(:r1))
+		(vp-pop :r0 :r1 :r2)
+		(jump 'lisp :repl_eval '(:r0 (:r1 (* 2 +ptr_size))))
+	(endif)
+	(assign '((:rsp 0)) '(:r2))
+	(vpif '(:r2 = 4))
+		(call 'obj :deref '(:r1))
+		(vp-pop :r0 :r1 :r2)
+		(jump 'lisp :repl_eval '(:r0 (:r1 (* 3 +ptr_size))))
+	(else)
+		(call 'obj :deref '(:r1))
+		(assign '((:rsp (* +ptr_size 2))) '(:r0))
+		(assign '((:r0 lisp_sym_nil)) '(:r1))
+		(class/obj/ref :r1 :r2)
+	(endif)
+	(vp-pop :r0 :r2 :r3)
+
+	(exit 'lisp :lisp_ifn '(:r0 :r1))
+	(vp-ret)
+
+(vp-label 'error1)
+	(vp-free (* 3 +ptr_size))
+	(exit 'lisp :lisp_ifn '(:r0 :r1))
+	(vp-ret)
+
+(errorcase
+(vp-label 'error)
+	(jump 'lisp :repl_error '(:r0 "(ifn tst form [else_form])" +error_msg_wrong_num_of_args :r1)))
+
+(def-func-end)
+
 (def-method 'lisp :lisp_while)
 	;inputs
 	;:r0 = lisp object (ptr)
