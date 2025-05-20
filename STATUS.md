@@ -4,6 +4,11 @@
 
 ------
 
+New `(condn)` special form. With that comes a faster `(and)` macro that follows
+the `(or)` macro in simplicity.
+
+------
+
 Audio SFX service from Martyn Blyss. Many thanks ! Boing demo updated with a
 little nostalgia.
 

@@ -227,6 +227,8 @@
 ; (catch form eform) -> 'form
 (ffi cond "class/lisp/lisp_cond" 1)
 ; (cond [(tst body)] ...) -> 'form
+(ffi condn "class/lisp/lisp_condn" 1)
+; (condn [(tst body)] ...) -> 'form
 (ffi if "class/lisp/lisp_if" 1)
 ; (if tst form [else_form]) -> 'form
 (ffi ifn "class/lisp/lisp_ifn" 1)
@@ -482,10 +484,7 @@
 
 (defmacro and (&rest _)
 	; (and [tst] ...) -> :t | :nil | tst
-	(cond
-		((= (length _) 0))
-		((= (length _) 1) (first _))
-		(`(if ,(first _) (and ~(rest _))))))
+	(map! (const list) (list _) (list (const condn))))
 
 (defmacro times (c &rest _)
 	; (times num body)

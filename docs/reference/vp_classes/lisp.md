@@ -10,6 +10,8 @@
 
 ### (cond [(tst [body])] ...)
 
+### (condn [(tst [body])] ...)
+
 ### (env-pop [env])
 
 ### (env-push [env])
