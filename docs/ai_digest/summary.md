@@ -55,32 +55,32 @@ the Lisp root environment.
 ## 2. ChrysaLisp Language and Runtime (`class/` directory)
 
 * **Object System:** ChrysaLisp features a class-based object system. Classes
-are defined with `def-class`, methods with `defmethod`. It supports inheritance
-(e.g., `View` is a base for many GUI widgets), virtual methods, and a vtable
-mechanism. Reference counting (`obj_count`) is used for object lifetime
-management.
+are defined with `def-class`, methods with `def-method`. It supports
+inheritance (e.g., `View` is a base for many GUI widgets), virtual methods, and
+a vtable mechanism. Reference counting (`obj_count`) is used for object
+lifetime management.
 
 * **Core Data Types:**
 
     * **Numbers:** `Num` (integers), `Fixed` (fixed-point, `+fp_shift` for
     precision), `Real` (higher-precision numbers).
-    
+
     * **Sequences:** `Seq` (base class), `Str` (strings), `List` (dynamic
     lists/arrays of objects), `Array` (base for numeric arrays), `Nums` (arrays
     of numbers), `Fixeds`, `Reals`, `Path` (for 2D graphics).
-    
+
     * **Symbols:** `Sym` (interned symbols).
-    
+
     * **Functions & Macros:** `Func` (can be raw-arg or eval-arg), `(lambda
     ...)`, `(macro ...)`.
-    
+
     * **Collections:** `Hmap` (hash map, used for environments), `Hset` (hash
     set). `Lmap`, `Fmap`, `Emap`, `Xmap`, `Xset`, `Fset` provide various
     map/set implementations.
-    
+
     * **Streams:** `Stream` (base), `Fstream` (file), `Sstream` (string),
     `In`/`Out` (for IPC).
-    
+
     * **Other:** `Error`, `Dim` (multi-dimensional arrays).
 
 * **FFI (Foreign Function Interface):** `(ffi name "path" flags)` allows
