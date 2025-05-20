@@ -82,7 +82,7 @@
 
 (defun main ()
 	(defq select (alloc-select +select_size) syntax (Syntax) handlers (Emap)
-		scroll_pos (Fmap) *running* :t *current_file* "docs/ai_digest/modern_lisp.md"
+		scroll_pos (Fmap) *running* :t *current_file* "docs/ai_digest/summary.md"
 		*page_scale* 1.0 *regexp* :nil *whole_words* :nil
 		*last_key* "" *last_files* (list) *page_words* (Fset 101)
 		*last_widget* :nil *search_widgets* (list))
