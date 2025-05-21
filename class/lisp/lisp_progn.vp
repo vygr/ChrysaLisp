@@ -186,8 +186,8 @@
 	(push-scope)
 	(entry 'lisp :lisp_cond {this, args})
 
-	(assign {args} `(,tmp))
-	(class/array/get_both tmp iter_begin iter_end)
+	(assign {this, args} `(,this ,value))
+	(class/array/get_both value iter_begin iter_end)
 	(assign `(,iter_end) {iter_end})
 	(loop-start)
 		(vp-add-cr +ptr_size iter_begin)
@@ -202,19 +202,17 @@
 		(errorif `(,tmp = 0) 'error1))
 
 		(assign `((,value array_begin)) `(,tmp))
-		(assign {this} `(,this))
 		(call 'lisp :repl_eval `(,this (,tmp 0)) `(,this ,value))
 		(assign `((,this lisp_sym_nil)) `(,tmp))
 		(vpif `(,value /= ,tmp))
-			(assign {iter_begin} `(,tmp))
-			(assign `((,tmp 0)) `(,tmp))
+			(assign {*iter_begin} `(,tmp))
 			(class/array/get_both tmp iter_begin iter_end)
 			(jump 'lisp :repl_progn `(,this ,value (& ,iter_begin ,+ptr_size) ,iter_end))
 		(endif)
 		(call 'obj :deref `(,value))
-		(assign {iter_begin, iter_end} `(,iter_begin ,iter_end))
+		(assign {this, iter_begin, iter_end} `(,this ,iter_begin ,iter_end))
 	(loop-end)
-	(assign {this} `(,this))
+
 	(assign `((,this lisp_sym_nil)) `(,value))
 	(class/obj/ref value tmp)
 
@@ -242,7 +240,7 @@
 	;:r1-:r14
 
 	(def-vars
-		(ptr this args value)
+		(ptr this args)
 		(pptr iter_begin iter_end))
 
 	(vp-def (this value iter_begin iter_end tmp vtable))
@@ -250,20 +248,20 @@
 	(push-scope)
 	(entry 'lisp :lisp_condn {this, args})
 
-	(assign {this->lisp_sym_t} `(,value))
+	(assign {this} `(,this))
+	(assign `((,this lisp_sym_t)) `(,value))
 	(class/obj/ref value tmp)
-	(assign `(,value) {value})
 
 	(assign {args} `(,tmp))
 	(class/array/get_both tmp iter_begin iter_end)
-	(assign `(,iter_end ,value) {iter_end, value})
+	(assign `(,iter_end) {iter_end})
 	(loop-start)
 		(vp-add-cr +ptr_size iter_begin)
 		(breakif `(,iter_begin = ,iter_end))
 		(assign `(,iter_begin) {iter_begin})
 
-		(call 'obj :deref {value})
-		(assign {*iter_begin} `(,value))
+		(call 'obj :deref `(,value))
+		(assign {this, *iter_begin} `(,this ,value))
 
 	(errorcase
 		(assign `((,value obj_vtable) (@ ,(f-path 'list :vtable))) `(,vtable ,tmp))
@@ -272,20 +270,17 @@
 		(errorif `(,tmp = 0) 'error1))
 
 		(assign `((,value array_begin)) `(,tmp))
-		(assign {this} `(,this))
 		(call 'lisp :repl_eval `(,this (,tmp 0)) `(,this ,value))
 		(assign `((,this lisp_sym_nil)) `(,tmp))
 		(vpif `(,value = ,tmp))
-			(assign {iter_begin} `(,tmp))
-			(assign `((,tmp 0)) `(,tmp))
+			(assign {*iter_begin} `(,tmp))
 			(class/array/get_both tmp iter_begin iter_end)
 			(jump 'lisp :repl_progn `(,this ,value (& ,iter_begin ,+ptr_size) ,iter_end))
 		(endif)
-		(assign `(,value) {value})
 		(assign {iter_begin, iter_end} `(,iter_begin ,iter_end))
 	(loop-end)
 
-	(exit 'lisp :lisp_condn {this, value})
+	(exit 'lisp :lisp_condn `(,this ,value))
 	(return)
 
 (errorcase
