@@ -42,7 +42,6 @@
 		(call 'obj :deref '(:r1))
 		(jump 'lisp :repl_eval {this, begin[+ptr_size * 3]})
 	(endif)
-	(assign {this} '(:r0))
 
 (vp-label 'error1)
 	(exit 'lisp :lisp_if '(:r0 :r1))
@@ -98,10 +97,10 @@
 		(jump 'lisp :repl_eval {this, begin[+ptr_size * 3]})
 	(else)
 		(call 'obj :deref '(:r1))
-		(assign {this->lisp_sym_nil} '(:r1))
+		(assign {this} '(:r0))
+		(assign '((:r0 lisp_sym_nil)) '(:r1))
 		(class/obj/ref :r1 :r2)
 	(endif)
-	(assign {this} '(:r0))
 
 (vp-label 'error1)
 	(exit 'lisp :lisp_ifn '(:r0 :r1))
