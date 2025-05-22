@@ -80,21 +80,21 @@ which calls the C++ `host_gui :update` method.
 
 **1. `host_gui :update` (service/gui/class.vp)**
 
-    * Checks if the GUI is initialized (`statics_gui_init`). If not, calls `host_gui :init`.
+* Checks if the GUI is initialized (`statics_gui_init`). If not, calls `host_gui :init`.
 
-    * If `statics_gui_flags` indicate a global change (like a resize), it calls `host_gui :resize`.
+* If `statics_gui_flags` indicate a global change (like a resize), it calls `host_gui :resize`.
 
-    * If the `statics_gui_dirty_flag` is set (meaning something needs redrawing):
+* If the `statics_gui_dirty_flag` is set (meaning something needs redrawing):
 
-        1. `host_gui_funcs->begin_composite()`: Sets the rendering target to the backbuffer.
+    1. `host_gui_funcs->begin_composite()`: Sets the rendering target to the backbuffer.
 
-        2. `host_gui :composite(statics->statics_gui_screen, ...)`: This is the core compositing logic, detailed below. It calculates the exact dirty region for the entire screen.
+    2. `host_gui :composite(statics->statics_gui_screen, ...)`: This is the core compositing logic, detailed below. It calculates the exact dirty region for the entire screen.
 
-        3. `host_gui_funcs->end_composite()`: Resets the rendering target (usually to the main window/screen).
+    3. `host_gui_funcs->end_composite()`: Resets the rendering target (usually to the main window/screen).
 
-        4. `host_gui_funcs->flush(&rect)`: Copies the relevant portion of the backbuffer (defined by the bounds of the dirty region returned by `:composite`) to the visible screen.
+    4. `host_gui_funcs->flush(&rect)`: Copies the relevant portion of the backbuffer (defined by the bounds of the dirty region returned by `:composite`) to the visible screen.
 
-        5. Clears `statics_gui_dirty_flag` and frees temporary regions from `statics_gui_temps`.
+    5. Clears `statics_gui_dirty_flag` and frees temporary regions from `statics_gui_temps`.
 
 **2. `host_gui :composite(root_view, ...)` (gui/ctx/class.vp)**
 
