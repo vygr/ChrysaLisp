@@ -3,7 +3,7 @@
 (defmacro audio-call (func &rest args)
 	(setq func (cat "service/audio/lisp_" (str func)))
 	`(mail-send reply_id (setf-> (str-alloc +audio_ret_size)
-		(+audio_ret_retval ((const (ffi _ ,func 0)) ~args)))))
+		(+audio_ret_retval ((const (ffi ,func)) ~args)))))
 
 (defun main ()
 	; Declare the audio service

@@ -31,7 +31,7 @@
 
 (defmacro deffimethod (n _)
 	; (deffimethod name ffi)
-	`(def (def? :vtable this) ,n (ffi _ ,_ 0)))
+	`(def (def? :vtable this) ,n (ffi ,_)))
 
 (defmacro defgetmethod (field)
 	; (defgetmethod field)
