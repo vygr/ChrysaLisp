@@ -29,7 +29,7 @@
 		(cond
 			((defq _si (find key keys))
 				(until (defq _v (elem-get vals _si))
-					((const (ffi _ "sys/task/lisp_sleep" 0)) 0))
+					((const (ffi "sys/task/lisp_sleep")) 0))
 				(elem-set vals _si :nil)
 				(elem-set vals _si (setq _v (_fnc _v))))
 			((setq _si (length keys))
@@ -42,7 +42,7 @@
 		(cond
 			((defq _si (find key keys))
 				(until (defq _v (elem-get vals _si))
-					((const (ffi _ "sys/task/lisp_sleep" 0)) 0)))
+					((const (ffi "sys/task/lisp_sleep")) 0)))
 			((setq _si (length keys))
 				(push keys key) (push vals :nil)
 				(elem-set vals _si (defq _v (_fnc))))) _v)

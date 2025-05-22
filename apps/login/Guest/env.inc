@@ -39,7 +39,7 @@
 	*env_clock_twelve_hour* :t  *env_clock_seconds* :t  *env_clock_pad_hour* :nil *env_clock_dotw* :t)
 
 ;widget property defaults
-(ffi create-font "gui/font/lisp_create" 0)
+(ffi "gui/font/lisp_create" create-font)
 (defq *env_window_col* 0xffc0c0c0 *env_title_col* 0xffe0e0e0 *env_slider_col* 0xffe0e0e0
 	*env_toolbar_col* 0xffc0c0c0 *env_toolbar2_col* 0xffa0a0a0 *env_ink_col* 0xff000000
 	*env_hint_col* 0xffb0b0b0 *env_no_hint_col* *env_ink_col*

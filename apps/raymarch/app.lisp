@@ -41,7 +41,7 @@
 	(* (- x1 x) (- y1 y)))
 
 ;native versions
-(ffi tile "apps/raymarch/tile" 0)
+(ffi "apps/raymarch/tile" tile)
 
 (defun dispatch-job (key val)
 	;send another job to child

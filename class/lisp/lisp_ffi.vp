@@ -17,26 +17,32 @@
 
 	(def-vars
 		(ptr this value args)
-		(pptr iter_begin))
+		(pptr iter_begin fptr))
 
 	(push-scope)
 	(entry 'lisp :lisp_ffi {this, args})
 
-	(errorif-lisp-args-sig 'error :r1 4)
+	(errorif-lisp-args-sig 'error :r1 2 4)
 
 	(call 'list :get_begin {args} {_, iter_begin})
-	(call 'sys_load :bind {&iter_begin[+ptr_size * 2]->str_data} {value})
-	(errorifnot {value} 'error)
-	(call 'func :create {value | iter_begin[+ptr_size * 3]->num_value} {value})
-	(call 'hmap :insert {this->lisp_environment, iter_begin[+ptr_size], value})
+	(call 'sys_load :bind {&iter_begin[+ptr_size * 1]->str_data} {fptr})
+	(errorifnot {fptr} 'error)
+	(assign {0} {value})
+	(vpif {args->array_length = 4})
+		(assign {iter_begin[+ptr_size * 3]->num_value} {value})
+	(endif)
+	(call 'func :create {value | fptr} {fptr})
+	(vpif {args->array_length >= 3})
+		(call 'hmap :insert {this->lisp_environment, iter_begin[+ptr_size * 2], fptr})
+	(endif)
 
-	(exit 'lisp :lisp_ffi {this, value})
+	(exit 'lisp :lisp_ffi {this, fptr})
 	(return)
 
 (errorcase
 (vp-label 'error)
-	(jump 'lisp :repl_error {this, "(ffi sym path flags)", +error_msg_wrong_types, args})
-	(signature '(obj sym str num)))
+	(jump 'lisp :repl_error {this, "(ffi path [sym flags])", +error_msg_wrong_types, args})
+	(signature '(obj str sym num)))
 
 	(pop-scope-syms)
 

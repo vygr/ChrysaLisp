@@ -76,16 +76,16 @@
 	(if (defq stream (file-stream file +file_open_write))
 		(cond
 			((ends-with ".cpm" file)
-				((const (ffi _ "gui/pixmap/lisp_save_cpm" 0)) pixmap stream type)))))
+				((const (ffi "gui/pixmap/lisp_save_cpm")) pixmap stream type)))))
 
 (defun pixmap-load (file)
 	; (pixmap-load file) -> :nil | pixmap
 	(if (defq stream (file-stream file))
 		(cond
 			((ends-with ".cpm" file)
-				((const (ffi _ "gui/pixmap/lisp_load_cpm" 0)) stream))
+				((const (ffi "gui/pixmap/lisp_load_cpm")) stream))
 			((ends-with ".tga" file)
-				((const (ffi _ "gui/pixmap/lisp_load_tga" 0)) stream)))))
+				((const (ffi "gui/pixmap/lisp_load_tga")) stream)))))
 
 ;module
 (export-symbols

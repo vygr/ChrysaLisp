@@ -2,9 +2,9 @@
 (import "sys/list/lisp.inc")
 
 ;lisp bindings
-(ffi in-stream "class/in/lisp_create" 0)
+(ffi "class/in/lisp_create" in-stream)
 ; (in-stream) -> in_stream
-(ffi in-next-msg "class/in/lisp_next_msg" 0)
+(ffi "class/in/lisp_next_msg" in-next-msg)
 ; (in-next-msg in_stream) -> msg
 
 (structure +in +stream_size

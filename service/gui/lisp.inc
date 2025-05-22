@@ -1,13 +1,13 @@
 ;lisp bindings
-(ffi gui-info "service/gui/lisp_info" 0)
+(ffi "service/gui/lisp_info" gui-info)
 ; (gui-info) -> (mx my sw sh)
-(ffi gui-init "service/gui/lisp_init" 0)
+(ffi "service/gui/lisp_init" gui-init)
 ; (gui-init screen) -> screen
-(ffi gui-deinit "service/gui/lisp_deinit" 0)
+(ffi "service/gui/lisp_deinit" gui-deinit)
 ; (gui-deinit) -> :nil
-(ffi gui-update "service/gui/lisp_update" 0)
+(ffi "service/gui/lisp_update" gui-update)
 ; (gui-update mx my flags) -> :nil
-(ffi gui-event "service/gui/lisp_event" 0)
+(ffi "service/gui/lisp_event" gui-event)
 ; (gui-event) -> :nil | str
 
 ;gui events for Lisp level (getf)

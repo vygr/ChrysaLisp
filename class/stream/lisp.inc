@@ -1,10 +1,10 @@
 (import "class/obj/lisp.inc")
 
-(ffi stream-avail "class/stream/lisp_available" 0)
+(ffi "class/stream/lisp_available" stream-avail)
 ; (stream-avail stream) -> num
-(ffi stream-flush "class/stream/lisp_write_flush" 0)
+(ffi "class/stream/lisp_write_flush" stream-flush)
 ; (stream-flush stream) -> stream
-(ffi stream-seek "class/stream/lisp_seek" 0)
+(ffi "class/stream/lisp_seek" stream-seek)
 ; (stream-seek stream offset pos) -> stream
 
 ; Lisp (getf ...)

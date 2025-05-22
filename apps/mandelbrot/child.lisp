@@ -13,7 +13,7 @@
 			x2 (mbfp-mul xc xc) y2 (mbfp-mul yc yc))) i)
 
 ;native versions
-(ffi depth "apps/mandelbrot/depth" 0)
+(ffi "apps/mandelbrot/depth" depth)
 
 (defun mandel (key mbox x y x1 y1 w h cx cy z)
 	(write-int (defq reply (string-stream (cat ""))) (list x y x1 y1))

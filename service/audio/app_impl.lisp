@@ -8,7 +8,7 @@
 (defun main ()
 	; Declare the audio service
 	(defq audio_service (mail-declare (task-netid) "Audio" "Audio Service 0.1"))
-	((ffi _ "service/audio/lisp_init" 0))
+	((ffi "service/audio/lisp_init"))
 	; Main loop
 	(while :t
 		(let* ((msg (mail-read (task-netid))) (reply_id (getf msg +audio_rpc_reply_id)))
@@ -25,6 +25,6 @@
 				(+audio_type_remove
 					; Remove sound effect
 					(audio-call remove (getf msg +audio_remove_handle))))))
-	((ffi _ "service/audio/lisp_deinit" 0))
+	((ffi "service/audio/lisp_deinit"))
 	; Forget the audio service
 	(mail-forget audio_service))

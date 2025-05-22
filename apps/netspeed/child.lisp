@@ -4,7 +4,7 @@
 (import "./app.inc")
 
 ;native versions
-(ffi vops "apps/netspeed/vops" 0)
+(ffi "apps/netspeed/vops" vops)
 
 (enums +select 0
 	(enum main timeout))

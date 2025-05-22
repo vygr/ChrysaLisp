@@ -7,8 +7,8 @@
 (import "././pixmap/lisp.inc")
 
 ;lisp bindings
-(ffi canvas-to-argb32 "gui/canvas/lisp_to_argb32" 0)
-(ffi canvas-from-argb32 "gui/canvas/lisp_from_argb32" 0)
+(ffi "gui/canvas/lisp_to_argb32" canvas-to-argb32)
+(ffi "gui/canvas/lisp_from_argb32" canvas-from-argb32)
 
 ;init pixmap shared cache map
 (def *root_env* '*pixmap_cache* (Lmap))
@@ -56,19 +56,19 @@
 
 	(defmethod :swap (flags)
 		; (. canvas :swap flags) -> canvas
-		(. ((const (ffi _ "gui/canvas/lisp_swap" 0)) this flags) :dirty))
+		(. ((const (ffi "gui/canvas/lisp_swap")) this flags) :dirty))
 
 	(defmethod :next_frame ()
 		; (. canvas :next_frame) -> canvas
-		((const (ffi _ "gui/canvas/lisp_next_frame" 0)) this))
+		((const (ffi "gui/canvas/lisp_next_frame")) this))
 
 	(defmethod :resize (that)
 		; (. canvas :resize canvas) -> canvas
-		((const (ffi _ "gui/canvas/lisp_resize" 0)) this that))
+		((const (ffi "gui/canvas/lisp_resize")) this that))
 
 	(defmethod :fill (argb)
 		; (. canvas :fill argb) -> canvas
-		((const (ffi _ "gui/canvas/lisp_fill" 0)) this argb))
+		((const (ffi "gui/canvas/lisp_fill")) this argb))
 
 	(defmethod :set_canvas_flags (flags)
 		; (. canvas :set_canvas_flags flags) -> canvas
@@ -84,19 +84,19 @@
 
 	(defmethod :plot (x y)
 		; (. canvas :plot x y) -> canvas
-		((const (ffi _ "gui/canvas/lisp_plot" 0)) this x y))
+		((const (ffi "gui/canvas/lisp_plot")) this x y))
 
 	(defmethod :fbox (x y width height)
 		; (. canvas :fbox x y width height) -> canvas
-		((const (ffi _ "gui/canvas/lisp_fbox" 0)) this x y width height))
+		((const (ffi "gui/canvas/lisp_fbox")) this x y width height))
 
 	(defmethod :fpoly (x y winding_mode paths)
 		; (. canvas :fpoly x y winding_mode paths) -> canvas
-		((const (ffi _ "gui/canvas/lisp_fpoly" 0)) this x y winding_mode paths))
+		((const (ffi "gui/canvas/lisp_fpoly")) this x y winding_mode paths))
 
 	(defmethod :ftri (tri_path)
 		; (. canvas :ftri tri) -> canvas
-		((const (ffi _ "gui/canvas/lisp_ftri" 0)) this tri_path))
+		((const (ffi "gui/canvas/lisp_ftri")) this tri_path))
 
 	(defmethod :pref_size ()
 		; (. canvas :pref_size) -> (width height)
@@ -114,13 +114,13 @@
 (defclass Canvas (width height scale) (Canvas-base)
 	; (Canvas width height scale) -> canvas
 	; overide the default 'this' env with a Canvas component
-	(defq super this this ((const (ffi _ "gui/canvas/lisp_create" 0)) width height scale))
+	(defq super this this ((const (ffi "gui/canvas/lisp_create")) width height scale))
 	(each (lambda ((key val)) (def this key val)) (tolist super)))
 
 (defclass Canvas-pixmap (pixmap) (Canvas-base)
 	; (Canvas-pixmap pixmap) -> canvas
 	; overide the default 'this' env with a Canvas component
-	(defq super this this ((const (ffi _ "gui/canvas/lisp_create_pixmap" 0)) pixmap))
+	(defq super this this ((const (ffi "gui/canvas/lisp_create_pixmap")) pixmap))
 	(each (lambda ((key val)) (def this key val)) (tolist super)))
 
 (defun canvas-load (file flags)
@@ -139,10 +139,10 @@
 				((ends-with ".svg" file)
 					(SVG-Canvas stream 2))
 				((or (ends-with ".cpm" file) (ends-with ".flm" file))
-					(if (defq this ((const (ffi _ "gui/pixmap/lisp_load_cpm" 0)) stream))
+					(if (defq this ((const (ffi "gui/pixmap/lisp_load_cpm")) stream))
 						(Canvas-pixmap this)))
 				((ends-with ".tga" file)
-					(if (defq this ((const (ffi _ "gui/pixmap/lisp_load_tga" 0)) stream))
+					(if (defq this ((const (ffi "gui/pixmap/lisp_load_tga")) stream))
 						(Canvas-pixmap this)))))
 		(when this
 			(defq pixmap (getf this +canvas_pixmap 0))

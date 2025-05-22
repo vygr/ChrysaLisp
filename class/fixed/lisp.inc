@@ -1,11 +1,11 @@
 ;lisp bindings
-(ffi sin "class/fixed/lisp_sin" 0)
+(ffi "class/fixed/lisp_sin" sin)
 ; (sin fixed) -> fixed
-(ffi cos "class/fixed/lisp_cos" 0)
+(ffi "class/fixed/lisp_cos" cos)
 ; (cos fixed) -> fixed
-(ffi frac "class/fixed/lisp_frac" 0)
+(ffi "class/fixed/lisp_frac" frac)
 ; (frac fixed) -> fixed
-(ffi floor "class/fixed/lisp_floor" 0)
+(ffi "class/fixed/lisp_floor" floor)
 ; (floor fixed) -> fixed
-(ffi recip "class/fixed/lisp_recip" 0)
+(ffi "class/fixed/lisp_recip" recip)
 ; (recip fixed) -> fixed

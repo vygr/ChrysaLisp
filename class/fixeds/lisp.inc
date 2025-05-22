@@ -1,5 +1,5 @@
 ;lisp bindings
-(ffi fixeds-frac "class/fixeds/lisp_frac" 0)
+(ffi "class/fixeds/lisp_frac" fixeds-frac)
 ; (fixeds-frac fixeds [fixeds]) -> fixeds
-(ffi fixeds-floor "class/fixeds/lisp_floor" 0)
+(ffi "class/fixeds/lisp_floor" fixeds-floor)
 ; (fixeds-floor fixeds [fixeds]) -> fixeds

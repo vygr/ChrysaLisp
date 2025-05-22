@@ -35,7 +35,7 @@
 	(* (- x1 x) (- y1 y)))
 
 ;native versions
-(ffi tile "apps/mandelbrot/tile" 0)
+(ffi "apps/mandelbrot/tile" tile)
 
 (defun dispatch-job (key val)
 	;send another job to child

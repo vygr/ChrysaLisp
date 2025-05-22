@@ -78,9 +78,9 @@
 			(list buckets) (+ miny minx) (+ miny maxx 1))))
 
 ;native versions
-(ffi hit-line "apps/pcb/hit_line" 0)
-(ffi add-line "apps/pcb/add_line" 0)
-(ffi sub-line "apps/pcb/sub_line" 0)
+(ffi "apps/pcb/hit_line" hit-line)
+(ffi "apps/pcb/add_line" add-line)
+(ffi "apps/pcb/sub_line" sub-line)
 
 (defclass Layer (width height scale) :nil
 	; (Layer width height scale) -> layer

@@ -1,5 +1,5 @@
 ;lisp bindings
-(ffi out-stream "class/out/lisp_create" 0)
+(ffi "class/out/lisp_create" out-stream)
 ; (out-stream mbox) -> out_stream
 
 (enums +stream_mail_state 0

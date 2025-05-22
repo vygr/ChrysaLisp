@@ -1,13 +1,13 @@
 ;lisp bindings
-(ffi path-gen-arc "gui/path/lisp_gen_arc" 0)
-(ffi path-gen-cubic "gui/path/lisp_gen_cubic" 0)
-(ffi path-gen-quadratic "gui/path/lisp_gen_quadratic" 0)
-(ffi path-filter "gui/path/lisp_filter" 0)
-(ffi path-simplify "gui/path/lisp_simplify" 0)
-(ffi path-stroke-polygon "gui/path/lisp_stroke_polygon" 0)
-(ffi path-stroke-polyline "gui/path/lisp_stroke_polyline" 0)
-(ffi path-transform "gui/path/lisp_transform" 0)
-(ffi path-svg "gui/path/lisp_svg" 0)
+(ffi "gui/path/lisp_gen_arc" path-gen-arc)
+(ffi "gui/path/lisp_gen_cubic" path-gen-cubic)
+(ffi "gui/path/lisp_gen_quadratic" path-gen-quadratic)
+(ffi "gui/path/lisp_filter" path-filter)
+(ffi "gui/path/lisp_simplify" path-simplify)
+(ffi "gui/path/lisp_stroke_polygon" path-stroke-polygon)
+(ffi "gui/path/lisp_stroke_polyline" path-stroke-polyline)
+(ffi "gui/path/lisp_transform" path-transform)
+(ffi "gui/path/lisp_svg" path-svg)
 
 (enums +join 0
 	(enum miter bevel round))

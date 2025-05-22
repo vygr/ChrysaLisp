@@ -36,7 +36,7 @@
 		(cond
 			((slot)
 				(until (setq _kl (elem-get _vl _si))
-					((const (ffi _ "sys/task/lisp_sleep" 0)) 0))
+					((const (ffi "sys/task/lisp_sleep")) 0))
 				(elem-set _vl _si :nil)
 				(elem-set _vl _si (setq _kl (_fnc _kl))))
 			((setq _si (length _kl))
@@ -48,7 +48,7 @@
 		(cond
 			((slot)
 				(until (setq _kl (elem-get _vl _si))
-					((const (ffi _ "sys/task/lisp_sleep" 0)) 0)))
+					((const (ffi "sys/task/lisp_sleep")) 0)))
 			((setq _si (length _kl))
 				(push _kl key) (push _vl :nil)
 				(elem-set _vl _si (setq _kl (_fnc))))) _kl)

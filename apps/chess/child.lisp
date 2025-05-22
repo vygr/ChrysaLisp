@@ -222,7 +222,7 @@
 					(setq len 0))))) (list vectors)) yield)
 
 ;native versions
-(ffi piece-scans "apps/chess/piece_scans" 0)
+(ffi "apps/chess/piece_scans" piece-scans)
 
 ;test if king of given color is in check
 (defun in-check (brd color)
