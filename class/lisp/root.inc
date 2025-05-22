@@ -472,7 +472,7 @@
 	; (unless tst body)
 	(if (= (length _) 1)
 		`(ifn ,x ~_)
-		`(cond (,x :nil) (:t ~_))))
+		`(condn (,x ~_))))
 
 (defmacro until (x &rest _)
 	; (until tst body)
