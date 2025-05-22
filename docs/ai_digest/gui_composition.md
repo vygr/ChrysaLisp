@@ -40,33 +40,33 @@ characteristic.
 
 * **Key Operations:**
 
-    * `region::copy_rect(heap, src_region, dst_region, x, y, x1, y1)`: Copies the 
+    * `region :copy_rect(heap, src_region, dst_region, x, y, x1, y1)`: Copies the 
       portion of `src_region` that intersects with the rectangle `(x, y, x1, y1)` 
       into `dst_region`.
 
-    * `region::paste_rect(heap, dst_region, x, y, x1, y1)`: Adds the rectangle 
+    * `region :paste_rect(heap, dst_region, x, y, x1, y1)`: Adds the rectangle 
       `(x, y, x1, y1)` to `dst_region`. If the new rectangle overlaps with existing 
       rectangles in `dst_region`, they are merged to maintain the non-overlapping 
       property. This might involve splitting and combining existing rects.
 
-    * `region::remove_rect(heap, region, x, y, x1, y1)`: Subtracts the rectangle 
+    * `region :remove_rect(heap, region, x, y, x1, y1)`: Subtracts the rectangle 
       `(x, y, x1, y1)` from `region`. This can result in existing rectangles in 
       `region` being split, resized, or removed.
 
-    * `region::cut_rect(heap, src_region, dst_region, x, y, x1, y1)`: Similar to 
+    * `region :cut_rect(heap, src_region, dst_region, x, y, x1, y1)`: Similar to 
       `copy_rect` but *moves* the intersecting portion from `src_region` to 
       `dst_region`, effectively removing it from `src_region`.
 
-    * `region::clip_rect(heap, region, x, y, x1, y1)`: Modifies `region` so that 
+    * `region :clip_rect(heap, region, x, y, x1, y1)`: Modifies `region` so that 
       it only contains parts that are within the rectangle `(x, y, x1, y1)`.
 
-    * `region::translate(region, dx, dy)`: Moves all rectangles in `region` by 
+    * `region :translate(region, dx, dy)`: Moves all rectangles in `region` by 
       `(dx, dy)`.
 
-    * `region::free(heap, region)`: Deallocates all rectangles within the `region` 
+    * `region :free(heap, region)`: Deallocates all rectangles within the `region` 
       and clears it.
 
-    * `region::bounds(region)`: Returns the overall bounding box `(bx, by, bx1, by1)` 
+    * `region :bounds(region)`: Returns the overall bounding box `(bx, by, bx1, by1)` 
       that encompasses all rectangles in the `region`.
 
     * **Heap:** All region operations take a `heap` parameter, which is 
@@ -112,17 +112,17 @@ This is the heart of the compositor and involves multiple passes over the view t
 
             * If `view_flag_opaque`, its entire bounding box is considered. Otherwise, its `view_opaque_region` (translated to parent coordinates) is used.
 
-            * This opaque area is *removed* from the `view_dirty_region` of all its ancestors up to the root using `region::remove_rect` or `region::remove_region`. This is crucial: if a child is opaque, its ancestors don't need to redraw the area it covers.
+            * This opaque area is *removed* from the `view_dirty_region` of all its ancestors up to the root using `region :remove_rect` or `region :remove_region`. This is crucial: if a child is opaque, its ancestors don't need to redraw the area it covers.
 
     * **`visible_up_callback`:**
 
-        * If `view_flag_dirty_all` is set for the current view, its entire area (0, 0, width, height) is `region::paste_rect`'d into its *local* `view_dirty_region`.
+        * If `view_flag_dirty_all` is set for the current view, its entire area (0, 0, width, height) is `region :paste_rect`'d into its *local* `view_dirty_region`.
 
-        * The view's `view_dirty_region` is then clipped to its own bounds (`region::clip_rect`).
+        * The view's `view_dirty_region` is then clipped to its own bounds (`region :clip_rect`).
 
-        * This (now clipped) local `view_dirty_region` is translated to its parent's coordinate system and then `region::paste_rect`'d into its parent's `view_dirty_region`.
+        * This (now clipped) local `view_dirty_region` is translated to its parent's coordinate system and then `region :paste_rect`'d into its parent's `view_dirty_region`.
 
-        * The view's local `view_dirty_region` is then freed (`region::free`).
+        * The view's local `view_dirty_region` is then freed (`region :free`).
 
     * **Result of Pass 1:** The `root_view` (screen) now has a `view_dirty_region` that represents all areas on the screen that need redrawing, *excluding* areas covered by opaque views that themselves are not dirty.
 
@@ -132,13 +132,13 @@ This is the heart of the compositor and involves multiple passes over the view t
 
     * **`distribute_down_callback`:**
 
-        * The parent's `view_dirty_region` (which is the area *it* needs to draw) is copied (`region::copy_rect`) into the current child's `view_dirty_region`, translated and clipped to the child's local bounds. This child's `view_dirty_region` now represents the *actual visible area* it is responsible for drawing.
+        * The parent's `view_dirty_region` (which is the area *it* needs to draw) is copied (`region :copy_rect`) into the current child's `view_dirty_region`, translated and clipped to the child's local bounds. This child's `view_dirty_region` now represents the *actual visible area* it is responsible for drawing.
 
         * If the child has a non-empty `view_dirty_region` after this clipping:
 
             * The child is added to a draw list (`statics_gui_ctx_flist`).
 
-            * If the child is opaque: its `view_opaque_region` (translated and clipped to the parent's current dirty region) is *removed* (`region::remove_rect` or `region::remove_region`) from the parent's `view_dirty_region`. This prevents siblings drawn *after* (and behind) this opaque child from redrawing the area it will cover.
+            * If the child is opaque: its `view_opaque_region` (translated and clipped to the parent's current dirty region) is *removed* (`region :remove_rect` or `region :remove_region`) from the parent's `view_dirty_region`. This prevents siblings drawn *after* (and behind) this opaque child from redrawing the area it will cover.
 
         * The callback returns a flag indicating whether to descend into this child's children (typically yes, unless the child's dirty region is empty).
 
@@ -180,15 +180,15 @@ This is the heart of the compositor and involves multiple passes over the view t
 
     * Used to subtract from parent's dirty region before passing to subsequent siblings (Pass 2, `distribute_down_callback`).
 
-* **`region::paste_rect`:** Used to add areas to a `view_dirty_region` (e.g., a view marking itself dirty, or a parent accumulating child dirty areas).
+* **`region :paste_rect`:** Used to add areas to a `view_dirty_region` (e.g., a view marking itself dirty, or a parent accumulating child dirty areas).
 
-* **`region::remove_rect` / `region::remove_region`:** Used to subtract opaque areas from dirty regions.
+* **`region :remove_rect` / `region :remove_region`:** Used to subtract opaque areas from dirty regions.
 
-* **`region::copy_rect` / `region::cut_rect`:** Used when distributing a parent's dirty region to a child.
+* **`region :copy_rect` / `region :cut_rect`:** Used when distributing a parent's dirty region to a child.
 
-* **`region::translate`:** Used to convert regions between parent and child coordinate systems.
+* **`region :translate`:** Used to convert regions between parent and child coordinate systems.
 
-* **`region::clip_rect`:** Used to ensure a view's dirty region doesn't extend beyond its own bounds or the (translated) dirty region of its parent.
+* **`region :clip_rect`:** Used to ensure a view's dirty region doesn't extend beyond its own bounds or the (translated) dirty region of its parent.
 
 ## Conclusion
 
