@@ -89,7 +89,7 @@ sequences or final aggregate results.
 
     * Describing a process as a series of transformations on sequences can be
     very clear and closely mirror human thought about data manipulation. `(map
-    (lambda (x) (* x 2)) (filter #'even? my-list))` is arguably more direct
+    (lambda (x) (* x 2)) (filter even? my-list))` is arguably more direct
     than an explicit loop with an if-statement and an accumulator.
 
 6. **Testability:**
@@ -108,7 +108,7 @@ execution to a higher-level view of data flowing through transformations.
 * **Decisions Become Data or Functions:**
 
     * Instead of `if (is_valid(item)) then process(item)`, you have `(process
-    (filter #'is_valid sequence))`. The `is_valid` *decision* is now a
+    (filter is_valid? sequence))`. The `is_valid` *decision* is now a
     predicate function, part of the data-flow pipeline.
 
     * Conditional transformations become `(map (lambda (x) (if (test x)
