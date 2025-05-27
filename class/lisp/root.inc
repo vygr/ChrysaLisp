@@ -438,6 +438,10 @@
 	; (nil? o) -> :t | :nil
 	(eql _ :nil))
 
+(defun atom? (_)
+	; (atom? o) -> :t | :nil
+	(cond ((sym? _) :nil) ((list? _) :nil) (:t)))
+
 (defun empty? (_)
 	; (empty? form) -> :t | :nil
 	(if (seq? _) (= (length _) 0) :t))
@@ -571,15 +575,17 @@
 
 (defmacro reduce (f s &optional i)
 	; (reduce lambda seq [init]) -> form
-	(if i
-		`(reduce! ,f (list ,s) ,i)
-		`(reduce! ,f (list (defq ,(defq i (gensym)) ,s)) (first ,i) 1)))
+	(cond
+		(i `(reduce! ,f (list ,s) ,i))
+		((list? s) `(reduce! ,f (list (defq ,(defq i (gensym)) ,s)) (first ,i) 1))
+		(`(reduce! ,f (list ,s) (first ,s) 1))))
 
 (defmacro rreduce (f s &optional i)
 	; (rreduce lambda seq [init]) -> form
-	(if i
-		`(reduce! ,f (list ,s) ,i -1 0)
-		`(reduce! ,f (list (defq ,(defq i (gensym)) ,s)) (last ,i) -2 0)))
+	(cond
+		(i `(reduce! ,f (list ,s) ,i -1 0))
+		((list? s) `(reduce! ,f (list (defq ,(defq i (gensym)) ,s)) (last ,i) -2 0))
+		(`(reduce! ,f (list ,s) (last ,s) -2 0))))
 
 (defmacro reverse (s)
 	; (reverse seq) -> seq
@@ -715,9 +721,7 @@
 				(if (= (length _clause_body) 1)
 					(first _clause_body)
 					(cat '(progn) _clause_body)))))))
-			(or (eql :num (defq _clause_type (pop (type-of _clause_body))))
-				(eql :str _clause_type)
-				(setq _atoms :nil))
+			(ifn (atom? (pop (type-of _clause_body))) (setq _atoms :nil))
 			(each (#
 				(and (sym? %0) (starts-with "+" %0) (setq %0 (eval %0)))
 				(cond

@@ -70,6 +70,12 @@ parse the commands and attributes calling back to the user functions
 (ascii-upper num) -> num
 ```
 
+### atom?
+
+```code
+(atom? o) -> :t | :nil
+```
+
 ### bounding-box
 
 ```code
