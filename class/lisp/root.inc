@@ -428,11 +428,11 @@
 
 (defun lambda-func? (_)
 	; (lambda-func? form) -> :t | :nil
-	(if (list? _) (if (> (length _) 0) (lambda? (first _)))))
+	(if (list? _) (lambda? (first _))))
 
 (defun macro-func? (_)
 	; (macro-func? form) -> :t | :nil
-	(if (list? _) (if (> (length _) 0) (macro? (first _)))))
+	(if (list? _) (macro? (first _))))
 
 (defun nil? (_)
 	; (nil? o) -> :t | :nil
