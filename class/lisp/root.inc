@@ -235,6 +235,8 @@
 ; (ifn tst form [else_form]) -> 'form
 (ffi "class/lisp/lisp_while" while 1)
 ; (while tst [body]) -> :nil
+(ffi "class/lisp/lisp_until" until 1)
+; (until tst [body]) -> tst
 (ffi "class/lisp/lisp_throw" throw)
 ; (throw str form)
 (ffi "class/lisp/lisp_bind" bind)
@@ -477,10 +479,6 @@
 	(if (= (length _) 1)
 		`(ifn ,x ~_)
 		`(condn (,x ~_))))
-
-(defmacro until (x &rest _)
-	; (until tst body)
-	`(while (not ,x) ~_))
 
 (defmacro or (&rest _)
 	; (or [tst] ...) -> :nil | tst

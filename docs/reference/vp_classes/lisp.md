@@ -42,6 +42,8 @@
 
 ### (throw str form)
 
+### (until tst [body])
+
 ### (while tst [body])
 
 ## VP methods

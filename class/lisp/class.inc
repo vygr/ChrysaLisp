@@ -42,6 +42,7 @@
 	(dec-method :lisp_condn class/lisp/lisp_condn :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_progn class/lisp/lisp_progn :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_while class/lisp/lisp_while :static (:r0 :r1) (:r0 :r1))
+	(dec-method :lisp_until class/lisp/lisp_until :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_print class/lisp/lisp_print :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_prin class/lisp/lisp_prin :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_copy class/lisp/lisp_copy :static (:r0 :r1) (:r0 :r1))

@@ -631,12 +631,6 @@ static quasi-quoted
 (unless tst body)
 ```
 
-### until
-
-```code
-(until tst body)
-```
-
 ### when
 
 ```code
