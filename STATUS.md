@@ -9,6 +9,8 @@ the `(or)` macro in simplicity.
 
 New VP level `(until tst [body]) ->tst`.
 
+Big tidy up of the `(ffi path [sym flags])` syntax and optional values.
+
 ------
 
 Audio SFX service from Martyn Blyss. Many thanks ! Boing demo updated with a
