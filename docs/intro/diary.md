@@ -143,10 +143,10 @@ I'm going to add an entry at the top of this block of `(ffi)` calls as it feels
 like the right kind of group to put this new `(hash)` function in.
 
 ```vdu
-(ffi hash "class/obj/lisp_hash" 0)
-(ffi type-of "class/lisp/lisp_type" 0)
-(ffi eql "class/lisp/lisp_eql" 0)
-(ffi copy "class/lisp/lisp_copy" 0)
+(ffi "class/obj/lisp_hash" hash)
+(ffi "class/lisp/lisp_type" type-of)
+(ffi "class/lisp/lisp_eql" eql)
+(ffi "class/lisp/lisp_copy" copy)
 ```
 
 ## Give it a spin
