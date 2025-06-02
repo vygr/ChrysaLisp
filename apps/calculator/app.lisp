@@ -46,8 +46,7 @@
 				(:t
 					(cond
 						((= num 0)
-							(unless (eql op "0"))
-								(setq num (str-as-num op)))
+							(unless (eql op "0") (setq num (str-as-num op))))
 						(:t (setq num (str-as-num (cat (str num) op)))))
 					(setq value num)))
 			(set *display* :text (str value))
