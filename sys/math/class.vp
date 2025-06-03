@@ -266,52 +266,60 @@
 
 (def-func-end)
 
-;1 bit reserved for mantisa sign !
-(defq mbits 31 ebits (- 63 mbits))
+;mantisa sign is real sign !
+;mantisa is upper bits, exponent the lower bits
+;< = > 0 test work same as for interger
+;mantisa and exponent are two's complement signed values
+(defq mbits 32 ebits (- 64 mbits))
 
 (defun real-unpack (rn re rm)
 	(assign `(,rn ,rn) `(,re ,rm))
-	(vp-shl-cr (- 64 ebits) re)
+	(vp-shl-cr mbits re)
 	(vp-asr-cr ebits rm)
-	(vp-asr-cr (- 64 ebits) re))
+	(vp-asr-cr mbits re))
 
 (defun real-pack (re rm rn)
-	(vp-shl-cr (- 64 ebits) re)
+	(vp-shl-cr mbits re)
 	(vp-shl-cr ebits rm)
-	(vp-shr-cr (- 64 ebits) re)
+	(vp-shr-cr mbits re)
 	(assign `(,re) `(,rn))
 	(vp-add-rr rm rn))
 
 (defun real-norm (re rm rt)
-	(vpif (list rm '> 0))
-		(vp-cpy-cr (<< 1 mbits) rt)
-		(vpif (list rm '>= rt))
+	(vpif (list rm '> 0) 'exit)
+		;positive mantisa
+		(vp-cpy-cr (>> -1 (inc ebits)) rt)
+		(vpif (list rm '> rt))
 			(loop-start)
 				(vp-asr-cr 1 rm)
 				(vp-add-cr 1 re)
-			(loop-until (list rm '< rt))
+			(loop-until (list rm '<= rt))
+			(break 'exit)
 		(endif)
-		(vp-cpy-cr (<< 1 (dec mbits)) rt)
-		(breakif (list rm '>= rt))
+		(vp-asr-cr 1 rt)
+		(breakif (list rm '> rt) 'exit)
 		(loop-start)
 			(vp-shl-cr 1 rm)
 			(vp-sub-cr 1 re)
-		(loop-until (list rm '>= rt))
+		(loop-until (list rm '> rt))
 	(elseif (list rm '< 0))
-		(vp-cpy-cr (<< -1 mbits) rt)
-		(vpif (list rm '<= rt))
+		;negative mantisa
+		(vp-cpy-cr (<< -1 (dec mbits)) rt)
+		(vpif (list rm '< rt))
 			(loop-start)
 				(vp-asr-cr 1 rm)
 				(vp-add-cr 1 re)
-			(loop-until (list rm '> rt))
+			(loop-until (list rm '>= rt))
+			(break 'exit)
 		(endif)
-		(vp-cpy-cr (<< -1 (dec mbits)) rt)
-		(breakif (list rm '<= rt))
+		(vp-asr-cr 1 rt)
+		(breakif (list rm '< rt) 'exit)
 		(loop-start)
 			(vp-shl-cr 1 rm)
 			(vp-sub-cr 1 re)
-		(loop-until (list rm '<= rt))
+		(loop-until (list rm '< rt))
 	(else)
+		;zero mantisa
 		(vp-xor-rr re re)
 	(endif))
 
@@ -354,10 +362,10 @@
 	(vp-sub-rr e1 e2)
 	(vpif (list e2 '> 0))
 		(vp-add-rr e2 e1)
-		(gotoif (list e2 '>= mbits) 'overflow1)
+		(gotoif (list e2 '>= (dec mbits)) 'overflow1)
 		(vp-asr-rr e2 m1)
 	(elseif (list e2 '< 0))
-		(gotoif (list e2 '<= (neg mbits)) 'overflow)
+		(gotoif (list e2 '<= (neg (dec mbits))) 'overflow)
 		(vp-mul-cr -1 e2)
 		(vp-asr-rr e2 m2)
 	(endif)
@@ -389,10 +397,10 @@
 	(vp-sub-rr e1 e2)
 	(vpif (list e2 '> 0))
 		(vp-add-rr e2 e1)
-		(gotoif (list e2 '>= mbits) 'overflow1)
+		(gotoif (list e2 '>= (dec mbits)) 'overflow1)
 		(vp-asr-rr e2 m1)
 	(elseif (list e2 '< 0))
-		(gotoif (list e2 '<= (neg mbits)) 'overflow)
+		(gotoif (list e2 '<= (neg (dec mbits))) 'overflow)
 		(vp-mul-cr -1 e2)
 		(vp-asr-rr e2 m2)
 	(endif)
@@ -425,7 +433,7 @@
 	(real-unpack n1 e1 m1)
 	(vp-mul-rr m2 m1)
 	(vp-add-rr e2 e1)
-	(vp-asr-cr mbits m1)
+	(vp-asr-cr (- mbits 2) m1)
 
 	(jump 'sys_math :r_pack `(,e1 ,m1))
 
@@ -446,11 +454,11 @@
 
 	(real-unpack n2 e2 m2)
 	(real-unpack n1 e1 m1)
-	(vp-shl-cr (- 63 mbits) m1)
+	(vp-shl-cr ebits m1)
 	(vp-sub-rr e2 e1)
 	(vp-ext-rr m1 e2)
 	(vp-div-rrr m2 e2 m1)
-	(vp-add-cr (- mbits (- 63 mbits)) e1)
+	(vp-sub-cr (+ 2 (- ebits mbits)) e1)
 
 	(jump 'sys_math :r_pack `(,e1 ,m1))
 
@@ -556,7 +564,7 @@
 			(real-pack xd2 m xd2)
 			(call 'sys_math :r_add `(,xd2 ,xm2) `(,x2))
 			(vp-add-cr 1 cnt)
-		(loop-until (list cnt '> mbits))
+		(loop-until (list cnt '> (dec mbits)))
 	(endif)
 
 	(exit 'sys_math :r_sqrt `(,x2))
@@ -612,7 +620,7 @@
 
 	(entry 'sys_math :r_i2r '(:r14))
 
-	(jump 'sys_math :r_pack `(,mbits :r14))
+	(jump 'sys_math :r_pack `(,(- mbits 2) :r14))
 
 (def-func-end)
 
@@ -626,7 +634,7 @@
 
 	(entry 'sys_math :r_f2r '(:r14))
 
-	(jump 'sys_math :r_pack `(,(- mbits +fp_shift) :r14))
+	(jump 'sys_math :r_pack `(,(- mbits 2 +fp_shift) :r14))
 
 (def-func-end)
 
@@ -643,13 +651,13 @@
 	(entry 'sys_math :r_r2i `(,n))
 
 	(real-unpack n e m)
-	(vp-sub-cr mbits e)
+	(vp-sub-cr (- mbits 2) e)
 	(vpif (list e '< 0))
-		(gotoif (list e '<= (neg mbits)) 'overflow)
+		(gotoif (list e '<= (neg (dec mbits))) 'overflow)
 		(vp-mul-cr -1 e)
 		(vp-asr-rr e m)
 	(elseif (list e '> 0))
-		(gotoif (list e '>= (- 63 mbits)) 'overflow)
+		(gotoif (list e '>= (dec mbits)) 'overflow)
 		(vp-shl-rr e m)
 	(endif)
 
@@ -675,13 +683,13 @@
 	(entry 'sys_math :r_r2f `(,n))
 
 	(real-unpack n e m)
-	(vp-sub-cr (- mbits +fp_shift) e)
+	(vp-sub-cr (- mbits 2 +fp_shift) e)
 	(vpif (list e '< 0))
-		(gotoif (list e '<= (neg mbits)) 'overflow)
+		(gotoif (list e '<= (neg (dec mbits))) 'overflow)
 		(vp-mul-cr -1 e)
 		(vp-asr-rr e m)
 	(elseif (list e '> 0))
-		(gotoif (list e '>= (- 63 mbits)) 'overflow)
+		(gotoif (list e '>= (dec mbits)) 'overflow)
 		(vp-shl-rr e m)
 	(endif)
 
