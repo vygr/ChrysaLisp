@@ -4,6 +4,7 @@
 (include "./class.inc")
 (include "././sym/class.inc")
 (include "././stream/class.inc")
+(include "lib/consts/chars.inc")
 
 (gen-create 'real)
 (gen-vtable 'real)
@@ -18,25 +19,21 @@
 	;trashes
 	;:r1-:r14
 
-	(def-struct local 0
-		(ptr this))
-
-	(vp-alloc local_size)
 	(entry 'real :print '(:r0 :r1))
-	(assign '(:r0) '((:rsp local_this)))
 
+	(vp-push :r0)
 	(assign '((:r0 num_value)) '(:r0))
 	(vp-asr-cr 32 :r0)
 	(call 'half '(:r0 :r1) '(:r0 :r1))
-	(call 'stream :write_cstr '(:r1 "_") '(:r1))
-	(assign '((:rsp local_this)) '(:r0))
+	(call 'stream :write_char '(:r1 +char_underscore) '(:r1))
+	(assign '((:rsp 0)) '(:r0))
 	(assign '((:r0 num_value)) '(:r0))
 	(vp-shl-cr 32 :r0)
 	(vp-asr-cr 32 :r0)
 	(call 'half '(:r0 :r1))
+	(vp-pop :r0)
 
-	(exit 'real :print '((:rsp local_this)))
-	(vp-free local_size)
+	(exit 'real :print '(:r0))
 	(vp-ret)
 
 (vp-label 'half)
