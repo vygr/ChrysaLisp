@@ -1,4 +1,4 @@
-# A student primer for those that want to know the HOW of poo.
+# A student primer for those that want to know the HOW of Pooh.
 
 How does ChrysaLisp achieve its performance, particularly around environments
 and function calls. Incorporating all the key points, including the crucial
