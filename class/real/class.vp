@@ -25,7 +25,7 @@
 	(assign '((:r0 num_value)) '(:r0))
 	(vp-asr-cr 32 :r0)
 	(call 'half '(:r0 :r1) '(:r0 :r1))
-	(call 'stream :write_char '(:r1 +char_underscore) '(:r1))
+	(call 'stream :write_char '(:r1 +char_caret) '(:r1))
 	(assign '((:rsp 0)) '(:r0))
 	(assign '((:r0 num_value)) '(:r0))
 	(vp-shl-cr 32 :r0)

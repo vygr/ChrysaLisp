@@ -41,6 +41,7 @@
 	+char_multiply (ascii-code "*")
 	+char_divide (ascii-code "/")
 	+char_question (ascii-code "?")
+	+char_caret (ascii-code "^")
 	+char_0 (ascii-code "0")
 	+char_9 (ascii-code "9")
 	+char_a (ascii-code "a")
