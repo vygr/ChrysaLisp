@@ -70,7 +70,7 @@
 (defun assign-topology-sort ()
 	(defq s src d dst i 0 c 1000 l (dec (length d)))
 	(while (and (< i l) (/= c 0))
-		(if (setq j (unless (list? (defq j (elem-get d i)))
+		(if (setq j (if (list? (defq j (elem-get d i))) :nil
 				(some! (lambda (s d)
 					(cond
 						((and (list? s) (rfind j s)) (!))
@@ -187,11 +187,11 @@
 
 (defun assign (&optional src dst _)
 	;optional src, dst, compiler regs
-	(if (str? (setq src (opt src '())))
-		(if (str? (setq dst (opt dst '())))
+	(if (str? (setq src (ifn src '())))
+		(if (str? (setq dst (ifn dst '())))
 			(assign-script-to-script src dst _)
 			(assign-script-to-asm src dst _))
-		(if (str? (setq dst (opt dst '())))
+		(if (str? (setq dst (ifn dst '())))
 			(assign-asm-to-script src dst _)
 			(assign-asm-to-asm src dst))))
 

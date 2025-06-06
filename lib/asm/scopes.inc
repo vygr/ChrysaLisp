@@ -85,7 +85,7 @@
 	(each scope-get-sym names) :nil)
 
 (defun scope-operator (name pres &optional asso impl)
-	(scope-def-sym name 'op (* pres 2) (opt asso 0) (opt impl compile-null)))
+	(scope-def-sym name 'op (* pres 2) (ifn asso 0) (ifn impl compile-null)))
 
 (defun scope-new-var (type size)
 	(push prog

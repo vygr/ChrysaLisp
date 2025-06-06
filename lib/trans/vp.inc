@@ -8,7 +8,7 @@
 (defun emit-label (label) (set (penv) label *pc*))
 
 (defun emit-align (size &optional fill)
-	(defq pc *pc* fill (opt fill 0) stream *stream*)
+	(defq pc *pc* fill (ifn fill 0) stream *stream*)
 	(setq *pc* (align pc size))
 	(while (<= (setq pc (inc pc)) *pc*)
 		(write-char stream fill)))

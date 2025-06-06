@@ -16,9 +16,9 @@
 
 (defclass Xmap (&optional num_buckets cmp_fnc hash_fnc) (Map)
 	; (Xmap [num_buckets cmp_fnc hash_fnc]) -> xmap
-	(def this :num_buckets (setq num_buckets (opt num_buckets 1))
+	(def this :num_buckets (setq num_buckets (ifn num_buckets 1))
 		:buckets (lists (* num_buckets 2))
-		:cmp_fnc (opt cmp_fnc eql) :hash_fnc (opt hash_fnc hash))
+		:cmp_fnc (ifn cmp_fnc eql) :hash_fnc (ifn hash_fnc hash))
 
 	(defmethod :find (key)
 		; (. xmap :find key) -> :nil | val

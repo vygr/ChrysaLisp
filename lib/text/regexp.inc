@@ -15,7 +15,7 @@
 (defmacro is-op-char? (_) `(find ,_ +op_chars))
 
 (defun output (op token) (push out_types op) (push out_tokens token))
-(defun concat? (&optional o) (if concat (output :op (opt o concat))))
+(defun concat? (&optional o) (if concat (output :op (ifn o concat))))
 
 (defun cache (elem) ;graph element cache
 	(memoize (str elem) elem 11))
@@ -250,7 +250,7 @@
 
 	(defmethod :match? (text pattern &optional cpat)
 		; (. regexp :match? text pattern [meta]) -> :t | :nil
-		(when (defq out :nil cpat (opt cpat (. this :compile pattern)))
+		(when (defq out :nil cpat (ifn cpat (. this :compile pattern)))
 			(cond
 				((eql (first (defq i (first (second cpat)))) (const bfind))
 					;class first !
@@ -278,7 +278,7 @@
 
 	(defmethod :search (text pattern &optional cpat)
 		; (. regexp :search text pattern [meta]) -> matches
-		(when (defq out (list) cpat (opt cpat (. this :compile pattern)))
+		(when (defq out (list) cpat (ifn cpat (. this :compile pattern)))
 			(cond
 				((eql (first (defq i (first (second cpat)))) (const bind))
 					;class first !

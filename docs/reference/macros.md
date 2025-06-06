@@ -321,12 +321,6 @@ should provide the concreate handler
 (notevery lambda seq ...) -> :t | :nil
 ```
 
-### opt
-
-```code
-(opt sym val [cond])
-```
-
 ### or
 
 ```code

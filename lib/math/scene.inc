@@ -93,7 +93,7 @@
 		:trans_x +real_0 :trans_y +real_0 :trans_z +real_0
 		:scale_x +real_1 :scale_y +real_1 :scale_z +real_1
 		:matrix (Mat4x4-unity) :imatrix (Mat4x4-unity)
-		:dirty :nil :name (opt name ""))
+		:dirty :nil :name (ifn name ""))
 
 	(defmethod :get_parent ()
 		; (. scene_node :get_parent) -> scene_node | :nil

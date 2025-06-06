@@ -172,7 +172,7 @@
 
 (defun make-all (&optional files *abi* *cpu*)
 	(setd *abi* (abi) *cpu* (cpu))
-	(compile (opt files (all-vp-files)) *abi* *cpu*))
+	(compile (ifn files (all-vp-files)) *abi* *cpu*))
 
 (defun remake (&optional files *abi* *cpu*)
 	(setd *abi* (abi) *cpu* (cpu))

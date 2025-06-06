@@ -7,6 +7,10 @@
 New `(condn)` special form. With that comes a faster `(and)` macro that follows
 the `(or)` macro in simplicity.
 
+New `ifn` special form. `(ifn tst form [form])`. Comes with a removal of the
+`opt` macro as it's now redundant, can just use `(setq s (ifn s v))`.
+`(setd ...)` macro updated to reduce to this form.
+
 New VP level `(until tst [body]) ->tst`.
 
 Big tidy up of the `(ffi path [sym flags])` syntax and optional values.
@@ -34,9 +38,6 @@ New `(. map :memoize key lambda) -> val` method.
 
 Added support for nested bullet lists, italic and bold fonts, to Docs
 application.
-
-New `if not` special form. `(ifn tst form [form])`. Produces same results as
-`(if (not tst) form [form])`.
 
 ------
 

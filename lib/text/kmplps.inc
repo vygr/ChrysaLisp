@@ -26,7 +26,7 @@
 		; (. kmplps :search text pattern [meta]) -> matches
 		(defq out (list))
 		(when (>= (defq n (length text)) (defq m (length pattern)))
-			(when (defq j 0 k 0 lps (opt lps (. this :compile pattern)))
+			(when (defq j 0 k 0 lps (ifn lps (. this :compile pattern)))
 				(while (< j n)
 					(cond
 						((eql (elem-get text j) (elem-get pattern k))
@@ -40,7 +40,7 @@
 	(defmethod :match? (text pattern &optional lps)
 		; (. kmplps :match? text pattern [meta]) -> :t | :nil
 		(when (>= (defq n (length text)) (defq m (length pattern)))
-			(when (defq j 0 k 0 lps (opt lps (. this :compile pattern)))
+			(when (defq j 0 k 0 lps (ifn lps (. this :compile pattern)))
 				(while (< j n)
 					(cond
 						((eql (elem-get text j) (elem-get pattern k))

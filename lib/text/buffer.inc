@@ -87,7 +87,7 @@
 			:mode :syntax_engine (state :text max_width 0))
 		(each (lambda (line syntax states)
 			(setq max_width (max max_width (length line)))
-			(bind '(start_state end_state) (opt states '(:nil :nil)))
+			(bind '(start_state end_state) (ifn states '(:nil :nil)))
 			(cond
 				((not mode))
 				((and (array? syntax) (eql state start_state))
@@ -139,7 +139,7 @@
 	(def this :buffer_line (list "") :buffer_syntax (list "")
 		:buffer_states (list :nil) :buffer_brackets (list :nil)
 		:buffer_found (list :nil) :dirty_flags -1
-		:syntax_engine (opt syntax (Syntax)) :undo_stack (list) :redo_stack (list)
+		:syntax_engine (ifn syntax (Syntax)) :undo_stack (list) :redo_stack (list)
 		:cursor_x 0 :cursor_y 0 :max_width 0 :tab_width 4 :wrap_width 80
 		:mode mode :next_mark -1 :modified :nil
 		:last_key :nil)

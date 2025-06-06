@@ -16,7 +16,7 @@
 
 (defclass Fmap (&optional num_buckets) (Map)
 	; (Fmap [num_buckets]) -> fmap
-	(def this :num_buckets (setq num_buckets (opt num_buckets 1))
+	(def this :num_buckets (setq num_buckets (ifn num_buckets 1))
 		:buckets (lists (* num_buckets 2)))
 
 	(defmethod :find (key)

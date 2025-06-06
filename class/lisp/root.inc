@@ -338,23 +338,10 @@
 ; Default opts
 ;;;;;;;;;;;;;;
 
-(defmacro inc (_)
-	; (inc num) -> num
-	`(+ ,_ 1))
-
-(defmacro dec (_)
-	; (dec num) -> num
-	`(- ,_ 1))
-
-(defmacro opt (x y &optional z)
-	; (opt sym val [cond])
-	(if z `(if ,x ,z ,y) `(if ,x ,x ,y)))
-
 (defmacro setd (&rest _)
 	; (setd sym val [sym val] ...)
-	(defq i -2 l (list 'setq))
-	(while (< (setq i (+ i 2)) (length _))
-		(push l (elem-get _ i) (list 'opt (elem-get _ i) (elem-get _ (inc i))))) l)
+	(reduce! (lambda (l (s v)) (push l s (list (const ifn) s v)))
+		(list (partition _ 2)) (list (const setq))))
 
 ;;;;;;;;;;;;
 ; Predicates
@@ -464,9 +451,17 @@
 ; Control flow
 ;;;;;;;;;;;;;;
 
+(defmacro inc (_)
+	; (inc num) -> num
+	`(+ ,_ 1))
+
+(defmacro dec (_)
+	; (dec num) -> num
+	`(- ,_ 1))
+
 (defmacro not (_)
 	; (not form) -> :t | :nil
-	`(ifn ,_ :t))
+	`(if ,_ :nil :t))
 
 (defmacro when (x &rest _)
 	; (when tst body)
@@ -543,7 +538,7 @@
 
 (defun range (b e &optional s)
 	; (range start end [step]) -> list
-	(defq s (opt s 1 (abs s)) l (cap (/ (abs (- b e)) s) (list)))
+	(defq s (ifn s 1 (abs s)) l (cap (/ (abs (- b e)) s) (list)))
 	(if (<= b e)
 		(while (< b e) (push l b) (setq b (+ b s)))
 		(while (> b e) (push l b) (setq b (- b s)))) l)
@@ -915,7 +910,7 @@
 
 (defun trim-start (s &optional cls)
 	; (trim-start str [cls]) -> str
-	(if (= (setq cls (bskip (opt cls " ") s 0)) 0) s (slice s cls -1)))
+	(if (= (setq cls (bskip (ifn cls " ") s 0)) 0) s (slice s cls -1)))
 
 (defun trim-end (s &optional cls)
 	; (trim-end str [cls]) -> str
@@ -928,14 +923,14 @@
 
 (defun split (s &optional cls)
 	; (split str [cls]) -> strs
-	(defq i 0 out (list) l (length s) cls (opt cls " "))
+	(defq i 0 out (list) l (length s) cls (ifn cls " "))
 	(while (< i l)
 		(if (/= (defq j (bskip cls s i)) i) (setq i j))
 		(if (/= (defq j (bskipn cls s i)) i) (push out (slice s i (setq i j))))) out)
 
 (defun pad (v c &optional f)
 	; (pad form width [str]) -> str
-	(defq f (opt f " ") v (str v) l (length v) c (- (max c l) l))
+	(defq f (ifn f " ") v (str v) l (length v) c (- (max c l) l))
 	(while (> c (length f)) (setq f (cat f f)))
 	(cat (slice f 0 c) v))
 

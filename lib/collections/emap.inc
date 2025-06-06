@@ -6,7 +6,7 @@
 
 (defclass Emap (&optional num_buckets) (Map)
 	; (Emap [num_buckets]) -> emap
-	(def this :num_buckets (setq num_buckets (opt num_buckets 1))
+	(def this :num_buckets (setq num_buckets (ifn num_buckets 1))
 		:buckets (env num_buckets))
 
 	(defmethod :find (key)

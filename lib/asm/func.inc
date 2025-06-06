@@ -20,7 +20,7 @@
 (defun string-sym (_) (str "rs_" _))
 
 (defun def-func (*func_name* &optional *falign* *fstack*)
-	(defq *func_align* (opt *falign* stack_align)
+	(defq *func_align* (ifn *falign* stack_align)
 		*strings* (clear '()) *paths* (clear '())
 		*links* (clear '()) *emit_list* (clear '())
 		*switch_stk* (clear '()) *switch* :nil *switch_nxt* 0)
@@ -31,7 +31,7 @@
 		(label-sym 'fn_entry)
 		(label-sym 'fn_links)
 		(label-sym 'fn_paths)
-		(opt *fstack* tk_stack_size))
+		(ifn *fstack* tk_stack_size))
 (vp-label 'fn_name_start)
 	(vp-cstr (str *func_name*))
 	(vp-byte (list '- (label-sym 'fn_entry) (label-sym 'fn_name_start)))
@@ -105,11 +105,11 @@
 		(vp-jmp-p (link-sym (fn-find-link p)))))
 
 (defun abort (&optional s)
-	(call 'host_os :pii_write_str (list 2 (opt s "Abort !")))
+	(call 'host_os :pii_write_str (list 2 (ifn s "Abort !")))
 	(jump 'host_os :pii_exit '(1)))
 
 (defun assert (b &optional d)
 	(when (> *debug_mode* 0)
 		(vpifnot b)
-			(abort (opt d "Assert Failure !"))
+			(abort (ifn d "Assert Failure !"))
 		(endif)))

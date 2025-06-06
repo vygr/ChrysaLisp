@@ -413,7 +413,7 @@
 (defun gen-create (_1 &optional _2)
 	;_1 = class name
 	;_2 = create/init name
-	(defq m (method-lookup _1 (if _2 (sym (cat :create_ _2)) :create)) _3 (opt (third m) '())
+	(defq m (method-lookup _1 (if _2 (sym (cat :create_ _2)) :create)) _3 (ifn (third m) '())
 		_4 (slice '(:r14 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13) 0 (length _3)))
 	(def-func (f-path _1 (if _2 (sym (cat :create_ _2)) :create)))
 		;inputs

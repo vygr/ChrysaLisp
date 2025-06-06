@@ -12,7 +12,7 @@
 (defq opcode 0)
 (defmacro next-opcode (&optional i)
 	(defq ci opcode)
-	(setq opcode (+ opcode (opt i 1)))
+	(setq opcode (+ opcode (ifn i 1)))
 	ci)
 
 (defmacro vp64-within (c n)

@@ -66,7 +66,7 @@
 
 (defmacro getf (s field &optional o)
 	; (getf obj field [offset]) -> value
-	(defq type (eval (sym (cat field "_t"))) field (eval field) o (opt o +str_data))
+	(defq type (eval (sym (cat field "_t"))) field (eval field) o (ifn o +str_data))
 	(case (sym type)
 		(b `(get-field ,s ,(+ o field) ,+byte_size))
 		(s `(get-field ,s ,(+ o field) ,+short_size))
@@ -82,7 +82,7 @@
 
 (defmacro setf (s field v &optional o)
 	; (setf obj field value [offset]) -> obj
-	(defq type (eval (sym (cat field "_t"))) field (eval field) o (opt o +str_data))
+	(defq type (eval (sym (cat field "_t"))) field (eval field) o (ifn o +str_data))
 	(case (sym type)
 		(b `(set-field ,s ,(+ o field) ,+byte_size ,v))
 		(s `(set-field ,s ,(+ o field) ,+short_size ,v))

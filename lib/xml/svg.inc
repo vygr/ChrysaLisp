@@ -192,7 +192,7 @@
 
 (defun SVG-Canvas (stream &optional scale)
 	; (SVG-Canvas stream [scale]) -> :nil | canvas
-	(setq scale (n2f (opt scale 1)))
+	(setq scale (n2f (ifn scale 1)))
 	(defq canvas :nil stack
 		(list (scatter (Lmap)
 			;this block of defaults are in order !

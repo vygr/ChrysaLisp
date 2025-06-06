@@ -91,8 +91,8 @@
 (defun vp-alloc (c) (emit `(emit-alloc ,(eval c (penv)))))
 (defun vp-free (c) (emit `(emit-free ,(eval c (penv)))))
 (defun vp-ret () (emit `(emit-ret)))
-(defun vp-brk (&optional n) (emit `(emit-brk ,(opt n 0))))
-(defun vp-sync (&optional n) (emit `(emit-sync ,(opt n 0))))
+(defun vp-brk (&optional n) (emit `(emit-brk ,(ifn n 0))))
+(defun vp-sync (&optional n) (emit `(emit-sync ,(ifn n 0))))
 (defun vp-stack-init (s f x) (emit `(emit-stack-init ,s ,f ,x)))
 
 (defun vp-call-abi (r b i n x) (emit `(emit-call-abi ,r ,b ,i ,n ~x)))

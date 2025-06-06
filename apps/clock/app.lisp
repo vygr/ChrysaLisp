@@ -39,7 +39,7 @@
 		(if (eql *env_clock_seconds* :t) (str ":" (pad sec 2 "0")) "")))
 
 (defun transform (_ a s &optional x y)
-	(defq sa (sin a) ca (cos a) x (opt x 0.0) y (opt y 0.0))
+	(defq sa (sin a) ca (cos a) x (ifn x 0.0) y (ifn y 0.0))
 	(path-transform (fixeds
 		(* s ca) (* s (* sa -1.0)) (* s (+ x 0.5))
 		(* s sa) (* s ca) (* s (+ y 0.5))) _ _))

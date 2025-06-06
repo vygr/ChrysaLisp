@@ -40,12 +40,12 @@
 			((defq i (rfind s ps))
 				(elem-set ps i s) (elem-set pv i v))
 			(:t (push ps s) (push pv v))))
-		(unzip (opt p '()) 2))
+		(unzip (ifn p '()) 2))
 	(zip ps pv))
 
 (defmacro ui-props (p &rest x)
 	; (ui-props props [props]) -> props
-	`(setq ,p (cat ',x (opt ,p '()))))
+	`(setq ,p (cat ',x (ifn ,p '()))))
 
 (defmacro ui-root (n c &optional p &rest x)
 	; (ui-root name constructor [props] [body]) -> view
