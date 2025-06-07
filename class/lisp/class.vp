@@ -1,5 +1,262 @@
 (include "lib/asm/func.inc")
+(include "sys/task/class.inc")
+(include "././hmap/class.inc")
+(include "././fstream/class.inc")
+(include "././func/class.inc")
+(include "././sym/class.inc")
 (include "./class.inc")
+(include "lib/consts/chars.inc")
+(include "sys/statics/class.inc")
 
 (gen-create 'lisp)
 (gen-vtable 'lisp)
+
+(def-struct built_in 0
+	(ushort symbol)
+	(ushort field))
+
+(defun built-in (s f)
+	;s = symbol
+	;f = field
+	(vp-short
+		`(- ,(label-sym (string-sym (fn-add-string s))) *pc*) f))
+
+(def-method 'lisp :init)
+	;inputs
+	;:r0 = lisp object object (ptr)
+	;:r1 = vtable (pptr)
+	;:r2 = script string object (ptr)
+	;:r3 = stdin stream object (ptr)
+	;:r4 = stdout stream object (ptr)
+	;:r5 = stderr stream object (ptr)
+	;outputs
+	;:r0 = lisp object object (ptr)
+	;:r1 = 0 if error, else ok
+	;trashes
+	;:r1-:r14
+
+	(def-vars
+		(ptr this vtable script stdin stdout stderr func)
+		(ulong ok))
+
+	(push-scope)
+	(entry 'lisp :init {this, vtable, script, stdin, stdout, stderr})
+
+	;init parent
+	(s-call 'lisp :init {this, vtable} {_, ok})
+	(vpif {ok})
+		;init myself
+		(call 'obj :ref {stdin} {this->lisp_stdin})
+		(call 'obj :ref {stdout} {this->lisp_stdout})
+		(call 'obj :ref {stderr} {this->lisp_stderr})
+		(assign {0} {this->lisp_nextsym})
+		(assign {0} {this->lisp_seq_idx})
+
+		;tls stack and object tls
+		(assign {@sys/statics/statics.statics_sys_task_current_tcb} {func})
+		(assign {this} {func->tk_node_lisp})
+		(assign {func->tk_node_tls} {this->lisp_stack})
+
+		;spin lock if boot env busy
+		(loop-while {@sys/statics/statics.statics_lisp_root_env = -1})
+			(call 'sys_task :sleep {100})
+		(loop-end)
+
+		;do we have a shared boot env yet ?
+		(vpifnot {@sys/statics/statics.statics_lisp_root_env})
+			;mark as busy
+			(assign {-1} {@sys/statics/statics.statics_lisp_root_env})
+
+			;intern standard built in symbols
+			;slot caching kills it here, so 1 bucket, no div !
+			(call 'hmap :create {0, 1} {this->lisp_environment})
+
+			;local defines and symbols
+			(call 'create_env_info {this})
+			(call 'create_env_funcs {this})
+
+			;run any root.inc
+			(call 'import {this, "class/lisp/root.inc"} {ok})
+			(vpifnot {ok})
+				;mark as free
+				(assign {0} {@sys/statics/statics.statics_lisp_root_env})
+			(vp-label 'error)
+				;deinit myself and parent
+				(call 'lisp :deinit {this})
+			(else)
+				;save shared boot env
+				(call 'obj :ref {this->lisp_environment} {@sys/statics/statics.statics_lisp_root_env})
+				(goto 'local_env)
+			(endif)
+		(else)
+			;boot env is my parent env
+			(call 'obj :ref {@sys/statics/statics.statics_lisp_root_env} {this->lisp_environment})
+		(vp-label 'local_env)
+			(call 'hmap :create {this->lisp_environment->hset_key_callback, 31} {func})
+			(call 'hmap :set_parent {func, this->lisp_environment} {this->lisp_environment})
+			;local defines and symbols
+			(call 'create_env_info {this})
+			(call 'lookup_env_funcs {this})
+			;run any task.inc
+			(call 'import {this, "class/lisp/task.inc"} {ok})
+			(gotoifnot {ok} 'error)
+			;run any script
+			(call 'import {this, &script->str_data} {ok})
+			(gotoifnot {ok} 'error)
+		(endif)
+	(endif)
+
+	(exit 'lisp :init {this, ok})
+	(pop-scope)
+	(return)
+
+(vp-label 'import)
+	(def-vars
+		(ptr this obj stream args))
+
+	(push-scope)
+	(entry {this, obj})
+
+	;import a file
+	(call 'fstream :create {obj, +file_open_read} {stream})
+	(vpif {stream})
+		(call 'list :create :nil {args})
+		(call 'str :create_from_cstr {obj} {obj})
+		(call 'list :push_back2 {args, stream, obj})
+		(call 'lisp :lisp_repl {this, args} {_, obj})
+		(vpif (cat {obj->obj_vtable = @} (f-path 'error :vtable)))
+			(call 'lisp :repl_print {this, this->lisp_stderr, obj})
+			(call 'stream :write_char {this->lisp_stderr, +char_lf})
+			(call 'stream :flush {this->lisp_stderr})
+			(assign {0} {stream})
+		(endif)
+		(call 'obj :deref {args})
+		(call 'obj :deref {obj})
+	(endif)
+
+	(exit {stream})
+	(pop-scope)
+	(return)
+
+(vp-label 'create_env_info)
+	(def-vars
+		(ptr this symbol table))
+
+	(push-scope)
+	(entry {this})
+
+	;create standard built in symbols
+	(assign {$built_ins} {table})
+	(loop-while {table->built_in_symbol})
+		(call 'sym :intern_cstr {&table->built_in_symbol + table->built_in_symbol} {symbol})
+		(assign {symbol} {ptr(this + table->built_in_field)})
+		(assign {table + built_in_size} {table})
+	(loop-end)
+
+	;defines
+	(call 'str :create_from_buffer {"ChrysaLisp", 10} {symbol})
+	(call 'hmap :insert {this->lisp_environment, this->lisp_sym_stream_name, symbol})
+	(call 'obj :deref {symbol})
+	(call 'num :create '(0) {symbol})
+	(call 'hmap :insert {this->lisp_environment, this->lisp_sym_stream_line, symbol})
+	(call 'obj :deref {symbol})
+	(call 'list :create :nil {symbol})
+	(call 'hmap :insert {this->lisp_environment, this->lisp_sym_file_includes, symbol})
+	(call 'obj :deref {symbol})
+
+	(pop-scope)
+	(return)
+
+(vp-label 'create_env_funcs)
+	(def-vars
+		(ptr this))
+
+	(push-scope)
+	(entry {this})
+
+	(call 'func :create (cat {@} (f-path 'lisp :lisp_ffi) {+ func_type_args_raw}) {this->lisp_func_ffi})
+	(call 'hmap :insert {this->lisp_environment, this->lisp_sym_ffi, this->lisp_func_ffi})
+	(call 'func :create (cat {@} (f-path 'lisp :lisp_lambda) {+ func_type_args_raw}) {this->lisp_func_lambda})
+	(call 'hmap :insert {this->lisp_environment, this->lisp_sym_lambda, this->lisp_func_lambda})
+	(call 'func :create (cat {@} (f-path 'lisp :lisp_macro) {+ func_type_args_raw}) {this->lisp_func_macro})
+	(call 'hmap :insert {this->lisp_environment, this->lisp_sym_macro, this->lisp_func_macro})
+	(call 'func :create (cat {@} (f-path 'lisp :lisp_quote) {+ func_type_args_raw}) {this->lisp_func_quote})
+	(call 'hmap :insert {this->lisp_environment, this->lisp_sym_quote, this->lisp_func_quote})
+	(call 'func :create (cat {@} (f-path 'lisp :lisp_qquote) {+ func_type_args_raw}) {this->lisp_func_qquote})
+	(call 'hmap :insert {this->lisp_environment, this->lisp_sym_qquote, this->lisp_func_qquote})
+
+	(pop-scope)
+	(return)
+
+(vp-label 'lookup_env_funcs)
+	(def-vars
+		(ptr this))
+
+	(push-scope)
+	(entry {this})
+
+	(call 'hmap :get {this->lisp_environment, this->lisp_sym_ffi} {_, this->lisp_func_ffi})
+	(call 'hmap :get {this->lisp_environment, this->lisp_sym_lambda} {_ , this->lisp_func_lambda})
+	(call 'hmap :get {this->lisp_environment, this->lisp_sym_macro} {_ , this->lisp_func_macro})
+	(call 'hmap :get {this->lisp_environment, this->lisp_sym_quote} {_ , this->lisp_func_quote})
+	(call 'hmap :get {this->lisp_environment, this->lisp_sym_qquote} {_ , this->lisp_func_qquote})
+
+	(pop-scope)
+	(return)
+
+;;;;;;;;;;;
+; built ins
+;;;;;;;;;;;
+
+	(vp-align +short_size)
+(vp-label 'built_ins)
+	(built-in "_" lisp_sym_underscore)
+	(built-in "&optional" lisp_sym_optional)
+	(built-in "&rest" lisp_sym_rest)
+	(built-in "&ignore" lisp_sym_ignore)
+	(built-in "&most" lisp_sym_most)
+	(built-in ":nil" lisp_sym_nil)
+	(built-in ":t" lisp_sym_t)
+	(built-in "lambda" lisp_sym_lambda)
+	(built-in "macro" lisp_sym_macro)
+	(built-in "(...)" lisp_sym_trunc)
+	(built-in "unquote" lisp_sym_unquote)
+	(built-in "unquote-splicing" lisp_sym_splicing)
+	(built-in "quote" lisp_sym_quote)
+	(built-in "quasi-quote" lisp_sym_qquote)
+	(built-in "ffi" lisp_sym_ffi)
+	(built-in "*stream_name*" lisp_sym_stream_name)
+	(built-in "*stream_line*" lisp_sym_stream_line)
+	(built-in "*file_includes*" lisp_sym_file_includes)
+	(built-in "*stack_frame*" lisp_sym_stack_frame)
+	(vp-short 0)
+
+(def-func-end)
+
+(def-method 'lisp :deinit)
+	;inputs
+	;:r0 = lisp object (ptr)
+	;outputs
+	;:r0 = lisp object (ptr)
+	;trashes
+	;:r1-:r14
+
+	(def-vars
+		(ptr this)
+		(pptr iter))
+
+	(push-scope)
+	(entry 'lisp :deinit {this})
+
+	;deinit myself
+	(assign {&this->lisp_stdin} {iter})
+	(loop-start)
+		(call 'obj :deref {*iter})
+	(loop-until {(iter + +ptr_size => iter) = &this->lisp_stack})
+
+	;deinit parent
+	(s-jump 'lisp :deinit {this})
+
+	(pop-scope-syms)
+
+(def-func-end)
