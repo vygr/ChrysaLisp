@@ -19,7 +19,7 @@ New `(lines! stream)` function than replaces `(each-line)`, accses the line
 index with `(!)`.
 
 New `(filter! lambda seq [out start end])` function than replaces
-`(filter-array)` with a simple macro `(filter lambda stream)`.
+`(filter-array)` with a simple macro `(filter lambda seq)`.
 
 ------
 
