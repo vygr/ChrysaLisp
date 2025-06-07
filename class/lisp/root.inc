@@ -105,7 +105,7 @@
 (ffi "class/seq/lisp_reduce" reduce!)
 ; (reduce! lambda seqs init [start end]) -> val
 (ffi "class/stream/lisp_each" lines!)
-; (lines! lambda stream [idx]) -> :nil
+; (lines! lambda stream) -> :nil
 
 (ffi "class/array/lisp_cap" cap)
 ; (cap len array ...) -> array
