@@ -68,11 +68,7 @@ through SDL. At this point I would start writing device drivers for the virtual
 device interfaces provided by the VM environment.
 
 * Create or port an existing TCP/IP stack. Provide this as a standard service
-on the network. Implement another link driver type that uses TCP/IP in order to
-experiment with bridging multiple computers together into a single addressable
-network. I'm very tempted to create a link driver based on the Nanomsg library,
-this could prove interesting but would only work on hosted systems, still worth
-doing.
+on the network.
 
 * Create a vp-code binary encoding. Heterogeneous applications work currently,
 just using the separated name spaces in the obj/ directory. But I'd quite like
