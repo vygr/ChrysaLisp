@@ -15,6 +15,12 @@ New VP level `(until tst [body]) ->tst`.
 
 Big tidy up of the `(ffi path [sym flags])` syntax and optional values.
 
+New `(lines! stream)` function than replaces `(each-line)`, accses the line
+index with `(!)`.
+
+New `(filter! lambda seq [out start end])` function than replaces
+`(filter-array)` with a simple macro `(filter lambda stream)`.
+
 ------
 
 Audio SFX service from Martyn Blyss. Many thanks ! Boing demo updated with a

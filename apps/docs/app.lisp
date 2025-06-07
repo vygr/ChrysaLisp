@@ -49,7 +49,7 @@
 				:min_width (first (. vdu :pref_size))))
 			(ui-label _ (:min_width +margin_width)))
 		(defq state :text)
-		(each-line (lambda (line)
+		(lines! (lambda (line)
 				(task-slice)
 				(catch (setq state ((handler-func state)
 							state page (trim-end line (ascii-char 13))))

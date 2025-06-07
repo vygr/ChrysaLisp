@@ -151,7 +151,7 @@
 				(id-encode pattern) " ")
 			results (apply (const cat) (sort (map (const second)
 				(pipe-farm (map (# (cat cmd %0))
-					(filter-array (lambda (f) (notany (# (eql f %0)) +dictionaries))
+					(filter (lambda (f) (notany (# (eql f %0)) +dictionaries))
 						(files-all "." +file_types 2))) 20000000)))))
 		;paste into scratch buffer
 		(action-push)
@@ -203,11 +203,11 @@
 		(action-save-all)
 		(defq pos :nil)
 		(some (lambda (file)
-			(each-line (lambda (line)
+			(lines! (lambda (line)
 				(and (> (length line) 10) (eql "(" (first line))
 					(>= (length (defq s (split line (const (char-class " ()\r\t"))))) 2)
 					(find (first s) '("defun" "defmacro" "redefun" "redefmacro" "defclass" "ffi"))
-					(eql (second s) name) (setq pos (list file 0 _))))
+					(eql (second s) name) (setq pos (list file 0 (!)))))
 				(file-stream file)) pos)
 			(sort (cat *open_files*)))
 		(when pos

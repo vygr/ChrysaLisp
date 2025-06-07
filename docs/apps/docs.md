@@ -149,7 +149,7 @@ processed.
 (defun populate-page (file)
     ; ...
     (defq state :text)
-    (each-line (lambda (line)
+    (lines! (lambda (line)
             ; ... logic to update 'state' based on "```<type>" tags ...
             (catch (setq state ((handler-func state) state page line))
                 (progn (prin _) (print) (setq state :text) :t)))

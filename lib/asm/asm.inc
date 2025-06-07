@@ -101,7 +101,7 @@
 
 (defun all-vp-files ()
 	;filter to only the .vp files, strip off the leading "./"
-	(filter-array (# (not (starts-with "apps/" %0))) (files-all "." '(".vp") 2)))
+	(filter (# (not (starts-with "apps/" %0))) (files-all "." '(".vp") 2)))
 
 (defun all-class-files ()
 	;filter to only the class.inc files, strip off the leading "./"
@@ -110,7 +110,7 @@
 (defun make-info (_)
 	;create lists of immediate dependencies and products
 	(defq d (list "lib/asm/asm.inc" "class/lisp/root.inc" "class/lisp/task.inc" _) p (list))
-	(each-line (lambda (_)
+	(lines! (lambda (_)
 		(when (and (> (length _) 10) (eql "(" (first _))
 				(<= 2 (length (defq s (split _ (const (char-class " '()\q\r"))))) 4))
 			(case (first s)
@@ -149,9 +149,9 @@
 				(make-merge files d)
 				(def info (sym %0) (list d (map (const func-obj-path) p)))) files)))
 		;filter to only the .vp files
-		(setq files (filter-array (# (ends-with ".vp" %0)) files))
+		(setq files (filter (# (ends-with ".vp" %0)) files))
 		;filter to only the files who's oldest product is older than any dependency
-		(setq files (filter-array (#
+		(setq files (filter (#
 			(bind '(d p) (get (sym %0) info))
 			(setq p (reduce min (map (const file-age) p) +max_long))
 			(each-mergeable (# (make-merge d (first (get (sym %0) info)))) d)

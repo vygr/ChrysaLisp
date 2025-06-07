@@ -177,6 +177,12 @@ should provide the concreate handler
 (every lambda seq ...) -> :nil | form
 ```
 
+### filter
+
+```code
+(filter lambda seq) -> list
+```
+
 ### get-byte
 
 ```code

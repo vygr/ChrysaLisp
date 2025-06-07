@@ -32,8 +32,8 @@
 (defun stream-diff (a b c)
 	; (stream-diff a b c)
 	;difference between streams a and b, write to stream c
-	(defq al (list) la (each-line (# (push al %0)) a) la (length al)
-		bl (list) lb (each-line (# (push bl %0)) b) lb (length bl))
+	(defq al (list) la (lines! (# (push al %0)) a) la (length al)
+		bl (list) lb (lines! (# (push bl %0)) b) lb (length bl))
 	(cond
 		((and (= la 0) (= lb 0)))
 		((= la 0) (each (# (write-line c (str "+ " (!) " " %0))) bl))

@@ -83,7 +83,7 @@
 	(defmethod :intersect (that)
 		; (. xset :intersect xset) -> xset
 		(unless (eql this that)
-			(each (# (elem-set _b (!) (filter-array (# (. that :find %0)) %0)))
+			(each (# (elem-set _b (!) (filter (# (. that :find %0)) %0)))
 				(defq _b (get :buckets this))))
 		this)
 

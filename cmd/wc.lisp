@@ -27,7 +27,7 @@
 ;do the work on a file
 (defun work (file)
 	(defq word_count 0 line_count 0 paragraph_count 0 in_paragraph_flag :nil)
-	(each-line (lambda (line)
+	(lines! (lambda (line)
 		;good practice for long files
 		(task-slice)
 		(setq line_count (inc line_count))
@@ -59,7 +59,7 @@
 		;from args ?
 		(if (empty? (defq jobs (rest args)))
 			;no, so from stdin
-			(each-line (# (push jobs %0)) (io-stream 'stdin)))
+			(lines! (# (push jobs %0)) (io-stream 'stdin)))
 		(if (<= (length jobs) 1)
 			;have to do the work when just 1 file !
 			(if (nempty? jobs) (work (pop jobs)))

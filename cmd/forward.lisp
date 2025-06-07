@@ -18,8 +18,9 @@
 ;do the work on a file
 (defun work (file)
 	(defq defs_map (Fmap 11) uses_map (Fmap 101))
-	(each-line (lambda (line) (task-slice)
-			(defq line_num _
+	(lines! (lambda (line)
+			(task-slice)
+			(defq line_num (!)
 				defs (matches line "^\(def(un|macro)\s+([^ \r\f\v\n\t()]+)")
 				uses (matches line "\(\s*(\D[^ \r\f\v\n\t()]*)"))
 			(when (nempty? defs)
@@ -42,7 +43,7 @@
 		;from args ?
 		(if (empty? (defq jobs (rest args)))
 			;no, so from stdin
-			(each-line (# (push jobs %0)) (io-stream 'stdin)))
+			(lines! (# (push jobs %0)) (io-stream 'stdin)))
 		(if (<= (length jobs) 1)
 			;have to do the work when just 1 file !
 			(work (pop jobs))

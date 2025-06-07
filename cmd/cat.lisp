@@ -32,6 +32,6 @@
 			(defq file_flag :nil args (options stdio usage)))
 		(if (<= (length args) 1)
 			;cat from stdin
-			(each-line cat-file (io-stream 'stdin))
+			(lines! cat-file (io-stream 'stdin))
 			;cat from args
 			(each cat-file (rest args)))))

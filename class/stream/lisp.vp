@@ -480,3 +480,72 @@
 	(signature '(stream num num)))
 
 (def-func-end)
+
+(def-method 'stream :lisp_each)
+	;inputs
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
+	;outputs
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
+	;trashes
+	;:r1-:r14
+
+	(def-vars
+		(ptr this args stream func value)
+		(int idx)
+		(uint old_idx))
+
+	(vp-def (this value func stream idx old_idx))
+
+	(push-scope)
+	(entry 'seq :lisp_each `(,this ,value))
+
+	(errorif-lisp-args-sig 'error1 :r1 2)
+
+	(assign `(,this) {this})
+	(list-bind-args value `(,func ,stream) '(:obj :stream))
+	(assign '(0) `(,idx))
+	(assign `(,func ,stream ,idx) {func, stream, idx})
+
+	(assign `((,this lisp_seq_idx)) `(,old_idx))
+	(assign `(,idx) `((,this lisp_seq_idx)))
+	(assign `(,old_idx) {old_idx})
+
+	(loop-start)
+		(call 'stream :read_line {stream} {_, value})
+		(breakifnot {value})
+		(call 'list :create :nil {args})
+		(call 'list :push_back {args, value})
+		(call 'lisp :repl_apply {this, args, func} {_, value})
+		(call 'obj :deref {args})
+
+	(errorcase
+		(vp-def (vt1 vt2))
+		(assign {value->obj_vtable, this->lisp_error} `(,vt1 ,vt2))
+		(gotoif `(,vt1 = ,vt2) 'error))
+
+		(call 'obj :deref {value})
+		(assign {this} `(,this))
+		(assign `((,this lisp_seq_idx)) `(,idx))
+		(vp-add-cr 1 idx)
+		(assign `(,idx) `((,this lisp_seq_idx)))
+	(loop-end)
+	(call 'obj :ref {this->lisp_sym_nil} {value})
+
+(vp-label 'error)
+	(assign {this, value} `(,this ,value))
+	(assign {old_idx} `(,old_idx))
+	(assign `(,old_idx) `((,this lisp_seq_idx)))
+
+	(exit 'stream :lisp_each `(,this ,value))
+	(return)
+
+(errorcase
+(vp-label 'error1)
+	(jump 'lisp :repl_error `(,this "(lines! lambda stream)" +error_msg_wrong_types ,value))
+	(signature '(obj stream)))
+
+	(pop-scope-syms)
+
+(def-func-end)

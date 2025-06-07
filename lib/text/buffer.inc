@@ -204,7 +204,7 @@
 		(raise :syntax_engine :tab_width (buffer_line (list) buffer_syntax (list)
 			 buffer_states (list) buffer_found (list) buffer_brackets (list)
 			 max_width 0))
-		(each-line (lambda (line)
+		(lines! (lambda (line)
 				(task-slice)
 				(setq line (expand (trim-end line (const (char +char_cr))) tab_width)
 					max_width (max max_width (length line)))
@@ -381,7 +381,7 @@
 		(setd wrap_width +max_int)
 		(. this :push_undo (list :mark (defq mark (. this :next_mark))))
 		(defq ss (string-stream string) line (read-line ss))
-		(each-line (# (insert-line-wrapped this line wrap_width)
+		(lines! (# (insert-line-wrapped this line wrap_width)
 			(. this :break) (setq line %0)) ss)
 		(when line
 			(insert-line-wrapped this line wrap_width)

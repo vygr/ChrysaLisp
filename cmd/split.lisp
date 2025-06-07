@@ -29,7 +29,7 @@
 			(defq stdio (create-stdio))
 			(defq opt_s "," opt_e :nil args (options stdio usage)))
 		;split stdin
-		(each-line (#
+		(lines! (#
 			(defq elms (split %0 (char-class opt_s)))
 			(if (and opt_e (> (length elms) opt_e))
 				(setq elms (list (elem-get elms opt_e))))

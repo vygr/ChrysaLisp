@@ -102,7 +102,7 @@
 		(if (<= (elem-get v1 +vec4_w) (elem-get v2 +vec4_w)) 1 -1))))
 
 (defun clip-balls (balls)
-	(filter-array (lambda (((_ _ _ w) _ _)) (<= +near w +far)) balls))
+	(filter (lambda (((_ _ _ w) _ _)) (<= +near w +far)) balls))
 
 (defun render ()
 	(defq mrx (Mat4x4-rotx *rotx*) mry (Mat4x4-roty *roty*) mrz (Mat4x4-rotz *rotz*)

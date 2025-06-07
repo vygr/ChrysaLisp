@@ -100,8 +100,12 @@
 ; (some! lambda seqs [mode start end]) -> :nil | val
 (ffi "class/seq/lisp_map" map!)
 ; (map! lambda seqs [out start end]) -> out | (...)
+(ffi "class/seq/lisp_filter" filter!)
+; (filter! lambda seq [out start end]) -> out | (...)
 (ffi "class/seq/lisp_reduce" reduce!)
 ; (reduce! lambda seqs init [start end]) -> val
+(ffi "class/stream/lisp_each" lines!)
+; (lines! lambda stream [idx]) -> :nil
 
 (ffi "class/array/lisp_cap" cap)
 ; (cap len array ...) -> array
@@ -580,6 +584,10 @@
 		((list? s) `(reduce! ,f (list (defq ,(defq i (gensym)) ,s)) (last ,i) -2 0))
 		(`(reduce! ,f (list ,s) (last ,s) -2 0))))
 
+(defmacro filter (f s)
+	; (filter lambda seq) -> list
+	`(filter! ,f ,s))
+
 (defmacro reverse (s)
 	; (reverse seq) -> seq
 	`(slice ,s -1 0))
@@ -674,12 +682,6 @@
 	; (zip seq ...) -> seq
 	(if (= (length (defq out (map! (const cat) (map (const partition) seqs)))) 0)
 		(slice (first seqs) 0 0) (apply (const cat) out)))
-
-(defun filter-array (_f _a)
-	; (filter-array lambda array) -> array
-	(defq _l (slice _a 0 0))
-	(each (lambda (_p) (if (_f _p) (push _l _p))) _a)
-	_l)
 
 (defun unique (seq)
 	; (unique seq) -> seq
@@ -991,7 +993,7 @@
 
 (defun lisp-nodes ()
 	; (lisp-nodes) -> nodes
-	(filter-array (const lisp-node?) (mail-nodes)))
+	(filter (const lisp-node?) (mail-nodes)))
 
 (defun max-length (_)
 	; (max-length list) -> max
@@ -1013,13 +1015,6 @@
 (defun load-stream (_)
 	; (load-stream path) -> :nil | stream
 	(if (defq _ (load _)) (string-stream _)))
-
-(defun each-line (_f _s &optional _)
-	; (each-line lambda stream [line_num])
-	; _ bound to line index !
-	(setd _ 0)
-	(while (defq _l (read-line _s))
-		(_f _l) (setq _ (inc _))))
 
 (defun abs-path (lib_path &optional current)
 	; (abs-path path [current]) -> path

@@ -23,6 +23,6 @@
 			(defq stdio (create-stdio))
 			(defq opt_c 10 args (options stdio usage)))
 		(defq lines (list))
-		(each-line (# (if (< (length lines) opt_c) (push lines %0)))
+		(lines! (# (if (< (length lines) opt_c) (push lines %0)))
 			(if (<= (length args) 1) (io-stream 'stdin) (file-stream (second args))))
 		(each (const print) lines)))

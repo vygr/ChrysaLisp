@@ -19,5 +19,5 @@
 		;from args ?
 		(if (empty? (defq lines (rest args)))
 			;no, so from stdin
-			(each-line (# (push lines %0)) (io-stream 'stdin)))
+			(lines! (# (push lines %0)) (io-stream 'stdin)))
 		(each (const print) (sort lines))))

@@ -6,6 +6,8 @@
 
 ### (stream-avail stream)
 
+### (lines! lambda stream)
+
 ### (file-stream path [mode])
 
 ### (io-stream io)

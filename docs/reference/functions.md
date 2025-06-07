@@ -163,14 +163,6 @@ cached circle generation, quantised to 1/4 pixel
 (debug-brk name condtion)
 ```
 
-### each-line
-
-```code
-(each-line lambda stream [line_num])
-
-_ bound to line index !
-```
-
 ### each-mergeable
 
 ```code
@@ -269,12 +261,6 @@ create list of immediate dependencies
 (files-dirs paths) -> paths
 
 return all the dir paths
-```
-
-### filter-array
-
-```code
-(filter-array lambda array) -> array
 ```
 
 ### fixed?

@@ -220,7 +220,7 @@ The function being called can access the current index value by use of the
 (every < (array 1 2 3) (array 5 6 7))
 ```
 
-## Map and Reduce
+## Map, Reduce and Filter
 
 You can iterate over sequences or slices of sequences, forwards or backwards,
 while collecting the results of a function that will be called with the grouped
@@ -264,6 +264,9 @@ The function being called can access the current index value by use of the
 (rreduce push "ABCD" (list))
 ```
 
+Filtering, with `(filter lambda seq)`, transforms a sequence by producing a list
+of all the elements that pass the filter test function.
+
 ## Arrays
 
 Arrays are sequences that also allow for writing to elements with the
@@ -275,9 +278,6 @@ with `(dim-set array (nums x y z ...) val)` and `(dim-get array (nums x y z
 They can be acted on as a stack by use of `(push array val ...)` and `(pop
 array)`. These functions act on the array 'in place', existing references to
 the array are still valid but the contents will be mutated !
-
-Filtering, with `(filter-array lambda array)`, transforms an array by producing
-an array of all the elements that pass the filter test function.
 
 Arrays can be cleared using `(clear array ...)` and the capacity set with `(cap
 length array ...)`. These functions act on the arrays 'in place', existing
@@ -364,11 +364,11 @@ q
 Filtering and reversing.
 
 ```lisp
-(filter-array (# (< %0 3)) '(0 1 2 3 4 5 6 7 8 9))
+(filter (# (< %0 3)) '(0 1 2 3 4 5 6 7 8 9))
 ```
 
 ```lisp
-(filter-array odd? (nums 3 4 5))
+(filter odd? (nums 3 4 5))
 ```
 
 ```lisp

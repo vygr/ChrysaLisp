@@ -29,6 +29,7 @@
 	(dec-method :lisp_write class/stream/lisp_write :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_write_flush class/stream/lisp_write_flush :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_write_next class/stream/lisp_write_next :static (:r0 :r1) (:r0 :r1))
+	(dec-method :lisp_each class/stream/lisp_each :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_seek class/stream/lisp_seek :static (:r0 :r1) (:r0 :r1)))
 
 (def-struct stream obj_size

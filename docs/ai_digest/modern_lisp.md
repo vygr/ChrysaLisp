@@ -99,9 +99,9 @@ in mind:
     input sequences, and provide the `(!)` special form to access the current
     index.
 
-    * **Convenience Macros:** `(each)`, `(map)`, `(reduce)`, `(filter-array)`,
-    `(reverse)` build upon these primitives or provide common sequence
-    operations.
+    * **Convenience Macros:** `(each)`, `(map)`, `(reduce)`, `(filter)`,
+      `(reverse)` build upon these primitives or provide common sequence
+      operations.
 
     * **Powerful Slicing and Concatenation:** `(slice seq start end)` (with
     support for negative indices) and `(cat seq ...)` are fundamental.

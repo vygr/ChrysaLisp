@@ -38,7 +38,7 @@
 	; (files-depends path) -> paths
 	;create list of immediate dependencies
 	(defq files (list file))
-	(each-line (lambda (line)
+	(lines! (lambda (line)
 		(and (> (length line) 8) (eql "(" (first line))
 			(= (length (defq s (split line (const (char-class " ()\q\r\t"))))) 2)
 			(find (first s) '("include" "import"))

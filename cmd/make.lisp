@@ -56,7 +56,7 @@
 		(include "lib/asm/func.inc")
 		(each include (all-class-files))
 		(each-mergeable (lambda (file)
-			(each-line (lambda (line)
+			(lines! (lambda (line)
 				(when (eql state :y)
 					(defq s (split line +char_class_space))
 					(if (and (> (length s) 0) (starts-with ";" (first s)))
@@ -92,8 +92,8 @@
 		(unless (eql ":nil" super)
 			(write-line stream (cat "## " super +LF)))
 		(sort methds (# (cmp (first %0) (first %1))))
-		(defq lisp_methds (filter-array (# (starts-with ":lisp_" (first %0))) methds)
-			methds (filter-array (# (not (starts-with ":lisp_" (first %0)))) methds))
+		(defq lisp_methds (filter (# (starts-with ":lisp_" (first %0))) methds)
+			methds (filter (# (not (starts-with ":lisp_" (first %0)))) methds))
 		(when (nempty? lisp_methds)
 			(write-line stream (cat "## Lisp Bindings" +LF))
 			(each (lambda ((methd function))
@@ -117,7 +117,7 @@
 	(defq classes (list) functions (list) macros (list) keys (list))
 	(each (lambda (file)
 		(defq state :nil info :nil methods :nil)
-		(each-line (lambda (line) (while line
+		(lines! (lambda (line) (while line
 			(case state
 				((:function :class :method)
 					(cond

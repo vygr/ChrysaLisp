@@ -34,7 +34,7 @@
 	(defq message "")
 	(cond
 		(game_over (setq message "You Lost!"))
-		((= (length (filter-array (# (or (eql %0 "f") (eql %0 "b"))) game_map)) (last difficulty))
+		((= (length (filter (# (or (eql %0 "f") (eql %0 "b"))) game_map)) (last difficulty))
 			(setq message "You Won!" game_over :t))
 		(:t :nil))
 	(set status_bar :text message)

@@ -25,6 +25,6 @@
 			(> (length (defq nodes (map cat (lisp-nodes)))) 0))
 		(if (<= (length args) 1)
 			;convert from stdin
-			(each-line launch (io-stream 'stdin))
+			(lines! launch (io-stream 'stdin))
 			;convert from args
 			(each launch (rest args)))))

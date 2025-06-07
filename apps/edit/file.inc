@@ -92,7 +92,7 @@
 (defun action-load-selected ()
 	(when (selection?)
 		(bind '(y y1) (select-lines))
-		(open-files (filter-array (# (/= (age %0) 0))
+		(open-files (filter (# (/= (age %0) 0))
 			(usort
 				(split (.-> (. *edit* :get_buffer)
 					(:set_cursor 0 y1)

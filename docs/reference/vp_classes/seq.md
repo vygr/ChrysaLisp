@@ -10,6 +10,8 @@
 
 ### (elem-get seq idx)
 
+### (filter! lambda seq [out start end])
+
 ### (find elem seq [idx])
 
 ### (first seq)

@@ -253,7 +253,7 @@
 	;load up the base Syntax keywords, root.inc and dictionaries for matching
 	(each (lambda ((key val)) (. dictionary :insert_word (str key)))
 		(tolist (get :keywords *syntax* )))
-	(each (# (each-line populate-dictionary (file-stream %0)))
+	(each (# (lines! populate-dictionary (file-stream %0)))
 		(cat +dictionaries '("class/lisp/root.inc")))
 	(. *file_tree* :populate "." +file_types 2)
 	(populate-file-trees)
