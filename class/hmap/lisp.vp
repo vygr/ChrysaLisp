@@ -134,8 +134,7 @@
 		(call 'lisp :repl_eval '((:rsp local_this) (:r1 +ptr_size)) '(:r0 :r1))
 		(assign '(:r1) '((:rsp local_val)))
 	(errorcase
-		(assign '((:r1 obj_vtable)) '(:r3))
-		(f-bind 'error :vtable :r4)
+		(assign '((:r1 obj_vtable) (:r0 lisp_error)) '(:r3 :r4))
 		(breakif '(:r3 = :r4)))
 		(assign '(:r1 (:rsp local_iter_begin)) '(:r2 :r1))
 		(assign '((:r1 0)) '(:r1))

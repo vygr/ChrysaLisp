@@ -66,6 +66,6 @@
 		sym_quote sym_qquote sym_unquote sym_trunc
 		sym_splicing sym_stream_name sym_stream_line sym_file_includes sym_ffi
 		sym_stack_frame func_ffi func_lambda func_macro func_quote func_qquote)
-	(ptr stack)
+	(ptr stack error)
 	(ulong nextsym)
 	(uint seq_idx))

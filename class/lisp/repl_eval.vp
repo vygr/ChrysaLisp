@@ -44,7 +44,7 @@
 		(call 'lisp :repl_eval '(:r0 :r1) '(:r0 :r1))
 		(assign '((:r1 obj_vtable)) '(:r2))
 	(errorcase
-		(f-bind 'error :vtable :r3)
+		(assign '((:r0 lisp_error)) '(:r3))
 		(breakif '(:r2 = :r3)))
 		(assign '(:r1) '((:rsp local_func)))
 		(f-bind 'func :vtable :r3)
@@ -57,10 +57,9 @@
 		(else)
 			(assign '((:rsp local_form)) '(:r0))
 			(d-call 'list :slice '(:r0 1 (:r0 array_length)) '(_ (:rsp local_args)))
-			(call 'lisp :repl_eval_list '((:rsp local_this) (:rsp local_args)) '(_ :r1))
+			(call 'lisp :repl_eval_list '((:rsp local_this) (:rsp local_args)) '(:r0 :r1))
 		(errorcase
-			(assign '((:r1 obj_vtable)) '(:r2))
-			(f-bind 'error :vtable :r3)
+			(assign '((:r1 obj_vtable) (:r0 lisp_error)) '(:r2 :r3))
 			(assign '(:r1) '((:rsp local_value)))
 			(gotoif '(:r2 = :r3) 'error))
 			(call 'obj :deref '(:r1))
@@ -118,8 +117,7 @@
 			(assign '(:r3) '((:rsp local_iter_begin)))
 			(call 'lisp :repl_eval '(:r0 (:r3 0)) '(:r0 :r1))
 		(errorcase
-			(f-bind 'error :vtable :r2)
-			(assign '((:r1 obj_vtable)) '(:r3))
+			(assign '((:r1 obj_vtable) (:r0 lisp_error)) '(:r3 :r2))
 			(breakif '(:r2 = :r3) 'exit))
 			(assign '((:rsp local_iter_begin)) '(:r3))
 			(assign '((:r3 0) :r1) '(:r0 (:r3 0)))

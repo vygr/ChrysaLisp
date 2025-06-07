@@ -159,7 +159,7 @@
 			(assign {index_vars + 1, index_vals + 1} {index_vars, index_vals})
 			(call 'lisp :env_bind {this, symbol, args} {_, value})
 			(call 'obj :deref {args})
-			(errorif (cat {value->obj_vtable = @} (f-path 'error :vtable)) 'funcexit)
+			(errorif {value->obj_vtable = this->lisp_error} 'funcexit)
 		(endif)
 	(loop-end)
 	(errorif {index_vals /= len_vals} 'error4)

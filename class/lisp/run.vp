@@ -38,7 +38,7 @@
 			;run main
 			(call 'list :create :nil {args})
 			(call 'lisp :repl_apply {lisp, args, obj} {_, obj})
-			(vpif (cat {obj->obj_vtable = @} (f-path 'error :vtable)))
+			(vpif {obj->obj_vtable = lisp->lisp_error})
 				;error in main
 				(call 'obj :print {obj, lisp->lisp_stderr})
 				(call 'stream :write_char {lisp->lisp_stderr, +char_lf})

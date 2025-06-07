@@ -31,7 +31,7 @@
 	(assign '((:r0 lisp_sym_nil)) '(:r2))
 	(vpif '(:r1 /= :r2))
 	(errorcase
-		(assign `((:r1 obj_vtable) (@ ,(f-path 'error :vtable))) '(:r2 :r3))
+		(assign '((:r1 obj_vtable) (:r0 lisp_error)) '(:r2 :r3))
 		(gotoif '(:r2 = :r3) 'error1))
 		(call 'obj :deref '(:r1))
 		(jump 'lisp :repl_eval {this, begin[+ptr_size * 2]})
@@ -91,7 +91,7 @@
 	(assign {len} '(:r2))
 	(vpif '(:r2 = 4))
 	(errorcase
-		(assign `((:r1 obj_vtable) (@ ,(f-path 'error :vtable))) '(:r2 :r3))
+		(assign '((:r1 obj_vtable) (:r0 lisp_error)) '(:r2 :r3))
 		(gotoif '(:r2 = :r3) 'error1))
 		(call 'obj :deref '(:r1))
 		(jump 'lisp :repl_eval {this, begin[+ptr_size * 3]})
@@ -144,7 +144,7 @@
 			`(,this ,args))
 
 	(errorcase
-		(assign `((,args obj_vtable) (@ ,(f-path 'error :vtable))) `(,vtable ,tmp))
+		(assign `((,args obj_vtable) (,this lisp_error)) `(,vtable ,tmp))
 		(breakif `(,vtable = ,tmp)))
 
 		(call 'obj :deref `(,args))
@@ -196,7 +196,7 @@
 			`(,this ,args))
 
 	(errorcase
-		(assign `((,args obj_vtable) (@ ,(f-path 'error :vtable))) `(,vtable ,tmp))
+		(assign `((,args obj_vtable) (,this lisp_error)) `(,vtable ,tmp))
 		(breakif `(,vtable = ,tmp)))
 
 		(call 'obj :deref `(,args))
@@ -383,7 +383,7 @@
 	(gotoif `(,iter_begin = ,iter_end) 'prognexit)
 
 (errorcase
-	(assign `((,value obj_vtable) (@ ,(f-path 'error :vtable))) `(,vtable ,tmp))
+	(assign `((,value obj_vtable) (,this lisp_error)) `(,vtable ,tmp))
 	(gotoif `(,vtable = ,tmp) 'prognexit))
 
 	(vp-sub-cr +ptr_size iter_end)
@@ -396,7 +396,7 @@
 		(call 'lisp :repl_eval {this, *iter_begin} `(,this ,value))
 
 	(errorcase
-		(assign `((,value obj_vtable) (@ ,(f-path 'error :vtable))) `(,vtable ,tmp))
+		(assign `((,value obj_vtable) (,this lisp_error)) `(,vtable ,tmp))
 		(gotoif `(,vtable = ,tmp) 'prognexit))
 
 		(assign {iter_begin, iter_end} `(,iter_begin ,iter_end))

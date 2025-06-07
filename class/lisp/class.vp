@@ -52,10 +52,11 @@
 		(assign {0} {this->lisp_nextsym})
 		(assign {0} {this->lisp_seq_idx})
 
-		;tls stack and object tls
+		;tls stack, object tls, error vtable
 		(assign {@sys/statics/statics.statics_sys_task_current_tcb} {func})
 		(assign {this} {func->tk_node_lisp})
 		(assign {func->tk_node_tls} {this->lisp_stack})
+		(assign {@class/error/vtable} {this->lisp_error})
 
 		;spin lock if boot env busy
 		(loop-while {@sys/statics/statics.statics_lisp_root_env = -1})
@@ -124,7 +125,7 @@
 		(call 'str :create_from_cstr {obj} {obj})
 		(call 'list :push_back2 {args, stream, obj})
 		(call 'lisp :lisp_repl {this, args} {_, obj})
-		(vpif (cat {obj->obj_vtable = @} (f-path 'error :vtable)))
+		(vpif {obj->obj_vtable = this->lisp_error})
 			(call 'lisp :repl_print {this, this->lisp_stderr, obj})
 			(call 'stream :write_char {this->lisp_stderr, +char_lf})
 			(call 'stream :flush {this->lisp_stderr})

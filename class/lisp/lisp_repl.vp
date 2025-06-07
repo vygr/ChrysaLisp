@@ -77,7 +77,7 @@
 			(call 'stream :write_char {this->lisp_stdout, +char_lf})
 		(endif)
 	(errorcase
-		(breakif (cat {value->obj_vtable = @} (f-path 'error :vtable))))
+		(breakif {value->obj_vtable = this->lisp_error}))
 	(loop-end)
 
 	;pop old file and line info

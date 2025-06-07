@@ -658,8 +658,7 @@
 
 		(errorcase
 			(vp-def (vt1 vt2))
-			(assign {value->obj_vtable} `(,vt1))
-			(f-bind 'error :vtable vt2)
+			(assign {value->obj_vtable, this->lisp_error} `(,vt1 ,vt2))
 			(breakif `(,vt1 = ,vt2)))
 
 			(assign {this->lisp_seq_idx, dir, end} `(,idx ,dir ,end))
@@ -766,8 +765,7 @@
 
 		(errorcase
 			(vp-def (vt1 vt2))
-			(assign {value->obj_vtable} `(,vt1))
-			(f-bind 'error :vtable vt2)
+			(assign {value->obj_vtable, this->lisp_error} `(,vt1 ,vt2))
 			(breakif `(,vt1 = ,vt2)))
 
 			;break out based on mode and new value
@@ -892,8 +890,7 @@
 
 		(errorcase
 			(vp-def (vt1 vt2))
-			(assign {value->obj_vtable} `(,vt1))
-			(f-bind 'error :vtable vt2)
+			(assign {value->obj_vtable, this->lisp_error} `(,vt1 ,vt2))
 			(gotoif `(,vt1 = ,vt2) 'error3))
 
 			;collect value of function call
@@ -1005,8 +1002,7 @@
 
 		(errorcase
 			(vp-def (vt1 vt2))
-			(assign {value->obj_vtable} `(,vt1))
-			(f-bind 'error :vtable vt2)
+			(assign {value->obj_vtable, this->lisp_error} `(,vt1 ,vt2))
 			(breakif `(,vt1 = ,vt2)))
 
 			(assign {this->lisp_seq_idx, dir, end} `(,idx ,dir ,end))

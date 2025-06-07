@@ -55,7 +55,7 @@
 
 	(call 'list :get_begin {args} {_, iter_begin})
 	(call 'lisp :repl_eval {this, iter_begin[+ptr_size * 1]} {_, value})
-	(vpif (cat {value->obj_vtable = @} (f-path 'error :vtable)))
+	(vpif {value->obj_vtable = this->lisp_error})
 		(call 'lisp :env_push {this})
 		(call 'list :create :nil {str_args})
 		(call 'obj :ref {value})
@@ -66,7 +66,7 @@
 		(call 'obj :deref {str_value})
 		(call 'lisp :repl_eval {this, iter_begin[+ptr_size * 2]} {_, args})
 		(call 'lisp :env_pop {this})
-		(vpif (cat {args->obj_vtable = @} (f-path 'error :vtable) { || args /= this->lisp_sym_nil}))
+		(vpif {args->obj_vtable = this->lisp_error || args /= this->lisp_sym_nil})
 			(call 'obj :deref {value})
 			(assign {args} {value})
 		(else)
