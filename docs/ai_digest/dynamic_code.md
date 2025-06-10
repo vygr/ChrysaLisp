@@ -223,3 +223,13 @@ runtime solutions for pixel conversion, it simply generates the perfect, simple
 code at compile time. It is a testament to an architecture where the lines
 between compiler, assembler, and language are beautifully and powerfully
 blurred.
+
+* `def-struct` is a micro-compiler for data layouts.
+
+* The `assign` macro is a micro-compiler for assignment operations, choosing the
+  optimal load/store instruction based on its analysis of the source and
+  destination operands.
+
+* `cscript.inc` provides a micro-compiler for a C-like infix expression language.
+
+* `pixmap:to_argb32` is a micro-compiler for pixel format conversion.
