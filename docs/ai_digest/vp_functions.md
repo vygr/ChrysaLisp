@@ -104,7 +104,7 @@ evolves through three distinct states from source code to a running system.
 
 *   **State:** The `.vp` file on disk contains symbolic dependencies. Each
     function has its own `paths` table containing the string names of its
-    dependencies. If ten different functions call `sys_mem:alloc`, the string
+    dependencies. If ten different functions call `sys_mem :alloc`, the string
     `"sys/mem/alloc"` is duplicated in ten separate files.
 
 ### Stage 2: Pre-Linking - The `boot-image` Optimizer
@@ -114,19 +114,17 @@ evolves through three distinct states from source code to a running system.
 *   **Process:** This tool performs two critical optimizations:
 
     1. **Path Consolidation and Stripping:** It scans every function's `paths`
-        table and builds a **single, global string table** at the end of the
-        boot image, containing every unique path name exactly once. It then
-        **patches the `paths` offset in every function's header** to point to
-        the correct location within this new global table. The original,
-        per-function path tables are completely discarded, shrinking the image.
+       table and builds a **single, global string table** at the end of the boot
+       image, containing every unique path name exactly once. The original,
+       per-function path tables are completely discarded, shrinking the image.
 
     2. **Link Resolution:** Using the original path information (before it's
-        discarded), it finds the final offset of each target function within the
-        image. It then **patches the `links` table** with a *relative offset*
-        from the link's own address to the header of the target function.
+       discarded), it finds the final offset of each target function within the
+       image. It then **patches the `links` table** with a *relative offset*
+       from the link's own address to the new global path name.
 
 *   **Result:** The on-disk `boot_image` is a compact binary with relative code
-    offsets and a single, consolidated string table.
+    offsets and a single, consolidated path string table.
 
 **Optimized `boot_image` Layout on Disk:**
 
@@ -174,7 +172,7 @@ This architecture ensures that by the time any application code runs, all
 symbolic resolution is complete.
 
 *   **Static Call (`f-call`)**: A call to a known function like
-    `(f-call 'sys_mem :alloc ...)` is resolved by the `boot-image` and `loader`
+    `(f-call 'sys_mem :alloc ...)` is resolved by the `boot_image` and `loader`
     into an absolute memory address. The final machine code performs a direct
     `call [absolute_address_of_sys_mem_alloc]`.
 
@@ -199,7 +197,7 @@ symbolic resolution is complete.
 
 The ChrysaLisp VP function format is the architectural lynchpin of the system.
 By treating functions and vtables as the same binary primitive, it leverages a
-single set of tools for compilation and loading. The `boot-image` optimizer is
+single set of tools for compilation and loading. The `boot_image` optimizer is
 essential, performing both link resolution and string table consolidation to
 produce a compact, efficient binary. The load-time wiring is a trivial,
 single-pass operation.
