@@ -101,11 +101,11 @@ There is no need for a separate, limited preprocessor, because the full,
 Turing-complete power of Lisp is already available to generate and transform
 code at compile time.
 
-## 3. Case Study: The `pixmap:to_argb32` Code Generator
+## 3. Case Study: The `pixmap :to_argb32` Code Generator
 
 This dynamic code generation is brilliantly showcased in `gui/pixmap/class.vp`,
 specifically in the functions that handle pixel format conversions. Let's
-analyze `pixmap:to_argb32`.
+analyze `pixmap :to_argb32`.
 
 ### 3.1. The Top-Level Method
 
@@ -196,7 +196,7 @@ called, which emits the final bytecode into the function being compiled.
     bytecode emitters (`vp-shl-cr`, `vp-add-rr`, etc.).
 
 6.  The final, optimized, branchless VP bytecode is written into the body of the
-    `pixmap:to_argb32` method in the output object file.
+    `pixmap :to_argb32` method in the output object file.
 
 **At Runtime:**
 
@@ -236,4 +236,4 @@ domain-specific **micro-compilers**.
 
 * `cscript.inc` provides a micro-compiler for a C-like infix expression language.
 
-* `pixmap:to_argb32` is a micro-compiler for pixel format conversion.
+* `pixmap :to_argb32` is a micro-compiler for pixel format conversion.

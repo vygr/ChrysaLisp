@@ -104,7 +104,7 @@ through the **proactive `str_hashslot` caching mechanism**.
 
 1.  **Proactive Cache Setting:** When any key (a symbol) is inserted into any
     `hmap`—be it a class vtable via `defmethod` or an object property via
-    `def`—the `hmap:insert` function **immediately writes the index of that
+    `def`—the `hmap :insert` function **immediately writes the index of that
     key's location within the `hmap`'s internal bucket into the global symbol's
     `str_hashslot` field.** This cache is set at definition time, not on first
     use.
@@ -136,7 +136,7 @@ runtime, ChrysaLisp's application layer gains immense power.
 *   **Live Code Modification (Monkey Patching):** A developer can connect to a
     running system and redefine a method simply by calling
     `(def *class_Button* :draw <new_lambda>)`. This `def` (which is
-    `hmap:insert`) will update the class `hmap` and, crucially, update the
+    `hmap :insert`) will update the class `hmap` and, crucially, update the
     `str_hashslot` on the `:draw` symbol to point to its new location. The next
     time any button is drawn, `mcall` will instantly and efficiently find and
     execute the new code.

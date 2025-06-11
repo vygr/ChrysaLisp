@@ -18,7 +18,7 @@ loop to service kernel mail and manage task scheduling.
 
 * **Task Management (`sys/task/`):** Provides preemptive multitasking. Tasks
 have priorities, private stacks, mailboxes, and can be started
-(`sys_task:start`), stopped (`sys_task:stop`), suspended/resumed, and put to
+(`sys_task :start`), stopped (`sys_task :stop`), suspended/resumed, and put to
 sleep. The kernel manages task lists and a timer list for scheduling.
 
 * **Mail System (`sys/mail/`):** The primary mechanism for inter-task
