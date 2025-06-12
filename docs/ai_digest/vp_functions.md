@@ -156,8 +156,8 @@ evolves through three distinct states from source code to a running system.
        (`absolute_address = link_slot_address + relative_offset`), and **writes
        this absolute address back into the `links` slot.**
 
-*   **Result:** The system is now live. Every `links` table and every vtable has
-    been transformed into a flat, in-memory array of direct, absolute function
+*   **Result:** The system is now live. Every `links` table and therefore every
+    static and virtual call address been transformed into absolute function
     pointers.
 
 ## 5. The Unified Call Mechanism in Action
