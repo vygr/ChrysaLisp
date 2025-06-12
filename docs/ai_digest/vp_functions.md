@@ -152,12 +152,11 @@ evolves through three distinct states from source code to a running system.
     2. It iterates through every function block's `links` table.
 
     3. For each slot, it reads the `relative_offset`, calculates the target's
-       absolute memory code address
-       (`absolute_address = link_slot_address + relative_offset`), and **writes
-       this absolute address back into the `links` slot.**
+       absolute memory code address, and **writes this absolute address back
+       into the `links` slot.**
 
 *   **Result:** The system is now live. Every `links` table and therefore every
-    static and virtual call address been transformed into absolute function
+    static and virtual call site been transformed into absolute function
     pointers.
 
 ## 5. The Unified Call Mechanism in Action
