@@ -142,18 +142,18 @@ enables applications to respond to user interactions and system notifications.
     * Its main loop in `apps/template/app.lisp` follows a similar pattern to
       the Editor:
 
-```vdu
-(while *running*
-    (defq *msg* (mail-read (elem-get select (defq idx (mail-select select)))))
-    (cond
-        ;; ... other mailbox handling (tip, timer) ...
-        ((defq id (getf *msg* +ev_msg_target_id) action (. *event_map* :find id))
-            ;; call bound event action
-            (dispatch-action action))
-        ;; ... key handling ...
-        (:t ;gui event
-            (. *window* :event *msg*))))
-```
+    ```vdu
+    (while *running*
+        (defq *msg* (mail-read (elem-get select (defq idx (mail-select select)))))
+        (cond
+            ;; ... other mailbox handling (tip, timer) ...
+            ((defq id (getf *msg* +ev_msg_target_id) action (. *event_map* :find id))
+                ;; call bound event action
+                (dispatch-action action))
+            ;; ... key handling ...
+            (:t ;gui event
+                (. *window* :event *msg*))))
+    ```
 
 5. **Multiple Mailboxes for GUI Applications (`event_loops.md`):**
 

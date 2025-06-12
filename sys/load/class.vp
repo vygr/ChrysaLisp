@@ -75,10 +75,10 @@
 	(assign '(:r1) `((,statics statics_sys_load_host_gui_funcs)))
 	(assign '(:r2) `((,statics statics_sys_load_host_audio_funcs)))
 
-
 	;add statics function to function list
 	(assign '((:rsp local_new_static_func)) `(,func))
 	(ln-add-fnode statics statics_sys_load_function_flist func :r0)
+
 	;add all tail functions to function list
 	(assign '((:rsp local_new_tail_func)) `(,func))
 	(assign `((,func +fn_header_length)) '(:r0))

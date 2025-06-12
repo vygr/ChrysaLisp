@@ -64,28 +64,28 @@ and necessary choice.
         S-expressions avoids recursion by using a `list` as a stack to manage
         nested parentheses.
 
-```vdu
-; Simplified logic from the Lisp reader
-(defun read (...)
-    (defq stack (list (list))) ; The heap-allocated stack
-    (loop-start)
-        (case char
-            ; ...
-            ((= char +char_lrb)) ; Open parenthesis
-                (push stack list) ; Push current context
-                (setq list (list)) ; Start a new context
-            ((= char +char_rrb)) ; Close parenthesis
-                (setq item list)
-                (setq list (pop stack)) ; Pop parent context
-                (push list item)
-            ; ...
-        )
-    (loop-until (stack is empty))
-)
-```
+    ```vdu
+    ; Simplified logic from the Lisp reader
+    (defun read (...)
+        (defq stack (list (list))) ; The heap-allocated stack
+        (loop-start)
+            (case char
+                ; ...
+                ((= char +char_lrb)) ; Open parenthesis
+                    (push stack list) ; Push current context
+                    (setq list (list)) ; Start a new context
+                ((= char +char_rrb)) ; Close parenthesis
+                    (setq item list)
+                    (setq list (pop stack)) ; Pop parent context
+                    (push list item)
+                ; ...
+            )
+        (loop-until (stack is empty))
+    )
+    ```
 
-        The machine stack depth remains constant, no matter how deeply nested
-        the code being parsed is.
+    The machine stack depth remains constant, no matter how deeply nested the
+    code being parsed is.
 
     * **Case Study: GUI Composition (`host_gui :composite`)** The function that
         traverses the GUI widget tree for rendering, `:forward_tree`, is also
