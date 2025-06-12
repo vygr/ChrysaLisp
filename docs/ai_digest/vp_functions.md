@@ -193,7 +193,7 @@ symbolic resolution is complete.
 
     3. **Call:** The final instruction is an indirect call: `call r2`.
 
-## 6. Conclusion
+## Conclusion
 
 The ChrysaLisp VP function format is the architectural lynchpin of the system.
 By treating functions and vtables as the same binary primitive, it leverages a

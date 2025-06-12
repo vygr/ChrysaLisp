@@ -9,7 +9,7 @@
 	; (handler state page line) -> state
 	(defq lines '())
 	(cond
-		((starts-with "```" line)
+		((match? line "^\s*```")
 			(redirect :vdu lines)
 			(redirect :lispq lines)
 			(clear lines)

@@ -202,44 +202,44 @@ function names at every call site. ChrysaLisp employs a two-pronged strategy:
 **7. Preserving Dynamism, Minimizing Overhead:**
 
 * **Cache Coherency:** ChrysaLisp's performance relies on the `str_hashslot`
-cache remaining valid. This is why the design encourages **minimizing the
-creation of new, deeply nested lexical scopes (hmaps)** beyond the primary
-function scope. Frequent creation of short-lived nested hmaps would "thrash"
-the `str_hashslot` cache. `let` and other binding forms are likely implemented
-to be mindful of this.
+  cache remaining valid. This is why the design encourages **minimizing the
+  creation of new, deeply nested lexical scopes (hmaps)** beyond the primary
+  function scope. Frequent creation of short-lived nested hmaps would "thrash"
+  the `str_hashslot` cache. `let` and other binding forms are likely implemented
+  to be mindful of this.
 
 * **The Escape Hatch (`env-resize`):** For known large collections of symbols
-(e.g., an assembler's symbol table), an `hmap` can be explicitly resized. This
-triggers the use of `str_hashcode` for multi-bucket distribution, and
-`str_hashslot` then works within those smaller buckets.
+  (e.g., an assembler's symbol table), an `hmap` can be explicitly resized. This
+  triggers the use of `str_hashcode` for multi-bucket distribution, and
+  `str_hashslot` then works within those smaller buckets.
 
 * **Lisp's Dynamic Nature Intact:** Despite these optimizations:
 
     * Functions and variables can be redefined. The next lookup or `repl_bind`
-    pass will pick up the new definition.
+      pass will pick up the new definition.
 
     * `eval` works as expected, benefiting from the fast dynamic lookup.
 
     * Macros transform code before `repl_bind` and evaluation, fitting
-    seamlessly into this optimized pipeline.
+      seamlessly into this optimized pipeline.
 
-**Conclusion: The Unfolding Hand Technique**
+##Conclusion: The Unfolding Hand Technique**
 
 ChrysaLisp's environment and call system is not magic, but the result of
 deliberate engineering that "caches the crap out of what is going on
 underneath." It achieves its tremendous speeds by:
 
 * Optimizing the most frequent operations (local variable access, global
-function calls) to near O(1) performance through `str_hashslot` caching in
-single-bucket `hmap`s.
+  function calls) to near O(1) performance through `str_hashslot` caching in
+  single-bucket `hmap`s.
 
 * Pre-binding most function call sites in the AST to avoid runtime lookups.
 
-* Providing an extremely fast dynamic symbol lookup (again, using
-`str_hashslot` and `str_hashcode`) for cases where pre-binding isn't possible.
+* Providing an extremely fast dynamic symbol lookup (again, using `str_hashslot`
+  and `str_hashcode`) for cases where pre-binding isn't possible.
 
 * Building upon a foundation of vector-centric data structures and reference
-counting.
+  counting.
 
 This approach allows ChrysaLisp to offer the dynamic and expressive power Lisp
 is renowned for, while delivering the raw performance necessary for its role as

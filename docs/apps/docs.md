@@ -315,7 +315,7 @@ must define and export a function named `handler`.
   `populate-page` loop passing the current `state` to the handler, and the
   handler deciding if it's done or needs more lines for that same `state`.
 
-### 7. Conclusion
+## Conclusion
 
 The ChrysaLisp Docs application effectively utilizes a dynamic, module-based
 section handling system. This architecture makes the application highly

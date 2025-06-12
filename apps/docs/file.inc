@@ -4,7 +4,7 @@
 (defun handler (state page line)
 	; (handler state page line) -> state
 	(cond
-		((starts-with "```" line)
+		((match? line "^\s*```")
 			:text)
 		(:t (bind '(file &optional start_exp end_exp)
 				(first (read (string-stream (cat "(" line ")")))))

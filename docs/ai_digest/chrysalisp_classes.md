@@ -147,7 +147,7 @@ runtime, ChrysaLisp's application layer gains immense power.
     multiple source classes, and assigning this new vtable to an object. The
     caching mechanism adapts seamlessly, and performance remains O(1).
 
-### Conclusion
+## Conclusion
 
 ChrysaLisp's dual vtable architecture is a masterstroke of pragmatic
 engineering. It does not force a single object model on the developer but

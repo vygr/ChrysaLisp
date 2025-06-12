@@ -311,6 +311,6 @@ The Editor manages multiple open files and scratch buffers:
 
 * **Programmatic Control:** The `Buffer` and `Editor-edit` classes expose a comprehensive set of methods, allowing other Lisp code (e.g., plugins, if a system for them were developed) to interact with and control the editor.
 
-### 11. Conclusion
+## Conclusion
 
 The ChrysaLisp Editor is a feature-rich application that effectively demonstrates the capabilities of the ChrysaLisp GUI system and its Lisp-centric design. Its use of `Buffer` objects for text management, the `Syntax` engine for highlighting, a flexible event dispatch system using `Fmap`s, and a Lisp-native project state persistence mechanism make it a powerful tool within the ChrysaLisp ecosystem. The modularity of its action handlers and the data-driven nature of its UI and behavior provide significant avenues for customization and extension.

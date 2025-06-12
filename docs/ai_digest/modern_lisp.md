@@ -266,7 +266,7 @@ more discipline than in a GC'd Lisp.
 the array-based nature of lists might require an adjustment for those
 accustomed to traditional Lisp.
 
-### Conclusion: Lisp, Evolved for Systems
+## Conclusion: Lisp, Evolved for Systems
 
 ChrysaLisp's Lisp implementation is a fascinating and compelling take on what
 Lisp can be in the 21st century. By embracing sequences as its primary

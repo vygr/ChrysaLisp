@@ -4,7 +4,7 @@
 (defun handler (state page line)
 	; (handler state page line) -> state
 	(cond
-		((starts-with "```" line)
+		((match? line "^\s*```")
 			(def (defq text (Text)) :text "")
 			(. page :add_child text)
 			:text)

@@ -5,7 +5,7 @@
 	; (handler state page line) -> state
 	(defq lines '())
 	(cond
-		((starts-with "```" line)
+		((match? line "^\s*```")
 			(def (defq mw (max-length lines) vdu (Vdu))
 				:font (get :font_term_small page)
 				:vdu_width 80

@@ -544,7 +544,7 @@ As mentioned in 3.3.1, `cmd/make.lisp` needs to be aware of the new platform:
 
 ---
 
-## 6. Conclusion
+## Conclusion
 
 Porting ChrysaLisp is a complex task that requires a methodical approach. By
 first focusing on the host OS PII layer with the VP64 emulator, potential issues
