@@ -61,8 +61,8 @@ and necessary choice.
     standard for the system's most critical components.
 
     * **Case Study: The Lisp Reader (`class/lisp/read.vp`)** The parser for Lisp
-        S-expressions avoids recursion by using a `list` as a stack to manage
-        nested parentheses.
+      S-expressions avoids recursion by using a `list` as a stack to manage
+      nested parentheses.
 
     ```vdu
     ; Simplified logic from the Lisp reader
@@ -84,26 +84,26 @@ and necessary choice.
     )
     ```
 
-    The machine stack depth remains constant, no matter how deeply nested the
-    code being parsed is.
+    The machine stack depth remains constant, no matter how deeply nested
+    the code being parsed is.
 
     * **Case Study: GUI Composition (`host_gui :composite`)** The function that
-        traverses the GUI widget tree for rendering, `:forward_tree`, is also
-        iterative, using callbacks instead of recursive calls to process nodes.
-        This means a UI of theoretically infinite depth can be rendered without
-        ever risking a stack overflow.
+      traverses the GUI widget tree for rendering, `:forward_tree`, is also
+      iterative, using callbacks instead of recursive calls to process nodes.
+      This means a UI of theoretically infinite depth can be rendered without
+      ever risking a stack overflow.
 
 3.  **The Hidden Benefit: Maximizing Cache Performance:** This enforced
     iterative style directly enhances the performance of the O(1) `hmap` lookup
     cache.
 
     * **Recursion Creates Deep Scopes:** A recursive function creates a new
-        lexical environment (`hmap`) for each call, forming a long parent chain.
-        This causes constant invalidation and repair of the `str_hashslot` cache
-        as variables are shadowed and un-shadowed.
+      lexical environment (`hmap`) for each call, forming a long parent chain.
+      This causes constant invalidation and repair of the `str_hashslot` cache
+      as variables are shadowed and un-shadowed.
 
     * **Iteration Creates Flat Scopes:** The preferred iterative style operates
-        within a flatter, more stable lexical scope.
+      within a flatter, more stable lexical scope.
 
     The small stack, by encouraging iteration, guides the programmer into
     writing code that is inherently "cache-friendly." The `str_hashslot` on a
@@ -120,22 +120,22 @@ run uninterrupted until it hits an explicit yield point.
     shared resource. Instead of using a mutex, it leverages the cooperative
     model. It knows which operations are atomic and which might yield.
 
-```vdu
-; Simplified logic from font :flush in gui/font/class.vp
-(loop-start)
-    ; ...
-    (call 'hmap :create ... {new_map}) ; 1. Create new map (private)
-    (call 'hmap :each {font->font_sym_map, $flush_callback, new_map}) ; 2. Populate new map
-    
-    ; 3. THE ATOMIC SWAP (no yields can occur here)
-    (assign {font->font_sym_map} {tmp})
-    (assign {new_map} {font->font_sym_map})
+    ```vdu
+    ; Simplified logic from font :flush in gui/font/class.vp
+    (loop-start)
+        ; ...
+        (call 'hmap :create ... {new_map}) ; 1. Create new map (private)
+        (call 'hmap :each {font->font_sym_map, $flush_callback, new_map}) ; 2. Populate new map
+        
+        ; 3. THE ATOMIC SWAP (no yields can occur here)
+        (assign {font->font_sym_map} {tmp})
+        (assign {new_map} {font->font_sym_map})
 
-    ; 4. CLEANUP (can safely yield now)
-    (call 'hmap :deref {tmp})
-    ;...
-(loop-end)
-```
+        ; 4. CLEANUP (can safely yield now)
+        (call 'hmap :deref {tmp})
+        ;...
+    (loop-end)
+    ```
 
     It performs all heavy work on a private copy of the data, then makes the
     change live with a single, atomic pointer swap.
@@ -144,13 +144,13 @@ run uninterrupted until it hits an explicit yield point.
     modification use case is deleting the current item. It is designed to
     cooperate with `list :erase`'s O(1) swap-and-pop.
 
-```vdu
-; Simplified logic from hmap :each
-(assign '((:rsp local_bucket) ... (:rsp local_iter_end)) '(:r2 ... :r4))
-(class/array/get_end :r2 :r0 :r3)
-(gotoif '(:r0 /= :r4) 'erased) ; <-- JUMP if erase changed the list's end pointer
-(vp-add-cr (* +ptr_size 2) :r1) ; <-- INCREMENT only if no erase occurred
-```
+    ```vdu
+    ; Simplified logic from hmap :each
+    (assign '((:rsp local_bucket) ... (:rsp local_iter_end)) '(:r2 ... :r4))
+    (class/array/get_end :r2 :r0 :r3)
+    (gotoif '(:r0 /= :r4) 'erased) ; <-- JUMP if erase changed the list's end pointer
+    (vp-add-cr (* +ptr_size 2) :r1) ; <-- INCREMENT only if no erase occurred
+    ```
 
     By checking its own state after the callback, it can safely handle the
     modification without complex locking or iterator invalidation.
