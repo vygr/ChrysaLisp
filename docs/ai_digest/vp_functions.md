@@ -31,28 +31,28 @@ the start of the block itself**.
 **On-Disk `.vp` File Layout:**
 
 ```
-+---------------------------------+  <-- Function Address (F)
++---------------------------------+ <-- Function Address (F)
 |          FN_HEADER              |
-| - uint64 ln_fnode               |  (For linking into lists by the loader)
+| - uint64 ln_fnode               | (For linking into lists by the loader)
 | - ushort length (total size)    |
 | - ushort entry                  | ---------> relative offset to code start
 | - ushort links                  | ---------> relative offset to links table
 | - ushort paths                  | ---------> relative offset to paths table
 | - ushort stack (req'd size)     |
 | - offset pathname (symbolic)    |
-+---------------------------------+
++---------------------------------+ <-- Address (F + entry offset)
 |                                 |
-|         EXECUTABLE CODE         |  <-- Address (F + entry offset)
+|         EXECUTABLE CODE         |
 |         (VP Instructions)       |
 |                                 |
-+---------------------------------+
++---------------------------------+ <-- Address (F + links offset)
 |                                 |
-|           LINKS TABLE           |  <-- Address (F + links offset)
+|           LINKS TABLE           |
 |   (Parallel to Paths Table)     |
 |                                 |
-+---------------------------------+
++---------------------------------+ <-- Address (F + paths offset)
 |                                 |
-|           PATHS TABLE           |  <-- Address (F + paths offset)
+|           PATHS TABLE           |
 |   (Symbolic names for links)    |
 |                                 |
 +---------------------------------+
@@ -113,37 +113,31 @@ evolves through three distinct states from source code to a running system.
 
 *   **Process:** This tool performs two critical optimizations:
 
-    1. **Path Consolidation and Stripping:** It scans every function's `paths`
-       table and builds a **single, global string table** at the end of the boot
-       image, containing every unique path name exactly once. The original,
-       per-function path tables are completely discarded, shrinking the image.
+    1. **Path Stripping:** It scans every function's `paths` table and the
+       original, per-function path tables are completely discarded, shrinking
+       the image.
 
     2. **Link Resolution:** Using the original path information (before it's
        discarded), it finds the final offset of each target function within the
        image. It then **patches the `links` table** with a *relative offset*
-       from the link's own address to the new global path name.
+       from the link's own address to the header path names.
 
 *   **Result:** The on-disk `boot_image` is a compact binary with relative code
-    offsets and a single, consolidated path string table.
+    offsets and no path string table.
 
 **Optimized `boot_image` Layout on Disk:**
 
 ```
-+----------------------------------+
-| Func A Header (paths -> to global)|
-| Func A Code                      |
-| Func A Links (rel. offsets)      | <-- Original paths table STRIPPED
-+----------------------------------+
-| VTable B Header (paths -> global)|
-| VTable B Links (rel. offsets)    | <-- Original paths table STRIPPED
-+----------------------------------+
-| ... etc ...                      |
-+----------------------------------+
-|        GLOBAL PATHS TABLE        | <-- SINGLE, deduplicated string table
-|    "sys_mem:alloc"               |
-|    ":draw"                       |
-|    ...all other unique paths...  |
-+----------------------------------+
++-----------------------------------------------+
+| Func A Header                                 |
+| Func A Code                                   |
+| Func A Links (rel. offsets to header paths)   |
++-----------------------------------------------+ <-- Original paths table STRIPPED
+| VTable B Header                               |
+| VTable B Links (rel. offsets to header paths) |
++-----------------------------------------------+ <-- Original paths table STRIPPED
+| ... etc ...                                   |
++-----------------------------------------------+
 ```
 
 #### Stage 3: Load Time - Final Wiring
@@ -158,9 +152,9 @@ evolves through three distinct states from source code to a running system.
     2. It iterates through every function block's `links` table.
 
     3. For each slot, it reads the `relative_offset`, calculates the target's
-        absolute memory address
-        (`absolute_address = link_slot_address + relative_offset`), and **writes
-        this absolute address back into the `links` slot.**
+       absolute memory code address
+       (`absolute_address = link_slot_address + relative_offset`), and **writes
+       this absolute address back into the `links` slot.**
 
 *   **Result:** The system is now live. Every `links` table and every vtable has
     been transformed into a flat, in-memory array of direct, absolute function
@@ -185,11 +179,10 @@ symbolic resolution is complete.
         `r1` now points to the header of a function like `class/button/vtable`.
 
     2. **Get Method Pointer:** The compiler knows the method index for `:draw`
-        (e.g., `0`). It generates code to load the pointer from the
-        already-patched vtable:
-        `mov r2, [r1 + entry_offset + (method_index * ptr_size)]`. This is a
-        single memory read that loads the absolute address of the correct
-        `:draw` implementation.
+       (e.g., `0`). It generates code to load the pointer from the
+       already-patched vtable: `mov r2, [r1 + (method_index * ptr_size)]`. This
+       is a single memory read that loads the absolute address of the correct
+       `:draw` implementation.
 
     3. **Call:** The final instruction is an indirect call: `call r2`.
 
