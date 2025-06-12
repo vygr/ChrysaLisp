@@ -74,25 +74,25 @@ Documentation files use a simple markup convention to define special sections. A
 section of a specific `<type>` is typically denoted by:
 
 ```
-    ```<type>
-    ... content for this type ...
-    ```
+;   ```<type>
+;   ... content for this type ...
+;   ```
 ```
 
 For example:
 
 ```
-    ```image
-    apps/images/data/logo.cpm
-    ```
+;   ```image
+;   apps/images/data/logo.cpm
+;   ```
 ```
 
 Or:
 
 ```
-    ```widget
-    apps/my_app/widgets.inc *my_widget_instance* 200 150
-    ```
+;   ```widget
+;   apps/my_app/widgets.inc *my_widget_instance* 200 150
+;   ```
 ```
 
 The default state if no tag is active is considered `:text`.
