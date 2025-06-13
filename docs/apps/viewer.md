@@ -186,7 +186,7 @@ subclassing `Edit` and overriding its behavior.
     component with rich rendering capabilities (`Edit`) and overriding only the
     interaction logic to suit a different use case, maximizing code reuse.
 
-### 6. Search and Integration (`apps/viewer/search.inc`)
+### 6. Search and Integration (`apps/edit/search.inc`)
 
 The Viewer's search functionality is particularly powerful and showcases
 ChrysaLisp's system integration.
