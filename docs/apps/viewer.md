@@ -146,8 +146,7 @@ The Viewer manages files and state in a way that is similar to, but simpler
 than, the Editor.
 
 *   **`*meta_map*` (`app.lisp`):** It uses the same `Emap`-based structure to
-    store metadata. The `state-load` and `state-save` functions persist this map
-    to `"viewer_state.tre"`.
+    store metadata.
 
 *   **No Explicit `*open_files*` List:** Unlike the Editor, the Viewer does not
     maintain a distinct list of "open" files. Its file navigation is based
@@ -195,25 +194,6 @@ ChrysaLisp's system integration.
 *   **Local Find:** `action-find-down` and `action-find-up` search within the
     currently displayed buffer. This uses the `(. buffer :find ...)` method,
     which is the same as the Editor's.
-
-*   **Global Find and File Tree Highlighting:** The `refresh-matches` function
-    provides a "find-as-you-type" global search.
-
-    * It constructs a command-line string using `grep`.
-
-    * It executes this command on all relevant files
-        (`files-all "docs" '(".md")`) using `(pipe-farm ...)` from
-        `lib/task/farm.inc`.
-
-    * `pipe-farm` distributes the `grep` tasks across available nodes in the
-        cluster.
-
-    * The list of files returned by `grep` is then used to highlight entries in
-        the `*file_tree*` widget using `(. *file_tree* :highlight file)`.
-
-    * `action-next-doc` and `action-prev-doc` then allow the user to cycle
-        through *only the highlighted files*, effectively navigating the search
-        results across the entire project.
 
 ## Conclusion
 
