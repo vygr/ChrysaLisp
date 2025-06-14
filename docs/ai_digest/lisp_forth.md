@@ -2,8 +2,8 @@
 
 This is a task of great importance and subtlety. It requires building a bridge
 of understanding, showing deep respect for the legacy of Forth while clearly
-articulating how ChrysaLisp addresses what you perceive as its primary barrier
-to wider adoption. The document is an invitation, not a critique.
+articulating how ChrysaLisp addresses what is perceived as its primary barrier
+to wider adoption. This document is an invitation, not a critique.
 
 ## Preamble: A Debt of Gratitude
 
