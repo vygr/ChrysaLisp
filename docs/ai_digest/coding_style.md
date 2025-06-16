@@ -219,12 +219,12 @@ its capture groups.
 
 ```vdu
 (defq line "INFO: v2 2024-05-15 data.zip")
-(defq matches (matches line "(\\w+): v(\\d) (\\S+) (\\S+)"))
-;; matches -> '(("INFO: v2 2024-05-15 data.zip" "INFO" "2" "2024-05-15" "data.zip"))
+(defq match (matches line "(\\w+): v(\\d) (\\S+) (\\S+)"))
+;; match -> '(("INFO: v2 2024-05-15 data.zip" "INFO" "2" "2024-05-15" "data.zip"))
 
 ;; We only want the version
 ;; &ignore is perfect for this.
-(bind '((_ _ version &ignore)) (first matches))
+(bind '((_ _ version &ignore)) (first match))
 
 ;; ONLY 'version' is bound. The bind operation stopped immediately
 ;; after processing the version number, making this highly efficient.
@@ -481,7 +481,7 @@ A key feature of the pre-binding process is its ability to perform constant
 folding, replacing symbols with their literal values in the final compiled code.
 
 *   **The `+` Prefix Convention:** Symbols prefixed with a `+` (e.g.,
-    `+max-retries`) are, by convention, treated as bind-time constants. When
+    `+max_retries`) are, by convention, treated as bind-time constants. When
     `repl_bind` encounters such a symbol, it will **replace the symbol entirely
     with that value**. The symbol itself never appears in the final executable
     code.
