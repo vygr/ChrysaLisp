@@ -6,6 +6,71 @@ its first-principles design. It is a guide not just to syntax, but to a way of
 thinking, showing how aligning with the system's architecture leads naturally to
 elegant and performant solutions.
 
+## General Style and Naming Conventions
+
+While the ChrysaLisp compiler is flexible and prioritizes programmer freedom, a
+set of strong conventions has emerged to promote readability, maintainability,
+and the prevention of common errors. Adhering to this style makes your code
+instantly understandable to other ChrysaLisp developers.
+
+### Naming Conventions: Communicating Intent
+
+A simple set of prefix and separator conventions allows a developer to
+understand the nature of a symbol at a glance.
+
+*   **`function-names` and `macro-names` use hyphens `-`**.
+
+    *   This clearly identifies callable code.
+
+    *   Examples: `(defun my-helper-function ...)` `(defmacro ui-window ...)`
+
+*   **`local_variables` and `:object_properties` use underscores `_`**.
+
+    * This identifies data containers and distinguishes them from functions.
+      Keywords (symbols starting with a colon) are the idiomatic choice for
+      property keys.
+
+    * Examples: `(defq my_local_var 0)` `(def this :ink_color +argb_red)`
+
+*   **`+constants` are prefixed by a plus sign `+`**.
+
+    * This signals a bind-time constant whose value will be baked into the
+      compiled code, such as those created by `def-struct`.
+
+    * Examples: `+max_retries`, `+argb_black`, `+my_msg_type`.
+
+*   **`*globals*` are surrounded by asterisks `*` ("earmuffs")**.
+
+    * This warns that the variable is a dynamic global or special variable that
+        might be rebound and have wide-ranging side effects.
+
+    * Examples: `*root_env*`, `*debug_mode*`.
+
+#### The Shadowing Guideline: Avoid Redefining Functions Locally
+
+ChrysaLisp allows you to define a local variable that has the same name as a global function or macro. The system assumes you have a good reason for doing this.
+
+```vdu
+;; LEGAL, BUT EXTREMELY BAD PRACTICE
+(defun my-bad-function ()
+  ;; 'list' is now a local variable, shadowing the global function.
+  (defq list '(a b c))
+  
+  ;; This will now FAIL because 'list' is no longer a function.
+  (print (list 1 2 3)))
+```
+
+**Guideline:** **Never use a local variable name that shadows an existing
+function or macro.**
+
+This is the most critical style rule for preventing subtle and confusing bugs.
+The naming convention is your primary tool for avoiding this mistake. By naming
+your local variables with underscores (`my_list`) and your functions with
+hyphens (`(list ...)`), you will never accidentally conflict.
+
+Tooling, such as the `Editor` app with syntax highlighting, also provides a
+strong visual cue when this error occurs.
+
 ## Efficient State Management with `defq` and `setq`
 
 A disciplined approach to state management is critical for writing
@@ -505,68 +570,3 @@ folding, replacing symbols with their literal values in the final compiled code.
     highly-optimized memory write instruction. This allows developers to work
     with high-level, symbolic field names while the system guarantees C-level
     performance for data access.
-
-## General Style and Naming Conventions
-
-While the ChrysaLisp compiler is flexible and prioritizes programmer freedom, a
-set of strong conventions has emerged to promote readability, maintainability,
-and the prevention of common errors. Adhering to this style makes your code
-instantly understandable to other ChrysaLisp developers.
-
-### Naming Conventions: Communicating Intent
-
-A simple set of prefix and separator conventions allows a developer to
-understand the nature of a symbol at a glance.
-
-*   **`function-names` and `macro-names` use hyphens `-`**.
-
-    *   This clearly identifies callable code.
-
-    *   Examples: `(defun my-helper-function ...)` `(defmacro ui-window ...)`
-
-*   **`local_variables` and `:object_properties` use underscores `_`**.
-
-    * This identifies data containers and distinguishes them from functions.
-      Keywords (symbols starting with a colon) are the idiomatic choice for
-      property keys.
-
-    * Examples: `(defq my_local_var 0)` `(def this :ink_color +argb_red)`
-
-*   **`+constants` are prefixed by a plus sign `+`**.
-
-    * This signals a bind-time constant whose value will be baked into the
-      compiled code, such as those created by `def-struct`.
-
-    * Examples: `+max_retries`, `+argb_black`, `+my_msg_type`.
-
-*   **`*globals*` are surrounded by asterisks `*` ("earmuffs")**.
-
-    * This warns that the variable is a dynamic global or special variable that
-        might be rebound and have wide-ranging side effects.
-
-    * Examples: `*root_env*`, `*debug_mode*`.
-
-#### The Shadowing Guideline: Avoid Redefining Functions Locally
-
-ChrysaLisp allows you to define a local variable that has the same name as a global function or macro. The system assumes you have a good reason for doing this.
-
-```vdu
-;; LEGAL, BUT EXTREMELY BAD PRACTICE
-(defun my-bad-function ()
-  ;; 'list' is now a local variable, shadowing the global function.
-  (defq list '(a b c))
-  
-  ;; This will now FAIL because 'list' is no longer a function.
-  (print (list 1 2 3)))
-```
-
-**Guideline:** **Never use a local variable name that shadows an existing
-function or macro.**
-
-This is the most critical style rule for preventing subtle and confusing bugs.
-The naming convention is your primary tool for avoiding this mistake. By naming
-your local variables with underscores (`my_list`) and your functions with
-hyphens (`(list ...)`), you will never accidentally conflict.
-
-Tooling, such as the `Editor` app with syntax highlighting, also provides a
-strong visual cue when this error occurs.
