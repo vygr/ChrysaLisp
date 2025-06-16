@@ -314,3 +314,574 @@ The Editor manages multiple open files and scratch buffers:
 ## Conclusion
 
 The ChrysaLisp Editor is a feature-rich application that effectively demonstrates the capabilities of the ChrysaLisp GUI system and its Lisp-centric design. Its use of `Buffer` objects for text management, the `Syntax` engine for highlighting, a flexible event dispatch system using `Fmap`s, and a Lisp-native project state persistence mechanism make it a powerful tool within the ChrysaLisp ecosystem. The modularity of its action handlers and the data-driven nature of its UI and behavior provide significant avenues for customization and extension.
+
+Of course. Here is an appendix for the Editor app documentation, detailing the available actions and their default key bindings, based on the provided source code.
+
+## Appendix: Editor Actions and Key Bindings
+
+This appendix provides a comprehensive reference for all actions available
+within the ChrysaLisp Editor. Each entry lists the action's purpose, its
+corresponding UI event name (useful for custom UI development), and its default
+keyboard shortcut(s).
+
+**Note on Key Bindings:**
+
+*   `Ctrl + Key`: Refers to holding the Control key (or Command key on macOS)
+    and pressing the specified key.
+
+*   `Shift + Key`: Refers to holding the Shift key while pressing another key.
+
+---
+
+### Window & File Management
+
+**Close Window**
+
+Closes the editor window and terminates the application.
+
+*   **UI Event:** `+event_close`
+
+*   **Key Binding:** None (Typically bound to the window's close button)
+
+**Minimize Window**
+
+Minimizes the editor window.
+
+*   **UI Event:** `+event_min`
+
+*   **Key Binding:** `Ctrl + -`
+
+**Maximize Window**
+
+Maximizes or resizes the editor window to a larger preset size.
+
+*   **UI Event:** `+event_max`
+
+*   **Key Binding:** `Ctrl + =`
+
+**New File**
+
+Creates a new file with the name entered in the "new file" text field.
+
+*   **UI Event:** `+event_new`
+
+*   **Key Binding:** None
+
+**Save Current File**
+
+Saves the currently active buffer to its associated file.
+
+*   **UI Event:** `+event_save`
+
+*   **Key Binding:** `Ctrl + s`
+
+**Save All Files**
+
+Saves all open and modified buffers to their respective files.
+
+*   **UI Event:** `+event_save_all`
+
+*   **Key Binding:** `Ctrl + S` (Shift + s)
+
+**Load Selected Text as Files**
+
+Takes the selected text in the current buffer, interprets each line as a file
+path, and opens all valid files.
+
+*   **UI Event:** `+event_load_selected`
+
+*   **Key Binding:** None
+
+**Next Buffer**
+
+Switches the view to the next file in the list of open files.
+
+*   **UI Event:** `+event_next`
+
+*   **Key Binding:** `Ctrl + n`
+
+**Previous Buffer**
+
+Switches the view to the previous file in the list of open files.
+
+*   **UI Event:** `+event_prev`
+
+*   **Key Binding:** `Ctrl + N` (Shift + n)
+
+**Close Current Buffer**
+
+Saves and closes the current file, removing it from the open files list.
+
+*   **UI Event:** `+event_close_buffer`
+
+*   **Key Binding:** None
+
+**Close All Buffers**
+
+Saves and closes all open files.
+
+*   **UI Event:** `+event_close_all`
+
+*   **Key Binding:** None
+
+**Open Scratchpad**
+
+Switches to a temporary, unnamed buffer that will not be saved.
+
+*   **UI Event:** `+event_scratch`
+
+*   **Key Binding:** None
+
+**Load Dependencies**
+
+Analyzes the current file for `(import)` and `(include)` forms and loads all
+directly referenced files.
+
+*   **UI Event:** None
+
+*   **Key Binding:** `Ctrl + e`
+
+**Load All Dependencies**
+
+Recursively analyzes the current file and all its dependencies, loading the
+entire dependency tree.
+
+*   **UI Event:** None
+
+*   **Key Binding:** `Ctrl + E` (Shift + e)
+
+### Cursor Movement
+
+**Move Cursor Left/Right/Up/Down**
+
+Moves the cursor one position. If a selection is active, this collapses the
+selection to the start (Left/Up) or end (Right/Down) of the selection range
+before moving.
+
+*   **UI Event:** None
+
+*   **Key Binding:** `Left Arrow`, `Right Arrow`, `Up Arrow`, `Down Arrow`
+
+**Move to Beginning of Line**
+
+Moves the cursor to the beginning of the current line (or to the end of the
+prompt in the terminal).
+
+*   **UI Event:** None
+
+*   **Key Binding:** `Home`
+
+**Move to End of Line**
+
+Moves the cursor to the end of the current line.
+
+*   **UI Event:** None
+
+*   **Key Binding:** `End`
+
+**Move to Top of File**
+
+Moves the cursor to the beginning of the first line of the file.
+
+*   **UI Event:** None
+
+*   **Key Binding:** `Ctrl + Up Arrow`
+
+**Move to Bottom of File**
+
+Moves the cursor to the end of the last line of the file.
+
+*   **UI Event:** None
+
+*   **Key Binding:** `Ctrl + Down Arrow`
+
+**Move to Matching Bracket (Left)**
+
+Finds the matching opening bracket `(` for the bracket `)` under or near the
+cursor and moves the cursor to it.
+
+*   **UI Event:** `+event_bracket_left`
+
+*   **Key Binding:** `Ctrl + [` or `Ctrl + 9`
+
+**Move to Matching Bracket (Right)**
+
+Finds the matching closing bracket `)` for the bracket `(` under or near the
+cursor and moves the cursor to it.
+
+*   **UI Event:** `+event_bracket_right`
+
+*   **Key Binding:** `Ctrl + ]` or `Ctrl + 0`
+
+**Push Cursor Position to Stack**
+
+Saves the current file and cursor position onto a navigation stack.
+
+*   **UI Event:** None
+
+*   **Key Binding:** `Ctrl + d`
+
+**Pop Cursor Position from Stack**
+
+Loads the most recently saved file and cursor position from the navigation
+stack.
+
+*   **UI Event:** None
+
+*   **Key Binding:** `Ctrl + D` (Shift + d) or `Ctrl + J` (Shift + j)
+
+### Selection
+
+**Select with Arrow Keys**
+
+Extends the current selection in the direction of the arrow key.
+
+*   **UI Event:** None
+
+*   **Key Binding:** `Shift + Left/Right/Up/Down Arrow`
+
+**Select to Beginning/End of Line**
+
+Extends the selection from the current cursor position to the beginning or end
+of the line.
+
+*   **UI Event:** None
+
+*   **Key Binding:** `Shift + Home`, `Shift + End`
+
+**Select All**
+
+Selects the entire content of the current buffer.
+
+*   **UI Event:** None
+
+*   **Key Binding:** `Ctrl + a`
+
+**Select Word**
+
+Selects the word currently under the cursor.
+
+*   **UI Event:** None
+
+*   **Key Binding:** `Ctrl + w`
+
+**Select Line**
+
+Selects the entire current line, including the newline character.
+
+*   **UI Event:** None
+
+*   **Key Binding:** `Ctrl + l`
+
+**Select Paragraph**
+
+Selects the current paragraph (a block of text surrounded by blank lines).
+
+*   **UI Event:** `+event_paragraph`
+
+*   **Key Binding:** `Ctrl + p`
+
+**Select Block/Form**
+
+Selects the S-expression (or "form") under the cursor, from its opening to its
+closing parenthesis.
+
+*   **UI Event:** `+event_block`
+
+*   **Key Binding:** `Ctrl + b`
+
+### Editing & Clipboard
+
+**Insert Character**
+
+Inserts a typed character at the cursor position, replacing any active
+selection.
+
+*   **UI Event:** None
+
+*   **Key Binding:** Any printable character key.
+
+**Delete Character Before Cursor**
+
+Deletes the character to the left of the cursor, or deletes the current
+selection.
+
+*   **UI Event:** None
+
+*   **Key Binding:** `Backspace`
+
+**Delete Character After Cursor**
+
+Deletes the character to the right of the cursor, or deletes the current
+selection.
+
+*   **UI Event:** None
+
+*   **Key Binding:** `Delete`
+
+**Insert Newline**
+
+Inserts a newline character. If the line has leading indentation, the new line
+will be auto-indented to match.
+
+*   **UI Event:** None
+
+*   **Key Binding:** `Enter` or `Return`
+
+**Insert Tab / Auto-complete**
+
+In the terminal, attempts to auto-complete the current word as a file path. In
+the editor, indents the current line or selection.
+
+*   **UI Event:** None
+
+*   **Key Binding:** `Tab`
+
+**Cut**
+
+Cuts the current selection to the system clipboard.
+
+*   **UI Event:** `+event_cut`
+
+*   **Key Binding:** `Ctrl + x`
+
+**Copy**
+
+Copies the current selection to the system clipboard.
+
+*   **UI Event:** `+event_copy`
+
+*   **Key Binding:** `Ctrl + c`
+
+**Paste**
+
+Pastes the content of the system clipboard at the cursor.
+
+*   **UI Event:** `+event_paste`
+
+*   **Key Binding:** `Ctrl + v`
+
+**Cut Word / Line / Paragraph / Block**
+
+Selects and then cuts the respective text element.
+
+*   **UI Event:** None
+
+*   **Key Binding:** `Ctrl + W`, `Ctrl + L`, `Ctrl + P`, `Ctrl + B`
+
+**Copy Word / Line / Paragraph / Block**
+
+Selects and then copies the respective text element.
+
+*   **UI Event:** None
+
+*   **Key Binding:** (None for word), (None for line), (None for paragraph),
+    (None for block)
+
+*   *Note: These actions exist but are not bound by default in `actions.inc`.
+    Their `cut` equivalents are.*
+
+### Block & Text Manipulation
+
+**Outdent Selection (Left Tab)**
+
+Removes one level of indentation from the selected lines.
+
+*   **UI Event:** `+event_tab_left`
+
+*   **Key Binding:** `Shift + Tab`
+
+**Indent Selection (Right Tab)**
+
+Adds one level of indentation to the selected lines.
+
+*   **UI Event:** `+event_tab_right`
+
+*   **Key Binding:** (Editor) `Tab` when multiple lines are selected.
+
+**Comment/Uncomment Selection**
+
+Toggles Lisp-style `;; ` block comments on the selected lines.
+
+*   **UI Event:** `+event_comment`
+
+*   **Key Binding:** `Ctrl + /`
+
+**Convert to Uppercase**
+
+Converts the selected text to uppercase.
+
+*   **UI Event:** `+event_toupper`
+
+*   **Key Binding:** `Ctrl + u`
+
+**Convert to Lowercase**
+
+Converts the selected text to lowercase.
+
+*   **UI Event:** `+event_tolower`
+
+*   **Key Binding:** `Ctrl + U` (Shift + u)
+
+**Sort Lines**
+
+Sorts the selected lines alphabetically.
+
+*   **UI Event:** `+event_sort`
+
+*   **Key Binding:** `Ctrl + o`
+
+**Unique Lines**
+
+Removes duplicate lines from the current selection.
+
+*   **UI Event:** `+event_unique`
+
+*   **Key Binding:** `Ctrl + O` (Shift + o)
+
+**Invert/Reverse Lines**
+
+Reverses the order of the selected lines.
+
+*   **UI Event:** `+event_invert`
+
+*   **Key Binding:** `Ctrl + i`
+
+**Reflow Paragraph**
+
+Re-wraps the selected lines of text to fit within the editor's configured line
+width.
+
+*   **UI Event:** `+event_reflow`
+
+*   **Key Binding:** `Ctrl + q`
+
+**Split into Words**
+
+Takes the selected text and puts each space-separated word onto its own new
+line.
+
+*   **UI Event:** `+event_split`
+
+*   **Key Binding:** `Ctrl + Q` (Shift + q)
+
+### Search and Replace
+
+**Set Find Text from Selection**
+
+Copies the current selection into the "find" text field.
+
+*   **UI Event:** None
+
+*   **Key Binding:** `Ctrl + f`
+
+**Find Next Occurrence**
+
+Finds the next occurrence of the text in the "find" field, starting from the
+cursor's current position.
+
+*   **UI Event:** `+event_find_down`
+
+*   **Key Binding:** `Enter` (when focus is in the "find" text field)
+
+**Find Previous Occurrence**
+
+Finds the previous occurrence of the text in the "find" field.
+
+*   **UI Event:** `+event_find_up`
+
+*   **Key Binding:** None
+
+**Find in All Open Files (Global Find)**
+
+Searches for the pattern in all open files and displays a list of matching
+files.
+
+*   **UI Event:** `+event_global`
+
+*   **Key Binding:** None
+
+**Toggle Whole Words Search**
+
+Toggles whether the search matches only whole words.
+
+*   **UI Event:** `+event_whole_words`
+
+*   **Key Binding:** None
+
+**Toggle Regular Expression Search**
+
+Toggles whether the search pattern is treated as a regular expression.
+
+*   **UI Event:** `+event_regexp`
+
+*   **Key Binding:** None
+
+**Toggle Region Search**
+
+Toggles whether the search is confined to the currently selected lines.
+
+*   **UI Event:** `+event_region`
+
+*   **Key Binding:** `Ctrl + A` (Shift + a)
+
+**Replace**
+
+Replaces the current selection (if it matches the find text) with the text in
+the "replace" field, then finds the next occurrence.
+
+*   **UI Event:** `+event_replace`
+
+*   **Key Binding:** `Enter` (when focus is in the "replace" text field)
+
+**Replace All**
+
+Replaces all occurrences of the find text with the replace text within the
+current buffer (or selection if region is active).
+
+*   **UI Event:** `+event_replace_all`
+
+*   **Key Binding:** None
+
+**Replace in All Open Files (Global Replace)**
+
+Performs a replace-all operation across all currently open files.
+
+*   **UI Event:** `+event_replace_global`
+
+*   **Key Binding:** None
+
+### Undo & Redo
+
+**Undo**
+
+Reverts the last editing action.
+
+*   **UI Event:** `+event_undo`
+
+*   **Key Binding:** `Ctrl + z`
+
+**Redo**
+
+Re-applies the last undone action.
+
+*   **UI Event:** `+event_redo`
+
+*   **Key Binding:** `Ctrl + Z` (Shift + z)
+
+**Rewind to Last Save**
+
+Reverts all changes in the buffer back to the state it was in when it was last saved.
+
+*   **UI Event:** `+event_rewind`
+
+*   **Key Binding:** None
+
+**Global Undo/Redo**
+
+Performs an undo or redo action, but steps across all open files chronologically
+instead of just the current one.
+
+*   **UI Event:** +event_gundo, +event_gredo
+
+*   **Key Binding:** None
