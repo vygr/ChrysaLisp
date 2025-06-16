@@ -410,3 +410,98 @@ list of any depth without ever growing the machine stack.
 By following this discipline, programmers work *with* the ChrysaLisp
 architecture, not against it, resulting in code that is inherently stable,
 scalable, and performant.
+
+## Modules and Bind-Time Optimization
+
+ChrysaLisp's evaluation model includes a powerful **pre-binding** stage that occurs before final execution. This architectural feature is central to the system's performance and enables a simple yet robust module system that combines information hiding with extreme efficiency. By understanding this process, developers can write code that is both highly readable and maximally performant.
+
+### The `repl_bind` Pass: An Ahead-of-Time Optimization
+
+Before a Lisp form is executed, it passes through the `lisp :repl_bind` stage.
+This pass walks the macro-expanded code tree and attempts to resolve a
+`function` or `constant` symbol to its definition in the current environment.
+
+*   If a symbol's definition is found, the symbol in the code is **replaced with
+    a direct pointer** to its binding (e.g., a function address or a constant's
+    value).
+
+*   This effectively means that at runtime, no `hmap` lookup is required. The
+    call or access is a direct memory operation, which is the fastest possible
+    way to execute.
+
+This mechanism leads to a critical programming discipline: **Define functions
+and variables before they are used.** Adhering to this "no forward references"
+rule is a performance contract with the compiler. The `forward` command is
+provided to help developers identify and fix violations of this guideline.
+
+### Information Hiding: The `def`/`use`/`export` Pattern
+
+The "no forward references" guide is leveraged to create a simple and effective
+module system, used pervasively throughout the standard libraries.
+
+1.  **Define Internals First:** All helper functions and private constants are
+    defined at the top of a module file. Because they have not yet been
+    exported, they are effectively "private" to the module's scope during
+    compilation.
+
+2.  **Use Internals to Build the Public API:** Public functions are defined
+    next, freely using the "private" helpers. During the compilation of this
+    file, `repl_bind` resolves all these internal calls to fast, direct
+    pointers.
+
+3.  **Export the Public Interface:** At the very end of the file, an
+    `(export-symbols '(...))` form is used. This function takes a list of
+    symbols and adds them and their definitions to a shared environment
+    (typically the parent), making them visible to other modules that `import`
+    this file.
+
+**Example:**
+
+```vdu
+;;; In my-module.inc
+
+;; 1. Private helper. Only visible within this file.
+(defun _helper (x) (* x 2))
+
+;; 2. Public function that uses the helper.
+(defun my-public-api (z)
+  ;; This call is resolved to a direct pointer at bind-time.
+  (+ (_helper z) 1))
+
+;; 3. Export ONLY the public function. _helper remains private.
+(export-symbols '(my-public-api))
+```
+
+This pattern provides strong encapsulation without needing complex `private`
+keywords or namespace syntax.
+
+### Bind-Time Constants for Maximum Speed
+
+A key feature of the pre-binding process is its ability to perform constant
+folding, replacing symbols with their literal values in the final compiled code.
+
+*   **The `+` Prefix Convention:** Symbols prefixed with a `+` (e.g.,
+    `+max-retries`) are, by convention, treated as bind-time constants. When
+    `repl_bind` encounters such a symbol, it will **replace the symbol entirely
+    with that value**. The symbol itself never appears in the final executable
+    code.
+
+*   **Structures and `getf`/`setf`:** This pattern is most powerfully used by
+    the `def-struct` (for VP assembler) and `structure` (for Lisp) macros. These
+    macros define a family of constants representing the memory offsets of
+    fields within a data structure.
+
+    ```vdu
+    ;; Defines +my_msg_type as the literal integer 24, among other constants.
+    (structure +my_msg 0 (netid reply_id) (uint type))
+
+    ;; A programmer writes this clean, symbolic code:
+    (setf my_msg +my_msg_type +ev_type_action)
+    ```
+
+    At compile time, the `setf` macro is expanded. It evaluates `+my_msg_type`
+    to its literal value, `24`. The final code generated is equivalent to
+    `(set-field my_msg 24 4 +ev_type_action)`, which becomes a single,
+    highly-optimized memory write instruction. This allows developers to work
+    with high-level, symbolic field names while the system guarantees C-level
+    performance for data access.
