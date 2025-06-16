@@ -648,9 +648,9 @@ manual register management.
     (entry {list_obj})
 
     (assign {0} {sum})
-    (class/array/get_both {list_obj} {iter, iter_end})
+    (call 'array :get_both {list_obj} {iter, iter_end})
     (loop-while {iter /= iter_end})
-        (assign {iter[0]->num_value} {val})
+        (call 'num :get_value {*iter} {_, val})
         (assign {val * val + sum} {sum})
         (assign {iter + +ptr_size} {iter})
     (loop-end)
@@ -693,16 +693,16 @@ complex algorithm implemented at this level for maximum performance.
 
 ```vdu
 ;; Stage 3: Direct register manipulation for maximum speed.
-(def-method 'my-class :sum-of-squares)
+(def-method 'my-class :sum_of_squares)
 
     (vp-def (this iter iter_end sum val) '(:r8 :r9 :r10 :r11 :r12))
 
-    (entry 'my-class :sum-of-squares `(,this))
+    (entry 'my-class :sum_of_squares `(,this))
 
     (assign '(0) `(,sum))
     (class/array/get_both this iter iter_end)
     (loop-while `(,iter /= ,iter_end))
-        (vp-cpy-ir iter 0 val)
+        (assign `((,iter 0)) `(,val))
         (assign `((,val num_value)) `(,val))
         (vp-mul-rr val val)
         (vp-add-rr val sum)
@@ -710,7 +710,7 @@ complex algorithm implemented at this level for maximum performance.
     (loop-end)
     (call 'num :create `(,sum) `(,sum))
 
-    (exit 'my-class :sum-of-squares `(,this ,sum))
+    (exit 'my-class :sum_of_squares `(,this ,sum))
     (vp-ret)
 
 (def-func-end)
