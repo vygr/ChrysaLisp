@@ -643,6 +643,7 @@ manual register management.
         (pptr iter iter_end)
         (long sum val))
 
+    (push-scope)
     (entry {list_obj})
 
     (assign {0} {sum})
@@ -655,6 +656,7 @@ manual register management.
     (call 'num :create {sum} {list_obj})
 
     (exit {list_obj})
+    (pop-scope)
     (return)
 
 (def-func-end)
