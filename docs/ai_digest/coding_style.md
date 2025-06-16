@@ -83,10 +83,10 @@ number of forms the interpreter must handle.
 **Verbose Style (Multiple Interpreter Forms):**
 
 ```vdu
-(defun process-data (data-list)
+(defun process-data (data_list)
     (defq result (list))                  ; Form 1
-    (setq *last-processed-id* (get-id data-list)) ; Form 2
-    (setq *item-count* (+ *item-count* (length data-list))) ; Form 3
+    (setq *last-processed-id* (get-id data_list)) ; Form 2
+    (setq *item-count* (+ *item-count* (length data_list))) ; Form 3
     ; ...
 )
 ```
@@ -94,12 +94,12 @@ number of forms the interpreter must handle.
 **Idiomatic Fused Style (Single Interpreter Form):**
 
 ```vdu
-(defun process-data (data-list)
+(defun process-data (data_list)
     ;; A single 'defq' handles all related local state logic.
     ;; The pairs are evaluated sequentially, allowing later bindings to use earlier ones.
     (defq result          (list)                          ; New binding
-        *last-processed-id* (get-id data-list)              ; Mutates existing local
-        *item-count*    (+ *item-count* (length data-list)))  ; Mutates existing local
+        *last-processed-id* (get-id data_list)              ; Mutates existing local
+        *item-count*    (+ *item-count* (length data_list)))  ; Mutates existing local
     ; ...
 )
 ```
@@ -182,12 +182,12 @@ variables created with `defq`.
     (defq data '(("Player1" (100 50)) (:score 5000)))
     
     ;; Clumsy and hard to read with defq and accessors.
-    (defq player-name (first (first data)))
-    (defq player-pos  (second (first data)))
+    (defq player_name (first (first data)))
+    (defq player_pos  (second (first data)))
     (defq score       (second (second data)))
 
     ;; Clean, declarative, and efficient with a single bind.
-    (bind '(((player-name (x y)) (_ score))) data)
+    (bind '(((player_name (x y)) (_ score))) data)
     ```
 
 ### Advanced Pattern Matching Keywords
@@ -283,7 +283,7 @@ implemented as VP functions for performance reasons. ! eg.
 *   **`(set <object> <key-expression> <value>)`**: The **Inherited Property
     Mutator**.
 
-    - It performs an `hmap:search`, starting with the `<object>` and **searching
+    - It performs an `hmap :search`, starting with the `<object>` and **searching
       up the parent chain** until it finds the property `<key>`.
 
     - It then **mutates the value of that property on whichever ancestor it was
@@ -316,13 +316,13 @@ A key feature of `def` and `set` is that their `<key-expression>` argument is
     essential for writing generic, data-driven code.
 
     ```vdu
-    (defun populate-from-data (widget data-list)
+    (defun populate-from-data (widget data_list)
       ;; For each [prop-name prop-value] pair in the list...
       (each (lambda ((prop-name prop-value))
               ;; 'prop-name' is a variable holding a symbol.
               ;; It is evaluated to get the key before 'def' is called.
               (def widget prop-name prop-value))
-        data-list))
+        data_list))
 
     (defq my-widget (View))
     (defq config-data '((:color +red+) (:width 200)))
@@ -505,3 +505,68 @@ folding, replacing symbols with their literal values in the final compiled code.
     highly-optimized memory write instruction. This allows developers to work
     with high-level, symbolic field names while the system guarantees C-level
     performance for data access.
+
+## General Style and Naming Conventions
+
+While the ChrysaLisp compiler is flexible and prioritizes programmer freedom, a
+set of strong conventions has emerged to promote readability, maintainability,
+and the prevention of common errors. Adhering to this style makes your code
+instantly understandable to other ChrysaLisp developers.
+
+### Naming Conventions: Communicating Intent
+
+A simple set of prefix and separator conventions allows a developer to
+understand the nature of a symbol at a glance.
+
+*   **`function-names` and `macro-names` use hyphens `-`**.
+
+    *   This clearly identifies callable code.
+
+    *   Examples: `(defun my-helper-function ...)` `(defmacro ui-window ...)`
+
+*   **`local_variables` and `:object_properties` use underscores `_`**.
+
+    * This identifies data containers and distinguishes them from functions.
+      Keywords (symbols starting with a colon) are the idiomatic choice for
+      property keys.
+
+    * Examples: `(defq my_local_var 0)` `(def this :ink_color +argb_red)`
+
+*   **`+constants` are prefixed by a plus sign `+`**.
+
+    * This signals a bind-time constant whose value will be baked into the
+      compiled code, such as those created by `def-struct`.
+
+    * Examples: `+max_retries`, `+argb_black`, `+my_msg_type`.
+
+*   **`*globals*` are surrounded by asterisks `*` ("earmuffs")**.
+
+    * This warns that the variable is a dynamic global or special variable that
+        might be rebound and have wide-ranging side effects.
+
+    * Examples: `*root_env*`, `*debug_mode*`.
+
+#### The Shadowing Guideline: Avoid Redefining Functions Locally
+
+ChrysaLisp allows you to define a local variable that has the same name as a global function or macro. The system assumes you have a good reason for doing this.
+
+```vdu
+;; LEGAL, BUT EXTREMELY BAD PRACTICE
+(defun my-bad-function ()
+  ;; 'list' is now a local variable, shadowing the global function.
+  (defq list '(a b c))
+  
+  ;; This will now FAIL because 'list' is no longer a function.
+  (print (list 1 2 3)))
+```
+
+**Guideline:** **Never use a local variable name that shadows an existing
+function or macro.**
+
+This is the most critical style rule for preventing subtle and confusing bugs.
+The naming convention is your primary tool for avoiding this mistake. By naming
+your local variables with underscores (`my_list`) and your functions with
+hyphens (`(list ...)`), you will never accidentally conflict.
+
+Tooling, such as the `Editor` app with syntax highlighting, also provides a
+strong visual cue when this error occurs.
