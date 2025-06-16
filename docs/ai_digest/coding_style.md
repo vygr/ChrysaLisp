@@ -309,8 +309,6 @@ its capture groups.
 
 ## Manipulating Object Properties: `def` and `set`
 
-Explicitly scoped `defq` and `setq` !
-
 In ChrysaLisp, object properties (instance variables) are stored as key-value
 pairs in an `hmap`. The `def` and `set` operators are the primary tools for
 manipulating this data. Their behavior is a direct parallel to `defq` and
@@ -371,9 +369,9 @@ A key feature of `def` and `set` is that their `<key-expression>` argument is
 
     ```vdu
     (defclass My-Button () (Button)
-      (defmethod :on-click ()
+      (defmethod :on_click ()
         ;; Sets the :text and :color properties on the 'this' object.
-        (def this :text "Clicked!" :color +red+)))
+        (def this :text "Clicked!" :color +argb_red)))
     ```
 
 *   **Dynamic Properties (Advanced)**: When the property name is determined at
@@ -382,16 +380,16 @@ A key feature of `def` and `set` is that their `<key-expression>` argument is
 
     ```vdu
     (defun populate-from-data (widget data_list)
-      ;; For each [prop-name prop-value] pair in the list...
-      (each (lambda ((prop-name prop-value))
-              ;; 'prop-name' is a variable holding a symbol.
+      ;; For each [prop_name prop_value] pair in the list...
+      (each (lambda ((prop_name prop_value))
+              ;; 'prop_name' is a variable holding a symbol.
               ;; It is evaluated to get the key before 'def' is called.
-              (def widget prop-name prop-value))
+              (def widget prop_name prop_value))
         data_list))
 
-    (defq my-widget (View))
-    (defq config-data '((:color +red+) (:width 200)))
-    (populate-from-data my-widget config-data)
+    (defq my_widget (View))
+    (defq config_data '((:color +argb_red) (:width 200)))
+    (populate-from-data my_widget config_data)
     ```
 
 **Conclusion**
