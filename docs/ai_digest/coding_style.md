@@ -570,3 +570,156 @@ folding, replacing symbols with their literal values in the final compiled code.
     highly-optimized memory write instruction. This allows developers to work
     with high-level, symbolic field names while the system guarantees C-level
     performance for data access.
+
+## The Path to Performance: A Three-Stage Optimization Strategy
+
+ChrysaLisp is designed to offer a spectrum of performance, allowing developers
+to choose the right balance between rapid development and raw execution speed.
+The system's philosophy is not one of premature optimization, but rather of
+providing a clear, structured path for when performance becomes critical. The
+core mantra is: **"First, make it work. Then, make it right. Then, if you must,
+make it fast."**
+
+This progression typically follows three distinct stages, moving from the
+highest level of abstraction to the most direct hardware control.
+
+### Stage 1: The Lisp Prototype — Correctness and Clarity First
+
+Every new piece of functionality should begin as a pure ChrysaLisp function.
+
+*   **Primary Goal:** Algorithm correctness, clarity, and rapid development.
+
+*   **Environment:** Full access to the high-level Lisp environment, its
+    libraries, and the REPL for interactive testing.
+
+*   **Performance:** The code is handled by the hyper-fast Lisp interpreter. For
+    many tasks, especially those that are not in a tight loop or are I/O-bound,
+    this level of performance is more than sufficient.
+
+**Guideline:** Always start here. Prove your logic is sound. Create a baseline
+for functionality and, if needed, performance. If the Lisp function meets your
+performance requirements, your work is done. There is no need to proceed
+further.
+
+**Example: A Simple `sum-of-squares` Function**
+
+```vdu
+;; Stage 1: A clear, readable Lisp function.
+(defun sum-of-squares (number_list)
+  (reduce! (# (+ %0 (* %1 %1))) number_list 0))
+```
+
+This version is easy to write, understand, and debug. For most applications, its
+performance would be excellent.
+
+### Stage 2: The C-Script VP Function — Robust Performance
+
+If benchmarking (e.g., using the `cmd/test` app) reveals that the Lisp function
+is a bottleneck, the next step is to translate it into a C-Script VP function.
+
+*   **Primary Goal:** To gain significant performance by eliminating Lisp
+    interpreter overhead, while still maintaining a high level of abstraction
+    and safety.
+
+*   **Environment:** C-Script uses a more C-like syntax within a `(def-func)`
+    block. You declare local variables with `def-vars`, and the assembler
+    handles mapping them to stack locations or registers. You are protected from
+    many of the complexities of manual register allocation.
+
+*   **Performance:** C-Script compiles down to highly efficient VP code. It is
+    significantly faster than the interpreted Lisp version and is the right
+    choice for the vast majority of performance-critical application code.
+
+**Guideline:** Move to this stage to prove your algorithm's performance at a
+lower level. This is the ideal environment to refine the logic with the
+assurance that you are not introducing the subtle bugs that can arise from
+manual register management.
+
+**Example: `sum-of-squares` as a C-Script Function**
+
+```vdu
+(def-func 'my-sum-of-squares)
+
+    (def-vars
+        (ptr list_obj)
+        (pptr iter iter_end)
+        (long sum val))
+
+    (entry {list_obj})
+
+    (assign {0} {sum})
+    (class/array/get_both {list_obj} {iter, iter_end})
+    (loop-while {iter /= iter_end})
+        (assign {iter[0]->num_value} {val})
+        (assign {val * val + sum} {sum})
+        (assign {iter + +ptr_size} {iter})
+    (loop-end)
+    (call 'num :create {sum} {list_obj})
+
+    (exit {list_obj})
+    (return)
+
+(def-func-end)
+```
+
+### Stage 3: The Optimized VP Method — Maximum Velocity
+
+For the most demanding parts of the system—core class methods, kernel
+primitives, or routines in an extreme performance-critical loop—the final
+optimization stage is to write a pure VP assembly method.
+
+*   **Primary Goal:** To achieve the smallest footprint and highest possible
+    execution speed by controlling the hardware at the most direct level
+    possible.
+
+*   **Environment:** You manually allocate registers using `(vp-def ...)` and
+    write code using direct register symbols (`:r0`, `:r1`, etc.). You are
+    responsible for managing register lifetimes and avoiding conflicts. The
+    stack may be used sparingly or, in many cases, avoided entirely for leaf
+    functions.
+
+*   **Performance:** This is "bare metal" on the Virtual Processor. There is no
+    abstraction layer left. Code written at this level forms the hyper-optimized
+    engine upon which the rest of the system is built.
+
+**Guideline:** Only proceed to this stage when you have an absolutely correct
+and benchmarked C-Script version, and you have determined that even greater
+performance is required. This level of optimization requires careful thought but
+yields the best results. The core kernel and class libraries are the ultimate
+expression of this stage. The `canvas :fpoly` method is a prime example of a
+complex algorithm implemented at this level for maximum performance.
+
+**Example: `sum-of-squares` as an Optimized VP Method**
+
+```vdu
+;; Stage 3: Direct register manipulation for maximum speed.
+(def-method 'my-class :sum-of-squares)
+
+    (vp-def (this iter iter_end sum val) '(:r8 :r9 :r10 :r11 :r12))
+
+    (entry 'my-class :sum-of-squares `(,this))
+
+    (assign '(0) `(,sum))
+    (class/array/get_both this iter iter_end)
+    (loop-while `(,iter /= ,iter_end))
+        (vp-cpy-ir iter 0 val)
+        (assign `((,val num_value)) `(,val))
+        (vp-mul-rr val val)
+        (vp-add-rr val sum)
+        (vp-add-cr +ptr_size iter)
+    (loop-end)
+    (call 'num :create `(,sum) `(,sum))
+
+    (exit 'my-class :sum-of-squares `(,this ,sum))
+    (vp-ret)
+
+(def-func-end)
+```
+
+### The Unifying Philosophy
+
+This three-stage process embodies ChrysaLisp's pragmatic approach to
+engineering. It provides a smooth "performance gradient," allowing a developer
+to move from a high-level, safe environment to direct, low-level control only
+when and where it is needed. This structured path empowers you to write code
+that is readable, maintainable, and, when necessary, exceptionally fast.
