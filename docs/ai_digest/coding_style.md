@@ -231,11 +231,11 @@ variables created with `defq`.
 
     ```vdu
     ;; Less Idiomatic: Creates a temporary 'bounds' variable.
-    (defq bounds (. my-view :get_bounds))
+    (defq bounds (. my_view :get_bounds))
     (defq x (first bounds) y (second bounds))
 
     ;; Idiomatic ChrysaLisp: Direct, clean, and avoids the temporary.
-    (bind '(x y w h) (. my-view :get_bounds))
+    (bind '(x y w h) (. my_view :get_bounds))
     ```
 
 *   **De-structuring Nested Data**
