@@ -648,7 +648,7 @@ manual register management.
     (entry {list_obj})
 
     (assign {0} {sum})
-    (call 'array :get_both {list_obj} {iter, iter_end})
+    (call 'array :get_both {list_obj} {_, iter, iter_end})
     (loop-while {iter /= iter_end})
         (call 'num :get_value {*iter} {_, val})
         (assign {val * val + sum} {sum})
