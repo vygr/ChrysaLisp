@@ -150,8 +150,8 @@ number of forms the interpreter must handle.
 ```vdu
 (defun process-data (data_list)
     (defq result (list))                  ; Form 1
-    (setq *last-processed-id* (get-id data_list)) ; Form 2
-    (setq *item-count* (+ *item-count* (length data_list))) ; Form 3
+    (setq *last_processed_id* (get-id data_list)) ; Form 2
+    (setq *item_count* (+ *item_count* (length data_list))) ; Form 3
     ; ...
 )
 ```
@@ -163,8 +163,8 @@ number of forms the interpreter must handle.
     ;; A single 'defq' handles all related local state logic.
     ;; The pairs are evaluated sequentially, allowing later bindings to use earlier ones.
     (defq result          (list)                          ; New binding
-        *last-processed-id* (get-id data_list)              ; Mutates existing local
-        *item-count*    (+ *item-count* (length data_list)))  ; Mutates existing local
+        *last_processed_id* (get-id data_list)              ; Mutates existing local
+        *item_count*    (+ *item_count* (length data_list)))  ; Mutates existing local
     ; ...
 )
 ```
