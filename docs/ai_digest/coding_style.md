@@ -1,4 +1,4 @@
-# ChrisaLisp coding guidelines
+# ChrysaLisp coding guidelines
 
 To write truly effective ChrysaLisp code is to understand its underlying
 philosophies. This document explores the core idioms and patterns that flow from
