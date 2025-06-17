@@ -223,7 +223,7 @@ function names at every call site. ChrysaLisp employs a two-pronged strategy:
     * Macros transform code before `repl_bind` and evaluation, fitting
       seamlessly into this optimized pipeline.
 
-##Conclusion: The Unfolding Hand Technique**
+## Conclusion: **The Unfolding Hand Technique**
 
 ChrysaLisp's environment and call system is not magic, but the result of
 deliberate engineering that "caches the crap out of what is going on
