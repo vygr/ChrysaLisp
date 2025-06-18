@@ -46,9 +46,10 @@
 			(pop _kl))
 		this)
 
-	(defmethod_ :each (_fnc)
+	(defmethod :each (fnc)
 		; (. xset :each lambda)
-		(each (# (each _fnc %0)) (get :buckets _this)))
+		(defq e (penv))
+		(each (# (each (lambda (i) (eval `(,fnc ',i) e)) %0)) (get :buckets this)))
 
 	(defmethod :copy ()
 		; (. xset :copy) -> xset
