@@ -152,22 +152,22 @@
 				(Mat4x4-scale scale_x scale_y scale_z)))))))
 		(get :matrix this))
 
-	(defmethod_ :walk_nodes (_fi _fo)
+	(defmethod :walk_nodes (fi fo)
 		; (. scene_node :walk_nodes fnc_in fnc_out) -> scene_node
 		;if fnc_in returns :nil, it'll step down into that nodes children.
 		;fnc_out is always called to balance calls to fnc_in.
-		(defq _stack (list _this (get :children _this) 0))
-		(while (defq _idx (pop _stack) _children (pop _stack) _this (pop _stack))
+		(defq stack (list this (get :children this) 0))
+		(while (defq idx (pop stack) children (pop stack) this (pop stack))
 			(cond
-				((and (= _idx 0) (_fi _this _children))
+				((and (= idx 0) (eval `(,fi ,this ',children) (penv)))
 					;not stepping in
-					(_fo _this _children))
-				((< _idx (length _children))
+					(eval `(,fo ,this ',children) (penv)))
+				((< idx (length children))
 					;step into child node
-					(push _stack _this _children (inc _idx)
-						(defq _this (elem-get _children _idx)) (get :children _this) 0))
+					(push stack this children (inc idx)
+						(defq this (elem-get children idx)) (get :children this) 0))
 				(:t ;step out
-					(_fo _this _children))))
+					(eval `(,fo ,this ',children) (penv)))))
 		this)
 
 	(defmethod :find_nodes (name)
