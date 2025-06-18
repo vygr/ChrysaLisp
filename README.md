@@ -214,11 +214,3 @@ make snapshot
 ```
 
 This is typically done after `make it` from within ChrysaLisp !
-
-## Community
-
-Join the discussion and get help:
-
-* **Matrix**: #ChrysaLisp-OS:matrix.org
-
-  (Recommended client: [Element.io](https://app.element.io/#/room/#ChrysaLisp-OS:matrix.org))
