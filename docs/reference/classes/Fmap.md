@@ -18,6 +18,12 @@
 (. fmap :deep_copy) -> fmap
 ```
 
+### :each
+
+```code
+(. fmap :each lambda)
+```
+
 ### :empty
 
 ```code

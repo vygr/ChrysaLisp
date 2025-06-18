@@ -60,11 +60,12 @@
 			(pop _kl) (pop _vl))
 		this)
 
-	(defmethod_ :each (_fnc)
+	(defmethod :each (fnc)
 		; (. fmap :each lambda)
-		(defq _si -2 _b (get :buckets _this))
-		(while (< (setq _si (+ _si 2)) (length _b))
-			(each _fnc (elem-get _b _si) (elem-get _b (inc _si)))) _this)
+		(defq si -2 b (get :buckets this) e (penv))
+		(while (< (setq si (+ si 2)) (length b))
+			(each (lambda (k v) (eval `(,fnc ',k ',v) e))
+				(elem-get b si) (elem-get b (inc si)))) this)
 
 	(defmethod :copy ()
 		; (. fmap :copy) -> fmap

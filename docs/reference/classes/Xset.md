@@ -24,6 +24,12 @@
 (. xset :difference xset) -> xset
 ```
 
+### :each
+
+```code
+(. xset :each lambda)
+```
+
 ### :empty
 
 ```code

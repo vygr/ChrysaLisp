@@ -34,9 +34,10 @@
 		(undef (get :buckets this) key)
 		this)
 
-	(defmethod_ :each (_fnc)
+	(defmethod :each (fnc)
 		; (. emap :each lambda)
-		(each (lambda ((_k _v)) (_fnc _k _v)) (tolist (get :buckets _this))))
+		(defq e (penv))
+		(each (lambda ((k v)) (eval `(,fnc ',k ',v) e)) (tolist (get :buckets this))))
 
 	(defmethod :copy ()
 		; (. emap :copy) -> emap

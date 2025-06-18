@@ -15,11 +15,6 @@
 	; (. this :method [arg ...])
 	`(def (def? :vtable this) ,n (lambda (this ~a) ~_)))
 
-(defmacro defmethod_ (n a &rest _)
-	; (defmethod_ name ([arg ...]) body)
-	; (. _this :method [arg ...])
-	`(def (def? :vtable this) ,n (lambda (_this ~a) ~_)))
-
 (defmacro defabstractmethod (n a &rest _)
 	; (defabstractmethod ([arg ...]) body)
 	; Declare a method as abstract and will

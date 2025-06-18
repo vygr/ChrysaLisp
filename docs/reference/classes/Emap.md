@@ -18,6 +18,12 @@
 (. emap :deep_copy) -> emap
 ```
 
+### :each
+
+```code
+(. emap :each lambda)
+```
+
 ### :empty
 
 ```code

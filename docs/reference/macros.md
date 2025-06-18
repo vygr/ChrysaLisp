@@ -145,14 +145,6 @@ should provide the concreate handler
 (. this :method [arg ...])
 ```
 
-### defmethod_
-
-```code
-(defmethod_ name ([arg ...]) body)
-
-(. _this :method [arg ...])
-```
-
 ### defsetmethod
 
 ```code

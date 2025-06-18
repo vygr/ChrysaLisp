@@ -18,6 +18,12 @@
 (. xmap :deep_copy) -> xmap
 ```
 
+### :each
+
+```code
+(. xmap :each lambda)
+```
+
 ### :empty
 
 ```code

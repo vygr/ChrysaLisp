@@ -64,3 +64,12 @@
 (. scene_node :sub_node) -> scene_node
 ```
 
+### :walk_nodes
+
+```code
+(. scene_node :walk_nodes fnc_in fnc_out) -> scene_node
+
+if fnc_in returns :nil, it'll step down into that nodes children.
+fnc_out is always called to balance calls to fnc_in.
+```
+

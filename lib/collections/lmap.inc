@@ -56,9 +56,12 @@
 			(pop keys) (pop vals))
 		this)
 
-	(defmethod_ :each (_fnc)
+	(defmethod :each (fnc)
 		; (. lmap :each lambda)
-		(each _fnc (get :keys _this) (get :vals _this)) _this)
+		(defq e (penv))
+		(each (lambda (k v) (eval `(,fnc ',k ',v) e))
+			(get :keys this) (get :vals this))
+		this)
 
 	(defmethod :copy ()
 		; (. lmap :copy) -> lmap

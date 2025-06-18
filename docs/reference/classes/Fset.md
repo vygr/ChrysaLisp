@@ -24,6 +24,12 @@
 (. fset :difference fset) -> fset
 ```
 
+### :each
+
+```code
+(. fset :each lambda)
+```
+
 ### :empty
 
 ```code
