@@ -46,6 +46,12 @@ understand the nature of a symbol at a glance.
 
     * Examples: `*root_env*`, `*debug_mode*`.
 
+*   **`Class` have an uppercase first letter**.
+
+    * This shows that this function creates a class instance.
+
+    * Examples: `Button`, `Regexp`.
+
 #### The Shadowing Guideline: Avoid Redefining Functions Locally
 
 ChrysaLisp allows you to define a local variable that has the same name as a global function or macro. The system assumes you have a good reason for doing this.
