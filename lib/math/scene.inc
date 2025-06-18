@@ -155,7 +155,7 @@
 	(defmethod_ :walk_nodes (_fi _fo)
 		; (. scene_node :walk_nodes fnc_in fnc_out) -> scene_node
 		;if fnc_in returns :nil, it'll step down into that nodes children.
-		;fnc_out is allways called to balence calls to fnc_in.
+		;fnc_out is always called to balance calls to fnc_in.
 		(defq _stack (list _this (get :children _this) 0))
 		(while (defq _idx (pop _stack) _children (pop _stack) _this (pop _stack))
 			(cond

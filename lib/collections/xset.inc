@@ -48,7 +48,7 @@
 
 	(defmethod_ :each (_fnc)
 		; (. xset :each lambda)
-		(each (lambda (_) (each _fnc _)) (get :buckets _this)))
+		(each (# (each _fnc %0)) (get :buckets _this)))
 
 	(defmethod :copy ()
 		; (. xset :copy) -> xset
