@@ -167,8 +167,6 @@ cached circle generation, quantised to 1/4 pixel
 
 ```code
 (each-mergeable lambda seq) -> seq
-
-_ bound to seq index !
 ```
 
 ### empty?

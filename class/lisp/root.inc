@@ -547,12 +547,11 @@
 		(while (< b e) (push l b) (setq b (+ b s)))
 		(while (> b e) (push l b) (setq b (- b s)))) l)
 
-(defun each-mergeable (_f _l)
+(defun each-mergeable (f s)
 	; (each-mergeable lambda seq) -> seq
-	; _ bound to seq index !
-	(defq _ -1)
-	(while (< (setq _ (inc _)) (length _l))
-		(_f (elem-get _l _))) _l)
+	(defq i -1)
+	(while (< (setq i (inc i)) (length s))
+		(eval `(,f ',(elem-get s i)) (penv))) s)
 
 (defmacro each (f &rest _)
 	; (each lambda seq ...)

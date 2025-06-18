@@ -167,8 +167,8 @@
 			(each include (all-class-files))
 			(defq *prods* (list))
 			;lists of all file imports and products
-			(each-mergeable (# (make-merge *prods* (bind '(d %0) (make-info %0))) (make-merge _l d))
-				(all-vp-files)) *prods*)) *abi* *cpu*))
+			(each-mergeable (# (make-merge *prods* (bind '(d %0) (make-info %0))) (make-merge l d))
+				(defq l (all-vp-files))) *prods*)) *abi* *cpu*))
 
 (defun make-all (&optional files *abi* *cpu*)
 	(setd *abi* (abi) *cpu* (cpu))
