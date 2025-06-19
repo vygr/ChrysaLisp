@@ -75,8 +75,8 @@
 	(defmethod :close ()
 		; (. local :close)
 		;close tasks
-		(defq e (penv))
-		(.-> this (:each (get :destroy this)) :empty))
+		(defq e (penv) destroy (get :destroy this))
+		(.-> this (:each (lambda (key val) (eval `(,destroy ',key ',val) e))) :empty))
 	)
 
 ;module
