@@ -6,43 +6,44 @@
 	; (Global fnc_create fnc_destroy) -> global
 	(def this :size 0 :create fnc_create :destroy fnc_destroy)
 
-	(defmethod :refresh (&optional _timeout)
+	(defmethod :refresh (&optional timeout)
 		; (. global :refresh [timeout]) -> :t | :nil
 		;scan known nodes and update node map
-		(defq _keys (map (const cat) (lisp-nodes))
-			_old_keys (list) _old_vals (list)
-			_create (get :create this) _destroy (get :destroy this)
-			_mutated :nil _now (pii-time))
-		(. this :each (lambda (key val) (push _old_keys key) (push _old_vals val)))
+		(defq keys (map (const cat) (lisp-nodes))
+			old_keys (list) old_vals (list)
+			create (get :create this) destroy (get :destroy this)
+			mutated :nil now (pii-time) e (penv))
+		(. this :each (lambda (key val) (push old_keys key) (push old_vals val)))
 		;test for vanished and timeout nodes
-		(each (lambda (_key _val)
+		(each (lambda (key val)
 			(cond
-				((find _key _keys)
+				((find key keys)
 					;found, so check timestamp
-					(and _timeout
-						(defq _then (get :timestamp _val))
-						(> (- _now _then) _timeout)
+					(and timeout
+						(defq then (get :timestamp val))
+						(> (- now then) timeout)
 						(progn
-							(setq _mutated :t)
-							(_destroy _key _val)
-							(. this :insert _key (_create _key _now)))))
+							(setq mutated :t)
+							(eval `(,destroy ',key ',val) e)
+							(. this :insert key (create key now)))))
 				(:t ;not found
-					(setq _mutated :t)
-					(_destroy _key _val)
-					(. this :erase _key)))) _old_keys _old_vals)
+					(setq mutated :t)
+					(eval `(,destroy ',key ',val) e)
+					(. this :erase key)))) old_keys old_vals)
 		;test for new nodes
-		(each (lambda (_key)
-			(unless (find _key _old_keys)
-				(setq _mutated :t)
-				;must (cat _key) to convert to pure string key !
-				(. this :insert (cat _key) (_create _key _now)))) _keys)
-		(def this :size (length _keys))
-		_mutated)
+		(each (lambda (key)
+			(unless (find key old_keys)
+				(setq mutated :t)
+				;must (cat key) to convert to pure string key !
+				(. this :insert (cat key) (eval `(,create ',key ',now) e)))) keys)
+		(def this :size (length keys))
+		mutated)
 
 	(defmethod :close ()
 		; (. global :close)
 		;close tasks
-		(.-> this (:each (get :destroy this)) :empty)
+		(defq e (penv) destroy (get :destroy this))
+		(.-> this (:each (lambda (key val) (eval `(,destroy ',key ',val) e))) :empty)
 		(def this :size 0))
 
 	(defmethod :size ()

@@ -7,73 +7,75 @@
 
 (defun stop ()
 	;stop a child
-	(_destroy _key _val)
-	(. this :erase _key))
+	(eval `(,destroy ',key ',val) e)
+	(. this :erase key))
 
 (defun start ()
 	;start a child
-	(defq _key (def this :key (inc (get :key this))) _val (env 1))
-	(. this :insert _key _val)
-	(def _val :timestamp _now)
-	(_create _key _val _nodes))
+	(defq key (def this :key (inc (get :key this))) val (env 1))
+	(. this :insert key val)
+	(def val :timestamp now)
+	(eval `(,create ',key ',val ',nodes) e))
 
 (defun restart ()
 	;restart a child
-	(setq _mutated :t)
+	(setq mutated :t)
 	(stop) (start))
 
-(defclass Local (_create _destroy &optional max_size init_size size) (Fmap)
+(defclass Local (create destroy &optional max_size init_size size) (Fmap)
 	; (Local fnc_create fnc_destroy [max_size init_size size]) -> local
 	(setd max_size +max_int init_size 1 size 1)
-	(def this :create _create :destroy _destroy
+	(def this :create create :destroy destroy
 		:nodes (list (task-nodeid)) :key -1 :size size :max_size max_size)
-	(defq _nodes (get :nodes this) _now (pii-time))
+	(defq nodes (get :nodes this) now (pii-time) e (penv))
 	(times (min max_size (max init_size 1)) (start))
 
-	(defmethod :refresh (&optional _timeout)
+	(defmethod :refresh (&optional timeout)
 		; (. local :refresh [timeout]) -> :t | :nil
 		;scan known nodes and update map
-		(defq _known_nodes (map (const cat) (mail-nodes))
-			_nodes (filter (# (find %0 _known_nodes)) (get :nodes this))
-			_old_keys (list) _old_vals (list)
-			_create (get :create this) _destroy (get :destroy this)
-			_mutated :nil _now (pii-time))
-		(def this :nodes _nodes)
-		(. this :each (lambda (key val) (push _old_keys key) (push _old_vals val)))
+		(defq known_nodes (map (const cat) (mail-nodes))
+			nodes (filter (# (find %0 known_nodes)) (get :nodes this))
+			old_keys (list) old_vals (list)
+			create (get :create this) destroy (get :destroy this)
+			mutated :nil now (pii-time) e (penv))
+		(def this :nodes nodes)
+		(. this :each (lambda (key val) (push old_keys key) (push old_vals val)))
 		;test for vanished and timeout nodes
-		(each (lambda (_key _val)
+		(each (lambda (key val)
 			(cond
-				((or (not (defq _child (get :child _val)))
-					(find (slice _child +mailbox_id_size -1) _nodes))
+				((or (not (defq child (get :child val)))
+					(find (slice child +mailbox_id_size -1) nodes))
 					;waiting on child launching, or found child in nodes, so check timestamp
-					(and _timeout
-						(defq _then (get :timestamp _val))
-						(> (- _now _then) _timeout)
+					(and timeout
+						(defq then (get :timestamp val))
+						(> (- now then) timeout)
 						(restart)))
 				(:t ;not found child
-					(restart)))) _old_keys _old_vals)
-		_mutated)
+					(restart)))) old_keys old_vals)
+		mutated)
 
-	(defmethod :restart (_key _val)
+	(defmethod :restart (key val)
 		; (. local :restart key val)
 		;restart task
-		(defq _nodes (get :nodes this) _mutated :nil _now (pii-time)
-			_create (get :create this) _destroy (get :destroy this))
+		(defq nodes (get :nodes this) mutated :nil now (pii-time)
+			create (get :create this) destroy (get :destroy this)
+			e (penv))
 		(restart))
 
 	(defmethod :add_node (node)
 		; (. local :add_node node)
 		;add new node
-		(defq _nodes (get :nodes this)
-			_headroom (- (get :max_size this) (length _nodes)))
-		(unless (or (<= _headroom 0) (find node _nodes))
-			(def this :nodes (push _nodes node))
-			(defq _now (pii-time) _create (get :create this))
-			(times (min (get :size this) _headroom) (start))))
+		(defq nodes (get :nodes this) e (penv)
+			headroom (- (get :max_size this) (length nodes)))
+		(unless (or (<= headroom 0) (find node nodes))
+			(def this :nodes (push nodes node))
+			(defq now (pii-time) create (get :create this))
+			(times (min (get :size this) headroom) (start))))
 
 	(defmethod :close ()
 		; (. local :close)
 		;close tasks
+		(defq e (penv))
 		(.-> this (:each (get :destroy this)) :empty))
 	)
 
