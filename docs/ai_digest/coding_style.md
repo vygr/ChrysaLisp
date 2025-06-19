@@ -42,11 +42,11 @@ understand the nature of a symbol at a glance.
 *   **`*globals*` are surrounded by asterisks `*` ("earmuffs")**.
 
     * This warns that the variable is a dynamic global or special variable that
-        might be rebound and have wide-ranging side effects.
+      might be rebound and have wide-ranging side effects.
 
     * Examples: `*root_env*`, `*debug_mode*`.
 
-*   **`Class` have an uppercase first letter**.
+*   **`Class` has an uppercase first letter**.
 
     * This shows that this function creates a class instance.
 
@@ -76,51 +76,6 @@ hyphens (`(list ...)`), you will never accidentally conflict.
 
 Tooling, such as the `Editor` app with syntax highlighting, also provides a
 strong visual cue when this error occurs.
-
-#### Class Names: Distinguishing Types with an Initial Capital
-
-While functions use `hyphenated-lowercase` and variables use
-`underscored_lowercase`, a distinct convention has been adopted for classes to
-visually separate *type definitions* from callable code and data instances.
-
-**Convention:** **Class names should use a single, capitalized word.**
-
-This simple rule completes the system's naming philosophy, allowing a developer
-to instantly recognize the role of a symbol:
-
-*   `(Button ...)`: A constructor for a type.
-
-*   `(my-function ...)`: A function call.
-
-*   `my_variable`: A local data variable.
-
-*   `:my_property`: A property.
-
-This convention is not enforced by the compiler but is strongly encouraged for
-clarity. It leverages the power of ChrysaLisp's `defclass` macro, which
-automatically creates helper functions based on the class name. Following the
-convention results in a clean, predictable, and readable API.
-
-**Idiomatic Style:**
-
-```vdu
-;; The class name 'Button' clearly identifies it as a type.
-(defclass Button () (View)
-  (def this :text "Default"))
-
-;; The resulting constructor and predicate are clean and predictable.
-(defq my_button (Button))
-(if (Button? my_button)
-    (print "It is a Button instance!"))
-```
-
-By adhering to the initial capital convention, you work with the system's
-tooling to produce code that is immediately understandable. The distinction
-between `(Button)` and a hypothetical `(make-button)` function becomes visually
-obvious, preventing confusion and making the code easier to navigate and
-maintain. While multi-word class names with hyphens exist in some parts of the
-system (e.g., `Scene-node`), the strong preference and common practice is for
-single, capitalized words.
 
 ## Efficient State Management with `defq` and `setq`
 
