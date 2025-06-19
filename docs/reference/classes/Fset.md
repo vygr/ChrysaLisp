@@ -27,7 +27,7 @@
 ### :each
 
 ```code
-(. fset :each lambda)
+(. fset :each lambda) -> fset
 ```
 
 ### :empty

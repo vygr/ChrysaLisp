@@ -21,7 +21,7 @@
 ### :each
 
 ```code
-(. fmap :each lambda)
+(. fmap :each lambda) -> fmap
 ```
 
 ### :empty

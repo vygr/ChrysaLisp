@@ -62,11 +62,11 @@
 		this)
 
 	(defmethod :each (fnc)
-		; (. xmap :each lambda)
-		(defq si -2 b (get :buckets this) e (penv))
-		(while (< (setq si (+ si 2)) (length b))
-			(each (lambda (k v) (eval `(,fnc ',k ',v) e))
-				(elem-get b si) (elem-get b (inc si)))) this)
+		; (. xmap :each lambda) -> xmap
+		(defq e (penv))
+		(each (lambda ((kl vl)) (each (lambda (k v) (eval `(,fnc ',k ',v) e)) kl vl))
+			(partition (get :buckets this) 2))
+		this)
 
 	(defmethod :copy ()
 		; (. xmap :copy) -> xmap

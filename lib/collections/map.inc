@@ -11,7 +11,7 @@
 	(defabstractmethod :erase (key))
 		; (. map :erase key) -> map
 	(defabstractmethod :each (fnc))
-		; (. map :each lambda)
+		; (. map :each lambda) -> map
 	(defabstractmethod :copy ())
 		; (. map :copy) -> map
 	(defabstractmethod :deep_copy ())

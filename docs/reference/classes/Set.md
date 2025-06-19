@@ -25,7 +25,7 @@
 ### :each
 
 ```code
-(. set :each lambda)
+(. set :each lambda) -> set
 ```
 
 ### :empty

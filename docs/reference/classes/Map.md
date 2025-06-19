@@ -19,7 +19,7 @@
 ### :each
 
 ```code
-(. map :each lambda)
+(. map :each lambda) -> map
 ```
 
 ### :empty

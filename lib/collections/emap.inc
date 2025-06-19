@@ -37,7 +37,8 @@
 	(defmethod :each (fnc)
 		; (. emap :each lambda)
 		(defq e (penv))
-		(each (lambda ((k v)) (eval `(,fnc ',k ',v) e)) (tolist (get :buckets this))))
+		(each (lambda ((k v)) (eval `(,fnc ',k ',v) e)) (tolist (get :buckets this)))
+		this)
 
 	(defmethod :copy ()
 		; (. emap :copy) -> emap
