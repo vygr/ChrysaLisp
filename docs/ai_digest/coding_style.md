@@ -95,30 +95,30 @@ with lexical scopes. This directly impacts their performance and intended use.
     manipulation.
 
     * For each symbol, `defq` performs a **local-only** search within the
-        *current* environment (`hmap`).
+      *current* environment (`hmap`).
 
     * If a binding for the symbol already exists in the current scope, its value
-        is **mutated in-place**.
+      is **mutated in-place**.
 
     * If no local binding exists, a **new binding is created** in the current
-        environment.
+      environment.
 
     * Crucially, `defq` **will never search or modify a parent environment**.
-        This makes it predictably fast and prevents accidental side effects on
-        outer scopes.
+      This makes it predictably fast and prevents accidental side effects on
+      outer scopes.
 
 *   **`(setq <symbol> <value> ...)`**: This is the **Global-Aware, Mutate-Only
     Operator**. It is a specific tool for intentionally modifying variables in
     outer scopes.
 
     * For each symbol, `setq` performs a search up the **entire environment
-        chain**, starting from the current scope.
+      chain**, starting from the current scope.
 
     * It **mutates** the first binding it finds, wherever it may be in the
-        chain.
+      chain.
 
     * If no binding is found anywhere, it raises a `symbol_not_bound` **error**.
-        `setq` can never create a new binding.
+      `setq` can never create a new binding.
 
 ### The Performance Idiom: Fusing Operations to Minimize Forms
 
