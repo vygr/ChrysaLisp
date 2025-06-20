@@ -72,7 +72,7 @@
 				(:text
 					(while (and (< j l)
 							(eql (setq state (is-text-char? (elem-get line j))) :text))
-						(setq j (inc j)))
+						(++ j))
 					(when (/= i j)
 						(push state_list :text)
 						(push token_list (slice line i (setq i j)))))

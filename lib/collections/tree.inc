@@ -91,7 +91,7 @@
 						(cond
 							((list? v)
 								;indent
-								(setq wc (inc wc))
+								(++ wc)
 								(push stack v 1)
 								(write-line stream (str p k))
 								(write-line stream (str p "(" (first v))))
@@ -102,7 +102,7 @@
 							((list? k)
 								;indent
 								(push stack l (inc i))
-								(setq wc (inc wc))
+								(++ wc)
 								(push stack k 1)
 								(write-line stream (str p "(" (first k))))
 							(:t	(push stack l (length l))
@@ -113,7 +113,7 @@
 						(cond
 							((list? k)
 								;indent
-								(setq wc (inc wc))
+								(++ wc)
 								(push stack k 1)
 								(write-line stream (str p "(" (first k))))
 							(:t (write-line stream (str p (tree-encode k))))))))

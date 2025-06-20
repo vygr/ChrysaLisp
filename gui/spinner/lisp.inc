@@ -34,7 +34,7 @@
 			(src_id (getf event +ev_msg_action_source_id)))
 		(cond
 			((= src_id (get :up_id this))
-				(setq value (inc value)))
+				(++ value))
 			((= src_id (get :down_id this))
 				(setq value (dec value))))
 		(setq value (max (min (get :maximum this) value) (get :minimum this)))

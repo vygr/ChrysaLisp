@@ -226,7 +226,7 @@
 (defun def-bit-f ()
 	(push syms (sym (cat name "_" field)))
 	(push values (num-intern (<< 1 base)))
-	(setq base (inc base)))
+	(++ base))
 
 (defmacro def-bit (name base &rest lines)
 	; (def-bit name base [(bit field ...)] ...)

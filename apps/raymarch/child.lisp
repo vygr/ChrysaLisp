@@ -32,7 +32,7 @@
 
 (defun ray-march (ray_origin ray_dir l max_l min_distance march_factor)
 	(defq i -1 d 1.0)
-	(while (and (< (setq i (inc i)) 1000)
+	(while (and (< (++ i) 1000)
 				(> d min_distance)
 				(< l max_l))
 		(defq d (scene (vec-add ray_origin (vec-scale ray_dir l +fixeds_tmp3) +fixeds_tmp3))
@@ -105,9 +105,9 @@
 (defun rect (key mbox x y x1 y1 w h)
 	(write-int (defq reply (string-stream (cat ""))) (list x y x1 y1))
 	(defq w2 (/ w 2) h2 (/ h 2) y (dec y))
-	(while (/= (setq y (inc y)) y1)
+	(while (/= (++ y) y1)
 		(defq xp (dec x))
-		(while (/= (setq xp (inc xp)) x1)
+		(while (/= (++ xp) x1)
 			(defq ray_origin (const (fixeds 0.0 0.0 -3.0)) ray_dir (vec-norm (vec-sub
 				(fixeds (/ (* (- xp w2) (const (<< 1 +fp_shift))) w2) (/ (* (- y h2) (const (<< 1 +fp_shift))) h2) 0)
 				ray_origin)))

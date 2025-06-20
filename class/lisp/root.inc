@@ -468,6 +468,10 @@
 	; (dec num) -> num
 	`(- ,_ 1))
 
+(defmacro ++ (_ &optional i)
+	; (++ num [num]) -> num
+	`(setq ,_ (+ ,_ ,(ifn i 1))))
+
 (defmacro not (_)
 	; (not form) -> :t | :nil
 	`(if ,_ :nil :t))
@@ -555,7 +559,7 @@
 (defun each-mergeable (f s)
 	; (each-mergeable lambda seq) -> seq
 	(defq i -1)
-	(while (< (setq i (inc i)) (length s))
+	(while (< (++ i) (length s))
 		(callback f (penv) (elem-get s i))) s)
 
 (defmacro each (f &rest _)
@@ -772,7 +776,7 @@
 	(when (and (not (= 0 _)) (= _ (logand _ (neg _))))
 		(defq i 0)
 		(while (/= 0 (setq _ (>> _ 1)))
-			(setq i (inc i))) i))
+			(++ i)) i))
 
 (defun pow (base exponent)
 	; (pow base exponent) -> integer
@@ -979,8 +983,7 @@
 (defun get-cstr (s o)
 	; (get-cstr str index) -> str
 	(defq k o)
-	(while (/= 0 (get-byte s o))
-		(setq o (inc o)))
+	(while (/= 0 (get-byte s o)) (++ o))
 	(slice s k o))
 
 (defun type-to-size (_)

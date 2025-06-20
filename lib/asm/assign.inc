@@ -77,7 +77,7 @@
 						((and (list? d) (rfind j d)) (!))
 						((eql j s) (!)))) (list s d) :nil -1 (inc i))))
 			(setq s (rotate s i j (inc j)) d (rotate d i j (inc j)) c (dec c))
-			(setq i (inc i))))
+			(++ i)))
 	(if (= c 0)
 		(throw "Copy cycle detected !" (list s d))
 		(setq src s dst d)))

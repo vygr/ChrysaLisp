@@ -16,7 +16,7 @@
 
 (defun url-ctx (url cx)
 	(defq ctx 0 i -1 s 'w)
-	(until (= cx (setq i (inc i)))
+	(until (= cx (++ i))
 		(if (= (const (ascii-code "|")) (defq c (code (elem-get url i))))
 			(setq ctx 0 s 'w)
 			(case s
@@ -28,7 +28,7 @@
 	(while (every (lambda (url)
 			(and (< i (length url))
 				(eql (elem-get url i) (elem-get (first urls) i)))) urls)
-		(setq i (inc i))) i)
+		(++ i)) i)
 
 (defun url-ext (url cx &optional ctx)
 	(setd ctx (url-ctx url cx))

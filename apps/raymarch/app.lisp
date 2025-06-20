@@ -33,9 +33,9 @@
 	; (tile canvas data) -> area
 	(defq data (string-stream data) x (read-int data) y (read-int data)
 		x1 (read-int data) y1 (read-int data) yp (dec y))
-	(while (/= (setq yp (inc yp)) y1)
+	(while (/= (++ yp) y1)
 		(defq xp (dec x))
-		(while (/= (setq xp (inc xp)) x1)
+		(while (/= (++ xp) x1)
 			(.-> canvas (:set_color (read-int data)) (:plot xp yp)))
 		(task-slice))
 	(* (- x1 x) (- y1 y)))

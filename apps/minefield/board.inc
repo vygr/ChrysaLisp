@@ -29,11 +29,11 @@
 	(while (< count n)
 		(defq r (% (random l) (/ (pii-time) 1000000)))
 		(unless (or (eql r s) (sfind r m) (some (lambda (_) (= _ r)) (adjacent-elem (elem-coord s w h) w h)))
-			(setq count (inc count)) (push m r))) m)
+			(++ count) (push m r))) m)
 
 (defun cell-set-value (c a b)
 	(defq count 0)
-	(each (# (when (= (elem-get b %0) 9) (setq count (inc count)))) (elem-get a c))
+	(each (# (when (= (elem-get b %0) 9) (++ count))) (elem-get a c))
 	(elem-set b c count))
 
 (defun board-set-mines (m b n s w h)

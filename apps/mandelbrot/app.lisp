@@ -25,9 +25,9 @@
 	; (tile canvas data) -> area
 	(defq data (string-stream data) x (read-int data) y (read-int data)
 		x1 (read-int data) y1 (read-int data) yp (dec y))
-	(while (/= (setq yp (inc yp)) y1)
+	(while (/= (++ yp) y1)
 		(defq xp (dec x))
-		(while (/= (setq xp (inc xp)) x1)
+		(while (/= (++ xp) x1)
 			(defq r (read-char data) r (if (= r 255) 0 r)
 				g (<< (logand r 0x7f) 9) b (<< (logand r 0x3f) 2))
 			(.-> canvas (:set_color (+ +argb_black (<< r 16) g b)) (:plot xp yp)))

@@ -28,7 +28,7 @@
 			((eql (defq op (first inst)) 'emit-vp-nop))
 			((eql op 'emit-label)
 				(unless (eql op last_op)
-					(setq pc_sym (sym (str "_" (setq pc (inc pc)))))
+					(setq pc_sym (sym (str "_" (++ pc))))
 					(push out inst))
 				(def labels (last (last inst)) pc_sym))
 			((push out inst)))

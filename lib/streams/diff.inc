@@ -15,8 +15,8 @@
 	(each (lambda ((pa pb))
 		(if (and (/= pa a) (/= pb b))
 			(when (eql s :flat)
-				(while (/= x a) (push out (nums x y)) (setq x (inc x)))
-				(while (/= y b) (push out (nums x y)) (setq y (inc y)))
+				(while (/= x a) (push out (nums x y)) (++ x))
+				(while (/= y b) (push out (nums x y)) (++ y))
 				(setq s :diag))
 			(when (eql s :diag)
 				(while (/= x a) (push out (nums x y)) (setq x (inc x) y (inc y)))
@@ -24,8 +24,8 @@
 		(setq a pa b pb)) p)
 	(cond
 		((eql s :flat)
-			(while (/= x a) (push out (nums x y)) (setq x (inc x)))
-			(while (/= y b) (push out (nums x y)) (setq y (inc y))))
+			(while (/= x a) (push out (nums x y)) (++ x))
+			(while (/= y b) (push out (nums x y)) (++ y)))
 		(:t (while (/= x a) (push out (nums x y)) (setq x (inc x) y (inc y)))))
 	(push out (nums a b)))
 
@@ -65,7 +65,7 @@
 						((and (/= pa a) (/= pb b)))
 						((= pa a)
 							(write-line c (str "+ " (+ a oa) " " (elem-get bl b)))
-							(setq oa (inc oa)))
+							(++ oa))
 						(:t (write-line c (str "- " (+ a oa) " " (elem-get al a)))))
 					(setq a pa b pb))
 				(iron (partition (first ps) 2))))))
@@ -82,9 +82,9 @@
 			(:t (bind '((_ (x x1) (x2 x3) (x4 x5))) match)
 				(defq op (slice p x x1) l (slice p x4 x5)
 					nl (str-to-num (slice p x2 x3)))
-				(while (< ln nl) (write-line c (read-line a)) (setq ln (inc ln)))
+				(while (< ln nl) (write-line c (read-line a)) (++ ln))
 				(if (eql op "+") (write-line c l) (read-line a))
-				(setq ln (inc ln)))))
+				(++ ln))))
 	(while (defq l (read-line a)) (write-line c l)))
 
 ;module

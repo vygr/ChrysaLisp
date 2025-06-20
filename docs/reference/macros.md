@@ -6,6 +6,12 @@
 (# (< %9 %0 %3) ...) -> (lambda (%0 %3 %9) (< %9 %0 %3) ...)
 ```
 
+### ++
+
+```code
+(++ num [num]) -> num
+```
+
 ### .->
 
 ```code
@@ -93,7 +99,7 @@
 ### callback
 
 ```code
-(callback lambda env args) -> (eval `(,lambda ',arg0 ',arg1 ...) env)
+(callback lambda env arg ...) -> (eval `(apply ,lambda '(,arg ...)) env)
 ```
 
 ### case

@@ -28,7 +28,7 @@
 			;else, include any files given as args (in this enviroment, hence the while loop !)
 			(progn
 				(defq i 0)
-				(while (< (setq i (inc i)) (length args))
+				(while (< (++ i) (length args))
 					(import (elem-get args i))
 					(stream-flush stdout)
 					(stream-flush stderr))))

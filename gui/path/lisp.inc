@@ -57,7 +57,7 @@
 	(defq i 0 paths (list) d (path-svg (cat d " "))
 		cx 0.0 cy 0.0 cpx 0.0 cpy 0.0 last_cmd " ")
 	(until (eql (defq cmd (elem-get d i)) "x")
-		(setq i (inc i))
+		(++ i)
 		(case cmd
 			("M"
 				(push paths (list :nil (defq p (path))))

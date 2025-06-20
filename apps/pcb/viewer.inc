@@ -20,7 +20,7 @@
 
 (defun batch (p)
 	(defq s 0 e 0 b (list))
-	(while (<= (setq e (inc e)) (length p))
+	(while (<= (++ e)) (length p))
 		(when (or (= e (length p)) (/= (third (elem-get p s)) (third (elem-get p e))))
 			(push b (slice p s e))
 			(setq s e))) b)

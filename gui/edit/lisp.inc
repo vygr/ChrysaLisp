@@ -368,7 +368,7 @@
 				(task-slice)
 				(defq idx -1)
 				(while (and
-					(< (setq idx (inc idx)) (length line))
+					(< (++ idx) (length line))
 					(< idx tab_width)
 					(eql (elem-get line idx) " ")))
 				(if (> idx 0)

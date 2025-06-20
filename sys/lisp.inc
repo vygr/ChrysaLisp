@@ -85,7 +85,7 @@
 	; (open-pipe tasks) -> ([net_id | 0] ...)
 	(defq ids (cap (length tasks) (list)) mbox (mail-alloc-mbox)
 		index -1 tail (task-netid))
-	(while (< (setq index (inc index)) (length tasks))
+	(while (< (++ index) (length tasks))
 		(open-task (elem-get tasks index) (slice tail +long_size -1) +kn_call_child 0 mbox)
 		(defq tail (getf (mail-read mbox) +kn_msg_reply_id))
 		(push ids tail)

@@ -211,7 +211,7 @@
 	(defun next-utf8 (cnt)
 		(vp-and-cr (>> 0b00111111 cnt) c)
 		(defq i -1)
-		(while (/= (setq i (inc i)) cnt)
+		(while (/= (++ i) cnt)
 			(vp-cpy-ir-ub utf8 i m)
 			(vp-shl-cr 6 c)
 			(vp-and-cr 0b00111111 m)

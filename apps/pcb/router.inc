@@ -23,8 +23,8 @@
 			(defq l (vec-length (Vec2-f (n2f x) (n2f y))))
 			(and (> l 0.1) (<= l vec_range)
 				(push out (nums x y 0)))
-			(setq x (inc x)))
-		(setq y (inc y)))
+			(++ x))
+		(++ y))
 	out)
 
 (defun aabb-pads (pads quant)
@@ -116,7 +116,7 @@
 		(bind '(x y z1) pos)
 		(defq z2 z1)
 		;traverse pad stack
-		(while (and (< (setq i (inc i)) (length pads))
+		(while (and (< (++ i) (length pads))
 					(eql xy (slice (defq pos (. (defq p (elem-get pads i)) :get_pos)) +vec3_x +vec3_z))
 					(= radius (. p :get_radius))
 					(= gap (. p :get_gap))
@@ -602,7 +602,7 @@
 			(defq net (elem-get netlist index))
 			(cond
 				((. net :route)
-					(setq index (inc index)))
+					(++ index))
 				(:t (cond
 						((= index 0)
 							(.-> this :reset_areas :shuffle_netlist)

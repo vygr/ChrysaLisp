@@ -10,7 +10,7 @@
 (defun emit-align (size &optional fill)
 	(defq pc *pc* fill (ifn fill 0) stream *stream*)
 	(setq *pc* (align pc size))
-	(while (<= (setq pc (inc pc)) *pc*)
+	(while (<= (++ pc) *pc*)
 		(write-char stream fill)))
 
 (defun emit-string (string)

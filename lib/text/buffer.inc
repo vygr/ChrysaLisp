@@ -258,8 +258,8 @@
 		(bind '(x y) (. this :get_cursor))
 		(bind '(w h) (. this :get_size))
 		(defq w (if (> y h) 0 (length (elem-get (get :buffer_line this) y))))
-		(if (> (setq x (inc x)) w)
-			(if (> (setq y (inc y)) h)
+		(if (> (++ x) w)
+			(if (> (++ y) h)
 				(setq x +max_int)
 				(setq x 0)))
 		(bind '(x y) (. this :constrain x y))
@@ -370,7 +370,7 @@
 					(slice (elem-get buffer_line sy) sx sx1))
 				(:t (defq lines
 						(list (slice (elem-get buffer_line sy) sx -1) (ascii-char +char_lf)))
-					(while (< (setq sy (inc sy)) sy1)
+					(while (< (++ sy) sy1)
 						(push lines (elem-get buffer_line sy) (ascii-char +char_lf)))
 					(if (< sy h)
 						(push lines (slice (elem-get buffer_line sy) 0 sx1)))
@@ -479,7 +479,7 @@
 						((eql "(" (elem-get line x)))
 						((setq x (dec x))))
 					(if (eql "(" (elem-get line x))
-						(setq x (inc x))))
+						(++ x)))
 				(setq y (some! (lambda (syntax brackets)
 					(defq oc c)
 					(cond

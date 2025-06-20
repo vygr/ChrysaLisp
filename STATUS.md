@@ -24,6 +24,8 @@ New `(filter! lambda seq [out start end])` function than replaces
 New callback macro. `(callback lambda env arg ...) -> (eval `(apply ,lambda
 '(,arg ...)) env)`.
 
+New `(++)` macro.
+
 ------
 
 Audio SFX service from Martyn Blyss. Many thanks ! Boing demo updated with a

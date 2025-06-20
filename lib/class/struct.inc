@@ -133,7 +133,7 @@
 (defun new_bit ()
 	(push syms (sym (cat name "_" field)))
 	(push values (num-intern (<< 1 base)))
-	(setq base (inc base)))
+	(++ base))
 
 (defmacro bits (name base &rest lines)
 	; (bits name base [(bit field ...)] ...)

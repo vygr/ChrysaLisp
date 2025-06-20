@@ -273,7 +273,7 @@
 							((> (bind '(l j) (search text cpat i)) i)
 								(setq i +max_int out :t)
 								(setq i j))
-							((setq i (inc i))))))))
+							((++ i)))))))
 		out)
 
 	(defmethod :search (text pattern &optional cpat)
@@ -301,7 +301,7 @@
 							((> (bind '(l j) (search text cpat i)) i)
 								(push out l)
 								(setq i j))
-							((setq i (inc i))))))))
+							((++ i)))))))
 		out)
 	)
 

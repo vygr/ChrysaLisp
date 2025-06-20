@@ -17,7 +17,7 @@
 				(cond
 					((eql (elem-get pattern i) (elem-get pattern j))
 						(push lps (setq i (inc i) j (inc j))))
-					((= j 0) (push lps 0) (setq i (inc i)))
+					((= j 0) (push lps 0) (++ i))
 					((setq j (elem-get lps (dec j))))))
 			(. meta_cache :insert pattern lps))
 		lps)
@@ -33,7 +33,7 @@
 							(when (= m (setq j (inc j) k (inc k)))
 								(push out (list (list (- j k) j)))
 								(setq k 0)))
-						((= k 0) (setq j (inc j)))
+						((= k 0) (++ j))
 						((setq k (elem-get lps (dec k))))))))
 		out)
 
@@ -46,7 +46,7 @@
 						((eql (elem-get text j) (elem-get pattern k))
 							(when (= m (setq j (inc j) k (inc k)))
 								(setq n -1)))
-						((= k 0) (setq j (inc j)))
+						((= k 0) (++ j))
 						((setq k (elem-get lps (dec k))))))
 				(= n -1))))
 	)

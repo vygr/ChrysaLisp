@@ -8,7 +8,7 @@
 
 (defun depth (x0 y0)
 	(defq i -1 xc 0 yc 0 x2 0 y2 0)
-	(while (and (/= (setq i (inc i)) 255) (< (+ x2 y2) (mbfp-from-fixed 4.0)))
+	(while (and (/= (++ i) 255) (< (+ x2 y2) (mbfp-from-fixed 4.0)))
 		(setq yc (+ (mbfp-mul (mbfp-from-fixed 2.0) xc yc) y0) xc (+ (- x2 y2) x0)
 			x2 (mbfp-mul xc xc) y2 (mbfp-mul yc yc))) i)
 
@@ -18,9 +18,9 @@
 (defun mandel (key mbox x y x1 y1 w h cx cy z)
 	(write-int (defq reply (string-stream (cat ""))) (list x y x1 y1))
 	(setq y (dec y))
-	(while (/= (setq y (inc y)) y1)
+	(while (/= (++ y) y1)
 		(defq xp (dec x))
-		(while (/= (setq xp (inc xp)) x1)
+		(while (/= (++ xp) x1)
 			(write-char reply (depth (+ (mbfp-offset xp w z) cx) (+ (mbfp-offset y h z) cy))))
 		(task-slice))
 	(write-long reply key)

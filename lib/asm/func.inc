@@ -74,7 +74,7 @@
 
 (defun fn-add-string (s)
 	(defq i -1)
-	(while (and (< (setq i (inc i)) (length *strings*)) (not (eql s (elem-get *strings* i)))))
+	(while (and (< (++ i) (length *strings*)) (not (eql s (elem-get *strings* i)))))
 	(if (= i (length *strings*)) (push *strings* s)) i)
 
 (defun fn-add-path (p)
@@ -86,7 +86,7 @@
 
 (defun fn-find-link (p)
 	(defq i -1)
-	(while (and (< (setq i (inc i)) (length *links*)) (not (eql p (elem-get *paths* (elem-get *links* i))))))
+	(while (and (< (++ i) (length *links*)) (not (eql p (elem-get *paths* (elem-get *links* i))))))
 	(if (= i (length *links*)) (fn-add-link p)) i)
 
 (defun fn-string (s r)
