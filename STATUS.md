@@ -21,8 +21,8 @@ line index with `(!)`.
 New `(filter! lambda seq [out start end])` function than replaces
 `(filter-array)` with a simple macro `(filter lambda seq)`.
 
-New callback macro. `(callback lambda env arg ...) -> (eval `(,lambda ',arg ...)
-env)`.
+New callback macro. `(callback lambda env arg ...) -> (eval `(apply ,lambda
+'(,arg ...)) env)`.
 
 ------
 

@@ -329,9 +329,9 @@
 	(push (list (const quasi-quote)) (prebind (macroexpand _))))
 
 (defmacro callback (f e &rest args)
-	; (callback lambda env arg ...) -> (eval `(,lambda ',arg ...) env)
-	(list 'eval (list quasi-quote (cat (list (list 'unquote f))
-		(map! (lambda (a) (list quote (list 'unquote a))) (list args)))) e))
+	; (callback lambda env arg ...) -> (eval `(apply ,lambda '(,arg ...)) env)
+	(list eval (list quasi-quote (list apply (list 'unquote f) (cat (list quote)
+		(list (map! (lambda (a) (list 'unquote a)) (list args)))))) e))
 
 ;;;;;;;;;;;;;
 ; Debug stubs
