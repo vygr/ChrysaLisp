@@ -48,7 +48,7 @@
 
 (defun hit-line (buckets minx miny maxx maxy width id func line)
 	(defq miny (* (dec miny) width) maxy (* maxy width))
-	(while (and (<= (setq miny (+ miny width)) maxy)
+	(while (and (<= (++ miny width) maxy)
 				(not (defq hit (some!
 					(lambda (bucket)
 						(some (lambda (record)
@@ -61,13 +61,13 @@
 
 (defun add-line (buckets minx miny maxx maxy width record)
 	(defq miny (* (dec miny) width) maxy (* maxy width))
-	(while (<= (setq miny (+ miny width)) maxy)
+	(while (<= (++ miny width) maxy)
 		(each! (lambda (bucket) (push bucket record))
 			(list buckets) (+ miny minx) (+ miny maxx 1))))
 
 (defun sub-line (buckets minx miny maxx maxy width layer_line)
 	(defq miny (* (dec miny) width) maxy (* maxy width))
-	(while (<= (setq miny (+ miny width)) maxy)
+	(while (<= (++ miny width) maxy)
 		(each! (lambda (bucket)
 			(when (defq idx (some
 					(lambda (record)

@@ -84,7 +84,7 @@
 		(when (= (word-state word) -1)
 			(defq text (create-word word state))
 			(bind '(w _) (. text :pref_size))
-			(when (> (setq cnt (+ cnt w)) page_width)
+			(when (> (++ cnt w) page_width)
 				(setq flow (line-flow font_size))
 				(when indent_width
 					(def (defq indent_tab (Backdrop)) :min_width indent_width)

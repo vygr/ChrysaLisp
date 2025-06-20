@@ -88,14 +88,14 @@
 		(case type
 			(:lrb
 				(push stack token)
-				(push parens (setq label (+ label 2)))
+				(push parens (++ label 2))
 				(output :lrb label))
 			(:rrb
 				(unless (setq type (pop parens)) (throw "Regexp bad parens !" parens))
 				(output :rrb (inc type))
 				(until (eql "(" (setq token (pop stack)))
 					(output :op token)))
-			(:op ;precidence
+			(:op ;precedence
 				(defq p (find token +op_presidence) x :t)
 				(while (and x (/= 0 (length stack)))
 					(defq ps (find (last stack) +op_presidence))

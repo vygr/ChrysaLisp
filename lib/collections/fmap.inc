@@ -97,7 +97,7 @@
 		(raise :buckets (new_buckets (lists (* num_buckets 2))))
 		(lower :num_buckets (:buckets new_buckets))
 		(raise :num_buckets (i -2))
-		(while (< (setq i (+ i 2)) (length buckets))
+		(while (< (++ i 2) (length buckets))
 			(defq old_keys (elem-get buckets i) old_vals (elem-get buckets (inc i)))
 			(while (defq key (pop old_keys) val (pop old_vals))
 				(defq ni (* (% (hash key) num_buckets) 2))

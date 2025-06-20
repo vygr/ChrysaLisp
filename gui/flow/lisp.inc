@@ -34,9 +34,9 @@
 			(when (= 0 (logand (. child :get_flags) +view_flag_hiden))
 				(bind '(w h) (. child :pref_size))
 				(if (/= 0 (logand flow_flags (const (num-intern (logior +flow_flag_left +flow_flag_right)))))
-					(setq pw (+ pw w)))
+					(++ pw w))
 				(if (/= 0 (logand flow_flags (const (num-intern (logior +flow_flag_up +flow_flag_down)))))
-					(setq ph (+ ph h)))
+					(++ ph h))
 				(setq pw (max w pw) ph (max h ph)))) (. this :children))
 		(list (max pw mw) (max ph mh)))
 
@@ -59,9 +59,9 @@
 					(if (/= 0 (logand flow_flags +flow_flag_up))
 						(setq cy (- y ch) y cy))
 					(if (/= 0 (logand flow_flags +flow_flag_right))
-						(setq x (+ x cw)))
+						(++ x cw))
 					(if (/= 0 (logand flow_flags +flow_flag_down))
-						(setq y (+ y ch)))
+						(++ y ch))
 
 					;filling
 					(if (/= 0 (logand flow_flags +flow_flag_fillw))

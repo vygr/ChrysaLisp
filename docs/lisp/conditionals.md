@@ -58,7 +58,7 @@ like `(when ...)` but it'll loop while the test clause is true.
 ```vdu
 (while (< b e)
 	(push l b)
-	(setq b (+ b s)))
+	(++ b s))
 ```
 
 ### until

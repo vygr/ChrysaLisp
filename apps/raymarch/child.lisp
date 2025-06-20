@@ -60,7 +60,7 @@
 			s (min s (/ (* k h) l)))
 		(if (or (<= s 0.1) (>= l max_l))
 			(setq i 0)
-			(setq l (+ l h))))
+			(++ l h)))
 	(max s 0.1))
 
 (defun lighting (surface_pos surface_norm cam_pos)

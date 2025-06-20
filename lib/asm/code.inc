@@ -204,7 +204,7 @@
 (defun def-enum-f (size)
 	(push syms (sym (cat name "_" field)))
 	(push values (num-intern base))
-	(setq base (+ base size)))
+	(++ base size))
 
 (defmacro def-enum (name base &rest lines)
 	; (def-enum name base [(enum field ...)] ...)

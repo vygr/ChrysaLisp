@@ -213,7 +213,7 @@
 		(defq x cx y cy)
 		(while (>= (setq len (dec len)) 0)
 			(cond
-				((and (<= 0 (setq x (+ x dx)) 7) (<= 0 (setq y (+ y dy)) 7))
+				((and (<= 0 (++ x dx) 7) (<= 0 (++ y dy) 7))
 					;still on the board
 					(unless (eql (defq piece (elem-get brd (+ (* y 8) x))) " ")
 						;not +empty square so yield piece
@@ -262,7 +262,7 @@
 				(if (= y 6) (setq len 2))))
 		(while (>= (setq len (dec len)) 0)
 			(cond
-				((and (<= 0 (setq x (+ x dx)) 7) (<= 0 (setq y (+ y dy)) 7))
+				((and (<= 0 (++ x dx) 7) (<= 0 (++ y dy) 7))
 					(defq newindex (+ (* y 8) x) newpiece (elem-get brd newindex)
 						newtype (piece-map piece_type_map newpiece))
 					(cond
@@ -270,7 +270,7 @@
 							;hit one of our own piece type (+black hit +black etc)
 							(setq len 0))
 						((and (= flag +no_capture) (/= newtype +empty))
-							;not suposed to capture and not +empty square
+							;not supposed to capture and not +empty square
 							(setq len 0))
 						((and (= flag +must_capture) (= newtype +empty))
 							;must capture and got +empty square

@@ -19,7 +19,7 @@
 (defun do_lastop ()
 	(cond
 		((eql lastop "+")
-			(setq accum (+ accum num)))
+			(++ accum num))
 		((eql lastop "-")
 			(setq accum (- accum num)))
 		((eql lastop "*")

@@ -115,7 +115,7 @@
 				;timer event
 				(mail-timeout (elem-get select +select_timer) +rate 0)
 				(redraw)
-				(setq angle (+ angle 0.0025)))))
+				(++ angle 0.0025))))
 	;close window
 	(free-select select)
 	(gui-sub-rpc *window*))

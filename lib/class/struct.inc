@@ -9,7 +9,7 @@
 	(setq base (align base alignment))
 	(push syms (sym (cat name "_" field)) (sym (cat name "_" field "_t")))
 	(push values (num-intern base) type)
-	(setq base (+ base size)))
+	(++ base size))
 
 (defun _structure (base line)
 	(case (first line)
@@ -110,7 +110,7 @@
 (defun new_enum (size)
 	(push syms (sym (cat name "_" field)))
 	(push values (num-intern base))
-	(setq base (+ base size)))
+	(++ base size))
 
 (defmacro enums (name base &rest lines)
 	; (enums name base [(enum field ...)] ...)
