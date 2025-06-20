@@ -160,7 +160,7 @@ cached circle generation, quantised to 1/4 pixel
 ### debug-brk
 
 ```code
-(debug-brk name condtion)
+(debug-brk name condition)
 ```
 
 ### each-mergeable

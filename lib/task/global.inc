@@ -24,18 +24,18 @@
 						(> (- now then) timeout)
 						(progn
 							(setq mutated :t)
-							(eval `(,destroy ',key ',val) e)
+							(callback destroy e key val)
 							(. this :insert key (create key now)))))
 				(:t ;not found
 					(setq mutated :t)
-					(eval `(,destroy ',key ',val) e)
+					(callback destroy e key val)
 					(. this :erase key)))) old_keys old_vals)
 		;test for new nodes
 		(each (lambda (key)
 			(unless (find key old_keys)
 				(setq mutated :t)
 				;must (cat key) to convert to pure string key !
-				(. this :insert (cat key) (eval `(,create ',key ',now) e)))) keys)
+				(. this :insert (cat key) (callback create e key now)))) keys)
 		(def this :size (length keys))
 		mutated)
 
@@ -43,7 +43,7 @@
 		; (. global :close)
 		;close tasks
 		(defq e (penv) destroy (get :destroy this))
-		(.-> this (:each (lambda (key val) (eval `(,destroy ',key ',val) e))) :empty)
+		(.-> this (:each (lambda (key val) (callback destroy e key val))) :empty)
 		(def this :size 0))
 
 	(defmethod :size ()

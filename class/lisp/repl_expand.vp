@@ -66,7 +66,7 @@
 				(breakif '(:r2 /= :r3))
 				(default)
 				(vp-label 'macro_expand)
-					;replace form with macro expantion
+					;replace form with macro expansion
 					(assign '((:rsp local_form) :r1) '(:r0 (:rsp local_macro)))
 					(d-call 'list :slice '(:r0 1 (:r0 array_length)) '(:r0 (:rsp local_args)))
 					(call 'obj :deref '(:r0))
@@ -90,7 +90,7 @@
 				(assign '((:r0 array_length) (:rsp local_start)) '(:r2 :r3))
 				(vp-sub-rr :r3 :r2)
 				(vpif '(:r2 >= 1000))
-					(debug-str '("Exessive macro recursion !"))
+					(debug-str '("Excessive macro recursion !"))
 					(break 'next_iter)
 				(endif))
 

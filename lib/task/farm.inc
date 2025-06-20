@@ -7,7 +7,7 @@
 
 (defun stop ()
 	;stop a child
-	(eval `(,destroy ',key ',val) e)
+	(callback destroy e key val)
 	(. this :erase key))
 
 (defun start ()
@@ -15,7 +15,7 @@
 	(defq key (def this :key (inc (get :key this))) val (env 1))
 	(. this :insert key val)
 	(def val :timestamp now)
-	(eval `(,create ',key ',val ',nodes) e))
+	(callback create e key val nodes))
 
 (defun restart ()
 	;restart a child
@@ -62,7 +62,7 @@
 		; (. farm :close)
 		;close tasks
 		(defq e (penv) destroy (get :destroy this))
-		(.-> this (:each (lambda (key val) (eval `(,destroy ',key ',val) e))) :empty))
+		(.-> this (:each (lambda (key val) (callback destroy e key val))) :empty))
 	)
 
 ;module

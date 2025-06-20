@@ -328,12 +328,17 @@
 	;static quasi-quoted
 	(push (list (const quasi-quote)) (prebind (macroexpand _))))
 
+(defmacro callback (f e &rest args)
+	; (callback lambda env arg ...) -> (eval `(,lambda ',arg ...) env)
+	(list 'eval (list quasi-quote (cat (list (list 'unquote f))
+		(map! (lambda (a) (list quote (list 'unquote a))) (list args)))) e))
+
 ;;;;;;;;;;;;;
 ; Debug stubs
 ;;;;;;;;;;;;;
 
-(defun debug-brk (name condtion))
-	; (debug-brk name condtion)
+(defun debug-brk (name condition))
+	; (debug-brk name condition)
 
 (defun profile-report (name &optional reset))
 	; (profile-report name [reset])
@@ -551,7 +556,7 @@
 	; (each-mergeable lambda seq) -> seq
 	(defq i -1)
 	(while (< (setq i (inc i)) (length s))
-		(eval `(,f ',(elem-get s i)) (penv))) s)
+		(callback f (penv) (elem-get s i))) s)
 
 (defmacro each (f &rest _)
 	; (each lambda seq ...)

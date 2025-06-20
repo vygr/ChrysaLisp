@@ -21,6 +21,9 @@ line index with `(!)`.
 New `(filter! lambda seq [out start end])` function than replaces
 `(filter-array)` with a simple macro `(filter lambda seq)`.
 
+New callback macro. `(callback lambda env arg ...) -> (eval `(,lambda ',arg ...)
+env)`.
+
 ------
 
 Audio SFX service from Martyn Blyss. Many thanks ! Boing demo updated with a

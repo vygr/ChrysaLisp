@@ -90,6 +90,12 @@
 (bits name base [(bit field ...)] ...)
 ```
 
+### callback
+
+```code
+(callback lambda env args) -> (eval `(,lambda ',arg0 ',arg1 ...) env)
+```
+
 ### case
 
 ```code
