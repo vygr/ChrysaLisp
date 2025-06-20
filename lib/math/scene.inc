@@ -159,15 +159,15 @@
 		(defq stack (list this (get :children this) 0))
 		(while (defq idx (pop stack) children (pop stack) this (pop stack))
 			(cond
-				((and (= idx 0) (eval `(,fi ,this ',children) (penv)))
+				((and (= idx 0) (callback fi (penv) this children))
 					;not stepping in
-					(eval `(,fo ,this ',children) (penv)))
+					(callback fo (penv) this children))
 				((< idx (length children))
 					;step into child node
 					(push stack this children (inc idx)
 						(defq this (elem-get children idx)) (get :children this) 0))
 				(:t ;step out
-					(eval `(,fo ,this ',children) (penv)))))
+					(callback fo (penv) this children))))
 		this)
 
 	(defmethod :find_nodes (name)

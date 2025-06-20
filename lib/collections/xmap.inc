@@ -64,7 +64,7 @@
 	(defmethod :each (fnc)
 		; (. xmap :each lambda) -> xmap
 		(defq e (penv))
-		(each (lambda ((kl vl)) (each (lambda (k v) (eval `(,fnc ',k ',v) e)) kl vl))
+		(each (lambda ((kl vl)) (each (lambda (k v) (callback fnc e k v)) kl vl))
 			(partition (get :buckets this) 2))
 		this)
 

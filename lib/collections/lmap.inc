@@ -59,7 +59,7 @@
 	(defmethod :each (fnc)
 		; (. lmap :each lambda) -> lmap
 		(defq e (penv))
-		(each (lambda (k v) (eval `(,fnc ',k ',v) e))
+		(each (lambda (k v) (callback fnc e k v))
 			(get :keys this) (get :vals this))
 		this)
 

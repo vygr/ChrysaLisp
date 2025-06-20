@@ -49,7 +49,7 @@
 	(defmethod :each (fnc)
 		; (. xset :each lambda) -> xset
 		(defq e (penv))
-		(each (# (each (lambda (k) (eval `(,fnc ',k) e)) %0)) (get :buckets this))
+		(each (# (each (lambda (k) (callback fnc e k)) %0)) (get :buckets this))
 		this)
 
 	(defmethod :copy ()
