@@ -77,7 +77,7 @@
 	(. +macro_map :insert slot (cat (. +macro_map :find 0)))
 	;check if recursive !!!
 	(defq stack (list slot) cnt 10000)
-	(while (and (> (setq cnt (dec cnt)) 0) (defq s (pop stack)))
+	(while (and (> (-- cnt) 0) (defq s (pop stack)))
 		(setq stack (cat stack (filter-array (const num?)
 			(map (const is-playback-func?) (. +macro_map :find s))))))
 	(when (= cnt 0)

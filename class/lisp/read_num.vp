@@ -32,11 +32,14 @@
 	(assign `(,char ,char) '((:rsp local_char) (:rsp local_sign)))
 
 	(vpif `(,char = +char_minus))
-		(call 'stream :read_char `((:rsp local_stream)) `(_ ,char))
+		(call 'stream :read_char `((:rsp local_stream)) `(,base ,char))
 		(breakif `(,char >= +char_0))
-		(assign `(,char) `((:rsp local_char)))
-		(call 'sym :intern_cstr '("-") `(,num))
-		(goto 'exit)
+		(assign `((,base stream_bufp)) `(,bufp))
+		(vp-sub-cr 1 bufp)
+		(assign `(,bufp) `((,base stream_bufp)))
+		(assign '((:rsp local_this)) `(,bufp))
+		(vp-free local_size)
+		(jump 'lisp :read_sym `(,bufp ,base +char_minus))
 	(endif)
 
 	(assign '((& :rsp local_buffer)) `(,bufp))

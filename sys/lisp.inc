@@ -26,8 +26,7 @@
 (defun alloc-select (size)
 	; (alloc-select size) -> ((task-netid) [temp_mbox] ...)
 	(defq select (list (task-netid)))
-	(while (> (setq size (dec size)) 0)
-		(push select (mail-alloc-mbox)))
+	(while (> (-- size) 0) (push select (mail-alloc-mbox)))
 	select)
 
 (defun free-select (select)

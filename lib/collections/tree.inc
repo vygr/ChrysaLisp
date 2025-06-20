@@ -119,7 +119,7 @@
 							(:t (write-line stream (str p (tree-encode k))))))))
 			(:t ;outdent
 				(write-line stream (cat (rest p) ")"))
-				(setq wc (dec wc)))))
+				(-- wc))))
 	root)
 
 (defun tree-load (stream)

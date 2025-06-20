@@ -618,7 +618,7 @@
 								(:t (. hoisted_nets :insert net)))
 							(while (> index pos)
 								(. (elem-get netlist index) :remove)
-								(setq index (dec index)))))))
+								(-- index))))))
 			(when (>= (. this :get_verbosity) 1)
 				(mail-send prog_mbox
 					(setf-> (str-alloc +progress_size)

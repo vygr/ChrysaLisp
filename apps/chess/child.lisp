@@ -211,7 +211,7 @@
 	(defq yield "" cx (logand index 7) cy (>> index 3))
 	(each! (lambda ((dx dy len))
 		(defq x cx y cy)
-		(while (>= (setq len (dec len)) 0)
+		(while (>= (-- len) 0)
 			(cond
 				((and (<= 0 (++ x dx) 7) (<= 0 (++ y dy) 7))
 					;still on the board
@@ -260,7 +260,7 @@
 			(if (eql piece "P")
 				(if (= y 1) (setq len 2))
 				(if (= y 6) (setq len 2))))
-		(while (>= (setq len (dec len)) 0)
+		(while (>= (-- len) 0)
 			(cond
 				((and (<= 0 (++ x dx) 7) (<= 0 (++ y dy) 7))
 					(defq newindex (+ (* y 8) x) newpiece (elem-get brd newindex)

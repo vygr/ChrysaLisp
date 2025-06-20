@@ -24,7 +24,7 @@ New `(filter! lambda seq [out start end])` function than replaces
 New callback macro. `(callback lambda env arg ...) -> (eval `(apply ,lambda
 '(,arg ...)) env)`.
 
-New `(++)` macro.
+New `(++ s [i])` and `(-- s [i])` macros.
 
 ------
 

@@ -29,7 +29,7 @@
 		(. old_frame :sub)
 		(.-> view (:add_back sframe) (:add_front frame)
 			(:change_dirty x y (+ 8 sw) (+ 32 sh)))
-		(setq id (/= 0 (setq i (dec i))))
+		(setq id (/= 0 (-- i)))
 		(while (mail-poll (list (task-netid)))
 			(setq id (getf (defq msg (mail-read (task-netid))) +ev_msg_target_id))
 			(if (or (= id 0)

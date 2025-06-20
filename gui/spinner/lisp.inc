@@ -33,10 +33,8 @@
 		(raise :value :value_label
 			(src_id (getf event +ev_msg_action_source_id)))
 		(cond
-			((= src_id (get :up_id this))
-				(++ value))
-			((= src_id (get :down_id this))
-				(setq value (dec value))))
+			((= src_id (get :up_id this)) (++ value))
+			((= src_id (get :down_id this)) (-- value)))
 		(setq value (max (min (get :maximum this) value) (get :minimum this)))
 		(lower :value)
 		(set value_label :text (str value))

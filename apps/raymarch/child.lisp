@@ -54,7 +54,7 @@
 
 (defun shadow (ray_origin ray_dir l max_l k)
 	(defq s 1.0 i 1000)
-	(while (> (setq i (dec i)) 0)
+	(while (> (-- i) 0)
 		(defq h (scene (vec-add ray_origin
 			(vec-scale ray_dir l +fixeds_tmp3) +fixeds_tmp3))
 			s (min s (/ (* k h) l)))
@@ -90,7 +90,7 @@
 				color (lighting surface_pos surface_norm ray_origin)
 				i +ref_depth r +ref_coef)
 			;reflections
-			(while (and (>= (setq i (dec i)) 0)
+			(while (and (>= (-- i) 0)
 						(< (defq ray_origin surface_pos ray_dir (vec-reflect ray_dir surface_norm)
 								l (ray-march ray_origin ray_dir (* +min_distance 10.0) +clipfar +min_distance +march_factor))
 							+clipfar))

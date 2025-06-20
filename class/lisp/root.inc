@@ -472,6 +472,10 @@
 	; (++ num [num]) -> num
 	`(setq ,_ (+ ,_ ,(ifn i 1))))
 
+(defmacro -- (_ &optional i)
+	; (-- num [num]) -> num
+	`(setq ,_ (- ,_ ,(ifn i 1))))
+
 (defmacro not (_)
 	; (not form) -> :t | :nil
 	`(if ,_ :nil :t))
@@ -554,7 +558,7 @@
 	(defq s (ifn s 1 (abs s)) l (cap (/ (abs (- b e)) s) (list)))
 	(if (<= b e)
 		(while (< b e) (push l b) (++ b s))
-		(while (> b e) (push l b) (setq b (- b s)))) l)
+		(while (> b e) (push l b) (-- b s))) l)
 
 (defun each-mergeable (f s)
 	; (each-mergeable lambda seq) -> seq
@@ -643,7 +647,7 @@
 (defun lists (n)
 	; (lists n) -> ((list0) ... (listn-1))
 	(defq out (cap n (list)))
-	(while (>= (setq n (dec n)) 0) (push out (list)))
+	(while (>= (-- n) 0) (push out (list)))
 	out)
 
 (defun starts-with (p _)
@@ -1099,7 +1103,7 @@
 (defun read-data (s bytes)
 	; (read-data stream bytes) -> str
 	(defq data (cap bytes (list)))
-	(while (and (>= (setq bytes (dec bytes)) 0) (defq _ (read-char s)))
+	(while (and (>= (-- bytes) 0) (defq _ (read-char s)))
 		(push data (char _)))
 	(apply (const cat) data))
 

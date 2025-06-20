@@ -21,7 +21,7 @@
 		((eql lastop "+")
 			(++ accum num))
 		((eql lastop "-")
-			(setq accum (- accum num)))
+			(-- accum num))
 		((eql lastop "*")
 			(setq accum (* accum num)))
 		((eql lastop "/")

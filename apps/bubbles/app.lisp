@@ -37,7 +37,7 @@
 (defun vertex-cloud (num)
 	;array of random verts
 	(defq out (cap num (list)))
-	(while (> (setq num (dec num)) -1)
+	(while (> (-- num) -1)
 		(push out (list
 			(vec-i2n (- (random (const (* box_size 2))) box_size)
 				(- (random (const (* box_size 2))) box_size)

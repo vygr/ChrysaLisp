@@ -17,7 +17,7 @@
 
 (defun mandel (key mbox x y x1 y1 w h cx cy z)
 	(write-int (defq reply (string-stream (cat ""))) (list x y x1 y1))
-	(setq y (dec y))
+	(-- y)
 	(while (/= (++ y) y1)
 		(defq xp (dec x))
 		(while (/= (++ xp) x1)
