@@ -349,7 +349,7 @@
 (errorcase
 	;test stack space canary
 	(assign {&tcb->tk_node_size} {stack})
-	(assign {stack + 1024} {stack_end})
+	(assign {stack + 512} {stack_end})
 	(loop-while {stack /= stack_end})
 		(vpif {*stack /= 0})
 			(abort "Stack overrun !")

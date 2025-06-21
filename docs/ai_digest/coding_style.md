@@ -428,7 +428,7 @@ The preference for iteration stems from two core architectural principles:
 *   **Cooperative Tasks and Small Stacks:** ChrysaLisp is built for massive
     concurrency, where tens of thousands of tasks can run on a single core. To
     make this possible, each task is given a small, fixed-size machine stack
-    (typically 8KB). This makes tasks extremely memory-efficient, but it also
+    (typically 4KB). This makes tasks extremely memory-efficient, but it also
     makes deep recursion on the machine stack physically impossible—it would
     quickly lead to a stack overflow.
 
