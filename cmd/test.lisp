@@ -10,19 +10,21 @@
 	Simple timing test framework.")
 ))
 
-(defun f0 (lst)
-	(defq out (list) stack (list lst 0))
-	(while (defq idx (pop stack) lst (pop stack))
-		(some! (# (cond
-			((list? %0) (push stack lst (inc (!)) %0 0))
-			(:t (push out %0) :nil))) (list lst) :nil idx)) out)
+(defmacro cback (f e &rest args)
+	; (callback lambda env arg ...) -> (#eval `(#apply ,lambda '(,arg ...)) env)
+	(list eval (list quasi-quote (list apply (list 'unquote f) (cat (list quote)
+		(list (map! (lambda (a) (list 'unquote a)) (list args)))))) e))
 
-(defun f1 (lst)
-	(defq out (list) stack (list lst 0))
-	(while (defq idx (pop stack) lst (pop stack))
-		(some! (# (cond
-			((list? %0) (push stack lst (inc (!)) %0 0) :nil)
-			((push out %0)))) (list lst) :t idx)) out)
+(defmacro cback1 (f e &rest args)
+	; (callback lambda env arg ...) -> (#eval `(#apply ,lambda ',(#list ~args)) env)
+	(list eval (list quasi-quote (list apply (list 'unquote f)
+		(list quote (list 'unquote (cat (list list) args))))) e))
+
+(defun f0 (x y z a b c)
+	(cback identity (penv) x y z a b c x y z a b c))
+
+(defun f1 (x y z a b c)
+	(cback1 identity (penv) x y z a b c x y z a b c))
 
 (defmacro time-it (name cnt &rest _)
 	`(progn
@@ -38,13 +40,13 @@
 	(when (and
 			(defq stdio (create-stdio))
 			(defq args (options stdio usage)))
-		(defq s '(1 2 3 (4 5) ((6 7) (8 9)) 10 11 12) c 1000000)
-		(time-it "f0" c (f0 s))
-		(time-it "f1" c (f1 s))
-		(time-it "f0" c (f0 s))
-		(time-it "f1" c (f1 s))
-		(time-it "f0" c (f0 s))
-		(time-it "f1" c (f1 s))
-		(time-it "f0" c (f0 s))
-		(time-it "f1" c (f1 s))
+		(defq c 10000000)
+		(time-it "f0" c (f0 1 2 3 "a" "b" "c"))
+		(time-it "f1" c (f1 1 2 3 "a" "b" "c"))
+		(time-it "f0" c (f0 1 2 3 "a" "b" "c"))
+		(time-it "f1" c (f1 1 2 3 "a" "b" "c"))
+		(time-it "f0" c (f0 1 2 3 "a" "b" "c"))
+		(time-it "f1" c (f1 1 2 3 "a" "b" "c"))
+		(time-it "f0" c (f0 1 2 3 "a" "b" "c"))
+		(time-it "f1" c (f1 1 2 3 "a" "b" "c"))
 		))
