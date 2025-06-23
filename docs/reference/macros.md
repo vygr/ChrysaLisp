@@ -105,7 +105,7 @@
 ### callback
 
 ```code
-(callback lambda env arg ...) -> (eval `(apply ,lambda '(,arg ...)) env)
+(callback lambda env arg ...) -> (#eval `(#apply ,lambda '(,arg ...)) env)
 ```
 
 ### case
