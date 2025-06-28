@@ -108,8 +108,8 @@ cases, leading to cleaner, faster, and more memory-efficient code.
     backwards.
 
     ```vdu
-    ;; Process the last 5 elements of two lists in reverse order (each! (lambda
-    (a b) (print a b)) (list list-a list-b) -1 -6)
+    ;; Process the last 5 elements of two lists in reverse order
+    (each! (lambda (a b) (print a b)) (list list-a list-b) -1 -6)
     ```
 
 ### `map!`
