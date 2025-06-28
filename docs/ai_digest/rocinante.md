@@ -123,11 +123,11 @@ cases, leading to cleaner, faster, and more memory-efficient code.
     results across multiple steps without allocating intermediate lists.
 
     * **Traditional:** `(defq result2 (mapcar #'foo (mapcar #'bar list1)))` ->
-        Creates an intermediate list.
+      Creates an intermediate list.
 
     * **ChrysaLisp:** `(map! #'foo (map! #'bar (list) list1))` -> Creates one
-        list. The second `map!` appends its results directly to the list created
-        by the first.
+      list. The second `map!` appends its results directly to the list created
+      by the first.
 
 ### `filter!`
 
@@ -169,8 +169,7 @@ cases, leading to cleaner, faster, and more memory-efficient code.
     ```vdu
     ;; Dot product of two 'nums' arrays
     (reduce! (lambda (acc v1 v2) (+ acc (* v1 v2)))
-             (list vector-a vector-b)
-             0)
+        (list vector-a vector-b) 0)
     ```
 
 ### `some!`: The Universal Iterator
@@ -203,25 +202,21 @@ a deep GUI tree.
 
     ```vdu
     (defun find-widget-recursive (widget name)
-      (if (eql (. widget :get_name) name)
-          widget
-          (some! (lambda (child) (find-widget-recursive child name)) (. widget :children))))
+        (if (eql (. widget :get_name) name)
+            widget
+            (some! (lambda (child) (find-widget-recursive child name)) (. widget :children))))
     ```
 
 *   **The Rocinante Way (fast, constant stack):**
 
     ```vdu
-    (defun find-widget-iterative (root-widget name)
-      ;; The work-stack lives on the heap, not the machine stack.
-      (defq work-stack (list root-widget))
-      (some! (lambda (widget)
-               (if (eql (. widget :get_name) name)
-                   widget  ;; This is not :nil, so some! breaks and returns widget.
-                   (progn
-                     ;; Add children to the work stack for processing.
-                     (each! (lambda (child) (push work-stack child)) (. widget :children))
-                     :nil))) ;; This is :nil, so some! continues.
-             work-stack))
+    (defun flatten (lst)
+        ; (flatten list) -> list
+        (defq out (list) stack (list lst 0))
+        (while (defq idx (pop stack) lst (pop stack))
+            (some! (# (cond
+                ((list? %0) (push stack lst (inc (!)) %0 0) :nil)
+                ((push out %0)))) (list lst) :t idx)) out)
     ```
 
 This pattern is fundamental to ChrysaLisp. It is fast, memory-efficient, and
