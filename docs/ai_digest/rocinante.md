@@ -65,8 +65,8 @@ primitives are **multi-sequence by default**. The fundamental unit of operation
 is not a single element, but a "slice" of elements at a given index `i` across
 all provided sequences.
 
-Consider `map!`. Its signature is `(map! lambda out-list (list seq1 seq2 ...))`.
-The lambda's arguments are populated directly with `(elem-get seq1 i)`,
+Consider `map!`. Its signature is `(map! lambda seqs [out start end])`. The
+lambda's arguments are populated directly with `(elem-get seq1 i)`,
 `(elem-get seq2 i)`, and so on.
 
 **Example: Processing Heterogeneous Sequences**
@@ -97,7 +97,7 @@ cases, leading to cleaner, faster, and more memory-efficient code.
     efficient way to "do something" for each slice of elements when no result
     needs to be collected.
 
-*   **Signature:** `(each! lambda (list seq1 seq2 ...) [start] [end])`
+*   **Signature:** `(each! lambda seqs [start end])`
 
 *   **Behavior:** Calls the lambda for each parallel slice of elements from the
     sequences. The return value of the lambda is discarded.
@@ -116,10 +116,10 @@ cases, leading to cleaner, faster, and more memory-efficient code.
 
 *   **Purpose:** The workhorse for data transformation.
 
-*   **Signature:** `(map! lambda out-list (list seq1 seq2 ...) [start] [end])`
+*   **Signature:** `(map! lambda seqs [out start end])`
 
 *   **The Collector Pattern:** This is the canonical example of the collector
-    pattern. By passing an existing list as `out-list`, you can build complex
+    pattern. By passing an existing list as `out`, you can build complex
     results across multiple steps without allocating intermediate lists.
 
     * **Traditional:** `(defq result2 (mapcar #'foo (mapcar #'bar list1)))` ->
@@ -134,7 +134,7 @@ cases, leading to cleaner, faster, and more memory-efficient code.
 *   **Purpose:** The selective collector. It is the one primitive that operates
     on a **single sequence**.
 
-*   **Signature:** `(filter! lambda out-list seq [start] [end])`
+*   **Signature:** `(filter! lambda seq [out start end])`
 
 *   **Composable Collecting:** It participates beautifully in the collector
     pattern.
@@ -159,8 +159,7 @@ cases, leading to cleaner, faster, and more memory-efficient code.
 *   **Purpose:** The accumulator. It reduces multiple sequences down to a single
     value.
 
-*   **Signature:**
-    `(reduce! lambda (list seq1 seq2 ...) initial-value [start] [end])`
+*   **Signature:** `(reduce! lambda seqs init [start end])`
 
 *   **Multi-Sequence Lambda:** Its lambda signature is
     `(lambda (accumulator elem1 elem2 ...))`. This allows for powerful folding
@@ -179,7 +178,7 @@ cases, leading to cleaner, faster, and more memory-efficient code.
 This is the most versatile primitive, unifying searching, predicate logic, and
 breakable loops.
 
-*   **Signature:** `(some! lambda (list seqs...) [mode start end])`
+*   **Signature:** `(some! lambda seqs [mode start end])`
 
 *   **The "Continue-If-Eql" `mode`:** `some!` continues iterating as long as the
     lambda's result is `eql` to `mode` (which defaults to `:nil`). The moment a
