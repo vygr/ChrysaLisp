@@ -65,7 +65,7 @@
 	(opt-emit-list *emit_list* *emit_start* *emit_end*)
 	(defq *emit_code* (emit-vp-code *emit_list*))
 	(when (or *debug_emit* (eql *cpu* 'vp64))
-		(defq *out* (cat "(" (apply (const cat) (join (map (const str) *emit_code*) (const `'(,(char 10))))) ")"))
+		(defq *out* (cat "(" (join (map (const str) *emit_code*) (ascii-char 10)) ")"))
 		(if (eql *cpu* 'vp64) (save *out* (cat "obj/vp/" (str *func_name*))))
 		(if *debug_emit* (print *out*)))
 	(defq *out* (emit-translate *emit_code*))

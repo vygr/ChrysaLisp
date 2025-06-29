@@ -6,7 +6,7 @@
 	(defq lines '())
 	(cond
 		((match? line "^\s*```")
-			(defq ss (string-stream (apply cat (join lines (list (ascii-char 10)))))
+			(defq ss (string-stream (join lines (ascii-char 10)))
 				result (eval
 					(static-qq (progn
 						(env-push)

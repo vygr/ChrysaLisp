@@ -21,7 +21,7 @@
 	(when (and
 			(defq stdio (create-stdio))
 			(defq opt_c 10 args (options stdio usage)))
-		(defq pipe (apply cat (join (rest args) '(" "))))
+		(defq pipe (join (rest args) " "))
 		(times opt_c
 			(pipe-run pipe prin)
 			(stream-flush (io-stream 'stdout)))))

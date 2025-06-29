@@ -111,7 +111,7 @@ in the right direction. To see it run, just copy this into a file called
 21:         (prin "Hello World")
 22:         ; Test for greeting
 23:         (if (> (length args) 0)
-24:             (print ": " (apply cat (join args '(" ")))
+24:             (print ": " (join args " "))
 25:             (print "!"))))
 ```
 

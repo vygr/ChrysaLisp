@@ -13,4 +13,4 @@
 	(when (and
 			(defq stdio (create-stdio))
 			(defq args (options stdio usage)))
-		(print (apply cat (join (rest args) '(" "))))))
+		(print (join (rest args) " "))))

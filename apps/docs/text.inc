@@ -113,7 +113,7 @@
 						(when (nempty? match)
 							(bind '(((_ cx2) (sx1 sx2) &ignore)) match)
 							(setq style (slice line sx1 sx2) line (slice line cx2 -1)))
-						(setq line (apply (const cat) (join (elem-set lines 0 line) '(" "))))
+						(setq line (join (elem-set lines 0 line) " "))
 						(when (nempty? (defq words (parse-line line)))
 							(paragraph words indent style))
 						(clear lines)))

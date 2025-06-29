@@ -45,7 +45,7 @@
 	(if (or wc_flag default_all_flag) (push output_parts (str word_count)))
 	(if (or lc_flag default_all_flag) (push output_parts (str line_count)))
 	(if (or pc_flag default_all_flag) (push output_parts (str paragraph_count)))
-	(print (apply (const cat) (join output_parts '(", ")))))
+	(print (join output_parts ", ")))
 
 (defun main ()
 	;initialize flags for options

@@ -677,11 +677,9 @@
 (defun join (seqs seq &optional mode)
 	; (join seqs seq [mode]) -> seq
 	(setd mode 0)
-	(defq seq (partition seq) seqs (partition seqs)
-		out (if (= (logand mode 1) 0) (list) (cat seq))
-		out (reduce (lambda (x y) (push x y) (each (lambda (y) (push x y)) seq) x)
-			seqs (cap (+ (length seqs) (* (length seqs) (length seq)) mode) out)))
-	(if (= (logand mode 2) 0) (each (lambda (x) (pop out)) seq))
+	(defq out (reduce (# (push %0 %1 seq)) seqs
+		(if (= (logand mode 1) 0) (list) (list seq))))
+	(if (= (logand mode 2) 0) (pop out))
 	(apply (const cat) out))
 
 (defun unzip (seq cnt)

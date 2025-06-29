@@ -177,12 +177,12 @@
 			(cond
 				((> (setq cnt (+ cnt (length word) 1)) line_width)
 					(task-slice)
-					(push lines (apply cat (join line '(" "))))
+					(push lines (join line " "))
 					(push (clear line) word)
 					(setq cnt (+ (length word) 1)))
 				(:t (push line word)))) words)
 		(if (> (length line) 0)
-			(push lines (apply cat (join line '(" ")))) lines))
+			(push lines (join line " ")) lines))
 	)
 
 ;module
