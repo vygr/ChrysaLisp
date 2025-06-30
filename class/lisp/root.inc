@@ -678,7 +678,7 @@
 	; (join seqs seq [mode]) -> seq
 	(setd mode 0)
 	(defq out (reduce (# (push %0 %1 seq)) seqs
-		(if (= (logand mode 1) 0) (list) (list seq))))
+		(cap (inc (* 2 (length seqs))) (if (= (logand mode 1) 0) (list) (list seq)))))
 	(if (= (logand mode 2) 0) (pop out))
 	(apply (const cat) out))
 
