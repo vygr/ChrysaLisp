@@ -37,9 +37,9 @@
 		;bounds
 		(cond
 			((= k -1)
-				(setq j (some! (# (unless (starts-with prefix %0) (inc (!))))
+				(setq j (some! (# (if (starts-with prefix %0) :nil (inc (!))))
 					(list word_list) :nil i 0))
-				(setq k (some! (# (unless (starts-with prefix %0) (!)))
+				(setq k (some! (# (if (starts-with prefix %0) :nil (!)))
 					(list word_list) :nil i -1))
 				(unless j (setq j 0))
 				(unless k (setq k (length word_list)))
