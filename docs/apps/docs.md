@@ -252,7 +252,7 @@ must define and export a function named `handler`.
 
     * It sets `:tip_mbox` and `:owner` properties on the embedded widget to
       integrate it with the Docs app's event system (allowing tooltips and
-      routing events to the special `+select_embeded` mailbox if the widget
+      routing events to the special `+select_embedded` mailbox if the widget
       needs to communicate).
 
     * The live widget instance is added to the `page`.

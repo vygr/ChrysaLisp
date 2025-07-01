@@ -23,7 +23,7 @@
 					(def (defq text (Text)) :text "")
 					(.-> page
 						(:add_child (. flow :add_child
-							(. result :set_owner (elem-get select +select_embeded))))
+							(. result :set_owner (elem-get select +select_embedded))))
 						(:add_child text)))
 				(:t ((handler-func :vdu) :vdu page (str result))
 					((handler-func :vdu) :vdu page "```")))

@@ -7,7 +7,7 @@
 (import "./widgets.inc")
 
 (enums +select 0
-	(enum main tip embeded))
+	(enum main tip embedded))
 
 (defq +margin_width (* 8 3)
 	+doc_font (first (font-info *env_window_font*))
@@ -102,8 +102,8 @@
 				;tip event
 				(if (defq view (. *window* :find_id (getf *msg* +mail_timeout_id)))
 					(. view :show_tip)))
-			((= idx +select_embeded)
-				;embeded event, only process internal events, not actions
+			((= idx +select_embedded)
+				;embedded event, only process internal events, not actions
 				;and don't allow window events
 				(and (neg? (defq id (getf *msg* +ev_msg_target_id)))
 					(not (Window? (defq view (. *window* :find_id id))))
