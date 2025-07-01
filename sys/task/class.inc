@@ -33,6 +33,7 @@
 ;;;;;;;;;;;;;;;;;
 
 (defcvar 'tk_stack_size (* 1024 4))
+(defcvar 'tk_stack_margin (* 512 1))
 
 (def-struct tk_node ln_node_size
 	(ptr stack stack_top mbox_addr lisp tls)
@@ -41,7 +42,7 @@
 
 ;number of distinct priorities
 ;currently experimenting with
-;0 Kernel process and interupts
+;0 Kernel process and interrupts
 ;1 Link Drivers and Postman process
 ;2 GUI process
 ;3 Applications
