@@ -257,7 +257,7 @@ available via `gui/lisp.inc`.
       y`.
 
     * `(:set_flags value mask)`, `(:get_flags)`: Manage view flags like
-      `+view_flag_hiden`, `+view_flag_opaque`.
+      `+view_flag_hidden`, `+view_flag_opaque`.
 
     * `(:ctx_set_color col)`, `(:ctx_box x y w h)`, `(:ctx_filled_box x y w h)`,
       `(:ctx_blit tid col x y w h)`: Direct drawing context operations.

@@ -51,4 +51,4 @@
 
 ;view flags
 (def-bit view_flag 0
-	(bit solid opaque dirty_all hiden at_back at_front))
+	(bit solid opaque dirty_all hidden at_back at_front))

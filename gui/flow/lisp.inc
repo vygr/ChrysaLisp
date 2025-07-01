@@ -31,7 +31,7 @@
 			mw (def? :min_width this) mh (def? :min_height this))
 		(setd mw 0 mh 0)
 		(each (lambda (child)
-			(when (= 0 (logand (. child :get_flags) +view_flag_hiden))
+			(when (= 0 (logand (. child :get_flags) +view_flag_hidden))
 				(bind '(w h) (. child :pref_size))
 				(if (/= 0 (logand flow_flags (const (num-intern (logior +flow_flag_left +flow_flag_right)))))
 					(++ pw w))
@@ -48,8 +48,8 @@
 			y (if (/= 0 (logand flow_flags +flow_flag_up)) fh 0)))
 		(each (lambda (child)
 			(cond
-				((/= 0 (logand (. child :get_flags) +view_flag_hiden))
-					;hiden
+				((/= 0 (logand (. child :get_flags) +view_flag_hidden))
+					;hidden
 					(. child :change 0 0 0 0))
 				(:t ;showing
 					(bind '(cw ch) (. child :pref_size))

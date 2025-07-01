@@ -82,7 +82,7 @@
 			(each (# (cond
 				((and (Node? %0) (find (get :text %0) "^>"))
 					(defq flow (last (. (penv (penv %0)) :children)))
-					(. flow :set_flags +view_flag_hiden +view_flag_hiden)
+					(. flow :set_flags +view_flag_hidden +view_flag_hidden)
 					(def %0 :text ">"))
 				((push stack %0)))) (. node :children)))
 		(bind '(x y) (. this :get_pos))
@@ -96,7 +96,7 @@
 			(each (# (cond
 				((and (Node? %0) (find (get :text %0) "^>"))
 					(defq flow (last (. (penv (penv %0)) :children)))
-					(. flow :set_flags 0 +view_flag_hiden)
+					(. flow :set_flags 0 +view_flag_hidden)
 					(def %0 :text "^"))
 				((push stack %0)))) (. node :children)))
 		(bind '(x y) (. this :get_pos))
@@ -144,9 +144,9 @@
 		; (. tree :action event) -> tree
 		(when (defq toggle (. this :find_id (getf event +ev_msg_action_source_id)))
 			(defq node (last (. (penv (penv toggle)) :children))
-				hiden (logxor (logand (. node :get_flags) +view_flag_hiden) +view_flag_hiden))
-			(. node :set_flags hiden +view_flag_hiden)
-			(def toggle :text (if (= hiden +view_flag_hiden) ">" "^"))
+				hidden (logxor (logand (. node :get_flags) +view_flag_hidden) +view_flag_hidden))
+			(. node :set_flags hidden +view_flag_hidden)
+			(def toggle :text (if (= hidden +view_flag_hidden) ">" "^"))
 			(bind '(x y) (. this :get_pos))
 			(bind '(w h) (. this :pref_size))
 			(.-> this (:change_dirty x y w h) :emit))
