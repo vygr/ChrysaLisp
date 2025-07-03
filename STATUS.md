@@ -4,7 +4,7 @@
 
 ------
 
-New non recursive constraints system for GUI layouts. Sugbificant reduction in
+New non recursive constraints system for GUI layouts. Significant reduction in
 stack usage.
 
 New `+view_flag_subtree` view flag. This limits the `view :flatten` method to
