@@ -162,7 +162,7 @@ cases, leading to cleaner, faster, and more memory-efficient code.
 *   **Signature:** `(reduce! lambda seqs init [start end])`
 
 *   **Multi-Sequence Lambda:** Its lambda signature is
-    `(lambda (accumulator elem1 elem2 ...))`. This allows for powerful folding
+    `(lambda (accumulator elem0 elem1 ...))`. This allows for powerful folding
     operations across parallel data streams, such as calculating the dot product
     of two vectors in a single pass.
 
