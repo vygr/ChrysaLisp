@@ -62,20 +62,20 @@ direct reflection of the system's core tenets.
 
 The single most important concept to internalize is that the Rocinante
 primitives are **multi-sequence by default**. The fundamental unit of operation
-is not a single element, but a "slice" of elements at a given index `i` across
+is not a single element, but a "slice" of elements at a given index `(!)` across
 all provided sequences.
 
 Consider `map!`. Its signature is `(map! lambda seqs [out start end])`. The
-lambda's arguments are populated directly with `(elem-get seq1 i)`,
-`(elem-get seq2 i)`, and so on.
+lambda's arguments are populated directly with `(elem-get seq0 (!))`,
+`(elem-get seq1 (!))`, and so on.
 
 **Example: Processing Heterogeneous Sequences**
 
 ```vdu
-(defq names     "ABC")                         ;; a 'str' sequence
+(defq names    "ABC")                        ;; a 'str' sequence
 (defq weights  (nums 10 20 30))              ;; a 'nums' sequence
 (defq colors   (list :red :green :blue))     ;; a 'list' sequence
-(defq results  (list))                        ;; the collector list
+(defq results  (list))                       ;; the collector list
 
 (map! (lambda (name weight color) (list name weight color))
       results
@@ -226,7 +226,7 @@ completely safe from stack overflows, no matter how deep the data structure is.
 
 The `!` is not a variable, nor a standard function. It is a **special form**
 that provides a zero-overhead bridge to the iteration engine. When the
-interpreter sees `!`, it directly reads the `lisp_seq_idx` from the current
+interpreter calls `!`, it directly reads the `lisp_seq_idx` from the current
 task's state—the index being managed by the currently active Rocinante
 primitive—and wraps it in a `num` object. This makes the loop index "ambiently"
 available inside a lambda without cluttering the signature or incurring function
