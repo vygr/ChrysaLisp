@@ -12,6 +12,12 @@
 (. label :add_child child) -> label
 ```
 
+### :constraint
+
+```code
+(. label :constraint) -> (width height)
+```
+
 ### :draw
 
 ```code
@@ -22,11 +28,5 @@
 
 ```code
 (. label :layout) -> label
-```
-
-### :pref_size
-
-```code
-(. label :pref_size) -> (width height)
 ```
 

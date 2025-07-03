@@ -410,7 +410,7 @@
 		(endif)
 	(endif)
 
-	;return value will be 0 or not depending on haveing any dirty region
+	;return value will be 0 or not depending on having any dirty region
 	;we will not traverse into child views if no reason
 	(exit 'view :forward_tree_callback `((:rsp dist_this) ,view1))
 	(vp-free dist_size)

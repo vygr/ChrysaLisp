@@ -18,6 +18,12 @@
 (. scroll :add_child child) -> scroll
 ```
 
+### :constraint
+
+```code
+(. scroll :constraint) -> (width height)
+```
+
 ### :layout
 
 ```code
@@ -30,15 +36,9 @@
 (. scroll :mouse_wheel event) -> scroll
 ```
 
-### :pref_size
-
-```code
-(. scroll :pref_size) -> (width height)
-```
-
 ### :visible
 
 ```code
-(. scroll :visible decendant) -> scroll
+(. scroll :visible descendant) -> scroll
 ```
 

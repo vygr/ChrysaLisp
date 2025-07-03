@@ -3,7 +3,7 @@
 ```code
 (View) -> view
 
-overide the default 'this' env with a View component
+override the default 'this' env with a View component
 ```
 
 ### :add_back
@@ -66,6 +66,24 @@ overide the default 'this' env with a View component
 (. view :connect id) -> view
 ```
 
+### :constrain
+
+```code
+(. view :constrain [flag]) -> view
+```
+
+### :constraint
+
+```code
+(. view :constraint) -> (width height)
+```
+
+### :constraints
+
+```code
+(. view :constraints) -> view
+```
+
 ### :ctx_blit
 
 ```code
@@ -126,10 +144,22 @@ overide the default 'this' env with a View component
 (. view :find_owner) -> :nil | netid
 ```
 
+### :flatten
+
+```code
+(. view :flatten) -> (child0 child1 ...)
+```
+
 ### :get_bounds
 
 ```code
 (. view :get_bounds) -> (x y width height)
+```
+
+### :get_constraint
+
+```code
+(. view :get_constraint) -> (width height)
 ```
 
 ### :get_flags
@@ -190,6 +220,12 @@ overide the default 'this' env with a View component
 
 ```code
 (. view :set_size x y width height) -> view
+```
+
+### :set_constraint
+
+```code
+(. view :set_constraint width height) -> view
 ```
 
 ### :set_flags

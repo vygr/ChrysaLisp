@@ -6,6 +6,12 @@
 (Slider) -> slider
 ```
 
+### :constraint
+
+```code
+(. slider :constraint) -> (width height)
+```
+
 ### :draw
 
 ```code
@@ -28,11 +34,5 @@
 
 ```code
 (. slider :mouse_up event) -> slider
-```
-
-### :pref_size
-
-```code
-(. slider :pref_size) -> (width height)
 ```
 

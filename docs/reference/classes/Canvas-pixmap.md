@@ -5,6 +5,6 @@
 ```code
 (Canvas-pixmap pixmap) -> canvas
 
-overide the default 'this' env with a Canvas component
+override the default 'this' env with a Canvas component
 ```
 

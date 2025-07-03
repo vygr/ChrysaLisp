@@ -4,6 +4,15 @@
 
 ------
 
+New non recursive constraints system for GUI layouts. Sugbificant reduction in
+stack usage.
+
+New `+view_flag_subtree` view flag. This limits the `view :flatten` method to
+not descend into such marked views. The `Scroll` widget sets this flag
+automatically on its chld widget, for example.
+
+------
+
 New `(condn)` special form. With that comes a faster `(and)` macro that follows
 the `(or)` macro in simplicity.
 

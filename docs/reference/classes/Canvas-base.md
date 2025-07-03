@@ -2,6 +2,12 @@
 
 ## View
 
+### :constraint
+
+```code
+(. canvas :constraint) -> (width height)
+```
+
 ### :draw
 
 ```code
@@ -54,12 +60,6 @@
 
 ```code
 (. canvas :plot x y) -> canvas
-```
-
-### :pref_size
-
-```code
-(. canvas :pref_size) -> (width height)
 ```
 
 ### :resize

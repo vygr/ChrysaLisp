@@ -12,7 +12,7 @@
 
 (defclass Vdu () (View)
 	; (Vdu) -> vdu
-	; overide the default 'this' env with a Vdu component
+	; override the default 'this' env with a Vdu component
 	(defq super this this ((ffi "gui/vdu/lisp_create")))
 	(each (lambda ((key val)) (def this key val)) (tolist super))
 
@@ -34,8 +34,8 @@
 		; (. vdu :load lines offset_x offset_y cursor_x cursor_y) -> vdu
 		(. ((const (ffi "gui/vdu/lisp_load")) this lines offset_x offset_y cursor_x cursor_y) :dirty))
 
-	(defmethod :pref_size ()
-		; (. vdu :pref_size) -> (width height)
+	(defmethod :constraint ()
+		; (. vdu :constraint) -> (width height)
 		(bind '(cw ch) (. this :char_size))
 		(defq vdu_width (get :vdu_width this) vdu_height (get :vdu_height this)
 			mw (def? :min_width this) mh (def? :min_height this))

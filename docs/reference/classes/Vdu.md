@@ -5,13 +5,19 @@
 ```code
 (Vdu) -> vdu
 
-overide the default 'this' env with a Vdu component
+override the default 'this' env with a Vdu component
 ```
 
 ### :char_size
 
 ```code
 (. vdu :char_size) -> (width height)
+```
+
+### :constraint
+
+```code
+(. vdu :constraint) -> (width height)
 ```
 
 ### :layout
@@ -30,12 +36,6 @@ overide the default 'this' env with a Vdu component
 
 ```code
 (. vdu :max_size) -> (width height)
-```
-
-### :pref_size
-
-```code
-(. vdu :pref_size) -> (width height)
 ```
 
 ### :vdu_size

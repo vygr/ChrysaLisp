@@ -87,13 +87,13 @@
 						(setq id :nil))
 					(:t (. *window* :event msg))))
 			(+select_task
-				;child launch responce
+				;child launch response
 				(defq key (getf msg +kn_msg_key) child (getf msg +kn_msg_reply_id))
 				(when (defq val (. farm :find key))
 					(def val :child child)
 					(dispatch-job key val)))
 			(+select_reply
-				;child responce
+				;child response
 				(defq key (get-long msg (- (length msg) +long_size)))
 				(when (defq val (. farm :find key))
 					(dispatch-job key val))

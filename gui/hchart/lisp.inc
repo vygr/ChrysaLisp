@@ -38,6 +38,6 @@
 		(each (lambda (mark)
 			(defq val (/ (* maximum (inc (!))) (length scale)))
 			(def mark :text (str (/ val units) "|"))
-			(. mark :layout)) scale)
+			(. mark :constrain :t)) scale)
 		this)
 	)

@@ -50,7 +50,7 @@
 
 (defun close-apps (quit)
 	;send quit action to all GUI apps
-	;action 0 is reservered for close !
+	;action 0 is reserved for close !
 	(each (lambda (child)
 		(when (defq mbox (. child :find_owner))
 			(defq source_id (. child :get_id))
@@ -61,14 +61,14 @@
 		(. *screen* :children))
 	;run login app or quit ?
 	(if quit
-		(setq *quiting* :t)
+		(setq *quitting* :t)
 		(open-child "apps/login/app.lisp" +kn_call_open)))
 
 (defun main ()
 	;declare service and vars
 	(defq select (alloc-select +select_size)
 		service (mail-declare (task-netid) "Gui" "GUI Service 0.2")
-		*running* :t *quiting* :nil *old_mouse_x* -1 *old_mouse_y* -1
+		*running* :t *quitting* :nil *old_mouse_x* -1 *old_mouse_y* -1
 		*mouse_type* 0 *mouse_x* 0 *mouse_y* 0 *mouse_buttons* 0 *mouse_id* 0
 		*mods* 0 *key_dispatch* (Fmap) *focus* :nil)
 	;init screen widget
@@ -136,7 +136,7 @@
 					(each (# (unless (and (defq owner (. %0 :find_owner)) (mail-validate owner))
 							(.-> %0 :hide :sub))) (defq children (. *screen* :children)))
 					;quit if no apps
-					(and *quiting* (<= (length children) 1) (setq *running* :nil))))))
+					(and *quitting* (<= (length children) 1) (setq *running* :nil))))))
 	(mail-forget service)
 	(free-select select)
 	(gui-deinit))

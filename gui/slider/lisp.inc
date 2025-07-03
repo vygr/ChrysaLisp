@@ -35,8 +35,8 @@
 					(:t (setq portion h h 0)))
 				(. this :ctx_filled_box 1 (inc h) (- w 2) portion))))
 
-	(defmethod :pref_size ()
-		; (. slider :pref_size) -> (width height)
+	(defmethod :constraint ()
+		; (. slider :constraint) -> (width height)
 		(defq mw (def? :min_width this) mh (def? :min_height this))
 		(setd mw 10 mh 10)
 		(list mw mh))

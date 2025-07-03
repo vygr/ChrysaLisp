@@ -6,6 +6,12 @@
 (Textfield) -> textfield
 ```
 
+### :constraint
+
+```code
+(. textfield :constraint) -> (width height)
+```
+
 ### :draw
 
 ```code
@@ -46,12 +52,6 @@
 
 ```code
 (. textfield :mouse_up event) -> textfield
-```
-
-### :pref_size
-
-```code
-(. textfield :pref_size) -> (width height)
 ```
 
 ### :set_text

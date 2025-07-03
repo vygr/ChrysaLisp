@@ -12,6 +12,12 @@
 (. window :add_child child) -> window
 ```
 
+### :constraint
+
+```code
+(. window :constraint) -> (width height)
+```
+
 ### :drag_mode
 
 ```code
@@ -46,11 +52,5 @@
 
 ```code
 (. window :mouse_move event) -> window
-```
-
-### :pref_size
-
-```code
-(. window :pref_size) -> (width height)
 ```
 

@@ -20,6 +20,8 @@
 
 ### (view-find-id view id)
 
+### (view-flatten view)
+
 ### (view-hide view)
 
 ### (view-hit-tree view x y)

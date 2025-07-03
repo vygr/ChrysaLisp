@@ -33,8 +33,8 @@
 			(. this :ctx_blit tid (get :ink_color this) offset (>>> (- h th) 1) tw th))
 		this)
 
-	(defmethod :pref_size ()
-		; (. text :pref_size) -> (width height)
+	(defmethod :constraint ()
+		; (. text :constraint) -> (width height)
 		(defq font (get :font this) text (get :text this)
 			mw (def? :min_width this) mh (def? :min_height this)
 			w 0 h 0)

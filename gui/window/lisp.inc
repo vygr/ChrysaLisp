@@ -29,12 +29,12 @@
 		(lower :child)
 		(. this :add_back child))
 
-	(defmethod :pref_size ()
-		; (. window :pref_size) -> (width height)
+	(defmethod :constraint ()
+		; (. window :constraint) -> (width height)
 		(raise :border :shadow :child)
 		(defq mw (def? :min_width this) mh (def? :min_height this))
 		(setd mw 0 mh 0)
-		(bind '(w h) (. child :pref_size))
+		(bind '(w h) (. child :get_constraint))
 		(setq w (max w mw) h (max h mh))
 		(list (+ (* (+ shadow border) 2) w) (+ (* (+ shadow border) 2) h)))
 
@@ -44,7 +44,7 @@
 		;position any child
 		(bind '(w h) (. this :get_size))
 		(when child
-			(. child :change (+ border shadow) (+ border shadow)
+			(. child :set_bounds (+ border shadow) (+ border shadow)
 				(- w (* 2 (+ border shadow))) (- h (* 2 (+ border shadow)))))
 		;adjust window transparency details based on color and shadow
 		(when (= (>> (get :color this) 24) 0xff)

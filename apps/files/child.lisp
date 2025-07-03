@@ -9,7 +9,7 @@
 	(if (empty? exts) (setq exts :nil))
 	(.-> *file_tree* :empty (:populate root exts 2))
 	(bind '(w h) (. *file_tree* :pref_size))
-	(.-> *file_tree* (:set_size w h) :layout)
+	(. *file_tree* :change 0 0 w h)
 	(defq w 400 h 400)
 	(def *file_tree_scroll* :min_width w :min_height h)
 	(.-> *file_tree_scroll* :layout :dirty_all))
@@ -18,7 +18,7 @@
 (import "./actions.inc")
 
 (defun main ()
-	;read paramaters from parent
+	;read parameters from parent
 	(bind '(reply_mbox title root exts) (mail-read (task-netid)))
 	(def *window_title* :text title)
 	(defq *running* :t *current_root* root *current_exts* exts)

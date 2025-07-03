@@ -61,9 +61,9 @@
 			(def this :text text))
 		(.super this :layout))
 
-	(defmethod :pref_size ()
-		; (. textfield :pref_size) -> (width height)
-		(bind '(w h) (.super this :pref_size))
+	(defmethod :constraint ()
+		; (. textfield :constraint) -> (width height)
+		(bind '(w h) (.super this :constraint))
 		(list 128 h))
 
 	(defmethod :set_text (text)
@@ -176,7 +176,7 @@
 		(lower :clear_text :cursor :anchor)
 		;adjust text offset
 		(setoffset)
-		(.-> this :layout :dirty_all))
+		(.-> this (:constrain :t) :dirty_all))
 
 	(defmethod :mouse_down (event)
 		; (. textfield :mouse_down event) -> textfield
@@ -189,7 +189,7 @@
 			(lower :anchor (:cursor anchor :state -1))
 			;adjust text offset
 			(setoffset)
-			(.-> this :layout :dirty_all))
+			(.-> this (:constrain :t) :dirty_all))
 		this)
 
 	(defmethod :mouse_up (event)
@@ -209,7 +209,7 @@
 			(lower :cursor)
 			;adjust text offset
 			(setoffset)
-			(.-> this :layout :dirty_all))
+			(.-> this (:constrain :t) :dirty_all))
 		this)
 	)
 

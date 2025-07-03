@@ -8,7 +8,7 @@
 (include "lib/consts/chars.inc")
 (include "sys/statics/class.inc")
 
-(def-func 'class/lisp/run :nil 8192)
+(def-func 'class/lisp/run)
 	;lisp run loop task
 	;inputs
 	;msg of lisp filename

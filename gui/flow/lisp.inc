@@ -25,14 +25,14 @@
 (defclass Flow () (View)
 	; (Flow) -> flow
 
-	(defmethod :pref_size ()
-		; (. flow :pref_size) -> (width height)
+	(defmethod :constraint ()
+		; (. flow :constraint) -> (width height)
 		(defq flow_flags (get :flow_flags this) pw 0 ph 0
 			mw (def? :min_width this) mh (def? :min_height this))
 		(setd mw 0 mh 0)
 		(each (lambda (child)
 			(when (= 0 (logand (. child :get_flags) +view_flag_hidden))
-				(bind '(w h) (. child :pref_size))
+				(bind '(w h) (. child :get_constraint))
 				(if (/= 0 (logand flow_flags (const (num-intern (logior +flow_flag_left +flow_flag_right)))))
 					(++ pw w))
 				(if (/= 0 (logand flow_flags (const (num-intern (logior +flow_flag_up +flow_flag_down)))))
@@ -50,9 +50,9 @@
 			(cond
 				((/= 0 (logand (. child :get_flags) +view_flag_hidden))
 					;hidden
-					(. child :change 0 0 0 0))
+					(. child :set_bounds 0 0 0 0))
 				(:t ;showing
-					(bind '(cw ch) (. child :pref_size))
+					(bind '(cw ch) (. child :get_constraint))
 					(defq cx x cy y)
 					(if (/= 0 (logand flow_flags +flow_flag_left))
 						(setq cx (- x cw) x cx))
@@ -99,6 +99,6 @@
 								(setq ch (- fh cy)))
 							(if (/= 0 (logand flow_flags +flow_flag_up))
 								(setq ch (+ cy ch) cy 0))))
-					(. child :change cx cy cw ch)))) children)
+					(. child :set_bounds cx cy cw ch)))) children)
 		this)
 	)

@@ -42,6 +42,12 @@
 (. edit :comment) -> edit
 ```
 
+### :constraint
+
+```code
+(. edit :constraint) -> (width height)
+```
+
 ### :delete
 
 ```code
@@ -184,12 +190,6 @@
 
 ```code
 (. edit :mouse_wheel event) -> edit
-```
-
-### :pref_size
-
-```code
-(. edit :pref_size) -> (width height)
 ```
 
 ### :reflow

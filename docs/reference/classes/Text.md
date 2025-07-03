@@ -6,15 +6,15 @@
 (Text) -> text
 ```
 
+### :constraint
+
+```code
+(. text :constraint) -> (width height)
+```
+
 ### :draw
 
 ```code
 (. text :draw) -> text
-```
-
-### :pref_size
-
-```code
-(. text :pref_size) -> (width height)
 ```
 

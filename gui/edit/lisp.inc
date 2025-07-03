@@ -99,8 +99,8 @@
 		(bind '(cw ch) (. (get :vdu_text this) :char_size))
 		(list (/ w cw) (/ h ch)))
 
-	(defmethod :pref_size ()
-		; (. edit :pref_size) -> (width height)
+	(defmethod :constraint ()
+		; (. edit :constraint) -> (width height)
 		(defq min_w (def? :min_width this) min_h (def? :min_height this)
 			vdu_w (get :vdu_width this) vdu_h (get :vdu_height this)
 			w 0 h 0)
@@ -108,7 +108,7 @@
 				(def child
 					:min_width min_w :min_height min_h
 					:vdu_width vdu_w :vdu_height vdu_h)
-				(bind '(cw ch) (. child :pref_size))
+				(bind '(cw ch) (. child :constraint))
 				(setq w (max w cw) h (max h ch)))
 			(. this :children))
 		(list w h))
@@ -122,7 +122,7 @@
 				(def child
 					:min_width min_w :min_height min_h
 					:vdu_width vdu_w :vdu_height vdu_h)
-				(. child :change 0 0 w h :t))
+				(. child :set_bounds 0 0 w h)) ;layout
 			(. this :children))
 		this)
 

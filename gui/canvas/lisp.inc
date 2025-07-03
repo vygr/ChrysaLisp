@@ -98,8 +98,8 @@
 		; (. canvas :ftri tri) -> canvas
 		((const (ffi "gui/canvas/lisp_ftri")) this tri_path))
 
-	(defmethod :pref_size ()
-		; (. canvas :pref_size) -> (width height)
+	(defmethod :constraint ()
+		; (. canvas :constraint) -> (width height)
 		(defq canvas_scale (getf this +canvas_scale 0)
 			pixmap (getf this +canvas_pixmap 0))
 		(list (/ (getf pixmap +pixmap_width 0) canvas_scale)
@@ -113,13 +113,13 @@
 
 (defclass Canvas (width height scale) (Canvas-base)
 	; (Canvas width height scale) -> canvas
-	; overide the default 'this' env with a Canvas component
+	; override the default 'this' env with a Canvas component
 	(defq super this this ((const (ffi "gui/canvas/lisp_create")) width height scale))
 	(each (lambda ((key val)) (def this key val)) (tolist super)))
 
 (defclass Canvas-pixmap (pixmap) (Canvas-base)
 	; (Canvas-pixmap pixmap) -> canvas
-	; overide the default 'this' env with a Canvas component
+	; override the default 'this' env with a Canvas component
 	(defq super this this ((const (ffi "gui/canvas/lisp_create_pixmap")) pixmap))
 	(each (lambda ((key val)) (def this key val)) (tolist super)))
 

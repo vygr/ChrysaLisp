@@ -6,15 +6,15 @@
 (Flow) -> flow
 ```
 
+### :constraint
+
+```code
+(. flow :constraint) -> (width height)
+```
+
 ### :layout
 
 ```code
 (. flow :layout) -> flow
-```
-
-### :pref_size
-
-```code
-(. flow :pref_size) -> (width height)
 ```
 

@@ -38,6 +38,6 @@
 		(setq value (max (min (get :maximum this) value) (get :minimum this)))
 		(lower :value)
 		(set value_label :text (str value))
-		(.-> value_label :layout :dirty)
+		(.-> value_label (:constrain :r) :dirty)
 		(. this :emit))
 	)
