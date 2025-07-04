@@ -37,7 +37,7 @@
 	(call 'obj :inst_of (cat {value, @} (f-path 'str :vtable)) '(_ tmp))
 	(gotoif `(,tmp = 0) 'error3))
 
-	;push old file and line, set to this stream info
+	;push old repl info
 	;we have refs to the name (from the args), so we DON'T need to manage our use here !
 	(assign {this->lisp_stream_name, this->lisp_stream_line} {old_name, old_line})
 	(assign {value, 1} {this->lisp_stream_name, this->lisp_stream_line})
@@ -61,7 +61,7 @@
 		(breakif {value->obj_vtable = this->lisp_error}))
 	(loop-end)
 
-	;pop old file and line info
+	;pop old repl info
 	(assign {old_name, old_line} {this->lisp_stream_name, this->lisp_stream_line})
 
 	(exit 'lisp :lisp_repl {this, value})
