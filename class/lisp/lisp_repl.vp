@@ -17,9 +17,9 @@
 	;:r1-:r14
 
 	(def-vars
-		(ptr this args stream ast value old_file old_line)
+		(ptr this args stream ast value old_name)
 		(int char)
-		(uint length))
+		(uint length old_line))
 
 	(push-scope)
 	(entry 'lisp :lisp_repl {this, args})
@@ -38,14 +38,11 @@
 	(gotoif `(,tmp = 0) 'error3))
 
 	;push old file and line, set to this stream info
-	(call 'hmap :get {this->lisp_environment, this->lisp_sym_stream_name} {_, old_file})
-	(call 'hmap :get {this->lisp_environment, this->lisp_sym_stream_line} {_, old_line})
-	(call 'hmap :set {this->lisp_environment, this->lisp_sym_stream_name, value})
-	(call 'num :create {1} {value})
-	(call 'hmap :set {this->lisp_environment, this->lisp_sym_stream_line, value})
-	(call 'obj :deref {value})
-	(call 'obj :ref {this->lisp_sym_nil} {value})
+	;we have refs to the name (from the args), so we DON'T need to manage our use here !
+	(assign {this->lisp_stream_name, this->lisp_stream_line} {old_name, old_line})
+	(assign {value, 1} {this->lisp_stream_name, this->lisp_stream_line})
 
+	(call 'obj :ref {this->lisp_sym_nil} {value})
 	(call 'stream :read_char {stream} {_, char})
 	(loop-while {char /= -1})
 		(call 'stream :flush {this->lisp_stdout})
@@ -81,10 +78,7 @@
 	(loop-end)
 
 	;pop old file and line info
-	(call 'hmap :set {this->lisp_environment, this->lisp_sym_stream_name, old_file})
-	(call 'obj :deref {old_file})
-	(call 'hmap :set {this->lisp_environment, this->lisp_sym_stream_line, old_line})
-	(call 'obj :deref {old_line})
+	(assign {old_name, old_line} {this->lisp_stream_name, this->lisp_stream_line})
 
 	(exit 'lisp :lisp_repl {this, value})
 	(return)
@@ -98,5 +92,28 @@
 	(jump 'lisp :repl_error {this, "(repl stream path)", +error_msg_not_a_string, args}))
 
 	(pop-scope-syms)
+
+(def-func-end)
+
+(def-method 'lisp :lisp_repl_info)
+	;inputs
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
+	;outputs
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
+	;trashes
+	;:r1-:r14
+
+	(entry 'lisp :lisp_repl_info '(:r0 :r1))
+
+	(vp-cpy-rr :r0 :r13)
+	(call 'obj :ref '((:r0 lisp_stream_name)) '(:r11))
+	(call 'num :create '((:r13 lisp_stream_line)) '(:r12))
+	(call 'list :create :nil '(:r0))
+	(call 'list :push_back2 '(:r0 :r11 :r12) '(:r1 _ _ _ _))
+
+	(exit 'lisp :lisp_repl_info '(:r13 :r1))
+	(vp-ret)
 
 (def-func-end)

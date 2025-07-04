@@ -11,6 +11,9 @@ New `+view_flag_subtree` view flag. This limits the `view :flatten` method to
 not descend into such marked views. The `Scroll` widget sets this flag
 automatically on its chld widget, for example.
 
+New `(repl-info) -> (name line)` function. Replaces `*stream_name*` and
+`*stream_line*` variables.
+
 ------
 
 New `(condn)` special form. With that comes a faster `(and)` macro that follows

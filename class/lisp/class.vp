@@ -49,8 +49,9 @@
 		(call 'obj :ref {stdin} {this->lisp_stdin})
 		(call 'obj :ref {stdout} {this->lisp_stdout})
 		(call 'obj :ref {stderr} {this->lisp_stderr})
-		(assign {0} {this->lisp_nextsym})
 		(assign {0} {this->lisp_seq_idx})
+		(assign {0} {this->lisp_stream_line})
+		(assign {0} {this->lisp_nextsym})
 
 		;tls stack, object tls, error vtable
 		(assign {@sys/statics/statics.statics_sys_task_current_tcb} {func})
@@ -155,12 +156,7 @@
 	(loop-end)
 
 	;defines
-	(call 'str :create_from_buffer {"ChrysaLisp", 10} {symbol})
-	(call 'hmap :insert {this->lisp_environment, this->lisp_sym_stream_name, symbol})
-	(call 'obj :deref {symbol})
-	(call 'num :create '(0) {symbol})
-	(call 'hmap :insert {this->lisp_environment, this->lisp_sym_stream_line, symbol})
-	(call 'obj :deref {symbol})
+	(call 'str :create_from_buffer {"ChrysaLisp", 10} {this->lisp_stream_name})
 	(call 'list :create :nil {symbol})
 	(call 'hmap :insert {this->lisp_environment, this->lisp_sym_file_includes, symbol})
 	(call 'obj :deref {symbol})
@@ -226,8 +222,6 @@
 	(built-in "quote" lisp_sym_quote)
 	(built-in "quasi-quote" lisp_sym_qquote)
 	(built-in "ffi" lisp_sym_ffi)
-	(built-in "*stream_name*" lisp_sym_stream_name)
-	(built-in "*stream_line*" lisp_sym_stream_line)
 	(built-in "*file_includes*" lisp_sym_file_includes)
 	(built-in "*stack_frame*" lisp_sym_stack_frame)
 	(vp-short 0)

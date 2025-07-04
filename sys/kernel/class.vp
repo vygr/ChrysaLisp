@@ -323,7 +323,7 @@
 		(vp-sub-rr vnode2 :r1)
 		(vp-or-rr :r1 :r0)
 		(continueif '(:r0 = 0))
-		;have we sent to this node allready ?
+		;have we sent to this node already ?
 		(vp-cpy-rr iter_begin :r2)
 		(loop-start)
 			(assign '((:r2 0)) `(,link_node))

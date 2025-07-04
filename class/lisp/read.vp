@@ -4,6 +4,33 @@
 (include "././sym/class.inc")
 (include "lib/consts/chars.inc")
 
+(def-method 'lisp :read_char)
+	;inputs
+	;:r0 = lisp object (ptr)
+	;:r1 = stream object (ptr)
+	;:r2 = last char (uint)
+	;outputs
+	;:r0 = lisp object (ptr)
+	;:r1 = next char (uint)
+	;trashes
+	;:r1-:r14
+
+	(entry 'lisp :read_char '(:r0 :r1 :r2))
+
+	(vp-push :r0)
+	(vpif '(:r2 = +char_lf))
+		(assign '((:r0 lisp_stream_line)) '(:r2))
+		(vp-add-cr 1 :r2)
+		(assign '(:r2) '((:r0 lisp_stream_line)))
+	(endif)
+	(call 'stream :read_char '(:r1) '(_ :r1))
+	(vp-pop :r0)
+
+	(exit 'lisp :read_char '(:r0 :r1))
+	(vp-ret)
+
+(def-func-end)
+
 (def-method 'lisp :read)
 	;inputs
 	;:r0 = lisp object (ptr)

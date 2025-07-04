@@ -255,6 +255,8 @@
 ; (apply lambda seq) -> form
 (ffi "class/lisp/lisp_repl" repl)
 ; (repl stream name) -> form
+(ffi "class/lisp/lisp_repl_info" repl-info 1)
+; (repl-info) -> (name line)
 (ffi "class/lisp/lisp_prin" prin)
 ; (prin [form] ...) -> form
 (ffi "class/lisp/lisp_print" print)
@@ -1030,7 +1032,7 @@
 	(cond
 		((not (starts-with "./" lib_path))
 			lib_path)
-		(:t (setd current *stream_name*)
+		(:t (setd current (first (repl-info)))
 			(while (starts-with "./" lib_path)
 				(unless (defq i (rfind "/" current))
 					(throw "No relative path !" lib_path))
@@ -1044,7 +1046,7 @@
 	(setq lib_path (abs-path lib_path))
 	(if (= (age lib_path) 0) (throw "No such file !" lib_path))
 	(setd _e (penv)) (defq _ee _e)
-	; does the import allready exist in the environment tree ?
+	; does the import already exist in the environment tree ?
 	(while (env? _ee)
 		(cond
 			((and (defq file_list (def? '*file_includes* _ee))

@@ -40,8 +40,7 @@
 
 (defmacro defclass (n a s &rest _)
 	; (defclass Name ([arg ...]) (super ...)|:nil body)
-	(defq module (str *stream_name*)
-		predn (sym (cat n "?")) kwn (sym (cat : n))
+	(defq predn (sym (cat n "?")) kwn (sym (cat : n))
 		super (sym (cat "*class_" (if s (first s)) "*"))
 		class (sym (cat "*class_" n "*"))
 		inits (list) methods (list))
@@ -61,7 +60,7 @@
 				(unless (def? :vtable ,class)
 					(def this :vtable (reduce (lambda (e (key val))
 						(def e key val) e) (tolist ,super) ,class))
-					(def ,class :vtable ,super :module ,module)
+					(def ,class :vtable ,super)
 					(defmethod :type_of () (push (.super this :type_of) ,kwn))
 					~methods)
 				~inits this))
@@ -72,7 +71,7 @@
 			(defun ,n ,a
 				(def (defq this (env 1)) :vtable ,class)
 				(unless (def? :vtable ,class)
-					(def ,class :vtable :t :module ,module)
+					(def ,class :vtable :t)
 					(defmethod :type_of () (push (type-of this) ,kwn))
 					~methods)
 				~inits this))))

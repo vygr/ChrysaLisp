@@ -114,7 +114,7 @@
 	(vp-add-cr 1 :r2)
 	(assign '(:r2) '((:r9 in_seqnum)))
 
-	;do we have the next msg allready ?
+	;do we have the next msg already ?
 	(call 'next_seq '((& :r9 in_list) 0 :r2) '(:r0 _))
 	(vpif '(:r0 /= 0))
 		;put it in the mailbox so 'select' or 'poll' will trigger !

@@ -57,15 +57,15 @@
 	(dec-method :lisp_env_push class/lisp/lisp_env_push :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_env_pop class/lisp/lisp_env_pop :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_identity class/lisp/lisp_identity :static (:r0 :r1) (:r0 :r1))
+	(dec-method :lisp_repl_info class/lisp/lisp_repl_info :static (:r0 :r1) (:r0 :r1))
 	(dec-method :run class/lisp/run))
 
 (def-struct lisp obj_size
 	;this first block of ptrs gets derefed on deinit
 	(ptr stdin stdout stderr environment sym_underscore sym_optional
 		sym_rest sym_ignore sym_most sym_nil sym_t sym_lambda sym_macro
-		sym_quote sym_qquote sym_unquote sym_trunc
-		sym_splicing sym_stream_name sym_stream_line sym_file_includes sym_ffi
-		sym_stack_frame func_ffi func_lambda func_macro func_quote func_qquote)
+		sym_quote sym_qquote sym_unquote sym_trunc sym_splicing sym_file_includes
+		sym_ffi sym_stack_frame func_ffi func_lambda func_macro func_quote
+		func_qquote stream_name)
 	(ptr stack error)
-	(ulong nextsym)
-	(uint seq_idx))
+	(uint seq_idx stream_line nextsym))
