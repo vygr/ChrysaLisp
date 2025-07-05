@@ -17,23 +17,12 @@
 	;:r1-:r14
 
 	(def-vars
-		(ptr this desc payload file value frame)
+		(ptr this desc payload value frame)
 		(pptr iter)
 		(uint msg))
 
 	(push-scope)
 	(entry 'lisp :repl_error {this, desc, msg, payload})
-
-	(call 'hmap :search {this->lisp_environment, this->lisp_stream_name} {_, iter, _})
-	(vpif {iter})
-		(assign {iter[+ptr_size]} {file})
-		(call 'obj :inst_of (cat {file, @} (f-path 'str :vtable)) '(_ tmp))
-		(gotoif `(,tmp = 0) 'nofile)
-		(assign {&file->str_data} {file})
-	(else)
-	(vp-label 'nofile)
-		(assign {"*file* not a string !"} {file})
-	(endif)
 
 	(call 'hmap :search {this->lisp_environment, this->lisp_sym_stack_frame} {_, iter, _})
 	(vpif {iter})
@@ -43,7 +32,7 @@
 		(call 'list :create :nil {frame})
 	(endif)
 
-	(call 'error :create {desc, msg, payload, file, this->lisp_stream_line, frame} {value})
+	(call 'error :create {desc, msg, payload, this->lisp_stream_name, this->lisp_stream_line, frame} {value})
 
 	(exit 'lisp :repl_error {this, value})
 	(pop-scope)

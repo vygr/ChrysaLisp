@@ -98,7 +98,7 @@ inputs
 :r2 = description c string (pubyte)
 :r3 = 0, else error msg index (uint)
 :r4 = error payload object (ptr)
-:r5 = filename c string (pubyte)
+:r5 = filename string (ptr)
 :r6 = line number (uint)
 :r7 = stack frame (ptr)
 outputs

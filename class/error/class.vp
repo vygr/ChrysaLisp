@@ -16,7 +16,7 @@
 	;:r2 = description c string (pubyte)
 	;:r3 = 0, else error msg index (uint)
 	;:r4 = error payload object (ptr)
-	;:r5 = filename c string (pubyte)
+	;:r5 = filename string (ptr)
 	;:r6 = line number (uint)
 	;:r7 = stack frame (ptr)
 	;outputs
@@ -41,7 +41,7 @@
 		(call 'str :create_from_cstr '((:r0 error_description)) '(:r0))
 		(assign '((:rsp local_this)) '(:r1))
 		(assign '(:r0) '((:r1 error_description)))
-		(call 'str :create_from_cstr '((:r1 error_file)) '(:r0))
+		(call 'obj :ref '((:r1 error_file)) '(:r0))
 		(assign '((:rsp local_this)) '(:r1))
 		(assign '(:r0) '((:r1 error_file)))
 		(call 'obj :ref '((:r1 error_object)))
