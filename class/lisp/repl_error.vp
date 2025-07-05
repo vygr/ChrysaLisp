@@ -1,7 +1,5 @@
 (include "lib/asm/func.inc")
-(include "././sym/class.inc")
 (include "././hmap/class.inc")
-(include "././num/class.inc")
 (include "./class.inc")
 
 (def-method 'lisp :repl_error)
@@ -17,24 +15,24 @@
 	;:r1-:r14
 
 	(def-vars
-		(ptr this desc payload value frame)
-		(pptr iter)
+		(ptr this desc payload)
+		(pptr frame)
 		(uint msg))
 
 	(push-scope)
 	(entry 'lisp :repl_error {this, desc, msg, payload})
 
-	(call 'hmap :search {this->lisp_environment, this->lisp_sym_stack_frame} {_, iter, _})
-	(vpif {iter})
-		(assign {iter[+ptr_size]} {frame})
+	(call 'hmap :search {this->lisp_environment, this->lisp_sym_stack_frame} {_, frame, _})
+	(vpif {frame})
+		(assign {frame[+ptr_size]} {frame})
 		(call 'obj :ref {frame})
 	(else)
 		(call 'list :create :nil {frame})
 	(endif)
 
-	(call 'error :create {desc, msg, payload, this->lisp_stream_name, this->lisp_stream_line, frame} {value})
+	(call 'error :create {desc, msg, payload, this->lisp_stream_name, this->lisp_stream_line, frame} {frame})
 
-	(exit 'lisp :repl_error {this, value})
+	(exit 'lisp :repl_error {this, frame})
 	(pop-scope)
 	(return)
 
