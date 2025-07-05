@@ -64,7 +64,7 @@
 	;this first block of ptrs gets derefed on deinit
 	(ptr stdin stdout stderr environment sym_underscore sym_optional
 		sym_rest sym_ignore sym_most sym_nil sym_t sym_lambda sym_macro
-		sym_quote sym_qquote sym_unquote sym_trunc sym_splicing sym_file_includes
+		sym_quote sym_qquote sym_unquote sym_trunc sym_splicing
 		sym_ffi sym_stack_frame func_ffi func_lambda func_macro func_quote
 		func_qquote stream_name)
 	(ptr stack error)

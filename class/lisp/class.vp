@@ -157,9 +157,6 @@
 
 	;defines
 	(call 'str :create_from_buffer {"ChrysaLisp", 10} {this->lisp_stream_name})
-	(call 'list :create :nil {symbol})
-	(call 'hmap :insert {this->lisp_environment, this->lisp_sym_file_includes, symbol})
-	(call 'obj :deref {symbol})
 
 	(pop-scope)
 	(return)
@@ -222,7 +219,6 @@
 	(built-in "quote" lisp_sym_quote)
 	(built-in "quasi-quote" lisp_sym_qquote)
 	(built-in "ffi" lisp_sym_ffi)
-	(built-in "*file_includes*" lisp_sym_file_includes)
 	(built-in "*stack_frame*" lisp_sym_stack_frame)
 	(vp-short 0)
 
