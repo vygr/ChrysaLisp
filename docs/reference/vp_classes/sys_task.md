@@ -106,7 +106,7 @@ info
 outputs
 :r0 = maximum task stack size (uint)
 trashes
-:r0-:r8
+:r0-:r9
 ```
 
 ### :start -> sys/task/start
@@ -146,15 +146,6 @@ suspend current task, switch to next task
 ```
 
 ### :task_callback -> class/obj/null
-
-### :tcb -> sys/task/tcb
-
-```code
-outputs
-:r0 = current task tcb (ptr)
-trashes
-:r0
-```
 
 ### :timer -> sys/task/timer
 

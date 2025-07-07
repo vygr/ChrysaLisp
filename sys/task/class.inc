@@ -8,7 +8,6 @@
 
 (def-class sys_task :nil
 	(dec-method :statics_init sys/task/statics_init)
-	(dec-method :tcb sys/task/tcb :static :nil (:r0))
 	(dec-method :mailbox sys/task/mailbox :static :nil (:r0 :r1 :r2))
 	(dec-method :callback sys/task/callback :static (:r0 :r1))
 	(dec-method :count sys/task/count :static (:r0) (:r0))
@@ -35,6 +34,7 @@
 
 (defcvar 'tk_stack_size (* 1024 16))
 (defcvar 'tk_stack_margin (* 1024 1))
+(defcvar 'tk_stack_canary 0xbadfod1234567890)
 
 (def-struct tk_node ln_node_size
 	(ptr stack stack_top mbox_addr lisp tls)

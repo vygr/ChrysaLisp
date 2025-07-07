@@ -14,6 +14,7 @@
 	(uint sys_task_task_count)
 	(align)
 	;keep these together
+	(struct sys_task_suspend_list lh_list_size)
 	(struct sys_task_timer_list lh_list_size)
 	(struct sys_task_task_lists (* num_task_lists lh_list_size))
 	(align)
