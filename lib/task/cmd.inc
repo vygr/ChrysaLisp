@@ -44,14 +44,14 @@
 		(defq msg (mail-read (elem-get select (defq idx (mail-select select)))))
 		(cond
 			((= idx +select_task)
-				;child launch responce
+				;child launch response
 				(defq key (getf msg +kn_msg_key) child (getf msg +kn_msg_reply_id))
 				(when (defq val (. farm :find key))
 					(. farm :add_node (slice child +mailbox_id_size -1))
 					(def val :child child)
 					(dispatch-job key val)))
 			((= idx +select_reply)
-				;child worker responce
+				;child worker response
 				(defq key_pos (find (ascii-char 10) msg)
 					key (str-as-num (slice msg 0 key_pos))
 					msg (slice msg (inc key_pos) -1))

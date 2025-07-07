@@ -147,13 +147,13 @@
 				(if (defq view (. *window* :find_id (getf *msg* +mail_timeout_id)))
 					(. view :show_tip)))
 			((= idx +select_task)
-				;child task launch responce
+				;child task launch response
 				(defq key (getf *msg* +kn_msg_key) child (getf *msg* +kn_msg_reply_id))
 				(when (defq val (. farm :find key))
 					(def val :child child)
 					(dispatch-job key val)))
 			((= idx +select_reply)
-				;child mesh responce
+				;child mesh response
 				(defq key (getf *msg* +job_reply_key)
 					mesh_name (trim-start (slice *msg* +job_reply_name +job_reply_data))
 					mesh (Mesh-data

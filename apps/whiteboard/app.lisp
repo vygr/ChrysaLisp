@@ -126,7 +126,7 @@
 				(mail-timeout (elem-get select +select_timer) rate 0)
 				(redraw dlist))
 			((= idx +select_picker)
-				;save/load picker responce
+				;save/load picker response
 				(setq *msg* (trim *msg*))
 				(mail-send *picker_mbox* "")
 				(setq *picker_mbox* :nil)

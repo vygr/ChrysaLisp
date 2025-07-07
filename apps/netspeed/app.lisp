@@ -97,14 +97,14 @@
 						(. *window* :change_dirty x y w h))
 					(:t (. *window* :event msg))))
 			(+select_task
-				;child launch responce
+				;child launch response
 				(defq child (getf msg +kn_msg_reply_id)
 					node (. global_tasks :find (slice child +long_size -1)))
 				(when node
 					(def node :child child :timestamp (pii-time))
 					(push poll_que child)))
 			(+select_reply
-				;child poll responce
+				;child poll response
 				(when (defq node (. global_tasks :find (getf msg +reply_node)))
 					(update-result node
 						(getf msg +reply_vops_regs)
