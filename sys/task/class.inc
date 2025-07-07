@@ -33,8 +33,8 @@
 ; task structures
 ;;;;;;;;;;;;;;;;;
 
-(defcvar 'tk_stack_size (* 1024 4))
-(defcvar 'tk_stack_margin (/ tk_stack_size 32))
+(defcvar 'tk_stack_size (* 1024 16))
+(defcvar 'tk_stack_margin (* 1024 1))
 
 (def-struct tk_node ln_node_size
 	(ptr stack stack_top mbox_addr lisp tls)

@@ -194,25 +194,25 @@
 (defun make-platforms ()
 	(defq files (all-vp-files))
 	(each (# (make files %0 %1)) +supported_abi +supported_cpu)
-	(defq *debug_mode* 0)
+;	(defq *debug_mode* 0)
 	(make files 'VP64 'vp64))
 
 (defun make-all-platforms ()
 	(defq files (all-vp-files))
 	(each (# (make-all files %0 %1)) +supported_abi +supported_cpu)
-	(defq *debug_mode* 0)
+;	(defq *debug_mode* 0)
 	(make-all files 'VP64 'vp64))
 
 (defun remake-platforms ()
 	(defq files (all-vp-files))
 	(each (# (remake files %0 %1)) +supported_abi +supported_cpu)
-	(defq *debug_mode* 0)
+;	(defq *debug_mode* 0)
 	(remake files 'VP64 'vp64))
 
 (defun remake-all-platforms ()
 	(defq files (all-vp-files))
 	(each (# (remake-all files %0 %1)) +supported_abi +supported_cpu)
-	(defq *debug_mode* 0)
+;	(defq *debug_mode* 0)
 	(remake-all files 'VP64 'vp64))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;
