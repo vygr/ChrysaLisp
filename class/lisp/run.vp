@@ -8,8 +8,7 @@
 (include "lib/consts/chars.inc")
 (include "sys/statics/class.inc")
 
-;Windows sucks, what else is there to say...
-(def-func 'class/lisp/run :nil (if (eql (os) 'Windows) (* 1024 8)))
+(def-func 'class/lisp/run :nil (* 1024 8))
 	;lisp run loop task
 	;inputs
 	;msg of lisp filename

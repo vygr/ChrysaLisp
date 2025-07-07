@@ -33,7 +33,7 @@
 ;;;;;;;;;;;;;;;;;
 
 (defcvar 'tk_stack_size (* 1024 4))
-(defcvar 'tk_stack_margin (* 512 1))
+(defcvar 'tk_stack_margin (/ tk_stack_size 32))
 
 (def-struct tk_node ln_node_size
 	(ptr stack stack_top mbox_addr lisp tls)
