@@ -9,9 +9,9 @@
 (enums +select 0
 	(enum main task reply nodes))
 
-(defq +task_scale_size 10 +mem_scale_size 4 +task_align 10
-	+mem_align (* 1024 16) +poll_rate (/ 1000000 4)
-	+bars ''(:task_bar :alloc_bar :used_bar)
+(defq +task_scale_size 10 +mem_scale_size 4 +task_align 10 +stack_scale_size 4
+	+mem_align (* 1024 16) +stack_align 1024 +poll_rate (/ 1000000 4)
+	+bars ''(:task_bar :alloc_bar :used_bar :stack_bar)
 	+retry_timeout (if (starts-with "obj/vp64" (load-path)) 20000000 2000000))
 
 (ui-window *window* ()
@@ -19,7 +19,8 @@
 	(ui-grid *charts* (:grid_height 1)
 		(ui-hchart _ "Tasks" +task_scale_size (:color +argb_green))
 		(ui-hchart _ "Alloc (kb)" +mem_scale_size (:units 1024 :color +argb_yellow))
-		(ui-hchart _ "Used (kb)" +mem_scale_size (:units 1024 :color +argb_red))))
+		(ui-hchart _ "Used (kb)" +mem_scale_size (:units 1024 :color +argb_red))
+		(ui-hchart _ "Stack (b)" +stack_scale_size (:color +argb_cyan))))
 
 (defun create (key now)
 	; (create key now) -> val
@@ -38,7 +39,7 @@
 (defun update-result (node &rest vals)
 	(each (# (def %0 :maximum (align (max %2 (get :maximum %0)) %3))
 			(def (. (get %1 node) :dirty) :value %2))
-		charts +bars vals (list +task_align +mem_align +mem_align)))
+		charts +bars vals (list +task_align +mem_align +mem_align +stack_align)))
 
 (defun main ()
 	(defq id :t select (alloc-select +select_size)
@@ -66,7 +67,7 @@
 						;max button
 						(bind '(x y) (. *window* :get_pos))
 						(bind '(w h) (. *window* :pref_size))
-						(bind '(x y w h) (view-fit x y (/ (* w 100) 75) h))
+						(bind '(x y w h) (view-fit x y (/ (* w 100) 80) h))
 						(. *window* :change_dirty x y w h))
 					(:t (. *window* :event msg))))
 			(+select_task
@@ -82,7 +83,8 @@
 					(update-result node
 						(getf msg +reply_task_count)
 						(getf msg +reply_mem_alloc)
-						(getf msg +reply_mem_used))
+						(getf msg +reply_mem_used)
+						(getf msg +reply_max_stack))
 					(def node :timestamp (pii-time))
 					(push poll_que (get :child node))))
 			(:t ;polling timer event

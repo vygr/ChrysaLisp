@@ -100,6 +100,15 @@ info
 0 for yield
 ```
 
+### :stacks -> sys/task/stacks
+
+```code
+outputs
+:r0 = maximum task stack size (uint)
+trashes
+:r0-:r8
+```
+
 ### :start -> sys/task/start
 
 ```code

@@ -444,3 +444,39 @@
 	(vp-ret)
 
 (def-func-end)
+
+(def-method 'sys_task :stacks)
+	;outputs
+	;:r0 = maximum task stack size (uint)
+	;trashes
+	;:r0-:r8
+
+	(vp-def (max_stack tasks tasks_end node next stack stack_top kernel_tcb statics))
+
+	(vp-xor-rr max_stack max_stack)
+	(fn-bind 'sys/statics/statics statics)
+	(assign `((,statics statics_sys_task_kernel_tcb)) `(,kernel_tcb))
+	(assign `((& ,statics statics_sys_task_timer_list)) `(,tasks))
+	(assign `((& ,tasks ,(* (+ num_task_lists 1) lh_list_size))) `(,tasks_end))
+	(loop-start)
+		(loop-list-forward tasks 0 node next)
+			(continueif `(,node = ,kernel_tcb))
+			(assign `((,node tk_node_stack)) `(,stack))
+		(errorcase
+			(assign `((& ,node tk_node_size)) `(,stack))
+			(loop-start)
+				(vp-cpy-ir stack +ptr_size statics)
+				(breakif `(,statics /= 0))
+				(vp-add-cr +ptr_size stack)
+			(loop-end))
+			(assign `((,node tk_node_stack_top)) `(,stack_top))
+			(vp-sub-rr stack stack_top)
+			(vp-max-rr stack_top max_stack)
+		(loop-end)
+		(vp-add-cr lh_list_size tasks)
+	(loop-until `(,tasks = ,tasks_end))
+
+	(exit 'sys_task :stacks `(,max_stack))
+	(vp-ret)
+
+(def-func-end)

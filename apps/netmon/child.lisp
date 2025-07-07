@@ -15,10 +15,11 @@
 			((= idx +select_main)
 				;main mailbox, reset timeout and reply with info
 				(mail-timeout (elem-get select +select_timeout) 0 0)
-				(bind '(task_count mem_used mem_avail) (kernel-stats))
+				(bind '(task_count mem_used mem_avail max_stack) (kernel-stats))
 				(mail-send msg (setf-> (str-alloc +reply_size)
 					(+reply_node (slice (task-netid) +long_size -1))
 					(+reply_task_count task_count)
 					(+reply_mem_alloc (- mem_used mem_avail))
-					(+reply_mem_used mem_used))))))
+					(+reply_mem_used mem_used)
+					(+reply_max_stack max_stack))))))
 	(free-select select))
