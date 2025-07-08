@@ -94,6 +94,10 @@
 (defun task-nodeid ()
 	(slice (task-netid) +mailbox_id_size -1))
 
+(defun task-timeout (time)
+	; (task-timeout s) -> ns
+	(if (starts-with "obj/vp64" (load-path)) (* time 10000000) (* time 1000000)))
+
 ;jit helper, lock file is not very effective here...
 (defun jit (prefix file products)
 	(bind '(_ *cpu* *abi*) (map (const sym) (split (load-path) "/")))

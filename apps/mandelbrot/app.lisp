@@ -14,8 +14,7 @@
 
 (defq +width 800 +height 800 +scale 2 +timer_rate (/ 1000000 1) id :t dirty :nil
 	center_x (mbfp-from-fixed -0.5) center_y (mbfp-from-fixed 0.0) zoom (mbfp-from-fixed 1.0)
-	+retry_timeout (if (starts-with "obj/vp64" (load-path)) 50000000 5000000)
-	jobs :nil farm :nil)
+	+retry_timeout (task-timeout 5) jobs :nil farm :nil)
 
 (ui-window *window* ()
 	(ui-title-bar _ "Mandelbrot" (0xea19) +event_close)

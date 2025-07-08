@@ -1004,6 +1004,12 @@ patch stream a with stream b, write to stream c
 (sym? form) -> :t | :nil
 ```
 
+### task-timeout
+
+```code
+(task-timeout s) -> ns
+```
+
 ### texture-metrics
 
 ```code

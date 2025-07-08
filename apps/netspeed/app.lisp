@@ -15,7 +15,7 @@
 	+bars ''(:regs_bar :memory_bar :reals_bar)
 	+results ''(:regs_results :memory_results :reals_results)
 	+max_aligns `'(,+max_bops_align ,+max_bops_align ,+max_mops_align)
-	+retry_timeout (if (starts-with "obj/vp64" (load-path)) 20000000 2000000))
+	+retry_timeout (task-timeout 5))
 
 (ui-window *window* ()
 	(ui-title-bar _ "Network Speed" (0xea19) +event_close)

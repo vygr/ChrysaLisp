@@ -14,7 +14,7 @@
 
 (defq +width 800 +height 800 +scale 1
 	+timer_rate (/ 1000000 1) id :t dirty :nil
-	+retry_timeout (if (starts-with "obj/vp64" (load-path)) 50000000 5000000)
+	+retry_timeout (task-timeout 5)
 	jobs (map (lambda (y)
 			(setf-> (str-alloc +job_size)
 				(+job_x 0)
