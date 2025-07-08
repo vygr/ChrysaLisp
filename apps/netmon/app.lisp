@@ -4,7 +4,7 @@
 (import "./app.inc")
 
 (enums +event 0
-	(enum close max min))
+	(enum close))
 
 (enums +select 0
 	(enum main task reply nodes))
@@ -15,7 +15,7 @@
 	+retry_timeout (if (starts-with "obj/vp64" (load-path)) 20000000 2000000))
 
 (ui-window *window* ()
-	(ui-title-bar _ "Network Monitor" (0xea19 0xea1b 0xea1a) +event_close)
+	(ui-title-bar _ "Network Monitor" (0xea19) +event_close)
 	(ui-grid *charts* (:grid_height 1)
 		(ui-hchart _ "Tasks" +task_scale_size (:color +argb_green))
 		(ui-hchart _ "Alloc (kb)" +mem_scale_size (:units 1024 :color +argb_yellow))
@@ -58,17 +58,6 @@
 					((= (setq id (getf msg +ev_msg_target_id)) +event_close)
 						;close button
 						(setq id :nil))
-					((= id +event_min)
-						;min button
-						(bind '(x y w h) (apply view-fit
-							(cat (. *window* :get_pos) (. *window* :pref_size))))
-						(. *window* :change_dirty x y w h))
-					((= id +event_max)
-						;max button
-						(bind '(x y) (. *window* :get_pos))
-						(bind '(w h) (. *window* :pref_size))
-						(bind '(x y w h) (view-fit x y (/ (* w 100) 80) h))
-						(. *window* :change_dirty x y w h))
 					(:t (. *window* :event msg))))
 			(+select_task
 				;child launch response
