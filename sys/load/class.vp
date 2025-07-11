@@ -28,8 +28,8 @@
 
 	(vp-def (links paths func statics os) '(:r10 :r11 :r12 :r13 :r14))
 
-	;VP stack is NOT the ARM64 stack !
-	(if (eql *abi* 'ARM64) (vp-cpy-rr :r31 :rsp))
+	;VP stack is NOT the arm64 stack !
+	(if (eql *cpu* 'arm64) (vp-cpy-rr :r31 :rsp))
 
 	;save inputs
 	(tk-save-state)
