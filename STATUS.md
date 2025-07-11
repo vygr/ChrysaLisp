@@ -14,6 +14,12 @@ automatically on its chld widget, for example.
 New `(repl-info) -> (name line)` function. Replaces `*stream_name*` and
 `*stream_line*` variables.
 
+Netmon now gathers stack space stats.
+
+Extensive rework on the Arm64 translator to NOT use 16 byte stack alignment !
+The VP `:rsp` in now not mapped to the Arm64 `:r31` register. This significantly
+reduces the stack space requirements.
+
 ------
 
 New `(condn)` special form. With that comes a faster `(and)` macro that follows

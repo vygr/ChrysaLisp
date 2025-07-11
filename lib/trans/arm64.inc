@@ -5,7 +5,7 @@
 ;module
 (env-push)
 
-(defcvar 'stack_align 16 'stack_state '(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14 :r30))
+(defcvar 'stack_align 8 'stack_state '(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14 :r30))
 (each (# (defcvar %0 %0)) '(:r15 :r16 :r17 :r18 :r19 :r20 :r21 :r22 :r23 :r24 :r25 :r26 :r27 :r28 :r29 :r30))
 
 (defun emit-native-reg? (r)
@@ -13,12 +13,15 @@
 		:r15                                            ;indirect (x8)
 		:r16 :r17 :r18 :r19 :r20 :r21 :r22              ;temps (x9-x15)
 		:r23 :r24 :r25                                  ;ip0, ip1, platform
-		:r8 :r9 :r10 :r11 :r12 :r13 :r14 :r26 :r27 :r28 ;callee saves (x19-x28)
-		:r29 :r30 :rsp)))                               ;frm, lnk, stack
+		:r8 :r9 :r10 :r11 :r12 :r13 :r14 :r26 :r27 :rsp ;callee saves (x19-x28)
+		:r29 :r30 :r31)))                               ;frm, lnk, stack
 
+;VP stack is NOT the ARM64 stack !
+;due to not wanting to suffer the 16 byte alignment restriction on calls etc.
 (defq +arm64_rlnk (emit-native-reg? :r30)
 	+arm64_rtmp (emit-native-reg? :r29)
-	+arm64_rsp (emit-native-reg? :rsp))
+	+arm64_vp_rsp (emit-native-reg? :rsp)
+	+arm64_rsp (emit-native-reg? :r31))
 
 (defmacro arm64-rrr (o m n d)
 	`(emitm-int (+ ,o (<< ,m 16) (<< ,n 5) ,d)))
@@ -253,15 +256,15 @@
 		(if (= (!) 0)
 			(emitm-int (+ 0xa9800000
 				(<< (logand (neg (align (* +ptr_size (length b)) stack_align)) 0x3f8) 12)
-				(<< (second %0) 10) (const (<< +arm64_rsp 5)) (first %0)))
+				(<< (second %0) 10) (const (<< +arm64_vp_rsp 5)) (first %0)))
 			(emitm-int (+ 0xa9000000 (<< (* (!) 2) 15)
-				(<< (second %0) 10) (const (<< +arm64_rsp 5)) (first %0))))
+				(<< (second %0) 10) (const (<< +arm64_vp_rsp 5)) (first %0))))
 		;singles, first allocating the space
 		(if (= (!) 0)
 			(emitm-int (+ 0xf8000c00
 				(<< (logand (neg (align (* +ptr_size (length b)) stack_align)) 0x1ff) 12)
-				(const (<< +arm64_rsp 5)) (first %0)))
-			(emit-cpy-ri (first %0) +arm64_rsp (* +ptr_size (* (!) 2))))))
+				(const (<< +arm64_vp_rsp 5)) (first %0)))
+			(emit-cpy-ri (first %0) +arm64_vp_rsp (* +ptr_size (* (!) 2))))))
 		(partition (reverse b) 2)))
 
 (defun emit-pop (&rest b)
@@ -270,15 +273,15 @@
 		(if (= (!) 0)
 			(emitm-int (+ 0xa8c00000
 				(<< (logand (align (* +ptr_size (length b)) stack_align) 0x3f8) 12)
-				(<< (second %0) 10) (const (<< +arm64_rsp 5)) (first %0)))
+				(<< (second %0) 10) (const (<< +arm64_vp_rsp 5)) (first %0)))
 			(emitm-int (+ 0xa9400000 (<< (* (!) 2) 15)
-				(<< (second %0) 10) (const (<< +arm64_rsp 5)) (first %0))))
+				(<< (second %0) 10) (const (<< +arm64_vp_rsp 5)) (first %0))))
 		;singles, last freeing the space
 		(if (= (!) 0)
 			(emitm-int (+ 0xf8400400
 				(<< (logand (align (* +ptr_size (length b)) stack_align) 0x1ff) 12)
-				(const (<< +arm64_rsp 5)) (first %0)))
-			(emit-cpy-ir +arm64_rsp (* +ptr_size (* (!) 2)) (first %0)))))
+				(const (<< +arm64_vp_rsp 5)) (first %0)))
+			(emit-cpy-ir +arm64_vp_rsp (* +ptr_size (* (!) 2)) (first %0)))))
 		(partition (reverse b) 2)))
 
 (defun emit-beq-cr (c d l m) (arm64-cmp-cr c d) (arm64-branch 0x0 l))
@@ -509,8 +512,8 @@
 	(emitm-int (+ 0x9b008000 (const (<< +arm64_rtmp 16)) (<< d2 10) (<< s 5) d1))
 	(emit-cpy-rr +arm64_rtmp d2))
 
-(defun emit-alloc (c) (emit-sub-cr (align c stack_align) +arm64_rsp))
-(defun emit-free (c) (emit-add-cr (align c stack_align) +arm64_rsp))
+(defun emit-alloc (c) (emit-sub-cr (align c stack_align) +arm64_vp_rsp))
+(defun emit-free (c) (emit-add-cr (align c stack_align) +arm64_vp_rsp))
 (defun emit-ret () (emitm-int 0xd65f03c0))
 (defun emit-sync (n) (emitm-int 0xd5033fbf))
 (defun emit-brk (n))
@@ -541,40 +544,42 @@
 					(if (= (!) 0)
 						(emitm-int (+ 0xa9800000
 							(<< (logand (neg (align (* +ptr_size l) 16)) 0x3f8) 12)
-							(<< (second %0) 10) (const (<< +arm64_rsp 5)) (first %0)))
+							(<< (second %0) 10) (const (<< +arm64_vp_rsp 5)) (first %0)))
 						(emitm-int (+ 0xa9000000 (<< (* (!) 2) 15)
-							(<< (second %0) 10) (const (<< +arm64_rsp 5)) (first %0))))
+							(<< (second %0) 10) (const (<< +arm64_vp_rsp 5)) (first %0))))
 					;singles, first allocating the space
 					(if (= (!) 0)
 						(emitm-int (+ 0xf8000c00
 							(<< (logand (neg (align (* +ptr_size l) 16)) 0x1ff) 12)
-							(const (<< +arm64_rsp 5)) (first %0)))
-						(emit-cpy-ri (first %0) +arm64_rsp (* +ptr_size (* (!) 2))))))
+							(const (<< +arm64_vp_rsp 5)) (first %0)))
+						(emit-cpy-ri (first %0) +arm64_vp_rsp (* +ptr_size (* (!) 2))))))
 					(partition (reverse x) 2))
 				;call via abi table
+				(emit-cpy-rr +arm64_vp_rsp +arm64_rsp)
 				(emit-cpy-ir b c +arm64_rtmp)
 				(emitm-int (const (+ 0xd63f0000 (<< +arm64_rtmp 5))))
 				;pop frame
 				(cond
 					((= 1 l) (emitm-int (+ 0xf8400400 (<< (align (* +ptr_size l) 16) 12)
-						(const (<< +arm64_rsp 5)) +arm64_rlnk)))
+						(const (<< +arm64_vp_rsp 5)) +arm64_rlnk)))
 					((= 2 l) (emitm-int (+ 0xa8c00000 (<< (align (* +ptr_size l) 16) 12)
-						(const (<< +arm64_rlnk 10)) (const (<< +arm64_rsp 5)) +arm64_rtmp)))
-					(:t (emit-cpy-ir +arm64_rsp (* +ptr_size (dec l)) +arm64_rlnk)
-						(emit-add-cr (align (* +ptr_size l) 16) +arm64_rsp))))
+						(const (<< +arm64_rlnk 10)) (const (<< +arm64_vp_rsp 5)) +arm64_rtmp)))
+					(:t (emit-cpy-ir +arm64_vp_rsp (* +ptr_size (dec l)) +arm64_rlnk)
+						(emit-add-cr (align (* +ptr_size l) 16) +arm64_vp_rsp))))
 			(:t (defq x (cat (list +arm64_rlnk r) x) l (length x))
-				(emit-cpy-rr +arm64_rsp r)
-				(emit-sub-cr (* +ptr_size l) +arm64_rsp)
-				(emit-and-cr -16 +arm64_rsp)
+				(emit-cpy-rr +arm64_vp_rsp r)
+				(emit-sub-cr (* +ptr_size l) +arm64_vp_rsp)
+				(emit-and-cr -16 +arm64_vp_rsp)
 				(each (# (if (= (length %0) 2)
 						(emitm-int (+ 0xa9000000 (<< (* (!) 2) 15)
-							(<< (second %0) 10) (const (<< +arm64_rsp 5)) (first %0)))
-						(emit-cpy-ri (first %0) +arm64_rsp (* +ptr_size (* (!) 2)))))
+							(<< (second %0) 10) (const (<< +arm64_vp_rsp 5)) (first %0)))
+						(emit-cpy-ri (first %0) +arm64_vp_rsp (* +ptr_size (* (!) 2)))))
 					(partition (reverse x) 2))
+				(emit-cpy-rr +arm64_vp_rsp +arm64_rsp)
 				(emit-cpy-ir b c +arm64_rtmp)
 				(emitm-int (const (+ 0xd63f0000 (<< +arm64_rtmp 5))))
-				(emit-cpy-ir +arm64_rsp (* +ptr_size (dec l)) +arm64_rlnk)
-				(emit-cpy-ir +arm64_rsp (* +ptr_size (- l 2)) +arm64_rsp)))))
+				(emit-cpy-ir +arm64_vp_rsp (* +ptr_size (dec l)) +arm64_rlnk)
+				(emit-cpy-ir +arm64_vp_rsp (* +ptr_size (- l 2)) +arm64_vp_rsp)))))
 (:t (throw (cat "Unknown ABI for CPU " *cpu* " !") *abi*)))
 
 ;module, that exports everything !
