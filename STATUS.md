@@ -17,7 +17,7 @@ New `(repl-info) -> (name line)` function. Replaces `*stream_name*` and
 Netmon now gathers stack space stats.
 
 Extensive rework on the Arm64 translator to NOT use 16 byte stack alignment !
-The VP `:rsp` in now not mapped to the Arm64 `:r31` register. This significantly
+The VP `:rsp` is now NOT mapped to the Arm64 `:r31` register. This significantly
 reduces the stack space requirements.
 
 ------
