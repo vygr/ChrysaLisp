@@ -248,32 +248,38 @@
 	(arm64-ri 3 0xf8000000 s d c))
 
 (defun emit-push (&rest b)
-	(cond
-		((= 0 (defq l (length b))))
-		((= 1 l) (emitm-int (+ 0xf8000c00 (<< (logand (neg stack_align) 0x1ff) 12)
-			(const (<< +arm64_rsp 5)) (first b))))
-		((= 2 l) (emitm-int (+ 0xa9800000 (<< (logand (neg stack_align) 0x3f8) 12)
-			(<< (first b) 10) (const (<< +arm64_rsp 5)) (second b))))
-		(:t (emit-sub-cr (align (* +ptr_size l) stack_align) +arm64_rsp)
-			(each (# (if (= (length %0) 2)
-					(emitm-int (+ 0xa9000000 (<< (* (!) 2) 15)
-						(<< (second %0) 10) (const (<< +arm64_rsp 5)) (first %0)))
-					(emit-cpy-ri (first %0) +arm64_rsp (* +ptr_size (* (!) 2)))))
-				(partition (reverse b) 2)))))
+	(each (# (if (= (length %0) 2)
+		;pairs, first allocating the space
+		(if (= (!) 0)
+			(emitm-int (+ 0xa9800000
+				(<< (logand (neg (align (* +ptr_size (length b)) stack_align)) 0x3f8) 12)
+				(<< (second %0) 10) (const (<< +arm64_rsp 5)) (first %0)))
+			(emitm-int (+ 0xa9000000 (<< (* (!) 2) 15)
+				(<< (second %0) 10) (const (<< +arm64_rsp 5)) (first %0))))
+		;singles, first allocating the space
+		(if (= (!) 0)
+			(emitm-int (+ 0xf8000c00
+				(<< (logand (neg (align (* +ptr_size (length b)) stack_align)) 0x1ff) 12)
+				(const (<< +arm64_rsp 5)) (first %0)))
+			(emit-cpy-ri (first %0) +arm64_rsp (* +ptr_size (* (!) 2))))))
+		(partition (reverse b) 2)))
 
 (defun emit-pop (&rest b)
-	(cond
-		((= 0 (defq l (length b))))
-		((= 1 l) (emitm-int (+ 0xf8400400 (<< (logand stack_align 0x1ff) 12)
-			(const (<< +arm64_rsp 5)) (first b))))
-		((= 2 l) (emitm-int (+ 0xa8c00000 (<< (logand stack_align 0x3f8) 12)
-			(<< (first b) 10) (const (<< +arm64_rsp 5)) (second b))))
-		(:t	(each (# (if (= (length %0) 2)
-					(emitm-int (+ 0xa9400000 (<< (* (!) 2) 15)
-						(<< (second %0) 10) (const (<< +arm64_rsp 5)) (first %0)))
-					(emit-cpy-ir +arm64_rsp (* +ptr_size (* (!) 2)) (first %0))))
-				(partition (reverse b) 2))
-			(emit-add-cr (align (* +ptr_size l) stack_align) +arm64_rsp))))
+	(reach (# (if (= (length %0) 2)
+		;pairs, last freeing the space
+		(if (= (!) 0)
+			(emitm-int (+ 0xa8c00000
+				(<< (logand (align (* +ptr_size (length b)) stack_align) 0x3f8) 12)
+				(<< (second %0) 10) (const (<< +arm64_rsp 5)) (first %0)))
+			(emitm-int (+ 0xa9400000 (<< (* (!) 2) 15)
+				(<< (second %0) 10) (const (<< +arm64_rsp 5)) (first %0))))
+		;singles, last freeing the space
+		(if (= (!) 0)
+			(emitm-int (+ 0xf8400400
+				(<< (logand (align (* +ptr_size (length b)) stack_align) 0x1ff) 12)
+				(const (<< +arm64_rsp 5)) (first %0)))
+			(emit-cpy-ir +arm64_rsp (* +ptr_size (* (!) 2)) (first %0)))))
+		(partition (reverse b) 2)))
 
 (defun emit-beq-cr (c d l m) (arm64-cmp-cr c d) (arm64-branch 0x0 l))
 (defun emit-bne-cr (c d l m) (arm64-cmp-cr c d) (arm64-branch 0x1 l))
@@ -529,14 +535,26 @@
 		(cond
 			((= (% *func_align* 16) 0)
 				(defq x (cat (list +arm64_rlnk) x) l (length x))
-				(emit-sub-cr (align (* +ptr_size l) 16) +arm64_rsp)
+				;push frame
 				(each (# (if (= (length %0) 2)
-						(emitm-int (+ 0xa9000000 (<< (* (!) 2) 15)
+					;pairs, first allocating the space
+					(if (= (!) 0)
+						(emitm-int (+ 0xa9800000
+							(<< (logand (neg (align (* +ptr_size l) 16)) 0x3f8) 12)
 							(<< (second %0) 10) (const (<< +arm64_rsp 5)) (first %0)))
-						(emit-cpy-ri (first %0) +arm64_rsp (* +ptr_size (* (!) 2)))))
+						(emitm-int (+ 0xa9000000 (<< (* (!) 2) 15)
+							(<< (second %0) 10) (const (<< +arm64_rsp 5)) (first %0))))
+					;singles, first allocating the space
+					(if (= (!) 0)
+						(emitm-int (+ 0xf8000c00
+							(<< (logand (neg (align (* +ptr_size l) 16)) 0x1ff) 12)
+							(const (<< +arm64_rsp 5)) (first %0)))
+						(emit-cpy-ri (first %0) +arm64_rsp (* +ptr_size (* (!) 2))))))
 					(partition (reverse x) 2))
+				;call via abi table
 				(emit-cpy-ir b c +arm64_rtmp)
 				(emitm-int (const (+ 0xd63f0000 (<< +arm64_rtmp 5))))
+				;pop frame
 				(cond
 					((= 1 l) (emitm-int (+ 0xf8400400 (<< (align (* +ptr_size l) 16) 12)
 						(const (<< +arm64_rsp 5)) +arm64_rlnk)))
