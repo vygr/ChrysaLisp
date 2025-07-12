@@ -535,7 +535,7 @@
 (case *abi*
 (ARM64
 	(defun emit-call-abi (r b c n &rest x)
-		(defq l (length x))
+		(defq s (* +ptr_size (length x)))
 		(cond
 			((= (% *func_align* 16) 0)
 				;push frame
@@ -545,14 +545,14 @@
 					;pairs, first allocating the space
 					(if (= (!) 0)
 						(emitm-int (+ 0xa9800000
-							(<< (logand (neg (align (* +ptr_size l) 16)) 0x3f8) 12)
+							(<< (logand (neg (align s 16)) 0x3f8) 12)
 							(<< (second %0) 10) (const (<< +arm64_rsp 5)) (first %0)))
 						(emitm-int (+ 0xa9000000 (<< (* (!) 2) 15)
 							(<< (second %0) 10) (const (<< +arm64_rsp 5)) (first %0))))
 					;singles, first allocating the space
 					(if (= (!) 0)
 						(emitm-int (+ 0xf8000c00
-							(<< (logand (neg (align (* +ptr_size l) 16)) 0x1ff) 12)
+							(<< (logand (neg (align s 16)) 0x1ff) 12)
 							(const (<< +arm64_rsp 5)) (first %0)))
 						(emit-cpy-ri (first %0) +arm64_rsp (* +ptr_size (* (!) 2))))))
 					(partition (reverse x) 2))
@@ -561,7 +561,7 @@
 				(emitm-int (+ 0xd63f0000 (<< r 5)))
 				;pop frame
 				(emit-cpy-rr +arm64_rtmp +arm64_rlnk))
-			(:t (emit-lea-i +arm64_vp_rsp (neg (* +ptr_size l)) +arm64_rsp)
+			(:t (emit-lea-i +arm64_vp_rsp (neg s) +arm64_rsp)
 				(emit-and-cr -16 +arm64_rsp)
 				(emit-cpy-rr +arm64_rlnk +arm64_rtmp)
 				(each (# (if (= (length %0) 2)

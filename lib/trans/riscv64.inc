@@ -5,7 +5,7 @@
 ;module
 (env-push)
 
-(defcvar 'stack_align 16 'stack_state '(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14 :r30))
+(defcvar 'stack_align 8 'stack_state '(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14 :r30))
 (each (# (defcvar %0 %0)) '(:r15 :r16 :r17 :r18 :r19 :r20 :r21 :r22 :r23 :r24 :r25 :r26 :r27 :r28 :r29 :r30))
 
 (defun emit-native-reg? (r)
@@ -22,6 +22,8 @@
 	+riscv64_rtmp1 (emit-native-reg? :r28)
 	+riscv64_rtmp2 (emit-native-reg? :r27)
 	+riscv64_rtmp3 (emit-native-reg? :r26)
+	+riscv64_rtmp4 (emit-native-reg? :r24)
+	+riscv64_rtmp5 (emit-native-reg? :r23)
 	+riscv64_rsp (emit-native-reg? :rsp))
 
 (defmacro riscv64-within (c n)
@@ -352,15 +354,11 @@
 (defun emit-push (&rest b)
 	(when (/= 0 (defq l (length b)))
 		(emit-sub-cr (align (* +ptr_size l) stack_align) +riscv64_rsp)
-		(defq _ l)
-		(while (>= (setq _ (dec _)) 0)
-			(emit-cpy-ri (elem-get b _) +riscv64_rsp (* +ptr_size (- l _ 1))))))
+		(each (# (emit-cpy-ri %0 +riscv64_rsp (* +ptr_size (!)))) (reverse b))))
 
 (defun emit-pop (&rest b)
 	(when (/= 0 (defq l (length b)))
-		(defq _ l)
-		(while (>= (setq _ (dec _)) 0)
-			(emit-cpy-ir +riscv64_rsp (* +ptr_size (- l _ 1)) (elem-get b _)))
+		(each (# (emit-cpy-ir +riscv64_rsp (* +ptr_size (!)) %0)) (reverse b))
 		(emit-add-cr (align (* +ptr_size l) stack_align) +riscv64_rsp)))
 
 (defun emit-call (l)
@@ -421,8 +419,8 @@
 
 (defun emit-stack-init (s f x)
 	(defq tk_state_size (* +ptr_size (length stack_state)))
-	(emit-and-cr (neg stack_align) s)
 	(emit-sub-cr tk_state_size s)
+	(emit-and-cr -16 s)
 	(emit-cpy-ri f s (- tk_state_size +ptr_size))
 	(emit-cpy-ri x s (- tk_state_size (* +ptr_size 2)))
 	(emit-lea-p (+ *pc* 16) f)
@@ -436,12 +434,20 @@
 (case *abi*
 (RISCV64
 (defun emit-call-abi (r b c n &rest x)
-	(defq x (cat (list +riscv64_rlnk) x) l (length x))
-	(apply (const emit-push) x)
-	(emit-cpy-ir b c +riscv64_rtmp1)
-	(riscv64-i 0x67 +riscv64_rlnk +riscv64_rtmp1 0x0 0x0)
-	(emit-cpy-ir +riscv64_rsp (* +ptr_size (dec l)) +riscv64_rlnk)
-	(emit-free (* +ptr_size l))))
+	(defun emit-call-abi (r b c n &rest x)
+		(defq s (* +ptr_size (length x)))
+		(emit-cpy-rr +riscv64_rsp +riscv64_rtmp4)
+		(emit-cpy-rr +riscv64_rlnk +riscv64_rtmp5)
+		(cond
+			((= (% *func_align* 16) 0)
+				(emit-sub-cr (align s 16) +riscv64_rsp))
+			(:t	(emit-sub-cr s +riscv64_rsp)
+				(emit-and-cr -16 +riscv64_rsp)))
+		(each (# (emit-cpy-ri %0 +riscv64_rsp (* +ptr_size (!)))) (reverse x))
+		(emit-cpy-ir b c +riscv64_rtmp1)
+		(riscv64-i 0x67 +riscv64_rlnk +riscv64_rtmp1 0x0 0x0)
+		(emit-cpy-rr +riscv64_rtmp4 +riscv64_rsp)
+		(emit-cpy-rr +riscv64_rtmp5 +riscv64_rlnk))))
 (:t (throw (cat "Unknown ABI for CPU " *cpu* " !") *abi*)))
 
 ;module, that exports everything !
