@@ -33,8 +33,8 @@
 ;;;;;;;;;;;;;;;;;
 
 (defcvar 'tk_stack_size (* 1024 16))
-(defcvar 'tk_stack_margin (* 1024 1))
-(defcvar 'tk_stack_canary 0xbadfod1234567890)
+(defcvar 'tk_stack_margin (* 512 1))
+(defcvar 'tk_stack_canary 0xbadf00d123456789)
 
 (def-struct tk_node ln_node_size
 	(ptr stack stack_top mbox_addr lisp tls)
