@@ -10,7 +10,6 @@
 
 (include "sys/pii/class.inc")
 (include "sys/task/class.inc")
-(include "sys/statics/class.inc")
 
 ;;;;;;;;;;;
 ; functions
@@ -73,24 +72,7 @@
 	(push-scope)
 	(defq *emit_start* (length *emit_list*))
 	(def *compile_env* '*func_env* (env))
-	(env-push)
-	;runtime stack checks ...
-	(unless (or :t
-			(ends-with "/vtable" *func_name*)
-			(starts-with "sys/" *func_name*))
-		(vp-push :r0 :r1)
-		(fn-bind 'sys/statics/statics :r0)
-		(vp-cpy-ir :r0 statics_sys_task_kernel_tcb :r1)
-		(vp-cpy-ir :r0 statics_sys_task_current_tcb :r0)
-		(vpif '(:r0 /= :r1))
-			(vp-add-cr (+ tk_node_size tk_stack_margin) :r0)
-			(vp-cpy-rr :rsp :r1)
-			(vpif '(:r1 < :r0))
-				(vp-pop :r0 :r1)
-				(jump 'sys_task :dump)
-			(endif)
-		(endif)
-		(vp-pop :r0 :r1)))
+	(env-push))
 
 (defun def-func-end ()
 	(env-pop)

@@ -535,51 +535,43 @@
 (case *abi*
 (ARM64
 	(defun emit-call-abi (r b c n &rest x)
+		(defq l (length x))
 		(cond
 			((= (% *func_align* 16) 0)
-				(defq x (cat (list +arm64_rlnk) x) l (length x))
 				;push frame
+				(emit-cpy-rr +arm64_vp_rsp +arm64_rsp)
+				(emit-cpy-rr +arm64_rlnk +arm64_rtmp)
 				(each (# (if (= (length %0) 2)
 					;pairs, first allocating the space
 					(if (= (!) 0)
 						(emitm-int (+ 0xa9800000
 							(<< (logand (neg (align (* +ptr_size l) 16)) 0x3f8) 12)
-							(<< (second %0) 10) (const (<< +arm64_vp_rsp 5)) (first %0)))
+							(<< (second %0) 10) (const (<< +arm64_rsp 5)) (first %0)))
 						(emitm-int (+ 0xa9000000 (<< (* (!) 2) 15)
-							(<< (second %0) 10) (const (<< +arm64_vp_rsp 5)) (first %0))))
+							(<< (second %0) 10) (const (<< +arm64_rsp 5)) (first %0))))
 					;singles, first allocating the space
 					(if (= (!) 0)
 						(emitm-int (+ 0xf8000c00
 							(<< (logand (neg (align (* +ptr_size l) 16)) 0x1ff) 12)
-							(const (<< +arm64_vp_rsp 5)) (first %0)))
-						(emit-cpy-ri (first %0) +arm64_vp_rsp (* +ptr_size (* (!) 2))))))
+							(const (<< +arm64_rsp 5)) (first %0)))
+						(emit-cpy-ri (first %0) +arm64_rsp (* +ptr_size (* (!) 2))))))
 					(partition (reverse x) 2))
 				;call via abi table
-				(emit-cpy-rr +arm64_vp_rsp +arm64_rsp)
-				(emit-cpy-ir b c +arm64_rtmp)
-				(emitm-int (const (+ 0xd63f0000 (<< +arm64_rtmp 5))))
+				(emit-cpy-ir b c r)
+				(emitm-int (+ 0xd63f0000 (<< r 5)))
 				;pop frame
-				(cond
-					((= 1 l) (emitm-int (+ 0xf8400400 (<< (align (* +ptr_size l) 16) 12)
-						(const (<< +arm64_vp_rsp 5)) +arm64_rlnk)))
-					((= 2 l) (emitm-int (+ 0xa8c00000 (<< (align (* +ptr_size l) 16) 12)
-						(const (<< +arm64_rlnk 10)) (const (<< +arm64_vp_rsp 5)) +arm64_rtmp)))
-					(:t (emit-cpy-ir +arm64_vp_rsp (* +ptr_size (dec l)) +arm64_rlnk)
-						(emit-add-cr (align (* +ptr_size l) 16) +arm64_vp_rsp))))
-			(:t (defq x (cat (list +arm64_rlnk r) x) l (length x))
-				(emit-cpy-rr +arm64_vp_rsp r)
-				(emit-sub-cr (* +ptr_size l) +arm64_vp_rsp)
-				(emit-and-cr -16 +arm64_vp_rsp)
+				(emit-cpy-rr +arm64_rtmp +arm64_rlnk))
+			(:t (emit-lea-i +arm64_vp_rsp (neg (* +ptr_size l)) +arm64_rsp)
+				(emit-and-cr -16 +arm64_rsp)
+				(emit-cpy-rr +arm64_rlnk +arm64_rtmp)
 				(each (# (if (= (length %0) 2)
 						(emitm-int (+ 0xa9000000 (<< (* (!) 2) 15)
-							(<< (second %0) 10) (const (<< +arm64_vp_rsp 5)) (first %0)))
-						(emit-cpy-ri (first %0) +arm64_vp_rsp (* +ptr_size (* (!) 2)))))
+							(<< (second %0) 10) (const (<< +arm64_rsp 5)) (first %0)))
+						(emit-cpy-ri (first %0) +arm64_rsp (* +ptr_size (* (!) 2)))))
 					(partition (reverse x) 2))
-				(emit-cpy-rr +arm64_vp_rsp +arm64_rsp)
-				(emit-cpy-ir b c +arm64_rtmp)
-				(emitm-int (const (+ 0xd63f0000 (<< +arm64_rtmp 5))))
-				(emit-cpy-ir +arm64_vp_rsp (* +ptr_size (dec l)) +arm64_rlnk)
-				(emit-cpy-ir +arm64_vp_rsp (* +ptr_size (- l 2)) +arm64_vp_rsp)))))
+				(emit-cpy-ir b c r)
+				(emitm-int (+ 0xd63f0000 (<< r 5)))
+				(emit-cpy-rr +arm64_rtmp +arm64_rlnk)))))
 (:t (throw (cat "Unknown ABI for CPU " *cpu* " !") *abi*)))
 
 ;module, that exports everything !
