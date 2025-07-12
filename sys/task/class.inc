@@ -32,7 +32,7 @@
 ; task structures
 ;;;;;;;;;;;;;;;;;
 
-(defcvar 'tk_stack_size (* 1024 16))
+(defcvar 'tk_stack_size (* 1024 10))
 (defcvar 'tk_stack_margin (* 512 1))
 (defcvar 'tk_stack_canary 0xbadf00d123456789)
 
