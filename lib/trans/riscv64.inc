@@ -344,8 +344,6 @@
 		((and (= i 0) (eql s d)))
 		((riscv64-within i 12)
 			(riscv64-i 0x13 d s 0x0 i))
-		((riscv64-within i 12)
-			(riscv64-i 0x13 d s 0x0 i))
 		(:t (emit-cpy-cr i +riscv64_rtmp3)
 			(riscv64-r 0x33 d s +riscv64_rtmp3 0x0 0x0))))
 
