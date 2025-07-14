@@ -14,9 +14,9 @@ automatically on its chld widget, for example.
 New `(repl-info) -> (name line)` function. Replaces `*stream_name*` and
 `*stream_line*` variables.
 
-Netmon now gathers stack space stats. The space reported is the maximum of all
-the current task stacks on that VP node, in debug mode, and the current stack
-use in release mode.
+Netmon now gathers stack space stats. The space reported, in debug mode, is the
+maximum of all the current task stacks on that VP node and the current maximum
+stack use in release mode.
 
 Extensive rework on the Arm64 translator to NOT use 16 byte stack alignment !
 The VP `:rsp` is now NOT mapped to the Arm64 `:r31` register. This significantly
