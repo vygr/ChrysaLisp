@@ -82,31 +82,18 @@ inst:
 	@./run_tui.sh -n 8 -i -e -f
 
 obj/$(CPU)/$(ABI)/$(OS)/main_gui:	$(OBJ_FILES_GUI)
-ifeq ($(GUI),fb)
-	c++ -o $@ $^
-else
-	c++ -o $@ $^ \
-		$(shell sdl2-config --libs) -lSDL2_mixer
-endif
+	c++ -o $@ $^ $(shell sdl2-config --libs) -lSDL2_mixer
 
 obj/$(CPU)/$(ABI)/$(OS)/main_tui:	$(OBJ_FILES_TUI)
 	c++ -o $@ $^
 
 $(OBJ_DIR_GUI)/%.o: $(SRC_DIR)/%.cpp
-ifeq ($(GUI),fb)
-	c++ -c -o $@ $< $(CFLAGS) $(CPPFLAGS) -D_HOST_GUI=$(HOST_GUI) -D_HOST_AUDIO=$(HOST_AUDIO)
-else
 	c++ -c -o $@ $< $(CFLAGS) $(CPPFLAGS) -D_HOST_GUI=$(HOST_GUI) -D_HOST_AUDIO=$(HOST_AUDIO) \
-		$(shell sdl2-config --cflags)		
-endif
+		$(shell sdl2-config --cflags)
 
 $(OBJ_DIR_GUI)/%.o: $(SRC_DIR)/%.c
-ifeq ($(GUI),fb)
-	cc -c -o $@ $< $(CFLAGS) -D_HOST_GUI=$(HOST_GUI) -D_HOST_AUDIO=$(HOST_AUDIO)
-else
 	cc -c -o $@ $< $(CFLAGS) -D_HOST_GUI=$(HOST_GUI) -D_HOST_AUDIO=$(HOST_AUDIO) \
 		$(shell sdl2-config --cflags)
-endif
 
 $(OBJ_DIR_TUI)/%.o: $(SRC_DIR)/%.cpp
 	c++ -c -o $@ $< $(CFLAGS) $(CPPFLAGS)
