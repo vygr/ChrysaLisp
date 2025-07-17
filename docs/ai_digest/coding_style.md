@@ -285,17 +285,17 @@ for sophisticated pattern matching.
 **Example: Parsing a Regexp Match**
 
 The `Regexp` library provides a perfect use case. The `matches` function returns
-a list where each element is a sub-list containing the full match followed by
-its capture groups.
+a list where each element is a sub-list containing the full match slice followed
+by its capture group slices.
 
 ```vdu
 (defq line "INFO: v2 2024-05-15 data.zip")
-(defq match (matches line "(\\w+): v(\\d) (\\S+) (\\S+)"))
-;; match -> '(("INFO: v2 2024-05-15 data.zip" "INFO" "2" "2024-05-15" "data.zip"))
+(defq match (matches line "(\w+): v(\d) (\S+) (\S+)"))
+;; match -> (((0 28) (0 4) (7 8) (9 19) (20 28)))
 
-;; We only want the version
-;; &ignore is perfect for this.
-(bind '((_ _ version &ignore)) (first match))
+;; We only want the version, &ignore is perfect for this.
+(bind '((_ _ (vx vy) &ignore)) match)
+(defq version (slice line vx vy))
 
 ;; ONLY 'version' is bound. The bind operation stopped immediately
 ;; after processing the version number, making this highly efficient.
