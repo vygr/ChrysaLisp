@@ -46,10 +46,10 @@ libraries for a single, native architecture.
     function recompiles all `.vp` source files for the host architecture (ARM64)
     ten times and calculates the average.
 
-*   **Result:** **~0.084 seconds** (mean time per rebuild).
+*   **Result:** **~0.074 seconds** (mean time per rebuild).
 
 *   **Evidence:** This demonstrates the absolute speed of the ChrysaLisp
-    compiler running natively. A complete OS rebuild in 84 milliseconds sets the
+    compiler running natively. A complete OS rebuild in 74 milliseconds sets the
     baseline for all other benchmarks.
 
 ### Test 2: Multi-Platform Compilation Speed (The Throughput)
@@ -64,7 +64,7 @@ target architectures simultaneously.
     riscv64/RISCV64, and vp64/VP64. The output is piped to the `cmd/time.lisp`
     application, which measures the total duration.
 
-*   **Result:** **0.444356 seconds**.
+*   **Result:** **0.419240 seconds**.
 
 *   **Evidence:** This is the total time to compile the *entire operating system
     five times*, once for each target architecture. This showcases the extreme
@@ -81,11 +81,11 @@ build a native version of itself while running on the portable C++ emulator.
     ChrysaLisp. Inside this emulated environment, it then invokes
     `make all boot` to build a **native ARM64** boot image from source.
 
-*   **Result (M4):** **2.535553 seconds**.
+*   **Result (M4):** **2.268061 seconds**.
 
 *   **Result (Raspberry Pi 4):** **~10 seconds**.
 
-*   **Evidence:** The 2.5-second time on the M4 is not a native build; it's the
+*   **Evidence:** The 2.2-second time on the M4 is not a native build; it's the
     time for the portable software emulator to perform a full native compile and
     link. The fact that a low-power Raspberry Pi 4 can perform this same complex
     bootstrap in only ~10 seconds is the ultimate proof of the architecture's
