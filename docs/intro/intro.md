@@ -122,10 +122,10 @@ Here's a summary of the setup:
 
 3. **Configure Framebuffer for 32bpp ARGB**:
 
-    * Edit `/boot/config.txt`:
+    * Edit `/boot/firmware/config.txt`:
 
 ```code
-sudo nano /boot/config.txt
+sudo nano /boot/firmware/config.txt
 ```
 
     * Comment out the `dtoverlay=vc4-fkms-v3d` line by adding `#` at the 
@@ -136,6 +136,16 @@ sudo nano /boot/config.txt
 ```
 
     * Reboot. You can check the format with `fbset`.
+
+```code
+fbset
+
+mode "1920x1080
+    geometry 1920 1080 1920 1080 32
+    timings 0 0 0 0 0 0 0
+    rgba 8/16,8/8,8/0,8/24
+endmode
+```
 
 4. **Set Permissions**: Replace `your_username` with your actual username.
 

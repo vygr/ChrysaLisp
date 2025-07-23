@@ -41,12 +41,12 @@ mode on boot, if wanted:
 sudo raspi-config
 ```
 
-The next step is setting up the FRAMEBUFFER device to use 32bpp (bits per
-pixel) ARGB. This will result in higher quality graphics. To do this, edit the
-`/boot/config.txt` file using:
+The next step is setting up the FRAMEBUFFER device to use 32bpp (bits per pixel)
+ARGB. This will result in higher quality graphics. To do this, edit the
+`/boot/firmware/config.txt` file using:
 
 ```code
-sudo nano /boot/config.txt
+sudo nano /boot/firmware/config.txt
 ```
 
 Find the following line, and comment out the statement by adding a '#' as the
@@ -59,6 +59,16 @@ RGB565. (Note, ChrysaLisp will run fine on RGB565 if you want to):
 
 The program `fbset` can be used (after rebooting) to see what the current
 FRAMEBUFFER format is.
+
+```code
+fbset
+
+mode "1920x1080
+    geometry 1920 1080 1920 1080 32
+    timings 0 0 0 0 0 0 0
+    rgba 8/16,8/8,8/0,8/24
+endmode
+```
 
 By default, Linux doesn't allow opening `/dev/fb0` (the FRAMEBUFFER), nor the
 default terminal `/dev/tty` (the CONSOLE), or the mouse `/dev/input/mice`
