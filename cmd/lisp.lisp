@@ -25,7 +25,7 @@
 				(print "Press ESC/Enter to exit.")
 				(stream-flush stdout)
 				(stream-flush stderr))
-			;else, include any files given as args (in this enviroment, hence the while loop !)
+			;else, include any files given as args (in this environment, hence the while loop !)
 			(progn
 				(defq i 0)
 				(while (< (++ i) (length args))
