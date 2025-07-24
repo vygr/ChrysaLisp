@@ -102,6 +102,7 @@
 	(gui-add-front-rpc (. *window* :change x y w h))
 	(window-resize)
 	(action-insert (cat "ChrysaLisp Terminal" (ascii-char +char_lf) *env_terminal_prompt*))
+	(defq *margin_x* *cursor_x*)
 	(while *running*
 		(bind '(*msg* idx) (input-select))
 		(cond
@@ -113,7 +114,8 @@
 						(. *pipe* :close)
 						(setq *pipe* :nil)
 						(action-insert (cat (ascii-char +char_lf) *env_terminal_prompt*)))
-					((action-insert *msg* +line_wrap_len))))
+					((action-insert *msg* +line_wrap_len)))
+				(setq *margin_x* *cursor_x*))
 			((= idx +select_tip)
 				;tip time mail
 				(if (defq view (. *window* :find_id (getf *msg* +mail_timeout_id)))

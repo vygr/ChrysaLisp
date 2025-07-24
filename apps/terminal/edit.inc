@@ -18,9 +18,9 @@
 (defun action-backspace ()
 	(input-cursor
 		(cond
-			(*pipe* (if (> x 0) (. buffer :backspace)))
+			(*pipe* (if (> x *margin_x*) (. buffer :backspace)))
 			((not (eql (. buffer :cut ax ay) "")))
-			((if (> x (length *env_terminal_prompt*)) (. buffer :backspace)))))
+			((if (> x *margin_x*) (. buffer :backspace)))))
 	(. *edit* :clear_selection)
 	(refresh))
 
@@ -35,9 +35,8 @@
 (defun action-tab ()
 	(unless *pipe*
 		(input-cursor
-			(defq prompt_len (length *env_terminal_prompt*)
-				cmd (slice (. buffer :get_text_line y) prompt_len -1))
-			(. buffer :insert (url-ext cmd (- x prompt_len))))
+			(defq cmd (slice (. buffer :get_text_line y) *margin_x* -1))
+			(. buffer :insert (url-ext cmd (- x *margin_x*))))
 		(. *edit* :clear_selection)
 		(refresh)))
 
@@ -48,11 +47,10 @@
 		(cond
 			(*pipe*
 				;active pipe so feed it
-				(. *pipe* :write (cat (. buffer :get_text_line y) (ascii-char +char_lf)))
+				(. *pipe* :write (cat (slice (. buffer :get_text_line y) *margin_x* -1) (ascii-char +char_lf)))
 				(. buffer :paste (ascii-char +char_lf)))
 			(:t ;no active pipe
-				(defq prompt_len (length *env_terminal_prompt*)
-					cmd (slice (. buffer :get_text_line y) prompt_len -1))
+				(defq cmd (slice (. buffer :get_text_line y) *margin_x* -1))
 				(. buffer :paste (const (cat (ascii-char +char_lf) (ascii-char +char_lf))))
 				(cond
 					((> (length cmd) 0)
@@ -81,5 +79,6 @@
 			(. *pipe* :close)
 			(setq *pipe* :nil)
 			(. buffer :paste (cat (ascii-char +char_lf) *env_terminal_prompt*)))
+		(setq *margin_x* *cursor_x*)
 		(. *edit* :clear_selection)
 		(refresh)))

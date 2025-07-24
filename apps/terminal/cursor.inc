@@ -3,18 +3,12 @@
 ;;;;;;;;;;;;;;;;
 
 (defun action-home ()
-	(input-cursor
-		(cond
-			(*pipe* (. buffer :set_cursor 0 y))
-			((. buffer :set_cursor (length *env_terminal_prompt*) y))))
+	(input-cursor (. buffer :set_cursor *margin_x* y))
 	(. *edit* :clear_selection)
 	(refresh))
 
 (defun action-home-select ()
-	(input-cursor
-		(cond
-			(*pipe* (. buffer :set_cursor 0 y))
-			((. buffer :set_cursor (length *env_terminal_prompt*) y))))
+	(input-cursor (. buffer :set_cursor *margin_x* y))
 	(refresh))
 
 (defun action-end ()
@@ -33,17 +27,13 @@
 (defun action-left ()
 	(input-cursor
 		(cond
-			(*pipe* (if (> x 0) (. buffer :left)))
 			((< ax x) (. buffer :set_cursor ax y))
-			((if (> x (length *env_terminal_prompt*)) (. buffer :left)))))
+			((if (> x *margin_x*) (. buffer :left)))))
 	(. *edit* :clear_selection)
 	(refresh))
 
 (defun action-left-select ()
-	(input-cursor
-		(cond
-			(*pipe* (if (> x 0) (. buffer :left)))
-			((if (> x (length *env_terminal_prompt*)) (. buffer :left)))))
+	(input-cursor (if (> x *margin_x*) (. buffer :left)))
 	(refresh))
 
 (defun action-right ()
@@ -55,10 +45,7 @@
 	(refresh))
 
 (defun action-right-select ()
-	(input-cursor
-		(cond
-			(*pipe* (. buffer :right))
-			((if (/= x (length (. buffer :get_text_line y))) (. buffer :right)))))
+	(input-cursor (if (/= x (length (. buffer :get_text_line y))) (. buffer :right)))
 	(refresh))
 
 (defun action-up ()
