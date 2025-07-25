@@ -18,7 +18,6 @@
 (defun action-backspace ()
 	(input-cursor
 		(cond
-			(*pipe* (if (> x *margin_x*) (. buffer :backspace)))
 			((not (eql (. buffer :cut ax ay) "")))
 			((if (> x *margin_x*) (. buffer :backspace)))))
 	(. *edit* :clear_selection)
