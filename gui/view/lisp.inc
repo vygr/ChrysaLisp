@@ -246,9 +246,7 @@
 
 	(defmethod :constraint ()
 		; (. view :constraint) -> (width height)
-		(defq mw (def? :min_width this) mh (def? :min_height this))
-		(setd mw 0 mh 0)
-		(list mw mh))
+		(list (ifn (def? :min_width this) 0) (ifn (def? :min_height this) 0)))
 
 	(defmethod :get_constraint ()
 		; (. view :get_constraint) -> (width height)

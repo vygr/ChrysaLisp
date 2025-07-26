@@ -32,11 +32,9 @@
 	(defmethod :constraint ()
 		; (. window :constraint) -> (width height)
 		(raise :border :shadow :child)
-		(defq mw (def? :min_width this) mh (def? :min_height this))
-		(setd mw 0 mh 0)
 		(bind '(w h) (. child :get_constraint))
-		(setq w (max w mw) h (max h mh))
-		(list (+ (* (+ shadow border) 2) w) (+ (* (+ shadow border) 2) h)))
+		(list (+ (* (+ shadow border) 2) (max w (ifn (def? :min_width this) 0)))
+			(+ (* (+ shadow border) 2) (max h (ifn (def? :min_height this) 0)))))
 
 	(defmethod :layout ()
 		; (. window :layout) -> window

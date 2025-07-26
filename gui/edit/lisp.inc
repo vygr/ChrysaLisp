@@ -122,7 +122,7 @@
 				(def child
 					:min_width min_w :min_height min_h
 					:vdu_width vdu_w :vdu_height vdu_h)
-				(. child :set_bounds 0 0 w h)) ;layout
+				(. child :set_bounds 0 0 w h))
 			(. this :children))
 		this)
 

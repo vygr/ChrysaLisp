@@ -35,10 +35,8 @@
 
 	(defmethod :constraint ()
 		; (. text :constraint) -> (width height)
-		(defq font (get :font this) text (get :text this)
-			mw (def? :min_width this) mh (def? :min_height this)
-			w 0 h 0)
-		(setd mw 0 mh 0)
+		(defq font (get :font this) text (get :text this) w 0 h 0)
 		(and font text (bind '(w h) (font-glyph-bounds font text)))
-		(list (max w mw) (max h mh)))
+		(list (max w (ifn (def? :min_width this) 0))
+			(max h (ifn (def? :min_height this) 0))))
 	)

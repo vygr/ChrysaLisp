@@ -37,9 +37,8 @@
 	(defmethod :constraint ()
 		; (. vdu :constraint) -> (width height)
 		(bind '(cw ch) (. this :char_size))
-		(defq vdu_width (get :vdu_width this) vdu_height (get :vdu_height this)
-			mw (def? :min_width this) mh (def? :min_height this))
-		(list (* (if mw mw vdu_width) cw) (* (if mh mh vdu_height) ch)))
+		(list (* (ifn (def? :min_width this) (get :vdu_width this)) cw)
+			(* (ifn (def? :min_height this) (get :vdu_height this)) ch)))
 
 	(defmethod :layout ()
 		; (. vdu :layout) -> vdu

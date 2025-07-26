@@ -24,11 +24,10 @@
 
 	(defmethod :constraint ()
 		; (. label :constraint) -> (width height)
-		(defq mw (def? :min_width this) mh (def? :min_height this)
-			border (abs (get :border this)))
-		(setd mw 0 mh 0)
+		(defq border (abs (get :border this)))
 		(bind '(w h) (. (get :label_flow this) :get_constraint))
-		(list (+ (* border 2) (max w mw)) (+ (* border 2) (max h mh))))
+		(list (+ (* border 2) (max w (ifn (def? :min_width this) 0)))
+			(+ (* border 2) (max h (ifn (def? :min_height this) 0)))))
 
 	(defmethod :layout ()
 		; (. label :layout) -> label

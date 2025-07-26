@@ -27,9 +27,7 @@
 
 	(defmethod :constraint ()
 		; (. flow :constraint) -> (width height)
-		(defq flow_flags (get :flow_flags this) pw 0 ph 0
-			mw (def? :min_width this) mh (def? :min_height this))
-		(setd mw 0 mh 0)
+		(defq flow_flags (get :flow_flags this) pw 0 ph 0)
 		(each (lambda (child)
 			(when (= 0 (logand (. child :get_flags) +view_flag_hidden))
 				(bind '(w h) (. child :get_constraint))
@@ -38,7 +36,8 @@
 				(if (/= 0 (logand flow_flags (const (num-intern (logior +flow_flag_up +flow_flag_down)))))
 					(++ ph h))
 				(setq pw (max w pw) ph (max h ph)))) (. this :children))
-		(list (max pw mw) (max ph mh)))
+		(list (max pw (ifn (def? :min_width this) 0))
+			(max ph (ifn (def? :min_height this) 0))))
 
 	(defmethod :layout ()
 		; (. flow :layout) -> flow

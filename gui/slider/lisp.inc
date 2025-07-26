@@ -37,9 +37,7 @@
 
 	(defmethod :constraint ()
 		; (. slider :constraint) -> (width height)
-		(defq mw (def? :min_width this) mh (def? :min_height this))
-		(setd mw 10 mh 10)
-		(list mw mh))
+		(list (ifn (def? :min_width this) 10) (ifn (def? :min_height this) 10)))
 
 	(defmethod :mouse_down (event)
 		; (. slider :mouse_down event) -> slider
