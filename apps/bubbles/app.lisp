@@ -103,7 +103,7 @@
 
 (defun redraw (dlist)
 	;redraw layer/s
-	(when (/= 0 (logand (elem-get dlist +dlist_mask) 1))
+	(when (bits? (elem-get dlist +dlist_mask) 1)
 		(defq canvas (elem-get dlist +dlist_layer1_canvas))
 		(. canvas :fill 0)
 		(bind '(sw sh) (. canvas :pref_size))

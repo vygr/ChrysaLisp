@@ -149,6 +149,12 @@
 	(push values (num-intern base))
 	`(bind ',syms ',values))
 
+(defmacro bits? (val &rest masks)
+	; (bits? val &rest masks) -> :t | :nil
+	(if (> (length masks) 1)
+		`(/= 0 (logand ,val (const (num-intern (logior ~masks)))))
+		`(/= 0 (logand ,val ~masks))))
+
 ;module
-(export-symbols '(structure _structure getf setf setf-> enums bits))
+(export-symbols '(structure _structure getf setf setf-> enums bits bits?))
 (env-pop)

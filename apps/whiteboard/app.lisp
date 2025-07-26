@@ -85,13 +85,13 @@
 
 (defun redraw (dlist)
 	;redraw layer/s
-	(when (/= 0 (logand (elem-get dlist +dlist_mask) +layer_commited))
+	(when (bits? (elem-get dlist +dlist_mask) +layer_commited)
 		(defq canvas (elem-get dlist +dlist_commited_canvas))
 		(. canvas :fill 0)
 		(each (lambda ((col poly))
 			(fpoly canvas col +winding_none_zero poly)) (elem-get dlist +dlist_commited_polygons))
 		(. canvas :swap 0))
-	(when (/= 0 (logand (elem-get dlist +dlist_mask) +layer_overlay))
+	(when (bits? (elem-get dlist +dlist_mask) +layer_overlay)
 		(defq canvas (elem-get dlist +dlist_overlay_canvas))
 		(. canvas :fill 0)
 		(each (lambda (p)
@@ -160,12 +160,11 @@
 				;key event
 				(defq key (getf *msg* +ev_msg_key_key) mod (getf *msg* +ev_msg_key_mod))
 				(cond
-					((/= 0 (logand mod (const
-							(+ +ev_key_mod_control +ev_key_mod_alt +ev_key_mod_meta))))
+					((bits? mod +ev_key_mod_control +ev_key_mod_alt +ev_key_mod_meta)
 						;call bound control/command key action
 						(if (defq action (. *key_map_control* :find key))
 							(action)))
-					((/= 0 (logand mod +ev_key_mod_shift))
+					((bits? mod +ev_key_mod_shift)
 						;call bound shift key action
 						(if (defq action (. *key_map_shift* :find key))
 							(action)))

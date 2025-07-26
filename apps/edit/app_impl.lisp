@@ -295,13 +295,12 @@
 								(dispatch-action action-select-word)
 								(dispatch-action action-insert word))
 							((select-match (if (= key 0x40000052) -1 1)))))
-					((/= 0 (logand mod (const
-							(+ +ev_key_mod_control +ev_key_mod_alt +ev_key_mod_meta))))
+					((bits? mod +ev_key_mod_control +ev_key_mod_alt +ev_key_mod_meta)
 						;call bound control/command key action
 						(when (defq action (. *key_map_control* :find key))
 							(clear-matches)
 							(dispatch-action action)))
-					((/= 0 (logand mod +ev_key_mod_shift))
+					((bits? mod +ev_key_mod_shift)
 						;call bound shift key action, else insert
 						(cond
 							((defq action (. *key_map_shift* :find key))

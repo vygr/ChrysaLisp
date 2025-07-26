@@ -4,6 +4,13 @@
 
 ------
 
+Terminal app fix for user input.
+
+New `(bits? val &rest masks) -> :t | :nil` macro predicate defined to go with
+the `(bits)` bitmask definition function.
+
+------
+
 New non recursive constraints system for GUI layouts. Significant reduction in
 stack usage.
 

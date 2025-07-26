@@ -81,7 +81,7 @@
 		(defq key (getf event +ev_msg_key_key) mod (getf event +ev_msg_key_mod)
 			cursor (min cursor (length clear_text)))
 		(cond
-			((/= 0 (logand mod (const (+ +ev_key_mod_control +ev_key_mod_meta))))
+			((bits? mod +ev_key_mod_control +ev_key_mod_meta)
 				;control/command key
 				(cond
 					((= key (ascii-code "a"))
@@ -110,7 +110,7 @@
 								(setq lf (length data)))
 							(setq clear_text (insert clear_text cursor (slice data 0 lf))
 								cursor (+ cursor lf) anchor cursor)))))
-			((/= 0 (logand mod +ev_key_mod_shift))
+			((bits? mod +ev_key_mod_shift)
 				;shift key
 				(cond
 					((= key 0x40000050)

@@ -102,6 +102,12 @@
 (bits name base [(bit field ...)] ...)
 ```
 
+### bits?
+
+```code
+(bits? val &rest masks) -> :t | :nil
+```
+
 ### callback
 
 ```code
