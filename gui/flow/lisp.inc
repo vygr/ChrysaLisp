@@ -33,7 +33,7 @@
 			flow_lr (bits? flow_flags +flow_left_right)
 			flow_ud (bits? flow_flags +flow_up_down)))
 		(each (lambda (child)
-			(when (= 0 (logand (. child :get_flags) +view_flag_hidden))
+			(unless (bits? (. child :get_flags) +view_flag_hidden)
 				(bind '(w h) (. child :get_constraint))
 				(if flow_lr (++ pw w))
 				(if flow_ud (++ ph h))

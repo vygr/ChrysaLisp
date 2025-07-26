@@ -105,8 +105,8 @@
 							ry (- (getf msg +ev_msg_mouse_ry) (/ (- h +height) 2)))
 						(setq center_x (+ center_x (mbfp-offset rx +width zoom))
 							center_y (+ center_y (mbfp-offset ry +height zoom))
-							zoom (mbfp-mul zoom (if (= 0 (logand (getf msg +ev_msg_mouse_buttons) 2))
-								(mbfp-from-fixed 0.5) (mbfp-from-fixed 2.0))))
+							zoom (mbfp-mul zoom (if (bits? (getf msg +ev_msg_mouse_buttons) 2)
+								(mbfp-from-fixed 2.0) (mbfp-from-fixed 0.5))))
 						(reset))
 					(:t (. *window* :event msg))))
 			(+select_task
