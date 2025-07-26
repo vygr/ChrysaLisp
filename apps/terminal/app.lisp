@@ -70,7 +70,7 @@
 	;layout the window and size the vdu to fit
 	(bind '(w h) (. *edit* :max_size))
 	(set *edit* :vdu_width w :vdu_height h)
-	(. *edit* :layout)
+	(. *edit* :constrain)
 	(refresh-sliders) (refresh-display))
 
 (defun vdu-resize (w h)

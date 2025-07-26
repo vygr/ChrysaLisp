@@ -141,8 +141,8 @@
 	(bind '(w h) (. *edit* :max_size))
 	(set *edit* :vdu_width w :vdu_height h)
 	(set *vdu_lines* :vdu_height h)
-	(. *edit* :layout)
-	(. *vdu_lines* :layout)
+	(. *edit* :constrain)
+	(. *vdu_lines* :constrain)
 	(refresh-sliders) (refresh-display))
 
 (defun vdu-resize (w h)
