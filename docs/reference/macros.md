@@ -105,7 +105,7 @@
 ### bits?
 
 ```code
-(bits? val &rest masks) -> :t | :nil
+(bits? val mask ...) -> :t | :nil
 ```
 
 ### callback

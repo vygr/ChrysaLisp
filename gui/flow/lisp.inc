@@ -12,17 +12,17 @@
 	(bit align_vcenter align_vtop align_vbottom))
 
 ;useful flow combos
-(defq +flow_down (num-intern (logior +flow_flag_down +flow_flag_fillw))
-	+flow_up (num-intern (logior +flow_flag_up +flow_flag_fillw))
-	+flow_right (num-intern (logior +flow_flag_right +flow_flag_fillh))
-	+flow_left (num-intern (logior +flow_flag_left +flow_flag_fillh))
-	+flow_left_right (num-intern (logior +flow_flag_left +flow_flag_right))
-	+flow_up_down (num-intern (logior +flow_flag_up +flow_flag_down))
-	+flow_down_fill (num-intern (logior +flow_flag_down +flow_flag_fillw +flow_flag_lasth))
-	+flow_up_fill (num-intern (logior +flow_flag_up +flow_flag_fillw +flow_flag_lasth))
-	+flow_right_fill (num-intern (logior +flow_flag_right +flow_flag_fillh +flow_flag_lastw))
-	+flow_left_fill (num-intern (logior +flow_flag_left +flow_flag_fillh +flow_flag_lastw))
-	+flow_stack_fill (num-intern (logior +flow_flag_fillw +flow_flag_fillh +flow_flag_lastw +flow_flag_lasth)))
+(defq +flow_down (bit-mask +flow_flag_down +flow_flag_fillw)
+	+flow_up (bit-mask +flow_flag_up +flow_flag_fillw)
+	+flow_right (bit-mask +flow_flag_right +flow_flag_fillh)
+	+flow_left (bit-mask +flow_flag_left +flow_flag_fillh)
+	+flow_left_right (bit-mask +flow_flag_left +flow_flag_right)
+	+flow_up_down (bit-mask +flow_flag_up +flow_flag_down)
+	+flow_down_fill (bit-mask +flow_flag_down +flow_flag_fillw +flow_flag_lasth)
+	+flow_up_fill (bit-mask +flow_flag_up +flow_flag_fillw +flow_flag_lasth)
+	+flow_right_fill (bit-mask +flow_flag_right +flow_flag_fillh +flow_flag_lastw)
+	+flow_left_fill (bit-mask +flow_flag_left +flow_flag_fillh +flow_flag_lastw)
+	+flow_stack_fill (bit-mask +flow_flag_fillw +flow_flag_fillh +flow_flag_lastw +flow_flag_lasth))
 
 (defclass Flow () (View)
 	; (Flow) -> flow

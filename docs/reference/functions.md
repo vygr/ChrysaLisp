@@ -76,6 +76,12 @@ parse the commands and attributes calling back to the user functions
 (atom? o) -> :t | :nil
 ```
 
+### bit-mask
+
+```code
+(bit-mask mask ...) -> val
+```
+
 ### bounding-box
 
 ```code

@@ -108,7 +108,7 @@
 (defmacro ui-button (n &optional p &rest x)
 	; (ui-button name [props] [body]) -> button
 	(ui-props p
-		:flow_flags (num-intern (logior +flow_flag_down +flow_flag_align_hcenter +flow_flag_align_vcenter))
+		:flow_flags (bit-mask +flow_flag_down +flow_flag_align_hcenter +flow_flag_align_vcenter)
 		:border *env_button_border*)
 	`(ui-element ,n (Button) ,p ~x))
 
@@ -141,7 +141,7 @@
 (defmacro ui-label (n &optional p &rest x)
 	; (ui-label name [props] [body]) -> label
 	(ui-props p
-		:flow_flags (num-intern (logior +flow_flag_right +flow_flag_align_vcenter))
+		:flow_flags (bit-mask +flow_flag_right +flow_flag_align_vcenter)
 		:border *env_label_border*)
 	`(ui-element ,n (Label) ,p ~x))
 
@@ -171,7 +171,7 @@
 (defmacro ui-textfield (n &optional p)
 	; (ui-textfield name [props]) -> textfield
 	(ui-props p
-		:flow_flags (num-intern (logior +flow_flag_right +flow_flag_align_vcenter))
+		:flow_flags (bit-mask +flow_flag_right +flow_flag_align_vcenter)
 		:border *env_textfield_border*)
 	`(ui-element ,n (Textfield) ,p))
 

@@ -6,8 +6,9 @@
 
 Terminal app fix for user input.
 
-New `(bits? val &rest masks) -> :t | :nil` macro predicate defined to go with
-the `(bits)` bitmask definition function.
+New `(bit-mask mask ...) -> val` function and
+`(bits? val mask ...) -> :t | :nil` macro predicate defined to go with the
+`(bits)` bitmask definition function.
 
 ------
 
