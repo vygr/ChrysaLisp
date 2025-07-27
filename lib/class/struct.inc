@@ -156,9 +156,8 @@
 (defmacro bits? (val &rest masks)
 	; (bits? val mask ...) -> :t | :nil
 	(if (> (length masks) 1)
-		(setq masks (apply (const bit-mask) (map (const eval) masks)))
-		(setq masks (pop masks)))
-	(static-qq (/= 0 (logand ,val ,masks))))
+		(static-qq (/= 0 (logand ,val ,(num-intern (apply (const logior) (map (const eval) masks))))))
+		(static-qq (/= 0 (logand ,val ~masks)))))
 
 ;module
 (export-symbols '(structure _structure getf setf setf-> enums bits bits? bit-mask))

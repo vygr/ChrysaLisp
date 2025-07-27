@@ -10,21 +10,27 @@
 	Simple timing test framework.")
 ))
 
-(defmacro cback (f e &rest args)
-	; (callback lambda env arg ...) -> (#eval `(#apply ,lambda '(,arg ...)) env)
-	(list eval (list quasi-quote (list apply (list 'unquote f) (cat (list quote)
-		(list (map! (lambda (a) (list 'unquote a)) (list args)))))) e))
+(defmacro bits?1 (val &rest masks)
+	; (bits? val mask ...) -> :t | :nil
+	(if (> (length masks) 1)
+		(static-qq (/= 0 (logand ,val ,(num-intern (apply (const logior) (map (const eval) masks))))))
+		(static-qq (/= 0 (logand ,val ~masks)))))
 
-(defmacro cback1 (f e &rest args)
-	; (callback lambda env arg ...) -> (#eval `(#apply ,lambda ',(#list ~args)) env)
-	(list eval (list quasi-quote (list apply (list 'unquote f)
-		(list quote (list 'unquote (cat (list list) args))))) e))
+(defmacro bits?2 (val &rest masks)
+	; (bits? val mask ...) -> :t | :nil
+	(if (> (length masks) 1)
+		(static-qq (/= 0 (logand ,val ,(apply (const bit-mask) (map (const eval) masks)))))
+		(static-qq (/= 0 (logand ,val ~masks)))))
 
-(defun f0 (x y z a b c)
-	(cback identity (penv) x y z a b c x y z a b c))
+(defmacro bits?3 (val &rest masks)
+	; (bits? val mask ...) -> :t | :nil
+	(if (> (length masks) 1)
+		`(/= 0 (logand ,val (const (bit-mask ~masks))))
+		`(/= 0 (logand ,val ~masks))))
 
-(defun f1 (x y z a b c)
-	(cback1 identity (penv) x y z a b c x y z a b c))
+(defun f1 () (prebind (macroexpand (cat '(bits?1 1 2 3 4 5)))))
+(defun f2 () (prebind (macroexpand (cat '(bits?2 1 2 3 4 5)))))
+(defun f3 () (prebind (macroexpand (cat '(bits?3 1 2 3 4 5)))))
 
 (defmacro time-it (name cnt &rest _)
 	`(progn
@@ -41,12 +47,10 @@
 			(defq stdio (create-stdio))
 			(defq args (options stdio usage)))
 		(defq c 10000000)
-		(time-it "f0" c (f0 1 2 3 "a" "b" "c"))
-		(time-it "f1" c (f1 1 2 3 "a" "b" "c"))
-		(time-it "f0" c (f0 1 2 3 "a" "b" "c"))
-		(time-it "f1" c (f1 1 2 3 "a" "b" "c"))
-		(time-it "f0" c (f0 1 2 3 "a" "b" "c"))
-		(time-it "f1" c (f1 1 2 3 "a" "b" "c"))
-		(time-it "f0" c (f0 1 2 3 "a" "b" "c"))
-		(time-it "f1" c (f1 1 2 3 "a" "b" "c"))
+		(time-it "f1" c (f1))
+		(time-it "f2" c (f2))
+		(time-it "f3" c (f3))
+		(time-it "f1" c (f1))
+		(time-it "f2" c (f2))
+		(time-it "f3" c (f3))
 		))
