@@ -13,6 +13,9 @@ New `(bit-mask mask ...) -> val` function and
 New `(eval-list list [env]) -> list` inplace list element evaluation primitive.
 This is making the `:repl_eval_list` method available at the user level.
 
+Improvements to the `case` macro. Lots of new features since this was first
+written !
+
 ------
 
 New non recursive constraints system for GUI layouts. Significant reduction in

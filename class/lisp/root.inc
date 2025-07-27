@@ -721,35 +721,25 @@
 ; Case
 ;;;;;;
 
-(defmacro case (_form &rest _body)
+(defmacro case (key &rest body)
 	; (case form [(key|(key ...) body)] ...)
-	(defq _default_key :nil _default_clause :nil _atoms :t
-		_map (reduce (lambda (_map (_keys &rest _clause_body))
-			(unless (list? _keys) (setq _keys (list _keys)))
-			(setq _clause_body (pop (prebind (list (macroexpand
-				(if (= (length _clause_body) 1)
-					(first _clause_body)
-					(cat '(progn) _clause_body)))))))
-			(ifn (atom? (pop (type-of _clause_body))) (setq _atoms :nil))
-			(each (#
-				(and (sym? %0) (starts-with "+" %0) (setq %0 (eval %0)))
+	(defq val :nil)
+	(bind '(keys vals)
+		(reduce (lambda (assoc (keys &rest body))
+			(unless (list? keys) (setq keys (list keys)))
+			(setq body (pop (prebind (list (macroexpand
+				(if (= (length body) 1)
+					(first body)
+					(cat '(progn) body)))))))
+			(each (# (and (sym? %0) (starts-with "+" %0) (setq %0 (eval %0)))
 				(cond
-					((eql %0 :t)
-						(setq _default_key :t _default_clause _clause_body))
-					(:t (push (first _map) %0)
-						(push (second _map) _clause_body)))) _keys) _map)
-			_body (list (list) (list))))
-	(cond
-		(_default_key
-			(push (second _map) _default_clause)
-			(if _atoms
-				`(elem-get ',(second _map) (or (find ,_form ',(first _map)) -2))
-				`(eval (elem-get ',(second _map) (or (find ,_form ',(first _map)) -2)))))
-		((if _atoms
-			`(if (defq ,(defq _i (gensym)) (find ,_form ',(first _map)))
-				(elem-get ',(second _map) ,_i))
-			`(if (defq ,(defq _i (gensym)) (find ,_form ',(first _map)))
-				(eval (elem-get ',(second _map) ,_i)))))))
+					((eql %0 :t) (setq val body))
+					((push (first assoc) %0) (push (second assoc) body))))
+				keys) assoc)
+			body (list (list) (list))))
+	(if (every (const atom?) (push vals val))
+		(static-qq (elem-get ',vals (ifn (find ,key ',keys) -2)))
+		(static-qq (eval (elem-get ',vals (ifn (find ,key ',keys) -2))))))
 
 ;;;;;;;;;;;;;;;;
 ; Math functions
