@@ -731,7 +731,7 @@
 				(if (= (length body) 1)
 					(first body)
 					(cat '(progn) body)))))))
-			(each (# (and (sym? %0) (starts-with "+" %0) (setq %0 (eval %0)))
+			(each (# (and (sym? %0) (eql (first %0) "+") (setq %0 (eval %0)))
 				(cond
 					((eql %0 :t) (setq val body))
 					((push (first assoc) %0) (push (second assoc) body))))
