@@ -942,39 +942,39 @@
 
 (defmacro get-ubyte (s o)
 	; (get-ubyte str index) -> num
-	`(get-field ,s (+ ,+str_data ,o) ,(neg +byte_size)))
+	(static-qq (get-field ,s (+ +str_data ,o) (const (neg +byte_size)))))
 
 (defmacro get-ushort (s o)
 	; (get-ushort str index) -> num
-	`(get-field ,s (+ ,+str_data ,o) ,(neg +short_size)))
+	(static-qq (get-field ,s (+ +str_data ,o) (const (neg +short_size)))))
 
 (defmacro get-uint (s o)
 	; (get-uint str index) -> num
-	`(get-field ,s (+ ,+str_data ,o) ,(neg +int_size)))
+	(static-qq (get-field ,s (+ +str_data ,o) (const (neg +int_size)))))
 
 (defmacro get-long (s o)
 	; (get-long str index) -> num
-	`(get-field ,s (+ ,+str_data ,o) ,+long_size))
+	(static-qq (get-field ,s (+ +str_data ,o) +long_size)))
 
 (defmacro get-byte (s o)
 	; (get-byte str index) -> num
-	`(get-field ,s (+ ,+str_data ,o) ,+byte_size))
+	(static-qq (get-field ,s (+ +str_data ,o) +byte_size)))
 
 (defmacro get-short (s o)
 	; (get-short str index) -> num
-	`(get-field ,s (+ ,+str_data ,o) ,+short_size))
+	(static-qq (get-field ,s (+ +str_data ,o) +short_size)))
 
 (defmacro get-int (s o)
 	; (get-int str index) -> num
-	`(get-field ,s (+ ,+str_data ,o) ,+int_size))
+	(static-qq (get-field ,s (+ +str_data ,o) +int_size)))
 
 (defmacro get-nodeid (s o)
 	; (get-nodeid str index) -> nodeid
-	`(slice ,s ,o (+ ,o ,+node_id_size)))
+	(static-qq (slice ,s ,o (+ ,o +node_id_size))))
 
 (defmacro get-netid (s o)
 	; (get-netid str index) -> netid
-	`(slice ,s ,o (+ ,o ,+net_id_size)))
+	(static-qq (slice ,s ,o (+ ,o +net_id_size))))
 
 (defun get-cstr (s o)
 	; (get-cstr str index) -> str
@@ -1066,27 +1066,27 @@
 
 (defmacro read-long (s)
 	; (read-long stream) -> num
-	(static-qq (read-char ,s 8)))
+	(static-qq (read-char ,s +long_size)))
 
 (defmacro read-int (s)
 	; (read-int stream) -> num
-	(static-qq (read-char ,s 4)))
+	(static-qq (read-char ,s +int_size)))
 
 (defmacro read-short (s)
 	; (read-short stream) -> num
-	(static-qq (read-char ,s 2)))
+	(static-qq (read-char ,s +short_size)))
 
 (defmacro write-long (s n)
 	; (write-long stream list|num) -> bytes
-	(static-qq (write-char ,s ,n 8)))
+	(static-qq (write-char ,s ,n +long_size)))
 
 (defmacro write-int (s n)
 	; (write-int stream list|num) -> bytes
-	(static-qq (write-char ,s ,n 4)))
+	(static-qq (write-char ,s ,n +int_size)))
 
 (defmacro write-short (s n)
 	; (write-short stream list|num) -> bytes
-	(static-qq (write-char ,s ,n 2)))
+	(static-qq (write-char ,s ,n +short_size)))
 
 (defun write-line (s _)
 	; (write-line stream str) -> bytes
