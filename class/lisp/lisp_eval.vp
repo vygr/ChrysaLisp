@@ -51,14 +51,10 @@
 
 	(entry 'lisp :lisp_eval_list '(:r0 :r1))
 
-	(assign '((:r1 array_length)) '(:r13))
-(errorcase
-	(gotoif '(:r13 < 1) 'error)
-	(gotoif '(:r13 > 2) 'error)
-	(errorif-lisp-args-sig 'error :r1 :r13))
+	(errorif-lisp-args-sig 'error :r1 1 2)
 
-	(assign '((:r0 lisp_environment)) '(:r2))
-	(vpif '(:r13 = 1))
+	(assign '((:r1 array_length) (:r0 lisp_environment)) '(:r4 :r2))
+	(vpif '(:r4 = 1))
 		(array-bind-args :r1 '(:r1))
 	(else)
 		(array-bind-args :r1 '(:r1 :r3))
