@@ -4,11 +4,11 @@
 
 (defmacro .? (this method)
 	; (.? this method) -> :nil | lambda
-	`(def? ,method (def? :vtable ,this)))
+	(static-qq (def? ,method (def? :vtable ,this))))
 
 (defmacro .super (this method &rest _)
 	; (.super this :method [arg ...])
-	`((def? ,method ,(eval *super_class*)) ,this ~_))
+	(static-qq ((def? ,method ,(eval *super_class*)) ,this ~_)))
 
 (defmacro defmethod (n a &rest _)
 	; (defmethod name ([arg ...]) body)
@@ -26,17 +26,17 @@
 
 (defmacro deffimethod (n _)
 	; (deffimethod name ffi)
-	`(def (def? :vtable this) ,n (ffi ,_)))
+	(static-qq (def (def? :vtable this) ,n (ffi ,_))))
 
 (defmacro defgetmethod (field)
 	; (defgetmethod field)
-	`(defmethod ,(sym (cat ":get_" field)) ()
-		(def? ,(sym (cat ":" field)) this)))
+	(static-qq (defmethod ,(sym (cat ":get_" field)) ()
+		(def? ,(sym (cat ":" field)) this))))
 
 (defmacro defsetmethod (field)
 	; (defsetmethod field)
-	`(defmethod ,(sym (cat ":set_" field)) (val)
-		(def this ,(sym (cat ":" field)) val) this))
+	(static-qq (defmethod ,(sym (cat ":set_" field)) (val)
+		(def this ,(sym (cat ":" field)) val) this)))
 
 (defmacro defclass (n a s &rest _)
 	; (defclass Name ([arg ...]) (super ...)|:nil body)
@@ -87,7 +87,7 @@
 	; (raise field | (sym val) ...) -> (defq sym (get field this) ...)
 	(reduce (# (if (list? %1)
 			(cat %0 %1)
-			(push %0 (sym (rest %1)) `(get ,%1 this))))
+			(push %0 (sym (rest %1)) (static-qq (get ,%1 this)))))
 		fields (list defq)))
 
 (defmacro lower (&rest fields)
