@@ -466,35 +466,35 @@
 
 (defmacro inc (_)
 	; (inc num) -> num
-	`(+ ,_ 1))
+	(static-qq (+ ,_ 1)))
 
 (defmacro dec (_)
 	; (dec num) -> num
-	`(- ,_ 1))
+	(static-qq (- ,_ 1)))
 
 (defmacro ++ (_ &optional i)
 	; (++ num [num]) -> num
-	`(setq ,_ (+ ,_ ,(ifn i 1))))
+	(static-qq (setq ,_ (+ ,_ ,(ifn i 1)))))
 
 (defmacro -- (_ &optional i)
 	; (-- num [num]) -> num
-	`(setq ,_ (- ,_ ,(ifn i 1))))
+	(static-qq (setq ,_ (- ,_ ,(ifn i 1)))))
 
 (defmacro not (_)
 	; (not form) -> :t | :nil
-	`(if ,_ :nil :t))
+	(static-qq (if ,_ :nil :t)))
 
 (defmacro when (x &rest _)
 	; (when tst body)
 	(if (= (length _) 1)
-		`(if ,x ~_)
-		`(cond (,x ~_))))
+		(static-qq (if ,x ~_))
+		(static-qq (cond (,x ~_)))))
 
 (defmacro unless (x &rest _)
 	; (unless tst body)
 	(if (= (length _) 1)
-		`(ifn ,x ~_)
-		`(condn (,x ~_))))
+		(static-qq (ifn ,x ~_))
+		(static-qq (condn (,x ~_)))))
 
 (defmacro or (&rest _)
 	; (or [tst] ...) -> :nil | tst
@@ -506,8 +506,8 @@
 
 (defmacro times (c &rest _)
 	; (times num body)
-	`(progn (defq ,(defq _c (gensym)) ,c)
-		(while (<= 0 (setq ,_c (dec ,_c))) ~_)))
+	(static-qq (progn (defq ,(defq _c (gensym)) ,c)
+		(while (<= 0 (setq ,_c (dec ,_c))) ~_))))
 
 ;;;;;;;;;;;;;;;;;;;;
 ; sort and randomise
@@ -572,41 +572,41 @@
 
 (defmacro each (f &rest _)
 	; (each lambda seq ...)
-	`(each! ,f (list ~_)))
+	(static-qq (each! ,f (list ~_))))
 
 (defmacro reach (f &rest _)
 	; (reach lambda seq ...)
-	`(each! ,f (list ~_) -1 0))
+	(static-qq (each! ,f (list ~_) -1 0)))
 
 (defmacro map (f &rest _)
 	; (map lambda seq ...) -> list
-	`(map! ,f (list ~_)))
+	(static-qq (map! ,f (list ~_))))
 
 (defmacro rmap (f &rest _)
 	; (rmap lambda seq ...) -> list
-	`(map! ,f (list ~_) (list) -1 0))
+	(static-qq (map! ,f (list ~_) (list) -1 0)))
 
 (defmacro reduce (f s &optional i)
 	; (reduce lambda seq [init]) -> form
 	(cond
-		(i `(reduce! ,f (list ,s) ,i))
-		((list? s) `(reduce! ,f (list (defq ,(defq i (gensym)) ,s)) (first ,i) 1))
-		(`(reduce! ,f (list ,s) (first ,s) 1))))
+		(i (static-qq (reduce! ,f (list ,s) ,i)))
+		((list? s) (static-qq (reduce! ,f (list (defq ,(defq i (gensym)) ,s)) (first ,i) 1)))
+		((static-qq (reduce! ,f (list ,s) (first ,s) 1)))))
 
 (defmacro rreduce (f s &optional i)
 	; (rreduce lambda seq [init]) -> form
 	(cond
-		(i `(reduce! ,f (list ,s) ,i -1 0))
-		((list? s) `(reduce! ,f (list (defq ,(defq i (gensym)) ,s)) (last ,i) -2 0))
-		(`(reduce! ,f (list ,s) (last ,s) -2 0))))
+		(i (static-qq (reduce! ,f (list ,s) ,i -1 0)))
+		((list? s) (static-qq (reduce! ,f (list (defq ,(defq i (gensym)) ,s)) (last ,i) -2 0)))
+		((static-qq (reduce! ,f (list ,s) (last ,s) -2 0)))))
 
 (defmacro filter (f s)
 	; (filter lambda seq) -> list
-	`(filter! ,f ,s))
+	(static-qq (filter! ,f ,s)))
 
 (defmacro reverse (s)
 	; (reverse seq) -> seq
-	`(slice ,s -1 0))
+	(static-qq (slice ,s -1 0)))
 
 ;;;;;;;;
 ; Scopes
@@ -626,23 +626,23 @@
 
 (defmacro some (f &rest _)
 	; (some lambda seq ...) -> :nil | form
-	`(some! ,f (list ~_)))
+	(static-qq (some! ,f (list ~_))))
 
 (defmacro rsome (f &rest _)
 	; (rsome lambda seq ...) -> :nil | form
-	`(some! ,f (list ~_) :nil -1 0))
+	(static-qq (some! ,f (list ~_) :nil -1 0)))
 
 (defmacro every (f &rest _)
 	; (every lambda seq ...) -> :nil | form
-	`(some! ,f (list ~_) :t))
+	(static-qq (some! ,f (list ~_) :t)))
 
 (defmacro notany (f &rest _)
 	; (notany lambda seq ...) -> :t | :nil
-	`(not (some! ,f (list ~_))))
+	(static-qq (not (some! ,f (list ~_)))))
 
 (defmacro notevery (f &rest _)
 	; (notevery lambda seq ...) -> :t | :nil
-	`(not (some! ,f (list ~_) :t)))
+	(static-qq (not (some! ,f (list ~_) :t))))
 
 ;;;;;;;;;;;
 ; Sequences
@@ -1066,27 +1066,27 @@
 
 (defmacro read-long (s)
 	; (read-long stream) -> num
-	`(read-char ,s 8))
+	(static-qq (read-char ,s 8)))
 
 (defmacro read-int (s)
 	; (read-int stream) -> num
-	`(read-char ,s 4))
+	(static-qq (read-char ,s 4)))
 
 (defmacro read-short (s)
 	; (read-short stream) -> num
-	`(read-char ,s 2))
+	(static-qq (read-char ,s 2)))
 
 (defmacro write-long (s n)
 	; (write-long stream list|num) -> bytes
-	`(write-char ,s ,n 8))
+	(static-qq (write-char ,s ,n 8)))
 
 (defmacro write-int (s n)
 	; (write-int stream list|num) -> bytes
-	`(write-char ,s ,n 4))
+	(static-qq (write-char ,s ,n 4)))
 
 (defmacro write-short (s n)
 	; (write-short stream list|num) -> bytes
-	`(write-char ,s ,n 2))
+	(static-qq (write-char ,s ,n 2)))
 
 (defun write-line (s _)
 	; (write-line stream str) -> bytes
