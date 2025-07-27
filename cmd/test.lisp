@@ -13,16 +13,22 @@
 (defmacro bits?1 (val &rest masks)
 	; (bits? val mask ...) -> :t | :nil
 	(if (> (length masks) 1)
-		(static-qq (/= 0 (logand ,val ,(num-intern (apply (const logior) (map (const eval) masks))))))
+		(static-qq (/= 0 (logand ,val ,(num-intern (apply (const logior) (eval-list masks))))))
 		(static-qq (/= 0 (logand ,val ~masks)))))
 
 (defmacro bits?2 (val &rest masks)
 	; (bits? val mask ...) -> :t | :nil
 	(if (> (length masks) 1)
-		(static-qq (/= 0 (logand ,val ,(apply (const bit-mask) (map (const eval) masks)))))
+		(static-qq (/= 0 (logand ,val ,(num-intern (apply (const logior) (map (const eval) masks))))))
 		(static-qq (/= 0 (logand ,val ~masks)))))
 
 (defmacro bits?3 (val &rest masks)
+	; (bits? val mask ...) -> :t | :nil
+	(if (> (length masks) 1)
+		(static-qq (/= 0 (logand ,val ,(apply (const bit-mask) (map (const eval) masks)))))
+		(static-qq (/= 0 (logand ,val ~masks)))))
+
+(defmacro bits?4 (val &rest masks)
 	; (bits? val mask ...) -> :t | :nil
 	(if (> (length masks) 1)
 		`(/= 0 (logand ,val (const (bit-mask ~masks))))
@@ -31,6 +37,7 @@
 (defun f1 () (prebind (macroexpand (cat '(bits?1 1 2 3 4 5)))))
 (defun f2 () (prebind (macroexpand (cat '(bits?2 1 2 3 4 5)))))
 (defun f3 () (prebind (macroexpand (cat '(bits?3 1 2 3 4 5)))))
+(defun f4 () (prebind (macroexpand (cat '(bits?4 1 2 3 4 5)))))
 
 (defmacro time-it (name cnt &rest _)
 	`(progn
@@ -50,7 +57,9 @@
 		(time-it "f1" c (f1))
 		(time-it "f2" c (f2))
 		(time-it "f3" c (f3))
+		(time-it "f4" c (f4))
 		(time-it "f1" c (f1))
 		(time-it "f2" c (f2))
 		(time-it "f3" c (f3))
+		(time-it "f4" c (f4))
 		))

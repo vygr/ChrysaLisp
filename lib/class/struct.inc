@@ -156,7 +156,7 @@
 (defmacro bits? (val &rest masks)
 	; (bits? val mask ...) -> :t | :nil
 	(if (> (length masks) 1)
-		(static-qq (/= 0 (logand ,val ,(num-intern (apply (const logior) (map (const eval) masks))))))
+		(static-qq (/= 0 (logand ,val ,(num-intern (apply (const logior) (eval-list masks))))))
 		(static-qq (/= 0 (logand ,val ~masks)))))
 
 ;module
