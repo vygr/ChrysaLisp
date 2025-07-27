@@ -49,6 +49,7 @@
 	(dec-method :lisp_apply class/lisp/lisp_apply :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_repl class/lisp/lisp_repl :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_eval class/lisp/lisp_eval :static (:r0 :r1) (:r0 :r1))
+	(dec-method :lisp_eval_list class/lisp/lisp_eval_list :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_throw class/lisp/lisp_throw :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_catch class/lisp/lisp_catch :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_bind class/lisp/lisp_bind :static (:r0 :r1) (:r0 :r1))

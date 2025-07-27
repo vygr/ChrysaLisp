@@ -10,6 +10,9 @@ New `(bit-mask mask ...) -> val` function and
 `(bits? val mask ...) -> :t | :nil` macro predicate defined to go with the
 `(bits)` bitmask definition function.
 
+New `(eval-list list [env]) -> list` inplace list element evaluation primitive.
+This is making the `:repl_eval_list` method available at the user level.
+
 ------
 
 New non recursive constraints system for GUI layouts. Significant reduction in

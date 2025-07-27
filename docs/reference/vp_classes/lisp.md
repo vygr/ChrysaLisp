@@ -20,6 +20,8 @@
 
 ### (eval form [env])
 
+### (eval-list list [env])
+
 ### (ffi path [sym flags])
 
 ### (if tst form [else_form])
