@@ -442,7 +442,7 @@
 
 (defun atom? (_)
 	; (atom? o) -> :t | :nil
-	(cond ((sym? _) :nil) ((list? _) :nil) (:t)))
+	(cond ((sym? _) (eql (first _) ":")) ((list? _) :nil) (:t)))
 
 (defun empty? (_)
 	; (empty? form) -> :t | :nil
