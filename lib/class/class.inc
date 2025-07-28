@@ -88,11 +88,11 @@
 	(reduce (# (if (list? %1)
 			(cat %0 %1)
 			(push %0 (sym (rest %1)) (static-qq (get ,%1 this)))))
-		fields (list defq)))
+		fields (list (const defq))))
 
 (defmacro lower (&rest fields)
 	; (lower field | (field sym) ...) -> (set this field sym ...)
 	(reduce (# (if (list? %1)
 			(cat %0 %1)
 			(push %0 %1 (sym (rest %1)))))
-		fields (list set 'this)))
+		fields (list (const set) 'this)))
