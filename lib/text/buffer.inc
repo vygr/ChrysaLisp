@@ -52,7 +52,7 @@
 		(push redo_stack (pop undo_stack))))
 
 (defmacro mutate-buffer (&rest _)
-	`(progn
+	(static-qq (progn
 		(bind '(x y) (. this :get_cursor))
 		(bind '(x y) (. this :constrain x y))
 		(bind '(w h) (. this :get_size))
@@ -62,23 +62,22 @@
 		(last-line)
 		(lower :buffer_line :buffer_syntax :buffer_states :buffer_found :buffer_brackets
 			(:dirty_flags -1 :modified :t))
-		(. this :set_cursor x y)))
+		(. this :set_cursor x y))))
 
 (defmacro get-selection ()
-	`(progn
+	(static-qq (progn
 		(bind '(x y) (. this :get_cursor))
 		(bind '(sx sy) (. this :constrain x y))
 		(bind '(sx1 sy1) (. this :constrain anchor_x anchor_y))
 		(if (> sy sy1) (defq st sx sx sx1 sx1 st st sy sy sy1 sy1 st))
-		(and (= sy sy1) (> sx sx1) (defq st sx sx sx1 sx1 st))))
+		(and (= sy sy1) (> sx sx1) (defq st sx sx sx1 sx1 st)))))
 
 (defmacro select-buffer (&rest _)
-	`(progn
+	(static-qq (progn
 		(get-selection)
 		(cond
 			((and (= sx sx1) (= sy sy1)) "")
-			(:t (bind '(w h) (. this :get_size))
-				~_))))
+			((bind '(w h) (. this :get_size)) ~_)))))
 
 (defun build-syntax (this &optional estate)
 	(raise :dirty_flags)

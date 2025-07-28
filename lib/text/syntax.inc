@@ -12,9 +12,9 @@
 (defq +char_class_not_symbol (char-class " \r\f\v\n\t()")
 	+char_class_not_text (char-class (cat (ascii-char 34) ":;{")))
 
-(defmacro is-digit-char? (_) `(bfind ,_ +char_class_digit))
-(defmacro is-digit-base-char? (_) `(bfind ,_ +char_class_digit_base))
-(defmacro is-symbol-char? (_) `(not (bfind ,_ +char_class_not_symbol)))
+(defmacro is-digit-char? (_) (static-qq (bfind ,_ +char_class_digit)))
+(defmacro is-digit-base-char? (_) (static-qq (bfind ,_ +char_class_digit_base)))
+(defmacro is-symbol-char? (_) (static-qq (not (bfind ,_ +char_class_not_symbol))))
 
 (defun is-text-char? (_)
 	(cond

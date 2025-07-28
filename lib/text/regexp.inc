@@ -9,10 +9,10 @@
 
 (defq +bracket_chars "()" +assert_chars "^$!" +op_cat "'" +op_tac "`"
 	+op_chars "+*?|" +op_presidence "+*?'|`()")
-(defmacro is-bracket-char? (_) `(find ,_ +bracket_chars))
-(defmacro is-assert-char? (_) `(find ,_ +assert_chars))
-(defmacro is-esc-char? (_) `(eql ,_ ,(ascii-char 92)))
-(defmacro is-op-char? (_) `(find ,_ +op_chars))
+(defmacro is-bracket-char? (_) (static-qq (find ,_ +bracket_chars)))
+(defmacro is-assert-char? (_) (static-qq (find ,_ +assert_chars)))
+(defmacro is-esc-char? (_) (static-qq (eql ,_ (ascii-char 92))))
+(defmacro is-op-char? (_) (static-qq (find ,_ +op_chars)))
 
 (defun output (op token) (push out_types op) (push out_tokens token))
 (defun concat? (&optional o) (if concat (output :op (ifn o concat))))
@@ -156,7 +156,7 @@
 		;offsets can be expressions !
 		(if (setq offset (eval offset))
 			(if (= (defq new_index (+ index offset)) (length cpat))
-				;stopped, so matched somthing !
+				;stopped, so matched something !
 				(if (> si end) (setq end si end_trace trace))
 				;not stopped
 				(if (first (defq elem (elem-get cpat new_index)))
@@ -174,7 +174,7 @@
 		;offsets can be expressions !
 		(if (setq offset (eval offset))
 			(if (= (defq new_index (+ index offset)) (length cpat))
-				;stopped, so matched somthing !
+				;stopped, so matched something !
 				(if (> si end) (setq end si))
 				;not stopped
 				(if (first (defq elem (elem-get cpat new_index)))
@@ -228,7 +228,7 @@
 			(each (# (if (eval (first (defq elem (elem-get cpat %0))))
 				;matched text char, so insert next index
 				(insertelem-no-trace cpat next %0 elem))) current)
-			;swap to new indexs
+			;swap to new indices
 			(defq tmp current)
 			(setq current next next (clear tmp))
 			;break out if no traces OR found any match !
