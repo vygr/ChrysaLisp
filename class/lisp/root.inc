@@ -727,10 +727,9 @@
 	(bind '(keys vals)
 		(reduce (lambda (assoc (keys &rest body))
 			(unless (list? keys) (setq keys (list keys)))
-			(setq body (pop (prebind (list (macroexpand
-				(if (= (length body) 1)
-					(first body)
-					(cat '(progn) body)))))))
+			(setq body (pop (prebind (macroexpand
+				(if (= (length body) 1) body
+					(list (cat '(progn) body)))))))
 			(each (# (and (sym? %0) (eql (first %0) "+") (setq %0 (eval %0)))
 				(cond
 					((eql %0 :t) (setq val body))
