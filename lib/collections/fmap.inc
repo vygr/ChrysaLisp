@@ -8,11 +8,11 @@
 (env-push)
 
 (defmacro slot ()
-	`(defq _vl (get :buckets this)
+	(static-qq (defq _vl (get :buckets this)
 		_si (* (% (hash key) (get :num_buckets this)) 2)
 		_kl (elem-get _vl _si)
 		_vl (elem-get _vl (inc _si))
-		_si (find key _kl)))
+		_si (find key _kl))))
 
 (defclass Fmap (&optional num_buckets) (Map)
 	; (Fmap [num_buckets]) -> fmap

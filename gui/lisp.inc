@@ -45,21 +45,21 @@
 
 (defmacro ui-props (p &rest x)
 	; (ui-props props [props]) -> props
-	`(setq ,p (cat ',x (ifn ,p '()))))
+	(static-qq (setq ,p (cat ',x (ifn ,p '())))))
 
 (defmacro ui-root (n c &optional p &rest x)
 	; (ui-root name constructor [props] [body]) -> view
 	(setq p (ui-merge-props p))
 	(if (/= 0 (length p))
-		`(progn (defq _ui (list (defq ,n ,c))) (def ,n ~p) ~x (setq _ui :nil))
-		`(progn (defq _ui (list (defq ,n ,c))) ~x (setq _ui :nil))))
+		(static-qq (progn (defq _ui (list (defq ,n ,c))) (def ,n ~p) ~x (setq _ui :nil)))
+		(static-qq (progn (defq _ui (list (defq ,n ,c))) ~x (setq _ui :nil)))))
 
 (defmacro ui-element (n c &optional p &rest x)
 	; (ui-element name constructor [props] [body]) -> view
 	(setq p (ui-merge-props p))
 	(if (/= 0 (length p))
-		`(progn (. (elem-get (push _ui (defq ,n ,c)) -3) :add_child ,n) (def ,n ~p) ~x (pop _ui))
-		`(progn (. (elem-get (push _ui (defq ,n ,c)) -3) :add_child ,n) ~x (pop _ui))))
+		(static-qq (progn (. (elem-get (push _ui (defq ,n ,c)) -3) :add_child ,n) (def ,n ~p) ~x (pop _ui)))
+		(static-qq (progn (. (elem-get (push _ui (defq ,n ,c)) -3) :add_child ,n) ~x (pop _ui)))))
 
 (defmacro ui-flow (n &optional p &rest x)
 	; (ui-flow name [props] [body]) -> flow
