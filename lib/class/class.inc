@@ -80,8 +80,8 @@
 	; (.-> this form ...)
 	(reduce (lambda (res frm)
 		(if (list? frm)
-			(insert frm 0 (list '. res))
-			(list '. res frm))) frm res))
+			(insert frm 0 (list (const .) res))
+			(list (const .) res frm))) frm res))
 
 (defmacro raise (&rest fields)
 	; (raise field | (sym val) ...) -> (defq sym (get field this) ...)
