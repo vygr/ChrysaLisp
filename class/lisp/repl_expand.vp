@@ -38,8 +38,10 @@
 				(breakif '(:r3 = 0) 'next_iter)
 				;not quoted lists !
 				(array-bind-args :r2 '(:r3))
-				(assign '((:r0 lisp_sym_quote) (:r0 lisp_sym_qquote)) '(:r4 :r5))
-				(breakif '(:r3 = :r4) '(:r3 = :r5) 'next_iter)
+				(vp-simd vp-cpy-ir '(:r0)
+					`(,lisp_sym_quote ,lisp_sym_qquote ,lisp_func_quote ,lisp_func_qquote)
+					'(:r4 :r5 :r6 :r7))
+				(breakif '(:r3 = :r4) '(:r3 = :r5) '(:r3 = :r6) '(:r3 = :r7) 'next_iter)
 
 				;is a symbol ?
 				(assign '(:r1 :r2) '((:rsp local_iter) (:rsp local_form)))

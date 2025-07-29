@@ -339,7 +339,7 @@
 (defmacro static-qqp (_)
 	; (static-qqp form) -> `form
 	;static quasi-quoted, prebind only !
-	(list 'quasi-quote (prebind _)))
+	(list (const quasi-quote) (prebind _)))
 
 (defmacro callback (f e &rest args)
 	; (callback lambda env arg ...) -> (#eval `(#apply ,lambda '(,arg ...)) env)

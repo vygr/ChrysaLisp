@@ -316,7 +316,7 @@ should provide the concreate handler
 ### macrobind
 
 ```code
-(macrobind form)
+(macrobind form) -> (prebind (macroexpand form))
 ```
 
 ### map
