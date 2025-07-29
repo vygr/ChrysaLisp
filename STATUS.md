@@ -16,6 +16,11 @@ This is making the `:repl_eval_list` method available at the user level.
 Improvements to the `case` macro. Lots of new features since this was first
 written !
 
+New `(macrobind)` macro.
+
+New `(static-qqp)` macro that only does a prebind pass, no static macroexpand !
+GUI UI macros now use this.
+
 ------
 
 New non recursive constraints system for GUI layouts. Significant reduction in

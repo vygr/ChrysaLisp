@@ -63,15 +63,15 @@
 
 (defmacro ui-flow (n &optional p &rest x)
 	; (ui-flow name [props] [body]) -> flow
-	`(ui-element ,n (Flow) ,p ~x))
+	(static-qqp (ui-element ,n (Flow) ,p ~x)))
 
 (defmacro ui-grid (n &optional p &rest x)
 	; (ui-grid name [props] [body]) -> grid
-	`(ui-element ,n (Grid) ,p ~x))
+	(static-qqp (ui-element ,n (Grid) ,p ~x)))
 
 (defmacro ui-stack (n t &optional p &rest x)
 	; (ui-stack name tabs [props] [body]) -> stack
-	`(ui-element ,n (Stack ,t) ,p ~x))
+	(static-qqp (ui-element ,n (Stack ,t) ,p ~x)))
 
 (defmacro ui-window (n &optional p &rest x)
 	; (ui-window name [props] [body]) -> window
@@ -83,41 +83,41 @@
 		:no_hint_color *env_no_hint_col*
 		:border *env_window_border*
 		:shadow *env_window_shadow*)
-	`(ui-root ,n (Window) ,p
-		(ui-flow _ (:flow_flags +flow_down_fill) ~x)))
+	(static-qqp (ui-root ,n (Window) ,p
+		(ui-flow _ (:flow_flags +flow_down_fill) ~x))))
 
 (defmacro ui-tree (n e &optional p)
 	; (ui-tree name event [props]) -> tree
-	`(ui-element ,n (Tree ,e) ,p))
+	(static-qqp (ui-element ,n (Tree ,e) ,p)))
 
 (defmacro ui-spinner (n &optional p)
 	; (ui-spinner name [props]) -> spinner
-	`(ui-element ,n (Spinner) ,p))
+	(static-qqp (ui-element ,n (Spinner) ,p)))
 
 (defmacro ui-hchart (n t m &optional p)
 	; (ui-hchart name title num_marks [props]) -> hchart
-	`(ui-element ,n (Hchart ,t ,m) ,p))
+	(static-qqp (ui-element ,n (Hchart ,t ,m) ,p)))
 
 (defmacro ui-title (n &optional p)
 	; (ui-title name [props]) -> title
 	(ui-props p
 		:font *env_title_font*
 		:border *env_title_border*)
-	`(ui-element ,n (Title) ,p))
+	(static-qqp (ui-element ,n (Title) ,p)))
 
 (defmacro ui-button (n &optional p &rest x)
 	; (ui-button name [props] [body]) -> button
 	(ui-props p
 		:flow_flags (bit-mask +flow_flag_down +flow_flag_align_hcenter +flow_flag_align_vcenter)
 		:border *env_button_border*)
-	`(ui-element ,n (Button) ,p ~x))
+	(static-qqp (ui-element ,n (Button) ,p ~x)))
 
 (defmacro ui-buttons (s e &optional p)
 	; (ui-buttons symbols event [props])
 	(setq s (map (# (if (num? %0) (num-to-utf8 %0) %0)) s))
 	(ui-props p
 		:text %0)
-	`(each (# (. (ui-button __ ,p) :connect (+ (!) ,e))) '(~s)))
+	(static-qqp (each! (# (. (ui-button __ ,p) :connect (+ (!) ,e))) (list '(~s)))))
 
 (defmacro ui-title-bar (n s b e &optional p)
 	; (ui-title-bar name title symbols event [props]) -> flow
@@ -126,24 +126,24 @@
 		:color *env_title_col*
 		:border *env_title_buttons_border*
 		:font *env_title_buttons_font*)
-	`(ui-flow _ ,p
+	(static-qqp (ui-flow _ ,p
 		(ui-buttons ,b ,e)
-		(ui-title ,n (:text ,s))))
+		(ui-title ,n (:text ,s)))))
 
 (defmacro ui-text (n &optional p)
 	; (ui-text name [props]) -> text
-	`(ui-element ,n (Text) ,p))
+	(static-qqp (ui-element ,n (Text) ,p)))
 
 (defmacro ui-stroke (n &optional p)
 	; (ui-text name [props]) -> stroke
-	`(ui-element ,n (Stroke) ,p))
+	(static-qqp (ui-element ,n (Stroke) ,p)))
 
 (defmacro ui-label (n &optional p &rest x)
 	; (ui-label name [props] [body]) -> label
 	(ui-props p
 		:flow_flags (bit-mask +flow_flag_right +flow_flag_align_vcenter)
 		:border *env_label_border*)
-	`(ui-element ,n (Label) ,p ~x))
+	(static-qqp (ui-element ,n (Label) ,p ~x)))
 
 (defmacro ui-radio-bar (n s &optional p)
 	; (ui-radio-bar name symbols [props])
@@ -151,7 +151,7 @@
 		:color *env_toolbar_col*
 		:font *env_toolbar_font*
 		:border *env_button_border*)
-	`(ui-element ,n (Radiobar '(~s)) ,p))
+	(static-qqp (ui-element ,n (Radiobar '(~s)) ,p)))
 
 (defmacro ui-toggle-bar (n s &optional p)
 	; (ui-toggle-bar name symbols [props])
@@ -159,58 +159,58 @@
 		:color *env_toolbar_col*
 		:font *env_toolbar_font*
 		:border *env_button_border*)
-	`(ui-element ,n (Radiobar '(~s) :t) ,p))
+	(static-qqp (ui-element ,n (Radiobar '(~s) :t) ,p)))
 
 (defmacro ui-tool-bar (n &optional p &rest x)
 	; (ui-tool-bar name [props] [body]) -> flow
 	(ui-props p
 		:flow_flags +flow_right
 		:color *env_toolbar_col* :font *env_toolbar_font*)
-	`(ui-flow ,n ,p ~x))
+	(static-qqp (ui-flow ,n ,p ~x)))
 
 (defmacro ui-textfield (n &optional p)
 	; (ui-textfield name [props]) -> textfield
 	(ui-props p
 		:flow_flags (bit-mask +flow_flag_right +flow_flag_align_vcenter)
 		:border *env_textfield_border*)
-	`(ui-element ,n (Textfield) ,p))
+	(static-qqp (ui-element ,n (Textfield) ,p)))
 
 (defmacro ui-slider (n &optional p)
 	; (ui-slider name [props]) -> slider
 	(ui-props p
 		:color *env_slider_col*)
-	`(ui-element ,n (Slider) ,p))
+	(static-qqp (ui-element ,n (Slider) ,p)))
 
 (defmacro ui-scroll (n f &optional p &rest x)
 	; (ui-scroll name flags [props] [body]) -> scroll
 	(ui-props p
 		:color *env_slider_col*)
-	`(ui-element ,n (Scroll ,f) ,p ~x))
+	(static-qqp (ui-element ,n (Scroll ,f) ,p ~x)))
 
 (defmacro ui-backdrop (n &optional p &rest x)
 	; (ui-backdrop name [props] [body]) -> backdrop
-	`(ui-element ,n (Backdrop) ,p ~x))
+	(static-qqp (ui-element ,n (Backdrop) ,p ~x)))
 
 (defmacro ui-progress (n &optional p)
 	; (ui-progress name [props]) -> progress
-	`(ui-element ,n (Progress) ,p))
+	(static-qqp (ui-element ,n (Progress) ,p)))
 
 (defmacro ui-canvas (n w h s &optional p)
 	; (ui-canvas name width height scale [props]) -> canvas
 	(ui-props p
 		:color 0)
-	`(ui-element ,n (Canvas ,w ,h ,s) ,p))
+	(static-qqp (ui-element ,n (Canvas ,w ,h ,s) ,p)))
 
 (defmacro ui-vdu (n &optional p)
 	; (ui-vdu name [props]) -> vdu
 	(ui-props p
 		:font *env_terminal_font*
 		:color 0)
-	`(ui-element ,n (Vdu) ,p))
+	(static-qqp (ui-element ,n (Vdu) ,p)))
 
 (defmacro ui-view (n &optional p &rest x)
 	; (ui-view name [props] [body]) -> view
-	`(ui-element ,n (View) ,p ~x))
+	(static-qqp (ui-element ,n (View) ,p ~x)))
 
 (defun ui-tool-tips (view tips)
 	; (ui-tool-tips view tips)

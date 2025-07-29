@@ -350,6 +350,11 @@ Usage: test [options]
 		-h --help: this help info.
 
 	Simple timing test framework.
+	
+	To be stable and accurate this should be
+	run on a single node !
+	
+	./run_tui.sh -n 1
 ```
 ## time
 ```code

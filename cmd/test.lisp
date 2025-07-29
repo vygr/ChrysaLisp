@@ -7,7 +7,12 @@
 	options:
 		-h --help: this help info.
 
-	Simple timing test framework.")
+	Simple timing test framework.
+	
+	To be stable and accurate this should be
+	run on a single node !
+	
+	./run_tui.sh -n 1")
 ))
 
 (defmacro bits?1 (val &rest masks)
@@ -34,10 +39,10 @@
 		`(/= 0 (logand ,val (const (bit-mask ~masks))))
 		`(/= 0 (logand ,val ~masks))))
 
-(defun f1 () (prebind (macroexpand (cat '(bits?1 1 2 3 4 5)))))
-(defun f2 () (prebind (macroexpand (cat '(bits?2 1 2 3 4 5)))))
-(defun f3 () (prebind (macroexpand (cat '(bits?3 1 2 3 4 5)))))
-(defun f4 () (prebind (macroexpand (cat '(bits?4 1 2 3 4 5)))))
+(defun f1 () (macrobind (cat '(bits?1 1 2 3 4 5))))
+(defun f2 () (macrobind (cat '(bits?2 1 2 3 4 5))))
+(defun f3 () (macrobind (cat '(bits?3 1 2 3 4 5))))
+(defun f4 () (macrobind (cat '(bits?4 1 2 3 4 5))))
 
 (defmacro time-it (name cnt &rest _)
 	`(progn

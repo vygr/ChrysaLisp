@@ -313,6 +313,12 @@ should provide the concreate handler
 (lower field | (field sym) ...) -> (set this field sym ...)
 ```
 
+### macrobind
+
+```code
+(macrobind form)
+```
+
 ### map
 
 ```code
@@ -459,6 +465,14 @@ static quoted
 (static-qq form) -> `form
 
 static quasi-quoted
+```
+
+### static-qqp
+
+```code
+(static-qqp form) -> `form
+
+static quasi-quoted, prebind only !
 ```
 
 ### structure

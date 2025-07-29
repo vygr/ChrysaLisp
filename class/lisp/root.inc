@@ -314,23 +314,32 @@
 	; (redefmacro name ([arg ...]) body)
 	`(defq ,n (macro ,a ~_)))
 
-(defmacro const (_)
-	; (const form)
-	(eval (macroexpand _)))
+(defmacro macrobind (_)
+	; (macrobind form) -> (prebind (macroexpand form))
+	`(prebind (macroexpand ,_)))
 
 (defun exec (_)
 	; (exec form)
-	(eval (prebind (macroexpand _))))
+	(eval (macrobind _)))
+
+(defmacro const (_)
+	; (const form)
+	(exec _))
 
 (defmacro static-q (_)
 	; (static-q form) -> 'form
 	;static quoted
-	(push (list (const quote)) (prebind (macroexpand _))))
+	(list (const quote) (macrobind _)))
 
 (defmacro static-qq (_)
 	; (static-qq form) -> `form
 	;static quasi-quoted
-	(push (list (const quasi-quote)) (prebind (macroexpand _))))
+	(list (const quasi-quote) (macrobind _)))
+
+(defmacro static-qqp (_)
+	; (static-qqp form) -> `form
+	;static quasi-quoted, prebind only !
+	(list 'quasi-quote (prebind _)))
 
 (defmacro callback (f e &rest args)
 	; (callback lambda env arg ...) -> (#eval `(#apply ,lambda '(,arg ...)) env)
@@ -544,7 +553,7 @@
 	(while (defq lst (pop stack))
 		(each! (lambda (%0)
 			(if (list? %0)
-				(unless (find (first %0) '(# quote quasi-quote static-q static-qq))
+				(unless (find (first %0) '(# quote quasi-quote static-q static-qq static-qqp))
 					(push stack %0))
 				(and (sym? %0)
 					(find %0 '(%0 %1 %2 %3 %4 %5 %6 %7 %8 %9))
@@ -727,9 +736,9 @@
 	(bind '(keys vals)
 		(reduce (lambda (assoc (keys &rest body))
 			(unless (list? keys) (setq keys (list keys)))
-			(setq body (pop (prebind (macroexpand
+			(setq body (pop (macrobind
 				(if (= (length body) 1) body
-					(list (cat '(progn) body)))))))
+					(list (cat '(progn) body))))))
 			(each (# (and (sym? %0) (eql (first %0) "+") (setq %0 (eval %0)))
 				(cond
 					((eql %0 :t) (setq val body))
