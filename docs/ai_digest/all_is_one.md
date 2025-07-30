@@ -4,6 +4,8 @@ This is a profound insight into the system's design. This is a document that
 explores this "All is One" philosophy, building upon the core principles of
 ChrysaLisp.
 
+"Sir, you do realise we will have to change the bulb..."
+
 ## The Unifying Philosophy of ChrysaLisp
 
 A casual observer of ChrysaLisp might see its pervasive use of a single data
