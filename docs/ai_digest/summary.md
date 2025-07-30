@@ -1,12 +1,18 @@
 # ChrysaLisp System Summary
 
-ChrysaLisp is a distinct Lisp operating system and environment with a
-microkernel-like architecture, a rich GUI system, and a suite of applications.
-It features its own object system, task management, inter-task communication
-via message passing (mail), and a platform abstraction layer (PII). The system
-includes a self-hosting build system and supports compilation to native code
-for various architectures (x86_64, ARM64, RISC-V64) as well as a custom Virtual
-Processor (VP64).
+ChrysaLisp is a unique, distributed, message-passing operating system and
+language built from the ground up on a Lisp-like philosophy. Originating from
+the bare-metal Taos OS, its design is not an attempt to replicate traditional
+Lisp environments but rather an evolution of first-principles engineering aimed
+at creating a high-performance, inherently parallel, and resilient system. The
+result is a complete OS that can utilize a host system as a set of drivers
+through its Platform Implementation Interface (PII), featuring a portable
+Virtual Processor (VP), a "linkerless" build system, and extensive class
+libraries that are available at both the assembler and high-level Lisp tiers.
+
+The system includes a self-hosting build system and supports compilation to
+native code for various architectures (x86_64, ARM64, RISC-V64) as well as a
+custom Virtual Processor (VP64).
 
 ## 1. Core System and Kernel (`sys/` directory)
 
