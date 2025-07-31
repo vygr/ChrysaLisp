@@ -37,7 +37,7 @@
 	(assign {0} {cnt})
 	(loop-start)
 
-		;this mix allows up to oct issue opertunities !
+		;this mix allows up to oct issue opportunities !
 		;we shuffle the mix to give some spice to life.
 		(vp-def (loop r1 r2 r3 r4 r5 r6 r7 r8 r9))
 		(vp-cpy-cr 0 loop)
