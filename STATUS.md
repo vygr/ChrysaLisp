@@ -21,6 +21,9 @@ New `(macrobind)` macro.
 New `(static-qqp)` macro that only does a prebind pass, no static macroexpand !
 GUI UI macros now use this.
 
+Majour tidy up of the `lib/asm/vp.inc` file. Use of `static-q*` where possible
+and removeal of redundant type conversions.
+
 ------
 
 New non recursive constraints system for GUI layouts. Significant reduction in
