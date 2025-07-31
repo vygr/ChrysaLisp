@@ -16,7 +16,7 @@
 ; Emit Buffer
 ;;;;;;;;;;;;;
 
-(defmacro emit (&rest _) `(push *emit_list* ~_))
+(defmacro emit (&rest _) (static-qqp (push *emit_list* ~_)))
 
 (defun emit-vp-code (emit_list)
 	;remove nops and rename labels
