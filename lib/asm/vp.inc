@@ -10,7 +10,7 @@
 (defmacro vp-def (_ &optional l)
 	(setq l (apply (const cat) (map (lambda (x y)
 		(list (list quote x) y)) _ (if l (merge-obj (cat (eval l)) +vp_regs_0_14) +vp_regs_0_14))))
-	`(progn (deffvar ~l)))
+	(static-qq (progn (deffvar ~l))))
 
 ;;;;;;;;;;;;;
 ; Emit Buffer
@@ -120,9 +120,9 @@
 (defun vp-and-cr (c d) (emit (static-qqp (emit-and-cr ,(logior 0 (eval c (penv))) ,d))))
 (defun vp-or-cr (c d) (emit (static-qqp (emit-or-cr ,(logior 0 (eval c (penv))) ,d))))
 (defun vp-xor-cr (c d) (emit (static-qqp (emit-xor-cr ,(logior 0 (eval c (penv))) ,d))))
-(defun vp-shl-cr (c d) (emit (static-qqp (emit-shl-cr ,(logior 0 (eval c (penv))) ,d))))
-(defun vp-shr-cr (c d) (emit (static-qqp (emit-shr-cr ,(logior 0 (eval c (penv))) ,d))))
-(defun vp-asr-cr (c d) (emit (static-qqp (emit-asr-cr ,(logior 0 (eval c (penv))) ,d))))
+(defun vp-shl-cr (c d) (emit (static-qqp (emit-shl-cr ,(eval c (penv)) ,d))))
+(defun vp-shr-cr (c d) (emit (static-qqp (emit-shr-cr ,(eval c (penv)) ,d))))
+(defun vp-asr-cr (c d) (emit (static-qqp (emit-asr-cr ,(eval c (penv)) ,d))))
 
 (defun vp-cpy-rr (s d) (emit `(emit-cpy-rr ,s ,d)))
 (defun vp-add-rr (s d) (emit `(emit-add-rr ,s ,d)))
