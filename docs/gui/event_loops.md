@@ -56,20 +56,19 @@ This creates these symbols and bound values:
 
 We place the `main` mailbox as the first element in order to use built in
 helper functions to allocate and free our mailbox selection list. These
-functions will always have element 0 as the `(task-netid)`, all the remaining
-will be allocated and freed for us using the `(mail-alloc-mbox)` and
-`(mail-free-mbox)` functions.
+functions will always have element 0 as the `(task-mbox)`, all the remaining
+will be allocated and freed for us using the `(mail-mbox)` function.
 
 At the start of the Boing demo `(main)` function the selection list is created
 and at the end it is destroyed:
 
 ```vdu
 (defun main ()
-	(defq select (alloc-select +select_size))
+	(defq select (task-mboxes +select_size))
 	...
 	... event loop
 	...
-	(free-select select))
+	)
 ```
 
 ## Waiting on multiple mailboxes, the event loop
@@ -220,7 +219,7 @@ task.
 
 ```vdu
 (defun main ()
-	(defq select (alloc-select +select_size))
+	(defq select (task-mboxes +select_size))
 	...
 	(defq farm (Farm create destroy (* 2 (length (lisp-nodes)))))
 	(mail-timeout (elem-get select +select_timer) timer_rate 0)
@@ -259,7 +258,7 @@ task.
 						(unless working (. farm :close)))))))
 	...
 	(. farm :close)
-	(free-select select))
+	)
 ```
 
 I've cut out the specifics of what we do in this application with the job
@@ -296,7 +295,7 @@ long to receive some work, 5 seconds here, and it goes away.
 ...
 
 (defun main ()
-	(defq select (alloc-select +select_size) running :t +timeout 5000000)
+	(defq select (task-mboxes +select_size) running :t +timeout 5000000)
 	(while running
 		(mail-timeout (elem-get select +select_timeout) +timeout 0)
 		(defq msg (mail-read (elem-get select (defq idx (mail-select select)))))
@@ -311,7 +310,7 @@ long to receive some work, 5 seconds here, and it goes away.
 					mbox (getf msg +job_reply)
 					msg (slice msg +job_x -1))
 				...)))
-	(free-select select))
+	)
 ```
 
 ## Coping with stale messages

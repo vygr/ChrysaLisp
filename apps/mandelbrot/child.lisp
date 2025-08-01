@@ -27,7 +27,7 @@
 	(mail-send mbox (str reply)))
 
 (defun main ()
-	(defq select (alloc-select +select_size) running :t +timeout 5000000)
+	(defq select (task-mboxes +select_size) running :t +timeout 5000000)
 	(while running
 		(mail-timeout (elem-get select +select_timeout) +timeout 0)
 		(defq msg (mail-read (elem-get select (defq idx (mail-select select)))))
@@ -41,5 +41,4 @@
 				(defq key (getf msg +job_key)
 					mbox (getf msg +job_reply)
 					msg (slice msg +job_x -1))
-				(apply mandel (cat (list key mbox) (map (lambda (_) (get-long msg (* _ +long_size))) (range 0 9)))))))
-	(free-select select))
+				(apply mandel (cat (list key mbox) (map (lambda (_) (get-long msg (* _ +long_size))) (range 0 9))))))))

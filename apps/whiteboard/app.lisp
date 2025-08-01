@@ -104,7 +104,7 @@
 (import "./actions.inc")
 
 (defun main ()
-	(defq select (alloc-select +select_size) *id* :t
+	(defq select (task-mboxes +select_size) *id* :t
 		dlist (list +layer_all *commited_canvas* *overlay_canvas* (list) (list)))
 	(. *commited_canvas* :set_canvas_flags +canvas_flag_antialias)
 	(. *overlay_canvas* :set_canvas_flags +canvas_flag_antialias)
@@ -174,7 +174,6 @@
 			(:t ;gui event
 				(. *window* :event *msg*))))
 	;close window
-	(free-select select)
 	(if *picker_mbox* (mail-send *picker_mbox* ""))
 	(gui-sub-rpc *window*)
 	(profile-report "Whiteboard App"))

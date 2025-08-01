@@ -37,7 +37,7 @@
 	(refresh-wallpaper)
 	(defq id :t)
 	(while id
-		(setq id (getf (defq msg (mail-read (task-netid))) +ev_msg_target_id))
+		(setq id (getf (defq msg (mail-read (task-mbox))) +ev_msg_target_id))
 		(cond
 			((= id +event_close)
 				(setq id :nil))

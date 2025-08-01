@@ -55,10 +55,9 @@
 	; (gui-rpc (view cmd) -> :nil | view
 	(when (nempty? (defq service (mail-enquire "Gui,")))
 		(defq service (to-net-id (second (split (pop service) ",")))
-			mbox (mail-alloc-mbox))
-		(mail-send service (list cmd view (task-netid) mbox))
+			mbox (mail-mbox))
+		(mail-send service (list cmd view (task-mbox) mbox))
 		(mail-read mbox)
-		(mail-free-mbox mbox)
 		view))
 
 (defmacro gui-quit-rpc () `(gui-rpc :nil 0))

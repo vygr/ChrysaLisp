@@ -23,7 +23,7 @@
 	(mail-send mbox (apply (const cat) reply_list)))
 
 (defun main ()
-	(defq select (alloc-select +select_size) running :t +timeout 1000000)
+	(defq select (task-mboxes +select_size) running :t +timeout 1000000)
 	(while running
 		(mail-timeout (elem-get select +select_timeout) +timeout 0)
 		(defq msg (mail-read (elem-get select (defq idx (mail-select select)))))
@@ -35,5 +35,4 @@
 				;main mailbox, reset timeout and reply with mesh data
 				(mail-timeout (elem-get select +select_timeout) 0 0)
 				(create-mesh (getf msg +job_key) (getf msg +job_reply)
-					(slice msg +job_name +job_command) (slice msg +job_command -1)))))
-	(free-select select))
+					(slice msg +job_name +job_command) (slice msg +job_command -1))))))

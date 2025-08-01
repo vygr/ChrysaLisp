@@ -219,8 +219,7 @@ adapt, is central to ChrysaLisp's robustness.
 
             * It calls `(. farm :close)` to shut down existing workers.
 
-            * It **recreates the `+select_reply` mailbox** using `(mail-free-mbox)`
-              and `(mail-alloc-mbox)`.
+            * It **recreates the `+select_reply` mailbox** using `(mail-mbox)`.
 
             * It then re-initializes the `farm` and repopulates the `jobs` queue for
               the new view.

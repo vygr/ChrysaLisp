@@ -24,7 +24,7 @@
 (3 (import-from "lib/debug/profile.inc" '(profile-report))))
 
 (defun main ()
-	(defq *select* (alloc-select +_select_size) *working* :t *msg* :nil)
+	(defq *select* (task-mboxes +_select_size) *working* :t *msg* :nil)
 	(within-compile-env (lambda ()
 		(while *working*
 			(mail-timeout (elem-get *select* +_select_timeout) +_timeout 0)
@@ -48,5 +48,4 @@
 					;send reply
 					(print *reply_key*)
 					(mail-send *reply_mbox* (apply (const cat) *msg*)))))))
-	(free-select *select*)
 	(profile-report "Asm"))

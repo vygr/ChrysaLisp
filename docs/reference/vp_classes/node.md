@@ -9,7 +9,6 @@
 ```code
 inputs
 :r0 = buffer (pubyte)
-:r1 = buffer length (uint)
 outputs
 :r0 = 0 if error, else node object (ptr)
 trashes

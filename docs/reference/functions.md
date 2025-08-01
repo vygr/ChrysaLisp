@@ -46,12 +46,6 @@ parse the commands and attributes calling back to the user functions
 (align num div) -> num
 ```
 
-### alloc-select
-
-```code
-(alloc-select size) -> ((task-netid) [temp_mbox] ...)
-```
-
 ### array?
 
 ```code
@@ -289,12 +283,6 @@ return all the dir paths
 
 ```code
 (found? text substr) -> :t | :nil
-```
-
-### free-select
-
-```code
-(free-select select)
 ```
 
 ### func-load
@@ -1008,6 +996,12 @@ patch stream a with stream b, write to stream c
 
 ```code
 (sym? form) -> :t | :nil
+```
+
+### task-mboxes
+
+```code
+(task-mboxes size) -> ((task-mbox) [temp_mbox] ...)
 ```
 
 ### task-timeout

@@ -25,7 +25,7 @@
 	(. pcb :close))
 
 (defun main ()
-	(defq select (alloc-select +select_size) running :t)
+	(defq select (task-mboxes +select_size) running :t)
 	(mail-timeout (elem-get select +select_timeout) 5000000 0)
 	(while running
 		(defq msg (mail-read (elem-get select (defq idx (mail-select select)))))
@@ -44,5 +44,4 @@
 					(getf msg +job_even_range)
 					(getf msg +job_odd_range)
 					(slice msg +job_data -1)))))
-	(free-select select)
 	(profile-report "Pcb"))

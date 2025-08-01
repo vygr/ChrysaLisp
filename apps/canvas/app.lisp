@@ -97,7 +97,7 @@
 	(. *canvas* :swap 0))
 
 (defun main ()
-	(defq select (alloc-select +select_size) id :t)
+	(defq select (task-mboxes +select_size) id :t)
 	(.-> *canvas* (:fill 0) (:set_canvas_flags +canvas_flag_antialias))
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(gui-add-front-rpc (. *window* :change x y w h))
@@ -117,5 +117,4 @@
 				(redraw)
 				(++ angle 0.0025))))
 	;close window
-	(free-select select)
 	(gui-sub-rpc *window*))

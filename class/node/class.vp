@@ -6,20 +6,19 @@
 (def-method 'node :create)
 	;inputs
 	;:r0 = buffer (pubyte)
-	;:r1 = buffer length (uint)
 	;outputs
 	;:r0 = 0 if error, else node object (ptr)
 	;trashes
 	;:r1-:r6
 
 	;save size of data
-	(entry 'node :create '(:r5 :r6))
+	(entry 'node :create '(:r5))
 
 	;create new str object
-	(call 'sys_mem :alloc '((& :r1 (+ str_size +byte_size))) '(:r0 _))
+	(call 'sys_mem :alloc `(,(+ node_size +byte_size)) '(:r0 _))
 	(vpif '(:r0 /= 0))
 		;init the object
-		(call 'node :init `(:r0 (@ ,(f-path 'node :vtable)) :r5 :r6) '(:r0 :r1))
+		(call 'node :init `(:r0 (@ ,(f-path 'node :vtable)) :r5 node_id_size) '(:r0 :r1))
 		(vpif '(:r1 = 0))
 			;error with init
 			(call 'sys_mem :free '(:r0))
@@ -43,8 +42,8 @@
 
 	(entry 'node :hash '(:r0))
 
-	(vp-cpy-ir :r0 (+ str_data node_id_node1) :r1)
-	(vp-cpy-ir :r0 (+ str_data node_id_node2) :r2)
+	(vp-cpy-ir :r0 (+ node_id node_id_node1) :r1)
+	(vp-cpy-ir :r0 (+ node_id node_id_node2) :r2)
 	(vp-xor-rr :r2 :r1)
 
 	(exit 'node :hash '(:r0 :r1))

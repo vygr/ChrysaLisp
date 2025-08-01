@@ -24,6 +24,12 @@ GUI UI macros now use this.
 Majour tidy up of the `lib/asm/vp.inc` file. Use of `static-q*` where possible
 and removeal of redundant type conversions.
 
+Reference counted `netid` object for temp mailboxes. Create one via
+`(mail-mbox)` and no meed to explicitly free anymore. `(free-select)` call is
+now gone, and `(alloc-select)` is replaced by the `(task-mboxes)` function which
+creates the select list using `(task-mbox)`, for the first entry, and
+`(mail-mbox)` for the rest.
+
 ------
 
 New non recursive constraints system for GUI layouts. Significant reduction in
@@ -561,7 +567,7 @@ information.
 
 Simplify Service naming and implement `"*"` prefix to allow global discovery.
 
-Simplify RPC calls. And rename of `(task-mailbox)` to `(task-netid)`.
+Simplify RPC calls. And rename of `(task-mailbox)` to `(task-mbox)`.
 
 `sdir` command now defaults to prefix `'*'`.
 
@@ -984,9 +990,9 @@ GUI enter/exit events and general tooltips system.
 
 Whiteboard application upgraded to latest framework.
 
-New `(alloc-select)` and `(free-select)` functions. To standardise allocation
+New `(task-mboxes)` and `(free-select)` functions. To standardise allocation
 and freeing of mailbox selection lists. The first element will allways be the
-main `(task-netid)`.
+main `(task-mbox)`.
 
 Truncate error report `Obj:` field to 256 characters.
 

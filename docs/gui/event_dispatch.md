@@ -93,7 +93,7 @@ event handling.
 
 ```vdu
 (defun main ()
-	(defq select (alloc-select +select_size))
+	(defq select (task-mboxes +select_size))
 	...
 	(defq id :t)
 	(mail-timeout (elem-get select +select_timer) rate 0)
@@ -132,7 +132,7 @@ event handling.
 			...
 			(:t (. *window* :event *msg*))))
 	...
-	(free-select select))
+	)
 ```
 
 In the default clause we pass the event to our windows `:event` method. This
@@ -232,7 +232,7 @@ event and key dispatching code.
 	(catch (eval action) (progn (prin _) (print) :t)))
 
 (defun main ()
-	(defq select (alloc-select +select_size))
+	(defq select (task-mboxes +select_size))
 	...
 	(while *running*
 		(defq *msg* (mail-read (elem-get select (defq idx (mail-select select)))))
@@ -284,7 +284,7 @@ event and key dispatching code.
 		...
 		)
 	...
-	(free-select select))
+	)
 ```
 
 Once we find an action binding within the `*event_map*` or the `*key_map*` (we have

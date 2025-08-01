@@ -2,8 +2,6 @@
 
 ## Lisp Bindings
 
-### (mail-alloc-mbox)
-
 ### (mail-declare mbox name info)
 
 ### (mail-nodes)
@@ -12,7 +10,7 @@
 
 ### (mail-forget key)
 
-### (mail-free-mbox mbox)
+### (mail-mbox)
 
 ### (mail-poll mboxs)
 

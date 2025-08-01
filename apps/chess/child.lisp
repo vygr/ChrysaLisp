@@ -384,7 +384,7 @@
 	(enum main timeout))
 
 (defun main ()
-	(defq select (alloc-select +select_size))
+	(defq select (task-mboxes +select_size))
 	(mail-timeout (elem-get select +select_timeout) 1000000 0)
 	(defq msg (mail-read (elem-get select (defq idx (mail-select select)))))
 	(cond
@@ -412,5 +412,4 @@
 				((>= (reduce (lambda (cnt past_brd)
 						(if (eql past_brd brd) (inc cnt) cnt)) history 0) 3)
 					(reply "e" (cat (LF) "** Draw **" (LF))))
-				(:t (reply "b" new_brd)))))
-	(free-select select))
+				(:t (reply "b" new_brd))))))

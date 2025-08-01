@@ -19,11 +19,10 @@
 
 (defun debug-ipc (service type s)
 	(mail-send service (setf-> (cat (str-alloc +debug_size) s)
-		(+debug_reply (defq mbox (mail-alloc-mbox)))
-		(+debug_origin (task-netid))
+		(+debug_reply (defq mbox (mail-mbox)))
+		(+debug_origin (task-mbox))
 		(+debug_type type)))
-	(setq *debug_state* (mail-read mbox))
-	(mail-free-mbox mbox))
+	(setq *debug_state* (mail-read mbox)))
 
 (defun debug-trunc (s w &optional d)
 	(if (> (length s) w)

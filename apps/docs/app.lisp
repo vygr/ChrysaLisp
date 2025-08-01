@@ -81,7 +81,7 @@
 (import "./actions.inc")
 
 (defun main ()
-	(defq select (alloc-select +select_size) syntax (Syntax) handlers (Emap)
+	(defq select (task-mboxes +select_size) syntax (Syntax) handlers (Emap)
 		scroll_pos (Fmap) *running* :t *current_file* "docs/ai_digest/summary.md"
 		*page_scale* 1.0 *regexp* :nil *whole_words* :nil
 		*last_key* "" *last_files* (list) *page_words* (Fset 101)
@@ -134,5 +134,4 @@
 				;save scroll position
 				(. scroll_pos :insert *current_file* (get :value (get :vslider *page_scroll*))))))
 	(undef (penv) '*handler_env*)
-	(gui-sub-rpc *window*)
-	(free-select select))
+	(gui-sub-rpc *window*))

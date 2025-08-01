@@ -546,7 +546,7 @@
 	(entry 'sys_mail :declare {id, name, info})
 
 	;insert into service map
-	(call 'node :create {&id->str_data.net_id_node_id, +node_id_size} {key})
+	(call 'node :create {&id->str_data.net_id_node_id} {key})
 	(call 'hmap :find {@sys/statics/statics.statics_sys_mail_node_map, key} {_, tuple, bucket})
 	(vpifnot {tuple})
 		(call 'array :create :nil {tuple})
@@ -671,7 +671,7 @@
 
 	(push-scope)
 
-	(call 'node :create {@sys/statics/statics.statics_sys_task_kernel_node_id, +node_id_size} {key})
+	(call 'node :create {@sys/statics/statics.statics_sys_task_kernel_node_id} {key})
 	(assign {@sys/statics/statics} {statics})
 	(call 'hmap :find {statics->statics_sys_mail_node_map, key} {_, tuple, bucket})
 	(vpif {tuple})

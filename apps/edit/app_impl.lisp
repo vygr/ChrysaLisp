@@ -235,8 +235,8 @@
 			(setq *refresh_mode* (list 0)) :t)))
 
 (defun main ()
-	(defq select (alloc-select +select_size)
-		edit_service (mail-declare (task-netid) "Edit" "Edit Service 1.0")
+	(defq select (task-mboxes +select_size)
+		edit_service (mail-declare (task-mbox) "Edit" "Edit Service 1.0")
 		*running* :t *edit* (Editor-edit) *page_scale* 1.0 *regexp* :nil
 		*syntax* (Syntax) *whole_words* :nil *refresh_mode* (list 0)
 		*macro_record* :nil *macro_actions* (list) *cursor_stack* (list)
@@ -323,7 +323,6 @@
 		;update meta data
 		(update-meta-data))
 	(action-save-all)
-	(free-select select)
 	(clear-matches)
 	(gui-sub-rpc *window*)
 	(mail-forget edit_service)

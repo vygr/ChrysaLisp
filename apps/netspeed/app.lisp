@@ -67,7 +67,7 @@
 		net_charts net_bars totals +max_aligns))
 
 (defun main ()
-	(defq id :t select (alloc-select +select_size)
+	(defq id :t select (task-mboxes +select_size)
 		charts (. *charts* :children) net_charts (. *net_charts* :children)
 		net_bars (map (# (. %0 :add_bar)) net_charts)
 		net_results (lists (length net_charts))
@@ -117,5 +117,4 @@
 				(clear poll_que))))
 	;close window and children
 	(. global_tasks :close)
-	(free-select select)
 	(gui-sub-rpc *window*))

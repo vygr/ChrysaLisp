@@ -157,7 +157,7 @@ enables applications to respond to user interactions and system notifications.
 
 5. **Multiple Mailboxes for GUI Applications (`event_loops.md`):**
 
-    * GUI applications often use `(alloc-select)` to create and manage multiple
+    * GUI applications often use `(task-mboxes)` to create and manage multiple
       mailboxes. This allows them to partition different types of events:
 
         * `+select_main`: For GUI events from the GUI service.

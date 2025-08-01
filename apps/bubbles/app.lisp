@@ -123,7 +123,7 @@
 
 (defun main ()
 	;ui tree initial setup
-	(defq dlist (list 0 light_pos *layer1_canvas* (list)) select (alloc-select +select_size))
+	(defq dlist (list 0 light_pos *layer1_canvas* (list)) select (task-mboxes +select_size))
 	(tooltips)
 	(. *layer1_canvas* :set_canvas_flags +canvas_flag_antialias)
 	(. *backdrop* :set_size +width +height)
@@ -196,6 +196,5 @@
 									:t)))))
 			(:t (. *window* :event *msg*))))
 	;close window
-	(free-select select)
 	(gui-sub-rpc *window*)
 	(profile-report "Bubbles"))

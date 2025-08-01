@@ -66,7 +66,7 @@
 	(catch (eval action) (progn (prin _) (print) :t)))
 
 (defun main ()
-	(defq select (alloc-select +select_size) syntax (Syntax)
+	(defq select (task-mboxes +select_size) syntax (Syntax)
 		buf_keys (list) buf_list (list) selected_index :nil *running* :t
 		entry (mail-declare (elem-get select +select_service) "*Profile" "Profile Service 0.1"))
 	(def *window* :tip_mbox (elem-get select +select_tip))
@@ -125,5 +125,4 @@
 			;otherwise
 			(:t (. *window* :event *msg*))))
 	(mail-forget entry)
-	(free-select select)
 	(gui-sub-rpc *window*))

@@ -23,7 +23,7 @@
 	(catch (eval action) (progn (prin _) (print) :t)))
 
 (defun main ()
-	(defq select (alloc-select +select_size) *running* :t mouse_state :u)
+	(defq select (task-mboxes +select_size) *running* :t mouse_state :u)
 	(def *window* :tip_mbox (elem-get select +select_tip))
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(gui-add-front-rpc (. *window* :change x y w h))
@@ -69,5 +69,4 @@
 			(:t ;gui event
 				(. *window* :event *msg*))))
 	(gui-sub-rpc *window*)
-	(free-select select)
 	(profile-report "Template"))

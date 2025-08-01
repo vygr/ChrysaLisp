@@ -157,7 +157,7 @@
 	(catch (eval action) (progn (prin _) (print) :t)))
 
 (defun main ()
-	(defq select (alloc-select +select_size) *running* :t)
+	(defq select (task-mboxes +select_size) *running* :t)
 	(bind '(x y w h) (apply view-locate (.-> *window* (:connect +event_layout) :pref_size)))
 	(.-> *main_widget* (:set_canvas_flags +canvas_mode) (:fill +argb_black) (:swap 0))
 	(. *style_toolbar* :set_selected 1)
@@ -217,5 +217,4 @@
 			(:t ;gui event
 				(. *window* :event *msg*))))
 	(gui-sub-rpc *window*)
-	(free-select select)
 	(profile-report "Molecule"))

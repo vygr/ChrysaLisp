@@ -70,7 +70,7 @@
 		(undef val :job)))
 
 (defun main ()
-	(defq select (alloc-select +select_size))
+	(defq select (task-mboxes +select_size))
 	(.-> canvas (:fill +argb_black) (:swap 0))
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(gui-add-front-rpc (. *window* :change x y w h))
@@ -114,5 +114,4 @@
 							(. farm :close)))))))
 	;close window and children
 	(. farm :close)
-	(free-select select)
 	(gui-sub-rpc *window*))

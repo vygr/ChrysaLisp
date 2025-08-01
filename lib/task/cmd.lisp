@@ -15,7 +15,7 @@
 	(offset params))
 
 (defun main ()
-	(defq *select* (alloc-select +select_size) *working* :t *msg* :nil)
+	(defq *select* (task-mboxes +select_size) *working* :t *msg* :nil)
 	(while *working*
 		(mail-timeout (elem-get *select* +select_timeout) +timeout 0)
 		(setq *msg* (mail-read (elem-get *select* (defq *idx* (mail-select *select*)))))
@@ -37,5 +37,4 @@
 				(catch (pipe-run *cmd* (# (write *msg* (str %0))))
 					(progn (write-line *msg* (str _ " " *cmd*)) :t))
 				;send reply
-				(mail-send *reply_mbox* (str *msg*)))))
-	(free-select *select*))
+				(mail-send *reply_mbox* (str *msg*))))))

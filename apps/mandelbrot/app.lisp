@@ -64,8 +64,7 @@
 
 (defun reset ()
 	(if farm (. farm :close))
-	(mail-free-mbox (elem-get select +select_reply))
-	(elem-set select +select_reply (mail-alloc-mbox))
+	(elem-set select +select_reply (mail-mbox))
 	(setq jobs (map (lambda (y)
 			(setf-> (str-alloc +job_size)
 				(+job_x 0)
@@ -81,7 +80,7 @@
 		farm (Farm create destroy (* 2 (length (lisp-nodes))))))
 
 (defun main ()
-	(defq select (alloc-select +select_size))
+	(defq select (task-mboxes +select_size))
 	(.-> *canvas* (:fill +argb_black) (:swap 0))
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(gui-add-front-rpc (. *window* :change x y w h))
@@ -135,5 +134,4 @@
 						(unless working (. farm :close)))))))
 	;close window and children
 	(. farm :close)
-	(free-select select)
 	(gui-sub-rpc *window*))

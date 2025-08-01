@@ -48,7 +48,7 @@
 	(when (nempty? files)
 		(shuffle files)
 		(defq timer_rate (/ 1000000 1) working :t errors (list) retry_timeout (task-timeout 2)
-			select (list (mail-alloc-mbox) (mail-alloc-mbox) (mail-alloc-mbox))
+			select (list (mail-mbox) (mail-mbox) (mail-mbox))
 			jobs (map (# (str (list (list %0) *abi* *cpu* *debug_mode* *debug_emit* *debug_inst*))) files)
 			farm (Local (const create) (const destroy) (length files) (max 1 (min 4 (length (lisp-nodes))))))
 		(mail-timeout (elem-get select +select_timer) timer_rate 0)
@@ -85,7 +85,6 @@
 					(mail-timeout (elem-get select +select_timer) timer_rate 0)
 					(. farm :refresh retry_timeout))))
 		(. farm :close)
-		(each mail-free-mbox select)
 		(each (const print) errors))
 	(print "Done") :nil)
 

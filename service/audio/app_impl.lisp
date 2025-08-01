@@ -7,11 +7,11 @@
 
 (defun main ()
 	; Declare the audio service
-	(defq audio_service (mail-declare (task-netid) "Audio" "Audio Service 0.1"))
+	(defq audio_service (mail-declare (task-mbox) "Audio" "Audio Service 0.1"))
 	((ffi "service/audio/lisp_init"))
 	; Main loop
 	(while :t
-		(let* ((msg (mail-read (task-netid))) (reply_id (getf msg +audio_rpc_reply_id)))
+		(let* ((msg (mail-read (task-mbox))) (reply_id (getf msg +audio_rpc_reply_id)))
 			(case (getf msg +audio_rpc_type)
 				(+audio_type_add
 					; Add sound effect

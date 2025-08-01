@@ -33,7 +33,7 @@
 	(gui-add-front-rpc (. *window* :change x y w h))
 	(defq accum 0 value 0 num 0 lastop :nil)
 	(while (cond
-		((>= (defq id (getf (defq msg (mail-read (task-netid))) +ev_msg_target_id)) +event_button)
+		((>= (defq id (getf (defq msg (mail-read (task-mbox))) +ev_msg_target_id)) +event_button)
 			(defq op (get :text (. *window* :find_id (getf msg +ev_msg_action_source_id))))
 			(cond
 				((eql op "AC")

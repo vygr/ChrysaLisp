@@ -13,7 +13,7 @@
 		(to-net-id (second (split (pop services) ",")))))
 
 (defun profile-ipc (service s)
-	(mail-send service (cat (task-netid) s)))
+	(mail-send service (cat (task-mbox) s)))
 
 (defun profile-info (n)
 	(defq e (tolist *profile_map*) n (str n " (" (length e) ")")

@@ -81,7 +81,7 @@
 (defun main ()
 	;creates local_timezone
 	(timezone-init *env_clock_timezone*)
-	(defq select (alloc-select +select_size))
+	(defq select (task-mboxes +select_size))
 	(when clock
 		(.-> clock (:fill 0) (:set_canvas_flags +canvas_flag_antialias))
 		(create-clockface (* (n2f clock_size) (n2f clock_scale))))
@@ -108,5 +108,4 @@
 					(make-digital-time)
 					(set *display* :text (view-digital-time))
 					(.-> *display* :layout :dirty)))))
-	(free-select select)
 	(gui-sub-rpc *window*))

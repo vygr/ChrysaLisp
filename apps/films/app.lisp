@@ -35,7 +35,7 @@
 		'("prev" "next")))
 
 (defun main ()
-	(defq select (alloc-select +select_size))
+	(defq select (task-mboxes +select_size))
 	(tooltips)
 	(bind '(x y w h) (apply view-locate (. (win-refresh index) :get_size)))
 	(gui-add-front-rpc (. *window* :change x y w h))
@@ -57,5 +57,4 @@
 				(win-refresh (% (+ index (dec (* 2 (- id +event_prev))) (length films)) (length films))))
 			(:t (. *window* :event *msg*))))
 	;close window
-	(free-select select)
 	(gui-sub-rpc *window*))

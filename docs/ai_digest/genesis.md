@@ -85,7 +85,7 @@ It is manifested in the `netid`, a tuple of `(mailbox_id, node_id)`.
     one has been born.
 
 *   **The Disposable `mailbox_id`:** When a task allocates a mailbox with
-    `(mail-alloc-mbox)`, it gets a unique 64-bit ID that will *never be reused*
+    `(mail-mbox)`, it gets a unique 64-bit ID that will *never be reused*
     on that node. When it is freed, it is invalidated forever.
 
 This dual-ephemeral nature means that a `netid` is a **one-time-use, completely

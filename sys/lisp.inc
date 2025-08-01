@@ -3,16 +3,15 @@
 
 (ffi "sys/kernel/lisp_stats" kernel-stats)
 (ffi "sys/load/lisp_path" load-path)
-(ffi "sys/task/lisp_mailbox" task-netid)
+(ffi "sys/task/lisp_mailbox" task-mbox)
+(ffi "sys/mail/lisp_netid" mail-mbox)
 (ffi "sys/task/lisp_count" task-count)
 (ffi "sys/task/lisp_sleep" task-sleep)
 (ffi "sys/task/lisp_timeslice" task-slice)
-(ffi "sys/mail/lisp_alloc_mbox" mail-alloc-mbox)
 (ffi "sys/mail/lisp_declare" mail-declare)
 (ffi "sys/mail/lisp_devices" mail-nodes)
 (ffi "sys/mail/lisp_enquire" mail-enquire)
 (ffi "sys/mail/lisp_forget" mail-forget)
-(ffi "sys/mail/lisp_free_mbox" mail-free-mbox)
 (ffi "sys/mail/lisp_poll" mail-poll)
 (ffi "sys/mail/lisp_validate" mail-validate)
 (ffi "sys/mail/lisp_read" mail-read)
@@ -23,15 +22,11 @@
 (structure +mail_timeout 0
 	(long time id))
 
-(defun alloc-select (size)
-	; (alloc-select size) -> ((task-netid) [temp_mbox] ...)
-	(defq select (list (task-netid)))
-	(while (> (-- size) 0) (push select (mail-alloc-mbox)))
+(defun task-mboxes (size)
+	; (task-mboxes size) -> ((task-mbox) [temp_mbox] ...)
+	(defq select (list (task-mbox)))
+	(while (> (-- size) 0) (push select (mail-mbox)))
 	select)
-
-(defun free-select (select)
-	; (free-select select)
-	(each! (const mail-free-mbox) (list select) 1))
 
 (defun id-decode (id)
 	; (id-decode id) -> id
@@ -68,31 +63,29 @@
 
 (defun open-child (task mode)
 	; (open-child task mode) -> net_id
-	(defq mbox (mail-alloc-mbox))
-	(open-task task (slice (task-netid) +long_size -1) mode 0 mbox)
-	(defq id (getf (mail-read mbox) +kn_msg_reply_id))
-	(mail-free-mbox mbox) id)
+	(defq mbox (mail-mbox))
+	(open-task task (slice (task-mbox) +long_size -1) mode 0 mbox)
+	(getf (mail-read mbox) +kn_msg_reply_id))
 
 (defun open-remote (task node mode)
 	; (open-remote task node mode) -> net_id
-	(defq mbox (mail-alloc-mbox))
+	(defq mbox (mail-mbox))
 	(open-task task node mode 0 mbox)
-	(defq id (getf (mail-read mbox) +kn_msg_reply_id))
-	(mail-free-mbox mbox) id)
+	(getf (mail-read mbox) +kn_msg_reply_id))
 
 (defun open-pipe (tasks)
 	; (open-pipe tasks) -> ([net_id | 0] ...)
-	(defq ids (cap (length tasks) (list)) mbox (mail-alloc-mbox)
-		index -1 tail (task-netid))
+	(defq ids (cap (length tasks) (list)) mbox (mail-mbox)
+		index -1 tail (task-mbox))
 	(while (< (++ index) (length tasks))
 		(open-task (elem-get tasks index) (slice tail +long_size -1) +kn_call_child 0 mbox)
 		(defq tail (getf (mail-read mbox) +kn_msg_reply_id))
 		(push ids tail)
-		(if (= 0 (get-long tail 0)) (setq tail (task-netid))))
-	(mail-free-mbox mbox) ids)
+		(if (= 0 (get-long tail 0)) (setq tail (task-mbox))))
+	ids)
 
 (defun task-nodeid ()
-	(slice (task-netid) +mailbox_id_size -1))
+	(slice (task-mbox) +mailbox_id_size -1))
 
 (defun task-timeout (time)
 	; (task-timeout s) -> ns

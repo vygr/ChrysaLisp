@@ -31,7 +31,7 @@
 			(bind '(streams select) (reduce (lambda (%0 _)
 				(push (first %0) (defq in (in-stream)))
 				(push (second %0) (in-mbox in)) %0) mboxs (lists 2)))
-			(defq stdout (in-stream) stdout_mbox (in-mbox stdout) ack_mbox (mail-alloc-mbox))
+			(defq stdout (in-stream) stdout_mbox (in-mbox stdout) ack_mbox (mail-mbox))
 			(reach (lambda (mbox arg stderr_mbox)
 				(mail-send mbox (setf-> (cat (str-alloc +stdio_msg_init_size) arg)
 					(+stdio_msg_init_stdout stdout_mbox)
@@ -40,7 +40,6 @@
 				(setq stdout_mbox (getf (mail-read ack_mbox) +stdio_msg_init_stdout))) mboxs args select)
 			(push streams stdout (out-stream stdout_mbox))
 			(push select (in-mbox stdout))
-			(mail-free-mbox ack_mbox)
 			(def this :select (cat user_select select) :user_select user_select
 				:streams streams :state :t)))
 

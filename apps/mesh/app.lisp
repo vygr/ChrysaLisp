@@ -133,7 +133,7 @@
 	(.-> *main_widget* (:set_canvas_flags +canvas_mode) (:fill +argb_black) (:swap 0))
 	(. *style_toolbar* :set_selected 0)
 	(gui-add-front-rpc (. *window* :change x y w h))
-	(defq select (alloc-select +select_size) *running* :t *dirty* :t
+	(defq select (task-mboxes +select_size) *running* :t *dirty* :t
 		jobs (list) scene (create-scene jobs) farm (Local create destroy 4))
 	(tooltips (elem-get select +select_tip))
 	(mail-timeout (elem-get select +select_frame_timer) frame_timer_rate 0)
@@ -225,5 +225,4 @@
 				(. *window* :event *msg*))))
 	(. farm :close)
 	(gui-sub-rpc *window*)
-	(free-select select)
 	(profile-report "Mesh"))

@@ -89,7 +89,7 @@
 (import "./actions.inc")
 
 (defun main ()
-	(defq *select* (alloc-select +select_size)
+	(defq *select* (task-mboxes +select_size)
 		*cursor_x* 0 *cursor_y* 0 *running* :t *pipe* :nil
 		*page_scale* 1.0 *edit* (Terminal-edit) *key* :nil
 		*meta_map* :nil *history_idx* (state-load))
@@ -151,5 +151,4 @@
 				(. *window* :event *msg*))))
 	(if *pipe* (. *pipe* :close))
 	(state-save)
-	(free-select *select*)
 	(gui-sub-rpc *window*))

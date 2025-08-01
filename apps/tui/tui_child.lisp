@@ -1,5 +1,5 @@
 ;read args from parent
-(defq mbox (mail-read (task-netid)))
+(defq mbox (mail-read (task-mbox)))
 
 ;pole pii stdin
 (while :t

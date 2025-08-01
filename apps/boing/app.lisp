@@ -20,7 +20,7 @@
 		(ui-element sframe (first +sframes))))
 
 (defun main ()
-	(defq select (alloc-select +select_size) id :t index 0 xv 4 yv 0
+	(defq select (task-mboxes +select_size) id :t index 0 xv 4 yv 0
 		handle (audio-add-rpc "apps/boing/data/boing.wav"))
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(gui-add-front-rpc (. *window* :change x y w h))
@@ -68,5 +68,4 @@
 				(. sframe :dirty)
 				(. frame :dirty))))
 	(audio-remove-rpc handle)
-	(gui-sub-rpc *window*)
-	(free-select select))
+	(gui-sub-rpc *window*))

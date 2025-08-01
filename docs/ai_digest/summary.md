@@ -28,7 +28,7 @@ have priorities, private stacks, mailboxes, and can be started
 sleep. The kernel manages task lists and a timer list for scheduling.
 
 * **Mail System (`sys/mail/`):** The primary mechanism for inter-task
-communication. Tasks can allocate mailboxes (`mail-alloc-mbox`), declare
+communication. Tasks can allocate mailboxes (`mail-mbox`), declare
 services with named mailboxes (`mail-declare`), send messages (`mail-send`),
 read messages (`mail-read`), and poll/select on multiple mailboxes
 (`mail-poll`, `mail-select`). The system supports parceling large messages and

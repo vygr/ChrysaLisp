@@ -50,7 +50,7 @@
 		(resize 256)))
 
 (defun main ()
-	(defq id :t select (alloc-select 1) services (list)
+	(defq id :t select (task-mboxes 1) services (list)
 		service_labels (list) mbox_labels (list) info_labels (list))
 	(populate)
 	;add window
@@ -75,6 +75,5 @@
 				(:t (. *window* :event msg))))
 		(task-sleep 10000)
 		(populate))
-	(free-select select)
 	;close window
 	(gui-sub-rpc *window*))

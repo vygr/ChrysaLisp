@@ -44,7 +44,7 @@
 		'("join" "leave")))
 
 (defun main ()
-	(defq id :t text_buf (list "") entry :nil select (alloc-select (dec +select_size)))
+	(defq id :t text_buf (list "") entry :nil select (task-mboxes (dec +select_size)))
 	(tooltips)
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(gui-add-front-rpc (. *window* :change x y w h))
@@ -64,14 +64,14 @@
 			((= id +event_connect)
 				;connect to network ?
 				(unless (or entry (eql "" (get :clear_text chat_user)))
-					(push select (mail-alloc-mbox))
+					(push select (mail-mbox))
 					(setq entry (mail-declare (elem-get select +select_chat) "*Chat" "Chat Service 0.1"))
 					(broadcast "Has joined the chat !")))
 			((= id +event_disconnect)
 				;disconnect to network
 				(when entry
 					(broadcast "Has left the chat !")
-					(mail-free-mbox (pop select))
+					(pop select)
 					(mail-forget entry)
 					(setq entry :nil)))
 			((= id +event_send)
@@ -83,5 +83,4 @@
 	(when entry
 		(broadcast "Has left the chat !")
 		(mail-forget entry))
-	(free-select select)
 	(gui-sub-rpc *window*))

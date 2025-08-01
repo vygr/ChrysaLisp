@@ -66,8 +66,8 @@
 
 (defun main ()
 	;declare service and vars
-	(defq select (alloc-select +select_size)
-		service (mail-declare (task-netid) "Gui" "GUI Service 0.2")
+	(defq select (task-mboxes +select_size)
+		service (mail-declare (task-mbox) "Gui" "GUI Service 0.2")
 		*running* :t *quitting* :nil *old_mouse_x* -1 *old_mouse_y* -1
 		*mouse_type* 0 *mouse_x* 0 *mouse_y* 0 *mouse_buttons* 0 *mouse_id* 0
 		*mods* 0 *key_dispatch* (Fmap) *focus* :nil)
@@ -138,5 +138,4 @@
 					;quit if no apps
 					(and *quitting* (<= (length children) 1) (setq *running* :nil))))))
 	(mail-forget service)
-	(free-select select)
 	(gui-deinit))

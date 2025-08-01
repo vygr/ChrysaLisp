@@ -162,7 +162,7 @@
 		(progn (prin _) (print) (setq *refresh_mode* (list 0)) :t)))
 
 (defun main ()
-	(defq select (alloc-select +select_size)
+	(defq select (task-mboxes +select_size)
 		*running* :t *edit* (Viewer-edit) *page_scale* 1.0 *regexp* :nil
 		*syntax* (Syntax) *whole_words* :nil *refresh_mode* (list 0)
 		*meta_map* (scatter (Fmap) :files (Fmap)) *current_file* :nil
@@ -218,5 +218,4 @@
 				(. *window* :event *msg*)))
 		;update meta data
 		(update-meta-data))
-	(free-select select)
 	(gui-sub-rpc *window*))

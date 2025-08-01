@@ -84,10 +84,8 @@
 (defun stop-route ()
 	(when child
 		(mail-send child "")
-		(mail-free-mbox (elem-get select +select_reply))
-		(mail-free-mbox (elem-get select +select_prog))
-		(elem-set select +select_reply (mail-alloc-mbox))
-		(elem-set select +select_prog (mail-alloc-mbox))))
+		(elem-set select +select_reply (mail-mbox))
+		(elem-set select +select_prog (mail-mbox))))
 
 (defun route ()
 	(stop-route)
@@ -109,7 +107,7 @@
 	(catch (eval action) (progn (prin _) (print) :t)))
 
 (defun main ()
-	(defq select (alloc-select +select_size))
+	(defq select (task-mboxes +select_size))
 	(tooltips)
 	(. *layer_toolbar* :set_selected 0)
 	(. *mode_toolbar* :set_selected 0)
@@ -161,5 +159,4 @@
 						(char key))))
 			(:t (. *window* :event *msg*))))
 	(stop-route)
-	(free-select select)
 	(gui-sub-rpc *window*))

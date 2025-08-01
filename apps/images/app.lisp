@@ -36,7 +36,7 @@
 		'("prev" "next")))
 
 (defun main ()
-	(defq select (alloc-select +select_size))
+	(defq select (task-mboxes +select_size))
 	(tooltips)
 	(bind '(x y w h) (apply view-locate (. (win-refresh index) :get_size)))
 	(gui-add-front-rpc (. *window* :change x y w h))
@@ -52,5 +52,4 @@
 			((<= +event_prev id +event_next)
 				(win-refresh (% (+ index (dec (* 2 (- id +event_prev))) (length images)) (length images))))
 			(:t (. *window* :event *msg*))))
-	(free-select select)
 	(gui-sub-rpc *window*))

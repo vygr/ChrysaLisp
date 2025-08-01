@@ -42,7 +42,7 @@
 		charts +bars vals (list +task_align +mem_align +mem_align +stack_align)))
 
 (defun main ()
-	(defq id :t select (alloc-select +select_size)
+	(defq id :t select (task-mboxes +select_size)
 		global_tasks (Global create destroy) poll_que (list)
 		charts (. *charts* :children))
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
@@ -91,5 +91,4 @@
 				(clear poll_que))))
 	;close window and children
 	(. global_tasks :close)
-	(free-select select)
 	(gui-sub-rpc *window*))

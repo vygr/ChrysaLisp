@@ -41,6 +41,8 @@ obj
  |         |
  |         +-> node
  |         |
+ |         +-> netid
+ |         |
  |         +-> sym
  |
  +-> stream
@@ -215,12 +217,19 @@ obj
 
 *   **Inherits From:** `str`
 
-*   **Purpose:** A specialized string used to represent the unique network ID of
+*   **Purpose:** A specialized string used to represent the unique node ID of
     a ChrysaLisp kernel instance.
 
 *   **Key Methods:**
     * `:hash`: Overridden to compute the hash based on the 128-bit `node_id`
         stored within its string data, rather than the entire string content.
+
+**`netid`**
+
+*   **Inherits From:** `str`
+
+*   **Purpose:** A specialized string used to represent the unique network ID of
+    a temporary ChrysaLisp mailbox instance.
 
 ### 3. Numerical Types
 

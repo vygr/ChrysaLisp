@@ -62,7 +62,7 @@
 		'("prev" "next")))
 
 (defun main ()
-	(defq select (alloc-select +select_size))
+	(defq select (task-mboxes +select_size))
 	(tooltips)
 	(win-refresh index)
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
@@ -82,5 +82,4 @@
 				(clip-put-rpc (get :tip_text
 					(. *window* :find_id (getf *msg* +ev_msg_action_source_id)))))
 			(:t (. *window* :event *msg*))))
-	(free-select select)
 	(gui-sub-rpc *window*))
