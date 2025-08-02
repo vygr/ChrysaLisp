@@ -1,4 +1,4 @@
-# node
+# nodeid
 
 ## str
 
@@ -10,7 +10,7 @@
 inputs
 :r0 = buffer (pubyte)
 outputs
-:r0 = 0 if error, else node object (ptr)
+:r0 = 0 if error, else nodeid object (ptr)
 trashes
 :r1-:r6
 ```
@@ -19,9 +19,9 @@ trashes
 
 ```code
 inputs
-:r0 = node object (ptr)
+:r0 = nodeid object (ptr)
 outputs
-:r0 = node object (ptr)
+:r0 = nodeid object (ptr)
 :r1 = hash code (ulong)
 trashes
 :r1-:r2

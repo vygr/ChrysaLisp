@@ -8,7 +8,7 @@
 (include "service/gui/class.inc")
 (include "class/sym/class.inc")
 (include "class/num/class.inc")
-(include "class/node/class.inc")
+(include "class/nodeid/class.inc")
 (include "class/hmap/class.inc")
 (include "class/lisp/class.inc")
 (include "lib/consts/chars.inc")
@@ -73,7 +73,7 @@
 	(call 'opts {argv})
 
 	;start routing pings
-	(call 'node :create {0} {key})
+	(call 'nodeid :create {0} {key})
 	(call 'sys_load :bind `(,(str (f-path 'sys_kernel :ping))) '(:r0))
 	(vpif '(:r0 /= 0))
 		(call 'sys_task :start '(:r0))
@@ -153,7 +153,7 @@
 				(assign-node-id :r0 kn_msg_ping_origin :r1 str_data)
 				(call 'hmap :find {statics->statics_sys_mail_node_map, key} {_, tuple, bucket})
 				(vpifnot {tuple})
-					(call 'node :create {&data->kn_msg_ping_origin} {new_key})
+					(call 'nodeid :create {&data->kn_msg_ping_origin} {new_key})
 					(call 'array :create :nil {tuple})
 					;service set, time, session, hops, then any vias...
 					(call 'hset :create `((@ ,(f-path 'str :same)) 1) {set})

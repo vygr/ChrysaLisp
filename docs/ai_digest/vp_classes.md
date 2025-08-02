@@ -213,7 +213,7 @@ obj
       create the unique instance of a symbol in a global hash set
       (`statics_sym_intern`).
 
-**`node`**
+**`nodeid`**
 
 *   **Inherits From:** `str`
 

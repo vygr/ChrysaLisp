@@ -2,7 +2,7 @@
 (include "./class.inc")
 (include "././kernel/class.inc")
 (include "class/array/class.inc")
-(include "class/node/class.inc")
+(include "class/nodeid/class.inc")
 (include "././statics/class.inc")
 
 (def-method 'sys_link :link)
@@ -89,7 +89,7 @@
 	(push-scope)
 
 	(assign {@sys/statics/statics} {statics})
-	(call 'node :create '(0) {key})
+	(call 'nodeid :create '(0) {key})
 
 	;read params msg
 	(call 'sys_mail :mymail :nil {msg, data})
@@ -176,7 +176,7 @@
 		;exit if signaled by kernel...
 	(loop-end)
 
-	(call 'node :destroy {key})
+	(call 'nodeid :destroy {key})
 
 	(pop-scope)
 	(return)

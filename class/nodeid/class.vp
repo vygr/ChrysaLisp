@@ -1,0 +1,52 @@
+(include "lib/asm/func.inc")
+(include "./class.inc")
+
+(gen-vtable 'nodeid)
+
+(def-method 'nodeid :create)
+	;inputs
+	;:r0 = buffer (pubyte)
+	;outputs
+	;:r0 = 0 if error, else nodeid object (ptr)
+	;trashes
+	;:r1-:r6
+
+	;save size of data
+	(entry 'nodeid :create '(:r5))
+
+	;create new str object
+	(call 'sys_mem :alloc `(,(+ nodeid_size +byte_size)) '(:r0 _))
+	(vpif '(:r0 /= 0))
+		;init the object
+		(call 'nodeid :init `(:r0 (@ ,(f-path 'nodeid :vtable)) :r5 node_id_size) '(:r0 :r1))
+		(vpif '(:r1 = 0))
+			;error with init
+			(call 'sys_mem :free '(:r0))
+			(vp-xor-rr :r0 :r0)
+		(endif)
+	(endif)
+
+	(exit 'nodeid :create '(:r0))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'nodeid :hash)
+	;inputs
+	;:r0 = nodeid object (ptr)
+	;outputs
+	;:r0 = nodeid object (ptr)
+	;:r1 = hash code (ulong)
+	;trashes
+	;:r1-:r2
+
+	(entry 'nodeid :hash '(:r0))
+
+	(vp-cpy-ir :r0 (+ nodeid_id node_id_node1) :r1)
+	(vp-cpy-ir :r0 (+ nodeid_id node_id_node2) :r2)
+	(vp-xor-rr :r2 :r1)
+
+	(exit 'nodeid :hash '(:r0 :r1))
+	(vp-ret)
+
+(def-func-end)

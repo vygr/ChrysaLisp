@@ -1,7 +1,7 @@
 (include "lib/asm/func.inc")
 (include "./class.inc")
 (include "././sym/class.inc")
-(include "././node/class.inc")
+(include "././nodeid/class.inc")
 (include "././num/class.inc")
 (include "././nums/class.inc")
 (include "././stream/class.inc")

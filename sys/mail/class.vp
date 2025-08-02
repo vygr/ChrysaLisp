@@ -6,7 +6,7 @@
 (include "class/sym/class.inc")
 (include "class/hmap/class.inc")
 (include "class/num/class.inc")
-(include "class/node/class.inc")
+(include "class/nodeid/class.inc")
 (include "lib/consts/chars.inc")
 
 (def-method 'sys_mail :statics_init)
@@ -546,7 +546,7 @@
 	(entry 'sys_mail :declare {id, name, info})
 
 	;insert into service map
-	(call 'node :create {&id->str_data.net_id_node_id} {key})
+	(call 'nodeid :create {&id->str_data.net_id_node_id} {key})
 	(call 'hmap :find {@sys/statics/statics.statics_sys_mail_node_map, key} {_, tuple, bucket})
 	(vpifnot {tuple})
 		(call 'array :create :nil {tuple})
@@ -556,7 +556,7 @@
 		(call 'list :push_back2 {bucket, key, tuple})
 	(else)
 		(assign {tuple[+ptr_size]} {tuple})
-		(call 'node :destroy {key})
+		(call 'nodeid :destroy {key})
 	(endif)
 	(call 'host_os :pii_time :nil {time})
 	(call 'array :set_elem {tuple, time, 1})
@@ -671,7 +671,7 @@
 
 	(push-scope)
 
-	(call 'node :create {@sys/statics/statics.statics_sys_task_kernel_node_id} {key})
+	(call 'nodeid :create {@sys/statics/statics.statics_sys_task_kernel_node_id} {key})
 	(assign {@sys/statics/statics} {statics})
 	(call 'hmap :find {statics->statics_sys_mail_node_map, key} {_, tuple, bucket})
 	(vpif {tuple})
@@ -694,7 +694,7 @@
 		(vp-call 'ping_header)
 	(endif)
 	(call 'sys_mail :send {msg})
-	(jump 'node :destroy {key})
+	(jump 'nodeid :destroy {key})
 
 (vp-label 'ping_header)
 	(assign '((:r7 statics_sys_mail_session) 0) '(:r8 :r2))
