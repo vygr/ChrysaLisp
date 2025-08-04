@@ -39,7 +39,7 @@ obj
  |    |
  |    +-> str
  |         |
- |         +-> node
+ |         +-> nodeid
  |         |
  |         +-> netid
  |         |
