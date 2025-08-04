@@ -3,32 +3,7 @@
 (include "sys/kernel/class.inc")
 
 (gen-vtable 'netid)
-
-(def-method 'netid :create)
-	;outputs
-	;:r0 = 0 if error, else netid object (ptr)
-	;trashes
-	;:r1-:r6
-
-	;save size of data
-	(entry 'netid :create '())
-
-	;create new str object
-	(call 'sys_mem :alloc `(,(+ netid_size +byte_size)) '(:r0 _))
-	(vpif '(:r0 /= 0))
-		;init the object
-		(call 'netid :init `(:r0 (@ ,(f-path 'netid :vtable))) '(:r0 :r1))
-		(vpif '(:r1 = 0))
-			;error with init
-			(call 'sys_mem :free '(:r0))
-			(vp-xor-rr :r0 :r0)
-		(endif)
-	(endif)
-
-	(exit 'netid :create '(:r0))
-	(vp-ret)
-
-(def-func-end)
+(gen-vtable 'netid)
 
 (def-method 'netid :init)
 	;inputs
