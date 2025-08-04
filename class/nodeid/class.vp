@@ -15,7 +15,7 @@
 	(entry 'nodeid :create '(:r5))
 
 	;create new str object
-	(call 'sys_mem :alloc `(,(+ nodeid_size +byte_size)) '(:r0 _))
+	(call 'sys_mem :alloc `(,nodeid_size) '(:r0 _))
 	(vpif '(:r0 /= 0))
 		;init the object
 		(call 'nodeid :init `(:r0 (@ ,(f-path 'nodeid :vtable)) :r5 node_id_size) '(:r0 :r1))

@@ -6,4 +6,5 @@
 	(dec-method :hash class/nodeid/hash :override))
 
 (def-struct nodeid str_size
-	(struct id node_id_size))
+	(struct id node_id_size)
+	(byte padding_null))
