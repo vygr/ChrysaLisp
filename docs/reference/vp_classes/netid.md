@@ -6,13 +6,6 @@
 
 ### :create -> class/netid/create
 
-```code
-outputs
-:r0 = 0 if error, else netid object (ptr)
-trashes
-:r1-:r6
-```
-
 ### :deinit -> class/netid/deinit
 
 ```code
