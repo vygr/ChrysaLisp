@@ -3,7 +3,7 @@
 (include "sys/kernel/class.inc")
 
 (gen-vtable 'netid)
-(gen-vtable 'netid)
+(gen-create 'netid)
 
 (def-method 'netid :init)
 	;inputs
@@ -45,7 +45,7 @@
 	(entry 'netid :deinit '(:r0))
 
 	(vp-push :r0)
-	(call 'sys_mail :free_mbox `((:r0 ,(+ str_data net_id_mbox_id))))
+	(call 'sys_mail :free_mbox `((:r0 ,(+ netid_id net_id_mbox_id))))
 	(vp-pop :r0)
 
 	(s-jump 'netid :deinit '(:r0))
