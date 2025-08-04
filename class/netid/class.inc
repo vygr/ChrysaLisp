@@ -8,4 +8,4 @@
 
 (def-struct netid str_size
 	(struct id net_id_size)
-	(byte padding_null))
+	(byte cstr_nul))

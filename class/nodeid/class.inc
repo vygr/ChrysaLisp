@@ -7,4 +7,4 @@
 
 (def-struct nodeid str_size
 	(struct id node_id_size)
-	(byte padding_null))
+	(byte cstr_nul))
