@@ -34,7 +34,7 @@ inputs
 :r2 = dims nums object (ptr)
 :r3 = elements array object (ptr)
 outputs
-:r0 = error object (ptr)
+:r0 = dim object (ptr)
 :r1 = 0 if error, else ok
 trashes
 :r1-:r6
