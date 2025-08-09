@@ -27,7 +27,7 @@
 	(setd herd_max +max_int herd_init 1 herd_growth 1)
 	(lower :create :destroy :herd_max :herd_growth
 		(:key -1 :nodes (list (task-nodeid))))
-	(defq nodes (get :nodes this) now (pii-time) e (penv))
+	(raise :nodes (now (pii-time) e (penv)))
 	(times (min herd_max (max herd_init 1)) (start))
 
 	(defmethod :refresh (&optional timeout)
