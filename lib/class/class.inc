@@ -95,4 +95,4 @@
 	(reduce (# (if (list? %1)
 			(cat %0 %1)
 			(push %0 %1 (sym (rest %1)))))
-		fields (list (const set) 'this)))
+		fields (list (const def) 'this)))

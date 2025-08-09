@@ -22,13 +22,13 @@
 	(setq mutated :t)
 	(stop) (start))
 
-(defclass Local (create destroy &optional max_size init_size size) (Fmap)
-	; (Local fnc_create fnc_destroy [max_size init_size size]) -> local
-	(setd max_size +max_int init_size 1 size 1)
-	(def this :create create :destroy destroy
-		:nodes (list (task-nodeid)) :key -1 :size size :max_size max_size)
+(defclass Local (create destroy &optional herd_max herd_init herd_growth) (Fmap)
+	; (Local fnc_create fnc_destroy [herd_max herd_init herd_growth]) -> local
+	(setd herd_max +max_int herd_init 1 herd_growth 1)
+	(lower :create :destroy :herd_max :herd_growth
+		(:key -1 :nodes (list (task-nodeid))))
 	(defq nodes (get :nodes this) now (pii-time) e (penv))
-	(times (min max_size (max init_size 1)) (start))
+	(times (min herd_max (max herd_init 1)) (start))
 
 	(defmethod :refresh (&optional timeout)
 		; (. local :refresh [timeout]) -> :t | :nil
@@ -57,25 +57,23 @@
 	(defmethod :restart (key val)
 		; (. local :restart key val)
 		;restart task
-		(defq nodes (get :nodes this) mutated :nil now (pii-time)
-			create (get :create this) destroy (get :destroy this)
-			e (penv))
+		(raise :nodes :create :destroy (mutated :nil now (pii-time) e (penv)))
 		(restart))
 
 	(defmethod :add_node (node)
 		; (. local :add_node node)
 		;add new node
-		(defq nodes (get :nodes this) e (penv)
-			headroom (- (get :max_size this) (length nodes)))
-		(unless (or (<= headroom 0) (find node nodes))
-			(def this :nodes (push nodes node))
-			(defq now (pii-time) create (get :create this))
-			(times (min (get :size this) headroom) (start))))
+		(raise :nodes :herd_max)
+		(unless (find node nodes)
+			(lower (:nodes (push nodes node)))
+			(when (> (-- herd_max (length nodes)) 0)
+				(raise :create :herd_growth (now (pii-time) e (penv)))
+				(times (max 1 (min herd_max herd_growth)) (start)))))
 
 	(defmethod :close ()
 		; (. local :close)
 		;close tasks
-		(defq e (penv) destroy (get :destroy this))
+		(raise :destroy (e (penv)))
 		(.-> this (:each (lambda (key val) (callback destroy e key val))) :empty))
 	)
 
