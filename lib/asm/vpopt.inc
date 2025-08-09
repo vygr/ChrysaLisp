@@ -35,10 +35,10 @@
 	(static-qq (find ,r ,inst 1)))
 
 (defmacro trashes-reg? (r inst)
-	(static-qq (cond
+	(static-qqp (cond
 		((eql ,r (last ,inst)))
-		((find (first ,inst) +opt_emit_two_out_ops) (eql ,r (elem-get ,inst -3)))
-		((find (first ,inst) +opt_emit_multi_out_ops) (uses? ,r ,inst)))))
+		((find (first ,inst) ,'+opt_emit_two_out_ops) (eql ,r (elem-get ,inst -3)))
+		((find (first ,inst) ,'+opt_emit_multi_out_ops) (uses? ,r ,inst)))))
 
 (defmacro find-past (&rest body)
 	`(and (defq _ (some! (lambda (inst) (cond ~body))
@@ -46,29 +46,18 @@
 
 (defun find-past-rw (_ rop wop b i)
 	(find-past
-		((and (eql wop (first inst))
-				(eql b (third inst))
-				(= i (last inst)))
+		((and (eql wop (first inst)) (eql b (third inst)) (= i (last inst)))
 			(setq c 1) (!))
-		((and (eql rop (first inst))
-				(eql b (second inst))
-				(not (eql b (last inst)))
-				(= i (third inst)))
+		((and (eql rop (first inst)) (eql b (second inst)) (not (eql b (last inst))) (= i (third inst)))
 			(setq c 3) (!))
 		((trashes-reg? b inst) -1)
 		((find (first inst) +opt_emit_read_kill_ops) -1)))
 
-(defun find-past-rw1 (_ rop1 rop2 wop b i)
+(defun find-past-w (_ rop1 rop2 wop b i)
 	(find-past
-		((and (eql wop (first inst))
-				(eql b (third inst))
-				(= i (last inst)))
-			(setq c 1) (!))
+		((and (eql wop (first inst)) (eql b (third inst)) (= i (last inst))) (!))
 		((and (or (eql rop1 (first inst)) (eql rop2 (first inst)))
-				(eql b (second inst))
-				(not (eql b (last inst)))
-				(= i (third inst)))
-			(setq c 3) (!))
+			(eql b (second inst)) (not (eql b (last inst))) (= i (third inst))) -1)
 		((trashes-reg? b inst) -1)
 		((find (first inst) +opt_emit_kill_ops) -1)
 		((find (first inst) +opt_emit_call_ops) -1)))
@@ -95,9 +84,9 @@
 		(defq rs (elem-get (elem-get emit_list i) c))
 		(unless (some! (# (trashes-reg? rs %0)) (list emit_list) :nil (inc i) (!))
 			(elem-set emit_list (!)
-				(if (eql rs (elem-get inst 3))
+				(if (eql rs (last inst))
 					(setq inst +opt_nop)
-					(setq inst `(emit-cpy-rr ,rs ,(elem-get inst 3))))))))
+					(setq inst (static-qqp (emit-cpy-rr ,rs ,(last inst)))))))))
 
 (defun opt-read-after-cpy ()
 	(when (and (eql (second inst) (last inst))
@@ -109,13 +98,12 @@
 			(elem-set emit_list (!) (setq inst +opt_nop)))))
 
 (defun opt-write-after-write ()
-	(when (defq w (find-past-rw1 (!)
+	(if (defq i (find-past-w (!)
 			(elem-get +opt_emit_read_ops_signed c)
 			(elem-get +opt_emit_read_ops_unsigned c)
 			(elem-get +opt_emit_write_ops_signed c)
 			(third inst) (last inst)))
-		(when (= c 1)
-			(elem-set emit_list w +opt_nop))))
+		(elem-set emit_list i +opt_nop)))
 
 (defun opt-redundant-cpy ()
 	(if (or (eql (second inst) (third inst))
