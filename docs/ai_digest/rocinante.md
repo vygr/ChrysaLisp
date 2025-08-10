@@ -134,10 +134,11 @@ cases, leading to cleaner, faster, and more memory-efficient code.
     pattern. By passing an existing list as `out`, you can build complex results
     across multiple steps without allocating intermediate lists.
 
-    * **Traditional:** `(defq result2 (mapcar #'foo (mapcar #'bar list1)))` ->
-      Creates an intermediate list.
+    * **Traditional:**
+      `(concat-lists (mapcar #'bar list1) (mapcar #'foo list2))` -> Creates two
+      intermediate lists.
 
-    * **ChrysaLisp:** `(map! (const foo) (map! (const bar) (list) list1))` ->
+    * **ChrysaLisp:** `(map! (const foo) list2 (map! (const bar) list1))` ->
       Creates one list. The second `map!` appends its results directly to the
       list created by the first.
 
