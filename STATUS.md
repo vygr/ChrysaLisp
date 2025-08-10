@@ -30,6 +30,12 @@ now gone, and `(alloc-select)` is replaced by the `(task-mboxes)` function which
 creates the select list using `(task-mbox)`, for the first entry, and
 `(mail-mbox)` for the rest.
 
+`opt-redundant-branch` test added to `vpopt.inc`. This test looks to see if a
+constant based branch is being done when we already loaded a constant into that
+register that we can static eliminate. This can happen with inline code
+embedding, AND as branch instructions are a KILL op for other searches, it's
+worth checking for.
+
 ------
 
 New non recursive constraints system for GUI layouts. Significant reduction in
