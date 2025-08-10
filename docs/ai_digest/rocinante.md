@@ -46,17 +46,17 @@ direct reflection of the system's core tenets.
     knowledge of the system they inhabit.
 
     * **The Collector Pattern:** The optional `out-list` parameter in `map!` and
-        `filter!` allows them to act as "collectors," appending results to an
-        existing list. This is a conscious design choice that enables the
-        creation of complex, single-pass data processing pipelines that minimize
-        memory churn, a critical feature for a reference-counted system that
-        aims to eliminate GC pauses.
+      `filter!` allows them to act as "collectors," appending results to an
+      existing list. This is a conscious design choice that enables the creation
+      of complex, single-pass data processing pipelines that minimize memory
+      churn, a critical feature for a reference-counted system that aims to
+      eliminate GC pauses.
 
     * **Stack Safety:** The pervasive use of iteration over recursion,
-        exemplified by patterns using `some!`, is enabled by the system's
-        knowledge of its own cooperative, small-stack environment. The
-        primitives provide the tools to make the safe, iterative,
-        high-performance path the most natural path for the developer.
+      exemplified by patterns using `some!`, is enabled by the system's
+      knowledge of its own cooperative, small-stack environment. The primitives
+      provide the tools to make the safe, iterative, high-performance path the
+      most natural path for the developer.
 
 ## The Core Abstraction: The Multi-Sequence Slice
 
@@ -78,10 +78,22 @@ lambda's arguments are populated directly with `(elem-get seq0 (!))`,
 (defq results  (list))                       ;; the collector list
 
 (map! (lambda (name weight color) (list name weight color))
-      results
-      (list names weights colors))
+      (list names weights colors)
+      results)
 
 ;; results -> (("A" 10 :red) ("B" 20 :green) ("C" 30 :blue))
+```
+
+or !
+
+```vdu
+(defq names    "ABC")                        ;; a 'str' sequence
+(defq weights  (nums 10 20 30))              ;; a 'nums' sequence
+(defq colors   (list :red :green :blue))     ;; a 'list' sequence
+
+(map! list (list names weights colors))
+
+;; -> (("A" 10 :red) ("B" 20 :green) ("C" 30 :blue))
 ```
 
 Notice how `map!` effortlessly handles a `str`, a `nums` array, and a `list`.
@@ -119,8 +131,8 @@ cases, leading to cleaner, faster, and more memory-efficient code.
 *   **Signature:** `(map! lambda seqs [out start end])`
 
 *   **The Collector Pattern:** This is the canonical example of the collector
-    pattern. By passing an existing list as `out`, you can build complex
-    results across multiple steps without allocating intermediate lists.
+    pattern. By passing an existing list as `out`, you can build complex results
+    across multiple steps without allocating intermediate lists.
 
     * **Traditional:** `(defq result2 (mapcar #'foo (mapcar #'bar list1)))` ->
       Creates an intermediate list.
@@ -142,7 +154,7 @@ cases, leading to cleaner, faster, and more memory-efficient code.
     ```vdu
     (defq results (list))
     (defq stream (file-stream "data.log"))
-    
+
     ;; A two-stage pipeline with no intermediate lists:
     ;; 1. Collect all lines from the file that contain "ERROR".
     (filter! (lambda (line) (found? "ERROR" line)) results (lines! (lambda (x) x) stream))
