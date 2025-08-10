@@ -51,7 +51,5 @@
 	(setd o :r0 c :r1 x 1)
 	(if (eql o c) (throw "Invalid object or count !" (list o c)))
 	(assign `((,o obj_count)) `(,c))
-	(if (vp-reg? x)
-		(vp-add-rr x c)
-		(vp-add-cr x c))
+	(vp-add-cr x c)
 	(assign `(,c) `((,o obj_count))))
