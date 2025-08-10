@@ -30,6 +30,10 @@ now gone, and `(alloc-select)` is replaced by the `(task-mboxes)` function which
 creates the select list using `(task-mbox)`, for the first entry, and
 `(mail-mbox)` for the rest.
 
+Reworked the `lib/task/local.inc` class. Added a few more options as well as
+tidying up the code. As a result the build times have improved again. Worth
+spending some of this gain on new VP optimisation checks.
+
 `opt-redundant-branch` test added to `vpopt.inc`. This test looks to see if a
 constant based branch is being done when we already loaded a constant into that
 register that we can static eliminate. This can happen with inline code
