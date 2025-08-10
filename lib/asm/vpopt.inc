@@ -26,6 +26,8 @@
 		''(emit-jmp emit-jmp-i emit-jmp-r emit-jmp-p emit-alloc emit-free
 			emit-beq-cr emit-bne-cr emit-bge-cr emit-blt-cr emit-ble-cr emit-bgt-cr
 			emit-beq-rr emit-bne-rr emit-bge-rr emit-blt-rr emit-ble-rr emit-bgt-rr)
+	+opt_emit_branch_ops
+		''(emit-beq-cr emit-bne-cr emit-bge-cr emit-blt-cr emit-ble-cr emit-bgt-cr)
 	+opt_emit_two_out_ops
 		''(emit-land-rr emit-lnot-rr emit-swp-rr emit-div-rrr emit-div-rrr-u)
 	+opt_emit_multi_out_ops
@@ -76,6 +78,13 @@
 		((find (first inst) +opt_emit_kill_ops) -1)
 		((find (first inst) +opt_emit_call_ops) -1)))
 
+(defun find-past-cr (_ rd)
+	(find-past
+		((lmatch? inst `(emit-cpy-cr _ ,rd)) (!))
+		((trashes-reg? rd inst) -1)
+		((find (first inst) +opt_emit_kill_ops) -1)
+		((find (first inst) +opt_emit_call_ops) -1)))
+
 (defun opt-read-after-read-write ()
 	(when (defq i (find-past-rw (!)
 			(elem-get +opt_emit_read_ops c)
@@ -86,7 +95,7 @@
 			(elem-set emit_list (!)
 				(if (eql rs (last inst))
 					(setq inst +opt_nop)
-					(setq inst (static-qqp (emit-cpy-rr ,rs ,(last inst)))))))))
+					(setq inst (list 'emit-cpy-rr rs (last inst))))))))
 
 (defun opt-read-after-cpy ()
 	(when (and (eql (second inst) (last inst))
@@ -110,6 +119,12 @@
 			(find-past-rr (!) (third inst) (second inst)))
 		(elem-set emit_list (!) (setq inst +opt_nop))))
 
+(defun opt-redundant-branch ()
+	(when (defq i (find-past-cr (!) (third inst)))
+		(defq j (second (elem-get emit_list i)) i (second inst))
+		(if (eval (elem-get (static-q ((/= i j)(= i j)(> i j)(<= i j)(< i j)(>= i j))) c))
+			(elem-set emit_list (!) (setq inst +opt_nop)))))
+
 (defun opt-emit-list (emit_list emit_start emit_end)
 	(each! (lambda (inst)
 		(cond
@@ -119,6 +134,8 @@
 					(opt-read-after-cpy)))
 			((defq c (find (first inst) +opt_emit_write_ops_signed))
 				(opt-write-after-write))
+			((defq c (find (first inst) +opt_emit_branch_ops))
+				(opt-redundant-branch))
 			((eql (first inst) 'emit-cpy-rr)
 				(opt-redundant-cpy))))
 		(list emit_list) emit_start emit_end)
