@@ -41,8 +41,8 @@
 		((find (first ,inst) ,'+opt_emit_multi_out_ops) (uses? ,r ,inst)))))
 
 (defmacro find-past (&rest body)
-	`(and (defq _ (some! (lambda (inst) (cond ~body))
-		(list emit_list) :nil _ emit_start)) (> _ -1) _))
+	(static-qq (and (defq _ (some! (,'lambda (inst) (cond ~body))
+		(list emit_list) :nil _ emit_start)) (> _ -1) _)))
 
 (defun find-past-rw (_ rop wop b i)
 	(find-past
