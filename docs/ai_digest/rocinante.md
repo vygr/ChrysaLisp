@@ -137,9 +137,9 @@ cases, leading to cleaner, faster, and more memory-efficient code.
     * **Traditional:** `(defq result2 (mapcar #'foo (mapcar #'bar list1)))` ->
       Creates an intermediate list.
 
-    * **ChrysaLisp:** `(map! #'foo (map! #'bar (list) list1))` -> Creates one
-      list. The second `map!` appends its results directly to the list created
-      by the first.
+    * **ChrysaLisp:** `(map! (const foo) (map! (const bar) (list) list1))` ->
+      Creates one list. The second `map!` appends its results directly to the
+      list created by the first.
 
 ### `filter!`
 
