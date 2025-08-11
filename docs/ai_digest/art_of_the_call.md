@@ -7,6 +7,8 @@ pre-binding steps.
 And remember all this is happening below the event horizon of the CPU's L1
 cache ! Something we have forgotten !
 
+"I want to teach the world to sing..."
+
 Let's go...
 
 ## The Unfolding Hand: Achieving Speed and Dynamism in ChrysaLisp
