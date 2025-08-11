@@ -81,7 +81,7 @@
 
 		(vec-load 1 {0.5})
 		(bind '(d e) (vec-pop 2))
-		(vpif (list d '<= e))
+		(vpif `(,d <= ,e))
 			;output point
 			(call 'path :push_back2 {this, p1234x, p1234y})
 		(else)

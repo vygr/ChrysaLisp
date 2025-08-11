@@ -268,7 +268,7 @@
 	;what type of element search ?
 	(f-bind 'sym :vtable ovt)
 	(assign '((:r1 obj_vtable)) `(,evt))
-	(vpif (list evt '= ovt))
+	(vpif `(,evt = ,ovt))
 		;symbol
 		(s-jump 'list :find '(:r0 :r1 :r2))
 	(endif)
@@ -277,7 +277,7 @@
 	(vpif `(,tmp /= 0))
 		;string
 		(class/array/get_both this iter_begin iter_end)
-		(gotoif (list iter_begin '= iter_end) 'notfound)
+		(gotoif `(,iter_begin = ,iter_end) 'notfound)
 		(assign `(,tmp) `(,evt))
 		(loop-start)
 			(assign `((,iter_begin 0)) '(:r0))
@@ -287,7 +287,7 @@
 				(call 'str :same `(:r0 ,elm) '(_ tmp))
 				(gotoif `(,tmp = 0) 'found)
 			(endif)
-		(loop-until (list iter_begin '= iter_end))
+		(loop-until `(,iter_begin = ,iter_end))
 
 		(exit 'list :find `(,this ,elm -1))
 		(vp-ret)
@@ -296,7 +296,7 @@
 	(vpif `(,tmp /= 0))
 		;number
 		(class/array/get_both this iter_begin iter_end)
-		(gotoif (list iter_begin '= iter_end) 'notfound)
+		(gotoif `(,iter_begin = ,iter_end) 'notfound)
 		(assign `(,tmp) `(,evt))
 		(assign `((,elm num_value)) `(,ovt))
 		(loop-start)
@@ -307,7 +307,7 @@
 				(assign '((:r0 num_value)) '(:r1))
 				(gotoif (list :r1 '= ovt) 'found)
 			(endif)
-		(loop-until (list iter_begin '= iter_end))
+		(loop-until `(,iter_begin = ,iter_end))
 
 		(exit 'list :find `(,this ,elm -1))
 		(vp-ret)
@@ -316,7 +316,7 @@
 	(vpif `(,tmp /= 0))
 		;vector
 		(class/array/get_both this iter_begin iter_end)
-		(gotoif (list iter_begin '= iter_end) 'notfound)
+		(gotoif `(,iter_begin = ,iter_end) 'notfound)
 		(assign `(,tmp) `(,evt))
 		(loop-start)
 			(assign `((,iter_begin 0)) '(:r0))
@@ -326,7 +326,7 @@
 				(call 'nums :eql `(:r0 ,elm) '(_ tmp))
 				(gotoif `(,tmp = 0) 'found)
 			(endif)
-		(loop-until (list iter_begin '= iter_end))
+		(loop-until `(,iter_begin = ,iter_end))
 
 		(exit 'list :find `(,this ,elm -1))
 		(vp-ret)
@@ -369,7 +369,7 @@
 	;what type of element search ?
 	(f-bind 'sym :vtable ovt)
 	(assign '((:r1 obj_vtable)) `(,evt))
-	(vpif (list evt '= ovt))
+	(vpif `(,evt = ,ovt))
 		;symbol
 		(s-jump 'list :rfind '(:r0 :r1 :r2))
 	(endif)
@@ -381,7 +381,7 @@
 		(loop-start)
 			(assign `((,iter_begin ,(neg +long_size))) `(,evt))
 			(vp-sub-cr +long_size iter_begin)
-			(breakif (list iter_begin '< iter_end))
+			(breakif `(,iter_begin < ,iter_end))
 			(call 'obj :inst_of `(,evt (@ ,(f-path 'str :vtable))) '(_ tmp))
 			(continueif `(,tmp = 0))
 			(call 'str :same `(,evt ,elm) '(_ tmp))
@@ -401,7 +401,7 @@
 		(loop-start)
 			(assign `((,iter_begin ,(neg +long_size))) '(:r0))
 			(vp-sub-cr +long_size iter_begin)
-			(breakif (list iter_begin '< iter_end))
+			(breakif `(,iter_begin < ,iter_end))
 			(assign '((:r0 obj_vtable)) '(:r1))
 			(continueif (list :r1 '/= evt))
 			(assign '((:r0 num_value)) '(:r1))
@@ -420,7 +420,7 @@
 		(loop-start)
 			(assign `((,iter_begin ,(neg +long_size))) '(:r0))
 			(vp-sub-cr +long_size iter_begin)
-			(breakif (list iter_begin '< iter_end))
+			(breakif `(,iter_begin < ,iter_end))
 			(assign '((:r0 obj_vtable)) '(:r1))
 			(continueif (list :r1 '/= evt))
 			(call 'nums :eql `(:r0 ,elm) '(_ tmp))

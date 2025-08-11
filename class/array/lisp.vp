@@ -248,23 +248,23 @@
 
 (errorcase
 	(assign `((,args array_length)) `(,argc))
-	(gotoif (list argc '< 2) 'error))
+	(gotoif `(,argc < 2) 'error))
 	(class/array/get_both args iter_begin iter_end)
 	(assign `((,iter_begin 0)) `(,args))
 	(vp-add-cr +ptr_size iter_begin)
 (errorcase
 	(f-bind 'num :vtable obj)
 	(assign `((,args obj_vtable)) `(,res))
-	(gotoif (list obj '/= res) 'error))
+	(gotoif `(,obj /= ,res) 'error))
 	(assign `((,args num_value)) `(,argc))
 	(loop-start)
 		(assign `((,iter_begin 0)) `(,obj))
 		(vp-add-cr +ptr_size iter_begin)
 	(errorcase
 		(call 'obj :inst_of `(,obj (@ ,(f-path 'array :vtable))) `(,obj ,res))
-		(gotoif (list res '= 0) 'error))
+		(gotoif `(,res = 0) 'error))
 		(call 'array :set_cap `(,obj ,argc) `(,obj))
-	(loop-until (list iter_begin '= iter_end))
+	(loop-until `(,iter_begin = ,iter_end))
 	(class/obj/ref obj argc)
 
 	(exit 'array :lisp_cap `(,this ,obj))

@@ -28,9 +28,9 @@
 		(vp-cpy-ir node (+ msg_src net_id_mbox_id) psrc1)
 		(vp-cpy-ir node (+ msg_src net_id_node_id node_id_node1) psrc2)
 		(vp-cpy-ir node (+ msg_src net_id_node_id node_id_node2) psrc3)
-	(loop-until (list src1 '= psrc1) (list src2 '= psrc2) (list src3 '= psrc3))
+	(loop-until `(,src1 = ,psrc1) `(,src2 = ,psrc2) `(,src3 = ,psrc3))
 	(assign (list node) {msg})
-	(vpif (list next '= 0))
+	(vpif `(,next = 0))
 		;new parcel
 		(call 'sys_mail :alloc {rx_msg->lk_buf_total_length} {msg, _})
 		(assign {rx_msg->lk_buf_dest.net_id_mbox_id} {msg->msg_dest.net_id_mbox_id})

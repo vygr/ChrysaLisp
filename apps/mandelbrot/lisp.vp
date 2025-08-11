@@ -28,7 +28,7 @@
 	(loop-start)
 		(vp-cpy-rr x2 tmp1)
 		(vp-add-rr y2 tmp1)
-		(breakif (list tmp1 '>= four))
+		(breakif `(,tmp1 >= ,four))
 
 		(vp-mul-rr xc yc)
 		(vp-cpy-rr x2 xc)
@@ -44,7 +44,7 @@
 		(vp-add-cr 1 i)
 		(vp-asr-cr +mbfp_shift y2)
 		(vp-asr-cr +mbfp_shift x2)
-	(loop-until (list i '= 255))
+	(loop-until `(,i = 255))
 
 	(call 'num :create `(,i) '(:r1))
 	(vp-pop :r0)

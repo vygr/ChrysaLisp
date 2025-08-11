@@ -354,7 +354,7 @@
 	(assign `((,iter_begin 0)) `(,stream))
 
 	(vp-cpy-cr 1 width)
-	(vpif (list value '= 3))
+	(vpif `(,value = 3))
 		(assign `((,iter_begin ,(* +ptr_size 2))) `(,width))
 		(assign `((,width num_value)) `(,width))
 		(vp-sub-cr 1 width)

@@ -258,7 +258,7 @@
 
 	(lh-get-head _1 0 _1)
 	(ln-get-succ _1 0 _2)
-	(vpif (list _2 '/= 0))
+	(vpif `(,_2 /= ,0))
 		(vp-cpy-rr _1 _2)
 		(ln-remove-node _1 _3)
 	(endif))
@@ -279,7 +279,7 @@
 
 	(lh-get-tail _1 0 _1)
 	(ln-get-pred _1 0 _2)
-	(vpif (list _2 '/= 0))
+	(vpif `(,_2 /= ,0))
 		(vp-cpy-rr _1 _2)
 		(ln-remove-node _1 _3)
 	(endif))
@@ -309,7 +309,7 @@
 
 	(vp-cpy-rr _1 _2)
 	(vp-cpy-ir _1 ln_fnode_next _1)
-	(breakif (list _1 '= 0)))
+	(breakif `(,_1 = ,0)))
 
 (defun ln-remove-fnode (_1 _2)
 	;inputs
@@ -357,7 +357,7 @@
 	(loop-start _5)
 		(vp-cpy-rr _4 _3)
 		(ln-get-succ _4 0 _4)
-		(breakif (list _4 '= 0)))
+		(breakif `(,_4 = ,0)))
 
 (defun loop-list-backward (_1 _2 _3 _4 &optional _5)
 	;inputs
@@ -375,7 +375,7 @@
 	(loop-start _5)
 		(vp-cpy-rr _4 _3)
 		(ln-get-pred _4 0 _4)
-		(breakif (list _4 '= 0)))
+		(breakif `(,_4 = ,0)))
 
 (defun loop-flist (_1 _2 _3 _4 &optional _5)
 	;inputs

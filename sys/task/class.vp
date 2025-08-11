@@ -57,7 +57,7 @@
 	;test if we are the kernel task
 	(fn-bind 'sys/statics/statics tcb)
 	(assign `((,tcb statics_sys_task_current_tcb) (,tcb statics_sys_task_kernel_tcb)) `(,tcb ,ktcb))
-	(vpif (list tcb '= ktcb))
+	(vpif `(,tcb = ,ktcb))
 		;yes we can just do local call
 		(vp-jmp-r :r1)
 	(endif)
@@ -422,9 +422,9 @@
 	(fn-bind 'sys/statics/statics stack_top)
 	(assign `((,stack_top statics_sys_task_current_tcb) (& :rsp ,(* +ptr_size 5))) `(,stack_top ,sptr))
 	(assign `((,stack_top tk_node_stack_top)) `(,stack_top))
-	(loop-while (list sptr '< stack_top))
+	(loop-while `(,sptr < ,stack_top))
 		(call 'sys_load :find `((,sptr 0)) `(,node ,node_offset))
-		(vpif (list node '/= 0))
+		(vpif `(,node /= 0))
 			(vp-push node_offset)
 			(call 'host_os :pii_write_str `(2 (& ,node +fn_header_pathname)))
 			(call 'host_os :pii_write_str `(2 " ("))

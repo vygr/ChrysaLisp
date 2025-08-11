@@ -119,7 +119,7 @@ The VP source file defines the method like this:
 	
 	(entry 'pixmap :to_argb32 (list col pix))
 	(switch)
-	    (vpcase (list pix '= 16))
+	    (vpcase `(,pix = 16))
 		    (to-argb32
 			    0b0000000000000000 ; Alpha mask
 			    0b1111100000000000 ; Red mask

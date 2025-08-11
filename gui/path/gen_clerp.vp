@@ -71,7 +71,7 @@
 
 		(vec-load 1 {0.5})
 		(bind '(d e) (vec-pop 2))
-		(vpif (list d '<= e))
+		(vpif `(,d <= ,e))
 			;output point
 			(vec-load 2 {bvx, bvy} {cx, cy})
 			(vec-add 2)

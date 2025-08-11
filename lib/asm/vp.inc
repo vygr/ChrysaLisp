@@ -166,11 +166,11 @@
 (defun vp-cpy-ri (s b i) (emit (static-qqp (emit-cpy-ri ,s ,b ,(eval i (penv))))))
 
 ;puedo vp instructions
-(defun vp-min-cr (a b) (vpif (list b '> a)) (vp-cpy-cr a b) (endif))
-(defun vp-max-cr (a b) (vpif (list b '< a)) (vp-cpy-cr a b) (endif))
-(defun vp-min-rr (a b) (vpif (list a '< b)) (vp-cpy-rr a b) (endif))
-(defun vp-max-rr (a b) (vpif (list a '> b)) (vp-cpy-rr a b) (endif))
-(defun vp-abs-rr (a b) (vp-cpy-rr a b) (vpif (list a '< 0)) (vp-mul-cr -1 b) (endif))
+(defun vp-min-cr (a b) (vpif `(,b > ,a)) (vp-cpy-cr a b) (endif))
+(defun vp-max-cr (a b) (vpif `(,b < ,a)) (vp-cpy-cr a b) (endif))
+(defun vp-min-rr (a b) (vpif `(,a < ,b)) (vp-cpy-rr a b) (endif))
+(defun vp-max-rr (a b) (vpif `(,a > ,b)) (vp-cpy-rr a b) (endif))
+(defun vp-abs-rr (a b) (vp-cpy-rr a b) (vpif `(,a < 0)) (vp-mul-cr -1 b) (endif))
 (defun vp-simd (op &rest v)
 	(defq max_len (max-length v))
 	(each (# (while (< (length %0) max_len) (push %0 (last %0)))) v)

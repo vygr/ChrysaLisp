@@ -308,7 +308,7 @@
 	(assign `((,statics statics_sys_mail_links_array)) '(:r0))
 	(class/array/get_both :r0 iter iter_end)
 	(vp-cpy-rr iter iter_begin)
-	(loop-while (list iter '/= iter_end) 'next_link)
+	(loop-while `(,iter /= ,iter_end) 'next_link)
 		(assign `((,iter 0)) `(,link_node))
 		(vp-add-cr +ptr_size iter)
 		;this links peer
@@ -553,7 +553,7 @@
 	(vp-sub-rr did2 kid2)
 	(vp-or-rr kid2 kid1)
 	(switch)
-	(breakif (list kid1 '= 0))
+	(breakif `(,kid1 = 0))
 	(assign `((,tuple array_begin) (,data local_now)) `(,tuple ,kid1))
 	(assign `((,tuple ,+ptr_size)) `(,kid2))
 	(vp-sub-rr kid2 kid1)

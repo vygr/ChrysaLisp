@@ -175,7 +175,7 @@
 		(vp-cpy-ir this stream_bufe bufe)
 		(vp-cpy-rr bufp bufps)
 		(loop-start)
-			(gotoif (list bufp '= bufe) 'slow_but_sure)
+			(gotoif `(,bufp = ,bufe) 'slow_but_sure)
 			(vp-cpy-ir-ub bufp 0 ch)
 			(vp-add-cr +byte_size bufp)
 		(loop-until (list ch '= +char_lf))
@@ -347,7 +347,7 @@
 	(entry 'stream :read_bits (list this num_bits bit_pool bit_pool_size))
 
 	;fill bit pool with data
-	(loop-while (list num_bits '> bit_pool_size))
+	(loop-while `(,num_bits > ,bit_pool_size))
 		(vp-push num_bits bit_pool bit_pool_size)
 		(call 'stream :read_char (list this) (list this data))
 		(vp-pop num_bits bit_pool bit_pool_size)
@@ -398,7 +398,7 @@
 	(vp-add-rr num_bits bit_pool_size)
 
 	;flush bit pool to stream
-	(loop-while (list bit_pool_size '> 8))
+	(loop-while `(,bit_pool_size > ,8))
 		(vp-push bit_pool bit_pool_size)
 		(call 'stream :write_char (list this bit_pool) (list this))
 		(vp-pop bit_pool bit_pool_size)

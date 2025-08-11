@@ -121,7 +121,7 @@
 	(vp-simd vp-xor-rr `(,num ,dot) `(,num ,dot))
 	(loop-start)
 		(vp-cpy-ir-ub bufp 0 c)
-		(breakif (list c '= 0))
+		(breakif `(,c = 0))
 		(vpif (list c '= (ascii-code ".")))
 			(vp-cpy-cr 1 dot)
 		(else)
@@ -135,7 +135,7 @@
 		(endif)
 		(vp-add-cr +byte_size bufp)
 	(loop-until `(,dot >= 10000000))
-	(vpif (list dot '/= 0))
+	(vpif `(,dot /= 0))
 		(vp-shl-cr 16 num)
 		(vp-ext-rr num c)
 		(vp-div-rrr-u dot c num)
@@ -224,19 +224,19 @@
 	(vp-add-cr +byte_size utf8)
 	(vp-cpy-rr c m)
 	(vp-and-cr 0b10000000 m)
-	(vpif (list m '/= 0))
+	(vpif `(,m /= 0))
 		;not 1 byte
 		(vp-cpy-rr c m)
 		(vp-and-cr 0b11100000 m)
-		(vpif (list m '/= 0b11000000))
+		(vpif `(,m /= ,0b11000000))
 			;not 2 byte
 			(vp-cpy-rr c m)
 			(vp-and-cr 0b11110000 m)
-			(vpif (list m '/= 0b11100000))
+			(vpif `(,m /= ,0b11100000))
 				;not 3 byte
 				(vp-cpy-rr c m)
 				(vp-and-cr 0b11111000 m)
-				(vpif (list m '/= 0b11110000))
+				(vpif `(,m /= ,0b11110000))
 					;not 4 byte
 					(vp-xor-rr c c)
 

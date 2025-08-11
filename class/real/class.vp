@@ -133,7 +133,7 @@
 		(vp-add-cr +ptr_size iter_begin)
 		(assign `((,obj num_value)) `(,new_val))
 		(exec p)
-	(loop-until (list iter_begin '= iter_end))
+	(loop-until `(,iter_begin = ,iter_end))
 	(class/obj/ref args iter_begin)
 	(exit 'num _ `(,this ,args))
 	(vp-ret))
