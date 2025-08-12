@@ -31,7 +31,7 @@
 	(static-qq (find ,r ,op 1)))
 
 (defmacro find-past (&rest body)
-	(static-qqp (and (defq _ (some! (,'lambda (op) (cond ~body))
+	(static-qq (and (defq _ (some! (,'lambda (op) (cond ~body))
 		(list inst_list) :nil _ 1)) (> _ -1) _)))
 
 (defun opt-find-1 (_ r x)
