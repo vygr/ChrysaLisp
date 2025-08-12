@@ -28,11 +28,11 @@
 		''(vp-add-cr vp-sub-cr))
 
 (defmacro uses? (r op)
-	`(rfind ,r ,op))
+	(static-qq (find ,r ,op 1)))
 
 (defmacro find-past (&rest body)
-	`(and (defq _ (some! (lambda (op) (cond ~body))
-		(list inst_list) :nil _ 1)) (> _ -1) _))
+	(static-qqp (and (defq _ (some! (,'lambda (op) (cond ~body))
+		(list inst_list) :nil _ 1)) (> _ -1) _)))
 
 (defun opt-find-1 (_ r x)
 	(find-past
@@ -46,46 +46,46 @@
 		((uses? r op) -1)))
 
 (defun opt-inst-list (inst_list)
-	(defq _ 0 m :nil)
-	(while (< (setq _ (inc _)) (length inst_list))
+	(defq i 0 m :nil)
+	(while (< (++ i) (length inst_list))
 		(cond
 			;variable loading and offset folding
-			((rfind (defq op (elem-get inst_list _) o (first op)) +opt_read_ops)
-				(when (defq p (opt-find-2 _ (defq r (second op)) `(vp-lea-i :rsp _ ,r) `(vp-add-cr _ ,r)))
+			((find (defq op (elem-get inst_list i) o (first op)) +opt_read_ops)
+				(when (defq p (opt-find-2 i (defq r (second op)) `(vp-lea-i :rsp _ ,r) `(vp-add-cr _ ,r)))
 					(cond
 						((= m 0)
 							(elem-set op 1 :rsp)
 							(elem-set op 2 `(+ ,(third (elem-get inst_list p)) ,(third op))))
 						((= m 1)
 							(elem-set op 2 `(+ ,(second (elem-get inst_list p)) ,(third op)))
-							(setq _ (dec _))))
+							(-- i)))
 					(elem-set inst_list p +opt_nop)))
 			;variable writing and offset folding
-			((rfind o +opt_write_ops)
-				(when (defq p (opt-find-2 _ (defq r (third op)) `(vp-lea-i :rsp _ ,r) `(vp-add-cr _ ,r)))
+			((find o +opt_write_ops)
+				(when (defq p (opt-find-2 i (defq r (third op)) `(vp-lea-i :rsp _ ,r) `(vp-add-cr _ ,r)))
 					(cond
 						((= m 0)
 							(elem-set op 2 :rsp)
 							(elem-set op 3 `(+ ,(third (elem-get inst_list p)) ,(elem-get op 3))))
 						((= m 1)
 							(elem-set op 3 `(+ ,(second (elem-get inst_list p)) ,(elem-get op 3)))
-							(setq _ (dec _))))
+							(-- i)))
 					(elem-set inst_list p +opt_nop)))
 			;strength reduction
 			((and (eql o 'vp-mul-cr) (defq s (log2 (eval (second op)))))
 				(elem-set op 0 'vp-shl-cr)
 				(elem-set op 1 s)
-				(setq _ (dec _)))
+				(-- i))
 			;constant propagation
-			((defq c (rfind o +opt_rr_ops))
-				(when (defq p (opt-find-1 _ (defq r (second op)) `(vp-cpy-cr _ ,r)))
+			((defq c (find o +opt_rr_ops))
+				(when (defq p (opt-find-1 i (defq r (second op)) `(vp-cpy-cr _ ,r)))
 					(elem-set op 0 (elem-get +opt_cr_ops c))
 					(elem-set op 1 (second (elem-get inst_list p)))
 					(elem-set inst_list p +opt_nop)
-					(setq _ (dec _))))
+					(-- i)))
 			;arithmetic reassignment and constant folding
-			((and (defq c (rfind o +opt_cr_ops))
-					(defq p (opt-find-2 _ (defq r (third op)) `(vp-cpy-cr _ ,r) `(,o _ ,r))))
+			((and (defq c (find o +opt_cr_ops))
+					(defq p (opt-find-2 i (defq r (third op)) `(vp-cpy-cr _ ,r) `(,o _ ,r))))
 				(cond
 					((= m 0)
 						(setq c (elem-get +opt_fold_cpy_ops c))
@@ -95,8 +95,8 @@
 				(elem-set op 1 (list c (second (elem-get inst_list p)) (second op)))
 				(elem-set inst_list p +opt_nop))
 			;constant fusion
-			((and (defq c (rfind o +opt_cr_fuse_ops))
-					(defq p (opt-find-2 _ (defq r (third op)) `(vp-add-cr _ ,r) `(vp-sub-cr _ ,r))))
+			((and (defq c (find o +opt_cr_fuse_ops))
+					(defq p (opt-find-2 i (defq r (third op)) `(vp-add-cr _ ,r) `(vp-sub-cr _ ,r))))
 				(cond
 					((= m 0)
 						(setq c (elem-get '(+ -) c)))
@@ -105,8 +105,8 @@
 				(elem-set op 1 (list c (second op) (second (elem-get inst_list p))))
 				(elem-set inst_list p +opt_nop))
 			;compare constant forwarding
-			((and (defq c (rfind o +opt_sxx_rr_ops))
-					(defq p (opt-find-1 _ (defq r (second op)) `(vp-cpy-cr _ ,r)))
+			((and (defq c (find o +opt_sxx_rr_ops))
+					(defq p (opt-find-1 i (defq r (second op)) `(vp-cpy-cr _ ,r)))
 					(<= -0x80000000 (defq v (eval (second (elem-get inst_list p)))) 0x7fffffff))
 				(elem-set op 0 (elem-get +opt_sxx_cr_ops c))
 				(elem-set op 1 v)
