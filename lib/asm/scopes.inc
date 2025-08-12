@@ -18,7 +18,7 @@
 (defq +attrib_used -2)
 
 (defmacro scope-new ()
-	'(push *scopes* (list 0 (list) (list))))
+	(static-q (push *scopes* (list 0 (list) (list)))))
 
 (defun scope-get (level)
 	(defq offset 0)

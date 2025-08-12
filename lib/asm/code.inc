@@ -5,12 +5,12 @@
 ;module
 (env-push)
 
-(defmacro beg-sym () '(sym (str "b_" *switch*)))
-(defmacro end-sym () '(sym (str "e_" *switch*)))
-(defmacro loc-sym (n) `(sym (str "o_" *switch* "_" ,n)))
-(defmacro cnt-sym () '(sym (str "_c_" *switch*)))
-(defmacro llb-sym (_) `(sym (cat "_b_" ,_)))
-(defmacro lle-sym (_) `(sym (cat "_e_" ,_)))
+(defmacro beg-sym () (static-q (sym (str "b_" *switch*))))
+(defmacro end-sym () (static-q (sym (str "e_" *switch*))))
+(defmacro cnt-sym () (static-q (sym (str "_c_" *switch*))))
+(defmacro loc-sym (n) (static-qqp (sym (str "o_" *switch* "_" ,n))))
+(defmacro llb-sym (_) (static-qqp (sym (cat "_b_" ,_))))
+(defmacro lle-sym (_) (static-qqp (sym (cat "_e_" ,_))))
 
 (defun goto (l)
 	(vp-jmp l))

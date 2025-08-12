@@ -6,8 +6,8 @@
 (env-push)
 
 (defq +vp_regs_calls ''(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14))
-(defmacro class-sym (_) `(sym (cat "_class_" ,_)))
-(defmacro super-sym (_) `(sym (cat "_super_" ,_)))
+(defmacro class-sym (_) (static-qqp (sym (cat "_class_" ,_))))
+(defmacro super-sym (_) (static-qqp (sym (cat "_super_" ,_))))
 
 ;;;;;;;;;;;;;;;
 ; class calling

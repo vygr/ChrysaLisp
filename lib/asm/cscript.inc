@@ -11,17 +11,17 @@
 
 (defq +symbol_chars (char-class "A-Za-z0-9+:_/")
 	+op_chars (char-class "-+*/%~^<=>!&|.")
-	+folow_on_op_chars (char-class "/%<=>&|")
+	+follow_on_op_chars (char-class "/%<=>&|")
 	+bracket_chars (char-class "()[]")
 	+stringy_chars (char-class (cat (ascii-char 34) "$@")))
 
-(defmacro is-symbol-char? (_) `(bfind ,_ +symbol_chars))
-(defmacro is-path-char? (_) `(bfind ,_ +char_class_path))
-(defmacro is-label-char? (_) `(bfind ,_ +char_class_word))
-(defmacro is-digit-char? (_) `(bfind ,_ +char_class_digit))
-(defmacro is-op-char? (_) `(bfind ,_ +op_chars))
-(defmacro is-bracket-char? (_) `(bfind ,_ +bracket_chars))
-(defmacro is-stringy-char? (_) `(bfind ,_ +stringy_chars))
+(defmacro is-symbol-char? (_) (static-qqp (bfind ,_ +symbol_chars)))
+(defmacro is-path-char? (_) (static-qqp (bfind ,_ +char_class_path)))
+(defmacro is-label-char? (_) (static-qqp (bfind ,_ +char_class_word)))
+(defmacro is-digit-char? (_) (static-qqp (bfind ,_ +char_class_digit)))
+(defmacro is-op-char? (_) (static-qqp (bfind ,_ +op_chars)))
+(defmacro is-bracket-char? (_) (static-qqp (bfind ,_ +bracket_chars)))
+(defmacro is-stringy-char? (_) (static-qqp (bfind ,_ +stringy_chars)))
 
 (defun cscript-tokenize (line)
 	(defq i 0 j 0 c 0 l (length line) state :space unary :t
@@ -69,7 +69,7 @@
 			(:operator
 				(push out_types :operator)
 				(setq c (slice line i (setq state :space j
-					(bskip +folow_on_op_chars line (inc i)) i j)))
+					(bskip +follow_on_op_chars line (inc i)) i j)))
 				(cond
 					(unary
 						(if (setq j (rfind (first c) "-*&~!"))

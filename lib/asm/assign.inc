@@ -5,7 +5,7 @@
 ;module
 (env-push)
 
-(defmacro assign-type-sym (_) `(sym (str ,_ "_t")))
+(defmacro assign-type-sym (_) (static-qqp (sym (str ,_ "_t"))))
 
 (defun assign-type-t (_)
 	(if (setq _ (rfind (first _) "bBsSiI"))
