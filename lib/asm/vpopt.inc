@@ -19,7 +19,7 @@
 	+opt_read_ops_unsigned
 		''(emit-cpy-ir-ui emit-cpy-ir-us emit-cpy-ir-ub emit-cpy-ir)
 	+opt_read_kill_ops
-		''(emit-label emit-call emit-call-abi emit-call-i emit-call-r emit-call-p emit-alloc emit-free)
+		''(emit-label emit-call-p emit-alloc emit-free emit-call-i emit-call-abi emit-call emit-call-r)
 	+opt_write_kill_ops
 		''(emit-jmp emit-jmp-i emit-jmp-r emit-jmp-p
 			emit-beq-cr emit-bne-cr emit-bge-cr emit-blt-cr emit-ble-cr emit-bgt-cr
@@ -59,8 +59,8 @@
 		((and (or (eql rop1 (first inst)) (eql rop2 (first inst)))
 			(eql b (second inst)) (not (eql b (last inst))) (= i (third inst))) -1)
 		((trashes-reg? b inst) -1)
-		((find (first inst) +opt_write_kill_ops) -1)
-		((find (first inst) +opt_read_kill_ops) -1)))
+		((find (first inst) +opt_read_kill_ops) -1)
+		((find (first inst) +opt_write_kill_ops) -1)))
 
 (defun find-past-rr (_ rs rd)
 	(find-past
