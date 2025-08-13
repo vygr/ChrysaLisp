@@ -21,6 +21,12 @@
 	(push-scope)
 	(entry 'sym :statics_init {})
 
+	;init symbol set
+	(call 'hset :create `((@ ,(f-path 'sym :same)) num_sym_buckets) '(:r0))
+	(fn-bind 'sys/statics/statics :r1)
+	(assign '(:r0) '((:r1 statics_sym_intern)))
+
+	;add static symbols
 	(call 'list :create :nil {syms})
 	(call 'list :set_cap (cat {syms, } (str (length *static_syms*))))
 	(assign {$props} {next})
@@ -96,14 +102,8 @@
 	(entry 'sym :intern '(:r0))
 
 	(vp-push :r0)
-	(fn-bind 'sys/statics/statics :r0)
-	(assign '((:r0 statics_sym_intern)) '(:r0))
-	(vpif '(:r0 = 0))
-		(call 'hset :create `((@ ,(f-path 'sym :same)) num_sym_buckets) '(:r0))
-		(fn-bind 'sys/statics/statics :r1)
-		(assign '(:r0) '((:r1 statics_sym_intern)))
-	(endif)
-	(call 'hset :insert '(:r0 (:rsp 0)) '(_ :r1 _))
+	(fn-bind 'sys/statics/statics :r2)
+	(call 'hset :insert '((:r2 statics_sym_intern) :r0) '(_ :r1 _))
 	(call 'obj :ref '((:r1 0)) '(:r3))
 	(f-bind 'sym :vtable :r0)
 	(assign '(:r0) '((:r3 obj_vtable)))
@@ -128,14 +128,8 @@
 	(entry 'sym :intern_str '(:r0))
 
 	(vp-push :r0)
-	(fn-bind 'sys/statics/statics :r0)
-	(assign '((:r0 statics_sym_intern)) '(:r0))
-	(vpif '(:r0 = 0))
-		(call 'hset :create `((@ ,(f-path 'sym :same)) num_sym_buckets) '(:r0))
-		(fn-bind 'sys/statics/statics :r1)
-		(assign '(:r0) '((:r1 statics_sym_intern)))
-	(endif)
-	(call 'hset :find '(:r0 (:rsp 0)) '(_ :r1 :r2))
+	(fn-bind 'sys/statics/statics :r2)
+	(call 'hset :find '((:r2 statics_sym_intern) :r0) '(_ :r1 :r2))
 	(vp-pop :r0)
 	(vpif '(:r1 = 0))
 		(vp-cpy-rr :r2 :r7)
