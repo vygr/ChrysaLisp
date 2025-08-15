@@ -98,7 +98,7 @@
 					(pop _stack)
 					(pop _stack)
 					(setq _type :nil _state :text))
-				))) ((const (ffi "lib/xml/parse" xml-parse)) stream)))
+				))) ((const (ffi "lib/xml/parse")) stream)))
 
 ;module
 (export-symbols '(XML-parse))

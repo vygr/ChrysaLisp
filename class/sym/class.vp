@@ -88,33 +88,6 @@
 
 (def-func-end)
 
-(def-method 'sym :intern)
-	;inputs
-	;:r0 = sym object (ptr)
-	;outputs
-	;:r0 = interned sym object (ptr)
-	;trashes
-	;:r0-:r14
-	;info
-	;input sym IS derefed
-	;vtable MUST be a sym
-
-	(entry 'sym :intern '(:r0))
-
-	(vp-push :r0)
-	(fn-bind 'sys/statics/statics :r2)
-	(call 'hset :insert '((:r2 statics_sym_intern) :r0) '(_ :r1 _))
-	(call 'obj :ref '((:r1 0)) '(:r3))
-	(f-bind 'sym :vtable :r0)
-	(assign '(:r0) '((:r3 obj_vtable)))
-	(vp-pop :r0)
-	(call 'obj :deref '(:r0))
-
-	(exit 'sym :intern '(:r3))
-	(vp-ret)
-
-(def-func-end)
-
 (def-method 'sym :intern_str)
 	;inputs
 	;:r0 = str object (ptr)
@@ -153,45 +126,65 @@
 	;outputs
 	;:r0 = interned sym object (ptr)
 	;trashes
-	;:r0-:r14
+	;:r0-:r11
 
 	(entry 'sym :intern_cstr '(:r0))
-	(call 'sym :create_from_cstr '(:r0) '(:r0))
-	(jump 'sym :intern '(:r0))
+	(call 'sys_str :length '(:r0) '(:r0 :r1))
+	(jump 'sym :intern_pstr '(:r0 (& :r0 :r1)))
 
 (def-func-end)
 
-(def-method 'sym :intern_strs)
+(def-method 'sym :intern_pstr)
 	;inputs
-	;:r1 = list of string objects (ptr)
+	;:r0 = start (pubyte)
+	;:r1 = end (pubyte)
 	;outputs
-	;:r1 = list of sym objects (ptr)
+	;:r0 = interned sym object (ptr)
 	;trashes
-	;:r0-:r14
+	;:r0-:r11
 
-	(def-struct local 0
-		(ptr this syms sym)
-		(pptr iter_begin iter_end))
+	(def-vars
+		(ptr intern)
+		(pubyte str_begin str_end)
+		(uint hcode))
 
-	(vp-alloc local_size)
-	(entry 'sym :intern_strs '(:r1))
-	(assign '(:r1) '((:rsp local_syms)))
+	(vp-def (iter_begin iter_end str_begin str_end str_size bucket symbol str_len)
+		'(:r6 :r7 :r8 :r9 :r10 :r11))
 
-	(class/array/get_both :r1 :r1 :r2)
-	(assign '(:r2) '((:rsp local_iter_end)))
-	(loop-while '(:r1 /= :r2))
-		(assign '(:r1) '((:rsp local_iter_begin)))
-		(call 'sym :intern_str '((:r1 0)) '((:rsp local_sym)))
-		(assign '((:rsp local_iter_begin)) '(:r0))
-		(call 'str :deref '((:r0 0)))
-		(assign '((:rsp local_sym) (:rsp local_iter_begin) (:rsp local_iter_end)) '(:r0 :r1 :r2))
-		(assign '(:r0) '((:r1 0)))
-		(vp-add-cr +ptr_size :r1)
-	(loop-end)
+	(push-scope)
+	(entry 'sym :intern_pstr {str_begin, str_end})
 
-	(exit 'sym :intern_strs '((:rsp local_syms)))
-	(vp-free local_size)
-	(vp-ret)
+	(call 'str :hash_pstr {str_begin, str_end} {hcode})
+	(assign {@sys/statics/statics.statics_sym_intern} {intern})
+	(call 'list :get_elem {intern->hset_buckets, hcode % intern->hset_num_buckets} `(_ ,bucket))
+
+	(assign {str_end, str_begin} `(,str_end ,str_begin))
+	(class/array/get_both bucket iter_begin iter_end)
+	(vp-cpy-rr str_end str_size)
+	(vp-sub-rr str_begin str_size)
+	(vpif `(,iter_begin /= ,iter_end))
+		(loop-start)
+			(assign `((,iter_begin 0)) `(,symbol))
+			(vp-add-cr +ptr_size iter_begin)
+			(assign `((,symbol str_length)) `(,str_len))
+			(vpif `(,str_len = ,str_size))
+				(call 'str :same_pstr `(,str_begin ,str_end (& ,symbol str_data)) '(found))
+				(gotoif `(,found = 0) 'exit)
+			(endif)
+		(loop-until `(,iter_begin = ,iter_end))
+	(endif)
+
+	(call 'sym :create_from_buffer `(,str_begin ,str_size) `(,symbol))
+	(assign `((@ ,(f-path 'sym :vtable))) `(,str_len))
+	(assign {hcode} `(,str_size))
+	(assign `(,str_len ,str_size) `((,symbol obj_vtable) (,symbol str_hashcode)))
+	(call 'list :push_back `(,bucket ,symbol) `(_ ,symbol _ _))
+
+(vp-label 'exit)
+	(class/obj/ref symbol str_len)
+	(exit 'sym :intern_pstr `(,symbol))
+	(pop-scope)
+	(return)
 
 (def-func-end)
 

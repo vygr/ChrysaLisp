@@ -150,6 +150,18 @@ trashes
 :r1-:r4
 ```
 
+### :hash_pstr -> class/str/hash_pstr
+
+```code
+inputs
+:r3 = start (pubyte)
+:r4 = end (pubyte)
+outputs
+:r1 = hash code (ulong)
+trashes
+:r1-:r4
+```
+
 ### :init -> class/str/init
 
 ```code
@@ -276,6 +288,19 @@ trashes
 :r1-:r6
 ```
 
+### :same_pstr -> class/str/same_pstr
+
+```code
+inputs
+:r1 = start1 (pubyte)
+:r2 = end1 (pubyte)
+:r3 = start2 (pubyte)
+outputs
+:r4 = 0 if match, else not
+trashes
+:r1-:r5
+```
+
 ### :slice -> class/str/slice
 
 ```code
@@ -311,7 +336,7 @@ inputs
 :r1 = str object (ptr)
 outputs
 :r0 = str prefix object (ptr)
-:r1 = 0 if match
+:r1 = 0 if match, else not
 trashes
 :r1-:r6
 ```

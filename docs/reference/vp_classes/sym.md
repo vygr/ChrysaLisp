@@ -21,20 +21,6 @@ trashes
 :r1, :r3
 ```
 
-### :intern -> class/sym/intern
-
-```code
-inputs
-:r0 = sym object (ptr)
-outputs
-:r0 = interned sym object (ptr)
-trashes
-:r0-:r14
-info
-input sym IS derefed
-vtable MUST be a sym
-```
-
 ### :intern_cstr -> class/sym/intern_cstr
 
 ```code
@@ -43,7 +29,19 @@ inputs
 outputs
 :r0 = interned sym object (ptr)
 trashes
-:r0-:r14
+:r0-:r11
+```
+
+### :intern_pstr -> class/sym/intern_pstr
+
+```code
+inputs
+:r0 = start (pubyte)
+:r1 = end (pubyte)
+outputs
+:r0 = interned sym object (ptr)
+trashes
+:r0-:r11
 ```
 
 ### :intern_str -> class/sym/intern_str
@@ -57,17 +55,6 @@ trashes
 :r0-:r14
 info
 input str IS NOT derefed
-```
-
-### :intern_strs -> class/sym/intern_strs
-
-```code
-inputs
-:r1 = list of string objects (ptr)
-outputs
-:r1 = list of sym objects (ptr)
-trashes
-:r0-:r14
 ```
 
 ### :print -> class/sym/print

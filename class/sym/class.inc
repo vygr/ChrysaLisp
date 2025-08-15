@@ -5,10 +5,9 @@
 	(dec-method :statics_init class/sym/statics_init)
 	(dec-method :get_static_sym class/sym/get_static_sym :static (:r1) (:r1))
 	(dec-method :ref_static_sym class/sym/ref_static_sym :static (:r1) (:r1))
-	(dec-method :intern class/sym/intern :static (:r0) (:r0))
 	(dec-method :intern_str class/sym/intern_str :static (:r0) (:r0))
 	(dec-method :intern_cstr class/sym/intern_cstr :static (:r0) (:r0))
-	(dec-method :intern_strs class/sym/intern_strs :static (:r1) (:r1))
+	(dec-method :intern_pstr class/sym/intern_pstr :static (:r0 :r1) (:r0))
 	(dec-method :type class/sym/type :override (:r0) (:r0 :r1))
 	(dec-method :print class/sym/print :override)
 	(dec-method :lisp_sym class/sym/lisp_sym :static (:r0 :r1) (:r0 :r1))
@@ -16,7 +15,7 @@
 
 (def-struct sym str_size)
 
-(defcvar 'num_sym_buckets 101)
+(defcvar 'num_sym_buckets 307)
 
 ;;;;;;;;;;;;;;;;
 ; static symbols

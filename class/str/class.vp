@@ -439,7 +439,7 @@
 	;:r1 = str object (ptr)
 	;outputs
 	;:r0 = str prefix object (ptr)
-	;:r1 = 0 if match
+	;:r1 = 0 if match, else not
 	;trashes
 	;:r1-:r6
 
@@ -455,18 +455,6 @@
 				(vp-lea-i :r1 str_data :r5)
 				(vp-add-rr :r4 :r2)
 				(vpif '(:r6 >= (- (* +long_size 2) 1)))
-					(vp-lea-i :r4 (dec +long_size) :r3)
-					(vp-and-cr (neg +long_size) :r3)
-					(vpif '(:r4 /= :r3))
-						(loop-start)
-							(vp-cpy-ir-b :r4 0 :r6)
-							(vp-cpy-ir-b :r5 0 :r1)
-							(vp-sub-rr :r6 :r1)
-							(breakif '(:r1 /= 0) 'exit)
-							(vp-add-cr +byte_size :r4)
-							(vp-add-cr +byte_size :r5)
-						(loop-until '(:r4 = :r3))
-					(endif)
 					(vp-cpy-rr :r2 :r3)
 					(vp-and-cr (neg +long_size) :r3)
 					(vpif '(:r4 /= :r3))
@@ -539,31 +527,7 @@
 		(assign '((:r0 str_length)) '(:r4))
 		(vp-lea-i :r0 str_data :r3)
 		(vp-add-rr :r3 :r4)
-		(vp-xor-rr :r1 :r1)
-		(vpif '(:r3 /= :r4))
-			(loop-start)
-				(vp-cpy-ir-ub :r3 0 :r2)
-				(vp-add-cr +byte_size :r3)
-				(vp-add-rr :r2 :r1)
-				(vp-cpy-rr :r1 :r2)
-				(vp-shl-cr 10 :r1)
-				(vp-add-rr :r1 :r2)
-				(vp-cpy-rr :r2 :r1)
-				(vp-shr-cr 6 :r2)
-				(vp-xor-rr :r2 :r1)
-			(loop-until '(:r3 = :r4))
-		(endif)
-		(vp-cpy-rr :r1 :r2)
-		(vp-shl-cr 3 :r1)
-		(vp-add-rr :r1 :r2)
-		(vp-cpy-rr :r2 :r1)
-		(vp-shr-cr 11 :r2)
-		(vp-xor-rr :r1 :r2)
-		(vp-cpy-rr :r2 :r1)
-		(vp-shl-cr 15 :r2)
-		(vp-add-rr :r2 :r1)
-		(vp-cpy-cr 0xffffffff :r2)
-		(vp-and-rr :r2 :r1)
+		(call 'str :hash_pstr '(:r3 :r4) '(:r1))
 		(assign '(:r1) '((:r0 str_hashcode)))
 	(endif)
 
@@ -775,6 +739,79 @@
 
 	(exit 'str :print '((:rsp local_this)))
 	(vp-free local_size)
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'str :hash_pstr)
+	;inputs
+	;:r3 = start (pubyte)
+	;:r4 = end (pubyte)
+	;outputs
+	;:r1 = hash code (ulong)
+	;trashes
+	;:r1-:r4
+
+	(vp-def (iter_begin iter_end hcode tmp) '(:r3 :r4 :r1 :r2))
+
+	(entry 'str :hash_pstr `(,iter_begin ,iter_end))
+
+	(vp-xor-rr hcode hcode)
+	(vpif `(,iter_begin /= ,iter_end))
+		(loop-start)
+			(vp-cpy-ir-ub iter_begin 0 tmp)
+			(vp-add-cr +byte_size iter_begin)
+			(vp-add-rr tmp hcode)
+			(vp-cpy-rr hcode tmp)
+			(vp-shl-cr 10 hcode)
+			(vp-add-rr hcode tmp)
+			(vp-cpy-rr tmp hcode)
+			(vp-shr-cr 6 tmp)
+			(vp-xor-rr tmp hcode)
+		(loop-until `(,iter_begin = ,iter_end))
+		(vp-cpy-rr hcode tmp)
+		(vp-shl-cr 3 hcode)
+		(vp-add-rr hcode tmp)
+		(vp-cpy-rr tmp hcode)
+		(vp-shr-cr 11 tmp)
+		(vp-xor-rr hcode tmp)
+		(vp-cpy-rr tmp hcode)
+		(vp-shl-cr 15 tmp)
+		(vp-add-rr tmp hcode)
+		(vp-cpy-cr 0xffffffff tmp)
+		(vp-and-rr tmp hcode)
+	(endif)
+
+	(exit 'str :hash_pstr `(,hcode))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'str :same_pstr)
+	;inputs
+	;:r1 = start1 (pubyte)
+	;:r2 = end1 (pubyte)
+	;:r3 = start2 (pubyte)
+	;outputs
+	;:r4 = 0 if match, else not
+	;trashes
+	;:r1-:r5
+
+	(vp-def (iter_begin1 iter_end1 iter_begin2 match tmp) '(:r1 :r2 :r3 :r4 :r5))
+
+	(entry 'str :same_pstr `(,iter_begin1 ,iter_end1 ,iter_begin2))
+
+	(vp-xor-rr match match)
+	(vpif `(,iter_begin1 /= ,iter_end1))
+		(loop-start)
+			(vp-simd vp-cpy-ir-b `(,iter_begin1 ,iter_begin2) '(0) `(,tmp ,match))
+			(vp-sub-rr tmp match)
+			(breakif `(,match /= 0))
+			(vp-simd vp-add-cr `(,+byte_size) `(,iter_begin1 ,iter_begin2))
+		(loop-until `(,iter_begin1 = ,iter_end1))
+	(endif)
+
+	(exit 'str :same_pstr `(,match))
 	(vp-ret)
 
 (def-func-end)

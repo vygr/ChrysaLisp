@@ -40,6 +40,11 @@ register that we can static eliminate. This can happen with inline code
 embedding, AND as branch instructions are a KILL op for other searches, it's
 worth checking for.
 
+Rework of the symbol interning system for the entire OS and Lisp engine. Removed
+redundant methods and streamlined the base method used by `lisp :read_sym` to
+operate directly from the stream buffers without intermediate copies or string
+object churn.
+
 ------
 
 New non recursive constraints system for GUI layouts. Significant reduction in

@@ -1,6 +1,8 @@
 (include "lib/asm/func.inc")
 (include "./class.inc")
 (include "././lisp/class.inc")
+(include "sys/str/class.inc")
+(include "sys/statics/class.inc")
 
 (def-method 'sym :lisp_sym)
 	;inputs
@@ -58,15 +60,15 @@
 	(errorif-lisp-args-len 'error1 :r1 /= 0)
 
 	(vp-push :r0)
-	(assign '((:r0 lisp_nextsym)) '(:r1))
-	(vp-add-cr 1 :r1)
-	(assign '(:r1) '((:r0 lisp_nextsym)))
-	(call 'sym :create_from_long '(:r1 10) '(:r7))
-	(call 'sym :create_from_buffer '("G" 1) '(:r8))
-	(call 'sym :append '(:r8 :r7) '(:r3))
-	(call 'sym :destroy '(:r7))
-	(call 'sym :destroy '(:r8))
-	(call 'sym :intern '(:r3) '(:r1))
+	(vp-cpy-rr :r0 :r1)
+	(assign '((:r0 lisp_nextsym) (@ sys/statics/statics)) '(:r0 :r5))
+	(vp-add-cr 1 :r0)
+	(assign '(:r0) '((:r1 lisp_nextsym)))
+	(assign '((:r5 statics_sys_load_reloc_buffer)) '(:r5))
+	(vp-cpy-cr (ascii-code "G") :r2)
+	(vp-cpy-ri-b :r2 :r5 0)
+	(call 'sys_str :from_long '(:r0 (& :r5 1) 10) '(bufe))
+	(call 'sym :intern_pstr `(:r5 ,bufe) '(:r1))
 	(vp-pop :r0)
 
 	(exit 'sym :lisp_gensym '(:r0 :r1))
