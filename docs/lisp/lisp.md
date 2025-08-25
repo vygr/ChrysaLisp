@@ -27,7 +27,9 @@ juggle or double dip the evaluation to give scope priority to the closed
 environment ! This is highly controversial, maybe, but it leads to cleaner code
 with more reasoned behaviour, a Harvard Architecture Lisp, if you please. The
 memory pressure relief gains are significant as a result ! Got to hand this win
-to the C++ crowd.
+to the C++ crowd. In ChrysaLisp, functions don't capture their environment, they
+only manipulate the one in which they are invoked, unlike C++ they can do this
+dynamically, not just statically !
 
 No tail recursion optimization ! There is a single looping function provided in
 native code, `(while)`, every other looping construct builds on this primitive.
