@@ -20,6 +20,15 @@ other ways that a cycle can be created, by naming an environment within its own
 scope, but again this was too good an efficiency feature to miss out on. So you
 do have to be careful not to create cycles, so think about how your code works.
 
+There are also no closures but what you explicitly create via classes and
+objects ! A VP function or a Lisp level lambda does NOT create, keep or carry a
+closure object or reference to the creation environment ! They also do NOT
+juggle or double dip the evaluation to give scope priority to the closed
+environment ! This is highly controversial, maybe, but it leads to cleaner code
+with more reasoned behaviour, a Harvard Architecture Lisp, if you please. The
+memory pressure relief gains are significant as a result ! Got to hand this win
+to the C++ crowd.
+
 No tail recursion optimization ! There is a single looping function provided in
 native code, `(while)`, every other looping construct builds on this primitive.
 There are also, now, four native primitives `(each!)`, `(some!)`, `(map!)` and
