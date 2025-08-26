@@ -19,7 +19,7 @@
 (enums +test 0
 	(enum pieces vectors))
 
-;control paramaters
+;control parameters
 (defq max_ply 10 max_chess_moves (/ 218 2) max_search_entries 10000)
 
 ;piece values, in centipawns

@@ -59,7 +59,7 @@
 	(ulong e0 e1 e2 e3))
 
 ;;;;;;;;;;;;;;;;;;;
-; paramater helpers
+; parameter helpers
 ;;;;;;;;;;;;;;;;;;;
 
 (defun array-get-args (i regs &optional type)

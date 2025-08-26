@@ -23,7 +23,7 @@
 (defun method-input (_1 _2 &optional _3)
 	;_1 = class name
 	;_2 = member name
-	;_3 = input paramater index, :nil for entire list
+	;_3 = input parameter index, :nil for entire list
 	(if _3
 		(elem-get (third (method-lookup _1 _2)) _3)
 		(third (method-lookup _1 _2))))
@@ -31,7 +31,7 @@
 (defun method-output (_1 _2 &optional _3)
 	;_1 = class name
 	;_2 = member name
-	;_3 = output paramater index, :nil for entire list
+	;_3 = output parameter index, :nil for entire list
 	(if _3
 		(elem-get (elem-get (method-lookup _1 _2) 3) _3)
 		(elem-get (method-lookup _1 _2) 3)))

@@ -30,7 +30,7 @@
 (def-struct list array_size)
 
 ;;;;;;;;;;;;;;;;;;;
-; paramater helpers
+; parameter helpers
 ;;;;;;;;;;;;;;;;;;;
 
 (defun list-cast-args (regs types)
