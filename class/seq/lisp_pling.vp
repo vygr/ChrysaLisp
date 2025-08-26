@@ -100,9 +100,10 @@
 			(assign {value->obj_vtable, this->lisp_error} `(,vt1 ,vt2))
 			(breakif `(,vt1 = ,vt2)))
 
-			(assign {this->lisp_seq_idx, dir, end} `(,idx ,dir ,end))
+			(assign {this, dir, end} `(,this ,dir ,end))
+			(assign `((,this lisp_seq_idx)) `(,idx))
 			(vp-add-rr dir idx)
-			(assign `(,idx) {this->lisp_seq_idx})
+			(assign `(,idx) `((,this lisp_seq_idx)))
 		(loop-until `(,idx = ,end))
 
 		(assign {old_idx} {this->lisp_seq_idx})
@@ -207,16 +208,17 @@
 
 			;break out based on mode and new value
 			(assign {this, mode, value} `(,this ,mode ,value))
-			(assign `((,this lisp_sym_nil)) `(,this))
-			(vpif `(,this /= ,mode))
-				(breakif `(,this = ,value) 'exit)
+			(assign `((,this lisp_sym_nil)) `(,end))
+			(vpif `(,end /= ,mode))
+				(breakif `(,end = ,value) 'exit)
 			(else)
-				(breakif `(,this /= ,value) 'exit)
+				(breakif `(,end /= ,value) 'exit)
 			(endif)
 
-			(assign {this->lisp_seq_idx, dir, end} `(,idx ,dir ,end))
+			(assign `((,this lisp_seq_idx)) `(,idx))
+			(assign {dir, end} `(,dir ,end))
 			(vp-add-rr dir idx)
-			(assign `(,idx) {this->lisp_seq_idx})
+			(assign `(,idx) `((,this lisp_seq_idx)))
 		(loop-until `(,idx = ,end))
 
 		(assign {old_idx} {this->lisp_seq_idx})
@@ -331,9 +333,10 @@
 			;collect value of function call
 			(call 'list :push_back {out, value})
 
-			(assign {this->lisp_seq_idx, dir, end} `(,idx ,dir ,end))
+			(assign {this, dir, end} `(,this ,dir ,end))
+			(assign `((,this lisp_seq_idx)) `(,idx))
 			(vp-add-rr dir idx)
-			(assign `(,idx) {this->lisp_seq_idx})
+			(assign `(,idx) `((,this lisp_seq_idx)))
 		(loop-until `(,idx = ,end))
 
 		(assign {old_idx} {this->lisp_seq_idx})
@@ -439,9 +442,10 @@
 			(assign {value->obj_vtable, this->lisp_error} `(,vt1 ,vt2))
 			(breakif `(,vt1 = ,vt2)))
 
-			(assign {this->lisp_seq_idx, dir, end} `(,idx ,dir ,end))
+			(assign {this, dir, end} `(,this ,dir ,end))
+			(assign `((,this lisp_seq_idx)) `(,idx))
 			(vp-add-rr dir idx)
-			(assign `(,idx) {this->lisp_seq_idx})
+			(assign `(,idx) `((,this lisp_seq_idx)))
 		(loop-until `(,idx = ,end))
 
 		(assign {old_idx} {this->lisp_seq_idx})
@@ -561,9 +565,10 @@
 			(call 'obj :deref `(,value))
 			(call 'obj :deref {args})
 
-			(assign {this->lisp_seq_idx, dir, end} `(,idx ,dir ,end))
+			(assign {this, dir, end} `(,this ,dir ,end))
+			(assign `((,this lisp_seq_idx)) `(,idx))
 			(vp-add-rr dir idx)
-			(assign `(,idx) {this->lisp_seq_idx})
+			(assign `(,idx) `((,this lisp_seq_idx)))
 		(loop-until `(,idx = ,end))
 
 		(assign {old_idx} {this->lisp_seq_idx})
