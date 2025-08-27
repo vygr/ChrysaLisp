@@ -55,36 +55,36 @@
 
 	(errorif-lisp-args-sig 'error :r1 2)
 
-	(vp-def (elems index dims indexs dims_len indexs_len
-			dims_iter_begin dims_iter_end indexs_iter_begin acc d i)
+	(vp-def (elems index dims indices dims_len indices_len
+			dims_iter_begin dims_iter_end indices_iter_begin acc d i)
 		(method-input 'array :ref_elem))
 
 	(vp-push :r0 :r1)
-	(list-bind-args :r1 `(,dims ,indexs) '(:dim :nums))
+	(list-bind-args :r1 `(,dims ,indices) '(:dim :nums))
 	(assign `((,dims dim_dims) (,dims dim_elems)) `(,dims ,elems))
-	(assign `((,dims array_length) (,indexs array_length)) `(,dims_len ,indexs_len))
+	(assign `((,dims array_length) (,indices array_length)) `(,dims_len ,indices_len))
 
-	(errorif `(,indexs_len > ,dims_len) 'error1)
+	(errorif `(,indices_len > ,dims_len) 'error1)
 
-	(assign `((,dims array_begin) (,indexs array_begin)) `(,dims_iter_begin ,indexs_iter_begin))
-	(vp-shl-cr (log2 +ptr_size) indexs_len)
-	(vp-lea-d dims_iter_begin indexs_len dims_iter_end)
+	(assign `((,dims array_begin) (,indices array_begin)) `(,dims_iter_begin ,indices_iter_begin))
+	(vp-shl-cr (log2 +ptr_size) indices_len)
+	(vp-lea-d dims_iter_begin indices_len dims_iter_end)
 
 	(assign '(0 1) `(,index ,acc))
 	(loop-start)
 		(vp-cpy-ir dims_iter_begin 0 d)
-		(vp-cpy-ir indexs_iter_begin 0 i)
+		(vp-cpy-ir indices_iter_begin 0 i)
 		(vp-add-cr +ptr_size dims_iter_begin)
-		(vp-add-cr +ptr_size indexs_iter_begin)
+		(vp-add-cr +ptr_size indices_iter_begin)
 		(vp-mul-rr acc i)
 		(vp-mul-rr d acc)
 		(vp-add-rr i index)
 	(loop-until `(,dims_iter_begin = ,dims_iter_end))
 
 (errorcase
-	(assign `((,elems array_length)) `(,indexs_len))
+	(assign `((,elems array_length)) `(,indices_len))
 	(gotoif `(,index < 0) 'error1)
-	(gotoif `(,index >= ,indexs_len) 'error1))
+	(gotoif `(,index >= ,indices_len) 'error1))
 
 	(call 'array :ref_elem `(,elems ,index) '(_ :r1))
 	(vp-pop :r0 :r2)
@@ -116,36 +116,36 @@
 
 	(errorif-lisp-args-sig 'error :r1 3)
 
-	(vp-def (elems obj index dims indexs dims_len indexs_len
-			dims_iter_begin dims_iter_end indexs_iter_begin acc d i)
+	(vp-def (elems obj index dims indices dims_len indices_len
+			dims_iter_begin dims_iter_end indices_iter_begin acc d i)
 		(method-input 'array :set_elem))
 
 	(vp-push :r0 :r1)
-	(list-bind-args :r1 `(,dims ,indexs ,obj) '(:dim :nums :obj))
+	(list-bind-args :r1 `(,dims ,indices ,obj) '(:dim :nums :obj))
 	(assign `((,dims dim_dims) (,dims dim_elems)) `(,dims ,elems))
-	(assign `((,dims array_length) (,indexs array_length)) `(,dims_len ,indexs_len))
+	(assign `((,dims array_length) (,indices array_length)) `(,dims_len ,indices_len))
 
-	(errorif `(,indexs_len > ,dims_len) 'error1)
+	(errorif `(,indices_len > ,dims_len) 'error1)
 
-	(assign `((,dims array_begin) (,indexs array_begin)) `(,dims_iter_begin ,indexs_iter_begin))
-	(vp-shl-cr (log2 +ptr_size) indexs_len)
-	(vp-lea-d dims_iter_begin indexs_len dims_iter_end)
+	(assign `((,dims array_begin) (,indices array_begin)) `(,dims_iter_begin ,indices_iter_begin))
+	(vp-shl-cr (log2 +ptr_size) indices_len)
+	(vp-lea-d dims_iter_begin indices_len dims_iter_end)
 
 	(assign '(0 1) `(,index ,acc))
 	(loop-start)
 		(vp-cpy-ir dims_iter_begin 0 d)
-		(vp-cpy-ir indexs_iter_begin 0 i)
+		(vp-cpy-ir indices_iter_begin 0 i)
 		(vp-add-cr +ptr_size dims_iter_begin)
-		(vp-add-cr +ptr_size indexs_iter_begin)
+		(vp-add-cr +ptr_size indices_iter_begin)
 		(vp-mul-rr acc i)
 		(vp-mul-rr d acc)
 		(vp-add-rr i index)
 	(loop-until `(,dims_iter_begin = ,dims_iter_end))
 
 (errorcase
-	(assign `((,elems array_length)) `(,indexs_len))
+	(assign `((,elems array_length)) `(,indices_len))
 	(gotoif `(,index < 0) 'error1)
-	(gotoif `(,index >= ,indexs_len) 'error1))
+	(gotoif `(,index >= ,indices_len) 'error1))
 
 	(assign `((,elems obj_vtable) (@ ,(f-path 'list :vtable))) '(:r12 :r13))
 	(assign `(,obj) '((:rsp 0)))
