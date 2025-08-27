@@ -91,7 +91,7 @@
 
 (def-func-end)
 
-(redefun addop (_ p)
+(redefun addop (_)
 	(entry 'num _ '(:r0 :r1))
 	(vp-push :r0)
 	(class/array/get_both :r1 :r1 :r2)
@@ -102,7 +102,7 @@
 		(vp-cpy-ir :r1 0 :r4)
 		(vp-add-cr +ptr_size :r1)
 		(assign '((:r4 num_value)) '(:r3))
-		(exec p)
+		((eval (sym (cat "vp-" (rest _) "-rr"))) :r3 :r0)
 	(loop-until '(:r1 = :r2))
 	(v-call 'num :vcreate '(:r0) '(:r1) :r4 :r1)
 	(vp-pop :r0)
@@ -119,8 +119,7 @@
 	;trashes
 	;:r1-:r14
 
-	(addop :add
-		'(vp-add-rr :r3 :r0))
+	(addop :add)
 
 (def-func-end)
 
@@ -134,8 +133,7 @@
 	;trashes
 	;:r1-:r14
 
-	(addop :sub
-		'(vp-sub-rr :r3 :r0))
+	(addop :sub)
 
 (def-func-end)
 
@@ -149,8 +147,7 @@
 	;trashes
 	;:r1-:r14
 
-	(addop :mul
-		'(vp-mul-rr :r3 :r0))
+	(addop :mul)
 
 (def-func-end)
 
