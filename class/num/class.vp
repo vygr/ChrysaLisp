@@ -314,11 +314,7 @@
 	;trashes
 	;:r1-:r14
 
-	(mathop :abs
-		'(progn
-			(vpif '(:r0 < 0))
-				(vp-mul-cr -1 :r0)
-			(endif)))
+	(mathop :abs '(vp-abs-rr :r0 :r0))
 
 (def-func-end)
 
@@ -331,8 +327,7 @@
 	;trashes
 	;:r1-:r14
 
-	(mathop :neg
-		'(vp-mul-cr -1 :r0))
+	(mathop :neg '(vp-mul-cr -1 :r0))
 
 (def-func-end)
 
