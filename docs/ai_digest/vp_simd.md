@@ -68,6 +68,11 @@ ambiguity and guarantee identical results between serial and parallel execution.
 **The Rule:** In a single `vp-simd` instruction, a given register can only be
 used as a destination in one of the parallel "lanes."
 
+```vdu
+(vp-simd vp-cpy-rr '(:r0 :r1 :r2) '(:r3 :r4 :r5))  ;accetptable
+(vp-simd vp-cpy-rr '(:r0 :r1 :r2) '(:r3 :r3 :r3))  ;not accetptable
+```
+
 **Why?** This rule preserves the "Simultaneous Write" semantic and prevents a
 **Write-After-Write (WAW) hazard**. If two parallel operations were allowed to
 target the same register, the final value would be undefined. By forbidding
@@ -76,8 +81,13 @@ this, ChrysaLisp guarantees that the operation is unambiguous.
 ### Restriction 2: A Register Cannot Be a Source in One Lane and a Destination in Another
 
 **The Rule:** A register can be both a source and a destination *within its own
-lane* (e.g., `(vp-add-rr :r0 :r1)`), but it cannot be a destination in one lane
-and a source in a *different* lane of the same `vp-simd` block.
+lane*, but it cannot be a destination in one lane and a source in a *different*
+lane of the same `vp-simd` block.
+
+```vdu
+(vp-simd vp-add-rr '(:r0 :r1 :r2) '(:r0 :r1 :r2))  ;accetptable
+(vp-simd vp-add-rr '(:r0 :r1 :r2) '(:r1 :r2 :r0))  ;not accetptable
+```
 
 **Why?** This rule preserves the "Simultaneous Read" semantic and prevents a
 **Read-After-Write (RAW) hazard** between the parallel lanes. The value of a
