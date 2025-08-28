@@ -94,6 +94,23 @@ lane of the same `vp-simd` block.
 source register must be the value it had *before* the `vp-simd` operation began,
 not an intermediate result from a concurrent lane.
 
+## Auto vector extension
+
+All vectors provided are extended, or padded, to the size of the maximum length
+of the vectors by relicating the last element as required.
+
+```vdu
+(vp-simd vp-add-cr '(1) '(:r0 :r1 :r2))
+```
+
+Would increment all registers.
+
+```vdu
+(vp-simd vp-cpy-ir '(:r0 :r1 :r2) '(0) '(:r0 :r1 :r2))
+```
+
+Would read from `(:rX 0)` for all indices.
+
 ## The Power of Dimensional Reduction: Thinking in Objects, Not Components
 
 The true beauty of `vp-simd` is how it elevates the programmer's thinking. It
