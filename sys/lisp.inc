@@ -1,5 +1,6 @@
 ;import symbols
 (import "./kernel/lisp.inc")
+(import "service/lock/app.inc")
 
 (ffi "sys/kernel/lisp_stats" kernel-stats)
 (ffi "sys/load/lisp_path" load-path)
@@ -91,19 +92,16 @@
 	; (task-timeout s) -> ns
 	(if (starts-with "obj/vp64" (load-path)) (* time 10000000) (* time 1000000)))
 
-;jit helper, lock file is not very effective here...
+;jit helper
 (defun jit (prefix file products)
 	(bind '(_ *cpu* *abi*) (map (const sym) (split (load-path) "/")))
 	(defq obj_prefix (cat "obj/" *cpu* "/" *abi* "/" prefix)
-		lock_file (cat obj_prefix "lock") file (cat prefix file))
-	(while (/= (age lock_file) 0) (task-sleep 1000))
-	(when (some (# (> (age file) (age (cat obj_prefix %0)))) products)
-		(catch
-			(progn
-				(save "lock" lock_file)
-				(within-compile-env (lambda () (include file)))
-				(pii-remove lock_file))
-			(progn (pii-remove lock_file) :nil))))
+		file (cat prefix file) file_age (age file))
+	(when (some (# (> file_age (age (cat obj_prefix %0)))) products)
+		(lock-claim-rpc obj_prefix)
+		(when (some (# (> file_age (age (cat obj_prefix %0)))) products)
+			(catch (within-compile-env (# (include file))) :nil))
+		(lock-release-rpc obj_prefix)))
 
 (enums +file_open 0
 	(enum read write append))

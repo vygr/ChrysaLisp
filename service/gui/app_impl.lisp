@@ -81,9 +81,10 @@
 	(. *mouse* :set_flags +view_flag_at_front (const (+ +view_flag_solid +view_flag_at_front)))
 	(. *screen* :add_front *mouse*)
 	(mouse-type *screen* 0 0)
-	;fire up the login app and clipboard service
-	(open-child "apps/login/app.lisp" +kn_call_open)
+	;fire up the login app and clipboard service etc
 	(open-child "service/clipboard/app.lisp" +kn_call_open)
+	(open-child "service/lock/app.lisp" +kn_call_open)
+	(open-child "apps/login/app.lisp" +kn_call_open)
 	(open-child "service/audio/app.lisp" +kn_call_open)
 	(mail-timeout (elem-get select +select_timer) +rate 0)
 	(while *running*

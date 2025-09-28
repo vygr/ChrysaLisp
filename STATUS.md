@@ -4,6 +4,12 @@
 
 ------
 
+`*Lock` service added. This still requires further work, but it removes the idea
+of lock files within the file system during Jit worker compilation. It should be
+one such service per file system plus it has other serialization issues ATM.
+
+------
+
 Terminal app fix for user input.
 
 New `(bit-mask mask ...) -> val` function and
