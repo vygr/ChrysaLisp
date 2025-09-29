@@ -84,41 +84,31 @@
 	;fire up the login app and clipboard service etc
 	(open-child "service/clipboard/app.lisp" +kn_call_open)
 	(open-child "service/lock/app.lisp" +kn_call_open)
-	(open-child "apps/login/app.lisp" +kn_call_open)
 	(open-child "service/audio/app.lisp" +kn_call_open)
+	(open-child "apps/login/app.lisp" +kn_call_open)
 	(mail-timeout (elem-get select +select_timer) +rate 0)
 	(while *running*
 		(let* ((idx (mail-select select)) (msg (mail-read (elem-get select idx))))
-			(cond
-				((= idx +select_main)
-					;main mailbox
+			(case idx
+				(+select_main	;main mailbox
 					(bind '(cmd view owner reply) msg)
-					(cond
-						((= cmd 0)
-							;quit all
+					(case cmd
+						(0	;quit all
 							(close-apps :t))
-						((= cmd 1)
-							;quit all, restart login
+						(1	;quit all, restart login
 							(close-apps :nil))
-						((= cmd 2)
-							;hide and sub view
+						(2	;hide and sub view
 							(.-> view :hide :sub))
-						((= cmd 3)
-							;add view at front
+						(3	;add view at front
 							(. view :set_owner owner)
 							(. *screen* :add_back view)
 							(. view :to_front))
-						((= cmd 4)
-							;add view at back
+						(4	;add view at back
 							(. view :set_owner owner)
 							(. *screen* :add_back view)
 							(. view :set_flags +view_flag_dirty_all +view_flag_dirty_all)))
 					(mail-send reply msg))
-				((= idx +select_mouse)
-					;mouse mailbox
-					)
-				((= idx +select_timer)
-					;timer event
+				(+select_timer	;timer event
 					(mail-timeout (elem-get select +select_timer) +rate 0)
 					(gui-update *mouse_x* *mouse_y* 0)
 					;dispatch events, roll up mouse motion

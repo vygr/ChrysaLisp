@@ -22,6 +22,5 @@
 						(progn
 							(. lock_map :insert key lock_que)
 							(mail-send (first lock_que) "")))
-					(mail-send reply_id ""))
-				)))
+					(mail-send reply_id "")))))
 	(mail-forget lock_service))
