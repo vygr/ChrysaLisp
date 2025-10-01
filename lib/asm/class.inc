@@ -298,10 +298,9 @@
 	;_2 = member name
 	;_3 = in parameters
 	;_4 = dispatch reg
-	(setd _4 :r14)
 	(if (eql (second (defq m (method-lookup _1 _2))) :static)
 		(throw "Method is static ! Use f-jmp ?" (list _1 _2)))
-	(if (find _4 (defq _ (third m)))
+	(if (find (setd _4 :r14) (defq _ (third m)))
 		(throw "Dispatch register conflicts with arg !" (list _4 _)))
 	(assign _3 _)
 	(vp-cpy-ir :r0 obj_vtable _4)
@@ -354,9 +353,8 @@
 	;_3 = in parameters
 	;_4 = out parameters
 	;_5 = dispatch reg
-	(setd _5 :r14)
 	(defq m (method-lookup _1 _2) _ (third m))
-	(if (find _5 _)
+	(if (find (setd _5 :r14) _)
 		(throw "Dispatch register conflicts with arg !" (list _5 _)))
 	(assign _3 (cat _ (list _5)))
 	(vp-call-r _5)
@@ -367,9 +365,8 @@
 	;_2 = member name
 	;_3 = in parameters
 	;_4 = dispatch reg
-	(setd _4 :r14)
 	(defq m (method-lookup _1 _2) _ (third m))
-	(if (find _4 _)
+	(if (find (setd _4 :r14) _)
 		(throw "Dispatch register conflicts with arg !" (list _4 _)))
 	(assign _3 (cat _ (list _4)))
 	(scope-unwind)
