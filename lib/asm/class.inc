@@ -97,8 +97,7 @@
 	(each (lambda ((_ mname mfunc &optional mtype regs_in regs_out))
 		(setd mtype :static)
 		(and regs_in (lmatch? regs_in '(abi-args _)) (setq regs_in (eval regs_in)))
-		(defq m (if (defq s (rfind mname (first vtable))) (elem-get (second vtable) s)))
-		(if m
+		(if (defq m (if (defq s (rfind mname (first vtable))) (elem-get (second vtable) s)))
 			(case mtype
 				;existing method
 				(:static
@@ -283,10 +282,9 @@
 	;_4 = out parameters
 	;_5 = obj reg
 	;_6 = dispatch reg
-	(setd _5 :r0 _6 :r14)
 	(if (eql (second (defq m (method-lookup _1 _2))) :static)
 		(throw "Method is static ! Use f-call ?" (list _1 _2)))
-	(if (find _6 (defq _ (third m)))
+	(if (find (setd _5 :r0 _6 :r14) (defq _ (third m)))
 		(throw "Dispatch register conflicts with arg !" (list _6 _)))
 	(assign _3 _)
 	(vp-cpy-ir _5 obj_vtable _6)
