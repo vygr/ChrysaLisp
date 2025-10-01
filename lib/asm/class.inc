@@ -442,7 +442,7 @@
 		(s-call _1 :type '(:r0) '(:r0 :r1))
 		(vp-push :r0 :r1)
 		(call 'sym :ref_static_sym `(,(sym (cat "static_sym_" _1))) '(:r1))
-		(call 'list :push_back '((:rsp 0) :r1) '(:r1 _ _ _))
+		(call 'list :push_back '((:rsp 0) :r1))
 		(vp-pop :r0 :r1)
 		(exit _1 :type '(:r0 :r1))
 		(vp-ret)
