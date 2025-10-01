@@ -55,16 +55,12 @@
 
 (defun assign-ignored-to-asm ()
 	(defq s (list) d (list))
-	(each! (lambda (x y)
-		(unless (or (eql x y) (eql y '_))
-			(push s x) (push d y))) (list src dst))
+	(each (# (unless (or (eql %0 %1) (eql %1 '_)) (push s %0) (push d %1))) src dst)
 	(setq src s dst d))
 
 (defun assign-ignored-to-script ()
 	(defq s (list) d (list))
-	(each! (lambda (x y)
-		(unless (eql y "_")
-			(push s x) (push d y))) (list src dst))
+	(each (# (unless (eql %1 "_") (push s %0) (push d %1))) src dst)
 	(setq src s dst d))
 
 (defun assign-topology-sort ()
