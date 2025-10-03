@@ -100,7 +100,7 @@
 				(push out_tokens "[]")
 				(push out_types :operator))
 			(:operator
-				;precidence
+				;precedence
 				(unless (defq s (scope-get-sym token))
 					(throw "Operator not defined !" token))
 				(defq v (- (third s) (elem-get s 3)) x :t)
