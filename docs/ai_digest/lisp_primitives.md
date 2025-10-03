@@ -537,7 +537,7 @@ evaluation.
 
 *   **`eval-list`**: Evaluates each element in a list.
 
-    * `(eval-list list [env]) -> 'form`
+    * `(eval-list list [env]) -> list`
 
 *   **`apply`**: Calls a function with a list of arguments.
 

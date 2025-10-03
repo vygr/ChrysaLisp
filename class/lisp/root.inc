@@ -250,7 +250,7 @@
 (ffi "class/lisp/lisp_eval" eval)
 ; (eval form [env]) -> 'form
 (ffi "class/lisp/lisp_eval_list" eval-list)
-; (eval-list form [env]) -> 'form
+; (eval-list list [env]) -> list
 (ffi "class/lisp/lisp_identity" identity)
 ; (identity [form]) -> :nil | form
 (ffi "class/lisp/lisp_apply" apply)
