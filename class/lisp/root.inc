@@ -114,7 +114,7 @@
 (ffi "class/array/lisp_push" push)
 ; (push array elem ...) -> array
 (ffi "class/array/lisp_pop" pop)
-; (pop array) -> elem
+; (pop array) -> elem | :nil
 (ffi "class/array/lisp_eset" elem-set)
 ; (elem-set array idx elem) -> array
 
@@ -187,7 +187,7 @@
 (ffi "class/stream/lisp_fstream" file-stream)
 ; (file-stream path [mode]) -> :nil | stream
 (ffi "class/stream/lisp_readchar" read-char)
-; (read-char stream [width]) -> :nil | str
+; (read-char stream [width]) -> :nil | num
 (ffi "class/stream/lisp_readline" read-line)
 ; (read-line stream) -> :nil | str
 (ffi "class/stream/lisp_readavail" read-avail)
@@ -246,7 +246,7 @@
 (ffi "class/lisp/lisp_bind" bind)
 ; (bind (sym ...) seq) -> val
 (ffi "class/lisp/lisp_read" read)
-; (read stream [last_char]) -> :nil | form
+; (read stream [last_char]) -> :nil | (form next_char)
 (ffi "class/lisp/lisp_eval" eval)
 ; (eval form [env]) -> 'form
 (ffi "class/lisp/lisp_eval_list" eval-list)
