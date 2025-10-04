@@ -1,4 +1,4 @@
-# Operate on all dimensions simultainisusly
+# Operate on all dimensions simultaneously
 
 That is an insight that elevates the understanding of `vp-simd` from a simple
 function to a profound philosophical tool for thought.
