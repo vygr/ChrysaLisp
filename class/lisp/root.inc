@@ -933,7 +933,8 @@
 
 (defun trim (s &optional cls)
 	; (trim str [cls]) -> str
-	(trim-start (trim-end s cls) cls))
+	(setq cls (ifn cls " ") s (slice s (bskip cls s 0) -1))
+	(while (bfind (last s) cls) (setq s (most s))) s)
 
 (defun split (s &optional cls)
 	; (split str [cls]) -> strs
