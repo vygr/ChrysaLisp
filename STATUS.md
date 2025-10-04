@@ -8,6 +8,9 @@
 of lock files within the file system during Jit worker compilation. It should be
 one such service per file system plus it has other serialization issues ATM.
 
+`(bskip cls str idx) -> idx` and `(bskipn cls str idx) -> idx` can now take the
+input index as a negative value like the `(slice seq start end)` function.
+
 ------
 
 Terminal app fix for user input.

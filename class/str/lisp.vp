@@ -487,6 +487,7 @@
 
 	(list-bind-args args `(,cls ,ss ,si) '(:obj :obj :num))
 	(assign `((,ss str_length)) `(,sj))
+	(lisp-elem-index si sj)
 	(errorcase
 		(gotoif `(,si < 0) 'error)
 		(gotoif `(,si > ,sj) 'error))
@@ -555,6 +556,7 @@
 
 	(list-bind-args args `(,cls ,ss ,si) '(:obj :obj :num))
 	(assign `((,ss str_length)) `(,sj))
+	(lisp-elem-index si sj)
 	(errorcase
 		(gotoif `(,si < 0) 'error)
 		(gotoif `(,si > ,sj) 'error))
