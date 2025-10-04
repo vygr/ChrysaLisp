@@ -21,10 +21,6 @@
 
 (defq +LF (ascii-char 10))
 
-(defun parent? (info)
-	(some! (# (if (bfind %0 +char_class_upper) %0))
-		(list info) :nil 2))
-
 (defun information (stream info)
 	(when (nempty? info)
 		(write-line stream "```code")
@@ -124,7 +120,6 @@
 	(setq docs_map (tree-load (string-stream (str docs_map))))
 
 	;create classes docs
-	(defq class_list (. docs_map :find :classes))
 	(each (lambda ((name pname methods info))
 			(defq document (cat "docs/reference/classes/" name ".md")
 				stream (file-stream document +file_open_write))
@@ -136,12 +131,11 @@
 					(information stream info))
 				(sort methods (# (cmp (first %0) (first %1)))))
 			(print "-> " document))
-		(sort class_list (# (cmp (first %0) (first %1)))))
+		(sort (. docs_map :find :classes) (# (cmp (first %0) (first %1)))))
 
 	;create key bindings docs
 	(defq document "docs/reference/keys.md" current_file ""
-		stream (file-stream document +file_open_write)
-		keys_list (. docs_map :find :keys))
+		stream (file-stream document +file_open_write))
 	(write-line stream (cat "# Key Bindings" +LF))
 	(each (lambda ((file name info))
 			(unless (eql file current_file)
@@ -152,32 +146,30 @@
 				(write-line stream "```code")
 				(each (# (write-line stream %0)) info)
 				(write-line stream (cat "```" +LF))))
-		(sort keys_list (# (if (/= 0 (defq _ (cmp (first %0) (first %1))))
+		(sort (. docs_map :find :keys) (# (if (/= 0 (defq _ (cmp (first %0) (first %1))))
 			_ (cmp (second %0) (second %1))))))
 	(print "-> " document)
 
 	;create functions docs
 	(defq document "docs/reference/functions.md"
-		stream (file-stream document +file_open_write)
-		functions (. docs_map :find :functions))
+		stream (file-stream document +file_open_write))
 	(write-line stream (cat "# Functions" +LF))
 	(each (lambda ((name info))
 			(when (nempty? info)
 				(write-line stream (cat "### " name +LF))
 				(information stream info)))
-		(sort functions (# (cmp (first %0) (first %1)))))
+		(sort (. docs_map :find :functions) (# (cmp (first %0) (first %1)))))
 	(print "-> " document)
 
 	;create macros docs
 	(defq document "docs/reference/macros.md"
-		stream (file-stream document +file_open_write)
-		macros (. docs_map :find :macros))
+		stream (file-stream document +file_open_write))
 	(write-line stream (cat "# Macros" +LF))
 	(each (lambda ((name info))
 			(when (nempty? info)
 				(write-line stream (cat "### " name +LF))
 				(information stream info)))
-		(sort macros (# (cmp (first %0) (first %1)))))
+		(sort (. docs_map :find :macros) (# (cmp (first %0) (first %1)))))
 	(print "-> " document)
 
 	;create commands docs
