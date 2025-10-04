@@ -2,6 +2,7 @@
 (import "lib/options/options.inc")
 (import "lib/files/files.inc")
 (import "lib/task/cmd.inc")
+(import "lib/task/pipe.inc")
 
 (defq usage `(
 (("-h" "--help")
@@ -113,62 +114,17 @@
 					(write-line stream (const (str "```" +LF))))) methds))
 		(print (cat "-> docs/reference/vp_classes/" cls ".md"))) classes)
 
-	;scan for Lisp functions and classes info
-	(defq classes (list) functions (list) macros (list) keys (list))
-	(each (lambda (file)
-		(defq state :nil info :nil methods :nil)
-		(lines! (lambda (line) (while line
-			(case state
-				((:function :class :method)
-					(cond
-						((and (nempty? (defq s (split line +char_class_space)))
-								(starts-with ";" (first s)))
-							(push info (trim (slice line (inc (find ";" line)) -1)))
-							(setq line :nil))
-						((setq state :nil))))
-				(:keys
-					(cond
-						((nempty? (defq s (split line +char_class_space)))
-							(push info (trim-start (trim-end line ")") (ascii-char 9)))
-							(setq line :nil))
-						((setq state :nil))))
-				(:t (defq words (split line (const (char-class " ()'\t\r"))) line :nil)
-					(when (>= (length words) 2)
-						(defq type (first words) name (second words))
-						(unless (or (some (# (eql name %0))
-										'(":type_of" ",predn" ",n"
-										"_structure" "defun" "defmacro"))
-									(starts-with "action-" name))
-							(case type
-								(("*key_map*" "*key_map_shift*" "*key_map_control*")
-									(push keys (list file type (setq info (list))))
-									(setq state :keys))
-								("defun"
-									(push functions (list name (setq info (list))))
-									(setq state :function))
-								("defmacro"
-									(push macros (list name (setq info (list))))
-									(setq state :function))
-								("defclass"
-									(push classes (list name (parent? words)
-										(setq methods (list)) (setq info (list))))
-									(setq state :class))
-								(("defmethod" "deffimethod" "defabstractmethod")
-									(push methods (list name (setq info (list))))
-									(setq state :method))
-								("defgetmethod"
-									(push methods (list (cat ":get_" name) (setq info (list))))
-									(setq state :nil))
-								("defsetmethod"
-									(push methods (list (cat ":set_" name) (setq info (list))))
-									(setq state :nil)))))))))
-			(file-stream file)))
-		(sanitize (cat
+	;scan for Lisp functions, macros, classes and keys info
+	(defq docs_map (string-stream ""))
+	(pipe-run (cat "docs " (join (sanitize (cat
 			(files-all "." '("lisp.inc" "actions.inc") 2)
 			(files-all "./lib" '(".inc") 2)
-			'("class/lisp/root.inc" "class/lisp/task.inc"))))
+			'("class/lisp/root.inc" "class/lisp/task.inc"))) " "))
+		(# (write docs_map %0)))
+	(setq docs_map (tree-load (string-stream (str docs_map))))
 
 	;create classes docs
+	(defq class_list (. docs_map :find :classes))
 	(each (lambda ((name pname methods info))
 			(defq document (cat "docs/reference/classes/" name ".md")
 				stream (file-stream document +file_open_write))
@@ -180,11 +136,12 @@
 					(information stream info))
 				(sort methods (# (cmp (first %0) (first %1)))))
 			(print "-> " document))
-		(sort classes (# (cmp (first %0) (first %1)))))
+		(sort class_list (# (cmp (first %0) (first %1)))))
 
 	;create key bindings docs
 	(defq document "docs/reference/keys.md" current_file ""
-		stream (file-stream document +file_open_write))
+		stream (file-stream document +file_open_write)
+		keys_list (. docs_map :find :keys))
 	(write-line stream (cat "# Key Bindings" +LF))
 	(each (lambda ((file name info))
 			(unless (eql file current_file)
@@ -195,13 +152,14 @@
 				(write-line stream "```code")
 				(each (# (write-line stream %0)) info)
 				(write-line stream (cat "```" +LF))))
-		(sort keys (# (if (/= 0 (defq _ (cmp (first %0) (first %1))))
+		(sort keys_list (# (if (/= 0 (defq _ (cmp (first %0) (first %1))))
 			_ (cmp (second %0) (second %1))))))
 	(print "-> " document)
 
 	;create functions docs
 	(defq document "docs/reference/functions.md"
-		stream (file-stream document +file_open_write))
+		stream (file-stream document +file_open_write)
+		functions (. docs_map :find :functions))
 	(write-line stream (cat "# Functions" +LF))
 	(each (lambda ((name info))
 			(when (nempty? info)
@@ -212,7 +170,8 @@
 
 	;create macros docs
 	(defq document "docs/reference/macros.md"
-		stream (file-stream document +file_open_write))
+		stream (file-stream document +file_open_write)
+		macros (. docs_map :find :macros))
 	(write-line stream (cat "# Macros" +LF))
 	(each (lambda ((name info))
 			(when (nempty? info)
@@ -256,7 +215,7 @@
 			ai (rfind "ai" args))
 		(cond
 			(test (make-test))
-			(it (make-docs) (remake-all-platforms))
+			(it (remake-all-platforms) (make-docs))
 			((and boot all platforms) (remake-all-platforms))
 			((and boot all) (remake-all))
 			((and boot platforms) (remake-platforms))

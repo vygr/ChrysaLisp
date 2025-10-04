@@ -175,6 +175,12 @@ should provide the concreate handler
 (defsetmethod field)
 ```
 
+### defun
+
+```code
+(defun name ([arg ...]) body)
+```
+
 ### each
 
 ```code

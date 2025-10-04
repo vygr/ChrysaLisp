@@ -4,7 +4,7 @@ Usage: cat [options] [path] ...
 
 	options:
 		-h --help: this help info.
-		-f --file: preprend file name.
+		-f --file: prepend file name.
 
 	If no paths given on command line
 	then paths are read from stdin.
@@ -28,6 +28,19 @@ Usage: diff [options] file_a [file_b]
 
 	Calculate patch between text file a and text file b.
 	If no second file is given it will be read from stdin.
+```
+## docs
+```code
+Usage: docs [options] [path] ...
+
+	options:
+		-h --help: this help info.
+
+	Scan for documentation in files, creates
+	a merged tree of all the information.
+
+	If no paths given on command line
+	then will take paths from stdin.
 ```
 ## dump
 ```code
@@ -231,7 +244,7 @@ Usage: repeat [options] command_line
 
 	options:
 		-h --help: this help info.
-		-c --count: count, defult 10.
+		-c --count: count, default 10.
 
 	Repeat run command line.
 ```
@@ -294,7 +307,7 @@ Usage: split [options]
 
 	Split the lines from stdin to stdout.
 
-	Optionaly select a specific element of
+	Optionally select a specific element of
 	the split.
 ```
 ## stats

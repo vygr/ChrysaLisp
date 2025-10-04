@@ -34,6 +34,12 @@ parse the commands and attributes calling back to the user functions
 (abs-path path [current]) -> path
 ```
 
+### action-quit
+
+```code
+launch logout app
+```
+
 ### age
 
 ```code
