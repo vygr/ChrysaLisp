@@ -11,7 +11,7 @@
 
 	Split the lines from stdin to stdout.
 
-	Optionaly select a specific element of
+	Optionally select a specific element of
 	the split.")
 (("-s" "--sep")
 	,(lambda (args arg)
