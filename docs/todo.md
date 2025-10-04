@@ -13,7 +13,7 @@ just get in touch.
 
 * Finish off the usage specs for all the `ffi` bindings.
 
-* `rbskip` and `rbskipn` primitives should be added.
+* `rbskip` and `rbskipn` primitives should be added. Use on `trim-end`.
 
 * add a `select_form` and `cut_form` actions to the Editor. This should select
 the current atom or matched brackets.

@@ -924,12 +924,12 @@
 
 (defun trim-start (s &optional cls)
 	; (trim-start str [cls]) -> str
-	(if (= (setq cls (bskip (ifn cls " ") s 0)) 0) s (slice s cls -1)))
+	(slice s (bskip (ifn cls " ") s 0) -1))
 
 (defun trim-end (s &optional cls)
 	; (trim-end str [cls]) -> str
 	(setd cls " ")
-	(while (bfind (last s) cls) (setq s (slice s 0 -2))) s)
+	(while (bfind (last s) cls) (setq s (most s))) s)
 
 (defun trim (s &optional cls)
 	; (trim str [cls]) -> str
