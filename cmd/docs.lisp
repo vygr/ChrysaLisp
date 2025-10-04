@@ -25,16 +25,13 @@
 	(defq state :nil info :nil methods :nil split_cls (char-class " ()'\t\r"))
 	(lines! (lambda (line)
 		(when (find state '(:function :macro :class :method))
-			(defq line_trim (trim line +char_class_space))
-			(if (starts-with ";" line_trim)
+			(if (starts-with ";" (defq line_trim (trim line +char_class_space)))
 				(push info (trim-start (rest line_trim)))
 				(setq state :nil)))
 		(when (eql state :keys)
-			(defq line_split (split line +char_class_space))
-			(cond
-				((nempty? line_split)
-					(push info (trim-start (trim-end line ")") +char_class_space)))
-				((setq state :nil))))
+			(if (nempty? (split line +char_class_space))
+				(push info (trim-start (trim-end line ")") +char_class_space))
+				(setq state :nil)))
 		(when (eql state :nil)
 			(defq line_split (split line split_cls)
 				type (first line_split) name (second line_split))
@@ -69,7 +66,7 @@
 	(when (and
 			(defq stdio (create-stdio))
 			(defq args (options stdio usage)))
-		(defq doc_map (Fmap) function_list (list) macro_list (list)
+		(defq function_list (list) macro_list (list)
 			class_list (list) key_list (list))
 		;from args ?
 		(if (empty? (defq jobs (rest args)))
@@ -82,9 +79,6 @@
 			(each (lambda ((job result)) (merge-work result))
 				(pipe-farm (map (# (cat (first args) " " %0)) jobs))))
 		;output results
-		(. doc_map :insert :functions function_list)
-		(. doc_map :insert :macros macro_list)
-		(. doc_map :insert :classes class_list)
-		(. doc_map :insert :keys key_list)
-		(tree-save (io-stream 'stdout) doc_map)
-		(stream-flush (io-stream 'stdout))))
+		(tree-save (io-stream 'stdout) (scatter (Lmap)
+			:macros macro_list :classes class_list
+			:functions function_list :keys key_list))))
