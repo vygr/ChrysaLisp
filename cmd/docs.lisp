@@ -54,7 +54,7 @@
 		(file-stream file)))
 
 ;merge child work
-(defun merge-work (result)
+(defun merge-work ((job result))
 	(defq work_map (tree-load (string-stream result)))
 	(setq function_list (cat function_list (. work_map :find :functions))
 		macro_list (cat macro_list (. work_map :find :macros))
@@ -76,7 +76,7 @@
 			;have to do the work when just 1 file !
 			(work (pop jobs))
 			;do them all out there, by calling myself !
-			(each (lambda ((job result)) (merge-work result))
+			(each (const merge-work)
 				(pipe-farm (map (# (cat (first args) " " %0)) jobs))))
 		;output results
 		(tree-save (io-stream 'stdout) (scatter (Lmap)
