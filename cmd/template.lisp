@@ -7,6 +7,7 @@
 
 	options:
 		-h --help: this help info.
+		-j --jobs num: max jobs per batch, defaults 1.
 
 	Template command app for you to copy as
 	a starting point.
@@ -15,6 +16,10 @@
 
 	If no paths given on command line
 	then will take paths from stdin.")
+(("-j" "--jobs")
+	,(lambda (args arg)
+		(setq max_jobs (str-as-num (first args)))
+		(rest args)))
 ))
 
 ;do the work on a file
@@ -25,14 +30,17 @@
 	;initialize pipe details and command args, abort on error
 	(when (and
 			(defq stdio (create-stdio))
-			(defq args (options stdio usage)))
+			(defq max_jobs 1 args (options stdio usage)))
 		;from args ?
 		(if (empty? (defq jobs (rest args)))
 			;no, so from stdin
 			(lines! (# (push jobs %0)) (io-stream 'stdin)))
-		(if (<= (length jobs) 1)
-			;have to do the work when just 1 file !
-			(work (pop jobs))
-			;do them all out there, by calling myself !
+		(if (<= (length jobs) max_jobs)
+			;do the work when less than max_jobs !
+			(each (const work) jobs)
+			;do the jobs out there, by calling myself !
 			(each (lambda ((job result)) (prin result))
-				(pipe-farm (map (# (cat (first args) " " %0)) jobs))))))
+				(pipe-farm (map (# (str (first args)
+						" -j " max_jobs
+						" " (slice (str %0) 1 -2)))
+					(partition jobs max_jobs)))))))

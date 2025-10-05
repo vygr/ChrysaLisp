@@ -112,7 +112,7 @@
 
 	;scan for Lisp functions, macros, classes and keys info
 	(defq docs_map (string-stream ""))
-	(pipe-run (cat "docs " (join (sanitize (cat
+	(pipe-run (cat "docs -j 8 " (join (sanitize (cat
 			(files-all "." '("lisp.inc" "actions.inc") 2)
 			(files-all "./lib" '(".inc") 2)
 			'("class/lisp/root.inc" "class/lisp/task.inc"))) " "))

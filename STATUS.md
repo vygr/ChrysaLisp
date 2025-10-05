@@ -11,6 +11,9 @@ one such service per file system plus it has other serialization issues ATM.
 `(bskip cls str idx) -> idx` and `(bskipn cls str idx) -> idx` can now take the
 input index as a negative value like the `(slice seq start end)` function.
 
+New `docs` command app. Used to scan source files for documentation. This is now
+used by the `make docs` command to scan documents in parallel.
+
 ------
 
 Terminal app fix for user input.
