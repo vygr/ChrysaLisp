@@ -16,7 +16,7 @@
 	then will take paths from stdin.")
 (("-j" "--jobs")
 	,(lambda (args arg)
-		(setq max_jobs (str-as-num (first args)))
+		(setq opt_jobs (str-as-num (first args)))
 		(rest args)))
 ))
 
@@ -70,22 +70,22 @@
 	;initialize pipe details and command args, abort on error
 	(when (and
 			(defq stdio (create-stdio))
-			(defq max_jobs 1 args (options stdio usage)))
+			(defq opt_jobs 1 args (options stdio usage)))
 		(defq function_list (list) macro_list (list)
 			class_list (list) key_list (list))
 		;from args ?
 		(if (empty? (defq jobs (rest args)))
 			;no, so from stdin
 			(lines! (# (push jobs %0)) (io-stream 'stdin)))
-		(if (<= (length jobs) max_jobs)
-			;do the work when less than max_jobs !
+		(if (<= (length jobs) opt_jobs)
+			;do the work when less than opt_jobs !
 			(each (const work) jobs)
 			;do the jobs out there, by calling myself !
 			(each (const merge-work)
 				(pipe-farm (map (# (str (first args)
-						" -j " max_jobs
+						" -j " opt_jobs
 						" " (slice (str %0) 1 -2)))
-					(partition jobs max_jobs)))))
+					(partition jobs opt_jobs)))))
 		;output results
 		(tree-save (io-stream 'stdout) (scatter (Lmap)
 			:macros macro_list :classes class_list
