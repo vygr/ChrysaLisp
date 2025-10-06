@@ -19,6 +19,8 @@ used by the `make docs` command to scan documents in parallel.
 New `(rbskip cls str idx) -> idx` and `(rbskipn cls str idx) -> idx` functions,
 uses slice end index compatible style.
 
+Fix for the Editor open files tree layout problem.
+
 ------
 
 Terminal app fix for user input.
