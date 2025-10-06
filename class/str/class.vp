@@ -854,7 +854,6 @@
 		(loop-until `(,ci = ,cj))
 	(endif)
 
-(vp-label 'notfound)
 	(exit 'str :bfind `(,this ,c -1))
 	(vp-ret)
 
