@@ -132,7 +132,7 @@
 	(def *open_tree_scroll* :min_width w)
 	(. *file_tree* :change 0 0 w h)
 	(bind '(w h) (. *open_tree* :pref_size))
-	(. *open_tree* :change 0 0 w h)
+	(. *open_tree* :change 0 0 w h :t)
 	(.-> *open_tree_scroll* :layout :dirty_all)
 	(.-> *file_tree_scroll* :layout :dirty_all))
 
