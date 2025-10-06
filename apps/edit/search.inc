@@ -207,7 +207,7 @@
 				(and (> (length line) 10) (eql "(" (first line))
 					(>= (length (defq s (split line (const (char-class " ()\r\t"))))) 2)
 					(find (first s) '("defun" "defmacro" "redefun" "redefmacro" "defclass" "ffi"))
-					(eql (second s) name) (setq pos (list file 0 (!)))))
+					(or (eql (second s) name) (eql (third s) name)) (setq pos (list file 0 (!)))))
 				(file-stream file)) pos)
 			(sort (cat *open_files*)))
 		(when pos

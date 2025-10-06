@@ -21,6 +21,9 @@ uses slice end index compatible style.
 
 Fix for the Editor open files tree layout problem.
 
+Fix for the Editor `action-find-function` problem, due to the change in `ffi`
+syntax.
+
 ------
 
 Terminal app fix for user input.
