@@ -25,7 +25,7 @@
 	(if (= i (length *strings*)) (push *strings* s)) i)
 
 (defun fn-add-path (p)
-	(if (defq i (rfind p *paths*)) i
+	(if (defq i (find p *paths*)) i
 		(dec (length (push *paths* p)))))
 
 (defun fn-add-link (p)

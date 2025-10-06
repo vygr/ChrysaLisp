@@ -37,7 +37,7 @@
 	(defq ps (clear '()) pv (clear '()))
 	(each! (lambda (s v)
 		(cond
-			((defq i (rfind s ps))
+			((defq i (find s ps))
 				(elem-set ps i s) (elem-set pv i v))
 			(:t (push ps s) (push pv v))))
 		(unzip (ifn p '()) 2))

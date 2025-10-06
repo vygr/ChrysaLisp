@@ -10,7 +10,7 @@
 (import "./widgets.inc")
 
 (enums +dlist 0
-	(enum mask commited_canvas overlay_canvas commited_polygons overlay_paths))
+	(enum mask commited_canvas overlay_canvas committed_polygons overlay_paths))
 
 (enums +path 0
 	(enum mode color radius path))
@@ -25,7 +25,7 @@
 	*radiuss* (map (const n2f) '(2 6 12)) *stroke_radius* (first *radiuss*)
 	*undo_stack* (list) *redo_stack* (list)
 	*stroke_col* (first *palette*) *stroke_mode* +event_pen
-	*commited_polygons* (list) overlay_paths (list)
+	*committed_polygons* (list) overlay_paths (list)
 	*picker_mbox* :nil *picker_mode* :nil *running* :t
 	rate (/ 1000000 60) +layer_all (+ +layer_commited +layer_overlay))
 
@@ -65,18 +65,18 @@
 
 (defun snapshot ()
 	;take a snapshot of the canvas state
-	(push *undo_stack* (cat *commited_polygons*))
+	(push *undo_stack* (cat *committed_polygons*))
 	(clear *redo_stack*))
 
 (defun redraw-layers (mask)
 	;redraw layer/s
-	(elem-set dlist +dlist_commited_polygons (cat *commited_polygons*))
+	(elem-set dlist +dlist_committed_polygons (cat *committed_polygons*))
 	(elem-set dlist +dlist_overlay_paths (cat overlay_paths))
 	(elem-set dlist +dlist_mask (logior (elem-get dlist +dlist_mask) mask)))
 
 (defun commit (p)
 	;commit a stroke to the canvas
-	(push *commited_polygons* (flatten_path p)))
+	(push *committed_polygons* (flatten_path p)))
 
 (defun fpoly (canvas col mode _)
 	;draw a polygon on a canvas
@@ -89,7 +89,7 @@
 		(defq canvas (elem-get dlist +dlist_commited_canvas))
 		(. canvas :fill 0)
 		(each (lambda ((col poly))
-			(fpoly canvas col +winding_none_zero poly)) (elem-get dlist +dlist_commited_polygons))
+			(fpoly canvas col +winding_none_zero poly)) (elem-get dlist +dlist_committed_polygons))
 		(. canvas :swap 0))
 	(when (bits? (elem-get dlist +dlist_mask) +layer_overlay)
 		(defq canvas (elem-get dlist +dlist_overlay_canvas))
@@ -141,7 +141,7 @@
 								+file_open_write)
 							(scatter (Emap)
 								:version "CWB Version 2.0"
-								:polygons *commited_polygons*)))
+								:polygons *committed_polygons*)))
 					;load whiteboard
 					(:t (when (ends-with ".cwb" *msg*)
 							(bind '(version polygons)
@@ -149,7 +149,7 @@
 									:version :polygons))
 							(when (eql version "CWB Version 2.0")
 								(snapshot)
-								(setq *commited_polygons* polygons)
+								(setq *committed_polygons* polygons)
 								(redraw-layers +layer_commited))))))
 			((defq *id* (getf *msg* +ev_msg_target_id) action (. *event_map* :find *id*))
 				;call bound event action

@@ -201,10 +201,10 @@
 	(when (and
 			(defq stdio (create-stdio))
 			(defq args (options stdio usage)))
-		(defq all (rfind "all" args) boot (rfind "boot" args)
-			platforms (rfind "platforms" args) docs (rfind "docs" args)
-			it (rfind "it" args) test (rfind "test" args)
-			ai (rfind "ai" args))
+		(defq all (find "all" args) boot (find "boot" args)
+			platforms (find "platforms" args) docs (find "docs" args)
+			it (find "it" args) test (find "test" args)
+			ai (find "ai" args))
 		(cond
 			(test (make-test))
 			(it (remake-all-platforms) (make-docs))

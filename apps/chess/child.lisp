@@ -5,7 +5,7 @@
 
 ;piece map accses
 (defmacro piece-map (_ i)
-	`(elem-get (second ,_) (rfind ,i ,(first (eval _)))))
+	`(elem-get (second ,_) (find ,i ,(first (eval _)))))
 
 ;description of a pieces check influence
 (enums +vector 0
@@ -228,13 +228,13 @@
 (defun in-check (brd color)
 	;find king index on board
 	(if (= color +black)
-		(defq king_index (rfind "K" brd) tests black_tests)
-		(defq king_index (rfind "k" brd) tests white_tests))
+		(defq king_index (find "K" brd) tests black_tests)
+		(defq king_index (find "k" brd) tests white_tests))
 	;return in check or not
 	(some! (lambda ((pieces vectors))
 		(defq hit_pieces (piece-scans brd king_index vectors) pieces (list pieces))
 		(some! (lambda (piece)
-			(rfind piece hit_pieces)) pieces)) (list tests)))
+			(find piece hit_pieces)) pieces)) (list tests)))
 
 ;evaluate (score) a board for the color given
 (defun evaluate (brd color)

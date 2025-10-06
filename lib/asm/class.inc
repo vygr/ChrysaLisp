@@ -16,7 +16,7 @@
 (defun method-lookup (_1 _2)
 	;_1 = class name
 	;_2 = member name
-	(defq c (eval (class-sym _1)) _ (rfind _2 (first c)))
+	(defq c (eval (class-sym _1)) _ (find _2 (first c)))
 	(unless _ (throw "No such method !" (list _1 _2)))
 	(elem-get (second c) _))
 
@@ -97,7 +97,7 @@
 	(each (lambda ((_ mname mfunc &optional mtype regs_in regs_out))
 		(setd mtype :static)
 		(and regs_in (lmatch? regs_in '(abi-args _)) (setq regs_in (eval regs_in)))
-		(if (defq m (if (defq s (rfind mname (first vtable))) (elem-get (second vtable) s)))
+		(if (defq m (if (defq s (find mname (first vtable))) (elem-get (second vtable) s)))
 			(case mtype
 				;existing method
 				(:static

@@ -8,7 +8,7 @@
 (defmacro assign-type-sym (_) (static-qqp (sym (str ,_ "_t"))))
 
 (defun assign-type-t (_)
-	(if (setq _ (rfind (first _) "bBsSiI"))
+	(if (setq _ (find (first _) "bBsSiI"))
 		(elem-get '(b ub s us i ui) _) ""))
 
 (defun assign-src-type (o)
@@ -69,8 +69,8 @@
 		(if (setq j (if (list? (defq j (elem-get d i))) :nil
 				(some! (lambda (s d)
 					(cond
-						((and (list? s) (rfind j s)) (!))
-						((and (list? d) (rfind j d)) (!))
+						((and (list? s) (find j s)) (!))
+						((and (list? d) (find j d)) (!))
 						((eql j s) (!)))) (list s d) :nil -1 (inc i))))
 			(setq s (rotate s i j (inc j)) d (rotate d i j (inc j)) c (dec c))
 			(++ i)))

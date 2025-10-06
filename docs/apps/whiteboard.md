@@ -31,7 +31,7 @@ Model-View-Controller pattern in ChrysaLisp.
     * The core data of the application is the drawing itself. This is stored in
         `app.lisp` in a few key Lisp `list`s:
 
-        * **`*commited_polygons*`**: A list where each element represents a
+        * **`*committed_polygons*`**: A list where each element represents a
             completed, flattened shape on the main canvas. This is the
             "permanent" state of the drawing.
 
@@ -40,7 +40,7 @@ Model-View-Controller pattern in ChrysaLisp.
             finalized.
 
         * **`*undo_stack*` and `*redo_stack*`**: Lisp `list`s that store
-            previous states of `*commited_polygons*`, enabling the undo/redo
+            previous states of `*committed_polygons*`, enabling the undo/redo
             functionality.
 
     * The current tool settings are also part of the model's state:
@@ -59,7 +59,7 @@ Model-View-Controller pattern in ChrysaLisp.
 
         2. **`*commited_canvas*` (middle layer):** A `Canvas` widget that
             displays the finalized drawing by rendering the polygons from
-            `*commited_polygons*`.
+            `*committed_polygons*`.
 
         3. **`*overlay_canvas*` (top layer):** A `Canvas` widget used to render
             the stroke currently being drawn (`overlay_paths`) in real-time,
@@ -84,7 +84,7 @@ Model-View-Controller pattern in ChrysaLisp.
 
     * **`apps/whiteboard/ui.inc`:** Implements the handler functions. These
         functions are responsible for modifying the Model (e.g., changing
-        `*stroke_mode*` or adding a polygon to `*commited_polygons*`) and
+        `*stroke_mode*` or adding a polygon to `*committed_polygons*`) and
         triggering redraws of the View.
 
 ### 2. The Drawing Lifecycle: From Mouse Click to Committed Shape
@@ -123,10 +123,10 @@ understanding the app's architecture.
     `*strokes*` widget signals that the stroke is complete.
 
     * The `action-stroke` function calls `(snapshot)` to save the current state
-        of `*commited_polygons*` to the `*undo_stack*`.
+        of `*committed_polygons*` to the `*undo_stack*`.
 
     * It then calls `(commit p)` to take the final path from `overlay_paths` and
-        append it to the main `*commited_polygons*` list.
+        append it to the main `*committed_polygons*` list.
 
     * `overlay_paths` is cleared.
 
@@ -168,20 +168,20 @@ handled by a simple state-change pattern.
 The undo system is a classic example of a state-snapshot implementation.
 
 *   **`*undo_stack*` & `*redo_stack*`:** Two lists that hold previous versions
-    of the `*commited_polygons*` list.
+    of the `*committed_polygons*` list.
 
 *   **`snapshot()`:** This function is the core of the system. It is called
-    *before* any change is made to `*commited_polygons*` (e.g., in
+    *before* any change is made to `*committed_polygons*` (e.g., in
     `action-stroke` or `action-clear`). It pushes a *full copy* of the current
-    `*commited_polygons*` list onto the `*undo_stack*` and clears the
+    `*committed_polygons*` list onto the `*undo_stack*` and clears the
     `*redo_stack*`.
 
 *   **`action-undo()`:**
 
-    1. Pushes the *current* `*commited_polygons*` state onto the `*redo_stack*`.
+    1. Pushes the *current* `*committed_polygons*` state onto the `*redo_stack*`.
 
     2. Pops the *previous* state from the `*undo_stack*` and makes it the new
-        `*commited_polygons*`.
+        `*committed_polygons*`.
 
     3. Calls `(redraw-layers +layer_commited)` to update the view.
 
@@ -208,7 +208,7 @@ dialog."
 
 *   **Serialization (`tree-save`, `tree-load`):** Once a filename is received,
     `action-save` uses `(tree-save ...)` from `lib/collections/tree.inc` to
-    serialize the application's state (specifically, the `*commited_polygons*`
+    serialize the application's state (specifically, the `*committed_polygons*`
     list) into a text file with a `.cwb` extension. `action-load` uses
     `(tree-load ...)` to parse this file and restore the state. This
     demonstrates a simple, human-readable persistence format.
