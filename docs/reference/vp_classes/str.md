@@ -44,6 +44,20 @@ trashes
 :r1-:r6
 ```
 
+### :bfind -> class/str/bfind
+
+```code
+inputs
+:r0 = str object (ptr)
+:r1 = search char (uint)
+outputs
+:r0 = str object (ptr)
+:r1 = search char (uint)
+:r2 = -1, else position (int)
+trashes
+:r2-:r6
+```
+
 ### :cat -> class/str/cat
 
 ```code

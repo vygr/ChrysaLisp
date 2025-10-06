@@ -817,3 +817,46 @@
 	(vp-ret)
 
 (def-func-end)
+
+(def-method 'str :bfind)
+	;inputs
+	;:r0 = str object (ptr)
+	;:r1 = search char (uint)
+	;outputs
+	;:r0 = str object (ptr)
+	;:r1 = search char (uint)
+	;:r2 = -1, else position (int)
+	;trashes
+	;:r2-:r6
+
+	(vp-def (this c i data ci cj ck))
+
+	(entry 'str :bfind `(,this ,c))
+
+	(assign `((,this str_length)) `(,cj))
+	(vpif `(,cj /= 0))
+		(assign `((& ,this str_data)) `(,data))
+		(assign '(0) `(,ci))
+		(loop-start)
+			(vp-lea-d ci cj i)
+			(vp-shr-cr 1 i)
+			(vp-cpy-dr-ub data i ck)
+			(vp-sub-rr c ck)
+			(gotoif `(,ck = 0) 'found)
+			(vpif `(,ck > 0))
+				(vp-cpy-rr i cj)
+			(else)
+				(vp-lea-i i 1 ci)
+			(endif)
+		(loop-until `(,ci = ,cj))
+	(endif)
+
+(vp-label 'notfound)
+	(exit 'str :bfind `(,this ,c -1))
+	(vp-ret)
+
+(vp-label 'found)
+	(exit 'str :bfind `(,this ,c ,i))
+	(vp-ret)
+
+(def-func-end)

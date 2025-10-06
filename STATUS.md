@@ -24,6 +24,9 @@ Fix for the Editor open files tree layout problem.
 Fix for the Editor `action-find-function` problem, due to the change in `ffi`
 syntax.
 
+New `'str :bfind` VP class method. All the binary search char functions now call
+down to this low level search.
+
 ------
 
 Terminal app fix for user input.
