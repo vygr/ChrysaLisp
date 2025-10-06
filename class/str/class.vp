@@ -678,7 +678,7 @@
 	(assign '((:r0 str_length)) '(:r5))
 	(vpif '(:r2 /= :r5))
 		(assign '((& :r0 str_data)) '(:r3))
-		(loop-while '(:r2 /= :r5))
+		(loop-start)
 			(vp-cpy-dr-ub :r3 :r2 :r4)
 			(gotoif '(:r1 = :r4) 'found)
 			(vp-add-cr +byte_size :r2)
