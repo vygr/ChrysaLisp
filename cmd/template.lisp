@@ -7,7 +7,7 @@
 
 	options:
 		-h --help: this help info.
-		-j --jobs num: max jobs per batch, defaults 1.
+		-j --jobs num: max jobs per batch, default 1.
 
 	Template command app for you to copy as
 	a starting point.
