@@ -151,6 +151,10 @@
 ; (bskip cls str idx) -> idx
 (ffi "class/str/lisp_bskipn" bskipn)
 ; (bskipn cls str idx) -> idx
+(ffi "class/str/lisp_rbskip" rbskip)
+; (rbskip cls str idx) -> idx
+(ffi "class/str/lisp_rbskipn" rbskipn)
+; (rbskipn cls str idx) -> idx
 
 (ffi "class/sym/lisp_sym" sym)
 ; (sym str) -> sym
@@ -928,13 +932,11 @@
 
 (defun trim-end (s &optional cls)
 	; (trim-end str [cls]) -> str
-	(setd cls " ")
-	(while (bfind (last s) cls) (setq s (most s))) s)
+	(slice s 0 (rbskip (ifn cls " ") s -1)))
 
 (defun trim (s &optional cls)
 	; (trim str [cls]) -> str
-	(setq cls (ifn cls " ") s (slice s (bskip cls s 0) -1))
-	(while (bfind (last s) cls) (setq s (most s))) s)
+	(slice s (bskip (setd cls " ") s 0) (rbskip cls s -1)))
 
 (defun split (s &optional cls)
 	; (split str [cls]) -> strs
@@ -1037,7 +1039,7 @@
 			(while (starts-with "./" lib_path)
 				(unless (defq i (rfind "/" current))
 					(throw "No relative path !" lib_path))
-				(setq current (slice current 0 i)
+				(setq current (slice current 0 (dec i))
 					lib_path (slice lib_path 2 -1)))
 			(cat current "/" lib_path))))
 

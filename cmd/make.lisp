@@ -38,12 +38,12 @@
 			'("lib/asm/" "lib/trans/" "lib/keys/"))
 			(push out %0)))) out)
 
+(defun chop (_)
+	(when (defq i (find (char 0x22) _))
+		(slice _ (inc i) (find (char 0x22) _ (inc i)))))
+
 (defun make-docs ()
 	(defq *abi* (abi) *cpu* (cpu))
-	(defun chop (_)
-		(when (defq e (rfind (char 0x22) _))
-			(setq _ (slice _ 0 e))
-			(slice _ (inc (rfind (char 0x22) _)) -1)))
 	(print "Scanning source files...")
 
 	;scan for VP classes info
@@ -186,7 +186,7 @@
 	(print "-> " document))
 
 (defun make-ai ()
-	(defq folders (Lmap)cmds (list))
+	(defq folders (Lmap) cmds (list))
 	(each (lambda (file)
 			(defq folder "host")
 			(if (defq i (find "/" file)) (setq folder (slice file 0 i)))

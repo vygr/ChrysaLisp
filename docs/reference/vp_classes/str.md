@@ -22,6 +22,10 @@
 
 ### (load path)
 
+### (rbskip cls str idx)
+
+### (rbskipn cls str idx)
+
 ### (save str path)
 
 ### (str-to-num str)
@@ -256,7 +260,7 @@ inputs
 outputs
 :r0 = str object (ptr)
 :r1 = search char (uint)
-:r2 = -1, else position (int)
+:r2 = 0, else position (int)
 trashes
 :r2-:r4
 ```

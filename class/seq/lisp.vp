@@ -275,7 +275,7 @@
 		(gotoif `(,idx < 0) 'error2)
 		(gotoif `(,idx > :r1) 'error2))
 		(call 'seq :rfind `(:r0 ,element ,idx) '(_ _ idx))
-		(vpif `(,idx = -1))
+		(vpif `(,idx = 0))
 		(vp-label 'empty)
 			(assign '((:rsp 0)) '(:r0))
 			(call 'obj :ref '((:r0 lisp_sym_nil)) '(:r0))

@@ -698,18 +698,20 @@
 	;outputs
 	;:r0 = str object (ptr)
 	;:r1 = search char (uint)
-	;:r2 = -1, else position (int)
+	;:r2 = 0, else position (int)
 	;trashes
 	;:r2-:r4
 
 	(entry 'str :rfind '(:r0 :r1 :r2))
 
-	(assign '((& :r0 str_data)) '(:r3))
-	(loop-start)
-		(vp-sub-cr +byte_size :r2)
-		(breakif '(:r2 < 0))
-		(vp-cpy-dr-ub :r3 :r2 :r4)
-	(loop-until '(:r1 = :r4))
+	(vpif '(:r2 /= 0))
+		(assign `((& :r0 ,(dec str_data))) '(:r3))
+		(loop-start)
+			(vp-cpy-dr-ub :r3 :r2 :r4)
+			(breakif '(:r1 = :r4))
+			(vp-sub-cr +byte_size :r2)
+		(loop-until '(:r2 = 0))
+	(endif)
 
 	(exit 'str :rfind '(:r0 :r1 :r2))
 	(vp-ret)

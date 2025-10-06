@@ -98,7 +98,7 @@
 	;outputs
 	;:r0 = array object (ptr)
 	;:r1 = element (long)
-	;:r2 = -1, else index (int)
+	;:r2 = 0, else index (int)
 	;trashes
 	;:r2-:r4
 
@@ -109,11 +109,13 @@
 	(assign `((,this array_begin)) `(,base))
 	(vp-shl-cr (log2 +long_size) idx)
 	(vp-add-rr base idx)
-	(loop-start)
-		(assign `((,idx ,(neg +long_size))) `(,tmp))
-		(vp-sub-cr +long_size idx)
-		(breakif `(,idx < ,base))
-	(loop-until `(,elm = ,tmp))
+	(vpif `(,idx /= ,base))
+		(loop-start)
+			(assign `((,idx ,(neg +long_size))) `(,tmp))
+			(breakif `(,elm = ,tmp))
+			(vp-sub-cr +long_size idx)
+		(loop-until `(,idx = ,base))
+	(endif)
 	(vp-sub-rr base idx)
 	(vp-asr-cr (log2 +long_size) idx)
 

@@ -178,7 +178,7 @@ inputs
 outputs
 :r0 = list object (ptr)
 :r1 = element object (ptr)
-:r2 = -1, else index (int)
+:r2 = 0, else index (int)
 trashes
 :r2-:r14
 ```

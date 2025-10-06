@@ -33,7 +33,7 @@
 			(. (ui-stroke *strokes*) :connect +event_stroke)
 			(ui-backdrop *backdrop* (:color 0xffF8F8FF :ink_color 0xffADD8E6 :style :grid)
 				(ui-canvas *overlay_canvas* +canvas_width +canvas_height 1)
-				(ui-canvas *commited_canvas* +canvas_width +canvas_height 1)))))
+				(ui-canvas *committed_canvas* +canvas_width +canvas_height 1)))))
 
 (ui-tool-tips *main_toolbar*
 	'("undo" "redo" "save" "open" "clear"))

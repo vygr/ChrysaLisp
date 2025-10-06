@@ -10,7 +10,7 @@
 (import "./widgets.inc")
 
 (enums +dlist 0
-	(enum mask commited_canvas overlay_canvas committed_polygons overlay_paths))
+	(enum mask committed_canvas overlay_canvas committed_polygons overlay_paths))
 
 (enums +path 0
 	(enum mode color radius path))
@@ -19,7 +19,7 @@
 	(enum main picker timer tip))
 
 (bits +layer 0
-	(bit commited overlay))
+	(bit committed overlay))
 
 (defq +tol 3.0
 	*radiuss* (map (const n2f) '(2 6 12)) *stroke_radius* (first *radiuss*)
@@ -27,7 +27,7 @@
 	*stroke_col* (first *palette*) *stroke_mode* +event_pen
 	*committed_polygons* (list) overlay_paths (list)
 	*picker_mbox* :nil *picker_mode* :nil *running* :t
-	rate (/ 1000000 60) +layer_all (+ +layer_commited +layer_overlay))
+	rate (/ 1000000 60) +layer_all (+ +layer_committed +layer_overlay))
 
 (defun flatten_path ((mode col rad pnts))
 	;flatten_path path to polygon
@@ -85,8 +85,8 @@
 
 (defun redraw (dlist)
 	;redraw layer/s
-	(when (bits? (elem-get dlist +dlist_mask) +layer_commited)
-		(defq canvas (elem-get dlist +dlist_commited_canvas))
+	(when (bits? (elem-get dlist +dlist_mask) +layer_committed)
+		(defq canvas (elem-get dlist +dlist_committed_canvas))
 		(. canvas :fill 0)
 		(each (lambda ((col poly))
 			(fpoly canvas col +winding_none_zero poly)) (elem-get dlist +dlist_committed_polygons))
@@ -105,8 +105,8 @@
 
 (defun main ()
 	(defq select (task-mboxes +select_size) *id* :t
-		dlist (list +layer_all *commited_canvas* *overlay_canvas* (list) (list)))
-	(. *commited_canvas* :set_canvas_flags +canvas_flag_antialias)
+		dlist (list +layer_all *committed_canvas* *overlay_canvas* (list) (list)))
+	(. *committed_canvas* :set_canvas_flags +canvas_flag_antialias)
 	(. *overlay_canvas* :set_canvas_flags +canvas_flag_antialias)
 	(def *window* :tip_mbox (elem-get select +select_tip))
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
@@ -137,7 +137,7 @@
 					(*picker_mode*
 						(tree-save
 							(file-stream
-								(cat (slice *msg* 0 (if (defq i (rfind "." *msg*)) i -1)) ".cwb")
+								(cat (slice *msg* 0 (if (defq i (rfind "." *msg*)) (dec i) -1)) ".cwb")
 								+file_open_write)
 							(scatter (Emap)
 								:version "CWB Version 2.0"
@@ -150,7 +150,7 @@
 							(when (eql version "CWB Version 2.0")
 								(snapshot)
 								(setq *committed_polygons* polygons)
-								(redraw-layers +layer_commited))))))
+								(redraw-layers +layer_committed))))))
 			((defq *id* (getf *msg* +ev_msg_target_id) action (. *event_map* :find *id*))
 				;call bound event action
 				(action))

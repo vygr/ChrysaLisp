@@ -57,7 +57,7 @@ Model-View-Controller pattern in ChrysaLisp.
         1. **`*backdrop*` (bottom layer):** A `Backdrop` widget that provides
             the background grid, axis, or plain color.
 
-        2. **`*commited_canvas*` (middle layer):** A `Canvas` widget that
+        2. **`*committed_canvas*` (middle layer):** A `Canvas` widget that
             displays the finalized drawing by rendering the polygons from
             `*committed_polygons*`.
 
@@ -135,7 +135,7 @@ understanding the app's architecture.
     * `redraw-layers` is called with the `+layer_all` mask.
 
     * This triggers `redraw` (`app.lisp`), which redraws both canvases. The
-        `*overlay_canvas*` is cleared, and the `*commited_canvas*` is redrawn
+        `*overlay_canvas*` is cleared, and the `*committed_canvas*` is redrawn
         with the newly added shape.
 
     * Finally, the `*strokes*` widget's internal buffer is cleared, ready for
@@ -183,7 +183,7 @@ The undo system is a classic example of a state-snapshot implementation.
     2. Pops the *previous* state from the `*undo_stack*` and makes it the new
         `*committed_polygons*`.
 
-    3. Calls `(redraw-layers +layer_commited)` to update the view.
+    3. Calls `(redraw-layers +layer_committed)` to update the view.
 
 *   **`action-redo()`:** Reverses the process, popping from redo and pushing to
     undo.

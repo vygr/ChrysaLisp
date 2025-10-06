@@ -101,7 +101,7 @@
 	(cond
 		((match? line "^\s*```")
 			;section start
-			(if (eql (setq state (sym (cat ":" (slice line (inc (rfind "`" line)) -1)))) :) :code state))
+			(if (eql (setq state (sym (cat ":" (slice line (rfind "`" line) -1)))) :) :code state))
 		(:t ;body text
 			(cond
 				((eql line "")

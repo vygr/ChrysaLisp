@@ -31,21 +31,21 @@
 (defun action-clear ()
 	(snapshot)
 	(clear *committed_polygons*)
-	(redraw-layers +layer_commited))
+	(redraw-layers +layer_committed))
 
 (defun action-undo ()
 	;move state from undo to redo stack and restore old state
 	(when (/= 0 (length *undo_stack*))
 		(push *redo_stack* *committed_polygons*)
 		(setq *committed_polygons* (pop *undo_stack*))
-		(redraw-layers +layer_commited)))
+		(redraw-layers +layer_committed)))
 
 (defun action-redo ()
 	;move state from redo to undo stack and restore old state
 	(when (/= 0 (length *redo_stack*))
 		(push *undo_stack* *committed_polygons*)
 		(setq *committed_polygons* (pop *redo_stack*))
-		(redraw-layers +layer_commited)))
+		(redraw-layers +layer_committed)))
 
 (defun action-save ()
 	(if *picker_mbox* (mail-send *picker_mbox* ""))

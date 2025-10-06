@@ -412,7 +412,7 @@ inputs
 outputs
 :r0 = array object (ptr)
 :r1 = element (long)
-:r2 = -1, else index (int)
+:r2 = 0, else index (int)
 trashes
 :r2-:r4
 ```

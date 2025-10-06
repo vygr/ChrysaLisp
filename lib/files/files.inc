@@ -30,7 +30,7 @@
 	; (files-dirs paths) -> paths
 	;return all the dir paths
 	(reduce (lambda (dirs file)
-		(defq dir (rfind "/" file) dir (if dir (cat (slice file 0 dir) "/.")))
+		(defq dir (rfind "/" file) dir (if dir (cat (slice file 0 dir) ".")))
 		(if (and dir (not (find dir dirs)))
 			(push dirs dir) dirs)) paths (list)))
 

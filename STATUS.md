@@ -14,6 +14,11 @@ input index as a negative value like the `(slice seq start end)` function.
 New `docs` command app. Used to scan source files for documentation. This is now
 used by the `make docs` command to scan documents in parallel.
 
+`rfind` changed to use slice end index compatible style.
+
+New `(rbskip cls str idx) -> idx` and `(rbskipn cls str idx) -> idx` functions,
+uses slice end index compatible style.
+
 ------
 
 Terminal app fix for user input.
