@@ -29,6 +29,8 @@
 
 ;widget property defaults
 (ffi "gui/font/lisp_create" create-font)
+; (create-font name pixels) -> font
+
 (defq *env_window_col* 0xff00c000 *env_title_col* 0xff00e000 *env_slider_col* 0xff00e000
 	*env_toolbar_col* 0xff00c000 *env_toolbar2_col* 0xff00a000 *env_ink_col* 0xff000000
 	*env_hint_col* 0xff00b000 *env_no_hint_col* *env_ink_col*

@@ -223,6 +223,7 @@
 
 ;native versions
 (ffi "apps/chess/piece_scans" piece-scans)
+; (piece-scans brd index vectors) -> pieces
 
 ;test if king of given color is in check
 (defun in-check (brd color)

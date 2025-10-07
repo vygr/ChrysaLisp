@@ -11,8 +11,6 @@ just get in touch.
 * there should be a clean separation between the various buffers for the
   Terminal app. User input, pipe output, history, prompt etc.
 
-* Finish off the usage specs for all the `ffi` bindings.
-
 * add a `select_form` and `cut_form` actions to the Editor. This should select
 the current atom or matched brackets.
 

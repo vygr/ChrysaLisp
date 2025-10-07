@@ -35,6 +35,7 @@
 
 ;native versions
 (ffi "apps/mandelbrot/tile" tile)
+; (tile canvas data) -> area
 
 (defun dispatch-job (key val)
 	;send another job to child

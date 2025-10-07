@@ -14,6 +14,7 @@
 
 ;native versions
 (ffi "apps/mandelbrot/depth" depth)
+; (depth x0 y0) -> cnt
 
 (defun mandel (key mbox x y x1 y1 w h cx cy z)
 	(write-int (defq reply (string-stream (cat ""))) (list x y x1 y1))

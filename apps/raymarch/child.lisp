@@ -41,7 +41,9 @@
 
 ;native versions
 (ffi "apps/raymarch/scene" scene)
+; (scene nums) -> radius
 (ffi "apps/raymarch/ray_march" ray-march)
+; (ray-march nums nums num num num num) -> distance
 
 (defun get-normal (p)
 	(vec-norm (fixeds

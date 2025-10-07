@@ -8,7 +8,9 @@
 
 ;lisp bindings
 (ffi "gui/canvas/lisp_to_argb32" canvas-to-argb32)
+; (canvas-to-argb32 pixel type) -> argb32
 (ffi "gui/canvas/lisp_from_argb32" canvas-from-argb32)
+; (canvas-from-argb32 pixel type) -> pixel
 
 ;init pixmap shared cache map
 (def *root_env* '*pixmap_cache* (Lmap))

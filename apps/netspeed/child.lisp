@@ -5,6 +5,7 @@
 
 ;native versions
 (ffi "apps/netspeed/vops" vops)
+; (vops) -> (vops_regs vops_memory vops_reals)
 
 (enums +select 0
 	(enum main timeout))
