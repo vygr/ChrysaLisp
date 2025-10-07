@@ -386,6 +386,25 @@ uint64_t host_gui_poll_event(void *handle)
 	return SDL_PollEvent((SDL_Event*)handle);
 }
 
+///////////////////////////
+// clipboard text functions
+///////////////////////////
+
+uint64_t host_gui_clip_put(const char *text)
+{
+	return SDL_SetClipboardText(text);
+}
+
+char *host_gui_clip_get()
+{
+	return SDL_GetClipboardText();
+}
+
+void host_gui_clip_free(char *text)
+{
+	SDL_free(text);
+}
+
 void (*host_gui_funcs[]) = {
 	(void*)host_gui_init,
 	(void*)host_gui_deinit,
@@ -402,6 +421,9 @@ void (*host_gui_funcs[]) = {
 	(void*)host_gui_flush,
 	(void*)host_gui_resize,
 	(void*)host_gui_poll_event,
+    (void*)host_gui_clip_put,
+    (void*)host_gui_clip_get,
+    (void*)host_gui_clip_free,
 };
 
 #endif

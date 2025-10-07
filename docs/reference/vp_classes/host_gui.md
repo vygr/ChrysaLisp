@@ -20,6 +20,12 @@
 
 ### :box -> :nil
 
+### :clip_free -> :nil
+
+### :clip_get -> :nil
+
+### :clip_put -> :nil
+
 ### :composite -> service/gui/composite
 
 ```code
