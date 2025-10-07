@@ -10,7 +10,7 @@
 (env-push)
 
 (defq +char_class_not_symbol (char-class " \r\f\v\n\t()")
-	+char_class_not_text (char-class (cat (ascii-char 34) ":;{")))
+	+char_class_not_text (char-class "\q:;{"))
 
 (defmacro is-digit-char? (_) (static-qq (bfind ,_ +char_class_digit)))
 (defmacro is-digit-base-char? (_) (static-qq (bfind ,_ +char_class_digit_base)))
