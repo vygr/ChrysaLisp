@@ -31,8 +31,6 @@ codes etc.
 
 * Add cycle protection to the `(debug-sanitize)` call.
 
-* Integrate the HOST clipboard and the CL Clipboard service.
-
 * Change Regexp compiler to produce VP code and hold a cache of translated
 expressions. This is less relevant since the `charclass` VP functions, but
 still a very good exercise in Jit tech.
