@@ -16,7 +16,7 @@
 	;:r1-:r14
 
 	(def-struct local 0
-		(ptr this cstr old_stack))
+		(ptr this cstr))
 
 	(entry 'host_clipboard :lisp_put '(:r0 :r1))
 
