@@ -13,8 +13,6 @@ just get in touch.
 
 * Finish off the usage specs for all the `ffi` bindings.
 
-* `rbskip` and `rbskipn` primitives should be added. Use on `trim-end`.
-
 * add a `select_form` and `cut_form` actions to the Editor. This should select
 the current atom or matched brackets.
 
@@ -80,13 +78,6 @@ application for distribution. At this point I would implement the ability for
 applications to have native coded versions of functions available and those
 functions would be bound to in preference to the VP versions when a task finds
 itself on such an architecture.
-
-* Investigate getting LLVM/GCC to produce functions in ChrysaLisp format. One
-of the advantages of the simple function format using a local Vtable for all
-calls and jumps is that there is no code patching needed. The loader does not
-need to concern itself with patching a variety of native binary formats, it
-only concerns itself with looking up function names and writing to Vtable
-entries.
 
 * Webassembly backend in order to experiment with using browsers and web socket
 links to create a distributed network across the Internet.
