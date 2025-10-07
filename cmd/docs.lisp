@@ -27,7 +27,8 @@
 
 ;do the work on a file
 (defun work (file)
-	(defq state :nil info :nil methods :nil split_cls (char-class " ()'\t\r"))
+	(defq state :nil info :nil methods :nil split_cls (char-class " ()'\t\r")
+		 trim_cls (char-class (cat ")" +char_class_space)))
 	(lines! (lambda (line)
 		(when (find state '(:function :macro :class :method))
 			(if (starts-with ";" (defq line_trim (trim line +char_class_space)))
@@ -35,7 +36,7 @@
 				(setq state :nil)))
 		(when (eql state :keys)
 			(if (nempty? (split line +char_class_space))
-				(push info (trim-start (trim-end line " )") +char_class_space))
+				(push info (trim line trim_cls))
 				(setq state :nil)))
 		(when (eql state :nil)
 			(defq line_split (split line split_cls)
