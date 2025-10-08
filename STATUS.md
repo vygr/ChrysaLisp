@@ -29,6 +29,9 @@ down to this low level search.
 
 Clipboard service now integrated with the HOST text clipboard.
 
+Generate improved VP classes reference documentation via scanning for the `ffi`
+inline documentation.
+
 ------
 
 Terminal app fix for user input.
