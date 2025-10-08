@@ -36,7 +36,7 @@
 			;no, so from stdin
 			(lines! (# (push jobs %0)) (io-stream 'stdin)))
 		(if (<= (length jobs) opt_jobs)
-			;do the work when less than opt_jobs !
+			;do the work when batch size ok !
 			(each (const work) jobs)
 			;do the jobs out there, by calling myself !
 			(each (lambda ((job result)) (prin result))
