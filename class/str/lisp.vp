@@ -453,7 +453,7 @@
 	;trashes
 	;:r1-:r14
 
-	(vp-def (src len idx this args) '(:r7 :r8 :r9 ))
+	(vp-def (src len idx this args) '(:r7 :r8 :r9))
 
 	(entry 'str :lisp_bskip `(,this ,args))
 
@@ -497,7 +497,7 @@
 	;trashes
 	;:r1-:r14
 
-	(vp-def (src len idx this args) '(:r7 :r8 :r9 ))
+	(vp-def (src len idx this args) '(:r7 :r8 :r9))
 
 	(entry 'str :lisp_bskipn `(,this ,args))
 
@@ -541,7 +541,7 @@
 	;trashes
 	;:r1-:r14
 
-	(vp-def (src len idx this args) '(:r7 :r8 :r9 ))
+	(vp-def (src len idx this args) '(:r7 :r8 :r9))
 
 	(entry 'str :lisp_rbskip `(,this ,args))
 
@@ -585,7 +585,7 @@
 	;trashes
 	;:r1-:r14
 
-	(vp-def (src len idx this args) '(:r7 :r8 :r9 ))
+	(vp-def (src len idx this args) '(:r7 :r8 :r9))
 
 	(entry 'str :lisp_rbskipn `(,this ,args))
 
