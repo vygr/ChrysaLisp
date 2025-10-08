@@ -22,13 +22,15 @@
 
 ;extract parent class name
 (defun parent? (line_split)
-	(some! (# (if (bfind %0 +char_class_upper) %0))
+	(some! (# (if (bfind %0 +char_class_upper) (sym %0)))
 		(list line_split) :nil 2))
 
 ;do the work on a file
 (defun work (file)
-	(defq state :nil info :nil methods :nil split_cls (char-class " ()'\t\r\q")
-		 trim_cls (char-class (cat ")" +char_class_space)))
+	(defq state :nil info :nil methods :nil
+		split_cls (char-class " ()'\t\r\q")
+		trim_cls (char-class (cat ")" +char_class_space))
+		ignore_cls (char-class "'`,~"))
 	(lines! (lambda (line)
 		(when (find state '(:function :macro :class :method :ffi))
 			(if (starts-with ";" (defq line_trim (trim line +char_class_space)))
@@ -40,25 +42,26 @@
 				(setq state :nil)))
 		(when (eql state :nil)
 			(defq line_split (split line split_cls)
-				type (first line_split) name (second line_split))
-			(case type
-				(("*key_map*" "*key_map_shift*" "*key_map_control*")
-					(push key_list (list file type (setq state :keys info (list)))))
-				("ffi"
-					(push ffi_list (list (sym name) (setq state :ffi info (list)))))
-				("defclass"
-					(push class_list (list name (parent? line_split)
-						(setq methods (list)) (setq state :class info (list)))))
-				(("defmethod" "deffimethod" "defabstractmethod")
-					(if methods (push methods (list name (setq state :method info (list))))))
-				("defgetmethod"
-					(push methods (list (cat ":get_" name) (setq state :method info (list)))))
-				("defsetmethod"
-					(push methods (list (cat ":set_" name) (setq state :method info (list)))))
-				("defun"
-					(push function_list (list name (setq state :function info (list)))))
-				("defmacro"
-					(push macro_list (list name (setq state :macro info (list))))))))
+				type (sym (first line_split)) name (sym (second line_split)))
+			(when (= 0 (rbskipn ignore_cls name -1))
+				(case type
+					((*key_map* *key_map_shift* *key_map_control*)
+						(push key_list (list (sym file) type (setq state :keys info (list)))))
+					(ffi
+						(push ffi_list (list name (setq state :ffi info (list)))))
+					(defclass
+						(push class_list (list name (parent? line_split)
+							(setq methods (list)) (setq state :class info (list)))))
+					((defmethod deffimethod defabstractmethod)
+						(if methods (push methods (list name (setq state :method info (list))))))
+					(defgetmethod
+						(push methods (list (sym (cat ":get_" name)) (setq state :method info (list)))))
+					(defsetmethod
+						(push methods (list (sym (cat ":set_" name)) (setq state :method info (list)))))
+					(defun
+						(push function_list (list name (setq state :function info (list)))))
+					(defmacro
+						(push macro_list (list name (setq state :macro info (list)))))))))
 		(file-stream file)))
 
 ;merge child work
