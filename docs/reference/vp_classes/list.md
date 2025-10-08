@@ -8,7 +8,7 @@
 
 ### (lmatch? list list)
 
-### (merge-obj dlist slist) -> dlist
+### (merge-obj dlist slist)
 
 ### (pivot lambda list start end)
 

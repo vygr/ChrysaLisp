@@ -25,7 +25,7 @@
 		this)
 
 	(defmethod :set_selected (index)
-		; (. radiobar :set_selected index) -> this
+		; (. radiobar :set_selected idx) -> this
 		(defq radio_col (canvas-brighter (get :color this)))
 		(each (# (undef (. %0 :dirty) :color)
 				(if (= (!) index) (def %0 :color radio_col)))
@@ -33,7 +33,7 @@
 		this)
 
 	(defmethod :get_selected ()
-		; (. radiobar :get_selected) -> :nil | index
+		; (. radiobar :get_selected) -> :nil | idx
 		(some (# (if (def? :color %0) (!))) (. this :children)))
 
 	(defmethod :action (event)

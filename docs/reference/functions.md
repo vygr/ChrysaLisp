@@ -328,7 +328,7 @@ gather a list of values
 ### get-cstr
 
 ```code
-(get-cstr str index) -> str
+(get-cstr str idx) -> str
 ```
 
 ### gui-rpc
@@ -995,7 +995,7 @@ patch stream a with stream b, write to stream c
 ### swap
 
 ```code
-(swap list index index)
+(swap list idx idx)
 ```
 
 ### sym?

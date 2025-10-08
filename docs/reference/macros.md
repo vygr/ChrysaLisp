@@ -208,55 +208,55 @@ should provide the concreate handler
 ### get-byte
 
 ```code
-(get-byte str index) -> num
+(get-byte str idx) -> num
 ```
 
 ### get-int
 
 ```code
-(get-int str index) -> num
+(get-int str idx) -> num
 ```
 
 ### get-long
 
 ```code
-(get-long str index) -> num
+(get-long str idx) -> num
 ```
 
 ### get-netid
 
 ```code
-(get-netid str index) -> netid
+(get-netid str idx) -> netid
 ```
 
 ### get-nodeid
 
 ```code
-(get-nodeid str index) -> nodeid
+(get-nodeid str idx) -> nodeid
 ```
 
 ### get-short
 
 ```code
-(get-short str index) -> num
+(get-short str idx) -> num
 ```
 
 ### get-ubyte
 
 ```code
-(get-ubyte str index) -> num
+(get-ubyte str idx) -> num
 ```
 
 ### get-uint
 
 ```code
-(get-uint str index) -> num
+(get-uint str idx) -> num
 ```
 
 ### get-ushort
 
 ```code
-(get-ushort str index) -> num
+(get-ushort str idx) -> num
 ```
 
 ### getf

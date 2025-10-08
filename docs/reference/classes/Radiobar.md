@@ -15,7 +15,7 @@
 ### :get_selected
 
 ```code
-(. radiobar :get_selected) -> :nil | index
+(. radiobar :get_selected) -> :nil | idx
 ```
 
 ### :get_states
@@ -27,7 +27,7 @@
 ### :set_selected
 
 ```code
-(. radiobar :set_selected index) -> this
+(. radiobar :set_selected idx) -> this
 ```
 
 ### :set_states

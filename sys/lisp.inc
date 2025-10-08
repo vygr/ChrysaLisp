@@ -25,13 +25,13 @@
 (ffi "sys/mail/lisp_forget" mail-forget)
 ; (mail-forget key)
 (ffi "sys/mail/lisp_poll" mail-poll)
-; (mail-poll mboxs) :nil | index
+; (mail-poll mboxs) -> :nil | idx
 (ffi "sys/mail/lisp_validate" mail-validate)
-; (mail-validate mbox) :t | :nil
+; (mail-validate mbox) -> :t | :nil
 (ffi "sys/mail/lisp_read" mail-read)
 ; (mail-read mbox) -> :nil | msg
 (ffi "sys/mail/lisp_select" mail-select)
-; (mail-select mboxs) -> index
+; (mail-select mboxs) -> idx
 (ffi "sys/mail/lisp_send" mail-send)
 ; (mail-send mbox obj)
 (ffi "sys/mail/lisp_timeout" mail-timeout)

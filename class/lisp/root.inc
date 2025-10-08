@@ -93,7 +93,7 @@
 ; (cat seq ...) -> seq
 
 (ffi "class/seq/lisp_pling" ! 1)
-; (!) -> index
+; (!) -> idx
 (ffi "class/seq/lisp_each" each!)
 ; (each! lambda seqs [start end])
 (ffi "class/seq/lisp_some" some!)
@@ -136,7 +136,7 @@
 (ffi "class/str/lisp_char" char)
 ; (char num [width]) -> str
 (ffi "class/str/lisp_code" code)
-; (code str [width index]) -> num
+; (code str [width idx]) -> num
 (ffi "class/str/lisp_cmp" cmp)
 ; (cmp str str) -> + | 0 | -
 (ffi "class/str/lisp_save" save)
@@ -536,7 +536,7 @@
 			(push (push _q _l _p) (inc _p) _h))) _a)
 
 (defun swap (_ _1 _2)
-	; (swap list index index)
+	; (swap list idx idx)
 	(when (/= _1 _2)
 		(defq _t (elem-get _ _1))
 		(elem-set (elem-set _ _1 (elem-get _ _2)) _2 _t)))
@@ -952,43 +952,43 @@
 	(cat (slice f 0 c) v))
 
 (defmacro get-ubyte (s o)
-	; (get-ubyte str index) -> num
+	; (get-ubyte str idx) -> num
 	(static-qq (get-field ,s (+ +str_data ,o) (const (neg +byte_size)))))
 
 (defmacro get-ushort (s o)
-	; (get-ushort str index) -> num
+	; (get-ushort str idx) -> num
 	(static-qq (get-field ,s (+ +str_data ,o) (const (neg +short_size)))))
 
 (defmacro get-uint (s o)
-	; (get-uint str index) -> num
+	; (get-uint str idx) -> num
 	(static-qq (get-field ,s (+ +str_data ,o) (const (neg +int_size)))))
 
 (defmacro get-long (s o)
-	; (get-long str index) -> num
+	; (get-long str idx) -> num
 	(static-qq (get-field ,s (+ +str_data ,o) +long_size)))
 
 (defmacro get-byte (s o)
-	; (get-byte str index) -> num
+	; (get-byte str idx) -> num
 	(static-qq (get-field ,s (+ +str_data ,o) +byte_size)))
 
 (defmacro get-short (s o)
-	; (get-short str index) -> num
+	; (get-short str idx) -> num
 	(static-qq (get-field ,s (+ +str_data ,o) +short_size)))
 
 (defmacro get-int (s o)
-	; (get-int str index) -> num
+	; (get-int str idx) -> num
 	(static-qq (get-field ,s (+ +str_data ,o) +int_size)))
 
 (defmacro get-nodeid (s o)
-	; (get-nodeid str index) -> nodeid
+	; (get-nodeid str idx) -> nodeid
 	(static-qq (slice ,s ,o (+ ,o +node_id_size))))
 
 (defmacro get-netid (s o)
-	; (get-netid str index) -> netid
+	; (get-netid str idx) -> netid
 	(static-qq (slice ,s ,o (+ ,o +net_id_size))))
 
 (defun get-cstr (s o)
-	; (get-cstr str index) -> str
+	; (get-cstr str idx) -> str
 	(defq k o)
 	(while (/= 0 (get-byte s o)) (++ o))
 	(slice s k o))
