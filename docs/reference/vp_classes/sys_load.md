@@ -2,7 +2,7 @@
 
 ## Lisp Bindings
 
-### (load-path)
+### (load-path) -> path
 
 ## VP methods
 

@@ -4,49 +4,61 @@
 
 ## Lisp Bindings
 
-### (apply lambda seq)
+### (apply lambda seq) -> form
 
-### (catch form eform)
+### (bind (sym ...) seq) -> val
 
-### (cond [(tst [body])] ...)
+### (catch form eform) -> 'form
 
-### (condn [(tst [body])] ...)
+### (cond [(tst body)] ...) -> 'form
 
-### (env-pop [env])
+### (condn [(tst body)] ...) -> 'form
 
-### (env-push [env])
+### (env-pop [env]) -> 'env
 
-### (eql form form)
+### (env-push [env]) -> 'env
 
-### (eval form [env])
+### (eql form form) -> :nil | :t
 
-### (eval-list list [env])
+### (eval form [env]) -> 'form
+
+### (eval-list list [env]) -> list
 
 ### (ffi path [sym flags])
 
-### (if tst form [else_form])
+### (identity [form]) -> :nil | form
 
-### (ifn tst form [else_form])
+### (if tst form [else_form]) -> 'form
 
-### (macroexpand form)
+### (ifn tst form [else_form]) -> 'form
 
-### (. env sym [...])
+### (macroexpand form) -> 'form
 
-### (prebind form)
+### (. env sym [...]) -> form
+
+### (prebind form) -> form
+
+### (prin [form] ...) -> form
+
+### (print [form] ...) -> form
+
+### (progn [body]) -> 'form
 
 ### (quasi-quote form)
 
 ### (quote form)
 
-### (read stream [last_char])
+### (read stream [last_char]) -> :nil | (form next_char)
 
-### (repl stream path)
+### (repl stream name) -> form
+
+### (repl-info) -> (name line)
 
 ### (throw str form)
 
-### (until tst [body])
+### (until tst [body]) -> tst
 
-### (while tst [body])
+### (while tst [body]) -> :nil
 
 ## VP methods
 
@@ -126,8 +138,6 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-lisp binding
-(bind (param ...) seq)
 ```
 
 ### :env_pop -> class/lisp/env_pop
@@ -184,8 +194,6 @@ outputs
 :r2 = next char (uint)
 trashes
 :r1-:r14
-lisp binding
-unexpected )
 ```
 
 ### :read_char -> class/lisp/read_char
@@ -275,8 +283,6 @@ outputs
 :r1 = return value object (ptr)
 trashes
 :r1-:r14
-lisp binding
-(lambda ([arg ...]) body)
 ```
 
 ### :repl_bind -> class/lisp/repl_bind

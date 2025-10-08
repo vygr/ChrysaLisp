@@ -4,61 +4,61 @@
 
 ## Lisp Bindings
 
-### (abs num)
+### (abs num) -> num
 
-### (+ num num ...)
+### (+ num num ...) -> num
 
-### (logand [num] ...)
+### (logand [num] ...) -> num
 
-### (>>> num cnt)
+### (>>> num cnt) -> num
 
-### (/ num num ...)
+### (/ num num ...) -> num
 
-### (= num num ...)
+### (= num num ...) -> :t | :nil
 
-### (>= num num ...)
+### (>= num num ...) -> :t | :nil
 
-### (> num num ...)
+### (> num num ...) -> :t | :nil
 
-### (num-intern num)
+### (num-intern num) -> num
 
-### (<= num num ...)
+### (<= num num ...) -> :t | :nil
 
-### (< num num ...)
+### (< num num ...) -> :t | :nil
 
-### (max num num ...)
+### (max num num ...) -> num
 
-### (min num num ...)
+### (min num num ...) -> num
 
-### (% num num ...)
+### (% num num ...) -> num
 
-### (* num num ...)
+### (* num num ...) -> num
 
-### (n2f num)
+### (n2f num) -> fixed
 
-### (n2i num)
+### (n2i num) -> num
 
-### (n2r num)
+### (n2r num) -> real
 
-### (/= num num ...)
+### (/= num num ...) -> :t | :nil
 
-### (neg num)
+### (neg num) -> num
 
-### (logior [num] ...)
+### (logior [num] ...) -> num
 
-### (random num)
+### (random num) -> num
 
-### (<< num cnt)
+### (<< num cnt) -> num
 
-### (>> num cnt)
+### (>> num cnt) -> num
 
-### (sign num)
+### (sign num) -> -1 | 0 | 1
 
-### (sqrt num)
+### (sqrt num) -> num
 
-### (- num num ...)
+### (- num num ...) -> num
 
-### (logxor [num] ...)
+### (logxor [num] ...) -> num
 
 ## VP methods
 

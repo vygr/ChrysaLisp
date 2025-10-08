@@ -4,29 +4,29 @@
 
 ## Lisp Bindings
 
-### (stream-avail stream)
+### (stream-avail stream) -> num
 
-### (lines! lambda stream)
+### (lines! lambda stream) -> :nil
 
-### (file-stream path [mode])
+### (file-stream path [mode]) -> :nil | stream
 
-### (io-stream io)
+### (io-stream io) -> :nil | stream
 
-### (read-avail stream)
+### (read-avail stream) -> :nil | num
 
-### (read-char stream [width])
+### (read-char stream [width]) -> :nil | num
 
-### (read-line stream)
+### (read-line stream) -> :nil | str
 
-### (stream-seek stream offset pos)
+### (stream-seek stream offset pos) -> stream
 
-### (string-stream str)
+### (string-stream str) -> stream
 
-### (write stream str)
+### (write stream str) -> bytes
 
-### (stream-flush stream)
+### (stream-flush stream) -> stream
 
-### (write-char stream list|num [width])
+### (write-char stream list|num [width]) -> bytes
 
 ## VP methods
 

@@ -4,23 +4,23 @@
 
 ## Lisp Bindings
 
-### (path-filter tol src dst)
+### (path-filter tol src dst) -> dst
 
-### (path-gen-arc cx cy start end radius dst)
+### (path-gen-arc cx cy start end radius dst) -> dst
 
-### (path-gen-cubic p1x p1y p2x p2y p3x p3y p4x p4y dst)
+### (path-gen-cubic p1x p1y p2x p2y p3x p3y p4x p4y dst) -> dst
 
-### (path-gen-quadratic p1x p1y p2x p2y p3x p3y dst)
+### (path-gen-quadratic p1x p1y p2x p2y p3x p3y dst) -> dst
 
-### (path-simplify tol src dst)
+### (path-simplify tol src dst) -> dst
 
-### (path-stroke-polygon path radius join)
+### (path-stroke-polygon path radius join) -> paths
 
-### (path-stroke-polyline path radius join cap1 cap2)
+### (path-stroke-polyline path radius join cap1 cap2) -> path
 
-### (path-svg d)
+### (path-svg d) -> commands
 
-### (path-transform m3x2 src dst)
+### (path-transform m3x2 src dst) -> dst
 
 ## VP methods
 

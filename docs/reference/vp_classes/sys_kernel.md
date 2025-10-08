@@ -2,7 +2,7 @@
 
 ## Lisp Bindings
 
-### (kernel-stats)
+### (kernel-stats) -> (task_count mem_used mem_avail max_stack)
 
 ## VP methods
 

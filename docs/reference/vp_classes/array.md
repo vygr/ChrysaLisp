@@ -4,25 +4,25 @@
 
 ## Lisp Bindings
 
-### (array [num ...])
+### (array [num ...]) -> array
 
-### (cap len array ...)
+### (cap len array ...) -> array
 
-### (clear array ...)
+### (clear array ...) -> array
 
-### (fixeds [num ...])
+### (fixeds [fixed ...]) -> fixeds
 
-### (nums [num ...])
+### (nums [num ...]) -> nums
 
-### (path [num ...])
+### (path [fixed ...]) -> path
 
-### (pop array)
+### (pop array) -> elem | :nil
 
-### (push array elem ...)
+### (push array elem ...) -> array
 
-### (reals [num ...])
+### (reals [real ...]) -> reals
 
-### (elem-set array idx val)
+### (elem-set array idx elem) -> array
 
 ## VP methods
 

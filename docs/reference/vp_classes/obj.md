@@ -2,17 +2,17 @@
 
 ## Lisp Bindings
 
-### (get-field obj field size|0)
+### (get-field obj field size|0) -> val
 
-### (hash obj)
+### (hash obj) -> num
 
-### (obj-ref num)
+### (obj-ref num) -> obj
 
-### (set-field obj field size|0 val)
+### (set-field obj field size|0 val) -> val
 
-### (type-of obj)
+### (type-of obj) -> (... :obj)
 
-### (weak-ref obj)
+### (weak-ref obj) -> num
 
 ## VP methods
 

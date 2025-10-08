@@ -4,9 +4,9 @@
 
 ## Lisp Bindings
 
-### (fixeds-floor fixeds [fixeds])
+### (fixeds-floor fixeds [fixeds]) -> fixeds
 
-### (fixeds-frac fixeds [fixeds])
+### (fixeds-frac fixeds [fixeds]) -> fixeds
 
 ## VP methods
 

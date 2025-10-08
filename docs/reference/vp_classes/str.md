@@ -4,31 +4,33 @@
 
 ## Lisp Bindings
 
-### (bfind char cls)
+### (bfind char cls) -> :nil | idx
 
-### (bskip cls str idx)
+### (bskip cls str idx) -> idx
 
-### (bskipn cls str idx)
+### (bskipn cls str idx) -> idx
 
-### (char num [width])
+### (char num [width]) -> str
 
-### (cmp str str)
+### (cmp str str) -> + | 0 | -
 
-### (code str [width index])
+### (code str [width idx]) -> num
 
-### (str-alloc size)
+### (str-alloc size) -> str
 
-### (expand str tab_width)
+### (expand str tab_width) -> str
 
-### (load path)
+### (load path) -> str
 
-### (rbskip cls str idx)
+### (rbskip cls str idx) -> idx
 
-### (rbskipn cls str idx)
+### (rbskipn cls str idx) -> idx
 
-### (save str path)
+### (save str path) -> str
 
-### (str-to-num str)
+### (str form) -> str
+
+### (str-to-num str) -> num
 
 ## VP methods
 

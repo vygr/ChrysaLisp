@@ -28,7 +28,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(sin angle)" +error_msg_wrong_types :r1))
+	(jump 'lisp :repl_error '(:r0 "(sin fixed)" +error_msg_wrong_types :r1))
 	(signature '(fixed)))
 
 (def-func-end)
@@ -47,7 +47,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(cos angle)" +error_msg_wrong_types :r1))
+	(jump 'lisp :repl_error '(:r0 "(cos fixed)" +error_msg_wrong_types :r1))
 	(signature '(fixed)))
 
 (def-func-end)

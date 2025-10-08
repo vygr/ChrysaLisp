@@ -221,11 +221,11 @@
 ; (dim-set dim nums elem) -> array
 
 (ffi "class/obj/lisp_hash" hash)
-; (hash form) -> num
+; (hash obj) -> num
 (ffi "class/lisp/lisp_eql" eql)
 ; (eql form form) -> :nil | :t
 (ffi "class/obj/lisp_type" type-of)
-; (type-of form) -> (... :obj)
+; (type-of obj) -> (... :obj)
 (ffi "class/lisp/lisp_macroexpand" macroexpand)
 ; (macroexpand form) -> 'form
 
@@ -294,9 +294,9 @@
 (ffi "class/obj/lisp_set_field" set-field)
 ; (set-field obj field size|0 val) -> val
 (ffi "class/obj/lisp_wref" weak-ref)
-; (weak-ref form) -> num
+; (weak-ref obj) -> num
 (ffi "class/obj/lisp_oref" obj-ref)
-; (obj-ref num) -> form
+; (obj-ref num) -> obj
 
 (defq *root_env* (env)
 	+byte_size 1 +short_size 2 +int_size 4 +long_size 8 +ptr_size 8

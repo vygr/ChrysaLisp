@@ -4,41 +4,43 @@
 
 ## Lisp Bindings
 
-### (cat seq ...)
+### (cat seq ...) -> seq
 
 ### (each! lambda seqs [start end])
 
-### (elem-get seq idx)
+### (elem-get seq idx) -> elem
 
-### (filter! lambda seq [out start end])
+### (filter! lambda seq [out start end]) -> out | (...)
 
-### (find elem seq [idx])
+### (find elem seq [idx]) -> :nil | idx
 
-### (first seq)
+### (first seq) -> :nil | elem
 
-### (last seq)
+### (last seq) -> :nil | elem
 
-### (length seq)
+### (length seq) -> num
 
-### (map! lambda seqs [out start end])
+### (map! lambda seqs [out start end]) -> out | (...)
 
-### (most seq)
+### (most seq) -> empty | seq
 
-### (partition seq [cnt])
+### (partition seq [cnt]) -> (seq ...)
 
-### (reduce! lambda seqs init [start end])
+### (!) -> idx
 
-### (rest seq)
+### (reduce! lambda seqs init [start end]) -> val
 
-### (rfind elem seq [idx])
+### (rest seq) -> empty | seq
 
-### (second seq)
+### (rfind elem seq [idx]) -> :nil | idx
 
-### (slice seq start end)
+### (second seq) -> :nil | elem
 
-### (some! lambda seqs [mode start end])
+### (slice seq start end) -> seq
 
-### (third seq)
+### (some! lambda seqs [mode start end]) -> :nil | val
+
+### (third seq) -> :nil | elem
 
 ## VP methods
 

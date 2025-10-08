@@ -165,9 +165,9 @@
 (errorcase
 (vp-label 'error1)
 	(vp-pop :r0 :r1)
-	(jump 'lisp :repl_error '(:r0 "(dim-set dim nums form)" +error_msg_not_valid_index :r1))
+	(jump 'lisp :repl_error '(:r0 "(dim-set dim nums elem)" +error_msg_not_valid_index :r1))
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(dim-set dim nums form)" +error_msg_wrong_types :r1))
+	(jump 'lisp :repl_error '(:r0 "(dim-set dim nums elem)" +error_msg_wrong_types :r1))
 	(signature '(dim nums obj)))
 
 (def-func-end)

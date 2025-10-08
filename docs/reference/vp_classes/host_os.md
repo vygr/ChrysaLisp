@@ -2,17 +2,17 @@
 
 ## Lisp Bindings
 
-### (pii-dirlist path)
+### (pii-dirlist path) -> info
 
-### (pii-fstat path)
+### (pii-fstat path) -> info
 
-### (pii-read-char fd)
+### (pii-read-char fd) -> char
 
 ### (pii-remove path)
 
-### (pii-time)
+### (pii-time) -> ns
 
-### (pii-write-char fd char)
+### (pii-write-char fd char) -> char
 
 ## VP methods
 

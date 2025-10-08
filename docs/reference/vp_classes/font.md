@@ -4,17 +4,17 @@
 
 ## Lisp Bindings
 
-### (create-font name pixels)
+### (create-font name pixels) -> font
 
-### (font-glyph-bounds font str)
+### (font-glyph-bounds font str) -> bounds
 
-### (font-glyph-paths font str)
+### (font-glyph-paths font str) -> paths
 
-### (font-glyph-ranges font)
+### (font-glyph-ranges font) -> ranges
 
-### (font-info font)
+### (font-info font) -> (name pixels)
 
-### (font-sym-texture font sym)
+### (font-sym-texture font sym) -> texture
 
 ## VP methods
 

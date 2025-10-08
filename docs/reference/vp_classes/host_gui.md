@@ -2,15 +2,15 @@
 
 ## Lisp Bindings
 
-### (gui-deinit)
+### (gui-deinit) -> :nil
 
-### (gui-event)
+### (gui-event) -> :nil | str
 
-### (gui-info)
+### (gui-info) -> (mx my sw sh)
 
-### (gui-init screen)
+### (gui-init screen) -> screen
 
-### (gui-update mx my flags)
+### (gui-update mx my flags) -> :nil
 
 ## VP methods
 

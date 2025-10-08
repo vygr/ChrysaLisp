@@ -4,11 +4,11 @@
 
 ## Lisp Bindings
 
-### (dim nums array)
+### (dim nums array) -> dim
 
-### (dim-get dim nums)
+### (dim-get dim nums) -> elem
 
-### (dim-set dim nums form)
+### (dim-set dim nums elem) -> array
 
 ## VP methods
 

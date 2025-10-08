@@ -2,11 +2,13 @@
 
 ## Lisp Bindings
 
-### (task-count bias)
+### (task-count bias) -> count
 
-### (task-mbox)
+### (task-mbox) -> netid
 
 ### (task-sleep usec)
+
+### (task-slice)
 
 ## VP methods
 

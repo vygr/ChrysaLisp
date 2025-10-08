@@ -4,9 +4,9 @@
 
 ## Lisp Bindings
 
-### (in-stream)
+### (in-stream) -> in_stream
 
-### (in-next-msg in)
+### (in-next-msg in_stream) -> msg
 
 ## VP methods
 

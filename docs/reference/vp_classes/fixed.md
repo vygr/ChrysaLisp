@@ -4,15 +4,15 @@
 
 ## Lisp Bindings
 
-### (cos angle)
+### (cos fixed) -> fixed
 
-### (floor num)
+### (floor fixed) -> fixed
 
-### (frac num)
+### (frac fixed) -> fixed
 
-### (recip fixed)
+### (recip fixed) -> fixed
 
-### (sin angle)
+### (sin fixed) -> fixed
 
 ## VP methods
 

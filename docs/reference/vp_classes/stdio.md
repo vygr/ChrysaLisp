@@ -4,7 +4,7 @@
 
 ## Lisp Bindings
 
-### (create-stdio)
+### (create-stdio) -> stdio
 
 ## VP methods
 

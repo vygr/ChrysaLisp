@@ -4,27 +4,27 @@
 
 ## Lisp Bindings
 
-### (def env sym val [sym val] ...)
+### (def env sym val [sym val] ...) -> val
 
-### (defq sym val [sym val] ...)
+### (defq sym val [sym val] ...) -> val
 
-### (def? sym [env])
+### (def? sym [env]) -> :nil | val
 
-### (env [num])
+### (env [num]) -> env
 
-### (get sym [env])
+### (get sym [env]) -> :nil | val
 
-### (tolist env)
+### (tolist env) -> ((sym val) ...)
 
-### (penv [env])
+### (penv [env]) -> :nil | env
 
-### (env-resize num [env])
+### (env-resize num [env]) -> env
 
-### (set env sym val [sym val] ...)
+### (set env sym val [sym val] ...) -> val
 
-### (setq sym val [sym val] ...)
+### (setq sym val [sym val] ...) -> val
 
-### (undef env sym [sym] ...)
+### (undef env sym [sym] ...) -> env
 
 ## VP methods
 

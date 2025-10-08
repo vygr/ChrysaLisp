@@ -14,7 +14,7 @@
 
 ### (canvas-fpoly canvas x y mode list)
 
-### (canvas-from-argb32 pixel type)
+### (canvas-from-argb32 pixel type) -> pixel
 
 ### (canvas-ftri canvas path)
 
@@ -26,7 +26,7 @@
 
 ### (canvas-swap canvas flags)
 
-### (canvas-to-argb32 pixel type)
+### (canvas-to-argb32 pixel type) -> argb32
 
 ## VP methods
 

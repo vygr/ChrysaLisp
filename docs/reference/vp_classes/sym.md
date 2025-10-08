@@ -4,9 +4,9 @@
 
 ## Lisp Bindings
 
-### (gensym)
+### (gensym) -> sym
 
-### (sym str)
+### (sym str) -> sym
 
 ## VP methods
 

@@ -2,27 +2,27 @@
 
 ## Lisp Bindings
 
-### (mail-declare mbox name info)
+### (mail-declare mbox name info) -> key
 
-### (mail-nodes)
+### (mail-nodes) -> nodeids
 
-### (mail-enquire prefix)
+### (mail-enquire prefix) -> netids
 
 ### (mail-forget key)
 
-### (mail-mbox)
+### (mail-mbox) -> netid
 
-### (mail-poll mboxs)
+### (mail-poll mboxs) -> :nil | idx
 
-### (mail-read mbox)
+### (mail-read mbox) -> :nil | msg
 
-### (mail-select mboxs)
+### (mail-select mboxs) -> idx
 
 ### (mail-send mbox obj)
 
-### (mail-timeout mbox ns id)
+### (mail-timeout mbox ns id) -> mbox
 
-### (mail-validate mbox)
+### (mail-validate mbox) -> :t | :nil
 
 ## VP methods
 

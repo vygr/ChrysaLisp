@@ -27,10 +27,10 @@
 
 ;do the work on a file
 (defun work (file)
-	(defq state :nil info :nil methods :nil split_cls (char-class " ()'\t\r")
+	(defq state :nil info :nil methods :nil split_cls (char-class " ()'\t\r\q")
 		 trim_cls (char-class (cat ")" +char_class_space)))
 	(lines! (lambda (line)
-		(when (find state '(:function :macro :class :method))
+		(when (find state '(:function :macro :class :method :ffi))
 			(if (starts-with ";" (defq line_trim (trim line +char_class_space)))
 				(push info (trim-start line_trim " ;"))
 				(setq state :nil)))
@@ -44,6 +44,8 @@
 			(case type
 				(("*key_map*" "*key_map_shift*" "*key_map_control*")
 					(push key_list (list file type (setq state :keys info (list)))))
+				("ffi"
+					(push ffi_list (list (sym name) (setq state :ffi info (list)))))
 				("defclass"
 					(push class_list (list name (parent? line_split)
 						(setq methods (list)) (setq state :class info (list)))))
@@ -65,6 +67,7 @@
 	(setq function_list (cat function_list (. work_map :find :functions))
 		macro_list (cat macro_list (. work_map :find :macros))
 		class_list (cat class_list (. work_map :find :classes))
+		ffi_list (cat ffi_list (. work_map :find :ffis))
 		key_list (cat key_list (. work_map :find :keys))))
 
 (defun main ()
@@ -73,7 +76,7 @@
 			(defq stdio (create-stdio))
 			(defq opt_jobs 1 args (options stdio usage)))
 		(defq function_list (list) macro_list (list)
-			class_list (list) key_list (list))
+			class_list (list) key_list (list) ffi_list (list))
 		;from args ?
 		(if (empty? (defq jobs (rest args)))
 			;no, so from stdin
@@ -89,5 +92,5 @@
 					(partition jobs opt_jobs)))))
 		;output results
 		(tree-save (io-stream 'stdout) (scatter (Lmap)
-			:macros macro_list :classes class_list
+			:macros macro_list :classes class_list :ffis ffi_list
 			:functions function_list :keys key_list))))

@@ -4,11 +4,13 @@
 
 ## Lisp Bindings
 
-### (copy form)
+### (copy form) -> 'form
 
-### (lmatch? list list)
+### (list [elem ...]) -> list
 
-### (merge-obj dlist slist)
+### (lmatch? list list) -> :nil | :t
+
+### (merge-obj dlist slist) -> dlist
 
 ### (pivot lambda list start end)
 

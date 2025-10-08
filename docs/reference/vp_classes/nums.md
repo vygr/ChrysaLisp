@@ -4,27 +4,27 @@
 
 ## Lisp Bindings
 
-### (nums-abs nums [nums])
+### (nums-abs nums [nums]) -> nums
 
-### (nums-add nums nums [nums])
+### (nums-add nums nums [nums]) -> nums
 
-### (nums-div nums nums [nums])
+### (nums-div nums nums [nums]) -> nums
 
-### (nums-dot nums nums)
+### (nums-dot nums nums) -> num
 
-### (nums-max nums nums [nums])
+### (nums-max nums nums [nums]) -> nums
 
-### (nums-min nums nums [nums])
+### (nums-min nums nums [nums]) -> nums
 
-### (nums-mod nums nums [nums])
+### (nums-mod nums nums [nums]) -> nums
 
-### (nums-mul nums nums [nums])
+### (nums-mul nums nums [nums]) -> nums
 
-### (nums-scale nums scale [nums])
+### (nums-scale nums scale [nums]) -> nums
 
-### (nums-sub nums nums [nums])
+### (nums-sub nums nums [nums]) -> nums
 
-### (nums-sum nums)
+### (nums-sum nums) -> num
 
 ## VP methods
 

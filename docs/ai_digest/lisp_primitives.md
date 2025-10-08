@@ -310,7 +310,7 @@ and type conversion.
 
 *   **`code`**: Returns the numeric code of a character in a string.
 
-    * `(code str [width index]) -> num`
+    * `(code str [width idx]) -> num`
 
 *   **`expand`**: Replaces tab characters in a string with spaces.
 
@@ -588,11 +588,11 @@ evaluation.
 *   **`type-of`**: Returns the inheritance chain of an object as a list of
     symbols.
 
-    * `(type-of form) -> (... :obj)`
+    * `(type-of obj) -> (... :obj)`
 
 *   **`hash`**: Computes the hash value of a form.
 
-    * `(hash form) -> num`
+    * `(hash obj) -> num`
 
 *   **`eql`**: Checks if two forms are identical.
 
@@ -650,4 +650,4 @@ representation of objects.
 *   **`obj-ref`**: Converts a numeric memory address back into a Lisp object
     reference.
 
-    * `(obj-ref num) -> form`
+    * `(obj-ref num) -> obj`

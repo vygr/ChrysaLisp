@@ -4,7 +4,7 @@
 
 ## Lisp Bindings
 
-### (out-stream mbox)
+### (out-stream mbox) -> out_stream
 
 ## VP methods
 
