@@ -20,6 +20,10 @@
 		(rest args)))
 ))
 
+(defq +split_cls (char-class " ()'\t\r\q")
+	+trim_cls (char-class (cat ")" +char_class_space))
+	+ignore_cls (char-class "'`,~"))
+
 ;extract parent class name
 (defun parent? (line_split)
 	(some! (# (if (bfind %0 +char_class_upper) (sym %0)))
@@ -27,10 +31,7 @@
 
 ;do the work on a file
 (defun work (file)
-	(defq state :nil info :nil methods :nil
-		split_cls (char-class " ()'\t\r\q")
-		trim_cls (char-class (cat ")" +char_class_space))
-		ignore_cls (char-class "'`,~"))
+	(defq state :nil info :nil methods :nil)
 	(lines! (lambda (line)
 		(when (find state '(:function :macro :class :method :ffi))
 			(if (starts-with ";" (defq line_trim (trim line +char_class_space)))
@@ -38,12 +39,12 @@
 				(setq state :nil)))
 		(when (eql state :keys)
 			(if (nempty? (split line +char_class_space))
-				(push info (trim line trim_cls))
+				(push info (trim line +trim_cls))
 				(setq state :nil)))
 		(when (eql state :nil)
-			(defq line_split (split line split_cls)
+			(defq line_split (split line +split_cls)
 				type (sym (first line_split)) name (sym (second line_split)))
-			(when (= 0 (rbskipn ignore_cls name -1))
+			(when (= 0 (rbskipn +ignore_cls name -1))
 				(case type
 					((*key_map* *key_map_shift* *key_map_control*)
 						(push key_list (list (sym file) type (setq state :keys info (list)))))
