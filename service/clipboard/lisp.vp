@@ -57,7 +57,7 @@
 	;:r1-:r14
 
 	(def-struct local 0
-		(ptr this cstr text))
+		(ptr this text))
 
 	(entry 'host_clipboard :lisp_get '(:r0 :r1))
 
@@ -77,17 +77,17 @@
 	(entry 'sys_task :task_callback '(:r0))
 
 	(vp-push :r0)
-	(host-gui-call 'host_gui :clip_get :nil '(:r0))
+	(host-gui-call 'host_gui :clip_get :nil '(tmp))
 	(vp-pop :r13)
-	(assign '(:r0) '((:r13 local_cstr)))
-	(vpif '(:r0 = 0))
+	(vp-cpy-rr tmp :r12)
+	(vpif `(,tmp = 0))
 		(assign '((:r13 local_this)) '(:r0))
 		(call 'obj :ref '((:r0 lisp_sym_nil)) '(:r1))
 	(else)
-		(call 'str :create_from_cstr '(:r0) '(:r1))
+		(call 'str :create_from_cstr `(,tmp) '(:r1))
 	(endif)
 	(assign '(:r1) '((:r13 local_text)))
-	(host-gui-call 'host_gui :clip_free '((:r13 local_cstr)))
+	(host-gui-call 'host_gui :clip_free '(:r12))
 	(vp-ret)
 
 (errorcase
