@@ -17,8 +17,6 @@ the current atom or matched brackets.
 * canvas to support stretched or aspect correct drawing, centered, and aligned
 flags.
 
-* add default parameters for `(slice)` ?.
-
 * ui-load-icon .... for button images.
 
 * WYSIWYG UI tree Editor.
