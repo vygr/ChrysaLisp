@@ -8,6 +8,10 @@
 (defq
 	+opt_nop
 		''(emit-vp-nop)
+	+opt_tco_calls
+		''(emit-call-p emit-call-i emit-call emit-call-r)
+	+opt_tco_jumps
+		''(emit-jmp-p emit-jmp-i emit-jmp emit-jmp-r)
 	+opt_read_ops
 		''(emit-cpy-ir-ui emit-cpy-ir-us emit-cpy-ir-ub emit-cpy-ir-i emit-cpy-ir-s emit-cpy-ir-b emit-cpy-ir)
 	+opt_write_ops
@@ -121,23 +125,23 @@
 		(if (eval (elem-get (static-q ((/= i j)(= i j)(> i j)(<= i j)(< i j)(>= i j))) c))
 			(elem-set emit_list (!) (setq inst +opt_nop)))))
 
+(defun opt-tail-call ()
+	(when (defq i (find (first (defq prev_inst (elem-get emit_list (dec (!))))) +opt_tco_calls))
+		(elem-set prev_inst 0 (elem-get +opt_tco_jumps i))
+		(elem-set emit_list (!) (setq inst +opt_nop))))
+
 (defun opt-emit-list (emit_list emit_start emit_end)
 	(each! (lambda (inst)
 		(cond
-			((defq c (find (first inst) +opt_read_ops))
-				(opt-read-after-read-write)
-				(if (find (first inst) +opt_read_ops)
-					(opt-read-after-cpy)))
-			((defq c (find (first inst) +opt_write_ops_signed))
-				(opt-write-after-write))
-			((defq c (find (first inst) +opt_branch_ops))
-				(opt-redundant-branch))
-			((eql (first inst) 'emit-cpy-rr)
-				(opt-redundant-cpy))))
+			((defq c (find (defq op (first inst)) +opt_read_ops)) (opt-read-after-read-write)
+				(if (find op +opt_read_ops) (opt-read-after-cpy)))
+			((defq c (find op +opt_write_ops_signed)) (opt-write-after-write))
+			((defq c (find op +opt_branch_ops)) (opt-redundant-branch))
+			((eql op 'emit-cpy-rr) (opt-redundant-cpy))
+			((eql op 'emit-ret) (opt-tail-call))))
 		(list emit_list) emit_start emit_end)
 	(each! (lambda (inst)
-		(if (defq c (find (first inst) +opt_read_ops))
-			(opt-read-after-read-write)))
+			(if (defq c (find (first inst) +opt_read_ops)) (opt-read-after-read-write)))
 		(list emit_list) emit_start emit_end))
 
 ;module
