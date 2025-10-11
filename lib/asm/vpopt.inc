@@ -8,9 +8,9 @@
 (defq
 	+opt_nop
 		''(emit-vp-nop)
-	+opt_tco_calls
+	+opt_call_ops
 		''(emit-call-p emit-call-i emit-call emit-call-r)
-	+opt_tco_jumps
+	+opt_jump_ops
 		''(emit-jmp-p emit-jmp-i emit-jmp emit-jmp-r)
 	+opt_read_ops
 		''(emit-cpy-ir-ui emit-cpy-ir-us emit-cpy-ir-ub emit-cpy-ir-i emit-cpy-ir-s emit-cpy-ir-b emit-cpy-ir)
@@ -126,8 +126,8 @@
 			(elem-set emit_list (!) (setq inst +opt_nop)))))
 
 (defun opt-tail-call ()
-	(when (defq i (find (first (defq prev_inst (elem-get emit_list (dec (!))))) +opt_tco_calls))
-		(elem-set prev_inst 0 (elem-get +opt_tco_jumps i))
+	(when (defq i (find (first (defq prev_inst (elem-get emit_list (dec (!))))) +opt_call_ops))
+		(elem-set prev_inst 0 (elem-get +opt_jump_ops i))
 		(elem-set emit_list (!) (setq inst +opt_nop))))
 
 (defun opt-emit-list (emit_list emit_start emit_end)
