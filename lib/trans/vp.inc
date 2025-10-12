@@ -64,9 +64,9 @@
 			(cond
 				((eql (defq op (first inst)) 'emit-label)
 					(def (penv) (last (last inst)) 0))
-				((find op '(emit-beq-cr emit-bne-cr emit-bge-cr emit-blt-cr
-						emit-ble-cr emit-bgt-cr emit-beq-rr emit-bne-rr
-						emit-bge-rr emit-blt-rr emit-ble-rr emit-bgt-rr emit-jmp))
+				((find op '(emit-jmp emit-beq-cr emit-bne-cr emit-bne-rr emit-beq-rr
+						emit-bge-rr emit-ble-rr emit-bge-cr emit-ble-cr
+						emit-blt-cr emit-blt-rr emit-bgt-rr emit-bgt-cr))
 					(push inst (dec (length (push *offsets* 0))))))
 			;bind emit func
 			(elem-set inst 0 (def? op +emit_funcs)))

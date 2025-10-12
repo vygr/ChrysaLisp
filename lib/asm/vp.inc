@@ -25,12 +25,12 @@
 	;scan the emit list and filter while gathering the label renames
 	(each (lambda (inst)
 		(cond
-			((eql (defq op (first inst)) 'emit-vp-nop))
-			((eql op 'emit-label)
+			((eql (defq op (first inst)) 'emit-label)
 				(unless (eql op last_op)
 					(setq pc_sym (sym (str "_" (++ pc))))
 					(push out inst))
 				(def labels (last (last inst)) pc_sym))
+			((eql op 'emit-vp-nop))
 			((push out inst)))
 		(setq last_op op)) emit_list)
 	;scan the tree ! and rename any label symbol elements
