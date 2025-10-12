@@ -13,25 +13,25 @@
 	+opt_jump_ops
 		''(emit-jmp-p emit-jmp-i emit-jmp emit-jmp-r)
 	+opt_read_ops
-		''(emit-cpy-ir-ui emit-cpy-ir-us emit-cpy-ir-ub emit-cpy-ir-i emit-cpy-ir-s emit-cpy-ir-b emit-cpy-ir)
+		''(emit-cpy-ir emit-cpy-ir-ui emit-cpy-ir-i emit-cpy-ir-ub emit-cpy-ir-us emit-cpy-ir-b emit-cpy-ir-s)
 	+opt_write_ops
-		''(emit-cpy-ri-i emit-cpy-ri-s emit-cpy-ri-b emit-cpy-ri-i emit-cpy-ri-s emit-cpy-ri-b emit-cpy-ri)
+		''(emit-cpy-ri emit-cpy-ri-i emit-cpy-ri-i emit-cpy-ri-b emit-cpy-ri-s emit-cpy-ri-b emit-cpy-ri-s)
 	+opt_write_ops_signed
-		''(emit-cpy-ri-i emit-cpy-ri-s emit-cpy-ri-b emit-cpy-ri)
+		''(emit-cpy-ri emit-cpy-ri-i emit-cpy-ri-b emit-cpy-ri-s)
 	+opt_read_ops_signed
-		''(emit-cpy-ir-i emit-cpy-ir-s emit-cpy-ir-b emit-cpy-ir)
+		''(emit-cpy-ir emit-cpy-ir-i emit-cpy-ir-b emit-cpy-ir-s)
 	+opt_read_ops_unsigned
-		''(emit-cpy-ir-ui emit-cpy-ir-us emit-cpy-ir-ub emit-cpy-ir)
+		''(emit-cpy-ir emit-cpy-ir-ui emit-cpy-ir-ub emit-cpy-ir-us)
 	+opt_read_kill_ops
-		''(emit-label emit-call-p emit-alloc emit-free emit-call-i emit-call-abi emit-call emit-call-r)
+		''(emit-label emit-call-p emit-free emit-alloc emit-call-i emit-call-abi emit-call emit-call-r)
 	+opt_write_kill_ops
-		''(emit-jmp emit-jmp-i emit-jmp-r emit-jmp-p
-			emit-beq-cr emit-bne-cr emit-bge-cr emit-blt-cr emit-ble-cr emit-bgt-cr
-			emit-beq-rr emit-bne-rr emit-bge-rr emit-blt-rr emit-ble-rr emit-bgt-rr)
+		''(emit-jmp emit-beq-cr emit-bne-cr emit-bne-rr emit-beq-rr emit-bge-rr
+			emit-ble-rr emit-jmp-p emit-bge-cr emit-ble-cr emit-blt-cr emit-blt-rr
+			emit-bgt-rr emit-bgt-cr emit-jmp-r emit-jmp-i)
 	+opt_branch_ops
-		''(emit-beq-cr emit-bne-cr emit-bge-cr emit-blt-cr emit-ble-cr emit-bgt-cr)
+		''(emit-beq-cr emit-bne-cr emit-bge-cr emit-ble-cr emit-blt-cr emit-bgt-cr)
 	+opt_two_out_ops
-		''(emit-land-rr emit-lnot-rr emit-swp-rr emit-div-rrr emit-div-rrr-u)
+		''(emit-div-rrr emit-swp-rr emit-div-rrr-u emit-land-rr emit-lnot-rr)
 	+opt_multi_out_ops
 		''(emit-pop))
 
