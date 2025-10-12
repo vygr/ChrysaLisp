@@ -35,9 +35,10 @@
 		(if (empty? (defq jobs (rest args)))
 			;no, so from stdin
 			(lines! (# (push jobs %0)) (io-stream 'stdin)))
-		;gather length stats
+		;gather instruction stats
 		(each (const work) (usort jobs))
 		;display results
 		(print "VP instruction usage stats")
+		(print "Total instructions: " (reduce (# (+ %0 (second %1))) inst_list 0))
 		(each (# (print "inst: " (pad (first %0) 16) " cnt: " (pad (second %0) 5)))
 			(sort inst_list (# (- (second %1) (second %0)))))))
