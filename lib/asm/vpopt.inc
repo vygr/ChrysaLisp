@@ -134,7 +134,7 @@
 	(each! (lambda (inst)
 		(cond
 			((defq c (find (defq op (first inst)) +opt_read_ops)) (opt-read-after-read-write)
-				(if (find op +opt_read_ops) (opt-read-after-cpy)))
+				(if (find (first inst) +opt_read_ops) (opt-read-after-cpy)))
 			((defq c (find op +opt_write_ops_signed)) (opt-write-after-write))
 			((defq c (find op +opt_branch_ops)) (opt-redundant-branch))
 			((eql op 'emit-cpy-rr) (opt-redundant-cpy))
