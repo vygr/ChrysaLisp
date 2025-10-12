@@ -405,6 +405,18 @@ Usage: unique [options] [line] ...
 	If no lines given on command line
 	then will read lines from stdin.
 ```
+## vpstats
+```code
+Usage: vpstats [options] [path] ...
+
+	options:
+		-h --help: this help info.
+
+	Scan for VP instruction usage stats.
+
+	If no paths given on command line
+	then will take paths from stdin.
+```
 ## wc
 ```code
 Usage: wc [options] [path] ...
