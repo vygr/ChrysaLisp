@@ -4,6 +4,13 @@
 
 ------
 
+New `opt-tail-call` VP optimization.
+
+New `vpstats` command. After a `make it` you could run it on the `obj/vp/`
+folder etc with `files obj/vp/ | vpstats`.
+
+------
+
 `*Lock` service added. This still requires further work, but it removes the idea
 of lock files within the file system during Jit worker compilation. It should be
 one such service per file system plus it has other serialization issues ATM.
