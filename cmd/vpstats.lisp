@@ -21,7 +21,7 @@
 			type (sym (first split_line)))
 		(when (starts-with "emit-" type)
 			(if (defq i (some (# (if (eql (first %0) type) (!))) inst_list))
-				(elem-set (elem-get inst_list i) 1 (inc (second (elem-get inst_list i))))
+				(elem-set (setq i (elem-get inst_list i)) 1 (inc (second i)))
 				(push inst_list (list type 1)))))
 		(file-stream file)))
 
