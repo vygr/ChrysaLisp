@@ -122,7 +122,7 @@
 (defun opt-redundant-branch ()
 	(when (defq i (find-past-cr (!) (third inst)))
 		(defq j (second (elem-get emit_list i)) i (second inst))
-		(if (eval (elem-get (static-q ((/= i j)(= i j)(> i j)(<= i j)(< i j)(>= i j))) c))
+		(if (eval (elem-get (static-q ((/= i j)(= i j)(> i j)(< i j)(<= i j)(>= i j))) c))
 			(elem-set emit_list (!) (setq inst +opt_nop)))))
 
 (defun opt-tail-call ()
