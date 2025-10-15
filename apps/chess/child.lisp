@@ -297,7 +297,7 @@
 
 ;generate all moves (boards) for the given colours turn
 (defun all-moves (brd color)
-	;enumarate the board square by square
+	;enumerate the board square by square
 	(defq yield (list) is_black (= color +black))
 	(each! (lambda (piece)
 		(unless (eql piece " ")
@@ -342,6 +342,32 @@
 				(>= alpha beta)) (list next_boards))
 			value)))
 
+;negamax iterative search
+(defun negamax-iterative (brd color alpha beta ply)
+	(defq stack (list (list brd color alpha beta ply (all-moves brd color) 0 +min_int))
+		return_value :nil)
+	(while (nempty? stack)
+		(bind '(brd color alpha beta ply next_boards board_idx value) (pop stack))
+		(when return_value
+			(setq value (max value (neg return_value)) alpha (max alpha value))
+			(setq return_value :nil))
+		(cond
+			((mail-poll select)
+				(clear stack)
+				(setq return_value +timeout_value))
+			((>= (- (pii-time) start_time) max_time_per_move)
+				(clear stack)
+				(setq return_value +timeout_value))
+			((= ply 0)
+				(setq return_value (evaluate brd color)))
+			((or (>= alpha beta) (>= board_idx (length next_boards)))
+				(setq return_value value))
+			(:t	(defq child_brd (elem-get next_boards board_idx))
+				(push stack (list brd color alpha beta ply next_boards (inc board_idx) value)
+					(list child_brd (neg color) (neg beta) (neg alpha) (dec ply)
+						(all-moves child_brd (neg color)) 0 +min_int)))))
+	return_value)
+
 (defun reply (type data)
 	;send msg to parent, sequenced
 	(mail-send reply_mbox
@@ -358,14 +384,14 @@
 			(list (evaluate brd color)
 				(* +queen_value (reduce (lambda (cnt past_brd) (if (eql past_brd brd) (inc cnt) cnt)) history 0))
 				brd)) (all-moves brd color)))
-	;iterative deepening of ply so we allways have a best move to go with if the time expires
+	;iterative deepening of ply so we always have a best move to go with if the time expires
 	(some! (lambda (ply)
 		(reply "s" (str (LF) "Ply" ply " "))
 		(defq value +min_int alpha +min_int beta +max_int timeout
 			(some! (lambda (ply0_brd)
 					(bind '(_ bias brd) ply0_brd)
 					(elem-set ply0_brd 0 (defq score
-						(neg (negamax brd (neg color) (neg beta) (neg alpha) (dec ply)))))
+						(neg (negamax-iterative brd (neg color) (neg beta) (neg alpha) (dec ply)))))
 					(cond
 						((or (<= (- score bias) value) (= (abs score) +timeout_value))
 							(reply "s" "."))
