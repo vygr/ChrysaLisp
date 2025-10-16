@@ -337,24 +337,30 @@
 
 ;negamax iterative search
 (defun negamax-iterative (brd color alpha beta ply)
-	(defq stack (list (list brd color alpha beta ply (all-moves brd color) 0 +min_int))
-		ret_value :nil)
+	(defq stack (list (list brd color alpha beta ply :nil 0 +min_int)) ret_value +max_int)
 	(while (nempty? stack)
 		(bind '(brd color alpha beta ply next_boards idx value) (pop stack))
-		(if ret_value
-			(setq value (max value (neg ret_value)) alpha (max alpha value) ret_value :nil))
-		(setq ret_value (cond
-			((mail-poll select) (clear stack) +timeout_value)
-			((>= (- (pii-time) start_time) max_time_per_move) (clear stack) +timeout_value)
-			((= ply 0) (evaluate brd color))
-			((>= alpha beta) value)
-			((>= idx (length next_boards)) value)
-			((defq child_brd (elem-get next_boards idx))
-				(push stack (list brd color alpha beta ply next_boards (inc idx) value)
-					(list child_brd (neg color) (neg beta) (neg alpha) (dec ply)
-						(all-moves child_brd (neg color)) 0 +min_int))
-				ret_value))))
+		(setq value (max value (neg ret_value)) alpha (max alpha value)
+			ret_value (cond
+				((mail-poll select) (clear stack) +timeout_value)
+				((>= (- (pii-time) start_time) max_time_per_move) (clear stack) +timeout_value)
+				((= ply 0) (evaluate brd color))
+				((>= alpha beta) value)
+				((>= idx (length (setq next_boards (ifn next_boards (all-moves brd color))))) value)
+				((defq child_brd (elem-get next_boards idx))
+					(push stack (list brd color alpha beta ply next_boards (inc idx) value)
+						(list child_brd (neg color) (neg beta) (neg alpha) (dec ply) :nil 0 +min_int))
+					+max_int))))
 	ret_value)
+
+;negamax test
+(defun negamax-test (brd color alpha beta ply)
+	(defq value (negamax brd color alpha beta ply))
+	(when (/= value +timeout_value)
+		(defq valuei (negamax-iterative brd color alpha beta ply))
+		(when (/= valuei +timeout_value)
+			(if (/= value valuei) (throw "Mismatched values !" (list value valuei)))))
+	value)
 
 (defun reply (type data)
 	;send msg to parent, sequenced
