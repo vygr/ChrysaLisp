@@ -12,7 +12,7 @@
 	(enum main task reply timer))
 
 (defq vdu_width 38 vdu_height 12 text_buf :nil
-	flicker_rate (/ 1000000 8) timer_rate (/ 1000000 1) max_move_time 10000000 id :t
+	flicker_rate (/ 1000000 8) timer_rate (/ 1000000 1) max_move_time 20000000 id :t
 	brd "RNBQKBNRPPPPPPPP                                pppppppprnbqkbnr"
 	history (list brd) color +white start_time (pii-time) replys (list) next_seq 0)
 
