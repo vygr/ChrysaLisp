@@ -306,64 +306,25 @@
 				(task-slice)
 				(piece-moves yield brd (!) color (piece-map moves_map piece))))) (list brd)) yield)
 
-;pvs search
-(defun pvs (brd color alpha beta ply)
-	(cond
-		((mail-poll select) +timeout_value)
-		((>= (- (pii-time) start_time) max_time_per_move) +timeout_value)
-		((= ply 0) (evaluate brd color))
-		(:t (some (lambda (brd)
-				(cond
-					((= (!) 0)
-						(defq value (neg (pvs brd (neg color) (neg beta) (neg alpha) (dec ply)))))
-					(:t (defq value (neg (pvs brd (neg color) (dec (neg alpha)) (neg alpha) (dec ply))))
-						(if (< alpha value beta)
-							(setq value (neg (pvs brd (neg color) (neg beta) (neg value) (dec ply)))))))
-				(>= (setq alpha (max alpha value)) beta)) (all-moves brd color))
-			alpha)))
-
-;negamax search
-(defun negamax (brd color alpha beta ply)
-	(cond
-		((mail-poll select) +timeout_value)
-		((>= (- (pii-time) start_time) max_time_per_move) +timeout_value)
-		((= ply 0) (evaluate brd color))
-		(:t (defq value +min_int)
-			(some (lambda (brd)
-				(setq value (max value (neg (negamax brd (neg color) (neg beta) (neg alpha) (dec ply))))
-					alpha (max alpha value))
-				(>= alpha beta)) (all-moves brd color))
-			value)))
-
 ;negamax iterative search
-(defun negamax-iterative (brd color alpha beta ply)
-	(defq stack (list (list brd color alpha beta ply :nil 0 +min_int)) ret_value +max_int)
+(defun negamax (brd color alpha beta ply)
+	(defq stack (list (list brd color alpha beta ply :nil +min_int)) ret_value +max_int)
 	(while (nempty? stack)
-		(bind '(brd color alpha beta ply next_boards idx value) (pop stack))
+		(bind '(brd color alpha beta ply brds value) (pop stack))
 		(setq value (max value (neg ret_value)) alpha (max alpha value)
 			ret_value (cond
 				((mail-poll select) (clear stack) +timeout_value)
 				((>= (- (pii-time) start_time) max_time_per_move) (clear stack) +timeout_value)
 				((= ply 0) (evaluate brd color))
 				((>= alpha beta) value)
-				((>= idx (length (setq next_boards (ifn next_boards (all-moves brd color))))) value)
-				((defq child_brd (elem-get next_boards idx))
-					(push stack (list brd color alpha beta ply next_boards (inc idx) value)
-						(list child_brd (neg color) (neg beta) (neg alpha) (dec ply) :nil 0 +min_int))
+				((not (defq cbrd (pop (setq brds (ifn brds (all-moves brd color)))))) value)
+				((push stack (list brd color alpha beta ply brds value)
+					(list cbrd (neg color) (neg beta) (neg alpha) (dec ply) :nil +min_int))
 					+max_int))))
 	ret_value)
 
-;negamax test
-(defun negamax-test (brd color alpha beta ply)
-	(defq value (negamax brd color alpha beta ply))
-	(when (/= value +timeout_value)
-		(defq valuei (negamax-iterative brd color alpha beta ply))
-		(when (/= valuei +timeout_value)
-			(if (/= value valuei) (throw "Mismatched values !" (list value valuei)))))
-	value)
-
+;send msg to parent, sequenced
 (defun reply (type data)
-	;send msg to parent, sequenced
 	(mail-send reply_mbox
 		(setf-> (cat (str-alloc +reply_size) data)
 			(+reply_seq next_seq)
@@ -385,7 +346,7 @@
 			(some! (lambda (ply0_brd)
 					(bind '(_ bias brd) ply0_brd)
 					(elem-set ply0_brd 0 (defq score
-						(neg (negamax-iterative brd (neg color) (neg beta) (neg alpha) (dec ply)))))
+						(neg (negamax brd (neg color) (neg beta) (neg alpha) (dec ply)))))
 					(cond
 						((or (<= (- score bias) value) (= (abs score) +timeout_value))
 							(reply "s" "."))
