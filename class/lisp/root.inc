@@ -292,7 +292,7 @@
 (ffi "class/obj/lisp_get_field" get-field)
 ; (get-field obj field size|0) -> val
 (ffi "class/obj/lisp_set_field" set-field)
-; (set-field obj field size|0 val) -> val
+; (set-field obj field size|0 val) -> obj
 (ffi "class/obj/lisp_wref" weak-ref)
 ; (weak-ref obj) -> num
 (ffi "class/obj/lisp_oref" obj-ref)

@@ -8,7 +8,7 @@
 
 ### (obj-ref num) -> obj
 
-### (set-field obj field size|0 val) -> val
+### (set-field obj field size|0 val) -> obj
 
 ### (type-of obj) -> (... :obj)
 

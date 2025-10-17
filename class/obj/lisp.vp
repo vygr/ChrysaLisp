@@ -103,7 +103,7 @@
 		(assign '(:r4) '((:r1 :r2)))
 		(break)
 	(vpcase (list :r3 '> +long_size))
-		;string for large chuncks
+		;string for large chunks
 		(call 'sys_mem :copy '((& :r4 str_data) (& :r1 :r2) :r3))
 		(break)
 	(default)
