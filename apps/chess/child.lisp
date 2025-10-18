@@ -309,15 +309,14 @@
 ;generate next moves (boards) from the given colours square
 (defun next-moves (yield brd color idx)
 	(defq is_black (= color +black))
-	(if (>= idx (length brd)) :nil
-		(some! (lambda (piece)
-			(cond
-				((eql piece " ") :nil)
-				((eql (< (code piece) (ascii-code "Z")) is_black)
-					;one of our pieces ! so gather all boards from possible moves of this piece
-					(task-slice)
-					(piece-moves yield brd (!) color (piece-map moves_map piece))
-					(if (nempty? yield) (inc (!)))))) (list brd) :nil idx)))
+	(some! (lambda (piece)
+		(cond
+			((eql piece " ") :nil)
+			((eql (< (code piece) (ascii-code "Z")) is_black)
+				;one of our pieces ! so gather all boards from possible moves of this piece
+				(task-slice)
+				(piece-moves yield brd (!) color (piece-map moves_map piece))
+				(if (nempty? yield) (inc (!)))))) (list brd) :nil idx))
 
 ;generate next move (board) for the given colours turn
 (defun next-move (ctx brd color)
