@@ -306,19 +306,42 @@
 				(task-slice)
 				(piece-moves yield brd (!) color (piece-map moves_map piece))))) (list brd)) yield)
 
+;generate next moves (boards) from the given colours square
+(defun next-moves (yield brd color idx)
+	(defq is_black (= color +black))
+	(if (>= idx (length brd)) :nil
+		(some! (lambda (piece)
+			(cond
+				((eql piece " ") :nil)
+				((eql (< (code piece) (ascii-code "Z")) is_black)
+					;one of our pieces ! so gather all boards from possible moves of this piece
+					(task-slice)
+					(piece-moves yield brd (!) color (piece-map moves_map piece))
+					(if (nempty? yield) (inc (!)))))) (list brd) :nil idx)))
+
+;generate next move (board) for the given colours turn
+(defun next-move (ctx brd color)
+	(bind '(brds idx) (ifn ctx (setq ctx (list (list) 0))))
+	(cond
+		((defq cbrd (pop brds))
+			(list ctx cbrd))
+		((setq idx (next-moves brds brd color idx))
+			(list (list brds idx) (pop brds)))
+		((list :nil :nil))))
+
 ;negamax iterative search
 (defun negamax (brd color alpha beta ply)
 	(defq stack (list (list brd color alpha beta ply :nil +min_int)) ret_value +max_int)
 	(while (nempty? stack)
-		(bind '(brd color alpha beta ply brds value) (pop stack))
+		(bind '(brd color alpha beta ply ctx value) (pop stack))
 		(setq value (max value (neg ret_value)) alpha (max alpha value)
 			ret_value (cond
 				((mail-poll select) (clear stack) +timeout_value)
 				((>= (- (pii-time) start_time) max_time_per_move) (clear stack) +timeout_value)
 				((= ply 0) (evaluate brd color))
 				((>= alpha beta) value)
-				((not (defq cbrd (pop (setq brds (ifn brds (all-moves brd color)))))) value)
-				((push stack (list brd color alpha beta ply brds value)
+				((not (bind '(ctx cbrd) (next-move ctx brd color))) value)
+				((push stack (list brd color alpha beta ply ctx value)
 					(list cbrd (neg color) (neg beta) (neg alpha) (dec ply) :nil +min_int))
 					+max_int))))
 	ret_value)
@@ -329,7 +352,7 @@
 		(setf-> (cat (str-alloc +reply_size) data)
 			(+reply_seq next_seq)
 			(+reply_type (code type))))
-	(setq next_seq (inc next_seq)))
+	(++ next_seq))
 
 ;best move for given board position for given color
 (defun best-move (brd color history)
