@@ -9,6 +9,12 @@ New `opt-tail-call` VP optimization.
 New `vpstats` command. After a `make it` you could run it on the `obj/vp/`
 folder etc with `files obj/vp/ | vpstats`.
 
+Used the `vpstats` information to frequency order the `vpopts.inc` tests.
+
+None recursive `negamax` implementation for the Chess child task. Also took the
+time to restructure the move generation to take better advantage of the
+alpha/beta cutoff optimisation.
+
 ------
 
 `*Lock` service added. This still requires further work, but it removes the idea
