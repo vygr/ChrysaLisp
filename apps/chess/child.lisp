@@ -320,13 +320,13 @@
 
 ;generate next move (board) for the given colours turn
 (defun next-move (ctx brd color)
-	(bind '(brds idx) (ifn ctx (setq ctx (list (list) 0))))
+	(bind '(brds idx) (setd ctx (list (list) 0)))
 	(cond
 		((defq cbrd (pop brds))
 			(list ctx cbrd))
 		((setq idx (next-moves brds brd color idx))
 			(list (list brds idx) (pop brds)))
-		((list :nil :nil))))
+		('(:nil :nil))))
 
 ;negamax iterative search
 (defun negamax (brd color alpha beta ply)
