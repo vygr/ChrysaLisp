@@ -14,10 +14,7 @@
 
 	If no paths given on command line
 	then will take paths from stdin.")
-(("-j" "--jobs")
-	,(lambda (args arg)
-		(setq opt_jobs (str-as-num (first args)))
-		(rest args)))
+(("-j" "--jobs") ,(opt-num 'opt_j))
 ))
 
 ;extract parent class name
@@ -74,22 +71,22 @@
 	;initialize pipe details and command args, abort on error
 	(when (and
 			(defq stdio (create-stdio))
-			(defq opt_jobs 1 args (options stdio usage)))
+			(defq opt_j 1 args (options stdio usage)))
 		(defq function_list (list) macro_list (list)
 			class_list (list) key_list (list) ffi_list (list))
 		;from args ?
 		(if (empty? (defq jobs (rest args)))
 			;no, so from stdin
 			(lines! (# (push jobs %0)) (io-stream 'stdin)))
-		(if (<= (length jobs) opt_jobs)
+		(if (<= (length jobs) opt_j)
 			;do the work when batch size ok !
 			(each (const work) jobs)
 			;do the jobs out there, by calling myself !
 			(each (const merge-work)
 				(pipe-farm (map (# (str (first args)
-						" -j " opt_jobs
+						" -j " opt_j
 						" " (slice (str %0) 1 -2)))
-					(partition jobs opt_jobs)))))
+					(partition jobs opt_j)))))
 		;output results
 		(tree-save (io-stream 'stdout) (scatter (Lmap)
 			:macros macro_list :classes class_list :ffis ffi_list

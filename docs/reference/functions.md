@@ -650,10 +650,28 @@ very basic attenuation, diffuse and specular
 (open-task task node mode key_num reply)
 ```
 
+### opt-flag
+
+```code
+(opt-flag 'opt_var) -> args
+```
+
 ### opt-mesh
 
 ```code
 (opt-mesh verts norms tris) -> (new_verts new_norms new_tris)
+```
+
+### opt-num
+
+```code
+(opt-num 'opt_var) -> args
+```
+
+### opt-str
+
+```code
+(opt-str 'opt_var) -> args
 ```
 
 ### opt-vectors
@@ -667,7 +685,7 @@ very basic attenuation, diffuse and specular
 ```code
 (options stdio optlist) -> :nil | args
 
-scan the stdio args and process acording to the optlist
+scan the stdio args and process according to the optlist
 ```
 
 ### options-find

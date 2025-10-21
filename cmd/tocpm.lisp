@@ -14,10 +14,7 @@
 
 	If no paths given on command line
 	then paths are read from stdin.")
-(("-f" "--format")
-	,(lambda (args arg)
-		(setq opt_f (str-as-num (first args)))
-		(rest args)))
+(("-f" "--format") ,(opt-num 'opt_f))
 ))
 
 (defun work (file)

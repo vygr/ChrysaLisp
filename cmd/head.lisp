@@ -11,10 +11,7 @@
 	Returns lines from start of file or stdin.
 
 	Defaults to first 10 lines.")
-(("-c" "--count")
-	,(lambda (args arg)
-		(setq opt_c (str-as-num (first args)))
-		(rest args)))
+(("-c" "--count") ,(opt-num 'opt_c))
 ))
 
 (defun main ()

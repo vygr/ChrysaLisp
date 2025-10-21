@@ -11,10 +11,7 @@
 	Returns lines from end of file or stdin.
 
 	Defaults to last 10 lines.")
-(("-c" "--count")
-	,(lambda (args arg)
-		(setq opt_c (str-as-num (first args)))
-		(rest args)))
+(("-c" "--count") ,(opt-num 'opt_c))
 ))
 
 (defun main ()

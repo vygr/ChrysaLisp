@@ -15,6 +15,10 @@ None recursive `negamax` implementation for the Chess child task. Also took the
 time to restructure the move generation to take better advantage of the
 alpha/beta cutoff optimisation.
 
+`options` functions now uses `callback` to invoke the user option function. Plus
+added some basic option generators. `(opt-flag opt_var)`, `(opt-str opt_var)`
+and `(opt-num opt_var)`.
+
 ------
 
 `*Lock` service added. This still requires further work, but it removes the idea

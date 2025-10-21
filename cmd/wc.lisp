@@ -16,12 +16,9 @@
 
 	If no paths given on command line
 	then paths are read from stdin.")
-(("-wc")
-	,(lambda (args arg) (setq wc_flag :t) args))
-(("-lc")
-	,(lambda (args arg) (setq lc_flag :t) args))
-(("-pc")
-	,(lambda (args arg) (setq pc_flag :t) args))
+(("-wc") ,(opt-flag 'opt_wc))
+(("-lc") ,(opt-flag 'opt_lc))
+(("-pc") ,(opt-flag 'opt_pc))
 ))
 
 ;do the work on a file
@@ -42,20 +39,20 @@
 		(file-stream file))
 	;construct output string
 	(defq output_parts (list file))
-	(if (or wc_flag default_all_flag) (push output_parts (str word_count)))
-	(if (or lc_flag default_all_flag) (push output_parts (str line_count)))
-	(if (or pc_flag default_all_flag) (push output_parts (str paragraph_count)))
+	(if (or opt_wc default_all_flag) (push output_parts (str word_count)))
+	(if (or opt_lc default_all_flag) (push output_parts (str line_count)))
+	(if (or opt_pc default_all_flag) (push output_parts (str paragraph_count)))
 	(print (join output_parts ", ")))
 
 (defun main ()
 	;initialize flags for options
-	(defq wc_flag :nil lc_flag :nil pc_flag :nil)
+	(defq opt_wc :nil opt_lc :nil opt_pc :nil)
 	;initialize pipe details and command args, abort on error
 	(when (and
 			(defq stdio (create-stdio))
 			(defq args (options stdio usage)))
 		;determine if we need to default to all counts
-		(defq default_all_flag (not (or wc_flag lc_flag pc_flag)))
+		(defq default_all_flag (not (or opt_wc opt_lc opt_pc)))
 		;from args ?
 		(if (empty? (defq jobs (rest args)))
 			;no, so from stdin
@@ -67,7 +64,7 @@
 			(each (lambda ((job result)) (prin result))
 				(pipe-farm (map (# (cat
 					(first args)
-					(if wc_flag " -wc" "")
-					(if lc_flag " -lc" "")
-					(if pc_flag " -pc" "")
+					(if opt_wc " -wc" "")
+					(if opt_lc " -lc" "")
+					(if opt_pc " -pc" "")
 					" " %0)) jobs))))))

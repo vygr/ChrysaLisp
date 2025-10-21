@@ -18,12 +18,9 @@
 
 	eg.
 	files -a apps/ .lisp})
-(("-d" "--dirs")
-	,(lambda (args arg) (setq opt_d :t) args))
-(("-i" "--imm:")
-	,(lambda (args arg) (setq opt_i :t) args))
-(("-a" "--all")
-	,(lambda (args arg) (setq opt_a :t) args))
+(("-d" "--dirs") ,(opt-flag 'opt_d))
+(("-i" "--imm:") ,(opt-flag 'opt_i))
+(("-a" "--all") ,(opt-flag 'opt_a))
 ))
 
 (defun main ()

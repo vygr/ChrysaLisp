@@ -10,10 +10,7 @@
 
 	If no paths given on command line
 	then will dump stdin.")
-(("-c" "--chunk")
-	,(lambda (args arg)
-		(setq opt_c (str-as-num (first args)))
-		(rest args)))
+(("-c" "--chunk") ,(opt-num 'opt_c))
 ))
 
 ;read up to opt_c chars from stream

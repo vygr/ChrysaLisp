@@ -10,14 +10,13 @@
 
 	If no paths given on command line
 	then paths are read from stdin.")
-(("-f" "--file")
-	,(lambda (args arg) (setq file_flag :t) args))
+(("-f" "--file") ,(opt-flag 'opt_f))
 ))
 
 ;cat a file to stdout
 (defun cat-file (file)
 	(when (defq stream (file-stream file))
-		(when file_flag
+		(when opt_f
 			(print (defq banner (pad "" (+ (length file) 2) ";;;;;;;;")))
 			(print "; " file)
 			(print banner))
@@ -29,7 +28,7 @@
 	;initialize pipe details and command args, abort on error
 	(when (and
 			(defq stdio (create-stdio))
-			(defq file_flag :nil args (options stdio usage)))
+			(defq opt_f :nil args (options stdio usage)))
 		(if (<= (length args) 1)
 			;cat from stdin
 			(lines! cat-file (io-stream 'stdin))

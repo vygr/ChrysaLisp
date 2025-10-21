@@ -46,18 +46,12 @@
 
 	If no paths given on command line
 	then will grep from stdin.")
-(("-e" "--exp")
-	,(lambda (args arg) (setq pattern (first args)) (rest args)))
-(("-f" "--file")
-	,(lambda (args arg) (setq file_flag :t) args))
-(("-w" "--words")
-	,(lambda (args arg) (setq words_flag :t) args))
-(("-r" "--regexp")
-	,(lambda (args arg) (setq regexp_flag :t) args))
-(("-c" "--coded")
-	,(lambda (args arg) (setq coded_flag :t) args))
-(("-m" "--md")
-	,(lambda (args arg) (setq md_flag :t) args))
+(("-e" "--exp") ,(opt-str 'pattern))
+(("-f" "--file") ,(opt-flag 'opt_f))
+(("-w" "--words") ,(opt-flag 'opt_w))
+(("-r" "--regexp") ,(opt-flag 'opt_r))
+(("-c" "--coded") ,(opt-flag 'opt_c))
+(("-m" "--md") ,(opt-flag 'opt_m))
 ))
 
 ;grep a stream to stdout
@@ -65,7 +59,7 @@
 	(when stream
 		(defq state :nil)
 		(lines! (# (task-slice)
-			(if md_flag
+			(if opt_m
 				(if state
 					(if (starts-with "```" %0)
 						(setq state :nil))
@@ -80,7 +74,7 @@
 	(when (defq state :nil result :nil stream (file-stream file))
 		(while (and (not result) (defq line (read-line stream)))
 			(task-slice)
-			(if md_flag
+			(if opt_m
 				(if state
 					(if (starts-with "```" line)
 						(setq state :nil))
@@ -95,15 +89,15 @@
 	;initialize pipe details and command args, abort on error
 	(when (and
 			(defq stdio (create-stdio))
-			(defq pattern "" file_flag :nil words_flag :nil
-				regexp_flag :nil coded_flag :nil md_flag :nil
+			(defq pattern "" opt_f :nil opt_w :nil
+				opt_r :nil opt_c :nil opt_m :nil
 				args (options stdio usage)))
 		(when (and (eql pattern "") (> (length args) 1))
 			(defq pattern (second args) args (erase args 1 2)))
-		(if coded_flag (setq pattern (id-decode pattern)))
-		(when (bind '(search pattern meta) (query pattern words_flag regexp_flag))
+		(if opt_c (setq pattern (id-decode pattern)))
+		(when (bind '(search pattern meta) (query pattern opt_w opt_r))
 			(cond
-				(file_flag
+				(opt_f
 					;from args ?
 					(if (empty? (defq jobs (rest args)))
 						;no, so from stdin
@@ -115,8 +109,8 @@
 						(each (lambda ((job result)) (prin result))
 							(pipe-farm (map (# (cat (first args)
 								" -c -f -e " (id-encode pattern)
-								(if words_flag " -w" "") (if regexp_flag " -r" "")
-								(if md_flag " -m" "") " " %0)) jobs)))))
+								(if opt_w " -w" "") (if opt_r " -r" "")
+								(if opt_m " -m" "") " " %0)) jobs)))))
 				(:t (if (empty? (defq jobs (rest args)))
 						;grep stream from stdin
 						(grep-stream (io-stream 'stdin))

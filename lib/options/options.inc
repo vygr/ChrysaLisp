@@ -13,8 +13,7 @@
 
 (defun options-find (optlist arg)
 	; (options-find optlist arg) -> :nil | opt_entry
-	(some (lambda (opt_entry)
-		(if (find arg (first opt_entry)) opt_entry)) optlist))
+	(some (# (if (find arg (first %0)) %0)) optlist))
 
 (defun options-split (args)
 	; (options-split args) -> (a0 [a1] ...)
@@ -35,11 +34,11 @@
 
 (defun options (stdio optlist)
 	; (options stdio optlist) -> :nil | args
-	;scan the stdio args and process acording to the optlist
+	;scan the stdio args and process according to the optlist
 	(defq args (options-split (stdio-get-args stdio)) out_args (list))
 	(while (/= (length args) 0)
 		;look for "-", pass through if not
-		(defq arg (first args) args (rest args))
+		(bind '(arg &rest args) args)
 		(if (starts-with "-" arg)
 			(if (defq opt_entry (or
 					(options-find optlist arg)
@@ -51,12 +50,27 @@
 						(options-print (second opt_entry))
 						(setq args '() out_args :nil))
 					(:t ;else call arg handler
-						(setq args ((second opt_entry) args arg))))
+						(setq args (callback (second opt_entry) (penv) args arg))))
 				;error, so quit
 				(setq args '() out_args :nil))
 			;arg to output
 			(push out_args arg))) out_args)
 
+(defun opt-flag (opt_var)
+	; (opt-flag 'opt_var) -> args
+	(static-qq (lambda (args arg)
+		(setq ,opt_var :t) args)))
+
+(defun opt-num (opt_var)
+	; (opt-num 'opt_var) -> args
+	(static-qq (lambda (args arg)
+		(setq ,opt_var (str-as-num (first args))) (rest args))))
+
+(defun opt-str (opt_var)
+	; (opt-str 'opt_var) -> args
+	(static-qq (lambda (args arg)
+		(setq ,opt_var (first args))) (rest args)))
+
 ;module
-(export-symbols '(options))
+(export-symbols '(options opt-flag opt-str opt-num))
 (env-pop)

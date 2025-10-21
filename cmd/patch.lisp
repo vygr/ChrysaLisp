@@ -11,8 +11,7 @@
 
 	Patch text file a with text file b.
 	If no second file is given it will be read from stdin.})
-(("-s" "--swap")
-	,(lambda (args arg) (setq opt_s :t) args))
+(("-s" "--swap") ,(opt-flag 'opt_s))
 ))
 
 (defun main ()

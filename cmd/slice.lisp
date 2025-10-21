@@ -10,14 +10,8 @@
 		-e --end num: end char index, default -1.
 
 	Slice the lines from stdin to stdout.")
-(("-s" "--start")
-	,(lambda (args arg)
-		(setq opt_s (str-as-num (first args)))
-		(rest args)))
-(("-e" "--end")
-	,(lambda (args arg)
-		(setq opt_e (str-as-num (first args)))
-		(rest args)))
+(("-s" "--start") ,(opt-num 'opt_s))
+(("-e" "--end") ,(opt-num 'opt_e))
 ))
 
 (defun main ()

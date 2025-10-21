@@ -13,14 +13,8 @@
 
 	Optionally select a specific element of
 	the split.")
-(("-s" "--sep")
-	,(lambda (args arg)
-		(setq opt_s (first args))
-		(rest args)))
-(("-e" "--elem")
-	,(lambda (args arg)
-		(setq opt_e (str-as-num (first args)))
-		(rest args)))
+(("-s" "--sep") ,(opt-num 'opt_s))
+(("-e" "--elem") ,(opt-num 'opt_e))
 ))
 
 (defun main ()

@@ -10,10 +10,7 @@
 		-c --count: count, default 10.
 
 	Repeat run command line.")
-(("-c" "--count")
-	,(lambda (args arg)
-		(setq opt_c (str-as-num (first args)))
-		(rest args)))
+(("-c" "--count") ,(opt-num 'opt_c))
 ))
 
 (defun main ()
