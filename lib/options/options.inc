@@ -36,7 +36,7 @@
 	; (options stdio optlist) -> :nil | args
 	;scan the stdio args and process according to the optlist
 	(defq args (options-split (stdio-get-args stdio)) out_args (list))
-	(while (/= (length args) 0)
+	(while (nempty? args)
 		;look for "-", pass through if not
 		(bind '(arg &rest args) args)
 		(if (starts-with "-" arg)
