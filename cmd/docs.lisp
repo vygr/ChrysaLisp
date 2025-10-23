@@ -60,12 +60,9 @@
 
 ;merge child work
 (defun merge-work ((job result))
-	(defq work_map (tree-load (string-stream result)))
-	(setq function_list (cat function_list (. work_map :find :functions))
-		macro_list (cat macro_list (. work_map :find :macros))
-		class_list (cat class_list (. work_map :find :classes))
-		ffi_list (cat ffi_list (. work_map :find :ffis))
-		key_list (cat key_list (. work_map :find :keys))))
+	(each (# (set (penv) %0 (cat (eval %0) %1)))
+		'(function_list macro_list class_list ffi_list key_list)
+		(gather (tree-load (string-stream result)) :functions :macros :classes :ffis :keys)))
 
 (defun main ()
 	;initialize pipe details and command args, abort on error
