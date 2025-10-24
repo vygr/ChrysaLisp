@@ -43,7 +43,6 @@
 		(slice _ (inc i) (find (char 0x22) _ (inc i)))))
 
 (defun make-docs ()
-	(defq *abi* (abi) *cpu* (cpu))
 	(print "Scanning source files...")
 
 	;scan for Lisp functions, macros, classes, ffi and keys info
@@ -116,14 +115,13 @@
 			(write-line stream "```code")
 			(write stream result)
 			(write-line stream "```"))
-		(sort (pipe-farm (map (# (cat %0 " -h"))
-					(files-all "cmd" '(".lisp") 4 -6)))
+		(sort (pipe-farm (map (# (cat %0 " -h")) (files-all "cmd" '(".lisp") 4 -6)))
 			(# (cmp (first %0) (first %1)))))
 	(print "-> " document)
 
 	;scan for VP classes info
-	(defq *imports* (all-vp-files) classes (list) functions (list) docs (list)
-		state :nil ffi_list (. docs_map :find :ffis))
+	(defq *abi* (abi) *cpu* (cpu) *imports* (all-vp-files) classes (list)
+		functions (list) docs (list) state :nil ffi_list (. docs_map :find :ffis))
 	(within-compile-env (lambda ()
 		(include "lib/asm/func.inc")
 		(each include (all-class-files))
