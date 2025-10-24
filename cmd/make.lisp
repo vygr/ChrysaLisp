@@ -200,10 +200,8 @@
 	(when (and
 			(defq stdio (create-stdio))
 			(defq args (options stdio usage)))
-		(defq all (find "all" args) boot (find "boot" args)
-			platforms (find "platforms" args) docs (find "docs" args)
-			it (find "it" args) test (find "test" args)
-			ai (find "ai" args))
+		(each (# (def (penv) (sym %0) (find %0 args)))
+			'("all" "platforms" "boot" "docs" "it" "test" "ai"))
 		(cond
 			(test (make-test))
 			(it (remake-all-platforms) (make-docs))
