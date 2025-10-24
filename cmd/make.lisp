@@ -211,4 +211,4 @@
 			(boot (remake))
 			(docs (make-docs))
 			(ai (make-ai))
-			(:t (make)))))
+			((make)))))
