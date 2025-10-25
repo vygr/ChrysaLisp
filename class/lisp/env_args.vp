@@ -9,6 +9,7 @@
 	;:r4 = min number of args (int)
 	;:r5 = max number of args (int)
 	;outputs
+	;:r1 = args list object (ptr)
 	;:r2 = 0 if error, else ok
 	;trashes
 	;:r2-:r7
@@ -20,14 +21,15 @@
 		;must be in range and match signature
 		(breakif '(:r2 < :r4) '(:r2 > :r5) 'fail)
 		(class/array/get_both :r1 :r4 :r5)
-		(loop-while '(:r4 /= :r5))
-			(vp-cpy-ir-us :r3 0 :r1)
-			(vp-cpy-dr :r3 :r1 :r1)
-			(call 'obj :inst_of '((:r4 0) :r1) '(_ :r1))
-			(breakif '(:r1 = 0) 'fail)
-			(vp-add-cr +ptr_size :r4)
-			(vp-add-cr +short_size :r3)
-		(loop-end)
+		(vpif '(:r4 /= :r5))
+			(loop-start)
+				(vp-cpy-ir-us :r3 0 :r1)
+				(call 'obj :inst_of '((:r4 0) (:r3 :r1)) '(_ :r1))
+				(breakif '(:r1 = 0) 'fail)
+				(vp-add-cr +ptr_size :r4)
+				(vp-add-cr +short_size :r3)
+			(loop-until '(:r4 = :r5))
+		(endif)
 		(assign '(:r6 :r7 -1) '(:r0 :r1 :r2))
 
 		(exit 'lisp :env_args_sig '(:r2))
@@ -46,6 +48,7 @@
 	;:r3 = vtable pointer (ptr)
 	;:r4 = min number of args (int)
 	;outputs
+	;:r1 = args list object (ptr)
 	;:r2 = 0 if error, else ok
 	;trashes
 	;:r2-:r7
@@ -57,11 +60,13 @@
 		;must be in range and of this type
 		(breakif '(:r2 < :r4) 'fail)
 		(class/array/get_both :r1 :r4 :r5)
-		(loop-while '(:r4 /= :r5))
-			(call 'obj :inst_of '((:r4 0) :r3) '(_ :r1))
-			(breakif '(:r1 = 0) 'fail)
-			(vp-add-cr +ptr_size :r4)
-		(loop-end)
+		(vpif '(:r4 /= :r5))
+			(loop-start)
+				(call 'obj :inst_of '((:r4 0) :r3) '(_ :r1))
+				(breakif '(:r1 = 0) 'fail)
+				(vp-add-cr +ptr_size :r4)
+			(loop-until '(:r4 = :r5))
+		(endif)
 		(assign '(:r6 :r7 -1) '(:r0 :r1 :r2))
 
 		(exit 'lisp :env_args_type '(:r2))
@@ -80,6 +85,7 @@
 	;:r3 = vtable pointer (ptr)
 	;:r4 = min number of args (int)
 	;outputs
+	;:r1 = args list object (ptr)
 	;:r2 = 0 if error, else ok
 	;trashes
 	;:r2-:r7
@@ -95,12 +101,13 @@
 			(call 'obj :inst_of '((:r4 0) :r3) '(_ :r1))
 			(breakif '(:r1 = 0) 'fail)
 			(vp-add-cr +ptr_size :r4)
-			(loop-while '(:r4 /= :r5))
+			(breakif '(:r4 = :r5))
+			(loop-start)
 				(assign '((:r4 0)) '(:r0))
 				(assign '((:r0 obj_vtable)) '(:r0))
 				(breakif '(:r1 /= :r0) 'fail)
 				(vp-add-cr +ptr_size :r4)
-			(loop-end)
+			(loop-until '(:r4 = :r5))
 		(endif)
 		(assign '(:r6 :r7 -1) '(:r0 :r1 :r2))
 
@@ -126,15 +133,17 @@
 
 	(assign '((:r0 array_length)) '(:r4))
 	(class/array/get_iters :r0 :r3 :r4 :r1)
-	(loop-while '(:r3 /= :r4))
-		(call 'obj :inst_of `((:r3 0) (@ ,(f-path 'num :vtable))) '(:r0 :r1))
-		(vp-add-cr +ptr_size :r3)
-		(vpif '(:r1 /= 0))
-			(assign '((:r0 num_value)) '(:r0))
-		(endif)
-		(assign '(:r0) '((:r5 0)))
-		(vp-add-cr +ptr_size :r5)
-	(loop-end)
+	(vpif '(:r3 /= :r4))
+		(loop-start)
+			(call 'obj :inst_of `((:r3 0) (@ ,(f-path 'num :vtable))) '(:r0 :r1))
+			(vp-add-cr +ptr_size :r3)
+			(vpif '(:r1 /= 0))
+				(assign '((:r0 num_value)) '(:r0))
+			(endif)
+			(assign '(:r0) '((:r5 0)))
+			(vp-add-cr +ptr_size :r5)
+		(loop-until '(:r3 = :r4))
+	(endif)
 	(vp-ret)
 
 (def-func-end)

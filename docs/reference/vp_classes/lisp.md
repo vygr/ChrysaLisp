@@ -83,6 +83,7 @@ inputs
 :r3 = vtable pointer (ptr)
 :r4 = min number of args (int)
 outputs
+:r1 = args list object (ptr)
 :r2 = 0 if error, else ok
 trashes
 :r2-:r7
@@ -108,6 +109,7 @@ inputs
 :r4 = min number of args (int)
 :r5 = max number of args (int)
 outputs
+:r1 = args list object (ptr)
 :r2 = 0 if error, else ok
 trashes
 :r2-:r7
@@ -121,6 +123,7 @@ inputs
 :r3 = vtable pointer (ptr)
 :r4 = min number of args (int)
 outputs
+:r1 = args list object (ptr)
 :r2 = 0 if error, else ok
 trashes
 :r2-:r7
