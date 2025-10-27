@@ -34,30 +34,39 @@
 
 	(entry 'list :lisp_merge '(:r0 :r1))
 
+	(def-vars
+		(ptr this iter_begin iter_end))
+
 	(errorif-lisp-args-sig 'error :r1 2)
 
-	(vp-push :r0)
+	(push-scope)
+	(assign '(:r0) {this})
 	(array-bind-args :r1 '(:r0 :r1))
-	(class/array/get_both :r1 :r8 :r7)
-	(assign '((:r0 array_length)) '(:r1))
-	(call 'list :set_cap '(:r0 :r1) '(:r0))
-	(loop-while '(:r8 /= :r7))
-		(assign '((:r8 0)) '(:r1))
-		(vp-add-cr +ptr_size :r8)
-		(call 'list :rfind '(:r0 :r1 (:r0 array_length)) '(:r0 :r1 :r2))
-		(continueif '(:r2 /= 0))
-		(class/obj/ref :r1 :r2)
-		(call 'list :push_back '(:r0 :r1) '(:r0 _ _ _))
-	(loop-end)
+	(class/array/get_both :r1 :r6 :r7)
+	(vpif '(:r6 /= :r7))
+		(call 'list :set_cap '(:r0 (:r1 array_length)) '(:r0))
+		(loop-start)
+			(assign '((:r6 0)) '(:r1))
+			(vp-add-cr +ptr_size :r6)
+			(assign '(:r6 :r7) {iter_begin, iter_end})
+			(call 'list :find '(:r0 :r1 0) '(:r0 :r1 :r2))
+			(vpif '(:r2 = -1))
+				(class/obj/ref :r1 :r2)
+				(call 'list :push_back '(:r0 :r1) '(:r0 _ _ _))
+			(endif)
+			(assign {iter_begin, iter_end} '(:r6 :r7))
+		(loop-until '(:r6 = :r7))
+	(endif)
 	(call 'obj :ref '(:r0) '(:r1))
-	(vp-pop :r0)
+	(assign {this} '(:r0))
+	(pop-scope)
 
 	(exit 'list :lisp_merge '(:r0 :r1))
 	(vp-ret)
 
 (errorcase
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(merge-obj dlist slist)" +error_msg_wrong_types :r1))
+	(jump 'lisp :repl_error '(:r0 "(merge dlist slist)" +error_msg_wrong_types :r1))
 	(signature '(list list)))
 
 (def-func-end)

@@ -35,5 +35,5 @@
 		(:t (throw (cat "Unknown CPU for ABI " *abi* " !") *cpu*))))
 (:t (throw "Unknown ABI !" *abi*)))
 
-(defmacro abi-push-trashed (&rest b) (merge-obj b (abi-trashed)) `(vp-push ~b))
-(defmacro abi-pop-trashed (&rest b) (merge-obj b (abi-trashed)) `(vp-pop ~b))
+(defmacro abi-push-trashed (&rest b) (merge b (abi-trashed)) `(vp-push ~b))
+(defmacro abi-pop-trashed (&rest b) (merge b (abi-trashed)) `(vp-pop ~b))

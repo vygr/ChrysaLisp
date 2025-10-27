@@ -9,7 +9,7 @@
 
 (defmacro vp-def (_ &optional l)
 	(setq l (apply (const cat) (map (lambda (x y)
-		(list (list quote x) y)) _ (if l (merge-obj (cat (eval l)) +vp_regs_0_14) +vp_regs_0_14))))
+		(list (list quote x) y)) _ (if l (merge (cat (eval l)) +vp_regs_0_14) +vp_regs_0_14))))
 	(static-qq (progn (deffvar ~l))))
 
 ;;;;;;;;;;;;;

@@ -19,6 +19,9 @@ alpha/beta cutoff optimisation.
 added some basic option generators. `(opt-flag opt_var)`, `(opt-str opt_var)`
 and `(opt-num opt_var)`.
 
+Fix bug in the `(merge dlist slist) -> dlist` function when used with none
+symbol lists.
+
 ------
 
 `*Lock` service added. This still requires further work, but it removes the idea
@@ -1475,9 +1478,6 @@ as well as support for Anchors, Aliases, etc. to inch closer
 to YAML 1.2 compliance.
 
 ------
-
-Renamed (merge) to (merge-obj) to avoid clashing with Common Lisp and to be
-more descriptive of what the function actually does.
 
 Lots of rework of the service system ! Service (declare) and (enquire) calls
 now have no race condition. Also took the opportunity to completely rework the

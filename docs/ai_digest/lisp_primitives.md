@@ -215,10 +215,10 @@ These functions are specialized for mutable `array` and `list` data structures.
 
     * `(elem-set array idx elem) -> array`
 
-*   **`merge-obj`**: Merges the elements of a source list into a destination
+*   **`merge`**: Merges the elements of a source list into a destination
     list, ensuring uniqueness.
 
-    * `(merge-obj dlist slist) -> dlist`
+    * `(merge dlist slist) -> dlist`
 
 *   **`pivot`**: Partitions a list around a pivot element for sorting
     algorithms.

@@ -158,7 +158,7 @@
 (defun def-reg-map (pre spill)
 	(setd spill '(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7
 		:r8 :r9 :r10 :r11 :r12 :r13 :r14))
-	(each (# (deffvar %0 %1)) +vreg (if pre (merge-obj pre spill) spill)))
+	(each (# (deffvar %0 %1)) +vreg (if pre (merge pre spill) spill)))
 
 (defun compile-deref ()
 	(if (defq x (top-reg) w (get-type))

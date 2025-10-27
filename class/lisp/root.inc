@@ -118,8 +118,8 @@
 (ffi "class/array/lisp_eset" elem-set)
 ; (elem-set array idx elem) -> array
 
-(ffi "class/list/lisp_merge" merge-obj)
-; (merge-obj dlist slist) -> dlist
+(ffi "class/list/lisp_merge" merge)
+; (merge dlist slist) -> dlist
 (ffi "class/list/lisp_pivot" pivot)
 ; (pivot lambda list start end)
 (ffi "class/list/lisp_match" lmatch?)
@@ -561,7 +561,7 @@
 					(push stack %0))
 				(and (sym? %0)
 					(find %0 '(%0 %1 %2 %3 %4 %5 %6 %7 %8 %9))
-					(merge-obj args (list %0)))))
+					(merge args (list %0)))))
 			(list lst)))
 	(setq args (sort args))
 	`(lambda ,args ~body))

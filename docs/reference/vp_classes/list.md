@@ -10,7 +10,7 @@
 
 ### (lmatch? list list) -> :nil | :t
 
-### (merge-obj dlist slist) -> dlist
+### (merge dlist slist) -> dlist
 
 ### (pivot lambda list start end)
 

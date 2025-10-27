@@ -42,7 +42,7 @@
 	(defq *blob_map* (env 31) zero (cat (char 0 +ptr_size) (char 0 +int_size)))
 	(unless (list? *funcs*) (setq *funcs* (list *funcs*)))
 	;all functions required and requested
-	(defq boot_funcs (merge-obj (list
+	(defq boot_funcs (merge (list
 		;must be first function !
 		'sys/load/init
 		;must be second function !
@@ -52,7 +52,7 @@
 		(map (const sym) *funcs*)))
 	;load refs recursively
 	(each-mergeable
-		(# (merge-obj boot_funcs (elem-get (func-load %0) +blob_refs)))
+		(# (merge boot_funcs (elem-get (func-load %0) +blob_refs)))
 		boot_funcs)
 	;sort into order, leaving the init/statics first !
 	(sort boot_funcs (const cmp) 2)
