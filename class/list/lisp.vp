@@ -49,7 +49,7 @@
 			(assign '((:r6 0)) '(:r1))
 			(vp-add-cr +ptr_size :r6)
 			(assign '(:r6 :r7) {iter_begin, iter_end})
-			(call 'list :find '(:r0 :r1 0) '(:r0 :r1 :r2))
+			(d-call 'list :find '(:r0 :r1 0) '(:r0 :r1 :r2))
 			(vpif '(:r2 = -1))
 				(class/obj/ref :r1 :r2)
 				(call 'list :push_back '(:r0 :r1) '(:r0 _ _ _))
