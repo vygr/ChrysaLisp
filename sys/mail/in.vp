@@ -10,18 +10,17 @@
 	;:r0-:r14
 
 	(def-vars
-		(ptr rx_msg msg parcel_list)
+		(ptr rx_msg msg)
 		(uint len))
 
 	(push-scope)
 	(entry 'sys_mail :in {rx_msg})
 
 	;look up parcel in mailbox
-	(assign {@sys/statics/statics.statics_sys_mail_parcel_list} {parcel_list})
-	(vp-def (node next src1 src2 src3 psrc1 psrc2 psrc3 rx_msg total))
-	(assign {rx_msg, parcel_list} `(,rx_msg ,next))
+	(vp-def (node next src1 src2 src3 psrc1 psrc2 psrc3 parcels rx_msg total))
+	(assign {@sys/statics/statics.statics_sys_mail_parcel_list, rx_msg} `(,parcels ,rx_msg))
 	(load-net-id rx_msg lk_buf_src src1 src2 src3)
-	(loop-list-forward next 0 node next)
+	(loop-list-forward parcels 0 node next)
 		(load-net-id node msg_src psrc1 psrc2 psrc3)
 	(loop-until `(,src1 = ,psrc1) `(,src2 = ,psrc2) `(,src3 = ,psrc3))
 	(vpif `(,next = 0))
@@ -31,8 +30,7 @@
 		(assign `(,total) `((,node msg_total_length)))
 		(assign-net-id rx_msg lk_buf_dest node msg_dest src1 src2 src3)
 		(assign-net-id rx_msg lk_buf_src node msg_src src1 src2 src3)
-		(assign {parcel_list} `(,next))
-		(lh-add-at-tail next node src1)
+		(lh-add-at-tail parcels node src1)
 	(endif)
 	(assign `(,node) {msg})
 
