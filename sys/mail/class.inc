@@ -74,28 +74,28 @@
 ;useful helpers for net_id and node_id
 
 (defun load-node-id (src so &optional t1 t2)
-	(setd src :r0 t1 :r3 t2 :r4)
-	(vp-cpy-ir src (+ so node_id_node1) t1)
-	(vp-cpy-ir src (+ so node_id_node2) t2))
+	(setd t1 :r3 t2 :r4)
+	(load-fields src (list (+ so node_id_node1) (+ so node_id_node2)) (list t1 t2)))
 
 (defun save-node-id (dst do &optional t1 t2)
-	(setd dst :r1 t1 :r3 t2 :r4)
-	(vp-cpy-ri t1 dst (+ do node_id_node1))
-	(vp-cpy-ri t2 dst (+ do node_id_node2)))
+	(setd t1 :r3 t2 :r4)
+	(save-fields dst (list (+ do node_id_node1) (+ do node_id_node2)) (list t1 t2)))
 
 (defun assign-node-id (src so dst do &optional t1 t2)
 	(load-node-id src so t1 t2)
 	(save-node-id dst do t1 t2))
 
 (defun load-net-id (src so &optional t1 t2 t3)
-	(setd src :r0 t1 :r2)
-	(vp-cpy-ir src (+ so net_id_mbox_id) t1)
-	(load-node-id src (+ so net_id_node_id) t2 t3))
+	(setd t1 :r2 t2 :r3 t3 :r4)
+	(load-fields src
+		(list (+ so net_id_mbox_id) (+ so net_id_node_id node_id_node1) (+ so net_id_node_id node_id_node2))
+		(list t1 t2 t3)))
 
 (defun save-net-id (dst do &optional t1 t2 t3)
-	(setd dst :r1 t1 :r2)
-	(vp-cpy-ri t1 dst (+ do net_id_mbox_id))
-	(save-node-id dst (+ do net_id_node_id) t2 t3))
+	(setd t1 :r2 t2 :r3 t3 :r4)
+	(save-fields dst
+		(list (+ do net_id_mbox_id) (+ do net_id_node_id node_id_node1) (+ do net_id_node_id node_id_node2))
+		(list t1 t2 t3)))
 
 (defun assign-net-id (src so dst do &optional t1 t2 t3)
 	(load-net-id src so t1 t2 t3)
