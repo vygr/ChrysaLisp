@@ -12,7 +12,7 @@
 		(ptr msg data frag statics)
 		(struct node_id node_id_size)
 		(ulong time)
-		(uint offset ammount len))
+		(uint offset amount len))
 
 	(push-scope)
 
@@ -36,10 +36,10 @@
 		;for each fragment
 		(call 'host_os :pii_time :nil {time})
 		(assign {0} {offset})
-		(assign {msg->msg_frag_length} {ammount})
+		(assign {msg->msg_frag_length} {amount})
 		(loop-start)
 			;create fragment
-			(assign {ammount} {len})
+			(assign {amount} {len})
 			(vpif {len > lk_data_size})
 				(assign {lk_data_size} {len})
 			(endif)
@@ -63,13 +63,13 @@
 
 			;move on
 			(assign {offset + len} {offset})
-			(assign {ammount - len} {ammount})
+			(assign {amount - len} {amount})
 
 			;queue it on the outgoing packet list
 			(vp-def (head node tmp))
-			(assign {&statics->statics_sys_mail_offchip_list, frag} (list head node))
+			(assign {&statics->statics_sys_mail_offchip_list, frag} `(,head ,node))
 			(lh-add-at-tail head node tmp)
-		(loop-untilnot {ammount})
+		(loop-untilnot {amount})
 
 		;free parcel
 		(call 'sys_mail :free {msg})

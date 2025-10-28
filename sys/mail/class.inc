@@ -71,7 +71,7 @@
 ;must be power 2
 (defcvar 'num_mbox_buckets 8)
 
-;usefull helpers for net_id and node_id
+;useful helpers for net_id and node_id
 
 (defun load-node-id (src so &optional t1 t2)
 	(setd src :r0 t1 :r3 t2 :r4)

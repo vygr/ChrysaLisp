@@ -18,31 +18,23 @@
 
 	;look up parcel in mailbox
 	(assign {@sys/statics/statics.statics_sys_mail_parcel_list} {parcel_list})
-	(vp-def (next node src1 src2 src3 psrc1 psrc2 psrc3))
-	(assign {parcel_list,
-			rx_msg->lk_buf_src.net_id_mbox_id,
-			rx_msg->lk_buf_src.net_id_node_id.node_id_node1,
-			rx_msg->lk_buf_src.net_id_node_id.node_id_node2}
-		(list next src1 src2 src3))
+	(vp-def (node next src1 src2 src3 psrc1 psrc2 psrc3 rx_msg total))
+	(assign {rx_msg, parcel_list} `(,rx_msg ,next))
+	(load-net-id rx_msg lk_buf_src src1 src2 src3)
 	(loop-list-forward next 0 node next)
-		(vp-cpy-ir node (+ msg_src net_id_mbox_id) psrc1)
-		(vp-cpy-ir node (+ msg_src net_id_node_id node_id_node1) psrc2)
-		(vp-cpy-ir node (+ msg_src net_id_node_id node_id_node2) psrc3)
+		(load-net-id node msg_src psrc1 psrc2 psrc3)
 	(loop-until `(,src1 = ,psrc1) `(,src2 = ,psrc2) `(,src3 = ,psrc3))
-	(assign (list node) {msg})
 	(vpif `(,next = 0))
 		;new parcel
-		(call 'sys_mail :alloc {rx_msg->lk_buf_total_length} {msg, _})
-		(assign {rx_msg->lk_buf_dest.net_id_mbox_id} {msg->msg_dest.net_id_mbox_id})
-		(assign {rx_msg->lk_buf_dest.net_id_node_id.node_id_node1} {msg->msg_dest.net_id_node_id.node_id_node1})
-		(assign {rx_msg->lk_buf_dest.net_id_node_id.node_id_node2} {msg->msg_dest.net_id_node_id.node_id_node2})
-		(assign {rx_msg->lk_buf_src.net_id_mbox_id} {msg->msg_src.net_id_mbox_id})
-		(assign {rx_msg->lk_buf_src.net_id_node_id.node_id_node1} {msg->msg_src.net_id_node_id.node_id_node1})
-		(assign {rx_msg->lk_buf_src.net_id_node_id.node_id_node2} {msg->msg_src.net_id_node_id.node_id_node2})
-		(assign {rx_msg->lk_buf_total_length} {msg->msg_total_length})
-		(assign {parcel_list, msg} (list next node))
+		(assign `((,rx_msg lk_buf_total_length)) `(,total))
+		(call 'sys_mail :alloc `(,total) `(,node _))
+		(assign `(,total) `((,node msg_total_length)))
+		(assign-net-id rx_msg lk_buf_dest node msg_dest src1 src2 src3)
+		(assign-net-id rx_msg lk_buf_src node msg_src src1 src2 src3)
+		(assign {parcel_list} `(,next))
 		(lh-add-at-tail next node src1)
 	(endif)
+	(assign `(,node) {msg})
 
 	;timestamp last change
 	(call 'host_os :pii_time :nil {msg->msg_timestamp})
@@ -60,7 +52,7 @@
 	;got all needed ?
 	(vpifnot {msg->msg_total_length})
 		;yes, remove parcel and post it
-		(assign {msg} (list node))
+		(assign {msg} `(,node))
 		(ln-remove-node node next)
 		(call 'sys_mail :send {msg})
 	(endif)
