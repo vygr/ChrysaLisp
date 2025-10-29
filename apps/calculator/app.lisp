@@ -191,7 +191,7 @@
 
 	; Setup tooltips
 	(def *window* :tip_mbox (elem-get select +select_tip))
-	(ui-tool-tips base_bar '("Decimal" "Hexadecimal" "Binary" "Octal"))
+	(ui-tool-tips base_bar '("decimal" "hexadecimal" "binary" "octal"))
 
 	(update-button-states (elem-get state +state_base))
 	(. base_bar :set_selected 0)
