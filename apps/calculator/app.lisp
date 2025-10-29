@@ -36,9 +36,11 @@
 				((find text '("A" "B" "C" "D" "E" "F")) (push hex_buttons button))
 				((find text '("2" "3" "4" "5" "6" "7" "8" "9")) (push other_base_buttons button))
 				((find text '("AND" "OR" "XOR" "NOT")) (push dec_buttons button))))
+			
+			; CHANGED: The "DEF" and "ABC" rows have been swapped here.
 			'("AND" "OR"  "XOR" "NOT"
-			  "A"   "B"   "C"   "AC"
-			  "D"   "E"   "F"   "/"
+			  "D"   "E"   "F"   "AC"
+			  "A"   "B"   "C"   "/"
 			  "7"   "8"   "9"   "*"
 			  "4"   "5"   "6"   "-"
 			  "1"   "2"   "3"   "+"
@@ -48,7 +50,6 @@
 ; Helper Functions
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-; CHANGED: Function now accepts a 'base' argument.
 (defun create-calculator-state (base)
     ; State list: '(accum num base lastop error_state new_entry)
     (list 0 0 base :nil :nil :t))
@@ -116,7 +117,6 @@
         (progn
             (defq digit (find op "0123456789ABCDEF"))
             (cond
-                ; CHANGED: Pass the current base when creating a new state.
                 ((eql op "AC")   (create-calculator-state base))
                 ((eql op "CE")   (list accum 0 base lastop error_state :t))
                 ((eql op "NOT")  (list accum (lognot num) base lastop error_state new_entry))
@@ -141,7 +141,6 @@
 (defun main ()
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(gui-add-front-rpc (. *window* :change x y w h))
-	; CHANGED: Initialize state with a default base of 10.
 	(defq state (create-calculator-state 10) running :t)
 	(update-button-states (elem-get state +state_base))
 	(. base_bar :set_selected 0)
