@@ -1,23 +1,45 @@
 (import "././login/env.inc")
 (import "gui/lisp.inc")
 (import "lib/consts/chars.inc")
+(import "lib/consts/scodes.inc")
 
 (enums +event 0
 	(enum close max min)
 	(enum base_change)
 	(enum button))
 
-; Use enums to define named indices for our state list.
+; Use enums to define named indices for our state list for clarity.
 (enums +state 0
 	(enum accum num base lastop error_state new_entry))
 
+; Pre-define lists of buttons to make UI updates easier.
 (defq hex_buttons (list))
-(defq dec_buttons (list))
 (defq other_base_buttons (list))
 (defq +operators ''("=" "+" "-" "*" "/" "AND" "OR" "XOR"))
 (defq +disabled_color +argb_grey4)
 (defq +disabled_ink_color *env_hint_col*)
 (defq +digit_list (static-q (map identity "0123456789ABCDEF")))
+
+; A map for direct keyboard scancode to operation mapping.
+(defq key_map (scatter (Fmap)
+	+sc_0 "0" +sc_1 "1" +sc_2 "2" +sc_3 "3" +sc_4 "4"
+	+sc_5 "5" +sc_6 "6" +sc_7 "7" +sc_8 "8" +sc_9 "9"
+	+sc_a "A" +sc_b "B" +sc_c "C" +sc_d "D" +sc_e "E" +sc_f "F"
+	+sc_kp_0 "0" +sc_kp_1 "1" +sc_kp_2 "2" +sc_kp_3 "3" +sc_kp_4 "4"
+	+sc_kp_5 "5" +sc_kp_6 "6" +sc_kp_7 "7" +sc_kp_8 "8" +sc_kp_9 "9"
+	+sc_kp_divide "/" +sc_kp_multiply "*" +sc_kp_minus "-" +sc_kp_plus "+"
+	+sc_kp_enter "="
+	+sc_slash "/" +sc_minus "-" +sc_equals "="
+	+sc_return "=" +sc_escape "AC" +sc_backspace "BACK" +sc_delete "CE"))
+
+; A map for shifted keyboard scancodes.
+(defq shift_key_map (scatter (Fmap)
+	+sc_equals "+"      ; Shift + =
+	+sc_8 "*"           ; Shift + 8
+	+sc_7 "AND"         ; Shift + 7 (&)
+	+sc_6 "XOR"         ; Shift + 6 (^)
+	+sc_backslash "OR"  ; Shift + \ (|) - Varies by layout
+	+sc_grave "NOT"))   ; Shift + ` (~) - Varies by layout
 
 (ui-window *window* ()
 	(ui-title-bar _ "Calculator" (0xea19 0xea1b 0xea1a) +event_close)
@@ -27,7 +49,7 @@
 		:connect +event_base_change)
 	(ui-label *display* (:text "0" :color +argb_white :flow_flags +flow_flag_align_hright
 		:font (create-font "fonts/OpenSans-Regular.ctf" 24)))
-	(ui-grid _ (:grid_width 4 :grid_height 7 :color *env_toolbar_col*
+	(ui-grid button_grid (:grid_width 4 :grid_height 7 :color *env_toolbar_col*
 			:font (create-font "fonts/OpenSans-Regular.ctf" 28))
 		(each (lambda (text)
 			(defq button (ui-button _ (:text text)))
@@ -35,15 +57,14 @@
 			; Group buttons for easy enabling/disabling
 			(cond
 				((find text '("A" "B" "C" "D" "E" "F")) (push hex_buttons button))
-				((find text '("2" "3" "4" "5" "6" "7" "8" "9")) (push other_base_buttons button))
-				((find text '("AND" "OR" "XOR" "NOT")) (push dec_buttons button))))
+				((find text '("2" "3" "4" "5" "6" "7" "8" "9")) (push other_base_buttons button))))
 			'("AND" "OR"  "XOR" "NOT"
-			  "D"   "E"   "F"   "AC"
-			  "A"   "B"   "C"   "/"
-			  "7"   "8"   "9"   "*"
-			  "4"   "5"   "6"   "-"
-			  "1"   "2"   "3"   "+"
-			  "0"   "CE"  "BACK" "="))))
+			  "D"   "E"   "F"   "/"
+			  "A"   "B"   "C"   "*"
+			  "7"   "8"   "9"   "-"
+			  "4"   "5"   "6"   "+"
+			  "1"   "2"   "3"   "="
+			  "0"  "BACK" "CE" "AC"))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Helper Functions
@@ -75,64 +96,43 @@
 		("+" (+ accum num))
 		("-" (- accum num))
 		("*" (* accum num))
-		("/" (if (/= num 0) (/ accum num) :error)) ; Return :error on division by zero
+		("/" (if (/= num 0) (/ accum num) :error))
 		("AND" (logand accum num))
 		("OR"  (logior accum num))
 		("XOR" (logxor accum num))
 		(:t num)))
 
 (defun update-display (state)
+    (bind '(accum num base _ _ new_entry) state)
+    (defq display_num (if new_entry accum num))
 	(if (elem-get state +state_error_state)
 		(set *display* :text "Error")
-		(set *display* :text (format-number (elem-get state +state_num) (elem-get state +state_base))))
+		(set *display* :text (format-number display_num base)))
 	(.-> *display* :layout :dirty))
 
 (defun update-button-states (base)
+    ; Hex-specific buttons (A-F) are only enabled for HEX base.
 	(each (lambda (button)
-		(def (. button :dirty) :disabled (/= base 16)
-			:color (if (= base 16) *env_toolbar_col* +disabled_color)
-			:ink_color (if (= base 16) *env_ink_col* +disabled_ink_color)))
+		(defq is_enabled (= base 16))
+		(def (. button :dirty) :disabled (not is_enabled)
+			:color (if is_enabled *env_toolbar_col* +disabled_color)
+			:ink_color (if is_enabled *env_ink_col* +disabled_ink_color)))
 		hex_buttons)
-	(each (lambda (button)
-		 (def (. button :dirty) :disabled (= base 10)
-			:color (if (/= base 10) *env_toolbar_col* +disabled_color)
-			:ink_color (if (/= base 10) *env_ink_col* +disabled_ink_color)))
-		dec_buttons)
+
+    ; Digit buttons (2-9) are enabled if their value is less than the current base.
 	(each (lambda (button)
 		(defq button_val (str-as-num (get :text button)))
-		(def (. button :dirty) :disabled (>= button_val base)
-			:color (if (< button_val base) *env_toolbar_col* +disabled_color)
-			:ink_color (if (< button_val base) *env_ink_col* +disabled_ink_color)))
+		(defq is_enabled (< button_val base))
+		(def (. button :dirty) :disabled (not is_enabled)
+			:color (if is_enabled *env_toolbar_col* +disabled_color)
+			:ink_color (if is_enabled *env_ink_col* +disabled_ink_color)))
 		other_base_buttons))
 
-; NEW: This function translates a keyboard press into a calculator operation string.
 (defun key-to-op (key mod base)
 	(defq op
-		(cond
-			((bits? mod +ev_key_mod_shift)
-				(cond
-					((= key (ascii-code "+")) "+")
-					((= key (ascii-code "*")) "*")
-					; For bitwise ops, we map common shifted keys.
-					((= key (ascii-code "&")) "AND") ; Shift+7 is '&'
-					((= key (ascii-code "^")) "XOR") ; Shift+6 is '^'
-					((= key (ascii-code "|")) "OR")  ; Shift+\ is '|'
-					((= key (ascii-code "~")) "NOT")  ; Shift+` is '~'
-					; Uppercase letters A-F for HEX mode
-					((<= (ascii-code "A") key (ascii-code "F")) (print ".")(print) (char key))))
-			(:t ; No shift
-				(cond
-					; Lowercase letters a-f for HEX mode (will be converted to uppercase)
-					((<= (ascii-code "a") key (ascii-code "f")) (char (ascii-upper key)))
-					; Numbers 0-9
-					((<= (ascii-code "0") key (ascii-code "9")) (char key))
-					; Unshifted operators
-					((find key (map (const ascii-code) '("=" "/" "-"))) (char key))
-					; Special keys
-					((= key +char_backspace) "BACK")
-					((= key +char_delete) "CE")
-					((= key +char_esc) "AC")
-					((or (= key +char_lf) (= key +char_cr)) "=")))))
+		(if (bits? mod +ev_key_mod_shift)
+			(. shift_key_map :find key)
+			(. key_map :find key)))
 	; Validate the operation, especially digits, against the current base
 	(if op
 		(if (defq digit (find op +digit_list))
@@ -153,17 +153,24 @@
 				((eql op "AC")   (create-calculator-state base))
 				((eql op "CE")   (list accum 0 base lastop error_state :t))
 				((eql op "NOT")  (list accum (lognot num) base lastop error_state new_entry))
-				((eql op "BACK") (list accum (/ num base) base lastop error_state new_entry))
+				((eql op "BACK") (list accum (if (< num 0) (neg (/ (abs num) base)) (/ num base)) base lastop error_state new_entry))
 				((find op +operators)
-					(if new_entry
-						(list num num base (if (eql op "=") :nil op) :nil :t)
-						(let ((result (do_op accum num lastop)))
-							 (if (eql result :error)
-								 (list accum num base lastop :t new_entry)
-								 (list result result base (if (eql op "=") :nil op) :nil :t)))))
+                    (if (eql op "=")
+                        ; Handle equals
+                        (let ((result (do_op accum num (ifn lastop "+"))))
+                            (if (eql result :error)
+                                (list accum num base lastop :t :t)
+                                (list result num base lastop :nil :t)))
+                        ; Handle other operators
+                        (if new_entry
+                            (list accum num base op :nil :t) ; e.g. 5 * + -> changes op to +
+                            (let ((result (do_op accum num lastop)))
+                                (if (eql result :error)
+                                    (list accum num base lastop :t :t)
+                                    (list result result base op :nil :t)))))) ; e.g. 5 * 3 + -> calculates 15, sets up for +
 				((and digit (< digit base))
 					(if new_entry
-						(list accum digit base (if lastop lastop :t) :nil :nil)
+						(list accum digit base lastop :nil :nil)
 						(list accum (+ (* num base) digit) base lastop :nil :nil)))
 				(:t state)))))
 
@@ -189,9 +196,8 @@
 				(defq button (. *window* :find_id (getf msg +ev_msg_action_source_id)))
 				(unless (get :disabled button)
 					(setq op (get :text button))))
-			; NEW: Handle keyboard events here
 			((= (getf msg +ev_msg_type) +ev_type_key_down)
-				(setq op (key-to-op (getf msg +ev_msg_key_key)
+				(setq op (key-to-op (getf msg +ev_msg_key_scode)
 									(getf msg +ev_msg_key_mod)
 									(elem-get state +state_base)))))
 
@@ -212,6 +218,5 @@
 			(op (setq state (handle-input state op)))
 			(:t (. *window* :event msg)))
 
-		; Update the display based on the new state
 		(update-display state))
 	(gui-sub-rpc *window*))
