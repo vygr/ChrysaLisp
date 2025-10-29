@@ -43,7 +43,9 @@
 	+sc_7 "AND"         ; Shift + 7 (&)
 	+sc_6 "XOR"         ; Shift + 6 (^)
 	+sc_backslash "OR"  ; Shift + \ (|) - Varies by layout
-	+sc_grave "NOT"))   ; Shift + ` (~) - Varies by layout
+	+sc_grave "NOT"     ; Shift + ` (~) - Varies by layout
+	+sc_comma "<<"      ; Shift + , (<)
+	+sc_period ">>"))   ; Shift + . (>)
 
 (ui-window *window* ()
 	(ui-title-bar _ "Calculator" (0xea19 0xea1b 0xea1a) +event_close)
@@ -53,7 +55,7 @@
 		:connect +event_base_change)
 	(ui-label *display* (:text "0" :color +argb_white :flow_flags +flow_flag_align_hright
 		:font (create-font "fonts/OpenSans-Regular.ctf" 24)))
-	(ui-grid button_grid (:grid_width 4 :grid_height 7 :color *env_toolbar_col*
+	(ui-grid button_grid (:grid_width 4 :grid_height 8 :color *env_toolbar_col*
 			:font (create-font "fonts/OpenSans-Regular.ctf" 28))
 		(each (lambda (text)
 			(defq button (ui-button _ (:text text)))
@@ -63,6 +65,7 @@
 				((find text '("A" "B" "C" "D" "E" "F")) (push hex_buttons button))
 				((find text '("2" "3" "4" "5" "6" "7" "8" "9")) (push other_base_buttons button))))
 			'("AND" "OR"  "XOR" "NOT"
+			  ">>>" ">>"  "<<"  "NEG"
 			  "D"   "E"   "F"   "/"
 			  "A"   "B"   "C"   "*"
 			  "7"   "8"   "9"   "-"
@@ -158,6 +161,10 @@
 				((eql op "CE")   (list accum 0 base lastop error_state :t))
 				((eql op "NOT")  (list accum (lognot num) base lastop error_state new_entry))
 				((eql op "BACK") (list accum (if (< num 0) (neg (/ (abs num) base)) (/ num base)) base lastop error_state new_entry))
+				((eql op "NEG")  (list accum (neg num) base lastop error_state new_entry))
+				((eql op "<<")   (list accum (<< num 1) base lastop error_state new_entry))
+				((eql op ">>")   (list accum (>> num 1) base lastop error_state new_entry))
+				((eql op ">>>")  (list accum (>>> num 1) base lastop error_state new_entry))
 				((find op +operators)
 					(if (eql op "=")
                         ; Handle equals
