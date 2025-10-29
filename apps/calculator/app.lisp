@@ -36,8 +36,6 @@
 				((find text '("A" "B" "C" "D" "E" "F")) (push hex_buttons button))
 				((find text '("2" "3" "4" "5" "6" "7" "8" "9")) (push other_base_buttons button))
 				((find text '("AND" "OR" "XOR" "NOT")) (push dec_buttons button))))
-			
-			; CHANGED: The "DEF" and "ABC" rows have been swapped here.
 			'("AND" "OR"  "XOR" "NOT"
 			  "D"   "E"   "F"   "AC"
 			  "A"   "B"   "C"   "/"
@@ -106,6 +104,44 @@
             :ink_color (if (< button_val base) *env_ink_col* +disabled_ink_color)))
         other_base_buttons))
 
+; NEW: This function translates a keyboard press into a calculator operation string.
+(defun key-to-op (key mod base)
+    (defq op
+        (cond
+            ((bits? mod +ev_key_mod_shift)
+                (cond
+                    ((= key (ascii-code "+")) "+")
+                    ((= key (ascii-code "*")) "*")
+                    ; For bitwise ops, we map common shifted keys.
+                    ((= key (ascii-code "&")) "AND") ; Shift+7 is '&'
+                    ((= key (ascii-code "^")) "XOR") ; Shift+6 is '^'
+                    ((= key (ascii-code "|")) "OR")  ; Shift+\ is '|'
+                    ((= key (ascii-code "~")) "NOT")  ; Shift+` is '~'
+                    ; Uppercase letters A-F for HEX mode
+                    ((<= (ascii-code "A") key (ascii-code "F")) (print ".")(print) (char key))
+                    (:t :nil)))
+            (:t ; No shift
+                (cond
+                    ; Lowercase letters a-f for HEX mode (will be converted to uppercase)
+                    ((<= (ascii-code "a") key (ascii-code "f")) (char (ascii-upper key)))
+                    ; Numbers 0-9
+                    ((<= (ascii-code "0") key (ascii-code "9")) (char key))
+                    ; Unshifted operators
+                    ((find key (map (const ascii-code) '("=" "/" "-"))) (char key))
+                    ; Special keys
+                    ((= key +char_backspace) "BACK")
+                    ((= key +char_delete) "CE")
+                    ((= key +char_esc) "AC")
+                    ((or (= key +char_lf) (= key +char_cr)) "=")
+                    (:t :nil)))))
+
+    ; Validate the operation, especially digits, against the current base
+    (if op
+        (if (defq digit (find op (map identity "0123456789ABCDEF")))
+            (if (< digit base) op :nil)
+            op)
+        :nil))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Core Logic Handler
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -151,10 +187,16 @@
 		      op :nil)
 
 		; Centralized event-to-op mapping
-		(when (and id (>= id +event_button))
-			(defq button (. *window* :find_id (getf msg +ev_msg_action_source_id)))
-			(unless (get :disabled button)
-				(setq op (get :text button))))
+		(cond
+			((and id (>= id +event_button)) ; GUI button click
+				(defq button (. *window* :find_id (getf msg +ev_msg_action_source_id)))
+				(unless (get :disabled button)
+					(setq op (get :text button))))
+            ; NEW: Handle keyboard events here
+			((= (getf msg +ev_msg_type) +ev_type_key_down)
+				(setq op (key-to-op (getf msg +ev_msg_key_key)
+									(getf msg +ev_msg_key_mod)
+									(elem-get state +state_base)))))
 
 		; Process events and update state
 		(cond
