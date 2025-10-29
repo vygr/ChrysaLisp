@@ -8,6 +8,10 @@
 	(enum base_change)
 	(enum button))
 
+; Enums for the mail select loop
+(enums +select 0
+	(enum main tip))
+
 ; Use enums to define named indices for our state list for clarity.
 (enums +state 0
 	(enum accum num base lastop error_state new_entry))
@@ -155,7 +159,7 @@
 				((eql op "NOT")  (list accum (lognot num) base lastop error_state new_entry))
 				((eql op "BACK") (list accum (if (< num 0) (neg (/ (abs num) base)) (/ num base)) base lastop error_state new_entry))
 				((find op +operators)
-                    (if (eql op "=")
+					(if (eql op "=")
                         ; Handle equals
                         (let ((result (do_op accum num (ifn lastop "+"))))
                             (if (eql result :error)
@@ -167,7 +171,7 @@
                             (let ((result (do_op accum num lastop)))
                                 (if (eql result :error)
                                     (list accum num base lastop :t :t)
-                                    (list result result base op :nil :t)))))) ; e.g. 5 * 3 + -> calculates 15, sets up for +
+                                    (list result result base op :nil :t))))))
 				((and digit (< digit base))
 					(if new_entry
 						(list accum digit base lastop :nil :nil)
@@ -181,42 +185,60 @@
 (defun main ()
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(gui-add-front-rpc (. *window* :change x y w h))
-	(defq state (create-calculator-state 10) running :t)
+	(defq select (task-mboxes +select_size)
+		  state (create-calculator-state 10)
+		  running :t)
+
+	; Setup tooltips
+	(def *window* :tip_mbox (elem-get select +select_tip))
+	(ui-tool-tips base_bar '("Decimal" "Hexadecimal" "Binary" "Octal"))
+
 	(update-button-states (elem-get state +state_base))
 	(. base_bar :set_selected 0)
 
 	(while running
-		(defq msg (mail-read (task-mbox))
+		(defq old_state state ; Keep a reference to the state before processing
+			  msg (mail-read (elem-get select (defq idx (mail-select select))))
 			  id (getf msg +ev_msg_target_id)
 			  op :nil)
 
-		; Centralized event-to-op mapping
-		(cond
-			((and id (>= id +event_button)) ; GUI button click
-				(defq button (. *window* :find_id (getf msg +ev_msg_action_source_id)))
-				(unless (get :disabled button)
-					(setq op (get :text button))))
-			((= (getf msg +ev_msg_type) +ev_type_key_down)
-				(setq op (key-to-op (getf msg +ev_msg_key_scode)
-									(getf msg +ev_msg_key_mod)
-									(elem-get state +state_base)))))
+		(case idx
+			(+select_tip
+				(if (defq view (. *window* :find_id (getf msg +mail_timeout_id)))
+					(. view :show_tip)))
 
-		; Process events and update state
-		(cond
-			((= id +event_close) (setq running :nil))
-			((= id +event_min)
-				(bind '(x y w h) (apply view-fit (cat (. *window* :get_pos) (. *window* :pref_size))))
-				(. *window* :change_dirty x y w h))
-			((= id +event_max)
-				(bind '(x y w h) (apply view-fit (cat (. *window* :get_pos) '(512 512))))
-				(. *window* :change_dirty x y w h))
-			((= id +event_base_change)
-				(bind '(accum num _ lastop error_state new_entry) state)
-				(defq new_base (elem-get '(10 16 2 8) (. base_bar :get_selected)))
-				(setq state (list accum num new_base lastop error_state new_entry))
-				(update-button-states new_base))
-			(op (setq state (handle-input state op)))
-			(:t (. *window* :event msg)))
+			(+select_main
+				; Centralized event-to-op mapping
+				(cond
+					((and id (>= id +event_button)) ; GUI button click
+						(defq button (. *window* :find_id (getf msg +ev_msg_action_source_id)))
+						(unless (get :disabled button)
+							(setq op (get :text button))))
+					((= (getf msg +ev_msg_type) +ev_type_key_down)
+						(setq op (key-to-op (getf msg +ev_msg_key_scode)
+											(getf msg +ev_msg_key_mod)
+											(elem-get state +state_base)))))
 
-		(update-display state))
+				; Process events and update state
+				(cond
+					((= id +event_close) (setq running :nil))
+					((= id +event_min)
+						(bind '(x y w h) (apply view-fit (cat (. *window* :get_pos) (. *window* :pref_size))))
+						(. *window* :change_dirty x y w h))
+					((= id +event_max)
+						(bind '(x y w h) (apply view-fit (cat (. *window* :get_pos) '(512 512))))
+						(. *window* :change_dirty x y w h))
+					((= id +event_base_change)
+						(bind '(accum num _ lastop error_state new_entry) state)
+						(defq new_base (elem-get '(10 16 2 8) (. base_bar :get_selected)))
+						(setq state (list accum num new_base lastop error_state new_entry)))
+					(op (setq state (handle-input state op)))
+					(:t (. *window* :event msg)))))
+
+		; Only update UI if the state has actually changed.
+		(unless (every (const eql) state old_state)
+			(update-display state)
+			; Only update button enabled/disabled states if the base changed.
+			(unless (= (elem-get state +state_base) (elem-get old_state +state_base))
+				(update-button-states (elem-get state +state_base)))))
 	(gui-sub-rpc *window*))
