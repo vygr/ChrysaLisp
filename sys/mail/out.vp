@@ -9,10 +9,10 @@
 	;parcels going off chip or junk mail task
 
 	(def-vars
-		(ptr msg data frag statics)
-		(struct node_id node_id_size)
-		(ulong time)
-		(uint offset amount len))
+		(ptr msg data statics)
+		(struct node_id node_id_size))
+
+	(vp-def (id0 id1 id2 heap msg offchip data obj frag time len off amount tot))
 
 	(push-scope)
 
@@ -34,45 +34,39 @@
 		(assign {statics->statics_sys_mail_session + 1} {statics->statics_sys_mail_session})
 
 		;for each fragment
-		(call 'host_os :pii_time :nil {time})
-		(assign {0} {offset})
-		(assign {msg->msg_frag_length} {amount})
+		(call 'host_os :pii_time :nil `(,time))
+		(assign {msg, &statics->statics_sys_mail_msg_heap,
+				&statics->statics_sys_mail_offchip_list,
+				0, data} `(,msg ,heap ,offchip ,off ,data))
+		(load-fields msg '(msg_obj msg_frag_length) `(,obj ,tot))
+		(vp-cpy-rr tot amount)
 		(loop-start)
 			;create fragment
-			(assign {amount} {len})
-			(vpif {len > lk_data_size})
-				(assign {lk_data_size} {len})
-			(endif)
-			(call 'sys_heap :alloc {&statics->statics_sys_mail_msg_heap} {_, frag})
-			(call 'obj :ref {msg->msg_obj} {frag->msg_obj})
+			(call 'sys_heap :alloc `(,heap) `(_ ,frag))
+			(class/obj/ref obj id0)
 
 			;fill in fragment
-			(assign {time} {frag->msg_timestamp})
-			(assign {msg->msg_dest.net_id_mbox_id} {frag->msg_dest.net_id_mbox_id})
-			(assign {msg->msg_dest.net_id_node_id.node_id_node1} {frag->msg_dest.net_id_node_id.node_id_node1})
-			(assign {msg->msg_dest.net_id_node_id.node_id_node2} {frag->msg_dest.net_id_node_id.node_id_node2})
-
-			(assign {statics->statics_sys_mail_session} {frag->msg_src.net_id_mbox_id})
-			(assign {node_id.node_id_node1} {frag->msg_src.net_id_node_id.node_id_node1})
-			(assign {node_id.node_id_node2} {frag->msg_src.net_id_node_id.node_id_node2})
-
-			(assign {len} {frag->msg_frag_length})
-			(assign {offset} {frag->msg_frag_offset})
-			(assign {msg->msg_frag_length} {frag->msg_total_length})
-			(assign {data + offset} {frag->msg_frag_data})
+			(vp-cpy-rr amount len)
+			(vp-min-cr lk_data_size len)
+			(assign {statics->statics_sys_mail_session, node_id.node_id_node1,
+				node_id.node_id_node2} `(,id0 ,id1 ,id2))
+			(save-net-id frag msg_src id0 id1 id2)
+			(assign-net-id msg msg_dest frag msg_dest id0 id1 id2)
+			(save-fields
+				frag '(msg_obj msg_timestamp msg_frag_length msg_frag_offset msg_total_length msg_frag_data)
+				`(,obj ,time ,len ,off ,tot ,data))
 
 			;move on
-			(assign {offset + len} {offset})
-			(assign {amount - len} {amount})
+			(vp-add-rr len data)
+			(vp-add-rr len off)
+			(vp-sub-rr len amount)
 
 			;queue it on the outgoing packet list
-			(vp-def (head node tmp))
-			(assign {&statics->statics_sys_mail_offchip_list, frag} `(,head ,node))
-			(lh-add-at-tail head node tmp)
-		(loop-untilnot {amount})
+			(lh-add-at-tail offchip frag id0)
+		(loop-until `(,amount = 0))
 
 		;free parcel
-		(call 'sys_mail :free {msg})
+		(call 'sys_mail :free `(,msg))
 
 		;let other links get at some packets
 		(call 'sys_task :sleep '(0))

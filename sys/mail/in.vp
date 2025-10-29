@@ -13,11 +13,12 @@
 		(ptr rx_msg msg)
 		(uint len))
 
+	(vp-def (node next src1 src2 src3 psrc1 psrc2 psrc3 parcels rx_msg total))
+
 	(push-scope)
 	(entry 'sys_mail :in {rx_msg})
 
 	;look up parcel in mailbox
-	(vp-def (node next src1 src2 src3 psrc1 psrc2 psrc3 parcels rx_msg total))
 	(assign {@sys/statics/statics.statics_sys_mail_parcel_list, rx_msg} `(,parcels ,rx_msg))
 	(load-net-id rx_msg lk_buf_src src1 src2 src3)
 	(loop-list-forward parcels 0 node next)
@@ -30,7 +31,7 @@
 		(assign `(,total) `((,node msg_total_length)))
 		(assign-net-id rx_msg lk_buf_dest node msg_dest src1 src2 src3)
 		(assign-net-id rx_msg lk_buf_src node msg_src src1 src2 src3)
-		(lh-add-at-tail parcels node src1)
+		(lh-add-at-tail parcels node next)
 	(endif)
 	(assign `(,node) {msg})
 
