@@ -19,7 +19,7 @@
 ; Pre-define lists of buttons to make UI updates easier.
 (defq hex_buttons (list))
 (defq other_base_buttons (list))
-(defq +operators ''("=" "+" "-" "*" "/" "AND" "OR" "XOR"))
+(defq +operators ''("=" "+" "-" "*" "/" "%" "AND" "OR" "XOR"))
 (defq +disabled_color +argb_grey4)
 (defq +disabled_ink_color *env_hint_col*)
 (defq +digit_list (static-q (map identity "0123456789ABCDEF")))
@@ -40,6 +40,7 @@
 (defq shift_key_map (scatter (Fmap)
 	+sc_equals "+"      ; Shift + =
 	+sc_8 "*"           ; Shift + 8
+    +sc_5 "%"           ; Shift + 5
 	+sc_7 "AND"         ; Shift + 7 (&)
 	+sc_6 "XOR"         ; Shift + 6 (^)
 	+sc_backslash "OR"  ; Shift + \ (|) - Varies by layout
@@ -66,12 +67,12 @@
 				((find text '("2" "3" "4" "5" "6" "7" "8" "9")) (push other_base_buttons button))))
 			'("AND" "OR"  "XOR" "NOT"
 			  ">>>" ">>"  "<<"  "NEG"
-			  "D"   "E"   "F"   "/"
-			  "A"   "B"   "C"   "*"
-			  "7"   "8"   "9"   "-"
-			  "4"   "5"   "6"   "+"
-			  "1"   "2"   "3"   "="
-			  "0"  "BACK" "CE" "AC"))))
+			  "D"   "E"   "F"   "%"
+			  "A"   "B"   "C"   "/"
+			  "7"   "8"   "9"   "*"
+			  "4"   "5"   "6"   "-"
+			  "1"   "2"   "3"   "+"
+			  "0"  "BACK" "AC"  "=" ))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Helper Functions
@@ -104,6 +105,7 @@
 		("-" (- accum num))
 		("*" (* accum num))
 		("/" (if (/= num 0) (/ accum num) :error))
+		("%" (if (/= num 0) (% accum num) :error))
 		("AND" (logand accum num))
 		("OR"  (logior accum num))
 		("XOR" (logxor accum num))
@@ -158,7 +160,7 @@
 			(defq digit (find op "0123456789ABCDEF"))
 			(cond
 				((eql op "AC")   (create-calculator-state base))
-				((eql op "CE")   (list accum 0 base lastop error_state :t))
+				((eql op "CE")   (list accum 0 base lastop error_state :t)) ; This is now unused but kept for key mapping
 				((eql op "NOT")  (list accum (lognot num) base lastop error_state new_entry))
 				((eql op "BACK") (list accum (if (< num 0) (neg (/ (abs num) base)) (/ num base)) base lastop error_state new_entry))
 				((eql op "NEG")  (list accum (neg num) base lastop error_state new_entry))
