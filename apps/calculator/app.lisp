@@ -17,6 +17,7 @@
 (defq +operators ''("=" "+" "-" "*" "/" "AND" "OR" "XOR"))
 (defq +disabled_color +argb_grey4)
 (defq +disabled_ink_color *env_hint_col*)
+(defq +digit_list (static-q (map identity "0123456789ABCDEF")))
 
 (ui-window *window* ()
 	(ui-title-bar _ "Calculator" (0xea19 0xea1b 0xea1a) +event_close)
@@ -137,10 +138,9 @@
 
     ; Validate the operation, especially digits, against the current base
     (if op
-        (if (defq digit (find op (map identity "0123456789ABCDEF")))
-            (if (< digit base) op :nil)
-            op)
-        :nil))
+		(if (defq digit (find op +digit_list))
+            (if (< digit base) op)
+            op)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Core Logic Handler
