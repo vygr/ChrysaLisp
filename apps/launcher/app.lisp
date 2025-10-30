@@ -13,6 +13,7 @@
 ; Default configuration if launcher.tre is missing
 (defun get-default-config ()
 	(scatter (Lmap)
+		:columns 2
 		:order '(System Accessories Media Communication Games Science Generic)
 		:exclude '(launcher login wallpaper tui)
 		:categories (scatter (Fmap 11)
@@ -67,7 +68,7 @@
 (defun app-path (app_name)
 	(cat "apps/" app_name "/app.lisp"))
 
-(defun make-category (cat_data name)
+(defun make-category (cat_data name columns)
 	(defq apps (. cat_data :find :apps)
 		collapsed (. cat_data :find :collapsed))
 	(when (nempty? apps)
@@ -77,7 +78,7 @@
 						:color *env_title_col* :font *env_medium_terminal_font*))
 					:connect +event_toggle)
 				(ui-title title (:text name :color *env_title_col*)))
-			(ui-grid app_grid (:grid_width 2)
+			(ui-grid app_grid (:grid_width columns)
 				(each (lambda (app)
 					(. (ui-button _ (:text app)) :connect +event_launch))
 					apps)))
@@ -85,10 +86,11 @@
 		(. *main_flow* :add_child cat_flow)))
 
 (defun build-ui ()
-	(defq categories (. *config* :find :categories))
+	(defq categories (. *config* :find :categories)
+		columns (. *config* :find :columns))
 	(each (lambda (cat_name)
 		(when (defq cat_data (. categories :find cat_name))
-			(make-category cat_data cat_name)))
+			(make-category cat_data cat_name columns)))
 		(. *config* :find :order)))
 
 (defun setup-tooltips (select)
