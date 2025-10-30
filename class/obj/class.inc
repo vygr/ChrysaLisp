@@ -63,12 +63,12 @@
 (defun load-fields (src fields tmps)
 	(each (# (assign (list (list src (first %0))) (list (second %0))))
 		(sort (partition (zip fields tmps (map (const eval) fields)) 3)
-			(# (- (last %0)) (last %1)))))
+			(# (- (last %0) (last %1))))))
 
 (defun save-fields (dst fields tmps)
 	(each (# (assign (list (second %0)) (list (list dst (first %0)))))
 		(sort (partition (zip fields tmps (map (const eval) fields)) 3)
-			(# (- (last %0)) (last %1)))))
+			(# (- (last %0) (last %1))))))
 
 (defun assign-fields (src src_fields dst dst_fields tmps)
 	(load-fields src src_fields tmps)
