@@ -1,0 +1,101 @@
+((:Lmap 1)
+	:order
+	((:list 7)
+		System
+		Accessories
+		Media
+		Communication
+		Games
+		Science
+		Generic
+	)
+	:exclude
+	((:list 4)
+		launcher
+		login
+		wallpaper
+		tui
+	)
+	:categories
+	((:Fmap 11)
+		Accessories
+		((:Lmap 1)
+			:collapsed :nil
+			:apps
+			((:list 6)
+				edit
+				viewer
+				docs
+				fonts
+				clock
+				calculator
+			)
+		)
+		Media
+		((:Lmap 1)
+			:collapsed :nil
+			:apps
+			((:list 4)
+				images
+				films
+				canvas
+				raymarch
+			)
+		)
+		Games
+		((:Lmap 1)
+			:collapsed :nil
+			:apps
+			((:list 5)
+				boing
+				freeball
+				bubbles
+				chess
+				minefield
+			)
+		)
+		System
+		((:Lmap 1)
+			:collapsed :nil
+			:apps
+			((:list 8)
+				terminal
+				services
+				debug
+				profile
+				netmon
+				netspeed
+				files
+				logout
+			)
+		)
+		Science
+		((:Lmap 1)
+			:collapsed :nil
+			:apps
+			((:list 4)
+				molecule
+				pcb
+				mandelbrot
+				mesh
+			)
+		)
+		Communication
+		((:Lmap 1)
+			:collapsed :nil
+			:apps
+			((:list 2)
+				chat
+				whiteboard
+			)
+		)
+		Generic
+		((:Lmap 1)
+			:collapsed :nil
+			:apps
+			((:list 1)
+				template
+			)
+		)
+	)
+)

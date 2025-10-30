@@ -13,26 +13,26 @@
 ; Default configuration if launcher.tre is missing
 (defun get-default-config ()
 	(scatter (Lmap)
-		:order '("System" "Accessories" "Media" "Communication" "Games" "Science" "Generic")
-		:exclude '("launcher" "login" "wallpaper" "tui")
+		:order '(System Accessories Media Communication Games Science Generic)
+		:exclude '(launcher login wallpaper tui)
 		:categories (scatter (Fmap 11)
-			"System" (scatter (Lmap) :collapsed :nil
-				:apps '("terminal" "services" "debug" "profile" "netmon" "netspeed" "files" "logout"))
-			"Accessories" (scatter (Lmap) :collapsed :nil
-				:apps '("edit" "viewer" "docs" "fonts" "clock" "calculator"))
-			"Media" (scatter (Lmap) :collapsed :nil
-				:apps '("images" "films" "canvas" "raymarch"))
-			"Communication" (scatter (Lmap) :collapsed :nil
-				:apps '("chat" "whiteboard"))
-			"Games" (scatter (Lmap) :collapsed :nil
-				:apps '("boing" "freeball" "bubbles" "chess" "minefield"))
-			"Science" (scatter (Lmap) :collapsed :nil
-				:apps '("molecule" "pcb" "mandelbrot" "mesh"))
-			"Generic" (scatter (Lmap) :collapsed :nil
+			'System (scatter (Lmap) :collapsed :nil
+				:apps '(terminal services debug profile netmon netspeed files logout))
+			'Accessories (scatter (Lmap) :collapsed :nil
+				:apps '(edit viewer docs fonts clock calculator))
+			'Media (scatter (Lmap) :collapsed :nil
+				:apps '(images films canvas raymarch))
+			'Communication (scatter (Lmap) :collapsed :nil
+				:apps '(chat whiteboard))
+			'Games (scatter (Lmap) :collapsed :nil
+				:apps '(boing freeball bubbles chess minefield))
+			'Science (scatter (Lmap) :collapsed :nil
+				:apps '(molecule pcb mandelbrot mesh))
+			'Generic (scatter (Lmap) :collapsed :nil
 				:apps '()))))
 
 ; Configuration state
-(defq *config* :nil *config_file* (cat *env_home* "launcher.tre"))
+(defq *config* :nil *config_file* (cat *env_home* "launcher_state.tre"))
 
 (defun load-config ()
 	(if (defq stream (file-stream *config_file*))
@@ -45,9 +45,9 @@
 
 (defun get-app-name (folder)
 	(defq folder (slice folder 5 -3))
-	(if (defq i (find "/" folder))
-		(slice folder 0 i)
-		folder))
+	(sym (if (defq i (find "/" folder))
+			(slice folder 0 i)
+			folder)))
 
 (defun scan-apps ()
 	(defq exclude_list (. *config* :find :exclude) categories (. *config* :find :categories)
@@ -58,7 +58,7 @@
 		(. categories :each (lambda (name cat_data)
 			(if (find app_name (. cat_data :find :apps)) (setq found :t))))
 		(unless found
-			(. categories :update "Generic" (lambda (generic_cat)
+			(. categories :update 'Generic (lambda (generic_cat)
 				(unless generic_cat
 					(setq generic_cat (scatter (Lmap) :collapsed :nil :apps '())))
 				(. generic_cat :insert :apps (usort (push (. generic_cat :find :apps) app_name)))))))

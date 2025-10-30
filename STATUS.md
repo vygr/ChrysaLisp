@@ -25,7 +25,7 @@ symbol lists.
 Updated Calculator app with some basic programmer modes and operators.
 
 Updated Launcher app with user configurable catorgories and ordering. State is
-saved to `launcher.tre` in the users home folder.
+saved to `launcher_state.tre` in the users home folder.
 
 ------
 
