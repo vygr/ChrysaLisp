@@ -113,12 +113,12 @@
 	; Set the initial size of the main flow to fit its content
 	(bind '(w h) (. *main_flow* :pref_size))
 	(. *main_flow* :change 0 0 w h)
-	(. *scroll* :layout)
+	(def *scroll* :min_width w)
 
 	; Position and show window
 	(bind '(w h) (. *window* :pref_size))
 	(setq h (max h 400))
-	(bind '(x y w h) (apply view-locate (push (list (/ (* w 100) 80) h) *env_launcher_position*)))
+	(bind '(x y w h) (apply view-locate (push (list w h) *env_launcher_position*)))
 	(gui-add-front-rpc (. *window* :change x y w h))
 
 	; Main Event Loop
