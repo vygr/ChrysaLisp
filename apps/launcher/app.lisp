@@ -10,7 +10,7 @@
 (enums +select 0
 	(enum main tip))
 
-; Default configuration if launcher.tre is missing
+; Default configuration if `launcher_state.tre` is missing
 (defun get-default-config ()
 	(scatter (Lmap)
 		:columns 2
