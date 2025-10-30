@@ -2,12 +2,6 @@
 (import "gui/lisp.inc")
 (import "lib/files/files.inc")
 
-;debug options
-(case 0
-(0 (import "lib/debug/frames.inc"))
-(1 (import "lib/debug/profile.inc"))
-(2 (import "lib/debug/debug.inc")))
-
 ; Events
 (enums +event 0
 	(enum close launch toggle))
@@ -77,10 +71,11 @@
 						:font *env_medium_terminal_font*))
 					:connect +event_toggle)
 				(ui-label title (:text name :font *env_title_font* :color *env_title_col*)))
-			(ui-grid app_grid (:grid_width 2 :hidden collapsed)
+			(ui-grid app_grid (:grid_width 2)
 				(each (lambda (app)
 					(. (ui-button _ (:text app)) :connect +event_launch))
 					apps)))
+		(. app_grid :set_flags (if collapsed +view_flag_hidden 0) +view_flag_hidden)
 		(. *main_flow* :add_child cat_flow)))
 
 (defun build-ui ()
@@ -98,8 +93,7 @@
 ; Main Window Layout
 (ui-window *window* ()
 	(ui-title-bar _ "Launcher" (0xea19) +event_close)
-	(ui-scroll *scroll* +scroll_flag_vertical :nil
-		(ui-flow *main_flow* (:flow_flags +flow_down_fill))))
+	(ui-flow *main_flow* (:flow_flags +flow_down_fill)))
 
 (defun main ()
 	; Initialization
@@ -113,12 +107,9 @@
 	; Set the initial size of the main flow to fit its content
 	(bind '(w h) (. *main_flow* :pref_size))
 	(. *main_flow* :change 0 0 w h)
-	(def *scroll* :min_width w)
 
 	; Position and show window
-	(bind '(w h) (. *window* :pref_size))
-	(setq h (max h 400))
-	(bind '(x y w h) (apply view-locate (push (list w h) *env_launcher_position*)))
+	(bind '(x y w h) (apply view-locate (push (. *window* :pref_size) *env_launcher_position*)))
 	(gui-add-front-rpc (. *window* :change x y w h))
 
 	; Main Event Loop
@@ -139,25 +130,28 @@
 
 					((= id +event_launch)
 						(defq button (. *window* :find_id (getf msg +ev_msg_action_source_id)))
-						(open-child (app-path (get :text button)) +kn_call_open))
+						(open-child (app-path (get :text button)) +kn_call_open)
+						(setq *running* :nil))
 
 					((= id +event_toggle)
 						(defq toggle (. *window* :find_id (getf msg +ev_msg_action_source_id))
 							cat_flow (penv (penv toggle))
 							grid (second (. cat_flow :children))
 							cat_name (get :cat_name cat_flow)
-							categories (. *config* :find :categories))
-
-						(. categories :update cat_name (lambda (cat_data)
-							(defq collapsed (not (. cat_data :find :collapsed)))
-							(. cat_data :insert :collapsed collapsed)
-							(def toggle :text (if collapsed ">" "v"))
-							(. grid :set_flags (if collapsed +view_flag_hidden 0) +view_flag_hidden)))
+							categories (. *config* :find :categories)
+							cat_data (. categories :find cat_name)
+							collapsed (not (. cat_data :find :collapsed)))
+						(. cat_data :insert :collapsed collapsed)
+						(def toggle :text (if collapsed ">" "v"))
+						(. grid :set_flags (if collapsed +view_flag_hidden 0) +view_flag_hidden)
 
 						; Recalculate size and update scrollbars after visibility change
 						(bind '(w h) (. *main_flow* :pref_size))
 						(. *main_flow* :change 0 0 w h)
-						(. *scroll* :layout))
+						(bind '(x y) (. *window* :get_pos))
+						(bind '(w h) (. *window* :pref_size))
+						(bind '(x y w h) (view-fit x y w h))
+						(. *window* :change_dirty x y w h))
 
 					(:t (. *window* :event msg))))))
 

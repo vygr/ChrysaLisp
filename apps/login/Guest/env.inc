@@ -1,24 +1,8 @@
 ;user home
 (defq *env_home* (cat "apps/login/" *env_user* "/"))
 
-;launcher apps
-(defq *env_launcher_apps* '(
-	"terminal" "services"
-	"edit" "viewer"
-	"debug" "profile"
-	"docs" "fonts"
-	"netmon" "netspeed"
-	"clock" "calculator"
-	"images" "films"
-	"whiteboard" "chat"
-	"boing" "freeball"
-	"bubbles" "molecule"
-	"canvas" "pcb"
-	"raymarch" "mandelbrot"
-	"chess" "minefield"
-	"mesh" "template"
-	"files" "logout")
-	*env_launcher_auto_apps* '("terminal"))
+;auto launch apps
+(defq *env_launcher_auto_apps* '("terminal"))
 
 ;default gui window size/pos
 (defq *env_window_x* 0 *env_window_y* 0

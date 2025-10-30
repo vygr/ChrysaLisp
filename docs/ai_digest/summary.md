@@ -318,7 +318,7 @@ directories (e.g., `apps/login/Guest/env.inc`).
 
 * Environment variables (`*env_*`) control aspects like:
 
-    * Launcher applications (`*env_launcher_apps*`, `*env_launcher_auto_apps*`)
+    * Auto Launcher applications (`*env_launcher_auto_apps*`)
 
     * Wallpaper images (`*env_wallpaper_images*`)
 
