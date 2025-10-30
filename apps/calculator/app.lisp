@@ -72,7 +72,7 @@
 			  "7"   "8"   "9"   "*"
 			  "4"   "5"   "6"   "-"
 			  "1"   "2"   "3"   "+"
-			  "0"  "BACK" "AC"  "=" ))))
+			  "0"  "CE" "AC"  "=" ))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Helper Functions
@@ -160,7 +160,7 @@
 			(defq digit (find op "0123456789ABCDEF"))
 			(cond
 				((eql op "AC")   (create-calculator-state base))
-				((eql op "CE")   (list accum 0 base lastop error_state :t)) ; This is now unused but kept for key mapping
+				((eql op "CE")   (list accum 0 base lastop error_state :t))
 				((eql op "NOT")  (list accum (lognot num) base lastop error_state new_entry))
 				((eql op "BACK") (list accum (if (< num 0) (neg (/ (abs num) base)) (/ num base)) base lastop error_state new_entry))
 				((eql op "NEG")  (list accum (neg num) base lastop error_state new_entry))
