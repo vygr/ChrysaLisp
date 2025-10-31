@@ -27,6 +27,8 @@ Updated Calculator app with some basic programmer modes and operators.
 Updated Launcher app with user configurable catorgories and ordering. State is
 saved to `launcher.tre` in the users home folder.
 
+New Eyes GUI application. Bit of silly fun with the AI.
+
 ------
 
 `*Lock` service added. This still requires further work, but it removes the idea

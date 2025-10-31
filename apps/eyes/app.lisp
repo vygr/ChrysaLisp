@@ -75,7 +75,8 @@
 
     ; Fit and apply change
     (bind '(x y w h) (view-fit x y pw ph))
-    (. *window* :change_dirty x y w h))
+    (. *window* :change_dirty x y w h)
+    (setq *last_mx* -1 *last_my* -1))
 
 (defun circle (r)
     ; Cached circle generation
@@ -86,9 +87,8 @@
     (. *canvas* :fill +argb_black)
 
     ; Get absolute canvas position and calculate relative mouse coordinates
-    (defq canvas_x (n2f (getf *canvas* +view_ctx_x 0))
-          canvas_y (n2f (getf *canvas* +view_ctx_y 0))
-          rel_mx (- (n2f mx) canvas_x)
+    (bind '(canvas_x canvas_y _ _) (map (const n2f) (. (penv *window*) :get_relative *canvas*)))
+    (defq rel_mx (- (n2f mx) canvas_x)
           rel_my (- (n2f my) canvas_y))
 
     ; Calculate eye dimensions and positions using configured scales
@@ -120,7 +120,6 @@
         (:set_color +argb_white)
         (:fpoly (+ l_iris_px (* pupil_radius -0.4)) (+ l_iris_py (* pupil_radius -0.4)) +winding_odd_even (circle highlight_radius)))
 
-
     ; --- Right Eye ---
     (defq vec_to_mouse (Vec2-f (- rel_mx right_eye_cx) (- rel_my eye_cy)))
     (defq dist_to_mouse (vec-length vec_to_mouse))
@@ -140,7 +139,6 @@
         (:set_color +argb_white)
         (:fpoly (+ r_iris_px (* pupil_radius -0.4)) (+ r_iris_py (* pupil_radius -0.4)) +winding_odd_even (circle highlight_radius)))
 
-
     (. *canvas* :swap 0))
 
 ;;;
@@ -158,7 +156,6 @@
     (setq *iris_color* (ifn (. *config* :find :iris_color) +argb_green))
     (setq *iris_scale* (ifn (. *config* :find :iris_scale) 0.7))
     (setq *pupil_scale* (ifn (. *config* :find :pupil_scale) 0.4))
-
 
     ; Replace the placeholder canvas with the correctly sized one
     (defq parent (penv *canvas*))
@@ -189,14 +186,12 @@
             ((= id +event_min)
                 (resize-window min_width min_height)
                 (. *config* :insert :width min_width)
-                (. *config* :insert :height min_height)
-                (setq *last_mx* -1 *last_my* -1))
+                (. *config* :insert :height min_height))
 
             ((= id +event_max)
                 (resize-window max_width max_height)
                 (. *config* :insert :width max_width)
-                (. *config* :insert :height max_height)
-                (setq *last_mx* -1 *last_my* -1))
+                (. *config* :insert :height max_height))
 
             (:t (. *window* :event msg))))
 
