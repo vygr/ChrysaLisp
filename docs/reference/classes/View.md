@@ -45,7 +45,7 @@ override the default 'this' env with a View component
 ### :change_dirty
 
 ```code
-(. view :change_dirty x y width height) -> view
+(. view :change_dirty x y width height [flag]) -> view
 ```
 
 ### :children

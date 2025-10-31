@@ -68,15 +68,14 @@
 	(setq *canvas* (Canvas w h 1))
 	(. parent :add_child *canvas*)
 	(. *canvas* :set_canvas_flags +canvas_flag_antialias)
-	(. parent :layout) ; Relayout the parent to position the new canvas correctly.
 
 	; Get current position and new preferred size
-	(bind '(x y _ _) (. *window* :get_bounds))
+	(bind '(x y) (. *window* :get_pos))
 	(bind '(pw ph) (. *window* :pref_size))
 
 	; Fit and apply change
 	(bind '(x y w h) (view-fit x y pw ph))
-	(. *window* :change_dirty x y w h)
+	(. *window* :change_dirty x y w h :t)
 	(setq *last_mx* -1 *last_my* -1))
 
 (defun circle (r)

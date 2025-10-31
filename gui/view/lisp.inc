@@ -295,10 +295,10 @@
 			(. this :constrain flag)
 			this))
 
-	(defmethod :change_dirty (x y width height)
-		; (. view :change_dirty x y width height) -> view
+	(defmethod :change_dirty (x y width height &optional flag)
+		; (. view :change_dirty x y width height [flag]) -> view
 		(bind '(old_x old_y) (. this :get_pos))
-		(.-> this :dirty (:change x y width height)
+		(.-> this :dirty (:change x y width height flag)
 			(:trans_dirty (- old_x x) (- old_y y)) :dirty_all))
 
 	;;;;;;;;;;;;;;;;;
