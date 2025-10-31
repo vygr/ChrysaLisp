@@ -10,9 +10,15 @@
 (enums +select 0
 	(enum main tip))
 
-; Default configuration if `launcher_state.tre` is missing
+; Configuration state
+(defq *config* :nil *config_version* 1
+	*config_file* (cat *env_home* "launcher_state.tre"))
+
+; Default configuration if `launcher_state.tre`
+; is missing, or version mismatch
 (defun get-default-config ()
 	(scatter (Emap)
+		:version *config_version*
 		:columns 2
 		:exclude '(launcher login wallpaper tui)
 		:categories (scatter (Emap)
@@ -29,12 +35,10 @@
 			'Science (scatter (Emap) :collapsed :nil
 				:apps '(molecule pcb mandelbrot mesh)))))
 
-; Configuration state
-(defq *config* :nil *config_file* (cat *env_home* "launcher_state.tre"))
-
 (defun load-config ()
 	(if (defq stream (file-stream *config_file*))
-		(setq *config* (tree-load stream))
+		(setq *config* (tree-load stream)))
+	(if (or (not *config*) (/= (. *config* :find :version) *config_version*))
 		(setq *config* (get-default-config))))
 
 (defun save-config ()
