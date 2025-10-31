@@ -44,8 +44,7 @@
 
 (ui-window *window* ()
 	(ui-title-bar _ "Eyes" (0xea19 0xea1b 0xea1a) +event_close)
-	(ui-backdrop *backdrop* (:style :plain :color +argb_black
-			:min_width 0 :min_height 0)))
+	(ui-backdrop *backdrop* (:style :plain :color +argb_black)))
 
 ;;;
 ;;; Drawing and Window Logic
