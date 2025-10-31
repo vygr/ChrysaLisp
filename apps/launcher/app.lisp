@@ -12,25 +12,22 @@
 
 ; Default configuration if `launcher_state.tre` is missing
 (defun get-default-config ()
-	(scatter (Lmap)
+	(scatter (Emap)
 		:columns 2
-		:order '(System Accessories Media Communication Games Science Generic)
 		:exclude '(launcher login wallpaper tui)
-		:categories (scatter (Fmap 11)
-			'System (scatter (Lmap) :collapsed :nil
+		:categories (scatter (Emap)
+			'System (scatter (Emap) :collapsed :nil
 				:apps '(terminal services debug profile netmon netspeed files logout))
-			'Accessories (scatter (Lmap) :collapsed :nil
+			'Accessories (scatter (Emap) :collapsed :nil
 				:apps '(edit viewer docs fonts clock calculator))
-			'Media (scatter (Lmap) :collapsed :nil
+			'Media (scatter (Emap) :collapsed :nil
 				:apps '(images films canvas raymarch))
-			'Communication (scatter (Lmap) :collapsed :nil
+			'Communication (scatter (Emap) :collapsed :nil
 				:apps '(chat whiteboard))
-			'Games (scatter (Lmap) :collapsed :nil
+			'Games (scatter (Emap) :collapsed :nil
 				:apps '(boing freeball bubbles chess minefield))
-			'Science (scatter (Lmap) :collapsed :nil
-				:apps '(molecule pcb mandelbrot mesh))
-			'Generic (scatter (Lmap) :collapsed :nil
-				:apps '()))))
+			'Science (scatter (Emap) :collapsed :nil
+				:apps '(molecule pcb mandelbrot mesh)))))
 
 ; Configuration state
 (defq *config* :nil *config_file* (cat *env_home* "launcher_state.tre"))
@@ -44,25 +41,19 @@
 	(when (defq stream (file-stream *config_file* +file_open_write))
 		(tree-save stream *config*)))
 
-(defun get-app-name (folder)
-	(defq folder (slice folder 5 -3))
-	(sym (if (defq i (find "/" folder))
-			(slice folder 0 i)
-			folder)))
-
 (defun scan-apps ()
 	(defq exclude_list (. *config* :find :exclude) categories (. *config* :find :categories)
 		disk_apps (filter (# (not (find %0 exclude_list)))
-			(usort (map get-app-name (files-dirs (files-all "apps" '("app.lisp")))))))
+			(map sym (files-all "apps" '("app.lisp") 5 -10))))
 	(each (lambda (app_name)
 		(defq found :nil)
 		(. categories :each (lambda (name cat_data)
 			(if (find app_name (. cat_data :find :apps)) (setq found :t))))
 		(unless found
 			(. categories :update 'Generic (lambda (generic_cat)
-				(unless generic_cat
-					(setq generic_cat (scatter (Lmap) :collapsed :nil :apps '())))
-				(. generic_cat :insert :apps (usort (push (. generic_cat :find :apps) app_name)))))))
+				(if generic_cat
+					(progn (. generic_cat :update :apps (# (sort (push %0 app_name)))) generic_cat)
+					(scatter (Emap) :collapsed :nil :apps (list app_name)))))))
 		disk_apps))
 
 (defun app-path (app_name)
@@ -88,10 +79,8 @@
 (defun build-ui ()
 	(defq categories (. *config* :find :categories)
 		columns (. *config* :find :columns))
-	(each (lambda (cat_name)
-		(when (defq cat_data (. categories :find cat_name))
-			(make-category cat_data cat_name columns)))
-		(. *config* :find :order)))
+	(. categories :each (lambda (cat_name cat_data)
+		(make-category cat_data cat_name columns))))
 
 (defun setup-tooltips (select)
 	(def *window* :tip_mbox (elem-get select +select_tip))
