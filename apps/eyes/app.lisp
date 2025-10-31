@@ -62,6 +62,9 @@
 ;;;
 
 (defun resize-window (w h)
+	(. *config* :insert :width w)
+	(. *config* :insert :height h)
+
 	(defq parent (penv *canvas*))
 	(def parent :min_width w :min_height h)
 	(. *canvas* :sub)
@@ -157,20 +160,12 @@
 	(setq *iris_scale* (ifn (. *config* :find :iris_scale) 0.7))
 	(setq *pupil_scale* (ifn (. *config* :find :pupil_scale) 0.4))
 
-	; Replace the placeholder canvas with the correctly sized one
-	(defq parent (penv *canvas*))
-	(def parent :min_width w :min_height h)
-	(. *canvas* :sub)
-	(setq *canvas* (Canvas w h 1))
-	(. parent :add_child *canvas*)
-	(. *canvas* :set_canvas_flags +canvas_flag_antialias)
-
 	; Position and display the window for the first time
+	(resize-window w h)
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(gui-add-front-rpc (. *window* :change x y w h))
-	(mail-timeout (elem-get select +select_timer) +rate 0)
-	(redraw 0 0) ; Initial draw
 
+	(mail-timeout (elem-get select +select_timer) +rate 0)
 	(while *running*
 		(defq msg (mail-read (elem-get select (defq idx (mail-select select)))))
 		(cond
@@ -185,14 +180,10 @@
 				(setq *running* :nil))
 
 			((= id +event_min)
-				(resize-window min_width min_height)
-				(. *config* :insert :width min_width)
-				(. *config* :insert :height min_height))
+				(resize-window min_width min_height))
 
 			((= id +event_max)
-				(resize-window max_width max_height)
-				(. *config* :insert :width max_width)
-				(. *config* :insert :height max_height))
+				(resize-window max_width max_height))
 
 			(:t (. *window* :event msg))))
 
