@@ -67,6 +67,7 @@
     (setq *canvas* (Canvas w h 1))
     (. parent :add_child *canvas*)
     (. *canvas* :set_canvas_flags +canvas_flag_antialias)
+    (. parent :layout) ; Relayout the parent to position the new canvas correctly.
 
     ; Get current position and new preferred size
     (bind '(x y _ _) (. *window* :get_bounds))
@@ -139,6 +140,7 @@
         (:set_color +argb_white)
         (:fpoly (+ r_iris_px (* pupil_radius -0.4)) (+ r_iris_py (* pupil_radius -0.4)) +winding_odd_even (circle highlight_radius)))
 
+
     (. *canvas* :swap 0))
 
 ;;;
@@ -156,6 +158,7 @@
     (setq *iris_color* (ifn (. *config* :find :iris_color) +argb_green))
     (setq *iris_scale* (ifn (. *config* :find :iris_scale) 0.7))
     (setq *pupil_scale* (ifn (. *config* :find :pupil_scale) 0.4))
+
 
     ; Replace the placeholder canvas with the correctly sized one
     (defq parent (penv *canvas*))
@@ -186,12 +189,14 @@
             ((= id +event_min)
                 (resize-window min_width min_height)
                 (. *config* :insert :width min_width)
-                (. *config* :insert :height min_height))
+                (. *config* :insert :height min_height)
+                (setq *last_mx* -1 *last_my* -1))
 
             ((= id +event_max)
                 (resize-window max_width max_height)
                 (. *config* :insert :width max_width)
-                (. *config* :insert :height max_height))
+                (. *config* :insert :height max_height)
+                (setq *last_mx* -1 *last_my* -1))
 
             (:t (. *window* :event msg))))
 
