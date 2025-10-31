@@ -7,12 +7,12 @@
 		(undoable
 			(bind '(cx cy) (. buffer :get_cursor))
 			;trim front
-			(defq y (some! (# (unless (blank-line? %0) (!)))
+			(defq y (some! (# (if (blank-line? %0) :nil (!)))
 				(list (. buffer :get_text_lines)) :nil 0 h))
 			(unless y (setq y h))
 			(.-> buffer (:set_cursor 0 y) (:cut 0 0))
 			;trim end
-			(defq y (some! (# (unless (blank-line? %0) (inc (!))))
+			(defq y (some! (# (if (blank-line? %0) :nil (inc (!))))
 				(list (. buffer :get_text_lines)) :nil (bind '(w h) (. buffer :get_size)) 0))
 			(unless y (setq y 0))
 			(.-> buffer (:set_cursor 0 y) (:cut 0 h))
