@@ -15,7 +15,7 @@
 (bind '(+edit_font +edit_size) (font-info *env_editor_font*))
 
 (defq +min_word_size 3 +max_matches 20 +margin 2
-	+state_filename "editor_state.tre"
+	+state_filename "editor.tre"
 	+text_types ''(".md" ".txt")
 	+file_types ''(".lisp" ".inc" ".vp" ".md" ".txt" ".tre" ".cwb")
 	+dictionaries ''("lib/text/english.txt"))

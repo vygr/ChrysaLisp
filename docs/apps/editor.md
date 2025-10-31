@@ -12,7 +12,7 @@ The editor can open multiple files at a time, but you can only have a single
 instance of the editor open at once, as there is user persistent state stored.
 This state is saved and loaded to maintain a consistent project work
 environment between sessions in your user folder under the name
-`editor_state.tre`.
+`editor.tre`.
 
 ## UI
 
@@ -273,7 +273,7 @@ The Editor manages multiple open files and scratch buffers:
 
 ### 9. Project State Management (`apps/edit/state.inc`)
 
-* **`+state_filename`:** `"editor_state.tre"` stored in `*env_home*`.
+* **`+state_filename`:** `"editor.tre"` stored in `*env_home*`.
 
 * **`state-save` function:**
 

@@ -15,8 +15,7 @@ chrysalisp.exe
 *.o
 *.d
 *.dll
-*editor_state.tre
-*terminal_state.tre
+*editor.tre
+*terminal.tre
 ai/*
 *launcher.tre
-apps/login/Guest/launcher_state.tre

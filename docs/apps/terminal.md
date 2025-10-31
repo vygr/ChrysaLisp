@@ -7,7 +7,7 @@ The commands you use come from the `cmd/` folder. You can see the list of
 available commands in the `commands.md` document.
 
 Command history is saved and loaded to your user folder under the name
-`terminal_state.tre`. The cursor up and down keys let you scroll through the
+`terminal.tre`. The cursor up and down keys let you scroll through the
 history, just hit enter when you find the command you wish to run. Or type in a
 new one. Only successfully started pipes of commands will be saved in the
 history file.
@@ -170,7 +170,7 @@ line-oriented, command-and-response behavior.
     * **Command History (`*meta_map*`):** A simplified version of the Editor's
         state management is used. `apps/terminal/state.inc` defines logic to
         save and load a `:history` list (a Lisp `list` of strings) into
-        `"terminal_state.tre"` in the user's home directory.
+        `"terminal.tre"` in the user's home directory.
 
 *   **View (User Interface):**
 

@@ -25,7 +25,7 @@ symbol lists.
 Updated Calculator app with some basic programmer modes and operators.
 
 Updated Launcher app with user configurable catorgories and ordering. State is
-saved to `launcher_state.tre` in the users home folder.
+saved to `launcher.tre` in the users home folder.
 
 ------
 
@@ -416,7 +416,7 @@ New `rm`, `cp` and `mv` commands apps.
 Font app now shows tooltips for the character codes. A click on the character
 button copies the tip text to the clipboard.
 
-Terminal app saves common history to `terminal_state.tre`.
+Terminal app saves common history to `terminal.tre`.
 
 Terminal supports dynamic page scaling.
 

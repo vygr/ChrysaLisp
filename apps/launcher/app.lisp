@@ -12,9 +12,9 @@
 
 ; Configuration state
 (defq *config* :nil *config_version* 1
-	*config_file* (cat *env_home* "launcher_state.tre"))
+	*config_file* (cat *env_home* "launcher.tre"))
 
-; Default configuration if `launcher_state.tre`
+; Default configuration if `launcher.tre`
 ; is missing, or version mismatch
 (defun get-default-config ()
 	(scatter (Emap)
