@@ -42,20 +42,10 @@
 (enums +select 0
 	(enum main timer))
 
-(defq +rate (/ 1000000 30) ; 30 FPS
-	min_width 256 min_height 128
-	max_width 512 max_height 256
-	*running* :t
-	*iris_color* +argb_green
-	*iris_scale* 0.7
-	*pupil_scale* 0.4)
-
 (ui-window *window* ()
 	(ui-title-bar _ "Eyes" (0xea19 0xea1b 0xea1a) +event_close)
-	(ui-backdrop _ (:style :plain :color +argb_black
-			:min_width 0 :min_height 0)
-		; This initial canvas is a placeholder that will be replaced in main.
-		(ui-canvas *canvas* 1 1 1)))
+	(ui-backdrop *backdrop* (:style :plain :color +argb_black
+			:min_width 0 :min_height 0)))
 
 ;;;
 ;;; Drawing and Window Logic
@@ -65,12 +55,11 @@
 	(. *config* :insert :width w)
 	(. *config* :insert :height h)
 
-	(defq parent (penv *canvas*))
-	(def parent :min_width w :min_height h)
-	(. *canvas* :sub)
+	(def *backdrop* :min_width w :min_height h)
+	(if *canvas* (. *canvas* :sub))
 	(setq *canvas* (Canvas w h 1))
-	(. parent :add_child *canvas*)
 	(. *canvas* :set_canvas_flags +canvas_flag_antialias)
+	(. *backdrop* :add_child *canvas*)
 
 	; Get current position and new preferred size
 	(bind '(x y) (. *window* :get_pos))
@@ -83,7 +72,7 @@
 
 (defun circle (r)
 	; Cached circle generation
-	(memoize r (list (path-gen-arc 0.0 0.0 0.0 +fp_2pi r (path))) 11))
+	(memoize r (list (path-gen-arc 0.0 0.0 0.0 +fp_2pi r (path))) 3))
 
 (defun redraw (mx my)
 	(bind '(w h) (map (const n2f) (. *canvas* :pref_size)))
@@ -150,15 +139,17 @@
 
 (defun main ()
 	(defq select (task-mboxes +select_size)
-		  *last_mx* -1 *last_my* -1)
+		*last_mx* -1 *last_my* -1
+		+rate (/ 1000000 30) ; 30 FPS
+		min_width 256 min_height 128
+		max_width 512 max_height 256
+		*canvas* :nil *running* :t)
 	(load-config)
 
 	; Get initial dimensions and settings from config
-	(defq w (ifn (. *config* :find :width) min_width)
-		  h (ifn (. *config* :find :height) min_height))
-	(setq *iris_color* (ifn (. *config* :find :iris_color) +argb_green))
-	(setq *iris_scale* (ifn (. *config* :find :iris_scale) 0.7))
-	(setq *pupil_scale* (ifn (. *config* :find :pupil_scale) 0.4))
+	(bind '(w h *iris_color* *iris_scale* *pupil_scale*)
+		(gather *config* :width :height :iris_color
+			:iris_scale :pupil_scale))
 
 	; Position and display the window for the first time
 	(resize-window w h)
