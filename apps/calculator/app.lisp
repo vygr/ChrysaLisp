@@ -18,6 +18,10 @@
 ; State and Configuration
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+; Configuration state
+(defq *config* :nil *config_version* 1
+	*config_file* (cat *env_home* "calculator.tre"))
+
 ; Enums for our state list for clarity. The operand_stack holds numbers,
 ; and the operator_stack holds operators, forming the basis of our expression evaluation.
 (enums +state 0
@@ -87,6 +91,45 @@
 			"4"   "5"   "6"   "-"
 			"1"   "2"   "3"   "+"
 			"0"  "CE" "AC"  "=" ))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Configuration Management
+;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun get-default-config ()
+  (scatter (Emap)
+    :version *config_version*
+    :base 10
+    :memory 0
+    :operands (list)
+    :operators (list)
+    :current_number "0"
+    :new_entry :t))
+
+(defun load-config ()
+  (if (defq stream (file-stream *config_file*))
+    (setq *config* (tree-load stream)))
+  (if (or (not *config*) (/= (. *config* :find :version) *config_version*))
+    (setq *config* (get-default-config)))
+  (list
+    (ifn (. *config* :find :operands) (list))
+    (ifn (. *config* :find :operators) (list))
+    (ifn (. *config* :find :current_number) "0")
+    (ifn (. *config* :find :base) 10)
+    (ifn (. *config* :find :memory) 0)
+    :nil  ; error_state is never saved
+    :nil)); new_entry is always false on load to ensure consistency
+
+(defun save-config (state)
+  (bind '(operands operators current_number base memory error_state new_entry) state)
+  (scatter *config*
+           :base base
+           :memory memory
+           :operands operands
+           :operators operators
+           :current_number current_number
+           :new_entry new_entry)
+  (when (defq stream (file-stream *config_file* +file_open_write))
+    (tree-save stream *config*)))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -265,15 +308,15 @@
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(gui-add-front-rpc (. *window* :change x y w h))
 	(defq select (task-mboxes +select_size)
-		  state (create-calculator-state 10)
+		  state (load-config)
 		  running :t)
 
-	; Setup tooltips
+	; Setup tooltips and initial UI state
 	(def *window* :tip_mbox (elem-get select +select_tip))
 	(ui-tool-tips base_bar '("decimal" "hexadecimal" "binary" "octal"))
-
+	(. base_bar :set_selected (find (elem-get state +state_base) '(10 16 2 8)))
+	(update-display state)
 	(update-button-states (elem-get state +state_base))
-	(. base_bar :set_selected 0)
 
 	(while running
 		(defq old_state state
@@ -317,4 +360,5 @@
 			(update-display state)
 			(unless (= (elem-get state +state_base) (elem-get old_state +state_base))
 				(update-button-states (elem-get state +state_base)))))
+	(save-config state)
 	(gui-sub-rpc *window*))

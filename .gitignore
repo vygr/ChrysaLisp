@@ -15,7 +15,8 @@ chrysalisp.exe
 *.o
 *.d
 *.dll
+ai/*
 *editor.tre
 *terminal.tre
-ai/*
+*calculator.tre
 *launcher.tre
