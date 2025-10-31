@@ -1,6 +1,3 @@
-;;;;;;;;;;;;;;;
-; apps/eyes/app.lisp
-;;;;;;;;;;;;;;;
 (import "././login/env.inc")
 (import "gui/lisp.inc")
 (import "lib/math/vector.inc")
@@ -10,7 +7,7 @@
 ;;;
 
 (defq *config* :nil *config_version* 1
-	  *config_file* (cat *env_home* "eyes.tre"))
+	*config_file* (cat *env_home* "eyes.tre"))
 
 (defun get-default-config ()
 	(scatter (Emap)
@@ -55,8 +52,10 @@
 
 (ui-window *window* ()
 	(ui-title-bar _ "Eyes" (0xea19 0xea1b 0xea1a) +event_close)
-	; This initial canvas is a placeholder that will be replaced in main.
-	(ui-canvas *canvas* 1 1 1))
+	(ui-backdrop _ (:style :plain :color +argb_black
+			:min_width 0 :min_height 0)
+		; This initial canvas is a placeholder that will be replaced in main.
+		(ui-canvas *canvas* 1 1 1)))
 
 ;;;
 ;;; Drawing and Window Logic
@@ -64,6 +63,7 @@
 
 (defun resize-window (w h)
 	(defq parent (penv *canvas*))
+	(def parent :min_width w :min_height h)
 	(. *canvas* :sub)
 	(setq *canvas* (Canvas w h 1))
 	(. parent :add_child *canvas*)
@@ -159,6 +159,7 @@
 
 	; Replace the placeholder canvas with the correctly sized one
 	(defq parent (penv *canvas*))
+	(def parent :min_width w :min_height h)
 	(. *canvas* :sub)
 	(setq *canvas* (Canvas w h 1))
 	(. parent :add_child *canvas*)
