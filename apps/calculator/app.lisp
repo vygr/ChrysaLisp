@@ -29,9 +29,9 @@
 
 ; Operator precedence map. Higher numbers are evaluated first.
 (defq +precedence (scatter (Fmap)
-    "*" 2 "/" 2 "%" 2
-    "+" 1 "-" 1
-    "AND" 1 "OR" 1 "XOR" 1))
+	"*" 2 "/" 2 "%" 2
+	"+" 1 "-" 1
+	"AND" 1 "OR" 1 "XOR" 1))
 
 ; Pre-define lists of buttons to make UI updates easier.
 (defq hex_buttons (list))
@@ -58,7 +58,7 @@
 (defq shift_key_map (scatter (Fmap)
 	+sc_equals "+"      ; Shift + =
 	+sc_8 "*"           ; Shift + 8
-    +sc_5 "%"           ; Shift + 5
+	+sc_5 "%"           ; Shift + 5
 	+sc_7 "AND"         ; Shift + 7 (&)
 	+sc_6 "XOR"         ; Shift + 6 (^)
 	+sc_backslash "OR"  ; Shift + \ (|) - Varies by layout
@@ -96,41 +96,40 @@
 ; Configuration Management
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun get-default-config ()
-  (scatter (Emap)
-    :version *config_version*
-    :base 10
-    :memory 0
-    :operands (list)
-    :operators (list)
-    :current_number "0"
-    :new_entry :t))
+	(scatter (Emap)
+		:version *config_version*
+		:base 10
+		:memory 0
+		:operands (list)
+		:operators (list)
+		:current_number "0"
+		:new_entry :t))
 
 (defun load-config ()
-  (if (defq stream (file-stream *config_file*))
-    (setq *config* (tree-load stream)))
-  (if (or (not *config*) (/= (. *config* :find :version) *config_version*))
-    (setq *config* (get-default-config)))
-  (list
-    (ifn (. *config* :find :operands) (list))
-    (ifn (. *config* :find :operators) (list))
-    (ifn (. *config* :find :current_number) "0")
-    (ifn (. *config* :find :base) 10)
-    (ifn (. *config* :find :memory) 0)
-    :nil  ; error_state is never saved
-    :nil)); new_entry is always false on load to ensure consistency
+	(if (defq stream (file-stream *config_file*))
+		(setq *config* (tree-load stream)))
+	(if (or (not *config*) (/= (. *config* :find :version) *config_version*))
+		(setq *config* (get-default-config)))
+	(list
+		(ifn (. *config* :find :operands) (list))
+		(ifn (. *config* :find :operators) (list))
+		(ifn (. *config* :find :current_number) "0")
+		(ifn (. *config* :find :base) 10)
+		(ifn (. *config* :find :memory) 0)
+		:nil  ; error_state is never saved
+		:nil)); new_entry is always false on load to ensure consistency
 
 (defun save-config (state)
-  (bind '(operands operators current_number base memory error_state new_entry) state)
-  (scatter *config*
-           :base base
-           :memory memory
-           :operands operands
-           :operators operators
-           :current_number current_number
-           :new_entry new_entry)
-  (when (defq stream (file-stream *config_file* +file_open_write))
-    (tree-save stream *config*)))
-
+	(bind '(operands operators current_number base memory error_state new_entry) state)
+	(scatter *config*
+		:base base
+		:memory memory
+		:operands operands
+		:operators operators
+		:current_number current_number
+		:new_entry new_entry)
+	(when (defq stream (file-stream *config_file* +file_open_write))
+		(tree-save stream *config*)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Helper Functions
@@ -151,14 +150,14 @@
 			(cat result temp))))
 
 (defun str-to-num-base (s base)
-    (defq n 0 neg :nil valid :t)
-    (if (starts-with "-" s) (setq neg :t s (rest s)))
-    (each (lambda (c)
-            (defq val (find c +digit_list))
-            (if (and val (< val base))
-                (setq n (+ (* n base) val))
-                (setq valid :nil))) s)
-    (if valid (if neg (neg n) n) :error))
+	(defq n 0 neg :nil valid :t)
+	(if (starts-with "-" s) (setq neg :t s (rest s)))
+	(each (lambda (c)
+			(defq val (find c +digit_list))
+			(if (and val (< val base))
+				(setq n (+ (* n base) val))
+				(setq valid :nil))) s)
+	(if valid (if neg (neg n) n) :error))
 
 (defun format-number (num base)
 	(case base
@@ -180,25 +179,25 @@
 		(:t v2)))
 
 (defun apply-op (operands operators)
-    (if (< (length operands) 2) :error
-        (progn
-            (defq op (pop operators)
-                  v2 (pop operands)
-                  v1 (pop operands))
-            (defq result (do_op op v2 v1))
-            (if (eql result :error)
-                :error
-                (push operands result)))))
+	(if (< (length operands) 2) :error
+		(progn
+			(defq op (pop operators)
+				  v2 (pop operands)
+				  v1 (pop operands))
+			(defq result (do_op op v2 v1))
+			(if (eql result :error)
+				:error
+				(push operands result)))))
 
 (defun update-display (state)
-    (bind '(operands _ current_number base _ error_state new_entry) state)
+	(bind '(operands _ current_number base _ error_state new_entry) state)
 	(if error_state
 		(set *display* :text "Error")
-        (if new_entry
-            (if (nempty? operands)
-                (set *display* :text (format-number (first operands) base))
-                (set *display* :text "0"))
-            (set *display* :text (format-number (str-to-num-base current_number base) base))))
+		(if new_entry
+			(if (nempty? operands)
+				(set *display* :text (format-number (first operands) base))
+				(set *display* :text "0"))
+			(set *display* :text (format-number (str-to-num-base current_number base) base))))
 	(.-> *display* :layout :dirty))
 
 (defun update-button-states (base)
@@ -238,66 +237,66 @@
 		(progn
 			(defq digit (find op "0123456789ABCDEF"))
 			(cond
-                ; --- CLEAR and UNARY ---
+				; --- CLEAR and UNARY ---
 				((eql op "AC") (list (list) (list) "0" base memory :nil :t))
 				((eql op "CE") (list operands operators "0" base memory :nil new_entry))
 				((eql op "BACK")
-                    (defq new_num (if (> (length current_number) 1) (most current_number) "0"))
-                    (list operands operators new_num base memory :nil new_entry))
-                ((eql op "NEG")
-                    (defq num (str-to-num-base current_number base))
-                    (list operands operators (format-number (neg num) base) base memory :nil new_entry))
-                ((eql op "NOT")
-                    (defq num (str-to-num-base current_number base))
-                    (list operands operators (format-number (lognot num) base) base memory :nil new_entry))
-                ((eql op "<<")
-                    (defq num (str-to-num-base current_number base))
-                    (list operands operators (format-number (<< num 1) base) base memory :nil new_entry))
-                ((eql op ">>")
-                    (defq num (str-to-num-base current_number base))
-                    (list operands operators (format-number (>> num 1) base) base memory :nil new_entry))
-                ((eql op ">>>")
-                    (defq num (str-to-num-base current_number base))
-                    (list operands operators (format-number (>>> num 1) base) base memory :nil new_entry))
+					(defq new_num (if (> (length current_number) 1) (most current_number) "0"))
+					(list operands operators new_num base memory :nil new_entry))
+				((eql op "NEG")
+					(defq num (str-to-num-base current_number base))
+					(list operands operators (format-number (neg num) base) base memory :nil new_entry))
+				((eql op "NOT")
+					(defq num (str-to-num-base current_number base))
+					(list operands operators (format-number (lognot num) base) base memory :nil new_entry))
+				((eql op "<<")
+					(defq num (str-to-num-base current_number base))
+					(list operands operators (format-number (<< num 1) base) base memory :nil new_entry))
+				((eql op ">>")
+					(defq num (str-to-num-base current_number base))
+					(list operands operators (format-number (>> num 1) base) base memory :nil new_entry))
+				((eql op ">>>")
+					(defq num (str-to-num-base current_number base))
+					(list operands operators (format-number (>>> num 1) base) base memory :nil new_entry))
 
-                ; --- MEMORY ---
-                ((eql op "M+") (list operands operators current_number base (+ memory (str-to-num-base current_number base)) :nil :t))
-                ((eql op "M-") (list operands operators current_number base (- memory (str-to-num-base current_number base)) :nil :t))
-                ((eql op "MR") (list operands operators (format-number memory base) base memory :nil :nil))
-                ((eql op "MC") (list operands operators current_number base 0 :nil new_entry))
+				; --- MEMORY ---
+				((eql op "M+") (list operands operators current_number base (+ memory (str-to-num-base current_number base)) :nil :t))
+				((eql op "M-") (list operands operators current_number base (- memory (str-to-num-base current_number base)) :nil :t))
+				((eql op "MR") (list operands operators (format-number memory base) base memory :nil :nil))
+				((eql op "MC") (list operands operators current_number base 0 :nil new_entry))
 
-                ; --- DIGITS ---
+				; --- DIGITS ---
 				((and digit (< digit base))
 					(defq new_num (if (or new_entry (eql current_number "0")) op (cat current_number op)))
 					(list operands operators new_num base memory :nil :nil))
 
-                ; --- OPERATORS and EQUALS ---
+				; --- OPERATORS and EQUALS ---
 				((or (find op +operators) (eql op "="))
-                    (progn
-                        (unless new_entry
-                            (push operands (str-to-num-base current_number base)))
-                        (defq error_flag :nil)
+					(progn
+						(unless new_entry
+							(push operands (str-to-num-base current_number base)))
+						(defq error_flag :nil)
 
-                        (if (eql op "=")
-                            (progn
-                                (while (and (not error_flag) (nempty? operators))
-                                    (if (eql (apply-op operands operators) :error) (setq error_flag :t)))
-                                (if error_flag
-                                    (create-calculator-state base :error :t memory)
-                                    (progn
-                                        (defq result (first operands))
-                                        (list (list (ifn result 0)) (list) (str (ifn result 0)) base memory :nil :t))))
-                            (progn
-                                (while (and (not error_flag) (nempty? operators)
-                                            (defq top_op_prec (. +precedence :find (first operators)))
-                                            (defq new_op_prec (. +precedence :find op))
-                                            (and top_op_prec new_op_prec (>= top_op_prec new_op_prec)))
-                                     (if (eql (apply-op operands operators) :error) (setq error_flag :t)))
-                                (if error_flag
-                                    (create-calculator-state base :error :t memory)
-                                    (progn
-                                        (push operators op)
-                                        (list operands operators current_number base memory :nil :t)))))))
+						(if (eql op "=")
+							(progn
+								(while (and (not error_flag) (nempty? operators))
+									(if (eql (apply-op operands operators) :error) (setq error_flag :t)))
+								(if error_flag
+									(create-calculator-state base :error :t memory)
+									(progn
+										(defq result (first operands))
+										(list (list (ifn result 0)) (list) (str (ifn result 0)) base memory :nil :t))))
+							(progn
+								(while (and (not error_flag) (nempty? operators)
+											(defq top_op_prec (. +precedence :find (first operators)))
+											(defq new_op_prec (. +precedence :find op))
+											(and top_op_prec new_op_prec (>= top_op_prec new_op_prec)))
+									 (if (eql (apply-op operands operators) :error) (setq error_flag :t)))
+								(if error_flag
+									(create-calculator-state base :error :t memory)
+									(progn
+										(push operators op)
+										(list operands operators current_number base memory :nil :t)))))))
 				(:t state)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -346,13 +345,13 @@
 					((= id +event_max)
 						(bind '(x y w h) (apply view-fit (cat (. *window* :get_pos) '(512 512))))
 						(. *window* :change_dirty x y w h))
-                    ((= id +event_base_change)
-                        (bind '(operands operators current_number old_base memory error_state new_entry) state)
-                        (defq new_base (elem-get '(10 16 2 8) (. base_bar :get_selected)))
-                        (defq num_value (str-to-num-base current_number old_base))
-                        (when (not (eql num_value :error))
-                          (let ((new_current_number (format-number num_value new_base)))
-                               (setq state (list operands operators new_current_number new_base memory error_state new_entry)))))
+					((= id +event_base_change)
+						(bind '(operands operators current_number old_base memory error_state new_entry) state)
+						(defq new_base (elem-get '(10 16 2 8) (. base_bar :get_selected)))
+						(defq num_value (str-to-num-base current_number old_base))
+						(when (not (eql num_value :error))
+						  (let ((new_current_number (format-number num_value new_base)))
+							   (setq state (list operands operators new_current_number new_base memory error_state new_entry)))))
 					(op (setq state (handle-input state op)))
 					(:t (. *window* :event msg)))))
 
