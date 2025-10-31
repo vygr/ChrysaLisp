@@ -345,7 +345,7 @@
 			(. buffer :cut ax ay)
 			(bind '(x y) (.-> buffer :break :get_cursor))
 			(defq line (. buffer :get_text_line (dec y))
-				indent (some (# (unless (eql %0 (ascii-char +char_space)) (!))) line))
+				indent (some (# (if (eql %0 (ascii-char +char_space)) :nil (!))) line))
 			(unless indent (setq indent (length line)))
 			(if (> indent 0) (. buffer :insert (pad "" indent "        "))))
 		(. this :clear_selection))
