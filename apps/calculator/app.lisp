@@ -1,6 +1,3 @@
-;;;;;;;;;;;;;;;;;;;;;;;;;;
-; apps/calculator/app.lisp
-;;;;;;;;;;;;;;;;;;;;;;;;;;
 (import "././login/env.inc")
 (import "gui/lisp.inc")
 (import "lib/consts/chars.inc")
