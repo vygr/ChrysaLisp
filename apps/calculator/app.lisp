@@ -117,7 +117,6 @@
                 (setq valid :nil))) s)
     (if valid (if neg (neg n) n) :error))
 
-
 (defun format-number (num base)
 	(case base
 		(16 (num-to-base-str num 16 "0123456789ABCDEF"))
@@ -204,24 +203,24 @@
                     (list operands operators new_num base memory :nil new_entry))
                 ((eql op "NEG")
                     (defq num (str-to-num-base current_number base))
-                    (list operands operators (str (neg num)) base memory :nil new_entry))
+                    (list operands operators (format-number (neg num) base) base memory :nil new_entry))
                 ((eql op "NOT")
                     (defq num (str-to-num-base current_number base))
-                    (list operands operators (str (lognot num)) base memory :nil new_entry))
+                    (list operands operators (format-number (lognot num) base) base memory :nil new_entry))
                 ((eql op "<<")
                     (defq num (str-to-num-base current_number base))
-                    (list operands operators (str (<< num 1)) base memory :nil new_entry))
+                    (list operands operators (format-number (<< num 1) base) base memory :nil new_entry))
                 ((eql op ">>")
                     (defq num (str-to-num-base current_number base))
-                    (list operands operators (str (>> num 1)) base memory :nil new_entry))
+                    (list operands operators (format-number (>> num 1) base) base memory :nil new_entry))
                 ((eql op ">>>")
                     (defq num (str-to-num-base current_number base))
-                    (list operands operators (str (>>> num 1)) base memory :nil new_entry))
+                    (list operands operators (format-number (>>> num 1) base) base memory :nil new_entry))
 
                 ; --- MEMORY ---
                 ((eql op "M+") (list operands operators current_number base (+ memory (str-to-num-base current_number base)) :nil :t))
                 ((eql op "M-") (list operands operators current_number base (- memory (str-to-num-base current_number base)) :nil :t))
-                ((eql op "MR") (list operands operators (str memory) base memory :nil :nil))
+                ((eql op "MR") (list operands operators (format-number memory base) base memory :nil :nil))
                 ((eql op "MC") (list operands operators current_number base 0 :nil new_entry))
 
                 ; --- DIGITS ---
