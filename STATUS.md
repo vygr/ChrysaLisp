@@ -29,6 +29,8 @@ saved to `launcher.tre` in the users home folder.
 
 New Eyes GUI application. Bit of silly fun with the AI.
 
+Fixed a few Editor `(some (# (unless ...)))` undefined issues.
+
 ------
 
 `*Lock` service added. This still requires further work, but it removes the idea
