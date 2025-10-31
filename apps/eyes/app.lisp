@@ -16,7 +16,10 @@
     (scatter (Emap)
         :version *config_version*
         :width min_width
-        :height min_height))
+        :height min_height
+        :iris_color +argb_green
+        :iris_scale 0.7
+        :pupil_scale 0.4))
 
 (defun load-config ()
     (if (defq stream (file-stream *config_file*))
@@ -25,6 +28,9 @@
         (setq *config* (get-default-config))))
 
 (defun save-config ()
+    (. *config* :insert :iris_color *iris_color*)
+    (. *config* :insert :iris_scale *iris_scale*)
+    (. *config* :insert :pupil_scale *pupil_scale*)
     (when (defq stream (file-stream *config_file* +file_open_write))
         (tree-save stream *config*)))
 
@@ -41,7 +47,10 @@
 (defq +rate (/ 1000000 30) ; 30 FPS
     min_width 256 min_height 128
     max_width 512 max_height 256
-    *running* :t)
+    *running* :t
+    *iris_color* +argb_green
+    *iris_scale* 0.7
+    *pupil_scale* 0.4)
 
 (ui-window *window* ()
     (ui-title-bar _ "Eyes" (0xea19 0xea1b 0xea1a) +event_close)
@@ -81,10 +90,12 @@
           rel_mx (- (n2f mx) canvas_x)
           rel_my (- (n2f my) canvas_y))
 
-    ; Calculate eye dimensions and positions
-    (defq eye_radius (* h 0.4)
-          pupil_radius (* eye_radius 0.4)
-          max_pupil_dist (- eye_radius pupil_radius)
+    ; Calculate eye dimensions and positions using configured scales
+    (defq eye_radius (* h 0.48)
+          iris_radius (* eye_radius *iris_scale*)
+          pupil_radius (* iris_radius *pupil_scale*)
+          highlight_radius (* pupil_radius 0.3)
+          max_iris_dist (- eye_radius iris_radius)
           left_eye_cx (* w 0.25)
           right_eye_cx (* w 0.75)
           eye_cy (* h 0.5))
@@ -92,32 +103,41 @@
     ; --- Left Eye ---
     (defq vec_to_mouse (Vec2-f (- rel_mx left_eye_cx) (- rel_my eye_cy)))
     (defq dist_to_mouse (vec-length vec_to_mouse))
-    (defq pupil_offset (if (> dist_to_mouse 0.0)
-        (vec-scale (vec-norm vec_to_mouse) (min dist_to_mouse max_pupil_dist))
+    (defq iris_offset (if (> dist_to_mouse 0.0)
+        (vec-scale (vec-norm vec_to_mouse) (min dist_to_mouse max_iris_dist))
         (Vec2-f 0.0 0.0)))
-    (bind '(lpx lpy) (vec-add (Vec2-f left_eye_cx eye_cy) pupil_offset))
+    (bind '(l_iris_px l_iris_py) (vec-add (Vec2-f left_eye_cx eye_cy) iris_offset))
 
     ; Draw left eye
     (.-> *canvas*
         (:set_color +argb_white)
         (:fpoly left_eye_cx eye_cy +winding_odd_even (circle eye_radius))
+        (:set_color *iris_color*)
+        (:fpoly l_iris_px l_iris_py +winding_odd_even (circle iris_radius))
         (:set_color +argb_black)
-        (:fpoly lpx lpy +winding_odd_even (circle pupil_radius)))
+        (:fpoly l_iris_px l_iris_py +winding_odd_even (circle pupil_radius))
+        (:set_color +argb_white)
+        (:fpoly (+ l_iris_px (* pupil_radius -0.4)) (+ l_iris_py (* pupil_radius -0.4)) +winding_odd_even (circle highlight_radius)))
+
 
     ; --- Right Eye ---
     (defq vec_to_mouse (Vec2-f (- rel_mx right_eye_cx) (- rel_my eye_cy)))
     (defq dist_to_mouse (vec-length vec_to_mouse))
-    (defq pupil_offset (if (> dist_to_mouse 0.0)
-        (vec-scale (vec-norm vec_to_mouse) (min dist_to_mouse max_pupil_dist))
+    (defq iris_offset (if (> dist_to_mouse 0.0)
+        (vec-scale (vec-norm vec_to_mouse) (min dist_to_mouse max_iris_dist))
         (Vec2-f 0.0 0.0)))
-    (bind '(rpx rpy) (vec-add (Vec2-f right_eye_cx eye_cy) pupil_offset))
+    (bind '(r_iris_px r_iris_py) (vec-add (Vec2-f right_eye_cx eye_cy) iris_offset))
 
     ; Draw right eye
     (.-> *canvas*
         (:set_color +argb_white)
         (:fpoly right_eye_cx eye_cy +winding_odd_even (circle eye_radius))
+        (:set_color *iris_color*)
+        (:fpoly r_iris_px r_iris_py +winding_odd_even (circle iris_radius))
         (:set_color +argb_black)
-        (:fpoly rpx rpy +winding_odd_even (circle pupil_radius)))
+        (:fpoly r_iris_px r_iris_py +winding_odd_even (circle pupil_radius))
+        (:set_color +argb_white)
+        (:fpoly (+ r_iris_px (* pupil_radius -0.4)) (+ r_iris_py (* pupil_radius -0.4)) +winding_odd_even (circle highlight_radius)))
 
     (. *canvas* :swap 0))
 
@@ -126,12 +146,16 @@
 ;;;
 
 (defun main ()
-    (defq select (task-mboxes +select_size))
+    (defq select (task-mboxes +select_size)
+          *last_mx* -1 *last_my* -1)
     (load-config)
 
-    ; Get initial dimensions from config
+    ; Get initial dimensions and settings from config
     (defq w (ifn (. *config* :find :width) min_width)
           h (ifn (. *config* :find :height) min_height))
+    (setq *iris_color* (ifn (. *config* :find :iris_color) +argb_green))
+    (setq *iris_scale* (ifn (. *config* :find :iris_scale) 0.7))
+    (setq *pupil_scale* (ifn (. *config* :find :pupil_scale) 0.4))
 
     ; Replace the placeholder canvas with the correctly sized one
     (defq parent (penv *canvas*))
@@ -144,6 +168,7 @@
     (bind '(x y w h) (apply view-locate (. *window* :pref_size)))
     (gui-add-front-rpc (. *window* :change x y w h))
     (mail-timeout (elem-get select +select_timer) +rate 0)
+    (redraw 0 0) ; Initial draw
 
     (while *running*
         (defq msg (mail-read (elem-get select (defq idx (mail-select select)))))
@@ -151,7 +176,9 @@
             ((= idx +select_timer)
                 (mail-timeout (elem-get select +select_timer) +rate 0)
                 (bind '(mx my _ _) (gui-info))
-                (redraw mx my))
+                (when (or (/= mx *last_mx*) (/= my *last_my*))
+                    (setq *last_mx* mx *last_my* my)
+                    (redraw mx my)))
 
             ((= (defq id (getf msg +ev_msg_target_id)) +event_close)
                 (setq *running* :nil))

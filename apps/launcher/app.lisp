@@ -25,7 +25,7 @@
 			'System (scatter (Emap) :collapsed :nil
 				:apps '(terminal services debug profile netmon netspeed files logout))
 			'Accessories (scatter (Emap) :collapsed :nil
-				:apps '(edit viewer docs fonts clock calculator))
+				:apps '(edit viewer docs fonts clock calculator eyes))
 			'Media (scatter (Emap) :collapsed :nil
 				:apps '(images films canvas raymarch))
 			'Communication (scatter (Emap) :collapsed :nil
