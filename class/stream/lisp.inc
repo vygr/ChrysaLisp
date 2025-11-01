@@ -7,9 +7,9 @@
 (ffi "class/stream/lisp_seek" stream-seek)
 ; (stream-seek stream offset pos) -> stream
 (ffi "class/stream/lisp_read_bits" stream-read-bits)
-; (stream-read-bits num_bits bit_pool bit_pool_size) -> (data|-1 bit_pool bit_pool_size)
+; (stream-read-bits stream num_bits bit_pool bit_pool_size) -> (data|-1 bit_pool bit_pool_size)
 (ffi "class/stream/lisp_write_bits" stream-write-bits)
-; (stream-write-bits data num_bits bit_pool bit_pool_size) -> (bit_pool bit_pool_size)
+; (stream-write-bits stream data num_bits bit_pool bit_pool_size) -> (bit_pool bit_pool_size)
 
 ; Lisp (getf ...)
 

@@ -357,7 +357,7 @@
 		(vp-add-rr data bit_pool)
 	(loop-end)
 
-	;extact bits from bit pool
+	;extract bits from bit pool
 	(vp-cpy-cr -1 data)
 	(vp-shl-rr num_bits data)
 	(vp-xor-cr -1 data)
@@ -398,7 +398,7 @@
 	(vp-add-rr num_bits bit_pool_size)
 
 	;flush bit pool to stream
-	(loop-while `(,bit_pool_size > ,8))
+	(loop-while `(,bit_pool_size >= ,8))
 		(vp-push bit_pool bit_pool_size)
 		(call 'stream :write_char (list this bit_pool) (list this))
 		(vp-pop bit_pool bit_pool_size)
