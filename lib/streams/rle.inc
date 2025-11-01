@@ -12,8 +12,9 @@
         (each (lambda (token) (write-bits out_stream bit_pool_state token token_bits)) literals)
         (clear literals)))
 
-(defun rle-compress (in_stream out_stream token_bits run_bits)
-    ; (rle-compress in_stream out_stream token_bits run_bits)
+(defun rle-compress (in_stream out_stream &optional token_bits run_bits)
+    ; (rle-compress in_stream out_stream [token_bits run_bits])
+    (setd token_bits 8 run_bits 8)
     (defq bit_pool_state (array 0 0)
           sign_bit_mask (<< 1 (dec run_bits))
           length_mask (dec sign_bit_mask)
@@ -56,8 +57,9 @@
     (flush_literals out_stream bit_pool_state literals token_bits run_bits)
     (flush-bits out_stream bit_pool_state))
 
-(defun rle-decompress (in_stream out_stream token_bits run_bits)
-    ; (rle-decompress in_stream out_stream token_bits run_bits)
+(defun rle-decompress (in_stream out_stream &optional token_bits run_bits)
+    ; (rle-decompress in_stream out_stream [token_bits run_bits])
+    (setd token_bits 8 run_bits 8)
     (defq bit_pool_state (array 0 0)
           sign_bit_mask (<< 1 (dec run_bits))
           length_mask (dec sign_bit_mask))

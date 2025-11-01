@@ -893,13 +893,13 @@ restart a child
 ### rle-compress
 
 ```code
-(rle-compress in_stream out_stream token_bits run_bits)
+(rle-compress in_stream out_stream [token_bits run_bits])
 ```
 
 ### rle-decompress
 
 ```code
-(rle-decompress in_stream out_stream token_bits run_bits)
+(rle-decompress in_stream out_stream [token_bits run_bits])
 ```
 
 ### rotate
