@@ -12,7 +12,7 @@
 
 ### (io-stream io) -> :nil | stream
 
-### (stream-read-bits stream num_bits bit_pool bit_pool_size) -> (data|-1 bit_pool bit_pool_size)
+### (read-bits stream num_bits bit_pool bit_pool_size) -> (data|-1 bit_pool bit_pool_size)
 
 ### (read-avail stream) -> :nil | num
 
@@ -24,13 +24,13 @@
 
 ### (string-stream str) -> stream
 
-### (write stream str) -> bytes
-
-### (stream-write-bits stream data num_bits bit_pool bit_pool_size) -> (bit_pool bit_pool_size)
+### (write-bits stream data num_bits bit_pool bit_pool_size) -> (bit_pool bit_pool_size)
 
 ### (stream-flush stream) -> stream
 
 ### (write-char stream list|num [width]) -> bytes
+
+### (write-line stream str) -> bytes
 
 ## VP methods
 
@@ -218,6 +218,18 @@ trashes
 inputs
 :r0 = stream object (ptr)
 :r1 = buffer (pubyte)
+outputs
+:r0 = stream object (ptr)
+trashes
+:r1-:r14
+```
+
+### :write_line -> class/stream/write_line
+
+```code
+inputs
+:r0 = stream object (ptr)
+:r1 = str object (ptr)
 outputs
 :r0 = stream object (ptr)
 trashes

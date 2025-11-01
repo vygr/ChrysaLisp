@@ -36,8 +36,8 @@
 		bl (list) lb (lines! (# (push bl %0)) b) lb (length bl))
 	(cond
 		((and (= la 0) (= lb 0)))
-		((= la 0) (each (# (write-line c (str "+ " (!) " " %0))) bl))
-		((= lb 0) (each (# (write-line c (str "- " (!) " " %0))) al))
+		((= la 0) (each (# (write-line-lf c (str "+ " (!) " " %0))) bl))
+		((= lb 0) (each (# (write-line-lf c (str "- " (!) " " %0))) al))
 		(:t (defq ps (list (nums 0 0)) nps (list) goal (nums la lb) run :t)
 			(while run
 				(each (lambda (p)
@@ -64,9 +64,9 @@
 					(cond
 						((and (/= pa a) (/= pb b)))
 						((= pa a)
-							(write-line c (str "+ " (+ a oa) " " (elem-get bl b)))
+							(write-line-lf c (str "+ " (+ a oa) " " (elem-get bl b)))
 							(++ oa))
-						(:t (write-line c (str "- " (+ a oa) " " (elem-get al a)))))
+						(:t (write-line-lf c (str "- " (+ a oa) " " (elem-get al a)))))
 					(setq a pa b pb))
 				(iron (partition (first ps) 2))))))
 
@@ -82,10 +82,10 @@
 			(:t (bind '((_ (x x1) (x2 x3) (x4 x5))) match)
 				(defq op (slice p x x1) l (slice p x4 x5)
 					nl (str-to-num (slice p x2 x3)))
-				(while (< ln nl) (write-line c (read-line a)) (++ ln))
-				(if (eql op "+") (write-line c l) (read-line a))
+				(while (< ln nl) (write-line-lf c (read-line a)) (++ ln))
+				(if (eql op "+") (write-line-lf c l) (read-line a))
 				(++ ln))))
-	(while (defq l (read-line a)) (write-line c l)))
+	(while (defq l (read-line a)) (write-line-lf c l)))
 
 ;module
 (export-symbols '(stream-diff stream-patch))

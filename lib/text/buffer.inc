@@ -220,7 +220,7 @@
 		(raise :syntax_engine :tab_width (stream (file-stream filepath +file_open_write)))
 		(each! (lambda (line)
 				(task-slice)
-				(write-line stream (. syntax_engine :compress_tabs line tab_width)))
+				(write-line-lf stream (. syntax_engine :compress_tabs line tab_width)))
 			(list (get :buffer_line this)) 0 (bind '(w h) (. this :get_size)))
 		(lower (:modified :nil)) this)
 

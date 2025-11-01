@@ -8,7 +8,7 @@
 (defun options-print (&rest _)
 	; (options-print &rest _)
 	(defq stream (io-stream 'stdout))
-	(write stream (apply str (cat _ (list (ascii-char 10)))))
+	(write-line stream (apply str (cat _ (list (ascii-char 10)))))
 	(stream-flush stream))
 
 (defun options-find (optlist arg)

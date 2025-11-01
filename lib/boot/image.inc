@@ -79,7 +79,7 @@
 	;save size in boot image
 	(elem-set blobs 0 (cat (char boot_len +long_size) (slice (first blobs) +long_size -1)))
 	;write out boot image
-	(each (# (write stream %0)) blobs)
+	(each (# (write-line stream %0)) blobs)
 	(print "-> " (func-obj-path 'sys/boot_image) " (" boot_len ")")
 	:nil)
 

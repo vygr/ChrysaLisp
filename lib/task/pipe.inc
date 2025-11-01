@@ -66,7 +66,7 @@
 	(defmethod :write (string)
 		; (. pipe :write string) -> pipe
 		(defq stream (last (get :streams this)))
-		(write stream string)
+		(write-line stream string)
 		(stream-flush stream)
 		this)
 

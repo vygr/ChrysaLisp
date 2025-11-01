@@ -33,10 +33,14 @@ Fixed a few Editor `(some (# (unless ...)))` undefined issues. Switched to using
 the `bskip` functions where possible.
 
 New
-`(stream-read-bits stream num_bits bit_pool bit_pool_size) -> (data|-1 bit_pool bit_pool_size)`
+`(read-bits stream num_bits bit_pool bit_pool_size) -> (data|-1 bit_pool bit_pool_size)`
 and
-`(stream-write-bits stream data num_bits bit_pool bit_pool_size) -> (bit_pool bit_pool_size)`
+`(write-bits stream data num_bits bit_pool bit_pool_size) -> (bit_pool bit_pool_size)`
 Lisp bindings.
+
+Rename of `(write-line stream str)` to `(write-line-lf stream str)` and
+`(write stream str)` to `(write-line stream str)` in order to match the
+`(read-line stream)` naming.
 
 ------
 

@@ -495,9 +495,9 @@ strings, or standard I/O channels.
 
     * `(write-char stream list|num [width]) -> bytes`
 
-*   **`write`**: Writes a string to a stream.
+*   **`write-line`**: Writes a string to a stream.
 
-    * `(write stream str) -> bytes`
+    * `(write-line stream str) -> bytes`
 
 *   **`stream-flush`**: Flushes any buffered output for a stream.
 

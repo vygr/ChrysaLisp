@@ -27,7 +27,7 @@
 		(stream-flush (io-stream 'stdout))
 		;wait for the stdout data to flow along...
 		(task-sleep 100000)
-		(write (io-stream 'stderr)
+		(write-line (io-stream 'stderr)
 			(cat "Time:" (char 10) (time-in-seconds duration) " seconds" (char 10)))
 		(stream-flush (io-stream 'stderr))
 		;wait for the stderr data to flow along...
