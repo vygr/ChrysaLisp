@@ -31,6 +31,8 @@ New Eyes GUI application. Bit of silly fun with the AI.
 
 Fixed a few Editor `(some (# (unless ...)))` undefined issues.
 
+New `stream-write-bits` and `stream-read-bits` Lisp bindings.
+
 ------
 
 `*Lock` service added. This still requires further work, but it removes the idea
