@@ -31,7 +31,11 @@ New Eyes GUI application. Bit of silly fun with the AI.
 
 Fixed a few Editor `(some (# (unless ...)))` undefined issues.
 
-New `stream-write-bits` and `stream-read-bits` Lisp bindings.
+New
+`(stream-read-bits stream num_bits bit_pool bit_pool_size) -> (data|-1 bit_pool bit_pool_size)`
+and
+`(stream-write-bits stream data num_bits bit_pool bit_pool_size) -> (bit_pool bit_pool_size)`
+Lisp bindings.
 
 ------
 
