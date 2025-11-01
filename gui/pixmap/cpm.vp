@@ -53,7 +53,7 @@
 			(assign {16} {bits})
 		(endif)
 
-		;decode acording to type
+		;decode according to type
 		(vp-def (len col trans data data_end))
 		(loop-start)
 			;get token

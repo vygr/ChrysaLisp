@@ -12,7 +12,7 @@
 
 ### (io-stream io) -> :nil | stream
 
-### (stream-read-bits num_bits bit_pool bit_pool_size) -> (data|-1 bit_pool bit_pool_size)
+### (stream-read-bits stream num_bits bit_pool bit_pool_size) -> (data|-1 bit_pool bit_pool_size)
 
 ### (read-avail stream) -> :nil | num
 
@@ -26,7 +26,7 @@
 
 ### (write stream str) -> bytes
 
-### (stream-write-bits data num_bits bit_pool bit_pool_size) -> (bit_pool bit_pool_size)
+### (stream-write-bits stream data num_bits bit_pool bit_pool_size) -> (bit_pool bit_pool_size)
 
 ### (stream-flush stream) -> stream
 
