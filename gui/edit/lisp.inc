@@ -22,9 +22,6 @@
 	(if (and (<= 0 x (length color)) (<= 0 x1 (length color)))
 		(slice color x x1) color))
 
-(defmacro not-whole-word-char? (_)
-	`(bfind ,_ +char_class_not_whole_word))
-
 (defun blank-line? (line)
 	(every (# (eql " " %0)) line))
 
@@ -49,12 +46,8 @@
 	(defq buffer (. this :get_buffer))
 	(bind '(cx cy) (. this :get_cursor))
 	(defq line (. buffer :get_text_line cy)
-		x (some! (# (if (not-whole-word-char? %0) (inc (!))))
-			(list line) :nil cx 0)
-		x1 (some! (# (if (not-whole-word-char? %0) (!)))
-			(list line) :nil cx))
-	(unless x (setq x 0))
-	(unless x1 (setq x1 (length line)))
+		x (rbskipn +char_class_not_whole_word line cx)
+		x1 (bskipn +char_class_not_whole_word line cx))
 	(list x x1))
 
 (defun select-paragraph (this)

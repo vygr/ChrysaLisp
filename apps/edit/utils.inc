@@ -2,9 +2,6 @@
 ; utils
 ;;;;;;;
 
-(defmacro not-whole-word-char? (_)
-	`(bfind ,_ +char_class_not_whole_word))
-
 (defun blank-line? (line)
 	(every (# (eql " " %0)) line))
 
@@ -37,12 +34,8 @@
 (defun select-word ()
 	(bind '(cx cy) (. *edit* :get_cursor))
 	(defq line (.-> *edit* :get_buffer (:get_text_line cy))
-		x (some! (# (if (not-whole-word-char? %0) (inc (!))))
-			(list line) :nil cx 0)
-		x1 (some! (# (if (not-whole-word-char? %0) (!)))
-			(list line) :nil cx))
-	(unless x (setq x 0))
-	(unless x1 (setq x1 (length line)))
+		x (rbskipn +char_class_not_whole_word line cx)
+		x1 (bskipn +char_class_not_whole_word line cx))
 	(list x x1))
 
 (defun switch-file (file)
