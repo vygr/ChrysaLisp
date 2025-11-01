@@ -339,7 +339,7 @@
 			(bind '(x y) (.-> buffer :break :get_cursor))
 			(defq line (. buffer :get_text_line (dec y))
 				indent (bskip +char_class_white_space line 0))
-			(if (> indent 0) (. buffer :insert (pad "" indent "        "))))
+			(. buffer :insert (pad "" indent "        ")))
 		(. this :clear_selection))
 
 	(defmethod :tab ()
