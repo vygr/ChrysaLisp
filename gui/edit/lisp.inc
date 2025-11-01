@@ -345,9 +345,10 @@
 	(defmethod :tab ()
 		; (. edit :tab) -> edit
 		(undoable
-			(defq tab_width (. buffer :get_tab_width))
+			(bind '(ax ay) (. this :get_anchor))
 			(. buffer :cut ax ay)
 			(bind '(cx cy) (. buffer :get_cursor))
+			(defq tab_width (. buffer :get_tab_width))
 			(. buffer :insert (pad "" (- tab_width (% cx tab_width)) "        ")))
 		(. this :clear_selection))
 
@@ -446,7 +447,7 @@
 				(bind '(y y1) (select-lines this))
 				(. this :set_anchor 0 y)
 				(. buffer :paste (join
-					(unique	(split (.-> buffer
+					(unique (split (.-> buffer
 						(:set_cursor 0 y1)
 						(:cut 0 y)) (ascii-char +char_lf)))
 					(ascii-char +char_lf) 2))))
