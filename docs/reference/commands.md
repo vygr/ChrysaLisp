@@ -249,6 +249,19 @@ Usage: repeat [options] command_line
 
 	Repeat run command line.
 ```
+## rle
+```code
+Usage: rle [options] [file]
+
+    options:
+        -h --help: this help info.
+        -t --token-bits num: bit size for data tokens, default 8.
+        -r --run-bits num: bit size for run length tokens, default 8.
+
+    Compresses a file using Run-Length Encoding.
+    If no file is given, it reads from stdin.
+    Output is written to stdout.
+```
 ## rm
 ```code
 Usage: rm [options] [path] ...
@@ -404,6 +417,19 @@ Usage: unique [options] [line] ...
 
 	If no lines given on command line
 	then will read lines from stdin.
+```
+## unrle
+```code
+Usage: unrle [options] [file]
+
+    options:
+        -h --help: this help info.
+        -t --token-bits num: bit size for data tokens, default 8.
+        -r --run-bits num: bit size for run length tokens, default 8.
+
+    Decompresses a file using Run-Length Encoding.
+    If no file is given, it reads from stdin.
+    Output is written to stdout.
 ```
 ## vpstats
 ```code

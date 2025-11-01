@@ -8,11 +8,13 @@
 
 ### (lines! lambda stream) -> :nil
 
+### (stream-flush stream) -> stream
+
 ### (file-stream path [mode]) -> :nil | stream
 
 ### (io-stream io) -> :nil | stream
 
-### (read-bits stream num_bits bit_pool bit_pool_size) -> (data|-1 bit_pool bit_pool_size)
+### (read-bits stream (array bit_pool bit_pool_size) num_bits) -> (data|-1)
 
 ### (read-avail stream) -> :nil | num
 
@@ -24,9 +26,7 @@
 
 ### (string-stream str) -> stream
 
-### (write-bits stream data num_bits bit_pool bit_pool_size) -> (bit_pool bit_pool_size)
-
-### (stream-flush stream) -> stream
+### (write-bits stream (array bit_pool bit_pool_size) data num_bits) -> stream
 
 ### (write-char stream list|num [width]) -> bytes
 
@@ -34,7 +34,7 @@
 
 ## VP methods
 
-### :available -> class/stream/available
+### :avail -> class/stream/avail
 
 ```code
 inputs

@@ -285,6 +285,12 @@ return all the dir paths
 (flatten list) -> list
 ```
 
+### flush-bits
+
+```code
+(flush-bits stream (array bit_pool bit_pool_size))
+```
+
 ### found?
 
 ```code
@@ -882,6 +888,18 @@ restart a child
 
 ```code
 restart a child
+```
+
+### rle-compress
+
+```code
+(rle-compress in_stream out_stream token_bits run_bits)
+```
+
+### rle-decompress
+
+```code
+(rle-decompress in_stream out_stream token_bits run_bits)
 ```
 
 ### rotate

@@ -32,15 +32,19 @@ New Eyes GUI application. Bit of silly fun with the AI.
 Fixed a few Editor `(some (# (unless ...)))` undefined issues. Switched to using
 the `bskip` functions where possible.
 
-New
-`(read-bits stream num_bits bit_pool bit_pool_size) -> (data|-1 bit_pool bit_pool_size)`
-and
-`(write-bits stream data num_bits bit_pool bit_pool_size) -> (bit_pool bit_pool_size)`
+New `(read-bits stream (array bit_pool bit_pool_size) num_bits) -> (data|-1)`
+and `(write-bits stream (array bit_pool bit_pool_size) data num_bits) -> stream`
 Lisp bindings.
 
 Rename of `(write-line stream str)` to `(write-line-lf stream str)` and
 `(write stream str)` to `(write-line stream str)` in order to match the
 `(read-line stream)` naming.
+
+New `lib/streams/rle.inc` module.
+`(rle-decompress in_stream out_stream token_bits run_bits)` and
+`(rle-compress in_stream out_stream token_bits run_bits)` functions.
+
+New `cmd/rle.lisp` and `cmd/unrle.lisp` command line apps for rle/unrle use.
 
 ------
 
