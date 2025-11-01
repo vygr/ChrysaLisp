@@ -52,7 +52,7 @@
 
 (ui-window *window* ()
 	(ui-title-bar _ "Eyes" (0xea19 0xea1b 0xea1a) +event_close)
-	(ui-backdrop *backdrop* (:style :plain :color +argb_black)))
+	(ui-backdrop *backdrop* (:style :grid :color +argb_black :ink_color +argb_grey6)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Drawing and Window Logic
@@ -80,7 +80,7 @@
 
 (defun redraw (mx my)
 	(bind '(w h) (map (const n2f) (. *canvas* :pref_size)))
-	(. *canvas* :fill +argb_black)
+	(. *canvas* :fill 0)
 
 	; Get absolute canvas position and calculate relative mouse coordinates
 	(bind '(canvas_x canvas_y _ _) (map (const n2f) (. (penv *window*) :get_relative *canvas*)))
