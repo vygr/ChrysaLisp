@@ -18,10 +18,10 @@
 			(.-> buffer (:set_cursor 0 y) (:cut 0 h))
 			;trim lines
 			(each! (lambda (line)
-					(unless (eql (defq trimed_line (trim-end line)) line)
+					(unless (eql (defq trimmed_line (trim-end line)) line)
 						(.-> buffer
-							(:set_cursor (length trimed_line) (!))
-							(:delete (- (length line) (length trimed_line))))))
+							(:set_cursor (length trimmed_line) (!))
+							(:delete (- (length line) (length trimmed_line))))))
 				(list (. buffer :get_text_lines)) 0 (bind '(w h) (. buffer :get_size)))
 			(bind '(cx cy) (. buffer :constrain cx cy))
 			(. buffer :set_cursor cx cy)))
