@@ -86,11 +86,6 @@
 	(. categories :each (lambda (cat_name cat_data)
 		(make-category cat_data cat_name columns))))
 
-(defun setup-tooltips (select)
-	(def *window* :tip_mbox (elem-get select +select_tip))
-	; Example: (ui-tool-tips some_toolbar '("Tip 1" "Tip 2"))
-)
-
 ; Main Window Layout
 (ui-window *window* ()
 	(ui-title-bar _ "Launcher" (0xea19) +event_close)
@@ -98,8 +93,7 @@
 
 (defun main ()
 	; Initialization
-	(defq select (task-mboxes +select_size) *running* :t)
-	(setup-tooltips select)
+	(defq select (task-mboxes +select_size) running :t)
 	(load-config)
 	(scan-apps)
 	(build-ui)
@@ -109,45 +103,37 @@
 	(gui-add-front-rpc (. *window* :change x y w h))
 
 	; Main Event Loop
-	(while *running*
-		(defq idx (mail-select select)
-			msg (mail-read (elem-get select idx)))
-
+	(while running
+		(defq idx (mail-select select) msg (mail-read (elem-get select idx)))
 		(cond
 			((= idx +select_tip)
 				(if (defq view (. *window* :find_id (getf msg +mail_timeout_id)))
 					(. view :show_tip)))
+			;must be +select_main !
+			((= (defq id (getf msg +ev_msg_target_id)) +event_close)
+				(setq running :nil))
+			((= id +event_launch)
+				(defq button (. *window* :find_id (getf msg +ev_msg_action_source_id)))
+				(open-child (app-path (get :text button)) +kn_call_open)
+				(setq running :nil))
+			((= id +event_toggle)
+				(defq toggle (. *window* :find_id (getf msg +ev_msg_action_source_id))
+					cat_flow (penv (penv toggle))
+					grid (second (. cat_flow :children))
+					cat_name (get :cat_name cat_flow)
+					categories (. *config* :find :categories)
+					cat_data (. categories :find cat_name)
+					collapsed (not (. cat_data :find :collapsed)))
+				(. cat_data :insert :collapsed collapsed)
+				(def toggle :text (if collapsed ">" "v"))
+				(. grid :set_flags (if collapsed +view_flag_hidden 0) +view_flag_hidden)
 
-			((= idx +select_main)
-				(defq id (getf msg +ev_msg_target_id))
-				(cond
-					((= id +event_close)
-						(setq *running* :nil))
-
-					((= id +event_launch)
-						(defq button (. *window* :find_id (getf msg +ev_msg_action_source_id)))
-						(open-child (app-path (get :text button)) +kn_call_open)
-						(setq *running* :nil))
-
-					((= id +event_toggle)
-						(defq toggle (. *window* :find_id (getf msg +ev_msg_action_source_id))
-							cat_flow (penv (penv toggle))
-							grid (second (. cat_flow :children))
-							cat_name (get :cat_name cat_flow)
-							categories (. *config* :find :categories)
-							cat_data (. categories :find cat_name)
-							collapsed (not (. cat_data :find :collapsed)))
-						(. cat_data :insert :collapsed collapsed)
-						(def toggle :text (if collapsed ">" "v"))
-						(. grid :set_flags (if collapsed +view_flag_hidden 0) +view_flag_hidden)
-
-						; Recalculate size and update scrollbars after visibility change
-						(bind '(x y) (. *window* :get_pos))
-						(bind '(w h) (. *window* :pref_size))
-						(bind '(x y w h) (view-fit x y w h))
-						(. *window* :change_dirty x y w h))
-
-					(:t (. *window* :event msg))))))
+				; Recalculate size and update scrollbars after visibility change
+				(bind '(x y) (. *window* :get_pos))
+				(bind '(w h) (. *window* :pref_size))
+				(bind '(x y w h) (view-fit x y w h))
+				(. *window* :change_dirty x y w h))
+			((. *window* :event msg))))
 
 	(save-config)
 	(gui-sub-rpc *window*))
