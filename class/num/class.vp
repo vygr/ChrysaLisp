@@ -56,26 +56,28 @@
 	;:r0 = num (ptr)
 	;:r1 = hash code (ulong)
 	;trashes
-	;:r1-:r2
+	;:r1-:r4
 
-	(vp-def (x tmp) '(:r1 :r2))
+	(vp-def (this hc c1 c2 tmp))
 
-	(entry 'num :hash '(:r0))
+	(entry 'num :hash `(,this))
 
-	(assign '((:r0 num_value)) `(,x))
-	(vp-cpy-rr x tmp)
+	(assign '((:r0 num_value)) `(,hc))
+	(vp-cpy-cr 0xbf58476d1ce4e5b9 c1)
+	(vp-cpy-cr 0x94d049bb133111eb c2)
+	(vp-cpy-rr hc tmp)
 	(vp-asr-cr 30 tmp)
-	(vp-xor-rr tmp x)
-	(vp-mul-cr 0xbf58476d1ce4e5b9 x)
-	(vp-cpy-rr x tmp)
+	(vp-xor-rr tmp hc)
+	(vp-mul-rr c1 hc)
+	(vp-cpy-rr hc tmp)
 	(vp-asr-cr 27 tmp)
-	(vp-xor-rr tmp x)
-	(vp-mul-cr 0x94d049bb133111eb x)
-	(vp-cpy-rr x tmp)
+	(vp-xor-rr tmp hc)
+	(vp-mul-rr c2 hc)
+	(vp-cpy-rr hc tmp)
 	(vp-asr-cr 31 tmp)
-	(vp-xor-rr tmp x)
+	(vp-xor-rr tmp hc)
 
-	(exit 'num :hash '(:r0 :r1))
+	(exit 'num :hash `(,this ,hc))
 	(vp-ret)
 
 (def-func-end)
