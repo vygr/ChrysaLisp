@@ -162,6 +162,18 @@ Usage: head [options file]
 
 	Defaults to first 10 lines.
 ```
+## huff
+```code
+Usage: huff [options] [file]
+
+	options:
+		-h --help: this help info.
+		-t --token-bits num: bit size for data tokens, default 8.
+
+	Compresses a file using Run-Length Encoding.
+	If no file is given, it reads from stdin.
+	Output is written to stdout.
+```
 ## link
 ```code
 Usage: link [options] CLB-L1 CLB-L2 000-000 ...
@@ -253,14 +265,14 @@ Usage: repeat [options] command_line
 ```code
 Usage: rle [options] [file]
 
-    options:
-        -h --help: this help info.
-        -t --token-bits num: bit size for data tokens, default 8.
-        -r --run-bits num: bit size for run length tokens, default 8.
+	options:
+		-h --help: this help info.
+		-t --token-bits num: bit size for data tokens, default 8.
+		-r --run-bits num: bit size for run length tokens, default 8.
 
-    Compresses a file using Run-Length Encoding.
-    If no file is given, it reads from stdin.
-    Output is written to stdout.
+	Compresses a file using Run-Length Encoding.
+	If no file is given, it reads from stdin.
+	Output is written to stdout.
 ```
 ## rm
 ```code
@@ -408,6 +420,18 @@ Usage: tocpm [options] [path] ...
 	If no paths given on command line
 	then paths are read from stdin.
 ```
+## unhuff
+```code
+Usage: unrle [options] [file]
+
+	options:
+		-h --help: this help info.
+		-t --token-bits num: bit size for data tokens, default 8.
+
+	Decompresses a file using Run-Length Encoding.
+	If no file is given, it reads from stdin.
+	Output is written to stdout.
+```
 ## unique
 ```code
 Usage: unique [options] [line] ...
@@ -422,14 +446,14 @@ Usage: unique [options] [line] ...
 ```code
 Usage: unrle [options] [file]
 
-    options:
-        -h --help: this help info.
-        -t --token-bits num: bit size for data tokens, default 8.
-        -r --run-bits num: bit size for run length tokens, default 8.
+	options:
+		-h --help: this help info.
+		-t --token-bits num: bit size for data tokens, default 8.
+		-r --run-bits num: bit size for run length tokens, default 8.
 
-    Decompresses a file using Run-Length Encoding.
-    If no file is given, it reads from stdin.
-    Output is written to stdout.
+	Decompresses a file using Run-Length Encoding.
+	If no file is given, it reads from stdin.
+	Output is written to stdout.
 ```
 ## vpstats
 ```code

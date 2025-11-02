@@ -162,7 +162,7 @@ outputs
 :r0 = num (ptr)
 :r1 = hash code (ulong)
 trashes
-:r1-:r14
+:r1-:r2
 ```
 
 ### :init -> class/num/init

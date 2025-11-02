@@ -46,6 +46,15 @@ New `lib/streams/rle.inc` module.
 
 New `cmd/rle.lisp` and `cmd/unrle.lisp` command line apps for rle/unrle use.
 
+Better `'num :hash` method. Does some bit mixing rather than just returning the
+value unchanged.
+
+New `lib/streams/huffman.inc` module. `huffman-compress` `huffman-decompress`
+`huffman-build-freq-map` `huffman-write-codebook` `huffman-read-codebook`
+`huffman-compress-static` and `huffman-decompress-static` functions.
+
+New `cmd/huff.lisp` and `cmd/unhuff.lisp` command line apps for huff/unhuff use.
+
 ------
 
 `*Lock` service added. This still requires further work, but it removes the idea

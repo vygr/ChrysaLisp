@@ -8,20 +8,18 @@
 	options:
 		-h --help: this help info.
 		-t --token-bits num: bit size for data tokens, default 8.
-		-r --run-bits num: bit size for run length tokens, default 8.
 
 	Decompresses a file using Run-Length Encoding.
 	If no file is given, it reads from stdin.
 	Output is written to stdout.")
 (("-t" "--token-bits") ,(opt-num 'opt_t))
-(("-r" "--run-bits") ,(opt-num 'opt_r))
 ))
 
 (defun main ()
 	; Initialize options and streams
 	(when (and
 			(defq stdio (create-stdio))
-			(defq opt_t 8 opt_r 8 args (options stdio usage)))
+			(defq opt_t 8 args (options stdio usage)))
 
 		(defq in_stream (if (> (length args) 1)
 						   (file-stream (second args))
@@ -30,5 +28,5 @@
 
 		; Perform decompression
 		(when in_stream
-			(rle-decompress in_stream out_stream opt_t opt_r)
+			(huffman-decompress in_stream out_stream opt_t)
 			(stream-flush out_stream))))
