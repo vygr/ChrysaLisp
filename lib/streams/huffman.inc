@@ -7,15 +7,11 @@
 
 (defun build_tree_and_codebook (freq_map)
 	; Builds the Huffman tree and codebook from a frequency map. Non-recursive.
-	(defq nodes (list) freq_list (list) count 0)
-
-	; Convert Fmap to a list for sorting.
-	(. freq_map :each (# (push freq_list (list %0 %1)) (++ count)))
-
-	(defq codebook (Fmap (+ 2 count)))
+	(defq nodes (list))
 
 	; Create initial leaf nodes.
-	(each (lambda ((token freq)) (push nodes (list freq token))) freq_list)
+	(. freq_map :each (# (push nodes (list %1 %0))))
+	(defq codebook (Fmap (+ 2 (length nodes))))
 
 	; Build the tree by repeatedly merging the two lowest-frequency nodes.
 	(while (> (length nodes) 1)
@@ -23,17 +19,17 @@
 		(defq n1 (pop nodes) n2 (pop nodes))
 		(push nodes (list (+ (first n1) (first n2)) n1 n2)))
 
-	(defq root (first nodes))
-
 	; Iteratively build the codebook from the tree using an explicit stack.
-	(when root
-		(defq stack (list (list root 0 0))) ; Stack holds (node path length)
+	(when (defq root (first nodes))
+		; Stack holds (node path length)
+		(defq stack (list (list root 0 0)))
 		(while (nempty? stack)
 			(bind '(node path len) (pop stack))
 			(if (> (length node) 2)
-				(progn ; Internal node: (frequency left_child right_child)
-					(push stack (list (second node) (<< path 1) (inc len)))
-					(push stack (list (third node) (logior (<< path 1) 1) (inc len))))
+				; Internal node: (frequency left_child right_child)
+				(push stack
+					(list (second node) (<< path 1) (inc len))
+					(list (third node) (logior (<< path 1) 1) (inc len)))
 				; Leaf node: (frequency token)
 				(. codebook :insert (second node) (list path len)))))
 	(list root codebook))
