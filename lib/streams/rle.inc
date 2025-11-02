@@ -53,8 +53,14 @@
 				(when (= (length literals) max_literals)
 					(flush_literals out_stream write_pool_state literals token_bits run_bits)))))
 
-	; After loop, flush any remaining literals and the bit pool
+	; After loop, flush any remaining literals
 	(flush_literals out_stream write_pool_state literals token_bits run_bits)
+
+	; Write a special, unused control code to unambiguously mark the End-Of-Stream.
+	; This is the value for a "repeat run of length 1", which is not otherwise generated.
+	(write-bits out_stream write_pool_state sign_bit_mask run_bits)
+
+	; Flush any partial byte at the end of the output stream
 	(flush-bits out_stream write_pool_state))
 
 (defun rle-decompress (in_stream out_stream &optional token_bits run_bits)
@@ -63,21 +69,30 @@
 	(defq read_pool_state (array 0 0)   ; State for the input stream
 		  write_pool_state (array 0 0)  ; State for the output stream
 		  sign_bit_mask (<< 1 (dec run_bits))
-		  length_mask (dec sign_bit_mask))
+		  length_mask (dec sign_bit_mask)
+		  running :t) ; Add a flag to control the main loop.
 
-	(while (/= -1 (defq control_token (read-bits in_stream read_pool_state run_bits)))
-		(if (bits? control_token sign_bit_mask)
-			(progn
+	(while (and running (/= -1 (defq control_token (read-bits in_stream read_pool_state run_bits))))
+		(cond
+			; Check for the special End-Of-Stream control code first.
+			((eql control_token sign_bit_mask)
+				(setq running :nil)) ; Cleanly stop the loop.
+
+			((bits? control_token sign_bit_mask)
 				; Repeated Run (MSB is set)
 				(defq run_length (inc (logand control_token length_mask)))
 				(defq token_to_repeat (read-bits in_stream read_pool_state token_bits))
 				(times run_length (write-bits out_stream write_pool_state token_to_repeat token_bits)))
-			(progn
+
+			(:t
 				; Literal Run (MSB is clear)
 				(defq literal_length (inc control_token))
 				(times literal_length
 					(defq literal_token (read-bits in_stream read_pool_state token_bits))
-					(write-bits out_stream write_pool_state literal_token token_bits)))))
+					; Check for unexpected end of stream inside a literal run.
+					(if (= literal_token -1)
+						(setq running :nil)
+						(write-bits out_stream write_pool_state literal_token token_bits))))))
 
 	; Flush any partial byte at the end of the output stream
 	(flush-bits out_stream write_pool_state))
