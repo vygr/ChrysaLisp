@@ -6,33 +6,47 @@
 (env-push)
 
 (defun build_tree_and_codebook (freq_map)
-	; Builds the Huffman tree and codebook from a frequency map. Non-recursive.
-	(defq nodes (list))
+    ; Builds a deterministic Huffman tree and codebook from a frequency map.
+    (defq nodes (list))
 
-	; Create initial leaf nodes.
-	(. freq_map :each (# (push nodes (list %1 %0))))
-	(defq codebook (Fmap (+ 2 (length nodes))))
+    ; Create initial leaf nodes with a unique, sequential ID.
+    ; Leaf Node Structure: (frequency token id)
+    (. freq_map :each (# (push nodes (list %1 %0))))
+	(sort nodes (# (- (second %1) (second %0))))
+	(each (# (push %0 (!))) nodes)
+    (defq codebook (Fmap (+ 2 (length nodes))))
 
-	; Build the tree by repeatedly merging the two lowest-frequency nodes.
-	(while (> (length nodes) 1)
-		(sort nodes (# (- (first %1) (first %0))))
-		(defq n1 (pop nodes) n2 (pop nodes))
-		(push nodes (list (+ (first n1) (first n2)) n1 n2)))
+    ; Build the tree by repeatedly merging the two lowest-frequency nodes.
+    (while (> (length nodes) 1)
+        ; Perform a stable sort in DESCENDING order. This places the two nodes with the
+        ; lowest frequency (and lowest ID in case of a tie) at the end of the list.
+        (sort nodes (# (if (/= (defq f (- (first %1) (first %0))) 0)
+                           f
+                           ; Stable tie-breaker: Compare by ID.
+                           ; The ID is always the last element in the node's list.
+                           (- (last %1) (last %0)))))
 
-	; Iteratively build the codebook from the tree using an explicit stack.
-	(when (defq root (first nodes))
-		; Stack holds (node path length)
-		(defq stack (list (list root 0 0)))
-		(while (nempty? stack)
-			(bind '(node path len) (pop stack))
-			(if (> (length node) 2)
-				; Internal node: (frequency left_child right_child)
-				(push stack
-					(list (second node) (<< path 1) (inc len))
-					(list (third node) (logior (<< path 1) 1) (inc len)))
-				; Leaf node: (frequency token)
-				(. codebook :insert (second node) (list path len)))))
-	(list root codebook))
+        (defq n1 (pop nodes)
+              n2 (pop nodes))
+
+        ; The new internal node inherits the ID of the FIRST child popped (n1),
+        ; which is the one with the definitively lowest rank. This ensures
+        ; the new node's ID is deterministic for future sorting passes.
+        ; Internal Node Structure: (frequency child1 child2 id)
+        (push nodes (list (+ (first n1) (first n2)) n1 n2 (last n1))))
+
+    ; Iteratively build the codebook from the tree using an explicit stack.
+    (when (defq root (first nodes))
+        (defq stack (list (list root 0 0))) ; Stack: (node path length)
+        (while (nempty? stack)
+            (bind '(node path len) (pop stack))
+            ; Internal nodes have 4 elements, leaf nodes have 3.
+            (if (> (length node) 3)
+                (push stack
+                    (list (second node) (<< path 1) (inc len))
+                    (list (third node) (logior (<< path 1) 1) (inc len)))
+                (. codebook :insert (second node) (list path len)))))
+    (list root codebook))
 
 (defun huffman-compress (in_stream out_stream &optional token_bits)
 	; (huffman-compress in_stream out_stream [token_bits])
@@ -53,15 +67,16 @@
 		(if (. codebook :find token)
 			(progn ; Token is known, write its code.
 				(bind '(code len) (. codebook :find token))
-				(write-bits out_stream write_pool_state code len))
+				(write-bits out_stream write_pool_state code len)
+				(. freq_map :update token (# (inc %0))))
 			(progn ; Token is not yet seen (NYT).
 				; Write the NYT code, followed by the raw token.
 				(bind '(code len) (. codebook :find NYT_TOKEN))
 				(write-bits out_stream write_pool_state code len)
-				(write-bits out_stream write_pool_state token token_bits)))
-
-		; Update the frequency model for the token we just processed.
-		(. freq_map :update token (# (if %0 (inc %0) 1))))
+				(write-bits out_stream write_pool_state token token_bits)
+				; Update frequencies for BOTH the NYT token and the new token.
+				(. freq_map :update NYT_TOKEN (# (inc %0)))
+				(. freq_map :insert token 1))))
 
 	; After the loop, build the final model and send the End Of Stream token.
 	(bind '(_ codebook) (build_tree_and_codebook freq_map))
@@ -73,7 +88,6 @@
 (defun huffman-decompress (in_stream out_stream &optional token_bits)
 	; (huffman-decompress in_stream out_stream [token_bits])
 	; adaptive single pass
-	; This function is designed to be robust against premature end-of-stream conditions.
 	(setd token_bits 8)
 	(defq read_pool_state (array 0 0)
 		  write_pool_state (array 0 0)
@@ -94,25 +108,27 @@
 				(setq running :nil) ; Gracefully stop if stream ends mid-traversal.
 				(setq current_node (if (= bit 1) (third current_node) (second current_node)))))
 
-		; Only proceed if the main loop is still active.
 		(when running
 			(defq decoded_token (second current_node))
-
 			(cond
 				((eql decoded_token EOS_TOKEN)
-					(setq running :nil)) ; Clean exit upon receiving the EOS token.
+					(setq running :nil)) ; Clean exit.
 				((eql decoded_token NYT_TOKEN)
-					; A new, unseen token is next in the stream. Read it raw.
-					(setq decoded_token (read-bits in_stream read_pool_state token_bits))
-					(if (= decoded_token -1)
-						(setq running :nil)))) ; Gracefully stop if stream ends here.
-
-			; If still running after potentially decoding a token...
-			(when running
-				; Write the decoded token to the output.
-				(write-bits out_stream write_pool_state decoded_token token_bits)
-				; Update the frequency model, keeping it in sync with the compressor.
-				(. freq_map :update decoded_token (# (if %0 (inc %0) 1))))))
+					; A new, unseen token is next.
+					; 1. Update frequency for the NYT token itself to stay in sync.
+					(. freq_map :update NYT_TOKEN (# (inc %0)))
+					; 2. Read the raw token from the stream.
+					(defq raw_token (read-bits in_stream read_pool_state token_bits))
+					(if (= raw_token -1)
+						(setq running :nil) ; Gracefully stop if stream ends here.
+						(progn
+							; 3. Write it and update its frequency.
+							(write-bits out_stream write_pool_state raw_token token_bits)
+							(. freq_map :insert raw_token 1))))
+				(:t
+					; This is a normal, known token. Write it and update its frequency.
+					(write-bits out_stream write_pool_state decoded_token token_bits)
+					(. freq_map :update decoded_token (# (inc %0)))))))
 
 	; Flush any partial byte at the end of the output stream.
 	(flush-bits out_stream write_pool_state))
@@ -219,9 +235,21 @@
 
 	(flush-bits out_stream write_pool_state))
 
-
 ;module
-(export-symbols '(huffman-compress huffman-decompress
+(export-symbols '(huffman-compress huffman-decompress build_tree_and_codebook
 	huffman-build-freq-map huffman-write-codebook huffman-read-codebook
 	huffman-compress-static huffman-decompress-static))
 (env-pop)
+
+(defun print-results (state)
+	(bind '(tree cbook) state)
+	(print "Tree")
+	(print tree)
+	(print "Codebook")
+	(. cbook :each print))
+
+(defun test-huffman ()
+	(print-results (build_tree_and_codebook (scatter (Fmap) 1 1 2 2 3 3 4 4 0 5)))
+	(print-results (build_tree_and_codebook (scatter (Fmap) 1 1 2 1 3 1 4 1 0 1)))
+	(print-results (build_tree_and_codebook (scatter (Fmap) 2 1 3 1 4 1 0 1 1 1)))
+	(print-results (build_tree_and_codebook (scatter (Fmap) 3 1 4 1 0 1 1 1 2 1))))
