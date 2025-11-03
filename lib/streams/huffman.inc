@@ -24,17 +24,18 @@
 
     ; Step 4: Build the tree by repeatedly merging the two lowest-frequency nodes.
     (while (> (length nodes) 1)
-        ; Stable sort: DESCENDING by frequency, then DESCENDING by ID.
+        ; Stable sort: DESCENDING by frequency, then ASCENDING by ID.
         (sort nodes (# (if (/= (defq f (- (first %1) (first %0))) 0)
                            f
-                           (- (last %1) (last %0)))))
+                           (- (last %0) (last %1)))))
 
         (defq n1 (pop nodes)
               n2 (pop nodes))
 
         ; New internal node inherits the ID of the lowest-ranked child (n1).
-        ; Internal Node Structure: (frequency child1 child2 id)
-        (push nodes (list (+ (first n1) (first n2)) n1 n2 (last n1))))
+        ; The node with the higher rank (n2) becomes the '0' child, and the
+        ; node with the lower rank (n1) becomes the '1' child.
+        (push nodes (list (+ (first n1) (first n2)) n2 n1 (last n1))))
 
     ; Step 5: Iteratively build the codebook from the final tree.
     (when (defq root (first nodes))
@@ -209,7 +210,6 @@
     (while running
         (defq current_node root)
         ; Traverse the tree one bit at a time to find the next token.
-        ; The condition is changed from > 2 to > 3 to account for the new node format.
         (while (and running current_node (> (length current_node) 3))
             (defq bit (read-bits in_stream read_pool_state 1))
             (if (= bit -1)
@@ -268,9 +268,43 @@
       (progn (print "  Status: PASS") :t)
       (progn (print "  Status: FAIL") (print "  Original:" original_values) (print "  Read:    " read_values) :nil)))
 
+(defun test-model-determinism (test_string)
+  (print "---")
+  (print "TEST 2: Verifying model determinism for string: " test_string)
+  (defq perms (list
+                (map identity test_string)
+                (reverse (map identity test_string))
+                (sort (map identity test_string))
+                (shuffle (map identity test_string)))
+        perm_names '("Original" "Reversed" "Sorted" "Shuffled")
+        models (list)
+        EOS_TOKEN (inc (<< 1 8)))
+
+  (each (lambda (perm)
+    (defq freq_map (scatter (Fmap 101) (inc EOS_TOKEN) 1 EOS_TOKEN 1))
+    (each (lambda (c)
+      (. freq_map :update (code c) (# (if %0 (inc %0) 1)))) perm)
+    (push models (build_tree_and_codebook freq_map)))
+    perms)
+
+  (defq golden_model (first models)
+        all_match :t)
+
+  (each! (lambda (perm_name perm current_model)
+    (defq match (and (deep-eql (first golden_model) (first current_model))
+                     (deep-eql (fmap-to-sorted-list (second golden_model))
+                               (fmap-to-sorted-list (second current_model)))))
+    (print "  - Permutation: " perm_name " (" (if (empty? perm) "" (apply cat perm)) ") ... " (if match "PASS" "FAIL"))
+    (unless match (setq all_match :nil)))
+    (list (rest perm_names) (rest perms) (rest models)))
+
+  (if all_match
+      (progn (print "  Determinism Status: PASS") :t)
+      (progn (print "  Determinism Status: FAIL") :nil)))
+
 (defun verify-model-integrity (test_string)
   (print "---")
-  (print "TEST 2: Verifying model serialization for string: " test_string)
+  (print "TEST 3: Verifying model serialization for string: " test_string)
   (defq freq_map (huffman-build-freq-map (string-stream test_string) 8))
   (bind '(root1 codebook1) (build_tree_and_codebook freq_map))
   (defq model_stream (string-stream ""))
@@ -286,7 +320,7 @@
 
 (defun test-static-compression (test_string)
   (print "---")
-  (print "TEST 3: Verifying static end-to-end for string: " test_string)
+  (print "TEST 4: Verifying static end-to-end for string: " test_string)
   (defq freq_map (huffman-build-freq-map (string-stream test_string) 8))
   (defq model_stream (string-stream ""))
   (huffman-write-codebook model_stream 8 freq_map)
@@ -302,7 +336,7 @@
 
 (defun test-adaptive-compression (test_string)
   (print "---")
-  (print "TEST 4: Verifying adaptive end-to-end for string: " test_string)
+  (print "TEST 5: Verifying adaptive end-to-end for string: " test_string)
   (defq compressed_stream (string-stream ""))
   (huffman-compress (string-stream test_string) compressed_stream 8)
   (defq decompressed_stream (string-stream ""))
@@ -326,14 +360,16 @@
   (print "       Starting Huffman Tests")
   (print "=====================================")
   (if (test-bitstream-integrity)
-    (if (every (# (verify-model-integrity %0)) test_strings)
-      (if (every (# (test-static-compression %0)) test_strings)
-        (if (every (# (test-adaptive-compression %0)) test_strings)
-          (progn
-            (print "---")
-            (print "ALL TESTS PASSED")
-            (print "====================================="))
-          (print "Adaptive test failed."))
-        (print "Static test failed."))
-      (print "Model test failed."))
+    (if (every (# (test-model-determinism %0)) test_strings)
+      (if (every (# (verify-model-integrity %0)) test_strings)
+        (if (every (# (test-static-compression %0)) test_strings)
+          (if (every (# (test-adaptive-compression %0)) test_strings)
+            (progn
+              (print "---")
+              (print "ALL TESTS PASSED")
+              (print "====================================="))
+            (print "Adaptive test failed."))
+          (print "Static test failed."))
+        (print "Model serialization test failed."))
+      (print "Model determinism test failed."))
     (print "Bitstream test failed.")))
