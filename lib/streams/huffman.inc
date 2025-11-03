@@ -230,102 +230,110 @@
 	huffman-compress-static huffman-decompress-static))
 (env-pop)
 
-(defun test-static-huffman (test_string)
-    (print "---")
-    (print "Testing with string: " test_string)
-
-    ; --- 1. Build the model from the original data ---
-    (defq in_stream (string-stream test_string))
-    (defq freq_map (huffman-build-freq-map in_stream 8))
-    (bind '(root codebook) (build_tree_and_codebook freq_map))
-    (defq original_model (list root codebook 8))
-
-    ; --- 2. Save the model to a stream ---
-    (defq model_stream (string-stream ""))
-    (huffman-write-codebook model_stream 8 freq_map)
-    (defq saved_model_string (str model_stream))
-
-    ; --- 3. Load the model back from the saved string ---
-    (defq load_model_stream (string-stream saved_model_string))
-    (defq loaded_model (huffman-read-codebook load_model_stream))
-
-    ; --- 4. Compress the original string using the loaded model ---
-    (setq in_stream (string-stream test_string)) ; Rewind the input stream
-    (defq compressed_stream (string-stream ""))
-    (huffman-compress-static in_stream compressed_stream loaded_model)
-    (defq compressed_string (str compressed_stream))
-    (print "Compressed (encoded): " (id-encode compressed_string))
-
-    ; --- 5. Decompress the data using the loaded model ---
-    (defq decompress_in_stream (string-stream compressed_string))
-    (defq decompressed_stream (string-stream ""))
-    (huffman-decompress-static decompress_in_stream decompressed_stream loaded_model)
-    (defq decompressed_string (str decompressed_stream))
-    (print "Decompressed:         " decompressed_string)
-
-    ; --- 6. Verify the result ---
-    (if (eql test_string decompressed_string)
-        (print "Status:               PASS")
-        (print "Status:               FAIL")))
-
-(defun test-static ()
-    (test-static-huffman "abcdefjhiiijklmnop")
-    (test-static-huffman "abcdefghijklmnop")
-    (test-static-huffman "aaaaaaaaaa")
-    (test-static-huffman "abcfcba")
-    (test-static-huffman "Furthermore"))
-
 (defun deep-eql (a b)
-  "Recursively compares two nested lists for deep equality."
   (cond
     ((and (list? a) (list? b))
       (and (= (length a) (length b))
-           ; FIX: Check if all mapped results are :t by ensuring :nil is not found.
            (not (find :nil (map deep-eql a b)))))
     (:t (eql a b))))
 
 (defun fmap-to-sorted-list (fmap)
-  "Converts an Fmap to a sorted list of (key value) pairs for comparison."
   (defq out (list))
   (. fmap :each (# (push out (list %0 %1))))
   (sort out (# (cmp (str (first %0)) (str (first %1))))))
 
-(defun verify-model-integrity (test_string)
-  "Builds, serializes, deserializes, and verifies a Huffman model."
+(defun test-bitstream-integrity ()
   (print "---")
-  (print "Verifying model integrity for string: " test_string)
+  (print "TEST 1: Verifying low-level bitstream functions...")
+  (defq original_values (list)
+        original_widths (list)
+        write_pool_state (array 0 0)
+        out_stream (string-stream "")
+        num_tests 500
+        seed 12345
+        width 1)
+  (times num_tests
+    (setq seed (% (+ (* seed 1103515245) 12345) 0x7FFFFFFF)
+          width (inc (% width 16)))
+    (defq value (% seed (<< 1 width)))
+    (push original_values value)
+    (push original_widths width)
+    (write-bits out_stream write_pool_state value width))
+  (flush-bits out_stream write_pool_state)
+  (defq read_values (list)
+        read_pool_state (array 0 0)
+        in_stream (string-stream (str out_stream)))
+  (each (lambda (w) (push read_values (read-bits in_stream read_pool_state w))) original_widths)
+  (if (deep-eql original_values read_values)
+      (progn (print "  Status: PASS") :t)
+      (progn (print "  Status: FAIL") (print "  Original:" original_values) (print "  Read:    " read_values) :nil)))
 
-  ; --- 1. Build the initial model ---
+(defun verify-model-integrity (test_string)
+  (print "---")
+  (print "TEST 2: Verifying model serialization for string: " test_string)
   (defq freq_map (huffman-build-freq-map (string-stream test_string) 8))
   (bind '(root1 codebook1) (build_tree_and_codebook freq_map))
-
-  ; --- 2. Serialize the frequency map ---
   (defq model_stream (string-stream ""))
   (huffman-write-codebook model_stream 8 freq_map)
-
-  ; --- 3. Deserialize to build the second model ---
-  (defq load_model_stream (string-stream (str model_stream)))
-  (bind '(root2 codebook2 _) (huffman-read-codebook load_model_stream))
-
-  ; --- 4. Compare the two models ---
+  (bind '(root2 codebook2 _) (huffman-read-codebook (string-stream (str model_stream))))
   (defq tree_match (deep-eql root1 root2))
-  (defq codebook_match (deep-eql (fmap-to-sorted-list codebook1)
-                                 (fmap-to-sorted-list codebook2)))
-
-  (print "Tree structure match: " (if tree_match "PASS" "FAIL"))
-  (print "Codebook content match: " (if codebook_match "PASS" "FAIL"))
-
+  (defq codebook_match (deep-eql (fmap-to-sorted-list codebook1) (fmap-to-sorted-list codebook2)))
+  (print "  Tree structure match:     " (if tree_match "PASS" "FAIL"))
+  (print "  Codebook content match:   " (if codebook_match "PASS" "FAIL"))
   (if (and tree_match codebook_match)
-      (print "Model Integrity Status: PASS")
-      (progn
-        (print "Model Integrity Status: FAIL")
-        (print "--- Original Codebook ---")
-        (. codebook1 :each print)
-        (print "--- Loaded Codebook ---")
-        (. codebook2 :each print)))
-  tree_match)
+      (progn (print "  Model Integrity Status:   PASS") :t)
+      (progn (print "  Model Integrity Status:   FAIL") :nil)))
 
-(defun test-model ()
-    (verify-model-integrity "abcdefjhiiijklmnop")
-    (verify-model-integrity "aaaaaaaaaa")
-    (verify-model-integrity "abcfcba"))
+(defun test-static-compression (test_string)
+  (print "---")
+  (print "TEST 3: Verifying static end-to-end for string: " test_string)
+  (defq freq_map (huffman-build-freq-map (string-stream test_string) 8))
+  (defq model_stream (string-stream ""))
+  (huffman-write-codebook model_stream 8 freq_map)
+  (defq model (huffman-read-codebook (string-stream (str model_stream))))
+  (defq compressed_stream (string-stream ""))
+  (huffman-compress-static (string-stream test_string) compressed_stream model)
+  (defq decompressed_stream (string-stream ""))
+  (huffman-decompress-static (string-stream (str compressed_stream)) decompressed_stream model)
+  (defq result (str decompressed_stream))
+  (if (eql test_string result)
+      (progn (print "  Status: PASS") :t)
+      (progn (print "  Status: FAIL") (print "  Expected: " test_string) (print "  Got:      " result) :nil)))
+
+(defun test-adaptive-compression (test_string)
+  (print "---")
+  (print "TEST 4: Verifying adaptive end-to-end for string: " test_string)
+  (defq compressed_stream (string-stream ""))
+  (huffman-compress (string-stream test_string) compressed_stream 8)
+  (defq decompressed_stream (string-stream ""))
+  (huffman-decompress (string-stream (str compressed_stream)) decompressed_stream 8)
+  (defq result (str decompressed_stream))
+  (if (eql test_string result)
+      (progn (print "  Status: PASS") :t)
+      (progn (print "  Status: FAIL") (print "  Expected: " test_string) (print "  Got:      " result) :nil)))
+
+(defun run-all-huffman-tests ()
+  (defq test_strings (list
+    ""
+    "a"
+    "aaaaaaaaaa"
+    "abcfcba"
+    "abcdefghijklmnop"
+    "abcdefjhiiijklmnop"
+    "Furthermore"
+  ))
+  (print "=====================================")
+  (print "       Starting Huffman Tests")
+  (print "=====================================")
+  (if (test-bitstream-integrity)
+    (if (every (# (verify-model-integrity %0)) test_strings)
+      (if (every (# (test-static-compression %0)) test_strings)
+        (if (every (# (test-adaptive-compression %0)) test_strings)
+          (progn
+            (print "---")
+            (print "ALL TESTS PASSED")
+            (print "====================================="))
+          (print "Adaptive test failed."))
+        (print "Static test failed."))
+      (print "Model test failed."))
+    (print "Bitstream test failed.")))
