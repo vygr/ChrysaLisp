@@ -49,45 +49,41 @@
     (list root codebook))
 
 (defun huffman-compress (in_stream out_stream &optional token_bits)
-	; (huffman-compress in_stream out_stream [token_bits])
-	; adaptive single pass
-	(setd token_bits 8)
-	(defq read_pool_state (array 0 0)
-		  write_pool_state (array 0 0)
-		  ; Special tokens outside the normal token range
-		  NYT_TOKEN (<< 1 token_bits)
-		  EOS_TOKEN (inc NYT_TOKEN)
-		  ; Start with NYT and EOS in the frequency map
-		  freq_map (scatter (Fmap 101) NYT_TOKEN 1 EOS_TOKEN 1))
+    ; (huffman-compress in_stream out_stream [token_bits])
+    (setd token_bits 8)
+    (defq read_pool_state (array 0 0)
+          write_pool_state (array 0 0)
+          NYT_TOKEN (<< 1 token_bits)
+          EOS_TOKEN (inc NYT_TOKEN)
+          freq_map (scatter (Fmap 101) NYT_TOKEN 1 EOS_TOKEN 1))
 
-	(while (/= -1 (defq token (read-bits in_stream read_pool_state token_bits)))
-		; Build the Huffman model based on frequencies seen so far.
-		(bind '(_ codebook) (build_tree_and_codebook freq_map))
+    (while (/= -1 (defq token (read-bits in_stream read_pool_state token_bits)))
+        (bind '(_ codebook) (build_tree_and_codebook freq_map))
 
-		(if (. codebook :find token)
-			(progn ; Token is known, write its code.
-				(bind '(code len) (. codebook :find token))
-				(write-bits out_stream write_pool_state code len)
-				(. freq_map :update token (# (inc %0))))
-			(progn ; Token is not yet seen (NYT).
-				; Write the NYT code, followed by the raw token.
-				(bind '(code len) (. codebook :find NYT_TOKEN))
-				(write-bits out_stream write_pool_state code len)
-				(write-bits out_stream write_pool_state token token_bits)
-				; Update frequencies for BOTH the NYT token and the new token.
-				(. freq_map :update NYT_TOKEN (# (inc %0)))
-				(. freq_map :insert token 1))))
+        (if (defq code_info (. codebook :find token))
+            (progn ; Token is known.
+                (bind '(code len) code_info)
+                (write-bits out_stream write_pool_state code len)
+                ; Update the frequency for the known token.
+                (. freq_map :update token (# (inc %0))))
+            (progn ; Token is not yet seen (NYT).
+                (bind '(code len) (. codebook :find NYT_TOKEN))
+                (write-bits out_stream write_pool_state code len)
+                (write-bits out_stream write_pool_state token token_bits)
+                ; Symmetrically update both NYT and the new token.
+                (. freq_map :update NYT_TOKEN (# (inc %0)))
+                (. freq_map :insert token 1))))
 
-	; After the loop, build the final model and send the End Of Stream token.
-	(bind '(_ codebook) (build_tree_and_codebook freq_map))
-	(bind '(code len) (. codebook :find EOS_TOKEN))
-	(write-bits out_stream write_pool_state code len)
+    ; Send the End Of Stream token.
+    (bind '(_ codebook) (build_tree_and_codebook freq_map))
+    (when (defq code_info (. codebook :find EOS_TOKEN))
+        (bind '(code len) code_info)
+        (write-bits out_stream write_pool_state code len))
 
-	(flush-bits out_stream write_pool_state))
+    (flush-bits out_stream write_pool_state))
 
 (defun huffman-decompress (in_stream out_stream &optional token_bits)
     ; (huffman-decompress in_stream out_stream [token_bits])
-    ; adaptive single pass
     (setd token_bits 8)
     (defq read_pool_state (array 0 0)
           write_pool_state (array 0 0)
@@ -100,8 +96,6 @@
         (bind '(root _) (build_tree_and_codebook freq_map))
         (defq current_node root)
 
-        ; Traverse the tree one bit at a time to find the next token.
-        ; The condition is changed from > 2 to > 3 to account for the new node format.
         (while (and running current_node (> (length current_node) 3))
             (defq bit (read-bits in_stream read_pool_state 1))
             (if (= bit -1)
@@ -114,14 +108,21 @@
             (cond
                 ((eql decoded_token EOS_TOKEN)
                     (setq running :nil))
+
                 ((eql decoded_token NYT_TOKEN)
                     (setq decoded_token (read-bits in_stream read_pool_state token_bits))
                     (if (= decoded_token -1)
-                        (setq running :nil))))
+                        (setq running :nil)
+                        (progn
+                            (write-bits out_stream write_pool_state decoded_token token_bits)
+                            ; Symmetrically update both NYT and the new token.
+                            (. freq_map :update NYT_TOKEN (# (inc %0)))
+                            (. freq_map :insert decoded_token 1))))
 
-            (when running
-                (write-bits out_stream write_pool_state decoded_token token_bits)
-                (. freq_map :update decoded_token (# (if %0 (inc %0) 1))))))
+                (:t ; It's a known token.
+                    (write-bits out_stream write_pool_state decoded_token token_bits)
+                    ; Update frequency for the known token.
+                    (. freq_map :update decoded_token (# (inc %0)))))))
 
     (flush-bits out_stream write_pool_state))
 
