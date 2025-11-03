@@ -98,6 +98,8 @@ launch logout app
 
 ```code
 Builds a deterministic, canonical Huffman tree and codebook from a frequency map.
+
+This version uses a more optimal insertion sort pattern for tree building.
 ```
 
 ### byte-to-hex-str
