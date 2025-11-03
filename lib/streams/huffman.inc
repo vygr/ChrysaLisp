@@ -5,8 +5,11 @@
 ; this is purely experimental code to test the AI ! It is functionally correct,
 ; but that's about all you can say about it. ;)
 
-;module
-(env-push)
+; A true, high-performance adaptive Huffman implementation (like the Vitter
+; algorithm) uses a much more complex tree data structure that allows for O(1) or
+; O(log n) updates to the tree itself when frequencies change, rather than a full
+; O(n log n) rebuild. Our current implementation is a correct simulation of an
+; adaptive model but not a performant one. ;module (env-push)
 
 (defun build_tree_and_codebook (freq_map)
 	; Builds a deterministic, canonical Huffman tree and codebook from a frequency map.
