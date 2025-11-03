@@ -11,6 +11,12 @@
 ; O(n log n) rebuild. Our current implementation is a correct simulation of an
 ; adaptive model but not a performant one. ;module (env-push)
 
+; For real-world applications, using the static Huffman functions
+; (huffman-compress-static) would be vastly faster, as it builds the tree only
+; once after a preliminary scan of the file. This test perfectly illustrates the
+; trade-offs between the simplicity of the adaptive simulation and the performance
+; of a static model.
+
 (defun build_tree_and_codebook (freq_map)
 	; Builds a deterministic, canonical Huffman tree and codebook from a frequency map.
 	(defq nodes (list))
