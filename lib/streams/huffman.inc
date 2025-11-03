@@ -1,26 +1,21 @@
-;;;;;;;;;;;;;;;;;;;;;;;;;
-; lib/streams/huffman.inc
-;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;
-; Adaptive Huffman
-;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;
+; Huffman coding
+;;;;;;;;;;;;;;;;
 
 ;module
 (env-push)
 
-(defun build_tree_and_codebook (freq_map)
+(defun build_tree_and_codebook (freq_map &optional verbose)
     ; Builds a deterministic Huffman tree and codebook from a frequency map.
     (defq nodes (list))
 
-    ; Step 1: Create initial leaf nodes. Order is non-deterministic.
-    ; Node Structure: (frequency token)
+    ; Step 1: Create initial leaf nodes.
     (. freq_map :each (# (push nodes (list %1 %0))))
 
     ; Step 2: Create a canonical ordering by sorting the leaves by token value.
     (sort nodes (# (- (second %0) (second %1))))
 
     ; Step 3: Assign a stable, sequential ID to each node in-place.
-    ; Node Structure becomes: (frequency token id)
     (each (# (push %0 (!))) nodes)
 
     (defq codebook (Fmap (+ 2 (length nodes))))
@@ -32,11 +27,13 @@
                            f
                            (- (last %0) (last %1)))))
 
-        (defq n1 (pop nodes)
-              n2 (pop nodes))
+        (defq n1 (pop nodes)  ; Node with the higher rank (freq or ID) of the two smallest
+              n2 (pop nodes))  ; Node with the lower rank
 
-        ; New internal node inherits the ID of the lowest-ranked child (n1).
-        (push nodes (list (+ (first n1) (first n2)) n1 n2 (last n1))))
+        ; FIX: The node with the lower rank (n2) must be the '0' child (second element)
+        ; and the higher rank node (n1) must be the '1' child (third element)
+        ; for a standard canonical tree.
+        (push nodes (list (+ (first n1) (first n2)) n2 n1 (last n2))))
 
     ; Step 5: Iteratively build the codebook from the final tree.
     (when (defq root (first nodes))
@@ -50,81 +47,6 @@
                 (. codebook :insert (second node) (list path len)))))
     (list root codebook))
 
-(defun huffman-compress (in_stream out_stream &optional token_bits)
-    ; (huffman-compress in_stream out_stream [token_bits])
-    (setd token_bits 8)
-    (defq read_pool_state (array 0 0)
-          write_pool_state (array 0 0)
-          NYT_TOKEN (<< 1 token_bits)
-          EOS_TOKEN (inc NYT_TOKEN)
-          freq_map (scatter (Fmap 101) NYT_TOKEN 1 EOS_TOKEN 1))
-
-    (while (/= -1 (defq token (read-bits in_stream read_pool_state token_bits)))
-        (bind '(_ codebook) (build_tree_and_codebook freq_map))
-
-        (if (defq code_info (. codebook :find token))
-            ; Token is known, write its code.
-            (progn
-                (bind '(code len) code_info)
-                (write-bits out_stream write_pool_state code len))
-            ; Token is not yet seen (NYT).
-            (progn
-                (bind '(code len) (. codebook :find NYT_TOKEN))
-                (write-bits out_stream write_pool_state code len)
-                (write-bits out_stream write_pool_state token token_bits)))
-
-        ; Symmetrically update the frequency map AFTER processing the token.
-        (. freq_map :update token (# (if %0 (inc %0) 1))))
-
-    ; Send the End Of Stream token based on the final model state.
-    (bind '(_ codebook) (build_tree_and_codebook freq_map))
-    (when (defq code_info (. codebook :find EOS_TOKEN))
-        (bind '(code len) code_info)
-        (write-bits out_stream write_pool_state code len))
-
-    (flush-bits out_stream write_pool_state))
-
-(defun huffman-decompress (in_stream out_stream &optional token_bits)
-    ; (huffman-decompress in_stream out_stream [token_bits])
-    (setd token_bits 8)
-    (defq read_pool_state (array 0 0)
-          write_pool_state (array 0 0)
-          NYT_TOKEN (<< 1 token_bits)
-          EOS_TOKEN (inc NYT_TOKEN)
-          freq_map (scatter (Fmap 101) NYT_TOKEN 1 EOS_TOKEN 1)
-          running :t)
-
-    (while running
-        (bind '(root _) (build_tree_and_codebook freq_map))
-        (defq current_node root token_to_process :nil)
-
-        ; Traverse the tree one bit at a time to find the next symbol.
-        (while (and running current_node (> (length current_node) 3))
-            (defq bit (read-bits in_stream read_pool_state 1))
-            (if (= bit -1)
-                (setq running :nil)
-                (setq current_node (if (= bit 1) (third current_node) (second current_node)))))
-
-        (when running
-            ; First, determine what the token is.
-            (setq token_to_process (second current_node))
-
-            (cond
-                ((eql token_to_process EOS_TOKEN)
-                    (setq running :nil))
-                ((eql token_to_process NYT_TOKEN)
-                    (setq token_to_process (read-bits in_stream read_pool_state token_bits))
-                    (if (= token_to_process -1) (setq running :nil))))
-
-            ; If we are still running, process the token and update the model.
-            (when running
-                (write-bits out_stream write_pool_state token_to_process token_bits)
-
-                ; Symmetrically update the frequency map AFTER processing the token.
-                (. freq_map :update token_to_process (# (if %0 (inc %0) 1))))))
-
-    (flush-bits out_stream write_pool_state))
-
 ;;;;;;;;;;;;;;;;;
 ; Static Huffman
 ;;;;;;;;;;;;;;;;;
@@ -135,8 +57,6 @@
 	(setd token_bits 8)
 	(defq read_pool_state (array 0 0)
 		  EOS_TOKEN (inc (<< 1 token_bits))
-		  ; FIX: The NYT_TOKEN is part of the adaptive algorithm only and should
-		  ; not be included when building a static frequency map.
 		  freq_map (scatter (Fmap 101) EOS_TOKEN 1))
 
 	(while (/= -1 (defq token (read-bits in_stream read_pool_state token_bits)))
@@ -226,8 +146,8 @@
     (flush-bits out_stream write_pool_state))
 
 ;module
-(export-symbols '(huffman-compress huffman-decompress build_tree_and_codebook
-	huffman-build-freq-map huffman-write-codebook huffman-read-codebook
+(export-symbols '(build_tree_and_codebook huffman-build-freq-map
+	huffman-write-codebook huffman-read-codebook
 	huffman-compress-static huffman-decompress-static))
 (env-pop)
 
@@ -335,18 +255,6 @@
       (progn (print "  Status: PASS") :t)
       (progn (print "  Status: FAIL") (print "  Expected: " test_string) (print "  Got:      " result) :nil)))
 
-(defun test-adaptive-compression (test_string)
-  (print "---")
-  (print "TEST 5: Verifying adaptive end-to-end for string: " test_string)
-  (defq compressed_stream (string-stream ""))
-  (huffman-compress (string-stream test_string) compressed_stream 8)
-  (defq decompressed_stream (string-stream ""))
-  (huffman-decompress (string-stream (str compressed_stream)) decompressed_stream 8)
-  (defq result (str decompressed_stream))
-  (if (eql test_string result)
-      (progn (print "  Status: PASS") :t)
-      (progn (print "  Status: FAIL") (print "  Expected: " test_string) (print "  Got:      " result) :nil)))
-
 (defun run-all-huffman-tests ()
   (defq test_strings (list
     ""
@@ -364,12 +272,10 @@
     (if (every (# (test-model-determinism %0)) test_strings)
       (if (every (# (verify-model-integrity %0)) test_strings)
         (if (every (# (test-static-compression %0)) test_strings)
-          (if (every (# (test-adaptive-compression %0)) test_strings)
-            (progn
-              (print "---")
-              (print "ALL TESTS PASSED")
-              (print "====================================="))
-            (print "Adaptive test failed."))
+			(progn
+				(print "---")
+				(print "ALL TESTS PASSED")
+				(print "====================================="))
           (print "Static test failed."))
         (print "Model serialization test failed."))
       (print "Model determinism test failed."))
