@@ -22,9 +22,10 @@
 
 (defun build_tree_and_codebook (freq_map)
 	; Builds a deterministic, canonical Huffman tree and codebook from a frequency map.
+	; This version uses a more optimal insertion sort pattern for tree building.
 	(defq nodes (list))
 
-	; Step 1: Create initial leaf nodes.
+	; Step 1: Create initial leaf nodes from the frequency map.
 	; Node Structure: (frequency token)
 	(. freq_map :each (# (push nodes (list %1 %0))))
 
@@ -37,25 +38,35 @@
 
 	(defq codebook (Fmap (+ 2 (length nodes))))
 
-	; Step 4: Build the tree by repeatedly merging the two lowest-frequency nodes.
+	; Step 4: Perform an initial sort of the nodes by priority (frequency descending, then ID descending).
+	; This prepares the list for the efficient pop-and-insert loop.
+	(sort nodes (# (if (/= (defq f (- (first %1) (first %0))) 0)
+								f
+								(- (last %1) (last %0)))))
+
+	; Step 5: Build the tree by repeatedly merging the two highest-priority (lowest frequency) nodes.
 	(while (> (length nodes) 1)
-		; Sort nodes by frequency (ascending), then by ID (ascending) to handle ties deterministically.
-		(sort nodes (# (if (/= (defq f (- (first %0) (first %1))) 0)
-							f
-							(- (last %0) (last %1)))))
-
-		(defq n1 (pop (defq nodes (reverse nodes))) ; Pop the two lowest frequency nodes
+		; The two nodes with the lowest frequency are now at the end of the list.
+		(defq n1 (pop nodes)
 			n2 (pop nodes))
-		(setq nodes (reverse nodes)) ; Restore original order for next iteration's sort
 
-		; New internal node inherits the ID of the lowest-ranked child (n1).
-		; Internal Node Structure: (frequency child1 child2 id)
+		; Create the new internal node. It inherits the ID of the child with the lower ID (n1).
 		(defq new_node (list (+ (first n1) (first n2)) n1 n2 (last n1)))
 
-		; Insert the new node back into the list. For simplicity, we resort the whole list each time.
-		(push nodes new_node))
+		; Find the correct position to insert the new node to maintain the descending sort order.
+		(defq insert_pos (some! (# (if (> (first new_node) (first %0))
+										(!)
+											(if (and (= (first new_node) (first %0))
+												(> (last new_node) (last %0)))
+												(!))))
+								(list nodes)))
 
-	; Step 5: Iteratively build the codebook from the final tree.
+		; Insert the new node at the found position, or push to the end if it's the new lowest-priority node.
+		(if insert_pos
+			(setq nodes (cat (slice nodes 0 insert_pos) (list new_node) (slice nodes insert_pos -1)))
+			(push nodes new_node)))
+
+	; Step 6: Iteratively build the codebook from the final tree.
 	(when (defq root (first nodes))
 		(defq stack (list (list root 0 0))) ; Stack: (node path length)
 		(while (nempty? stack)
