@@ -61,20 +61,20 @@
         (bind '(_ codebook) (build_tree_and_codebook freq_map))
 
         (if (defq code_info (. codebook :find token))
-            (progn ; Token is known.
+            ; Token is known, write its code.
+            (progn
                 (bind '(code len) code_info)
-                (write-bits out_stream write_pool_state code len)
-                ; Update the frequency for the known token.
-                (. freq_map :update token (# (inc %0))))
-            (progn ; Token is not yet seen (NYT).
+                (write-bits out_stream write_pool_state code len))
+            ; Token is not yet seen (NYT).
+            (progn
                 (bind '(code len) (. codebook :find NYT_TOKEN))
                 (write-bits out_stream write_pool_state code len)
-                (write-bits out_stream write_pool_state token token_bits)
-                ; Symmetrically update both NYT and the new token.
-                (. freq_map :update NYT_TOKEN (# (inc %0)))
-                (. freq_map :insert token 1))))
+                (write-bits out_stream write_pool_state token token_bits)))
 
-    ; Send the End Of Stream token.
+        ; Symmetrically update the frequency map AFTER processing the token.
+        (. freq_map :update token (# (if %0 (inc %0) 1))))
+
+    ; Send the End Of Stream token based on the final model state.
     (bind '(_ codebook) (build_tree_and_codebook freq_map))
     (when (defq code_info (. codebook :find EOS_TOKEN))
         (bind '(code len) code_info)
@@ -94,8 +94,9 @@
 
     (while running
         (bind '(root _) (build_tree_and_codebook freq_map))
-        (defq current_node root)
+        (defq current_node root token_to_process :nil)
 
+        ; Traverse the tree one bit at a time to find the next symbol.
         (while (and running current_node (> (length current_node) 3))
             (defq bit (read-bits in_stream read_pool_state 1))
             (if (= bit -1)
@@ -103,26 +104,22 @@
                 (setq current_node (if (= bit 1) (third current_node) (second current_node)))))
 
         (when running
-            (defq decoded_token (second current_node))
+            ; First, determine what the token is.
+            (setq token_to_process (second current_node))
 
             (cond
-                ((eql decoded_token EOS_TOKEN)
+                ((eql token_to_process EOS_TOKEN)
                     (setq running :nil))
-
-                ((eql decoded_token NYT_TOKEN)
-                    (setq decoded_token (read-bits in_stream read_pool_state token_bits))
-                    (if (= decoded_token -1)
-                        (setq running :nil)
-                        (progn
-                            (write-bits out_stream write_pool_state decoded_token token_bits)
-                            ; Symmetrically update both NYT and the new token.
-                            (. freq_map :update NYT_TOKEN (# (inc %0)))
-                            (. freq_map :insert decoded_token 1))))
-
-                (:t ; It's a known token.
-                    (write-bits out_stream write_pool_state decoded_token token_bits)
-                    ; Update frequency for the known token.
-                    (. freq_map :update decoded_token (# (inc %0)))))))
+                ((eql token_to_process NYT_TOKEN)
+                    (setq token_to_process (read-bits in_stream read_pool_state token_bits))
+                    (if (= token_to_process -1) (setq running :nil))))
+            
+            ; If we are still running, process the token and update the model.
+            (when running
+                (write-bits out_stream write_pool_state token_to_process token_bits)
+                
+                ; Symmetrically update the frequency map AFTER processing the token.
+                (. freq_map :update token_to_process (# (if %0 (inc %0) 1))))))
 
     (flush-bits out_stream write_pool_state))
 
@@ -143,38 +140,37 @@
 	freq_map)
 
 (defun huffman-write-codebook (out_stream token_bits freq_map)
-	; (huffman-write-codebook out_stream token_bits freq_map)
 	; Writes a self-describing codebook (via the frequency map) to a stream.
 	(defq write_pool_state (array 0 0)
 		  entries (list))
 
 	(. freq_map :each (# (push entries (list %0 %1))))
 
-	; Write header: token_bits (8 bits), Number of entries (32 bits).
+	; Write header: source token_bits (8 bits), Number of entries (32 bits).
 	(write-bits out_stream write_pool_state token_bits 8)
 	(write-bits out_stream write_pool_state (length entries) 32)
 
 	; Write each entry.
 	(each (lambda ((token freq))
-		(write-bits out_stream write_pool_state token token_bits)
-		(write-bits out_stream write_pool_state freq 32)
-	) entries)
+        ; FIX: Write the token with a fixed 16-bit width to avoid truncation.
+		(write-bits out_stream write_pool_state token 16)
+		(write-bits out_stream write_pool_state freq 32)) entries)
 
 	(flush-bits out_stream write_pool_state))
 
 (defun huffman-read-codebook (in_stream)
-	; (huffman-read-codebook in_stream) -> (list root codebook token_bits)
 	; Reads a self-describing codebook from a stream and reconstructs the model.
 	(defq read_pool_state (array 0 0)
 		  freq_map (Fmap 101))
 
-	; Read header: token_bits and number of entries.
+	; Read header: token_bits for data, and number of entries.
 	(defq token_bits  (read-bits in_stream read_pool_state 8)
 		  num_entries (read-bits in_stream read_pool_state 32))
 
 	; Read each entry from the stream and rebuild the frequency map.
 	(times num_entries
-		(defq token (read-bits in_stream read_pool_state token_bits)
+        ; FIX: Read the token with a fixed 16-bit width to match the writer.
+		(defq token (read-bits in_stream read_pool_state 16)
 			  freq  (read-bits in_stream read_pool_state 32))
 		(. freq_map :insert token freq))
 
@@ -234,15 +230,102 @@
 	huffman-compress-static huffman-decompress-static))
 (env-pop)
 
-(defun print-results (state)
-	(bind '(tree cbook) state)
-	(print "Tree")
-	(print tree)
-	(print "Codebook")
-	(. cbook :each print))
+(defun test-static-huffman (test_string)
+    (print "---")
+    (print "Testing with string: " test_string)
 
-(defun test-huffman ()
-	(print-results (build_tree_and_codebook (scatter (Fmap) 1 1 2 2 3 3 4 4 0 5)))
-	(print-results (build_tree_and_codebook (scatter (Fmap) 1 1 2 1 3 1 4 1 0 1)))
-	(print-results (build_tree_and_codebook (scatter (Fmap) 2 1 3 1 4 1 0 1 1 1)))
-	(print-results (build_tree_and_codebook (scatter (Fmap) 3 1 4 1 0 1 1 1 2 1))))
+    ; --- 1. Build the model from the original data ---
+    (defq in_stream (string-stream test_string))
+    (defq freq_map (huffman-build-freq-map in_stream 8))
+    (bind '(root codebook) (build_tree_and_codebook freq_map))
+    (defq original_model (list root codebook 8))
+
+    ; --- 2. Save the model to a stream ---
+    (defq model_stream (string-stream ""))
+    (huffman-write-codebook model_stream 8 freq_map)
+    (defq saved_model_string (str model_stream))
+
+    ; --- 3. Load the model back from the saved string ---
+    (defq load_model_stream (string-stream saved_model_string))
+    (defq loaded_model (huffman-read-codebook load_model_stream))
+
+    ; --- 4. Compress the original string using the loaded model ---
+    (setq in_stream (string-stream test_string)) ; Rewind the input stream
+    (defq compressed_stream (string-stream ""))
+    (huffman-compress-static in_stream compressed_stream loaded_model)
+    (defq compressed_string (str compressed_stream))
+    (print "Compressed (encoded): " (id-encode compressed_string))
+
+    ; --- 5. Decompress the data using the loaded model ---
+    (defq decompress_in_stream (string-stream compressed_string))
+    (defq decompressed_stream (string-stream ""))
+    (huffman-decompress-static decompress_in_stream decompressed_stream loaded_model)
+    (defq decompressed_string (str decompressed_stream))
+    (print "Decompressed:         " decompressed_string)
+
+    ; --- 6. Verify the result ---
+    (if (eql test_string decompressed_string)
+        (print "Status:               PASS")
+        (print "Status:               FAIL")))
+
+(defun test-static ()
+    (test-static-huffman "abcdefjhiiijklmnop")
+    (test-static-huffman "abcdefghijklmnop")
+    (test-static-huffman "aaaaaaaaaa")
+    (test-static-huffman "abcfcba")
+    (test-static-huffman "Furthermore"))
+
+(defun deep-eql (a b)
+  "Recursively compares two nested lists for deep equality."
+  (cond
+    ((and (list? a) (list? b))
+      (and (= (length a) (length b))
+           ; FIX: Check if all mapped results are :t by ensuring :nil is not found.
+           (not (find :nil (map deep-eql a b)))))
+    (:t (eql a b))))
+
+(defun fmap-to-sorted-list (fmap)
+  "Converts an Fmap to a sorted list of (key value) pairs for comparison."
+  (defq out (list))
+  (. fmap :each (# (push out (list %0 %1))))
+  (sort out (# (cmp (str (first %0)) (str (first %1))))))
+
+(defun verify-model-integrity (test_string)
+  "Builds, serializes, deserializes, and verifies a Huffman model."
+  (print "---")
+  (print "Verifying model integrity for string: " test_string)
+
+  ; --- 1. Build the initial model ---
+  (defq freq_map (huffman-build-freq-map (string-stream test_string) 8))
+  (bind '(root1 codebook1) (build_tree_and_codebook freq_map))
+
+  ; --- 2. Serialize the frequency map ---
+  (defq model_stream (string-stream ""))
+  (huffman-write-codebook model_stream 8 freq_map)
+
+  ; --- 3. Deserialize to build the second model ---
+  (defq load_model_stream (string-stream (str model_stream)))
+  (bind '(root2 codebook2 _) (huffman-read-codebook load_model_stream))
+
+  ; --- 4. Compare the two models ---
+  (defq tree_match (deep-eql root1 root2))
+  (defq codebook_match (deep-eql (fmap-to-sorted-list codebook1)
+                                 (fmap-to-sorted-list codebook2)))
+
+  (print "Tree structure match: " (if tree_match "PASS" "FAIL"))
+  (print "Codebook content match: " (if codebook_match "PASS" "FAIL"))
+
+  (if (and tree_match codebook_match)
+      (print "Model Integrity Status: PASS")
+      (progn
+        (print "Model Integrity Status: FAIL")
+        (print "--- Original Codebook ---")
+        (. codebook1 :each print)
+        (print "--- Loaded Codebook ---")
+        (. codebook2 :each print)))
+  tree_match)
+
+(defun test-model ()
+    (verify-model-integrity "abcdefjhiiijklmnop")
+    (verify-model-integrity "aaaaaaaaaa")
+    (verify-model-integrity "abcfcba"))
