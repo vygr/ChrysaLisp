@@ -1,3 +1,6 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;
+; lib/streams/huffman.inc
+;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;
 ; Adaptive Huffman
 ;;;;;;;;;;;;;;;;;;
@@ -33,9 +36,7 @@
               n2 (pop nodes))
 
         ; New internal node inherits the ID of the lowest-ranked child (n1).
-        ; The node with the higher rank (n2) becomes the '0' child, and the
-        ; node with the lower rank (n1) becomes the '1' child.
-        (push nodes (list (+ (first n1) (first n2)) n2 n1 (last n1))))
+        (push nodes (list (+ (first n1) (first n2)) n1 n2 (last n1))))
 
     ; Step 5: Iteratively build the codebook from the final tree.
     (when (defq root (first nodes))
@@ -114,11 +115,11 @@
                 ((eql token_to_process NYT_TOKEN)
                     (setq token_to_process (read-bits in_stream read_pool_state token_bits))
                     (if (= token_to_process -1) (setq running :nil))))
-            
+
             ; If we are still running, process the token and update the model.
             (when running
                 (write-bits out_stream write_pool_state token_to_process token_bits)
-                
+
                 ; Symmetrically update the frequency map AFTER processing the token.
                 (. freq_map :update token_to_process (# (if %0 (inc %0) 1))))))
 
@@ -134,6 +135,8 @@
 	(setd token_bits 8)
 	(defq read_pool_state (array 0 0)
 		  EOS_TOKEN (inc (<< 1 token_bits))
+		  ; FIX: The NYT_TOKEN is part of the adaptive algorithm only and should
+		  ; not be included when building a static frequency map.
 		  freq_map (scatter (Fmap 101) EOS_TOKEN 1))
 
 	(while (/= -1 (defq token (read-bits in_stream read_pool_state token_bits)))
@@ -153,7 +156,6 @@
 
 	; Write each entry.
 	(each (lambda ((token freq))
-        ; FIX: Write the token with a fixed 16-bit width to avoid truncation.
 		(write-bits out_stream write_pool_state token 16)
 		(write-bits out_stream write_pool_state freq 32)) entries)
 
@@ -170,7 +172,6 @@
 
 	; Read each entry from the stream and rebuild the frequency map.
 	(times num_entries
-        ; FIX: Read the token with a fixed 16-bit width to match the writer.
 		(defq token (read-bits in_stream read_pool_state 16)
 			  freq  (read-bits in_stream read_pool_state 32))
 		(. freq_map :insert token freq))
@@ -281,7 +282,7 @@
         EOS_TOKEN (inc (<< 1 8)))
 
   (each (lambda (perm)
-    (defq freq_map (scatter (Fmap 101) (inc EOS_TOKEN) 1 EOS_TOKEN 1))
+    (defq freq_map (scatter (Fmap 101) EOS_TOKEN 1))
     (each (lambda (c)
       (. freq_map :update (code c) (# (if %0 (inc %0) 1)))) perm)
     (push models (build_tree_and_codebook freq_map)))
