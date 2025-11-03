@@ -5,48 +5,47 @@
 ;module
 (env-push)
 
-(defun get-node-sort-key-for-huffman (node)
-    ; Helper to get the canonical key for sorting.
-    ; For a leaf node (freq token), it's the token.
-    ; For an internal node (freq child0 child1 sort_key), it's the sort_key.
-    (if (> (length node) 2)
-        (elem-get node 3)
-        (second node)))
-
 (defun build_tree_and_codebook (freq_map)
     ; Builds a deterministic, canonical Huffman tree and codebook from a frequency map.
     (defq nodes (list))
 
-    ; Step 1: Create initial leaf nodes. Node Structure: (frequency token)
+    ; Step 1: Create initial leaf nodes and assign a stable, sequential ID for deterministic sorting.
+    ; Node Structure: (frequency token id)
     (. freq_map :each (# (push nodes (list %1 %0))))
+    (sort nodes (# (- (second %0) (second %1))))
+    (each (# (push %0 (!))) nodes)
 
     (defq codebook (Fmap (+ 2 (length nodes))))
 
     ; Step 2: Build the tree by repeatedly merging the two highest-priority nodes.
     (while (> (length nodes) 1)
-        ; Sort DESCENDING by frequency, then DESCENDING by the canonical sort key (token value).
-        ; This puts the two nodes with the highest priority (lowest frequency, then lowest token) at the end for pop.
+        ; Sort DESCENDING by frequency, then DESCENDING by ID. This is a stable sort that
+        ; places the two highest-priority nodes (lowest frequency, then lowest ID) at the end for popping.
         (sort nodes (# (if (/= (defq f (- (first %1) (first %0))) 0)
                            f
-                           (- (get-node-sort-key-for-huffman %1) (get-node-sort-key-for-huffman %0)))))
+                           (- (last %1) (last %0)))))
 
         (defq n1 (pop nodes)  ; Highest priority node (lowest rank).
               n2 (pop nodes))  ; Second-highest priority node.
 
         ; For a canonical tree, the higher priority node (n1) is the '0' branch.
-        ; The new internal node's sort key is inherited from its highest-priority child (n1).
-        (push nodes (list (+ (first n1) (first n2)) n1 n2 (get-node-sort-key-for-huffman n1))))
+        ; The new internal node's ID is inherited from its highest-priority child (n1).
+        ; Internal Node Structure: (frequency child1 child2 id)
+        (push nodes (list (+ (first n1) (first n2)) n1 n2 (last n1))))
 
-    ; Step 3: Iteratively traverse the final tree to build the codebook.
+    ; Step 3: Iteratively traverse the final tree to build the codebook with pre-reversed bits.
     (when (defq root (first nodes))
         (defq stack (list (list root 0 0))) ; Stack: (node path length)
         (while (nempty? stack)
             (bind '(node path len) (pop stack))
-            (if (> (length node) 2) ; It's an internal node: (frequency child0 child1 sort_key)
+            (if (> (length node) 3) ; It's an internal node: (frequency child0 child1 id)
                 (push stack
-                    (list (second node) (<< path 1) (inc len))           ; '0' branch
-                    (list (third node) (logior (<< path 1) 1) (inc len))) ; '1' branch
-                ; It's a leaf node: (frequency token)
+                    ;; OPTIMIZED: This is the new pre-reversing logic.
+                    ; '0' branch (left): The path value does not change, only the length increases.
+                    (list (second node) path (inc len))
+                    ; '1' branch (right): A '1' is added at the current most significant position.
+                    (list (third node) (logior path (<< 1 len)) (inc len)))
+                ; It's a leaf node: (frequency token id)
                 (. codebook :insert (second node) (list path len)))))
     (list root codebook))
 
@@ -104,17 +103,6 @@
 	(bind '(root codebook) (build_tree_and_codebook freq_map))
 	(list root codebook token_bits))
 
-(defun reverse-bits (n len)
-  ; Reverses the lower 'len' bits of an integer 'n'.
-  (defq reversed 0 i 0)
-  (while (< i len)
-    (setq reversed (<< reversed 1))
-    (if (= 1 (logand n 1))
-      (setq reversed (logior reversed 1)))
-    (setq n (>> n 1)
-          i (inc i)))
-  reversed)
-
 (defun huffman-compress-static (in_stream out_stream model)
 	; Compresses a stream using a pre-built static model.
 	(bind '(_ codebook token_bits) model)
@@ -125,12 +113,14 @@
 	(while (/= -1 (defq token (read-bits in_stream read_pool_state token_bits)))
 		(when (defq code_info (. codebook :find token))
 			(bind '(code len) code_info)
-			(write-bits out_stream write_pool_state (reverse-bits code len) len)))
+            ;; REMOVED: The call to reverse-bits is no longer needed.
+			(write-bits out_stream write_pool_state code len)))
 
 	; Write the End Of Stream token.
 	(when (defq code_info (. codebook :find EOS_TOKEN))
 		(bind '(code len) code_info)
-		(write-bits out_stream write_pool_state (reverse-bits code len) len))
+        ;; REMOVED: The call to reverse-bits is no longer needed.
+		(write-bits out_stream write_pool_state code len))
 
 	(flush-bits out_stream write_pool_state))
 
@@ -145,10 +135,11 @@
     (while running
         (defq current_node root)
         ; Traverse the tree one bit at a time to find the next token.
-        (while (and running current_node (> (length current_node) 2))
+        (while (and running current_node (> (length current_node) 3))
             (defq bit (read-bits in_stream read_pool_state 1))
             (if (= bit -1)
                 (setq running :nil)
+                ; The tree structure remains the same: n1 is the '0' branch, n2 is the '1' branch.
                 (setq current_node (if (= bit 1) (third current_node) (second current_node)))))
 
         (when running
