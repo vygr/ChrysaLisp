@@ -9,38 +9,38 @@
     ; Builds a deterministic Huffman tree and codebook from a frequency map.
     (defq nodes (list))
 
-    ; Create initial leaf nodes with a unique, sequential ID.
-    ; Leaf Node Structure: (frequency token id)
+    ; Step 1: Create initial leaf nodes. Order is non-deterministic.
+    ; Node Structure: (frequency token)
     (. freq_map :each (# (push nodes (list %1 %0))))
-	(sort nodes (# (- (second %1) (second %0))))
-	(each (# (push %0 (!))) nodes)
+
+    ; Step 2: Create a canonical ordering by sorting the leaves by token value.
+    (sort nodes (# (- (second %0) (second %1))))
+
+    ; Step 3: Assign a stable, sequential ID to each node in-place.
+    ; Node Structure becomes: (frequency token id)
+    (each (# (push %0 (!))) nodes)
+
     (defq codebook (Fmap (+ 2 (length nodes))))
 
-    ; Build the tree by repeatedly merging the two lowest-frequency nodes.
+    ; Step 4: Build the tree by repeatedly merging the two lowest-frequency nodes.
     (while (> (length nodes) 1)
-        ; Perform a stable sort in DESCENDING order. This places the two nodes with the
-        ; lowest frequency (and lowest ID in case of a tie) at the end of the list.
+        ; Stable sort: DESCENDING by frequency, then DESCENDING by ID.
         (sort nodes (# (if (/= (defq f (- (first %1) (first %0))) 0)
                            f
-                           ; Stable tie-breaker: Compare by ID.
-                           ; The ID is always the last element in the node's list.
                            (- (last %1) (last %0)))))
 
         (defq n1 (pop nodes)
               n2 (pop nodes))
 
-        ; The new internal node inherits the ID of the FIRST child popped (n1),
-        ; which is the one with the definitively lowest rank. This ensures
-        ; the new node's ID is deterministic for future sorting passes.
+        ; New internal node inherits the ID of the lowest-ranked child (n1).
         ; Internal Node Structure: (frequency child1 child2 id)
         (push nodes (list (+ (first n1) (first n2)) n1 n2 (last n1))))
 
-    ; Iteratively build the codebook from the tree using an explicit stack.
+    ; Step 5: Iteratively build the codebook from the final tree.
     (when (defq root (first nodes))
         (defq stack (list (list root 0 0))) ; Stack: (node path length)
         (while (nempty? stack)
             (bind '(node path len) (pop stack))
-            ; Internal nodes have 4 elements, leaf nodes have 3.
             (if (> (length node) 3)
                 (push stack
                     (list (second node) (<< path 1) (inc len))
@@ -86,52 +86,44 @@
 	(flush-bits out_stream write_pool_state))
 
 (defun huffman-decompress (in_stream out_stream &optional token_bits)
-	; (huffman-decompress in_stream out_stream [token_bits])
-	; adaptive single pass
-	(setd token_bits 8)
-	(defq read_pool_state (array 0 0)
-		  write_pool_state (array 0 0)
-		  NYT_TOKEN (<< 1 token_bits)
-		  EOS_TOKEN (inc NYT_TOKEN)
-		  freq_map (scatter (Fmap 101) NYT_TOKEN 1 EOS_TOKEN 1)
-		  running :t)
+    ; (huffman-decompress in_stream out_stream [token_bits])
+    ; adaptive single pass
+    (setd token_bits 8)
+    (defq read_pool_state (array 0 0)
+          write_pool_state (array 0 0)
+          NYT_TOKEN (<< 1 token_bits)
+          EOS_TOKEN (inc NYT_TOKEN)
+          freq_map (scatter (Fmap 101) NYT_TOKEN 1 EOS_TOKEN 1)
+          running :t)
 
-	(while running
-		; Build the Huffman model to match the state of the compressor at this point.
-		(bind '(root _) (build_tree_and_codebook freq_map))
-		(defq current_node root)
+    (while running
+        (bind '(root _) (build_tree_and_codebook freq_map))
+        (defq current_node root)
 
-		; Traverse the tree one bit at a time to find the next token.
-		(while (and running current_node (> (length current_node) 2))
-			(defq bit (read-bits in_stream read_pool_state 1))
-			(if (= bit -1)
-				(setq running :nil) ; Gracefully stop if stream ends mid-traversal.
-				(setq current_node (if (= bit 1) (third current_node) (second current_node)))))
+        ; Traverse the tree one bit at a time to find the next token.
+        ; The condition is changed from > 2 to > 3 to account for the new node format.
+        (while (and running current_node (> (length current_node) 3))
+            (defq bit (read-bits in_stream read_pool_state 1))
+            (if (= bit -1)
+                (setq running :nil)
+                (setq current_node (if (= bit 1) (third current_node) (second current_node)))))
 
-		(when running
-			(defq decoded_token (second current_node))
-			(cond
-				((eql decoded_token EOS_TOKEN)
-					(setq running :nil)) ; Clean exit.
-				((eql decoded_token NYT_TOKEN)
-					; A new, unseen token is next.
-					; 1. Update frequency for the NYT token itself to stay in sync.
-					(. freq_map :update NYT_TOKEN (# (inc %0)))
-					; 2. Read the raw token from the stream.
-					(defq raw_token (read-bits in_stream read_pool_state token_bits))
-					(if (= raw_token -1)
-						(setq running :nil) ; Gracefully stop if stream ends here.
-						(progn
-							; 3. Write it and update its frequency.
-							(write-bits out_stream write_pool_state raw_token token_bits)
-							(. freq_map :insert raw_token 1))))
-				(:t
-					; This is a normal, known token. Write it and update its frequency.
-					(write-bits out_stream write_pool_state decoded_token token_bits)
-					(. freq_map :update decoded_token (# (inc %0)))))))
+        (when running
+            (defq decoded_token (second current_node))
 
-	; Flush any partial byte at the end of the output stream.
-	(flush-bits out_stream write_pool_state))
+            (cond
+                ((eql decoded_token EOS_TOKEN)
+                    (setq running :nil))
+                ((eql decoded_token NYT_TOKEN)
+                    (setq decoded_token (read-bits in_stream read_pool_state token_bits))
+                    (if (= decoded_token -1)
+                        (setq running :nil))))
+
+            (when running
+                (write-bits out_stream write_pool_state decoded_token token_bits)
+                (. freq_map :update decoded_token (# (if %0 (inc %0) 1))))))
+
+    (flush-bits out_stream write_pool_state))
 
 ;;;;;;;;;;;;;;;;;
 ; Static Huffman
@@ -210,30 +202,30 @@
 	(flush-bits out_stream write_pool_state))
 
 (defun huffman-decompress-static (in_stream out_stream model)
-	; (huffman-decompress-static in_stream out_stream model)
-	; Decompresses a stream using a pre-built static Huffman model.
-	(bind '(root _ token_bits) model)
-	(defq read_pool_state (array 0 0)
-		  write_pool_state (array 0 0)
-		  EOS_TOKEN (inc (<< 1 token_bits))
-		  running :t)
+    ; (huffman-decompress-static in_stream out_stream model)
+    (bind '(root _ token_bits) model)
+    (defq read_pool_state (array 0 0)
+          write_pool_state (array 0 0)
+          EOS_TOKEN (inc (<< 1 token_bits))
+          running :t)
 
-	(while running
-		(defq current_node root)
-		; Traverse the tree one bit at a time to find the next token.
-		(while (and running current_node (> (length current_node) 2))
-			(defq bit (read-bits in_stream read_pool_state 1))
-			(if (= bit -1)
-				(setq running :nil) ; Gracefully stop if stream ends unexpectedly.
-				(setq current_node (if (= bit 1) (third current_node) (second current_node)))))
+    (while running
+        (defq current_node root)
+        ; Traverse the tree one bit at a time to find the next token.
+        ; The condition is changed from > 2 to > 3 to account for the new node format.
+        (while (and running current_node (> (length current_node) 3))
+            (defq bit (read-bits in_stream read_pool_state 1))
+            (if (= bit -1)
+                (setq running :nil)
+                (setq current_node (if (= bit 1) (third current_node) (second current_node)))))
 
-		(when running
-			(defq decoded_token (second current_node))
-			(if (eql decoded_token EOS_TOKEN)
-				(setq running :nil) ; Clean exit.
-				(write-bits out_stream write_pool_state decoded_token token_bits))))
+        (when running
+            (defq decoded_token (second current_node))
+            (if (eql decoded_token EOS_TOKEN)
+                (setq running :nil)
+                (write-bits out_stream write_pool_state decoded_token token_bits))))
 
-	(flush-bits out_stream write_pool_state))
+    (flush-bits out_stream write_pool_state))
 
 ;module
 (export-symbols '(huffman-compress huffman-decompress build_tree_and_codebook
