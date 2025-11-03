@@ -17,38 +17,51 @@
 
     (defq codebook (Fmap (+ 2 (length nodes))))
 
-    ; Step 2: Build the tree by repeatedly merging the two highest-priority nodes.
+    ; Step 2: OPTIMIZED - Sort the initial list of nodes once in DESCENDING order of priority.
+    ; This places the highest-priority (lowest frequency) items at the END of the list for fast popping.
+    (sort nodes (# (if (/= (defq f (- (first %1) (first %0))) 0)
+                       f
+                       (- (last %1) (last %0)))))
+
+    ; Step 3: Build the tree by repeatedly merging the two highest-priority (lowest frequency) nodes.
     (while (> (length nodes) 1)
-        ; Sort DESCENDING by frequency, then DESCENDING by ID. This is a stable sort that
-        ; places the two highest-priority nodes (lowest frequency, then lowest ID) at the end for popping.
-        (sort nodes (# (if (/= (defq f (- (first %1) (first %0))) 0)
-                           f
-                           (- (last %1) (last %0)))))
 
-        (defq n1 (pop nodes)  ; Highest priority node (lowest rank).
-              n2 (pop nodes))  ; Second-highest priority node.
+        ; The two highest-priority nodes are now at the end of the list.
+        ; Using pop is an efficient O(1) operation.
+        (defq n1 (pop nodes)
+              n2 (pop nodes))
 
-        ; For a canonical tree, the higher priority node (n1) is the '0' branch.
-        ; The new internal node's ID is inherited from its highest-priority child (n1).
-        ; Internal Node Structure: (frequency child1 child2 id)
-        (push nodes (list (+ (first n1) (first n2)) n1 n2 (last n1))))
+        ; Create the new merged internal node. Its ID is inherited from the first child (n1)
+        ; to maintain deterministic sorting.
+        (defq new_node (list (+ (first n1) (first n2)) n1 n2 (last n1)))
 
-    ; Step 3: Iteratively traverse the final tree to build the codebook with pre-reversed bits.
+        ; Find the correct insertion point to keep the list sorted in descending order.
+        ; We look for the first node with a lower frequency (or same freq with lower id).
+        (defq insert_pos (some! (# (if (< (first %0) (first new_node))
+                                    (!)
+                                    (if (and (= (first %0) (first new_node))
+                                             (< (last %0) (last new_node)))
+                                        (!))))
+                               (list nodes)))
+
+        ; Insert the new node, maintaining sorted order, using the idiomatic cat/slice pattern.
+        (if insert_pos
+            (setq nodes (cat (slice nodes 0 insert_pos) (list new_node) (slice nodes insert_pos -1)))
+            (push nodes new_node))) ; If no spot found, it's the new smallest, add to end.
+
+
+    ; Step 4: Iteratively traverse the final tree to build the codebook with pre-reversed bits.
     (when (defq root (first nodes))
         (defq stack (list (list root 0 0))) ; Stack: (node path length)
         (while (nempty? stack)
             (bind '(node path len) (pop stack))
             (if (> (length node) 3) ; It's an internal node: (frequency child0 child1 id)
                 (push stack
-                    ;; OPTIMIZED: This is the new pre-reversing logic.
-                    ; '0' branch (left): The path value does not change, only the length increases.
                     (list (second node) path (inc len))
-                    ; '1' branch (right): A '1' is added at the current most significant position.
                     (list (third node) (logior path (<< 1 len)) (inc len)))
                 ; It's a leaf node: (frequency token id)
                 (. codebook :insert (second node) (list path len)))))
     (list root codebook))
-
 
 ;;;;;;;;;;;;;;;;;
 ; Static Huffman
@@ -113,13 +126,11 @@
 	(while (/= -1 (defq token (read-bits in_stream read_pool_state token_bits)))
 		(when (defq code_info (. codebook :find token))
 			(bind '(code len) code_info)
-            ;; REMOVED: The call to reverse-bits is no longer needed.
 			(write-bits out_stream write_pool_state code len)))
 
 	; Write the End Of Stream token.
 	(when (defq code_info (. codebook :find EOS_TOKEN))
 		(bind '(code len) code_info)
-        ;; REMOVED: The call to reverse-bits is no longer needed.
 		(write-bits out_stream write_pool_state code len))
 
 	(flush-bits out_stream write_pool_state))
@@ -139,7 +150,6 @@
             (defq bit (read-bits in_stream read_pool_state 1))
             (if (= bit -1)
                 (setq running :nil)
-                ; The tree structure remains the same: n1 is the '0' branch, n2 is the '1' branch.
                 (setq current_node (if (= bit 1) (third current_node) (second current_node)))))
 
         (when running
