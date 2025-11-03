@@ -1,5 +1,5 @@
 (import "lib/options/options.inc")
-(import "lib/streams/rle.inc")
+(import "lib/streams/huffman.inc")
 
 (defq usage `(
 (("-h" "--help")
