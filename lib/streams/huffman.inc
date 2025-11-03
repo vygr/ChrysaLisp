@@ -5,54 +5,57 @@
 ;module
 (env-push)
 
-(defun build_tree_and_codebook (freq_map &optional verbose)
-    ; Builds a deterministic Huffman tree and codebook from a frequency map.
+(defun get-node-sort-key-for-huffman (node)
+    ; Helper to get the canonical key for sorting.
+    ; For a leaf node (freq token), it's the token.
+    ; For an internal node (freq child0 child1 sort_key), it's the sort_key.
+    (if (> (length node) 2)
+        (elem-get node 3)
+        (second node)))
+
+(defun build_tree_and_codebook (freq_map)
+    ; Builds a deterministic, canonical Huffman tree and codebook from a frequency map.
     (defq nodes (list))
 
-    ; Step 1: Create initial leaf nodes.
+    ; Step 1: Create initial leaf nodes. Node Structure: (frequency token)
     (. freq_map :each (# (push nodes (list %1 %0))))
-
-    ; Step 2: Create a canonical ordering by sorting the leaves by token value.
-    (sort nodes (# (- (second %0) (second %1))))
-
-    ; Step 3: Assign a stable, sequential ID to each node in-place.
-    (each (# (push %0 (!))) nodes)
 
     (defq codebook (Fmap (+ 2 (length nodes))))
 
-    ; Step 4: Build the tree by repeatedly merging the two lowest-frequency nodes.
+    ; Step 2: Build the tree by repeatedly merging the two highest-priority nodes.
     (while (> (length nodes) 1)
-        ; Stable sort: DESCENDING by frequency, then ASCENDING by ID.
+        ; Sort DESCENDING by frequency, then DESCENDING by the canonical sort key (token value).
+        ; This puts the two nodes with the highest priority (lowest frequency, then lowest token) at the end for pop.
         (sort nodes (# (if (/= (defq f (- (first %1) (first %0))) 0)
                            f
-                           (- (last %0) (last %1)))))
+                           (- (get-node-sort-key-for-huffman %1) (get-node-sort-key-for-huffman %0)))))
 
-        (defq n1 (pop nodes)  ; Node with the higher rank (freq or ID) of the two smallest
-              n2 (pop nodes))  ; Node with the lower rank
+        (defq n1 (pop nodes)  ; Highest priority node (lowest rank).
+              n2 (pop nodes))  ; Second-highest priority node.
 
-        ; FIX: The node with the lower rank (n2) must be the '0' child (second element)
-        ; and the higher rank node (n1) must be the '1' child (third element)
-        ; for a standard canonical tree.
-        (push nodes (list (+ (first n1) (first n2)) n2 n1 (last n2))))
+        ; For a canonical tree, the higher priority node (n1) is the '0' branch.
+        ; The new internal node's sort key is inherited from its highest-priority child (n1).
+        (push nodes (list (+ (first n1) (first n2)) n1 n2 (get-node-sort-key-for-huffman n1))))
 
-    ; Step 5: Iteratively build the codebook from the final tree.
+    ; Step 3: Iteratively traverse the final tree to build the codebook.
     (when (defq root (first nodes))
         (defq stack (list (list root 0 0))) ; Stack: (node path length)
         (while (nempty? stack)
             (bind '(node path len) (pop stack))
-            (if (> (length node) 3)
+            (if (> (length node) 2) ; It's an internal node: (frequency child0 child1 sort_key)
                 (push stack
-                    (list (second node) (<< path 1) (inc len))
-                    (list (third node) (logior (<< path 1) 1) (inc len)))
+                    (list (second node) (<< path 1) (inc len))           ; '0' branch
+                    (list (third node) (logior (<< path 1) 1) (inc len))) ; '1' branch
+                ; It's a leaf node: (frequency token)
                 (. codebook :insert (second node) (list path len)))))
     (list root codebook))
+
 
 ;;;;;;;;;;;;;;;;;
 ; Static Huffman
 ;;;;;;;;;;;;;;;;;
 
 (defun huffman-build-freq-map (in_stream &optional token_bits)
-	; (huffman-build-freq-map in_stream [token_bits]) -> freq_map
 	; Scans a stream to build a frequency map for static Huffman coding.
 	(setd token_bits 8)
 	(defq read_pool_state (array 0 0)
@@ -74,7 +77,8 @@
 	(write-bits out_stream write_pool_state token_bits 8)
 	(write-bits out_stream write_pool_state (length entries) 32)
 
-	; Write each entry.
+	; Write each entry. The token is written with a fixed 16-bit width
+	; to handle tokens larger than a byte (like the EOS token).
 	(each (lambda ((token freq))
 		(write-bits out_stream write_pool_state token 16)
 		(write-bits out_stream write_pool_state freq 32)) entries)
@@ -100,8 +104,18 @@
 	(bind '(root codebook) (build_tree_and_codebook freq_map))
 	(list root codebook token_bits))
 
+(defun reverse-bits (n len)
+  ; Reverses the lower 'len' bits of an integer 'n'.
+  (defq reversed 0 i 0)
+  (while (< i len)
+    (setq reversed (<< reversed 1))
+    (if (= 1 (logand n 1))
+      (setq reversed (logior reversed 1)))
+    (setq n (>> n 1)
+          i (inc i)))
+  reversed)
+
 (defun huffman-compress-static (in_stream out_stream model)
-	; (huffman-compress-static in_stream out_stream model)
 	; Compresses a stream using a pre-built static model.
 	(bind '(_ codebook token_bits) model)
 	(defq read_pool_state (array 0 0)
@@ -111,17 +125,17 @@
 	(while (/= -1 (defq token (read-bits in_stream read_pool_state token_bits)))
 		(when (defq code_info (. codebook :find token))
 			(bind '(code len) code_info)
-			(write-bits out_stream write_pool_state code len)))
+			(write-bits out_stream write_pool_state (reverse-bits code len) len)))
 
 	; Write the End Of Stream token.
 	(when (defq code_info (. codebook :find EOS_TOKEN))
 		(bind '(code len) code_info)
-		(write-bits out_stream write_pool_state code len))
+		(write-bits out_stream write_pool_state (reverse-bits code len) len))
 
 	(flush-bits out_stream write_pool_state))
 
 (defun huffman-decompress-static (in_stream out_stream model)
-    ; (huffman-decompress-static in_stream out_stream model)
+    ; Decompresses a stream using a pre-built static model.
     (bind '(root _ token_bits) model)
     (defq read_pool_state (array 0 0)
           write_pool_state (array 0 0)
@@ -131,7 +145,7 @@
     (while running
         (defq current_node root)
         ; Traverse the tree one bit at a time to find the next token.
-        (while (and running current_node (> (length current_node) 3))
+        (while (and running current_node (> (length current_node) 2))
             (defq bit (read-bits in_stream read_pool_state 1))
             (if (= bit -1)
                 (setq running :nil)
@@ -151,6 +165,10 @@
 	huffman-compress-static huffman-decompress-static))
 (env-pop)
 
+;;;
+;;; TEST HARNESS (INSTRUMENTED)
+;;;
+
 (defun deep-eql (a b)
   (cond
     ((and (list? a) (list? b))
@@ -162,6 +180,10 @@
   (defq out (list))
   (. fmap :each (# (push out (list %0 %1))))
   (sort out (# (cmp (str (first %0)) (str (first %1))))))
+
+(defun print-codebook (cb)
+  (each (lambda (entry) (print "  " (char (first entry)) " (" (first entry) ") -> " (second entry)))
+        (fmap-to-sorted-list cb)))
 
 (defun test-bitstream-integrity ()
   (print "---")
@@ -242,14 +264,27 @@
 (defun test-static-compression (test_string)
   (print "---")
   (print "TEST 4: Verifying static end-to-end for string: " test_string)
+
+  (if (eql test_string "abcfcba")
+    (progn (print "[TRACE] Starting trace for 'abcfcba'") (def (env) '*trace-enabled* :t))
+    (undef (env) '*trace-enabled*))
+
   (defq freq_map (huffman-build-freq-map (string-stream test_string) 8))
   (defq model_stream (string-stream ""))
   (huffman-write-codebook model_stream 8 freq_map)
   (defq model (huffman-read-codebook (string-stream (str model_stream))))
+
+  (if (get '*trace-enabled* (env))
+    (progn
+      (print "[DECOMPRESS-MODEL] Codebook as seen by decompressor:")
+      (print-codebook (second model))))
+
   (defq compressed_stream (string-stream ""))
   (huffman-compress-static (string-stream test_string) compressed_stream model)
+
   (defq decompressed_stream (string-stream ""))
   (huffman-decompress-static (string-stream (str compressed_stream)) decompressed_stream model)
+
   (defq result (str decompressed_stream))
   (if (eql test_string result)
       (progn (print "  Status: PASS") :t)
