@@ -97,7 +97,7 @@ launch logout app
 ### build_tree_and_codebook
 
 ```code
-Builds the Huffman tree and codebook from a frequency map. Non-recursive.
+Builds a deterministic, canonical Huffman tree and codebook from a frequency map.
 ```
 
 ### byte-to-hex-str
@@ -358,8 +358,6 @@ gather a list of values
 ### huffman-build-freq-map
 
 ```code
-(huffman-build-freq-map in_stream [token_bits]) -> freq_map
-
 Scans a stream to build a frequency map for static Huffman coding.
 ```
 
@@ -367,15 +365,11 @@ Scans a stream to build a frequency map for static Huffman coding.
 
 ```code
 (huffman-compress in_stream out_stream [token_bits])
-
-adaptive single pass
 ```
 
 ### huffman-compress-static
 
 ```code
-(huffman-compress-static in_stream out_stream model)
-
 Compresses a stream using a pre-built static model.
 ```
 
@@ -383,32 +377,23 @@ Compresses a stream using a pre-built static model.
 
 ```code
 (huffman-decompress in_stream out_stream [token_bits])
-
-adaptive single pass
-This function is designed to be robust against premature end-of-stream conditions.
 ```
 
 ### huffman-decompress-static
 
 ```code
-(huffman-decompress-static in_stream out_stream model)
-
-Decompresses a stream using a pre-built static Huffman model.
+Decompresses a stream using a pre-built static model.
 ```
 
 ### huffman-read-codebook
 
 ```code
-(huffman-read-codebook in_stream) -> (list root codebook token_bits)
-
 Reads a self-describing codebook from a stream and reconstructs the model.
 ```
 
 ### huffman-write-codebook
 
 ```code
-(huffman-write-codebook out_stream token_bits freq_map)
-
 Writes a self-describing codebook (via the frequency map) to a stream.
 ```
 

@@ -1,6 +1,6 @@
-;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;
 ; Huffman coding
-;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;
 
 ; this is purely experimental code to test the AI ! It is functionally correct,
 ; but that's about all you can say about it. ;)
@@ -9,13 +9,16 @@
 ; algorithm) uses a much more complex tree data structure that allows for O(1) or
 ; O(log n) updates to the tree itself when frequencies change, rather than a full
 ; O(n log n) rebuild. Our current implementation is a correct simulation of an
-; adaptive model but not a performant one. ;module (env-push)
+; adaptive model but not a performant one.
 
 ; For real-world applications, using the static Huffman functions
 ; (huffman-compress-static) would be vastly faster, as it builds the tree only
 ; once after a preliminary scan of the file. This test perfectly illustrates the
 ; trade-offs between the simplicity of the adaptive simulation and the performance
 ; of a static model.
+
+;module
+(env-push)
 
 (defun build_tree_and_codebook (freq_map)
 	; Builds a deterministic, canonical Huffman tree and codebook from a frequency map.
