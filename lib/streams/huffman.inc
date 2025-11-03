@@ -15,7 +15,7 @@
 
 	; Build the tree by repeatedly merging the two lowest-frequency nodes.
 	(while (> (length nodes) 1)
-		(sort nodes (# (- (first %0) (first %1))))
+		(sort nodes (# (- (first %1) (first %0))))
 		(defq n1 (pop nodes) n2 (pop nodes))
 		(push nodes (list (+ (first n1) (first n2)) n1 n2)))
 
