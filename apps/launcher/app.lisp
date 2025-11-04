@@ -69,7 +69,7 @@
 	(when (nempty? apps)
 		(ui-root cat_flow (Flow) (:flow_flags +flow_down_fill :cat_name name)
 			(ui-flow header (:flow_flags +flow_right_fill)
-				(. (ui-button toggle (:text (if collapsed ">" "v")
+				(. (ui-button toggle (:text (if collapsed ">" "^")
 						:color *env_title_col* :font *env_medium_terminal_font*))
 					:connect +event_toggle)
 				(ui-title title (:text name :color *env_title_col*)))
@@ -125,7 +125,7 @@
 					cat_data (. categories :find cat_name)
 					collapsed (not (. cat_data :find :collapsed)))
 				(. cat_data :insert :collapsed collapsed)
-				(def toggle :text (if collapsed ">" "v"))
+				(def toggle :text (if collapsed ">" "^"))
 				(. grid :set_flags (if collapsed +view_flag_hidden 0) +view_flag_hidden)
 
 				; Recalculate size and update scrollbars after visibility change
