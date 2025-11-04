@@ -15,7 +15,7 @@
 	Scan files for Huffman frequency information, creates
 	a merged tree of all the information.
 
-	Optionally create and save a static codebook for use with
+	Optionally create and save a codebook for use with
 	the static huffman library.
 
 	If no paths given on command line

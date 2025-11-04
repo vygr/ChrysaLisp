@@ -9,7 +9,8 @@
 		-h --help: this help info.
 		-t --tbits num: bit size for data tokens, default 8.
 
-	Decompresses a file using Run-Length Encoding.
+	Decompresses a file adaptive Huffman encoding.
+
 	If no file is given, it reads from stdin.
 	Output is written to stdout.")
 (("-t" "--tbits") ,(opt-num 'opt_t))

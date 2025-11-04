@@ -73,11 +73,7 @@ Usage: files [options] [prefix] [postfix]
 
 	Find all paths that match the prefix and postfix.
 
-		prefix default "."
-		postfix default ""
-
-	eg.
-	files -a apps/ .lisp
+		prefix default 
 ```
 ## forward
 ```code
@@ -163,7 +159,7 @@ Usage: hbook [options] [path] ...
 	Scan files for Huffman frequency information, creates
 	a merged tree of all the information.
 
-	Optionally create and save a static codebook for use with
+	Optionally create and save a codebook for use with
 	the static huffman library.
 
 	If no paths given on command line
@@ -189,7 +185,8 @@ Usage: huff [options] [file]
 		-h --help: this help info.
 		-t --tbits num: bit size for data tokens, default 8.
 
-	Compresses a file using Run-Length Encoding.
+	Compresses a file using adaptive Huffman encoding.
+
 	If no file is given, it reads from stdin.
 	Output is written to stdout.
 ```
@@ -268,7 +265,9 @@ Usage: patch [options] file_a [file_b]
 		-s --swap: swap sources.
 
 	Patch text file a with text file b.
-	If no second file is given it will be read from stdin.
+
+	If no second file is given it will
+	be read from stdin.
 ```
 ## repeat
 ```code
@@ -289,7 +288,8 @@ Usage: rle [options] [file]
 		-t --tbits num: bit size for data tokens, default 8.
 		-r --run-bits num: bit size for run length tokens, default 8.
 
-	Compresses a file using Run-Length Encoding.
+	Compresses a file using Run-Length encoding.
+
 	If no file is given, it reads from stdin.
 	Output is written to stdout.
 ```
@@ -447,7 +447,8 @@ Usage: unrle [options] [file]
 		-h --help: this help info.
 		-t --tbits num: bit size for data tokens, default 8.
 
-	Decompresses a file using Run-Length Encoding.
+	Decompresses a file adaptive Huffman encoding.
+
 	If no file is given, it reads from stdin.
 	Output is written to stdout.
 ```
@@ -470,7 +471,8 @@ Usage: unrle [options] [file]
 		-t --tbits num: bit size for data tokens, default 8.
 		-r --run-bits num: bit size for run length tokens, default 8.
 
-	Decompresses a file using Run-Length Encoding.
+	Decompresses a file using Run-Length encoding.
+
 	If no file is given, it reads from stdin.
 	Output is written to stdout.
 ```

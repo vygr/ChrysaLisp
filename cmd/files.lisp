@@ -3,7 +3,7 @@
 
 (defq usage `(
 (("-h" "--help")
-{Usage: files [options] [prefix] [postfix]
+"Usage: files [options] [prefix] [postfix]
 
 	options:
 		-h --help: this help info.
@@ -17,7 +17,7 @@
 		postfix default ""
 
 	eg.
-	files -a apps/ .lisp})
+	files -a apps/ .lisp")
 (("-d" "--dirs") ,(opt-flag 'opt_d))
 (("-i" "--imm:") ,(opt-flag 'opt_i))
 (("-a" "--all") ,(opt-flag 'opt_a))

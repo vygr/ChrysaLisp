@@ -3,14 +3,16 @@
 
 (defq usage `(
 (("-h" "--help")
-{Usage: patch [options] file_a [file_b]
+"Usage: patch [options] file_a [file_b]
 
 	options:
 		-h --help: this help info.
 		-s --swap: swap sources.
 
 	Patch text file a with text file b.
-	If no second file is given it will be read from stdin.})
+
+	If no second file is given it will
+	be read from stdin.")
 (("-s" "--swap") ,(opt-flag 'opt_s))
 ))
 
