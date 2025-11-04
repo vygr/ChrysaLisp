@@ -150,6 +150,25 @@ Usage: gui [node ...]
 	If none present on command line then
 	will read from stdin.
 ```
+## hbook
+```code
+Usage: hbook [options] [path] ...
+
+	options:
+		-h --help: this help info.
+		-j --jobs num: max jobs per batch, default 1.
+		-t --token-bits num: bit size for data tokens, default 8.
+		-c --codebook path: codebook filename, default :nil.
+
+	Scan files for Huffman frequency information, creates
+	a merged tree of all the information.
+
+	Optionally create and save a static codebook for use with
+	the static huffman library.
+
+	If no paths given on command line
+	then will take paths from stdin.
+```
 ## head
 ```code
 Usage: head [options file]

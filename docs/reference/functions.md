@@ -366,7 +366,7 @@ Scans a stream to build a frequency map for static Huffman coding.
 ### huffman-compress
 
 ```code
-(huffman-compress in_stream out_stream [token_bits])
+(huffman-compress in_stream out_stream token_bits)
 ```
 
 ### huffman-compress-static
@@ -378,7 +378,7 @@ Compresses a stream using a pre-built static model.
 ### huffman-decompress
 
 ```code
-(huffman-decompress in_stream out_stream [token_bits])
+(huffman-decompress in_stream out_stream token_bits)
 ```
 
 ### huffman-decompress-static
