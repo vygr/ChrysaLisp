@@ -9,7 +9,7 @@
 	options:
 		-h --help: this help info.
 		-j --jobs num: max jobs per batch, default 1.
-		-t --token-bits num: bit size for data tokens, default 8.
+		-t --tbits num: bit size for data tokens, default 8.
 		-c --codebook path: codebook filename, default :nil.
 
 	Scan files for Huffman frequency information, creates
@@ -21,7 +21,7 @@
 	If no paths given on command line
 	then will take paths from stdin.")
 (("-j" "--jobs") ,(opt-num 'opt_j))
-(("-t" "--token-bits") ,(opt-num 'opt_t))
+(("-t" "--tbits") ,(opt-num 'opt_t))
 (("-c" "--codebook") ,(opt-str 'opt_c))
 ))
 

@@ -7,13 +7,13 @@
 
 	options:
 		-h --help: this help info.
-		-t --token-bits num: bit size for data tokens, default 8.
+		-t --tbits num: bit size for data tokens, default 8.
 		-r --run-bits num: bit size for run length tokens, default 8.
 
 	Decompresses a file using Run-Length Encoding.
 	If no file is given, it reads from stdin.
 	Output is written to stdout.")
-(("-t" "--token-bits") ,(opt-num 'opt_t))
+(("-t" "--tbits") ,(opt-num 'opt_t))
 (("-r" "--run-bits") ,(opt-num 'opt_r))
 ))
 

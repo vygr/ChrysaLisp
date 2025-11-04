@@ -157,7 +157,7 @@ Usage: hbook [options] [path] ...
 	options:
 		-h --help: this help info.
 		-j --jobs num: max jobs per batch, default 1.
-		-t --token-bits num: bit size for data tokens, default 8.
+		-t --tbits num: bit size for data tokens, default 8.
 		-c --codebook path: codebook filename, default :nil.
 
 	Scan files for Huffman frequency information, creates
@@ -187,7 +187,7 @@ Usage: huff [options] [file]
 
 	options:
 		-h --help: this help info.
-		-t --token-bits num: bit size for data tokens, default 8.
+		-t --tbits num: bit size for data tokens, default 8.
 
 	Compresses a file using Run-Length Encoding.
 	If no file is given, it reads from stdin.
@@ -286,7 +286,7 @@ Usage: rle [options] [file]
 
 	options:
 		-h --help: this help info.
-		-t --token-bits num: bit size for data tokens, default 8.
+		-t --tbits num: bit size for data tokens, default 8.
 		-r --run-bits num: bit size for run length tokens, default 8.
 
 	Compresses a file using Run-Length Encoding.
@@ -445,7 +445,7 @@ Usage: unrle [options] [file]
 
 	options:
 		-h --help: this help info.
-		-t --token-bits num: bit size for data tokens, default 8.
+		-t --tbits num: bit size for data tokens, default 8.
 
 	Decompresses a file using Run-Length Encoding.
 	If no file is given, it reads from stdin.
@@ -467,7 +467,7 @@ Usage: unrle [options] [file]
 
 	options:
 		-h --help: this help info.
-		-t --token-bits num: bit size for data tokens, default 8.
+		-t --tbits num: bit size for data tokens, default 8.
 		-r --run-bits num: bit size for run length tokens, default 8.
 
 	Decompresses a file using Run-Length Encoding.
