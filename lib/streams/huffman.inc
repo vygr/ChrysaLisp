@@ -83,9 +83,8 @@
 ; Adaptive Huffman
 ;;;;;;;;;;;;;;;;;;
 
-(defun huffman-compress (in_stream out_stream &optional token_bits)
-	; (huffman-compress in_stream out_stream [token_bits])
-	(setd token_bits 8)
+(defun huffman-compress (in_stream out_stream token_bits)
+	; (huffman-compress in_stream out_stream token_bits)
 	(defq read_pool_state (array 0 0)
 		write_pool_state (array 0 0)
 		NYT_TOKEN (<< 1 token_bits)
@@ -117,9 +116,8 @@
 
 	(flush-bits out_stream write_pool_state))
 
-(defun huffman-decompress (in_stream out_stream &optional token_bits)
-	; (huffman-decompress in_stream out_stream [token_bits])
-	(setd token_bits 8)
+(defun huffman-decompress (in_stream out_stream token_bits)
+	; (huffman-decompress in_stream out_stream token_bits)
 	(defq read_pool_state (array 0 0)
 		write_pool_state (array 0 0)
 		NYT_TOKEN (<< 1 token_bits)
@@ -162,15 +160,15 @@
 ; Static Huffman
 ;;;;;;;;;;;;;;;;;
 
-(defun huffman-build-freq-map (in_stream &optional token_bits)
+(defun huffman-build-freq-map (in_stream token_bits)
 	; Scans a stream to build a frequency map for static Huffman coding.
-	(setd token_bits 8)
 	(defq read_pool_state (array 0 0)
 		EOS_TOKEN (inc (<< 1 token_bits))
 		freq_map (scatter (Fmap 101) EOS_TOKEN 1))
 
 	(while (/= -1 (defq token (read-bits in_stream read_pool_state token_bits)))
-		(. freq_map :update token (# (if %0 (inc %0) 1))))
+		(. freq_map :update token (# (if %0 (inc %0) 1)))
+		(task-slice))
 	freq_map)
 
 (defun huffman-write-codebook (out_stream token_bits freq_map)
@@ -186,7 +184,6 @@
 
 	; Write each entry.
 	(each (lambda ((token freq))
-		; FIX: Write the token with a fixed 16-bit width to avoid truncation of special tokens.
 		(write-bits out_stream write_pool_state token 16)
 		(write-bits out_stream write_pool_state freq 32)) entries)
 
@@ -194,8 +191,7 @@
 
 (defun huffman-read-codebook (in_stream)
 	; Reads a self-describing codebook from a stream and reconstructs the model.
-	(defq read_pool_state (array 0 0)
-		freq_map (Fmap 101))
+	(defq read_pool_state (array 0 0) freq_map (Fmap 101))
 
 	; Read header: token_bits for data, and number of entries.
 	(defq token_bits(read-bits in_stream read_pool_state 8)
@@ -203,7 +199,6 @@
 
 	; Read each entry from the stream and rebuild the frequency map.
 	(times num_entries
-		; FIX: Read the token with a fixed 16-bit width to match the writer.
 		(defq token (read-bits in_stream read_pool_state 16)
 			freq(read-bits in_stream read_pool_state 32))
 		(. freq_map :insert token freq))
@@ -261,134 +256,3 @@
 	huffman-build-freq-map huffman-write-codebook huffman-read-codebook
 	huffman-compress-static huffman-decompress-static))
 (env-pop)
-
-;; ;;;;;;;;;;;;;;;;;;;;
-;; ; Test Suite
-;; ;;;;;;;;;;;;;;;;;;;;
-
-;; (defun deep-eql (a b)
-;; ; Recursively checks if two lists (or atoms) are equal in content.
-;; (cond
-;; ((and (list? a) (list? b))
-;; (and (= (length a) (length b))
-;;(not (find :nil (map deep-eql a b)))))
-;; (:t (eql a b))))
-
-;; (defun fmap-to-sorted-list (fmap)
-;; ; Converts an Fmap to a sorted list of (key value) pairs for deterministic comparison.
-;; (defq out (list))
-;; (. fmap :each (# (push out (list %0 %1))))
-;; (sort out (# (cmp (str (first %0)) (str (first %1))))))
-
-;; (defun test-bitstream-integrity ()
-;; (print "---")
-;; (print "TEST 1: Verifying low-level bitstream functions...")
-;; (defq original_values (list)
-;; original_widths (list)
-;; write_pool_state (array 0 0)
-;; out_stream (string-stream "")
-;; num_tests 500
-;; seed 12345
-;; width 1)
-;; (times num_tests
-;; (setq seed (% (+ (* seed 1103515245) 12345) 0x7FFFFFFF)
-;; width (inc (% width 16)))
-;; (defq value (% seed (<< 1 width)))
-;; (push original_values value)
-;; (push original_widths width)
-;; (write-bits out_stream write_pool_state value width))
-;; (flush-bits out_stream write_pool_state)
-
-;; (defq read_values (list)
-;; read_pool_state (array 0 0)
-;; in_stream (string-stream (str out_stream)))
-;; (each (lambda (w) (push read_values (read-bits in_stream read_pool_state w))) original_widths)
-
-;; (if (deep-eql original_values read_values)
-;; (progn (print "Status: PASS") :t)
-;; (progn (print "Status: FAIL") (print "Original:" original_values) (print "Read:" read_values) :nil)))
-
-;; (defun verify-model-integrity (test_string)
-;; (print "---")
-;; (print "TEST 2: Verifying model serialization for string: " test_string)
-;; (defq freq_map (huffman-build-freq-map (string-stream test_string) 8))
-;; (bind '(root1 codebook1) (build_tree_and_codebook freq_map))
-
-;; (defq model_stream (string-stream ""))
-;; (huffman-write-codebook model_stream 8 freq_map)
-
-;; (bind '(root2 codebook2 _) (huffman-read-codebook (string-stream (str model_stream))))
-
-;; (defq tree_match (deep-eql root1 root2))
-;; (defq codebook_match (deep-eql (fmap-to-sorted-list codebook1) (fmap-to-sorted-list codebook2)))
-
-;; (print "Tree structure match: " (if tree_match "PASS" "FAIL"))
-;; (print "Codebook content match: " (if codebook_match "PASS" "FAIL"))
-
-;; (if (and tree_match codebook_match)
-;; (progn (print "Model Integrity Status: PASS") :t)
-;; (progn (print "Model Integrity Status: FAIL") :nil)))
-
-;; (defun test-static-compression (test_string)
-;; (print "---")
-;; (print "TEST 3: Verifying static end-to-end for string: " test_string)
-;; (defq freq_map (huffman-build-freq-map (string-stream test_string) 8))
-
-;; (defq model_stream (string-stream ""))
-;; (huffman-write-codebook model_stream 8 freq_map)
-
-;; (defq model (huffman-read-codebook (string-stream (str model_stream))))
-
-;; (defq compressed_stream (string-stream ""))
-;; (huffman-compress-static (string-stream test_string) compressed_stream model)
-
-;; (defq decompressed_stream (string-stream ""))
-;; (huffman-decompress-static (string-stream (str compressed_stream)) decompressed_stream model)
-
-;; (defq result (str decompressed_stream))
-;; (if (eql test_string result)
-;; (progn (print "Status: PASS") :t)
-;; (progn (print "Status: FAIL") (print "Expected: " test_string) (print "Got:" result) :nil)))
-
-;; (defun test-adaptive-compression (test_string)
-;; (print "---")
-;; (print "TEST 4: Verifying adaptive end-to-end for string: " test_string)
-;; (defq compressed_stream (string-stream ""))
-;; (huffman-compress (string-stream test_string) compressed_stream 8)
-
-;; (defq decompressed_stream (string-stream ""))
-;; (huffman-decompress (string-stream (str compressed_stream)) decompressed_stream 8)
-
-;; (defq result (str decompressed_stream))
-;; (if (eql test_string result)
-;; (progn (print "Status: PASS") :t)
-;; (progn (print "Status: FAIL") (print "Expected: " test_string) (print "Got:" result) :nil)))
-
-;; (defun run-all-huffman-tests ()
-;; (defq test_strings (list
-;; ""
-;; "a"
-;; "aaaaaaaaaa"
-;; "abcfcba"
-;; "abcdefghijklmnop"
-;; "abcdefjhiiijklmnop"
-;; "Furthermore"
-;; ))
-;; (print "=====================================")
-;; (print " Starting Huffman Tests")
-;; (print "=====================================")
-;; (if (test-bitstream-integrity)
-;; (if (every (# (verify-model-integrity %0)) test_strings)
-;; (if (every (# (test-static-compression %0)) test_strings)
-;; (if (every (# (test-adaptive-compression %0)) test_strings)
-;; (progn
-;; (print "---")
-;; (print "ALL TESTS PASSED")
-;; (print "====================================="))
-;; (print "Adaptive test failed."))
-;; (print "Static test failed."))
-;; (print "Model test failed."))
-;; (print "Bitstream test failed.")))
-
-;; ; To run the tests, call this function:
-;; ; (run-all-huffman-tests)
