@@ -4,6 +4,7 @@
 
 (import "./syntax.inc")
 (import "././consts/chars.inc")
+(import "././task/pipe.inc")
 
 ;module
 (env-push)
@@ -209,6 +210,24 @@
 					max_width (max max_width (length line)))
 				(push-line line))
 			(file-stream filepath))
+		(last-line)
+		(clear (get :undo_stack this) (get :redo_stack this))
+		(lower :buffer_line :buffer_syntax :buffer_states :buffer_found :buffer_brackets
+			:max_width (:cursor_x 0 :cursor_y 0 :dirty_flags -1 :modified :nil))
+		this)
+
+	(defmethod :file_load_hex (filepath &optional width)
+		; (. buffer :file_load_hex filepath [width]) -> buffer
+		(raise :syntax_engine :tab_width (buffer_line (list) buffer_syntax (list)
+			 buffer_states (list) buffer_found (list) buffer_brackets (list)
+			 max_width 0 hex_string (string-stream "")))
+		(pipe-run (str "dump -c " (ifn width 8) " " filepath) (# (write-line hex_string %0)))
+		(lines! (lambda (line)
+				(task-slice)
+				(setq line (expand (trim-end line (const (char +char_cr))) tab_width)
+					max_width (max max_width (length line)))
+				(push-line line))
+			(string-stream (str hex_string)))
 		(last-line)
 		(clear (get :undo_stack this) (get :redo_stack this))
 		(lower :buffer_line :buffer_syntax :buffer_states :buffer_found :buffer_brackets
