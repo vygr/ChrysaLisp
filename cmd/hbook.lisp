@@ -12,7 +12,7 @@
 		-t --token-bits num: bit size for data tokens, default 8.
 		-c --codebook path: codebook filename, default :nil.
 
-	Scan files for Huffman frequncy information, creates
+	Scan files for Huffman frequency information, creates
 	a merged tree of all the information.
 
 	Optionally create and save a static codebook for use with

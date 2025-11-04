@@ -59,7 +59,7 @@ huff/unhuff use.
 New `cmd/hbook.lisp` command for scanning and optionally creating Huffman
 static code books.
 
-Editor app now save and restores position and size to its state file.
+Editor app now saves and restores position and size to its state file.
 
 ------
 
