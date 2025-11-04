@@ -4,8 +4,15 @@
 
 (defun state-save ()
 	;save editor state
+	(bind '(x y) (. *window* :get_pos))
+	(bind '(width height) (. *window* :get_size))
 	(when (defq stream (file-stream (cat *env_home* +state_filename) +file_open_write))
 		(scatter *meta_map*
+			:version 1
+			:x x
+			:y y
+			:width width
+			:height height
 			:find (. *find_text* :get_text)
 			:replace (. *replace_text* :get_text)
 			:whole_words *whole_words*
@@ -20,9 +27,12 @@
 	(when (defq stream (file-stream (cat *env_home* +state_filename)))
 		(catch (setq *meta_map* (tree-load stream))
 			(progn (setq *meta_map* default) :t))
-		(bind '(file find_txt replace_txt files macros wwords regx)
-			(gather *meta_map* :file :find :replace :files
-				:macros :whole_words :regexp))
+		(bind '(x y width height version file
+				find_txt replace_txt files macros wwords regx)
+			(gather *meta_map* :x :y :width :height :version
+				:file :find :replace :files :macros :whole_words :regexp))
+		(if (and x y) (setq *x* x *y* y))
+		(if (and width height) (setq *width* width *height* height))
 		(if find_txt (. *find_text* :set_text find_txt))
 		(if replace_txt (. *replace_text* :set_text replace_txt))
 		(if wwords (setq *whole_words* wwords))

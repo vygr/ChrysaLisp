@@ -241,7 +241,8 @@
 		*syntax* (Syntax) *whole_words* :nil *refresh_mode* (list 0)
 		*macro_record* :nil *macro_actions* (list) *cursor_stack* (list)
 		dictionary (Dictionary 1031) match_window :nil match_flow :nil match_index -1
-		*meta_map* :nil *open_files* :nil *current_file* (state-load))
+		*meta_map* :nil *open_files* :nil
+		*x* 0 *y* 0 *width* 1024 *height* 512 *current_file* (state-load))
 	(.-> *edit* (:set_buffer (Buffer))
 		(:set_select_color +argb_grey6)
 		(:set_found_color +argb_grey4)
@@ -258,9 +259,10 @@
 	(. *file_tree* :populate "." +file_types 2)
 	(populate-file-trees)
 	(populate-vdu *current_file*)
-	(action-maximise)
-	(bind '(x y w h) (apply view-locate (.-> *window* (:connect +event_layout) :get_size)))
-	(gui-add-front-rpc (. *window* :change x y w h))
+	(bind '(x y w h) (view-fit *x* *y* *width* *height*))
+	(.-> *window* (:change x y w h) (:connect +event_layout))
+	(window-resize)
+	(gui-add-front-rpc *window*)
 	(select-node *current_file*)
 	(refresh)
 	(while *running*
