@@ -53,7 +53,13 @@ New `lib/streams/huffman.inc` module. `huffman-compress` `huffman-decompress`
 `huffman-build-freq-map` `huffman-write-codebook` `huffman-read-codebook`
 `huffman-compress-static` and `huffman-decompress-static` functions.
 
-New `cmd/huff.lisp` and `cmd/unhuff.lisp` command line apps for huff/unhuff use.
+New `cmd/huff.lisp` and `cmd/unhuff.lisp` command line apps for adaptive
+huff/unhuff use.
+
+New `cmd/hbook.lisp` command for scanning and optionally creating Huffman
+static code books.
+
+Editor app now save and restores position and size to its state file.
 
 ------
 
