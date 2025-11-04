@@ -69,7 +69,7 @@
 (defun opt-str (opt_var)
 	; (opt-str 'opt_var) -> args
 	(static-qq (lambda (args arg)
-		(setq ,opt_var (first args))) (rest args)))
+		(setq ,opt_var (first args)) (rest args))))
 
 ;module
 (export-symbols '(options opt-flag opt-str opt-num))
