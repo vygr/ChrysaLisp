@@ -286,7 +286,7 @@ Usage: rle [options] [file]
 	options:
 		-h --help: this help info.
 		-t --tbits num: bit size for data tokens, default 8.
-		-r --run-bits num: bit size for run length tokens, default 8.
+		-r --rbits num: bit size for run length tokens, default 8.
 
 	Compresses a file using Run-Length encoding.
 
@@ -469,7 +469,7 @@ Usage: unrle [options] [file]
 	options:
 		-h --help: this help info.
 		-t --tbits num: bit size for data tokens, default 8.
-		-r --run-bits num: bit size for run length tokens, default 8.
+		-r --rbits num: bit size for run length tokens, default 8.
 
 	Decompresses a file using Run-Length encoding.
 

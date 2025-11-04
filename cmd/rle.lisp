@@ -8,14 +8,14 @@
 	options:
 		-h --help: this help info.
 		-t --tbits num: bit size for data tokens, default 8.
-		-r --run-bits num: bit size for run length tokens, default 8.
+		-r --rbits num: bit size for run length tokens, default 8.
 
 	Compresses a file using Run-Length encoding.
 
 	If no file is given, it reads from stdin.
 	Output is written to stdout.")
 (("-t" "--tbits") ,(opt-num 'opt_t))
-(("-r" "--run-bits") ,(opt-num 'opt_r))
+(("-r" "--rbits") ,(opt-num 'opt_r))
 ))
 
 (defun main ()
