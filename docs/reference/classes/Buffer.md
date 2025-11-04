@@ -58,6 +58,12 @@
 (. buffer :file_load filepath) -> buffer
 ```
 
+### :file_load_hex
+
+```code
+(. buffer :file_load_hex filepath [width]) -> buffer
+```
+
 ### :file_save
 
 ```code
