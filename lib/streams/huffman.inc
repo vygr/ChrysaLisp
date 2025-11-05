@@ -12,7 +12,7 @@
 ; adaptive model but not a performant one.
 
 ; For real-world applications, using the static Huffman functions
-; (huffman-compress-static) would be vastly faster, as it builds the tree only
+; huffman-compress-static would be vastly faster, as it builds the tree only
 ; once after a preliminary scan of the file. This test perfectly illustrates the
 ; trade-offs between the simplicity of the adaptive simulation and the performance
 ; of a static model.
