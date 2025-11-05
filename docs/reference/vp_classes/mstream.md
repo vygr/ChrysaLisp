@@ -25,7 +25,7 @@ inputs
 outputs
 :r0 = mstream object (ptr)
 trashes
-:r1-:r14
+:r1-:r9
 ```
 
 ### :init -> class/mstream/init
@@ -39,6 +39,40 @@ outputs
 :r1 = 0 if error, else ok
 trashes
 :r1-:r14
+```
+
+### :itop -> class/mstream/itop
+
+```code
+inputs
+:r0 = mstream object (ptr)
+:r1 = file position (uint)
+outputs
+:r0 = mstream object (ptr)
+:r1 = file position (uint)
+:r2 = 0, else bufp (pubyte)
+:r3 = 0, else bufe (pubyte)
+:r4 = 0, else chunk str object (ptr)
+:r5 = 0, else chunk buffer start (pubyte)
+:r6 = 0, else chunk index (uint)
+trashes
+:r1-:r10
+```
+
+### :ptoi -> class/mstream/ptoi
+
+```code
+inputs
+:r0 = mstream object (ptr)
+:r1 = bufp (pubyte)
+outputs
+:r0 = mstream object (ptr)
+:r1 = bufp (pubyte)
+:r2 = 0, else chunk str object (ptr)
+:r3 = 0, else file position (uint)
+:r4 = 0, else file size (uint)
+trashes
+:r1-:r9
 ```
 
 ### :read_next -> class/mstream/read_next
@@ -64,7 +98,7 @@ outputs
 :r0 = mstream object (ptr)
 :r1 = -1 for error, else file position
 trashes
-:r1-:r14
+:r1-:r11
 ```
 
 ### :vtable -> class/mstream/vtable

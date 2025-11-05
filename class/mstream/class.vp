@@ -16,20 +16,23 @@
 	;trashes
 	;:r1-:r14
 
-	(def-vars
-		(ptr this vtable)
-		(ulong ok))
+	(vp-def (this vtable tmp))
 
-	(push-scope)
-	(entry {this, vtable})
-	(s-call 'mstream :init {this, vtable, 0, 0, 0, 0} {_, ok})
-	(vpif {ok})
-		(call 'list :create :nil {this->mstream_chunks})
-		(assign {0, 0, 0} {this->mstream_total_size, this->mstream_current_pos, this->mstream_current_chunk})
+	(entry 'mstream :init `(,this ,vtable))
+
+	(s-call 'mstream :init `(,this ,vtable 0 0 0 0) `(,this ,vtable))
+	(vpif `(,vtable /= 0))
+		(vp-push this)
+		(call 'list :create :nil `(,vtable))
+		(vp-pop this)
+		(vp-xor-rr tmp tmp)
+		(save-fields this '(mstream_chunks mstream_pos mstream_total mstream_index)
+			`(,vtable ,tmp ,tmp ,tmp))
+		(vp-cpy-cr 1 vtable)
 	(endif)
-	(exit 'mstream :init {this, ok})
-	(pop-scope)
-	(return)
+
+	(exit 'mstream :init `(,this ,vtable))
+	(vp-ret)
 
 (def-func-end)
 
@@ -41,15 +44,16 @@
 	;trashes
 	;:r1-:r14
 
-	(def-vars
-		(ptr this))
+	(vp-def (this tmp))
 
-	(push-scope)
-	(entry {this})
-	(call 'obj :deref {this->mstream_chunks})
-	(assign {0, 0} {this->stream_object, this->stream_buffer})
-	(s-jump 'mstream :deinit {this})
-	(pop-scope-syms)
+	(entry 'mstream :deinit `(,this))
+
+	(vp-push this)
+	(call 'obj :deref `((,this mstream_chunks)))
+	(vp-pop this)
+	(vp-xor-rr tmp tmp)
+	(save-fields this '(stream_object stream_buffer) `(,tmp ,tmp))
+	(s-jump 'mstream :deinit `(,this))
 
 (def-func-end)
 
@@ -59,39 +63,28 @@
 	;outputs
 	;:r0 = mstream object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r9
 
-	(def-vars
-		(ptr this chunk)
-		(pptr iter end_iter)
-		(uint total_len))
+	(vp-def (this bufp chunk pos total))
 
-	(push-scope)
-	(entry {this})
+	(entry 'mstream :flush `(,this))
 
 	;current position and total size
-	(assign {0, 0} {total_len, this->mstream_current_pos})
-	(call 'list :get_both {this->mstream_chunks} {_, iter, end_iter})
-	(loop-while {iter /= end_iter})
-		(assign {*iter} {chunk})
-		(vpif {(this->stream_bufp >= &chunk->str_data)
-				&& (this->stream_bufp <= (&chunk->str_data + chunk->str_length))})
-			(assign {total_len + (this->stream_bufp - &chunk->str_data)} {this->mstream_current_pos})
-		(endif)
-		(assign {total_len + chunk->str_length} {total_len})
-		(assign {iter + +ptr_size} {iter})
-	(loop-end)
-	(assign {total_len} {this->mstream_total_size})
+	(call 'mstream :ptoi `(,this (,this stream_bufp)) `(,this ,bufp ,chunk ,pos ,total))
+	(save-fields this '(mstream_pos mstream_total) `(,pos ,total))
 
-	(vpif {this->stream_object})
+	(assign `((,this stream_object)) `(,chunk))
+	(vpif `(,chunk /= 0))
 		;we have a volatile wright buffer
-		(assign {this->stream_bufp - this->stream_buffer} {this->stream_object->str_length})
-		(assign {0, 0, 0} {this->stream_object, this->stream_bufp, this->stream_bufe})
+		(assign `((,this stream_buffer)) `(,total))
+		(vp-sub-rr total bufp)
+		(assign `(,bufp) `((,chunk str_length)))
+		(vp-xor-rr bufp bufp)
+		(save-fields this '(stream_object stream_bufp stream_bufe) `(,bufp ,bufp ,bufp))
 	(endif)
 
-	(exit 'mstream :flush {this})
-	(pop-scope)
-	(return)
+	(exit 'mstream :flush `(,this))
+	(vp-ret)
 
 (def-func-end)
 
@@ -110,7 +103,7 @@
 	(push-scope)
 	(entry {this})
 
-	(assign {this->mstream_current_chunk + 1} {chunk_idx})
+	(assign {this->mstream_index + 1} {chunk_idx})
 	(call 'list :get_length {this->mstream_chunks} {_, len})
 
 	(vpif {chunk_idx < len})
@@ -127,7 +120,7 @@
 		(assign {this->stream_buffer} {this->stream_bufp})
 		(assign {this->stream_buffer + mstream_buf_size} {this->stream_bufe})
 	(endif)
-	(assign {chunk_idx} {this->mstream_current_chunk})
+	(assign {chunk_idx} {this->mstream_index})
 	(exit 'mstream :write_next {this})
 	(pop-scope)
 	(return)
@@ -150,14 +143,14 @@
 
 	(push-scope)
 	(entry {this})
-	(assign {this->mstream_current_chunk + 1} {chunk_idx})
+	(assign {this->mstream_index + 1} {chunk_idx})
 	(call 'list :get_length {this->mstream_chunks} {_, len})
 	(vpif {chunk_idx < len})
 		;chunks are available, set pointers for reading
 		(call 'list :get_elem {this->mstream_chunks, chunk_idx} {_, next_chunk})
 		(assign {&next_chunk->str_data} {this->stream_bufp})
 		(assign {this->stream_bufp + next_chunk->str_length} {this->stream_bufe})
-		(assign {chunk_idx} {this->mstream_current_chunk})
+		(assign {chunk_idx} {this->mstream_index})
 		(assign {0} {len})
 	(else)
 		;EOF
@@ -178,47 +171,125 @@
 	;:r0 = mstream object (ptr)
 	;:r1 = -1 for error, else file position
 	;trashes
-	;:r1-:r14
+	;:r1-:r11
 
-	(def-vars
-		(ptr this chunk)
-		(pptr iter end_iter)
-		(long offset new_pos)
-		(uint whence total_len current_len current_chunk))
+	(vp-def (offset whence this pos bufp bufe chunk buffer index)
+		'(:r10 :r11))
 
-	(push-scope)
-	(entry {this, offset, whence})
+	(entry 'mstream :seek `(,this ,offset ,whence))
 
 	;what is the new position
-	(call 'mstream :flush {this})
-	(assign {this->mstream_total_size, this->mstream_current_pos} {total_len, new_pos})
+	(call 'mstream :flush `(,this) `(,this))
+
+	(load-fields this '(mstream_total mstream_pos) `(,index ,pos))
 	(switch)
-		(vpcase {whence = 0}) (assign {offset} {new_pos}) (break)
-		(vpcase {whence = 1}) (assign {new_pos + offset} {new_pos}) (break)
-		(vpcase {whence = 2}) (assign {total_len + offset} {new_pos}) (break)
+	(vpcase `(,whence = 0))
+		(vp-cpy-rr offset pos)
+		(break)
+	(vpcase `(,whence = 1))
+		(vp-add-rr offset pos)
+		(break)
+	(vpcase `(,whence = 2))
+		(vp-lea-d index offset pos)
 	(endswitch)
-	(vpif {new_pos < 0}) (assign {0} {new_pos}) (endif)
-	(vpif {new_pos > total_len}) (assign {total_len} {new_pos}) (endif)
-	(assign {new_pos} {this->mstream_current_pos})
 
 	;find the chunk needed
-	(assign {0, 0} {current_len, current_chunk})
-	(call 'list :get_both {this->mstream_chunks} {_, iter, end_iter})
-	(loop-while {iter /= end_iter})
-		(assign {*iter} {chunk})
-		(assign {current_len + chunk->str_length} {current_len})
-		(breakif {new_pos < current_len})
-		(assign {current_chunk + 1} {current_chunk})
-		(assign {iter + +ptr_size} {iter})
-	(loop-end)
-	(assign {current_chunk} {this->mstream_current_chunk})
+	(call 'mstream :itop `(,this ,pos) `(,this ,pos ,bufp ,bufe ,chunk ,buffer ,index))
 
 	;set the pointers
-	(assign {&chunk->str_data} {this->stream_buffer})
-	(assign {this->stream_buffer + new_pos - (current_len - chunk->str_length)} {this->stream_bufp})
-	(assign {this->stream_buffer + chunk->str_length} {this->stream_bufe})
-	(exit 'mstream :seek {this, new_pos})
-	(pop-scope)
-	(return)
+	(save-fields this
+		'(stream_bufp stream_bufe mstream_pos stream_buffer mstream_index)
+		`(,bufp ,bufe ,pos ,buffer ,index))
+
+	(exit 'mstream :seek `(,this ,pos))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'mstream :ptoi)
+	;inputs
+	;:r0 = mstream object (ptr)
+	;:r1 = bufp (pubyte)
+	;outputs
+	;:r0 = mstream object (ptr)
+	;:r1 = bufp (pubyte)
+	;:r2 = 0, else chunk str object (ptr)
+	;:r3 = 0, else file position (uint)
+	;:r4 = 0, else file size (uint)
+	;trashes
+	;:r1-:r9
+
+	(vp-def (this bufp chunk pos total iter_begin iter_end
+		chunk_len chunk_s chunk_e))
+
+	(entry 'mstream :ptoi `(,this ,bufp))
+
+	(assign `((,this mstream_chunks)) `(,iter_begin))
+	(assign '(0 0 0) `(,chunk ,pos ,total))
+	(class/array/get_both iter_begin iter_begin iter_end)
+	(vpif `(,iter_begin /= ,iter_end))
+		(loop-start)
+			(assign `((,iter_begin 0)) `(,chunk))
+			(assign `((,chunk str_length)) `(,chunk_len))
+			(assign `((& ,chunk str_data)) `(,chunk_s))
+			(assign `((& ,chunk_s ,chunk_len)) `(,chunk_e))
+			(vpif `(,bufp >= ,chunk_s) `(,bufp <= ,chunk_e))
+				(vp-cpy-rr bufp pos)
+				(vp-sub-rr chunk_s pos)
+			(endif)
+			(vp-add-rr chunk_len total)
+			(vp-add-cr +ptr_size iter_begin)
+		(loop-until `(,iter_begin = ,iter_end))
+	(endif)
+
+	(exit 'mstream :ptoi `(,this ,bufp ,chunk ,pos ,total))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'mstream :itop)
+	;inputs
+	;:r0 = mstream object (ptr)
+	;:r1 = file position (uint)
+	;outputs
+	;:r0 = mstream object (ptr)
+	;:r1 = file position (uint)
+	;:r2 = 0, else bufp (pubyte)
+	;:r3 = 0, else bufe (pubyte)
+	;:r4 = 0, else chunk str object (ptr)
+	;:r5 = 0, else chunk buffer start (pubyte)
+	;:r6 = 0, else chunk index (uint)
+	;trashes
+	;:r1-:r10
+
+	(vp-def (this pos bufp bufe chunk buffer index
+		total iter_begin iter_end chunk_len))
+
+	(entry 'mstream :itop `(,this ,bufp))
+
+	(assign `((,this mstream_chunks)) `(,iter_begin))
+	(assign '(0 0 0 0 0 0) `(,bufp ,bufe ,chunk ,buffer ,index ,total))
+	(class/array/get_both iter_begin iter_begin iter_end)
+	(vpif `(,iter_begin /= ,iter_end) 'exit)
+		(loop-start)
+			(assign `((,iter_begin 0)) `(,chunk))
+			(assign `((,chunk str_length)) `(,chunk_len))
+			(vp-add-rr chunk_len total)
+			(vpif `(,pos < total))
+				(assign `((& ,chunk str_data)) `(,buffer))
+				(assign `((& ,buffer ,chunk_len)) `(,bufe))
+				(vp-cpy-rr bufe bufp)
+				(vp-sub-rr pos total)
+				(vp-sub-rr total bufp)
+				(break 'exit)
+			(endif)
+			(vp-add-cr 1 index)
+			(vp-add-cr +ptr_size iter_begin)
+		(loop-until `(,iter_begin = ,iter_end))
+		(assign '(0 0) `(,chunk ,index))
+	(endif)
+
+	(exit 'mstream :itop `(,this ,pos ,bufp ,bufe ,chunk ,buffer ,index))
+	(vp-ret)
 
 (def-func-end)
