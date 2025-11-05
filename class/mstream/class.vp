@@ -96,34 +96,30 @@
 	;trashes
 	;:r1-:r14
 
-	(def-vars
-		(ptr this next_chunk)
-		(uint chunk_idx len))
+	(vp-def (this index chunks len chunk bufp bufe) '(:r11 :r12 :r13))
 
-	(push-scope)
-	(entry {this})
+	(entry 'mstream :write_next `(,this))
 
-	(assign {this->mstream_index + 1} {chunk_idx})
-	(call 'list :get_length {this->mstream_chunks} {_, len})
-
-	(vpif {chunk_idx < len})
+	(load-fields this '(mstream_chunks mstream_index) `(,chunks ,index))
+	(assign `((,chunks array_length)) `(,len))
+	(vp-add-cr 1 index)
+	(vpif `(,index < ,len))
 		;moving to an existing chunk
-		(call 'list :get_elem {this->mstream_chunks, chunk_idx} {_, next_chunk})
-		(assign {&next_chunk->str_data} {this->stream_buffer})
-		(assign {this->stream_buffer} {this->stream_bufp})
-		(assign {this->stream_buffer + next_chunk->str_length} {this->stream_bufe})
+		(vp-cpy-rr index len)
+		(class/array/get_elem chunks len chunk)
 	(else)
 		;creating a new volatile chunk
-		(call 'str :create_from_buffer {0, mstream_buf_size} {next_chunk})
-		(call 'list :push_back {this->mstream_chunks, next_chunk})
-		(assign {next_chunk, &next_chunk->str_data} {this->stream_object, this->stream_buffer})
-		(assign {this->stream_buffer} {this->stream_bufp})
-		(assign {this->stream_buffer + mstream_buf_size} {this->stream_bufe})
+		(call 'str :create_from_buffer `(0 ,mstream_buf_size) `(,chunk))
+		(call 'list :push_back `(,chunks ,chunk) `(_ ,chunk _  _))
+		(assign `(,chunk) `((,this stream_object)))
 	(endif)
-	(assign {chunk_idx} {this->mstream_index})
-	(exit 'mstream :write_next {this})
-	(pop-scope)
-	(return)
+	(assign `((,chunk str_length) (& ,chunk str_data)) `(,len ,bufp))
+	(vp-lea-d bufp len bufe)
+	(save-fields this '(stream_buffer stream_bufp stream_bufe mstream_index)
+		`(,bufp ,bufp ,bufe ,index))
+
+	(exit 'mstream :write_next `(,this))
+	(vp-ret)
 
 (def-func-end)
 
@@ -227,9 +223,8 @@
 	(vpif `(,iter_begin /= ,iter_end))
 		(loop-start)
 			(assign `((,iter_begin 0)) `(,chunk))
-			(assign `((,chunk str_length)) `(,chunk_len))
-			(assign `((& ,chunk str_data)) `(,chunk_s))
-			(assign `((& ,chunk_s ,chunk_len)) `(,chunk_e))
+			(assign `((,chunk str_length) (& ,chunk str_data)) `(,chunk_len ,chunk_s))
+			(vp-lea-d chunk_s chunk_len chunk_e)
 			(vpif `(,bufp >= ,chunk_s) `(,bufp <= ,chunk_e))
 				(vp-cpy-rr bufp pos)
 				(vp-sub-rr chunk_s pos)
