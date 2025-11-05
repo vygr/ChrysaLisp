@@ -68,19 +68,27 @@
 
 	(push-scope)
 	(entry {this})
+
+	;current position and total size
+	(assign {0, 0} {total_len, this->mstream_current_pos})
+	(call 'list :get_both {this->mstream_chunks} {_, iter, end_iter})
+	(loop-while {iter /= end_iter})
+		(assign {*iter} {chunk})
+		(vpif {(this->stream_bufp >= &chunk->str_data)
+				&& (this->stream_bufp <= (&chunk->str_data + chunk->str_length))})
+			(assign {total_len + (this->stream_bufp - &chunk->str_data)} {this->mstream_current_pos})
+		(endif)
+		(assign {total_len + chunk->str_length} {total_len})
+		(assign {iter + +ptr_size} {iter})
+	(loop-end)
+	(assign {total_len} {this->mstream_total_size})
+
 	(vpif {this->stream_object})
 		;we have a volatile wright buffer
 		(assign {this->stream_bufp - this->stream_buffer} {this->stream_object->str_length})
 		(assign {0, 0, 0} {this->stream_object, this->stream_bufp, this->stream_bufe})
 	(endif)
-	(assign {0} {total_len})
-	(call 'list :get_both {this->mstream_chunks} {_, iter, end_iter})
-	(loop-while {iter /= end_iter})
-		(assign {*iter} {chunk})
-		(assign {total_len + chunk->str_length} {total_len})
-		(assign {iter + +ptr_size} {iter})
-	(loop-end)
-	(assign {total_len} {this->mstream_total_size})
+
 	(exit 'mstream :flush {this})
 	(pop-scope)
 	(return)
@@ -173,12 +181,15 @@
 	;:r1-:r14
 
 	(def-vars
-		(ptr this chunk_list current_chunk_str)
+		(ptr this chunk)
+		(pptr iter end_iter)
 		(long offset new_pos)
-		(uint whence total_len current_len len))
+		(uint whence total_len current_len current_chunk))
 
 	(push-scope)
 	(entry {this, offset, whence})
+
+	;what is the new position
 	(call 'mstream :flush {this})
 	(assign {this->mstream_total_size, this->mstream_current_pos} {total_len, new_pos})
 	(switch)
@@ -188,22 +199,24 @@
 	(endswitch)
 	(vpif {new_pos < 0}) (assign {0} {new_pos}) (endif)
 	(vpif {new_pos > total_len}) (assign {total_len} {new_pos}) (endif)
-	(assign {this->mstream_chunks} {chunk_list})
-	(call 'list :get_length {chunk_list} {_, len})
-	(assign {0} {current_len})
-	(assign {0} {this->mstream_current_chunk})
-	(loop-start)
-		(breakif {this->mstream_current_chunk >= len})
-		(call 'list :get_elem {chunk_list, this->mstream_current_chunk} {_, current_chunk_str})
-		(assign {current_len + current_chunk_str->str_length} {current_len})
-		(breakif {new_pos < current_len})
-		(assign {this->mstream_current_chunk + 1} {this->mstream_current_chunk})
-	(loop-end)
-	(call 'list :get_elem {chunk_list, this->mstream_current_chunk} {_, current_chunk_str})
-	(assign {&current_chunk_str->str_data} {this->stream_buffer})
-	(assign {this->stream_buffer + new_pos - (current_len - current_chunk_str->str_length)} {this->stream_bufp})
-	(assign {this->stream_buffer + current_chunk_str->str_length} {this->stream_bufe})
 	(assign {new_pos} {this->mstream_current_pos})
+
+	;find the chunk needed
+	(assign {0, 0} {current_len, current_chunk})
+	(call 'list :get_both {this->mstream_chunks} {_, iter, end_iter})
+	(loop-while {iter /= end_iter})
+		(assign {*iter} {chunk})
+		(assign {current_len + chunk->str_length} {current_len})
+		(breakif {new_pos < current_len})
+		(assign {current_chunk + 1} {current_chunk})
+		(assign {iter + +ptr_size} {iter})
+	(loop-end)
+	(assign {current_chunk} {this->mstream_current_chunk})
+
+	;set the pointers
+	(assign {&chunk->str_data} {this->stream_buffer})
+	(assign {this->stream_buffer + new_pos - (current_len - chunk->str_length)} {this->stream_bufp})
+	(assign {this->stream_buffer + chunk->str_length} {this->stream_bufe})
 	(exit 'mstream :seek {this, new_pos})
 	(pop-scope)
 	(return)
