@@ -61,8 +61,8 @@ static code books.
 
 Editor app now saves and restores position and size to its state file.
 
-New Hexview app, which uses the Viewer as a base but just pipes the file loading
-through the `dump -c 16` command.
+New Hexview app, which uses the Viewer app as a base but just pipes the file
+loading through the `dump -c 16` command.
 
 ------
 
