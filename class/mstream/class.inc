@@ -16,4 +16,4 @@
 	(ptr chunks)
 	(uint pos total index))
 
-(defcvar 'mstream_buf_size 256)
+(defcvar 'mstream_buf_size 4096)
