@@ -84,7 +84,7 @@ outputs
 :r0 = mstream object (ptr)
 :r1 = -1 for EOF, else more data
 trashes
-:r1-:r14
+:r1-:r6
 ```
 
 ### :seek -> class/mstream/seek

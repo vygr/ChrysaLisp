@@ -134,31 +134,28 @@
 	;:r0 = mstream object (ptr)
 	;:r1 = -1 for EOF, else more data
 	;trashes
-	;:r1-:r14
+	;:r1-:r6
 
-	(def-vars
-		(ptr this next_chunk)
-		(uint chunk_idx)
-		(int len))
+	(vp-def (this eof chunks bufp bufe index len))
 
-	(push-scope)
-	(entry {this})
-	(assign {this->mstream_index + 1} {chunk_idx})
-	(call 'list :get_length {this->mstream_chunks} {_, len})
-	(vpif {chunk_idx < len})
+	(entry 'mstream :read_next `(,this))
+
+	(load-fields this '(mstream_chunks mstream_index) `(,chunks ,index))
+	(vp-add-cr 1 index)
+	(assign `((,chunks array_length)) `(,len))
+	(vp-cpy-cr -1 eof)
+	(vpif `(,index < ,len))
 		;chunks are available, set pointers for reading
-		(call 'list :get_elem {this->mstream_chunks, chunk_idx} {_, next_chunk})
-		(assign {&next_chunk->str_data} {this->stream_bufp})
-		(assign {this->stream_bufp + next_chunk->str_length} {this->stream_bufe})
-		(assign {chunk_idx} {this->mstream_index})
-		(assign {0} {len})
-	(else)
-		;EOF
-		(assign {-1} {len})
+		(vp-cpy-rr index len)
+		(class/array/get_elem chunks len chunks)
+		(assign `((& ,chunks str_data) (,chunks str_length)) `(,bufp ,len))
+		(vp-lea-d bufp len bufe)
+		(save-fields this '(mstream_index stream_bufp stream_bufe) `(,index ,bufp ,bufe))
+		(vp-xor-rr eof eof)
 	(endif)
-	(exit 'mstream :read_next {this, len})
-	(pop-scope)
-	(return)
+
+	(exit 'mstream :read_next `(,this ,eof))
+	(vp-ret)
 
 (def-func-end)
 
