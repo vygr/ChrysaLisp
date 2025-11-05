@@ -14,6 +14,8 @@
 
 ### (io-stream io) -> :nil | stream
 
+### (memory-stream) -> stream
+
 ### (read-bits stream (array bit_pool bit_pool_size) num_bits) -> (data|-1)
 
 ### (read-avail stream) -> :nil | num
@@ -45,8 +47,6 @@ outputs
 trashes
 :r1-:r2
 ```
-
-### :create -> class/stream/create
 
 ### :deinit -> class/stream/deinit
 

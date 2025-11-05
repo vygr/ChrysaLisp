@@ -54,6 +54,8 @@ obj
  |    +-> out
  |    |
  |    +-> sstream
+ |    |
+ |    +-> mstream
  |
  +-> stdio
 ```
@@ -359,6 +361,22 @@ obj
     * `:write_next`: When the buffer is full, it automatically allocates a new,
         larger `str` object and copies the old content over, making it
         dynamically resizable.
+
+**`mstream`** (Memory Stream)
+
+*   **Inherits From:** `stream`
+
+*   **Purpose:** Implements the `stream` API for reading from and writing to an
+    in-memory list of `str` objects. This is extremely useful for in memory
+    buffering.
+
+*   **Key Methods:**
+
+    * `:seek`: Works within the bounds of the stream. You can rewind, over read
+      and wright as you please.
+
+    * `:write_next`: When the buffer is full, it automatically allocates a new,
+      `str` object and pushes it on the end of the chucks list.
 
 **`in` / `out`**
 

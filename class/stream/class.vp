@@ -6,7 +6,6 @@
 (include "././sstream/class.inc")
 (include "lib/consts/chars.inc")
 
-(gen-create 'stream)
 (gen-vtable 'stream)
 
 (def-method 'stream :init)

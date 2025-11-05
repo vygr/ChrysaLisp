@@ -1,0 +1,211 @@
+(include "lib/asm/func.inc")
+(include "./class.inc")
+(include "././list/class.inc")
+(include "././str/class.inc")
+
+(gen-create 'mstream)
+(gen-vtable 'mstream)
+
+(def-method 'mstream :init)
+	;inputs
+	;:r0 = mstream object (ptr)
+	;:r1 = vtable (pptr)
+	;outputs
+	;:r0 = mstream object (ptr)
+	;:r1 = 0 if error, else ok
+	;trashes
+	;:r1-:r14
+
+	(def-vars
+		(ptr this vtable)
+		(ulong ok))
+
+	(push-scope)
+	(entry {this, vtable})
+	(s-call 'mstream :init {this, vtable, 0, 0, 0, 0} {_, ok})
+	(vpif {ok})
+		(call 'list :create :nil {this->mstream_chunks})
+		(assign {0, 0, 0} {this->mstream_total_size, this->mstream_current_pos, this->mstream_current_chunk})
+	(endif)
+	(exit 'mstream :init {this, ok})
+	(pop-scope)
+	(return)
+
+(def-func-end)
+
+(def-method 'mstream :deinit)
+	;inputs
+	;:r0 = mstream object (ptr)
+	;outputs
+	;:r0 = mstream object (ptr)
+	;trashes
+	;:r1-:r14
+
+	(def-vars
+		(ptr this))
+
+	(push-scope)
+	(entry {this})
+	(call 'obj :deref {this->mstream_chunks})
+	(assign {0, 0} {this->stream_object, this->stream_buffer})
+	(s-jump 'mstream :deinit {this})
+	(pop-scope-syms)
+
+(def-func-end)
+
+(def-method 'mstream :flush)
+	;inputs
+	;:r0 = mstream object (ptr)
+	;outputs
+	;:r0 = mstream object (ptr)
+	;trashes
+	;:r1-:r14
+
+	(def-vars
+		(ptr this chunk)
+		(pptr iter end_iter)
+		(uint total_len))
+
+	(push-scope)
+	(entry {this})
+	(vpif {this->stream_object})
+		;we have a volatile wright buffer
+		(assign {this->stream_bufp - this->stream_buffer} {this->stream_object->str_length})
+		(assign {0, 0, 0} {this->stream_object, this->stream_bufp, this->stream_bufe})
+	(endif)
+	(assign {0} {total_len})
+	(call 'list :get_both {this->mstream_chunks} {_, iter, end_iter})
+	(loop-while {iter /= end_iter})
+		(assign {*iter} {chunk})
+		(assign {total_len + chunk->str_length} {total_len})
+		(assign {iter + +ptr_size} {iter})
+	(loop-end)
+	(assign {total_len} {this->mstream_total_size})
+	(exit 'mstream :flush {this})
+	(pop-scope)
+	(return)
+
+(def-func-end)
+
+(def-method 'mstream :write_next)
+	;inputs
+	;:r0 = sstream object (ptr)
+	;outputs
+	;:r0 = sstream object (ptr)
+	;trashes
+	;:r1-:r14
+
+	(def-vars
+		(ptr this next_chunk)
+		(uint chunk_idx len))
+
+	(push-scope)
+	(entry {this})
+
+	(assign {this->mstream_current_chunk + 1} {chunk_idx})
+	(call 'list :get_length {this->mstream_chunks} {_, len})
+
+	(vpif {chunk_idx < len})
+		;moving to an existing chunk
+		(call 'list :get_elem {this->mstream_chunks, chunk_idx} {_, next_chunk})
+		(assign {&next_chunk->str_data} {this->stream_buffer})
+		(assign {this->stream_buffer} {this->stream_bufp})
+		(assign {this->stream_buffer + next_chunk->str_length} {this->stream_bufe})
+	(else)
+		;creating a new volatile chunk
+		(call 'str :create_from_buffer {0, mstream_buf_size} {next_chunk})
+		(call 'list :push_back {this->mstream_chunks, next_chunk})
+		(assign {next_chunk, &next_chunk->str_data} {this->stream_object, this->stream_buffer})
+		(assign {this->stream_buffer} {this->stream_bufp})
+		(assign {this->stream_buffer + mstream_buf_size} {this->stream_bufe})
+	(endif)
+	(assign {chunk_idx} {this->mstream_current_chunk})
+	(exit 'mstream :write_next {this})
+	(pop-scope)
+	(return)
+
+(def-func-end)
+
+(def-method 'mstream :read_next)
+	;inputs
+	;:r0 = mstream object (ptr)
+	;outputs
+	;:r0 = mstream object (ptr)
+	;:r1 = -1 for EOF, else more data
+	;trashes
+	;:r1-:r14
+
+	(def-vars
+		(ptr this next_chunk)
+		(uint chunk_idx)
+		(int len))
+
+	(push-scope)
+	(entry {this})
+	(assign {this->mstream_current_chunk + 1} {chunk_idx})
+	(call 'list :get_length {this->mstream_chunks} {_, len})
+	(vpif {chunk_idx < len})
+		;chunks are available, set pointers for reading
+		(call 'list :get_elem {this->mstream_chunks, chunk_idx} {_, next_chunk})
+		(assign {&next_chunk->str_data} {this->stream_bufp})
+		(assign {this->stream_bufp + next_chunk->str_length} {this->stream_bufe})
+		(assign {chunk_idx} {this->mstream_current_chunk})
+		(assign {0} {len})
+	(else)
+		;EOF
+		(assign {-1} {len})
+	(endif)
+	(exit 'mstream :read_next {this, len})
+	(pop-scope)
+	(return)
+
+(def-func-end)
+
+(def-method 'mstream :seek)
+	;inputs
+	;:r0 = mstream object (ptr)
+	;:r1 = offset (long)
+	;:r2 = pos (uint)
+	;outputs
+	;:r0 = mstream object (ptr)
+	;:r1 = -1 for error, else file position
+	;trashes
+	;:r1-:r14
+
+	(def-vars
+		(ptr this chunk_list current_chunk_str)
+		(long offset new_pos)
+		(uint whence total_len current_len len))
+
+	(push-scope)
+	(entry {this, offset, whence})
+	(call 'mstream :flush {this})
+	(assign {this->mstream_total_size, this->mstream_current_pos} {total_len, new_pos})
+	(switch)
+		(vpcase {whence = 0}) (assign {offset} {new_pos}) (break)
+		(vpcase {whence = 1}) (assign {new_pos + offset} {new_pos}) (break)
+		(vpcase {whence = 2}) (assign {total_len + offset} {new_pos}) (break)
+	(endswitch)
+	(vpif {new_pos < 0}) (assign {0} {new_pos}) (endif)
+	(vpif {new_pos > total_len}) (assign {total_len} {new_pos}) (endif)
+	(assign {this->mstream_chunks} {chunk_list})
+	(call 'list :get_length {chunk_list} {_, len})
+	(assign {0} {current_len})
+	(assign {0} {this->mstream_current_chunk})
+	(loop-start)
+		(breakif {this->mstream_current_chunk >= len})
+		(call 'list :get_elem {chunk_list, this->mstream_current_chunk} {_, current_chunk_str})
+		(assign {current_len + current_chunk_str->str_length} {current_len})
+		(breakif {new_pos < current_len})
+		(assign {this->mstream_current_chunk + 1} {this->mstream_current_chunk})
+	(loop-end)
+	(call 'list :get_elem {chunk_list, this->mstream_current_chunk} {_, current_chunk_str})
+	(assign {&current_chunk_str->str_data} {this->stream_buffer})
+	(assign {this->stream_buffer + new_pos - (current_len - current_chunk_str->str_length)} {this->stream_bufp})
+	(assign {this->stream_buffer + current_chunk_str->str_length} {this->stream_bufe})
+	(assign {new_pos} {this->mstream_current_pos})
+	(exit 'mstream :seek {this, new_pos})
+	(pop-scope)
+	(return)
+
+(def-func-end)
