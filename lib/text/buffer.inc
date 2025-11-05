@@ -224,7 +224,7 @@
 		(pipe-run (str "dump -c " (ifn width 8) " " filepath) (# (write-line hex_stream %0)))
 		(lines! (lambda (line)
 				(task-slice)
-				(setq line (expand (trim-end line (const (char +char_cr))) tab_width)
+				(setq line (expand line tab_width)
 					max_width (max max_width (length line)))
 				(push-line line))
 			(string-stream (str hex_stream)))
