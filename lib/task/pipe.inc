@@ -100,7 +100,7 @@
 				(. pipe :close)
 				(setq pipe :nil))
 			(:t ;string from pipe
-				(out data))))
+				(callback out (penv) data))))
 	(task-count 1))	;we where only collating results !
 
 ;module
