@@ -4,8 +4,7 @@
 
 (defun state-save ()
 	;save editor state
-	(bind '(x y) (. *window* :get_pos))
-	(bind '(width height) (. *window* :get_size))
+	(bind '(x y width height) (. *window* :get_bounds))
 	(when (defq stream (file-stream (cat *env_home* +state_filename) +file_open_write))
 		(scatter *meta_map*
 			:version 1
