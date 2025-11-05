@@ -53,8 +53,7 @@ outputs
 :r2 = 0, else bufp (pubyte)
 :r3 = 0, else bufe (pubyte)
 :r4 = 0, else chunk str object (ptr)
-:r5 = 0, else chunk buffer start (pubyte)
-:r6 = 0, else chunk index (uint)
+:r5 = 0, else chunk index (uint)
 trashes
 :r1-:r10
 ```

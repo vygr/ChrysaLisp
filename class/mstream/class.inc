@@ -10,7 +10,7 @@
 	(dec-method :seek class/mstream/seek :final)
 	(dec-method :flush class/mstream/flush :final)
 	(dec-method :ptoi class/mstream/ptoi :static (:r0 :r1) (:r0 :r1 :r2 :r3 :r4))
-	(dec-method :itop class/mstream/itop :static (:r0 :r1) (:r0 :r1 :r2 :r3 :r4 :r5 :r6)))
+	(dec-method :itop class/mstream/itop :static (:r0 :r1) (:r0 :r1 :r2 :r3 :r4 :r5)))
 
 (def-struct mstream stream_size
 	(ptr chunks)
