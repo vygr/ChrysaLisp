@@ -2,7 +2,7 @@
 ; configuration
 ;;;;;;;;;;;;;;;
 
-(defq *config* :nil *config_version* 2
+(defq *config* :nil *config_version* 1
 	*config_file* (cat *env_home* "todo.tre"))
 
 (defun get-default-config ()

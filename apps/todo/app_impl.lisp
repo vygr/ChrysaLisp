@@ -19,6 +19,7 @@
 		scrolls scroll_childs)
 	(bind '(w h) (. (get :stack_flow *stack_flow*) :pref_size))
 	(bind '(_ s) (. (some (# (first (. %0 :children))) item_flows) :pref_size))
+	(setq w (max 512 w))
 	(each (lambda (item_back scroll_child scroll)
 			(. scroll_child :change_dirty 0 0 w h :t)
 			(def item_back :spacing s)
@@ -32,13 +33,21 @@
 		item_backs (list *todo_back* *done_back* *deleted_back*)
 		scroll_childs (list *todo_scroll_child* *done_scroll_child* *deleted_scroll_child*))
 	(each (lambda (scroll scroll_child item_flow item_list)
+			(defq column (!))
 			(each (lambda (item)
 				(ui-root entry (Flow) (:flow_flags +flow_right_fill)
 					(ui-tool-bar toolbar (:font *env_small_toolbar_font*)
-						(ui-buttons (0xe94e 0xe94d 0xe94c) +event_done))
+						(case column
+							(0 (ui-buttons (0xe94e 0xe94c) +event_todo_done))
+							(1 (ui-buttons (0xe94d 0xe94c) +event_done_redo))
+							(2 (ui-buttons (0xe94d 0xe94c) +event_del_redo))))
 					(ui-textfield _ (:clear_text item :color +argb_white)))
 				(. item_flow :add_child entry)
-				(ui-tool-tips toolbar '("done it" "redo it" "delete"))) item_list))
+				(ui-tool-tips toolbar
+					(case column
+						(0 '("done it" "delete"))
+						(1 '("redo it" "delete"))
+						(2 '("redo it" "erase"))))) item_list))
 		scrolls scroll_childs item_flows item_lists))
 
 ;import actions and bindings

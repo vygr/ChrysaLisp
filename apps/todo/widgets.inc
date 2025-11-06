@@ -1,6 +1,8 @@
 (enums +event 0
 	(enum close max min)
-	(enum done redo del))
+	(enum todo_done todo_del)
+	(enum done_redo done_del)
+	(enum del_redo del_del))
 
 (ui-window *window* ()
 	(ui-title-bar *title* "Todo" (0xea19 0xea1b 0xea1a) +event_close)
