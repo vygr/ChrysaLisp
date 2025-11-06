@@ -70,15 +70,16 @@
 		(refresh-sliders) (refresh-display)))
 
 (defun populate-buffer (file cx cy ax ay sx sy)
-	;create new file buffer ?
-	(defq mode (notany (# (ends-with %0 file)) +text_types)
-		files (. *meta_map* :find :files) key (str file))
-	(unless (. files :find key)
-		(. files :insert key
-			(scatter (Fmap) :cx cx :cy cy :ax ax :ay ay :sx sx :sy sy :buffer :nil)))
-	(defq meta (. files :find key))
-	(unless (defq buffer (. meta :find :buffer))
-		(. meta :insert :buffer (setq buffer (Buffer mode *syntax*))))
+	;create new file buffer
+	(defq files_map (. *meta_map* :find :files) key (str file)
+		file_meta :nil buffer :nil mode (notany (# (ends-with %0 file)) +text_types))
+	;clear all file buffers
+	(. files_map :each (lambda (k v) (. v :erase :buffer)))
+	;create new file meta data
+	(. files_map :update key (# (setq file_meta (if %0 %0 (scatter (Fmap)
+		:cx cx :cy cy :ax ax :ay ay :sx sx :sy sy)))))
+	;create new buffer
+	(. file_meta :insert :buffer (setq buffer (Buffer mode *syntax*)))
 	(when file (. buffer :file_load file)))
 
 (defun populate-vdu (file)
