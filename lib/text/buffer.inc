@@ -201,6 +201,7 @@
 
 	(defmethod :file_load (filepath)
 		; (. buffer :file_load filepath) -> buffer
+		(set this :buffer_line :nil)
 		(raise :syntax_engine :tab_width (buffer_line (list) buffer_syntax (list)
 			 buffer_states (list) buffer_found (list) buffer_brackets (list)
 			 max_width 0))
@@ -218,6 +219,7 @@
 
 	(defmethod :file_load_hex (filepath &optional width)
 		; (. buffer :file_load_hex filepath [width]) -> buffer
+		(set this :buffer_line :nil)
 		(raise :syntax_engine :tab_width (buffer_line (list) buffer_syntax (list)
 			 buffer_states (list) buffer_found (list) buffer_brackets (list)
 			 max_width 0 hex_stream (memory-stream)))
