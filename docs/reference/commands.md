@@ -184,8 +184,11 @@ Usage: huff [options] [file]
 	options:
 		-h --help: this help info.
 		-t --tbits num: bit size for data tokens, default 8.
+		-c --codebook path: codebook filename, default :nil.
 
-	Compresses a file using adaptive Huffman encoding.
+	Compresses a file using static or adaptive Huffman coding.
+	If a codebook is provided then it will load that model for
+	static operation.
 
 	If no file is given, it reads from stdin.
 	Output is written to stdout.
@@ -446,8 +449,11 @@ Usage: unrle [options] [file]
 	options:
 		-h --help: this help info.
 		-t --tbits num: bit size for data tokens, default 8.
+		-c --codebook path: codebook filename, default :nil.
 
-	Decompresses a file adaptive Huffman encoding.
+	Deompresses a file using static or adaptive Huffman coding.
+	If a codebook is provided then it will load that model for
+	static operation.
 
 	If no file is given, it reads from stdin.
 	Output is written to stdout.

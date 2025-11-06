@@ -7,6 +7,9 @@
 New `class/mstream/class.inc` VP class for in memory stream buffers. A seekable
 list of string objects. Lisp binding `(memory-stream) -> stream`.
 
+New `-c codebook` option for `huff` and `unhuff` commands to select static
+codebook mode.
+
 ------
 
 New `opt-tail-call` VP optimization.
