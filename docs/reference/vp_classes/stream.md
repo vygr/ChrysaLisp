@@ -24,7 +24,7 @@
 
 ### (read-line stream) -> :nil | str
 
-### (stream-seek stream offset pos) -> stream
+### (stream-seek stream offset whence) -> stream
 
 ### (string-stream str) -> stream
 
@@ -160,7 +160,7 @@ trashes
 inputs
 :r0 = stream object (ptr)
 :r1 = offset (long)
-:r2 = pos (uint)
+:r2 = whence (uint)
 outputs
 :r0 = stream object (ptr)
 :r1 = -1 for error, else file position

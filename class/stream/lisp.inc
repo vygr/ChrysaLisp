@@ -5,7 +5,7 @@
 (ffi "class/stream/lisp_flush" stream-flush)
 ; (stream-flush stream) -> stream
 (ffi "class/stream/lisp_seek" stream-seek)
-; (stream-seek stream offset pos) -> stream
+; (stream-seek stream offset whence) -> stream
 (ffi "class/stream/lisp_read_bits" read-bits)
 ; (read-bits stream (array bit_pool bit_pool_size) num_bits) -> (data|-1)
 (ffi "class/stream/lisp_write_bits" write-bits)

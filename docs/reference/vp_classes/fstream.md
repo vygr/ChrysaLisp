@@ -61,7 +61,7 @@ trashes
 inputs
 :r0 = fstream object (ptr)
 :r1 = offset (long)
-:r2 = pos (uint)
+:r2 = whence (uint)
 outputs
 :r0 = fstream object (ptr)
 :r1 = -1 for error, else file position
