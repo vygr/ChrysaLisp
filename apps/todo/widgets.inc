@@ -9,7 +9,7 @@
 	(ui-title-bar *title* "Todo" (0xea19 0xea1b 0xea1a) +event_close)
 	(ui-tool-bar *main_toolbar* ()
 		(ui-buttons (0xe94e) +event_new_item))
-	(ui-stack *stack_flow* '("todo" "done" "deleted") (:color +argb_black)
+	(ui-stack *stack_flow* '("todo" "done" "deleted") :nil
 		(ui-scroll *todo_scroll* +scroll_flag_vertical :nil
 			(ui-flow *todo_scroll_child* (:flow_flags +flow_stack_fill)
 				(ui-flow *todo_flow* (:flow_flags +flow_down))

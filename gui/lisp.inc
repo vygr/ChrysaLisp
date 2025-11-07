@@ -214,7 +214,7 @@
 
 (defun ui-tool-tips (view tips)
 	; (ui-tool-tips view tips)
-	(if (Stack? view) (setq view (get :tab_flow view)))
+	(if (Stack? view) (setq view (. view :get_radio_bar)))
 	(each (# (def %0 :tip_text %1)) (. view :children) tips))
 
 ;; (defun ui-save (stream view)
