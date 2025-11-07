@@ -10,6 +10,10 @@ list of string objects. Lisp binding `(memory-stream) -> stream`.
 New `-c codebook` option for `huff` and `unhuff` commands to select static
 codebook mode.
 
+New simple Todo app.
+
+Stack widget now uses Radiobar widget for the tabs.
+
 ------
 
 New `opt-tail-call` VP optimization.

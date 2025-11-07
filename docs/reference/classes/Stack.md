@@ -18,6 +18,8 @@
 (. stack :add_child child) -> stack
 ```
 
+### :get_radio_bar
+
 ### :get_stack_children
 
 ### :get_stack_flow
