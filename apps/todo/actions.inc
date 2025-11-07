@@ -9,6 +9,7 @@
 
 (defq
 *event_map* (scatter (Fmap)
+	+event_layout action-layout
 	+event_todo_done action-todo-done
 	+event_todo_del action-todo-del
 	+event_done_redo action-done-redo

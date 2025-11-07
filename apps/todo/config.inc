@@ -9,51 +9,9 @@
 	(scatter (Emap)
 		:version *config_version*
 		:spacing 26
-		:todo (list
-			"Clean kitchen"
-			"Clean toilet"
-			"Clean bathroom"
-			"Clean kitchen"
-			"Clean toilet"
-			"Clean bathroom"
-			"Clean kitchen"
-			"Clean toilet"
-			"Clean bathroom"
-			"Clean kitchen and the outside"
-			"Clean toilet"
-			"Clean bathroom"
-			"Clean kitchen"
-			"Clean toilet"
-			"Clean bathroom"
-			"Clean kitchen"
-			"Clean toilet"
-			"Clean bathroom"
-			"Clean kitchen"
-			"Clean toilet"
-			"Clean bathroom"
-			"Clean kitchen"
-			"Clean toilet"
-			"Clean bathroom"
-			"Clean kitchen"
-			"Clean toilet"
-			"Clean bathroom"
-			"Clean kitchen"
-			"Clean toilet"
-			"Clean bathroom"
-			"Clean kitchen"
-			"Clean toilet"
-			"Clean bathroom")
-		:done (list
-			"Clean bathroom"
-			"Clean kitchen"
-			"Clean toilet"
-			"Clean bathroom"
-			"Clean kitchen"
-			"Clean toilet"
-			"Clean bathroom"
-			"Clean floor")
-		:deleted (list
-			"Shopping")))
+		:todo (list)
+		:done (list)
+		:deleted (list)))
 
 (defun load-config ()
 	(if (defq stream (file-stream *config_file*))

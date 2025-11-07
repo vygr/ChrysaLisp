@@ -17,7 +17,7 @@
 				(1 (ui-buttons (0xe938 0xe94c) +event_done_redo))
 				(2 (ui-buttons (0xe938 0xe94c) +event_del_redo))))
 		(ui-textfield _ (:clear_text (setd text "")
-			:hint_text "type a todo !" :color +argb_white)))
+			:hint_text "todo item" :color +argb_white)))
 	(. flow :add_child entry)
 	(ui-tool-tips toolbar
 	(case column
@@ -29,27 +29,28 @@
 	(defq item_flows (list *todo_flow* *done_flow* *deleted_flow*)
 		scrolls (list *todo_scroll* *done_scroll* *deleted_scroll*)
 		item_backs (list *todo_back* *done_back* *deleted_back*)
-		scroll_childs (list *todo_scroll_child* *done_scroll_child* *deleted_scroll_child*))
+		scroll_childs (list *todo_scroll_child* *done_scroll_child* *deleted_scroll_child*)
+		max_childs_width 0 max_childs_height 0)
 	(each (lambda (scroll scroll_child)
+			(def scroll :min_width min_width :min_height min_height)
+			(def scroll_child :min_width min_width :min_height min_height)
 			(bind '(w h) (. scroll_child :pref_size))
-			(def scroll :min_width w :min_height h))
+			(setq max_childs_width (max max_childs_width w))
+			(setq max_childs_height (max max_childs_height h)))
 		scrolls scroll_childs)
 	(defq first_item (some (# (first (. %0 :children))) item_flows)
 		spacing (if first_item (second (. first_item :pref_size)) (. *config* :find :spacing)))
 	(. *config* :insert :spacing spacing)
-	(bind '(w h) (.-> *stack_flow* :get_stack_flow :pref_size))
-	(setq w (max min_width w))
 	(each (lambda (item_back scroll_child scroll)
-			(. scroll_child :change_dirty 0 0 w h :t)
+			(. scroll_child :change 0 0 max_childs_width max_childs_height :t)
 			(def item_back :spacing spacing)
-			(def scroll :min_width w :min_height (min min_height h)))
+			(.-> scroll :layout :dirty_all))
 		item_backs scroll_childs scrolls))
 
 (defun populate-items ()
 	(defq item_lists (gather *config* :todo :done :deleted)
 		item_flows (list *todo_flow* *done_flow* *deleted_flow*)
 		scrolls (list *todo_scroll* *done_scroll* *deleted_scroll*)
-		item_backs (list *todo_back* *done_back* *deleted_back*)
 		scroll_childs (list *todo_scroll_child* *done_scroll_child* *deleted_scroll_child*))
 	(each (lambda (scroll scroll_child item_flow item_list)
 			(each (# (. %0 :sub)) (. item_flow :children))
@@ -66,14 +67,15 @@
 (defun main ()
 	(defq select (task-mboxes +select_size) *running* :t
 		*min_width* 512 *min_height* 512
-		*max_width* 1024 *max_height* 1024
+		*max_width* 1024 *max_height* 512
 		todo_service (mail-declare (task-mbox) "Todo" "Todo Service 0.1"))
 	(load-config)
 	(populate-items)
 	(layout-items *min_width* *min_height*)
+	(. *stack_flow* :show_tab 0)
 	(def *window* :tip_mbox (elem-get select +select_tip))
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
-	(gui-add-front-rpc (. *window* :change x y w h))
+	(gui-add-front-rpc (.-> *window* (:change x y w h) (:connect +event_layout)))
 	(while *running*
 		(defq *msg* (mail-read (elem-get select (defq idx (mail-select select)))))
 		(cond

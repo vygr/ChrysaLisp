@@ -1,5 +1,6 @@
 (enums +event 0
 	(enum close max min)
+	(enum layout)
 	(enum todo_done todo_del)
 	(enum done_redo done_del)
 	(enum del_redo del_del)
@@ -24,7 +25,7 @@
 				(ui-backdrop *deleted_back* (:color +argb_grey2 :ink_color +argb_grey8 :style :lines))))))
 
 (ui-tool-tips *stack_flow*
-	'("yet todo" "have done" "to be deleted"))
+	'("yet to do" "have done" "to be deleted"))
 
 (ui-tool-tips *main_toolbar*
 	'("new todo"))
