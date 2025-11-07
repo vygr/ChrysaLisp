@@ -20,10 +20,10 @@
 			:hint_text "todo item" :color +argb_white)))
 	(. flow :add_child entry)
 	(ui-tool-tips toolbar
-	(case column
-		(0 '("done it" "delete"))
-		(1 '("redo it" "delete"))
-		(2 '("redo it" "erase")))))
+		(case column
+			(0 '("done it" "delete"))
+			(1 '("redo it" "delete"))
+			(2 '("redo it" "erase")))))
 
 (defun layout-items (min_width min_height)
 	(defq item_flows (list *todo_flow* *done_flow* *deleted_flow*)
