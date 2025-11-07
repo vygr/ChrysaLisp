@@ -8,7 +8,22 @@
 (enums +select 0
 	(enum main tip))
 
-(defun layout-items ()
+(defun create-item (flow column &optional text)
+	(ui-root entry (Flow) (:flow_flags +flow_right_fill)
+		(ui-tool-bar toolbar (:font *env_small_toolbar_font*)
+			(case column
+				(0 (ui-buttons (0xe94e 0xe94c) +event_todo_done))
+				(1 (ui-buttons (0xe94d 0xe94c) +event_done_redo))
+				(2 (ui-buttons (0xe94d 0xe94c) +event_del_redo))))
+		(ui-textfield _ (:clear_text (setd text "") :color +argb_white)))
+	(. flow :add_child entry)
+	(ui-tool-tips toolbar
+	(case column
+		(0 '("done it" "delete"))
+		(1 '("redo it" "delete"))
+		(2 '("redo it" "erase")))))
+
+(defun layout-items (min_width min_height)
 	(defq item_flows (list *todo_flow* *done_flow* *deleted_flow*)
 		scrolls (list *todo_scroll* *done_scroll* *deleted_scroll*)
 		item_backs (list *todo_back* *done_back* *deleted_back*)
@@ -19,11 +34,11 @@
 		scrolls scroll_childs)
 	(bind '(w h) (. (get :stack_flow *stack_flow*) :pref_size))
 	(bind '(_ s) (. (some (# (first (. %0 :children))) item_flows) :pref_size))
-	(setq w (max 512 w))
+	(setq w (max min_width w))
 	(each (lambda (item_back scroll_child scroll)
 			(. scroll_child :change_dirty 0 0 w h :t)
 			(def item_back :spacing s)
-			(def scroll :min_width w :min_height (min 512 h)))
+			(def scroll :min_width w :min_height (min min_height h)))
 		item_backs scroll_childs scrolls))
 
 (defun populate-items ()
@@ -34,20 +49,8 @@
 		scroll_childs (list *todo_scroll_child* *done_scroll_child* *deleted_scroll_child*))
 	(each (lambda (scroll scroll_child item_flow item_list)
 			(defq column (!))
-			(each (lambda (item)
-				(ui-root entry (Flow) (:flow_flags +flow_right_fill)
-					(ui-tool-bar toolbar (:font *env_small_toolbar_font*)
-						(case column
-							(0 (ui-buttons (0xe94e 0xe94c) +event_todo_done))
-							(1 (ui-buttons (0xe94d 0xe94c) +event_done_redo))
-							(2 (ui-buttons (0xe94d 0xe94c) +event_del_redo))))
-					(ui-textfield _ (:clear_text item :color +argb_white)))
-				(. item_flow :add_child entry)
-				(ui-tool-tips toolbar
-					(case column
-						(0 '("done it" "delete"))
-						(1 '("redo it" "delete"))
-						(2 '("redo it" "erase"))))) item_list))
+			(each (lambda (text)
+				(create-item item_flow column text)) item_list))
 		scrolls scroll_childs item_flows item_lists))
 
 ;import actions and bindings
@@ -58,10 +61,12 @@
 
 (defun main ()
 	(defq select (task-mboxes +select_size) *running* :t
+		*min_width* 512 *min_height* 512
+		*max_width* 1024 *max_height* 1024
 		todo_service (mail-declare (task-mbox) "Todo" "Todo Service 0.1"))
 	(load-config)
 	(populate-items)
-	(layout-items)
+	(layout-items *min_width* *min_height*)
 	(def *window* :tip_mbox (elem-get select +select_tip))
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(gui-add-front-rpc (. *window* :change x y w h))

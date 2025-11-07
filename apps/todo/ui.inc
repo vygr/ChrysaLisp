@@ -3,14 +3,17 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun action-minimise ()
-	(bind '(x y w h) (apply view-fit
-		(cat (. *window* :get_pos) (. *window* :pref_size))))
+	(layout-items *min_width* *min_height*)
+	(bind '(x y) (. *window* :get_pos))
+	(bind '(w h) (. *window* :pref_size))
+	(bind '(x y w h) (view-fit x y w h))
 	(. *window* :change_dirty x y w h))
 
 (defun action-maximise ()
+	(layout-items *max_width* *max_height*)
 	(bind '(x y) (. *window* :get_pos))
 	(bind '(w h) (. *window* :pref_size))
-	(bind '(x y w h) (view-fit x y (* w 2) (* h 2)))
+	(bind '(x y w h) (view-fit x y w h))
 	(. *window* :change_dirty x y w h))
 
 (defun action-close ()
