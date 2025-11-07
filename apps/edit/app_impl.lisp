@@ -10,7 +10,7 @@
 (import "./widgets.inc")
 
 (enums +select 0
-	(enum main tip))
+	(enum main tip remote))
 
 (bind '(+edit_font +edit_size) (font-info *env_editor_font*))
 
@@ -236,7 +236,7 @@
 
 (defun main ()
 	(defq select (task-mboxes +select_size)
-		edit_service (mail-declare (task-mbox) "Edit" "Edit Service 1.0")
+		edit_service (mail-declare (elem-get select +select_remote) "Edit" "Edit Service 1.0")
 		*running* :t *edit* (Editor-edit) *page_scale* 1.0 *regexp* :nil
 		*syntax* (Syntax) *whole_words* :nil *refresh_mode* (list 0)
 		*macro_record* :nil *macro_actions* (list) *cursor_stack* (list)
@@ -272,6 +272,9 @@
 				;tip time mail
 				(if (defq view (. *window* :find_id (getf *msg* +mail_timeout_id)))
 					(. view :show_tip)))
+			((= idx +select_remote)
+				;remote command
+				)
 			((defq id (getf *msg* +ev_msg_target_id) action (. *event_map* :find id))
 				;call bound event action
 				(dispatch-action action))
