@@ -8,6 +8,7 @@
 (defun get-default-config ()
 	(scatter (Emap)
 		:version *config_version*
+		:spacing 26
 		:todo (list
 			"Clean kitchen"
 			"Clean toilet"

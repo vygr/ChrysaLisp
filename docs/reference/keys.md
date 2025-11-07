@@ -277,6 +277,15 @@
 0x4000004D action-end-select
 ```
 
+## apps/todo/actions.inc
+
+### *key_map_control*
+
+```code
+(ascii-code "=") action-maximise
+(ascii-code "-") action-minimise
+```
+
 ## apps/viewer/actions.inc
 
 ### *key_map*

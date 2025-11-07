@@ -5,11 +5,17 @@
 ; actions
 ;;;;;;;;;
 
-(import "./utils.inc")
 (import "./ui.inc")
 
 (defq
 *event_map* (scatter (Fmap)
+	+event_todo_done action-todo-done
+	+event_todo_del action-todo-del
+	+event_done_redo action-done-redo
+	+event_done_del action-done-del
+	+event_del_redo action-del-redo
+	+event_del_del action-del-del
+	+event_new_item action-new-item
 	+event_close action-close
 	+event_min action-minimise
 	+event_max action-maximise)

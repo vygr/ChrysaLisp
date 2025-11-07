@@ -2,10 +2,13 @@
 	(enum close max min)
 	(enum todo_done todo_del)
 	(enum done_redo done_del)
-	(enum del_redo del_del))
+	(enum del_redo del_del)
+	(enum new_item))
 
 (ui-window *window* ()
 	(ui-title-bar *title* "Todo" (0xea19 0xea1b 0xea1a) +event_close)
+	(ui-tool-bar *main_toolbar* ()
+		(ui-buttons (0xe94e) +event_new_item))
 	(ui-stack *stack_flow* '("todo" "done" "deleted") (:color +argb_black)
 		(ui-scroll *todo_scroll* +scroll_flag_vertical :nil
 			(ui-flow *todo_scroll_child* (:flow_flags +flow_stack_fill)
@@ -22,3 +25,6 @@
 
 (ui-tool-tips *stack_flow*
 	'("yet todo" "have done" "to be deleted"))
+
+(ui-tool-tips *main_toolbar*
+	'("new todo"))

@@ -8,14 +8,16 @@
 (enums +select 0
 	(enum main tip))
 
-(defun create-item (flow column &optional text)
+(defun create-item (flow &optional text)
+	(defq column (find flow (list *todo_flow* *done_flow* *deleted_flow*)))
 	(ui-root entry (Flow) (:flow_flags +flow_right_fill)
 		(ui-tool-bar toolbar (:font *env_small_toolbar_font*)
 			(case column
-				(0 (ui-buttons (0xe94e 0xe94c) +event_todo_done))
-				(1 (ui-buttons (0xe94d 0xe94c) +event_done_redo))
-				(2 (ui-buttons (0xe94d 0xe94c) +event_del_redo))))
-		(ui-textfield _ (:clear_text (setd text "") :color +argb_white)))
+				(0 (ui-buttons (0xe93a 0xe94c) +event_todo_done))
+				(1 (ui-buttons (0xe938 0xe94c) +event_done_redo))
+				(2 (ui-buttons (0xe938 0xe94c) +event_del_redo))))
+		(ui-textfield _ (:clear_text (setd text "")
+			:hint_text "type a todo !" :color +argb_white)))
 	(. flow :add_child entry)
 	(ui-tool-tips toolbar
 	(case column
@@ -32,12 +34,14 @@
 			(bind '(w h) (. scroll_child :pref_size))
 			(def scroll :min_width w :min_height h))
 		scrolls scroll_childs)
-	(bind '(w h) (. (get :stack_flow *stack_flow*) :pref_size))
-	(bind '(_ s) (. (some (# (first (. %0 :children))) item_flows) :pref_size))
+	(defq first_item (some (# (first (. %0 :children))) item_flows)
+		spacing (if first_item (second (. first_item :pref_size)) (. *config* :find :spacing)))
+	(. *config* :insert :spacing spacing)
+	(bind '(w h) (.-> *stack_flow* :get_stack_flow :pref_size))
 	(setq w (max min_width w))
 	(each (lambda (item_back scroll_child scroll)
 			(. scroll_child :change_dirty 0 0 w h :t)
-			(def item_back :spacing s)
+			(def item_back :spacing spacing)
 			(def scroll :min_width w :min_height (min min_height h)))
 		item_backs scroll_childs scrolls))
 
@@ -48,9 +52,9 @@
 		item_backs (list *todo_back* *done_back* *deleted_back*)
 		scroll_childs (list *todo_scroll_child* *done_scroll_child* *deleted_scroll_child*))
 	(each (lambda (scroll scroll_child item_flow item_list)
-			(defq column (!))
+			(each (# (. %0 :sub)) (. item_flow :children))
 			(each (lambda (text)
-				(create-item item_flow column text)) item_list))
+				(create-item item_flow text)) item_list))
 		scrolls scroll_childs item_flows item_lists))
 
 ;import actions and bindings

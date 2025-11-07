@@ -18,3 +18,13 @@
 (. stack :add_child child) -> stack
 ```
 
+### :get_stack_children
+
+### :get_stack_flow
+
+### :show_tab
+
+```code
+(. stack :show_tab tab_index) -> stack
+```
+
