@@ -14,15 +14,18 @@
 		(ui-scroll *todo_scroll* +scroll_flag_vertical :nil
 			(ui-flow *todo_scroll_child* (:flow_flags +flow_stack_fill)
 				(ui-flow *todo_flow* (:flow_flags +flow_down))
-				(ui-backdrop *todo_back* (:color +argb_grey2 :ink_color +argb_grey8 :style :lines))))
+				(ui-backdrop _ (:color +argb_grey2 :ink_color +argb_grey8
+					:style :lines :spacing :erase))))
 		(ui-scroll *done_scroll* +scroll_flag_vertical :nil
 			(ui-flow *done_scroll_child* (:flow_flags +flow_stack_fill)
 				(ui-flow *done_flow* (:flow_flags +flow_down))
-				(ui-backdrop *done_back* (:color +argb_grey2 :ink_color +argb_grey8 :style :lines))))
+				(ui-backdrop _ (:color +argb_grey2 :ink_color +argb_grey8
+					:style :lines :spacing :erase))))
 		(ui-scroll *deleted_scroll* +scroll_flag_vertical :nil
 			(ui-flow *deleted_scroll_child* (:flow_flags +flow_stack_fill)
 				(ui-flow *deleted_flow* (:flow_flags +flow_down))
-				(ui-backdrop *deleted_back* (:color +argb_grey2 :ink_color +argb_grey8 :style :lines))))))
+				(ui-backdrop _ (:color +argb_grey2 :ink_color +argb_grey8
+					:style :lines :spacing :erase))))))
 
 (ui-tool-tips *stack_flow*
 	'("yet to do" "have done" "to be deleted"))

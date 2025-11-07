@@ -14,6 +14,9 @@ New simple Todo app.
 
 Stack widget now uses Radiobar widget for the tabs.
 
+`ui` macros now have the ability to erase a property from a widget by using the
+`:erase` value for the property.
+
 ------
 
 New `opt-tail-call` VP optimization.
