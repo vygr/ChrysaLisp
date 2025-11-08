@@ -66,39 +66,49 @@
 
 (defun debug-form? (form)
 	(cond
-		((and (list? form) (defq ff (first form))
-			(some (# (eql %0 ff))
-				'(
-
-				;built in ffi
-				! % * + - . / /= < << <= = > >= >> >>> abs apply array bfind bind bskip
-				bskipn canvas-from-argb32 canvas-to-argb32 cap cat catch char clear cmp code
-				cond condn copy cos create-font create-stdio def def? defq dim dim-get
-				dim-set each! elem-get elem-set env env-pop env-push env-resize eql eval
-				eval-list expand ffi file-stream filter! find first fixeds fixeds-floor
-				fixeds-frac floor font-glyph-bounds font-glyph-paths font-glyph-ranges
-				font-info font-sym-texture frac gensym get get-field gui-deinit gui-event
-				gui-info gui-init gui-update hash identity if ifn in-next-msg in-stream
-				io-stream kernel-stats lambda last length lines! list lmatch? load load-path
-				logand logior logxor macro macroexpand mail-declare mail-enquire mail-forget
-				mail-mbox mail-nodes mail-poll mail-read mail-select mail-send mail-timeout
-				mail-validate map! max memory-stream merge min most n2f n2i n2r neg
-				num-intern nums nums-abs nums-add nums-div nums-dot nums-max nums-min
-				nums-mod nums-mul nums-scale nums-sub nums-sum obj-ref out-stream partition
-				path path-filter path-gen-arc path-gen-cubic path-gen-quadratic
-				path-simplify path-stroke-polygon path-stroke-polyline path-svg
-				path-transform penv pii-dirlist pii-fstat pii-read-char pii-remove pii-time
-				pii-write-char pivot pop prebind prin print progn push quasi-quote quote
-				random rbskip rbskipn read read-avail read-bits read-char read-line reals
-				recip reduce! repl repl-info rest rfind save scene second set set-field setq
-				sign sin slice some! sqrt str str-alloc str-to-num stream-avail stream-flush
-				stream-seek string-stream sub-line sym task-count task-mbox task-sleep
-				task-slice third throw tolist type-of undef until weak-ref while write-bits
-				write-char write-line
-
-				)))
+		((not (list? form))
+			;not a list so not interested
+			:nil)
+		((list? (defq func (first form)))
+			;a list so just step in
+			0)
+		((not (sym? func))
+			;not a symbol so not interested
+			:nil)
+		((some (# (starts-with %0 func))
+			'(quote quasi- static- const exec))
+			;blacklisted function, do not step in or wrap !
+			:nil)
+		((some (# (eql %0 func))
+			;built in ffi
+			'(! % * + - . / /= < << <= = > >= >> >>> abs apply array bfind bind bskip
+			bskipn canvas-from-argb32 canvas-to-argb32 cap cat catch char clear cmp code
+			cond condn copy cos create-font create-stdio def def? defq dim dim-get
+			dim-set each! elem-get elem-set env env-pop env-push env-resize eql eval
+			eval-list expand ffi file-stream filter! find first fixeds fixeds-floor
+			fixeds-frac floor font-glyph-bounds font-glyph-paths font-glyph-ranges
+			font-info font-sym-texture frac gensym get get-field gui-deinit gui-event
+			gui-info gui-init gui-update hash identity if ifn in-next-msg in-stream
+			io-stream kernel-stats last length lines! list lmatch? load load-path logand
+			logior logxor macroexpand mail-declare mail-enquire mail-forget mail-mbox
+			mail-nodes mail-poll mail-read mail-select mail-send mail-timeout
+			mail-validate map! max memory-stream merge min most n2f n2i n2r neg
+			num-intern nums nums-abs nums-add nums-div nums-dot nums-max nums-min
+			nums-mod nums-mul nums-scale nums-sub nums-sum obj-ref out-stream partition
+			path path-filter path-gen-arc path-gen-cubic path-gen-quadratic
+			path-simplify path-stroke-polygon path-stroke-polyline path-svg
+			path-transform penv pii-dirlist pii-fstat pii-read-char pii-remove pii-time
+			pii-write-char pivot pop prebind prin print progn push
+			random rbskip rbskipn read read-avail read-bits read-char read-line reals
+			recip reduce! repl repl-info rest rfind save scene second set set-field setq
+			sign sin slice some! sqrt str str-alloc str-to-num stream-avail stream-flush
+			stream-seek string-stream sub-line sym task-count task-mbox task-sleep
+			task-slice third throw tolist type-of undef until weak-ref while write-bits
+			write-char write-line))
 			;wrap this form
-			1)))
+			1)
+		(:t	;step in but do not wrap
+			0)))
 
 (defun debug-instrument (name form)
 	(defq stack (list form))
