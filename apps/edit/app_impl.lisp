@@ -277,7 +277,7 @@
 				;remote command
 				(defq reply_id (getf *msg* +edit_rpc_reply_id)
 					type (getf *msg* +edit_rpc_type)
-					brk_id (split (slice *msg* +edit_rpc_jump_names -1)))
+					brk_id (split (slice *msg* +edit_rpc_jump_names -1) "|"))
 				(bind '(brk_id file line) brk_id)
 				(action-breakpoint brk_id file (str-to-num line))
 				(mail-send reply_id ""))

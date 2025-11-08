@@ -120,7 +120,7 @@
 						;breakpoint type
 						(vdu-print (if (= index selected_index) *vdu*) buf data)
 						(pause (elem-get buf_list index))
-						(bind '(_ _ brk_id file_name line_num &ignore) (split data))
+						(bind '(_ brk_id brk_cond file_name line_num &ignore) (split data "|"))
 						(edit-jump-rpc brk_id file_name line_num))
 					((not (eql state :forward))
 						(vdu-print (if (= index selected_index) *vdu*) buf data)))
