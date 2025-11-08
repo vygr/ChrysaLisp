@@ -1,6 +1,6 @@
-;;;;;;;;;;
-; Debuging
-;;;;;;;;;;
+;;;;;;;;;;;
+; Debugging
+;;;;;;;;;;;
 
 ;module
 (env-push)
@@ -60,22 +60,22 @@
 			"" (debug-info rval sform e n))))
 	rval)
 
-(redefun debug-brk (name condition)
+(defun debug-brk-func (break_info condition)
 	(and condition (defq service (debug-service))
-		(debug-ipc service 1 (debug-info :nil :nil (penv) (cat "<break> " name)))))
+		(debug-ipc service 1 (debug-info :nil :nil (penv) (cat "<break> " break_info)))))
 
 (defun debug-form? (form)
 	(cond
 		((and (list? form) (nempty? form) (defq ff (first form))
 			(notany (# (eql %0 ff))
 				'(profile-instrument profile-report debug-msg
-				stack-instrument debug-brk debug-instrument
-				quote quasi-quote static-q static-qq const
-				defmethod)))
+				stack-instrument debug-brk debug-brk-func debug-instrument
+				quote quasi-quote static-q static-qq static-qqb
+				const exec defmethod)))
 			;valid form
 			(cond
 				((or (list? ff) (some (# (eql %0 ff))
-						'(lambda macro # defun defmacro)))
+						'(lambda macro # defun defmacro redefun redefmacro)))
 					;just step in, but don't wrap
 					0)
 				((and (sym? ff) (setq form (get ff))
@@ -94,6 +94,11 @@
 					(static-qq (debug-msg ,e ,(str e) (env) ,name))))
 				;step into form
 				(push stack e))) l)) form)
+
+(redefmacro debug-brk (brk_id &optional condition)
+	(setd condition :t)
+	(bind '(file line) (repl-info))
+	(static-qq (debug-brk-func ,(str brk_id " " file " " line) ,condition)))
 
 (redefmacro defun (n a &rest _)
 	(static-qq (defq ,n (,'lambda ,a ~(debug-instrument (str n) _)))))

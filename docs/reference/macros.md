@@ -126,6 +126,12 @@
 (const form)
 ```
 
+### debug-brk
+
+```code
+(debug-brk brk_id [condition])
+```
+
 ### dec
 
 ```code

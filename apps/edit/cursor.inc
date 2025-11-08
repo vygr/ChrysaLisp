@@ -81,3 +81,17 @@
 			(open-file file)
 			(.-> *edit* (:set_cursor cx cy) :clear_selection)
 			(refresh))))
+
+(defun action-breakpoint (brk_id file line)
+	;search backwards from line to find breakpoint
+	(when (/= 0 (age file))
+		;file exists !
+		(open-file file)
+		(when (defq pattern (cat {debug-brk "} brk_id {"})
+				lines (.-> *edit* :get_buffer :get_text_lines)
+				cy (min line (length lines))
+				cy (some! (# (if (found? %0 pattern) (!))) (list lines)
+						:nil cy (max 0 (- cy 256))))
+			;found the breakpoint
+			(.-> *edit* (:set_cursor 0 cy) :select_line)
+			(refresh))))

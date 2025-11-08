@@ -1,5 +1,6 @@
 (import "././login/env.inc")
 (import "gui/lisp.inc")
+(import "././edit/rpc.inc")
 
 ;our UI widgets and events
 (import "./widgets.inc")
@@ -74,7 +75,7 @@
 				{}
 				{Use:}
 				{}
-				{(debug-brk name condtion)}
+				{(debug-brk condtion)}
 				{}
 				{as a conditional breakpoint.}) 0 0 0 1000)))
 	(set-slider-values))
@@ -109,15 +110,18 @@
 					index (find key buf_keys))
 				(unless index
 					(push buf_keys key)
-					(push buf_list (list (Buffer :t syntax) :paused :nil))
+					(push buf_list (list (Buffer :t syntax) :forward :nil))
 					(reset (setq index (dec (length buf_list)))))
 				(defq buf_rec (elem-get buf_list index)
 					buf (elem-get buf_rec +debug_rec_buf)
 					state (elem-get buf_rec +debug_rec_state))
 				(cond
 					((> type 0)
+						;breakpoint type
 						(vdu-print (if (= index selected_index) *vdu*) buf data)
-						(pause (elem-get buf_list index)))
+						(pause (elem-get buf_list index))
+						(bind '(_ _ brk_id file_name line_num &ignore) (split data))
+						(edit-jump-rpc brk_id file_name line_num))
 					((not (eql state :forward))
 						(vdu-print (if (= index selected_index) *vdu*) buf data)))
 				(if (or (eql (defq state (elem-get buf_rec +debug_rec_state)) :play)

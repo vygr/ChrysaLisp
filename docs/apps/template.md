@@ -63,8 +63,8 @@ minimal.
 
     * **`apps/template/ui.inc`:** This is where the action handler functions are
         implemented. In the template, these functions are just **stubs**. They
-        contain a `(debug-brk "name" :t)` call, which will pause execution in
-        the debugger if one is attached, immediately showing the developer that
+        contain a `(debug-brk "name")` call, which will pause execution in
+        the debugger and if one is attached, immediately showing the developer that
         their event was correctly dispatched. This is followed by a trivial UI
         update, like changing a button's color.
 
@@ -133,11 +133,11 @@ application. A developer would typically follow these steps:
 
     ```vdu
     (defun action-button-1 ()
-        (debug-brk "button1" :t)
+        (debug-brk "button1")
         (def (. *b1* :dirty) :color (random-color)))
     ```
 
-    * `(debug-brk "button1" :t)`: This is a powerful tool for a new developer.
+    * `(debug-brk "button1")`: This is a powerful tool for a new developer.
         It sets a conditional breakpoint. If the debugger app is running, this
         line will cause the Template app to pause, confirming that the event was
         correctly wired and dispatched.

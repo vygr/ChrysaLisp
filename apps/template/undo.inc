@@ -3,10 +3,10 @@
 ;;;;;;;;;;;;;;
 
 (defun action-undo ()
-	(debug-brk "undo" :t))
+	(debug-brk "undo"))
 
 (defun action-redo ()
-	(debug-brk "redo" :t))
+	(debug-brk "redo"))
 
 (defun action-rewind ()
-	(debug-brk "rewind" :t))
+	(debug-brk "rewind"))

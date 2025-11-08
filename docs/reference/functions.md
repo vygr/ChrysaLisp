@@ -171,12 +171,6 @@ cached circle generation, quantised to 1/4 pixel
 (cpu) -> sym
 ```
 
-### debug-brk
-
-```code
-(debug-brk name condition)
-```
-
 ### each-mergeable
 
 ```code

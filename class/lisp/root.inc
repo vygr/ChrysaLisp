@@ -354,8 +354,8 @@
 ; Debug stubs
 ;;;;;;;;;;;;;
 
-(defun debug-brk (name condition))
-	; (debug-brk name condition)
+(defmacro debug-brk (brk_id &optional condition) :nil)
+	; (debug-brk brk_id [condition])
 
 (defun profile-report (name &optional reset))
 	; (profile-report name [reset])
