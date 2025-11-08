@@ -68,9 +68,9 @@
 	(cond
 		((and (list? form) (defq ff (first form))
 			(some (# (eql %0 ff))
-				;built in ffi
 				'(
 
+				;built in ffi
 				! % * + - . / /= < << <= = > >= >> >>> abs apply array bfind bind bskip
 				bskipn canvas-from-argb32 canvas-to-argb32 cap cat catch char clear cmp code
 				cond condn copy cos create-font create-stdio def def? defq dim dim-get
@@ -97,7 +97,7 @@
 				write-char write-line
 
 				)))
-			;step in and wrap
+			;wrap this form
 			1)))
 
 (defun debug-instrument (name form)
