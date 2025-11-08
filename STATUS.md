@@ -17,6 +17,9 @@ Stack widget now uses Radiobar widget for the tabs.
 `ui` macros now have the ability to erase a property from a widget by using the
 `:erase` value for the property.
 
+Editor app now has service RPC actions. First one is the ability for the Debug
+app to request loading of a file and showing the current breakpoint.
+
 ------
 
 New `opt-tail-call` VP optimization.
