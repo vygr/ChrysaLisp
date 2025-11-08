@@ -214,10 +214,10 @@ of Lisp "cells" or "tagging" on top of the VP objects for common types.
     methods also handle reference counting for stored values.
 
     * **Functions and Macros (Lisp level):** When a Lisp `(lambda ...)` or
-    `(macro ...)` is defined, it results in a Lisp `list` structure
-    representing the closure (lambda/macro keyword, parameter list, body, and a
-    reference to its lexical environment). This list itself is a `list` VP
-    object. Compiled VP functions are distinct binary objects (see Level 5).
+      `(macro ...)` is defined, it results in a Lisp `list` structure
+      representing the function (lambda/macro keyword, parameter list and body).
+      This list itself is a `list` VP object. Compiled VP functions are distinct
+      binary objects (see Level 5).
 
 2. **The Lisp Interpreter Instance (`lisp` class):**
 
@@ -263,9 +263,9 @@ their FFI implementations (which call the appropriate VP class methods like
     live).
 
     * Example: When a Lisp function returns, objects created locally within its
-    environment that are not returned or captured in closures will eventually
-    have their reference counts decremented as the environment and its bindings
-    are dismantled, leading to their deallocation if their count reaches zero.
+      environment that are not returned will eventually have their reference
+      counts decremented as the environment and its bindings are dismantled,
+      leading to their deallocation if their count reaches zero.
 
 3. **Potential for Cycles and Manual Management:**
 

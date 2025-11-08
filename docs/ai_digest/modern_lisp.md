@@ -134,11 +134,11 @@ While ChrysaLisp makes bold choices, it retains the powerful essence of Lisp:
 
 * **Functions and Lambdas (`lisp :repl_apply`):**
 
-    * First-class citizens. Lambdas capture their lexical environment through
-    the `hmap` chain, enabling closures.
+    * First-class citizens. Lambdas are given their lexical environment through
+      the `hmap` chain.
 
     * Application is handled by `:repl_apply`, which dispatches to native VP
-    functions or sets up new environments for Lisp lambda execution.
+      functions or sets up new environments for Lisp lambda execution.
 
 * **Macros (`macros.md`, `lisp :repl_expand`):**
 
