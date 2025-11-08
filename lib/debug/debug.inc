@@ -25,7 +25,7 @@
 	(setq *debug_state* (mail-read mbox)))
 
 (defun debug-trunc (s w &optional d)
-	(if (> (length s) w)
+	(if (<= (length s) w) s
 		(if d
 			(cat "... " (slice s (- 3 w) -1))
 			(cat (slice s 0 (- w 4)) " ..."))))
@@ -51,7 +51,7 @@
 	(each (lambda ((var val))
 		(setq var (pad var max_var_size)
 			val (debug-sanitize (str val) (- (const (- +debug_width 3)) max_var_size) :t))
-		(push msg var " : " val +LF)) (sort e (# (cmp (first %0) (first %1)))))
+		(push msg var " : " val +LF)) e)
 	(apply (const cat) (push msg +LF)))
 
 (defun debug-msg (rval sform e n)
@@ -98,7 +98,8 @@
 (redefmacro debug-brk (brk_id &optional condition)
 	(setd condition :t)
 	(bind '(file line) (repl-info))
-	(static-qq (debug-brk-func ,(str brk_id " " file " " line) ,condition)))
+	(defq info (str "|" brk_id "|" condition "|" file "|" line "|"))
+	(static-qq (debug-brk-func ,info ,condition)))
 
 (redefmacro defun (n a &rest _)
 	(static-qq (defq ,n (,'lambda ,a ~(debug-instrument (str n) _)))))
