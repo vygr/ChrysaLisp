@@ -89,7 +89,7 @@ lifetime management.
 
     * **Other:** `Error`, `Dim` (multi-dimensional arrays).
 
-* **FFI (Foreign Function Interface):** `(ffi name "path" flags)` allows
+* **FFI (Foreign Function Interface):** `(ffi "path" [name flags])` allows
 binding native C/C++ functions compiled into the system.
 
 * **Environments and Scoping:** Environments are `Hmap` instances. `(env)`,
