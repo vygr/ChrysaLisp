@@ -76,7 +76,7 @@
 			;not a symbol so not interested
 			:nil)
 		((some (# (starts-with %0 func))
-			'(quote quasi- static- const exec))
+			'(quote const exec quasi- static- debug- profile- stack-))
 			;blacklisted function, do not step in or wrap !
 			:nil)
 		((some (# (eql %0 func))
