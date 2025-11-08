@@ -19,12 +19,13 @@
 	(if (or (not *config*) (/= (. *config* :find :version) *config_version*))
 		(setq *config* (get-default-config))))
 
-(defun save-config ()
-	(when (defq stream (file-stream *config_file* +file_open_write))
-		(tree-save stream *config*)))
-
 (defun update-config ()
 	(bind '(todo_items done_items deleted_items)
 		(map (# (map (# (. (last (. %0 :children)) :get_text)) %0))
 			(map (# (. %0 :children)) (list *todo_flow* *done_flow* *deleted_flow*))))
 	(scatter *config* :todo todo_items :done done_items :deleted deleted_items))
+
+(defun save-config ()
+	(update-config)
+	(when (defq stream (file-stream *config_file* +file_open_write))
+		(tree-save stream *config*)))

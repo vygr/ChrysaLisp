@@ -40,8 +40,8 @@
 
 (defun new-item ()
 	(create-item *todo_flow*)
-	(update-config)
 	(. *stack_flow* :show_tab 0)
+	(update-config)
 	(populate-items)
 	(action-layout))
 
