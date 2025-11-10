@@ -15,7 +15,7 @@
 		(unless (find (defq app (slice *current_file*
 					(defq i (inc (find "/" *current_file*)))
 					(find "/" *current_file* (inc i))))
-				'("login" "wallpaper" "tui"))
+				'("login" "logout" "wallpaper" "tui"))
 			(open-child (cat "apps/" app "/app.lisp") +kn_call_open))))
 
 (defun action-debug-toggle ()
