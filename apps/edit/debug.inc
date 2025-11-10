@@ -6,8 +6,17 @@
 	(cat "0x" (int-to-hex-str _)))
 
 (defun action-debug-launch ()
+	;save files
 	(action-save-all)
-	(open-child "apps/debug/app.lisp" +kn_call_open))
+	;launch debugger
+	(open-child "apps/debug/app.lisp" +kn_call_open)
+	;can we start a GUI app
+	(when (starts-with "apps/" *current_file*)
+		(unless (find (defq app (slice *current_file*
+					(defq i (inc (find "/" *current_file*)))
+					(find "/" *current_file* (inc i))))
+				'("login" "wallpaper" "tui"))
+			(open-child (cat "apps/" app "/app.lisp") +kn_call_open))))
 
 (defun action-debug-toggle ()
 	(defq buffer (. *edit* :get_buffer))
