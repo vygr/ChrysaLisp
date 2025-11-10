@@ -14,7 +14,8 @@
 	(enum global region whole_words regexp find_down find_up)
 	(enum collect collect_global replace replace_all replace_global)
 	(enum macro_playback macro_to_eof macro_global macro_record)
-	(enum debug_launch debug_insert debug_remove debug_remove_all)
+	(enum debug_launch debug_toggle debug_remove
+		debug_enable_all debug_disable_all debug_remove_all)
 	(enum open_tree_collapse open_tree_expand)
 	(enum file_tree_collapse file_tree_expand))
 
@@ -36,7 +37,7 @@
 		(ui-backdrop _ (:color (const *env_toolbar_col*))))
 	(ui-flow _ (:flow_flags +flow_left_fill)
 		(ui-tool-bar *debug_toolbar* (:color (const *env_toolbar2_col*))
-			(ui-buttons (0xe933 0xe98b 0xe98c 0xe989) +event_debug_launch))
+			(ui-buttons (0xe933 0xe9f0 0xe9d8 0xe98b 0xe98c 0xe989) +event_debug_launch))
 		(ui-flow _ (:flow_flags +flow_right_fill)
 			(ui-tool-bar *buffer_toolbar* (:color (get :color *macro_toolbar*))
 				(ui-buttons (0xe91d 0xe91e 0xe94b 0xe94d 0xe94c 0xea07 0xe97e 0xea3d 0xe94e) +event_prev))
@@ -114,4 +115,5 @@
 	"replace global"))
 
 (ui-tool-tips *debug_toolbar*
-	'("save all and debug" "insert breakpoint" "remove breakpoint" "clear breakpoints"))
+	'("save all and debug" "toggle breakpoint" "remove breakpoint"
+	"enable all" "disable all" "clear breakpoints"))

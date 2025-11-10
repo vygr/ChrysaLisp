@@ -3,34 +3,34 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun action-minimise ()
-	(debug-brk "minimize")
+(debug-brk "minimize")
 	(bind '(x y w h) (apply view-fit
 		(cat (. *window* :get_pos) (. *window* :pref_size))))
 	(. *window* :change_dirty x y w h))
 
 (defun action-maximise ()
-	(debug-brk "maximize")
+(debug-brk "maximize")
 	(bind '(x y) (. *window* :get_pos))
 	(bind '(w h) (. *window* :pref_size))
 	(bind '(x y w h) (view-fit x y (* w 2) (* h 2)))
 	(. *window* :change_dirty x y w h))
 
 (defun action-close ()
-	(debug-brk "close")
+(debug-brk "close")
 	(setq *running* :nil))
 
 (defun action-button-1 ()
-	(debug-brk "button1")
+(debug-brk "button1")
 	(def (. *b1* :dirty) :color (random-color)))
 
 (defun action-button-2 ()
-	(debug-brk "button2")
+(debug-brk "button2")
 	(def (. *b2* :dirty) :color (random-color)))
 
 (defun action-button-3 ()
-	(debug-brk "button3")
+(debug-brk "button3")
 	(def (. *b3* :dirty) :color (random-color)))
 
 (defun action-button-4 ()
-	(debug-brk "button4")
+(debug-brk "button4")
 	(def (. *b4* :dirty) :color (random-color)))
