@@ -116,4 +116,4 @@
 
 (ui-tool-tips *debug_toolbar*
 	'("save all and debug" "toggle breakpoint" "remove breakpoint"
-	"enable all" "disable all" "clear breakpoints"))
+	"enable all" "disable all" "remove all"))
