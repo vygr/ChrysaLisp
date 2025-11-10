@@ -68,7 +68,7 @@
 (defun action-debug-enable-all ()
 	;scan for auto debug lines
 	(defq buffer (. *edit* :get_buffer))
-	(when (nempty? (defq autos (reduce (# (if (match? %1 "^(;; )?\(debug-brk \q0x\x+\q\)$")
+	(when (nempty? (defq autos (reduce (# (if (match? %1 "^(;; )?\(debug-brk \q.+\q\)$")
 					(push %0 (!)) %0)) (. buffer :get_text_lines) (list))))
 		(bind '(cx cy) (. *edit* :get_cursor))
 		(undoable
@@ -87,7 +87,7 @@
 (defun action-debug-disable-all ()
 	;scan for auto debug lines
 	(defq buffer (. *edit* :get_buffer))
-	(when (nempty? (defq autos (reduce (# (if (match? %1 "^(;; )?\(debug-brk \q0x\x+\q\)$")
+	(when (nempty? (defq autos (reduce (# (if (match? %1 "^(;; )?\(debug-brk \q.+\q\)$")
 					(push %0 (!)) %0)) (. buffer :get_text_lines) (list))))
 		(bind '(cx cy) (. *edit* :get_cursor))
 		(undoable
