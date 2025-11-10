@@ -17,9 +17,14 @@
 (import "./macros.inc")
 (import "./ui.inc")
 (import "./state.inc")
+(import "./debug.inc")
 
 (defq
 *event_map* (scatter (Fmap)
+	+event_debug_launch action-debug-launch
+	+event_debug_insert action-debug-insert
+	+event_debug_remove action-debug-remove
+	+event_debug_remove_all action-debug-debug-remove-all
 	+event_open_tree_expand action-open-tree-expand
 	+event_open_tree_collapse action-open-tree-collapse
 	+event_file_tree_expand action-file-tree-expand

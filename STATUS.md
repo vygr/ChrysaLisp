@@ -20,6 +20,8 @@ Stack widget now uses Radiobar widget for the tabs.
 Editor app now has service RPC actions. First one is the ability for the Debug
 app to request loading of a file and showing the current breakpoint.
 
+Editor now supports some redumentry auto debug breakpoint helpers.
+
 ------
 
 New `opt-tail-call` VP optimization.

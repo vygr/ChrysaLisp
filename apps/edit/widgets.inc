@@ -14,6 +14,7 @@
 	(enum global region whole_words regexp find_down find_up)
 	(enum collect collect_global replace replace_all replace_global)
 	(enum macro_playback macro_to_eof macro_global macro_record)
+	(enum debug_launch debug_insert debug_remove debug_remove_all)
 	(enum open_tree_collapse open_tree_expand)
 	(enum file_tree_collapse file_tree_expand))
 
@@ -33,11 +34,14 @@
 		(ui-tool-bar *macro_toolbar* (:color (const *env_toolbar2_col*))
 			(ui-buttons (0xe95c 0xe95e 0xe95a 0xe95f) +event_macro_playback))
 		(ui-backdrop _ (:color (const *env_toolbar_col*))))
-	(ui-flow _ (:flow_flags +flow_right_fill)
-		(ui-tool-bar *buffer_toolbar* (:color (get :color *macro_toolbar*))
-			(ui-buttons (0xe91d 0xe91e 0xe94b 0xe94d 0xe94c 0xea07 0xe97e 0xea3d 0xe94e) +event_prev))
-		(. (ui-textfield *name_text* (:color +argb_white
-				:hint_text "new file" :clear_text "")) :connect +event_new))
+	(ui-flow _ (:flow_flags +flow_left_fill)
+		(ui-tool-bar *debug_toolbar* (:color (const *env_toolbar2_col*))
+			(ui-buttons (0xe933 0xe98b 0xe98c 0xe989) +event_debug_launch))
+		(ui-flow _ (:flow_flags +flow_right_fill)
+			(ui-tool-bar *buffer_toolbar* (:color (get :color *macro_toolbar*))
+				(ui-buttons (0xe91d 0xe91e 0xe94b 0xe94d 0xe94c 0xea07 0xe97e 0xea3d 0xe94e) +event_prev))
+			(. (ui-textfield *name_text* (:color +argb_white
+					:hint_text "new file" :clear_text "")) :connect +event_new)))
 	(ui-flow _ (:flow_flags +flow_right_fill)
 		(ui-grid _ (:grid_height 1)
 			(ui-flow _ (:flow_flags +flow_right_fill)
@@ -108,3 +112,6 @@
 (ui-tool-tips *replace_toolbar*
 	'("collect" "collect global" "replace" "replace all"
 	"replace global"))
+
+(ui-tool-tips *debug_toolbar*
+	'("save all and debug" "insert breakpoint" "remove breakpoint" "clear breakpoints"))
