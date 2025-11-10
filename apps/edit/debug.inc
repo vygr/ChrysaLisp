@@ -29,7 +29,7 @@
 					(:set_cursor 0 cy)
 					(:set_anchor 0 cy))
 				(if (eql (first line) ";")
-					(. buffer :delete 3)
+					(. buffer :delete 4)
 					(.-> *edit*
 						(:insert ";;; ")
 						(:set_cursor 0 cy)
@@ -87,7 +87,7 @@
 					(.-> *edit*
 						(:set_cursor 0 %0)
 						(:set_anchor 0 %0))
-					(. buffer :delete 3))) autos)
+					(. buffer :delete 4))) autos)
 			(.-> *edit*
 				(:set_cursor cx cy)
 				(:set_anchor cx cy)))
