@@ -20,7 +20,9 @@ Stack widget now uses Radiobar widget for the tabs.
 Editor app now has service RPC actions. First one is the ability for the Debug
 app to request loading of a file and showing the current breakpoint.
 
-Editor now supports some redumentry auto debug breakpoint helpers.
+Editor now supports some redumentry auto debug breakpoint helpers. Launch debug,
+toggle breakpoint, remove, enable all, disable all, remove all. It will NOT
+remove any user named breakpoints, only auto named.
 
 ------
 
