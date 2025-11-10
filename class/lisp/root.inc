@@ -552,15 +552,17 @@
 ;;;;;;;;;;;;;;;;;;
 
 (defmacro # (&rest body)
-	; (# (< %9 %0 %3) ...) -> (lambda (%0 %3 %9) (< %9 %0 %3) ...)
+	; (# (< %9 %0 %3) ...) -> (lambda (%%0 %%3 %%9) (< %%9 %%0 %%3) ...)
+	;the original template args are renamed for safety !
 	(defq args (list) stack (list body))
 	(while (defq lst (pop stack))
 		(each! (lambda (%0)
 			(if (list? %0)
 				(unless (find (first %0) '(# quote quasi-quote static-q static-qq static-qqp))
 					(push stack %0))
-				(and (sym? %0)
-					(find %0 '(%0 %1 %2 %3 %4 %5 %6 %7 %8 %9))
+				(when (and (sym? %0) (setq %0 (find %0 '(%0 %1 %2 %3 %4 %5 %6 %7 %8 %9))))
+					(setq %0 (elem-get '(%%0 %%1 %%2 %%3 %%4 %%5 %%6 %%7 %%8 %%9) %0))
+					(elem-set lst (!) %0)
 					(merge args (list %0)))))
 			(list lst)))
 	(setq args (sort args))

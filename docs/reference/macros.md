@@ -3,7 +3,9 @@
 ### #
 
 ```code
-(# (< %9 %0 %3) ...) -> (lambda (%0 %3 %9) (< %9 %0 %3) ...)
+(# (< %9 %0 %3) ...) -> (lambda (%%0 %%3 %%9) (< %%9 %%0 %%3) ...)
+
+the original template args are renamed for safety !
 ```
 
 ### ++

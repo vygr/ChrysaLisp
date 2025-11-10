@@ -62,7 +62,7 @@
 
 (each (# (def (penv)
 		(sym (str "action-macro-playback-" %0))
-			`(,lambda () (,action-macro-playback ,%0))))
+			`(,lambda () (,action-macro-playback ,%%0))))
 	+range_0_10)
 
 (defq +playback_funcs `'(,action-macro-playback-0 ,action-macro-playback-1
@@ -86,7 +86,7 @@
 
 (each (# (def (penv)
 		(sym (str "action-macro-save-" %0))
-			`(,lambda () (,action-macro-save ,%0))))
+			`(,lambda () (,action-macro-save ,%%0))))
 	+range_0_10)
 
 (defun action-macro-record ()
