@@ -10,7 +10,8 @@
 		block bracket_left bracket_right
 		toupper tolower sort unique
 		invert comment)
-	(enum prev next scratch close_buffer close_all save save_all load_selected new)
+	(enum prev next scratch close_buffer close_all
+		save save_all load_selected load_all_depends new)
 	(enum global region whole_words regexp find_down find_up)
 	(enum collect collect_global replace replace_all replace_global)
 	(enum macro_playback macro_to_eof macro_global macro_record)
@@ -40,7 +41,7 @@
 			(ui-buttons (0xe933 0xe9f0 0xe9d8 0xe98b 0xe98c 0xe989) +event_debug_launch))
 		(ui-flow _ (:flow_flags +flow_right_fill)
 			(ui-tool-bar *buffer_toolbar* (:color (get :color *macro_toolbar*))
-				(ui-buttons (0xe91d 0xe91e 0xe94b 0xe94d 0xe94c 0xea07 0xe97e 0xea3d 0xe94e) +event_prev))
+				(ui-buttons (0xe91d 0xe91e 0xe94b 0xe94d 0xe94c 0xe980 0xe9b3 0xe954 0xea3e 0xe94e) +event_prev))
 			(. (ui-textfield *name_text* (:color +argb_white
 					:hint_text "new file" :clear_text "")) :connect +event_new)))
 	(ui-flow _ (:flow_flags +flow_right_fill)
@@ -101,7 +102,7 @@
 
 (ui-tool-tips *buffer_toolbar*
 	'("previous" "next" "scratchpad" "close" "close all"
-	"save" "save all" "load selected" "new"))
+	"save" "save all" "load selected" "load all depends" "new"))
 
 (ui-tool-tips *find_toolbar*
 	'("global search" "select region" "whole words"

@@ -44,6 +44,7 @@
 	+event_save action-save
 	+event_save_all action-save-all
 	+event_load_selected action-load-selected
+	+event_load_all_depends action-load-all-depends
 	+event_new action-new
 	+event_next action-next-buffer
 	+event_prev action-prev-buffer
