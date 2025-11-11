@@ -9,18 +9,30 @@
 	+auto_pattern (cat "^(" +disabled_prefix ")?\(debug-brk \q0x\x+\q\)$")
 	+user_pattern (cat "^(" +disabled_prefix ")?\(debug-brk \q.+\q\)$"))
 
+(defun file-app (file)
+	(defq app :nil)
+	(when (starts-with "apps/" file)
+		(unless (find (defq folder (slice file
+					(defq i (inc (find "/" file)))
+					(find "/" file (inc i))))
+				'("login" "logout" "wallpaper" "tui"
+				"edit" "debug" "profile"))
+			(setq app (cat "apps/" folder "/app.lisp"))))
+	app)
+
 (defun action-debug-launch ()
 	;save files
 	(action-save-all)
 	;launch debugger
 	(open-child "apps/debug/app.lisp" +kn_call_open)
-	;can we start a GUI app
-	(when (starts-with "apps/" *current_file*)
-		(unless (find (defq app (slice *current_file*
-					(defq i (inc (find "/" *current_file*)))
-					(find "/" *current_file* (inc i))))
-				'("login" "logout" "wallpaper" "tui"))
-			(open-child (cat "apps/" app "/app.lisp") +kn_call_open))))
+	;all potential apps based on the open files
+	(if (nempty? (defq apps (filter (# (find %0 *open_files*))
+					(reduce (# (if (defq app (file-app %1)) (push %0 app) %0))
+						*open_files* (list)))))
+		;does the current file come from one of them ?
+		(if (and (defq app (file-app *current_file*)) (find app apps))
+			(open-child app +kn_call_open)
+			(open-child (first apps) +kn_call_open))))
 
 (defun action-debug-toggle ()
 	(defq buffer (. *edit* :get_buffer))
