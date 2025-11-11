@@ -9,7 +9,7 @@
 (defq *config* :nil *config_version* 2
 	*config_file* (cat *env_home* "eyes.tre"))
 
-(defun get-default-config ()
+(defun config-default ()
 	(scatter (Emap)
 		:version *config_version*
 		:x 0
@@ -20,13 +20,13 @@
 		:iris_scale 0.7
 		:pupil_scale 0.4))
 
-(defun load-config ()
+(defun config-load ()
 	(if (defq stream (file-stream *config_file*))
 		(setq *config* (tree-load stream)))
 	(if (or (not *config*) (/= (. *config* :find :version) *config_version*))
-		(setq *config* (get-default-config))))
+		(setq *config* (config-default))))
 
-(defun save-config ()
+(defun config-save ()
 	(bind '(x y) (. *window* :get_pos))
 	(bind '(w h) (. *canvas* :get_size))
 	(scatter *config*
@@ -148,7 +148,7 @@
 		min_width 256 min_height 128
 		max_width 512 max_height 256
 		*canvas* :nil running :t)
-	(load-config)
+	(config-load)
 
 	; Get initial dimensions and settings from config
 	(bind '(x y w h iris_color iris_scale pupil_scale)
@@ -179,5 +179,5 @@
 				(resize-window max_width max_height))
 			((. *window* :event msg))))
 
-	(save-config)
+	(config-save)
 	(gui-sub-rpc *window*))

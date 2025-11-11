@@ -16,7 +16,7 @@
 
 ; Default configuration if `launcher.tre`
 ; is missing, or version mismatch
-(defun get-default-config ()
+(defun config-default ()
 	(scatter (Emap)
 		:version *config_version*
 		:columns 2
@@ -35,13 +35,13 @@
 			'Science (scatter (Emap) :collapsed :nil
 				:apps '(molecule pcb mandelbrot mesh)))))
 
-(defun load-config ()
+(defun config-load ()
 	(if (defq stream (file-stream *config_file*))
 		(setq *config* (tree-load stream)))
 	(if (or (not *config*) (/= (. *config* :find :version) *config_version*))
-		(setq *config* (get-default-config))))
+		(setq *config* (config-default))))
 
-(defun save-config ()
+(defun config-save ()
 	(when (defq stream (file-stream *config_file* +file_open_write))
 		(tree-save stream *config*)))
 
@@ -94,7 +94,7 @@
 (defun main ()
 	; Initialization
 	(defq select (task-mboxes +select_size) running :t)
-	(load-config)
+	(config-load)
 	(scan-apps)
 	(build-ui)
 
@@ -135,5 +135,5 @@
 				(. *window* :change_dirty x y w h))
 			((. *window* :event msg))))
 
-	(save-config)
+	(config-save)
 	(gui-sub-rpc *window*))

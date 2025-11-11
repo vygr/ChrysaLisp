@@ -3,6 +3,7 @@
 (import "././edit/rpc.inc")
 
 ;our UI widgets and events
+(import "./config.inc")
 (import "./widgets.inc")
 
 (structure +debug 0
@@ -91,7 +92,10 @@
 		buf_keys (list) buf_list (list) selected_index :nil *running* :t
 		entry (mail-declare (elem-get select +select_service) "*Debug" "Debug Service 0.4"))
 	(def *window* :tip_mbox (elem-get select +select_tip))
-	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
+	(config-load)
+	(bind '(x y) (gather *config* :x :y))
+	(bind '(w h) (. *window* :pref_size))
+	(bind '(x y w h) (view-fit x y w h))
 	(gui-add-front-rpc (. *window* :change x y w h))
 	(reset)
 	(while *running*
@@ -163,5 +167,6 @@
 			;otherwise
 			(:t (. *window* :event *msg*))))
 	(gui-sub-rpc *window*)
+	(config-save)
 	;restart any paused debug ipc
 	(each play buf_list))

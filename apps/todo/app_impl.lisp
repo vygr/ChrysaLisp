@@ -68,7 +68,7 @@
 		*min_width* 512 *min_height* 512
 		*max_width* 1024 *max_height* 512
 		todo_service (mail-declare (task-mbox) "Todo" "Todo Service 0.1"))
-	(load-config)
+	(config-load)
 	(populate-items)
 	(layout-items *min_width* *min_height*)
 	(. *stack_flow* :show_tab 0)
@@ -112,6 +112,6 @@
 						(char key))))
 			(:t ;gui event
 				(. *window* :event *msg*))))
-	(save-config)
+	(config-save)
 	(gui-sub-rpc *window*)
 	(mail-forget todo_service))

@@ -92,7 +92,8 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Configuration Management
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun get-default-config ()
+
+(defun config-default ()
 	(scatter (Emap)
 		:version *config_version*
 		:base 10
@@ -102,11 +103,11 @@
 		:current_number "0"
 		:new_entry :t))
 
-(defun load-config ()
+(defun config-load ()
 	(if (defq stream (file-stream *config_file*))
 		(setq *config* (tree-load stream)))
 	(if (or (not *config*) (/= (. *config* :find :version) *config_version*))
-		(setq *config* (get-default-config)))
+		(setq *config* (config-default)))
 	(list
 		(ifn (. *config* :find :operands) (list))
 		(ifn (. *config* :find :operators) (list))
@@ -116,7 +117,7 @@
 		:nil  ; error_state is never saved
 		:nil)); new_entry is always false on load to ensure consistency
 
-(defun save-config (state)
+(defun config-save (state)
 	(bind '(operands operators current_number base memory error_state new_entry) state)
 	(scatter *config*
 		:base base
@@ -304,7 +305,7 @@
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(gui-add-front-rpc (. *window* :change x y w h))
 	(defq select (task-mboxes +select_size)
-		  state (load-config)
+		  state (config-load)
 		  running :t)
 
 	; Setup tooltips and initial UI state
@@ -356,5 +357,5 @@
 			(update-display state)
 			(unless (= (elem-get state +state_base) (elem-get old_state +state_base))
 				(update-button-states (elem-get state +state_base)))))
-	(save-config state)
+	(config-save state)
 	(gui-sub-rpc *window*))

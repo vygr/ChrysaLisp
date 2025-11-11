@@ -60,6 +60,7 @@
 	(set-slider-values))
 
 ;import actions, bindings and app ui classes
+(import "./config.inc")
 (import "./actions.inc")
 
 (defun dispatch-action (&rest action)
@@ -70,7 +71,10 @@
 		buf_keys (list) buf_list (list) selected_index :nil *running* :t
 		entry (mail-declare (elem-get select +select_service) "*Profile" "Profile Service 0.1"))
 	(def *window* :tip_mbox (elem-get select +select_tip))
-	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
+	(config-load)
+	(bind '(x y) (gather *config* :x :y))
+	(bind '(w h) (. *window* :pref_size))
+	(bind '(x y w h) (view-fit x y w h))
 	(gui-add-front-rpc (. *window* :change x y w h))
 	(reset)
 	(while *running*
@@ -125,4 +129,5 @@
 			;otherwise
 			(:t (. *window* :event *msg*))))
 	(mail-forget entry)
-	(gui-sub-rpc *window*))
+	(gui-sub-rpc *window*)
+	(config-save))
