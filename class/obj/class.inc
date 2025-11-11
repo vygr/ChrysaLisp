@@ -60,15 +60,19 @@
 ; field helpers, sorted load, saves and transfer
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defun load-fields (src fields tmps)
-	(each (# (assign (list (list src (first %0))) (list (second %0))))
+(defun load-fields (base fields tmps)
+	(defq src (list) dst (list))
+	(each (# (push src (list base (first %0))) (push dst (second %0)))
 		(sort (partition (zip fields tmps (map (const eval) fields)) 3)
-			(# (- (last %0) (last %1))))))
+			(# (- (last %0) (last %1)))))
+	(assign src dst))
 
-(defun save-fields (dst fields tmps)
-	(each (# (assign (list (second %0)) (list (list dst (first %0)))))
+(defun save-fields (base fields tmps)
+	(defq src (list) dst (list))
+	(each (# (push src (second %0)) (push dst (list base (first %0))))
 		(sort (partition (zip fields tmps (map (const eval) fields)) 3)
-			(# (- (last %0) (last %1))))))
+			(# (- (last %0) (last %1)))))
+	(assign src dst))
 
 (defun assign-fields (src src_fields dst dst_fields tmps)
 	(load-fields src src_fields tmps)
