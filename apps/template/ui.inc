@@ -16,7 +16,7 @@
 	(. *window* :change_dirty x y w h))
 
 (defun action-close ()
-(debug-brk "close")
+;;; (debug-brk "close")
 	(setq *running* :nil))
 
 (defun action-button-1 ()
