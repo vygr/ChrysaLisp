@@ -28,6 +28,8 @@ Upgraded the Images app to have a file selection.
 
 New Files widget.
 
+Smarter string encoding for the `.tre` files.
+
 ------
 
 New `opt-tail-call` VP optimization.

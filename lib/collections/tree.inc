@@ -20,7 +20,19 @@
 	(cond
 		((sym? atom) atom)
 		((num? atom) atom)
-		((str? atom) (cat {"} (id-encode atom) {"}))
+		((str? atom)
+			(defq has_quote (/= (rbskipn {""} atom -1) 0)
+				has_curly (/= (rbskipn "{}" atom -1) 0)
+				has_bin (/= (rbskip (const (cat " !" {""}
+						"#$%&'()*+,-./0123456789:;<=>?@"
+						"ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`"
+						"abcdefghijklmnopqrstuvwxyz{|}~"))
+						atom -1) 0))
+			(cond
+				((or has_bin (and has_quote has_curly))
+					(cat {"} (id-encode atom) {"}))
+				(has_quote (cat "{[" atom "]}"))
+				((cat {"[} atom {]"}))))
 		((throw "Invalid tree encode !" atom))))
 
 (defun tree-decode (atom)
@@ -28,7 +40,10 @@
 	(cond
 		((sym? atom) atom)
 		((num? atom) atom)
-		((str? atom) (id-decode atom))
+		((str? atom)
+			(if (eql (first atom) "[")
+				(slice atom 1 -2)
+				(id-decode atom)))
 		((throw "Invalid tree decode !" atom))))
 
 (defun tree-buckets (collection type)
