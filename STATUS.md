@@ -24,6 +24,8 @@ Editor now supports some redumentry auto debug breakpoint helpers. Launch debug,
 toggle breakpoint, remove, enable all, disable all, remove all. It will NOT
 remove any user named breakpoints, only auto named.
 
+Upgraded the Images app to have a file selection.
+
 ------
 
 New `opt-tail-call` VP optimization.
