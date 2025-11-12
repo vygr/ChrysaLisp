@@ -1,11 +1,9 @@
 (enums +event 0
 	(enum close max min)
 	(enum layout xscroll yscroll)
-	(enum tree_action)
 	(enum file_folder_action file_leaf_action)
 	(enum copy paragraph block bracket_left bracket_right)
-	(enum region whole_words regexp find_down find_up)
-	(enum file_tree_collapse file_tree_expand))
+	(enum region whole_words regexp find_down find_up))
 
 (defq +vdu_min_width 40 +vdu_min_height 20 +vdu_max_width 100
 	+vdu_max_height 46 +vdu_line_width 5 +status_min_size 32)
@@ -20,14 +18,7 @@
 		(. (ui-textfield *find_text* (:color +argb_white
 				:hint_text "find" :clear_text "")) :connect +event_find_down))
 	(ui-flow _ (:flow_flags +flow_right_fill)
-		(ui-flow _ (:flow_flags +flow_stack_fill)
-			(ui-flow _  (:flow_flags +flow_down_fill :color +argb_grey14)
-				(ui-title-bar _ "Project" (0xe940 0xe941) +event_file_tree_collapse)
-				(ui-scroll *file_tree_scroll* +scroll_flag_vertical :nil
-					(. (ui-tree *file_tree* +event_file_folder_action
-							(:min_width 0 :color +argb_white
-							:font *env_medium_terminal_font*)) :connect +event_tree_action)))
-			(ui-backdrop _ (:color +argb_white)))
+		(ui-files *file_selector* "Project" +event_file_folder_action :nil)
 		(ui-flow _ (:flow_flags +flow_up_fill)
 			(ui-flow _ (:flow_flags +flow_stack_fill :color +argb_white
 					:font *env_medium_terminal_font*)

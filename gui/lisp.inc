@@ -29,6 +29,7 @@
 (import "./pixmap/lisp.inc")
 (import "./edit/lisp.inc")
 (import "./spinner/lisp.inc")
+(import "./files/lisp.inc")
 (import "./hchart/lisp.inc")
 
 ;ui tree helper macros
@@ -111,6 +112,10 @@
 	; (ui-tree name event [props]) -> tree
 	(static-qqp (ui-element ,n (Tree ,e) ,p)))
 
+(defmacro ui-files (n t e &optional p)
+	; (ui-files name title event [props]) -> files
+	(static-qqp (ui-element ,n (Files ,t ,e) ,p)))
+
 (defmacro ui-spinner (n &optional p)
 	; (ui-spinner name [props]) -> spinner
 	(static-qqp (ui-element ,n (Spinner) ,p)))
@@ -138,7 +143,7 @@
 	(setq s (map (# (if (num? %0) (num-to-utf8 %0) %0)) s))
 	(ui-props p
 		:text %0)
-	(static-qqp (each! (# (. (ui-button __ ,p) :connect (+ (!) ,e))) (list '(~s)))))
+	(static-qqp (each! (# (. (ui-button __ ,p) :connect (if (< ,e 0) ,e (+ (!) ,e)))) (list '(~s)))))
 
 (defmacro ui-title-bar (n s b e &optional p)
 	; (ui-title-bar name title symbols event [props]) -> flow

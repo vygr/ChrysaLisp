@@ -67,8 +67,8 @@ to enforce read-only behavior and offer specialized features.
         The `*edit*` widget uses child `Vdu` instances for displaying text,
         selections, and highlights.
 
-    * **File Browser (`*file_tree*`):** A prominent `Tree` widget for navigating
-        the project's file system, which is a central feature of the Viewer.
+    * **File Browser (`*file_selector*`):** A widget for navigating the
+      project's file system, which is a central feature of the Viewer.
 
 *   **Controller (Application Logic and Event Handling):**
 
@@ -102,7 +102,9 @@ The Viewer's UI is simpler and more focused on browsing than the Editor's.
     * `*find_toolbar*`: Contains widgets for search functionality, including
         buttons for "Whole Words", "Regexp", and "Find Down/Up".
 
-*   **File Browser:** A `ui-scroll` (`*file_tree_scroll*`) contains a `ui-tree` (`*file_tree*`). This is populated by scanning the "docs" and project root directories for files with supported extensions (`+file_types`).
+*   **File Browser:** A `ui-files` This is populated by scanning the "docs" and
+    project root directories for files with supported extensions
+    (`+file_types`).
 
 *   **Content Viewer:**
 
@@ -150,9 +152,9 @@ than, the Editor.
 
 *   **No Explicit `*open_files*` List:** Unlike the Editor, the Viewer does not
     maintain a distinct list of "open" files. Its file navigation is based
-    directly on the `*file_tree*` which reflects the filesystem. A file's buffer
-    and state are loaded into the `*meta_map*` the first time it is opened via
-    `populate-buffer`.
+    directly on the `*file_selector*` which reflects the filesystem. A file's
+    buffer and state are loaded into the `*meta_map*` the first time it is
+    opened via `populate-buffer`.
 
 *   **`*current_file*`:** Tracks the currently displayed file.
 

@@ -7,12 +7,8 @@
 (defun populate-files (root exts)
 	(setq exts (split exts " "))
 	(if (empty? exts) (setq exts :nil))
-	(.-> *file_tree* :empty (:populate root exts 2))
-	(bind '(w h) (. *file_tree* :pref_size))
-	(. *file_tree* :change 0 0 w h)
-	(defq w 400 h 400)
-	(def *file_tree_scroll* :min_width w :min_height h)
-	(.-> *file_tree_scroll* :layout :dirty_all))
+	(.-> *file_selector* :empty (:populate root exts 2))
+	(def *file_selector* :min_width 256 :min_height 512))
 
 ;import actions, bindings and app ui classes
 (import "./actions.inc")

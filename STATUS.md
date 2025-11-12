@@ -26,6 +26,8 @@ remove any user named breakpoints, only auto named.
 
 Upgraded the Images app to have a file selection.
 
+New Files widget.
+
 ------
 
 New `opt-tail-call` VP optimization.

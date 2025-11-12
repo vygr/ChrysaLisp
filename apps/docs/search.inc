@@ -16,11 +16,11 @@
 
 (defun show-matches (files)
 	;show file matches
-	(each (# (. *file_tree* :highlight %0)) files))
+	(each (# (. *file_selector* :highlight %0)) files))
 
 (defun clear-matches (files)
 	;clear file matches
-	(each (# (. *file_tree* :highlight %0 :t)) files))
+	(each (# (. *file_selector* :highlight %0 :t)) files))
 
 (defun refresh-matches ()
 	(defq search_key (search-key
@@ -80,7 +80,7 @@
 				*last_files* (% (inc idx) (length *last_files*))))
 			(setq *current_file* (first *last_files*)))
 		(populate-page *current_file*)
-		(visible-node *file_tree* *current_file*)
+		(. *file_selector* :select_node *current_file*)
 		(action-find-down)))
 
 (defun action-prev-doc ()
@@ -91,5 +91,5 @@
 				*last_files* (% (+ idx (length *last_files*) -1) (length *last_files*))))
 			(setq *current_file* (first *last_files*)))
 		(populate-page *current_file*)
-		(visible-node *file_tree* *current_file*)
+		(. *file_selector* :select_node *current_file*)
 		(action-find-down)))

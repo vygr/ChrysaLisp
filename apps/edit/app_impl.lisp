@@ -121,21 +121,12 @@
 (defun populate-file-trees ()
 	;reload open tree
 	(sort *open_files*)
-	(. *open_tree* :empty)
-	(each (# (. *open_tree* :add_route %0)) (defq dirs (files-dirs *open_files*)))
-	(each (# (. *open_tree* :add_route %0)) *open_files*)
-	(each (# (. *file_tree* :add_route %0)) dirs)
-	(each (# (. *file_tree* :add_route %0)) *open_files*)
-	(bind '(w h) (. *file_tree* :pref_size))
-	(def *file_tree* :min_width w)
-	(def *open_tree* :min_width w)
-	(def *file_tree_scroll* :min_width w)
-	(def *open_tree_scroll* :min_width w)
-	(. *file_tree* :change 0 0 w h)
-	(bind '(w h) (. *open_tree* :pref_size))
-	(. *open_tree* :change 0 0 w h :t)
-	(.-> *open_tree_scroll* :layout :dirty_all)
-	(.-> *file_tree_scroll* :layout :dirty_all))
+	(. *open_files_selector* :empty)
+	(each (# (. *open_files_selector* :add_route %0)) (defq dirs (files-dirs *open_files*)))
+	(each (# (. *open_files_selector* :add_route %0)) *open_files*)
+	(each (# (. *file_selector* :add_route %0)) dirs)
+	(each (# (. *file_selector* :add_route %0)) *open_files*)
+	(. *open_files_selector* :layout_tree))
 
 (defun window-resize ()
 	;layout the window and size the vdu to fit
@@ -157,16 +148,10 @@
 	(. *window* :change_dirty x y w h)
 	(window-resize))
 
-(defun visible-node (tree file)
-	;highlight and show the selected file
-	(when (defq node (. tree :find_node file))
-		(. tree :select file)
-		(. (penv tree) :visible node)))
-
 (defun select-node (file)
 	;highlight and show the selected file in both tree views
-	(visible-node *open_tree* file)
-	(visible-node *file_tree* file))
+	(. *open_files_selector* :select_node file)
+	(. *file_selector* :select_node file))
 
 (defun clear-matches ()
 	(if match_window (gui-sub-rpc match_window))
@@ -257,7 +242,7 @@
 		(tolist (get :keywords *syntax* )))
 	(each (# (lines! populate-dictionary (file-stream %0)))
 		(cat +dictionaries '("class/lisp/root.inc")))
-	(. *file_tree* :populate "." +file_types 2)
+	(. *file_selector* :populate "." +file_types 2)
 	(populate-file-trees)
 	(populate-vdu *current_file*)
 	(bind '(x y w h) (view-fit *x* *y* *width* *height*))

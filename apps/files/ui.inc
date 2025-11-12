@@ -14,26 +14,13 @@
 	(setq *current_exts* (. *exts* :get_text))
 	(populate-files *current_root* *current_exts*))
 
-(defun action-tree-action ()
-	;any tree mutate action
-	(.-> (penv (. *window* :find_id (getf *msg* +ev_msg_action_source_id)))
-		:layout :dirty_all))
-
-(defun action-file-tree-expand ()
-	;expand all tree nodes
-	(. *file_tree* :expand))
-
-(defun action-file-tree-collapse ()
-	;collapse all tree nodes
-	(. *file_tree* :collapse))
-
 (defun action-file-action ()
-	(defq file (. *file_tree* :get_route
+	(defq file (. *file_selector* :get_route
 			(. *window* :find_id (getf *msg* +ev_msg_action_source_id))))
 	(.-> *filename* (:set_text file) :layout :dirty))
 
 (defun action-file-leaf-action ()
-	(defq file (. *file_tree* :get_route
+	(defq file (. *file_selector* :get_route
 			(. *window* :find_id (getf *msg* +ev_msg_action_source_id)))
 		old_file (. *filename* :get_text))
 	(.-> *filename* (:set_text file) :layout :dirty)

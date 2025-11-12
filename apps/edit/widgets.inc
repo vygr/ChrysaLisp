@@ -1,7 +1,6 @@
 (enums +event 0
 	(enum close max min)
 	(enum layout xscroll yscroll)
-	(enum tree_action)
 	(enum file_folder_action file_leaf_action)
 	(enum open_folder_action open_leaf_action)
 	(enum undo redo rewind gundo gredo
@@ -16,9 +15,7 @@
 	(enum collect collect_global replace replace_all replace_global)
 	(enum macro_playback macro_to_eof macro_global macro_record)
 	(enum debug_launch debug_toggle debug_remove
-		debug_enable_all debug_disable_all debug_remove_all)
-	(enum open_tree_collapse open_tree_expand)
-	(enum file_tree_collapse file_tree_expand))
+		debug_enable_all debug_disable_all debug_remove_all))
 
 (defq +vdu_min_width 40 +vdu_min_height 20 +vdu_max_width 120 +vdu_max_height 80
 	+vdu_line_width 5 +status_min_size 32)
@@ -57,21 +54,9 @@
 				(. (ui-textfield *replace_text* (:color +argb_white
 						:hint_text "replace" :clear_text "")) :connect +event_replace))))
 	(ui-flow _ (:flow_flags +flow_right_fill)
-		(ui-flow _ (:flow_flags +flow_stack_fill)
-			(ui-grid _ (:color +argb_grey14 :grid_width 1)
-				(ui-flow _ (:flow_flags +flow_down_fill)
-					(ui-title-bar _ "Open" (0xe940 0xe941) +event_open_tree_collapse)
-					(ui-scroll *open_tree_scroll* +scroll_flag_vertical :nil
-						(. (ui-tree *open_tree* +event_open_folder_action
-								(:min_width 0 :color +argb_white
-								:font *env_medium_terminal_font*)) :connect +event_tree_action)))
-				(ui-flow _  (:flow_flags +flow_down_fill)
-					(ui-title-bar _ "Project" (0xe940 0xe941) +event_file_tree_collapse)
-					(ui-scroll *file_tree_scroll* +scroll_flag_vertical :nil
-						(. (ui-tree *file_tree* +event_file_folder_action
-								(:min_width 0 :color (get :color *open_tree*)
-								:font (get :font *open_tree*))) :connect +event_tree_action))))
-			(ui-backdrop _ (:color +argb_white)))
+		(ui-grid _ (:color +argb_grey14 :grid_width 1)
+			(ui-files *open_files_selector* "Open" +event_open_folder_action :nil)
+			(ui-files *file_selector* "Project" +event_file_folder_action :nil))
 		(ui-flow _ (:flow_flags +flow_up_fill)
 			(ui-flow _ (:flow_flags +flow_stack_fill :color +argb_white
 					:font *env_medium_terminal_font*)

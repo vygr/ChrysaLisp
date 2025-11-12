@@ -31,9 +31,6 @@
 	+event_layout action-layout
 	+event_xscroll action-xscroll
 	+event_yscroll action-yscroll
-	+event_tree_action action-tree-action
-	+event_file_tree_expand action-file-tree-expand
-	+event_file_tree_collapse action-file-tree-collapse
 	+event_file_leaf_action action-file-leaf-action)
 
 *key_map* (scatter (Fmap)

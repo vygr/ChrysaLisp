@@ -10,24 +10,6 @@
 
 (defq +file_types ''(".cpm" ".tga" ".svg"))
 
-(defun populate-file-trees ()
-	;refresh file tree
-	(bind '(w h) (. *file_tree* :pref_size))
-	(def *file_tree* :min_width w)
-	(def *file_tree_scroll* :min_width w)
-	(. *file_tree* :change 0 0 w h)
-	(.-> *file_tree_scroll* :layout :dirty_all))
-
-(defun visible-node (tree file)
-	;highlight and show the selected file
-	(when (defq node (. tree :find_node file))
-		(. tree :select file)
-		(. (penv tree) :visible node)))
-
-(defun select-node (file)
-	;highlight and show the selected file in both tree views
-	(visible-node *file_tree* file))
-
 (defun win-refresh (file)
 	(bind '(w h) (. (defq canvas (canvas-load file 0)) :pref_size))
 	(def *image_scroll* :min_width w :min_height h)
@@ -36,7 +18,7 @@
 	(. *window_title* :layout)
 	(bind '(x y w h) (apply view-fit (cat (. *window* :get_pos) (. *window* :pref_size))))
 	(def *image_scroll* :min_width 128 :min_height 128)
-	(select-node file)
+	(. *file_selector* :select_node file)
 	(. *window* :change_dirty x y w h))
 
 ;import actions and bindings
@@ -47,8 +29,7 @@
 
 (defun main ()
 	(defq select (task-mboxes +select_size) *running* :t)
-	(. *file_tree* :populate "." +file_types 2)
-	(populate-file-trees)
+	(. *file_selector* :populate "." +file_types 2)
 	(bind '(x y w h) (apply view-locate (. (win-refresh "apps/images/data/tiger.svg") :get_size)))
 	(gui-add-front-rpc (. *window* :change x y w h))
 	(while *running*

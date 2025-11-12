@@ -103,14 +103,6 @@
 	(.-> *title* :layout :dirty)
 	(refresh))
 
-(defun populate-file-trees ()
-	;refresh file tree
-	(bind '(w h) (. *file_tree* :pref_size))
-	(def *file_tree* :min_width w)
-	(def *file_tree_scroll* :min_width w)
-	(. *file_tree* :change 0 0 w h)
-	(.-> *file_tree_scroll* :layout :dirty_all))
-
 (defun window-resize ()
 	;layout the window and size the vdu to fit
 	(bind '(w h) (. *edit* :max_size))
@@ -133,9 +125,7 @@
 
 (defun select-node (file)
 	;highlight and show the selected file
-	(when (defq node (. *file_tree* :find_node file))
-		(. *file_tree* :select file)
-		(. (penv *file_tree*) :visible node)))
+	(. *file_selector* :select_node file))
 
 (defun page-scale (s)
 	(n2i (* (n2f s) *page_scale*)))
@@ -175,8 +165,7 @@
 		:vdu_width +vdu_min_width :vdu_height +vdu_min_height)
 	(def *window* :tip_mbox (elem-get select +select_tip))
 	(. *edit_flow* :add_back *edit*)
-	(. *file_tree* :populate "." :nil 2)
-	(populate-file-trees)
+	(. *file_selector* :populate "." :nil 2)
 	(populate-vdu *current_file*)
 	(action-minimise)
 	(bind '(x y w h) (apply view-locate (.-> *window* (:connect +event_layout) :get_size)))

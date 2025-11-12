@@ -7,9 +7,9 @@
 ;overload Edit app ui.inc
 (redefun action-file-leaf-action ()
 	;load up the file selected
-	(setq *current_file* (. *file_tree* :get_route
+	(setq *current_file* (. *file_selector* :get_route
 		(. *window* :find_id (getf *msg* +ev_msg_action_source_id))))
-	(visible-node *file_tree* *current_file*)
+	(. *file_selector* :select_node *current_file*)
 	(populate-page *current_file*))
 
 (redefun action-close ()

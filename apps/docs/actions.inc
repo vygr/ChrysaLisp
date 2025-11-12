@@ -19,9 +19,6 @@
 	+event_prev action-prev-doc
 	+event_find_down action-find-down
 	+event_find_up action-find-up
-	+event_tree_action action-tree-action
-	+event_file_tree_expand action-file-tree-expand
-	+event_file_tree_collapse action-file-tree-collapse
 	+event_file_leaf_action action-file-leaf-action)
 
 *key_map* (scatter (Fmap))

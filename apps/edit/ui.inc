@@ -27,42 +27,21 @@
 	(. *edit* :set_scroll sx (get :value *yslider*))
 	(refresh-display))
 
-(defun action-tree-action ()
-	;any tree mutate action
-	(.-> (penv (. *window* :find_id (getf *msg* +ev_msg_action_source_id)))
-		:layout :dirty_all))
-
-(defun action-open-tree-expand ()
-	;expand all tree nodes
-	(. *open_tree* :expand))
-
-(defun action-open-tree-collapse ()
-	;collapse all tree nodes
-	(. *open_tree* :collapse))
-
-(defun action-file-tree-expand ()
-	;expand all tree nodes
-	(. *file_tree* :expand))
-
-(defun action-file-tree-collapse ()
-	;collapse all tree nodes
-	(. *file_tree* :collapse))
-
 (defun action-open-leaf-action ()
 	;switch to the file selected
-	(switch-file (. *open_tree* :get_route
+	(switch-file (. *open_files_selector* :get_route
 		(. *window* :find_id (getf *msg* +ev_msg_action_source_id)))))
 
 (defun action-file-folder-action ()
 	;load all files in this folder
-	(defq folder (. *file_tree* :get_route
+	(defq folder (. *file_selector* :get_route
 		(. *window* :find_id (getf *msg* +ev_msg_action_source_id))))
 	(open-files (defq files (sort (files-all folder +file_types))))
 	(switch-file (first files)))
 
 (defun action-file-leaf-action ()
 	;load the file selected
-	(open-file (defq file (. *file_tree* :get_route
+	(open-file (defq file (. *file_selector* :get_route
 		(. *window* :find_id (getf *msg* +ev_msg_action_source_id)))))
 	(.-> *name_text* (:set_text file) :layout :dirty))
 

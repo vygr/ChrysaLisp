@@ -27,10 +27,6 @@
 	+event_debug_remove_all action-debug-remove-all
 	+event_debug_enable_all action-debug-enable-all
 	+event_debug_disable_all action-debug-disable-all
-	+event_open_tree_expand action-open-tree-expand
-	+event_open_tree_collapse action-open-tree-collapse
-	+event_file_tree_expand action-file-tree-expand
-	+event_file_tree_collapse action-file-tree-collapse
 	+event_close_all action-close-all
 	+event_close_buffer action-close-buffer
 	+event_macro_record action-macro-record
@@ -86,7 +82,6 @@
 	+event_yscroll action-yscroll
 	+event_file_leaf_action action-file-leaf-action
 	+event_file_folder_action action-file-folder-action
-	+event_tree_action action-tree-action
 	+event_open_leaf_action action-open-leaf-action)
 
 *key_map* (scatter (Fmap)

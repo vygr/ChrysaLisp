@@ -38,8 +38,8 @@ application, with a particular focus on this dynamic section handling mechanism.
 
 The Docs application presents a user interface typically consisting of:
 
-* A file tree (`*file_tree*`) for navigating documentation files (usually `.md`
-  files within the `docs/` directory).
+* A file tree (`*file_selector*`) for navigating documentation files (usually
+  `.md` files within the `docs/` directory).
 
 * A content display area (`*page_scroll*`) where the selected document's content
   is rendered.

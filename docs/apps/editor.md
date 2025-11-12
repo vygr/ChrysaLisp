@@ -75,7 +75,10 @@ The Editor follows a structure that loosely resembles Model-View-Controller, wit
 
     * **`Vdu` Widget (`gui/vdu/lisp.inc`):** Renders text on a character grid.
 
-    * **Toolbars, Sliders, Trees (`apps/edit/widgets.inc`):** Standard widgets for find/replace, file navigation, scrollbars, etc. (e.g., `*main_toolbar*`, `*find_toolbar*`, `*open_tree*`, `*file_tree*`, `*xslider*`, `*yslider*`).
+    * **Toolbars, Sliders, Trees (`apps/edit/widgets.inc`):** Standard widgets
+      for find/replace, file navigation, scrollbars, etc. (e.g.,
+      `*main_toolbar*`, `*find_toolbar*`, `*open_tree*`, `*file_selector*`,
+      `*xslider*`, `*yslider*`).
 
 * **Controller (Application Logic and Event Handling):**
 
@@ -97,9 +100,9 @@ The Editor's UI is built using ChrysaLisp's UI builder macros:
 
 * **File Navigation:** A `ui-flow` contains a `ui-stack` named `*tab_flow*`. This stack has two main tabs:
 
-    * "Open Files": A `ui-scroll` (`*open_tree_scroll*`) containing a `ui-tree` (`*open_tree*`) to display currently open files.
+    * "Open Files": A `ui-files` to display currently open files.
 
-    * "Project": A `ui-scroll` (`*file_tree_scroll*`) containing a `ui-tree` (`*file_tree*`) for browsing the file system.
+    * "Project": A `ui-files` for browsing the file system.
 
 * **Editing Area:** The `*edit_flow*` contains:
 
@@ -167,7 +170,10 @@ The Editor manages multiple open files and scratch buffers:
 
     * Calls `(refresh)` to update the display.
 
-* **Tree Views:** `*open_tree*` and `*file_tree*` are populated based on `*open_files*` and file system scans, respectively. Clicking items in these trees calls `action-open-leaf-action` or `action-file-leaf-action` which use `populate-vdu` or `open-file` (which itself calls `populate-vdu`).
+* **Tree Views:** `*open_files_selector*` and `*file_selector*` are populated
+  based on `*open_files*` and file system scans, respectively. Clicking items in
+  these trees calls `action-open-leaf-action` or `action-file-leaf-action` which
+  use `populate-vdu` or `open-file` (which itself calls `populate-vdu`).
 
 ### 5. Text Editing Core
 

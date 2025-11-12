@@ -138,6 +138,8 @@
 +char_tab action-left-tab
 ```
 
+## apps/images/actions.inc
+
 ## apps/mesh/actions.inc
 
 ### *key_map*

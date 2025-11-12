@@ -531,6 +531,12 @@ static quasi-quoted, prebind only !
 (ui-element name constructor [props] [body]) -> view
 ```
 
+### ui-files
+
+```code
+(ui-files name title event [props]) -> files
+```
+
 ### ui-flow
 
 ```code

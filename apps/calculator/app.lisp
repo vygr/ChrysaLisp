@@ -65,7 +65,7 @@
 
 (ui-window *window* ()
 	(ui-title-bar _ "Calculator" (0xea19 0xea1b 0xea1a) +event_close)
-	(. (ui-radio-bar base_bar ("DEC" "HEX" "BIN" "OCT")
+	(. (ui-radio-bar base_bar ("dec" "hex" "bin" "oct")
 			(:color (const *env_toolbar2_col*) :font +calculator_font))
 		:connect +event_base_change)
 	(ui-label *display* (:text "0" :color +argb_white :flow_flags +flow_flag_align_hright
