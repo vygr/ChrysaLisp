@@ -155,6 +155,10 @@
 ; (rbskip cls str idx) -> idx
 (ffi "class/str/lisp_rbskipn" rbskipn)
 ; (rbskipn cls str idx) -> idx
+(ffi "class/str/lisp_encode" id-encode)
+; (id-encode str) -> str
+(ffi "class/str/lisp_decode" id-decode)
+; (id-decode str) -> str
 
 (ffi "class/sym/lisp_sym" sym)
 ; (sym str) -> sym

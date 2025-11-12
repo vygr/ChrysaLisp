@@ -46,23 +46,6 @@
 	(while (> (-- size) 0) (push select (mail-mbox)))
 	select)
 
-(defun id-decode (id)
-	; (id-decode id) -> id
-	(cond
-		((eql id "") "")
-		(:t (bind '(e o) (unzip id 2))
-			(apply (const cat) (map (# (char
-				(+ (- (code %0) (ascii-code "a"))
-				(<< (- (code %1) (ascii-code "a")) 4)))) e o)))))
-
-(defun id-encode (id)
-	; (id-encode id) -> id
-	(cond
-		((eql id "") "")
-		(:t (apply (const cat) (map (# (cat
-			(char (+ (logand 0x0f (code %0)) (ascii-code "a")))
-			(char (+ (logand 0x0f (>> (code %0) 4)) (ascii-code "a"))))) id)))))
-
 (defun to-net-id (id)
 	; (to-net-id service_id) -> net_id
 	(setq id (id-decode id))

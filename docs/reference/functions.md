@@ -393,18 +393,6 @@ Reads a self-describing codebook from a stream and reconstructs the model.
 Writes a self-describing codebook (via the frequency map) to a stream.
 ```
 
-### id-decode
-
-```code
-(id-decode id) -> id
-```
-
-### id-encode
-
-```code
-(id-encode id) -> id
-```
-
 ### import
 
 ```code

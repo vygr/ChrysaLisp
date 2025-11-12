@@ -18,6 +18,10 @@
 
 ### (str-alloc size) -> str
 
+### (id-decode str) -> str
+
+### (id-encode str) -> str
+
 ### (expand str tab_width) -> str
 
 ### (load path) -> str

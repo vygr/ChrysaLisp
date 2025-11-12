@@ -41,7 +41,9 @@
 	(dec-method :lisp_save class/str/lisp_save :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_load class/str/lisp_load :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_expand class/str/lisp_expand :static (:r0 :r1) (:r0 :r1))
-	(dec-method :lisp_create class/str/lisp_create :static (:r0 :r1) (:r0 :r1)))
+	(dec-method :lisp_create class/str/lisp_create :static (:r0 :r1) (:r0 :r1))
+	(dec-method :lisp_encode class/str/lisp_encode :static (:r0 :r1) (:r0 :r1))
+	(dec-method :lisp_decode class/str/lisp_decode :static (:r0 :r1) (:r0 :r1)))
 
 (def-struct str seq_size
 	(int hashslot)

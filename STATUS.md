@@ -30,6 +30,8 @@ New Files widget.
 
 Smarter string encoding for the `.tre` files.
 
+Lowering of `id-encode` and `id-decode` to VP functions.
+
 ------
 
 New `opt-tail-call` VP optimization.
