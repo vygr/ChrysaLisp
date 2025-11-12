@@ -9,7 +9,7 @@
 	(ui-flow _ (:flow_flags +flow_right_fill)
 		(ui-flow _ (:flow_flags +flow_stack_fill)
 			(ui-flow _  (:flow_flags +flow_down_fill :color +argb_grey14)
-				(ui-title-bar _ "Project" (0xe940 0xe941) +event_file_tree_collapse)
+				(ui-title-bar _ "Files" (0xe940 0xe941) +event_file_tree_collapse)
 				(ui-scroll *file_tree_scroll* +scroll_flag_vertical :nil
 					(. (ui-tree *file_tree* +event_file_folder_action
 							(:min_width 0 :color +argb_white
