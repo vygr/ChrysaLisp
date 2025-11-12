@@ -92,7 +92,7 @@
 					(push l k)) c))))
 	;pretty write the typed list tree
 	(push stack out 1)
-	(write-line-lf stream (str "(" (first out)))
+	(write-line stream (str "(" (first out)))
 	(while (defq i (pop stack) l (pop stack))
 		(defq p (pad "" wc ws))
 		(bind '(type buckets) (first l))
@@ -108,9 +108,9 @@
 								;indent
 								(++ wc)
 								(push stack v 1)
-								(write-line-lf stream (str p k))
-								(write-line-lf stream (str p "(" (first v))))
-							(:t (write-line-lf stream (str p k " " (tree-encode v))))))
+								(write-line stream (str p k))
+								(write-line stream (str p "(" (first v))))
+							(:t (write-line stream (str p k " " (tree-encode v))))))
 					((:array :path)
 						(defq k (elem-get l i))
 						(cond
@@ -119,9 +119,9 @@
 								(push stack l (inc i))
 								(++ wc)
 								(push stack k 1)
-								(write-line-lf stream (str p "(" (first k))))
+								(write-line stream (str p "(" (first k))))
 							(:t	(push stack l (length l))
-								(each (# (write-line-lf stream (cat p (slice (str %0) 1 -2))))
+								(each (# (write-line stream (cat p (slice (str %0) 1 -2))))
 									(partition (slice l 1 -1) 16)))))
 					(:t (defq k (elem-get l i))
 						(push stack l (inc i))
@@ -130,10 +130,10 @@
 								;indent
 								(++ wc)
 								(push stack k 1)
-								(write-line-lf stream (str p "(" (first k))))
-							(:t (write-line-lf stream (str p (tree-encode k))))))))
+								(write-line stream (str p "(" (first k))))
+							(:t (write-line stream (str p (tree-encode k))))))))
 			(:t ;outdent
-				(write-line-lf stream (cat (rest p) ")"))
+				(write-line stream (cat (rest p) ")"))
 				(-- wc))))
 	root)
 

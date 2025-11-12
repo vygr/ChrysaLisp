@@ -1252,12 +1252,6 @@ patch stream a with stream b, write to stream c
 (within-compile-env lambda)
 ```
 
-### write-line-lf
-
-```code
-(write-line-lf stream str) -> bytes
-```
-
 ### zip
 
 ```code

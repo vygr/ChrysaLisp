@@ -32,6 +32,9 @@ Smarter string encoding for the `.tre` files.
 
 Lowering of `id-encode` and `id-decode` to VP functions.
 
+New `(read-blk stream bytes) -> :nil | str` and
+`(write-blk stream str) -> bytes` builtin VP function.
+
 ------
 
 New `opt-tail-call` VP optimization.

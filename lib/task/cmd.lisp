@@ -33,8 +33,8 @@
 					*cmd* (slice *msg* +job_params -1))
 				;run the command and catch output
 				(setq *msg* (string-stream (cat "")))
-				(write-line-lf *msg* (str *reply_key*))
-				(catch (pipe-run *cmd* (# (write-line *msg* (str %0))))
-					(progn (write-line-lf *msg* (str _ " " *cmd*)) :t))
+				(write-line *msg* (str *reply_key*))
+				(catch (pipe-run *cmd* (# (write-blk *msg* (str %0))))
+					(progn (write-line *msg* (str _ " " *cmd*)) :t))
 				;send reply
 				(mail-send *reply_mbox* (str *msg*))))))

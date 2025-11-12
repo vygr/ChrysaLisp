@@ -11,7 +11,7 @@
 	(while (<= (++ pc) *pc*) (write-char stream fill)))
 
 (defun emit-label (label) (set (penv) label *pc*))
-(defun emit-string (string) (setq *pc* (+ *pc* (write-line *stream* string))))
+(defun emit-string (string) (setq *pc* (+ *pc* (write-blk *stream* string))))
 (defun emit-byte (&rest data) (setq *pc* (+ *pc* (write-char *stream* data))))
 (defun emit-short (&rest data) (setq *pc* (+ *pc* (write-char *stream* data +short_size))))
 (defun emit-int (&rest data) (setq *pc* (+ *pc* (write-char *stream* data +int_size))))

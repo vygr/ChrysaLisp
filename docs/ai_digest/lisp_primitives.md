@@ -482,6 +482,10 @@ strings, or standard I/O channels.
 
     * `(read-char stream [width]) ->  :nil | num`
 
+*   **`read-blk`**: Reads a block from a stream.
+
+    * `(read-blk stream bytes) -> :nil | str`
+
 *   **`read-line`**: Reads a line of text from a stream.
 
     * `(read-line stream) -> :nil | str`
@@ -495,7 +499,11 @@ strings, or standard I/O channels.
 
     * `(write-char stream list|num [width]) -> bytes`
 
-*   **`write-line`**: Writes a string to a stream.
+*   **`write-blk`**: Writes a block to a stream.
+
+    * `(write-blk stream str) -> bytes`
+
+*   **`write-line`**: Writes a line to a stream.
 
     * `(write-line stream str) -> bytes`
 

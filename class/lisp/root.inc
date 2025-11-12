@@ -196,14 +196,18 @@
 ; (file-stream path [mode]) -> :nil | stream
 (ffi "class/stream/lisp_readchar" read-char)
 ; (read-char stream [width]) -> :nil | num
-(ffi "class/stream/lisp_readline" read-line)
-; (read-line stream) -> :nil | str
-(ffi "class/stream/lisp_readavail" read-avail)
-; (read-avail stream) -> :nil | num
 (ffi "class/stream/lisp_writechar" write-char)
 ; (write-char stream list|num [width]) -> bytes
+(ffi "class/stream/lisp_readblk" read-blk)
+; (read-blk stream bytes) -> :nil | str
+(ffi "class/stream/lisp_writeblk" write-blk)
+; (write-blk stream str) -> bytes
+(ffi "class/stream/lisp_readline" read-line)
+; (read-line stream) -> :nil | str
 (ffi "class/stream/lisp_writeline" write-line)
 ; (write-line stream str) -> bytes
+(ffi "class/stream/lisp_readavail" read-avail)
+; (read-avail stream) -> :nil | num
 
 (ffi "class/array/lisp_array" array)
 ; (array [num ...]) -> array
@@ -1104,10 +1108,6 @@
 (defmacro write-short (s n)
 	; (write-short stream list|num) -> bytes
 	(static-qq (write-char ,s ,n +short_size)))
-
-(defun write-line-lf (s _)
-	; (write-line-lf stream str) -> bytes
-	(+ (write-line s _) (write-char s 10)))
 
 (defun read-data (s bytes)
 	; (read-data stream bytes) -> str

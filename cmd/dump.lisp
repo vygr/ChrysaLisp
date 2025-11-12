@@ -13,25 +13,17 @@
 (("-c" "--chunk") ,(opt-num 'opt_c))
 ))
 
-;read up to opt_c chars from stream
-(defun read-chunk (stream)
-	(defq chunk (list))
-	(while (and (/= opt_c (length chunk))
-			(defq c (read-char stream))
-			(push chunk c)))
-	(if (/= 0 (length chunk)) chunk))
-
 ;dump a stream to stdout
 (defun dump-file (stream)
 	(when stream
 		(defq adr 0)
-		(while (defq c (read-chunk stream))
+		(while (defq blk (read-blk stream opt_c))
 			(print (int-to-hex-str adr) " "
 				(apply (const cat)
-					(map (# (cat (byte-to-hex-str %0) " ")) c))
-				(pad "" (* 3 (- opt_c (length c))) "                ")
+					(map (# (cat (byte-to-hex-str (code %0)) " ")) blk))
+				(pad "" (* 3 (- opt_c (length blk))) "                ")
 				(apply (const cat)
-					(map (# (if (<= 32 %0 126) (char %0) ".")) c)))
+					(map (# (if (<= 32 (code %0) 126) %0 ".")) blk)))
 			(setq adr (+ adr opt_c)))))
 
 (defun main ()

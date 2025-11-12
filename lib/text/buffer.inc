@@ -223,7 +223,7 @@
 		(raise :syntax_engine :tab_width (buffer_line (list) buffer_syntax (list)
 			 buffer_states (list) buffer_found (list) buffer_brackets (list)
 			 max_width 0 hex_stream (memory-stream)))
-		(pipe-run (str "dump -c " (ifn width 8) " " filepath) (# (write-line hex_stream %0)))
+		(pipe-run (str "dump -c " (ifn width 8) " " filepath) (# (write-blk hex_stream %0)))
 		(stream-seek hex_stream 0 0)
 		(lines! (lambda (line)
 				(task-slice)
@@ -241,7 +241,7 @@
 		(raise :syntax_engine :tab_width (stream (file-stream filepath +file_open_write)))
 		(each! (lambda (line)
 				(task-slice)
-				(write-line-lf stream (. syntax_engine :compress_tabs line tab_width)))
+				(write-line stream (. syntax_engine :compress_tabs line tab_width)))
 			(list (get :buffer_line this)) 0 (bind '(w h) (. this :get_size)))
 		(lower (:modified :nil)) this)
 
