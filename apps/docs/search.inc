@@ -8,7 +8,7 @@
 	;find file matches
 	(defq cmd (cat "grep -c -f -m "
 			(if whole_words "-w " "") (if regexp "-r " "")
-			(id-encode pattern) " ")
+			(hex-encode pattern) " ")
 		results (sort (map (# (trim-end %0 (ascii-char 10)))
 			(filter nempty? (map (const second)
 				(pipe-farm (map (# (cat cmd %0))

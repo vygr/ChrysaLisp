@@ -16,7 +16,6 @@
 	(dec-method :read class/stream/read :static (:r0 :r1 :r2) (:r0 :r1))
 	(dec-method :write class/stream/write :static (:r0 :r1 :r2) (:r0))
 	(dec-method :read_line class/stream/read_line :static (:r0) (:r0 :r1))
-	(dec-method :write_blk class/stream/write_blk :static (:r0 :r1) (:r0))
 	(dec-method :write_cstr class/stream/write_cstr :static (:r0 :r1) (:r0))
 	(dec-method :lisp_iostream class/stream/lisp_iostream :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_sstream class/stream/lisp_sstream :static (:r0 :r1) (:r0 :r1))

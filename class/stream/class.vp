@@ -411,21 +411,6 @@
 
 (def-func-end)
 
-(def-method 'stream :write_blk)
-	;inputs
-	;:r0 = stream object (ptr)
-	;:r1 = str object (ptr)
-	;outputs
-	;:r0 = stream object (ptr)
-	;trashes
-	;:r1-:r14
-
-	(entry 'stream :write_blk '(:r0 :r1))
-
-	(jump 'stream :write '(:r0 (& :r1 str_data) (:r1 str_length)))
-
-(def-func-end)
-
 (def-method 'stream :write_cstr)
 	;inputs
 	;:r0 = stream object (ptr)

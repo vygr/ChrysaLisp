@@ -17,6 +17,8 @@
 	(dec-method :compare class/str/compare :static (:r0 :r1) (:r0 :r1))
 	(dec-method :starts_with class/str/starts_with :static (:r0 :r1) (:r0 :r1))
 	(dec-method :same class/str/same :static (:r0 :r1) (:r0 :r1))
+	(dec-method :encode class/str/encode :static (:r0) (:r0))
+	(dec-method :decode class/str/decode :static (:r0) (:r0))
 	(dec-method :bfind class/str/bfind :static (:r0 :r1) (:r0 :r1 :r2))
 	(dec-method :type class/str/type :override (:r0) (:r0 :r1))
 	(dec-method :print class/str/print :override)

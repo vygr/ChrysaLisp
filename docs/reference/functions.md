@@ -1102,18 +1102,6 @@ patch stream a with stream b, write to stream c
 (to-lower str) -> str
 ```
 
-### to-net-id
-
-```code
-(to-net-id service_id) -> net_id
-```
-
-### to-service-id
-
-```code
-(to-service-id net_id) -> service_id
-```
-
 ### to-upper
 
 ```code

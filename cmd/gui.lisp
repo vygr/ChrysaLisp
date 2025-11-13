@@ -14,7 +14,7 @@
 ))
 
 (defun launch (node)
-	(if (find (setq node (to-net-id node)) nodes)
+	(if (find (setq node (hex-decode node)) nodes)
 		(open-remote "service/gui/app.lisp" node +kn_call_child)))
 
 (defun main ()

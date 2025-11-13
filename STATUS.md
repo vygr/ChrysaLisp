@@ -30,7 +30,8 @@ New Files widget.
 
 Smarter string encoding for the `.tre` files.
 
-Lowering of `id-encode` and `id-decode` to VP functions.
+Lowering of `hex-encode` and `hex-decode` to VP functions. These now replace all
+uses of `id-encode` and `id-decode`.
 
 New `(read-blk stream bytes) -> :nil | str` and
 `(write-blk stream str) -> bytes` builtin VP function.

@@ -850,3 +850,97 @@
 	(vp-ret)
 
 (def-func-end)
+
+(def-method 'str :encode)
+	;inputs
+	;:r0 = str object (ptr)
+	;outputs
+	;:r0 = encoded str object (ptr)
+	;trashes
+	;:r1-:r8
+
+	(vp-def (src len dst data c1 c2) '(:r7 :r8))
+
+	(entry 'str :encode `(,src))
+
+	(assign `((,src str_length)) `(,len))
+	(vpif `(,len = 0))
+		(class/obj/ref src dst)
+		(vp-cpy-rr src dst)
+	(else)
+		(vp-add-rr len len)
+		(call 'str :create_from_buffer `(0 ,len) `(,dst))
+		(assign `((& ,dst str_data)) `(,data))
+		(assign `((& ,src str_data)) `(,src))
+		(vp-add-rr data len)
+		(loop-start)
+			(vp-cpy-ir-ub src 0 c1)
+			(vp-add-cr 1 src)
+			(vp-cpy-rr c1 c2)
+			(vp-and-cr 0xf c1)
+			(vp-and-cr 0xf0 c2)
+			(vp-shr-cr 4 c2)
+			(vpif `(,c1 > 9))
+				(vp-add-cr (- (ascii-code "A") (ascii-code "0") 10) c1)
+			(endif)
+			(vpif `(,c2 > 9))
+				(vp-add-cr (- (ascii-code "A") (ascii-code "0") 10) c2)
+			(endif)
+			(vp-add-cr (ascii-code "0") c1)
+			(vp-add-cr (ascii-code "0") c2)
+			(vp-simd vp-cpy-ri-b `(,c2 ,c1) `(,data ,data) '(0 1))
+			(vp-add-cr 2 data)
+		(loop-until `(,data = ,len))
+	(endif)
+
+	(exit 'str :encode `(,dst))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'str :decode)
+	;inputs
+	;:r0 = str object (ptr)
+	;outputs
+	;:r0 = decoded str object (ptr)
+	;trashes
+	;:r1-:r8
+
+	(vp-def (src len dst data c1 c2) '(:r7 :r8))
+
+	(entry 'str :decode `(,src))
+
+	(assign `((,src str_length)) `(,len))
+	(vpif `(,len = 0))
+		(class/obj/ref src dst)
+		(vp-cpy-rr src dst)
+	(else)
+		(vp-shr-cr 1 len)
+		(call 'str :create_from_buffer `(0 ,len) `(,dst))
+		(assign `((& ,dst str_data)) `(,data))
+		(assign `((& ,src str_data)) `(,src))
+		(vp-add-rr data len)
+		(loop-start)
+			(vp-simd vp-cpy-ir-ub `(,src ,src) '(0 1) `(,c1 ,c2))
+			(vp-add-cr 2 src)
+			(vp-sub-cr (ascii-code "0") c1)
+			(vp-sub-cr (ascii-code "0") c2)
+			(vpif `(,c1 > 9))
+				(vp-sub-cr (- (ascii-code "A") (ascii-code "0") 10) c1)
+			(endif)
+			(vpif `(,c2 > 9))
+				(vp-sub-cr (- (ascii-code "A") (ascii-code "0") 10) c2)
+			(endif)
+			(vp-and-cr 0xf c1)
+			(vp-and-cr 0xf c2)
+			(vp-shl-cr 4 c1)
+			(vp-add-rr c2 c1)
+			(vp-cpy-ri-b c1 data 0)
+			(vp-add-cr 1 data)
+		(loop-until `(,data = ,len))
+	(endif)
+
+	(exit 'str :decode `(,dst))
+	(vp-ret)
+
+(def-func-end)

@@ -18,9 +18,9 @@
 
 ### (str-alloc size) -> str
 
-### (id-decode str) -> str
+### (hex-decode str) -> str
 
-### (id-encode str) -> str
+### (hex-encode str) -> str
 
 ### (expand str tab_width) -> str
 
@@ -133,6 +133,28 @@ outputs
 :r0 = 0 if error, else str object (ptr)
 trashes
 :r0-:r6
+```
+
+### :decode -> class/str/decode
+
+```code
+inputs
+:r0 = str object (ptr)
+outputs
+:r0 = decoded str object (ptr)
+trashes
+:r1-:r8
+```
+
+### :encode -> class/str/encode
+
+```code
+inputs
+:r0 = str object (ptr)
+outputs
+:r0 = encoded str object (ptr)
+trashes
+:r1-:r8
 ```
 
 ### :find -> class/str/find

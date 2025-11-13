@@ -54,7 +54,7 @@
 (defun gui-rpc (view cmd)
 	; (gui-rpc (view cmd) -> :nil | view
 	(when (nempty? (defq service (mail-enquire "Gui,")))
-		(defq service (to-net-id (second (split (pop service) ",")))
+		(defq service (hex-decode (second (split (pop service) ",")))
 			mbox (mail-mbox))
 		(mail-send service (list cmd view (task-mbox) mbox))
 		(mail-read mbox)

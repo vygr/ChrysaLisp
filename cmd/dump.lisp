@@ -19,11 +19,10 @@
 		(defq adr 0)
 		(while (defq blk (read-blk stream opt_c))
 			(print (int-to-hex-str adr) " "
+				(join (partition (hex-encode blk) 2) " " 2)
+				(pad "" (* 3 (- opt_c (length blk))) "            ")
 				(apply (const cat)
-					(map (# (cat (byte-to-hex-str (code %0)) " ")) blk))
-				(pad "" (* 3 (- opt_c (length blk))) "                ")
-				(apply (const cat)
-					(map (# (if (<= 32 (code %0) 126) %0 ".")) blk)))
+					(map (# (if (find %0 +char_class_printable) %0 ".")) blk)))
 			(setq adr (+ adr opt_c)))))
 
 (defun main ()

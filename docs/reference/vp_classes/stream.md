@@ -204,18 +204,6 @@ trashes
 :r1-:r14
 ```
 
-### :write_blk -> class/stream/write_blk
-
-```code
-inputs
-:r0 = stream object (ptr)
-:r1 = str object (ptr)
-outputs
-:r0 = stream object (ptr)
-trashes
-:r1-:r14
-```
-
 ### :write_char -> class/stream/write_char
 
 ```code

@@ -94,7 +94,7 @@
 				args (options stdio usage)))
 		(when (and (eql pattern "") (> (length args) 1))
 			(defq pattern (second args) args (erase args 1 2)))
-		(if opt_c (setq pattern (id-decode pattern)))
+		(if opt_c (setq pattern (hex-encode pattern)))
 		(when (bind '(search pattern meta) (query pattern opt_w opt_r))
 			(cond
 				(opt_f
@@ -108,7 +108,7 @@
 						;do them all out there, by calling myself !
 						(each (lambda ((job result)) (prin result))
 							(pipe-farm (map (# (cat (first args)
-								" -c -f -e " (id-encode pattern)
+								" -c -f -e " (hex-encode pattern)
 								(if opt_w " -w" "") (if opt_r " -r" "")
 								(if opt_m " -m" "") " " %0)) jobs)))))
 				(:t (if (empty? (defq jobs (rest args)))

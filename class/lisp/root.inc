@@ -155,10 +155,10 @@
 ; (rbskip cls str idx) -> idx
 (ffi "class/str/lisp_rbskipn" rbskipn)
 ; (rbskipn cls str idx) -> idx
-(ffi "class/str/lisp_encode" id-encode)
-; (id-encode str) -> str
-(ffi "class/str/lisp_decode" id-decode)
-; (id-decode str) -> str
+(ffi "class/str/lisp_encode" hex-encode)
+; (hex-encode str) -> str
+(ffi "class/str/lisp_decode" hex-decode)
+; (hex-decode str) -> str
 
 (ffi "class/sym/lisp_sym" sym)
 ; (sym str) -> sym
@@ -922,19 +922,19 @@
 
 (defun byte-to-hex-str (_)
 	; (byte-to-hex-str num) -> str
-	(cat (num-to-char (logand (>> _ 4) 0xf)) (num-to-char (logand _ 0xf))))
+	(hex-encode (char _)))
 
 (defun short-to-hex-str (_)
 	; (short-to-hex-str num) -> str
-	(cat (byte-to-hex-str (>> _ 8)) (byte-to-hex-str (logand _ 0xff))))
+	(apply (const cat) (reverse (partition (hex-encode (char _ +short_size)) 2))))
 
 (defun int-to-hex-str (_)
 	; (int-to-hex-str num) -> str
-	(cat (short-to-hex-str (>> _ 16)) (short-to-hex-str (logand _ 0xffff))))
+	(apply (const cat) (reverse (partition (hex-encode (char _ +int_size)) 2))))
 
 (defun long-to-hex-str (_)
 	; (long-to-hex-str num) -> str
-	(cat (int-to-hex-str (>> _ 32)) (int-to-hex-str (logand _ 0xffffffff))))
+	(apply (const cat) (reverse (partition (hex-encode (char _ +long_size)) 2))))
 
 (defun trim-start (s &optional cls)
 	; (trim-start str [cls]) -> str

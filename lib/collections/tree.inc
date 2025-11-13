@@ -30,7 +30,7 @@
 						atom -1) 0))
 			(cond
 				((or has_bin (and has_quote has_curly))
-					(cat {"} (id-encode atom) {"}))
+					(cat {"} (hex-encode atom) {"}))
 				(has_quote (cat "{[" atom "]}"))
 				((cat {"[} atom {]"}))))
 		((throw "Invalid tree encode !" atom))))
@@ -43,7 +43,7 @@
 		((str? atom)
 			(if (eql (first atom) "[")
 				(slice atom 1 -2)
-				(id-decode atom)))
+				(hex-decode atom)))
 		((throw "Invalid tree decode !" atom))))
 
 (defun tree-buckets (collection type)

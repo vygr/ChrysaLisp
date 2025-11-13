@@ -148,7 +148,7 @@
 		;find files match but not dictionaries !
 		(defq cmd (cat "grep -c -f "
 				(if whole_words "-w " "") (if regexp "-r " "")
-				(id-encode pattern) " ")
+				(hex-encode pattern) " ")
 			results (apply (const cat) (sort (map (const second)
 				(pipe-farm (map (# (cat cmd %0))
 					(filter (lambda (f) (notany (# (eql f %0)) +dictionaries))

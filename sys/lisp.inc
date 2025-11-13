@@ -46,16 +46,6 @@
 	(while (> (-- size) 0) (push select (mail-mbox)))
 	select)
 
-(defun to-net-id (id)
-	; (to-net-id service_id) -> net_id
-	(setq id (id-decode id))
-	(cat (slice id 16 -1) (slice id 0 16)))
-
-(defun to-service-id (id)
-	; (to-service-id net_id) -> service_id
-	(setq id (id-encode id))
-	(if (= (length id) +net_id_size) (cat (slice id 16 -1) (slice id 0 16)) id))
-
 (defun open-task (task node mode key_num reply)
 	; (open-task task node mode key_num reply)
 	(mail-send (cat (char 0 +long_size) node)
