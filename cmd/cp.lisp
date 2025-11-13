@@ -18,4 +18,4 @@
 			(= (length args) 3))
 		(bind '(src dst) (rest args))
 		(setq src (file-stream src) dst (file-stream dst +file_open_write))
-		(while (defq c (read-char src)) (write-char dst c))))
+		(while (defq c (read-blk src 1024)) (write-blk dst c))))

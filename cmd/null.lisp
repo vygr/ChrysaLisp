@@ -21,4 +21,4 @@
 			(defq stdio (create-stdio))
 			(defq args (options stdio usage)))
 		(defq stdin (io-stream 'stdin))
-		(while (read-char stdin))))
+		(while (read-blk stdin 1024))))
