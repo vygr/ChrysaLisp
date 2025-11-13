@@ -22,7 +22,7 @@
 				(join (partition (hex-encode blk) 2) " " 2)
 				(pad "" (* 3 (- opt_c (length blk))) "            ")
 				(apply (const cat)
-					(map (# (if (find %0 +char_class_printable) %0 ".")) blk)))
+					(map (# (if (bfind %0 +char_class_printable) %0 ".")) blk)))
 			(setq adr (+ adr opt_c)))))
 
 (defun main ()
