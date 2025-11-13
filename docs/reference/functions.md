@@ -145,12 +145,6 @@ these are sorted interend unescaped char strings
 can be searched with (bfind)
 ```
 
-### char-to-num
-
-```code
-(char-to-num char) -> num
-```
-
 ### circle
 
 ```code
@@ -632,12 +626,6 @@ very basic attenuation, diffuse and specular
 
 ```code
 (ntz num) -> num
-```
-
-### num-to-char
-
-```code
-(num-to-char num) -> char
 ```
 
 ### num-to-utf8

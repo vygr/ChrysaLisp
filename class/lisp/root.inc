@@ -887,22 +887,6 @@
 	(if (= (% num div) 0) num
 		(+ (* (/ num div) div) div)))
 
-(defun char-to-num (_)
-	; (char-to-num char) -> num
-	(elem-get (const (cat (list quote) (list (map num-intern (cat
-		(map (# (logior %0 -1)) (range 0 (code "0")))                       ;-1
-		(map (# (- %0 (code "0"))) (range (code "0") (inc (code "9"))))     ;0-9
-		(map (# (logior %0 -1)) (range (inc (code "9")) (code "A")))        ;-1
-		(map (# (- %0 (code "A") -10)) (range (code "A") (inc (code "Z")))) ;10-35
-		(map (# (logior %0 -1)) (range (inc (code "Z")) (code "a")))        ;-1
-		(map (# (- %0 (code "a") -10)) (range (code "a") (inc (code "z")))) ;10-35
-		(map (# (logior %0 -1)) (range (inc (code "z")) 256)))))))          ;-1
-		(code _)))
-
-(defun num-to-char (_)
-	; (num-to-char num) -> char
-	(elem-get "0123456789abcdefghijklmnopqrstuvwxyz" _))
-
 (defun str-as-num (_)
 	; (str-as-num str) -> num
 	(pop (nums (str-to-num _))))
@@ -926,15 +910,15 @@
 
 (defun short-to-hex-str (_)
 	; (short-to-hex-str num) -> str
-	(apply (const cat) (reverse (partition (hex-encode (char _ +short_size)) 2))))
+	(hex-encode (apply (const cat) (reverse (partition (char _ +short_size))))))
 
 (defun int-to-hex-str (_)
 	; (int-to-hex-str num) -> str
-	(apply (const cat) (reverse (partition (hex-encode (char _ +int_size)) 2))))
+	(hex-encode (apply (const cat) (reverse (partition (char _ +int_size))))))
 
 (defun long-to-hex-str (_)
 	; (long-to-hex-str num) -> str
-	(apply (const cat) (reverse (partition (hex-encode (char _ +long_size)) 2))))
+	(hex-encode (apply (const cat) (reverse (partition (char _ +long_size))))))
 
 (defun trim-start (s &optional cls)
 	; (trim-start str [cls]) -> str
