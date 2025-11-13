@@ -177,5 +177,5 @@ Allows you to define a VP level implemented method.
 An example from the `View` class:
 
 ```file
-gui/view/lisp.inc ":find_id" ":trans_dirty"
+gui/view/lisp.inc ":ctx_set_color" ":ctx_panel"
 ```

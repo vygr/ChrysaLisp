@@ -126,7 +126,7 @@ service/gui/lisp.inc "gui-rpc"
 Don't worry about the service lookup code, just the RPC part:
 
 ```file
-service/gui/lisp.inc "mbox" "view)"
+service/gui/lisp.inc "(defun gui-rpc" "view)"
 ```
 
 A temp mailbox is allocated, we send off the request to the GUI service, and
