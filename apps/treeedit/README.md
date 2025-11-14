@@ -9,7 +9,7 @@ A graphical tree editor for ChrysaLisp that allows you to create, edit, and mana
 - **Add Items**: Create leaf nodes (items) in the tree
 - **Delete Nodes**: Remove selected nodes from the tree
 - **Rename Nodes**: Edit the names of existing nodes
-- **Save/Load**: Persist tree structures to files (.tree format)
+- **Save/Load**: Persist tree structures to files (.tre format)
 
 ## Usage
 
@@ -49,15 +49,15 @@ The toolbar contains six action buttons (left to right):
 5. **Save Your Work**:
    - Click the "Save" button
    - Choose a filename in the file picker
-   - The tree structure will be saved with a .tree extension
+   - The tree structure will be saved with a .tre extension
 6. **Load a Tree**:
    - Click the "Load" button
-   - Select a .tree file from the file picker
+   - Select a .tre file from the file picker
    - The tree will be loaded and displayed
 
 ## File Format
 
-Tree files (.tree) are simple text files with one route per line:
+Tree files (.tre) are simple text files with one route per line:
 ```
 Root/.
 Root/Folder1/.

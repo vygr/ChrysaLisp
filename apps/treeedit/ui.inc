@@ -91,7 +91,7 @@
 (defun action-save-tree ()
 	; Save the tree structure to a file
 	(mail-send (defq picker (open-child "apps/files/child.lisp" +kn_call_open))
-		(list (task-mbox) "Save Tree As" "." "tree"))
+		(list (task-mbox) "Save Tree As" "." "tre"))
 	(defq filename (mail-read (task-mbox)))
 	(when (nempty? filename)
 		; Collect all routes from the tree
@@ -105,7 +105,7 @@
 (defun action-load-tree ()
 	; Load a tree structure from a file
 	(mail-send (defq picker (open-child "apps/files/child.lisp" +kn_call_open))
-		(list (task-mbox) "Load Tree From" "." "tree"))
+		(list (task-mbox) "Load Tree From" "." "tre"))
 	(defq filename (mail-read (task-mbox)))
 	(when (nempty? filename)
 		; Clear existing tree
