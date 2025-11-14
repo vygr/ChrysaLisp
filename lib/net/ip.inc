@@ -2,30 +2,30 @@
 ; IP (Internet Protocol) Layer
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(import "lib/net/consts.inc")
-(import "lib/net/packet.inc")
-(import "lib/net/utils.inc")
+(import "./consts.inc")
+(import "./packet.inc")
+(import "./utils.inc")
 
 ;;;;;;;;;;;;;;;;;;
 ; IP State
 ;;;;;;;;;;;;;;;;;;
 
-(defq *ip-id-counter* 0)  ; Packet ID counter
-(defq *ip-our-addr* (array 0 0 0 0))  ; Our IP address
-(defq *ip-netmask* (array 255 255 255 0))  ; Our netmask
-(defq *ip-gateway* (array 0 0 0 0))  ; Default gateway
+(defq *ip_id_counter* 0)  ; Packet ID counter
+(defq *ip_our_addr* (array 0 0 0 0))  ; Our IP address
+(defq *ip_netmask* (array 255 255 255 0))  ; Our netmask
+(defq *ip_gateway* (array 0 0 0 0))  ; Default gateway
 
 (defun ip/init (ip netmask gateway)
 	; Initialize IP layer
 	; Inputs: ip, netmask, gateway - 4-byte arrays
-	(setq *ip-our-addr* (apply array ip))
-	(setq *ip-netmask* (apply array netmask))
-	(setq *ip-gateway* (apply array gateway))
-	(setq *ip-id-counter* (net/random-range 1 65536)))
+	(setq *ip_our_addr* (apply array ip))
+	(setq *ip_netmask* (apply array netmask))
+	(setq *ip_gateway* (apply array gateway))
+	(setq *ip_id_counter* (net/random-range 1 65536)))
 
 (defun ip/get-addr ()
 	; Get our IP address
-	*ip-our-addr*)
+	*ip_our_addr*)
 
 ;;;;;;;;;;;;;;;;;;
 ; IP Header Creation
@@ -42,11 +42,11 @@
 	; Output: byte array of IP header
 	(defq hdr (array)
 	      total_len (+ ip_hdr_min_len data_len)
-	      id *ip-id-counter*
+	      id *ip_id_counter*
 	      flags_offset (if df_flag ip_flag_df 0))
 
 	; Increment ID for next packet
-	(setq *ip-id-counter* (logand (+ *ip-id-counter* 1) 0xFFFF))
+	(setq *ip_id_counter* (logand (+ *ip_id_counter* 1) 0xFFFF))
 
 	; Version (4) and IHL (5 = 20 bytes)
 	(elem-set hdr 0 0x45)
@@ -145,7 +145,7 @@
 	; Check if destination IP is on local network
 	; Input: dst_ip - 4-byte array
 	; Output: t if local, nil if needs gateway
-	(net/ip-in-subnet dst_ip *ip-netmask* *ip-our-addr*))
+	(net/ip-in-subnet dst_ip *ip_netmask* *ip_our_addr*))
 
 (defun ip/next-hop (dst_ip)
 	; Determine next hop for destination
@@ -153,7 +153,7 @@
 	; Output: next hop IP address (4-byte array)
 	(if (ip/is-local dst_ip)
 		dst_ip
-		*ip-gateway*))
+		*ip_gateway*))
 
 ;;;;;;;;;;;;;;;;;;
 ; IP Packet Sending
@@ -167,7 +167,7 @@
 	;   data - payload data (byte array)
 	;   ttl - optional time to live
 	; Output: complete packet (IP header + data) or nil
-	(defq hdr (ip/create-header *ip-our-addr* dst_ip
+	(defq hdr (ip/create-header *ip_our_addr* dst_ip
 	                            protocol (length data) ttl)
 	      packet (array))
 
@@ -181,14 +181,14 @@
 ; IP Packet Reception
 ;;;;;;;;;;;;;;;;;;
 
-(defq *ip-protocol-handlers* (env 16))  ; Protocol handler registry
+(defq *ip_protocol_handlers* (env 16))  ; Protocol handler registry
 
 (defun ip/register-handler (protocol handler_fn)
 	; Register handler for IP protocol
 	; Inputs:
 	;   protocol - protocol number
 	;   handler_fn - function to call with (src_ip dst_ip data)
-	(elem-set *ip-protocol-handlers* protocol handler_fn))
+	(elem-set *ip_protocol_handlers* protocol handler_fn))
 
 (defun ip/process (packet)
 	; Process incoming IP packet
@@ -199,12 +199,12 @@
 	(if (and ip_pkt (ip/verify-checksum packet))
 		(progn
 			; Check if packet is for us
-			(when (or (every eql *ip-our-addr* (elem-get ip_pkt :dst-ip))
+			(when (or (every eql *ip_our_addr* (elem-get ip_pkt :dst-ip))
 			          ; Broadcast check could go here
 			          (every eql (array 255 255 255 255) (elem-get ip_pkt :dst-ip)))
 
 				; Find protocol handler
-				(defq handler (elem-get *ip-protocol-handlers*
+				(defq handler (elem-get *ip_protocol_handlers*
 				                        (elem-get ip_pkt :protocol)))
 
 				(if handler

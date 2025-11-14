@@ -1,4 +1,4 @@
-(include "lib/net/consts.inc")
+(include "./consts.inc")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Network Packet Structures

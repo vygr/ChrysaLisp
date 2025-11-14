@@ -9,41 +9,41 @@
 (defun dns-type-to-string (dns_type)
 	; Convert DNS type number to string
 	(cond
-		((= dns_type dns_type_a) "A")
-		((= dns_type dns_type_ns) "NS")
-		((= dns_type dns_type_cname) "CNAME")
-		((= dns_type dns_type_soa) "SOA")
-		((= dns_type dns_type_ptr) "PTR")
-		((= dns_type dns_type_mx) "MX")
-		((= dns_type dns_type_aaaa) "AAAA")
-		((= dns_type dns_type_any) "ANY")
+		((eql dns_type dns_type_a) "A")
+		((eql dns_type dns_type_ns) "NS")
+		((eql dns_type dns_type_cname) "CNAME")
+		((eql dns_type dns_type_soa) "SOA")
+		((eql dns_type dns_type_ptr) "PTR")
+		((eql dns_type dns_type_mx) "MX")
+		((eql dns_type dns_type_aaaa) "AAAA")
+		((eql dns_type dns_type_any) "ANY")
 		(t (str "TYPE" dns_type))))
 
 (defun string-to-dns-type (str)
 	; Convert string to DNS type number
 	(cond
-		((= str "A") dns_type_a)
-		((= str "NS") dns_type_ns)
-		((= str "CNAME") dns_type_cname)
-		((= str "SOA") dns_type_soa)
-		((= str "PTR") dns_type_ptr)
-		((= str "MX") dns_type_mx)
-		((= str "AAAA") dns_type_aaaa)
-		((= str "ANY") dns_type_any)
+		((eql str "A") dns_type_a)
+		((eql str "NS") dns_type_ns)
+		((eql str "CNAME") dns_type_cname)
+		((eql str "SOA") dns_type_soa)
+		((eql str "PTR") dns_type_ptr)
+		((eql str "MX") dns_type_mx)
+		((eql str "AAAA") dns_type_aaaa)
+		((eql str "ANY") dns_type_any)
 		(t dns_type_a)))  ; Default to A
 
 (defun format-rdata (dns_type rdata)
 	; Format RDATA for display based on type
 	(cond
-		((= dns_type dns_type_a)
+		((eql dns_type dns_type_a)
 			; IPv4 address
 			(net/ip-to-string rdata))
 
-		((= dns_type dns_type_cname)
+		((eql dns_type dns_type_cname)
 			; Canonical name
 			rdata)
 
-		((= dns_type dns_type_mx)
+		((eql dns_type dns_type_mx)
 			; Mail exchange
 			(str (get rdata :preference) " " (get rdata :exchange)))
 
