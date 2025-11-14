@@ -28,7 +28,7 @@
 		(exit 0))
 
 	; Get parameters
-	(defq target_str (elem-get (get-option args "*") 0)
+	(defq target_str (elem-get (get_option args "*") 0)
 	      count (num (get-option args "-c"))
 	      interval (num (get-option args "-i"))
 	      timeout (num (get-option args "-w"))
@@ -47,7 +47,7 @@
 		(def *icmp-initialized* :icmp t))
 
 	; Ping state
-	(defq ping_id (net/random-range 1 65536)
+	(defq ping_id (net/random_range 1 65536)
 	      seq 0
 	      sent 0
 	      received 0
@@ -59,7 +59,7 @@
 	; Register echo reply handler
 	(defq reply_handler (lambda (src_ip id seq_num data)
 		(when (= id ping_id)
-			(defq rtt (- (time) (elem-get *ping-state* :send-time))
+			(defq rtt (- (time) (elem-get *ping-state* :send_time))
 			      rtt_ms (/ rtt 1000.0))
 
 			; Update statistics
@@ -86,7 +86,7 @@
 	(prinl)
 
 	; Send pings
-	(defq *ping-state* (env :send-time 0 :received nil))
+	(defq *ping-state* (env :send_time 0 :received nil))
 
 	(while (< sent count)
 		(setq seq (+ seq 1)

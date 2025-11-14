@@ -8,7 +8,7 @@
 (import "lib/net/ip.lisp")
 
 ; Global network interface state
-(defq *net-interfaces* (env))
+(defq *net_interfaces* (env))
 
 (defun show-interface (if_name if_data)
 	; Display interface information
@@ -86,7 +86,7 @@
 
 (defun set-interface-up (if_name up)
 	; Set interface up or down
-	(defq if_data (get *net-interfaces* (keyword if_name)))
+	(defq if_data (get *net_interfaces* (keyword if_name)))
 	(if if_data
 		(progn
 			(def (get if_data :flags) :up up)
@@ -142,7 +142,7 @@
 		               65536))
 
 	; Get interface name if provided
-	(defq if_args (get-option args "*"))
+	(defq if_args (get_option args "*"))
 
 	(cond
 		; No interface specified - show all
@@ -151,7 +151,7 @@
 
 		; Interface with command (up/down)
 		((= (length if_args) 2)
-			(defq if_name (elem-get if_args 0)
+			(defq if_name (elem_get if_args 0)
 			      cmd (elem-get if_args 1))
 			(cond
 				((= cmd "up")
@@ -165,7 +165,7 @@
 
 		; Show specific interface
 		((= (length if_args) 1)
-			(defq if_name (elem-get if_args 0)
+			(defq if_name (elem_get if_args 0)
 			      if_data (get *net-interfaces* (keyword if_name)))
 			(if if_data
 				(show-interface if_name if_data)

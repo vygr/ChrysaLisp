@@ -27,26 +27,26 @@
 ; TCP Connection ID
 ;;;;;;;;;;;;;;;;;;
 
-(defun tcp/make-conn-id (local-ip local-port remote-ip remote-port)
+(defun tcp/make-conn-id (local_ip local_port remote_ip remote_port)
 	; Create connection identifier string
-	(str (net/ip-to-string local-ip) ":" local-port ":"
-	     (net/ip-to-string remote-ip) ":" remote-port))
+	(str (net/ip-to-string local_ip) ":" local_port ":"
+	     (net/ip-to-string remote_ip) ":" remote_port))
 
 ;;;;;;;;;;;;;;;;;;
 ; TCP Control Block
 ;;;;;;;;;;;;;;;;;;
 
-(defun tcp/create-tcb (local-ip local-port remote-ip remote-port)
+(defun tcp/create-tcb (local_ip local_port remote_ip remote_port)
 	; Create TCP Control Block
 	; Output: TCB environment
 	(defq isn (net/random))  ; Initial sequence number
 
 	(env
 		:state tcp_state_closed
-		:local-ip local-ip
-		:local-port local-port
-		:remote-ip remote-ip
-		:remote-port remote-port
+		:local-ip local_ip
+		:local-port local_port
+		:remote-ip remote_ip
+		:remote-port remote_port
 
 		; Send sequence variables
 		:snd-una isn           ; Send unacknowledged
@@ -81,10 +81,10 @@
 ; TCP Packet Creation
 ;;;;;;;;;;;;;;;;;;
 
-(defun tcp/create-packet (src-port dst-port seq ack flags window data)
+(defun tcp/create-packet (src_port dst_port seq ack flags window data)
 	; Create TCP packet
 	; Inputs:
-	;   src-port, dst-port - port numbers
+	;   src_port, dst_port - port numbers
 	;   seq - sequence number
 	;   ack - acknowledgment number
 	;   flags - TCP flags
@@ -92,13 +92,13 @@
 	;   data - payload data (byte array)
 	; Output: TCP packet (byte array)
 	(defq pkt (array)
-	      data-offset 5)  ; 5 * 4 = 20 bytes (no options)
+	      data_offset 5)  ; 5 * 4 = 20 bytes (no options)
 
 	; Source port
-	(net/write-u16 pkt 0 src-port)
+	(net/write-u16 pkt 0 src_port)
 
 	; Destination port
-	(net/write-u16 pkt 2 dst-port)
+	(net/write-u16 pkt 2 dst_port)
 
 	; Sequence number
 	(net/write-u32 pkt 4 seq)
@@ -107,7 +107,7 @@
 	(net/write-u32 pkt 8 ack)
 
 	; Data offset (4 bits) + Reserved (4 bits)
-	(elem-set pkt 12 (ash data-offset 4))
+	(elem-set pkt 12 (ash data_offset 4))
 
 	; Flags
 	(elem-set pkt 13 flags)
@@ -126,22 +126,22 @@
 
 	pkt)
 
-(defun tcp/calculate-checksum (src-ip dst-ip tcp-packet)
+(defun tcp/calculate-checksum (src_ip dst_ip tcp_packet)
 	; Calculate TCP checksum with pseudo-header
 	; Inputs:
-	;   src-ip, dst-ip - IP addresses (4-byte arrays)
-	;   tcp-packet - TCP packet (byte array)
+	;   src_ip, dst_ip - IP addresses (4-byte arrays)
+	;   tcp_packet - TCP packet (byte array)
 	; Output: checksum value
 
 	; Create pseudo-header
 	(defq pseudo (array)
-	      tcp-len (length tcp-packet))
+	      tcp_len (length tcp_packet))
 
 	; Source IP
-	(each (# (push pseudo %0)) src-ip)
+	(each (# (push pseudo %0)) src_ip)
 
 	; Destination IP
-	(each (# (push pseudo %0)) dst-ip)
+	(each (# (push pseudo %0)) dst_ip)
 
 	; Zero
 	(push pseudo 0)
@@ -150,10 +150,10 @@
 	(push pseudo ip_proto_tcp)
 
 	; TCP length
-	(net/write-u16 pseudo (length pseudo) tcp-len)
+	(net/write-u16 pseudo (length pseudo) tcp_len)
 
 	; Add TCP packet
-	(each (# (push pseudo %0)) tcp-packet)
+	(each (# (push pseudo %0)) tcp_packet)
 
 	; Calculate checksum
 	(net/checksum pseudo 0 (length pseudo)))
@@ -169,24 +169,24 @@
 	(if (< (length data) tcp_hdr_min_len)
 		nil
 		(progn
-			(defq data-offset (ash (elem-get data 12) -4)
-			      hdr-len (* data-offset 4))
+			(defq data_offset (ash (elem-get data 12) -4)
+			      hdr_len (* data_offset 4))
 
-			(if (<= hdr-len (length data))
+			(if (<= hdr_len (length data))
 				(env
 					:src-port (net/read-u16 data 0)
 					:dst-port (net/read-u16 data 2)
 					:seq (net/read-u32 data 4)
 					:ack (net/read-u32 data 8)
-					:data-offset data-offset
+					:data-offset data_offset
 					:flags (elem-get data 13)
 					:window (net/read-u16 data 14)
 					:checksum (net/read-u16 data 16)
 					:urgent (net/read-u16 data 18)
-					:options (if (> hdr-len tcp_hdr_min_len)
-					            (slice data tcp_hdr_min_len hdr-len)
+					:options (if (> hdr_len tcp_hdr_min_len)
+					            (slice data tcp_hdr_min_len hdr_len)
 					            (array))
-					:data (slice data hdr-len (length data)))
+					:data (slice data hdr_len (length data)))
 				nil))))
 
 ;;;;;;;;;;;;;;;;;;
@@ -232,26 +232,26 @@
 ; TCP Connection Management
 ;;;;;;;;;;;;;;;;;;
 
-(defun tcp/connect (dst-ip dst-port)
+(defun tcp/connect (dst_ip dst_port)
 	; Initiate TCP connection (client)
-	; Inputs: dst-ip - destination IP, dst-port - destination port
+	; Inputs: dst_ip - destination IP, dst_port - destination port
 	; Output: TCB or nil if failed
 
 	; Allocate local port
-	(defq local-port *tcp-next-port*)
+	(defq local_port *tcp-next-port*)
 	(setq *tcp-next-port* (+ *tcp-next-port* 1))
 	(when (>= *tcp-next-port* 65536)
 		(setq *tcp-next-port* 49152))
 
 	; Create TCB
-	(defq tcb (tcp/create-tcb (ip/get-addr) local-port dst-ip dst-port)
-	      conn-id (tcp/make-conn-id (ip/get-addr) local-port dst-ip dst-port))
+	(defq tcb (tcp/create-tcb (ip/get-addr) local_port dst_ip dst_port)
+	      conn_id (tcp/make-conn-id (ip/get-addr) local_port dst_ip dst_port))
 
-	(elem-set tcb :conn-id conn-id)
+	(elem-set tcb :conn-id conn_id)
 	(elem-set tcb :state tcp_state_syn_sent)
 
 	; Store connection
-	(elem-set *tcp-connections* conn-id tcb)
+	(elem-set *tcp-connections* conn_id tcb)
 
 	; Send SYN
 	(tcp/send-packet tcb tcp_flag_syn (array))
@@ -261,14 +261,14 @@
 
 	tcb)
 
-(defun tcp/listen (port accept-fn)
+(defun tcp/listen (port accept_fn)
 	; Listen for incoming TCP connections (server)
-	; Inputs: port - port to listen on, accept-fn - callback for new connections
+	; Inputs: port - port to listen on, accept_fn - callback for new connections
 	; Output: t if success, nil if port in use
 	(if (elem-get *tcp-listen-sockets* port)
 		nil
 		(progn
-			(elem-set *tcp-listen-sockets* port accept-fn)
+			(elem-set *tcp-listen-sockets* port accept_fn)
 			t)))
 
 (defun tcp/close (tcb)
@@ -303,7 +303,7 @@
 	; Inputs: tcb - TCP control block, flags - TCP flags, data - payload
 	; Output: IP packet or nil
 
-	(defq tcp-pkt (tcp/create-packet
+	(defq tcp_pkt (tcp/create-packet
 		(elem-get tcb :local-port)
 		(elem-get tcb :remote-port)
 		(elem-get tcb :snd-nxt)
@@ -316,11 +316,11 @@
 	(defq cksum (tcp/calculate-checksum
 		(elem-get tcb :local-ip)
 		(elem-get tcb :remote-ip)
-		tcp-pkt))
-	(net/write-u16 tcp-pkt 16 cksum)
+		tcp_pkt))
+	(net/write-u16 tcp_pkt 16 cksum)
 
 	; Send via IP layer
-	(ip/send-packet (elem-get tcb :remote-ip) ip_proto_tcp tcp-pkt))
+	(ip/send-packet (elem-get tcb :remote-ip) ip_proto_tcp tcp_pkt))
 
 (defun tcp/send-data (tcb data)
 	; Send data over established TCP connection

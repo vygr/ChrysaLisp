@@ -40,9 +40,9 @@
 ; DNS State
 ;;;;;;;;;;;;;;;;;;
 
-(defq *dns-servers* (list))    ; List of DNS server IPs
-(defq *dns-cache* (env))       ; DNS response cache
-(defq *dns-query-id* 0)        ; Query ID counter
+(defq *dns_servers* (list))    ; List of DNS server IPs
+(defq *dns_cache* (env))       ; DNS response cache
+(defq *dns-query_id* 0)        ; Query ID counter
 
 (defun dns/init (servers)
 	; Initialize DNS resolver
@@ -102,7 +102,7 @@
 
 	(while t
 		; Read length byte
-		(defq len (elem-get data pos))
+		(defq len (elem_get data pos))
 
 		; Check for compression pointer (top 2 bits set)
 		(if (= (logand len 0xC0) 0xC0)
@@ -165,7 +165,7 @@
 	(net/write-u16 pkt 10 0)          ; ARCOUNT: 0 additional
 
 	; Question section
-	(defq encoded_name (dns/encode-name domain))
+	(defq encoded_name (dns/encode_name domain))
 	(each (# (push pkt %0)) encoded_name)
 
 	; QTYPE and QCLASS
@@ -197,7 +197,7 @@
 	; Parse DNS question section
 	; Returns: (question new_offset)
 
-	(defq name_result (dns/decode-name data offset)
+	(defq name_result (dns/decode_name data offset)
 	      name (elem 0 name_result)
 	      pos (elem 1 name_result)
 	      qtype (net/read-u16 data pos)
@@ -210,7 +210,7 @@
 	; Parse DNS answer/resource record
 	; Returns: (answer new_offset)
 
-	(defq name_result (dns/decode-name data offset)
+	(defq name_result (dns/decode_name data offset)
 	      name (elem 0 name_result)
 	      pos (elem 1 name_result)
 	      rtype (net/read-u16 data pos)
@@ -233,7 +233,7 @@
 
 		((= rtype dns_type_mx)
 			; Mail exchange
-			(defq preference (net/read-u16 data rdata_offset)
+			(defq preference (net/read_u16 data rdata_offset)
 			      mx_name (elem 0 (dns/decode-name data (+ rdata_offset 2))))
 			(setq rdata (env :preference preference :exchange mx_name)))
 
@@ -275,11 +275,11 @@
 		(return nil))
 
 	; Create query packet
-	(defq query_pkt (dns/create-query domain qtype dns_class_in)
+	(defq query_pkt (dns/create_query domain qtype dns_class_in)
 	      server_ip (elem-get *dns-servers* 0))
 
 	; Create temporary UDP socket for query
-	(defq local_port (udp/allocate-port)
+	(defq local_port (udp/allocate_port)
 	      response nil
 	      response_received nil)
 
@@ -309,7 +309,7 @@
 	(unless response
 		(return nil))
 
-	(defq header (dns/parse-header response))
+	(defq header (dns/parse_header response))
 
 	; Check response code
 	(when (not (= (get header :rcode) dns_rcode_ok))
@@ -330,7 +330,7 @@
 	; Parse answer section
 	(setq i 0)
 	(while (< i (get header :ancount))
-		(defq answer_result (dns/parse-answer response pos)
+		(defq answer_result (dns/parse_answer response pos)
 		      answer (elem 0 answer_result))
 		(push answers answer)
 		(setq pos (elem 1 answer_result)

@@ -18,7 +18,7 @@
 		(prinl)
 		(exit 1))
 
-	(defq target-ip-str (elem-get args 0)
+	(defq target-ip-str (elem_get args 0)
 	      target-ip (net/string-to-ip target-ip-str)
 	      target-port (num (elem-get args 1))
 	      message (elem-get args 2))

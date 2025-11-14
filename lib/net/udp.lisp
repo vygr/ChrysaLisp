@@ -25,23 +25,23 @@
 ; UDP Packet Creation
 ;;;;;;;;;;;;;;;;;;
 
-(defun udp/create-packet (src-port dst-port data)
+(defun udp/create-packet (src_port dst_port data)
 	; Create UDP packet
 	; Inputs:
-	;   src-port, dst-port - port numbers (16-bit)
+	;   src_port, dst_port - port numbers (16-bit)
 	;   data - payload data (byte array)
 	; Output: UDP packet (byte array)
 	(defq pkt (array)
-	      total-len (+ udp_hdr_len (length data)))
+	      total_len (+ udp_hdr_len (length data)))
 
 	; Source port
-	(net/write-u16 pkt 0 src-port)
+	(net/write-u16 pkt 0 src_port)
 
 	; Destination port
-	(net/write-u16 pkt 2 dst-port)
+	(net/write-u16 pkt 2 dst_port)
 
 	; Length
-	(net/write-u16 pkt 4 total-len)
+	(net/write-u16 pkt 4 total_len)
 
 	; Checksum (0 = no checksum for now, optional in IPv4)
 	(net/write-u16 pkt 6 0)
@@ -51,22 +51,22 @@
 
 	pkt)
 
-(defun udp/calculate-checksum (src-ip dst-ip udp-packet)
+(defun udp/calculate-checksum (src_ip dst_ip udp_packet)
 	; Calculate UDP checksum with pseudo-header
 	; Inputs:
-	;   src-ip, dst-ip - IP addresses (4-byte arrays)
-	;   udp-packet - UDP packet (byte array)
+	;   src_ip, dst_ip - IP addresses (4-byte arrays)
+	;   udp_packet - UDP packet (byte array)
 	; Output: checksum value
 
 	; Create pseudo-header
 	(defq pseudo (array)
-	      udp-len (length udp-packet))
+	      udp_len (length udp_packet))
 
 	; Source IP
-	(each (# (push pseudo %0)) src-ip)
+	(each (# (push pseudo %0)) src_ip)
 
 	; Destination IP
-	(each (# (push pseudo %0)) dst-ip)
+	(each (# (push pseudo %0)) dst_ip)
 
 	; Zero
 	(push pseudo 0)
@@ -75,10 +75,10 @@
 	(push pseudo ip_proto_udp)
 
 	; UDP length
-	(net/write-u16 pseudo (length pseudo) udp-len)
+	(net/write-u16 pseudo (length pseudo) udp_len)
 
 	; Add UDP packet
-	(each (# (push pseudo %0)) udp-packet)
+	(each (# (push pseudo %0)) udp_packet)
 
 	; Calculate checksum
 	(defq cksum (net/checksum pseudo 0 (length pseudo)))
@@ -107,16 +107,16 @@
 ; UDP Socket Management
 ;;;;;;;;;;;;;;;;;;
 
-(defun udp/bind (port handler-fn)
+(defun udp/bind (port handler_fn)
 	; Bind UDP port to handler function
 	; Inputs:
 	;   port - port number (1-65535)
-	;   handler-fn - function to call with (src-ip src-port data)
+	;   handler_fn - function to call with (src_ip src_port data)
 	; Output: t if success, nil if port already in use
 	(if (elem-get *udp-sockets* port)
 		nil
 		(progn
-			(elem-set *udp-sockets* port handler-fn)
+			(elem-set *udp-sockets* port handler_fn)
 			t)))
 
 (defun udp/unbind (port)
@@ -127,12 +127,12 @@
 (defun udp/allocate-port ()
 	; Allocate ephemeral port
 	; Output: port number or nil if none available
-	(defq start-port *udp-next-ephemeral-port*
+	(defq start_port *udp-next-ephemeral-port*
 	      port *udp-next-ephemeral-port*)
 
 	; Find next available port
 	(while (and (elem-get *udp-sockets* port)
-	            (not (= (+ port 1) start-port)))
+	            (not (= (+ port 1) start_port)))
 		(setq port (+ port 1))
 		(when (>= port 65536)
 			(setq port 49152)))
@@ -150,44 +150,44 @@
 ; UDP Sending
 ;;;;;;;;;;;;;;;;;;
 
-(defun udp/send (dst-ip src-port dst-port data)
+(defun udp/send (dst_ip src_port dst_port data)
 	; Send UDP packet
 	; Inputs:
-	;   dst-ip - destination IP (4-byte array)
-	;   src-port - source port
-	;   dst-port - destination port
+	;   dst_ip - destination IP (4-byte array)
+	;   src_port - source port
+	;   dst_port - destination port
 	;   data - payload data
 	; Output: IP packet or nil
-	(defq udp-pkt (udp/create-packet src-port dst-port data))
+	(defq udp_pkt (udp/create-packet src_port dst_port data))
 
 	; Optionally calculate checksum
-	; (defq cksum (udp/calculate-checksum (ip/get-addr) dst-ip udp-pkt))
-	; (net/write-u16 udp-pkt 6 cksum)
+	; (defq cksum (udp/calculate-checksum (ip/get-addr) dst_ip udp_pkt))
+	; (net/write-u16 udp_pkt 6 cksum)
 
 	; Send via IP layer
-	(ip/send-packet dst-ip ip_proto_udp udp-pkt))
+	(ip/send-packet dst_ip ip_proto_udp udp_pkt))
 
 ;;;;;;;;;;;;;;;;;;
 ; UDP Reception
 ;;;;;;;;;;;;;;;;;;
 
-(defun udp/process (src-ip dst-ip data)
+(defun udp/process (src_ip dst_ip data)
 	; Process incoming UDP packet
-	; Inputs: src-ip, dst-ip - IP addresses (4-byte arrays), data - UDP packet
+	; Inputs: src_ip, dst_ip - IP addresses (4-byte arrays), data - UDP packet
 	; Output: t if processed, nil if error
-	(defq udp-pkt (udp/parse data))
+	(defq udp_pkt (udp/parse data))
 
-	(if udp-pkt
+	(if udp_pkt
 		(progn
 			; Find handler for destination port
-			(defq handler (elem-get *udp-sockets* (elem-get udp-pkt :dst-port)))
+			(defq handler (elem-get *udp-sockets* (elem-get udp_pkt :dst-port)))
 
 			(if handler
 				(progn
 					; Call handler
-					(handler src-ip
-					         (elem-get udp-pkt :src-port)
-					         (elem-get udp-pkt :data))
+					(handler src_ip
+					         (elem-get udp_pkt :src-port)
+					         (elem-get udp_pkt :data))
 					t)
 				; No handler for this port - could send ICMP port unreachable
 				nil))
@@ -206,24 +206,24 @@
 		:port nil
 		:handler nil))
 
-(defun udp/socket-bind (socket port handler-fn)
+(defun udp/socket-bind (socket port handler_fn)
 	; Bind UDP socket to port
-	; Inputs: socket - socket environment, port - port number, handler-fn
+	; Inputs: socket - socket environment, port - port number, handler_fn
 	; Output: t if success, nil if failed
-	(if (udp/bind port handler-fn)
+	(if (udp/bind port handler_fn)
 		(progn
 			(elem-set socket :port port)
-			(elem-set socket :handler handler-fn)
+			(elem-set socket :handler handler_fn)
 			t)
 		nil))
 
-(defun udp/socket-send (socket dst-ip dst-port data)
+(defun udp/socket-send (socket dst_ip dst_port data)
 	; Send data via UDP socket
-	; Inputs: socket, dst-ip, dst-port, data
+	; Inputs: socket, dst_ip, dst_port, data
 	; Output: packet or nil
-	(defq src-port (elem-get socket :port))
-	(if src-port
-		(udp/send dst-ip src-port dst-port data)
+	(defq src_port (elem-get socket :port))
+	(if src_port
+		(udp/send dst_ip src_port dst_port data)
 		nil))
 
 (defun udp/socket-close (socket)
