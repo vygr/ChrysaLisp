@@ -3,10 +3,10 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (import "lib/net/consts.inc")
-(import "lib/net/utils.lisp")
-(import "lib/net/ip.lisp")
-(import "lib/net/udp.lisp")
-(import "lib/net/socket.lisp")
+(import "lib/net/utils.inc")
+(import "lib/net/ip.inc")
+(import "lib/net/udp.inc")
+(import "lib/net/socket.inc")
 
 (defun udp-echo-server/main (args)
 	; Simple UDP echo server

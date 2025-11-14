@@ -3,9 +3,9 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (import "lib/net/consts.inc")
-(import "lib/net/utils.lisp")
-(import "lib/net/ip.lisp")
-(import "lib/net/udp.lisp")
+(import "lib/net/utils.inc")
+(import "lib/net/ip.inc")
+(import "lib/net/udp.inc")
 
 ;;;;;;;;;;;;;;;;;;
 ; DNS Constants
@@ -41,14 +41,14 @@
 ;;;;;;;;;;;;;;;;;;
 
 (defq *dns_servers* (list))    ; List of DNS server IPs
-(defq *dns_cache* (env))       ; DNS response cache
+(defq *dns_cache* (env 64))    ; DNS response cache
 (defq *dns-query_id* 0)        ; Query ID counter
 
 (defun dns/init (servers)
 	; Initialize DNS resolver
 	; Input: servers - list of DNS server IP addresses (4-byte arrays)
 	(setq *dns-servers* servers)
-	(setq *dns-cache* (env))
+	(setq *dns-cache* (env 64))
 	(setq *dns-query-id* (net/random-range 1 65536))
 
 	; Initialize UDP if not already done

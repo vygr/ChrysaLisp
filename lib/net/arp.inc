@@ -4,7 +4,7 @@
 
 (import "lib/net/consts.inc")
 (import "lib/net/packet.inc")
-(import "lib/net/utils.lisp")
+(import "lib/net/utils.inc")
 
 ;;;;;;;;;;;;;;;;;;
 ; ARP Cache
@@ -173,7 +173,7 @@
 ; ARP Resolution
 ;;;;;;;;;;;;;;;;;;
 
-(defq *arp-pending* (env))  ; Pending ARP requests
+(defq *arp-pending* (env 16))  ; Pending ARP requests
 
 (defun arp/resolve (ip timeout)
 	; Resolve IP address to MAC address

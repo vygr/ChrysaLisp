@@ -4,21 +4,21 @@
 
 (import "lib/net/consts.inc")
 (import "lib/net/packet.inc")
-(import "lib/net/utils.lisp")
-(import "lib/net/ip.lisp")
+(import "lib/net/utils.inc")
+(import "lib/net/ip.inc")
 
 ;;;;;;;;;;;;;;;;;;
 ; TCP State
 ;;;;;;;;;;;;;;;;;;
 
-(defq *tcp-connections* (env))  ; Active TCP connections
-(defq *tcp-listen-sockets* (env))  ; Listening sockets
+(defq *tcp-connections* (env 64))  ; Active TCP connections
+(defq *tcp-listen-sockets* (env 16))  ; Listening sockets
 (defq *tcp-next-port* 49152)  ; Next ephemeral port
 
 (defun tcp/init ()
 	; Initialize TCP layer
-	(setq *tcp-connections* (env))
-	(setq *tcp-listen-sockets* (env))
+	(setq *tcp-connections* (env 64))
+	(setq *tcp-listen-sockets* (env 16))
 	(setq *tcp-next-port* 49152)
 	; Register TCP as IP protocol handler
 	(ip/register-handler ip_proto_tcp tcp/process))

@@ -6,7 +6,7 @@
 ; by calling the host network driver functions
 
 (import "sys/net/class.vp")
-(import "lib/net/utils.lisp")
+(import "lib/net/utils.inc")
 
 (defun test-network-integration ()
 	(prin "Network Driver Integration Test\n")

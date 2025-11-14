@@ -116,7 +116,7 @@ int vp64(..., int64_t* host_net_funcs)
 ```lisp
 ; Import network bridge
 (import "sys/net/class.vp")
-(import "lib/net/ethernet.lisp")
+(import "lib/net/ethernet.inc")
 
 ; Initialize Ethernet layer
 (eth/init my_mac my_send_fn)
@@ -136,8 +136,8 @@ int vp64(..., int64_t* host_net_funcs)
 
 ```lisp
 ; Full example in apps/netdemo/ping.lisp
-(import "lib/net/ip.lisp")
-(import "lib/net/icmp.lisp")
+(import "lib/net/ip.inc")
+(import "lib/net/icmp.inc")
 
 ; Initialize IP layer
 (ip/init my_ip my_netmask my_gateway)
