@@ -55,9 +55,9 @@
 ; ARP Packet Handling
 ;;;;;;;;;;;;;;;;;;
 
-(defun arp/create-request (src-mac src-ip dst-ip)
+(defun arp/create-request (src_mac src_ip dst_ip)
 	; Create ARP request packet
-	; Inputs: src-mac (6 bytes), src-ip (4 bytes), dst-ip (4 bytes)
+	; Inputs: src_mac (6 bytes), src_ip (4 bytes), dst_ip (4 bytes)
 	; Output: byte array of ARP packet
 	(defq pkt (array))
 
@@ -69,10 +69,10 @@
 	(net/write-u16 pkt 6 arp_op_request)        ; Operation
 
 	; Sender hardware address (MAC)
-	(each (# (elem-set pkt (+ 8 %1) %0)) src-mac)
+	(each (# (elem-set pkt (+ 8 %1) %0)) src_mac)
 
 	; Sender protocol address (IP)
-	(each (# (elem-set pkt (+ 14 %1) %0)) src-ip)
+	(each (# (elem-set pkt (+ 14 %1) %0)) src_ip)
 
 	; Target hardware address (zeros for request)
 	(defq i 0)
@@ -81,13 +81,13 @@
 		(setq i (+ i 1)))
 
 	; Target protocol address (IP)
-	(each (# (elem-set pkt (+ 24 %1) %0)) dst-ip)
+	(each (# (elem-set pkt (+ 24 %1) %0)) dst_ip)
 
 	pkt)
 
-(defun arp/create-reply (src-mac src-ip dst-mac dst-ip)
+(defun arp/create-reply (src_mac src_ip dst_mac dst_ip)
 	; Create ARP reply packet
-	; Inputs: src-mac, src-ip, dst-mac, dst-ip (all byte arrays)
+	; Inputs: src_mac, src_ip, dst_mac, dst_ip (all byte arrays)
 	; Output: byte array of ARP packet
 	(defq pkt (array))
 
@@ -99,16 +99,16 @@
 	(net/write-u16 pkt 6 arp_op_reply)          ; Operation
 
 	; Sender hardware address (MAC)
-	(each (# (elem-set pkt (+ 8 %1) %0)) src-mac)
+	(each (# (elem-set pkt (+ 8 %1) %0)) src_mac)
 
 	; Sender protocol address (IP)
-	(each (# (elem-set pkt (+ 14 %1) %0)) src-ip)
+	(each (# (elem-set pkt (+ 14 %1) %0)) src_ip)
 
 	; Target hardware address (MAC)
-	(each (# (elem-set pkt (+ 18 %1) %0)) dst-mac)
+	(each (# (elem-set pkt (+ 18 %1) %0)) dst_mac)
 
 	; Target protocol address (IP)
-	(each (# (elem-set pkt (+ 24 %1) %0)) dst-ip)
+	(each (# (elem-set pkt (+ 24 %1) %0)) dst_ip)
 
 	pkt)
 
@@ -129,42 +129,42 @@
 			:tha (slice data 18 24)
 			:tpa (slice data 24 28))))
 
-(defun arp/handle-request (arp-pkt our-mac our-ip)
+(defun arp/handle-request (arp_pkt our_mac our_ip)
 	; Handle incoming ARP request
-	; Inputs: arp-pkt - parsed ARP packet, our-mac, our-ip
+	; Inputs: arp_pkt - parsed ARP packet, our_mac, our_ip
 	; Output: ARP reply packet or nil
-	(when (and (= (elem-get arp-pkt :htype) arp_hrd_ethernet)
-	           (= (elem-get arp-pkt :ptype) eth_type_ip)
-	           (every eql our-ip (elem-get arp-pkt :tpa)))
+	(when (and (= (elem-get arp_pkt :htype) arp_hrd_ethernet)
+	           (= (elem-get arp_pkt :ptype) eth_type_ip)
+	           (every eql our_ip (elem-get arp_pkt :tpa)))
 		; This request is for us - send reply
-		(arp/create-reply our-mac our-ip
-		                  (elem-get arp-pkt :sha)
-		                  (elem-get arp-pkt :spa))))
+		(arp/create-reply our_mac our_ip
+		                  (elem-get arp_pkt :sha)
+		                  (elem-get arp_pkt :spa))))
 
-(defun arp/handle-reply (arp-pkt)
+(defun arp/handle-reply (arp_pkt)
 	; Handle incoming ARP reply
-	; Input: arp-pkt - parsed ARP packet
-	(when (and (= (elem-get arp-pkt :htype) arp_hrd_ethernet)
-	           (= (elem-get arp-pkt :ptype) eth_type_ip))
+	; Input: arp_pkt - parsed ARP packet
+	(when (and (= (elem-get arp_pkt :htype) arp_hrd_ethernet)
+	           (= (elem-get arp_pkt :ptype) eth_type_ip))
 		; Add to cache
-		(arp/cache-add (elem-get arp-pkt :spa)
-		               (elem-get arp-pkt :sha))))
+		(arp/cache-add (elem-get arp_pkt :spa)
+		               (elem-get arp_pkt :sha))))
 
-(defun arp/process (data our-mac our-ip)
+(defun arp/process (data our_mac our_ip)
 	; Process incoming ARP packet
-	; Inputs: data - raw ARP packet, our-mac, our-ip
+	; Inputs: data - raw ARP packet, our_mac, our_ip
 	; Output: ARP reply packet or nil
-	(defq arp-pkt (arp/parse data))
-	(if arp-pkt
+	(defq arp_pkt (arp/parse data))
+	(if arp_pkt
 		(cond
-			((= (elem-get arp-pkt :oper) arp_op_request)
+			((= (elem-get arp_pkt :oper) arp_op_request)
 				; Update cache from request and possibly reply
-				(arp/cache-add (elem-get arp-pkt :spa)
-				               (elem-get arp-pkt :sha))
-				(arp/handle-request arp-pkt our-mac our-ip))
-			((= (elem-get arp-pkt :oper) arp_op_reply)
+				(arp/cache-add (elem-get arp_pkt :spa)
+				               (elem-get arp_pkt :sha))
+				(arp/handle-request arp_pkt our_mac our_ip))
+			((= (elem-get arp_pkt :oper) arp_op_reply)
 				; Update cache from reply
-				(arp/handle-reply arp-pkt)
+				(arp/handle-reply arp_pkt)
 				nil)
 			(t nil))
 		nil))

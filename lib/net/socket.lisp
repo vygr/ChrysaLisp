@@ -51,7 +51,7 @@
 
 		((= (elem-get sock :type) sock_dgram)
 			; UDP bind
-			(defq handler (elem-get sock :data-handler))
+			(defq handler (elem-get sock :data_handler))
 			(if (udp/bind port handler)
 				(progn
 					(elem-set sock :port port)
@@ -65,13 +65,13 @@
 ; Socket Listen (TCP only)
 ;;;;;;;;;;;;;;;;;;
 
-(defun socket/listen (sock accept-fn)
+(defun socket/listen (sock accept_fn)
 	; Listen for incoming connections (TCP only)
 	; Inputs: sock - socket, accept-fn - callback for new connections
 	; Output: t if success, nil if failed
 	(if (= (elem-get sock :type) sock_stream)
 		(progn
-			(defq port (elem-get sock :port))
+			(defq port (elem_get sock :port))
 			(if (tcp/listen port accept-fn)
 				(progn
 					(elem-set sock :state sock_state_listening)
@@ -83,13 +83,13 @@
 ; Socket Connect (TCP only)
 ;;;;;;;;;;;;;;;;;;
 
-(defun socket/connect (sock dst-ip dst-port)
+(defun socket/connect (sock dst-ip dst_port)
 	; Connect to remote host (TCP only)
 	; Inputs: sock - socket, dst-ip - destination IP, dst-port - destination port
 	; Output: t if connection initiated, nil if failed
 	(if (= (elem-get sock :type) sock_stream)
 		(progn
-			(defq tcb (tcp/connect dst-ip dst-port))
+			(defq tcb (tcp/connect dst-ip dst_port))
 			(if tcb
 				(progn
 					(elem-set sock :tcb tcb)
@@ -109,20 +109,20 @@
 	(cond
 		((= (elem-get sock :type) sock_stream)
 			; TCP send
-			(defq tcb (elem-get sock :tcb))
+			(defq tcb (elem_get sock :tcb))
 			(if tcb
 				(tcp/send-data tcb data)
 				nil))
 
 		(t nil)))
 
-(defun socket/sendto (sock dst-ip dst-port data)
+(defun socket/sendto (sock dst-ip dst_port data)
 	; Send data to specific address (UDP)
 	; Inputs: sock, dst-ip, dst-port, data
 	; Output: t if sent, nil if failed
 	(if (= (elem-get sock :type) sock_dgram)
 		(progn
-			(defq src-port (elem-get sock :port))
+			(defq src-port (elem_get sock :port))
 			(if src-port
 				(udp/send dst-ip src-port dst-port data)
 				nil))
@@ -139,14 +139,14 @@
 	(cond
 		((= (elem-get sock :type) sock_stream)
 			; TCP receive
-			(defq tcb (elem-get sock :tcb))
+			(defq tcb (elem_get sock :tcb))
 			(if tcb
 				(tcp/recv-data tcb)
 				nil))
 
 		(t nil)))
 
-(defun socket/set-handler (sock handler-fn)
+(defun socket/set-handler (sock handler_fn)
 	; Set data handler callback for socket
 	; Inputs: sock - socket, handler-fn - callback function
 	;   TCP: handler-fn called with (tcb data)
@@ -163,7 +163,7 @@
 	(cond
 		((= (elem-get sock :type) sock_stream)
 			; TCP close
-			(defq tcb (elem-get sock :tcb))
+			(defq tcb (elem_get sock :tcb))
 			(when tcb
 				(tcp/close tcb)
 				(elem-set sock :tcb nil))
@@ -171,7 +171,7 @@
 
 		((= (elem-get sock :type) sock_dgram)
 			; UDP close
-			(defq port (elem-get sock :port))
+			(defq port (elem_get sock :port))
 			(when port
 				(udp/unbind port)
 				(elem-set sock :port nil))
@@ -187,13 +187,13 @@
 	; Check if socket is connected
 	(if (= (elem-get sock :type) sock_stream)
 		(progn
-			(defq tcb (elem-get sock :tcb))
+			(defq tcb (elem_get sock :tcb))
 			(and tcb (tcp/is-connected tcb)))
 		nil))
 
 (defun socket/get-state (sock)
 	; Get socket state string
-	(defq state (elem-get sock :state))
+	(defq state (elem_get sock :state))
 	(cond
 		((= state sock_state_closed) "CLOSED")
 		((= state sock_state_bound) "BOUND")

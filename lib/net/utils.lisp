@@ -46,38 +46,38 @@
 ; IP Address Utilities
 ;;;;;;;;;;;;;;;;;;
 
-(defun net/ip-to-string (ip-bytes)
+(defun net/ip-to-string (ip_bytes)
 	; Convert 4-byte IP address to string "A.B.C.D"
-	; Input: ip-bytes - array or string of 4 bytes
+	; Input: ip_bytes - array or string of 4 bytes
 	; Output: string representation
-	(str (elem-get ip-bytes 0) "."
-	     (elem-get ip-bytes 1) "."
-	     (elem-get ip-bytes 2) "."
-	     (elem-get ip-bytes 3)))
+	(str (elem-get ip_bytes 0) "."
+	     (elem-get ip_bytes 1) "."
+	     (elem-get ip_bytes 2) "."
+	     (elem-get ip_bytes 3)))
 
-(defun net/string-to-ip (ip-str)
+(defun net/string-to-ip (ip_str)
 	; Convert string "A.B.C.D" to 4-byte array
-	; Input: ip-str - string like "192.168.1.1"
+	; Input: ip_str - string like "192.168.1.1"
 	; Output: array of 4 bytes
-	(defq parts (split ip-str "."))
+	(defq parts (split ip_str "."))
 	(if (= (length parts) 4)
 		(apply array (map (# (num %0)) parts))
 		nil))
 
-(defun net/mac-to-string (mac-bytes)
+(defun net/mac-to-string (mac_bytes)
 	; Convert 6-byte MAC address to string "XX:XX:XX:XX:XX:XX"
 	(defq parts (map (# (str-to-hex (array %0)))
-	                 (list (elem-get mac-bytes 0)
-	                       (elem-get mac-bytes 1)
-	                       (elem-get mac-bytes 2)
-	                       (elem-get mac-bytes 3)
-	                       (elem-get mac-bytes 4)
-	                       (elem-get mac-bytes 5))))
+	                 (list (elem-get mac_bytes 0)
+	                       (elem-get mac_bytes 1)
+	                       (elem-get mac_bytes 2)
+	                       (elem-get mac_bytes 3)
+	                       (elem-get mac_bytes 4)
+	                       (elem-get mac_bytes 5))))
 	(join ":" parts))
 
-(defun net/string-to-mac (mac-str)
+(defun net/string-to-mac (mac_str)
 	; Convert string "XX:XX:XX:XX:XX:XX" to 6-byte array
-	(defq parts (split mac-str ":"))
+	(defq parts (split mac_str ":"))
 	(if (= (length parts) 6)
 		(apply array (map (# (hex-to-num %0)) parts))
 		nil))
@@ -85,22 +85,22 @@
 (defun net/ip-in-subnet (ip netmask network)
 	; Check if IP address is in subnet
 	; All inputs are 4-byte arrays
-	(defq ip-val (logand
+	(defq ip_val (logand
 		(logior (ash (elem-get ip 0) 24)
 		        (ash (elem-get ip 1) 16)
 		        (ash (elem-get ip 2) 8)
 		        (elem-get ip 3)))
-	      mask-val (logand
+	      mask_val (logand
 		(logior (ash (elem-get netmask 0) 24)
 		        (ash (elem-get netmask 1) 16)
 		        (ash (elem-get netmask 2) 8)
 		        (elem-get netmask 3)))
-	      net-val (logand
+	      net_val (logand
 		(logior (ash (elem-get network 0) 24)
 		        (ash (elem-get network 1) 16)
 		        (ash (elem-get network 2) 8)
 		        (elem-get network 3))))
-	(= (logand ip-val mask-val) (logand net-val mask-val)))
+	(= (logand ip_val mask_val) (logand net_val mask_val)))
 
 ;;;;;;;;;;;;;;;;;;
 ; Byte Order Conversion
@@ -153,11 +153,11 @@
 		(ash (elem-get buf (+ offset 2)) 8)
 		(elem-get buf (+ offset 3))))
 
-(defun net/copy-bytes (src src-off dst dst-off len)
+(defun net/copy-bytes (src src_off dst dst_off len)
 	; Copy bytes from src to dst
 	(defq i 0)
 	(while (< i len)
-		(elem-set dst (+ dst-off i) (elem-get src (+ src-off i)))
+		(elem-set dst (+ dst_off i) (elem-get src (+ src_off i)))
 		(setq i (+ i 1))))
 
 ;;;;;;;;;;;;;;;;;;

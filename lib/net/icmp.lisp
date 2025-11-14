@@ -107,11 +107,11 @@
 
 	pkt)
 
-(defun icmp/create-dest-unreachable (code orig-packet)
+(defun icmp/create-dest-unreachable (code orig_packet)
 	; Create ICMP destination unreachable
 	; Inputs:
 	;   code - unreachable code
-	;   orig-packet - original IP packet (first 8 bytes of data)
+	;   orig_packet - original IP packet (first 8 bytes of data)
 	; Output: ICMP dest unreachable packet
 	(defq pkt (array))
 
@@ -128,10 +128,10 @@
 	(net/write-u32 pkt 4 0)
 
 	; Add original IP header + 8 bytes of data
-	(defq copy-len (min 28 (length orig-packet)))
+	(defq copy_len (min 28 (length orig_packet)))
 	(defq i 0)
-	(while (< i copy-len)
-		(push pkt (elem-get orig-packet i))
+	(while (< i copy_len)
+		(push pkt (elem-get orig_packet i))
 		(setq i (+ i 1)))
 
 	; Calculate and set checksum
@@ -169,75 +169,75 @@
 
 (defq *icmp-echo-handlers* (list))  ; List of echo reply handlers
 
-(defun icmp/send-ping (dst-ip id seq data)
+(defun icmp/send-ping (dst_ip id seq data)
 	; Send ICMP echo request (ping)
 	; Inputs:
-	;   dst-ip - destination IP (4-byte array)
+	;   dst_ip - destination IP (4-byte array)
 	;   id - identifier
 	;   seq - sequence number
 	;   data - payload data
 	; Output: IP packet or nil
-	(defq icmp-pkt (icmp/create-echo-request id seq data))
-	(ip/send-packet dst-ip ip_proto_icmp icmp-pkt))
+	(defq icmp_pkt (icmp/create-echo-request id seq data))
+	(ip/send-packet dst_ip ip_proto_icmp icmp_pkt))
 
-(defun icmp/register-echo-handler (handler-fn)
+(defun icmp/register-echo-handler (handler_fn)
 	; Register handler for ICMP echo replies
-	; Input: handler-fn - function to call with (src-ip id seq data)
-	(push *icmp-echo-handlers* handler-fn))
+	; Input: handler_fn - function to call with (src_ip id seq data)
+	(push *icmp-echo-handlers* handler_fn))
 
 ;;;;;;;;;;;;;;;;;;
 ; ICMP Packet Processing
 ;;;;;;;;;;;;;;;;;;
 
-(defun icmp/handle-echo-request (src-ip dst-ip icmp-pkt)
+(defun icmp/handle-echo-request (src_ip dst_ip icmp_pkt)
 	; Handle ICMP echo request
-	; Inputs: src-ip, dst-ip - IP addresses, icmp-pkt - parsed ICMP packet
+	; Inputs: src_ip, dst_ip - IP addresses, icmp_pkt - parsed ICMP packet
 	; Output: ICMP echo reply packet or nil
-	(defq id (ash (elem-get icmp-pkt :rest) -16)
-	      seq (logand (elem-get icmp-pkt :rest) 0xFFFF)
-	      reply (icmp/create-echo-reply id seq (elem-get icmp-pkt :data)))
+	(defq id (ash (elem-get icmp_pkt :rest) -16)
+	      seq (logand (elem-get icmp_pkt :rest) 0xFFFF)
+	      reply (icmp/create-echo-reply id seq (elem-get icmp_pkt :data)))
 
 	; Send reply back to source
-	(ip/send-packet src-ip ip_proto_icmp reply))
+	(ip/send-packet src_ip ip_proto_icmp reply))
 
-(defun icmp/handle-echo-reply (src-ip dst-ip icmp-pkt)
+(defun icmp/handle-echo-reply (src_ip dst_ip icmp_pkt)
 	; Handle ICMP echo reply
-	; Inputs: src-ip, dst-ip - IP addresses, icmp-pkt - parsed ICMP packet
-	(defq id (ash (elem-get icmp-pkt :rest) -16)
-	      seq (logand (elem-get icmp-pkt :rest) 0xFFFF))
+	; Inputs: src_ip, dst_ip - IP addresses, icmp_pkt - parsed ICMP packet
+	(defq id (ash (elem-get icmp_pkt :rest) -16)
+	      seq (logand (elem-get icmp_pkt :rest) 0xFFFF))
 
 	; Call all registered handlers
-	(each (# (%0 src-ip id seq (elem-get icmp-pkt :data)))
+	(each (# (%0 src_ip id seq (elem-get icmp_pkt :data)))
 	      *icmp-echo-handlers*))
 
-(defun icmp/handle-dest-unreachable (src-ip dst-ip icmp-pkt)
+(defun icmp/handle-dest-unreachable (src_ip dst_ip icmp_pkt)
 	; Handle ICMP destination unreachable
-	; Inputs: src-ip, dst-ip - IP addresses, icmp-pkt - parsed ICMP packet
+	; Inputs: src_ip, dst_ip - IP addresses, icmp_pkt - parsed ICMP packet
 	; (Could notify transport layers about unreachable destination)
 	nil)
 
-(defun icmp/process (src-ip dst-ip data)
+(defun icmp/process (src_ip dst_ip data)
 	; Process incoming ICMP packet
-	; Inputs: src-ip, dst-ip - IP addresses (4-byte arrays), data - ICMP packet
+	; Inputs: src_ip, dst_ip - IP addresses (4-byte arrays), data - ICMP packet
 	; Output: t if processed, nil if error
-	(defq icmp-pkt (icmp/parse data))
+	(defq icmp_pkt (icmp/parse data))
 
-	(if (and icmp-pkt (icmp/verify-checksum data))
+	(if (and icmp_pkt (icmp/verify-checksum data))
 		(progn
 			(cond
-				((= (elem-get icmp-pkt :type) icmp_echo)
+				((= (elem-get icmp_pkt :type) icmp_echo)
 					; Echo request - send reply
-					(icmp/handle-echo-request src-ip dst-ip icmp-pkt)
+					(icmp/handle-echo-request src_ip dst_ip icmp_pkt)
 					t)
 
-				((= (elem-get icmp-pkt :type) icmp_echo_reply)
+				((= (elem-get icmp_pkt :type) icmp_echo_reply)
 					; Echo reply - notify handlers
-					(icmp/handle-echo-reply src-ip dst-ip icmp-pkt)
+					(icmp/handle-echo-reply src_ip dst_ip icmp_pkt)
 					t)
 
-				((= (elem-get icmp-pkt :type) icmp_dest_unreach)
+				((= (elem-get icmp_pkt :type) icmp_dest_unreach)
 					; Destination unreachable
-					(icmp/handle-dest-unreachable src-ip dst-ip icmp-pkt)
+					(icmp/handle-dest-unreachable src_ip dst_ip icmp_pkt)
 					t)
 
 				(t

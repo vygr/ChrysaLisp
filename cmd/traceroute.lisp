@@ -30,7 +30,7 @@
 		(exit 0))
 
 	; Get parameters
-	(defq target_str (elem-get (get-option args "*") 0)
+	(defq target_str (elem-get (get_option args "*") 0)
 	      max_hops (num (get-option args "-m"))
 	      queries (num (get-option args "-q"))
 	      wait_sec (num (get-option args "-w"))
@@ -60,7 +60,7 @@
 	      reached_target nil)
 
 	; Register ICMP handlers for time exceeded and echo reply
-	(defq *trace-state* (env :reply-ip nil :reply-type nil))
+	(defq *trace-state* (env :reply-ip nil :reply_type nil))
 
 	(icmp/register-echo-handler
 		(lambda (src_ip id seq_num data)
@@ -99,7 +99,7 @@
 			(if use_icmp
 				; ICMP probe
 				(progn
-					(defq probe_id (net/random-range 1 65536)
+					(defq probe_id (net/random_range 1 65536)
 					      probe_data (array 0x00))
 					(icmp/send-ping target_ip probe_id seq probe_data ttl))
 
@@ -120,7 +120,7 @@
 				(task-sleep 10000))
 
 			; Process reply
-			(defq reply_ip (get *trace-state* :reply-ip))
+			(defq reply_ip (get *trace-state* :reply_ip))
 
 			(if reply_ip
 				(progn

@@ -16,7 +16,7 @@
 		(prinl)
 		(exit 1))
 
-	(defq target-ip-str (elem-get args 0)
+	(defq target-ip-str (elem_get args 0)
 	      target-ip (net/string-to-ip target-ip-str))
 
 	(unless target-ip
@@ -28,7 +28,7 @@
 	(icmp/init)
 
 	; Ping parameters
-	(defq ping-id (net/random-range 1 65536)
+	(defq ping-id (net/random_range 1 65536)
 	      seq 0
 	      replies (list)
 	      timeout 5000000)  ; 5 seconds
@@ -59,7 +59,7 @@
 			(setq i (+ i 1)))
 
 		; Record send time
-		(defq send-time (time))
+		(defq send_time (time))
 
 		; Send ping
 		(icmp/send-ping target-ip ping-id seq data)
@@ -74,7 +74,7 @@
 		(defq reply (find (# (= (elem-get %0 :seq) seq)) replies))
 		(if reply
 			(progn
-				(defq rtt (- (elem-get reply :time) send-time))
+				(defq rtt (- (elem-get reply :time) send_time))
 				(prin "Reply from " (net/ip-to-string (elem-get reply :src-ip))
 				      " seq=" (elem-get reply :seq)
 				      " time=" (/ rtt 1000) "ms")

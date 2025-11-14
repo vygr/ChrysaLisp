@@ -31,19 +31,19 @@
 ; IP Header Creation
 ;;;;;;;;;;;;;;;;;;
 
-(defun ip/create-header (src-ip dst-ip protocol data-len &optional ttl df-flag)
+(defun ip/create-header (src_ip dst_ip protocol data_len &optional ttl df_flag)
 	; Create IP header
 	; Inputs:
-	;   src-ip, dst-ip - 4-byte arrays
+	;   src_ip, dst_ip - 4-byte arrays
 	;   protocol - protocol number (TCP=6, UDP=17, ICMP=1)
-	;   data-len - length of data following header
+	;   data_len - length of data following header
 	;   ttl - time to live (optional, default 64)
-	;   df-flag - don't fragment flag (optional, default nil)
+	;   df_flag - don't fragment flag (optional, default nil)
 	; Output: byte array of IP header
 	(defq hdr (array)
-	      total-len (+ ip_hdr_min_len data-len)
+	      total_len (+ ip_hdr_min_len data_len)
 	      id *ip-id-counter*
-	      flags-offset (if df-flag ip_flag_df 0))
+	      flags_offset (if df_flag ip_flag_df 0))
 
 	; Increment ID for next packet
 	(setq *ip-id-counter* (logand (+ *ip-id-counter* 1) 0xFFFF))
@@ -55,13 +55,13 @@
 	(elem-set hdr 1 0)
 
 	; Total length
-	(net/write-u16 hdr 2 total-len)
+	(net/write-u16 hdr 2 total_len)
 
 	; Identification
 	(net/write-u16 hdr 4 id)
 
 	; Flags and fragment offset
-	(net/write-u16 hdr 6 flags-offset)
+	(net/write-u16 hdr 6 flags_offset)
 
 	; Time to Live
 	(elem-set hdr 8 (or ttl ip_default_ttl))
@@ -73,10 +73,10 @@
 	(net/write-u16 hdr 10 0)
 
 	; Source IP
-	(each (# (elem-set hdr (+ 12 %1) %0)) src-ip)
+	(each (# (elem-set hdr (+ 12 %1) %0)) src_ip)
 
 	; Destination IP
-	(each (# (elem-set hdr (+ 16 %1) %0)) dst-ip)
+	(each (# (elem-set hdr (+ 16 %1) %0)) dst_ip)
 
 	; Calculate and set checksum
 	(defq cksum (net/checksum hdr 0 ip_hdr_min_len))
@@ -95,22 +95,22 @@
 	(if (< (length data) ip_hdr_min_len)
 		nil
 		(progn
-			(defq ver-ihl (elem-get data 0)
-			      version (ash ver-ihl -4)
-			      ihl (logand ver-ihl 0x0F)
-			      hdr-len (* ihl 4)
-			      total-len (net/read-u16 data 2))
+			(defq ver_ihl (elem-get data 0)
+			      version (ash ver_ihl -4)
+			      ihl (logand ver_ihl 0x0F)
+			      hdr_len (* ihl 4)
+			      total_len (net/read-u16 data 2))
 
 			; Validate
 			(if (and (= version 4)
 			         (>= ihl 5)
-			         (<= total-len (length data)))
+			         (<= total_len (length data)))
 				(env
 					:version version
 					:ihl ihl
-					:header-len hdr-len
+					:header-len hdr_len
 					:tos (elem-get data 1)
-					:total-len total-len
+					:total-len total_len
 					:id (net/read-u16 data 4)
 					:flags (ash (net/read-u16 data 6) -13)
 					:frag-offset (logand (net/read-u16 data 6) 0x1FFF)
@@ -119,10 +119,10 @@
 					:checksum (net/read-u16 data 10)
 					:src-ip (slice data 12 16)
 					:dst-ip (slice data 16 20)
-					:options (if (> hdr-len ip_hdr_min_len)
-					            (slice data ip_hdr_min_len hdr-len)
+					:options (if (> hdr_len ip_hdr_min_len)
+					            (slice data ip_hdr_min_len hdr_len)
 					            (array))
-					:data (slice data hdr-len total-len))
+					:data (slice data hdr_len total_len))
 				nil))))
 
 (defun ip/verify-checksum (data)
@@ -132,42 +132,42 @@
 	(if (< (length data) ip_hdr_min_len)
 		nil
 		(progn
-			(defq ver-ihl (elem-get data 0)
-			      ihl (logand ver-ihl 0x0F)
-			      hdr-len (* ihl 4))
-			(= (net/checksum data 0 hdr-len) 0xFFFF))))
+			(defq ver_ihl (elem-get data 0)
+			      ihl (logand ver_ihl 0x0F)
+			      hdr_len (* ihl 4))
+			(= (net/checksum data 0 hdr_len) 0xFFFF))))
 
 ;;;;;;;;;;;;;;;;;;
 ; IP Routing
 ;;;;;;;;;;;;;;;;;;
 
-(defun ip/is-local (dst-ip)
+(defun ip/is-local (dst_ip)
 	; Check if destination IP is on local network
-	; Input: dst-ip - 4-byte array
+	; Input: dst_ip - 4-byte array
 	; Output: t if local, nil if needs gateway
-	(net/ip-in-subnet dst-ip *ip-netmask* *ip-our-addr*))
+	(net/ip-in-subnet dst_ip *ip-netmask* *ip-our-addr*))
 
-(defun ip/next-hop (dst-ip)
+(defun ip/next-hop (dst_ip)
 	; Determine next hop for destination
-	; Input: dst-ip - 4-byte array
+	; Input: dst_ip - 4-byte array
 	; Output: next hop IP address (4-byte array)
-	(if (ip/is-local dst-ip)
-		dst-ip
+	(if (ip/is-local dst_ip)
+		dst_ip
 		*ip-gateway*))
 
 ;;;;;;;;;;;;;;;;;;
 ; IP Packet Sending
 ;;;;;;;;;;;;;;;;;;
 
-(defun ip/send-packet (dst-ip protocol data &optional ttl)
+(defun ip/send-packet (dst_ip protocol data &optional ttl)
 	; Send IP packet
 	; Inputs:
-	;   dst-ip - 4-byte array
+	;   dst_ip - 4-byte array
 	;   protocol - protocol number
 	;   data - payload data (byte array)
 	;   ttl - optional time to live
 	; Output: complete packet (IP header + data) or nil
-	(defq hdr (ip/create-header *ip-our-addr* dst-ip
+	(defq hdr (ip/create-header *ip-our-addr* dst_ip
 	                            protocol (length data) ttl)
 	      packet (array))
 
@@ -183,36 +183,36 @@
 
 (defq *ip-protocol-handlers* (env))  ; Protocol handler registry
 
-(defun ip/register-handler (protocol handler-fn)
+(defun ip/register-handler (protocol handler_fn)
 	; Register handler for IP protocol
 	; Inputs:
 	;   protocol - protocol number
-	;   handler-fn - function to call with (src-ip dst-ip data)
-	(elem-set *ip-protocol-handlers* protocol handler-fn))
+	;   handler_fn - function to call with (src_ip dst_ip data)
+	(elem-set *ip-protocol-handlers* protocol handler_fn))
 
 (defun ip/process (packet)
 	; Process incoming IP packet
 	; Input: packet - raw IP packet (byte array)
 	; Output: t if processed, nil if error
-	(defq ip-pkt (ip/parse packet))
+	(defq ip_pkt (ip/parse packet))
 
-	(if (and ip-pkt (ip/verify-checksum packet))
+	(if (and ip_pkt (ip/verify-checksum packet))
 		(progn
 			; Check if packet is for us
-			(when (or (every eql *ip-our-addr* (elem-get ip-pkt :dst-ip))
+			(when (or (every eql *ip-our-addr* (elem-get ip_pkt :dst-ip))
 			          ; Broadcast check could go here
-			          (every eql (array 255 255 255 255) (elem-get ip-pkt :dst-ip)))
+			          (every eql (array 255 255 255 255) (elem-get ip_pkt :dst-ip)))
 
 				; Find protocol handler
 				(defq handler (elem-get *ip-protocol-handlers*
-				                        (elem-get ip-pkt :protocol)))
+				                        (elem-get ip_pkt :protocol)))
 
 				(if handler
 					(progn
 						; Call protocol handler
-						(handler (elem-get ip-pkt :src-ip)
-						         (elem-get ip-pkt :dst-ip)
-						         (elem-get ip-pkt :data))
+						(handler (elem-get ip_pkt :src-ip)
+						         (elem-get ip_pkt :dst-ip)
+						         (elem-get ip_pkt :data))
 						t)
 					; No handler for this protocol
 					nil)))
