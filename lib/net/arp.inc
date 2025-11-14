@@ -2,19 +2,19 @@
 ; ARP (Address Resolution Protocol)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(import "lib/net/consts.inc")
-(import "lib/net/packet.inc")
-(import "lib/net/utils.inc")
+(import "./consts.inc")
+(import "./packet.inc")
+(import "./utils.inc")
 
 ;;;;;;;;;;;;;;;;;;
 ; ARP Cache
 ;;;;;;;;;;;;;;;;;;
 
-(defq *arp-cache* (list))  ; List of ARP cache entries
+(defq *arp_cache* (list))  ; List of ARP cache entries
 
 (defun arp/init ()
 	; Initialize ARP cache
-	(setq *arp-cache* (list)))
+	(setq *arp_cache* (list)))
 
 (defun arp/cache-lookup (ip)
 	; Look up IP address in ARP cache
@@ -22,14 +22,14 @@
 	; Output: MAC address (6-byte array) or nil
 	(defq entry (find (# (and (elem-get %0 :valid)
 	                          (every eql ip (elem-get %0 :ip))))
-	                  *arp-cache*))
+	                  *arp_cache*))
 	(if entry (elem-get entry :mac) nil))
 
 (defun arp/cache-add (ip mac)
 	; Add or update entry in ARP cache
 	; Inputs: ip - 4-byte array, mac - 6-byte array
 	(defq now (time)
-	      entry (find (# (every eql ip (elem-get %0 :ip))) *arp-cache*))
+	      entry (find (# (every eql ip (elem-get %0 :ip))) *arp_cache*))
 	(if entry
 		; Update existing entry
 		(progn
@@ -37,7 +37,7 @@
 			(elem-set entry :timestamp now)
 			(elem-set entry :valid t))
 		; Add new entry
-		(push *arp-cache*
+		(push *arp_cache*
 			(env
 				:ip (apply array ip)
 				:mac (apply array mac)
@@ -47,9 +47,9 @@
 (defun arp/cache-timeout ()
 	; Remove expired entries from ARP cache
 	(defq now (time))
-	(setq *arp-cache*
+	(setq *arp_cache*
 		(filter (# (< (- now (elem-get %0 :timestamp)) arp_cache_timeout))
-		        *arp-cache*)))
+		        *arp_cache*)))
 
 ;;;;;;;;;;;;;;;;;;
 ; ARP Packet Handling
@@ -173,7 +173,7 @@
 ; ARP Resolution
 ;;;;;;;;;;;;;;;;;;
 
-(defq *arp-pending* (env 16))  ; Pending ARP requests
+(defq *arp_pending* (env 16))  ; Pending ARP requests
 
 (defun arp/resolve (ip timeout)
 	; Resolve IP address to MAC address

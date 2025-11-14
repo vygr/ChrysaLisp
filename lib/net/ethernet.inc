@@ -2,30 +2,30 @@
 ; Ethernet Layer
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(import "lib/net/consts.inc")
-(import "lib/net/packet.inc")
-(import "lib/net/utils.inc")
-(import "lib/net/arp.inc")
-(import "lib/net/ip.inc")
+(import "./consts.inc")
+(import "./packet.inc")
+(import "./utils.inc")
+(import "./arp.inc")
+(import "./ip.inc")
 
 ;;;;;;;;;;;;;;;;;;
 ; Ethernet State
 ;;;;;;;;;;;;;;;;;;
 
-(defq *eth-our_mac* (array 0x00 0x00 0x00 0x00 0x00 0x00))  ; Our MAC address
-(defq *eth-send_fn* nil)  ; Function to send raw frames
+(defq *eth_our_mac* (array 0x00 0x00 0x00 0x00 0x00 0x00))  ; Our MAC address
+(defq *eth_send_fn* nil)  ; Function to send raw frames
 
 (defun eth/init (mac send_fn)
 	; Initialize Ethernet layer
 	; Inputs:
 	;   mac - our MAC address (6-byte array)
 	;   send-fn - function to send raw Ethernet frames
-	(setq *eth-our-mac* (apply array mac))
-	(setq *eth-send-fn* send-fn))
+	(setq *eth_our_mac* (apply array mac))
+	(setq *eth_send_fn* send-fn))
 
 (defun eth/get-mac ()
 	; Get our MAC address
-	*eth-our-mac*)
+	*eth_our_mac*)
 
 ;;;;;;;;;;;;;;;;;;
 ; Ethernet Frame Creation
@@ -44,7 +44,7 @@
 	(each (# (push frame %0)) dst-mac)
 
 	; Source MAC
-	(each (# (push frame %0)) *eth-our-mac*)
+	(each (# (push frame %0)) *eth_our_mac*)
 
 	; EtherType
 	(net/write-u16 frame 12 etype)
@@ -83,10 +83,10 @@
 	; Send Ethernet frame
 	; Inputs: dst-mac, etype, payload
 	; Output: t if sent, nil if failed
-	(if *eth-send-fn*
+	(if *eth_send_fn*
 		(progn
 			(defq frame (eth/create-frame dst_mac etype payload))
-			(*eth-send-fn* frame)
+			(*eth_send_fn* frame)
 			t)
 		nil))
 
@@ -115,7 +115,7 @@
 ; Ethernet Frame Reception
 ;;;;;;;;;;;;;;;;;;
 
-(defq *eth-protocol_handlers* (env 16))  ; EtherType handler registry
+(defq *eth_protocol_handlers* (env 16))  ; EtherType handler registry
 
 (defun eth/register-handler (etype handler_fn)
 	; Register handler for EtherType
@@ -136,11 +136,11 @@
 			(defq dst-mac (elem-get eth-frame :dst_mac)
 			      broadcast (array 0xFF 0xFF 0xFF 0xFF 0xFF 0xFF))
 
-			(when (or (every eql *eth-our-mac* dst-mac)
+			(when (or (every eql *eth_our_mac* dst-mac)
 			         (every eql broadcast dst-mac))
 
 				; Find protocol handler
-				(defq handler (elem-get *eth-protocol_handlers*
+				(defq handler (elem-get *eth_protocol_handlers*
 				                        (elem-get eth-frame :etype)))
 
 				(if handler
@@ -165,7 +165,7 @@
 	; ARP handler
 	(eth/register-handler eth_type_arp
 		(lambda (src-mac dst-mac payload)
-			(defq reply (arp/process payload *eth-our-mac* (ip/get_addr)))
+			(defq reply (arp/process payload *eth_our_mac* (ip/get_addr)))
 			(when reply
 				(eth/send-arp-packet src-mac reply))))
 

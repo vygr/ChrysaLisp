@@ -2,10 +2,10 @@
 ; ICMP (Internet Control Message Protocol)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(import "lib/net/consts.inc")
-(import "lib/net/packet.inc")
-(import "lib/net/utils.inc")
-(import "lib/net/ip.inc")
+(import "./consts.inc")
+(import "./packet.inc")
+(import "./utils.inc")
+(import "./ip.inc")
 
 ;;;;;;;;;;;;;;;;;;
 ; ICMP Packet Creation
@@ -167,7 +167,7 @@
 ; ICMP Echo (Ping)
 ;;;;;;;;;;;;;;;;;;
 
-(defq *icmp-echo-handlers* (list))  ; List of echo reply handlers
+(defq *icmp_echo_handlers* (list))  ; List of echo reply handlers
 
 (defun icmp/send-ping (dst_ip id seq data)
 	; Send ICMP echo request (ping)
@@ -183,7 +183,7 @@
 (defun icmp/register-echo-handler (handler_fn)
 	; Register handler for ICMP echo replies
 	; Input: handler_fn - function to call with (src_ip id seq data)
-	(push *icmp-echo-handlers* handler_fn))
+	(push *icmp_echo_handlers* handler_fn))
 
 ;;;;;;;;;;;;;;;;;;
 ; ICMP Packet Processing
@@ -208,7 +208,7 @@
 
 	; Call all registered handlers
 	(each (# (%0 src_ip id seq (elem-get icmp_pkt :data)))
-	      *icmp-echo-handlers*))
+	      *icmp_echo_handlers*))
 
 (defun icmp/handle-dest-unreachable (src_ip dst_ip icmp_pkt)
 	; Handle ICMP destination unreachable

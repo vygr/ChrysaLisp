@@ -2,8 +2,8 @@
 ; TCP State Machine and Reception
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(import "lib/net/consts.inc")
-(import "lib/net/tcp.inc")
+(import "./consts.inc")
+(import "./tcp.inc")
 
 ;;;;;;;;;;;;;;;;;;
 ; TCP State Machine
@@ -82,7 +82,7 @@
 			; ACK of our FIN
 			(when (tcp/seq-geq ack_num (elem-get tcb :snd-nxt))
 				(elem-set tcb :state tcp_state_closed)
-				(elem-set *tcp-connections* (elem-get tcb :conn-id) nil)))))
+				(elem-set *tcp_connections* (elem-get tcb :conn-id) nil)))))
 
 (defun tcp/handle-fin (tcb tcp_pkt)
 	; Handle FIN in various states
@@ -113,7 +113,7 @@
 (defun tcp/handle-rst (tcb tcp_pkt)
 	; Handle RST (reset connection)
 	(elem-set tcb :state tcp_state_closed)
-	(elem-set *tcp-connections* (elem-get tcb :conn-id) nil))
+	(elem-set *tcp_connections* (elem-get tcb :conn-id) nil))
 
 (defun tcp/handle-data (tcb tcp_pkt data_handler)
 	; Handle data in ESTABLISHED state
@@ -160,12 +160,12 @@
 				                                (elem-get tcp_pkt :dst-port)
 				                                src_ip
 				                                (elem-get tcp_pkt :src-port))
-				      tcb (elem-get *tcp-connections* conn_id))
+				      tcb (elem-get *tcp_connections* conn_id))
 
 				; If no connection, check for listening socket
 				(when (and (not tcb)
 				          (tcp/has-flag (elem-get tcp_pkt :flags) tcp_flag_syn))
-					(defq listen_fn (elem-get *tcp-listen-sockets*
+					(defq listen_fn (elem-get *tcp_listen_sockets*
 					                          (elem-get tcp_pkt :dst-port)))
 					(when listen_fn
 						; Create new TCB for incoming connection
@@ -175,7 +175,7 @@
 						                          (elem-get tcp_pkt :src-port)))
 						(elem-set tcb :conn-id conn_id)
 						(elem-set tcb :state tcp_state_listen)
-						(elem-set *tcp-connections* conn_id tcb)
+						(elem-set *tcp_connections* conn_id tcb)
 
 						; Call accept callback
 						(listen_fn tcb)))

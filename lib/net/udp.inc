@@ -2,22 +2,22 @@
 ; UDP (User Datagram Protocol)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(import "lib/net/consts.inc")
-(import "lib/net/packet.inc")
-(import "lib/net/utils.inc")
-(import "lib/net/ip.inc")
+(import "./consts.inc")
+(import "./packet.inc")
+(import "./utils.inc")
+(import "./ip.inc")
 
 ;;;;;;;;;;;;;;;;;;
 ; UDP State
 ;;;;;;;;;;;;;;;;;;
 
-(defq *udp-sockets* (env 32))  ; UDP socket registry: port -> handler-fn
-(defq *udp-next-ephemeral-port* 49152)  ; Next ephemeral port
+(defq *udp_sockets* (env 32))  ; UDP socket registry: port -> handler-fn
+(defq *udp_next_ephemeral_port* 49152)  ; Next ephemeral port
 
 (defun udp/init ()
 	; Initialize UDP layer
-	(setq *udp-sockets* (env 32))
-	(setq *udp-next-ephemeral-port* 49152)
+	(setq *udp_sockets* (env 32))
+	(setq *udp_next_ephemeral_port* 49152)
 	; Register UDP as IP protocol handler
 	(ip/register-handler ip_proto_udp udp/process))
 
@@ -113,37 +113,37 @@
 	;   port - port number (1-65535)
 	;   handler_fn - function to call with (src_ip src_port data)
 	; Output: t if success, nil if port already in use
-	(if (elem-get *udp-sockets* port)
+	(if (elem-get *udp_sockets* port)
 		nil
 		(progn
-			(elem-set *udp-sockets* port handler_fn)
+			(elem-set *udp_sockets* port handler_fn)
 			t)))
 
 (defun udp/unbind (port)
 	; Unbind UDP port
 	; Input: port - port number
-	(elem-set *udp-sockets* port nil))
+	(elem-set *udp_sockets* port nil))
 
 (defun udp/allocate-port ()
 	; Allocate ephemeral port
 	; Output: port number or nil if none available
-	(defq start_port *udp-next-ephemeral-port*
-	      port *udp-next-ephemeral-port*)
+	(defq start_port *udp_next_ephemeral_port*
+	      port *udp_next_ephemeral_port*)
 
 	; Find next available port
-	(while (and (elem-get *udp-sockets* port)
+	(while (and (elem-get *udp_sockets* port)
 	            (not (= (+ port 1) start_port)))
 		(setq port (+ port 1))
 		(when (>= port 65536)
 			(setq port 49152)))
 
 	; Check if we found a free port
-	(if (elem-get *udp-sockets* port)
+	(if (elem-get *udp_sockets* port)
 		nil
 		(progn
-			(setq *udp-next-ephemeral-port* (+ port 1))
-			(when (>= *udp-next-ephemeral-port* 65536)
-				(setq *udp-next-ephemeral-port* 49152))
+			(setq *udp_next_ephemeral_port* (+ port 1))
+			(when (>= *udp_next_ephemeral_port* 65536)
+				(setq *udp_next_ephemeral_port* 49152))
 			port)))
 
 ;;;;;;;;;;;;;;;;;;
@@ -180,7 +180,7 @@
 	(if udp_pkt
 		(progn
 			; Find handler for destination port
-			(defq handler (elem-get *udp-sockets* (elem-get udp_pkt :dst-port)))
+			(defq handler (elem-get *udp_sockets* (elem-get udp_pkt :dst-port)))
 
 			(if handler
 				(progn

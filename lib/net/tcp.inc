@@ -2,24 +2,24 @@
 ; TCP (Transmission Control Protocol)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(import "lib/net/consts.inc")
-(import "lib/net/packet.inc")
-(import "lib/net/utils.inc")
-(import "lib/net/ip.inc")
+(import "./consts.inc")
+(import "./packet.inc")
+(import "./utils.inc")
+(import "./ip.inc")
 
 ;;;;;;;;;;;;;;;;;;
 ; TCP State
 ;;;;;;;;;;;;;;;;;;
 
-(defq *tcp-connections* (env 64))  ; Active TCP connections
-(defq *tcp-listen-sockets* (env 16))  ; Listening sockets
-(defq *tcp-next-port* 49152)  ; Next ephemeral port
+(defq *tcp_connections* (env 64))  ; Active TCP connections
+(defq *tcp_listen_sockets* (env 16))  ; Listening sockets
+(defq *tcp_next_port* 49152)  ; Next ephemeral port
 
 (defun tcp/init ()
 	; Initialize TCP layer
-	(setq *tcp-connections* (env 64))
-	(setq *tcp-listen-sockets* (env 16))
-	(setq *tcp-next-port* 49152)
+	(setq *tcp_connections* (env 64))
+	(setq *tcp_listen_sockets* (env 16))
+	(setq *tcp_next_port* 49152)
 	; Register TCP as IP protocol handler
 	(ip/register-handler ip_proto_tcp tcp/process))
 
@@ -238,10 +238,10 @@
 	; Output: TCB or nil if failed
 
 	; Allocate local port
-	(defq local_port *tcp-next-port*)
-	(setq *tcp-next-port* (+ *tcp-next-port* 1))
-	(when (>= *tcp-next-port* 65536)
-		(setq *tcp-next-port* 49152))
+	(defq local_port *tcp_next_port*)
+	(setq *tcp_next_port* (+ *tcp_next_port* 1))
+	(when (>= *tcp_next_port* 65536)
+		(setq *tcp_next_port* 49152))
 
 	; Create TCB
 	(defq tcb (tcp/create-tcb (ip/get-addr) local_port dst_ip dst_port)
@@ -251,7 +251,7 @@
 	(elem-set tcb :state tcp_state_syn_sent)
 
 	; Store connection
-	(elem-set *tcp-connections* conn_id tcb)
+	(elem-set *tcp_connections* conn_id tcb)
 
 	; Send SYN
 	(tcp/send-packet tcb tcp_flag_syn (array))
@@ -265,10 +265,10 @@
 	; Listen for incoming TCP connections (server)
 	; Inputs: port - port to listen on, accept_fn - callback for new connections
 	; Output: t if success, nil if port in use
-	(if (elem-get *tcp-listen-sockets* port)
+	(if (elem-get *tcp_listen_sockets* port)
 		nil
 		(progn
-			(elem-set *tcp-listen-sockets* port accept_fn)
+			(elem-set *tcp_listen_sockets* port accept_fn)
 			t)))
 
 (defun tcp/close (tcb)
@@ -292,7 +292,7 @@
 		(t
 			; Immediately close
 			(elem-set tcb :state tcp_state_closed)
-			(elem-set *tcp-connections* (elem-get tcb :conn-id) nil))))
+			(elem-set *tcp_connections* (elem-get tcb :conn-id) nil))))
 
 ;;;;;;;;;;;;;;;;;;
 ; TCP Sending
