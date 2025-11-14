@@ -22,7 +22,7 @@
 	(tcp/init)
 
 	; Create listening socket
-	(defq listen-sock (socket/create sock_stream))
+	(defq listen_sock (socket/create sock_stream))
 
 	; Bind to port
 	(unless (socket/bind listen-sock port)
@@ -54,7 +54,7 @@
 			(lambda (tcb)
 				; Check if we have data
 				(when (tcp/is-connected tcb)
-					(defq data (tcp/recv-data tcb))
+					(defq data (tcp/recv_data tcb))
 					(when (> (length data) 0)
 						(prin "Received " (length data) " bytes from "
 						      (net/ip-to-string (elem-get tcb :remote-ip))

@@ -104,7 +104,7 @@
 		(exit 0))
 
 	; Get parameters
-	(defq domain (elem-get (get-option args "*") 0)
+	(defq domain (elem-get (get_option args "*") 0)
 	      qtype_str (get-option args "-t")
 	      server_str (get-option args "-s")
 	      server_port (num (get-option args "-p"))

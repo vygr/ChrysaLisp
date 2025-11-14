@@ -11,7 +11,7 @@
 (import "lib/net/udp.lisp")
 (import "lib/net/tcp.lisp")
 
-(defun net/initialize (mac ip netmask gateway send-fn)
+(defun net/initialize (mac ip netmask gateway send_fn)
 	; Initialize the complete TCP/IP stack
 	; Inputs:
 	;   mac - our MAC address (6-byte array or string "XX:XX:XX:XX:XX:XX")
@@ -93,13 +93,13 @@
 	(prinl)
 
 	; Example configuration
-	(defq demo-mac "00:11:22:33:44:55"
+	(defq demo_mac "00:11:22:33:44:55"
 	      demo-ip "192.168.1.100"
 	      demo-netmask "255.255.255.0"
 	      demo-gateway "192.168.1.1")
 
 	; Dummy send function for demo
-	(defq demo-send-fn
+	(defq demo-send_fn
 		(lambda (frame)
 			(prin "[SEND] Ethernet frame, size: " (length frame) " bytes")
 			(prinl)))

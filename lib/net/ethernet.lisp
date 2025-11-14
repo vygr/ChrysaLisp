@@ -12,10 +12,10 @@
 ; Ethernet State
 ;;;;;;;;;;;;;;;;;;
 
-(defq *eth-our-mac* (array 0x00 0x00 0x00 0x00 0x00 0x00))  ; Our MAC address
-(defq *eth-send-fn* nil)  ; Function to send raw frames
+(defq *eth-our_mac* (array 0x00 0x00 0x00 0x00 0x00 0x00))  ; Our MAC address
+(defq *eth-send_fn* nil)  ; Function to send raw frames
 
-(defun eth/init (mac send-fn)
+(defun eth/init (mac send_fn)
 	; Initialize Ethernet layer
 	; Inputs:
 	;   mac - our MAC address (6-byte array)
@@ -31,7 +31,7 @@
 ; Ethernet Frame Creation
 ;;;;;;;;;;;;;;;;;;
 
-(defun eth/create-frame (dst-mac etype payload)
+(defun eth/create-frame (dst_mac etype payload)
 	; Create Ethernet frame
 	; Inputs:
 	;   dst-mac - destination MAC address (6-byte array)
@@ -53,7 +53,7 @@
 	(each (# (push frame %0)) payload)
 
 	; Padding if needed (minimum frame size is 64 bytes including CRC)
-	(defq min-len (- eth_min_len eth_crc_len))
+	(defq min_len (- eth_min_len eth_crc_len))
 	(while (< (length frame) min-len)
 		(push frame 0))
 
@@ -79,24 +79,24 @@
 ; Ethernet Frame Sending
 ;;;;;;;;;;;;;;;;;;
 
-(defun eth/send-frame (dst-mac etype payload)
+(defun eth/send-frame (dst_mac etype payload)
 	; Send Ethernet frame
 	; Inputs: dst-mac, etype, payload
 	; Output: t if sent, nil if failed
 	(if *eth-send-fn*
 		(progn
-			(defq frame (eth/create-frame dst-mac etype payload))
+			(defq frame (eth/create-frame dst_mac etype payload))
 			(*eth-send-fn* frame)
 			t)
 		nil))
 
-(defun eth/send-ip-packet (dst-ip packet)
+(defun eth/send-ip-packet (dst_ip packet)
 	; Send IP packet via Ethernet
 	; Inputs: dst-ip - destination IP, packet - IP packet
 	; Output: t if sent, nil if failed
 
 	; Resolve MAC address via ARP
-	(defq dst-mac (arp/cache-lookup dst-ip))
+	(defq dst-mac (arp/cache-lookup dst_ip))
 
 	(if dst-mac
 		; MAC address known - send frame
@@ -105,7 +105,7 @@
 		; (For now, return nil - full implementation would queue and send ARP request)
 		nil))
 
-(defun eth/send-arp-packet (dst-mac packet)
+(defun eth/send-arp-packet (dst_mac packet)
 	; Send ARP packet via Ethernet
 	; Inputs: dst-mac - destination MAC, packet - ARP packet
 	; Output: t if sent, nil if failed
@@ -115,9 +115,9 @@
 ; Ethernet Frame Reception
 ;;;;;;;;;;;;;;;;;;
 
-(defq *eth-protocol-handlers* (env))  ; EtherType handler registry
+(defq *eth-protocol_handlers* (env))  ; EtherType handler registry
 
-(defun eth/register-handler (etype handler-fn)
+(defun eth/register-handler (etype handler_fn)
 	; Register handler for EtherType
 	; Inputs:
 	;   etype - EtherType value
@@ -128,19 +128,19 @@
 	; Process incoming Ethernet frame
 	; Input: frame - raw Ethernet frame (byte array)
 	; Output: t if processed, nil if error
-	(defq eth-frame (eth/parse frame))
+	(defq eth_frame (eth/parse frame))
 
 	(if eth-frame
 		(progn
 			; Check if frame is for us (or broadcast)
-			(defq dst-mac (elem-get eth-frame :dst-mac)
+			(defq dst-mac (elem-get eth-frame :dst_mac)
 			      broadcast (array 0xFF 0xFF 0xFF 0xFF 0xFF 0xFF))
 
 			(when (or (every eql *eth-our-mac* dst-mac)
 			         (every eql broadcast dst-mac))
 
 				; Find protocol handler
-				(defq handler (elem-get *eth-protocol-handlers*
+				(defq handler (elem-get *eth-protocol_handlers*
 				                        (elem-get eth-frame :etype)))
 
 				(if handler
@@ -165,7 +165,7 @@
 	; ARP handler
 	(eth/register-handler eth_type_arp
 		(lambda (src-mac dst-mac payload)
-			(defq reply (arp/process payload *eth-our-mac* (ip/get-addr)))
+			(defq reply (arp/process payload *eth-our-mac* (ip/get_addr)))
 			(when reply
 				(eth/send-arp-packet src-mac reply))))
 

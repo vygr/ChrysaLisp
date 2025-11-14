@@ -10,7 +10,7 @@
 
 (defun format-address (ip port)
 	; Format IP:port for display
-	(defq ip_str (if ip (net/ip-to-string ip) "*"))
+	(defq ip_str (if ip (net/ip-to_string ip) "*"))
 	(str ip_str ":" port))
 
 (defun show-tcp-connections ()
@@ -42,7 +42,7 @@
 			(setq conn_count (+ conn_count 1))
 
 			; Format addresses
-			(defq local_addr (format-address
+			(defq local_addr (format_address
 				(get tcb :local-ip)
 				(get tcb :local-port))
 			      remote_addr (format-address
@@ -93,7 +93,7 @@
 			(setq listen_count (+ listen_count 1))
 
 			; Format address
-			(defq local_addr (format-address nil port))
+			(defq local_addr (format_address nil port))
 
 			; Print row
 			(print "tcp    ")
@@ -136,7 +136,7 @@
 			(setq socket_count (+ socket_count 1))
 
 			; Format address
-			(defq local_addr (format-address nil port))
+			(defq local_addr (format_address nil port))
 
 			; Print row
 			(print "udp    ")
@@ -158,7 +158,7 @@
 	; TCP statistics
 	(print "TCP:")
 	(prinl)
-	(defq tcp_count (length *tcp-connections*)
+	(defq tcp_count (length *tcp_connections*)
 	      tcp_listen (length *tcp-listen-sockets*))
 	(print "  Active connections: " tcp_count)
 	(prinl)
@@ -168,7 +168,7 @@
 	; UDP statistics
 	(print "UDP:")
 	(prinl)
-	(defq udp_count (length *udp-sockets*))
+	(defq udp_count (length *udp_sockets*))
 	(print "  Active sockets: " udp_count)
 	(prinl)
 
@@ -238,7 +238,7 @@
 		(exit 0))
 
 	; Determine what to show
-	(defq show_tcp (or (get-option args "-t") (get-option args "-a"))
+	(defq show_tcp (or (get-option args "-t") (get_option args "-a"))
 	      show_udp (or (get-option args "-u") (get-option args "-a"))
 	      show_listen (get-option args "-l")
 	      show_stats (get-option args "-s")
