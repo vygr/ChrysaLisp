@@ -4,19 +4,19 @@
 
 (import "lib/net/consts.inc")
 (import "lib/net/packet.inc")
-(import "lib/net/utils.lisp")
-(import "lib/net/ip.lisp")
+(import "lib/net/utils.inc")
+(import "lib/net/ip.inc")
 
 ;;;;;;;;;;;;;;;;;;
 ; UDP State
 ;;;;;;;;;;;;;;;;;;
 
-(defq *udp-sockets* (env))  ; UDP socket registry: port -> handler-fn
+(defq *udp-sockets* (env 32))  ; UDP socket registry: port -> handler-fn
 (defq *udp-next-ephemeral-port* 49152)  ; Next ephemeral port
 
 (defun udp/init ()
 	; Initialize UDP layer
-	(setq *udp-sockets* (env))
+	(setq *udp-sockets* (env 32))
 	(setq *udp-next-ephemeral-port* 49152)
 	; Register UDP as IP protocol handler
 	(ip/register-handler ip_proto_udp udp/process))

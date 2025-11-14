@@ -3,7 +3,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (import "lib/net/consts.inc")
-(import "lib/net/tcp.lisp")
+(import "lib/net/tcp.inc")
 
 ;;;;;;;;;;;;;;;;;;
 ; TCP State Machine

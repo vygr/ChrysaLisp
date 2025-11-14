@@ -98,12 +98,12 @@ For more control, initialize the stack manually:
 
 ```lisp
 ; Import required modules
-(import "lib/net/ethernet.lisp")
-(import "lib/net/arp.lisp")
-(import "lib/net/ip.lisp")
-(import "lib/net/icmp.lisp")
-(import "lib/net/udp.lisp")
-(import "lib/net/tcp.lisp")
+(import "lib/net/ethernet.inc")
+(import "lib/net/arp.inc")
+(import "lib/net/ip.inc")
+(import "lib/net/icmp.inc")
+(import "lib/net/udp.inc")
+(import "lib/net/tcp.inc")
 
 ; Define your network configuration
 (defq my-mac (array 0x00 0x11 0x22 0x33 0x44 0x55)
@@ -135,7 +135,7 @@ For more control, initialize the stack manually:
 ## Simple UDP Application
 
 ```lisp
-(import "lib/net/socket.lisp")
+(import "lib/net/socket.inc")
 
 ; Create socket
 (defq sock (socket/create sock_dgram))
@@ -161,7 +161,7 @@ For more control, initialize the stack manually:
 ## Simple TCP Application
 
 ```lisp
-(import "lib/net/socket.lisp")
+(import "lib/net/socket.inc")
 
 ; Create socket
 (defq sock (socket/create sock_stream))
@@ -214,28 +214,28 @@ Network Driver / Host OS
 ### Check IP Address
 
 ```lisp
-(import "lib/net/ip.lisp")
+(import "lib/net/ip.inc")
 (net/ip-to-string (ip/get-addr))  ; "192.168.1.100"
 ```
 
 ### Check MAC Address
 
 ```lisp
-(import "lib/net/ethernet.lisp")
+(import "lib/net/ethernet.inc")
 (net/mac-to-string (eth/get-mac))  ; "00:11:22:33:44:55"
 ```
 
 ### Convert IP String to Bytes
 
 ```lisp
-(import "lib/net/utils.lisp")
+(import "lib/net/utils.inc")
 (net/string-to-ip "192.168.1.1")  ; (array 192 168 1 1)
 ```
 
 ### Convert MAC String to Bytes
 
 ```lisp
-(import "lib/net/utils.lisp")
+(import "lib/net/utils.inc")
 (net/string-to-mac "AA:BB:CC:DD:EE:FF")
 ; (array 0xAA 0xBB 0xCC 0xDD 0xEE 0xFF)
 ```
@@ -243,7 +243,7 @@ Network Driver / Host OS
 ### Calculate Checksum
 
 ```lisp
-(import "lib/net/utils.lisp")
+(import "lib/net/utils.inc")
 (defq data (array 1 2 3 4 5 6 7 8))
 (net/checksum data 0 (length data))  ; Returns 16-bit checksum
 ```

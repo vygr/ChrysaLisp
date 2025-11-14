@@ -4,7 +4,7 @@
 
 (import "lib/net/consts.inc")
 (import "lib/net/packet.inc")
-(import "lib/net/utils.lisp")
+(import "lib/net/utils.inc")
 
 ;;;;;;;;;;;;;;;;;;
 ; IP State
@@ -181,7 +181,7 @@
 ; IP Packet Reception
 ;;;;;;;;;;;;;;;;;;
 
-(defq *ip-protocol-handlers* (env))  ; Protocol handler registry
+(defq *ip-protocol-handlers* (env 16))  ; Protocol handler registry
 
 (defun ip/register-handler (protocol handler_fn)
 	; Register handler for IP protocol

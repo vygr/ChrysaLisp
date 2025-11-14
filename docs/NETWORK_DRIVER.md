@@ -248,7 +248,7 @@ make
 
 ```lisp
 ; Initialize network
-(import "lib/net/ethernet.lisp")
+(import "lib/net/ethernet.inc")
 
 ; Setup function to call host driver
 (defun net/init-host ()

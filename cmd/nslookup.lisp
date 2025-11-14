@@ -3,21 +3,21 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (import "lib/options/options.inc")
-(import "lib/net/utils.lisp")
-(import "lib/net/dns.lisp")
+(import "lib/net/utils.inc")
+(import "lib/net/dns.inc")
 
-(defun dns-type-to-string (type)
+(defun dns-type-to-string (dns_type)
 	; Convert DNS type number to string
 	(cond
-		((= type dns_type_a) "A")
-		((= type dns_type_ns) "NS")
-		((= type dns_type_cname) "CNAME")
-		((= type dns_type_soa) "SOA")
-		((= type dns_type_ptr) "PTR")
-		((= type dns_type_mx) "MX")
-		((= type dns_type_aaaa) "AAAA")
-		((= type dns_type_any) "ANY")
-		(t (str "TYPE" type))))
+		((= dns_type dns_type_a) "A")
+		((= dns_type dns_type_ns) "NS")
+		((= dns_type dns_type_cname) "CNAME")
+		((= dns_type dns_type_soa) "SOA")
+		((= dns_type dns_type_ptr) "PTR")
+		((= dns_type dns_type_mx) "MX")
+		((= dns_type dns_type_aaaa) "AAAA")
+		((= dns_type dns_type_any) "ANY")
+		(t (str "TYPE" dns_type))))
 
 (defun string-to-dns-type (str)
 	; Convert string to DNS type number
@@ -32,18 +32,18 @@
 		((= str "ANY") dns_type_any)
 		(t dns_type_a)))  ; Default to A
 
-(defun format-rdata (type rdata)
+(defun format-rdata (dns_type rdata)
 	; Format RDATA for display based on type
 	(cond
-		((= type dns_type_a)
+		((= dns_type dns_type_a)
 			; IPv4 address
 			(net/ip-to-string rdata))
 
-		((= type dns_type_cname)
+		((= dns_type dns_type_cname)
 			; Canonical name
 			rdata)
 
-		((= type dns_type_mx)
+		((= dns_type dns_type_mx)
 			; Mail exchange
 			(str (get rdata :preference) " " (get rdata :exchange)))
 
@@ -148,11 +148,11 @@
 			(prinl)
 
 			; Group answers by type
-			(defq answer_types (env))
+			(defq answer_types (env 8))
 
 			(each (lambda (answer)
-				(defq type (get answer :type)
-				      type_str (dns-type-to-string type)
+				(defq rtype (get answer :type)
+				      type_str (dns-type-to-string rtype)
 				      type_list (get answer_types (keyword type_str)))
 
 				(unless type_list

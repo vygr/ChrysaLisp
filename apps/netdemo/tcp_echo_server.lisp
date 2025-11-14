@@ -3,11 +3,11 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (import "lib/net/consts.inc")
-(import "lib/net/utils.lisp")
-(import "lib/net/ip.lisp")
-(import "lib/net/tcp.lisp")
-(import "lib/net/tcp_state.lisp")
-(import "lib/net/socket.lisp")
+(import "lib/net/utils.inc")
+(import "lib/net/ip.inc")
+(import "lib/net/tcp.inc")
+(import "lib/net/tcp_state.inc")
+(import "lib/net/socket.inc")
 
 (defun tcp-echo-server/main (args)
 	; Simple TCP echo server

@@ -4,9 +4,9 @@
 
 (import "lib/net/consts.inc")
 (import "lib/net/packet.inc")
-(import "lib/net/utils.lisp")
-(import "lib/net/arp.lisp")
-(import "lib/net/ip.lisp")
+(import "lib/net/utils.inc")
+(import "lib/net/arp.inc")
+(import "lib/net/ip.inc")
 
 ;;;;;;;;;;;;;;;;;;
 ; Ethernet State
@@ -115,7 +115,7 @@
 ; Ethernet Frame Reception
 ;;;;;;;;;;;;;;;;;;
 
-(defq *eth-protocol_handlers* (env))  ; EtherType handler registry
+(defq *eth-protocol_handlers* (env 16))  ; EtherType handler registry
 
 (defun eth/register-handler (etype handler_fn)
 	; Register handler for EtherType

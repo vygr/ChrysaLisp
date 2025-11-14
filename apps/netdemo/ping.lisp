@@ -3,9 +3,9 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (import "lib/net/consts.inc")
-(import "lib/net/utils.lisp")
-(import "lib/net/ip.lisp")
-(import "lib/net/icmp.lisp")
+(import "lib/net/utils.inc")
+(import "lib/net/ip.inc")
+(import "lib/net/icmp.inc")
 
 (defun ping/main (args)
 	; Simple ping utility

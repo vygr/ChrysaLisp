@@ -4,24 +4,24 @@
 
 (import "lib/net/consts.inc")
 (import "lib/net/packet.inc")
-(import "lib/net/utils.lisp")
-(import "lib/net/ip.lisp")
+(import "lib/net/utils.inc")
+(import "lib/net/ip.inc")
 
 ;;;;;;;;;;;;;;;;;;
 ; ICMP Packet Creation
 ;;;;;;;;;;;;;;;;;;
 
-(defun icmp/create-packet (type code data)
+(defun icmp/create-packet (msg_type code data)
 	; Create ICMP packet
 	; Inputs:
-	;   type - ICMP message type
+	;   msg_type - ICMP message type
 	;   code - ICMP message code
 	;   data - payload data (byte array)
 	; Output: ICMP packet (byte array)
 	(defq pkt (array))
 
 	; Type
-	(elem-set pkt 0 type)
+	(elem-set pkt 0 msg_type)
 
 	; Code
 	(elem-set pkt 1 code)

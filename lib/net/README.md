@@ -99,12 +99,12 @@ The stack is organized in layers, from lowest to highest:
 ### Initialization
 
 ```lisp
-(import "lib/net/ethernet.lisp")
-(import "lib/net/arp.lisp")
-(import "lib/net/ip.lisp")
-(import "lib/net/icmp.lisp")
-(import "lib/net/udp.lisp")
-(import "lib/net/tcp.lisp")
+(import "lib/net/ethernet.inc")
+(import "lib/net/arp.inc")
+(import "lib/net/ip.inc")
+(import "lib/net/icmp.inc")
+(import "lib/net/udp.inc")
+(import "lib/net/tcp.inc")
 
 ; Initialize the stack
 (defq my-mac (array 0x00 0x11 0x22 0x33 0x44 0x55)
@@ -131,7 +131,7 @@ The stack is organized in layers, from lowest to highest:
 ### UDP Echo Server Example
 
 ```lisp
-(import "lib/net/socket.lisp")
+(import "lib/net/socket.inc")
 
 ; Create UDP socket
 (defq sock (socket/create sock_dgram))
@@ -151,7 +151,7 @@ The stack is organized in layers, from lowest to highest:
 ### TCP Echo Server Example
 
 ```lisp
-(import "lib/net/socket.lisp")
+(import "lib/net/socket.inc")
 
 ; Create TCP listening socket
 (defq server-sock (socket/create sock_stream))
@@ -171,7 +171,7 @@ The stack is organized in layers, from lowest to highest:
 ### TCP Client Example
 
 ```lisp
-(import "lib/net/socket.lisp")
+(import "lib/net/socket.inc")
 
 ; Create TCP socket
 (defq sock (socket/create sock_stream))
@@ -197,7 +197,7 @@ The stack is organized in layers, from lowest to highest:
 ### Ping Example
 
 ```lisp
-(import "lib/net/icmp.lisp")
+(import "lib/net/icmp.inc")
 
 ; Register handler for ping replies
 (icmp/register-echo-handler

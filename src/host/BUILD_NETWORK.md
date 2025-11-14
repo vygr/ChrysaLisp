@@ -233,8 +233,8 @@ WinDump -D
 Create `test_network.lisp`:
 
 ```lisp
-(import "lib/net/ethernet.lisp")
-(import "lib/net/ip.lisp")
+(import "lib/net/ethernet.inc")
+(import "lib/net/ip.inc")
 
 ; Initialize network
 (defq mac (array 0x00 0x11 0x22 0x33 0x44 0x55)
