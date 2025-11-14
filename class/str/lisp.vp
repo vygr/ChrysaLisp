@@ -663,6 +663,10 @@
 
 	(errorif-lisp-args-sig 'error :r1 1)
 	(list-bind-args args '(:r0) '(:obj))
+(errorcase
+	(assign '((:r0 str_length)) '(:r2))
+	(vp-and-cr 1 :r2)
+	(gotoif '(:r2 /= 0) 'error))
 	(call 'str :decode '(:r0) `(,args))
 
 	(exit 'str :lisp_decode `(,this ,args))
