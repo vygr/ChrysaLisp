@@ -298,7 +298,7 @@ MX records:
 
 ## DNS Resolver Library
 
-The `lib/net/dns.lisp` provides a complete DNS resolver implementation.
+The `lib/net/dns.inc` provides a complete DNS resolver implementation.
 
 ### Features
 

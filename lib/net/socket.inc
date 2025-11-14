@@ -3,20 +3,20 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (import "lib/net/consts.inc")
-(import "lib/net/tcp.lisp")
-(import "lib/net/tcp_state.lisp")
-(import "lib/net/udp.lisp")
+(import "lib/net/tcp.inc")
+(import "lib/net/tcp_state.inc")
+(import "lib/net/udp.inc")
 
 ;;;;;;;;;;;;;;;;;;
 ; Socket Creation
 ;;;;;;;;;;;;;;;;;;
 
-(defun socket/create (type)
+(defun socket/create (sock_type)
 	; Create a new socket
-	; Input: type - socket type (sock_stream for TCP, sock_dgram for UDP)
+	; Input: sock_type - socket type (sock_stream for TCP, sock_dgram for UDP)
 	; Output: socket environment
 	(cond
-		((= type sock_stream)
+		((= sock_type sock_stream)
 			; TCP socket
 			(env
 				:type sock_stream
@@ -24,7 +24,7 @@
 				:state sock_state_closed
 				:data-handler nil))
 
-		((= type sock_dgram)
+		((= sock_type sock_dgram)
 			; UDP socket
 			(env
 				:type sock_dgram

@@ -3,12 +3,12 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (import "lib/options/options.inc")
-(import "lib/net/utils.lisp")
-(import "lib/net/ethernet.lisp")
-(import "lib/net/ip.lisp")
+(import "lib/net/utils.inc")
+(import "lib/net/ethernet.inc")
+(import "lib/net/ip.inc")
 
 ; Global network interface state
-(defq *net_interfaces* (env))
+(defq *net_interfaces* (env 8))
 
 (defun show-interface (if_name if_data)
 	; Display interface information

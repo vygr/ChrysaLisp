@@ -3,13 +3,13 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (import "lib/net/consts.inc")
-(import "lib/net/utils.lisp")
-(import "lib/net/ethernet.lisp")
-(import "lib/net/arp.lisp")
-(import "lib/net/ip.lisp")
-(import "lib/net/icmp.lisp")
-(import "lib/net/udp.lisp")
-(import "lib/net/tcp.lisp")
+(import "lib/net/utils.inc")
+(import "lib/net/ethernet.inc")
+(import "lib/net/arp.inc")
+(import "lib/net/ip.inc")
+(import "lib/net/icmp.inc")
+(import "lib/net/udp.inc")
+(import "lib/net/tcp.inc")
 
 (defun net/initialize (mac ip netmask gateway send_fn)
 	; Initialize the complete TCP/IP stack
