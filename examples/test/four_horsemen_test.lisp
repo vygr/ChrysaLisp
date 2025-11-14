@@ -91,13 +91,13 @@
 
 	(it "should find maximum"
 		(defq nums (list 3 7 2 9 4))
-		(defq max-val (reduce (lambda (acc x) (if (> x acc) x acc)) nums 0))
-		(should-equal max-val 9))
+		(defq max_val (reduce (lambda (acc x) (if (> x acc) x acc)) nums 0))
+		(should-equal max_val 9))
 
 	(it "should find minimum"
 		(defq nums (list 3 7 2 9 4))
-		(defq min-val (reduce (lambda (acc x) (if (< x acc) x acc)) nums 999))
-		(should-equal min-val 2)))
+		(defq min_val (reduce (lambda (acc x) (if (< x acc) x acc)) nums 999))
+		(should-equal min_val 2)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;
 ; The Fourth Horseman: some
@@ -122,12 +122,12 @@
 
 	(it "should work as existence check"
 		(defq nums (list 1 3 5 7 9))
-		(defq has-even (some (lambda (x) (= 0 (% x 2))) nums))
-		(should-be-nil has-even)
+		(defq has_even (some (lambda (x) (= 0 (% x 2))) nums))
+		(should-be-nil has_even)
 
 		(defq nums2 (list 1 3 5 8 9))
-		(defq has-even2 (some (lambda (x) (= 0 (% x 2))) nums2))
-		(should-be-true has-even2)))
+		(defq has_even2 (some (lambda (x) (= 0 (% x 2))) nums2))
+		(should-be-true has_even2)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;
 ; Combining The Horsemen
@@ -161,12 +161,12 @@
 	(it "should use some to check if any satisfy condition"
 		(defq nums (list 1 2 3 4 5))
 		; Check if any number is greater than 3
-		(defq has-large (some (lambda (x) (> x 3)) nums))
-		(should-be-true has-large)
+		(defq has_large (some (lambda (x) (> x 3)) nums))
+		(should-be-true has_large)
 
 		; Check if any number is greater than 10
-		(defq has-huge (some (lambda (x) (> x 10)) nums))
-		(should-be-nil has-huge)))
+		(defq has_huge (some (lambda (x) (> x 10)) nums))
+		(should-be-nil has_huge)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;
 ; Performance and Efficiency

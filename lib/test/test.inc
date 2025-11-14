@@ -12,31 +12,31 @@
 ; Test State Management
 ;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defq *test-context* (Fmap 10))
-(. *test-context* :insert 'suites (list))
-(. *test-context* :insert 'current-suite :nil)
-(. *test-context* :insert 'current-test :nil)
-(. *test-context* :insert 'total-tests 0)
-(. *test-context* :insert 'passed-tests 0)
-(. *test-context* :insert 'failed-tests 0)
-(. *test-context* :insert 'skipped-tests 0)
-(. *test-context* :insert 'failures (list))
-(. *test-context* :insert 'filter-pattern :nil)
-(. *test-context* :insert 'focus-mode :nil)
-(. *test-context* :insert 'verbose :nil)
-(. *test-context* :insert 'color-output :t)
+(defq *test_context* (Fmap 10))
+(. *test_context* :insert 'suites (list))
+(. *test_context* :insert 'current_suite :nil)
+(. *test_context* :insert 'current_test :nil)
+(. *test_context* :insert 'total_tests 0)
+(. *test_context* :insert 'passed_tests 0)
+(. *test_context* :insert 'failed_tests 0)
+(. *test_context* :insert 'skipped_tests 0)
+(. *test_context* :insert 'failures (list))
+(. *test_context* :insert 'filter_pattern :nil)
+(. *test_context* :insert 'focus_mode :nil)
+(. *test_context* :insert 'verbose :nil)
+(. *test_context* :insert 'color_output :t)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;
 ; Color Output Support
 ;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defun test-color-reset () (if (. *test-context* :find 'color-output) "\033[0m" ""))
-(defun test-color-red () (if (. *test-context* :find 'color-output) "\033[31m" ""))
-(defun test-color-green () (if (. *test-context* :find 'color-output) "\033[32m" ""))
-(defun test-color-yellow () (if (. *test-context* :find 'color-output) "\033[33m" ""))
-(defun test-color-blue () (if (. *test-context* :find 'color-output) "\033[34m" ""))
-(defun test-color-gray () (if (. *test-context* :find 'color-output) "\033[90m" ""))
-(defun test-color-bold () (if (. *test-context* :find 'color-output) "\033[1m" ""))
+(defun test-color-reset () (if (. *test_context* :find 'color_output) "\033[0m" ""))
+(defun test-color-red () (if (. *test_context* :find 'color_output) "\033[31m" ""))
+(defun test-color-green () (if (. *test_context* :find 'color_output) "\033[32m" ""))
+(defun test-color-yellow () (if (. *test_context* :find 'color_output) "\033[33m" ""))
+(defun test-color-blue () (if (. *test_context* :find 'color_output) "\033[34m" ""))
+(defun test-color-gray () (if (. *test_context* :find 'color_output) "\033[90m" ""))
+(defun test-color-bold () (if (. *test_context* :find 'color_output) "\033[1m" ""))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;
 ; Utility Functions
@@ -52,30 +52,30 @@
 (defun test-increment (key)
 	; (test-increment key) -> :nil
 	; Increment a counter in test context
-	(defq current (. *test-context* :find key))
-	(. *test-context* :insert key (inc current)))
+	(defq current (. *test_context* :find key))
+	(. *test_context* :insert key (inc current)))
 
 (defun test-get (key)
 	; (test-get key) -> val
 	; Get value from test context
-	(. *test-context* :find key))
+	(. *test_context* :find key))
 
 (defun test-set (key val)
 	; (test-set key val) -> :nil
 	; Set value in test context
-	(. *test-context* :insert key val))
+	(. *test_context* :insert key val))
 
-(defun test-add-failure (suite-name test-name message)
-	; (test-add-failure suite-name test-name message) -> :nil
+(defun test-add-failure (suite_name test_name message)
+	; (test-add-failure suite_name test_name message) -> :nil
 	; Record a test failure
 	(defq failures (test-get 'failures))
-	(push failures (list suite-name test-name message))
+	(push failures (list suite_name test_name message))
 	(test-set 'failures failures))
 
 (defun test-matches-filter? (description)
 	; (test-matches-filter? description) -> :t | :nil
 	; Check if test matches filter pattern
-	(defq pattern (test-get 'filter-pattern))
+	(defq pattern (test-get 'filter_pattern))
 	(if pattern
 		(find pattern description)
 		:t))
@@ -94,10 +94,10 @@
 				message
 				(cat "Expected " (str expected) " but got " (str actual))))
 			(test-add-failure
-				(test-get 'current-suite)
-				(test-get 'current-test)
+				(test-get 'current_suite)
+				(test-get 'current_test)
 				msg)
-			(test-increment 'failed-tests)
+			(test-increment 'failed_tests)
 			:nil)))
 
 (defun should-not-equal (actual expected &optional message)
@@ -110,10 +110,10 @@
 				message
 				(cat "Expected not to equal " (str expected))))
 			(test-add-failure
-				(test-get 'current-suite)
-				(test-get 'current-test)
+				(test-get 'current_suite)
+				(test-get 'current_test)
 				msg)
-			(test-increment 'failed-tests)
+			(test-increment 'failed_tests)
 			:nil)))
 
 (defun should-be-true (actual &optional message)
@@ -124,10 +124,10 @@
 		(progn
 			(defq msg (if message message "Expected true but got false"))
 			(test-add-failure
-				(test-get 'current-suite)
-				(test-get 'current-test)
+				(test-get 'current_suite)
+				(test-get 'current_test)
 				msg)
-			(test-increment 'failed-tests)
+			(test-increment 'failed_tests)
 			:nil)))
 
 (defun should-be-false (actual &optional message)
@@ -138,10 +138,10 @@
 		(progn
 			(defq msg (if message message "Expected false but got true"))
 			(test-add-failure
-				(test-get 'current-suite)
-				(test-get 'current-test)
+				(test-get 'current_suite)
+				(test-get 'current_test)
 				msg)
-			(test-increment 'failed-tests)
+			(test-increment 'failed_tests)
 			:nil)))
 
 (defun should-be-nil (actual &optional message)
@@ -154,10 +154,10 @@
 				message
 				(cat "Expected :nil but got " (str actual))))
 			(test-add-failure
-				(test-get 'current-suite)
-				(test-get 'current-test)
+				(test-get 'current_suite)
+				(test-get 'current_test)
 				msg)
-			(test-increment 'failed-tests)
+			(test-increment 'failed_tests)
 			:nil)))
 
 (defun should-not-be-nil (actual &optional message)
@@ -168,10 +168,10 @@
 		(progn
 			(defq msg (if message message "Expected non-nil value"))
 			(test-add-failure
-				(test-get 'current-suite)
-				(test-get 'current-test)
+				(test-get 'current_suite)
+				(test-get 'current_test)
 				msg)
-			(test-increment 'failed-tests)
+			(test-increment 'failed_tests)
 			:nil)))
 
 (defun should-be-less-than (actual expected &optional message)
@@ -184,10 +184,10 @@
 				message
 				(cat "Expected " (str actual) " to be less than " (str expected))))
 			(test-add-failure
-				(test-get 'current-suite)
-				(test-get 'current-test)
+				(test-get 'current_suite)
+				(test-get 'current_test)
 				msg)
-			(test-increment 'failed-tests)
+			(test-increment 'failed_tests)
 			:nil)))
 
 (defun should-be-greater-than (actual expected &optional message)
@@ -200,10 +200,10 @@
 				message
 				(cat "Expected " (str actual) " to be greater than " (str expected))))
 			(test-add-failure
-				(test-get 'current-suite)
-				(test-get 'current-test)
+				(test-get 'current_suite)
+				(test-get 'current_test)
 				msg)
-			(test-increment 'failed-tests)
+			(test-increment 'failed_tests)
 			:nil)))
 
 (defun should-contain (collection item &optional message)
@@ -216,10 +216,10 @@
 				message
 				(cat "Expected collection to contain " (str item))))
 			(test-add-failure
-				(test-get 'current-suite)
-				(test-get 'current-test)
+				(test-get 'current_suite)
+				(test-get 'current_test)
 				msg)
-			(test-increment 'failed-tests)
+			(test-increment 'failed_tests)
 			:nil)))
 
 (defun should-not-contain (collection item &optional message)
@@ -232,10 +232,10 @@
 				message
 				(cat "Expected collection not to contain " (str item))))
 			(test-add-failure
-				(test-get 'current-suite)
-				(test-get 'current-test)
+				(test-get 'current_suite)
+				(test-get 'current_test)
 				msg)
-			(test-increment 'failed-tests)
+			(test-increment 'failed_tests)
 			:nil)))
 
 (defun should-be-empty (collection &optional message)
@@ -246,10 +246,10 @@
 		(progn
 			(defq msg (if message message "Expected empty collection"))
 			(test-add-failure
-				(test-get 'current-suite)
-				(test-get 'current-test)
+				(test-get 'current_suite)
+				(test-get 'current_test)
 				msg)
-			(test-increment 'failed-tests)
+			(test-increment 'failed_tests)
 			:nil)))
 
 (defun should-not-be-empty (collection &optional message)
@@ -260,10 +260,10 @@
 		(progn
 			(defq msg (if message message "Expected non-empty collection"))
 			(test-add-failure
-				(test-get 'current-suite)
-				(test-get 'current-test)
+				(test-get 'current_suite)
+				(test-get 'current_test)
 				msg)
-			(test-increment 'failed-tests)
+			(test-increment 'failed_tests)
 			:nil)))
 
 (defun should-throw (func &optional message)
@@ -276,10 +276,10 @@
 		(progn
 			(defq msg (if message message "Expected function to throw"))
 			(test-add-failure
-				(test-get 'current-suite)
-				(test-get 'current-test)
+				(test-get 'current_suite)
+				(test-get 'current_test)
 				msg)
-			(test-increment 'failed-tests)
+			(test-increment 'failed_tests)
 			:nil)))
 
 (defun should-not-throw (func &optional message)
@@ -292,10 +292,10 @@
 		(progn
 			(defq msg (if message message "Expected function not to throw"))
 			(test-add-failure
-				(test-get 'current-suite)
-				(test-get 'current-test)
+				(test-get 'current_suite)
+				(test-get 'current_test)
 				msg)
-			(test-increment 'failed-tests)
+			(test-increment 'failed_tests)
 			:nil)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;
@@ -307,14 +307,14 @@
 	; Define a test case
 	`(progn
 		(when (test-matches-filter? ,description)
-			(test-set 'current-test ,description)
-			(test-increment 'total-tests)
+			(test-set 'current_test ,description)
+			(test-increment 'total_tests)
 			(defq test-passed :t)
-			(defq initial-failures (test-get 'failed-tests))
+			(defq initial-failures (test-get 'failed_tests))
 			~body
-			(if (= initial-failures (test-get 'failed-tests))
+			(if (= initial-failures (test-get 'failed_tests))
 				(progn
-					(test-increment 'passed-tests)
+					(test-increment 'passed_tests)
 					(when (test-get 'verbose)
 						(test-print
 							(test-color-green) "  ✓ " (test-color-reset)
@@ -328,8 +328,8 @@
 	; Define a skipped test case
 	`(progn
 		(when (test-matches-filter? ,description)
-			(test-increment 'total-tests)
-			(test-increment 'skipped-tests)
+			(test-increment 'total_tests)
+			(test-increment 'skipped_tests)
 			(test-print
 				(test-color-yellow) "  ○ " (test-color-reset)
 				,description (test-color-gray) " (skipped)" (test-color-reset)))))
@@ -338,7 +338,7 @@
 	; (describe description &rest body) -> :nil
 	; Define a test suite
 	`(progn
-		(test-set 'current-suite ,description)
+		(test-set 'current_suite ,description)
 		(test-print)
 		(test-print (test-color-bold) ,description (test-color-reset))
 		~body))
@@ -359,10 +359,10 @@
 (defun test-print-summary ()
 	; (test-print-summary) -> :nil
 	; Print test summary
-	(defq total (test-get 'total-tests))
-	(defq passed (test-get 'passed-tests))
-	(defq failed (test-get 'failed-tests))
-	(defq skipped (test-get 'skipped-tests))
+	(defq total (test-get 'total_tests))
+	(defq passed (test-get 'passed_tests))
+	(defq failed (test-get 'failed_tests))
+	(defq skipped (test-get 'skipped_tests))
 	(test-print)
 	(test-print (test-color-bold) "Test Summary:" (test-color-reset))
 	(test-print "  Total:   " total)
@@ -390,12 +390,12 @@
 (defun test-reset ()
 	; (test-reset) -> :nil
 	; Reset test state for a new test run
-	(test-set 'current-suite :nil)
-	(test-set 'current-test :nil)
-	(test-set 'total-tests 0)
-	(test-set 'passed-tests 0)
-	(test-set 'failed-tests 0)
-	(test-set 'skipped-tests 0)
+	(test-set 'current_suite :nil)
+	(test-set 'current_test :nil)
+	(test-set 'total_tests 0)
+	(test-set 'passed_tests 0)
+	(test-set 'failed_tests 0)
+	(test-set 'skipped_tests 0)
 	(test-set 'failures (list)))
 
 (defun test-run-summary ()
@@ -407,7 +407,7 @@
 (defun test-exit-code ()
 	; (test-exit-code) -> exit_code
 	; Return exit code based on test results
-	(if (> (test-get 'failed-tests) 0) 1 0))
+	(if (> (test-get 'failed_tests) 0) 1 0))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;
 ; Configuration
@@ -416,7 +416,7 @@
 (defun test-set-filter (pattern)
 	; (test-set-filter pattern) -> :nil
 	; Set filter pattern for tests
-	(test-set 'filter-pattern pattern))
+	(test-set 'filter_pattern pattern))
 
 (defun test-set-verbose (verbose)
 	; (test-set-verbose verbose) -> :nil
@@ -426,7 +426,7 @@
 (defun test-set-color (color)
 	; (test-set-color color) -> :nil
 	; Set color output mode
-	(test-set 'color-output color))
+	(test-set 'color_output color))
 
 ;module
 (export-symbols '(

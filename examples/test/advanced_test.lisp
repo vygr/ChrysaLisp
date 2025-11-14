@@ -118,11 +118,11 @@
 		(should-equal 10 10 "Ten should equal ten"))
 
 	(it "should show helpful context in custom messages"
-		(defq expected-value 42)
-		(defq actual-value 42)
-		(should-equal actual-value expected-value
+		(defq expected_value 42)
+		(defq actual_value 42)
+		(should-equal actual_value expected_value
 			(cat "Expected the answer to life, universe, and everything: "
-				(str expected-value)))))
+				(str expected_value)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;
 ; Nested Describes

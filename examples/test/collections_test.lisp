@@ -34,9 +34,9 @@
 		(should-equal (length mylist) 2))
 
 	(it "should handle empty lists"
-		(defq empty-list (list))
-		(should-be-empty empty-list)
-		(should-equal (length empty-list) 0)))
+		(defq empty_list (list))
+		(should-be-empty empty_list)
+		(should-equal (length empty_list) 0)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;
 ; Sequence Functions
@@ -106,10 +106,10 @@
 		(should-not-contain mylist 10))
 
 	(it "should check if collection is empty"
-		(defq empty-list (list))
-		(defq non-empty-list (list 1 2 3))
-		(should-be-empty empty-list)
-		(should-not-be-empty non-empty-list))
+		(defq empty_list (list))
+		(defq non-empty_list (list 1 2 3))
+		(should-be-empty empty_list)
+		(should-not-be-empty non-empty_list))
 
 	(it "should handle string collections"
 		(defq mystring "hello world")

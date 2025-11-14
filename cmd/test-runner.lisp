@@ -8,7 +8,7 @@
 
 (defq usage `(
 (("-h" "--help")
-"Usage: test-runner [options] [test-files...]
+"Usage: test-runner [options] [test_files...]
 
 	options:
 		-h --help              : this help info
@@ -40,27 +40,27 @@
 ; Options
 ;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defq opt-filter :nil)
-(defq opt-verbose :nil)
-(defq opt-no-color :nil)
-(defq opt-pattern "examples/test/**/*_test.lisp")
-(defq opt-list :nil)
+(defq opt_filter :nil)
+(defq opt_verbose :nil)
+(defq opt_no_color :nil)
+(defq opt_pattern "examples/test/**/*_test.lisp")
+(defq opt_list :nil)
 
 (defq optlist `(
 	(("-h" "--help") ,(first (first usage)))
-	(("-f" "--filter") ,(opt-str 'opt-filter))
-	(("-v" "--verbose") ,(opt-flag 'opt-verbose))
-	(("-n" "--no-color") ,(opt-flag 'opt-no-color))
-	(("-p" "--pattern") ,(opt-str 'opt-pattern))
-	(("-l" "--list") ,(opt-flag 'opt-list))
+	(("-f" "--filter") ,(opt-str 'opt_filter))
+	(("-v" "--verbose") ,(opt-flag 'opt_verbose))
+	(("-n" "--no-color") ,(opt-flag 'opt_no_color))
+	(("-p" "--pattern") ,(opt-str 'opt_pattern))
+	(("-l" "--list") ,(opt-flag 'opt_list))
 ))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;
 ; File Discovery
 ;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defun find-test-files (pattern)
-	; (find-test-files pattern) -> (file ...)
+(defun find-test_files (pattern)
+	; (find-test_files pattern) -> (file ...)
 	; Find test files matching the pattern
 	(defq files (list))
 	(when (file-exists? "examples/test")
@@ -73,8 +73,8 @@
 			(file-tree "examples/test" (list))))
 	files)
 
-(defun list-test-files (files)
-	; (list-test-files files) -> :nil
+(defun list-test_files (files)
+	; (list-test_files files) -> :nil
 	; List available test files
 	(print)
 	(print "Available test files:")
@@ -102,21 +102,21 @@
 			(print)
 			:nil)))
 
-(defun run-test-files (files)
-	; (run-test-files files) -> exit_code
+(defun run-test_files (files)
+	; (run-test_files files) -> exit_code
 	; Run all test files
 	(test-reset)
-	(when opt-filter
-		(test-set-filter opt-filter))
-	(when opt-verbose
+	(when opt_filter
+		(test-set-filter opt_filter))
+	(when opt_verbose
 		(test-set-verbose :t))
-	(when opt-no-color
+	(when opt_no_color
 		(test-set-color :nil))
 
 	(print)
 	(print "Running " (length files) " test file(s)")
-	(when opt-filter
-		(print "Filter: " opt-filter))
+	(when opt_filter
+		(print "Filter: " opt_filter))
 
 	(each! 0 -1 run-test-file files)
 
@@ -134,19 +134,19 @@
 			(defq args (options stdio optlist)))
 
 		; Determine which files to test
-		(defq test-files
+		(defq test_files
 			(if (nempty? args)
 				; Use files from command line
 				args
 				; Use pattern to find files
-				(find-test-files opt-pattern)))
+				(find-test_files opt_pattern)))
 
 		; List mode or run mode
-		(if opt-list
+		(if opt_list
 			(progn
-				(list-test-files test-files)
+				(list-test_files test_files)
 				0)
-			(if (empty? test-files)
+			(if (empty? test_files)
 				(progn
 					(print)
 					(print "No test files found!")
@@ -157,4 +157,4 @@
 					(print "  - Use -p to specify a different pattern")
 					(print)
 					1)
-				(run-test-files test-files)))))
+				(run-test_files test_files)))))
