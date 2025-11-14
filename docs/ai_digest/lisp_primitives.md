@@ -71,6 +71,38 @@ controlling the flow of execution based on conditions.
     * `(case key [(val body)] ...)`: Evaluates `key` and compares it to the
       `val` in each clause. It executes the `body` of the first matching clause.
 
+*   **`inc`**: Increments a number by 1.
+
+    * `(inc num) -> num`
+
+*   **`dec`**: Decrements a number by 1.
+
+    * `(dec num) -> num`
+
+*   **`++`**: Increments a number by a given value (default 1).
+
+    * `(++ num [num]) -> num`
+
+*   **`--`**: Decrements a number by a given value (default 1).
+
+    * `(-- num [num]) -> num`
+
+*   **`not`**: Returns `:t` if the form is `:nil`, otherwise `:nil`.
+
+    * `(not form) -> :t | :nil`
+
+*   **`or`**: Evaluates forms from left to right, returning the first non-`:nil` value.
+
+    * `(or [tst] ...) -> :nil | tst`
+
+*   **`and`**: Evaluates forms from left to right, returning the last value if all are non-`:nil`.
+
+    * `(and [tst] ...) -> :t | :nil | tst`
+
+*   **`times`**: Executes a body of code a specified number of times.
+
+    * `(times num body)`
+
 ## Sequence Manipulation and Slicing Functions
 
 These functions provide the core utilities for accessing, slicing, and combining
@@ -117,6 +149,542 @@ sequences like lists, arrays, and strings.
 *   **`cat`**: Concatenates multiple sequences into one.
 
     * `(cat seq ...) -> seq`
+
+*   **`sort`**: Sorts a list.
+
+    * `(sort list [fcmp start end]) -> list`
+
+*   **`swap`**: Swaps two elements in a list.
+
+    * `(swap list idx idx)`
+
+*   **`shuffle`**: Shuffles a list.
+
+    * `(shuffle list [start end]) -> list`
+
+*   **`range`**: Creates a list of numbers within a specified range.
+
+    * `(range start end [step]) -> list`
+
+*   **`each-mergeable`**: Applies a lambda to each element of a sequence.
+
+    * `(each-mergeable lambda seq) -> seq`
+
+*   **`each`**: Applies a lambda to each element of one or more sequences.
+
+    * `(each lambda seq ...)`
+
+*   **`reach`**: Applies a lambda to each element of one or more sequences in reverse order.
+
+    * `(reach lambda seq ...)`
+
+*   **`map`**: Applies a lambda to each element of one or more sequences and returns a new list with the results.
+
+    * `(map lambda seq ...) -> list`
+
+*   **`rmap`**: Applies a lambda to each element of one or more sequences in reverse order and returns a new list with the results.
+
+    * `(rmap lambda seq ...) -> list`
+
+*   **`reduce`**: Reduces a sequence to a single value using a lambda.
+
+    * `(reduce lambda seq [init]) -> form`
+
+*   **`rreduce`**: Reduces a sequence to a single value using a lambda in reverse order.
+
+    * `(rreduce lambda seq [init]) -> form`
+
+*   **`filter`**: Filters a sequence using a lambda.
+
+    * `(filter lambda seq) -> list`
+
+*   **`reverse`**: Reverses a sequence.
+
+    * `(reverse seq) -> seq`
+
+*   **`lists`**: Creates a list of lists.
+
+    * `(lists n) -> ((list0) ... (listn-1))`
+
+*   **`starts-with`**: Checks if a string starts with a given prefix.
+
+    * `(starts-with str str) -> :t | :nil`
+
+*   **`ends-with`**: Checks if a string ends with a given suffix.
+
+    * `(ends-with str str) -> :t | :nil`
+
+*   **`erase`**: Erases a part of a sequence.
+
+    * `(erase seq start end) -> seq`
+
+*   **`insert`**: Inserts a sequence into another sequence.
+
+    * `(insert seq pos seq) -> seq`
+
+*   **`replace`**: Replaces a part of a sequence with another sequence.
+
+    * `(replace seq start end seq) -> seq`
+
+*   **`rotate`**: Rotates a part of a sequence.
+
+    * `(rotate seq start mid end) -> seq`
+
+*   **`join`**: Joins a sequence of sequences with a separator.
+
+    * `(join seqs seq [mode]) -> seq`
+
+*   **`unzip`**: Unzips a sequence into a sequence of sequences.
+
+    * `(unzip seq cnt) -> seqs`
+
+*   **`zip`**: Zips multiple sequences into a single sequence.
+
+    * `(zip seq ...) -> seq`
+
+*   **`unique`**: Removes duplicate elements from a sequence.
+
+    * `(unique seq) -> seq`
+
+*   **`flatten`**: Flattens a nested list.
+
+    * `(flatten list) -> list`
+
+*   **`max-length`**: Returns the maximum length of a list of lists.
+
+    * `(max-length list) -> max`
+
+*   **`min-length`**: Returns the minimum length of a list of lists.
+
+    * `(min-length list) -> min`
+
+## Predicates
+
+*   **`lambda?`**: Checks if a form is a lambda.
+
+    * `(lambda? form) -> :t | :nil`
+
+*   **`macro?`**: Checks if a form is a macro.
+
+    * `(macro? form) -> :t | :nil`
+
+*   **`quote?`**: Checks if a form is a quote.
+
+    * `(quote? form) -> :t | :nil`
+
+*   **`quasi-quote?`**: Checks if a form is a quasi-quote.
+
+    * `(quasi-quote? form) -> :t | :nil`
+
+*   **`array?`**: Checks if a form is an array.
+
+    * `(array? form) -> :t | :nil`
+
+*   **`list?`**: Checks if a form is a list.
+
+    * `(list? form) -> :t | :nil`
+
+*   **`num?`**: Checks if a form is a number.
+
+    * `(num? form) -> :t | :nil`
+
+*   **`fixed?`**: Checks if a form is a fixed-point number.
+
+    * `(fixed? form) -> :t | :nil`
+
+*   **`real?`**: Checks if a form is a real number.
+
+    * `(real? form) -> :t | :nil`
+
+*   **`nums?`**: Checks if a form is a numeric vector.
+
+    * `(nums? form) -> :t | :nil`
+
+*   **`fixeds?`**: Checks if a form is a fixed-point vector.
+
+    * `(fixeds? form) -> :t | :nil`
+
+*   **`reals?`**: Checks if a form is a real vector.
+
+    * `(reals? form) -> :t | :nil`
+
+*   **`func?`**: Checks if a form is a function.
+
+    * `(func? form) -> :t | :nil`
+
+*   **`str?`**: Checks if a form is a string.
+
+    * `(str? form) -> :t | :nil`
+
+*   **`sym?`**: Checks if a form is a symbol.
+
+    * `(sym? form) -> :t | :nil`
+
+*   **`env?`**: Checks if a form is an environment.
+
+    * `(env? form) -> :t | :nil`
+
+*   **`seq?`**: Checks if a form is a sequence.
+
+    * `(seq? form) -> :t | :nil`
+
+*   **`lambda-func?`**: Checks if a form is a lambda function.
+
+    * `(lambda-func? form) -> :t | :nil`
+
+*   **`macro-func?`**: Checks if a form is a macro function.
+
+    * `(macro-func? form) -> :t | :nil`
+
+*   **`nil?`**: Checks if a form is `:nil`.
+
+    * `(nil? o) -> :t | :nil`
+
+*   **`atom?`**: Checks if a form is an atom.
+
+    * `(atom? o) -> :t | :nil`
+
+*   **`empty?`**: Checks if a sequence is empty.
+
+    * `(empty? form) -> :t | :nil`
+
+*   **`nempty?`**: Checks if a sequence is not empty.
+
+    * `(nempty? form) -> :t | :nil`
+
+*   **`lisp-node?`**: Checks if a node is a Lisp node.
+
+    * `(lisp_node? node) -> :t | :nil`
+
+*   **`cpp-node?`**: Checks if a node is a C++ node.
+
+    * `(cpp_node? node) -> :t | :nil`
+
+*   **`neg?`**: Checks if a number is negative.
+
+    * `(neg? num) -> :t | :nil`
+
+*   **`pos?`**: Checks if a number is positive.
+
+    * `(pos? num) -> :t | :nil`
+
+*   **`odd?`**: Checks if a number is odd.
+
+    * `(odd? num) -> :t | :nil`
+
+*   **`even?`**: Checks if a number is even.
+
+    * `(even? num) -> :t | :nil`
+
+## Math Functions
+
+*   **`lognot`**: Calculates the bitwise NOT of a number.
+
+    * `(lognot num) -> num`
+
+*   **`log2`**: Calculates the base-2 logarithm of a number.
+
+    * `(log2 num) -> num`
+
+*   **`pow`**: Calculates the power of a number.
+
+    * `(pow base exponent) -> integer`
+
+*   **`ntz`**: Counts the number of trailing zeros in a number.
+
+    * `(ntz num) -> num`
+
+*   **`nto`**: Counts the number of trailing ones in a number.
+
+    * `(nto num) -> num`
+
+*   **`nlz`**: Counts the number of leading zeros in a number.
+
+    * `(nlz num) -> num`
+
+*   **`nlo`**: Counts the number of leading ones in a number.
+
+    * `(nlo num) -> num`
+
+*   **`sqrt`**: Calculates the square root of a number.
+
+    * `(sqrt num) -> num`
+
+*   **`sign`**: Returns the sign of a number.
+
+    * `(sign num) -> -1 | 0 | 1`
+
+## Macros
+
+*   **`macrobind`**: Prebinds and macroexpands a form.
+
+    * `(macrobind form) -> (prebind (macroexpand form))`
+
+*   **`exec`**: Evaluates a macrobinded form.
+
+    * `(exec form)`
+
+*   **`const`**: Evaluates a form at compile time.
+
+    * `(const form)`
+
+*   **`static-q`**: Statically quotes a form.
+
+    * `(static-q form) -> 'form`
+
+*   **`static-qq`**: Statically quasi-quotes a form.
+
+    * `(static-qq form) -> `form`
+
+*   **`static-qqp`**: Statically quasi-quotes a form, prebind only.
+
+    * `(static-qqp form) -> `form`
+
+*   **`callback`**: Creates a callback.
+
+    * `(callback lambda env arg ...)`
+
+*   **`debug-brk`**: Creates a debug breakpoint.
+
+    * `(debug-brk brk_id [condition])`
+
+*   **`profile-report`**: Generates a profile report.
+
+    * `(profile-report name [reset])`
+
+*   **`setd`**: Sets default values for symbols.
+
+    * `(setd sym val [sym val] ...)`
+
+*   **`#`**: A reader macro for creating lambdas.
+
+    * `(# (< %9 %0 %3) ...)`
+
+*   **`some`**: Applies a lambda to each element of a sequence, returning the first non-nil result.
+
+    * `(some lambda seq ...)`
+
+*   **`rsome`**: Applies a lambda to each element of a sequence in reverse, returning the first non-nil result.
+
+    * `(rsome lambda seq ...)`
+
+*   **`every`**: Applies a lambda to each element of a sequence, returning true if all results are non-nil.
+
+    * `(every lambda seq ...)`
+
+*   **`notany`**: Applies a lambda to each element of a sequence, returning true if all results are nil.
+
+    * `(notany lambda seq ...)`
+
+*   **`notevery`**: Applies a lambda to each element of a sequence, returning true if at least one result is nil.
+
+    * `(notevery lambda seq ...)`
+
+## Utilities
+
+*   **`usort`**: Sorts a list and removes duplicate elements.
+
+    * `(usort list [fcmp start end]) -> list`
+
+*   **`export`**: Exports symbols to an environment.
+
+    * `(export env symbols)`
+
+*   **`export-symbols`**: Exports symbols to the parent environment.
+
+    * `(export-symbols symbols)`
+
+*   **`export-classes`**: Exports classes to the parent environment.
+
+    * `(export-classes classes)`
+
+*   **`ascii-code`**: Returns the ASCII code of a character.
+
+    * `(ascii-code char) -> num`
+
+*   **`ascii-char`**: Returns the character for an ASCII code.
+
+    * `(ascii-char num) -> char`
+
+*   **`ascii-upper`**: Converts a character to uppercase.
+
+    * `(ascii-upper num) -> num`
+
+*   **`ascii-lower`**: Converts a character to lowercase.
+
+    * `(ascii-lower num) -> num`
+
+*   **`to-upper`**: Converts a string to uppercase.
+
+    * `(to-upper str) -> str`
+
+*   **`to-lower`**: Converts a string to lowercase.
+
+    * `(to-lower str) -> str`
+
+*   **`align`**: Aligns a number to a specified boundary.
+
+    * `(align num div) -> num`
+
+*   **`str-as-num`**: Converts a string to a number.
+
+    * `(str-as-num str) -> num`
+
+*   **`num-to-utf8`**: Converts a number to a UTF-8 string.
+
+    * `(num-to-utf8 num) -> str`
+
+*   **`byte-to-hex-str`**: Converts a byte to a hex string.
+
+    * `(byte-to-hex-str num) -> str`
+
+*   **`short-to-hex-str`**: Converts a short to a hex string.
+
+    * `(short-to-hex-str num) -> str`
+
+*   **`int-to-hex-str`**: Converts an integer to a hex string.
+
+    * `(int-to-hex-str num) -> str`
+
+*   **`long-to-hex-str`**: Converts a long to a hex string.
+
+    * `(long-to-hex-str num) -> str`
+
+*   **`trim-start`**: Trims whitespace from the beginning of a string.
+
+    * `(trim-start str [cls]) -> str`
+
+*   **`trim-end`**: Trims whitespace from the end of a string.
+
+    * `(trim-end str [cls]) -> str`
+
+*   **`trim`**: Trims whitespace from the beginning and end of a string.
+
+    * `(trim str [cls]) -> str`
+
+*   **`split`**: Splits a string into a list of strings.
+
+    * `(split str [cls]) -> strs`
+
+*   **`pad`**: Pads a string to a specified length.
+
+    * `(pad form width [str]) -> str`
+
+*   **`get-ubyte`**: Gets an unsigned byte from a string.
+
+    * `(get-ubyte str idx) -> num`
+
+*   **`get-ushort`**: Gets an unsigned short from a string.
+
+    * `(get-ushort str idx) -> num`
+
+*   **`get-uint`**: Gets an unsigned integer from a string.
+
+    * `(get-uint str idx) -> num`
+
+*   **`get-long`**: Gets a long from a string.
+
+    * `(get-long str idx) -> num`
+
+*   **`get-byte`**: Gets a byte from a string.
+
+    * `(get-byte str idx) -> num`
+
+*   **`get-short`**: Gets a short from a string.
+
+    * `(get-short str idx) -> num`
+
+*   **`get-int`**: Gets an integer from a string.
+
+    * `(get-int str idx) -> num`
+
+*   **`get-nodeid`**: Gets a node ID from a string.
+
+    * `(get-nodeid str idx) -> nodeid`
+
+*   **`get-netid`**: Gets a net ID from a string.
+
+    * `(get-netid str idx) -> netid`
+
+*   **`get-cstr`**: Gets a C-style string from a string.
+
+    * `(get-cstr str idx) -> str`
+
+*   **`type-to-size`**: Returns the size of a type.
+
+    * `(type-to-size sym) -> num`
+
+*   **`time-in-seconds`**: Converts a time in nanoseconds to a string in seconds.
+
+    * `(time-in-seconds time) -> str`
+
+*   **`lisp-nodes`**: Returns a list of Lisp nodes.
+
+    * `(lisp-nodes) -> nodes`
+
+*   **`age`**: Returns the age of a file.
+
+    * `(age path) -> 0 | time ns`
+
+*   **`load-stream`**: Loads a file into a stream.
+
+    * `(load-stream path) -> :nil | stream`
+
+*   **`abs-path`**: Converts a relative path to an absolute path.
+
+    * `(abs-path path [current]) -> path`
+
+*   **`import`**: Imports a file.
+
+    * `(import path [env]) -> env`
+
+*   **`import-from`**: Imports symbols and classes from a file.
+
+    * `(import-from [symbols classes])`
+
+*   **`read-long`**: Reads a long from a stream.
+
+    * `(read-long stream) -> num`
+
+*   **`read-int`**: Reads an integer from a stream.
+
+    * `(read-int stream) -> num`
+
+*   **`read-short`**: Reads a short from a stream.
+
+    * `(read-short stream) -> num`
+
+*   **`write-long`**: Writes a long to a stream.
+
+    * `(write-long stream list|num) -> bytes`
+
+*   **`write-int`**: Writes an integer to a stream.
+
+    * `(write-int stream list|num) -> bytes`
+
+*   **`write-short`**: Writes a short to a stream.
+
+    * `(write-short stream list|num) -> bytes`
+
+*   **`read-data`**: Reads data from a stream.
+
+    * `(read-data stream bytes) -> str`
+
+*   **`os`**: Returns the operating system.
+
+    * `(os) -> sym`
+
+*   **`cpu`**: Returns the CPU architecture.
+
+    * `(cpu) -> sym`
+
+*   **`abi`**: Returns the ABI.
+
+    * `(abi) -> sym`
+
+*   **`within-compile-env`**: Executes a lambda within a compilation environment.
+
+    * `(within-compile-env lambda)`
 
 ## Sequence Searching and Matching Functions
 
@@ -293,6 +861,74 @@ and type conversion.
     share the same object representation.
 
     * `(num-intern num) -> num`
+
+### Fixed Point Math Functions
+
+*   **`sin`**: Calculates the sine of a fixed-point number.
+
+    * `(sin fixed) -> fixed`
+
+*   **`cos`**: Calculates the cosine of a fixed-point number.
+
+    * `(cos fixed) -> fixed`
+
+*   **`frac`**: Returns the fractional part of a fixed-point number.
+
+    * `(frac fixed) -> fixed`
+
+*   **`floor`**: Returns the largest integer less than or equal to the fixed-point number.
+
+    * `(floor fixed) -> fixed`
+
+*   **`recip`**: Calculates the reciprocal of a fixed-point number.
+
+    * `(recip fixed) -> fixed`
+
+### Numeric Vector Functions
+
+*   **`nums-abs`**: Calculates the absolute value of each element in a numeric vector.
+
+    * `(nums-abs nums [nums]) -> nums`
+
+*   **`nums-scale`**: Scales each element in a numeric vector by a scalar value.
+
+    * `(nums-scale nums scale [nums]) -> nums`
+
+*   **`nums-add`**: Adds two numeric vectors.
+
+    * `(nums-add nums nums [nums]) -> nums`
+
+*   **`nums-div`**: Divides two numeric vectors.
+
+    * `(nums-div nums nums [nums]) -> nums`
+
+*   **`nums-mod`**: Calculates the modulus of two numeric vectors.
+
+    * `(nums-mod nums nums [nums]) -> nums`
+
+*   **`nums-mul`**: Multiplies two numeric vectors.
+
+    * `(nums-mul nums nums [nums]) -> nums`
+
+*   **`nums-sub`**: Subtracts two numeric vectors.
+
+    * `(nums-sub nums nums [nums]) -> nums`
+
+*   **`nums-min`**: Calculates the minimum of two numeric vectors.
+
+    * `(nums-min nums nums [nums]) -> nums`
+
+*   **`nums-max`**: Calculates the maximum of two numeric vectors.
+
+    * `(nums-max nums nums [nums]) -> nums`
+
+*   **`nums-sum`**: Calculates the sum of all elements in a numeric vector.
+
+    * `(nums-sum nums) -> num`
+
+*   **`nums-dot`**: Calculates the dot product of two numeric vectors.
+
+    * `(nums-dot nums nums) -> num`
 
 ## String and Character Functions
 
@@ -520,6 +1156,62 @@ strings, or standard I/O channels.
     output, followed by a newline character.
 
     * `(print [form] ...)`
+
+*   **`in-stream`**: Creates an input stream.
+
+    * `(in-stream) -> in_stream`
+
+*   **`in-next-msg`**: Retrieves the next message from an input stream.
+
+    * `(in-next-msg in_stream) -> msg`
+
+*   **`in-mbox`**: Gets the mailbox associated with an input stream.
+
+    * `(in-mbox in) -> mbox`
+
+*   **`in-get-state`**: Gets the state of an input stream.
+
+    * `(in-get-state in) -> num`
+
+*   **`in-set-state`**: Sets the state of an input stream.
+
+    * `(in-set-state in num) -> in`
+
+*   **`out-stream`**: Creates an output stream.
+
+    * `(out-stream mbox) -> out_stream`
+
+*   **`create-stdio`**: Creates a standard I/O stream object.
+
+    * `(create-stdio) -> stdio`
+
+*   **`stdio-get-args`**: Gets the command line arguments from a stdio object.
+
+    * `(stdio-get-args stdio) -> cmd_line`
+
+*   **`stream-avail`**: Returns the number of available bytes in a stream.
+
+    * `(stream-avail stream) -> num`
+
+*   **`stream-seek`**: Seeks to a position in a stream.
+
+    * `(stream-seek stream offset whence) -> stream`
+
+*   **`read-bits`**: Reads a specified number of bits from a stream.
+
+    * `(read-bits stream (array bit_pool bit_pool_size) num_bits) -> (data|-1)`
+
+*   **`write-bits`**: Writes a specified number of bits to a stream.
+
+    * `(write-bits stream (array bit_pool bit_pool_size) data num_bits) -> stream`
+
+*   **`memory-stream`**: Creates a memory stream.
+
+    * `(memory-stream) -> stream`
+
+*   **`flush-bits`**: Flushes any remaining bits in the bit pool to the stream.
+
+    * `(flush-bits stream bit_pool_state)`
 
 ## Evaluation and Metaprogramming Functions
 
