@@ -2,10 +2,10 @@
 ; DNS (Domain Name System) Resolver
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(import "lib/net/consts.inc")
-(import "lib/net/utils.inc")
-(import "lib/net/ip.inc")
-(import "lib/net/udp.inc")
+(import "./consts.inc")
+(import "./utils.inc")
+(import "./ip.inc")
+(import "./udp.inc")
 
 ;;;;;;;;;;;;;;;;;;
 ; DNS Constants
@@ -42,13 +42,13 @@
 
 (defq *dns_servers* (list))    ; List of DNS server IPs
 (defq *dns_cache* (env 64))    ; DNS response cache
-(defq *dns-query_id* 0)        ; Query ID counter
+(defq *dns_query_id* 0)        ; Query ID counter
 
 (defun dns/init (servers)
 	; Initialize DNS resolver
 	; Input: servers - list of DNS server IP addresses (4-byte arrays)
-	(setq *dns-servers* servers)
-	(setq *dns-cache* (env 64))
+	(setq *dns_servers* servers)
+	(setq *dns_cache* (env 64))
 	(setq *dns-query-id* (net/random-range 1 65536))
 
 	; Initialize UDP if not already done
@@ -260,7 +260,7 @@
 
 	; Check cache first
 	(defq cache_key (str domain ":" qtype)
-	      cached (get *dns-cache* (keyword cache_key)))
+	      cached (get *dns_cache* (keyword cache_key)))
 
 	(when cached
 		; Check if cache entry is still valid
@@ -269,14 +269,14 @@
 			(return (get cached :answers))))
 
 	; No valid cache entry - query DNS server
-	(when (= (length *dns-servers*) 0)
+	(when (= (length *dns_servers*) 0)
 		(prin "No DNS servers configured")
 		(prinl)
 		(return nil))
 
 	; Create query packet
 	(defq query_pkt (dns/create_query domain qtype dns_class_in)
-	      server_ip (elem-get *dns-servers* 0))
+	      server_ip (elem-get *dns_servers* 0))
 
 	; Create temporary UDP socket for query
 	(defq local_port (udp/allocate_port)
@@ -342,7 +342,7 @@
 		(each (# (setq min_ttl (min min_ttl (get %0 :ttl))))
 		      answers)
 
-		(def *dns-cache* (keyword cache_key)
+		(def *dns_cache* (keyword cache_key)
 			(env :answers answers
 			     :ttl min_ttl
 			     :timestamp (time))))

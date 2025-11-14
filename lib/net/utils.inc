@@ -2,8 +2,8 @@
 ; Network Utilities
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(import "lib/net/consts.inc")
-(import "lib/net/packet.inc")
+(import "./consts.inc")
+(import "./packet.inc")
 
 ;;;;;;;;;;;;;;;;;;
 ; Checksum Calculation
@@ -164,13 +164,13 @@
 ; Random Number Generation
 ;;;;;;;;;;;;;;;;;;
 
-(defq *net-random-state* (time))
+(defq *net_random_state* (time))
 
 (defun net/random ()
 	; Simple LCG random number generator for sequence numbers
-	(setq *net-random-state*
-		(logand (+ (* *net-random-state* 1103515245) 12345) 0xFFFFFFFF))
-	*net-random-state*)
+	(setq *net_random_state*
+		(logand (+ (* *net_random_state* 1103515245) 12345) 0xFFFFFFFF))
+	*net_random_state*)
 
 (defun net/random-range (min max)
 	; Random number in range [min, max)

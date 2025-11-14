@@ -2,10 +2,10 @@
 ; Socket API - Unified interface for network programming
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(import "lib/net/consts.inc")
-(import "lib/net/tcp.inc")
-(import "lib/net/tcp_state.inc")
-(import "lib/net/udp.inc")
+(import "./consts.inc")
+(import "./tcp.inc")
+(import "./tcp_state.inc")
+(import "./udp.inc")
 
 ;;;;;;;;;;;;;;;;;;
 ; Socket Creation
@@ -16,7 +16,7 @@
 	; Input: sock_type - socket type (sock_stream for TCP, sock_dgram for UDP)
 	; Output: socket environment
 	(cond
-		((= sock_type sock_stream)
+		((eql sock_type sock_stream)
 			; TCP socket
 			(env
 				:type sock_stream
@@ -24,7 +24,7 @@
 				:state sock_state_closed
 				:data-handler nil))
 
-		((= sock_type sock_dgram)
+		((eql sock_type sock_dgram)
 			; UDP socket
 			(env
 				:type sock_dgram
