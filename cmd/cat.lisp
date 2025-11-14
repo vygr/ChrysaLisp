@@ -20,8 +20,8 @@
 			(print (defq banner (pad "" (+ (length file) 2) ";;;;;;;;")))
 			(print "; " file)
 			(print banner))
-		(while (defq c (read-char stream))
-			(prin (char c)))
+		(while (defq c (read-blk stream 1024))
+			(write-blk (io-stream 'stdout) c))
 		(stream-flush (io-stream 'stdout))))
 
 (defun main ()
