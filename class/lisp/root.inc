@@ -353,9 +353,9 @@
 (ffi "class/dim/lisp_dset" dim-set)
 ; (dim-set dim nums elem) -> array
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; System, Task, and PII Operations
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Platform Implementation Interface (PII)
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (ffi "sys/pii/lisp_dirlist" pii-dirlist)
 ; (pii-dirlist path) -> info
 (ffi "sys/pii/lisp_fstat" pii-fstat)
