@@ -1,12 +1,6 @@
 (import "class/stream/lisp.inc")
 (import "sys/list/lisp.inc")
 
-;lisp bindings
-(ffi "class/in/lisp_create" in-stream)
-; (in-stream) -> in_stream
-(ffi "class/in/lisp_next_msg" in-next-msg)
-; (in-next-msg in_stream) -> msg
-
 (structure +in +stream_size
 	(struct list +lh_list_size)
 	(ptr mbox_addr)

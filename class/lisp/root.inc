@@ -306,6 +306,75 @@
 (ffi "class/obj/lisp_oref" obj-ref)
 ; (obj-ref num) -> obj
 
+;; --- Stream Operations ---
+(ffi "class/stream/lisp_avail" stream-avail)
+; (stream-avail stream) -> num
+(ffi "class/stream/lisp_flush" stream-flush)
+; (stream-flush stream) -> stream
+(ffi "class/stream/lisp_seek" stream-seek)
+; (stream-seek stream offset whence) -> stream
+(ffi "class/stream/lisp_read_bits" read-bits)
+; (read-bits stream (array bit_pool bit_pool_size) num_bits) -> (data|-1)
+(ffi "class/stream/lisp_write_bits" write-bits)
+; (write-bits stream (array bit_pool bit_pool_size) data num_bits) -> stream
+(ffi "class/stream/lisp_mstream" memory-stream)
+; (memory-stream) -> stream
+(ffi "class/out/lisp_create" out-stream)
+; (out-stream mbox) -> out_stream
+(ffi "class/in/lisp_create" in-stream)
+; (in-stream) -> in_stream
+(ffi "class/in/lisp_next_msg" in-next-msg)
+; (in-next-msg in_stream) -> msg
+
+;; --- Standard I/O ---
+(ffi "class/stdio/lisp_create" create-stdio)
+; (create-stdio) -> stdio
+(ffi "class/fixed/lisp_sin" sin)
+; (sin fixed) -> fixed
+
+;; --- Number Operations ---
+(ffi "class/nums/lisp_abs" nums-abs)
+; (nums-abs nums [nums]) -> nums
+(ffi "class/nums/lisp_scale" nums-scale)
+; (nums-scale nums scale [nums]) -> nums
+(ffi "class/nums/lisp_add" nums-add)
+; (nums-add nums nums [nums]) -> nums
+(ffi "class/nums/lisp_div" nums-div)
+; (nums-div nums nums [nums]) -> nums
+(ffi "class/nums/lisp_mod" nums-mod)
+; (nums-mod nums nums [nums]) -> nums
+(ffi "class/nums/lisp_mul" nums-mul)
+; (nums-mul nums nums [nums]) -> nums
+(ffi "class/nums/lisp_sub" nums-sub)
+; (nums-sub nums nums [nums]) -> nums
+(ffi "class/nums/lisp_sum" nums-sum)
+; (nums-sum nums) -> num
+(ffi "class/nums/lisp_dot" nums-dot)
+; (nums-dot nums nums) -> num
+(ffi "class/num/lisp_sqrt" sqrt)
+; (sqrt num) -> num
+(ffi "class/num/lisp_sign" sign)
+; (sign num) -> -1 | 0 | 1
+
+;; --- Fixed Point Numbers ---
+(ffi "class/fixeds/lisp_frac" fixeds-frac)
+; (fixeds-frac fixeds [fixeds]) -> fixeds
+(ffi "class/fixeds/lisp_floor" fixeds-floor)
+; (fixeds-floor fixeds [fixeds]) -> fixeds
+(ffi "class/fixed/lisp_cos" cos)
+; (cos fixed) -> fixed
+(ffi "class/fixed/lisp_frac" frac)
+; (frac fixed) -> fixed
+(ffi "class/fixed/lisp_floor" floor)
+; (floor fixed) -> fixed
+(ffi "class/fixed/lisp_recip" recip)
+; (recip fixed) -> fixed
+
+(ffi "class/nums/lisp_min" nums-min)
+;(nums-min nums nums [nums]) -> nums
+(ffi "class/nums/lisp_max" nums-max)
+;(nums-max nums nums [nums]) -> nums
+
 (defq *root_env* (env)
 	+byte_size 1 +short_size 2 +int_size 4 +long_size 8 +ptr_size 8
 	+str_data 24 +mailbox_id_size 8 +node_id_size 16 +net_id_size 24
