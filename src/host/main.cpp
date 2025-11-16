@@ -1,4 +1,5 @@
 #include "pii.h"
+#include "wasm.h"
 #include <stdint.h>
 #include <string.h>
 #include <sys/stat.h>
@@ -12,7 +13,7 @@
 #endif
 
 #define VP64_STACK_SIZE 8192
-extern int vp64(uint8_t* data, int64_t *stack, int64_t *argv, int64_t *host_os_funcs, int64_t *host_gui_funcs, int64_t* host_audio_funcs);
+extern int vp64(uint8_t* data, int64_t *stack, int64_t *argv, int64_t *host_os_funcs, int64_t *host_gui_funcs, int64_t* host_audio_funcs, int64_t* host_wasm_funcs);
 extern bool run_emu;
 
 extern struct stat fs;
@@ -30,6 +31,10 @@ extern void (*host_gui_funcs[]);
 
 #ifdef _HOST_AUDIO
 extern void(*host_audio_funcs[]);
+#endif
+
+#ifdef _HOST_WASM
+extern void (*host_wasm_funcs[]);
 #endif
 
 
@@ -69,10 +74,14 @@ int main(int argc, char *argv[])
 						int64_t* stack = (int64_t*)pii_mmap(VP64_STACK_SIZE, -1, mmap_data);
 						if (stack)
 						{
-						#ifdef _HOST_GUI
-							ret_val = vp64((uint8_t*)data, (int64_t*)((char*)stack + VP64_STACK_SIZE), (int64_t*)argv, (int64_t*)host_os_funcs, (int64_t*)host_gui_funcs, (int64_t*)host_audio_funcs);
+						#if defined(_HOST_GUI) && defined(_HOST_WASM)
+							ret_val = vp64((uint8_t*)data, (int64_t*)((char*)stack + VP64_STACK_SIZE), (int64_t*)argv, (int64_t*)host_os_funcs, (int64_t*)host_gui_funcs, (int64_t*)host_audio_funcs, (int64_t*)host_wasm_funcs);
+						#elif defined(_HOST_GUI)
+							ret_val = vp64((uint8_t*)data, (int64_t*)((char*)stack + VP64_STACK_SIZE), (int64_t*)argv, (int64_t*)host_os_funcs, (int64_t*)host_gui_funcs, (int64_t*)host_audio_funcs, (int64_t*)nullptr);
+						#elif defined(_HOST_WASM)
+							ret_val = vp64((uint8_t*)data, (int64_t*)((char*)stack + VP64_STACK_SIZE), (int64_t*)argv, (int64_t*)host_os_funcs, (int64_t*)nullptr, (int64_t*)nullptr, (int64_t*)host_wasm_funcs);
 						#else
-							ret_val = vp64((uint8_t*)data, (int64_t*)((char*)stack + VP64_STACK_SIZE), (int64_t*)argv, (int64_t*)host_os_funcs, (int64_t*)nullptr, (int64_t*)nullptr);
+							ret_val = vp64((uint8_t*)data, (int64_t*)((char*)stack + VP64_STACK_SIZE), (int64_t*)argv, (int64_t*)host_os_funcs, (int64_t*)nullptr, (int64_t*)nullptr, (int64_t*)nullptr);
 						#endif
 							pii_munmap(stack, VP64_STACK_SIZE, mmap_data);
 						}
@@ -82,10 +91,14 @@ int main(int argc, char *argv[])
 						//swap to RX
 						pii_flush_icache(data, data_size);
 						pii_mprotect(data, data_size, mmap_exec);
-					#ifdef _HOST_GUI
-						ret_val = ((int(*)(char* [], void* [], void* [], void* []))((char*)data + data[5]))(argv, host_os_funcs, host_gui_funcs, host_audio_funcs);
+					#if defined(_HOST_GUI) && defined(_HOST_WASM)
+						ret_val = ((int(*)(char* [], void* [], void* [], void* [], void* []))((char*)data + data[5]))(argv, host_os_funcs, host_gui_funcs, host_audio_funcs, host_wasm_funcs);
+					#elif defined(_HOST_GUI)
+						ret_val = ((int(*)(char* [], void* [], void* [], void* [], void* []))((char*)data + data[5]))(argv, host_os_funcs, host_gui_funcs, host_audio_funcs, nullptr);
+					#elif defined(_HOST_WASM)
+						ret_val = ((int(*)(char* [], void* [], void* [], void* [], void* []))((char*)data + data[5]))(argv, host_os_funcs, nullptr, nullptr, host_wasm_funcs);
 					#else
-						ret_val = ((int(*)(char* [], void* [], void* [], void* []))((char*)data + data[5]))(argv, host_os_funcs, nullptr, nullptr);
+						ret_val = ((int(*)(char* [], void* [], void* [], void* [], void* []))((char*)data + data[5]))(argv, host_os_funcs, nullptr, nullptr, nullptr);
 					#endif
 					}
 					pii_munmap(data, data_size, mmap_exec);

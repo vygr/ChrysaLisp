@@ -315,7 +315,7 @@ std::string opcodeDesc[] = {
 	"VP64_BRK"
 };
 
-int vp64(uint8_t* data, int64_t *stack, int64_t* argv, int64_t* host_os_funcs, int64_t* host_gui_funcs, int64_t* host_audio_funcs)
+int vp64(uint8_t* data, int64_t *stack, int64_t* argv, int64_t* host_os_funcs, int64_t* host_gui_funcs, int64_t* host_audio_funcs, int64_t* host_wasm_funcs)
 {
 	int64_t regs[16];
 	int16_t* pc;
@@ -331,6 +331,7 @@ int vp64(uint8_t* data, int64_t *stack, int64_t* argv, int64_t* host_os_funcs, i
 	regs[1] = (int64_t)host_os_funcs;
 	regs[2] = (int64_t)host_gui_funcs;
 	regs[3] = (int64_t)host_audio_funcs;
+	regs[4] = (int64_t)host_wasm_funcs;
 	regs[15] = (int64_t)stack;
 
 	for(;;)
