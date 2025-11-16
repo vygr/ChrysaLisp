@@ -63,7 +63,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;save original macros with different names
-(defmacro ui-root-original (n c &optional p &rest x)
+(redefmacro ui-root-original (n c &optional p &rest x)
 	; Original ui-root macro
 	(bind '(p e) (ui-merge-props p))
 	(if (= 0 (length p))
@@ -78,7 +78,7 @@
 			(static-qq (progn (defq _ui (list (defq ,n ,c)))
 				(def ,n ~p) (undef ,n ~e) ~x (setq _ui :nil))))))
 
-(defmacro ui-element-original (n c &optional p &rest x)
+(redefmacro ui-element-original (n c &optional p &rest x)
 	; Original ui-element macro
 	(bind '(p e) (ui-merge-props p))
 	(if (= 0 (length p))
@@ -94,7 +94,7 @@
 				(def ,n ~p) (undef ,n ~e) ~x (pop _ui))))))
 
 ;redefine ui-root to track
-(defmacro ui-root (n c &optional p &rest x)
+(redefmacro ui-root (n c &optional p &rest x)
 	; (ui-root name constructor [props] [body]) -> view
 	(static-qqp (progn
 		(designer-push-element (designer-make-element "ui-root" ',n ',c ',p '(~x)))
@@ -103,7 +103,7 @@
 		,n)))
 
 ;redefine ui-element to track
-(defmacro ui-element (n c &optional p &rest x)
+(redefmacro ui-element (n c &optional p &rest x)
 	; (ui-element name constructor [props] [body]) -> view
 	(static-qqp (progn
 		(designer-push-element (designer-make-element "ui-element" ',n ',c ',p '(~x)))
@@ -111,7 +111,7 @@
 		(designer-pop-element))))
 
 ;override higher-level macros to use tracking versions
-(defmacro ui-window (n &optional p &rest x)
+(redefmacro ui-window (n &optional p &rest x)
 	; (ui-window name [props] [body]) -> window
 	(ui-props p
 		:font *env_window_font*
@@ -128,21 +128,21 @@
 		(designer-pop-element)
 		,n)))
 
-(defmacro ui-flow (n &optional p &rest x)
+(redefmacro ui-flow (n &optional p &rest x)
 	; (ui-flow name [props] [body]) -> flow
 	(static-qqp (progn
 		(designer-push-element (designer-make-element "ui-flow" ',n '(Flow) ',p '(~x)))
 		(ui-element-original ,n (Flow) ,p ~x)
 		(designer-pop-element))))
 
-(defmacro ui-grid (n &optional p &rest x)
+(redefmacro ui-grid (n &optional p &rest x)
 	; (ui-grid name [props] [body]) -> grid
 	(static-qqp (progn
 		(designer-push-element (designer-make-element "ui-grid" ',n '(Grid) ',p '(~x)))
 		(ui-element-original ,n (Grid) ,p ~x)
 		(designer-pop-element))))
 
-(defmacro ui-button (n &optional p &rest x)
+(redefmacro ui-button (n &optional p &rest x)
 	; (ui-button name [props] [body]) -> button
 	(ui-props p
 		:flow_flags (bit-mask +flow_flag_down +flow_flag_align_hcenter +flow_flag_align_vcenter)
@@ -152,7 +152,7 @@
 		(ui-element-original ,n (Button) ,p ~x)
 		(designer-pop-element))))
 
-(defmacro ui-label (n &optional p &rest x)
+(redefmacro ui-label (n &optional p &rest x)
 	; (ui-label name [props] [body]) -> label
 	(ui-props p
 		:flow_flags (bit-mask +flow_flag_right +flow_flag_align_vcenter)
@@ -162,14 +162,14 @@
 		(ui-element-original ,n (Label) ,p ~x)
 		(designer-pop-element))))
 
-(defmacro ui-text (n &optional p)
+(redefmacro ui-text (n &optional p)
 	; (ui-text name [props]) -> text
 	(static-qqp (progn
 		(designer-push-element (designer-make-element "ui-text" ',n '(Text) ',p :nil))
 		(ui-element-original ,n (Text) ,p)
 		(designer-pop-element))))
 
-(defmacro ui-textfield (n &optional p)
+(redefmacro ui-textfield (n &optional p)
 	; (ui-textfield name [props]) -> textfield
 	(ui-props p
 		:flow_flags (bit-mask +flow_flag_right +flow_flag_align_vcenter)
@@ -179,7 +179,7 @@
 		(ui-element-original ,n (Textfield) ,p)
 		(designer-pop-element))))
 
-(defmacro ui-slider (n &optional p)
+(redefmacro ui-slider (n &optional p)
 	; (ui-slider name [props]) -> slider
 	(ui-props p
 		:color *env_slider_col*)
@@ -188,7 +188,7 @@
 		(ui-element-original ,n (Slider) ,p)
 		(designer-pop-element))))
 
-(defmacro ui-title (n &optional p)
+(redefmacro ui-title (n &optional p)
 	; (ui-title name [props]) -> title
 	(ui-props p
 		:font *env_title_font*
@@ -198,7 +198,7 @@
 		(ui-element-original ,n (Title) ,p)
 		(designer-pop-element))))
 
-(defmacro ui-canvas (n w h s &optional p)
+(redefmacro ui-canvas (n w h s &optional p)
 	; (ui-canvas name width height scale [props]) -> canvas
 	(ui-props p
 		:color 0)
@@ -207,7 +207,7 @@
 		(ui-element-original ,n (Canvas ,w ,h ,s) ,p)
 		(designer-pop-element))))
 
-(defmacro ui-vdu (n &optional p)
+(redefmacro ui-vdu (n &optional p)
 	; (ui-vdu name [props]) -> vdu
 	(ui-props p
 		:font *env_terminal_font*
@@ -217,7 +217,7 @@
 		(ui-element-original ,n (Vdu) ,p)
 		(designer-pop-element))))
 
-(defmacro ui-scroll (n f &optional p &rest x)
+(redefmacro ui-scroll (n f &optional p &rest x)
 	; (ui-scroll name flags [props] [body]) -> scroll
 	(ui-props p
 		:color *env_slider_col*)
@@ -226,35 +226,35 @@
 		(ui-element-original ,n (Scroll ,f) ,p ~x)
 		(designer-pop-element))))
 
-(defmacro ui-backdrop (n &optional p &rest x)
+(redefmacro ui-backdrop (n &optional p &rest x)
 	; (ui-backdrop name [props] [body]) -> backdrop
 	(static-qqp (progn
 		(designer-push-element (designer-make-element "ui-backdrop" ',n '(Backdrop) ',p '(~x)))
 		(ui-element-original ,n (Backdrop) ,p ~x)
 		(designer-pop-element))))
 
-(defmacro ui-progress (n &optional p)
+(redefmacro ui-progress (n &optional p)
 	; (ui-progress name [props]) -> progress
 	(static-qqp (progn
 		(designer-push-element (designer-make-element "ui-progress" ',n '(Progress) ',p :nil))
 		(ui-element-original ,n (Progress) ,p)
 		(designer-pop-element))))
 
-(defmacro ui-view (n &optional p &rest x)
+(redefmacro ui-view (n &optional p &rest x)
 	; (ui-view name [props] [body]) -> view
 	(static-qqp (progn
 		(designer-push-element (designer-make-element "ui-view" ',n '(View) ',p '(~x)))
 		(ui-element-original ,n (View) ,p ~x)
 		(designer-pop-element))))
 
-(defmacro ui-stack (n t &optional p &rest x)
+(redefmacro ui-stack (n t &optional p &rest x)
 	; (ui-stack name tabs [props] [body]) -> stack
 	(static-qqp (progn
 		(designer-push-element (designer-make-element "ui-stack" ',n '(Stack ,t) ',p '(~x)))
 		(ui-element-original ,n (Stack ,t) ,p ~x)
 		(designer-pop-element))))
 
-(defmacro ui-radio-bar (n s &optional p)
+(redefmacro ui-radio-bar (n s &optional p)
 	; (ui-radio-bar name symbols [props])
 	(ui-props p
 		:color *env_toolbar_col*
@@ -265,7 +265,7 @@
 		(ui-element-original ,n (Radiobar '(~s)) ,p)
 		(designer-pop-element))))
 
-(defmacro ui-toggle-bar (n s &optional p)
+(redefmacro ui-toggle-bar (n s &optional p)
 	; (ui-toggle-bar name symbols [props])
 	(ui-props p
 		:color *env_toolbar_col*
@@ -276,7 +276,7 @@
 		(ui-element-original ,n (Radiobar '(~s) :t) ,p)
 		(designer-pop-element))))
 
-(defmacro ui-tool-bar (n &optional p &rest x)
+(redefmacro ui-tool-bar (n &optional p &rest x)
 	; (ui-tool-bar name [props] [body]) -> flow
 	(ui-props p
 		:flow_flags +flow_right
@@ -286,7 +286,7 @@
 		(ui-flow-original ,n ,p ~x)
 		(designer-pop-element))))
 
-(defmacro ui-title-bar (n s b e &optional p)
+(redefmacro ui-title-bar (n s b e &optional p)
 	; (ui-title-bar name title symbols event [props]) -> flow
 	(ui-props p
 		:flow_flags +flow_left_fill
@@ -300,35 +300,35 @@
 			(ui-title ,n (:text ,s)))
 		(designer-pop-element))))
 
-(defmacro ui-tree (n e &optional p)
+(redefmacro ui-tree (n e &optional p)
 	; (ui-tree name event [props]) -> tree
 	(static-qqp (progn
 		(designer-push-element (designer-make-element "ui-tree" ',n '(Tree ,e) ',p :nil))
 		(ui-element-original ,n (Tree ,e) ,p)
 		(designer-pop-element))))
 
-(defmacro ui-files (n t e &optional p)
+(redefmacro ui-files (n t e &optional p)
 	; (ui-files name title event [props]) -> files
 	(static-qqp (progn
 		(designer-push-element (designer-make-element "ui-files" ',n '(Files ,t ,e) ',p :nil))
 		(ui-element-original ,n (Files ,t ,e) ,p)
 		(designer-pop-element))))
 
-(defmacro ui-spinner (n &optional p)
+(redefmacro ui-spinner (n &optional p)
 	; (ui-spinner name [props]) -> spinner
 	(static-qqp (progn
 		(designer-push-element (designer-make-element "ui-spinner" ',n '(Spinner) ',p :nil))
 		(ui-element-original ,n (Spinner) ,p)
 		(designer-pop-element))))
 
-(defmacro ui-hchart (n t m &optional p)
+(redefmacro ui-hchart (n t m &optional p)
 	; (ui-hchart name title num_marks [props]) -> hchart
 	(static-qqp (progn
 		(designer-push-element (designer-make-element "ui-hchart" ',n '(Hchart ,t ,m) ',p :nil))
 		(ui-element-original ,n (Hchart ,t ,m) ,p)
 		(designer-pop-element))))
 
-(defmacro ui-stroke (n &optional p)
+(redefmacro ui-stroke (n &optional p)
 	; (ui-stroke name [props]) -> stroke
 	(static-qqp (progn
 		(designer-push-element (designer-make-element "ui-stroke" ',n '(Stroke) ',p :nil))

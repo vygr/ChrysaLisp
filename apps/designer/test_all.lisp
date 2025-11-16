@@ -16,6 +16,10 @@
 (print "Test 1: Basic UI Tracking System")
 (print "──────────────────────────────────────────────────────────")
 
+; Import standard GUI first to get environment variables
+(import "gui/lisp.inc")
+
+; Now import designer version which redefines the macros
 (import "gui_designer/lisp.inc")
 
 (designer-reset)
