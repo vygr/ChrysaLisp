@@ -1,43 +1,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; Property Editor - List-Based
-; Visual property editing with type-specific inputs
+; Property Editor - List-Based (Simplified)
+; Visual property editing without type annotations
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; Property Type System
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-(defq +property-types (list
-	; (keyword-string type description)
-	(list "text" "string" "Text content")
-	(list "min_width" "number" "Minimum width")
-	(list "min_height" "number" "Minimum height")
-	(list "max_width" "number" "Maximum width")
-	(list "max_height" "number" "Maximum height")
-	(list "color" "color" "Color value")
-	(list "ink_color" "color" "Ink color")
-	(list "hint_color" "color" "Hint color")
-	(list "border" "number" "Border size")
-	(list "shadow" "number" "Shadow size")
-	(list "flow_flags" "flags" "Flow flags")
-	(list "font" "symbol" "Font reference")
-	(list "disabled" "boolean" "Disabled state")))
-
-(defun get-property-type (prop-sym)
-	; Get the type for a property keyword
-	; Convert keyword to string by removing the colon
-	(defq prop-str (str prop-sym))
-	(defq prop-str (slice prop-str 1 (length prop-str)))  ; Remove leading :
-
-	(defq result "unknown")
-	(defq i 0)
-	(defq len (length +property-types))
-	(while (< i len)
-		(defq entry (elem-get +property-types i))
-		(when (eql (elem-get entry 0) prop-str)
-			(setq result (elem-get entry 1)))
-		(setq i (+ i 1)))
-	result)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Property Access Functions
@@ -96,11 +60,8 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun format-property-value (value)
-	; Format a property value for display
-	(cond
-		((str? value) (cat "\"" value "\""))
-		((num? value) (str value))
-		(:t (str value))))
+	; Format a property value for display - just convert to string
+	(str value))
 
 (defun parse-property-value (value-str type)
 	; Parse a string back to proper type
@@ -112,7 +73,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun show-element-properties (elem)
-	; Display properties for an element
+	; Display properties for an element (without type annotations)
 	(print "Properties for: " (designer-get-name elem))
 	(print "Type: " (designer-get-type elem))
 	(print "Constructor: " (designer-get-constructor elem))
@@ -127,8 +88,7 @@
 				(defq pair (elem-get props i))
 				(defq key (elem-get pair 0))
 				(defq val (elem-get pair 1))
-				(defq type (get-property-type key))
-				(print "  " key " = " (format-property-value val) " (" type ")")
+				(print "  " key " = " (format-property-value val))
 				(setq i (+ i 1))))
 		(print "  (no properties)")))
 
