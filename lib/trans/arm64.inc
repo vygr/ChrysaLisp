@@ -512,6 +512,46 @@
 	(emitm-int (+ 0x9b008000 (const (<< +arm64_rtmp 16)) (<< d2 10) (<< s 5) d1))
 	(emit-cpy-rr +arm64_rtmp d2))
 
+;conditional select helper (CSEL instruction)
+(defun arm64-csel (cond s1 s2 d)
+	;CSEL Xd, Xs1, Xs2, cond - if cond then d=s1 else d=s2
+	(emitm-int (+ 0x9a800000 (<< s2 16) (<< cond 12) (<< s1 5) d)))
+
+;min/max/abs using CSEL
+(defun emit-min-cr (c d)
+	;d = min(c, d) - use CSEL: cmp d, c; csel d, temp, d, GT
+	(defq temp +arm64_rtmp)
+	(emit-cpy-cr c temp)
+	(emitm-int (+ 0xeb000000 (<< temp 16) (<< d 5) 31))  ;cmp d, temp
+	(arm64-csel 0xc temp d d))  ;csel d, temp, d, GT (if d > temp, d = temp)
+
+(defun emit-max-cr (c d)
+	;d = max(c, d) - use CSEL: cmp d, c; csel d, temp, d, LT
+	(defq temp +arm64_rtmp)
+	(emit-cpy-cr c temp)
+	(emitm-int (+ 0xeb000000 (<< temp 16) (<< d 5) 31))  ;cmp d, temp
+	(arm64-csel 0xb temp d d))  ;csel d, temp, d, LT (if d < temp, d = temp)
+
+(defun emit-min-rr (s d)
+	;d = min(s, d) - use CSEL: cmp d, s; csel d, s, d, GT
+	(unless (eql s d)
+		(emitm-int (+ 0xeb000000 (<< s 16) (<< d 5) 31))  ;cmp d, s
+		(arm64-csel 0xc s d d)))  ;csel d, s, d, GT (if d > s, d = s)
+
+(defun emit-max-rr (s d)
+	;d = max(s, d) - use CSEL: cmp d, s; csel d, s, d, LT
+	(unless (eql s d)
+		(emitm-int (+ 0xeb000000 (<< s 16) (<< d 5) 31))  ;cmp d, s
+		(arm64-csel 0xb s d d)))  ;csel d, s, d, LT (if d < s, d = s)
+
+(defun emit-abs-rr (s d)
+	;d = abs(s) - use CSEL with negation
+	(defq temp +arm64_rtmp)
+	(emit-cpy-rr s d)
+	(emitm-int (+ 0xcb000000 (<< s 16) (const (<< 31 5)) temp))  ;neg temp, s
+	(emitm-int (+ 0xeb000000 (const (<< 31 16)) (<< d 5) 31))  ;cmp d, #0
+	(arm64-csel 0xb temp d d))  ;csel d, temp, d, LT (if d < 0, d = -d)
+
 (defun emit-alloc (c) (emit-sub-cr (align c stack_align) +arm64_vp_rsp))
 (defun emit-free (c) (emit-add-cr (align c stack_align) +arm64_vp_rsp))
 (defun emit-ret () (emitm-int 0xd65f03c0))

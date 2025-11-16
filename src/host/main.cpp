@@ -12,7 +12,7 @@
 #endif
 
 #define VP64_STACK_SIZE 8192
-extern int vp64(uint8_t* data, int64_t *stack, int64_t *argv, int64_t *host_os_funcs, int64_t *host_gui_funcs, int64_t* host_audio_funcs);
+extern int vp64(uint8_t* data, int64_t *stack, int64_t *argv, int64_t *host_os_funcs, int64_t *host_gui_funcs, int64_t* host_audio_funcs, int64_t* host_net_funcs);
 extern bool run_emu;
 
 extern struct stat fs;
@@ -30,6 +30,10 @@ extern void (*host_gui_funcs[]);
 
 #ifdef _HOST_AUDIO
 extern void(*host_audio_funcs[]);
+#endif
+
+#ifdef _HOST_NET
+extern void (*host_net_funcs[]);
 #endif
 
 
@@ -70,9 +74,17 @@ int main(int argc, char *argv[])
 						if (stack)
 						{
 						#ifdef _HOST_GUI
-							ret_val = vp64((uint8_t*)data, (int64_t*)((char*)stack + VP64_STACK_SIZE), (int64_t*)argv, (int64_t*)host_os_funcs, (int64_t*)host_gui_funcs, (int64_t*)host_audio_funcs);
+							#ifdef _HOST_NET
+								ret_val = vp64((uint8_t*)data, (int64_t*)((char*)stack + VP64_STACK_SIZE), (int64_t*)argv, (int64_t*)host_os_funcs, (int64_t*)host_gui_funcs, (int64_t*)host_audio_funcs, (int64_t*)host_net_funcs);
+							#else
+								ret_val = vp64((uint8_t*)data, (int64_t*)((char*)stack + VP64_STACK_SIZE), (int64_t*)argv, (int64_t*)host_os_funcs, (int64_t*)host_gui_funcs, (int64_t*)host_audio_funcs, (int64_t*)nullptr);
+							#endif
 						#else
-							ret_val = vp64((uint8_t*)data, (int64_t*)((char*)stack + VP64_STACK_SIZE), (int64_t*)argv, (int64_t*)host_os_funcs, (int64_t*)nullptr, (int64_t*)nullptr);
+							#ifdef _HOST_NET
+								ret_val = vp64((uint8_t*)data, (int64_t*)((char*)stack + VP64_STACK_SIZE), (int64_t*)argv, (int64_t*)host_os_funcs, (int64_t*)nullptr, (int64_t*)nullptr, (int64_t*)host_net_funcs);
+							#else
+								ret_val = vp64((uint8_t*)data, (int64_t*)((char*)stack + VP64_STACK_SIZE), (int64_t*)argv, (int64_t*)host_os_funcs, (int64_t*)nullptr, (int64_t*)nullptr, (int64_t*)nullptr);
+							#endif
 						#endif
 							pii_munmap(stack, VP64_STACK_SIZE, mmap_data);
 						}
@@ -83,9 +95,17 @@ int main(int argc, char *argv[])
 						pii_flush_icache(data, data_size);
 						pii_mprotect(data, data_size, mmap_exec);
 					#ifdef _HOST_GUI
-						ret_val = ((int(*)(char* [], void* [], void* [], void* []))((char*)data + data[5]))(argv, host_os_funcs, host_gui_funcs, host_audio_funcs);
+						#ifdef _HOST_NET
+							ret_val = ((int(*)(char* [], void* [], void* [], void* [], void* []))((char*)data + data[5]))(argv, host_os_funcs, host_gui_funcs, host_audio_funcs, host_net_funcs);
+						#else
+							ret_val = ((int(*)(char* [], void* [], void* [], void* [], void* []))((char*)data + data[5]))(argv, host_os_funcs, host_gui_funcs, host_audio_funcs, nullptr);
+						#endif
 					#else
-						ret_val = ((int(*)(char* [], void* [], void* [], void* []))((char*)data + data[5]))(argv, host_os_funcs, nullptr, nullptr);
+						#ifdef _HOST_NET
+							ret_val = ((int(*)(char* [], void* [], void* [], void* [], void* []))((char*)data + data[5]))(argv, host_os_funcs, nullptr, nullptr, host_net_funcs);
+						#else
+							ret_val = ((int(*)(char* [], void* [], void* [], void* []))((char*)data + data[5]))(argv, host_os_funcs, nullptr, nullptr, nullptr);
+						#endif
 					#endif
 					}
 					pii_munmap(data, data_size, mmap_exec);
