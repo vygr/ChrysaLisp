@@ -165,12 +165,12 @@
 (defun vp-cpy-ri-i (s b i) (emit (static-qqp (emit-cpy-ri-i ,s ,b ,(eval i (penv))))))
 (defun vp-cpy-ri (s b i) (emit (static-qqp (emit-cpy-ri ,s ,b ,(eval i (penv))))))
 
-;puedo vp instructions
-(defun vp-min-cr (a b) (vpif `(,b > ,a)) (vp-cpy-cr a b) (endif))
-(defun vp-max-cr (a b) (vpif `(,b < ,a)) (vp-cpy-cr a b) (endif))
-(defun vp-min-rr (a b) (vpif `(,a < ,b)) (vp-cpy-rr a b) (endif))
-(defun vp-max-rr (a b) (vpif `(,a > ,b)) (vp-cpy-rr a b) (endif))
-(defun vp-abs-rr (a b) (vp-cpy-rr a b) (vpif `(,a < 0)) (vp-mul-cr -1 b) (endif))
+;min/max/abs vp instructions - now using translator cmov implementations
+(defun vp-min-cr (a b) (emit (static-qqp (emit-min-cr ,a ,b))))
+(defun vp-max-cr (a b) (emit (static-qqp (emit-max-cr ,a ,b))))
+(defun vp-min-rr (a b) (emit (static-qqp (emit-min-rr ,a ,b))))
+(defun vp-max-rr (a b) (emit (static-qqp (emit-max-rr ,a ,b))))
+(defun vp-abs-rr (a b) (emit (static-qqp (emit-abs-rr ,a ,b))))
 (defun vp-simd (op &rest v)
 	(defq max_len (max-length v))
 	(each (# (while (< (length %0) max_len) (push %0 (last %0)))) v)

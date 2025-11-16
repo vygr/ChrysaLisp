@@ -632,6 +632,63 @@
 					(emitm-int c))
 				(:t (throw "emit-mul-cr constant out of range !" c))))))
 
+;conditional move helpers
+(defun x64-cmov-rr (cond s d)
+	;emit cmov instruction: cmovCC d, s
+	(defq sl (logand 7 s) sh (>> s 3)
+		dl (logand 7 d) dh (>> d 3))
+	(emitm-byte (+ 0x48 (<< dh 2) sh) 0x0f cond (+ 0xc0 (<< dl 3) sl)))
+
+;min/max/abs using cmov
+(defun emit-min-cr (c d)
+	;d = min(c, d) => cmp d, c; cmovg d, temp_with_c
+	(cond
+		((eql c 0)
+			;min(0, d) - if d > 0, d = 0
+			(x64-cmp-cr 0 d)
+			(emit-xor-rr 15 15)  ;zero r15
+			(x64-cmov-rr 0x4f 15 d))  ;cmovg d, r15
+		(:t (defq temp 15)
+			(emit-cpy-cr c temp)
+			(x64-cmp-cr c d)
+			(x64-cmov-rr 0x4f temp d))))  ;cmovg d, temp
+
+(defun emit-max-cr (c d)
+	;d = max(c, d) => cmp d, c; cmovl d, temp_with_c
+	(defq temp 15)
+	(emit-cpy-cr c temp)
+	(x64-cmp-cr c d)
+	(x64-cmov-rr 0x4c temp d))  ;cmovl d, temp
+
+(defun emit-min-rr (s d)
+	;d = min(s, d) => cmp d, s; cmovg d, s
+	(unless (eql s d)
+		(x64-cmp-rr s d)
+		(x64-cmov-rr 0x4f s d)))  ;cmovg d, s
+
+(defun emit-max-rr (s d)
+	;d = max(s, d) => cmp d, s; cmovl d, s
+	(unless (eql s d)
+		(x64-cmp-rr s d)
+		(x64-cmov-rr 0x4c s d)))  ;cmovl d, s
+
+(defun emit-abs-rr (s d)
+	;d = abs(s)
+	(cond
+		((eql s d)
+			;need temp register
+			(defq temp 15)
+			(emit-cpy-rr d temp)
+			(emit-mul-cr -1 temp)
+			(x64-cmp-cr 0 d)
+			(x64-cmov-rr 0x4c temp d))  ;cmovl d, temp (if d < 0, use negated)
+		(:t (emit-cpy-rr s d)
+			(defq temp 15)
+			(emit-cpy-rr s temp)
+			(emit-mul-cr -1 temp)
+			(x64-cmp-cr 0 d)
+			(x64-cmov-rr 0x4c temp d))))  ;cmovl d, temp
+
 (case *abi*
 (AMD64
 (defun emit-call-abi (r b c n &rest x)

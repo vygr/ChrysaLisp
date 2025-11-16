@@ -409,6 +409,47 @@
 	(emit-cpy-pr l +riscv64_rtmp1)
 	(emit-jmp-r +riscv64_rtmp1))
 
+;min/max/abs using branch + move (RISC-V lacks cmov)
+(defun emit-min-cr (c d)
+	;d = min(c, d) - if d > c then d = c
+	(defq temp +riscv64_rtmp1 l1 (genlabel))
+	(emit-cpy-cr c temp)
+	(emit-ble-rr temp d l1 :nil)  ;branch if d <= c (no change needed)
+	(emit-cpy-rr temp d)  ;d = c
+	(label-mark l1))
+
+(defun emit-max-cr (c d)
+	;d = max(c, d) - if d < c then d = c
+	(defq temp +riscv64_rtmp1 l1 (genlabel))
+	(emit-cpy-cr c temp)
+	(emit-bge-rr temp d l1 :nil)  ;branch if d >= c (no change needed)
+	(emit-cpy-rr temp d)  ;d = c
+	(label-mark l1))
+
+(defun emit-min-rr (s d)
+	;d = min(s, d) - if d > s then d = s
+	(unless (eql s d)
+		(defq l1 (genlabel))
+		(emit-ble-rr s d l1 :nil)  ;branch if d <= s (no change needed)
+		(emit-cpy-rr s d)  ;d = s
+		(label-mark l1)))
+
+(defun emit-max-rr (s d)
+	;d = max(s, d) - if d < s then d = s
+	(unless (eql s d)
+		(defq l1 (genlabel))
+		(emit-bge-rr s d l1 :nil)  ;branch if d >= s (no change needed)
+		(emit-cpy-rr s d)  ;d = s
+		(label-mark l1)))
+
+(defun emit-abs-rr (s d)
+	;d = abs(s) - if s < 0 then d = -s else d = s
+	(defq temp +riscv64_rtmp1 l1 (genlabel))
+	(emit-cpy-rr s d)
+	(emit-bge-rr +riscv64_rzero d l1 :nil)  ;branch if d >= 0 (no change needed)
+	(emit-mul-cr -1 d)  ;d = -d
+	(label-mark l1))
+
 (defun emit-alloc (c) (emit-sub-cr (align c stack_align) +riscv64_rsp))
 (defun emit-free (c) (emit-add-cr (align c stack_align) +riscv64_rsp))
 (defun emit-ret () (emit-jmp-r +riscv64_rlnk))

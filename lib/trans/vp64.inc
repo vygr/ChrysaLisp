@@ -66,6 +66,13 @@
 (defun emit-div-rrr (s d2 d1) (emitm-short (+ (next-opcode) (<< d1 8) (<< d2 12)) s))
 (defun emit-div-rrr-u (s d2 d1) (emitm-short (+ (next-opcode) (<< d1 8) (<< d2 12)) s))
 
+;min/max/abs opcodes for vp64
+(defun emit-min-cr (c d) (vp64-cr (next-opcode 4) c d))
+(defun emit-max-cr (c d) (vp64-cr (next-opcode 4) c d))
+(defun emit-min-rr (s d) (emitm-short (+ (next-opcode) (<< d 8) (<< s 12))))
+(defun emit-max-rr (s d) (emitm-short (+ (next-opcode) (<< d 8) (<< s 12))))
+(defun emit-abs-rr (s d) (emitm-short (+ (next-opcode) (<< d 8) (<< s 12))))
+
 (defun vp64-scr (o c d)
 	(cond
 		((vp64-within c 4)
