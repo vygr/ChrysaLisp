@@ -216,6 +216,12 @@
 (defun emit-sync (n) (emitm-short (+ (next-opcode) (<< n 8))))
 (defun emit-brk (n) (emitm-short (+ (next-opcode) (<< n 8))))
 
+(defun emit-min-cr (c d l m) (vp64-cr (next-opcode 4) c d))
+(defun emit-max-cr (c d l m) (vp64-cr (next-opcode 4) c d))
+(defun emit-min-rr (s d l m) (emitm-short (+ (next-opcode) (<< d 8) (<< s 12))))
+(defun emit-max-rr (s d l m) (emitm-short (+ (next-opcode) (<< d 8) (<< s 12))))
+(defun emit-abs-rr (s d l m) (emitm-short (+ (next-opcode) (<< d 8) (<< s 12))))
+
 (defun emit-push (&rest b)
 	(when (/= 0 (length b))
 		(emit-alloc (* +ptr_size (length b)))

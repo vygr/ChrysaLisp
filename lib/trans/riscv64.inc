@@ -409,6 +409,31 @@
 	(emit-cpy-pr l +riscv64_rtmp1)
 	(emit-jmp-r +riscv64_rtmp1))
 
+(defun emit-min-cr (c d l m)
+	(emit-cpy-cr c +riscv64_rtmp1)
+	(emit-ble-rr +riscv64_rtmp1 d l m)
+	(emit-cpy-rr +riscv64_rtmp1 d))
+
+(defun emit-max-cr (c d l m)
+	(emit-cpy-cr c +riscv64_rtmp1)
+	(emit-bge-rr +riscv64_rtmp1 d l m)
+	(emit-cpy-rr +riscv64_rtmp1 d))
+
+(defun emit-min-rr (s d l m)
+	(unless (eql s d)
+		(emit-ble-rr s d l m)
+		(emit-cpy-rr s d)))
+
+(defun emit-max-rr (s d l m)
+	(unless (eql s d)
+		(emit-bge-rr s d l m)
+		(emit-cpy-rr s d)))
+
+(defun emit-abs-rr (s d l m)
+	(unless (eql s d) (emit-cpy-rr s d))
+	(emit-bge-rr +riscv64_rzero d l m)
+	(emit-mul-cr -1 d))
+
 (defun emit-alloc (c) (emit-sub-cr (align c stack_align) +riscv64_rsp))
 (defun emit-free (c) (emit-add-cr (align c stack_align) +riscv64_rsp))
 (defun emit-ret () (emit-jmp-r +riscv64_rlnk))

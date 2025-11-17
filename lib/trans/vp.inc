@@ -66,7 +66,8 @@
 					(def (penv) (last (last inst)) 0))
 				((find op '(emit-jmp emit-beq-cr emit-bne-cr emit-bne-rr emit-beq-rr
 						emit-bge-rr emit-ble-rr emit-bge-cr emit-ble-cr
-						emit-blt-cr emit-blt-rr emit-bgt-rr emit-bgt-cr))
+						emit-blt-cr emit-blt-rr emit-bgt-rr emit-bgt-cr
+						emit-min-cr emit-max-cr emit-min-rr emit-max-rr emit-abs-rr))
 					(push inst (dec (length (push *offsets* 0))))))
 			;bind emit func
 			(elem-set inst 0 (def? op +emit_funcs)))
