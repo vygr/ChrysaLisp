@@ -196,7 +196,7 @@ ExFat uses little-endian byte order for all multi-byte values:
 
 ; Read the data
 (defq data (. exfat :read handle nil 100))
-(prinl "Read: " data)
+(print "Read: " data)
 
 ; Close the file
 (. exfat :close handle)

@@ -6,141 +6,141 @@
 (import "lib/fs/exfat.inc")
 
 (defun main ()
-	(prinl "ExFat Filesystem Test")
-	(prinl "=====================")
-	(prinl)
+	(print "ExFat Filesystem Test")
+	(print "=====================")
+	(print)
 
 	; Create a memory stream for the filesystem
-	(prinl "Creating memory stream for filesystem image...")
+	(print "Creating memory stream for filesystem image...")
 	(defq fs_stream (memory-stream))
 
 	; Create ExFat filesystem instance
-	(prinl "Creating ExFat filesystem instance...")
+	(print "Creating ExFat filesystem instance...")
 	(defq exfat_obj (ExFat fs_stream))
 
 	; Format the filesystem (10 MB)
 	(defq fs_size (* 10 1024 1024))
-	(prinl "Formatting filesystem (" fs_size " bytes = " (/ fs_size 1024 1024) " MB)...")
+	(print "Formatting filesystem (" fs_size " bytes = " (/ fs_size 1024 1024) " MB)...")
 	(. exfat_obj :format fs_size)
-	(prinl "Format complete!")
-	(prinl)
+	(print "Format complete!")
+	(print)
 
 	; Print filesystem info
-	(prinl "Filesystem Information:")
-	(prinl "  Sector size: " (get exfat_obj :sector_size) " bytes")
-	(prinl "  Cluster size: " (get exfat_obj :cluster_size) " bytes")
-	(prinl "  Cluster count: " (get exfat_obj :cluster_count))
-	(prinl "  FAT offset: " (get exfat_obj :fat_offset) " sectors")
-	(prinl "  FAT length: " (get exfat_obj :fat_length) " sectors")
-	(prinl "  Cluster heap offset: " (get exfat_obj :cluster_heap_offset) " sectors")
-	(prinl "  Root directory cluster: " (get exfat_obj :root_dir_cluster))
-	(prinl "  Total size: " (. exfat_obj :get_size) " bytes")
-	(prinl)
+	(print "Filesystem Information:")
+	(print "  Sector size: " (get exfat_obj :sector_size) " bytes")
+	(print "  Cluster size: " (get exfat_obj :cluster_size) " bytes")
+	(print "  Cluster count: " (get exfat_obj :cluster_count))
+	(print "  FAT offset: " (get exfat_obj :fat_offset) " sectors")
+	(print "  FAT length: " (get exfat_obj :fat_length) " sectors")
+	(print "  Cluster heap offset: " (get exfat_obj :cluster_heap_offset) " sectors")
+	(print "  Root directory cluster: " (get exfat_obj :root_dir_cluster))
+	(print "  Total size: " (. exfat_obj :get_size) " bytes")
+	(print)
 
 	; Test mounting
-	(prinl "Testing mount operation...")
+	(print "Testing mount operation...")
 	(. exfat_obj :unmount)
 	(if (. exfat_obj :mount)
-		(prinl "Mount successful!")
-		(prinl "Mount failed!"))
-	(prinl)
+		(print "Mount successful!")
+		(print "Mount failed!"))
+	(print)
 
 	; Test file creation
-	(prinl "Creating test file...")
+	(print "Creating test file...")
 	(if (. exfat_obj :create "/test.txt")
-		(prinl "File created successfully!")
-		(prinl "File creation failed!"))
-	(prinl)
+		(print "File created successfully!")
+		(print "File creation failed!"))
+	(print)
 
 	; Test file operations
-	(prinl "Testing file operations...")
+	(print "Testing file operations...")
 	(when-bind (file_handle (. exfat_obj :open "/test.txt" :write))
-		(prinl "File opened for writing")
+		(print "File opened for writing")
 
 		; Write some data
 		(defq test_data "Hello, ExFat filesystem! This is a test.")
 		(defq bytes_written (. exfat_obj :write file_handle test_data))
-		(prinl "Wrote " bytes_written " bytes: '" test_data "'")
+		(print "Wrote " bytes_written " bytes: '" test_data "'")
 
 		; Close the file
 		(. exfat_obj :close file_handle)
-		(prinl "File closed"))
-	(prinl)
+		(print "File closed"))
+	(print)
 
 	; Test reading
-	(prinl "Testing file read...")
+	(print "Testing file read...")
 	(when-bind (file_handle (. exfat_obj :open "/test.txt" :read))
-		(prinl "File opened for reading")
+		(print "File opened for reading")
 
 		; Seek to beginning
 		(. exfat_obj :seek file_handle 0 0)
 
 		; Read data
 		(when-bind (read_data (. exfat_obj :read file_handle nil 100))
-			(prinl "Read " (length read_data) " bytes: '" read_data "'"))
+			(print "Read " (length read_data) " bytes: '" read_data "'"))
 
 		; Close the file
 		(. exfat_obj :close file_handle)
-		(prinl "File closed"))
-	(prinl)
+		(print "File closed"))
+	(print)
 
 	; Test directory creation
-	(prinl "Creating test directory...")
+	(print "Creating test directory...")
 	(if (. exfat_obj :mkdir "/testdir")
-		(prinl "Directory created successfully!")
-		(prinl "Directory creation failed!"))
-	(prinl)
+		(print "Directory created successfully!")
+		(print "Directory creation failed!"))
+	(print)
 
 	; Test FAT operations
-	(prinl "Testing FAT operations...")
-	(prinl "  FAT entry 0: " (str-from-num (. exfat_obj :read_fat_entry 0) 16))
-	(prinl "  FAT entry 1: " (str-from-num (. exfat_obj :read_fat_entry 1) 16))
-	(prinl "  FAT entry 2 (root): " (str-from-num (. exfat_obj :read_fat_entry 2) 16))
-	(prinl)
+	(print "Testing FAT operations...")
+	(print "  FAT entry 0: " (str-from-num (. exfat_obj :read_fat_entry 0) 16))
+	(print "  FAT entry 1: " (str-from-num (. exfat_obj :read_fat_entry 1) 16))
+	(print "  FAT entry 2 (root): " (str-from-num (. exfat_obj :read_fat_entry 2) 16))
+	(print)
 
 	; Test cluster allocation
-	(prinl "Testing cluster allocation...")
+	(print "Testing cluster allocation...")
 	(when-bind (new_cluster (. exfat_obj :allocate_cluster))
-		(prinl "Allocated cluster: " new_cluster)
-		(prinl "FAT entry for new cluster: " (str-from-num (. exfat_obj :read_fat_entry new_cluster) 16))
+		(print "Allocated cluster: " new_cluster)
+		(print "FAT entry for new cluster: " (str-from-num (. exfat_obj :read_fat_entry new_cluster) 16))
 
 		; Write some data to the cluster
 		(defq cluster_data "This is test data written directly to a cluster.")
 		(. exfat_obj :write_cluster new_cluster cluster_data)
-		(prinl "Wrote data to cluster " new_cluster)
+		(print "Wrote data to cluster " new_cluster)
 
 		; Read it back
 		(when-bind (read_back_data (. exfat_obj :read_cluster new_cluster))
-			(prinl "Read back from cluster: '" (slice read_back_data 0 (length cluster_data)) "'"))
+			(print "Read back from cluster: '" (slice read_back_data 0 (length cluster_data)) "'"))
 
 		; Free the cluster
 		(. exfat_obj :free_cluster_chain new_cluster)
-		(prinl "Freed cluster chain starting at " new_cluster)
-		(prinl "FAT entry after free: " (str-from-num (. exfat_obj :read_fat_entry new_cluster) 16)))
-	(prinl)
+		(print "Freed cluster chain starting at " new_cluster)
+		(print "FAT entry after free: " (str-from-num (. exfat_obj :read_fat_entry new_cluster) 16)))
+	(print)
 
 	; Get the raw filesystem image
-	(prinl "Filesystem Image Information:")
-	(prinl "  Stream type: " (class-name fs_stream))
+	(print "Filesystem Image Information:")
+	(print "  Stream type: " (class-name fs_stream))
 	(stream-flush fs_stream)
-	(prinl "  Stream position: " (stream-seek fs_stream 0 1) " bytes")
-	(prinl)
-	(prinl "The filesystem image is stored in the memory-stream and could be")
-	(prinl "written to physical media via a raw block driver.")
-	(prinl)
+	(print "  Stream position: " (stream-seek fs_stream 0 1) " bytes")
+	(print)
+	(print "The filesystem image is stored in the memory-stream and could be")
+	(print "written to physical media via a raw block driver.")
+	(print)
 
 	; Unmount
-	(prinl "Unmounting filesystem...")
+	(print "Unmounting filesystem...")
 	(. exfat_obj :unmount)
-	(prinl "Done!")
-	(prinl)
+	(print "Done!")
+	(print)
 
 	; Cleanup
-	(prinl "Note: In a real application, the memory-stream data could be:")
-	(prinl "  1. Written to a file using file-stream")
-	(prinl "  2. Sent to a block device driver")
-	(prinl "  3. Mounted on a host OS (if written to physical media)")
-	(prinl)
+	(print "Note: In a real application, the memory-stream data could be:")
+	(print "  1. Written to a file using file-stream")
+	(print "  2. Sent to a block device driver")
+	(print "  3. Mounted on a host OS (if written to physical media)")
+	(print)
 
 	; Exit
 	0)
