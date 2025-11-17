@@ -34,7 +34,7 @@
 	(prinl "  FAT length: " (get exfat_obj :fat_length) " sectors")
 	(prinl "  Cluster heap offset: " (get exfat_obj :cluster_heap_offset) " sectors")
 	(prinl "  Root directory cluster: " (get exfat_obj :root_dir_cluster))
-	(prinl "  Total size: " (. exfat_obj :get-size) " bytes")
+	(prinl "  Total size: " (. exfat_obj :get_size) " bytes")
 	(prinl)
 
 	; Test mounting
@@ -93,30 +93,30 @@
 
 	; Test FAT operations
 	(prinl "Testing FAT operations...")
-	(prinl "  FAT entry 0: " (str-from-num (. exfat_obj :read-fat-entry 0) 16))
-	(prinl "  FAT entry 1: " (str-from-num (. exfat_obj :read-fat-entry 1) 16))
-	(prinl "  FAT entry 2 (root): " (str-from-num (. exfat_obj :read-fat-entry 2) 16))
+	(prinl "  FAT entry 0: " (str-from-num (. exfat_obj :read_fat_entry 0) 16))
+	(prinl "  FAT entry 1: " (str-from-num (. exfat_obj :read_fat_entry 1) 16))
+	(prinl "  FAT entry 2 (root): " (str-from-num (. exfat_obj :read_fat_entry 2) 16))
 	(prinl)
 
 	; Test cluster allocation
 	(prinl "Testing cluster allocation...")
-	(when-bind (new_cluster (. exfat_obj :allocate-cluster))
+	(when-bind (new_cluster (. exfat_obj :allocate_cluster))
 		(prinl "Allocated cluster: " new_cluster)
-		(prinl "FAT entry for new cluster: " (str-from-num (. exfat_obj :read-fat-entry new_cluster) 16))
+		(prinl "FAT entry for new cluster: " (str-from-num (. exfat_obj :read_fat_entry new_cluster) 16))
 
 		; Write some data to the cluster
 		(defq cluster_data "This is test data written directly to a cluster.")
-		(. exfat_obj :write-cluster new_cluster cluster_data)
+		(. exfat_obj :write_cluster new_cluster cluster_data)
 		(prinl "Wrote data to cluster " new_cluster)
 
 		; Read it back
-		(when-bind (read_back_data (. exfat_obj :read-cluster new_cluster))
+		(when-bind (read_back_data (. exfat_obj :read_cluster new_cluster))
 			(prinl "Read back from cluster: '" (slice read_back_data 0 (length cluster_data)) "'"))
 
 		; Free the cluster
-		(. exfat_obj :free-cluster-chain new_cluster)
+		(. exfat_obj :free_cluster_chain new_cluster)
 		(prinl "Freed cluster chain starting at " new_cluster)
-		(prinl "FAT entry after free: " (str-from-num (. exfat_obj :read-fat-entry new_cluster) 16)))
+		(prinl "FAT entry after free: " (str-from-num (. exfat_obj :read_fat_entry new_cluster) 16)))
 	(prinl)
 
 	; Get the raw filesystem image
