@@ -5,170 +5,153 @@
 
 (import "class/obj/lisp.inc")
 
-(defclass Fs ()
+(defclass Fs () :nil
 	; Abstract base class for filesystem implementations
 	; Subclasses should override these methods to provide filesystem-specific behavior
 
-	(defmethod :init (stream)
+	(defmethod :init (stream_obj)
 		; Initialize filesystem with a stream (typically memory-stream)
 		; inputs
-		; stream = stream object for the filesystem image
+		; stream_obj = stream object for the filesystem image
 		; outputs
 		; this
-		(setd this :stream stream)
+		(def this :stream stream_obj)
 		this)
 
 	(defmethod :deinit ()
 		; Deinitialize filesystem and cleanup resources
 		this)
 
-	(defmethod :format (size)
+	(defabstractmethod :format (size))
 		; Format the filesystem with the given size
 		; inputs
 		; size = total size in bytes
 		; outputs
-		; t if successful, nil otherwise
-		(throw "Fs:format not implemented" this))
+		; :t if successful, :nil otherwise
 
-	(defmethod :mount ()
+	(defabstractmethod :mount ())
 		; Mount the filesystem (read and validate filesystem structures)
 		; outputs
-		; t if successful, nil otherwise
-		(throw "Fs:mount not implemented" this))
+		; :t if successful, :nil otherwise
 
-	(defmethod :unmount ()
+	(defabstractmethod :unmount ())
 		; Unmount the filesystem (flush all pending writes)
 		; outputs
-		; t if successful, nil otherwise
-		(throw "Fs:unmount not implemented" this))
+		; :t if successful, :nil otherwise
 
-	(defmethod :mkdir (path)
+	(defabstractmethod :mkdir (path))
 		; Create a directory at the given path
 		; inputs
 		; path = directory path (str)
 		; outputs
-		; t if successful, nil otherwise
-		(throw "Fs:mkdir not implemented" this))
+		; :t if successful, :nil otherwise
 
-	(defmethod :create (path)
+	(defabstractmethod :create (path))
 		; Create a file at the given path
 		; inputs
 		; path = file path (str)
 		; outputs
-		; t if successful, nil otherwise
-		(throw "Fs:create not implemented" this))
+		; :t if successful, :nil otherwise
 
-	(defmethod :open (path mode)
+	(defabstractmethod :open (path mode))
 		; Open a file and return a file handle
 		; inputs
 		; path = file path (str)
 		; mode = open mode (:read, :write, :append)
 		; outputs
-		; file handle or nil if failed
-		(throw "Fs:open not implemented" this))
+		; file handle or :nil if failed
 
-	(defmethod :close (handle)
+	(defabstractmethod :close (file_handle))
 		; Close a file handle
 		; inputs
-		; handle = file handle
+		; file_handle = file handle
 		; outputs
-		; t if successful, nil otherwise
-		(throw "Fs:close not implemented" this))
+		; :t if successful, :nil otherwise
 
-	(defmethod :read (handle buffer size)
+	(defabstractmethod :read (file_handle buffer_unused size))
 		; Read data from a file
 		; inputs
-		; handle = file handle
-		; buffer = buffer to read into (or nil to allocate)
+		; file_handle = file handle
+		; buffer_unused = buffer to read into (or :nil to allocate)
 		; size = number of bytes to read
 		; outputs
-		; str containing data read, or nil on error
-		(throw "Fs:read not implemented" this))
+		; str containing data read, or :nil on error
 
-	(defmethod :write (handle data)
+	(defabstractmethod :write (file_handle data))
 		; Write data to a file
 		; inputs
-		; handle = file handle
+		; file_handle = file handle
 		; data = data to write (str)
 		; outputs
 		; number of bytes written, or -1 on error
-		(throw "Fs:write not implemented" this))
 
-	(defmethod :seek (handle offset whence)
+	(defabstractmethod :seek (file_handle offset whence))
 		; Seek to a position in a file
 		; inputs
-		; handle = file handle
+		; file_handle = file handle
 		; offset = offset in bytes
 		; whence = seek mode (0=start, 1=current, 2=end)
 		; outputs
 		; new position, or -1 on error
-		(throw "Fs:seek not implemented" this))
 
-	(defmethod :tell (handle)
+	(defabstractmethod :tell (file_handle))
 		; Get current position in a file
 		; inputs
-		; handle = file handle
+		; file_handle = file handle
 		; outputs
 		; current position in bytes
-		(throw "Fs:tell not implemented" this))
 
-	(defmethod :remove (path)
+	(defabstractmethod :remove (path))
 		; Remove a file
 		; inputs
 		; path = file path (str)
 		; outputs
-		; t if successful, nil otherwise
-		(throw "Fs:remove not implemented" this))
+		; :t if successful, :nil otherwise
 
-	(defmethod :rmdir (path)
+	(defabstractmethod :rmdir (path))
 		; Remove a directory
 		; inputs
 		; path = directory path (str)
 		; outputs
-		; t if successful, nil otherwise
-		(throw "Fs:rmdir not implemented" this))
+		; :t if successful, :nil otherwise
 
-	(defmethod :exists (path)
+	(defabstractmethod :exists (path))
 		; Check if a file or directory exists
 		; inputs
 		; path = path (str)
 		; outputs
-		; t if exists, nil otherwise
-		(throw "Fs:exists not implemented" this))
+		; :t if exists, :nil otherwise
 
-	(defmethod :stat (path)
+	(defabstractmethod :stat (path))
 		; Get file/directory information
 		; inputs
 		; path = path (str)
 		; outputs
-		; hash map with file info (:size, :type, :created, :modified), or nil
-		(throw "Fs:stat not implemented" this))
+		; hash map with file info (:size, :type, :created, :modified), or :nil
 
-	(defmethod :list (path)
+	(defabstractmethod :list (path))
 		; List directory contents
 		; inputs
 		; path = directory path (str)
 		; outputs
-		; list of filenames, or nil on error
-		(throw "Fs:list not implemented" this))
+		; list of filenames, or :nil on error
 
-	(defmethod :rename (old_path new_path)
+	(defabstractmethod :rename (old_path new_path))
 		; Rename/move a file or directory
 		; inputs
 		; old_path = current path (str)
 		; new_path = new path (str)
 		; outputs
-		; t if successful, nil otherwise
-		(throw "Fs:rename not implemented" this))
+		; :t if successful, :nil otherwise
 
-	(defmethod :get-stream ()
+	(defmethod :get_stream ()
 		; Get the underlying stream object
 		; outputs
 		; stream object
 		(get this :stream))
 
-	(defmethod :get-size ()
+	(defabstractmethod :get_size ())
 		; Get total filesystem size
 		; outputs
 		; size in bytes
-		(throw "Fs:get-size not implemented" this)))
+	)

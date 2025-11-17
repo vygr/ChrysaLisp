@@ -12,34 +12,34 @@
 ;;;;;;;;;;;;;;;;;;;;
 
 ; Sector and cluster sizes
-(defq +exfat-sector-size 512)
-(defq +exfat-default-cluster-shift 12)  ; 4096 bytes per cluster (2^12)
-(defq +exfat-boot-sectors 12)           ; VBR + extended boot sectors + OEM params
-(defq +exfat-fat-offset 24)             ; FAT starts at sector 24
+(defq +exfat_sector_size 512)
+(defq +exfat_default_cluster_shift 12)  ; 4096 bytes per cluster (2^12)
+(defq +exfat_boot_sectors 12)           ; VBR + extended boot sectors + OEM params
+(defq +exfat_fat_offset 24)             ; FAT starts at sector 24
 
 ; Directory entry types
-(defq +exfat-entry-eod 0x00)            ; End of directory
-(defq +exfat-entry-alloc-bitmap 0x81)   ; Allocation bitmap
-(defq +exfat-entry-upcase-table 0x82)   ; Up-case table
-(defq +exfat-entry-volume-label 0x83)   ; Volume label
-(defq +exfat-entry-file 0x85)           ; File entry
-(defq +exfat-entry-stream-ext 0xC0)     ; Stream extension
-(defq +exfat-entry-file-name 0xC1)      ; File name extension
+(defq +exfat_entry_eod 0x00)            ; End of directory
+(defq +exfat_entry_alloc_bitmap 0x81)   ; Allocation bitmap
+(defq +exfat_entry_upcase_table 0x82)   ; Up-case table
+(defq +exfat_entry_volume_label 0x83)   ; Volume label
+(defq +exfat_entry_file 0x85)           ; File entry
+(defq +exfat_entry_stream_ext 0xC0)     ; Stream extension
+(defq +exfat_entry_file_name 0xC1)      ; File name extension
 
 ; File attributes
-(defq +exfat-attr-read-only 0x01)
-(defq +exfat-attr-hidden 0x02)
-(defq +exfat-attr-system 0x04)
-(defq +exfat-attr-directory 0x10)
-(defq +exfat-attr-archive 0x20)
+(defq +exfat_attr_read_only 0x01)
+(defq +exfat_attr_hidden 0x02)
+(defq +exfat_attr_system 0x04)
+(defq +exfat_attr_directory 0x10)
+(defq +exfat_attr_archive 0x20)
 
 ; FAT entry values
-(defq +exfat-fat-free 0x00000000)
-(defq +exfat-fat-bad 0xFFFFFFF7)
-(defq +exfat-fat-eoc 0xFFFFFFFF)        ; End of cluster chain
+(defq +exfat_fat_free 0x00000000)
+(defq +exfat_fat_bad 0xFFFFFFF7)
+(defq +exfat_fat_eoc 0xFFFFFFFF)        ; End of cluster chain
 
 ; Directory entry size
-(defq +exfat-entry-size 32)
+(defq +exfat_entry_size 32)
 
 ;;;;;;;;;;;;;;;;;;;;
 ; Helper Functions
@@ -87,11 +87,11 @@
 		; inputs
 		; stream_obj = stream object (typically memory-stream)
 		(super :init stream_obj)
-		(setd this :mounted nil
-			:sector_size +exfat-sector-size
-			:cluster_shift +exfat-default-cluster-shift
-			:cluster_size (<< 1 +exfat-default-cluster-shift)
-			:fat_offset +exfat-fat-offset
+		(def this :mounted :nil
+			:sector_size +exfat_sector_size
+			:cluster_shift +exfat_default_cluster_shift
+			:cluster_size (<< 1 +exfat_default_cluster_shift)
+			:fat_offset +exfat_fat_offset
 			:fat_length 0
 			:cluster_heap_offset 0
 			:cluster_count 0
@@ -103,25 +103,25 @@
 	; Helper Methods
 	;;;;;;;;;;;;;;;;;;;;
 
-	(defmethod :read-sector (sector_num)
+	(defmethod :read_sector (sector_num)
 		; Read a sector from the stream
 		; inputs
 		; sector_num = sector number
 		; outputs
-		; str containing sector data, or nil on error
+		; str containing sector data, or :nil on error
 		(defq stream_obj (get this :stream)
 			sector_size (get this :sector_size)
 			offset (* sector_num sector_size))
 		(when (stream-seek stream_obj offset 0)
 			(read-blk stream_obj sector_size)))
 
-	(defmethod :write-sector (sector_num data)
+	(defmethod :write_sector (sector_num data)
 		; Write a sector to the stream
 		; inputs
 		; sector_num = sector number
 		; data = data to write (str)
 		; outputs
-		; t if successful, nil otherwise
+		; :t if successful, :nil otherwise
 		(defq stream_obj (get this :stream)
 			sector_size (get this :sector_size)
 			offset (* sector_num sector_size))
@@ -136,14 +136,14 @@
 					; Truncate
 					(setq data (slice data 0 sector_size))))
 			(write-blk stream_obj data)
-			t))
+		 :t))
 
-	(defmethod :read-cluster (cluster_num)
+	(defmethod :read_cluster (cluster_num)
 		; Read a cluster from the stream
 		; inputs
 		; cluster_num = cluster number (0-based in cluster heap)
 		; outputs
-		; str containing cluster data, or nil on error
+		; str containing cluster data, or :nil on error
 		(defq cluster_size (get this :cluster_size)
 			cluster_heap_offset (get this :cluster_heap_offset)
 			sector_size (get this :sector_size)
@@ -154,21 +154,21 @@
 		(when (>= cluster_num 2)
 			; Read all sectors in the cluster
 			(defq result_parts (list))
-			(each! 0 sectors_per_cluster
-				(lambda (i)
-					(defq sector_data (. this :read-sector (+ sector_num i)))
+			(each! (lambda (i)
+					(defq sector_data (. this :read_sector (+ sector_num i)))
 					(when sector_data
-						(push result_parts sector_data))))
+						(push result_parts sector_data)))
+				sectors_per_cluster 0)
 			(when (= (length result_parts) sectors_per_cluster)
 				(apply cat result_parts))))
 
-	(defmethod :write-cluster (cluster_num data)
+	(defmethod :write_cluster (cluster_num data)
 		; Write a cluster to the stream
 		; inputs
 		; cluster_num = cluster number
 		; data = data to write (str, will be padded to cluster size)
 		; outputs
-		; t if successful, nil otherwise
+		; :t if successful, :nil otherwise
 		(defq cluster_size (get this :cluster_size)
 			cluster_heap_offset (get this :cluster_heap_offset)
 			sector_size (get this :sector_size)
@@ -180,17 +180,16 @@
 			(when (< data_len cluster_size)
 				(setq data (cat data (str-alloc (- cluster_size data_len)))))
 			; Write all sectors in the cluster
-			(defq success t
-				i 0)
+			(defq success :t 				i 0)
 			(while (and success (< i sectors_per_cluster))
 				(defq offset (* i sector_size)
 					sector_data (slice data offset (+ offset sector_size)))
-				(unless (. this :write-sector (+ sector_num i) sector_data)
-					(setq success nil))
+				(unless (. this :write_sector (+ sector_num i) sector_data)
+					(setq success :nil))
 				(setq i (inc i)))
 			success))
 
-	(defmethod :read-fat-entry (cluster_num)
+	(defmethod :read_fat_entry (cluster_num)
 		; Read a FAT entry
 		; inputs
 		; cluster_num = cluster number
@@ -202,58 +201,58 @@
 			fat_byte_offset (* cluster_num 4)
 			sector_num (+ fat_offset (/ fat_byte_offset sector_size))
 			offset_in_sector (% fat_byte_offset sector_size))
-		(when-bind (sector_data (. this :read-sector sector_num))
+		(when-bind (sector_data (. this :read_sector sector_num))
 			(bytes-to-u32-le sector_data offset_in_sector)))
 
-	(defmethod :write-fat-entry (cluster_num value)
+	(defmethod :write_fat_entry (cluster_num value)
 		; Write a FAT entry
 		; inputs
 		; cluster_num = cluster number
 		; value = FAT entry value
 		; outputs
-		; t if successful, nil otherwise
+		; :t if successful, :nil otherwise
 		(defq fat_offset (get this :fat_offset)
 			sector_size (get this :sector_size)
 			fat_byte_offset (* cluster_num 4)
 			sector_num (+ fat_offset (/ fat_byte_offset sector_size))
 			offset_in_sector (% fat_byte_offset sector_size))
-		(when-bind (sector_data (. this :read-sector sector_num))
+		(when-bind (sector_data (. this :read_sector sector_num))
 			; Build new sector with updated FAT entry
 			(defq new_entry (u32-to-bytes-le value)
 				updated_sector (cat
 					(slice sector_data 0 offset_in_sector)
 					new_entry
 					(slice sector_data (+ offset_in_sector 4) sector_size)))
-			(. this :write-sector sector_num updated_sector)))
+			(. this :write_sector sector_num updated_sector)))
 
-	(defmethod :allocate-cluster ()
+	(defmethod :allocate_cluster ()
 		; Allocate a new cluster from the FAT
 		; outputs
-		; cluster number, or nil if no free clusters
+		; cluster number, or :nil if no free clusters
 		(defq cluster_count (get this :cluster_count))
 		; Start from cluster 2 (0 and 1 are reserved)
-		(some! 2 cluster_count
-			(lambda (cluster_idx)
-				(when (= (. this :read-fat-entry cluster_idx) +exfat-fat-free)
+		(some! (lambda (cluster_idx)
+				(when (= (. this :read_fat_entry cluster_idx) +exfat_fat_free)
 					; Mark cluster as end of chain
-					(. this :write-fat-entry cluster_idx +exfat-fat-eoc)
-					cluster_idx))))
+					(. this :write_fat_entry cluster_idx +exfat_fat_eoc)
+					cluster_idx))
+			cluster_count :nil 2))
 
-	(defmethod :free-cluster-chain (start_cluster)
+	(defmethod :free_cluster_chain (start_cluster)
 		; Free a chain of clusters
 		; inputs
 		; start_cluster = first cluster in chain
 		; outputs
-		; t if successful
+		; :t if successful
 		(when (>= start_cluster 2)
 			(defq current_cluster start_cluster)
 			(while (and current_cluster
 					(>= current_cluster 2)
-					(< current_cluster +exfat-fat-eoc))
-				(defq next_cluster (. this :read-fat-entry current_cluster))
-				(. this :write-fat-entry current_cluster +exfat-fat-free)
+					(< current_cluster +exfat_fat_eoc))
+				(defq next_cluster (. this :read_fat_entry current_cluster))
+				(. this :write_fat_entry current_cluster +exfat_fat_free)
 				(setq current_cluster next_cluster)))
-		t)
+	 :t)
 
 	;;;;;;;;;;;;;;;;;;;;
 	; Filesystem Operations
@@ -264,13 +263,13 @@
 		; inputs
 		; size = total size in bytes
 		; outputs
-		; t if successful, nil otherwise
+		; :t if successful, :nil otherwise
 		(defq stream_obj (get this :stream)
 			sector_size (get this :sector_size)
 			cluster_shift (get this :cluster_shift)
 			cluster_size (get this :cluster_size)
 			total_sectors (/ size sector_size)
-			fat_offset +exfat-fat-offset)
+			fat_offset +exfat_fat_offset)
 
 		; Calculate FAT size (32-bit entries, 1 entry per cluster)
 		(defq cluster_heap_start (+ fat_offset 128)  ; Reserve 64KB for FAT
@@ -279,40 +278,40 @@
 			fat_length (/ (+ (* cluster_count 4) sector_size -1) sector_size))  ; Round up
 
 		; Update filesystem parameters
-		(setd this :fat_offset fat_offset
+		(def this :fat_offset fat_offset
 			:fat_length fat_length
 			:cluster_heap_offset (+ fat_offset fat_length)
 			:cluster_count cluster_count
 			:root_dir_cluster 2
-			:mounted nil)
+			:mounted :nil)
 
 		; Write boot sector
-		(. this :write-boot-sector size)
+		(. this :write_boot_sector size)
 
 		; Initialize FAT (all entries free except reserved and root)
 		(defq empty_sector (str-alloc sector_size))
-		(each! 0 fat_length
-			(lambda (i)
-				(. this :write-sector (+ fat_offset i) empty_sector)))
+		(each! (lambda (i)
+				(. this :write_sector (+ fat_offset i) empty_sector))
+			fat_length 0)
 
 		; Mark first two FAT entries as reserved
-		(. this :write-fat-entry 0 0xFFFFFFF8)  ; Media type
-		(. this :write-fat-entry 1 +exfat-fat-eoc)
+		(. this :write_fat_entry 0 0xFFFFFFF8)  ; Media type
+		(. this :write_fat_entry 1 +exfat_fat_eoc)
 
 		; Mark root directory cluster as end of chain
-		(. this :write-fat-entry 2 +exfat-fat-eoc)
+		(. this :write_fat_entry 2 +exfat_fat_eoc)
 
 		; Initialize root directory (empty directory with just end marker)
 		(defq root_data (cat
-			(char +exfat-entry-alloc-bitmap)
-			(str-alloc (- +exfat-entry-size 1))
-			(str-alloc (- cluster_size +exfat-entry-size))))
-		(. this :write-cluster 2 root_data)
+			(char +exfat_entry_alloc_bitmap)
+			(str-alloc (- +exfat_entry_size 1))
+			(str-alloc (- cluster_size +exfat_entry_size))))
+		(. this :write_cluster 2 root_data)
 
-		(setd this :mounted t)
-		t)
+		(def this :mounted :t)
+	 :t)
 
-	(defmethod :write-boot-sector (volume_size)
+	(defmethod :write_boot_sector (volume_size)
 		; Write the ExFat boot sector
 		; inputs
 		; volume_size = total volume size in bytes
@@ -370,13 +369,13 @@
 			(char 0x55) (char 0xAA)))
 
 		; Write boot sector
-		(. this :write-sector 0 boot_sector))
+		(. this :write_sector 0 boot_sector))
 
 	(defmethod :mount ()
 		; Mount the filesystem
 		; outputs
-		; t if successful, nil otherwise
-		(when-bind (boot_sector (. this :read-sector 0))
+		; :t if successful, :nil otherwise
+		(when-bind (boot_sector (. this :read_sector 0))
 			; Verify boot signature
 			(when (and (= (code boot_sector 1 510) 0x55)
 					(= (code boot_sector 1 511) 0xAA))
@@ -388,21 +387,21 @@
 					root_cluster (bytes-to-u32-le boot_sector 96)
 					sectors_per_cluster_shift (code boot_sector 1 109))
 
-				(setd this :fat_offset fat_offset
+				(def this :fat_offset fat_offset
 					:fat_length fat_length
 					:cluster_heap_offset cluster_heap_offset
 					:cluster_count cluster_count
 					:root_dir_cluster root_cluster
 					:cluster_shift (+ sectors_per_cluster_shift 9)
 					:cluster_size (<< 1 (+ sectors_per_cluster_shift 9))
-					:mounted t)
-				t)))
+					:mounted :t)
+			 :t)))
 
 	(defmethod :unmount ()
 		; Unmount the filesystem
 		(stream-flush (get this :stream))
-		(setd this :mounted nil)
-		t)
+		(def this :mounted :nil)
+	 :t)
 
 	;;;;;;;;;;;;;;;;;;;;
 	; File Operations (Simplified)
@@ -413,32 +412,32 @@
 		; inputs
 		; path = directory path (str)
 		; outputs
-		; t if successful, nil otherwise
+		; :t if successful, :nil otherwise
 		(unless (get this :mounted)
 			(throw "Filesystem not mounted" this))
 
 		; Allocate cluster for new directory
-		(when-bind (new_cluster (. this :allocate-cluster))
+		(when-bind (new_cluster (. this :allocate_cluster))
 			; Initialize empty directory
-			(. this :write-cluster new_cluster (str-alloc (get this :cluster_size)))
+			(. this :write_cluster new_cluster (str-alloc (get this :cluster_size)))
 			; TODO: Add entry to parent directory
-			t))
+		 :t))
 
 	(defmethod :create (path)
 		; Create a file
 		; inputs
 		; path = file path (str)
 		; outputs
-		; t if successful, nil otherwise
+		; :t if successful, :nil otherwise
 		(unless (get this :mounted)
 			(throw "Filesystem not mounted" this))
 
 		; Allocate cluster for file data
-		(when-bind (new_cluster (. this :allocate-cluster))
+		(when-bind (new_cluster (. this :allocate_cluster))
 			; Initialize empty file
-			(. this :write-cluster new_cluster (str-alloc (get this :cluster_size)))
+			(. this :write_cluster new_cluster (str-alloc (get this :cluster_size)))
 			; TODO: Add entry to parent directory
-			t))
+		 :t))
 
 	(defmethod :open (path mode)
 		; Open a file
@@ -446,8 +445,7 @@
 		; path = file path (str)
 		; mode = open mode (:read, :write, :append)
 		; outputs
-		; file handle (hash-map) or nil
-		(unless (get this :mounted)
+		; file handle (hash-map) or :nil 		(unless (get this :mounted)
 			(throw "Filesystem not mounted" this))
 
 		; Create file handle
@@ -466,10 +464,10 @@
 		; inputs
 		; file_handle = file handle
 		; outputs
-		; t if successful
+		; :t if successful
 		(defq open_files_list (get this :open_files))
-		(setd this :open_files (filter (lambda (h) (/= h file_handle)) open_files_list))
-		t)
+		(def this :open_files (filter (lambda (h) (/= h file_handle)) open_files_list))
+	 :t)
 
 	(defmethod :read (file_handle buffer_unused size)
 		; Read from a file
@@ -478,15 +476,15 @@
 		; buffer_unused = buffer (ignored, always allocates new)
 		; size = bytes to read
 		; outputs
-		; str with data, or nil on error
+		; str with data, or :nil on error
 		(defq cluster_num (get file_handle :cluster)
 			position (get file_handle :position))
 		(when (and cluster_num (> cluster_num 0))
-			(when-bind (cluster_data (. this :read-cluster cluster_num))
+			(when-bind (cluster_data (. this :read_cluster cluster_num))
 				(defq available (- (length cluster_data) position)
 					to_read (min size available))
 				(when (> to_read 0)
-					(setd file_handle :position (+ position to_read))
+					(def file_handle :position (+ position to_read))
 					(slice cluster_data position (+ position to_read))))))
 
 	(defmethod :write (file_handle data)
@@ -499,8 +497,8 @@
 		(defq cluster_num (get file_handle :cluster))
 		(if (and cluster_num (> cluster_num 0))
 			(progn
-				(. this :write-cluster cluster_num data)
-				(setd file_handle :position (length data))
+				(. this :write_cluster cluster_num data)
+				(def file_handle :position (length data))
 				(length data))
 			-1))
 
@@ -519,7 +517,7 @@
 			((= whence 1) (+ position offset))
 			((= whence 2) (+ file_size offset))
 			(t position)))
-		(setd file_handle :position (max 0 new_pos))
+		(def file_handle :position (max 0 new_pos))
 		new_pos)
 
 	(defmethod :tell (file_handle)
@@ -531,28 +529,28 @@
 		(unless (get this :mounted)
 			(throw "Filesystem not mounted" this))
 		; TODO: Implement file removal
-		t)
+	 :t)
 
 	(defmethod :rmdir (path)
 		; Remove a directory
 		(unless (get this :mounted)
 			(throw "Filesystem not mounted" this))
 		; TODO: Implement directory removal
-		t)
+	 :t)
 
 	(defmethod :exists (path)
 		; Check if path exists
 		(unless (get this :mounted)
 			(throw "Filesystem not mounted" this))
 		; TODO: Implement existence check
-		nil)
+	 :nil)
 
 	(defmethod :stat (path)
 		; Get file/directory info
 		(unless (get this :mounted)
 			(throw "Filesystem not mounted" this))
 		; TODO: Implement stat
-		nil)
+	 :nil)
 
 	(defmethod :list (path)
 		; List directory contents
@@ -566,9 +564,9 @@
 		(unless (get this :mounted)
 			(throw "Filesystem not mounted" this))
 		; TODO: Implement rename
-		t)
+	 :t)
 
-	(defmethod :get-size ()
+	(defmethod :get_size ()
 		; Get filesystem size
 		; outputs
 		; total size in bytes
