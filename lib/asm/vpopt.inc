@@ -30,6 +30,8 @@
 			emit-bgt-rr emit-bgt-cr emit-jmp-r emit-jmp-i)
 	+opt_branch_ops
 		''(emit-beq-cr emit-bne-cr emit-bge-cr emit-ble-cr emit-blt-cr emit-bgt-cr)
+	+opt_third_out_ops
+		''(emit-min-cr emit-max-cr emit-min-rr emit-max-rr emit-abs-rr)
 	+opt_two_out_ops
 		''(emit-div-rrr emit-swp-rr emit-div-rrr-u emit-land-rr emit-lnot-rr)
 	+opt_multi_out_ops
@@ -41,6 +43,7 @@
 (defmacro trashes-reg? (r inst)
 	(static-qqp (cond
 		((eql ,r (last ,inst)))
+		((find (first ,inst) ,'+opt_third_out_ops) (eql ,r (third ,inst)))
 		((find (first ,inst) ,'+opt_two_out_ops) (eql ,r (elem-get ,inst -3)))
 		((find (first ,inst) ,'+opt_multi_out_ops) (uses? ,r ,inst)))))
 

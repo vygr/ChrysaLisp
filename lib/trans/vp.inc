@@ -11,6 +11,7 @@
 	(while (<= (++ pc) *pc*) (write-char stream fill)))
 
 (defun emit-label (label) (set (penv) label *pc*))
+(defun emit-tlabel (temp) (set (penv) temp *pc*))
 (defun emit-string (string) (setq *pc* (+ *pc* (write-blk *stream* string))))
 (defun emit-byte (&rest data) (setq *pc* (+ *pc* (write-char *stream* data))))
 (defun emit-short (&rest data) (setq *pc* (+ *pc* (write-char *stream* data +short_size))))
@@ -62,7 +63,7 @@
 				(list inst) 1)
 			;create label and branch initial values
 			(cond
-				((eql (defq op (first inst)) 'emit-label)
+				((find (defq op (first inst)) '(emit-label emit-tlabel))
 					(def (penv) (last (last inst)) 0))
 				((find op '(emit-jmp emit-beq-cr emit-bne-cr emit-bne-rr emit-beq-rr
 						emit-bge-rr emit-ble-rr emit-bge-cr emit-ble-cr
