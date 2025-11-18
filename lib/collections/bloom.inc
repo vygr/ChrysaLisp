@@ -243,6 +243,59 @@
 		; (. bloom :each lambda) -> bloom
 		; Cannot iterate elements in a Bloom filter (lossy data structure)
 		(throw "Cannot iterate elements in a Bloom filter" this))
+
+	(defmethod :save (stream)
+		; (. bloom :save stream) -> bloom
+		; Serialize Bloom filter to a stream
+		; Format: magic_number bit_size hash_count count num_words [words...]
+		(defq magic 0x424C4F4D)  ; "BLOM" in ASCII
+		(. stream :write_long magic)
+		(. stream :write_long (get :bit_size this))
+		(. stream :write_long (get :hash_count this))
+		(. stream :write_long (get :count this))
+		(defq words (get :words this))
+		(. stream :write_long (length words))
+		(each (lambda (word)
+			(. stream :write_long word))
+			words)
+		this)
+
+	(defmethod :load (stream)
+		; (. bloom :load stream) -> bloom
+		; Deserialize Bloom filter from a stream
+		(defq magic (. stream :read_long))
+		(unless (= magic 0x424C4F4D)
+			(throw "Invalid Bloom filter file format" this))
+		(defq bit_size (. stream :read_long)
+			  hash_count (. stream :read_long)
+			  count (. stream :read_long)
+			  num_words (. stream :read_long)
+			  words (list))
+		(each (lambda (_)
+			(push words (. stream :read_long)))
+			(range 0 num_words))
+		(def this
+			:bit_size bit_size
+			:hash_count hash_count
+			:count count
+			:words words)
+		this)
+
+	(defmethod :save_to_file (filename)
+		; (. bloom :save_to_file filename) -> bloom
+		; Save Bloom filter to a file
+		(when (defq stream (file-stream filename +file_open_write))
+			(. this :save stream)
+			(. stream :close))
+		this)
+
+	(defmethod :load_from_file (filename)
+		; (. bloom :load_from_file filename) -> bloom
+		; Load Bloom filter from a file
+		(when (defq stream (file-stream filename))
+			(. this :load stream)
+			(. stream :close))
+		this)
 	)
 
 ;module

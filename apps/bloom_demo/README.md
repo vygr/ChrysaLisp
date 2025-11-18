@@ -1,6 +1,8 @@
 # Bloom Filter Library and Demo
 
-A space-efficient probabilistic data structure for set membership testing in ChrysaLisp.
+A comprehensive suite of space-efficient probabilistic data structures for set membership testing in ChrysaLisp.
+
+**NEW:** Now includes Counting Bloom Filters (with deletion), Scalable Bloom Filters (auto-growing), and full serialization support!
 
 ## What is a Bloom Filter?
 
@@ -13,11 +15,14 @@ A Bloom filter is a probabilistic data structure that efficiently tests whether 
 - **Probabilistic**: Can have false positives but NEVER false negatives
 - **No Deletion**: Standard Bloom filters don't support element removal (by design)
 
-## Library Location
+## Library Locations
 
-The Bloom filter implementation is located at:
+Three Bloom filter variants are available:
+
 ```
-lib/collections/bloom.inc
+lib/collections/bloom.inc           - Standard Bloom Filter
+lib/collections/counting_bloom.inc  - Counting Bloom Filter (supports deletion)
+lib/collections/scalable_bloom.inc  - Scalable Bloom Filter (auto-grows)
 ```
 
 ## Usage
@@ -79,23 +84,153 @@ lib/collections/bloom.inc
 - `:false_positive_rate` - Estimate the current false positive probability
 - `:optimal_hash_count expected_items` - Calculate optimal hash function count
 - `:copy` - Create a shallow copy of the filter
+- `:save stream` - Serialize filter to a stream
+- `:load stream` - Deserialize filter from a stream
+- `:save_to_file filename` - Save filter to a file
+- `:load_from_file filename` - Load filter from a file
 
-## Running the Demo
+## Advanced Variants
 
-To run the demonstration:
+### Counting Bloom Filter
+
+Supports element deletion by using counters instead of bits.
+
+```lisp
+(import "lib/collections/counting_bloom.inc")
+
+; Create with size, hash functions, and max counter value
+(defq cbf (CountingBloom 512 3 15))
+
+; Add elements
+(. cbf :add "apple")
+(. cbf :add "banana")
+
+; Remove elements - THE KEY FEATURE!
+(. cbf :remove "banana")
+(. cbf :erase "apple")  ; Alias for :remove
+
+; Get counter statistics
+(bind '(min max avg) (. cbf :counter_stats))
+```
+
+**Constructor:**
+- `(CountingBloom [size] [hash_count] [max_count])` - Create a counting filter
+  - `size`: Counter array size (default: 1024)
+  - `hash_count`: Number of hash functions (default: 3)
+  - `max_count`: Maximum counter value (default: 15)
+
+**Additional Methods:**
+- `:remove key` - Remove an element from the filter
+- `:erase key` - Alias for `:remove` (Set interface)
+- `:counter_stats` - Return `(min max avg)` counter statistics
+- `:save stream` / `:load stream` - Serialization support
+- `:save_to_file filename` / `:load_from_file filename` - File I/O
+
+**Trade-offs:**
+- ✅ Supports deletion (unique feature)
+- ❌ Uses more memory (~64x more than standard Bloom filter)
+- ❌ Counter overflow possible with max_count limit
+
+### Scalable Bloom Filter
+
+Automatically grows by adding new internal Bloom filters as needed.
+
+```lisp
+(import "lib/collections/scalable_bloom.inc")
+
+; Create with initial size, target FP rate, and growth factor
+(defq sbf (ScalableBloom 128 0.01 2))
+
+; Add unlimited items - it grows automatically!
+(each (lambda (i)
+    (. sbf :add (cat "item_" i)))
+    (range 0 10000))
+
+; Check stats
+(bind '(filter_count total_size count capacity) (. sbf :stats))
+(print (cat "Internal filters: " filter_count))
+```
+
+**Constructor:**
+- `(ScalableBloom [initial_size] [target_fp_rate] [growth_factor])` - Create scalable filter
+  - `initial_size`: Size of first filter (default: 1024)
+  - `target_fp_rate`: Target false positive rate (default: 0.01 = 1%)
+  - `growth_factor`: Growth multiplier for new filters (default: 2)
+
+**Additional Methods:**
+- `:filter_count` - Return number of internal Bloom filters
+- `:capacity` - Return total capacity before next growth
+- `:stats` - Return `(filter_count total_size count capacity)`
+- `:save stream` / `:load stream` - Serialization support
+- `:save_to_file filename` / `:load_from_file filename` - File I/O
+
+**Trade-offs:**
+- ✅ Handles unlimited items automatically
+- ✅ Maintains target false positive rate
+- ❌ No deletion support
+- ❌ Multiple internal filters add complexity
+
+## Serialization
+
+All three Bloom filter variants support saving and loading:
+
+```lisp
+; Save to stream
+(defq stream (file-stream "myfilter.dat" +file_open_write))
+(. bloom_filter :save stream)
+(. stream :close)
+
+; Load from stream
+(defq stream (file-stream "myfilter.dat"))
+(defq loaded_filter (Bloom))
+(. loaded_filter :load stream)
+(. stream :close)
+
+; Convenience methods
+(. bloom_filter :save_to_file "myfilter.dat")
+(. bloom_filter :load_from_file "myfilter.dat")
+```
+
+**File Formats:**
+- Standard Bloom: Magic `0x424C4F4D` ("BLOM")
+- Counting Bloom: Magic `0x43424C4D` ("CBLM")
+- Scalable Bloom: Magic `0x53424C4D` ("SBLM")
+
+**Use Cases:**
+- Cache warm-up: Persist filters between sessions
+- Checkpoint/restore: Save filter state for recovery
+- Sharing: Distribute pre-built filters
+- Storage: Archive historical filters
+
+## Running the Demos
+
+### Basic Demo
 
 ```bash
 ./run.sh apps/bloom_demo/app.lisp
 ```
 
+### Advanced Features Demo
+
+```bash
+./run.sh apps/bloom_demo/advanced_demo.lisp
+```
+
+### Unit Tests
+
+```bash
+./run.sh apps/bloom_demo/test.lisp
+```
+
 Or within ChrysaLisp:
 ```lisp
 (import "apps/bloom_demo/app.lisp")
+(import "apps/bloom_demo/advanced_demo.lisp")
 ```
 
 ## Demo Features
 
-The demo application showcases:
+### Basic Demo (`app.lisp`)
 
 1. **Basic Operations** - Creating filters, adding elements, checking membership
 2. **False Positive Demonstration** - Shows how false positives occur
@@ -104,6 +239,29 @@ The demo application showcases:
 5. **Clear and Reuse** - Shows how to reset and reuse filters
 6. **Copy Operation** - Demonstrates filter copying
 7. **Use Case: Spell Checker** - Practical application example
+
+### Advanced Demo (`advanced_demo.lisp`)
+
+1. **Counting Bloom Filter** - Deletion support demonstration
+2. **Scalable Bloom Filter** - Dynamic growth in action
+3. **Serialization** - Save/load filters to/from disk
+4. **Comparison** - Side-by-side feature comparison
+
+## Choosing the Right Variant
+
+| Feature | Standard | Counting | Scalable |
+|---------|----------|----------|----------|
+| **Deletion Support** | ❌ No | ✅ Yes | ❌ No |
+| **Auto-Growth** | ❌ No | ❌ No | ✅ Yes |
+| **Memory Efficiency** | ✅ Best | ⚠️ ~64x more | ✅ Good |
+| **False Positives** | ✅ Predictable | ✅ Predictable | ✅ Managed |
+| **Serialization** | ✅ Yes | ✅ Yes | ✅ Yes |
+| **Best For** | Fixed datasets | Mutable sets | Growing datasets |
+
+**Quick Decision Guide:**
+- Fixed size, known dataset → **Standard Bloom**
+- Need to delete items → **Counting Bloom**
+- Unknown/growing size → **Scalable Bloom**
 
 ## When to Use Bloom Filters
 
@@ -118,10 +276,11 @@ The demo application showcases:
 
 ### When NOT to Use
 
-- When false positives are unacceptable
-- When you need to delete elements
+- When false positives are unacceptable (all variants)
+- When you need to delete elements (unless using Counting Bloom)
 - When the dataset is very small (overhead not worth it)
-- When you need exact membership information
+- When you need exact membership information (all variants)
+- When you need to iterate over elements (all variants)
 
 ## Performance Considerations
 
