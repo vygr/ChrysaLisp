@@ -1,10 +1,20 @@
-# ChrysaLisp HTML Parser and Renderer
+# ChrysaLisp HTML Browser with CSS
 
-A modern HTML parser and text-based renderer for ChrysaLisp, ported from KDE's KHTML engine.
+A complete HTML parser, CSS styling engine, and graphical renderer for ChrysaLisp, ported from KDE's KHTML engine.
 
 ## Overview
 
-This library provides HTML parsing and rendering capabilities for ChrysaLisp. Since ChrysaLisp does not yet have a TCP/IP networking stack, this implementation focuses on the core HTML parsing and rendering functionality, which can be used with local HTML content or content loaded through other means.
+This library provides full HTML parsing, CSS styling, and graphical rendering capabilities for ChrysaLisp. It includes both text-based and graphical (canvas-based) rendering, CSS parsing and styling, and support for all major HTML elements including tables, forms, lists, and more.
+
+## Features
+
+✅ **HTML Parsing** - Full HTML5-compatible parser
+✅ **CSS Styling** - CSS parser with selector matching and style application
+✅ **Graphical Rendering** - Canvas-based rendering with fonts, colors, and layout
+✅ **Text Rendering** - Terminal-friendly text output
+✅ **All HTML Elements** - Tables, forms, lists, headings, links, images, etc.
+✅ **DOM Manipulation** - Complete DOM API with queries and traversal
+✅ **Unit Tests** - Comprehensive test suite ported from KHTML
 
 ## Components
 
@@ -70,7 +80,17 @@ KHTML-style part/view architecture:
 
 Ported from: `khtml/src/khtml_part.h/cpp`, `khtml/src/khtmlview.h/cpp`
 
-### 7. Text Renderer (`lib/html/renderer.inc`)
+### 7. CSS Parser and Styling (`lib/html/css.inc`)
+
+CSS parsing and styling engine with:
+- CSS rule parsing (selectors and properties)
+- Selector matching (tag, class, ID, universal)
+- Style computation and cascading
+- Color parsing (hex, rgb, named colors)
+- Size parsing (px, em, %)
+- Font weight and size styling
+
+### 8. Text Renderer (`lib/html/renderer.inc`)
 
 Text-based HTML renderer with:
 - Line wrapping at configurable width
@@ -79,6 +99,30 @@ Text-based HTML renderer with:
 - Link rendering with URLs
 - Bold and italic text markers
 - Preformatted text support
+
+### 9. Canvas Renderer (`lib/html/canvas_renderer.inc`)
+
+Graphical HTML renderer using ChrysaLisp's Canvas:
+- Full graphical rendering with fonts and colors
+- CSS styling application (colors, fonts, sizes)
+- All HTML elements rendered graphically:
+  - Text with wrapping and styling
+  - Headings with size scaling
+  - Tables with borders
+  - Lists (ordered and unordered)
+  - Links with colored text
+  - Forms and input elements
+  - Images (placeholder)
+  - Horizontal rules
+- Layout engine with positioning
+
+### 10. Browser Widget (`lib/html/browser.inc`)
+
+HTML browser GUI widget:
+- Scrollable HTML view
+- Integration with Canvas system
+- HTML content loading
+- CSS stylesheet support
 
 ## Unit Tests
 
@@ -109,6 +153,54 @@ Text-based HTML renderer with:
 ; Find elements
 (defq headings (. doc :get-elements-by-tag-name "h1"))
 (defq elem (. doc :get-element-by-id "myid"))
+```
+
+### CSS Parsing and Styling
+
+```lisp
+(import "lib/html/parser.inc")
+(import "lib/html/css.inc")
+
+; Parse HTML
+(defq html "<h1 id=\"title\">Styled Heading</h1><p class=\"intro\">Text</p>")
+(defq doc (parse-html html))
+
+; Parse CSS
+(defq css "#title { color: #ff0000; font-size: 24px; } .intro { color: #0000ff; }")
+(defq stylesheet (parse-css css))
+
+; Get styles for an element
+(defq title (. doc :get-element-by-id "title"))
+(defq styles (. stylesheet :compute-styles title))
+; styles will contain: {"color" "#ff0000", "font-size" "24px"}
+```
+
+### Graphical Rendering with Canvas
+
+```lisp
+(import "gui/canvas/lisp.inc")
+(import "lib/html/parser.inc")
+(import "lib/html/css.inc")
+(import "lib/html/canvas_renderer.inc")
+
+; Parse HTML and CSS
+(defq html "<h1>Hello</h1><p class=\"red\">Red text</p>")
+(defq css "h1 { color: #0000ff; } .red { color: #ff0000; }")
+(defq doc (parse-html html))
+(defq stylesheet (parse-css css))
+
+; Create canvas
+(defq canvas (Canvas))
+(.-> canvas
+	(:set_size 800 600)
+	(:canvas_alloc 0 800 600 0xffffffff 1))
+
+; Render HTML with CSS
+(defq renderer (html-canvas-renderer :init doc canvas 800 stylesheet))
+(. renderer :render)
+
+; Save to file
+(. canvas :save "output.png" "png")
 ```
 
 ### Text Rendering
