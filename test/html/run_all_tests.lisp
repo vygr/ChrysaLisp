@@ -45,6 +45,20 @@
 	(print "========================================")
 	(import "test/html/test_parser.lisp")
 
+	; Run DOM assertion tests
+	(print "")
+	(print "========================================")
+	(print "DOM Assertion Tests")
+	(print "========================================")
+	(import "test/html/test_dom_assertions.lisp")
+
+	; Run round-trip serialization tests
+	(print "")
+	(print "========================================")
+	(print "HTML Round-trip Serialization Tests")
+	(print "========================================")
+	(import "test/html/test_html_roundtrip.lisp")
+
 	(print "")
 	(print "========================================")
 	(print "All Tests Complete")

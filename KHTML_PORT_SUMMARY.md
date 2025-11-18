@@ -103,7 +103,25 @@ This document summarizes the port of KDE's KHTML HTML rendering engine to Chrysa
     - Tests parsing, DOM manipulation, text rendering
     - 11 test cases
 
-12. **test/html/run_all_tests.lisp**
+12. **test/html/test_dom_assertions.lisp**
+    - Comprehensive DOM assertion demonstrations
+    - Tests all 14 DOM-specific assertions
+    - Complex nested structures, tables, forms, lists
+    - 13 test cases
+
+13. **test/html/test_html_roundtrip.lisp** ⭐ NEW
+    - HTML serialization round-trip tests
+    - Inspired by XStream's TreeMapAndTreeSetTest patterns
+    - Tests parse → DOM → serialize preservation
+    - Verifies structure, attributes, nesting maintained
+    - 14 test cases
+
+14. **test/test_unittest_assertions.lisp**
+    - Unit testing framework assertion demonstrations
+    - Tests all basic assertion types
+    - 12 test cases
+
+15. **test/html/run_all_tests.lisp**
     - Master test runner
     - Runs all HTML test suites
 
@@ -195,12 +213,17 @@ This document summarizes the port of KDE's KHTML HTML rendering engine to Chrysa
 
 ## Test Results
 
-Total test cases ported: **24 tests**
+Total test cases: **63 tests**
 
 From KHTML autotests:
 - `kencodingdetectortest.cpp`: 7 tests → `test_encoding.lisp`
 - `khtmlparttest.cpp`: 6 tests → `test_part.lisp`
-- Parser/renderer tests: 11 new tests → `test_parser.lisp`
+
+New ChrysaLisp tests:
+- Parser/renderer tests: 11 tests → `test_parser.lisp`
+- DOM assertions: 13 tests → `test_dom_assertions.lisp`
+- Round-trip serialization: 14 tests → `test_html_roundtrip.lisp` (inspired by XStream)
+- Assertion framework: 12 tests → `test_unittest_assertions.lisp`
 
 ## Architecture Adaptations
 
@@ -226,9 +249,9 @@ From KHTML autotests:
 
 ## Usage Statistics
 
-- **Lines of Code Created**: ~3,200 LOC
+- **Lines of Code Created**: ~3,500 LOC
 - **Library Files**: 10 files (7 original + 3 new for CSS/graphics)
-- **Test Files**: 4 files
+- **Test Files**: 6 files (4 HTML tests + 1 assertion test + 1 master runner)
 - **Demo Files**: 3 files (1 original + 2 new for graphical rendering)
 - **Applications**: 1 full GUI application
 - **Documentation**: 2 files (README + this summary)
