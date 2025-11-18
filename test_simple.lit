@@ -1,0 +1,12 @@
+# Simple Test Literate Program
+
+This is a minimal test to verify LITPROG Phase 4 works.
+
+<<test.lisp>>=
+; Simple test program
+(print "Hello from literate programming!")
+(defq result (+ 2 2))
+(print (cat "2 + 2 = " result))
+@
+
+This should generate a working test.lisp file.
