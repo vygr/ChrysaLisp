@@ -1,6 +1,45 @@
 # Code Walker / AST Explorer - Changelog
 
-## Version 4.0 - Tree Visualization (Current)
+## Version 5.0 - Comparison Mode (Current)
+
+**Date:** 2025-11-18
+
+### New Feature: Side-by-Side Expression Comparison
+
+**Compare two expressions across all compilation phases!**
+
+#### Comparison System
+- **Toggle Button:** "Compare: ON/OFF" to enable comparison mode
+- **Dual Input Fields:** Expression A (always visible) and Expression B (when compare is ON)
+- **Side-by-Side Output:** Both expressions shown in each phase with clear labels
+- **Automatic Processing:** Processes both expressions when clicking "Process All"
+
+#### Implementation
+- `process-compare()` - Processes both expressions in parallel (58 lines)
+- `toggle-compare()` - Toggles comparison mode and shows/hides second input (10 lines)
+- Dual state tracking: `*last_read2*`, `*last_expand2*`, `*last_bind2*`
+- Dynamic UI visibility for second input field
+
+#### Example Output
+```
+>>> Expression A <<<
+(defun add (a b) (+ a b))
+
+>>> Expression B <<<
+(defun mul (x y) (* x y))
+```
+
+#### Educational Impact
+Perfect for understanding differences:
+- Compare macro implementations (when vs if, defun vs defmacro)
+- See how similar expressions expand differently
+- Test code variations side-by-side
+- Before/after refactoring comparisons
+- Educational demonstrations of equivalent forms
+
+---
+
+## Version 4.0 - Tree Visualization
 
 **Date:** 2025-11-18
 

@@ -10,8 +10,8 @@
 
 (enums +event 0
 	(enum close max min)
-	(enum process_btn clear_btn step_expand_btn export_btn toggle_diff_btn toggle_tree_btn)
-	(enum input_field)
+	(enum process_btn clear_btn step_expand_btn export_btn toggle_diff_btn toggle_tree_btn toggle_compare_btn)
+	(enum input_field input_field2)
 	(enum example1 example2 example3 example4))
 
 (enums +select 0
@@ -32,7 +32,7 @@
 ; Helper Functions
 ;;;;;;;;;;;;;;;;;;;;;
 
-(defq *show_diffs* :t *show_tree* :nil)
+(defq *show_diffs* :t *show_tree* :nil *compare_mode* :nil)
 
 (defun compute-diff (old new)
 	; Compute a simple diff between two pretty-printed forms
@@ -225,12 +225,19 @@
 	(ui-title-bar _ "Code Walker / AST Explorer" (0xea19 0xea1b 0xea1a) +event_close)
 
 	; Input section
-	(ui-flow input_section (:flow_flags +flow_right_fill :color +section_color)
-		(ui-label _ (:text "Enter Lisp Code:" :font +font_title :color +header_color
-			:border 0 :flow_flags +flow_flag_align_vleft))
-		(ui-textfield *input_field* (:text "(defun add (a b) (+ a b))"
-			:font +font_mono :color +argb_white :border 0 :flow_flags +flow_flag_align_vleft))
-		(. *input_field* :connect +event_input_field))
+	(ui-flow input_section (:flow_flags +flow_down_fill :color +section_color)
+		(ui-flow _ (:flow_flags +flow_right_fill)
+			(ui-label _ (:text "Expression A:" :font +font_title :color +header_color
+				:border 0 :flow_flags +flow_flag_align_vleft))
+			(ui-textfield *input_field* (:text "(defun add (a b) (+ a b))"
+				:font +font_mono :color +argb_white :border 0 :flow_flags +flow_flag_align_vleft))
+			(. *input_field* :connect +event_input_field))
+		(ui-flow *input2_section* (:flow_flags +flow_right_fill :visible :nil)
+			(ui-label _ (:text "Expression B:" :font +font_title :color +header_color
+				:border 0 :flow_flags +flow_flag_align_vleft))
+			(ui-textfield *input_field2* (:text "(defun mul (x y) (* x y))"
+				:font +font_mono :color +argb_white :border 0 :flow_flags +flow_flag_align_vleft))
+			(. *input_field2* :connect +event_input_field2)))
 
 	; Buttons section
 	(ui-flow button_section (:flow_flags +flow_right_fill :color +section_color)
@@ -239,12 +246,14 @@
 		(ui-button export_btn (:text "Export" :font +font_title))
 		(ui-button *diff_toggle_btn* (:text "Diffs: ON" :font +font_title))
 		(ui-button *tree_toggle_btn* (:text "Tree: OFF" :font +font_title))
+		(ui-button *compare_toggle_btn* (:text "Compare: OFF" :font +font_title))
 		(ui-button clear_btn (:text "Clear" :font +font_title))
 		(. process_btn :connect +event_process_btn)
 		(. step_btn :connect +event_step_expand_btn)
 		(. export_btn :connect +event_export_btn)
 		(. *diff_toggle_btn* :connect +event_toggle_diff_btn)
 		(. *tree_toggle_btn* :connect +event_toggle_tree_btn)
+		(. *compare_toggle_btn* :connect +event_toggle_compare_btn)
 		(. clear_btn :connect +event_clear_btn))
 
 	; Example buttons section
@@ -308,6 +317,7 @@
 
 (defq *expansion_steps* (list) *current_step* 0)
 (defq *last_read* :nil *last_expand* :nil *last_bind* :nil)
+(defq *last_read2* :nil *last_expand2* :nil *last_bind2* :nil)
 
 (defun step-expand ()
 	; Perform one step of macro expansion
@@ -393,6 +403,11 @@
 
 (defun process-code ()
 	; Process the code through all phases
+	(if *compare_mode*
+		(process-compare)
+		(process-single)))
+(defun process-single ()
+	; Process the code through all phases
 	(defq code_str (get :text *input_field*))
 
 	; Phase 1: Read
@@ -469,6 +484,65 @@
 	(.-> *eval_output* :layout :dirty)
 	(.-> *output_scroll* :layout :dirty))
 
+(defun process-compare ()
+	; Process two expressions for comparison
+	(defq code_str1 (get :text *input_field*)
+		  code_str2 (get :text *input_field2*))
+
+	; Process expression A
+	(defq read1 (safe-read code_str1)
+		  expand1 (if (str? read1) :nil (safe-macroexpand read1))
+		  bind1 (if (str? expand1) :nil (safe-prebind expand1)))
+
+	; Process expression B
+	(defq read2 (safe-read code_str2)
+		  expand2 (if (str? read2) :nil (safe-macroexpand read2))
+		  bind2 (if (str? expand2) :nil (safe-prebind expand2)))
+
+	; Store for diffs/trees
+	(setq *last_read* read1 *last_expand* expand1 *last_bind* bind1)
+	(setq *last_read2* read2 *last_expand2* expand2 *last_bind2* bind2)
+
+	; Format comparison output
+	(set *read_output* :text
+		(cat ">>> Expression A <<<\n"
+			(if (str? read1) read1 (pretty-print read1))
+			"\n\n>>> Expression B <<<\n"
+			(if (str? read2) read2 (pretty-print read2))))
+
+	(set *expand_output* :text
+		(cat ">>> Expression A <<<\n"
+			(if (str? expand1) expand1 (pretty-print expand1))
+			"\n\n>>> Expression B <<<\n"
+			(if (str? expand2) expand2 (pretty-print expand2))))
+
+	(set *bind_output* :text
+		(cat ">>> Expression A <<<\n"
+			(if (str? bind1) bind1 (pretty-print bind1))
+			"\n\n>>> Expression B <<<\n"
+			(if (str? bind2) bind2 (pretty-print bind2))))
+
+	; Evaluate both
+	(defq eval1 (if bind1 (safe-eval bind1) :nil)
+		  eval2 (if bind2 (safe-eval bind2) :nil))
+
+	(set *eval_output* :text
+		(cat ">>> Expression A <<<\n"
+			(pretty-print eval1)
+			"\n\n>>> Expression B <<<\n"
+			(pretty-print eval2)))
+
+	; Update diffs and trees if enabled
+	(update-diffs)
+	(update-trees)
+
+	; Update layout
+	(.-> *read_output* :layout :dirty)
+	(.-> *expand_output* :layout :dirty)
+	(.-> *bind_output* :layout :dirty)
+	(.-> *eval_output* :layout :dirty)
+	(.-> *output_scroll* :layout :dirty))
+
 (defun toggle-diffs ()
 	; Toggle diff display on/off
 	(setq *show_diffs* (not *show_diffs*))
@@ -499,9 +573,23 @@
 			(.-> *tree_expand* :layout :dirty)
 			(.-> *tree_bind* :layout :dirty))))
 
+(defun toggle-compare ()
+	; Toggle comparison mode on/off
+	(setq *compare_mode* (not *compare_mode*))
+	(set *compare_toggle_btn* :text (if *compare_mode* "Compare: ON" "Compare: OFF"))
+	(.-> *compare_toggle_btn* :layout :dirty)
+
+	; Show/hide second input field
+	(def *input2_section* :visible *compare_mode*)
+	(.-> *input2_section* :layout :dirty)
+
+	; Reprocess with new mode
+	(process-code))
+
 (defun clear-all ()
 	; Clear all output fields
 	(set *input_field* :text "")
+	(set *input_field2* :text "")
 	(set *read_output* :text "")
 	(set *expand_output* :text "")
 	(set *bind_output* :text "")
@@ -513,7 +601,9 @@
 	(set *tree_bind* :text "")
 	(setq *expansion_steps* (list) *current_step* 0)
 	(setq *last_read* :nil *last_expand* :nil *last_bind* :nil)
+	(setq *last_read2* :nil *last_expand2* :nil *last_bind2* :nil)
 	(.-> *input_field* :layout :dirty)
+	(.-> *input_field2* :layout :dirty)
 	(.-> *read_output* :layout :dirty)
 	(.-> *expand_output* :layout :dirty)
 	(.-> *bind_output* :layout :dirty)
@@ -603,6 +693,7 @@
 					((= id +event_export_btn) (export-results))
 					((= id +event_toggle_diff_btn) (toggle-diffs))
 					((= id +event_toggle_tree_btn) (toggle-tree))
+					((= id +event_toggle_compare_btn) (toggle-compare))
 					((= id +event_clear_btn) (clear-all))
 					((= id +event_example1)
 						(load-example "(defun add (a b) (+ a b))"))

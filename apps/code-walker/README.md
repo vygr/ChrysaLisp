@@ -14,6 +14,7 @@ The Code Walker is an interactive application that demonstrates how ChrysaLisp p
 ## Features
 
 - **Live Code Processing**: Enter any ChrysaLisp expression and see it transform through each phase
+- **Comparison Mode**: Compare two expressions side-by-side across all phases
 - **Step-by-Step Macro Expansion**: Click "Step Expand" to see macros expand one level at a time
 - **Diff View**: Toggle-able diff display showing exactly what changed between phases (READ→EXPAND, EXPAND→BIND)
 - **Tree Visualization**: ASCII tree view showing hierarchical AST structure with node types and counts
@@ -34,12 +35,15 @@ The Code Walker is an interactive application that demonstrates how ChrysaLisp p
 
 ### Interface
 
-- **Input Field**: Enter any Lisp expression
+- **Input Fields**:
+  - Expression A: Always visible
+  - Expression B: Appears when Compare mode is ON
 - **Process All Button**: Process code through all four phases at once (or press Enter in the input field)
 - **Step Expand Button**: Expand macros one level at a time to see intermediate states
 - **Export Button**: Save all results to a timestamped file in your home directory
 - **Diffs Toggle Button**: Turn diff display ON/OFF to see what changes between phases
 - **Tree Toggle Button**: Turn tree visualization ON/OFF to see AST structure
+- **Compare Toggle Button**: Turn comparison mode ON/OFF to compare two expressions
 - **Clear Button**: Reset all fields
 - **Example Buttons**: Load common macro examples (defun, let, case, ui-window)
 - **Output Panels**: View each phase of the compilation pipeline with color coding
@@ -249,6 +253,39 @@ The "Tree: ON/OFF" toggle button controls ASCII tree display:
 
 The tree makes nested structure immediately clear and shows how lists are composed.
 
+### Comparison Mode
+
+The "Compare: ON/OFF" toggle button enables side-by-side expression comparison:
+
+1. Click "Compare: ON" to enable comparison mode
+2. Expression B input field appears
+3. Enter two different expressions to compare
+4. Click "Process All" to see them compared
+
+**Comparison Output Format:**
+```
+>>> Expression A <<<
+(defun add (a b) (+ a b))
+
+>>> Expression B <<<
+(defun mul (x y) (* x y))
+```
+
+Each phase shows both expressions labeled for easy identification.
+
+**Perfect for:**
+- Comparing different macro implementations
+- Understanding how similar expressions expand differently
+- Testing variations of code
+- Educational demonstrations
+- Before/after refactoring comparisons
+
+**Example Comparison:**
+- **Expression A:** `(when (> x 0) (print x))`
+- **Expression B:** `(if (> x 0) (print x))`
+
+The EXPAND phase will show that `when` expands to `if`, revealing they're equivalent!
+
 ### Export Results
 
 Click "Export" to save a complete analysis to your home directory:
@@ -260,9 +297,9 @@ Click "Export" to save a complete analysis to your home directory:
 ## Future Enhancements
 
 Potential improvements still to implement:
-- Compare multiple expressions side-by-side
 - Disassemble to VP instructions
 - Interactive tree nodes (expand/collapse)
 - Per-word syntax highlighting within output panels
 - History/session management
 - Save/load workspaces
+- Search/filter within results
