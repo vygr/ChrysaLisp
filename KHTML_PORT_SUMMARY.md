@@ -109,7 +109,15 @@ This document summarizes the port of KDE's KHTML HTML rendering engine to Chrysa
     - **Text selection support**
     - Clipboard integration
 
-12. **lib/html/README.md**
+12. **lib/html/devtools.inc** ⭐ NEW
+    - Chrome/Firefox-style DevTools inspector library
+    - devtools-console: Logging with info/warn/error/debug levels
+    - dom-tree-viewer: Renders DOM tree with indentation and attributes
+    - network-tracker: Tracks file:// GET requests with status
+    - devtools-inspector: Combines console + tree + network
+    - Complete debugging toolkit for LispScript
+
+13. **lib/html/README.md**
     - Comprehensive documentation
     - Usage examples for HTML, CSS, and rendering
     - Architecture notes
@@ -244,6 +252,27 @@ This document summarizes the port of KDE's KHTML HTML rendering engine to Chrysa
     - Contact page with project details
     - Demonstrates navigation system
 
+22. **demo/html_pages/script_demo.html** ⭐ NEW
+    - Comprehensive LispScript interactive demo
+    - 7 feature sections demonstrating all script capabilities
+    - onclick inline handlers with Lisp code
+    - addEventListener from scripts
+    - DOM manipulation (createElement, appendChild, textContent)
+    - document.write for HTML addition
+    - innerHTML for fragment insertion
+    - querySelector for element finding
+    - Global state management via window
+
+23. **demo/html_pages/devtools.html** ⭐ NEW
+    - Full Chrome/Firefox-style DevTools inspector as HTML page
+    - 4 tabs: Console, Elements, Styles, Network
+    - Console logging with info/warn/error levels
+    - DOM tree viewer with live updates
+    - Styles panel shows computed styles
+    - Network panel tracks file:// GET requests
+    - Completely self-contained debugging tool
+    - Demonstrates DevTools implemented in HTML+LispScript!
+
 ## KHTML Components Ported
 
 ### Successfully Ported
@@ -313,7 +342,7 @@ This document summarizes the port of KDE's KHTML HTML rendering engine to Chrysa
 
 ## Test Results
 
-Total test cases: **140 tests** - all passing! ✅
+Total test cases: **155 tests** - all passing! ✅
 
 From KHTML autotests:
 - `kencodingdetectortest.cpp`: 7 tests → `test_encoding.lisp`
@@ -328,6 +357,7 @@ New ChrysaLisp tests:
 - Text selection: 12 tests → `test_text_selection.lisp`
 - Script execution: 19 tests → `test_script_execution.lisp` ⭐ COMPLETE (TDD - all tests passing!)
 - Browser navigation: 13 tests → `test_browser_navigation.lisp`
+- DevTools inspector: 15 tests → `test_devtools.lisp` ⭐ NEW (Console, DOM tree, Network tracking)
 - Assertion framework: 12 tests → `test_unittest_assertions.lisp`
 
 ## Architecture Adaptations
@@ -354,12 +384,16 @@ New ChrysaLisp tests:
 
 ## Usage Statistics
 
-- **Lines of Code Created**: ~5,900 LOC
-- **Library Files**: 11 files (7 original + 4 for CSS/graphics/interactivity/scripting)
-- **Test Files**: 11 files (9 HTML tests + 1 assertion test + 1 master runner)
-- **Test Cases**: 140 tests - all passing! ✅
-- **Demo Files**: 7 files (3 original + 4 interactive HTML pages)
-- **Applications**: 1 full GUI browser with navigation, URL bar, text selection, and complete LispScript support
+- **Lines of Code Created**: ~6,200 LOC
+- **Library Files**: 12 files (8 core + 4 for CSS/graphics/scripting/devtools)
+- **Test Files**: 12 files (10 HTML tests + 1 assertion test + 1 master runner)
+- **Test Cases**: 155 tests - all passing! ✅
+- **Demo Files**: 9 files:
+  - 4 navigation pages (index, about, features, contact)
+  - 1 comprehensive LispScript demo (script_demo.html)
+  - 1 DevTools inspector (devtools.html)
+  - 3 original demo scripts
+- **Applications**: 1 full GUI browser with Back/Forward, URL bar, text selection, LispScript, and DevTools
 - **Documentation**: 2 files (README + this summary)
 
 ## Next Steps
