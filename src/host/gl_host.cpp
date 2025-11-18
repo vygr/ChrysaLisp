@@ -3,10 +3,20 @@
 
 #include <GL/gl.h>
 #include <GL/glu.h>
+#include <GL/glext.h>
+#ifdef __linux__
+    #include <GL/glx.h>
+#elif defined(_WIN32)
+    #include <windows.h>
+    #include <GL/wglext.h>
+#endif
 #include <stdint.h>
 #include <iostream>
 #include <unordered_map>
 #include <vector>
+#include <string>
+#include <fstream>
+#include <sstream>
 
 // Error logging utility
 void logGLError(const char* msg) {
@@ -21,6 +31,9 @@ int64_t host_gl_init()
 {
     // Note: OpenGL context should already be created by SDL window
     // This function just sets up default OpenGL state
+
+    // Load modern OpenGL extensions
+    loadGLExtensions();
 
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
@@ -414,6 +427,373 @@ int64_t host_gl_get_error()
     return glGetError();
 }
 
+// Modern OpenGL - Shader support
+struct GLShader {
+    GLuint id;
+    GLenum type;
+    std::string source;
+};
+
+struct GLProgram {
+    GLuint id;
+    std::vector<GLuint> shaders;
+};
+
+static std::unordered_map<uint32_t, GLShader> shaderMap;
+static std::unordered_map<uint32_t, GLProgram> programMap;
+static uint32_t nextShaderHandle = 0x4000;
+static uint32_t nextProgramHandle = 0x5000;
+
+// Function pointers for OpenGL extensions (modern OpenGL)
+static PFNGLCREATESHADERPROC glCreateShader_ptr = nullptr;
+static PFNGLDELETESHADERPROC glDeleteShader_ptr = nullptr;
+static PFNGLSHADERSOURCEPROC glShaderSource_ptr = nullptr;
+static PFNGLCOMPILESHADERPROC glCompileShader_ptr = nullptr;
+static PFNGLGETSHADERIVPROC glGetShaderiv_ptr = nullptr;
+static PFNGLGETSHADERINFOLOGPROC glGetShaderInfoLog_ptr = nullptr;
+static PFNGLCREATEPROGRAMPROC glCreateProgram_ptr = nullptr;
+static PFNGLDELETEPROGRAMPROC glDeleteProgram_ptr = nullptr;
+static PFNGLATTACHSHADERPROC glAttachShader_ptr = nullptr;
+static PFNGLLINKPROGRAMPROC glLinkProgram_ptr = nullptr;
+static PFNGLGETPROGRAMIVPROC glGetProgramiv_ptr = nullptr;
+static PFNGLGETPROGRAMINFOLOGPROC glGetProgramInfoLog_ptr = nullptr;
+static PFNGLUSEPROGRAMPROC glUseProgram_ptr = nullptr;
+static PFNGLGETUNIFORMLOCATIONPROC glGetUniformLocation_ptr = nullptr;
+static PFNGLUNIFORM1FPROC glUniform1f_ptr = nullptr;
+static PFNGLUNIFORM2FPROC glUniform2f_ptr = nullptr;
+static PFNGLUNIFORM3FPROC glUniform3f_ptr = nullptr;
+static PFNGLUNIFORM4FPROC glUniform4f_ptr = nullptr;
+static PFNGLUNIFORM1IPROC glUniform1i_ptr = nullptr;
+static PFNGLUNIFORMMATRIX4FVPROC glUniformMatrix4fv_ptr = nullptr;
+static PFNGLGENVERTEXARRAYSPROC glGenVertexArrays_ptr = nullptr;
+static PFNGLDELETEVERTEXARRAYSPROC glDeleteVertexArrays_ptr = nullptr;
+static PFNGLBINDVERTEXARRAYPROC glBindVertexArray_ptr = nullptr;
+static PFNGLENABLEVERTEXATTRIBARRAYPROC glEnableVertexAttribArray_ptr = nullptr;
+static PFNGLDISABLEVERTEXATTRIBARRAYPROC glDisableVertexAttribArray_ptr = nullptr;
+static PFNGLVERTEXATTRIBPOINTERPROC glVertexAttribPointer_ptr = nullptr;
+static PFNGLGENBUFFERSPROC glGenBuffers_ptr = nullptr;
+static PFNGLDELETEBUFFERSPROC glDeleteBuffers_ptr = nullptr;
+static PFNGLBINDBUFFERPROC glBindBuffer_ptr = nullptr;
+static PFNGLBUFFERDATAPROC glBufferData_ptr = nullptr;
+
+// Load OpenGL extensions
+void* getGLProcAddress(const char* name) {
+    // Platform-specific extension loading
+    #if defined(__linux__)
+        return (void*)glXGetProcAddress((const GLubyte*)name);
+    #elif defined(_WIN32)
+        return (void*)wglGetProcAddress(name);
+    #elif defined(__APPLE__)
+        // macOS doesn't need extension loading for core functions
+        return nullptr;
+    #endif
+}
+
+void loadGLExtensions() {
+    #ifndef __APPLE__
+    glCreateShader_ptr = (PFNGLCREATESHADERPROC)getGLProcAddress("glCreateShader");
+    glDeleteShader_ptr = (PFNGLDELETESHADERPROC)getGLProcAddress("glDeleteShader");
+    glShaderSource_ptr = (PFNGLSHADERSOURCEPROC)getGLProcAddress("glShaderSource");
+    glCompileShader_ptr = (PFNGLCOMPILESHADERPROC)getGLProcAddress("glCompileShader");
+    glGetShaderiv_ptr = (PFNGLGETSHADERIVPROC)getGLProcAddress("glGetShaderiv");
+    glGetShaderInfoLog_ptr = (PFNGLGETSHADERINFOLOGPROC)getGLProcAddress("glGetShaderInfoLog");
+    glCreateProgram_ptr = (PFNGLCREATEPROGRAMPROC)getGLProcAddress("glCreateProgram");
+    glDeleteProgram_ptr = (PFNGLDELETEPROGRAMPROC)getGLProcAddress("glDeleteProgram");
+    glAttachShader_ptr = (PFNGLATTACHSHADERPROC)getGLProcAddress("glAttachShader");
+    glLinkProgram_ptr = (PFNGLLINKPROGRAMPROC)getGLProcAddress("glLinkProgram");
+    glGetProgramiv_ptr = (PFNGLGETPROGRAMIVPROC)getGLProcAddress("glGetProgramiv");
+    glGetProgramInfoLog_ptr = (PFNGLGETPROGRAMINFOLOGPROC)getGLProcAddress("glGetProgramInfoLog");
+    glUseProgram_ptr = (PFNGLUSEPROGRAMPROC)getGLProcAddress("glUseProgram");
+    glGetUniformLocation_ptr = (PFNGLGETUNIFORMLOCATIONPROC)getGLProcAddress("glGetUniformLocation");
+    glUniform1f_ptr = (PFNGLUNIFORM1FPROC)getGLProcAddress("glUniform1f");
+    glUniform2f_ptr = (PFNGLUNIFORM2FPROC)getGLProcAddress("glUniform2f");
+    glUniform3f_ptr = (PFNGLUNIFORM3FPROC)getGLProcAddress("glUniform3f");
+    glUniform4f_ptr = (PFNGLUNIFORM4FPROC)getGLProcAddress("glUniform4f");
+    glUniform1i_ptr = (PFNGLUNIFORM1IPROC)getGLProcAddress("glUniform1i");
+    glUniformMatrix4fv_ptr = (PFNGLUNIFORMMATRIX4FVPROC)getGLProcAddress("glUniformMatrix4fv");
+    glGenVertexArrays_ptr = (PFNGLGENVERTEXARRAYSPROC)getGLProcAddress("glGenVertexArrays");
+    glDeleteVertexArrays_ptr = (PFNGLDELETEVERTEXARRAYSPROC)getGLProcAddress("glDeleteVertexArrays");
+    glBindVertexArray_ptr = (PFNGLBINDVERTEXARRAYPROC)getGLProcAddress("glBindVertexArray");
+    glEnableVertexAttribArray_ptr = (PFNGLENABLEVERTEXATTRIBARRAYPROC)getGLProcAddress("glEnableVertexAttribArray");
+    glDisableVertexAttribArray_ptr = (PFNGLDISABLEVERTEXATTRIBARRAYPROC)getGLProcAddress("glDisableVertexAttribArray");
+    glVertexAttribPointer_ptr = (PFNGLVERTEXATTRIBPOINTERPROC)getGLProcAddress("glVertexAttribPointer");
+    glGenBuffers_ptr = (PFNGLGENBUFFERSPROC)getGLProcAddress("glGenBuffers");
+    glDeleteBuffers_ptr = (PFNGLDELETEBUFFERSPROC)getGLProcAddress("glDeleteBuffers");
+    glBindBuffer_ptr = (PFNGLBINDBUFFERPROC)getGLProcAddress("glBindBuffer");
+    glBufferData_ptr = (PFNGLBUFFERDATAPROC)getGLProcAddress("glBufferData");
+    #endif
+}
+
+// Shader functions
+uint32_t host_gl_create_shader(uint64_t type)
+{
+    if (!glCreateShader_ptr) {
+        std::cerr << "glCreateShader not available" << std::endl;
+        return 0;
+    }
+
+    GLuint shaderId = glCreateShader_ptr(type);
+    if (shaderId == 0) {
+        logGLError("host_gl_create_shader");
+        return 0;
+    }
+
+    uint32_t handle = nextShaderHandle++;
+    shaderMap[handle] = {shaderId, (GLenum)type, ""};
+
+    return handle;
+}
+
+int64_t host_gl_shader_source(uint32_t handle, const char* source)
+{
+    if (!glShaderSource_ptr || shaderMap.find(handle) == shaderMap.end()) {
+        return -1;
+    }
+
+    GLuint shaderId = shaderMap[handle].id;
+    shaderMap[handle].source = source;
+
+    glShaderSource_ptr(shaderId, 1, &source, nullptr);
+    logGLError("host_gl_shader_source");
+    return 0;
+}
+
+int64_t host_gl_compile_shader(uint32_t handle)
+{
+    if (!glCompileShader_ptr || !glGetShaderiv_ptr || shaderMap.find(handle) == shaderMap.end()) {
+        return -1;
+    }
+
+    GLuint shaderId = shaderMap[handle].id;
+    glCompileShader_ptr(shaderId);
+
+    GLint success;
+    glGetShaderiv_ptr(shaderId, GL_COMPILE_STATUS, &success);
+
+    if (!success) {
+        char infoLog[512];
+        if (glGetShaderInfoLog_ptr) {
+            glGetShaderInfoLog_ptr(shaderId, 512, nullptr, infoLog);
+            std::cerr << "Shader compilation failed: " << infoLog << std::endl;
+        }
+        return -1;
+    }
+
+    return 0;
+}
+
+void host_gl_delete_shader(uint32_t handle)
+{
+    if (!glDeleteShader_ptr || shaderMap.find(handle) == shaderMap.end()) {
+        return;
+    }
+
+    glDeleteShader_ptr(shaderMap[handle].id);
+    shaderMap.erase(handle);
+}
+
+// Program functions
+uint32_t host_gl_create_program()
+{
+    if (!glCreateProgram_ptr) {
+        std::cerr << "glCreateProgram not available" << std::endl;
+        return 0;
+    }
+
+    GLuint programId = glCreateProgram_ptr();
+    if (programId == 0) {
+        logGLError("host_gl_create_program");
+        return 0;
+    }
+
+    uint32_t handle = nextProgramHandle++;
+    programMap[handle] = {programId, {}};
+
+    return handle;
+}
+
+int64_t host_gl_attach_shader(uint32_t program, uint32_t shader)
+{
+    if (!glAttachShader_ptr ||
+        programMap.find(program) == programMap.end() ||
+        shaderMap.find(shader) == shaderMap.end()) {
+        return -1;
+    }
+
+    glAttachShader_ptr(programMap[program].id, shaderMap[shader].id);
+    programMap[program].shaders.push_back(shaderMap[shader].id);
+    logGLError("host_gl_attach_shader");
+    return 0;
+}
+
+int64_t host_gl_link_program(uint32_t handle)
+{
+    if (!glLinkProgram_ptr || !glGetProgramiv_ptr || programMap.find(handle) == programMap.end()) {
+        return -1;
+    }
+
+    GLuint programId = programMap[handle].id;
+    glLinkProgram_ptr(programId);
+
+    GLint success;
+    glGetProgramiv_ptr(programId, GL_LINK_STATUS, &success);
+
+    if (!success) {
+        char infoLog[512];
+        if (glGetProgramInfoLog_ptr) {
+            glGetProgramInfoLog_ptr(programId, 512, nullptr, infoLog);
+            std::cerr << "Program linking failed: " << infoLog << std::endl;
+        }
+        return -1;
+    }
+
+    return 0;
+}
+
+void host_gl_use_program(uint32_t handle)
+{
+    if (!glUseProgram_ptr) {
+        return;
+    }
+
+    if (handle == 0) {
+        glUseProgram_ptr(0);
+        return;
+    }
+
+    if (programMap.find(handle) == programMap.end()) {
+        return;
+    }
+
+    glUseProgram_ptr(programMap[handle].id);
+    logGLError("host_gl_use_program");
+}
+
+void host_gl_delete_program(uint32_t handle)
+{
+    if (!glDeleteProgram_ptr || programMap.find(handle) == programMap.end()) {
+        return;
+    }
+
+    glDeleteProgram_ptr(programMap[handle].id);
+    programMap.erase(handle);
+}
+
+int64_t host_gl_get_uniform_location(uint32_t program, const char* name)
+{
+    if (!glGetUniformLocation_ptr || programMap.find(program) == programMap.end()) {
+        return -1;
+    }
+
+    return glGetUniformLocation_ptr(programMap[program].id, name);
+}
+
+void host_gl_uniform1f(int64_t location, float v0)
+{
+    if (glUniform1f_ptr && location >= 0) {
+        glUniform1f_ptr(location, v0);
+        logGLError("host_gl_uniform1f");
+    }
+}
+
+void host_gl_uniform3f(int64_t location, float v0, float v1, float v2)
+{
+    if (glUniform3f_ptr && location >= 0) {
+        glUniform3f_ptr(location, v0, v1, v2);
+        logGLError("host_gl_uniform3f");
+    }
+}
+
+void host_gl_uniform_matrix4fv(int64_t location, const float* value)
+{
+    if (glUniformMatrix4fv_ptr && location >= 0) {
+        glUniformMatrix4fv_ptr(location, 1, GL_FALSE, value);
+        logGLError("host_gl_uniform_matrix4fv");
+    }
+}
+
+// VAO functions
+struct GLVAO {
+    GLuint id;
+};
+
+static std::unordered_map<uint32_t, GLVAO> vaoMap;
+static uint32_t nextVAOHandle = 0x6000;
+
+uint32_t host_gl_gen_vertex_array()
+{
+    if (!glGenVertexArrays_ptr) {
+        std::cerr << "VAO not supported" << std::endl;
+        return 0;
+    }
+
+    GLuint vaoId;
+    glGenVertexArrays_ptr(1, &vaoId);
+
+    uint32_t handle = nextVAOHandle++;
+    vaoMap[handle] = {vaoId};
+
+    logGLError("host_gl_gen_vertex_array");
+    return handle;
+}
+
+void host_gl_delete_vertex_array(uint32_t handle)
+{
+    if (!glDeleteVertexArrays_ptr || vaoMap.find(handle) == vaoMap.end()) {
+        return;
+    }
+
+    GLuint vaoId = vaoMap[handle].id;
+    glDeleteVertexArrays_ptr(1, &vaoId);
+    vaoMap.erase(handle);
+
+    logGLError("host_gl_delete_vertex_array");
+}
+
+void host_gl_bind_vertex_array(uint32_t handle)
+{
+    if (!glBindVertexArray_ptr) {
+        return;
+    }
+
+    if (handle == 0) {
+        glBindVertexArray_ptr(0);
+        return;
+    }
+
+    if (vaoMap.find(handle) == vaoMap.end()) {
+        return;
+    }
+
+    glBindVertexArray_ptr(vaoMap[handle].id);
+    logGLError("host_gl_bind_vertex_array");
+}
+
+void host_gl_vertex_attrib_pointer(uint64_t index, int64_t size, uint64_t type,
+                                   uint64_t normalized, int64_t stride, const void* pointer)
+{
+    if (glVertexAttribPointer_ptr) {
+        glVertexAttribPointer_ptr(index, size, type, normalized, stride, pointer);
+        logGLError("host_gl_vertex_attrib_pointer");
+    }
+}
+
+void host_gl_enable_vertex_attrib_array(uint64_t index)
+{
+    if (glEnableVertexAttribArray_ptr) {
+        glEnableVertexAttribArray_ptr(index);
+        logGLError("host_gl_enable_vertex_attrib_array");
+    }
+}
+
+void host_gl_disable_vertex_attrib_array(uint64_t index)
+{
+    if (glDisableVertexAttribArray_ptr) {
+        glDisableVertexAttribArray_ptr(index);
+        logGLError("host_gl_disable_vertex_attrib_array");
+    }
+}
+
 // Function table exported to ChrysaLisp VP
 void (*host_gl_funcs[]) = {
     // Initialization
@@ -496,6 +876,31 @@ void (*host_gl_funcs[]) = {
     (void*)host_gl_flush,
     (void*)host_gl_finish,
     (void*)host_gl_get_error,
+
+    // Modern OpenGL - Shaders
+    (void*)host_gl_create_shader,
+    (void*)host_gl_delete_shader,
+    (void*)host_gl_shader_source,
+    (void*)host_gl_compile_shader,
+
+    // Modern OpenGL - Programs
+    (void*)host_gl_create_program,
+    (void*)host_gl_delete_program,
+    (void*)host_gl_attach_shader,
+    (void*)host_gl_link_program,
+    (void*)host_gl_use_program,
+    (void*)host_gl_get_uniform_location,
+    (void*)host_gl_uniform1f,
+    (void*)host_gl_uniform3f,
+    (void*)host_gl_uniform_matrix4fv,
+
+    // Modern OpenGL - VAOs
+    (void*)host_gl_gen_vertex_array,
+    (void*)host_gl_delete_vertex_array,
+    (void*)host_gl_bind_vertex_array,
+    (void*)host_gl_vertex_attrib_pointer,
+    (void*)host_gl_enable_vertex_attrib_array,
+    (void*)host_gl_disable_vertex_attrib_array,
 };
 
 #endif
