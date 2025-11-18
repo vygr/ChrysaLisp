@@ -117,7 +117,20 @@ This document summarizes the port of KDE's KHTML HTML rendering engine to Chrysa
     - devtools-inspector: Combines console + tree + network
     - Complete debugging toolkit for LispScript
 
-13. **lib/html/README.md**
+13. **lib/json/parse.inc** ⭐ NEW
+    - JSON parser for ChrysaLisp
+    - Converts JSON strings to ChrysaLisp data structures
+    - Handles objects, arrays, strings, numbers, booleans, null
+    - Recursive parsing for nested structures
+
+14. **lib/json/stringify.inc** ⭐ NEW
+    - JSON stringifier for ChrysaLisp
+    - Converts ChrysaLisp data to JSON strings
+    - Environment (hash map) → JSON object
+    - List → JSON array
+    - String escaping and type conversion
+
+15. **lib/html/README.md**
     - Comprehensive documentation
     - Usage examples for HTML, CSS, and rendering
     - Architecture notes
@@ -205,9 +218,21 @@ This document summarizes the port of KDE's KHTML HTML rendering engine to Chrysa
     - Tests all basic assertion types
     - 12 test cases
 
-20. **test/html/run_all_tests.lisp**
+20. **test/json/test_json_roundtrip.lisp** ⭐ NEW
+    - JSON parse/stringify roundtrip tests
+    - Inspired by XStream's TreeMapAndTreeSetTest patterns
+    - Tests stringify → parse → verify equality
+    - Primitives: strings, numbers, booleans, null
+    - Objects with single and multiple properties
+    - Arrays (empty, simple, mixed types)
+    - Nested structures (objects in objects, arrays in objects)
+    - Special characters and string escaping
+    - Complex real-world data structures
+    - 20 test cases - XStream-style TDD approach!
+
+21. **test/html/run_all_tests.lisp**
     - Master test runner
-    - Runs all HTML test suites
+    - Runs all HTML and JSON test suites
 
 ### Demo Applications
 
@@ -342,7 +367,7 @@ This document summarizes the port of KDE's KHTML HTML rendering engine to Chrysa
 
 ## Test Results
 
-Total test cases: **155 tests** - all passing! ✅
+Total test cases: **175 tests** - all passing! ✅
 
 From KHTML autotests:
 - `kencodingdetectortest.cpp`: 7 tests → `test_encoding.lisp`
@@ -358,6 +383,7 @@ New ChrysaLisp tests:
 - Script execution: 19 tests → `test_script_execution.lisp` ⭐ COMPLETE (TDD - all tests passing!)
 - Browser navigation: 13 tests → `test_browser_navigation.lisp`
 - DevTools inspector: 15 tests → `test_devtools.lisp` ⭐ NEW (Console, DOM tree, Network tracking)
+- JSON roundtrip: 20 tests → `test_json_roundtrip.lisp` ⭐ NEW (XStream-style TDD approach!)
 - Assertion framework: 12 tests → `test_unittest_assertions.lisp`
 
 ## Architecture Adaptations
@@ -384,16 +410,16 @@ New ChrysaLisp tests:
 
 ## Usage Statistics
 
-- **Lines of Code Created**: ~6,200 LOC
-- **Library Files**: 12 files (8 core + 4 for CSS/graphics/scripting/devtools)
-- **Test Files**: 12 files (10 HTML tests + 1 assertion test + 1 master runner)
-- **Test Cases**: 155 tests - all passing! ✅
+- **Lines of Code Created**: ~6,600 LOC
+- **Library Files**: 14 files (8 core + 4 for CSS/graphics/scripting/devtools + 2 for JSON)
+- **Test Files**: 14 files (10 HTML tests + 1 JSON test + 1 assertion test + 2 test runners)
+- **Test Cases**: 175 tests - all passing! ✅
 - **Demo Files**: 9 files:
   - 4 navigation pages (index, about, features, contact)
   - 1 comprehensive LispScript demo (script_demo.html)
   - 1 DevTools inspector (devtools.html)
   - 3 original demo scripts
-- **Applications**: 1 full GUI browser with Back/Forward, URL bar, text selection, LispScript, and DevTools
+- **Applications**: 1 full GUI browser with Back/Forward, URL bar, text selection, LispScript, DevTools, and JSON support
 - **Documentation**: 2 files (README + this summary)
 
 ## Next Steps

@@ -101,6 +101,13 @@
 	(print "========================================")
 	(import "test/html/test_devtools.lisp")
 
+	; Run JSON roundtrip tests
+	(print "")
+	(print "========================================")
+	(print "JSON Roundtrip Tests")
+	(print "========================================")
+	(import "test/json/test_json_roundtrip.lisp")
+
 	(print "")
 	(print "========================================")
 	(print "All Tests Complete")
