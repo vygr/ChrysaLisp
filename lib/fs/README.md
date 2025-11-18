@@ -9,6 +9,14 @@ The filesystem library consists of:
 1. **Base Fs Class** (`lib/fs/fs.inc`) - Abstract base class defining the filesystem interface
 2. **ExFat Implementation** (`lib/fs/exfat.inc`) - Complete ExFat filesystem implementation
 3. **Test/Demo** (`apps/test_exfat.lisp`) - Demonstration of the ExFat filesystem
+4. **Utilities** - Three filesystem tools:
+   - `apps/fsck_exfat.lisp` - Filesystem consistency checker
+   - `apps/exfatinfo.lisp` - Detailed information dumper
+   - `apps/exfatimage.lisp` - Image export/import tool
+5. **Test Suites** - Comprehensive tests for all utilities:
+   - `apps/test_fsck_exfat.lisp` - Tests for fsck_exfat
+   - `apps/test_exfatinfo.lisp` - Tests for exfatinfo
+   - `apps/test_exfatimage.lisp` - Tests for exfatimage
 
 ## Architecture
 
@@ -490,6 +498,122 @@ Tools for working with filesystem images:
 - Create filesystem templates for distribution
 - Verify filesystem integrity after operations
 - Test filesystem implementations
+
+## Test Suites
+
+Comprehensive test suites are provided for all filesystem utilities, following CONTRIBUTING.md guidelines:
+
+### test_fsck_exfat.lisp - Filesystem Checker Tests
+
+Location: `apps/test_fsck_exfat.lisp`
+
+Tests all validation functions in fsck_exfat:
+
+- **Boot Sector Validation**: Tests power-of-2 checks, offset validation, size calculations
+- **FAT Entry Validation**: Tests free/allocated/EOC entry recognition, bounds checking
+- **Cluster Chain Validation**: Tests chain following, circular reference detection
+- **Filesystem Size Calculations**: Validates geometry calculations
+- **Error Detection**: Tests invalid cluster access, out-of-bounds operations
+- **Free Cluster Counting**: Validates allocation tracking accuracy
+- **Circular Reference Detection**: Tests detection of invalid FAT chains
+
+**Usage**:
+```lisp
+(import "apps/test_fsck_exfat.lisp")
+; Runs all tests and reports pass/fail
+```
+
+**Example Output**:
+```
+Testing boot sector validation...
+  PASS: Boot sector has valid sector size
+  PASS: Boot sector has valid cluster size
+  PASS: FAT offset is reasonable
+  ...
+Test Results
+============
+Total tests:  28
+Passed:       28
+Failed:       0
+All tests PASSED!
+```
+
+### test_exfatinfo.lisp - Information Dumper Tests
+
+Location: `apps/test_exfatinfo.lisp`
+
+Tests all information extraction and formatting functions:
+
+- **Boot Sector Info Extraction**: Tests access to all boot sector fields
+- **Geometry Calculations**: Validates size calculations and overhead analysis
+- **FAT Usage Analysis**: Tests cluster counting and usage percentage calculations
+- **Byte Formatting**: Tests human-readable size formatting (KB/MB/GB)
+- **FAT Table Sample**: Tests FAT entry reading and interpretation
+- **Cluster Map Generation**: Tests cluster allocation visualization
+- **Fragmentation Analysis**: Tests sequential allocation detection
+
+**Usage**:
+```lisp
+(import "apps/test_exfatinfo.lisp")
+; Runs all tests with detailed assertions
+```
+
+### test_exfatimage.lisp - Image Tool Tests
+
+Location: `apps/test_exfatimage.lisp`
+
+Tests image export/import and cloning functionality:
+
+- **Stream Cloning**: Tests basic clone operation and size preservation
+- **Image Comparison**: Tests byte-by-byte comparison functionality
+- **Data Preservation**: Validates FAT entries survive cloning
+- **Written Data**: Tests that cluster data is cloned correctly
+- **Chunked I/O**: Tests large filesystem cloning with 64KB chunks
+- **Empty Filesystem**: Tests minimal filesystem cloning
+- **Multiple Clones**: Tests sequential cloning (clone of clone)
+- **Clone Isolation**: Verifies clones are independent
+
+**Usage**:
+```lisp
+(import "apps/test_exfatimage.lisp")
+; Runs all cloning and comparison tests
+```
+
+### Test Coverage Summary
+
+| Utility | Test File | Tests | Coverage |
+|---------|-----------|-------|----------|
+| fsck_exfat | test_fsck_exfat.lisp | 28 | All validation functions |
+| exfatinfo | test_exfatinfo.lisp | 25 | All info extraction functions |
+| exfatimage | test_exfatimage.lisp | 24 | All image operations |
+
+**Total**: 77 test assertions across 3 test suites
+
+### Running All Tests
+
+To run all ExFat tests:
+
+```lisp
+; Main filesystem test
+(import "apps/test_exfat.lisp")
+
+; Utility tests
+(import "apps/test_fsck_exfat.lisp")
+(import "apps/test_exfatinfo.lisp")
+(import "apps/test_exfatimage.lisp")
+```
+
+All tests use an assertion framework with:
+- `assert_equal` - Compare expected vs actual values
+- `assert_true` - Verify boolean conditions
+- `assert_not_nil` - Ensure value exists
+- `assert_contains` - Check string contains substring
+
+Each test suite reports:
+- Total number of tests run
+- Number of passes and failures
+- Detailed failure information with expected/actual values
+- Exit code (0 for success, failure count otherwise)
 
 ## Future: Block Device Integration
 
