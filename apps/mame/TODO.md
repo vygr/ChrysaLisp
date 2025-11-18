@@ -79,5 +79,5 @@ ls -lh build/linux_gcc/bin/x64/Release/mame*
 ---
 
 **Branch:** `claude/mame-port-01SXcYbqgNFqtNVJRFm9H1L6`
-**Latest commit:** `cb80e5f`
+**Latest commit:** `8b06197`
 **Repository:** Clean and ready for PR! ✅
