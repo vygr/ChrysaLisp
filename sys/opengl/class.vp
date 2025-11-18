@@ -169,3 +169,369 @@
 	(vp-ret)
 
 (def-func-end)
+
+(def-method 'host_gl :gl_get_error)
+	;outputs
+	;:r0 = error code (uint)
+
+	(entry 'host_gl :gl_get_error :nil)
+	(abi-push-trashed :r13 :r14)
+	(host-gl-call 'host_gl :get_error :nil '(:r0))
+	(abi-pop-trashed :r13 :r14)
+	(exit 'host_gl :gl_get_error '(:r0))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'host_gl :gl_draw_arrays)
+	;inputs
+	;:r0 = mode (ulong)
+	;:r1 = first (long)
+	;:r2 = count (long)
+
+	(entry 'host_gl :gl_draw_arrays '(:r0 :r1 :r2))
+	(abi-push-trashed :r1 :r2 :r13 :r14)
+	(host-gl-call 'host_gl :draw_arrays '(:r0 :r1 :r2))
+	(abi-pop-trashed :r1 :r2 :r13 :r14)
+	(exit 'host_gl :gl_draw_arrays :nil)
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'host_gl :gl_gen_buffer)
+	;outputs
+	;:r0 = buffer handle (uint)
+
+	(entry 'host_gl :gl_gen_buffer :nil)
+	(abi-push-trashed :r13 :r14)
+	(host-gl-call 'host_gl :gen_buffer :nil '(:r0))
+	(abi-pop-trashed :r13 :r14)
+	(exit 'host_gl :gl_gen_buffer '(:r0))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'host_gl :gl_delete_buffer)
+	;inputs
+	;:r0 = buffer handle (uint)
+
+	(entry 'host_gl :gl_delete_buffer '(:r0))
+	(abi-push-trashed :r13 :r14)
+	(host-gl-call 'host_gl :delete_buffer '(:r0))
+	(abi-pop-trashed :r13 :r14)
+	(exit 'host_gl :gl_delete_buffer :nil)
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'host_gl :gl_bind_buffer)
+	;inputs
+	;:r0 = target (ulong)
+	;:r1 = buffer handle (uint)
+
+	(entry 'host_gl :gl_bind_buffer '(:r0 :r1))
+	(abi-push-trashed :r1 :r13 :r14)
+	(host-gl-call 'host_gl :bind_buffer '(:r0 :r1))
+	(abi-pop-trashed :r1 :r13 :r14)
+	(exit 'host_gl :gl_bind_buffer :nil)
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'host_gl :gl_buffer_data)
+	;inputs
+	;:r0 = target (ulong)
+	;:r1 = size (long)
+	;:r2 = data (list/vector)
+	;:r3 = usage (ulong)
+
+	(entry 'host_gl :gl_buffer_data '(:r0 :r1 :r2 :r3))
+	(abi-push-trashed :r1 :r2 :r3 :r13 :r14)
+	(host-gl-call 'host_gl :buffer_data '(:r0 :r1 :r2 :r3))
+	(abi-pop-trashed :r1 :r2 :r3 :r13 :r14)
+	(exit 'host_gl :gl_buffer_data :nil)
+	(vp-ret)
+
+(def-func-end)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Modern OpenGL - Shader Support
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(def-method 'host_gl :gl_create_shader)
+	;inputs
+	;:r0 = type (ulong - GL_VERTEX_SHADER, GL_FRAGMENT_SHADER, etc.)
+	;outputs
+	;:r0 = shader handle (uint)
+
+	(entry 'host_gl :gl_create_shader '(:r0))
+	(abi-push-trashed :r13 :r14)
+	(host-gl-call 'host_gl :create_shader '(:r0) '(:r0))
+	(abi-pop-trashed :r13 :r14)
+	(exit 'host_gl :gl_create_shader '(:r0))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'host_gl :gl_delete_shader)
+	;inputs
+	;:r0 = shader handle (uint)
+
+	(entry 'host_gl :gl_delete_shader '(:r0))
+	(abi-push-trashed :r13 :r14)
+	(host-gl-call 'host_gl :delete_shader '(:r0))
+	(abi-pop-trashed :r13 :r14)
+	(exit 'host_gl :gl_delete_shader :nil)
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'host_gl :gl_shader_source)
+	;inputs
+	;:r0 = shader handle (uint)
+	;:r1 = source code (string pointer)
+	;outputs
+	;:r0 = result code (long - 0 on success)
+
+	(entry 'host_gl :gl_shader_source '(:r0 :r1))
+	(abi-push-trashed :r1 :r13 :r14)
+	(host-gl-call 'host_gl :shader_source '(:r0 :r1) '(:r0))
+	(abi-pop-trashed :r1 :r13 :r14)
+	(exit 'host_gl :gl_shader_source '(:r0))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'host_gl :gl_compile_shader)
+	;inputs
+	;:r0 = shader handle (uint)
+	;outputs
+	;:r0 = result code (long - 0 on success, non-zero on failure)
+
+	(entry 'host_gl :gl_compile_shader '(:r0))
+	(abi-push-trashed :r13 :r14)
+	(host-gl-call 'host_gl :compile_shader '(:r0) '(:r0))
+	(abi-pop-trashed :r13 :r14)
+	(exit 'host_gl :gl_compile_shader '(:r0))
+	(vp-ret)
+
+(def-func-end)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Modern OpenGL - Program Support
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(def-method 'host_gl :gl_create_program)
+	;outputs
+	;:r0 = program handle (uint)
+
+	(entry 'host_gl :gl_create_program :nil)
+	(abi-push-trashed :r13 :r14)
+	(host-gl-call 'host_gl :create_program :nil '(:r0))
+	(abi-pop-trashed :r13 :r14)
+	(exit 'host_gl :gl_create_program '(:r0))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'host_gl :gl_delete_program)
+	;inputs
+	;:r0 = program handle (uint)
+
+	(entry 'host_gl :gl_delete_program '(:r0))
+	(abi-push-trashed :r13 :r14)
+	(host-gl-call 'host_gl :delete_program '(:r0))
+	(abi-pop-trashed :r13 :r14)
+	(exit 'host_gl :gl_delete_program :nil)
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'host_gl :gl_attach_shader)
+	;inputs
+	;:r0 = program handle (uint)
+	;:r1 = shader handle (uint)
+
+	(entry 'host_gl :gl_attach_shader '(:r0 :r1))
+	(abi-push-trashed :r1 :r13 :r14)
+	(host-gl-call 'host_gl :attach_shader '(:r0 :r1))
+	(abi-pop-trashed :r1 :r13 :r14)
+	(exit 'host_gl :gl_attach_shader :nil)
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'host_gl :gl_link_program)
+	;inputs
+	;:r0 = program handle (uint)
+	;outputs
+	;:r0 = result code (long - 0 on success, non-zero on failure)
+
+	(entry 'host_gl :gl_link_program '(:r0))
+	(abi-push-trashed :r13 :r14)
+	(host-gl-call 'host_gl :link_program '(:r0) '(:r0))
+	(abi-pop-trashed :r13 :r14)
+	(exit 'host_gl :gl_link_program '(:r0))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'host_gl :gl_use_program)
+	;inputs
+	;:r0 = program handle (uint - 0 to unbind)
+
+	(entry 'host_gl :gl_use_program '(:r0))
+	(abi-push-trashed :r13 :r14)
+	(host-gl-call 'host_gl :use_program '(:r0))
+	(abi-pop-trashed :r13 :r14)
+	(exit 'host_gl :gl_use_program :nil)
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'host_gl :gl_get_uniform_location)
+	;inputs
+	;:r0 = program handle (uint)
+	;:r1 = uniform name (string pointer)
+	;outputs
+	;:r0 = location (long - -1 if not found)
+
+	(entry 'host_gl :gl_get_uniform_location '(:r0 :r1))
+	(abi-push-trashed :r1 :r13 :r14)
+	(host-gl-call 'host_gl :get_uniform_location '(:r0 :r1) '(:r0))
+	(abi-pop-trashed :r1 :r13 :r14)
+	(exit 'host_gl :gl_get_uniform_location '(:r0))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'host_gl :gl_uniform1f)
+	;inputs
+	;:r0 = location (long)
+	;:r1 = value (float in int register)
+
+	(entry 'host_gl :gl_uniform1f '(:r0 :r1))
+	(abi-push-trashed :r1 :r13 :r14)
+	(host-gl-call 'host_gl :uniform1f '(:r0 :r1))
+	(abi-pop-trashed :r1 :r13 :r14)
+	(exit 'host_gl :gl_uniform1f :nil)
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'host_gl :gl_uniform3f)
+	;inputs
+	;:r0 = location (long)
+	;:r1 = v0 (float in int register)
+	;:r2 = v1 (float in int register)
+	;:r3 = v2 (float in int register)
+
+	(entry 'host_gl :gl_uniform3f '(:r0 :r1 :r2 :r3))
+	(abi-push-trashed :r1 :r2 :r3 :r13 :r14)
+	(host-gl-call 'host_gl :uniform3f '(:r0 :r1 :r2 :r3))
+	(abi-pop-trashed :r1 :r2 :r3 :r13 :r14)
+	(exit 'host_gl :gl_uniform3f :nil)
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'host_gl :gl_uniform_matrix4fv)
+	;inputs
+	;:r0 = location (long)
+	;:r1 = matrix data (pointer to float array)
+
+	(entry 'host_gl :gl_uniform_matrix4fv '(:r0 :r1))
+	(abi-push-trashed :r1 :r13 :r14)
+	(host-gl-call 'host_gl :uniform_matrix4fv '(:r0 :r1))
+	(abi-pop-trashed :r1 :r13 :r14)
+	(exit 'host_gl :gl_uniform_matrix4fv :nil)
+	(vp-ret)
+
+(def-func-end)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Modern OpenGL - VAO Support
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(def-method 'host_gl :gl_gen_vertex_array)
+	;outputs
+	;:r0 = VAO handle (uint)
+
+	(entry 'host_gl :gl_gen_vertex_array :nil)
+	(abi-push-trashed :r13 :r14)
+	(host-gl-call 'host_gl :gen_vertex_array :nil '(:r0))
+	(abi-pop-trashed :r13 :r14)
+	(exit 'host_gl :gl_gen_vertex_array '(:r0))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'host_gl :gl_delete_vertex_array)
+	;inputs
+	;:r0 = VAO handle (uint)
+
+	(entry 'host_gl :gl_delete_vertex_array '(:r0))
+	(abi-push-trashed :r13 :r14)
+	(host-gl-call 'host_gl :delete_vertex_array '(:r0))
+	(abi-pop-trashed :r13 :r14)
+	(exit 'host_gl :gl_delete_vertex_array :nil)
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'host_gl :gl_bind_vertex_array)
+	;inputs
+	;:r0 = VAO handle (uint - 0 to unbind)
+
+	(entry 'host_gl :gl_bind_vertex_array '(:r0))
+	(abi-push-trashed :r13 :r14)
+	(host-gl-call 'host_gl :bind_vertex_array '(:r0))
+	(abi-pop-trashed :r13 :r14)
+	(exit 'host_gl :gl_bind_vertex_array :nil)
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'host_gl :gl_vertex_attrib_pointer)
+	;inputs
+	;:r0 = index (ulong)
+	;:r1 = size (long)
+	;:r2 = type (ulong)
+	;:r3 = normalized (ulong)
+	;:r4 = stride (long)
+	;:r5 = offset (long)
+
+	(entry 'host_gl :gl_vertex_attrib_pointer '(:r0 :r1 :r2 :r3 :r4 :r5))
+	(abi-push-trashed :r1 :r2 :r3 :r4 :r5 :r13 :r14)
+	(host-gl-call 'host_gl :vertex_attrib_pointer '(:r0 :r1 :r2 :r3 :r4 :r5))
+	(abi-pop-trashed :r1 :r2 :r3 :r4 :r5 :r13 :r14)
+	(exit 'host_gl :gl_vertex_attrib_pointer :nil)
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'host_gl :gl_enable_vertex_attrib_array)
+	;inputs
+	;:r0 = index (ulong)
+
+	(entry 'host_gl :gl_enable_vertex_attrib_array '(:r0))
+	(abi-push-trashed :r13 :r14)
+	(host-gl-call 'host_gl :enable_vertex_attrib_array '(:r0))
+	(abi-pop-trashed :r13 :r14)
+	(exit 'host_gl :gl_enable_vertex_attrib_array :nil)
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'host_gl :gl_disable_vertex_attrib_array)
+	;inputs
+	;:r0 = index (ulong)
+
+	(entry 'host_gl :gl_disable_vertex_attrib_array '(:r0))
+	(abi-push-trashed :r13 :r14)
+	(host-gl-call 'host_gl :disable_vertex_attrib_array '(:r0))
+	(abi-pop-trashed :r13 :r14)
+	(exit 'host_gl :gl_disable_vertex_attrib_array :nil)
+	(vp-ret)
+
+(def-func-end)

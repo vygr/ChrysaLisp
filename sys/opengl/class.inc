@@ -86,6 +86,31 @@
 	(dec-method :finish :nil :virtual (abi-args 0) (:r0))
 	(dec-method :get_error :nil :virtual (abi-args 0) (:r0))
 
+	; Modern OpenGL - Shaders
+	(dec-method :create_shader :nil :virtual (abi-args 1) (:r0))
+	(dec-method :delete_shader :nil :virtual (abi-args 1) (:r0))
+	(dec-method :shader_source :nil :virtual (abi-args 2) (:r0))
+	(dec-method :compile_shader :nil :virtual (abi-args 1) (:r0))
+
+	; Modern OpenGL - Programs
+	(dec-method :create_program :nil :virtual (abi-args 0) (:r0))
+	(dec-method :delete_program :nil :virtual (abi-args 1) (:r0))
+	(dec-method :attach_shader :nil :virtual (abi-args 2) (:r0))
+	(dec-method :link_program :nil :virtual (abi-args 1) (:r0))
+	(dec-method :use_program :nil :virtual (abi-args 1) (:r0))
+	(dec-method :get_uniform_location :nil :virtual (abi-args 2) (:r0))
+	(dec-method :uniform1f :nil :virtual (abi-args 2) (:r0))
+	(dec-method :uniform3f :nil :virtual (abi-args 4) (:r0))
+	(dec-method :uniform_matrix4fv :nil :virtual (abi-args 2) (:r0))
+
+	; Modern OpenGL - VAOs
+	(dec-method :gen_vertex_array :nil :virtual (abi-args 0) (:r0))
+	(dec-method :delete_vertex_array :nil :virtual (abi-args 1) (:r0))
+	(dec-method :bind_vertex_array :nil :virtual (abi-args 1) (:r0))
+	(dec-method :vertex_attrib_pointer :nil :virtual (abi-args 6) (:r0))
+	(dec-method :enable_vertex_attrib_array :nil :virtual (abi-args 1) (:r0))
+	(dec-method :disable_vertex_attrib_array :nil :virtual (abi-args 1) (:r0))
+
 	; Static wrapper methods for VP code
 	(dec-method :gl_init sys/opengl/init :static :nil (:r0))
 	(dec-method :gl_deinit sys/opengl/deinit :static :nil (:r0))
@@ -99,6 +124,33 @@
 	(dec-method :gl_vertex3f sys/opengl/vertex3f :static (:r0 :r1 :r2))
 	(dec-method :gl_color3f sys/opengl/color3f :static (:r0 :r1 :r2))
 	(dec-method :gl_flush sys/opengl/flush :static)
+	(dec-method :gl_get_error sys/opengl/get_error :static :nil (:r0))
+	(dec-method :gl_draw_arrays sys/opengl/draw_arrays :static (:r0 :r1 :r2))
+	(dec-method :gl_gen_buffer sys/opengl/gen_buffer :static :nil (:r0))
+	(dec-method :gl_delete_buffer sys/opengl/delete_buffer :static (:r0))
+	(dec-method :gl_bind_buffer sys/opengl/bind_buffer :static (:r0 :r1))
+	(dec-method :gl_buffer_data sys/opengl/buffer_data :static (:r0 :r1 :r2 :r3))
+
+	; Modern OpenGL - Static wrappers
+	(dec-method :gl_create_shader sys/opengl/create_shader :static (:r0) (:r0))
+	(dec-method :gl_delete_shader sys/opengl/delete_shader :static (:r0))
+	(dec-method :gl_shader_source sys/opengl/shader_source :static (:r0 :r1) (:r0))
+	(dec-method :gl_compile_shader sys/opengl/compile_shader :static (:r0) (:r0))
+	(dec-method :gl_create_program sys/opengl/create_program :static :nil (:r0))
+	(dec-method :gl_delete_program sys/opengl/delete_program :static (:r0))
+	(dec-method :gl_attach_shader sys/opengl/attach_shader :static (:r0 :r1))
+	(dec-method :gl_link_program sys/opengl/link_program :static (:r0) (:r0))
+	(dec-method :gl_use_program sys/opengl/use_program :static (:r0))
+	(dec-method :gl_get_uniform_location sys/opengl/get_uniform_location :static (:r0 :r1) (:r0))
+	(dec-method :gl_uniform1f sys/opengl/uniform1f :static (:r0 :r1))
+	(dec-method :gl_uniform3f sys/opengl/uniform3f :static (:r0 :r1 :r2 :r3))
+	(dec-method :gl_uniform_matrix4fv sys/opengl/uniform_matrix4fv :static (:r0 :r1))
+	(dec-method :gl_gen_vertex_array sys/opengl/gen_vertex_array :static :nil (:r0))
+	(dec-method :gl_delete_vertex_array sys/opengl/delete_vertex_array :static (:r0))
+	(dec-method :gl_bind_vertex_array sys/opengl/bind_vertex_array :static (:r0))
+	(dec-method :gl_vertex_attrib_pointer sys/opengl/vertex_attrib_pointer :static (:r0 :r1 :r2 :r3 :r4 :r5))
+	(dec-method :gl_enable_vertex_attrib_array sys/opengl/enable_vertex_attrib_array :static (:r0))
+	(dec-method :gl_disable_vertex_attrib_array sys/opengl/disable_vertex_attrib_array :static (:r0))
 
 	; Lisp interface methods
 	(dec-method :lisp_init sys/opengl/lisp_init :static (:r0 :r1) (:r0 :r1))
@@ -234,3 +286,14 @@
 (defcvar GL_STACK_OVERFLOW 0x0503)
 (defcvar GL_STACK_UNDERFLOW 0x0504)
 (defcvar GL_OUT_OF_MEMORY 0x0505)
+
+; Modern OpenGL - Shader types
+(defcvar GL_VERTEX_SHADER 0x8B31)
+(defcvar GL_FRAGMENT_SHADER 0x8B30)
+(defcvar GL_GEOMETRY_SHADER 0x8DD9)
+
+; Shader/Program status
+(defcvar GL_COMPILE_STATUS 0x8B81)
+(defcvar GL_LINK_STATUS 0x8B82)
+(defcvar GL_VALIDATE_STATUS 0x8B83)
+(defcvar GL_INFO_LOG_LENGTH 0x8B84)
