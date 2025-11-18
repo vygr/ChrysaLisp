@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LITPROG Interactive Viewer</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: #1e1e1e;
+      color: #d4d4d4;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .container {
+      display: flex;
+      height: 100vh;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: 300px;
+      background: #252526;
+      border-right: 1px solid #3e3e42;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .sidebar-header {
+      padding: 20px;
+      background: #2d2d30;
+      border-bottom: 1px solid #3e3e42;
+    }
+
+    .sidebar-header h1 {
+      font-size: 1.2rem;
+      color: #ffffff;
+      margin-bottom: 10px;
+    }
+
+    .sidebar-header p {
+      font-size: 0.9rem;
+      color: #999;
+    }
+
+    .search-box {
+      padding: 15px;
+      border-bottom: 1px solid #3e3e42;
+    }
+
+    .search-box input {
+      width: 100%;
+      padding: 8px 12px;
+      background: #3c3c3c;
+      border: 1px solid #3e3e42;
+      border-radius: 4px;
+      color: #d4d4d4;
+      font-size: 0.9rem;
+    }
+
+    .search-box input:focus {
+      outline: none;
+      border-color: #007acc;
+    }
+
+    .chunk-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 10px 0;
+    }
+
+    .chunk-item {
+      padding: 12px 20px;
+      cursor: pointer;
+      border-left: 3px solid transparent;
+      transition: all 0.2s;
+    }
+
+    .chunk-item:hover {
+      background: #2a2d2e;
+      border-left-color: #007acc;
+    }
+
+    .chunk-item.active {
+      background: #094771;
+      border-left-color: #007acc;
+    }
+
+    .chunk-name {
+      font-weight: 500;
+      color: #4ec9b0;
+      margin-bottom: 4px;
+    }
+
+    .chunk-meta {
+      font-size: 0.8rem;
+      color: #999;
+      display: flex;
+      gap: 8px;
+    }
+
+    .chunk-tag {
+      background: #3e3e42;
+      padding: 2px 8px;
+      border-radius: 3px;
+    }
+
+    /* Main content */
+    .main-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .toolbar {
+      background: #2d2d30;
+      padding: 12px 20px;
+      border-bottom: 1px solid #3e3e42;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .view-controls {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn {
+      padding: 6px 12px;
+      background: #0e639c;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: background 0.2s;
+    }
+
+    .btn:hover {
+      background: #1177bb;
+    }
+
+    .btn.secondary {
+      background: #3e3e42;
+    }
+
+    .btn.secondary:hover {
+      background: #4e4e52;
+    }
+
+    .content-area {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px;
+    }
+
+    /* Chunk display */
+    .chunk-view {
+      background: #2d2d30;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      overflow: hidden;
+    }
+
+    .chunk-header {
+      background: #3e3e42;
+      padding: 15px 20px;
+      border-bottom: 2px solid #007acc;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .chunk-title {
+      font-size: 1.1rem;
+      color: #4ec9b0;
+      font-family: 'Monaco', 'Courier New', monospace;
+    }
+
+    .chunk-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .icon-btn {
+      background: none;
+      border: none;
+      color: #999;
+      cursor: pointer;
+      padding: 4px 8px;
+      font-size: 0.9rem;
+      transition: color 0.2s;
+    }
+
+    .icon-btn:hover {
+      color: #fff;
+    }
+
+    .chunk-code {
+      padding: 0;
+    }
+
+    pre {
+      margin: 0;
+      padding: 20px;
+      background: #1e1e1e;
+      color: #d4d4d4;
+      overflow-x: auto;
+      font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
+      font-size: 0.9rem;
+      line-height: 1.5;
+    }
+
+    .line-number {
+      display: inline-block;
+      width: 40px;
+      color: #858585;
+      user-select: none;
+      text-align: right;
+      padding-right: 16px;
+    }
+
+    /* Syntax highlighting */
+    .keyword { color: #c586c0; }
+    .string { color: #ce9178; }
+    .comment { color: #6a9955; font-style: italic; }
+    .function { color: #dcdcaa; }
+    .number { color: #b5cea8; }
+    .operator { color: #d4d4d4; }
+
+    /* Graph view */
+    #graph-canvas {
+      width: 100%;
+      height: 600px;
+      background: #1e1e1e;
+      border-radius: 8px;
+    }
+
+    /* Statistics panel */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+
+    .stat-card {
+      background: #2d2d30;
+      padding: 20px;
+      border-radius: 8px;
+      border-left: 4px solid #007acc;
+    }
+
+    .stat-value {
+      font-size: 2rem;
+      font-weight: bold;
+      color: #4ec9b0;
+      margin-bottom: 8px;
+    }
+
+    .stat-label {
+      font-size: 0.9rem;
+      color: #999;
+    }
+
+    /* File explorer */
+    .file-tree {
+      padding: 20px;
+    }
+
+    .file-node {
+      padding: 8px 12px;
+      cursor: pointer;
+      border-radius: 4px;
+      transition: background 0.2s;
+    }
+
+    .file-node:hover {
+      background: #2a2d2e;
+    }
+
+    .file-icon {
+      display: inline-block;
+      width: 16px;
+      margin-right: 8px;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .sidebar {
+        width: 250px;
+      }
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .tab-bar {
+      display: flex;
+      gap: 0;
+      background: #2d2d30;
+      border-bottom: 1px solid #3e3e42;
+    }
+
+    .tab {
+      padding: 12px 20px;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: all 0.2s;
+    }
+
+    .tab:hover {
+      background: #3e3e42;
+    }
+
+    .tab.active {
+      background: #1e1e1e;
+      border-bottom-color: #007acc;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="sidebar-header">
+        <h1>📚 LITPROG</h1>
+        <p>Interactive Viewer</p>
+      </div>
+
+      <div class="search-box">
+        <input type="text" id="search" placeholder="Search chunks..." />
+      </div>
+
+      <div class="chunk-list" id="chunk-list">
+        <!-- Populated by JavaScript -->
+      </div>
+    </div>
+
+    <!-- Main content -->
+    <div class="main-content">
+      <div class="toolbar">
+        <div class="view-controls">
+          <button class="btn" id="btn-upload">📁 Load .lit File</button>
+          <input type="file" id="file-input" style="display:none" accept=".lit,.nw,.org,.md" />
+        </div>
+        <div class="view-controls">
+          <button class="btn secondary" id="btn-tangle">⚙️ Tangle</button>
+          <button class="btn secondary" id="btn-stats">📊 Stats</button>
+          <button class="btn secondary" id="btn-graph">🔗 Graph</button>
+        </div>
+      </div>
+
+      <div class="tab-bar">
+        <div class="tab active" data-tab="code">Code View</div>
+        <div class="tab" data-tab="graph">Dependency Graph</div>
+        <div class="tab" data-tab="stats">Statistics</div>
+        <div class="tab" data-tab="files">Output Files</div>
+      </div>
+
+      <div class="content-area">
+        <div id="tab-code">
+          <div id="content">
+            <div style="text-align: center; padding: 60px; color: #666;">
+              <h2>Welcome to LITPROG Interactive Viewer</h2>
+              <p style="margin-top: 20px;">Load a literate programming file to get started.</p>
+              <button class="btn" style="margin-top: 20px;" onclick="document.getElementById('file-input').click()">
+                Choose File
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div id="tab-graph" class="hidden">
+          <canvas id="graph-canvas"></canvas>
+        </div>
+
+        <div id="tab-stats" class="hidden">
+          <div class="stats-grid" id="stats-grid">
+            <!-- Populated by JavaScript -->
+          </div>
+        </div>
+
+        <div id="tab-files" class="hidden">
+          <div class="file-tree" id="file-tree">
+            <!-- Populated by JavaScript -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Simple literate programming viewer
+    let chunks = [];
+    let currentChunk = null;
+
+    // Tab switching
+    document.querySelectorAll('.tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        // Update active tab
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+
+        // Show corresponding content
+        const tabName = tab.dataset.tab;
+        document.querySelectorAll('[id^="tab-"]').forEach(content => content.classList.add('hidden'));
+        document.getElementById('tab-' + tabName).classList.remove('hidden');
+      });
+    });
+
+    // File upload
+    document.getElementById('btn-upload').addEventListener('click', () => {
+      document.getElementById('file-input').click();
+    });
+
+    document.getElementById('file-input').addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          parseLiterateFile(event.target.result, file.name);
+        };
+        reader.readAsText(file);
+      }
+    });
+
+    // Simple parser for noweb style
+    function parseLiterateFile(content, filename) {
+      chunks = [];
+      const lines = content.split('\n');
+      let currentChunkName = null;
+      let currentChunkCode = [];
+      let currentDoc = '';
+
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i];
+
+        // Check for chunk definition <<name>>=
+        if (line.match(/<<(.+?)>>=/)) {
+          // Save previous chunk if exists
+          if (currentChunkName) {
+            chunks.push({
+              name: currentChunkName,
+              code: currentChunkCode.join('\n'),
+              line: i - currentChunkCode.length,
+              lang: 'lisp'
+            });
+          }
+
+          currentChunkName = line.match(/<<(.+?)>>=/)[1].trim();
+          currentChunkCode = [];
+        }
+        // Check for chunk end @
+        else if (line.trim() === '@' && currentChunkName) {
+          chunks.push({
+            name: currentChunkName,
+            code: currentChunkCode.join('\n'),
+            line: i - currentChunkCode.length,
+            lang: 'lisp'
+          });
+          currentChunkName = null;
+          currentChunkCode = [];
+        }
+        // Inside chunk
+        else if (currentChunkName) {
+          currentChunkCode.push(line);
+        }
+      }
+
+      renderChunkList();
+      renderStats();
+    }
+
+    // Render chunk list in sidebar
+    function renderChunkList() {
+      const listEl = document.getElementById('chunk-list');
+      listEl.innerHTML = '';
+
+      chunks.forEach((chunk, index) => {
+        const item = document.createElement('div');
+        item.className = 'chunk-item';
+        item.innerHTML = `
+          <div class="chunk-name">${escapeHtml(chunk.name)}</div>
+          <div class="chunk-meta">
+            <span class="chunk-tag">${chunk.lang}</span>
+            <span>Line ${chunk.line}</span>
+          </div>
+        `;
+        item.addEventListener('click', () => selectChunk(index));
+        listEl.appendChild(item);
+      });
+
+      if (chunks.length > 0) {
+        selectChunk(0);
+      }
+    }
+
+    // Select and display a chunk
+    function selectChunk(index) {
+      currentChunk = chunks[index];
+
+      // Update active state
+      document.querySelectorAll('.chunk-item').forEach((item, i) => {
+        item.classList.toggle('active', i === index);
+      });
+
+      // Render chunk view
+      const contentEl = document.getElementById('content');
+      contentEl.innerHTML = `
+        <div class="chunk-view">
+          <div class="chunk-header">
+            <div class="chunk-title">⟨⟨ ${escapeHtml(currentChunk.name)} ⟩⟩</div>
+            <div class="chunk-actions">
+              <button class="icon-btn" title="Copy">📋</button>
+              <button class="icon-btn" title="Download">💾</button>
+            </div>
+          </div>
+          <div class="chunk-code">
+            <pre>${highlightCode(currentChunk.code, currentChunk.lang)}</pre>
+          </div>
+        </div>
+      `;
+    }
+
+    // Simple syntax highlighting
+    function highlightCode(code, lang) {
+      let highlighted = escapeHtml(code);
+
+      if (lang === 'lisp') {
+        // Keywords
+        highlighted = highlighted.replace(/(defun|defq|defclass|if|while|each|lambda|progn|setq|cond|let)/g,
+          '<span class="keyword">$1</span>');
+
+        // Strings
+        highlighted = highlighted.replace(/"([^"]*)"/g,
+          '<span class="string">"$1"</span>');
+
+        // Comments
+        highlighted = highlighted.replace(/;(.*)$/gm,
+          '<span class="comment">; $1</span>');
+
+        // Numbers
+        highlighted = highlighted.replace(/\b(\d+)\b/g,
+          '<span class="number">$1</span>');
+      }
+
+      // Add line numbers
+      const lines = highlighted.split('\n');
+      return lines.map((line, i) =>
+        `<span class="line-number">${i + 1}</span>${line}`
+      ).join('\n');
+    }
+
+    // Render statistics
+    function renderStats() {
+      const statsEl = document.getElementById('stats-grid');
+      const totalChunks = chunks.length;
+      const totalLines = chunks.reduce((sum, c) => sum + c.code.split('\n').length, 0);
+      const languages = [...new Set(chunks.map(c => c.lang))];
+
+      statsEl.innerHTML = `
+        <div class="stat-card">
+          <div class="stat-value">${totalChunks}</div>
+          <div class="stat-label">Total Chunks</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">${totalLines}</div>
+          <div class="stat-label">Lines of Code</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">${languages.length}</div>
+          <div class="stat-label">Languages</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">${Math.round(totalLines / Math.max(totalChunks, 1))}</div>
+          <div class="stat-label">Avg Lines/Chunk</div>
+        </div>
+      `;
+    }
+
+    // Search functionality
+    document.getElementById('search').addEventListener('input', (e) => {
+      const query = e.target.value.toLowerCase();
+      document.querySelectorAll('.chunk-item').forEach((item, index) => {
+        const chunk = chunks[index];
+        const matches = chunk.name.toLowerCase().includes(query) ||
+                       chunk.code.toLowerCase().includes(query);
+        item.style.display = matches ? 'block' : 'none';
+      });
+    });
+
+    // Utility
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    // Demo data
+    const demoContent = `# Example Literate Program
+
+<<hello.lisp>>=
+(defun main ()
+  (print "Hello, World!"))
+@
+
+<<helper>>=
+(defun helper (x)
+  (* x 2))
+@
+`;
+
+    // Uncomment to load demo
+    // parseLiterateFile(demoContent, 'demo.lit');
+  </script>
+</body>
+</html>
