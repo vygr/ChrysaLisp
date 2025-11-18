@@ -5,12 +5,15 @@ A comprehensive plotting and charting library for ChrysaLisp, inspired by vgplot
 ## Features
 
 - **Multiple Plot Types**:
-  - Line plots
-  - Scatter plots (with 6 marker shapes)
-  - Bar charts (vertical and horizontal)
+  - Line plots (with error bars)
+  - Scatter plots (with 6 marker shapes and error bars)
+  - Bar charts (vertical, horizontal, and stacked)
   - Area plots
   - Pie charts
   - Histograms
+  - Box plots (with quartiles and outliers)
+  - Heatmaps (with color gradients)
+  - Candlestick charts (for financial data)
   - Multi-series plots
 
 - **Text Rendering**: Proper axis labels, tick labels, titles, and legend text using ChrysaLisp fonts
@@ -159,6 +162,88 @@ The plotting library is located in `lib/plot/`. To use it in your application:
 ```
 
 Available marker shapes: `:circle`, `:square`, `:triangle`, `:diamond`, `:cross`, `:plus`
+
+### Error Bars
+
+```lisp
+; Data with symmetric error bars: ((x y error) ...)
+(defq data (list
+    (list 1.0 5.0 0.5)
+    (list 2.0 7.0 0.7)
+    (list 3.0 6.0 0.4)
+    (list 4.0 8.0 0.6)))
+
+; Create plot with error bars
+(defq plot (Plot 800 600 "Measurements with Uncertainty"))
+(defq series_opts (env :color +argb_cyan :error_bars :t))
+(push (get :series plot) (list :scatter data series_opts))
+(plot-render plot)
+```
+
+### Box Plot
+
+```lisp
+; Data format: ((x_position values_list) ...)
+(defq data (list
+    (list 1.0 '(4.5 5.0 5.5 6.0 7.0 5.2 5.8))
+    (list 2.0 '(6.0 7.0 7.5 8.0 6.5 7.2 7.8))
+    (list 3.0 '(5.0 6.0 6.5 7.5 8.0 6.2 15.0))))  ; 15.0 is an outlier
+
+; Create box plot
+(defq plot (Plot 800 600 "Distribution Comparison"))
+(def plot :x_label "Group" :y_label "Value")
+(plot-add-series plot :box data "Distributions")
+(plot-render plot)
+```
+
+### Stacked Bar Chart
+
+```lisp
+; Data format: ((x_position (val1 val2 val3...)) ...)
+(defq data (list
+    (list 1.0 (list 10.0 15.0 8.0))
+    (list 2.0 (list 12.0 18.0 10.0))
+    (list 3.0 (list 8.0 20.0 12.0))))
+
+; Create stacked bar chart
+(defq plot (Plot 800 600 "Components Over Time"))
+(defq series_opts (env :label "Stacked"))
+(push (get :series plot) (list :stacked_bar data series_opts))
+(plot-render plot)
+```
+
+### Heatmap
+
+```lisp
+; Data format: 2D list ((row1...) (row2...) ...)
+(defq data (list
+    (list 1.0 2.0 3.0 4.0 5.0)
+    (list 2.0 4.0 6.0 8.0 10.0)
+    (list 3.0 6.0 9.0 12.0 15.0)))
+
+; Create heatmap with color gradient
+(defq plot (Plot 800 600 "2D Data Heatmap"))
+(def plot :show_grid :nil)
+(defq series_opts (env :colormap :hot))  ; Options: :hot :cool :jet :grayscale
+(push (get :series plot) (list :heatmap data series_opts))
+(plot-render plot)
+```
+
+### Candlestick Chart
+
+```lisp
+; Data format: ((x open high low close) ...)
+(defq data (list
+    (list 1.0 100.0 105.0 98.0 103.0)
+    (list 2.0 103.0 108.0 102.0 104.0)
+    (list 3.0 104.0 106.0 99.0 101.0)))
+
+; Create candlestick chart
+(defq plot (Plot 800 600 "Stock Price"))
+(def plot :x_label "Time" :y_label "Price")
+(plot-add-series plot :candlestick data "Price")
+(plot-render plot)
+```
 
 ## Advanced Usage
 
@@ -353,6 +438,33 @@ Then use:
 (plot-export-svg plot "filename.svg")
 ```
 
+### Statistical Annotations
+
+Add statistical reference lines to plots:
+
+```lisp
+; Create scatter plot
+(defq data (generate-some-data))
+(defq plot (Plot 800 600 "Data with Statistics"))
+(plot-add-series plot :scatter data "Data")
+
+; Add mean line
+(plot-add-mean-line plot data)
+
+; Add median line
+(plot-add-median-line plot data)
+
+(plot-render plot)
+```
+
+### Color Gradients for Heatmaps
+
+Available colormaps:
+- `:hot` - Black → Red → Yellow → White
+- `:cool` - Cyan → Magenta
+- `:jet` - Blue → Cyan → Yellow → Red
+- `:grayscale` - Black → White (default)
+
 ### Data Processing Helpers
 
 The library includes many data processing functions in `lib/plot/data.inc`:
@@ -460,34 +572,41 @@ The plotting library is optimized for ChrysaLisp's performance characteristics:
 
 ## Examples
 
-See `apps/plots/app.lisp` for complete working examples of:
+See `apps/plots/app.lisp` for complete working examples of **14 different plot types**:
 
-- Single and multi-series line plots
+- Line plots (single and multi-series)
 - Scatter plots with various marker shapes
-- Vertical and horizontal bar charts
+- Scatter plots with error bars
+- Vertical bar charts
+- Horizontal bar charts
+- Stacked bar charts
 - Area plots with filled regions
 - Pie charts with labeled segments
 - Histograms with automatic binning
+- Box plots with quartiles and outliers
+- Heatmaps with color gradients
+- Candlestick charts for financial data
+- Statistical annotations (mean/median lines)
 - Mixed plot types on the same axes
-- Data processing and statistical analysis
 
 ## Future Enhancements
 
 Possible extensions (contributions welcome):
 
 - Logarithmic scales
-- 3D plots
+- 3D surface plots
 - Contour plots
-- Heatmaps
-- Error bars
-- Interactive zooming and panning
-- Real-time streaming data updates
-- Box plots
 - Violin plots
-- Stacked bar charts
-- Candlestick charts (for financial data)
-- Polar plots
-- Network graphs
+- Polar coordinate plots
+- Interactive zooming and panning with mouse
+- Real-time streaming data updates
+- Date/time axis formatting
+- Multiple subplots in grid layout
+- Rotated Y-axis labels
+- Network/graph visualization
+- Radar/spider charts
+- Waterfall charts
+- Sankey diagrams
 
 ## Credits
 

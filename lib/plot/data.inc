@@ -179,3 +179,55 @@
 		(defq x (first pt))
 		(list x (+ (* slope x) intercept)))
 		data))
+
+;;;;;;;;;;;;;;;;
+; Box Plot Statistics
+;;;;;;;;;;;;;;;;
+
+(defun plot-quartiles (values)
+	; (plot-quartiles values) -> (q1 median q3)
+	; Calculate quartiles for box plot
+	(cond
+		((< (length values) 3) '(0.0 0.0 0.0))
+		(:t
+			(defq sorted (sort (map (lambda (x) x) values))
+				  n (length sorted)
+				  median_idx (>>> n 1)
+				  median (if (even? n)
+					  (/ (+ (elem median_idx sorted) (elem (dec median_idx) sorted)) 2)
+					  (elem median_idx sorted))
+				  q1_idx (>>> median_idx 1)
+				  q3_idx (+ median_idx (>>> (- n median_idx) 1))
+				  q1 (elem q1_idx sorted)
+				  q3 (elem q3_idx sorted))
+			(list q1 median q3))))
+
+(defun plot-box-stats (values)
+	; (plot-box-stats values) -> (min q1 median q3 max outliers)
+	; Calculate complete box plot statistics
+	(cond
+		((< (length values) 3) '(0.0 0.0 0.0 0.0 0.0 ()))
+		(:t
+			(defq sorted (sort (map (lambda (x) x) values)))
+			(bind '(q1 median q3) (plot-quartiles values))
+			(defq iqr (- q3 q1)
+				  lower_fence (- q1 (* 1.5 iqr))
+				  upper_fence (+ q3 (* 1.5 iqr))
+				  outliers (list)
+				  min_val 0.0
+				  max_val 0.0
+				  found_min :nil
+				  found_max :nil)
+
+			; Find min/max within fences and collect outliers
+			(each (lambda (val)
+				(cond
+					((or (< val lower_fence) (> val upper_fence))
+						(push outliers val))
+					(:t
+						(unless found_min
+							(setq min_val val found_min :t))
+						(setq max_val val found_max :t))))
+				sorted)
+
+			(list min_val q1 median q3 max_val outliers))))

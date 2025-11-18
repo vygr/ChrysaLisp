@@ -37,6 +37,52 @@
 ; Helper Functions
 ;;;;;;;;;;;;;;;;
 
+(defun plot-color-gradient (value min_val max_val colormap)
+	; (plot-color-gradient value min_val max_val colormap) -> argb
+	; Map value to color using gradient
+	; colormap: :viridis, :hot, :cool, :jet
+	(defq t_val (cond
+		((= min_val max_val) 0.5)
+		(:t (/ (- value min_val) (- max_val min_val)))))
+
+	(case colormap
+		(:hot
+			; Black -> Red -> Yellow -> White
+			(cond
+				((< t_val 0.33)
+					(defq t1 (* t_val 3.0))
+					(logior 0xff000000 (<< (floor (* t1 255)) 16)))
+				((< t_val 0.66)
+					(defq t1 (* (- t_val 0.33) 3.0))
+					(logior 0xff000000 0xff0000 (<< (floor (* t1 255)) 8)))
+				(:t
+					(defq t1 (* (- t_val 0.66) 3.0))
+					(logior 0xff000000 0xffff00 (floor (* t1 255))))))
+		(:cool
+			; Cyan -> Magenta
+			(defq r (floor (* t_val 255))
+				  b (floor (* (- 1.0 t_val) 255)))
+			(logior 0xff000000 (<< r 16) 0xff00 b))
+		(:jet
+			; Blue -> Cyan -> Yellow -> Red
+			(cond
+				((< t_val 0.25)
+					(defq t1 (* t_val 4.0))
+					(logior 0xff000000 (<< (floor (* t1 255)) 8) 0xff))
+				((< t_val 0.5)
+					(defq t1 (* (- t_val 0.25) 4.0))
+					(logior 0xff000000 (<< (floor (* t1 255)) 16) 0xff00 (floor (* (- 1.0 t1) 255))))
+				((< t_val 0.75)
+					(defq t1 (* (- t_val 0.5) 4.0))
+					(logior 0xff000000 0xff0000 (<< (floor (* (- 1.0 t1) 255)) 8)))
+				(:t
+					(defq t1 (* (- t_val 0.75) 4.0))
+					(logior 0xff000000 (<< (floor (* (- 1.0 t1) 255)) 16) 0x800000))))
+		(:t
+			; Default: grayscale
+			(defq gray (floor (* t_val 255)))
+			(logior 0xff000000 (<< gray 16) (<< gray 8) gray))))
+
 (defun plot-draw-marker (canvas shape x y size color)
 	; (plot-draw-marker canvas shape x y size color) -> canvas
 	; Draw a marker at position
@@ -361,7 +407,11 @@
 			(:hbar (plot-draw-hbar plot data opts))
 			(:area (plot-draw-area plot data opts))
 			(:pie (plot-draw-pie plot data opts))
-			(:histogram (plot-draw-histogram plot data opts))))
+			(:histogram (plot-draw-histogram plot data opts))
+			(:box (plot-draw-box plot data opts))
+			(:stacked_bar (plot-draw-stacked-bar plot data opts))
+			(:heatmap (plot-draw-heatmap plot data opts))
+			(:candlestick (plot-draw-candlestick plot data opts))))
 		(get :series plot))
 
 	(plot-draw-legend plot)
@@ -428,6 +478,50 @@
 		(defq paths (path-stroke-polyline points 2.0 +join_round +cap_round +cap_round))
 		(. canvas :fpoly 0.0 0.0 +winding_odd_even (list paths)))
 
+	; Draw error bars if present
+	(when (def? :error_bars opts)
+		(plot-draw-error-bars plot data opts))
+
+	plot)
+
+(defun plot-draw-error-bars (plot data opts)
+	; (plot-draw-error-bars plot data opts) -> plot
+	; Draw error bars for data points
+	; Data format: ((x y [y_err]) ...) or ((x y [y_err_low y_err_high]) ...)
+	(defq canvas (get :canvas plot)
+		  color (opt (get :color opts) +argb_white)
+		  cap_width 6)
+
+	(. canvas :set_color color)
+
+	(each (lambda (pt)
+		(cond
+			((= (length pt) 3)
+				; Symmetric error bars
+				(bind '(x y y_err) pt)
+				(bind '(sx sy) (plot-to-screen plot x y))
+				(bind '(sx_lo sy_lo) (plot-to-screen plot x (- y y_err)))
+				(bind '(sx_hi sy_hi) (plot-to-screen plot x (+ y y_err)))
+				; Vertical line
+				(. canvas :fbox sx sy_lo 1 (- sy_hi sy_lo))
+				; Top cap
+				(. canvas :fbox (- sx cap_width) sy_hi (* 2 cap_width) 1)
+				; Bottom cap
+				(. canvas :fbox (- sx cap_width) sy_lo (* 2 cap_width) 1))
+			((= (length pt) 4)
+				; Asymmetric error bars
+				(bind '(x y y_err_low y_err_high) pt)
+				(bind '(sx sy) (plot-to-screen plot x y))
+				(bind '(sx_lo sy_lo) (plot-to-screen plot x (- y y_err_low)))
+				(bind '(sx_hi sy_hi) (plot-to-screen plot x (+ y y_err_high)))
+				; Vertical line
+				(. canvas :fbox sx sy_lo 1 (- sy_hi sy_lo))
+				; Top cap
+				(. canvas :fbox (- sx cap_width) sy_hi (* 2 cap_width) 1)
+				; Bottom cap
+				(. canvas :fbox (- sx cap_width) sy_lo (* 2 cap_width) 1))))
+		data)
+
 	plot)
 
 (defun plot-draw-scatter (plot data opts)
@@ -437,6 +531,10 @@
 		  color (get :color opts)
 		  size (opt (def? :size opts) 4)
 		  marker (opt (def? :marker opts) :circle))
+
+	; Draw error bars first (so markers appear on top)
+	(when (def? :error_bars opts)
+		(plot-draw-error-bars plot data opts))
 
 	; Draw each point
 	(each (lambda (pt)
@@ -584,6 +682,187 @@
 		(. canvas :fbox (- sx (/ bar_width 2)) sy bar_width bar_height))
 		data)
 
+	plot)
+
+(defun plot-draw-box (plot data opts)
+	; (plot-draw-box plot data opts) -> plot
+	; Draw box plots
+	; Data format: ((x_pos values) ...) where values is list of data points
+	(defq canvas (get :canvas plot)
+		  color (get :color opts)
+		  box_width 40)
+
+	(. canvas :set_color color)
+
+	(each (lambda (item)
+		(bind '(x_pos values) item)
+		(bind '(min_val q1 median q3 max_val outliers) (plot-box-stats values))
+
+		; Convert to screen coordinates
+		(bind '(sx sy_min) (plot-to-screen plot x_pos min_val))
+		(bind '(_ sy_q1) (plot-to-screen plot x_pos q1))
+		(bind '(_ sy_median) (plot-to-screen plot x_pos median))
+		(bind '(_ sy_q3) (plot-to-screen plot x_pos q3))
+		(bind '(_ sy_max) (plot-to-screen plot x_pos max_val))
+
+		; Draw whiskers (lines from box to min/max)
+		(. canvas :fbox (- sx 1) sy_min 2 (- sy_q1 sy_min))  ; Lower whisker
+		(. canvas :fbox (- sx 1) sy_q3 2 (- sy_max sy_q3))   ; Upper whisker
+
+		; Draw whisker caps
+		(. canvas :fbox (- sx 10) sy_min 20 2)
+		(. canvas :fbox (- sx 10) sy_max 20 2)
+
+		; Draw box (from Q1 to Q3)
+		(defq box_height (- sy_q3 sy_q1))
+		(. canvas :fbox (- sx (/ box_width 2)) sy_q1 box_width box_height)
+
+		; Draw median line (darker/contrasting)
+		(. canvas :set_color +argb_white)
+		(. canvas :fbox (- sx (/ box_width 2)) sy_median box_width 3)
+		(. canvas :set_color color)
+
+		; Draw outliers as small circles
+		(each (lambda (outlier)
+			(bind '(_ sy_out) (plot-to-screen plot x_pos outlier))
+			(plot-draw-marker canvas :circle sx sy_out 3 color))
+			outliers))
+		data)
+
+	plot)
+
+(defun plot-draw-stacked-bar (plot data opts)
+	; (plot-draw-stacked-bar plot data opts) -> plot
+	; Draw stacked bar chart
+	; Data format: ((x_pos (val1 val2 val3 ...)) ...)
+	(defq canvas (get :canvas plot)
+		  colors (get :colors plot)
+		  n (length data))
+
+	; Calculate bar width
+	(bind '(px py pw ph) (plot-get-plot-area plot))
+	(defq bar_width (/ pw n 1.2))
+
+	; Draw each stacked bar
+	(each (lambda (item)
+		(bind '(x values) item)
+		(defq cumulative 0.0)
+
+		; Draw each segment
+		(each (lambda (val)
+			(defq color (elem (% (inc (!)) (length colors)) colors))
+			(bind '(sx sy) (plot-to-screen plot x (+ cumulative val)))
+			(bind '(sx0 sy0) (plot-to-screen plot x cumulative))
+			(defq segment_height (- sy0 sy))
+
+			(. canvas :set_color color)
+			(. canvas :fbox (- sx (/ bar_width 2)) sy bar_width segment_height)
+
+			(setq cumulative (+ cumulative val)))
+			values))
+		data)
+
+	plot)
+
+(defun plot-draw-heatmap (plot data opts)
+	; (plot-draw-heatmap plot data opts) -> plot
+	; Draw a heatmap
+	; Data format: 2D list ((row1_vals...) (row2_vals...) ...)
+	(defq canvas (get :canvas plot)
+		  colormap (opt (def? :colormap opts) :hot)
+		  rows (length data)
+		  cols (length (first data)))
+
+	(cond
+		((and (> rows 0) (> cols 0))
+			; Find min/max values
+			(defq all_vals (reduce cat data (list)))
+			(defq min_val (apply min all_vals)
+				  max_val (apply max all_vals))
+
+			; Calculate cell size
+			(bind '(px py pw ph) (plot-get-plot-area plot))
+			(defq cell_width (/ pw cols)
+				  cell_height (/ ph rows))
+
+			; Draw each cell
+			(each (lambda (row_idx)
+				(defq row (elem row_idx data))
+				(each (lambda (col_idx)
+					(defq val (elem col_idx row)
+						  color (plot-color-gradient val min_val max_val colormap)
+						  x (+ px (* col_idx cell_width))
+						  y (+ py (* row_idx cell_height)))
+					(. canvas :set_color color)
+					(. canvas :fbox x y cell_width cell_height))
+					(range 0 cols)))
+				(range 0 rows))))
+
+	plot)
+
+(defun plot-draw-candlestick (plot data opts)
+	; (plot-draw-candlestick plot data opts) -> plot
+	; Draw candlestick chart
+	; Data format: ((x open high low close) ...)
+	(defq canvas (get :canvas plot)
+		  color_up (opt (def? :color_up opts) +argb_green)
+		  color_down (opt (def? :color_down opts) +argb_red)
+		  candle_width 10)
+
+	; Draw each candlestick
+	(each (lambda (item)
+		(bind '(x open high low close) item)
+		(defq color (if (>= close open) color_up color_down)
+			  body_top (max open close)
+			  body_bottom (min open close))
+
+		; Convert to screen coordinates
+		(bind '(sx sy_high) (plot-to-screen plot x high))
+		(bind '(_ sy_low) (plot-to-screen plot x low))
+		(bind '(_ sy_top) (plot-to-screen plot x body_top))
+		(bind '(_ sy_bottom) (plot-to-screen plot x body_bottom))
+
+		; Draw wick (high to low)
+		(. canvas :set_color color)
+		(. canvas :fbox (- sx 1) sy_high 2 (- sy_low sy_high))
+
+		; Draw candle body
+		(defq body_height (- sy_bottom sy_top))
+		(. canvas :fbox (- sx candle_width) sy_top (* 2 candle_width) body_height))
+		data)
+
+	plot)
+
+;;;;;;;;;;;;;;;;
+; Statistical Annotations
+;;;;;;;;;;;;;;;;
+
+(defun plot-add-mean-line (plot data)
+	; (plot-add-mean-line plot data) -> plot
+	; Add horizontal line at mean value
+	(defq y_values (map second data)
+		  mean_val (plot-mean y_values)
+		  x_min (get :x_min plot)
+		  x_max (get :x_max plot))
+
+	; Add as line series
+	(plot-add-series plot :line
+		(list (list x_min mean_val) (list x_max mean_val))
+		"Mean")
+	plot)
+
+(defun plot-add-median-line (plot data)
+	; (plot-add-median-line plot data) -> plot
+	; Add horizontal line at median value
+	(defq y_values (map second data)
+		  median_val (plot-median y_values)
+		  x_min (get :x_min plot)
+		  x_max (get :x_max plot))
+
+	; Add as line series
+	(plot-add-series plot :line
+		(list (list x_min median_val) (list x_max median_val))
+		"Median")
 	plot)
 
 ;;;;;;;;;;;;;;;;

@@ -70,6 +70,54 @@
 		(list 60.0 4.0)
 		(list 15.0 5.0)))
 
+(defun generate-error-bar-data ()
+	; Generate data with error bars
+	(map (lambda (x)
+		(defq xv (/ x 5.0)
+			  y (+ 5.0 (* 3.0 (sin xv)))
+			  err (* 0.5 (+ 1.0 (random))))
+		(list xv y err))
+		(range 0 20)))
+
+(defun generate-box-plot-data ()
+	; Generate data for box plots
+	(list
+		(list 1.0 (map (lambda (_) (+ 5.0 (* 2.0 (- (+ (random) (random)) 1.0)))) (range 0 50)))
+		(list 2.0 (map (lambda (_) (+ 7.0 (* 1.5 (- (+ (random) (random)) 1.0)))) (range 0 50)))
+		(list 3.0 (map (lambda (_) (+ 6.0 (* 2.5 (- (+ (random) (random)) 1.0)))) (range 0 50)))
+		(list 4.0 (map (lambda (_) (+ 8.0 (* 1.0 (- (+ (random) (random)) 1.0)))) (range 0 50)))))
+
+(defun generate-stacked-bar-data ()
+	; Generate stacked bar chart data
+	(list
+		(list 1.0 (list 10.0 15.0 8.0))
+		(list 2.0 (list 12.0 18.0 10.0))
+		(list 3.0 (list 8.0 20.0 12.0))
+		(list 4.0 (list 15.0 14.0 9.0))
+		(list 5.0 (list 11.0 17.0 11.0))))
+
+(defun generate-heatmap-data ()
+	; Generate 2D heatmap data
+	(map (lambda (row)
+		(map (lambda (col)
+			(+ (* 10.0 (sin (/ row 2.0))) (* 5.0 (cos (/ col 2.0)))))
+			(range 0 20)))
+		(range 0 15)))
+
+(defun generate-candlestick-data ()
+	; Generate candlestick chart data
+	(defq data (list) price 100.0)
+	(each (lambda (i)
+		(defq open price
+			  change (* 5.0 (- (random) 0.5))
+			  close (+ open change)
+			  high (+ (max open close) (* 2.0 (random)))
+			  low (- (min open close) (* 2.0 (random))))
+		(push data (list i open high low close))
+		(setq price close))
+		(range 0 30))
+	data)
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Create Plots
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -197,6 +245,61 @@
 	(plot-render plot)
 	plot)
 
+(defun create-error-bars-plot ()
+	; Create a plot with error bars
+	(defq plot (Plot +plot_width +plot_height "Measurements with Error Bars"))
+	(def plot :x_label "X" :y_label "Value")
+
+	(defq data (generate-error-bar-data))
+	(defq series_opts (env :color +argb_cyan :error_bars :t :label "Measurements"))
+	(push (get :series plot) (list :scatter data series_opts))
+	(push (get :legend_items plot) (list "Measurements" +argb_cyan))
+
+	(plot-render plot)
+	plot)
+
+(defun create-box-plot ()
+	; Create a box plot
+	(defq plot (Plot +plot_width +plot_height "Distribution Comparison - Box Plot"))
+	(def plot :x_label "Category" :y_label "Value")
+
+	(plot-add-series plot :box (generate-box-plot-data) "Distributions")
+
+	(plot-render plot)
+	plot)
+
+(defun create-stacked-bar-plot ()
+	; Create a stacked bar chart
+	(defq plot (Plot +plot_width +plot_height "Components - Stacked Bars"))
+	(def plot :x_label "Category" :y_label "Total Value")
+
+	(defq series_opts (env :color +argb_cyan :label "Stacked"))
+	(push (get :series plot) (list :stacked_bar (generate-stacked-bar-data) series_opts))
+
+	(plot-render plot)
+	plot)
+
+(defun create-heatmap-plot ()
+	; Create a heatmap
+	(defq plot (Plot +plot_width +plot_height "2D Data - Heatmap"))
+	(def plot :show_grid :nil :auto_scale :nil)
+
+	(defq series_opts (env :colormap :hot :label "Intensity"))
+	(push (get :series plot) (list :heatmap (generate-heatmap-data) series_opts))
+
+	(plot-render plot)
+	plot)
+
+(defun create-candlestick-plot ()
+	; Create a candlestick chart
+	(defq plot (Plot +plot_width +plot_height "Stock Price - Candlestick"))
+	(def plot :x_label "Time" :y_label "Price")
+
+	(plot-add-series plot :candlestick (generate-candlestick-data) "Price")
+
+	(plot-render plot)
+	plot)
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Main Application
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -208,11 +311,16 @@
 (push *plots* (create-line-plot))
 (push *plots* (create-scatter-plot))
 (push *plots* (create-markers-plot))
+(push *plots* (create-error-bars-plot))
 (push *plots* (create-bar-plot))
 (push *plots* (create-hbar-plot))
+(push *plots* (create-stacked-bar-plot))
 (push *plots* (create-area-plot))
 (push *plots* (create-pie-chart))
 (push *plots* (create-histogram-plot))
+(push *plots* (create-box-plot))
+(push *plots* (create-heatmap-plot))
+(push *plots* (create-candlestick-plot))
 (push *plots* (create-multi-series-plot))
 
 ; Create UI window
@@ -229,11 +337,16 @@
 	(list "Plot Demo - Line Plot"
 		  "Plot Demo - Scatter Plot"
 		  "Plot Demo - Marker Shapes"
+		  "Plot Demo - Error Bars"
 		  "Plot Demo - Bar Chart"
 		  "Plot Demo - Horizontal Bars"
+		  "Plot Demo - Stacked Bars"
 		  "Plot Demo - Area Plot"
 		  "Plot Demo - Pie Chart"
 		  "Plot Demo - Histogram"
+		  "Plot Demo - Box Plot"
+		  "Plot Demo - Heatmap"
+		  "Plot Demo - Candlestick"
 		  "Plot Demo - Multi-Series"))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
