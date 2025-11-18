@@ -12,6 +12,7 @@
 	(enum close max min)
 	(enum process_btn clear_btn step_expand_btn export_btn toggle_diff_btn toggle_tree_btn toggle_compare_btn)
 	(enum history_prev history_next clear_history)
+	(enum save_session load_session)
 	(enum input_field input_field2)
 	(enum example1 example2 example3 example4))
 
@@ -301,6 +302,167 @@
 			(cat "History: " (str (inc *history_index*)) "/" (str (length *history*)))))
 	(.-> *history_label* :layout :dirty))
 
+(defun save-session ()
+	; Save complete session to file
+	(defq timestamp (str (time))
+		  filename (cat *env_home* "code-walker-session-" timestamp ".cws"))
+
+	(when (defq stream (file-stream filename +file_open_write))
+		; Write header
+		(print "CODE_WALKER_SESSION_V1" stream)
+		(print "" stream)
+
+		; Write toggle states
+		(print "[TOGGLES]" stream)
+		(print (if *show_diffs* ":t" ":nil") stream)
+		(print (if *show_tree* ":t" ":nil") stream)
+		(print (if *compare_mode* ":t" ":nil") stream)
+		(print "" stream)
+
+		; Write current inputs
+		(print "[CURRENT_INPUT]" stream)
+		(print (get :text *input_field*) stream)
+		(print (get :text *input_field2*) stream)
+		(print "" stream)
+
+		; Write current outputs
+		(print "[CURRENT_OUTPUT]" stream)
+		(print (get :text *read_output*) stream)
+		(print "---PHASE---" stream)
+		(print (get :text *expand_output*) stream)
+		(print "---PHASE---" stream)
+		(print (get :text *bind_output*) stream)
+		(print "---PHASE---" stream)
+		(print (get :text *eval_output*) stream)
+		(print "" stream)
+
+		; Write history
+		(print "[HISTORY]" stream)
+		(print (str (length *history*)) stream)
+		(print (str *history_index*) stream)
+		(each (lambda (entry)
+			(print "---ENTRY---" stream)
+			(each (lambda (item)
+				(print item stream)
+				(print "---FIELD---" stream))
+				entry))
+			*history*)
+
+		(close stream)
+
+		; Show success message
+		(defq old_text (get :text *eval_output*))
+		(set *eval_output* :text (cat "Session saved to: " filename "\n\n" old_text))
+		(.-> *eval_output* :layout :dirty)))
+
+(defun load-session ()
+	; Load session from file - presents file browser
+	; For now, use a simple filename prompt approach
+	; In a full implementation, would use file browser UI
+	(defq filename (cat *env_home* "code-walker-session-latest.cws"))
+
+	(when (defq stream (file-stream filename +file_open_read))
+		(catch
+			(progn
+				; Read header
+				(defq header (read-line stream))
+				(unless (eql header "CODE_WALKER_SESSION_V1")
+					(throw "Invalid session file format"))
+
+				(read-line stream) ; blank line
+
+				; Read toggles
+				(defq section (read-line stream))
+				(unless (eql section "[TOGGLES]")
+					(throw "Expected [TOGGLES] section"))
+				(setq *show_diffs* (eql (read-line stream) ":t"))
+				(setq *show_tree* (eql (read-line stream) ":t"))
+				(setq *compare_mode* (eql (read-line stream) ":t"))
+				(read-line stream) ; blank line
+
+				; Update toggle buttons
+				(set *diff_toggle_btn* :text (if *show_diffs* "Diffs: ON" "Diffs: OFF"))
+				(set *tree_toggle_btn* :text (if *show_tree* "Tree: ON" "Tree: OFF"))
+				(set *compare_toggle_btn* :text (if *compare_mode* "Compare: ON" "Compare: OFF"))
+
+				; Read current input
+				(setq section (read-line stream))
+				(unless (eql section "[CURRENT_INPUT]")
+					(throw "Expected [CURRENT_INPUT] section"))
+				(set *input_field* :text (read-line stream))
+				(set *input_field2* :text (read-line stream))
+				(read-line stream) ; blank line
+
+				; Read current output
+				(setq section (read-line stream))
+				(unless (eql section "[CURRENT_OUTPUT]")
+					(throw "Expected [CURRENT_OUTPUT] section"))
+
+				; Helper to read until separator
+				(defq read-until-sep (lambda (sep)
+					(defq lines (list))
+					(defq line (read-line stream))
+					(while (and line (not (eql line sep)))
+						(push lines line)
+						(setq line (read-line stream)))
+					(apply cat (map (lambda (l) (cat l "\n")) lines))))
+
+				(set *read_output* :text (read-until-sep "---PHASE---"))
+				(set *expand_output* :text (read-until-sep "---PHASE---"))
+				(set *bind_output* :text (read-until-sep "---PHASE---"))
+				(set *eval_output* :text (read-until-sep ""))
+
+				; Read history
+				(setq section (read-line stream))
+				(unless (eql section "[HISTORY]")
+					(throw "Expected [HISTORY] section"))
+
+				(defq hist_count (num (read-line stream)))
+				(setq *history_index* (num (read-line stream)))
+				(setq *history* (list))
+
+				(each (lambda (_)
+					(defq sep (read-line stream))
+					(unless (eql sep "---ENTRY---")
+						(throw "Expected ---ENTRY---"))
+
+					(defq entry (list))
+					(each (lambda (_)
+						(defq lines (list))
+						(defq line (read-line stream))
+						(while (and line (not (eql line "---FIELD---")))
+							(push lines line)
+							(setq line (read-line stream)))
+						(push entry (apply cat (map (lambda (l) (cat l "\n")) lines))))
+						(range 0 7))
+					(push *history* entry))
+					(range 0 hist_count))
+
+				(close stream)
+
+				; Update UI
+				(def *input2_section* :visible *compare_mode*)
+				(update-history-label)
+				(.-> *diff_toggle_btn* :layout :dirty)
+				(.-> *tree_toggle_btn* :layout :dirty)
+				(.-> *compare_toggle_btn* :layout :dirty)
+				(.-> *input_field* :layout :dirty)
+				(.-> *input_field2* :layout :dirty)
+				(.-> *input2_section* :layout :dirty)
+				(.-> *read_output* :layout :dirty)
+				(.-> *expand_output* :layout :dirty)
+				(.-> *bind_output* :layout :dirty)
+				(.-> *eval_output* :layout :dirty)
+
+				(set *eval_output* :text (cat "Session loaded from: " filename "\n\n" (get :text *eval_output*)))
+				(.-> *eval_output* :layout :dirty))
+
+			; Error handler
+			(progn
+				(close stream)
+				(set *eval_output* :text (cat "Error loading session: " (str _)))
+				(.-> *eval_output* :layout :dirty)))))
+
 ;;;;;;;;;;;;;;;;;;;;;
 ; UI Definition
 ;;;;;;;;;;;;;;;;;;;;;
@@ -346,9 +508,13 @@
 		(ui-button history_prev_btn (:text "◄ Prev" :font +font_title))
 		(ui-button history_next_btn (:text "Next ►" :font +font_title))
 		(ui-button history_clear_btn (:text "Clear History" :font +font_title))
+		(ui-button save_session_btn (:text "Save Session" :font +font_title))
+		(ui-button load_session_btn (:text "Load Session" :font +font_title))
 		(. history_prev_btn :connect +event_history_prev)
 		(. history_next_btn :connect +event_history_next)
-		(. history_clear_btn :connect +event_clear_history))
+		(. history_clear_btn :connect +event_clear_history)
+		(. save_session_btn :connect +event_save_session)
+		(. load_session_btn :connect +event_load_session))
 
 	; Example buttons section
 	(ui-flow example_section (:flow_flags +flow_right_fill :color +section_color)
@@ -799,6 +965,8 @@
 					((= id +event_history_prev) (history-prev))
 					((= id +event_history_next) (history-next))
 					((= id +event_clear_history) (clear-history))
+					((= id +event_save_session) (save-session))
+					((= id +event_load_session) (load-session))
 					((= id +event_example1)
 						(load-example "(defun add (a b) (+ a b))"))
 					((= id +event_example2)

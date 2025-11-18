@@ -14,6 +14,7 @@ The Code Walker is an interactive application that demonstrates how ChrysaLisp p
 ## Features
 
 - **Live Code Processing**: Enter any ChrysaLisp expression and see it transform through each phase
+- **Session Save/Load**: Save and load complete exploration sessions (.cws files) including history
 - **History Navigation**: Navigate through exploration history with ◄ Prev/Next ► buttons, max 50 entries
 - **Comparison Mode**: Compare two expressions side-by-side across all phases
 - **Step-by-Step Macro Expansion**: Click "Step Expand" to see macros expand one level at a time
@@ -51,6 +52,8 @@ The Code Walker is an interactive application that demonstrates how ChrysaLisp p
   - **◄ Prev Button**: Navigate to previous history entry
   - **Next ► Button**: Navigate to next history entry
   - **Clear History Button**: Clear all history entries
+  - **Save Session Button**: Save complete session to .cws file
+  - **Load Session Button**: Load previously saved session
 - **Example Buttons**: Load common macro examples (defun, let, case, ui-window)
 - **Output Panels**: View each phase of the compilation pipeline with color coding
 - **Diff Panels**: See line-by-line differences between phases (when enabled)
@@ -327,6 +330,78 @@ The Code Walker maintains a history of up to 50 exploration sessions:
 - Review learning progression
 - Build up session knowledge
 
+### Session Save/Load
+
+The Code Walker can save and load complete exploration sessions:
+
+**Save Session:**
+1. After exploring code and building up history, click **Save Session**
+2. Creates file: `code-walker-session-{timestamp}.cws` in home directory
+3. Success message shows the filename
+
+**Load Session:**
+1. Rename desired session file to: `code-walker-session-latest.cws`
+2. Click **Load Session** to restore the session
+3. Complete state restored including all history
+
+**What's Saved:**
+- All toggle states (Diffs, Tree, Compare modes)
+- Both input field contents
+- All four phase outputs
+- Complete history (up to 50 entries)
+- History position
+
+**File Format:**
+- `.cws` = Code Walker Session
+- Text format with section markers
+- Human-readable for debugging
+- Can be edited manually if needed
+
+**Use Cases:**
+```
+Teaching: Create curated exploration sessions
+  1. Explore defun, let, case macros
+  2. Add educational comments in text fields
+  3. Save as: teaching-macros.cws
+  4. Share with students
+
+Documentation: Save examples for docs
+  1. Explore feature being documented
+  2. Navigate to best history entry
+  3. Save session
+  4. Reference in documentation
+
+Resume Work: Continue later
+  1. Working on complex macro analysis
+  2. Need to close app
+  3. Save session
+  4. Later: Load session, continue where you left off
+
+Experimentation: Safe exploration
+  1. Have working exploration
+  2. Save session before risky changes
+  3. Experiment freely
+  4. If needed: Load saved session to restore
+```
+
+**Workflow Example:**
+```bash
+# Save exploration
+1. Explore several macros
+2. Click "Save Session"
+   -> Creates: ~/code-walker-session-1732018234.cws
+
+# Resume later
+3. Rename: mv ~/code-walker-session-1732018234.cws ~/code-walker-session-latest.cws
+4. Open Code Walker
+5. Click "Load Session"
+   -> Complete state restored!
+```
+
+**Note:** Currently loads from fixed filename `code-walker-session-latest.cws`. Rename your desired session file to "latest" to load it.
+
+**Future:** File browser UI for selecting which session to load by name.
+
 ### Export Results
 
 Click "Export" to save a complete analysis to your home directory:
@@ -334,6 +409,7 @@ Click "Export" to save a complete analysis to your home directory:
 - Contains all four phases with headers
 - Perfect for documentation or sharing explorations
 - Success message shows in the Eval output panel
+- Difference from Save Session: Export is read-only text, Session can be reloaded
 
 ## Future Enhancements
 

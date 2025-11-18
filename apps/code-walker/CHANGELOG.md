@@ -1,6 +1,87 @@
 # Code Walker / AST Explorer - Changelog
 
-## Version 6.0 - History Navigation (Current)
+## Version 7.0 - Session Save/Load (Current)
+
+**Date:** 2025-11-18
+
+### New Feature: Session Persistence
+
+**Save and load complete exploration sessions!**
+
+#### Session System
+- **Save Session Button:** Saves complete session to timestamped file
+- **Load Session Button:** Loads previously saved session
+- **File Format:** `.cws` (Code Walker Session) text format
+- **Complete State:** Saves all inputs, outputs, history, and toggle states
+- **Session Files:** Stored in home directory as `code-walker-session-{timestamp}.cws`
+
+#### What's Saved in a Session
+- **Toggle States:** Diffs ON/OFF, Tree ON/OFF, Compare ON/OFF
+- **Current Inputs:** Both Expression A and Expression B text
+- **Current Outputs:** All 4 phase outputs (READ, EXPAND, BIND, EVAL)
+- **Complete History:** All history entries (up to 50) with full state
+- **History Position:** Current index in history
+
+#### Implementation
+- `save-session()` - Writes complete session to file (52 lines)
+- `load-session()` - Reads and restores session (107 lines)
+- File format: Sectioned text format with markers
+  - `[TOGGLES]` - Toggle state section
+  - `[CURRENT_INPUT]` - Current expression inputs
+  - `[CURRENT_OUTPUT]` - Current phase outputs
+  - `[HISTORY]` - All history entries
+- Error handling with catch blocks for invalid files
+- Success/error messages in EVAL output
+
+#### File Format
+```
+CODE_WALKER_SESSION_V1
+
+[TOGGLES]
+:t
+:nil
+:t
+
+[CURRENT_INPUT]
+(defun add (a b) (+ a b))
+(defun mul (x y) (* x y))
+
+[CURRENT_OUTPUT]
+...phase outputs with ---PHASE--- separators...
+
+[HISTORY]
+5
+2
+---ENTRY---
+...entry fields with ---FIELD--- separators...
+```
+
+#### Use Cases
+- **Save Progress:** Save exploration session for later
+- **Share Sessions:** Share complete analysis with colleagues
+- **Teaching:** Create curated exploration sessions for students
+- **Documentation:** Save examples for documentation
+- **Experimentation:** Save state before trying risky changes
+- **Resume Work:** Pick up where you left off across app restarts
+
+#### Workflow Example
+```
+1. Explore several macros (defun, let, case)
+2. Navigate through history reviewing them
+3. Click "Save Session" - saves to code-walker-session-123456789.cws
+4. Close Code Walker
+5. Rename file to code-walker-session-latest.cws
+6. Later: Open Code Walker, click "Load Session"
+7. Complete state restored - continue where you left off!
+```
+
+**Note:** Load Session currently loads from `code-walker-session-latest.cws` in home directory. Save Session creates timestamped files - rename desired session to "latest" to load it.
+
+**Future Enhancement:** File browser UI for selecting which session to load.
+
+---
+
+## Version 6.0 - History Navigation
 
 **Date:** 2025-11-18
 
