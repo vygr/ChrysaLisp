@@ -74,12 +74,12 @@
 (defun emit-shr-cr (c r) (riscv64-i 0x13 r r 0x5 c))
 (defun emit-asr-cr (c r) (riscv64-i 0x13 r r 0x5 (+ c (riscv64-mask 1 10))))
 
-(defun emit-cpy-rr (s d) (riscv64-i 0x13 d s 0x0 0x0))
+(defun emit-cpy-rr (s d) (unless (eql s d) (riscv64-i 0x13 d s 0x0 0x0)))
 (defun emit-add-rr (s d) (riscv64-r 0x33 d d s 0x0 0x0))
 (defun emit-sub-rr (s d) (riscv64-r 0x33 d d s 0x0 0x20))
 (defun emit-xor-rr (s d) (riscv64-r 0x33 d d s 0x4 0x0))
-(defun emit-or-rr (s d) (riscv64-r 0x33 d d s 0x6 0x0))
-(defun emit-and-rr (s d) (riscv64-r 0x33 d d s 0x7 0x0))
+(defun emit-or-rr (s d) (unless (eql s d) (riscv64-r 0x33 d d s 0x6 0x0)))
+(defun emit-and-rr (s d) (unless (eql s d) (riscv64-r 0x33 d d s 0x7 0x0)))
 (defun emit-mul-rr (s d) (riscv64-r 0x33 d d s 0x0 0x1))
 
 (defun emit-div-rrr (s d1 d2)
