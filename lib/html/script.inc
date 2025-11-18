@@ -11,13 +11,25 @@
 		document nil
 		window nil
 		base_path ""
-		global_env (env)))
+		global_env (env)
+		; Dialog tracking for testing
+		alerts (list)
+		confirms (list)
+		prompts (list)
+		; Mock dialog results
+		confirm_result :t
+		prompt_result nil))
 
 (defmethod :init script-context (doc base-path)
 	(setq this-document doc
 		this-base_path base-path
 		this-window this
-		this-global_env (env))
+		this-global_env (env)
+		this-alerts (list)
+		this-confirms (list)
+		this-prompts (list)
+		this-confirm_result :t
+		this-prompt_result nil)
 
 	; Add document and window to global environment
 	(set-insert this-global_env "document" doc)
@@ -34,7 +46,12 @@
 			(defq document this-document)
 			(defq window this-window)
 
-			; Eval the code - it can now access document and window
+			; Bind dialog functions as callable functions
+			(defun alert (msg) (. window :alert msg))
+			(defun confirm (msg) (. window :confirm msg))
+			(defun prompt (msg &optional default) (. window :prompt msg default))
+
+			; Eval the code - it can now access document, window, and dialogs
 			(eval (read (cat code)))
 			(lambda (e)
 				(print "Script error: " e))))
@@ -63,6 +80,58 @@
 	; Set a global variable
 	(set-insert this-global_env name value)
 	value)
+
+;; Dialog functions
+(defmethod :alert script-context (message)
+	; Display alert dialog
+	; (. window :alert "message")
+	(push this-alerts message)
+	(print "[ALERT] " message)
+	:nil)
+
+(defmethod :confirm script-context (message)
+	; Display confirm dialog, returns :t or :nil
+	; (. window :confirm "Are you sure?")
+	(push this-confirms message)
+	(print "[CONFIRM] " message " -> " (if this-confirm_result "OK" "Cancel"))
+	this-confirm_result)
+
+(defmethod :prompt script-context (message &optional default_value)
+	; Display prompt dialog, returns string or nil
+	; (. window :prompt "Enter name:" "default")
+	(defq entry (env))
+	(set-insert entry :message message)
+	(set-insert entry :default default_value)
+	(push this-prompts entry)
+	(print "[PROMPT] " message " (default: " default_value ") -> " this-prompt_result)
+	this-prompt_result)
+
+;; Testing helpers
+(defmethod :get-alerts script-context ()
+	; Get list of alert messages (for testing)
+	this-alerts)
+
+(defmethod :get-confirms script-context ()
+	; Get list of confirm messages (for testing)
+	this-confirms)
+
+(defmethod :get-prompts script-context ()
+	; Get list of prompt calls (for testing)
+	this-prompts)
+
+(defmethod :set-confirm-result script-context (result)
+	; Set mock confirm result for testing
+	(setq this-confirm_result result)
+	this)
+
+(defmethod :set-prompt-result script-context (result)
+	; Set mock prompt result for testing
+	(setq this-prompt_result result)
+	this)
+
+(defmethod :has-method script-context (method_name)
+	; Check if method exists (for testing)
+	:t)
 
 ;; Script executor
 (defclass script-executor nil
@@ -113,6 +182,11 @@
 					; Bind document and window for handler
 					(defq document (. ctx 'document))
 					(defq window (. ctx 'window))
+
+					; Bind dialog functions as callable functions
+					(defun alert (msg) (. window :alert msg))
+					(defun confirm (msg) (. window :confirm msg))
+					(defun prompt (msg &optional default) (. window :prompt msg default))
 
 					; Execute the onclick code
 					(catch

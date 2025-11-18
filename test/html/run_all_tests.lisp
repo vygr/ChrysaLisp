@@ -108,6 +108,13 @@
 	(print "========================================")
 	(import "test/json/test_json_roundtrip.lisp")
 
+	; Run dialog function tests
+	(print "")
+	(print "========================================")
+	(print "Dialog Function Tests")
+	(print "========================================")
+	(import "test/html/test_dialogs.lisp")
+
 	(print "")
 	(print "========================================")
 	(print "All Tests Complete")
