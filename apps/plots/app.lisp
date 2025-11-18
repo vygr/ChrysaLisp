@@ -54,6 +54,22 @@
 		(list "Yellow" 15.0)
 		(list "Magenta" 10.0)))
 
+(defun generate-histogram-data ()
+	; Generate random data for histogram
+	(map (lambda (_)
+		; Generate normally distributed random values
+		(+ 5.0 (* 2.0 (- (+ (random) (random) (random) (random)) 2.0))))
+		(range 0 200)))
+
+(defun generate-hbar-data ()
+	; Generate horizontal bar chart data
+	(list
+		(list 25.0 1.0)
+		(list 45.0 2.0)
+		(list 30.0 3.0)
+		(list 60.0 4.0)
+		(list 15.0 5.0)))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Create Plots
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -138,6 +154,49 @@
 	(plot-render plot)
 	plot)
 
+(defun create-histogram-plot ()
+	; Create a histogram
+	(defq values (generate-histogram-data))
+	(plot-histogram values 20 +plot_width +plot_height "Normal Distribution - Histogram")
+	)
+
+(defun create-hbar-plot ()
+	; Create a horizontal bar chart
+	(defq plot (Plot +plot_width +plot_height "Performance Metrics - Horizontal Bars"))
+	(def plot :x_label "Score" :y_label "Category")
+
+	(plot-add-series plot :hbar (generate-hbar-data) "Scores")
+
+	(plot-render plot)
+	plot)
+
+(defun create-markers-plot ()
+	; Create scatter plot with different marker shapes
+	(defq plot (Plot +plot_width +plot_height "Marker Shapes Demo"))
+	(def plot :x_label "X" :y_label "Y" :show_legend :t)
+
+	; Different marker shapes at different positions
+	(defq shapes (list :circle :square :triangle :diamond :cross :plus))
+
+	(each (lambda (i)
+		(defq shape (elem i shapes)
+			  y_offset (* i 2.0)
+			  data (map (lambda (x)
+				  (list (+ 1.0 (* 0.5 x)) (+ y_offset 5.0 (* 0.3 (sin (* x 0.5))))))
+				  (range 0 10)))
+		; Create series with specific marker shape
+		(defq series_opts (env :color (elem (% i (length (get :colors plot))) (get :colors plot))
+							   :marker shape
+							   :size 5
+							   :label (str shape)))
+		; Manually add to series
+		(push (get :series plot) (list :scatter data series_opts))
+		(push (get :legend_items plot) (list (str shape) (get :color series_opts))))
+		(range 0 (length shapes)))
+
+	(plot-render plot)
+	plot)
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Main Application
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -148,9 +207,12 @@
 ; Create all plots
 (push *plots* (create-line-plot))
 (push *plots* (create-scatter-plot))
+(push *plots* (create-markers-plot))
 (push *plots* (create-bar-plot))
+(push *plots* (create-hbar-plot))
 (push *plots* (create-area-plot))
 (push *plots* (create-pie-chart))
+(push *plots* (create-histogram-plot))
 (push *plots* (create-multi-series-plot))
 
 ; Create UI window
@@ -166,9 +228,12 @@
 (defq *plot_titles*
 	(list "Plot Demo - Line Plot"
 		  "Plot Demo - Scatter Plot"
+		  "Plot Demo - Marker Shapes"
 		  "Plot Demo - Bar Chart"
+		  "Plot Demo - Horizontal Bars"
 		  "Plot Demo - Area Plot"
 		  "Plot Demo - Pie Chart"
+		  "Plot Demo - Histogram"
 		  "Plot Demo - Multi-Series"))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;

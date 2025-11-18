@@ -5,9 +5,11 @@
 
 (import "gui/canvas/lisp.inc")
 (import "gui/path/lisp.inc")
+(import "gui/font/lisp.inc")
 (import "lib/consts/colors.inc")
 (import "lib/math/vector.inc")
 (import "lib/plot/svg.inc")
+(import "lib/plot/data.inc")
 
 ;;;;;;;;;;;;;;;;
 ; Plot Constants
@@ -25,11 +27,82 @@
 	+plot_text_color +argb_white
 	+plot_title_height 40
 	+plot_legend_width 150
-	+plot_legend_item_height 25)
+	+plot_legend_item_height 25
+	+plot_font_title (create-font "fonts/OpenSans-Bold.ctf" 24)
+	+plot_font_label (create-font "fonts/OpenSans-Regular.ctf" 16)
+	+plot_font_tick (create-font "fonts/OpenSans-Regular.ctf" 12)
+	+plot_font_legend (create-font "fonts/OpenSans-Regular.ctf" 14))
 
 ;;;;;;;;;;;;;;;;
 ; Helper Functions
 ;;;;;;;;;;;;;;;;
+
+(defun plot-draw-marker (canvas shape x y size color)
+	; (plot-draw-marker canvas shape x y size color) -> canvas
+	; Draw a marker at position
+	; Shapes: :circle :square :triangle :diamond :cross :plus
+	(. canvas :set_color color)
+	(case shape
+		(:circle
+			; Draw filled circle using ellipse path
+			(defq circle_path (path))
+			(path-gen-ellipse x y size size circle_path)
+			(. canvas :fpoly 0.0 0.0 +winding_odd_even (list circle_path)))
+		(:square
+			(. canvas :fbox (- x size) (- y size) (* 2 size) (* 2 size)))
+		(:triangle
+			; Upward pointing triangle
+			(defq tri_path (path
+				x (- y size)
+				(- x size) (+ y size)
+				(+ x size) (+ y size)))
+			(. canvas :fpoly 0.0 0.0 +winding_odd_even (list tri_path)))
+		(:diamond
+			(defq diamond_path (path
+				x (- y size)
+				(+ x size) y
+				x (+ y size)
+				(- x size) y))
+			(. canvas :fpoly 0.0 0.0 +winding_odd_even (list diamond_path)))
+		(:cross
+			; X-shaped cross
+			(defq s2 (/ size 1.4))
+			(. canvas :fbox (- x 1) (- y s2) 2 (* 2 s2))
+			(. canvas :fbox (- x s2) (- y 1) (* 2 s2) 2))
+		(:plus
+			; + shaped plus
+			(. canvas :fbox (- x 1) (- y size) 2 (* 2 size))
+			(. canvas :fbox (- x size) (- y 1) (* 2 size) 2))
+		(:t
+			; Default: square
+			(. canvas :fbox (- x size) (- y size) (* 2 size) (* 2 size))))
+	canvas)
+
+(defun plot-draw-text (canvas font text x y color &optional scale align)
+	; (plot-draw-text canvas font text x y color [scale align]) -> canvas
+	; Draw text on canvas at position
+	; align: :left :center :right (default :left)
+	(defq scale (opt scale 1.0)
+		  align (opt align :left)
+		  paths (font-glyph-paths font text)
+		  bounds (font-glyph-bounds font text))
+
+	; Calculate alignment offset
+	(defq text_width (* scale (first bounds))
+		  x_offset (cond
+			((eql align :center) (- (/ text_width 2)))
+			((eql align :right) (- text_width))
+			(:t 0)))
+
+	; Transform and render paths
+	(defq transformed_paths
+		(map (lambda (path)
+			(path-transform (fixeds scale 0.0 (+ x x_offset) 0.0 scale y) path (path)))
+			paths))
+
+	(. canvas :set_color color)
+	(. canvas :fpoly 0.0 0.0 +winding_odd_even transformed_paths)
+	canvas)
 
 (defun plot-lerp (a b t)
 	; (plot-lerp a b t) -> value
@@ -72,6 +145,30 @@
 					  min_y (min min_y (second pt))
 					  max_y (max max_y (second pt)))) data)
 			(list min_x max_x min_y max_y))))
+
+(defun plot-histogram-bins (values num_bins)
+	; (plot-histogram-bins values num_bins) -> ((bin_center count) ...)
+	; Bin data for histogram
+	(cond
+		((or (empty? values) (<= num_bins 0)) (list))
+		(:t
+			(defq min_val (apply min values)
+				  max_val (apply max values)
+				  range (- max_val min_val)
+				  bin_width (/ range num_bins)
+				  bins (map (lambda (_) 0) (range 0 num_bins)))
+
+			; Count values in each bin
+			(each (lambda (val)
+				(defq bin_idx (min (dec num_bins) (floor (/ (- val min_val) bin_width))))
+				(elem-set bin_idx bins (inc (elem bin_idx bins))))
+				values)
+
+			; Create bin data (center, count)
+			(map (lambda (i)
+				(defq bin_center (+ min_val (* bin_width (+ i 0.5))))
+				(list bin_center (elem i bins)))
+				(range 0 num_bins)))))
 
 ;;;;;;;;;;;;;;;;
 ; Plot Class
@@ -147,32 +244,71 @@
 		  x_min (get :x_min plot)
 		  x_max (get :x_max plot)
 		  y_min (get :y_min plot)
-		  y_max (get :y_max plot))
+		  y_max (get :y_max plot)
+		  x_ticks (get :x_ticks plot)
+		  y_ticks (get :y_ticks plot))
 
 	; Draw grid
 	(when (get :show_grid plot)
 		(. canvas :set_color +plot_grid_color)
 		; Vertical grid lines
 		(each (lambda (i)
-			(defq x (+ px (* i (/ pw (dec (get :x_ticks plot))))))
-			(. canvas :fbox x py 1 ph)) (range 0 (get :x_ticks plot)))
+			(defq x (+ px (* i (/ pw (dec x_ticks)))))
+			(. canvas :fbox x py 1 ph)) (range 0 x_ticks))
 		; Horizontal grid lines
 		(each (lambda (i)
-			(defq y (+ py (* i (/ ph (dec (get :y_ticks plot))))))
-			(. canvas :fbox px y pw 1)) (range 0 (get :y_ticks plot))))
+			(defq y (+ py (* i (/ ph (dec y_ticks)))))
+			(. canvas :fbox px y pw 1)) (range 0 y_ticks)))
 
 	; Draw axes
 	(. canvas :set_color +plot_axis_color)
 	(. canvas :fbox px (+ py ph) pw 2)  ; X-axis
 	(. canvas :fbox px py 2 ph)  ; Y-axis
 
+	; Draw tick marks and labels
+	; X-axis ticks
+	(each (lambda (i)
+		(defq x (+ px (* i (/ pw (dec x_ticks))))
+			  value (+ x_min (* i (/ (- x_max x_min) (dec x_ticks)))))
+		; Tick mark
+		(. canvas :set_color +plot_axis_color)
+		(. canvas :fbox x (+ py ph) 1 +plot_tick_size)
+		; Tick label
+		(plot-draw-text canvas +plot_font_tick (plot-format-number value)
+			x (+ py ph +plot_tick_size 15) +plot_text_color 1.0 :center))
+		(range 0 x_ticks))
+
+	; Y-axis ticks
+	(each (lambda (i)
+		(defq y (+ py (* i (/ ph (dec y_ticks))))
+			  value (- y_max (* i (/ (- y_max y_min) (dec y_ticks)))))
+		; Tick mark
+		(. canvas :set_color +plot_axis_color)
+		(. canvas :fbox (- px +plot_tick_size) y +plot_tick_size 1)
+		; Tick label
+		(plot-draw-text canvas +plot_font_tick (plot-format-number value)
+			(- px +plot_tick_size 5) (+ y 4) +plot_text_color 1.0 :right))
+		(range 0 y_ticks))
+
+	; Draw axis labels
+	(when (def? :x_label plot)
+		(plot-draw-text canvas +plot_font_label (get :x_label plot)
+			(+ px (/ pw 2)) (- (get :height plot) 10) +plot_text_color 1.0 :center))
+	(when (def? :y_label plot)
+		; Y-axis label (rotated would be ideal, but for now just place it on the side)
+		(plot-draw-text canvas +plot_font_label (get :y_label plot)
+			10 (+ py (/ ph 2)) +plot_text_color 1.0 :left))
+
 	plot)
 
 (defun plot-draw-title (plot)
 	; (plot-draw-title plot) -> plot
 	; Draw plot title
-	; Note: Text rendering would require font support
-	; For now, this is a placeholder
+	(when (get :title plot)
+		(defq canvas (get :canvas plot)
+			  title (get :title plot))
+		(plot-draw-text canvas +plot_font_title title
+			(/ (get :width plot) 2) 30 +plot_text_color 1.0 :center))
 	plot)
 
 (defun plot-draw-legend (plot)
@@ -197,7 +333,10 @@
 			; Color box
 			(. canvas :set_color color)
 			(. canvas :fbox (+ lx 10) (- iy 15) 20 15)
-			) items))
+			; Label text
+			(plot-draw-text canvas +plot_font_legend label
+				(+ lx 35) (- iy 5) +plot_text_color 1.0 :left))
+			items))
 	plot)
 
 (defun plot-render (plot)
@@ -219,8 +358,10 @@
 			(:line (plot-draw-line plot data opts))
 			(:scatter (plot-draw-scatter plot data opts))
 			(:bar (plot-draw-bar plot data opts))
+			(:hbar (plot-draw-hbar plot data opts))
 			(:area (plot-draw-area plot data opts))
-			(:pie (plot-draw-pie plot data opts))))
+			(:pie (plot-draw-pie plot data opts))
+			(:histogram (plot-draw-histogram plot data opts))))
 		(get :series plot))
 
 	(plot-draw-legend plot)
@@ -294,22 +435,21 @@
 	; Draw a scatter plot
 	(defq canvas (get :canvas plot)
 		  color (get :color opts)
-		  size (opt (def? :size opts) 4))
-
-	(. canvas :set_color color)
+		  size (opt (def? :size opts) 4)
+		  marker (opt (def? :marker opts) :circle))
 
 	; Draw each point
 	(each (lambda (pt)
 		(bind '(x y) pt)
 		(bind '(sx sy) (plot-to-screen plot x y))
-		(. canvas :fbox (- sx size) (- sy size) (* 2 size) (* 2 size)))
+		(plot-draw-marker canvas marker sx sy size color))
 		data)
 
 	plot)
 
 (defun plot-draw-bar (plot data opts)
 	; (plot-draw-bar plot data opts) -> plot
-	; Draw a bar chart
+	; Draw a vertical bar chart
 	(defq canvas (get :canvas plot)
 		  color (get :color opts)
 		  n (length data))
@@ -327,6 +467,30 @@
 		(bind '(sx0 sy0) (plot-to-screen plot x (get :y_min plot)))
 		(defq bar_height (- sy0 sy))
 		(. canvas :fbox (- sx (/ bar_width 2)) sy bar_width bar_height))
+		data)
+
+	plot)
+
+(defun plot-draw-hbar (plot data opts)
+	; (plot-draw-hbar plot data opts) -> plot
+	; Draw a horizontal bar chart
+	(defq canvas (get :canvas plot)
+		  color (get :color opts)
+		  n (length data))
+
+	(. canvas :set_color color)
+
+	; Calculate bar height
+	(bind '(px py pw ph) (plot-get-plot-area plot))
+	(defq bar_height (/ ph n 1.2))
+
+	; Draw each bar
+	(each (lambda (pt)
+		(bind '(x y) pt)
+		(bind '(sx sy) (plot-to-screen plot x y))
+		(bind '(sx0 sy0) (plot-to-screen plot (get :x_min plot) y))
+		(defq bar_width (- sx sx0))
+		(. canvas :fbox sx0 (- sy (/ bar_height 2)) bar_width bar_height))
 		data)
 
 	plot)
@@ -397,6 +561,31 @@
 
 	plot)
 
+(defun plot-draw-histogram (plot data opts)
+	; (plot-draw-histogram plot data opts) -> plot
+	; Draw a histogram
+	; Data is already binned as ((bin_center count) ...)
+	(defq canvas (get :canvas plot)
+		  color (get :color opts)
+		  n (length data))
+
+	(. canvas :set_color color)
+
+	; Calculate bar width
+	(bind '(px py pw ph) (plot-get-plot-area plot))
+	(defq bar_width (/ pw n 1.1))
+
+	; Draw each bar
+	(each (lambda (pt)
+		(bind '(x y) pt)
+		(bind '(sx sy) (plot-to-screen plot x y))
+		(bind '(sx0 sy0) (plot-to-screen plot x (get :y_min plot)))
+		(defq bar_height (- sy0 sy))
+		(. canvas :fbox (- sx (/ bar_width 2)) sy bar_width bar_height))
+		data)
+
+	plot)
+
 ;;;;;;;;;;;;;;;;
 ; Quick Plot Functions
 ;;;;;;;;;;;;;;;;
@@ -455,6 +644,19 @@
 		  plot (Plot width height title))
 	(def plot :show_grid :nil :auto_scale :nil)
 	(plot-add-series plot :pie data)
+	(plot-render plot)
+	plot)
+
+(defun plot-histogram (values num_bins &optional width height title)
+	; (plot-histogram values num_bins [width height title]) -> plot
+	; Quick histogram from raw values
+	(defq width (opt width 800)
+		  height (opt height 600)
+		  title (opt title "Histogram")
+		  plot (Plot width height title)
+		  binned_data (plot-histogram-bins values num_bins))
+	(def plot :x_label "Value" :y_label "Frequency")
+	(plot-add-series plot :histogram binned_data "Distribution")
 	(plot-render plot)
 	plot)
 

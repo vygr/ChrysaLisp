@@ -6,19 +6,32 @@ A comprehensive plotting and charting library for ChrysaLisp, inspired by vgplot
 
 - **Multiple Plot Types**:
   - Line plots
-  - Scatter plots
-  - Bar charts
+  - Scatter plots (with 6 marker shapes)
+  - Bar charts (vertical and horizontal)
   - Area plots
   - Pie charts
+  - Histograms
   - Multi-series plots
 
+- **Text Rendering**: Proper axis labels, tick labels, titles, and legend text using ChrysaLisp fonts
+
 - **Interactive Canvas**: Built on ChrysaLisp's GUI Canvas with antialiasing support
+
+- **Marker Shapes**: Circle, square, triangle, diamond, cross, and plus markers for scatter plots
+
+- **Data Processing**: Built-in helper functions for:
+  - Statistical analysis (mean, median, std dev)
+  - Data smoothing and normalization
+  - Linear regression and curve fitting
+  - Histogram binning
+  - Peak detection
 
 - **Customizable**:
   - Configurable colors
   - Grid and axis display
   - Legend support
   - Auto-scaling or manual axis ranges
+  - Multiple marker shapes and sizes
 
 - **Export Capabilities**:
   - Save as CPM (ChrysaLisp Pixmap)
@@ -100,6 +113,52 @@ The plotting library is located in `lib/plot/`. To use it in your application:
 ; Create plot
 (defq plot (plot-pie data 800 600 "Distribution"))
 ```
+
+### Histogram
+
+```lisp
+; Generate random data
+(defq values (map (lambda (_) (+ 5.0 (* 2.0 (- (random) 0.5))))
+    (range 0 100)))
+
+; Create histogram with 20 bins
+(defq plot (plot-histogram values 20 800 600 "Data Distribution"))
+```
+
+### Horizontal Bar Chart
+
+```lisp
+; Create data (value, category pairs)
+(defq data (list
+    (list 25.0 1.0)
+    (list 45.0 2.0)
+    (list 30.0 3.0)
+    (list 60.0 4.0)))
+
+; Create plot
+(defq plot (Plot 800 600 "Performance Metrics"))
+(def plot :x_label "Score" :y_label "Category")
+(plot-add-series plot :hbar data "Scores")
+(plot-render plot)
+```
+
+### Scatter Plot with Marker Shapes
+
+```lisp
+; Create data
+(defq data (map (lambda (x)
+    (list x (+ 5.0 (* 0.5 (sin x)))))
+    (range 0 20)))
+
+; Create plot with diamond markers
+(defq plot (Plot 800 600 "Scatter with Markers"))
+(defq series_opts (env :color +argb_cyan :marker :diamond :size 6 :label "Data"))
+(push (get :series plot) (list :scatter data series_opts))
+(push (get :legend_items plot) (list "Data" +argb_cyan))
+(plot-render plot)
+```
+
+Available marker shapes: `:circle`, `:square`, `:triangle`, `:diamond`, `:cross`, `:plus`
 
 ## Advanced Usage
 
@@ -294,6 +353,66 @@ Then use:
 (plot-export-svg plot "filename.svg")
 ```
 
+### Data Processing Helpers
+
+The library includes many data processing functions in `lib/plot/data.inc`:
+
+#### Statistical Functions
+
+```lisp
+; Calculate statistics
+(defq values '(1.0 2.0 3.0 4.0 5.0))
+(plot-mean values)      ; -> 3.0
+(plot-median values)    ; -> 3.0
+(plot-std-dev values)   ; -> standard deviation
+```
+
+#### Data Transformation
+
+```lisp
+; Smooth data with moving average
+(defq smooth_data (plot-smooth-data data 5))
+
+; Normalize to [0, 1] range
+(defq normalized (plot-normalize values))
+
+; Resample to fewer points
+(defq resampled (plot-resample data 50))
+```
+
+#### Data Generation
+
+```lisp
+; Generate linearly spaced values
+(defq xs (plot-linspace 0.0 10.0 100))
+
+; Generate function data
+(defq sine_data (plot-function sin 0.0 +fp_2pi 100))
+
+; Combine x and y lists
+(defq data (plot-combine-xy xs ys))
+
+; Add noise to data
+(defq noisy_data (plot-add-noise clean_data 0.1))
+```
+
+#### Statistical Analysis
+
+```lisp
+; Find peaks in data
+(defq peaks (plot-find-peaks data 5.0))
+
+; Linear regression
+(defq fit (plot-fit-linear data))  ; -> (slope intercept)
+(defq fit_line (plot-apply-linear-fit data fit))
+
+; Plot original data and fit line
+(defq plot (Plot 800 600 "Linear Fit"))
+(plot-add-series plot :scatter data "Data")
+(plot-add-series plot :line fit_line "Fit")
+(plot-render plot)
+```
+
 ## Demo Application
 
 A comprehensive demo application is available in `apps/plots/`. Run it to see examples of all plot types:
@@ -323,6 +442,7 @@ The plotting library leverages ChrysaLisp's existing capabilities:
 lib/plot/
 ├── plot.inc      - Main plotting library
 ├── svg.inc       - SVG export functionality
+├── data.inc      - Data processing helpers
 └── README.md     - This file
 
 apps/plots/
@@ -343,26 +463,31 @@ The plotting library is optimized for ChrysaLisp's performance characteristics:
 See `apps/plots/app.lisp` for complete working examples of:
 
 - Single and multi-series line plots
-- Scatter plots with random data
-- Bar charts with categorical data
+- Scatter plots with various marker shapes
+- Vertical and horizontal bar charts
 - Area plots with filled regions
 - Pie charts with labeled segments
+- Histograms with automatic binning
 - Mixed plot types on the same axes
+- Data processing and statistical analysis
 
 ## Future Enhancements
 
 Possible extensions (contributions welcome):
 
-- Text rendering for axis labels and titles
 - Logarithmic scales
 - 3D plots
 - Contour plots
 - Heatmaps
 - Error bars
 - Interactive zooming and panning
-- Real-time data updates
-- Histogram plots
+- Real-time streaming data updates
 - Box plots
+- Violin plots
+- Stacked bar charts
+- Candlestick charts (for financial data)
+- Polar plots
+- Network graphs
 
 ## Credits
 
