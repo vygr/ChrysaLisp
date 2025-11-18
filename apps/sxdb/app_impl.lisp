@@ -106,18 +106,26 @@
 (defun cmd-open (db_path)
 	; (cmd-open db_path) -> db
 	; Open or create a database
+	(unless (str? db_path)
+		(return (db-error "Database path must be a string")))
+
 	(when (. *databases* :find db_path)
 		(return (db-error "Database already open" db_path)))
 
 	(defq db :nil)
 	(if (defq stream (file-stream db_path))
 		;load existing database
-		(setq db (tree-load stream))
+		(catch (setq db (tree-load stream))
+			(return (db-error "Failed to load database - file may be corrupted")))
 		;create new database
 		(setq db (scatter (Emap)
 			:name (last (split db_path "/"))
 			:path db_path
 			:collections (Emap))))
+
+	;validate loaded database structure
+	(unless (and db (Emap? db))
+		(return (db-error "Invalid database format")))
 
 	(. db :insert :path db_path)
 	(. *databases* :insert db_path db)
@@ -130,8 +138,11 @@
 		(return (db-error "Database not open" db_path)))
 
 	;save database
-	(when (defq stream (file-stream db_path +file_open_write))
-		(tree-save stream db))
+	(unless (defq stream (file-stream db_path +file_open_write))
+		(return (db-error "Failed to open file for writing")))
+
+	(catch (tree-save stream db)
+		(return (db-error "Failed to save database")))
 
 	(. *databases* :remove db_path)
 	(db-success :closed))
@@ -141,6 +152,9 @@
 	; Insert a record into a collection
 	(unless (defq db (. *databases* :find db_path))
 		(return (db-error "Database not open" db_path)))
+
+	(unless (Emap? record)
+		(return (db-error "Record must be an Emap")))
 
 	(defq coll (ensure-collection db coll_name))
 	(defq data (. coll :find :data))
@@ -201,6 +215,9 @@
 	; Update a record
 	(unless (defq db (. *databases* :find db_path))
 		(return (db-error "Database not open" db_path)))
+
+	(unless (Emap? updates)
+		(return (db-error "Updates must be an Emap")))
 
 	(unless (defq coll (get-collection db coll_name))
 		(return (db-error "Collection not found" coll_name)))
@@ -366,6 +383,10 @@
 
 (defun dispatch-message (msg)
 	; (dispatch-message msg)
+	;validate message structure
+	(unless (and (list? msg) (>= (length msg) 2))
+		(return))
+
 	(defq reply_id (getf msg 0)
 		cmd (getf msg 1)
 		args (slice msg 2 -1))
@@ -400,11 +421,10 @@
 
 (defun main ()
 	(defq *databases* (Emap)
-		service (mail-declare (task-mbox) "SXDb" "S-expression Database 1.0")
-		mbox (task-mbox))
+		service (mail-declare (task-mbox) "SXDb" "S-expression Database 1.0"))
 
 	(while :t
-		(defq msg (mail-read mbox))
+		(defq msg (mail-read (task-mbox)))
 		(dispatch-message msg))
 
 	;cleanup (never reached in this simple implementation)

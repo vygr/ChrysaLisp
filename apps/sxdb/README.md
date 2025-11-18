@@ -225,6 +225,25 @@ Databases are saved to disk on `close` operations. The entire database structure
 - **Development**: Easy data inspection and modification
 - **Small to Medium Data**: Perfect for datasets that fit in memory
 
+## Security Considerations
+
+**⚠️ Important: Trusted Clients Only**
+
+- **Query Predicates**: The `sxdb-query` function uses `eval` to execute predicate functions. This is a powerful feature but means arbitrary code can be executed in the service context. **Only use SXDb with trusted clients on trusted networks.**
+
+- **No Authentication**: The service relies on ChrysaLisp's mailbox security model. There is no built-in authentication or authorization.
+
+- **File Permissions**: Database files are stored as plain text S-expressions. Ensure appropriate file system permissions are set to protect sensitive data.
+
+- **Input Validation**: The service validates message structure and data types, but cannot prevent malicious predicates in queries.
+
+**Recommendations for Production Use:**
+- Use only on trusted single-user systems or closed networks
+- Do not expose to untrusted clients
+- Implement application-level access control if needed
+- Consider removing the query feature if eval is a concern
+- Encrypt database files if they contain sensitive information
+
 ## Limitations
 
 - **In-Memory**: Entire database loads into memory
@@ -232,6 +251,7 @@ Databases are saved to disk on `close` operations. The entire database structure
 - **No Transactions**: Operations are not atomic across multiple records
 - **No Foreign Keys**: No built-in relationship management
 - **Queries are Linear**: Without indexes, queries scan all records
+- **No Auto-Save**: Data is only persisted on explicit close (data loss risk on crash)
 
 ## Future Enhancements
 
