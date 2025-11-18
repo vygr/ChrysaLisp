@@ -18,6 +18,9 @@ static uint32_t g_screen_width = 0;
 static uint32_t g_screen_height = 0;
 static bool g_video_initialized = false;
 
+// Forward declaration
+extern "C" void osd_video_shutdown();
+
 /*
  * Initialize video subsystem
  *

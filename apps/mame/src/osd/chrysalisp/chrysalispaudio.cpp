@@ -14,6 +14,9 @@ static bool g_audio_initialized = false;
 static uint32_t g_sample_rate = 48000;
 static uint32_t g_channels = 2;
 
+// Forward declaration
+extern "C" void osd_audio_shutdown();
+
 /*
  * Initialize audio subsystem
  *
