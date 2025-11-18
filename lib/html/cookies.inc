@@ -1,0 +1,149 @@
+;; Cookie Storage Library
+;; File-based cookie persistence for ChrysaLisp browser
+
+(defclass cookie-store nil
+	(defq
+		cookies (env)
+		file_path :nil))
+
+(defmethod :init cookie-store (&optional file-path)
+	(setq this-cookies (env)
+		  this-file_path file-path)
+	this)
+
+(defmethod :set-cookie cookie-store (name value &rest options)
+	; Set a cookie
+	; Options: :path "/path" :expires timestamp :max-age seconds
+	(defq cookie (env))
+	(set-insert cookie :name name)
+	(set-insert cookie :value value)
+	(set-insert cookie :created (time))
+
+	; Parse options
+	(defq i 0)
+	(while (< i (length options))
+		(defq key (elem i options))
+		(setq i (+ i 1))
+		(when (< i (length options))
+			(defq val (elem i options))
+			(cond
+				((eql key :path)
+					(set-insert cookie :path val))
+				((eql key :expires)
+					(set-insert cookie :expires val))
+				((eql key :max-age)
+					(set-insert cookie :max-age val)))
+			(setq i (+ i 1))))
+
+	; Store cookie
+	(set-insert this-cookies (sym name) cookie)
+	:nil)
+
+(defmethod :get-cookie cookie-store (name)
+	; Get cookie value (returns :nil if not found or expired)
+	(defq cookie (get this-cookies (sym name)))
+	(when cookie
+		; Check if expired
+		(defq expires (get cookie :expires))
+		(when (and expires (< expires (time)))
+			; Expired - remove it
+			(. this :delete-cookie name)
+			(setq cookie :nil)))
+
+	(if cookie
+		(get cookie :value)
+		:nil))
+
+(defmethod :get-cookie-full cookie-store (name)
+	; Get full cookie object with all metadata
+	(defq cookie (get this-cookies (sym name)))
+	(when cookie
+		; Check if expired
+		(defq expires (get cookie :expires))
+		(when (and expires (< expires (time)))
+			; Expired - remove it
+			(. this :delete-cookie name)
+			(setq cookie :nil)))
+	cookie)
+
+(defmethod :delete-cookie cookie-store (name)
+	; Delete a cookie
+	(set-remove this-cookies (sym name))
+	:nil)
+
+(defmethod :get-all-cookies cookie-store ()
+	; Get all cookie names and values as a list
+	(defq result (list))
+	(defq keys (env-keys this-cookies))
+
+	(each! 0 -1 (lambda (key)
+		(defq cookie (get this-cookies key))
+		(when cookie
+			; Check not expired
+			(defq expires (get cookie :expires))
+			(when (or (eql expires :nil) (>= expires (time)))
+				(defq entry (env))
+				(set-insert entry :name (get cookie :name))
+				(set-insert entry :value (get cookie :value))
+				(push result entry))))
+		keys)
+
+	result)
+
+(defmethod :clear-all cookie-store ()
+	; Clear all cookies
+	(setq this-cookies (env))
+	:nil)
+
+(defmethod :save cookie-store ()
+	; Save cookies to file
+	(when this-file_path
+		(catch
+			(progn
+				; Convert cookies to saveable format
+				(defq data (env))
+				(defq keys (env-keys this-cookies))
+
+				(each! 0 -1 (lambda (key)
+					(set-insert data key (get this-cookies key)))
+					keys)
+
+				; Save to file using print (simple serialization)
+				(when (defq stream (file-stream this-file_path +file_open_write))
+					(write-data stream (print data))
+					:t))
+			(lambda (e)
+				(print "Failed to save cookies: " e)
+				:nil))))
+
+(defmethod :load cookie-store ()
+	; Load cookies from file
+	(when this-file_path
+		(catch
+			(progn
+				(when (path? this-file_path)
+					(when (defq stream (file-stream this-file_path))
+						(defq data (read-data stream (file-size this-file_path)))
+						(when data
+							(setq this-cookies (read (cat data)))
+							:t))))
+			(lambda (e)
+				(print "Failed to load cookies: " e)
+				:nil))))
+
+;; Helper Functions
+
+(defun create-cookie-store (&optional file-path)
+	; Create a new cookie store
+	(defq store (cookie-store))
+	(. store :init file-path)
+	store)
+
+(defun sym (str)
+	; Convert string to symbol
+	(read (cat ":" str)))
+
+(defun time ()
+	; Get current time in milliseconds
+	; Placeholder - would use actual system time
+	1000000)

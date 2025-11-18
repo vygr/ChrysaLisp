@@ -4,6 +4,7 @@
 
 (import "lib/html/dom.inc")
 (import "lib/html/parser.inc")
+(import "lib/html/cookies.inc")
 
 ;; Script execution context
 (defclass script-context nil
@@ -18,7 +19,9 @@
 		prompts (list)
 		; Mock dialog results
 		confirm_result :t
-		prompt_result nil))
+		prompt_result nil
+		; Cookie store
+		cookie_store nil))
 
 (defmethod :init script-context (doc base-path)
 	(setq this-document doc
@@ -29,7 +32,8 @@
 		this-confirms (list)
 		this-prompts (list)
 		this-confirm_result :t
-		this-prompt_result nil)
+		this-prompt_result nil
+		this-cookie_store (create-cookie-store))
 
 	; Add document and window to global environment
 	(set-insert this-global_env "document" doc)
@@ -105,6 +109,34 @@
 	(push this-prompts entry)
 	(print "[PROMPT] " message " (default: " default_value ") -> " this-prompt_result)
 	this-prompt_result)
+
+;; Cookie functions
+(defmethod :set-cookie script-context (name value &rest options)
+	; Set a cookie
+	; (. document :set-cookie "username" "alice")
+	; (. document :set-cookie "session" "xyz" :expires future-time)
+	(apply (. this-cookie_store :set-cookie) (cons name (cons value options)))
+	:nil)
+
+(defmethod :get-cookie script-context (name)
+	; Get cookie value
+	; (. document :get-cookie "username")
+	(. this-cookie_store :get-cookie name))
+
+(defmethod :delete-cookie script-context (name)
+	; Delete a cookie
+	; (. document :delete-cookie "old-cookie")
+	(. this-cookie_store :delete-cookie name)
+	:nil)
+
+(defmethod :get-all-cookies script-context ()
+	; Get all cookies
+	(. this-cookie_store :get-all-cookies))
+
+(defmethod :clear-cookies script-context ()
+	; Clear all cookies
+	(. this-cookie_store :clear-all)
+	:nil)
 
 ;; Testing helpers
 (defmethod :get-alerts script-context ()
