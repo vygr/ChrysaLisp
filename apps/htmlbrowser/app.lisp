@@ -9,6 +9,7 @@
 (import "lib/html/parser.inc")
 (import "lib/html/css.inc")
 (import "lib/html/canvas_renderer.inc")
+(import "lib/html/script.inc")
 
 (enums +event 0
 	(enum close max min back forward url_submit))
@@ -119,6 +120,10 @@ table {
 		; Set HTML and CSS content
 		(set this :html_doc (parse-html html))
 		(set this :stylesheet (parse-css css))
+
+		; Execute scripts in the document
+		(execute-document-scripts (get :html_doc this) (get :base_path this))
+
 		(. this :render_content)
 		this)
 
