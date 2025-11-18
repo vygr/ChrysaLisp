@@ -396,6 +396,114 @@
 			(. this :draw-text (if alt (cat "[" alt "]") "[Image]"))
 			(. this :newline))))
 
+(defmethod :render-canvas html-canvas-renderer (node)
+	; Render a canvas element
+	(defq width-attr (. node :get-attribute "width"))
+	(defq height-attr (. node :get-attribute "height"))
+
+	; Default canvas dimensions: 300x150
+	(defq canvas-width (if width-attr (str-to-num width-attr) 300))
+	(defq canvas-height (if height-attr (str-to-num height-attr) 150))
+
+	; Get the canvas context if it exists
+	(defq ctx (. node :get-context "2d"))
+
+	; Save starting position
+	(defq start-x this-x)
+	(defq start-y this-y)
+
+	; Draw canvas border (to visualize canvas area)
+	(. this :draw-box this-x this-y canvas-width canvas-height COLOR_GRAY)
+
+	; If context exists, execute drawing commands
+	(when ctx
+		(import "lib/html/canvas_2d.inc")
+		(defq commands (. ctx :get-commands))
+
+		(each! 0 -1 (lambda (cmd)
+			(defq cmd-type (get cmd :type))
+
+			(cond
+				; Rectangle drawing
+				((eql cmd-type :fillRect)
+					(defq x (+ start-x (get cmd :x)))
+					(defq y (+ start-y (get cmd :y)))
+					(defq w (get cmd :width))
+					(defq h (get cmd :height))
+					(defq color (parse-color (get cmd :fill_style)))
+					(when color
+						(. this :draw-filled-box x y w h color)))
+
+				((eql cmd-type :strokeRect)
+					(defq x (+ start-x (get cmd :x)))
+					(defq y (+ start-y (get cmd :y)))
+					(defq w (get cmd :width))
+					(defq h (get cmd :height))
+					(defq color (parse-color (get cmd :stroke_style)))
+					(when color
+						(. this :draw-box x y w h color)))
+
+				((eql cmd-type :clearRect)
+					(defq x (+ start-x (get cmd :x)))
+					(defq y (+ start-y (get cmd :y)))
+					(defq w (get cmd :width))
+					(defq h (get cmd :height))
+					(. this :draw-filled-box x y w h COLOR_WHITE))
+
+				; Path drawing
+				((eql cmd-type :stroke)
+					(defq path (get cmd :path))
+					(defq color (parse-color (get cmd :stroke_style)))
+					(when (and path color)
+						(draw-path this path start-x start-y color)))
+
+				((eql cmd-type :fill)
+					(defq path (get cmd :path))
+					(defq color (parse-color (get cmd :fill_style)))
+					(when (and path color)
+						(draw-filled-path this path start-x start-y color)))
+
+				; Text drawing
+				((eql cmd-type :fillText)
+					(defq text (get cmd :text))
+					(defq x (+ start-x (get cmd :x)))
+					(defq y (+ start-y (get cmd :y)))
+					(defq color (parse-color (get cmd :fill_style)))
+					(when color
+						(defq old-x this-x)
+						(defq old-y this-y)
+						(defq old-color this-current_color)
+						(setq this-x x)
+						(setq this-y y)
+						(setq this-current_color color)
+						(. this :draw-text text)
+						(setq this-x old-x)
+						(setq this-y old-y)
+						(setq this-current_color old-color)))
+
+				((eql cmd-type :strokeText)
+					; For now, render same as fillText
+					(defq text (get cmd :text))
+					(defq x (+ start-x (get cmd :x)))
+					(defq y (+ start-y (get cmd :y)))
+					(defq color (parse-color (get cmd :stroke_style)))
+					(when color
+						(defq old-x this-x)
+						(defq old-y this-y)
+						(defq old-color this-current_color)
+						(setq this-x x)
+						(setq this-y y)
+						(setq this-current_color color)
+						(. this :draw-text text)
+						(setq this-x old-x)
+						(setq this-y old-y)
+						(setq this-current_color old-color)))))
+			commands))
+
+	; Move rendering position past canvas
+	(setq this-y (+ start-y canvas-height))
+	(. this :newline))
+
 (defmethod :render-form html-canvas-renderer (node)
 	; Render a form (just render children for now)
 	(. this :newline)
@@ -481,6 +589,9 @@
 
 				((= tag-name "img")
 					(. this :render-image node))
+
+				((= tag-name "canvas")
+					(. this :render-canvas node))
 
 				((or (= tag-name "strong") (= tag-name "b"))
 					(defq old_bold this-in_bold)
@@ -701,3 +812,88 @@
 		(catch
 			(read str)
 			(lambda (e) 0))))  ; Return 0 on error
+
+(defun parse-color (color-str)
+	; Parse CSS color string to ChrysaLisp color value
+	; Supports: #RGB, #RRGGBB, named colors
+	(when color-str
+		(cond
+			; Hex colors
+			((starts-with "#" color-str)
+				(defq hex (rest color-str))
+				(cond
+					; #RGB format
+					((= (length hex) 3)
+						(defq r (hex-to-num (slice 0 1 hex)))
+						(defq g (hex-to-num (slice 1 2 hex)))
+						(defq b (hex-to-num (slice 2 3 hex)))
+						(argb 255 (* r 17) (* g 17) (* b 17)))
+
+					; #RRGGBB format
+					((= (length hex) 6)
+						(defq r (hex-to-num (slice 0 2 hex)))
+						(defq g (hex-to-num (slice 2 4 hex)))
+						(defq b (hex-to-num (slice 4 6 hex)))
+						(argb 255 r g b))
+
+					(:t COLOR_BLACK)))
+
+			; Named colors
+			((= color-str "red") COLOR_RED)
+			((= color-str "green") COLOR_GREEN)
+			((= color-str "blue") COLOR_BLUE)
+			((= color-str "black") COLOR_BLACK)
+			((= color-str "white") COLOR_WHITE)
+			((= color-str "gray") COLOR_GRAY)
+
+			(:t COLOR_BLACK))))
+
+(defun hex-to-num (hex-str)
+	; Convert hex string to number
+	(defq result 0)
+	(defq chars (explode hex-str))
+	(each! 0 -1 (lambda (ch)
+		(setq result (* result 16))
+		(cond
+			((and (>= ch (code "0")) (<= ch (code "9")))
+				(setq result (+ result (- ch (code "0")))))
+			((and (>= ch (code "a")) (<= ch (code "f")))
+				(setq result (+ result (- ch (- (code "a") 10)))))
+			((and (>= ch (code "A")) (<= ch (code "F")))
+				(setq result (+ result (- ch (- (code "A") 10)))))))
+		chars)
+	result)
+
+(defun draw-path (renderer path offset-x offset-y color)
+	; Draw a stroked path
+	; Path is a list of path commands (moveTo, lineTo, arc, etc.)
+	(when (and path (> (length path) 0))
+		(defq first-cmd (elem 0 path))
+		(defq start-x (+ offset-x (get first-cmd :x)))
+		(defq start-y (+ offset-y (get first-cmd :y)))
+		(defq current-x start-x)
+		(defq current-y start-y)
+
+		(each! 1 -1 (lambda (cmd)
+			(defq cmd-type (get cmd :type))
+			(cond
+				((eql cmd-type :moveTo)
+					(setq current-x (+ offset-x (get cmd :x)))
+					(setq current-y (+ offset-y (get cmd :y))))
+
+				((eql cmd-type :lineTo)
+					(defq next-x (+ offset-x (get cmd :x)))
+					(defq next-y (+ offset-y (get cmd :y)))
+					(. renderer :draw-line current-x current-y next-x next-y color)
+					(setq current-x next-x)
+					(setq current-y next-y))
+
+				((eql cmd-type :closePath)
+					; Draw line back to start
+					(. renderer :draw-line current-x current-y start-x start-y color))))
+			path)))
+
+(defun draw-filled-path (renderer path offset-x offset-y color)
+	; Draw a filled path
+	; For now, just draw the outline (proper polygon filling would require more work)
+	(draw-path renderer path offset-x offset-y color))
