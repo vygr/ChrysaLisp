@@ -185,9 +185,25 @@
 
 		; Test window object in scripts
 		(deftest "Script Has Window Object"
-			; Scripts should have access to window object
-			; window.document === document
-			:t)
+			(import "lib/html/script.inc")
+
+			; Test that scripts can access window and window.document
+			(defq html "<div id=\"test\">Content</div><script>(defq win-doc (. window 'document)) (defq elem (. win-doc :get-element-by-id \"test\"))</script>")
+			(defq doc (parse-html html))
+
+			; Execute scripts - they should be able to access window
+			(defq executor (execute-document-scripts doc))
+
+			; Verify script executed without errors
+			(assert-not-nil executor)
+
+			; Verify window object exists in context
+			(defq ctx (. executor :get-context))
+			(defq win (. ctx 'window))
+			(assert-not-nil win)
+
+			; Verify window.document points to the document
+			(assert-eq doc (. win 'document)))
 
 		; Test script load order
 		(deftest "Scripts Execute in Order"
