@@ -1,0 +1,5 @@
+apple 10 red
+banana 5 yellow
+cherry 20 red
+date 15 brown
+elderberry 8 purple
