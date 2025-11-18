@@ -9,7 +9,10 @@
 (enums +event 0
 	(enum close)
 	(enum send)
-	(enum clear))
+	(enum clear)
+	(enum save)
+	(enum toggle_delay)
+	(enum toggle_debug))
 
 (enums +select 0
 	(enum main tip))
@@ -20,7 +23,7 @@
 (ui-window *window* (:color +argb_grey4)
 	(ui-title-bar _ "ELIZA - Classic Pattern Matching Chatbot" (0xea19) +event_close)
 	(ui-tool-bar *main_toolbar* ()
-		(ui-buttons (0xe95d) +event_clear))
+		(ui-buttons (0xe95d 0xe800 0xe9f3 0xe9e2) +event_clear))
 	(ui-vdu vdu (:vdu_width vdu_width :vdu_height vdu_height
 				 :ink_color +argb_green :color +argb_black))
 	(ui-flow _ (:flow_flags +flow_right_fill :color +argb_grey4)
@@ -56,15 +59,29 @@
 	(. vdu :load buf 0 0 0 (length buf))
 	buf)
 
+;Save conversation to file
+(defun save-conversation (buf)
+	(defq timestamp (pii-time)
+		  filename (cat "eliza_" (str timestamp) ".txt")
+		  filepath (cat (pii-home) "/" filename)
+		  stream (file-stream filepath file_open_write))
+	(when stream
+		(each! (# (write-line stream %0)) buf)
+		(close stream)
+		filename))
+
 ;Add tooltips
 (defun tooltips (select)
 	(def *window* :tip_mbox (elem-get select +select_tip))
 	(ui-tool-tips *main_toolbar*
-		'("Clear conversation")))
+		'("Clear conversation" "Save conversation" "Toggle typing delay" "Toggle debug mode")))
 
 ;Main event loop
 (defun main ()
-	(defq text_buf (list) select (task-mboxes +select_size))
+	(defq text_buf (list) select (task-mboxes +select_size)
+		  typing_delay :t ;Toggle for typing delay
+		  debug_mode :nil ;Toggle for debug visualization
+		  delay_ms 500) ;Delay in milliseconds
 	(tooltips select)
 
 	;Print initial greeting
@@ -90,6 +107,23 @@
 				(setq text_buf (list))
 				(setq text_buf (vdu-print vdu text_buf "ELIZA: " *initial*))
 				(setq text_buf (vdu-print vdu text_buf "" "")))
+			((= id +event_save)
+				;Save conversation
+				(when (defq filename (save-conversation text_buf))
+					(setq text_buf (vdu-print vdu text_buf "[Saved to " (cat filename "]")))
+					(setq text_buf (vdu-print vdu text_buf "" ""))))
+			((= id +event_toggle_delay)
+				;Toggle typing delay
+				(setq typing_delay (not typing_delay))
+				(setq text_buf (vdu-print vdu text_buf "[Typing delay: "
+					(cat (if typing_delay "ON" "OFF") "]")))
+				(setq text_buf (vdu-print vdu text_buf "" "")))
+			((= id +event_toggle_debug)
+				;Toggle debug mode
+				(setq debug_mode (not debug_mode))
+				(setq text_buf (vdu-print vdu text_buf "[Debug mode: "
+					(cat (if debug_mode "ON" "OFF") "]")))
+				(setq text_buf (vdu-print vdu text_buf "" "")))
 			((= id +event_send)
 				;User sent a message
 				(defq user_input (get :clear_text chat_text))
@@ -97,10 +131,22 @@
 					;Display user input
 					(setq text_buf (vdu-print vdu text_buf "You: " user_input))
 
-					;Generate ELIZA response
+					;Apply typing delay if enabled
+					(when typing_delay
+						(task-sleep (* delay_ms 1000)))
+
+					;Generate ELIZA response with optional debug info
 					(defq response (eliza-response user_input))
 					(if response
 						(progn
+							;Show debug info if enabled
+							(when debug_mode
+								(defq debug_info (eliza-debug-info user_input))
+								(setq text_buf (vdu-print vdu text_buf "[Debug: "
+									(cat "Pattern='" (first debug_info) "' Rank=" (str (second debug_info)) "]")))
+								(when (third debug_info)
+									(setq text_buf (vdu-print vdu text_buf "[Matches: "
+										(cat (third debug_info) "]")))))
 							;Display ELIZA response
 							(setq text_buf (vdu-print vdu text_buf "ELIZA: " response))
 							(setq text_buf (vdu-print vdu text_buf "" "")))

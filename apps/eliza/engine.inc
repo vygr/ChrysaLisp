@@ -150,3 +150,33 @@
 				  responses (second result)
 				  template (elem-get responses (random (length responses))))
 			(generate-response template matches))))
+
+;Debug function: returns pattern matching information
+;Returns (pattern_keyword rank matched_wildcards)
+(defun eliza-debug-info (input)
+	(defq words (normalize input)
+		  best-keyword "xnone"
+		  best-rank 0
+		  best-pattern "*"
+		  best-matches (list))
+	;Search through all patterns
+	(each! (lambda (_)
+		(defq keyword (first %0)
+			  rank (second %0)
+			  patterns (third %0))
+		;Check if keyword appears in input
+		(when (or (eql keyword "xnone")
+				  (some! (# (eql %0 keyword)) words))
+			(when (> rank best-rank)
+				;Try each pattern for this keyword
+				(each! (lambda (_)
+					(defq pattern (normalize (first %0))
+						  responses (second %0))
+					(when (defq matches (match-pattern pattern words))
+						;Found a match!
+						(setq best-keyword keyword
+							  best-rank rank
+							  best-pattern (first %0)
+							  best-matches matches))) patterns)))) *patterns*)
+	;Return debug info
+	(list best-pattern best-rank (join-words best-matches ", ")))

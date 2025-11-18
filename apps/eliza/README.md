@@ -54,8 +54,13 @@ The implementation demonstrates:
 - Over 20 keyword patterns with multiple response templates
 - Reflection system for pronoun transformation
 - Wildcard pattern matching
-- VDU-based chat interface
-- Word wrapping for display
+- VDU-based chat interface with word wrapping
+- **Save conversation history** - Saves to timestamped file in home directory
+- **Adjustable typing delay** - Toggle realistic response delay (500ms)
+- **Debug mode** - Visualize pattern matching process
+  - Shows matched pattern and rank
+  - Displays captured wildcard matches
+  - Educational tool for understanding ELIZA's logic
 - Clear conversation option
 
 ## Architecture
@@ -74,6 +79,28 @@ apps/eliza/app.lisp
 ```
 
 Type messages and press Enter to chat. Type "quit", "exit", "bye", or "goodbye" to end the conversation.
+
+### Toolbar Buttons
+
+1. **Clear** (trash icon) - Clear the conversation and start fresh
+2. **Save** (disk icon) - Save conversation to `eliza_<timestamp>.txt` in home directory
+3. **Toggle Delay** (clock icon) - Turn typing delay on/off for more natural responses
+4. **Toggle Debug** (bug icon) - Show pattern matching details for educational purposes
+
+### Debug Mode
+
+When debug mode is enabled, ELIZA shows:
+- The pattern that matched your input
+- The rank/priority of that pattern
+- The wildcard captures from your message
+
+Example debug output:
+```
+You: I am feeling sad
+[Debug: Pattern='* i am * sad *' Rank=1]
+[Matches: , feeling ]
+ELIZA: I'm sure it's not pleasant to be feeling sad.
+```
 
 ## Classic ELIZA Responses
 
