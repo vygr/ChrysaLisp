@@ -134,6 +134,45 @@ See `example.lisp` for a comprehensive demonstration:
 (main)
 ```
 
+## Testing
+
+A comprehensive test suite is provided in `test.lisp` that validates all functionality:
+
+### Running the Tests
+
+```lisp
+;start the service
+(import "apps/sxdb/app.lisp")
+
+;in another terminal or REPL instance
+(import "apps/sxdb/test.lisp")
+(main)
+```
+
+### Test Coverage
+
+The test suite covers:
+- Database open/close operations
+- Index creation and management
+- Insert/find/update/delete operations
+- Indexed field lookups
+- Query predicates
+- Collection management
+- Statistics and metadata
+- Persistence and reload
+- Multiple databases
+- Error handling
+
+The tests automatically clean up after themselves, removing test database files.
+
+### Test Output
+
+The test suite provides clear pass/fail indicators:
+- ✓ marks passing tests
+- ✗ marks failing tests
+- Summary shows total/passed/failed counts
+- Returns exit code 0 on success, 1 on failure
+
 ## Design Philosophy
 
 SXDb embraces ChrysaLisp's philosophy:
