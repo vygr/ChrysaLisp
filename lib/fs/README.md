@@ -362,6 +362,135 @@ The `memory-stream` class uses a chunked architecture (default 4KB chunks), whic
 - Efficient for sparse filesystems
 - Compatible with ChrysaLisp's memory model
 
+## Filesystem Utilities
+
+Three utility programs are provided to work with ExFat filesystems:
+
+### 1. fsck_exfat - Filesystem Checker
+
+Location: `apps/fsck_exfat.lisp`
+
+A comprehensive filesystem consistency checker that validates:
+
+- **Boot Sector**: Validates sector/cluster sizes, offsets, and structure
+- **FAT Table**: Checks all FAT entries for validity and consistency
+- **Cluster Chains**: Detects circular references and orphaned chains
+- **Filesystem Size**: Verifies size calculations match reported values
+
+**Usage**:
+```lisp
+(import "apps/fsck_exfat.lisp")
+; Creates test filesystem and runs all checks
+```
+
+**Output**: Reports errors and warnings, exits with error count
+
+**Example Output**:
+```
+Checking boot sector...
+  Boot sector: OK
+
+Checking FAT entries...
+  Free clusters: 316 / 320
+  Allocated clusters: 4
+  FAT table: OK (0 warnings)
+
+Checking cluster chains...
+  Root directory chain length: 1
+  Cluster chains: OK (1 chains checked)
+
+Filesystem check complete
+Total errors: 0
+Total warnings: 0
+Filesystem is CLEAN
+```
+
+### 2. exfatinfo - Information Dumper
+
+Location: `apps/exfatinfo.lisp`
+
+Displays detailed filesystem metadata and statistics:
+
+- **Boot Sector Information**: All boot sector fields and values
+- **Filesystem Geometry**: Size calculations and overhead analysis
+- **FAT Usage Analysis**: Cluster allocation statistics and usage percentage
+- **FAT Table Sample**: First N FAT entries with interpretation
+- **Fragmentation Analysis**: Cluster allocation patterns
+- **Cluster Allocation Map**: Visual representation of cluster usage
+
+**Usage**:
+```lisp
+(import "apps/exfatinfo.lisp")
+; Creates test filesystem and displays all information
+```
+
+**Example Output**:
+```
+Boot Sector Information
+=======================
+  File System Name:      EXFAT
+  Sector Size:           512 bytes
+  Cluster Size:          32768 bytes (64 sectors)
+  Cluster Count:         320 clusters
+  FAT Offset:            24 sectors
+  FAT Length:            4 sectors
+  Cluster Heap Offset:   28 sectors
+
+Filesystem Geometry
+===================
+  Total Filesystem Size: 10485760 bytes (10 MB)
+  Data Area Size:        10485760 bytes (10 MB)
+  Overhead Percentage:   0%
+
+FAT Usage Analysis
+==================
+  Free Clusters:         316 (98%)
+  Allocated Clusters:    4 (1%)
+  Available Space:       10 MB
+  Used Space:            128 KB
+```
+
+### 3. exfatimage - Image Export/Import Tool
+
+Location: `apps/exfatimage.lisp`
+
+Tools for working with filesystem images:
+
+- **export_image**: Write filesystem to a file
+- **import_image**: Load filesystem from a file
+- **clone_image**: Copy filesystem to a new stream
+- **compare_images**: Verify two filesystems are identical
+
+**Usage**:
+```lisp
+(import "apps/exfatimage.lisp")
+
+; Export to file
+(export_image my_exfat "/path/to/backup.img")
+
+; Import from file
+(defq restored_exfat (import_image "/path/to/backup.img"))
+
+; Clone to new stream
+(defq new_stream (memory-stream))
+(defq cloned_exfat (clone_image original_exfat new_stream))
+
+; Compare filesystems
+(compare_images exfat1 exfat2)
+```
+
+**Features**:
+- Chunked I/O (64KB chunks) for memory efficiency
+- Automatic mount verification on import
+- Byte-by-byte comparison for validation
+- Progress reporting during operations
+
+**Use Cases**:
+- Backup filesystem images before modifications
+- Create filesystem templates for distribution
+- Verify filesystem integrity after operations
+- Test filesystem implementations
+
 ## Future: Block Device Integration
 
 The end goal is to:
