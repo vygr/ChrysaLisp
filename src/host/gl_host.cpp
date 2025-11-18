@@ -18,6 +18,41 @@
 #include <fstream>
 #include <sstream>
 
+// Forward declarations
+void loadGLExtensions();
+
+// Function pointers for OpenGL extensions (modern OpenGL)
+static PFNGLCREATESHADERPROC glCreateShader_ptr = nullptr;
+static PFNGLDELETESHADERPROC glDeleteShader_ptr = nullptr;
+static PFNGLSHADERSOURCEPROC glShaderSource_ptr = nullptr;
+static PFNGLCOMPILESHADERPROC glCompileShader_ptr = nullptr;
+static PFNGLGETSHADERIVPROC glGetShaderiv_ptr = nullptr;
+static PFNGLGETSHADERINFOLOGPROC glGetShaderInfoLog_ptr = nullptr;
+static PFNGLCREATEPROGRAMPROC glCreateProgram_ptr = nullptr;
+static PFNGLDELETEPROGRAMPROC glDeleteProgram_ptr = nullptr;
+static PFNGLATTACHSHADERPROC glAttachShader_ptr = nullptr;
+static PFNGLLINKPROGRAMPROC glLinkProgram_ptr = nullptr;
+static PFNGLGETPROGRAMIVPROC glGetProgramiv_ptr = nullptr;
+static PFNGLGETPROGRAMINFOLOGPROC glGetProgramInfoLog_ptr = nullptr;
+static PFNGLUSEPROGRAMPROC glUseProgram_ptr = nullptr;
+static PFNGLGETUNIFORMLOCATIONPROC glGetUniformLocation_ptr = nullptr;
+static PFNGLUNIFORM1FPROC glUniform1f_ptr = nullptr;
+static PFNGLUNIFORM2FPROC glUniform2f_ptr = nullptr;
+static PFNGLUNIFORM3FPROC glUniform3f_ptr = nullptr;
+static PFNGLUNIFORM4FPROC glUniform4f_ptr = nullptr;
+static PFNGLUNIFORM1IPROC glUniform1i_ptr = nullptr;
+static PFNGLUNIFORMMATRIX4FVPROC glUniformMatrix4fv_ptr = nullptr;
+static PFNGLGENVERTEXARRAYSPROC glGenVertexArrays_ptr = nullptr;
+static PFNGLDELETEVERTEXARRAYSPROC glDeleteVertexArrays_ptr = nullptr;
+static PFNGLBINDVERTEXARRAYPROC glBindVertexArray_ptr = nullptr;
+static PFNGLENABLEVERTEXATTRIBARRAYPROC glEnableVertexAttribArray_ptr = nullptr;
+static PFNGLDISABLEVERTEXATTRIBARRAYPROC glDisableVertexAttribArray_ptr = nullptr;
+static PFNGLVERTEXATTRIBPOINTERPROC glVertexAttribPointer_ptr = nullptr;
+static PFNGLGENBUFFERSPROC glGenBuffers_ptr = nullptr;
+static PFNGLDELETEBUFFERSPROC glDeleteBuffers_ptr = nullptr;
+static PFNGLBINDBUFFERPROC glBindBuffer_ptr = nullptr;
+static PFNGLBUFFERDATAPROC glBufferData_ptr = nullptr;
+
 // Error logging utility
 void logGLError(const char* msg) {
     GLenum err = glGetError();
@@ -289,8 +324,13 @@ static uint32_t nextBufferHandle = 0x3000;
 
 uint32_t host_gl_gen_buffer()
 {
+    if (!glGenBuffers_ptr) {
+        std::cerr << "glGenBuffers not available" << std::endl;
+        return 0;
+    }
+
     GLuint bufId;
-    glGenBuffers(1, &bufId);
+    glGenBuffers_ptr(1, &bufId);
 
     uint32_t handle = nextBufferHandle++;
     bufferMap[handle] = {bufId, 0};
@@ -301,13 +341,17 @@ uint32_t host_gl_gen_buffer()
 
 void host_gl_delete_buffer(uint32_t handle)
 {
+    if (!glDeleteBuffers_ptr) {
+        return;
+    }
+
     if (bufferMap.find(handle) == bufferMap.end()) {
         std::cerr << "Invalid buffer handle" << std::endl;
         return;
     }
 
     GLuint bufId = bufferMap[handle].id;
-    glDeleteBuffers(1, &bufId);
+    glDeleteBuffers_ptr(1, &bufId);
     bufferMap.erase(handle);
 
     logGLError("host_gl_delete_buffer");
@@ -315,8 +359,12 @@ void host_gl_delete_buffer(uint32_t handle)
 
 void host_gl_bind_buffer(uint64_t target, uint32_t handle)
 {
+    if (!glBindBuffer_ptr) {
+        return;
+    }
+
     if (handle == 0) {
-        glBindBuffer(target, 0);
+        glBindBuffer_ptr(target, 0);
         return;
     }
 
@@ -325,13 +373,17 @@ void host_gl_bind_buffer(uint64_t target, uint32_t handle)
         return;
     }
 
-    glBindBuffer(target, bufferMap[handle].id);
+    glBindBuffer_ptr(target, bufferMap[handle].id);
     logGLError("host_gl_bind_buffer");
 }
 
 void host_gl_buffer_data(uint64_t target, int64_t size, const void *data, uint64_t usage)
 {
-    glBufferData(target, size, data, usage);
+    if (!glBufferData_ptr) {
+        return;
+    }
+
+    glBufferData_ptr(target, size, data, usage);
     logGLError("host_gl_buffer_data");
 }
 
@@ -443,38 +495,6 @@ static std::unordered_map<uint32_t, GLShader> shaderMap;
 static std::unordered_map<uint32_t, GLProgram> programMap;
 static uint32_t nextShaderHandle = 0x4000;
 static uint32_t nextProgramHandle = 0x5000;
-
-// Function pointers for OpenGL extensions (modern OpenGL)
-static PFNGLCREATESHADERPROC glCreateShader_ptr = nullptr;
-static PFNGLDELETESHADERPROC glDeleteShader_ptr = nullptr;
-static PFNGLSHADERSOURCEPROC glShaderSource_ptr = nullptr;
-static PFNGLCOMPILESHADERPROC glCompileShader_ptr = nullptr;
-static PFNGLGETSHADERIVPROC glGetShaderiv_ptr = nullptr;
-static PFNGLGETSHADERINFOLOGPROC glGetShaderInfoLog_ptr = nullptr;
-static PFNGLCREATEPROGRAMPROC glCreateProgram_ptr = nullptr;
-static PFNGLDELETEPROGRAMPROC glDeleteProgram_ptr = nullptr;
-static PFNGLATTACHSHADERPROC glAttachShader_ptr = nullptr;
-static PFNGLLINKPROGRAMPROC glLinkProgram_ptr = nullptr;
-static PFNGLGETPROGRAMIVPROC glGetProgramiv_ptr = nullptr;
-static PFNGLGETPROGRAMINFOLOGPROC glGetProgramInfoLog_ptr = nullptr;
-static PFNGLUSEPROGRAMPROC glUseProgram_ptr = nullptr;
-static PFNGLGETUNIFORMLOCATIONPROC glGetUniformLocation_ptr = nullptr;
-static PFNGLUNIFORM1FPROC glUniform1f_ptr = nullptr;
-static PFNGLUNIFORM2FPROC glUniform2f_ptr = nullptr;
-static PFNGLUNIFORM3FPROC glUniform3f_ptr = nullptr;
-static PFNGLUNIFORM4FPROC glUniform4f_ptr = nullptr;
-static PFNGLUNIFORM1IPROC glUniform1i_ptr = nullptr;
-static PFNGLUNIFORMMATRIX4FVPROC glUniformMatrix4fv_ptr = nullptr;
-static PFNGLGENVERTEXARRAYSPROC glGenVertexArrays_ptr = nullptr;
-static PFNGLDELETEVERTEXARRAYSPROC glDeleteVertexArrays_ptr = nullptr;
-static PFNGLBINDVERTEXARRAYPROC glBindVertexArray_ptr = nullptr;
-static PFNGLENABLEVERTEXATTRIBARRAYPROC glEnableVertexAttribArray_ptr = nullptr;
-static PFNGLDISABLEVERTEXATTRIBARRAYPROC glDisableVertexAttribArray_ptr = nullptr;
-static PFNGLVERTEXATTRIBPOINTERPROC glVertexAttribPointer_ptr = nullptr;
-static PFNGLGENBUFFERSPROC glGenBuffers_ptr = nullptr;
-static PFNGLDELETEBUFFERSPROC glDeleteBuffers_ptr = nullptr;
-static PFNGLBINDBUFFERPROC glBindBuffer_ptr = nullptr;
-static PFNGLBUFFERDATAPROC glBufferData_ptr = nullptr;
 
 // Load OpenGL extensions
 void* getGLProcAddress(const char* name) {
