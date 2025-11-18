@@ -207,14 +207,20 @@
 
 		; Test script load order
 		(deftest "Scripts Execute in Order"
+			(import "lib/html/script.inc")
+
 			(defq html "
-				<script>global_var = 1</script>
-				<script>global_var = global_var + 1</script>
-				<script>global_var = global_var + 1</script>")
+				<script>(. window :set-global \"counter\" 1)</script>
+				<script>(. window :set-global \"counter\" (+ (. window :get-global \"counter\") 1))</script>
+				<script>(. window :set-global \"counter\" (+ (. window :get-global \"counter\") 1))</script>")
 			(defq doc (parse-html html))
 
-			; After execution, global_var should be 3
-			; Requires script execution implementation
-			:t)
+			; Execute all scripts in order
+			(defq executor (execute-document-scripts doc))
+
+			; After execution, counter should be 3
+			(defq ctx (. executor :get-context))
+			(defq final_value (. ctx :get-global "counter"))
+			(assert-eq 3 final_value))
 	))
 
