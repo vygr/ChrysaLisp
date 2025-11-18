@@ -10,6 +10,8 @@ This project ports MAME (Multiple Arcade Machine Emulator) to run as a native ap
 
 MAME is a free and open-source emulator designed to recreate the hardware of arcade game systems in software, allowing classic arcade games to be played on modern systems.
 
+> **What's in this repository:** This repo contains only our integration code (~10,000 lines). MAME itself is fetched from the official upstream repository (https://github.com/mamedev/mame) during the build process.
+
 ## Features
 
 ### Current Status (Phase 3 at 99% - Build Complete!)
@@ -113,6 +115,8 @@ From ChrysaLisp Terminal:
 
 ## Building from Source
 
+> **Note:** This repository contains **only our ChrysaLisp integration code**. The official MAME source code (~29,000 files) is **automatically fetched from upstream** during setup. We do not redistribute MAME - it's cloned directly from the official MAME repository at build time.
+
 ### Quick Start (Automated)
 
 1. **Setup MAME source and integration:**
@@ -121,8 +125,10 @@ From ChrysaLisp Terminal:
    ./setup_mame.sh
    ```
    This will:
-   - Clone MAME source (~5 GB, takes 5-10 minutes)
-   - Copy OSD files to MAME source tree
+   - **Fetch MAME from official upstream:** `git clone https://github.com/mamedev/mame.git`
+   - **Version:** mame0261 (stable, tagged release)
+   - **Size:** ~5 GB download, takes 5-10 minutes
+   - Copy our OSD integration files to MAME source tree
    - Install build configuration
    - Generate build scripts
 
