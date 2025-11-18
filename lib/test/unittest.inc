@@ -184,6 +184,114 @@
 			(:t :nil))
 		,msg-str))
 
+;; DOM/HTML assertions (for HTML parser testing)
+
+(defmacro assert-element-exists (doc selector &optional msg)
+	; Assert that an element matching selector exists in document
+	; selector can be tag name, or use :get-element-by-id
+	(defq msg-str (if msg msg (cat "Element " (str selector) " should exist")))
+	`(test-assert-impl (not (nil? ,doc)) ,msg-str))
+
+(defmacro assert-element-tag (element expected-tag &optional msg)
+	; Assert that element has expected tag name
+	(defq msg-str (if msg msg (cat "Element should have tag " (str expected-tag))))
+	`(test-assert-impl
+		(= (lower-case (. ,element :get-tag-name)) (lower-case ,expected-tag))
+		,msg-str))
+
+(defmacro assert-element-has-attribute (element attr-name &optional msg)
+	; Assert that element has an attribute
+	(defq msg-str (if msg msg (cat "Element should have attribute " (str attr-name))))
+	`(test-assert-impl (. ,element :has-attribute ,attr-name) ,msg-str))
+
+(defmacro assert-element-attribute-eq (element attr-name expected-value &optional msg)
+	; Assert that element attribute equals expected value
+	(defq msg-str (if msg msg (cat "Attribute " (str attr-name) " should be " (str expected-value))))
+	`(test-assert-impl
+		(= (. ,element :get-attribute ,attr-name) ,expected-value)
+		,msg-str))
+
+(defmacro assert-element-has-class (element class-name &optional msg)
+	; Assert that element has a CSS class
+	(defq msg-str (if msg msg (cat "Element should have class " (str class-name))))
+	`(test-assert-impl
+		(progn
+			(defq classes (split (. ,element :get-attribute "class") " "))
+			(some! 0 -1 (lambda (c) (= c ,class-name)) classes))
+		,msg-str))
+
+(defmacro assert-element-child-count (element expected-count &optional msg)
+	; Assert that element has expected number of children
+	(defq msg-str (if msg msg (cat "Element should have " (str expected-count) " children")))
+	`(test-assert-impl
+		(= (length (. ,element 'child_nodes)) ,expected-count)
+		,msg-str))
+
+(defmacro assert-element-has-children (element &optional msg)
+	; Assert that element has at least one child
+	(defq msg-str (if msg msg "Element should have children"))
+	`(test-assert-impl
+		(> (length (. ,element 'child_nodes)) 0)
+		,msg-str))
+
+(defmacro assert-element-no-children (element &optional msg)
+	; Assert that element has no children
+	(defq msg-str (if msg msg "Element should have no children"))
+	`(test-assert-impl
+		(= (length (. ,element 'child_nodes)) 0)
+		,msg-str))
+
+(defmacro assert-element-text-contains (element expected-text &optional msg)
+	; Assert that element's text content contains expected text
+	(defq msg-str (if msg msg (cat "Element text should contain " (str expected-text))))
+	`(test-assert-impl
+		(progn
+			(defq text "")
+			(defun collect-text (node)
+				(cond
+					((= (. node 'node_type) 3)  ; NODE_TEXT
+						(setq text (cat text (. node :get-text))))
+					((= (. node 'node_type) 1)  ; NODE_ELEMENT
+						(each! 0 -1 collect-text (. node 'child_nodes)))))
+			(collect-text ,element)
+			(find ,expected-text text))
+		,msg-str))
+
+(defmacro assert-element-id (element expected-id &optional msg)
+	; Assert that element has expected ID
+	(defq msg-str (if msg msg (cat "Element should have id " (str expected-id))))
+	`(test-assert-impl
+		(= (. ,element :get-attribute "id") ,expected-id)
+		,msg-str))
+
+(defmacro assert-elements-count (doc tag-name expected-count &optional msg)
+	; Assert that document has expected number of elements with tag name
+	(defq msg-str (if msg msg (cat "Should have " (str expected-count) " " (str tag-name) " elements")))
+	`(test-assert-impl
+		(= (length (. ,doc :get-elements-by-tag-name ,tag-name)) ,expected-count)
+		,msg-str))
+
+(defmacro assert-element-parent (element expected-parent &optional msg)
+	; Assert that element has expected parent
+	(defq msg-str (if msg msg "Element should have expected parent"))
+	`(test-assert-impl
+		(= (. ,element 'parent_node) ,expected-parent)
+		,msg-str))
+
+(defmacro assert-element-has-parent (element &optional msg)
+	; Assert that element has a parent
+	(defq msg-str (if msg msg "Element should have a parent"))
+	`(test-assert-impl
+		(not (nil? (. ,element 'parent_node)))
+		,msg-str))
+
+(defmacro assert-document-valid (doc &optional msg)
+	; Assert that document is valid (not nil and is document type)
+	(defq msg-str (if msg msg "Document should be valid"))
+	`(test-assert-impl
+		(and (not (nil? ,doc)) (= (. ,doc 'node_type) 9))  ; NODE_DOCUMENT = 9
+		,msg-str))
+
 (defmacro run-test-suite (&rest tests)
 	; Run a series of tests
 	`(progn

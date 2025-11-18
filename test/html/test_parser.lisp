@@ -17,22 +17,21 @@
 (deftest "Parse HTML with Attributes"
 	(defq html "<div id=\"test\" class=\"container\">Content</div>")
 	(defq doc (parse-html html))
-	(assert-not-nil doc)
-	(defq divs (. doc :get-elements-by-tag-name "div"))
-	(assert-eq 1 (length divs))
-	(defq div (first divs))
-	(assert-eq "test" (. div :get-attribute "id"))
-	(assert-eq "container" (. div :get-attribute "class")))
+	(assert-document-valid doc)
+	(assert-elements-count doc "div" 1)
+	(defq div (first (. doc :get-elements-by-tag-name "div")))
+	(assert-element-id div "test")
+	(assert-element-has-class div "container")
+	(assert-element-attribute-eq div "class" "container"))
 
 (deftest "Parse Nested HTML"
 	(defq html "<div><p><span>Nested</span></p></div>")
 	(defq doc (parse-html html))
-	(defq divs (. doc :get-elements-by-tag-name "div"))
-	(assert-eq 1 (length divs))
-	(defq ps (. doc :get-elements-by-tag-name "p"))
-	(assert-eq 1 (length ps))
-	(defq spans (. doc :get-elements-by-tag-name "span"))
-	(assert-eq 1 (length spans)))
+	(assert-elements-count doc "div" 1)
+	(assert-elements-count doc "p" 1)
+	(assert-elements-count doc "span" 1)
+	(defq span (first (. doc :get-elements-by-tag-name "span")))
+	(assert-element-text-contains span "Nested"))
 
 (deftest "Parse Self-Closing Tags"
 	(defq html "<p>Line 1<br>Line 2</p>")
@@ -56,13 +55,15 @@
 	(defq doc (parse-html html))
 	(defq elem (. doc :get-element-by-id "para1"))
 	(assert-not-nil elem)
-	(assert-eq "p" (. elem :get-tag-name)))
+	(assert-element-tag elem "p")
+	(assert-element-id elem "para1")
+	(assert-element-text-contains elem "First"))
 
 (deftest "Get Elements By Tag Name"
 	(defq html "<div><p>First</p><p>Second</p><span>Third</span></div>")
 	(defq doc (parse-html html))
-	(defq ps (. doc :get-elements-by-tag-name "p"))
-	(assert-eq 2 (length ps)))
+	(assert-elements-count doc "p" 2)
+	(assert-elements-count doc "span" 1))
 
 (deftest "Render Simple Text"
 	(defq html "<p>Hello World</p>")
