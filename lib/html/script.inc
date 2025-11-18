@@ -5,6 +5,7 @@
 (import "lib/html/dom.inc")
 (import "lib/html/parser.inc")
 (import "lib/html/cookies.inc")
+(import "lib/html/web_storage.inc")
 
 ;; Script execution context
 (defclass script-context nil
@@ -21,7 +22,10 @@
 		confirm_result :t
 		prompt_result nil
 		; Cookie store
-		cookie_store nil))
+		cookie_store nil
+		; Web Storage
+		local_storage nil
+		session_storage nil))
 
 (defmethod :init script-context (doc base-path)
 	(setq this-document doc
@@ -33,11 +37,17 @@
 		this-prompts (list)
 		this-confirm_result :t
 		this-prompt_result nil
-		this-cookie_store (create-cookie-store))
+		this-cookie_store (create-cookie-store)
+		this-local_storage (create-local-storage)
+		this-session_storage (create-session-storage))
 
 	; Add document and window to global environment
 	(set-insert this-global_env "document" doc)
 	(set-insert this-global_env "window" this)
+
+	; Add Web Storage to global environment
+	(set-insert this-global_env "localStorage" this-local_storage)
+	(set-insert this-global_env "sessionStorage" this-session_storage)
 
 	this)
 
