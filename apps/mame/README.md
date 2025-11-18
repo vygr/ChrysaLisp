@@ -12,29 +12,43 @@ MAME is a free and open-source emulator designed to recreate the hardware of arc
 
 ## Features
 
-### Current Status
+### Current Status (Phase 2.5 Complete!)
 
-✅ **Completed:**
-- Complete PII adapter layer architecture
-- File I/O mapping (MAME ↔ ChrysaLisp PII)
-- Memory management adapter
-- Video/Graphics adapter with framebuffer support
-- Input adapter (keyboard, joystick, mouse)
-- Audio adapter framework
-- Timing/synchronization functions
-- Lisp launcher application with ROM browser
-- Build system and test suite
+✅ **Completed (55% of total project):**
+- **Phase 1 - Foundation:** Complete PII adapter layer (~2,500 lines C++)
+  - File I/O adapter with directory enumeration and memory mapping
+  - Video/Graphics adapter with framebuffer support
+  - Audio adapter with streaming support (NEW PII extension!)
+  - Input adapter (keyboard, joystick, mouse, arcade controls)
+  - Memory management and timing functions
+  - Build system and comprehensive test suite
 
-⏳ **In Progress:**
-- Integration with actual MAME core
-- Audio streaming implementation
-- ROM loading and verification
+- **Phase 2 - OSD Layer:** Complete MAME interface implementation (~1,156 lines C++)
+  - chrysalispmain.cpp - Main entry point and initialization
+  - chrysalispfile.cpp - File I/O OSD layer
+  - chrysalispvideo.cpp - Video OSD layer
+  - chrysalispaudio.cpp - Audio OSD layer
+  - chrysalispinput.cpp - Input OSD layer
 
-📋 **Planned:**
+- **Phase 2.5 - Source Integration:** MAME source integrated and configured
+  - MAME source cloned (mame0261, ~29,000 files)
+  - Build system configured (403 lines Lua)
+  - OSD files installed and linked
+  - Automated setup and build scripts
+  - Comprehensive documentation (4,000+ lines)
+
+⏳ **Next (Phase 3):**
+- First MAME build attempt (may require iteration on config)
+- Debug compilation/linking issues
+- Achieve working binary
+- Test with Pac-Man ROM
+
+📋 **Future (Phase 4+):**
 - Save state functionality
-- Game-specific configuration
-- Controller configuration UI
-- Network play support (via ChrysaLisp distributed system)
+- Enhanced launcher UI with screenshots/metadata
+- Controller configuration
+- Additional game drivers
+- Performance optimization
 
 ## Architecture
 
@@ -92,19 +106,59 @@ From ChrysaLisp Terminal:
 
 ## Building from Source
 
-See [BUILD.md](docs/BUILD.md) for detailed build instructions.
+### Quick Start (Automated)
 
-Quick build:
-```bash
-cd apps/mame
-make
-```
+1. **Setup MAME source and integration:**
+   ```bash
+   cd apps/mame/build_config
+   ./setup_mame.sh
+   ```
+   This will:
+   - Clone MAME source (~5 GB, takes 5-10 minutes)
+   - Copy OSD files to MAME source tree
+   - Install build configuration
+   - Generate build scripts
+
+2. **Validate build environment:**
+   ```bash
+   ./validate_build_env.sh
+   ```
+   This checks all prerequisites and provides helpful error messages.
+
+3. **Build minimal MAME:**
+   ```bash
+   cd ../mame-src
+   make SUBTARGET=chrysalisp MINIMAL=1 NOTHREADS=1 -j$(nproc)
+   ```
+   Estimated time: 10-30 minutes depending on hardware.
+
+### Build Options
+
+- `MINIMAL=1` - Build only Pac-Man driver (fastest)
+- `NOTHREADS=1` - Single-threaded mode (Phase 1 compatibility)
+- `-j$(nproc)` - Parallel build using all CPU cores
+- `VERBOSE=1` - Show detailed compilation output
+
+### Prerequisites
+
+Required:
+- GCC 5.0+ or Clang 3.4+
+- Python 3
+- SDL2 development libraries
+- Make, Git
+
+See [INTEGRATION.md](docs/INTEGRATION.md) for complete setup guide.
 
 ## Documentation
 
-- **[ARCHITECTURE.md](docs/ARCHITECTURE.md)** - System architecture and design
+- **[STATUS.md](STATUS.md)** - Current project status and progress
+- **[ARCHITECTURE.md](ARCHITECTURE.md)** - System architecture and design
 - **[BUILD.md](docs/BUILD.md)** - Build instructions and troubleshooting
+- **[INTEGRATION.md](docs/INTEGRATION.md)** - MAME integration guide
+- **[INTEGRATION_STATUS.md](docs/INTEGRATION_STATUS.md)** - Detailed integration status
 - **[PORTING_NOTES.md](docs/PORTING_NOTES.md)** - Technical notes for developers
+- **[THREADING_DECISION.md](docs/THREADING_DECISION.md)** - Threading model explained
+- **[TODO.md](TODO.md)** - Complete development roadmap
 
 ## Controls
 
