@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>LispScript Demo - Interactive Features</title>
+    <style>
+        body { font-family: sans-serif; margin: 20px; }
+        h1 { color: #0066cc; }
+        .box {
+            border: 2px solid #0066cc;
+            padding: 10px;
+            margin: 10px 0;
+            cursor: pointer;
+            background-color: #f0f8ff;
+        }
+        .box:hover { background-color: #e0f0ff; }
+        #output {
+            border: 1px solid #333;
+            padding: 10px;
+            background-color: #f9f9f9;
+            min-height: 50px;
+        }
+        button {
+            padding: 8px 16px;
+            margin: 5px;
+            cursor: pointer;
+            background-color: #0066cc;
+            color: white;
+            border: none;
+            border-radius: 4px;
+        }
+        button:hover { background-color: #0052a3; }
+    </style>
+</head>
+<body>
+    <h1>LispScript Interactive Demo</h1>
+    <p>This page demonstrates ChrysaLisp's script execution capabilities!</p>
+
+    <!-- Script that runs on page load -->
+    <script>
+        (. window :set-global "page_loaded" :t)
+        (. window :set-global "click_count" 0)
+        (print "Page loaded! LispScript is running.")
+    </script>
+
+    <h2>1. onclick Inline Handlers</h2>
+    <div class="box" id="click-box" onclick="(progn
+        (defq count (+ (. window :get-global 'click_count') 1))
+        (. window :set-global 'click_count' count)
+        (defq elem (. document :get-element-by-id 'click-output'))
+        (. elem :set-text-content (cat 'Clicked ' (str count) ' times!')))">
+        Click this box!
+    </div>
+    <div id="click-output">Click counter will appear here</div>
+
+    <h2>2. addEventListener from Scripts</h2>
+    <button id="event-btn">Click Me (Event Listener)</button>
+    <div id="event-output">Button not clicked yet</div>
+
+    <script>
+        (defq btn (. document :get-element-by-id "event-btn"))
+        (. btn :add-event-listener "click"
+            (lambda (event)
+                (defq output (. document :get-element-by-id "event-output"))
+                (. output :set-text-content "Button clicked via addEventListener!")))
+    </script>
+
+    <h2>3. DOM Manipulation</h2>
+    <button id="add-btn">Add Paragraph</button>
+    <div id="content-area"></div>
+
+    <script>
+        (defq add-btn (. document :get-element-by-id "add-btn"))
+        (. add-btn :add-event-listener "click"
+            (lambda (event)
+                ; Create new paragraph
+                (defq p (. document :create-element "p"))
+                (. p :set-text-content (cat "Paragraph added at " (str (time))))
+
+                ; Add it to content area
+                (defq area (. document :get-element-by-id "content-area"))
+                (. area :append-child p)))
+    </script>
+
+    <h2>4. document.write</h2>
+    <script>
+        (. document :write "<p><strong>This paragraph was added via document.write!</strong></p>")
+    </script>
+
+    <h2>5. innerHTML</h2>
+    <button id="html-btn">Update Content via innerHTML</button>
+    <div id="html-target">Original content</div>
+
+    <script>
+        (defq html-btn (. document :get-element-by-id "html-btn"))
+        (. html-btn :add-event-listener "click"
+            (lambda (event)
+                (defq target (. document :get-element-by-id "html-target"))
+                (. target :set-inner-html
+                    "<p><em>Content replaced via innerHTML!</em></p><p>This is dynamic HTML.</p>")))
+    </script>
+
+    <h2>6. querySelector</h2>
+    <div class="query-demo">
+        <p class="highlight">This text can be found with querySelector!</p>
+    </div>
+    <button id="query-btn">Find and Style Element</button>
+
+    <script>
+        (defq query-btn (. document :get-element-by-id "query-btn"))
+        (. query-btn :add-event-listener "click"
+            (lambda (event)
+                (defq elem (. document :query-selector ".highlight"))
+                (when elem
+                    (. elem :set-attribute "style" "color: red; font-weight: bold;")
+                    (defq old-text (. elem :get-text-content))
+                    (. elem :set-text-content (cat old-text " [FOUND!]")))))
+    </script>
+
+    <h2>7. Global State Management</h2>
+    <p>Current page click count: <span id="global-display">0</span></p>
+    <button id="refresh-btn">Refresh Count</button>
+
+    <script>
+        (defq refresh-btn (. document :get-element-by-id "refresh-btn"))
+        (. refresh-btn :add-event-listener "click"
+            (lambda (event)
+                (defq count (. window :get-global "click_count"))
+                (defq display (. document :get-element-by-id "global-display"))
+                (. display :set-text-content (str count))))
+    </script>
+
+    <h2>Summary</h2>
+    <div id="output">
+        <p>This demo shows all LispScript capabilities:</p>
+        <ul>
+            <li>Script tags execute on page load</li>
+            <li>onclick attributes work on any element</li>
+            <li>addEventListener registers event handlers</li>
+            <li>DOM manipulation (createElement, appendChild, textContent)</li>
+            <li>document.write for old-school HTML addition</li>
+            <li>innerHTML for fragment insertion</li>
+            <li>querySelector for finding elements</li>
+            <li>Global state via window.setGlobal/getGlobal</li>
+        </ul>
+    </div>
+
+    <!-- Final script confirms everything loaded -->
+    <script>
+        (print "All scripts executed successfully!")
+        (print "LispScript demo page ready.")
+    </script>
+</body>
+</html>
