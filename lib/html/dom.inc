@@ -17,7 +17,8 @@
 		parent_node nil
 		child_nodes (list)
 		attributes (env)
-		event_listeners (env)))
+		event_listeners (env)
+		canvas_context nil))
 
 (defmethod :init dom-node (type name)
 	(setq this-node_type type
@@ -26,7 +27,8 @@
 		this-parent_node nil
 		this-child_nodes (list)
 		this-attributes (env)
-		this-event_listeners (env))
+		this-event_listeners (env)
+		this-canvas_context nil)
 	this)
 
 (defmethod :append-child dom-node (child)
@@ -312,3 +314,19 @@
 			(callback event-data))
 			listeners))
 	this)
+
+;; Canvas context support
+(defmethod :get-context dom-node (context-type)
+	; Get canvas rendering context
+	; canvas.getContext("2d")
+	(when (and (= this-node_type NODE_ELEMENT)
+			(= (lower-case this-node_name) "canvas")
+			(= context-type "2d"))
+
+		; Create context if it doesn't exist
+		(unless this-canvas_context
+			(import "lib/html/canvas_2d.inc")
+			(setq this-canvas_context (canvas-2d-context :init this)))
+
+		this-canvas_context)
+	:nil)
