@@ -76,6 +76,7 @@ All code now follows **`docs/ai_digest/coding_style.md`** guidelines and **PR #2
 - Tried running test program: ❌ Segmentation fault (SEGV_ACCERR)
 - Tried running standard apps (clock): ❌ Segmentation fault
 - Tried with both TUI and GUI executables: ❌ Both segfault
+- Tried emulator mode (-e flag): ❌ Hangs/times out (no output after 2 minutes)
 
 **Root Cause** (diagnosed with strace):
 The crash occurs when ChrysaLisp tries to execute dynamically compiled code:
