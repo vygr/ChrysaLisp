@@ -82,16 +82,35 @@
 
 (defmethod :set-inner-html dom-node (html)
 	; Set innerHTML - parses HTML and replaces children
-	; This requires parser import, will be implemented in script engine
 	(when (= this-node_type NODE_ELEMENT)
 		; Remove all children
 		(setq this-child_nodes (list))
 
 		; Parse HTML and add as children
-		; Note: This is a placeholder - actual implementation
-		; will parse HTML and create DOM nodes
+		(when (and html (> (length html) 0))
+			; Import parser if not already available
+			; We need to parse the HTML fragment
+			(import "lib/html/parser.inc")
+
+			; Parse the HTML as a fragment
+			(defq fragment_doc (parse-html html))
+
+			; Get the body or root element's children
+			(defq root (. fragment_doc 'document_element))
+			(when root
+				; If we got a full document structure, extract body children
+				(defq bodies (. fragment_doc :get-elements-by-tag-name "body"))
+				(defq source_elem
+					(if (> (length bodies) 0)
+						(first bodies)
+						root))
+
+				; Copy all children from parsed document to this element
+				(each! 0 -1 (lambda (child)
+					(. this :append-child child))
+					(. source_elem 'child_nodes))))
 		this)
-	html)
+	this)
 
 (defmethod :to-string dom-node (&optional indent)
 	; Convert node to string representation
