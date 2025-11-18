@@ -249,6 +249,175 @@ expr_test --timing
 # Shows timing information
 ```
 
+## Using as a Library
+
+The expression parser can be imported and used programmatically in your own ChrysaLisp applications:
+
+### Basic Usage
+
+```lisp
+(import "lib/expr/parser.inc")
+(import "lib/expr/eval.inc")
+(import "lib/expr/serializer.inc")
+
+(defun calculate (expr-str)
+  ; Parse and evaluate an expression
+  (defq parsed (expr-parse expr-str 'auto))
+  (expr-eval parsed))
+
+; Use it
+(print (calculate "(+ 1 (* 2 3))"))  ; 7
+(print (calculate "2 * 3 + 4"))      ; 10
+```
+
+### Symbolic Differentiation in Your Code
+
+```lisp
+(import "lib/expr/parser.inc")
+(import "lib/expr/diff.inc")
+(import "lib/expr/simplify.inc")
+(import "lib/expr/serializer.inc")
+
+(defun derivative (expr-str var-name)
+  ; Compute and simplify a derivative
+  (defq parsed (expr-parse expr-str 'sexp))
+  (defq deriv (diff parsed (sym var-name)))
+  (defq simplified (simplify deriv))
+  ; Return as infix notation
+  (expr-serialize simplified 'infix :nil))
+
+; Use it
+(print (derivative "(* x x)" "x"))           ; 2 * x
+(print (derivative "(^ x 3)" "x"))           ; 3 * x ^ 2
+(print (derivative "(sin (* 2 x))" "x"))     ; 2 * cos(2 * x)
+```
+
+### Building a Calculator
+
+```lisp
+(import "lib/expr/parser.inc")
+(import "lib/expr/eval.inc")
+(import "lib/expr/stats.inc")
+
+(defclass Calculator ()
+  (defmethod :eval (expr-str)
+    ; Parse and evaluate
+    (expr-eval (expr-parse expr-str 'auto)))
+
+  (defmethod :analyze (expr-str)
+    ; Get statistics about an expression
+    (defq parsed (expr-parse expr-str 'sexp))
+    (expr-stats parsed))
+
+  (defmethod :convert (expr-str from-fmt to-fmt)
+    ; Convert between formats
+    (defq parsed (expr-parse expr-str from-fmt))
+    (expr-serialize parsed to-fmt :nil)))
+
+; Use it
+(defq calc (Calculator))
+(print (. calc :eval "1 + 2 * 3"))                    ; 7
+(print (. calc :convert "1 + 2" 'infix 'sexp))        ; (+ 1 2)
+```
+
+### Computer Algebra System Example
+
+```lisp
+(import "lib/expr/parser.inc")
+(import "lib/expr/diff.inc")
+(import "lib/expr/simplify.inc")
+(import "lib/expr/eval.inc")
+
+(defclass CAS ()
+  (defmethod :diff (expr-str var)
+    ; Differentiate and simplify
+    (defq parsed (expr-parse expr-str 'sexp))
+    (simplify (diff parsed (sym var))))
+
+  (defmethod :nth-diff (expr-str var n)
+    ; Nth derivative
+    (defq parsed (expr-parse expr-str 'sexp))
+    (simplify (nth-derivative parsed (sym var) n)))
+
+  (defmethod :taylor (expr-str var point order)
+    ; Taylor series expansion (simplified version)
+    (defq terms (list))
+    (defq factorial 1)
+    (times order
+      (defq deriv (. this :nth-diff expr-str var !))
+      (push terms (list '/ deriv factorial))
+      (setq factorial (* factorial (inc !))))
+    (list '+ (splice terms))))
+
+; Use it
+(defq cas (CAS))
+(defq d1 (. cas :diff "(* x x)" 'x))           ; (* 2 x)
+(defq d2 (. cas :nth-diff "(^ x 4)" 'x 2))     ; (* 12 (^ x 2))
+```
+
+### Expression Transformation Pipeline
+
+```lisp
+(import "lib/expr/parser.inc")
+(import "lib/expr/diff.inc")
+(import "lib/expr/simplify.inc")
+(import "lib/expr/expand.inc")
+
+(defun transform-pipeline (expr-str)
+  ; Multi-stage transformation
+  (defq parsed (expr-parse expr-str 'sexp))
+
+  ; Stage 1: Expand
+  (defq expanded (expand parsed))
+  (print "Expanded: " expanded)
+
+  ; Stage 2: Differentiate
+  (defq deriv (diff expanded 'x))
+  (print "Derivative: " deriv)
+
+  ; Stage 3: Simplify
+  (defq simplified (simplify deriv))
+  (print "Simplified: " simplified)
+
+  simplified)
+
+; Use it
+(transform-pipeline "(* (+ x 1) (+ x 2))")
+; Expanded: (+ (* x (+ x 2)) (* 1 (+ x 2)))
+; Derivative: ...
+; Simplified: (+ (* 2 x) 3)
+```
+
+### API Reference
+
+**Parser Functions:**
+- `(expr-parse str format)` - Parse expression from string
+- `(expr-tokenize str)` - Tokenize an expression
+
+**Differentiation Functions:**
+- `(diff expr var)` - Compute derivative
+- `(nth-derivative expr var n)` - Compute nth derivative
+- `(partial-diff expr vars)` - Partial derivatives
+- `(gradient expr vars)` - Gradient vector
+
+**Simplification Functions:**
+- `(simplify expr)` - Simplify expression
+- `(expand expr)` - Expand products over sums
+
+**Evaluation Functions:**
+- `(expr-eval expr)` - Evaluate expression
+
+**Statistics Functions:**
+- `(expr-stats expr)` - Get statistics map
+- `(expr-depth expr)` - Tree depth
+- `(expr-node-count expr)` - Count nodes
+- `(expr-complexity expr)` - Complexity score
+
+**Serialization Functions:**
+- `(expr-serialize expr format color)` - Serialize to format
+
+All libraries follow the ChrysaLisp module pattern with `(env-push)` and `(export)` for clean encapsulation.
+
 ## Supported Operations
 
 ### Arithmetic
