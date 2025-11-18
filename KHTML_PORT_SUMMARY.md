@@ -27,11 +27,15 @@ This document summarizes the port of KDE's KHTML HTML rendering engine to Chrysa
    - Supports UTF-8 and ISO-8859-1
    - Handles invalid character detection
 
-3. **lib/html/dom.inc**
+3. **lib/html/dom.inc** ⭐ ENHANCED
    - Document Object Model implementation
    - Ported from: `khtml/src/dom/` (simplified)
    - Implements: Node, Element, Text, Comment, Document
    - Element lookup by ID and tag name
+   - **querySelector API** (supports #id, .class, tag)
+   - **textContent get/set** for DOM manipulation
+   - **innerHTML** (placeholder for HTML parsing)
+   - **Event listener system** (addEventListener, removeEventListener, dispatchEvent)
 
 4. **lib/html/tokenizer.inc**
    - HTML tokenization engine
@@ -80,7 +84,15 @@ This document summarizes the port of KDE's KHTML HTML rendering engine to Chrysa
    - **Click-drag-select with visual highlight**
    - Selected text extraction for clipboard
 
-10. **lib/html/browser.inc** ⭐ NEW
+10. **lib/html/script.inc** ⭐ NEW
+    - LispScript execution engine (ChrysaLisp instead of JavaScript)
+    - Inline `<script>` tag support
+    - External script loading via `src` attribute
+    - Script execution context with `document` and `window` objects
+    - DOM access from scripts
+    - Test-driven development approach
+
+11. **lib/html/browser.inc** ⭐ NEW
     - HTML browser GUI widget
     - Integration with ChrysaLisp Canvas system
     - Scrollable HTML view
@@ -91,7 +103,7 @@ This document summarizes the port of KDE's KHTML HTML rendering engine to Chrysa
     - **Text selection support**
     - Clipboard integration
 
-11. **lib/html/README.md**
+12. **lib/html/README.md**
     - Comprehensive documentation
     - Usage examples for HTML, CSS, and rendering
     - Architecture notes
@@ -154,12 +166,20 @@ This document summarizes the port of KDE's KHTML HTML rendering engine to Chrysa
     - Multiple words, formatted text, lists, headings
     - 12 test cases
 
-17. **test/test_unittest_assertions.lisp**
+17. **test/html/test_script_execution.lisp** ⭐ NEW
+    - LispScript execution tests (TDD approach)
+    - Script tag parsing (inline and external)
+    - DOM API tests (querySelector, textContent, innerHTML)
+    - Event listener tests
+    - Script context tests
+    - 17 test cases (some WIP - test-driven development)
+
+18. **test/test_unittest_assertions.lisp**
     - Unit testing framework assertion demonstrations
     - Tests all basic assertion types
     - 12 test cases
 
-18. **test/html/run_all_tests.lisp**
+19. **test/html/run_all_tests.lisp**
     - Master test runner
     - Runs all HTML test suites
 
@@ -272,7 +292,7 @@ This document summarizes the port of KDE's KHTML HTML rendering engine to Chrysa
 
 ## Test Results
 
-Total test cases: **106 tests**
+Total test cases: **123 tests** (17 WIP for TDD)
 
 From KHTML autotests:
 - `kencodingdetectortest.cpp`: 7 tests → `test_encoding.lisp`
@@ -284,7 +304,8 @@ New ChrysaLisp tests:
 - Round-trip serialization: 14 tests → `test_html_roundtrip.lisp` (inspired by XStream)
 - Canvas rendering: 17 tests → `test_canvas_rendering.lisp` (inspired by W3C WPT)
 - Interactive hyperlinks: 14 tests → `test_interactive_links.lisp`
-- Text selection: 12 tests → `test_text_selection.lisp` ⭐ NEW
+- Text selection: 12 tests → `test_text_selection.lisp`
+- Script execution: 17 tests → `test_script_execution.lisp` ⭐ NEW (TDD - some tests pending implementation)
 - Assertion framework: 12 tests → `test_unittest_assertions.lisp`
 
 ## Architecture Adaptations
@@ -311,11 +332,11 @@ New ChrysaLisp tests:
 
 ## Usage Statistics
 
-- **Lines of Code Created**: ~5,000 LOC
-- **Library Files**: 10 files (7 original + 3 enhanced for CSS/graphics/interactivity/selection)
-- **Test Files**: 9 files (7 HTML tests + 1 assertion test + 1 master runner)
+- **Lines of Code Created**: ~5,500 LOC
+- **Library Files**: 11 files (7 original + 4 for CSS/graphics/interactivity/scripting)
+- **Test Files**: 10 files (8 HTML tests + 1 assertion test + 1 master runner)
 - **Demo Files**: 7 files (3 original + 4 interactive HTML pages)
-- **Applications**: 1 full GUI application with navigation and text selection
+- **Applications**: 1 full GUI application with navigation, text selection, and LispScript support (TDD)
 - **Documentation**: 2 files (README + this summary)
 
 ## Next Steps

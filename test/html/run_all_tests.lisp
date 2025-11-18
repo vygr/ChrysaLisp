@@ -80,6 +80,13 @@
 	(print "========================================")
 	(import "test/html/test_text_selection.lisp")
 
+	; Run script execution tests
+	(print "")
+	(print "========================================")
+	(print "Script Execution Tests")
+	(print "========================================")
+	(import "test/html/test_script_execution.lisp")
+
 	(print "")
 	(print "========================================")
 	(print "All Tests Complete")

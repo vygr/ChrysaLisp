@@ -16,7 +16,8 @@
 		node_value nil
 		parent_node nil
 		child_nodes (list)
-		attributes (env)))
+		attributes (env)
+		event_listeners (env)))
 
 (defmethod :init dom-node (type name)
 	(setq this-node_type type
@@ -24,7 +25,8 @@
 		this-node_value nil
 		this-parent_node nil
 		this-child_nodes (list)
-		this-attributes (env))
+		this-attributes (env)
+		this-event_listeners (env))
 	this)
 
 (defmethod :append-child dom-node (child)
@@ -52,6 +54,44 @@
 (defmethod :has-attribute dom-node (name)
 	; Check if attribute exists
 	(not (nil? (get this-attributes name))))
+
+(defmethod :get-text-content dom-node ()
+	; Get all text content from node and descendants
+	(defq result "")
+	(cond
+		((= this-node_type NODE_TEXT)
+			this-node_value)
+		((= this-node_type NODE_ELEMENT)
+			(each! 0 -1 (lambda (child)
+				(setq result (cat result (. child :get-text-content))))
+				this-child_nodes)
+			result)
+		(:t "")))
+
+(defmethod :set-text-content dom-node (text)
+	; Set text content (replaces all children with text node)
+	(when (= this-node_type NODE_ELEMENT)
+		; Remove all children
+		(setq this-child_nodes (list))
+
+		; Add new text node
+		(when (and text (> (length text) 0))
+			(defq text_node (text-node :init text))
+			(. this :append-child text_node)))
+	text)
+
+(defmethod :set-inner-html dom-node (html)
+	; Set innerHTML - parses HTML and replaces children
+	; This requires parser import, will be implemented in script engine
+	(when (= this-node_type NODE_ELEMENT)
+		; Remove all children
+		(setq this-child_nodes (list))
+
+		; Parse HTML and add as children
+		; Note: This is a placeholder - actual implementation
+		; will parse HTML and create DOM nodes
+		this)
+	html)
 
 (defmethod :to-string dom-node (&optional indent)
 	; Convert node to string representation
@@ -156,3 +196,62 @@
 			(. node 'child_nodes)))
 	(search-node this)
 	results)
+
+(defmethod :query-selector html-document (selector)
+	; Query selector - supports simple selectors: .class, #id, tag
+	(cond
+		; ID selector
+		((starts-with "#" selector)
+			(. this :get-element-by-id (rest selector)))
+
+		; Class selector
+		((starts-with "." selector)
+			(defq class-name (rest selector))
+			(defq results (list))
+			(defun search-node (node)
+				(when (= (. node 'node_type) NODE_ELEMENT)
+					(defq classes (split (. node :get-attribute "class") " "))
+					(when (some! 0 -1 (lambda (c) (= c class-name)) classes)
+						(push results node)))
+				(each! 0 -1 (lambda (child) (search-node child))
+					(. node 'child_nodes)))
+			(search-node this)
+			(if (> (length results) 0) (first results) nil))
+
+		; Tag selector
+		(:t
+			(defq results (. this :get-elements-by-tag-name selector))
+			(if (> (length results) 0) (first results) nil))))
+
+;; Event handling methods (added to dom-node base class)
+(defmethod :add-event-listener dom-node (event-type callback)
+	; Add an event listener
+	; event-type: string like "click", "mousedown", etc.
+	; callback: lambda to call when event fires
+	(defq listeners (get this-event_listeners event-type))
+	(unless listeners
+		(setq listeners (list))
+		(set-insert this-event_listeners event-type listeners))
+
+	; Add callback to list
+	(push listeners callback)
+	(set-insert this-event_listeners event-type listeners)
+	this)
+
+(defmethod :remove-event-listener dom-node (event-type callback)
+	; Remove an event listener
+	(defq listeners (get this-event_listeners event-type))
+	(when listeners
+		(setq listeners (filter (lambda (cb) (/= cb callback)) listeners))
+		(set-insert this-event_listeners event-type listeners))
+	this)
+
+(defmethod :dispatch-event dom-node (event-type event-data)
+	; Dispatch an event to all listeners
+	(defq listeners (get this-event_listeners event-type))
+	(when listeners
+		(each! 0 -1 (lambda (callback)
+			; Call callback with event data
+			(callback event-data))
+			listeners))
+	this)
