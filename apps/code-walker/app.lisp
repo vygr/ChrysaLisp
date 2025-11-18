@@ -10,7 +10,7 @@
 
 (enums +event 0
 	(enum close max min)
-	(enum process_btn clear_btn step_expand_btn export_btn toggle_diff_btn)
+	(enum process_btn clear_btn step_expand_btn export_btn toggle_diff_btn toggle_tree_btn)
 	(enum input_field)
 	(enum example1 example2 example3 example4))
 
@@ -32,7 +32,7 @@
 ; Helper Functions
 ;;;;;;;;;;;;;;;;;;;;;
 
-(defq *show_diffs* :t)
+(defq *show_diffs* :t *show_tree* :nil)
 
 (defun compute-diff (old new)
 	; Compute a simple diff between two pretty-printed forms
@@ -84,6 +84,53 @@
 			(setq current (cat current (str (char ch))))))
 		str)
 	(when (nempty? current) (push result current))
+	result)
+
+(defun tree-print (obj &optional prefix is_last)
+	; Print AST as ASCII tree structure
+	(setd prefix "" is_last :t)
+	(defq result (list))
+
+	(cond
+		((list? obj)
+			(if (= (length obj) 0)
+				(push result (cat prefix (if is_last "└── " "├── ") "()"))
+				(progn
+					; Print opening paren with count
+					(push result (cat prefix (if is_last "└── " "├── ")
+						"( [" (str (length obj)) " items]"))
+
+					; Print each child
+					(defq new_prefix (cat prefix (if is_last "    " "│   ")))
+					(each (lambda (item)
+						(defq child_is_last (= (! ) (dec (length obj))))
+						(each (lambda (line) (push result line))
+							(tree-print item new_prefix child_is_last)))
+						obj)
+
+					; Print closing paren
+					(push result (cat new_prefix "    )")))))
+
+		((sym? obj)
+			(push result (cat prefix (if is_last "└── " "├── ")
+				"sym: " (str obj))))
+
+		((num? obj)
+			(push result (cat prefix (if is_last "└── " "├── ")
+				"num: " (str obj))))
+
+		((str? obj)
+			(push result (cat prefix (if is_last "└── " "├── ")
+				"str: \"" obj "\"")))
+
+		((func? obj)
+			(push result (cat prefix (if is_last "└── " "├── ")
+				"func: " (str obj))))
+
+		(:t
+			(push result (cat prefix (if is_last "└── " "├── ")
+				(str obj)))))
+
 	result)
 
 (defun safe-read (code_str)
@@ -191,11 +238,13 @@
 		(ui-button step_btn (:text "Step Expand" :font +font_title))
 		(ui-button export_btn (:text "Export" :font +font_title))
 		(ui-button *diff_toggle_btn* (:text "Diffs: ON" :font +font_title))
+		(ui-button *tree_toggle_btn* (:text "Tree: OFF" :font +font_title))
 		(ui-button clear_btn (:text "Clear" :font +font_title))
 		(. process_btn :connect +event_process_btn)
 		(. step_btn :connect +event_step_expand_btn)
 		(. export_btn :connect +event_export_btn)
 		(. *diff_toggle_btn* :connect +event_toggle_diff_btn)
+		(. *tree_toggle_btn* :connect +event_toggle_tree_btn)
 		(. clear_btn :connect +event_clear_btn))
 
 	; Example buttons section
@@ -220,7 +269,9 @@
 				(ui-label _ (:text "Phase 1: READ (Parse to AST)"
 					:font +font_title :color +argb_cyan :border 0))
 				(ui-label *read_output* (:text "" :font +font_mono
-					:color +argb_white :border 0 :flow_flags +flow_flag_wrap_text)))
+					:color +argb_white :border 0 :flow_flags +flow_flag_wrap_text))
+				(ui-label *tree_read* (:text "" :font +font_mono
+					:color +argb_cyan :border 0 :flow_flags +flow_flag_wrap_text)))
 
 			; Phase 2: Expand (Macro Expansion)
 			(ui-flow _ (:flow_flags +flow_down_fill :color +section_color :border 5)
@@ -229,7 +280,9 @@
 				(ui-label *expand_output* (:text "" :font +font_mono
 					:color +argb_white :border 0 :flow_flags +flow_flag_wrap_text))
 				(ui-label *diff_read_expand* (:text "" :font +font_mono
-					:color +argb_grey6 :border 0 :flow_flags +flow_flag_wrap_text)))
+					:color +argb_grey6 :border 0 :flow_flags +flow_flag_wrap_text))
+				(ui-label *tree_expand* (:text "" :font +font_mono
+					:color +argb_yellow :border 0 :flow_flags +flow_flag_wrap_text)))
 
 			; Phase 3: Bind (Pre-binding)
 			(ui-flow _ (:flow_flags +flow_down_fill :color +section_color :border 5)
@@ -238,7 +291,9 @@
 				(ui-label *bind_output* (:text "" :font +font_mono
 					:color +argb_white :border 0 :flow_flags +flow_flag_wrap_text))
 				(ui-label *diff_expand_bind* (:text "" :font +font_mono
-					:color +argb_grey6 :border 0 :flow_flags +flow_flag_wrap_text)))
+					:color +argb_grey6 :border 0 :flow_flags +flow_flag_wrap_text))
+				(ui-label *tree_bind* (:text "" :font +font_mono
+					:color +argb_green :border 0 :flow_flags +flow_flag_wrap_text)))
 
 			; Phase 4: Eval (Optional - Result)
 			(ui-flow _ (:flow_flags +flow_down_fill :color +section_color :border 5)
@@ -309,6 +364,33 @@
 					(compute-diff *last_expand* *last_bind*)))
 			(.-> *diff_expand_bind* :layout :dirty))))
 
+(defun update-trees ()
+	; Update tree visualizations based on current state
+	(when *show_tree*
+		; Tree for READ
+		(when *last_read*
+			(set *tree_read* :text
+				(cat "\n[Tree Structure]\n"
+					(apply cat (map (lambda (line) (cat line "\n"))
+						(tree-print *last_read*)))))
+			(.-> *tree_read* :layout :dirty))
+
+		; Tree for EXPAND
+		(when *last_expand*
+			(set *tree_expand* :text
+				(cat "\n[Tree Structure]\n"
+					(apply cat (map (lambda (line) (cat line "\n"))
+						(tree-print *last_expand*)))))
+			(.-> *tree_expand* :layout :dirty))
+
+		; Tree for BIND
+		(when *last_bind*
+			(set *tree_bind* :text
+				(cat "\n[Tree Structure]\n"
+					(apply cat (map (lambda (line) (cat line "\n"))
+						(tree-print *last_bind*)))))
+			(.-> *tree_bind* :layout :dirty))))
+
 (defun process-code ()
 	; Process the code through all phases
 	(defq code_str (get :text *input_field*))
@@ -376,8 +458,9 @@
 							(defq eval_result (safe-eval bind_result))
 							(set *eval_output* :text (pretty-print eval_result))))))))
 
-	; Update diffs if enabled
+	; Update diffs and trees if enabled
 	(update-diffs)
+	(update-trees)
 
 	; Update layout
 	(.-> *read_output* :layout :dirty)
@@ -400,6 +483,22 @@
 			(.-> *diff_read_expand* :layout :dirty)
 			(.-> *diff_expand_bind* :layout :dirty))))
 
+(defun toggle-tree ()
+	; Toggle tree visualization on/off
+	(setq *show_tree* (not *show_tree*))
+	(set *tree_toggle_btn* :text (if *show_tree* "Tree: ON" "Tree: OFF"))
+	(.-> *tree_toggle_btn* :layout :dirty)
+
+	(if *show_tree*
+		(update-trees)
+		(progn
+			(set *tree_read* :text "")
+			(set *tree_expand* :text "")
+			(set *tree_bind* :text "")
+			(.-> *tree_read* :layout :dirty)
+			(.-> *tree_expand* :layout :dirty)
+			(.-> *tree_bind* :layout :dirty))))
+
 (defun clear-all ()
 	; Clear all output fields
 	(set *input_field* :text "")
@@ -409,6 +508,9 @@
 	(set *eval_output* :text "")
 	(set *diff_read_expand* :text "")
 	(set *diff_expand_bind* :text "")
+	(set *tree_read* :text "")
+	(set *tree_expand* :text "")
+	(set *tree_bind* :text "")
 	(setq *expansion_steps* (list) *current_step* 0)
 	(setq *last_read* :nil *last_expand* :nil *last_bind* :nil)
 	(.-> *input_field* :layout :dirty)
@@ -417,7 +519,10 @@
 	(.-> *bind_output* :layout :dirty)
 	(.-> *eval_output* :layout :dirty)
 	(.-> *diff_read_expand* :layout :dirty)
-	(.-> *diff_expand_bind* :layout :dirty))
+	(.-> *diff_expand_bind* :layout :dirty)
+	(.-> *tree_read* :layout :dirty)
+	(.-> *tree_expand* :layout :dirty)
+	(.-> *tree_bind* :layout :dirty))
 
 (defun load-example (code)
 	; Load example code into input field and process it
@@ -497,6 +602,7 @@
 					((= id +event_step_expand_btn) (step-expand))
 					((= id +event_export_btn) (export-results))
 					((= id +event_toggle_diff_btn) (toggle-diffs))
+					((= id +event_toggle_tree_btn) (toggle-tree))
 					((= id +event_clear_btn) (clear-all))
 					((= id +event_example1)
 						(load-example "(defun add (a b) (+ a b))"))

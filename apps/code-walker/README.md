@@ -16,7 +16,8 @@ The Code Walker is an interactive application that demonstrates how ChrysaLisp p
 - **Live Code Processing**: Enter any ChrysaLisp expression and see it transform through each phase
 - **Step-by-Step Macro Expansion**: Click "Step Expand" to see macros expand one level at a time
 - **Diff View**: Toggle-able diff display showing exactly what changed between phases (READ→EXPAND, EXPAND→BIND)
-- **Improved Formatting**: Indented tree view for complex nested structures
+- **Tree Visualization**: ASCII tree view showing hierarchical AST structure with node types and counts
+- **Improved Formatting**: Indented s-expression view for complex nested structures
 - **Memory Address Visualization**: See which symbols are pre-bound to function pointers (O(1) optimization)
 - **Export Functionality**: Save all phase results to a timestamped text file
 - **Example Library**: Quick-load common patterns (defun, let, case, ui-window)
@@ -38,10 +39,12 @@ The Code Walker is an interactive application that demonstrates how ChrysaLisp p
 - **Step Expand Button**: Expand macros one level at a time to see intermediate states
 - **Export Button**: Save all results to a timestamped file in your home directory
 - **Diffs Toggle Button**: Turn diff display ON/OFF to see what changes between phases
+- **Tree Toggle Button**: Turn tree visualization ON/OFF to see AST structure
 - **Clear Button**: Reset all fields
 - **Example Buttons**: Load common macro examples (defun, let, case, ui-window)
 - **Output Panels**: View each phase of the compilation pipeline with color coding
 - **Diff Panels**: See line-by-line differences between phases (when enabled)
+- **Tree Panels**: See ASCII tree visualization of AST structure (when enabled)
 
 ## Example Explorations
 
@@ -190,6 +193,62 @@ The "Diffs: ON/OFF" toggle button controls diff display:
 
 This clearly shows that `defun` is just syntactic sugar that expands to `defq` + `lambda`.
 
+### Tree Visualization
+
+The "Tree: ON/OFF" toggle button controls ASCII tree display:
+
+1. With tree view enabled, you'll see hierarchical structure for each phase:
+   - **READ phase**: Original parsed AST structure
+   - **EXPAND phase**: Structure after macro expansion
+   - **BIND phase**: Structure with pre-bound functions
+
+2. Tree format uses ASCII box-drawing characters:
+   ```
+   └── ( [3 items]
+       ├── sym: defun
+       ├── sym: add
+       └── ( [2 items]
+           ├── sym: a
+           └── sym: b
+           )
+   ```
+
+3. Shows node types:
+   - `sym:` for symbols
+   - `num:` for numbers
+   - `str:` for strings
+   - `func:` for function objects (after binding)
+   - `( [N items]` for lists
+
+4. Perfect for:
+   - Understanding AST structure visually
+   - Seeing nested list depth
+   - Counting items in each level
+   - Comparing structure changes between phases
+
+**Example Tree Output:**
+```
+[Tree Structure]
+└── ( [4 items]
+    ├── sym: defq
+    ├── sym: add
+    ├── ( [3 items]
+    │   ├── sym: lambda
+    │   ├── ( [2 items]
+    │   │   ├── sym: a
+    │   │   └── sym: b
+    │   │       )
+    │   └── ( [3 items]
+    │       ├── func: <Func:0x...>
+    │       ├── sym: a
+    │       └── sym: b
+    │           )
+    │       )
+    └── ...
+```
+
+The tree makes nested structure immediately clear and shows how lists are composed.
+
 ### Export Results
 
 Click "Export" to save a complete analysis to your home directory:
@@ -203,6 +262,7 @@ Click "Export" to save a complete analysis to your home directory:
 Potential improvements still to implement:
 - Compare multiple expressions side-by-side
 - Disassemble to VP instructions
-- Tree visualization of AST structure with interactive nodes
-- Syntax highlighting within output panels
+- Interactive tree nodes (expand/collapse)
+- Per-word syntax highlighting within output panels
 - History/session management
+- Save/load workspaces

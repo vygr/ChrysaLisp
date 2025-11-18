@@ -1,6 +1,55 @@
 # Code Walker / AST Explorer - Changelog
 
-## Version 3.0 - Diff View (Current)
+## Version 4.0 - Tree Visualization (Current)
+
+**Date:** 2025-11-18
+
+### New Feature: ASCII Tree Visualization
+
+**Visual AST structure exploration!**
+
+#### Tree Display System
+- **Toggle Button:** "Tree: ON/OFF" to control tree visualization
+- **Three Tree Panels:** One for each major phase (READ, EXPAND, BIND)
+- **ASCII Box Drawing:** Uses `├──`, `└──`, `│` for clear hierarchy
+- **Node Type Labels:** Shows `sym:`, `num:`, `str:`, `func:` for different types
+- **Item Counts:** Displays `[N items]` for lists
+
+#### Implementation
+- `tree-print()` - Recursive ASCII tree builder (46 lines)
+- `update-trees()` - Refreshes all tree displays
+- `toggle-tree()` - Toggles tree visibility on/off
+- Three new UI labels: `*tree_read*`, `*tree_expand*`, `*tree_bind*`
+
+#### Example Output
+```
+[Tree Structure]
+└── ( [4 items]
+    ├── sym: defq
+    ├── sym: add
+    ├── ( [3 items]
+    │   ├── sym: lambda
+    │   ├── ( [2 items]
+    │   │   ├── sym: a
+    │   │   └── sym: b
+    │   │       )
+    │   └── ( [3 items]
+    │       ├── func: <Func:0x...>
+    │       ├── sym: a
+    │       └── sym: b
+```
+
+#### Educational Impact
+Makes structure comprehension instant:
+- Visual hierarchy of nested forms
+- Node types clearly labeled
+- List depths and item counts visible
+- Easy comparison between phases
+- Perfect for understanding complex macros
+
+---
+
+## Version 3.0 - Diff View
 
 **Date:** 2025-11-18
 
