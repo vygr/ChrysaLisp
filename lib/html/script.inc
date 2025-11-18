@@ -97,14 +97,50 @@
 
 	this)
 
+(defmethod :register-inline-handlers script-executor ()
+	; Register onclick and other inline event handlers
+	; Scans document for elements with onclick, onmousedown, etc. attributes
+
+	(defun process-element (elem)
+		; Check for onclick attribute
+		(when (. elem :has-attribute "onclick")
+			(defq code (. elem :get-attribute "onclick"))
+			(defq ctx this-context)
+
+			; Create event listener that executes the code
+			(. elem :add-event-listener "click"
+				(lambda (event)
+					; Bind document and window for handler
+					(defq document (. ctx 'document))
+					(defq window (. ctx 'window))
+
+					; Execute the onclick code
+					(catch
+						(eval (read (cat code)))
+						(lambda (e)
+							(print "onclick error: " e))))))
+
+		; Recursively process children
+		(each! 0 -1 (lambda (child)
+			(when (= (. child 'node_type) NODE_ELEMENT)
+				(process-element child)))
+			(. elem 'child_nodes)))
+
+	; Start from document root
+	(defq root (. this-document 'document_element))
+	(when root (process-element root))
+
+	this)
+
 (defmethod :get-context script-executor ()
 	; Get the script execution context
 	this-context)
 
 ;; Helper function to execute scripts in a document
 (defun execute-document-scripts (doc &optional base-path)
-	; Execute all scripts in a document
+	; Execute all scripts in a document and register inline handlers
 	(defq executor (script-executor :init doc base-path))
 	(. executor :execute-scripts)
+	(. executor :register-inline-handlers)
 	executor)
 

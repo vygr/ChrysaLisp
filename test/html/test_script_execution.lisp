@@ -222,5 +222,22 @@
 			(defq ctx (. executor :get-context))
 			(defq final_value (. ctx :get-global "counter"))
 			(assert-eq 3 final_value))
+
+		; Test onclick attribute with inline handler
+		(deftest "Element onclick Attribute"
+			(import "lib/html/script.inc")
+
+			(defq html "<div id=\"box\" onclick=\"(. window :set-global 'clicked' :t)\">Click me</div>")
+			(defq doc (parse-html html))
+
+			; Process onclick attributes
+			(defq executor (script-executor :init doc))
+			(. executor :register-inline-handlers)
+
+			; Verify click event listener was registered
+			(defq div (. doc :get-element-by-id "box"))
+			(defq listeners (get (. div 'event_listeners) "click"))
+			(assert-not-nil listeners)
+			(assert-eq 1 (length listeners)))
 	))
 
