@@ -5,66 +5,162 @@
     <style>
         body {
             font-family: 'Courier New', monospace;
-            margin: 20px;
+            margin: 0;
+            padding: 0;
             background-color: #1e1e1e;
             color: #d4d4d4;
         }
-        h1 { color: #007acc; }
-        h2 { color: #4ec9b0; margin-top: 30px; }
-        .section {
+        .toolbar {
             background-color: #252526;
-            padding: 15px;
-            margin: 15px 0;
-            border-left: 3px solid #007acc;
+            padding: 8px;
+            border-bottom: 1px solid #3e3e42;
+            display: flex;
+            gap: 2px;
         }
-        #console-output, #dom-tree {
+        .tab {
+            padding: 8px 16px;
+            cursor: pointer;
+            background-color: #2d2d30;
+            border: none;
+            color: #cccccc;
+            font-family: inherit;
+        }
+        .tab.active {
+            background-color: #1e1e1e;
+            border-bottom: 2px solid #007acc;
+        }
+        .panel {
+            display: none;
+            padding: 15px;
+            height: calc(100vh - 100px);
+            overflow-y: auto;
+        }
+        .panel.active { display: block; }
+
+        h2 { color: #4ec9b0; margin-top: 0; }
+
+        #console-output, #dom-tree, #network-list, #styles-view {
             font-size: 12px;
             line-height: 1.6;
             white-space: pre-wrap;
-            max-height: 400px;
-            overflow-y: auto;
             background-color: #1e1e1e;
             padding: 10px;
             border: 1px solid #3e3e42;
+            margin: 10px 0;
         }
+
         .log-info { color: #4fc3f7; }
         .log-warn { color: #ffb74d; }
         .log-error { color: #f44336; }
+
+        .network-entry {
+            padding: 5px;
+            border-bottom: 1px solid #2d2d30;
+        }
+        .network-ok { color: #4caf50; }
+        .network-error { color: #f44336; }
+
+        .style-prop {
+            color: #9cdcfe;
+        }
+        .style-value {
+            color: #ce9178;
+        }
+
         button {
-            padding: 8px 16px;
+            padding: 6px 12px;
             background-color: #0e639c;
             color: white;
             border: none;
             cursor: pointer;
             margin: 5px;
+            font-family: inherit;
         }
         button:hover { background-color: #1177bb; }
+
+        .stats {
+            background-color: #252526;
+            padding: 8px;
+            margin: 10px 0;
+            border-left: 3px solid #007acc;
+        }
     </style>
 </head>
 <body>
-    <h1>DevTools Inspector</h1>
-    <p>Chrome/Firefox-style debugging for LispScript</p>
-
-    <div class="section">
-        <h2>Console</h2>
-        <button onclick="((. window :get-global 'add-log') 'info' 'User clicked button')">Add Info Log</button>
-        <button onclick="((. window :get-global 'add-log') 'warn' 'This is a warning')">Add Warning</button>
-        <button onclick="((. window :get-global 'add-log') 'error' 'This is an error')">Add Error</button>
-        <button onclick="((. window :get-global 'clear-logs'))">Clear Console</button>
-        <div id="console-output">Loading console...</div>
+    <div class="toolbar">
+        <button class="tab active" id="tab-console" onclick="((. window :get-global 'switch-tab') 'console')">Console</button>
+        <button class="tab" id="tab-elements" onclick="((. window :get-global 'switch-tab') 'elements')">Elements</button>
+        <button class="tab" id="tab-styles" onclick="((. window :get-global 'switch-tab') 'styles')">Styles</button>
+        <button class="tab" id="tab-network" onclick="((. window :get-global 'switch-tab') 'network')">Network</button>
     </div>
 
-    <div class="section">
+    <!-- Console Panel -->
+    <div id="console-panel" class="panel active">
+        <h2>Console</h2>
+        <button onclick="((. window :get-global 'add-log') 'info' 'User message')">Add Info</button>
+        <button onclick="((. window :get-global 'add-log') 'warn' 'Warning')">Add Warning</button>
+        <button onclick="((. window :get-global 'add-log') 'error' 'Error')">Add Error</button>
+        <button onclick="((. window :get-global 'clear-logs'))">Clear</button>
+        <div class="stats" id="console-stats">0 messages</div>
+        <div id="console-output"></div>
+    </div>
+
+    <!-- Elements Panel -->
+    <div id="elements-panel" class="panel">
         <h2>DOM Tree</h2>
         <button onclick="((. window :get-global 'refresh-tree'))">Refresh Tree</button>
-        <div id="dom-tree">Loading DOM tree...</div>
+        <div class="stats" id="dom-stats">0 elements</div>
+        <div id="dom-tree"></div>
+    </div>
+
+    <!-- Styles Panel -->
+    <div id="styles-panel" class="panel">
+        <h2>Element Styles</h2>
+        <p>Shows computed styles for selected element</p>
+        <div class="stats" id="styles-stats">No element selected</div>
+        <div id="styles-view">
+            <div class="style-prop">font-family: <span class="style-value">'Courier New', monospace</span></div>
+            <div class="style-prop">background-color: <span class="style-value">#1e1e1e</span></div>
+            <div class="style-prop">color: <span class="style-value">#d4d4d4</span></div>
+        </div>
+    </div>
+
+    <!-- Network Panel -->
+    <div id="network-panel" class="panel">
+        <h2>Network</h2>
+        <button onclick="((. window :get-global 'add-network') '/demo/page.html' 'GET' 'OK')">Add Resource</button>
+        <button onclick="((. window :get-global 'clear-network'))">Clear</button>
+        <div class="stats" id="network-stats">0 requests</div>
+        <div id="network-list"></div>
     </div>
 
     <script>
-        ; Initialize console log storage
+        ; Initialize global state
+        (. window :set-global "active-tab" "console")
         (. window :set-global "logs" (list))
+        (. window :set-global "network-requests" (list))
 
-        ; Function to add log
+        ; Function to switch tabs
+        (. window :set-global "switch-tab"
+            (lambda (tab-name)
+                ; Update all tabs
+                (defq tabs (list "console" "elements" "styles" "network"))
+                (each! 0 -1 (lambda (t)
+                    (defq tab-elem (. document :get-element-by-id (cat "tab-" t)))
+                    (defq panel-elem (. document :get-element-by-id (cat t "-panel")))
+
+                    (if (= t tab-name)
+                        (progn
+                            (. tab-elem :set-attribute "class" "tab active")
+                            (. panel-elem :set-attribute "class" "panel active"))
+                        (progn
+                            (. tab-elem :set-attribute "class" "tab")
+                            (. panel-elem :set-attribute "class" "panel"))))
+                    tabs)
+
+                (. window :set-global "active-tab" tab-name)))
+
+        ; Console functions
         (. window :set-global "add-log"
             (lambda (level message)
                 (defq logs (. window :get-global "logs"))
@@ -72,13 +168,11 @@
                 (. window :set-global "logs" logs)
                 ((. window :get-global "render-console"))))
 
-        ; Function to clear logs
         (. window :set-global "clear-logs"
             (lambda ()
                 (. window :set-global "logs" (list))
                 ((. window :get-global "render-console"))))
 
-        ; Function to render console
         (. window :set-global "render-console"
             (lambda ()
                 (defq output (. document :get-element-by-id "console-output"))
@@ -100,17 +194,23 @@
                     (setq html (cat html "<div class=\"" class-str "\">" level-str " " msg "</div>")))
                     logs)
 
-                (. output :set-inner-html html)))
+                (. output :set-inner-html html)
 
-        ; Function to render DOM tree
+                ; Update stats
+                (defq stats (. document :get-element-by-id "console-stats"))
+                (. stats :set-text-content (cat (str (length logs)) " messages"))))
+
+        ; DOM tree functions
         (. window :set-global "render-tree"
             (lambda ()
                 (defq tree-elem (. document :get-element-by-id "dom-tree"))
-                (defq tree-text "DOM Tree:\n\n")
+                (defq tree-text "")
+                (defq elem-count 0)
 
                 (defun render-node (node depth)
                     (defq indent (apply cat (map (lambda (_) "  ") (range depth))))
                     (when (= (. node 'node_type) NODE_ELEMENT)
+                        (setq elem-count (+ elem-count 1))
                         (defq tag (. node 'node_name))
                         (defq id (. node :get-attribute "id"))
                         (defq line (cat indent "<" tag))
@@ -125,24 +225,62 @@
                             (. node 'child_nodes))))
 
                 (render-node document 0)
-                (. tree-elem :set-text-content tree-text)))
+                (. tree-elem :set-text-content tree-text)
 
-        ; Refresh tree function
+                ; Update stats
+                (defq stats (. document :get-element-by-id "dom-stats"))
+                (. stats :set-text-content (cat (str elem-count) " elements"))))
+
         (. window :set-global "refresh-tree"
             (lambda ()
                 ((. window :get-global "render-tree"))))
 
+        ; Network functions
+        (. window :set-global "add-network"
+            (lambda (url method status)
+                (defq requests (. window :get-global "network-requests"))
+                (push requests (list url method status))
+                (. window :set-global "network-requests" requests)
+                ((. window :get-global "render-network"))))
+
+        (. window :set-global "clear-network"
+            (lambda ()
+                (. window :set-global "network-requests" (list))
+                ((. window :get-global "render-network"))))
+
+        (. window :set-global "render-network"
+            (lambda ()
+                (defq output (. document :get-element-by-id "network-list"))
+                (defq requests (. window :get-global "network-requests"))
+                (defq html "")
+
+                (each! 0 -1 (lambda (entry)
+                    (bind '(url method status) entry)
+                    (defq class-str
+                        (if (= status "OK") "network-ok" "network-error"))
+                    (setq html (cat html "<div class=\"network-entry\"><span class=\"" class-str "\">" status "</span> " method " " url "</div>")))
+                    requests)
+
+                (. output :set-inner-html html)
+
+                ; Update stats
+                (defq stats (. document :get-element-by-id "network-stats"))
+                (. stats :set-text-content (cat (str (length requests)) " requests"))))
+
         ; Initial render
-        ((. window :get-global "add-log") 'info' "DevTools Inspector initialized")
-        ((. window :get-global "add-log") 'info' "Console and DOM tree ready")
+        ((. window :get-global "render-console"))
         ((. window :get-global "render-tree"))
+        ((. window :get-global "render-network"))
     </script>
 
     <script>
-        ; Add demo logs
-        ((. window :get-global "add-log") 'info' "Page loaded successfully")
-        ((. window :get-global "add-log") 'warn' "Example warning message")
-        ((. window :get-global "add-log") 'error' "Example error for debugging")
+        ; Add demo data
+        ((. window :get-global "add-log") 'info' "DevTools Inspector ready")
+        ((. window :get-global "add-log") 'info' "Monitoring page activity...")
+
+        ; Track demo network requests
+        ((. window :get-global "add-network") "file:///demo/html_pages/devtools.html" "GET" "OK")
+        ((. window :get-global "add-network") "file:///lib/html/devtools.inc" "GET" "OK")
     </script>
 </body>
 </html>

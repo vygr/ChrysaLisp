@@ -139,5 +139,42 @@
 			(assert-eq 1 (length entries))
 			(defq entry (first entries))
 			(assert-eq :error (get entry :level)))
+
+		; Test network tracker creation
+		(deftest "Create Network Tracker"
+			(defq html "<html></html>")
+			(defq doc (parse-html html))
+			(defq inspector (devtools-inspector :init doc))
+
+			(assert-not-nil (. inspector :get-network)))
+
+		; Test network resource tracking
+		(deftest "Track Network Resource"
+			(defq html "<html></html>")
+			(defq doc (parse-html html))
+			(defq inspector (devtools-inspector :init doc))
+
+			(. (. inspector :get-network) :track-resource "/test/file.html" "GET" "OK")
+			(defq resources (. (. inspector :get-network) :get-resources))
+
+			(assert-eq 1 (length resources))
+			(defq res (first resources))
+			(assert-eq "/test/file.html" (get res :url))
+			(assert-eq "GET" (get res :method))
+			(assert-eq "OK" (get res :status)))
+
+		; Test network rendering
+		(deftest "Render Network Resources"
+			(defq html "<html></html>")
+			(defq doc (parse-html html))
+			(defq inspector (devtools-inspector :init doc))
+
+			(. (. inspector :get-network) :track-resource "/page1.html" "GET" "OK")
+			(. (. inspector :get-network) :track-resource "/page2.html" "GET" "OK")
+
+			(defq output (. inspector :render-network))
+			(assert-contains "GET" output)
+			(assert-contains "/page1.html" output)
+			(assert-contains "/page2.html" output))
 	))
 

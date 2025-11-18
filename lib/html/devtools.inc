@@ -177,16 +177,53 @@
 
 	info)
 
-;; DevTools Inspector (combines console and tree)
+;; Network Resource Tracker
+(defclass network-tracker nil
+	(defq
+		resources (list)
+		max_resources 100))
+
+(defmethod :init network-tracker ()
+	(setq this-resources (list)
+		this-max_resources 100)
+	this)
+
+(defmethod :track-resource network-tracker (url method status)
+	; Track a network resource load
+	; url: file path, method: "GET", status: "OK" or "ERROR"
+	(defq entry (env))
+	(set-insert entry :url url)
+	(set-insert entry :method method)
+	(set-insert entry :status status)
+	(set-insert entry :timestamp (time))
+
+	(push this-resources entry)
+
+	; Trim if too many
+	(when (> (length this-resources) this-max_resources)
+		(setq this-resources (slice this-resources 1)))
+
+	this)
+
+(defmethod :get-resources network-tracker ()
+	this-resources)
+
+(defmethod :clear network-tracker ()
+	(setq this-resources (list))
+	this)
+
+;; DevTools Inspector (combines console, tree, and network)
 (defclass devtools-inspector nil
 	(defq
 		console nil
 		tree_viewer nil
+		network nil
 		document nil))
 
 (defmethod :init devtools-inspector (doc)
 	(setq this-console (devtools-console :init)
 		this-tree_viewer (dom-tree-viewer :init doc)
+		this-network (network-tracker :init)
 		this-document doc)
 	this)
 
@@ -196,6 +233,9 @@
 (defmethod :get-tree-viewer devtools-inspector ()
 	this-tree_viewer)
 
+(defmethod :get-network devtools-inspector ()
+	this-network)
+
 (defmethod :render-all devtools-inspector ()
 	; Render complete inspector view
 	(defq output (cat
@@ -204,6 +244,23 @@
 		"\n"
 		"==== DOM TREE ====\n"
 		(. this-tree_viewer :render-tree)
+		"\n"
+		"==== NETWORK ====\n"
+		(. this :render-network)
 		"\n"))
+	output)
+
+(defmethod :render-network devtools-inspector ()
+	; Render network resources
+	(defq resources (. this-network :get-resources))
+	(defq output "")
+
+	(each! 0 -1 (lambda (entry)
+		(defq url (get entry :url))
+		(defq method (get entry :method))
+		(defq status (get entry :status))
+		(setq output (cat output method " " url " - " status "\n")))
+		resources)
+
 	output)
 
