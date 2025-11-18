@@ -131,14 +131,16 @@
 
 ;Advance animation by one frame
 (defun anim-step (state)
+	;(anim-step state) -> :t if continuing, :nil if done
 	(defq mode (. state :find :mode))
-	(when (/= mode +anim_none)
-		(def state :current_step (inc (. state :find :current_step)))
-		;check if animation is complete
-		(when (>= (. state :find :current_step) (. state :find :total_steps))
-			;loop animation
-			(def state :current_step 0)))
-	state)
+	(if (/= mode +anim_none)
+		(progn
+			(def state :current_step (inc (. state :find :current_step)))
+			;check if animation is complete
+			(if (>= (. state :find :current_step) (. state :find :total_steps))
+				:nil ;animation complete
+				:t)) ;animation continues
+		:nil)) ;no animation active
 
 ;Check if animation is active
 (defun anim-active? (state)

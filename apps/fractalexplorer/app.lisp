@@ -7,6 +7,8 @@
 (import "lib/consts/scodes.inc")
 (import "./app.inc")
 (import "./config.inc")
+(import "./animation.inc")
+(import "./export.inc")
 
 (enums +event 0
 	(enum close)
@@ -16,9 +18,10 @@
 	(enum param1_slider param2_slider param3_slider)
 	(enum preset_selector)
 	(enum bookmark_add bookmark_jump)
-	(enum animation_toggle orbit_trap_selector)
+	(enum animation_mode_selector animation_start_stop orbit_trap_selector)
 	(enum smooth_coloring_toggle)
-	(enum save_config load_config))
+	(enum save_config load_config)
+	(enum export_image))
 
 (enums +select 0
 	(enum main task reply timer anim))
@@ -36,13 +39,16 @@
 	animation_mode +anim_none
 	animation_steps 0
 	animation_current 0
+	anim_state :nil
+	animation_running :nil
+	export_counter 0
 	bookmarks (list)
 	stats (stats-create)
 	render_start_time 0
 	)
 
 (ui-window *window* ()
-	(ui-title-bar _ "Fractal Explorer v3.0 - Phase 4 🚀" (0xea19) +event_close)
+	(ui-title-bar _ "Fractal Explorer v3.0 - Phase 5 🚀" (0xea19) +event_close)
 	(ui-flow _ (:flow_flags +flow_right_fill)
 		(ui-flow _ (:flow_flags +flow_down_fill)
 			(ui-canvas *canvas* +width +height +scale)
@@ -119,14 +125,23 @@
 			(.-> *bookmark_jump_btn* (:connect +event_bookmark_jump))
 
 			(ui-label _ (:text "" :font *env_small_font* :color *env_toolbar2_col*))
-			(ui-label _ (:text "=== ANIMATION (Phase 3) ===" :font *env_medium_font* :color *env_toolbar2_col*))
-			(ui-label _ (:text "Coming soon!" :font *env_small_font* :color *env_toolbar2_col*))
-			(ui-label _ (:text "Zoom/Rotate/Explore modes" :font *env_small_font* :color *env_toolbar2_col*))
+			(ui-label _ (:text "=== ANIMATION ===" :font *env_medium_font* :color *env_toolbar2_col*))
+			(. (ui-select *animation_mode_selector* (:text "None")
+				(each (lambda (name)
+					(ui-label _ (:text name)))
+					'("None" "Zoom In" "Zoom Out" "Rotate Params" "Auto-Explore")))
+				:connect +event_animation_mode_selector)
+			(ui-flow _ (:flow_flags +flow_right_fill)
+				(ui-button *animation_start_stop_btn* (:text "Start"))
+				(ui-label *animation_status* (:text "Ready" :font *env_small_font* :color *env_toolbar2_col*)))
+			(.-> *animation_start_stop_btn* (:connect +event_animation_start_stop))
 
 			(ui-label _ (:text "" :font *env_small_font* :color *env_toolbar2_col*))
-			(ui-label _ (:text "=== EXPORT (Phase 3) ===" :font *env_medium_font* :color *env_toolbar2_col*))
-			(ui-label _ (:text "PPM export available!" :font *env_small_font* :color *env_toolbar2_col*))
-			(ui-label _ (:text "See export.inc for API" :font *env_small_font* :color *env_toolbar2_col*))
+			(ui-label _ (:text "=== EXPORT ===" :font *env_medium_font* :color *env_toolbar2_col*))
+			(ui-flow _ (:flow_flags +flow_right_fill)
+				(ui-button *export_image_btn* (:text "Export PPM")))
+			(.-> *export_image_btn* (:connect +event_export_image))
+			(ui-label *export_status* (:text "Ready to export" :font *env_small_font* :color *env_toolbar2_col*))
 
 			(ui-label _ (:text "" :font *env_small_font* :color *env_toolbar2_col*))
 			(ui-label _ (:text "=== KEYBOARD SHORTCUTS ===" :font *env_small_font* :color *env_toolbar2_col*))
@@ -370,6 +385,48 @@
 						(setq orbit_trap sel_idx)
 						(reset))
 
+					((= id +event_animation_mode_selector)
+						;animation mode changed
+						(defq sel_idx (. *animation_mode_selector* :get_selected))
+						(setq animation_mode sel_idx))
+
+					((= id +event_animation_start_stop)
+						;animation start/stop toggle
+						(cond
+							(animation_running
+								;stop animation
+								(setq animation_running :nil)
+								(set *animation_start_stop_btn* :text "Start")
+								(set *animation_status* :text "Stopped")
+								(.-> *animation_start_stop_btn* :layout :dirty)
+								(.-> *animation_status* :layout :dirty))
+							(:t
+								;start animation
+								(when (/= animation_mode +anim_none)
+									(setq anim_state (anim-create))
+									(case animation_mode
+										(+anim_zoom_in
+											(anim-start-zoom-in anim_state center_x center_y zoom))
+										(+anim_zoom_out
+											(anim-start-zoom-out anim_state center_x center_y zoom))
+										(+anim_rotate_params
+											(anim-start-rotate-params anim_state param1 param2))
+										(+anim_explore
+											(anim-start-explore anim_state center_x center_y zoom)))
+									(setq animation_running :t)
+									(set *animation_start_stop_btn* :text "Stop")
+									(set *animation_status* :text "Running...")
+									(.-> *animation_start_stop_btn* :layout :dirty)
+									(.-> *animation_status* :layout :dirty)))))
+
+					((= id +event_export_image)
+						;export current image to PPM
+						(setq export_counter (inc export_counter))
+						(defq filename (cat "fractal_" (str export_counter) ".ppm"))
+						(export-to-ppm *canvas* filename +width +height)
+						(set *export_status* :text (cat "Exported: " filename))
+						(.-> *export_status* :layout :dirty))
+
 					((= id +event_param1_slider)
 						;parameter 1 slider
 						(defq val (. *param1_slider* :get_value))
@@ -462,6 +519,38 @@
 			(:t ;timer event
 				(mail-timeout (elem-get select +select_timer) +timer_rate 0)
 				(. farm :refresh +retry_timeout)
+				;handle animation stepping
+				(when (and animation_running anim_state)
+					(when (= 0 (length jobs))
+						(defq working :nil)
+						(when farm (. farm :each (lambda (key val)
+							(setq working (or working (get :job val))))))
+						(unless working
+							;no jobs running, step animation
+							(if (anim-step anim_state)
+								(progn
+									;animation still running, apply new parameters
+									(defq params (anim-get-params anim_state))
+									(setq center_x (elem-get params 0)
+										center_y (elem-get params 1)
+										zoom (elem-get params 2)
+										param1 (elem-get params 3)
+										param2 (elem-get params 4))
+									(update-param-labels)
+									(update-stats)
+									;update progress
+									(defq current (. anim_state :find :current_step))
+									(defq total (. anim_state :find :total_steps))
+									(set *animation_status* :text (cat "Frame " (str current) "/" (str total)))
+									(.-> *animation_status* :layout :dirty)
+									(reset))
+								;animation finished
+								(progn
+									(setq animation_running :nil)
+									(set *animation_start_stop_btn* :text "Start")
+									(set *animation_status* :text "Complete!")
+									(.-> *animation_start_stop_btn* :layout :dirty)
+									(.-> *animation_status* :layout :dirty))))))
 				(when dirty
 					(setq dirty :nil)
 					(. *canvas* :swap 0)
