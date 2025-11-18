@@ -128,8 +128,8 @@
 	; (plot-draw-text canvas font text x y color [scale align]) -> canvas
 	; Draw text on canvas at position
 	; align: :left :center :right (default :left)
-	(defq scale (opt scale 1.0)
-		  align (opt align :left)
+	(defq scale (setd scale 1.0)
+		  align (setd align :left)
 		  paths (font-glyph-paths font text)
 		  bounds (font-glyph-bounds font text))
 
@@ -207,13 +207,13 @@
 			; Count values in each bin
 			(each (lambda (val)
 				(defq bin_idx (min (dec num_bins) (floor (/ (- val min_val) bin_width))))
-				(elem-set bin_idx bins (inc (elem bin_idx bins))))
+				(elem-set bin_idx bins (inc (elem-get bin_idx bins))))
 				values)
 
 			; Create bin data (center, count)
 			(map (lambda (i)
 				(defq bin_center (+ min_val (* bin_width (+ i 0.5))))
-				(list bin_center (elem i bins)))
+				(list bin_center (elem-get i bins)))
 				(range 0 num_bins)))))
 
 ;;;;;;;;;;;;;;;;
@@ -226,7 +226,7 @@
 	(defq plot (penv
 		:width width
 		:height height
-		:title (opt title "Plot")
+		:title (setd title "Plot")
 		:canvas (Canvas width height 1)
 		:x_label "X"
 		:y_label "Y"
@@ -257,7 +257,7 @@
 	(defq colors (get :colors plot)
 		  idx (get :color_index plot))
 	(def plot :color_index (% (inc idx) (length colors)))
-	(elem idx colors))
+	(elem-get idx colors))
 
 (defun plot-get-plot-area (plot)
 	; (plot-get-plot-area plot) -> (x y w h)
@@ -427,7 +427,7 @@
 	; (plot-add-series plot type data [label]) -> plot
 	; Add a data series to the plot
 	(defq color (plot-get-color plot)
-		  label (opt label (cat (str type) " " (str (inc (length (get :series plot)))))))
+		  label (setd label (cat (str type) " " (str (inc (length (get :series plot)))))))
 
 	; Auto-scale if needed
 	(when (get :auto_scale plot)
@@ -489,7 +489,7 @@
 	; Draw error bars for data points
 	; Data format: ((x y [y_err]) ...) or ((x y [y_err_low y_err_high]) ...)
 	(defq canvas (get :canvas plot)
-		  color (opt (get :color opts) +argb_white)
+		  color (setd (get :color opts) +argb_white)
 		  cap_width 6)
 
 	(. canvas :set_color color)
@@ -529,8 +529,8 @@
 	; Draw a scatter plot
 	(defq canvas (get :canvas plot)
 		  color (get :color opts)
-		  size (opt (def? :size opts) 4)
-		  marker (opt (def? :marker opts) :circle))
+		  size (setd (def? :size opts) 4)
+		  marker (setd (def? :marker opts) :circle))
 
 	; Draw error bars first (so markers appear on top)
 	(when (def? :error_bars opts)
@@ -609,7 +609,7 @@
 	; Close the path to the baseline
 	(when (> (length data) 1)
 		(bind '(sx0 sy0) (plot-to-screen plot (first (first data)) (get :y_min plot)))
-		(bind '(sx1 sy1) (plot-to-screen plot (first (elem -1 data)) (get :y_min plot)))
+		(bind '(sx1 sy1) (plot-to-screen plot (first (elem-get -1 data)) (get :y_min plot)))
 		(push points sx1 sy1 sx0 sy0)
 
 		; Fill the area
@@ -626,7 +626,7 @@
 		  colors (get :colors plot))
 
 	; Calculate total and center
-	(defq total (reduce + (map (lambda (item) (second item)) data) 0)
+	(defq total (reduce (lambda (acc x) (+ acc x)) (map (lambda (item) (second item)) data) 0.0)
 		  cx (/ (get :width plot) 2)
 		  cy (/ (get :height plot) 2)
 		  radius (* (min cx cy) 0.6)
@@ -640,7 +640,7 @@
 		(bind '(label value) item)
 		(defq angle (* +fp_2pi (/ value total))
 			  end_angle (+ start_angle angle)
-			  color (elem (% (inc (!)) (length colors)) colors))
+			  color (elem-get (% (inc (!)) (length colors)) colors))
 
 		; Create wedge path
 		(defq wedge (path cx cy))
@@ -750,7 +750,7 @@
 
 		; Draw each segment
 		(each (lambda (val)
-			(defq color (elem (% (inc (!)) (length colors)) colors))
+			(defq color (elem-get (% (inc (!)) (length colors)) colors))
 			(bind '(sx sy) (plot-to-screen plot x (+ cumulative val)))
 			(bind '(sx0 sy0) (plot-to-screen plot x cumulative))
 			(defq segment_height (- sy0 sy))
@@ -769,14 +769,14 @@
 	; Draw a heatmap
 	; Data format: 2D list ((row1_vals...) (row2_vals...) ...)
 	(defq canvas (get :canvas plot)
-		  colormap (opt (def? :colormap opts) :hot)
+		  colormap (setd (def? :colormap opts) :hot)
 		  rows (length data)
 		  cols (length (first data)))
 
 	(cond
 		((and (> rows 0) (> cols 0))
 			; Find min/max values
-			(defq all_vals (reduce cat data (list)))
+			(defq all_vals (reduce (lambda (acc x) (cat acc x)) data (list)))
 			(defq min_val (apply min all_vals)
 				  max_val (apply max all_vals))
 
@@ -787,9 +787,9 @@
 
 			; Draw each cell
 			(each (lambda (row_idx)
-				(defq row (elem row_idx data))
+				(defq row (elem-get row_idx data))
 				(each (lambda (col_idx)
-					(defq val (elem col_idx row)
+					(defq val (elem-get col_idx row)
 						  color (plot-color-gradient val min_val max_val colormap)
 						  x (+ px (* col_idx cell_width))
 						  y (+ py (* row_idx cell_height)))
@@ -805,8 +805,8 @@
 	; Draw candlestick chart
 	; Data format: ((x open high low close) ...)
 	(defq canvas (get :canvas plot)
-		  color_up (opt (def? :color_up opts) +argb_green)
-		  color_down (opt (def? :color_down opts) +argb_red)
+		  color_up (setd (def? :color_up opts) +argb_green)
+		  color_down (setd (def? :color_down opts) +argb_red)
 		  candle_width 10)
 
 	; Draw each candlestick
@@ -872,9 +872,9 @@
 (defun plot-line (data &optional width height title)
 	; (plot-line data [width height title]) -> plot
 	; Quick line plot
-	(defq width (opt width 800)
-		  height (opt height 600)
-		  title (opt title "Line Plot")
+	(defq width (setd width 800)
+		  height (setd height 600)
+		  title (setd title "Line Plot")
 		  plot (Plot width height title))
 	(plot-add-series plot :line data)
 	(plot-render plot)
@@ -883,9 +883,9 @@
 (defun plot-scatter (data &optional width height title)
 	; (plot-scatter data [width height title]) -> plot
 	; Quick scatter plot
-	(defq width (opt width 800)
-		  height (opt height 600)
-		  title (opt title "Scatter Plot")
+	(defq width (setd width 800)
+		  height (setd height 600)
+		  title (setd title "Scatter Plot")
 		  plot (Plot width height title))
 	(plot-add-series plot :scatter data)
 	(plot-render plot)
@@ -894,9 +894,9 @@
 (defun plot-bar (data &optional width height title)
 	; (plot-bar data [width height title]) -> plot
 	; Quick bar chart
-	(defq width (opt width 800)
-		  height (opt height 600)
-		  title (opt title "Bar Chart")
+	(defq width (setd width 800)
+		  height (setd height 600)
+		  title (setd title "Bar Chart")
 		  plot (Plot width height title))
 	(plot-add-series plot :bar data)
 	(plot-render plot)
@@ -905,9 +905,9 @@
 (defun plot-area (data &optional width height title)
 	; (plot-area data [width height title]) -> plot
 	; Quick area plot
-	(defq width (opt width 800)
-		  height (opt height 600)
-		  title (opt title "Area Plot")
+	(defq width (setd width 800)
+		  height (setd height 600)
+		  title (setd title "Area Plot")
 		  plot (Plot width height title))
 	(plot-add-series plot :area data)
 	(plot-render plot)
@@ -917,9 +917,9 @@
 	; (plot-pie data [width height title]) -> plot
 	; Quick pie chart
 	; Data format: ((label value) ...)
-	(defq width (opt width 800)
-		  height (opt height 600)
-		  title (opt title "Pie Chart")
+	(defq width (setd width 800)
+		  height (setd height 600)
+		  title (setd title "Pie Chart")
 		  plot (Plot width height title))
 	(def plot :show_grid :nil :auto_scale :nil)
 	(plot-add-series plot :pie data)
@@ -929,9 +929,9 @@
 (defun plot-histogram (values num_bins &optional width height title)
 	; (plot-histogram values num_bins [width height title]) -> plot
 	; Quick histogram from raw values
-	(defq width (opt width 800)
-		  height (opt height 600)
-		  title (opt title "Histogram")
+	(defq width (setd width 800)
+		  height (setd height 600)
+		  title (setd title "Histogram")
 		  plot (Plot width height title)
 		  binned_data (plot-histogram-bins values num_bins))
 	(def plot :x_label "Value" :y_label "Frequency")

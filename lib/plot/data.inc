@@ -11,7 +11,7 @@
 	; Calculate mean of values
 	(cond
 		((empty? values) 0.0)
-		(:t (/ (reduce + values 0) (length values)))))
+		(:t (/ (reduce (lambda (acc x) (+ acc x)) values 0.0) (n2f (length values))))))
 
 (defun plot-median (values)
 	; (plot-median values) -> median
@@ -23,8 +23,8 @@
 				  n (length sorted)
 				  mid (>>> n 1))
 			(if (even? n)
-				(/ (+ (elem mid sorted) (elem (dec mid) sorted)) 2)
-				(elem mid sorted)))))
+				(/ (+ (elem-get mid sorted) (elem-get (dec mid) sorted)) 2.0)
+				(elem-get mid sorted)))))
 
 (defun plot-std-dev (values)
 	; (plot-std-dev values) -> std_dev
@@ -33,9 +33,9 @@
 		((< (length values) 2) 0.0)
 		(:t
 			(defq mean (plot-mean values)
-				  variance (/ (reduce +
-					(map (lambda (x) (* (- x mean) (- x mean))) values) 0)
-					(dec (length values))))
+				  variance (/ (reduce (lambda (acc x) (+ acc x))
+					(map (lambda (x) (* (- x mean) (- x mean))) values) 0.0)
+					(n2f (dec (length values)))))
 			(sqrt variance))))
 
 ;;;;;;;;;;;;;;;;
@@ -54,8 +54,8 @@
 				(defq start (max 0 (- i half))
 					  end (min (length data) (+ i half 1))
 					  window (slice data start end)
-					  avg_y (/ (reduce + (map second window) 0) (length window))
-					  x (first (elem i data)))
+					  avg_y (/ (reduce (lambda (acc x) (+ acc x)) (map second window) 0.0) (n2f (length window)))
+					  x (first (elem-get i data)))
 				(push result (list x avg_y)))
 				(range 0 (length data)))
 			result)))
@@ -63,8 +63,8 @@
 (defun plot-normalize (values &optional min_val max_val)
 	; (plot-normalize values [min_val max_val]) -> normalized_values
 	; Normalize values to [min_val, max_val] range (default [0, 1])
-	(defq min_val (opt min_val 0.0)
-		  max_val (opt max_val 1.0))
+	(defq min_val (setd min_val 0.0)
+		  max_val (setd max_val 1.0))
 	(cond
 		((empty? values) (list))
 		(:t
@@ -89,7 +89,7 @@
 				  step (/ (dec (length data)) (dec num_points)))
 			(each (lambda (i)
 				(defq idx (floor (* i step)))
-				(push result (elem idx data)))
+				(push result (elem-get idx data)))
 				(range 0 num_points))
 			result)))
 
@@ -119,7 +119,7 @@
 (defun plot-combine-xy (xs ys)
 	; (plot-combine-xy xs ys) -> data
 	; Combine x and y lists into (x y) pairs
-	(map (lambda (i) (list (elem i xs) (elem i ys)))
+	(map (lambda (i) (list (elem-get i xs) (elem-get i ys)))
 		(range 0 (min (length xs) (length ys)))))
 
 (defun plot-add-noise (data amplitude)
@@ -143,9 +143,9 @@
 			(defq peaks (list))
 			(each (lambda (i)
 				(when (and (> i 0) (< i (dec (length data))))
-					(defq prev_y (second (elem (dec i) data))
-						  curr_y (second (elem i data))
-						  next_y (second (elem (inc i) data)))
+					(defq prev_y (second (elem-get (dec i) data))
+						  curr_y (second (elem-get i data))
+						  next_y (second (elem-get (inc i) data)))
 					(when (and (> curr_y prev_y) (> curr_y next_y) (> curr_y threshold))
 						(push peaks i))))
 				(range 0 (length data)))
@@ -194,12 +194,12 @@
 				  n (length sorted)
 				  median_idx (>>> n 1)
 				  median (if (even? n)
-					  (/ (+ (elem median_idx sorted) (elem (dec median_idx) sorted)) 2)
-					  (elem median_idx sorted))
+					  (/ (+ (elem-get median_idx sorted) (elem-get (dec median_idx) sorted)) 2)
+					  (elem-get median_idx sorted))
 				  q1_idx (>>> median_idx 1)
 				  q3_idx (+ median_idx (>>> (- n median_idx) 1))
-				  q1 (elem q1_idx sorted)
-				  q3 (elem q3_idx sorted))
+				  q1 (elem-get q1_idx sorted)
+				  q3 (elem-get q3_idx sorted))
 			(list q1 median q3))))
 
 (defun plot-box-stats (values)

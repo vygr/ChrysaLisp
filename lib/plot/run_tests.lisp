@@ -1,4 +1,3 @@
-#!/usr/bin/env ./ChrysaLisp.sh
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Plot Library Test Runner
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

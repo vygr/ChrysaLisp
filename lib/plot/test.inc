@@ -12,8 +12,8 @@
 (defun assert-equal (name actual expected &optional tolerance)
 	; Test assertion with optional tolerance for floating point
 	(setq *test_count* (inc *test_count*))
-	(defq tolerance (opt tolerance 0.0001)
-		  passed (cond
+	(setd tolerance 0.0001)
+	(defq passed (cond
 		  	((and (num? actual) (num? expected))
 		  		(< (abs (- actual expected)) tolerance))
 		  	(:t (= actual expected))))
@@ -28,10 +28,10 @@
 (defun assert-list-equal (name actual expected &optional tolerance)
 	; Test list equality with optional tolerance
 	(setq *test_count* (inc *test_count*))
-	(defq tolerance (opt tolerance 0.0001)
-		  passed (and (= (length actual) (length expected))
+	(setd tolerance 0.0001)
+	(defq passed (and (= (length actual) (length expected))
 		  	(every (lambda (i)
-		  		(< (abs (- (elem i actual) (elem i expected))) tolerance))
+		  		(< (abs (- (elem-get i actual) (elem-get i expected))) tolerance))
 		  		(range 0 (length actual)))))
 	(cond
 		(passed
@@ -215,8 +215,8 @@
 
 (assert-equal "box stats length" (length box_stats) 6)
 (assert-equal "box stats min" (first box_stats) 1.0)
-(assert-equal "box stats max" (elem 4 box_stats) 9.0)
-(assert-equal "box stats median" (elem 2 box_stats) 5.0)
+(assert-equal "box stats max" (elem-get 4 box_stats) 9.0)
+(assert-equal "box stats median" (elem-get 2 box_stats) 5.0)
 
 ; Test with outliers
 (defq outlier_values '(1.0 2.0 3.0 4.0 5.0 6.0 100.0))  ; 100.0 is outlier
@@ -279,7 +279,7 @@
 (assert-equal "smooth preserves x values" (first (first smoothed)) 0.0)
 
 ; Smoothed y value at index 2 should be average of window
-(defq mid_smooth_y (second (elem 2 smoothed)))
+(defq mid_smooth_y (second (elem-get 2 smoothed)))
 (defq expected_mid (/ (+ 5.0 2.0 4.0) 3.0))
 (assert-equal "smooth middle value" mid_smooth_y expected_mid)
 

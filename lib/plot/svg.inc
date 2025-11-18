@@ -28,10 +28,10 @@
 	; Convert path points to SVG path string
 	(defq result (list))
 	(when (> (length points) 0)
-		(push result (cat "M " (str (elem 0 points)) " " (str (elem 1 points))))
+		(push result (cat "M " (str (elem-get 0 points)) " " (str (elem-get 1 points))))
 		(each-rev (lambda (i)
 			(when (and (> i 0) (even? i))
-				(push result (cat "L " (str (elem i points)) " " (str (elem (inc i) points))))))
+				(push result (cat "L " (str (elem-get i points)) " " (str (elem-get (inc i) points))))))
 			(range 0 (length points)))
 		(when closed
 			(push result "Z")))
@@ -183,7 +183,7 @@
 	; Build SVG polyline
 	(defq point_str (apply cat
 		(map (lambda (i)
-			(cat (str (elem i points)) "," (str (elem (inc i) points)) " "))
+			(cat (str (elem-get i points)) "," (str (elem-get (inc i) points)) " "))
 			(filter even? (range 0 (length points))))))
 
 	(cat "  <polyline points=\"" point_str "\" "
@@ -196,7 +196,7 @@
 (defun svg-export-scatter (plot data opts)
 	; (svg-export-scatter plot data opts) -> svg_str
 	(defq color (svg-color-to-hex (get :color opts))
-		  size (opt (def? :size opts) 4)
+		  size (setd (def? :size opts) 4)
 		  result (list))
 
 	; Draw each point as a circle
@@ -251,13 +251,13 @@
 	; Close the path to the baseline
 	(when (> (length data) 1)
 		(bind '(sx0 sy0) (plot-to-screen plot (first (first data)) (get :y_min plot)))
-		(bind '(sx1 sy1) (plot-to-screen plot (first (elem -1 data)) (get :y_min plot)))
+		(bind '(sx1 sy1) (plot-to-screen plot (first (elem-get -1 data)) (get :y_min plot)))
 		(push points sx1 sy1 sx0 sy0)
 
 		; Build SVG polygon
 		(defq point_str (apply cat
 			(map (lambda (i)
-				(cat (str (elem i points)) "," (str (elem (inc i) points)) " "))
+				(cat (str (elem-get i points)) "," (str (elem-get (inc i) points)) " "))
 				(filter even? (range 0 (length points))))))
 
 		(cat "  <polygon points=\"" point_str "\" "
@@ -271,7 +271,7 @@
 		  result (list))
 
 	; Calculate total and center
-	(defq total (reduce + (map (lambda (item) (second item)) data) 0)
+	(defq total (reduce (lambda (acc x) (+ acc x)) (map (lambda (item) (second item)) data) 0.0)
 		  cx (/ (get :width plot) 2)
 		  cy (/ (get :height plot) 2)
 		  radius (* (min cx cy) 0.6)
@@ -282,7 +282,7 @@
 		(bind '(label value) item)
 		(defq angle (* +fp_2pi (/ value total))
 			  end_angle (+ start_angle angle)
-			  color (svg-color-to-hex (elem (% (inc (!)) (length colors)) colors)))
+			  color (svg-color-to-hex (elem-get (% (inc (!)) (length colors)) colors)))
 
 		; Calculate arc points
 		(defq x1 (+ cx (* radius (cos start_angle)))
