@@ -5,6 +5,7 @@
 (import "lib/html/css.inc")
 (import "gui/canvas/lisp.inc")
 (import "gui/font/lisp.inc")
+(import "gui/pixmap/lisp.inc")
 
 ;; Color definitions
 (defq
@@ -27,6 +28,7 @@
 		document nil
 		canvas nil
 		stylesheet nil
+		base_path ""
 		x 0
 		y 0
 		max_width 800
@@ -50,10 +52,11 @@
 		selection_start nil
 		selection_end nil))
 
-(defmethod :init html-canvas-renderer (doc cnv width &optional stylesheet)
+(defmethod :init html-canvas-renderer (doc cnv width &optional stylesheet base-path)
 	(setq this-document doc
 		this-canvas cnv
 		this-stylesheet stylesheet
+		this-base_path (if base-path base-path "")
 		this-x 0
 		this-y 0
 		this-max_width (if width width 800)
@@ -334,12 +337,64 @@
 	(setq this-in_link old_link))
 
 (defmethod :render-image html-canvas-renderer (node)
-	; Render an image placeholder
+	; Render an image from file
 	(defq alt (. node :get-attribute "alt"))
 	(defq src (. node :get-attribute "src"))
-	(. this :draw-filled-box this-x this-y 100 50 COLOR_LIGHTGRAY)
-	(. this :draw-text (if alt (cat "[" alt "]") "[Image]"))
-	(. this :newline))
+	(defq width-attr (. node :get-attribute "width"))
+	(defq height-attr (. node :get-attribute "height"))
+
+	; Resolve file path (handle file:// URLs and relative paths)
+	(defq file-path src)
+	(when (starts-with "file://" src)
+		(setq file-path (slice 7 (length src) src)))
+
+	; If relative path and we have a base path, resolve it
+	(when (and this-base_path (not (starts-with "/" file-path)))
+		(setq file-path (cat this-base_path file-path)))
+
+	; Try to load the pixmap
+	(defq pixmap :nil)
+	(catch
+		(progn
+			(when (path? file-path)
+				(setq pixmap (pixmap-load file-path))))
+		(lambda (e)
+			(print "Failed to load image: " file-path " - " e)))
+
+	; Render image or fallback placeholder
+	(if pixmap
+		(progn
+			; Get pixmap dimensions
+			(defq info (pixmap-info file-path))
+			(defq img-width (first info))
+			(defq img-height (elem 1 info))
+
+			; Use specified dimensions if provided
+			(when width-attr
+				(setq img-width (str-to-num width-attr)))
+			(when height-attr
+				(setq img-height (str-to-num height-attr)))
+
+			; Draw the pixmap at current position
+			; Note: Would need canvas blit method to render pixmap
+			; For now, draw a colored box with dimensions
+			(. this :draw-filled-box this-x this-y img-width img-height COLOR_LIGHTGRAY)
+
+			; Add to clickable regions if inside a link
+			(when this-in_link
+				(push this-clickable_regions (list this-x this-y
+					(+ this-x img-width) (+ this-y img-height) this-link_href)))
+
+			; Advance position
+			(setq this-x (+ this-x img-width))
+			(setq this-y (+ this-y img-height))
+			(. this :newline))
+
+		; Fallback placeholder if image failed to load
+		(progn
+			(. this :draw-filled-box this-x this-y 100 50 COLOR_LIGHTGRAY)
+			(. this :draw-text (if alt (cat "[" alt "]") "[Image]"))
+			(. this :newline))))
 
 (defmethod :render-form html-canvas-renderer (node)
 	; Render a form (just render children for now)
@@ -632,3 +687,17 @@
 			this-text_fragments))
 
 	result)
+
+;; Helper Functions
+
+(defun starts-with (prefix str)
+	; Check if string starts with prefix
+	(when (and str (>= (length str) (length prefix)))
+		(eql (slice 0 (length prefix) str) prefix)))
+
+(defun str-to-num (str)
+	; Convert string to number
+	(when str
+		(catch
+			(read str)
+			(lambda (e) 0))))  ; Return 0 on error
