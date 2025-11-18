@@ -135,13 +135,77 @@
 			(setq sum (+ sum (if (> x 0) 1 -1)))))
 	(logand (abs (/ sum 2)) 0xff))
 
+;Celtic Mandelbrot
+(defun celtic_depth (x0 y0)
+	(defq i -1 xc 0 yc 0 x2 0 y2 0)
+	(while (and (/= (++ i) 255) (< (+ x2 y2) (mbfp-from-fixed 4.0)))
+		(setq yc (+ (mbfp-mul (mbfp-from-fixed 2.0) xc yc) y0)
+			xc (+ (- (abs x2) y2) x0)
+			x2 (mbfp-mul xc xc)
+			y2 (mbfp-mul yc yc)))
+	i)
+
+;Buffalo fractal
+(defun buffalo_depth (x0 y0)
+	(defq i -1 xc 0 yc 0 x2 0 y2 0)
+	(while (and (/= (++ i) 255) (< (+ x2 y2) (mbfp-from-fixed 4.0)))
+		(setq yc (+ (mbfp-mul (mbfp-from-fixed 2.0) (abs xc) (abs yc)) y0)
+			xc (+ (- x2 y2) x0)
+			x2 (mbfp-mul xc xc)
+			y2 (mbfp-mul yc yc)))
+	i)
+
+;Perpendicular Mandelbrot
+(defun perpendicular_depth (x0 y0)
+	(defq i -1 xc 0 yc 0 x2 0 y2 0)
+	(while (and (/= (++ i) 255) (< (+ x2 y2) (mbfp-from-fixed 4.0)))
+		(setq yc (+ (mbfp-mul (mbfp-from-fixed 2.0) xc (abs yc)) y0)
+			xc (+ (- x2 y2) x0)
+			x2 (mbfp-mul xc xc)
+			y2 (mbfp-mul yc yc)))
+	i)
+
+;Heart fractal
+(defun heart_depth (x0 y0)
+	(defq i -1 xc 0 yc 0 x2 0 y2 0)
+	(while (and (/= (++ i) 255) (< (+ x2 y2) (mbfp-from-fixed 16.0)))
+		(setq yc (+ (mbfp-mul (mbfp-from-fixed 2.0) xc yc) y0)
+			xc (+ (- x2 y2) x0)
+			x2 (mbfp-mul xc xc)
+			y2 (mbfp-mul yc yc)))
+	i)
+
+;Magnet Type 1
+(defun magnet_depth (x0 y0)
+	(defq i -1 zr x0 zi y0 max_iter 128)
+	(while (and (/= (++ i) max_iter))
+		;z^2 + c - 1
+		(defq zr2 (mbfp-mul zr zr) zi2 (mbfp-mul zi zi))
+		(defq nr (+ (- zr2 zi2) x0 (mbfp-from-fixed -1.0)))
+		(defq ni (+ (mbfp-mul (mbfp-from-fixed 2.0) zr zi) y0))
+
+		;2z + c - 2
+		(defq dr (+ (mbfp-mul (mbfp-from-fixed 2.0) zr) x0 (mbfp-from-fixed -2.0)))
+		(defq di (+ (mbfp-mul (mbfp-from-fixed 2.0) zi) y0))
+
+		;division
+		(defq denom (+ (mbfp-mul dr dr) (mbfp-mul di di)))
+		(when (> denom (mbfp-from-fixed 0.0001))
+			(setq zr (/ (+ (mbfp-mul nr dr) (mbfp-mul ni di)) denom))
+			(setq zi (/ (- (mbfp-mul ni dr) (mbfp-mul nr di)) denom))
+
+			;check escape
+			(when (> (+ (mbfp-mul zr zr) (mbfp-mul zi zi)) (mbfp-from-fixed 100.0))
+				(setq i max_iter))))
+	(min 254 i))
+
 ;native versions
 (ffi "apps/fractalexplorer/julia_depth" julia_depth)
 (ffi "apps/fractalexplorer/burning_ship_depth" burning_ship_depth)
 (ffi "apps/fractalexplorer/newton_depth" newton_depth)
 
 ;main fractal renderer
-(defun render_fractal (key mbox x y x1 y1 w h cx cy z ftype p1 p2 p3 cscheme)
+(defun render_fractal (key mbox x y x1 y1 w h cx cy z ftype p1 p2 p3 cscheme smooth orbit)
 	(write-int (defq reply (string-stream (cat ""))) (list x y x1 y1))
 	(-- y)
 	(while (/= (++ y) y1)
@@ -171,6 +235,16 @@
 					(setq iter (mandelbox_depth px py p1)))
 				(+fractal_lyapunov
 					(setq iter (lyapunov_depth px py)))
+				(+fractal_celtic
+					(setq iter (celtic_depth px py)))
+				(+fractal_buffalo
+					(setq iter (buffalo_depth px py)))
+				(+fractal_perpendicular
+					(setq iter (perpendicular_depth px py)))
+				(+fractal_heart
+					(setq iter (heart_depth px py)))
+				(+fractal_magnet
+					(setq iter (magnet_depth px py)))
 				(:t (setq iter 0)))
 
 			(write-char reply iter))
@@ -203,5 +277,7 @@
 					p1 (getf msg +job_param1)
 					p2 (getf msg +job_param2)
 					p3 (getf msg +job_param3)
-					cscheme (getf msg +job_color_scheme))
-				(render_fractal key mbox x y x1 y1 w h cx cy z ftype p1 p2 p3 cscheme)))))
+					cscheme (getf msg +job_color_scheme)
+					smooth (getf msg +job_smooth_coloring)
+					orbit (getf msg +job_orbit_trap))
+				(render_fractal key mbox x y x1 y1 w h cx cy z ftype p1 p2 p3 cscheme smooth orbit)))))
