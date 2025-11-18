@@ -434,6 +434,118 @@
 							:size data_length
 							:is_directory (= (logand attributes +exfat_attr_directory) +exfat_attr_directory))))))))
 
+	(defmethod :find_free_entry_space (dir_cluster entry_count)
+		; Find free space in directory for entry_count entries
+		; inputs
+		; dir_cluster = directory cluster number
+		; entry_count = number of consecutive entries needed
+		; outputs
+		; byte offset of first free entry, or :nil if no space
+		(when-bind (cluster_data (. this :read_cluster dir_cluster))
+			(defq offset 0
+				cluster_size (get this :cluster_size)
+				consecutive_free 0
+				start_offset :nil)
+
+			(while (< offset cluster_size)
+				(defq entry_type (code cluster_data 1 offset))
+
+				; Check if entry is free (0x00 or 0xE5)
+				(if (or (= entry_type +exfat_entry_eod) (= entry_type 0x00) (= entry_type 0xE5))
+					(progn
+						; Mark start of free space
+						(unless start_offset
+							(setq start_offset offset))
+						(setq consecutive_free (inc consecutive_free))
+
+						; Found enough space?
+						(when (>= consecutive_free entry_count)
+							(return start_offset)))
+					; Reset if we hit a used entry
+					(progn
+						(setq consecutive_free 0)
+						(setq start_offset :nil)))
+
+				(setq offset (+ offset +exfat_entry_size)))
+
+			:nil))
+
+	(defmethod :add_entry_to_directory (dir_cluster name attributes first_cluster file_size)
+		; Add a file/directory entry to a parent directory
+		; inputs
+		; dir_cluster = parent directory cluster
+		; name = file/directory name
+		; attributes = file attributes
+		; first_cluster = first cluster of file/directory
+		; file_size = size of file (0 for directories)
+		; outputs
+		; :t if successful, :nil otherwise
+		(defq entry_list (. this :create_file_entry name attributes)
+			entry_count (length entry_list))
+
+		; Find free space in directory
+		(when-bind (free_offset (. this :find_free_entry_space dir_cluster entry_count))
+			; Update stream extension with actual cluster and size
+			(when (>= (length entry_list) 2)
+				(defq stream_entry (get entry_list 1)
+					; Rebuild stream entry with correct cluster and size
+					new_stream (cat
+						(slice stream_entry 0 20)  ; Keep first 20 bytes
+						(u32-to-bytes-le first_cluster)  ; First cluster at offset 20
+						(u64-to-bytes-le file_size)))  ; Data length at offset 24
+
+				; Update entry list
+				(setq entry_list (cat
+					(list (get entry_list 0))
+					(list new_stream)
+					(slice entry_list 2 (length entry_list)))))
+
+			; Write all entries
+			(defq success :t
+				i 0)
+			(while (and success (< i entry_count))
+				(defq entry_data (get entry_list i)
+					offset (+ free_offset (* i +exfat_entry_size)))
+				(unless (. this :write_dir_entry dir_cluster offset entry_data)
+					(setq success :nil))
+				(setq i (inc i)))
+
+			success))
+
+	(defmethod :remove_entry_from_directory (dir_cluster name)
+		; Remove an entry from a directory
+		; inputs
+		; dir_cluster = directory cluster containing the entry
+		; name = name of file/directory to remove
+		; outputs
+		; :t if successful, :nil if not found
+		(when-bind (entries (. this :read_dir_entries dir_cluster))
+			(defq i 0)
+			(while (< i (length entries))
+				(defq entry (get entries i))
+				(when (= (get entry :type) +exfat_entry_file)
+					(when-bind (file_info (. this :parse_file_entry entries i))
+						(when (= (get file_info :name) name)
+							; Found the entry - mark all its entries as deleted
+							(defq file_entry (get entries i)
+								file_data (get file_entry :data)
+								secondary_count (code file_data 1 1)
+								total_entries (+ 1 secondary_count))
+
+							; Mark each entry as deleted (0xE5)
+							(defq j 0
+								success :t)
+							(while (and success (< j total_entries))
+								(defq del_offset (get (get entries (+ i j)) :offset)
+									del_entry (cat (char 0xE5) (str-alloc (- +exfat_entry_size 1))))
+								(unless (. this :write_dir_entry dir_cluster del_offset del_entry)
+									(setq success :nil))
+								(setq j (inc j)))
+
+							(return success))))
+				(setq i (inc i)))
+			:nil))
+
 	;;;;;;;;;;;;;;;;;;;;
 	; Filesystem Operations
 	;;;;;;;;;;;;;;;;;;;;
@@ -709,10 +821,9 @@
 			(defq dir_data (cat (char +exfat_entry_eod) (str-alloc (- (get this :cluster_size) 1))))
 			(. this :write_cluster new_cluster dir_data)
 
-			; Create directory entry in parent
-			(defq dir_entries (. this :create_file_entry name +exfat_attr_directory))
-			; TODO: Write entries to parent directory cluster
-			:t))
+			; Add directory entry to parent
+			(defq parent_cluster (get parent_info :first_cluster))
+			(. this :add_entry_to_directory parent_cluster name +exfat_attr_directory new_cluster 0))
 
 	(defmethod :create (path)
 		; Create a file
@@ -748,10 +859,9 @@
 			; Initialize empty file
 			(. this :write_cluster new_cluster (str-alloc (get this :cluster_size)))
 
-			; Create file entry in parent
-			(defq file_entries (. this :create_file_entry name +exfat_attr_archive))
-			; TODO: Write entries to parent directory cluster
-			:t))
+			; Add file entry to parent
+			(defq parent_cluster (get parent_info :first_cluster))
+			(. this :add_entry_to_directory parent_cluster name +exfat_attr_archive new_cluster 0)))
 
 	(defmethod :open (path mode)
 		; Open a file
@@ -853,13 +963,25 @@
 			(when (get file_info :is_directory)
 				(return :nil))
 
-			; Free the cluster chain
-			(defq first_cluster (get file_info :first_cluster))
-			(when (and first_cluster (>= first_cluster 2))
-				(. this :free_cluster_chain first_cluster))
+			; Get parent directory
+			(defq components (. this :split_path path)
+				name (get components (- (length components) 1))
+				parent_components (slice components 0 (- (length components) 1))
+				parent_path (if (= (length parent_components) 0)
+					"/"
+					(cat "/" (join parent_components "/"))))
 
-			; TODO: Remove entry from parent directory
-			:t))
+			(when-bind (parent_info (. this :resolve_path parent_path))
+				; Remove entry from parent directory
+				(defq parent_cluster (get parent_info :first_cluster))
+				(. this :remove_entry_from_directory parent_cluster name)
+
+				; Free the cluster chain
+				(defq first_cluster (get file_info :first_cluster))
+				(when (and first_cluster (>= first_cluster 2))
+					(. this :free_cluster_chain first_cluster))
+
+				:t)))
 
 	(defmethod :rmdir (path)
 		; Remove a directory
@@ -883,12 +1005,24 @@
 				(when (> (length entries) 0)
 					(return :nil)))
 
-			; Free the directory cluster
-			(when (and dir_cluster (>= dir_cluster 2))
-				(. this :free_cluster dir_cluster))
+			; Get parent directory
+			(defq components (. this :split_path path)
+				name (get components (- (length components) 1))
+				parent_components (slice components 0 (- (length components) 1))
+				parent_path (if (= (length parent_components) 0)
+					"/"
+					(cat "/" (join parent_components "/"))))
 
-			; TODO: Remove entry from parent directory
-			:t))
+			(when-bind (parent_info (. this :resolve_path parent_path))
+				; Remove entry from parent directory
+				(defq parent_cluster (get parent_info :first_cluster))
+				(. this :remove_entry_from_directory parent_cluster name)
+
+				; Free the directory cluster
+				(when (and dir_cluster (>= dir_cluster 2))
+					(. this :free_cluster dir_cluster))
+
+				:t)))
 
 	(defmethod :exists (path)
 		; Check if path exists
@@ -952,15 +1086,41 @@
 			(throw "Filesystem not mounted" this))
 
 		; Check old path exists
-		(unless (. this :resolve_path old_path)
-			(return :nil))
+		(when-bind (old_info (. this :resolve_path old_path))
+			; Check new path doesn't exist
+			(when (. this :resolve_path new_path)
+				(return :nil))
 
-		; Check new path doesn't exist
-		(when (. this :resolve_path new_path)
-			(return :nil))
+			; Get old parent and name
+			(defq old_components (. this :split_path old_path)
+				old_name (get old_components (- (length old_components) 1))
+				old_parent_components (slice old_components 0 (- (length old_components) 1))
+				old_parent_path (if (= (length old_parent_components) 0)
+					"/"
+					(cat "/" (join old_parent_components "/"))))
 
-		; TODO: Implement rename by updating directory entry
-		:t)
+			; Get new parent and name
+			(defq new_components (. this :split_path new_path)
+				new_name (get new_components (- (length new_components) 1))
+				new_parent_components (slice new_components 0 (- (length new_components) 1))
+				new_parent_path (if (= (length new_parent_components) 0)
+					"/"
+					(cat "/" (join new_parent_components "/"))))
+
+			; Verify new parent exists
+			(when-bind (new_parent_info (. this :resolve_path new_parent_path))
+				(when-bind (old_parent_info (. this :resolve_path old_parent_path))
+					; Remove from old parent
+					(defq old_parent_cluster (get old_parent_info :first_cluster))
+					(. this :remove_entry_from_directory old_parent_cluster old_name)
+
+					; Add to new parent
+					(defq new_parent_cluster (get new_parent_info :first_cluster)
+						first_cluster (get old_info :first_cluster)
+						size (get old_info :size)
+						attributes (get old_info :attributes))
+
+					(. this :add_entry_to_directory new_parent_cluster new_name attributes first_cluster size))))
 
 	(defmethod :get_size ()
 		; Get filesystem size
