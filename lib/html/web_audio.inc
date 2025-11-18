@@ -107,7 +107,9 @@
 		frequency 440.0
 		detune 0.0
 		started :nil
-		stopped :nil))
+		stopped :nil
+		audio_handle :nil  ; Handle to synthesized audio file
+		temp_file :nil))   ; Path to temp WAV file
 
 (defmethod :init oscillator-node (ctx)
 	(. (super) :init ctx)
@@ -115,7 +117,9 @@
 		this-frequency 440.0
 		this-detune 0.0
 		this-started :nil
-		this-stopped :nil)
+		this-stopped :nil
+		this-audio_handle :nil
+		this-temp_file :nil)
 	this)
 
 (defmethod :set-type oscillator-node (wave-type)
@@ -152,14 +156,45 @@
 	; Start oscillator
 	; osc.start()
 	(setq this-started :t)
-	(print "[AUDIO] Oscillator started: " this-type " at " this-frequency "Hz")
+
+	; Try to synthesize and play real audio
+	(catch
+		(progn
+			(import "lib/audio/synthesis.inc")
+			(import "lib/audio/simple.inc")
+
+			; Generate temp filename
+			(defq timestamp (time))
+			(setq this-temp_file (cat "/tmp/osc_" timestamp "_" this-frequency ".wav"))
+
+			; Synthesize tone (default 1 second duration)
+			(defq duration 1.0)
+			(when (synth-tone this-type this-frequency duration this-temp_file)
+				; Load and play the synthesized audio
+				(setq this-audio_handle (audio-load this-temp_file))
+				(when (and this-audio_handle (>= this-audio_handle 0))
+					(audio-play this-audio_handle)
+					(print "[AUDIO] Oscillator started: " this-type " at " this-frequency "Hz (real audio)"))))
+		(lambda (e)
+			; Fallback to mock
+			(print "[AUDIO] Oscillator started (mock): " this-type " at " this-frequency "Hz - " e)))
 	:nil)
 
 (defmethod :stop oscillator-node (&optional when)
 	; Stop oscillator
 	; osc.stop()
 	(setq this-stopped :t)
-	(print "[AUDIO] Oscillator stopped")
+
+	; Try to stop real audio
+	(catch
+		(progn
+			(import "lib/audio/simple.inc")
+			(when (and this-audio_handle (>= this-audio_handle 0))
+				(audio-stop this-audio_handle)
+				(print "[AUDIO] Oscillator stopped (real audio)")))
+		(lambda (e)
+			; Fallback to mock
+			(print "[AUDIO] Oscillator stopped (mock)")))
 	:nil)
 
 ;; Gain Node
@@ -233,7 +268,8 @@
 		loop :nil
 		autoplay :nil
 		current_time 0.0
-		duration 0.0))
+		duration 0.0
+		handle :nil))  ; Audio handle from native system
 
 (defmethod :init html-audio-element (source)
 	(setq this-src (if source source "")
@@ -242,27 +278,62 @@
 		this-loop :nil
 		this-autoplay :nil
 		this-current_time 0.0
-		this-duration 0.0)
+		this-duration 0.0
+		this-handle :nil)
 	this)
 
 (defmethod :play html-audio-element ()
 	; Start playback
 	; audio.play()
 	(setq this-paused :nil)
-	(print "[AUDIO] Playing: " this-src)
+
+	; Try to use native audio if available
+	(catch
+		(progn
+			(import "lib/audio/simple.inc")
+			; Load if not already loaded
+			(unless this-handle
+				(setq this-handle (audio-load this-src)))
+			; Play the audio
+			(when (and this-handle (>= this-handle 0))
+				(audio-play this-handle)
+				(print "[AUDIO] Playing: " this-src " (handle: " this-handle ")")))
+		(lambda (e)
+			; Fallback to mock playback
+			(print "[AUDIO] Playing (mock): " this-src)))
 	:nil)
 
 (defmethod :pause html-audio-element ()
 	; Pause playback
 	; audio.pause()
 	(setq this-paused :t)
-	(print "[AUDIO] Paused: " this-src)
+
+	; Try to use native audio if available
+	(catch
+		(progn
+			(import "lib/audio/simple.inc")
+			(when (and this-handle (>= this-handle 0))
+				(audio-pause this-handle)
+				(print "[AUDIO] Paused: " this-src)))
+		(lambda (e)
+			; Fallback to mock
+			(print "[AUDIO] Paused (mock): " this-src)))
 	:nil)
 
 (defmethod :load html-audio-element ()
 	; Load audio file
 	; audio.load()
-	(print "[AUDIO] Loading: " this-src)
+
+	; Try to use native audio if available
+	(catch
+		(progn
+			(import "lib/audio/simple.inc")
+			(setq this-handle (audio-load this-src))
+			(when (and this-handle (>= this-handle 0))
+				(print "[AUDIO] Loaded: " this-src " (handle: " this-handle ")")))
+		(lambda (e)
+			; Fallback to mock
+			(print "[AUDIO] Loading (mock): " this-src)))
 	:nil)
 
 (defmethod :set-volume html-audio-element (vol)

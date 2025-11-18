@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ChrysaLisp Web Audio Demo</title>
+</head>
+<body>
+    <h1>Web Audio API Demo</h1>
+
+    <h2>Oscillator Synthesis</h2>
+    <button id="playTone">Play Sine Wave (440Hz)</button>
+    <button id="playSquare">Play Square Wave (523Hz)</button>
+    <button id="playSaw">Play Sawtooth (329Hz)</button>
+    <button id="stopTone">Stop</button>
+
+    <h2>HTML5 Audio</h2>
+    <audio id="myAudio" src="sound.wav" controls></audio>
+    <br>
+    <button id="playAudio">Play</button>
+    <button id="pauseAudio">Pause</button>
+    <button id="setVolume">Set Volume 50%</button>
+
+    <script>
+        ; Web Audio API - Oscillator example
+        (defq audioCtx (AudioContext))
+        (. audioCtx :resume)
+
+        (defq currentOsc :nil)
+
+        ; Play sine wave
+        (defq playBtn (. document :get-element-by-id "playTone"))
+        (. playBtn :add-event-listener "click"
+            (lambda (e)
+                (setq currentOsc (. audioCtx :createOscillator))
+                (. currentOsc :set-type "sine")
+                (. currentOsc :set-frequency 440)
+                (. currentOsc :connect (. audioCtx :get-destination))
+                (. currentOsc :start)))
+
+        ; Play square wave
+        (defq squareBtn (. document :get-element-by-id "playSquare"))
+        (. squareBtn :add-event-listener "click"
+            (lambda (e)
+                (setq currentOsc (. audioCtx :createOscillator))
+                (. currentOsc :set-type "square")
+                (. currentOsc :set-frequency 523)
+                (. currentOsc :connect (. audioCtx :get-destination))
+                (. currentOsc :start)))
+
+        ; Play sawtooth wave
+        (defq sawBtn (. document :get-element-by-id "playSaw"))
+        (. sawBtn :add-event-listener "click"
+            (lambda (e)
+                (setq currentOsc (. audioCtx :createOscillator))
+                (. currentOsc :set-type "sawtooth")
+                (. currentOsc :set-frequency 329)
+                (. currentOsc :connect (. audioCtx :get-destination))
+                (. currentOsc :start)))
+
+        ; Stop oscillator
+        (defq stopBtn (. document :get-element-by-id "stopTone"))
+        (. stopBtn :add-event-listener "click"
+            (lambda (e)
+                (when currentOsc
+                    (. currentOsc :stop))))
+
+        ; HTML5 Audio controls
+        (defq audio (. document :get-element-by-id "myAudio"))
+
+        (defq playAudioBtn (. document :get-element-by-id "playAudio"))
+        (. playAudioBtn :add-event-listener "click"
+            (lambda (e)
+                (. audio :play)))
+
+        (defq pauseAudioBtn (. document :get-element-by-id "pauseAudio"))
+        (. pauseAudioBtn :add-event-listener "click"
+            (lambda (e)
+                (. audio :pause)))
+
+        (defq volBtn (. document :get-element-by-id "setVolume"))
+        (. volBtn :add-event-listener "click"
+            (lambda (e)
+                (. audio :set-volume 0.5)))
+    </script>
+</body>
+</html>
