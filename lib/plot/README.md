@@ -555,7 +555,10 @@ lib/plot/
 ├── plot.inc      - Main plotting library
 ├── svg.inc       - SVG export functionality
 ├── data.inc      - Data processing helpers
-└── README.md     - This file
+├── test.inc      - Test suite for data processing functions
+├── run_tests.lisp - Test runner
+├── README.md     - This file
+└── TESTING.md    - Testing guide
 
 apps/plots/
 └── app.lisp      - Demo application
@@ -588,6 +591,58 @@ See `apps/plots/app.lisp` for complete working examples of **14 different plot t
 - Candlestick charts for financial data
 - Statistical annotations (mean/median lines)
 - Mixed plot types on the same axes
+
+## Testing
+
+The plotting library includes a comprehensive test suite to verify correctness and compliance with CONTRIBUTIONS.md requirements.
+
+### Running Tests
+
+#### Data Processing Function Tests
+
+Run the automated test suite for statistical and data processing functions:
+
+```bash
+./run.sh lib/plot/run_tests.lisp
+```
+
+This tests:
+- Statistical functions (mean, median, standard deviation)
+- Data transformation (normalization, smoothing, resampling)
+- Data analysis (linear regression, peak detection)
+- Box plot statistics (quartiles, outliers)
+- Data generation (linspace, function evaluation)
+- Edge cases and error handling
+
+Expected output: All tests should pass with a summary showing:
+```
+✓ All tests passed!
+Total:  80+
+Passed: 80+
+Failed: 0
+```
+
+#### Visual Demo Testing
+
+Run the interactive demo application to verify all plot types render correctly:
+
+```bash
+./run.sh apps/plots/app.lisp
+```
+
+Use SPACE/N/→ to cycle through all 14 plot types and verify:
+- Proper rendering with antialiasing
+- Correct axis labels and tick marks
+- Legend display
+- Color gradients
+- Text rendering
+
+See `lib/plot/TESTING.md` for complete testing procedures including:
+- Build verification (`make it`)
+- Binary reproducibility testing
+- Platform-specific testing
+- SVG export validation
+- Performance testing
 
 ## Future Enhancements
 
