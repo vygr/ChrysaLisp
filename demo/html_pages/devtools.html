@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>DevTools Inspector</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            margin: 20px;
+            background-color: #1e1e1e;
+            color: #d4d4d4;
+        }
+        h1 { color: #007acc; }
+        h2 { color: #4ec9b0; margin-top: 30px; }
+        .section {
+            background-color: #252526;
+            padding: 15px;
+            margin: 15px 0;
+            border-left: 3px solid #007acc;
+        }
+        #console-output, #dom-tree {
+            font-size: 12px;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+            background-color: #1e1e1e;
+            padding: 10px;
+            border: 1px solid #3e3e42;
+        }
+        .log-info { color: #4fc3f7; }
+        .log-warn { color: #ffb74d; }
+        .log-error { color: #f44336; }
+        button {
+            padding: 8px 16px;
+            background-color: #0e639c;
+            color: white;
+            border: none;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background-color: #1177bb; }
+    </style>
+</head>
+<body>
+    <h1>DevTools Inspector</h1>
+    <p>Chrome/Firefox-style debugging for LispScript</p>
+
+    <div class="section">
+        <h2>Console</h2>
+        <button onclick="((. window :get-global 'add-log') 'info' 'User clicked button')">Add Info Log</button>
+        <button onclick="((. window :get-global 'add-log') 'warn' 'This is a warning')">Add Warning</button>
+        <button onclick="((. window :get-global 'add-log') 'error' 'This is an error')">Add Error</button>
+        <button onclick="((. window :get-global 'clear-logs'))">Clear Console</button>
+        <div id="console-output">Loading console...</div>
+    </div>
+
+    <div class="section">
+        <h2>DOM Tree</h2>
+        <button onclick="((. window :get-global 'refresh-tree'))">Refresh Tree</button>
+        <div id="dom-tree">Loading DOM tree...</div>
+    </div>
+
+    <script>
+        ; Initialize console log storage
+        (. window :set-global "logs" (list))
+
+        ; Function to add log
+        (. window :set-global "add-log"
+            (lambda (level message)
+                (defq logs (. window :get-global "logs"))
+                (push logs (list level message))
+                (. window :set-global "logs" logs)
+                ((. window :get-global "render-console"))))
+
+        ; Function to clear logs
+        (. window :set-global "clear-logs"
+            (lambda ()
+                (. window :set-global "logs" (list))
+                ((. window :get-global "render-console"))))
+
+        ; Function to render console
+        (. window :set-global "render-console"
+            (lambda ()
+                (defq output (. document :get-element-by-id "console-output"))
+                (defq logs (. window :get-global "logs"))
+                (defq html "")
+
+                (each! 0 -1 (lambda (entry)
+                    (bind '(level msg) entry)
+                    (defq level-str
+                        (cond
+                            ((= level 'error) "[ERROR]")
+                            ((= level 'warn) "[WARN]")
+                            (:t "[INFO]")))
+                    (defq class-str
+                        (cond
+                            ((= level 'error) "log-error")
+                            ((= level 'warn) "log-warn")
+                            (:t "log-info")))
+                    (setq html (cat html "<div class=\"" class-str "\">" level-str " " msg "</div>")))
+                    logs)
+
+                (. output :set-inner-html html)))
+
+        ; Function to render DOM tree
+        (. window :set-global "render-tree"
+            (lambda ()
+                (defq tree-elem (. document :get-element-by-id "dom-tree"))
+                (defq tree-text "DOM Tree:\n\n")
+
+                (defun render-node (node depth)
+                    (defq indent (apply cat (map (lambda (_) "  ") (range depth))))
+                    (when (= (. node 'node_type) NODE_ELEMENT)
+                        (defq tag (. node 'node_name))
+                        (defq id (. node :get-attribute "id"))
+                        (defq line (cat indent "<" tag))
+                        (when id
+                            (setq line (cat line " id=\"" id "\"")))
+                        (setq line (cat line ">"))
+                        (setq tree-text (cat tree-text line "\n"))
+
+                        ; Render children
+                        (each! 0 -1 (lambda (child)
+                            (render-node child (inc depth)))
+                            (. node 'child_nodes))))
+
+                (render-node document 0)
+                (. tree-elem :set-text-content tree-text)))
+
+        ; Refresh tree function
+        (. window :set-global "refresh-tree"
+            (lambda ()
+                ((. window :get-global "render-tree"))))
+
+        ; Initial render
+        ((. window :get-global "add-log") 'info' "DevTools Inspector initialized")
+        ((. window :get-global "add-log") 'info' "Console and DOM tree ready")
+        ((. window :get-global "render-tree"))
+    </script>
+
+    <script>
+        ; Add demo logs
+        ((. window :get-global "add-log") 'info' "Page loaded successfully")
+        ((. window :get-global "add-log") 'warn' "Example warning message")
+        ((. window :get-global "add-log") 'error' "Example error for debugging")
+    </script>
+</body>
+</html>
