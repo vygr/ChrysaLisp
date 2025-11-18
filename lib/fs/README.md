@@ -283,43 +283,56 @@ ExFat uses little-endian byte order for all multi-byte values:
 
 ### Completed Features
 
+**Core Filesystem**:
 - ✅ Boot sector creation and validation
 - ✅ FAT (File Allocation Table) management
 - ✅ Cluster allocation and deallocation
-- ✅ Basic file creation and deletion
-- ✅ Basic directory creation
+- ✅ File creation and deletion
+- ✅ Directory creation and removal
 - ✅ File handle management
-- ✅ Basic read/write operations
-- ✅ Seek operations
+- ✅ Read/write operations
+- ✅ Seek/tell operations
 - ✅ Mount/unmount functionality
 - ✅ Stream-based I/O (sector and cluster level)
 
-### Partially Implemented
+**Directory and File Support**:
+- ✅ Full directory entry set creation (File + Stream Extension + File Name entries)
+- ✅ Long filename support (multiple file name entries)
+- ✅ Directory traversal and path resolution
+- ✅ File/directory enumeration (listing)
+- ✅ Multi-level directory navigation
+- ✅ File/directory metadata (size, attributes, cluster chains)
+- ✅ File renaming and moving between directories
+- ✅ Parent directory entry management
+- ✅ Entry deletion with 0xE5 markers
 
-- ⚠️ Directory entry parsing (simplified)
-- ⚠️ File name handling (basic support)
-- ⚠️ Path resolution (assumes root directory)
+**Advanced Operations**:
+- ✅ Path splitting and component resolution
+- ✅ Find entries by name in directories
+- ✅ Add entries to parent directories
+- ✅ Remove entries from parent directories
+- ✅ Free space finding in directory clusters
+- ✅ Cluster chain freeing
+- ✅ Persistence across unmount/mount
 
 ### TODO / Future Enhancements
 
-- ❌ Full directory entry set creation (File + Stream Extension + File Name entries)
-- ❌ Long filename support (multiple file name entries)
-- ❌ Directory traversal and path resolution
-- ❌ File/directory enumeration (listing)
-- ❌ File/directory metadata (timestamps, attributes)
-- ❌ File renaming and moving
-- ❌ Allocation bitmap management
+- ❌ Allocation bitmap management (currently simplified)
 - ❌ Up-case table for case-insensitive filename comparison
-- ❌ Volume label support
+- ❌ Timestamps (currently zeroed)
+- ❌ Directory checksum calculation
 - ❌ Fragmentation handling (multi-cluster files)
-- ❌ Directory spanning multiple clusters
+- ❌ Directory spanning multiple clusters (currently single cluster)
 - ❌ Error recovery and validation
 - ❌ Transaction safety
 - ❌ Wear leveling considerations for flash media
+- ❌ TexFAT support (transactional ExFat)
 
 ## Testing
 
-Run the test program to see the ExFat filesystem in action:
+### Core Filesystem Tests
+
+Run the main test program to see the ExFat filesystem in action:
 
 ```bash
 ./run apps/test_exfat.lisp
@@ -334,6 +347,47 @@ The test program demonstrates:
 - FAT manipulation
 - Cluster allocation/deallocation
 - Stream-based access
+
+### Directory and File Operation Tests
+
+**test_exfat_dirs.lisp** (333 lines, 27 tests):
+Tests directory operations and path resolution:
+- Path splitting (empty, root, single, multiple components)
+- Path resolution (root, non-existent, nested)
+- exists/stat operations
+- mkdir (basic, duplicate, nested, invalid parent)
+- rmdir (empty, non-existent)
+- File creation in directories
+- Multiple directory levels
+- Directory entry parsing
+
+**test_exfat_files.lisp** (452 lines, 24 tests):
+Tests file operations and handles:
+- File entry creation (basic, long names)
+- File entry parsing with attributes
+- File operations (open, close, seek, tell)
+- Read/write operations (basic, partial, empty, beyond size)
+- Seek modes (start, current, end, negative clamp)
+- Multiple simultaneous open files
+- File attributes (read-only, archive, directory)
+- Edge cases (no cluster, empty data)
+
+**test_exfat_integration.lisp** (407 lines, 14 tests):
+End-to-end integration tests:
+- Create and list files in directories
+- Nested directory structure creation
+- File and directory removal
+- Rename files and directories
+- Move files between directories
+- Stat operations after modifications
+- List operations after add/remove
+- Deeply nested operations (5+ levels)
+- Remount persistence verification
+- Realistic operation sequences
+- Edge case file names
+- Cluster reuse after deletion
+
+**Total Core Tests**: 65 comprehensive tests covering all filesystem operations
 
 ## Technical Notes
 
@@ -372,9 +426,242 @@ The `memory-stream` class uses a chunked architecture (default 4KB chunks), whic
 
 ## Filesystem Utilities
 
-Three utility programs are provided to work with ExFat filesystems:
+Seven utility programs are provided to work with ExFat filesystems:
 
-### 1. fsck_exfat - Filesystem Checker
+### Utility Suite Overview
+
+| Utility | Purpose | Lines | Tests |
+|---------|---------|-------|-------|
+| exfatlabel | Volume label manager | 212 | 308 |
+| exfatdump | Hex dumper for debugging | 257 | 355 |
+| exfatprobe | Filesystem detector/validator | 220 | 415 |
+| exfatshell | Interactive filesystem explorer | 485 | 488 |
+| fsck_exfat | Filesystem checker | - | 28 |
+| exfatinfo | Information dumper | - | 25 |
+| exfatimage | Image export/import | - | 24 |
+
+**Total**: 2,220+ lines of utilities with 70+ comprehensive tests
+
+### Core Utilities
+
+### 1. exfatlabel - Volume Label Manager
+
+Location: `apps/exfatlabel.lisp`
+
+Manage filesystem volume labels (read, write, clear):
+
+- **read_volume_label**: Read current label from boot sector
+- **write_volume_label**: Set new label (max 11 chars, alphanumeric + space/underscore/hyphen)
+- **clear_volume_label**: Remove label
+- **validate_label_format**: Validate label meets requirements
+
+**Usage**:
+```lisp
+(import "apps/exfatlabel.lisp")
+
+; Read label
+(defq label (read_volume_label exfat_obj))
+(print "Volume label: " label)
+
+; Write new label
+(write_volume_label exfat_obj "MY_DISK")
+
+; Clear label
+(clear_volume_label exfat_obj)
+```
+
+**Features**:
+- Case preservation
+- Length validation (max 11 characters)
+- Character validation (alphanumeric, space, underscore, hyphen)
+- Boot sector offset 106-116 manipulation
+
+**Test Suite**: `test_exfatlabel.lisp` (308 lines, 18+ tests)
+- Default label reading
+- Write and read back
+- Length limits
+- Empty label handling
+- Label overwriting
+- Special characters
+- Case preservation
+- Persistence across mount/unmount
+- Multiple independent filesystems
+
+### 2. exfatdump - Hex Dumper
+
+Location: `apps/exfatdump.lisp`
+
+Low-level hex dumper for debugging filesystem structures:
+
+- **format_hex_dump**: Format binary data as hex with ASCII
+- **dump_boot_sector**: Annotated boot sector dump (first 128 bytes)
+- **dump_fat_entries**: FAT entries with interpretation (free/bad/EOC/chain)
+- **dump_cluster_hex**: Cluster contents in hex (first 256 bytes)
+- **dump_sector_hex**: Full sector in hex
+- **dump_fat_sector**: All FAT entries in a sector
+- **compare_hex_dumps**: Compare two data blocks, show differences
+- **dump_summary**: Filesystem structure overview
+
+**Usage**:
+```lisp
+(import "apps/exfatdump.lisp")
+
+; Hex dump boot sector
+(dump_boot_sector exfat_obj)
+
+; Dump FAT entries
+(dump_fat_entries exfat_obj 2 10)  ; Entries 2-11
+
+; Dump cluster
+(dump_cluster_hex exfat_obj 5)
+
+; Compare data
+(compare_hex_dumps data1 data2 0 0 256)
+```
+
+**Output Format**:
+```
+00000000  EB 76 90 45 58 46 41 54  |.v.EXFAT|
+00000008  20 20 20 00 00 00 00 00  |   .....|
+...
+```
+
+**Test Suite**: `test_exfatdump.lisp` (355 lines, 16+ tests)
+- Byte to hex conversion (all values 0x00-0xFF)
+- Hex dump formatting (basic, multiline, offset)
+- ASCII column rendering
+- Boot sector validation
+- FAT entry interpretation
+- Edge cases (empty data, single byte, boundaries)
+
+### 3. exfatprobe - Filesystem Detector
+
+Location: `apps/exfatprobe.lisp`
+
+Quick filesystem validator and detector:
+
+- **check_boot_signature**: Verify 0x55AA signature
+- **check_filesystem_name**: Verify "EXFAT   " identifier
+- **check_jump_boot**: Validate jump boot instruction (0xEB 0x76 0x90)
+- **extract_filesystem_parameters**: Parse all boot sector fields
+- **validate_parameters**: Sanity check all values
+- **probe_exfat_stream**: Complete validation pipeline
+- **report_filesystem_info**: Detailed parameter report
+
+**Usage**:
+```lisp
+(import "apps/exfatprobe.lisp")
+
+; Probe stream
+(when-bind (params (probe_exfat_stream my_stream))
+  (report_filesystem_info params))
+```
+
+**Output**:
+```
+ExFat Filesystem Detected
+=========================
+
+Geometry:
+  Bytes per sector:       512
+  Sectors per cluster:    64
+  Bytes per cluster:      32768
+
+Layout:
+  Volume length:          20480 sectors
+  Volume size:            10485760 bytes
+  FAT offset:             24 sectors
+  FAT length:             4 sectors
+  Cluster heap offset:    28 sectors
+  Cluster count:          320
+```
+
+**Validation**:
+- Sector size (512, 1024, 2048, 4096)
+- Sectors per cluster (1-256, power of 2)
+- FAT offset (>= 24)
+- Cluster heap after FAT
+- Root cluster (>= 2)
+
+**Test Suite**: `test_exfatprobe.lisp` (415 lines, 18+ tests)
+- Boot signature validation
+- Filesystem name detection
+- Jump boot instruction checking
+- Little-endian integer reading (32-bit, 64-bit)
+- Parameter extraction from real filesystems
+- Parameter validation
+- Probing corrupted/empty filesystems
+- Multiple filesystem detection
+
+### 4. exfatshell - Interactive Explorer
+
+Location: `apps/exfatshell.lisp`
+
+Interactive filesystem explorer and debugger with 15 commands:
+
+**Commands**:
+- `help` - Show all available commands
+- `info` - Display filesystem parameters
+- `stat` - Show allocation statistics
+- `cluster <num>` - Inspect cluster details
+- `goto <num>` - Set current cluster
+- `read [num]` - Display cluster data
+- `write <data>` - Write to current cluster
+- `fat <num>` - Show FAT entry
+- `chain [num]` - Trace complete FAT chain
+- `alloc` - Allocate new cluster
+- `free <num>` - Free a cluster
+- `dump [num]` - Hex dump cluster
+- `boot` - Show boot sector info
+- `map` - Visual cluster allocation map
+- `exit, quit` - Exit shell
+
+**Usage**:
+```lisp
+(import "apps/exfatshell.lisp")
+; Runs demo with example commands
+```
+
+**Features**:
+- Decimal and hex number parsing (42 or 0x2A)
+- Command history and parsing
+- Visual cluster allocation map
+- FAT chain tracing with total size
+- Demo mode with example commands
+
+**Example Session**:
+```
+exfat> info
+  Sector size:        512 bytes
+  Cluster size:       4096 bytes
+  Cluster count:      320
+
+exfat> alloc
+Allocated cluster 3
+
+exfat> write Hello-World
+Wrote 11 bytes to cluster 3
+
+exfat> chain 3
+FAT Chain starting from cluster 3
+  3 -> EOC
+Chain length: 1 clusters
+Total size:   4096 bytes
+
+exfat> map
+Legend: . = free, # = allocated, B = bad, E = EOC
+E##.................................................
+```
+
+**Test Suite**: `test_exfatshell.lisp` (488 lines, 24+ tests)
+- Number parsing (decimal, hex, invalid)
+- Command parsing (single/multiple words, spaces, edge cases)
+- Filesystem operations (allocation, read, write)
+- FAT operations (entries, chains, links)
+- Cluster management (bounds checking)
+- Large data handling
+
+### 5. fsck_exfat - Filesystem Checker
 
 Location: `apps/fsck_exfat.lisp`
 
