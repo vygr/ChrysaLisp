@@ -52,7 +52,7 @@
 		(. info_flow :add_child (ui-label _ (:text "Hex:")))
 		(defq hex_field (ui-textfield _ (:text "#FF0000" :min_width 100)))
 		(def this :hex_field hex_field)
-		(. hex_field :connect (inc (inc (get :action_event this))))
+		(. hex_field :connect (+ 6 (get :action_event this)))
 		(. info_flow :add_child hex_field)
 
 		; HSV Sliders section
@@ -152,7 +152,7 @@
 			(when color_val
 				(defq btn (ui-button _ (:min_width 24 :min_height 24
 										:color color_val :text "")))
-				(. btn :connect (+ 6 (get :action_event this)))
+				(. btn :connect (+ 7 (get :action_event this)))
 				(def btn :palette_color color_val)
 				(. grid :add_child btn)))
 			palette_colors)
@@ -276,13 +276,13 @@
 						(get :value (get :b_slider this))))
 
 				; Hex input
-				((= id (+ base_id 2))
+				((= id (+ base_id 6))
 					(defq hex_text (. (get :hex_field this) :get_text))
 					(when (defq new_color (hex-to-argb hex_text))
 						(. this :set_color new_color)))
 
 				; Palette button
-				((>= id (+ base_id 6))
+				((>= id (+ base_id 7))
 					(defq source_id (getf event +ev_msg_action_source_id))
 					(when (defq btn (. this :find_id source_id))
 						(when (defq pal_color (get :palette_color btn))
