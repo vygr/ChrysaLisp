@@ -125,7 +125,7 @@
 		;split by pattern
 		(split line sep_pattern)
 		;split by whitespace (default)
-		(filter (# (not (eql %0 ""))) (split (trim line) " \t"))))
+		(filter! (# (not (eql %0 ""))) (split (trim line) " \t"))))
 
 ;get field value by number
 (defun get-field (fields field_num line)
@@ -150,7 +150,7 @@
 			(defq field_num (num-str (slice expr 1 -1)))
 			(if field_num (get-field fields field_num line) expr))
 		;check for variable in vars
-		((defq val (get vars expr)) val)
+		((defq val (. vars :find expr)) val)
 		;try to parse as number
 		((num? (defq n (num-str expr))) n)
 		;return as string literal (remove quotes if present)
@@ -251,15 +251,15 @@
 					(bind '(var_name value) (split stmt "="))
 					(defq var_name (trim var_name)
 						value (eval-expr (trim value) nr nf fields line new_vars))
-					(setq new_vars (insert new_vars var_name value)))
+					(def new_vars var_name value))
 				;compound assignment +=
 				((find "+=" stmt)
 					(bind '(var_name value) (split stmt "+="))
 					(defq var_name (trim var_name)
-						old_val (get new_vars var_name 0)
-						new_val (+ (num-eval old_val)
+						old_val (. new_vars :find var_name)
+						new_val (+ (num-eval (if old_val old_val 0))
 							(num-eval (eval-expr (trim value) nr nf fields line new_vars))))
-					(setq new_vars (insert new_vars var_name new_val))))))
+					(def new_vars var_name new_val))))))
 		statements)
 
 	new_vars)
