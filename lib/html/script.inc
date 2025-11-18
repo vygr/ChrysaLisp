@@ -168,16 +168,15 @@
 
 (defmethod :register-inline-handlers script-executor ()
 	; Register onclick and other inline event handlers
-	; Scans document for elements with onclick, onmousedown, etc. attributes
+	; Scans document for elements with onclick, onmouseover, onmousedown, etc. attributes
 
-	(defun process-element (elem)
-		; Check for onclick attribute
-		(when (. elem :has-attribute "onclick")
-			(defq code (. elem :get-attribute "onclick"))
-			(defq ctx this-context)
+	(defun register-handler (elem attr-name event-type ctx)
+		; Register a single event handler for an attribute
+		(when (. elem :has-attribute attr-name)
+			(defq code (. elem :get-attribute attr-name))
 
 			; Create event listener that executes the code
-			(. elem :add-event-listener "click"
+			(. elem :add-event-listener event-type
 				(lambda (event)
 					; Bind document and window for handler
 					(defq document (. ctx 'document))
@@ -188,11 +187,28 @@
 					(defun confirm (msg) (. window :confirm msg))
 					(defun prompt (msg &optional default) (. window :prompt msg default))
 
-					; Execute the onclick code
+					; Execute the event handler code
 					(catch
 						(eval (read (cat code)))
 						(lambda (e)
-							(print "onclick error: " e))))))
+							(print attr-name " error: " e)))))))
+
+	(defun process-element (elem)
+		; Register all supported event handlers
+		(defq ctx this-context)
+
+		; Mouse events
+		(register-handler elem "onclick" "click" ctx)
+		(register-handler elem "onmouseover" "mouseover" ctx)
+		(register-handler elem "onmouseout" "mouseout" ctx)
+		(register-handler elem "onmousedown" "mousedown" ctx)
+		(register-handler elem "onmouseup" "mouseup" ctx)
+
+		; Form events
+		(register-handler elem "onchange" "change" ctx)
+		(register-handler elem "onfocus" "focus" ctx)
+		(register-handler elem "onblur" "blur" ctx)
+		(register-handler elem "onsubmit" "submit" ctx)
 
 		; Recursively process children
 		(each! 0 -1 (lambda (child)
