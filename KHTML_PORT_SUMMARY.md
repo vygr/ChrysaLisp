@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document summarizes the port of KDE's KHTML HTML rendering engine to ChrysaLisp. The port focuses on the HTML parser and renderer components, as ChrysaLisp does not yet have TCP/IP networking capabilities.
+This document summarizes the port of KDE's KHTML HTML rendering engine to ChrysaLisp. The port includes the HTML parser, CSS styling engine, and both text and graphical rendering components. While ChrysaLisp does not yet have TCP/IP networking capabilities, this implementation provides complete HTML+CSS rendering capabilities for local content.
 
 ## Source Repository
 
@@ -55,10 +55,36 @@ This document summarizes the port of KDE's KHTML HTML rendering engine to Chrysa
    - Renders HTML DOM to formatted text
    - Handles line wrapping, indentation, lists
 
-8. **lib/html/README.md**
-   - Comprehensive documentation
-   - Usage examples
-   - Architecture notes
+### CSS and Graphical Rendering (NEW)
+
+8. **lib/html/css.inc** ⭐ NEW
+   - CSS parser and styling engine
+   - Inspired by: `khtml/src/css/`
+   - CSS rule parsing (selectors and properties)
+   - Selector matching (tag, class, ID, universal)
+   - Style computation and cascading
+   - Color parsing (hex, rgb, named colors)
+   - Size parsing (px, em, %)
+
+9. **lib/html/canvas_renderer.inc** ⭐ NEW
+   - Graphical HTML renderer using ChrysaLisp Canvas
+   - Adapted from: `khtml/src/rendering/`
+   - Full graphical rendering with fonts and colors
+   - CSS style application
+   - All HTML elements rendered graphically
+   - Layout engine with positioning
+   - Word wrapping and text flow
+
+10. **lib/html/browser.inc** ⭐ NEW
+    - HTML browser GUI widget
+    - Integration with ChrysaLisp Canvas system
+    - Scrollable HTML view
+    - CSS stylesheet support
+
+11. **lib/html/README.md**
+    - Comprehensive documentation
+    - Usage examples for HTML, CSS, and rendering
+    - Architecture notes
 
 ### Unit Tests (Ported from KHTML)
 
@@ -81,12 +107,24 @@ This document summarizes the port of KDE's KHTML HTML rendering engine to Chrysa
     - Master test runner
     - Runs all HTML test suites
 
-### Demo Application
+### Demo Applications
 
 13. **cmd/htmldemo.lisp**
-    - Demonstrates HTML parsing and rendering
+    - Demonstrates text-based HTML parsing and rendering
     - 4 demo scenarios
-    - Shows parser/renderer capabilities
+    - Shows parser/text renderer capabilities
+
+14. **cmd/htmlbrowser_demo.lisp** ⭐ NEW
+    - Demonstrates graphical HTML+CSS rendering
+    - Renders HTML with CSS to PNG files
+    - Multiple demo pages showcasing styling
+    - Canvas-based output
+
+15. **apps/htmlbrowser/app.lisp** ⭐ NEW
+    - Full GUI HTML browser application
+    - Interactive window with HTML+CSS rendering
+    - Event handling and user interaction
+    - Demonstrates complete browser widget
 
 ## KHTML Components Ported
 
@@ -112,10 +150,18 @@ This document summarizes the port of KDE's KHTML HTML rendering engine to Chrysa
 
 ### Adapted for ChrysaLisp
 
-🔄 **Text Rendering**
+✅ **Rendering** (Both Text and Graphical)
 - KHTML uses graphical rendering with QPainter
-- ChrysaLisp implementation uses text-based rendering
-- Can be extended to use ChrysaLisp's GUI system
+- ChrysaLisp implementation includes:
+  - Text-based rendering for terminal output
+  - Graphical rendering using ChrysaLisp Canvas
+  - Both renderers fully functional
+
+✅ **CSS Engine** ⭐ NEW
+- CSS parsing and styling
+- Selector matching (tag, class, ID, universal)
+- Style application to rendered elements
+- Color and font styling
 
 ### Not Ported (No Networking)
 
@@ -127,10 +173,10 @@ This document summarizes the port of KDE's KHTML HTML rendering engine to Chrysa
 - Remote image fetching
 - Image format decoding (could be added later with local files)
 
-❌ **CSS Engine**
-- CSS parsing and styling
-- Layout engine
-- (Could be added in future)
+✅ **CSS Engine** ⭐ IMPLEMENTED
+- CSS parsing and styling - COMPLETE
+- Basic layout engine - COMPLETE
+- Advanced layout (flexbox, grid) - Not yet implemented
 
 ❌ **JavaScript Engine**
 - ECMAScript execution
@@ -142,10 +188,10 @@ This document summarizes the port of KDE's KHTML HTML rendering engine to Chrysa
 - Input validation
 - Requires networking
 
-❌ **Advanced Rendering**
-- Tables with complex layouts
-- Flexbox, Grid
-- SVG (KHTML has SVG support)
+🔄 **Advanced Rendering**
+- ✅ Tables with borders and cells - COMPLETE
+- ❌ Flexbox, Grid - Not yet implemented
+- ❌ SVG (KHTML has SVG support) - Not yet implemented
 
 ## Test Results
 
@@ -180,10 +226,11 @@ From KHTML autotests:
 
 ## Usage Statistics
 
-- **Lines of Code Created**: ~1,500 LOC
-- **Library Files**: 7 files
+- **Lines of Code Created**: ~3,200 LOC
+- **Library Files**: 10 files (7 original + 3 new for CSS/graphics)
 - **Test Files**: 4 files
-- **Demo Files**: 1 file
+- **Demo Files**: 3 files (1 original + 2 new for graphical rendering)
+- **Applications**: 1 full GUI application
 - **Documentation**: 2 files (README + this summary)
 
 ## Next Steps
