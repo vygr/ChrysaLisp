@@ -11,6 +11,7 @@
 (enums +event 0
 	(enum close max min)
 	(enum process_btn clear_btn step_expand_btn export_btn toggle_diff_btn toggle_tree_btn toggle_compare_btn)
+	(enum history_prev history_next clear_history)
 	(enum input_field input_field2)
 	(enum example1 example2 example3 example4))
 
@@ -33,6 +34,7 @@
 ;;;;;;;;;;;;;;;;;;;;;
 
 (defq *show_diffs* :t *show_tree* :nil *compare_mode* :nil)
+(defq *history* (list) *history_index* -1 *max_history* 50)
 
 (defun compute-diff (old new)
 	; Compute a simple diff between two pretty-printed forms
@@ -217,6 +219,88 @@
 						(apply cat parts)))))
 		(:t (str obj))))
 
+(defun save-to-history ()
+	; Save current state to history
+	(defq entry (list
+		(get :text *input_field*)
+		(get :text *input_field2*)
+		*compare_mode*
+		(get :text *read_output*)
+		(get :text *expand_output*)
+		(get :text *bind_output*)
+		(get :text *eval_output*)))
+
+	; If we're not at the end of history, truncate forward history
+	(when (< *history_index* (dec (length *history*)))
+		(setq *history* (slice *history* 0 (inc *history_index*))))
+
+	; Add to history
+	(push *history* entry)
+	(setq *history_index* (dec (length *history*)))
+
+	; Limit history size
+	(when (> (length *history*) *max_history*)
+		(setq *history* (slice *history* 1 (length *history*)))
+		(setq *history_index* (dec (length *history*))))
+
+	; Update history label
+	(update-history-label))
+
+(defun load-from-history (idx)
+	; Load a history entry and display it
+	(when (and (>= idx 0) (< idx (length *history*)))
+		(defq entry (elem-get *history* idx))
+		(setq *history_index* idx)
+
+		; Restore state
+		(set *input_field* :text (elem-get entry 0))
+		(set *input_field2* :text (elem-get entry 1))
+		(setq *compare_mode* (elem-get entry 2))
+		(set *read_output* :text (elem-get entry 3))
+		(set *expand_output* :text (elem-get entry 4))
+		(set *bind_output* :text (elem-get entry 5))
+		(set *eval_output* :text (elem-get entry 6))
+
+		; Update UI visibility for compare mode
+		(set *compare_toggle_btn* :text (if *compare_mode* "Compare: ON" "Compare: OFF"))
+		(def *input2_section* :visible *compare_mode*)
+
+		; Update layout
+		(.-> *input_field* :layout :dirty)
+		(.-> *input_field2* :layout :dirty)
+		(.-> *compare_toggle_btn* :layout :dirty)
+		(.-> *input2_section* :layout :dirty)
+		(.-> *read_output* :layout :dirty)
+		(.-> *expand_output* :layout :dirty)
+		(.-> *bind_output* :layout :dirty)
+		(.-> *eval_output* :layout :dirty)
+
+		; Update history label
+		(update-history-label)))
+
+(defun history-prev ()
+	; Navigate to previous history entry
+	(when (> *history_index* 0)
+		(load-from-history (dec *history_index*))))
+
+(defun history-next ()
+	; Navigate to next history entry
+	(when (< *history_index* (dec (length *history*)))
+		(load-from-history (inc *history_index*))))
+
+(defun clear-history ()
+	; Clear all history
+	(setq *history* (list) *history_index* -1)
+	(update-history-label))
+
+(defun update-history-label ()
+	; Update the history position label
+	(if (empty? *history*)
+		(set *history_label* :text "History: empty")
+		(set *history_label* :text
+			(cat "History: " (str (inc *history_index*)) "/" (str (length *history*)))))
+	(.-> *history_label* :layout :dirty))
+
 ;;;;;;;;;;;;;;;;;;;;;
 ; UI Definition
 ;;;;;;;;;;;;;;;;;;;;;
@@ -255,6 +339,16 @@
 		(. *tree_toggle_btn* :connect +event_toggle_tree_btn)
 		(. *compare_toggle_btn* :connect +event_toggle_compare_btn)
 		(. clear_btn :connect +event_clear_btn))
+
+	; History navigation section
+	(ui-flow history_section (:flow_flags +flow_right_fill :color +section_color)
+		(ui-label *history_label* (:text "History: empty" :font +font_title :color +header_color :border 0))
+		(ui-button history_prev_btn (:text "◄ Prev" :font +font_title))
+		(ui-button history_next_btn (:text "Next ►" :font +font_title))
+		(ui-button history_clear_btn (:text "Clear History" :font +font_title))
+		(. history_prev_btn :connect +event_history_prev)
+		(. history_next_btn :connect +event_history_next)
+		(. history_clear_btn :connect +event_clear_history))
 
 	; Example buttons section
 	(ui-flow example_section (:flow_flags +flow_right_fill :color +section_color)
@@ -482,7 +576,10 @@
 	(.-> *expand_output* :layout :dirty)
 	(.-> *bind_output* :layout :dirty)
 	(.-> *eval_output* :layout :dirty)
-	(.-> *output_scroll* :layout :dirty))
+	(.-> *output_scroll* :layout :dirty)
+
+	; Save to history
+	(save-to-history))
 
 (defun process-compare ()
 	; Process two expressions for comparison
@@ -541,7 +638,10 @@
 	(.-> *expand_output* :layout :dirty)
 	(.-> *bind_output* :layout :dirty)
 	(.-> *eval_output* :layout :dirty)
-	(.-> *output_scroll* :layout :dirty))
+	(.-> *output_scroll* :layout :dirty)
+
+	; Save to history
+	(save-to-history))
 
 (defun toggle-diffs ()
 	; Toggle diff display on/off
@@ -587,7 +687,7 @@
 	(process-code))
 
 (defun clear-all ()
-	; Clear all output fields
+	; Clear all output fields and history
 	(set *input_field* :text "")
 	(set *input_field2* :text "")
 	(set *read_output* :text "")
@@ -602,6 +702,7 @@
 	(setq *expansion_steps* (list) *current_step* 0)
 	(setq *last_read* :nil *last_expand* :nil *last_bind* :nil)
 	(setq *last_read2* :nil *last_expand2* :nil *last_bind2* :nil)
+	(clear-history)
 	(.-> *input_field* :layout :dirty)
 	(.-> *input_field2* :layout :dirty)
 	(.-> *read_output* :layout :dirty)
@@ -695,6 +796,9 @@
 					((= id +event_toggle_tree_btn) (toggle-tree))
 					((= id +event_toggle_compare_btn) (toggle-compare))
 					((= id +event_clear_btn) (clear-all))
+					((= id +event_history_prev) (history-prev))
+					((= id +event_history_next) (history-next))
+					((= id +event_clear_history) (clear-history))
 					((= id +event_example1)
 						(load-example "(defun add (a b) (+ a b))"))
 					((= id +event_example2)

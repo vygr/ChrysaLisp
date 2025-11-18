@@ -1,6 +1,72 @@
 # Code Walker / AST Explorer - Changelog
 
-## Version 5.0 - Comparison Mode (Current)
+## Version 6.0 - History Navigation (Current)
+
+**Date:** 2025-11-18
+
+### New Feature: Exploration History with Navigation
+
+**Navigate through your code exploration history!**
+
+#### History System
+- **History Label:** Shows current position "History: N/M" (e.g., "History: 3/10")
+- **◄ Prev Button:** Navigate backward through history
+- **Next ► Button:** Navigate forward through history
+- **Clear History Button:** Clear all history entries
+- **Automatic Saving:** Each successful processing saves to history
+- **Smart Truncation:** When navigating back and processing new code, forward history is cleared
+
+#### Implementation
+- `save-to-history()` - Saves complete state after each processing (30 lines)
+- `load-from-history()` - Restores complete state from history entry (35 lines)
+- `history-prev()` - Navigate to previous entry (4 lines)
+- `history-next()` - Navigate to next entry (4 lines)
+- `clear-history()` - Clear all history (3 lines)
+- `update-history-label()` - Update position display (7 lines)
+- History storage: `*history*` list with max 50 entries
+- Each entry stores: both input fields, compare mode, all 4 phase outputs
+
+#### State Preservation
+Each history entry captures complete exploration state:
+- Expression A text
+- Expression B text (for comparison mode)
+- Compare mode ON/OFF
+- All 4 phase outputs (READ, EXPAND, BIND, EVAL)
+
+#### Usage Flow
+1. Process several different expressions
+2. Click "◄ Prev" to review earlier explorations
+3. Click "Next ►" to move forward
+4. At any point in history, can process new code
+5. History position shows where you are: "History: 3/10"
+
+#### Educational Impact
+Perfect for learning workflows:
+- Compare current exploration with previous attempts
+- Review how understanding evolved
+- Quick access to working examples
+- Non-linear exploration - jump back and forth
+- Save interesting discoveries without export
+- Build up a session of related explorations
+
+**Example Session:**
+```
+1. Explore (defun add (a b) (+ a b))          <- History: 1/5
+2. Explore (let ((x 10)) (* x 2))             <- History: 2/5
+3. Explore (case n (0 :zero) (1 :one))        <- History: 3/5
+4. Click ◄ Prev to review defun expansion    <- Back to: History: 1/5
+5. Click Next ► twice to jump to case        <- Forward to: History: 3/5
+```
+
+**Integration with Other Features:**
+- Works seamlessly with comparison mode (saves both expressions)
+- Preserves diff view state
+- Preserves tree visualization state
+- Clear button also clears history
+
+---
+
+## Version 5.0 - Comparison Mode
 
 **Date:** 2025-11-18
 

@@ -14,6 +14,7 @@ The Code Walker is an interactive application that demonstrates how ChrysaLisp p
 ## Features
 
 - **Live Code Processing**: Enter any ChrysaLisp expression and see it transform through each phase
+- **History Navigation**: Navigate through exploration history with ◄ Prev/Next ► buttons, max 50 entries
 - **Comparison Mode**: Compare two expressions side-by-side across all phases
 - **Step-by-Step Macro Expansion**: Click "Step Expand" to see macros expand one level at a time
 - **Diff View**: Toggle-able diff display showing exactly what changed between phases (READ→EXPAND, EXPAND→BIND)
@@ -44,7 +45,12 @@ The Code Walker is an interactive application that demonstrates how ChrysaLisp p
 - **Diffs Toggle Button**: Turn diff display ON/OFF to see what changes between phases
 - **Tree Toggle Button**: Turn tree visualization ON/OFF to see AST structure
 - **Compare Toggle Button**: Turn comparison mode ON/OFF to compare two expressions
-- **Clear Button**: Reset all fields
+- **Clear Button**: Reset all fields and history
+- **History Navigation**:
+  - **History Label**: Shows current position (e.g., "History: 3/10")
+  - **◄ Prev Button**: Navigate to previous history entry
+  - **Next ► Button**: Navigate to next history entry
+  - **Clear History Button**: Clear all history entries
 - **Example Buttons**: Load common macro examples (defun, let, case, ui-window)
 - **Output Panels**: View each phase of the compilation pipeline with color coding
 - **Diff Panels**: See line-by-line differences between phases (when enabled)
@@ -285,6 +291,41 @@ Each phase shows both expressions labeled for easy identification.
 - **Expression B:** `(if (> x 0) (print x))`
 
 The EXPAND phase will show that `when` expands to `if`, revealing they're equivalent!
+
+### History Navigation
+
+The Code Walker maintains a history of up to 50 exploration sessions:
+
+**Usage:**
+1. Process several expressions normally (each saves to history automatically)
+2. Use **◄ Prev** to navigate backward through your history
+3. Use **Next ►** to navigate forward
+4. The **History Label** shows your position (e.g., "History: 3/10")
+5. At any point in history, process new code (clears forward history)
+6. Use **Clear History** to start fresh
+
+**What's Saved:**
+- Complete state of both input fields
+- Comparison mode setting
+- All four phase outputs
+- Perfect for non-linear exploration
+
+**Example Workflow:**
+```
+1. Explore defun macro                         <- History: 1/5
+2. Explore let macro                           <- History: 2/5
+3. Explore case macro                          <- History: 3/5
+4. Click ◄ Prev twice to review defun         <- History: 1/5
+5. Modify and process defun variation          <- History: 2/2 (forward cleared)
+6. Continue exploring...                       <- History: 3/2
+```
+
+**Benefits:**
+- Compare current work with previous attempts
+- Non-destructive exploration
+- Quick access to working examples
+- Review learning progression
+- Build up session knowledge
 
 ### Export Results
 
