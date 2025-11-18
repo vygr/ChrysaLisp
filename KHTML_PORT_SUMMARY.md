@@ -74,12 +74,17 @@ This document summarizes the port of KDE's KHTML HTML rendering engine to Chrysa
    - All HTML elements rendered graphically
    - Layout engine with positioning
    - Word wrapping and text flow
+   - **Clickable region tracking for interactive hyperlinks**
+   - Link hit detection for mouse clicks
 
 10. **lib/html/browser.inc** ⭐ NEW
     - HTML browser GUI widget
     - Integration with ChrysaLisp Canvas system
     - Scrollable HTML view
     - CSS stylesheet support
+    - **Interactive hyperlink navigation**
+    - Local file loading with relative path resolution
+    - Mouse click event handling
 
 11. **lib/html/README.md**
     - Comprehensive documentation
@@ -126,12 +131,21 @@ This document summarizes the port of KDE's KHTML HTML rendering engine to Chrysa
     - CSS specificity and cascading
     - 17 test cases
 
-15. **test/test_unittest_assertions.lisp**
+15. **test/html/test_interactive_links.lisp** ⭐ NEW
+    - Interactive hyperlink tests
+    - Tests clickable region tracking
+    - Link detection at coordinates
+    - Path resolution (absolute/relative)
+    - Navigation handling
+    - Multiple links, nested links, table/list links
+    - 14 test cases
+
+16. **test/test_unittest_assertions.lisp**
     - Unit testing framework assertion demonstrations
     - Tests all basic assertion types
     - 12 test cases
 
-16. **test/html/run_all_tests.lisp**
+17. **test/html/run_all_tests.lisp**
     - Master test runner
     - Runs all HTML test suites
 
@@ -151,8 +165,27 @@ This document summarizes the port of KDE's KHTML HTML rendering engine to Chrysa
 15. **apps/htmlbrowser/app.lisp** ⭐ NEW
     - Full GUI HTML browser application
     - Interactive window with HTML+CSS rendering
-    - Event handling and user interaction
+    - **Clickable hyperlinks with local file navigation**
+    - Mouse event handling
     - Demonstrates complete browser widget
+
+### Interactive Demo Pages
+
+18. **demo/html_pages/index.html** ⭐ NEW
+    - Interactive home page with navigation links
+    - Demonstrates clickable hyperlinks
+
+19. **demo/html_pages/about.html** ⭐ NEW
+    - About page with technology stack info
+    - Links to other demo pages
+
+20. **demo/html_pages/features.html** ⭐ NEW
+    - Features page with tables and lists
+    - Showcases HTML elements and CSS support
+
+21. **demo/html_pages/contact.html** ⭐ NEW
+    - Contact page with project details
+    - Demonstrates navigation system
 
 ## KHTML Components Ported
 
@@ -223,7 +256,7 @@ This document summarizes the port of KDE's KHTML HTML rendering engine to Chrysa
 
 ## Test Results
 
-Total test cases: **80 tests**
+Total test cases: **94 tests**
 
 From KHTML autotests:
 - `kencodingdetectortest.cpp`: 7 tests → `test_encoding.lisp`
@@ -234,6 +267,7 @@ New ChrysaLisp tests:
 - DOM assertions: 13 tests → `test_dom_assertions.lisp`
 - Round-trip serialization: 14 tests → `test_html_roundtrip.lisp` (inspired by XStream)
 - Canvas rendering: 17 tests → `test_canvas_rendering.lisp` (inspired by W3C WPT)
+- Interactive hyperlinks: 14 tests → `test_interactive_links.lisp` ⭐ NEW
 - Assertion framework: 12 tests → `test_unittest_assertions.lisp`
 
 ## Architecture Adaptations
@@ -260,11 +294,11 @@ New ChrysaLisp tests:
 
 ## Usage Statistics
 
-- **Lines of Code Created**: ~4,000 LOC
-- **Library Files**: 10 files (7 original + 3 new for CSS/graphics)
-- **Test Files**: 7 files (5 HTML tests + 1 assertion test + 1 master runner)
-- **Demo Files**: 3 files (1 original + 2 new for graphical rendering)
-- **Applications**: 1 full GUI application
+- **Lines of Code Created**: ~4,500 LOC
+- **Library Files**: 10 files (7 original + 3 new for CSS/graphics/interactivity)
+- **Test Files**: 8 files (6 HTML tests + 1 assertion test + 1 master runner)
+- **Demo Files**: 7 files (3 original + 4 interactive HTML pages)
+- **Applications**: 1 full GUI application with interactive navigation
 - **Documentation**: 2 files (README + this summary)
 
 ## Next Steps

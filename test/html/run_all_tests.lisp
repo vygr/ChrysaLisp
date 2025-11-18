@@ -66,6 +66,13 @@
 	(print "========================================")
 	(import "test/html/test_canvas_rendering.lisp")
 
+	; Run interactive hyperlink tests
+	(print "")
+	(print "========================================")
+	(print "Interactive Hyperlink Tests")
+	(print "========================================")
+	(import "test/html/test_interactive_links.lisp")
+
 	(print "")
 	(print "========================================")
 	(print "All Tests Complete")

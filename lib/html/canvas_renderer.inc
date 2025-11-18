@@ -41,7 +41,11 @@
 		in_bold :nil
 		in_italic :nil
 		table_cells (list)
-		list_level 0))
+		list_level 0
+		clickable_regions (list)
+		link_start_x 0
+		link_start_y 0
+		link_href nil))
 
 (defmethod :init html-canvas-renderer (doc cnv width &optional stylesheet)
 	(setq this-document doc
@@ -61,7 +65,11 @@
 		this-in_bold :nil
 		this-in_italic :nil
 		this-table_cells (list)
-		this-list_level 0)
+		this-list_level 0
+		this-clickable_regions (list)
+		this-link_start_x 0
+		this-link_start_y 0
+		this-link_href nil)
 	this)
 
 (defmethod :apply-element-styles html-canvas-renderer (element)
@@ -282,12 +290,34 @@
 	(. this :newline))
 
 (defmethod :render-link html-canvas-renderer (node)
-	; Render a link
+	; Render a link and track its clickable region
 	(defq old_link this-in_link)
 	(setq this-in_link :t)
+
+	; Record link start position and href
+	(defq start_x this-x)
+	(defq start_y this-y)
+	(defq href (. node :get-attribute "href"))
+
+	; Render link content
 	(each! 0 -1 (lambda (child)
 		(. this :render-node child))
 		(. node 'child_nodes))
+
+	; Record clickable region (simple bounding box)
+	(when href
+		(defq end_x this-x)
+		(defq end_y this-y)
+
+		; Calculate bounding box (handle single vs multi-line)
+		(defq width (if (= start_y end_y)
+			(- end_x start_x)
+			(- this-max_width start_x)))  ; First line if wrapped
+		(defq height (+ (- end_y start_y) this-line_height))
+
+		; Store clickable region
+		(push this-clickable_regions (list start_x start_y width height href)))
+
 	(setq this-in_link old_link))
 
 (defmethod :render-image html-canvas-renderer (node)
@@ -447,12 +477,28 @@
 	; Clear canvas
 	(. this-canvas :fill COLOR_WHITE)
 
-	; Reset position
+	; Reset position and clickable regions
 	(setq this-x this-margin)
 	(setq this-y this-margin)
+	(setq this-clickable_regions (list))
 
 	; Render document
 	(. this :render-node this-document)
 
 	; Return total height
 	this-y)
+
+(defmethod :get-clickable-regions html-canvas-renderer ()
+	; Return list of clickable regions
+	this-clickable_regions)
+
+(defmethod :find-link-at html-canvas-renderer (x y)
+	; Find which link (if any) was clicked at position (x, y)
+	; Returns href or nil
+	(defq result nil)
+	(each! 0 -1 (lambda ((rx ry rw rh href))
+		(when (and (>= x rx) (<= x (+ rx rw))
+				   (>= y ry) (<= y (+ ry rh)))
+			(setq result href)))
+		this-clickable_regions)
+	result)
