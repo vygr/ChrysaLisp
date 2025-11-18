@@ -15,6 +15,7 @@ typedef int64_t (*pii_read_func_t)(int64_t fd, void* buffer, uint64_t length);
 typedef int64_t (*pii_write_func_t)(int64_t fd, const void* buffer, uint64_t length);
 typedef int64_t (*pii_seek_func_t)(int64_t fd, int64_t offset, uint64_t whence);
 typedef int64_t (*pii_fstat_func_t)(const char* path, void* stat_buffer);
+typedef void* (*pii_dirlist_func_t)(const char* path);
 
 // Whence values for seek (matching ChrysaLisp/POSIX)
 #define SEEK_SET 0
@@ -228,12 +229,104 @@ uint64_t mame_file_size(mame_file_handle_t* handle)
 
 /*
  * Directory enumeration
+ *
+ * ChrysaLisp's pii_dirlist returns a string containing directory entries
+ * separated by newlines. Each entry has format: "filename\tsize\tmode\tmtime"
  */
 int mame_dir_enum(const char* path, const char* pattern,
                   mame_dir_callback_t callback, void* user_data)
 {
-    // TODO: Implement using pii_dirlist (index 11 in host_os_funcs)
-    // This will require parsing the directory list format returned by ChrysaLisp
-    mame_log(MAME_LOG_WARNING, "Directory enumeration not yet implemented");
-    return -1;
+    void** os_funcs = mame_adapter_get_os_funcs();
+    if (!os_funcs || !path || !callback) {
+        return -1;
+    }
+
+    // Get pii_dirlist function (index 11 in host_os_funcs)
+    pii_dirlist_func_t pii_dirlist = (pii_dirlist_func_t)os_funcs[11];
+    if (!pii_dirlist) {
+        mame_log(MAME_LOG_ERROR, "pii_dirlist not available");
+        return -1;
+    }
+
+    // Call pii_dirlist to get directory contents
+    // Returns a string object (str class in ChrysaLisp)
+    void* dirlist_str = pii_dirlist(path);
+    if (!dirlist_str) {
+        mame_log(MAME_LOG_WARNING, "Failed to list directory: %s", path);
+        return -1;
+    }
+
+    // ChrysaLisp string objects have this layout:
+    // [obj_header][length:long][data:bytes...]
+    // The string data starts at offset 16 (assuming 8-byte obj header + 8-byte length)
+    char* dirlist_data = (char*)dirlist_str + 16;
+
+    // Parse the directory listing
+    // Format: "filename\tsize\tmode\tmtime\n..."
+    char* line = dirlist_data;
+    int count = 0;
+
+    while (*line) {
+        // Find end of line
+        char* line_end = line;
+        while (*line_end && *line_end != '\n') {
+            line_end++;
+        }
+
+        // Extract filename (everything before first tab)
+        char filename[512] = {0};
+        char* tab = line;
+        while (tab < line_end && *tab != '\t') {
+            tab++;
+        }
+
+        size_t filename_len = tab - line;
+        if (filename_len >= sizeof(filename)) {
+            filename_len = sizeof(filename) - 1;
+        }
+        memcpy(filename, line, filename_len);
+        filename[filename_len] = '\0';
+
+        // Check if filename matches pattern (simple extension matching)
+        bool matches = true;
+        if (pattern) {
+            // Simple pattern matching: check if filename ends with pattern
+            // Pattern should be like ".zip" or "*.zip"
+            const char* pattern_str = pattern;
+            if (*pattern_str == '*') {
+                pattern_str++; // Skip '*'
+            }
+
+            size_t pattern_len = strlen(pattern_str);
+            if (filename_len >= pattern_len) {
+                const char* filename_ext = filename + filename_len - pattern_len;
+                if (strcmp(filename_ext, pattern_str) != 0) {
+                    matches = false;
+                }
+            } else {
+                matches = false;
+            }
+        }
+
+        // Call callback if pattern matches
+        if (matches && filename[0] != '\0') {
+            callback(filename, user_data);
+            count++;
+        }
+
+        // Move to next line
+        if (*line_end == '\n') {
+            line = line_end + 1;
+        } else {
+            break;
+        }
+    }
+
+    // Note: We're not freeing dirlist_str here because ChrysaLisp uses
+    // reference counting and the object is managed by the PII layer
+
+    mame_log(MAME_LOG_DEBUG, "Enumerated directory '%s': found %d matching entries",
+             path, count);
+
+    return count;
 }

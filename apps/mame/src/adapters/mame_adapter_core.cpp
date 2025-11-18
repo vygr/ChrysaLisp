@@ -205,10 +205,85 @@ void* mame_mem_realloc(void* ptr, size_t old_size, size_t new_size)
 
 void* mame_mem_map_file(const char* path, size_t* out_size)
 {
-    // TODO: Implement file mapping using pii_open + pii_mmap
-    // This is used for memory-mapping ROM files
-    mame_log(MAME_LOG_WARNING, "mame_mem_map_file not yet implemented for: %s", path);
-    return nullptr;
+    if (!g_chrysalisp_os_funcs || !path) {
+        return nullptr;
+    }
+
+    // Function pointer types
+    typedef int64_t (*pii_open_func_t)(const char*, uint64_t);
+    typedef int64_t (*pii_fstat_func_t)(const char*, void*);
+    typedef void* (*pii_mmap_func_t)(size_t, int64_t, uint64_t);
+    typedef uint64_t (*pii_close_func_t)(uint64_t);
+
+    // Get file size first using pii_fstat (index 1)
+    pii_fstat_func_t pii_fstat = (pii_fstat_func_t)g_chrysalisp_os_funcs[1];
+    if (!pii_fstat) {
+        mame_log(MAME_LOG_ERROR, "pii_fstat not available");
+        return nullptr;
+    }
+
+    // ChrysaLisp stat structure
+    struct {
+        uint64_t mtime;
+        uint64_t size;
+        uint64_t mode;
+    } stat_buf;
+
+    if (pii_fstat(path, &stat_buf) != 0) {
+        mame_log(MAME_LOG_ERROR, "Failed to stat file: %s", path);
+        return nullptr;
+    }
+
+    size_t file_size = stat_buf.size;
+    if (file_size == 0) {
+        mame_log(MAME_LOG_WARNING, "File has zero size: %s", path);
+        return nullptr;
+    }
+
+    // Open the file (index 2)
+    pii_open_func_t pii_open = (pii_open_func_t)g_chrysalisp_os_funcs[2];
+    if (!pii_open) {
+        mame_log(MAME_LOG_ERROR, "pii_open not available");
+        return nullptr;
+    }
+
+    int64_t fd = pii_open(path, file_open_read);
+    if (fd == -1) {
+        mame_log(MAME_LOG_ERROR, "Failed to open file: %s", path);
+        return nullptr;
+    }
+
+    // Memory-map the file (index 8)
+    pii_mmap_func_t pii_mmap = (pii_mmap_func_t)g_chrysalisp_os_funcs[8];
+    if (!pii_mmap) {
+        pii_close_func_t pii_close = (pii_close_func_t)g_chrysalisp_os_funcs[3];
+        if (pii_close) pii_close(fd);
+        mame_log(MAME_LOG_ERROR, "pii_mmap not available");
+        return nullptr;
+    }
+
+    // Map the file into memory
+    // Note: ChrysaLisp's pii_mmap can take a file descriptor as second parameter
+    // for file-backed mapping
+    void* mapped = pii_mmap(file_size, fd, mmap_data);
+
+    // Close the file descriptor (we don't need it after mmap)
+    pii_close_func_t pii_close = (pii_close_func_t)g_chrysalisp_os_funcs[3];
+    if (pii_close) {
+        pii_close(fd);
+    }
+
+    if (!mapped || mapped == (void*)-1) {
+        mame_log(MAME_LOG_ERROR, "Failed to mmap file: %s", path);
+        return nullptr;
+    }
+
+    if (out_size) {
+        *out_size = file_size;
+    }
+
+    mame_log(MAME_LOG_DEBUG, "Memory-mapped file: %s (%zu bytes)", path, file_size);
+    return mapped;
 }
 
 void mame_mem_unmap_file(void* addr, size_t size)
