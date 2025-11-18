@@ -166,12 +166,22 @@
 
 		; Test script event handlers
 		(deftest "Script Event Handler Registration"
+			(import "lib/html/script.inc")
+
 			(defq html "<button id=\"btn\">Click</button><script>(. (. document :get-element-by-id \"btn\") :add-event-listener \"click\" (lambda () (print \"Clicked\")))</script>")
 			(defq doc (parse-html html))
 
-			; Should have button with event listener
+			; Execute scripts
+			(execute-document-scripts doc)
+
+			; Verify button has event listener attached
 			(defq btn (. doc :get-element-by-id "btn"))
-			(assert-not-nil btn))
+			(assert-not-nil btn)
+
+			; Check that click event listeners were registered
+			(defq listeners (get (. btn 'event_listeners) "click"))
+			(assert-not-nil listeners)
+			(assert-eq 1 (length listeners)))
 
 		; Test window object in scripts
 		(deftest "Script Has Window Object"
