@@ -145,13 +145,15 @@
 		; outputs
 		; str containing cluster data, or :nil on error
 		(defq cluster_size (get this :cluster_size)
+			cluster_count (get this :cluster_count)
 			cluster_heap_offset (get this :cluster_heap_offset)
 			sector_size (get this :sector_size)
 			cluster_shift (get this :cluster_shift)
 			; Convert cluster number to sector number
 			sectors_per_cluster (>> cluster_size (log2 sector_size))
 			sector_num (+ cluster_heap_offset (* (- cluster_num 2) sectors_per_cluster)))
-		(when (>= cluster_num 2)
+		; Validate cluster_num is in valid range [2, cluster_count+1]
+		(when (and (>= cluster_num 2) (< cluster_num (+ cluster_count 2)))
 			; Read all sectors in the cluster
 			(defq result_parts (list))
 			(each! (lambda (i)
@@ -170,11 +172,13 @@
 		; outputs
 		; :t if successful, :nil otherwise
 		(defq cluster_size (get this :cluster_size)
+			cluster_count (get this :cluster_count)
 			cluster_heap_offset (get this :cluster_heap_offset)
 			sector_size (get this :sector_size)
 			sectors_per_cluster (>> cluster_size (log2 sector_size))
 			sector_num (+ cluster_heap_offset (* (- cluster_num 2) sectors_per_cluster)))
-		(when (>= cluster_num 2)
+		; Validate cluster_num is in valid range [2, cluster_count+1]
+		(when (and (>= cluster_num 2) (< cluster_num (+ cluster_count 2)))
 			; Pad data to cluster size
 			(defq data_len (length data))
 			(when (< data_len cluster_size)
@@ -195,14 +199,17 @@
 		; cluster_num = cluster number
 		; outputs
 		; FAT entry value (next cluster in chain, or special value)
-		(defq fat_offset (get this :fat_offset)
+		(defq cluster_count (get this :cluster_count)
+			fat_offset (get this :fat_offset)
 			sector_size (get this :sector_size)
 			; Each FAT entry is 4 bytes (32-bit)
 			fat_byte_offset (* cluster_num 4)
 			sector_num (+ fat_offset (/ fat_byte_offset sector_size))
 			offset_in_sector (% fat_byte_offset sector_size))
-		(when-bind (sector_data (. this :read_sector sector_num))
-			(bytes-to-u32-le sector_data offset_in_sector)))
+		; Validate cluster_num is in valid range [0, cluster_count+1]
+		(when (and (>= cluster_num 0) (< cluster_num (+ cluster_count 2)))
+			(when-bind (sector_data (. this :read_sector sector_num))
+				(bytes-to-u32-le sector_data offset_in_sector))))
 
 	(defmethod :write_fat_entry (cluster_num value)
 		; Write a FAT entry
@@ -211,19 +218,22 @@
 		; value = FAT entry value
 		; outputs
 		; :t if successful, :nil otherwise
-		(defq fat_offset (get this :fat_offset)
+		(defq cluster_count (get this :cluster_count)
+			fat_offset (get this :fat_offset)
 			sector_size (get this :sector_size)
 			fat_byte_offset (* cluster_num 4)
 			sector_num (+ fat_offset (/ fat_byte_offset sector_size))
 			offset_in_sector (% fat_byte_offset sector_size))
-		(when-bind (sector_data (. this :read_sector sector_num))
-			; Build new sector with updated FAT entry
-			(defq new_entry (u32-to-bytes-le value)
-				updated_sector (cat
-					(slice sector_data 0 offset_in_sector)
-					new_entry
-					(slice sector_data (+ offset_in_sector 4) sector_size)))
-			(. this :write_sector sector_num updated_sector)))
+		; Validate cluster_num is in valid range [0, cluster_count+1]
+		(when (and (>= cluster_num 0) (< cluster_num (+ cluster_count 2)))
+			(when-bind (sector_data (. this :read_sector sector_num))
+				; Build new sector with updated FAT entry
+				(defq new_entry (u32-to-bytes-le value)
+					updated_sector (cat
+						(slice sector_data 0 offset_in_sector)
+						new_entry
+						(slice sector_data (+ offset_in_sector 4) sector_size)))
+				(. this :write_sector sector_num updated_sector))))
 
 	(defmethod :allocate_cluster ()
 		; Allocate a new cluster from the FAT
@@ -231,12 +241,13 @@
 		; cluster number, or :nil if no free clusters
 		(defq cluster_count (get this :cluster_count))
 		; Start from cluster 2 (0 and 1 are reserved)
+		; Iterate through cluster_count clusters: from 2 to (cluster_count + 1)
 		(some! (lambda (cluster_idx)
 				(when (= (. this :read_fat_entry cluster_idx) +exfat_fat_free)
 					; Mark cluster as end of chain
 					(. this :write_fat_entry cluster_idx +exfat_fat_eoc)
 					cluster_idx))
-			cluster_count :nil 2))
+			(+ cluster_count 2) :nil 2))
 
 	(defmethod :free_cluster_chain (start_cluster)
 		; Free a chain of clusters
