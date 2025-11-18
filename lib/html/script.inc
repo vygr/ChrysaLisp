@@ -6,6 +6,7 @@
 (import "lib/html/parser.inc")
 (import "lib/html/cookies.inc")
 (import "lib/html/web_storage.inc")
+(import "lib/html/web_audio.inc")
 
 ;; Script execution context
 (defclass script-context nil
@@ -48,6 +49,9 @@
 	; Add Web Storage to global environment
 	(set-insert this-global_env "localStorage" this-local_storage)
 	(set-insert this-global_env "sessionStorage" this-session_storage)
+
+	; Add Web Audio API constructor
+	(set-insert this-global_env "AudioContext" AudioContext)
 
 	this)
 

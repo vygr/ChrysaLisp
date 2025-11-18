@@ -18,7 +18,8 @@
 		child_nodes (list)
 		attributes (env)
 		event_listeners (env)
-		canvas_context nil))
+		canvas_context nil
+		audio_element nil))
 
 (defmethod :init dom-node (type name)
 	(setq this-node_type type
@@ -28,7 +29,8 @@
 		this-child_nodes (list)
 		this-attributes (env)
 		this-event_listeners (env)
-		this-canvas_context nil)
+		this-canvas_context nil
+		this-audio_element nil)
 	this)
 
 (defmethod :append-child dom-node (child)
@@ -330,3 +332,67 @@
 
 		this-canvas_context)
 	:nil)
+
+;; Audio element support
+(defmethod :play dom-node ()
+	; Play audio element
+	; audio.play()
+	(when (and (= this-node_type NODE_ELEMENT)
+			(= (lower-case this-node_name) "audio"))
+
+		; Create audio element if it doesn't exist
+		(unless this-audio_element
+			(import "lib/html/web_audio.inc")
+			(defq src (. this :get-attribute "src"))
+			(setq this-audio_element (create-html-audio src)))
+
+		(. this-audio_element :play))
+	:nil)
+
+(defmethod :pause dom-node ()
+	; Pause audio element
+	; audio.pause()
+	(when (and (= this-node_type NODE_ELEMENT)
+			(= (lower-case this-node_name) "audio")
+			this-audio_element)
+		(. this-audio_element :pause))
+	:nil)
+
+(defmethod :load dom-node ()
+	; Load audio element
+	; audio.load()
+	(when (and (= this-node_type NODE_ELEMENT)
+			(= (lower-case this-node_name) "audio"))
+
+		; Create audio element if it doesn't exist
+		(unless this-audio_element
+			(import "lib/html/web_audio.inc")
+			(defq src (. this :get-attribute "src"))
+			(setq this-audio_element (create-html-audio src)))
+
+		(. this-audio_element :load))
+	:nil)
+
+(defmethod :set-volume dom-node (vol)
+	; Set audio volume
+	; audio.volume = 0.5
+	(when (and (= this-node_type NODE_ELEMENT)
+			(= (lower-case this-node_name) "audio")
+			this-audio_element)
+		(. this-audio_element :set-volume vol))
+	:nil)
+
+(defmethod :get-volume dom-node ()
+	; Get audio volume
+	; audio.volume
+	(when (and (= this-node_type NODE_ELEMENT)
+			(= (lower-case this-node_name) "audio"))
+
+		; Create audio element if it doesn't exist
+		(unless this-audio_element
+			(import "lib/html/web_audio.inc")
+			(defq src (. this :get-attribute "src"))
+			(setq this-audio_element (create-html-audio src)))
+
+		(. this-audio_element :get-volume))
+	1.0)
