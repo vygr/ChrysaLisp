@@ -1,0 +1,378 @@
+# A Simple Web Server - Markdown Fence Style
+
+This literate program creates a simple HTTP web server in ChrysaLisp using
+**markdown code fence** syntax with literate programming extensions.
+
+## Architecture Overview
+
+Our web server will have a modular architecture:
+
+```
+┌─────────────────────────────────────┐
+│         Main Server                 │
+│  (server.lisp)                      │
+├─────────────────────────────────────┤
+│  ┌──────────┐  ┌────────────────┐  │
+│  │  Router  │  │  Request       │  │
+│  │          │──│  Handler       │  │
+│  └──────────┘  └────────────────┘  │
+├─────────────────────────────────────┤
+│  ┌──────────────────────────────┐  │
+│  │  HTTP Protocol Parser        │  │
+│  └──────────────────────────────┘  │
+└─────────────────────────────────────┘
+```
+
+We'll generate three files:
+- `server.lisp` - Main server logic
+- `http-parser.lisp` - HTTP protocol handling
+- `router.lisp` - Request routing
+
+## HTTP Protocol Parser
+
+First, let's build the HTTP parser that understands HTTP requests.
+
+### HTTP Request Structure
+
+An HTTP request looks like:
+```
+GET /path/to/resource HTTP/1.1
+Host: example.com
+User-Agent: Mozilla/5.0
+Content-Length: 42
+
+Body content here
+```
+
+### Parser Implementation
+
+```lisp {#http-parser .tangle=http-parser.lisp}
+;; HTTP Protocol Parser
+;; Handles parsing HTTP/1.1 requests
+
+(defstruct http-request
+  method      ; GET, POST, PUT, DELETE
+  path        ; /path/to/resource
+  version     ; HTTP/1.1
+  headers     ; Environment of header -> value
+  body)       ; Request body
+
+(defun parse-request-line (line)
+  "Parse the first line: METHOD /path HTTP/version"
+  (defq parts (split line " "))
+  (if (>= (length parts) 3)
+    (list
+      (get parts 0)  ; method
+      (get parts 1)  ; path
+      (get parts 2)) ; version
+    nil))
+
+(defun parse-headers (lines)
+  "Parse HTTP headers into an environment"
+  (defq headers (env))
+  (each! lines
+    (lambda (line)
+      (defq colon-pos (find line ":"))
+      (if colon-pos
+        (progn
+          (defq key (trim (slice 0 colon-pos line)))
+          (defq value (trim (slice (inc colon-pos) -1 line)))
+          (. headers key value)))))
+  headers)
+
+(defun parse-http-request (request-text)
+  "Parse a complete HTTP request"
+  (defq lines (split request-text "\n"))
+  (if (= (length lines) 0)
+    nil
+    (progn
+      ; Parse request line
+      (defq req-line (parse-request-line (get lines 0)))
+      (if (not req-line)
+        nil
+        (progn
+          ; Find blank line separating headers from body
+          (defq blank-idx 0)
+          (defq i 1)
+          (while (and (< i (length lines)) (= blank-idx 0))
+            (if (= (trim (get lines i)) "")
+              (setq blank-idx i))
+            (setq i (inc i)))
+
+          ; Parse headers
+          (defq header-lines (slice 1 blank-idx lines))
+          (defq headers (parse-headers header-lines))
+
+          ; Extract body
+          (defq body "")
+          (if (< blank-idx (length lines))
+            (setq body (join "\n" (slice (inc blank-idx) -1 lines))))
+
+          ; Create request object
+          (http-request
+            (get req-line 0)  ; method
+            (get req-line 1)  ; path
+            (get req-line 2)  ; version
+            headers
+            body))))))
+
+(export parse-http-request http-request)
+```
+
+## Router
+
+The router maps URL paths to handler functions.
+
+```lisp {#router .tangle=router.lisp}
+;; Request Router
+;; Maps paths to handler functions
+
+(defstruct route
+  pattern     ; URL pattern (string or regex)
+  method      ; HTTP method
+  handler)    ; Handler function
+
+(defq *routes* (list))
+
+(defun add-route (pattern method handler)
+  "Register a new route"
+  (push *routes* (route pattern method handler)))
+
+(defun match-route (path method)
+  "Find the first matching route"
+  (defq matched nil)
+  (each! *routes*
+    (lambda (route)
+      (if (and (not matched)
+               (= (. route method) method)
+               (= (. route pattern) path))
+        (setq matched route))))
+  matched)
+
+(defun route-request (request)
+  "Route a request to its handler"
+  (defq path (. request path))
+  (defq method (. request method))
+  (defq route (match-route path method))
+
+  (if route
+    ((. route handler) request)
+    (make-404-response path)))
+
+; Standard handler responses
+(defun make-response (status body &rest headers)
+  "Create an HTTP response"
+  (defq response (cat "HTTP/1.1 " status "\r\n"))
+  (setq response (cat response "Content-Length: " (length body) "\r\n"))
+  (setq response (cat response "Content-Type: text/html\r\n"))
+  ; Add custom headers
+  (each! headers
+    (lambda (header)
+      (setq response (cat response (car header) ": " (cdr header) "\r\n"))))
+  (setq response (cat response "\r\n"))
+  (setq response (cat response body))
+  response)
+
+(defun make-404-response (path)
+  "Generate a 404 Not Found response"
+  (make-response "404 Not Found"
+    (cat "<html><body><h1>404 Not Found</h1>"
+         "<p>The path <code>" path "</code> was not found.</p>"
+         "</body></html>")))
+
+(export add-route route-request make-response)
+```
+
+## Main Server
+
+Now let's tie everything together with the main server logic.
+
+### Server Configuration
+
+```lisp {#server-config .tangle=server.lisp}
+;; Simple HTTP Web Server
+;; A literate programming example
+
+(import "lib/asm/asm.inc")
+(import "http-parser.lisp")
+(import "router.lisp")
+
+; Server configuration
+(defq *server-port* 8080)
+(defq *server-host* "0.0.0.0")
+```
+
+### Request Handlers
+
+Let's define some example route handlers:
+
+```lisp {#request-handlers .tangle=server.lisp}
+(defun handle-home (request)
+  "Handler for the home page"
+  (make-response "200 OK"
+    "<html>
+     <head><title>ChrysaLisp Web Server</title></head>
+     <body>
+       <h1>Welcome to ChrysaLisp!</h1>
+       <p>This is a literate programming example.</p>
+       <ul>
+         <li><a href='/about'>About</a></li>
+         <li><a href='/time'>Current Time</a></li>
+         <li><a href='/fib'>Fibonacci Calculator</a></li>
+       </ul>
+     </body>
+     </html>"))
+
+(defun handle-about (request)
+  "Handler for the about page"
+  (make-response "200 OK"
+    "<html>
+     <body>
+       <h1>About This Server</h1>
+       <p>This web server was created using <strong>literate programming</strong>!</p>
+       <p>The source code is organized as a narrative document that explains
+          the implementation while generating working code.</p>
+       <p><a href='/'>Back to Home</a></p>
+     </body>
+     </html>"))
+
+(defun handle-time (request)
+  "Handler showing current time"
+  (defq current-time (time))
+  (make-response "200 OK"
+    (cat "<html>
+          <body>
+            <h1>Current Time</h1>
+            <p>Server time: " current-time " ms since epoch</p>
+            <p><a href='/'>Back to Home</a></p>
+          </body>
+          </html>")))
+
+(defun handle-fib (request)
+  "Handler for Fibonacci calculator"
+  ; Simple iterative Fibonacci
+  (defun fib (n)
+    (if (<= n 1)
+      n
+      (progn
+        (defq a 0 b 1 i 1)
+        (while (< i n)
+          (defq temp b)
+          (setq b (+ a b))
+          (setq a temp)
+          (setq i (inc i)))
+        b)))
+
+  (make-response "200 OK"
+    (cat "<html>
+          <body>
+            <h1>Fibonacci Numbers</h1>
+            <table border='1'>
+              <tr><th>n</th><th>fib(n)</th></tr>"
+              (reduce (lambda (acc n)
+                       (cat acc "<tr><td>" n "</td><td>" (fib n) "</td></tr>"))
+                     (range 0 15) "")
+          "</table>
+            <p><a href='/'>Back to Home</a></p>
+          </body>
+          </html>")))
+```
+
+### Server Main Loop
+
+```lisp {#server-main .tangle=server.lisp}
+(defun initialize-routes ()
+  "Set up all the routes"
+  (add-route "/" "GET" handle-home)
+  (add-route "/about" "GET" handle-about)
+  (add-route "/time" "GET" handle-time)
+  (add-route "/fib" "GET" handle-fib))
+
+(defun start-server ()
+  "Start the web server"
+  (print "╔════════════════════════════════════════════════════════╗")
+  (print "║      ChrysaLisp Literate Web Server v1.0             ║")
+  (print "╚════════════════════════════════════════════════════════╝")
+  (print "")
+  (print (cat "Starting server on " *server-host* ":" *server-port*))
+  (print "Routes:")
+  (print "  GET  /        - Home page")
+  (print "  GET  /about   - About page")
+  (print "  GET  /time    - Current time")
+  (print "  GET  /fib     - Fibonacci calculator")
+  (print "")
+  (print "Press Ctrl+C to stop")
+  (print "")
+
+  (initialize-routes)
+
+  ; Server loop (simplified - real implementation would use sockets)
+  (print "Server is ready! (Note: Socket implementation not included in this example)"))
+
+; Main entry point
+(defun main ()
+  (start-server))
+
+(main)
+```
+
+## Benefits of Literate Programming
+
+This example demonstrates several advantages:
+
+### 1. **Logical Organization**
+Code is organized by concept, not by technical necessity. We can explain
+the router before showing how it's used.
+
+### 2. **Documentation is Code**
+The documentation can't get out of sync because it IS the source.
+
+### 3. **Teaching Tool**
+Perfect for explaining complex systems - this document teaches HTTP,
+routing, and server architecture simultaneously.
+
+### 4. **Multiple Outputs**
+From one source:
+- Generated code files (`.lisp`)
+- Beautiful HTML documentation
+- PDF manuals (via LaTeX)
+- Online tutorials (via Markdown)
+
+## Usage Instructions
+
+To extract and run this server:
+
+```bash
+# Tangle the code
+(litprog-tangle "web_server_markdown.lit" "src/")
+
+# This generates:
+#   src/server.lisp
+#   src/http-parser.lisp
+#   src/router.lisp
+
+# Run the server
+(load "src/server.lisp")
+
+# Generate documentation
+(litprog-weave "web_server_markdown.lit" "server-docs.html" :format :html)
+```
+
+## Future Enhancements
+
+Some ideas for extending this server:
+
+1. **Real Socket Support** - Integrate with ChrysaLisp's networking
+2. **Template Engine** - Separate HTML from handlers
+3. **Static File Serving** - Serve CSS, JS, images
+4. **Middleware System** - Logging, authentication, etc.
+5. **WebSocket Support** - Real-time communication
+6. **Database Integration** - Store and retrieve data
+
+## Conclusion
+
+Markdown fence syntax (`\`\`\`lang {#chunk .tangle=file}`) provides a familiar
+format for developers already using GitHub, GitLab, or static site generators.
+
+The literate programming approach transforms code from a necessary evil into
+living documentation that teaches, explains, and generates working software!

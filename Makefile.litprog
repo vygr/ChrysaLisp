@@ -1,0 +1,195 @@
+# Makefile for LITPROG - Literate Programming Tool
+# Usage: make -f Makefile.litprog [target]
+
+.PHONY: all demo clean tangle weave help examples
+
+# Default target
+all: help
+
+# Help target
+help:
+	@echo ""
+	@echo "╔════════════════════════════════════════════════════════════════╗"
+	@echo "║  LITPROG - Literate Programming Tool Makefile                ║"
+	@echo "╚════════════════════════════════════════════════════════════════╝"
+	@echo ""
+	@echo "Available targets:"
+	@echo ""
+	@echo "  make demo              - Run all demonstrations"
+	@echo "  make examples          - Process all example files"
+	@echo "  make tangle            - Tangle all examples (extract code)"
+	@echo "  make weave             - Weave all examples (generate docs)"
+	@echo "  make clean             - Remove generated files"
+	@echo "  make hello             - Process Hello World example"
+	@echo "  make fibonacci         - Process Fibonacci example"
+	@echo "  make webserver         - Process Web Server example"
+	@echo "  make advanced          - Process Advanced Pipeline example"
+	@echo "  make test              - Run basic tests"
+	@echo "  make help              - Show this help"
+	@echo ""
+
+# Run demo
+demo:
+	@echo "Running LITPROG demonstrations..."
+	chrysalisp demo_litprog.lisp
+
+# Process all examples
+examples: hello fibonacci webserver advanced
+	@echo ""
+	@echo "All examples processed!"
+
+# Tangle all examples
+tangle:
+	@echo "Tangling all examples..."
+	@mkdir -p output
+	chrysalisp -e "(import \"litprog.lisp\")" \
+	           -e "(litprog-tangle \"examples/hello_literate.lit\" \"output/\")" \
+	           -e "(litprog-tangle \"examples/fibonacci_orgmode.lit\" \"output/\")" \
+	           -e "(litprog-tangle \"examples/web_server_markdown.lit\" \"output/\")" \
+	           -e "(litprog-tangle \"examples/advanced_mixed_styles.lit\" \"output/\")"
+	@echo "Tangle complete!"
+
+# Weave all examples
+weave:
+	@echo "Weaving all examples..."
+	@mkdir -p output/docs
+	chrysalisp -e "(import \"litprog.lisp\")" \
+	           -e "(litprog-weave \"examples/hello_literate.lit\" \"output/docs/hello.html\" :format :html)" \
+	           -e "(litprog-weave \"examples/fibonacci_orgmode.lit\" \"output/docs/fibonacci.html\" :format :html)" \
+	           -e "(litprog-weave \"examples/web_server_markdown.lit\" \"output/docs/webserver.html\" :format :html)" \
+	           -e "(litprog-weave \"examples/advanced_mixed_styles.lit\" \"output/docs/pipeline.html\" :format :html)"
+	@echo "Weave complete!"
+
+# Hello World example
+hello:
+	@echo "Processing Hello World example..."
+	@mkdir -p output/docs
+	chrysalisp -e "(import \"litprog.lisp\")" \
+	           -e "(litprog-tangle \"examples/hello_literate.lit\" \"output/\")" \
+	           -e "(litprog-weave \"examples/hello_literate.lit\" \"output/docs/hello.html\" :format :html)" \
+	           -e "(litprog-weave \"examples/hello_literate.lit\" \"output/docs/hello.md\" :format :markdown)"
+	@echo "Hello World complete! See output/hello.lisp and output/docs/hello.html"
+
+# Fibonacci example
+fibonacci:
+	@echo "Processing Fibonacci example..."
+	@mkdir -p output/docs
+	chrysalisp -e "(import \"litprog.lisp\")" \
+	           -e "(litprog-tangle \"examples/fibonacci_orgmode.lit\" \"output/\")" \
+	           -e "(litprog-weave \"examples/fibonacci_orgmode.lit\" \"output/docs/fibonacci.html\" :format :html)" \
+	           -e "(litprog-weave \"examples/fibonacci_orgmode.lit\" \"output/docs/fibonacci.tex\" :format :latex)"
+	@echo "Fibonacci complete! See output/fibonacci.lisp and output/docs/fibonacci.html"
+
+# Web Server example
+webserver:
+	@echo "Processing Web Server example..."
+	@mkdir -p output/docs
+	chrysalisp -e "(import \"litprog.lisp\")" \
+	           -e "(litprog-tangle \"examples/web_server_markdown.lit\" \"output/\")" \
+	           -e "(litprog-weave \"examples/web_server_markdown.lit\" \"output/docs/webserver.html\" :format :html)"
+	@echo "Web Server complete! See output/server.lisp and output/docs/webserver.html"
+
+# Advanced Pipeline example
+advanced:
+	@echo "Processing Advanced Pipeline example..."
+	@mkdir -p output/docs
+	chrysalisp -e "(import \"litprog.lisp\")" \
+	           -e "(litprog-tangle \"examples/advanced_mixed_styles.lit\" \"output/\")" \
+	           -e "(litprog-weave \"examples/advanced_mixed_styles.lit\" \"output/docs/pipeline.html\" :format :html)" \
+	           -e "(litprog-weave \"examples/advanced_mixed_styles.lit\" \"output/docs/pipeline.md\" :format :markdown)" \
+	           -e "(litprog-weave \"examples/advanced_mixed_styles.lit\" \"output/docs/pipeline.tex\" :format :latex)"
+	@echo "Advanced Pipeline complete! See output/pipeline.lisp and output/docs/pipeline.html"
+
+# Test basic functionality
+test:
+	@echo "Running basic tests..."
+	@echo "Test 1: Load litprog.lisp"
+	chrysalisp -e "(import \"litprog.lisp\")" -e "(print \"✓ Load successful\")"
+	@echo ""
+	@echo "Test 2: Tangle simple example"
+	@mkdir -p output/test
+	chrysalisp -e "(import \"litprog.lisp\")" \
+	           -e "(litprog-tangle \"examples/hello_literate.lit\" \"output/test/\")"
+	@echo ""
+	@echo "Test 3: Weave to Markdown"
+	chrysalisp -e "(import \"litprog.lisp\")" \
+	           -e "(litprog-weave \"examples/hello_literate.lit\" \"output/test/test.md\" :format :markdown)"
+	@echo ""
+	@echo "All tests passed!"
+
+# Clean generated files
+clean:
+	@echo "Cleaning generated files..."
+	rm -rf output/
+	@echo "Clean complete!"
+
+# Publish documentation to GitHub Pages (if applicable)
+publish: weave
+	@echo "Publishing documentation..."
+	@mkdir -p docs
+	cp output/docs/*.html docs/
+	@echo "Documentation copied to docs/ directory"
+	@echo "Commit and push to publish to GitHub Pages"
+
+# Create a distribution archive
+dist: clean examples
+	@echo "Creating distribution archive..."
+	tar -czf litprog-dist.tar.gz \
+		litprog.lisp \
+		demo_litprog.lisp \
+		Makefile.litprog \
+		LITPROG_README.md \
+		examples/ \
+		output/
+	@echo "Distribution created: litprog-dist.tar.gz"
+
+# Watch for changes and auto-rebuild (requires inotifywait)
+watch:
+	@echo "Watching for changes..."
+	@echo "Press Ctrl+C to stop"
+	while true; do \
+		inotifywait -e modify examples/*.lit; \
+		make examples; \
+	done
+
+# Quick reference
+ref:
+	@echo ""
+	@echo "╔════════════════════════════════════════════════════════════════╗"
+	@echo "║  LITPROG Quick Reference                                      ║"
+	@echo "╚════════════════════════════════════════════════════════════════╝"
+	@echo ""
+	@echo "Noweb Style:"
+	@echo "  <<chunk-name>>="
+	@echo "  code here"
+	@echo "  @"
+	@echo ""
+	@echo "Org-Mode Style:"
+	@echo "  #+NAME: chunk-name"
+	@echo "  #+BEGIN_SRC lisp :tangle file.lisp"
+	@echo "  code here"
+	@echo "  #+END_SRC"
+	@echo ""
+	@echo "Markdown Fence Style:"
+	@echo "  \`\`\`lisp {#chunk-name .tangle=file.lisp}"
+	@echo "  code here"
+	@echo "  \`\`\`"
+	@echo ""
+	@echo "API:"
+	@echo "  (litprog-tangle \"source.lit\" \"output-dir/\")"
+	@echo "  (litprog-weave \"source.lit\" \"docs.html\" :format :html)"
+	@echo "  (litprog-help)"
+	@echo ""
+
+# Create example directory structure
+init:
+	@echo "Initializing LITPROG project structure..."
+	mkdir -p examples
+	mkdir -p output
+	mkdir -p docs
+	@echo "Created directories: examples/ output/ docs/"
+	@echo ""
+	@echo "Next steps:"
+	@echo "  1. Create .lit files in examples/"
+	@echo "  2. Run 'make tangle' to extract code"
+	@echo "  3. Run 'make weave' to generate docs"

@@ -1,0 +1,202 @@
+# Fibonacci Calculator - Org-Mode Style
+
+This literate program demonstrates the Fibonacci sequence calculator using
+**org-mode style** source blocks.
+
+## Mathematical Background
+
+The Fibonacci sequence is defined recursively:
+- F(0) = 0
+- F(1) = 1
+- F(n) = F(n-1) + F(n-2) for n ≥ 2
+
+However, naive recursion is inefficient. We'll implement three versions:
+1. **Recursive** (educational)
+2. **Iterative** (efficient)
+3. **Memoized** (balanced)
+
+## File Structure
+
+#+NAME: file-header
+#+BEGIN_SRC lisp :tangle fibonacci.lisp
+;; ========================================================================
+;; Fibonacci Calculator - Multiple Implementations
+;; Generated from literate source using org-mode style
+;; ========================================================================
+
+(import "lib/asm/asm.inc")
+#+END_SRC
+
+## Implementation 1: Naive Recursion
+
+This is the textbook recursive implementation. It's elegant but exponentially slow
+due to redundant calculations.
+
+#+NAME: fib-recursive
+#+BEGIN_SRC lisp :tangle fibonacci.lisp
+(defun fib-recursive (n)
+  "Calculate Fibonacci number using naive recursion"
+  (cond
+    ((<= n 0) 0)
+    ((= n 1) 1)
+    (t (+ (fib-recursive (- n 1))
+          (fib-recursive (- n 2))))))
+#+END_SRC
+
+**Time Complexity:** O(2^n) - Exponential!
+**Space Complexity:** O(n) - Due to call stack
+
+## Implementation 2: Iterative Approach
+
+The iterative version is much more efficient, calculating each Fibonacci number
+exactly once.
+
+#+NAME: fib-iterative
+#+BEGIN_SRC lisp :tangle fibonacci.lisp
+(defun fib-iterative (n)
+  "Calculate Fibonacci number using iteration"
+  (if (<= n 0)
+    0
+    (progn
+      (defq a 0 b 1)
+      (defq i 1)
+      (while (< i n)
+        (defq temp b)
+        (setq b (+ a b))
+        (setq a temp)
+        (setq i (inc i)))
+      b)))
+#+END_SRC
+
+**Time Complexity:** O(n) - Linear!
+**Space Complexity:** O(1) - Constant!
+
+## Implementation 3: Memoized Version
+
+Memoization combines recursion's elegance with iteration's efficiency by caching
+previously computed values.
+
+#+NAME: fib-memoized-cache
+#+BEGIN_SRC lisp :tangle fibonacci.lisp
+; Global cache for memoization
+(defq *fib-cache* (env))
+(. *fib-cache* 0 0)
+(. *fib-cache* 1 1)
+#+END_SRC
+
+#+NAME: fib-memoized
+#+BEGIN_SRC lisp :tangle fibonacci.lisp
+(defun fib-memoized (n)
+  "Calculate Fibonacci number using memoization"
+  (if (<= n 0)
+    0
+    (if (. *fib-cache* n)
+      (. *fib-cache* n)
+      (progn
+        (defq result (+ (fib-memoized (- n 1))
+                       (fib-memoized (- n 2))))
+        (. *fib-cache* n result)
+        result))))
+#+END_SRC
+
+**Time Complexity:** O(n) - Each value computed once
+**Space Complexity:** O(n) - Cache storage
+
+## Benchmarking Utilities
+
+Let's create a simple benchmarking function to compare our implementations:
+
+#+NAME: benchmark
+#+BEGIN_SRC lisp :tangle fibonacci.lisp
+(defun benchmark-fib (impl-name impl-fn n iterations)
+  "Benchmark a Fibonacci implementation"
+  (print (cat "Benchmarking " impl-name " for fib(" n ") × " iterations " iterations..."))
+  (defq start-time (time))
+  (defq i 0)
+  (while (< i iterations)
+    (impl-fn n)
+    (setq i (inc i)))
+  (defq end-time (time))
+  (defq elapsed (- end-time start-time))
+  (print (cat "  Time: " elapsed "ms"))
+  (print (cat "  Result: " (impl-fn n)))
+  (print ""))
+#+END_SRC
+
+## Main Program
+
+The main function demonstrates all three implementations:
+
+#+NAME: main-program
+#+BEGIN_SRC lisp :tangle fibonacci.lisp
+(defun main ()
+  (print "╔════════════════════════════════════════════════════════╗")
+  (print "║     Fibonacci Calculator - Multiple Strategies        ║")
+  (print "╚════════════════════════════════════════════════════════╝")
+  (print "")
+
+  ; Small number - all methods fast
+  (defq n 10)
+  (print (cat "Computing Fibonacci(" n "):"))
+  (print (cat "  Recursive:  " (fib-recursive n)))
+  (print (cat "  Iterative:  " (fib-iterative n)))
+  (print (cat "  Memoized:   " (fib-memoized n)))
+  (print "")
+
+  ; Larger number - shows performance differences
+  (defq n 30)
+  (print (cat "Computing Fibonacci(" n "):"))
+  (print "  (Recursive skipped - too slow!)")
+  (print (cat "  Iterative:  " (fib-iterative n)))
+  (print (cat "  Memoized:   " (fib-memoized n)))
+  (print "")
+
+  ; Benchmark iterative vs memoized
+  (print "Performance Comparison:")
+  (benchmark-fib "Iterative" fib-iterative 35 100)
+  (benchmark-fib "Memoized" fib-memoized 35 100))
+
+(main)
+#+END_SRC
+
+## Performance Analysis
+
+### Why Recursion Fails
+
+For fib(40), the recursive version makes approximately 331,160,281 function calls!
+This is because it recalculates the same values over and over:
+
+```
+fib(5)
+├── fib(4)
+│   ├── fib(3)
+│   │   ├── fib(2)
+│   │   │   ├── fib(1) = 1
+│   │   │   └── fib(0) = 0
+│   │   └── fib(1) = 1
+│   └── fib(2)    <- Already calculated above!
+│       ├── fib(1) = 1
+│       └── fib(0) = 0
+└── fib(3)        <- Completely redundant!
+    ├── fib(2)
+    │   ├── fib(1) = 1
+    │   └── fib(0) = 0
+    └── fib(1) = 1
+```
+
+### When to Use Each Approach
+
+1. **Recursive:** Educational purposes only, or when n < 20
+2. **Iterative:** Production code, best for single calculations
+3. **Memoized:** When calculating many Fibonacci numbers, or when elegance matters
+
+## Conclusion
+
+This example demonstrates how literate programming helps us:
+- **Explain algorithms** with mathematical context
+- **Compare implementations** side-by-side
+- **Document performance** characteristics
+- **Teach concepts** effectively
+
+The org-mode style (`#+BEGIN_SRC`/`#+END_SRC`) is particularly popular in the
+Emacs ecosystem and provides excellent integration with org-mode documents.
