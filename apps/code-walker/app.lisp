@@ -13,6 +13,7 @@
 	(enum process_btn clear_btn step_expand_btn export_btn toggle_diff_btn toggle_tree_btn toggle_compare_btn)
 	(enum history_prev history_next clear_history)
 	(enum save_session load_session)
+	(enum search_field search_btn clear_search_btn)
 	(enum input_field input_field2)
 	(enum example1 example2 example3 example4))
 
@@ -36,6 +37,7 @@
 
 (defq *show_diffs* :t *show_tree* :nil *compare_mode* :nil)
 (defq *history* (list) *history_index* -1 *max_history* 50)
+(defq *search_active* :nil *search_term* "")
 
 (defun compute-diff (old new)
 	; Compute a simple diff between two pretty-printed forms
@@ -463,6 +465,119 @@
 				(set *eval_output* :text (cat "Error loading session: " (str _)))
 				(.-> *eval_output* :layout :dirty)))))
 
+(defun highlight-matches (text term)
+	; Highlight matches of term in text with >>term<< markers
+	; Returns (highlighted_text . match_count)
+	(if (or (empty? term) (empty? text))
+		(list text 0)
+		(progn
+			(defq result "" count 0 pos 0 term_len (length term) text_len (length text))
+
+			(while (< pos text_len)
+				(defq found_pos :nil)
+
+				; Search for term (case-insensitive)
+				(each (lambda (i)
+					(when (not found_pos)
+						(defq match :t)
+						(each (lambda (j)
+							(when match
+								(defq text_ch (char (elem-get text (+ i j)))
+									  term_ch (char (elem-get term j)))
+								; Simple case-insensitive comparison
+								(when (not (= text_ch term_ch))
+									; Try lowercase comparison
+									(when (>= text_ch 65)
+										(when (<= text_ch 90)
+											(setq text_ch (+ text_ch 32))))
+									(when (>= term_ch 65)
+										(when (<= term_ch 90)
+											(setq term_ch (+ term_ch 32))))
+									(when (not (= text_ch term_ch))
+										(setq match :nil)))))
+							(range 0 term_len))
+						(when match
+							(setq found_pos i))))
+					(range pos (- text_len term_len -1)))
+
+				(if found_pos
+					(progn
+						; Copy text before match
+						(each (lambda (i)
+							(setq result (cat result (str (char (elem-get text i))))))
+							(range pos found_pos))
+						; Add highlighted match
+						(setq result (cat result ">>"
+							(slice text found_pos (+ found_pos term_len))
+							"<<"))
+						(setq count (inc count))
+						(setq pos (+ found_pos term_len)))
+					; No more matches, copy rest
+					(progn
+						(each (lambda (i)
+							(setq result (cat result (str (char (elem-get text i))))))
+							(range pos text_len))
+						(setq pos text_len))))
+
+			(list result count))))
+
+(defun apply-search ()
+	; Apply search highlighting to all outputs
+	(setq *search_term* (get :text *search_field*))
+
+	(if (empty? *search_term*)
+		(progn
+			(set *search_result_label* :text "Search: enter term")
+			(setq *search_active* :nil))
+		(progn
+			(setq *search_active* :t)
+
+			; Store original outputs if not already stored
+			(when (not *search_active*)
+				(defq *orig_read* (get :text *read_output*)
+					  *orig_expand* (get :text *expand_output*)
+					  *orig_bind* (get :text *bind_output*)
+					  *orig_eval* (get :text *eval_output*)))
+
+			; Apply highlighting
+			(defq read_result (highlight-matches (get :text *read_output*) *search_term*)
+				  expand_result (highlight-matches (get :text *expand_output*) *search_term*)
+				  bind_result (highlight-matches (get :text *bind_output*) *search_term*)
+				  eval_result (highlight-matches (get :text *eval_output*) *search_term*))
+
+			; Update outputs with highlights
+			(set *read_output* :text (first read_result))
+			(set *expand_output* :text (first expand_result))
+			(set *bind_output* :text (first bind_result))
+			(set *eval_output* :text (first eval_result))
+
+			; Count total matches
+			(defq total_matches (+ (second read_result) (second expand_result)
+								   (second bind_result) (second eval_result)))
+
+			; Update search label
+			(set *search_result_label* :text
+				(cat "Found: " (str total_matches) " matches"))
+
+			; Update layout
+			(.-> *search_result_label* :layout :dirty)
+			(.-> *read_output* :layout :dirty)
+			(.-> *expand_output* :layout :dirty)
+			(.-> *bind_output* :layout :dirty)
+			(.-> *eval_output* :layout :dirty))))
+
+(defun clear-search ()
+	; Clear search highlighting
+	(set *search_field* :text "")
+	(setq *search_term* "" *search_active* :nil)
+	(set *search_result_label* :text "Search: enter term")
+
+	; Reprocess to restore original outputs
+	(process-code)
+
+	(.-> *search_field* :layout :dirty)
+	(.-> *search_result_label* :layout :dirty))
+
 ;;;;;;;;;;;;;;;;;;;;;
 ; UI Definition
 ;;;;;;;;;;;;;;;;;;;;;
@@ -515,6 +630,17 @@
 		(. history_clear_btn :connect +event_clear_history)
 		(. save_session_btn :connect +event_save_session)
 		(. load_session_btn :connect +event_load_session))
+
+	; Search section
+	(ui-flow search_section (:flow_flags +flow_right_fill :color +section_color)
+		(ui-label _ (:text "Search:" :font +font_title :color +header_color :border 0))
+		(ui-textfield *search_field* (:text "" :font +font_mono :color +argb_white :border 0))
+		(ui-button search_btn (:text "Highlight" :font +font_title))
+		(ui-button clear_search_btn (:text "Clear Search" :font +font_title))
+		(ui-label *search_result_label* (:text "Search: enter term" :font +font_title :color +header_color :border 0))
+		(. *search_field* :connect +event_search_field)
+		(. search_btn :connect +event_search_btn)
+		(. clear_search_btn :connect +event_clear_search_btn))
 
 	; Example buttons section
 	(ui-flow example_section (:flow_flags +flow_right_fill :color +section_color)
@@ -967,6 +1093,13 @@
 					((= id +event_clear_history) (clear-history))
 					((= id +event_save_session) (save-session))
 					((= id +event_load_session) (load-session))
+					((= id +event_search_btn) (apply-search))
+					((= id +event_clear_search_btn) (clear-search))
+					((and (= id +event_search_field)
+						  (= (getf msg +ev_msg_type) +ev_type_key_down)
+						  (= (getf msg +ev_msg_key_key) +char_lf))
+						; Search on Enter key in search field
+						(apply-search))
 					((= id +event_example1)
 						(load-example "(defun add (a b) (+ a b))"))
 					((= id +event_example2)

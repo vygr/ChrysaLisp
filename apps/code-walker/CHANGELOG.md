@@ -1,6 +1,78 @@
 # Code Walker / AST Explorer - Changelog
 
-## Version 7.0 - Session Save/Load (Current)
+## Version 8.0 - Search/Highlight (Current)
+
+**Date:** 2025-11-18
+
+### New Feature: Search and Highlight in Outputs
+
+**Find and highlight terms across all phase outputs!**
+
+#### Search System
+- **Search Field:** Enter search term in text field
+- **Highlight Button:** Apply highlighting to all outputs (or press Enter in search field)
+- **Clear Search Button:** Remove highlighting and restore outputs
+- **Match Counter:** Shows total matches found across all phases
+- **Case-Insensitive:** Searches ignore case for better matching
+
+#### Highlighting Format
+- Matches wrapped with `>>term<<` markers
+- Example: `defun` search shows `>>defun<< add (a b) (+ a b)`
+- Visible in monospace output text
+- All four phase outputs highlighted simultaneously
+
+#### Implementation
+- `highlight-matches()` - Find and wrap matches with markers (55 lines)
+- `apply-search()` - Apply highlighting to all outputs (44 lines)
+- `clear-search()` - Remove highlighting and reprocess (9 lines)
+- Case-insensitive string matching
+- Character-by-character search algorithm
+- Match counting across all outputs
+- Search state: `*search_active*`, `*search_term*`
+
+#### Search Features
+- **Real-time Highlighting:** Press Enter or click Highlight
+- **Match Count:** Shows "Found: N matches" label
+- **Multi-Phase Search:** Searches READ, EXPAND, BIND, EVAL outputs
+- **Non-Destructive:** Clear Search restores original outputs
+- **Works with All Features:** Compatible with history, comparison, diffs, trees
+
+#### Usage Flow
+```
+1. Process some code: (defun add (a b) (+ a b))
+2. Enter search term: "defun"
+3. Press Enter or click "Highlight"
+4. See: >>defun<< add (a b) (+ a b)
+5. Label shows: "Found: 2 matches" (READ and EXPAND phases)
+6. Click "Clear Search" to restore
+```
+
+#### Use Cases
+- **Find Symbols:** Search for specific symbol names
+- **Track Transformations:** See where terms appear/disappear
+- **Debugging:** Find specific function names or variables
+- **Learning:** Track macro names through expansion
+- **Verification:** Confirm binding replacements
+
+#### Example Searches
+```
+Search "lambda" - See where defun expands to lambda
+Search "func:" - Find all pre-bound functions
+Search "defq" - Track defq through phases
+Search "+" - See operator pre-binding
+Search "error" - Find error messages
+```
+
+#### Integration
+- Works with comparison mode (highlights both expressions)
+- Works with diffs (highlights in diff text)
+- Works with trees (highlights in tree text)
+- Works with history (can search historical outputs)
+- Clears automatically when processing new code
+
+---
+
+## Version 7.0 - Session Save/Load
 
 **Date:** 2025-11-18
 

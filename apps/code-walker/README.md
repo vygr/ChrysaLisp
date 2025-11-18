@@ -14,6 +14,7 @@ The Code Walker is an interactive application that demonstrates how ChrysaLisp p
 ## Features
 
 - **Live Code Processing**: Enter any ChrysaLisp expression and see it transform through each phase
+- **Search/Highlight**: Find and highlight terms across all outputs with `>>match<<` markers
 - **Session Save/Load**: Save and load complete exploration sessions (.cws files) including history
 - **History Navigation**: Navigate through exploration history with ◄ Prev/Next ► buttons, max 50 entries
 - **Comparison Mode**: Compare two expressions side-by-side across all phases
@@ -54,6 +55,11 @@ The Code Walker is an interactive application that demonstrates how ChrysaLisp p
   - **Clear History Button**: Clear all history entries
   - **Save Session Button**: Save complete session to .cws file
   - **Load Session Button**: Load previously saved session
+- **Search Section**:
+  - **Search Field**: Enter term to search for
+  - **Highlight Button**: Apply highlighting (or press Enter in search field)
+  - **Clear Search Button**: Remove highlighting and restore outputs
+  - **Match Counter**: Shows "Found: N matches" result
 - **Example Buttons**: Load common macro examples (defun, let, case, ui-window)
 - **Output Panels**: View each phase of the compilation pipeline with color coding
 - **Diff Panels**: See line-by-line differences between phases (when enabled)
@@ -401,6 +407,76 @@ Experimentation: Safe exploration
 **Note:** Currently loads from fixed filename `code-walker-session-latest.cws`. Rename your desired session file to "latest" to load it.
 
 **Future:** File browser UI for selecting which session to load by name.
+
+### Search and Highlight
+
+The Code Walker includes powerful search across all outputs:
+
+**Usage:**
+1. Enter a search term in the Search field
+2. Press Enter or click **Highlight** button
+3. Matches wrapped with `>>term<<` markers in outputs
+4. Match counter shows total: "Found: N matches"
+5. Click **Clear Search** to restore original outputs
+
+**Highlighting Format:**
+```
+Original: (defun add (a b) (+ a b))
+After searching "defun": (>>defun<< add (a b) (+ a b))
+After searching "add": (defun >>add<< (a b) (+ a b))
+```
+
+**Features:**
+- **Case-Insensitive:** Finds "Defun", "defun", "DEFUN"
+- **Multi-Phase:** Searches all four phase outputs simultaneously
+- **Count Display:** Shows total matches across all phases
+- **Non-Destructive:** Easily clear and restore
+
+**Example Searches:**
+
+```
+Search "lambda" - Track where defun expands to lambda
+  READ:   (>>defun<< add (a b) (+ a b))
+  EXPAND: (defq add (>>lambda<< (a b) (+ a b)))
+
+Search "func:" - Find all pre-bound functions
+  BIND: (>>func:<< <Func:0x...> (>>func:<< <Func:0x...>...
+
+Search "+" - See operator binding
+  READ:   (defun add (a b) (+ a b))
+  EXPAND: (defq add (lambda (a b) (+ a b)))
+  BIND:   (defq add (lambda (a b) (>>func:<0x...> a b)))
+
+Search "defq" - Track through phases
+  EXPAND: (>>defq<< add (lambda (a b) (+ a b)))
+  BIND:   (>>defq<< add (lambda (a b) (...)))
+
+Search "error" - Find error messages
+  Shows which phase produced errors
+```
+
+**Use Cases:**
+- **Learning:** Track symbol transformations
+- **Debugging:** Find where terms appear/disappear
+- **Verification:** Confirm bindings occurred
+- **Teaching:** Highlight key concepts for students
+- **Analysis:** Count occurrences of patterns
+
+**Integration:**
+- Works with **Comparison Mode**: Highlights in both expressions
+- Works with **Diff View**: Highlights in diff text
+- Works with **Tree View**: Highlights in tree structure
+- Works with **History**: Search any historical output
+- **Auto-Clear**: Clears when processing new code
+
+**Pro Tips:**
+```
+1. Search for macro names to see expansion
+2. Search for "func:" to see all pre-bindings
+3. Search for variable names to track scope
+4. Search for "error" to find issues quickly
+5. Search short terms like "+" to see all uses
+```
 
 ### Export Results
 
