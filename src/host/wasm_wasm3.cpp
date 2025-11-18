@@ -13,8 +13,10 @@
 
 #include "wasm3.h"
 #include "m3_env.h"
+#include "m3_api_wasi.h"
 #include <map>
 #include <string>
+#include <chrono>
 
 // WASM instance structure
 struct wasm_instance {
@@ -23,11 +25,143 @@ struct wasm_instance {
     IM3Module module;
     std::string error;
     std::string filepath;
+    std::chrono::steady_clock::time_point start_time;
+    uint8_t* doom_framebuffer;  // Pointer to DOOM's frame buffer in WASM memory
 };
 
 // Instance management - using a map for handle-based access
 static std::map<uint64_t, wasm_instance*> instances;
 static uint64_t next_instance_id = 1;
+
+//
+// DOOM Import Functions
+// These functions are called BY the WASM module (DOOM)
+//
+
+// Helper to read string from WASM memory
+static void read_wasm_string(IM3Runtime runtime, uint32_t offset, uint32_t length, char* buffer, size_t buffer_size) {
+    uint8_t* mem = (uint8_t*)m3_GetMemory(runtime, nullptr, 0);
+    if (mem && length < buffer_size) {
+        memcpy(buffer, mem + offset, length);
+        buffer[length] = '\0';
+    }
+}
+
+// js_console_log(offset, length)
+m3ApiRawFunction(doom_js_console_log) {
+    m3ApiReturnType(void)
+    m3ApiGetArg(uint32_t, offset)
+    m3ApiGetArg(uint32_t, length)
+
+    char buffer[1024];
+    read_wasm_string(runtime, offset, length, buffer, sizeof(buffer));
+    printf("[DOOM LOG] %s\n", buffer);
+
+    m3ApiSuccess();
+}
+
+// js_stdout(offset, length)
+m3ApiRawFunction(doom_js_stdout) {
+    m3ApiReturnType(void)
+    m3ApiGetArg(uint32_t, offset)
+    m3ApiGetArg(uint32_t, length)
+
+    char buffer[1024];
+    read_wasm_string(runtime, offset, length, buffer, sizeof(buffer));
+    printf("[DOOM] %s\n", buffer);
+
+    m3ApiSuccess();
+}
+
+// js_stderr(offset, length)
+m3ApiRawFunction(doom_js_stderr) {
+    m3ApiReturnType(void)
+    m3ApiGetArg(uint32_t, offset)
+    m3ApiGetArg(uint32_t, length)
+
+    char buffer[1024];
+    read_wasm_string(runtime, offset, length, buffer, sizeof(buffer));
+    fprintf(stderr, "[DOOM ERROR] %s\n", buffer);
+
+    m3ApiSuccess();
+}
+
+// js_milliseconds_since_start() -> double
+m3ApiRawFunction(doom_js_milliseconds_since_start) {
+    m3ApiReturnType(double)
+
+    // Get instance to access start_time
+    wasm_instance* inst = nullptr;
+    for (auto& pair : instances) {
+        if (pair.second->runtime == runtime) {
+            inst = pair.second;
+            break;
+        }
+    }
+
+    if (!inst) {
+        m3ApiReturn(0.0);
+    }
+
+    auto now = std::chrono::steady_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(now - inst->start_time);
+
+    m3ApiReturn((double)duration.count());
+}
+
+// js_draw_screen(ptr) - DOOM calls this to render a frame
+m3ApiRawFunction(doom_js_draw_screen) {
+    m3ApiReturnType(void)
+    m3ApiGetArg(uint32_t, ptr)
+
+    // Get WASM memory
+    uint8_t* mem = (uint8_t*)m3_GetMemory(runtime, nullptr, 0);
+    if (!mem) {
+        m3ApiSuccess();
+    }
+
+    // Find instance to store framebuffer pointer
+    wasm_instance* inst = nullptr;
+    for (auto& pair : instances) {
+        if (pair.second->runtime == runtime) {
+            inst = pair.second;
+            break;
+        }
+    }
+
+    if (inst) {
+        // Store pointer to framebuffer (640x400 RGBA)
+        inst->doom_framebuffer = mem + ptr;
+    }
+
+    m3ApiSuccess();
+}
+
+// Link DOOM import functions
+static M3Result link_doom_imports(IM3Runtime runtime, IM3Module module) {
+    M3Result result;
+
+    const char* js = "js";
+
+    result = m3_LinkRawFunction(module, js, "js_console_log", "v(ii)", &doom_js_console_log);
+    if (result) return result;
+
+    result = m3_LinkRawFunction(module, js, "js_stdout", "v(ii)", &doom_js_stdout);
+    if (result) return result;
+
+    result = m3_LinkRawFunction(module, js, "js_stderr", "v(ii)", &doom_js_stderr);
+    if (result) return result;
+
+    result = m3_LinkRawFunction(module, js, "js_milliseconds_since_start", "F()", &doom_js_milliseconds_since_start);
+    if (result) return result;
+
+    result = m3_LinkRawFunction(module, js, "js_draw_screen", "v(i)", &doom_js_draw_screen);
+    if (result) return result;
+
+    printf("[WASM] Successfully linked DOOM import functions\n");
+
+    return m3Err_none;
+}
 
 //
 // Instance lifecycle
@@ -61,6 +195,8 @@ void* host_wasm_load(const char* wasm_file, uint64_t* instance_id) {
     // Create WASM3 environment
     wasm_instance* inst = new wasm_instance();
     inst->filepath = wasm_file;
+    inst->start_time = std::chrono::steady_clock::now();
+    inst->doom_framebuffer = nullptr;
     inst->env = m3_NewEnvironment();
     if (!inst->env) {
         inst->error = "Failed to create WASM3 environment";
@@ -69,8 +205,9 @@ void* host_wasm_load(const char* wasm_file, uint64_t* instance_id) {
         return nullptr;
     }
 
-    // Create runtime with 512KB stack
-    inst->runtime = m3_NewRuntime(inst->env, 512*1024, nullptr);
+    // Create runtime with large stack for DOOM (8MB)
+    // DOOM needs ~7MB memory (108 pages * 64KB)
+    inst->runtime = m3_NewRuntime(inst->env, 8*1024*1024, nullptr);
     if (!inst->runtime) {
         inst->error = "Failed to create WASM3 runtime";
         m3_FreeEnvironment(inst->env);
@@ -100,6 +237,19 @@ void* host_wasm_load(const char* wasm_file, uint64_t* instance_id) {
         m3_FreeEnvironment(inst->env);
         delete inst;
         return nullptr;
+    }
+
+    // Link DOOM import functions if this is doom.wasm
+    if (strstr(wasm_file, "doom.wasm")) {
+        printf("[WASM] Detected doom.wasm, linking import functions...\n");
+        result = link_doom_imports(inst->runtime, inst->module);
+        if (result) {
+            inst->error = std::string("Failed to link DOOM imports: ") + result;
+            m3_FreeRuntime(inst->runtime);
+            m3_FreeEnvironment(inst->env);
+            delete inst;
+            return nullptr;
+        }
     }
 
     // Assign instance ID and store
