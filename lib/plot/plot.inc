@@ -207,13 +207,13 @@
 			; Count values in each bin
 			(each (lambda (val)
 				(defq bin_idx (min (dec num_bins) (floor (/ (- val min_val) bin_width))))
-				(elem-set bin_idx bins (inc (elem-get bin_idx bins))))
+				(elem-set bins bin_idx (inc (elem-get bins bin_idx))))
 				values)
 
 			; Create bin data (center, count)
 			(map (lambda (i)
 				(defq bin_center (+ min_val (* bin_width (+ i 0.5))))
-				(list bin_center (elem-get i bins)))
+				(list bin_center (elem-get bins i)))
 				(range 0 num_bins)))))
 
 ;;;;;;;;;;;;;;;;
@@ -257,7 +257,7 @@
 	(defq colors (get :colors plot)
 		  idx (get :color_index plot))
 	(def plot :color_index (% (inc idx) (length colors)))
-	(elem-get idx colors))
+	(elem-get colors idx))
 
 (defun plot-get-plot-area (plot)
 	; (plot-get-plot-area plot) -> (x y w h)
@@ -609,7 +609,7 @@
 	; Close the path to the baseline
 	(when (> (length data) 1)
 		(bind '(sx0 sy0) (plot-to-screen plot (first (first data)) (get :y_min plot)))
-		(bind '(sx1 sy1) (plot-to-screen plot (first (elem-get -1 data)) (get :y_min plot)))
+		(bind '(sx1 sy1) (plot-to-screen plot (first (elem-get data -1)) (get :y_min plot)))
 		(push points sx1 sy1 sx0 sy0)
 
 		; Fill the area
@@ -640,7 +640,7 @@
 		(bind '(label value) item)
 		(defq angle (* +fp_2pi (/ value total))
 			  end_angle (+ start_angle angle)
-			  color (elem-get (% (inc (!)) (length colors)) colors))
+			  color (elem-get colors (% (inc (!)) (length colors))))
 
 		; Create wedge path
 		(defq wedge (path cx cy))
@@ -750,7 +750,7 @@
 
 		; Draw each segment
 		(each (lambda (val)
-			(defq color (elem-get (% (inc (!)) (length colors)) colors))
+			(defq color (elem-get colors (% (inc (!)) (length colors))))
 			(bind '(sx sy) (plot-to-screen plot x (+ cumulative val)))
 			(bind '(sx0 sy0) (plot-to-screen plot x cumulative))
 			(defq segment_height (- sy0 sy))
@@ -787,9 +787,9 @@
 
 			; Draw each cell
 			(each (lambda (row_idx)
-				(defq row (elem-get row_idx data))
+				(defq row (elem-get data row_idx))
 				(each (lambda (col_idx)
-					(defq val (elem-get col_idx row)
+					(defq val (elem-get row col_idx)
 						  color (plot-color-gradient val min_val max_val colormap)
 						  x (+ px (* col_idx cell_width))
 						  y (+ py (* row_idx cell_height)))

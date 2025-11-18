@@ -28,10 +28,10 @@
 	; Convert path points to SVG path string
 	(defq result (list))
 	(when (> (length points) 0)
-		(push result (cat "M " (str (elem-get 0 points)) " " (str (elem-get 1 points))))
+		(push result (cat "M " (str (elem-get points 0)) " " (str (elem-get points 1))))
 		(each-rev (lambda (i)
 			(when (and (> i 0) (even? i))
-				(push result (cat "L " (str (elem-get i points)) " " (str (elem-get (inc i) points))))))
+				(push result (cat "L " (str (elem-get points i)) " " (str (elem-get points (inc i)))))))
 			(range 0 (length points)))
 		(when closed
 			(push result "Z")))
@@ -183,7 +183,7 @@
 	; Build SVG polyline
 	(defq point_str (apply cat
 		(map (lambda (i)
-			(cat (str (elem-get i points)) "," (str (elem-get (inc i) points)) " "))
+			(cat (str (elem-get points i)) "," (str (elem-get points (inc i))) " "))
 			(filter even? (range 0 (length points))))))
 
 	(cat "  <polyline points=\"" point_str "\" "
@@ -251,13 +251,13 @@
 	; Close the path to the baseline
 	(when (> (length data) 1)
 		(bind '(sx0 sy0) (plot-to-screen plot (first (first data)) (get :y_min plot)))
-		(bind '(sx1 sy1) (plot-to-screen plot (first (elem-get -1 data)) (get :y_min plot)))
+		(bind '(sx1 sy1) (plot-to-screen plot (first (elem-get data -1)) (get :y_min plot)))
 		(push points sx1 sy1 sx0 sy0)
 
 		; Build SVG polygon
 		(defq point_str (apply cat
 			(map (lambda (i)
-				(cat (str (elem-get i points)) "," (str (elem-get (inc i) points)) " "))
+				(cat (str (elem-get points i)) "," (str (elem-get points (inc i))) " "))
 				(filter even? (range 0 (length points))))))
 
 		(cat "  <polygon points=\"" point_str "\" "
@@ -282,7 +282,7 @@
 		(bind '(label value) item)
 		(defq angle (* +fp_2pi (/ value total))
 			  end_angle (+ start_angle angle)
-			  color (svg-color-to-hex (elem-get (% (inc (!)) (length colors)) colors)))
+			  color (svg-color-to-hex (elem-get colors (% (inc (!)) (length colors)))))
 
 		; Calculate arc points
 		(defq x1 (+ cx (* radius (cos start_angle)))

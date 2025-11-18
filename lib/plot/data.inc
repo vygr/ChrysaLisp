@@ -23,8 +23,8 @@
 				  n (length sorted)
 				  mid (>>> n 1))
 			(if (even? n)
-				(/ (+ (elem-get mid sorted) (elem-get (dec mid) sorted)) 2.0)
-				(elem-get mid sorted)))))
+				(/ (+ (elem-get sorted mid) (elem-get sorted (dec mid))) 2.0)
+				(elem-get sorted mid)))))
 
 (defun plot-std-dev (values)
 	; (plot-std-dev values) -> std_dev
@@ -55,7 +55,7 @@
 					  end (min (length data) (+ i half 1))
 					  window (slice data start end)
 					  avg_y (/ (reduce (lambda (acc x) (+ acc x)) (map second window) 0.0) (n2f (length window)))
-					  x (first (elem-get i data)))
+					  x (first (elem-get data i)))
 				(push result (list x avg_y)))
 				(range 0 (length data)))
 			result)))
@@ -89,7 +89,7 @@
 				  step (/ (dec (length data)) (dec num_points)))
 			(each (lambda (i)
 				(defq idx (floor (* i step)))
-				(push result (elem-get idx data)))
+				(push result (elem-get data idx)))
 				(range 0 num_points))
 			result)))
 
@@ -103,8 +103,8 @@
 	(cond
 		((<= num_points 1) (list start))
 		(:t
-			(defq step (/ (- end start) (dec num_points)))
-			(map (lambda (i) (+ start (* i step))) (range 0 num_points)))))
+			(defq step (/ (- end start) (n2f (dec num_points))))
+			(map (lambda (i) (+ start (* (n2f i) step))) (range 0 num_points)))))
 
 (defun plot-function (func x_min x_max num_points)
 	; (plot-function func x_min x_max num_points) -> data
@@ -119,7 +119,7 @@
 (defun plot-combine-xy (xs ys)
 	; (plot-combine-xy xs ys) -> data
 	; Combine x and y lists into (x y) pairs
-	(map (lambda (i) (list (elem-get i xs) (elem-get i ys)))
+	(map (lambda (i) (list (elem-get xs i) (elem-get ys i)))
 		(range 0 (min (length xs) (length ys)))))
 
 (defun plot-add-noise (data amplitude)
@@ -143,9 +143,9 @@
 			(defq peaks (list))
 			(each (lambda (i)
 				(when (and (> i 0) (< i (dec (length data))))
-					(defq prev_y (second (elem-get (dec i) data))
-						  curr_y (second (elem-get i data))
-						  next_y (second (elem-get (inc i) data)))
+					(defq prev_y (second (elem-get data (dec i)))
+						  curr_y (second (elem-get data i))
+						  next_y (second (elem-get data (inc i))))
 					(when (and (> curr_y prev_y) (> curr_y next_y) (> curr_y threshold))
 						(push peaks i))))
 				(range 0 (length data)))
@@ -194,12 +194,12 @@
 				  n (length sorted)
 				  median_idx (>>> n 1)
 				  median (if (even? n)
-					  (/ (+ (elem-get median_idx sorted) (elem-get (dec median_idx) sorted)) 2)
-					  (elem-get median_idx sorted))
+					  (/ (+ (elem-get sorted median_idx) (elem-get sorted (dec median_idx))) 2)
+					  (elem-get sorted median_idx))
 				  q1_idx (>>> median_idx 1)
 				  q3_idx (+ median_idx (>>> (- n median_idx) 1))
-				  q1 (elem-get q1_idx sorted)
-				  q3 (elem-get q3_idx sorted))
+				  q1 (elem-get sorted q1_idx)
+				  q3 (elem-get sorted q3_idx))
 			(list q1 median q3))))
 
 (defun plot-box-stats (values)
