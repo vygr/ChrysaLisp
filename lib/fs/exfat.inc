@@ -265,6 +265,175 @@
 				(setq current_cluster next_cluster)))
 	 :t)
 
+	(defmethod :free_cluster (cluster_num)
+		; Free a single cluster (mark as free in FAT)
+		; inputs
+		; cluster_num = cluster number to free
+		; outputs
+		; :t if successful, :nil otherwise
+		(when (and (>= cluster_num 2) (< cluster_num (+ (get this :cluster_count) 2)))
+			(. this :write_fat_entry cluster_num +exfat_fat_free)
+			:t))
+
+	;;;;;;;;;;;;;;;;;;;;
+	; Directory Entry Operations
+	;;;;;;;;;;;;;;;;;;;;
+
+	(defmethod :read_dir_entries (cluster_num)
+		; Read all directory entries from a cluster
+		; inputs
+		; cluster_num = cluster containing directory
+		; outputs
+		; list of directory entry hashes
+		(defq entries (list))
+		(when-bind (cluster_data (. this :read_cluster cluster_num))
+			(defq offset 0
+				cluster_size (get this :cluster_size))
+			; Parse entries (each is 32 bytes)
+			(while (< offset cluster_size)
+				(defq entry_type (code cluster_data 1 offset))
+				; Stop at end of directory
+				(when (= entry_type +exfat_entry_eod)
+					(return entries))
+				; Create entry hash
+				(defq entry (hash
+					:type entry_type
+					:offset offset
+					:data (slice cluster_data offset (+ offset +exfat_entry_size))))
+				(push entries entry)
+				(setq offset (+ offset +exfat_entry_size)))
+			entries))
+
+	(defmethod :write_dir_entry (cluster_num entry_offset entry_data)
+		; Write a directory entry to a cluster
+		; inputs
+		; cluster_num = cluster containing directory
+		; entry_offset = byte offset in cluster (multiple of 32)
+		; entry_data = entry data (32 bytes)
+		; outputs
+		; :t if successful
+		(when-bind (cluster_data (. this :read_cluster cluster_num))
+			(defq new_data (cat
+				(slice cluster_data 0 entry_offset)
+				entry_data
+				(slice cluster_data (+ entry_offset +exfat_entry_size) (length cluster_data))))
+			(. this :write_cluster cluster_num new_data)))
+
+	(defmethod :create_file_entry (name attributes)
+		; Create a file directory entry set
+		; inputs
+		; name = file name (str)
+		; attributes = file attributes (bitmap)
+		; outputs
+		; list of entry data strings (file + stream + name entries)
+		(defq entries (list)
+			name_len (length name)
+			; Calculate number of name entries needed (15 chars per entry)
+			name_entries (/ (+ name_len 14) 15))
+
+		; File entry (primary)
+		(defq file_entry (cat
+			(char +exfat_entry_file)
+			(char (+ 1 name_entries))  ; Secondary count
+			(u16-to-bytes-le 0)  ; Checksum (TODO: calculate)
+			(u16-to-bytes-le attributes)
+			(str-alloc 2)  ; Reserved
+			(u32-to-bytes-le 0)  ; Create timestamp
+			(u32-to-bytes-le 0)  ; Modified timestamp
+			(u32-to-bytes-le 0)  ; Accessed timestamp
+			(char 0) (char 0)  ; Create 10ms, timezone
+			(char 0) (char 0)  ; Modified 10ms, timezone
+			(char 0) (char 0)  ; Accessed 10ms, timezone
+			(str-alloc 7)))  ; Reserved
+		(push entries file_entry)
+
+		; Stream extension entry
+		(defq stream_entry (cat
+			(char +exfat_entry_stream_ext)
+			(char 0)  ; Flags
+			(char 0)  ; Reserved
+			(char name_len)  ; Name length
+			(u16-to-bytes-le 0)  ; Name hash
+			(str-alloc 2)  ; Reserved
+			(u64-to-bytes-le 0)  ; Valid data length
+			(str-alloc 4)  ; Reserved
+			(u32-to-bytes-le 0)  ; First cluster
+			(u64-to-bytes-le 0)))  ; Data length
+		(push entries stream_entry)
+
+		; File name entries
+		(defq name_offset 0)
+		(each! (lambda (i)
+			(defq chunk_start name_offset
+				chunk_end (min (+ name_offset 15) name_len)
+				chunk (if (< chunk_start name_len)
+					(slice name chunk_start chunk_end)
+					"")
+				; Pad to 30 bytes (15 UTF-16 chars)
+				padded (cat chunk (str-alloc (- 30 (* (length chunk) 2)))))
+			(defq name_entry (cat
+				(char +exfat_entry_file_name)
+				(char 0)  ; Flags
+				padded))
+			(push entries name_entry)
+			(setq name_offset chunk_end))
+			name_entries 0)
+
+		entries)
+
+	(defmethod :parse_file_entry (entries entry_idx)
+		; Parse a file entry set starting at entry_idx
+		; inputs
+		; entries = list of all directory entries
+		; entry_idx = index of file entry
+		; outputs
+		; hash with file info, or :nil
+		(when (< entry_idx (length entries))
+			(defq file_entry (get entries entry_idx)
+				file_data (get file_entry :data))
+
+			; Verify it's a file entry
+			(when (= (get file_entry :type) +exfat_entry_file)
+				(defq secondary_count (code file_data 1 1)
+					attributes (bytes-to-u16-le file_data 4))
+
+				; Get stream extension entry
+				(when (< (+ entry_idx 1) (length entries))
+					(defq stream_entry (get entries (+ entry_idx 1))
+						stream_data (get stream_entry :data))
+
+					(when (= (get stream_entry :type) +exfat_entry_stream_ext)
+						(defq name_len (code stream_data 1 3)
+							first_cluster (bytes-to-u32-le stream_data 20)
+							data_length (bytes-to-u32-le stream_data 24))  ; Use 32-bit portion
+
+						; Parse file name from name entries
+						(defq name ""
+							name_entry_count (- secondary_count 1)
+							i 0)
+						(while (< i name_entry_count)
+							(when (< (+ entry_idx 2 i) (length entries))
+								(defq name_entry (get entries (+ entry_idx 2 i))
+									name_data (get name_entry :data))
+								(when (= (get name_entry :type) +exfat_entry_file_name)
+									; Extract name chunk (skip type and flags bytes)
+									(defq chunk_data (slice name_data 2 32)
+										chunk_len (min 15 (- name_len (length name))))
+									; For simplicity, extract ASCII (ignoring UTF-16)
+									(defq j 0)
+									(while (< j chunk_len)
+										(setq name (cat name (char (code chunk_data 1 (* j 2)))))
+										(setq j (inc j)))))
+							(setq i (inc i)))
+
+						; Return file info hash
+						(hash
+							:name name
+							:attributes attributes
+							:first_cluster first_cluster
+							:size data_length
+							:is_directory (= (logand attributes +exfat_attr_directory) +exfat_attr_directory))))))))
+
 	;;;;;;;;;;;;;;;;;;;;
 	; Filesystem Operations
 	;;;;;;;;;;;;;;;;;;;;
@@ -415,7 +584,94 @@
 	 :t)
 
 	;;;;;;;;;;;;;;;;;;;;
-	; File Operations (Simplified)
+	; Path Resolution
+	;;;;;;;;;;;;;;;;;;;;
+
+	(defmethod :split_path (path)
+		; Split path into components
+		; inputs
+		; path = file path (str) like "/dir/file.txt"
+		; outputs
+		; list of path components
+		(defq components (list)
+			current ""
+			i 0
+			path_len (length path))
+		; Skip leading slash
+		(when (and (> path_len 0) (= (code path 1 0) 47))  ; 47 = '/'
+			(setq i 1))
+		(while (< i path_len)
+			(defq ch (code path 1 i))
+			(if (= ch 47)  ; '/'
+				(when (> (length current) 0)
+					(push components current)
+					(setq current ""))
+				(setq current (cat current (char ch))))
+			(setq i (inc i)))
+		; Add final component
+		(when (> (length current) 0)
+			(push components current))
+		components)
+
+	(defmethod :find_in_directory (dir_cluster name)
+		; Find a file/directory entry by name in a directory
+		; inputs
+		; dir_cluster = directory cluster number
+		; name = file/directory name to find
+		; outputs
+		; file info hash or :nil if not found
+		(when-bind (entries (. this :read_dir_entries dir_cluster))
+			(defq i 0)
+			(while (< i (length entries))
+				(defq entry (get entries i))
+				(when (= (get entry :type) +exfat_entry_file)
+					(when-bind (file_info (. this :parse_file_entry entries i))
+						(when (= (get file_info :name) name)
+							(return file_info))))
+				(setq i (inc i)))
+			:nil))
+
+	(defmethod :resolve_path (path)
+		; Resolve a path to a file info hash
+		; inputs
+		; path = file path (str)
+		; outputs
+		; file info hash or :nil if not found
+		(unless (get this :mounted)
+			(return :nil))
+
+		; Start at root directory
+		(defq current_cluster (get this :root_dir_cluster)
+			components (. this :split_path path))
+
+		; Handle root directory
+		(when (= (length components) 0)
+			(return (hash
+				:name "/"
+				:attributes +exfat_attr_directory
+				:first_cluster current_cluster
+				:size 0
+				:is_directory :t)))
+
+		; Navigate path
+		(defq i 0
+			found :nil)
+		(while (< i (length components))
+			(defq component (get components i))
+			(setq found (. this :find_in_directory current_cluster component))
+			(unless found
+				(return :nil))
+			; If not last component, must be a directory
+			(when (< (+ i 1) (length components))
+				(unless (get found :is_directory)
+					(return :nil))
+				(setq current_cluster (get found :first_cluster)))
+			(setq i (inc i)))
+
+		found)
+
+	;;;;;;;;;;;;;;;;;;;;
+	; File Operations
 	;;;;;;;;;;;;;;;;;;;;
 
 	(defmethod :mkdir (path)
@@ -427,12 +683,36 @@
 		(unless (get this :mounted)
 			(throw "Filesystem not mounted" this))
 
+		; Check if path already exists
+		(when (. this :resolve_path path)
+			(return :nil))
+
+		; Get parent directory and name
+		(defq components (. this :split_path path))
+		(when (= (length components) 0)
+			(return :nil))
+
+		(defq name (get components (- (length components) 1))
+			parent_components (slice components 0 (- (length components) 1))
+			parent_path (if (= (length parent_components) 0)
+				"/"
+				(cat "/" (join parent_components "/"))))
+
+		; Find parent directory
+		(defq parent_info (. this :resolve_path parent_path))
+		(unless (and parent_info (get parent_info :is_directory))
+			(return :nil))
+
 		; Allocate cluster for new directory
 		(when-bind (new_cluster (. this :allocate_cluster))
-			; Initialize empty directory
-			(. this :write_cluster new_cluster (str-alloc (get this :cluster_size)))
-			; TODO: Add entry to parent directory
-		 :t))
+			; Initialize empty directory with end-of-directory marker
+			(defq dir_data (cat (char +exfat_entry_eod) (str-alloc (- (get this :cluster_size) 1))))
+			(. this :write_cluster new_cluster dir_data)
+
+			; Create directory entry in parent
+			(defq dir_entries (. this :create_file_entry name +exfat_attr_directory))
+			; TODO: Write entries to parent directory cluster
+			:t))
 
 	(defmethod :create (path)
 		; Create a file
@@ -443,12 +723,35 @@
 		(unless (get this :mounted)
 			(throw "Filesystem not mounted" this))
 
+		; Check if path already exists
+		(when (. this :resolve_path path)
+			(return :nil))
+
+		; Get parent directory and name
+		(defq components (. this :split_path path))
+		(when (= (length components) 0)
+			(return :nil))
+
+		(defq name (get components (- (length components) 1))
+			parent_components (slice components 0 (- (length components) 1))
+			parent_path (if (= (length parent_components) 0)
+				"/"
+				(cat "/" (join parent_components "/"))))
+
+		; Find parent directory
+		(defq parent_info (. this :resolve_path parent_path))
+		(unless (and parent_info (get parent_info :is_directory))
+			(return :nil))
+
 		; Allocate cluster for file data
 		(when-bind (new_cluster (. this :allocate_cluster))
 			; Initialize empty file
 			(. this :write_cluster new_cluster (str-alloc (get this :cluster_size)))
-			; TODO: Add entry to parent directory
-		 :t))
+
+			; Create file entry in parent
+			(defq file_entries (. this :create_file_entry name +exfat_attr_archive))
+			; TODO: Write entries to parent directory cluster
+			:t))
 
 	(defmethod :open (path mode)
 		; Open a file
@@ -537,45 +840,127 @@
 
 	(defmethod :remove (path)
 		; Remove a file
+		; inputs
+		; path = file path (str)
+		; outputs
+		; :t if successful, :nil otherwise
 		(unless (get this :mounted)
 			(throw "Filesystem not mounted" this))
-		; TODO: Implement file removal
-	 :t)
+
+		; Find the file
+		(when-bind (file_info (. this :resolve_path path))
+			; Can't remove directories with remove
+			(when (get file_info :is_directory)
+				(return :nil))
+
+			; Free the cluster chain
+			(defq first_cluster (get file_info :first_cluster))
+			(when (and first_cluster (>= first_cluster 2))
+				(. this :free_cluster_chain first_cluster))
+
+			; TODO: Remove entry from parent directory
+			:t))
 
 	(defmethod :rmdir (path)
 		; Remove a directory
+		; inputs
+		; path = directory path (str)
+		; outputs
+		; :t if successful, :nil otherwise
 		(unless (get this :mounted)
 			(throw "Filesystem not mounted" this))
-		; TODO: Implement directory removal
-	 :t)
+
+		; Find the directory
+		(when-bind (dir_info (. this :resolve_path path))
+			; Must be a directory
+			(unless (get dir_info :is_directory)
+				(return :nil))
+
+			; Check if directory is empty
+			(defq dir_cluster (get dir_info :first_cluster))
+			(when-bind (entries (. this :read_dir_entries dir_cluster))
+				; Directory should only have end-of-directory marker if empty
+				(when (> (length entries) 0)
+					(return :nil)))
+
+			; Free the directory cluster
+			(when (and dir_cluster (>= dir_cluster 2))
+				(. this :free_cluster dir_cluster))
+
+			; TODO: Remove entry from parent directory
+			:t))
 
 	(defmethod :exists (path)
 		; Check if path exists
+		; inputs
+		; path = file path (str)
+		; outputs
+		; :t if exists, :nil otherwise
 		(unless (get this :mounted)
 			(throw "Filesystem not mounted" this))
-		; TODO: Implement existence check
-	 :nil)
+
+		(if (. this :resolve_path path) :t :nil))
 
 	(defmethod :stat (path)
 		; Get file/directory info
+		; inputs
+		; path = file path (str)
+		; outputs
+		; file info hash or :nil
 		(unless (get this :mounted)
 			(throw "Filesystem not mounted" this))
-		; TODO: Implement stat
-	 :nil)
+
+		(. this :resolve_path path))
 
 	(defmethod :list (path)
 		; List directory contents
+		; inputs
+		; path = directory path (str)
+		; outputs
+		; list of file info hashes
 		(unless (get this :mounted)
 			(throw "Filesystem not mounted" this))
-		; TODO: Implement directory listing
-		(list))
+
+		; Resolve directory path
+		(defq dir_info (. this :resolve_path path))
+		(unless (and dir_info (get dir_info :is_directory))
+			(return (list)))
+
+		; Read directory entries
+		(defq dir_cluster (get dir_info :first_cluster)
+			files (list))
+
+		(when-bind (entries (. this :read_dir_entries dir_cluster))
+			(defq i 0)
+			(while (< i (length entries))
+				(defq entry (get entries i))
+				(when (= (get entry :type) +exfat_entry_file)
+					(when-bind (file_info (. this :parse_file_entry entries i))
+						(push files file_info)))
+				(setq i (inc i))))
+
+		files)
 
 	(defmethod :rename (old_path new_path)
 		; Rename/move file or directory
+		; inputs
+		; old_path = current path (str)
+		; new_path = new path (str)
+		; outputs
+		; :t if successful, :nil otherwise
 		(unless (get this :mounted)
 			(throw "Filesystem not mounted" this))
-		; TODO: Implement rename
-	 :t)
+
+		; Check old path exists
+		(unless (. this :resolve_path old_path)
+			(return :nil))
+
+		; Check new path doesn't exist
+		(when (. this :resolve_path new_path)
+			(return :nil))
+
+		; TODO: Implement rename by updating directory entry
+		:t)
 
 	(defmethod :get_size ()
 		; Get filesystem size
