@@ -94,6 +94,13 @@
 	(print "========================================")
 	(import "test/html/test_browser_navigation.lisp")
 
+	; Run devtools inspector tests
+	(print "")
+	(print "========================================")
+	(print "DevTools Inspector Tests")
+	(print "========================================")
+	(import "test/html/test_devtools.lisp")
+
 	(print "")
 	(print "========================================")
 	(print "All Tests Complete")
