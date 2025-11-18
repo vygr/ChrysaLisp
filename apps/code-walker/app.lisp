@@ -10,7 +10,7 @@
 
 (enums +event 0
 	(enum close max min)
-	(enum process_btn clear_btn)
+	(enum process_btn clear_btn step_expand_btn export_btn)
 	(enum input_field)
 	(enum example1 example2 example3 example4))
 
@@ -45,21 +45,76 @@
 	(catch (macroexpand form)
 		(cat "Expand Error: " (str _))))
 
+(defun expand-one-level (form env)
+	; Expand only the top-level macro, not recursively
+	(if (and (list? form) (nempty? form))
+		(progn
+			(defq head (first form))
+			(if (and (sym? head) (defq macro (. env :find head)))
+				(if (and (lambda? macro) (get :macro macro))
+					; It's a macro, expand it
+					(catch (apply macro (rest form)) form)
+					; Not a macro
+					form)
+				; Can't find symbol or not a symbol
+				form))
+		; Not a list
+		form))
+
 (defun safe-prebind (form)
 	; Safely pre-bind symbols
 	(catch (prebind form)
 		(cat "Prebind Error: " (str _))))
+
+(defun analyze-bindings (original bound)
+	; Analyze what symbols were bound to addresses
+	(defq bindings (list))
+	(when (and (list? original) (list? bound))
+		(when (and (nempty? original) (nempty? bound))
+			(defq orig_head (first original)
+				  bound_head (first bound))
+			; Check if head symbol was bound
+			(when (and (sym? orig_head) (func? bound_head))
+				(push bindings (list (str orig_head) (str bound_head))))
+			; Recursively check rest
+			(each (lambda (o b)
+				(when (and (list? o) (list? b))
+					(each (lambda (binding) (push bindings binding))
+						(analyze-bindings o b))))
+				(rest original) (rest bound))))
+	bindings)
 
 (defun safe-eval (form)
 	; Safely evaluate form
 	(catch (eval form)
 		(cat "Eval Error: " (str _))))
 
-(defun pretty-print (obj)
-	; Pretty print any Lisp object by converting to string
-	(defq s (string-stream ""))
-	(print obj s)
-	(str s))
+(defun pretty-print (obj &optional indent)
+	; Pretty print with indentation for readability
+	(setd indent 0)
+	(defq prefix (apply cat (map (lambda (_) "  ") (range 0 indent))))
+	(cond
+		((str? obj) obj)
+		((or (num? obj) (sym? obj)) (str obj))
+		((list? obj)
+			(if (= (length obj) 0) "()"
+				(if (< (length obj) 4)
+					; Short lists on one line
+					(progn
+						(defq s (string-stream ""))
+						(print obj s)
+						(str s))
+					; Long lists with indentation
+					(progn
+						(defq parts (list "("))
+						(each (lambda (item)
+							(if (= (! ) 0)
+								(push parts (pretty-print item (inc indent)))
+								(push parts (cat "\n" prefix "  " (pretty-print item (inc indent))))))
+							obj)
+						(push parts ")")
+						(apply cat parts)))))
+		(:t (str obj))))
 
 ;;;;;;;;;;;;;;;;;;;;;
 ; UI Definition
@@ -78,9 +133,13 @@
 
 	; Buttons section
 	(ui-flow button_section (:flow_flags +flow_right_fill :color +section_color)
-		(ui-button process_btn (:text "Process" :font +font_title))
+		(ui-button process_btn (:text "Process All" :font +font_title))
+		(ui-button step_btn (:text "Step Expand" :font +font_title))
+		(ui-button export_btn (:text "Export" :font +font_title))
 		(ui-button clear_btn (:text "Clear" :font +font_title))
 		(. process_btn :connect +event_process_btn)
+		(. step_btn :connect +event_step_expand_btn)
+		(. export_btn :connect +event_export_btn)
 		(. clear_btn :connect +event_clear_btn))
 
 	; Example buttons section
@@ -132,6 +191,46 @@
 ; Process Functions
 ;;;;;;;;;;;;;;;;;;;;;
 
+(defq *expansion_steps* (list) *current_step* 0)
+
+(defun step-expand ()
+	; Perform one step of macro expansion
+	(defq code_str (get :text *input_field*))
+
+	; If this is the first step, initialize
+	(when (= *current_step* 0)
+		(defq read_result (safe-read code_str))
+		(if (str? read_result)
+			(progn
+				(set *read_output* :text read_result)
+				(setq *expansion_steps* (list)))
+			(progn
+				(set *read_output* :text (pretty-print read_result))
+				(setq *expansion_steps* (list read_result)))))
+
+	; Try to expand one more level
+	(when (nempty? *expansion_steps*)
+		(defq current_form (last *expansion_steps*))
+		(defq next_form (expand-one-level current_form (env)))
+
+		; Check if expansion happened
+		(if (eql current_form next_form)
+			; No more expansion possible
+			(set *expand_output* :text
+				(cat (pretty-print next_form)
+					 "\n\n[No more macros to expand - Step " (str *current_step*) "]"))
+			; Expansion happened
+			(progn
+				(push *expansion_steps* next_form)
+				(setq *current_step* (inc *current_step*))
+				(set *expand_output* :text
+					(cat (pretty-print next_form)
+						 "\n\n[Expansion step " (str *current_step*) "]"))))
+
+		; Update displays
+		(.-> *read_output* :layout :dirty)
+		(.-> *expand_output* :layout :dirty)))
+
 (defun process-code ()
 	; Process the code through all phases
 	(defq code_str (get :text *input_field*))
@@ -170,11 +269,18 @@
 							(set *eval_output* :text ""))
 						; Success - continue to eval
 						(progn
-							; For bind phase, we need to show that functions are now pointers
-							; We'll show a representation that indicates binding happened
+							; Analyze what symbols were bound
+							(defq bindings (analyze-bindings expand_result bind_result))
+							(defq binding_info
+								(if (nempty? bindings)
+									(cat "\n\n[Pre-bound symbols (O(1) optimization):]\n"
+										(apply cat (map (lambda (b)
+											(cat "  " (first b) " -> " (second b) "\n"))
+											bindings)))
+									"\n\n[No symbols were pre-bound]"))
+
 							(set *bind_output* :text
-								(cat (pretty-print bind_result)
-									"\n\n[Functions and symbols are now pre-bound to memory addresses]"))
+								(cat (pretty-print bind_result) binding_info))
 
 							; Phase 4: Eval (optional - only for safe expressions)
 							(defq eval_result (safe-eval bind_result))
@@ -194,6 +300,7 @@
 	(set *expand_output* :text "")
 	(set *bind_output* :text "")
 	(set *eval_output* :text "")
+	(setq *expansion_steps* (list) *current_step* 0)
 	(.-> *input_field* :layout :dirty)
 	(.-> *read_output* :layout :dirty)
 	(.-> *expand_output* :layout :dirty)
@@ -202,9 +309,44 @@
 
 (defun load-example (code)
 	; Load example code into input field and process it
+	(setq *expansion_steps* (list) *current_step* 0)
 	(set *input_field* :text code)
 	(.-> *input_field* :layout :dirty)
 	(process-code))
+
+(defun export-results ()
+	; Export all phase results to a file
+	(defq timestamp (str (time))
+		  filename (cat *env_home* "code-walker-" timestamp ".txt"))
+	(when (defq stream (file-stream filename +file_open_write))
+		(print "Code Walker / AST Explorer Export" stream)
+		(print (cat "Timestamp: " timestamp) stream)
+		(print "=" stream)
+		(print "" stream)
+		(print "Input Code:" stream)
+		(print (get :text *input_field*) stream)
+		(print "" stream)
+		(print "Phase 1: READ (Parse to AST)" stream)
+		(print "----------------------------" stream)
+		(print (get :text *read_output*) stream)
+		(print "" stream)
+		(print "Phase 2: EXPAND (Macro Expansion)" stream)
+		(print "----------------------------------" stream)
+		(print (get :text *expand_output*) stream)
+		(print "" stream)
+		(print "Phase 3: BIND (Pre-binding)" stream)
+		(print "----------------------------" stream)
+		(print (get :text *bind_output*) stream)
+		(print "" stream)
+		(print "Phase 4: EVAL (Result)" stream)
+		(print "----------------------" stream)
+		(print (get :text *eval_output*) stream)
+		(print "" stream)
+		(close stream)
+		; Show success message in eval output temporarily
+		(defq old_text (get :text *eval_output*))
+		(set *eval_output* :text (cat "Exported to: " filename "\n\n" old_text))
+		(.-> *eval_output* :layout :dirty)))
 
 ;;;;;;;;;;;;;;;;;;;;;
 ; Main Loop
@@ -240,6 +382,8 @@
 							(cat (. *window* :get_pos) '(800 600))))
 						(. *window* :change_dirty x y w h))
 					((= id +event_process_btn) (process-code))
+					((= id +event_step_expand_btn) (step-expand))
+					((= id +event_export_btn) (export-results))
 					((= id +event_clear_btn) (clear-all))
 					((= id +event_example1)
 						(load-example "(defun add (a b) (+ a b))"))

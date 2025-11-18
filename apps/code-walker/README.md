@@ -14,6 +14,10 @@ The Code Walker is an interactive application that demonstrates how ChrysaLisp p
 ## Features
 
 - **Live Code Processing**: Enter any ChrysaLisp expression and see it transform through each phase
+- **Step-by-Step Macro Expansion**: Click "Step Expand" to see macros expand one level at a time
+- **Improved Formatting**: Indented tree view for complex nested structures
+- **Memory Address Visualization**: See which symbols are pre-bound to function pointers (O(1) optimization)
+- **Export Functionality**: Save all phase results to a timestamped text file
 - **Example Library**: Quick-load common patterns (defun, let, case, ui-window)
 - **Error Handling**: Safe processing with clear error messages at each phase
 - **Visual Output**: Color-coded phases with formatted output
@@ -29,10 +33,12 @@ The Code Walker is an interactive application that demonstrates how ChrysaLisp p
 ### Interface
 
 - **Input Field**: Enter any Lisp expression
-- **Process Button**: Manually process the code (or press Enter in the input field)
+- **Process All Button**: Process code through all four phases at once (or press Enter in the input field)
+- **Step Expand Button**: Expand macros one level at a time to see intermediate states
+- **Export Button**: Save all results to a timestamped file in your home directory
 - **Clear Button**: Reset all fields
-- **Example Buttons**: Load common macro examples
-- **Output Panels**: View each phase of the compilation pipeline
+- **Example Buttons**: Load common macro examples (defun, let, case, ui-window)
+- **Output Panels**: View each phase of the compilation pipeline with color coding
 
 ## Example Explorations
 
@@ -123,12 +129,46 @@ For deeper understanding, see:
 - `docs/ai_digest/modern_lisp.md` - ChrysaLisp's Lisp dialect
 - `docs/ai_digest/art_of_the_call.md` - O(1) optimization details
 
+## Advanced Usage
+
+### Step-by-Step Macro Expansion
+
+The "Step Expand" button allows you to see macro expansion incrementally:
+
+1. Enter a macro-heavy expression (e.g., `(defun add (a b) (+ a b))`)
+2. Click "Step Expand" repeatedly
+3. Watch each macro level expand one at a time
+4. See the message "[Expansion step N]" showing progress
+5. Continue until "[No more macros to expand]"
+
+This is invaluable for understanding complex nested macros like UI DSL.
+
+### Memory Address Visualization
+
+The Bind phase output now shows which symbols were pre-bound:
+
+```
+[Pre-bound symbols (O(1) optimization):]
+  + -> <Func:0x...>
+  defq -> <Func:0x...>
+  lambda -> <Func:0x...>
+```
+
+This demonstrates how ChrysaLisp achieves O(1) function calls by replacing symbol names with direct function pointers during compilation.
+
+### Export Results
+
+Click "Export" to save a complete analysis to your home directory:
+- Filename format: `code-walker-{timestamp}.txt`
+- Contains all four phases with headers
+- Perfect for documentation or sharing explorations
+- Success message shows in the Eval output panel
+
 ## Future Enhancements
 
-Potential improvements:
-- Syntax highlighting for each phase
-- Step-by-step macro expansion animation
-- Export results to file
+Potential improvements still to implement:
 - Compare multiple expressions side-by-side
-- Show memory addresses in Bind phase
 - Disassemble to VP instructions
+- Diff view highlighting changes between phases
+- Tree visualization of AST structure
+- Syntax highlighting within output panels
