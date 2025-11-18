@@ -1,0 +1,171 @@
+(include "lib/asm/func.inc")
+(include "./class.inc")
+(include "sys/statics/class.inc")
+
+;;;;;;;;;;;;;;;;;;;;
+; OpenGL VP Wrappers
+;;;;;;;;;;;;;;;;;;;;
+
+(def-method 'host_gl :gl_init)
+	;outputs
+	;:r0 = error code (long)
+
+	(entry 'host_gl :gl_init :nil)
+	(abi-push-trashed :r13 :r14)
+	(host-gl-call 'host_gl :init :nil '(:r0))
+	(abi-pop-trashed :r13 :r14)
+	(exit 'host_gl :gl_init '(:r0))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'host_gl :gl_deinit)
+	;outputs
+	;:r0 = error code (long)
+
+	(entry 'host_gl :gl_deinit :nil)
+	(abi-push-trashed :r13 :r14)
+	(host-gl-call 'host_gl :deinit :nil '(:r0))
+	(abi-pop-trashed :r13 :r14)
+	(exit 'host_gl :gl_deinit '(:r0))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'host_gl :gl_viewport)
+	;inputs
+	;:r0 = x (long)
+	;:r1 = y (long)
+	;:r2 = width (long)
+	;:r3 = height (long)
+
+	(entry 'host_gl :gl_viewport '(:r0 :r1 :r2 :r3))
+	(abi-push-trashed :r1 :r2 :r3 :r13 :r14)
+	(host-gl-call 'host_gl :viewport '(:r0 :r1 :r2 :r3))
+	(abi-pop-trashed :r1 :r2 :r3 :r13 :r14)
+	(exit 'host_gl :gl_viewport :nil)
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'host_gl :gl_clear)
+	;inputs
+	;:r0 = mask (ulong)
+
+	(entry 'host_gl :gl_clear '(:r0))
+	(abi-push-trashed :r13 :r14)
+	(host-gl-call 'host_gl :clear '(:r0))
+	(abi-pop-trashed :r13 :r14)
+	(exit 'host_gl :gl_clear :nil)
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'host_gl :gl_clear_color)
+	;inputs
+	;:r0 = red (float in int register)
+	;:r1 = green (float in int register)
+	;:r2 = blue (float in int register)
+	;:r3 = alpha (float in int register)
+
+	(entry 'host_gl :gl_clear_color '(:r0 :r1 :r2 :r3))
+	(abi-push-trashed :r1 :r2 :r3 :r13 :r14)
+	(host-gl-call 'host_gl :clear_color '(:r0 :r1 :r2 :r3))
+	(abi-pop-trashed :r1 :r2 :r3 :r13 :r14)
+	(exit 'host_gl :gl_clear_color :nil)
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'host_gl :gl_enable)
+	;inputs
+	;:r0 = capability (ulong)
+
+	(entry 'host_gl :gl_enable '(:r0))
+	(abi-push-trashed :r13 :r14)
+	(host-gl-call 'host_gl :enable '(:r0))
+	(abi-pop-trashed :r13 :r14)
+	(exit 'host_gl :gl_enable :nil)
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'host_gl :gl_disable)
+	;inputs
+	;:r0 = capability (ulong)
+
+	(entry 'host_gl :gl_disable '(:r0))
+	(abi-push-trashed :r13 :r14)
+	(host-gl-call 'host_gl :disable '(:r0))
+	(abi-pop-trashed :r13 :r14)
+	(exit 'host_gl :gl_disable :nil)
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'host_gl :gl_begin)
+	;inputs
+	;:r0 = mode (ulong)
+
+	(entry 'host_gl :gl_begin '(:r0))
+	(abi-push-trashed :r13 :r14)
+	(host-gl-call 'host_gl :begin '(:r0))
+	(abi-pop-trashed :r13 :r14)
+	(exit 'host_gl :gl_begin :nil)
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'host_gl :gl_end)
+	;no inputs
+
+	(entry 'host_gl :gl_end :nil)
+	(abi-push-trashed :r13 :r14)
+	(host-gl-call 'host_gl :end)
+	(abi-pop-trashed :r13 :r14)
+	(exit 'host_gl :gl_end :nil)
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'host_gl :gl_vertex3f)
+	;inputs
+	;:r0 = x (float in int register)
+	;:r1 = y (float in int register)
+	;:r2 = z (float in int register)
+
+	(entry 'host_gl :gl_vertex3f '(:r0 :r1 :r2))
+	(abi-push-trashed :r1 :r2 :r13 :r14)
+	(host-gl-call 'host_gl :vertex3f '(:r0 :r1 :r2))
+	(abi-pop-trashed :r1 :r2 :r13 :r14)
+	(exit 'host_gl :gl_vertex3f :nil)
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'host_gl :gl_color3f)
+	;inputs
+	;:r0 = red (float in int register)
+	;:r1 = green (float in int register)
+	;:r2 = blue (float in int register)
+
+	(entry 'host_gl :gl_color3f '(:r0 :r1 :r2))
+	(abi-push-trashed :r1 :r2 :r13 :r14)
+	(host-gl-call 'host_gl :color3f '(:r0 :r1 :r2))
+	(abi-pop-trashed :r1 :r2 :r13 :r14)
+	(exit 'host_gl :gl_color3f :nil)
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'host_gl :gl_flush)
+	;no inputs
+
+	(entry 'host_gl :gl_flush :nil)
+	(abi-push-trashed :r13 :r14)
+	(host-gl-call 'host_gl :flush)
+	(abi-pop-trashed :r13 :r14)
+	(exit 'host_gl :gl_flush :nil)
+	(vp-ret)
+
+(def-func-end)
