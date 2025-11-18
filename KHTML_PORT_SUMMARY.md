@@ -116,12 +116,22 @@ This document summarizes the port of KDE's KHTML HTML rendering engine to Chrysa
     - Verifies structure, attributes, nesting maintained
     - 14 test cases
 
-14. **test/test_unittest_assertions.lisp**
+14. **test/html/test_canvas_rendering.lisp** ⭐ NEW
+    - Canvas graphical rendering tests
+    - Inspired by W3C Web Platform Tests
+    - Tests actual visual output, not just DOM
+    - Verifies CSS styling applied to rendered output
+    - Tests tables, forms, lists, links, nested structures
+    - Canvas size handling and word wrapping
+    - CSS specificity and cascading
+    - 17 test cases
+
+15. **test/test_unittest_assertions.lisp**
     - Unit testing framework assertion demonstrations
     - Tests all basic assertion types
     - 12 test cases
 
-15. **test/html/run_all_tests.lisp**
+16. **test/html/run_all_tests.lisp**
     - Master test runner
     - Runs all HTML test suites
 
@@ -213,7 +223,7 @@ This document summarizes the port of KDE's KHTML HTML rendering engine to Chrysa
 
 ## Test Results
 
-Total test cases: **63 tests**
+Total test cases: **80 tests**
 
 From KHTML autotests:
 - `kencodingdetectortest.cpp`: 7 tests → `test_encoding.lisp`
@@ -223,6 +233,7 @@ New ChrysaLisp tests:
 - Parser/renderer tests: 11 tests → `test_parser.lisp`
 - DOM assertions: 13 tests → `test_dom_assertions.lisp`
 - Round-trip serialization: 14 tests → `test_html_roundtrip.lisp` (inspired by XStream)
+- Canvas rendering: 17 tests → `test_canvas_rendering.lisp` (inspired by W3C WPT)
 - Assertion framework: 12 tests → `test_unittest_assertions.lisp`
 
 ## Architecture Adaptations
@@ -249,9 +260,9 @@ New ChrysaLisp tests:
 
 ## Usage Statistics
 
-- **Lines of Code Created**: ~3,500 LOC
+- **Lines of Code Created**: ~4,000 LOC
 - **Library Files**: 10 files (7 original + 3 new for CSS/graphics)
-- **Test Files**: 6 files (4 HTML tests + 1 assertion test + 1 master runner)
+- **Test Files**: 7 files (5 HTML tests + 1 assertion test + 1 master runner)
 - **Demo Files**: 3 files (1 original + 2 new for graphical rendering)
 - **Applications**: 1 full GUI application
 - **Documentation**: 2 files (README + this summary)

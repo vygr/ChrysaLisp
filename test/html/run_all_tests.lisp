@@ -59,6 +59,13 @@
 	(print "========================================")
 	(import "test/html/test_html_roundtrip.lisp")
 
+	; Run canvas rendering tests
+	(print "")
+	(print "========================================")
+	(print "Canvas Rendering Tests")
+	(print "========================================")
+	(import "test/html/test_canvas_rendering.lisp")
+
 	(print "")
 	(print "========================================")
 	(print "All Tests Complete")
