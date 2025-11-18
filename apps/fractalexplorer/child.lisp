@@ -199,6 +199,54 @@
 				(setq i max_iter))))
 	(min 254 i))
 
+;Orbit trap functions - measure distance from orbit to geometric shapes
+
+(defun orbit-trap-point (x y trap_type)
+	;distance from point to origin
+	(+ (mbfp-mul x x) (mbfp-mul y y)))
+
+(defun orbit-trap-line (x y trap_type)
+	;distance from point to a line (y-axis)
+	(mbfp-mul x x))
+
+(defun orbit-trap-circle (x y trap_type)
+	;distance from point to a circle of radius 0.5
+	(defq dist (+ (mbfp-mul x x) (mbfp-mul y y)))
+	(defq radius (mbfp-from-fixed 0.5))
+	(defq diff (- dist (mbfp-mul radius radius)))
+	(mbfp-mul diff diff))
+
+(defun orbit-trap-cross (x y trap_type)
+	;distance to nearest axis
+	(min (mbfp-mul x x) (mbfp-mul y y)))
+
+(defun orbit-trap-square (x y trap_type)
+	;distance to nearest edge of unit square
+	(defq dx (min (abs x) (abs (- x (mbfp-from-fixed 1.0)))))
+	(defq dy (min (abs y) (abs (- y (mbfp-from-fixed 1.0)))))
+	(min (mbfp-mul dx dx) (mbfp-mul dy dy)))
+
+(defun compute-orbit-trap (x y trap_type)
+	(case trap_type
+		(+orbit_trap_point (orbit-trap-point x y trap_type))
+		(+orbit_trap_line (orbit-trap-line x y trap_type))
+		(+orbit_trap_circle (orbit-trap-circle x y trap_type))
+		(+orbit_trap_cross (orbit-trap-cross x y trap_type))
+		(+orbit_trap_square (orbit-trap-square x y trap_type))
+		(:t 0)))
+
+;Julia with orbit trap tracking
+(defun julia_depth_with_trap (x0 y0 cr ci trap_type)
+	(defq i -1 xc x0 yc y0 x2 0 y2 0 min_dist (mbfp-from-fixed 1000000.0))
+	(while (and (/= (++ i) 255) (< (+ x2 y2) (mbfp-from-fixed 4.0)))
+		(defq trap_dist (compute-orbit-trap xc yc trap_type))
+		(when (< trap_dist min_dist) (setq min_dist trap_dist))
+		(setq yc (+ (mbfp-mul (mbfp-from-fixed 2.0) xc yc) ci)
+			xc (+ (- x2 y2) cr)
+			x2 (mbfp-mul xc xc)
+			y2 (mbfp-mul yc yc)))
+	(list i min_dist))
+
 ;native versions
 (ffi "apps/fractalexplorer/julia_depth" julia_depth)
 (ffi "apps/fractalexplorer/burning_ship_depth" burning_ship_depth)
