@@ -87,6 +87,13 @@
 	(print "========================================")
 	(import "test/html/test_script_execution.lisp")
 
+	; Run browser navigation tests
+	(print "")
+	(print "========================================")
+	(print "Browser Navigation Tests")
+	(print "========================================")
+	(import "test/html/test_browser_navigation.lisp")
+
 	(print "")
 	(print "========================================")
 	(print "All Tests Complete")

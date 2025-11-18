@@ -174,12 +174,21 @@ This document summarizes the port of KDE's KHTML HTML rendering engine to Chrysa
     - Script context tests
     - 17 test cases (some WIP - test-driven development)
 
-18. **test/test_unittest_assertions.lisp**
+18. **test/html/test_browser_navigation.lisp** ⭐ NEW
+    - Browser navigation history tests
+    - Tests Back/Forward button functionality
+    - History tracking and position management
+    - History truncation when navigating from middle
+    - URL tracking and updates
+    - Complex navigation sequences
+    - 13 test cases
+
+19. **test/test_unittest_assertions.lisp**
     - Unit testing framework assertion demonstrations
     - Tests all basic assertion types
     - 12 test cases
 
-19. **test/html/run_all_tests.lisp**
+20. **test/html/run_all_tests.lisp**
     - Master test runner
     - Runs all HTML test suites
 
@@ -196,9 +205,12 @@ This document summarizes the port of KDE's KHTML HTML rendering engine to Chrysa
     - Multiple demo pages showcasing styling
     - Canvas-based output
 
-15. **apps/htmlbrowser/app.lisp** ⭐ NEW
+15. **apps/htmlbrowser/app.lisp** ⭐ ENHANCED
     - Full GUI HTML browser application
     - Interactive window with HTML+CSS rendering
+    - **Browser chrome with Back/Forward buttons** ⭐ NEW
+    - **URL address bar (file:// URLs supported)** ⭐ NEW
+    - **Navigation history tracking** ⭐ NEW
     - **Clickable hyperlinks with local file navigation**
     - **Text selection with click-drag-select**
     - **Clipboard copy with Ctrl+C**
@@ -292,7 +304,7 @@ This document summarizes the port of KDE's KHTML HTML rendering engine to Chrysa
 
 ## Test Results
 
-Total test cases: **123 tests** (17 WIP for TDD)
+Total test cases: **136 tests** (17 WIP for TDD)
 
 From KHTML autotests:
 - `kencodingdetectortest.cpp`: 7 tests → `test_encoding.lisp`
@@ -306,6 +318,7 @@ New ChrysaLisp tests:
 - Interactive hyperlinks: 14 tests → `test_interactive_links.lisp`
 - Text selection: 12 tests → `test_text_selection.lisp`
 - Script execution: 17 tests → `test_script_execution.lisp` ⭐ NEW (TDD - some tests pending implementation)
+- Browser navigation: 13 tests → `test_browser_navigation.lisp` ⭐ NEW
 - Assertion framework: 12 tests → `test_unittest_assertions.lisp`
 
 ## Architecture Adaptations
@@ -332,11 +345,11 @@ New ChrysaLisp tests:
 
 ## Usage Statistics
 
-- **Lines of Code Created**: ~5,500 LOC
+- **Lines of Code Created**: ~5,700 LOC
 - **Library Files**: 11 files (7 original + 4 for CSS/graphics/interactivity/scripting)
-- **Test Files**: 10 files (8 HTML tests + 1 assertion test + 1 master runner)
+- **Test Files**: 11 files (9 HTML tests + 1 assertion test + 1 master runner)
 - **Demo Files**: 7 files (3 original + 4 interactive HTML pages)
-- **Applications**: 1 full GUI application with navigation, text selection, and LispScript support (TDD)
+- **Applications**: 1 full GUI application with Back/Forward navigation, URL bar, text selection, and LispScript support
 - **Documentation**: 2 files (README + this summary)
 
 ## Next Steps
