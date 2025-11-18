@@ -115,6 +115,76 @@
 	(print "========================================")
 	(import "test/html/test_dialogs.lisp")
 
+	; Run event handler tests
+	(print "")
+	(print "========================================")
+	(print "Event Handler Tests")
+	(print "========================================")
+	(import "test/html/test_event_handlers.lisp")
+
+	; Run form widget tests
+	(print "")
+	(print "========================================")
+	(print "Form Widget Tests")
+	(print "========================================")
+	(import "test/html/test_form_widgets.lisp")
+
+	; Run XML roundtrip tests
+	(print "")
+	(print "========================================")
+	(print "XML Roundtrip Tests")
+	(print "========================================")
+	(import "test/xml/test_xml_roundtrip.lisp")
+
+	; Run concurrency tests
+	(print "")
+	(print "========================================")
+	(print "Concurrency Library Tests")
+	(print "========================================")
+	(import "test/lisp/test_concurrency.lisp")
+
+	; Run browser driver tests
+	(print "")
+	(print "========================================")
+	(print "Browser Driver Tests")
+	(print "========================================")
+	(import "test/html/test_browser_driver.lisp")
+
+	; Run browser integration tests
+	(print "")
+	(print "========================================")
+	(print "Browser Integration Tests")
+	(print "========================================")
+	(import "test/html/test_browser_integration.lisp")
+
+	; Run image tag tests
+	(print "")
+	(print "========================================")
+	(print "Image Tag Tests")
+	(print "========================================")
+	(import "test/html/test_image_tags.lisp")
+
+	; Run cookie storage tests
+	(print "")
+	(print "========================================")
+	(print "Cookie Storage Tests")
+	(print "========================================")
+	(import "test/html/test_cookies.lisp")
+
+	; Run web storage tests
+	(print "")
+	(print "========================================")
+	(print "Web Storage Tests")
+	(print "========================================")
+	(import "test/html/test_web_storage.lisp")
+
+	; Run canvas element tests
+	(print "")
+	(print "========================================")
+	(print "Canvas Element Tests")
+	(print "========================================")
+	(import "test/html/test_canvas_element.lisp")
+
 	(print "")
 	(print "========================================")
 	(print "All Tests Complete")
