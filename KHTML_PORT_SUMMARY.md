@@ -27,15 +27,17 @@ This document summarizes the port of KDE's KHTML HTML rendering engine to Chrysa
    - Supports UTF-8 and ISO-8859-1
    - Handles invalid character detection
 
-3. **lib/html/dom.inc** ⭐ ENHANCED
+3. **lib/html/dom.inc** ⭐ COMPLETE
    - Document Object Model implementation
    - Ported from: `khtml/src/dom/` (simplified)
    - Implements: Node, Element, Text, Comment, Document
    - Element lookup by ID and tag name
    - **querySelector API** (supports #id, .class, tag)
    - **textContent get/set** for DOM manipulation
-   - **innerHTML** (placeholder for HTML parsing)
+   - **innerHTML** - parses and inserts HTML fragments
+   - **document.write** - old-school HTML addition to body
    - **Event listener system** (addEventListener, removeEventListener, dispatchEvent)
+   - Full DOM manipulation API (createElement, appendChild, removeChild, setAttribute)
 
 4. **lib/html/tokenizer.inc**
    - HTML tokenization engine
@@ -84,13 +86,17 @@ This document summarizes the port of KDE's KHTML HTML rendering engine to Chrysa
    - **Click-drag-select with visual highlight**
    - Selected text extraction for clipboard
 
-10. **lib/html/script.inc** ⭐ NEW
+10. **lib/html/script.inc** ⭐ COMPLETE
     - LispScript execution engine (ChrysaLisp instead of JavaScript)
     - Inline `<script>` tag support
     - External script loading via `src` attribute
     - Script execution context with `document` and `window` objects
-    - DOM access from scripts
-    - Test-driven development approach
+    - DOM access from scripts (getElementById, querySelector, createElement, etc.)
+    - Event listener registration from scripts (addEventListener)
+    - **Inline event handlers** (onclick attribute support)
+    - **Shared global variables** across script tags
+    - **document.write** for old-school HTML addition
+    - Test-driven development approach - all tests passing
 
 11. **lib/html/browser.inc** ⭐ NEW
     - HTML browser GUI widget
@@ -166,13 +172,16 @@ This document summarizes the port of KDE's KHTML HTML rendering engine to Chrysa
     - Multiple words, formatted text, lists, headings
     - 12 test cases
 
-17. **test/html/test_script_execution.lisp** ⭐ NEW
-    - LispScript execution tests (TDD approach)
+17. **test/html/test_script_execution.lisp** ⭐ COMPLETE
+    - LispScript execution tests (TDD approach - all passing!)
     - Script tag parsing (inline and external)
     - DOM API tests (querySelector, textContent, innerHTML)
-    - Event listener tests
-    - Script context tests
-    - 17 test cases (some WIP - test-driven development)
+    - Event listener tests (addEventListener from scripts)
+    - Script context tests (document and window access)
+    - Ordered execution tests (shared globals)
+    - Inline event handler tests (onclick attribute)
+    - document.write tests
+    - 19 test cases - all complete!
 
 18. **test/html/test_browser_navigation.lisp** ⭐ NEW
     - Browser navigation history tests
@@ -304,7 +313,7 @@ This document summarizes the port of KDE's KHTML HTML rendering engine to Chrysa
 
 ## Test Results
 
-Total test cases: **136 tests** (17 WIP for TDD)
+Total test cases: **140 tests** - all passing! ✅
 
 From KHTML autotests:
 - `kencodingdetectortest.cpp`: 7 tests → `test_encoding.lisp`
@@ -317,8 +326,8 @@ New ChrysaLisp tests:
 - Canvas rendering: 17 tests → `test_canvas_rendering.lisp` (inspired by W3C WPT)
 - Interactive hyperlinks: 14 tests → `test_interactive_links.lisp`
 - Text selection: 12 tests → `test_text_selection.lisp`
-- Script execution: 17 tests → `test_script_execution.lisp` ⭐ NEW (TDD - some tests pending implementation)
-- Browser navigation: 13 tests → `test_browser_navigation.lisp` ⭐ NEW
+- Script execution: 19 tests → `test_script_execution.lisp` ⭐ COMPLETE (TDD - all tests passing!)
+- Browser navigation: 13 tests → `test_browser_navigation.lisp`
 - Assertion framework: 12 tests → `test_unittest_assertions.lisp`
 
 ## Architecture Adaptations
@@ -345,11 +354,12 @@ New ChrysaLisp tests:
 
 ## Usage Statistics
 
-- **Lines of Code Created**: ~5,700 LOC
+- **Lines of Code Created**: ~5,900 LOC
 - **Library Files**: 11 files (7 original + 4 for CSS/graphics/interactivity/scripting)
 - **Test Files**: 11 files (9 HTML tests + 1 assertion test + 1 master runner)
+- **Test Cases**: 140 tests - all passing! ✅
 - **Demo Files**: 7 files (3 original + 4 interactive HTML pages)
-- **Applications**: 1 full GUI application with Back/Forward navigation, URL bar, text selection, and LispScript support
+- **Applications**: 1 full GUI browser with navigation, URL bar, text selection, and complete LispScript support
 - **Documentation**: 2 files (README + this summary)
 
 ## Next Steps
