@@ -25,10 +25,15 @@ A comprehensive expression parser and serializer for ChrysaLisp with support for
 
 ### Capabilities
 - Expression evaluation with arithmetic, comparison, logical, and mathematical operations
+- **Symbolic differentiation** - compute derivatives with respect to any variable
+- **Expression simplification** - algebraic simplification and constant folding
+- **Expression expansion** - distribute products over sums
 - Expression statistics (depth, node count, operator frequency)
 - Proper operator precedence handling
 - Support for nested expressions
 - Special functions: factorial, fibonacci, gcd, lcm, min, max, abs, sqrt
+- Trigonometric functions: sin, cos, tan
+- Exponential and logarithmic: exp, ln, log
 - Constants: pi, e, phi
 
 ## Usage
@@ -70,6 +75,86 @@ Show the expression in all formats at once:
 
 ```bash
 expr '(+ 1 (* 2 3))' --multi
+```
+
+### Symbolic Differentiation
+
+Compute derivatives symbolically:
+
+```bash
+# Basic derivative
+expr '(* x x)' -d x
+# Output: Derivative d/dx: (+ (* x 1) (* x 1))
+
+# With simplification
+expr '(* x x)' -d x -p
+# Output: Derivative d/dx: (+ (* x 1) (* x 1))
+#         Simplified: (* 2 x)
+
+# Power rule
+expr '(^ x 3)' -d x -p
+# Output: d/dx x^3 = 3*x^2
+
+# Product rule
+expr '(* (sin x) (cos x))' -d x -p
+
+# Chain rule
+expr '(sin (* 2 x))' -d x -p
+
+# Nth derivatives
+expr '(^ x 4)' -d x -n 2 -p
+# Second derivative: 12*x^2
+
+expr '(^ x 5)' -d x -n 3 -p
+# Third derivative: 60*x^2
+
+# From file
+cat examples/expr/derivatives.txt | expr -d x -p
+cat examples/expr/calculus.txt | expr -d x -p
+```
+
+### Expression Simplification
+
+Simplify expressions algebraically:
+
+```bash
+# Basic simplification
+expr '(+ 0 x)' -p
+# Output: x
+
+expr '(* 1 x)' -p
+# Output: x
+
+expr '(* 0 x)' -p
+# Output: 0
+
+# Constant folding
+expr '(+ 1 2 3 4)' -p
+# Output: 10
+
+# Nested simplification
+expr '(+ (* 0 x) (* 1 y))' -p
+# Output: y
+
+# Simplify derivatives
+expr '(* 2 (* (^ x 1) 1))' -p
+# Output: (* 2 x)
+
+# From file
+cat examples/expr/simplification.txt | expr -p
+```
+
+### Expression Expansion
+
+Expand products over sums:
+
+```bash
+# Distributive property
+expr '(* (+ 1 2) x)' -x
+# Output: (+ (* 1 x) (* 2 x))
+
+expr '(* x (+ y z))' -x
+# Output: (+ (* x y) (* x z))
 ```
 
 ### Processing Files
@@ -195,6 +280,16 @@ expr_test --timing
 - `floor` Floor function
 - `ceil` Ceiling function
 
+### Trigonometric
+- `sin` Sine
+- `cos` Cosine
+- `tan` Tangent
+
+### Exponential/Logarithmic
+- `exp` Exponential (e^x)
+- `ln` Natural logarithm
+- `log` Base-10 logarithm
+
 ### Special
 - `factorial` Factorial
 - `fib` Fibonacci number
@@ -213,18 +308,23 @@ expr_test --timing
 
 The expression parser is organized into modular libraries:
 
-- `lib/expr/parser.inc` - Multi-format parser
-- `lib/expr/serializer.inc` - Multi-format serializer
-- `lib/expr/eval.inc` - Expression evaluator
-- `lib/expr/stats.inc` - Expression statistics
+- `lib/expr/parser.inc` - Multi-format parser with tokenizer
+- `lib/expr/serializer.inc` - 10 different output formats
+- `lib/expr/eval.inc` - Expression evaluator with 30+ operations
+- `lib/expr/stats.inc` - Statistical analysis tools
+- `lib/expr/diff.inc` - Symbolic differentiation engine
+- `lib/expr/simplify.inc` - Algebraic simplification & expansion
 - `cmd/expr.lisp` - Command-line interface
-- `cmd/expr_test.lisp` - Test suite
+- `cmd/expr_test.lisp` - Comprehensive test suite (100+ tests)
 
 ## Examples in This Directory
 
 - `simple.txt` - Simple arithmetic expressions
 - `infix.txt` - Infix notation examples
 - `complex.txt` - Complex nested expressions
+- `derivatives.txt` - Expressions for differentiation practice
+- `calculus.txt` - Classic calculus examples (chain rule, product rule, etc.)
+- `simplification.txt` - Expressions demonstrating simplification
 
 ## Performance
 

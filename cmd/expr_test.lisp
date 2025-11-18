@@ -3,6 +3,8 @@
 (import "lib/expr/serializer.inc")
 (import "lib/expr/eval.inc")
 (import "lib/expr/stats.inc")
+(import "lib/expr/diff.inc")
+(import "lib/expr/simplify.inc")
 
 (defq usage `(
 (("-h" "--help")
@@ -15,7 +17,8 @@
 		-t --timing: show timing information.
 
 	Comprehensive test suite for expression parser/serializer.
-	Tests parsing, serialization, evaluation, and statistics.")
+	Tests parsing, serialization, evaluation, statistics,
+	differentiation, and simplification.")
 (("-v" "--verbose") ,(opt-flag 'opt_verbose))
 (("-q" "--quiet") ,(opt-flag 'opt_quiet))
 (("-t" "--timing") ,(opt-flag 'opt_timing))
@@ -216,6 +219,69 @@
 	(test-catch "Deep nesting" (lambda ()
 		(expr-eval '(+ (+ (+ (+ (+ 1 2) 3) 4) 5) 6)))))
 
+(defun run-diff-tests ()
+	(print "")
+	(print "=== Differentiation Tests ===")
+	;basic derivatives
+	(test-equal "Diff constant" 0 (diff 5 'x))
+	(test-equal "Diff variable" 1 (diff 'x 'x))
+	(test-equal "Diff other variable" 0 (diff 'y 'x))
+	;power rule
+	(test-equal "Diff x^2" '(* 2 (* (^ x 1) 1)) (diff '(^ x 2) 'x))
+	(test-equal "Diff x^3" '(* 3 (* (^ x 2) 1)) (diff '(^ x 3) 'x))
+	;sum rule
+	(test-equal "Diff (+ x x)" '(+ 1 1) (diff '(+ x x) 'x))
+	(test-equal "Diff (+ x 5)" '(+ 1 0) (diff '(+ x 5) 'x))
+	;product rule
+	(test-catch "Diff (* x x)" (lambda () (diff '(* x x) 'x)))
+	(test-catch "Diff (* 2 x)" (lambda () (diff '(* 2 x) 'x)))
+	;quotient rule
+	(test-catch "Diff (/ x 2)" (lambda () (diff '(/ x 2) 'x)))
+	;trig functions
+	(test-catch "Diff sin(x)" (lambda () (diff '(sin x) 'x)))
+	(test-catch "Diff cos(x)" (lambda () (diff '(cos x) 'x)))
+	;exponential and log
+	(test-catch "Diff exp(x)" (lambda () (diff '(exp x) 'x)))
+	(test-catch "Diff ln(x)" (lambda () (diff '(ln x) 'x)))
+	;nth derivative
+	(test-catch "2nd derivative" (lambda ()
+		(nth-derivative '(^ x 3) 'x 2)))
+	(test-catch "3rd derivative" (lambda ()
+		(nth-derivative '(^ x 4) 'x 3))))
+
+(defun run-simplify-tests ()
+	(print "")
+	(print "=== Simplification Tests ===")
+	;addition simplification
+	(test-equal "Simplify (+ 0 x)" 'x (simplify '(+ 0 x)))
+	(test-equal "Simplify (+ x 0)" 'x (simplify '(+ x 0)))
+	(test-equal "Simplify (+ 1 2)" 3 (simplify '(+ 1 2)))
+	;multiplication simplification
+	(test-equal "Simplify (* 1 x)" 'x (simplify '(* 1 x)))
+	(test-equal "Simplify (* x 1)" 'x (simplify '(* x 1)))
+	(test-equal "Simplify (* 0 x)" 0 (simplify '(* 0 x)))
+	(test-equal "Simplify (* x 0)" 0 (simplify '(* x 0)))
+	(test-equal "Simplify (* 2 3)" 6 (simplify '(* 2 3)))
+	;power simplification
+	(test-equal "Simplify (^ x 0)" 1 (simplify '(^ x 0)))
+	(test-equal "Simplify (^ x 1)" 'x (simplify '(^ x 1)))
+	(test-equal "Simplify (^ 2 3)" 8 (simplify '(^ 2 3)))
+	;subtraction simplification
+	(test-equal "Simplify (- x 0)" 'x (simplify '(- x 0)))
+	(test-equal "Simplify (- x x)" 0 (simplify '(- x x)))
+	(test-equal "Simplify (- 5 3)" 2 (simplify '(- 5 3)))
+	;division simplification
+	(test-equal "Simplify (/ x 1)" 'x (simplify '(/ x 1)))
+	(test-equal "Simplify (/ x x)" 1 (simplify '(/ x x)))
+	(test-equal "Simplify (/ 0 x)" 0 (simplify '(/ 0 x)))
+	(test-equal "Simplify (/ 6 3)" 2 (simplify '(/ 6 3)))
+	;nested simplification
+	(test-catch "Simplify nested" (lambda ()
+		(simplify '(+ (* 0 x) (* 1 y)))))
+	;expansion
+	(test-catch "Expand (* (+ 1 2) x)" (lambda ()
+		(expand '(* (+ 1 2) x)))))
+
 (defun main ()
 	;initialize pipe details and command args, abort on error
 	(when (and
@@ -234,6 +300,8 @@
 		(run-stats-tests)
 		(run-roundtrip-tests)
 		(run-edge-case-tests)
+		(run-diff-tests)
+		(run-simplify-tests)
 		;print summary
 		(print "")
 		(print "====================================")

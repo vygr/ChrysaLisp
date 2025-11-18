@@ -3,6 +3,8 @@
 (import "lib/expr/serializer.inc")
 (import "lib/expr/eval.inc")
 (import "lib/expr/stats.inc")
+(import "lib/expr/diff.inc")
+(import "lib/expr/simplify.inc")
 
 (defq usage `(
 (("-h" "--help")
@@ -14,6 +16,10 @@
 		-o --output format: output format (sexp, pretty, json, xml, dot, infix, prefix, ast, tree, rainbow). default: sexp
 		-e --eval: evaluate the expression and show result.
 		-s --stats: show expression statistics.
+		-d --diff var: compute derivative with respect to variable.
+		-n --nth num: compute nth derivative (use with --diff).
+		-p --simplify: simplify the expression.
+		-x --expand: expand the expression.
 		-m --multi: process multiple formats in parallel.
 		-v --verbose: verbose output.
 		-c --color: enable colored output.
@@ -43,12 +49,19 @@
 		expr '(factorial 5)' -e -s
 		expr '(+ 1 2 3 4)' -o dot | dot -Tpng > expr.png
 		echo '(* (+ 1 2) (- 5 3))' | expr -o ast
+		expr '(* x x)' -d x
+		expr '(^ x 3)' -d x -p
+		expr '(+ (* 2 x) 3)' -d x -n 2
 
 	If no expression given on command line, reads from stdin.")
 (("-i" "--input") ,(opt-word 'opt_input))
 (("-o" "--output") ,(opt-word 'opt_output))
 (("-e" "--eval") ,(opt-flag 'opt_eval))
 (("-s" "--stats") ,(opt-flag 'opt_stats))
+(("-d" "--diff") ,(opt-word 'opt_diff))
+(("-n" "--nth") ,(opt-num 'opt_nth))
+(("-p" "--simplify") ,(opt-flag 'opt_simplify))
+(("-x" "--expand") ,(opt-flag 'opt_expand))
 (("-m" "--multi") ,(opt-flag 'opt_multi))
 (("-v" "--verbose") ,(opt-flag 'opt_verbose))
 (("-c" "--color") ,(opt-flag 'opt_color))
@@ -63,16 +76,39 @@
 		(defq parsed (expr-parse expr opt_input))
 		(when opt_verbose
 			(print "Parsed: " parsed))
-		;serialize the expression
-		(defq serialized (expr-serialize parsed opt_output opt_color))
-		(print serialized)
+		;apply transformations
+		(defq result parsed)
+		;differentiate if requested
+		(when opt_diff
+			(defq var (sym opt_diff))
+			(setq result (if opt_nth
+				(nth-derivative result var opt_nth)
+				(diff result var)))
+			(print "Derivative d/d" opt_diff ": " result)
+			(when opt_simplify
+				(setq result (simplify result))
+				(print "Simplified: " result)))
+		;simplify if requested (and not already done)
+		(when (and opt_simplify (not opt_diff))
+			(setq result (simplify result))
+			(print "Simplified: " result))
+		;expand if requested
+		(when opt_expand
+			(setq result (expand result))
+			(print "Expanded: " result))
+		;serialize the expression (use result if transformed, otherwise parsed)
+		(defq serialized (expr-serialize
+			(if (or opt_diff opt_simplify opt_expand) result parsed)
+			opt_output opt_color))
+		(unless (or opt_diff opt_simplify opt_expand)
+			(print serialized))
 		;evaluate if requested
 		(when opt_eval
-			(defq result (expr-eval parsed))
-			(print "Result: " result))
+			(defq eval-result (expr-eval (if opt_diff parsed result)))
+			(print "Result: " eval-result))
 		;show stats if requested
 		(when opt_stats
-			(expr-show-stats parsed))
+			(expr-show-stats (if opt_diff parsed result)))
 		:t)
 		(progn
 			(print "Error: " _)
@@ -108,6 +144,24 @@
 		(print "")
 		(print "--- AST Tree ---")
 		(print (expr-serialize parsed 'ast :nil))
+		(when opt_diff
+			(print "")
+			(print "--- Differentiation ---")
+			(defq var (sym opt_diff))
+			(defq deriv (diff parsed var))
+			(print "d/d" opt_diff ": " deriv)
+			(defq simple-deriv (simplify deriv))
+			(print "Simplified: " simple-deriv))
+		(when opt_simplify
+			(print "")
+			(print "--- Simplification ---")
+			(defq simple (simplify parsed))
+			(print "Simplified: " simple))
+		(when opt_expand
+			(print "")
+			(print "--- Expansion ---")
+			(defq expanded (expand parsed))
+			(print "Expanded: " expanded))
 		(when opt_eval
 			(print "")
 			(print "--- Evaluation ---")
@@ -131,6 +185,7 @@
 			(defq opt_input 'auto opt_output 'sexp
 				opt_eval :nil opt_stats :nil opt_multi :nil
 				opt_verbose :nil opt_color :nil
+				opt_diff :nil opt_nth 1 opt_simplify :nil opt_expand :nil
 				args (options stdio usage)))
 		;process expressions
 		(if (<= (length args) 1)
