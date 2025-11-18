@@ -45,7 +45,10 @@
 		clickable_regions (list)
 		link_start_x 0
 		link_start_y 0
-		link_href nil))
+		link_href nil
+		text_fragments (list)
+		selection_start nil
+		selection_end nil))
 
 (defmethod :init html-canvas-renderer (doc cnv width &optional stylesheet)
 	(setq this-document doc
@@ -69,7 +72,10 @@
 		this-clickable_regions (list)
 		this-link_start_x 0
 		this-link_start_y 0
-		this-link_href nil)
+		this-link_href nil
+		this-text_fragments (list)
+		this-selection_start nil
+		this-selection_end nil)
 	this)
 
 (defmethod :apply-element-styles html-canvas-renderer (element)
@@ -103,7 +109,7 @@
 		this-font_normal))
 
 (defmethod :draw-text html-canvas-renderer (text)
-	; Draw text at current position
+	; Draw text at current position and track for selection
 	(defq font (. this :get-font))
 	(when (and font text (> (length text) 0))
 		; Get text dimensions
@@ -114,11 +120,18 @@
 			(setq this-x this-margin)
 			(setq this-y (+ this-y this-line_height)))
 
+		; Record position for text selection
+		(defq start_x this-x)
+		(defq start_y this-y)
+
 		; Draw the text
 		(defq color (if this-in_link COLOR_LINK this-current_color))
 		(.-> this-canvas
 			(:set_color color)
 			(:text font this-x this-y text))
+
+		; Track this text fragment for selection
+		(push this-text_fragments (list start_x start_y w this-line_height text))
 
 		; Move cursor
 		(setq this-x (+ this-x w))
@@ -477,13 +490,18 @@
 	; Clear canvas
 	(. this-canvas :fill COLOR_WHITE)
 
-	; Reset position and clickable regions
+	; Reset position, clickable regions, and text fragments
 	(setq this-x this-margin)
 	(setq this-y this-margin)
 	(setq this-clickable_regions (list))
+	(setq this-text_fragments (list))
 
 	; Render document
 	(. this :render-node this-document)
+
+	; Render selection highlight if active
+	(when (and this-selection_start this-selection_end)
+		(. this :render-selection))
 
 	; Return total height
 	this-y)
@@ -501,4 +519,116 @@
 				   (>= y ry) (<= y (+ ry rh)))
 			(setq result href)))
 		this-clickable_regions)
+	result)
+
+(defmethod :set-selection-start html-canvas-renderer (x y)
+	; Set selection start point
+	(setq this-selection_start (list x y))
+	this)
+
+(defmethod :set-selection-end html-canvas-renderer (x y)
+	; Set selection end point
+	(setq this-selection_end (list x y))
+	this)
+
+(defmethod :clear-selection html-canvas-renderer ()
+	; Clear selection
+	(setq this-selection_start nil)
+	(setq this-selection_end nil)
+	this)
+
+(defmethod :render-selection html-canvas-renderer ()
+	; Render selection highlight
+	(when (and this-selection_start this-selection_end)
+		(bind '(x1 y1) this-selection_start)
+		(bind '(x2 y2) this-selection_end)
+
+		; Ensure x1,y1 is before x2,y2
+		(when (or (> y1 y2) (and (= y1 y2) (> x1 x2)))
+			(defq tmp_x x1)
+			(defq tmp_y y1)
+			(setq x1 x2)
+			(setq y1 y2)
+			(setq x2 tmp_x)
+			(setq y2 tmp_y))
+
+		; Highlight each text fragment in selection
+		(each! 0 -1 (lambda ((fx fy fw fh text))
+			(defq fx2 (+ fx fw))
+			(defq fy2 (+ fy fh))
+
+			; Check if fragment intersects with selection
+			(defq in_selection :nil)
+
+			; Same line selection
+			(when (and (= y1 y2) (>= fy y1) (<= fy y1))
+				(when (and (< fx x2) (> fx2 x1))
+					(setq in_selection :t)))
+
+			; Multi-line selection
+			(when (< y1 y2)
+				; First line
+				(when (and (>= fy y1) (< fy (+ y1 fh)) (>= fx x1))
+					(setq in_selection :t))
+
+				; Middle lines
+				(when (and (> fy y1) (< fy y2))
+					(setq in_selection :t))
+
+				; Last line
+				(when (and (>= fy y2) (< fy (+ y2 fh)) (<= fx x2))
+					(setq in_selection :t)))
+
+			; Draw highlight
+			(when in_selection
+				(. this :draw-filled-box fx fy fw fh 0xffadd8e6)))  ; Light blue
+			this-text_fragments))
+	this)
+
+(defmethod :get-selected-text html-canvas-renderer ()
+	; Get selected text as string
+	(defq result "")
+	(when (and this-selection_start this-selection_end)
+		(bind '(x1 y1) this-selection_start)
+		(bind '(x2 y2) this-selection_end)
+
+		; Ensure x1,y1 is before x2,y2
+		(when (or (> y1 y2) (and (= y1 y2) (> x1 x2)))
+			(defq tmp_x x1)
+			(defq tmp_y y1)
+			(setq x1 x2)
+			(setq y1 y2)
+			(setq x2 tmp_x)
+			(setq y2 tmp_y))
+
+		; Collect text from fragments in selection
+		(each! 0 -1 (lambda ((fx fy fw fh text))
+			(defq fx2 (+ fx fw))
+
+			; Check if fragment is in selection
+			(defq in_selection :nil)
+
+			; Same line selection
+			(when (and (= y1 y2) (>= fy y1) (<= fy y1))
+				(when (and (< fx x2) (> fx2 x1))
+					(setq in_selection :t)))
+
+			; Multi-line selection
+			(when (< y1 y2)
+				; First line
+				(when (and (>= fy y1) (< fy (+ y1 fh)) (>= fx x1))
+					(setq in_selection :t))
+
+				; Middle lines
+				(when (and (> fy y1) (< fy y2))
+					(setq in_selection :t))
+
+				; Last line
+				(when (and (>= fy y2) (< fy (+ y2 fh)) (<= fx x2))
+					(setq in_selection :t)))
+
+			(when in_selection
+				(setq result (cat result text " "))))
+			this-text_fragments))
+
 	result)

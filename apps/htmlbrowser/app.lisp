@@ -5,6 +5,7 @@
 
 (import "././login/env.inc")
 (import "gui/lisp.inc")
+(import "service/clipboard/app.inc")
 (import "lib/html/parser.inc")
 (import "lib/html/css.inc")
 (import "lib/html/canvas_renderer.inc")
@@ -221,6 +222,7 @@ table {
 	(. *window* :connect_inks)
 
 	; Event loop
+	(defq mouse_down :nil)
 	(while :t
 		(defq msg (mail-read (task-mailbox)))
 		(cond
@@ -228,11 +230,10 @@ table {
 				; Timeout - check for events
 				(task-sleep 10000))
 
-			((and (= (getf msg +ev_msg_type) +ev_type_mouse)
-				  (= (getf msg +ev_msg_mouse_buttons) 1))
-				; Left mouse click
+			((= (getf msg +ev_msg_type) +ev_type_mouse)
 				(defq mx (getf msg +ev_msg_mouse_x))
 				(defq my (getf msg +ev_msg_mouse_y))
+				(defq buttons (getf msg +ev_msg_mouse_buttons))
 
 				; Get canvas position
 				(bind '(cx cy) (. *canvas* :get_pos))
@@ -241,12 +242,44 @@ table {
 				(defq rel_x (- mx cx))
 				(defq rel_y (- my cy))
 
-				; Handle click
-				(. *canvas* :handle_click rel_x rel_y))
+				(cond
+					; Mouse down - start selection or navigate
+					((and (= buttons 1) (not mouse_down))
+						(setq mouse_down :t)
+						(. *canvas* :handle_mouse_down rel_x rel_y))
 
-			((or (= (getf msg +ev_msg_target_id) +event_close)
-				 (and (= (getf msg +ev_msg_type) +ev_type_key)
-					  (= (getf msg +ev_msg_key_keycode) +char_esc)))
+					; Mouse drag - update selection
+					((and (= buttons 1) mouse_down)
+						(. *canvas* :handle_mouse_drag rel_x rel_y))
+
+					; Mouse up - finalize selection or click link
+					((and (= buttons 0) mouse_down)
+						(setq mouse_down :nil)
+						(. *canvas* :handle_mouse_up rel_x rel_y)
+
+						; If no selection was made, check for link click
+						(when (= (length (. *canvas* :get_selected_text)) 0)
+							(. *canvas* :handle_click rel_x rel_y)))))
+
+			((= (getf msg +ev_msg_type) +ev_type_key)
+				(defq keycode (getf msg +ev_msg_key_keycode))
+				(defq key_mod (getf msg +ev_msg_key_key))
+
+				(cond
+					; Ctrl+C - Copy to clipboard
+					((and (= keycode +char_c) (logand key_mod +ev_key_mod_control))
+						(defq selected_text (. *canvas* :get_selected_text))
+						(when (> (length selected_text) 0)
+							(clip-put-rpc selected_text)
+							(print "Copied to clipboard: " selected_text)))
+
+					; Escape - Clear selection or close
+					((= keycode +char_esc)
+						(if (> (length (. *canvas* :get_selected_text)) 0)
+							(. *canvas* :clear_selection)
+							(break)))))
+
+			((= (getf msg +ev_msg_target_id) +event_close)
 				; Close window
 				(break))))
 

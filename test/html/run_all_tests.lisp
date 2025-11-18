@@ -73,6 +73,13 @@
 	(print "========================================")
 	(import "test/html/test_interactive_links.lisp")
 
+	; Run text selection tests
+	(print "")
+	(print "========================================")
+	(print "Text Selection Tests")
+	(print "========================================")
+	(import "test/html/test_text_selection.lisp")
+
 	(print "")
 	(print "========================================")
 	(print "All Tests Complete")

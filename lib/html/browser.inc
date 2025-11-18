@@ -94,4 +94,50 @@
 			(when href
 				(. this :navigate href)
 				:t))
-		nil))
+		nil)
+
+	(defmethod :handle_mouse_down (x y)
+		; Handle mouse down - start selection
+		(defq renderer (get :renderer this))
+		(when renderer
+			; Clear previous selection
+			(. renderer :clear-selection)
+
+			; Start new selection
+			(. renderer :set-selection-start x y)
+			(set this :is_selecting :t))
+		this)
+
+	(defmethod :handle_mouse_drag (x y)
+		; Handle mouse drag - update selection
+		(when (get :is_selecting this)
+			(defq renderer (get :renderer this))
+			(when renderer
+				(. renderer :set-selection-end x y)
+				(. this :render_html)))  ; Re-render to show selection
+		this)
+
+	(defmethod :handle_mouse_up (x y)
+		; Handle mouse up - finalize selection
+		(when (get :is_selecting this)
+			(set this :is_selecting :nil)
+			(defq renderer (get :renderer this))
+			(when renderer
+				(. renderer :set-selection-end x y)
+				(. this :render_html)))  ; Final render with selection
+		this)
+
+	(defmethod :get_selected_text ()
+		; Get currently selected text
+		(defq renderer (get :renderer this))
+		(if renderer
+			(. renderer :get-selected-text)
+			""))
+
+	(defmethod :clear_selection ()
+		; Clear text selection
+		(defq renderer (get :renderer this))
+		(when renderer
+			(. renderer :clear-selection)
+			(. this :render_html))
+		this))
