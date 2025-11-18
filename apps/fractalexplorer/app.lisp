@@ -42,7 +42,7 @@
 	)
 
 (ui-window *window* ()
-	(ui-title-bar _ "Fractal Explorer v2.0 - Phase 2" (0xea19) +event_close)
+	(ui-title-bar _ "Fractal Explorer v3.0 - Phase 4 🚀" (0xea19) +event_close)
 	(ui-flow _ (:flow_flags +flow_right_fill)
 		(ui-flow _ (:flow_flags +flow_down_fill)
 			(ui-canvas *canvas* +width +height +scale)
@@ -80,6 +80,14 @@
 				:connect +event_color_scheme)
 
 			(ui-label _ (:text "" :font *env_small_font* :color *env_toolbar2_col*))
+			(ui-label _ (:text "=== ORBIT TRAPS ===" :font *env_medium_font* :color *env_toolbar2_col*))
+			(. (ui-select *orbit_trap_selector* (:text "None")
+				(each (lambda (name)
+					(ui-label _ (:text name)))
+					'("None" "Point" "Line" "Circle" "Cross" "Square")))
+				:connect +event_orbit_trap_selector)
+
+			(ui-label _ (:text "" :font *env_small_font* :color *env_toolbar2_col*))
 			(ui-label *param1_label* (:text "Parameter 1: -0.40" :font *env_medium_font* :color *env_toolbar2_col*))
 			(. (ui-slider *param1_slider* (:value 40 :maximum 100 :minimum 0))
 				:connect +event_param1_slider)
@@ -109,6 +117,16 @@
 				(ui-button *bookmark_jump_btn* (:text "Load")))
 			(.-> *bookmark_add_btn* (:connect +event_bookmark_add))
 			(.-> *bookmark_jump_btn* (:connect +event_bookmark_jump))
+
+			(ui-label _ (:text "" :font *env_small_font* :color *env_toolbar2_col*))
+			(ui-label _ (:text "=== ANIMATION (Phase 3) ===" :font *env_medium_font* :color *env_toolbar2_col*))
+			(ui-label _ (:text "Coming soon!" :font *env_small_font* :color *env_toolbar2_col*))
+			(ui-label _ (:text "Zoom/Rotate/Explore modes" :font *env_small_font* :color *env_toolbar2_col*))
+
+			(ui-label _ (:text "" :font *env_small_font* :color *env_toolbar2_col*))
+			(ui-label _ (:text "=== EXPORT (Phase 3) ===" :font *env_medium_font* :color *env_toolbar2_col*))
+			(ui-label _ (:text "PPM export available!" :font *env_small_font* :color *env_toolbar2_col*))
+			(ui-label _ (:text "See export.inc for API" :font *env_small_font* :color *env_toolbar2_col*))
 
 			(ui-label _ (:text "" :font *env_small_font* :color *env_toolbar2_col*))
 			(ui-label _ (:text "=== KEYBOARD SHORTCUTS ===" :font *env_small_font* :color *env_toolbar2_col*))
@@ -344,6 +362,12 @@
 						;color scheme changed
 						(defq sel_idx (. *color_selector* :get_selected))
 						(setq current_color_scheme sel_idx)
+						(reset))
+
+					((= id +event_orbit_trap_selector)
+						;orbit trap changed
+						(defq sel_idx (. *orbit_trap_selector* :get_selected))
+						(setq orbit_trap sel_idx)
 						(reset))
 
 					((= id +event_param1_slider)
