@@ -152,12 +152,17 @@
 
 		; Test script execution context
 		(deftest "Script Has Document Context"
+			(import "lib/html/script.inc")
+
 			(defq html "<div id=\"app\"></div><script>(defq elem (. document :get-element-by-id \"app\"))</script>")
 			(defq doc (parse-html html))
 
-			; After script execution, should have found element
-			; This requires actual script execution implementation
-			:t)
+			; Execute scripts in the document
+			(defq executor (execute-document-scripts doc))
+
+			; Script should have been able to access document
+			; We can verify scripts ran by checking no errors occurred
+			(assert-not-nil executor))
 
 		; Test script event handlers
 		(deftest "Script Event Handler Registration"

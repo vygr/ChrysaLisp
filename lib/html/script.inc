@@ -30,9 +30,11 @@
 	; Code is ChrysaLisp Lisp that has access to document/window
 	(when (and code (> (length code) 0))
 		(catch
-			; Eval the code in context
-			; Note: This is simplified - actual implementation would
-			; need proper sandboxing and environment setup
+			; Bind document and window in current scope for script access
+			(defq document this-document)
+			(defq window this-window)
+
+			; Eval the code - it can now access document and window
 			(eval (read (cat code)))
 			(lambda (e)
 				(print "Script error: " e))))
