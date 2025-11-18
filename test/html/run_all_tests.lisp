@@ -185,6 +185,13 @@
 	(print "========================================")
 	(import "test/html/test_canvas_element.lisp")
 
+	; Run web audio tests
+	(print "")
+	(print "========================================")
+	(print "Web Audio API Tests")
+	(print "========================================")
+	(import "test/html/test_web_audio.lisp")
+
 	(print "")
 	(print "========================================")
 	(print "All Tests Complete")
