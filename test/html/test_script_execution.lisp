@@ -239,5 +239,20 @@
 			(defq listeners (get (. div 'event_listeners) "click"))
 			(assert-not-nil listeners)
 			(assert-eq 1 (length listeners)))
+
+		; Test document.write for old-school HTML addition
+		(deftest "document.write Adds HTML"
+			(import "lib/html/script.inc")
+
+			(defq html "<div id=\"container\"></div><script>(. document :write \"<p>Added</p>\")</script>")
+			(defq doc (parse-html html))
+
+			; Execute scripts which calls document.write
+			(execute-document-scripts doc)
+
+			; Verify the paragraph was added
+			(defq paras (. doc :get-elements-by-tag-name "p"))
+			(assert-eq 1 (length paras))
+			(assert-contains "Added" (. (first paras) :get-text-content)))
 	))
 

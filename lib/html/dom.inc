@@ -242,6 +242,44 @@
 			(defq results (. this :get-elements-by-tag-name selector))
 			(if (> (length results) 0) (first results) nil))))
 
+(defmethod :write html-document (html)
+	; document.write - old-school HTML addition
+	; Appends HTML to the body element
+	(import "lib/html/parser.inc")
+
+	; Get or create body element
+	(defq bodies (. this :get-elements-by-tag-name "body"))
+	(defq body
+		(if (> (length bodies) 0)
+			(first bodies)
+			(progn
+				; Create body if it doesn't exist
+				(defq new_body (. this :create-element "body"))
+				(defq root this-document_element)
+				(when root
+					(. root :append-child new_body))
+				new_body)))
+
+	; Parse the HTML fragment
+	(defq fragment_doc (parse-html html))
+	(defq fragment_root (. fragment_doc 'document_element))
+
+	; Append children from parsed HTML to body
+	(when fragment_root
+		; Get the source element (prefer body, fall back to root)
+		(defq fragment_bodies (. fragment_doc :get-elements-by-tag-name "body"))
+		(defq source_elem
+			(if (> (length fragment_bodies) 0)
+				(first fragment_bodies)
+				fragment_root))
+
+		; Copy all children to body
+		(each! 0 -1 (lambda (child)
+			(. body :append-child child))
+			(. source_elem 'child_nodes)))
+
+	this)
+
 ;; Event handling methods (added to dom-node base class)
 (defmethod :add-event-listener dom-node (event-type callback)
 	; Add an event listener
