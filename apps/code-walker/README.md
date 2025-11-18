@@ -15,6 +15,7 @@ The Code Walker is an interactive application that demonstrates how ChrysaLisp p
 
 - **Live Code Processing**: Enter any ChrysaLisp expression and see it transform through each phase
 - **Step-by-Step Macro Expansion**: Click "Step Expand" to see macros expand one level at a time
+- **Diff View**: Toggle-able diff display showing exactly what changed between phases (READ→EXPAND, EXPAND→BIND)
 - **Improved Formatting**: Indented tree view for complex nested structures
 - **Memory Address Visualization**: See which symbols are pre-bound to function pointers (O(1) optimization)
 - **Export Functionality**: Save all phase results to a timestamped text file
@@ -36,9 +37,11 @@ The Code Walker is an interactive application that demonstrates how ChrysaLisp p
 - **Process All Button**: Process code through all four phases at once (or press Enter in the input field)
 - **Step Expand Button**: Expand macros one level at a time to see intermediate states
 - **Export Button**: Save all results to a timestamped file in your home directory
+- **Diffs Toggle Button**: Turn diff display ON/OFF to see what changes between phases
 - **Clear Button**: Reset all fields
 - **Example Buttons**: Load common macro examples (defun, let, case, ui-window)
 - **Output Panels**: View each phase of the compilation pipeline with color coding
+- **Diff Panels**: See line-by-line differences between phases (when enabled)
 
 ## Example Explorations
 
@@ -156,6 +159,37 @@ The Bind phase output now shows which symbols were pre-bound:
 
 This demonstrates how ChrysaLisp achieves O(1) function calls by replacing symbol names with direct function pointers during compilation.
 
+### Diff View
+
+The "Diffs: ON/OFF" toggle button controls diff display:
+
+1. With diffs enabled (default), you'll see two diff panels:
+   - **Diff: READ → EXPAND** - Shows what the macro expansion changed
+   - **Diff: EXPAND → BIND** - Shows which symbols were replaced with function pointers
+
+2. Diff format uses standard notation:
+   ```
+   - removed line
+   + added line
+     unchanged line
+   ```
+
+3. Perfect for understanding:
+   - Exactly what a macro does
+   - Which symbols get pre-bound
+   - Line-by-line transformation
+
+**Example Diff Output:**
+```
+[Diff: READ → EXPAND]
+- (defun add (a b) (+ a b))
++ (defq add
++   (lambda (a b)
++     (+ a b)))
+```
+
+This clearly shows that `defun` is just syntactic sugar that expands to `defq` + `lambda`.
+
 ### Export Results
 
 Click "Export" to save a complete analysis to your home directory:
@@ -169,6 +203,6 @@ Click "Export" to save a complete analysis to your home directory:
 Potential improvements still to implement:
 - Compare multiple expressions side-by-side
 - Disassemble to VP instructions
-- Diff view highlighting changes between phases
-- Tree visualization of AST structure
+- Tree visualization of AST structure with interactive nodes
 - Syntax highlighting within output panels
+- History/session management

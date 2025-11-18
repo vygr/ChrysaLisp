@@ -1,6 +1,48 @@
 # Code Walker / AST Explorer - Changelog
 
-## Version 2.0 - Enhanced Features (Current)
+## Version 3.0 - Diff View (Current)
+
+**Date:** 2025-11-18
+
+### New Feature: Diff View Highlighting
+
+**Revolutionary feature for understanding transformations!**
+
+#### Diff Display System
+- **Toggle Button:** "Diffs: ON/OFF" to control diff visibility
+- **Two Diff Panels:**
+  - READ → EXPAND diff (shows macro transformations)
+  - EXPAND → BIND diff (shows symbol pre-binding)
+- **Standard Notation:** `- removed`, `+ added`, `  unchanged`
+
+#### Implementation
+- `compute-diff()` - Line-by-line comparison of forms
+- `split()` - String splitting helper
+- `update-diffs()` - Refresh diff displays
+- `toggle-diffs()` - Toggle diff visibility
+- State tracking: `*last_read*`, `*last_expand*`, `*last_bind*`
+
+#### Educational Impact
+Makes it crystal clear:
+- What each compilation phase actually does
+- How macros transform code
+- Which symbols get pre-bound for O(1) optimization
+- Line-by-line changes between phases
+
+#### Example Output
+```
+[Diff: READ → EXPAND]
+- (defun add (a b) (+ a b))
++ (defq add
++   (lambda (a b)
++     (+ a b)))
+```
+
+Shows instantly that `defun` is syntactic sugar for `defq` + `lambda`!
+
+---
+
+## Version 2.0 - Enhanced Features
 
 **Date:** 2025-11-18
 

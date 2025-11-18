@@ -10,7 +10,7 @@
 
 (enums +event 0
 	(enum close max min)
-	(enum process_btn clear_btn step_expand_btn export_btn)
+	(enum process_btn clear_btn step_expand_btn export_btn toggle_diff_btn)
 	(enum input_field)
 	(enum example1 example2 example3 example4))
 
@@ -31,6 +31,60 @@
 ;;;;;;;;;;;;;;;;;;;;;
 ; Helper Functions
 ;;;;;;;;;;;;;;;;;;;;;
+
+(defq *show_diffs* :t)
+
+(defun compute-diff (old new)
+	; Compute a simple diff between two pretty-printed forms
+	; Returns a string showing changes
+	(defq old_str (pretty-print old)
+		  new_str (pretty-print new))
+
+	(if (eql old_str new_str)
+		"[No changes]"
+		(progn
+			; Split into lines for comparison
+			(defq old_lines (split old_str "\n")
+				  new_lines (split new_str "\n"))
+
+			; Simple line-by-line diff
+			(defq result (list))
+			(defq max_lines (max (length old_lines) (length new_lines)))
+
+			(each (lambda (idx)
+				(defq old_line (if (< idx (length old_lines)) (elem-get old_lines idx) :nil)
+					  new_line (if (< idx (length new_lines)) (elem-get new_lines idx) :nil))
+
+				(cond
+					((and old_line new_line (eql old_line new_line))
+						; Line unchanged
+						(push result (cat "  " old_line)))
+					((and old_line (not new_line))
+						; Line removed
+						(push result (cat "- " old_line)))
+					((and new_line (not old_line))
+						; Line added
+						(push result (cat "+ " new_line)))
+					(:t
+						; Line changed
+						(push result (cat "- " old_line))
+						(push result (cat "+ " new_line)))))
+				(range 0 max_lines))
+
+			(apply cat (map (lambda (line) (cat line "\n")) result)))))
+
+(defun split (str delim)
+	; Split string by delimiter
+	(defq result (list) current "" delim_char (first delim))
+	(each (lambda (ch)
+		(if (= ch delim_char)
+			(progn
+				(push result current)
+				(setq current ""))
+			(setq current (cat current (str (char ch))))))
+		str)
+	(when (nempty? current) (push result current))
+	result)
 
 (defun safe-read (code_str)
 	; Safely parse code from string
@@ -136,10 +190,12 @@
 		(ui-button process_btn (:text "Process All" :font +font_title))
 		(ui-button step_btn (:text "Step Expand" :font +font_title))
 		(ui-button export_btn (:text "Export" :font +font_title))
+		(ui-button *diff_toggle_btn* (:text "Diffs: ON" :font +font_title))
 		(ui-button clear_btn (:text "Clear" :font +font_title))
 		(. process_btn :connect +event_process_btn)
 		(. step_btn :connect +event_step_expand_btn)
 		(. export_btn :connect +event_export_btn)
+		(. *diff_toggle_btn* :connect +event_toggle_diff_btn)
 		(. clear_btn :connect +event_clear_btn))
 
 	; Example buttons section
@@ -171,14 +227,18 @@
 				(ui-label _ (:text "Phase 2: EXPAND (Macro Expansion)"
 					:font +font_title :color +argb_yellow :border 0))
 				(ui-label *expand_output* (:text "" :font +font_mono
-					:color +argb_white :border 0 :flow_flags +flow_flag_wrap_text)))
+					:color +argb_white :border 0 :flow_flags +flow_flag_wrap_text))
+				(ui-label *diff_read_expand* (:text "" :font +font_mono
+					:color +argb_grey6 :border 0 :flow_flags +flow_flag_wrap_text)))
 
 			; Phase 3: Bind (Pre-binding)
 			(ui-flow _ (:flow_flags +flow_down_fill :color +section_color :border 5)
 				(ui-label _ (:text "Phase 3: BIND (Pre-binding)"
 					:font +font_title :color +argb_green :border 0))
 				(ui-label *bind_output* (:text "" :font +font_mono
-					:color +argb_white :border 0 :flow_flags +flow_flag_wrap_text)))
+					:color +argb_white :border 0 :flow_flags +flow_flag_wrap_text))
+				(ui-label *diff_expand_bind* (:text "" :font +font_mono
+					:color +argb_grey6 :border 0 :flow_flags +flow_flag_wrap_text)))
 
 			; Phase 4: Eval (Optional - Result)
 			(ui-flow _ (:flow_flags +flow_down_fill :color +section_color :border 5)
@@ -192,6 +252,7 @@
 ;;;;;;;;;;;;;;;;;;;;;
 
 (defq *expansion_steps* (list) *current_step* 0)
+(defq *last_read* :nil *last_expand* :nil *last_bind* :nil)
 
 (defun step-expand ()
 	; Perform one step of macro expansion
@@ -231,6 +292,23 @@
 		(.-> *read_output* :layout :dirty)
 		(.-> *expand_output* :layout :dirty)))
 
+(defun update-diffs ()
+	; Update diff displays based on current state
+	(when *show_diffs*
+		; Diff: READ → EXPAND
+		(when (and *last_read* *last_expand*)
+			(set *diff_read_expand* :text
+				(cat "\n[Diff: READ → EXPAND]\n"
+					(compute-diff *last_read* *last_expand*)))
+			(.-> *diff_read_expand* :layout :dirty))
+
+		; Diff: EXPAND → BIND
+		(when (and *last_expand* *last_bind*)
+			(set *diff_expand_bind* :text
+				(cat "\n[Diff: EXPAND → BIND]\n"
+					(compute-diff *last_expand* *last_bind*)))
+			(.-> *diff_expand_bind* :layout :dirty))))
+
 (defun process-code ()
 	; Process the code through all phases
 	(defq code_str (get :text *input_field*))
@@ -243,9 +321,13 @@
 			(set *read_output* :text read_result)
 			(set *expand_output* :text "")
 			(set *bind_output* :text "")
-			(set *eval_output* :text ""))
+			(set *eval_output* :text "")
+			(set *diff_read_expand* :text "")
+			(set *diff_expand_bind* :text "")
+			(setq *last_read* :nil *last_expand* :nil *last_bind* :nil))
 		; Success - continue to next phases
 		(progn
+			(setq *last_read* read_result)
 			(set *read_output* :text (pretty-print read_result))
 
 			; Phase 2: Expand
@@ -255,9 +337,13 @@
 				(progn
 					(set *expand_output* :text expand_result)
 					(set *bind_output* :text "")
-					(set *eval_output* :text ""))
+					(set *eval_output* :text "")
+					(set *diff_read_expand* :text "")
+					(set *diff_expand_bind* :text "")
+					(setq *last_expand* :nil *last_bind* :nil))
 				; Success - continue to next phases
 				(progn
+					(setq *last_expand* expand_result)
 					(set *expand_output* :text (pretty-print expand_result))
 
 					; Phase 3: Bind
@@ -266,9 +352,13 @@
 						; Error in binding
 						(progn
 							(set *bind_output* :text bind_result)
-							(set *eval_output* :text ""))
+							(set *eval_output* :text "")
+							(set *diff_expand_bind* :text "")
+							(setq *last_bind* :nil))
 						; Success - continue to eval
 						(progn
+							(setq *last_bind* bind_result)
+
 							; Analyze what symbols were bound
 							(defq bindings (analyze-bindings expand_result bind_result))
 							(defq binding_info
@@ -286,12 +376,29 @@
 							(defq eval_result (safe-eval bind_result))
 							(set *eval_output* :text (pretty-print eval_result))))))))
 
+	; Update diffs if enabled
+	(update-diffs)
+
 	; Update layout
 	(.-> *read_output* :layout :dirty)
 	(.-> *expand_output* :layout :dirty)
 	(.-> *bind_output* :layout :dirty)
 	(.-> *eval_output* :layout :dirty)
 	(.-> *output_scroll* :layout :dirty))
+
+(defun toggle-diffs ()
+	; Toggle diff display on/off
+	(setq *show_diffs* (not *show_diffs*))
+	(set *diff_toggle_btn* :text (if *show_diffs* "Diffs: ON" "Diffs: OFF"))
+	(.-> *diff_toggle_btn* :layout :dirty)
+
+	(if *show_diffs*
+		(update-diffs)
+		(progn
+			(set *diff_read_expand* :text "")
+			(set *diff_expand_bind* :text "")
+			(.-> *diff_read_expand* :layout :dirty)
+			(.-> *diff_expand_bind* :layout :dirty))))
 
 (defun clear-all ()
 	; Clear all output fields
@@ -300,12 +407,17 @@
 	(set *expand_output* :text "")
 	(set *bind_output* :text "")
 	(set *eval_output* :text "")
+	(set *diff_read_expand* :text "")
+	(set *diff_expand_bind* :text "")
 	(setq *expansion_steps* (list) *current_step* 0)
+	(setq *last_read* :nil *last_expand* :nil *last_bind* :nil)
 	(.-> *input_field* :layout :dirty)
 	(.-> *read_output* :layout :dirty)
 	(.-> *expand_output* :layout :dirty)
 	(.-> *bind_output* :layout :dirty)
-	(.-> *eval_output* :layout :dirty))
+	(.-> *eval_output* :layout :dirty)
+	(.-> *diff_read_expand* :layout :dirty)
+	(.-> *diff_expand_bind* :layout :dirty))
 
 (defun load-example (code)
 	; Load example code into input field and process it
@@ -384,6 +496,7 @@
 					((= id +event_process_btn) (process-code))
 					((= id +event_step_expand_btn) (step-expand))
 					((= id +event_export_btn) (export-results))
+					((= id +event_toggle_diff_btn) (toggle-diffs))
 					((= id +event_clear_btn) (clear-all))
 					((= id +event_example1)
 						(load-example "(defun add (a b) (+ a b))"))
