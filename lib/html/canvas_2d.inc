@@ -41,8 +41,8 @@
 		(when canvas-elem
 			(defq w-attr (. canvas-elem :get-attribute "width"))
 			(defq h-attr (. canvas-elem :get-attribute "height"))
-			(when w-attr (def this :width (str-to-num w-attr)))
-			(when h-attr (def this :height (str-to-num h-attr))))
+			(when w-attr (def this :width (parse-number w-attr)))
+			(when h-attr (def this :height (parse-number h-attr))))
 
 		this)
 
@@ -283,8 +283,8 @@
 	(defmethod :rotate (angle)
 		; Rotate coordinate system
 		; ctx.rotate(Math.PI / 4)
-		(defq cos-a (cos angle))
-		(defq sin-a (sin angle))
+		(defq cos-a (math-cos angle))
+		(defq sin-a (math-sin angle))
 
 		(defq m (get :transform_matrix this))
 		(defq a (elem 0 m))
@@ -379,19 +379,19 @@
 	(each! (lambda (item) (push result item)) lst)
 	result)
 
-(defun str-to-num (str)
+(defun parse-number (str)
 	; Convert string to number
 	(when str
 		(catch
 			(read str)
 			(lambda (e) 0))))
 
-(defun cos (angle)
+(defun math-cos (angle)
 	; Cosine function (placeholder - would use real math lib)
 	; For now, approximate
 	1.0)
 
-(defun sin (angle)
+(defun math-sin (angle)
 	; Sine function (placeholder - would use real math lib)
 	; For now, approximate
 	0.0)

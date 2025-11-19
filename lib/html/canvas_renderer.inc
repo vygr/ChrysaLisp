@@ -101,7 +101,7 @@
 
 			; Apply font-weight
 			(when (defq weight (get styles "font-weight"))
-				(if (or (eql weight "bold") (>= (str-to-num weight) 700))
+				(if (or (eql weight "bold") (>= (parse-number weight) 700))
 					(def this :in_bold :t))))
 		this)
 
@@ -371,9 +371,9 @@
 
 				; Use specified dimensions if provided
 				(when width-attr
-					(setq img-width (str-to-num width-attr)))
+					(setq img-width (parse-number width-attr)))
 				(when height-attr
-					(setq img-height (str-to-num height-attr)))
+					(setq img-height (parse-number height-attr)))
 
 				; Draw the pixmap at current position
 				; Note: Would need canvas blit method to render pixmap
@@ -402,8 +402,8 @@
 		(defq height-attr (. node :get-attribute "height"))
 
 		; Default canvas dimensions: 300x150
-		(defq canvas-width (if width-attr (str-to-num width-attr) 300))
-		(defq canvas-height (if height-attr (str-to-num height-attr) 150))
+		(defq canvas-width (if width-attr (parse-number width-attr) 300))
+		(defq canvas-height (if height-attr (parse-number height-attr) 150))
 
 		; Get the canvas context if it exists
 		(defq ctx (. node :get-context "2d"))
@@ -561,7 +561,7 @@
 				(cond
 					((or (eql tag-name "h1") (eql tag-name "h2") (eql tag-name "h3")
 						 (eql tag-name "h4") (eql tag-name "h5") (eql tag-name "h6"))
-						(defq level (str-to-num (rest tag-name)))
+						(defq level (parse-number (rest tag-name)))
 						(. this :render-heading node level))
 
 					((eql tag-name "p")
@@ -801,12 +801,12 @@
 
 ;; Helper Functions
 
-(defun starts-with (prefix str)
+(defun string-starts-with (prefix str)
 	; Check if string starts with prefix
 	(when (and str (>= (length str) (length prefix)))
 		(eql (slice 0 (length prefix) str) prefix)))
 
-(defun str-to-num (str)
+(defun parse-number (str)
 	; Convert string to number
 	(when str
 		(catch
@@ -819,7 +819,7 @@
 	(when color-str
 		(cond
 			; Hex colors
-			((starts-with "#" color-str)
+			((string-starts-with "#" color-str)
 				(defq hex (rest color-str))
 				(cond
 					; #RGB format

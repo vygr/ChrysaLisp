@@ -23,20 +23,20 @@
 		; Store an item
 		; Storage.setItem(key, value)
 		(defq items-map (get :items this))
-		(set items-map (sym key) (str value))
+		(set items-map (string-to-sym key) (value-to-string value))
 		(def this :items items-map)
 		:nil)
 
 	(defmethod :get-item (key)
 		; Retrieve an item
 		; Storage.getItem(key) -> value | nil
-		(get (get :items this) (sym key)))
+		(get (get :items this) (string-to-sym key)))
 
 	(defmethod :remove-item (key)
 		; Remove an item
 		; Storage.removeItem(key)
 		(defq items-map (get :items this))
-		(set-remove items-map (sym key))
+		(set-remove items-map (string-to-sym key))
 		(def this :items items-map)
 		:nil)
 
@@ -104,11 +104,11 @@
 	(. storage :init "session" file-path)
 	storage)
 
-(defun sym (str)
+(defun string-to-sym (str)
 	; Convert string to symbol
 	(read (cat ":" str)))
 
-(defun str (value)
+(defun value-to-string (value)
 	; Convert value to string
 	(if (str? value)
 		value

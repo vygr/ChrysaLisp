@@ -33,7 +33,7 @@
 		(def this :current_url url)
 
 		; Extract file path from file:// URL
-		(when (starts-with url "file://")
+		(when (string-starts-with url "file://")
 			(defq file-path (slice 7 (length url) url))
 			(def this :base_path file-path)
 
@@ -96,12 +96,12 @@
 		(when (get :document this)
 			(cond
 				; ID selector: #id
-				((starts-with selector "#")
+				((string-starts-with selector "#")
 					(defq id (slice 1 (length selector) selector))
 					(. this :find-element-by-id id))
 
 				; Class selector: .classname
-				((starts-with selector ".")
+				((string-starts-with selector ".")
 					(defq classname (slice 1 (length selector) selector))
 					(defq all-elems (. (get :document this) :get-elements-by-tag-name "*"))
 					(defq found :nil)
@@ -289,7 +289,7 @@
 	(. web-elem :init elem driver)
 	web-elem)
 
-(defun starts-with (str prefix)
+(defun string-starts-with (str prefix)
 	; Check if string starts with prefix
 	(when (and str (>= (length str) (length prefix)))
 		(eql (slice 0 (length prefix) str) prefix))
