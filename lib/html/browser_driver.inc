@@ -87,7 +87,11 @@
 		; Returns: list of WebElement wrappers
 		(when (get :document this)
 			(defq elements (. (get :document this) :get-elements-by-tag-name tag-name))
-			(map (lambda (elem) (create-web-element elem this)) elements))
+			(defq result (list))
+			(each! (lambda (elem)
+				(push result (create-web-element elem this)))
+				elements)
+			result)
 		(list))
 
 	(defmethod :find-element-by-selector browser-driver (selector)
