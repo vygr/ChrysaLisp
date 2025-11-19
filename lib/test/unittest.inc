@@ -70,12 +70,12 @@
 (defmacro assert-eq (expected actual &optional msg)
 	; Assert that two values are equal
 	(defq msg-str (if msg msg (cat "Expected: " (str expected) " Actual: " (str actual))))
-	`(test-assert-impl (= ,expected ,actual) ,msg-str))
+	`(test-assert-impl (eql ,expected ,actual) ,msg-str))
 
 (defmacro assert-neq (expected actual &optional msg)
 	; Assert that two values are not equal
 	(defq msg-str (if msg msg (cat "Expected not equal: " (str expected) " vs " (str actual))))
-	`(test-assert-impl (/= ,expected ,actual) ,msg-str))
+	`(test-assert-impl (not (eql ,expected ,actual)) ,msg-str))
 
 (defmacro assert-nil (expr &optional msg)
 	; Assert that expression is nil
