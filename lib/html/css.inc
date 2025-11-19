@@ -106,10 +106,10 @@
 		; Skip whitespace and comments
 		(defq pos (get :pos this))
 		(defq len (get :length this))
+		(defq whitespace (list " " "\t" "\n" "\r"))
 		(while (and (< pos len)
 				(or
-					(some! (lambda (c) (eql (. this :peek) c))
-						'(" " "\t" "\n" "\r"))
+					(some! (lambda (c) (eql (. this :peek) c)) whitespace)
 					; Check for comments
 					(and (eql (. this :peek) "/") (eql (. this :peek 1) "*"))))
 			(if (and (eql (. this :peek) "/") (eql (. this :peek 1) "*"))
