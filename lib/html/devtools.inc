@@ -6,7 +6,7 @@
 (import "lib/html/dom.inc")
 
 ;; DevTools Console Logger
-(defclass devtools-console () :nil
+(defclass devtools-console (&optional _method) :nil
 	; DevTools console
 	(def this
 		:log_entries (list)
@@ -80,7 +80,7 @@
 		(apply cat (map (lambda (s) (cat s "\n")) output))))
 
 ;; DevTools DOM Tree Navigator
-(defclass dom-tree-viewer () :nil
+(defclass dom-tree-viewer (&optional _method) :nil
 	; DOM tree viewer
 	(def this
 		:document :nil
@@ -186,7 +186,7 @@
 		info))
 
 ;; Network Resource Tracker
-(defclass network-tracker () :nil
+(defclass network-tracker (&optional _method) :nil
 	; Network tracker
 	(def this
 		:resources (list)
@@ -226,7 +226,7 @@
 		this))
 
 ;; DevTools Inspector (combines console, tree, and network)
-(defclass devtools-inspector () :nil
+(defclass devtools-inspector (&optional _method) :nil
 	; DevTools inspector
 	(def this
 		:console :nil

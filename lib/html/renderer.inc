@@ -4,7 +4,7 @@
 (import "lib/class/class.inc")
 (import "lib/html/dom.inc")
 
-(defclass html-renderer () :nil
+(defclass html-renderer (&optional _method) :nil
 	; HTML text renderer
 	(def this
 		:document :nil

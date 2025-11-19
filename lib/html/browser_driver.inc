@@ -8,7 +8,7 @@
 
 ;; Browser Driver Class
 
-(defclass browser-driver () :nil
+(defclass browser-driver (&optional _method) :nil
 	(def this :document :nil
 	          :executor :nil
 	          :current_url ""
@@ -197,7 +197,7 @@
 
 ;; WebElement Wrapper Class
 
-(defclass web-element () :nil
+(defclass web-element (&optional _method) :nil
 	(def this :element :nil
 	          :driver :nil)
 

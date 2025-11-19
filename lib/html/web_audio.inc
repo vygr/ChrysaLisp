@@ -4,7 +4,7 @@
 (import "lib/class/class.inc")
 
 ;; AudioContext - Main audio processing graph
-(defclass audio-context () :nil
+(defclass audio-context (&optional _method) :nil
 	(def this :state "suspended")  ; "suspended", "running", "closed"
 	(def this :destination :nil)
 	(def this :sample_rate 44100)
@@ -85,7 +85,7 @@
 		source))
 
 ;; Base Audio Node
-(defclass audio-node () :nil
+(defclass audio-node (&optional _method) :nil
 	(def this :context :nil)
 	(def this :connections (list))
 
@@ -271,7 +271,7 @@
 		:nil))
 
 ;; HTML5 Audio Element
-(defclass html-audio-element () :nil
+(defclass html-audio-element (&optional _method) :nil
 	(def this :src "")
 	(def this :volume 1.0)
 	(def this :paused :t)

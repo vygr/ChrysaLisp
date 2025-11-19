@@ -7,7 +7,7 @@
 ;; CSS Rule structure: (selector properties)
 ;; Properties is an environment of property-name -> value
 
-(defclass css-stylesheet () :nil
+(defclass css-stylesheet (&optional _method) :nil
 	; CSS stylesheet with rules
 
 	; Initialize fields
@@ -69,7 +69,7 @@
 				(eql (lower-case selector) (lower-case (. element 'node_name)))))))
 
 ;; CSS Parser
-(defclass css-parser () :nil
+(defclass css-parser (&optional _method) :nil
 	; CSS parser
 
 	; Initialize fields

@@ -3,7 +3,7 @@
 
 (import "lib/class/class.inc")
 
-(defclass cookie-store () :nil
+(defclass cookie-store (&optional _method) :nil
 	; Cookie storage with file persistence
 
 	; Initialize fields

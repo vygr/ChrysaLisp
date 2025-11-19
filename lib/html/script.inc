@@ -10,7 +10,7 @@
 (import "lib/html/web_audio.inc")
 
 ;; Script execution context
-(defclass script-context () :nil
+(defclass script-context (&optional _method) :nil
 	; Script execution context
 	(def this
 		:document :nil
@@ -198,7 +198,7 @@
 		:t))
 
 ;; Script executor
-(defclass script-executor () :nil
+(defclass script-executor (&optional _method) :nil
 	; Script executor
 	(def this
 		:document :nil

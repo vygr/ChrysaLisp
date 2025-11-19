@@ -11,7 +11,7 @@
 	TOKEN_DOCTYPE 5
 	TOKEN_EOF 6)
 
-(defclass html-tokenizer () :nil
+(defclass html-tokenizer (&optional _method) :nil
 	; HTML tokenizer
 	(def this
 		:input ""

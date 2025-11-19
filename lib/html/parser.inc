@@ -14,7 +14,7 @@
 	; Check if tag is a void element
 	(some! 0 -1 (lambda (t) (eql t tag-name)) html-void-elements))
 
-(defclass html-parser () :nil
+(defclass html-parser (&optional _method) :nil
 	; HTML parser
 	(def this
 		:tokenizer :nil

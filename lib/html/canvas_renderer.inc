@@ -24,7 +24,7 @@
 	FONT_BOLD 1
 	FONT_ITALIC 2)
 
-(defclass html-canvas-renderer () :nil
+(defclass html-canvas-renderer (&optional _method) :nil
 	(def this :document :nil)
 	(def this :canvas :nil)
 	(def this :stylesheet :nil)

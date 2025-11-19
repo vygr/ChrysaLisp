@@ -5,7 +5,7 @@
 (import "lib/html/dom.inc")
 
 ;; HTML View class - represents the visual display of an HTML document
-(defclass html-view () :nil
+(defclass html-view (&optional _method) :nil
 	; Initialize fields
 	(def this
 		:part :nil
@@ -33,7 +33,7 @@
 		this))
 
 ;; HTML Part class - manages HTML document parsing and rendering
-(defclass html-part () :nil
+(defclass html-part (&optional _method) :nil
 	; Initialize fields
 	(def this
 		:document :nil

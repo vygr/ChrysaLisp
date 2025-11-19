@@ -7,7 +7,7 @@
 
 (deftest-suite "Encoding Detector Tests")
 
-(defq ed nil)
+(defq ed :nil)
 
 (defun init-test-case ()
 	; Initialize test case

@@ -11,7 +11,7 @@
 	NODE_DOCUMENT 9)
 
 ;; Base DOM Node class
-(defclass dom-node () :nil
+(defclass dom-node (&optional _method) :nil
 	; DOM node with children, attributes, and events
 	(def this
 		:node_type :nil

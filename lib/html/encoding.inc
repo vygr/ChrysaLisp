@@ -3,7 +3,7 @@
 
 (import "lib/class/class.inc")
 
-(defclass encoding-detector () :nil
+(defclass encoding-detector (&optional _method) :nil
 	; Character encoding detector
 
 	; Initialize fields using correct ChrysaLisp syntax

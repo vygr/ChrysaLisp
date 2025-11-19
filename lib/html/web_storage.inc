@@ -3,7 +3,7 @@
 
 (import "lib/class/class.inc")
 
-(defclass web-storage () :nil
+(defclass web-storage (&optional _method) :nil
 	; Web Storage (localStorage/sessionStorage)
 
 	; Initialize fields
