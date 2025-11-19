@@ -30,8 +30,12 @@ else
 	ifeq ($(CPU),riscv64)
 		ABI := RISCV64
 	else
-		CPU := arm64
-		ABI := ARM64
+		ifeq ($(CPU),wasm32)
+			ABI := WASM32
+		else
+			CPU := arm64
+			ABI := ARM64
+		endif
 	endif
 endif
 

@@ -5,6 +5,9 @@
 ;module
 (env-push)
 
+; Import control flow graph analysis
+(import "lib/trans/wasm_cfg.inc")
+
 ; WebAssembly uses a stack-based VM, but we can use local variables
 ; to simulate the VP's 16 registers (r0-r14, rsp)
 ; This is the register mapping strategy
@@ -550,18 +553,26 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ; WASM uses structured control flow with blocks and br_if
-; We'll need to track label depths and use WASM's block/loop structures
-; For now, we'll create stubs that would need more sophisticated handling
+; We use CFG analysis to compute proper block depths
+
+; Global variable to store CFG info (set during translation)
+(defq *cfg_info* :nil *current_block_depth* 0)
+
+(defun compute-wasm-depth (label depth)
+	; Helper to compute WASM block depth
+	; Uses CFG analysis if available, otherwise uses provided depth
+	(if *cfg_info*
+		(get-branch-depth label (. *cfg_info* :find :depth_map) *current_block_depth*)
+		depth))
 
 (defun emit-beq-cr (c d label depth)
 	; Branch if d == c
-	; This is simplified - real implementation needs block management
 	(emit-get-local d)
 	(emit-byte +wasm_i64_const)
 	(emit-leb128-signed c)
 	(emit-byte +wasm_i64_eq)
 	(emit-byte +wasm_br_if)
-	(emit-leb128-unsigned depth))
+	(emit-leb128-unsigned (compute-wasm-depth label depth)))
 
 (defun emit-bne-cr (c d label depth)
 	; Branch if d != c
@@ -570,7 +581,7 @@
 	(emit-leb128-signed c)
 	(emit-byte +wasm_i64_ne)
 	(emit-byte +wasm_br_if)
-	(emit-leb128-unsigned depth))
+	(emit-leb128-unsigned (compute-wasm-depth label depth)))
 
 (defun emit-blt-cr (c d label depth)
 	; Branch if d < c
@@ -579,7 +590,7 @@
 	(emit-leb128-signed c)
 	(emit-byte +wasm_i64_lt_s)
 	(emit-byte +wasm_br_if)
-	(emit-leb128-unsigned depth))
+	(emit-leb128-unsigned (compute-wasm-depth label depth)))
 
 (defun emit-ble-cr (c d label depth)
 	; Branch if d <= c
@@ -588,7 +599,7 @@
 	(emit-leb128-signed c)
 	(emit-byte +wasm_i64_le_s)
 	(emit-byte +wasm_br_if)
-	(emit-leb128-unsigned depth))
+	(emit-leb128-unsigned (compute-wasm-depth label depth)))
 
 (defun emit-bgt-cr (c d label depth)
 	; Branch if d > c
@@ -597,7 +608,7 @@
 	(emit-leb128-signed c)
 	(emit-byte +wasm_i64_gt_s)
 	(emit-byte +wasm_br_if)
-	(emit-leb128-unsigned depth))
+	(emit-leb128-unsigned (compute-wasm-depth label depth)))
 
 (defun emit-bge-cr (c d label depth)
 	; Branch if d >= c
@@ -606,7 +617,7 @@
 	(emit-leb128-signed c)
 	(emit-byte +wasm_i64_ge_s)
 	(emit-byte +wasm_br_if)
-	(emit-leb128-unsigned depth))
+	(emit-leb128-unsigned (compute-wasm-depth label depth)))
 
 (defun emit-beq-rr (s d label depth)
 	; Branch if d == s
@@ -614,7 +625,7 @@
 	(emit-get-local s)
 	(emit-byte +wasm_i64_eq)
 	(emit-byte +wasm_br_if)
-	(emit-leb128-unsigned depth))
+	(emit-leb128-unsigned (compute-wasm-depth label depth)))
 
 (defun emit-bne-rr (s d label depth)
 	; Branch if d != s
@@ -622,7 +633,7 @@
 	(emit-get-local s)
 	(emit-byte +wasm_i64_ne)
 	(emit-byte +wasm_br_if)
-	(emit-leb128-unsigned depth))
+	(emit-leb128-unsigned (compute-wasm-depth label depth)))
 
 (defun emit-blt-rr (s d label depth)
 	; Branch if d < s
@@ -630,7 +641,7 @@
 	(emit-get-local s)
 	(emit-byte +wasm_i64_lt_s)
 	(emit-byte +wasm_br_if)
-	(emit-leb128-unsigned depth))
+	(emit-leb128-unsigned (compute-wasm-depth label depth)))
 
 (defun emit-ble-rr (s d label depth)
 	; Branch if d <= s
@@ -638,7 +649,7 @@
 	(emit-get-local s)
 	(emit-byte +wasm_i64_le_s)
 	(emit-byte +wasm_br_if)
-	(emit-leb128-unsigned depth))
+	(emit-leb128-unsigned (compute-wasm-depth label depth)))
 
 (defun emit-bgt-rr (s d label depth)
 	; Branch if d > s
@@ -646,7 +657,7 @@
 	(emit-get-local s)
 	(emit-byte +wasm_i64_gt_s)
 	(emit-byte +wasm_br_if)
-	(emit-leb128-unsigned depth))
+	(emit-leb128-unsigned (compute-wasm-depth label depth)))
 
 (defun emit-bge-rr (s d label depth)
 	; Branch if d >= s
@@ -654,7 +665,7 @@
 	(emit-get-local s)
 	(emit-byte +wasm_i64_ge_s)
 	(emit-byte +wasm_br_if)
-	(emit-leb128-unsigned depth))
+	(emit-leb128-unsigned (compute-wasm-depth label depth)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Calls and Returns
@@ -677,7 +688,7 @@
 (defun emit-jmp (label depth)
 	; Unconditional jump
 	(emit-byte +wasm_br)
-	(emit-leb128-unsigned depth))
+	(emit-leb128-unsigned (compute-wasm-depth label depth)))
 
 (defun emit-jmp-r (r)
 	; Jump through register - not directly supported in WASM
