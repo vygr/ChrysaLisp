@@ -94,17 +94,19 @@
 		; Handle end tag
 		; Pop stack until we find matching tag
 		(defq found :nil)
+		(defq done :nil)
 		(defq stk (get :stack this))
 		(defq current (get :current_node this))
 		(while (and (not (empty? stk))
-				(not found))
+				(not found)
+				(not done))
 			(when (eql (to-lower (get :node_name current)) tag-name)
 				(setq found :t))
 			(setq current (pop stk))
 			(def this :current_node current)
 			(def this :stack stk)
 			(when found
-				(break)))
+				(setq done :t)))
 		found)
 
 	(defmethod :handle-text (text)

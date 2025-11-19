@@ -171,15 +171,16 @@
 		(defq stylesheet (css-stylesheet))
 		(. stylesheet :init)
 
-		(while (< (get :pos this) (get :length this))
+		(defq done :nil)
+		(while (and (< (get :pos this) (get :length this)) (not done))
 			(. this :skip-whitespace)
 			(when (>= (get :pos this) (get :length this))
-				(break))
+				(setq done :t))
 
 			; Read selector
 			(defq selector (. this :read-selector))
 			(when (eql selector "")
-				(break))
+				(setq done :t))
 
 			; Skip {
 			(when (eql (. this :peek) "{")
@@ -208,7 +209,8 @@
 				(. this :advance))
 
 			; Add rule to stylesheet
-			(. stylesheet :add-rule selector properties))
+			(unless done
+				(. stylesheet :add-rule selector properties)))
 
 		stylesheet))
 

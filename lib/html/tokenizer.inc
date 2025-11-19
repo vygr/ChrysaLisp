@@ -56,14 +56,15 @@
 	(defmethod :read-until (char-or-fn)
 		; Read until character or predicate function returns true
 		(defq result "")
-		(while (< (get :pos this) (get :length this))
+		(defq done :nil)
+		(while (and (< (get :pos this) (get :length this)) (not done))
 			(defq ch (. this :peek))
 			(defq stop
 				(if (str? char-or-fn)
 					(eql ch char-or-fn)
 					(char-or-fn ch)))
 			(if stop
-				(break)
+				(setq done :t)
 				(progn
 					(setq result (cat result ch))
 					(. this :advance))))
