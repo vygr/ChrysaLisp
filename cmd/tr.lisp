@@ -22,7 +22,7 @@
 	s)
 
 (defun translate-char (c from_set to_set)
-	(if (defq pos (position c from_set))
+	(if (/= :nil (defq pos (find c from_set)))
 		(if (< pos (length to_set))
 			(elem pos to_set)
 			(elem -2 to_set))
@@ -42,7 +42,7 @@
 				(defq delete_set (expand-set (second args)))
 				(defq last_c "")
 				(while (defq c (read-char (io-stream 'stdin)))
-					(unless (position c delete_set)
+					(when (eql :nil (find c delete_set))
 						(cond
 							;squeeze repeated chars
 							(opt_squeeze

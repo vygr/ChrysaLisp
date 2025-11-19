@@ -28,7 +28,7 @@
 	(each (lambda (part)
 			(cond
 				;range N-M
-				((defq pos (position "-" part))
+				((/= :nil (defq pos (find "-" part)))
 					(defq start (if (> pos 0) (num (slice 0 pos part)) 1))
 					(defq end (if (< pos (dec (length part))) (num (slice (inc pos) -1 part)) 999999))
 					(push ranges (list start end)))
