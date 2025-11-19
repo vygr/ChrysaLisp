@@ -63,7 +63,7 @@
 				; Class selector
 				(defq class (rest selector))
 				(defq elem_classes (split (. element :get-attribute "class") " "))
-				(some! 0 -1 (lambda (c) (eql c class)) elem_classes))
+				(some! (lambda (c) (eql c class)) elem_classes))
 			(:t
 				; Tag selector
 				(eql (to-lower selector) (to-lower (. element 'node_name)))))))
@@ -91,7 +91,7 @@
 		(defq idx (+ (get :pos this) off))
 		(defq len (get :length this))
 		(if (< idx len)
-			(char-at (get :input this) idx)
+			(elem-get (get :input this) idx)
 			:nil))
 
 	(defmethod :advance (&optional count)
@@ -108,7 +108,7 @@
 		(defq len (get :length this))
 		(while (and (< pos len)
 				(or
-					(some! 0 -1 (lambda (c) (eql (. this :peek) c))
+					(some! (lambda (c) (eql (. this :peek) c))
 						'(" " "\t" "\n" "\r"))
 					; Check for comments
 					(and (eql (. this :peek) "/") (eql (. this :peek 1) "*"))))
@@ -131,7 +131,7 @@
 		(defq chars (if (str? char-or-chars) (list char-or-chars) char-or-chars))
 		(while (< (get :pos this) (get :length this))
 			(defq ch (. this :peek))
-			(if (some! 0 -1 (lambda (c) (eql ch c)) chars)
+			(if (some! (lambda (c) (eql ch c)) chars)
 				(break)
 				(progn
 					(setq result (cat result ch))
@@ -217,9 +217,9 @@
 			(if (eql (length hex) 3)
 				; #RGB -> #RRGGBB
 				(setq hex (cat
-					(char-at hex 0) (char-at hex 0)
-					(char-at hex 1) (char-at hex 1)
-					(char-at hex 2) (char-at hex 2))))
+					(elem-get hex 0) (elem-get hex 0)
+					(elem-get hex 1) (elem-get hex 1)
+					(elem-get hex 2) (elem-get hex 2))))
 			; Convert to ARGB (add alpha)
 			(+ 0xff000000 (str-to-num hex 16)))
 

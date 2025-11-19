@@ -12,7 +12,7 @@
 
 (defun is-void-element? (tag-name)
 	; Check if tag is a void element
-	(some! 0 -1 (lambda (t) (eql t tag-name)) html-void-elements))
+	(some! (lambda (t) (eql t tag-name)) html-void-elements))
 
 (defclass html-parser (&optional _method) :nil
 	; HTML parser

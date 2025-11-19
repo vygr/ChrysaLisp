@@ -340,7 +340,7 @@
 					(eql (. node :get-attribute "id") id))
 					node)
 				(:t
-					(some! 0 -1 (lambda (child)
+					(some! (lambda (child)
 						(search-node child))
 						(get :child_nodes node)))))
 		(search-node this))
@@ -372,7 +372,7 @@
 				(defun search-node (node)
 					(when (eql (get :node_type node) NODE_ELEMENT)
 						(defq classes (split (. node :get-attribute "class") " "))
-						(when (some! 0 -1 (lambda (c) (eql c class-name)) classes)
+						(when (some! (lambda (c) (eql c class-name)) classes)
 							(push results node)))
 					(each! 0 -1 (lambda (child) (search-node child))
 						(get :child_nodes node)))

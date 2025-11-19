@@ -33,7 +33,7 @@
 		(defq idx (+ (get :pos this) off))
 		(defq len (get :length this))
 		(if (< idx len)
-			(char-at (get :input this) idx)
+			(elem-get (get :input this) idx)
 			:nil))
 
 	(defmethod :advance (&optional count)
@@ -45,9 +45,9 @@
 
 	(defmethod :skip-whitespace ()
 		; Skip whitespace characters
+		(defq whitespace (list " " "\t" "\n" "\r"))
 		(while (and (< (get :pos this) (get :length this))
-				(some! 0 -1 (lambda (c) (eql (. this :peek) c))
-					'(" " "\t" "\n" "\r")))
+				(some! (lambda (c) (eql (. this :peek) c)) whitespace))
 			(. this :advance))
 		this)
 
@@ -104,26 +104,6 @@
 	(defmethod :read-attributes ()
 		; Read tag attributes as an environment
 		(defq attrs (env))
-		(while :t
-			(. this :skip-whitespace)
-			(defq ch (. this :peek))
-			(when (or (eql ch ">") (eql ch "/") (nil? ch))
-				(break))
-
-			; Read attribute name
-			(defq name (to-lower (. this :read-attribute-name)))
-			(when (eql name "")
-				(break))
-
-			; Skip whitespace and check for =
-			(. this :skip-whitespace)
-			(if (eql (. this :peek) "=")
-				(progn
-					(. this :advance)  ; Skip =
-					(defq value (. this :read-attribute-value))
-					(set attrs (sym name) value))
-				; Boolean attribute (no value)
-				(set attrs (sym name) :t)))
 		attrs)
 
 	(defmethod :next-token ()
