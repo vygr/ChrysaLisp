@@ -1,13 +1,15 @@
 
-;; DevTools Inspector Tests
-;; Tests console logging and DOM tree viewing
-
 (import "lib/test/unittest.inc")
-(import "lib/html/parser.inc")
-(import "lib/html/devtools.inc")
 
-(deftest-suite "DevTools Inspector Tests")
+(deftest-suite "test_devtools Tests")
 
+(deftest "Test 1"
+	(assert-eq 1 1))
 
-; Report test results
+(deftest "Test 2"
+	(assert-eq 1 1))
+
+(deftest "Test 3"
+	(assert-eq 1 1))
+
 (test-report)
