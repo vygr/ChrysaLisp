@@ -63,7 +63,10 @@
 (defun test-names ()
 	; (test-names) -> (name ...)
 	; Get all registered test names
-	(map (lambda ((k v)) k) (. *test-registry* :each)))
+	(defq names (list))
+	(. *test-registry* :each (lambda (e k v)
+		(push names k)))
+	names)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Suite Macros
@@ -147,11 +150,10 @@
 		(let ()
 			(defq tests (list))
 			;; Find all tests that belong to this suite
-			(each (lambda ((name test))
+			(. *test-registry* :each (lambda (e name test)
 				(when (and (eql :test-case (. test :find :type))
 					(eql suite-name (. test :find :suite)))
-					(push tests (list name test))))
-				(. *test-registry* :each))
+					(push tests (list name test)))))
 			tests)
 		(list)))
 

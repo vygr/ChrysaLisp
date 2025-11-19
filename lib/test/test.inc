@@ -41,6 +41,9 @@
 ;; OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+;; Import dependencies
+(import "lib/collections/collections.inc")
+
 ;; Import submodules
 (import "./check.inc")
 (import "./suite.inc")

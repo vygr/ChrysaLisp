@@ -117,7 +117,12 @@
 		(setq stream *test-dribble*))
 
 	;; Partition results
-	(defq (num-total passed failed skipped errors) (partition-results results))
+	(defq partitioned (partition-results results))
+	(defq num-total (elem 0 partitioned))
+	(defq passed (elem 1 partitioned))
+	(defq failed (elem 2 partitioned))
+	(defq skipped (elem 3 partitioned))
+	(defq errors (elem 4 partitioned))
 
 	;; Combine failed and errors for reporting
 	(defq all-failures (cat failed errors))
@@ -143,7 +148,12 @@
 	(unless stream
 		(setq stream *test-dribble*))
 
-	(defq (num-total passed failed skipped errors) (partition-results results))
+	(defq partitioned2 (partition-results results))
+	(defq num-total (elem 0 partitioned2))
+	(defq passed (elem 1 partitioned2))
+	(defq failed (elem 2 partitioned2))
+	(defq skipped (elem 3 partitioned2))
+	(defq errors (elem 4 partitioned2))
 	(defq num-passed (length passed))
 	(defq num-failed (+ (length failed) (length errors)))
 	(defq num-skipped (length skipped))

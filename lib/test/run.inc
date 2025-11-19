@@ -91,7 +91,7 @@
 
 	;; Check if all results from this test passed
 	(defq test-results (slice start-results -1 *test-results*))
-	(defq all-passed (every test-passed? test-results))
+	(defq all-passed (every (# (test-passed? %0)) test-results))
 
 	(unless all-passed
 		(. test :insert :status :nil))
@@ -130,18 +130,16 @@
 	(clear-results)
 
 	;; Reset all test statuses
-	(each (lambda ((name test))
-		(. test :insert :status :unknown))
-		(. *test-registry* :each))
+	(. *test-registry* :each (lambda (e name test)
+		(. test :insert :status :unknown)))
 
 	;; Run based on spec type
 	(cond
 		((eql test-spec :all)
 			;; Run all tests
-			(each (lambda ((name test))
+			(. *test-registry* :each (lambda (e name test)
 				(when (eql :test-case (. test :find :type))
-					(run-test-case name)))
-				(. *test-registry* :each)))
+					(run-test-case name)))))
 
 		((lst? test-spec)
 			;; Run list of tests
