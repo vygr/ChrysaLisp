@@ -45,9 +45,11 @@
 
 	(defmethod :skip-whitespace ()
 		; Skip whitespace characters
-		(defq whitespace (list " " "\t" "\n" "\r"))
 		(while (and (< (get :pos this) (get :length this))
-				(some! (lambda (c) (eql (. this :peek) c)) whitespace))
+				(or (eql (. this :peek) " ")
+					(eql (. this :peek) "\t")
+					(eql (. this :peek) "\n")
+					(eql (. this :peek) "\r")))
 			(. this :advance))
 		this)
 
