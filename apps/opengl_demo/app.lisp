@@ -9,7 +9,7 @@
 (defun main ()
 	; OpenGL Demo - Rotating Triangle
 	(defq
-		running t
+		running :t
 		angle 0.0
 		width 800
 		height 600)
@@ -50,7 +50,7 @@
 		(if (> angle 360.0) (setq angle 0.0))
 
 		; Simple exit condition (for now, runs 1000 frames)
-		(if (> angle 10.0) (setq running nil)))
+		(if (> angle 10.0) (setq running :nil)))
 
 	(print "OpenGL Demo Complete!"))
 

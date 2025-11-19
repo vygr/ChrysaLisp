@@ -125,7 +125,7 @@ void main()
     (if (= vao 0)
         (progn
             (print "Failed to generate VAO")
-            (return nil)))
+            (return :nil)))
 
     ; Bind VAO
     (call 'host_gl :gl_bind_vertex_array (list vao))
@@ -136,7 +136,7 @@ void main()
         (progn
             (print "Failed to generate VBO")
             (call 'host_gl :gl_delete_vertex_array (list vao))
-            (return nil)))
+            (return :nil)))
 
     ; Bind VBO
     (call 'host_gl :gl_bind_buffer (list GL_ARRAY_BUFFER vbo))
@@ -208,7 +208,7 @@ void main()
     (if (= program 0)
         (progn
             (print "ERROR: Failed to create shader program!")
-            (return nil)))
+            (return :nil)))
 
     (print "Shader program created successfully")
 
@@ -216,10 +216,10 @@ void main()
     (print "Creating VAO...")
     (defq vao-vbo (create-triangle-vao))
 
-    (if (= vao-vbo nil)
+    (if (= vao-vbo :nil)
         (progn
             (print "ERROR: Failed to create VAO!")
-            (return nil)))
+            (return :nil)))
 
     (defq vao (car vao-vbo))
     (defq vbo (cadr vao-vbo))
@@ -235,7 +235,7 @@ void main()
     (print "(Running 100 frames for demonstration)")
     (print "")
 
-    (defq running t)
+    (defq running :t)
     (defq frame 0)
     (defq time 0.0)
 
