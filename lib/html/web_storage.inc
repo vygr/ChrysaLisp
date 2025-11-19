@@ -1,79 +1,92 @@
 ;; Web Storage API
 ;; localStorage and sessionStorage implementation
 
-(defclass web-storage nil
-	(defq
-		items (env)
-		file_path :nil
-		storage_type "local"))  ; "local" or "session"
+(import "lib/class/class.inc")
 
-(defmethod :init web-storage (storage-type &optional file-path)
-	(setq this-items (env)
-		  this-file_path file-path
-		  this-storage_type storage-type)
-	this)
+(defclass web-storage () :nil
+	; Web Storage (localStorage/sessionStorage)
 
-(defmethod :set-item web-storage (key value)
-	; Store an item
-	; Storage.setItem(key, value)
-	(set-insert this-items (sym key) (str value))
-	:nil)
+	; Initialize fields
+	(def this
+		:items (env)
+		:file_path :nil
+		:storage_type "local")  ; "local" or "session"
 
-(defmethod :get-item web-storage (key)
-	; Retrieve an item
-	; Storage.getItem(key) -> value | nil
-	(get this-items (sym key)))
+	(defmethod :init (storage-type &optional file-path)
+		(def this
+			:items (env)
+			:file_path file-path
+			:storage_type storage-type)
+		this)
 
-(defmethod :remove-item web-storage (key)
-	; Remove an item
-	; Storage.removeItem(key)
-	(set-remove this-items (sym key))
-	:nil)
+	(defmethod :set-item (key value)
+		; Store an item
+		; Storage.setItem(key, value)
+		(defq items-map (get :items this))
+		(set-insert items-map (sym key) (str value))
+		(def this :items items-map)
+		:nil)
 
-(defmethod :clear web-storage ()
-	; Clear all items
-	; Storage.clear()
-	(setq this-items (env))
-	:nil)
+	(defmethod :get-item (key)
+		; Retrieve an item
+		; Storage.getItem(key) -> value | nil
+		(get (get :items this) (sym key)))
 
-(defmethod :key web-storage (index)
-	; Get key at index
-	; Storage.key(n) -> key | nil
-	(defq keys (env-keys this-items))
-	(when (and (>= index 0) (< index (length keys)))
-		(str (elem index keys))))
+	(defmethod :remove-item (key)
+		; Remove an item
+		; Storage.removeItem(key)
+		(defq items-map (get :items this))
+		(set-remove items-map (sym key))
+		(def this :items items-map)
+		:nil)
 
-(defmethod :length web-storage ()
-	; Get number of items
-	; Storage.length
-	(length (env-keys this-items)))
+	(defmethod :clear ()
+		; Clear all items
+		; Storage.clear()
+		(def this :items (env))
+		:nil)
 
-(defmethod :save web-storage ()
-	; Save to file (for persistence)
-	(when this-file_path
-		(catch
-			(progn
-				(when (defq stream (file-stream this-file_path +file_open_write))
-					(write-data stream (print this-items))
-					:t))
-			(lambda (e)
-				(print "Failed to save storage: " e)
-				:nil))))
+	(defmethod :key (index)
+		; Get key at index
+		; Storage.key(n) -> key | nil
+		(defq keys (env-keys (get :items this)))
+		(when (and (>= index 0) (< index (length keys)))
+			(str (elem index keys))))
 
-(defmethod :load web-storage ()
-	; Load from file
-	(when this-file_path
-		(catch
-			(progn
-				(when (path? this-file_path)
-					(when (defq stream (file-stream this-file_path))
-						(defq data (read-data stream (file-size this-file_path)))
-						(when data
-							(setq this-items (read (cat data)))
-							:t))))
-			(lambda (e)
-				(print "Failed to load storage: " e)
-				:nil))))
+	(defmethod :length ()
+		; Get number of items
+		; Storage.length
+		(length (env-keys (get :items this))))
+
+	(defmethod :save ()
+		; Save to file (for persistence)
+		(defq fp (get :file_path this))
+		(when fp
+			(catch
+				(progn
+					(defq items-map (get :items this))
+					(when (defq stream (file-stream fp +file_open_write))
+						(write-data stream (print items-map))
+						:t))
+				(lambda (e)
+					(print "Failed to save storage: " e)
+					:nil))))
+
+	(defmethod :load ()
+		; Load from file
+		(defq fp (get :file_path this))
+		(when fp
+			(catch
+				(progn
+					(when (path? fp)
+						(when (defq stream (file-stream fp))
+							(defq data (read-data stream (file-size fp)))
+							(when data
+								(def this :items (read (cat data)))
+								:t))))
+				(lambda (e)
+					(print "Failed to load storage: " e)
+					:nil)))))
 
 ;; Helper Functions
 
@@ -100,3 +113,4 @@
 	(if (str? value)
 		value
 		(print value)))
+
