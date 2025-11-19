@@ -43,13 +43,13 @@
 
 		; Store cookie
 		(defq cookies-map (get :cookies this))
-		(set cookies-map (sym name) cookie)
+		(set cookies-map (string-to-sym name) cookie)
 		(def this :cookies cookies-map)
 		:nil)
 
 	(defmethod :get-cookie (name)
 		; Get cookie value (returns :nil if not found or expired)
-		(defq cookie (get (get :cookies this) (sym name)))
+		(defq cookie (get (get :cookies this) (string-to-symname)))
 		(when cookie
 			; Check if expired
 			(defq expires (get cookie :expires))
@@ -64,7 +64,7 @@
 
 	(defmethod :get-cookie-full (name)
 		; Get full cookie object with all metadata
-		(defq cookie (get (get :cookies this) (sym name)))
+		(defq cookie (get (get :cookies this) (string-to-symname)))
 		(when cookie
 			; Check if expired
 			(defq expires (get cookie :expires))
@@ -77,7 +77,7 @@
 	(defmethod :delete-cookie (name)
 		; Delete a cookie
 		(defq cookies-map (get :cookies this))
-		(set-remove cookies-map (sym name))
+		(set-remove cookies-map (string-to-symname))
 		(def this :cookies cookies-map)
 		:nil)
 
@@ -153,7 +153,7 @@
 	(. store :init file-path)
 	store)
 
-(redefun sym (str)
+(defun string-to-sym (str)
 	; Convert string to symbol
 	(read (cat ":" str)))
 

@@ -2,6 +2,7 @@
 ;; localStorage and sessionStorage implementation
 
 (import "lib/class/class.inc")
+(import "lib/html/cookies.inc")
 
 (defclass web-storage (&optional _method) :nil
 	; Web Storage (localStorage/sessionStorage)
@@ -103,14 +104,4 @@
 	(defq storage (web-storage))
 	(. storage :init "session" file-path)
 	storage)
-
-(defun string-to-sym (str)
-	; Convert string to symbol
-	(read (cat ":" str)))
-
-(defun value-to-string (value)
-	; Convert value to string
-	(if (str? value)
-		value
-		(print value)))
 
