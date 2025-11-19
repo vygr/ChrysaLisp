@@ -1,7 +1,5 @@
-#!/usr/bin/env lisp
-
-;; Test script for simple WASM module
-;; This validates the WASM integration works correctly
+; Test script for simple WASM module
+; This validates the WASM integration works correctly
 
 (import "class/wasm/lisp.inc")
 
@@ -9,12 +7,13 @@
 	(print "Testing simple WASM module...")
 
 	(defq wasm (Wasm "examples/wasm/simple.wasm"))
+	(defq filepath (get :filepath wasm))
 
-	(if wasm
-		(progn
+	(cond
+		(filepath
 			(print "✓ WASM module loaded successfully")
 
-			;; Try to call exported_func
+			; Try to call exported_func
 			(catch
 				(progn
 					(defq result (. wasm :call "exported_func"))
@@ -22,10 +21,11 @@
 				(progn
 					(print "✗ Failed to call exported_func (may need imports)")))
 
-			;; Clean up
+			; Clean up
 			(. wasm :close)
 			(print "✓ WASM module closed"))
-		(print "✗ Failed to load WASM module")))
+		(:t
+			(print "✗ Failed to load WASM module"))))
 
 ;; Run test
 (test-simple-wasm)

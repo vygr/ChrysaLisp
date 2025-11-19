@@ -1,8 +1,6 @@
-#!/usr/bin/env lisp
-
-;; Test array operations WASM module
-;; This demonstrates NumPy-style array processing via WASM
-;; Simulates: import numpy as np; np.sum([1,2,3,4,5])
+; Test array operations WASM module
+; This demonstrates NumPy-style array processing via WASM
+; Simulates: import numpy as np; np.sum([1,2,3,4,5])
 
 (import "class/wasm/lisp.inc")
 
@@ -11,10 +9,11 @@
 	(print "This simulates Python/NumPy array processing")
 	(print "")
 
-	;; Load the WASM module
+	; Load the WASM module
 	(defq wasm (Wasm "examples/wasm/array_ops.wasm"))
+	(defq filepath (get :filepath wasm))
 
-	(when wasm
+	(when filepath
 		(print "✓ WASM module loaded")
 
 		;; Test 1: Sum an array [1, 2, 3, 4, 5]
