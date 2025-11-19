@@ -53,12 +53,12 @@
 		; Check for invalid UTF-8 if encoding is UTF-8
 		(when (eql (get :encoding_name this) "utf-8")
 			(defq prev :nil)
-			(each! 0 -1 (lambda (ch)
+			(each! (lambda (ch)
 				(defq byte (code ch))
 				(unless (is-valid-utf8-byte? byte prev)
 					(def this :has_invalid_chars :t))
 				(setq prev byte))
-			(split data "")))
+				(split data "") 0 -1))
 
 		result)
 
