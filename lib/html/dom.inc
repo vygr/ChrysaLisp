@@ -334,16 +334,18 @@
 
 	(defmethod :get-element-by-id (id)
 		; Find element by ID (simple depth-first search)
+		(defq result :nil)
 		(defun search-node (node)
-			(cond
-				((and (eql (get :node_type node) NODE_ELEMENT)
+			(when (and (not result)
+					(eql (get :node_type node) NODE_ELEMENT)
 					(eql (. node :get-attribute "id") id))
-					node)
-				(:t
-					(some! (lambda (child)
-						(search-node child))
-						(get :child_nodes node)))))
-		(search-node this))
+				(setq result node))
+			(when (not result)
+				(each! 0 -1 (lambda (child)
+					(search-node child))
+					(get :child_nodes node))))
+		(search-node this)
+		result)
 
 	(defmethod :get-elements-by-tag-name (tag-name)
 		; Find all elements with given tag name
@@ -372,7 +374,12 @@
 				(defun search-node (node)
 					(when (eql (get :node_type node) NODE_ELEMENT)
 						(defq classes (split (. node :get-attribute "class") " "))
-						(when (some! (lambda (c) (eql c class-name)) classes)
+						(defq found :nil)
+						(each! 0 -1 (lambda (c)
+							(when (eql c class-name)
+								(setq found :t)))
+							classes)
+						(when found
 							(push results node)))
 					(each! 0 -1 (lambda (child) (search-node child))
 						(get :child_nodes node)))

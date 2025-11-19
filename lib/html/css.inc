@@ -63,7 +63,12 @@
 				; Class selector
 				(defq class (rest selector))
 				(defq elem_classes (split (. element :get-attribute "class") " "))
-				(some! (lambda (c) (eql c class)) elem_classes))
+				(defq found :nil)
+				(each! 0 -1 (lambda (c)
+					(when (eql c class)
+						(setq found :t)))
+					elem_classes)
+				found)
 			(:t
 				; Tag selector
 				(eql (to-lower selector) (to-lower (. element 'node_name)))))))
@@ -106,10 +111,12 @@
 		; Skip whitespace and comments
 		(defq pos (get :pos this))
 		(defq len (get :length this))
-		(defq whitespace (list " " "\t" "\n" "\r"))
 		(while (and (< pos len)
 				(or
-					(some! (lambda (c) (eql (. this :peek) c)) whitespace)
+					(or (eql (. this :peek) " ")
+						(eql (. this :peek) "\t")
+						(eql (. this :peek) "\n")
+						(eql (. this :peek) "\r"))
 					; Check for comments
 					(and (eql (. this :peek) "/") (eql (. this :peek 1) "*"))))
 			(if (and (eql (. this :peek) "/") (eql (. this :peek 1) "*"))
@@ -131,7 +138,12 @@
 		(defq chars (if (str? char-or-chars) (list char-or-chars) char-or-chars))
 		(while (< (get :pos this) (get :length this))
 			(defq ch (. this :peek))
-			(if (some! (lambda (c) (eql ch c)) chars)
+			(defq is-match :nil)
+			(each! 0 -1 (lambda (c)
+				(when (eql ch c)
+					(setq is-match :t)))
+				chars)
+			(if is-match
 				(break)
 				(progn
 					(setq result (cat result ch))
