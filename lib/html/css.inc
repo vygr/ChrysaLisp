@@ -1,189 +1,209 @@
 ;; CSS Parser and Styling
 ;; Parses and applies CSS styles to HTML elements
 
+(import "lib/class/class.inc")
 (import "lib/html/dom.inc")
 
 ;; CSS Rule structure: (selector properties)
 ;; Properties is an environment of property-name -> value
 
-(defclass css-stylesheet nil
-	(defq
-		rules (list)
-		element_styles (env)))
+(defclass css-stylesheet () :nil
+	; CSS stylesheet with rules
 
-(defmethod :init css-stylesheet ()
-	(setq this-rules (list)
-		this-element_styles (env))
-	this)
+	; Initialize fields
+	(def this
+		:rules (list)
+		:element_styles (env))
 
-(defmethod :add-rule css-stylesheet (selector properties)
-	; Add a CSS rule
-	(push this-rules (list selector properties))
-	this)
+	(defmethod :init ()
+		(def this
+			:rules (list)
+			:element_styles (env))
+		this)
 
-(defmethod :get-rules css-stylesheet ()
-	; Get all rules
-	this-rules)
+	(defmethod :add-rule (selector properties)
+		; Add a CSS rule
+		(defq rules-list (get :rules this))
+		(push rules-list (list selector properties))
+		(def this :rules rules-list)
+		this)
 
-(defmethod :compute-styles css-stylesheet (element)
-	; Compute computed styles for an element
-	; Returns environment of property -> value
-	(defq computed (env))
+	(defmethod :get-rules ()
+		; Get all rules
+		(get :rules this))
 
-	; Apply rules in order (later rules override earlier)
-	(each! 0 -1 (lambda ((selector props))
-		(when (. this :selector-matches? selector element)
-			; Merge properties
-			(each! 0 -1 (lambda ((prop val))
-				(set-insert computed prop val))
-				(tolist props))))
-		this-rules)
+	(defmethod :compute-styles (element)
+		; Compute computed styles for an element
+		; Returns environment of property -> value
+		(defq computed (env))
+		(defq rules-list (get :rules this))
 
-	computed)
+		; Apply rules in order (later rules override earlier)
+		(each! 0 -1 (lambda ((selector props))
+			(when (. this :selector-matches? selector element)
+				; Merge properties
+				(each! 0 -1 (lambda ((prop val))
+					(set-insert computed prop val))
+					(tolist props))))
+			rules-list)
 
-(defmethod :selector-matches? css-stylesheet (selector element)
-	; Check if selector matches element
-	; Supports: tag, .class, #id, *
-	(cond
-		((= selector "*")
-			:t)
-		((starts-with "#" selector)
-			; ID selector
-			(defq id (rest selector))
-			(= id (. element :get-attribute "id")))
-		((starts-with "." selector)
-			; Class selector
-			(defq class (rest selector))
-			(defq elem_classes (split (. element :get-attribute "class") " "))
-			(some! 0 -1 (lambda (c) (= c class)) elem_classes))
-		(:t
-			; Tag selector
-			(= (lower-case selector) (lower-case (. element 'node_name))))))
+		computed)
+
+	(defmethod :selector-matches? (selector element)
+		; Check if selector matches element
+		; Supports: tag, .class, #id, *
+		(cond
+			((eql selector "*")
+				:t)
+			((starts-with "#" selector)
+				; ID selector
+				(defq id (rest selector))
+				(eql id (. element :get-attribute "id")))
+			((starts-with "." selector)
+				; Class selector
+				(defq class (rest selector))
+				(defq elem_classes (split (. element :get-attribute "class") " "))
+				(some! 0 -1 (lambda (c) (eql c class)) elem_classes))
+			(:t
+				; Tag selector
+				(eql (lower-case selector) (lower-case (. element 'node_name)))))))
 
 ;; CSS Parser
-(defclass css-parser nil
-	(defq
-		input ""
-		pos 0
-		length 0))
+(defclass css-parser () :nil
+	; CSS parser
 
-(defmethod :init css-parser (css-string)
-	(setq this-input css-string
-		this-pos 0
-		this-length (length css-string))
-	this)
+	; Initialize fields
+	(def this
+		:input ""
+		:pos 0
+		:length 0)
 
-(defmethod :peek css-parser (&optional offset)
-	; Peek at character
-	(defq off (if offset offset 0))
-	(defq idx (+ this-pos off))
-	(if (< idx this-length)
-		(char-at this-input idx)
-		nil))
+	(defmethod :init (css-string)
+		(def this
+			:input css-string
+			:pos 0
+			:length (length css-string))
+		this)
 
-(defmethod :advance css-parser (&optional count)
-	; Advance position
-	(defq cnt (if count count 1))
-	(setq this-pos (min (+ this-pos cnt) this-length))
-	this)
+	(defmethod :peek (&optional offset)
+		; Peek at character
+		(defq off (if offset offset 0))
+		(defq idx (+ (get :pos this) off))
+		(defq len (get :length this))
+		(if (< idx len)
+			(char-at (get :input this) idx)
+			:nil))
 
-(defmethod :skip-whitespace css-parser ()
-	; Skip whitespace and comments
-	(while (and (< this-pos this-length)
-			(or
-				(some! 0 -1 (lambda (c) (= (. this :peek) c))
-					'(" " "\t" "\n" "\r"))
-				; Check for comments
-				(and (= (. this :peek) "/") (= (. this :peek 1) "*"))))
-		(if (and (= (. this :peek) "/") (= (. this :peek 1) "*"))
-			; Skip comment
-			(progn
-				(. this :advance 2)
-				(while (and (< this-pos this-length)
-						(not (and (= (. this :peek) "*") (= (. this :peek 1) "/"))))
-					(. this :advance))
-				(. this :advance 2))
-			; Skip whitespace
-			(. this :advance)))
-	this)
+	(defmethod :advance (&optional count)
+		; Advance position
+		(defq cnt (if count count 1))
+		(defq current-pos (get :pos this))
+		(defq len (get :length this))
+		(def this :pos (min (+ current-pos cnt) len))
+		this)
 
-(defmethod :read-until css-parser (char-or-chars)
-	; Read until character or set of characters
-	(defq result "")
-	(defq chars (if (str? char-or-chars) (list char-or-chars) char-or-chars))
-	(while (< this-pos this-length)
-		(defq ch (. this :peek))
-		(if (some! 0 -1 (lambda (c) (= ch c)) chars)
-			(break)
-			(progn
-				(setq result (cat result ch))
-				(. this :advance))))
-	result)
+	(defmethod :skip-whitespace ()
+		; Skip whitespace and comments
+		(defq pos (get :pos this))
+		(defq len (get :length this))
+		(while (and (< pos len)
+				(or
+					(some! 0 -1 (lambda (c) (eql (. this :peek) c))
+						'(" " "\t" "\n" "\r"))
+					; Check for comments
+					(and (eql (. this :peek) "/") (eql (. this :peek 1) "*"))))
+			(if (and (eql (. this :peek) "/") (eql (. this :peek 1) "*"))
+				; Skip comment
+				(progn
+					(. this :advance 2)
+					(while (and (< (get :pos this) (get :length this))
+							(not (and (eql (. this :peek) "*") (eql (. this :peek 1) "/"))))
+						(. this :advance))
+					(. this :advance 2))
+				; Skip whitespace
+				(. this :advance))
+			(setq pos (get :pos this)))
+		this)
 
-(defmethod :read-selector css-parser ()
-	; Read CSS selector
-	(. this :skip-whitespace)
-	(trim (. this :read-until "{")))
+	(defmethod :read-until (char-or-chars)
+		; Read until character or set of characters
+		(defq result "")
+		(defq chars (if (str? char-or-chars) (list char-or-chars) char-or-chars))
+		(while (< (get :pos this) (get :length this))
+			(defq ch (. this :peek))
+			(if (some! 0 -1 (lambda (c) (eql ch c)) chars)
+				(break)
+				(progn
+					(setq result (cat result ch))
+					(. this :advance))))
+		result)
 
-(defmethod :read-property css-parser ()
-	; Read CSS property name
-	(. this :skip-whitespace)
-	(trim (. this :read-until ":")))
-
-(defmethod :read-value css-parser ()
-	; Read CSS property value
-	(. this :skip-whitespace)
-	(trim (. this :read-until '(";" "}"))))
-
-(defmethod :parse css-parser ()
-	; Parse CSS and return stylesheet
-	(defq stylesheet (css-stylesheet :init))
-
-	(while (< this-pos this-length)
+	(defmethod :read-selector ()
+		; Read CSS selector
 		(. this :skip-whitespace)
-		(when (>= this-pos this-length)
-			(break))
+		(trim (. this :read-until "{")))
 
-		; Read selector
-		(defq selector (. this :read-selector))
-		(when (= selector "")
-			(break))
+	(defmethod :read-property ()
+		; Read CSS property name
+		(. this :skip-whitespace)
+		(trim (. this :read-until ":")))
 
-		; Skip {
-		(when (= (. this :peek) "{")
-			(. this :advance))
+	(defmethod :read-value ()
+		; Read CSS property value
+		(. this :skip-whitespace)
+		(trim (. this :read-until '(";" "}"))))
 
-		; Read properties
-		(defq properties (env))
-		(while (and (< this-pos this-length) (/= (. this :peek) "}"))
+	(defmethod :parse ()
+		; Parse CSS and return stylesheet
+		(defq stylesheet (css-stylesheet))
+		(. stylesheet :init)
+
+		(while (< (get :pos this) (get :length this))
 			(. this :skip-whitespace)
-			(defq prop (. this :read-property))
-			(when (> (length prop) 0)
-				; Skip :
-				(when (= (. this :peek) ":")
-					(. this :advance))
+			(when (>= (get :pos this) (get :length this))
+				(break))
 
-				(defq value (. this :read-value))
+			; Read selector
+			(defq selector (. this :read-selector))
+			(when (eql selector "")
+				(break))
 
-				; Skip ; if present
-				(when (= (. this :peek) ";")
-					(. this :advance))
+			; Skip {
+			(when (eql (. this :peek) "{")
+				(. this :advance))
 
-				(set-insert properties (lower-case prop) value)))
+			; Read properties
+			(defq properties (env))
+			(while (and (< (get :pos this) (get :length this)) (not (eql (. this :peek) "}")))
+				(. this :skip-whitespace)
+				(defq prop (. this :read-property))
+				(when (> (length prop) 0)
+					; Skip :
+					(when (eql (. this :peek) ":")
+						(. this :advance))
 
-		; Skip }
-		(when (= (. this :peek) "}")
-			(. this :advance))
+					(defq value (. this :read-value))
 
-		; Add rule to stylesheet
-		(. stylesheet :add-rule selector properties))
+					; Skip ; if present
+					(when (eql (. this :peek) ";")
+						(. this :advance))
 
-	stylesheet)
+					(set-insert properties (lower-case prop) value)))
+
+			; Skip }
+			(when (eql (. this :peek) "}")
+				(. this :advance))
+
+			; Add rule to stylesheet
+			(. stylesheet :add-rule selector properties))
+
+		stylesheet))
 
 ;; Helper function to parse CSS
 (defun parse-css (css-string)
 	; Parse CSS string and return stylesheet
-	(defq parser (css-parser :init css-string))
+	(defq parser (css-parser))
+	(. parser :init css-string)
 	(. parser :parse))
 
 ;; Color parsing
@@ -194,7 +214,7 @@
 		((starts-with "#" color-str)
 			; Hex color
 			(defq hex (rest color-str))
-			(if (= (length hex) 3)
+			(if (eql (length hex) 3)
 				; #RGB -> #RRGGBB
 				(setq hex (cat
 					(char-at hex 0) (char-at hex 0)
@@ -212,16 +232,16 @@
 			(+ 0xff000000 (<< r 16) (<< g 8) b))
 
 		; Color names (basic set)
-		((= color-str "black") 0xff000000)
-		((= color-str "white") 0xffffffff)
-		((= color-str "red") 0xffff0000)
-		((= color-str "green") 0xff00ff00)
-		((= color-str "blue") 0xff0000ff)
-		((= color-str "yellow") 0xffffff00)
-		((= color-str "cyan") 0xff00ffff)
-		((= color-str "magenta") 0xffff00ff)
-		((= color-str "gray") 0xff808080)
-		((= color-str "grey") 0xff808080)
+		((eql color-str "black") 0xff000000)
+		((eql color-str "white") 0xffffffff)
+		((eql color-str "red") 0xffff0000)
+		((eql color-str "green") 0xff00ff00)
+		((eql color-str "blue") 0xff0000ff)
+		((eql color-str "yellow") 0xffffff00)
+		((eql color-str "cyan") 0xff00ffff)
+		((eql color-str "magenta") 0xffff00ff)
+		((eql color-str "gray") 0xff808080)
+		((eql color-str "grey") 0xff808080)
 
 		; Default to black
 		(:t 0xff000000)))
@@ -239,3 +259,4 @@
 			(str-to-num (slice size-str 0 -1)))  ; Return percentage value
 		(:t
 			(str-to-num size-str))))
+
