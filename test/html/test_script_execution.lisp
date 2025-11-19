@@ -9,6 +9,11 @@
 
 (deftest-suite "Script Execution Tests")
 
+; Test 1: Parse HTML with script
+(deftest "Parse HTML With Script"
+	(defq html "<html><head><script>; test</script></head></html>")
+	(defq doc (parse-html html))
+	(assert-not-nil doc))
 
 ; Report test results
 (test-report)

@@ -62,5 +62,11 @@
 	normalized)
 
 
+; Test 1: Parse and serialize simple HTML
+(deftest "Parse And Serialize Simple HTML"
+	(defq html "<p>Test</p>")
+	(defq doc (parse-html html))
+	(assert-not-nil doc))
+
 ; Report test results
 (test-report)

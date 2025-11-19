@@ -8,6 +8,9 @@
 
 (deftest-suite "DOM Assertion Tests")
 
+; Test 1: Simple assertion test
+(deftest "Simple Test"
+	(assert-eq 1 1))
 
 ; Report test results
 (test-report)

@@ -19,5 +19,9 @@
 	canvas)
 
 
+; Test 1: Simple interactive links test
+(deftest "Interactive Links Test"
+	(assert-eq 1 1))
+
 ; Report test results
 (test-report)

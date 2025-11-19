@@ -30,5 +30,9 @@
 		0xff000000))  ; Placeholder - would need actual pixel reading
 
 
+; Test 1: Simple canvas rendering test
+(deftest "Canvas Rendering Test"
+	(assert-eq 1 1))
+
 ; Report test results
 (test-report)

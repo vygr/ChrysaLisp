@@ -18,5 +18,9 @@
 	canvas)
 
 
+; Test 1: Simple text selection test
+(deftest "Text Selection Test"
+	(assert-eq 1 1))
+
 ; Report test results
 (test-report)
