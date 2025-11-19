@@ -16,7 +16,7 @@
 	          :window_height 768
 	          :base_path "")
 
-	(defmethod :init browser-driver ()
+	(defmethod :init ()
 		(def this :document :nil
 		          :executor :nil
 		          :current_url ""
@@ -27,7 +27,7 @@
 
 	;; Navigation
 
-	(defmethod :navigate browser-driver (url)
+	(defmethod :navigate (url)
 		; Navigate to a URL
 		; For now, only file:// URLs are supported
 		(def this :current_url url)
@@ -52,17 +52,17 @@
 
 		this)
 
-	(defmethod :refresh browser-driver ()
+	(defmethod :refresh ()
 		; Refresh the page (re-execute scripts)
 		(when (get :document this)
 			(def this :executor (execute-document-scripts (get :document this))))
 		this)
 
-	(defmethod :current-url browser-driver ()
+	(defmethod :current-url ()
 		; Get current URL
 		(get :current_url this))
 
-	(defmethod :title browser-driver ()
+	(defmethod :title ()
 		; Get page title
 		(when (get :document this)
 			(defq titles (. (get :document this) :get-elements-by-tag-name "title"))
@@ -195,7 +195,7 @@
 
 	;; Screenshot (placeholder)
 
-	(defmethod :screenshot browser-driver ()
+	(defmethod :screenshot ()
 		; Take screenshot (placeholder)
 		(env :type "screenshot" :data "placeholder")))
 
@@ -205,12 +205,12 @@
 	(def this :element :nil
 	          :driver :nil)
 
-	(defmethod :init web-element (elem drv)
+	(defmethod :init (elem drv)
 		(def this :element elem
 		          :driver drv)
 		this)
 
-	(defmethod :click web-element ()
+	(defmethod :click ()
 		; Click the element
 		(when (get :element this)
 			; Dispatch click event
@@ -232,14 +232,14 @@
 				(. (get :element this) :dispatch-event (env :type "change"))))
 		this)
 
-	(defmethod :clear web-element ()
+	(defmethod :clear ()
 		; Clear element value
 		(when (get :element this)
 			(. (get :element this) :set-attribute "value" "")
 			(. (get :element this) :dispatch-event (env :type "change")))
 		this)
 
-	(defmethod :text web-element ()
+	(defmethod :text ()
 		; Get element text content
 		(when (get :element this)
 			(. (get :element this) :get-text-content))

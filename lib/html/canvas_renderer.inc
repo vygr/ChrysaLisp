@@ -52,7 +52,7 @@
 	(def this :selection_start :nil)
 	(def this :selection_end :nil)
 
-	(defmethod :init html-canvas-renderer (doc cnv width &optional stylesheet base-path)
+	(defmethod :init (doc cnv width &optional stylesheet base-path)
 		(def this :document doc)
 		(def this :canvas cnv)
 		(def this :stylesheet stylesheet)
@@ -140,7 +140,7 @@
 			(def this :x (+ (get :x this) w))
 			w))
 
-	(defmethod :newline html-canvas-renderer ()
+	(defmethod :newline ()
 		; Move to new line
 		(def this :x (get :margin this))
 		(def this :y (+ (get :y this) (get :line_height this)))
@@ -651,7 +651,7 @@
 					(. this :render-node child))
 					(. node 'child_nodes)))))
 
-	(defmethod :render html-canvas-renderer ()
+	(defmethod :render ()
 		; Render the document to the canvas
 		; Clear canvas
 		(. (get :canvas this) :fill COLOR_WHITE)
