@@ -136,7 +136,8 @@
 		; Read until character or set of characters
 		(defq result "")
 		(defq chars (if (str? char-or-chars) (list char-or-chars) char-or-chars))
-		(while (< (get :pos this) (get :length this))
+		(defq done :nil)
+		(while (and (< (get :pos this) (get :length this)) (not done))
 			(defq ch (. this :peek))
 			(defq is-match :nil)
 			(each! (lambda (c)
@@ -144,7 +145,7 @@
 					(setq is-match :t)))
 				chars)
 			(if is-match
-				(break)
+				(setq done :t)
 				(progn
 					(setq result (cat result ch))
 					(. this :advance))))
