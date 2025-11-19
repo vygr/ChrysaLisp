@@ -1,4 +1,3 @@
-#!/usr/bin/env lsp
 
 ;; Dialog Function Tests (alert, confirm, prompt)
 ;; TDD approach - tests first!

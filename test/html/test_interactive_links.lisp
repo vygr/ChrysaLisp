@@ -1,4 +1,3 @@
-#!/usr/bin/env lsp
 
 ;; Interactive Hyperlink Tests
 ;; Tests clickable regions, link detection, and navigation

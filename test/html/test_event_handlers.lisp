@@ -1,4 +1,3 @@
-#!/usr/bin/env lsp
 
 ;; Event Handler Tests (onmouseover, onmousedown, etc.)
 ;; TDD approach - tests first!

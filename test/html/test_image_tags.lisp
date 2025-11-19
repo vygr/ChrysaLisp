@@ -1,4 +1,3 @@
-#!/usr/bin/env lsp
 
 ;; Image Tag Tests (<img> support)
 ;; TDD approach - tests first!

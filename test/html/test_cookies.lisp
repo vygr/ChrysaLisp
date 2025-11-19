@@ -1,4 +1,3 @@
-#!/usr/bin/env lsp
 
 ;; Cookie Storage Tests
 ;; TDD approach - tests first!

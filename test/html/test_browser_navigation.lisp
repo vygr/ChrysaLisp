@@ -1,4 +1,3 @@
-#!/usr/bin/env lsp
 
 ;; Browser Navigation Tests
 ;; Tests for Back/Forward navigation and history tracking

@@ -1,4 +1,3 @@
-#!/usr/bin/env lsp
 
 ;; Comprehensive DOM assertion tests
 ;; Demonstrates all DOM-specific assertions for HTML testing

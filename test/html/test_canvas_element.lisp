@@ -1,4 +1,3 @@
-#!/usr/bin/env lsp
 
 ;; Canvas Element Tests
 ;; TDD approach - tests first!

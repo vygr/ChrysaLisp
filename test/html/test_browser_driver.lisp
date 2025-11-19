@@ -1,4 +1,3 @@
-#!/usr/bin/env lsp
 
 ;; Browser Driver Tests (WebDriver-compatible automation)
 ;; TDD approach - Selenium-style browser automation

@@ -1,4 +1,3 @@
-#!/usr/bin/env lsp
 
 ;; Canvas Rendering Tests
 ;; Tests actual graphical rendering of HTML+CSS to canvas

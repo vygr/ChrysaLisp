@@ -1,4 +1,3 @@
-#!/usr/bin/env lsp
 
 ;; Unit tests for HTML Part and View
 ;; Ported from khtml/autotests/khtmlparttest.cpp

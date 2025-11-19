@@ -1,4 +1,3 @@
-#!/usr/bin/env lsp
 
 ;; Script Execution Tests
 ;; Tests <script> tag support for ChrysaLisp Lisp execution

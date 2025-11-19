@@ -1,4 +1,3 @@
-#!/usr/bin/env lsp
 
 ;; Web Storage API Tests (localStorage and sessionStorage)
 ;; TDD approach - tests first!

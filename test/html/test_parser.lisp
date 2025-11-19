@@ -1,4 +1,3 @@
-#!/usr/bin/env lsp
 
 ;; Unit tests for HTML Parser and Renderer
 

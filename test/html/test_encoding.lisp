@@ -1,4 +1,3 @@
-#!/usr/bin/env lsp
 
 ;; Unit tests for HTML encoding detector
 ;; Ported from khtml/autotests/kencodingdetectortest.cpp

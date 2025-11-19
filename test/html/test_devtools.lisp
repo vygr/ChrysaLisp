@@ -1,4 +1,3 @@
-#!/usr/bin/env lsp
 
 ;; DevTools Inspector Tests
 ;; Tests console logging and DOM tree viewing

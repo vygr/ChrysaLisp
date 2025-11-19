@@ -1,4 +1,3 @@
-#!/usr/bin/env lsp
 
 ;; Browser Driver Integration Tests
 ;; End-to-end tests using static HTML files

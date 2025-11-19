@@ -1,4 +1,3 @@
-#!/usr/bin/env lsp
 
 ;; HTML Round-trip Serialization Tests
 ;; Inspired by XStream's TreeMapAndTreeSetTest patterns

@@ -1,4 +1,3 @@
-#!/usr/bin/env lsp
 
 ;; Web Audio API Tests
 ;; TDD approach - tests first!

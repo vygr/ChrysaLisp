@@ -1,4 +1,3 @@
-#!/usr/bin/env lsp
 
 ;; Text Selection Tests
 ;; Tests click-drag-select and clipboard copy functionality

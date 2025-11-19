@@ -1,4 +1,3 @@
-#!/usr/bin/env lsp
 
 ;; Master Test Runner for HTML Library
 ;; Runs all unit tests for the HTML parser/renderer

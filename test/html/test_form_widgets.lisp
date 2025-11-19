@@ -1,4 +1,3 @@
-#!/usr/bin/env lsp
 
 ;; Form Widget Tests (input, button, textarea)
 ;; TDD approach - tests first!
