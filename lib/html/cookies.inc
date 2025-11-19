@@ -153,9 +153,21 @@
 	(. store :init file-path)
 	store)
 
-(defun sym (str)
+(redefun sym (str)
 	; Convert string to symbol
 	(read (cat ":" str)))
+
+(defun set-remove (env key)
+	; Remove a key from an environment
+	(set env key :nil))
+
+(defun env-keys (env-obj)
+	; Get all keys from an environment
+	(defq result (list))
+	(each! 0 -1 (lambda ((k v))
+		(push result k))
+		(tolist env-obj))
+	result)
 
 (defun time ()
 	; Get current time in milliseconds
