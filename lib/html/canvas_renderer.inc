@@ -801,17 +801,10 @@
 
 ;; Helper Functions
 
-(defun string-starts-with (prefix str)
-	; Check if string starts with prefix
+(defun is-hex-color-str (prefix str)
+	; Check if string starts with prefix (used for color parsing)
 	(when (and str (>= (length str) (length prefix)))
 		(eql (slice 0 (length prefix) str) prefix)))
-
-(defun parse-number (str)
-	; Convert string to number
-	(when str
-		(catch
-			(read str)
-			(lambda (e) 0))))  ; Return 0 on error
 
 (defun parse-color (color-str)
 	; Parse CSS color string to ChrysaLisp color value
@@ -819,7 +812,7 @@
 	(when color-str
 		(cond
 			; Hex colors
-			((string-starts-with "#" color-str)
+			((is-hex-color-str "#" color-str)
 				(defq hex (rest color-str))
 				(cond
 					; #RGB format
