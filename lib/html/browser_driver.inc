@@ -4,277 +4,276 @@
 (import "lib/html/parser.inc")
 (import "lib/html/dom.inc")
 (import "lib/html/script.inc")
+(import "lib/class/class.inc")
 
 ;; Browser Driver Class
 
-(defclass browser-driver nil
-	(defq
-		document nil
-		executor nil
-		current_url ""
-		window_width 1024
-		window_height 768
-		base_path ""))
+(defclass browser-driver () :nil
+	(def this :document :nil
+	          :executor :nil
+	          :current_url ""
+	          :window_width 1024
+	          :window_height 768
+	          :base_path "")
 
-(defmethod :init browser-driver ()
-	(setq this-document nil
-		  this-executor nil
-		  this-current_url ""
-		  this-window_width 1024
-		  this-window_height 768
-		  this-base_path "")
-	this)
+	(defmethod :init browser-driver ()
+		(def this :document :nil
+		          :executor :nil
+		          :current_url ""
+		          :window_width 1024
+		          :window_height 768
+		          :base_path "")
+		this)
 
-;; Navigation
+	;; Navigation
 
-(defmethod :navigate browser-driver (url)
-	; Navigate to a URL
-	; For now, only file:// URLs are supported
-	(setq this-current_url url)
+	(defmethod :navigate browser-driver (url)
+		; Navigate to a URL
+		; For now, only file:// URLs are supported
+		(def this :current_url url)
 
-	; Extract file path from file:// URL
-	(when (starts-with url "file://")
-		(defq file-path (slice 7 (length url) url))
-		(setq this-base_path file-path)
+		; Extract file path from file:// URL
+		(when (starts-with url "file://")
+			(defq file-path (slice 7 (length url) url))
+			(def this :base_path file-path)
 
-		; Load file content (placeholder - would need file reading)
-		; For testing, we'll just store the URL
-		)
+			; Load file content (placeholder - would need file reading)
+			; For testing, we'll just store the URL
+			)
 
-	this)
+		this)
 
-(defmethod :load-html browser-driver (html-string)
-	; Load HTML content directly (for testing)
-	(setq this-document (parse-html html-string))
+	(defmethod :load-html browser-driver (html-string)
+		; Load HTML content directly (for testing)
+		(def this :document (parse-html html-string))
 
-	; Execute scripts
-	(setq this-executor (execute-document-scripts this-document))
+		; Execute scripts
+		(def this :executor (execute-document-scripts (get :document this)))
 
-	this)
+		this)
 
-(defmethod :refresh browser-driver ()
-	; Refresh the page (re-execute scripts)
-	(when this-document
-		(setq this-executor (execute-document-scripts this-document)))
-	this)
+	(defmethod :refresh browser-driver ()
+		; Refresh the page (re-execute scripts)
+		(when (get :document this)
+			(def this :executor (execute-document-scripts (get :document this))))
+		this)
 
-(defmethod :current-url browser-driver ()
-	; Get current URL
-	this-current_url)
+	(defmethod :current-url browser-driver ()
+		; Get current URL
+		(get :current_url this))
 
-(defmethod :title browser-driver ()
-	; Get page title
-	(when this-document
-		(defq titles (. this-document :get-elements-by-tag-name "title"))
-		(when (> (length titles) 0)
-			(defq title-elem (first titles))
-			(. title-elem :get-text-content)))
-	"")
+	(defmethod :title browser-driver ()
+		; Get page title
+		(when (get :document this)
+			(defq titles (. (get :document this) :get-elements-by-tag-name "title"))
+			(when (> (length titles) 0)
+				(defq title-elem (first titles))
+				(. title-elem :get-text-content)))
+		"")
 
-;; Element Finding
+	;; Element Finding
 
-(defmethod :find-element-by-id browser-driver (id)
-	; Find element by ID
-	; Returns: WebElement wrapper
-	(when this-document
-		(defq elem (. this-document :get-element-by-id id))
-		(when elem
-			(create-web-element elem this)))
-	:nil)
+	(defmethod :find-element-by-id browser-driver (id)
+		; Find element by ID
+		; Returns: WebElement wrapper
+		(when (get :document this)
+			(defq elem (. (get :document this) :get-element-by-id id))
+			(when elem
+				(create-web-element elem this)))
+		:nil)
 
-(defmethod :find-elements-by-tag-name browser-driver (tag-name)
-	; Find all elements with tag name
-	; Returns: list of WebElement wrappers
-	(when this-document
-		(defq elements (. this-document :get-elements-by-tag-name tag-name))
-		(map (lambda (elem) (create-web-element elem this)) elements))
-	(list))
+	(defmethod :find-elements-by-tag-name browser-driver (tag-name)
+		; Find all elements with tag name
+		; Returns: list of WebElement wrappers
+		(when (get :document this)
+			(defq elements (. (get :document this) :get-elements-by-tag-name tag-name))
+			(map (lambda (elem) (create-web-element elem this)) elements))
+		(list))
 
-(defmethod :find-element-by-selector browser-driver (selector)
-	; Find element by CSS selector (simplified)
-	; Currently supports: .classname, #id, tagname
-	(when this-document
-		(cond
-			; ID selector: #id
-			((starts-with selector "#")
-				(defq id (slice 1 (length selector) selector))
-				(. this :find-element-by-id id))
+	(defmethod :find-element-by-selector browser-driver (selector)
+		; Find element by CSS selector (simplified)
+		; Currently supports: .classname, #id, tagname
+		(when (get :document this)
+			(cond
+				; ID selector: #id
+				((starts-with selector "#")
+					(defq id (slice 1 (length selector) selector))
+					(. this :find-element-by-id id))
 
-			; Class selector: .classname
-			((starts-with selector ".")
-				(defq classname (slice 1 (length selector) selector))
-				(defq all-elems (. this-document :get-elements-by-tag-name "*"))
-				(defq found :nil)
-				(each! 0 -1 (lambda (elem)
-					(when (and (eql found :nil) (. elem :has-class classname))
-						(setq found (create-web-element elem this))))
-					all-elems)
-				found)
+				; Class selector: .classname
+				((starts-with selector ".")
+					(defq classname (slice 1 (length selector) selector))
+					(defq all-elems (. (get :document this) :get-elements-by-tag-name "*"))
+					(defq found :nil)
+					(each! 0 -1 (lambda (elem)
+						(when (and (eql found :nil) (. elem :has-class classname))
+							(setq found (create-web-element elem this))))
+						all-elems)
+					found)
 
-			; Tag name selector
-			(:t
-				(defq elements (. this :find-elements-by-tag-name selector))
-				(if (> (length elements) 0)
-					(first elements)
+				; Tag name selector
+				(:t
+					(defq elements (. this :find-elements-by-tag-name selector))
+					(if (> (length elements) 0)
+						(first elements)
+						:nil))))
+		:nil)
+
+	(defmethod :wait-for-element-by-id browser-driver (id timeout-ms)
+		; Wait for element to exist (simplified - immediate check)
+		; In real implementation, would poll with timeout
+		(. this :find-element-by-id id))
+
+	;; Script Execution
+
+	(defmethod :execute-script browser-driver (script-code)
+		; Execute LispScript and return result
+		(when (get :executor this)
+			(defq ctx (. (get :executor this) :get-context))
+			(catch
+				(eval (read (cat script-code)))
+				(lambda (e)
+					(print "Script execution error: " e)
 					:nil))))
-	:nil)
 
-(defmethod :wait-for-element-by-id browser-driver (id timeout-ms)
-	; Wait for element to exist (simplified - immediate check)
-	; In real implementation, would poll with timeout
-	(. this :find-element-by-id id))
+	(defmethod :script-context browser-driver ()
+		; Get the script execution context
+		(when (get :executor this)
+			(. (get :executor this) :get-context))
+		:nil)
 
-;; Script Execution
+	;; Window Management
 
-(defmethod :execute-script browser-driver (script-code)
-	; Execute LispScript and return result
-	(when this-executor
-		(defq ctx (. this-executor :get-context))
-		(catch
-			(eval (read (cat script-code)))
-			(lambda (e)
-				(print "Script execution error: " e)
-				:nil))))
+	(defmethod :window-size browser-driver ()
+		; Get window size
+		(defq size (env))
+		(set-insert size :width (get :window_width this))
+		(set-insert size :height (get :window_height this))
+		size)
 
-(defmethod :script-context browser-driver ()
-	; Get the script execution context
-	(when this-executor
-		(. this-executor :get-context))
-	:nil)
+	(defmethod :set-window-size browser-driver (width height)
+		; Set window size
+		(def this :window_width width
+		          :window_height height)
+		this)
 
-;; Window Management
+	;; Dialog Handling
 
-(defmethod :window-size browser-driver ()
-	; Get window size
-	(defq size (env))
-	(set-insert size :width this-window_width)
-	(set-insert size :height this-window_height)
-	size)
+	(defmethod :get-alerts browser-driver ()
+		; Get all alert messages
+		(when (get :executor this)
+			(defq ctx (. (get :executor this) :get-context))
+			(defq win (. ctx 'window))
+			(. win :get-alerts))
+		(list))
 
-(defmethod :set-window-size browser-driver (width height)
-	; Set window size
-	(setq this-window_width width
-		  this-window_height height)
-	this)
+	(defmethod :set-confirm-result browser-driver (result)
+		; Set mock confirm() result
+		(when (get :executor this)
+			(defq ctx (. (get :executor this) :get-context))
+			(defq win (. ctx 'window))
+			(. win :set-confirm-result result))
+		this)
 
-;; Dialog Handling
+	(defmethod :set-prompt-result browser-driver (result)
+		; Set mock prompt() result
+		(when (get :executor this)
+			(defq ctx (. (get :executor this) :get-context))
+			(defq win (. ctx 'window))
+			(. win :set-prompt-result result))
+		this)
 
-(defmethod :get-alerts browser-driver ()
-	; Get all alert messages
-	(when this-executor
-		(defq ctx (. this-executor :get-context))
-		(defq win (. ctx 'window))
-		(. win :get-alerts))
-	(list))
+	;; Cookies (placeholder)
 
-(defmethod :set-confirm-result browser-driver (result)
-	; Set mock confirm() result
-	(when this-executor
-		(defq ctx (. this-executor :get-context))
-		(defq win (. ctx 'window))
-		(. win :set-confirm-result result))
-	this)
+	(defmethod :get-cookies browser-driver ()
+		; Get all cookies (placeholder)
+		(list))
 
-(defmethod :set-prompt-result browser-driver (result)
-	; Set mock prompt() result
-	(when this-executor
-		(defq ctx (. this-executor :get-context))
-		(defq win (. ctx 'window))
-		(. win :set-prompt-result result))
-	this)
+	;; Screenshot (placeholder)
 
-;; Cookies (placeholder)
-
-(defmethod :get-cookies browser-driver ()
-	; Get all cookies (placeholder)
-	(list))
-
-;; Screenshot (placeholder)
-
-(defmethod :screenshot browser-driver ()
-	; Take screenshot (placeholder)
-	(env :type "screenshot" :data "placeholder"))
+	(defmethod :screenshot browser-driver ()
+		; Take screenshot (placeholder)
+		(env :type "screenshot" :data "placeholder")))
 
 ;; WebElement Wrapper Class
 
-(defclass web-element nil
-	(defq
-		element nil
-		driver nil))
+(defclass web-element () :nil
+	(def this :element :nil
+	          :driver :nil)
 
-(defmethod :init web-element (elem drv)
-	(setq this-element elem
-		  this-driver drv)
-	this)
+	(defmethod :init web-element (elem drv)
+		(def this :element elem
+		          :driver drv)
+		this)
 
-(defmethod :click web-element ()
-	; Click the element
-	(when this-element
-		; Dispatch click event
-		(. this-element :dispatch-event (env :type "click")))
-	this)
+	(defmethod :click web-element ()
+		; Click the element
+		(when (get :element this)
+			; Dispatch click event
+			(. (get :element this) :dispatch-event (env :type "click")))
+		this)
 
-(defmethod :send-keys web-element (keys)
-	; Send keys to element (type into it)
-	(when this-element
-		; For input/textarea, set value attribute
-		(defq tag (. this-element 'tag_name))
-		(when (or (eql tag "input") (eql tag "textarea"))
-			; Append to existing value
-			(defq current (. this-element :get-attribute "value"))
-			(when (eql current :nil) (setq current ""))
-			(. this-element :set-attribute "value" (cat current keys))
+	(defmethod :send-keys web-element (keys)
+		; Send keys to element (type into it)
+		(when (get :element this)
+			; For input/textarea, set value attribute
+			(defq tag (. (get :element this) 'tag_name))
+			(when (or (eql tag "input") (eql tag "textarea"))
+				; Append to existing value
+				(defq current (. (get :element this) :get-attribute "value"))
+				(when (eql current :nil) (setq current ""))
+				(. (get :element this) :set-attribute "value" (cat current keys))
 
-			; Trigger change event
-			(. this-element :dispatch-event (env :type "change"))))
-	this)
+				; Trigger change event
+				(. (get :element this) :dispatch-event (env :type "change"))))
+		this)
 
-(defmethod :clear web-element ()
-	; Clear element value
-	(when this-element
-		(. this-element :set-attribute "value" "")
-		(. this-element :dispatch-event (env :type "change")))
-	this)
+	(defmethod :clear web-element ()
+		; Clear element value
+		(when (get :element this)
+			(. (get :element this) :set-attribute "value" "")
+			(. (get :element this) :dispatch-event (env :type "change")))
+		this)
 
-(defmethod :text web-element ()
-	; Get element text content
-	(when this-element
-		(. this-element :get-text-content))
-	"")
+	(defmethod :text web-element ()
+		; Get element text content
+		(when (get :element this)
+			(. (get :element this) :get-text-content))
+		"")
 
-(defmethod :get-attribute web-element (name)
-	; Get attribute value
-	(when this-element
-		(. this-element :get-attribute name))
-	:nil)
+	(defmethod :get-attribute web-element (name)
+		; Get attribute value
+		(when (get :element this)
+			(. (get :element this) :get-attribute name))
+		:nil)
 
-(defmethod :is-displayed web-element ()
-	; Check if element is displayed
-	(when this-element
-		; Check for display:none style
-		(defq style (. this-element :get-attribute "style"))
-		(if (and style (find-in-string style "display:none"))
-			:nil
-			:t))
-	:nil)
+	(defmethod :is-displayed web-element ()
+		; Check if element is displayed
+		(when (get :element this)
+			; Check for display:none style
+			(defq style (. (get :element this) :get-attribute "style"))
+			(if (and style (find-in-string style "display:none"))
+				:nil
+				:t))
+		:nil)
 
-(defmethod :is-enabled web-element ()
-	; Check if element is enabled
-	(when this-element
-		; Check for disabled attribute
-		(if (. this-element :has-attribute "disabled")
-			:nil
-			:t))
-	:t)
+	(defmethod :is-enabled web-element ()
+		; Check if element is enabled
+		(when (get :element this)
+			; Check for disabled attribute
+			(if (. (get :element this) :has-attribute "disabled")
+				:nil
+				:t))
+		:t)
 
-(defmethod :find-element-by-id web-element (id)
-	; Find child element by ID
-	(when this-element
-		; Search within this element's subtree
-		(defq found (find-element-in-tree this-element id))
-		(when found
-			(create-web-element found this-driver)))
-	:nil)
+	(defmethod :find-element-by-id web-element (id)
+		; Find child element by ID
+		(when (get :element this)
+			; Search within this element's subtree
+			(defq found (find-element-in-tree (get :element this) id))
+			(when found
+				(create-web-element found (get :driver this))))
+		:nil))
 
 ;; Helper Functions
 
@@ -319,7 +318,7 @@
 			(defq children (. root 'child_nodes))
 			(when children
 				(each! 0 -1 (lambda (child)
-					(when (and (eql found :nil) (= (. child 'node_type) NODE_ELEMENT))
+					(when (and (eql found :nil) (eql (. child 'node_type) NODE_ELEMENT))
 						(defq result (find-element-in-tree child id))
 						(when result
 							(setq found result))))
