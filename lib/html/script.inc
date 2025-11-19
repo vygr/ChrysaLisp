@@ -221,7 +221,7 @@
 		(defq ctx (get :context this))
 		(defq scripts (. doc :get-elements-by-tag-name "script"))
 
-		(each! 0 -1 (lambda (script)
+		(each! (lambda (script)
 			; Check for src attribute (external script)
 			(defq src (. script :get-attribute "src"))
 
@@ -283,7 +283,7 @@
 			(register-handler elem "onsubmit" "submit" ctx)
 
 			; Recursively process children
-			(each! 0 -1 (lambda (child)
+			(each! (lambda (child)
 				(when (eql (get :node_type child) NODE_ELEMENT)
 					(process-element child)))
 				(get :child_nodes elem)))

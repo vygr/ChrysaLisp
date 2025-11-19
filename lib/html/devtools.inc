@@ -63,7 +63,7 @@
 	(defmethod :to-string ()
 		; Convert log entries to formatted string
 		(defq output (list))
-		(each! 0 -1 (lambda (entry)
+		(each! (lambda (entry)
 			(defq level (get entry :level))
 			(defq msg (get entry :message))
 			(defq timestamp (get entry :timestamp))
@@ -135,7 +135,7 @@
 		; Recursively render children
 		(defq children_output (list))
 		(when (< current_depth (get :max_depth this))
-			(each! 0 -1 (lambda (child)
+			(each! (lambda (child)
 				(defq child_text (. this :render-tree child (inc current_depth)))
 				(when (> (length child_text) 0)
 					(push children_output child_text)))
@@ -279,7 +279,7 @@
 		(defq resources (. net :get-resources))
 		(defq output "")
 
-		(each! 0 -1 (lambda (entry)
+		(each! (lambda (entry)
 			(defq url (get entry :url))
 			(defq method (get entry :method))
 			(defq status (get entry :status))

@@ -376,7 +376,7 @@
 (defun copy-list (lst)
 	; Deep copy a list
 	(defq result (list))
-	(each! 0 -1 (lambda (item) (push result item)) lst)
+	(each! (lambda (item) (push result item)) lst)
 	result)
 
 (defun str-to-num (str)

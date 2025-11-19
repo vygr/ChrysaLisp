@@ -87,7 +87,7 @@
 		(defq cookies-map (get :cookies this))
 		(defq keys (env-keys cookies-map))
 
-		(each! 0 -1 (lambda (key)
+		(each! (lambda (key)
 			(defq cookie (get cookies-map key))
 			(when cookie
 				; Check not expired
@@ -117,7 +117,7 @@
 					(defq cookies-map (get :cookies this))
 					(defq keys (env-keys cookies-map))
 
-					(each! 0 -1 (lambda (key)
+					(each! (lambda (key)
 						(set data key (get cookies-map key)))
 						keys)
 
@@ -164,7 +164,7 @@
 (defun env-keys (env-obj)
 	; Get all keys from an environment
 	(defq result (list))
-	(each! 0 -1 (lambda ((k v))
+	(each! (lambda ((k v))
 		(push result k))
 		(tolist env-obj))
 	result)

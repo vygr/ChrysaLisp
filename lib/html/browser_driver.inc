@@ -105,7 +105,7 @@
 					(defq classname (slice 1 (length selector) selector))
 					(defq all-elems (. (get :document this) :get-elements-by-tag-name "*"))
 					(defq found :nil)
-					(each! 0 -1 (lambda (elem)
+					(each! (lambda (elem)
 						(when (and (eql found :nil) (. elem :has-class classname))
 							(setq found (create-web-element elem this))))
 						all-elems)
@@ -317,7 +317,7 @@
 			(defq found :nil)
 			(defq children (. root 'child_nodes))
 			(when children
-				(each! 0 -1 (lambda (child)
+				(each! (lambda (child)
 					(when (and (eql found :nil) (eql (. child 'node_type) NODE_ELEMENT))
 						(defq result (find-element-in-tree child id))
 						(when result

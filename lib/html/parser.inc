@@ -13,7 +13,7 @@
 (defun is-void-element? (tag-name)
 	; Check if tag is a void element
 	(defq result :nil)
-	(each! 0 -1 (lambda (t)
+	(each! (lambda (t)
 		(when (eql t tag-name)
 			(setq result :t)))
 		html-void-elements)
@@ -42,7 +42,8 @@
 	(defmethod :parse ()
 		; Parse HTML and return document
 		(defq tok (get :tokenizer this))
-		(while (get :has_more tok)
+		(defq continue :t)
+		(while (and (get :has_more tok) continue)
 			(defq token (. tok :next-token))
 			(defq token-type (first token))
 			(defq token-data (second token))
@@ -61,7 +62,7 @@
 					; Ignore DOCTYPE for now
 					:nil)
 				((eql token-type TOKEN_EOF)
-					(break))))
+					(setq continue :nil))))
 
 		(get :document this))
 
@@ -72,7 +73,7 @@
 
 		; Set attributes
 		(when attrs
-			(each! 0 -1 (lambda ((k v))
+			(each! (lambda ((k v))
 				(. element :set-attribute k v))
 				(tolist attrs)))
 

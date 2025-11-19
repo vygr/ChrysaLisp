@@ -74,7 +74,7 @@
 			((eql node-type NODE_TEXT)
 				(get :node_value this))
 			((eql node-type NODE_ELEMENT)
-				(each! 0 -1 (lambda (child)
+				(each! (lambda (child)
 					(setq result (cat result (. child :get-text-content))))
 					(get :child_nodes this))
 				result)
@@ -119,7 +119,7 @@
 							root))
 
 					; Copy all children from parsed document to this element
-					(each! 0 -1 (lambda (child)
+					(each! (lambda (child)
 						(. this :append-child child))
 						(get :child_nodes source_elem))))
 			this)
@@ -139,14 +139,14 @@
 			((eql node-type NODE_ELEMENT)
 				(defq result (cat spaces "<" (get :node_name this)))
 				; Add attributes
-				(each! 0 -1 (lambda ((k v))
+				(each! (lambda ((k v))
 					(setq result (cat result " " k "=\"" v "\"")))
 					(tolist (get :attributes this)))
 				(if (empty? (get :child_nodes this))
 					(cat result " />")
 					(progn
 						(setq result (cat result ">"))
-						(each! 0 -1 (lambda (child)
+						(each! (lambda (child)
 							(setq result (cat result "\n" (. child :to-string (+ ind 2)))))
 							(get :child_nodes this))
 						(cat result "\n" spaces "</" (get :node_name this) ">"))))
@@ -182,7 +182,7 @@
 		(defq event-listeners (get :event_listeners this))
 		(defq listeners (get event-listeners event-type))
 		(when listeners
-			(each! 0 -1 (lambda (callback)
+			(each! (lambda (callback)
 				; Call callback with event data
 				(callback event-data))
 				listeners))
@@ -375,7 +375,7 @@
 					(eql (. node :get-attribute "id") id))
 				(setq result node))
 			(when (not result)
-				(each! 0 -1 (lambda (child)
+				(each! (lambda (child)
 					(search-node child))
 					(get :child_nodes node))))
 		(search-node this)
@@ -388,7 +388,7 @@
 			(when (and (eql (get :node_type node) NODE_ELEMENT)
 					(eql (to-lower (get :node_name node)) (to-lower tag-name)))
 				(push results node))
-			(each! 0 -1 (lambda (child)
+			(each! (lambda (child)
 				(search-node child))
 				(get :child_nodes node)))
 		(search-node this)
@@ -409,13 +409,13 @@
 					(when (eql (get :node_type node) NODE_ELEMENT)
 						(defq classes (split (. node :get-attribute "class") " "))
 						(defq found :nil)
-						(each! 0 -1 (lambda (c)
+						(each! (lambda (c)
 							(when (eql c class-name)
 								(setq found :t)))
 							classes)
 						(when found
 							(push results node)))
-					(each! 0 -1 (lambda (child) (search-node child))
+					(each! (lambda (child) (search-node child))
 						(get :child_nodes node)))
 				(search-node this)
 				(if (> (length results) 0) (first results) :nil))
@@ -457,7 +457,7 @@
 					fragment_root))
 
 			; Copy all children to body
-			(each! 0 -1 (lambda (child)
+			(each! (lambda (child)
 				(. body :append-child child))
 				(get :child_nodes source_elem)))
 

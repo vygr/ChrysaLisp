@@ -179,7 +179,7 @@
 		(defq text (. node :get-text))
 		; Split into words and render with wrapping
 		(defq words (split text " "))
-		(each! 0 -1 (lambda (word)
+		(each! (lambda (word)
 			(when (> (length word) 0)
 				(. this :draw-text word)
 				(. this :add-space)))
@@ -197,7 +197,7 @@
 		(def this :font_size (+ 14 (* 2 (- 7 level))))
 		(def this :line_height (+ (get :font_size this) 4))
 
-		(each! 0 -1 (lambda (child)
+		(each! (lambda (child)
 			(. this :render-node child))
 			(. node 'child_nodes))
 
@@ -210,7 +210,7 @@
 	(defmethod :render-paragraph html-canvas-renderer (node)
 		; Render a paragraph
 		(. this :newline)
-		(each! 0 -1 (lambda (child)
+		(each! (lambda (child)
 			(. this :render-node child))
 			(. node 'child_nodes))
 		(. this :newline))
@@ -220,7 +220,7 @@
 		(. this :newline)
 		(def this :list_level (inc (get :list_level this)))
 		(defq item_num 1)
-		(each! 0 -1 (lambda (child)
+		(each! (lambda (child)
 			(when (eql (. child 'node_type) NODE_ELEMENT)
 				(when (eql (to-lower (. child 'node_name)) "li")
 					; Indent for list item
@@ -233,7 +233,7 @@
 						(. this :draw-text "• "))
 
 					; Render list item content
-					(each! 0 -1 (lambda (li_child)
+					(each! (lambda (li_child)
 						(. this :render-node li_child))
 						(. child 'child_nodes))
 
@@ -250,7 +250,7 @@
 		(defq rows (list))
 
 		; Collect all rows
-		(each! 0 -1 (lambda (child)
+		(each! (lambda (child)
 			(when (eql (. child 'node_type) NODE_ELEMENT)
 				(defq tag (to-lower (. child 'node_name)))
 				(cond
@@ -258,7 +258,7 @@
 						(push rows child))
 					((or (eql tag "thead") (eql tag "tbody") (eql tag "tfoot"))
 						; Collect rows from sections
-						(each! 0 -1 (lambda (section_child)
+						(each! (lambda (section_child)
 							(when (and (eql (. section_child 'node_type) NODE_ELEMENT)
 									(eql (to-lower (. section_child 'node_name)) "tr"))
 								(push rows section_child)))
@@ -271,12 +271,12 @@
 
 		; Render rows
 		(defq row_y start_y)
-		(each! 0 -1 (lambda (row)
+		(each! (lambda (row)
 			(defq col_x table_x)
 			(defq max_row_height (get :line_height this))
 
 			; Render cells
-			(each! 0 -1 (lambda (cell)
+			(each! (lambda (cell)
 				(when (eql (. cell 'node_type) NODE_ELEMENT)
 					(defq cell_tag (to-lower (. cell 'node_name)))
 					(when (or (eql cell_tag "td") (eql cell_tag "th"))
@@ -290,7 +290,7 @@
 						(when (eql cell_tag "th")
 							(def this :in_bold :t))
 
-						(each! 0 -1 (lambda (cell_child)
+						(each! (lambda (cell_child)
 							(. this :render-node cell_child))
 							(. cell 'child_nodes))
 
@@ -316,7 +316,7 @@
 		(defq href (. node :get-attribute "href"))
 
 		; Render link content
-		(each! 0 -1 (lambda (child)
+		(each! (lambda (child)
 			(. this :render-node child))
 			(. node 'child_nodes))
 
@@ -420,7 +420,7 @@
 			(import "lib/html/canvas_2d.inc")
 			(defq commands (. ctx :get-commands))
 
-			(each! 0 -1 (lambda (cmd)
+			(each! (lambda (cmd)
 				(defq cmd-type (get cmd :type))
 
 				(cond
@@ -507,7 +507,7 @@
 	(defmethod :render-form html-canvas-renderer (node)
 		; Render a form (just render children for now)
 		(. this :newline)
-		(each! 0 -1 (lambda (child)
+		(each! (lambda (child)
 			(. this :render-node child))
 			(. node 'child_nodes))
 		(. this :newline))
@@ -529,7 +529,7 @@
 		(. this :draw-filled-box (get :x this) (get :y this) 80 (get :line_height this) COLOR_LIGHTGRAY)
 		(. this :draw-box (get :x this) (get :y this) 80 (get :line_height this) COLOR_BLACK)
 		(def this :x (+ (get :x this) 5))
-		(each! 0 -1 (lambda (child)
+		(each! (lambda (child)
 			(. this :render-node child))
 			(. node 'child_nodes))
 		(def this :x (+ (get :x this) 5))
@@ -596,7 +596,7 @@
 					((or (eql tag-name "strong") (eql tag-name "b"))
 						(defq old_bold (get :in_bold this))
 						(def this :in_bold :t)
-						(each! 0 -1 (lambda (child)
+						(each! (lambda (child)
 							(. this :render-node child))
 							(. node 'child_nodes))
 						(def this :in_bold old_bold))
@@ -604,7 +604,7 @@
 					((or (eql tag-name "em") (eql tag-name "i"))
 						(defq old_italic (get :in_italic this))
 						(def this :in_italic :t)
-						(each! 0 -1 (lambda (child)
+						(each! (lambda (child)
 							(. this :render-node child))
 							(. node 'child_nodes))
 						(def this :in_italic old_italic))
@@ -622,19 +622,19 @@
 						 (eql tag-name "header") (eql tag-name "footer") (eql tag-name "main")
 						 (eql tag-name "nav") (eql tag-name "aside"))
 						; Just render children
-						(each! 0 -1 (lambda (child)
+						(each! (lambda (child)
 							(. this :render-node child))
 							(. node 'child_nodes)))
 
 					((or (eql tag-name "html") (eql tag-name "body") (eql tag-name "head"))
 						; Just render children
-						(each! 0 -1 (lambda (child)
+						(each! (lambda (child)
 							(. this :render-node child))
 							(. node 'child_nodes)))
 
 					; Default: render children
 					(:t
-						(each! 0 -1 (lambda (child)
+						(each! (lambda (child)
 							(. this :render-node child))
 							(. node 'child_nodes))))
 
@@ -647,7 +647,7 @@
 
 			; Document node
 			((eql (. node 'node_type) NODE_DOCUMENT)
-				(each! 0 -1 (lambda (child)
+				(each! (lambda (child)
 					(. this :render-node child))
 					(. node 'child_nodes)))))
 
@@ -680,7 +680,7 @@
 		; Find which link (if any) was clicked at position (x, y)
 		; Returns href or nil
 		(defq result :nil)
-		(each! 0 -1 (lambda ((rx ry rw rh href))
+		(each! (lambda ((rx ry rw rh href))
 			(when (and (>= x rx) (<= x (+ rx rw))
 					   (>= y ry) (<= y (+ ry rh)))
 				(setq result href)))
@@ -719,7 +719,7 @@
 				(setq y2 tmp_y))
 
 			; Highlight each text fragment in selection
-			(each! 0 -1 (lambda ((fx fy fw fh text))
+			(each! (lambda ((fx fy fw fh text))
 				(defq fx2 (+ fx fw))
 				(defq fy2 (+ fy fh))
 
@@ -768,7 +768,7 @@
 				(setq y2 tmp_y))
 
 			; Collect text from fragments in selection
-			(each! 0 -1 (lambda ((fx fy fw fh text))
+			(each! (lambda ((fx fy fw fh text))
 				(defq fx2 (+ fx fw))
 
 				; Check if fragment is in selection
@@ -852,7 +852,7 @@
 	; Convert hex string to number
 	(defq result 0)
 	(defq chars (explode hex-str))
-	(each! 0 -1 (lambda (ch)
+	(each! (lambda (ch)
 		(setq result (* result 16))
 		(cond
 			((and (>= ch (code "0")) (<= ch (code "9")))

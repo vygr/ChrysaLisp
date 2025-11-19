@@ -34,7 +34,7 @@
 			; Normal text - handle wrapping
 			(progn
 				(defq words (split text " "))
-				(each! 0 -1 (lambda (word)
+				(each! (lambda (word)
 					(when (> (length word) 0)
 						(defq word-len (length word))
 						(defq curr-width (get :current_line_width this))
@@ -91,7 +91,7 @@
 						(. this :flush-line)
 						(. this :add-newline)
 						(def this :indent_level (inc (get :indent_level this)))
-						(each! 0 -1 (lambda (child) (. this :render-node child))
+						(each! (lambda (child) (. this :render-node child))
 							(get :child_nodes node))
 						(def this :indent_level (dec (get :indent_level this)))
 						(. this :flush-line)
@@ -100,7 +100,7 @@
 					((eql tag-name "p")
 						(. this :flush-line)
 						(. this :add-newline)
-						(each! 0 -1 (lambda (child) (. this :render-node child))
+						(each! (lambda (child) (. this :render-node child))
 							(get :child_nodes node))
 						(. this :flush-line)
 						(. this :add-newline))
@@ -111,7 +111,7 @@
 					((eql tag-name "pre")
 						(. this :flush-line)
 						(def this :in_pre :t)
-						(each! 0 -1 (lambda (child) (. this :render-node child))
+						(each! (lambda (child) (. this :render-node child))
 							(get :child_nodes node))
 						(def this :in_pre :nil)
 						(. this :flush-line)
@@ -121,7 +121,7 @@
 						(. this :flush-line)
 						(. this :add-newline)
 						(def this :indent_level (inc (get :indent_level this)))
-						(each! 0 -1 (lambda (child) (. this :render-node child))
+						(each! (lambda (child) (. this :render-node child))
 							(get :child_nodes node))
 						(def this :indent_level (dec (get :indent_level this)))
 						(. this :add-newline))
@@ -132,44 +132,44 @@
 						(def this :output (cat (get :output this)
 							(apply cat (map (lambda (_) "  ") (range indent-level)))
 							"* "))
-						(each! 0 -1 (lambda (child) (. this :render-node child))
+						(each! (lambda (child) (. this :render-node child))
 							(get :child_nodes node))
 						(. this :flush-line))
 
 					((or (eql tag-name "div") (eql tag-name "section") (eql tag-name "article"))
 						(. this :flush-line)
-						(each! 0 -1 (lambda (child) (. this :render-node child))
+						(each! (lambda (child) (. this :render-node child))
 							(get :child_nodes node))
 						(. this :flush-line))
 
 					((eql tag-name "a")
 						; Render link with URL if available
 						(defq href (. node :get-attribute "href"))
-						(each! 0 -1 (lambda (child) (. this :render-node child))
+						(each! (lambda (child) (. this :render-node child))
 							(get :child_nodes node))
 						(when href
 							(. this :add-text (cat " [" href "]"))))
 
 					((or (eql tag-name "strong") (eql tag-name "b"))
 						(. this :add-text "*")
-						(each! 0 -1 (lambda (child) (. this :render-node child))
+						(each! (lambda (child) (. this :render-node child))
 							(get :child_nodes node))
 						(. this :add-text "*"))
 
 					((or (eql tag-name "em") (eql tag-name "i"))
 						(. this :add-text "_")
-						(each! 0 -1 (lambda (child) (. this :render-node child))
+						(each! (lambda (child) (. this :render-node child))
 							(get :child_nodes node))
 						(. this :add-text "_"))
 
 					; Default: just render children
 					(:t
-						(each! 0 -1 (lambda (child) (. this :render-node child))
+						(each! (lambda (child) (. this :render-node child))
 							(get :child_nodes node)))))
 
 			; Document node
 			((eql node-type NODE_DOCUMENT)
-				(each! 0 -1 (lambda (child) (. this :render-node child))
+				(each! (lambda (child) (. this :render-node child))
 					(get :child_nodes node)))))
 
 	(defmethod :render ()
