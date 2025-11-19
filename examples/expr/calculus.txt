@@ -1,0 +1,28 @@
+;; Classic calculus examples
+
+;; Polynomial derivatives
+(+ (^ x 3) (* 2 (^ x 2)) (- x) 5)
+
+;; Product rule examples
+(* (sin x) (cos x))
+(* (exp x) (^ x 2))
+
+;; Quotient rule examples
+(/ (sin x) x)
+(/ x (+ x 1))
+
+;; Chain rule examples
+(sin (* 2 x))
+(exp (^ x 2))
+(ln (+ x 1))
+
+;; Trigonometric identities
+(+ (^ (sin x) 2) (^ (cos x) 2))
+
+;; Composite functions
+(exp (sin x))
+(sin (exp x))
+(ln (cos x))
+
+;; Higher-order polynomials
+(+ (^ x 5) (* -3 (^ x 4)) (* 2 (^ x 3)) (* 7 (^ x 2)) (- (* 4 x)) 1)

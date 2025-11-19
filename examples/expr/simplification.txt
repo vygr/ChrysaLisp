@@ -1,0 +1,34 @@
+;; Expressions that benefit from simplification
+
+;; Zero and one identities
+(+ 0 x)
+(+ x 0)
+(* 1 x)
+(* x 1)
+(* 0 x)
+(^ x 0)
+(^ x 1)
+
+;; Constant folding
+(+ 1 2 3 4)
+(* 2 3 4)
+(^ 2 10)
+
+;; Nested simplifications
+(+ (* 0 x) (* 1 y))
+(* (+ 0 x) (+ y 0))
+
+;; Derivative simplifications
+(* 2 (* (^ x 1) 1))
+(+ 1 1)
+(* x (* 1 1))
+
+;; Division simplifications
+(/ x 1)
+(/ x x)
+(/ 0 x)
+
+;; Subtraction simplifications
+(- x 0)
+(- x x)
+(- 0 x)
