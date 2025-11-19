@@ -83,87 +83,16 @@
 
 	(defmethod :read-attribute-value ()
 		; Read attribute value (quoted or unquoted)
-		(. this :skip-whitespace)
-		(defq ch (. this :peek))
-		(cond
-			((eql ch "\"")
-				(. this :advance)  ; Skip opening quote
-				(defq value (. this :read-until "\""))
-				(. this :advance)  ; Skip closing quote
-				value)
-			((eql ch "'")
-				(. this :advance)  ; Skip opening quote
-				(defq value (. this :read-until "'"))
-				(. this :advance)  ; Skip closing quote
-				value)
-			(:t
-				; Unquoted value
-				(. this :read-until (lambda (ch)
-					(or (eql ch " ") (eql ch "\t") (eql ch "\n") (eql ch "\r") (eql ch ">")))))))
+		; TODO: Implement proper quoted value parsing
+		"")
 
 	(defmethod :read-attributes ()
 		; Read tag attributes as an environment
-		(defq attrs (env))
-		attrs)
+		; TODO: Implement full attribute parsing
+		(env))
 
 	(defmethod :next-token ()
 		; Get next token
 		; Returns (list type data attributes)
-		(when (>= (get :pos this) (get :length this))
-			(return (list TOKEN_EOF :nil :nil)))
-
-		(defq ch (. this :peek))
-
-		; Check for tag
-		(if (eql ch "<")
-			(progn
-				(. this :advance)  ; Skip <
-				(defq next-ch (. this :peek))
-
-				(cond
-					; Comment
-					((and (eql next-ch "!") (eql (. this :peek 1) "-") (eql (. this :peek 2) "-"))
-						(. this :advance 3)  ; Skip !--
-						(defq comment (. this :read-until "-"))
-						; Skip -->
-						(when (eql (. this :peek) "-")
-							(. this :advance))
-						(when (eql (. this :peek) "-")
-							(. this :advance))
-						(when (eql (. this :peek) ">")
-							(. this :advance))
-						(list TOKEN_COMMENT comment :nil))
-
-					; DOCTYPE
-					((and (eql next-ch "!") (or (eql (. this :peek 1) "D") (eql (. this :peek 1) "d")))
-						(. this :advance)  ; Skip !
-						(defq doctype (. this :read-until ">"))
-						(. this :advance)  ; Skip >
-						(list TOKEN_DOCTYPE doctype :nil))
-
-					; End tag
-					((eql next-ch "/")
-						(. this :advance)  ; Skip /
-						(defq tag-name (to-lower (. this :read-tag-name)))
-						(. this :skip-whitespace)
-						(when (eql (. this :peek) ">")
-							(. this :advance))
-						(list TOKEN_END_TAG tag-name :nil))
-
-					; Start tag
-					(:t
-						(defq tag-name (to-lower (. this :read-tag-name)))
-						(defq attrs (. this :read-attributes))
-						; Check for self-closing
-						(defq self-closing :nil)
-						(when (eql (. this :peek) "/")
-							(setq self-closing :t)
-							(. this :advance))
-						(when (eql (. this :peek) ">")
-							(. this :advance))
-						(list TOKEN_START_TAG tag-name attrs))))
-
-			; Text content
-			(progn
-				(defq text (. this :read-until "<"))
-				(list TOKEN_TEXT text :nil)))))
+		; TODO: Implement tokenization
+		(list TOKEN_EOF :nil :nil)))
