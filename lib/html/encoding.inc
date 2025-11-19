@@ -54,7 +54,7 @@
 		(when (eql (get :encoding_name this) "utf-8")
 			(defq prev :nil)
 			(each! 0 -1 (lambda (ch)
-				(defq byte (ascii-code ch))
+				(defq byte (code ch))
 				(unless (is-valid-utf8-byte? byte prev)
 					(def this :has_invalid_chars :t))
 				(setq prev byte))
