@@ -278,7 +278,16 @@
 	; HTML element node
 
 	(defmethod :init (tag-name)
-		((const (super)) this NODE_ELEMENT tag-name)
+		(def this
+			:node_type NODE_ELEMENT
+			:node_name tag-name
+			:node_value :nil
+			:parent_node :nil
+			:child_nodes (list)
+			:attributes (env)
+			:event_listeners (env)
+			:canvas_context :nil
+			:audio_element :nil)
 		this)
 
 	(defmethod :get-tag-name ()
@@ -289,8 +298,16 @@
 	; Text node
 
 	(defmethod :init (text)
-		((const (super)) this NODE_TEXT "#text")
-		(def this :node_value text)
+		(def this
+			:node_type NODE_TEXT
+			:node_name "#text"
+			:node_value text
+			:parent_node :nil
+			:child_nodes (list)
+			:attributes (env)
+			:event_listeners (env)
+			:canvas_context :nil
+			:audio_element :nil)
 		this)
 
 	(defmethod :get-text ()
@@ -305,8 +322,16 @@
 	; Comment node
 
 	(defmethod :init (text)
-		((const (super)) this NODE_COMMENT "#comment")
-		(def this :node_value text)
+		(def this
+			:node_type NODE_COMMENT
+			:node_name "#comment"
+			:node_value text
+			:parent_node :nil
+			:child_nodes (list)
+			:attributes (env)
+			:event_listeners (env)
+			:canvas_context :nil
+			:audio_element :nil)
 		this))
 
 ;; Document class
@@ -314,7 +339,16 @@
 	; HTML document
 
 	(defmethod :init ()
-		((const (super)) this NODE_DOCUMENT "#document")
+		(def this
+			:node_type NODE_DOCUMENT
+			:node_name "#document"
+			:node_value :nil
+			:parent_node :nil
+			:child_nodes (list)
+			:attributes (env)
+			:event_listeners (env)
+			:canvas_context :nil
+			:audio_element :nil)
 		this)
 
 	(defmethod :create-element (tag-name)

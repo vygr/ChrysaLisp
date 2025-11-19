@@ -1,0 +1,6 @@
+(print "Starting imports test")
+(import "lib/html/dom.inc")
+(print "DOM imported")
+(import "lib/html/parser.inc")
+(print "Parser imported")
+(print "All imports successful")
