@@ -406,8 +406,8 @@
 	(defq ctx (create-context))
 	(defq lines (split-lines content))
 	(defq i 0)
-	(defq in-chunk nil)
-	(defq current-chunk-name nil)
+	(defq in-chunk :nil)
+	(defq current-chunk-name :nil)
 	(defq chunk-code (list))
 
 	(while (< i (length lines))
@@ -427,7 +427,7 @@
 					(progn
 						(setq current-chunk-name (slice line 2 end-pos))
 						(setq chunk-code (list))
-						(setq in-chunk t)))))
+						(setq in-chunk :t)))))
 
 		; Check for chunk end
 		(if (starts-with-str line "@")
@@ -436,8 +436,8 @@
 				(if current-chunk-name
 					(add-chunk-to-context ctx current-chunk-name
 						(join-strings chunk-code "\n") i))
-				(setq in-chunk nil)
-				(setq current-chunk-name nil)
+				(setq in-chunk :nil)
+				(setq current-chunk-name :nil)
 				(setq chunk-code (list))))
 
 		; Accumulate code
@@ -462,16 +462,16 @@
 	; Simplified implementation
 	; Real implementation would search string
 	(defq i 0)
-	(defq found nil)
+	(defq found :nil)
 	(defq h-len (length haystack))
 	(defq n-len (length needle))
 
 	(while (and (< i (- h-len n-len)) (not found))
-		(defq match t)
+		(defq match :t)
 		(defq j 0)
 		(while (and (< j n-len) match)
 			(if (not (eql (char haystack (+ i j)) (char needle j)))
-				(setq match nil))
+				(setq match :nil))
 			(setq j (inc j)))
 		(if match
 			(setq found i))

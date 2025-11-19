@@ -108,8 +108,8 @@
 		content (load-text-file filename)
 		lines (split-lines content)
 		i 0
-		in-chunk nil
-		current-chunk-name nil
+		in-chunk :nil
+		current-chunk-name :nil
 		chunk-code (list)
 		current-doc ""
 		line-count 0)
@@ -125,7 +125,7 @@
 					(setq current-doc ""))
 				(setq current-chunk-name (parse-noweb-chunk-def line)
 					chunk-code (list)
-					in-chunk t
+					in-chunk :t
 					line-count (inc i)))
 
 			; Check for chunk end (@)
@@ -134,7 +134,7 @@
 				(add-chunk ctx current-chunk-name joined-code line-count)
 				(push (first (rest (rest (rest ctx))))
 					(list :chunk (get-chunk ctx current-chunk-name)))
-				(setq in-chunk nil current-chunk-name nil chunk-code (list)))
+				(setq in-chunk :nil current-chunk-name :nil chunk-code (list)))
 
 			; Inside chunk - collect code
 			(in-chunk
