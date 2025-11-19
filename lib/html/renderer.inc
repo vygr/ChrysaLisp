@@ -1,171 +1,186 @@
 ;; HTML Text Renderer
 ;; Renders HTML DOM to text output
 
+(import "lib/class/class.inc")
 (import "lib/html/dom.inc")
 
-(defclass html-renderer nil
-	(defq
-		document nil
-		output ""
-		line_width 80
-		indent_level 0
-		current_line ""
-		current_line_width 0
-		in_pre :nil))
+(defclass html-renderer () :nil
+	; HTML text renderer
+	(def this
+		:document :nil
+		:output ""
+		:line_width 80
+		:indent_level 0
+		:current_line ""
+		:current_line_width 0
+		:in_pre :nil)
 
-(defmethod :init html-renderer (doc &optional width)
-	(setq this-document doc
-		this-output ""
-		this-line_width (if width width 80)
-		this-indent_level 0
-		this-current_line ""
-		this-current_line_width 0
-		this-in_pre :nil)
-	this)
+	(defmethod :init (doc &optional width)
+		(def this
+			:document doc
+			:output ""
+			:line_width (if width width 80)
+			:indent_level 0
+			:current_line ""
+			:current_line_width 0
+			:in_pre :nil)
+		this)
 
-(defmethod :add-text html-renderer (text)
-	; Add text to current line
-	(if this-in_pre
-		; In preformatted text, don't wrap
-		(setq this-output (cat this-output text))
-		; Normal text - handle wrapping
-		(progn
-			(defq words (split text " "))
-			(each! 0 -1 (lambda (word)
-				(when (> (length word) 0)
-					(defq word-len (length word))
-					(when (> (+ this-current_line_width word-len 1)
-							(- this-line_width (* this-indent_level 2)))
-						; Need to wrap
+	(defmethod :add-text (text)
+		; Add text to current line
+		(if (get :in_pre this)
+			; In preformatted text, don't wrap
+			(def this :output (cat (get :output this) text))
+			; Normal text - handle wrapping
+			(progn
+				(defq words (split text " "))
+				(each! 0 -1 (lambda (word)
+					(when (> (length word) 0)
+						(defq word-len (length word))
+						(defq curr-width (get :current_line_width this))
+						(defq line-width (get :line_width this))
+						(defq indent-level (get :indent_level this))
+						(when (> (+ curr-width word-len 1)
+								(- line-width (* indent-level 2)))
+							; Need to wrap
+							(. this :flush-line)
+							(setq curr-width 0))
+						(defq curr-line (get :current_line this))
+						(if (eql (get :current_line_width this) 0)
+							(progn
+								(def this :current_line word)
+								(def this :current_line_width word-len))
+							(progn
+								(def this :current_line (cat curr-line " " word))
+								(def this :current_line_width (+ curr-width word-len 1))))))
+					words))))
+
+	(defmethod :flush-line ()
+		; Flush current line to output
+		(defq curr-line (get :current_line this))
+		(when (> (length curr-line) 0)
+			(defq indent-level (get :indent_level this))
+			(defq indent (apply cat (map (lambda (_) "  ") (range indent-level))))
+			(def this :output (cat (get :output this) indent curr-line "\n"))
+			(def this :current_line "")
+			(def this :current_line_width 0)))
+
+	(defmethod :add-newline ()
+		; Add a newline
+		(. this :flush-line)
+		(def this :output (cat (get :output this) "\n")))
+
+	(defmethod :render-node (node)
+		; Render a DOM node
+		(defq node-type (get :node_type node))
+		(cond
+			((eql node-type NODE_TEXT)
+				(. this :add-text (. node :get-text)))
+
+			((eql node-type NODE_COMMENT)
+				; Skip comments in text rendering
+				:nil)
+
+			((eql node-type NODE_ELEMENT)
+				(defq tag-name (. node :get-tag-name))
+
+				; Handle different tags
+				(cond
+					((or (eql tag-name "h1") (eql tag-name "h2") (eql tag-name "h3")
+						 (eql tag-name "h4") (eql tag-name "h5") (eql tag-name "h6"))
+						(. this :flush-line)
+						(. this :add-newline)
+						(def this :indent_level (inc (get :indent_level this)))
+						(each! 0 -1 (lambda (child) (. this :render-node child))
+							(get :child_nodes node))
+						(def this :indent_level (dec (get :indent_level this)))
+						(. this :flush-line)
+						(. this :add-newline))
+
+					((eql tag-name "p")
+						(. this :flush-line)
+						(. this :add-newline)
+						(each! 0 -1 (lambda (child) (. this :render-node child))
+							(get :child_nodes node))
+						(. this :flush-line)
+						(. this :add-newline))
+
+					((eql tag-name "br")
 						(. this :flush-line))
-					(if (= this-current_line_width 0)
-						(setq this-current_line word
-							this-current_line_width word-len)
-						(setq this-current_line (cat this-current_line " " word)
-							this-current_line_width (+ this-current_line_width word-len 1)))))
-				words))))
 
-(defmethod :flush-line html-renderer ()
-	; Flush current line to output
-	(when (> (length this-current_line) 0)
-		(defq indent (apply cat (map (lambda (_) "  ") (range this-indent_level))))
-		(setq this-output (cat this-output indent this-current_line "\n"))
-		(setq this-current_line ""
-			this-current_line_width 0)))
+					((eql tag-name "pre")
+						(. this :flush-line)
+						(def this :in_pre :t)
+						(each! 0 -1 (lambda (child) (. this :render-node child))
+							(get :child_nodes node))
+						(def this :in_pre :nil)
+						(. this :flush-line)
+						(. this :add-newline))
 
-(defmethod :add-newline html-renderer ()
-	; Add a newline
-	(. this :flush-line)
-	(setq this-output (cat this-output "\n")))
+					((or (eql tag-name "ul") (eql tag-name "ol"))
+						(. this :flush-line)
+						(. this :add-newline)
+						(def this :indent_level (inc (get :indent_level this)))
+						(each! 0 -1 (lambda (child) (. this :render-node child))
+							(get :child_nodes node))
+						(def this :indent_level (dec (get :indent_level this)))
+						(. this :add-newline))
 
-(defmethod :render-node html-renderer (node)
-	; Render a DOM node
-	(cond
-		((= (. node 'node_type) NODE_TEXT)
-			(. this :add-text (. node :get-text)))
+					((eql tag-name "li")
+						(. this :flush-line)
+						(defq indent-level (get :indent_level this))
+						(def this :output (cat (get :output this)
+							(apply cat (map (lambda (_) "  ") (range indent-level)))
+							"* "))
+						(each! 0 -1 (lambda (child) (. this :render-node child))
+							(get :child_nodes node))
+						(. this :flush-line))
 
-		((= (. node 'node_type) NODE_COMMENT)
-			; Skip comments in text rendering
-			nil)
+					((or (eql tag-name "div") (eql tag-name "section") (eql tag-name "article"))
+						(. this :flush-line)
+						(each! 0 -1 (lambda (child) (. this :render-node child))
+							(get :child_nodes node))
+						(. this :flush-line))
 
-		((= (. node 'node_type) NODE_ELEMENT)
-			(defq tag-name (. node :get-tag-name))
+					((eql tag-name "a")
+						; Render link with URL if available
+						(defq href (. node :get-attribute "href"))
+						(each! 0 -1 (lambda (child) (. this :render-node child))
+							(get :child_nodes node))
+						(when href
+							(. this :add-text (cat " [" href "]"))))
 
-			; Handle different tags
-			(cond
-				((or (= tag-name "h1") (= tag-name "h2") (= tag-name "h3")
-					 (= tag-name "h4") (= tag-name "h5") (= tag-name "h6"))
-					(. this :flush-line)
-					(. this :add-newline)
-					(setq this-indent_level (inc this-indent_level))
-					(each! 0 -1 (lambda (child) (. this :render-node child))
-						(. node 'child_nodes))
-					(setq this-indent_level (dec this-indent_level))
-					(. this :flush-line)
-					(. this :add-newline))
+					((or (eql tag-name "strong") (eql tag-name "b"))
+						(. this :add-text "*")
+						(each! 0 -1 (lambda (child) (. this :render-node child))
+							(get :child_nodes node))
+						(. this :add-text "*"))
 
-				((= tag-name "p")
-					(. this :flush-line)
-					(. this :add-newline)
-					(each! 0 -1 (lambda (child) (. this :render-node child))
-						(. node 'child_nodes))
-					(. this :flush-line)
-					(. this :add-newline))
+					((or (eql tag-name "em") (eql tag-name "i"))
+						(. this :add-text "_")
+						(each! 0 -1 (lambda (child) (. this :render-node child))
+							(get :child_nodes node))
+						(. this :add-text "_"))
 
-				((= tag-name "br")
-					(. this :flush-line))
+					; Default: just render children
+					(:t
+						(each! 0 -1 (lambda (child) (. this :render-node child))
+							(get :child_nodes node)))))
 
-				((= tag-name "pre")
-					(. this :flush-line)
-					(setq this-in_pre :t)
-					(each! 0 -1 (lambda (child) (. this :render-node child))
-						(. node 'child_nodes))
-					(setq this-in_pre :nil)
-					(. this :flush-line)
-					(. this :add-newline))
+			; Document node
+			((eql node-type NODE_DOCUMENT)
+				(each! 0 -1 (lambda (child) (. this :render-node child))
+					(get :child_nodes node)))))
 
-				((or (= tag-name "ul") (= tag-name "ol"))
-					(. this :flush-line)
-					(. this :add-newline)
-					(setq this-indent_level (inc this-indent_level))
-					(each! 0 -1 (lambda (child) (. this :render-node child))
-						(. node 'child_nodes))
-					(setq this-indent_level (dec this-indent_level))
-					(. this :add-newline))
-
-				((= tag-name "li")
-					(. this :flush-line)
-					(setq this-output (cat this-output
-						(apply cat (map (lambda (_) "  ") (range this-indent_level)))
-						"* "))
-					(each! 0 -1 (lambda (child) (. this :render-node child))
-						(. node 'child_nodes))
-					(. this :flush-line))
-
-				((or (= tag-name "div") (= tag-name "section") (= tag-name "article"))
-					(. this :flush-line)
-					(each! 0 -1 (lambda (child) (. this :render-node child))
-						(. node 'child_nodes))
-					(. this :flush-line))
-
-				((= tag-name "a")
-					; Render link with URL if available
-					(defq href (. node :get-attribute "href"))
-					(each! 0 -1 (lambda (child) (. this :render-node child))
-						(. node 'child_nodes))
-					(when href
-						(. this :add-text (cat " [" href "]"))))
-
-				((or (= tag-name "strong") (= tag-name "b"))
-					(. this :add-text "*")
-					(each! 0 -1 (lambda (child) (. this :render-node child))
-						(. node 'child_nodes))
-					(. this :add-text "*"))
-
-				((or (= tag-name "em") (= tag-name "i"))
-					(. this :add-text "_")
-					(each! 0 -1 (lambda (child) (. this :render-node child))
-						(. node 'child_nodes))
-					(. this :add-text "_"))
-
-				; Default: just render children
-				(:t
-					(each! 0 -1 (lambda (child) (. this :render-node child))
-						(. node 'child_nodes)))))
-
-		; Document node
-		((= (. node 'node_type) NODE_DOCUMENT)
-			(each! 0 -1 (lambda (child) (. this :render-node child))
-				(. node 'child_nodes)))))
-
-(defmethod :render html-renderer ()
-	; Render the document
-	(. this :render-node this-document)
-	(. this :flush-line)
-	this-output)
+	(defmethod :render ()
+		; Render the document
+		(. this :render-node (get :document this))
+		(. this :flush-line)
+		(get :output this)))
 
 ;; Helper function to render HTML to text
 (defun render-html-to-text (document &optional width)
 	; Render HTML document to text
-	(defq renderer (html-renderer :init document width))
+	(defq renderer (html-renderer))
+	(. renderer :init document width)
 	(. renderer :render))
