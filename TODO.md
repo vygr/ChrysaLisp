@@ -32,6 +32,10 @@
 - [x] Create test_exfatprobe.lisp (415 lines) - 18+ tests
 - [x] Create exfatshell.lisp (485 lines) - Interactive filesystem explorer
 - [x] Create test_exfatshell.lisp (488 lines) - 24+ tests
+- [x] Create exfatdefrag.lisp (333 lines) - Fragmentation analyzer
+- [x] Create test_exfatdefrag.lisp (451 lines) - 21+ tests
+- [x] Create exfatbench.lisp (443 lines) - Performance benchmark suite
+- [x] Create test_exfatbench.lisp (487 lines) - 21+ tests
 - [x] Create fsck_exfat.lisp - Filesystem consistency checker
 - [x] Create exfatinfo.lisp - Information dumper
 - [x] Create exfatimage.lisp - Image export/import
@@ -76,10 +80,19 @@
 
 ### Code Metrics:
 - **Core Implementation**: lib/fs/exfat.inc (1,130 lines)
-- **Utilities**: 962 lines across 4 utilities
-- **Tests**: 3,000+ lines across 9 test files
-- **Total Tests**: 135+ comprehensive tests
+- **Utilities**: 1,738 lines across 6 main utilities + 3 additional tools
+- **Tests**: 4,000+ lines across 11 test files
+- **Total Tests**: 177+ comprehensive tests
 - **Documentation**: Comprehensive README and tracking docs
+
+### Utility Breakdown:
+- exfatlabel (212 lines) + tests (308 lines, 18 tests)
+- exfatdump (257 lines) + tests (355 lines, 16 tests)
+- exfatprobe (220 lines) + tests (415 lines, 18 tests)
+- exfatshell (485 lines) + tests (488 lines, 24 tests)
+- exfatdefrag (333 lines) + tests (451 lines, 21 tests)
+- exfatbench (443 lines) + tests (487 lines, 21 tests)
+- Plus: fsck_exfat, exfatinfo, exfatimage with their test suites
 
 ### Feature Coverage:
 - ✅ Boot sector and FAT management
@@ -115,9 +128,9 @@
 - [ ] Compression hooks
 - [ ] Encryption support
 
-### Deferred Utilities (documented in exfat_todo.md):
-- [ ] exfatdefrag - Fragmentation analyzer
-- [ ] exfatbench - Performance benchmark suite
+### Completed Additional Utilities:
+- [x] exfatdefrag - Fragmentation analyzer (333 lines + 451 test lines)
+- [x] exfatbench - Performance benchmark suite (443 lines + 487 test lines)
 
 ### Testing Enhancements:
 - [ ] Stress tests (large files, deep directories)
@@ -149,8 +162,9 @@ This PR implements a complete, working ExFat filesystem for ChrysaLisp:
 - Navigate multi-level directory hierarchies
 - List directory contents with metadata
 - Mount/unmount with persistence
-- Full suite of 7 utilities for filesystem management
-- 135+ comprehensive tests covering all operations
+- Full suite of 9 utilities for filesystem management
+- Fragmentation analysis and performance benchmarking
+- 177+ comprehensive tests covering all operations
 
 **Limitations** (documented for future work):
 - Single-cluster directories (sufficient for most use cases)
