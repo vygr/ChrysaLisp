@@ -58,7 +58,7 @@
 				(unless (is-valid-utf8-byte? byte prev)
 					(def this :has_invalid_chars :t))
 				(setq prev byte))
-				(split data "")))
+			(split data "")))
 
 		result)
 
