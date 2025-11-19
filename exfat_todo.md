@@ -1,10 +1,12 @@
-# ExFat Filesystem - Future Utilities TODO
+# ExFat Filesystem - Utilities Status
 
-This document tracks planned ExFat utilities that are deferred for future implementation.
+This document tracks the status of ExFat utilities implementation.
 
-## Deferred Utilities
+## ✅ Completed Utilities
 
 ### 4. exfatdefrag - Defragmentation Tool
+
+**Status**: ✅ **COMPLETED**
 
 **Purpose**: Analyze and optimize cluster allocation patterns
 
@@ -59,6 +61,8 @@ This document tracks planned ExFat utilities that are deferred for future implem
 ---
 
 ### 5. exfatbench - Performance Benchmark Tool
+
+**Status**: ✅ **COMPLETED**
 
 **Purpose**: Measure filesystem performance characteristics
 
@@ -157,41 +161,54 @@ Overall Grade: Excellent
 
 ---
 
-## Implementation Priority
+## ✅ Implementation Complete
 
-When implementing these in the future, recommended order:
+Both utilities have been successfully implemented:
 
-1. **exfatdefrag** (easier, more immediately useful)
-   - Pure analysis mode first (read-only)
-   - Defragmentation engine later (optional)
+### exfatdefrag Implementation
+- ✅ Fragment counting algorithm (sequential vs non-sequential)
+- ✅ File and directory fragmentation analysis
+- ✅ Recursive filesystem traversal
+- ✅ Overall fragmentation statistics
+- ✅ Detailed reporting with health grades
+- ✅ Comprehensive test suite (451 lines, 21+ tests)
 
-2. **exfatbench** (requires more infrastructure)
-   - Timing framework
-   - Statistical analysis
-   - Report generation
+**Files**:
+- `apps/exfatdefrag.lisp` (333 lines)
+- `apps/test_exfatdefrag.lisp` (451 lines)
 
-## Dependencies
+### exfatbench Implementation
+- ✅ Timing infrastructure (millisecond precision)
+- ✅ Cluster allocation/read/write benchmarks
+- ✅ FAT read/write benchmarks
+- ✅ File creation/deletion benchmarks
+- ✅ Directory listing benchmarks
+- ✅ Full benchmark suite runner
+- ✅ Performance grading system
+- ✅ Comprehensive test suite (487 lines, 21+ tests)
 
-Both utilities depend on:
+**Files**:
+- `apps/exfatbench.lisp` (443 lines)
+- `apps/test_exfatbench.lisp` (487 lines)
+
+## Dependencies Status
+
+All dependencies satisfied:
 - ✅ Core ExFat implementation (lib/fs/exfat.inc)
 - ✅ Cluster operations (:read_cluster, :write_cluster, :allocate_cluster)
 - ✅ FAT operations (:read_fat_entry, :write_fat_entry)
-- ⚠️ File operations (currently stubbed - would need implementation)
-- ⚠️ Directory traversal (currently not implemented)
+- ✅ File operations (fully implemented)
+- ✅ Directory traversal (fully implemented with :list, :resolve_path)
 
-**Note**: Full implementation may require completing the file/directory operations in exfat.inc first.
+## Documentation
 
-## Contribution Guidelines
-
-When implementing these utilities:
-1. Follow ChrysaLisp coding conventions (underscores, :t/:nil, etc.)
-2. Include comprehensive test suite (apps/test_<utility>.lisp)
-3. Update lib/fs/README.md with usage examples
-4. Use consistent error handling (return :nil on error)
-5. Provide clear user-facing output
-6. Exit with appropriate codes (0 = success, N = errors)
+Both utilities are fully documented:
+- ✅ Updated lib/fs/README.md with detailed usage examples
+- ✅ Added to utility suite overview table
+- ✅ Test suite documentation included
+- ✅ Coding conventions followed throughout
 
 ---
 
-**Last Updated**: 2025-11-18
-**Status**: Deferred - to be implemented after core utilities are complete
+**Last Updated**: 2025-11-19
+**Status**: ✅ **COMPLETED** - Both utilities fully implemented and tested
