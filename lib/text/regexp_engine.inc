@@ -393,9 +393,9 @@
 		; (. engine :match-enhanced text pattern) -> result | :nil
 		; Match using enhanced AST-based engine
 		; Returns (list success start end captures)
+		; TEMP: Just try position 0 for debugging
 		(when (defq ast (. this :compile-enhanced pattern))
-			(defq result (. this :exec-ast text ast 0))
-			result))
+			(. this :exec-ast text ast 0)))
 
 	(defmethod :exec-ast (text ast pos)
 		; (. engine :exec-ast text ast pos) -> result | :nil
