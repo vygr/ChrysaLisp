@@ -9,8 +9,10 @@
 
 ;; Custom HTML Part that constructs view in init
 (defun make-custom-html-part ()
-	(defq view (html-view :init nil))
-	(defq part (html-part :init view))
+	(defq view (html-view))
+	(. view :init nil)
+	(defq part (html-part))
+	(. part :init view)
 	part)
 
 (deftest "Construct HTMLView from Part Init"
@@ -22,21 +24,25 @@
 
 (deftest "Construct HTMLView before Part"
 	; Test that HTMLView can be constructed before HTMLPart
-	(defq view (html-view :init nil))
+	(defq view (html-view))
+	(. view :init nil)
 	(assert-not-nil view)
-	(defq part (html-part :init view))
+	(defq part (html-part))
+	(. part :init view)
 	(assert-not-nil part)
 	(assert-eq part (. view :get-part))
 	(assert-eq view (. part :get-view)))
 
 (deftest "Part has Document"
 	; Test that HTMLPart has a document
-	(defq part (html-part :init))
+	(defq part (html-part))
+	(. part :init)
 	(assert-not-nil (. part :get-document)))
 
 (deftest "Begin Write End"
 	; Test begin/write/end sequence
-	(defq part (html-part :init))
+	(defq part (html-part))
+	(. part :init)
 	(assert-true (. part :begin))
 	(assert-true (. part :write "<html><body>"))
 	(assert-true (. part :write "<h1>Hello World</h1>"))
@@ -48,14 +54,16 @@
 
 (deftest "Set HTML Content"
 	; Test setting HTML content directly
-	(defq part (html-part :init))
+	(defq part (html-part))
+	(. part :init)
 	(defq html-content "<html><body><p>Test</p></body></html>")
 	(assert-true (. part :set-html html-content))
 	(assert-eq html-content (. part :get-html)))
 
 (deftest "View Resize"
 	; Test view resizing
-	(defq view (html-view :init nil))
+	(defq view (html-view))
+	(. view :init nil)
 	(. view :resize 1024 768)
 	(assert-eq 1024 (. view 'width))
 	(assert-eq 768 (. view 'height)))

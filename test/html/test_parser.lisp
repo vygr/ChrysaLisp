@@ -2,6 +2,7 @@
 ;; Unit tests for HTML Parser and Renderer
 
 (import "lib/test/unittest.inc")
+(import "lib/html/dom.inc")
 (import "lib/html/parser.inc")
 (import "lib/html/renderer.inc")
 

@@ -49,7 +49,7 @@
 
 	(defmethod :get-cookie (name)
 		; Get cookie value (returns :nil if not found or expired)
-		(defq cookie (get (get :cookies this) (string-to-symname)))
+		(defq cookie (get (get :cookies this) (string-to-sym name)))
 		(when cookie
 			; Check if expired
 			(defq expires (get cookie :expires))
@@ -64,7 +64,7 @@
 
 	(defmethod :get-cookie-full (name)
 		; Get full cookie object with all metadata
-		(defq cookie (get (get :cookies this) (string-to-symname)))
+		(defq cookie (get (get :cookies this) (string-to-sym name)))
 		(when cookie
 			; Check if expired
 			(defq expires (get cookie :expires))
@@ -77,7 +77,7 @@
 	(defmethod :delete-cookie (name)
 		; Delete a cookie
 		(defq cookies-map (get :cookies this))
-		(set-remove cookies-map (string-to-symname))
+		(set-remove cookies-map (string-to-sym name))
 		(def this :cookies cookies-map)
 		:nil)
 
