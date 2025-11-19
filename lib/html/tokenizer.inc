@@ -1,6 +1,8 @@
 ;; HTML Tokenizer
 ;; Tokenizes HTML into tags, text, and comments
 
+(import "lib/class/class.inc")
+
 (defq
 	TOKEN_START_TAG 1
 	TOKEN_END_TAG 2
@@ -9,177 +11,179 @@
 	TOKEN_DOCTYPE 5
 	TOKEN_EOF 6)
 
-(defclass html-tokenizer nil
-	(defq
-		input ""
-		pos 0
-		length 0))
+(defclass html-tokenizer () :nil
+	; HTML tokenizer
+	(def this
+		:input ""
+		:pos 0
+		:length 0
+		:has_more :t)
 
-(defmethod :init html-tokenizer (html-string)
-	(setq this-input html-string
-		this-pos 0
-		this-length (length html-string))
-	this)
+	(defmethod :init (html-string)
+		(def this
+			:input html-string
+			:pos 0
+			:length (length html-string)
+			:has_more (> (length html-string) 0))
+		this)
 
-(defmethod :peek html-tokenizer (&optional offset)
-	; Peek at character at current position + offset
-	(defq off (if offset offset 0))
-	(defq idx (+ this-pos off))
-	(if (< idx this-length)
-		(char-at this-input idx)
-		nil))
+	(defmethod :peek (&optional offset)
+		; Peek at character at current position + offset
+		(defq off (if offset offset 0))
+		(defq idx (+ (get :pos this) off))
+		(defq len (get :length this))
+		(if (< idx len)
+			(char-at (get :input this) idx)
+			:nil))
 
-(defmethod :advance html-tokenizer (&optional count)
-	; Advance position by count characters
-	(defq cnt (if count count 1))
-	(setq this-pos (min (+ this-pos cnt) this-length))
-	this)
+	(defmethod :advance (&optional count)
+		; Advance position by count characters
+		(defq cnt (if count count 1))
+		(defq new-pos (min (+ (get :pos this) cnt) (get :length this)))
+		(def this :pos new-pos)
+		this)
 
-(defmethod :skip-whitespace html-tokenizer ()
-	; Skip whitespace characters
-	(while (and (< this-pos this-length)
-			(some! 0 -1 (lambda (c) (= (. this :peek) c))
-				'(" " "\t" "\n" "\r")))
-		(. this :advance))
-	this)
+	(defmethod :skip-whitespace ()
+		; Skip whitespace characters
+		(while (and (< (get :pos this) (get :length this))
+				(some! 0 -1 (lambda (c) (eql (. this :peek) c))
+					'(" " "\t" "\n" "\r")))
+			(. this :advance))
+		this)
 
-(defmethod :read-until html-tokenizer (char-or-fn)
-	; Read until character or predicate function returns true
-	(defq result "")
-	(while (< this-pos this-length)
-		(defq ch (. this :peek))
-		(defq stop
-			(if (str? char-or-fn)
-				(= ch char-or-fn)
-				(char-or-fn ch)))
-		(if stop
-			(break)
-			(progn
-				(setq result (cat result ch))
-				(. this :advance))))
-	result)
+	(defmethod :read-until (char-or-fn)
+		; Read until character or predicate function returns true
+		(defq result "")
+		(while (< (get :pos this) (get :length this))
+			(defq ch (. this :peek))
+			(defq stop
+				(if (str? char-or-fn)
+					(eql ch char-or-fn)
+					(char-or-fn ch)))
+			(if stop
+				(break)
+				(progn
+					(setq result (cat result ch))
+					(. this :advance))))
+		result)
 
-(defmethod :read-tag-name html-tokenizer ()
-	; Read tag name (alphanumeric and -)
-	(. this :read-until (lambda (ch)
-		(not (or (and (>= ch "a") (<= ch "z"))
-			(and (>= ch "A") (<= ch "Z"))
-			(and (>= ch "0") (<= ch "9"))
-			(= ch "-")
-			(= ch "_")
-			(= ch ":"))))))
+	(defmethod :read-tag-name ()
+		; Read tag name (alphanumeric and -)
+		(. this :read-until (lambda (ch)
+			(not (or (and (>= ch "a") (<= ch "z"))
+				(and (>= ch "A") (<= ch "Z"))
+				(and (>= ch "0") (<= ch "9"))
+				(eql ch "-")
+				(eql ch "_")
+				(eql ch ":"))))))
 
-(defmethod :read-attribute-name html-tokenizer ()
-	; Read attribute name
-	(. this :read-tag-name))
-
-(defmethod :read-attribute-value html-tokenizer ()
-	; Read attribute value (quoted or unquoted)
-	(. this :skip-whitespace)
-	(defq ch (. this :peek))
-	(cond
-		((= ch "\"")
-			(. this :advance)  ; Skip opening quote
-			(defq value (. this :read-until "\""))
-			(. this :advance)  ; Skip closing quote
-			value)
-		((= ch "'")
-			(. this :advance)  ; Skip opening quote
-			(defq value (. this :read-until "'"))
-			(. this :advance)  ; Skip closing quote
-			value)
-		(:t
-			; Unquoted value
-			(. this :read-until (lambda (ch)
-				(or (= ch " ") (= ch "\t") (= ch "\n") (= ch "\r") (= ch ">")))))))
-
-(defmethod :read-attributes html-tokenizer ()
-	; Read tag attributes as an environment
-	(defq attrs (env))
-	(while :t
-		(. this :skip-whitespace)
-		(defq ch (. this :peek))
-		(when (or (= ch ">") (= ch "/") (nil? ch))
-			(break))
-
+	(defmethod :read-attribute-name ()
 		; Read attribute name
-		(defq name (lower-case (. this :read-attribute-name)))
-		(when (= name "")
-			(break))
+		(. this :read-tag-name))
 
-		; Skip whitespace and check for =
+	(defmethod :read-attribute-value ()
+		; Read attribute value (quoted or unquoted)
 		(. this :skip-whitespace)
-		(if (= (. this :peek) "=")
+		(defq ch (. this :peek))
+		(cond
+			((eql ch "\"")
+				(. this :advance)  ; Skip opening quote
+				(defq value (. this :read-until "\""))
+				(. this :advance)  ; Skip closing quote
+				value)
+			((eql ch "'")
+				(. this :advance)  ; Skip opening quote
+				(defq value (. this :read-until "'"))
+				(. this :advance)  ; Skip closing quote
+				value)
+			(:t
+				; Unquoted value
+				(. this :read-until (lambda (ch)
+					(or (eql ch " ") (eql ch "\t") (eql ch "\n") (eql ch "\r") (eql ch ">")))))))
+
+	(defmethod :read-attributes ()
+		; Read tag attributes as an environment
+		(defq attrs (env))
+		(while :t
+			(. this :skip-whitespace)
+			(defq ch (. this :peek))
+			(when (or (eql ch ">") (eql ch "/") (nil? ch))
+				(break))
+
+			; Read attribute name
+			(defq name (lower-case (. this :read-attribute-name)))
+			(when (eql name "")
+				(break))
+
+			; Skip whitespace and check for =
+			(. this :skip-whitespace)
+			(if (eql (. this :peek) "=")
+				(progn
+					(. this :advance)  ; Skip =
+					(defq value (. this :read-attribute-value))
+					(set-insert attrs name value))
+				; Boolean attribute (no value)
+				(set-insert attrs name :t)))
+		attrs)
+
+	(defmethod :next-token ()
+		; Get next token
+		; Returns (list type data attributes)
+		(when (>= (get :pos this) (get :length this))
+			(return (list TOKEN_EOF :nil :nil)))
+
+		(defq ch (. this :peek))
+
+		; Check for tag
+		(if (eql ch "<")
 			(progn
-				(. this :advance)  ; Skip =
-				(defq value (. this :read-attribute-value))
-				(set-insert attrs name value))
-			; Boolean attribute (no value)
-			(set-insert attrs name :t)))
-	attrs)
+				(. this :advance)  ; Skip <
+				(defq next-ch (. this :peek))
 
-(defmethod :next-token html-tokenizer ()
-	; Get next token
-	; Returns (list type data attributes)
-	(when (>= this-pos this-length)
-		(return (list TOKEN_EOF nil nil)))
+				(cond
+					; Comment
+					((and (eql next-ch "!") (eql (. this :peek 1) "-") (eql (. this :peek 2) "-"))
+						(. this :advance 3)  ; Skip !--
+						(defq comment (. this :read-until "-"))
+						; Skip -->
+						(when (eql (. this :peek) "-")
+							(. this :advance))
+						(when (eql (. this :peek) "-")
+							(. this :advance))
+						(when (eql (. this :peek) ">")
+							(. this :advance))
+						(list TOKEN_COMMENT comment :nil))
 
-	(defq ch (. this :peek))
+					; DOCTYPE
+					((and (eql next-ch "!") (or (eql (. this :peek 1) "D") (eql (. this :peek 1) "d")))
+						(. this :advance)  ; Skip !
+						(defq doctype (. this :read-until ">"))
+						(. this :advance)  ; Skip >
+						(list TOKEN_DOCTYPE doctype :nil))
 
-	; Check for tag
-	(if (= ch "<")
-		(progn
-			(. this :advance)  ; Skip <
-			(defq next-ch (. this :peek))
+					; End tag
+					((eql next-ch "/")
+						(. this :advance)  ; Skip /
+						(defq tag-name (lower-case (. this :read-tag-name)))
+						(. this :skip-whitespace)
+						(when (eql (. this :peek) ">")
+							(. this :advance))
+						(list TOKEN_END_TAG tag-name :nil))
 
-			(cond
-				; Comment
-				((and (= next-ch "!") (= (. this :peek 1) "-") (= (. this :peek 2) "-"))
-					(. this :advance 3)  ; Skip !--
-					(defq comment (. this :read-until "-"))
-					; Skip -->
-					(when (= (. this :peek) "-")
-						(. this :advance))
-					(when (= (. this :peek) "-")
-						(. this :advance))
-					(when (= (. this :peek) ">")
-						(. this :advance))
-					(list TOKEN_COMMENT comment nil))
+					; Start tag
+					(:t
+						(defq tag-name (lower-case (. this :read-tag-name)))
+						(defq attrs (. this :read-attributes))
+						; Check for self-closing
+						(defq self-closing :nil)
+						(when (eql (. this :peek) "/")
+							(setq self-closing :t)
+							(. this :advance))
+						(when (eql (. this :peek) ">")
+							(. this :advance))
+						(list TOKEN_START_TAG tag-name attrs))))
 
-				; DOCTYPE
-				((and (= next-ch "!") (or (= (. this :peek 1) "D") (= (. this :peek 1) "d")))
-					(. this :advance)  ; Skip !
-					(defq doctype (. this :read-until ">"))
-					(. this :advance)  ; Skip >
-					(list TOKEN_DOCTYPE doctype nil))
-
-				; End tag
-				((= next-ch "/")
-					(. this :advance)  ; Skip /
-					(defq tag-name (lower-case (. this :read-tag-name)))
-					(. this :skip-whitespace)
-					(when (= (. this :peek) ">")
-						(. this :advance))
-					(list TOKEN_END_TAG tag-name nil))
-
-				; Start tag
-				(:t
-					(defq tag-name (lower-case (. this :read-tag-name)))
-					(defq attrs (. this :read-attributes))
-					; Check for self-closing
-					(defq self-closing :nil)
-					(when (= (. this :peek) "/")
-						(setq self-closing :t)
-						(. this :advance))
-					(when (= (. this :peek) ">")
-						(. this :advance))
-					(list TOKEN_START_TAG tag-name attrs))))
-
-		; Text content
-		(progn
-			(defq text (. this :read-until "<"))
-			(list TOKEN_TEXT text nil))))
-
-(defmethod :has-more html-tokenizer ()
-	; Check if more tokens available
-	(< this-pos this-length))
+			; Text content
+			(progn
+				(defq text (. this :read-until "<"))
+				(list TOKEN_TEXT text :nil)))))
