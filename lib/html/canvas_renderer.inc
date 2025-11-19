@@ -81,7 +81,7 @@
 		(def this :selection_end :nil)
 		this)
 
-	(defmethod :apply-element-styles html-canvas-renderer (element)
+	(defmethod :apply-element-styles (element)
 		; Apply CSS styles to current rendering context
 		(when (and (get :stylesheet this) (eql (. element 'node_type) NODE_ELEMENT))
 			(defq styles (. (get :stylesheet this) :compute-styles element))
@@ -105,13 +105,13 @@
 					(def this :in_bold :t))))
 		this)
 
-	(defmethod :get-font html-canvas-renderer ()
+	(defmethod :get-font ()
 		; Get current font based on style
 		(if (get :in_bold this)
 			(get :font_bold this)
 			(get :font_normal this)))
 
-	(defmethod :draw-text html-canvas-renderer (text)
+	(defmethod :draw-text (text)
 		; Draw text at current position and track for selection
 		(defq font (. this :get-font))
 		(when (and font text (> (length text) 0))
@@ -146,35 +146,35 @@
 		(def this :y (+ (get :y this) (get :line_height this)))
 		this)
 
-	(defmethod :add-space html-canvas-renderer ()
+	(defmethod :add-space ()
 		; Add a space
 		(defq font (. this :get-font))
 		(bind '(w h) (font-glyph-bounds font " "))
 		(def this :x (+ (get :x this) w))
 		this)
 
-	(defmethod :draw-box html-canvas-renderer (x y w h color)
+	(defmethod :draw-box (x y w h color)
 		; Draw a box outline
 		(.-> (get :canvas this)
 			(:set_color color)
 			(:box x y w h))
 		this)
 
-	(defmethod :draw-filled-box html-canvas-renderer (x y w h color)
+	(defmethod :draw-filled-box (x y w h color)
 		; Draw a filled box
 		(.-> (get :canvas this)
 			(:set_color color)
 			(:fbox x y w h))
 		this)
 
-	(defmethod :draw-line html-canvas-renderer (x1 y1 x2 y2 color)
+	(defmethod :draw-line (x1 y1 x2 y2 color)
 		; Draw a line
 		(.-> (get :canvas this)
 			(:set_color color)
 			(:line x1 y1 x2 y2))
 		this)
 
-	(defmethod :render-text-node html-canvas-renderer (node)
+	(defmethod :render-text-node (node)
 		; Render a text node
 		(defq text (. node :get-text))
 		; Split into words and render with wrapping
@@ -185,7 +185,7 @@
 				(. this :add-space)))
 			words))
 
-	(defmethod :render-heading html-canvas-renderer (node level)
+	(defmethod :render-heading (node level)
 		; Render a heading (h1-h6)
 		(. this :newline)
 		(. this :newline)
@@ -207,7 +207,7 @@
 		(. this :newline)
 		(. this :newline))
 
-	(defmethod :render-paragraph html-canvas-renderer (node)
+	(defmethod :render-paragraph (node)
 		; Render a paragraph
 		(. this :newline)
 		(each! (lambda (child)
@@ -215,7 +215,7 @@
 			(. node 'child_nodes))
 		(. this :newline))
 
-	(defmethod :render-list html-canvas-renderer (node is-ordered)
+	(defmethod :render-list (node is-ordered)
 		; Render a list (ul/ol)
 		(. this :newline)
 		(def this :list_level (inc (get :list_level this)))
@@ -243,7 +243,7 @@
 		(def this :list_level (dec (get :list_level this)))
 		(. this :newline))
 
-	(defmethod :render-table html-canvas-renderer (node)
+	(defmethod :render-table (node)
 		; Render a table
 		(. this :newline)
 		(defq start_y (get :y this))
@@ -305,7 +305,7 @@
 		(def this :x (get :margin this))
 		(. this :newline))
 
-	(defmethod :render-link html-canvas-renderer (node)
+	(defmethod :render-link (node)
 		; Render a link and track its clickable region
 		(defq old_link (get :in_link this))
 		(def this :in_link :t)
@@ -336,7 +336,7 @@
 
 		(def this :in_link old_link))
 
-	(defmethod :render-image html-canvas-renderer (node)
+	(defmethod :render-image (node)
 		; Render an image from file
 		(defq alt (. node :get-attribute "alt"))
 		(defq src (. node :get-attribute "src"))
@@ -396,7 +396,7 @@
 				(. this :draw-text (if alt (cat "[" alt "]") "[Image]"))
 				(. this :newline))))
 
-	(defmethod :render-canvas html-canvas-renderer (node)
+	(defmethod :render-canvas (node)
 		; Render a canvas element
 		(defq width-attr (. node :get-attribute "width"))
 		(defq height-attr (. node :get-attribute "height"))
@@ -504,7 +504,7 @@
 		(def this :y (+ start-y canvas-height))
 		(. this :newline))
 
-	(defmethod :render-form html-canvas-renderer (node)
+	(defmethod :render-form (node)
 		; Render a form (just render children for now)
 		(. this :newline)
 		(each! (lambda (child)
@@ -512,7 +512,7 @@
 			(. node 'child_nodes))
 		(. this :newline))
 
-	(defmethod :render-input html-canvas-renderer (node)
+	(defmethod :render-input (node)
 		; Render an input field placeholder
 		(defq type (. node :get-attribute "type"))
 		(defq value (. node :get-attribute "value"))
@@ -524,7 +524,7 @@
 		(def this :x (+ (get :x this) 155))
 		(. this :add-space))
 
-	(defmethod :render-button html-canvas-renderer (node)
+	(defmethod :render-button (node)
 		; Render a button
 		(. this :draw-filled-box (get :x this) (get :y this) 80 (get :line_height this) COLOR_LIGHTGRAY)
 		(. this :draw-box (get :x this) (get :y this) 80 (get :line_height this) COLOR_BLACK)
@@ -535,7 +535,7 @@
 		(def this :x (+ (get :x this) 5))
 		(. this :add-space))
 
-	(defmethod :render-node html-canvas-renderer (node)
+	(defmethod :render-node (node)
 		; Render a DOM node
 		(cond
 			((eql (. node 'node_type) NODE_TEXT)
@@ -672,11 +672,11 @@
 		; Return total height
 		(get :y this))
 
-	(defmethod :get-clickable-regions html-canvas-renderer ()
+	(defmethod :get-clickable-regions ()
 		; Return list of clickable regions
 		(get :clickable_regions this))
 
-	(defmethod :find-link-at html-canvas-renderer (x y)
+	(defmethod :find-link-at (x y)
 		; Find which link (if any) was clicked at position (x, y)
 		; Returns href or nil
 		(defq result :nil)
@@ -687,23 +687,23 @@
 			(get :clickable_regions this))
 		result)
 
-	(defmethod :set-selection-start html-canvas-renderer (x y)
+	(defmethod :set-selection-start (x y)
 		; Set selection start point
 		(def this :selection_start (list x y))
 		this)
 
-	(defmethod :set-selection-end html-canvas-renderer (x y)
+	(defmethod :set-selection-end (x y)
 		; Set selection end point
 		(def this :selection_end (list x y))
 		this)
 
-	(defmethod :clear-selection html-canvas-renderer ()
+	(defmethod :clear-selection ()
 		; Clear selection
 		(def this :selection_start :nil)
 		(def this :selection_end :nil)
 		this)
 
-	(defmethod :render-selection html-canvas-renderer ()
+	(defmethod :render-selection ()
 		; Render selection highlight
 		(when (and (get :selection_start this) (get :selection_end this))
 			(bind '(x1 y1) (get :selection_start this))
@@ -751,7 +751,7 @@
 				(get :text_fragments this)))
 		this)
 
-	(defmethod :get-selected-text html-canvas-renderer ()
+	(defmethod :get-selected-text ()
 		; Get selected text as string
 		(defq result "")
 		(when (and (get :selection_start this) (get :selection_end this))

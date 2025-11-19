@@ -43,7 +43,7 @@
 
 		this)
 
-	(defmethod :load-html browser-driver (html-string)
+	(defmethod :load-html (html-string)
 		; Load HTML content directly (for testing)
 		(def this :document (parse-html html-string))
 
@@ -73,7 +73,7 @@
 
 	;; Element Finding
 
-	(defmethod :find-element-by-id browser-driver (id)
+	(defmethod :find-element-by-id (id)
 		; Find element by ID
 		; Returns: WebElement wrapper
 		(when (get :document this)
@@ -82,7 +82,7 @@
 				(create-web-element elem this)))
 		:nil)
 
-	(defmethod :find-elements-by-tag-name browser-driver (tag-name)
+	(defmethod :find-elements-by-tag-name (tag-name)
 		; Find all elements with tag name
 		; Returns: list of WebElement wrappers
 		(when (get :document this)
@@ -94,7 +94,7 @@
 			result)
 		(list))
 
-	(defmethod :find-element-by-selector browser-driver (selector)
+	(defmethod :find-element-by-selector (selector)
 		; Find element by CSS selector (simplified)
 		; Currently supports: .classname, #id, tagname
 		(when (get :document this)
@@ -123,24 +123,24 @@
 						:nil))))
 		:nil)
 
-	(defmethod :wait-for-element-by-id browser-driver (id timeout-ms)
+	(defmethod :wait-for-element-by-id (id timeout-ms)
 		; Wait for element to exist (simplified - immediate check)
 		; In real implementation, would poll with timeout
 		(. this :find-element-by-id id))
 
 	;; Script Execution
 
-	(defmethod :execute-script browser-driver (script-code)
+	(defmethod :execute-script (script-code)
 		; Execute LispScript and return result
 		(when (get :executor this)
 			(defq ctx (. (get :executor this) :get-context))
 			(catch
-				(eval (read (cat script-code)))
+				(eval (read (cat script-code)) (env))
 				(lambda (e)
 					(print "Script execution error: " e)
 					:nil))))
 
-	(defmethod :script-context browser-driver ()
+	(defmethod :script-context ()
 		; Get the script execution context
 		(when (get :executor this)
 			(. (get :executor this) :get-context))
@@ -148,14 +148,14 @@
 
 	;; Window Management
 
-	(defmethod :window-size browser-driver ()
+	(defmethod :window-size ()
 		; Get window size
 		(defq size (env))
 		(set size :width (get :window_width this))
 		(set size :height (get :window_height this))
 		size)
 
-	(defmethod :set-window-size browser-driver (width height)
+	(defmethod :set-window-size (width height)
 		; Set window size
 		(def this :window_width width
 		          :window_height height)
@@ -163,7 +163,7 @@
 
 	;; Dialog Handling
 
-	(defmethod :get-alerts browser-driver ()
+	(defmethod :get-alerts ()
 		; Get all alert messages
 		(when (get :executor this)
 			(defq ctx (. (get :executor this) :get-context))
@@ -171,7 +171,7 @@
 			(. win :get-alerts))
 		(list))
 
-	(defmethod :set-confirm-result browser-driver (result)
+	(defmethod :set-confirm-result (result)
 		; Set mock confirm() result
 		(when (get :executor this)
 			(defq ctx (. (get :executor this) :get-context))
@@ -179,7 +179,7 @@
 			(. win :set-confirm-result result))
 		this)
 
-	(defmethod :set-prompt-result browser-driver (result)
+	(defmethod :set-prompt-result (result)
 		; Set mock prompt() result
 		(when (get :executor this)
 			(defq ctx (. (get :executor this) :get-context))
@@ -189,7 +189,7 @@
 
 	;; Cookies (placeholder)
 
-	(defmethod :get-cookies browser-driver ()
+	(defmethod :get-cookies ()
 		; Get all cookies (placeholder)
 		(list))
 
@@ -217,7 +217,7 @@
 			(. (get :element this) :dispatch-event (env :type "click")))
 		this)
 
-	(defmethod :send-keys web-element (keys)
+	(defmethod :send-keys (keys)
 		; Send keys to element (type into it)
 		(when (get :element this)
 			; For input/textarea, set value attribute
@@ -245,13 +245,13 @@
 			(. (get :element this) :get-text-content))
 		"")
 
-	(defmethod :get-attribute web-element (name)
+	(defmethod :get-attribute (name)
 		; Get attribute value
 		(when (get :element this)
 			(. (get :element this) :get-attribute name))
 		:nil)
 
-	(defmethod :is-displayed web-element ()
+	(defmethod :is-displayed ()
 		; Check if element is displayed
 		(when (get :element this)
 			; Check for display:none style
@@ -261,7 +261,7 @@
 				:t))
 		:nil)
 
-	(defmethod :is-enabled web-element ()
+	(defmethod :is-enabled ()
 		; Check if element is enabled
 		(when (get :element this)
 			; Check for disabled attribute
@@ -270,7 +270,7 @@
 				:t))
 		:t)
 
-	(defmethod :find-element-by-id web-element (id)
+	(defmethod :find-element-by-id (id)
 		; Find child element by ID
 		(when (get :element this)
 			; Search within this element's subtree

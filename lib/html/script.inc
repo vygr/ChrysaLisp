@@ -77,7 +77,7 @@
 				(defun prompt (msg &optional default) (. window :prompt msg default))
 
 				; Eval the code - it can now access document, window, and dialogs
-				(eval (read (cat code)))
+				(eval (read (cat code)) (env))
 				(lambda (e)
 					(print "Script error: " e))))
 		this)
@@ -262,7 +262,7 @@
 
 						; Execute the event handler code
 						(catch
-							(eval (read (cat code)))
+							(eval (read (cat code)) (env))
 							(lambda (e)
 								(print attr-name " error: " e)))))))
 
