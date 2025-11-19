@@ -26,7 +26,7 @@
 	(when (> *test-failed* 0)
 		(print "")
 		(print "Failures:")
-		(each! 0 -1 (lambda ((name msg))
+		(each! (lambda ((name msg))
 			(print "  " name ": " msg)) *test-errors*))
 	(print "========================================")
 	(print "")

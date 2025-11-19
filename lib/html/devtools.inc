@@ -22,7 +22,7 @@
 		; Log a message to console
 		; level: :info, :warn, :error, :debug
 		(defq entry (env))
-		(set entry :timestamp (time))
+		(set entry :timestamp (current-time-ms))
 		(set entry :level level)
 		(set entry :message message)
 		(when data
@@ -205,7 +205,7 @@
 		(set entry :url url)
 		(set entry :method method)
 		(set entry :status status)
-		(set entry :timestamp (time))
+		(set entry :timestamp (current-time-ms))
 
 		(defq resources (get :resources this))
 		(push resources entry)

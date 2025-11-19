@@ -23,7 +23,7 @@
 		(defq cookie (env))
 		(set cookie :name name)
 		(set cookie :value value)
-		(set cookie :created (time))
+		(set cookie :created (current-time-ms))
 
 		; Parse options
 		(defq i 0)
@@ -53,7 +53,7 @@
 		(when cookie
 			; Check if expired
 			(defq expires (get cookie :expires))
-			(when (and expires (< expires (time)))
+			(when (and expires (< expires (current-time-ms)))
 				; Expired - remove it
 				(. this :delete-cookie name)
 				(setq cookie :nil)))
@@ -68,7 +68,7 @@
 		(when cookie
 			; Check if expired
 			(defq expires (get cookie :expires))
-			(when (and expires (< expires (time)))
+			(when (and expires (< expires (current-time-ms)))
 				; Expired - remove it
 				(. this :delete-cookie name)
 				(setq cookie :nil)))
@@ -92,7 +92,7 @@
 			(when cookie
 				; Check not expired
 				(defq expires (get cookie :expires))
-				(when (or (eql expires :nil) (>= expires (time)))
+				(when (or (eql expires :nil) (>= expires (current-time-ms)))
 					(defq entry (env))
 					(set entry :name (get cookie :name))
 					(set entry :value (get cookie :value))
@@ -169,7 +169,7 @@
 		(tolist env-obj))
 	result)
 
-(defun time ()
+(defun current-time-ms ()
 	; Get current time in milliseconds
 	; Placeholder - would use actual system time
 	1000000)

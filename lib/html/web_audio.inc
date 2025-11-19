@@ -171,7 +171,7 @@
 				(import "lib/audio/simple.inc")
 
 				; Generate temp filename
-				(defq timestamp (time))
+				(defq timestamp (current-time-ms))
 				(defq frequency (get :frequency this))
 				(defq type (get :type this))
 				(defq temp_file (cat "/tmp/osc_" timestamp "_" frequency ".wav"))

@@ -119,7 +119,7 @@
 	(defq store (create-cookie-store))
 
 	; Set cookie that expires in future
-	(defq future-time (+ (time) 3600000))  ; 1 hour from now
+	(defq future-time (+ (current-time-ms) 3600000))  ; 1 hour from now
 	(. store :set-cookie "future" "value" :expires future-time)
 
 	; Should still be valid
@@ -130,7 +130,7 @@
 	(defq store (create-cookie-store))
 
 	; Set cookie that already expired
-	(defq past-time (- (time) 3600000))  ; 1 hour ago
+	(defq past-time (- (current-time-ms) 3600000))  ; 1 hour ago
 	(. store :set-cookie "expired" "value" :expires past-time)
 
 	; Should return nil (expired)
