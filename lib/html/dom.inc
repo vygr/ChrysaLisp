@@ -193,7 +193,7 @@
 		; Get canvas rendering context
 		; canvas.getContext("2d")
 		(when (and (eql (get :node_type this) NODE_ELEMENT)
-				(eql (lower-case (get :node_name this)) "canvas")
+				(eql (to-lower (get :node_name this)) "canvas")
 				(eql context-type "2d"))
 
 			; Create context if it doesn't exist
@@ -211,7 +211,7 @@
 		; Play audio element
 		; audio.play()
 		(when (and (eql (get :node_type this) NODE_ELEMENT)
-				(eql (lower-case (get :node_name this)) "audio"))
+				(eql (to-lower (get :node_name this)) "audio"))
 
 			; Create audio element if it doesn't exist
 			(unless (get :audio_element this)
@@ -227,7 +227,7 @@
 		; Pause audio element
 		; audio.pause()
 		(when (and (eql (get :node_type this) NODE_ELEMENT)
-				(eql (lower-case (get :node_name this)) "audio")
+				(eql (to-lower (get :node_name this)) "audio")
 				(get :audio_element this))
 			(. (get :audio_element this) :pause))
 		:nil)
@@ -236,7 +236,7 @@
 		; Load audio element
 		; audio.load()
 		(when (and (eql (get :node_type this) NODE_ELEMENT)
-				(eql (lower-case (get :node_name this)) "audio"))
+				(eql (to-lower (get :node_name this)) "audio"))
 
 			; Create audio element if it doesn't exist
 			(unless (get :audio_element this)
@@ -252,7 +252,7 @@
 		; Set audio volume
 		; audio.volume = 0.5
 		(when (and (eql (get :node_type this) NODE_ELEMENT)
-				(eql (lower-case (get :node_name this)) "audio")
+				(eql (to-lower (get :node_name this)) "audio")
 				(get :audio_element this))
 			(. (get :audio_element this) :set-volume vol))
 		:nil)
@@ -261,7 +261,7 @@
 		; Get audio volume
 		; audio.volume
 		(when (and (eql (get :node_type this) NODE_ELEMENT)
-				(eql (lower-case (get :node_name this)) "audio"))
+				(eql (to-lower (get :node_name this)) "audio"))
 
 			; Create audio element if it doesn't exist
 			(unless (get :audio_element this)
@@ -350,7 +350,7 @@
 		(defq results (list))
 		(defun search-node (node)
 			(when (and (eql (get :node_type node) NODE_ELEMENT)
-					(eql (lower-case (get :node_name node)) (lower-case tag-name)))
+					(eql (to-lower (get :node_name node)) (to-lower tag-name)))
 				(push results node))
 			(each! 0 -1 (lambda (child)
 				(search-node child))

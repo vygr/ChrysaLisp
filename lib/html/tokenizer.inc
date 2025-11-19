@@ -111,7 +111,7 @@
 				(break))
 
 			; Read attribute name
-			(defq name (lower-case (. this :read-attribute-name)))
+			(defq name (to-lower (. this :read-attribute-name)))
 			(when (eql name "")
 				(break))
 
@@ -164,7 +164,7 @@
 					; End tag
 					((eql next-ch "/")
 						(. this :advance)  ; Skip /
-						(defq tag-name (lower-case (. this :read-tag-name)))
+						(defq tag-name (to-lower (. this :read-tag-name)))
 						(. this :skip-whitespace)
 						(when (eql (. this :peek) ">")
 							(. this :advance))
@@ -172,7 +172,7 @@
 
 					; Start tag
 					(:t
-						(defq tag-name (lower-case (. this :read-tag-name)))
+						(defq tag-name (to-lower (. this :read-tag-name)))
 						(defq attrs (. this :read-attributes))
 						; Check for self-closing
 						(defq self-closing :nil)

@@ -66,7 +66,7 @@
 				(some! 0 -1 (lambda (c) (eql c class)) elem_classes))
 			(:t
 				; Tag selector
-				(eql (lower-case selector) (lower-case (. element 'node_name)))))))
+				(eql (to-lower selector) (to-lower (. element 'node_name)))))))
 
 ;; CSS Parser
 (defclass css-parser (&optional _method) :nil
@@ -188,7 +188,7 @@
 					(when (eql (. this :peek) ";")
 						(. this :advance))
 
-					(set-insert properties (lower-case prop) value)))
+					(set-insert properties (to-lower prop) value)))
 
 			; Skip }
 			(when (eql (. this :peek) "}")

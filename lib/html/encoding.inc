@@ -26,7 +26,7 @@
 		; Set the character encoding
 		; enc: encoding name (e.g. "utf-8", "iso-8859-1")
 		; source: encoding source (:user, :http-header, :default, :auto)
-		(def this :encoding_name (lower-case enc))
+		(def this :encoding_name (to-lower enc))
 		(def this :encoding_source source)
 		:t)
 

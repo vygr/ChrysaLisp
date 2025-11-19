@@ -222,7 +222,7 @@
 		(defq item_num 1)
 		(each! 0 -1 (lambda (child)
 			(when (eql (. child 'node_type) NODE_ELEMENT)
-				(when (eql (lower-case (. child 'node_name)) "li")
+				(when (eql (to-lower (. child 'node_name)) "li")
 					; Indent for list item
 					(defq indent (* (get :list_level this) 20))
 					(def this :x (+ (get :margin this) indent))
@@ -252,7 +252,7 @@
 		; Collect all rows
 		(each! 0 -1 (lambda (child)
 			(when (eql (. child 'node_type) NODE_ELEMENT)
-				(defq tag (lower-case (. child 'node_name)))
+				(defq tag (to-lower (. child 'node_name)))
 				(cond
 					((or (eql tag "tr"))
 						(push rows child))
@@ -260,7 +260,7 @@
 						; Collect rows from sections
 						(each! 0 -1 (lambda (section_child)
 							(when (and (eql (. section_child 'node_type) NODE_ELEMENT)
-									(eql (lower-case (. section_child 'node_name)) "tr"))
+									(eql (to-lower (. section_child 'node_name)) "tr"))
 								(push rows section_child)))
 							(. child 'child_nodes))))))
 			(. node 'child_nodes))
@@ -278,7 +278,7 @@
 			; Render cells
 			(each! 0 -1 (lambda (cell)
 				(when (eql (. cell 'node_type) NODE_ELEMENT)
-					(defq cell_tag (lower-case (. cell 'node_name)))
+					(defq cell_tag (to-lower (. cell 'node_name)))
 					(when (or (eql cell_tag "td") (eql cell_tag "th"))
 						; Draw cell border
 						(. this :draw-box col_x row_y col_width (* 2 (get :line_height this)) COLOR_TABLE_BORDER)
@@ -556,7 +556,7 @@
 				; Apply CSS styles for this element
 				(. this :apply-element-styles node)
 
-				(defq tag-name (lower-case (. node :get-tag-name)))
+				(defq tag-name (to-lower (. node :get-tag-name)))
 
 				(cond
 					((or (eql tag-name "h1") (eql tag-name "h2") (eql tag-name "h3")

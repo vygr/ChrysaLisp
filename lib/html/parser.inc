@@ -92,7 +92,7 @@
 		(defq current (get :current_node this))
 		(while (and (not (empty? stk))
 				(not found))
-			(when (eql (lower-case (get :node_name current)) tag-name)
+			(when (eql (to-lower (get :node_name current)) tag-name)
 				(setq found :t))
 			(setq current (pop stk))
 			(def this :current_node current)
