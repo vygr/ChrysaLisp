@@ -2,12 +2,12 @@
 ;; Provides macros and functions for writing and running unit tests
 
 (defq
-	*test-suite-name* nil
-	*test-name* nil
+	*test-suite-name* :nil
+	*test-name* :nil
 	*test-passed* 0
 	*test-failed* 0
 	*test-errors* '()
-	*test-verbose* t)
+	*test-verbose* :t)
 
 (defun test-reset ()
 	; Reset test counters
@@ -119,12 +119,12 @@
 (defmacro assert-contains (collection item &optional msg)
 	; Assert that collection contains item
 	(defq msg-str (if msg msg (cat "Collection should contain " (str item))))
-	`(test-assert-impl (some! 0 -1 (lambda (x) (= x ,item)) ,collection) ,msg-str))
+	`(test-assert-impl (some! 0 -1 (lambda (x) (eql x ,item)) ,collection) ,msg-str))
 
 (defmacro assert-not-contains (collection item &optional msg)
 	; Assert that collection does not contain item
 	(defq msg-str (if msg msg (cat "Collection should not contain " (str item))))
-	`(test-assert-impl (not (some! 0 -1 (lambda (x) (= x ,item)) ,collection)) ,msg-str))
+	`(test-assert-impl (not (some! 0 -1 (lambda (x) (eql x ,item)) ,collection)) ,msg-str))
 
 (defmacro assert-empty (collection &optional msg)
 	; Assert that collection is empty
@@ -196,7 +196,7 @@
 	; Assert that element has expected tag name
 	(defq msg-str (if msg msg (cat "Element should have tag " (str expected-tag))))
 	`(test-assert-impl
-		(= (lower-case (. ,element :get-tag-name)) (lower-case ,expected-tag))
+		(eql (to-lower (. ,element :get-tag-name)) (to-lower ,expected-tag))
 		,msg-str))
 
 (defmacro assert-element-has-attribute (element attr-name &optional msg)
@@ -208,7 +208,7 @@
 	; Assert that element attribute equals expected value
 	(defq msg-str (if msg msg (cat "Attribute " (str attr-name) " should be " (str expected-value))))
 	`(test-assert-impl
-		(= (. ,element :get-attribute ,attr-name) ,expected-value)
+		(eql (. ,element :get-attribute ,attr-name) ,expected-value)
 		,msg-str))
 
 (defmacro assert-element-has-class (element class-name &optional msg)
@@ -217,7 +217,7 @@
 	`(test-assert-impl
 		(progn
 			(defq classes (split (. ,element :get-attribute "class") " "))
-			(some! 0 -1 (lambda (c) (= c ,class-name)) classes))
+			(some! 0 -1 (lambda (c) (eql c ,class-name)) classes))
 		,msg-str))
 
 (defmacro assert-element-child-count (element expected-count &optional msg)
@@ -261,7 +261,7 @@
 	; Assert that element has expected ID
 	(defq msg-str (if msg msg (cat "Element should have id " (str expected-id))))
 	`(test-assert-impl
-		(= (. ,element :get-attribute "id") ,expected-id)
+		(eql (. ,element :get-attribute "id") ,expected-id)
 		,msg-str))
 
 (defmacro assert-elements-count (doc tag-name expected-count &optional msg)
