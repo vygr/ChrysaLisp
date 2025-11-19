@@ -122,13 +122,16 @@ function main
 			base_cpu=$2
 			shift 2
 			;;
-		*)	echo "[-n cnt] number of nodes"
+		-*)	echo "[-n cnt] number of nodes"
 			echo "[-b base] base offset"
 			echo "[-e] emulator mode"
 			echo "[-f] foreground mode"
 			echo "[-h] help"
 			num_cpu=0
 			break
+			;;
+		*)	script="$1"
+			shift
 			;;
 	esac
 	done
