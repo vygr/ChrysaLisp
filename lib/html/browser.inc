@@ -1,6 +1,7 @@
 ;; HTML Browser Widget
 ;; A ChrysaLisp GUI widget for displaying HTML
 
+(import "lib/class/class.inc")
 (import "gui/canvas/lisp.inc")
 (import "gui/scroll/lisp.inc")
 (import "lib/html/parser.inc")
