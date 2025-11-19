@@ -15,6 +15,15 @@
 		*test-failed* 0
 		*test-errors* '()))
 
+(defun test-value-to-string (val)
+	; Convert value to string for test messages
+	; Avoids shadowing built-in str function
+	(cond
+		((str? val) val)
+		((num? val) (cat "" val))
+		((nil? val) "nil")
+		(:t (cat "" val))))
+
 (defun test-report ()
 	; Print test results summary
 	(print "")
@@ -59,71 +68,71 @@
 
 (defmacro assert-true (expr &optional msg)
 	; Assert that expression is true
-	(defq msg-str (if msg msg (str expr)))
+	(defq msg-str (if msg msg (test-value-to-string expr)))
 	`(test-assert-impl ,expr (cat "Expected true: " ,msg-str)))
 
 (defmacro assert-false (expr &optional msg)
 	; Assert that expression is false
-	(defq msg-str (if msg msg (str expr)))
+	(defq msg-str (if msg msg (test-value-to-string expr)))
 	`(test-assert-impl (not ,expr) (cat "Expected false: " ,msg-str)))
 
 (defmacro assert-eq (expected actual &optional msg)
 	; Assert that two values are equal
-	(defq msg-str (if msg msg (cat "Expected: " (str expected) " Actual: " (str actual))))
+	(defq msg-str (if msg msg (cat "Expected: " (test-value-to-string expected) " Actual: " (test-value-to-string actual))))
 	`(test-assert-impl (eql ,expected ,actual) ,msg-str))
 
 (defmacro assert-neq (expected actual &optional msg)
 	; Assert that two values are not equal
-	(defq msg-str (if msg msg (cat "Expected not equal: " (str expected) " vs " (str actual))))
+	(defq msg-str (if msg msg (cat "Expected not equal: " (test-value-to-string expected) " vs " (test-value-to-string actual))))
 	`(test-assert-impl (not (eql ,expected ,actual)) ,msg-str))
 
 (defmacro assert-nil (expr &optional msg)
 	; Assert that expression is nil
-	(defq msg-str (if msg msg (str expr)))
+	(defq msg-str (if msg msg (test-value-to-string expr)))
 	`(test-assert-impl (nil? ,expr) (cat "Expected nil: " ,msg-str)))
 
 (defmacro assert-not-nil (expr &optional msg)
 	; Assert that expression is not nil
-	(defq msg-str (if msg msg (str expr)))
+	(defq msg-str (if msg msg (test-value-to-string expr)))
 	`(test-assert-impl (not (nil? ,expr)) (cat "Expected not nil: " ,msg-str)))
 
 ;; Numeric comparison assertions
 
 (defmacro assert-greater (actual expected &optional msg)
 	; Assert that actual > expected
-	(defq msg-str (if msg msg (cat (str actual) " should be > " (str expected))))
+	(defq msg-str (if msg msg (cat (test-value-to-string actual) " should be > " (test-value-to-string expected))))
 	`(test-assert-impl (> ,actual ,expected) ,msg-str))
 
 (defmacro assert-less (actual expected &optional msg)
 	; Assert that actual < expected
-	(defq msg-str (if msg msg (cat (str actual) " should be < " (str expected))))
+	(defq msg-str (if msg msg (cat (test-value-to-string actual) " should be < " (test-value-to-string expected))))
 	`(test-assert-impl (< ,actual ,expected) ,msg-str))
 
 (defmacro assert-greater-eq (actual expected &optional msg)
 	; Assert that actual >= expected
-	(defq msg-str (if msg msg (cat (str actual) " should be >= " (str expected))))
+	(defq msg-str (if msg msg (cat (test-value-to-string actual) " should be >= " (test-value-to-string expected))))
 	`(test-assert-impl (>= ,actual ,expected) ,msg-str))
 
 (defmacro assert-less-eq (actual expected &optional msg)
 	; Assert that actual <= expected
-	(defq msg-str (if msg msg (cat (str actual) " should be <= " (str expected))))
+	(defq msg-str (if msg msg (cat (test-value-to-string actual) " should be <= " (test-value-to-string expected))))
 	`(test-assert-impl (<= ,actual ,expected) ,msg-str))
 
 (defmacro assert-close (actual expected tolerance &optional msg)
 	; Assert that actual is within tolerance of expected (for floats)
-	(defq msg-str (if msg msg (cat (str actual) " should be within " (str tolerance) " of " (str expected))))
+	(defq msg-str (if msg msg (cat (test-value-to-string actual) " should be within "  (test-value-to-string tolerance) " of " (test-value-to-string expected))))
 	`(test-assert-impl (<= (abs (- ,actual ,expected)) ,tolerance) ,msg-str))
 
 ;; Collection assertions
 
 (defmacro assert-contains (collection item &optional msg)
 	; Assert that collection contains item
-	(defq msg-str (if msg msg (cat "Collection should contain " (str item))))
+	(defq msg-str (if msg msg (cat "Collection should contain "  (test-value-to-string item))))
 	`(test-assert-impl (some! 0 -1 (lambda (x) (eql x ,item)) ,collection) ,msg-str))
 
 (defmacro assert-not-contains (collection item &optional msg)
 	; Assert that collection does not contain item
-	(defq msg-str (if msg msg (cat "Collection should not contain " (str item))))
+	(defq msg-str (if msg msg (cat "Collection should not contain "  (test-value-to-string item))))
 	`(test-assert-impl (not (some! 0 -1 (lambda (x) (eql x ,item)) ,collection)) ,msg-str))
 
 (defmacro assert-empty (collection &optional msg)
@@ -138,31 +147,31 @@
 
 (defmacro assert-length (collection expected-length &optional msg)
 	; Assert that collection has expected length
-	(defq msg-str (if msg msg (cat "Expected length " (str expected-length))))
+	(defq msg-str (if msg msg (cat "Expected length "  (test-value-to-string expected-length))))
 	`(test-assert-impl (= (length ,collection) ,expected-length) ,msg-str))
 
 ;; String assertions
 
 (defmacro assert-starts-with (str prefix &optional msg)
 	; Assert that string starts with prefix
-	(defq msg-str (if msg msg (cat (str str) " should start with " (str prefix))))
+	(defq msg-str (if msg msg (cat  (test-value-to-string str) " should start with "  (test-value-to-string prefix))))
 	`(test-assert-impl (starts-with ,prefix ,str) ,msg-str))
 
 (defmacro assert-ends-with (str suffix &optional msg)
 	; Assert that string ends with suffix
-	(defq msg-str (if msg msg (cat (str str) " should end with " (str suffix))))
+	(defq msg-str (if msg msg (cat  (test-value-to-string str) " should end with "  (test-value-to-string suffix))))
 	`(test-assert-impl (ends-with ,suffix ,str) ,msg-str))
 
 (defmacro assert-contains-str (str substring &optional msg)
 	; Assert that string contains substring
-	(defq msg-str (if msg msg (cat (str str) " should contain " (str substring))))
+	(defq msg-str (if msg msg (cat  (test-value-to-string str) " should contain "  (test-value-to-string substring))))
 	`(test-assert-impl (find ,substring ,str) ,msg-str))
 
 ;; Exception/Error assertions
 
 (defmacro assert-throws (expr &optional msg)
 	; Assert that expression throws an error/exception
-	(defq msg-str (if msg msg (cat "Expected " (str expr) " to throw an error")))
+	(defq msg-str (if msg msg (cat "Expected "  (test-value-to-string expr) " to throw an error")))
 	`(defq threw-error :nil)
 	`(catch
 		(progn ,expr (setq threw-error :nil))
@@ -174,7 +183,7 @@
 (defmacro assert-type (expr expected-type &optional msg)
 	; Assert that expression has expected type
 	; expected-type can be 'str, 'num, 'list, etc.
-	(defq msg-str (if msg msg (cat (str expr) " should be of type " (str expected-type))))
+	(defq msg-str (if msg msg (cat  (test-value-to-string expr) " should be of type "  (test-value-to-string expected-type))))
 	`(test-assert-impl
 		(cond
 			((= ,expected-type 'str) (str? ,expr))
@@ -189,31 +198,31 @@
 (defmacro assert-element-exists (doc selector &optional msg)
 	; Assert that an element matching selector exists in document
 	; selector can be tag name, or use :get-element-by-id
-	(defq msg-str (if msg msg (cat "Element " (str selector) " should exist")))
+	(defq msg-str (if msg msg (cat "Element "  (test-value-to-string selector) " should exist")))
 	`(test-assert-impl (not (nil? ,doc)) ,msg-str))
 
 (defmacro assert-element-tag (element expected-tag &optional msg)
 	; Assert that element has expected tag name
-	(defq msg-str (if msg msg (cat "Element should have tag " (str expected-tag))))
+	(defq msg-str (if msg msg (cat "Element should have tag "  (test-value-to-string expected-tag))))
 	`(test-assert-impl
 		(eql (to-lower (. ,element :get-tag-name)) (to-lower ,expected-tag))
 		,msg-str))
 
 (defmacro assert-element-has-attribute (element attr-name &optional msg)
 	; Assert that element has an attribute
-	(defq msg-str (if msg msg (cat "Element should have attribute " (str attr-name))))
+	(defq msg-str (if msg msg (cat "Element should have attribute "  (test-value-to-string attr-name))))
 	`(test-assert-impl (. ,element :has-attribute ,attr-name) ,msg-str))
 
 (defmacro assert-element-attribute-eq (element attr-name expected-value &optional msg)
 	; Assert that element attribute equals expected value
-	(defq msg-str (if msg msg (cat "Attribute " (str attr-name) " should be " (str expected-value))))
+	(defq msg-str (if msg msg (cat "Attribute "  (test-value-to-string attr-name) " should be "  (test-value-to-string expected-value))))
 	`(test-assert-impl
 		(eql (. ,element :get-attribute ,attr-name) ,expected-value)
 		,msg-str))
 
 (defmacro assert-element-has-class (element class-name &optional msg)
 	; Assert that element has a CSS class
-	(defq msg-str (if msg msg (cat "Element should have class " (str class-name))))
+	(defq msg-str (if msg msg (cat "Element should have class "  (test-value-to-string class-name))))
 	`(test-assert-impl
 		(progn
 			(defq classes (split (. ,element :get-attribute "class") " "))
@@ -222,7 +231,7 @@
 
 (defmacro assert-element-child-count (element expected-count &optional msg)
 	; Assert that element has expected number of children
-	(defq msg-str (if msg msg (cat "Element should have " (str expected-count) " children")))
+	(defq msg-str (if msg msg (cat "Element should have "  (test-value-to-string expected-count) " children")))
 	`(test-assert-impl
 		(= (length (. ,element 'child_nodes)) ,expected-count)
 		,msg-str))
@@ -243,7 +252,7 @@
 
 (defmacro assert-element-text-contains (element expected-text &optional msg)
 	; Assert that element's text content contains expected text
-	(defq msg-str (if msg msg (cat "Element text should contain " (str expected-text))))
+	(defq msg-str (if msg msg (cat "Element text should contain "  (test-value-to-string expected-text))))
 	`(test-assert-impl
 		(progn
 			(defq text "")
@@ -259,14 +268,14 @@
 
 (defmacro assert-element-id (element expected-id &optional msg)
 	; Assert that element has expected ID
-	(defq msg-str (if msg msg (cat "Element should have id " (str expected-id))))
+	(defq msg-str (if msg msg (cat "Element should have id "  (test-value-to-string expected-id))))
 	`(test-assert-impl
 		(eql (. ,element :get-attribute "id") ,expected-id)
 		,msg-str))
 
 (defmacro assert-elements-count (doc tag-name expected-count &optional msg)
 	; Assert that document has expected number of elements with tag name
-	(defq msg-str (if msg msg (cat "Should have " (str expected-count) " " (str tag-name) " elements")))
+	(defq msg-str (if msg msg (cat "Should have "  (test-value-to-string expected-count) " "  (test-value-to-string tag-name) " elements")))
 	`(test-assert-impl
 		(= (length (. ,doc :get-elements-by-tag-name ,tag-name)) ,expected-count)
 		,msg-str))
