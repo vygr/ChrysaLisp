@@ -54,17 +54,17 @@
 
 	(defmethod :get-attribute (name)
 		; Get an attribute value
-		(get (get :attributes this) name))
+		(get (get :attributes this) (sym name)))
 
 	(defmethod :set-attribute (name value)
 		; Set an attribute value
 		(defq attrs (get :attributes this))
-		(set-insert attrs name value)
+		(set attrs (sym name) value)
 		value)
 
 	(defmethod :has-attribute (name)
 		; Check if attribute exists
-		(not (nil? (get (get :attributes this) name))))
+		(not (nil? (get (get :attributes this) (sym name)))))
 
 	(defmethod :get-text-content ()
 		; Get all text content from node and descendants
@@ -161,11 +161,11 @@
 		(defq listeners (get event-listeners event-type))
 		(unless listeners
 			(setq listeners (list))
-			(set-insert event-listeners event-type listeners))
+			(set event-listeners event-type listeners))
 
 		; Add callback to list
 		(push listeners callback)
-		(set-insert event-listeners event-type listeners)
+		(set event-listeners event-type listeners)
 		this)
 
 	(defmethod :remove-event-listener (event-type callback)
@@ -174,7 +174,7 @@
 		(defq listeners (get event-listeners event-type))
 		(when listeners
 			(setq listeners (filter (lambda (cb) (not (eql cb callback))) listeners))
-			(set-insert event-listeners event-type listeners))
+			(set event-listeners event-type listeners))
 		this)
 
 	(defmethod :dispatch-event (event-type event-data)

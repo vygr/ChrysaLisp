@@ -153,3 +153,6 @@
 	(defq alerts (. win :get-alerts))
 	(assert-eq 1 (length alerts))
 	(assert-eq "Mouse over!" (first alerts)))
+
+; Report test results
+(test-report)

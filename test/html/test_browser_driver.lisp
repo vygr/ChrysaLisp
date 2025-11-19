@@ -300,3 +300,6 @@
 	(assert-eq "Alice" (. (. driver :find-element-by-id "first") :get-attribute "value"))
 	(assert-eq "Bob" (. (. driver :find-element-by-id "second") :get-attribute "value"))
 	(assert-eq :t (. (. driver :script-context) :get-global "done")))
+
+; Report test results
+(test-report)

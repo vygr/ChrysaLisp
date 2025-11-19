@@ -21,9 +21,9 @@
 		; Set a cookie
 		; Options: :path "/path" :expires timestamp :max-age seconds
 		(defq cookie (env))
-		(set-insert cookie :name name)
-		(set-insert cookie :value value)
-		(set-insert cookie :created (time))
+		(set cookie :name name)
+		(set cookie :value value)
+		(set cookie :created (time))
 
 		; Parse options
 		(defq i 0)
@@ -34,16 +34,16 @@
 				(defq val (elem i options))
 				(cond
 					((eql key :path)
-						(set-insert cookie :path val))
+						(set cookie :path val))
 					((eql key :expires)
-						(set-insert cookie :expires val))
+						(set cookie :expires val))
 					((eql key :max-age)
-						(set-insert cookie :max-age val)))
+						(set cookie :max-age val)))
 				(setq i (+ i 1))))
 
 		; Store cookie
 		(defq cookies-map (get :cookies this))
-		(set-insert cookies-map (sym name) cookie)
+		(set cookies-map (sym name) cookie)
 		(def this :cookies cookies-map)
 		:nil)
 
@@ -94,8 +94,8 @@
 				(defq expires (get cookie :expires))
 				(when (or (eql expires :nil) (>= expires (time)))
 					(defq entry (env))
-					(set-insert entry :name (get cookie :name))
-					(set-insert entry :value (get cookie :value))
+					(set entry :name (get cookie :name))
+					(set entry :value (get cookie :value))
 					(push result entry))))
 			keys)
 
@@ -118,7 +118,7 @@
 					(defq keys (env-keys cookies-map))
 
 					(each! 0 -1 (lambda (key)
-						(set-insert data key (get cookies-map key)))
+						(set data key (get cookies-map key)))
 						keys)
 
 					; Save to file using print (simple serialization)

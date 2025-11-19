@@ -85,3 +85,5 @@
 	(defq s (. ed :flush))
 	(assert-eq "" s))
 
+; Report test results
+(test-report)

@@ -196,3 +196,6 @@
 	(defq executor3 (execute-document-scripts doc))
 	(defq ctx3 (. executor3 :get-context))
 	(assert-eq "cancelled" (. ctx3 :get-global "action")))
+
+; Report test results
+(test-report)

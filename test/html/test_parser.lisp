@@ -89,3 +89,6 @@
 	(defq text (render-html-to-text doc))
 	(assert-not-nil text))
 
+
+; Report test results
+(test-report)

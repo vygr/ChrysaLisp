@@ -43,7 +43,7 @@
 			(when (. this :selector-matches? selector element)
 				; Merge properties
 				(each! 0 -1 (lambda ((prop val))
-					(set-insert computed prop val))
+					(set computed prop val))
 					(tolist props))))
 			rules-list)
 
@@ -188,7 +188,7 @@
 					(when (eql (. this :peek) ";")
 						(. this :advance))
 
-					(set-insert properties (to-lower prop) value)))
+					(set properties (to-lower prop) value)))
 
 			; Skip }
 			(when (eql (. this :peek) "}")

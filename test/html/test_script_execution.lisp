@@ -9,3 +9,6 @@
 
 (deftest-suite "Script Execution Tests")
 
+
+; Report test results
+(test-report)

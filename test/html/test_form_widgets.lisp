@@ -265,3 +265,6 @@
 	; Verify actual DOM was modified
 	(defq input (. doc :get-element-by-id "name"))
 	(assert-eq "Bob" (. input :get-attribute "value")))
+
+; Report test results
+(test-report)

@@ -471,3 +471,6 @@
 	; Verify all fields filled
 	(assert-eq "alice_smith" (. (. driver :find-element-by-id "username") :get-attribute "value"))
 	(assert-eq "alice@example.com" (. (. driver :find-element-by-id "email") :get-attribute "value")))
+
+; Report test results
+(test-report)

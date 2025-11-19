@@ -165,3 +165,6 @@
 	(defq ctx (. executor :get-context))
 
 	(assert-eq "3" (. ctx :get-global "final")))
+
+; Report test results
+(test-report)

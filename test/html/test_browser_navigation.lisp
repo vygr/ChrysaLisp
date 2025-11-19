@@ -76,3 +76,6 @@
 	; Get current URL
 	(get :current_file this))
 
+
+; Report test results
+(test-report)

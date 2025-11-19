@@ -233,3 +233,6 @@
 
 	(assert-eq "3" (. ctx :get-global "final"))
 	(assert-eq 1 (. ctx :get-global "len")))  ; Only one key
+
+; Report test results
+(test-report)

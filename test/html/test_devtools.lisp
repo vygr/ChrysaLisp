@@ -8,3 +8,6 @@
 
 (deftest-suite "DevTools Inspector Tests")
 
+
+; Report test results
+(test-report)

@@ -60,3 +60,6 @@
 	(assert-eq 1024 (. view 'width))
 	(assert-eq 768 (. view 'height)))
 
+
+; Report test results
+(test-report)

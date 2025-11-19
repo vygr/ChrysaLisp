@@ -121,9 +121,9 @@
 				(progn
 					(. this :advance)  ; Skip =
 					(defq value (. this :read-attribute-value))
-					(set-insert attrs name value))
+					(set attrs (sym name) value))
 				; Boolean attribute (no value)
-				(set-insert attrs name :t)))
+				(set attrs (sym name) :t)))
 		attrs)
 
 	(defmethod :next-token ()

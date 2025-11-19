@@ -147,8 +147,8 @@
 	(defmethod :window-size browser-driver ()
 		; Get window size
 		(defq size (env))
-		(set-insert size :width (get :window_width this))
-		(set-insert size :height (get :window_height this))
+		(set size :width (get :window_width this))
+		(set size :height (get :window_height this))
 		size)
 
 	(defmethod :set-window-size browser-driver (width height)

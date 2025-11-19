@@ -18,3 +18,6 @@
 		(:canvas_alloc 0 w h 0xffffffff 1))
 	canvas)
 
+
+; Report test results
+(test-report)

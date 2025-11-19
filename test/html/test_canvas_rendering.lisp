@@ -29,3 +29,6 @@
 		; Read pixel - this is simplified, actual implementation may vary
 		0xff000000))  ; Placeholder - would need actual pixel reading
 
+
+; Report test results
+(test-report)

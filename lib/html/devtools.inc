@@ -22,11 +22,11 @@
 		; Log a message to console
 		; level: :info, :warn, :error, :debug
 		(defq entry (env))
-		(set-insert entry :timestamp (time))
-		(set-insert entry :level level)
-		(set-insert entry :message message)
+		(set entry :timestamp (time))
+		(set entry :level level)
+		(set entry :message message)
 		(when data
-			(set-insert entry :data data))
+			(set entry :data data))
 
 		; Add to log entries
 		(defq entries (get :log_entries this))
@@ -165,21 +165,21 @@
 	(defmethod :get-element-info (element)
 		; Get detailed info about an element
 		(defq info (env))
-		(set-insert info :tag_name (get :node_name element))
-		(set-insert info :node_type (get :node_type element))
+		(set info :tag_name (get :node_name element))
+		(set info :node_type (get :node_type element))
 
 		; Get attributes
 		(when (eql (get :node_type element) NODE_ELEMENT)
-			(set-insert info :attributes (get :attributes element))
+			(set info :attributes (get :attributes element))
 
 			; Get computed info
 			(defq child_count (length (get :child_nodes element)))
-			(set-insert info :child_count child_count)
+			(set info :child_count child_count)
 
 			; Get text content
 			(defq text (. element :get-text-content))
 			(when (> (length text) 0)
-				(set-insert info :text_content (if (> (length text) 100)
+				(set info :text_content (if (> (length text) 100)
 					(cat (slice text 0 97) "...")
 					text))))
 
@@ -202,10 +202,10 @@
 		; Track a network resource load
 		; url: file path, method: "GET", status: "OK" or "ERROR"
 		(defq entry (env))
-		(set-insert entry :url url)
-		(set-insert entry :method method)
-		(set-insert entry :status status)
-		(set-insert entry :timestamp (time))
+		(set entry :url url)
+		(set entry :method method)
+		(set entry :status status)
+		(set entry :timestamp (time))
 
 		(defq resources (get :resources this))
 		(push resources entry)

@@ -308,3 +308,6 @@
 
 	(assert-eq :t (. ctx :get-global "setup")))
 
+
+; Report test results
+(test-report)

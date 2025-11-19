@@ -201,3 +201,6 @@
 
 	(defq imgs (. doc :get-elements-by-tag-name "img"))
 	(assert-eq 2 (length imgs)))
+
+; Report test results
+(test-report)

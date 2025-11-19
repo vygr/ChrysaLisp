@@ -61,3 +61,6 @@
 		"" (split normalized "")))
 	normalized)
 
+
+; Report test results
+(test-report)

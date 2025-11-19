@@ -50,15 +50,15 @@
 
 		; Add document and window to global environment
 		(defq global-env (get :global_env this))
-		(set-insert global-env "document" doc)
-		(set-insert global-env "window" this)
+		(set global-env "document" doc)
+		(set global-env "window" this)
 
 		; Add Web Storage to global environment
-		(set-insert global-env "localStorage" ls)
-		(set-insert global-env "sessionStorage" ss)
+		(set global-env "localStorage" ls)
+		(set global-env "sessionStorage" ss)
 
 		; Add Web Audio API constructor
-		(set-insert global-env "AudioContext" AudioContext)
+		(set global-env "AudioContext" AudioContext)
 
 		this)
 
@@ -105,7 +105,7 @@
 	(defmethod :set-global (name value)
 		; Set a global variable
 		(defq global-env (get :global_env this))
-		(set-insert global-env name value)
+		(set global-env name value)
 		value)
 
 	;; Dialog functions
@@ -132,8 +132,8 @@
 		; Display prompt dialog, returns string or nil
 		; (. window :prompt "Enter name:" "default")
 		(defq entry (env))
-		(set-insert entry :message message)
-		(set-insert entry :default default_value)
+		(set entry :message message)
+		(set entry :default default_value)
 		(defq prompts (get :prompts this))
 		(push prompts entry)
 		(def this :prompts prompts)

@@ -361,3 +361,6 @@
 	(assert-eq "#FF0000" (. script-ctx :get-global "color1"))
 	(assert-eq "#0000FF" (. script-ctx :get-global "color2")))
 
+
+; Report test results
+(test-report)

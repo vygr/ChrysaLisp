@@ -23,7 +23,7 @@
 		; Store an item
 		; Storage.setItem(key, value)
 		(defq items-map (get :items this))
-		(set-insert items-map (sym key) (str value))
+		(set items-map (sym key) (str value))
 		(def this :items items-map)
 		:nil)
 

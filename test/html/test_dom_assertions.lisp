@@ -8,3 +8,6 @@
 
 (deftest-suite "DOM Assertion Tests")
 
+
+; Report test results
+(test-report)
