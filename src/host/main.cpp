@@ -104,7 +104,7 @@ int main(int argc, char *argv[])
 						#ifdef _HOST_NET
 							ret_val = ((int(*)(char* [], void* [], void* [], void* [], void* []))((char*)data + data[5]))(argv, host_os_funcs, nullptr, nullptr, host_net_funcs);
 						#else
-							ret_val = ((int(*)(char* [], void* [], void* [], void* []))((char*)data + data[5]))(argv, host_os_funcs, nullptr, nullptr, nullptr);
+							ret_val = ((int(*)(char* [], void* [], void* [], void* [], void* []))((char*)data + data[5]))(argv, host_os_funcs, nullptr, nullptr, nullptr);
 						#endif
 					#endif
 					}
