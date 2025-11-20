@@ -35,9 +35,6 @@ still a very good exercise in Jit tech.
 
 * Gui remote desktop service that runs over CLB.
 
-* Move `vp-min, vp-max, vp-abs` into the VP VM proper. ARM64 and x64 have
-native operations `cmov` that could implement these.
-
 * Environment browser GUI app to aid debugging and housekeeping.
 
 * Forth that outputs words compiled to VP ops !!! I will do this just to honor
