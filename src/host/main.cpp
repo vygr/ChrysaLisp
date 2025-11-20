@@ -42,14 +42,18 @@ int main(int argc, char *argv[])
 	int ret_val = 0;
 	if (argc > 1)
 	{
-		//check for -e option
+		//check for -e or -run option
 		for (int i = 0; i < argc; ++i)
 		{
-			if (!strcmp(argv[i], "-e"))
+			if (!strcmp(argv[i], "-e") || !strcmp(argv[i], "-run"))
 			{
-				//override boot image to emu image
+				//use emulator for both -e flag and -run (script execution)
 				run_emu = true;
-				argv[1] = (char*)"obj/vp64/VP64/sys/boot_image";
+				if (!strcmp(argv[i], "-e"))
+				{
+					//override boot image to emu image for -e flag
+					argv[1] = (char*)"obj/vp64/VP64/sys/boot_image";
+				}
 				break;
 			}
 		}
