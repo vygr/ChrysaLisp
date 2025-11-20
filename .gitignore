@@ -17,4 +17,4 @@ chrysalisp.exe
 *.dll
 ai/*
 apps/login/*/*.tre
-lib/fs/*
+lib/fs/*/*
