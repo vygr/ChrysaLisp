@@ -159,6 +159,18 @@ enum Opcodes
 	VP64_RET,
 	VP64_SYNC,
 	VP64_BRK,
+
+	VP64_MIN_CR_0,
+	VP64_MIN_CR_1,
+	VP64_MIN_CR_2,
+	VP64_MIN_CR_3,
+	VP64_MAX_CR_0,
+	VP64_MAX_CR_1,
+	VP64_MAX_CR_2,
+	VP64_MAX_CR_3,
+	VP64_MIN_RR,
+	VP64_MAX_RR,
+	VP64_ABS_RR,
 };
 
 std::string opcodeDesc[] = {
@@ -1395,6 +1407,101 @@ int vp64(uint8_t* data, int64_t *stack, int64_t* argv, int64_t* host_os_funcs, i
 			case VP64_BRK:
 			{
 				std::cout << "brk " << ((ir >> 8) & 0xff) << std::endl;
+			}
+			break;
+
+			case VP64_MIN_CR_0:
+			{
+				int64_t c = (int64_t)(ir << 52) >> 60;
+				int64_t d = regs[(ir >> 8) & 0xf];
+				regs[(ir >> 8) & 0xf] = (c < d) ? c : d;
+			}
+			break;
+
+			case VP64_MIN_CR_1:
+			{
+				int64_t c = (int64_t)(((ir >> 12) & 0xf) | ((int64_t)*pc++ << 4));
+				int64_t d = regs[(ir >> 8) & 0xf];
+				regs[(ir >> 8) & 0xf] = (c < d) ? c : d;
+			}
+			break;
+
+			case VP64_MIN_CR_2:
+			{
+				uint64_t o1 = (uint64_t)*(uint16_t*)pc++ << 4;
+				int64_t c = (int64_t)(((ir >> 12) & 0xf) | o1 | ((int64_t)*pc++ << 20));
+				int64_t d = regs[(ir >> 8) & 0xf];
+				regs[(ir >> 8) & 0xf] = (c < d) ? c : d;
+			}
+			break;
+
+			case VP64_MIN_CR_3:
+			{
+				uint64_t o0 = (uint64_t)*(uint16_t*)pc++;
+				uint64_t o1 = (uint64_t)*(uint16_t*)pc++ << 16;
+				uint64_t o2 = (uint64_t)*(uint16_t*)pc++ << 32;
+				int64_t c = (int64_t)(o0 | o1 | o2 | ((int64_t)*pc++ << 48));
+				int64_t d = regs[(ir >> 8) & 0xf];
+				regs[(ir >> 8) & 0xf] = (c < d) ? c : d;
+			}
+			break;
+
+			case VP64_MAX_CR_0:
+			{
+				int64_t c = (int64_t)(ir << 52) >> 60;
+				int64_t d = regs[(ir >> 8) & 0xf];
+				regs[(ir >> 8) & 0xf] = (c > d) ? c : d;
+			}
+			break;
+
+			case VP64_MAX_CR_1:
+			{
+				int64_t c = (int64_t)(((ir >> 12) & 0xf) | ((int64_t)*pc++ << 4));
+				int64_t d = regs[(ir >> 8) & 0xf];
+				regs[(ir >> 8) & 0xf] = (c > d) ? c : d;
+			}
+			break;
+
+			case VP64_MAX_CR_2:
+			{
+				uint64_t o1 = (uint64_t)*(uint16_t*)pc++ << 4;
+				int64_t c = (int64_t)(((ir >> 12) & 0xf) | o1 | ((int64_t)*pc++ << 20));
+				int64_t d = regs[(ir >> 8) & 0xf];
+				regs[(ir >> 8) & 0xf] = (c > d) ? c : d;
+			}
+			break;
+
+			case VP64_MAX_CR_3:
+			{
+				uint64_t o0 = (uint64_t)*(uint16_t*)pc++;
+				uint64_t o1 = (uint64_t)*(uint16_t*)pc++ << 16;
+				uint64_t o2 = (uint64_t)*(uint16_t*)pc++ << 32;
+				int64_t c = (int64_t)(o0 | o1 | o2 | ((int64_t)*pc++ << 48));
+				int64_t d = regs[(ir >> 8) & 0xf];
+				regs[(ir >> 8) & 0xf] = (c > d) ? c : d;
+			}
+			break;
+
+			case VP64_MIN_RR:
+			{
+				int64_t s = regs[(ir >> 12) & 0xf];
+				int64_t d = regs[(ir >> 8) & 0xf];
+				regs[(ir >> 8) & 0xf] = (s < d) ? s : d;
+			}
+			break;
+
+			case VP64_MAX_RR:
+			{
+				int64_t s = regs[(ir >> 12) & 0xf];
+				int64_t d = regs[(ir >> 8) & 0xf];
+				regs[(ir >> 8) & 0xf] = (s > d) ? s : d;
+			}
+			break;
+
+			case VP64_ABS_RR:
+			{
+				int64_t s = regs[(ir >> 12) & 0xf];
+				regs[(ir >> 8) & 0xf] = (s < 0) ? -s : s;
 			}
 			break;
 

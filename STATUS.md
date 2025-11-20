@@ -36,6 +36,9 @@ uses of `id-encode` and `id-decode`.
 New `(read-blk stream bytes) -> :nil | str` and
 `(write-blk stream str) -> bytes` builtin VP function.
 
+Moved `vp-min, vp-max, vp-abs` into the VP VM proper. ARM64 and x64 have native
+operations `cmov` and `csel` that could implement these.
+
 ------
 
 New `opt-tail-call` VP optimization.
