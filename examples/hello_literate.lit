@@ -1,0 +1,111 @@
+# A Simple Literate Program - Hello World
+
+This is a demonstration of literate programming in ChrysaLisp using the LITPROG tool.
+We'll create a simple "Hello World" program using noweb-style syntax.
+
+## Introduction
+
+Literate programming is a methodology that treats a program as literature intended
+for human beings. We combine documentation and code in a way that emphasizes
+explaining to humans what we want the computer to do.
+
+## The Main Program
+
+Our program will greet the world in a friendly manner. Let's start with the main
+structure:
+
+<<hello.lisp>>=
+;; A friendly greeting program
+;; Generated from literate source
+
+<<imports>>
+
+<<main-function>>
+
+<<helper-functions>>
+
+(main)
+@
+
+## Required Imports
+
+First, we need to import the necessary libraries:
+
+<<imports>>=
+(import "lib/asm/asm.inc")
+@
+
+## The Main Function
+
+The main function orchestrates our greeting. It will:
+1. Print a fancy header
+2. Display the greeting
+3. Show a farewell message
+
+<<main-function>>=
+(defun main ()
+  <<print-header>>
+  <<print-greeting>>
+  <<print-farewell>>)
+@
+
+### Printing the Header
+
+Let's create an eye-catching ASCII art header:
+
+<<print-header>>=
+  (print "╔════════════════════════════════════════╗")
+  (print "║   HELLO FROM LITERATE PROGRAMMING!    ║")
+  (print "╚════════════════════════════════════════╝")
+  (print "")
+@
+
+### The Greeting
+
+Now for the actual greeting message:
+
+<<print-greeting>>=
+  (print "Hello, World!")
+  (print "This program was created using literate programming.")
+  (print (cat "The answer to life, universe, and everything: "
+              (calculate-answer)))
+  (print "")
+@
+
+### Farewell Message
+
+And a polite goodbye:
+
+<<print-farewell>>=
+  (print "Thank you for reading!")
+  (print "May your code be literate and your bugs be few.")
+@
+
+## Helper Functions
+
+We need a function to calculate the answer to life, the universe, and everything:
+
+<<helper-functions>>=
+(defun calculate-answer ()
+  ; The Ultimate Answer
+  42)
+@
+
+## Conclusion
+
+This simple example demonstrates how literate programming allows us to:
+- Organize code in a logical narrative order
+- Explain the "why" not just the "what"
+- Build programs incrementally using named chunks
+- Generate beautiful documentation and working code from the same source
+
+To use this file:
+```bash
+# Extract the code
+(litprog-tangle "hello_literate.lit" "output/")
+
+# Generate documentation
+(litprog-weave "hello_literate.lit" "hello_docs.html" :format :html)
+```
+
+The result will be a working `hello.lisp` file and beautiful documentation!

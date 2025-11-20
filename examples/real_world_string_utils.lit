@@ -1,0 +1,255 @@
+# String Utilities Library - A Real ChrysaLisp Example
+
+This is a real-world literate program that generates a useful ChrysaLisp
+library for string manipulation. This demonstrates the complete workflow:
+write once, generate code + documentation.
+
+## Purpose
+
+ChrysaLisp has powerful string primitives, but sometimes we need higher-level
+utilities for common operations. This library provides:
+
+- String joining (like Python's `str.join()`)
+- String padding (left, right, center)
+- String wrapping for text formatting
+- Case conversion utilities
+
+## Implementation
+
+### Library Header
+
+Every ChrysaLisp library starts with imports and a clear header:
+
+<<string-utils.lisp>>=
+;; ====================================================================
+;; String Utilities Library
+;; Generated from literate source using LITPROG
+;; ====================================================================
+;;
+;; Provides common string manipulation functions:
+;; - str-join: Join strings with separator
+;; - str-pad-left: Left-pad string to width
+;; - str-pad-right: Right-pad string to width
+;; - str-repeat: Repeat string n times
+;; - str-lines: Split into lines and process
+;;
+
+<<imports>>
+<<join-function>>
+<<padding-functions>>
+<<repeat-function>>
+<<lines-function>>
+<<export>>
+@
+
+### Required Imports
+
+We need the basic assembly interface:
+
+<<imports>>=
+(import "lib/asm/asm.inc")
+@
+
+### String Joining
+
+Join a list of strings with a separator (like `",".join(list)` in Python):
+
+<<join-function>>=
+(defun str-join (separator lst)
+	"Join list of strings with separator between them"
+	(if (empty? lst)
+		""
+		(reduce (lambda (acc item)
+			(if (eql acc "")
+				item
+				(cat acc separator item)))
+			lst "")))
+@
+
+**Example Usage:**
+```lisp
+(str-join ", " (list "apple" "banana" "cherry"))
+; => "apple, banana, cherry"
+```
+
+### String Padding
+
+Pad strings to a fixed width - useful for formatting output:
+
+<<padding-functions>>=
+(defun str-pad-left (s width &optional (pad-char " "))
+	"Pad string on left to reach width"
+	(defq current-len (length s)
+		needed (- width current-len))
+	(if (<= needed 0)
+		s
+		(cat (str-repeat pad-char needed) s)))
+
+(defun str-pad-right (s width &optional (pad-char " "))
+	"Pad string on right to reach width"
+	(defq current-len (length s)
+		needed (- width current-len))
+	(if (<= needed 0)
+		s
+		(cat s (str-repeat pad-char needed))))
+@
+
+**Example Usage:**
+```lisp
+(str-pad-left "42" 5 "0")
+; => "00042"
+
+(str-pad-right "Name" 10)
+; => "Name      "
+```
+
+### String Repetition
+
+Repeat a string n times:
+
+<<repeat-function>>=
+(defun str-repeat (s n)
+	"Repeat string s exactly n times"
+	(if (<= n 0)
+		""
+		(if (eql n 1)
+			s
+			(cat s (str-repeat s (dec n))))))
+@
+
+**Example Usage:**
+```lisp
+(str-repeat "=" 40)
+; => "========================================"
+
+(str-repeat "ha" 3)
+; => "hahaha"
+```
+
+### Line Processing
+
+Process text line by line:
+
+<<lines-function>>=
+(defun str-lines (text)
+	"Split text into lines (by newline)"
+	(split text (ascii-char 10)))
+
+(defun str-lines-numbered (text &optional (start 1))
+	"Split into lines and add line numbers"
+	(defq lines (str-lines text)
+		num start
+		result (list))
+	(each (lambda (line)
+		(push result (cat (str-pad-left (cat num) 4) ": " line))
+		(setq num (inc num)))
+		lines)
+	result)
+@
+
+**Example Usage:**
+```lisp
+(str-lines "line1\nline2\nline3")
+; => ("line1" "line2" "line3")
+
+(str-lines-numbered "first\nsecond\nthird")
+; => ("   1: first" "   2: second" "   3: third")
+```
+
+### Exports
+
+Make functions available to users of this library:
+
+<<export>>=
+(export
+	str-join
+	str-pad-left
+	str-pad-right
+	str-repeat
+	str-lines
+	str-lines-numbered)
+@
+
+## Testing
+
+Here's how to test this library:
+
+```lisp
+; Load the library
+(import "string-utils.lisp")
+
+; Test str-join
+(print (str-join ", " (list "a" "b" "c")))
+; Expected: "a, b, c"
+
+; Test padding
+(print (str-pad-left "42" 5 "0"))
+; Expected: "00042"
+
+; Test repeat
+(print (str-repeat "-" 20))
+; Expected: "--------------------"
+
+; Test line numbering
+(each print (str-lines-numbered "First line\nSecond line\nThird line"))
+; Expected:
+;    1: First line
+;    2: Second line
+;    3: Third line
+```
+
+## Usage in Your Code
+
+```lisp
+(import "string-utils.lisp")
+
+; Format a table
+(defq headers (list "Name" "Age" "City"))
+(defq widths (list 15 5 12))
+(defq formatted
+	(map (lambda (h w) (str-pad-right h w))
+		headers widths))
+(print (str-join " | " formatted))
+
+; Create a separator
+(print (str-repeat "=" 50))
+
+; Number some output lines
+(each print (str-lines-numbered my-text))
+```
+
+## Benefits of Literate Programming
+
+This file demonstrates several advantages:
+
+1. **Single Source**: Code and documentation in one file
+2. **Narrative Order**: Explained in logical order, not compiler order
+3. **Examples Included**: Each function has usage examples
+4. **Self-Documenting**: The "why" is right next to the "what"
+5. **Maintainable**: Future developers (including you!) understand the design
+
+## How to Use This File
+
+```bash
+# Generate the library code
+chrysalisp -e "(import \"litprog_core_v4.lisp\")"
+chrysalisp -e "(tangle-to-file (parse-literate-file \"real_world_string_utils.lit\") \"string-utils.lisp\")"
+
+# Now you have string-utils.lisp ready to use!
+chrysalisp -e "(import \"string-utils.lisp\")"
+chrysalisp -e "(print (str-join \" + \" (list \"literate\" \"programming\" \"rocks\")))"
+```
+
+## Conclusion
+
+This real-world example shows how literate programming makes code:
+- **Easier to understand** (narrative explanation)
+- **Easier to maintain** (design decisions documented)
+- **Easier to use** (examples included)
+- **More reliable** (thought through carefully)
+
+The same source file generates both:
+- **Working code** (`string-utils.lisp`)
+- **Beautiful documentation** (this file!)
+
+That's the power of literate programming! 📚✨
