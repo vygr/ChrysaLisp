@@ -5,20 +5,8 @@
 (defun read-file-to-string (filepath)
 	; Opens a file and reads all content into a single string
 	; Returns the file content or nil if file cannot be read
-	(defq content "")
-	(defq file (open filepath "r"))
-	(if file
-		(progn
-			; Read all lines until EOF
-			(defq line :nil)
-			(while (setq line (read-line file))
-				(setq content (cat content line "\n")))
-			(close file)
-			; Remove trailing newline if present
-			(if (> (length content) 0)
-				(slice content 0 (- (length content) 1))
-				content))
-		:nil))
+	; Uses load() which is the built-in ChrysaLisp function for reading entire files
+	(load filepath))
 
 ;; Extract filepath from file:// URL
 (defun filepath-from-url (url)
@@ -43,18 +31,15 @@
 
 ;; Check if file exists (by attempting to read it)
 (defun file-exists? (filepath)
-	; Check if a file exists by attempting to open it
+	; Check if a file exists by using age() which returns 0 if file doesn't exist
 	; Returns true if file exists and is readable, nil otherwise
-	(defq file (open filepath "r"))
-	(if file
-		(progn (close file) :t)
-		:nil))
+	(not (eql (age filepath) 0)))
 
 ;; Get file size
 (defun file-size (filepath)
 	; Get the size of a file in bytes
 	; Returns the file size or 0 if file not found
-	(defq content (read-file-to-string filepath))
+	(defq content (load filepath))
 	(if content
 		(length content)
 		0))
