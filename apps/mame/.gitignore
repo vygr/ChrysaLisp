@@ -1,0 +1,29 @@
+# MAME source directory (cloned via setup script)
+mame-src/
+
+# Build artifacts
+*.o
+*.d
+*.a
+*.so
+*.dll
+*.dylib
+
+# Generated files
+env_mame.sh
+build_mame.sh
+
+# Test binaries
+mame_test
+test_*
+
+# ROM files (user-provided)
+roms/
+*.zip
+*.7z
+
+# Save states
+states/
+nvram/
+cfg/
+snap/
