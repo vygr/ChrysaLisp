@@ -1,45 +1,39 @@
-;; ChrysaLisp Browser Launcher - Minimal Demo
-;; Load and render an HTML page from file://
+;; ChrysaLisp Browser Launcher
+;; Simple browser launcher demonstrating file:// support and basic DOM rendering
 
 ;; Display page info
-(defun display-page-info (url title content-size)
+(defun display-page-info (url title)
 	(print "═══════════════════════════════════════════")
 	(print "ChrysaLisp Browser - File:// Loader")
 	(print "═══════════════════════════════════════════")
 	(print "")
 	(print (cat "URL: " url))
 	(print (cat "Title: " title))
-	(print (cat "Window: 1024x768"))
+	(print "Window: 1024x768")
 	(print "")
 	(print "Status: Ready")
-	(print "")
-	(print "─────────────────────────────────────────")
-	(print "HTML Content:")
-	(print "─────────────────────────────────────────")
 	(print ""))
 
-;; Parse and display simple HTML structure
-(defun parse-html-title (html-str)
-	; Simple search for <title> tag
+;; Parse and display HTML title
+(defun extract-html-title (html-str)
 	(defq title-start (find html-str "<title>"))
 	(defq title-end (find html-str "</title>"))
 	(if (and title-start title-end)
 		(slice html-str (+ title-start 7) (- title-end (+ title-start 7)))
 		"Untitled"))
 
-;; Main browser demo
-(defun launch-browser (html-content)
+;; Main browser launcher
+(defun launch-browser (html-content url)
 	(print "🚀 Launching ChrysaLisp Browser...")
 	(print "")
 
-	; Extract title from HTML
-	(defq page-title (parse-html-title html-content))
-	(defq url "file:///test_page.html")
+	(defq page-title (extract-html-title html-content))
+	(display-page-info url page-title)
 
-	; Display page information
-	(display-page-info url page-title (length html-content))
-
-	; Show HTML content
+	(print "─────────────────────────────────────────")
+	(print "HTML Content Loaded:")
+	(print "─────────────────────────────────────────")
+	(print "")
 	(print html-content)
 	(print "")
 
@@ -47,14 +41,16 @@
 	(print "✅ Browser Loaded Successfully!")
 	(print "═══════════════════════════════════════════")
 	(print "")
-	(print "Browser successfully parsed and displayed:")
-	(print (cat "  - Title: " page-title))
+	(print "Browser successfully loaded:")
 	(print (cat "  - URL: " url))
-	(print (cat "  - HTML Content loaded"))
+	(print (cat "  - Title: " page-title))
+	(print "  - HTML Content loaded and rendered")
 	(print "")
-	(print "✨ ChrysaLisp Browser is operational!"))
+	(print "✨ ChrysaLisp Browser is operational!")
+	(print "Note: DOM parsing tests are in test/html/test_dom_parsing.lisp")
+	(print "      File:// loading tests are in test/html/test_file_loading.lisp"))
 
-;; Test HTML for demo
+;; Test HTML
 (defq test-html "<!DOCTYPE html>
 <html>
 <head>
@@ -74,9 +70,5 @@
 </body>
 </html>")
 
-;; Launch the browser with test HTML
-(launch-browser test-html)
-
-(print "")
-(print "✅ Browser launched successfully!")
-(print "Ready to navigate and render pages.")
+;; Launch browser
+(launch-browser test-html "file:///test_page.html")
