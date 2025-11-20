@@ -85,5 +85,48 @@
 	(defq s (. ed :flush))
 	(assert-eq "" s))
 
+(deftest "Multiple Encoding Switches"
+	(init-test-case)
+	; Switch between different encodings
+	(assert-true (. ed :set-encoding "utf-8" :user))
+	(assert-eq "utf-8" (. ed :get-encoding))
+	(assert-true (. ed :set-encoding "iso-8859-1" :user))
+	(assert-eq "iso-8859-1" (. ed :get-encoding))
+	(assert-true (. ed :set-encoding "utf-8" :user))
+	(assert-eq "utf-8" (. ed :get-encoding)))
+
+(deftest "Encoding Priority: HTTP Header over User"
+	(init-test-case)
+	; Set user encoding first
+	(. ed :set-encoding "iso-8859-1" :user)
+	(assert-eq "iso-8859-1" (. ed :get-encoding))
+	; HTTP header should take precedence
+	(. ed :set-encoding "utf-8" :http-header)
+	(assert-eq "utf-8" (. ed :get-encoding)))
+
+(deftest "Decode Empty String"
+	(init-test-case)
+	(. ed :set-encoding "utf-8" :user)
+	(defq s (. ed :decode ""))
+	(assert-eq "" s)
+	(assert-false (. ed :decoded-invalid-chars?)))
+
+(deftest "Multiple Consecutive Decodes"
+	(init-test-case)
+	(. ed :set-encoding "utf-8" :user)
+	; First decode
+	(defq s1 (. ed :decode "hello"))
+	(assert-eq "hello" s1)
+	; Second decode without reset
+	(defq s2 (. ed :decode " world"))
+	(assert-eq " world" s2)
+	(assert-false (. ed :decoded-invalid-chars?)))
+
+(deftest "Detect Encoding from Default"
+	(init-test-case)
+	; Test with default encoding setting
+	(. ed :set-encoding "" :default)
+	(assert-eq "" (. ed :get-encoding)))
+
 ; Report test results
 (test-report)
