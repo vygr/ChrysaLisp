@@ -18,3 +18,6 @@ chrysalisp.exe
 ai/
 apps/login/*/*.tre
 lib/fs/
+docs/reference/classes/ExFat.md
+docs/reference/classes/Fs.md
+docs/reference/classes/RamDisk.md
