@@ -207,6 +207,14 @@ should provide the concreate handler
 (every lambda seq ...) -> :nil | form
 ```
 
+### field-type
+
+```code
+(field-type)
+
+convert to get-field/set-field args
+```
+
 ### filter
 
 ```code
@@ -229,18 +237,6 @@ should provide the concreate handler
 
 ```code
 (get-long str idx) -> num
-```
-
-### get-netid
-
-```code
-(get-netid str idx) -> netid
-```
-
-### get-nodeid
-
-```code
-(get-nodeid str idx) -> nodeid
 ```
 
 ### get-short

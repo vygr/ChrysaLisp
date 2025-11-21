@@ -377,9 +377,9 @@
 (ffi "class/obj/lisp_type" type-of)
 ; (type-of obj) -> (... :obj)
 (ffi "class/obj/lisp_get_field" get-field)
-; (get-field obj field size|0) -> val
+; (get-field obj offset type|0 size|0) -> val
 (ffi "class/obj/lisp_set_field" set-field)
-; (set-field obj field size|0 val) -> obj
+; (set-field obj offset type|0 size|0 val) -> obj
 (ffi "class/obj/lisp_wref" weak-ref)
 ; (weak-ref obj) -> num
 (ffi "class/obj/lisp_oref" obj-ref)
@@ -1026,39 +1026,31 @@
 
 (defmacro get-ubyte (s o)
 	; (get-ubyte str idx) -> num
-	(static-qq (get-field ,s (+ +str_data ,o) (const (neg +byte_size)))))
+	(static-qq (get-field ,s (+ +str_data ,o) (const (neg +byte_size)) 0)))
 
 (defmacro get-ushort (s o)
 	; (get-ushort str idx) -> num
-	(static-qq (get-field ,s (+ +str_data ,o) (const (neg +short_size)))))
+	(static-qq (get-field ,s (+ +str_data ,o) (const (neg +short_size)) 0)))
 
 (defmacro get-uint (s o)
 	; (get-uint str idx) -> num
-	(static-qq (get-field ,s (+ +str_data ,o) (const (neg +int_size)))))
+	(static-qq (get-field ,s (+ +str_data ,o) (const (neg +int_size)) 0)))
 
 (defmacro get-long (s o)
 	; (get-long str idx) -> num
-	(static-qq (get-field ,s (+ +str_data ,o) +long_size)))
+	(static-qq (get-field ,s (+ +str_data ,o) +long_size 0)))
 
 (defmacro get-byte (s o)
 	; (get-byte str idx) -> num
-	(static-qq (get-field ,s (+ +str_data ,o) +byte_size)))
+	(static-qq (get-field ,s (+ +str_data ,o) +byte_size 0)))
 
 (defmacro get-short (s o)
 	; (get-short str idx) -> num
-	(static-qq (get-field ,s (+ +str_data ,o) +short_size)))
+	(static-qq (get-field ,s (+ +str_data ,o) +short_size 0)))
 
 (defmacro get-int (s o)
 	; (get-int str idx) -> num
-	(static-qq (get-field ,s (+ +str_data ,o) +int_size)))
-
-(defmacro get-nodeid (s o)
-	; (get-nodeid str idx) -> nodeid
-	(static-qq (slice ,s ,o (+ ,o +node_id_size))))
-
-(defmacro get-netid (s o)
-	; (get-netid str idx) -> netid
-	(static-qq (slice ,s ,o (+ ,o +net_id_size))))
+	(static-qq (get-field ,s (+ +str_data ,o) +int_size 0)))
 
 (defun get-cstr (s o)
 	; (get-cstr str idx) -> str

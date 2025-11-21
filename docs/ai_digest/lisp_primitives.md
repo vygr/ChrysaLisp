@@ -598,14 +598,6 @@ sequences like lists, arrays, and strings.
 
     * `(get-int str idx) -> num`
 
-*   **`get-nodeid`**: Gets a node ID from a string.
-
-    * `(get-nodeid str idx) -> nodeid`
-
-*   **`get-netid`**: Gets a net ID from a string.
-
-    * `(get-netid str idx) -> netid`
-
 *   **`get-cstr`**: Gets a C-style string from a string.
 
     * `(get-cstr str idx) -> str`
@@ -1337,11 +1329,11 @@ representation of objects.
 
 *   **`get-field`**: Reads a value from an object at a specific memory offset.
 
-    * `(get-field obj field size|0) -> val`
+    * `(get-field obj field type|0 size|0) -> val`
 
 *   **`set-field`**: Writes a value to an object at a specific memory offset.
 
-    * `(set-field obj field size|0 val) -> val`
+    * `(set-field obj field type|0 size|0 val) -> val`
 
 *   **`weak-ref`**: Returns the memory address of a Lisp object as a number.
 

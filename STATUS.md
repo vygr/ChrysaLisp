@@ -39,6 +39,10 @@ New `(read-blk stream bytes) -> :nil | str` and
 Moved `vp-min, vp-max, vp-abs` into the VP VM proper. ARM64 and x64 have native
 operations `cmov` and `csel` that could implement these.
 
+Upgrade to `(get-field obj offset type|0 size|0) -> num|str` and `(set-field obj
+offset type|0 size|0 num|str) -> obj` to treat sub `struct` members as strings.
+`getf` and `setf` macros updated to correctly set the arguments to this new API.
+
 ------
 
 New `opt-tail-call` VP optimization.

@@ -2,13 +2,13 @@
 
 ## Lisp Bindings
 
-### (get-field obj field size|0) -> val
+### (get-field obj offset type|0 size|0) -> val
 
 ### (hash obj) -> num
 
 ### (obj-ref num) -> obj
 
-### (set-field obj field size|0 val) -> obj
+### (set-field obj offset type|0 size|0 val) -> obj
 
 ### (type-of obj) -> (... :obj)
 
