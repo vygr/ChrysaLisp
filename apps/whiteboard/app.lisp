@@ -140,14 +140,14 @@
 								(cat (slice *msg* 0 (if (defq i (rfind "." *msg*)) (dec i) -1)) ".cwb")
 								+file_open_write)
 							(scatter (Emap)
-								:version "CWB Version 2.0"
+								:version 2
 								:polygons *committed_polygons*)))
 					;load whiteboard
 					(:t (when (ends-with ".cwb" *msg*)
 							(bind '(version polygons)
 								(gather (tree-load (file-stream *msg*))
 									:version :polygons))
-							(when (eql version "CWB Version 2.0")
+							(when (eql version 2)
 								(snapshot)
 								(setq *committed_polygons* polygons)
 								(redraw-layers +layer_committed))))))
