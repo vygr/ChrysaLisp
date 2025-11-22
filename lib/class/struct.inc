@@ -68,10 +68,11 @@
 	; convert to obj-get/obj-set common args
 	(defq size 0 type (eval (sym (cat field "_t"))) type
 		(case type
+			("p" 0)
 			("b" +byte_size) ("s" +short_size) ("i" +int_size) ("l" +long_size)
 			("B" (const (neg +byte_size))) ("S" (const (neg +short_size)))
 			("I" (const (neg +int_size))) ("L" (const (neg +long_size)))
-			(("p" "pb" "ps" "pi" "pl" "pB" "pS" "pI" "pL" "pp") 0)
+			(("pb" "ps" "pi" "pl" "pB" "pS" "pI" "pL" "pp") +ptr_size)
 			("no" (defq size +node_id_size) 0)
 			("ne" (defq size +net_id_size) 0)
 			(:t (defq size (str-to-num type)) 0)))
