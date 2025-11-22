@@ -39,7 +39,7 @@ New `(read-blk stream bytes) -> :nil | str` and
 Moved `vp-min, vp-max, vp-abs` into the VP VM proper. ARM64 and x64 have native
 operations `cmov` and `csel` that could implement these.
 
-Upgrade to `(get-field obj offset type|0 size|0) -> num|str` and `(set-field obj
+Upgrade to `(obj-get obj offset type|0 size|0) -> num|str` and `(obj-set obj
 offset type|0 size|0 num|str) -> obj` to treat sub `struct` members as strings.
 `getf` and `setf` macros updated to correctly set the arguments to this new API.
 
@@ -1213,7 +1213,7 @@ New Element room for Chrysalisp OS, #ChrysaLisp-OS@matrix.org, unfortunately
 Gary Boyd admin of the old room has gone dark, I sincerely hope he is OK. But
 we must move to another room where there is admin access.
 
-New `(setf-> msg field ...)` macro and extended `(set-field) (get-field)`
+New `(setf-> msg field ...)` macro and extended `(obj-set) (obj-get)`
 functions to ease message creation.
 
 New `(export env sym ...)` macro to go along with `(env-push) ... (env-pop)`. A
@@ -1249,10 +1249,10 @@ function.
 Added nesting to the `(#)` macro ! Plus arbitrary % parameters not just
 starting from %0.
 
-Promotion of `(get-field)` `(set-field)` `(obj-ref)` and `(weak-ref)` to
+Promotion of `(obj-get)` `(obj-set)` `(obj-ref)` and `(weak-ref)` to
 `root.inc`.
 
-`(get-xxx)` macros now uses `(get-field)` and addition of `(get-nodeid)` and
+`(get-xxx)` macros now uses `(obj-get)` and addition of `(get-nodeid)` and
 `(get-netid)` macros.
 
 Addition of +net_id_size+ and +node_id_size+ symbols.
@@ -1996,7 +1996,7 @@ Added a Chess font and made use of it in the Chess demo app. Some tidy ups to
 the code. Not finished yet, but going to move onto other issues for a while,
 come back to this later to add the fully playable game.
 
-Added (set-field) and removed several field setting and getting native
+Added (obj-set) and removed several field setting and getting native
 functions with simple Lisp bindings.
 
 ------
@@ -2004,7 +2004,7 @@ functions with simple Lisp bindings.
 Sequenced message streams now available from Lisp apps ! Chess demo shows how
 you can use them to simplify process to process commms.
 
-New (get-field field size|0) function. (set-field field obj size|0) will come
+New (obj-get field size|0) function. (obj-set field obj size|0) will come
 at some point...
 
 Tidy up the lisp.inc files into 3 separate main areas, sys/lisp.inc,

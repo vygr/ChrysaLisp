@@ -376,10 +376,10 @@
 ; (hash obj) -> num
 (ffi "class/obj/lisp_type" type-of)
 ; (type-of obj) -> (... :obj)
-(ffi "class/obj/lisp_get_field" get-field)
-; (get-field obj offset type|0 size|0) -> val
-(ffi "class/obj/lisp_set_field" set-field)
-; (set-field obj offset type|0 size|0 val) -> obj
+(ffi "class/obj/lisp_fget" obj-get)
+; (obj-get obj offset type|0 size|0) -> val
+(ffi "class/obj/lisp_fset" obj-set)
+; (obj-set obj offset type|0 size|0 val) -> obj
 (ffi "class/obj/lisp_wref" weak-ref)
 ; (weak-ref obj) -> num
 (ffi "class/obj/lisp_oref" obj-ref)
@@ -1026,31 +1026,31 @@
 
 (defmacro get-ubyte (s o)
 	; (get-ubyte str idx) -> num
-	(static-qq (get-field ,s (+ +str_data ,o) (const (neg +byte_size)) 0)))
+	(static-qq (obj-get ,s (+ +str_data ,o) (const (neg +byte_size)) 0)))
 
 (defmacro get-ushort (s o)
 	; (get-ushort str idx) -> num
-	(static-qq (get-field ,s (+ +str_data ,o) (const (neg +short_size)) 0)))
+	(static-qq (obj-get ,s (+ +str_data ,o) (const (neg +short_size)) 0)))
 
 (defmacro get-uint (s o)
 	; (get-uint str idx) -> num
-	(static-qq (get-field ,s (+ +str_data ,o) (const (neg +int_size)) 0)))
+	(static-qq (obj-get ,s (+ +str_data ,o) (const (neg +int_size)) 0)))
 
 (defmacro get-long (s o)
 	; (get-long str idx) -> num
-	(static-qq (get-field ,s (+ +str_data ,o) +long_size 0)))
+	(static-qq (obj-get ,s (+ +str_data ,o) +long_size 0)))
 
 (defmacro get-byte (s o)
 	; (get-byte str idx) -> num
-	(static-qq (get-field ,s (+ +str_data ,o) +byte_size 0)))
+	(static-qq (obj-get ,s (+ +str_data ,o) +byte_size 0)))
 
 (defmacro get-short (s o)
 	; (get-short str idx) -> num
-	(static-qq (get-field ,s (+ +str_data ,o) +short_size 0)))
+	(static-qq (obj-get ,s (+ +str_data ,o) +short_size 0)))
 
 (defmacro get-int (s o)
 	; (get-int str idx) -> num
-	(static-qq (get-field ,s (+ +str_data ,o) +int_size 0)))
+	(static-qq (obj-get ,s (+ +str_data ,o) +int_size 0)))
 
 (defun get-cstr (s o)
 	; (get-cstr str idx) -> str

@@ -1327,13 +1327,13 @@ These functions interact directly with the underlying host operating system.
 These functions provide direct, unsafe access to the underlying memory
 representation of objects.
 
-*   **`get-field`**: Reads a value from an object at a specific memory offset.
+*   **`obj-get`**: Reads a value from an object at a specific memory offset.
 
-    * `(get-field obj field type|0 size|0) -> val`
+    * `(obj-get obj field type|0 size|0) -> val`
 
-*   **`set-field`**: Writes a value to an object at a specific memory offset.
+*   **`obj-set`**: Writes a value to an object at a specific memory offset.
 
-    * `(set-field obj field type|0 size|0 val) -> val`
+    * `(obj-set obj field type|0 size|0 val) -> val`
 
 *   **`weak-ref`**: Returns the memory address of a Lisp object as a number.
 

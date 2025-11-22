@@ -646,6 +646,22 @@ very basic attenuation, diffuse and specular
 (nums? form) -> :t | :nil
 ```
 
+### obj-args
+
+```code
+(obj-args field &optional offset) -> args
+
+convert to obj-get/obj-set common args
+```
+
+### obj-set-args
+
+```code
+(obj-set-args (field value &optional offset)) -> args
+
+convert to obj-set args
+```
+
 ### odd?
 
 ```code

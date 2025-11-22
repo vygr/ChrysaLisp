@@ -207,14 +207,6 @@ should provide the concreate handler
 (every lambda seq ...) -> :nil | form
 ```
 
-### field-type
-
-```code
-(field-type)
-
-convert to get-field/set-field args
-```
-
 ### filter
 
 ```code
@@ -452,7 +444,7 @@ convert to get-field/set-field args
 ### setf->
 
 ```code
-(setf-> msg form ...)
+(setf-> obj form ...) -> obj
 ```
 
 ### some

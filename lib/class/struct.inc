@@ -63,35 +63,41 @@
 	(push values (num-intern base))
 	(static-qq (bind ',syms ',values)))
 
-(defmacro field-type ()
-	; (field-type)
-	; convert to get-field/set-field args
-	(static-qq
-		(defq size 0 type (eval (sym (cat field "_t"))) type
-			(case type
-				("b" +byte_size) ("s" +short_size) ("i" +int_size) ("l" +long_size)
-				("B" (const (neg +byte_size))) ("S" (const (neg +short_size)))
-				("I" (const (neg +int_size))) ("L" (const (neg +long_size)))
-				(("p" "pb" "ps" "pi" "pl" "pB" "pS" "pI" "pL" "pp") 0)
-				("no" (defq size +node_id_size) 0)
-				("ne" (defq size +net_id_size) 0)
-				(:t (defq size (str-to-num type)) 0))
-			field (eval field) offset (ifn offset +str_data))))
+(defun obj-args (field &optional offset)
+	; (obj-args field &optional offset) -> args
+	; convert to obj-get/obj-set common args
+	(defq size 0 type (eval (sym (cat field "_t"))) type
+		(case type
+			("b" +byte_size) ("s" +short_size) ("i" +int_size) ("l" +long_size)
+			("B" (const (neg +byte_size))) ("S" (const (neg +short_size)))
+			("I" (const (neg +int_size))) ("L" (const (neg +long_size)))
+			(("p" "pb" "ps" "pi" "pl" "pB" "pS" "pI" "pL" "pp") 0)
+			("no" (defq size +node_id_size) 0)
+			("ne" (defq size +net_id_size) 0)
+			(:t (defq size (str-to-num type)) 0)))
+	(list (+ (eval field) (ifn offset +str_data)) type size))
 
 (defmacro getf (obj field &optional offset)
 	; (getf obj field [offset]) -> value
-	(field-type) (static-qq (get-field ,obj ,(+ field offset) ,type ,size)))
+	(bind '(field type size) (obj-args field offset))
+	(static-qq (obj-get ,obj ,field ,type ,size)))
 
-(defmacro setf (obj field val &optional offset)
+(defun obj-set-args ((field value &optional offset))
+	; (obj-set-args (field value &optional offset)) -> args
+	; convert to obj-set args
+	(push (obj-args field offset) value))
+
+(defmacro setf (obj &rest args)
 	; (setf obj field value [offset]) -> obj
-	(field-type) (static-qq (set-field ,obj ,(+ field offset) ,type ,size ,val)))
+	(bind '(field type size value) (obj-set-args args))
+	(static-qq (obj-set ,obj ,field ,type ,size ,value)))
 
-(defmacro setf-> (res &rest frm)
-	; (setf-> msg form ...)
-	(reduce (lambda (res frm)
-		(if (list? frm)
-			(insert frm 0 (list 'setf res))
-			(list 'setf res frm))) frm res))
+(defmacro setf-> (obj &rest forms)
+	; (setf-> obj form ...) -> obj
+	(bind '(fields types sizes values)
+		(map! (const list) (map (const obj-set-args) forms)))
+	(static-qq (reduce! (const obj-set) 
+		(list ',fields ',types ',sizes (list ~values)) ,obj)))
 
 ;;;;;;;
 ; enums
