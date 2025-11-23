@@ -1024,6 +1024,35 @@
 	(while (> c (length f)) (setq f (cat f f)))
 	(cat (slice f 0 c) v))
 
+(defun type-to-size (_)
+	; (type-to-size sym) -> num
+	(case _
+		((i ui) +int_size)
+		((s us) +short_size)
+		((b ub) +byte_size)
+		(:t +long_size)))
+
+(defun time-in-seconds (_)
+	; (time-in-seconds time) -> str
+	(str (/ _ 1000000) "." (pad (% _ 1000000) 6 "00000")))
+
+(defun lisp-nodes ()
+	; (lisp-nodes) -> nodes
+	(filter (const lisp-node?) (mail-nodes)))
+
+(defun max-length (_)
+	; (max-length list) -> max
+	(reduce (# (max %0 (length %1))) _ 0))
+
+(defun min-length (_)
+	; (min-length list) -> min
+	(if (= (length _) 0) 0
+		(reduce (# (min %0 (length %1))) _ +max_long)))
+
+;;;;;;;;;;;;;;;;;;;;;;
+; string object fields
+;;;;;;;;;;;;;;;;;;;;;;
+
 (defmacro get-ubyte (obj idx)
 	; (get-ubyte str idx) -> num
 	(static-qq (obj-get ,obj (+ +str_data ,idx) (const (neg +byte_size)) 0)))
@@ -1079,31 +1108,6 @@
 (defmacro set-str (obj idx val)
 	; (get-str str idx val) -> str
 	(static-qq (obj-set ,obj (+ +str_data ,idx) 0 (length ,val) ,val)))
-
-(defun type-to-size (_)
-	; (type-to-size sym) -> num
-	(case _
-		((i ui) +int_size)
-		((s us) +short_size)
-		((b ub) +byte_size)
-		(:t +long_size)))
-
-(defun time-in-seconds (_)
-	; (time-in-seconds time) -> str
-	(str (/ _ 1000000) "." (pad (% _ 1000000) 6 "00000")))
-
-(defun lisp-nodes ()
-	; (lisp-nodes) -> nodes
-	(filter (const lisp-node?) (mail-nodes)))
-
-(defun max-length (_)
-	; (max-length list) -> max
-	(reduce (# (max %0 (length %1))) _ 0))
-
-(defun min-length (_)
-	; (min-length list) -> min
-	(if (= (length _) 0) 0
-		(reduce (# (min %0 (length %1))) _ +max_long)))
 
 ;;;;;;;;;
 ; Streams
