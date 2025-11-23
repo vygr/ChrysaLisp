@@ -25,7 +25,7 @@
 	(dec-method :get_both class/array/get_both :static (:r0) (:r0 :r1 :r2))
 	(dec-method :sort_callback class/obj/null :static (:r0 :r1 :r2) (:r0))
 	(dec-method :deinit class/array/deinit :override)
-	(dec-method :type class/array/type :override (:r0) (:r0 :r1))
+	(dec-method :type class/array/type :override)
 	(dec-method :print class/array/print :override)
 	(dec-method :ref_elem class/array/ref_elem :override)
 	(dec-method :slice class/array/slice :override)

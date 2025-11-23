@@ -2,6 +2,7 @@
 
 (def-class sstream stream
 	(dec-method :vtable class/sstream/vtable)
+	(dec-method :type class/sstream/type :final)
 	(dec-method :create class/sstream/create :static (:r0) (:r0))
 	(dec-method :init class/sstream/init :static (:r0 :r1 :r2))
 	(dec-method :ref_string class/sstream/ref_string :static (:r0) (:r0 :r1))

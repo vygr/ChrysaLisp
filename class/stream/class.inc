@@ -7,6 +7,7 @@
 	(dec-method :write_next class/stream/flush :virtual (:r0) (:r0))
 	(dec-method :flush class/stream/flush :virtual (:r0) (:r0))
 	(dec-method :seek class/stream/seek :virtual (:r0 :r1 :r2) (:r0 :r1))
+	(dec-method :type class/stream/type :override)
 	(dec-method :init class/stream/init :static (:r0 :r1 :r2 :r3 :r4 :r5))
 	(dec-method :avail class/stream/avail :static (:r0) (:r0 :r1))
 	(dec-method :read_char class/stream/read_char :static (:r0) (:r0 :r1))

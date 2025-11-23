@@ -69,6 +69,8 @@ trashes
 :r1-:r14
 ```
 
+### :type -> class/fstream/type
+
 ### :vtable -> class/fstream/vtable
 
 ### :write_next -> class/fstream/write_next
