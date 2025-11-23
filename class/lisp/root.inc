@@ -1024,39 +1024,61 @@
 	(while (> c (length f)) (setq f (cat f f)))
 	(cat (slice f 0 c) v))
 
-(defmacro get-ubyte (s o)
+(defmacro get-ubyte (obj idx)
 	; (get-ubyte str idx) -> num
-	(static-qq (obj-get ,s (+ +str_data ,o) (const (neg +byte_size)) 0)))
+	(static-qq (obj-get ,obj (+ +str_data ,idx) (const (neg +byte_size)) 0)))
 
-(defmacro get-ushort (s o)
+(defmacro get-ushort (obj idx)
 	; (get-ushort str idx) -> num
-	(static-qq (obj-get ,s (+ +str_data ,o) (const (neg +short_size)) 0)))
+	(static-qq (obj-get ,obj (+ +str_data ,idx) (const (neg +short_size)) 0)))
 
-(defmacro get-uint (s o)
+(defmacro get-uint (obj idx)
 	; (get-uint str idx) -> num
-	(static-qq (obj-get ,s (+ +str_data ,o) (const (neg +int_size)) 0)))
+	(static-qq (obj-get ,obj (+ +str_data ,idx) (const (neg +int_size)) 0)))
 
-(defmacro get-long (s o)
+(defmacro get-long (obj idx)
 	; (get-long str idx) -> num
-	(static-qq (obj-get ,s (+ +str_data ,o) +long_size 0)))
+	(static-qq (obj-get ,obj (+ +str_data ,idx) +long_size 0)))
 
-(defmacro get-byte (s o)
+(defmacro get-byte (obj idx)
 	; (get-byte str idx) -> num
-	(static-qq (obj-get ,s (+ +str_data ,o) +byte_size 0)))
+	(static-qq (obj-get ,obj (+ +str_data ,idx) +byte_size 0)))
 
-(defmacro get-short (s o)
+(defmacro get-short (obj idx)
 	; (get-short str idx) -> num
-	(static-qq (obj-get ,s (+ +str_data ,o) +short_size 0)))
+	(static-qq (obj-get ,obj (+ +str_data ,idx) +short_size 0)))
 
-(defmacro get-int (s o)
+(defmacro get-int (obj idx)
 	; (get-int str idx) -> num
-	(static-qq (obj-get ,s (+ +str_data ,o) +int_size 0)))
+	(static-qq (obj-get ,obj (+ +str_data ,idx) +int_size 0)))
 
-(defun get-cstr (s o)
+(defmacro get-str (obj idx bytes)
+	; (get-str str idx bytes) -> str
+	(static-qq (obj-get ,obj (+ +str_data ,idx) 0 ,bytes)))
+
+(defun get-cstr (obj idx)
 	; (get-cstr str idx) -> str
-	(defq k o)
-	(while (/= 0 (get-byte s o)) (++ o))
-	(slice s k o))
+	(slice obj idx (find (const (ascii-char 0)) obj idx)))
+
+(defmacro set-byte (obj idx val)
+	; (set-byte str idx num) -> str
+	(static-qq (obj-set ,obj (+ +str_data ,idx) +byte_size 0 ,val)))
+
+(defmacro set-short (obj idx val)
+	; (set-short str idx num) -> str
+	(static-qq (obj-set ,obj (+ +str_data ,idx) +short_size 0 ,val)))
+
+(defmacro set-int (obj idx val)
+	; (set-int str idx num) -> str
+	(static-qq (obj-set ,obj (+ +str_data ,idx) +int_size 0 ,val)))
+
+(defmacro set-long (obj idx val)
+	; (set-long str idx num) -> str
+	(static-qq (obj-set ,obj (+ +str_data ,idx) +long_size 0 ,val)))
+
+(defmacro set-str (obj idx val)
+	; (get-str str idx val) -> str
+	(static-qq (obj-set ,obj (+ +str_data ,idx) 0 (length ,val) ,val)))
 
 (defun type-to-size (_)
 	; (type-to-size sym) -> num

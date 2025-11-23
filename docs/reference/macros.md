@@ -237,6 +237,12 @@ should provide the concreate handler
 (get-short str idx) -> num
 ```
 
+### get-str
+
+```code
+(get-str str idx bytes) -> str
+```
+
 ### get-ubyte
 
 ```code
@@ -427,6 +433,36 @@ should provide the concreate handler
 
 ```code
 (rsome lambda seq ...) -> :nil | form
+```
+
+### set-byte
+
+```code
+(set-byte str idx num) -> str
+```
+
+### set-int
+
+```code
+(set-int str idx num) -> str
+```
+
+### set-long
+
+```code
+(set-long str idx num) -> str
+```
+
+### set-short
+
+```code
+(set-short str idx num) -> str
+```
+
+### set-str
+
+```code
+(get-str str idx val) -> str
 ```
 
 ### setd

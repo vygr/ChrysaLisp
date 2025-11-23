@@ -43,6 +43,8 @@ Upgrade to `(obj-get obj offset type|0 size|0) -> num|str` and `(obj-set obj
 offset type|0 size|0 num|str) -> obj` to treat sub `struct` members as strings.
 `getf` and `setf` macros updated to correctly set the arguments to this new API.
 
+Fleshed out the `(set-xxx str idx val)` matching macros to `(get-xxx str idx)`.
+
 ------
 
 New `opt-tail-call` VP optimization.
