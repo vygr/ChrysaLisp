@@ -5,6 +5,7 @@
 
 (gen-create 'hset)
 (gen-vtable 'hset)
+(gen-type 'hset)
 
 (def-method 'hset :init)
 	;inputs

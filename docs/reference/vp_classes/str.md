@@ -387,7 +387,5 @@ trashes
 :r1-:r6
 ```
 
-### :type -> class/str/type
-
 ### :vtable -> class/str/vtable
 

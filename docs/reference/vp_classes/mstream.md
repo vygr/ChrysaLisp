@@ -99,8 +99,6 @@ trashes
 :r1-:r11
 ```
 
-### :type -> class/mstream/type
-
 ### :vtable -> class/mstream/vtable
 
 ### :write_next -> class/mstream/write_next

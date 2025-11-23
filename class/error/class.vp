@@ -1,6 +1,7 @@
 (include "lib/asm/func.inc")
 (include "sys/str/class.inc")
-(include "././str/class.inc")
+(include "././sym/class.inc")
+(include "././list/class.inc")
 (include "././stream/class.inc")
 (include "././sstream/class.inc")
 (include "./class.inc")
@@ -8,6 +9,7 @@
 
 (gen-create 'error)
 (gen-vtable 'error)
+(gen-type 'error)
 
 (def-method 'error :init)
 	;inputs

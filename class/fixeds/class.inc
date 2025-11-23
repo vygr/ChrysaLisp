@@ -3,7 +3,6 @@
 (def-class fixeds nums
 	(dec-method :vtable class/fixeds/vtable)
 	(dec-method :create class/fixeds/create)
-	(dec-method :type class/fixeds/type :override)
 	(dec-method :vcreate class/fixeds/create :override)
 	(dec-method :velement class/fixed/create :override)
 	(dec-method :mul class/fixeds/mul :override)

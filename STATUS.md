@@ -48,7 +48,7 @@ Fleshed out the `(set-xxx str idx val)` matching macros to `(get-xxx str idx)`.
 New `-s script_name` option for the batch/shell files, to ease LLM tests. eg.
 `./run_tui.sh -n 1 -f -s script_name`.
 
-Added `(type-of obj)` support to the stream classes.
+Added `(type-of obj)` support to the all `class/` classes.
 
 ------
 

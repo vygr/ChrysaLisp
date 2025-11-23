@@ -14,7 +14,6 @@
 	(dec-method :set class/hmap/set :static (:r0 :r1 :r2) (:r0 :r1))
 	(dec-method :get class/hmap/get :static (:r0 :r1) (:r0 :r1))
 	(dec-method :set_parent class/hmap/set_parent :static (:r0 :r1) (:r0))
-	(dec-method :type class/hmap/type :override)
 	(dec-method :deinit class/hmap/deinit :override)
 	(dec-method :lisp_env class/hmap/lisp_env :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_def class/hmap/lisp_def :static (:r0 :r1) (:r0 :r1))

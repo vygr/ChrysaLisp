@@ -9,7 +9,6 @@
 	(dec-method :cat class/obj/null :virtual (:r0 :r1) (:r0))
 	(dec-method :find class/obj/null :virtual (:r0 :r1 :r2) (:r0 :r1 :r2))
 	(dec-method :rfind class/obj/null :virtual (:r0 :r1 :r2) (:r0 :r1 :r2))
-	(dec-method :type class/seq/type :override)
 	(dec-method :lisp_length class/seq/lisp_length :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_elem class/seq/lisp_eget :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_first class/seq/lisp_first :static (:r0 :r1) (:r0 :r1))

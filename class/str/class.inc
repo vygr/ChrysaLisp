@@ -20,7 +20,6 @@
 	(dec-method :encode class/str/encode :static (:r0) (:r0))
 	(dec-method :decode class/str/decode :static (:r0) (:r0))
 	(dec-method :bfind class/str/bfind :static (:r0 :r1) (:r0 :r1 :r2))
-	(dec-method :type class/str/type :override)
 	(dec-method :print class/str/print :override)
 	(dec-method :hash class/str/hash :override)
 	(dec-method :get_length class/str/get_length :final)

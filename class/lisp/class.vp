@@ -10,6 +10,7 @@
 
 (gen-create 'lisp)
 (gen-vtable 'lisp)
+(gen-type 'lisp)
 
 (def-struct built_in 0
 	(ushort symbol)

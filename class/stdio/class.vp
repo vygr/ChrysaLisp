@@ -3,12 +3,13 @@
 (include "././list/class.inc")
 (include "././out/class.inc")
 (include "././in/class.inc")
-(include "././str/class.inc")
+(include "././sym/class.inc")
 (include "./class.inc")
 (include "lib/consts/chars.inc")
 
 (gen-create 'stdio)
 (gen-vtable 'stdio)
+(gen-type 'stdio)
 
 (def-method 'stdio :init)
 	;inputs
