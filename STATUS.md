@@ -45,6 +45,9 @@ offset type|0 size|0 num|str) -> obj` to treat sub `struct` members as strings.
 
 Fleshed out the `(set-xxx str idx val)` matching macros to `(get-xxx str idx)`.
 
+New `-s script_name` option for the batch/shell files, to ease LLM tests. eg.
+`./run_tui.sh -n 1 -f -s script_name`.
+
 ------
 
 New `opt-tail-call` VP optimization.
