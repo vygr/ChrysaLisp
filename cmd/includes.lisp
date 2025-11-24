@@ -96,7 +96,7 @@
 		(defq includes (sort (map (# (abs-path %0 file)) includes))
 			requires (sort (map (# (abs-path %0 file)) requires)))
 		(when (or (/= (length includes) (length requires))
-				(notany (const eql) includes requires))
+				(notevery (const eql) includes requires))
 			(print "File: " file)
 			(print "Includes:")
 			(each (const print) includes)
