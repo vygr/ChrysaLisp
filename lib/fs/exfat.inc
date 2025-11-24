@@ -405,6 +405,7 @@
 			)
 		)
 		
+		
 		;; Write Entries
 		(stream-seek stream (. this :cluster_to_offset found_cluster) 0)
 		(defq cluster_data (read-blk stream cluster_size))
