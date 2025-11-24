@@ -193,6 +193,22 @@ Usage: huff [options] [file]
 	If no file is given, it reads from stdin.
 	Output is written to stdout.
 ```
+## includes
+```code
+Usage: includes [options] [path] ...
+
+	options:
+		-h --help: this help info.
+		-j --jobs num: max jobs per batch, default 1.
+		-s --super super: inheritance map, default :nil.
+		-w --write: write new file, default :nil.
+
+	Scan for needed includes in .vp files, optionally
+	edits the file rewriting the include block.
+
+	If no paths given on command line
+	then will take paths from stdin.
+```
 ## link
 ```code
 Usage: link [options] CLB-L1 CLB-L2 000-000 ...
