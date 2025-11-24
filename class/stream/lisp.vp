@@ -1,13 +1,12 @@
 (include "lib/asm/func.inc")
 (include "sys/str/class.inc")
 (include "././str/class.inc")
-(include "./class.inc")
 (include "././sstream/class.inc")
-(include "././fstream/class.inc")
-(include "././mstream/class.inc")
-(include "././stdio/class.inc")
 (include "././num/class.inc")
+(include "././mstream/class.inc")
+(include "././list/class.inc")
 (include "././lisp/class.inc")
+(include "././fstream/class.inc")
 
 (def-method 'stream :lisp_iostream)
 	;inputs

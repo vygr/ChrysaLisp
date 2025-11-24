@@ -1,6 +1,6 @@
 (include "lib/asm/func.inc")
+(include "sys/mem/class.inc")
 (include "./class.inc")
-(include "class/array/class.inc")
 
 (def-method 'pixmap :resize)
 	;inputs

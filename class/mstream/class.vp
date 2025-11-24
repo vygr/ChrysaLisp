@@ -1,7 +1,7 @@
 (include "lib/asm/func.inc")
 (include "./class.inc")
-(include "././list/class.inc")
 (include "././sym/class.inc")
+(include "././list/class.inc")
 
 (gen-create 'mstream)
 (gen-vtable 'mstream)

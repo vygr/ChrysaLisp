@@ -1,8 +1,11 @@
 (include "lib/asm/func.inc")
-(include "././link/class.inc")
-(include "class/obj/class.inc")
-(include "././kernel/class.inc")
+(include "./class.inc")
+(include "././task/class.inc")
 (include "././statics/class.inc")
+(include "././pii/class.inc")
+(include "././link/class.inc")
+(include "././kernel/class.inc")
+(include "././heap/class.inc")
 
 (def-method 'sys_mail :out)
 	;info

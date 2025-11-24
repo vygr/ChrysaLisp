@@ -1,6 +1,7 @@
 (include "lib/asm/func.inc")
+(include "sys/task/class.inc")
+(include "./class.inc")
 (include "././num/class.inc")
-(include "././sym/class.inc")
 (include "././lisp/class.inc")
 
 (def-method 'list :lisp_list)

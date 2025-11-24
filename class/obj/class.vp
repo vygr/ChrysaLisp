@@ -1,8 +1,8 @@
 (include "lib/asm/func.inc")
-(include "././str/class.inc")
-(include "././list/class.inc")
-(include "././stream/class.inc")
+(include "sys/mem/class.inc")
 (include "lib/consts/chars.inc")
+(include "././stream/class.inc")
+(include "././list/class.inc")
 
 (gen-vtable 'obj)
 

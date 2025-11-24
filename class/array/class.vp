@@ -1,9 +1,10 @@
 (include "lib/asm/func.inc")
-(include "././list/class.inc")
-(include "././num/class.inc")
+(include "sys/mem/class.inc")
+(include "lib/consts/chars.inc")
 (include "././sym/class.inc")
 (include "././stream/class.inc")
-(include "lib/consts/chars.inc")
+(include "././num/class.inc")
+(include "././list/class.inc")
 
 (gen-create 'array)
 (gen-vtable 'array)

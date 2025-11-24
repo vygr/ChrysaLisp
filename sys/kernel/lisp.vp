@@ -1,7 +1,10 @@
 (include "lib/asm/func.inc")
-(include "./class.inc")
 (include "class/lisp/class.inc")
+(include "class/array/class.inc")
+(include "./class.inc")
+(include "././task/class.inc")
 (include "././statics/class.inc")
+(include "././mem/class.inc")
 
 (def-method 'sys_kernel :lisp_stats)
 	;inputs

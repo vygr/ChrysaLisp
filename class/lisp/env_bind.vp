@@ -1,7 +1,8 @@
 (include "lib/asm/func.inc")
-(include "././hmap/class.inc")
-(include "././sym/class.inc")
 (include "./class.inc")
+(include "././sym/class.inc")
+(include "././list/class.inc")
+(include "././hmap/class.inc")
 
 (def-method 'lisp :env_push)
 	;inputs

@@ -1,9 +1,10 @@
 (include "lib/asm/func.inc")
-(include "././sym/class.inc")
-(include "././func/class.inc")
-(include "././hmap/class.inc")
-(include "./class.inc")
 (include "lib/consts/chars.inc")
+(include "./class.inc")
+(include "././sym/class.inc")
+(include "././list/class.inc")
+(include "././hmap/class.inc")
+(include "././func/class.inc")
 
 (def-method 'lisp :repl_eval)
 	;inputs

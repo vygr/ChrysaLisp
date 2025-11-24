@@ -1,9 +1,10 @@
 (include "lib/asm/func.inc")
+(include "sys/mail/class.inc")
+(include "sys/link/class.inc")
 (include "sys/kernel/class.inc")
 (include "./class.inc")
 (include "././sym/class.inc")
 (include "././list/class.inc")
-(include "sys/link/class.inc")
 
 (gen-create 'out)
 (gen-vtable 'out)

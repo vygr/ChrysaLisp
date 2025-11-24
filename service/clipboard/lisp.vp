@@ -1,9 +1,10 @@
 (include "lib/asm/func.inc")
+(include "sys/task/class.inc")
+(include "sys/statics/class.inc")
+(include "class/str/class.inc")
+(include "class/lisp/class.inc")
 (include "./class.inc")
 (include "././gui/class.inc")
-(include "class/lisp/class.inc")
-(include "class/str/class.inc")
-(include "sys/statics/class.inc")
 
 (def-method 'host_clipboard :lisp_put)
 	;inputs

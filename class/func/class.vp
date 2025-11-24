@@ -1,9 +1,9 @@
 (include "lib/asm/func.inc")
+(include "lib/consts/chars.inc")
 (include "./class.inc")
 (include "././sym/class.inc")
 (include "././stream/class.inc")
 (include "././list/class.inc")
-(include "lib/consts/chars.inc")
 
 (gen-create 'func)
 (gen-vtable 'func)
