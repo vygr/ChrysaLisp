@@ -206,6 +206,8 @@ trashes
 :r1-:r13
 ```
 
+### :type -> gui/path/type
+
 ### :vcreate -> gui/path/create
 
 ### :vtable -> gui/path/vtable
