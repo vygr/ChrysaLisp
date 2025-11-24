@@ -974,7 +974,7 @@
 		
 		;; Prepare Boot Sector
 		(stream-seek mstream 0 0)
-		(write-blk mstream (setf-> (str-alloc +exfat_boot_size)
+		(defq boot_sector (setf-> (str-alloc +exfat_boot_size)
 			(+exfat_boot_jump_boot (hex-decode "EB7690"))
 			(+exfat_boot_fs_name "EXFAT   ")
 			(+exfat_boot_partition_offset 0)
@@ -994,6 +994,65 @@
 			(+exfat_boot_percent_in_use 0)
 			(+exfat_boot_signature 0xAA55)
 		))
+		(write-blk mstream boot_sector)
+		
+		;; Extended Boot Sectors (8 sectors, zeroed for now but should be part of checksum)
+		(defq extended_boot (str-alloc (* 8 sector_size)))
+		(write-blk mstream extended_boot)
+		
+		;; OEM Parameters (1 sector, zeroed)
+		(defq oem_params (str-alloc sector_size))
+		(write-blk mstream oem_params)
+		
+		;; Reserved (1 sector, zeroed)
+		(defq reserved_sector (str-alloc sector_size))
+		(write-blk mstream reserved_sector)
+		
+		;; Calculate Checksum over the first 11 sectors (Boot + 8 Ext + 1 OEM + 1 Reserved)
+		;; Algorithm:
+		;; UINT32 Checksum = 0;
+		;; for (i = 0; i < 11 * BytesPerSector; i++) {
+		;;    if (i == 106 || i == 107 || i == 112) continue;
+		;;    Checksum = ((Checksum << 31) | (Checksum >> 1)) + Data[i];
+		;; }
+		
+		(defq checksum 0)
+		(defq i 0)
+		;; Boot Sector (Sector 0)
+		(while (< i sector_size)
+			(when (and (/= i 106) (/= i 107) (/= i 112))
+				(defq byte (get-ubyte boot_sector i))
+				(setq checksum (+ (logior (<< checksum 31) (>> checksum 1)) byte))
+				(setq checksum (logand checksum 0xFFFFFFFF))
+			)
+			(setq i (+ i 1))
+		)
+		
+		;; Extended Boot Sectors (Sectors 1-8) - all zeros
+		(setq i 0)
+		(while (< i (* 8 sector_size))
+			(setq checksum (+ (logior (<< checksum 31) (>> checksum 1)) 0))
+			(setq checksum (logand checksum 0xFFFFFFFF))
+			(setq i (+ i 1))
+		)
+		
+		;; OEM + Reserved (Sectors 9-10) - all zeros
+		(setq i 0)
+		(while (< i (* 2 sector_size))
+			(setq checksum (+ (logior (<< checksum 31) (>> checksum 1)) 0))
+			(setq checksum (logand checksum 0xFFFFFFFF))
+			(setq i (+ i 1))
+		)
+		
+		;; Write Checksum Sector (Sector 11)
+		;; Fill sector with checksum
+		(defq checksum_sector (str-alloc sector_size))
+		(setq i 0)
+		(while (< i sector_size)
+			(set-int checksum_sector i checksum)
+			(setq i (+ i 4))
+		)
+		(write-blk mstream checksum_sector)
 		
 		;; Write FAT (First 2 entries reserved)
 		(stream-seek mstream (* fat_offset sector_size) 0)
