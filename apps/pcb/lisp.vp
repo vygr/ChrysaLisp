@@ -1,6 +1,7 @@
 (include "lib/asm/func.inc")
-(include "class/lisp/class.inc")
 (include "class/num/class.inc")
+(include "class/list/class.inc")
+(include "class/lisp/class.inc")
 (include "class/fixeds/class.inc")
 
 (def-func 'apps/pcb/hit_line)
