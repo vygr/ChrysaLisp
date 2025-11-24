@@ -5,7 +5,7 @@
 	
 	;; 1. Format
 	(defq fs (ExFat))
-	(. fs :format 1)
+	(. fs :format 1 (memory-stream))
 	(prin "Formatted ExFAT.")(print)
 	
 	;; 2. Mount
@@ -204,3 +204,6 @@
 (catch
 	(test-exfat)
 	(progn (prin "Test Failed with exception" _)(print) :t))
+
+;clean exit
+((ffi "service/gui/lisp_deinit"))

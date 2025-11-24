@@ -934,9 +934,9 @@
 		this
 	)
 
-	(defmethod :format (size_mb)
+	(defmethod :format (size_mb stream)
 		(defq size (* size_mb 1048576))
-		(defq mstream (memory-stream))
+		(defq mstream (ifn stream (memory-stream)))
 		(lower (:stream mstream))
 		
 		;; Zero out the disk
