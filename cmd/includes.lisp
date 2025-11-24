@@ -10,6 +10,7 @@
 		-h --help: this help info.
 		-j --jobs num: max jobs per batch, default 1.
 		-s --super super: inheritance map, default :nil.
+		-w --write: write new file, default :nil.
 
 	Scan for needed includes in .vp files, optionally
 	edits the file rewriting the include block.
@@ -18,6 +19,7 @@
 	then will take paths from stdin.")
 (("-j" "--jobs") ,(opt-num 'opt_j))
 (("-s" "--super") ,(opt-str 'opt_s))
+(("-w" "--write") ,(opt-flag 'opt_w))
 ))
 
 (defq +split_class (char-class " :()'\t\r\q"))
@@ -33,6 +35,8 @@
 	(while (defq trailing (pop split_target)) (push new_target trailing))
 	(if (> (- (length new_target) 1) old_len) target (join new_target "/")))
 
+;lookup the file the class was define in
+; else just use one they all need
 (defun find-file (cls)
 	(if (defq file (. defs_map :find cls))
 		file "lib/asm/func.inc"))
@@ -66,28 +70,27 @@
 			(each (const print) includes)
 			(print "Requires:")
 			(each (const print) requires)
-			;rewrite the file
-			(defq requires (cat (list "lib/asm/func.inc")
-					(reverse (sort (map (# (abs-relative %0 file))
-						(filter (# (not (eql %0 "lib/asm/func.inc"))) requires)))))
-				no_includes (memory-stream))
-			(lines! (lambda (line)
-					(defq line_split (split line +split_class))
-					(unless (starts-with "include" (first line_split))
-						(write-line no_includes line)))
-				(file-stream file))
-			;; (defq stream (file-stream file +file_open_write))
-			;; (each (# (write-line stream (cat "(" {include "} %0 {"} ")"))) requires)
-			;; (stream-seek no_includes 0 0)
-			;; (lines! (# (write-line stream %0)) no_includes)
-			)
-		))
+			;rewrite the file ?
+			(when opt_w
+				(defq requires (cat (list "lib/asm/func.inc")
+						(reverse (sort (map (# (abs-relative %0 file))
+							(filter (# (not (eql %0 "lib/asm/func.inc"))) requires)))))
+					no_includes (memory-stream))
+				(lines! (lambda (line)
+						(defq line_split (split line +split_class))
+						(unless (starts-with "include" (first line_split))
+							(write-line no_includes line)))
+					(file-stream file))
+				(defq stream (file-stream file +file_open_write))
+				(each (# (write-line stream (cat "(" {include "} %0 {"} ")"))) requires)
+				(stream-seek no_includes 0 0)
+				(lines! (# (write-line stream %0)) no_includes)))))
 
 (defun main ()
 	;initialize pipe details and command args, abort on error
 	(when (and
 			(defq stdio (create-stdio))
-			(defq opt_j 1 opt_s :nil args (options stdio usage)))
+			(defq opt_j 1 opt_s :nil opt_w :nil args (options stdio usage)))
 		(defq super_map (Fmap 11) defs_map (Fmap 11))
 		(cond
 			(opt_s
@@ -119,7 +122,6 @@
 				(pipe-farm (map (# (str (first args)
 						" -j " opt_j
 						(if opt_s (cat " -s " opt_s) "")
+						(if opt_w (cat " -w " opt_w) "")
 						" " (slice (str %0) 1 -2)))
-					(partition jobs opt_j)))))
-		;output results
-		))
+					(partition jobs opt_j)))))))
