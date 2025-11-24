@@ -85,16 +85,19 @@
 					(merge classes (list (elem-get line_split (inc (!))))))) line_split))
 			(file-stream file))
 		;don't include classes where we include one of their subclasses
-		(defq super_chains (map (#
-				(defq super_chain (list %0))
+		(defq classes (filter (lambda (cls) (notany (# (find cls (rest %0)))
+			(map (# (defq super_chain (list %0))
 				(each-mergeable (# (and (defq %0 (. super_map :find %0)) (not (eql %0 "nil"))
-						(merge super_chain (list %0)))) super_chain)
-				super_chain) classes)
-			classes (filter (lambda (cls) (notany (# (find cls (rest %0))) super_chains)) classes))
+					(merge super_chain (list %0)))) super_chain)
+				super_chain) classes))) classes))
 		;convert to the files we need
 		(merge requires (map (const find-file) classes))
-		(defq includes (sort (map (# (abs-path %0 file)) includes))
-			requires (sort (map (# (abs-path %0 file)) requires)))
+		(defq includes (map (# (abs-path %0 file)) includes)
+			requires (map (# (abs-path %0 file)) requires))
+		;keep any apps/ include files !
+		(merge requires (filter (# (starts-with "apps/" %0)) includes))
+		(sort includes)
+		(sort requires)
 		(when (or (/= (length includes) (length requires))
 				(notevery (const eql) includes requires))
 			(print "File: " file)
