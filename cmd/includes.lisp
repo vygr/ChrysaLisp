@@ -22,7 +22,7 @@
 (("-w" "--write") ,(opt-flag 'opt_w))
 ))
 
-(defq +split_class (char-class " :()'\t\r\q"))
+(defq +split_class (char-class " :()'\t\r\q{@}"))
 
 ;transform an absolute filename to a relative one
 (defun abs-relative (target current)
@@ -52,13 +52,26 @@
 						(merge includes (list (second line_split))))
 					(("gen-type")
 						(merge classes (list "list" "sym")))
-					(("call" "entry" "exit" "def-method" "gen-vtable" "gen-create")
+					(("call" "entry" "exit" "def-method" "gen-vtable" "gen-create"
+						"to-array" "jump" "f-bind")
 						(merge classes (list (second line_split))))
 					(("signature")
 						(merge classes (rest line_split)))
 					)
 				(when (some (# (starts-with "+char_" %0)) line_split)
 					(merge requires (list "lib/consts/chars.inc")))
+				(when (some (# (starts-with "sys/statics/statics" %0)) line_split)
+					(merge requires (list "sys/statics/class.inc")))
+				(when (some (# (eql "lk_data_size" %0)) line_split)
+					(merge classes (list "sys_link")))
+				(when (some (# (eql "stream_mail_state_started" %0)) line_split)
+					(merge classes (list "out")))
+				(when (some (# (eql "stream_mail_state_started" %0)) line_split)
+					(merge classes (list "out")))
+				(when (some (# (starts-with "static_sym_" %0)) line_split)
+					(merge classes (list "sym")))
+				(each (# (if (eql "f-path" %0)
+					(merge classes (list (elem-get line_split (inc (!))))))) line_split)
 				)
 			(file-stream file))
 		;don't include classes where we include one of their subclasses
