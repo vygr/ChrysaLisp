@@ -384,7 +384,7 @@ Writes a self-describing codebook (via the frequency map) to a stream.
 ### import
 
 ```code
-(import path [env]) -> env
+(import path [env])
 ```
 
 ### import-from

@@ -1147,34 +1147,32 @@
 					   (slice p_parts i -1)) "/"))
 		(target)))
 
-(defun import (lib_path &optional _e)
-	; (import path [env]) -> env
-	(unless (eql :str (pop (type-of lib_path))) (throw "Not a string !" lib_path))
-	(setq lib_path (path-to-absolute lib_path))
-	(if (= (age lib_path) 0) (throw "No such file !" lib_path))
-	(setd _e (penv)) (defq _ee _e)
+(defun import (module &optional dst_env)
+	; (import path [env])
+	(if (= (age (setq module (path-to-absolute module))) 0)
+		(throw "No such file !" module))
+	(defq dst_env (ifn dst_env (penv)) imp_env dst_env)
 	; does the import already exist in the environment tree ?
-	(while (env? _ee)
+	(while (env? imp_env)
 		(cond
-			((and (defq file_list (def? '*file_includes* _ee))
-					(find lib_path file_list))
-				(setq _ee :t))
-			((setq _ee (penv _ee)))))
+			((and (defq file_list (def? '*file_includes* imp_env))
+					(find module file_list))
+				(setq imp_env :t))
+			((setq imp_env (penv imp_env)))))
 	; if not existing import it here
-	(unless _ee
-		(unless (def? '*file_includes* _e)
-			(def _e '*file_includes* (list)))
-		(push (get '*file_includes* _e) lib_path)
-		(eval `(repl (file-stream ,lib_path) ,lib_path) _e)))
+	(unless imp_env
+		(unless (def? '*file_includes* dst_env)
+			(def dst_env '*file_includes* (list)))
+		(push (get '*file_includes* dst_env) module)
+		(callback (const repl) dst_env (file-stream module) module)))
 
-(defun import-from (lib_path &optional symbols classes)
+(defun import-from (module &optional symbols classes)
 	; (import-from [symbols classes])
-	(unless (eql :str (pop (type-of lib_path))) (throw "Not a string !" lib_path))
-	(setq lib_path (path-to-absolute lib_path))
-	(if (= (age lib_path) 0) (throw "No such file !" lib_path))
+	(if (= (age (setq module (path-to-absolute module))) 0)
+		(throw "No such file !" module))
 	(setd symbols '() classes '())
 	;import it here, we will discard it on exit
-	(repl (file-stream lib_path) lib_path)
+	(repl (file-stream module) module)
 	;export only what was requested
 	(export-symbols symbols)
 	(export-classes classes))
@@ -1262,7 +1260,7 @@
 	(defq *compile_env* (env-resize 499))
 	(defmacro defcvar (&rest b) (static-qq (def *compile_env* ~b)))
 	(defmacro deffvar (&rest b) (static-qq (def *func_env* ~b)))
-	(defun include (lib_path) (import lib_path *compile_env*))
+	(defun include (module) (import module *compile_env*))
 	(catch (progn (setq _f (_f)) (undef (env) '*func_env* '*compile_env*) _f)
 		(progn (undef (penv) '*func_env* '*compile_env*) :nil)))
 
