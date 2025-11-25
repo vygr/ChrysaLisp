@@ -1155,15 +1155,15 @@
 	; does the import already exist in the environment tree ?
 	(while (env? imp_env)
 		(cond
-			((and (defq file_list (def? '*file_includes* imp_env))
+			((and (defq file_list (def? '*module_imports* imp_env))
 					(find module file_list))
 				(setq imp_env :t))
 			((setq imp_env (penv imp_env)))))
 	; if not existing import it here
 	(unless imp_env
-		(unless (def? '*file_includes* dst_env)
-			(def dst_env '*file_includes* (list)))
-		(push (get '*file_includes* dst_env) module)
+		(unless (def? '*module_imports* dst_env)
+			(def dst_env '*module_imports* (list)))
+		(push (get '*module_imports* dst_env) module)
 		(callback (const repl) dst_env (file-stream module) module)))
 
 (defun import-from (module &optional symbols classes)
