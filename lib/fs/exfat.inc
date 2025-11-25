@@ -4,9 +4,34 @@
 ;; ExFAT Constants
 (defq +EXFAT_SECTOR_SIZE 512)
 (defq +EXFAT_SECTOR_BITS 9)
-(defq +EXFAT_CLUSTER_SIZE 4096) ; 4KB default
+(defq +EXFAT_CLUSTER_SIZE 4096)
 (defq +EXFAT_CLUSTER_BITS 12)
-(defq +EXFAT_ROOT_DIR_CLUSTER 2) ; Usually starts at cluster 2
+(defq +EXFAT_SECTORS_PER_CLUSTER 8)
+
+;; Boot Region Layout
+(defq +EXFAT_BOOT_SECTOR 0)
+(defq +EXFAT_EXTENDED_BOOT_SECTORS 8)
+(defq +EXFAT_OEM_SECTOR 9)
+(defq +EXFAT_RESERVED_SECTOR 10)
+(defq +EXFAT_CHECKSUM_SECTOR 11)
+(defq +EXFAT_BACKUP_BOOT_SECTOR 12)
+(defq +EXFAT_BOOT_REGION_SIZE 24)
+
+;; Directory Entry Size
+(defq +EXFAT_ENTRY_SIZE 32)
+
+;; Cluster Constants
+(defq +EXFAT_ROOT_DIR_CLUSTER 2)
+(defq +EXFAT_FIRST_DATA_CLUSTER 2)
+
+;; FAT Entry Values
+(defq +EXFAT_FAT_FREE 0x00000000)
+(defq +EXFAT_FAT_BAD 0xFFFFFFF7)
+(defq +EXFAT_FAT_EOC 0xFFFFFFFF)
+(defq +EXFAT_FAT_MEDIA_TYPE 0xFFFFFFF8)
+
+;; Boot Signature
+(defq +EXFAT_BOOT_SIGNATURE 0xAA55)
 
 ;; Entry Types
 (defq +EXFAT_TYPE_EOD	   0x00)
@@ -24,6 +49,10 @@
 (defq +EXFAT_ATTR_VOLUME	0x08)
 (defq +EXFAT_ATTR_DIR	   0x10)
 (defq +EXFAT_ATTR_ARCHIVE   0x20)
+
+;; Stream Extension Flags
+(defq +EXFAT_STREAM_ALLOC_POSSIBLE 0x01)
+(defq +EXFAT_STREAM_NO_FAT_CHAIN   0x02)
 
 ;; Boot Sector Structure
 (structure +exfat_boot 0
