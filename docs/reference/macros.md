@@ -375,6 +375,12 @@ should provide the concreate handler
 (reach lambda seq ...)
 ```
 
+### read-byte
+
+```code
+(read-byte stream) -> num
+```
+
 ### read-int
 
 ```code
@@ -391,6 +397,24 @@ should provide the concreate handler
 
 ```code
 (read-short stream) -> num
+```
+
+### read-ubyte
+
+```code
+(read-ubyte stream) -> num
+```
+
+### read-uint
+
+```code
+(read-uint stream) -> num
+```
+
+### read-ushort
+
+```code
+(read-ushort stream) -> num
 ```
 
 ### redefmacro
@@ -709,6 +733,12 @@ static quasi-quoted, prebind only !
 
 ```code
 (when tst body)
+```
+
+### write-byte
+
+```code
+(write-byte stream list|num) -> bytes
 ```
 
 ### write-int

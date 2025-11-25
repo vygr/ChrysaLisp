@@ -1166,29 +1166,49 @@
 	(export-symbols symbols)
 	(export-classes classes))
 
+(defmacro read-ubyte (s)
+	; (read-ubyte stream) -> num
+	(static-qq (read-char ,s +byte_size)))
+
+(defmacro read-ushort (s)
+	; (read-ushort stream) -> num
+	(static-qq (read-char ,s +short_size)))
+
+(defmacro read-uint (s)
+	; (read-uint stream) -> num
+	(static-qq (read-char ,s +int_size)))
+
+(defmacro read-byte (s)
+	; (read-byte stream) -> num
+	(static-qq (>>> 56 (<< 56 (read-char ,s +byte_size)))))
+
+(defmacro read-short (s)
+	; (read-short stream) -> num
+	(static-qq (>>> 48 (<< 48 (read-char ,s +short_size)))))
+
+(defmacro read-int (s)
+	; (read-int stream) -> num
+	(static-qq (>>> 32 (<< 32 (read-char ,s +int_size)))))
+
 (defmacro read-long (s)
 	; (read-long stream) -> num
 	(static-qq (read-char ,s +long_size)))
 
-(defmacro read-int (s)
-	; (read-int stream) -> num
-	(static-qq (read-char ,s +int_size)))
+(defmacro write-byte (s n)
+	; (write-byte stream list|num) -> bytes
+	(static-qq (write-char ,s ,n +byte_size)))
 
-(defmacro read-short (s)
-	; (read-short stream) -> num
-	(static-qq (read-char ,s +short_size)))
-
-(defmacro write-long (s n)
-	; (write-long stream list|num) -> bytes
-	(static-qq (write-char ,s ,n +long_size)))
+(defmacro write-short (s n)
+	; (write-short stream list|num) -> bytes
+	(static-qq (write-char ,s ,n +short_size)))
 
 (defmacro write-int (s n)
 	; (write-int stream list|num) -> bytes
 	(static-qq (write-char ,s ,n +int_size)))
 
-(defmacro write-short (s n)
-	; (write-short stream list|num) -> bytes
-	(static-qq (write-char ,s ,n +short_size)))
+(defmacro write-long (s n)
+	; (write-long stream list|num) -> bytes
+	(static-qq (write-char ,s ,n +long_size)))
 
 (defun read-data (s bytes)
 	; (read-data stream bytes) -> str
