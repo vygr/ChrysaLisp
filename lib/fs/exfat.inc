@@ -196,6 +196,9 @@
 		(defq bitmap_bytes (>> (+ cluster_count 7) 3))
 		(defq bitmap_clusters (>> (+ bitmap_bytes +EXFAT_CLUSTER_SIZE -1) +EXFAT_CLUSTER_BITS))
 		
+		;; Root dir is at cluster after bitmap
+		(defq root_dir_cluster (+ +EXFAT_ROOT_DIR_CLUSTER bitmap_clusters))
+
 		;; Store volume parameters
 		(lower
 			(:size_sectors size_sectors)
@@ -203,7 +206,9 @@
 			(:fat_offset fat_offset_sectors)
 			(:fat_length fat_length_sectors)
 			(:heap_offset (+ fat_offset_sectors fat_length_sectors))
-			(:root_cluster +EXFAT_ROOT_DIR_CLUSTER))
+			(:root_cluster root_dir_cluster)
+			(:bitmap_clusters bitmap_clusters)
+			(:bitmap_length bitmap_bytes))
 		
 		;; Write MBR (Master Boot Record) at sector 0
 		(. this :write_mbr)
@@ -279,8 +284,8 @@
 		(defq boot (pad "" +exfat_boot_size (ascii-char 0xF4)))
 		
 		(write-blk stream (setf-> boot
-			(+exfat_boot_jump_boot (slice "\xEB\x76\x90" 0 3))
-			(+exfat_boot_fs_name (slice "EXFAT   " 0 8))
+			(+exfat_boot_jump_boot (hex-decode "EB7690"))
+			(+exfat_boot_fs_name "EXFAT   ")
 			(+exfat_boot_partition_offset 1)
 			(+exfat_boot_volume_length size_sectors)
 			(+exfat_boot_fat_offset fat_offset)
@@ -405,19 +410,14 @@
 		:nil)
 
 	(defmethod :create_root_directory ()
-		;; Create root directory with volume label
-		(raise :stream :heap_offset)
-		
-		;; Calculate root directory cluster offset
-		;; Root dir is at cluster after bitmap (cluster 3 for now)
-		(defq root_dir_cluster (+ +EXFAT_ROOT_DIR_CLUSTER 1))
-		(lower (:root_cluster root_dir_cluster))
+		;; Create root directory with volume label and bitmap entry
+		(raise :stream :heap_offset :root_cluster :bitmap_length)
 		
 		(defq cluster_offset (+ (* heap_offset +EXFAT_SECTOR_SIZE)
 			(* (- root_dir_cluster 2) +EXFAT_CLUSTER_SIZE)))
 		(stream-seek stream cluster_offset 0)
 		
-		;; Create volume label entry
+		;; 1. Create Volume Label Entry
 		(defq label "CHRYSALISP")
 		(defq label_entry (str-alloc +exfat_label_size))
 		;; Set type field (at offset 0, inherited from entry_header)
@@ -432,11 +432,20 @@
 		
 		(write-blk stream label_entry)
 		
+		;; 2. Create Allocation Bitmap Entry
+		(defq bitmap_entry (str-alloc +exfat_bitmap_size))
+		(set-byte bitmap_entry 0 +EXFAT_TYPE_BITMAP)
+		(set-byte bitmap_entry +exfat_bitmap_flags 0) ;; First bitmap (0)
+		(set-int bitmap_entry +exfat_bitmap_first_cluster +EXFAT_ROOT_DIR_CLUSTER) ;; Bitmap is at cluster 2
+		(set-long bitmap_entry +exfat_bitmap_data_length bitmap_length)
+		
+		(write-blk stream bitmap_entry)
+		
 		;; Write end-of-directory marker
 		(write-blk stream (pad "" +EXFAT_ENTRY_SIZE (ascii-char 0)))
 		
 		;; Update FAT for root directory
-		(. this :set_fat_entry root_dir_cluster +EXFAT_FAT_EOC))
+		(. this :set_fat_entry root_cluster +EXFAT_FAT_EOC))
 
 	(defmethod :set_fat_entry (cluster value)
 		;; Set a FAT entry
