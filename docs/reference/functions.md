@@ -28,12 +28,6 @@ parse the commands and attributes calling back to the user functions
 (abi) -> sym
 ```
 
-### abs-path
-
-```code
-(abs-path path [current]) -> path
-```
-
 ### action-quit
 
 ```code
@@ -796,6 +790,22 @@ scan the stdio args and process according to the optlist
 
 ```code
 (path-stroke-polylines dst radius join cap1 cap2 src) -> dst
+```
+
+### path-to-absolute
+
+```code
+(path-to-absolute target [current]) -> path
+
+transform a relative filename to an absolute one
+```
+
+### path-to-relative
+
+```code
+(path-to-relative target [current]) -> path
+
+transform an absolute filename to a relative one
 ```
 
 ### pipe-farm

@@ -59,6 +59,10 @@ time saving and checking tool.
 New `(getf-> obj field|(field offset) ...) -> (val ...)` macro, the counterpart
 to `setf->`.
 
+Added `(path-to-relative target [current]) -> pat.h` function to compliment the
+`(path-to-absolute target [current]) -> path`. If the current is not provided it
+will use `(first (repl-info))`.
+
 ------
 
 New `opt-tail-call` VP optimization.

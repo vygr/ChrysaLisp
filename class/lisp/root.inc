@@ -1121,23 +1121,36 @@
 	; (load-stream path) -> :nil | stream
 	(if (defq _ (load _)) (string-stream _)))
 
-(defun abs-path (lib_path &optional current)
-	; (abs-path path [current]) -> path
+(defun path-to-relative (target &optional current)
+	; (path-to-relative target [current]) -> path
+	;transform an absolute filename to a relative one
+	(setd current (first (repl-info)))
+	(defq t_parts (split target "/") c_parts (split current "/")
+		i (or (some (# (if (eql %0 %1) :nil (!))) t_parts c_parts)
+			(min (length t_parts) (length c_parts)))
+		out (list))
+	(times (- (length c_parts) i) (push out "."))
+	(setq out (cat out (slice t_parts i -1)))
+	(if (> (dec (length out)) (length t_parts)) target (join out "/")))
+
+(defun path-to-absolute (target &optional current)
+	; (path-to-absolute target [current]) -> path
+	;transform a relative filename to an absolute one
+	(setd current (first (repl-info)))
 	(cond
-		((not (starts-with "./" lib_path))
-			lib_path)
-		(:t (setd current (first (repl-info)))
-			(while (starts-with "./" lib_path)
-				(unless (defq i (rfind "/" current))
-					(throw "No relative path !" lib_path))
-				(setq current (slice current 0 (dec i))
-					lib_path (slice lib_path 2 -1)))
-			(cat current "/" lib_path))))
+		((starts-with "." target)
+			(defq c_parts (split current "/") p_parts (split target "/")
+				i (or (some (# (if (eql %0 ".") :nil (!))) p_parts)
+					(length p_parts)))
+			(if (> i (length c_parts)) (throw "No relative path !" target))
+			(join (cat (slice c_parts 0 (- (length c_parts) i))
+					   (slice p_parts i -1)) "/"))
+		(target)))
 
 (defun import (lib_path &optional _e)
 	; (import path [env]) -> env
 	(unless (eql :str (pop (type-of lib_path))) (throw "Not a string !" lib_path))
-	(setq lib_path (abs-path lib_path))
+	(setq lib_path (path-to-absolute lib_path))
 	(if (= (age lib_path) 0) (throw "No such file !" lib_path))
 	(setd _e (penv)) (defq _ee _e)
 	; does the import already exist in the environment tree ?
@@ -1157,7 +1170,7 @@
 (defun import-from (lib_path &optional symbols classes)
 	; (import-from [symbols classes])
 	(unless (eql :str (pop (type-of lib_path))) (throw "Not a string !" lib_path))
-	(setq lib_path (abs-path lib_path))
+	(setq lib_path (path-to-absolute lib_path))
 	(if (= (age lib_path) 0) (throw "No such file !" lib_path))
 	(setd symbols '() classes '())
 	;import it here, we will discard it on exit

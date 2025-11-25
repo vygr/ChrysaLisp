@@ -25,16 +25,6 @@
 (defq +split_class (char-class " :()'\t\r\q{@}<>")
 	+implicit_file "lib/asm/func.inc")
 
-;transform an absolute filename to a relative one
-(defun abs-relative (target current)
-	(defq t_parts (split target "/") c_parts (split current "/")
-		i (or (some (# (if (eql %0 %1) :nil (!))) t_parts c_parts)
-			(min (length t_parts) (length c_parts)))
-		out (list))
-	(times (- (length c_parts) i) (push out "."))
-	(setq out (cat out (slice t_parts i -1)))
-	(if (> (dec (length out)) (length t_parts)) target (join out "/")))
-
 ;lookup the file the class was defined in
 ;else just use one they all need
 (defun find-file (cls)
@@ -82,8 +72,8 @@
 		classes (filter (# (not (find %0 ancestors))) classes))
 	;convert to the files we need
 	(merge requires (map (const find-file) classes))
-	(defq includes (map (# (abs-path %0 file)) includes)
-		requires (map (# (abs-path %0 file)) requires))
+	(defq includes (map (# (path-to-absolute %0 file)) includes)
+		requires (map (# (path-to-absolute %0 file)) requires))
 	;keep any apps/ include files ! And remove any redundant
 	(merge requires (filter (# (starts-with "apps/" %0)) includes))
 	(defq requires (push (filter (# (not (find %0 redundant))) requires) +implicit_file))

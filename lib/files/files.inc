@@ -42,7 +42,7 @@
 		(and (> (length line) 8) (eql "(" (first line))
 			(= (length (defq s (split line (const (char-class " ()\q\r\t"))))) 2)
 			(find (first s) '("include" "import"))
-			(push files (abs-path (second s) file))))
+			(push files (path-to-absolute (second s) file))))
 		(if (= (age file) 0)
 			(throw "No such file !" file)
 			(file-stream file))) files)

@@ -622,9 +622,13 @@ sequences like lists, arrays, and strings.
 
     * `(load-stream path) -> :nil | stream`
 
-*   **`abs-path`**: Converts a relative path to an absolute path.
+*   **`path-to-absolute`**: Converts a relative path to an absolute path.
 
-    * `(abs-path path [current]) -> path`
+    * `(path-to-absolute path [current]) -> path`
+
+*   **`path-to-relative`**: Converts an absolute path to a relative path.
+
+    * `(path-to-relative path [current]) -> path`
 
 *   **`import`**: Imports a file.
 
