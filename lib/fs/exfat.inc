@@ -652,6 +652,24 @@
 							;; Update DataLength in Stream Extension Entry
 							;; Offset 24 in Stream Extension (idx + 32 + 24)
 							(set-long data (+ stream_offset 24) new_size)
+							
+							;; CRITICAL: Recalculate Set Checksum after modifying the entry
+							;; The checksum is over the entire 96-byte entry set (File + Stream + Name)
+							;; Skip bytes 2-3 (the checksum field itself)
+							(defq set_checksum 0)
+							(setq i 0)
+							(while (< i 96)
+								(if (or (= i 2) (= i 3))
+									:nil
+									(progn
+										(defq byte (get-ubyte data (+ idx i)))
+										(setq set_checksum (+ (logior (<< set_checksum 15) (>> set_checksum 1)) byte))
+										(setq set_checksum (logand set_checksum 0xFFFF))))
+								(setq i (+ i 1)))
+							
+							;; Update the Set Checksum in the File Entry (offset 2-3)
+							(set-short data (+ idx 2) set_checksum)
+							
 							(. this :write_cluster current_cluster data)
 							(setq found :t)
 						)
@@ -865,7 +883,7 @@
 	(defmethod :set_fat_entry (cluster value)
 		(raise :stream :fat_offset :sector_size)
 		(stream-seek stream (+ (* fat_offset sector_size) (* cluster 4)) 0)
-		(write-blk stream (set-int (str-alloc 4) 0 value))
+		(write-int stream value)
 	)
 
 	(defmethod :read_cluster (cluster)
@@ -942,7 +960,7 @@
 		
 		;; Zero out the disk
 		(defq chunk_size 65536)
-		(defq zeros (str-alloc chunk_size))
+		(defq zeros (pad "" chunk_size (ascii-char 0)))
 		(defq written 0)
 		(while (< written size)
 			(defq to_write (min chunk_size (- size written)))
@@ -997,15 +1015,15 @@
 		(write-blk mstream boot_sector)
 		
 		;; Extended Boot Sectors (8 sectors, zeroed for now but should be part of checksum)
-		(defq extended_boot (str-alloc (* 8 sector_size)))
+		(defq extended_boot (pad "" (* 8 sector_size) (ascii-char 0)))
 		(write-blk mstream extended_boot)
 		
 		;; OEM Parameters (1 sector, zeroed)
-		(defq oem_params (str-alloc sector_size))
+		(defq oem_params (pad "" sector_size (ascii-char 0)))
 		(write-blk mstream oem_params)
 		
 		;; Reserved (1 sector, zeroed)
-		(defq reserved_sector (str-alloc sector_size))
+		(defq reserved_sector (pad "" sector_size (ascii-char 0)))
 		(write-blk mstream reserved_sector)
 		
 		;; Calculate Checksum over the first 11 sectors (Boot + 8 Ext + 1 OEM + 1 Reserved)
@@ -1046,7 +1064,7 @@
 		
 		;; Write Checksum Sector (Sector 11)
 		;; Fill sector with checksum
-		(defq checksum_sector (str-alloc sector_size))
+		(defq checksum_sector (pad "" sector_size (ascii-char 0)))
 		(setq i 0)
 		(while (< i sector_size)
 			(set-int checksum_sector i checksum)
@@ -1096,6 +1114,17 @@
 			(+exfat_upcase_first_cluster upcase_cluster)
 			(+exfat_upcase_data_length 0)
 		))
+		
+		;; Volume Label Entry - "CHRYSALISP"
+		(defq label_entry (str-alloc +exfat_label_size))
+		(set-ubyte label_entry +exfat_entry_header_type +EXFAT_TYPE_LABEL)
+		(set-ubyte label_entry +exfat_label_char_count 10)
+		(defq label_name "CHRYSALISP")
+		(defq i 0)
+		(while (< i 10)
+			(set-ushort label_entry (+ +exfat_label_volume_label (* i 2)) (code label_name 1 i))
+			(setq i (+ i 1)))
+		(write-blk mstream label_entry)
 		
 		(stream-flush mstream)
 		this
