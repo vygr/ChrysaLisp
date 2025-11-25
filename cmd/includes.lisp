@@ -27,20 +27,18 @@
 
 ;transform an absolute filename to a relative one
 (defun abs-relative (target current)
-	(defq split_target (reverse (split target "/"))
-		split_current (reverse (split current "/"))
-		new_target (list) old_len (length split_target))
-	(while (eql (last split_target) (last split_current))
-		(pop split_target) (pop split_current))
-	(times (length split_current) (push new_target "."))
-	(while (defq trailing (pop split_target)) (push new_target trailing))
-	(if (> (- (length new_target) 1) old_len) target (join new_target "/")))
+	(defq t_parts (split target "/") c_parts (split current "/")
+		i (or (some (# (if (eql %0 %1) :nil (!))) t_parts c_parts)
+			(min (length t_parts) (length c_parts)))
+		out (list))
+	(times (- (length c_parts) i) (push out "."))
+	(setq out (cat out (slice t_parts i -1)))
+	(if (> (dec (length out)) (length t_parts)) target (join out "/")))
 
 ;lookup the file the class was defined in
 ;else just use one they all need
 (defun find-file (cls)
-	(if (defq file (. defs_map :find cls))
-		file +implicate_file))
+	(if (defq file (. defs_map :find cls)) file +implicate_file))
 
 ;do the work on a file
 (defun work (file)
