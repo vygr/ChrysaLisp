@@ -93,10 +93,10 @@
 	(bind '(field type size value) (obj-set-args args))
 	(static-qq (obj-set ,obj ,field ,type ,size ,value)))
 
-(defmacro setf-> (obj &rest forms)
-	; (setf-> obj form ...) -> obj
+(defmacro setf-> (obj &rest fields)
+	; (setf-> obj (field val [offset]) ...) -> obj
 	(bind '(offsets types sizes values)
-		(map! (const list) (map (const obj-set-args) forms)))
+		(map! (const list) (map (const obj-set-args) fields)))
 	(static-qq (reduce! (const obj-set) 
 		(list ',offsets ',types ',sizes (list ~values)) ,obj)))
 
