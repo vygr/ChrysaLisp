@@ -1106,7 +1106,7 @@
 	(static-qq (obj-set ,obj (+ +str_data ,idx) +long_size 0 ,val)))
 
 (defmacro set-str (obj idx val)
-	; (get-str str idx val) -> str
+	; (set-str str idx val) -> str
 	(static-qq (obj-set ,obj (+ +str_data ,idx) 0 (length ,val) ,val)))
 
 ;;;;;;;;;

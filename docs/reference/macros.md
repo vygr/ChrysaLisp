@@ -492,7 +492,7 @@ should provide the concreate handler
 ### set-str
 
 ```code
-(get-str str idx val) -> str
+(set-str str idx val) -> str
 ```
 
 ### setd
