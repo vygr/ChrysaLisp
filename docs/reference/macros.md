@@ -510,7 +510,7 @@ should provide the concreate handler
 ### setf->
 
 ```code
-(setf-> obj form ...) -> obj
+(setf-> obj (field val [offset]) ...) -> obj
 ```
 
 ### some
