@@ -105,7 +105,7 @@
 	(bind '(offsets types sizes)
 		(map! (const list) (map (# (if (list? %0)
 			(apply (const obj-args) %0) (obj-args %0))) fields)))
-	(static-qq (reduce! (# (push %0 (obj-get %1 %2 %3)))
+	(static-qq (reduce! (# (push %0 (obj-get ,obj %1 %2 %3)))
 		'(,offsets ,types ,sizes) (list))))
 
 ;;;;;;;
@@ -165,5 +165,5 @@
 		(static-qq (/= 0 (logand ,val ~masks)))))
 
 ;module
-(export-symbols '(structure _structure getf setf setf-> enums bits bits? bit-mask))
+(export-symbols '(structure _structure getf setf getf-> setf-> enums bits bits? bit-mask))
 (env-pop)
