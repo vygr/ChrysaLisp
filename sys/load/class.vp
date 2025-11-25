@@ -3,7 +3,6 @@
 (include "./class.inc")
 (include "././str/class.inc")
 (include "././statics/class.inc")
-(include "././pii/class.inc")
 
 (def-method 'sys_load :init)
 	;inputs

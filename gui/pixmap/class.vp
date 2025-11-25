@@ -1,7 +1,5 @@
 (include "lib/asm/func.inc")
-(include "sys/task/class.inc")
 (include "sys/statics/class.inc")
-(include "sys/mem/class.inc")
 (include "service/gui/class.inc")
 (include "lib/consts/colors.inc")
 (include "class/stream/class.inc")

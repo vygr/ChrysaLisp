@@ -1,6 +1,5 @@
 (include "lib/asm/func.inc")
 (include "sys/statics/class.inc")
-(include "sys/mem/class.inc")
 (include "class/sym/class.inc")
 (include "class/list/class.inc")
 (include "class/lisp/class.inc")

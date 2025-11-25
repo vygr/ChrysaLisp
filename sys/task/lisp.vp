@@ -2,9 +2,7 @@
 (include "class/str/class.inc")
 (include "class/num/class.inc")
 (include "class/lisp/class.inc")
-(include "./class.inc")
 (include "././statics/class.inc")
-(include "././pii/class.inc")
 
 (def-method 'sys_task :lisp_count)
 	;inputs

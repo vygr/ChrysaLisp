@@ -1,8 +1,5 @@
 (include "lib/asm/func.inc")
-(include "sys/task/class.inc")
 (include "sys/statics/class.inc")
-(include "sys/pii/class.inc")
-(include "sys/heap/class.inc")
 (include "gui/view/class.inc")
 (include "gui/region/class.inc")
 (include "class/str/class.inc")

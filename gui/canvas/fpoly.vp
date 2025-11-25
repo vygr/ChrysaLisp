@@ -1,5 +1,4 @@
 (include "lib/asm/func.inc")
-(include "sys/mem/class.inc")
 (include "class/array/class.inc")
 (include "./class.inc")
 (include "././pixmap/class.inc")

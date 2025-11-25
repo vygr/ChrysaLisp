@@ -3,9 +3,7 @@
 (include "class/num/class.inc")
 (include "class/lisp/class.inc")
 (include "class/array/class.inc")
-(include "./class.inc")
 (include "././statics/class.inc")
-(include "././mem/class.inc")
 
 (def-method 'host_os :lisp_readchar)
 	;inputs

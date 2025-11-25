@@ -6,13 +6,9 @@
 (include "class/lisp/class.inc")
 (include "class/hmap/class.inc")
 (include "./class.inc")
-(include "././task/class.inc")
 (include "././str/class.inc")
 (include "././statics/class.inc")
-(include "././pii/class.inc")
-(include "././mem/class.inc")
 (include "././math/class.inc")
-(include "././mail/class.inc")
 (include "././load/class.inc")
 (include "././link/class.inc")
 

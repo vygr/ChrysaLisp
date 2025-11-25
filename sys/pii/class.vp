@@ -1,5 +1,4 @@
 (include "lib/asm/func.inc")
-(include "./class.inc")
 (include "././str/class.inc")
 (include "././statics/class.inc")
 

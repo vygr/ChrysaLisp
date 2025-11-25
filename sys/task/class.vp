@@ -1,10 +1,6 @@
 (include "lib/asm/func.inc")
 (include "class/array/class.inc")
-(include "./class.inc")
 (include "././statics/class.inc")
-(include "././pii/class.inc")
-(include "././mem/class.inc")
-(include "././mail/class.inc")
 (include "././load/class.inc")
 (include "././kernel/class.inc")
 

@@ -8,7 +8,7 @@
 
 	options:
 		-h --help: this help info.
-		-j --jobs num: max jobs per batch, default 1.
+		-j --jobs num: max jobs per batch, default 4.
 		-s --super super: inheritance map, default :nil.
 		-w --write: write new file, default :nil.
 
@@ -22,7 +22,8 @@
 (("-w" "--write") ,(opt-flag 'opt_w))
 ))
 
-(defq +split_class (char-class " :()'\t\r\q{@}<>"))
+(defq +split_class (char-class " :()'\t\r\q{@}<>")
+	+implicate_file "lib/asm/func.inc")
 
 ;transform an absolute filename to a relative one
 (defun abs-relative (target current)
@@ -39,93 +40,92 @@
 ;else just use one they all need
 (defun find-file (cls)
 	(if (defq file (. defs_map :find cls))
-		file "lib/asm/func.inc"))
+		file +implicate_file))
 
 ;do the work on a file
 (defun work (file)
-	(when (ends-with ".vp" file)
-		(defq includes (list) classes (list) requires (list "lib/asm/func.inc"))
-		(lines! (lambda (line)
-				(case (first (defq line_split (split line +split_class)))
-					(("include")
-						(merge includes (list (second line_split))))
-					(("gen-type")
-						(merge classes (list "list" "sym")))
-					(("call" "entry" "exit" "def-method" "gen-vtable" "gen-create"
-						"to-array" "jump" "f-bind")
-						(merge classes (list (second line_split))))
-					(("host-os-call" "host-gui-call" "host-audio-call")
-						(merge requires (list "sys/statics/class.inc"))
-						(merge classes (list (second line_split))))
-					(("signature")
-						(merge classes (rest line_split))))
-				(when (some (# (starts-with "+char_" %0)) line_split)
-					(merge requires (list "lib/consts/chars.inc")))
-				(when (some (# (starts-with "+argb_" %0)) line_split)
-					(merge requires (list "lib/consts/colors.inc")))
-				(when (some (# (starts-with "sys/statics/statics" %0)) line_split)
-					(merge requires (list "sys/statics/class.inc")))
-				(when (some (# (starts-with "view_" %0)) line_split)
-					(merge classes (list "view")))
-				(when (some (# (starts-with "rect_" %0)) line_split)
-					(merge classes (list "region")))
-				(when (some (# (starts-with "pixmap_" %0)) line_split)
-					(merge classes (list "pixmap")))
-				(when (some (# (starts-with "lk_" %0)) line_split)
-					(merge classes (list "sys_link")))
-				(when (some (# (starts-with "ld_" %0)) line_split)
-					(merge classes (list "sys_load")))
-				(when (some (# (starts-with "stream_mail_state_" %0)) line_split)
-					(merge classes (list "out")))
-				(when (some (# (starts-with "static_sym_" %0)) line_split)
-					(merge classes (list "sym")))
-				(when (some (# (eql "vec-set" %0)) line_split)
-					(merge classes (list "sys_math")))
-				(each (# (if (eql "f-path" %0)
-					(merge classes (list (elem-get line_split (inc (!))))))) line_split))
-			(file-stream file))
-		;don't include classes where we include one of their subclasses
-		(defq classes (filter (lambda (cls) (notany (# (find cls (rest %0)))
-			(map (# (defq super_chain (list %0))
-				(each-mergeable (# (and (defq %0 (. super_map :find %0)) (not (eql %0 "nil"))
-					(merge super_chain (list %0)))) super_chain)
-				super_chain) classes))) classes))
-		;convert to the files we need
-		(merge requires (map (const find-file) classes))
-		(defq includes (map (# (abs-path %0 file)) includes)
-			requires (map (# (abs-path %0 file)) requires))
-		;keep any apps/ include files !
-		(merge requires (filter (# (starts-with "apps/" %0)) includes))
-		(sort includes)
-		(sort requires)
-		(when (or (/= (length includes) (length requires))
-				(notevery (const eql) includes requires))
-			(print "File: " file)
-			(print "Includes:")
-			(each (const print) includes)
-			(print "Requires:")
-			(each (const print) requires)
-			;rewrite the file ?
-			(when opt_w
-				(defq requires (cat (list "lib/asm/func.inc")
-						(reverse (sort (map (# (abs-relative %0 file))
-							(filter (# (not (eql %0 "lib/asm/func.inc"))) requires)))))
-					no_includes (memory-stream))
-				(lines! (lambda (line)
-						(defq line_split (split line +split_class))
-						(unless (starts-with "include" (first line_split))
-							(write-line no_includes line)))
-					(file-stream file))
-				(defq stream (file-stream file +file_open_write))
-				(each (# (write-line stream (cat "(" {include "} %0 {"} ")"))) requires)
-				(stream-seek no_includes 0 0)
-				(lines! (# (write-line stream %0)) no_includes)))))
+	(defq includes (list) classes (list) requires (list +implicate_file))
+	(lines! (lambda (line)
+			(case (first (defq line_split (split line +split_class)))
+				(("include")
+					(merge includes (list (second line_split))))
+				(("gen-type")
+					(merge classes (list "list" "sym")))
+				(("call" "entry" "exit" "def-method" "gen-vtable" "gen-create"
+					"to-array" "jump" "f-bind")
+					(merge classes (list (second line_split))))
+				(("host-os-call" "host-gui-call" "host-audio-call")
+					(merge requires (list "sys/statics/class.inc"))
+					(merge classes (list (second line_split))))
+				(("signature")
+					(merge classes (rest line_split))))
+			(when (some (# (starts-with "+char_" %0)) line_split)
+				(merge requires (list "lib/consts/chars.inc")))
+			(when (some (# (starts-with "+argb_" %0)) line_split)
+				(merge requires (list "lib/consts/colors.inc")))
+			(when (some (# (starts-with "sys/statics/statics" %0)) line_split)
+				(merge requires (list "sys/statics/class.inc")))
+			(when (some (# (starts-with "view_" %0)) line_split)
+				(merge classes (list "view")))
+			(when (some (# (starts-with "rect_" %0)) line_split)
+				(merge classes (list "region")))
+			(when (some (# (starts-with "pixmap_" %0)) line_split)
+				(merge classes (list "pixmap")))
+			(when (some (# (starts-with "lk_" %0)) line_split)
+				(merge classes (list "sys_link")))
+			(when (some (# (starts-with "ld_" %0)) line_split)
+				(merge classes (list "sys_load")))
+			(when (some (# (starts-with "stream_mail_state_" %0)) line_split)
+				(merge classes (list "out")))
+			(when (some (# (starts-with "static_sym_" %0)) line_split)
+				(merge classes (list "sym")))
+			(when (some (# (eql "vec-set" %0)) line_split)
+				(merge classes (list "sys_math")))
+			(each (# (if (eql "f-path" %0)
+				(merge classes (list (elem-get line_split (inc (!))))))) line_split))
+		(file-stream file))
+	;don't include classes where we include one of their subclasses
+	(defq classes (filter (lambda (cls) (notany (# (find cls (rest %0)))
+		(map (# (defq super_chain (list %0))
+			(each-mergeable (# (and (defq %0 (. super_map :find %0)) (not (eql %0 "nil"))
+				(merge super_chain (list %0)))) super_chain)
+			super_chain) classes))) classes))
+	;convert to the files we need
+	(merge requires (map (const find-file) classes))
+	(defq includes (map (# (abs-path %0 file)) includes)
+		requires (map (# (abs-path %0 file)) requires))
+	;keep any apps/ include files ! And remove any redundant
+	(merge requires (filter (# (starts-with "apps/" %0)) includes))
+	(defq requires (push (filter (# (not (find %0 redundant))) requires) +implicate_file))
+	(sort includes) (sort requires)
+	(when (or (/= (length includes) (length requires))
+			(notevery (const eql) includes requires))
+		(print "File: " file)
+		(print "Includes:")
+		(each (const print) includes)
+		(print "Requires:")
+		(each (const print) requires)
+		;rewrite the file ?
+		(when opt_w
+			(defq requires (cat (list +implicate_file)
+					(reverse (sort (map (# (abs-relative %0 file))
+						(filter (# (not (eql %0 +implicate_file))) requires)))))
+				no_includes (memory-stream))
+			(lines! (lambda (line)
+					(defq line_split (split line +split_class))
+					(unless (starts-with "include" (first line_split))
+						(write-line no_includes line)))
+				(file-stream file))
+			(defq stream (file-stream file +file_open_write))
+			(each (# (write-line stream (cat "(" {include "} %0 {"} ")"))) requires)
+			(stream-seek no_includes 0 0)
+			(lines! (# (write-line stream %0)) no_includes))))
 
 (defun main ()
 	;initialize pipe details and command args, abort on error
 	(when (and
 			(defq stdio (create-stdio))
-			(defq opt_j 1 opt_s :nil opt_w :nil args (options stdio usage)))
+			(defq opt_j 4 opt_s :nil opt_w :nil args (options stdio usage)))
 		(defq super_map (Fmap 11) defs_map (Fmap 11))
 		(cond
 			(opt_s
@@ -145,10 +145,15 @@
 				(setq opt_s (list))
 				(. super_map :each (# (push opt_s (cat "[" %0 ":" %1 ":" (. defs_map :find %0 )"]"))))
 				(setq opt_s (apply (const cat) opt_s))))
+		;all depends of the lib/asm/func.inc file !
+		;we will filter these out
+		(defq redundant (files-all-depends (list +implicate_file)))
 		;from args ?
 		(if (empty? (defq jobs (rest args)))
 			;no, so from stdin
 			(lines! (# (push jobs %0)) (io-stream 'stdin)))
+		;only .vp files
+		(setq jobs (filter (# (ends-with ".vp" %0)) jobs))
 		(if (<= (length jobs) opt_j)
 			;do the work when batch size ok !
 			(each (const work) jobs)

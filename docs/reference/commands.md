@@ -199,7 +199,7 @@ Usage: includes [options] [path] ...
 
 	options:
 		-h --help: this help info.
-		-j --jobs num: max jobs per batch, default 1.
+		-j --jobs num: max jobs per batch, default 4.
 		-s --super super: inheritance map, default :nil.
 		-w --write: write new file, default :nil.
 

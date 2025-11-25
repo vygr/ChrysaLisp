@@ -43,12 +43,18 @@ Upgrade to `(obj-get obj offset type|0 size|0) -> num|str` and `(obj-set obj
 offset type|0 size|0 num|str) -> obj` to treat sub `struct` members as strings.
 `getf` and `setf` macros updated to correctly set the arguments to this new API.
 
-Fleshed out the `(set-xxx str idx val)` matching macros to `(get-xxx str idx)`.
-
 New `-s script_name` option for the batch/shell files, to ease LLM tests. eg.
 `./run_tui.sh -n 1 -f -s script_name`.
 
 Added `(type-of obj)` support to the all `class/` classes.
+
+Fleshed out the `(set-xxx str idx val)` matching macros to `(get-xxx str idx)`.
+
+Fleshed out the `(read-xxx stream) ->val` and `(write-xxx stream val) -> stream`
+macros.
+
+New `includes` command for auto creation of `.vp` file header includes, great
+time saving and checking tool.
 
 ------
 
