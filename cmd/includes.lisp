@@ -8,7 +8,7 @@
 
 	options:
 		-h --help: this help info.
-		-j --jobs num: max jobs per batch, default 4.
+		-j --jobs num: max jobs per batch, default 8.
 		-s --super super: inheritance map, default :nil.
 		-w --write: write new file, default :nil.
 
@@ -125,7 +125,7 @@
 	;initialize pipe details and command args, abort on error
 	(when (and
 			(defq stdio (create-stdio))
-			(defq opt_j 4 opt_s :nil opt_w :nil args (options stdio usage)))
+			(defq opt_j 8 opt_s :nil opt_w :nil args (options stdio usage)))
 		(defq super_map (Fmap 11) defs_map (Fmap 11))
 		(cond
 			(opt_s
