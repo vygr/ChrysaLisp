@@ -23,7 +23,7 @@
 ))
 
 (defq +split_class (char-class " :()'\t\r\q{@}<>")
-	+implicate_file "lib/asm/func.inc")
+	+implicit_file "lib/asm/func.inc")
 
 ;transform an absolute filename to a relative one
 (defun abs-relative (target current)
@@ -38,11 +38,11 @@
 ;lookup the file the class was defined in
 ;else just use one they all need
 (defun find-file (cls)
-	(if (defq file (. defs_map :find cls)) file +implicate_file))
+	(if (defq file (. defs_map :find cls)) file +implicit_file))
 
 ;do the work on a file
 (defun work (file)
-	(defq includes (list) classes (list) requires (list +implicate_file))
+	(defq includes (list) classes (list) requires (list +implicit_file))
 	(lines! (lambda (line)
 			(case (first (defq line_split (split line +split_class)))
 				(("include")
@@ -86,7 +86,7 @@
 		requires (map (# (abs-path %0 file)) requires))
 	;keep any apps/ include files ! And remove any redundant
 	(merge requires (filter (# (starts-with "apps/" %0)) includes))
-	(defq requires (push (filter (# (not (find %0 redundant))) requires) +implicate_file))
+	(defq requires (push (filter (# (not (find %0 redundant))) requires) +implicit_file))
 	(sort includes) (sort requires)
 	(when (or (/= (length includes) (length requires))
 			(notevery (const eql) includes requires))
@@ -97,9 +97,9 @@
 		(each (const print) requires)
 		;rewrite the file ?
 		(when opt_w
-			(defq requires (cat (list +implicate_file)
+			(defq requires (cat (list +implicit_file)
 					(reverse (sort (map (# (abs-relative %0 file))
-						(filter (# (not (eql %0 +implicate_file))) requires)))))
+						(filter (# (not (eql %0 +implicit_file))) requires)))))
 				no_includes (memory-stream))
 			(lines! (lambda (line)
 					(defq line_split (split line +split_class))
@@ -137,7 +137,7 @@
 				(setq opt_s (apply (const cat) opt_s))))
 		;all depends of the lib/asm/func.inc file !
 		;we will filter these out
-		(defq redundant (files-all-depends (list +implicate_file)))
+		(defq redundant (files-all-depends (list +implicit_file)))
 		;from args ?
 		(if (empty? (defq jobs (rest args)))
 			;no, so from stdin
