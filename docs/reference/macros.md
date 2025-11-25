@@ -267,6 +267,12 @@ should provide the concreate handler
 (getf obj field [offset]) -> value
 ```
 
+### getf->
+
+```code
+(getf-> obj field|(field offset) ...) -> (val ...)
+```
+
 ### gui-add-back-rpc
 
 ```code

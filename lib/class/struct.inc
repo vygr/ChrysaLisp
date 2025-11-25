@@ -95,10 +95,18 @@
 
 (defmacro setf-> (obj &rest forms)
 	; (setf-> obj form ...) -> obj
-	(bind '(fields types sizes values)
+	(bind '(offsets types sizes values)
 		(map! (const list) (map (const obj-set-args) forms)))
 	(static-qq (reduce! (const obj-set) 
-		(list ',fields ',types ',sizes (list ~values)) ,obj)))
+		(list ',offsets ',types ',sizes (list ~values)) ,obj)))
+
+(defmacro getf-> (obj &rest fields)
+	; (getf-> obj field|(field offset) ...) -> (val ...)
+	(bind '(offsets types sizes)
+		(map! (const list) (map (# (if (list? %0)
+			(apply (const obj-args) %0) (obj-args %0))) fields)))
+	(static-qq (reduce! (# (push %0 (obj-get %1 %2 %3)))
+		'(,offsets ,types ,sizes) (list))))
 
 ;;;;;;;
 ; enums
