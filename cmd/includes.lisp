@@ -76,11 +76,12 @@
 				line_split))
 		(file-stream file))
 	;don't include classes where we include one of their subclasses
-	(defq classes (filter (lambda (cls) (notany (# (find cls (rest %0)))
-		(map (# (defq super_chain (list %0))
-			(each-mergeable (# (and (defq %0 (. super_map :find %0)) (not (eql %0 "nil"))
-				(merge super_chain (list %0)))) super_chain)
-			super_chain) classes))) classes))
+	(defq ancestors (reduce (lambda (anc cls)
+		(while (and (setq cls (. super_map :find cls))
+				(not (eql cls "nil"))
+				(not (find cls anc)))
+			(push anc cls)) anc) classes (list))
+		classes (filter (# (not (find %0 ancestors))) classes))
 	;convert to the files we need
 	(merge requires (map (const find-file) classes))
 	(defq includes (map (# (abs-path %0 file)) includes)
