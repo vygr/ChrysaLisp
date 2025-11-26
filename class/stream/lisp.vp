@@ -4,7 +4,6 @@
 (include "././sstream/class.inc")
 (include "././num/class.inc")
 (include "././mstream/class.inc")
-(include "././list/class.inc")
 (include "././lisp/class.inc")
 (include "././fstream/class.inc")
 

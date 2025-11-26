@@ -3,7 +3,6 @@
 (include "./class.inc")
 (include "././sym/class.inc")
 (include "././stream/class.inc")
-(include "././list/class.inc")
 
 (def-method 'lisp :read_char)
 	;inputs

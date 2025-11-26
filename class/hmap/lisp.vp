@@ -3,7 +3,6 @@
 (include "./class.inc")
 (include "././sym/class.inc")
 (include "././num/class.inc")
-(include "././list/class.inc")
 (include "././lisp/class.inc")
 
 (defun defset (_ p)

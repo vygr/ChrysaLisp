@@ -2,7 +2,6 @@
 (include "gui/path/class.inc")
 (include "././reals/class.inc")
 (include "././num/class.inc")
-(include "././list/class.inc")
 (include "././lisp/class.inc")
 
 (defun to-array (_)

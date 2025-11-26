@@ -5,7 +5,6 @@
 (include "./class.inc")
 (include "././sym/class.inc")
 (include "././sstream/class.inc")
-(include "././list/class.inc")
 
 (def-func 'class/lisp/run)
 	;lisp run loop task

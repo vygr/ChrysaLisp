@@ -1,6 +1,5 @@
 (include "lib/asm/func.inc")
 (include "./class.inc")
-(include "././list/class.inc")
 (include "././func/class.inc")
 
 (def-method 'lisp :repl_apply)

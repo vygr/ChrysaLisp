@@ -3,7 +3,6 @@
 (include "gui/view/class.inc")
 (include "gui/region/class.inc")
 (include "class/list/class.inc")
-(include "./class.inc")
 
 (def-method 'host_gui :update 16)
 	;inputs

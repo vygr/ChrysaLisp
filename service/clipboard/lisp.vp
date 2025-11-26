@@ -3,7 +3,6 @@
 (include "class/str/class.inc")
 (include "class/lisp/class.inc")
 (include "./class.inc")
-(include "././gui/class.inc")
 
 (def-method 'host_clipboard :lisp_put)
 	;inputs

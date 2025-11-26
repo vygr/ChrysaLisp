@@ -97,7 +97,7 @@
 	; (setf-> obj (field val [offset]) ...) -> obj
 	(bind '(offsets types sizes values)
 		(map! (const list) (map (const obj-set-args) fields)))
-	(static-qq (reduce! (const obj-set) 
+	(static-qq (reduce! (const obj-set)
 		(list ',offsets ',types ',sizes (list ~values)) ,obj)))
 
 (defmacro getf-> (obj &rest fields)

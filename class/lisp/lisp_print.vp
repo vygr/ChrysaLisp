@@ -3,7 +3,6 @@
 (include "./class.inc")
 (include "././stream/class.inc")
 (include "././str/class.inc")
-(include "././list/class.inc")
 
 (def-method 'lisp :lisp_prin)
 	;inputs

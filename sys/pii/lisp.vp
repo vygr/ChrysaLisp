@@ -2,7 +2,6 @@
 (include "class/str/class.inc")
 (include "class/num/class.inc")
 (include "class/lisp/class.inc")
-(include "class/array/class.inc")
 (include "././statics/class.inc")
 
 (def-method 'host_os :lisp_readchar)

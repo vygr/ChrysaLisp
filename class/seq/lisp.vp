@@ -1,7 +1,6 @@
 (include "lib/asm/func.inc")
 (include "././str/class.inc")
 (include "././num/class.inc")
-(include "././list/class.inc")
 (include "././lisp/class.inc")
 
 (def-method 'seq :lisp_length)

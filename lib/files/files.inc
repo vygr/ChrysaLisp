@@ -37,7 +37,7 @@
 (defun files-depends (file)
 	; (files-depends path) -> paths
 	;create list of immediate dependencies
-	(defq files (list file))
+	(defq files (list))
 	(lines! (lambda (line)
 		(and (> (length line) 8) (eql "(" (first line))
 			(= (length (defq s (split line (const (char-class " ()\q\r\t"))))) 2)
@@ -50,13 +50,9 @@
 (defun files-all-depends (files &optional imps)
 	; (files-all-depends paths &optional imps) -> paths
 	;create list of all dependencies, with implicit options
-	(setq files (usort (cat files)))
-	(when imps
-		(each (# (unless (find %0 files) (push files %0)))
-			(cat (list "class/lisp/root.inc" "class/lisp/task.inc") imps)))
-	(each-mergeable (lambda (file)
-		(each (# (unless (find %0 files) (push files %0)))
-			(files-depends file))) files))
+	(each-mergeable (# (each (lambda (&rest %0) (merge files %0)) (files-depends %0)))
+		(setq files (merge (merge (usort (cat files)) (ifn imps '()))
+			'("class/lisp/root.inc" "class/lisp/task.inc")))) files)
 
 ;module
 (export-symbols '(files-all files-dirs files-all-depends files-depends))

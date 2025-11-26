@@ -1,6 +1,5 @@
 (include "lib/asm/func.inc")
 (include "sys/statics/class.inc")
-(include "service/gui/class.inc")
 (include "./class.inc")
 (include "././view/class.inc")
 (include "././region/class.inc")
