@@ -73,12 +73,9 @@
 	(defq depends_set (Fset 101))
 	(each (lambda (file)
 		(each (# (. depends_set :insert %0))
-			(cond
-				((defq deps (. depends_cache :find file)) deps)
-				((defq deps (filter (# (not (eql %0 file)))
-						(files-all-depends (list file))))
-					(. depends_cache :insert file deps)
-					deps)))) requires)
+			(. depends_cache :update file (# (if %0 %0
+				(filter (# (not (eql %0 file)))
+					(files-all-depends (list file)))))))) requires)
 	(setq requires (filter (# (not (. depends_set :find %0))) requires))
 	;sort and see if we need to report a difference and maybe rewrite
 	(sort includes) (sort requires)
