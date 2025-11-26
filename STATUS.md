@@ -63,6 +63,8 @@ Added `(path-to-relative target [current]) -> path` function to compliment the
 `(path-to-absolute target [current]) -> path`. If the current is not provided it
 will use `(first (repl-info))`.
 
+New simple `sed` command line app.
+
 ------
 
 New `opt-tail-call` VP optimization.

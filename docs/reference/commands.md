@@ -329,6 +329,21 @@ Usage: sdir [options] [prefix]
 	options:
 		-h --help: this help info.
 ```
+## sed
+```code
+Usage: sed [options] [path] ...
+
+	options:
+		-h --help: this help info.
+		-e --expression pattern: search pattern.
+		-r --replace string: replacement string, default "".
+		-g --global: replace all occurrences.
+		-w --words: whole words.
+		-x --regexp: treat pattern as regular expression.
+
+	Stream editor. Reads from stdin if no files specified.
+	Writes to stdout.
+```
 ## shuffle
 ```code
 Usage: shuffle [options] [line] ...
