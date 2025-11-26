@@ -1151,19 +1151,12 @@
 	; (import path [env])
 	(if (= (age (setq module (path-to-absolute module))) 0)
 		(throw "No such file !" module))
-	(defq dst_env (ifn dst_env (penv)) imp_env dst_env)
-	; does the import already exist in the environment tree ?
-	(while (env? imp_env)
-		(cond
-			((and (defq file_list (def? '*module_imports* imp_env))
-					(find module file_list))
-				(setq imp_env :t))
-			((setq imp_env (penv imp_env)))))
-	; if not existing import it here
-	(unless imp_env
-		(unless (def? '*module_imports* dst_env)
-			(def dst_env '*module_imports* (list)))
-		(push (get '*module_imports* dst_env) module)
+	;does the import already exist ?
+	(defq dst_env (ifn dst_env (penv))
+		import_sym (sym (cat "*module_" module "*")))
+	(unless (get import_sym dst_env)
+		;if not existing import it here
+		(def dst_env import_sym :t)
 		(callback (const repl) dst_env (file-stream module) module)))
 
 (defun import-from (module &optional symbols classes)
@@ -1257,7 +1250,7 @@
 
 (defun within-compile-env (_f)
 	; (within-compile-env lambda)
-	(defq *compile_env* (env-resize 499))
+	(defq *compile_env* (env-resize 1999))
 	(defmacro defcvar (&rest b) (static-qq (def *compile_env* ~b)))
 	(defmacro deffvar (&rest b) (static-qq (def *func_env* ~b)))
 	(defun include (module) (import module *compile_env*))
