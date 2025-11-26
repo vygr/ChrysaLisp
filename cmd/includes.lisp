@@ -61,7 +61,7 @@
 				((starts-with "+char_" token) (merge requires '("lib/consts/chars.inc")))
 				((starts-with "+argb_" token) (merge requires '("lib/consts/colors.inc")))
 				((starts-with "sys/statics/statics" token) (merge requires '("sys/statics/class.inc")))))
-			input) :nil) +split_class)
+			input) :nil) ";" +split_class)
 	;convert to the files we need, keep any apps/ include files !
 	(merge requires (map (const find-file) classes))
 	(defq includes (map (# (path-to-absolute %0 file)) includes)

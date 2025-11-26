@@ -54,11 +54,10 @@
 		(setq files (merge (merge (usort (cat files)) (ifn imps '()))
 			'("class/lisp/root.inc" "class/lisp/task.inc")))) files)
 
-(defun files-scan (files handler &optional split_class comment)
-	; (scan-files files handler [split_class comment]) -> files
+(defun files-scan (files handler &optional comment split_class)
+	; (scan-files files handler [comment split_class]) -> files
 	;iterates through files, processing lines.
 	;new files returned by the handler are merged into the work list.
-	(setd split_class (const (char-class " ()'\t\r\q")) comment ";")
 	(unless (list? files) (setq files (list files)))
 	(each-mergeable (lambda (file)
 		(if (defq stream (file-stream file))
