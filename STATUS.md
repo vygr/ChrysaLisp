@@ -65,6 +65,12 @@ will use `(first (repl-info))`.
 
 New simple `sed` command line app.
 
+New generic files line scanner, which calls back to a user handler. `(scan-files
+files handler [split_class comment_char]) -> files`. The handler can choose to
+be presented with split line token, provide a line splitter charclass, specify a
+comment character if needed. The handler should return `:nil` or a list of new
+files to add to the work list.
+
 ------
 
 New `opt-tail-call` VP optimization.

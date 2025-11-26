@@ -257,6 +257,15 @@ create list of immediate dependencies
 return all the dir paths
 ```
 
+### files-scan
+
+```code
+(scan-files files handler [split_class comment_char]) -> files
+
+iterates through files, processing lines.
+new files returned by the handler are merged into the work list.
+```
+
 ### fixed?
 
 ```code

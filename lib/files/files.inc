@@ -54,6 +54,26 @@
 		(setq files (merge (merge (usort (cat files)) (ifn imps '()))
 			'("class/lisp/root.inc" "class/lisp/task.inc")))) files)
 
+(defun files-scan (files handler &optional split_class comment_char)
+	; (scan-files files handler [split_class comment_char]) -> files
+	;iterates through files, processing lines.
+	;new files returned by the handler are merged into the work list.
+	(setd split_class (const (char-class " ()'\t\r\q")) comment_char ";")
+	(unless (list? files) (setq files (list files)))
+	(each-mergeable (lambda (file)
+		(if (defq stream (file-stream file))
+			(lines! (lambda (line)
+				(task-slice)
+				;skip empty lines and comments
+				(unless (or (eql (setq line (trim line)) "")
+							(and comment_char (starts-with comment_char line)))
+					;prepare input (tokens or raw line)
+					(defq input (if split_class (split line split_class) line))
+					;call user handler
+					;merge any new dependencies returned by handler into files list
+					(merge files (ifn (callback handler (penv) input file line (!)) '()))))
+				stream))) files))
+
 ;module
-(export-symbols '(files-all files-dirs files-all-depends files-depends))
+(export-symbols '(files-all files-dirs files-all-depends files-depends files-scan))
 (env-pop)
