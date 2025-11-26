@@ -199,8 +199,8 @@ Usage: includes [options] [path] ...
 
 	options:
 		-h --help: this help info.
-		-j --jobs num: max jobs per batch, default 8.
-		-s --super super: inheritance map, default :nil.
+		-j --jobs num: max jobs per batch, default 10.
+		-d --defs defs: class definitions map, default :nil.
 		-w --write: write new file, default :nil.
 
 	Scan for needed includes in .vp files, optionally
