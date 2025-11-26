@@ -35,7 +35,7 @@
 	(defq includes (list) classes (list) requires (list +implicit_file))
 	(lines! (lambda (line)
 		(unless (eql ";" (first (first (defq line_split (split line +split_class)))))
-			(case (first (defq line_split (split line +split_class)))
+			(case (first line_split)
 				(("include")
 					(merge includes (list (second line_split))))
 				(("gen-type")
