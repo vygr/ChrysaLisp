@@ -73,7 +73,7 @@
 	(defq depends_set (Fset 101))
 	(each (lambda (file)
 		(each (# (. depends_set :insert %0))
-			(. depends_cache :update file (# (if %0 %0
+			(. depends_cache :update file (# (ifn %0
 				(filter (# (not (eql %0 file)))
 					(files-all-depends (list file)))))))) requires)
 	(setq requires (filter (# (not (. depends_set :find %0))) requires))
