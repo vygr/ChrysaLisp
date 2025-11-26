@@ -8,8 +8,8 @@
 
 	options:
 		-h --help: this help info.
-		-j --jobs num: max jobs per batch, default 8.
-		-s --super super: inheritance map, default :nil.
+		-j --jobs num: max jobs per batch, default 10.
+		-d --defs defs: class definitions map, default :nil.
 		-w --write: write new file, default :nil.
 
 	Scan for needed includes in .vp files, optionally
@@ -18,7 +18,7 @@
 	If no paths given on command line
 	then will take paths from stdin.")
 (("-j" "--jobs") ,(opt-num 'opt_j))
-(("-s" "--super") ,(opt-str 'opt_s))
+(("-d" "--defs") ,(opt-str 'opt_d))
 (("-w" "--write") ,(opt-flag 'opt_w))
 ))
 
@@ -34,6 +34,7 @@
 (defun work (file)
 	(defq includes (list) classes (list) requires (list +implicit_file))
 	(lines! (lambda (line)
+		(unless (eql ";" (first (first (defq line_split (split line +split_class)))))
 			(case (first (defq line_split (split line +split_class)))
 				(("include")
 					(merge includes (list (second line_split))))
@@ -61,22 +62,25 @@
 					((starts-with "+char_" token) (merge requires '("lib/consts/chars.inc")))
 					((starts-with "+argb_" token) (merge requires '("lib/consts/colors.inc")))
 					((starts-with "sys/statics/statics" token) (merge requires '("sys/statics/class.inc")))))
-				line_split))
+				line_split)))
 		(file-stream file))
-	;don't include classes where we include one of their subclasses
-	(defq ancestors (reduce (lambda (anc cls)
-		(while (and (setq cls (. super_map :find cls))
-				(not (eql cls "nil"))
-				(not (find cls anc)))
-			(push anc cls)) anc) classes (list))
-		classes (filter (# (not (find %0 ancestors))) classes))
-	;convert to the files we need
+	;convert to the files we need, keep any apps/ include files !
 	(merge requires (map (const find-file) classes))
 	(defq includes (map (# (path-to-absolute %0 file)) includes)
 		requires (map (# (path-to-absolute %0 file)) requires))
-	;keep any apps/ include files ! And remove any redundant
 	(merge requires (filter (# (starts-with "apps/" %0)) includes))
-	(defq requires (push (filter (# (not (find %0 redundant))) requires) +implicit_file))
+	;remove any redundant files !
+	(defq depends_set (Fset 101))
+	(each (lambda (file)
+		(each (# (. depends_set :insert %0))
+			(cond
+				((defq deps (. depends_cache :find file)) deps)
+				((defq deps (filter (# (not (eql %0 file)))
+						(files-all-depends (list file))))
+					(. depends_cache :insert file deps)
+					deps)))) requires)
+	(setq requires (filter (# (not (. depends_set :find %0))) requires))
+	;sort and see if we need to report a difference and maybe rewrite
 	(sort includes) (sort requires)
 	(when (or (/= (length includes) (length requires))
 			(notevery (const eql) includes requires))
@@ -88,7 +92,7 @@
 		;rewrite the file ?
 		(when opt_w
 			(defq requires (cat (list +implicit_file)
-					(reverse (sort (map (# (abs-relative %0 file))
+					(reverse (sort (map (# (path-to-relative %0 file))
 						(filter (# (not (eql %0 +implicit_file))) requires)))))
 				no_includes (memory-stream))
 			(lines! (lambda (line)
@@ -105,29 +109,24 @@
 	;initialize pipe details and command args, abort on error
 	(when (and
 			(defq stdio (create-stdio))
-			(defq opt_j 8 opt_s :nil opt_w :nil args (options stdio usage)))
-		(defq super_map (Fmap 11) defs_map (Fmap 11))
+			(defq opt_j 10 opt_d :nil opt_w :nil args (options stdio usage)))
+		(defq defs_map (Fmap 11) depends_cache (Fmap 101))
 		(cond
-			(opt_s
-				;we are given a super map
-				(each (# (bind '(key val file) (split %0 ":"))
-						(. super_map :insert key val)
-						(. defs_map :insert key file))
-					(split opt_s "[]")))
-			(:t	;must build a super map
+			(opt_d
+				;we are given a defs map
+				(each (# (bind '(cls file) (split %0 ":"))
+						(. defs_map :insert cls file))
+					(split opt_d "[]")))
+			(:t	;must build a defs map
 				(each (lambda (file)
 						(lines! (# (defq line_split (split %0 +split_class))
 								(when (eql (first line_split) "def-class")
-									(. super_map :insert (second line_split) (third line_split))
 									(. defs_map :insert (second line_split) file)))
 							(file-stream file)))
 					(files-all "." '("class.inc") 2))
-				(setq opt_s (list))
-				(. super_map :each (# (push opt_s (cat "[" %0 ":" %1 ":" (. defs_map :find %0 )"]"))))
-				(setq opt_s (apply (const cat) opt_s))))
-		;all depends of the lib/asm/func.inc file !
-		;we will filter these out
-		(defq redundant (files-all-depends (list +implicit_file)))
+				(setq opt_d (list))
+				(. defs_map :each (# (push opt_d (cat "[" %0 ":" %1 "]"))))
+				(setq opt_d (apply (const cat) opt_d))))
 		;from args ?
 		(if (empty? (defq jobs (rest args)))
 			;no, so from stdin
@@ -141,7 +140,7 @@
 			(each (lambda ((job result)) (prin result))
 				(pipe-farm (map (# (str (first args)
 						" -j " opt_j
-						(if opt_s (cat " -s " opt_s) "")
+						(if opt_d (cat " -d " opt_d) "")
 						(if opt_w " -w " "")
 						" " (slice (str %0) 1 -2)))
 					(partition jobs opt_j)))))))
