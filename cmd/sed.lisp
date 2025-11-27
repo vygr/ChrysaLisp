@@ -22,7 +22,6 @@
 ))
 
 (defun sed-replace (line match rep global)
-	(prin match)(print)
 	(defq idx 0)
 	(unless global (setq match (list (first match))))
 	(apply (const cat) (push (reduce (lambda (out ((ms me) &ignore))
