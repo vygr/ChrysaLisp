@@ -66,10 +66,10 @@
 			(lines! (lambda (line)
 				(task-slice)
 				;skip empty lines and comments
-				(unless (or (eql (setq line (trim line)) "")
-							(and comment (starts-with comment line)))
-					;prepare input (tokens or raw line)
-					(defq input (if split_class (split line split_class) line))
+				(unless (or (eql (defq linet (trim line)) +char_class_space)
+							(and comment (starts-with comment linet)))
+					;prepare input (tokens or trimmed line)
+					(defq input (if split_class (split linet split_class) linet))
 					;call user handler
 					;merge any new dependencies returned by handler into files list
 					(merge files (ifn (callback handler callback_e input file line (!)) '()))))
