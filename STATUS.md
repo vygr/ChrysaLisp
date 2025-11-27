@@ -75,6 +75,8 @@ files to add to the work list.
 specified positive widths mean signed values and negative width mean unsigned
 value.
 
+Audio service now shares and reference counts the resource handles.
+
 ------
 
 New `opt-tail-call` VP optimization.
