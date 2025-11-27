@@ -48,7 +48,7 @@
 (defun files-all-depends (files &optional imps)
 	; (files-all-depends paths &optional imps) -> paths
 	;create list of all dependencies, with implicit options
-	(each-mergeable (# (each (lambda (&rest %0) (merge files %0)) (files-depends %0)))
+	(each-mergeable (# (task-slice) (each (lambda (&rest %0) (merge files %0)) (files-depends %0)))
 		(setq files (merge (merge (usort (cat files)) (ifn imps '()))
 			'("class/lisp/root.inc" "class/lisp/task.inc")))) files)
 
@@ -59,10 +59,9 @@
 	(setd comment ";")
 	(defq callback_e (penv))
 	(unless (list? files) (setq files (list files)))
-	(each-mergeable (lambda (file)
+	(each-mergeable (lambda (file) (task-slice)
 		(if (defq stream (file-stream file))
 			(lines! (lambda (line)
-				(task-slice)
 				;skip empty lines and comments
 				(unless (or (eql (defq linet (trim line)) +char_class_space)
 							(and comment (starts-with comment linet)))
