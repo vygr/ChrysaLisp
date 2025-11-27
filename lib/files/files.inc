@@ -37,15 +37,13 @@
 (defun files-depends (file)
 	; (files-depends path) -> paths
 	;create list of immediate dependencies
-	(defq files (list))
-	(lines! (lambda (line)
-		(and (> (length line) 8) (eql "(" (first line))
-			(= (length (defq s (split line (const (char-class " ()\q\r\t"))))) 2)
-			(find (first s) '("include" "import"))
-			(push files (path-to-absolute (second s) file))))
-		(if (= (age file) 0)
-			(throw "No such file !" file)
-			(file-stream file))) files)
+	(if (defq files (list) stream (file-stream file))
+		(lines! (lambda (line)
+			(and (eql "(" (first line))
+				(or (starts-with "(include" line) (starts-with "(import" line))
+				(push files (path-to-absolute
+					(slice line (defq i (inc (find {"} line))) (find {"} line i)) file))))
+			stream)) files)
 
 (defun files-all-depends (files &optional imps)
 	; (files-all-depends paths &optional imps) -> paths

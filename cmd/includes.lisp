@@ -8,7 +8,7 @@
 
 	options:
 		-h --help: this help info.
-		-j --jobs num: max jobs per batch, default 10.
+		-j --jobs num: max jobs per batch, default 8.
 		-d --defs defs: class definitions map, default :nil.
 		-w --write: write new file, default :nil.
 
@@ -104,7 +104,7 @@
 	;initialize pipe details and command args, abort on error
 	(when (and
 			(defq stdio (create-stdio))
-			(defq opt_j 10 opt_d :nil opt_w :nil args (options stdio usage)))
+			(defq opt_j 8 opt_d :nil opt_w :nil args (options stdio usage)))
 		(defq defs_map (Fmap 11) depends_cache (Fmap 101))
 		(cond
 			(opt_d
