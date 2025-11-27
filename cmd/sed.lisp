@@ -21,8 +21,6 @@
 (("-w" "--words") ,(opt-flag 'opt_w))
 ))
 
-(defq +empty_reps `',(exec (map (lambda (_) "") (str-alloc 10))))
-
 (defun create-rep-info (rep)
 	(defq idx 0)
 	(filter (# (not (eql %0 "")))
@@ -33,15 +31,16 @@
 
 (defun create-reps (line match)
 	(cat (reduce (lambda (out (ms me))
-		(push out (slice line ms me))) match (list)) +empty_reps))
+			(push out (slice line ms me))) match (list))
+		(const (list quote (map (lambda (_) "") (str-alloc 10))))))
 
 (defun process (stream engine pattern meta rep global rep_info)
 	(lines! (lambda (line)
-		(cond
-			((empty? (defq match (. engine :search line pattern meta))) (print line))
+		(print (cond
+			((empty? (defq match (. engine :search line pattern meta))) line)
 			((defq idx 0)
-			(unless global (setq match (list (first match))))
-			(print (apply (const cat) (push (reduce (lambda (out match)
+			(unless global (setq match (slice match 0 1)))
+			(apply (const cat) (push (reduce (lambda (out match)
 				(bind '((ms me) &ignore) match)
 				(cond
 					;regexp mode
