@@ -63,7 +63,8 @@ Added `(path-to-relative target [current]) -> path` function to compliment the
 `(path-to-absolute target [current]) -> path`. If the current is not provided it
 will use `(first (repl-info))`.
 
-New simple `sed` command line app.
+New simple `sed` command line app. In `-x` mode it will match and replace
+submatches using the `$0-$9` parameter syntax.
 
 New generic files line scanner, which calls back to a user handler. `(scan-files
 files handler [split_class comment_char]) -> files`. The handler can choose to

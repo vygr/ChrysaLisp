@@ -21,13 +21,33 @@
 (("-w" "--words") ,(opt-flag 'opt_w))
 ))
 
+(defun create-rep-info (rep)
+	(defq idx 0)
+	(push (reduce (lambda (out ((ms me)))
+			(push out (list (slice rep idx ms)
+				(str-to-num (slice rep (inc ms) me))))
+			(setq idx me) out)
+		(matches rep "\$\d") (list)) (list (slice rep idx -1) :nil)))
+
+(defun create-reps (line match)
+	(defq out (list "" "" "" "" "" "" "" "" "" ""))
+	(each (lambda ((ms me)) (elem-set out (!) (slice line ms me))) match)
+	out)
+
 (defun sed-replace (line match rep global)
 	(defq idx 0)
 	(unless global (setq match (list (first match))))
-	(apply (const cat) (push (reduce (lambda (out ((ms me) &ignore))
-			(push out (slice line idx ms) rep)
-			(setq idx me) out)
-		match (list)) (slice line idx -1))))
+	(apply (const cat) (push (reduce (lambda (out match)
+		(bind '((ms me) &ignore) match)
+		(push out (slice line idx ms))
+		(cond
+			(opt_x ;regexp mode
+				(defq reps (create-reps line match))
+				(each (lambda ((rep idx))
+					(push out rep (if idx (elem-get reps idx) ""))) rep_info))
+			(:t	;plain text mode
+				(push out rep)))
+		(setq idx me) out) match (list)) (slice line idx -1))))
 
 (defun process (stream engine pattern meta rep global)
 	(lines! (lambda (line)
@@ -45,6 +65,7 @@
 				args (options stdio usage))
 			opt_e)
 		(bind '(engine pattern meta) (query opt_e opt_w opt_x))
+		(defq rep_info (if opt_x (create-rep-info opt_r)))
 		(if (empty? (defq files (rest args)))
 			(process (io-stream 'stdin) engine pattern meta opt_r opt_g)
 			(each (# (process (file-stream %0) engine pattern meta opt_r opt_g)) files))))
