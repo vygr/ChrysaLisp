@@ -1172,27 +1172,27 @@
 
 (defmacro read-ubyte (s)
 	; (read-ubyte stream) -> num
-	(static-qq (read-char ,s +byte_size)))
+	(static-qq (read-char ,s)))
 
 (defmacro read-ushort (s)
 	; (read-ushort stream) -> num
-	(static-qq (read-char ,s +short_size)))
+	(static-qq (read-char ,s ,(neg +short_size))))
 
 (defmacro read-uint (s)
 	; (read-uint stream) -> num
-	(static-qq (read-char ,s +int_size)))
+	(static-qq (read-char ,s (neg +int_size))))
 
 (defmacro read-byte (s)
 	; (read-byte stream) -> num
-	(static-qq (>>> 56 (<< 56 (read-char ,s +byte_size)))))
+	(static-qq (read-char ,s +byte_size)))
 
 (defmacro read-short (s)
 	; (read-short stream) -> num
-	(static-qq (>>> 48 (<< 48 (read-char ,s +short_size)))))
+	(static-qq (read-char ,s +short_size)))
 
 (defmacro read-int (s)
 	; (read-int stream) -> num
-	(static-qq (>>> 32 (<< 32 (read-char ,s +int_size)))))
+	(static-qq (read-char ,s +int_size)))
 
 (defmacro read-long (s)
 	; (read-long stream) -> num
@@ -1213,13 +1213,6 @@
 (defmacro write-long (s n)
 	; (write-long stream list|num) -> bytes
 	(static-qq (write-char ,s ,n +long_size)))
-
-(defun read-data (s bytes)
-	; (read-data stream bytes) -> str
-	(defq data (cap bytes (list)))
-	(while (and (>= (-- bytes) 0) (defq _ (read-char s)))
-		(push data (char _)))
-	(apply (const cat) data))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Compilation environment

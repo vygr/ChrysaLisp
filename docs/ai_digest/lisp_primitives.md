@@ -662,10 +662,6 @@ sequences like lists, arrays, and strings.
 
     * `(write-short stream list|num) -> bytes`
 
-*   **`read-data`**: Reads data from a stream.
-
-    * `(read-data stream bytes) -> str`
-
 *   **`os`**: Returns the operating system.
 
     * `(os) -> sym`

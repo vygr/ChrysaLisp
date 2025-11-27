@@ -71,6 +71,10 @@ be presented with split line tokens, provide a line splitter charclass, specify
 a comment character if needed. The handler should return `:nil` or a list of new
 files to add to the work list.
 
+`(read-char stream [width])` now defaults to unsigned byte, and if a width is
+specified positive widths mean signed values and negative width mean unsigned
+value.
+
 ------
 
 New `opt-tail-call` VP optimization.

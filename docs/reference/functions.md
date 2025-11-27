@@ -909,12 +909,6 @@ run pipe farm and collect output
 (range start end [step]) -> list
 ```
 
-### read-data
-
-```code
-(read-data stream bytes) -> str
-```
-
 ### real?
 
 ```code
