@@ -30,8 +30,8 @@
 		(matches rep "\$\d") (list)) (list (slice rep idx -1) :nil)))
 
 (defun create-reps (line match)
-	(defq out (list "" "" "" "" "" "" "" "" "" ""))
-	(each (lambda ((ms me)) (elem-set out (!) (slice line ms me))) match)
+	(defq out (reduce (lambda (out (ms me)) (push out (slice line ms me))) match (list)))
+	(while (< (length out) 10) (push out ""))
 	out)
 
 (defun sed-replace (line match rep global)
