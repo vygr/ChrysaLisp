@@ -21,40 +21,38 @@
 (("-w" "--words") ,(opt-flag 'opt_w))
 ))
 
+(defq +empty_reps `',(exec (map (lambda (_) "") (str-alloc 10))))
+
 (defun create-rep-info (rep)
 	(defq idx 0)
-	(push (reduce (lambda (out ((ms me)))
-			(push out (list (slice rep idx ms)
-				(str-to-num (slice rep (inc ms) me))))
-			(setq idx me) out)
-		(matches rep "\$\d") (list)) (list (slice rep idx -1) :nil)))
+	(filter (# (not (eql %0 "")))
+		(push (reduce (lambda (out ((ms me)))
+			(push out (slice rep idx ms)
+				(str-to-num (slice rep (inc ms) (setq idx me)))))
+		(matches rep "\$\d") (list)) (slice rep idx -1))))
 
 (defun create-reps (line match)
-	(defq out (reduce (lambda (out (ms me)) (push out (slice line ms me))) match (list)))
-	(while (< (length out) 10) (push out ""))
-	out)
+	(cat (reduce (lambda (out (ms me))
+		(push out (slice line ms me))) match (list)) +empty_reps))
 
-(defun sed-replace (line match rep global)
-	(defq idx 0)
-	(unless global (setq match (list (first match))))
-	(apply (const cat) (push (reduce (lambda (out match)
-		(bind '((ms me) &ignore) match)
-		(push out (slice line idx ms))
-		(cond
-			(opt_x ;regexp mode
-				(defq reps (create-reps line match))
-				(each (lambda ((rep idx))
-					(push out rep (if idx (elem-get reps idx) ""))) rep_info))
-			(:t	;plain text mode
-				(push out rep)))
-		(setq idx me) out) match (list)) (slice line idx -1))))
-
-(defun process (stream engine pattern meta rep global)
+(defun process (stream engine pattern meta rep global rep_info)
 	(lines! (lambda (line)
-		(defq match (. engine :search line pattern meta))
-		(if (empty? match)
-			(print line)
-			(print (sed-replace line match rep global))))
+		(cond
+			((empty? (defq match (. engine :search line pattern meta))) (print line))
+			((defq idx 0)
+			(unless global (setq match (list (first match))))
+			(print (apply (const cat) (push (reduce (lambda (out match)
+				(bind '((ms me) &ignore) match)
+				(cond
+					;regexp mode
+					(opt_x
+						(defq reps (create-reps line match))
+						(reduce (lambda (out rep)
+								(push out (if (num? rep) (elem-get reps rep) rep)))
+							rep_info (push out (slice line idx ms))))
+					;plain text mode
+					((push out (slice line idx ms) rep)))
+				(setq idx me) out) match (list)) (slice line idx -1)))))))
 		stream))
 
 (defun main ()
@@ -67,5 +65,5 @@
 		(bind '(engine pattern meta) (query opt_e opt_w opt_x))
 		(defq rep_info (if opt_x (create-rep-info opt_r)))
 		(if (empty? (defq files (rest args)))
-			(process (io-stream 'stdin) engine pattern meta opt_r opt_g)
-			(each (# (process (file-stream %0) engine pattern meta opt_r opt_g)) files))))
+			(process (io-stream 'stdin) engine pattern meta opt_r opt_g rep_info)
+			(each (# (process (file-stream %0) engine pattern meta opt_r opt_g rep_info)) files))))
