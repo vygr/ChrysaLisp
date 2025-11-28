@@ -355,6 +355,22 @@
 (ffi "class/dim/lisp_dset" dim-set)
 ; (dim-set dim nums elem) -> array
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Generic Object Operations
+;;;;;;;;;;;;;;;;;;;;;;;;;;
+(ffi "class/obj/lisp_hash" hash)
+; (hash obj) -> num
+(ffi "class/obj/lisp_type" type-of)
+; (type-of obj) -> (... :obj)
+(ffi "class/obj/lisp_fget" obj-get)
+; (obj-get obj offset type|0 size|0) -> val
+(ffi "class/obj/lisp_fset" obj-set)
+; (obj-set obj offset type|0 size|0 val) -> obj
+(ffi "class/obj/lisp_wref" weak-ref)
+; (weak-ref obj) -> num
+(ffi "class/obj/lisp_oref" obj-ref)
+; (obj-ref num) -> obj
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Platform Implementation Interface (PII)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -372,20 +388,50 @@
 ; (pii-time) -> ns
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
-; Generic Object Operations
+; Kernel & System
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
-(ffi "class/obj/lisp_hash" hash)
-; (hash obj) -> num
-(ffi "class/obj/lisp_type" type-of)
-; (type-of obj) -> (... :obj)
-(ffi "class/obj/lisp_fget" obj-get)
-; (obj-get obj offset type|0 size|0) -> val
-(ffi "class/obj/lisp_fset" obj-set)
-; (obj-set obj offset type|0 size|0 val) -> obj
-(ffi "class/obj/lisp_wref" weak-ref)
-; (weak-ref obj) -> num
-(ffi "class/obj/lisp_oref" obj-ref)
-; (obj-ref num) -> obj
+(ffi "sys/kernel/lisp_stats" kernel-stats)
+; (kernel-stats) -> (task_count mem_used mem_avail max_stack)
+(ffi "sys/load/lisp_path" load-path)
+; (load-path) -> path
+
+;;;;;;;;;;;;;;;;;;;;
+; Task Management
+;;;;;;;;;;;;;;;;;;;;
+(ffi "sys/task/lisp_mailbox" task-mbox)
+; (task-mbox) -> netid
+(ffi "sys/task/lisp_count" task-count)
+; (task-count bias) -> count
+(ffi "sys/task/lisp_sleep" task-sleep)
+; (task-sleep usec)
+(ffi "sys/task/lisp_timeslice" task-slice)
+; (task-slice)
+
+;;;;;;;;;;;;;;;;;;;;;;
+; Mail & Messaging
+;;;;;;;;;;;;;;;;;;;;;;
+(ffi "sys/mail/lisp_netid" mail-mbox)
+; (mail-mbox) -> netid
+(ffi "sys/mail/lisp_declare" mail-declare)
+; (mail-declare mbox name info) -> key
+(ffi "sys/mail/lisp_devices" mail-nodes)
+; (mail-nodes) -> nodeids
+(ffi "sys/mail/lisp_enquire" mail-enquire)
+; (mail-enquire prefix) -> netids
+(ffi "sys/mail/lisp_forget" mail-forget)
+; (mail-forget key)
+(ffi "sys/mail/lisp_poll" mail-poll)
+; (mail-poll mboxs) -> :nil | idx
+(ffi "sys/mail/lisp_validate" mail-validate)
+; (mail-validate mbox) -> :t | :nil
+(ffi "sys/mail/lisp_read" mail-read)
+; (mail-read mbox) -> :nil | msg
+(ffi "sys/mail/lisp_select" mail-select)
+; (mail-select mboxs) -> idx
+(ffi "sys/mail/lisp_send" mail-send)
+; (mail-send mbox obj)
+(ffi "sys/mail/lisp_timeout" mail-timeout)
+; (mail-timeout mbox ns id) -> mbox
 
 (defq *root_env* (env)
 	+byte_size 1 +short_size 2 +int_size 4 +long_size 8 +ptr_size 8
@@ -1253,3 +1299,5 @@
 (import "lib/class/class.inc")
 (import "lib/collections/collections.inc")
 (import "lib/text/searching.inc")
+(import "sys/lisp.inc")
+(import "class/lisp.inc")
