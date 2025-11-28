@@ -452,35 +452,25 @@
 	;trashes
 	;:r1-:r14
 
-	(vp-def (src len idx this args) '(:r7 :r8 :r9))
+	(vp-def (this args src cls idx len) '(:r11 :r12))
 
 	(entry 'str :lisp_bskip `(,this ,args))
 
-	(vp-push this)
 	(errorif-lisp-args-sig 'error :r1 3)
-	(list-bind-args args `(,this ,src ,idx) '(:obj :obj :num))
+	(list-bind-args args `(,cls ,src ,idx) '(:obj :obj :num))
 	(assign `((,src str_length)) `(,len))
 	(lisp-elem-index idx len)
 	(errorcase
 		(gotoif `(,idx < 0) 'error)
 		(gotoif `(,idx > ,len) 'error))
-	(vpif `(,idx /= ,len))
-		(assign `((& ,src str_data)) `(,src))
-		(loop-start)
-			(call 'str :bfind `(,this (,src ,idx ub)) `(,this _ tmp))
-			(breakif `(,tmp = -1))
-			(vp-add-cr 1 idx)
-		(loop-until `(,idx = ,len))
-	(endif)
-	(call 'num :create `(,idx) `(,args))
-	(vp-pop this)
+	(call 'str :bskip `(,src ,cls ,idx) '(_ _ tmp))
+	(call 'num :create `(,tmp) `(,args))
 
 	(exit 'str :lisp_bskip `(,this ,args))
 	(vp-ret)
 
 (errorcase
 (vp-label 'error)
-	(vp-pop this)
 	(jump 'lisp :repl_error `(,this "(bskip cls str idx)" +error_msg_wrong_types ,args))
 	(signature '(str str num)))
 
@@ -496,28 +486,19 @@
 	;trashes
 	;:r1-:r14
 
-	(vp-def (src len idx this args) '(:r7 :r8 :r9))
+	(vp-def (this args src cls idx len) '(:r11 :r12))
 
 	(entry 'str :lisp_bskipn `(,this ,args))
 
-	(vp-push this)
 	(errorif-lisp-args-sig 'error :r1 3)
-	(list-bind-args args `(,this ,src ,idx) '(:obj :obj :num))
+	(list-bind-args args `(,cls ,src ,idx) '(:obj :obj :num))
 	(assign `((,src str_length)) `(,len))
 	(lisp-elem-index idx len)
 	(errorcase
 		(gotoif `(,idx < 0) 'error)
 		(gotoif `(,idx > ,len) 'error))
-	(vpif `(,idx /= ,len))
-		(assign `((& ,src str_data)) `(,src))
-		(loop-start)
-			(call 'str :bfind `(,this (,src ,idx ub)) `(,this _ tmp))
-			(breakif `(,tmp /= -1))
-			(vp-add-cr 1 idx)
-		(loop-until `(,idx = ,len))
-	(endif)
-	(call 'num :create `(,idx) `(,args))
-	(vp-pop this)
+	(call 'str :bskipn `(,src ,cls ,idx) '(_ _ tmp))
+	(call 'num :create `(,tmp) `(,args))
 
 	(exit 'str :lisp_bskipn `(,this ,args))
 	(vp-ret)
@@ -615,6 +596,72 @@
 	(vp-pop this)
 	(jump 'lisp :repl_error `(,this "(rbskipn cls str idx)" +error_msg_wrong_types ,args))
 	(signature '(str str num)))
+
+(def-func-end)
+
+(def-method 'str :lisp_split)
+	;inputs
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
+	;outputs
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
+	;trashes
+	;:r1-:r14
+
+	(def-vars
+		(ptr this lst)
+		(uint len))
+
+	(vp-def (cls string i j this args len lst)
+		'(:r11 :r12 :r13 :r14))
+
+	(entry 'str :lisp_split `(,this ,args))
+
+	(errorif-lisp-args-sig 'error :r1 1 2)
+
+	(push-scope)
+	(assign `(,this) {this})
+	(assign `((,args array_length)) `(,len))
+	(vpif `(,len = 1) 'exit)
+		(list-bind-args args `(,string) '(:obj))
+		(call 'str :split `(,string ,(ascii-code " ")) `(_ ,args))
+	(else)
+		(list-bind-args args `(,string ,cls) '(:obj :obj))
+		(assign `((,cls str_length)) `(,len))
+		(vpif `(,len = 1))
+			(call 'str :split `(,string (,cls str_data ub)) `(_ ,args))
+			(break 'exit)
+		(endif)
+		(call 'list :create :nil {lst})
+		(assign `((,string str_length) 0) `(,len ,i))
+		(loop-while `(,i < ,len))
+			(assign `(,len) {len})
+			(call 'str :bskip  `(,string ,cls ,i) `(_ _ ,j))
+			(vpif `(,i /= ,j))
+				(vp-cpy-rr j i)
+			(endif)
+			(call 'str :bskipn  `(,string ,cls ,i) `(_ _ ,j))
+			(vpif `(,i /= ,j))
+				(d-call 'str :slice `(,string ,i ,j) '(_ tmp))
+				(assign {lst} '(:r0))
+				(call 'list :push_back `(:r0 ,tmp))
+				(vp-cpy-rr j i)
+			(endif)
+			(assign {len} `(,len))
+		(loop-end)
+		(assign {lst} `(,args))
+	(endif)
+	(assign {this} `(,this))
+	(pop-scope)
+
+	(exit 'str :lisp_split `(,this ,args))
+	(vp-ret)
+
+(errorcase
+(vp-label 'error)
+	(jump 'lisp :repl_error `(,this "(split str [cls])" +error_msg_wrong_types ,args))
+	(signature '(str str)))
 
 (def-func-end)
 

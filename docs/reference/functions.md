@@ -1001,12 +1001,6 @@ adjust text offset
 (sort list [fcmp start end]) -> list
 ```
 
-### split
-
-```code
-(split str [cls]) -> strs
-```
-
 ### start
 
 ```code

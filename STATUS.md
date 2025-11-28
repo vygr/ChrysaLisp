@@ -78,6 +78,9 @@ value.
 
 Audio service now shares and reference counts the resource handles.
 
+Lowered the `(split str [cls])` function to VP code as it's forming the basis
+for a lot of file scanning work now.
+
 ------
 
 New `opt-tail-call` VP optimization.

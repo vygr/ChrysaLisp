@@ -246,6 +246,8 @@
 ; (rbskip cls str idx) -> idx
 (ffi "class/str/lisp_rbskipn" rbskipn)
 ; (rbskipn cls str idx) -> idx
+(ffi "class/str/lisp_split" split)
+; (split str [cls]) -> strs
 (ffi "class/str/lisp_encode" hex-encode)
 ; (hex-encode str) -> str
 (ffi "class/str/lisp_decode" hex-decode)
@@ -1010,13 +1012,6 @@
 (defun trim (s &optional cls)
 	; (trim str [cls]) -> str
 	(slice s (bskip (setd cls " ") s 0) (rbskip cls s -1)))
-
-(defun split (s &optional cls)
-	; (split str [cls]) -> strs
-	(defq i 0 out (list) l (length s) cls (ifn cls " "))
-	(while (< i l)
-		(if (/= (defq j (bskip cls s i)) i) (setq i j))
-		(if (/= (defq j (bskipn cls s i)) i) (push out (slice s i (setq i j))))) out)
 
 (defun pad (v c &optional f)
 	; (pad form width [str]) -> str
