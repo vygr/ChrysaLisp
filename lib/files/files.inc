@@ -59,9 +59,9 @@
 	(setd comment ";")
 	(defq callback_e (penv))
 	(unless (list? files) (setq files (list files)))
-	(each-mergeable (lambda (file) (task-slice)
+	(each-mergeable (lambda (file)
 		(if (defq stream (file-stream file))
-			(lines! (lambda (line)
+			(lines! (lambda (line) (task-slice)
 				;skip empty lines and comments
 				(unless (or (eql (defq linet (trim line)) +char_class_space)
 							(and comment (starts-with comment linet)))

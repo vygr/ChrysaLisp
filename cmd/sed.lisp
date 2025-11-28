@@ -35,7 +35,7 @@
 		(const (list quote (map (lambda (_) "") (str-alloc 10))))))
 
 (defun process (stream engine pattern meta rep global rep_info)
-	(lines! (lambda (line)
+ 	(lines! (lambda (line) (task-slice)
 		(print (cond
 			((empty? (defq match (. engine :search line pattern meta))) line)
 			((defq idx 0)
