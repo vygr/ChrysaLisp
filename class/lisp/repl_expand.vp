@@ -1,8 +1,7 @@
 (include "lib/asm/func.inc")
-(include "././hmap/class.inc")
-(include "././sym/class.inc")
 (include "./class.inc")
-(include "lib/consts/chars.inc")
+(include "././sym/class.inc")
+(include "././hmap/class.inc")
 
 (def-method 'lisp :repl_expand)
 	;inputs

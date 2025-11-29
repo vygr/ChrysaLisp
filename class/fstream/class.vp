@@ -1,8 +1,11 @@
 (include "lib/asm/func.inc")
 (include "./class.inc")
+(include "././sym/class.inc")
+(include "././list/class.inc")
 
 (gen-create 'fstream)
 (gen-vtable 'fstream)
+(gen-type 'fstream)
 
 (def-method 'fstream :init)
 	;inputs
