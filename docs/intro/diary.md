@@ -119,8 +119,8 @@ At this point we can `make` the system and we see the following:
 
 ```vdu
 >make
--> obj/x86_64/AMD64/class/obj/lisp_get_field
--> obj/x86_64/AMD64/class/obj/lisp_set_field
+-> obj/x86_64/AMD64/class/obj/lisp_fget
+-> obj/x86_64/AMD64/class/obj/lisp_fset
 -> obj/x86_64/AMD64/class/obj/lisp_hash
 Done
 ```

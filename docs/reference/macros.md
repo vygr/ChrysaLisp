@@ -231,22 +231,16 @@ should provide the concreate handler
 (get-long str idx) -> num
 ```
 
-### get-netid
-
-```code
-(get-netid str idx) -> netid
-```
-
-### get-nodeid
-
-```code
-(get-nodeid str idx) -> nodeid
-```
-
 ### get-short
 
 ```code
 (get-short str idx) -> num
+```
+
+### get-str
+
+```code
+(get-str str idx bytes) -> str
 ```
 
 ### get-ubyte
@@ -271,6 +265,12 @@ should provide the concreate handler
 
 ```code
 (getf obj field [offset]) -> value
+```
+
+### getf->
+
+```code
+(getf-> obj field|(field offset) ...) -> (val ...)
 ```
 
 ### gui-add-back-rpc
@@ -381,6 +381,12 @@ should provide the concreate handler
 (reach lambda seq ...)
 ```
 
+### read-byte
+
+```code
+(read-byte stream) -> num
+```
+
 ### read-int
 
 ```code
@@ -397,6 +403,24 @@ should provide the concreate handler
 
 ```code
 (read-short stream) -> num
+```
+
+### read-ubyte
+
+```code
+(read-ubyte stream) -> num
+```
+
+### read-uint
+
+```code
+(read-uint stream) -> num
+```
+
+### read-ushort
+
+```code
+(read-ushort stream) -> num
 ```
 
 ### redefmacro
@@ -441,6 +465,36 @@ should provide the concreate handler
 (rsome lambda seq ...) -> :nil | form
 ```
 
+### set-byte
+
+```code
+(set-byte str idx num) -> str
+```
+
+### set-int
+
+```code
+(set-int str idx num) -> str
+```
+
+### set-long
+
+```code
+(set-long str idx num) -> str
+```
+
+### set-short
+
+```code
+(set-short str idx num) -> str
+```
+
+### set-str
+
+```code
+(set-str str idx val) -> str
+```
+
 ### setd
 
 ```code
@@ -456,7 +510,7 @@ should provide the concreate handler
 ### setf->
 
 ```code
-(setf-> msg form ...)
+(setf-> obj (field val [offset]) ...) -> obj
 ```
 
 ### some
@@ -685,6 +739,12 @@ static quasi-quoted, prebind only !
 
 ```code
 (when tst body)
+```
+
+### write-byte
+
+```code
+(write-byte stream list|num) -> bytes
 ```
 
 ### write-int

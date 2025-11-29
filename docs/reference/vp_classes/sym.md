@@ -87,7 +87,5 @@ trashes
 :r0-:r14
 ```
 
-### :type -> class/sym/type
-
 ### :vtable -> class/sym/vtable
 

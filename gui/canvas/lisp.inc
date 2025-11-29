@@ -128,13 +128,13 @@
 (defun canvas-load (file flags)
 	; (canvas-load file flags) -> :nil | canvas
 	(defq this :nil)
-	(when (/= (logand flags +load_flag_shared) 0)
+	(when (bits? flags +load_flag_shared)
 		;check cache first
 		(when (defq this (. *pixmap_cache* :find file))
 			(defq this (Canvas-pixmap this))))
 	(when (and (not this)
-			(defq stream (if (= (logand flags +load_flag_film) 0)
-				(file-stream file) (string-stream (load file)))))
+			(defq stream (if (bits? flags +load_flag_film)
+				(string-stream (load file)) (file-stream file))))
 		;load and maybe add to cache
 		(defq this
 			(cond
@@ -148,11 +148,11 @@
 						(Canvas-pixmap this)))))
 		(when this
 			(defq pixmap (getf this +canvas_pixmap 0))
-			(if (/= (logand flags +load_flag_shared) 0)
+			(if (bits? flags +load_flag_shared)
 				(. *pixmap_cache* :insert file pixmap))
-			(if (/= (logand flags +load_flag_film) 0)
+			(if (bits? flags +load_flag_film)
 				(setf pixmap +pixmap_stream stream 0))
-			(if (= (logand flags +load_flag_noswap) 0)
+			(ifn (bits? flags +load_flag_noswap)
 				(. this :swap 0))))
 	this)
 

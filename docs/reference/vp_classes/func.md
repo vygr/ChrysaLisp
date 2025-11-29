@@ -32,7 +32,5 @@ trashes
 :r1-:r14
 ```
 
-### :type -> class/func/type
-
 ### :vtable -> class/func/vtable
 

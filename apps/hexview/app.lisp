@@ -75,7 +75,7 @@
 	;clear all file buffers
 	(. files_map :each (lambda (k v) (. v :erase :buffer)))
 	;create new file meta data
-	(. files_map :update key (# (setq file_meta (if %0 %0 (scatter (Fmap)
+	(. files_map :update key (# (setq file_meta (ifn %0 (scatter (Fmap)
 		:cx cx :cy cy :ax ax :ay ay :sx sx :sy sy)))))
 	;create new buffer
 	(. file_meta :insert :buffer (setq buffer (Buffer mode *syntax*)))
