@@ -1,7 +1,6 @@
 (include "lib/asm/func.inc")
-(include "./class.inc")
-(include "sys/pii/class.inc")
 (include "sys/statics/class.inc")
+(include "./class.inc")
 
 (gen-create 'texture)
 (gen-vtable 'texture)
