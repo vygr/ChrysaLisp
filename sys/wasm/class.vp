@@ -1,0 +1,180 @@
+(include "lib/asm/func.inc")
+(include "./class.inc")
+(include "././statics/class.inc")
+(include "sys/pii/abi.inc")
+
+; Helper macro for WASM host calls
+(defun host-wasm-call (_1 _2 &optional _3 _4 _5 _6)
+	;_1 = class name
+	;_2 = member name
+	;_3 = in parameters
+	;_4 = out parameters
+	;_5 = dispatch reg
+	;_6 = temp reg
+	(setd _5 :r14 _6 :r13)
+	(fn-bind 'sys/statics/statics _5)
+	(vp-cpy-ir _5 statics_sys_load_host_wasm_funcs _5)
+	(abi-call-table _1 _2 _5 _3 _4 _6))
+
+(def-method 'host_wasm :load)
+	;inputs
+	;:r0 = c string filename (pubyte)
+	;:r1 = instance_id pointer (pulong)
+	;outputs
+	;:r0 = instance pointer or 0 on error
+	;trashes
+	;:r1-:r14
+
+	(entry 'host_wasm :load '(:r0 :r1))
+	(abi-push-trashed :r1 :r13 :r14)
+	(host-wasm-call 'host_wasm :load '(:r0 :r1) '(:r0))
+	(abi-pop-trashed :r1 :r13 :r14)
+	(exit 'host_wasm :load '(:r0))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'host_wasm :unload)
+	;inputs
+	;:r0 = instance_id (ulong)
+	;outputs
+	;trashes
+	;:r1-:r14
+
+	(entry 'host_wasm :unload '(:r0))
+	(abi-push-trashed :r13 :r14)
+	(host-wasm-call 'host_wasm :unload '(:r0))
+	(abi-pop-trashed :r13 :r14)
+	(exit 'host_wasm :unload '())
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'host_wasm :get_export)
+	;inputs
+	;:r0 = instance_id (ulong)
+	;:r1 = export name c string (pubyte)
+	;outputs
+	;:r0 = function pointer or 0 if not found
+	;trashes
+	;:r1-:r14
+
+	(entry 'host_wasm :get_export '(:r0 :r1))
+	(abi-push-trashed :r1 :r13 :r14)
+	(host-wasm-call 'host_wasm :get_export '(:r0 :r1) '(:r0))
+	(abi-pop-trashed :r1 :r13 :r14)
+	(exit 'host_wasm :get_export '(:r0))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'host_wasm :call_i64)
+	;inputs
+	;:r0 = function pointer
+	;:r1 = args array pointer (plong)
+	;:r2 = arg count (ulong)
+	;outputs
+	;:r0 = return value (long)
+	;trashes
+	;:r1-:r14
+
+	(entry 'host_wasm :call_i64 '(:r0 :r1 :r2))
+	(abi-push-trashed :r1 :r2 :r13 :r14)
+	(host-wasm-call 'host_wasm :call_i64 '(:r0 :r1 :r2) '(:r0))
+	(abi-pop-trashed :r1 :r2 :r13 :r14)
+	(exit 'host_wasm :call_i64 '(:r0))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'host_wasm :call_f64)
+	;inputs
+	;:r0 = function pointer
+	;:r1 = args array pointer (pdouble)
+	;:r2 = arg count (ulong)
+	;outputs
+	;:r0 = return value (double bits as long)
+	;trashes
+	;:r1-:r14
+
+	(entry 'host_wasm :call_f64 '(:r0 :r1 :r2))
+	(abi-push-trashed :r1 :r2 :r13 :r14)
+	(host-wasm-call 'host_wasm :call_f64 '(:r0 :r1 :r2) '(:r0))
+	(abi-pop-trashed :r1 :r2 :r13 :r14)
+	(exit 'host_wasm :call_f64 '(:r0))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'host_wasm :get_memory)
+	;inputs
+	;:r0 = instance_id (ulong)
+	;:r1 = size pointer (pulong)
+	;outputs
+	;:r0 = memory pointer or 0 on error
+	;trashes
+	;:r1-:r14
+
+	(entry 'host_wasm :get_memory '(:r0 :r1))
+	(abi-push-trashed :r1 :r13 :r14)
+	(host-wasm-call 'host_wasm :get_memory '(:r0 :r1) '(:r0))
+	(abi-pop-trashed :r1 :r13 :r14)
+	(exit 'host_wasm :get_memory '(:r0))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'host_wasm :write_memory)
+	;inputs
+	;:r0 = instance_id (ulong)
+	;:r1 = offset (ulong)
+	;:r2 = data pointer (pubyte)
+	;:r3 = length (ulong)
+	;outputs
+	;trashes
+	;:r1-:r14
+
+	(entry 'host_wasm :write_memory '(:r0 :r1 :r2 :r3))
+	(abi-push-trashed :r1 :r2 :r3 :r13 :r14)
+	(host-wasm-call 'host_wasm :write_memory '(:r0 :r1 :r2 :r3))
+	(abi-pop-trashed :r1 :r2 :r3 :r13 :r14)
+	(exit 'host_wasm :write_memory '())
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'host_wasm :read_memory)
+	;inputs
+	;:r0 = instance_id (ulong)
+	;:r1 = offset (ulong)
+	;:r2 = buffer pointer (pubyte)
+	;:r3 = length (ulong)
+	;outputs
+	;trashes
+	;:r1-:r14
+
+	(entry 'host_wasm :read_memory '(:r0 :r1 :r2 :r3))
+	(abi-push-trashed :r1 :r2 :r3 :r13 :r14)
+	(host-wasm-call 'host_wasm :read_memory '(:r0 :r1 :r2 :r3))
+	(abi-pop-trashed :r1 :r2 :r3 :r13 :r14)
+	(exit 'host_wasm :read_memory '())
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'host_wasm :get_error)
+	;inputs
+	;:r0 = instance_id (ulong)
+	;outputs
+	;:r0 = error string c pointer (pubyte)
+	;trashes
+	;:r1-:r14
+
+	(entry 'host_wasm :get_error '(:r0))
+	(abi-push-trashed :r13 :r14)
+	(host-wasm-call 'host_wasm :get_error '(:r0) '(:r0))
+	(abi-pop-trashed :r13 :r14)
+	(exit 'host_wasm :get_error '(:r0))
+	(vp-ret)
+
+(def-func-end)
