@@ -1,8 +1,7 @@
 (include "lib/asm/func.inc")
-(include "././link/class.inc")
-(include "class/obj/class.inc")
-(include "././kernel/class.inc")
 (include "././statics/class.inc")
+(include "././link/class.inc")
+(include "././kernel/class.inc")
 
 (def-method 'sys_mail :out)
 	;info

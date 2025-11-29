@@ -467,7 +467,7 @@
 					(defq oc c)
 					(cond
 						((< (setq c (+ c (cond
-								((= x -1) brackets)
+								((= x -2) brackets)
 								(:t (defq brackets 0)
 									(each! (# (setq brackets (+ brackets (cond
 										((/= (logand 0xffffff000000 %0) ink_text) 0)
@@ -479,8 +479,8 @@
 									((eql (logand 0xff %0) (ascii-code "(")) -1)
 									((eql (logand 0xff %0) (ascii-code ")")) 1)
 									(0)))) 0) (!)))
-								(list syntax) :nil (if (= x -1) (length syntax) (min (inc x) (length syntax))) 0)) (!))
-						(:t (setq x -1) :nil)))
+								(list syntax) :nil (if (= x -2) (length syntax) (min (inc x) (length syntax))) 0)) (!))
+						(:t (setq x -2) :nil)))
 					(list buffer_syntax buffer_brackets) :nil (inc y) 0))
 				(if (and x y) (list x y) '(:nil :nil)))
 			('(:nil :nil))))

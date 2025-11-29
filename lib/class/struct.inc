@@ -5,11 +5,11 @@
 ;module
 (env-push)
 
-(defun new_field (type size &optional alignment)
-	(setq base (align base (ifn alignment size)))
+(defun new-field (type alloc &optional alignment)
+	(setq base (align base (ifn alignment alloc)))
 	(push syms (sym (cat name "_" field)) (sym (cat name "_" field "_t")))
 	(push values (num-intern base) type)
-	(++ base size))
+	(++ base alloc))
 
 (defun _structure (base line)
 	(case (first line)
@@ -21,9 +21,8 @@
 			(push syms (sym (cat name "_" (second line))))
 			(push values (num-intern base)))
 		(struct
-			(push syms (sym (cat name "_" (second line))) (sym (cat name "_" (second line) "_t")))
-			(push values (num-intern base) :nil)
-			(setq base (+ base (eval (third line)))))
+			(defq field (second line) alloc (eval (third line)))
+			(new-field (str alloc) alloc +byte_size))
 		(union
 			(defq union_base base max_base base)
 			(each! (lambda (line) (setq max_base (max max_base (_structure union_base line))))
@@ -31,26 +30,26 @@
 			(setq base max_base))
 		(:t (each! (lambda (field)
 				(case (first line)
-					(byte (new_field "b" +byte_size))
-					(ubyte (new_field "B" +byte_size))
-					(short (new_field "s" +short_size))
-					(ushort (new_field "S" +short_size))
-					(int (new_field "i" +int_size))
-					(uint (new_field "I" +int_size))
-					(long (new_field "l" +long_size))
-					(ulong (new_field "L" +long_size))
-					(ptr (new_field "p" +ptr_size))
-					(pptr (new_field "pp" +ptr_size))
-					(pubyte (new_field "pB" +ptr_size))
-					(pushort (new_field "pS" +ptr_size))
-					(puint (new_field "pI" +ptr_size))
-					(pulong (new_field "pL" +ptr_size))
-					(pbyte (new_field "pb" +ptr_size))
-					(pshort (new_field "ps" +ptr_size))
-					(pint (new_field "pi" +ptr_size))
-					(plong (new_field "pl" +ptr_size))
-					(nodeid (new_field "no" +node_id_size +byte_size))
-					(netid (new_field "ne" +net_id_size +byte_size))))
+					(byte (new-field "b" +byte_size))
+					(ubyte (new-field "B" +byte_size))
+					(short (new-field "s" +short_size))
+					(ushort (new-field "S" +short_size))
+					(int (new-field "i" +int_size))
+					(uint (new-field "I" +int_size))
+					(long (new-field "l" +long_size))
+					(ulong (new-field "L" +long_size))
+					(ptr (new-field "p" +ptr_size))
+					(pptr (new-field "pp" +ptr_size))
+					(pubyte (new-field "pB" +ptr_size))
+					(pushort (new-field "pS" +ptr_size))
+					(puint (new-field "pI" +ptr_size))
+					(pulong (new-field "pL" +ptr_size))
+					(pbyte (new-field "pb" +ptr_size))
+					(pshort (new-field "ps" +ptr_size))
+					(pint (new-field "pi" +ptr_size))
+					(plong (new-field "pl" +ptr_size))
+					(nodeid (new-field "no" +node_id_size +byte_size))
+					(netid (new-field "ne" +net_id_size +byte_size))))
 				(list line) 1))) base)
 
 (defmacro structure (name base &rest lines)
@@ -64,28 +63,50 @@
 	(push values (num-intern base))
 	(static-qq (bind ',syms ',values)))
 
-(defmacro field-type ()
-	(static-qq (defq type (eval (sym (cat f "_t"))) f (eval f) o (ifn o +str_data)
-		type (case (sym type)
-			(b +byte_size) (s +short_size) (i +int_size) (l +long_size)
-			(B (const (neg +byte_size))) (S (const (neg +short_size)))
-			(I (const (neg +int_size))) (L (const (neg +long_size)))
-			((no) +node_id_size) ((ne) +net_id_size) (:t 0)))))
+(defun obj-args (field &optional offset)
+	; (obj-args field &optional offset) -> args
+	; convert to obj-get/obj-set common args
+	(defq size 0 type (eval (sym (cat field "_t"))) type
+		(case type
+			("p" 0)
+			("b" +byte_size) ("s" +short_size) ("i" +int_size) ("l" +long_size)
+			("B" (const (neg +byte_size))) ("S" (const (neg +short_size)))
+			("I" (const (neg +int_size))) ("L" (const (neg +long_size)))
+			(("pb" "ps" "pi" "pl" "pB" "pS" "pI" "pL" "pp") +ptr_size)
+			("no" (defq size +node_id_size) 0)
+			("ne" (defq size +net_id_size) 0)
+			(:t (defq size (str-to-num type)) 0)))
+	(list (+ (eval field) (ifn offset +str_data)) type size))
 
-(defmacro getf (s f &optional o)
+(defmacro getf (obj field &optional offset)
 	; (getf obj field [offset]) -> value
-	(field-type) (static-qq (get-field ,s ,(+ o f) ,type)))
+	(bind '(field type size) (obj-args field offset))
+	(static-qq (obj-get ,obj ,field ,type ,size)))
 
-(defmacro setf (s f v &optional o)
+(defun obj-set-args ((field value &optional offset))
+	; (obj-set-args (field value &optional offset)) -> args
+	; convert to obj-set args
+	(push (obj-args field offset) value))
+
+(defmacro setf (obj &rest args)
 	; (setf obj field value [offset]) -> obj
-	(field-type) (static-qq (set-field ,s ,(+ o f) ,type ,v)))
+	(bind '(field type size value) (obj-set-args args))
+	(static-qq (obj-set ,obj ,field ,type ,size ,value)))
 
-(defmacro setf-> (res &rest frm)
-	; (setf-> msg form ...)
-	(reduce (lambda (res frm)
-		(if (list? frm)
-			(insert frm 0 (list 'setf res))
-			(list 'setf res frm))) frm res))
+(defmacro setf-> (obj &rest fields)
+	; (setf-> obj (field val [offset]) ...) -> obj
+	(bind '(offsets types sizes values)
+		(map! (const list) (map (const obj-set-args) fields)))
+	(static-qq (reduce! (const obj-set)
+		(list ',offsets ',types ',sizes (list ~values)) ,obj)))
+
+(defmacro getf-> (obj &rest fields)
+	; (getf-> obj field|(field offset) ...) -> (val ...)
+	(bind '(offsets types sizes)
+		(map! (const list) (map (# (if (list? %0)
+			(apply (const obj-args) %0) (obj-args %0))) fields)))
+	(static-qq (reduce! (# (push %0 (obj-get ,obj %1 %2 %3)))
+		'(,offsets ,types ,sizes) (list))))
 
 ;;;;;;;
 ; enums
@@ -144,5 +165,5 @@
 		(static-qq (/= 0 (logand ,val ~masks)))))
 
 ;module
-(export-symbols '(structure _structure getf setf setf-> enums bits bits? bit-mask))
+(export-symbols '(structure _structure getf setf getf-> setf-> enums bits bits? bit-mask))
 (env-pop)
