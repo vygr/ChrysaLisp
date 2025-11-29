@@ -28,12 +28,6 @@ parse the commands and attributes calling back to the user functions
 (abi) -> sym
 ```
 
-### abs-path
-
-```code
-(abs-path path [current]) -> path
-```
-
 ### action-quit
 
 ```code
@@ -263,6 +257,15 @@ create list of immediate dependencies
 return all the dir paths
 ```
 
+### files-scan
+
+```code
+(scan-files files handler [split_class comment]) -> files
+
+iterates through files, processing lines.
+new files returned by the handler are merged into the work list.
+```
+
 ### fixed?
 
 ```code
@@ -390,7 +393,7 @@ Writes a self-describing codebook (via the frequency map) to a stream.
 ### import
 
 ```code
-(import path [env]) -> env
+(import path [env])
 ```
 
 ### import-from
@@ -646,6 +649,22 @@ very basic attenuation, diffuse and specular
 (nums? form) -> :t | :nil
 ```
 
+### obj-args
+
+```code
+(obj-args field &optional offset) -> args
+
+convert to obj-get/obj-set common args
+```
+
+### obj-set-args
+
+```code
+(obj-set-args (field value &optional offset)) -> args
+
+convert to obj-set args
+```
+
 ### odd?
 
 ```code
@@ -782,6 +801,22 @@ scan the stdio args and process according to the optlist
 (path-stroke-polylines dst radius join cap1 cap2 src) -> dst
 ```
 
+### path-to-absolute
+
+```code
+(path-to-absolute target [current]) -> path
+
+transform a relative filename to an absolute one
+```
+
+### path-to-relative
+
+```code
+(path-to-relative target [current]) -> path
+
+transform an absolute filename to a relative one
+```
+
 ### pipe-farm
 
 ```code
@@ -874,12 +909,6 @@ run pipe farm and collect output
 (range start end [step]) -> list
 ```
 
-### read-data
-
-```code
-(read-data stream bytes) -> str
-```
-
 ### real?
 
 ```code
@@ -970,12 +999,6 @@ adjust text offset
 
 ```code
 (sort list [fcmp start end]) -> list
-```
-
-### split
-
-```code
-(split str [cls]) -> strs
 ```
 
 ### start

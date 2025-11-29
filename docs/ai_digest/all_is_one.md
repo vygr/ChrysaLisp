@@ -9,7 +9,7 @@ ChrysaLisp.
 ## The Unifying Philosophy of ChrysaLisp
 
 A casual observer of ChrysaLisp might see its pervasive use of a single data
-structure—the `hmap`—for everything from lexical scope to class inheritance to
+structure, the `hmap`, for everything from lexical scope to class inheritance to
 GUI properties and conclude it is an exercise in forcing a square peg into a
 round hole. This conclusion would be fundamentally incorrect. The deeper truth,
 and the core philosophy of the system, is the realization that **when you have
