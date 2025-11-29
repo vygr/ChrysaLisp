@@ -1,14 +1,14 @@
 (include "lib/asm/func.inc")
 (include "sys/kernel/class.inc")
-(include "././list/class.inc")
-(include "././out/class.inc")
-(include "././in/class.inc")
-(include "././str/class.inc")
 (include "./class.inc")
-(include "lib/consts/chars.inc")
+(include "././sym/class.inc")
+(include "././out/class.inc")
+(include "././list/class.inc")
+(include "././in/class.inc")
 
 (gen-create 'stdio)
 (gen-vtable 'stdio)
+(gen-type 'stdio)
 
 (def-method 'stdio :init)
 	;inputs

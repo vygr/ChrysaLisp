@@ -1,8 +1,8 @@
 (include "lib/asm/func.inc")
-(include "././lisp/class.inc")
-(include "././num/class.inc")
-(include "././reals/class.inc")
 (include "gui/path/class.inc")
+(include "././reals/class.inc")
+(include "././num/class.inc")
+(include "././lisp/class.inc")
 
 (defun to-array (_)
 	(entry 'array (sym (cat :lisp_ _)) '(:r0 :r1))
