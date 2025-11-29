@@ -27,7 +27,7 @@
 	(while (/= (++ yp) y1)
 		(defq xp (dec x))
 		(while (/= (++ xp) x1)
-			(defq r (read-char data) r (if (= r 255) 0 r)
+			(defq r (read-ubyte data) r (if (= r 255) 0 r)
 				g (<< (logand r 0x7f) 9) b (<< (logand r 0x3f) 2))
 			(.-> canvas (:set_color (+ +argb_black (<< r 16) g b)) (:plot xp yp)))
 		(task-slice))
