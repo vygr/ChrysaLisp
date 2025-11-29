@@ -1,0 +1,540 @@
+# Advanced Literate Programming - Mixed Styles Showcase
+
+This example demonstrates the full power of LITPROG by combining all three
+syntaxes in one document and showing advanced chunk composition techniques.
+
+## Project Overview
+
+We're building a **data processing pipeline** that:
+1. Reads data from multiple sources
+2. Transforms and validates the data
+3. Generates reports in multiple formats
+4. Handles errors gracefully
+
+This will generate three files:
+- `pipeline.lisp` - Main pipeline orchestrator
+- `data-reader.lisp` - Data input handlers
+- `report-generator.lisp` - Output formatting
+
+```
+┌─────────────┐
+│   Sources   │
+│ (CSV, JSON) │
+└──────┬──────┘
+       │
+       ▼
+┌─────────────┐
+│  Pipeline   │
+│  (process)  │
+└──────┬──────┘
+       │
+       ▼
+┌─────────────┐
+│   Reports   │
+│ (MD, HTML)  │
+└─────────────┘
+```
+
+## Part 1: The Main Pipeline (Noweb Style)
+
+We'll use **noweb syntax** for the main pipeline because it's clean and classic.
+
+### Pipeline Orchestration
+
+The pipeline coordinates all the processing steps:
+
+<<pipeline.lisp>>=
+;; ============================================================
+;; Data Processing Pipeline
+;; A sophisticated example of literate programming
+;; ============================================================
+
+<<pipeline-imports>>
+
+<<pipeline-configuration>>
+
+<<pipeline-execution>>
+
+<<error-handling>>
+
+<<main-entry-point>>
+@
+
+### Imports and Dependencies
+
+<<pipeline-imports>>=
+(import "lib/asm/asm.inc")
+(import "data-reader.lisp")
+(import "report-generator.lisp")
+@
+
+### Configuration
+
+We use a configuration environment to make the pipeline flexible:
+
+<<pipeline-configuration>>=
+(defq *pipeline-config* (env))
+(. *pipeline-config* :input-formats (list "csv" "json"))
+(. *pipeline-config* :output-formats (list "markdown" "html"))
+(. *pipeline-config* :max-errors 10)
+(. *pipeline-config* :log-level :info)
+@
+
+### The Core Pipeline
+
+This is the heart of the system:
+
+<<pipeline-execution>>=
+(defun execute-pipeline (input-files)
+  "Execute the complete data pipeline"
+  (print "╔════════════════════════════════════════════════════╗")
+  (print "║    Data Processing Pipeline - Starting           ║")
+  (print "╚════════════════════════════════════════════════════╝")
+  (print "")
+
+  ; Stage 1: Read data
+  (defq raw-data (<<read-all-inputs>>))
+
+  ; Stage 2: Validate
+  (defq valid-data (<<validate-data>>))
+
+  ; Stage 3: Transform
+  (defq transformed-data (<<transform-data>>))
+
+  ; Stage 4: Generate reports
+  (<<generate-reports>>)
+
+  (print "")
+  (print "Pipeline complete!")
+  transformed-data)
+@
+
+Now let's define each stage:
+
+<<read-all-inputs>>=
+map-each (lambda (file) (read-data-file file)) input-files
+@
+
+<<validate-data>>=
+filter-each (lambda (record) (validate-record record)) raw-data
+@
+
+<<transform-data>>=
+map-each (lambda (record) (enrich-record record)) valid-data
+@
+
+<<generate-reports>>=
+each! (. *pipeline-config* :output-formats)
+  (lambda (format)
+    (generate-report transformed-data format))
+@
+
+## Part 2: Data Reader (Org-Mode Style)
+
+Now we'll use **org-mode syntax** for the data reader module, which is
+popular in the Emacs ecosystem.
+
+### CSV Reader
+
+CSV (Comma-Separated Values) is a common data format.
+
+#+NAME: csv-parser
+#+BEGIN_SRC lisp :tangle data-reader.lisp
+(defun parse-csv (text)
+  "Parse CSV text into a list of records"
+  (defq lines (split text "\n"))
+  (defq header (split (car lines) ","))
+  (defq records (list))
+
+  (each! (cdr lines)
+    (lambda (line)
+      (if (> (length line) 0)
+        (progn
+          (defq values (split line ","))
+          (defq record (env))
+          (defq i 0)
+          (while (< i (length header))
+            (. record (trim (get header i)) (trim (get values i)))
+            (setq i (inc i)))
+          (push records record)))))
+
+  records)
+#+END_SRC
+
+### JSON Reader
+
+For more complex data structures, we support JSON:
+
+#+NAME: json-parser
+#+BEGIN_SRC lisp :tangle data-reader.lisp
+(defun parse-json-simple (text)
+  "Simple JSON parser (handles basic objects and arrays)"
+  ; This is a simplified parser for demonstration
+  ; A real implementation would be more robust
+
+  (defq result (env))
+
+  ; Remove whitespace
+  (defq clean (replace text "\n" ""))
+  (setq clean (replace clean " " ""))
+
+  ; Simple key-value extraction (very basic!)
+  (if (starts-with? clean "{")
+    (progn
+      (setq clean (slice 1 -2 clean)) ; Remove { }
+      (defq pairs (split clean ","))
+      (each! pairs
+        (lambda (pair)
+          (defq kv (split pair ":"))
+          (if (= (length kv) 2)
+            (progn
+              (defq key (trim (replace (get kv 0) "\"" "")))
+              (defq val (trim (replace (get kv 1) "\"" "")))
+              (. result key val)))))))
+
+  result)
+#+END_SRC
+
+### Unified Reader Interface
+
+Provide a single function that handles all formats:
+
+#+NAME: data-reader-main
+#+BEGIN_SRC lisp :tangle data-reader.lisp
+;; Data Reader Module
+;; Handles multiple input formats
+
+(defun detect-format (filename)
+  "Detect file format from extension"
+  (cond
+    ((find filename ".csv") :csv)
+    ((find filename ".json") :json)
+    (t :unknown)))
+
+(defun read-data-file (filename)
+  "Read a data file in any supported format"
+  (defq format (detect-format filename))
+  (defq content (load-file filename))
+
+  (cond
+    ((= format :csv)
+     (parse-csv content))
+    ((= format :json)
+     (list (parse-json-simple content)))
+    (t
+     (print (cat "Warning: unknown format for " filename))
+     (list))))
+
+; Helper functions
+(defun load-file (filename)
+  "Load file contents"
+  (defq f (open filename "r"))
+  (if f
+    (progn
+      (defq content (read f))
+      (close f)
+      content)
+    ""))
+
+(export read-data-file detect-format parse-csv parse-json-simple)
+#+END_SRC
+
+## Part 3: Report Generator (Markdown Fence Style)
+
+Finally, we'll use **markdown fence syntax** for the report generator,
+showing how modern developers can use familiar syntax.
+
+### Markdown Report Format
+
+Generate clean Markdown tables:
+
+```lisp {#markdown-report .tangle=report-generator.lisp}
+(defun generate-markdown-report (data)
+  "Generate a Markdown table from data"
+  (defq output "# Data Processing Report\n\n")
+  (setq output (cat output "Generated: " (time) "\n\n"))
+
+  (if (> (length data) 0)
+    (progn
+      ; Header
+      (defq sample (car data))
+      (defq keys (env-keys sample))
+      (setq output (cat output "| " (join " | " keys) " |\n"))
+      (setq output (cat output "|" (repeat-string "---|" (length keys)) "\n"))
+
+      ; Rows
+      (each! data
+        (lambda (record)
+          (defq values (map (lambda (k) (or (. record k) "")) keys))
+          (setq output (cat output "| " (join " | " values) " |\n"))))))
+
+  (setq output (cat output "\n## Statistics\n\n"))
+  (setq output (cat output "- Total records: " (length data) "\n"))
+
+  output)
+```
+
+### HTML Report Format
+
+Generate a styled HTML report:
+
+```lisp {#html-report .tangle=report-generator.lisp}
+(defun generate-html-report (data)
+  "Generate an HTML table from data"
+  (defq output "<!DOCTYPE html>\n<html>\n<head>\n")
+  (setq output (cat output "<title>Data Processing Report</title>\n"))
+  (setq output (cat output "<style>\n"))
+  (setq output (cat output "body{font-family:Arial,sans-serif;margin:20px;}\n"))
+  (setq output (cat output "table{border-collapse:collapse;width:100%;}\n"))
+  (setq output (cat output "th,td{border:1px solid #ddd;padding:8px;text-align:left;}\n"))
+  (setq output (cat output "th{background:#007acc;color:white;}\n"))
+  (setq output (cat output "tr:nth-child(even){background:#f2f2f2;}\n"))
+  (setq output (cat output "</style>\n</head>\n<body>\n"))
+  (setq output (cat output "<h1>Data Processing Report</h1>\n"))
+  (setq output (cat output "<p>Generated: " (time) "</p>\n"))
+
+  (if (> (length data) 0)
+    (progn
+      (setq output (cat output "<table>\n<thead>\n<tr>\n"))
+
+      ; Header
+      (defq sample (car data))
+      (defq keys (env-keys sample))
+      (each! keys
+        (lambda (k)
+          (setq output (cat output "<th>" k "</th>\n"))))
+      (setq output (cat output "</tr>\n</thead>\n<tbody>\n"))
+
+      ; Rows
+      (each! data
+        (lambda (record)
+          (setq output (cat output "<tr>\n"))
+          (each! keys
+            (lambda (k)
+              (setq output (cat output "<td>" (or (. record k) "") "</td>\n"))))
+          (setq output (cat output "</tr>\n"))))
+
+      (setq output (cat output "</tbody>\n</table>\n"))))
+
+  (setq output (cat output "<h2>Statistics</h2>\n"))
+  (setq output (cat output "<ul>\n"))
+  (setq output (cat output "<li>Total records: " (length data) "</li>\n"))
+  (setq output (cat output "</ul>\n"))
+  (setq output (cat output "</body>\n</html>\n"))
+
+  output)
+```
+
+### Unified Report Interface
+
+```lisp {#report-main .tangle=report-generator.lisp}
+;; Report Generator Module
+;; Generate reports in multiple formats
+
+(defun generate-report (data format)
+  "Generate a report in the specified format"
+  (defq output "")
+
+  (cond
+    ((= format "markdown")
+     (setq output (generate-markdown-report data))
+     (save-file "report.md" output)
+     (print "Generated: report.md"))
+
+    ((= format "html")
+     (setq output (generate-html-report data))
+     (save-file "report.html" output)
+     (print "Generated: report.html"))
+
+    (t
+     (print (cat "Unknown format: " format))))
+
+  output)
+
+; Helper functions
+(defun save-file (filename content)
+  "Save content to file"
+  (defq f (open filename "w"))
+  (if f
+    (progn
+      (write f content)
+      (close f))))
+
+(defun env-keys (e)
+  "Get all keys from an environment"
+  ; Simplified - real implementation would introspect env
+  (list "id" "name" "value"))
+
+(defun repeat-string (s n)
+  "Repeat a string n times"
+  (defq result "")
+  (defq i 0)
+  (while (< i n)
+    (setq result (cat result s))
+    (setq i (inc i)))
+  result)
+
+(export generate-report generate-markdown-report generate-html-report)
+```
+
+## Part 4: Back to the Pipeline (Mixed Styles)
+
+Let's complete the pipeline with data validation and transformation.
+
+### Data Validation (Noweb)
+
+<<error-handling>>=
+(defq *error-count* 0)
+(defq *errors* (list))
+
+(defun log-error (message record)
+  "Log a validation error"
+  (setq *error-count* (inc *error-count*))
+  (push *errors* (list :message message :record record))
+  (if (>= *error-count* (. *pipeline-config* :max-errors))
+    (progn
+      (print "ERROR: Too many errors, aborting pipeline!")
+      (exit 1))))
+
+(defun validate-record (record)
+  "Validate a single record"
+  ; Check for required fields
+  (if (not (. record "id"))
+    (log-error "Missing ID field" record)
+    t))
+
+(defun enrich-record (record)
+  "Add computed fields to a record"
+  ; Add timestamp
+  (. record "processed_at" (time))
+  ; Add checksum (simplified)
+  (. record "checksum" (hash-record record))
+  record)
+
+(defun hash-record (record)
+  "Generate a simple hash of the record"
+  ; Simplified hashing
+  (defq id (or (. record "id") "0"))
+  (cat "hash_" id))
+@
+
+### Main Entry Point (Org-mode)
+
+#+NAME: main-entry
+#+BEGIN_SRC lisp :tangle pipeline.lisp
+(defun main (args)
+  "Pipeline entry point"
+  (if (= (length args) 0)
+    (progn
+      (print "Usage: pipeline <input-files...>")
+      (print "")
+      (print "Example:")
+      (print "  (main (list \"data.csv\" \"more-data.json\"))")
+      (exit 1)))
+
+  (execute-pipeline args))
+
+; Example usage:
+(print "Pipeline module loaded.")
+(print "Call (main (list \"file1.csv\" \"file2.json\")) to run.")
+#+END_SRC
+
+## Advanced Features Demonstrated
+
+This example showcases several advanced literate programming techniques:
+
+### 1. **Mixed Syntaxes**
+- Noweb for main logic (classic, clean)
+- Org-mode for data readers (Emacs-friendly)
+- Markdown for reports (modern, familiar)
+
+### 2. **Multi-File Generation**
+From one source, we generate:
+- `pipeline.lisp` - Main orchestrator
+- `data-reader.lisp` - Input handling
+- `report-generator.lisp` - Output formatting
+
+### 3. **Chunk Composition**
+Chunks reference other chunks, building up complexity:
+```
+execute-pipeline
+  └─> read-all-inputs
+  └─> validate-data
+  └─> transform-data
+  └─> generate-reports
+```
+
+### 4. **Incremental Explanation**
+We introduce concepts in narrative order:
+1. Overview (what we're building)
+2. Pipeline (high-level flow)
+3. Readers (input details)
+4. Generators (output details)
+5. Validation (quality assurance)
+
+### 5. **Cross-Module References**
+The pipeline references functions defined in other modules,
+showing how to structure larger systems.
+
+## Usage
+
+### Tangle All Files
+
+```lisp
+(litprog-tangle "advanced_mixed_styles.lit" "output/")
+```
+
+This creates:
+- `output/pipeline.lisp`
+- `output/data-reader.lisp`
+- `output/report-generator.lisp`
+
+### Run the Pipeline
+
+```lisp
+(load "output/pipeline.lisp")
+(main (list "example-data.csv" "more-data.json"))
+```
+
+### Generate Documentation
+
+```lisp
+; HTML docs
+(litprog-weave "advanced_mixed_styles.lit" "pipeline-docs.html" :format :html)
+
+; Markdown for GitHub
+(litprog-weave "advanced_mixed_styles.lit" "PIPELINE.md" :format :markdown)
+
+; LaTeX for academic paper
+(litprog-weave "advanced_mixed_styles.lit" "pipeline-paper.tex" :format :latex)
+```
+
+## Why Mix Styles?
+
+Different sections have different audiences:
+
+- **Noweb** - System architects, algorithm designers
+- **Org-mode** - Emacs users, data scientists
+- **Markdown** - Modern developers, GitHub users
+
+By supporting all three, LITPROG lets you write for your audience!
+
+## Conclusion
+
+This advanced example demonstrates that literate programming scales
+to real-world complexity. You can:
+
+✅ Mix multiple syntaxes in one document
+✅ Generate multiple output files
+✅ Build complex systems incrementally
+✅ Maintain both code and docs from one source
+✅ Teach architecture while building software
+
+**Literate programming transforms code from a necessary evil into
+living documentation that teaches, explains, and generates working software!**
+
+---
+
+*"The best programs are written so that computing machines can perform
+them quickly and so that human beings can understand them clearly."*
+— Donald Knuth
