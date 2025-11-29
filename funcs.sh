@@ -106,6 +106,10 @@ function main
 			script="apps/tui/install.lisp";
 			shift
 			;;
+		-s)
+			script=$2;
+			shift 2
+			;;
 		-e)
 			emu=$1;
 			shift
@@ -124,6 +128,7 @@ function main
 			;;
 		*)	echo "[-n cnt] number of nodes"
 			echo "[-b base] base offset"
+			echo "[-s script_name] script mode"
 			echo "[-e] emulator mode"
 			echo "[-f] foreground mode"
 			echo "[-h] help"

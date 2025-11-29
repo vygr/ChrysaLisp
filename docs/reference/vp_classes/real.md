@@ -269,8 +269,6 @@ trashes
 :r1-:r14
 ```
 
-### :type -> class/real/type
-
 ### :vcreate -> class/real/create
 
 ### :vtable -> class/real/vtable

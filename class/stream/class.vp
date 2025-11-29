@@ -1,12 +1,12 @@
 (include "lib/asm/func.inc")
 (include "sys/str/class.inc")
-(include "././list/class.inc")
-(include "././str/class.inc")
-(include "./class.inc")
-(include "././sstream/class.inc")
 (include "lib/consts/chars.inc")
+(include "././sym/class.inc")
+(include "././sstream/class.inc")
+(include "././list/class.inc")
 
 (gen-vtable 'stream)
+(gen-type 'stream)
 
 (def-method 'stream :init)
 	;inputs

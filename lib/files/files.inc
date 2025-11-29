@@ -37,27 +37,41 @@
 (defun files-depends (file)
 	; (files-depends path) -> paths
 	;create list of immediate dependencies
-	(defq files (list file))
-	(lines! (lambda (line)
-		(and (> (length line) 8) (eql "(" (first line))
-			(= (length (defq s (split line (const (char-class " ()\q\r\t"))))) 2)
-			(find (first s) '("include" "import"))
-			(push files (abs-path (second s) file))))
-		(if (= (age file) 0)
-			(throw "No such file !" file)
-			(file-stream file))) files)
+	(if (defq files (list) stream (file-stream file))
+		(lines! (lambda (line)
+			(and (eql "(" (first line))
+				(or (starts-with "(include" line) (starts-with "(import" line))
+				(push files (path-to-absolute
+					(slice line (defq i (inc (find {"} line))) (find {"} line i)) file))))
+			stream)) files)
 
 (defun files-all-depends (files &optional imps)
 	; (files-all-depends paths &optional imps) -> paths
 	;create list of all dependencies, with implicit options
-	(setq files (usort (cat files)))
-	(when imps
-		(each (# (unless (find %0 files) (push files %0)))
-			(cat (list "class/lisp/root.inc" "class/lisp/task.inc") imps)))
+	(each-mergeable (# (task-slice) (each (lambda (&rest %0) (merge files %0)) (files-depends %0)))
+		(setq files (merge (merge (usort (cat files)) (ifn imps '()))
+			'("class/lisp/root.inc" "class/lisp/task.inc")))) files)
+
+(defun files-scan (files handler &optional split_class comment)
+	; (scan-files files handler [split_class comment]) -> files
+	;iterates through files, processing lines.
+	;new files returned by the handler are merged into the work list.
+	(setd comment ";")
+	(defq callback_e (penv))
+	(unless (list? files) (setq files (list files)))
 	(each-mergeable (lambda (file)
-		(each (# (unless (find %0 files) (push files %0)))
-			(files-depends file))) files))
+		(if (defq stream (file-stream file))
+			(lines! (lambda (line) (task-slice)
+				;skip empty lines and comments
+				(unless (or (eql (defq linet (trim line)) +char_class_space)
+							(and comment (starts-with comment linet)))
+					;prepare input (tokens or trimmed line)
+					(defq input (if split_class (split linet split_class) linet))
+					;call user handler
+					;merge any new dependencies returned by handler into files list
+					(merge files (ifn (callback handler callback_e input file line (!)) '()))))
+				stream))) files))
 
 ;module
-(export-symbols '(files-all files-dirs files-all-depends files-depends))
+(export-symbols '(files-all files-dirs files-all-depends files-depends files-scan))
 (env-pop)

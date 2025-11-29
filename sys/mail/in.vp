@@ -1,7 +1,6 @@
 (include "lib/asm/func.inc")
-(include "././link/class.inc")
-(include "./class.inc")
 (include "././statics/class.inc")
+(include "././link/class.inc")
 
 (def-method 'sys_mail :in)
 	;inputs

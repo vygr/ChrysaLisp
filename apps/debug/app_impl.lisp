@@ -107,11 +107,9 @@
 					(. view :show_tip)))
 			;new debug msg
 			((= idx +select_service)
-				(defq reply_id (getf *msg* +debug_reply)
-					key (sym (getf *msg* +debug_origin))
-					type (getf *msg* +debug_type)
-					data (slice *msg* +debug_data -1)
-					index (find key buf_keys))
+				(bind '(reply_id key type)
+					(getf-> *msg* +debug_reply +debug_origin +debug_type))
+				(defq data (slice *msg* +debug_data -1) index (find key buf_keys))
 				(unless index
 					(push buf_keys key)
 					(push buf_list (list (Buffer :t syntax) :forward :nil))
@@ -143,8 +141,7 @@
 					(= (getf *msg* +ev_msg_type) +ev_type_key_down)
 					(> (getf *msg* +ev_msg_key_scode) 0))
 				;key event
-				(defq key (getf *msg* +ev_msg_key_key)
-					mod (getf *msg* +ev_msg_key_mod))
+				(bind '(key mod) (getf-> *msg* +ev_msg_key_key +ev_msg_key_mod))
 				(cond
 					((bits? mod +ev_key_mod_control +ev_key_mod_alt +ev_key_mod_meta)
 						;call bound control/command key action

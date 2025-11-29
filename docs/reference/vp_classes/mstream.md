@@ -55,7 +55,7 @@ outputs
 :r4 = 0, else chunk str object (ptr)
 :r5 = 0, else chunk index (uint)
 trashes
-:r1-:r10
+:r1-:r9
 ```
 
 ### :ptoi -> class/mstream/ptoi
@@ -67,9 +67,8 @@ inputs
 outputs
 :r0 = mstream object (ptr)
 :r1 = bufp (pubyte)
-:r2 = 0, else chunk str object (ptr)
+:r2 = file size (uint)
 :r3 = 0, else file position (uint)
-:r4 = 0, else file size (uint)
 trashes
 :r1-:r9
 ```

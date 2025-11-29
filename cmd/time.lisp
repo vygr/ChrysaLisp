@@ -20,16 +20,17 @@
 		;get start time
 		(defq start (pii-time))
 		;pass it all through
-		(while (defq c (read-char (io-stream 'stdin)))
-			(write-char (io-stream 'stdout) c))
+		(defq stdin (io-stream 'stdin) stdout (io-stream 'stdout)
+			stderr (io-stream 'stderr))
+		(while (defq c (read-blk stdin 1024)) (write-blk stdout c))
 		;get duration
 		(defq duration (- (pii-time) start))
-		(stream-flush (io-stream 'stdout))
+		(stream-flush stdout)
 		;wait for the stdout data to flow along...
 		(task-sleep 100000)
-		(write-line (io-stream 'stderr)
+		(write-line stderr
 			(cat "Time:" (char 10) (time-in-seconds duration) " seconds"))
-		(stream-flush (io-stream 'stderr))
+		(stream-flush stderr)
 		;wait for the stderr data to flow along...
 		(task-sleep 100000)
 		;and now exit and send EOF along the pipe.

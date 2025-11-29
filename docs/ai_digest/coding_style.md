@@ -570,7 +570,7 @@ folding, replacing symbols with their literal values in the final compiled code.
 
     At compile time, the `setf` macro is expanded. It evaluates `+my_msg_type`
     to its literal value, `24`. The final code generated is equivalent to
-    `(set-field my_msg 24 4 +ev_type_action)`, which becomes a single,
+    `(obj-set my_msg 24 4 +ev_type_action)`, which becomes a single,
     highly-optimized memory write instruction. This allows developers to work
     with high-level, symbolic field names while the system guarantees C-level
     performance for data access.

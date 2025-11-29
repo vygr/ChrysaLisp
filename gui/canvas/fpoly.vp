@@ -1,7 +1,6 @@
 (include "lib/asm/func.inc")
+(include "class/array/class.inc")
 (include "./class.inc")
-(include "class/list/class.inc")
-(include "././path/class.inc")
 (include "././pixmap/class.inc")
 
 (def-method 'canvas :set_edges)

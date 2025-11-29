@@ -32,6 +32,8 @@
 
 ### (save str path) -> str
 
+### (split str [cls]) -> strs
+
 ### (str form) -> str
 
 ### (str-to-num str) -> num
@@ -54,14 +56,44 @@ trashes
 
 ```code
 inputs
-:r0 = str object (ptr)
+:r0 = str cls object (ptr)
 :r1 = search char (uint)
 outputs
-:r0 = str object (ptr)
+:r0 = str cls object (ptr)
 :r1 = search char (uint)
 :r2 = -1, else position (int)
 trashes
 :r2-:r6
+```
+
+### :bskip -> class/str/bskip
+
+```code
+inputs
+:r0 = str object (ptr)
+:r1 = str cls object (ptr)
+:r2 = start index (uint)
+outputs
+:r0 = str object (ptr)
+:r1 = str cls object (ptr)
+:r2 = end index (uint)
+trashes
+:r2-:r10
+```
+
+### :bskipn -> class/str/bskipn
+
+```code
+inputs
+:r0 = str object (ptr)
+:r1 = str cls object (ptr)
+:r2 = start index (uint)
+outputs
+:r0 = str object (ptr)
+:r1 = str cls object (ptr)
+:r2 = end index (uint)
+trashes
+:r2-:r10
 ```
 
 ### :cat -> class/str/cat
@@ -386,8 +418,6 @@ outputs
 trashes
 :r1-:r6
 ```
-
-### :type -> class/str/type
 
 ### :vtable -> class/str/vtable
 

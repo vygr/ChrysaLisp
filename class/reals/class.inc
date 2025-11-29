@@ -3,7 +3,6 @@
 (def-class reals fixeds
 	(dec-method :vtable class/reals/vtable)
 	(dec-method :create class/reals/create)
-	(dec-method :type class/reals/type :final (:r0) (:r0 :r1))
 	(dec-method :vcreate class/reals/create :final)
 	(dec-method :velement class/real/create :final)
 	(dec-method :add class/reals/add :final)

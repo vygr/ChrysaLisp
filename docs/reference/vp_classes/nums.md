@@ -203,8 +203,6 @@ trashes
 :r1-:r4
 ```
 
-### :type -> class/nums/type
-
 ### :vcreate -> class/nums/create
 
 ### :vtable -> class/nums/vtable

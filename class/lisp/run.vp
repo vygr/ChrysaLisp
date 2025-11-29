@@ -1,12 +1,10 @@
 (include "lib/asm/func.inc")
-(include "sys/mail/class.inc")
-(include "././fstream/class.inc")
-(include "././sstream/class.inc")
+(include "sys/statics/class.inc")
+(include "lib/consts/chars.inc")
+(include "gui/view/class.inc")
 (include "./class.inc")
 (include "././sym/class.inc")
-(include "gui/view/class.inc")
-(include "lib/consts/chars.inc")
-(include "sys/statics/class.inc")
+(include "././sstream/class.inc")
 
 (def-func 'class/lisp/run)
 	;lisp run loop task

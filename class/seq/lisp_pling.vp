@@ -1,5 +1,4 @@
 (include "lib/asm/func.inc")
-(include "./class.inc")
 (include "././num/class.inc")
 (include "././lisp/class.inc")
 

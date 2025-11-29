@@ -193,6 +193,22 @@ Usage: huff [options] [file]
 	If no file is given, it reads from stdin.
 	Output is written to stdout.
 ```
+## includes
+```code
+Usage: includes [options] [path] ...
+
+	options:
+		-h --help: this help info.
+		-j --jobs num: max jobs per batch, default 8.
+		-d --defs defs: class definitions map, default :nil.
+		-w --write: write new file, default :nil.
+
+	Scan for needed includes in .vp files, optionally
+	edits the file rewriting the include block.
+
+	If no paths given on command line
+	then will take paths from stdin.
+```
 ## link
 ```code
 Usage: link [options] CLB-L1 CLB-L2 000-000 ...
@@ -312,6 +328,21 @@ Usage: sdir [options] [prefix]
 
 	options:
 		-h --help: this help info.
+```
+## sed
+```code
+Usage: sed [options] [path] ...
+
+	options:
+		-h --help: this help info.
+		-e --expression pattern: search pattern.
+		-r --replace string: replacement string, default "".
+		-g --global: replace all occurrences.
+		-w --words: whole words.
+		-x --regexp: treat pattern as regular expression.
+
+	Stream editor. Reads from stdin if no files specified.
+	Writes to stdout.
 ```
 ## shuffle
 ```code

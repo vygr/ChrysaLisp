@@ -1,15 +1,15 @@
 (include "lib/asm/func.inc")
-(include "sys/task/class.inc")
-(include "././hmap/class.inc")
-(include "././fstream/class.inc")
-(include "././func/class.inc")
-(include "././sym/class.inc")
-(include "./class.inc")
-(include "lib/consts/chars.inc")
 (include "sys/statics/class.inc")
+(include "lib/consts/chars.inc")
+(include "./class.inc")
+(include "././sym/class.inc")
+(include "././hmap/class.inc")
+(include "././func/class.inc")
+(include "././fstream/class.inc")
 
 (gen-create 'lisp)
 (gen-vtable 'lisp)
+(gen-type 'lisp)
 
 (def-struct built_in 0
 	(ushort symbol)

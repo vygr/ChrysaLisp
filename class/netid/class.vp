@@ -1,9 +1,12 @@
 (include "lib/asm/func.inc")
-(include "./class.inc")
 (include "sys/kernel/class.inc")
+(include "./class.inc")
+(include "././sym/class.inc")
+(include "././list/class.inc")
 
 (gen-vtable 'netid)
 (gen-create 'netid)
+(gen-type 'netid)
 
 (def-method 'netid :init)
 	;inputs

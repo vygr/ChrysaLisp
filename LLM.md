@@ -6,7 +6,7 @@ This document serves as the primary entry point for LLMs seeking to understand C
 
 If you're new to ChrysaLisp, start here to understand what it is and why it exists:
 
-0. **[Contributions](CONTRIBUTIONS.md)** for hard rules about PRs and testing.
+0. **[Contributions](CONTRIBUTIONS.md)** - for hard rules about PRs and testing.
 
 1. **[Summary](docs/ai_digest/summary.md)** - A comprehensive overview of the entire ChrysaLisp system, its core components, architecture, and capabilities.
 

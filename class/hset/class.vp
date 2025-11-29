@@ -1,10 +1,11 @@
 (include "lib/asm/func.inc")
-(include "././list/class.inc")
-(include "././sym/class.inc")
 (include "./class.inc")
+(include "././sym/class.inc")
+(include "././list/class.inc")
 
 (gen-create 'hset)
 (gen-vtable 'hset)
+(gen-type 'hset)
 
 (def-method 'hset :init)
 	;inputs

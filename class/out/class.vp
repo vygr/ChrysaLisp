@@ -1,10 +1,13 @@
 (include "lib/asm/func.inc")
+(include "sys/link/class.inc")
 (include "sys/kernel/class.inc")
 (include "./class.inc")
-(include "sys/link/class.inc")
+(include "././sym/class.inc")
+(include "././list/class.inc")
 
 (gen-create 'out)
 (gen-vtable 'out)
+(gen-type 'out)
 
 (def-method 'out :init)
 	;inputs

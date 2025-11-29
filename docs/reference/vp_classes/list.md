@@ -226,8 +226,6 @@ trashes
 :r1-:r8
 ```
 
-### :type -> class/list/type
-
 ### :vcreate -> class/list/create
 
 ### :vtable -> class/list/vtable

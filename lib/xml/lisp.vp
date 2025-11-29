@@ -1,10 +1,9 @@
-(include "././asm/func.inc")
-(include "././consts/chars.inc")
+(include "lib/asm/func.inc")
+(include "sys/str/class.inc")
 (include "class/sym/class.inc")
 (include "class/sstream/class.inc")
-(include "class/list/class.inc")
 (include "class/lisp/class.inc")
-(include "sys/str/class.inc")
+(include "././consts/chars.inc")
 
 (def-func 'lib/xml/parse)
 	;inputs

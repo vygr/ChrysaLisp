@@ -246,6 +246,8 @@
 ; (rbskip cls str idx) -> idx
 (ffi "class/str/lisp_rbskipn" rbskipn)
 ; (rbskipn cls str idx) -> idx
+(ffi "class/str/lisp_split" split)
+; (split str [cls]) -> strs
 (ffi "class/str/lisp_encode" hex-encode)
 ; (hex-encode str) -> str
 (ffi "class/str/lisp_decode" hex-decode)
@@ -353,6 +355,22 @@
 (ffi "class/dim/lisp_dset" dim-set)
 ; (dim-set dim nums elem) -> array
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Generic Object Operations
+;;;;;;;;;;;;;;;;;;;;;;;;;;
+(ffi "class/obj/lisp_hash" hash)
+; (hash obj) -> num
+(ffi "class/obj/lisp_type" type-of)
+; (type-of obj) -> (... :obj)
+(ffi "class/obj/lisp_fget" obj-get)
+; (obj-get obj offset type|0 size|0) -> val
+(ffi "class/obj/lisp_fset" obj-set)
+; (obj-set obj offset type|0 size|0 val) -> obj
+(ffi "class/obj/lisp_wref" weak-ref)
+; (weak-ref obj) -> num
+(ffi "class/obj/lisp_oref" obj-ref)
+; (obj-ref num) -> obj
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Platform Implementation Interface (PII)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -370,20 +388,50 @@
 ; (pii-time) -> ns
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
-; Generic Object Operations
+; Kernel & System
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
-(ffi "class/obj/lisp_hash" hash)
-; (hash obj) -> num
-(ffi "class/obj/lisp_type" type-of)
-; (type-of obj) -> (... :obj)
-(ffi "class/obj/lisp_get_field" get-field)
-; (get-field obj field size|0) -> val
-(ffi "class/obj/lisp_set_field" set-field)
-; (set-field obj field size|0 val) -> obj
-(ffi "class/obj/lisp_wref" weak-ref)
-; (weak-ref obj) -> num
-(ffi "class/obj/lisp_oref" obj-ref)
-; (obj-ref num) -> obj
+(ffi "sys/kernel/lisp_stats" kernel-stats)
+; (kernel-stats) -> (task_count mem_used mem_avail max_stack)
+(ffi "sys/load/lisp_path" load-path)
+; (load-path) -> path
+
+;;;;;;;;;;;;;;;;;;;;
+; Task Management
+;;;;;;;;;;;;;;;;;;;;
+(ffi "sys/task/lisp_mailbox" task-mbox)
+; (task-mbox) -> netid
+(ffi "sys/task/lisp_count" task-count)
+; (task-count bias) -> count
+(ffi "sys/task/lisp_sleep" task-sleep)
+; (task-sleep usec)
+(ffi "sys/task/lisp_timeslice" task-slice)
+; (task-slice)
+
+;;;;;;;;;;;;;;;;;;;;;;
+; Mail & Messaging
+;;;;;;;;;;;;;;;;;;;;;;
+(ffi "sys/mail/lisp_netid" mail-mbox)
+; (mail-mbox) -> netid
+(ffi "sys/mail/lisp_declare" mail-declare)
+; (mail-declare mbox name info) -> key
+(ffi "sys/mail/lisp_devices" mail-nodes)
+; (mail-nodes) -> nodeids
+(ffi "sys/mail/lisp_enquire" mail-enquire)
+; (mail-enquire prefix) -> netids
+(ffi "sys/mail/lisp_forget" mail-forget)
+; (mail-forget key)
+(ffi "sys/mail/lisp_poll" mail-poll)
+; (mail-poll mboxs) -> :nil | idx
+(ffi "sys/mail/lisp_validate" mail-validate)
+; (mail-validate mbox) -> :t | :nil
+(ffi "sys/mail/lisp_read" mail-read)
+; (mail-read mbox) -> :nil | msg
+(ffi "sys/mail/lisp_select" mail-select)
+; (mail-select mboxs) -> idx
+(ffi "sys/mail/lisp_send" mail-send)
+; (mail-send mbox obj)
+(ffi "sys/mail/lisp_timeout" mail-timeout)
+; (mail-timeout mbox ns id) -> mbox
 
 (defq *root_env* (env)
 	+byte_size 1 +short_size 2 +int_size 4 +long_size 8 +ptr_size 8
@@ -1011,60 +1059,11 @@
 	; (trim str [cls]) -> str
 	(slice s (bskip (setd cls " ") s 0) (rbskip cls s -1)))
 
-(defun split (s &optional cls)
-	; (split str [cls]) -> strs
-	(defq i 0 out (list) l (length s) cls (ifn cls " "))
-	(while (< i l)
-		(if (/= (defq j (bskip cls s i)) i) (setq i j))
-		(if (/= (defq j (bskipn cls s i)) i) (push out (slice s i (setq i j))))) out)
-
 (defun pad (v c &optional f)
 	; (pad form width [str]) -> str
 	(defq f (ifn f " ") v (str v) l (length v) c (- (max c l) l))
 	(while (> c (length f)) (setq f (cat f f)))
 	(cat (slice f 0 c) v))
-
-(defmacro get-ubyte (s o)
-	; (get-ubyte str idx) -> num
-	(static-qq (get-field ,s (+ +str_data ,o) (const (neg +byte_size)))))
-
-(defmacro get-ushort (s o)
-	; (get-ushort str idx) -> num
-	(static-qq (get-field ,s (+ +str_data ,o) (const (neg +short_size)))))
-
-(defmacro get-uint (s o)
-	; (get-uint str idx) -> num
-	(static-qq (get-field ,s (+ +str_data ,o) (const (neg +int_size)))))
-
-(defmacro get-long (s o)
-	; (get-long str idx) -> num
-	(static-qq (get-field ,s (+ +str_data ,o) +long_size)))
-
-(defmacro get-byte (s o)
-	; (get-byte str idx) -> num
-	(static-qq (get-field ,s (+ +str_data ,o) +byte_size)))
-
-(defmacro get-short (s o)
-	; (get-short str idx) -> num
-	(static-qq (get-field ,s (+ +str_data ,o) +short_size)))
-
-(defmacro get-int (s o)
-	; (get-int str idx) -> num
-	(static-qq (get-field ,s (+ +str_data ,o) +int_size)))
-
-(defmacro get-nodeid (s o)
-	; (get-nodeid str idx) -> nodeid
-	(static-qq (slice ,s ,o (+ ,o +node_id_size))))
-
-(defmacro get-netid (s o)
-	; (get-netid str idx) -> netid
-	(static-qq (slice ,s ,o (+ ,o +net_id_size))))
-
-(defun get-cstr (s o)
-	; (get-cstr str idx) -> str
-	(defq k o)
-	(while (/= 0 (get-byte s o)) (++ o))
-	(slice s k o))
 
 (defun type-to-size (_)
 	; (type-to-size sym) -> num
@@ -1091,6 +1090,66 @@
 	(if (= (length _) 0) 0
 		(reduce (# (min %0 (length %1))) _ +max_long)))
 
+;;;;;;;;;;;;;;;;;;;;;;
+; string object fields
+;;;;;;;;;;;;;;;;;;;;;;
+
+(defmacro get-ubyte (obj idx)
+	; (get-ubyte str idx) -> num
+	(static-qq (obj-get ,obj (+ +str_data ,idx) (const (neg +byte_size)) 0)))
+
+(defmacro get-ushort (obj idx)
+	; (get-ushort str idx) -> num
+	(static-qq (obj-get ,obj (+ +str_data ,idx) (const (neg +short_size)) 0)))
+
+(defmacro get-uint (obj idx)
+	; (get-uint str idx) -> num
+	(static-qq (obj-get ,obj (+ +str_data ,idx) (const (neg +int_size)) 0)))
+
+(defmacro get-long (obj idx)
+	; (get-long str idx) -> num
+	(static-qq (obj-get ,obj (+ +str_data ,idx) +long_size 0)))
+
+(defmacro get-byte (obj idx)
+	; (get-byte str idx) -> num
+	(static-qq (obj-get ,obj (+ +str_data ,idx) +byte_size 0)))
+
+(defmacro get-short (obj idx)
+	; (get-short str idx) -> num
+	(static-qq (obj-get ,obj (+ +str_data ,idx) +short_size 0)))
+
+(defmacro get-int (obj idx)
+	; (get-int str idx) -> num
+	(static-qq (obj-get ,obj (+ +str_data ,idx) +int_size 0)))
+
+(defmacro get-str (obj idx bytes)
+	; (get-str str idx bytes) -> str
+	(static-qq (obj-get ,obj (+ +str_data ,idx) 0 ,bytes)))
+
+(defun get-cstr (obj idx)
+	; (get-cstr str idx) -> str
+	(slice obj idx (find (const (ascii-char 0)) obj idx)))
+
+(defmacro set-byte (obj idx val)
+	; (set-byte str idx num) -> str
+	(static-qq (obj-set ,obj (+ +str_data ,idx) +byte_size 0 ,val)))
+
+(defmacro set-short (obj idx val)
+	; (set-short str idx num) -> str
+	(static-qq (obj-set ,obj (+ +str_data ,idx) +short_size 0 ,val)))
+
+(defmacro set-int (obj idx val)
+	; (set-int str idx num) -> str
+	(static-qq (obj-set ,obj (+ +str_data ,idx) +int_size 0 ,val)))
+
+(defmacro set-long (obj idx val)
+	; (set-long str idx num) -> str
+	(static-qq (obj-set ,obj (+ +str_data ,idx) +long_size 0 ,val)))
+
+(defmacro set-str (obj idx val)
+	; (set-str str idx val) -> str
+	(static-qq (obj-set ,obj (+ +str_data ,idx) 0 (length ,val) ,val)))
+
 ;;;;;;;;;
 ; Streams
 ;;;;;;;;;
@@ -1103,81 +1162,98 @@
 	; (load-stream path) -> :nil | stream
 	(if (defq _ (load _)) (string-stream _)))
 
-(defun abs-path (lib_path &optional current)
-	; (abs-path path [current]) -> path
+(defun path-to-relative (target &optional current)
+	; (path-to-relative target [current]) -> path
+	;transform an absolute filename to a relative one
+	(setd current (first (repl-info)))
+	(defq t_parts (split target "/") c_parts (split current "/")
+		i (or (some (# (if (eql %0 %1) :nil (!))) t_parts c_parts)
+			(min (length t_parts) (length c_parts)))
+		out (list))
+	(times (- (length c_parts) i) (push out "."))
+	(setq out (cat out (slice t_parts i -1)))
+	(if (> (dec (length out)) (length t_parts)) target (join out "/")))
+
+(defun path-to-absolute (target &optional current)
+	; (path-to-absolute target [current]) -> path
+	;transform a relative filename to an absolute one
+	(setd current (first (repl-info)))
 	(cond
-		((not (starts-with "./" lib_path))
-			lib_path)
-		(:t (setd current (first (repl-info)))
-			(while (starts-with "./" lib_path)
-				(unless (defq i (rfind "/" current))
-					(throw "No relative path !" lib_path))
-				(setq current (slice current 0 (dec i))
-					lib_path (slice lib_path 2 -1)))
-			(cat current "/" lib_path))))
+		((starts-with "." target)
+			(defq c_parts (split current "/") p_parts (split target "/")
+				i (or (some (# (if (eql %0 ".") :nil (!))) p_parts)
+					(length p_parts)))
+			(if (> i (length c_parts)) (throw "No relative path !" target))
+			(join (cat (slice c_parts 0 (- (length c_parts) i))
+					   (slice p_parts i -1)) "/"))
+		(target)))
 
-(defun import (lib_path &optional _e)
-	; (import path [env]) -> env
-	(unless (eql :str (pop (type-of lib_path))) (throw "Not a string !" lib_path))
-	(setq lib_path (abs-path lib_path))
-	(if (= (age lib_path) 0) (throw "No such file !" lib_path))
-	(setd _e (penv)) (defq _ee _e)
-	; does the import already exist in the environment tree ?
-	(while (env? _ee)
-		(cond
-			((and (defq file_list (def? '*file_includes* _ee))
-					(find lib_path file_list))
-				(setq _ee :t))
-			((setq _ee (penv _ee)))))
-	; if not existing import it here
-	(unless _ee
-		(unless (def? '*file_includes* _e)
-			(def _e '*file_includes* (list)))
-		(push (get '*file_includes* _e) lib_path)
-		(eval `(repl (file-stream ,lib_path) ,lib_path) _e)))
+(defun import (module &optional dst_env)
+	; (import path [env])
+	(if (= (age (setq module (path-to-absolute module))) 0)
+		(throw "No such file !" module))
+	;does the import already exist ?
+	(defq dst_env (ifn dst_env (penv))
+		import_sym (sym (cat "*module_" module "*")))
+	(unless (get import_sym dst_env)
+		;if not existing import it here
+		(def dst_env import_sym :t)
+		(callback (const repl) dst_env (file-stream module) module)))
 
-(defun import-from (lib_path &optional symbols classes)
+(defun import-from (module &optional symbols classes)
 	; (import-from [symbols classes])
-	(unless (eql :str (pop (type-of lib_path))) (throw "Not a string !" lib_path))
-	(setq lib_path (abs-path lib_path))
-	(if (= (age lib_path) 0) (throw "No such file !" lib_path))
+	(if (= (age (setq module (path-to-absolute module))) 0)
+		(throw "No such file !" module))
 	(setd symbols '() classes '())
 	;import it here, we will discard it on exit
-	(repl (file-stream lib_path) lib_path)
+	(repl (file-stream module) module)
 	;export only what was requested
 	(export-symbols symbols)
 	(export-classes classes))
 
-(defmacro read-long (s)
-	; (read-long stream) -> num
-	(static-qq (read-char ,s +long_size)))
+(defmacro read-ubyte (s)
+	; (read-ubyte stream) -> num
+	(static-qq (read-char ,s)))
 
-(defmacro read-int (s)
-	; (read-int stream) -> num
-	(static-qq (read-char ,s +int_size)))
+(defmacro read-ushort (s)
+	; (read-ushort stream) -> num
+	(static-qq (read-char ,s ,(neg +short_size))))
+
+(defmacro read-uint (s)
+	; (read-uint stream) -> num
+	(static-qq (read-char ,s (neg +int_size))))
+
+(defmacro read-byte (s)
+	; (read-byte stream) -> num
+	(static-qq (read-char ,s +byte_size)))
 
 (defmacro read-short (s)
 	; (read-short stream) -> num
 	(static-qq (read-char ,s +short_size)))
 
-(defmacro write-long (s n)
-	; (write-long stream list|num) -> bytes
-	(static-qq (write-char ,s ,n +long_size)))
+(defmacro read-int (s)
+	; (read-int stream) -> num
+	(static-qq (read-char ,s +int_size)))
 
-(defmacro write-int (s n)
-	; (write-int stream list|num) -> bytes
-	(static-qq (write-char ,s ,n +int_size)))
+(defmacro read-long (s)
+	; (read-long stream) -> num
+	(static-qq (read-char ,s +long_size)))
+
+(defmacro write-byte (s n)
+	; (write-byte stream list|num) -> bytes
+	(static-qq (write-char ,s ,n +byte_size)))
 
 (defmacro write-short (s n)
 	; (write-short stream list|num) -> bytes
 	(static-qq (write-char ,s ,n +short_size)))
 
-(defun read-data (s bytes)
-	; (read-data stream bytes) -> str
-	(defq data (cap bytes (list)))
-	(while (and (>= (-- bytes) 0) (defq _ (read-char s)))
-		(push data (char _)))
-	(apply (const cat) data))
+(defmacro write-int (s n)
+	; (write-int stream list|num) -> bytes
+	(static-qq (write-char ,s ,n +int_size)))
+
+(defmacro write-long (s n)
+	; (write-long stream list|num) -> bytes
+	(static-qq (write-char ,s ,n +long_size)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Compilation environment
@@ -1208,10 +1284,10 @@
 
 (defun within-compile-env (_f)
 	; (within-compile-env lambda)
-	(defq *compile_env* (env-resize 499))
+	(defq *compile_env* (env-resize 1999))
 	(defmacro defcvar (&rest b) (static-qq (def *compile_env* ~b)))
 	(defmacro deffvar (&rest b) (static-qq (def *func_env* ~b)))
-	(defun include (lib_path) (import lib_path *compile_env*))
+	(defun include (module) (import module *compile_env*))
 	(catch (progn (setq _f (_f)) (undef (env) '*func_env* '*compile_env*) _f)
 		(progn (undef (penv) '*func_env* '*compile_env*) :nil)))
 
@@ -1223,3 +1299,5 @@
 (import "lib/class/class.inc")
 (import "lib/collections/collections.inc")
 (import "lib/text/searching.inc")
+(import "sys/lisp.inc")
+(import "class/lisp.inc")

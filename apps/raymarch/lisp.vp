@@ -1,10 +1,10 @@
 (include "lib/asm/func.inc")
 (include "sys/math/class.inc")
-(include "class/fixed/class.inc")
-(include "class/str/class.inc")
-(include "gui/path/class.inc")
 (include "gui/canvas/class.inc")
+(include "class/str/class.inc")
+(include "class/nums/class.inc")
 (include "class/lisp/class.inc")
+(include "class/fixed/class.inc")
 
 (defun scene ()
 	(vec-frac 3)

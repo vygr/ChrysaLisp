@@ -1,7 +1,10 @@
 (include "lib/asm/func.inc")
 (include "./class.inc")
+(include "././sym/class.inc")
+(include "././list/class.inc")
 
 (gen-vtable 'nodeid)
+(gen-type 'nodeid)
 
 (def-method 'nodeid :create)
 	;inputs

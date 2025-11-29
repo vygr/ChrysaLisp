@@ -1,8 +1,8 @@
 (include "lib/asm/func.inc")
-(include "./class.inc")
-(include "././stream/class.inc")
-(include "././sym/class.inc")
 (include "lib/consts/chars.inc")
+(include "./class.inc")
+(include "././sym/class.inc")
+(include "././stream/class.inc")
 
 (def-method 'lisp :read_char)
 	;inputs

@@ -1,6 +1,5 @@
 (include "lib/asm/func.inc")
 (include "././str/class.inc")
-(include "./class.inc")
 (include "././statics/class.inc")
 
 (def-method 'host_os :pii_exit)

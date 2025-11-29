@@ -205,11 +205,14 @@
 	(cond
 		((not (defq s (scope-get-sym _)))
 			;not in symbol table so figure out what it is
+			(defq type_sym (sym (str _ "_t")) type_str (get type_sym))
 			(cond
-				((get (sym (str _ "_t")))
+				((find (first type_str) "0123456789")
+					;struct/member
+					(compile-const _))
+				(type_str
 					;field/member
-					(add-inst (list 'vp-cpy-cr
-						_ (push-reg (eval (sym (str _ "_t")))))))
+					(add-inst (list 'vp-cpy-cr _ (push-reg type_str))))
 				((get _)
 					;equate
 					(compile-const _))
