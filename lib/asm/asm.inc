@@ -113,7 +113,7 @@
 				(<= 2 (length (defq s (split _ (const (char-class " '()\q\r"))))) 4))
 			(case (first s)
 				(("include" "import")
-					(push d (abs-path (second s) file)))
+					(push d (path-to-absolute (second s) file)))
 				("def-method"
 					(push p (f-path (sym (second s)) (sym (third s)))))
 				("gen-vtable"

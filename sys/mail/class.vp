@@ -1,13 +1,11 @@
 (include "lib/asm/func.inc")
+(include "lib/consts/chars.inc")
+(include "class/nodeid/class.inc")
+(include "class/list/class.inc")
+(include "class/hmap/class.inc")
+(include "././statics/class.inc")
 (include "././link/class.inc")
 (include "././kernel/class.inc")
-(include "././statics/class.inc")
-(include "class/list/class.inc")
-(include "class/sym/class.inc")
-(include "class/hmap/class.inc")
-(include "class/num/class.inc")
-(include "class/nodeid/class.inc")
-(include "lib/consts/chars.inc")
 
 (def-method 'sys_mail :statics_init)
 	;info

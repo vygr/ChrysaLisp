@@ -1,6 +1,6 @@
 (include "lib/asm/func.inc")
+(include "./class.inc")
 (include "././num/class.inc")
-(include "././fixeds/class.inc")
 (include "././lisp/class.inc")
 
 (def-method 'nums :lisp_vecop1)
