@@ -1,10 +1,9 @@
 (include "lib/asm/func.inc")
+(include "class/lisp/class.inc")
+(include "class/fixed/class.inc")
 (include "./class.inc")
 (include "././pixmap/class.inc")
 (include "././path/class.inc")
-(include "class/str/class.inc")
-(include "class/fixed/class.inc")
-(include "class/lisp/class.inc")
 
 (def-method 'canvas :lisp_create)
 	;inputs
