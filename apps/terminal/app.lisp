@@ -127,7 +127,7 @@
 					(= (getf *msg* +ev_msg_type) +ev_type_key_down)
 					(> (getf *msg* +ev_msg_key_scode) 0))
 				;key event
-				(defq key (getf *msg* +ev_msg_key_key) mod (getf *msg* +ev_msg_key_mod))
+				(bind '(key mod) (getf-> *msg* +ev_msg_key_key +ev_msg_key_mod))
 				(setq *key* :t)
 				(cond
 					((bits? mod +ev_key_mod_control +ev_key_mod_alt +ev_key_mod_meta)
