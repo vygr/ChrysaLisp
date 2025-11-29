@@ -1,0 +1,254 @@
+(include "lib/asm/func.inc")
+(include "class/num/class.inc")
+(include "class/real/class.inc")
+(include "class/lisp/class.inc")
+(include "./class.inc")
+(include "sys/statics/class.inc")
+
+(def-method 'host_gl :lisp_init)
+	;inputs
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
+	;outputs
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
+	;trashes
+	;:r1-:r14
+
+	(entry 'host_gl :lisp_init '(:r0 :r1))
+
+	(errorif-lisp-args-len 'error :r1 /= 0)
+
+	(vp-push :r0)
+	(call 'host_gl :gl_init :nil '(:r0))
+	(call 'num :create '(:r0) '(:r1))
+	(vp-pop :r0)
+
+	(exit 'host_gl :lisp_init '(:r0 :r1))
+	(vp-ret)
+
+(errorcase
+(vp-label 'error)
+	(jump 'lisp :repl_error '(:r0 "(gl-init)" +error_msg_wrong_num_of_args :r1)))
+
+(def-func-end)
+
+(def-method 'host_gl :lisp_clear)
+	;inputs
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
+	;outputs
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
+	;trashes
+	;:r1-:r14
+
+	(entry 'host_gl :lisp_clear '(:r0 :r1))
+
+	(errorif-lisp-args-type 'error :r1 num 1)
+
+	(vp-push :r0)
+	(defq in (method-input 'host_gl :gl_clear))
+	(list-bind-args :r1 in '(:num))
+	(call 'host_gl :gl_clear in)
+	(assign '((:rsp 0)) '(:r0))
+	(assign '((:r0 lisp_sym_t)) '(:r1))
+	(class/obj/ref :r1 :r2)
+	(vp-pop :r0)
+
+	(exit 'host_gl :lisp_clear '(:r0 :r1))
+	(vp-ret)
+
+(errorcase
+(vp-label 'error)
+	(jump 'lisp :repl_error '(:r0 "(gl-clear mask)" +error_msg_wrong_types :r1)))
+
+(def-func-end)
+
+(def-method 'host_gl :lisp_viewport)
+	;inputs
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
+	;outputs
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
+	;trashes
+	;:r1-:r14
+
+	(entry 'host_gl :lisp_viewport '(:r0 :r1))
+
+	(errorif-lisp-args-type 'error :r1 num 4)
+
+	(vp-push :r0)
+	(defq in (method-input 'host_gl :gl_viewport))
+	(list-bind-args :r1 in '(:num :num :num :num))
+	(call 'host_gl :gl_viewport in)
+	(assign '((:rsp 0)) '(:r0))
+	(assign '((:r0 lisp_sym_t)) '(:r1))
+	(class/obj/ref :r1 :r2)
+	(vp-pop :r0)
+
+	(exit 'host_gl :lisp_viewport '(:r0 :r1))
+	(vp-ret)
+
+(errorcase
+(vp-label 'error)
+	(jump 'lisp :repl_error '(:r0 "(gl-viewport x y w h)" +error_msg_wrong_types :r1)))
+
+(def-func-end)
+
+(def-method 'host_gl :lisp_begin)
+	;inputs
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
+	;outputs
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
+	;trashes
+	;:r1-:r14
+
+	(entry 'host_gl :lisp_begin '(:r0 :r1))
+
+	(errorif-lisp-args-type 'error :r1 num 1)
+
+	(vp-push :r0)
+	(defq in (method-input 'host_gl :gl_begin))
+	(list-bind-args :r1 in '(:num))
+	(call 'host_gl :gl_begin in)
+	(assign '((:rsp 0)) '(:r0))
+	(assign '((:r0 lisp_sym_t)) '(:r1))
+	(class/obj/ref :r1 :r2)
+	(vp-pop :r0)
+
+	(exit 'host_gl :lisp_begin '(:r0 :r1))
+	(vp-ret)
+
+(errorcase
+(vp-label 'error)
+	(jump 'lisp :repl_error '(:r0 "(gl-begin mode)" +error_msg_wrong_types :r1)))
+
+(def-func-end)
+
+(def-method 'host_gl :lisp_end)
+	;inputs
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
+	;outputs
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
+	;trashes
+	;:r1-:r14
+
+	(entry 'host_gl :lisp_end '(:r0 :r1))
+
+	(errorif-lisp-args-len 'error :r1 /= 0)
+
+	(vp-push :r0)
+	(call 'host_gl :gl_end :nil)
+	(assign '((:rsp 0)) '(:r0))
+	(assign '((:r0 lisp_sym_t)) '(:r1))
+	(class/obj/ref :r1 :r2)
+	(vp-pop :r0)
+
+	(exit 'host_gl :lisp_end '(:r0 :r1))
+	(vp-ret)
+
+(errorcase
+(vp-label 'error)
+	(jump 'lisp :repl_error '(:r0 "(gl-end)" +error_msg_wrong_num_of_args :r1)))
+
+(def-func-end)
+
+(def-method 'host_gl :lisp_vertex3f)
+	;inputs
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
+	;outputs
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
+	;trashes
+	;:r1-:r14
+
+	(entry 'host_gl :lisp_vertex3f '(:r0 :r1))
+
+	(errorif-lisp-args-len 'error :r1 /= 3)
+
+	(vp-push :r0)
+	(defq in (method-input 'host_gl :gl_vertex3f))
+	(list-bind-args :r1 in '(:real :real :real))
+	(call 'host_gl :gl_vertex3f in)
+	(assign '((:rsp 0)) '(:r0))
+	(assign '((:r0 lisp_sym_t)) '(:r1))
+	(class/obj/ref :r1 :r2)
+	(vp-pop :r0)
+
+	(exit 'host_gl :lisp_vertex3f '(:r0 :r1))
+	(vp-ret)
+
+(errorcase
+(vp-label 'error)
+	(jump 'lisp :repl_error '(:r0 "(gl-vertex3f x y z)" +error_msg_wrong_types :r1)))
+
+(def-func-end)
+
+(def-method 'host_gl :lisp_color3f)
+	;inputs
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
+	;outputs
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
+	;trashes
+	;:r1-:r14
+
+	(entry 'host_gl :lisp_color3f '(:r0 :r1))
+
+	(errorif-lisp-args-len 'error :r1 /= 3)
+
+	(vp-push :r0)
+	(defq in (method-input 'host_gl :gl_color3f))
+	(list-bind-args :r1 in '(:real :real :real))
+	(call 'host_gl :gl_color3f in)
+	(assign '((:rsp 0)) '(:r0))
+	(assign '((:r0 lisp_sym_t)) '(:r1))
+	(class/obj/ref :r1 :r2)
+	(vp-pop :r0)
+
+	(exit 'host_gl :lisp_color3f '(:r0 :r1))
+	(vp-ret)
+
+(errorcase
+(vp-label 'error)
+	(jump 'lisp :repl_error '(:r0 "(gl-color3f r g b)" +error_msg_wrong_types :r1)))
+
+(def-func-end)
+
+(def-method 'host_gl :lisp_flush)
+	;inputs
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
+	;outputs
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
+	;trashes
+	;:r1-:r14
+
+	(entry 'host_gl :lisp_flush '(:r0 :r1))
+
+	(errorif-lisp-args-len 'error :r1 /= 0)
+
+	(vp-push :r0)
+	(call 'host_gl :gl_flush :nil)
+	(assign '((:rsp 0)) '(:r0))
+	(assign '((:r0 lisp_sym_t)) '(:r1))
+	(class/obj/ref :r1 :r2)
+	(vp-pop :r0)
+
+	(exit 'host_gl :lisp_flush '(:r0 :r1))
+	(vp-ret)
+
+(errorcase
+(vp-label 'error)
+	(jump 'lisp :repl_error '(:r0 "(gl-flush)" +error_msg_wrong_num_of_args :r1)))
+
+(def-func-end)
