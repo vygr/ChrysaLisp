@@ -1,9 +1,7 @@
 (include "lib/asm/func.inc")
-(include "./class.inc")
-(include "class/str/class.inc")
-(include "class/stream/class.inc")
-(include "class/array/class.inc")
 (include "lib/consts/colors.inc")
+(include "class/stream/class.inc")
+(include "./class.inc")
 
 (def-struct tga 0
 	(ubyte imagedata)   ;id field offset

@@ -510,8 +510,6 @@ trashes
 
 ### :sort_callback -> class/obj/null
 
-### :type -> class/array/type
-
 ### :vcreate -> class/array/create
 
 ### :velement -> class/num/create

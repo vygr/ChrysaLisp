@@ -58,7 +58,5 @@
 
 ### :slice -> class/obj/null
 
-### :type -> class/seq/type
-
 ### :vtable -> class/seq/vtable
 

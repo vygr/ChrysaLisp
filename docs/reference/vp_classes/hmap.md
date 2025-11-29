@@ -194,7 +194,5 @@ trashes
 :r1-:r14
 ```
 
-### :type -> class/hmap/type
-
 ### :vtable -> class/hmap/vtable
 

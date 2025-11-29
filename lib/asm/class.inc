@@ -133,7 +133,11 @@
 					(push (second vtable) (list mfunc mtype regs_in regs_out _)))
 				(:override
 					(throw "Method does not exist !" mname))
-				(:t (throw "Must use static, virtual, final or override ! " mtype))))) lines)
+				(:t (throw "Must use static, virtual, final or override ! " mtype)))))
+			;auto dec :type method
+			(ifn (starts-with "class/" (first (repl-info))) lines
+				(push lines `(dec-method :type ,(sym (cat "class/" class "/type"))
+					,(if (eql class "obj") :virtual :override) (:r0) (:r0 :r1)))))
 	`(def *compile_env* ',super_sym ',super ',class_sym ',vtable))
 
 (defmacro def-method (class member &optional alignment)
