@@ -27,7 +27,7 @@ as a **cached Read-Eval-Print Loop (REPL) on a file**.
     environment's lineage. Before evaluating a file, `(import)` checks if that
     exact file path has already been imported into the current environment or
     any of its parents. This is achieved by searching a list of included files
-    (e.g., `*file_includes*` as seen in `apps/pcb/router.inc`). If the path is
+    (e.g., `*module_imports*` as seen in `apps/pcb/router.inc`). If the path is
     found, `(import)` does nothing. This prevents redundant code loading and
     evaluation, acting as a highly effective and simple caching mechanism.
 

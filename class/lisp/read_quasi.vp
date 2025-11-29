@@ -1,6 +1,6 @@
 (include "lib/asm/func.inc")
-(include "././stream/class.inc")
 (include "./class.inc")
+(include "././stream/class.inc")
 
 (def-method 'lisp :read_quasi)
 	;inputs
