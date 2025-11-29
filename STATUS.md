@@ -81,6 +81,10 @@ Audio service now shares and reference counts the resource handles.
 Lowered the `(split str [cls])` function to VP code as it's forming the basis
 for a lot of file scanning work now.
 
+Fixed the off by one issue in the Edit buffer left bracket matching.
+
+Fixed the Terminal apps one extra line in the history buffer issue.
+
 ------
 
 New `opt-tail-call` VP optimization.
