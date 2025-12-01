@@ -23,7 +23,7 @@
 		`(,line ,line :nil :nil :nil)))
 
 (defun last-line ()
-	(when (or (= (length buffer_line) 0) (not (eql (last buffer_line) "")))
+	(when (or (= (length buffer_line) 0) (nql (last buffer_line) ""))
 		(push-line "")))
 
 (defun erase-line (y)
