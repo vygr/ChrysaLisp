@@ -72,7 +72,7 @@
 	(each (lambda (file)
 		(each (# (. depends_set :insert %0))
 			(. depends_cache :update file (# (ifn %0
-				(filter (# (not (eql %0 file)))
+				(filter (# (nql %0 file))
 					(files-all-depends (list file)))))))) requires)
 	(setq requires (filter (# (not (. depends_set :find %0))) requires))
 	;sort and see if we need to report a difference and maybe rewrite
@@ -88,7 +88,7 @@
 		(when opt_w
 			(defq requires (cat (list +implicit_file)
 					(reverse (sort (map (# (path-to-relative %0 file))
-						(filter (# (not (eql %0 +implicit_file))) requires)))))
+						(filter (# (nql %0 +implicit_file)) requires)))))
 				no_includes (memory-stream))
 			(lines! (lambda (line)
 					(defq line_split (split line +split_class))

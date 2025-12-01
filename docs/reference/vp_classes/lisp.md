@@ -36,6 +36,8 @@
 
 ### (. env sym [...]) -> form
 
+### (nql form form) -> :nil | :t
+
 ### (prebind form) -> form
 
 ### (prin [form] ...) -> form
@@ -359,7 +361,8 @@ trashes
 inputs
 :r0 = lisp object (ptr)
 :r1 = stream object (ptr)
-:r2 = value
+:r2 = value (ptr)
+:r3 = trunc flag (uint)
 outputs
 :r0 = lisp object (ptr)
 trashes
