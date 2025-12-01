@@ -529,7 +529,7 @@
 		((and (eql d1 2) (eql d2 0))
 			(defq sl (logand 7 s) sh (>> s 3))
 			(emitm-byte (+ 0x48 sh) 0xF7 (+ 0xF8 sl)))
-		((and (eql d1 0) (eql d2 2) (not (eql s 0)) (not (eql s 2)))
+		((and (eql d1 0) (eql d2 2) (nql s 0) (nql s 2))
 			(defq sl (logand 7 s) sh (>> s 3))
 			(emitm-byte 0x48 0x92 (+ 0x48 sh) 0xF7 (+ 0xF8 sl) 0x48 0x92))
 		(:t (emit-push d2 d1 s (const (emit-native-reg? :r2)) (const (emit-native-reg? :r1)) (const (emit-native-reg? :r0)))
@@ -546,7 +546,7 @@
 		((and (eql d1 2) (eql d2 0))
 			(defq sl (logand 7 s) sh (>> s 3))
 			(emitm-byte (+ 0x48 sh) 0xF7 (+ 0xF0 sl)))
-		((and (eql d1 0) (eql d2 2) (not (eql s 0)) (not (eql s 2)))
+		((and (eql d1 0) (eql d2 2) (nql s 0) (nql s 2))
 			(defq sl (logand 7 s) sh (>> s 3))
 			(emitm-byte 0x48 0x92 (+ 0x48 sh) 0xF7 (+ 0xF0 sl) 0x48 0x92))
 		(:t (emit-push d2 d1 s (const (emit-native-reg? :r2)) (const (emit-native-reg? :r1)) (const (emit-native-reg? :r0)))
@@ -631,6 +631,33 @@
 					(emitm-byte (+ 0x48 (<< rh 2) rh) 0x69 (+ 0xc0 rl (<< rl 3)))
 					(emitm-int c))
 				(:t (throw "emit-mul-cr constant out of range !" c))))))
+
+(defun x64-cmov-rr (c s d)
+	(defq sl (logand 7 s) sh (>> s 3) dl (logand 7 d) dh (>> d 3))
+	(emitm-byte (+ 0x48 (<< dh 2) sh) 0x0f c (+ 0xc0 (<< dl 3) sl)))
+
+(defun emit-min-cr (c d l m)
+	(emit-ble-cr c d l m)
+	(emit-cpy-cr c d))
+
+(defun emit-max-cr (c d l m)
+	(emit-bge-cr c d l m)
+	(emit-cpy-cr c d))
+
+(defun emit-min-rr (s d l m)
+	(unless (eql s d)
+		(x64-cmp-rr s d)
+		(x64-cmov-rr 0x4f s d)))
+
+(defun emit-max-rr (s d l m)
+	(unless (eql s d)
+		(x64-cmp-rr s d)
+		(x64-cmov-rr 0x4c s d)))
+
+(defun emit-abs-rr (s d l m)
+	(unless (eql s d) (emit-cpy-rr s d))
+	(emit-bge-cr 0 d l m)
+	(emit-mul-cr -1 d))
 
 (case *abi*
 (AMD64

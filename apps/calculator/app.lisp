@@ -230,7 +230,7 @@
 
 (defun handle-input (state op)
 	(bind '(operands operators current_number base memory error_state new_entry) state)
-	(if (and error_state (not (eql op "AC")))
+	(if (and error_state (nql op "AC"))
 		state
 		(progn
 			(defq digit (find op "0123456789ABCDEF"))
@@ -347,7 +347,7 @@
 						(bind '(operands operators current_number old_base memory error_state new_entry) state)
 						(defq new_base (elem-get '(10 16 2 8) (. base_bar :get_selected)))
 						(defq num_value (str-to-num-base current_number old_base))
-						(when (not (eql num_value :error))
+						(when (nql num_value :error)
 						  (let ((new_current_number (format-number num_value new_base)))
 							   (setq state (list operands operators new_current_number new_base memory error_state new_entry)))))
 					(op (setq state (handle-input state op)))

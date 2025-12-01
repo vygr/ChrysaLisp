@@ -1,9 +1,8 @@
 (include "lib/asm/func.inc")
-(include "./class.inc")
 (include "sys/statics/class.inc")
 (include "gui/view/class.inc")
-(include "class/list/class.inc")
 (include "gui/region/class.inc")
+(include "class/list/class.inc")
 
 (def-method 'host_gui :update 16)
 	;inputs

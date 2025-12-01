@@ -598,14 +598,6 @@ sequences like lists, arrays, and strings.
 
     * `(get-int str idx) -> num`
 
-*   **`get-nodeid`**: Gets a node ID from a string.
-
-    * `(get-nodeid str idx) -> nodeid`
-
-*   **`get-netid`**: Gets a net ID from a string.
-
-    * `(get-netid str idx) -> netid`
-
 *   **`get-cstr`**: Gets a C-style string from a string.
 
     * `(get-cstr str idx) -> str`
@@ -630,9 +622,13 @@ sequences like lists, arrays, and strings.
 
     * `(load-stream path) -> :nil | stream`
 
-*   **`abs-path`**: Converts a relative path to an absolute path.
+*   **`path-to-absolute`**: Converts a relative path to an absolute path.
 
-    * `(abs-path path [current]) -> path`
+    * `(path-to-absolute path [current]) -> path`
+
+*   **`path-to-relative`**: Converts an absolute path to a relative path.
+
+    * `(path-to-relative path [current]) -> path`
 
 *   **`import`**: Imports a file.
 
@@ -665,10 +661,6 @@ sequences like lists, arrays, and strings.
 *   **`write-short`**: Writes a short to a stream.
 
     * `(write-short stream list|num) -> bytes`
-
-*   **`read-data`**: Reads data from a stream.
-
-    * `(read-data stream bytes) -> str`
 
 *   **`os`**: Returns the operating system.
 
@@ -1298,6 +1290,10 @@ evaluation.
 
     * `(eql form form) -> :nil | :t`
 
+*   **`nql`**: Checks if two forms are not identical.
+
+    * `(nql form form) -> :nil | :t`
+
 *   **`identity`**: Returns its argument unchanged.
 
     * `(identity [form]) -> :nil | form`
@@ -1335,13 +1331,13 @@ These functions interact directly with the underlying host operating system.
 These functions provide direct, unsafe access to the underlying memory
 representation of objects.
 
-*   **`get-field`**: Reads a value from an object at a specific memory offset.
+*   **`obj-get`**: Reads a value from an object at a specific memory offset.
 
-    * `(get-field obj field size|0) -> val`
+    * `(obj-get obj field type|0 size|0) -> val`
 
-*   **`set-field`**: Writes a value to an object at a specific memory offset.
+*   **`obj-set`**: Writes a value to an object at a specific memory offset.
 
-    * `(set-field obj field size|0 val) -> val`
+    * `(obj-set obj field type|0 size|0 val) -> val`
 
 *   **`weak-ref`**: Returns the memory address of a Lisp object as a number.
 
