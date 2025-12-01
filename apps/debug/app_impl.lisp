@@ -124,7 +124,7 @@
 						(pause (elem-get buf_list index))
 						(bind '(_ brk_id brk_cond file_name line_num &ignore) (split data "|"))
 						(edit-jump-rpc brk_id file_name line_num))
-					((not (eql state :forward))
+					((nql state :forward)
 						(vdu-print (if (= index selected_index) *vdu*) buf data)))
 				(if (or (eql (defq state (elem-get buf_rec +debug_rec_state)) :play)
 						(eql state :forward))

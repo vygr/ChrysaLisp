@@ -173,7 +173,7 @@
 
 (defmacro arm64-dru (o x s1 s2 d)
 	`(progn
-		(and (not (eql ,s1 ,d)) (not (eql ,s2 ,d)) (emit-xor-rr ,d ,d))
+		(and (nql ,s1 ,d) (nql ,s2 ,d) (emit-xor-rr ,d ,d))
 		(arm64-dr ,o ,s1 ,s2 ,d)
 		(if (or (eql ,s1 ,d) (eql ,s2 ,d)) (arm64-ux ,x ,d ,d))))
 
