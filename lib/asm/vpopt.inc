@@ -55,7 +55,7 @@
 	(find-past
 		((and (eql wop (first inst)) (eql b (third inst)) (= i (last inst)))
 			(setq c 1) (!))
-		((and (eql rop (first inst)) (eql b (second inst)) (not (eql b (last inst))) (= i (third inst)))
+		((and (eql rop (first inst)) (eql b (second inst)) (nql b (last inst)) (= i (third inst)))
 			(setq c 3) (!))
 		((trashes-reg? b inst) -1)
 		((find (first inst) +opt_read_kill_ops) -1)))
@@ -64,7 +64,7 @@
 	(find-past
 		((and (eql wop (first inst)) (eql b (third inst)) (= i (last inst))) (!))
 		((and (or (eql rop1 (first inst)) (eql rop2 (first inst)))
-			(eql b (second inst)) (not (eql b (last inst))) (= i (third inst))) -1)
+			(eql b (second inst)) (nql b (last inst)) (= i (third inst))) -1)
 		((trashes-reg? b inst) -1)
 		((find (first inst) +opt_read_kill_ops) -1)
 		((find (first inst) +opt_write_kill_ops) -1)))

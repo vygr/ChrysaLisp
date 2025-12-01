@@ -13,7 +13,7 @@
 	(offset data))
 
 (defun debug-service ()
-	(when (and (not (eql *debug_state* :gui))
+	(when (and (nql *debug_state* :gui)
 			(/= 0 (length (defq services (mail-enquire "*Debug")))))
 		(hex-decode (second (split (pop services) ",")))))
 
