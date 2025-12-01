@@ -56,7 +56,7 @@
 	(cond
 		(*focus*
 			(and (defq old_view (. *screen* :find_id *mouse_id*))
-				(not (eql old_view *focus*))
+				(nql old_view *focus*)
 				(defq owner (. old_view :find_owner))
 				(mail-send owner (setf-> (str-alloc +ev_msg_exit_size)
 					(+ev_msg_type +ev_type_exit)
