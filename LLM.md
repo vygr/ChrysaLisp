@@ -147,8 +147,15 @@ Read: 1, 4, 12, 14, 29, 37
 
 ---
 
+## LLM Test Scripts
+
 Running test scripts via an LLM is easy to accomplish via the `-s` option of the
 ChrysaLisp launch bash file.
+
+If you are not changing the base VM or any VP level system files, which most app
+coding should NOT be doing ! There is no need to keep making the system from
+scratch each time ! Running your tests via this script launcher is what you
+should be doing.
 
 ```
 ./run_tui.sh -n 1 -f -s script_name.lisp
@@ -169,6 +176,7 @@ block, like so.
 
 ```lisp
 (defun my-test ()
+    ...
     (pipe-run appname)
     ...
     )
@@ -180,6 +188,9 @@ block, like so.
         (print "Test failed with error" _)
         ;signal to abort the catch
         :t))
+
+;clean shutdown of the VP node
+((ffi "service/gui/lisp_deinit"))
 ```
 
 ---
