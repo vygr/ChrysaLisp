@@ -90,11 +90,11 @@
 			((:lrb :lsb)
 				(push token_stack token))
 			(:rrb
-				(while (and (not (eql "(" (setq token (pop token_stack)))) token)
+				(while (and (nql "(" (setq token (pop token_stack))) token)
 					(push out_tokens token)
 					(push out_types :operator)))
 			(:rsb
-				(while (and (not (eql "[" (setq token (pop token_stack)))) token)
+				(while (and (nql "[" (setq token (pop token_stack))) token)
 					(push out_tokens token)
 					(push out_types :operator))
 				(push out_tokens "[]")
@@ -341,7 +341,7 @@
 	(cond
 		((not (defq s (scope-get-sym _)))
 			(throw "Compile op not defined !" _))
-		((not (eql 'op (second s)))
+		((nql 'op (second s))
 			(throw "Not an operator !" _))
 		(:t ((elem-get s 4) _))))
 
