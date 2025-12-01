@@ -45,6 +45,20 @@ trashes
 :r0-:r14
 ```
 
+### :eql -> class/obj/eql
+
+```code
+inputs
+:r0 = obj object (ptr)
+:r1 = obj object (ptr)
+outputs
+:r0 = obj object (ptr)
+:r1 = obj object (ptr)
+:r2 = 0, -1 (int)
+trashes
+:r2-:r8
+```
+
 ### :hash -> class/obj/hash
 
 ```code
