@@ -35,9 +35,6 @@ still a very good exercise in Jit tech.
 
 * Gui remote desktop service that runs over CLB.
 
-* Move `vp-min, vp-max, vp-abs` into the VP VM proper. ARM64 and x64 have
-native operations `cmov` that could implement these.
-
 * Environment browser GUI app to aid debugging and housekeeping.
 
 * Forth that outputs words compiled to VP ops !!! I will do this just to honor
@@ -48,8 +45,6 @@ x64 isn't really the way things should be done anymore.
 
 * Add support for `(vp-simd)` instructions at the translator level. MMX, SSX
 etc.
-
-* Audio service at the VP level should share and reference count the handles.
 
 * Add support for FPU to the VM. Scalar float/double support first of all maybe
 eventually create a FPU accelerated version of the vector math DSL.

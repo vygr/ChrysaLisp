@@ -1,8 +1,8 @@
 (include "lib/asm/func.inc")
-(include "./class.inc")
-(include "././stream/class.inc")
-(include "././sym/class.inc")
 (include "lib/consts/chars.inc")
+(include "./class.inc")
+(include "././sym/class.inc")
+(include "././stream/class.inc")
 
 (def-method 'lisp :read_char)
 	;inputs
@@ -81,7 +81,7 @@
 			(break)
 		(vpcase `(,c = +char_rrb))
 			(call 'lisp :read_char `(,this ,stream ,c) {_, c})
-			(errorif {this->lisp_stack->array_length = start} 'error)
+			(errorif {this->lisp_stack->array_length = start} 'error1)
 			(call 'array :pop_back {this->lisp_stack} {_, list})
 			(break)
 		(vpcase `(,c >= +char_0) `(,c <= +char_9))
@@ -109,7 +109,7 @@
 			(call 'lisp :read_num `(,this ,stream ,c) `(_ ,item ,c))
 			(goto 'push_item)
 		(vpcase `(,c = -1))
-			(assign {start} {this->lisp_stack->array_length})
+			(errorif {start /= this->lisp_stack->array_length} 'error2)
 			(call 'sym :ref {this->lisp_sym_nil} {item})
 			(goto 'push_item1)
 		(default)
@@ -130,9 +130,12 @@
 	(return)
 
 (errorcase
+(vp-label 'error2)
+	(call 'lisp :repl_error {this, "missing )", +error_msg_wrong_types, list} {_, item})
+	(goto 'error)
+(vp-label 'error1)
+	(call 'lisp :repl_error {this, "unexpected )", +error_msg_wrong_types, list} {_, item})
 (vp-label 'error)
-	(call 'list :deref {list})
-	(call 'lisp :repl_error {this, "unexpected )", 0, this->lisp_sym_nil} {_, item})
 	(exit 'lisp :read {this, item, c})
 	(return))
 

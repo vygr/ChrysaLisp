@@ -18,7 +18,7 @@
 (defun action-backspace ()
 	(input-cursor
 		(cond
-			((not (eql (. buffer :cut ax ay) "")))
+			((nql (. buffer :cut ax ay) ""))
 			((if (> x *margin_x*) (. buffer :backspace)))))
 	(. *edit* :clear_selection)
 	(refresh))
@@ -26,7 +26,7 @@
 (defun action-delete ()
 	(input-cursor
 		(cond
-			((not (eql (. buffer :cut ax ay) "")))
+			((nql (. buffer :cut ax ay) ""))
 			((. buffer :delete))))
 	(. *edit* :clear_selection)
 	(refresh))
@@ -59,9 +59,10 @@
 							;push new line history entry if not same as last entry
 							(unless (eql cmd "")
 								(bind '(history) (gather *meta_map* :history))
-								(and (> (length (push history cmd)) 1)
-									(eql (elem-get history -3) cmd)
-									(pop history))
+								(if (defq i (find cmd history))
+									(setq history (erase history i (inc i))))
+								(push history cmd)
+								(scatter *meta_map* :history history)
 								(setq *history_idx* (length history)))
 							;error with pipe
 							(. buffer :paste (cat "Pipe Error !"
