@@ -1,6 +1,69 @@
 # Code Walker / AST Explorer - Changelog
 
-## Version 8.0 - Search/Highlight (Current)
+## Version 9.0 - Standard Config System Refactoring (Current)
+
+**Date:** 2025-12-01
+
+### Major Refactoring: Adopted ChrysaLisp Standard Config Pattern
+
+**Replaced custom session format with standard `.tre` configuration!**
+
+#### Changes
+- **Removed** custom `.cws` file format (160 lines removed)
+- **Added** standard `config.inc` following ChrysaLisp app configuration pattern
+- **Removed** Save Session and Load Session UI buttons
+- **Implemented** automatic save-on-exit and load-on-startup
+- **Adopted** standard `.tre` format using `Emap` and `tree-save`/`tree-load`
+
+#### New Configuration System
+- `config.inc` - Standard configuration module (110 lines)
+  - `config-default()` - Creates default Emap with version 1
+  - `config-load()` - Loads from `~/code-walker.tre` with migration support
+  - `config-save()` - Saves current state on exit
+  - `config-update()` - Updates Emap with current app state
+  - `config-restore()` - Restores UI state from loaded config
+
+#### Benefits
+- **Standard Compliance:** Follows ChrysaLisp app configuration best practices
+- **Automatic:** No manual save/load - seamless user experience
+- **Migration Support:** Gracefully handles version upgrades
+- **Maintainable:** Uses established patterns from `todo` app
+- **Smaller Code:** Reduced from 1119 to 959 lines in main app
+
+#### File Format Change
+```
+Before: ~/code-walker-session-{timestamp}.cws (custom format)
+After:  ~/code-walker.tre (standard tree format)
+```
+
+#### Integration with Main Loop
+```lisp
+(defun main ()
+  ...
+  (config-load)       ; Load on startup
+  (config-restore)    ; Restore UI state
+  ...
+  (while running ...)
+  (config-save)       ; Save on exit
+  ...)
+```
+
+#### What's Still Saved (Same as Before)
+- All toggle states (Diffs, Tree, Compare modes)
+- Both input field contents
+- All four phase outputs
+- Complete history (up to 50 entries)
+- History position
+
+#### Developer Notes
+- Follows pattern documented in `docs/ai_digest/app_configuration.md`
+- Uses versioned Emap for future-proof upgrades
+- Config isolated per-user in `*env_home*`
+- Human-readable format for debugging
+
+---
+
+## Version 8.0 - Search/Highlight
 
 **Date:** 2025-11-18
 
