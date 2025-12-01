@@ -1290,6 +1290,10 @@ evaluation.
 
     * `(eql form form) -> :nil | :t`
 
+*   **`nql`**: Checks if two forms are not identical.
+
+    * `(nql form form) -> :nil | :t`
+
 *   **`identity`**: Returns its argument unchanged.
 
     * `(identity [form]) -> :nil | form`
