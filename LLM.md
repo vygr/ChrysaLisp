@@ -152,11 +152,6 @@ Read: 1, 4, 12, 14, 29, 37
 Running test scripts via an LLM is easy to accomplish via the `-s` option of the
 ChrysaLisp launch bash file.
 
-If you are not changing the base VM or any VP level system files, which most app
-coding should NOT be doing ! There is no need to keep making the system from
-scratch each time ! Running your tests via this script launcher is what you
-should be doing.
-
 ```
 ./run_tui.sh -n 1 -f -s script_name.lisp
 ```
@@ -164,18 +159,37 @@ should be doing.
 This will launch the system on a single VP node, in the foreground, and run the
 raw `script_name.lisp` file.
 
-In order to run a `cmd/` app you need to wrap the `cmd/appname.lisp` in a
-`(pipe-run command_line)` function.
+Keep any test scripts and associated files in the `tests/` folder !
 
-```lisp
-(pipe-run appname)
-```
+If you are not changing the base VM or any VP level system files, which most app
+coding should NOT be doing ! There is no need to keep making the system from
+scratch each time ! Running your tests via this script launcher is what you
+should be doing.
+
+If you wish to use escape sequences in strings, ChrysaLisp does NO escape
+processing in the `(read)` function !, use the `(unescape string)`, function
+from the `(import "lib/text/charclass.inc")`, library.
+
+In order to run a `cmd/` app, from a raw script, you need to wrap the
+`cmd/appname.lisp` in a `(pipe-run command_line)` function, from the `(import
+"lib/task/pipe.inc")` library.
 
 And to be robust around catching errors, should wrap your tests in a `catch`
-block, like so.
+block, and end the script in a call to the host shutdown code, like so.
+
+To throw an error, use `(throw "Description !" obj)`, if no object of interest,
+use `:nil`. Do NOT use `catch` or `throw` in runtime ChrysaLisp code ! That
+feature is compiled out in `release` mode and is only available for the `debug`
+builds and testing.
 
 ```lisp
+;use of (pipe-run command_line)
+(import "lib/task/pipe.inc")
+;use of (unescape string)
+(import "lib/text/charclass.inc")
+
 (defun my-test ()
+    (defq test_string (unescape "string with new line\n"))
     ...
     (pipe-run appname)
     ...
