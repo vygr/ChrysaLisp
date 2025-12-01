@@ -124,6 +124,8 @@ Deep dives into specialized areas:
 
 38. **[Udat AI Shares](docs/ai_digest/udat_ai_shares.md)** - AI commentary on ChrysaLisp's architectural coherence and design philosophy.
 
+39. **[Coding Domains](docs/ai_digest/coding_domains.md)** - Know your coding domain and stick to it.
+
 ---
 
 ## Reading Paths
