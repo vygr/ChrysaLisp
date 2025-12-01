@@ -18,7 +18,7 @@
 (defun action-backspace ()
 	(input-cursor
 		(cond
-			((not (eql (. buffer :cut ax ay) "")))
+			((nql (. buffer :cut ax ay) ""))
 			((if (> x *margin_x*) (. buffer :backspace)))))
 	(. *edit* :clear_selection)
 	(refresh))
@@ -26,7 +26,7 @@
 (defun action-delete ()
 	(input-cursor
 		(cond
-			((not (eql (. buffer :cut ax ay) "")))
+			((nql (. buffer :cut ax ay) ""))
 			((. buffer :delete))))
 	(. *edit* :clear_selection)
 	(refresh))

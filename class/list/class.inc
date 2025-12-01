@@ -54,7 +54,7 @@
 	;load and cast register list from list
 	(defq rl (list) tp (list))
 	(each! (lambda (x y)
-		(when (not (eql '_ y))
+		(when (nql '_ y)
 			(push rl x)
 			(push tp y))) (list regs types))
 	(array-bind-args a rl)
