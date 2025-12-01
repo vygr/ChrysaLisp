@@ -10,6 +10,7 @@
 	(dec-method :deref class/obj/deref :static (:r0))
 	(dec-method :ref_if class/obj/ref_if :static (:r0) (:r0))
 	(dec-method :deref_if class/obj/deref_if :static (:r0))
+	(dec-method :eql class/obj/eql :static (:r0 :r1) (:r0 :r1 :r2))
 	(dec-method :print class/obj/print :virtual (:r0 :r1) (:r0))
 	(dec-method :hash class/obj/hash :virtual (:r0) (:r0 :r1))
 	(dec-method :type class/obj/type :virtual (:r0) (:r0 :r1))

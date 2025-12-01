@@ -58,6 +58,8 @@
 ; (macroexpand form) -> 'form
 (ffi "class/lisp/lisp_eql" eql)
 ; (eql form form) -> :nil | :t
+(ffi "class/lisp/lisp_nql" nql)
+; (nql form form) -> :nil | :t
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Numeric and Vector Operations
