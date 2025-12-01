@@ -147,4 +147,41 @@ Read: 1, 4, 12, 14, 29, 37
 
 ---
 
+Running test scripts via an LLM is easy to accomplish via the `-s` option of the
+ChrysaLisp launch bash file.
+
+```
+./run_tui.sh -n 1 -f -s script_name.lisp
+```
+
+This will launch the system on a single VP node, in the foreground, and run the
+raw `script_name.lisp` file.
+
+In order to run a `cmd/` app you need to wrap the `cmd/appname.lisp` in a
+`(pipe-run command_line)` function.
+
+```lisp
+(pipe-run appname)
+```
+
+And to be robust around catching errors, should wrap your tests in a `catch`
+block, like so.
+
+```lisp
+(defun my-test ()
+    (pipe-run appname)
+    ...
+    )
+
+(catch
+    (my-test)
+    (progn
+        ;report error
+        (print "Test failed with error" _)
+        ;signal to abort the catch
+        :t))
+```
+
+---
+
 *ChrysaLisp represents a radical rethinking of how a Lisp system can be built for maximum performance and resilience. It proves that the dichotomy between dynamic malleability and static performance is a false one, born of historical implementation choices rather than fundamental constraints.*
