@@ -23,7 +23,7 @@
 
 (defun create-rep-info (rep)
 	(defq idx 0)
-	(filter (# (not (eql %0 "")))
+	(filter (# (nql %0 ""))
 		(push (reduce (lambda (out ((ms me)))
 			(push out (slice rep idx ms)
 				(str-to-num (slice rep (inc ms) (setq idx me)))))
