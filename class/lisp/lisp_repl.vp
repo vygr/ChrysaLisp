@@ -53,7 +53,7 @@
 		(call 'lisp :repl_eval {this, ast} {_, value})
 		(call 'obj :deref {ast})
 		(vpif {stream = this->lisp_stdin})
-			(call 'lisp :repl_print {this, this->lisp_stdout, value})
+			(call 'lisp :repl_print {this, this->lisp_stdout, value, 1})
 			(call 'stream :write_char {this->lisp_stdout, +char_lf})
 		(endif)
 	(errorcase

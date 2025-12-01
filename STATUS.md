@@ -4,6 +4,10 @@
 
 ------
 
+New `(nql obj1 obj2) -> :t | :nil` built in function.
+
+------
+
 New `class/mstream/class.inc` VP class for in memory stream buffers. A seekable
 list of string objects. Lisp binding `(memory-stream) -> stream`.
 
