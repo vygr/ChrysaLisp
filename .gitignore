@@ -2,10 +2,10 @@ os
 cpu
 abi
 chrysalisp
-.vs/*
-.vscode/*
-obj/*
-x64/*
+.vs/
+.vscode/
+obj/
+x64/
 main.sln
 main.vcxproj
 main.vcxproj.filters
@@ -15,5 +15,7 @@ chrysalisp.exe
 *.o
 *.d
 *.dll
-ai/*
+ai/
 apps/login/*/*.tre
+*.img
+*.dmg

@@ -9,234 +9,9 @@
 ; (ffi "class/lisp/lisp_quote" quote 1)
 ; (ffi "class/lisp/lisp_qquote" quasi-quote 1)
 
-(ffi "class/num/lisp_eq" =)
-; (= num num ...) -> :t | :nil
-(ffi "class/num/lisp_ne" /=)
-; (/= num num ...) -> :t | :nil
-(ffi "class/num/lisp_lt" <)
-; (< num num ...) -> :t | :nil
-(ffi "class/num/lisp_gt" >)
-; (> num num ...) -> :t | :nil
-(ffi "class/num/lisp_le" <=)
-; (<= num num ...) -> :t | :nil
-(ffi "class/num/lisp_ge" >=)
-; (>= num num ...) -> :t | :nil
-
-(ffi "class/num/lisp_add" +)
-; (+ num num ...) -> num
-(ffi "class/num/lisp_sub" -)
-; (- num num ...) -> num
-(ffi "class/num/lisp_mul" *)
-; (* num num ...) -> num
-(ffi "class/num/lisp_div" /)
-; (/ num num ...) -> num
-(ffi "class/num/lisp_mod" %)
-; (% num num ...) -> num
-(ffi "class/num/lisp_min" min)
-; (min num num ...) -> num
-(ffi "class/num/lisp_max" max)
-; (max num num ...) -> num
-(ffi "class/num/lisp_neg" neg)
-; (neg num) -> num
-(ffi "class/num/lisp_abs" abs)
-; (abs num) -> num
-
-(ffi "class/num/lisp_n2i" n2i)
-; (n2i num) -> num
-(ffi "class/num/lisp_n2f" n2f)
-; (n2f num) -> fixed
-(ffi "class/num/lisp_n2r" n2r)
-; (n2r num) -> real
-(ffi "class/num/lisp_random" random)
-; (random num) -> num
-(ffi "class/num/lisp_intern" num-intern)
-; (num-intern num) -> num
-
-(ffi "class/num/lisp_shr" >>)
-; (>> num cnt) -> num
-(ffi "class/num/lisp_asr" >>>)
-; (>>> num cnt) -> num
-(ffi "class/num/lisp_shl" <<)
-; (<< num cnt) -> num
-(ffi "class/num/lisp_and" logand)
-; (logand [num] ...) -> num
-(ffi "class/num/lisp_or" logior)
-; (logior [num] ...) -> num
-(ffi "class/num/lisp_xor" logxor)
-; (logxor [num] ...) -> num
-
-(ffi "class/seq/lisp_length" length)
-; (length seq) -> num
-(ffi "class/seq/lisp_eget" elem-get)
-; (elem-get seq idx) -> elem
-(ffi "class/seq/lisp_first" first)
-; (first seq) -> :nil | elem
-(ffi "class/seq/lisp_second" second)
-; (second seq) -> :nil | elem
-(ffi "class/seq/lisp_third" third)
-; (third seq) -> :nil | elem
-(ffi "class/seq/lisp_last" last)
-; (last seq) -> :nil | elem
-(ffi "class/seq/lisp_rest" rest)
-; (rest seq) -> empty | seq
-(ffi "class/seq/lisp_most" most)
-; (most seq) -> empty | seq
-(ffi "class/seq/lisp_find" find)
-; (find elem seq [idx]) -> :nil | idx
-(ffi "class/seq/lisp_rfind" rfind)
-; (rfind elem seq [idx]) -> :nil | idx
-(ffi "class/seq/lisp_slice" slice)
-; (slice seq start end) -> seq
-(ffi "class/seq/lisp_partition" partition)
-; (partition seq [cnt]) -> (seq ...)
-(ffi "class/seq/lisp_cat" cat)
-; (cat seq ...) -> seq
-
-(ffi "class/seq/lisp_pling" ! 1)
-; (!) -> idx
-(ffi "class/seq/lisp_each" each!)
-; (each! lambda seqs [start end])
-(ffi "class/seq/lisp_some" some!)
-; (some! lambda seqs [mode start end]) -> :nil | val
-(ffi "class/seq/lisp_map" map!)
-; (map! lambda seqs [out start end]) -> out | (...)
-(ffi "class/seq/lisp_filter" filter!)
-; (filter! lambda seq [out start end]) -> out | (...)
-(ffi "class/seq/lisp_reduce" reduce!)
-; (reduce! lambda seqs init [start end]) -> val
-(ffi "class/stream/lisp_each" lines!)
-; (lines! lambda stream) -> :nil
-
-(ffi "class/array/lisp_cap" cap)
-; (cap len array ...) -> array
-(ffi "class/array/lisp_clear" clear)
-; (clear array ...) -> array
-(ffi "class/array/lisp_push" push)
-; (push array elem ...) -> array
-(ffi "class/array/lisp_pop" pop)
-; (pop array) -> elem | :nil
-(ffi "class/array/lisp_eset" elem-set)
-; (elem-set array idx elem) -> array
-
-(ffi "class/list/lisp_merge" merge)
-; (merge dlist slist) -> dlist
-(ffi "class/list/lisp_pivot" pivot)
-; (pivot lambda list start end)
-(ffi "class/list/lisp_match" lmatch?)
-; (lmatch? list list) -> :nil | :t
-(ffi "class/list/lisp_copy" copy)
-; (copy form) -> 'form
-
-(ffi "class/str/lisp_str" str)
-; (str form) -> str
-(ffi "class/str/lisp_tonum" str-to-num)
-; (str-to-num str) -> num
-(ffi "class/str/lisp_expand" expand)
-; (expand str tab_width) -> str
-(ffi "class/str/lisp_char" char)
-; (char num [width]) -> str
-(ffi "class/str/lisp_code" code)
-; (code str [width idx]) -> num
-(ffi "class/str/lisp_cmp" cmp)
-; (cmp str str) -> + | 0 | -
-(ffi "class/str/lisp_save" save)
-; (save str path) -> str
-(ffi "class/str/lisp_load" load)
-; (load path) -> str
-(ffi "class/str/lisp_create" str-alloc)
-; (str-alloc size) -> str
-(ffi "class/str/lisp_bfind" bfind)
-; (bfind char cls) -> :nil | idx
-(ffi "class/str/lisp_bskip" bskip)
-; (bskip cls str idx) -> idx
-(ffi "class/str/lisp_bskipn" bskipn)
-; (bskipn cls str idx) -> idx
-(ffi "class/str/lisp_rbskip" rbskip)
-; (rbskip cls str idx) -> idx
-(ffi "class/str/lisp_rbskipn" rbskipn)
-; (rbskipn cls str idx) -> idx
-(ffi "class/str/lisp_encode" hex-encode)
-; (hex-encode str) -> str
-(ffi "class/str/lisp_decode" hex-decode)
-; (hex-decode str) -> str
-
-(ffi "class/sym/lisp_sym" sym)
-; (sym str) -> sym
-(ffi "class/sym/lisp_gensym" gensym)
-; (gensym) -> sym
-
-(ffi "class/hmap/lisp_defq" defq 1)
-; (defq sym val [sym val] ...) -> val
-(ffi "class/hmap/lisp_setq" setq 1)
-; (setq sym val [sym val] ...) -> val
-(ffi "class/hmap/lisp_def" def)
-; (def env sym val [sym val] ...) -> val
-(ffi "class/hmap/lisp_set" set)
-; (set env sym val [sym val] ...) -> val
-(ffi "class/hmap/lisp_get" get)
-; (get sym [env]) -> :nil | val
-(ffi "class/hmap/lisp_defx" def?)
-; (def? sym [env]) -> :nil | val
-(ffi "class/hmap/lisp_undef" undef)
-; (undef env sym [sym] ...) -> env
-(ffi "class/hmap/lisp_env" env)
-; (env [num]) -> env
-(ffi "class/hmap/lisp_penv" penv)
-; (penv [env]) -> :nil | env
-(ffi "class/hmap/lisp_resize" env-resize)
-; (env-resize num [env]) -> env
-(ffi "class/hmap/lisp_tolist" tolist)
-; (tolist env) -> ((sym val) ...)
-
-(ffi "class/stream/lisp_iostream" io-stream)
-; (io-stream io) -> :nil | stream
-(ffi "class/stream/lisp_sstream" string-stream)
-; (string-stream str) -> stream
-(ffi "class/stream/lisp_fstream" file-stream)
-; (file-stream path [mode]) -> :nil | stream
-(ffi "class/stream/lisp_readchar" read-char)
-; (read-char stream [width]) -> :nil | num
-(ffi "class/stream/lisp_writechar" write-char)
-; (write-char stream list|num [width]) -> bytes
-(ffi "class/stream/lisp_readblk" read-blk)
-; (read-blk stream bytes) -> :nil | str
-(ffi "class/stream/lisp_writeblk" write-blk)
-; (write-blk stream str) -> bytes
-(ffi "class/stream/lisp_readline" read-line)
-; (read-line stream) -> :nil | str
-(ffi "class/stream/lisp_writeline" write-line)
-; (write-line stream str) -> bytes
-(ffi "class/stream/lisp_readavail" read-avail)
-; (read-avail stream) -> :nil | num
-
-(ffi "class/array/lisp_array" array)
-; (array [num ...]) -> array
-(ffi "class/list/lisp_list" list)
-; (list [elem ...]) -> list
-(ffi "class/array/lisp_nums" nums)
-; (nums [num ...]) -> nums
-(ffi "class/array/lisp_fixeds" fixeds)
-; (fixeds [fixed ...]) -> fixeds
-(ffi "class/array/lisp_reals" reals)
-; (reals [real ...]) -> reals
-(ffi "class/array/lisp_path" path)
-; (path [fixed ...]) -> path
-(ffi "class/dim/lisp_dim" dim)
-; (dim nums array) -> dim
-(ffi "class/dim/lisp_dget" dim-get)
-; (dim-get dim nums) -> elem
-(ffi "class/dim/lisp_dset" dim-set)
-; (dim-set dim nums elem) -> array
-
-(ffi "class/obj/lisp_hash" hash)
-; (hash obj) -> num
-(ffi "class/lisp/lisp_eql" eql)
-; (eql form form) -> :nil | :t
-(ffi "class/obj/lisp_type" type-of)
-; (type-of obj) -> (... :obj)
-(ffi "class/lisp/lisp_macroexpand" macroexpand)
-; (macroexpand form) -> 'form
-
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Core Language and Control Flow
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (ffi "class/lisp/lisp_progn" progn 1)
 ; (progn [body]) -> 'form
 (ffi "class/lisp/lisp_catch" catch 1)
@@ -279,11 +54,328 @@
 ; (prebind form) -> form
 (ffi "class/lisp/lisp_mcall" .)
 ; (. env sym [...]) -> form
+(ffi "class/lisp/lisp_macroexpand" macroexpand)
+; (macroexpand form) -> 'form
+(ffi "class/lisp/lisp_eql" eql)
+; (eql form form) -> :nil | :t
+(ffi "class/lisp/lisp_nql" nql)
+; (nql form form) -> :nil | :t
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Numeric and Vector Operations
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(ffi "class/num/lisp_eq" =)
+; (= num num ...) -> :t | :nil
+(ffi "class/num/lisp_ne" /=)
+; (/= num num ...) -> :t | :nil
+(ffi "class/num/lisp_lt" <)
+; (< num num ...) -> :t | :nil
+(ffi "class/num/lisp_gt" >)
+; (> num num ...) -> :t | :nil
+(ffi "class/num/lisp_le" <=)
+; (<= num num ...) -> :t | :nil
+(ffi "class/num/lisp_ge" >=)
+; (>= num num ...) -> :t | :nil
+(ffi "class/num/lisp_add" +)
+; (+ num num ...) -> num
+(ffi "class/num/lisp_sub" -)
+; (- num num ...) -> num
+(ffi "class/num/lisp_mul" *)
+; (* num num ...) -> num
+(ffi "class/num/lisp_div" /)
+; (/ num num ...) -> num
+(ffi "class/num/lisp_mod" %)
+; (% num num ...) -> num
+(ffi "class/num/lisp_min" min)
+; (min num num ...) -> num
+(ffi "class/num/lisp_max" max)
+; (max num num ...) -> num
+(ffi "class/num/lisp_neg" neg)
+; (neg num) -> num
+(ffi "class/num/lisp_abs" abs)
+; (abs num) -> num
+(ffi "class/num/lisp_sqrt" sqrt)
+; (sqrt num) -> num
+(ffi "class/num/lisp_sign" sign)
+; (sign num) -> -1 | 0 | 1
+(ffi "class/num/lisp_n2i" n2i)
+; (n2i num) -> num
+(ffi "class/num/lisp_n2f" n2f)
+; (n2f num) -> fixed
+(ffi "class/num/lisp_n2r" n2r)
+; (n2r num) -> real
+(ffi "class/num/lisp_random" random)
+; (random num) -> num
+(ffi "class/num/lisp_intern" num-intern)
+; (num-intern num) -> num
+(ffi "class/num/lisp_shr" >>)
+; (>> num cnt) -> num
+(ffi "class/num/lisp_asr" >>>)
+; (>>> num cnt) -> num
+(ffi "class/num/lisp_shl" <<)
+; (<< num cnt) -> num
+(ffi "class/num/lisp_and" logand)
+; (logand [num] ...) -> num
+(ffi "class/num/lisp_or" logior)
+; (logior [num] ...) -> num
+(ffi "class/num/lisp_xor" logxor)
+; (logxor [num] ...) -> num
+(ffi "class/fixed/lisp_sin" sin)
+; (sin fixed) -> fixed
+(ffi "class/fixed/lisp_cos" cos)
+; (cos fixed) -> fixed
+(ffi "class/fixed/lisp_frac" frac)
+; (frac fixed) -> fixed
+(ffi "class/fixed/lisp_floor" floor)
+; (floor fixed) -> fixed
+(ffi "class/fixed/lisp_recip" recip)
+; (recip fixed) -> fixed
+(ffi "class/nums/lisp_abs" nums-abs)
+; (nums-abs nums [nums]) -> nums
+(ffi "class/nums/lisp_scale" nums-scale)
+; (nums-scale nums scale [nums]) -> nums
+(ffi "class/nums/lisp_add" nums-add)
+; (nums-add nums nums [nums]) -> nums
+(ffi "class/nums/lisp_div" nums-div)
+; (nums-div nums nums [nums]) -> nums
+(ffi "class/nums/lisp_mod" nums-mod)
+; (nums-mod nums nums [nums]) -> nums
+(ffi "class/nums/lisp_mul" nums-mul)
+; (nums-mul nums nums [nums]) -> nums
+(ffi "class/nums/lisp_sub" nums-sub)
+; (nums-sub nums nums [nums]) -> nums
+(ffi "class/nums/lisp_sum" nums-sum)
+; (nums-sum nums) -> num
+(ffi "class/nums/lisp_dot" nums-dot)
+; (nums-dot nums nums) -> num
+(ffi "class/nums/lisp_min" nums-min)
+;(nums-min nums nums [nums]) -> nums
+(ffi "class/nums/lisp_max" nums-max)
+;(nums-max nums nums [nums]) -> nums
+(ffi "class/fixeds/lisp_frac" fixeds-frac)
+; (fixeds-frac fixeds [fixeds]) -> fixeds
+(ffi "class/fixeds/lisp_floor" fixeds-floor)
+; (fixeds-floor fixeds [fixeds]) -> fixeds
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Sequence, Array, and List Operations
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(ffi "class/seq/lisp_length" length)
+; (length seq) -> num
+(ffi "class/seq/lisp_eget" elem-get)
+; (elem-get seq idx) -> elem
+(ffi "class/seq/lisp_first" first)
+; (first seq) -> :nil | elem
+(ffi "class/seq/lisp_second" second)
+; (second seq) -> :nil | elem
+(ffi "class/seq/lisp_third" third)
+; (third seq) -> :nil | elem
+(ffi "class/seq/lisp_last" last)
+; (last seq) -> :nil | elem
+(ffi "class/seq/lisp_rest" rest)
+; (rest seq) -> empty | seq
+(ffi "class/seq/lisp_most" most)
+; (most seq) -> empty | seq
+(ffi "class/seq/lisp_find" find)
+; (find elem seq [idx]) -> :nil | idx
+(ffi "class/seq/lisp_rfind" rfind)
+; (rfind elem seq [idx]) -> :nil | idx
+(ffi "class/seq/lisp_slice" slice)
+; (slice seq start end) -> seq
+(ffi "class/seq/lisp_partition" partition)
+; (partition seq [cnt]) -> (seq ...)
+(ffi "class/seq/lisp_cat" cat)
+; (cat seq ...) -> seq
+(ffi "class/seq/lisp_pling" ! 1)
+; (!) -> idx
+(ffi "class/seq/lisp_each" each!)
+; (each! lambda seqs [start end])
+(ffi "class/seq/lisp_some" some!)
+; (some! lambda seqs [mode start end]) -> :nil | val
+(ffi "class/seq/lisp_map" map!)
+; (map! lambda seqs [out start end]) -> out | (...)
+(ffi "class/seq/lisp_filter" filter!)
+; (filter! lambda seq [out start end]) -> out | (...)
+(ffi "class/seq/lisp_reduce" reduce!)
+; (reduce! lambda seqs init [start end]) -> val
+(ffi "class/array/lisp_cap" cap)
+; (cap len array ...) -> array
+(ffi "class/array/lisp_clear" clear)
+; (clear array ...) -> array
+(ffi "class/array/lisp_push" push)
+; (push array elem ...) -> array
+(ffi "class/array/lisp_pop" pop)
+; (pop array) -> elem | :nil
+(ffi "class/array/lisp_eset" elem-set)
+; (elem-set array idx elem) -> array
+(ffi "class/list/lisp_merge" merge)
+; (merge dlist slist) -> dlist
+(ffi "class/list/lisp_pivot" pivot)
+; (pivot lambda list start end)
+(ffi "class/list/lisp_match" lmatch?)
+; (lmatch? list list) -> :nil | :t
+(ffi "class/list/lisp_copy" copy)
+; (copy form) -> 'form
+
+;;;;;;;;;;;;;;;;;;;;
+; String Operations
+;;;;;;;;;;;;;;;;;;;;
+(ffi "class/str/lisp_str" str)
+; (str form) -> str
+(ffi "class/str/lisp_tonum" str-to-num)
+; (str-to-num str) -> num
+(ffi "class/str/lisp_expand" expand)
+; (expand str tab_width) -> str
+(ffi "class/str/lisp_char" char)
+; (char num [width]) -> str
+(ffi "class/str/lisp_code" code)
+; (code str [width idx]) -> num
+(ffi "class/str/lisp_cmp" cmp)
+; (cmp str str) -> + | 0 | -
+(ffi "class/str/lisp_save" save)
+; (save str path) -> str
+(ffi "class/str/lisp_load" load)
+; (load path) -> str
+(ffi "class/str/lisp_create" str-alloc)
+; (str-alloc size) -> str
+(ffi "class/str/lisp_bfind" bfind)
+; (bfind char cls) -> :nil | idx
+(ffi "class/str/lisp_bskip" bskip)
+; (bskip cls str idx) -> idx
+(ffi "class/str/lisp_bskipn" bskipn)
+; (bskipn cls str idx) -> idx
+(ffi "class/str/lisp_rbskip" rbskip)
+; (rbskip cls str idx) -> idx
+(ffi "class/str/lisp_rbskipn" rbskipn)
+; (rbskipn cls str idx) -> idx
+(ffi "class/str/lisp_split" split)
+; (split str [cls]) -> strs
+(ffi "class/str/lisp_encode" hex-encode)
+; (hex-encode str) -> str
+(ffi "class/str/lisp_decode" hex-decode)
+; (hex-decode str) -> str
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Symbol and Environment Operations
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(ffi "class/sym/lisp_sym" sym)
+; (sym str) -> sym
+(ffi "class/sym/lisp_gensym" gensym)
+; (gensym) -> sym
+(ffi "class/hmap/lisp_defq" defq 1)
+; (defq sym val [sym val] ...) -> val
+(ffi "class/hmap/lisp_setq" setq 1)
+; (setq sym val [sym val] ...) -> val
+(ffi "class/hmap/lisp_def" def)
+; (def env sym val [sym val] ...) -> val
+(ffi "class/hmap/lisp_set" set)
+; (set env sym val [sym val] ...) -> val
+(ffi "class/hmap/lisp_get" get)
+; (get sym [env]) -> :nil | val
+(ffi "class/hmap/lisp_defx" def?)
+; (def? sym [env]) -> :nil | val
+(ffi "class/hmap/lisp_undef" undef)
+; (undef env sym [sym] ...) -> env
+(ffi "class/hmap/lisp_env" env)
+; (env [num]) -> env
+(ffi "class/hmap/lisp_penv" penv)
+; (penv [env]) -> :nil | env
+(ffi "class/hmap/lisp_resize" env-resize)
+; (env-resize num [env]) -> env
+(ffi "class/hmap/lisp_tolist" tolist)
+; (tolist env) -> ((sym val) ...)
 (ffi "class/lisp/lisp_env_push" env-push)
 ; (env-push [env]) -> 'env
 (ffi "class/lisp/lisp_env_pop" env-pop)
 ; (env-pop [env]) -> 'env
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Stream and I/O Operations
+;;;;;;;;;;;;;;;;;;;;;;;;;;
+(ffi "class/stream/lisp_iostream" io-stream)
+; (io-stream io) -> :nil | stream
+(ffi "class/stream/lisp_sstream" string-stream)
+; (string-stream str) -> stream
+(ffi "class/stream/lisp_fstream" file-stream)
+; (file-stream path [mode]) -> :nil | stream
+(ffi "class/stream/lisp_readchar" read-char)
+; (read-char stream [width]) -> :nil | num
+(ffi "class/stream/lisp_writechar" write-char)
+; (write-char stream list|num [width]) -> bytes
+(ffi "class/stream/lisp_readblk" read-blk)
+; (read-blk stream bytes) -> :nil | str
+(ffi "class/stream/lisp_writeblk" write-blk)
+; (write-blk stream str) -> bytes
+(ffi "class/stream/lisp_readline" read-line)
+; (read-line stream) -> :nil | str
+(ffi "class/stream/lisp_writeline" write-line)
+; (write-line stream str) -> bytes
+(ffi "class/stream/lisp_readavail" read-avail)
+; (read-avail stream) -> :nil | num
+(ffi "class/stream/lisp_avail" stream-avail)
+; (stream-avail stream) -> num
+(ffi "class/stream/lisp_flush" stream-flush)
+; (stream-flush stream) -> stream
+(ffi "class/stream/lisp_seek" stream-seek)
+; (stream-seek stream offset whence) -> stream
+(ffi "class/stream/lisp_read_bits" read-bits)
+; (read-bits stream (array bit_pool bit_pool_size) num_bits) -> (data|-1)
+(ffi "class/stream/lisp_write_bits" write-bits)
+; (write-bits stream (array bit_pool bit_pool_size) data num_bits) -> stream
+(ffi "class/stream/lisp_mstream" memory-stream)
+; (memory-stream) -> stream
+(ffi "class/out/lisp_create" out-stream)
+; (out-stream mbox) -> out_stream
+(ffi "class/in/lisp_create" in-stream)
+; (in-stream) -> in_stream
+(ffi "class/in/lisp_next_msg" in-next-msg)
+; (in-next-msg in_stream) -> msg
+(ffi "class/stdio/lisp_create" create-stdio)
+; (create-stdio) -> stdio
+(ffi "class/stream/lisp_each" lines!)
+; (lines! lambda stream) -> :nil
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Data Structure Constructors
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(ffi "class/array/lisp_array" array)
+; (array [num ...]) -> array
+(ffi "class/list/lisp_list" list)
+; (list [elem ...]) -> list
+(ffi "class/array/lisp_nums" nums)
+; (nums [num ...]) -> nums
+(ffi "class/array/lisp_fixeds" fixeds)
+; (fixeds [fixed ...]) -> fixeds
+(ffi "class/array/lisp_reals" reals)
+; (reals [real ...]) -> reals
+(ffi "class/array/lisp_path" path)
+; (path [fixed ...]) -> path
+(ffi "class/dim/lisp_dim" dim)
+; (dim nums array) -> dim
+(ffi "class/dim/lisp_dget" dim-get)
+; (dim-get dim nums) -> elem
+(ffi "class/dim/lisp_dset" dim-set)
+; (dim-set dim nums elem) -> array
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Generic Object Operations
+;;;;;;;;;;;;;;;;;;;;;;;;;;
+(ffi "class/obj/lisp_hash" hash)
+; (hash obj) -> num
+(ffi "class/obj/lisp_type" type-of)
+; (type-of obj) -> (... :obj)
+(ffi "class/obj/lisp_fget" obj-get)
+; (obj-get obj offset type|0 size|0) -> val
+(ffi "class/obj/lisp_fset" obj-set)
+; (obj-set obj offset type|0 size|0 val) -> obj
+(ffi "class/obj/lisp_wref" weak-ref)
+; (weak-ref obj) -> num
+(ffi "class/obj/lisp_oref" obj-ref)
+; (obj-ref num) -> obj
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Platform Implementation Interface (PII)
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (ffi "sys/pii/lisp_dirlist" pii-dirlist)
 ; (pii-dirlist path) -> info
 (ffi "sys/pii/lisp_fstat" pii-fstat)
@@ -297,14 +389,51 @@
 (ffi "sys/pii/lisp_time" pii-time)
 ; (pii-time) -> ns
 
-(ffi "class/obj/lisp_get_field" get-field)
-; (get-field obj field size|0) -> val
-(ffi "class/obj/lisp_set_field" set-field)
-; (set-field obj field size|0 val) -> obj
-(ffi "class/obj/lisp_wref" weak-ref)
-; (weak-ref obj) -> num
-(ffi "class/obj/lisp_oref" obj-ref)
-; (obj-ref num) -> obj
+;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Kernel & System
+;;;;;;;;;;;;;;;;;;;;;;;;;;
+(ffi "sys/kernel/lisp_stats" kernel-stats)
+; (kernel-stats) -> (task_count mem_used mem_avail max_stack)
+(ffi "sys/load/lisp_path" load-path)
+; (load-path) -> path
+
+;;;;;;;;;;;;;;;;;;;;
+; Task Management
+;;;;;;;;;;;;;;;;;;;;
+(ffi "sys/task/lisp_mailbox" task-mbox)
+; (task-mbox) -> netid
+(ffi "sys/task/lisp_count" task-count)
+; (task-count bias) -> count
+(ffi "sys/task/lisp_sleep" task-sleep)
+; (task-sleep usec)
+(ffi "sys/task/lisp_timeslice" task-slice)
+; (task-slice)
+
+;;;;;;;;;;;;;;;;;;;;;;
+; Mail & Messaging
+;;;;;;;;;;;;;;;;;;;;;;
+(ffi "sys/mail/lisp_netid" mail-mbox)
+; (mail-mbox) -> netid
+(ffi "sys/mail/lisp_declare" mail-declare)
+; (mail-declare mbox name info) -> key
+(ffi "sys/mail/lisp_devices" mail-nodes)
+; (mail-nodes) -> nodeids
+(ffi "sys/mail/lisp_enquire" mail-enquire)
+; (mail-enquire prefix) -> netids
+(ffi "sys/mail/lisp_forget" mail-forget)
+; (mail-forget key)
+(ffi "sys/mail/lisp_poll" mail-poll)
+; (mail-poll mboxs) -> :nil | idx
+(ffi "sys/mail/lisp_validate" mail-validate)
+; (mail-validate mbox) -> :t | :nil
+(ffi "sys/mail/lisp_read" mail-read)
+; (mail-read mbox) -> :nil | msg
+(ffi "sys/mail/lisp_select" mail-select)
+; (mail-select mboxs) -> idx
+(ffi "sys/mail/lisp_send" mail-send)
+; (mail-send mbox obj)
+(ffi "sys/mail/lisp_timeout" mail-timeout)
+; (mail-timeout mbox ns id) -> mbox
 
 (defq *root_env* (env)
 	+byte_size 1 +short_size 2 +int_size 4 +long_size 8 +ptr_size 8
@@ -932,60 +1061,11 @@
 	; (trim str [cls]) -> str
 	(slice s (bskip (setd cls " ") s 0) (rbskip cls s -1)))
 
-(defun split (s &optional cls)
-	; (split str [cls]) -> strs
-	(defq i 0 out (list) l (length s) cls (ifn cls " "))
-	(while (< i l)
-		(if (/= (defq j (bskip cls s i)) i) (setq i j))
-		(if (/= (defq j (bskipn cls s i)) i) (push out (slice s i (setq i j))))) out)
-
 (defun pad (v c &optional f)
 	; (pad form width [str]) -> str
 	(defq f (ifn f " ") v (str v) l (length v) c (- (max c l) l))
 	(while (> c (length f)) (setq f (cat f f)))
 	(cat (slice f 0 c) v))
-
-(defmacro get-ubyte (s o)
-	; (get-ubyte str idx) -> num
-	(static-qq (get-field ,s (+ +str_data ,o) (const (neg +byte_size)))))
-
-(defmacro get-ushort (s o)
-	; (get-ushort str idx) -> num
-	(static-qq (get-field ,s (+ +str_data ,o) (const (neg +short_size)))))
-
-(defmacro get-uint (s o)
-	; (get-uint str idx) -> num
-	(static-qq (get-field ,s (+ +str_data ,o) (const (neg +int_size)))))
-
-(defmacro get-long (s o)
-	; (get-long str idx) -> num
-	(static-qq (get-field ,s (+ +str_data ,o) +long_size)))
-
-(defmacro get-byte (s o)
-	; (get-byte str idx) -> num
-	(static-qq (get-field ,s (+ +str_data ,o) +byte_size)))
-
-(defmacro get-short (s o)
-	; (get-short str idx) -> num
-	(static-qq (get-field ,s (+ +str_data ,o) +short_size)))
-
-(defmacro get-int (s o)
-	; (get-int str idx) -> num
-	(static-qq (get-field ,s (+ +str_data ,o) +int_size)))
-
-(defmacro get-nodeid (s o)
-	; (get-nodeid str idx) -> nodeid
-	(static-qq (slice ,s ,o (+ ,o +node_id_size))))
-
-(defmacro get-netid (s o)
-	; (get-netid str idx) -> netid
-	(static-qq (slice ,s ,o (+ ,o +net_id_size))))
-
-(defun get-cstr (s o)
-	; (get-cstr str idx) -> str
-	(defq k o)
-	(while (/= 0 (get-byte s o)) (++ o))
-	(slice s k o))
 
 (defun type-to-size (_)
 	; (type-to-size sym) -> num
@@ -1012,6 +1092,66 @@
 	(if (= (length _) 0) 0
 		(reduce (# (min %0 (length %1))) _ +max_long)))
 
+;;;;;;;;;;;;;;;;;;;;;;
+; string object fields
+;;;;;;;;;;;;;;;;;;;;;;
+
+(defmacro get-ubyte (obj idx)
+	; (get-ubyte str idx) -> num
+	(static-qq (obj-get ,obj (+ +str_data ,idx) (const (neg +byte_size)) 0)))
+
+(defmacro get-ushort (obj idx)
+	; (get-ushort str idx) -> num
+	(static-qq (obj-get ,obj (+ +str_data ,idx) (const (neg +short_size)) 0)))
+
+(defmacro get-uint (obj idx)
+	; (get-uint str idx) -> num
+	(static-qq (obj-get ,obj (+ +str_data ,idx) (const (neg +int_size)) 0)))
+
+(defmacro get-long (obj idx)
+	; (get-long str idx) -> num
+	(static-qq (obj-get ,obj (+ +str_data ,idx) +long_size 0)))
+
+(defmacro get-byte (obj idx)
+	; (get-byte str idx) -> num
+	(static-qq (obj-get ,obj (+ +str_data ,idx) +byte_size 0)))
+
+(defmacro get-short (obj idx)
+	; (get-short str idx) -> num
+	(static-qq (obj-get ,obj (+ +str_data ,idx) +short_size 0)))
+
+(defmacro get-int (obj idx)
+	; (get-int str idx) -> num
+	(static-qq (obj-get ,obj (+ +str_data ,idx) +int_size 0)))
+
+(defmacro get-str (obj idx bytes)
+	; (get-str str idx bytes) -> str
+	(static-qq (obj-get ,obj (+ +str_data ,idx) 0 ,bytes)))
+
+(defun get-cstr (obj idx)
+	; (get-cstr str idx) -> str
+	(slice obj idx (find (const (ascii-char 0)) obj idx)))
+
+(defmacro set-byte (obj idx val)
+	; (set-byte str idx num) -> str
+	(static-qq (obj-set ,obj (+ +str_data ,idx) +byte_size 0 ,val)))
+
+(defmacro set-short (obj idx val)
+	; (set-short str idx num) -> str
+	(static-qq (obj-set ,obj (+ +str_data ,idx) +short_size 0 ,val)))
+
+(defmacro set-int (obj idx val)
+	; (set-int str idx num) -> str
+	(static-qq (obj-set ,obj (+ +str_data ,idx) +int_size 0 ,val)))
+
+(defmacro set-long (obj idx val)
+	; (set-long str idx num) -> str
+	(static-qq (obj-set ,obj (+ +str_data ,idx) +long_size 0 ,val)))
+
+(defmacro set-str (obj idx val)
+	; (set-str str idx val) -> str
+	(static-qq (obj-set ,obj (+ +str_data ,idx) 0 (length ,val) ,val)))
+
 ;;;;;;;;;
 ; Streams
 ;;;;;;;;;
@@ -1024,81 +1164,98 @@
 	; (load-stream path) -> :nil | stream
 	(if (defq _ (load _)) (string-stream _)))
 
-(defun abs-path (lib_path &optional current)
-	; (abs-path path [current]) -> path
+(defun path-to-relative (target &optional current)
+	; (path-to-relative target [current]) -> path
+	;transform an absolute filename to a relative one
+	(setd current (first (repl-info)))
+	(defq t_parts (split target "/") c_parts (split current "/")
+		i (or (some (# (if (eql %0 %1) :nil (!))) t_parts c_parts)
+			(min (length t_parts) (length c_parts)))
+		out (list))
+	(times (- (length c_parts) i) (push out "."))
+	(setq out (cat out (slice t_parts i -1)))
+	(if (> (dec (length out)) (length t_parts)) target (join out "/")))
+
+(defun path-to-absolute (target &optional current)
+	; (path-to-absolute target [current]) -> path
+	;transform a relative filename to an absolute one
+	(setd current (first (repl-info)))
 	(cond
-		((not (starts-with "./" lib_path))
-			lib_path)
-		(:t (setd current (first (repl-info)))
-			(while (starts-with "./" lib_path)
-				(unless (defq i (rfind "/" current))
-					(throw "No relative path !" lib_path))
-				(setq current (slice current 0 (dec i))
-					lib_path (slice lib_path 2 -1)))
-			(cat current "/" lib_path))))
+		((starts-with "." target)
+			(defq c_parts (split current "/") p_parts (split target "/")
+				i (or (some (# (if (eql %0 ".") :nil (!))) p_parts)
+					(length p_parts)))
+			(if (> i (length c_parts)) (throw "No relative path !" target))
+			(join (cat (slice c_parts 0 (- (length c_parts) i))
+					   (slice p_parts i -1)) "/"))
+		(target)))
 
-(defun import (lib_path &optional _e)
-	; (import path [env]) -> env
-	(unless (eql :str (pop (type-of lib_path))) (throw "Not a string !" lib_path))
-	(setq lib_path (abs-path lib_path))
-	(if (= (age lib_path) 0) (throw "No such file !" lib_path))
-	(setd _e (penv)) (defq _ee _e)
-	; does the import already exist in the environment tree ?
-	(while (env? _ee)
-		(cond
-			((and (defq file_list (def? '*file_includes* _ee))
-					(find lib_path file_list))
-				(setq _ee :t))
-			((setq _ee (penv _ee)))))
-	; if not existing import it here
-	(unless _ee
-		(unless (def? '*file_includes* _e)
-			(def _e '*file_includes* (list)))
-		(push (get '*file_includes* _e) lib_path)
-		(eval `(repl (file-stream ,lib_path) ,lib_path) _e)))
+(defun import (module &optional dst_env)
+	; (import path [env])
+	(if (= (age (setq module (path-to-absolute module))) 0)
+		(throw "No such file !" module))
+	;does the import already exist ?
+	(defq dst_env (ifn dst_env (penv))
+		import_sym (sym (cat "*module_" module "*")))
+	(unless (get import_sym dst_env)
+		;if not existing import it here
+		(def dst_env import_sym :t)
+		(callback (const repl) dst_env (file-stream module) module)))
 
-(defun import-from (lib_path &optional symbols classes)
+(defun import-from (module &optional symbols classes)
 	; (import-from [symbols classes])
-	(unless (eql :str (pop (type-of lib_path))) (throw "Not a string !" lib_path))
-	(setq lib_path (abs-path lib_path))
-	(if (= (age lib_path) 0) (throw "No such file !" lib_path))
+	(if (= (age (setq module (path-to-absolute module))) 0)
+		(throw "No such file !" module))
 	(setd symbols '() classes '())
 	;import it here, we will discard it on exit
-	(repl (file-stream lib_path) lib_path)
+	(repl (file-stream module) module)
 	;export only what was requested
 	(export-symbols symbols)
 	(export-classes classes))
 
-(defmacro read-long (s)
-	; (read-long stream) -> num
-	(static-qq (read-char ,s +long_size)))
+(defmacro read-ubyte (s)
+	; (read-ubyte stream) -> num
+	(static-qq (read-char ,s)))
 
-(defmacro read-int (s)
-	; (read-int stream) -> num
-	(static-qq (read-char ,s +int_size)))
+(defmacro read-ushort (s)
+	; (read-ushort stream) -> num
+	(static-qq (read-char ,s ,(neg +short_size))))
+
+(defmacro read-uint (s)
+	; (read-uint stream) -> num
+	(static-qq (read-char ,s (neg +int_size))))
+
+(defmacro read-byte (s)
+	; (read-byte stream) -> num
+	(static-qq (read-char ,s +byte_size)))
 
 (defmacro read-short (s)
 	; (read-short stream) -> num
 	(static-qq (read-char ,s +short_size)))
 
-(defmacro write-long (s n)
-	; (write-long stream list|num) -> bytes
-	(static-qq (write-char ,s ,n +long_size)))
+(defmacro read-int (s)
+	; (read-int stream) -> num
+	(static-qq (read-char ,s +int_size)))
 
-(defmacro write-int (s n)
-	; (write-int stream list|num) -> bytes
-	(static-qq (write-char ,s ,n +int_size)))
+(defmacro read-long (s)
+	; (read-long stream) -> num
+	(static-qq (read-char ,s +long_size)))
+
+(defmacro write-byte (s n)
+	; (write-byte stream list|num) -> bytes
+	(static-qq (write-char ,s ,n +byte_size)))
 
 (defmacro write-short (s n)
 	; (write-short stream list|num) -> bytes
 	(static-qq (write-char ,s ,n +short_size)))
 
-(defun read-data (s bytes)
-	; (read-data stream bytes) -> str
-	(defq data (cap bytes (list)))
-	(while (and (>= (-- bytes) 0) (defq _ (read-char s)))
-		(push data (char _)))
-	(apply (const cat) data))
+(defmacro write-int (s n)
+	; (write-int stream list|num) -> bytes
+	(static-qq (write-char ,s ,n +int_size)))
+
+(defmacro write-long (s n)
+	; (write-long stream list|num) -> bytes
+	(static-qq (write-char ,s ,n +long_size)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Compilation environment
@@ -1129,10 +1286,10 @@
 
 (defun within-compile-env (_f)
 	; (within-compile-env lambda)
-	(defq *compile_env* (env-resize 499))
+	(defq *compile_env* (env-resize 1999))
 	(defmacro defcvar (&rest b) (static-qq (def *compile_env* ~b)))
 	(defmacro deffvar (&rest b) (static-qq (def *func_env* ~b)))
-	(defun include (lib_path) (import lib_path *compile_env*))
+	(defun include (module) (import module *compile_env*))
 	(catch (progn (setq _f (_f)) (undef (env) '*func_env* '*compile_env*) _f)
 		(progn (undef (penv) '*func_env* '*compile_env*) :nil)))
 
@@ -1144,3 +1301,5 @@
 (import "lib/class/class.inc")
 (import "lib/collections/collections.inc")
 (import "lib/text/searching.inc")
+(import "sys/lisp.inc")
+(import "class/lisp.inc")

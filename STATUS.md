@@ -4,6 +4,10 @@
 
 ------
 
+New `(nql obj1 obj2) -> :t | :nil` built in function.
+
+------
+
 New `class/mstream/class.inc` VP class for in memory stream buffers. A seekable
 list of string objects. Lisp binding `(memory-stream) -> stream`.
 
@@ -35,6 +39,55 @@ uses of `id-encode` and `id-decode`.
 
 New `(read-blk stream bytes) -> :nil | str` and
 `(write-blk stream str) -> bytes` builtin VP function.
+
+Moved `vp-min, vp-max, vp-abs` into the VP VM proper. ARM64 and x64 have native
+operations `cmov` and `csel` that could implement these.
+
+Upgrade to `(obj-get obj offset type|0 size|0) -> num|str` and `(obj-set obj
+offset type|0 size|0 num|str) -> obj` to treat sub `struct` members as strings.
+`getf` and `setf` macros updated to correctly set the arguments to this new API.
+
+New `-s script_name` option for the batch/shell files, to ease LLM tests. eg.
+`./run_tui.sh -n 1 -f -s script_name`.
+
+Added `(type-of obj)` support to the all `class/` classes.
+
+Fleshed out the `(set-xxx str idx val)` matching macros to `(get-xxx str idx)`.
+
+Fleshed out the `(read-xxx stream) ->val` and `(write-xxx stream val) -> stream`
+macros.
+
+New `includes` command for auto creation of `.vp` file header includes, great
+time saving and checking tool.
+
+New `(getf-> obj field|(field offset) ...) -> (val ...)` macro, the counterpart
+to `setf->`.
+
+Added `(path-to-relative target [current]) -> path` function to compliment the
+`(path-to-absolute target [current]) -> path`. If the current is not provided it
+will use `(first (repl-info))`.
+
+New simple `sed` command line app. In `-x` mode it will match and replace
+submatches using the `$0-$9` parameter syntax.
+
+New generic files line scanner, which calls back to a user handler. `(scan-files
+files handler [split_class comment_char]) -> files`. The handler can choose to
+be presented with split line tokens, provide a line splitter charclass, specify
+a comment character if needed. The handler should return `:nil` or a list of new
+files to add to the work list.
+
+`(read-char stream [width])` now defaults to unsigned byte, and if a width is
+specified positive widths mean signed values and negative width mean unsigned
+value.
+
+Audio service now shares and reference counts the resource handles.
+
+Lowered the `(split str [cls])` function to VP code as it's forming the basis
+for a lot of file scanning work now.
+
+Fixed the off by one issue in the Edit buffer left bracket matching.
+
+Fixed the Terminal apps one extra line in the history buffer issue.
 
 ------
 
@@ -1206,7 +1259,7 @@ New Element room for Chrysalisp OS, #ChrysaLisp-OS@matrix.org, unfortunately
 Gary Boyd admin of the old room has gone dark, I sincerely hope he is OK. But
 we must move to another room where there is admin access.
 
-New `(setf-> msg field ...)` macro and extended `(set-field) (get-field)`
+New `(setf-> msg field ...)` macro and extended `(obj-set) (obj-get)`
 functions to ease message creation.
 
 New `(export env sym ...)` macro to go along with `(env-push) ... (env-pop)`. A
@@ -1242,10 +1295,10 @@ function.
 Added nesting to the `(#)` macro ! Plus arbitrary % parameters not just
 starting from %0.
 
-Promotion of `(get-field)` `(set-field)` `(obj-ref)` and `(weak-ref)` to
+Promotion of `(obj-get)` `(obj-set)` `(obj-ref)` and `(weak-ref)` to
 `root.inc`.
 
-`(get-xxx)` macros now uses `(get-field)` and addition of `(get-nodeid)` and
+`(get-xxx)` macros now uses `(obj-get)` and addition of `(get-nodeid)` and
 `(get-netid)` macros.
 
 Addition of +net_id_size+ and +node_id_size+ symbols.
@@ -1989,7 +2042,7 @@ Added a Chess font and made use of it in the Chess demo app. Some tidy ups to
 the code. Not finished yet, but going to move onto other issues for a while,
 come back to this later to add the fully playable game.
 
-Added (set-field) and removed several field setting and getting native
+Added (obj-set) and removed several field setting and getting native
 functions with simple Lisp bindings.
 
 ------
@@ -1997,7 +2050,7 @@ functions with simple Lisp bindings.
 Sequenced message streams now available from Lisp apps ! Chess demo shows how
 you can use them to simplify process to process commms.
 
-New (get-field field size|0) function. (set-field field obj size|0) will come
+New (obj-get field size|0) function. (obj-set field obj size|0) will come
 at some point...
 
 Tidy up the lisp.inc files into 3 separate main areas, sys/lisp.inc,

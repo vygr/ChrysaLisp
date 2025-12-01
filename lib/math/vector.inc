@@ -2,10 +2,6 @@
 ; vector math
 ;;;;;;;;;;;;;
 
-(import "class/num/lisp.inc")
-(import "class/nums/lisp.inc")
-(import "class/fixeds/lisp.inc")
-
 (enums +vec2 0
 	(enum x y))
 

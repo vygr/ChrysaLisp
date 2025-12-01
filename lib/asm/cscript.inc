@@ -90,11 +90,11 @@
 			((:lrb :lsb)
 				(push token_stack token))
 			(:rrb
-				(while (and (not (eql "(" (setq token (pop token_stack)))) token)
+				(while (and (nql "(" (setq token (pop token_stack))) token)
 					(push out_tokens token)
 					(push out_types :operator)))
 			(:rsb
-				(while (and (not (eql "[" (setq token (pop token_stack)))) token)
+				(while (and (nql "[" (setq token (pop token_stack))) token)
 					(push out_tokens token)
 					(push out_types :operator))
 				(push out_tokens "[]")
@@ -205,11 +205,14 @@
 	(cond
 		((not (defq s (scope-get-sym _)))
 			;not in symbol table so figure out what it is
+			(defq type_sym (sym (str _ "_t")) type_str (get type_sym))
 			(cond
-				((get (sym (str _ "_t")))
+				((find (first type_str) "0123456789")
+					;struct/member
+					(compile-const _))
+				(type_str
 					;field/member
-					(add-inst (list 'vp-cpy-cr
-						_ (push-reg (eval (sym (str _ "_t")))))))
+					(add-inst (list 'vp-cpy-cr _ (push-reg type_str))))
 				((get _)
 					;equate
 					(compile-const _))
@@ -338,7 +341,7 @@
 	(cond
 		((not (defq s (scope-get-sym _)))
 			(throw "Compile op not defined !" _))
-		((not (eql 'op (second s)))
+		((nql 'op (second s))
 			(throw "Not an operator !" _))
 		(:t ((elem-get s 4) _))))
 

@@ -173,7 +173,7 @@
 
 (defmacro arm64-dru (o x s1 s2 d)
 	`(progn
-		(and (not (eql ,s1 ,d)) (not (eql ,s2 ,d)) (emit-xor-rr ,d ,d))
+		(and (nql ,s1 ,d) (nql ,s2 ,d) (emit-xor-rr ,d ,d))
 		(arm64-dr ,o ,s1 ,s2 ,d)
 		(if (or (eql ,s1 ,d) (eql ,s2 ,d)) (arm64-ux ,x ,d ,d))))
 
@@ -511,6 +511,35 @@
 	(emitm-int (+ 0x9ac00800 (<< s 16) (<< d2 5) +arm64_rtmp))
 	(emitm-int (+ 0x9b008000 (const (<< +arm64_rtmp 16)) (<< d2 10) (<< s 5) d1))
 	(emit-cpy-rr +arm64_rtmp d2))
+
+(defun arm64-csel (c s1 s2 d)
+	(emitm-int (+ 0x9a800000 (<< s2 16) (<< c 12) (<< s1 5) d)))
+
+(defun emit-min-cr (c d l m)
+	(emit-cpy-cr c +arm64_rtmp)
+	(emitm-int (+ 0xeb000000 (<< +arm64_rtmp 16) (<< d 5) 31))
+	(arm64-csel 0xc +arm64_rtmp d d))
+
+(defun emit-max-cr (c d l m)
+	(emit-cpy-cr c +arm64_rtmp)
+	(emitm-int (+ 0xeb000000 (<< +arm64_rtmp 16) (<< d 5) 31))
+	(arm64-csel 0xb +arm64_rtmp d d))
+
+(defun emit-min-rr (s d l m)
+	(unless (eql s d)
+		(emitm-int (+ 0xeb000000 (<< s 16) (<< d 5) 31))
+		(arm64-csel 0xc s d d)))
+
+(defun emit-max-rr (s d l m)
+	(unless (eql s d)
+		(emitm-int (+ 0xeb000000 (<< s 16) (<< d 5) 31))
+		(arm64-csel 0xb s d d)))
+
+(defun emit-abs-rr (s d l m)
+	(emit-cpy-rr s d)
+	(emitm-int (+ 0xcb000000 (<< s 16) (const (<< 31 5)) +arm64_rtmp))
+	(emitm-int (+ 0xeb000000 (const (<< 31 16)) (<< d 5) 31))
+	(arm64-csel 0xb +arm64_rtmp d d))
 
 (defun emit-alloc (c) (emit-sub-cr (align c stack_align) +arm64_vp_rsp))
 (defun emit-free (c) (emit-add-cr (align c stack_align) +arm64_vp_rsp))

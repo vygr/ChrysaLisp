@@ -29,7 +29,7 @@
 
 (defun query (_p _w _r)
 	; (query pattern whole_words regexp) -> (engine pattern meta)
-	(if (and (not (eql _p "")) _w (not _r))
+	(if (and (nql _p "") _w (not _r))
 		(setq _p (escape _p)))
 	(defq _e (if (or _w _r) +regexp +substr)
 		_p (if _w (cat "!" _p "!") _p))

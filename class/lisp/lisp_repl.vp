@@ -1,10 +1,9 @@
 (include "lib/asm/func.inc")
-(include "././stream/class.inc")
-(include "././hmap/class.inc")
-(include "././num/class.inc")
-(include "./class.inc")
-(include "././sym/class.inc")
 (include "lib/consts/chars.inc")
+(include "./class.inc")
+(include "././stream/class.inc")
+(include "././str/class.inc")
+(include "././num/class.inc")
 
 (def-method 'lisp :lisp_repl)
 	;inputs
@@ -54,7 +53,7 @@
 		(call 'lisp :repl_eval {this, ast} {_, value})
 		(call 'obj :deref {ast})
 		(vpif {stream = this->lisp_stdin})
-			(call 'lisp :repl_print {this, this->lisp_stdout, value})
+			(call 'lisp :repl_print {this, this->lisp_stdout, value, 1})
 			(call 'stream :write_char {this->lisp_stdout, +char_lf})
 		(endif)
 	(errorcase

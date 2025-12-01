@@ -246,7 +246,7 @@
 		(unless (defq cpat (. meta_cache :find pattern))
 			(setq cpat (catch (compile (postfix (tokenize pattern))) :t))
 			(. meta_cache :insert pattern cpat))
-		(unless (eql cpat :t) cpat))
+		(if (eql cpat :t) :nil cpat))
 
 	(defmethod :match? (text pattern &optional cpat)
 		; (. regexp :match? text pattern [meta]) -> :t | :nil

@@ -2,13 +2,13 @@
 
 ## Lisp Bindings
 
-### (get-field obj field size|0) -> val
+### (obj-get obj offset type|0 size|0) -> val
 
 ### (hash obj) -> num
 
 ### (obj-ref num) -> obj
 
-### (set-field obj field size|0 val) -> obj
+### (obj-set obj offset type|0 size|0 val) -> obj
 
 ### (type-of obj) -> (... :obj)
 
@@ -43,6 +43,20 @@ inputs
 :r0 = object (ptr)
 trashes
 :r0-:r14
+```
+
+### :eql -> class/obj/eql
+
+```code
+inputs
+:r0 = obj object (ptr)
+:r1 = obj object (ptr)
+outputs
+:r0 = obj object (ptr)
+:r1 = obj object (ptr)
+:r2 = 0, -1 (int)
+trashes
+:r2-:r8
 ```
 
 ### :hash -> class/obj/hash
