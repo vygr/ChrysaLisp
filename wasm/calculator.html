@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChrysaLisp WASM Calculator</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        .calculator {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .display {
+            width: 100%;
+            padding: 15px;
+            font-size: 24px;
+            text-align: right;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            box-sizing: border-box;
+        }
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+        button {
+            padding: 20px;
+            font-size: 18px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            background: #e0e0e0;
+            transition: background 0.2s;
+        }
+        button:hover {
+            background: #d0d0d0;
+        }
+        button:active {
+            background: #c0c0c0;
+        }
+        .operator {
+            background: #ff9500;
+            color: white;
+        }
+        .operator:hover {
+            background: #e08500;
+        }
+        .equals {
+            background: #4CAF50;
+            color: white;
+        }
+        .equals:hover {
+            background: #45a049;
+        }
+        .clear {
+            background: #f44336;
+            color: white;
+        }
+        .clear:hover {
+            background: #da190b;
+        }
+        .base-selector {
+            margin: 20px 0;
+            text-align: center;
+        }
+        .base-selector button {
+            margin: 0 5px;
+            padding: 10px 15px;
+        }
+        .base-selector button.active {
+            background: #2196F3;
+            color: white;
+        }
+        .info {
+            margin-top: 20px;
+            padding: 15px;
+            background: #e3f2fd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        .status {
+            margin-top: 10px;
+            padding: 10px;
+            background: #fff3cd;
+            border-radius: 5px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <h1>ChrysaLisp WASM Calculator</h1>
+
+    <div class="status" id="status">
+        Loading WASM module...
+    </div>
+
+    <div class="calculator">
+        <div class="base-selector">
+            <button onclick="changeBase(10)" class="active" id="base-10">DEC</button>
+            <button onclick="changeBase(16)" id="base-16">HEX</button>
+            <button onclick="changeBase(2)" id="base-2">BIN</button>
+            <button onclick="changeBase(8)" id="base-8">OCT</button>
+        </div>
+
+        <input type="text" class="display" id="display" value="0" readonly>
+
+        <div class="buttons">
+            <button onclick="appendNumber('7')">7</button>
+            <button onclick="appendNumber('8')">8</button>
+            <button onclick="appendNumber('9')">9</button>
+            <button onclick="setOperator('/')" class="operator">/</button>
+
+            <button onclick="appendNumber('4')">4</button>
+            <button onclick="appendNumber('5')">5</button>
+            <button onclick="appendNumber('6')">6</button>
+            <button onclick="setOperator('*')" class="operator">*</button>
+
+            <button onclick="appendNumber('1')">1</button>
+            <button onclick="appendNumber('2')">2</button>
+            <button onclick="appendNumber('3')">3</button>
+            <button onclick="setOperator('-')" class="operator">-</button>
+
+            <button onclick="appendNumber('0')">0</button>
+            <button onclick="clearDisplay()" class="clear">C</button>
+            <button onclick="calculate()" class="equals">=</button>
+            <button onclick="setOperator('+')" class="operator">+</button>
+
+            <!-- Hex digits (only shown in hex mode) -->
+            <button onclick="appendNumber('A')" class="hex-digit" style="display:none">A</button>
+            <button onclick="appendNumber('B')" class="hex-digit" style="display:none">B</button>
+            <button onclick="appendNumber('C')" class="hex-digit" style="display:none">C</button>
+            <button onclick="setOperator('AND')" class="operator">AND</button>
+
+            <button onclick="appendNumber('D')" class="hex-digit" style="display:none">D</button>
+            <button onclick="appendNumber('E')" class="hex-digit" style="display:none">E</button>
+            <button onclick="appendNumber('F')" class="hex-digit" style="display:none">F</button>
+            <button onclick="setOperator('OR')" class="operator">OR</button>
+
+            <button onclick="setOperator('<<')" class="operator">&lt;&lt;</button>
+            <button onclick="setOperator('>>')" class="operator">&gt;&gt;</button>
+            <button onclick="setOperator('XOR')" class="operator">XOR</button>
+            <button onclick="setOperator('%')" class="operator">%</button>
+        </div>
+    </div>
+
+    <div class="info">
+        <strong>Note:</strong> This is a demonstration calculator using ChrysaLisp compiled to WebAssembly.
+        The calculator supports basic arithmetic (+, -, *, /, %) and bitwise operations (AND, OR, XOR, <<, >>).
+        You can switch between decimal (DEC), hexadecimal (HEX), binary (BIN), and octal (OCT) bases.
+        <br><br>
+        <strong>Status:</strong> The WASM backend is currently in development. This HTML demonstrates the
+        intended user interface. Full WASM integration requires completing the build pipeline and module generation.
+    </div>
+
+    <script>
+        let currentValue = '0';
+        let previousValue = null;
+        let currentOperator = null;
+        let currentBase = 10;
+        let wasmModule = null;
+
+        // Update display
+        function updateDisplay() {
+            document.getElementById('display').value = currentValue;
+        }
+
+        // Append number to display
+        function appendNumber(digit) {
+            // Check if digit is valid for current base
+            const digitValue = parseInt(digit, 16);
+            if (digitValue >= currentBase) {
+                return; // Invalid digit for current base
+            }
+
+            if (currentValue === '0' || currentValue === 'Error') {
+                currentValue = digit;
+            } else {
+                currentValue += digit;
+            }
+            updateDisplay();
+        }
+
+        // Set operator
+        function setOperator(op) {
+            if (previousValue !== null && currentOperator !== null) {
+                calculate();
+            }
+            previousValue = parseInt(currentValue, currentBase);
+            currentOperator = op;
+            currentValue = '0';
+        }
+
+        // Calculate result
+        function calculate() {
+            if (previousValue === null || currentOperator === null) {
+                return;
+            }
+
+            const current = parseInt(currentValue, currentBase);
+            let result;
+
+            // If WASM module is loaded, use it
+            if (wasmModule && wasmModule.calc_simple_eval) {
+                result = wasmModule.calc_simple_eval(previousValue, currentOperator, current);
+                if (result === 'ERROR') {
+                    currentValue = 'Error';
+                    previousValue = null;
+                    currentOperator = null;
+                    updateDisplay();
+                    return;
+                }
+            } else {
+                // JavaScript fallback
+                switch (currentOperator) {
+                    case '+': result = previousValue + current; break;
+                    case '-': result = previousValue - current; break;
+                    case '*': result = previousValue * current; break;
+                    case '/':
+                        if (current === 0) {
+                            currentValue = 'Error';
+                            previousValue = null;
+                            currentOperator = null;
+                            updateDisplay();
+                            return;
+                        }
+                        result = Math.floor(previousValue / current);
+                        break;
+                    case '%':
+                        if (current === 0) {
+                            currentValue = 'Error';
+                            previousValue = null;
+                            currentOperator = null;
+                            updateDisplay();
+                            return;
+                        }
+                        result = previousValue % current;
+                        break;
+                    case 'AND': result = previousValue & current; break;
+                    case 'OR': result = previousValue | current; break;
+                    case 'XOR': result = previousValue ^ current; break;
+                    case '<<': result = previousValue << current; break;
+                    case '>>': result = previousValue >> current; break;
+                    default: result = current;
+                }
+            }
+
+            currentValue = result.toString(currentBase).toUpperCase();
+            previousValue = null;
+            currentOperator = null;
+            updateDisplay();
+        }
+
+        // Clear display
+        function clearDisplay() {
+            currentValue = '0';
+            previousValue = null;
+            currentOperator = null;
+            updateDisplay();
+        }
+
+        // Change base
+        function changeBase(base) {
+            // Convert current value to new base
+            const numValue = parseInt(currentValue, currentBase);
+            if (!isNaN(numValue)) {
+                currentValue = numValue.toString(base).toUpperCase();
+            }
+
+            currentBase = base;
+            updateDisplay();
+
+            // Update active button
+            document.querySelectorAll('.base-selector button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.getElementById(`base-${base}`).classList.add('active');
+
+            // Show/hide hex digits
+            const hexDigits = document.querySelectorAll('.hex-digit');
+            hexDigits.forEach(btn => {
+                btn.style.display = (base === 16) ? 'block' : 'none';
+            });
+        }
+
+        // Initialize
+        async function init() {
+            const statusEl = document.getElementById('status');
+
+            try {
+                // In the future, this would load the actual WASM module
+                // const response = await fetch('calculator.wasm');
+                // const buffer = await response.arrayBuffer();
+                // const module = await WebAssembly.instantiate(buffer);
+                // wasmModule = module.instance.exports;
+
+                statusEl.textContent = 'Using JavaScript fallback (WASM module not yet built)';
+                statusEl.style.background = '#fff3cd';
+            } catch (error) {
+                statusEl.textContent = 'Error loading WASM module: ' + error.message;
+                statusEl.style.background = '#f8d7da';
+            }
+        }
+
+        init();
+    </script>
+</body>
+</html>
