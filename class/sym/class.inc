@@ -2,9 +2,9 @@
 
 (def-class sym str
 	(dec-method :vtable class/sym/vtable)
-	(dec-method :statics_init class/sym/statics_init)
-	(dec-method :print class/sym/print :final)
 	(dec-method :eql class/obj/eql :final)
+	(dec-method :print class/sym/print :final)
+	(dec-method :statics_init class/sym/statics_init)
 	(dec-method :get_static_sym class/sym/get_static_sym :static (:r1) (:r1))
 	(dec-method :ref_static_sym class/sym/ref_static_sym :static (:r1) (:r1))
 	(dec-method :intern_str class/sym/intern_str :static (:r0) (:r0))
