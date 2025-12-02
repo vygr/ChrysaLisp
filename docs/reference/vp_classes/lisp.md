@@ -18,8 +18,6 @@
 
 ### (env-push [env]) -> 'env
 
-### (eql form form) -> :nil | :t
-
 ### (eval form [env]) -> 'form
 
 ### (eval-list list [env]) -> list
@@ -35,8 +33,6 @@
 ### (macroexpand form) -> 'form
 
 ### (. env sym [...]) -> form
-
-### (nql form form) -> :nil | :t
 
 ### (prebind form) -> form
 

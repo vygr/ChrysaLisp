@@ -8,6 +8,8 @@
 	(dec-method :set_value class/num/set_value :static (:r0 :r1) (:r0 :r1))
 	(dec-method :print class/num/print :override)
 	(dec-method :vcreate class/num/create :virtual (:r0) (:r0))
+	(dec-method :hash class/num/hash :override)
+	(dec-method :eql class/num/eql :final)
 	(dec-method :add class/num/add :virtual (:r0 :r1) (:r0 :r1))
 	(dec-method :sub class/num/sub :virtual (:r0 :r1) (:r0 :r1))
 	(dec-method :mul class/num/mul :virtual (:r0 :r1) (:r0 :r1))
@@ -54,8 +56,7 @@
 	(dec-method :lisp_shl class/num/lisp_shl :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_n2i class/num/lisp_n2i :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_n2f class/num/lisp_n2f :static (:r0 :r1) (:r0 :r1))
-	(dec-method :lisp_n2r class/num/lisp_n2r :static (:r0 :r1) (:r0 :r1))
-	(dec-method :hash class/num/hash :override (:r0) (:r0 :r1)))
+	(dec-method :lisp_n2r class/num/lisp_n2r :static (:r0 :r1) (:r0 :r1)))
 
 (def-struct num obj_size
 	(long value))

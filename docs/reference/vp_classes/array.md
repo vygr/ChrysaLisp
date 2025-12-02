@@ -76,6 +76,19 @@ trashes
 :r1-:r14
 ```
 
+### :eql -> class/array/eql
+
+```code
+inputs
+:r0 = array object (ptr)
+:r1 = obj object (ptr)
+outputs
+:r0 = array object (ptr)
+:r1 = 0 if same, else not
+trashes
+:r1-:r5
+```
+
 ### :erase -> class/array/erase
 
 ```code

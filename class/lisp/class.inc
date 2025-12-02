@@ -35,8 +35,6 @@
 	(dec-method :lisp_macro class/lisp/lisp_macro :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_quote class/lisp/lisp_quote :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_qquote class/lisp/lisp_qquote :static (:r0 :r1) (:r0 :r1))
-	(dec-method :lisp_eql class/lisp/lisp_eql :static (:r0 :r1) (:r0 :r1))
-	(dec-method :lisp_nql class/lisp/lisp_nql :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_if class/lisp/lisp_if :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_ifn class/lisp/lisp_ifn :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_cond class/lisp/lisp_cond :static (:r0 :r1) (:r0 :r1))
