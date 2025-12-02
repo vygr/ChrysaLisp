@@ -19,3 +19,4 @@ ai/
 apps/login/*/*.tre
 *.img
 *.dmg
+/tests

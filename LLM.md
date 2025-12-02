@@ -124,6 +124,10 @@ Deep dives into specialized areas:
 
 38. **[Udat AI Shares](docs/ai_digest/udat_ai_shares.md)** - AI commentary on ChrysaLisp's architectural coherence and design philosophy.
 
+39. **[Coding Domains](docs/ai_digest/coding_domains.md)** - Know your coding domain and stick to it.
+
+40. **[Sequnce Indexing](docs/ai_digest/sequence_indexing.md)** - Sequence indexing and slicing.
+
 ---
 
 ## Reading Paths
@@ -144,6 +148,68 @@ Read: 1-7, 12-19, 30-32, 36-38
 
 ### Quick Start
 Read: 1, 4, 12, 14, 29, 37
+
+---
+
+## LLM Test Scripts
+
+Running test scripts via an LLM is easy to accomplish via the `-s` option of the
+ChrysaLisp launch bash file.
+
+```
+./run_tui.sh -n 1 -f -s script_name.lisp
+```
+
+This will launch the system on a single VP node, in the foreground, and run the
+raw `script_name.lisp` file.
+
+Keep any test scripts and associated files in the `tests/` folder !
+
+If you are not changing the base VM or any VP level system files, which most app
+coding should NOT be doing ! There is no need to keep making the system from
+scratch each time ! Running your tests via this script launcher is what you
+should be doing.
+
+If you wish to use escape sequences in strings, ChrysaLisp does NO escape
+processing in the `(read)` function !, use the `(unescape string)`, function
+from the `(import "lib/text/charclass.inc")`, library.
+
+In order to run a `cmd/` app, from a raw script, you need to wrap the
+`cmd/appname.lisp` in a `(pipe-run command_line)` function, from the `(import
+"lib/task/pipe.inc")` library.
+
+And to be robust around catching errors, should wrap your tests in a `catch`
+block, and end the script in a call to the host shutdown code, like so.
+
+To throw an error, use `(throw "Description !" obj)`, if no object of interest,
+use `:nil`. Do NOT use `catch` or `throw` in runtime ChrysaLisp code ! That
+feature is compiled out in `release` mode and is only available for the `debug`
+builds and testing.
+
+```lisp
+;use of (pipe-run command_line)
+(import "lib/task/pipe.inc")
+;use of (unescape string)
+(import "lib/text/charclass.inc")
+
+(defun my-test ()
+    (defq test_string (unescape "string with new line\n"))
+    ...
+    (pipe-run appname)
+    ...
+    )
+
+(catch
+    (my-test)
+    (progn
+        ;report error
+        (print "Test failed with error" _)
+        ;signal to abort the catch
+        :t))
+
+;clean shutdown of the VP node
+((ffi "service/gui/lisp_deinit"))
+```
 
 ---
 
