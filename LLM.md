@@ -138,19 +138,31 @@ Deep dives into specialized areas:
 Depending on your goals, you might follow different reading paths:
 
 ### For Understanding the System
-Follow the order above from 1-38 for a complete understanding.
+
+Follow the order above from 0-41 for a complete understanding.
 
 ### For Application Development
-Read: 1-7, 12-15, 20-26, 29, 35
+
+Focus on the language, standard libraries, and GUI framework.
+
+Read: 1, 4, 12, 29, 38, 14, 15, 19, 20, 22, 24, 25, 26, 36, 27, 33
 
 ### For System Programming
-Read: 1-11, 16-19, 27-29, 33-34
+
+Focus on the Virtual Processor, memory model, and host integration.
+
+Read: 1, 3, 5, 7, 8, 9, 10, 11, 34, 35, 18, 28, 37
 
 ### For Language Design Insights
-Read: 1-7, 12-19, 30-32, 36-38
+
+Focus on the philosophical divergences from traditional Lisp and architectural
+unification.
+
+Read: 2, 3, 6, 13, 16, 17, 30, 31, 32, 33, 39
 
 ### Quick Start
-Read: 1, 4, 12, 14, 29, 37
+
+Read: 1, 4, 12, 14, 29, 38, 40, 41
 
 ---
 
