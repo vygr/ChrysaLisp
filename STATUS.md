@@ -6,10 +6,12 @@
 
 New `(nql obj1 obj2) -> :t | :nil` built in function.
 
-New `obj :eql` virtual method.
+New `'obj :eql` virtual method.
 
-Fixed bug in optional start index value for `(find seq elm [idx])` and `(rfind
-seq elm [idx])` functions.
+Fixed bug in optional start index value for `(find elm seq [idx])` and `(rfind
+elm seq [idx])` functions.
+
+Optimized `'list :lisp_merge` to be faster and use no stack variables.
 
 ------
 
