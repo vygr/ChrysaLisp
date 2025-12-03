@@ -126,7 +126,7 @@ Deep dives into specialized areas:
 
 39. **[Coding Domains](docs/ai_digest/coding_domains.md)** - Know your coding domain and stick to it.
 
-40. **[Sequnce Indexing](docs/ai_digest/sequence_indexing.md)** - Sequence indexing and slicing.
+40. **[Sequence Indexing](docs/ai_digest/sequence_indexing.md)** - Sequence indexing and slicing.
 
 ---
 
