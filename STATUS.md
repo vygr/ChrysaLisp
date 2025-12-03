@@ -13,6 +13,8 @@ elm seq [idx])` functions.
 
 Optimized `'list :lisp_merge` to be faster and use no stack variables.
 
+Optimized `'list :lisp_match` to use no stack variables.
+
 ------
 
 New `class/mstream/class.inc` VP class for in memory stream buffers. A seekable
