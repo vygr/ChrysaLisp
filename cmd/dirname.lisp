@@ -20,17 +20,17 @@
 			(print "dirname: missing operand")
 			(progn
 				(defq path (second args))
-				;remove trailing slashes
-				(while (and (> (length path) 1) (eql (elem -2 path) "/"))
-					(setq path (slice 0 -1 path)))
-				;find last slash
-				(defq dir (if (defq pos (find-rev "/" path))
+				;remove trailing slashes (-2 is last element)
+				(while (and (> (length path) 1) (eql (elem-get path -2) "/"))
+					(setq path (slice path 0 -2)))
+				;find last slash (rfind returns pos after match)
+				(defq dir (if (defq pos (rfind "/" path))
 					(progn
-						;extract directory part
-						(setq dir (slice 0 pos path))
+						;extract directory part (dec pos to exclude the slash)
+						(defq d (slice path 0 (dec pos)))
 						;remove trailing slashes from result
-						(while (and (> (length dir) 1) (eql (elem -2 dir) "/"))
-							(setq dir (slice 0 -1 dir)))
-						(if (eql dir "") "/" dir))
+						(while (and (> (length d) 1) (eql (elem-get d -2) "/"))
+							(setq d (slice d 0 -2)))
+						(if (eql d "") "/" d))
 					"."))
 				(print dir)))))

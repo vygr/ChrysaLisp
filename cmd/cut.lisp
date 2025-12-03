@@ -28,13 +28,13 @@
 	(each (lambda (part)
 			(cond
 				;range N-M
-				((/= :nil (defq pos (find "-" part)))
-					(defq start (if (> pos 0) (num (slice 0 pos part)) 1))
-					(defq end (if (< pos (dec (length part))) (num (slice (inc pos) -1 part)) 999999))
+				((defq pos (find "-" part))
+					(defq start (if (> pos 0) (str-to-num (slice part 0 pos)) 1))
+					(defq end (if (< pos (dec (length part))) (str-to-num (slice part (inc pos) -1)) 999999))
 					(push ranges (list start end)))
 				;single number N
 				:t
-					(defq n (num part))
+					(defq n (str-to-num part))
 					(push ranges (list n n))))
 		(split spec ","))
 	ranges)

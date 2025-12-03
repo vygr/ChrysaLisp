@@ -20,16 +20,17 @@
 	(when (and
 			(defq stdio (create-stdio))
 			(defq opt_sep (ascii-char 10) opt_width :nil args (options stdio usage)))
+		(defq first 1 incr 1 last 1)
 		(cond
 			;seq last
 			((<= (length args) 2)
-				(setq first 1 incr 1 last (num (second args))))
+				(setq last (str-to-num (second args))))
 			;seq first last
 			((<= (length args) 3)
-				(setq first (num (second args)) incr 1 last (num (elem 2 args))))
+				(setq first (str-to-num (second args)) last (str-to-num (elem-get args 2))))
 			;seq first incr last
 			:t
-				(setq first (num (second args)) incr (num (elem 2 args)) last (num (elem 3 args))))
+				(setq first (str-to-num (second args)) incr (str-to-num (elem-get args 2)) last (str-to-num (elem-get args 3))))
 		;determine field width if needed
 		(when opt_width
 			(defq width (max (length (str first)) (length (str last)))))

@@ -12,7 +12,7 @@
 ))
 
 (defun rev-line (line)
-	(print (apply cat (reverse (split line "")))))
+	(print (reverse line)))
 
 (defun main ()
 	;initialize pipe details and command args, abort on error

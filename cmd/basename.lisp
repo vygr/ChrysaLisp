@@ -20,16 +20,16 @@
 			(print "basename: missing operand")
 			(progn
 				(defq path (second args))
-				(defq suffix (if (> (length args) 2) (elem 2 args) ""))
-				;remove trailing slashes
-				(while (and (> (length path) 1) (eql (elem -2 path) "/"))
-					(setq path (slice 0 -1 path)))
-				;extract basename
-				(defq name (if (defq pos (find-rev "/" path))
-					(slice (inc pos) -1 path)
+				(defq suffix (if (> (length args) 2) (elem-get args 2) ""))
+				;remove trailing slashes (-2 is last element, slice to -2 removes it)
+				(while (and (> (length path) 1) (eql (elem-get path -2) "/"))
+					(setq path (slice path 0 -2)))
+				;extract basename (rfind returns pos after match, -1 is end boundary)
+				(defq name (if (defq pos (rfind "/" path))
+					(slice path pos -1)
 					path))
 				;remove suffix if specified and present
 				(when (and (> (length suffix) 0)
 						(ends-with suffix name))
-					(setq name (slice 0 (- (length suffix)) name)))
+					(setq name (slice name 0 (- -1 (length suffix)))))
 				(print name)))))

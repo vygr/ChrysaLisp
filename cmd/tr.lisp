@@ -22,10 +22,10 @@
 	s)
 
 (defun translate-char (c from_set to_set)
-	(if (/= :nil (defq pos (find c from_set)))
+	(if (defq pos (find c from_set))
 		(if (< pos (length to_set))
-			(elem pos to_set)
-			(elem -2 to_set))
+			(elem-get to_set pos)
+			(elem-get to_set -2))  ;-2 is last element
 		c))
 
 (defun main ()
@@ -57,7 +57,7 @@
 				(print "tr: two sets required for translation"))
 			:t
 				(defq from_set (expand-set (second args)))
-				(defq to_set (expand-set (elem 2 args)))
+				(defq to_set (expand-set (elem-get args 2)))
 				(defq last_c "")
 				(while (defq c (read-char (io-stream 'stdin)))
 					(defq new_c (translate-char c from_set to_set))
