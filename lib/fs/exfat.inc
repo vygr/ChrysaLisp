@@ -1126,5 +1126,6 @@
 		; Get filesystem size
 		; outputs
 		; total size in bytes
-		(defq size (* (get this :cluster_count) (get this :cluster_size)))
-		size))) ; End of ExFat class
+		(* (get this :cluster_count) (get this :cluster_size))))
+	)
+
