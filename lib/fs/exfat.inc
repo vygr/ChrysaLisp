@@ -316,7 +316,7 @@
 			(defq new_data (cat
 				(slice cluster_data 0 entry_offset)
 				entry_data
-				(slice cluster_data (+ entry_offset +exfat_entry_size) (length cluster_data))))
+				(slice cluster_data (+ entry_offset +exfat_entry_size) -1)))
 			(. this :write_cluster cluster_num new_data)))
 
 	(defmethod :create_file_entry (name attributes)
@@ -498,7 +498,7 @@
 				(setq entry_list (cat
 					(list (get entry_list 0))
 					(list new_stream)
-					(slice entry_list 2 (length entry_list)))))
+					(slice entry_list 2 -1))))
 
 			; Write all entries
 			(defq success :t
@@ -804,8 +804,8 @@
 		(when (= (length components) 0)
 			(return :nil))
 
-		(defq name (get components (- (length components) 1))
-			parent_components (slice components 0 (- (length components) 1))
+		(defq name (get components -2)
+			parent_components (slice components 0 -2)
 			parent_path (if (= (length parent_components) 0)
 				"/"
 				(cat "/" (join parent_components "/"))))
@@ -843,8 +843,8 @@
 		(when (= (length components) 0)
 			(return :nil))
 
-		(defq name (get components (- (length components) 1))
-			parent_components (slice components 0 (- (length components) 1))
+		(defq name (get components -2)
+			parent_components (slice components 0 -2)
 			parent_path (if (= (length parent_components) 0)
 				"/"
 				(cat "/" (join parent_components "/"))))
@@ -965,8 +965,8 @@
 
 			; Get parent directory
 			(defq components (. this :split_path path)
-				name (get components (- (length components) 1))
-				parent_components (slice components 0 (- (length components) 1))
+				name (get components -2)
+				parent_components (slice components 0 -2)
 				parent_path (if (= (length parent_components) 0)
 					"/"
 					(cat "/" (join parent_components "/"))))
@@ -1007,8 +1007,8 @@
 
 			; Get parent directory
 			(defq components (. this :split_path path)
-				name (get components (- (length components) 1))
-				parent_components (slice components 0 (- (length components) 1))
+				name (get components -2)
+				parent_components (slice components 0 -2)
 				parent_path (if (= (length parent_components) 0)
 					"/"
 					(cat "/" (join parent_components "/"))))
@@ -1120,10 +1120,11 @@
 						size (get old_info :size)
 						attributes (get old_info :attributes))
 
-					(. this :add_entry_to_directory new_parent_cluster new_name attributes first_cluster size))))
+					(. this :add_entry_to_directory new_parent_cluster new_name attributes first_cluster size)))))
 
 	(defmethod :get_size ()
 		; Get filesystem size
 		; outputs
 		; total size in bytes
-		(* (get this :cluster_count) (get this :cluster_size))))))  ; Close defmethod and defclass ExFat
+		(defq size (* (get this :cluster_count) (get this :cluster_size)))
+		size))) ; End of ExFat class
