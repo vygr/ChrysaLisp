@@ -432,7 +432,7 @@
 							:attributes attributes
 							:first_cluster first_cluster
 							:size data_length
-							:is_directory (= (logand attributes +exfat_attr_directory) +exfat_attr_directory))))))))
+							:is_directory (= (logand attributes +exfat_attr_directory) +exfat_attr_directory)))))))
 
 	(defmethod :find_free_entry_space (dir_cluster entry_count)
 		; Find free space in directory for entry_count entries
@@ -1126,4 +1126,4 @@
 		; Get filesystem size
 		; outputs
 		; total size in bytes
-		(* (get this :cluster_count) (get this :cluster_size))))
+		(* (get this :cluster_count) (get this :cluster_size))))))  ; Close defmethod and defclass ExFat
