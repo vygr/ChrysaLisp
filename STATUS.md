@@ -6,6 +6,15 @@
 
 New `(nql obj1 obj2) -> :t | :nil` built in function.
 
+New `'obj :eql` virtual method.
+
+Fixed bug in optional start index value for `(find elm seq [idx])` and `(rfind
+elm seq [idx])` functions.
+
+Optimized `'list :lisp_merge` to be faster and use no stack variables.
+
+Optimized `'list :lisp_match` to use no stack variables.
+
 ------
 
 New `class/mstream/class.inc` VP class for in memory stream buffers. A seekable

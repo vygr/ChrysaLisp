@@ -104,29 +104,32 @@ Understanding the "why" behind ChrysaLisp's design:
 
 32. **[More Haste Less Speed](docs/ai_digest/more_haste_less_speed.md)** - The philosophy of deliberate craftsmanship: achieving performance through thoughtful design rather than raw speed.
 
+33. **[The Tao of Now](docs/ai_digest/the_tao_of_now.md)** - It's all a dream. The system is a
+concensous reality.
+
 ## Practical Implementation
 
 Getting ChrysaLisp running and building applications:
 
-33. **[Host Interface](docs/ai_digest/host_interface.md)** - The bridge between ChrysaLisp and the host OS: PII functions, GUI/audio layers, and the VP64 emulator.
+34. **[Host Interface](docs/ai_digest/host_interface.md)** - The bridge between ChrysaLisp and the host OS: PII functions, GUI/audio layers, and the VP64 emulator.
 
-34. **[Porting](docs/ai_digest/porting.md)** - Comprehensive guide to porting ChrysaLisp to new operating systems and CPU architectures.
+35. **[Porting](docs/ai_digest/porting.md)** - Comprehensive guide to porting ChrysaLisp to new operating systems and CPU architectures.
 
-35. **[App Configuration](docs/ai_digest/app_configuration.md)** - The standard pattern for managing application state and user preferences.
+36. **[App Configuration](docs/ai_digest/app_configuration.md)** - The standard pattern for managing application state and user preferences.
 
 ## Advanced Topics
 
 Deep dives into specialized areas:
 
-36. **[Inner Thoughts](docs/ai_digest/inner_thoughts.md)** - The REPL as a JIT compiler: understanding the read-expand-bind-eval pipeline and the static-q* family.
+37. **[Inner Thoughts](docs/ai_digest/inner_thoughts.md)** - The REPL as a JIT compiler: understanding the read-expand-bind-eval pipeline and the static-q* family.
 
-37. **[Rocinante](docs/ai_digest/rocinante.md)** - Mastering the "Four Horsemen" primitives (each!, map!, reduce!, some!, filter!) and the ! special form.
+38. **[Rocinante](docs/ai_digest/rocinante.md)** - Mastering the "Four Horsemen" primitives (each!, map!, reduce!, some!, filter!) and the ! special form.
 
-38. **[Udat AI Shares](docs/ai_digest/udat_ai_shares.md)** - AI commentary on ChrysaLisp's architectural coherence and design philosophy.
+39. **[Udat AI Shares](docs/ai_digest/udat_ai_shares.md)** - AI commentary on ChrysaLisp's architectural coherence and design philosophy.
 
-39. **[Coding Domains](docs/ai_digest/coding_domains.md)** - Know your coding domain and stick to it.
+40. **[Coding Domains](docs/ai_digest/coding_domains.md)** - Know your coding domain and stick to it.
 
-40. **[Sequnce Indexing](docs/ai_digest/sequence_indexing.md)** - Sequence indexing and slicing.
+41. **[Sequence Indexing](docs/ai_digest/sequence_indexing.md)** - Sequence indexing and slicing.
 
 ---
 
@@ -135,19 +138,31 @@ Deep dives into specialized areas:
 Depending on your goals, you might follow different reading paths:
 
 ### For Understanding the System
-Follow the order above from 1-38 for a complete understanding.
+
+Follow the order above from 0-41 for a complete understanding.
 
 ### For Application Development
-Read: 1-7, 12-15, 20-26, 29, 35
+
+Focus on the language, standard libraries, and GUI framework.
+
+Read: 1, 4, 12, 29, 38, 14, 15, 19, 20, 22, 24, 25, 26, 36, 27, 33
 
 ### For System Programming
-Read: 1-11, 16-19, 27-29, 33-34
+
+Focus on the Virtual Processor, memory model, and host integration.
+
+Read: 1, 3, 5, 7, 8, 9, 10, 11, 34, 35, 18, 28, 37
 
 ### For Language Design Insights
-Read: 1-7, 12-19, 30-32, 36-38
+
+Focus on the philosophical divergences from traditional Lisp and architectural
+unification.
+
+Read: 2, 3, 6, 13, 16, 17, 30, 31, 32, 33, 39
 
 ### Quick Start
-Read: 1, 4, 12, 14, 29, 37
+
+Read: 1, 4, 12, 14, 29, 38, 40, 41
 
 ---
 

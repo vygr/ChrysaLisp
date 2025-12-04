@@ -4,9 +4,9 @@
 
 (def-class lisp obj
 	(dec-method :vtable class/lisp/vtable)
+	(dec-method :deinit class/lisp/deinit :final)
 	(dec-method :create class/lisp/create :static (:r0 :r1 :r2 :r3) (:r0))
 	(dec-method :init class/lisp/init :static (:r0 :r1 :r2 :r3 :r4 :r5))
-	(dec-method :deinit class/lisp/deinit :final)
 	(dec-method :env_push class/lisp/env_push :static (:r0) (:r0 :r1))
 	(dec-method :env_pop class/lisp/env_pop :static (:r0) (:r0 :r1))
 	(dec-method :env_bind class/lisp/env_bind :static (:r0 :r1 :r2) (:r0 :r1))
@@ -35,8 +35,6 @@
 	(dec-method :lisp_macro class/lisp/lisp_macro :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_quote class/lisp/lisp_quote :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_qquote class/lisp/lisp_qquote :static (:r0 :r1) (:r0 :r1))
-	(dec-method :lisp_eql class/lisp/lisp_eql :static (:r0 :r1) (:r0 :r1))
-	(dec-method :lisp_nql class/lisp/lisp_nql :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_if class/lisp/lisp_if :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_ifn class/lisp/lisp_ifn :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_cond class/lisp/lisp_cond :static (:r0 :r1) (:r0 :r1))

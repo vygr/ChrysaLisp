@@ -22,7 +22,7 @@
 	(entry 'sym :statics_init {})
 
 	;init symbol set
-	(call 'hset :create `((@ ,(f-path 'sym :same)) num_sym_buckets) '(:r0))
+	(call 'hset :create `((@ ,(f-path 'sym :eql_str)) num_sym_buckets) '(:r0))
 	(fn-bind 'sys/statics/statics :r1)
 	(assign '(:r0) '((:r1 statics_sym_intern)))
 
@@ -205,6 +205,35 @@
 	(vp-pop :r0)
 
 	(exit 'sym :print '(:r0))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'sym :eql_str)
+	;inputs
+	;:r0 = sym object (ptr)
+	;:r1 = str object (ptr)
+	;outputs
+	;:r0 = sym object (ptr)
+	;:r1 = 0 if same, else not
+	;trashes
+	;:r1-:r6
+
+	(vp-def (this that len1 len2))
+
+	(entry 'sym :eql_str `(,this ,that))
+
+	(gotoif `(,this = ,that) 'same)
+	(assign `((,this str_length) (,that str_length)) `(,len1 ,len2))
+	(gotoif `(,len1 /= ,len2) 'not_same)
+	(jump 'str :starts_with `(,this ,that))
+
+(vp-label 'not_same)
+	(exit 'sym :eql_str `(,this -1))
+	(vp-ret)
+
+(vp-label 'same)
+	(exit 'sym :eql_str `(,this 0))
 	(vp-ret)
 
 (def-func-end)

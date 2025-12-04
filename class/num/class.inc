@@ -2,10 +2,8 @@
 
 (def-class num obj
 	(dec-method :vtable class/num/vtable)
-	(dec-method :create class/num/create :static (:r0) (:r0))
-	(dec-method :init class/num/init :static (:r0 :r1 :r2))
-	(dec-method :get_value class/num/get_value :static (:r0) (:r0 :r1))
-	(dec-method :set_value class/num/set_value :static (:r0 :r1) (:r0 :r1))
+	(dec-method :hash class/num/hash :override)
+	(dec-method :eql class/num/eql :final)
 	(dec-method :print class/num/print :override)
 	(dec-method :vcreate class/num/create :virtual (:r0) (:r0))
 	(dec-method :add class/num/add :virtual (:r0 :r1) (:r0 :r1))
@@ -26,6 +24,10 @@
 	(dec-method :gt class/num/gt :virtual (:r0 :r1) (:r0 :r1))
 	(dec-method :le class/num/le :virtual (:r0 :r1) (:r0 :r1))
 	(dec-method :ge class/num/ge :virtual (:r0 :r1) (:r0 :r1))
+	(dec-method :create class/num/create :static (:r0) (:r0))
+	(dec-method :init class/num/init :static (:r0 :r1 :r2))
+	(dec-method :get_value class/num/get_value :static (:r0) (:r0 :r1))
+	(dec-method :set_value class/num/set_value :static (:r0 :r1) (:r0 :r1))
 	(dec-method :intern class/num/intern :static (:r0) (:r0))
 	(dec-method :lisp_intern class/num/lisp_intern :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_add class/num/lisp_add :static (:r0 :r1) (:r0 :r1))
@@ -54,8 +56,7 @@
 	(dec-method :lisp_shl class/num/lisp_shl :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_n2i class/num/lisp_n2i :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_n2f class/num/lisp_n2f :static (:r0 :r1) (:r0 :r1))
-	(dec-method :lisp_n2r class/num/lisp_n2r :static (:r0 :r1) (:r0 :r1))
-	(dec-method :hash class/num/hash :override (:r0) (:r0 :r1)))
+	(dec-method :lisp_n2r class/num/lisp_n2r :static (:r0 :r1) (:r0 :r1)))
 
 (def-struct num obj_size
 	(long value))
