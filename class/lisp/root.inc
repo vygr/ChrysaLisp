@@ -56,10 +56,6 @@
 ; (. env sym [...]) -> form
 (ffi "class/lisp/lisp_macroexpand" macroexpand)
 ; (macroexpand form) -> 'form
-(ffi "class/lisp/lisp_eql" eql)
-; (eql form form) -> :nil | :t
-(ffi "class/lisp/lisp_nql" nql)
-; (nql form form) -> :nil | :t
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Numeric and Vector Operations
@@ -372,6 +368,10 @@
 ; (weak-ref obj) -> num
 (ffi "class/obj/lisp_oref" obj-ref)
 ; (obj-ref num) -> obj
+(ffi "class/obj/lisp_eql" eql)
+; (eql obj obj) -> :nil | :t
+(ffi "class/obj/lisp_nql" nql)
+; (nql obj obj) -> :nil | :t
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Platform Implementation Interface (PII)

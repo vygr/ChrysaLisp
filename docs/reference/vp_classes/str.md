@@ -189,6 +189,19 @@ trashes
 :r1-:r8
 ```
 
+### :eql -> class/str/eql
+
+```code
+inputs
+:r0 = str object (ptr)
+:r1 = obj object (ptr)
+outputs
+:r0 = str object (ptr)
+:r1 = 0 if same, else not
+trashes
+:r1-:r6
+```
+
 ### :find -> class/str/find
 
 ```code
@@ -351,19 +364,6 @@ outputs
 :r1 = string slice object (ptr)
 trashes
 :r1-:r7
-```
-
-### :same -> class/str/same
-
-```code
-inputs
-:r0 = str object (ptr)
-:r1 = str object (ptr)
-outputs
-:r0 = str object (ptr)
-:r1 = 0 if same
-trashes
-:r1-:r6
 ```
 
 ### :same_pstr -> class/str/same_pstr

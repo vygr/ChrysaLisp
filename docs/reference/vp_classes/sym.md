@@ -10,6 +10,32 @@
 
 ## VP methods
 
+### :eql -> class/obj/eql
+
+```code
+inputs
+:r0 = obj object (ptr)
+:r1 = obj object (ptr)
+outputs
+:r0 = obj object (ptr)
+:r1 = 0 if same, else not
+trashes
+:r1
+```
+
+### :eql_str -> class/sym/eql_str
+
+```code
+inputs
+:r0 = sym object (ptr)
+:r1 = str object (ptr)
+outputs
+:r0 = sym object (ptr)
+:r1 = 0 if same, else not
+trashes
+:r1-:r6
+```
+
 ### :get_static_sym -> class/sym/get_static_sym
 
 ```code

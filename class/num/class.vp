@@ -511,3 +511,33 @@
 	(vp-ret)
 
 (def-func-end)
+
+(def-method 'num :eql)
+	;inputs
+	;:r0 = num object (ptr)
+	;:r1 = obj object (ptr)
+	;outputs
+	;:r0 = num object (ptr)
+	;:r1 = 0 if same, else not
+	;trashes
+	;:r1-:r3
+
+	(vp-def (this that val1 val2))
+
+	(entry 'num :eql `(,this ,that))
+
+	(gotoif `(,this = ,that) 'same)
+	(assign `((,this obj_vtable) (,that obj_vtable)) `(,val1 ,val2))
+	(gotoif `(,val1 /= ,val2) 'not_same)
+	(assign `((,this num_value) (,that num_value)) `(,val1 ,val2))
+	(gotoif `(,val1 = ,val2) 'same)
+
+(vp-label 'not_same)
+	(exit 'num :eql `(,this -1))
+	(vp-ret)
+
+(vp-label 'same)
+	(exit 'num :eql `(,this 0))
+	(vp-ret)
+
+(def-func-end)

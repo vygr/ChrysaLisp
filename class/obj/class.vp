@@ -1,9 +1,6 @@
 (include "lib/asm/func.inc")
 (include "lib/consts/chars.inc")
 (include "././stream/class.inc")
-(include "././str/class.inc")
-(include "././nums/class.inc")
-(include "././num/class.inc")
 (include "././list/class.inc")
 
 (gen-vtable 'obj)
@@ -174,44 +171,21 @@
 	;:r1 = obj object (ptr)
 	;outputs
 	;:r0 = obj object (ptr)
-	;:r1 = obj object (ptr)
-	;:r2 = 0, -1 (int)
+	;:r1 = 0 if same, else not
 	;trashes
-	;:r2-:r8
+	;:r1
 
-	(vp-def (this that vtable1 vtable2) '(:r7 :r8))
+	(vp-def (this that))
 
 	(entry 'obj :eql `(,this ,that))
 
-	(switch)
-	(gotoif `(,this = ,that) 'same)
-	(assign `((,this obj_vtable) (,that obj_vtable)) `(,vtable1 ,vtable2))
-	(breakif `(,vtable1 /= ,vtable2))
-	(f-bind 'str :vtable vtable1)
-	(vpcase `(,vtable1 = ,vtable2))
-		;:r1-:r6
-		(call 'str :same `(,this ,that) '(_ tmp))
-		(gotoif `(,tmp = 0) 'same)
+	(vpif `(,this /= ,that))
+		(vp-cpy-cr -1 that)
 	(else)
-		(call 'obj :inst_of `(,this (@ ,(f-path 'num :vtable))) '(_ tmp))
-		(nextcaseif `(,tmp = 0))
-		(list-cast-args `(,this ,that) '(:num :num))
-		(gotoif `(,this = ,that) 'same)
-	(else)
-		(call 'obj :inst_of `(,this (@ ,(f-path 'nums :vtable))) '(_ tmp))
-		(nextcaseif `(,tmp = 0))
-		(assign `((,this array_length) (,that array_length)) `(,vtable1 ,vtable2))
-		(breakif `(,vtable1 /= ,vtable2))
-		(call 'nums :eql `(,this ,that) `(_ tmp))
-		(gotoif `(,tmp = 0) 'same)
-	(endswitch)
+		(vp-xor-rr that that)
+	(endif)
 
-(vp-label 'notsame)
-	(exit 'obj :eql `(,this ,that 0))
-	(vp-ret)
-
-(vp-label 'same)
-	(exit 'obj :eql `(,this ,that -1))
+	(exit 'obj :eql `(,this ,that))
 	(vp-ret)
 
 (def-func-end)

@@ -688,3 +688,42 @@
 	(vp-ret)
 
 (def-func-end)
+
+(def-method 'array :eql)
+	;inputs
+	;:r0 = array object (ptr)
+	;:r1 = obj object (ptr)
+	;outputs
+	;:r0 = array object (ptr)
+	;:r1 = 0 if same, else not
+	;trashes
+	;:r1-:r5
+
+	(vp-def (this that len1 len2 itr1 itr2))
+
+	(entry 'array :eql `(,this ,that))
+
+	(gotoif `(,this = ,that) 'same)
+	(assign `((,this obj_vtable) (,that obj_vtable)) `(,len1 ,len2))
+	(gotoif `(,len1 /= ,len2) 'not_same)
+	(assign `((,this array_length) (,that array_length)) `(,len1 ,len2))
+	(gotoif `(,len1 /= ,len2) 'not_same)
+	(gotoif `(,len1 = 0) 'same)
+	(assign `((,this array_begin) (,that array_begin)) `(,itr1 ,itr2))
+	(vp-shl-cr (log2 +ptr_size) len1)
+	(vp-add-rr itr1 len1)
+	(loop-start)
+		(vp-simd vp-cpy-ir `(,itr1 ,itr2) '(0 0) `(,that ,len2))
+		(gotoif `(,that /= ,len2) 'not_same)
+		(vp-simd vp-add-cr `(,+ptr_size) `(,itr1 ,itr2))
+	(loop-until `(,itr1 = ,len1))
+
+(vp-label 'same)
+	(exit 'array :eql `(,this 0))
+	(vp-ret)
+
+(vp-label 'not_same)
+	(exit 'array :eql `(,this -1))
+	(vp-ret)
+
+(def-func-end)
