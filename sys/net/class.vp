@@ -1,0 +1,118 @@
+(include "lib/asm/func.inc")
+(include "./class.inc")
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Host Network Driver Wrappers
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(def-method 'host_net :net_init)
+	;inputs
+	;:r0 = interface name (c string, pubyte)
+	;:r1 = MAC address (6 bytes, pubyte)
+	;:r2 = IP address (4 bytes, pubyte)
+	;:r3 = netmask (4 bytes, pubyte)
+	;:r4 = gateway (4 bytes, pubyte)
+	;:r5 = MTU (uint)
+	;outputs
+	;:r0 = 0 on success, -1 on error (int)
+
+	(entry 'host_net :net_init '(:r0 :r1 :r2 :r3 :r4 :r5))
+	(abi-push-trashed :r1 :r2 :r3 :r4 :r5 :r13 :r14)
+	(host-net-call 'host_net :init '(:r0 :r1 :r2 :r3 :r4 :r5) '(:r0))
+	(abi-pop-trashed :r1 :r2 :r3 :r4 :r5 :r13 :r14)
+	(exit 'host_net :net_init '(:r0))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'host_net :net_deinit)
+	;inputs
+	;  none
+	;outputs
+	;:r0 = 0 on success (int)
+
+	(entry 'host_net :net_deinit '())
+	(abi-push-trashed :r13 :r14)
+	(host-net-call 'host_net :deinit '() '(:r0))
+	(abi-pop-trashed :r13 :r14)
+	(exit 'host_net :net_deinit '(:r0))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'host_net :net_send)
+	;inputs
+	;:r0 = data pointer (pubyte)
+	;:r1 = length (uint)
+	;outputs
+	;:r0 = bytes sent, or -1 on error (int)
+
+	(entry 'host_net :net_send '(:r0 :r1))
+	(abi-push-trashed :r1 :r13 :r14)
+	(host-net-call 'host_net :send '(:r0 :r1) '(:r0))
+	(abi-pop-trashed :r1 :r13 :r14)
+	(exit 'host_net :net_send '(:r0))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'host_net :net_recv)
+	;inputs
+	;:r0 = buffer pointer (pubyte)
+	;:r1 = buffer size (uint)
+	;outputs
+	;:r0 = bytes received, or -1 on error, 0 on no data (int)
+
+	(entry 'host_net :net_recv '(:r0 :r1))
+	(abi-push-trashed :r1 :r13 :r14)
+	(host-net-call 'host_net :recv '(:r0 :r1) '(:r0))
+	(abi-pop-trashed :r1 :r13 :r14)
+	(exit 'host_net :net_recv '(:r0))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'host_net :net_poll)
+	;inputs
+	;  none
+	;outputs
+	;:r0 = number of packets ready, or -1 on error (int)
+
+	(entry 'host_net :net_poll '())
+	(abi-push-trashed :r13 :r14)
+	(host-net-call 'host_net :poll '() '(:r0))
+	(abi-pop-trashed :r13 :r14)
+	(exit 'host_net :net_poll '(:r0))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'host_net :net_get_info)
+	;inputs
+	;:r0 = info structure pointer (net_info*, pubyte)
+	;outputs
+	;:r0 = 0 on success, -1 on error (int)
+
+	(entry 'host_net :net_get_info '(:r0))
+	(abi-push-trashed :r13 :r14)
+	(host-net-call 'host_net :get_info '(:r0) '(:r0))
+	(abi-pop-trashed :r13 :r14)
+	(exit 'host_net :net_get_info '(:r0))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method 'host_net :net_get_stats)
+	;inputs
+	;:r0 = stats structure pointer (net_stats*, pubyte)
+	;outputs
+	;:r0 = 0 on success, -1 on error (int)
+
+	(entry 'host_net :net_get_stats '(:r0))
+	(abi-push-trashed :r13 :r14)
+	(host-net-call 'host_net :get_stats '(:r0) '(:r0))
+	(abi-pop-trashed :r13 :r14)
+	(exit 'host_net :net_get_stats '(:r0))
+	(vp-ret)
+
+(def-func-end)
