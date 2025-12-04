@@ -1,5 +1,4 @@
 (import "lib/options/options.inc")
-(import "lib/task/cmd.inc")
 
 (defq usage `(
 (("-h" "--help")
