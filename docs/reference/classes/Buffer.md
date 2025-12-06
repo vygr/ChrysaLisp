@@ -100,6 +100,12 @@
 (. buffer :get_size) -> (width height)
 ```
 
+### :get_sticky
+
+```code
+(. buffer :get_sticky) -> x
+```
+
 ### :get_syntax
 
 ```code
@@ -188,6 +194,18 @@
 
 ```code
 (. buffer :set_cursor x y) -> buffer
+```
+
+### :set_sticky
+
+```code
+(. buffer :set_sticky x) -> buffer
+```
+
+### :set_sticky_cursor
+
+```code
+(. buffer :set_sticky_cursor x y) -> buffer
 ```
 
 ### :undo

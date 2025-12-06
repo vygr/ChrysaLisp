@@ -62,7 +62,7 @@
 		(clear (get :redo_stack this))
 		(last-line)
 		(lower :buffer_line :buffer_syntax :buffer_states :buffer_found :buffer_brackets
-			(:dirty_flags -1 :modified :t))
+			(:dirty_flags -1 :modified :t :sticky_x :nil))
 		(. this :set_cursor x y))))
 
 (defmacro get-selection ()
@@ -141,8 +141,7 @@
 		:buffer_found (list :nil) :dirty_flags -1
 		:syntax_engine (ifn syntax (Syntax)) :undo_stack (list) :redo_stack (list)
 		:cursor_x 0 :cursor_y 0 :max_width 0 :tab_width 4 :wrap_width 80
-		:mode mode :next_mark -1 :modified :nil
-		:last_key :nil)
+		:mode mode :next_mark -1 :modified :nil :last_key :nil :sticky_x :nil)
 
 	(defmethod :next_mark ()
 		; (. buffer :next_mark) -> mark
@@ -161,6 +160,21 @@
 
 	(defmethod :set_cursor (cursor_x cursor_y)
 		; (. buffer :set_cursor x y) -> buffer
+		(lower :cursor_x :cursor_y) this)
+
+	(defmethod :set_sticky (sticky_x)
+		; (. buffer :set_sticky x) -> buffer
+		(lower :sticky_x) this)
+
+	(defmethod :get_sticky ()
+		; (. buffer :get_sticky) -> x
+		(get :sticky_x this))
+
+	(defmethod :set_sticky_cursor (cursor_x cursor_y)
+		; (. buffer :set_sticky_cursor x y) -> buffer
+		(raise :buffer_line :sticky_x)
+		(and sticky_x (<= 0 sticky_x (length (elem-get buffer_line cursor_y)))
+			(setq cursor_x sticky_x))
 		(lower :cursor_x :cursor_y) this)
 
 	(defmethod :get_cursor ()
@@ -274,7 +288,7 @@
 				(setq x 0)
 				(setq x +max_int)))
 		(bind '(x y) (. this :constrain x y))
-		(. this :set_cursor x y))
+		(.-> this (:set_cursor x y) (:set_sticky x)))
 
 	(defmethod :right ()
 		; (. buffer :right) -> buffer
@@ -286,19 +300,21 @@
 				(setq x +max_int)
 				(setq x 0)))
 		(bind '(x y) (. this :constrain x y))
-		(. this :set_cursor x y))
+		(.-> this (:set_cursor x y) (:set_sticky x)))
 
 	(defmethod :down ()
 		; (. buffer :down) -> buffer
 		(bind '(x y) (. this :get_cursor))
+		(ifn (. this :get_sticky) (. this :set_sticky x))
 		(bind '(x y) (. this :constrain x (inc y)))
-		(. this :set_cursor x y))
+		(. this :set_sticky_cursor x y))
 
 	(defmethod :up ()
 		; (. buffer :up) -> buffer
 		(bind '(x y) (. this :get_cursor))
+		(ifn (. this :get_sticky) (. this :set_sticky x))
 		(bind '(x y) (. this :constrain x (dec y)))
-		(. this :set_cursor x y))
+		(. this :set_sticky_cursor x y))
 
 	(defmethod :break ()
 		; (. buffer :break) -> buffer

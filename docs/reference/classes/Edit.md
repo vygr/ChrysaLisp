@@ -300,6 +300,12 @@
 (. edit :set_select_color argb) -> edit
 ```
 
+### :set_sticky
+
+```code
+(. edit :set_sticky x) -> edit
+```
+
 ### :sort
 
 ```code
