@@ -173,8 +173,7 @@
 	(defmethod :set_sticky_cursor (cursor_x cursor_y)
 		; (. buffer :set_sticky_cursor x y) -> buffer
 		(raise :buffer_line :sticky_x)
-		(and sticky_x (<= 0 sticky_x (length (elem-get buffer_line cursor_y)))
-			(setq cursor_x sticky_x))
+		(if sticky_x (setq cursor_x (min sticky_x (length (elem-get buffer_line cursor_y)))))
 		(lower :cursor_x :cursor_y) this)
 
 	(defmethod :get_cursor ()
