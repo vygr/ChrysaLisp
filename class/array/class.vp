@@ -346,9 +346,9 @@
 
 	(vp-alloc local_size)
 	(entry 'array :pivot '(:r0 :r1 :r2 :r3 :r4))
-	(assign '(:r0 :r1 :r2 :r3 :r4 :r1)
-		'((:rsp local_this) (:rsp local_lower) (:rsp local_upper) (:rsp local_func)
-		(:rsp local_ctx) (:rsp local_pivot)))
+	(save-fields :rsp
+		'(local_this local_lower local_upper local_func local_ctx local_pivot)
+		'(:r0 :r1 :r2 :r3 :r4 :r1))
 
 	(loop-start)
 		(vp-add-cr +long_size :r1)
