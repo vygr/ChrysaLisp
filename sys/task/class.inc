@@ -37,7 +37,7 @@
 (defcvar 'tk_stack_canary 0xbadf00d123456789)
 
 (def-struct tk_node ln_node_size
-	(ptr stack stack_top mbox_addr lisp tls)
+	(ptr stack stack_top mbox_addr lisp)
 	(ulong time)
 	(uint priority mbox_id))
 

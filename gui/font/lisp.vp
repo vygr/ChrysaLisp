@@ -61,9 +61,8 @@
 		in2 (method-input 'font :glyph_paths))
 	(assign '(:r0) '((:rsp local_this)))
 	(list-bind-args :r1 in1 '(:font :obj))
-	(call 'font :glyph_info in1 `(,(first in2) ,(third in2)))
-	(assign `((:rsp local_this) ,(third in2)) `(,(second in2) (:rsp local_info)))
-	(assign `((,(second in2) lisp_stack)) `(,(second in2)))
+	(call 'font :glyph_info in1 in2)
+	(assign `(,(second in2)) '((:rsp local_info)))
 	(call 'font :glyph_paths in2 '(_ (:rsp local_paths) _ _))
 	(call 'array :deref '((:rsp local_info)))
 

@@ -5,11 +5,10 @@
 (def-method 'path :stroke_polyline)
 	;inputs
 	;:r0 = path object (ptr)
-	;:r1 = stack array object (ptr)
-	;:r2 = radius (fixed)
-	;:r3 = join style (byte)
-	;:r4 = cap style1 (byte)
-	;:r5 = cap style2 (byte)
+	;:r1 = radius (fixed)
+	;:r2 = join style (byte)
+	;:r3 = cap style1 (byte)
+	;:r4 = cap style2 (byte)
 	;outputs
 	;:r0 = path object (ptr)
 	;:r1 = output path object (ptr)
@@ -23,13 +22,13 @@
 				l2_vx l2_vy l2_pvx l2_pvy l2_npvx l2_npvy l2_rvx l2_rvy
 				l1_vx l1_vy l1_npvx l1_npvy l1_rvx l1_rvy))
 		(plong iter iter_begin iter_end)
-		(ptr this stack path1)
+		(ptr this path1)
 		(int radius step c c1)
 		(byte join_style cap1_style cap2_style))
 
 	(push-scope)
 	(scope-used l2_pv p3 p4)
-	(entry 'path :stroke_polyline {this, stack, radius, join_style, cap1_style, cap2_style})
+	(entry 'path :stroke_polyline {this, radius, join_style, cap1_style, cap2_style})
 
 	(vec-set 0)
 	(call 'path :filter_polyline {this, this, 0.5})
@@ -127,8 +126,8 @@
 				(vec-load 1 {-1})
 				(vec-scale 2)
 				(vec-store 2 {p4x, p4y})
-				(call 'path :gen_clerp {path1, stack, p1x, p1y, p4x, p4y, p3x, p3y, radius})
-				(call 'path :gen_clerp {path1, stack, p1x, p1y, p3x, p3y, l2_rvx, l2_rvy, radius})
+				(call 'path :gen_clerp {path1, p1x, p1y, p4x, p4y, p3x, p3y, radius})
+				(call 'path :gen_clerp {path1, p1x, p1y, p3x, p3y, l2_rvx, l2_rvy, radius})
 			(endswitch)
 			(loop-while {iter /= iter_begin && iter /= iter_end})
 				(vec-load 4 {p2, l2_v, l2_npv, l2_rv})
@@ -158,7 +157,7 @@
 
 				(switch)
 				(vpcase {(c < 0.01) && (c > -0.01) || (c1 < -0.9)})
-					;acuracy limit
+					;accuracy limit
 					(goto 'do_bevel)
 				(vpcase {c <= 0 || join_style = join_miter})
 					;mitre join
@@ -182,7 +181,7 @@
 					(call 'path :push_back2 {path1, p1x, p1y})
 				(else)
 					;rounded join
-					(call 'path :gen_clerp {path1, stack, p1x, p1y, l1_rvx, l1_rvy, l2_rvx, l2_rvy, radius})
+					(call 'path :gen_clerp {path1, p1x, p1y, l1_rvx, l1_rvy, l2_rvx, l2_rvy, radius})
 				(endswitch)
 			(loop-end)
 			(breakif {step < 0})

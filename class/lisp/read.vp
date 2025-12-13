@@ -44,8 +44,8 @@
 	;:r1-:r14
 
 	(def-vars
-		(ptr this stream list item)
-		(int c) (uint start))
+		(ptr this stream list item stack)
+		(int c))
 
 	(vp-def (this stream c item) '(:r0 :r1 :r2 :r1))
 
@@ -53,7 +53,7 @@
 	(entry 'lisp :read {this, stream, c})
 
 	(call 'list :create {} {list})
-	(call 'array :get_length {this->lisp_stack} {_, start})
+	(call 'array :create {} {stack})
 
 	(loop-start)
 		;skip white space and comments
@@ -74,15 +74,15 @@
 		(switch)
 		(vpcase `(,c = +char_lrb))
 			(call 'lisp :read_char `(,this ,stream ,c) {_, c})
-			(call 'array :push_back {this->lisp_stack, list})
+			(call 'array :push_back {stack, list})
 			(call 'list :create {} {item})
 			(call 'list :push_back {list, item})
 			(assign {item} {list})
 			(break)
 		(vpcase `(,c = +char_rrb))
 			(call 'lisp :read_char `(,this ,stream ,c) {_, c})
-			(errorif {this->lisp_stack->array_length = start} 'error1)
-			(call 'array :pop_back {this->lisp_stack} {_, list})
+			(errorifnot {stack->array_length} 'error1)
+			(call 'array :pop_back {stack} {_, list})
 			(break)
 		(vpcase `(,c >= +char_0) `(,c <= +char_9))
 			(call 'lisp :read_num `(,this ,stream ,c) `(_ ,item ,c))
@@ -109,7 +109,7 @@
 			(call 'lisp :read_num `(,this ,stream ,c) `(_ ,item ,c))
 			(goto 'push_item)
 		(vpcase `(,c = -1))
-			(errorif {start /= this->lisp_stack->array_length} 'error2)
+			(errorif {stack->array_length} 'error2)
 			(call 'sym :ref {this->lisp_sym_nil} {item})
 			(goto 'push_item1)
 		(default)
@@ -121,10 +121,11 @@
 		(endswitch)
 
 		;reached start point ?
-	(loop-until {start = this->lisp_stack->array_length})
+	(loop-untilnot {stack->array_length})
 
 	(call 'list :pop_back {list} {_, item})
 	(call 'list :deref {list})
+	(call 'array :deref {stack})
 
 	(exit 'lisp :read {this, item, c})
 	(return)
@@ -136,6 +137,7 @@
 (vp-label 'error1)
 	(call 'lisp :repl_error {this, "unexpected )", +error_msg_wrong_types, list} {_, item})
 (vp-label 'error)
+	(call 'array :deref {stack})
 	(exit 'lisp :read {this, item, c})
 	(return))
 

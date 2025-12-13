@@ -56,7 +56,6 @@
 		;tls stack, object tls, error vtable
 		(assign {@sys/statics/statics.statics_sys_task_current_tcb} {func})
 		(assign {this} {func->tk_node_lisp})
-		(assign {func->tk_node_tls} {this->lisp_stack})
 		(assign {@class/error/vtable} {this->lisp_error})
 
 		;spin lock if boot env busy
@@ -243,7 +242,7 @@
 	(assign {&this->lisp_stdin} {iter})
 	(loop-start)
 		(call 'obj :deref {*iter})
-	(loop-until {(iter + +ptr_size => iter) = &this->lisp_stack})
+	(loop-until {(iter + +ptr_size => iter) = &this->lisp_error})
 
 	;deinit parent
 	(s-jump 'lisp :deinit {this})

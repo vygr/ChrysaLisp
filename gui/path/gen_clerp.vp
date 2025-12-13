@@ -5,14 +5,13 @@
 (def-method 'path :gen_clerp)
 	;inputs
 	;:r0 = path object (ptr)
-	;:r1 = stack array object (ptr)
-	;:r2 = cx (fixed)
-	;:r3 = cy (fixed)
-	;:r4 = v1x (fixed)
-	;:r5 = v1y (fixed)
-	;:r6 = v2x (fixed)
-	;:r7 = v2y (fixed)
-	;:r8 = radius (fixed)
+	;:r1 = cx (fixed)
+	;:r2 = cy (fixed)
+	;:r3 = v1x (fixed)
+	;:r4 = v1y (fixed)
+	;:r5 = v2x (fixed)
+	;:r6 = v2y (fixed)
+	;:r7 = radius (fixed)
 	;outputs
 	;:r0 = path object (ptr)
 	;trashes
@@ -25,10 +24,10 @@
 			(ulong v1 v2 bv)
 			(int v1x v1y v2x v2y bvx bvy))
 		(int cx cy radius)
-		(uint start length))
+		(uint length))
 
 	(push-scope)
-	(entry 'path :gen_clerp {this, stack, cx, cy, v1x, v1y, v2x, v2y, radius})
+	(entry 'path :gen_clerp {this, cx, cy, v1x, v1y, v2x, v2y, radius})
 
 	(vec-set 0)
 
@@ -38,7 +37,7 @@
 	(vec-store 2 {bvx, bvy})
 	(call 'path :push_back2 {this, bvx, bvy})
 
-	(d-call 'array :get_length {stack} {_, start})
+	(call 'array :create :nil {stack})
 	(loop-start)
 		;calculate the mid-point
 		(vec-load 2 {v1x, v1y} {v2x, v2y})
@@ -89,7 +88,7 @@
 		(endif)
 
 		(d-call 'array :get_length {stack} {_, length})
-		(breakif {length = start})
+		(breakifnot {length})
 		(call 'array :set_length {stack, length - 2})
 		(call 'array :get_end {stack} {_, iter_end})
 		(vec-load 1 {iter_end})
@@ -98,6 +97,7 @@
 		(vec-store 2 {v1, v2})
 		(vec-pop 1)
 	(loop-end)
+	(call 'array :deref {stack})
 
 	;output last point
 	(vec-load 2 {cx, cy} {v2x, v2y})

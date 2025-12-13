@@ -318,8 +318,7 @@
 (def-method 'font :glyph_paths)
 	;inputs
 	;:r0 = font object (ptr)
-	;:r1 = stack array object (ptr)
-	;:r2 = glyph info array object (ptr)
+	;:r1 = glyph info array object (ptr)
 	;outputs
 	;:r0 = font object (ptr)
 	;:r1 = glyph paths list object (ptr)
@@ -337,14 +336,14 @@
 		(vp-asr-cr 7 ry))
 
 	(def-vars
-		(ptr this stack paths path info)
+		(ptr this paths path info)
 		(pptr iter_begin iter_end)
 		(puint data data_end)
 		(int x y pos_x pos_y)
 		(uint width height gap ox oy))
 
 	(push-scope)
-	(entry 'font :glyph_paths {this, stack, info})
+	(entry 'font :glyph_paths {this, info})
 
 	(assign {&this->font_data->str_data} {iter_begin})
 	(assign {iter_begin->font_data_ascent + iter_begin->font_data_descent} {height})
@@ -372,15 +371,15 @@
 				(vpcase `(,c = 2))
 					;curveto
 					(call 'path :pop_back2 {path})
-					(vp-def (pth stack pos_x pos_y x y x1 y1 x2 y2 eps data ox oy pixels)
+					(vp-def (pth pos_x pos_y x y x1 y1 x2 y2 eps data ox oy pixels)
 						(method-input 'path :gen_cubic))
-					(assign {data, path, stack, pos_x, pos_y, x, y, ox, oy, this->font_pixels}
-						`(,data ,pth ,stack ,pos_x ,pos_y ,x ,y ,ox ,oy ,pixels))
+					(assign {data, path, pos_x, pos_y, x, y, ox, oy, this->font_pixels}
+						`(,data ,pth ,pos_x ,pos_y ,x ,y ,ox ,oy ,pixels))
 					(assign `((,data font_curve_element_x1) (,data font_curve_element_y1)
 						(,data font_curve_element_x2) (,data font_curve_element_y2)) `(,x1 ,y1 ,x2 ,y2))
 					(trans_xy x1 y1)
 					(trans_xy x2 y2)
-					(call 'path :gen_cubic `(,pth ,stack ,pos_x ,pos_y ,x ,y ,x1 ,y1 ,x2 ,y2))
+					(call 'path :gen_cubic `(,pth ,pos_x ,pos_y ,x ,y ,x1 ,y1 ,x2 ,y2))
 
 					(assign {data, ox, oy, this->font_pixels} `(,data ,ox ,oy ,pixels))
 					(assign `((,data font_curve_element_x2) (,data font_curve_element_y2)) `(,x2 ,y2))
@@ -442,8 +441,7 @@
 	(vpifnot {iter})
 		;create sym canvas
 		(call 'font :glyph_info {this, sym} {_, info})
-		(call 'font :glyph_paths {this, @sys/statics/statics.statics_sys_task_current_tcb->tk_node_tls, info}
-			{_, paths, w, h})
+		(call 'font :glyph_paths {this, info} {_, paths, w, h})
 		(call 'canvas :create {w, h, 2} {sym_canvas})
 		(assign {+argb_white, 1} {sym_canvas->canvas_color, sym_canvas->canvas_flags})
 		(call 'font :get_metrics {this} {_, h, _, _})

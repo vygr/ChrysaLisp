@@ -299,7 +299,6 @@
 
 	;alloc task mailbox and tls
 	(call 'sys_mail :alloc_mbox :nil {tcb->tk_node_mbox_id, tcb->tk_node_mbox_addr})
-	(call 'array :create :nil {tcb->tk_node_tls})
 	(assign {0} {tcb->tk_node_lisp})
 
 	;init task control block stack, pc and stop address's
@@ -346,7 +345,6 @@
 	(assign {@sys/statics/statics} {statics})
 	(assign {statics->statics_sys_task_current_tcb} {tcb})
 	(call 'sys_mail :free_mbox {tcb->tk_node_mbox_id})
-	(call 'array :deref {tcb->tk_node_tls})
 
 	;remove task control block
 	(vp-def (tcb next_tcb))

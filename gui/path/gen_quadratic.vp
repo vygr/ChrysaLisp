@@ -5,13 +5,12 @@
 (def-method 'path :gen_quadratic)
 	;inputs
 	;:r0 = path object (ptr)
-	;:r1 = stack array object (ptr)
-	;:r2 = p1x (fixed)
-	;:r3 = p1y (fixed)
-	;:r4 = p2x (fixed)
-	;:r5 = p2y (fixed)
-	;:r6 = p3x (fixed)
-	;:r7 = p3y (fixed)
+	;:r1 = p1x (fixed)
+	;:r2 = p1y (fixed)
+	;:r3 = p2x (fixed)
+	;:r4 = p2y (fixed)
+	;:r5 = p3x (fixed)
+	;:r6 = p3y (fixed)
 	;outputs
 	;:r0 = path object (ptr)
 	;trashes
@@ -24,16 +23,16 @@
 			(ulong p1 p2 p3 p12 p23 p123)
 			(int p1x p1y p2x p2y p3x p3y
 				p12x p12y p23x p23y p123x p123y))
-		(uint start length))
+		(uint length))
 
 	(push-scope)
-	(entry 'path :gen_quadratic {this, stack, p1x, p1y, p2x, p2y, p3x, p3y})
+	(entry 'path :gen_quadratic {this, p1x, p1y, p2x, p2y, p3x, p3y})
 
 	;output first point
 	(vec-set 0)
 	(call 'path :push_back2 {this, p1x, p1y})
 
-	(d-call 'array :get_length {stack} {_, start})
+	(call 'array :create :nil {stack})
 	(loop-start)
 		;calculate the mid-path
 		(vec-load 4 {p1x, p1y, p2x, p2y})
@@ -76,7 +75,7 @@
 		(endif)
 
 		(d-call 'array :get_length {stack} {_, length})
-		(breakif {length = start})
+		(breakifnot {length})
 		(call 'array :set_length {stack, length - 3})
 		(call 'array :get_end {stack} {_, iter_end})
 		(vec-load 1 {iter_end})
@@ -84,6 +83,7 @@
 		(vec-store 3 {p1, p2, p3})
 		(vec-pop 1)
 	(loop-end)
+	(call 'array :deref {stack})
 
 	;output last point
 	(call 'path :push_back2 {this, p3x, p3y})

@@ -59,7 +59,6 @@ trashes
 ```code
 inputs
 :r0 = list object (ptr)
-:r1 = stack array object (ptr)
 outputs
 :r0 = list object (ptr)
 :r1 = copy list object (ptr)

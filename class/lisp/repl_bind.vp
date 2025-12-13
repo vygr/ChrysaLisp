@@ -15,9 +15,8 @@
 	;:r1-:r14
 
 	(def-struct local 0
-		(ptr this form)
-		(pptr iter_begin iter_end)
-		(uint start))
+		(ptr this form stack)
+		(pptr iter_begin iter_end))
 
 	(entry 'lisp :repl_bind '(:r0 :r1))
 
@@ -31,10 +30,11 @@
 	(default)
 		;it's a none empty list
 		(vp-alloc local_size)
-		(assign '((:r0 lisp_stack) :r0 :r1) '(:r2 (:rsp local_this) (:rsp local_form)))
-		(assign '((:r2 array_length)) '(:r2))
-		(assign '(:r2) '((:rsp local_start)))
+		(assign '(:r0 :r1) '((:rsp local_this) (:rsp local_form)))
+		(call 'array :create :nil '((:rsp local_stack)))
+		(assign '((:rsp local_form)) '(:r1))
 		(loop-start)
+			(assign '((:rsp local_this)) '(:r0))
 			(class/array/get_both :r1 :r1 :r2)
 			(assign '(:r1 :r2 (:r1 0)) '((:rsp local_iter_begin) (:rsp local_iter_end) :r1))
 
@@ -160,11 +160,9 @@
 					(assign '((:r1 array_length)) '(:r2))
 					(breakif '(:r2 = 0))
 					;stack this list for scanning
-					(assign '((:rsp local_this)) '(:r0))
-					(assign '((:r0 lisp_stack)) '(:r0))
+					(assign '((:rsp local_stack)) '(:r0))
 				(errorcase
-					(assign '((:r0 array_length) (:rsp local_start)) '(:r2 :r3))
-					(vp-sub-rr :r3 :r2)
+					(assign '((:r0 array_length)) '(:r2))
 					(vpif '(:r2 >= 2000))
 						(debug-str '("Excessive prebind recursion !"))
 						(break 'next_elem)
@@ -178,16 +176,15 @@
 
 		(vp-label 'next_list)
 			;pop next list off stack, break if empty
-			(assign '((:rsp local_this)) '(:r0))
-			(assign '((:r0 lisp_stack)) '(:r2))
-			(assign '((:rsp local_start) (:r2 array_length)) '(:r3 :r1))
-			(breakif '(:r1 = :r3))
+			(assign '((:rsp local_stack)) '(:r2))
+			(assign '((:r2 array_length)) '(:r1))
+			(breakif '(:r1 = 0))
 			(vp-sub-cr 1 :r1)
 			(assign '(:r1) '((:r2 array_length)))
 			(class/array/get_elem :r2 :r1 :r1 :r2)
 		(loop-end)
-
-		(assign '((:rsp local_form)) '(:r1))
+		(call 'array :deref '((:rsp local_stack)))
+		(assign '((:rsp local_this)) '(:r0))
 		(vp-free local_size)
 	(endswitch)
 

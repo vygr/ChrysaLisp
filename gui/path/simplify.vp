@@ -6,8 +6,7 @@
 	;inputs
 	;:r0 = path object (ptr)
 	;:r1 = source path object (ptr)
-	;:r2 = stack array object (ptr)
-	;:r3 = tolerance (fixed)
+	;:r2 = tolerance (fixed)
 	;outputs
 	;:r0 = path object (ptr)
 	;trashes
@@ -19,11 +18,11 @@
 			(ulong span :span)
 			(uint first last index rlast))
 		(int p1x p1y p2x p2y p3x p3y)
-		(uint start length)
+		(uint length)
 		(int eps max dist))
 
 	(push-scope)
-	(entry 'path :simplify {this, that, stack, eps})
+	(entry 'path :simplify {this, that, eps})
 
 	;any point doing anything ?
 	(d-call 'path :get_length {that} {_, length})
@@ -38,7 +37,7 @@
 		(call 'path :get_first2 {that} {_, p1x, p1y})
 		(call 'path :push_back2 {this, p1x, p1y})
 
-		(d-call 'array :get_length {stack} {_, start})
+		(call 'array :create :nil {stack})
 		(loop-start)
 			(switch 'out)
 			(vpcase {last - first > 2})
@@ -69,9 +68,10 @@
 
 			;next span
 			(d-call 'array :get_length {stack} {_, length})
-			(breakif {length = start})
+			(breakifnot {length})
 			(call 'array :pop_back {stack} {_, span})
 		(loop-end)
+		(call 'array :deref {stack})
 	(endif)
 
 	(exit 'path :simplify {this})

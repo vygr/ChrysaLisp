@@ -4,9 +4,8 @@
 (def-method 'path :stroke_polygon)
 	;inputs
 	;:r0 = path object (ptr)
-	;:r1 = stack array object (ptr)
-	;:r2 = radius (fixed)
-	;:r3 = join style (byte)
+	;:r1 = radius (fixed)
+	;:r2 = join style (byte)
 	;outputs
 	;:r0 = path object (ptr)
 	;:r1 = output path1 object (ptr)
@@ -15,22 +14,22 @@
 	;:r1-:r14
 
 	(def-vars
-		(ptr this stack path1 path2)
+		(ptr this path1 path2)
 		(plong iter_begin_polyline iter_end_polyline)
 		(int radius)
 		(byte join_style))
 
 	(push-scope)
-	(entry 'path :stroke_polygon {this, stack, radius, join_style})
+	(entry 'path :stroke_polygon {this, radius, join_style})
 
 	(call 'path :filter_polygon {this, this, 0.5})
 	(call 'path :get_both {this} {_, iter_begin_polyline, iter_end_polyline})
 	(call 'path :create :nil {path1})
-	(call 'path :stroke_joints {path1, stack, iter_begin_polyline, iter_end_polyline,
+	(call 'path :stroke_joints {path1, iter_begin_polyline, iter_end_polyline,
 		iter_end_polyline[-+long_size * 4], iter_end_polyline[-+long_size * 3],
 		iter_end_polyline[-+long_size * 2], iter_end_polyline[-+long_size], radius, join_style})
 	(call 'path :create :nil {path2})
-	(call 'path :stroke_joints {path2, stack, iter_end_polyline - 2 * +long_size,
+	(call 'path :stroke_joints {path2, iter_end_polyline - 2 * +long_size,
 		iter_begin_polyline - 2 * +long_size,
 		iter_begin_polyline[+long_size * 2], iter_begin_polyline[+long_size * 3],
 		iter_begin_polyline[0], iter_begin_polyline[+long_size], radius, join_style})

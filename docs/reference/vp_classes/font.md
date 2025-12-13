@@ -109,8 +109,7 @@ trashes
 ```code
 inputs
 :r0 = font object (ptr)
-:r1 = stack array object (ptr)
-:r2 = glyph info array object (ptr)
+:r1 = glyph info array object (ptr)
 outputs
 :r0 = font object (ptr)
 :r1 = glyph paths list object (ptr)

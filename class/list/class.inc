@@ -3,7 +3,7 @@
 (def-class list array
 	(dec-method :vtable class/list/vtable)
 	(dec-method :create class/list/create)
-	(dec-method :copy class/list/copy :static (:r0 :r1) (:r0 :r1))
+	(dec-method :copy class/list/copy :static (:r0) (:r0 :r1))
 	(dec-method :min_length class/list/min_length :static (:r0) (:r0 :r1))
 	(dec-method :collect class/list/collect :static (:r0 :r1 :r2) (:r0))
 	(dec-method :vcreate class/list/create :final)

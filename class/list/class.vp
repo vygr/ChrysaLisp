@@ -381,22 +381,21 @@
 (def-method 'list :copy)
 	;inputs
 	;:r0 = list object (ptr)
-	;:r1 = stack array object (ptr)
 	;outputs
 	;:r0 = list object (ptr)
 	;:r1 = copy list object (ptr)
 	;trashes
 	;:r1-:r14
 
-	(entry 'list :copy '(:r0 :r10))
+	(entry 'list :copy '(:r0))
 
 	;ref and then copy it
 	(vp-push :r0 :r0)
 	(class/obj/ref :r0 :r1)
-	(f-bind 'list :vtable :r12)
 
+	(call 'array :create :nil '(:r10))
+	(f-bind 'list :vtable :r12)
 	(assign '((& :rsp 0)) '(:r9))
-	(assign '((:r10 array_length)) '(:r11))
 	(loop-start)
 		;replace form with copy, deref can't cause destroy !
 		(vp-cpy-ir :r9 0 :r0)
@@ -418,11 +417,12 @@
 
 		;pop back stack
 		(assign '((:r0 array_length)) '(:r1))
-		(breakif '(:r1 = :r11))
+		(breakif '(:r1 = 0))
 		(vp-sub-cr 1 :r1)
 		(assign '(:r1) '((:r0 array_length)))
 		(class/array/get_elem :r0 :r1 :r9 :r2)
 	(loop-end)
+	(call 'array :deref '(:r10))
 	(vp-pop :r0 :r1)
 
 	(exit 'list :copy '(:r0 :r1))

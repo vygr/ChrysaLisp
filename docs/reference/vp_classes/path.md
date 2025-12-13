@@ -57,12 +57,11 @@ trashes
 ```code
 inputs
 :r0 = path object (ptr)
-:r1 = stack array object (ptr)
-:r2 = cx (fixed)
-:r3 = cy (fixed)
-:r4 = start angle (fixed)
-:r5 = end angle (fixed)
-:r6 = radius (fixed)
+:r1 = cx (fixed)
+:r2 = cy (fixed)
+:r3 = start angle (fixed)
+:r4 = end angle (fixed)
+:r5 = radius (fixed)
 outputs
 :r0 = path object (ptr)
 trashes
@@ -74,14 +73,13 @@ trashes
 ```code
 inputs
 :r0 = path object (ptr)
-:r1 = stack array object (ptr)
-:r2 = cx (fixed)
-:r3 = cy (fixed)
-:r4 = v1x (fixed)
-:r5 = v1y (fixed)
-:r6 = v2x (fixed)
-:r7 = v2y (fixed)
-:r8 = radius (fixed)
+:r1 = cx (fixed)
+:r2 = cy (fixed)
+:r3 = v1x (fixed)
+:r4 = v1y (fixed)
+:r5 = v2x (fixed)
+:r6 = v2y (fixed)
+:r7 = radius (fixed)
 outputs
 :r0 = path object (ptr)
 trashes
@@ -93,15 +91,14 @@ trashes
 ```code
 inputs
 :r0 = path object (ptr)
-:r1 = stack array object (ptr)
-:r2 = p1x (fixed)
-:r3 = p1y (fixed)
-:r4 = p2x (fixed)
-:r5 = p2y (fixed)
-:r6 = p3x (fixed)
-:r7 = p3y (fixed)
-:r8 = p4x (fixed)
-:r9 = p4y (fixed)
+:r1 = p1x (fixed)
+:r2 = p1y (fixed)
+:r3 = p2x (fixed)
+:r4 = p2y (fixed)
+:r5 = p3x (fixed)
+:r6 = p3y (fixed)
+:r7 = p4x (fixed)
+:r8 = p4y (fixed)
 outputs
 :r0 = path object (ptr)
 trashes
@@ -113,13 +110,12 @@ trashes
 ```code
 inputs
 :r0 = path object (ptr)
-:r1 = stack array object (ptr)
-:r2 = p1x (fixed)
-:r3 = p1y (fixed)
-:r4 = p2x (fixed)
-:r5 = p2y (fixed)
-:r6 = p3x (fixed)
-:r7 = p3y (fixed)
+:r1 = p1x (fixed)
+:r2 = p1y (fixed)
+:r3 = p2x (fixed)
+:r4 = p2y (fixed)
+:r5 = p3x (fixed)
+:r6 = p3y (fixed)
 outputs
 :r0 = path object (ptr)
 trashes
@@ -132,8 +128,7 @@ trashes
 inputs
 :r0 = path object (ptr)
 :r1 = source path object (ptr)
-:r2 = stack array object (ptr)
-:r3 = tolerance (fixed)
+:r2 = tolerance (fixed)
 outputs
 :r0 = path object (ptr)
 trashes
@@ -145,15 +140,14 @@ trashes
 ```code
 inputs
 :r0 = path object (ptr)
-:r1 = stack array object (ptr)
-:r2 = in path start iter (plong)
-:r3 = in path end iter (plong)
-:r4 = p1x (fixed)
-:r5 = p1y (fixed)
-:r6 = p2x (fixed)
-:r7 = p2y (fixed)
-:r8 = radius (fixed)
-:r9 = join style (byte)
+:r1 = in path start iter (plong)
+:r2 = in path end iter (plong)
+:r3 = p1x (fixed)
+:r4 = p1y (fixed)
+:r5 = p2x (fixed)
+:r6 = p2y (fixed)
+:r7 = radius (fixed)
+:r8 = join style (byte)
 outputs
 :r0 = path object (ptr)
 trashes
@@ -165,9 +159,8 @@ trashes
 ```code
 inputs
 :r0 = path object (ptr)
-:r1 = stack array object (ptr)
-:r2 = radius (fixed)
-:r3 = join style (byte)
+:r1 = radius (fixed)
+:r2 = join style (byte)
 outputs
 :r0 = path object (ptr)
 :r1 = output path1 object (ptr)
@@ -181,11 +174,10 @@ trashes
 ```code
 inputs
 :r0 = path object (ptr)
-:r1 = stack array object (ptr)
-:r2 = radius (fixed)
-:r3 = join style (byte)
-:r4 = cap style1 (byte)
-:r5 = cap style2 (byte)
+:r1 = radius (fixed)
+:r2 = join style (byte)
+:r3 = cap style1 (byte)
+:r4 = cap style2 (byte)
 outputs
 :r0 = path object (ptr)
 :r1 = output path object (ptr)

@@ -17,6 +17,8 @@ Optimized `'list :lisp_match` to use no stack variables.
 
 Editor now supports `sticky` cursor x position.
 
+Removed the use of task level storage.
+
 ------
 
 New `class/mstream/class.inc` VP class for in memory stream buffers. A seekable

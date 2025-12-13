@@ -67,5 +67,5 @@
 		sym_quote sym_qquote sym_unquote sym_trunc sym_splicing
 		sym_ffi sym_stack_frame func_ffi func_lambda func_macro func_quote
 		func_qquote stream_name)
-	(ptr stack error)
+	(ptr error)
 	(uint seq_idx stream_line nextsym))
