@@ -41,7 +41,7 @@
 					(list word_list) :nil i 0))
 				(setq k (some! (# (if (starts-with prefix %0) :nil (!)))
 					(list word_list) :nil i -1))
-				(setd j 0 k (length word_list))
+				(setd j 0 k -1)
 				(slice word_list j k))
 			((list))))
 
