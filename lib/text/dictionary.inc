@@ -41,18 +41,16 @@
 					(list word_list) :nil i 0))
 				(setq k (some! (# (if (starts-with prefix %0) :nil (!)))
 					(list word_list) :nil i -1))
-				(unless j (setq j 0))
-				(unless k (setq k (length word_list)))
+				(setd j 0 k (length word_list))
 				(slice word_list j k))
 			((list))))
 
 	(defmethod :find_matches_case (prefix)
 		; (. dictionary :find_matches_case prefix) -> (word ...)
-		(defq matches (. this :find_matches prefix))
-		(each (# (push matches %0)) (. this :find_matches (to-lower prefix)))
-		(each (# (push matches %0)) (. this :find_matches (to-upper prefix)))
-		(reduce (# (if (find %1 %0) %0 (push %0 %1)))
-			(map (# (cat prefix (slice %0 (length prefix) -1))) matches) (list)))
+		(unique (map (# (cat prefix (slice %0 (length prefix) -1)))
+			(reduce (const merge)
+				(map (# (. this :find_matches %0))
+					(list prefix (to-lower prefix) (to-upper prefix)))))))
 	)
 
 ;module
