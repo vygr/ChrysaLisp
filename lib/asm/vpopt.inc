@@ -27,7 +27,8 @@
 	+opt_write_kill_ops
 		''(emit-jmp emit-beq-cr emit-bne-cr emit-bne-rr emit-beq-rr emit-bge-rr
 			emit-ble-rr emit-jmp-p emit-bge-cr emit-ble-cr emit-blt-cr emit-blt-rr
-			emit-bgt-rr emit-bgt-cr emit-jmp-r emit-jmp-i)
+			emit-bgt-rr emit-bgt-cr emit-jmp-r emit-jmp-i emit-beq-ff emit-bne-ff
+			emit-blt-ff emit-bgt-ff emit-ble-ff emit-bge-ff)
 	+opt_branch_ops
 		''(emit-beq-cr emit-bne-cr emit-bge-cr emit-ble-cr emit-blt-cr emit-bgt-cr)
 	+opt_second_out_ops

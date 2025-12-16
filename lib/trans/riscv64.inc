@@ -9,13 +9,20 @@
 (each (# (defcvar %0 %0)) '(:r15 :r16 :r17 :r18 :r19 :r20 :r21 :r22 :r23 :r24 :r25 :r26 :r27 :r28 :r29 :r30))
 
 (defun emit-native-reg? (r)
-	(find r '(:r29 :r30 :rsp                            ;zero, ra, sp (x0-x2)
-		:r15 :r16                                       ;gp, tp (x3-x4)
-		:r17 :r18 :r19                                  ;t0-t1, t2 (x5-x7)
-		:r20 :r21                                       ;s0-s1 (x8-x9) saved
-		:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7                 ;a0-a7 (x10-x17)
-		:r8 :r9 :r10 :r11 :r12 :r13 :r14 :r22 :r23 :r24 ;s2-s11 (x18-x27) saved
-		:r25 :r26 :r27 :r28)))                          ;t3-t6 (x28-x31)
+	(if (defq i (find r
+		'(:r29 :r30 :rsp								;zero, ra, sp (x0-x2)
+		:r15 :r16									   	;gp, tp (x3-x4)
+		:r17 :r18 :r19								  	;t0-t1, t2 (x5-x7)
+		:r20 :r21									   	;s0-s1 (x8-x9) saved
+		:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7				 	;a0-a7 (x10-x17)
+		:r8 :r9 :r10 :r11 :r12 :r13 :r14 :r22 :r23 :r24	;s2-s11 (x18-x27) saved
+		:r25 :r26 :r27 :r28)))						  	;t3-t6 (x28-x31)
+		i
+		(find r
+			'(:f12 :f13 :f14 :f15 :f16 :f17 :f18 :f19		;f0-f7 (ft0-ft7)
+			:f0 :f1 :f20 :f21 :f22 :f23 :f24 :f25 :f26 :f27	;f8-f17 (fs0-fs1, fa0-fa7)
+			:f2 :f3 :f4 :f5 :f6 :f7 :f8 :f9 :f10 :f11		;f18-f27 (fs2-fs11)
+			:f28 :f29 :f30 :f31))))							;f28-f31 (ft8-ft11)
 
 (defq +riscv64_rlnk (emit-native-reg? :r30)
 	+riscv64_rzero (emit-native-reg? :r29)
@@ -433,6 +440,88 @@
 	(unless (eql s d) (emit-cpy-rr s d))
 	(emit-bge-rr +riscv64_rzero d l m)
 	(emit-mul-cr -1 d))
+
+(defmacro riscv64-fp-r (o s d)
+	; 3-operand math op: d = d op s
+	; opcode | rs2(s) | rs1(d) | funct3 | rd(d) | opcode
+	`(emitm-int (+ ,o (<< ,s 20) (<< ,d 15) (<< ,d 7))))
+
+(defmacro riscv64-fp-r2 (o s d)
+	; 2-operand op: d = op s (sqrt, cvt, etc)
+	; opcode | rs2(00000) | rs1(s) | funct3 | rd(d) | opcode
+	`(emitm-int (+ ,o (<< ,s 15) (<< ,d 7))))
+
+(defmacro riscv64-fp-cmp (o s d)
+	; Compare s and d, write result to temp integer register
+	; opcode | rs2(s) | rs1(d) | funct3 | rd(tmp) | opcode
+	`(emitm-int (+ ,o (<< ,s 20) (<< ,d 15) (<< +riscv64_rtmp1 7))))
+
+(defun emit-cpy-ff (s d)
+	; fsgnj.d d, s, s
+	(emitm-int (+ 0x22000053 (<< s 15) (<< s 20) (<< d 7))))
+
+(defun emit-cpy-rf (s d) (riscv64-fp-r2 0xf2000053 s d)) ; fmv.d.x d, s
+(defun emit-cpy-fr (s d) (riscv64-fp-r2 0xe2000053 s d)) ; fmv.x.d d, s
+(defun emit-cvt-rf (s d) (riscv64-fp-r2 0xd2207053 s d)) ; fcvt.d.l d, s
+(defun emit-cvt-fr (s d) (riscv64-fp-r2 0xc2101053 s d)) ; fcvt.l.d d, s, rtz
+
+(defun emit-add-ff (s d) (riscv64-fp-r 0x02007053 s d)) ; fadd.d d, d, s
+(defun emit-sub-ff (s d) (riscv64-fp-r 0x0a007053 s d)) ; fsub.d d, d, s
+(defun emit-mul-ff (s d) (riscv64-fp-r 0x12007053 s d)) ; fmul.d d, d, s
+(defun emit-div-ff (s d) (riscv64-fp-r 0x1a007053 s d)) ; fdiv.d d, d, s
+(defun emit-min-ff (s d) (riscv64-fp-r 0x2a000053 s d)) ; fmin.d d, d, s
+(defun emit-max-ff (s d) (riscv64-fp-r 0x2a001053 s d)) ; fmax.d d, d, s
+(defun emit-sqrt-ff (s d) (riscv64-fp-r2 0x5a007053 s d)) ; fsqrt.d d, s
+
+; Comparisons write 1 or 0 to +riscv64_rtmp1 (integer reg)
+; We then branch on that integer register.
+; Branch instructions: beq (0x0), bne (0x1)
+
+(defun emit-beq-ff (s d l m)
+	(riscv64-fp-cmp 0xa2002053 s d) ; feq.d tmp, d, s
+	(riscv64-branch 0x1 +riscv64_rtmp1 +riscv64_rzero l m)) ; bne tmp, zero, label
+
+(defun emit-bne-ff (s d l m)
+	(riscv64-fp-cmp 0xa2002053 s d) ; feq.d tmp, d, s
+	(riscv64-branch 0x0 +riscv64_rtmp1 +riscv64_rzero l m)) ; beq tmp, zero, label
+
+(defun emit-blt-ff (s d l m)
+	(riscv64-fp-cmp 0xa2001053 s d) ; flt.d tmp, d, s (d < s)
+	(riscv64-branch 0x1 +riscv64_rtmp1 +riscv64_rzero l m)) ; bne tmp, zero, label
+
+(defun emit-bgt-ff (s d l m)
+	(riscv64-fp-cmp 0xa2001053 d s) ; flt.d tmp, s, d (s < d -> d > s)
+	(riscv64-branch 0x1 +riscv64_rtmp1 +riscv64_rzero l m)) ; bne tmp, zero, label
+
+(defun emit-ble-ff (s d l m)
+	(riscv64-fp-cmp 0xa2000053 s d) ; fle.d tmp, d, s (d <= s)
+	(riscv64-branch 0x1 +riscv64_rtmp1 +riscv64_rzero l m)) ; bne tmp, zero, label
+
+(defun emit-bge-ff (s d l m)
+	(riscv64-fp-cmp 0xa2000053 d s) ; fle.d tmp, s, d (s <= d -> d >= s)
+	(riscv64-branch 0x1 +riscv64_rtmp1 +riscv64_rzero l m)) ; bne tmp, zero, label
+
+; fld fd, offset(rs1) (I-Type)
+(defun emit-cpy-if (s c d) 
+	(cond
+		((riscv64-within c 12)
+			(riscv64-i 0x07 d s 0x3 c))
+		(:t 
+			; Large offset: Load offset to tmp, add to base, load from tmp
+			(emit-cpy-cr c +riscv64_rtmp1)
+			(emit-add-rr s +riscv64_rtmp1)
+			(riscv64-i 0x07 d +riscv64_rtmp1 0x3 0))))
+
+; fsd rs2, offset(rs1) (S-Type)
+(defun emit-cpy-fi (s d c)
+	(cond
+		((riscv64-within c 12)
+			(riscv64-s 0x27 d s 0x3 c))
+		(:t
+			; Large offset
+			(emit-cpy-cr c +riscv64_rtmp1)
+			(emit-add-rr d +riscv64_rtmp1)
+			(riscv64-s 0x27 +riscv64_rtmp1 s 0x3 0))))
 
 (defun emit-alloc (c) (emit-sub-cr (align c stack_align) +riscv64_rsp))
 (defun emit-free (c) (emit-add-cr (align c stack_align) +riscv64_rsp))

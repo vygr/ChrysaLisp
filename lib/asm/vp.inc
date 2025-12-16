@@ -3,13 +3,21 @@
 ;;;;;;;;;;;;;;
 
 (defq +vp_regs ''(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14 :rsp)
-	+vp_regs_0_14 ''(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14))
+	+vp_regs_0_14 ''(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14)
+	+vp_fregs ''(:f0 :f1 :f2 :f3 :f4 :f5 :f6 :f7 :f8 :f9 :f10 :f11 :f12 :f13 :f14 :f15))
 (defun vp-reg? (_) (find _ +vp_regs))
+(defun vp-freg? (_) (find _ +vp_fregs))
 (each (# (defcvar %0 %0)) +vp_regs)
+(each (# (defcvar %0 %0)) +vp_fregs)
 
 (defmacro vp-def (_ &optional l)
 	(setq l (apply (const cat) (map (lambda (x y)
 		(list (list quote x) y)) _ (if l (merge (cat (eval l)) +vp_regs_0_14) +vp_regs_0_14))))
+	(static-qq (progn (deffvar ~l))))
+
+(defmacro vp-fdef (_ &optional l)
+	(setq l (apply (const cat) (map (lambda (x y)
+		(list (list quote x) y)) _ (if l (merge (cat (eval l)) +vp_fregs) +vp_fregs))))
 	(static-qq (progn (deffvar ~l))))
 
 ;;;;;;;;;;;;;
@@ -185,6 +193,30 @@
 	(defq l (label-sym (gensym)))
 	(emit (static-qqp (emit-abs-rr ,s ,d ,l)))
 	(emit `(emit-tlabel ',l)))
+
+(defun vp-cpy-ff (s d) (emit `(emit-cpy-ff ,s ,d)))
+(defun vp-cpy-rf (s d) (emit `(emit-cpy-rf ,s ,d)))
+(defun vp-cpy-fr (s d) (emit `(emit-cpy-fr ,s ,d)))
+(defun vp-cvt-rf (s d) (emit `(emit-cvt-rf ,s ,d)))
+(defun vp-cvt-fr (s d) (emit `(emit-cvt-fr ,s ,d)))
+
+(defun vp-add-ff (s d) (emit `(emit-add-ff ,s ,d)))
+(defun vp-sub-ff (s d) (emit `(emit-sub-ff ,s ,d)))
+(defun vp-mul-ff (s d) (emit `(emit-mul-ff ,s ,d)))
+(defun vp-div-ff (s d) (emit `(emit-div-ff ,s ,d)))
+(defun vp-min-ff (s d) (emit `(emit-min-ff ,s ,d)))
+(defun vp-max-ff (s d) (emit `(emit-max-ff ,s ,d)))
+(defun vp-sqrt-ff (s d) (emit `(emit-sqrt-ff ,s ,d)))
+
+(defun vp-beq-ff (s d l) (emit (static-qqp (emit-beq-ff ,s ,d ,(label-sym l)))))
+(defun vp-bne-ff (s d l) (emit (static-qqp (emit-bne-ff ,s ,d ,(label-sym l)))))
+(defun vp-blt-ff (s d l) (emit (static-qqp (emit-blt-ff ,s ,d ,(label-sym l)))))
+(defun vp-bgt-ff (s d l) (emit (static-qqp (emit-bgt-ff ,s ,d ,(label-sym l)))))
+(defun vp-ble-ff (s d l) (emit (static-qqp (emit-ble-ff ,s ,d ,(label-sym l)))))
+(defun vp-bge-ff (s d l) (emit (static-qqp (emit-bge-ff ,s ,d ,(label-sym l)))))
+
+(defun vp-cpy-if (s c d) (emit (static-qqp (emit-cpy-if ,s ,(eval c (penv)) ,d))))
+(defun vp-cpy-fi (s d c) (emit (static-qqp (emit-cpy-fi ,s ,d ,(eval c (penv))))))
 
 ;puedo vp instructions
 (defun vp-simd (op &rest v)

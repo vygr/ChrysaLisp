@@ -1,6 +1,7 @@
 #include <sys/types.h>
 #include <iostream>
 #include <atomic>
+#include <cmath>
 #ifdef _WIN64
 	#include <immintrin.h>
 #endif
@@ -173,15 +174,51 @@ enum Opcodes
 	VP64_MIN_RR,
 	VP64_MAX_RR,
 	VP64_ABS_RR,
+
+	VP64_CMP_F,
+
+	VP64_CPY_FF,
+	VP64_CPY_RF,
+	VP64_CPY_FR,
+
+	VP64_CVT_RF,
+	VP64_CVT_FR,
+
+	VP64_ADD_FF,
+	VP64_SUB_FF,
+	VP64_MUL_FF,
+	VP64_DIV_FF,
+	VP64_MIN_FF,
+	VP64_MAX_FF,
+	VP64_SQRT_FF,
+
+	VP64_FBEQ_0,
+	VP64_FBEQ_1,
+	VP64_FBNE_0,
+	VP64_FBNE_1,
+	VP64_FBGE_0,
+	VP64_FBGE_1,
+	VP64_FBLT_0,
+	VP64_FBLT_1,
+	VP64_FBLE_0,
+	VP64_FBLE_1,
+	VP64_FBGT_0,
+	VP64_FBGT_1,
+
+	VP64_CPY_IF,
+	VP64_CPY_FI,
 };
 
 int vp64(uint8_t* data, int64_t *stack, int64_t* argv, int64_t* host_os_funcs, int64_t* host_gui_funcs, int64_t* host_audio_funcs)
 {
 	int64_t regs[16];
+	double fregs[16];
 	int16_t* pc;
 	int64_t ir;
 	int64_t compare1 = 0;
 	int64_t compare2 = 0;
+	double compare_f1 = 0.0;
+	double compare_f2 = 0.0;
 	std::atomic<int> sync;
 
 	// start at the beginning
@@ -1350,6 +1387,183 @@ int vp64(uint8_t* data, int64_t *stack, int64_t* argv, int64_t* host_os_funcs, i
 			{
 				int64_t s = regs[(ir >> 12) & 0xf];
 				regs[(ir >> 8) & 0xf] = (s < 0) ? -s : s;
+			}
+			break;
+
+			case VP64_CMP_F:
+			{
+				compare_f1 = fregs[(ir >> 12) & 0xf];
+				compare_f2 = fregs[(ir >> 8) & 0xf];
+			}
+			break;
+
+			case VP64_CPY_FF:
+			{
+				fregs[(ir >> 8) & 0xf] = fregs[(ir >> 12) & 0xf];
+			}
+			break;
+
+			case VP64_CPY_RF:
+			{
+				*(int64_t*)&fregs[(ir >> 8) & 0xf] = regs[(ir >> 12) & 0xf];
+			}
+			break;
+
+			case VP64_CPY_FR:
+			{
+				regs[(ir >> 8) & 0xf] = *(int64_t*)&fregs[(ir >> 12) & 0xf];
+			}
+			break;
+
+			case VP64_CVT_RF:
+			{
+				fregs[(ir >> 8) & 0xf] = (double)regs[(ir >> 12) & 0xf];
+			}
+			break;
+
+			case VP64_CVT_FR:
+			{
+				regs[(ir >> 8) & 0xf] = (int64_t)fregs[(ir >> 12) & 0xf];
+			}
+			break;
+
+			case VP64_ADD_FF:
+			{
+				fregs[(ir >> 8) & 0xf] += fregs[(ir >> 12) & 0xf];
+			}
+			break;
+
+			case VP64_SUB_FF:
+			{
+				fregs[(ir >> 8) & 0xf] -= fregs[(ir >> 12) & 0xf];
+			}
+			break;
+
+			case VP64_MUL_FF:
+			{
+				fregs[(ir >> 8) & 0xf] *= fregs[(ir >> 12) & 0xf];
+			}
+			break;
+
+			case VP64_DIV_FF:
+			{
+				fregs[(ir >> 8) & 0xf] /= fregs[(ir >> 12) & 0xf];
+			}
+			break;
+
+			case VP64_MIN_FF:
+			{
+				double s = fregs[(ir >> 12) & 0xf];
+				double d = fregs[(ir >> 8) & 0xf];
+				fregs[(ir >> 8) & 0xf] = (s < d) ? s : d;
+			}
+			break;
+
+			case VP64_MAX_FF:
+			{
+				double s = fregs[(ir >> 12) & 0xf];
+				double d = fregs[(ir >> 8) & 0xf];
+				fregs[(ir >> 8) & 0xf] = (s > d) ? s : d;
+			}
+			break;
+
+			case VP64_SQRT_FF:
+			{
+				fregs[(ir >> 8) & 0xf] = std::sqrt(fregs[(ir >> 12) & 0xf]);
+			}
+			break;
+
+			case VP64_FBEQ_0:
+			{
+				if (compare_f1 == compare_f2) pc = (int16_t*)((char*)pc + (ir >> 8));
+			}
+			break;
+
+			case VP64_FBEQ_1:
+			{
+				int64_t offset = ((ir >> 8) & 0xff) | (int64_t)*pc++ << 8;
+				if (compare_f1 == compare_f2) pc = (int16_t*)((char*)pc + offset);
+			}
+			break;
+
+			case VP64_FBNE_0:
+			{
+				if (compare_f1 != compare_f2) pc = (int16_t*)((char*)pc + (ir >> 8));
+			}
+			break;
+
+			case VP64_FBNE_1:
+			{
+				int64_t offset = ((ir >> 8) & 0xff) | (int64_t)*pc++ << 8;
+				if (compare_f1 != compare_f2) pc = (int16_t*)((char*)pc + offset);
+			}
+			break;
+
+			case VP64_FBGE_0:
+			{
+				if (compare_f1 >= compare_f2) pc = (int16_t*)((char*)pc + (ir >> 8));
+			}
+			break;
+
+			case VP64_FBGE_1:
+			{
+				int64_t offset = ((ir >> 8) & 0xff) | (int64_t)*pc++ << 8;
+				if (compare_f1 >= compare_f2) pc = (int16_t*)((char*)pc + offset);
+			}
+			break;
+
+			case VP64_FBLT_0:
+			{
+				if (compare_f1 < compare_f2) pc = (int16_t*)((char*)pc + (ir >> 8));
+			}
+			break;
+
+			case VP64_FBLT_1:
+			{
+				int64_t offset = ((ir >> 8) & 0xff) | (int64_t)*pc++ << 8;
+				if (compare_f1 < compare_f2) pc = (int16_t*)((char*)pc + offset);
+			}
+			break;
+
+			case VP64_FBLE_0:
+			{
+				if (compare_f1 <= compare_f2) pc = (int16_t*)((char*)pc + (ir >> 8));
+			}
+			break;
+
+			case VP64_FBLE_1:
+			{
+				int64_t offset = ((ir >> 8) & 0xff) | (int64_t)*pc++ << 8;
+				if (compare_f1 <= compare_f2) pc = (int16_t*)((char*)pc + offset);
+			}
+			break;
+
+			case VP64_FBGT_0:
+			{
+				if (compare_f1 > compare_f2) pc = (int16_t*)((char*)pc + (ir >> 8));
+			}
+			break;
+
+			case VP64_FBGT_1:
+			{
+				int64_t offset = ((ir >> 8) & 0xff) | (int64_t)*pc++ << 8;
+				if (compare_f1 > compare_f2) pc = (int16_t*)((char*)pc + offset);
+			}
+			break;
+
+			case VP64_CPY_IF:
+			{
+				int64_t base = regs[(ir >> 12) & 0xf];
+				int64_t offset = (int64_t)*pc++;
+				fregs[(ir >> 8) & 0xf] = *(double*)(base + offset);
+			}
+			break;
+
+			case VP64_CPY_FI:
+			{
+				int64_t base = regs[(ir >> 8) & 0xf];
+				int64_t offset = (int64_t)*pc++;
+				*(double*)(base + offset) = fregs[(ir >> 12) & 0xf];
 			}
 			break;
 

@@ -9,12 +9,19 @@
 (each (# (defcvar %0 %0)) '(:r15 :r16 :r17 :r18 :r19 :r20 :r21 :r22 :r23 :r24 :r25 :r26 :r27 :r28 :r29 :r30))
 
 (defun emit-native-reg? (r)
-	(find r '(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7           ;args (x0-x7)
-		:r15                                            ;indirect (x8)
-		:r16 :r17 :r18 :r19 :r20 :r21 :r22              ;temps (x9-x15)
-		:r23 :r24 :r25                                  ;ip0, ip1, platform
-		:r8 :r9 :r10 :r11 :r12 :r13 :r14 :r26 :r27 :rsp ;callee saves (x19-x28)
-		:r29 :r30 :r31)))                               ;frm, lnk, stack
+	(if (defq i (find r
+			'(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7           	;args (x0-x7)
+			:r15                                            ;indirect (x8)
+			:r16 :r17 :r18 :r19 :r20 :r21 :r22              ;temps (x9-x15)
+			:r23 :r24 :r25                                  ;ip0, ip1, platform
+			:r8 :r9 :r10 :r11 :r12 :r13 :r14 :r26 :r27 :rsp ;callee saves (x19-x28)
+			:r29 :r30 :r31)))                               ;frm, lnk, stack
+		i
+		(find r
+			'(:f16 :f17 :f18 :f19 :f20 :f21 :f22 :f23		;d0-d7 (Volatile / Args / Ret)
+			:f0 :f1 :f2 :f3 :f4 :f5 :f6 :f7					;d8-d15 (Callee Saved)
+			:f8 :f9 :f10 :f11 :f12 :f13 :f14 :f15			;d16-d23 (Volatile)
+			:f24 :f25 :f26 :f27 :f28 :f29 :f30 :f31))))		;d24-d31 (Volatile)
 
 ;VP stack is NOT the ARM64 stack !
 ;due to not wanting to suffer the 16 byte alignment restriction on calls etc.
@@ -540,6 +547,61 @@
 	(emitm-int (+ 0xcb000000 (<< s 16) (const (<< 31 5)) +arm64_rtmp))
 	(emitm-int (+ 0xeb000000 (const (<< 31 16)) (<< d 5) 31))
 	(arm64-csel 0xb +arm64_rtmp d d))
+
+(defmacro arm64-fpr-rr (o s d) `(emitm-int (+ ,o (<< ,s 5) ,d)))
+(defun emit-cpy-ff (s d) (arm64-fpr-rr 0x1e604000 s d)) ; FMOV Dd, Dn
+(defun emit-cpy-rf (s d) (emitm-int (+ 0x9e670000 (<< s 5) d))) ; FMOV Dd, Xn
+(defun emit-cpy-fr (s d) (emitm-int (+ 0x9e660000 (<< s 5) d))) ; FMOV Xd, Dn
+(defun emit-cvt-rf (s d) (emitm-int (+ 0x9e620000 (<< s 5) d))) ; SCVTF Dd, Xn
+(defun emit-cvt-fr (s d) (emitm-int (+ 0x9e780000 (<< s 5) d))) ; FCVTZS Xd, Dn
+
+(defun emit-add-ff (s d) (arm64-rrr 0x1e602800 s d d)) ; FADD Dd, Dn, Dm -> FADD Dd, Dd, Ds
+(defun emit-sub-ff (s d) (arm64-rrr 0x1e603800 s d d)) ; FSUB Dd, Dn, Dm -> FSUB Dd, Dd, Ds
+(defun emit-mul-ff (s d) (arm64-rrr 0x1e600800 s d d)) ; FMUL
+(defun emit-div-ff (s d) (arm64-rrr 0x1e601800 s d d)) ; FDIV
+(defun emit-min-ff (s d) (arm64-rrr 0x1e605000 s d d)) ; FMIN
+(defun emit-max-ff (s d) (arm64-rrr 0x1e604000 s d d)) ; FMAX
+(defun emit-sqrt-ff (s d) (arm64-fpr-rr 0x1e61c000 s d)) ; FSQRT
+
+(defun arm64-cmp-ff (s d) (emitm-int (+ 0x1e602000 (<< s 16) (<< d 5)))) ; FCMP Dd, Ds
+(defun emit-beq-ff (s d l m) (arm64-cmp-ff s d) (arm64-branch 0x0 l)) ; EQ
+(defun emit-bne-ff (s d l m) (arm64-cmp-ff s d) (arm64-branch 0x1 l)) ; NE
+(defun emit-bge-ff (s d l m) (arm64-cmp-ff s d) (arm64-branch 0xa l)) ; GE
+(defun emit-bgt-ff (s d l m) (arm64-cmp-ff s d) (arm64-branch 0xc l)) ; GT
+(defun emit-ble-ff (s d l m) (arm64-cmp-ff s d) (arm64-branch 0xd l)) ; LE
+(defun emit-blt-ff (s d l m) (arm64-cmp-ff s d) (arm64-branch 0xb l)) ; LT
+
+(defun emit-cpy-if (s c d)
+	(cond
+		((<= -0x100 c 0xff)
+			; LDUR Dd, [Xn, #simm9] (Unscaled)
+			; Opcode: 11111100 010... -> 0xfc400000
+			(emitm-int (+ 0xfc400000 (<< (logand c 0x1ff) 12) (<< (logand s 31) 5) (logand d 31))))
+		((and (<= 0 c 0x7ff8) (= 0 (logand c 7)))
+			; LDR Dd, [Xn, #pimm12] (Scaled by 8)
+			; Opcode: 10111101 01... -> 0xbd400000
+			(emitm-int (+ 0xbd400000 (<< c 7) (<< (logand s 31) 5) (logand d 31))))
+		(:t
+			; Large offset: calc address in temp, then LDUR
+			(emit-cpy-cr c +arm64_rtmp)
+			(emit-add-rr s +arm64_rtmp)
+			(emitm-int (+ 0xfc400000 (<< (logand +arm64_rtmp 31) 5) (logand d 31))))))
+
+(defun emit-cpy-fi (s d c)
+	(cond
+		((<= -0x100 c 0xff)
+			; STUR Dd, [Xn, #simm9] (Unscaled)
+			; Opcode: 11111100 000... -> 0xfc000000
+			(emitm-int (+ 0xfc000000 (<< (logand c 0x1ff) 12) (<< (logand d 31) 5) (logand s 31))))
+		((and (<= 0 c 0x7ff8) (= 0 (logand c 7)))
+			; STR Dd, [Xn, #pimm12] (Scaled by 8)
+			; Opcode: 10111101 00... -> 0xbd000000
+			(emitm-int (+ 0xbd000000 (<< c 7) (<< (logand d 31) 5) (logand s 31))))
+		(:t
+			; Large offset: calc address in temp, then STUR
+			(emit-cpy-cr c +arm64_rtmp)
+			(emit-add-rr d +arm64_rtmp)
+			(emitm-int (+ 0xfc000000 (<< (logand +arm64_rtmp 31) 5) (logand s 31))))))
 
 (defun emit-alloc (c) (emit-sub-cr (align c stack_align) +arm64_vp_rsp))
 (defun emit-free (c) (emit-add-cr (align c stack_align) +arm64_vp_rsp))

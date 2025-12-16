@@ -7,7 +7,9 @@
 
 (defcvar 'stack_align 8 'stack_state '(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14))
 
-(defun emit-native-reg? (r) (find r +vp_regs))
+(defun emit-native-reg? (r)
+	(if (defq i (find r +vp_regs)) i
+		(find r +vp_fregs)))
 
 (defq opcode 0)
 (defmacro next-opcode (&optional i)
@@ -239,6 +241,33 @@
 	(emit-sub-cr (+ tk_state_size (* +ptr_size 2)) s)
 	(emit-cpy-ri f s tk_state_size)
 	(emit-cpy-ri x s (+ tk_state_size +ptr_size)))
+
+(defun vp64-cmp-f (s d) (emitm-short (+ (next-opcode) (<< d 8) (<< s 12))))
+
+(defun emit-cpy-ff (s d) (unless (eql s d) (emitm-short (+ (next-opcode) (<< d 8) (<< s 12)))))
+(defun emit-cpy-rf (s d) (emitm-short (+ (next-opcode) (<< d 8) (<< s 12))))
+(defun emit-cpy-fr (s d) (emitm-short (+ (next-opcode) (<< d 8) (<< s 12))))
+
+(defun emit-cvt-rf (s d) (emitm-short (+ (next-opcode) (<< d 8) (<< s 12))))
+(defun emit-cvt-fr (s d) (emitm-short (+ (next-opcode) (<< d 8) (<< s 12))))
+
+(defun emit-add-ff (s d) (emitm-short (+ (next-opcode) (<< d 8) (<< s 12))))
+(defun emit-sub-ff (s d) (emitm-short (+ (next-opcode) (<< d 8) (<< s 12))))
+(defun emit-mul-ff (s d) (emitm-short (+ (next-opcode) (<< d 8) (<< s 12))))
+(defun emit-div-ff (s d) (emitm-short (+ (next-opcode) (<< d 8) (<< s 12))))
+(defun emit-min-ff (s d) (emitm-short (+ (next-opcode) (<< d 8) (<< s 12))))
+(defun emit-max-ff (s d) (emitm-short (+ (next-opcode) (<< d 8) (<< s 12))))
+(defun emit-sqrt-ff (s d) (emitm-short (+ (next-opcode) (<< d 8) (<< s 12))))
+
+(defun emit-beq-ff (s d l m) (vp64-cmp-f s d) (vp64-branch (next-opcode 2) l m))
+(defun emit-bne-ff (s d l m) (vp64-cmp-f s d) (vp64-branch (next-opcode 2) l m))
+(defun emit-bge-ff (s d l m) (vp64-cmp-f s d) (vp64-branch (next-opcode 2) l m))
+(defun emit-blt-ff (s d l m) (vp64-cmp-f s d) (vp64-branch (next-opcode 2) l m))
+(defun emit-ble-ff (s d l m) (vp64-cmp-f s d) (vp64-branch (next-opcode 2) l m))
+(defun emit-bgt-ff (s d l m) (vp64-cmp-f s d) (vp64-branch (next-opcode 2) l m))
+
+(defun emit-cpy-if (s c d) (emitm-short (+ (next-opcode) (<< d 8) (<< s 12)) c))
+(defun emit-cpy-fi (s d c) (emitm-short (+ (next-opcode) (<< d 8) (<< s 12)) c))
 
 ;module, that exports everything !
 (export-symbols (map (const first) (tolist (env))))

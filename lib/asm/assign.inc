@@ -13,7 +13,11 @@
 
 (defun assign-src-type (o)
 	(case (pop (type-of o))
-		(:sym (if (vp-reg? o) :r :c))
+		(:sym
+			(cond
+				((vp-reg? o) :r)
+				((vp-freg? o) :f)
+				(:c)))
 		(:num :c)
 		(:list
 			(cond
@@ -38,8 +42,11 @@
 
 (defun assign-dst-type (o)
 	(case (pop (type-of o))
-		(:sym (and (not (vp-reg? o)) (eql (first o) ":") (throw ":reg equate !" o))
-			(if (vp-reg? o) :r :k))
+		(:sym (and (not (or (vp-reg? o) (vp-freg? o))) (eql (first o) ":") (throw ":reg equate !" o))
+			(cond
+				((vp-reg? o) :r)
+				((vp-freg? o) :f)
+				(:k)))
 		(:list
 			(if (vp-reg? (defq i (first o)))
 				(cond
@@ -88,6 +95,7 @@
 			(case (assign-src-type x)
 				(:r (case (assign-dst-type y)
 					(:r (vp-cpy-rr x y))
+					(:f (vp-cpy-rf x y))
 					(:k (def *func_env* y x))
 					(:i (vp-cpy-ri x (first y) (second y)))
 					(:ii (vp-cpy-ri-i x (first y) (second y)))
@@ -104,8 +112,16 @@
 					(:dus (vp-cpy-rd-s x (first y) (second y)))
 					(:dub (vp-cpy-rd-b x (first y) (second y)))
 					(:t (throw "Invalid dst parameter !" (list x y)))))
+				(:f (case (assign-dst-type y)
+					(:f (vp-cpy-ff x y))
+					(:r (vp-cpy-fr x y))
+					(:k (def *func_env* y x))
+					(:i (vp-cpy-fi x (first y) (second y)))
+					(:t (throw "Invalid dst parameter !" (list x y)))))
 				(:c (vp-cpy-cr x y))
-				(:i (vp-cpy-ir (first x) (second x) y))
+				(:i (case (assign-dst-type y)
+					(:r (vp-cpy-ir (first x) (second x) y))
+					(:f (vp-cpy-if (first x) (second x) y))))
 				(:ii (vp-cpy-ir-i (first x) (second x) y))
 				(:is (vp-cpy-ir-s (first x) (second x) y))
 				(:ib (vp-cpy-ir-b (first x) (second x) y))

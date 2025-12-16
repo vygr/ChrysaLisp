@@ -7,7 +7,9 @@
 
 (defcvar 'stack_align 8 'stack_state '(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14))
 
-(defun emit-native-reg? (r) (find r '(:r0 :r1 :r2 :r3 :rsp :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14)))
+(defun emit-native-reg? (r)
+	(if (defq i (find r '(:r0 :r1 :r2 :r3 :rsp :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14))) i
+		(find r '(:f0 :f1 :f2 :f3 :f4 :f5 :f6 :f7 :f8 :f9 :f10 :f11 :f12 :f13 :f14 :f15))))
 
 (defun x64-rr (o s d)
 	(emitm-byte (+ 0x48 (<< (>> s 3) 2) (>> d 3)) o (+ 0xc0 (<< (logand 7 s) 3) (logand 7 d))))
@@ -73,6 +75,16 @@
 			(emitm-byte (+ 0x48 (<< dh 2)) o (+ 0x5 (<< dl 3)))
 			(emitm-int l))
 		(:t (throw "x64-pr constant out of range !" l))))
+
+(defun x64-xmm-rr (p o s d)
+	; Prefix p, Opcode o, Src s, Dst d (XMM, XMM)
+	; REX.R = s>>3, REX.B = d>>3. REX.W = 0.
+	(emitm-byte p (+ 0x40 (<< (>> s 3) 2) (>> d 3)) 0x0f o (+ 0xc0 (<< (logand 7 s) 3) (logand 7 d))))
+
+(defun x64-gpr-xmm-rr (p o s d)
+	; Prefix p, Opcode o, Src s, Dst d (Mixed GPR/XMM)
+	; REX.W = 1.
+	(emitm-byte p (+ 0x48 (<< (>> s 3) 2) (>> d 3)) 0x0f o (+ 0xc0 (<< (logand 7 s) 3) (logand 7 d))))
 
 (defun emit-push (&rest b)
 	(each (lambda (r)
@@ -658,6 +670,42 @@
 	(unless (eql s d) (emit-cpy-rr s d))
 	(emit-bge-cr 0 d l m)
 	(emit-mul-cr -1 d))
+
+(defun emit-cpy-ff (s d) (unless (eql s d) (x64-xmm-rr 0xf2 0x10 s d))) ; MOVSD
+(defun emit-cpy-rf (s d) (x64-gpr-xmm-rr 0x66 0x6e s d)) ; MOVQ xmm, r64
+(defun emit-cpy-fr (s d) (x64-gpr-xmm-rr 0x66 0x7e s d)) ; MOVQ r64, xmm
+(defun emit-cvt-rf (s d) (x64-gpr-xmm-rr 0xf2 0x2a s d)) ; CVTSI2SD
+(defun emit-cvt-fr (s d) (x64-gpr-xmm-rr 0xf2 0x2c s d)) ; CVTTSD2SI
+
+(defun emit-add-ff (s d) (x64-xmm-rr 0xf2 0x58 s d)) ; ADDSD
+(defun emit-sub-ff (s d) (x64-xmm-rr 0xf2 0x5c s d)) ; SUBSD
+(defun emit-mul-ff (s d) (x64-xmm-rr 0xf2 0x59 s d)) ; MULSD
+(defun emit-div-ff (s d) (x64-xmm-rr 0xf2 0x5e s d)) ; DIVSD
+(defun emit-min-ff (s d) (x64-xmm-rr 0xf2 0x5d s d)) ; MINSD
+(defun emit-max-ff (s d) (x64-xmm-rr 0xf2 0x5f s d)) ; MAXSD
+(defun emit-sqrt-ff (s d) (x64-xmm-rr 0xf2 0x51 s d)) ; SQRTSD
+
+(defun x64-cmp-ff (s d) (x64-xmm-rr 0x66 0x2e s d)) ; UCOMISD
+(defun emit-beq-ff (s d l m) (x64-cmp-ff s d) (x64-branch 0x74 l m)) ; JE
+(defun emit-bne-ff (s d l m) (x64-cmp-ff s d) (x64-branch 0x75 l m)) ; JNE
+(defun emit-blt-ff (s d l m) (x64-cmp-ff s d) (x64-branch 0x72 l m)) ; JB
+(defun emit-bgt-ff (s d l m) (x64-cmp-ff s d) (x64-branch 0x77 l m)) ; JA
+(defun emit-ble-ff (s d l m) (x64-cmp-ff s d) (x64-branch 0x76 l m)) ; JBE
+(defun emit-bge-ff (s d l m) (x64-cmp-ff s d) (x64-branch 0x73 l m)) ; JAE
+
+(defun x64-ir-f (o s c d)
+	; Standard x64-ir logic but with 0xF2 prefix for SSE2 Scalar Double
+	(emitm-byte 0xf2)
+	(x64-ir o s c d))
+
+; MOVSD xmm, [r+disp] (0F 10)
+(defun emit-cpy-if (s c d) (x64-ir-f 0x10 s c d)) 
+
+; MOVSD [r+disp], xmm (0F 11) - Note: standard x64-ir swaps regs for stores, 
+; but MOVSD store uses 0x11, so we map s(float) and d(ptr) correctly here.
+(defun emit-cpy-fi (s d c) 
+	(emitm-byte 0xf2) 
+	(x64-ir 0x11 d c s))
 
 (case *abi*
 (AMD64
