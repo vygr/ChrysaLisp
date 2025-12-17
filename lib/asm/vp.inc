@@ -207,6 +207,8 @@
 (defun vp-min-ff (s d) (emit `(emit-min-ff ,s ,d)))
 (defun vp-max-ff (s d) (emit `(emit-max-ff ,s ,d)))
 (defun vp-sqrt-ff (s d) (emit `(emit-sqrt-ff ,s ,d)))
+(defun vp-abs-ff (s d) (emit `(emit-abs-ff ,s ,d)))
+(defun vp-neg-ff (s d) (emit `(emit-neg-ff ,s ,d)))
 
 (defun vp-beq-ff (s d l) (emit (static-qqp (emit-beq-ff ,s ,d ,(label-sym l)))))
 (defun vp-bne-ff (s d l) (emit (static-qqp (emit-bne-ff ,s ,d ,(label-sym l)))))

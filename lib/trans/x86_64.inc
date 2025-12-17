@@ -685,6 +685,30 @@
 (defun emit-max-ff (s d) (x64-xmm-rr 0xf2 0x5f s d)) ; MAXSD
 (defun emit-sqrt-ff (s d) (x64-xmm-rr 0xf2 0x51 s d)) ; SQRTSD
 
+(defun x64-xmm-rm-rsp (o r)
+	(defq rh (>> r 3) rl (logand r 7))
+	(emitm-byte 0x66)
+	(if (>= r 8) (emitm-byte (+ 0x40 (<< rh 2))))
+	(emitm-byte 0x0f o (+ (<< rl 3) 4) 0x24))
+
+(defun emit-abs-ff (s d)
+	(emit-push 0)
+	(emit-cpy-cr (>> -1 1) 0)
+	(emit-push 0)
+	(unless (eql s d) (emit-cpy-ff s d))
+	(x64-xmm-rm-rsp 0x54 d)
+	(emit-pop 0)
+	(emit-pop 0))
+
+(defun emit-neg-ff (s d)
+	(emit-push 0)
+	(emit-cpy-cr (<< 1 63) 0)
+	(emit-push 0)
+	(unless (eql s d) (emit-cpy-ff s d))
+	(x64-xmm-rm-rsp 0x57 d)
+	(emit-pop 0)
+	(emit-pop 0))
+
 (defun x64-cmp-ff (s d) (x64-xmm-rr 0x66 0x2e s d)) ; UCOMISD
 (defun emit-beq-ff (s d l m) (x64-cmp-ff s d) (x64-branch 0x74 l m)) ; JE
 (defun emit-bne-ff (s d l m) (x64-cmp-ff s d) (x64-branch 0x75 l m)) ; JNE

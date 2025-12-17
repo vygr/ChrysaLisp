@@ -409,25 +409,8 @@
 	;trashes
 	;:r1-:r14
 
-	(entry 'real :abs '(:r0))
-
-	(vp-push :r0)
-	(assign `((:r0 num_value)) '(:f0))
-	(vp-cpy-cr (n2r 0) :r0)
-	(vp-cpy-rf :r0 :f1)
-	(vpif '(:f0 < :f1))
-		(vp-cpy-cr (n2r -1) :r0)
-		(vp-cpy-rf :r0 :f1)
-		(vp-mul-ff :f1 :f0)
-		(call 'real :create '(:f0) '(:r1))
-	(else)
-		(assign '((:rsp 0)) '(:r1))
-		(class/obj/ref :r1 :r0)
-	(endif)
-	(vp-pop :r0)
-
-	(exit 'real :abs '(:r0 :r1))
-	(vp-ret)
+	(mathop :abs
+		'(vp-abs-ff :f1 :f0))
 
 (def-func-end)
 
@@ -441,10 +424,7 @@
 	;:r1-:r14
 
 	(mathop :neg
-		'(progn
-			(vp-cpy-cr (n2r -1) :r0)
-			(vp-cpy-rf :r0 :f0)
-			(vp-mul-ff :f1 :f0)))
+		'(vp-neg-ff :f1 :f0))
 
 (def-func-end)
 

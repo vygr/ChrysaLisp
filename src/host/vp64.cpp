@@ -207,6 +207,9 @@ enum Opcodes
 
 	VP64_CPY_IF,
 	VP64_CPY_FI,
+
+	VP64_ABS_FF,
+	VP64_NEG_FF,
 };
 
 int vp64(uint8_t* data, int64_t *stack, int64_t* argv, int64_t* host_os_funcs, int64_t* host_gui_funcs, int64_t* host_audio_funcs)
@@ -1564,6 +1567,18 @@ int vp64(uint8_t* data, int64_t *stack, int64_t* argv, int64_t* host_os_funcs, i
 				int64_t base = regs[(ir >> 8) & 0xf];
 				int64_t offset = (int64_t)*pc++;
 				*(double*)(base + offset) = fregs[(ir >> 12) & 0xf];
+			}
+			break;
+
+			case VP64_ABS_FF:
+			{
+				fregs[(ir >> 8) & 0xf] = std::abs(fregs[(ir >> 12) & 0xf]);
+			}
+			break;
+
+			case VP64_NEG_FF:
+			{
+				fregs[(ir >> 8) & 0xf] = -fregs[(ir >> 12) & 0xf];
 			}
 			break;
 

@@ -10,12 +10,12 @@
 
 (defun emit-native-reg? (r)
 	(if (defq i (find r
-			'(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7           	;args (x0-x7)
-			:r15                                            ;indirect (x8)
-			:r16 :r17 :r18 :r19 :r20 :r21 :r22              ;temps (x9-x15)
-			:r23 :r24 :r25                                  ;ip0, ip1, platform
-			:r8 :r9 :r10 :r11 :r12 :r13 :r14 :r26 :r27 :rsp ;callee saves (x19-x28)
-			:r29 :r30 :r31)))                               ;frm, lnk, stack
+			'(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7				;args (x0-x7)
+			:r15											;indirect (x8)
+			:r16 :r17 :r18 :r19 :r20 :r21 :r22				;temps (x9-x15)
+			:r23 :r24 :r25									;ip0, ip1, platform
+			:r8 :r9 :r10 :r11 :r12 :r13 :r14 :r26 :r27 :rsp	;callee saves (x19-x28)
+			:r29 :r30 :r31)))								;frm, lnk, stack
 		i
 		(find r
 			'(:f16 :f17 :f18 :f19 :f20 :f21 :f22 :f23		;d0-d7 (Volatile / Args / Ret)
@@ -562,6 +562,8 @@
 (defun emit-min-ff (s d) (arm64-rrr 0x1e605000 s d d)) ; FMIN
 (defun emit-max-ff (s d) (arm64-rrr 0x1e604000 s d d)) ; FMAX
 (defun emit-sqrt-ff (s d) (arm64-fpr-rr 0x1e61c000 s d)) ; FSQRT
+(defun emit-abs-ff (s d) (arm64-fpr-rr 0x1e60c000 s d)) ; FABS Dd, Dn
+(defun emit-neg-ff (s d) (arm64-fpr-rr 0x1e614000 s d)) ; FNEG Dd, Dn
 
 (defun arm64-cmp-ff (s d) (emitm-int (+ 0x1e602000 (<< s 16) (<< d 5)))) ; FCMP Dd, Ds
 (defun emit-beq-ff (s d l m) (arm64-cmp-ff s d) (arm64-branch 0x0 l)) ; EQ

@@ -269,6 +269,9 @@
 (defun emit-cpy-if (s c d) (emitm-short (+ (next-opcode) (<< d 8) (<< s 12)) c))
 (defun emit-cpy-fi (s d c) (emitm-short (+ (next-opcode) (<< d 8) (<< s 12)) c))
 
+(defun emit-abs-ff (s d) (emitm-short (+ (next-opcode) (<< d 8) (<< s 12))))
+(defun emit-neg-ff (s d) (emitm-short (+ (next-opcode) (<< d 8) (<< s 12))))
+
 ;module, that exports everything !
 (export-symbols (map (const first) (tolist (env))))
 (env-pop)

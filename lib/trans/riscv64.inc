@@ -472,6 +472,8 @@
 (defun emit-min-ff (s d) (riscv64-fp-r 0x2a000053 s d)) ; fmin.d d, d, s
 (defun emit-max-ff (s d) (riscv64-fp-r 0x2a001053 s d)) ; fmax.d d, d, s
 (defun emit-sqrt-ff (s d) (riscv64-fp-r2 0x5a007053 s d)) ; fsqrt.d d, s
+(defun emit-abs-ff (s d) (riscv64-fp-r2 0x2a002053 s d)) ; fabs.d
+(defun emit-neg-ff (s d) (riscv64-fp-r2 0x2a001053 s d)) ; fneg.d
 
 ; Comparisons write 1 or 0 to +riscv64_rtmp1 (integer reg)
 ; We then branch on that integer register.
