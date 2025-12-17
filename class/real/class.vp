@@ -26,13 +26,8 @@
 
 	(push-scope)
 	(assign '(:r0 :r1) {this, stream})
-	(vpif {this->num_value > 0})
-		(call 'stream :write_cstr '(:r1 "0x"))
-		(call 'str :create_from_long {this->num_value, 16} {tmp})
-	(else)
-		(call 'stream :write_cstr '(:r1 "-0x"))
-		(call 'str :create_from_long {- this->num_value, 16} {tmp})
-	(endif)
+	(call 'stream :write_cstr '(:r1 "0x"))
+	(call 'str :create_from_long {this->num_value, -16} {tmp})
 	(call 'stream :write {stream, &tmp->str_data, tmp->str_length})
 	(call 'obj :deref {tmp})
 

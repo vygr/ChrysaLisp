@@ -160,19 +160,19 @@
 	;:r1-:r4, :f0-:f2
 
 	(vp-def (dst src1 src2 dst1 src_end))
-	(vp-fdef (e0 e1 e2))
+	(vp-fdef (e0 e1 zero))
 
 	(entry 'reals :div `(,dst ,src1 ,src2))
 
 	(vp-cpy-cr 0 src_end)
-	(vp-cpy-rf src_end e2)
+	(vp-cpy-rf src_end zero)
 	(assign `((,src1 array_length)) `(,src_end))
 	(assign (map (# (list %0 array_begin)) `(,src1 ,src2 ,dst)) `(,src1 ,src2 ,dst1))
 	(vp-shl-cr (log2 +ptr_size) src_end)
 	(vp-add-rr src1 src_end)
 	(vec-loop-until `(,src1 ,src2) `(,e0 ,e1) src_end dst1
 		(lambda (e0 e1)
-			(errorif `(,e1 = ,e2) 'error)
+			(errorif `(,e1 = ,zero) 'error)
 			(vp-div-ff e1 e0) e0))
 
 	(exit 'reals :div `(,dst -1))
@@ -194,24 +194,24 @@
 	;trashes
 	;:r1-:r5, :f0-:f3
 
-	(vp-def (dst src1 src2 dst1 src_end tmp))
-	(vp-fdef (e0 e1 e2 e3))
+	(vp-def (dst src1 src2 dst1 src_end trunc))
+	(vp-fdef (e0 e1 e2 zero))
 
 	(entry 'reals :mod `(,dst ,src1 ,src2))
 
 	(vp-cpy-cr 0 src_end)
-	(vp-cpy-rf src_end e3)
+	(vp-cpy-rf src_end zero)
 	(assign `((,src1 array_length)) `(,src_end))
 	(assign (map (# (list %0 array_begin)) `(,src1 ,src2 ,dst)) `(,src1 ,src2 ,dst1))
 	(vp-shl-cr (log2 +ptr_size) src_end)
 	(vp-add-rr src1 src_end)
 	(vec-loop-until `(,src1 ,src2) `(,e0 ,e1) src_end dst1
 		(lambda (e0 e1)
-			(errorif `(,e1 = ,e3) 'error)
+			(errorif `(,e1 = ,zero) 'error)
 			(vp-cpy-ff e0 e2)
 			(vp-div-ff e1 e2)
-			(vp-cvt-fr e2 tmp)
-			(vp-cvt-rf tmp e2)
+			(vp-cvt-fr e2 trunc)
+			(vp-cvt-rf trunc e2)
 			(vp-mul-ff e1 e2)
 			(vp-sub-ff e2 e0)
 			e0))
@@ -332,16 +332,16 @@
 	;:r1-:r3, :f0-:f1
 
 	(vp-def (dst src1 dst1 src_end))
-	(vp-fdef (e0 e1))
+	(vp-fdef (e0 scale))
 
-	(entry 'reals :scale `(,dst ,src1 ,e1))
+	(entry 'reals :scale `(,dst ,src1 ,scale))
 
 	(assign `((,src1 array_length)) `(,src_end))
 	(assign (map (# (list %0 array_begin)) `(,src1 ,dst)) `(,src1 ,dst1))
 	(vp-shl-cr (log2 +ptr_size) src_end)
 	(vp-add-rr src1 src_end)
 	(vec-loop-until `(,src1) `(,e0) src_end dst1
-		(lambda (e0) (vp-mul-ff e1 e0) e0))
+		(lambda (e0) (vp-mul-ff scale e0) e0))
 
 	(exit 'reals :scale `(,dst))
 	(vp-ret)
