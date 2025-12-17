@@ -560,7 +560,7 @@
 (defun emit-mul-ff (s d) (arm64-rrr 0x1e600800 s d d)) ; FMUL
 (defun emit-div-ff (s d) (arm64-rrr 0x1e601800 s d d)) ; FDIV
 (defun emit-min-ff (s d) (arm64-rrr 0x1e605000 s d d)) ; FMIN
-(defun emit-max-ff (s d) (arm64-rrr 0x1e604000 s d d)) ; FMAX
+(defun emit-max-ff (s d) (arm64-rrr 0x1e604800 s d d)) ; FMAX
 (defun emit-sqrt-ff (s d) (arm64-fpr-rr 0x1e61c000 s d)) ; FSQRT
 (defun emit-abs-ff (s d) (arm64-fpr-rr 0x1e60c000 s d)) ; FABS Dd, Dn
 (defun emit-neg-ff (s d) (arm64-fpr-rr 0x1e614000 s d)) ; FNEG Dd, Dn
@@ -568,10 +568,10 @@
 (defun arm64-cmp-ff (s d) (emitm-int (+ 0x1e602000 (<< s 16) (<< d 5)))) ; FCMP Dd, Ds
 (defun emit-beq-ff (s d l m) (arm64-cmp-ff s d) (arm64-branch 0x0 l)) ; EQ
 (defun emit-bne-ff (s d l m) (arm64-cmp-ff s d) (arm64-branch 0x1 l)) ; NE
-(defun emit-bge-ff (s d l m) (arm64-cmp-ff s d) (arm64-branch 0xa l)) ; GE
-(defun emit-bgt-ff (s d l m) (arm64-cmp-ff s d) (arm64-branch 0xc l)) ; GT
-(defun emit-ble-ff (s d l m) (arm64-cmp-ff s d) (arm64-branch 0xd l)) ; LE
-(defun emit-blt-ff (s d l m) (arm64-cmp-ff s d) (arm64-branch 0xb l)) ; LT
+(defun emit-bge-ff (s d l m) (arm64-cmp-ff s d) (arm64-branch 0xd l)) ; GE->LE
+(defun emit-bgt-ff (s d l m) (arm64-cmp-ff s d) (arm64-branch 0xb l)) ; GT->LT
+(defun emit-ble-ff (s d l m) (arm64-cmp-ff s d) (arm64-branch 0xa l)) ; LE->GE
+(defun emit-blt-ff (s d l m) (arm64-cmp-ff s d) (arm64-branch 0xc l)) ; LT->GT
 
 (defun emit-cpy-if (s c d)
 	(cond
@@ -581,8 +581,8 @@
 			(emitm-int (+ 0xfc400000 (<< (logand c 0x1ff) 12) (<< (logand s 31) 5) (logand d 31))))
 		((and (<= 0 c 0x7ff8) (= 0 (logand c 7)))
 			; LDR Dd, [Xn, #pimm12] (Scaled by 8)
-			; Opcode: 10111101 01... -> 0xbd400000
-			(emitm-int (+ 0xbd400000 (<< c 7) (<< (logand s 31) 5) (logand d 31))))
+			; Opcode: 11111101 01... -> 0xfd400000
+			(emitm-int (+ 0xfd400000 (<< c 7) (<< (logand s 31) 5) (logand d 31))))
 		(:t
 			; Large offset: calc address in temp, then LDUR
 			(emit-cpy-cr c +arm64_rtmp)
@@ -597,8 +597,8 @@
 			(emitm-int (+ 0xfc000000 (<< (logand c 0x1ff) 12) (<< (logand d 31) 5) (logand s 31))))
 		((and (<= 0 c 0x7ff8) (= 0 (logand c 7)))
 			; STR Dd, [Xn, #pimm12] (Scaled by 8)
-			; Opcode: 10111101 00... -> 0xbd000000
-			(emitm-int (+ 0xbd000000 (<< c 7) (<< (logand d 31) 5) (logand s 31))))
+			; Opcode: 11111101 00... -> 0xfd000000
+			(emitm-int (+ 0xfd000000 (<< c 7) (<< (logand d 31) 5) (logand s 31))))
 		(:t
 			; Large offset: calc address in temp, then STUR
 			(emit-cpy-cr c +arm64_rtmp)
