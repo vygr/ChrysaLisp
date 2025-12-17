@@ -5,6 +5,7 @@
 	(dec-method :create class/real/create)
 	(dec-method :print class/real/print :final)
 	(dec-method :vcreate class/real/create :final)
+	(dec-method :random class/real/random :final)
 	(dec-method :add class/real/add :final)
 	(dec-method :sub class/real/sub :final)
 	(dec-method :mul class/real/mul :final)
