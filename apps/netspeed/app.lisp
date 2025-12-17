@@ -9,12 +9,12 @@
 (enums +select 0
 	(enum main task reply nodes))
 
-(defq +scale_size 5 +bops 1000000000 +mops 1000000
-	+max_bops_align (* +scale_size +bops) +max_mops_align  (* +scale_size +mops)
+(defq +scale_size 5 +bops 1000000000
+	+max_bops_align (* +scale_size +bops)
 	+smooth_steps 5 +poll_rate (/ 1000000 4)
 	+bars ''(:regs_bar :memory_bar :reals_bar)
 	+results ''(:regs_results :memory_results :reals_results)
-	+max_aligns `'(,+max_bops_align ,+max_bops_align ,+max_mops_align)
+	+max_aligns `'(,+max_bops_align ,+max_bops_align ,+max_bops_align)
 	+retry_timeout (task-timeout 5))
 
 (ui-window *window* ()
@@ -22,11 +22,11 @@
 	(ui-grid *net_charts* (:grid_height 1)
 		(ui-hchart _ "Net Regs (bops/s)" +scale_size (:units +bops :color +argb_green))
 		(ui-hchart _ "Net Memory (bops/s)" +scale_size (:units +bops :color +argb_yellow))
-		(ui-hchart _ "Net Reals (mops/s)" +scale_size (:units +mops :color +argb_red)))
+		(ui-hchart _ "Net Reals (bops/s)" +scale_size (:units +bops :color +argb_red)))
 	(ui-grid *charts* (:grid_height 1)
 		(ui-hchart _ "Regs (bops/s)" +scale_size (:units +bops :color +argb_green))
 		(ui-hchart _ "Memory (bops/s)" +scale_size (:units +bops :color +argb_yellow))
-		(ui-hchart _ "Reals (mops/s)" +scale_size (:units +mops :color +argb_red))))
+		(ui-hchart _ "Reals (bops/s)" +scale_size (:units +bops :color +argb_red))))
 
 (defun create (key now)
 	; (create key now) -> val
