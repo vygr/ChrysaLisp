@@ -17,9 +17,10 @@
 	;:r0 = reals object (ptr)
 	;:r1 = 0 if error, else ok
 	;trashes
-	;:r1-:r14
+	;:r1-:r4, :f0-:f1
 
-	(vp-def (e0 e1 dst src1 src2 dst1 src_end) (method-input 'sys_math :r_add))
+	(vp-def (dst src1 src2 dst1 src_end))
+	(vp-fdef (e0 e1))
 
 	(entry 'reals :add `(,dst ,src1 ,src2))
 
@@ -28,7 +29,7 @@
 	(vp-shl-cr (log2 +ptr_size) src_end)
 	(vp-add-rr src1 src_end)
 	(vec-loop-until `(,src1 ,src2) `(,e0 ,e1) src_end dst1
-		(lambda (e0 e1) (call 'sys_math :r_add `(,e0 ,e1) '(r)) r))
+		(lambda (e0 e1) (vp-add-ff e1 e0) e0))
 
 	(exit 'reals :add `(,dst -1))
 	(vp-ret)
@@ -44,9 +45,10 @@
 	;:r0 = reals object (ptr)
 	;:r1 = 0 if error, else ok
 	;trashes
-	;:r1-:r14
+	;:r1-:r4, :f0-:f1
 
-	(vp-def (e0 e1 dst src1 src2 dst1 src_end) (method-input 'sys_math :r_sub))
+	(vp-def (dst src1 src2 dst1 src_end))
+	(vp-fdef (e0 e1))
 
 	(entry 'reals :sub `(,dst ,src1 ,src2))
 
@@ -55,7 +57,7 @@
 	(vp-shl-cr (log2 +ptr_size) src_end)
 	(vp-add-rr src1 src_end)
 	(vec-loop-until `(,src1 ,src2) `(,e0 ,e1) src_end dst1
-		(lambda (e0 e1) (call 'sys_math :r_sub `(,e0 ,e1) '(r)) r))
+		(lambda (e0 e1) (vp-sub-ff e1 e0) e0))
 
 	(exit 'reals :sub `(,dst -1))
 	(vp-ret)
@@ -71,9 +73,10 @@
 	;:r0 = reals object (ptr)
 	;:r1 = 0 if error, else ok
 	;trashes
-	;:r1-:r14
+	;:r1-:r4, :f0-:f1
 
-	(vp-def (e0 e1 dst src1 src2 dst1 src_end t0 t1) (method-input 'sys_math :r_sub))
+	(vp-def (dst src1 src2 dst1 src_end))
+	(vp-def (e0 e1))
 
 	(entry 'reals :min `(,dst ,src1 ,src2))
 
@@ -82,13 +85,7 @@
 	(vp-shl-cr (log2 +ptr_size) src_end)
 	(vp-add-rr src1 src_end)
 	(vec-loop-until `(,src1 ,src2) `(,e0 ,e1) src_end dst1
-		(lambda (e0 e1)
-			(assign `(,e0 ,e1) `(,t0 ,t1))
-			(call 'sys_math :r_sub `(,e0 ,e1) '(r))
-			(vpif `(,r < 0))
-				(assign `(,t0) `(,t1))
-			(endif)
-			t1))
+		(lambda (e0 e1) (vp-min-ff e1 e0) e0))
 
 	(exit 'reals :min `(,dst -1))
 	(vp-ret)
@@ -104,9 +101,10 @@
 	;:r0 = reals object (ptr)
 	;:r1 = 0 if error, else ok
 	;trashes
-	;:r1-:r14
+	;:r1-:r4, :f0-:f1
 
-	(vp-def (e0 e1 dst src1 src2 dst1 src_end t0 t1) (method-input 'sys_math :r_sub))
+	(vp-def (dst src1 src2 dst1 src_end))
+	(vp-def (e0 e1))
 
 	(entry 'reals :max `(,dst ,src1 ,src2))
 
@@ -115,13 +113,7 @@
 	(vp-shl-cr (log2 +ptr_size) src_end)
 	(vp-add-rr src1 src_end)
 	(vec-loop-until `(,src1 ,src2) `(,e0 ,e1) src_end dst1
-		(lambda (e0 e1)
-			(assign `(,e0 ,e1) `(,t0 ,t1))
-			(call 'sys_math :r_sub `(,e0 ,e1) '(r))
-			(vpif `(,r > 0))
-				(assign `(,t0) `(,t1))
-			(endif)
-			t1))
+		(lambda (e0 e1) (vp-max-ff e1 e0) e0))
 
 	(exit 'reals :max `(,dst -1))
 	(vp-ret)
@@ -137,9 +129,10 @@
 	;:r0 = reals object (ptr)
 	;:r1 = 0 if error, else ok
 	;trashes
-	;:r1-:r14
+	;:r1-:r4, :f0-:f1
 
-	(vp-def (e0 e1 dst src1 src2 dst1 src_end) (method-input 'sys_math :r_mul))
+	(vp-def (dst src1 src2 dst1 src_end))
+	(vp-fdef (e0 e1))
 
 	(entry 'reals :mul `(,dst ,src1 ,src2))
 
@@ -148,7 +141,7 @@
 	(vp-shl-cr (log2 +ptr_size) src_end)
 	(vp-add-rr src1 src_end)
 	(vec-loop-until `(,src1 ,src2) `(,e0 ,e1) src_end dst1
-		(lambda (e0 e1) (call 'sys_math :r_mul `(,e0 ,e1) '(r)) r))
+		(lambda (e0 e1) (vp-mul-ff e1 e0) e0))
 
 	(exit 'reals :mul `(,dst -1))
 	(vp-ret)
@@ -164,20 +157,23 @@
 	;:r0 = reals object (ptr)
 	;:r1 = 0 if error, else ok
 	;trashes
-	;:r1-:r14
+	;:r1-:r4, :f0-:f2
 
-	(vp-def (e0 e1 dst src1 src2 dst1 src_end) (method-input 'sys_math :r_div))
+	(vp-def (dst src1 src2 dst1 src_end))
+	(vp-fdef (e0 e1 e2))
 
 	(entry 'reals :div `(,dst ,src1 ,src2))
 
+	(vp-cpy-cr 0 src_end)
+	(vp-cpy-rf src_end e2)
 	(assign `((,src1 array_length)) `(,src_end))
 	(assign (map (# (list %0 array_begin)) `(,src1 ,src2 ,dst)) `(,src1 ,src2 ,dst1))
 	(vp-shl-cr (log2 +ptr_size) src_end)
 	(vp-add-rr src1 src_end)
 	(vec-loop-until `(,src1 ,src2) `(,e0 ,e1) src_end dst1
 		(lambda (e0 e1)
-			(errorif `(,e1 = 0) 'error)
-			(call 'sys_math :r_div `(,e0 ,e1) '(r)) r))
+			(errorif `(,e1 = ,e2) 'error)
+			(vp-div-ff e1 e0) e0))
 
 	(exit 'reals :div `(,dst -1))
 	(vp-ret)
@@ -196,20 +192,29 @@
 	;:r0 = reals object (ptr)
 	;:r1 = 0 if error, else ok
 	;trashes
-	;:r1-:r14
+	;:r1-:r5, :f0-:f3
 
-	(vp-def (e0 e1 dst src1 src2 dst1 src_end) (method-input 'sys_math :r_mod))
+	(vp-def (dst src1 src2 dst1 src_end tmp))
+	(vp-fdef (e0 e1 e2 e3))
 
 	(entry 'reals :mod `(,dst ,src1 ,src2))
 
+	(vp-cpy-cr 0 src_end)
+	(vp-cpy-rf src_end e3)
 	(assign `((,src1 array_length)) `(,src_end))
 	(assign (map (# (list %0 array_begin)) `(,src1 ,src2 ,dst)) `(,src1 ,src2 ,dst1))
 	(vp-shl-cr (log2 +ptr_size) src_end)
 	(vp-add-rr src1 src_end)
 	(vec-loop-until `(,src1 ,src2) `(,e0 ,e1) src_end dst1
 		(lambda (e0 e1)
-			(errorif `(,e1 = 0) 'error)
-			(call 'sys_math :r_mod `(,e0 ,e1) '(r)) r))
+			(errorif `(,e1 = ,e3) 'error)
+			(vp-cpy-ff e0 e2)
+			(vp-div-ff e1 e2)
+			(vp-cvt-fr e2 tmp)
+			(vp-cvt-rf tmp e2)
+			(vp-mul-ff e1 e2)
+			(vp-sub-ff e2 e0)
+			e0))
 
 	(exit 'reals :mod `(,dst -1))
 	(vp-ret)
@@ -226,9 +231,10 @@
 	;outputs
 	;:r0 = reals object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r4, :f0-:f1
 
-	(vp-def (e0 dst src1 dst1 src_end) (method-input 'sys_math :r_frac))
+	(vp-def (dst src1 dst1 src_end tmp))
+	(vp-fdef (e0 e1))
 
 	(entry 'reals :frac `(,dst ,src1))
 
@@ -237,7 +243,18 @@
 	(vp-shl-cr (log2 +ptr_size) src_end)
 	(vp-add-rr src1 src_end)
 	(vec-loop-until `(,src1) `(,e0) src_end dst1
-		(lambda (e0) (call 'sys_math :r_frac `(,e0) '(r)) r))
+		(lambda (e0)
+			(vp-cvt-fr e0 tmp)
+			(vp-cvt-rf tmp e1)
+			(vp-sub-ff e1 e0)
+			(vp-xor-rr tmp tmp)
+			(vp-cvt-rf tmp e1)
+			(vpif `(,e0 > ,e1))
+				(vp-cpy-cr 1 tmp)
+				(vp-cvt-rf tmp e1)
+				(vp-add-ff e1 e0)
+			(endif)
+			e0))
 
 	(exit 'reals :frac `(,dst))
 	(vp-ret)
@@ -251,9 +268,10 @@
 	;outputs
 	;:r0 = reals object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r4, :f0-:f1
 
-	(vp-def (e0 dst src1 dst1 src_end) (method-input 'sys_math :r_floor))
+	(vp-def (dst src1 dst1 src_end tmp))
+	(vp-fdef (e0 e1))
 
 	(entry 'reals :floor `(,dst ,src1))
 
@@ -262,7 +280,15 @@
 	(vp-shl-cr (log2 +ptr_size) src_end)
 	(vp-add-rr src1 src_end)
 	(vec-loop-until `(,src1) `(,e0) src_end dst1
-		(lambda (e0) (call 'sys_math :r_floor `(,e0) '(r)) r))
+		(lambda (e0)
+			(vp-cvt-fr e0 tmp)
+			(vp-cvt-rf tmp e1)
+			(vpif `(,e0 < ,e1))
+				(vp-cpy-cr 1 tmp)
+				(vp-cvt-rf tmp e1)
+				(vp-sub-ff e1 e0)
+			(endif)
+			e0))
 
 	(exit 'reals :floor `(,dst))
 	(vp-ret)
@@ -276,9 +302,10 @@
 	;outputs
 	;:r0 = reals object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r3, :f0
 
-	(vp-def (e0 dst src1 dst1 src_end) `(,(method-output 'sys_math :r_sub 0)))
+	(vp-def (dst src1 dst1 src_end))
+	(vp-fdef (e0))
 
 	(entry 'reals :abs `(,dst ,src1))
 
@@ -287,11 +314,7 @@
 	(vp-shl-cr (log2 +ptr_size) src_end)
 	(vp-add-rr src1 src_end)
 	(vec-loop-until `(,src1) `(,e0) src_end dst1
-		(lambda (e0)
-			(vpif `(,e0 < 0))
-				(call 'sys_math :r_sub `(0 ,e0) `(,e0))
-			(endif)
-			e0))
+		(lambda (e0) (vp-abs-ff e0 e0) e0))
 
 	(exit 'reals :abs `(,dst))
 	(vp-ret)
@@ -306,9 +329,10 @@
 	;outputs
 	;:r0 = reals object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r1-:r4, :f0-:f1
 
-	(vp-def (e0 dst src1 scale dst1 src_end) `(,(method-input 'sys_math :r_mul 0)))
+	(vp-def (dst src1 scale dst1 src_end))
+	(vp-fdef (e0 e1))
 
 	(entry 'reals :scale `(,dst ,src1 ,scale))
 
@@ -316,8 +340,9 @@
 	(assign (map (# (list %0 array_begin)) `(,src1 ,dst)) `(,src1 ,dst1))
 	(vp-shl-cr (log2 +ptr_size) src_end)
 	(vp-add-rr src1 src_end)
+	(vp-cpy-rf scale e1)
 	(vec-loop-until `(,src1) `(,e0) src_end dst1
-		(lambda (e0) (call 'sys_math :r_mul `(,e0 ,scale) '(r)) r))
+		(lambda (e0) (vp-mul-ff e1 e0) e0))
 
 	(exit 'reals :scale `(,dst))
 	(vp-ret)
@@ -331,19 +356,22 @@
 	;:r0 = reals object (ptr)
 	;:r1 = sum (real)
 	;trashes
-	;:r1-:r14
+	;:r1-:r2, :f0-:f1
 
-	(vp-def (sum this src1 src_end) `(,(method-input 'sys_math :r_add 0)))
+	(vp-def (this src1 src_end))
+	(vp-fdef (sum val))
 
 	(entry 'reals :sum `(,this))
 
+	(vp-xor-rr src_end src_end)
+	(vp-cvt-rf src_end sum)
 	(class/array/get_both this src1 src_end)
-	(vp-xor-rr sum sum)
 	(vpif `(,src1 /= ,src_end))
 		(assign `((,src1 0)) `(,sum))
 		(vp-add-cr +long_size src1)
 		(loop-while `(,src1 /= ,src_end))
-			(call 'sys_math :r_add `(,sum (,src1 0)) `(,sum))
+			(assign `((,src1 0)) `(,val))
+			(vp-add-ff val sum)
 			(vp-add-cr +long_size src1)
 		(loop-end)
 	(endif)
@@ -363,23 +391,26 @@
 	;trashes
 	;:r1-:r14
 
-	(vp-def (val1 val2 this sum src2 src1 src_end) '(:r13 :r14))
+	(vp-def (this src2 src1 src_end))
+	(vp-fdef (sum val1 val2))
 
-	(entry 'reals :dot `(,this :r1))
+	(entry 'reals :dot `(,this ,src2))
 
+	(vp-xor-rr src_end src_end)
+	(vp-cvt-rf src_end sum)
 	(class/array/get_both this src1 src_end)
-	(assign '((:r1 array_begin) 0) `(,src2 ,sum))
+	(assign `((,src2 array_begin)) `(,src2))
 	(vpif `(,src1 /= ,src_end))
-		(assign `((,src1 0) (,src2 0)) `(,val1 ,val2))
+		(assign `((,src1 0) (,src2 0)) `(,val1 ,sum))
 		(vp-add-cr +long_size src1)
 		(vp-add-cr +long_size src2)
-		(call 'sys_math :r_mul `(,val1 ,val2) `(,sum))
+		(vp-mul-ff val1 sum)
 		(loop-while `(,src1 /= ,src_end))
 			(assign `((,src1 0) (,src2 0)) `(,val1 ,val2))
 			(vp-add-cr +long_size src1)
 			(vp-add-cr +long_size src2)
-			(call 'sys_math :r_mul `(,val1 ,val2) `(,val1))
-			(call 'sys_math :r_add `(,val1 ,sum) `(,sum))
+			(vp-mul-ff val1 val2)
+			(vp-add-ff val2 sum)
 		(loop-end)
 	(endif)
 
