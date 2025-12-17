@@ -559,7 +559,7 @@
 (defun emit-sub-ff (s d) (arm64-rrr 0x1e603800 s d d)) ; FSUB Dd, Dn, Dm -> FSUB Dd, Dd, Ds
 (defun emit-mul-ff (s d) (arm64-rrr 0x1e600800 s d d)) ; FMUL
 (defun emit-div-ff (s d) (arm64-rrr 0x1e601800 s d d)) ; FDIV
-(defun emit-min-ff (s d) (arm64-rrr 0x1e605000 s d d)) ; FMIN
+(defun emit-min-ff (s d) (arm64-rrr 0x1e605800 s d d)) ; FMIN
 (defun emit-max-ff (s d) (arm64-rrr 0x1e604800 s d d)) ; FMAX
 (defun emit-sqrt-ff (s d) (arm64-fpr-rr 0x1e61c000 s d)) ; FSQRT
 (defun emit-abs-ff (s d) (arm64-fpr-rr 0x1e60c000 s d)) ; FABS Dd, Dn

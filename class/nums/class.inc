@@ -38,27 +38,27 @@
 
 (defun vec-loop-until (srcs elms src_end dst func)
 	(loop-start)
-		(each (# (vp-cpy-ir %0 0 %1)) srcs elms)
+		(each (# (assign (list (list %0 0)) (list %1))) srcs elms)
 		(each (# (vp-add-cr +long_size %0)) srcs)
 		(defq r (apply func elms))
 		(when dst
-			(vp-cpy-ri r dst 0)
+			(assign (list r) (list (list dst 0)))
 			(vp-add-cr +long_size dst))
 	(loop-until `(,(first srcs) = ,src_end)))
 
 (defun vec-loop-while (srcs elms src_end dst func)
 	(loop-while `(,(first srcs) /= ,src_end))
-		(each (# (vp-cpy-ir %0 0 %1)) srcs elms)
+		(each (# (assign (list (list %0 0)) (list %1))) srcs elms)
 		(each (# (vp-add-cr +long_size %0)) srcs)
 		(defq r (apply func elms))
 		(when dst
-			(vp-cpy-ri r dst 0)
+			(assign (list r) (list (list dst 0)))
 			(vp-add-cr +long_size dst))
 	(loop-end))
 
 (defun vec-loop-while-endswitch (srcs elms src_end func)
 	(loop-while `(,(first srcs) /= ,src_end))
-		(each (# (vp-cpy-ir %0 0 %1)) srcs elms)
+		(each (# (assign (list (list %0 0)) (list %1))) srcs elms)
 		(each (# (vp-add-cr +long_size %0)) srcs)
 		(apply func elms)
 	(endswitch))

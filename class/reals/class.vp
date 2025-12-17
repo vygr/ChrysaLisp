@@ -76,7 +76,7 @@
 	;:r1-:r4, :f0-:f1
 
 	(vp-def (dst src1 src2 dst1 src_end))
-	(vp-def (e0 e1))
+	(vp-fdef (e0 e1))
 
 	(entry 'reals :min `(,dst ,src1 ,src2))
 
@@ -104,7 +104,7 @@
 	;:r1-:r4, :f0-:f1
 
 	(vp-def (dst src1 src2 dst1 src_end))
-	(vp-def (e0 e1))
+	(vp-fdef (e0 e1))
 
 	(entry 'reals :max `(,dst ,src1 ,src2))
 
@@ -329,18 +329,17 @@
 	;outputs
 	;:r0 = reals object (ptr)
 	;trashes
-	;:r1-:r4, :f0-:f1
+	;:r1-:r3, :f0-:f1
 
-	(vp-def (dst src1 scale dst1 src_end))
+	(vp-def (dst src1 dst1 src_end))
 	(vp-fdef (e0 e1))
 
-	(entry 'reals :scale `(,dst ,src1 ,scale))
+	(entry 'reals :scale `(,dst ,src1 ,e1))
 
 	(assign `((,src1 array_length)) `(,src_end))
 	(assign (map (# (list %0 array_begin)) `(,src1 ,dst)) `(,src1 ,dst1))
 	(vp-shl-cr (log2 +ptr_size) src_end)
 	(vp-add-rr src1 src_end)
-	(vp-cpy-rf scale e1)
 	(vec-loop-until `(,src1) `(,e0) src_end dst1
 		(lambda (e0) (vp-mul-ff e1 e0) e0))
 
