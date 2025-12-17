@@ -231,28 +231,28 @@
 	;outputs
 	;:r0 = reals object (ptr)
 	;trashes
-	;:r1-:r4, :f0-:f1
+	;:r1-:r4, :f0-:f3
 
-	(vp-def (dst src1 dst1 src_end tmp))
-	(vp-fdef (e0 e1))
+	(vp-def (dst src1 dst1 src_end trunc))
+	(vp-fdef (e0 e1 one zero))
 
 	(entry 'reals :frac `(,dst ,src1))
 
+	(vp-xor-rr trunc trunc)
+	(vp-cvt-rf trunc zero)
+	(vp-cpy-cr 1 trunc)
+	(vp-cvt-rf trunc one)
 	(assign `((,src1 array_length)) `(,src_end))
 	(assign (map (# (list %0 array_begin)) `(,src1 ,dst)) `(,src1 ,dst1))
 	(vp-shl-cr (log2 +ptr_size) src_end)
 	(vp-add-rr src1 src_end)
 	(vec-loop-until `(,src1) `(,e0) src_end dst1
 		(lambda (e0)
-			(vp-cvt-fr e0 tmp)
-			(vp-cvt-rf tmp e1)
+			(vp-cvt-fr e0 trunc)
+			(vp-cvt-rf trunc e1)
 			(vp-sub-ff e1 e0)
-			(vp-xor-rr tmp tmp)
-			(vp-cvt-rf tmp e1)
-			(vpif `(,e0 > ,e1))
-				(vp-cpy-cr 1 tmp)
-				(vp-cvt-rf tmp e1)
-				(vp-add-ff e1 e0)
+			(vpif `(,e0 > ,zero))
+				(vp-add-ff one e0)
 			(endif)
 			e0))
 
@@ -268,25 +268,25 @@
 	;outputs
 	;:r0 = reals object (ptr)
 	;trashes
-	;:r1-:r4, :f0-:f1
+	;:r1-:r4, :f0-:f2
 
-	(vp-def (dst src1 dst1 src_end tmp))
-	(vp-fdef (e0 e1))
+	(vp-def (dst src1 dst1 src_end trunc))
+	(vp-fdef (e0 e1 one zero))
 
 	(entry 'reals :floor `(,dst ,src1))
 
+	(vp-cpy-cr 1 trunc)
+	(vp-cvt-rf trunc one)
 	(assign `((,src1 array_length)) `(,src_end))
 	(assign (map (# (list %0 array_begin)) `(,src1 ,dst)) `(,src1 ,dst1))
 	(vp-shl-cr (log2 +ptr_size) src_end)
 	(vp-add-rr src1 src_end)
-	(vec-loop-until `(,src1) `(,e0) src_end dst1
-		(lambda (e0)
-			(vp-cvt-fr e0 tmp)
-			(vp-cvt-rf tmp e1)
+	(vec-loop-until `(,src1) `(,e1) src_end dst1
+		(lambda (e1)
+			(vp-cvt-fr e1 trunc)
+			(vp-cvt-rf trunc e0)
 			(vpif `(,e0 < ,e1))
-				(vp-cpy-cr 1 tmp)
-				(vp-cvt-rf tmp e1)
-				(vp-sub-ff e1 e0)
+				(vp-sub-ff one e0)
 			(endif)
 			e0))
 
