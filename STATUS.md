@@ -20,7 +20,7 @@ Editor now supports `sticky` cursor x position.
 Removed the use of task level storage.
 
 Big changes to `reals` ! A `real` is now a 64bit IEEE float, with hardware
-support.
+support. Approx 1000x faster.
 
 New `(ceil fixed)` and new `(vec-ceil ...)` support methods.
 
