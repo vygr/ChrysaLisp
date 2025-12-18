@@ -247,7 +247,7 @@
 
 	(compare :ge
 		'(progn
-			(gotoif '(:f1 > :f0) 'fail)
+			(gotoif '(:f1 < :f0) 'fail)
 			(vp-cpy-ff :f1 :f0)))
 
 (def-func-end)
@@ -264,7 +264,7 @@
 
 	(compare :gt
 		'(progn
-			(gotoif '(:f1 >= :f0) 'fail)
+			(gotoif '(:f1 <= :f0) 'fail)
 			(vp-cpy-ff :f1 :f0)))
 
 (def-func-end)
@@ -281,7 +281,7 @@
 
 	(compare :le
 		'(progn
-			(gotoif '(:f1 < :f0) 'fail)
+			(gotoif '(:f1 > :f0) 'fail)
 			(vp-cpy-ff :f1 :f0)))
 
 (def-func-end)
@@ -298,7 +298,7 @@
 
 	(compare :lt
 		'(progn
-			(gotoif '(:f1 <= :f0) 'fail)
+			(gotoif '(:f1 >= :f0) 'fail)
 			(vp-cpy-ff :f1 :f0)))
 
 (def-func-end)
