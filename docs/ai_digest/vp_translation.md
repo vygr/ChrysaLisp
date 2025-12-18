@@ -27,11 +27,14 @@ Interface).
 
 ## VP Architecture
 
-* **Registers:** The VP has 16 general-purpose 64-bit registers:
+* **Registers:** The VP has 16 general-purpose 64-bit registers, and 16 IEEE
+  64-bit float registers:
 
     * `:r0` through `:r14`: General-purpose registers.
 
     * `:rsp`: Stack Pointer.
+
+    * `:f0` through `:f15`: IEEE float registers.
 
     These are symbolic names used in VP assembly; the translation system maps
     them to native registers.
