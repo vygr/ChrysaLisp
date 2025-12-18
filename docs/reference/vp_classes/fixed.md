@@ -4,6 +4,8 @@
 
 ## Lisp Bindings
 
+### (ceil fixed) -> fixed
+
 ### (cos fixed) -> fixed
 
 ### (floor fixed) -> fixed
@@ -15,6 +17,18 @@
 ### (sin fixed) -> fixed
 
 ## VP methods
+
+### :ceil -> class/fixed/ceil
+
+```code
+inputs
+:r0 = fixed object (ptr)
+outputs
+:r0 = fixed object (ptr)
+:r1 = result fixed object (ptr)
+trashes
+:r1-:r14
+```
 
 ### :cos -> class/fixed/cos
 

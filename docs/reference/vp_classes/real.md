@@ -29,6 +29,18 @@ trashes
 :r1-:r14
 ```
 
+### :ceil -> class/real/ceil
+
+```code
+inputs
+:r0 = real object (ptr)
+outputs
+:r0 = real object (ptr)
+:r1 = result real object (ptr)
+trashes
+:r1-:r14
+```
+
 ### :cos -> class/real/cos
 
 ```code
@@ -204,6 +216,18 @@ inputs
 :r1 = stream object (ptr)
 outputs
 :r0 = real object (ptr)
+trashes
+:r1-:r14
+```
+
+### :random -> class/real/random
+
+```code
+inputs
+:r0 = real object (ptr)
+outputs
+:r0 = real object (ptr)
+:r1 = result real object (ptr)
 trashes
 :r1-:r14
 ```

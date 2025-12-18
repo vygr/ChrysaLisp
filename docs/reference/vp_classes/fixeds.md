@@ -4,11 +4,25 @@
 
 ## Lisp Bindings
 
+### (fixeds-ceil fixeds [fixeds]) -> fixeds
+
 ### (fixeds-floor fixeds [fixeds]) -> fixeds
 
 ### (fixeds-frac fixeds [fixeds]) -> fixeds
 
 ## VP methods
+
+### :ceil -> class/fixeds/ceil
+
+```code
+inputs
+:r0 = fixeds object (ptr)
+:r1 = source fixeds object, can be same (ptr)
+outputs
+:r0 = fixeds object (ptr)
+trashes
+:r1-:r4
+```
 
 ### :create -> class/fixeds/create
 
