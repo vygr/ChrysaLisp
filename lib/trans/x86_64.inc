@@ -76,16 +76,6 @@
 			(emitm-int l))
 		(:t (throw "x64-pr constant out of range !" l))))
 
-(defun x64-xmm-rr (p o s d)
-	; Prefix p, Opcode o, Src s, Dst d (XMM, XMM)
-	; REX.R = s>>3, REX.B = d>>3. REX.W = 0.
-	(emitm-byte p (+ 0x40 (<< (>> s 3) 2) (>> d 3)) 0x0f o (+ 0xc0 (<< (logand 7 s) 3) (logand 7 d))))
-
-(defun x64-gpr-xmm-rr (p o s d)
-	; Prefix p, Opcode o, Src s, Dst d (Mixed GPR/XMM)
-	; REX.W = 1.
-	(emitm-byte p (+ 0x48 (<< (>> s 3) 2) (>> d 3)) 0x0f o (+ 0xc0 (<< (logand 7 s) 3) (logand 7 d))))
-
 (defun emit-push (&rest b)
 	(each (lambda (r)
 		(if (>= r 8)
@@ -671,9 +661,19 @@
 	(emit-bge-cr 0 d l m)
 	(emit-mul-cr -1 d))
 
+(defun x64-xmm-rr (p o s d)
+	; Prefix p, Opcode o, Src s, Dst d (XMM, XMM)
+	; REX.R = d>>3, REX.B = s>>3. REX.W = 0.
+	(emitm-byte p (+ 0x40 (<< (>> d 3) 2) (>> s 3)) 0x0f o (+ 0xc0 (<< (logand 7 d) 3) (logand 7 s))))
+
+(defun x64-gpr-xmm-rr (p o s d)
+	; Prefix p, Opcode o, Src s, Dst d (Mixed GPR/XMM)
+	; REX.W = 1.
+	(emitm-byte p (+ 0x48 (<< (>> d 3) 2) (>> s 3)) 0x0f o (+ 0xc0 (<< (logand 7 d) 3) (logand 7 s))))
+
 (defun emit-cpy-ff (s d) (unless (eql s d) (x64-xmm-rr 0xf2 0x10 s d))) ; MOVSD
 (defun emit-cpy-rf (s d) (x64-gpr-xmm-rr 0x66 0x6e s d)) ; MOVQ xmm, r64
-(defun emit-cpy-fr (s d) (x64-gpr-xmm-rr 0x66 0x7e s d)) ; MOVQ r64, xmm
+(defun emit-cpy-fr (s d) (x64-gpr-xmm-rr 0x66 0x7e d s)) ; MOVQ r64, xmm
 (defun emit-cvt-rf (s d) (x64-gpr-xmm-rr 0xf2 0x2a s d)) ; CVTSI2SD
 (defun emit-cvt-fr (s d) (x64-gpr-xmm-rr 0xf2 0x2c s d)) ; CVTTSD2SI
 
@@ -685,31 +685,25 @@
 (defun emit-max-ff (s d) (x64-xmm-rr 0xf2 0x5f s d)) ; MAXSD
 (defun emit-sqrt-ff (s d) (x64-xmm-rr 0xf2 0x51 s d)) ; SQRTSD
 
-(defun x64-xmm-rm-rsp (o r)
-	(defq rh (>> r 3) rl (logand r 7))
+(defun x64-shift-xmm (d digit i)
+	(defq dh (>> d 3) dl (logand 7 d))
 	(emitm-byte 0x66)
-	(if (>= r 8) (emitm-byte (+ 0x40 (<< rh 2))))
-	(emitm-byte 0x0f o (+ (<< rl 3) 4) 0x24))
+	(if (>= d 8) (emitm-byte (+ 0x40 dh)))
+	(emitm-byte 0x0f 0x73 (+ 0xc0 (<< digit 3) dl) i))
 
 (defun emit-abs-ff (s d)
-	(emit-push 0)
-	(emit-cpy-cr (>> -1 1) 0)
-	(emit-push 0)
 	(unless (eql s d) (emit-cpy-ff s d))
-	(x64-xmm-rm-rsp 0x54 d)
-	(emit-pop 0)
-	(emit-pop 0))
+	(x64-shift-xmm d 6 1)
+	(x64-shift-xmm d 2 1))
 
 (defun emit-neg-ff (s d)
 	(emit-push 0)
-	(emit-cpy-cr (<< 1 63) 0)
-	(emit-push 0)
-	(unless (eql s d) (emit-cpy-ff s d))
-	(x64-xmm-rm-rsp 0x57 d)
-	(emit-pop 0)
+	(emit-cpy-fr s 0)
+	(emitm-byte 0x48 0x0f 0xba 0xf8 63)
+	(emit-cpy-rf 0 d)
 	(emit-pop 0))
 
-(defun x64-cmp-ff (s d) (x64-xmm-rr 0x66 0x2e s d)) ; UCOMISD
+(defun x64-cmp-ff (s d) (x64-xmm-rr 0x66 0x2e d s)) ; UCOMISD s, d
 (defun emit-beq-ff (s d l m) (x64-cmp-ff s d) (x64-branch 0x74 l m)) ; JE
 (defun emit-bne-ff (s d l m) (x64-cmp-ff s d) (x64-branch 0x75 l m)) ; JNE
 (defun emit-blt-ff (s d l m) (x64-cmp-ff s d) (x64-branch 0x72 l m)) ; JB
@@ -717,19 +711,31 @@
 (defun emit-ble-ff (s d l m) (x64-cmp-ff s d) (x64-branch 0x76 l m)) ; JBE
 (defun emit-bge-ff (s d l m) (x64-cmp-ff s d) (x64-branch 0x73 l m)) ; JAE
 
-(defun x64-ir-f (o s c d)
-	; Standard x64-ir logic but with 0xF2 prefix for SSE2 Scalar Double
-	(emitm-byte 0xf2)
-	(x64-ir o s c d))
+(defun x64-sse-ir (o s c d)
+	(emitm-byte (+ 0x48 (<< (>> d 3) 2) (>> s 3)) 0x0f o)
+	(cond
+		((and (= c 0) (/= s 5) (/= s 13))
+			(emitm-byte (+ (<< (logand 7 d) 3) (logand 7 s)))
+			(if (or (= s 4) (= s 12)) (emitm-byte 0x24)))
+		((<= -0x80 c 0x7f)
+			(emitm-byte (+ 0x40 (<< (logand 7 d) 3) (logand 7 s)))
+			(if (or (= s 4) (= s 12)) (emitm-byte 0x24))
+			(emitm-byte c))
+		((<= -0x80000000 c 0x7fffffff)
+			(emitm-byte (+ 0x80 (<< (logand 7 d) 3) (logand 7 s)))
+			(if (or (= s 4) (= s 12)) (emitm-byte 0x24))
+			(emitm-int c))
+		(:t (throw "x64-sse-ir constant out of range !" c))))
 
 ; MOVSD xmm, [r+disp] (0F 10)
-(defun emit-cpy-if (s c d) (x64-ir-f 0x10 s c d)) 
+(defun emit-cpy-if (s c d) 
+	(emitm-byte 0xf2)
+	(x64-sse-ir 0x10 s c d))
 
-; MOVSD [r+disp], xmm (0F 11) - Note: standard x64-ir swaps regs for stores, 
-; but MOVSD store uses 0x11, so we map s(float) and d(ptr) correctly here.
+; MOVSD [r+disp], xmm (0F 11)
 (defun emit-cpy-fi (s d c) 
-	(emitm-byte 0xf2) 
-	(x64-ir 0x11 d c s))
+	(emitm-byte 0xf2)
+	(x64-sse-ir 0x11 d c s))
 
 (case *abi*
 (AMD64
