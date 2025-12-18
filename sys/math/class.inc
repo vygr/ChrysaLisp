@@ -49,19 +49,19 @@
 	(goto l))
 
 (defmacro vec-assign (_1 _2)
-	(list 'assign _1 _2 '(slice +vp_regs_0_14 *vsp* -1)))
+	(list 'assign _1 _2 '(slice +vp_rregs_0_14 *vsp* -1)))
 
 (defun vec-push (n)
-	(slice +vp_regs_0_14 *vsp* (setq *vsp* (+ *vsp* n))))
+	(slice +vp_rregs_0_14 *vsp* (setq *vsp* (+ *vsp* n))))
 
 (defun vec-pop (n)
-	(slice +vp_regs_0_14 (setq *vsp* (- *vsp* n)) (+ *vsp* n)))
+	(slice +vp_rregs_0_14 (setq *vsp* (- *vsp* n)) (+ *vsp* n)))
 
 (defun vec-top (n)
-	(slice +vp_regs_0_14 (- *vsp* n) *vsp*))
+	(slice +vp_rregs_0_14 (- *vsp* n) *vsp*))
 
 (defun vec-tmp (n)
-	(slice +vp_regs_0_14 *vsp* (+ *vsp* n)))
+	(slice +vp_rregs_0_14 *vsp* (+ *vsp* n)))
 
 (defun vec-load (n &rest _)
 	(each (# (vec-assign %0 (vec-push n))) _))
@@ -127,19 +127,19 @@
 
 (defun vec-shl (n s &optional v)
 	(setd v (vec-top n))
-	(each (# (if (vp-reg? s)
+	(each (# (if (vp-rreg? s)
 		(vp-shl-rr s %0)
 		(vp-shl-cr s %0))) v))
 
 (defun vec-shr (n s &optional v)
 	(setd v (vec-top n))
-	(each (# (if (vp-reg? s)
+	(each (# (if (vp-rreg? s)
 		(vp-shr-rr s %0)
 		(vp-shr-cr s %0))) v))
 
 (defun vec-asr (n s &optional v)
 	(setd v (vec-top n))
-	(each (# (if (vp-reg? s)
+	(each (# (if (vp-rreg? s)
 		(vp-asr-rr s %0)
 		(vp-asr-cr s %0))) v))
 
@@ -225,7 +225,7 @@
 
 (defun vec-scale (n &optional s v)
 	(setd s (first (vec-pop 1)) v (vec-top n))
-	(each (# (if (vp-reg? s)
+	(each (# (if (vp-rreg? s)
 		(vp-mul-rr s %0)
 		(vp-mul-cr s %0))) v))
 
@@ -270,7 +270,7 @@
 
 (defun vec-flength (n)
 	(vec-flength-squared n)
-	(defq r (slice +vp_regs_0_14 0 (dec (if (>= *vsp* 4) 5 *vsp*))))
+	(defq r (slice +vp_rregs_0_14 0 (dec (if (>= *vsp* 4) 5 *vsp*))))
 	(if (/= (length r) 0) (apply vp-push r))
 	(call 'sys_math :f_sqrt (vec-top 1) (vec-top 1))
 	(if (/= (length r) 0) (apply vp-pop r)))

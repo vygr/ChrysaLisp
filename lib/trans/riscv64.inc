@@ -6,23 +6,22 @@
 (env-push)
 
 (defcvar 'stack_align 8 'stack_state '(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14 :r30))
-(each (# (defcvar %0 %0)) '(:r15 :r16 :r17 :r18 :r19 :r20 :r21 :r22 :r23 :r24 :r25 :r26 :r27 :r28 :r29 :r30))
 
 (defun emit-native-reg? (r)
 	(if (defq i (find r
-		'(:r29 :r30 :rsp								;zero, ra, sp (x0-x2)
-		:r15 :r16									   	;gp, tp (x3-x4)
-		:r17 :r18 :r19								  	;t0-t1, t2 (x5-x7)
-		:r20 :r21									   	;s0-s1 (x8-x9) saved
-		:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7				 	;a0-a7 (x10-x17)
-		:r8 :r9 :r10 :r11 :r12 :r13 :r14 :r22 :r23 :r24	;s2-s11 (x18-x27) saved
-		:r25 :r26 :r27 :r28)))						  	;t3-t6 (x28-x31)
+		'(:r29 :r30 :rsp                                ;zero, ra, sp (x0-x2)
+		:r15 :r16                                       ;gp, tp (x3-x4)
+		:r17 :r18 :r19                                  ;t0-t1, t2 (x5-x7)
+		:r20 :r21                                       ;s0-s1 (x8-x9) saved
+		:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7                 ;a0-a7 (x10-x17)
+		:r8 :r9 :r10 :r11 :r12 :r13 :r14 :r22 :r23 :r24 ;s2-s11 (x18-x27) saved
+		:r25 :r26 :r27 :r28)))                          ;t3-t6 (x28-x31)
 		i
 		(find r
-			'(:f12 :f13 :f14 :f15 :f16 :f17 :f18 :f19		;f0-f7 (ft0-ft7)
-			:f0 :f1 :f20 :f21 :f22 :f23 :f24 :f25 :f26 :f27	;f8-f17 (fs0-fs1, fa0-fa7)
-			:f2 :f3 :f4 :f5 :f6 :f7 :f8 :f9 :f10 :f11		;f18-f27 (fs2-fs11)
-			:f28 :f29 :f30 :f31))))							;f28-f31 (ft8-ft11)
+			'(:f12 :f13 :f14 :f15 :f16 :f17 :f18 :f19       ;f0-f7 (ft0-ft7)
+			:f0 :f1 :f20 :f21 :f22 :f23 :f24 :f25 :f26 :f27 ;f8-f17 (fs0-fs1, fa0-fa7)
+			:f2 :f3 :f4 :f5 :f6 :f7 :f8 :f9 :f10 :f11       ;f18-f27 (fs2-fs11)
+			:f28 :f29 :f30 :f31))))                         ;f28-f31 (ft8-ft11)
 
 (defq +riscv64_rlnk (emit-native-reg? :r30)
 	+riscv64_rzero (emit-native-reg? :r29)
@@ -473,11 +472,11 @@
 (defun emit-max-ff (s d) (riscv64-fp-r 0x2a001053 s d)) ; fmax.d d, d, s
 (defun emit-sqrt-ff (s d) (riscv64-fp-r2 0x5a007053 s d)) ; fsqrt.d d, s
 
-(defun emit-abs-ff (s d) 
+(defun emit-abs-ff (s d)
 	; fsgnjx.d d, s, s (XOR sign bit with itself = 0)
 	(emitm-int (+ 0x22002053 (<< s 15) (<< s 20) (<< d 7))))
 
-(defun emit-neg-ff (s d) 
+(defun emit-neg-ff (s d)
 	; fsgnjn.d d, s, s (Negate sign bit via injection)
 	(emitm-int (+ 0x22001053 (<< s 15) (<< s 20) (<< d 7))))
 
@@ -506,11 +505,11 @@
 	(riscv64-branch 0x1 +riscv64_rtmp1 +riscv64_rzero l m)) ; bne tmp, zero, label
 
 ; fld rd, offset(rs1) (I-Type)
-(defun emit-cpy-if (s c d) 
+(defun emit-cpy-if (s c d)
 	(cond
 		((riscv64-within c 12)
 			(riscv64-i 0x07 d s 0x3 c))
-		(:t 
+		(:t
 			; Large offset: Load offset to tmp, add to base, load from tmp
 			(emit-cpy-cr c +riscv64_rtmp1)
 			(emit-add-rr s +riscv64_rtmp1)
@@ -557,7 +556,7 @@
 		(cond
 			((= (% *func_align* 16) 0)
 				(emit-sub-cr (align s 16) +riscv64_rsp))
-			(:t	(emit-sub-cr s +riscv64_rsp)
+			(:t (emit-sub-cr s +riscv64_rsp)
 				(emit-and-cr -16 +riscv64_rsp)))
 		(each (# (emit-cpy-ri %0 +riscv64_rsp (* +ptr_size (!)))) (reverse x))
 		(emit-cpy-ir b c +riscv64_rtmp1)

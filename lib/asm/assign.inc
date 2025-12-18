@@ -15,15 +15,15 @@
 	(case (pop (type-of o))
 		(:sym
 			(cond
-				((vp-reg? o) :r)
+				((vp-rreg? o) :r)
 				((vp-freg? o) :f)
 				(:c)))
 		(:num :c)
 		(:list
 			(cond
-				((vp-reg? (defq i (first o)))
+				((vp-rreg? (defq i (first o)))
 					(cond
-						((vp-reg? (defq i (second o)))
+						((vp-rreg? (defq i (second o)))
 							(if (= 2 (length o)) :d
 								(sym (cat :d (third o)))))
 						((/= 2 (length o))
@@ -35,22 +35,24 @@
 				((eql i '@) :@)
 				((eql i '$) :$)
 				((eql i '&)
-					(if (vp-reg? (second o))
-						(if (vp-reg? (third o)) :&d :&i) :nil))
+					(if (vp-rreg? (second o))
+						(if (vp-rreg? (third o)) :&d :&i) :nil))
 				(:t :c)))
 		(:str :s)))
 
 (defun assign-dst-type (o)
 	(case (pop (type-of o))
-		(:sym (and (not (or (vp-reg? o) (vp-freg? o))) (eql (first o) ":") (throw ":reg equate !" o))
+		(:sym
+			(and (not (vp-reg? o)) (eql (first o) ":")
+				(throw ":reg equate !" o))
 			(cond
-				((vp-reg? o) :r)
+				((vp-rreg? o) :r)
 				((vp-freg? o) :f)
 				(:k)))
 		(:list
-			(if (vp-reg? (defq i (first o)))
+			(if (vp-rreg? (defq i (first o)))
 				(cond
-					((vp-reg? (defq i (second o)))
+					((vp-rreg? (defq i (second o)))
 						(if (= 2 (length o)) :d
 							(sym (cat :d (third o)))))
 					((/= 2 (length o))

@@ -2,17 +2,17 @@
 ; VP Registers
 ;;;;;;;;;;;;;;
 
-(defq +vp_regs ''(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14 :rsp)
-	+vp_regs_0_14 ''(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14)
+(defq +vp_rregs ''(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14 :rsp)
+	+vp_rregs_0_14 ''(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14)
 	+vp_fregs ''(:f0 :f1 :f2 :f3 :f4 :f5 :f6 :f7 :f8 :f9 :f10 :f11 :f12 :f13 :f14 :f15))
-(defun vp-reg? (_) (find _ +vp_regs))
-(defun vp-freg? (_) (find _ +vp_fregs))
-(each (# (defcvar %0 %0)) +vp_regs)
-(each (# (defcvar %0 %0)) +vp_fregs)
+(defq +vp_regs (list quote (cat +vp_rregs +vp_fregs)))
+(defmacro vp-rreg? (_) (static-qq (find ,_ +vp_rregs)))
+(defmacro vp-freg? (_) (static-qq (find ,_ +vp_fregs)))
+(defmacro vp-reg? (_) (static-qq (find ,_ +vp_regs)))
 
 (defmacro vp-def (_ &optional l)
 	(setq l (apply (const cat) (map (lambda (x y)
-		(list (list quote x) y)) _ (if l (merge (cat (eval l)) +vp_regs_0_14) +vp_regs_0_14))))
+		(list (list quote x) y)) _ (if l (merge (cat (eval l)) +vp_rregs_0_14) +vp_rregs_0_14))))
 	(static-qq (progn (deffvar ~l))))
 
 (defmacro vp-fdef (_ &optional l)
