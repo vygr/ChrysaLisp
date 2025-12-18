@@ -223,8 +223,8 @@ the `'pixmap :resize_2` functions.
 (vp-max-ff fs fd)
 (vp-sqrt-ff fs fd)
 
-(vp-cpy-if rb ri fd)
-(vp-cpy-fi fs rb ri)
+(vp-cpy-if rb i fd)
+(vp-cpy-fi fs rb i)
 
 (vp-beq-ff fs fd label)
 (vp-bne-ff fs fd label)
