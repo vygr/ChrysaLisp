@@ -9,10 +9,10 @@ how code gets executed, called and so forth.
 The lowest level of ChrysaLisp is the Virtual Processor (VP), this is an
 imaginary RISC like processor that the assembler and script compiler target.
 
-It is, currently, a very simple 64 bit 16 register load/store machine. It may
-be extended in the future with features like floating point registers or vector
-instructions, but for now I'm preferring to see just how far you can push such
-a simple integer design.
+It is, currently, a very simple 64 bit 32 register (16 int, 16 IEEE float),
+load/store machine. It may be extended in the future with features like vector
+instructions, but for now I'm preferring to see just how far you can push such a
+simple design.
 
 It supports a very orthogonal logic and arithmetic instruction set and a few
 simple load/store addressing modes.
@@ -21,6 +21,7 @@ simple load/store addressing modes.
 
 ```vdu
 :r0,:r1,:r2,:r3,:r4,:r5,:r6,:r7,:r8,:r9,:r10,:r11,:r12,:r13,:r14,:rsp
+:f0,:f1,:f2,:f3,:f4,:f5,:f6,:f7,:f8,:f9,:f10,:f11,:f12,:f13,:f14,:f15
 ```
 
 These are mapped to real physical registers by the target processor 'emit'
@@ -30,11 +31,11 @@ to rax and rdx when it comes to scheduling VP div and rem code ! It makes no
 difference to the arm64 emit functions, so one does tend to make VP divide code
 use `:r0` and `:r2` as it really helps the x86_64 code generation quality.
 
-You can use the `(vp-def)` macro to assign register equated symbols to help
-your source look nice. Or bind symbols to registers, via `(method-input)` and
-`(method-output)`, that match function entry/exit parameters if you desire. A
-great example of this is the `'canvas :fpoly`, or the `'pixmap :resize_2`
-functions.
+You can use the `(vp-def)` and `(vp-fdef)` macros to assign register equated
+symbols to help your source look nice. Or bind symbols to registers, via
+`(method-input)` and `(method-output)`, that match function entry/exit
+parameters if you desire. A great example of this is the `'canvas :fpoly`, or
+the `'pixmap :resize_2` functions.
 
 ### VP Assembler instructions
 
@@ -53,6 +54,9 @@ functions.
 (vp-shl-cr c rd)
 (vp-shr-cr c rd)
 (vp-asr-cr c rd)
+
+(vp-min-cr c rd)
+(vp-max-cr c rd)
 ```
 
 #### Register to register
@@ -73,6 +77,10 @@ functions.
 
 (vp-div-rrr rs rdh rdl)
 (vp-div-rrr-u rs rdh rdl)
+
+(vp-abs-rr rs rd)
+(vp-min-rr rs rd)
+(vp-max-rr rs rd)
 ```
 
 #### Logical And, Not
@@ -195,6 +203,37 @@ functions.
 (vp-sync c)
 ```
 
+#### Float ops
+
+```
+(vp-cpy-ff fs fd)
+(vp-cpy-rf rs fd)
+(vp-cpy-fr fs rd)
+(vp-cvt-rf rs fd)
+(vp-cvt-fr fs rd)
+
+(vp-add-ff fs fd)
+(vp-sub-ff fs fd)
+(vp-mul-ff fs fd)
+(vp-div-ff fs fd)
+
+(vp-abs-ff fs fd)
+(vp-neg-ff fs fd)
+(vp-min-ff fs fd)
+(vp-max-ff fs fd)
+(vp-sqrt-ff fs fd)
+
+(vp-cpy-if rb ri fd)
+(vp-cpy-fi fs rb ri)
+
+(vp-beq-ff fs fd label)
+(vp-bne-ff fs fd label)
+(vp-blt-ff fs fd label)
+(vp-ble-ff fs fd label)
+(vp-bgt-ff fs fd label)
+(vp-bge-ff fs fd label)
+```
+
 #### Pseudo ops
 
 ```vdu
@@ -209,11 +248,6 @@ functions.
 ```
 
 ```vdu
-(vp-abs-rr rs rd)
-(vp-min-cr c rd)
-(vp-max-cr c rd)
-(vp-min-rr rs rd)
-(vp-max-rr rs rd)
 (vp-simd op rsv rdv)
 ```
 
@@ -223,17 +257,27 @@ Register op keys:
 
 * r, register
 
+* f, float register
+
 * i, constant index
 
 * cr, constant to register
 
 * rr, register to register
 
+* rf, register to float register
+
+* fr, float register to register
+
 * rrr, register pair by register to register pair
 
 * rd, destination register
 
 * rs, source register
+
+* fd, float destination register
+
+* fs, float source register
 
 * rdh, destination register, high
 
