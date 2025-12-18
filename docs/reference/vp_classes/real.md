@@ -13,7 +13,7 @@ outputs
 :r0 = real object (ptr)
 :r1 = result real object (ptr)
 trashes
-:r1-:r14
+:r1-:r14, :f0-:f1
 ```
 
 ### :add -> class/real/add
@@ -26,7 +26,7 @@ outputs
 :r0 = real object (ptr)
 :r1 = result real object (ptr)
 trashes
-:r1-:r14
+:r1-:r14, :f0-:f1
 ```
 
 ### :ceil -> class/real/ceil
@@ -38,7 +38,7 @@ outputs
 :r0 = real object (ptr)
 :r1 = result real object (ptr)
 trashes
-:r1-:r14
+:r1-:r14, :f0-:f1
 ```
 
 ### :cos -> class/real/cos
@@ -50,7 +50,7 @@ outputs
 :r0 = real object (ptr)
 :r1 = result real object (ptr)
 trashes
-:r1-:r14
+:r1-:r14, :f0-:f3
 ```
 
 ### :create -> class/real/create
@@ -65,7 +65,7 @@ outputs
 :r0 = real object (ptr)
 :r1 = 0 if error, else result real object (ptr)
 trashes
-:r1-:r14
+:r1-:r14, :f0-:f3
 ```
 
 ### :floor -> class/real/floor
@@ -77,7 +77,7 @@ outputs
 :r0 = real object (ptr)
 :r1 = result real object (ptr)
 trashes
-:r1-:r14
+:r1-:r14, :f0-:f1
 ```
 
 ### :frac -> class/real/frac
@@ -89,7 +89,7 @@ outputs
 :r0 = real object (ptr)
 :r1 = result real object (ptr)
 trashes
-:r1-:r14
+:r1-:r14, :f0-:f1
 ```
 
 ### :ge -> class/real/ge
@@ -102,7 +102,7 @@ outputs
 :r0 = real object (ptr)
 :r1 = 0, -1 (int)
 trashes
-:r1-:r14
+:r1-:r14, :f0-:f1
 ```
 
 ### :gt -> class/real/gt
@@ -115,7 +115,7 @@ outputs
 :r0 = real object (ptr)
 :r1 = 0, -1 (int)
 trashes
-:r1-:r14
+:r1-:r14, :f0-:f1
 ```
 
 ### :le -> class/real/le
@@ -128,7 +128,7 @@ outputs
 :r0 = real object (ptr)
 :r1 = 0, -1 (int)
 trashes
-:r1-:r14
+:r1-:r14, :f0-:f1
 ```
 
 ### :lt -> class/real/lt
@@ -141,7 +141,7 @@ outputs
 :r0 = real object (ptr)
 :r1 = 0, -1 (int)
 trashes
-:r1-:r14
+:r1-:r14, :f0-:f1
 ```
 
 ### :max -> class/real/max
@@ -154,7 +154,7 @@ outputs
 :r0 = real object (ptr)
 :r1 = result real object (ptr)
 trashes
-:r1-:r14
+:r1-:r14, :f0-:f1
 ```
 
 ### :min -> class/real/min
@@ -167,7 +167,7 @@ outputs
 :r0 = real object (ptr)
 :r1 = result real object (ptr)
 trashes
-:r1-:r14
+:r1-:r14, :f0-:f1
 ```
 
 ### :mod -> class/real/mod
@@ -180,7 +180,7 @@ outputs
 :r0 = real object (ptr)
 :r1 = 0 if error, else result real object (ptr)
 trashes
-:r1-:r14
+:r1-:r14, :f0-:f3
 ```
 
 ### :mul -> class/real/mul
@@ -193,7 +193,7 @@ outputs
 :r0 = real object (ptr)
 :r1 = result real object (ptr)
 trashes
-:r1-:r14
+:r1-:r14, :f0-:f1
 ```
 
 ### :neg -> class/real/neg
@@ -205,7 +205,7 @@ outputs
 :r0 = real object (ptr)
 :r1 = result real object (ptr)
 trashes
-:r1-:r14
+:r1-:r14, :f0-:f1
 ```
 
 ### :print -> class/real/print
@@ -229,7 +229,7 @@ outputs
 :r0 = real object (ptr)
 :r1 = result real object (ptr)
 trashes
-:r1-:r14
+:r1-:r14, :f0-:f1
 ```
 
 ### :recip -> class/real/recip
@@ -241,7 +241,7 @@ outputs
 :r0 = real object (ptr)
 :r1 = result real object (ptr)
 trashes
-:r1-:r14
+:r1-:r14, :f0-:f1
 ```
 
 ### :sign -> class/real/sign
@@ -253,7 +253,7 @@ outputs
 :r0 = real object (ptr)
 :r1 = result real object (ptr)
 trashes
-:r1-:r14
+:r1-:r14, :f0-:f1
 ```
 
 ### :sin -> class/real/sin
@@ -265,7 +265,7 @@ outputs
 :r0 = real object (ptr)
 :r1 = result real object (ptr)
 trashes
-:r1-:r14
+:r1-:r14, :f0-:f3
 ```
 
 ### :sqrt -> class/real/sqrt
@@ -277,7 +277,7 @@ outputs
 :r0 = real object (ptr)
 :r1 = result real object (ptr)
 trashes
-:r1-:r14
+:r1-:r14, :f0-:f1
 ```
 
 ### :sub -> class/real/sub
@@ -290,7 +290,7 @@ outputs
 :r0 = real object (ptr)
 :r1 = result real object (ptr)
 trashes
-:r1-:r14
+:r1-:r14, :f0-:f1
 ```
 
 ### :vcreate -> class/real/create
