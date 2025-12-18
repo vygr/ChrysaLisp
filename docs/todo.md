@@ -46,9 +46,6 @@ x64 isn't really the way things should be done anymore.
 * Add support for `(vp-simd)` instructions at the translator level. MMX, SSX
 etc.
 
-* Add support for FPU to the VM. Scalar float/double support first of all maybe
-eventually create a FPU accelerated version of the vector math DSL.
-
 * Create a Virtualbox boot image of the system. I've been looking at bare metal
 OS and talking to the author for a couple of months. He's got plans to
 implement a frame buffer device for bare metal. At that point I think I would
