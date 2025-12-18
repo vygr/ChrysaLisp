@@ -279,6 +279,22 @@
 
 (def-func-end)
 
+(def-method 'fixed :ceil)
+	;inputs
+	;:r0 = fixed object (ptr)
+	;outputs
+	;:r0 = fixed object (ptr)
+	;:r1 = result fixed object (ptr)
+	;trashes
+	;:r1-:r14
+
+	(mathop :ceil
+		'(progn
+			(vec-set 1)
+			(vec-ceil 1)))
+
+(def-func-end)
+
 (def-method 'fixed :recip)
 	;inputs
 	;:r0 = fixed object (ptr)

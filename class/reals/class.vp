@@ -295,6 +295,40 @@
 
 (def-func-end)
 
+(def-method 'reals :ceil)
+	;inputs
+	;:r0 = reals object (ptr)
+	;:r1 = source reals object, can be same (ptr)
+	;outputs
+	;:r0 = reals object (ptr)
+	;trashes
+	;:r1-:r4, :f0-:f2
+
+	(vp-def (dst src1 dst1 src_end trunc))
+	(vp-fdef (e0 e1 one zero))
+
+	(entry 'reals :ceil `(,dst ,src1))
+
+	(vp-cpy-cr 1 trunc)
+	(vp-cvt-rf trunc one)
+	(assign `((,src1 array_length)) `(,src_end))
+	(assign (map (# (list %0 array_begin)) `(,src1 ,dst)) `(,src1 ,dst1))
+	(vp-shl-cr (log2 +ptr_size) src_end)
+	(vp-add-rr src1 src_end)
+	(vec-loop-until `(,src1) `(,e1) src_end dst1
+		(lambda (e1)
+			(vp-cvt-fr e1 trunc)
+			(vp-cvt-rf trunc e0)
+			(vpif `(,e0 > ,e1))
+				(vp-add-ff one e0)
+			(endif)
+			e0))
+
+	(exit 'reals :ceil `(,dst))
+	(vp-ret)
+
+(def-func-end)
+
 (def-method 'reals :abs)
 	;inputs
 	;:r0 = reals object (ptr)

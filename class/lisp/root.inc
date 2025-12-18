@@ -124,6 +124,8 @@
 ; (frac fixed) -> fixed
 (ffi "class/fixed/lisp_floor" floor)
 ; (floor fixed) -> fixed
+(ffi "class/fixed/lisp_ceil" ceil)
+; (ceil fixed) -> fixed
 (ffi "class/fixed/lisp_recip" recip)
 ; (recip fixed) -> fixed
 (ffi "class/nums/lisp_abs" nums-abs)
@@ -152,6 +154,8 @@
 ; (fixeds-frac fixeds [fixeds]) -> fixeds
 (ffi "class/fixeds/lisp_floor" fixeds-floor)
 ; (fixeds-floor fixeds [fixeds]) -> fixeds
+(ffi "class/fixeds/lisp_ceil" fixeds-ceil)
+; (fixeds-ceil fixeds [fixeds]) -> fixeds
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Sequence, Array, and List Operations

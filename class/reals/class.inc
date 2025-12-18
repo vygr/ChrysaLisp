@@ -17,6 +17,7 @@
 	(dec-method :min class/reals/min :final)
 	(dec-method :max class/reals/max :final)
 	(dec-method :frac class/reals/frac :final)
-	(dec-method :floor class/reals/floor :final))
+	(dec-method :floor class/reals/floor :final)
+	(dec-method :ceil class/reals/ceil :final))
 
 (def-struct reals fixeds_size)

@@ -21,6 +21,7 @@
 	(dec-method :cos class/real/cos :final)
 	(dec-method :frac class/real/frac :final)
 	(dec-method :floor class/real/floor :final)
+	(dec-method :ceil class/real/ceil :final)
 	(dec-method :recip class/real/recip :final)
 	(dec-method :lt class/real/lt :final)
 	(dec-method :gt class/real/gt :final)

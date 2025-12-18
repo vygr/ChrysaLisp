@@ -19,6 +19,11 @@ Editor now supports `sticky` cursor x position.
 
 Removed the use of task level storage.
 
+Big changes to `reals` ! A `real` is now a 64bit IEEE float, with hardware
+support.
+
+New `(ceil fixed)` and new `(vec-ceil ...)` support methods.
+
 ------
 
 New `class/mstream/class.inc` VP class for in memory stream buffers. A seekable

@@ -598,6 +598,27 @@
 
 (def-func-end)
 
+(def-method 'real :ceil)
+	;inputs
+	;:r0 = real object (ptr)
+	;outputs
+	;:r0 = real object (ptr)
+	;:r1 = result real object (ptr)
+	;trashes
+	;:r1-:r14
+
+	(mathop :ceil
+		'(progn
+			(vp-cvt-fr :f1 :r0)
+			(vp-cvt-rf :r0 :f0)
+			(vpif '(:f0 > :f1))
+				(vp-cpy-cr 1 :r0)
+				(vp-cvt-rf :r0 :f1)
+				(vp-add-ff :f1 :f0)
+			(endif)))
+
+(def-func-end)
+
 (def-method 'real :recip)
 	;inputs
 	;:r0 = real object (ptr)

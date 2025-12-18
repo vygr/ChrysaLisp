@@ -12,6 +12,7 @@
 	(dec-method :sqrt class/fixed/sqrt :override)
 	(dec-method :frac class/fixed/frac :virtual (:r0) (:r0 :r1))
 	(dec-method :floor class/fixed/floor :virtual (:r0) (:r0 :r1))
+	(dec-method :ceil class/fixed/ceil :virtual (:r0) (:r0 :r1))
 	(dec-method :recip class/fixed/recip :virtual (:r0) (:r0 :r1))
 	(dec-method :sin class/fixed/sin :virtual (:r0) (:r0 :r1))
 	(dec-method :cos class/fixed/cos :virtual (:r0) (:r0 :r1))
@@ -19,6 +20,7 @@
 	(dec-method :lisp_cos class/fixed/lisp_cos :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_frac class/fixed/lisp_frac :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_floor class/fixed/lisp_floor :static (:r0 :r1) (:r0 :r1))
+	(dec-method :lisp_ceil class/fixed/lisp_ceil :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_recip class/fixed/lisp_recip :static (:r0 :r1) (:r0 :r1)))
 
 (def-struct fixed num_size)

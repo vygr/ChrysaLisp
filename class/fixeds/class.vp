@@ -166,6 +166,33 @@
 
 (def-func-end)
 
+(def-method 'fixeds :ceil)
+	;inputs
+	;:r0 = fixeds object (ptr)
+	;:r1 = source fixeds object, can be same (ptr)
+	;outputs
+	;:r0 = fixeds object (ptr)
+	;trashes
+	;:r1-:r4
+
+	(vp-def (dst src1 dst1 src_end e0 t0))
+
+	(entry 'fixeds :ceil `(,dst ,src1))
+
+	(assign `((,src1 array_length)) `(,src_end))
+	(assign (map (# (list %0 array_begin)) `(,src1 ,dst)) `(,src1 ,dst1))
+	(vp-shl-cr (log2 +ptr_size) src_end)
+	(vp-add-rr src1 src_end)
+	(vec-loop-until `(,src1) `(,e0) src_end dst1
+		(lambda (e0)
+			(vp-and-cr +fp_int_mask e0)
+			(vp-add-cr (<< 1 +fp_shift) e0) e0))
+
+	(exit 'fixeds :ceil `(,dst))
+	(vp-ret)
+
+(def-func-end)
+
 (def-method 'fixeds :scale)
 	;inputs
 	;:r0 = fixeds object (ptr)

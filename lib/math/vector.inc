@@ -68,6 +68,7 @@
 (vec-macro "nums-scale" v s)
 (vec-macro "fixeds-frac" v)
 (vec-macro "fixeds-floor" v)
+(vec-macro "fixeds-ceil" v)
 ;these don't take an optional output but...
 (vec-macro "nums-dot" v0 v1)
 (vec-macro "nums-sum" v)

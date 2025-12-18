@@ -12,7 +12,9 @@
 	(dec-method :scale class/fixeds/scale :override)
 	(dec-method :frac class/fixeds/frac :virtual (:r0 :r1) (:r0))
 	(dec-method :floor class/fixeds/floor :virtual (:r0 :r1) (:r0))
+	(dec-method :ceil class/fixeds/ceil :virtual (:r0 :r1) (:r0))
 	(dec-method :lisp_frac class/fixeds/lisp_frac :static (:r0 :r1) (:r0 :r1))
-	(dec-method :lisp_floor class/fixeds/lisp_floor :static (:r0 :r1) (:r0 :r1)))
+	(dec-method :lisp_floor class/fixeds/lisp_floor :static (:r0 :r1) (:r0 :r1))
+	(dec-method :lisp_ceil class/fixeds/lisp_ceil :static (:r0 :r1) (:r0 :r1)))
 
 (def-struct fixeds nums_size)
