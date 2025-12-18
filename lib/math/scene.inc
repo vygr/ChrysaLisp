@@ -7,7 +7,7 @@
 ;module
 (env-push)
 
-(defq +num_poly_buckets 50)
+(defq +num_poly_buckets 256)
 
 (defun circle (r)
 	; (circle r) -> path
@@ -22,7 +22,7 @@
 	(bind '(r g b) (vec-min (vec-add
 		;attenuation
 		(vec-scale col (* (n2f at) 255.0) (const (cat +fixeds_tmp3)))
-		;difuse
+		;diffuse
 		(vec-scale col 64.0 +fixeds_tmp3))
 		(const (fixeds 255.0 255.0 255.0)) +fixeds_tmp3))
 	(+ (<< (n2i (* alpha 255.0)) 24) (<< (n2i r) 16) (<< (n2i g) 8) (n2i b)))
@@ -34,7 +34,7 @@
 	(bind '(r g b) (vec-min (vec-add (vec-add
 		;attenuation
 		(vec-scale col (* (n2f at) (const (/ 255.0 3.0))) (const (cat +fixeds_tmp3)))
-		;difuse
+		;diffuse
 		(vec-scale col 64.0 (const (cat +fixeds_tmp3))) (const (cat +fixeds_tmp3)))
 		;specular
 		(vec-scale (const (fixeds 255.0 255.0 255.0)) (n2f sp) (const (cat +fixeds_tmp3))) +fixeds_tmp3)
