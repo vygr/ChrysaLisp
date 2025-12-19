@@ -9,16 +9,18 @@
 	(enum main timeout))
 
 (defq
-	+eps 0.1
-	+min_distance 0.01
-	+clipfar 8.0
-	+march_factor 1.0
-	+shadow_softness 64.0
-	+attenuation 0.05
-	+ambient 0.05
-	+ref_coef 0.3
 	+ref_depth 2
-	+light_pos (fixeds -0.1 -0.1 -3.0))
+	+real_1000 (n2r 1000)
+	+real_255 (n2r 255)
+	+eps (n2r 0.1)
+	+min_distance (n2r 0.01)
+	+clipfar +real_8
+	+march_factor +real_1
+	+shadow_softness (n2r 64.0)
+	+attenuation (n2r 0.05)
+	+ambient (n2r 0.05)
+	+ref_coef (n2r 0.25)
+	+light_pos (reals (n2r -0.1) (n2r -0.1) (n2r -3.0)))
 
 ;field equation for a sphere
 ; (defun sphere (p c r)
@@ -28,93 +30,99 @@
 (defun scene (p)
 	(- (vec-length (nums-sub
 		(defq _ (fixeds-frac p))
-		(const (fixeds 0.5 0.5 0.5)) _)) 0.35))
+		(const (reals +real_1/2 +real_1/2 +real_1/2)) _)) (const (n2r 0.35))))
 
 (defun ray-march (ray_origin ray_dir l max_l min_distance march_factor)
-	(defq i -1 d 1.0)
+	(defq i -1 d +real_1)
 	(while (and (< (++ i) 1000)
 				(> d min_distance)
 				(< l max_l))
-		(defq d (scene (vec-add ray_origin (vec-scale ray_dir l +fixeds_tmp3) +fixeds_tmp3))
+		(defq d (scene (vec-add ray_origin (vec-scale ray_dir l +reals_tmp3) +reals_tmp3))
 			l (+ l (* d march_factor))))
 	(if (> d min_distance) max_l l))
 
 ;native versions
-(ffi "apps/raymarch/scene" scene)
-; (scene nums) -> radius
-(ffi "apps/raymarch/ray_march" ray-march)
-; (ray-march nums nums num num num num) -> distance
+;(ffi "apps/raymarch/scene" scene)
+; (scene reals) -> radius
+;(ffi "apps/raymarch/ray_march" ray-march)
+; (ray-march reals reals real real real real) -> distance
 
 (defun get-normal (p)
-	(vec-norm (fixeds
+	(vec-norm (reals
 		(- (defq d (scene p)) (scene (vec-add p
-			(const (fixeds (neg +eps) 0.0 0.0)) +fixeds_tmp3)))
+			(const (reals (neg +eps) +real_0 +real_0)) +reals_tmp3)))
 		(- d (scene (vec-add p
-			(const (fixeds 0.0 (neg +eps) 0.0)) +fixeds_tmp3)))
+			(const (reals +real_0 (neg +eps) +real_0)) +reals_tmp3)))
 		(- d (scene (vec-add p
-			(const (fixeds 0.0 0.0 (neg +eps))) +fixeds_tmp3))))))
+			(const (reals +real_0 +real_0 (neg +eps))) +reals_tmp3))))))
 
 (defun shadow (ray_origin ray_dir l max_l k)
-	(defq s 1.0 i 1000)
+	(defq s +real_1 i 1000)
 	(while (> (-- i) 0)
 		(defq h (scene (vec-add ray_origin
-			(vec-scale ray_dir l +fixeds_tmp3) +fixeds_tmp3))
+			(vec-scale ray_dir l +reals_tmp3) +reals_tmp3))
 			s (min s (/ (* k h) l)))
-		(if (or (<= s 0.1) (>= l max_l))
+		(if (or (<= s +real_1/10) (>= l max_l))
 			(setq i 0)
 			(++ l h)))
-	(max s 0.1))
+	(max s +real_1/10))
 
 (defun lighting (surface_pos surface_norm cam_pos)
-	(defq obj_color (vec-floor (vec-mod surface_pos (const (fixeds 2.0 2.0 2.0))))
+	(defq obj_color (vec-floor (vec-mod (vec-add surface_pos
+			(const (reals +real_1000 +real_1000 +real_1000)))
+			(const (reals +real_2 +real_2 +real_2))))
 		light_vec (vec-sub +light_pos surface_pos)
 		light_dis (vec-length light_vec)
-		light_norm (vec-scale light_vec (/ 1.0 light_dis) light_vec)
-		light_atten (min (/ 1.0 (* light_dis light_dis +attenuation)) 1.0)
-		ref (vec-reflect (vec-scale light_norm -1.0 +fixeds_tmp3) surface_norm)
+		light_norm (vec-scale light_vec (/ +real_1 light_dis) light_vec)
+		light_atten (min (/ +real_1 (* light_dis light_dis +attenuation)) +real_1)
+		ref (vec-reflect (vec-scale light_norm +real_-1 +reals_tmp3) surface_norm)
 		ss (shadow surface_pos light_norm +min_distance light_dis +shadow_softness)
-		light_col (vec-scale (const (fixeds 1.0 1.0 1.0)) (* light_atten ss))
-		diffuse (max 0.0 (vec-dot surface_norm light_norm))
-		specular (max 0.0 (vec-dot ref (vec-norm (vec-sub cam_pos surface_pos +fixeds_tmp3))))
+		light_col (vec-scale (const (reals +real_1 +real_1 +real_1)) (* light_atten ss))
+		diffuse (max +real_0 (vec-dot surface_norm light_norm))
+		specular (max +real_0 (vec-dot ref (vec-norm (vec-sub cam_pos surface_pos +reals_tmp3))))
 		specular (* specular specular specular specular)
-		obj_color (vec-scale obj_color (+ (* diffuse (const (- 1.0 +ambient))) +ambient) +fixeds_tmp3)
-		obj_color (vec-add obj_color (fixeds specular specular specular) +fixeds_tmp3))
+		obj_color (vec-scale obj_color (+ (* diffuse (const (- +real_1 +ambient))) +ambient) +reals_tmp3)
+		obj_color (vec-add obj_color (reals specular specular specular) +reals_tmp3))
 	(vec-mul obj_color light_col))
 
 (defun scene-ray (ray_origin ray_dir)
-	(defq l (ray-march ray_origin ray_dir 0.0 +clipfar +min_distance +march_factor))
+	(defq l (ray-march ray_origin ray_dir +real_0 +clipfar +min_distance +march_factor))
 	(if (>= l +clipfar)
-		(const (cat +fixeds_zero3))
+		(const (cat +reals_zero3))
 		(progn
-			;difuse lighting
-			(defq surface_pos (vec-add ray_origin (vec-scale ray_dir l +fixeds_tmp3))
+			;diffuse lighting
+			(defq surface_pos (vec-add ray_origin (vec-scale ray_dir l +reals_tmp3))
 				surface_norm (get-normal surface_pos)
 				color (lighting surface_pos surface_norm ray_origin)
 				i +ref_depth r +ref_coef)
 			;reflections
 			(while (and (>= (-- i) 0)
 						(< (defq ray_origin surface_pos ray_dir (vec-reflect ray_dir surface_norm)
-								l (ray-march ray_origin ray_dir (* +min_distance 10.0) +clipfar +min_distance +march_factor))
+								l (ray-march ray_origin ray_dir (* +min_distance +real_10) +clipfar +min_distance +march_factor))
 							+clipfar))
-					(defq surface_pos (vec-add ray_origin (vec-scale ray_dir l +fixeds_tmp3))
+					(defq surface_pos (vec-add ray_origin (vec-scale ray_dir l +reals_tmp3))
 						surface_norm (get-normal surface_pos)
-						color (vec-add (vec-scale color (- 1.0 r) (const (cat +fixeds_tmp3)))
-								(vec-scale (lighting surface_pos surface_norm ray_origin) r +fixeds_tmp3))
+						color (vec-add (vec-scale color (- +real_1 r) (const (cat +reals_tmp3)))
+								(vec-scale (lighting surface_pos surface_norm ray_origin) r +reals_tmp3))
 						r (* r +ref_coef)))
-			(vec-clamp color (const (cat +fixeds_tmp3))
-				(const (fixeds 0.999 0.999 0.999))))))
+			(vec-clamp color (const (cat +reals_tmp3)) +reals_one3))))
 
 (defun rect (key mbox x y x1 y1 w h)
 	(write-int (defq reply (string-stream (cat ""))) (list x y x1 y1))
-	(defq w2 (/ w 2) h2 (/ h 2) y (dec y))
-	(while (/= (++ y) y1)
-		(defq xp (dec x))
-		(while (/= (++ xp) x1)
-			(defq ray_origin (const (fixeds 0.0 0.0 -3.0)) ray_dir (vec-norm (vec-sub
-				(fixeds (/ (* (- xp w2) (const (<< 1 +fp_shift))) w2) (/ (* (- y h2) (const (<< 1 +fp_shift))) h2) 0)
-				ray_origin)))
+	(bind '(x y x1 y1 w h) (map (const n2r) (list x y x1 y1 w h)))
+	(defq w2 (/ w +real_2) h2 (/ h +real_2) y (- y +real_1))
+	(while (< (setq y (+ y +real_1)) y1)
+		(defq xp (- x +real_1))
+		(while (< (setq xp (+ xp +real_1)) x1)
+			(defq ray_origin (const (reals +real_0 +real_0 +real_-3))
+				ray_dir (vec-norm (vec-sub
+					(reals (/ (* (- xp w2) +real_1) w2)
+						(/ (* (- y h2) +real_1) h2) +real_0) ray_origin)))
 			(bind '(r g b) (scene-ray ray_origin ray_dir))
-			(write-int reply (+ +argb_black (>> b 8) (logand g 0xff00) (<< (logand r 0xff00) 8)))
+			(write-int reply (+ +argb_black
+				(<< (n2i (* r +real_255)) 16)
+				(<< (n2i (* g +real_255)) 8)
+				(n2i (* b +real_255))))
 			(task-slice)))
 	(write-long reply key)
 	(mail-send mbox (str reply)))
