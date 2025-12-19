@@ -703,7 +703,7 @@
 	(emit-cpy-rf 0 d)
 	(emit-pop 0))
 
-(defun x64-cmp-ff (s d) (x64-xmm-rr 0x66 0x2e d s)) ; UCOMISD s, d
+(defun x64-cmp-ff (s d) (x64-xmm-rr 0x66 0x2e s d)) ; UCOMISD d, s
 (defun emit-beq-ff (s d l m) (x64-cmp-ff s d) (x64-branch 0x74 l m)) ; JE
 (defun emit-bne-ff (s d l m) (x64-cmp-ff s d) (x64-branch 0x75 l m)) ; JNE
 (defun emit-blt-ff (s d l m) (x64-cmp-ff s d) (x64-branch 0x72 l m)) ; JB

@@ -489,19 +489,19 @@
 	(riscv64-branch 0x0 +riscv64_rtmp1 +riscv64_rzero l m)) ; beq tmp, zero, label
 
 (defun emit-blt-ff (s d l m)
-	(riscv64-fp-cmp 0xa2001053 d s) ; flt.d tmp, s, d (s < d)
+	(riscv64-fp-cmp 0xa2001053 s d) ; flt.d tmp, d, s (d < s)
 	(riscv64-branch 0x1 +riscv64_rtmp1 +riscv64_rzero l m)) ; bne tmp, zero, label
 
 (defun emit-bgt-ff (s d l m)
-	(riscv64-fp-cmp 0xa2001053 s d) ; flt.d tmp, d, s (d < s -> s > d)
+	(riscv64-fp-cmp 0xa2001053 d s) ; flt.d tmp, s, d (s < d -> d > s)
 	(riscv64-branch 0x1 +riscv64_rtmp1 +riscv64_rzero l m)) ; bne tmp, zero, label
 
 (defun emit-ble-ff (s d l m)
-	(riscv64-fp-cmp 0xa2000053 d s) ; fle.d tmp, s, d (s <= d)
+	(riscv64-fp-cmp 0xa2000053 s d) ; fle.d tmp, d, s (d <= s)
 	(riscv64-branch 0x1 +riscv64_rtmp1 +riscv64_rzero l m)) ; bne tmp, zero, label
 
 (defun emit-bge-ff (s d l m)
-	(riscv64-fp-cmp 0xa2000053 s d) ; fle.d tmp, d, s (d <= s -> s >= d)
+	(riscv64-fp-cmp 0xa2000053 d s) ; fle.d tmp, s, d (s <= d -> d >= s)
 	(riscv64-branch 0x1 +riscv64_rtmp1 +riscv64_rzero l m)) ; bne tmp, zero, label
 
 ; fld rd, offset(rs1) (I-Type)

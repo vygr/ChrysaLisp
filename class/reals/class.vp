@@ -247,7 +247,7 @@
 		(#	(vp-cvt-fr %0 trunc)
 			(vp-cvt-rf trunc ftrunc)
 			(vp-sub-ff ftrunc %0)
-			(vpif `(,%%0 > ,zero))
+			(vpif `(,%%0 < ,zero))
 				(vp-add-ff one %0)
 			(endif)
 			%0))
@@ -280,7 +280,7 @@
 	(vec-loop-until `(,src1) `(,e0) src_end dst1
 		(#	(vp-cvt-fr %0 trunc)
 			(vp-cvt-rf trunc ftrunc)
-			(vpif `(,ftrunc < ,%%0))
+			(vpif `(,ftrunc > ,%%0))
 				(vp-sub-ff one ftrunc)
 			(endif)
 			ftrunc))
@@ -313,7 +313,7 @@
 	(vec-loop-until `(,src1) `(,e0) src_end dst1
 		(#	(vp-cvt-fr %0 trunc)
 			(vp-cvt-rf trunc ftrunc)
-			(vpif `(,ftrunc > ,%%0))
+			(vpif `(,ftrunc < ,%%0))
 				(vp-add-ff one ftrunc)
 			(endif)
 			ftrunc))

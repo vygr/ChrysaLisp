@@ -126,7 +126,7 @@
 
 	(minop :min
 		'(progn
-			(vpif `(,new_val > ,val))
+			(vpif `(,new_val < ,val))
 				(vp-cpy-ff new_val val)
 				(vp-cpy-rr obj args)
 			(endif)))
@@ -145,7 +145,7 @@
 
 	(minop :max
 		'(progn
-			(vpif `(,new_val < ,val))
+			(vpif `(,new_val > ,val))
 				(vp-cpy-ff new_val val)
 				(vp-cpy-rr obj args)
 			(endif)))
@@ -246,7 +246,8 @@
 
 	(compare :ge
 		'(progn
-			(gotoif '(:f1 < :f0) 'fail)
+			; Fail if x < y (f0 < f1)
+			(gotoif '(:f0 < :f1) 'fail)
 			(vp-cpy-ff :f1 :f0)))
 
 (def-func-end)
@@ -263,7 +264,8 @@
 
 	(compare :gt
 		'(progn
-			(gotoif '(:f1 <= :f0) 'fail)
+			; Fail if x <= y (f0 <= f1)
+			(gotoif '(:f0 <= :f1) 'fail)
 			(vp-cpy-ff :f1 :f0)))
 
 (def-func-end)
@@ -280,7 +282,8 @@
 
 	(compare :le
 		'(progn
-			(gotoif '(:f1 > :f0) 'fail)
+			; Fail if x > y (f0 > f1)
+			(gotoif '(:f0 > :f1) 'fail)
 			(vp-cpy-ff :f1 :f0)))
 
 (def-func-end)
@@ -297,7 +300,8 @@
 
 	(compare :lt
 		'(progn
-			(gotoif '(:f1 >= :f0) 'fail)
+			; Fail if x >= y (f0 >= f1)
+			(gotoif '(:f0 >= :f1) 'fail)
 			(vp-cpy-ff :f1 :f0)))
 
 (def-func-end)
@@ -355,8 +359,8 @@
 			(vp-cpy-ff :f2 :f3)         ; f3 = pi
 			(vp-neg-ff :f2 :f2)         ; f2 = -pi
 
-			(vp-bgt-ff :f1 :f3 'sub_2pi)
-			(vp-blt-ff :f1 :f2 'add_2pi)
+			(vp-bgt-ff :f3 :f1 'sub_2pi)
+			(vp-blt-ff :f2 :f1 'add_2pi)
 			(vp-jmp 'check_hpi)
 
 		(vp-label 'sub_2pi)
@@ -374,8 +378,8 @@
 			(vp-cpy-ff :f2 :f3)         ; f3 = pi/2
 			(vp-neg-ff :f2 :f2)         ; f2 = -pi/2
 
-			(vp-bgt-ff :f1 :f3 'fold_pos)
-			(vp-blt-ff :f1 :f2 'fold_neg)
+			(vp-bgt-ff :f3 :f1 'fold_pos)
+			(vp-blt-ff :f2 :f1 'fold_neg)
 			(vp-jmp 'poly)
 
 		(vp-label 'fold_pos)
@@ -395,7 +399,7 @@
 			(vp-cpy-ff :f1 :f3)
 			(vp-mul-ff :f1 :f3)         ; f3 = x^2
 
-			; Horner's Method: x * (1 + x^2(c1 + x^2(c2 + ...)))
+			; Horner's Method
 			(vp-cpy-if :r0 80 :f0)      ; Load c7
 			(vp-mul-ff :f3 :f0)
 			(vp-cpy-if :r0 72 :f2)      ; Load c6
@@ -469,8 +473,8 @@
 			(vp-cpy-ff :f2 :f3)         ; f3 = pi
 			(vp-neg-ff :f2 :f2)         ; f2 = -pi
 
-			(vp-bgt-ff :f1 :f3 'sub_2pi)
-			(vp-blt-ff :f1 :f2 'add_2pi)
+			(vp-bgt-ff :f3 :f1 'sub_2pi)
+			(vp-blt-ff :f2 :f1 'add_2pi)
 			(vp-jmp 'check_hpi)
 
 		(vp-label 'sub_2pi)
@@ -488,8 +492,8 @@
 			(vp-cpy-ff :f2 :f3)         ; f3 = pi/2
 			(vp-neg-ff :f2 :f2)         ; f2 = -pi/2
 
-			(vp-bgt-ff :f1 :f3 'fold_pos)
-			(vp-blt-ff :f1 :f2 'fold_neg)
+			(vp-bgt-ff :f3 :f1 'fold_pos)
+			(vp-blt-ff :f2 :f1 'fold_neg)
 			(vp-jmp 'poly)
 
 		(vp-label 'fold_pos)
@@ -568,7 +572,7 @@
 			(vp-sub-ff :f1 :f0)		; f0 = x - trunc(x)
 			(vp-xor-rr :r0 :r0)		; r0 = 0
 			(vp-cvt-rf :r0 :f1)		; f1 = 0.0
-			(vpif '(:f0 > :f1))
+			(vpif '(:f0 < :f1))		; if f0 < 0
 				(vp-cpy-cr 1 :r0)	; r0 = 1
 				(vp-cvt-rf :r0 :f1)	; f1 = 1.0
 				(vp-add-ff :f1 :f0)	; f0 += 1.0 (Correction for negative numbers)
@@ -589,7 +593,7 @@
 		'(progn
 			(vp-cvt-fr :f1 :r0)		; r0 = (int)x
 			(vp-cvt-rf :r0 :f0)		; f0 = (double)(int)x (f0 now holds Truncated value)
-			(vpif '(:f0 < :f1))
+			(vpif '(:f0 > :f1))		; if trunc > x
 				(vp-cpy-cr 1 :r0)
 				(vp-cvt-rf :r0 :f1)	; f1 = 1.0 (Reuse f1 for constant)
 				(vp-sub-ff :f1 :f0)	; f0 = f0 - 1.0
@@ -610,7 +614,7 @@
 		'(progn
 			(vp-cvt-fr :f1 :r0)
 			(vp-cvt-rf :r0 :f0)
-			(vpif '(:f0 > :f1))
+			(vpif '(:f0 < :f1))		; if trunc < x
 				(vp-cpy-cr 1 :r0)
 				(vp-cvt-rf :r0 :f1)
 				(vp-add-ff :f1 :f0)
@@ -676,11 +680,11 @@
 		'(progn
 			(vp-cpy-cr (n2r 0) :r0)
 			(vp-cpy-rf :r0 :f0)
-			(vpif '(:f1 > :f0))
-				(vp-cpy-cr (n2r -1) :r0)
-				(vp-cpy-rf :r0 :f0)
-			(elseif '(:f1 < :f0))
+			(vpif '(:f1 > :f0))		; if x > 0
 				(vp-cpy-cr (n2r 1) :r0)
+				(vp-cpy-rf :r0 :f0)
+			(elseif '(:f1 < :f0))	; if x < 0
+				(vp-cpy-cr (n2r -1) :r0)
 				(vp-cpy-rf :r0 :f0)
 			(endif)))
 

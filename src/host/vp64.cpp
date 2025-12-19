@@ -1502,55 +1502,55 @@ int vp64(uint8_t* data, int64_t *stack, int64_t* argv, int64_t* host_os_funcs, i
 			}
 			break;
 
-			case VP64_FBGE_0:
-			{
-				if (compare_f1 >= compare_f2) pc = (int16_t*)((char*)pc + (ir >> 8));
-			}
-			break;
-
-			case VP64_FBGE_1:
-			{
-				int64_t offset = ((ir >> 8) & 0xff) | (int64_t)*pc++ << 8;
-				if (compare_f1 >= compare_f2) pc = (int16_t*)((char*)pc + offset);
-			}
-			break;
-
 			case VP64_FBLT_0:
 			{
-				if (compare_f1 < compare_f2) pc = (int16_t*)((char*)pc + (ir >> 8));
+				if (compare_f2 < compare_f1) pc = (int16_t*)((char*)pc + (ir >> 8));
 			}
 			break;
 
 			case VP64_FBLT_1:
 			{
 				int64_t offset = ((ir >> 8) & 0xff) | (int64_t)*pc++ << 8;
-				if (compare_f1 < compare_f2) pc = (int16_t*)((char*)pc + offset);
+				if (compare_f2 < compare_f1) pc = (int16_t*)((char*)pc + offset);
 			}
 			break;
 
 			case VP64_FBLE_0:
 			{
-				if (compare_f1 <= compare_f2) pc = (int16_t*)((char*)pc + (ir >> 8));
+				if (compare_f2 <= compare_f1) pc = (int16_t*)((char*)pc + (ir >> 8));
 			}
 			break;
 
 			case VP64_FBLE_1:
 			{
 				int64_t offset = ((ir >> 8) & 0xff) | (int64_t)*pc++ << 8;
-				if (compare_f1 <= compare_f2) pc = (int16_t*)((char*)pc + offset);
+				if (compare_f2 <= compare_f1) pc = (int16_t*)((char*)pc + offset);
 			}
 			break;
 
 			case VP64_FBGT_0:
 			{
-				if (compare_f1 > compare_f2) pc = (int16_t*)((char*)pc + (ir >> 8));
+				if (compare_f2 > compare_f1) pc = (int16_t*)((char*)pc + (ir >> 8));
 			}
 			break;
 
 			case VP64_FBGT_1:
 			{
 				int64_t offset = ((ir >> 8) & 0xff) | (int64_t)*pc++ << 8;
-				if (compare_f1 > compare_f2) pc = (int16_t*)((char*)pc + offset);
+				if (compare_f2 > compare_f1) pc = (int16_t*)((char*)pc + offset);
+			}
+			break;
+
+			case VP64_FBGE_0:
+			{
+				if (compare_f2 >= compare_f1) pc = (int16_t*)((char*)pc + (ir >> 8));
+			}
+			break;
+
+			case VP64_FBGE_1:
+			{
+				int64_t offset = ((ir >> 8) & 0xff) | (int64_t)*pc++ << 8;
+				if (compare_f2 >= compare_f1) pc = (int16_t*)((char*)pc + offset);
 			}
 			break;
 

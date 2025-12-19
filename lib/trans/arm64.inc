@@ -567,10 +567,10 @@
 (defun arm64-cmp-ff (s d) (emitm-int (+ 0x1e602000 (<< s 16) (<< d 5)))) ; FCMP Dd, Ds
 (defun emit-beq-ff (s d l m) (arm64-cmp-ff s d) (arm64-branch 0x0 l)) ; EQ
 (defun emit-bne-ff (s d l m) (arm64-cmp-ff s d) (arm64-branch 0x1 l)) ; NE
-(defun emit-bge-ff (s d l m) (arm64-cmp-ff s d) (arm64-branch 0xd l)) ; GE->LE
-(defun emit-bgt-ff (s d l m) (arm64-cmp-ff s d) (arm64-branch 0xb l)) ; GT->LT
-(defun emit-ble-ff (s d l m) (arm64-cmp-ff s d) (arm64-branch 0xa l)) ; LE->GE
-(defun emit-blt-ff (s d l m) (arm64-cmp-ff s d) (arm64-branch 0xc l)) ; LT->GT
+(defun emit-bge-ff (s d l m) (arm64-cmp-ff s d) (arm64-branch 0xa l)) ; GE
+(defun emit-bgt-ff (s d l m) (arm64-cmp-ff s d) (arm64-branch 0xc l)) ; GT
+(defun emit-ble-ff (s d l m) (arm64-cmp-ff s d) (arm64-branch 0xd l)) ; LE
+(defun emit-blt-ff (s d l m) (arm64-cmp-ff s d) (arm64-branch 0xb l)) ; LT
 
 (defun emit-cpy-if (s c d)
 	(cond
