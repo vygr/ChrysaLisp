@@ -42,7 +42,7 @@
 	(if (> d min_distance) max_l l))
 
 ;native versions
-;(ffi "apps/raymarch/scene" scene)
+(ffi "apps/raymarch/scene" scene)
 ; (scene reals) -> radius
 ;(ffi "apps/raymarch/ray_march" ray-march)
 ; (ray-march reals reals real real real real) -> distance

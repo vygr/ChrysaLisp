@@ -2,17 +2,27 @@
 (include "sys/math/class.inc")
 (include "gui/canvas/class.inc")
 (include "class/str/class.inc")
-(include "class/nums/class.inc")
+(include "class/reals/class.inc")
+(include "class/real/class.inc")
 (include "class/lisp/class.inc")
-(include "class/fixed/class.inc")
 
 (defun scene ()
+	;inputs
+	;f0-f2
 	(vec-frac 3)
 	(vec-load 3 {0.5, 0.5, 0.5})
 	(vec-sub 3)
 	(vec-flength 3)
 	(vec-load 1 {0.35})
 	(vec-sub 1))
+
+(defun do-frac (val ftrunc fzero fone trunc)
+	(vp-cvt-fr val trunc)
+	(vp-cvt-rf trunc ftrunc)
+	(vp-sub-ff ftrunc val)
+	(vpif `(,val > ,fzero))
+		(vp-add-ff fone val)
+	(endif))
 
 (def-func 'apps/raymarch/scene)
 	;inputs
@@ -24,31 +34,56 @@
 	;trashes
 	;:r1-:r14
 
-	(entry '(:r0 :r1))
+	(vp-def (this args trunc len c1 c2 c3 c4))
+	(vp-fdef (p0 p1 p2 fhalf ftrunc fzero fone f035))
+
+	(entry `(,this ,args))
 
 	(errorif-lisp-args-sig 'error :r1 1)
-
-	(array-bind-args :r1 '(:r2))
-
+	(array-bind-args args `(,args))
 (errorcase
-	(assign '((:r2 array_length)) '(:r1))
-	(gotoif '(:r1 /= 3) 'error))
+	(assign `((,args array_length)) `(,len))
+	(errorif `(,len /= 3) 'error))
 
-	(vp-push :r0)
-	(assign '((:r2 array_begin)) '(:r2))
-	(vec-set 0)
-	(vec-load-long 3 :r2)
-	(scene)
-	(call 'fixed :create '(:r0) '(:r1))
-	(vp-pop :r0)
+	;constants
+	(vp-cpy-cr (n2r 0.5) c1)
+	(vp-cpy-cr (n2r 0.0) c2)
+	(vp-cpy-cr (n2r 1.0) c3)
+	(vp-cpy-cr (n2r 0.35) c4)
+	(assign `(,c1 ,c2 ,c3 ,c4) `(,fhalf ,fzero ,fone ,f035))
 
-	(exit '(:r0 :r1))
+	;load vector
+	(assign `((,args array_begin)) `(,args))
+	(load-fields args `(0 ,+long_size ,(* +long_size 2)) `(,p0 ,p1 ,p2))
+
+	;frac
+	(do-frac p0 ftrunc fzero fone trunc)
+	(do-frac p1 ftrunc fzero fone trunc)
+	(do-frac p2 ftrunc fzero fone trunc)
+
+	;minus 0.5
+	(vp-sub-ff fhalf p0)
+	(vp-sub-ff fhalf p1)
+	(vp-sub-ff fhalf p2)
+
+	;length - 0.35
+	(vp-mul-ff p0 p0)
+	(vp-mul-ff p1 p1)
+	(vp-mul-ff p2 p2)
+	(vp-add-ff p1 p0)
+	(vp-add-ff p2 p0)
+	(vp-sqrt-ff p0 p0)
+	(vp-sub-ff f035 p0)
+
+	(call 'real :create `(,p0) `(,args))
+
+	(exit `(,this ,args))
 	(vp-ret)
 
 (errorcase
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(scene nums)" +error_msg_wrong_types :r1))
-	(signature '(nums)))
+	(jump 'lisp :repl_error `(,this "(scene reals)" +error_msg_wrong_types ,args))
+	(signature '(reals)))
 
 (def-func-end)
 
