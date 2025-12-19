@@ -42,6 +42,9 @@
 			(("call" "entry" "exit" "def-method" "gen-vtable" "gen-create"
 				"to-array" "jump" "f-bind")
 				(merge classes (list (second input))))
+			(("save-fields" "load-fields" "assign-fields"
+					"save-net-id" "load-net-id" "assign-net-id")
+				(merge requires (list "class/obj/class.inc")))
 			(("host-os-call" "host-gui-call" "host-audio-call")
 				(merge requires (list "sys/statics/class.inc"))
 				(merge classes (list (second input))))
