@@ -34,6 +34,8 @@
 	+fixeds_zero4 (fixeds 0.0 0.0 0.0 0.0)
 	+reals_zero3 (reals (n2r 0) (n2r 0) (n2r 0))
 	+reals_zero4 (reals (n2r 0) (n2r 0) (n2r 0) (n2r 0))
+	+reals_one3 (reals (n2r 1) (n2r 1) (n2r 1))
+	+reals_one4 (reals (n2r 1) (n2r 1) (n2r 1) (n2r 1))
 	+nums_tmp3 (cat +nums_zero3) +nums_tmp2 (cat +nums_zero2)
 	+fixeds_tmp3 (cat +fixeds_zero3) +fixeds_tmp4 (cat +fixeds_zero4)
 	+reals_tmp3 (cat +reals_zero3) +reals_tmp4 (cat +reals_zero4))
@@ -79,7 +81,7 @@
 	(if _ `(nums-min (nums-max ,p1 ,p2 ,_) ,p3 ,_) `(nums-min (nums-max ,p1 ,p2) ,p3)))
 
 (defun vec-reflect (p n)
-	(vec-sub p (vec-scale n (* (nums-sum (vec-mul p n)) 2.0))))
+	(vec-sub p (vec-scale n (* (nums-sum (vec-mul p n)) +real_2))))
 
 (defun vec-length-squared (p)
 	(vec-dot p p))
