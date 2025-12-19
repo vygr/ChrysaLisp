@@ -1064,7 +1064,7 @@ lexical scopes.
 
     * `(nums [num ...]) -> nums`
 
-*   **`fixeds`**: Creates a specialized vector of fixed-point numbers.
+*   **`fixeds`**: Creates a specialized vector of fixed point numbers.
 
     * `(fixeds [fixed ...]) -> fixeds`
 

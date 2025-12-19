@@ -92,50 +92,19 @@ fixed-format vector math is available in `sys/math/class.inc`, heavily used by
     (half Pi), `+fp_rpi` (reciprocal of Pi) are defined in
     `class/lisp/root.inc` (mentioned in `numerics.md`).
 
-**`Real` (Custom Floating-Point)**
+**`Real` (Floating-Point)**
 
-* **Description:** Implements a custom floating-point number format designed to
-be efficient on integer-only machines. **It is explicitly *not* an IEEE 754
-standard floating-point type.** This choice prioritizes performance and control
-within the ChrysaLisp VP environment, which currently focuses on integer
-operations.
+* **Description:** Implements a 64bit IEEE floating-point number format.
 
 * **VP Class:** `class/real/class.inc` and `class/real/class.vp`. It inherits
 from `fixed`.
 
 * **Internal Storage:** The `real` value is stored in the `num_value` field
-(inherited from `num`). It uses a `32.32` mantissa.exponent format:
-
-    * **Mantissa:** A signed 32-bit two's complement value.
-    
-    * **Exponent:** A signed 32-bit two's complement value.
-
-* **Representation Details (`numerics.md`):**
-
-    * Zero is represented as the integer `0`.
-    
-    * Negative and positive numbers pass the same comparison tests as integers.
-
-* **VP Implementation (`numerics.md`, referencing `sys/math/class.vp`):** Basic
-operations on `real` numbers involve a sequence of steps:
-
-    1. **Unpack:** Separate the mantissa and exponent.
-    
-    2. **Align Mantissas:** Adjust mantissas based on exponent differences
-    before an operation.
-    
-    3. **Operate:** Perform the arithmetic operation (add, mul, etc.) on the
-    mantissas.
-    
-    4. **Normalize:** Adjust the resulting mantissa and exponent to fit the
-    defined format.
-    
-    5. **Repack:** Combine the new mantissa and exponent back into the single
-    `num_value`.
+  (inherited from `num`). It uses an IEEE double format:
 
 * **Constants:** Pre-calculated `real` constants are defined in
-`lib/math/vector.inc` (mentioned in `numerics.md`), such as `+real_0` to
-`+real_10`, `+real_pi`, etc. These are instances of the `real` VP class.
+  `lib/math/vector.inc` (mentioned in `numerics.md`), such as `+real_0` to
+  `+real_10`, `+real_pi`, etc. These are instances of the `real` VP class.
 
 ## Numeric Conversions
 
@@ -175,7 +144,7 @@ detail this for `Real`).
 type.
 
 * **Fractional Arithmetic (primarily for `Fixed` and `Real`):** `(recip)`,
-`(sin)`, `(cos)`, `(frac)` (fractional part), `(floor)`.
+`(sin)`, `(cos)`, `(frac)`, `(floor)` and `(ceil)`.
 
 * **Bitwise Logical (operate on the underlying integer representation):**
 `(logand)`, `(logior)`, `(logxor)`. Return a `Num`.
@@ -266,7 +235,8 @@ vector arithmetic.
     
     * `fixeds :dot` calculates the dot product of two `fixeds` vectors.
     
-    * `reals :scale` multiplies each element of a `reals` vector by a scalar `real` value.
+    * `reals :scale` multiplies each element of a `reals` vector by a scalar
+      `real` value.
 
 * **Efficiency:** These VP methods are designed for performance, directly
 manipulating the contiguous data blocks without the overhead of Lisp object
@@ -307,10 +277,9 @@ This would provide a bridge to leverage existing high-performance native code.
 
 ChrysaLisp's numeric system offers a tiered approach: standard 64-bit integers,
 a `48.16` fixed-point type well-suited for graphics and embedded control, and a
-custom `32.32` real format for floating-point-like calculations on
-integer-focused hardware. The corresponding vector types (`nums`, `fixeds`,
-`reals`) are crucial for performance, providing efficient, contiguous storage
-and enabling optimized low-level VP operations. This architecture balances
-current needs for efficiency on diverse hardware with a clear path towards
-future enhancements, including more extensive hardware FPU and vector
-processing support.
+64bit IEEE real format for floating-point calculations. The corresponding vector
+types (`nums`, `fixeds`, `reals`) are crucial for performance, providing
+efficient, contiguous storage and enabling optimized low-level VP operations.
+This architecture balances current needs for efficiency on diverse hardware with
+a clear path towards future enhancements, including more extensive hardware FPU
+and vector processing support.

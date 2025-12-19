@@ -66,8 +66,8 @@ its memory model, built upon the `cons` cell.
       deterministic memory management. An object is deallocated the instant its
       reference count drops to zero. There are no GC pauses, making the system
       suitable for real-time and systems-level work. While this "do it now" idea
-      of freeing memory might seam worse than a defered reuse, the fact is that
-      the very next object allocation will reuse this HOT memory ! Defering this
+      of freeing memory might seam worse than a deferred reuse, the fact is that
+      the very next object allocation will reuse this HOT memory ! Deferring this
       reuse is a performance disaster ! A GC possitivley kills your performance
       !
 

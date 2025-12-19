@@ -51,23 +51,12 @@ Useful constants defined in `root.inc`.
 ### Real
 
 These are a floating point number format. The VP class, `class/real/`, holds a
-real value in the `num_value` field. Not IEEE, but a compromise format for fast
-operations on integer only machines. They are a `32.32` mantissa.exp format.
-
-Zero is represented as integer 0, and negative and positive numbers pass the
-same tests as integers do.
-
-The mantissa is a signed 32 bit twos compliment value. The exponent is also a
-signed 32 bit twos compliment value.
-
-Look in `sys/math/class.inc` and `sys/math/class.vp` for the specifics of the
-implementation. The basic operation is, `unpack, align mantissas, operate,
-normalize, repack.`
+real value in the `num_value` field. 64bit IEEE format.
 
 Useful constants defined in `lib/math/vector.inc`.
 
-`+real_0 to +real_10 +real_-1 to +real_-10 +real_1/2 to +real_1/20 +real_-1/2
-to +real_-1/20 +real_pi +real_hpi +real_2pi`
+`+real_0 to +real_10 +real_-1 to +real_-10 +real_1/2 to +real_1/20 +real_-1/2 to
++real_-1/20 +real_pi +real_hpi +real_2pi`
 
 ## Conversions
 
@@ -94,7 +83,7 @@ These operate on any number type and return the same number type.
 
 These operate on any fractional type and return the same number type.
 
-`(recip) (sin) (cos) (frac) (floor)`
+`(recip) (sin) (cos) (frac) (floor) (ceil)`
 
 ### Bitwise logical
 

@@ -501,11 +501,11 @@ These functions are used for math operations.
 
 ### Vector Math
 
-*   **`Vec2-f`**: Creates a 2D fixed-point vector.
-*   **`Vec3-f`**: Creates a 3D fixed-point vector.
-*   **`Vec4-f`**: Creates a 4D fixed-point vector.
-*   **`Vec3-r`**: Creates a 3D real-point vector.
-*   **`Vec4-r`**: Creates a 4D real-point vector.
+*   **`Vec2-f`**: Creates a 2D fixed vector.
+*   **`Vec3-f`**: Creates a 3D fixed vector.
+*   **`Vec4-f`**: Creates a 4D fixed vector.
+*   **`Vec3-r`**: Creates a 3D real vector.
+*   **`Vec4-r`**: Creates a 4D real vector.
 *   **`vec-clamp`**: Clamps a vector between two other vectors.
 *   **`vec-reflect`**: Reflects a vector off a surface.
 *   **`vec-length-squared`**: Calculates the squared length of a vector.

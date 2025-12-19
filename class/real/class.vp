@@ -697,7 +697,7 @@
 	;:r1-:r14, :f0-:f1
 
 	(mathop :random
-		`(progn
+		'(progn
 			(vp-lea-p 'constants :r4)
 			(vp-cpy-if :r4 0 :f0)
 			(vp-mul-ff :f0 :f1)
