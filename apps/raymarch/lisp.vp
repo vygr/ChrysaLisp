@@ -67,7 +67,7 @@
 	(exit `(,this ,args))
 	(vp-ret)
 
-	(vp-align 8)
+	(vp-align +long_size)
 (vp-label 'constants)
 	(vp-long (n2r 0.0))
 	(vp-long (n2r 1.0))
@@ -91,7 +91,7 @@
 	;trashes
 	;:r1-:r14
 
-	(vp-def (this args ray_origin ray_dir consts cnt trunc len max_len min_dist march_factor) '(:r13 :r14))
+	(vp-def (this args ray_origin ray_dir consts cnt trunc len max_len min_dist march_factor) '(:r9 :r10))
 	(vp-fdef (p0 p1 p2 p3 p4 p5 flen fmax_len fmin_dist fmarch_factor fd fhalf ftrunc fzero fone f035))
 
 	(entry `(,this ,args))
@@ -155,7 +155,7 @@
 	(exit '(:r0 :r1))
 	(vp-ret)
 
-	(vp-align 8)
+	(vp-align +long_size)
 (vp-label 'constants)
 	(vp-long (n2r 0.0))
 	(vp-long (n2r 1.0))

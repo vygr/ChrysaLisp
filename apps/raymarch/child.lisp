@@ -60,7 +60,7 @@
 	(defq s +real_1 i 1000)
 	(while (> (-- i) 0)
 		(defq h (scene (vec-add ray_origin
-			(vec-scale ray_dir l +reals_tmp3) +reals_tmp3))
+				(vec-scale ray_dir l +reals_tmp3) +reals_tmp3))
 			s (min s (/ (* k h) l)))
 		(if (or (<= s +real_1/10) (>= l max_l))
 			(setq i 0)
