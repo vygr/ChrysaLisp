@@ -450,11 +450,6 @@
 	; opcode | rs2(00000) | rs1(s) | funct3 | rd(d) | opcode
 	`(emitm-int (+ ,o (<< ,s 15) (<< ,d 7))))
 
-(defmacro riscv64-fp-cmp (o s d)
-	; Compare s and d, write result to temp integer register
-	; opcode | rs2(s) | rs1(d) | funct3 | rd(tmp) | opcode
-	`(emitm-int (+ ,o (<< ,s 20) (<< ,d 15) (<< +riscv64_rtmp1 7))))
-
 (defun emit-cpy-ff (s d)
 	; fsgnj.d d, s, s (Copy bit pattern via injection)
 	(unless (eql s d) (emitm-int (+ 0x22000053 (<< s 15) (<< s 20) (<< d 7)))))
@@ -480,29 +475,34 @@
 	; fsgnjn.d d, s, s (Negate sign bit via injection)
 	(emitm-int (+ 0x22001053 (<< s 15) (<< s 20) (<< d 7))))
 
+(defmacro riscv64-fp-cmp (o s d)
+	; Compare s and d, write result to temp integer register
+	; opcode | rs2(s) | rs1(d) | funct3 | rd(tmp) | opcode
+	`(emitm-int (+ ,o (<< ,s 20) (<< ,d 15) (<< +riscv64_rtmp1 7))))
+
 (defun emit-beq-ff (s d l m)
 	(riscv64-fp-cmp 0xa2002053 s d) ; feq.d tmp, d, s
-	(riscv64-branch 0x1 +riscv64_rtmp1 +riscv64_rzero l m)) ; bne tmp, zero, label
+	(riscv64-branch 0x1 0x0 +riscv64_rtmp1 +riscv64_rzero l)) ; bne tmp, zero, label
 
 (defun emit-bne-ff (s d l m)
 	(riscv64-fp-cmp 0xa2002053 s d) ; feq.d tmp, d, s
-	(riscv64-branch 0x0 +riscv64_rtmp1 +riscv64_rzero l m)) ; beq tmp, zero, label
+	(riscv64-branch 0x0 0x1 +riscv64_rtmp1 +riscv64_rzero l)) ; beq tmp, zero, label
 
 (defun emit-blt-ff (s d l m)
 	(riscv64-fp-cmp 0xa2001053 s d) ; flt.d tmp, d, s (d < s)
-	(riscv64-branch 0x1 +riscv64_rtmp1 +riscv64_rzero l m)) ; bne tmp, zero, label
+	(riscv64-branch 0x1 0x0 +riscv64_rtmp1 +riscv64_rzero l)) ; bne tmp, zero, label
 
 (defun emit-bgt-ff (s d l m)
 	(riscv64-fp-cmp 0xa2001053 d s) ; flt.d tmp, s, d (s < d -> d > s)
-	(riscv64-branch 0x1 +riscv64_rtmp1 +riscv64_rzero l m)) ; bne tmp, zero, label
+	(riscv64-branch 0x1 0x0 +riscv64_rtmp1 +riscv64_rzero l)) ; bne tmp, zero, label
 
 (defun emit-ble-ff (s d l m)
 	(riscv64-fp-cmp 0xa2000053 s d) ; fle.d tmp, d, s (d <= s)
-	(riscv64-branch 0x1 +riscv64_rtmp1 +riscv64_rzero l m)) ; bne tmp, zero, label
+	(riscv64-branch 0x1 0x0 +riscv64_rtmp1 +riscv64_rzero l)) ; bne tmp, zero, label
 
 (defun emit-bge-ff (s d l m)
 	(riscv64-fp-cmp 0xa2000053 d s) ; fle.d tmp, s, d (s <= d -> d >= s)
-	(riscv64-branch 0x1 +riscv64_rtmp1 +riscv64_rzero l m)) ; bne tmp, zero, label
+	(riscv64-branch 0x1 0x0 +riscv64_rtmp1 +riscv64_rzero l)) ; bne tmp, zero, label
 
 ; fld rd, offset(rs1) (I-Type)
 (defun emit-cpy-if (s c d)
