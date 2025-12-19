@@ -34,9 +34,7 @@
 
 (defun ray-march (ray_origin ray_dir l max_l min_distance march_factor)
 	(defq i -1 d +real_1)
-	(while (and (< (++ i) 1000)
-				(> d min_distance)
-				(< l max_l))
+	(while (and (< (++ i) 1000) (> d min_distance) (< l max_l))
 		(defq d (scene (vec-add ray_origin (vec-scale ray_dir l +reals_tmp3) +reals_tmp3))
 			l (+ l (* d march_factor))))
 	(if (> d min_distance) max_l l))
@@ -44,7 +42,7 @@
 ;native versions
 (ffi "apps/raymarch/scene" scene)
 ; (scene reals) -> radius
-;(ffi "apps/raymarch/ray_march" ray-march)
+(ffi "apps/raymarch/ray_march" ray-march)
 ; (ray-march reals reals real real real real) -> distance
 
 (defun get-normal (p)
