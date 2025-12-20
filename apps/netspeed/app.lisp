@@ -11,7 +11,7 @@
 
 (defq +scale_size 5 +bops 1000000000
 	+max_bops_align (* +scale_size +bops)
-	+smooth_steps 5 +poll_rate (/ 1000000 4)
+	+smooth_steps 100 +poll_rate (/ 1000000 4)
 	+bars ''(:regs_bar :memory_bar :reals_bar)
 	+results ''(:regs_results :memory_results :reals_results)
 	+max_aligns `'(,+max_bops_align ,+max_bops_align ,+max_bops_align)
