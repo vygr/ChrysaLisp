@@ -13,7 +13,7 @@
 	(enum main task reply timer))
 
 (defq +width 800 +height 800 +scale 2 +timer_rate (/ 1000000 1) id :t dirty :nil
-	center_x (mbfp-from-fixed -0.5) center_y (mbfp-from-fixed 0.0) zoom (mbfp-from-fixed 1.0)
+	center_x +real_-1/2 center_y +real_0 zoom +real_1
 	+retry_timeout (task-timeout 5) jobs :nil farm :nil)
 
 (ui-window *window* ()
@@ -103,10 +103,10 @@
 						(bind '(w h) (. *canvas* :get_size))
 						(defq rx (- (getf msg +ev_msg_mouse_rx) (/ (- w +width) 2))
 							ry (- (getf msg +ev_msg_mouse_ry) (/ (- h +height) 2)))
-						(setq center_x (+ center_x (mbfp-offset rx +width zoom))
-							center_y (+ center_y (mbfp-offset ry +height zoom))
-							zoom (mbfp-mul zoom (if (bits? (getf msg +ev_msg_mouse_buttons) 2)
-								(mbfp-from-fixed 2.0) (mbfp-from-fixed 0.5))))
+						(setq center_x (+ center_x (real-offset (n2r rx) (n2r +width) zoom))
+							center_y (+ center_y (real-offset (n2r ry) (n2r +height) zoom))
+							zoom (* zoom (if (bits? (getf msg +ev_msg_mouse_buttons) 2)
+								+real_2 +real_1/2)))
 						(reset))
 					(:t (. *window* :event msg))))
 			(+select_task

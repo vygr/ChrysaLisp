@@ -1,5 +1,7 @@
 ;message structure
 
+(import "lib/math/vector.inc")
+
 (structure +job 0
 	(long key)
 	(netid reply)
@@ -7,15 +9,5 @@
 
 ;math
 
-(defq +mbfp_shift 29)
-
-(defmacro mbfp-from-fixed (x)
-	(<< x (- +mbfp_shift +fp_shift)))
-
-(defmacro mbfp-mul (x y &rest _)
-	(if (= (length _) 0)
-		`(>>> (* ,x ,y) +mbfp_shift)
-		`(mbfp-mul (>>> (* ,x ,y) +mbfp_shift) ~_)))
-
-(defun mbfp-offset (x w z)
-	(mbfp-mul z (/ (* (- x (/ w 2)) (mbfp-from-fixed 2.0)) w)))
+(defun real-offset (x w z)
+	(* z (/ (* (- x (/ w +real_2)) +real_2) w)))

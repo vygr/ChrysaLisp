@@ -24,7 +24,7 @@ support. Approx 1000x faster.
 
 New `(ceil fixed)` and new `(vec-ceil ...)` support methods.
 
-Raymarch demo recoded to demo IEEE real support.
+Raymarch and Mandelbrot demos recoded to demo IEEE real support.
 
 `vp-def` renamed to `vp-rdef`. Float version is `vp-fdef`.
 
