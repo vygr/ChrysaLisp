@@ -23,6 +23,7 @@
 	; (opt-vectors vectors) -> (new_vectors new_indexs)
 	(defq vec_fmap (Fmap 101) vec_imap (cap (length vectors) (list)) new_vecs (list))
 	(each (lambda (v)
+		(setq v (apply (const reals) (map (# (quantize %0 (const (n2r 0.0001)))) v)))
 		(unless (defq i (. vec_fmap :find v))
 			(setq i (length new_vecs))
 			(. vec_fmap :insert v i)

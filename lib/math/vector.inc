@@ -54,6 +54,11 @@
 ;pi and temp vec3, vec4
 (defq +real_pi (n2r +fp_pi) +real_hpi (n2r +fp_hpi) +real_2pi (n2r +fp_2pi))
 
+(defun quantize (val tol)
+    ; (quantize val tol) -> real
+    ; quantize val to the center of the tolerance bucket
+    (* (+ (floor (/ val tol)) +real_1/2) tol))
+
 ;macro to define macros that take optional output vector
 (defmacro vec-macro (op &rest v)
 	`(defmacro ,(sym (cat "vec" (slice op (find "-" op) -1))) (~v &optional _)
