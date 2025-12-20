@@ -28,6 +28,8 @@ Raymarch and Mandelbrot demos recoded to demo IEEE real support.
 
 `vp-def` renamed to `vp-rdef`. Float version is `vp-fdef`.
 
+Fix bug in `'canvas :ftri` shown up by denser Meshes.
+
 ------
 
 New `class/mstream/class.inc` VP class for in memory stream buffers. A seekable
