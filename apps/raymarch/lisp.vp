@@ -39,7 +39,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14, :f0-f7
+	;:r1-:r14, :f0-:f7
 
 	(vp-def (this args trunc len consts pos))
 	(vp-fdef (p0 p1 p2 fhalf ftrunc fzero fone f035))
@@ -92,7 +92,7 @@
 	;:r0 = lisp object (ptr)
 	;:r1 = return value object (ptr)
 	;trashes
-	;:r1-:r14, :f0-f15
+	;:r1-:r14, :f0-:f15
 
 	(vp-def (this args ray_origin ray_dir consts cnt trunc len max_len min_dist march_factor))
 	(vp-fdef (p0 p1 p2 p3 p4 p5 flen fmax_len fmin_dist fmarch_factor fd fhalf ftrunc fzero fone f035))
