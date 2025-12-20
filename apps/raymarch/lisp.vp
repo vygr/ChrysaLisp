@@ -19,13 +19,9 @@
 	(do-frac p1 ftrunc fzero fone trunc)
 	(do-frac p2 ftrunc fzero fone trunc)
 	;minus 0.5
-	(vp-sub-ff fhalf p0)
-	(vp-sub-ff fhalf p1)
-	(vp-sub-ff fhalf p2)
+	(vp-simd vp-sub-ff `(,fhalf) `(,p0 ,p1 ,p2))
 	;length - 0.35
-	(vp-mul-ff p0 p0)
-	(vp-mul-ff p1 p1)
-	(vp-mul-ff p2 p2)
+	(vp-simd vp-mul-ff `(,p0 ,p1 ,p2) `(,p0 ,p1 ,p2))
 	(vp-add-ff p1 p0)
 	(vp-add-ff p2 p0)
 	(vp-sqrt-ff p0 p0)
@@ -94,23 +90,23 @@
 	;trashes
 	;:r1-:r14, :f0-:f15
 
-	(vp-rdef (this args ray_origin ray_dir consts cnt trunc len max_len min_dist march_factor))
+	(vp-rdef (this args ray_org ray_dir consts cnt trunc len max_len min_dist march_factor))
 	(vp-fdef (p0 p1 p2 p3 p4 p5 flen fmax_len fmin_dist fmarch_factor fd fhalf ftrunc fzero fone f035))
 
 	(entry `(,this ,args))
 
 	(errorif-lisp-args-sig 'error :r1 6)
 
-	(array-bind-args args `(,ray_origin ,ray_dir ,len ,max_len ,min_dist ,march_factor))
+	(array-bind-args args `(,ray_org ,ray_dir ,len ,max_len ,min_dist ,march_factor))
 
 (errorcase
-	(assign `((,ray_origin array_length)) `(,cnt))
+	(assign `((,ray_org array_length)) `(,cnt))
 	(gotoif `(,cnt /= 3) 'error)
 	(assign `((,ray_dir array_length)) `(,cnt))
 	(gotoif `(,cnt /= 3) 'error))
 
 	(vp-push this)
-	(assign `((,ray_origin array_begin) (,ray_dir array_begin)) `(,ray_origin ,ray_dir))
+	(assign `((,ray_org array_begin) (,ray_dir array_begin)) `(,ray_org ,ray_dir))
 	(assign `((,len num_value)) `(,flen))
 	(assign `((,max_len num_value)) `(,fmax_len))
 	(assign `((,min_dist num_value)) `(,fmin_dist))
@@ -127,19 +123,12 @@
 		(vp-sub-cr 1 cnt)
 
 		;load origin, dir
-		(load-fields ray_origin `(0 ,+long_size ,(* +long_size 2)) `(,p0 ,p1 ,p2))
+		(load-fields ray_org `(0 ,+long_size ,(* +long_size 2)) `(,p0 ,p1 ,p2))
 		(load-fields ray_dir `(0 ,+long_size ,(* +long_size 2)) `(,p3 ,p4 ,p5))
-
 		;scale dir
-		(vp-mul-ff flen p3)
-		(vp-mul-ff flen p4)
-		(vp-mul-ff flen p5)
-
+		(vp-simd vp-mul-ff `(,flen) `(,p3 ,p4 ,p5))
 		;extend origin
-		(vp-add-ff p3 p0)
-		(vp-add-ff p4 p1)
-		(vp-add-ff p5 p2)
-
+		(vp-simd vp-add-ff `(,p3 ,p4 ,p5) `(,p0 ,p1 ,p2))
 		;scene sdf
 		(do-scene p0 p1 p2 ftrunc fzero fhalf fone f035 trunc)
 

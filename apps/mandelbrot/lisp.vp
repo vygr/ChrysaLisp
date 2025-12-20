@@ -32,10 +32,7 @@
 	
 	;init i=0, xc=0.0, yc=0.0, x2=0.0, y2=0.0
 	(vp-xor-rr cnt cnt)
-	(vp-sub-ff xc xc)
-	(vp-sub-ff yc yc)
-	(vp-sub-ff x2 x2)
-	(vp-sub-ff y2 y2)
+	(vp-simd vp-sub-ff `(,xc ,yc ,x2 ,y2)  `(,xc ,yc ,x2 ,y2))
 
 	(loop-start)
 		(vp-cpy-ff x2 temp)
@@ -45,19 +42,14 @@
 		; y = 2 * x * y + y0
 		(vp-mul-ff two yc)
 		(vp-mul-ff xc yc)
-		(vp-add-ff y0 yc)
-
 		; x = x2 - y2 + x0
 		(vp-cpy-ff x2 xc)
 		(vp-sub-ff y2 xc)
-		(vp-add-ff x0 xc)
-
+		(vp-simd vp-add-ff `(,x0 ,y0) `(,xc ,yc))
 		; x2 = x * x, y2 = y * y
-		(vp-cpy-ff xc x2)
-		(vp-mul-ff x2 x2)
-		(vp-cpy-ff yc y2)
-		(vp-mul-ff y2 y2)
-		
+		(vp-simd vp-cpy-ff `(,xc ,yc) `(,x2 ,y2))
+		(vp-simd vp-mul-ff `(,x2 ,y2) `(,x2 ,y2))
+
 		(vp-add-cr 1 cnt)
 	(loop-until `(,cnt = 255))
 
