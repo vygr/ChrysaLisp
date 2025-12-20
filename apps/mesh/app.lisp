@@ -94,11 +94,11 @@
 	;create mesh loader jobs
 	(each (lambda ((name command))
 			(push job_que (cat (str-alloc +job_name) (pad name 16) command)))
-		'(("sphere.1" "(Mesh-iso (Iso-sphere 20 20 20) (n2r 0.25))")
-		("capsule" "(Mesh-iso (Iso-capsule 20 20 20) (n2r 0.25))")
-		("cube.1" "(Mesh-iso (Iso-cube 8 8 8) (n2r 0.45))")
-		("torus.1" "(Mesh-torus +real_1 +real_1/3 20)")
-		("sphere.2" "(Mesh-sphere +real_1/2 10)")))
+		'(("sphere.1" "(Mesh-iso (Iso-sphere 40 40 40) (n2r 0.25))")
+		("capsule" "(Mesh-iso (Iso-capsule 40 40 40) (n2r 0.25))")
+		("cube.1" "(Mesh-iso (Iso-cube 10 10 10) (n2r 0.45))")
+		("torus.1" "(Mesh-torus +real_1 +real_1/3 40)")
+		("sphere.2" "(Mesh-sphere +real_1/2 20)")))
 	;create scene graph
 	(defq scene (Scene "root")
 		sphere_obj (Scene-object :nil (fixeds 1.0 1.0 1.0 1.0) "sphere.1")
