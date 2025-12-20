@@ -102,7 +102,7 @@
 
 (vp-label 'msgs)
 (errorcase
-	(each (lambda (_) (vp-cstr _)) *error_msgs*))
+	(each (const vp-cstr) *error_msgs*))
 (vp-label 'unknown)
 	(vp-cstr "unknown_error !")
 	(vp-byte 0)
