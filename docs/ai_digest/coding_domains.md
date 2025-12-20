@@ -25,7 +25,7 @@ and high-level logic reside. It is a vector-based, functional Lisp dialect.
   `hmap`), not pointers.
 
 * **Forbidden Includes:** You cannot import files from `lib/asm/` or
-  `lib/trans/`. Macros like `vp-def`, `assign`, or `def-vars` do not exist here.
+  `lib/trans/`. Macros like `vp-rdef`, `assign`, or `def-vars` do not exist here.
 
 * **Interface:** You interact with the system via **FFI** (Foreign Function
   Interface) calls defined in `class/lisp/root.inc`.
@@ -125,7 +125,7 @@ stack.
 
 ### Characteristics
 
-* **Manual Register Allocation:** You use **`vp-def`** to alias symbol names to
+* **Manual Register Allocation:** You use **`vp-rdef`** to alias symbol names to
   specific physical registers.
 
 * **Direct Instructions:** You use opcodes like `vp-add-rr` (Register-Register),
@@ -136,7 +136,7 @@ stack.
 
 * **Templated Assignment:** You can use `assign` here, but usually with explicit
   register lists: `(assign '(:r0 :r1) '(:r2 :r3))` or via templating style if
-  using `(vp-def)` register names.
+  using `(vp-rdef)` register names.
 
 ### Mixed Domain (Advanced)
 
@@ -155,7 +155,7 @@ of the compiler's register usage. See `gui/canvas/fpoly.vp`.
 
 	```vdu
 	; Map registers
-	(vp-def (accum iterator end) '(:r0 :r1 :r2))
+	(vp-rdef (accum iterator end) '(:r0 :r1 :r2))
 	; Zero out accum
 	(vp-xor-rr accum accum)
 	(loop-start)

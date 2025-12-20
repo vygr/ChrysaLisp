@@ -175,7 +175,7 @@
 	;trashes
 	;:r1
 
-	(vp-def (this that))
+	(vp-rdef (this that))
 
 	(entry 'obj :eql `(,this ,that))
 

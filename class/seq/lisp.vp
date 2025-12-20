@@ -157,7 +157,7 @@
 	;trashes
 	;:r1-:r14
 
-	(vp-def (element sequence idx vtable ovtable args)
+	(vp-rdef (element sequence idx vtable ovtable args)
 		'(:r8 :r9 :r10 :r11 :r12 :r13))
 
 	(entry 'seq :lisp_find '(:r0 :r1))
@@ -234,7 +234,7 @@
 	;trashes
 	;:r1-:r14
 
-	(vp-def (element sequence idx vtable ovtable args)
+	(vp-rdef (element sequence idx vtable ovtable args)
 		'(:r8 :r9 :r10 :r11 :r12 :r13))
 
 	(entry 'seq :lisp_rfind '(:r0 :r1))
@@ -514,7 +514,7 @@
 	;trashes
 	;:r1-:r14
 
-	(vp-def (seq cnt idx len lst this args idx1)
+	(vp-rdef (seq cnt idx len lst this args idx1)
 		'(:r13 :r12 :r11 :r10 :r9 :r0 :r1 :r2))
 
 	(entry 'seq :lisp_partition `(,this ,args))

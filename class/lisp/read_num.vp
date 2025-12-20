@@ -23,7 +23,7 @@
 		(int char sign)
 		(struct buffer 72))
 
-	(vp-def (bufp base char num dot bufe))
+	(vp-rdef (bufp base char num dot bufe))
 
 	(vp-alloc local_size)
 	(entry 'lisp :read_num `((:rsp local_this) (:rsp local_stream) ,char))

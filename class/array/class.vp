@@ -59,7 +59,7 @@
 	;trashes
 	;:r2-:r4
 
-	(vp-def (this elm idx base tmp))
+	(vp-rdef (this elm idx base tmp))
 
 	(entry 'array :find `(,this ,elm ,idx))
 
@@ -102,7 +102,7 @@
 	;trashes
 	;:r2-:r4
 
-	(vp-def (this elm idx base tmp))
+	(vp-rdef (this elm idx base tmp))
 
 	(entry 'array :rfind `(,this ,elm ,idx))
 
@@ -699,7 +699,7 @@
 	;trashes
 	;:r1-:r5
 
-	(vp-def (this that len1 len2 itr1 itr2))
+	(vp-rdef (this that len1 len2 itr1 itr2))
 
 	(entry 'array :eql `(,this ,that))
 

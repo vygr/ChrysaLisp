@@ -678,7 +678,7 @@ optimization stage is to write a pure VP assembly method.
     execution speed by controlling the hardware at the most direct level
     possible.
 
-*   **Environment:** You manually allocate registers using `(vp-def ...)` and
+*   **Environment:** You manually allocate registers using `(vp-rdef ...)` and
     write code using direct register symbols (`:r0`, `:r1`, etc.). You are
     responsible for managing register lifetimes and avoiding conflicts. The
     stack may be used sparingly or, in many cases, avoided entirely for leaf
@@ -701,7 +701,7 @@ complex algorithm implemented at this level for maximum performance.
 ;; Stage 3: Direct register manipulation for maximum speed.
 (def-method 'my-class :sum_of_squares)
 
-    (vp-def (this iter iter_end sum val) '(:r8 :r9 :r10 :r11 :r12))
+    (vp-rdef (this iter iter_end sum val) '(:r8 :r9 :r10 :r11 :r12))
 
     (entry 'my-class :sum_of_squares `(,this))
 

@@ -18,7 +18,7 @@
 	;trashes
 	;:r1-:r4, :f0-:f1
 
-	(vp-def (dst src1 src2 dst1 src_end))
+	(vp-rdef (dst src1 src2 dst1 src_end))
 	(vp-fdef (e0 e1))
 
 	(entry 'reals :add `(,dst ,src1 ,src2))
@@ -46,7 +46,7 @@
 	;trashes
 	;:r1-:r4, :f0-:f1
 
-	(vp-def (dst src1 src2 dst1 src_end))
+	(vp-rdef (dst src1 src2 dst1 src_end))
 	(vp-fdef (e0 e1))
 
 	(entry 'reals :sub `(,dst ,src1 ,src2))
@@ -74,7 +74,7 @@
 	;trashes
 	;:r1-:r4, :f0-:f1
 
-	(vp-def (dst src1 src2 dst1 src_end))
+	(vp-rdef (dst src1 src2 dst1 src_end))
 	(vp-fdef (e0 e1))
 
 	(entry 'reals :min `(,dst ,src1 ,src2))
@@ -102,7 +102,7 @@
 	;trashes
 	;:r1-:r4, :f0-:f1
 
-	(vp-def (dst src1 src2 dst1 src_end))
+	(vp-rdef (dst src1 src2 dst1 src_end))
 	(vp-fdef (e0 e1))
 
 	(entry 'reals :max `(,dst ,src1 ,src2))
@@ -130,7 +130,7 @@
 	;trashes
 	;:r1-:r4, :f0-:f1
 
-	(vp-def (dst src1 src2 dst1 src_end))
+	(vp-rdef (dst src1 src2 dst1 src_end))
 	(vp-fdef (e0 e1))
 
 	(entry 'reals :mul `(,dst ,src1 ,src2))
@@ -158,7 +158,7 @@
 	;trashes
 	;:r1-:r4, :f0-:f2
 
-	(vp-def (dst src1 src2 dst1 src_end))
+	(vp-rdef (dst src1 src2 dst1 src_end))
 	(vp-fdef (e0 e1 zero))
 
 	(entry 'reals :div `(,dst ,src1 ,src2))
@@ -192,7 +192,7 @@
 	;trashes
 	;:r1-:r5, :f0-:f3
 
-	(vp-def (dst src1 src2 dst1 src_end trunc))
+	(vp-rdef (dst src1 src2 dst1 src_end trunc))
 	(vp-fdef (e0 e1 ftrunc zero))
 
 	(entry 'reals :mod `(,dst ,src1 ,src2))
@@ -230,7 +230,7 @@
 	;trashes
 	;:r1-:r4, :f0-:f3
 
-	(vp-def (dst src1 dst1 src_end trunc))
+	(vp-rdef (dst src1 dst1 src_end trunc))
 	(vp-fdef (e0 ftrunc one zero))
 
 	(entry 'reals :frac `(,dst ,src1))
@@ -266,7 +266,7 @@
 	;trashes
 	;:r1-:r4, :f0-:f2
 
-	(vp-def (dst src1 dst1 src_end trunc))
+	(vp-rdef (dst src1 dst1 src_end trunc))
 	(vp-fdef (e0 ftrunc one))
 
 	(entry 'reals :floor `(,dst ,src1))
@@ -299,7 +299,7 @@
 	;trashes
 	;:r1-:r4, :f0-:f2
 
-	(vp-def (dst src1 dst1 src_end trunc))
+	(vp-rdef (dst src1 dst1 src_end trunc))
 	(vp-fdef (e0 ftrunc one))
 
 	(entry 'reals :ceil `(,dst ,src1))
@@ -332,7 +332,7 @@
 	;trashes
 	;:r1-:r3, :f0
 
-	(vp-def (dst src1 dst1 src_end))
+	(vp-rdef (dst src1 dst1 src_end))
 	(vp-fdef (e0))
 
 	(entry 'reals :abs `(,dst ,src1))
@@ -359,7 +359,7 @@
 	;trashes
 	;:r1-:r3, :f0-:f1
 
-	(vp-def (dst src1 dst1 src_end))
+	(vp-rdef (dst src1 dst1 src_end))
 	(vp-fdef (e0 scale))
 
 	(entry 'reals :scale `(,dst ,src1 ,scale))
@@ -385,7 +385,7 @@
 	;trashes
 	;:r1-:r2, :f0-:f1
 
-	(vp-def (this src1 src_end))
+	(vp-rdef (this src1 src_end))
 	(vp-fdef (sum val))
 
 	(entry 'reals :sum `(,this))
@@ -418,7 +418,7 @@
 	;trashes
 	;:r1-:r14
 
-	(vp-def (this src2 src1 src_end))
+	(vp-rdef (this src2 src1 src_end))
 	(vp-fdef (sum val1 val2))
 
 	(entry 'reals :dot `(,this ,src2))

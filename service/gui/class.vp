@@ -77,7 +77,7 @@
 	;info
 	;the dirty region bounds is returned for use by the :flush call !
 
-	(vp-def (root heap region x y x1 y1 tmp)
+	(vp-rdef (root heap region x y x1 y1 tmp)
 		'(:r0 :r0 :r1 :r7 :r8 :r9 :r10 :r1))
 
 	(def-struct local 0
@@ -135,7 +135,7 @@
 	(vp-ret)
 
 (vp-label 'visible_down_callback)
-	(vp-def (heap view1 view2 tmp x y x1 y1 vx vy vx1 vy1)
+	(vp-rdef (heap view1 view2 tmp x y x1 y1 vx vy vx1 vy1)
 		'(:r0 :r1 :r2 :r3 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14))
 
 	(def-struct vis 0
@@ -236,7 +236,7 @@
 	(vp-ret)
 
 (vp-label 'visible_up_callback)
-	(vp-def (heap view1 view2 tmp x y x1 y1 vx vy vx1 vy1)
+	(vp-rdef (heap view1 view2 tmp x y x1 y1 vx vy vx1 vy1)
 		'(:r0 :r1 :r2 :r3 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14))
 
 	;save inputs
@@ -301,7 +301,7 @@
 	(vp-ret)
 
 (vp-label 'distribute_down_callback)
-	(vp-def (heap view1 view2 tmp x y x1 y1 vx vy vx1 vy1)
+	(vp-rdef (heap view1 view2 tmp x y x1 y1 vx vy vx1 vy1)
 		'(:r0 :r1 :r2 :r3 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14))
 
 	(def-struct dist 0
@@ -417,7 +417,7 @@
 
 (vp-label 'distribute_up_callback)
 	;add myself to draw list if any dirty region
-	(vp-def (view user node tmp) '(:r0 :r1 :r2 :r3))
+	(vp-rdef (view user node tmp) '(:r0 :r1 :r2 :r3))
 
 	(entry 'view :forward_tree_callback `(,view ,user))
 

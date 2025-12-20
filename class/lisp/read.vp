@@ -47,7 +47,7 @@
 		(ptr this stream list item stack)
 		(int c))
 
-	(vp-def (this stream c item) '(:r0 :r1 :r2 :r1))
+	(vp-rdef (this stream c item) '(:r0 :r1 :r2 :r1))
 
 	(push-scope)
 	(entry 'lisp :read {this, stream, c})

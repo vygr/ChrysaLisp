@@ -171,7 +171,7 @@
 	;trashes
 	;:r0-:r3
 
-	(vp-def (node next mid id))
+	(vp-rdef (node next mid id))
 
 	(entry 'sys_mail :validate `(,id))
 
@@ -387,7 +387,7 @@
 	;trashes
 	;:r0-:r6
 
-	(vp-def (idx iter_begin iter_end iter) '(:r0 :r4 :r5 :r6))
+	(vp-rdef (idx iter_begin iter_end iter) '(:r0 :r4 :r5 :r6))
 
 	(entry 'sys_mail :poll '(:r0))
 
@@ -425,7 +425,7 @@
 	;trashes
 	;:r0-:r8
 
-	(vp-def (idx iter_begin iter_end iter ids tcb) '(:r0 :r4 :r5 :r6 :r7 :r8))
+	(vp-rdef (idx iter_begin iter_end iter ids tcb) '(:r0 :r4 :r5 :r6 :r7 :r8))
 
 	(entry 'sys_mail :select `(,ids))
 
@@ -741,7 +741,7 @@
 	;outputs
 	;:r0 = 0 if none, else msg (ptr)
 
-	(vp-def (next node key peer1 peer2 tuple via1 via2 iter_begin iter_end)
+	(vp-rdef (next node key peer1 peer2 tuple via1 via2 iter_begin iter_end)
 		'(:r13 :r12 :r11 :r10 :r9 :r1))
 
 	(entry 'sys_mail :ready `(,peer1 ,peer2 ,key))

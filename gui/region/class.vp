@@ -88,7 +88,7 @@
 	;trashes
 	;:r1-:r4, :r11-:r14
 
-	(vp-def (heap sregion dregion rec srec ix iy ix1 iy1 x y x1 y1 tmp)
+	(vp-rdef (heap sregion dregion rec srec ix iy ix1 iy1 x y x1 y1 tmp)
 		'(:r0 :r1 :r3 :r1 :r4 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14 :r2))
 
 	(entry 'region :copy_rect `(,heap ,sregion ,dregion ,ix ,iy ,ix1 ,iy1))
@@ -190,7 +190,7 @@
 	;trashes
 	;:r1-:r6, :r11-:r14
 
-	(vp-def (heap sregion dregion rec srec prec ix iy ix1 iy1 x y x1 y1 tmp)
+	(vp-rdef (heap sregion dregion rec srec prec ix iy ix1 iy1 x y x1 y1 tmp)
 		'(:r0 :r5 :r4 :r1 :r3 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14 :r2))
 
 	(entry 'region :cut_rect `(,heap ,sregion ,dregion ,ix ,iy ,ix1 ,iy1))
@@ -464,7 +464,7 @@
 	;trashes
 	;:r1-:r14
 
-	(vp-def (heap dregion rec drec prec ix iy ix1 iy1 x y x1 y1 tmp)
+	(vp-rdef (heap dregion rec drec prec ix iy ix1 iy1 x y x1 y1 tmp)
 		'(:r0 :r4 :r1 :r6 :r5 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14 :r2))
 
 	(entry 'region :paste_rect `(,heap ,dregion ,ix ,iy ,ix1 ,iy1))
@@ -612,7 +612,7 @@
 	;trashes
 	;:r1-:r5, :r11-:r14
 
-	(vp-def (heap sregion rec srec prec ix iy ix1 iy1 x y x1 y1 tmp)
+	(vp-rdef (heap sregion rec srec prec ix iy ix1 iy1 x y x1 y1 tmp)
 		'(:r0 :r4 :r1 :r3 :r5 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14 :r2))
 
 	(entry 'region :remove_rect `(,heap ,sregion ,ix ,iy ,ix1 ,iy1))
@@ -814,7 +814,7 @@
 		(ptr dlist)
 		(int dx dy))
 
-	(vp-def (heap region rec x y x1 y1 dx dy)
+	(vp-rdef (heap region rec x y x1 y1 dx dy)
 		'(:r0 :r1 :r6 :r7 :r8 :r9 :r10 :r11 :r12))
 
 	;save inputs
@@ -852,7 +852,7 @@
 		(ptr slist)
 		(int dx dy))
 
-	(vp-def (heap dregion cregion rec x y x1 y1 dx dy)
+	(vp-rdef (heap dregion cregion rec x y x1 y1 dx dy)
 		'(:r0 :r6 :r3 :r5 :r7 :r8 :r9 :r10 :r11 :r12))
 
 	;save inputs
@@ -889,7 +889,7 @@
 		(ptr node dlist)
 		(int dx dy))
 
-	(vp-def (heap region rec x y x1 y1 dx dy)
+	(vp-rdef (heap region rec x y x1 y1 dx dy)
 		'(:r0 :r1 :r1 :r7 :r8 :r9 :r10 :r11 :r12))
 
 	;save inputs
@@ -925,7 +925,7 @@
 	;trashes
 	;:r1-:r3, :r11-:r14
 
-	(vp-def (heap region rec trec prec cx cy cx1 cy1 x y x1 y1)
+	(vp-rdef (heap region rec trec prec cx cy cx1 cy1 x y x1 y1)
 		'(:r0 :r1 :r1 :r2 :r3 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14))
 
 	(entry 'region :clip_rect `(,heap ,region ,cx ,cy ,cx1 ,cy1))
@@ -966,7 +966,7 @@
 	;trashes
 	;:r1, :r7-:r14
 
-	(vp-def (region rec bx by bx1 by1 x y x1 y1)
+	(vp-rdef (region rec bx by bx1 by1 x y x1 y1)
 		'(:r1 :r1 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14))
 
 	(entry 'region :bounds `(,region))
@@ -999,7 +999,7 @@
 	;trashes
 	;:r1, :r11-:r14
 
-	(vp-def (region rec tx ty x y x1 y1)
+	(vp-rdef (region rec tx ty x y x1 y1)
 		'(:r1 :r1 :r7 :r8 :r11 :r12 :r13 :r14))
 
 	(entry 'region :translate `(,region ,tx ,ty))
@@ -1024,7 +1024,7 @@
 	;trashes
 	;:r2-:r4
 
-	(vp-def (heap region rec0 recn rec)
+	(vp-rdef (heap region rec0 recn rec)
 		'(:r0 :r1 :r2 :r3 :r4))
 
 	(entry 'region :free `(,heap ,region))

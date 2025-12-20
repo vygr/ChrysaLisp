@@ -11,7 +11,7 @@
 	;trashes
 	;:r0-:r14
 
-	(vp-def (r g b a) (method-input 'host_gui :set_color))
+	(vp-rdef (r g b a) (method-input 'host_gui :set_color))
 
 	(entry 'ctx :set_color '(:r0 :r1))
 

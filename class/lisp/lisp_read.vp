@@ -13,7 +13,7 @@
 	;trashes
 	;:r1-:r14
 
-	(vp-def (form value this args stream) '(:r12 :r13))
+	(vp-rdef (form value this args stream) '(:r12 :r13))
 
 	(entry 'lisp :lisp_read `(,this ,args))
 

@@ -14,7 +14,7 @@
 	;trashes
 	;:r1-:r14
 
-	(vp-def (dst iter_begin nums1 nums2 this args func argc len1 len2)
+	(vp-rdef (dst iter_begin nums1 nums2 this args func argc len1 len2)
 		'(:r0 :r1 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14))
 
 	(entry 'nums :lisp_vecop1 `(,this ,args ,func))
@@ -68,7 +68,7 @@
 	;trashes
 	;:r1-:r14
 
-	(vp-def (dst iter_begin nums1 this args func argc len1 len2)
+	(vp-rdef (dst iter_begin nums1 this args func argc len1 len2)
 		'(:r0 :r1 :r8 :r9 :r10 :r11 :r12 :r13 :r14))
 
 	(entry 'nums :lisp_vecop2 `(,this ,args ,func))
@@ -341,7 +341,7 @@
 	;trashes
 	;:r1-:r14
 
-	(vp-def (dst iter_begin nums1 scale this args argc len1 len2)
+	(vp-rdef (dst iter_begin nums1 scale this args argc len1 len2)
 		'(:r0 :r1 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14))
 
 	(entry 'nums :lisp_scale `(,this ,args))

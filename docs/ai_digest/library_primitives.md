@@ -856,9 +856,9 @@ This function is part of the VP optimizer.
 
 These functions are part of the VP assembler.
 
-*   **`vp-def`**: Defines VP registers.
+*   **`vp-rdef`**: Defines VP registers.
 
-    * `(vp-def _ &optional l)`
+    * `(vp-rdef _ &optional l)`
 
 *   **`emit`**: Emits an instruction.
 

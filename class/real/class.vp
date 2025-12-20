@@ -97,7 +97,7 @@
 (def-func-end)
 
 (redefun minop (_ p)
-	(vp-def (this args obj iter_begin iter_end))
+	(vp-rdef (this args obj iter_begin iter_end))
 	(vp-fdef (val new_val))
 	(entry 'real _ `(,this ,args))
 	(class/array/get_both args iter_begin iter_end)

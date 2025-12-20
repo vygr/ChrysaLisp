@@ -12,7 +12,7 @@
 		(ptr rx_msg msg)
 		(uint len))
 
-	(vp-def (node next src1 src2 src3 psrc1 psrc2 psrc3 parcels rx_msg total))
+	(vp-rdef (node next src1 src2 src3 psrc1 psrc2 psrc3 parcels rx_msg total))
 
 	(push-scope)
 	(entry 'sys_mail :in {rx_msg})

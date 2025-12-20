@@ -24,6 +24,10 @@ support. Approx 1000x faster.
 
 New `(ceil fixed)` and new `(vec-ceil ...)` support methods.
 
+Raymarch demo recoded to demo IEEE real support.
+
+`vp-def` renamed to `vp-rdef`. Float version is `vp-fdef`.
+
 ------
 
 New `class/mstream/class.inc` VP class for in memory stream buffers. A seekable
@@ -1305,7 +1309,7 @@ New `(env-push)` and `(env-pop)` functions for manual environment handling.
 VP assembler functions now use a transient environment between the
 `(def-method)` and `(def-func-end)`.
 
-`(vp-def)` macro now checks to ensure no symbols are redefined from outside the
+`(vp-rdef)` macro now checks to ensure no symbols are redefined from outside the
 function.
 
 ------

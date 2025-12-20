@@ -31,7 +31,7 @@
 	;trashes
 	;:r1-:r14
 
-	(vp-def (iter_begin iter_end this args) '(:r10 :r11))
+	(vp-rdef (iter_begin iter_end this args) '(:r10 :r11))
 
 	(entry 'list :lisp_merge `(,this ,args))
 
@@ -163,7 +163,7 @@
 	;trashes
 	;:r1-:r14
 
-	(vp-def (this args src iter_begin iter_end iter_start wild_card))
+	(vp-rdef (this args src iter_begin iter_end iter_start wild_card))
 
 	(entry 'list :lisp_match `(,this ,args))
 

@@ -13,7 +13,7 @@
 	;trashes
 	;:r1-:r14
 
-	(vp-def (this obj args offset type size) '(:r8))
+	(vp-rdef (this obj args offset type size) '(:r8))
 
 	(entry 'obj :lisp_get '(:r0 :r1))
 
@@ -93,7 +93,7 @@
 		(ptr this obj val)
 		(int offset))
 
-	(vp-def (this args obj offset type size val num))
+	(vp-rdef (this args obj offset type size val num))
 
 	(entry 'obj :lisp_set `(,this ,args))
 
@@ -292,7 +292,7 @@
 	;trashes
 	;:r1-:r14
 
-	(vp-def (this args obj1 obj2) '(:r9 :r10))
+	(vp-rdef (this args obj1 obj2) '(:r9 :r10))
 
 	(entry 'obj :lisp_eql `(,this ,args))
 
@@ -328,7 +328,7 @@
 	;trashes
 	;:r1-:r14
 
-	(vp-def (this args obj1 obj2) '(:r9 :r10))
+	(vp-rdef (this args obj1 obj2) '(:r9 :r10))
 
 	(entry 'obj :lisp_nql `(,this ,args))
 

@@ -170,7 +170,7 @@
 	;trashes
 	;:r1-:r4
 
-	(vp-def (this data c start end))
+	(vp-rdef (this data c start end))
 
 	(entry 'font :glyph_data `(,this ,c))
 
@@ -213,7 +213,7 @@
 	;trashes
 	;:r1-:r7
 
-	(vp-def (this data info start end) '(:r6 :r7 :r0 :r1 :r2))
+	(vp-rdef (this data info start end) '(:r6 :r7 :r0 :r1 :r2))
 
 	(entry 'font :glyph_ranges `(,this))
 
@@ -247,7 +247,7 @@
 	;trashes
 	;:r1-:r8
 
-	(vp-def (this utf8 info data c) '(:r6 :r7 :r8 :r7 :r1))
+	(vp-rdef (this utf8 info data c) '(:r6 :r7 :r8 :r7 :r1))
 
 	(entry 'font :glyph_info `(,this ,utf8))
 
@@ -277,7 +277,7 @@
 	;trashes
 	;:r1-:r7
 
-	(vp-def (this w h gap gw iter_begin iter_end info))
+	(vp-rdef (this w h gap gw iter_begin iter_end info))
 
 	(entry 'font :glyph_bounds `(,this ,info))
 
@@ -354,7 +354,7 @@
 	(loop-while {iter_begin /= iter_end})
 		(assign {*iter_begin} {data})
 		(vpif {data})
-			(vp-def (data ox oy data_end width x y c pixels))
+			(vp-rdef (data ox oy data_end width x y c pixels))
 			(assign {data, ox, oy} `(,data ,ox ,oy))
 			(assign `((,data font_path_width) (,data font_path_len)) `(,width ,data_end))
 			(vp-add-cr font_path_size data)
@@ -371,7 +371,7 @@
 				(vpcase `(,c = 2))
 					;curveto
 					(call 'path :pop_back2 {path})
-					(vp-def (pth pos_x pos_y x y x1 y1 x2 y2 eps data ox oy pixels)
+					(vp-rdef (pth pos_x pos_y x y x1 y1 x2 y2 eps data ox oy pixels)
 						(method-input 'path :gen_cubic))
 					(assign {data, path, pos_x, pos_y, x, y, ox, oy, this->font_pixels}
 						`(,data ,pth ,pos_x ,pos_y ,x ,y ,ox ,oy ,pixels))
@@ -399,7 +399,7 @@
 					(call 'list :push_back {paths, path})
 					(goto 'lineto)
 				(endswitch)
-				(vp-def (data ox oy data_end))
+				(vp-rdef (data ox oy data_end))
 				(assign {data, data_end, ox, oy} `(,data ,data_end ,ox ,oy))
 			(loop-end)
 			(assign {ox + width + gap} {ox})

@@ -63,7 +63,7 @@
 
 			(assign {y1c} {y})
 			(loop-while {y <= y1d})
-				(vp-def (weight_y y1c y1d y y1a y1b))
+				(vp-rdef (weight_y y1c y1d y y1a y1b))
 				(assign {256, y1c, y1d} (list weight_y y1c y1d))
 				(vpif `(,y1c /= ,y1d))
 					(assign {y, y1a, y1b} (list y y1a y1b))
@@ -81,7 +81,7 @@
 				(assign {&source->pixmap_size + ((y * source->pixmap_width + x1c) * +int_size)} {sdata})
 				(assign {x1c} {x})
 				(loop-while {x <= x1d})
-					(vp-def (weight_x x1c x1d x x1a x1b))
+					(vp-rdef (weight_x x1c x1d x x1a x1b))
 					(assign {256, x1c, x1d} (list weight_x x1c x1d))
 					(vpif `(,x1c /= ,x1d))
 						(assign {x, x1a, x1b} (list x x1a x1b))
@@ -97,7 +97,7 @@
 					(assign (list weight_x) {weight_x})
 
 					;multiply pixel channels by the pixel weight and accumulate
-					(vp-def (r g b a q sr sg sb sa sdata weight))
+					(vp-rdef (r g b a q sr sg sb sa sdata weight))
 					(assign {r, g, b, a, q, sdata, weight_x * weight_y}
 						(list r g b a q sdata weight))
 					(vp-cpy-ir-ui sdata 0 sa)
@@ -117,7 +117,7 @@
 			(loop-end)
 
 			;divide by the pixel weight and store
-			(vp-def (q r g b a data))
+			(vp-rdef (q r g b a data))
 			(assign {(1 << 32) / q, r, g, b, a, data} (list q r g b a data))
 			(vp-simd vp-mul-rr `(,q) `(,r ,g ,b ,a))
 			(vp-simd vp-shr-cr '(32) `(,r ,g ,b ,a))
@@ -147,7 +147,7 @@
 	;trashes
 	;:r1-:r14
 
-	(vp-def (this source sdata xdata ydata data rb ga srb sga sw mga mrb))
+	(vp-rdef (this source sdata xdata ydata data rb ga srb sga sw mga mrb))
 
 	(entry 'pixmap :resize_2 (list this source))
 
@@ -208,7 +208,7 @@
 	;trashes
 	;:r1-:r14
 
-	(vp-def (this source sdata xdata ydata data q rb ga srb sga sw mga mrb))
+	(vp-rdef (this source sdata xdata ydata data q rb ga srb sga sw mga mrb))
 
 	(entry 'pixmap :resize_3 (list this source))
 

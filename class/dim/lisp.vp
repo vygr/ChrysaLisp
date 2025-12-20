@@ -55,7 +55,7 @@
 
 	(errorif-lisp-args-sig 'error :r1 2)
 
-	(vp-def (elems index dims indices dims_len indices_len
+	(vp-rdef (elems index dims indices dims_len indices_len
 			dims_iter_begin dims_iter_end indices_iter_begin acc d i)
 		(method-input 'array :ref_elem))
 
@@ -114,7 +114,7 @@
 
 	(errorif-lisp-args-sig 'error :r1 3)
 
-	(vp-def (elems obj index dims indices dims_len indices_len
+	(vp-rdef (elems obj index dims indices dims_len indices_len
 			dims_iter_begin dims_iter_end indices_iter_begin acc d i)
 		(method-input 'array :set_elem))
 

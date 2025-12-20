@@ -87,7 +87,7 @@
 	(d-call 'list :get_length {vars} {_, len_vars})
 	(call 'seq :get_length {vals} {_, len_vals})
 	(loop-start)
-		(vp-def (this vars state symbol index_vars len_vars optn rst ign mst))
+		(vp-rdef (this vars state symbol index_vars len_vars optn rst ign mst))
 		(assign {index_vars, len_vars} (list index_vars len_vars))
 		(breakif `(,index_vars = ,len_vars))
 
@@ -118,7 +118,7 @@
 		(call 'list :get_elem {vars, index_vars} {_, symbol})
 		(vpif (cat {symbol->obj_vtable = @} (f-path 'sym :vtable)))
 			;standard symbol
-			(vp-def (vals index_vals len_vals value index_vars len_vars state))
+			(vp-rdef (vals index_vals len_vals value index_vars len_vars state))
 			(assign {vals, index_vals, len_vals, state} (list vals index_vals len_vals state))
 			(vpif `(,state = ,+state_optional))
 				;optional

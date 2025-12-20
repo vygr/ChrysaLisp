@@ -100,7 +100,7 @@
 	;:r1 = object (ptr)
 	;trashes
 	;:r1-:r5
-	(vp-def (this obj flag iter_begin iter_end func))
+	(vp-rdef (this obj flag iter_begin iter_end func))
 	(vpif `(,flag /= 0))
 		(assign `((,obj obj_vtable) (@ ,(f-path 'list :vtable)))
 			`(,iter_begin ,iter_end))

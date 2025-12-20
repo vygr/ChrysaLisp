@@ -18,7 +18,7 @@
 	;trashes
 	;:r1-:r6
 
-	(vp-def (dst src1 src2 dst1 src_end e0 e1))
+	(vp-rdef (dst src1 src2 dst1 src_end e0 e1))
 
 	(entry 'nums :add `(,dst ,src1 ,src2))
 
@@ -45,7 +45,7 @@
 	;trashes
 	;:r1-:r6
 
-	(vp-def (dst src1 src2 dst1 src_end e0 e1))
+	(vp-rdef (dst src1 src2 dst1 src_end e0 e1))
 
 	(entry 'nums :sub `(,dst ,src1 ,src2))
 
@@ -72,7 +72,7 @@
 	;trashes
 	;:r1-:r6
 
-	(vp-def (dst src1 src2 dst1 src_end e0 e1))
+	(vp-rdef (dst src1 src2 dst1 src_end e0 e1))
 
 	(entry 'nums :min `(,dst ,src1 ,src2))
 
@@ -99,7 +99,7 @@
 	;trashes
 	;:r1-:r6
 
-	(vp-def (dst src1 src2 dst1 src_end e0 e1))
+	(vp-rdef (dst src1 src2 dst1 src_end e0 e1))
 
 	(entry 'nums :max `(,dst ,src1 ,src2))
 
@@ -126,7 +126,7 @@
 	;trashes
 	;:r1-:r6
 
-	(vp-def (dst src1 src2 dst1 src_end e0 e1))
+	(vp-rdef (dst src1 src2 dst1 src_end e0 e1))
 
 	(entry 'nums :mul `(,dst ,src1 ,src2))
 
@@ -153,7 +153,7 @@
 	;trashes
 	;:r1-:r7
 
-	(vp-def (e0 e1 high src1 src2 dst1 src_end dst))
+	(vp-rdef (e0 e1 high src1 src2 dst1 src_end dst))
 
 	(entry 'nums :div `(,dst ,e1 ,high))
 
@@ -187,7 +187,7 @@
 	;trashes
 	;:r1-:r7
 
-	(vp-def (e0 e1 high src1 src2 dst1 src_end dst))
+	(vp-rdef (e0 e1 high src1 src2 dst1 src_end dst))
 
 	(entry 'nums :mod `(,dst ,e1 ,high))
 
@@ -219,7 +219,7 @@
 	;trashes
 	;:r1-:r4
 
-	(vp-def (dst src1 dst1 src_end e0))
+	(vp-rdef (dst src1 dst1 src_end e0))
 
 	(entry 'nums :abs `(,dst ,src1))
 
@@ -244,7 +244,7 @@
 	;trashes
 	;:r1-:r4
 
-	(vp-def (dst sum dst1 dst_end e0))
+	(vp-rdef (dst sum dst1 dst_end e0))
 
 	(entry 'nums :sum `(,dst))
 
@@ -271,7 +271,7 @@
 	;trashes
 	;:r1-:r5
 
-	(vp-def (dst src1 scale dst1 src_end e0))
+	(vp-rdef (dst src1 scale dst1 src_end e0))
 
 	(entry 'nums :scale `(,dst ,src1 ,scale))
 
@@ -297,7 +297,7 @@
 	;trashes
 	;:r1-:r6
 
-	(vp-def (src dot src1 src2 src_end e0 e1))
+	(vp-rdef (src dot src1 src2 src_end e0 e1))
 
 	(entry 'nums :dot `(,src1 ,dot))
 
@@ -323,7 +323,7 @@
 	;trashes
 	;:r1-:r4
 
-	(vp-def (src val src1 src_end e0))
+	(vp-rdef (src val src1 src_end e0))
 
 	(entry 'nums :hash `(,src))
 

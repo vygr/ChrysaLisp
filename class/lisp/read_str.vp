@@ -24,7 +24,7 @@
 	(entry 'lisp :read_str {this, stream, cchar})
 
 	(switch)
-		(vp-def (buf bufp bufe stm cc c))
+		(vp-rdef (buf bufp bufe stm cc c))
 		(assign {stream, cchar} `(,stm ,cc))
 		(assign `((,stm stream_bufp) (,stm stream_bufe)) `(,bufp ,bufe))
 		(assign `(,bufp) `(,buf))

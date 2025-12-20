@@ -35,7 +35,7 @@
 		(ptr this)
 		(pptr iter_begin iter_end))
 
-	(vp-def (this iter_begin iter_end))
+	(vp-rdef (this iter_begin iter_end))
 
 	(entry 'list :clear `(,this))
 
@@ -257,7 +257,7 @@
 	;trashes
 	;:r2-:r9
 
-	(vp-def (this iter_begin iter_end elm)
+	(vp-rdef (this iter_begin iter_end elm)
 		'(:r7 :r8 :r9))
 
 	(entry 'list :find '(:r0 :r1 :r2))
@@ -306,7 +306,7 @@
 	;trashes
 	;:r2-:r9
 
-	(vp-def (this iter_begin iter_end elm)
+	(vp-rdef (this iter_begin iter_end elm)
 		'(:r7 :r8 :r9))
 
 	(entry 'list :rfind '(:r0 :r1 :r2))
@@ -478,7 +478,7 @@
 	;trashes
 	;:r1-:r5
 
-	(vp-def (this min_len iter_begin iter_end) '(:r2 :r3 :r4 :r5))
+	(vp-rdef (this min_len iter_begin iter_end) '(:r2 :r3 :r4 :r5))
 
 	(entry 'list :min_length `(,this))
 
@@ -507,7 +507,7 @@
 	;trashes
 	;:r1-:r11
 
-	(vp-def (this iter_begin iter_end index) '(:r8 :r9 :r10 :r11))
+	(vp-rdef (this iter_begin iter_end index) '(:r8 :r9 :r10 :r11))
 
 	(entry 'list :collect `(,this :r1 ,index))
 

@@ -75,7 +75,7 @@
 	;trashes
 	;:r1-:r2
 
-	(vp-def (this cell next blocksize cellsize block blockend cnt statics)
+	(vp-rdef (this cell next blocksize cellsize block blockend cnt statics)
 		'(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r2))
 
 	(entry 'sys_heap :alloc `(,this))
@@ -134,7 +134,7 @@
 	;trashes
 	;:r1-:r8
 
-	(vp-def (_ _ _ this blk cel next tail total))
+	(vp-rdef (_ _ _ this blk cel next tail total))
 
 	(entry 'sys_heap :collect `(,this))
 

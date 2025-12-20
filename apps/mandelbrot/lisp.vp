@@ -16,7 +16,7 @@
 	;trashes
 	;:r1-:r14
 
-	(vp-def (i x0 y0 xc yc x2 y2 four tmp1))
+	(vp-rdef (i x0 y0 xc yc x2 y2 four tmp1))
 
 	(entry '(:r0 :r1))
 

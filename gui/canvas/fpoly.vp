@@ -26,7 +26,7 @@
 		(int x y)
 		(uint length yscale))
 
-	(vp-def (xlow iter_edge2 xhigh x y x1 x2 y1 y2 cy cy1 xs ys xe ye))
+	(vp-rdef (xlow iter_edge2 xhigh x y x1 x2 y1 y2 cy cy1 xs ys xe ye))
 
 	(vp-alloc local_size)
 	(entry 'canvas :set_edges '(:r0 :r1 :r2 :r3 :r4))
@@ -187,7 +187,7 @@
 
 		;edge pointers into edge starts
 		(call 'array :get_both {this->canvas_edges} {_, tracker_node, tracker_last})
-		(vp-def (edges_start edge_node edge_last edge_tmp edge_list_head))
+		(vp-rdef (edges_start edge_node edge_last edge_tmp edge_list_head))
 		(assign {this->canvas_edges_start, tracker_node, tracker_last}
 			(list edges_start edge_node edge_last))
 		(loop-start)
@@ -201,7 +201,7 @@
 		;for each scanline
 		(loop-while {ys < ye})
 			;include new edges that begin on this scanline
-			(vp-def (tracker_list_head starts_node starts_last starts_new starts_tmp))
+			(vp-rdef (tracker_list_head starts_node starts_last starts_new starts_tmp))
 			(assign {&(this->canvas_edges_start)[ys * +ptr_size], &tracker_list}
 				(list starts_node tracker_list_head))
 			(loop-start)
@@ -214,7 +214,7 @@
 			;sort active edges on x
 			(vpif {!this->canvas_flags || mode})
 				(assign {0} {sorted_list})
-				(vp-def (sorted_list_head tracker_node tracker_last tracker_new
+				(vp-rdef (sorted_list_head tracker_node tracker_last tracker_new
 					sorted_node sorted_last x1 x2))
 				(assign {&sorted_list, &tracker_list} (list sorted_list_head tracker_node))
 				(loop-start)
@@ -233,7 +233,7 @@
 			;antialiased ?
 			(vpif {this->canvas_flags})
 				;draw edges into coverage mask
-				(vp-def (tracker_node mask xo cx cx1 x xp xb xm min_x max_x w v))
+				(vp-rdef (tracker_node mask xo cx cx1 x xp xb xm min_x max_x w v))
 				(assign {&tracker_list, this->canvas_coverage, int($sample_offsets + ((ys & 7) << 2)),
 					1 << (ys & 7), this->canvas_cx << +fp_shift, (this->canvas_cx1 - 1) << +fp_shift, min_x, max_x, mode}
 					(list tracker_node mask xo xm cx cx1 min_x max_x v))
@@ -296,7 +296,7 @@
 				(gotoif {((ys & 7) = 7) || ((ys + 1) = ye)} 'flush_mask)
 				(breakif {ys + 1 < cy1})
 			(vp-label 'flush_mask)
-				(vp-def (this c x y x1 mask m om max_x mask_to_coverage v)
+				(vp-rdef (this c x y x1 mask m om max_x mask_to_coverage v)
 					(method-input 'canvas :span))
 				(assign {this, min_x, max_x, ys >> 3} (list this x max_x y))
 				(breakif `(,x > ,max_x))
@@ -325,7 +325,7 @@
 				(assign {+max_int, +min_int} {min_x, max_x})
 			(else)
 				;draw spans for mode
-				(vp-def (this c x1 ys x2 w v tracker_node) (method-input 'canvas :span))
+				(vp-rdef (this c x1 ys x2 w v tracker_node) (method-input 'canvas :span))
 				(assign {mode, this, &tracker_list} (list v this tracker_node))
 				(vpif `(,v = ,winding_odd_even))
 					;odd even
@@ -364,7 +364,7 @@
 			(breakif {(ys + 1 => ys) >= cy1})
 
 			;step the edges and remove any dead ones
-			(vp-def (tracker_node tracker_last ys x dda))
+			(vp-rdef (tracker_node tracker_last ys x dda))
 			(assign {&tracker_list, ys} (list tracker_node ys))
 			(loop-start)
 			(vp-label 'start)

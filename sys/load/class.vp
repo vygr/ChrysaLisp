@@ -24,7 +24,7 @@
 		(ptr new_static_func new_tail_func)
 		(uint boot_static_len boot_tail_len))
 
-	(vp-def (links paths func statics os) '(:r10 :r11 :r12 :r13 :r14))
+	(vp-rdef (links paths func statics os) '(:r10 :r11 :r12 :r13 :r14))
 
 	;VP stack is NOT the arm64 stack !
 	(if (eql *cpu* 'arm64) (vp-cpy-rr :r31 :rsp))
@@ -145,7 +145,7 @@
 	;:r0 = func entry point
 	;trashes
 	;:r1-:r6
-	(vp-def (name stats node str1 str2 c1 c2))
+	(vp-rdef (name stats node str1 str2 c1 c2))
 	(entry `(,name ,stats))
 
 	(loop-flist stats statics_sys_load_function_flist node node)
@@ -173,7 +173,7 @@
 	;:r2 = length
 	;trashes
 	;:r0-:r3
-	(vp-def (src dst len end))
+	(vp-rdef (src dst len end))
 	(entry `(,src ,dst ,len))
 
 	(assign `((& ,src ,len)) `(,end))
@@ -414,7 +414,7 @@
 	;trashes
 	;:r0-:r2
 
-	(vp-def (cptr node_end node))
+	(vp-rdef (cptr node_end node))
 
 	(entry 'sys_load :find `(,cptr))
 

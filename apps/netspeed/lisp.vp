@@ -36,7 +36,7 @@
 
 		;this mix allows up to oct issue opportunities !
 		;we shuffle the mix to give some spice to life.
-		(vp-def (loop r1 r2 r3 r4 r5 r6 r7 r8 r9))
+		(vp-rdef (loop r1 r2 r3 r4 r5 r6 r7 r8 r9))
 		(vp-cpy-cr 0 loop)
 		(loop-start)
 			(vp-simd vp-cpy-cr '(1 2 3 4 5 6 7 8 9) `(,r1 ,r2 ,r3 ,r4 ,r5 ,r6 ,r7 ,r8 ,r9))
@@ -87,7 +87,7 @@
 	(assign {0} {cnt})
 	(loop-start)
 
-		(vp-def (loop r1 r2 r3 r4))
+		(vp-rdef (loop r1 r2 r3 r4))
 		(assign {&mem1, &mem2} `(,r1 ,r2))
 		(vp-cpy-cr 0 loop)
 		(loop-start)
@@ -122,7 +122,7 @@
 	(assign {0} {cnt})
 	(loop-start)
 
-		(vp-def (loop r1 r2 r3 r4))
+		(vp-rdef (loop r1 r2 r3 r4))
 		(vp-fdef (f1 f2 f3 f4 f5 f6 f7 f8))
 		(vp-cpy-cr 0 loop)
 		(vp-cpy-cr 1000 r1)

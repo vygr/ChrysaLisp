@@ -114,7 +114,7 @@
 	;trashes
 	;:r0-:r4
 
-	(vp-def (bufp base c num dot))
+	(vp-rdef (bufp base c num dot))
 
 	(entry 'sys_str :to_long `(,bufp ,base))
 
@@ -155,7 +155,7 @@
 	;trashes
 	;:r0-:r5
 
-	(vp-def (minus bufp base c num dot) '(:r5))
+	(vp-rdef (minus bufp base c num dot) '(:r5))
 
 	(entry 'sys_str :to_num `(,bufp))
 
@@ -206,7 +206,7 @@
 	;trashes
 	;:r0-:r2
 
-	(vp-def (utf8 c m))
+	(vp-rdef (utf8 c m))
 
 	(defun next-utf8 (cnt)
 		(vp-and-cr (>> 0b00111111 cnt) c)

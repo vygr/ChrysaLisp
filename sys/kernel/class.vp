@@ -288,7 +288,7 @@
 	;trashes
 	;:r0-:r14
 
-	(vp-def (msg data knode1 knode2 vnode1 vnode2 iter_begin iter_end iter link_node statics)
+	(vp-rdef (msg data knode1 knode2 vnode1 vnode2 iter_begin iter_end iter link_node statics)
 		'(:r14 :r13 :r12 :r11 :r10 :r9 :r8 :r7 :r6 :r5 :r4))
 
 	(entry `(,statics ,msg ,data ,knode1 ,knode2))
@@ -537,7 +537,7 @@
 		(ptr bucket)
 		(pptr iter))
 
-	(vp-def (data iter bucket key tuple kid1 kid2 did1 did2))
+	(vp-rdef (data iter bucket key tuple kid1 kid2 did1 did2))
 
 	(vp-alloc local_size)
 	(entry 'hmap :each_callback `(,data ,iter ,bucket))
@@ -572,7 +572,7 @@
 		(ptr next)
 		(ulong now))
 
-	(vp-def (time now node next))
+	(vp-rdef (time now node next))
 
 	(vp-alloc local_size)
 	(entry `(,next ,now))

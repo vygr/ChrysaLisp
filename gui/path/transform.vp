@@ -11,7 +11,7 @@
 	;trashes
 	;:r1-:r13
 
-	(vp-def (this iter_begin m00 m01 m02 m10 m11 m12
+	(vp-rdef (this iter_begin m00 m01 m02 m10 m11 m12
 		iter_this iter_end x y x1 y1))
 
 	(entry 'path :transform `(,this ,iter_begin ,m00))

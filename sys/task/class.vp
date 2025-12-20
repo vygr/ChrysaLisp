@@ -49,7 +49,7 @@
 	;trashes
 	;:r0-:r14
 
-	(vp-def (tcb ktcb usr addr msg data)
+	(vp-rdef (tcb ktcb usr addr msg data)
 		'(:r7 :r8 :r9 :r10 :r11 :r12))
 
 	;test if we are the kernel task
@@ -347,7 +347,7 @@
 	(call 'sys_mail :free_mbox {tcb->tk_node_mbox_id})
 
 	;remove task control block
-	(vp-def (tcb next_tcb))
+	(vp-rdef (tcb next_tcb))
 	(assign {tcb} (list tcb))
 	(ln-remove-node tcb next_tcb)
 
@@ -411,7 +411,7 @@
 	;trashes
 	;none
 
-	(vp-def (stack_top sptr node node_offset) '(:r3 :r4))
+	(vp-rdef (stack_top sptr node node_offset) '(:r3 :r4))
 
 	(vp-push :r0 :r1 :r2 :r3 :r4)
 
@@ -442,7 +442,7 @@
 	;trashes
 	;:r0-:r9
 
-	(vp-def (max_stack tasks tasks_end node next stack stack_top kernel_tcb canary statics))
+	(vp-rdef (max_stack tasks tasks_end node next stack stack_top kernel_tcb canary statics))
 
 	(vp-xor-rr max_stack max_stack)
 	(fn-bind 'sys/statics/statics statics)

@@ -179,7 +179,7 @@
 	;trashes
 	;:r1-:r14
 
-	(vp-def (this num_bits bit_pool bit_pool_size data))
+	(vp-rdef (this num_bits bit_pool bit_pool_size data))
 
 	(entry 'stream :read_bits (list this num_bits bit_pool bit_pool_size))
 
@@ -225,7 +225,7 @@
 	;trashes
 	;:r1-:r14
 
-	(vp-def (this data num_bits bit_pool bit_pool_size))
+	(vp-rdef (this data num_bits bit_pool bit_pool_size))
 
 	(entry 'stream :write_bits (list this data num_bits bit_pool bit_pool_size))
 
@@ -376,7 +376,7 @@
 	(entry 'stream :read_line {this})
 
 	(switch)
-		(vp-def (this bufp bufe ch bufps))
+		(vp-rdef (this bufp bufe ch bufps))
 		(assign {this} (list this))
 		(vp-cpy-ir this stream_bufp bufp)
 		(vp-cpy-ir this stream_bufe bufe)

@@ -379,7 +379,7 @@
 	;trashes
 	;:r1-:r14
 
-	(vp-def (iter_end iter_begin stream value width this args)
+	(vp-rdef (iter_end iter_begin stream value width this args)
 		'(:r8 :r9 :r10 :r11 :r12))
 
 	(entry 'stream :lisp_writechar `(,this ,args))
@@ -470,7 +470,7 @@
 	(def-vars
 		(ptr this buf))
 
-	(vp-def (stream buf len this args) '(:r7 :r8 :r9))
+	(vp-rdef (stream buf len this args) '(:r7 :r8 :r9))
 
 	(entry 'stream :lisp_readblk `(,this ,args))
 
@@ -629,7 +629,7 @@
 		(int idx)
 		(uint old_idx))
 
-	(vp-def (this value func stream idx old_idx))
+	(vp-rdef (this value func stream idx old_idx))
 
 	(push-scope)
 	(entry 'seq :lisp_each `(,this ,value))
@@ -654,7 +654,7 @@
 		(call 'obj :deref {args})
 
 	(errorcase
-		(vp-def (vt1 vt2))
+		(vp-rdef (vt1 vt2))
 		(assign {value->obj_vtable, this->lisp_error} `(,vt1 ,vt2))
 		(gotoif `(,vt1 = ,vt2) 'error))
 

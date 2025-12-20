@@ -167,7 +167,7 @@
 	;trashes
 	;:r1-:r3
 
-	(vp-def (_ col g rb))
+	(vp-rdef (_ col g rb))
 
 	(entry 'pixmap :to_premul `(,col))
 
@@ -194,7 +194,7 @@
 	;trashes
 	;:r1-:r4
 
-	(vp-def (c col g rb this))
+	(vp-rdef (c col g rb this))
 
 	(entry 'pixmap :to_argb `(,col))
 
@@ -255,7 +255,7 @@
 	;trashes
 	;:r1-:r8
 
-	(vp-def (this col pix dst pmul argb end height)
+	(vp-rdef (this col pix dst pmul argb end height)
 		'(:r0 :r1 :r2 :r5 :r6 :r7 :r8 :r1))
 
 	(entry 'pixmap :as_argb `(,this))
@@ -294,7 +294,7 @@
 	;trashes
 	;:r1-:r7
 
-	(vp-def (this col pix dst pmul argb end height)
+	(vp-rdef (this col pix dst pmul argb end height)
 		'(:r0 :r1 :r2 :r4 :r5 :r6 :r7 :r1))
 
 	(entry 'pixmap :as_premul `(,this))
@@ -334,7 +334,7 @@
 	;trashes
 	;:r1-:r8
 
-	(vp-def (col pix a r g b sa sr sg sb)
+	(vp-rdef (col pix a r g b sa sr sg sb)
 		'(:r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r1 :r2))
 
 	(defun width (mask) (- 64 (nlz mask) (ntz mask)))
@@ -432,7 +432,7 @@
 	;trashes
 	;:r1-:r5
 
-	(vp-def (_ col pix r g b))
+	(vp-rdef (_ col pix r g b))
 
 	(defun from-argb32 (am rm gm bm)
 		(cond

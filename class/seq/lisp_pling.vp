@@ -36,7 +36,7 @@
 		(int dir end)
 		(uint old_idx))
 
-	(vp-def (dir idx end func seqs this old_idx value vt1 vt2)
+	(vp-rdef (dir idx end func seqs this old_idx value vt1 vt2)
 		'(:r8 :r9 :r10 :r11 :r12))
 
 	(push-scope)
@@ -139,7 +139,7 @@
 		(int dir end)
 		(uint old_idx))
 
-	(vp-def (dir idx end mode func seqs this value old_idx vt1 vt2)
+	(vp-rdef (dir idx end mode func seqs this value old_idx vt1 vt2)
 		'(:r8 :r9 :r10 :r11 :r12 :r13))
 
 	(push-scope)
@@ -252,7 +252,7 @@
 		(int dir end)
 		(uint old_idx))
 
-	(vp-def (dir idx end func seqs this old_idx vt1 vt2)
+	(vp-rdef (dir idx end func seqs this old_idx vt1 vt2)
 		'(:r8 :r9 :r10 :r11 :r12))
 
 	(push-scope)
@@ -374,7 +374,7 @@
 		(int dir end)
 		(uint old_idx))
 
-	(vp-def (dir idx end func seqs this value old_idx vt1 vt2)
+	(vp-rdef (dir idx end func seqs this value old_idx vt1 vt2)
 		'(:r8 :r9 :r10 :r11 :r12))
 
 	(push-scope)
@@ -480,7 +480,7 @@
 		(int dir end)
 		(uint old_idx))
 
-	(vp-def (dir idx end func seq value this old_idx vt1 vt2)
+	(vp-rdef (dir idx end func seq value this old_idx vt1 vt2)
 		'(:r8 :r9 :r10 :r11 :r12 :r13))
 
 	(push-scope)

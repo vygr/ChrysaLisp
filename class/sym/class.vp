@@ -148,7 +148,7 @@
 		(pubyte str_begin str_end)
 		(uint hcode))
 
-	(vp-def (iter_begin iter_end str_begin str_end str_size bucket symbol str_len)
+	(vp-rdef (iter_begin iter_end str_begin str_end str_size bucket symbol str_len)
 		'(:r6 :r7 :r8 :r9 :r10 :r11))
 
 	(push-scope)
@@ -219,7 +219,7 @@
 	;trashes
 	;:r1-:r6
 
-	(vp-def (this that len1 len2))
+	(vp-rdef (this that len1 len2))
 
 	(entry 'sym :eql_str `(,this ,that))
 

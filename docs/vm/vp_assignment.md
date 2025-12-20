@@ -77,7 +77,7 @@ This will emit:
 	(vp-cpy-ir-i :r1 64 :r1)
 ```
 
-Often you will be using the `(vp-def)` macro to use register equated names, or
+Often you will be using the `(vp-rdef)` macro to use register equated names, or
 be needing to calculate a value as part of the assignment parameters. You can
 either construct the parameter lists with the `(list)` function or using the
 quasi-quote and comma syntax, or whatever you can dream up in Lisp that will
@@ -86,7 +86,7 @@ the real power of the Lisp based assembler kicks in ! You have access to one of
 the worlds most powerful languages as your assembler macro system !
 
 ```vdu
-	(vp-def (x y z))
+	(vp-rdef (x y z))
 	(assign `(,x ,y) `(,z ,x))
 	(assign (list x y) (list z x))
 ```

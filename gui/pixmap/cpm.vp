@@ -51,7 +51,7 @@
 		(endif)
 
 		;decode according to type
-		(vp-def (len col trans data data_end))
+		(vp-rdef (len col trans data data_end))
 		(loop-start)
 			;get token
 			(call 'stream :read_bits {stream, 8, bit_pool, bit_pool_size} {_, length, bit_pool, bit_pool_size})
@@ -244,7 +244,7 @@
 		(assign {&this->pixmap_data} {data})
 		(assign {data + this->pixmap_height * this->pixmap_stride} {data_end})
 
-		(vp-def (len col data data_end))
+		(vp-rdef (len col data data_end))
 		(loop-start)
 			;get token, loop back if stream end
 			(loop-start)

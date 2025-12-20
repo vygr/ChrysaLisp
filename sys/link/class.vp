@@ -126,7 +126,7 @@
 				key} {msg})
 			(vpif {msg})
 				;copy message data
-				(vp-def (tx_msg msg len off tot))
+				(vp-rdef (tx_msg msg len off tot))
 				(assign {tx_msg, msg} `(,tx_msg ,msg))
 				(assign-fields
 					msg '(msg_frag_length msg_frag_offset msg_total_length)
@@ -229,7 +229,7 @@
 				(else)
 					;allocate msg, copy over data
 					(call 'sys_mail :alloc {rx_msg->lk_buf_frag_length} {msg, data})
-					(vp-def (msg rx_msg len off tot))
+					(vp-rdef (msg rx_msg len off tot))
 					(assign {msg, rx_msg} `(,msg ,rx_msg))
 					(assign-fields
 						rx_msg '(lk_buf_frag_length lk_buf_frag_offset lk_buf_total_length)

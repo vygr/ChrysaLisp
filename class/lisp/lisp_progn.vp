@@ -122,7 +122,7 @@
 	(def-vars
 		(ptr this args))
 
-	(vp-def (this args iter_begin iter_end tmp vtable))
+	(vp-rdef (this args iter_begin iter_end tmp vtable))
 
 	(entry 'lisp :lisp_while `(,this ,args))
 
@@ -174,7 +174,7 @@
 	(def-vars
 		(ptr this args))
 
-	(vp-def (this args iter_begin iter_end tmp vtable))
+	(vp-rdef (this args iter_begin iter_end tmp vtable))
 
 	(entry 'lisp :lisp_until `(,this ,args))
 
@@ -227,7 +227,7 @@
 		(ptr this args)
 		(pptr iter_begin iter_end))
 
-	(vp-def (this value iter_begin iter_end tmp vtable))
+	(vp-rdef (this value iter_begin iter_end tmp vtable))
 
 	(push-scope)
 	(entry 'lisp :lisp_cond {this, args})
@@ -289,7 +289,7 @@
 		(ptr this args)
 		(pptr iter_begin iter_end))
 
-	(vp-def (this value iter_begin iter_end tmp vtable))
+	(vp-rdef (this value iter_begin iter_end tmp vtable))
 
 	(push-scope)
 	(entry 'lisp :lisp_condn {this, args})
@@ -349,7 +349,7 @@
 	;trashes
 	;:r1-:r14
 
-	(vp-def (this args iter_begin iter_end tmp))
+	(vp-rdef (this args iter_begin iter_end tmp))
 
 	(entry 'lisp :lisp_progn `(,this ,args))
 
@@ -376,7 +376,7 @@
 		(ptr this)
 		(pptr iter_begin iter_end))
 
-	(vp-def (this value iter_begin iter_end tmp vtable))
+	(vp-rdef (this value iter_begin iter_end tmp vtable))
 
 	(push-scope)
 	(entry 'lisp :repl_progn `(,this ,value ,iter_begin ,iter_end))

@@ -24,7 +24,7 @@
 	(entry 'lisp :read_sym {this, stream, char})
 
 	(switch)
-		(vp-def (buf bufp bufe stm c))
+		(vp-rdef (buf bufp bufe stm c))
 		(assign {stream, char} `(,stm ,c))
 		(assign `((,stm stream_bufp) (,stm stream_bufe)) `(,bufp ,bufe))
 		(assign `(,bufp) `(,buf))

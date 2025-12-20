@@ -411,7 +411,7 @@
 	;trashes
 	;:r1-:r6
 
-	(vp-def (this that len1 len2))
+	(vp-rdef (this that len1 len2))
 
 	(entry 'str :eql `(,this ,that))
 
@@ -706,7 +706,7 @@
 	;trashes
 	;:r1-:r4
 
-	(vp-def (iter_begin iter_end hcode tmp) '(:r3 :r4 :r1 :r2))
+	(vp-rdef (iter_begin iter_end hcode tmp) '(:r3 :r4 :r1 :r2))
 
 	(entry 'str :hash_pstr `(,iter_begin ,iter_end))
 
@@ -751,7 +751,7 @@
 	;trashes
 	;:r1-:r5
 
-	(vp-def (iter_begin1 iter_end1 iter_begin2 match tmp) '(:r1 :r2 :r3 :r4 :r5))
+	(vp-rdef (iter_begin1 iter_end1 iter_begin2 match tmp) '(:r1 :r2 :r3 :r4 :r5))
 
 	(entry 'str :same_pstr `(,iter_begin1 ,iter_end1 ,iter_begin2))
 
@@ -780,7 +780,7 @@
 	;trashes
 	;:r1-:r14
 
-	(vp-def (this splitc out iter_begin iter_end iter_start)
+	(vp-rdef (this splitc out iter_begin iter_end iter_start)
 		'(:r7 :r8 :r9 :r10 :r11 :r12))
 
 	(entry 'str :split `(,this ,splitc))
@@ -823,7 +823,7 @@
 	;trashes
 	;:r2-:r6
 
-	(vp-def (this c i data ci cj ck))
+	(vp-rdef (this c i data ci cj ck))
 
 	(entry 'str :bfind `(,this ,c))
 
@@ -864,7 +864,7 @@
 	;trashes
 	;:r2-:r10
 
-	(vp-def (this idx len data cls) '(:r7 :r8 :r9 :r10))
+	(vp-rdef (this idx len data cls) '(:r7 :r8 :r9 :r10))
 
 	(entry 'str :bskip `(,this ,cls ,idx))
 
@@ -895,7 +895,7 @@
 	;trashes
 	;:r2-:r10
 
-	(vp-def (this idx len data cls) '(:r7 :r8 :r9 :r10))
+	(vp-rdef (this idx len data cls) '(:r7 :r8 :r9 :r10))
 
 	(entry 'str :bskipn `(,this ,cls ,idx))
 
@@ -922,7 +922,7 @@
 	;trashes
 	;:r1-:r8
 
-	(vp-def (src len dst data c1 c2) '(:r7 :r8))
+	(vp-rdef (src len dst data c1 c2) '(:r7 :r8))
 
 	(entry 'str :encode `(,src))
 
@@ -969,7 +969,7 @@
 	;trashes
 	;:r1-:r8
 
-	(vp-def (src len dst data c1 c2) '(:r7 :r8))
+	(vp-rdef (src len dst data c1 c2) '(:r7 :r8))
 
 	(entry 'str :decode `(,src))
 
