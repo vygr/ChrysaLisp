@@ -8,9 +8,9 @@
 inputs
 :r0 = angle in radians (fixed)
 outputs
-:r0 = cosine (fixed)
+:r0 = cos (fixed)
 trashes
-:r0-:r4
+:r0-:r2, :f0-:f3
 ```
 
 ### :f_dist_sqd -> sys/math/f_dist_sqd
@@ -54,9 +54,9 @@ trashes
 inputs
 :r0 = angle in radians (fixed)
 outputs
-:r0 = sine (fixed)
+:r0 = sin (fixed)
 trashes
-:r0-:r4
+:r0-:r2, :f0-:f3
 ```
 
 ### :f_sqrt -> sys/math/f_sqrt
@@ -67,7 +67,7 @@ inputs
 outputs
 :r0 = sqrt (fixed)
 trashes
-:r0-:r3
+:r0-:r1, :f0-:f1
 ```
 
 ### :i_rand -> sys/math/i_rand
@@ -81,14 +81,14 @@ trashes
 :r0-:r3
 ```
 
-### :i_sqrt -> sys/math/i_sqrt
+### :r_sin -> sys/math/r_sin
 
 ```code
 inputs
-:r0 = number (ulong)
+:f1 = real (real)
 outputs
-:r0 = sqrt (ulong)
+:f0 = real (real)
 trashes
-:r0-:r3
+:r0-:r1, :f0-:f3
 ```
 

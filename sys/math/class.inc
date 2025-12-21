@@ -6,36 +6,12 @@
 
 (def-class sys_math :nil
 	(dec-method :i_rand sys/math/i_rand :static (:r0) (:r0))
-	(dec-method :i_sqrt sys/math/i_sqrt :static (:r0) (:r0))
 	(dec-method :f_sqrt sys/math/f_sqrt :static (:r0) (:r0))
 	(dec-method :f_sin sys/math/f_sin :static (:r0) (:r0))
 	(dec-method :f_cos sys/math/f_cos :static (:r0) (:r0))
 	(dec-method :f_intersect sys/math/f_intersect :static (:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7) (:r0 :r1))
-	(dec-method :f_dist_sqd sys/math/f_dist_sqd :static (:r0 :r1 :r2 :r3 :r4 :r5) (:r0)))
-
-;;;;;;;;;;;;;;;;
-; inline methods
-;;;;;;;;;;;;;;;;
-
-(defun sys/math/f_sqrt ()
-	;inputs
-	;:r0 = number (fixed)
-	;outputs
-	;:r0 = sqrt (fixed)
-	;trashes
-	;:r0-:r3
-	(vp-shl-cr +fp_shift :r0)
-	(call 'sys_math :i_sqrt '(:r0) '(:r0)))
-
-(defun sys/math/f_cos ()
-	;inputs
-	;:r0 = angle in radians (fixed)
-	;outputs
-	;:r0 = cosine (fixed)
-	;trashes
-	;:r0-:r4
-	(vp-add-cr +fp_hpi :r0)
-	(call 'sys_math :f_sin '(:r0) '(:r0)))
+	(dec-method :f_dist_sqd sys/math/f_dist_sqd :static (:r0 :r1 :r2 :r3 :r4 :r5) (:r0))
+	(dec-method :r_sin sys/math/r_sin :static (:f1) (:f0)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; fixed point vector math codegen
@@ -169,16 +145,7 @@
 
 (defun vec-frac (n &optional v)
 	(setd v (vec-top n))
-	(bind '(r) (vec-tmp 1))
-	(each (lambda (v)
-		(vpif `(,v >= 0))
-			(vp-and-cr +fp_frac_mask v)
-		(else)
-			(vp-cpy-rr v r)
-			(vp-cpy-cr (<< 1 +fp_shift) v)
-			(vp-and-cr +fp_frac_mask r)
-			(vp-sub-rr r v)
-		(endif)) v))
+	(each (# (vp-and-cr +fp_frac_mask %0) %0) v))
 
 (defun vec-floor (n &optional v)
 	(setd v (vec-top n))
@@ -186,8 +153,7 @@
 
 (defun vec-ceil (n &optional v)
 	(setd v (vec-top n))
-	(each (#
-		(vp-and-cr +fp_int_mask %0)
+	(each (# (vp-and-cr +fp_int_mask %0)
 		(vp-add-cr (<< 1 +fp_shift) %0)) v))
 
 (defun vec-frecip (n &optional v1)

@@ -43,106 +43,189 @@
 
 (def-func-end)
 
-(def-method 'sys_math :i_sqrt)
+(def-method 'sys_math :f_sqrt)
 	;inputs
-	;:r0 = number (ulong)
+	;:r0 = number (fixed)
 	;outputs
-	;:r0 = sqrt (ulong)
+	;:r0 = sqrt (fixed)
 	;trashes
-	;:r0-:r3
+	;:r0-:r1, :f0-:f1
 
-	(entry 'sys_math :i_sqrt '(:r1))
+	(entry 'sys_math :f_sqrt '(:r0))
 
-	(vp-xor-rr :r0 :r0)
-	(vp-cpy-cr 0x4000000000000000 :r2)
-	(loop-while '(:r2 > :r1))
-		(vp-shr-cr 2 :r2)
-	(loop-end)
-	(loop-while '(:r2 /= 0))
-		(vp-lea-d :r0 :r2 :r3)
-		(vpif '(:r1 > :r3))
-			(vp-cpy-rr :r2 :r3)
-			(vp-sub-rr :r0 :r1)
-			(vp-shl-cr 1 :r3)
-			(vp-sub-rr :r2 :r1)
-			(vp-add-rr :r3 :r0)
-		(endif)
-		(vp-shr-cr 1 :r0)
-		(vp-shr-cr 2 :r2)
-	(loop-end)
-	(vpif '(:r1 > :r0))
-		(vp-add-cr 1 :r0)
-	(endif)
+	(vp-lea-p 'fn_consts :r1)
+	(assign '((:r1 (fn-const (recip (n2r (<< 1 +fp_shift)))))) '(:f0))
+	(vp-cvt-rf :r0 :f1)
+	(vp-mul-ff :f0 :f1)
+	(vp-sqrt-ff :f1 :f1)
+	(assign '((:r1 (fn-const (n2r (<< 1 +fp_shift))))) '(:f0))
+	(vp-mul-ff :f1 :f0)
+	(vp-cvt-fr :f0 :r0)
 
-	(exit 'sys_math :i_sqrt '(:r0))
+	(exit 'sys_math :f_sqrt '(:r0))
 	(vp-ret)
 
 (def-func-end)
-
-(defun cheby-term (coef &optional last_term_flag)
-	(cond
-		(last_term_flag
-			(vp-mul-cr coef :r0)
-			(vp-asr-cr +fp_shift :r0)
-			(vp-add-rr :r3 :r0))
-		(:t (unless (= coef 0)
-				(vp-cpy-rr :r0 :r2)
-				(vp-mul-cr coef :r2)
-				(vp-asr-cr +fp_shift :r2)
-				(vp-add-rr :r2 :r3))
-			(vp-cpy-rr :r1 :r2)
-			(vp-cpy-rr :r0 :r1)
-			(vp-mul-rr :r4 :r0)
-			(vp-asr-cr +fp_shift :r0)
-			(vp-sub-rr :r2 :r0))))
 
 (def-method 'sys_math :f_sin)
 	;inputs
 	;:r0 = angle in radians (fixed)
 	;outputs
-	;:r0 = sine (fixed)
+	;:r0 = sin (fixed)
 	;trashes
-	;:r0-:r4
+	;:r0-:r2, :f0-:f3
 
 	(entry 'sys_math :f_sin '(:r0))
 
-	(vec-set 1)
-	(vec-load 1 '(+fp_2pi))
-	(vec-fmod 1)
-
-	(gotoif '(:r0 < +fp_hpi) 'sin-hpi)
-	(vpif '(:r0 < +fp_pi))
-		(vp-sub-cr +fp_pi :r0)
-		(vp-mul-cr -1 :r0)
-		(goto 'sin-hpi)
-	(elseif '(:r0 < (+ +fp_pi +fp_hpi)))
-		(vp-sub-cr +fp_pi :r0)
-		(vp-call 'sin-hpi)
-	(else)
-		(vp-sub-cr +fp_2pi :r0)
-		(vp-mul-cr -1 :r0)
-		(vp-call 'sin-hpi)
-	(endif)
-	(vp-mul-cr -1 :r0)
+	(vp-lea-p 'fn_consts :r2)
+	(assign '((:r2 (fn-const (recip (n2r (<< 1 +fp_shift)))))) '(:f1))
+	(vp-cvt-rf :r0 :f0)
+	(vp-mul-ff :f0 :f1)
+	(call 'sys_math :r_sin '(:f1) '(:f0))
+	(assign '((:r2 (fn-const (n2r (<< 1 +fp_shift))))) '(:f1))
+	(vp-mul-ff :f1 :f0)
+	(vp-cvt-fr :f0 :r0)
 
 	(exit 'sys_math :f_sin '(:r0))
 	(vp-ret)
 
-(vp-label 'sin-hpi)
-	(vp-shl-cr 2 :r0)
-	(vp-sub-cr +fp_pi :r0)
-	(vp-mul-cr +fp_rpi :r0)
-	(vp-cpy-cr (<< 1 +fp_shift) :r1)
-	(vp-asr-cr +fp_shift :r0)
-	(vp-cpy-rr :r0 :r4)
-	(vp-shl-cr 1 :r4)
-	(vp-cpy-cr 39465 :r3)
-	(cheby-term 33661)
-	(cheby-term -6786)
-	(cheby-term -900)
-	(cheby-term 89)
-	(cheby-term 7 :t)
+(def-func-end)
+
+(def-method 'sys_math :f_cos)
+	;inputs
+	;:r0 = angle in radians (fixed)
+	;outputs
+	;:r0 = cos (fixed)
+	;trashes
+	;:r0-:r2, :f0-:f3
+
+	(entry 'sys_math :f_cos '(:r0))
+
+	(vp-lea-p 'fn_consts :r2)
+	(assign '((:r2 (fn-const (recip (n2r (<< 1 +fp_shift)))))) '(:f1))
+	(vp-cvt-rf :r0 :f0)
+	(vp-mul-ff :f0 :f1)
+	(assign '((:r2 (fn-const 0x3ff921fb54442d18))) '(:f0))
+	(vp-add-ff :f0 :f1)
+	(call 'sys_math :r_sin '(:f1) '(:f0))
+	(assign '((:r2 (fn-const (n2r (<< 1 +fp_shift))))) '(:f1))
+	(vp-mul-ff :f1 :f0)
+	(vp-cvt-fr :f0 :r0)
+
+	(exit 'sys_math :f_cos '(:r0))
 	(vp-ret)
+
+(def-func-end)
+
+(def-method 'sys_math :r_sin)
+	;inputs
+	;:f1 = real (real)
+	;outputs
+	;:f0 = real (real)
+	;trashes
+	;:r0-:r1, :f0-:f3
+
+	(entry 'sys_math :r_sin '(:f1))
+
+	(vp-lea-p 'constants :r0)
+
+	; --- Range Reduction: fmod(x, 2pi) ---
+	(vp-cpy-if :r0 0 :f2)       ; Load 1/2pi
+	(vp-cpy-ff :f1 :f0)         ; f0 = x
+	(vp-mul-ff :f2 :f0)         ; f0 = x / 2pi
+	(vp-cvt-fr :f0 :r1)         ; r1 = (int)(x / 2pi)
+	(vp-cvt-rf :r1 :f2)         ; f2 = (double)k
+	(vp-cpy-if :r0 8 :f3)       ; Load 2pi
+	(vp-mul-ff :f3 :f2)         ; f2 = k * 2pi
+	(vp-sub-ff :f2 :f1)         ; f1 = x - k*2pi
+
+	; --- Symmetry to [-pi, pi] ---
+	(vp-cpy-if :r0 16 :f2)      ; Load pi
+	(vp-cpy-ff :f2 :f3)         ; f3 = pi
+	(vp-neg-ff :f2 :f2)         ; f2 = -pi
+
+	(vp-bgt-ff :f3 :f1 'sub_2pi)
+	(vp-blt-ff :f2 :f1 'add_2pi)
+	(vp-jmp 'check_hpi)
+
+(vp-label 'sub_2pi)
+	(vp-cpy-if :r0 8 :f2)       ; Load 2pi
+	(vp-sub-ff :f2 :f1)         ; x -= 2pi
+	(vp-jmp 'check_hpi)
+
+(vp-label 'add_2pi)
+	(vp-cpy-if :r0 8 :f2)       ; Load 2pi
+	(vp-add-ff :f2 :f1)         ; x += 2pi
+
+	; --- Symmetry to [-pi/2, pi/2] ---
+(vp-label 'check_hpi)
+	(vp-cpy-if :r0 24 :f2)      ; Load pi/2
+	(vp-cpy-ff :f2 :f3)         ; f3 = pi/2
+	(vp-neg-ff :f2 :f2)         ; f2 = -pi/2
+
+	(vp-bgt-ff :f3 :f1 'fold_pos)
+	(vp-blt-ff :f2 :f1 'fold_neg)
+	(vp-jmp 'poly)
+
+(vp-label 'fold_pos)
+	(vp-cpy-if :r0 16 :f2)      ; Load pi
+	(vp-sub-ff :f1 :f2)         ; f2 = pi - x
+	(vp-cpy-ff :f2 :f1)
+	(vp-jmp 'poly)
+
+(vp-label 'fold_neg)
+	(vp-cpy-if :r0 16 :f2)      ; Load pi
+	(vp-neg-ff :f2 :f2)         ; f2 = -pi
+	(vp-sub-ff :f1 :f2)         ; f2 = -pi - x
+	(vp-cpy-ff :f2 :f1)
+
+	; --- Polynomial Approximation (Taylor) ---
+(vp-label 'poly)
+	(vp-cpy-ff :f1 :f3)
+	(vp-mul-ff :f1 :f3)         ; f3 = x^2
+
+	; Horner's Method
+	(vp-cpy-if :r0 80 :f0)      ; Load c7
+	(vp-mul-ff :f3 :f0)
+	(vp-cpy-if :r0 72 :f2)      ; Load c6
+	(vp-add-ff :f2 :f0)
+	(vp-mul-ff :f3 :f0)
+	(vp-cpy-if :r0 64 :f2)      ; Load c5
+	(vp-add-ff :f2 :f0)
+	(vp-mul-ff :f3 :f0)
+	(vp-cpy-if :r0 56 :f2)      ; Load c4
+	(vp-add-ff :f2 :f0)
+	(vp-mul-ff :f3 :f0)
+	(vp-cpy-if :r0 48 :f2)      ; Load c3
+	(vp-add-ff :f2 :f0)
+	(vp-mul-ff :f3 :f0)
+	(vp-cpy-if :r0 40 :f2)      ; Load c2
+	(vp-add-ff :f2 :f0)
+	(vp-mul-ff :f3 :f0)
+	(vp-cpy-if :r0 32 :f2)      ; Load c1
+	(vp-add-ff :f2 :f0)
+	(vp-mul-ff :f3 :f0)
+	(vp-cpy-if :r0 88 :f2)      ; Load 1.0
+	(vp-add-ff :f2 :f0)
+	(vp-mul-ff :f1 :f0)
+
+	(exit 'sys_math :r_sin '(:f0))
+	(vp-ret)
+
+(vp-align 8)
+(vp-label 'constants)
+	(vp-long 0x3fc45f306dc9c883) ;  0: 1 / 2pi
+	(vp-long 0x401921fb54442d18) ;  8: 2pi
+	(vp-long 0x400921fb54442d18) ; 16: pi
+	(vp-long 0x3ff921fb54442d18) ; 24: pi / 2
+	(vp-long 0xbfc5555555555555) ; 32: c1 (-1/6)
+	(vp-long 0x3f81111111111111) ; 40: c2 (1/120)
+	(vp-long 0xbf2a01a01a01a01a) ; 48: c3 (-1/5040)
+	(vp-long 0x3ec71de3a556c734) ; 56: c4 (1/362880)
+	(vp-long 0xbe5ae64567f544e4) ; 64: c5 (-1/39916800)
+	(vp-long 0x3de6124613a86d09) ; 72: c6 (1/6227020800)
+	(vp-long 0xbceae73673322e72) ; 80: c7 (-1/1.307e12)
+	(vp-long 0x3ff0000000000000) ; 88: 1.0
 
 (def-func-end)
 

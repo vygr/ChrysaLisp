@@ -364,7 +364,7 @@ outputs
 :r0 = num object (ptr)
 :r1 = result num object (ptr)
 trashes
-:r1-:r14
+:r1-:r14, :f0
 ```
 
 ### :sub -> class/num/sub

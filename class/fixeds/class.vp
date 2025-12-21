@@ -126,15 +126,7 @@
 	(vp-shl-cr (log2 +ptr_size) src_end)
 	(vp-add-rr src1 src_end)
 	(vec-loop-until `(,src1) `(,e0) src_end dst1
-		(lambda (e0)
-			(vpif `(,e0 >= 0))
-				(vp-and-cr +fp_frac_mask e0)
-			(else)
-				(vp-cpy-rr e0 t0)
-				(vp-cpy-cr (<< 1 +fp_shift) e0)
-				(vp-and-cr +fp_frac_mask t0)
-				(vp-sub-rr t0 e0)
-			(endif) e0))
+		(# (vp-and-cr +fp_frac_mask %0) %0))
 
 	(exit 'fixeds :frac `(,dst))
 	(vp-ret)
