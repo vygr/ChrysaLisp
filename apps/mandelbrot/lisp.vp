@@ -27,8 +27,8 @@
 	(array-bind-args :r1 `(,ox0 ,oy0))
 	(assign `((,ox0 num_value) (,oy0 num_value)) `(,x0 ,y0))
 
-	(vp-lea-p 'constants cnt)
-	(load-fields cnt `(0 ,+long_size) `(,four ,two))
+	(vp-lea-p 'fn_consts cnt)
+	(load-fields cnt `(,(fn-const (n2r 4.0)) ,(fn-const (n2r 2.0))) `(,four ,two))
 	
 	;init i=0, xc=0.0, yc=0.0, x2=0.0, y2=0.0
 	(vp-xor-rr cnt cnt)
@@ -58,11 +58,6 @@
 
 	(exit `(,this ,args))
 	(vp-ret)
-
-	(vp-align +long_size)
-(vp-label 'constants)
-	(vp-long (n2r 4.0))
-	(vp-long (n2r 2.0))
 
 (errorcase
 (vp-label 'error)

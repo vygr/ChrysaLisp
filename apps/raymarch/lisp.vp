@@ -113,18 +113,18 @@
 	(assign `((,march_factor num_value)) `(,fmarch_factor))
 
 	;constants
-	(vp-lea-p 'constants consts)
-	(load-fields consts `(0 ,+long_size ,(* +long_size 2) ,(* +long_size 3) ,+long_size)
-		`(,fzero ,fone ,f035 ,fhalf ,fd))
+	(vp-lea-p 'fn_consts consts)
+	(load-fields consts
+		`(,(fn-const 0) ,(fn-const (n2r 1)) ,(fn-const (n2r 1)) ,(fn-const (n2r 0.35)) ,(fn-const (n2r 0.5)))
+		`(,fzero ,fone ,fd ,f035 ,fhalf))
 
 	(vp-cpy-cr 1000 cnt)
-	(loop-start)
-		(breakif `(,cnt = 0) `(,flen >= ,fmax_len) `(,fd <= ,fmin_dist))
+	(loop-while `(,cnt /= 0) `(,flen < ,fmax_len) `(,fd > ,fmin_dist))
 		(vp-sub-cr 1 cnt)
 
 		;load origin, dir
-		(load-fields ray_org `(0 ,+long_size ,(* +long_size 2)) `(,p0 ,p1 ,p2))
 		(load-fields ray_dir `(0 ,+long_size ,(* +long_size 2)) `(,p3 ,p4 ,p5))
+		(load-fields ray_org `(0 ,+long_size ,(* +long_size 2)) `(,p0 ,p1 ,p2))
 		;scale dir
 		(vp-simd vp-mul-ff `(,flen) `(,p3 ,p4 ,p5))
 		;extend origin
@@ -146,13 +146,6 @@
 	(vp-pop this)
 	(exit `(,this ,args))
 	(vp-ret)
-
-	(vp-align +long_size)
-(vp-label 'constants)
-	(vp-long (n2r 0.0))
-	(vp-long (n2r 1.0))
-	(vp-long (n2r 0.35))
-	(vp-long (n2r 0.5))
 
 (errorcase
 (vp-label 'error)

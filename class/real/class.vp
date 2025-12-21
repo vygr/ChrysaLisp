@@ -246,7 +246,6 @@
 
 	(compare :ge
 		'(progn
-			; Fail if x < y (f0 < f1)
 			(gotoif '(:f0 < :f1) 'fail)
 			(vp-cpy-ff :f1 :f0)))
 
@@ -264,7 +263,6 @@
 
 	(compare :gt
 		'(progn
-			; Fail if x <= y (f0 <= f1)
 			(gotoif '(:f0 <= :f1) 'fail)
 			(vp-cpy-ff :f1 :f0)))
 
@@ -282,7 +280,6 @@
 
 	(compare :le
 		'(progn
-			; Fail if x > y (f0 > f1)
 			(gotoif '(:f0 > :f1) 'fail)
 			(vp-cpy-ff :f1 :f0)))
 
@@ -300,7 +297,6 @@
 
 	(compare :lt
 		'(progn
-			; Fail if x >= y (f0 >= f1)
 			(gotoif '(:f0 >= :f1) 'fail)
 			(vp-cpy-ff :f1 :f0)))
 
@@ -566,16 +562,15 @@
 
 	(mathop :frac
 		'(progn
-			(vp-cpy-ff :f1 :f0)		; f0 = x
-			(vp-cvt-fr :f0 :r0)		; r0 = (int)x (Truncate)
-			(vp-cvt-rf :r0 :f1)		; f1 = (double)(int)x
-			(vp-sub-ff :f1 :f0)		; f0 = x - trunc(x)
-			(vp-xor-rr :r0 :r0)		; r0 = 0
-			(vp-cvt-rf :r0 :f1)		; f1 = 0.0
-			(vpif '(:f0 < :f1))		; if f0 < 0
-				(vp-cpy-cr 1 :r0)	; r0 = 1
-				(vp-cvt-rf :r0 :f1)	; f1 = 1.0
-				(vp-add-ff :f1 :f0)	; f0 += 1.0 (Correction for negative numbers)
+			(vp-lea-p 'fn_consts :r1)
+			(vp-cpy-ff :f1 :f0)
+			(vp-cvt-fr :f0 :r0)
+			(vp-cvt-rf :r0 :f1)
+			(vp-sub-ff :f1 :f0)
+			(assign '((:r1 (fn-const (n2r 0)))) '(:f1))
+			(vpif '(:f0 < :f1))
+				(assign '((:r1 (fn-const (n2r 1)))) '(:f1))
+				(vp-add-ff :f1 :f0)
 			(endif)))
 
 (def-func-end)
@@ -591,12 +586,12 @@
 
 	(mathop :floor
 		'(progn
-			(vp-cvt-fr :f1 :r0)		; r0 = (int)x
-			(vp-cvt-rf :r0 :f0)		; f0 = (double)(int)x (f0 now holds Truncated value)
-			(vpif '(:f0 > :f1))		; if trunc > x
-				(vp-cpy-cr 1 :r0)
-				(vp-cvt-rf :r0 :f1)	; f1 = 1.0 (Reuse f1 for constant)
-				(vp-sub-ff :f1 :f0)	; f0 = f0 - 1.0
+			(vp-cvt-fr :f1 :r0)
+			(vp-cvt-rf :r0 :f0)
+			(vpif '(:f0 > :f1))
+				(vp-lea-p 'fn_consts :r1)
+				(assign '((:r1 (fn-const (n2r 1)))) '(:f1))
+				(vp-sub-ff :f1 :f0)
 			(endif)))
 
 (def-func-end)
@@ -614,9 +609,9 @@
 		'(progn
 			(vp-cvt-fr :f1 :r0)
 			(vp-cvt-rf :r0 :f0)
-			(vpif '(:f0 < :f1))		; if trunc < x
-				(vp-cpy-cr 1 :r0)
-				(vp-cvt-rf :r0 :f1)
+			(vpif '(:f0 < :f1))
+				(vp-lea-p 'fn_consts :r1)
+				(assign '((:r1 (fn-const (n2r 1)))) '(:f1))
 				(vp-add-ff :f1 :f0)
 			(endif)))
 
@@ -633,8 +628,8 @@
 
 	(mathop :recip
 		'(progn
-			(vp-cpy-cr (n2r 1) :r0)
-			(vp-cpy-rf :r0 :f0)
+			(vp-lea-p 'fn_consts :r1)
+			(assign '((:r1 (fn-const (n2r 1)))) '(:f0))
 			(vp-div-ff :f1 :f0)))
 
 (def-func-end)
@@ -678,14 +673,12 @@
 
 	(mathop :sign
 		'(progn
-			(vp-cpy-cr (n2r 0) :r0)
-			(vp-cpy-rf :r0 :f0)
-			(vpif '(:f1 > :f0))		; if x > 0
-				(vp-cpy-cr (n2r 1) :r0)
-				(vp-cpy-rf :r0 :f0)
-			(elseif '(:f1 < :f0))	; if x < 0
-				(vp-cpy-cr (n2r -1) :r0)
-				(vp-cpy-rf :r0 :f0)
+			(vp-lea-p 'fn_consts :r1)
+			(assign '((:r1 (fn-const (n2r 0)))) '(:f0))
+			(vpif '(:f1 > :f0))
+				(assign '((:r1 (fn-const (n2r 1)))) '(:f0))
+			(elseif '(:f1 < :f0))
+				(assign '((:r1 (fn-const (n2r -1)))) '(:f0))
 			(endif)))
 
 (def-func-end)
@@ -701,17 +694,13 @@
 
 	(mathop :random
 		'(progn
-			(vp-lea-p 'constants :r4)
-			(vp-cpy-if :r4 0 :f0)
+			(vp-lea-p 'fn_consts :r4)
+			(assign '((:r4 (fn-const (n2r 1)))) '(:f0))
 			(vp-mul-ff :f0 :f1)
 			(vp-cvt-fr :f1 :r0)
 			(call 'sys_math :i_rand '(:r0) '(:r0))
 			(vp-cvt-rf :r0 :f0)
-			(vp-cpy-if :r4 0 :f1)
-			(vp-div-ff :f1 :f0)))
-
-(vp-align 8)
-(vp-label 'constants)
-	(vp-long (n2r (<< 1 +fp_shift)))
+			(assign '((:r4 (fn-const (recip (n2r 1))))) '(:f1))
+			(vp-mul-ff :f1 :f0)))
 
 (def-func-end)
