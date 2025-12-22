@@ -39,7 +39,7 @@ outputs
 :r0 = fixed object (ptr)
 :r1 = result fixed object (ptr)
 trashes
-:r1-:r14
+:r1-:r14, :f0-:f3
 ```
 
 ### :create -> class/fixed/create
@@ -152,7 +152,7 @@ outputs
 :r0 = fixed object (ptr)
 :r1 = result fixed object (ptr)
 trashes
-:r1-:r14
+:r1-:r14, :f0-:f3
 ```
 
 ### :sqrt -> class/fixed/sqrt
@@ -164,7 +164,7 @@ outputs
 :r0 = fixed object (ptr)
 :r1 = result fixed object (ptr)
 trashes
-:r1-:r14
+:r1-:r14, :f0-f1
 ```
 
 ### :vcreate -> class/fixed/create
