@@ -367,8 +367,6 @@
 				(vp-cpy-cr -1 :r0)
 			(elseif '(:r0 > 0))
 				(vp-cpy-cr 1 :r0)
-			(else)
-				(vp-xor-rr :r0 :r0)
 			(endif)))
 
 (def-func-end)
