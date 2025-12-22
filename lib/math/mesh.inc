@@ -14,16 +14,16 @@
 	`(list ,i0 ,i1 ,i2 ,in))
 
 (defun Normal (p0 p1 p2)
-	(defq n (apply reals (vec-cross-3d
-		(vec-sub v0 v1 +reals_tmp3)
-		(vec-sub v0 v2 (const (cat +reals_tmp3))))))
-	(if (eql n +reals_zero3) +reals_zero3 (vec-norm n)))
+	(defq n (apply reals (vector-cross-3d
+		(vector-sub v0 v1 +reals_tmp3)
+		(vector-sub v0 v2 (const (cat +reals_tmp3))))))
+	(if (eql n +reals_zero3) +reals_zero3 (vector-norm n)))
 
 (defun opt-vectors (vectors)
 	; (opt-vectors vectors) -> (new_vectors new_indexs)
 	(defq vec_fmap (Fmap 101) vec_imap (cap (length vectors) (list)) new_vecs (list))
 	(each (lambda (v)
-		(setq v (apply (const reals) (map (# (quantize %0 (const (n2r 0.0001)))) v)))
+		(setq v (apply (const reals) (map (# (quant %0 (const (n2r 0.0001)))) v)))
 		(unless (defq i (. vec_fmap :find v))
 			(setq i (length new_vecs))
 			(. vec_fmap :insert v i)

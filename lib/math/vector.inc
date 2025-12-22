@@ -54,129 +54,125 @@
 ;pi and temp vec3, vec4
 (defq +real_pi (n2r +fp_pi) +real_hpi (n2r +fp_hpi) +real_2pi (n2r +fp_2pi))
 
-(defun quantize (val tol)
-    ; (quantize val tol) -> real
-    ; quantize val to the center of the tolerance bucket
-    (* (+ (floor (/ val tol)) +real_1/2) tol))
-
 ;macro to define macros that take optional output vector
-(defmacro vec-macro (op &rest v)
-	`(defmacro ,(sym (cat "vec" (slice op (find "-" op) -1))) (~v &optional _)
+(defmacro vector-macro (op &rest v)
+	`(defmacro ,(sym (cat "vector" (slice op (find "-" op) -1))) (~v &optional _)
 		(if _ `(,,(sym op) ~(list ~v) ,_) `(,,(sym op) ~(list ~v)))))
 
-(vec-macro "nums-add" v0 v1)
-(vec-macro "nums-sub" v0 v1)
-(vec-macro "nums-min" v0 v1)
-(vec-macro "nums-max" v0 v1)
-(vec-macro "nums-mul" v0 v1)
-(vec-macro "nums-div" v0 v1)
-(vec-macro "nums-mod" v0 v1)
-(vec-macro "nums-abs" v)
-(vec-macro "nums-scale" v s)
-(vec-macro "fixeds-frac" v)
-(vec-macro "fixeds-floor" v)
-(vec-macro "fixeds-ceil" v)
+(vector-macro "nums-add" v0 v1)
+(vector-macro "nums-sub" v0 v1)
+(vector-macro "nums-min" v0 v1)
+(vector-macro "nums-max" v0 v1)
+(vector-macro "nums-mul" v0 v1)
+(vector-macro "nums-div" v0 v1)
+(vector-macro "nums-mod" v0 v1)
+(vector-macro "nums-abs" v)
+(vector-macro "nums-scale" v scale)
+(vector-macro "fixeds-frac" v)
+(vector-macro "fixeds-floor" v)
+(vector-macro "fixeds-ceil" v)
+(vector-macro "reals-quant" v tol)
 ;these don't take an optional output but...
-(vec-macro "nums-dot" v0 v1)
-(vec-macro "nums-sum" v)
+(vector-macro "nums-dot" v0 v1)
+(vector-macro "nums-sum" v)
 
-(undef (env) 'def_real 'vec-macro)
+(undef (env) 'def_real 'vector-macro)
 
-(defmacro vec-clamp (p1 p2 p3 &optional _)
+(defmacro vector-clamp (p1 p2 p3 &optional _)
 	(if _ `(nums-min (nums-max ,p1 ,p2 ,_) ,p3 ,_) `(nums-min (nums-max ,p1 ,p2) ,p3)))
 
-(defun vec-reflect (p n)
-	(vec-sub p (vec-scale n (* (nums-sum (vec-mul p n)) +real_2))))
+(defun vector-reflect (p n)
+	(vector-sub p (vector-scale n (* (nums-sum (vector-mul p n)) +real_2))))
 
-(defun vec-length-squared (p)
-	(vec-dot p p))
+(defun vector-length-squared (p)
+	(vector-dot p p))
 
-(defun vec-length (p)
-	(sqrt (vec-dot p p)))
+(defun vector-length (p)
+	(sqrt (vector-dot p p)))
 
-(defun vec-norm (p)
-	(vec-scale p (recip (sqrt (vec-dot p p)))))
+(defun vector-norm (p)
+	(vector-scale p (recip (sqrt (vector-dot p p)))))
 
-(defun vec-sdist (p1 p2)
-	(vec-dot (defq p1 (vec-sub p2 p1)) p1))
+(defun vector-sdist (p1 p2)
+	(vector-dot (defq p1 (vector-sub p2 p1)) p1))
 
-(defun vec-dist (p1 p2)
-	(sqrt (vec-dot (defq p1 (vec-sub p2 p1)) p1)))
+(defun vector-dist (p1 p2)
+	(sqrt (vector-dot (defq p1 (vector-sub p2 p1)) p1)))
 
-(defun vec-dist-to-line (p p1 p2)
-	(if (<= (defq lv (vec-sub p2 p1) c1 (vec-dot (vec-sub p p1) lv)) 0)
-		(vec-dist p p1)
-		(if (<= (defq c2 (vec-dot lv lv)) c1)
-			(vec-dist p p2)
-			(vec-dist p (vec-add p1 (vec-scale lv (/ c1 c2)))))))
+(defun vector-dist-to-line (p p1 p2)
+	(if (<= (defq lv (vector-sub p2 p1) c1 (vector-dot (vector-sub p p1) lv)) 0)
+		(vector-dist p p1)
+		(if (<= (defq c2 (vector-dot lv lv)) c1)
+			(vector-dist p p2)
+			(vector-dist p (vector-add p1 (vector-scale lv (/ c1 c2)))))))
 
-(defun vec-sdist-to-line (p p1 p2)
-	(if (<= (defq lv (vec-sub p2 p1) c1 (vec-dot (vec-sub p p1) lv)) 0)
-		(vec-sdist p p1)
-		(if (<= (defq c2 (vec-dot lv lv)) c1)
-			(vec-sdist p p2)
-			(vec-sdist p (vec-add p1 (vec-scale lv (/ c1 c2)) lv)))))
+(defun vector-sdist-to-line (p p1 p2)
+	(if (<= (defq lv (vector-sub p2 p1) c1 (vector-dot (vector-sub p p1) lv)) 0)
+		(vector-sdist p p1)
+		(if (<= (defq c2 (vector-dot lv lv)) c1)
+			(vector-sdist p p2)
+			(vector-sdist p (vector-add p1 (vector-scale lv (/ c1 c2)) lv)))))
 
-(defun vec-manhattan-distance (p1 p2)
+(defun vector-manhattan-distance (p1 p2)
 	(nums-sum (nums-abs (nums-sub p1 p2))))
 
-(defun vec-euclidean-distance (p1 p2)
+(defun vector-euclidean-distance (p1 p2)
 	(sqrt (nums-dot (defq _ (nums-sub p1 p2)) _)))
 
-(defun vec-squared-euclidean-distance (p1 p2)
+(defun vector-squared-euclidean-distance (p1 p2)
 	(nums-dot (defq _ (nums-sub p1 p2)) _))
 
-(defun vec-chebyshev-distance (p1 p2)
+(defun vector-chebyshev-distance (p1 p2)
 	(reduce max (nums-abs (nums-sub p1 p2))))
 
 ;specific vector stuff
 
-(defun vec-perp-2d ((x y))
+(defun vector-perp-2d ((x y))
 	(list y (neg x)))
 
-(defun vec-det ((x1 y1) (x2 y2))
+(defun vector-det ((x1 y1) (x2 y2))
 	(- (* x1 y2) (* y1 x2)))
 
-(defun vec-cross-3d ((x1 y1 z1) (x2 y2 z2))
+(defun vector-cross-3d ((x1 y1 z1) (x2 y2 z2))
 	(list (- (* y1 z2) (* z1 y2))
 		(- (* z1 x2) (* x1 z2))
 		(- (* x1 y2) (* y1 x2))))
 
-(defun vec-intersect-2d (l1_p1 av l2_p1 bv)
-	(defq axb (vec-det av bv)
-		da (vec-det (vec-add l1_p1 av) l1_p1)
-		db (vec-det (vec-add l2_p1 bv) l2_p1))
+(defun vector-intersect-2d (l1_p1 av l2_p1 bv)
+	(defq axb (vector-det av bv)
+		da (vector-det (vector-add l1_p1 av) l1_p1)
+		db (vector-det (vector-add l2_p1 bv) l2_p1))
 	(if (/= axb 0)
 		(list
-			(/ (vec-det
+			(/ (vector-det
 				(list da (first av))
 				(list db (first bv))) axb)
-			(/ (vec-det
+			(/ (vector-det
 				(list da (second av))
 				(list db (second bv))) axb))))
 
-(defun vec-intersect-lines-2d (l1_p1 l1_p2 l2_p1 l2_p2)
-	(defq av (vec-sub l1_p2 l1_p1)
-		bv (vec-sub l2_p2 l2_p1)
-		axb (vec-det av bv)
-		da (vec-det l1_p2 l1_p1)
-		db (vec-det l2_p2 l2_p1))
+(defun vector-intersect-lines-2d (l1_p1 l1_p2 l2_p1 l2_p2)
+	(defq av (vector-sub l1_p2 l1_p1)
+		bv (vector-sub l2_p2 l2_p1)
+		axb (vector-det av bv)
+		da (vector-det l1_p2 l1_p1)
+		db (vector-det l2_p2 l2_p1))
 	(if (/= axb 0)
 		(list
-			(/ (vec-det
+			(/ (vector-det
 				(list da (first av))
 				(list db (first bv))) axb)
-			(/ (vec-det
+			(/ (vector-det
 				(list da (second av))
 				(list db (second bv))) axb))))
 
-(defun vec-collide-lines-2d (l1_p1 l1_p2 l2_p1 l2_p2)
-	(defq av (vec-sub l1_p2 l1_p1)
-		bv (vec-sub l2_p2 l2_p1)
-		cv (vec-sub l2_p2 l1_p1)
-		axb (vec-det av bv)
-		axc (vec-det av cv)
-		cxb (vec-det cv bv))
+(defun vector-collide-lines-2d (l1_p1 l1_p2 l2_p1 l2_p2)
+	(defq av (vector-sub l1_p2 l1_p1)
+		bv (vector-sub l2_p2 l2_p1)
+		cv (vector-sub l2_p2 l1_p1)
+		axb (vector-det av bv)
+		axc (vector-det av cv)
+		cxb (vector-det cv bv))
 	(cond
 		((= axb 0) :nil)
 		((> axb 0)
@@ -190,30 +186,30 @@
 				((or (> cxb 0) (< cxb axb)) :nil)
 				(:t :t)))))
 
-(defun vec-collide-thick-lines-2d (l1_p1 l1_p2 l2_p1 l2_p2 r)
+(defun vector-collide-thick-lines-2d (l1_p1 l1_p2 l2_p1 l2_p2 r)
 	(cond
-		((vec-collide-lines-2d l1_p1 l1_p2 l2_p1 l2_p2))
-		((<= (vec-sdist-to-line l2_p1 l1_p1 l1_p2) (setq r (* r r))))
-		((<= (vec-sdist-to-line l2_p2 l1_p1 l1_p2) r))
-		((<= (vec-sdist-to-line l1_p1 l2_p1 l2_p2) r))
-		((<= (vec-sdist-to-line l1_p2 l2_p1 l2_p2) r))))
+		((vector-collide-lines-2d l1_p1 l1_p2 l2_p1 l2_p2))
+		((<= (vector-sdist-to-line l2_p1 l1_p1 l1_p2) (setq r (* r r))))
+		((<= (vector-sdist-to-line l2_p2 l1_p1 l1_p2) r))
+		((<= (vector-sdist-to-line l1_p1 l2_p1 l2_p2) r))
+		((<= (vector-sdist-to-line l1_p2 l2_p1 l2_p2) r))))
 
 (defun bounding-box (verts fnc)
 	; (bounding-box verts vec3-extract-fnc) -> (min_v3 max_v3)
 	(defq min_v (cat (fnc (first verts))) max_v (cat min_v))
 	(each! (#
-		(vec-min (defq v (fnc %0)) min_v min_v)
-		(vec-max v max_v max_v)) (list verts) 1)
+		(vector-min (defq v (fnc %0)) min_v min_v)
+		(vector-max v max_v max_v)) (list verts) 1)
 	(list min_v max_v))
 
 (defun bounding-sphere (verts fnc)
 	; (bounding-sphere verts vec3-extract-fnc) -> (center_v3 radius)
 	(bind '(min_v max_v) (bounding-box verts fnc))
-	(defq center (vec-scale (vec-add min_v max_v) +real_1/2)
-		radius (* (reduce max (vec-sub max_v min_v)) +real_1/2))
+	(defq center (vector-scale (vector-add min_v max_v) +real_1/2)
+		radius (* (reduce max (vector-sub max_v min_v)) +real_1/2))
 	(each (#
-		(defq p (fnc %0) pv (vec-sub p center) rv (vec-length pv))
+		(defq p (fnc %0) pv (vector-sub p center) rv (vector-length pv))
 		(when (> rv radius)
 			(setq radius (* (+ radius rv) +real_1/2))
-			(vec-sub p (vec-scale (vec-norm pv) radius +reals_tmp3) center))) verts)
+			(vector-sub p (vector-scale (vector-norm pv) radius +reals_tmp3) center))) verts)
 	(list center radius))

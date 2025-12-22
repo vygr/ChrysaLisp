@@ -51,13 +51,13 @@
 	(vp-push this)
 
 	;constants
-	(vp-lea-p 'constants consts)
-	(load-fields consts `(0 ,+long_size ,(* +long_size 2) ,(* +long_size 3))
+	(vp-lea-p 'fn_consts consts)
+	(load-fields consts
+		'((fn-const (n2r 0.0)) (fn-const (n2r 1.0)) (fn-const (n2r 0.35)) (fn-const (n2r 0.5)))
 		`(,fzero ,fone ,f035 ,fhalf))
 
 	;load vector
-	(assign `((,pos array_begin)) `(,pos))
-	(load-fields pos `(0 ,+long_size ,(* +long_size 2)) `(,p0 ,p1 ,p2))
+	(array-bind-args pos `(,p0 ,p1 ,p2) pos)
 
 	(do-scene p0 p1 p2 ftrunc fzero fhalf fone f035 trunc)
 	(call 'real :create `(,p0) `(,args))
@@ -65,13 +65,6 @@
 	(vp-pop this)
 	(exit `(,this ,args))
 	(vp-ret)
-
-	(vp-align +long_size)
-(vp-label 'constants)
-	(vp-long (n2r 0.0))
-	(vp-long (n2r 1.0))
-	(vp-long (n2r 0.35))
-	(vp-long (n2r 0.5))
 
 (errorcase
 (vp-label 'error)
@@ -96,7 +89,6 @@
 	(entry `(,this ,args))
 
 	(errorif-lisp-args-sig 'error :r1 6)
-
 	(array-bind-args args `(,ray_org ,ray_dir ,len ,max_len ,min_dist ,march_factor))
 
 (errorcase
@@ -107,15 +99,16 @@
 
 	(vp-push this)
 	(assign `((,ray_org array_begin) (,ray_dir array_begin)) `(,ray_org ,ray_dir))
-	(assign `((,len num_value)) `(,flen))
-	(assign `((,max_len num_value)) `(,fmax_len))
-	(assign `((,min_dist num_value)) `(,fmin_dist))
-	(assign `((,march_factor num_value)) `(,fmarch_factor))
+	(list-cast-args
+		`(,len ,max_len ,min_dist ,march_factor)
+		'(:real :real :real :real)
+		`(,flen ,fmax_len ,fmin_dist ,fmarch_factor))
 
 	;constants
 	(vp-lea-p 'fn_consts consts)
 	(load-fields consts
-		`(,(fn-const 0) ,(fn-const (n2r 1)) ,(fn-const (n2r 1)) ,(fn-const (n2r 0.35)) ,(fn-const (n2r 0.5)))
+		'((fn-const (n2r 0.0)) (fn-const (n2r 1.0)) (fn-const (n2r 1.0))
+			(fn-const (n2r 0.35)) (fn-const (n2r 0.5)))
 		`(,fzero ,fone ,fd ,f035 ,fhalf))
 
 	(vp-cpy-cr 1000 cnt)
@@ -123,8 +116,8 @@
 		(vp-sub-cr 1 cnt)
 
 		;load origin, dir
-		(load-fields ray_dir `(0 ,+long_size ,(* +long_size 2)) `(,p3 ,p4 ,p5))
-		(load-fields ray_org `(0 ,+long_size ,(* +long_size 2)) `(,p0 ,p1 ,p2))
+		(array-get-args ray_dir `(,p3 ,p4 ,p5))
+		(array-get-args ray_org `(,p0 ,p1 ,p2))
 		;scale dir
 		(vp-simd vp-mul-ff `(,flen) `(,p3 ,p4 ,p5))
 		;extend origin

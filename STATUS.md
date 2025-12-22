@@ -37,6 +37,15 @@ Consildated all `sin` operations to use `r_sin`.
 
 Consildated all `sqrt` operations to use `vp-sqrt-ff`.
 
+`list-bind-args` now take optional destination reg list. To better fit with
+extracting `real` register values from objects.
+
+Renamed application level `vec-xxx` functions to `vector-xxx` to avoid clashing
+with the `sys_math` class.
+
+`:quant` method added to real and reals classes. `(quant real tol) -> real` and
+`(reals-quant reals tol [reals]) -> reals)` added to `root.inc`.
+
 ------
 
 New `class/mstream/class.inc` VP class for in memory stream buffers. A seekable

@@ -2,6 +2,10 @@
 
 ## fixed
 
+## Lisp Bindings
+
+### (quant real tol) -> real
+
 ## VP methods
 
 ### :abs -> class/real/abs
@@ -218,6 +222,19 @@ outputs
 :r0 = real object (ptr)
 trashes
 :r1-:r14
+```
+
+### :quant -> class/real/quant
+
+```code
+inputs
+:r0 = real object (ptr)
+:r1 = tolerance real object (ptr)
+outputs
+:r0 = real object (ptr)
+:r1 = result real object (ptr)
+trashes
+:r1-:r14, :f0-:f3
 ```
 
 ### :random -> class/real/random

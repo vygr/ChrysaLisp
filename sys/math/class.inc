@@ -153,8 +153,14 @@
 
 (defun vec-ceil (n &optional v)
 	(setd v (vec-top n))
-	(each (# (vp-and-cr +fp_int_mask %0)
-		(vp-add-cr (<< 1 +fp_shift) %0)) v))
+	(bind '(tmp) (vec-tmp 1))
+	(each (#
+		(vp-cpy-rr %0 tmp)
+		(vp-and-cr +fp_frac_mask tmp)
+		(vp-and-cr +fp_int_mask %0)
+		(vpif (list tmp '/= 0))
+			(vp-add-cr (<< 1 +fp_shift) %0)
+		(endif)) v))
 
 (defun vec-frecip (n &optional v1)
 	(defq v (vec-tmp (* n 2)) v2 (slice v 0 n) v3 (slice v n -1))

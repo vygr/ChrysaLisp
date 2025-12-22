@@ -885,14 +885,6 @@ run pipe farm and collect output
 (profile-report name [reset])
 ```
 
-### quantize
-
-```code
-(quantize val tol) -> real
-
-quantize val to the center of the tolerance bucket
-```
-
 ### quasi-quote?
 
 ```code

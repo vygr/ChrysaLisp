@@ -18,6 +18,8 @@
 	(dec-method :max class/reals/max :final)
 	(dec-method :frac class/reals/frac :final)
 	(dec-method :floor class/reals/floor :final)
-	(dec-method :ceil class/reals/ceil :final))
+	(dec-method :ceil class/reals/ceil :final)
+	(dec-method :quant class/reals/quant :final (:r0 :r1 :r2) (:r0))
+	(dec-method :lisp_quant class/reals/lisp_quant :static (:r0 :r1) (:r0 :r1)))
 
 (def-struct reals fixeds_size)

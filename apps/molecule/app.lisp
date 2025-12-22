@@ -81,7 +81,7 @@
 
 (defun lighting (col at)
 	;very basic attenuation and diffuse
-	(bind '(r g b) (vec-min (vec-add (vec-scale col (* (n2f at) 255.0) +fixeds_tmp3)
+	(bind '(r g b) (vector-min (vector-add (vector-scale col (* (n2f at) 255.0) +fixeds_tmp3)
 		(const (Vec3-f 32.0 32.0 32.0)) +fixeds_tmp3)
 		(const (Vec3-f 255.0 255.0 255.0)) +fixeds_tmp3))
 	(+ 0xff000000 (<< (n2i r) 16) (<< (n2i g) 8) (n2i b)))
@@ -143,7 +143,7 @@
 		(defq scale_p (/ (const (n2r 2.0)) radius) scale_r (/ (const (n2r 0.0625)) radius))
 		(each (lambda (ball)
 			(bind '(v r _) ball)
-			(push (vec-scale (vec-sub v center v) scale_p v) +real_1)
+			(push (vector-scale (vector-sub v center v) scale_p v) +real_1)
 			(elem-set ball +ball_radius (* scale_r r))) balls)))
 
 (defun reset ()

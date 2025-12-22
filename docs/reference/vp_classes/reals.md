@@ -2,6 +2,10 @@
 
 ## fixeds
 
+## Lisp Bindings
+
+### (reals-quant reals tol [reals]) -> reals
+
 ## VP methods
 
 ### :abs -> class/reals/abs
@@ -149,6 +153,19 @@ outputs
 :r1 = 0 if error, else ok
 trashes
 :r1-:r4, :f0-:f1
+```
+
+### :quant -> class/reals/quant
+
+```code
+inputs
+:r0 = reals object (dst)
+:r1 = source reals object (src)
+:r2 = tolerance real (real)
+outputs
+:r0 = reals object (ptr)
+trashes
+:r1-:r5, :f0-:f4
 ```
 
 ### :scale -> class/reals/scale

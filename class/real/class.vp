@@ -513,3 +513,49 @@
 			(vp-mul-ff :f1 :f0)))
 
 (def-func-end)
+
+(def-method 'real :quant)
+	;inputs
+	;:r0 = real object (ptr)
+	;:r1 = tolerance real object (ptr)
+	;outputs
+	;:r0 = real object (ptr)
+	;:r1 = result real object (ptr)
+	;trashes
+	;:r1-:r14, :f0-:f3
+
+	(vp-rdef (this tol trunc))
+	(vp-fdef (v tmp half one ftrunc))
+
+	(entry 'real :quant `(,this ,tol))
+
+	(vp-push this)
+	(assign `((,this num_value) (,tol num_value)) `(,v ,tmp))
+
+	; val / tol
+	(vp-div-ff tmp v)
+	(vp-lea-p 'fn_consts tol)
+
+	; floor(v)
+	(vp-cvt-fr v trunc)
+	(vp-cvt-rf trunc ftrunc)
+	(vpif `(,ftrunc > ,v))
+		(assign `((,tol (fn-const (n2r 1.0)))) `(,one))
+		(vp-sub-ff one ftrunc)
+	(endif)
+	(vp-cpy-ff ftrunc v)
+
+	; + 0.5
+	(assign `((,tol (fn-const (n2r 0.5)))) `(,half))
+	(vp-add-ff half v)
+
+	; * tol
+	(vp-mul-ff tmp v)
+
+	(call 'real :create `(,v) `(,tol))
+	(vp-pop this)
+
+	(exit 'real :quant `(,this ,tol))
+	(vp-ret)
+
+(def-func-end)

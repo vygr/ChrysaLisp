@@ -32,30 +32,30 @@
 ; parameter helpers
 ;;;;;;;;;;;;;;;;;;;
 
-(defun list-cast-args (regs types)
+(defun list-cast-args (src types &optional dst)
 	;inputs
-	; (reg ...)
+	;(reg ...)
 	;'({:num :str :char _} ...)
 	;outputs
 	;cast register list
-	(assign (map (lambda (r _)
-		(case _
-			((:num :fixed :real) (list r num_value))
-			(:str (list '& r str_data))
-			(:char (list r str_data 'ub))
-			(:t r))) regs types) regs))
+	(assign (map (# (case %1
+		((:num :fixed :real) (list %0 num_value))
+		(:str (list '& %0 str_data))
+		(:char (list %0 str_data 'ub))
+		(:t %0))) src types) (ifn dst src)))
 
-(defun list-bind-args (a regs types)
+(defun list-bind-args (l src types &optional dst)
 	;inputs
 	;list object
 	; (reg ...)
 	;'({:num :str :char _} ...)
 	;outputs
 	;load and cast register list from list
-	(defq rl (list) tp (list))
-	(each! (lambda (x y)
-		(when (nql '_ y)
-			(push rl x)
-			(push tp y))) (list regs types))
-	(array-bind-args a rl)
-	(list-cast-args rl tp))
+	(bind '(src types dst)
+		(reduce! (# (when (nql %2 '_)
+			(push (first %0) %1)
+			(push (second %0) %2)
+			(push (third %0) %3))
+			%0) (list src types (ifn dst src)) (lists 3)))
+	(array-bind-args l src)
+	(list-cast-args src types dst))

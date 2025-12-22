@@ -1,0 +1,49 @@
+(include "lib/asm/func.inc")
+(include "./class.inc")
+(include "././real/class.inc")
+(include "././lisp/class.inc")
+
+(def-method 'reals :lisp_quant)
+	;inputs
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
+	;outputs
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
+	;trashes
+	;:r1-:r14
+
+	(vp-rdef (dst iter_begin nums1 tol this args argc len1 len2)
+		'(:r0 :r1 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14))
+
+	(entry 'reals :lisp_quant `(,this ,args))
+
+	(errorif-lisp-args-sig 'error :r1 2 3)
+
+	(assign `((,args array_length)) `(,argc))
+	(assign `((,args array_begin)) `(,iter_begin))
+	(array-get-args iter_begin `(,nums1 ,tol))
+	(assign `((,nums1 array_length)) `(,len1))
+	(errorif `(,len1 = 0) 'error)
+	(vpif `(,argc = 2))
+		(v-call 'reals :vcreate `(,dst) `(,dst) nums1 iter_begin)
+		(call 'reals :set_cap `(,dst ,len1) `(,dst))
+		(call 'reals :set_length `(,dst ,len1) `(,dst _))
+	(else)
+		(vp-cpy-ir iter_begin (* +ptr_size 2) dst)
+	(errorcase
+		(assign `((,dst array_length)) `(,len2))
+		(gotoif `(,len1 > ,len2) 'error))
+		(call 'obj :ref `(,dst) `(,dst))
+	(endif)
+	(call 'reals :quant `(,dst ,nums1 (,tol num_value)) `(,dst))
+
+	(exit 'reals :lisp_quant `(,this ,dst))
+	(vp-ret)
+
+(errorcase
+(vp-label 'error)
+	(jump 'lisp :repl_error '(:r0 "(quant reals tol [out])" +error_msg_wrong_types :r1))
+	(signature '(reals real reals)))
+
+(def-func-end)

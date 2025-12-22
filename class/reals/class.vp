@@ -445,3 +445,45 @@
 	(vp-ret)
 
 (def-func-end)
+
+(def-method 'reals :quant)
+	;inputs
+	;:r0 = reals object (dst)
+	;:r1 = source reals object (src)
+	;:r2 = tolerance real (real)
+	;outputs
+	;:r0 = reals object (ptr)
+	;trashes
+	;:r1-:r5, :f0-:f4
+
+	(vp-rdef (dst src1 dst1 src_end trunc))
+	(vp-fdef (e0 tol half one ftrunc))
+
+	(entry 'reals :quant `(,dst ,src1 ,tol))
+
+	; Load constants
+	(vp-lea-p 'fn_consts trunc)
+	(load-fields trunc
+		'((fn-const (n2r 0.5)) (fn-const (n2r 1.0)))
+		`(,half ,one))
+
+	(assign `((,src1 array_length)) `(,src_end))
+	(assign (map (# (list %0 array_begin)) `(,src1 ,dst)) `(,src1 ,dst1))
+	(vp-shl-cr (log2 +ptr_size) src_end)
+	(vp-add-rr src1 src_end)
+
+	(vec-loop-until `(,src1) `(,e0) src_end dst1
+		(#  (vp-div-ff tol %0)
+			(vp-cvt-fr %0 trunc)
+			(vp-cvt-rf trunc ftrunc)
+			(vpif `(,ftrunc > ,%%0))
+				(vp-sub-ff one ftrunc)
+			(endif)
+			(vp-add-ff half ftrunc)
+			(vp-mul-ff tol ftrunc)
+			ftrunc))
+
+	(exit 'reals :quant `(,dst))
+	(vp-ret)
+
+(def-func-end)

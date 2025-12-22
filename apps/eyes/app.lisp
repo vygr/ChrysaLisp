@@ -99,11 +99,11 @@
 
 	; --- Left Eye ---
 	(defq vec_to_mouse (Vec2-f (- rel_mx left_eye_cx) (- rel_my eye_cy))
-		dist_to_mouse (vec-length vec_to_mouse)
+		dist_to_mouse (vector-length vec_to_mouse)
 		iris_offset (if (> dist_to_mouse 0.0)
-			(vec-scale (vec-norm vec_to_mouse) (min dist_to_mouse max_iris_dist))
+			(vector-scale (vector-norm vec_to_mouse) (min dist_to_mouse max_iris_dist))
 			(Vec2-f 0.0 0.0)))
-	(bind '(l_iris_px l_iris_py) (vec-add (Vec2-f left_eye_cx eye_cy) iris_offset))
+	(bind '(l_iris_px l_iris_py) (vector-add (Vec2-f left_eye_cx eye_cy) iris_offset))
 
 	; Draw left eye
 	(.-> *canvas*
@@ -118,11 +118,11 @@
 
 	; --- Right Eye ---
 	(defq vec_to_mouse (Vec2-f (- rel_mx right_eye_cx) (- rel_my eye_cy))
-		dist_to_mouse (vec-length vec_to_mouse)
+		dist_to_mouse (vector-length vec_to_mouse)
 		iris_offset (if (> dist_to_mouse 0.0)
-			(vec-scale (vec-norm vec_to_mouse) (min dist_to_mouse max_iris_dist))
+			(vector-scale (vector-norm vec_to_mouse) (min dist_to_mouse max_iris_dist))
 			(Vec2-f 0.0 0.0)))
-	(bind '(r_iris_px r_iris_py) (vec-add (Vec2-f right_eye_cx eye_cy) iris_offset))
+	(bind '(r_iris_px r_iris_py) (vector-add (Vec2-f right_eye_cx eye_cy) iris_offset))
 
 	; Draw right eye
 	(.-> *canvas*

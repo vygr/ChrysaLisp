@@ -11,7 +11,7 @@
 
 (defq +width 600 +height 600 +min_width 300 +min_height 300
 	+rate (/ 1000000 60) +base 0.3
-	+palette (push `(,quote) (map (lambda (_) (vec-i2n
+	+palette (push `(,quote) (map (lambda (_) (vector-i2n
 			(/ (logand (>> _ 16) 0xff) 0xff)
 			(/ (logand (>> _ 8) 0xff) 0xff)
 			(/ (logand _ 0xff) 0xff)))
@@ -39,21 +39,21 @@
 	(defq out (cap num (list)))
 	(while (> (-- num) -1)
 		(push out (list
-			(vec-i2n (- (random (const (* box_size 2))) box_size)
+			(vector-i2n (- (random (const (* box_size 2))) box_size)
 				(- (random (const (* box_size 2))) box_size)
 				(- (random (const (* box_size 2))) box_size))
-			(vec-i2n (- (random (const (inc (* max_vel 2)))) (const max_vel))
+			(vector-i2n (- (random (const (inc (* max_vel 2)))) (const max_vel))
 				(- (random (const (inc (* max_vel 2)))) (const max_vel))
 				(- (random (const (inc (* max_vel 2)))) (const max_vel)))
 			(i2n (const bubble_radius))
-			(vec-add (const (vec-f2n +base +base +base))
-				(vec-scale (elem-get +palette (random (length +palette)))
+			(vector-add (const (vector-f2n +base +base +base))
+				(vector-scale (elem-get +palette (random (length +palette)))
 					(f2n (random (const (- 1.0 +base))))))))) out)
 
 (defun vertex-update (verts)
 	(each (lambda (vert)
 		(bind '(p v _ _) vert)
-		(vec-add p v p)
+		(vector-add p v p)
 		(bind '(x y z) p)
 		(bind '(vx vy vz) v)
 		(if (or (> x (const (i2n box_size))) (< x (const (i2n (neg box_size)))))
@@ -62,7 +62,7 @@
 			(setq vy (neg vy)))
 		(if (or (> z (const (i2n box_size))) (< z (const (i2n (neg box_size)))))
 			(setq vz (neg vz)))
-		(elem-set vert +vertex_v (vec vx vy vz))) verts))
+		(elem-set vert +vertex_v (vector vx vy vz))) verts))
 
 (defun fpoly (canvas col x y _)
 	;draw a polygon on a canvas
@@ -86,13 +86,13 @@
 	(reduce (lambda (out ((x y z) _ r c))
 		(setq z (+ z (const (i2n (+ (* box_size 2) max_vel)))))
 		(when (> z (const (i2n focal_len)))
-			(defq v (vec x y z) w (/ hsw z) h (/ hsh z))
-			(bind '(sx sy sz) (vec-add v (vec-scale (vec-norm
-				(vec-add v (vec-sub (elem-get dlist +dlist_light_pos) v))) r)))
+			(defq v (vector x y z) w (/ hsw z) h (/ hsh z))
+			(bind '(sx sy sz) (vector-add v (vector-scale (vector-norm
+				(vector-add v (vector-sub (elem-get dlist +dlist_light_pos) v))) r)))
 			(defq x (+ (* x h) hsw) y (+ (* y h) hsh) r (* r h)
 				sx (+ (* sx h) hsw) sy (+ (* sy h) hsh))
-			(push out (list (vec-n2f x y z) (vec-n2f sx sy) (n2f r)
-				(lighting c z) (lighting (const (vec-i2n 1 1 1)) z)))) out)
+			(push out (list (vector-n2f x y z) (vector-n2f sx sy) (n2f r)
+				(lighting c z) (lighting (const (vector-i2n 1 1 1)) z)))) out)
 		verts (cap (length verts) (list))))
 
 (defun render-verts (canvas verts)
@@ -187,7 +187,7 @@
 									(setq last_state :d)))
 							;set light pos
 							(elem-set dlist +dlist_light_pos
-								(vec-i2n (* rx 4) (* ry 4) (neg (* box_size 4)))))
+								(vector-i2n (* rx 4) (* ry 4) (neg (* box_size 4)))))
 						(:t ;mouse button is up
 							(case last_state
 								(:d ;was down last time

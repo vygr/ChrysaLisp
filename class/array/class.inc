@@ -62,26 +62,27 @@
 ; parameter helpers
 ;;;;;;;;;;;;;;;;;;;
 
-(defun array-get-args (i regs &optional type)
+(defun array-get-args (i dst &optional type)
 	;inputs
 	;iter
-	; (reg ...)
+	;(reg ...)
 	;outputs
 	;load register list from iter
 	(cond
 		((eql type :nil)
-			(assign (map (lambda (r) (list i (* +long_size (!)))) regs) regs))
+			(assign (map (lambda (_) (list i (* +long_size (!)))) dst) dst))
 		(:t (defq s (type-to-size type))
-			(assign (map (lambda (r) (list i (* s (!)) type)) regs) regs))))
+			(assign (map (lambda (_) (list i (* s (!)) type)) dst) dst))))
 
-(defun array-bind-args (a regs)
+(defun array-bind-args (a dst &optional i)
 	;inputs
 	;array object
-	; (reg ...)
+	;(reg ...)
 	;outputs
 	;load register list from array
-	(assign `((,a array_begin)) `(,(last regs)))
-	(array-get-args (last regs) regs))
+	(setd i (last dst))
+	(assign `((,a array_begin)) `(,i))
+	(array-get-args i dst))
 
 ;;;;;;;;;;;;;;;;
 ; inline methods

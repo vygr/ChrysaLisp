@@ -19,11 +19,11 @@
 	; (lighting col at)
 	;very basic attenuation and diffuse
 	(defq alpha (first col) col (rest col))
-	(bind '(r g b) (vec-min (vec-add
+	(bind '(r g b) (vector-min (vector-add
 		;attenuation
-		(vec-scale col (* (n2f at) 255.0) (const (cat +fixeds_tmp3)))
+		(vector-scale col (* (n2f at) 255.0) (const (cat +fixeds_tmp3)))
 		;diffuse
-		(vec-scale col 64.0 +fixeds_tmp3))
+		(vector-scale col 64.0 +fixeds_tmp3))
 		(const (fixeds 255.0 255.0 255.0)) +fixeds_tmp3))
 	(+ (<< (n2i (* alpha 255.0)) 24) (<< (n2i r) 16) (<< (n2i g) 8) (n2i b)))
 
@@ -31,13 +31,13 @@
 	; (lighting-at3 col at sp)
 	;very basic attenuation, diffuse and specular
 	(defq alpha (first col) col (rest col))
-	(bind '(r g b) (vec-min (vec-add (vec-add
+	(bind '(r g b) (vector-min (vector-add (vector-add
 		;attenuation
-		(vec-scale col (* (n2f at) (const (/ 255.0 3.0))) (const (cat +fixeds_tmp3)))
+		(vector-scale col (* (n2f at) (const (/ 255.0 3.0))) (const (cat +fixeds_tmp3)))
 		;diffuse
-		(vec-scale col 64.0 (const (cat +fixeds_tmp3))) (const (cat +fixeds_tmp3)))
+		(vector-scale col 64.0 (const (cat +fixeds_tmp3))) (const (cat +fixeds_tmp3)))
 		;specular
-		(vec-scale (const (fixeds 255.0 255.0 255.0)) (n2f sp) (const (cat +fixeds_tmp3))) +fixeds_tmp3)
+		(vector-scale (const (fixeds 255.0 255.0 255.0)) (n2f sp) (const (cat +fixeds_tmp3))) +fixeds_tmp3)
 		;clamp
 		(const (fixeds 255.0 255.0 255.0)) +fixeds_tmp3))
 	(+ (<< (n2i (* alpha 255.0)) 24) (<< (n2i r) 16) (<< (n2i g) 8) (n2i b)))
@@ -72,11 +72,11 @@
 			(push ats at))
 		proj_verts)
 	(each (lambda ((i0 i1 i2 in))
-			(when (and (> (vec-dot (defq n (elem-get norms in)) (vec-sub (elem-get verts i0) cam_pos)) +real_0)
+			(when (and (> (vector-dot (defq n (elem-get norms in)) (vector-sub (elem-get verts i0) cam_pos)) +real_0)
 					(<= +real_-1 (elem-get screen_zs i1) +real_1)
 					(<= +real_-1 (elem-get screen_zs i2) +real_1)
 					(<= +real_-1 (defq z0 (elem-get screen_zs i0)) +real_1))
-				(defq sp (max +real_0 (vec-dot n light_vec))
+				(defq sp (max +real_0 (vector-dot n light_vec))
 					sp (* sp sp sp sp sp sp)
 					at (+ (elem-get ats i0) (elem-get ats i1) (elem-get ats i2))
 					bucket (n2i (* (+ z0 +real_1) (const (n2r (/ +num_poly_buckets 2))))))

@@ -156,6 +156,10 @@
 ; (fixeds-floor fixeds [fixeds]) -> fixeds
 (ffi "class/fixeds/lisp_ceil" fixeds-ceil)
 ; (fixeds-ceil fixeds [fixeds]) -> fixeds
+(ffi "class/real/lisp_quant" quant)
+; (quant real tol) -> real
+(ffi "class/reals/lisp_quant" reals-quant)
+; (reals-quant reals tol [reals]) -> reals
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Sequence, Array, and List Operations

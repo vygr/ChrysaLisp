@@ -53,13 +53,13 @@
 				((= mode +event_circle)
 					;flatten to circle
 					(path-stroke-polygons (list) rad +join_bevel
-						(list (path-gen-arc x y 0.0 +fp_2pi (vec-length (vec-sub (path x y) (path x1 y1))) (path)))))
+						(list (path-gen-arc x y 0.0 +fp_2pi (vector-length (vector-sub (path x y) (path x1 y1))) (path)))))
 				((= mode +event_fbox)
 					;flatten to filled box
 					(list (path x y x1 y x1 y1 x y1)))
 				((= mode +event_fcircle)
 					;flatten to filled circle
-					(list (path-gen-arc x y 0.0 +fp_2pi (vec-length (vec-sub (path x y) (path x1 y1))) (path))))
+					(list (path-gen-arc x y 0.0 +fp_2pi (vector-length (vector-sub (path x y) (path x1 y1))) (path))))
 				(:t ;flatten to pen stroke
 					(path-stroke-polylines (list) rad +join_bevel +cap_round +cap_round (list pnts))))))))
 

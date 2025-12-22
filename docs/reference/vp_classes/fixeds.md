@@ -21,7 +21,7 @@ inputs
 outputs
 :r0 = fixeds object (ptr)
 trashes
-:r1-:r4
+:r1-:r5
 ```
 
 ### :create -> class/fixeds/create
