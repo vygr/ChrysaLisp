@@ -33,6 +33,10 @@ Fix bug in `'canvas :ftri` shown up by denser Meshes.
 `(fn-const c) -> offset` function and `'fn_consts` label added for easy VP
 function constant pool creation.
 
+Consildated all `sin` operations to use `r_sin`.
+
+Consildated all `sqrt` operations to use `vp-sqrt-ff`.
+
 ------
 
 New `class/mstream/class.inc` VP class for in memory stream buffers. A seekable

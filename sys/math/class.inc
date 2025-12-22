@@ -11,7 +11,7 @@
 	(dec-method :f_cos sys/math/f_cos :static (:r0) (:r0))
 	(dec-method :f_intersect sys/math/f_intersect :static (:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7) (:r0 :r1))
 	(dec-method :f_dist_sqd sys/math/f_dist_sqd :static (:r0 :r1 :r2 :r3 :r4 :r5) (:r0))
-	(dec-method :r_sin sys/math/r_sin :static (:f1) (:f0)))
+	(dec-method :r_sin sys/math/r_sin :static (:f0) (:f0)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; fixed point vector math codegen

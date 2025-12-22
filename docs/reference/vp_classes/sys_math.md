@@ -85,7 +85,7 @@ trashes
 
 ```code
 inputs
-:f1 = real (real)
+:f0 = real (real)
 outputs
 :f0 = real (real)
 trashes

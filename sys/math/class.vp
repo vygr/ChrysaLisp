@@ -78,10 +78,10 @@
 	(entry 'sys_math :f_sin '(:r0))
 
 	(vp-lea-p 'fn_consts :r2)
-	(assign '((:r2 (fn-const (recip (n2r (<< 1 +fp_shift)))))) '(:f1))
-	(vp-cvt-rf :r0 :f0)
-	(vp-mul-ff :f0 :f1)
-	(call 'sys_math :r_sin '(:f1) '(:f0))
+	(assign '((:r2 (fn-const (recip (n2r (<< 1 +fp_shift)))))) '(:f0))
+	(vp-cvt-rf :r0 :f1)
+	(vp-mul-ff :f1 :f0)
+	(call 'sys_math :r_sin '(:f0) '(:f0))
 	(assign '((:r2 (fn-const (n2r (<< 1 +fp_shift))))) '(:f1))
 	(vp-mul-ff :f1 :f0)
 	(vp-cvt-fr :f0 :r0)
@@ -102,12 +102,12 @@
 	(entry 'sys_math :f_cos '(:r0))
 
 	(vp-lea-p 'fn_consts :r2)
-	(assign '((:r2 (fn-const (recip (n2r (<< 1 +fp_shift)))))) '(:f1))
-	(vp-cvt-rf :r0 :f0)
-	(vp-mul-ff :f0 :f1)
-	(assign '((:r2 (fn-const 0x3ff921fb54442d18))) '(:f0))
-	(vp-add-ff :f0 :f1)
-	(call 'sys_math :r_sin '(:f1) '(:f0))
+	(assign '((:r2 (fn-const (recip (n2r (<< 1 +fp_shift)))))) '(:f0))
+	(vp-cvt-rf :r0 :f1)
+	(vp-mul-ff :f1 :f0)
+	(assign '((:r2 (fn-const 0x3ff921fb54442d18))) '(:f1))
+	(vp-add-ff :f1 :f0)
+	(call 'sys_math :r_sin '(:f0) '(:f0))
 	(assign '((:r2 (fn-const (n2r (<< 1 +fp_shift))))) '(:f1))
 	(vp-mul-ff :f1 :f0)
 	(vp-cvt-fr :f0 :r0)
@@ -119,19 +119,19 @@
 
 (def-method 'sys_math :r_sin)
 	;inputs
-	;:f1 = real (real)
+	;:f0 = real (real)
 	;outputs
 	;:f0 = real (real)
 	;trashes
 	;:r0-:r1, :f0-:f3
 
-	(entry 'sys_math :r_sin '(:f1))
+	(entry 'sys_math :r_sin '(:f0))
 
 	(vp-lea-p 'constants :r0)
 
 	; --- Range Reduction: fmod(x, 2pi) ---
 	(vp-cpy-if :r0 0 :f2)       ; Load 1/2pi
-	(vp-cpy-ff :f1 :f0)         ; f0 = x
+	(vp-cpy-ff :f0 :f1)         ; f0 = x
 	(vp-mul-ff :f2 :f0)         ; f0 = x / 2pi
 	(vp-cvt-fr :f0 :r1)         ; r1 = (int)(x / 2pi)
 	(vp-cvt-rf :r1 :f2)         ; f2 = (double)k
