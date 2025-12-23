@@ -12,7 +12,8 @@
 (enums +select 0
 	(enum main task reply timer))
 
-(defq +width 800 +height 800 +scale 2 +timer_rate (/ 1000000 1) id :t dirty :nil
+(defq +width 800 +height 800 +line_batch 2 +scale 2
+	+timer_rate (/ 1000000 1) id :t dirty :nil
 	center_x +real_-1/2 center_y +real_0 zoom +real_1
 	+retry_timeout (task-timeout 5) jobs :nil farm :nil)
 
@@ -66,18 +67,18 @@
 (defun reset ()
 	(if farm (. farm :close))
 	(elem-set select +select_reply (mail-mbox))
-	(setq jobs (map (lambda (y)
+	(setq jobs (map (lambda (y1)
 			(setf-> (str-alloc +job_size)
 				(+job_x 0)
-				(+job_y y)
+				(+job_y (- y1 (* +line_batch +scale)))
 				(+job_x1 (* +width +scale))
-				(+job_y1 (inc y))
+				(+job_y1 y1)
 				(+job_w (* +width +scale))
 				(+job_h (* +height +scale))
 				(+job_cx center_x)
 				(+job_cy center_y)
 				(+job_z zoom)))
-			(range (dec (* +height +scale)) -1))
+			(range (* +height +scale) 0 (* +line_batch +scale)))
 		farm (Farm create destroy (* 2 (length (lisp-nodes))))))
 
 (defun main ()

@@ -17,16 +17,17 @@
 ; (depth x0 y0) -> cnt
 
 (defun mandel (key mbox x y x1 y1 w h cx cy z)
-	(write-int (defq reply (string-stream (cat ""))) (list x y x1 y1))
+	(write-int (defq reply (string-stream
+		(str-alloc (+ (* (- x1 x) (- y1 y)) (* 4 +int_size))))) (list x y x1 y1))
 	;convert to reals
-	(bind '(rx ry rx1 ry1 rw rh) (map (const n2r) (list x y x1 y1 w h)))
+	(bind '(w h) (map (const n2r) (list w h)))
 	;cx, cy, and z (which were read as longs from the message)
 	(bind '(cx cy z) (reals cx cy z))
-	(defq ry (- ry +real_1))
-	(while (< (setq ry (+ ry +real_1)) ry1)
-		(defq rx (- rx +real_1))
-		(while (< (setq rx (+ rx +real_1)) rx1)
-			(write-char reply (depth (+ (real-offset rx rw z) cx) (+ (real-offset ry rh z) cy))))
+	(defq y (dec y))
+	(while (< (++ y) y1)
+		(defq xp (dec x))
+		(while (< (++ xp) x1)
+			(write-char reply (depth (+ (real-offset (n2r xp) w z) cx) (+ (real-offset (n2r y) h z) cy))))
 		(task-slice))
 	(write-long reply key)
 	(mail-send mbox (str reply)))

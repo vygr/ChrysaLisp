@@ -23,7 +23,7 @@
 				(+job_y1 y1)
 				(+job_w (* +width +scale))
 				(+job_h (* +height +scale))))
-		(range (* +height +scale) 0 +line_batch)))
+		(range (* +height +scale) 0 (* +line_batch +scale))))
 
 (ui-window *window* ()
 	(ui-title-bar _ "Raymarch" (0xea19) +event_close)
