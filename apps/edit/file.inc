@@ -99,9 +99,11 @@
 					(:copy 0 y)) (ascii-char +char_lf)))))))
 
 (defun action-load-depends ()
-	(action-save-all)
-	(open-files (files-depends *current_file*)))
+	(when *current_file*
+		(action-save-all)
+		(open-files (files-depends *current_file*))))
 
 (defun action-load-all-depends ()
-	(action-save-all)
-	(open-files (files-all-depends (list *current_file*))))
+	(when *current_file*
+		(action-save-all)
+		(open-files (files-all-depends (list *current_file*)))))
