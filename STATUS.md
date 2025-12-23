@@ -6,6 +6,10 @@
 
 Fix Editor `load-depends` bug when on the scratchpad buffer !.
 
+Swapped over the `copy`/`paste` icons.
+
+Font app now copies the lowercase version of the char code.
+
 ------
 
 New `(nql obj1 obj2) -> :t | :nil` built in function.
