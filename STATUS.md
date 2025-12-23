@@ -4,6 +4,10 @@
 
 ------
 
+Fix Editor `load-depends` bug when on the scratchpad buffer !.
+
+------
+
 New `(nql obj1 obj2) -> :t | :nil` built in function.
 
 New `'obj :eql` virtual method.
