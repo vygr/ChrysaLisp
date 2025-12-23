@@ -12,31 +12,48 @@
 (enums +select 0
 	(enum main task reply timer))
 
+(defun generate-lut ()
+    (defq lut (array) i -1)
+    (while (< (++ i) 255)
+        (defq 
+            ; Frequency
+            f 0.1 fi (n2f i)
+            ; Phase shifts for R, G, B
+            r (n2i (+ (* (sin (* f fi)) 127.0) 128.0))
+            g (n2i (+ (* (sin (+ (* f fi) 2.0)) 127.0) 128.0))
+            b (n2i (+ (* (sin (+ (* f fi) 4.0)) 127.0) 128.0)))
+        ; Combine into ARGB, force Alpha 0xFF
+        (push lut (+ 0xFF000000 (<< r 16) (<< g 8) b)))
+    ; Set index 255 to Black
+    (push lut +argb_black)
+    (list quote lut))
+
 (defq +width 800 +height 800 +line_batch 2 +scale 2
 	+timer_rate (/ 1000000 1) id :t dirty :nil
 	center_x +real_-1/2 center_y +real_0 zoom +real_1
-	+retry_timeout (task-timeout 5) jobs :nil farm :nil)
+	+retry_timeout (task-timeout 5) jobs :nil farm :nil
+	+mandel_lut (generate-lut))
 
 (ui-window *window* ()
 	(ui-title-bar _ "Mandelbrot" (0xea19) +event_close)
 	(ui-canvas *canvas* +width +height +scale))
 
-(defun tile (canvas data)
-	; (tile canvas data) -> area
+(defun tile (canvas data lut)
+	; (tile canvas data lut) -> area
 	(defq data (string-stream data) x (read-int data) y (read-int data)
 		x1 (read-int data) y1 (read-int data) yp (dec y))
 	(while (/= (++ yp) y1)
 		(defq xp (dec x))
 		(while (/= (++ xp) x1)
-			(defq r (read-ubyte data) r (if (= r 255) 0 r)
-				g (<< (logand r 0x7f) 9) b (<< (logand r 0x3f) 2))
-			(.-> canvas (:set_color (+ +argb_black (<< r 16) g b)) (:plot xp yp)))
+			(.-> canvas
+				(:set_color (elem-get lut (read-ubyte data)))
+				(:plot xp yp)))
 		(task-slice))
 	(* (- x1 x) (- y1 y)))
 
 ;native versions
 (ffi "apps/mandelbrot/tile" tile)
-; (tile canvas data) -> area
+; (tile canvas data lut) -> area
 
 (defun dispatch-job (key val)
 	;send another job to child
@@ -122,7 +139,7 @@
 				(when (defq val (. farm :find key))
 					(dispatch-job key val))
 				(setq dirty :t)
-				(tile *canvas* msg))
+				(tile *canvas* msg +mandel_lut))
 			(:t ;timer event
 				(mail-timeout (elem-get select +select_timer) +timer_rate 0)
 				(. farm :refresh +retry_timeout)
