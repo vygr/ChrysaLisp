@@ -106,21 +106,20 @@
 			(vector-clamp color (const (cat +reals_tmp3)) +reals_one3))))
 
 (defun rect (key mbox x y x1 y1 w h)
-	(write-int (defq reply (string-stream (cat ""))) (list x y x1 y1))
-	(bind '(x y x1 y1 w h) (map (const n2r) (list x y x1 y1 w h)))
-	(defq w2 (/ w +real_2) h2 (/ h +real_2) y (- y +real_1))
-	(while (< (setq y (+ y +real_1)) y1)
-		(defq xp (- x +real_1))
-		(while (< (setq xp (+ xp +real_1)) x1)
+	(write-int (defq reply (string-stream
+		(str-alloc (* (+ (* (- x1 x) (- y1 y)) 4) +int_size)))) (list x y x1 y1))
+	(bind '(w h) (map (const n2r) (list w h)))
+	(defq w2 (/ w +real_2) h2 (/ h +real_2) y (dec y))
+	(while (< (++ y) y1)
+		(defq xp (dec x))
+		(while (< (++ xp) x1)
 			(defq ray_origin (const (reals +real_0 +real_0 +real_-3))
 				ray_dir (vector-norm (vector-sub
-					(reals (/ (* (- xp w2) +real_1) w2)
-						(/ (* (- y h2) +real_1) h2) +real_0) ray_origin)))
-			(bind '(r g b) (scene-ray ray_origin ray_dir))
-			(write-int reply (+ +argb_black
-				(<< (n2i (* r +real_255)) 16)
-				(<< (n2i (* g +real_255)) 8)
-				(n2i (* b +real_255))))
+					(reals (/ (* (- (n2r xp) w2) +real_1) w2)
+						(/ (* (- (n2r y) h2) +real_1) h2) +real_0) ray_origin)))
+			(write-int reply (reduce! (# (+ %0 (<< (n2i %1) %2))) (list
+				(vector-scale (scene-ray ray_origin ray_dir) +real_255 +reals_tmp3)
+				'(16 8 0)) +argb_black))
 			(task-slice)))
 	(write-long reply key)
 	(mail-send mbox (str reply)))

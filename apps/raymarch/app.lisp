@@ -12,18 +12,18 @@
 (enums +select 0
 	(enum main task reply timer))
 
-(defq +width 800 +height 800 +scale 1
+(defq +width 800 +height 800 +line_batch 1 +scale 1
 	+timer_rate (/ 1000000 1) id :t dirty :nil
 	+retry_timeout (task-timeout 5)
-	jobs (map (lambda (y)
+	jobs (map (lambda (y1)
 			(setf-> (str-alloc +job_size)
 				(+job_x 0)
-				(+job_y y)
+				(+job_y (- y1 (* +line_batch +scale)))
 				(+job_x1 (* +width +scale))
-				(+job_y1 (inc y))
+				(+job_y1 y1)
 				(+job_w (* +width +scale))
 				(+job_h (* +height +scale))))
-		(range (dec (* +height +scale)) -1)))
+		(range (* +height +scale) 0 +line_batch)))
 
 (ui-window *window* ()
 	(ui-title-bar _ "Raymarch" (0xea19) +event_close)
