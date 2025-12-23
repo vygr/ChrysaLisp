@@ -107,7 +107,8 @@
 
 (defun rect (key mbox x y x1 y1 w h)
 	(write-int (defq reply (string-stream
-		(str-alloc (* (+ (* (- x1 x) (- y1 y)) 4) +int_size)))) (list x y x1 y1))
+		(str-alloc (+ (* (+ (* (- x1 x) (- y1 y)) 4) +int_size) +long_size))))
+		(list x y x1 y1))
 	(bind '(w h) (map (const n2r) (list w h)))
 	(defq w2 (/ w +real_2) h2 (/ h +real_2) y (dec y))
 	(while (< (++ y) y1)

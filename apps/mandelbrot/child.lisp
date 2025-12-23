@@ -18,7 +18,8 @@
 
 (defun mandel (key mbox x y x1 y1 w h cx cy z)
 	(write-int (defq reply (string-stream
-		(str-alloc (+ (* (- x1 x) (- y1 y)) (* 4 +int_size))))) (list x y x1 y1))
+		(str-alloc (+ (* (- x1 x) (- y1 y)) (* 4 +int_size) +long_size))))
+		(list x y x1 y1))
 	;convert to reals
 	(bind '(w h) (map (const n2r) (list w h)))
 	;cx, cy, and z (which were read as longs from the message)
