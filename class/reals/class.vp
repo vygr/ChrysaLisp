@@ -170,7 +170,7 @@
 	(vp-shl-cr (log2 +ptr_size) src_end)
 	(vp-add-rr src1 src_end)
 	(vec-loop-until `(,src1 ,src2) `(,e0 ,e1) src_end dst1
-		(#	(errorif `(,%%1 = ,zero) 'error)
+		(#  (errorif `(,%%1 = ,zero) 'error)
 			(vp-div-ff %1 %0) %0))
 
 	(exit 'reals :div `(,dst -1))
@@ -204,7 +204,7 @@
 	(vp-shl-cr (log2 +ptr_size) src_end)
 	(vp-add-rr src1 src_end)
 	(vec-loop-until `(,src1 ,src2) `(,e0 ,e1) src_end dst1
-		(#	(errorif `(,%%1 = ,zero) 'error)
+		(#  (errorif `(,%%1 = ,zero) 'error)
 			(vp-cpy-ff %0 ftrunc)
 			(vp-div-ff %1 ftrunc)
 			(vp-cvt-fr ftrunc trunc)
@@ -244,7 +244,7 @@
 	(vp-shl-cr (log2 +ptr_size) src_end)
 	(vp-add-rr src1 src_end)
 	(vec-loop-until `(,src1) `(,e0) src_end dst1
-		(#	(vp-cvt-fr %0 trunc)
+		(#  (vp-cvt-fr %0 trunc)
 			(vp-cvt-rf trunc ftrunc)
 			(vp-sub-ff ftrunc %0)
 			(vpif `(,%%0 < ,zero))
@@ -278,7 +278,7 @@
 	(vp-shl-cr (log2 +ptr_size) src_end)
 	(vp-add-rr src1 src_end)
 	(vec-loop-until `(,src1) `(,e0) src_end dst1
-		(#	(vp-cvt-fr %0 trunc)
+		(#  (vp-cvt-fr %0 trunc)
 			(vp-cvt-rf trunc ftrunc)
 			(vpif `(,ftrunc > ,%%0))
 				(vp-sub-ff one ftrunc)
@@ -311,7 +311,7 @@
 	(vp-shl-cr (log2 +ptr_size) src_end)
 	(vp-add-rr src1 src_end)
 	(vec-loop-until `(,src1) `(,e0) src_end dst1
-		(#	(vp-cvt-fr %0 trunc)
+		(#  (vp-cvt-fr %0 trunc)
 			(vp-cvt-rf trunc ftrunc)
 			(vpif `(,ftrunc < ,%%0))
 				(vp-add-ff one ftrunc)
@@ -464,7 +464,7 @@
 	; Load constants
 	(vp-lea-p 'fn_consts trunc)
 	(load-fields trunc
-		'((fn-const (n2r 0.5)) (fn-const (n2r 1.0)))
+		(fn-consts (n2r 0.5) (n2r 1.0))
 		`(,half ,one))
 
 	(assign `((,src1 array_length)) `(,src_end))

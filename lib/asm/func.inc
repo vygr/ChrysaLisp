@@ -35,6 +35,9 @@
 (defun fn-const (c)
 	(* (find (defq c (logior c)) (merge *consts* (list c))) +long_size))
 
+(defun fn-consts (&rest c)
+	(map (const fn-const) c))
+
 (defun fn-string (s r)
 	(vp-lea-p (string-sym (fn-add-string s)) r))
 

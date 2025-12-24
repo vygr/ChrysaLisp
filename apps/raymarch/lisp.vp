@@ -53,7 +53,7 @@
 	;constants
 	(vp-lea-p 'fn_consts consts)
 	(load-fields consts
-		'((fn-const (n2r 0.0)) (fn-const (n2r 1.0)) (fn-const (n2r 0.35)) (fn-const (n2r 0.5)))
+		(fn-consts (n2r 0.0) (n2r 1.0) (n2r 0.35) (n2r 0.5))
 		`(,fzero ,fone ,f035 ,fhalf))
 
 	;load vector
@@ -107,8 +107,7 @@
 	;constants
 	(vp-lea-p 'fn_consts consts)
 	(load-fields consts
-		'((fn-const (n2r 0.0)) (fn-const (n2r 1.0)) (fn-const (n2r 1.0))
-			(fn-const (n2r 0.35)) (fn-const (n2r 0.5)))
+		(fn-consts (n2r 0.0) (n2r 1.0) (n2r 1.0) (n2r 0.35) (n2r 0.5))
 		`(,fzero ,fone ,fd ,f035 ,fhalf))
 
 	(vp-cpy-cr 1000 cnt)
