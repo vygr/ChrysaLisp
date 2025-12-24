@@ -131,6 +131,9 @@ Deep dives into specialized areas:
 
 41. **[Sequence Indexing](docs/ai_digest/sequence_indexing.md)** - Sequence indexing and slicing.
 
+42. **[Application Acceleration](docs/ai_digest/app_acceleration.md)** - Adding
+    native functions to applications..
+
 ---
 
 ## Reading Paths
