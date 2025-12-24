@@ -13,23 +13,23 @@
 	(enum main task reply timer))
 
 (defun generate-lut ()
-    (defq lut (array) i -1)
-    (while (< (++ i) 255)
-        (defq 
-            ; Frequency
-            f 0.1 fi (n2f i)
-            ; Phase shifts for R, G, B
-            r (n2i (+ (* (sin (* f fi)) 127.0) 128.0))
-            g (n2i (+ (* (sin (+ (* f fi) 2.0)) 127.0) 128.0))
-            b (n2i (+ (* (sin (+ (* f fi) 4.0)) 127.0) 128.0)))
-        ; Combine into ARGB, force Alpha 0xFF
-        (push lut (+ 0xFF000000 (<< r 16) (<< g 8) b)))
-    ; Set index 255 to Black
-    (push lut +argb_black)
-    (list quote lut))
+	(defq lut (array) i -1)
+	(while (< (++ i) 255)
+		(defq
+			; Frequency
+			f 0.1 fi (n2f i)
+			; Phase shifts for R, G, B
+			r (n2i (+ (* (sin (* f fi)) 127.0) 128.0))
+			g (n2i (+ (* (sin (+ (* f fi) 2.0)) 127.0) 128.0))
+			b (n2i (+ (* (sin (+ (* f fi) 4.0)) 127.0) 128.0)))
+		; Combine into ARGB, force Alpha 0xFF
+		(push lut (+ 0xFF000000 (<< r 16) (<< g 8) b)))
+	; Set index 255 to Black
+	(push lut +argb_black)
+	(list quote lut))
 
 (defq +width 800 +height 800 +line_batch 2 +scale 2
-	+timer_rate (/ 1000000 1) id :t dirty :nil
+	+timer_rate (/ 500000 1) id :t dirty :nil
 	center_x +real_-1/2 center_y +real_0 zoom +real_1
 	+retry_timeout (task-timeout 5) jobs :nil farm :nil
 	+mandel_lut (generate-lut))
@@ -82,6 +82,7 @@
 		(undef val :job)))
 
 (defun reset ()
+	(mail-timeout (elem-get select +select_timer) 0 0)
 	(if farm (. farm :close))
 	(elem-set select +select_reply (mail-mbox))
 	(setq jobs (map (lambda (y1)
@@ -96,7 +97,8 @@
 				(+job_cy center_y)
 				(+job_z zoom)))
 			(range (* +height +scale) 0 (* +line_batch +scale)))
-		farm (Farm create destroy (* 2 (length (lisp-nodes))))))
+		farm (Farm create destroy (* 2 (length (lisp-nodes)))))
+	(mail-timeout (elem-get select +select_timer) +timer_rate 0))
 
 (defun main ()
 	(defq select (task-mboxes +select_size))
@@ -104,7 +106,6 @@
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(gui-add-front-rpc (. *window* :change x y w h))
 	(reset)
-	(mail-timeout (elem-get select +select_timer) +timer_rate 0)
 	(while id
 		(defq msg (mail-read (elem-get select (defq idx (mail-select select)))))
 		(case idx
@@ -150,7 +151,9 @@
 						(defq working :nil)
 						(. farm :each (lambda (key val)
 							(setq working (or working (get :job val)))))
-						(unless working (. farm :close)))))))
+						(unless working
+							(mail-timeout (elem-get select +select_timer) 0 0)
+							(. farm :close)))))))
 	;close window and children
 	(. farm :close)
 	(gui-sub-rpc *window*))

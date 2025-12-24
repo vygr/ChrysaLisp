@@ -28,7 +28,7 @@
 
 	(vp-lea-p 'fn_consts cnt)
 	(load-fields cnt '((fn-const (n2r 4.0)) (fn-const (n2r 2.0))) `(,four ,two))
-	
+
 	;init i=0, xc=0.0, yc=0.0, x2=0.0, y2=0.0
 	(vp-xor-rr cnt cnt)
 	(vp-simd vp-sub-ff `(,xc ,yc ,x2 ,y2)  `(,xc ,yc ,x2 ,y2))
