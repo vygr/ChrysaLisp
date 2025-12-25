@@ -158,22 +158,17 @@
 ;generic fixed math op
 (redefun mathop (_ p)
 	(entry 'fixed _ '(:r0))
-	(vp-push :r0)
 	(assign '((:r0 num_value)) '(:r0))
 	(exec p)
-	(call 'fixed :create '(:r0) '(:r1))
-	(vp-pop :r0)
-	(exit 'fixed _ '(:r0 :r1))
-	(vp-ret))
+	(jump 'fixed :create '(:r0)))
 
 (def-method 'fixed :sqrt)
 	;inputs
 	;:r0 = fixed object (ptr)
 	;outputs
-	;:r0 = fixed object (ptr)
-	;:r1 = result fixed object (ptr)
+	;:r0 = result fixed object (ptr)
 	;trashes
-	;:r1-:r14, :f0-f1
+	;:r0-:r14, :f0-f1
 
 	(mathop :sqrt
 		'(call 'sys_math :f_sqrt '(:r0) '(:r0)))
@@ -184,10 +179,9 @@
 	;inputs
 	;:r0 = fixed object (ptr)
 	;outputs
-	;:r0 = fixed object (ptr)
-	;:r1 = 0 if error, else result fixed object (ptr)
+	;:r0 = result fixed object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r0-:r14
 
 	(mathop :sign
 		'(progn
@@ -203,10 +197,9 @@
 	;inputs
 	;:r0 = fixed object (ptr)
 	;outputs
-	;:r0 = fixed object (ptr)
-	;:r1 = result fixed object (ptr)
+	;:r0 = result fixed object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f3
+	;:r0-:r14, :f0-:f3
 
 	(mathop :sin
 		'(call 'sys_math :f_sin '(:r0) '(:r0)))
@@ -217,10 +210,9 @@
 	;inputs
 	;:r0 = fixed object (ptr)
 	;outputs
-	;:r0 = fixed object (ptr)
-	;:r1 = result fixed object (ptr)
+	;:r0 = result fixed object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f3
+	;:r0-:r14, :f0-:f3
 
 	(mathop :cos
 		'(call 'sys_math :f_cos '(:r0) '(:r0)))
@@ -231,10 +223,9 @@
 	;inputs
 	;:r0 = fixed object (ptr)
 	;outputs
-	;:r0 = fixed object (ptr)
-	;:r1 = result fixed object (ptr)
+	;:r0 = result fixed object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r0-:r14
 
 	(mathop :frac
 		'(progn
@@ -247,10 +238,9 @@
 	;inputs
 	;:r0 = fixed object (ptr)
 	;outputs
-	;:r0 = fixed object (ptr)
-	;:r1 = result fixed object (ptr)
+	;:r0 = result fixed object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r0-:r14
 
 	(mathop :floor
 		'(progn
@@ -263,10 +253,9 @@
 	;inputs
 	;:r0 = fixed object (ptr)
 	;outputs
-	;:r0 = fixed object (ptr)
-	;:r1 = result fixed object (ptr)
+	;:r0 = result fixed object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r0-:r14
 
 	(mathop :ceil
 		'(progn
@@ -279,10 +268,9 @@
 	;inputs
 	;:r0 = fixed object (ptr)
 	;outputs
-	;:r0 = fixed object (ptr)
-	;:r1 = result fixed object (ptr)
+	;:r0 = result fixed object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r0-:r14
 
 	(mathop :recip
 		'(progn

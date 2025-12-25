@@ -68,10 +68,9 @@
 inputs
 :r0 = num object (ptr)
 outputs
-:r0 = num object (ptr)
-:r1 = result num object (ptr)
+:r0 = result num object (ptr)
 trashes
-:r1-:r14
+:r0-:r14
 ```
 
 ### :add -> class/num/add
@@ -107,7 +106,6 @@ inputs
 :r0 = num object (ptr)
 :r1 = list of num objects (ptr)
 outputs
-:r0 = num object (ptr)
 :r1 = 0, -1 (int)
 trashes
 :r1-:r14
@@ -133,7 +131,6 @@ inputs
 :r0 = num object (ptr)
 :r1 = list of num objects (ptr)
 outputs
-:r0 = num object (ptr)
 :r1 = 0, -1 (int)
 trashes
 :r1-:r14
@@ -158,7 +155,6 @@ inputs
 :r0 = num object (ptr)
 :r1 = list of num objects (ptr)
 outputs
-:r0 = num object (ptr)
 :r1 = 0, -1 (int)
 trashes
 :r1-:r14
@@ -208,7 +204,6 @@ inputs
 :r0 = num object (ptr)
 :r1 = list of num objects (ptr)
 outputs
-:r0 = num object (ptr)
 :r1 = 0, -1 (int)
 trashes
 :r1-:r14
@@ -221,7 +216,6 @@ inputs
 :r0 = num object (ptr)
 :r1 = list of num objects (ptr)
 outputs
-:r0 = num object (ptr)
 :r1 = 0, -1 (int)
 trashes
 :r1-:r14
@@ -282,7 +276,6 @@ inputs
 :r0 = num object (ptr)
 :r1 = list of num objects (ptr)
 outputs
-:r0 = num object (ptr)
 :r1 = 0, -1 (int)
 trashes
 :r1-:r14
@@ -294,10 +287,9 @@ trashes
 inputs
 :r0 = num object (ptr)
 outputs
-:r0 = num object (ptr)
-:r1 = result num object (ptr)
+:r0 = result num object (ptr)
 trashes
-:r1-:r14
+:r0-:r14
 ```
 
 ### :print -> class/num/print
@@ -318,10 +310,9 @@ trashes
 inputs
 :r0 = num object (ptr)
 outputs
-:r0 = num object (ptr)
-:r1 = result num object (ptr)
+:r0 = result num object (ptr)
 trashes
-:r1-:r14
+:r0-:r14
 ```
 
 ### :set_value -> class/num/set_value
@@ -343,10 +334,9 @@ none
 inputs
 :r0 = num object (ptr)
 outputs
-:r0 = num object (ptr)
-:r1 = result num object (ptr)
+:r0 = result num object (ptr)
 trashes
-:r1-:r14
+:r0-:r14
 ```
 
 ### :sqrt -> class/num/sqrt
@@ -355,10 +345,9 @@ trashes
 inputs
 :r0 = num object (ptr)
 outputs
-:r0 = num object (ptr)
-:r1 = result num object (ptr)
+:r0 = result num object (ptr)
 trashes
-:r1-:r14, :f0
+:r0-:r14, :f0
 ```
 
 ### :sub -> class/num/sub

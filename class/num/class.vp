@@ -269,24 +269,18 @@
 
 ;generic int math op
 (redefun mathop (_ p)
-	(entry 'num _ '(:r0))
-	(vp-push :r0)
-	(assign '((:r0 num_value)) '(:r0))
+	(entry 'num _ '(:r12))
+	(assign '((:r12 num_value)) '(:r0))
 	(exec p)
-	(vp-cpy-ir :rsp 0 :r1)
-	(v-call 'num :vcreate '(:r0) '(:r1) :r1 :r1)
-	(vp-pop :r0)
-	(exit 'num _ '(:r0 :r1))
-	(vp-ret))
+	(v-jump 'num :vcreate '(:r0) :r12 :r12))
 
 (def-method 'num :sqrt)
 	;inputs
 	;:r0 = num object (ptr)
 	;outputs
-	;:r0 = num object (ptr)
-	;:r1 = result num object (ptr)
+	;:r0 = result num object (ptr)
 	;trashes
-	;:r1-:r14, :f0
+	;:r0-:r14, :f0
 
 	(mathop :sqrt
 		'(progn
@@ -300,10 +294,9 @@
 	;inputs
 	;:r0 = num object (ptr)
 	;outputs
-	;:r0 = num object (ptr)
-	;:r1 = result num object (ptr)
+	;:r0 = result num object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r0-:r14
 
 	(mathop :random
 		'(call 'sys_math :i_rand '(:r0) '(:r0)))
@@ -314,10 +307,9 @@
 	;inputs
 	;:r0 = num object (ptr)
 	;outputs
-	;:r0 = num object (ptr)
-	;:r1 = result num object (ptr)
+	;:r0 = result num object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r0-:r14
 
 	(mathop :abs '(vp-abs-rr :r0 :r0))
 
@@ -327,10 +319,9 @@
 	;inputs
 	;:r0 = num object (ptr)
 	;outputs
-	;:r0 = num object (ptr)
-	;:r1 = result num object (ptr)
+	;:r0 = result num object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r0-:r14
 
 	(mathop :neg '(vp-mul-cr -1 :r0))
 
@@ -340,10 +331,9 @@
 	;inputs
 	;:r0 = num object (ptr)
 	;outputs
-	;:r0 = num object (ptr)
-	;:r1 = result num object (ptr)
+	;:r0 = result num object (ptr)
 	;trashes
-	;:r1-:r14
+	;:r0-:r14
 
 	(mathop :sign
 		'(progn

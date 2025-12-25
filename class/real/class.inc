@@ -27,7 +27,7 @@
 	(dec-method :gt class/real/gt :final)
 	(dec-method :le class/real/le :final)
 	(dec-method :ge class/real/ge :final)
-	(dec-method :quant class/real/quant :final (:r0 :r1) (:r0 :r1))
+	(dec-method :quant class/real/quant :final (:r0 :r1) (:r0))
 	(dec-method :lisp_quant class/real/lisp_quant :static (:r0 :r1) (:r0 :r1)))
 
 (def-struct real fixed_size)

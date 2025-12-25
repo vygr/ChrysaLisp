@@ -24,10 +24,9 @@
 inputs
 :r0 = fixed object (ptr)
 outputs
-:r0 = fixed object (ptr)
-:r1 = result fixed object (ptr)
+:r0 = result fixed object (ptr)
 trashes
-:r1-:r14
+:r0-:r14
 ```
 
 ### :cos -> class/fixed/cos
@@ -36,10 +35,9 @@ trashes
 inputs
 :r0 = fixed object (ptr)
 outputs
-:r0 = fixed object (ptr)
-:r1 = result fixed object (ptr)
+:r0 = result fixed object (ptr)
 trashes
-:r1-:r14, :f0-:f3
+:r0-:r14, :f0-:f3
 ```
 
 ### :create -> class/fixed/create
@@ -62,10 +60,9 @@ trashes
 inputs
 :r0 = fixed object (ptr)
 outputs
-:r0 = fixed object (ptr)
-:r1 = result fixed object (ptr)
+:r0 = result fixed object (ptr)
 trashes
-:r1-:r14
+:r0-:r14
 ```
 
 ### :frac -> class/fixed/frac
@@ -74,10 +71,9 @@ trashes
 inputs
 :r0 = fixed object (ptr)
 outputs
-:r0 = fixed object (ptr)
-:r1 = result fixed object (ptr)
+:r0 = result fixed object (ptr)
 trashes
-:r1-:r14
+:r0-:r14
 ```
 
 ### :mod -> class/fixed/mod
@@ -122,10 +118,9 @@ trashes
 inputs
 :r0 = fixed object (ptr)
 outputs
-:r0 = fixed object (ptr)
-:r1 = result fixed object (ptr)
+:r0 = result fixed object (ptr)
 trashes
-:r1-:r14
+:r0-:r14
 ```
 
 ### :sign -> class/fixed/sign
@@ -134,10 +129,9 @@ trashes
 inputs
 :r0 = fixed object (ptr)
 outputs
-:r0 = fixed object (ptr)
-:r1 = 0 if error, else result fixed object (ptr)
+:r0 = result fixed object (ptr)
 trashes
-:r1-:r14
+:r0-:r14
 ```
 
 ### :sin -> class/fixed/sin
@@ -146,10 +140,9 @@ trashes
 inputs
 :r0 = fixed object (ptr)
 outputs
-:r0 = fixed object (ptr)
-:r1 = result fixed object (ptr)
+:r0 = result fixed object (ptr)
 trashes
-:r1-:r14, :f0-:f3
+:r0-:r14, :f0-:f3
 ```
 
 ### :sqrt -> class/fixed/sqrt
@@ -158,10 +151,9 @@ trashes
 inputs
 :r0 = fixed object (ptr)
 outputs
-:r0 = fixed object (ptr)
-:r1 = result fixed object (ptr)
+:r0 = result fixed object (ptr)
 trashes
-:r1-:r14, :f0-f1
+:r0-:r14, :f0-f1
 ```
 
 ### :vcreate -> class/fixed/create

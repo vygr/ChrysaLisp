@@ -283,22 +283,17 @@
 ;generic real math ops
 (redefun mathop (_ p)
 	(entry 'real _ '(:r0))
-	(vp-push :r0)
 	(assign '((:r0 num_value)) '(:f1))
 	(exec p)
-	(call 'real :create '(:f0) '(:r1))
-	(vp-pop :r0)
-	(exit 'real _ '(:r0 :r1))
-	(vp-ret))
+	(jump 'real :create '(:f0)))
 
 (def-method 'real :sqrt)
 	;inputs
 	;:r0 = real object (ptr)
 	;outputs
-	;:r0 = real object (ptr)
-	;:r1 = result real object (ptr)
+	;:r0 = result real object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f1
+	;:r0-:r14, :f0-:f1
 
 	(mathop :sqrt
 		'(vp-sqrt-ff :f1 :f0))
@@ -309,10 +304,9 @@
 	;inputs
 	;:r0 = real object (ptr)
 	;outputs
-	;:r0 = real object (ptr)
-	;:r1 = result real object (ptr)
+	;:r0 = result real object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f3
+	;:r0-:r14, :f0-:f3
 
 	(mathop :sin
 		'(call 'sys_math :r_sin '(:f1) '(:f0)))
@@ -323,10 +317,9 @@
 	;inputs
 	;:r0 = real object (ptr)
 	;outputs
-	;:r0 = real object (ptr)
-	;:r1 = result real object (ptr)
+	;:r0 = result real object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f3
+	;:r0-:r14, :f0-:f3
 
 	(mathop :cos
 		'(progn
@@ -342,10 +335,9 @@
 	;inputs
 	;:r0 = real object (ptr)
 	;outputs
-	;:r0 = real object (ptr)
-	;:r1 = result real object (ptr)
+	;:r0 = result real object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f1
+	;:r0-:r14, :f0-:f1
 
 	(mathop :frac
 		'(progn
@@ -366,10 +358,9 @@
 	;inputs
 	;:r0 = real object (ptr)
 	;outputs
-	;:r0 = real object (ptr)
-	;:r1 = result real object (ptr)
+	;:r0 = result real object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f1
+	;:r0-:r14, :f0-:f1
 
 	(mathop :floor
 		'(progn
@@ -387,10 +378,9 @@
 	;inputs
 	;:r0 = real object (ptr)
 	;outputs
-	;:r0 = real object (ptr)
-	;:r1 = result real object (ptr)
+	;:r0 = result real object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f1
+	;:r0-:r14, :f0-:f1
 
 	(mathop :ceil
 		'(progn
@@ -408,10 +398,9 @@
 	;inputs
 	;:r0 = real object (ptr)
 	;outputs
-	;:r0 = real object (ptr)
-	;:r1 = result real object (ptr)
+	;:r0 = result real object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f1
+	;:r0-:r14, :f0-:f1
 
 	(mathop :recip
 		'(progn
@@ -425,10 +414,9 @@
 	;inputs
 	;:r0 = real object (ptr)
 	;outputs
-	;:r0 = real object (ptr)
-	;:r1 = result real object (ptr)
+	;:r0 = result real object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f1
+	;:r0-:r14, :f0-:f1
 
 	(mathop :abs
 		'(vp-abs-ff :f1 :f0))
@@ -439,10 +427,9 @@
 	;inputs
 	;:r0 = real object (ptr)
 	;outputs
-	;:r0 = real object (ptr)
-	;:r1 = result real object (ptr)
+	;:r0 = result real object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f1
+	;:r0-:r14, :f0-:f1
 
 	(mathop :neg
 		'(vp-neg-ff :f1 :f0))
@@ -453,10 +440,9 @@
 	;inputs
 	;:r0 = real object (ptr)
 	;outputs
-	;:r0 = real object (ptr)
-	;:r1 = result real object (ptr)
+	;:r0 = result real object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f1
+	;:r0-:r14, :f0-:f1
 
 	(mathop :sign
 		'(progn
@@ -474,10 +460,9 @@
 	;inputs
 	;:r0 = real object (ptr)
 	;outputs
-	;:r0 = real object (ptr)
-	;:r1 = result real object (ptr)
+	;:r0 = result real object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f1
+	;:r0-:r14, :f0-:f1
 
 	(mathop :random
 		'(progn
@@ -497,17 +482,15 @@
 	;:r0 = real object (ptr)
 	;:r1 = tolerance real object (ptr)
 	;outputs
-	;:r0 = real object (ptr)
-	;:r1 = result real object (ptr)
+	;:r0 = result real object (ptr)
 	;trashes
-	;:r1-:r14, :f0-:f3
+	;:r0-:r14, :f0-:f3
 
 	(vp-rdef (this tol trunc))
 	(vp-fdef (v tmp half one ftrunc))
 
 	(entry 'real :quant `(,this ,tol))
 
-	(vp-push this)
 	(assign `((,this num_value) (,tol num_value)) `(,v ,tmp))
 
 	; val / tol
@@ -529,11 +512,6 @@
 
 	; * tol
 	(vp-mul-ff tmp v)
-
-	(call 'real :create `(,v) `(,tol))
-	(vp-pop this)
-
-	(exit 'real :quant `(,this ,tol))
-	(vp-ret)
+	(jump 'real :create `(,v))
 
 (def-func-end)
