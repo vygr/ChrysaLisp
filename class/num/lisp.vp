@@ -183,7 +183,7 @@
 
 (def-func-end)
 
-(redefun andop (_ i p)
+(redefun andop (_ i)
 	(entry 'num (sym (cat :lisp_ (rest _))) '(:r0 :r1))
 	(errorif-lisp-args-type 'error :r1 num 0)
 	(vp-push :r0)
@@ -194,7 +194,7 @@
 			(vp-cpy-ir :r1 0 :r3)
 			(vp-add-cr +ptr_size :r1)
 			(assign '((:r3 num_value)) '(:r3))
-			(exec p)
+			((eval (sym (cat "vp-" (rest _) "-rr"))) :r3 :r0)
 		(loop-until '(:r1 = :r2))
 	(endif)
 	(call 'num :create '(:r0) '(:r1))
@@ -212,8 +212,7 @@
 	;trashes
 	;:r1-:r14
 
-	(andop :and -1
-		'(vp-and-rr :r3 :r0))
+	(andop :and -1)
 
 (errorcase
 (vp-label 'error)
@@ -231,8 +230,7 @@
 	;trashes
 	;:r1-:r14
 
-	(andop :or 0
-		'(vp-or-rr :r3 :r0))
+	(andop :or 0)
 
 (errorcase
 (vp-label 'error)
@@ -250,8 +248,7 @@
 	;trashes
 	;:r1-:r14
 
-	(andop :xor 0
-		'(vp-xor-rr :r3 :r0))
+	(andop :xor 0)
 
 (errorcase
 (vp-label 'error)
@@ -259,12 +256,12 @@
 
 (def-func-end)
 
-(redefun shift (_ p)
+(redefun shiftop (_)
 	(entry 'num (sym (cat :lisp_ (rest _))) '(:r0 :r1))
 	(errorif-lisp-args-sig 'error :r1 2)
 	(vp-push :r0)
 	(list-bind-args :r1 '(:r0 :r1) '(:num :num))
-	(exec p)
+	((eval (sym (cat "vp-" (rest _) "-rr"))) :r1 :r0)
 	(call 'num :create '(:r0) '(:r1))
 	(vp-pop :r0)
 	(exit 'num (sym (cat :lisp_ (rest _))) '(:r0 :r1))
@@ -280,8 +277,7 @@
 	;trashes
 	;:r1-:r14
 
-	(shift :asr
-		'(vp-asr-rr :r1 :r0))
+	(shiftop :asr)
 
 (errorcase
 (vp-label 'error)
@@ -300,8 +296,7 @@
 	;trashes
 	;:r1-:r14
 
-	(shift :shl
-		'(vp-shl-rr :r1 :r0))
+	(shiftop :shl)
 
 (errorcase
 (vp-label 'error)
@@ -320,8 +315,7 @@
 	;trashes
 	;:r1-:r14
 
-	(shift :shr
-		'(vp-shr-rr :r1 :r0))
+	(shiftop :shr)
 
 (errorcase
 (vp-label 'error)
