@@ -51,8 +51,7 @@ inputs
 :r0 = fixed object (ptr)
 :r1 = list of fixed objects (ptr)
 outputs
-:r0 = fixed object (ptr)
-:r1 = 0 if error, else result fixed object (ptr)
+:r0 = 0 if error, else result fixed object (ptr)
 trashes
 :r1-:r14
 ```
@@ -88,8 +87,7 @@ inputs
 :r0 = fixed object (ptr)
 :r1 = list of fixed objects (ptr)
 outputs
-:r0 = fixed object (ptr)
-:r1 = 0 if error, else result fixed object (ptr)
+:r0 = 0 if error, else result fixed object (ptr)
 trashes
 :r1-:r14
 ```
@@ -101,8 +99,7 @@ inputs
 :r0 = fixed object (ptr)
 :r1 = list of fixed objects (ptr)
 outputs
-:r0 = fixed object (ptr)
-:r1 = result fixed object (ptr)
+:r0 = result fixed object (ptr)
 trashes
 :r1-:r14
 ```

@@ -62,9 +62,8 @@
 
 (def-func-end)
 
-(redefun addop (_ p)
+(redefun addop (_)
 	(entry 'fixed _ '(:r0 :r1))
-	(vp-push :r0)
 	(class/array/get_both :r1 :r1 :r2)
 	(vp-cpy-ir :r1 0 :r0)
 	(vp-add-cr +ptr_size :r1)
@@ -73,33 +72,35 @@
 		(vp-cpy-ir :r1 0 :r4)
 		(vp-add-cr +ptr_size :r1)
 		(assign '((:r4 num_value)) '(:r3))
-		(exec p)
+		((eval (sym (cat "vp-" (rest _) "-rr"))) :r3 :r0)
+		(vp-asr-cr +fp_shift :r0)
 	(loop-until '(:r1 = :r2))
-	(v-call 'num :vcreate '(:r0) '(:r1) :r4 :r1)
-	(vp-pop :r0)
-	(exit 'fixed _ '(:r0 :r1))
-	(vp-ret))
+	(v-jump 'num :vcreate '(:r0) :r4 :r1))
 
 (def-method 'fixed :mul)
 	;inputs
 	;:r0 = fixed object (ptr)
 	;:r1 = list of fixed objects (ptr)
 	;outputs
-	;:r0 = fixed object (ptr)
-	;:r1 = result fixed object (ptr)
+	;:r0 = result fixed object (ptr)
 	;trashes
 	;:r1-:r14
 
-	(addop :mul
-		'(progn
-			(vp-mul-rr :r3 :r0)
-			(vp-asr-cr +fp_shift :r0)))
+	(addop :mul)
 
 (def-func-end)
 
-(redefun divop (_ p)
-	(entry 'fixed _ '(:r0 :r1))
-	(vp-push :r0)
+(def-method 'fixed :div)
+	;inputs
+	;:r0 = fixed object (ptr)
+	;:r1 = list of fixed objects (ptr)
+	;outputs
+	;:r0 = 0 if error, else result fixed object (ptr)
+	;trashes
+	;:r1-:r14
+
+	(entry 'fixed :div '(:r0 :r1))
+
 	(class/array/get_both :r1 :r1 :r4)
 	(vp-cpy-ir :r1 0 :r0)
 	(vp-add-cr +ptr_size :r1)
@@ -110,32 +111,15 @@
 		(assign '((:r5 num_value)) '(:r3))
 	(errorcase
 		(gotoif '(:r3 = 0) 'error))
-		(exec p)
+		(vp-shl-cr +fp_shift :r0)
+		(vp-ext-rr :r0 :r2)
+		(vp-div-rrr :r3 :r2 :r0)
 	(loop-until '(:r1 = :r4))
-	(v-call 'num :vcreate '(:r0) '(:r1) :r5 :r1)
-	(vp-pop :r0)
-	(exit 'fixed _ '(:r0 :r1))
-	(vp-ret)
+	(v-jump 'num :vcreate '(:r0) :r5 :r1)
+
 (vp-label 'error)
-	(vp-pop :r0)
-	(exit 'fixed _ '(:r0 :r3))
-	(vp-ret))
-
-(def-method 'fixed :div)
-	;inputs
-	;:r0 = fixed object (ptr)
-	;:r1 = list of fixed objects (ptr)
-	;outputs
-	;:r0 = fixed object (ptr)
-	;:r1 = 0 if error, else result fixed object (ptr)
-	;trashes
-	;:r1-:r14
-
-	(divop :div
-		'(progn
-			(vp-shl-cr +fp_shift :r0)
-			(vp-ext-rr :r0 :r2)
-			(vp-div-rrr :r3 :r2 :r0)))
+	(exit 'fixed :div '(:r3))
+	(vp-ret)
 
 (def-func-end)
 
@@ -144,14 +128,12 @@
 	;:r0 = fixed object (ptr)
 	;:r1 = list of fixed objects (ptr)
 	;outputs
-	;:r0 = fixed object (ptr)
-	;:r1 = 0 if error, else result fixed object (ptr)
+	;:r0 = 0 if error, else result fixed object (ptr)
 	;trashes
 	;:r1-:r14
 
 	(entry 'fixed :mod '(:r0 :r1))
 
-	(vp-push :r0)
 	(class/array/get_both :r1 :r4 :r5)
 	(vp-cpy-ir :r4 0 :r0)
 	(vp-add-cr +ptr_size :r4)
@@ -165,10 +147,10 @@
 		(vec-set 2)
 		(vec-fmod 1)
 	(loop-until '(:r4 = :r5))
-	(v-call 'num :vcreate '(:r0) '(:r1) :r6 :r1)
+	(v-jump 'num :vcreate '(:r0) :r6 :r1)
+
 (vp-label 'error)
-	(vp-pop :r0)
-	(exit 'fixed :mod '(:r0 :r1))
+	(exit 'fixed :mod '(:r1))
 	(vp-ret)
 
 (def-func-end)

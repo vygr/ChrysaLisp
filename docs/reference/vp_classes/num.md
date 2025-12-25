@@ -81,8 +81,7 @@ inputs
 :r0 = num object (ptr)
 :r1 = list of num objects (ptr)
 outputs
-:r0 = num object (ptr)
-:r1 = result num object (ptr)
+:r0 = result num object (ptr)
 trashes
 :r1-:r14
 ```
@@ -96,8 +95,7 @@ inputs
 :r0 = num object (ptr)
 :r1 = list of num objects (ptr)
 outputs
-:r0 = num object (ptr)
-:r1 = 0 if error, else result num object (ptr)
+:r0 = 0 if error, else result num object (ptr)
 trashes
 :r1-:r14
 ```
@@ -236,7 +234,6 @@ inputs
 :r0 = num object (ptr)
 :r1 = list of num objects (ptr)
 outputs
-:r0 = num object (ptr)
 :r1 = result num object (ptr)
 trashes
 :r1-:r14
@@ -249,7 +246,6 @@ inputs
 :r0 = num object (ptr)
 :r1 = list of num objects (ptr)
 outputs
-:r0 = num object (ptr)
 :r1 = result num object (ptr)
 trashes
 :r1-:r14
@@ -262,8 +258,7 @@ inputs
 :r0 = num object (ptr)
 :r1 = list of num objects (ptr)
 outputs
-:r0 = num object (ptr)
-:r1 = 0 if error, else result num object (ptr)
+:r0 = 0 if error, else result num object (ptr)
 trashes
 :r1-:r14
 ```
@@ -275,8 +270,7 @@ inputs
 :r0 = num object (ptr)
 :r1 = list of num objects (ptr)
 outputs
-:r0 = num object (ptr)
-:r1 = result num object (ptr)
+:r0 = result num object (ptr)
 trashes
 :r1-:r14
 ```
@@ -374,8 +368,7 @@ inputs
 :r0 = num object (ptr)
 :r1 = list of num objects (ptr)
 outputs
-:r0 = num object (ptr)
-:r1 = result num object (ptr)
+:r0 = result num object (ptr)
 trashes
 :r1-:r14
 ```

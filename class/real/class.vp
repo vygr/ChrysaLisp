@@ -38,7 +38,6 @@
 
 (redefun addop (_)
 	(entry 'real _ '(:r0 :r1))
-	(vp-push :r0)
 	(class/array/get_both :r1 :r1 :r2)
 	(vp-cpy-ir :r1 0 :r0)
 	(vp-add-cr +ptr_size :r1)
@@ -49,18 +48,14 @@
 		(assign '((:r4 num_value)) '(:f1))
 		((eval (sym (cat "vp-" (rest _) "-ff"))) :f1 :f0)
 	(loop-until '(:r1 = :r2))
-	(v-call 'num :vcreate '(:f0) '(:r1) :r4 :r1)
-	(vp-pop :r0)
-	(exit 'real _ '(:r0 :r1))
-	(vp-ret))
+	(v-jump 'num :vcreate '(:f0) :r4 :r1))
 
 (def-method 'real :add)
 	;inputs
 	;:r0 = real object (ptr)
 	;:r1 = list of real objects (ptr)
 	;outputs
-	;:r0 = real object (ptr)
-	;:r1 = result real object (ptr)
+	;:r0 = result real object (ptr)
 	;trashes
 	;:r1-:r14, :f0-:f1
 
@@ -73,8 +68,7 @@
 	;:r0 = real object (ptr)
 	;:r1 = list of real objects (ptr)
 	;outputs
-	;:r0 = real object (ptr)
-	;:r1 = result real object (ptr)
+	;:r0 = result real object (ptr)
 	;trashes
 	;:r1-:r14, :f0-:f1
 
@@ -111,7 +105,7 @@
 		(exec p)
 	(loop-until `(,iter_begin = ,iter_end))
 	(class/obj/ref args iter_begin)
-	(exit 'real _ `(,this ,args))
+	(exit 'real _ `(,args))
 	(vp-ret))
 
 (def-method 'real :min)
@@ -119,7 +113,6 @@
 	;:r0 = real object (ptr)
 	;:r1 = list of real objects (ptr)
 	;outputs
-	;:r0 = real object (ptr)
 	;:r1 = result real object (ptr)
 	;trashes
 	;:r1-:r14, :f0-:f1
@@ -138,7 +131,6 @@
 	;:r0 = real object (ptr)
 	;:r1 = list of real objects (ptr)
 	;outputs
-	;:r0 = real object (ptr)
 	;:r1 = result real object (ptr)
 	;trashes
 	;:r1-:r14, :f0-:f1
@@ -154,7 +146,6 @@
 
 (redefun divop (_ p)
 	(entry 'real _ '(:r0 :r1))
-	(vp-push :r0)
 	(class/array/get_both :r1 :r1 :r4)
 	(vp-cpy-ir :r1 0 :r0)
 	(vp-add-cr +ptr_size :r1)
@@ -168,13 +159,9 @@
 		(gotoif '(:f1 = :f3) 'error))
 		(exec p)
 	(loop-until '(:r1 = :r4))
-	(v-call 'num :vcreate '(:f0) '(:r1) :r5 :r1)
-	(vp-pop :r0)
-	(exit 'real _ '(:r0 :r1))
-	(vp-ret)
+	(v-jump 'num :vcreate '(:f0) :r5 :r1)
 (vp-label 'error)
-	(vp-pop :r0)
-	(exit 'real _ '(:r0 :r14))
+	(exit 'real _ '(0))
 	(vp-ret))
 
 (def-method 'real :div)
@@ -182,8 +169,7 @@
 	;:r0 = real object (ptr)
 	;:r1 = list of real objects (ptr)
 	;outputs
-	;:r0 = real object (ptr)
-	;:r1 = 0 if error, else result real object (ptr)
+	;:r0 = 0 if error, else result real object (ptr)
 	;trashes
 	;:r1-:r14, :f0-:f3
 
@@ -197,8 +183,7 @@
 	;:r0 = real object (ptr)
 	;:r1 = list of real objects (ptr)
 	;outputs
-	;:r0 = real object (ptr)
-	;:r1 = 0 if error, else result real object (ptr)
+	;:r0 = 0 if error, else result real object (ptr)
 	;trashes
 	;:r1-:r14, :f0-:f3
 

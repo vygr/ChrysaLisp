@@ -111,7 +111,6 @@
 
 (redefun addop (_)
 	(entry 'num _ '(:r0 :r1))
-	(vp-push :r0)
 	(class/array/get_both :r1 :r1 :r2)
 	(vp-cpy-ir :r1 0 :r0)
 	(vp-add-cr +ptr_size :r1)
@@ -122,18 +121,14 @@
 		(assign '((:r4 num_value)) '(:r3))
 		((eval (sym (cat "vp-" (rest _) "-rr"))) :r3 :r0)
 	(loop-until '(:r1 = :r2))
-	(v-call 'num :vcreate '(:r0) '(:r1) :r4 :r1)
-	(vp-pop :r0)
-	(exit 'num _ '(:r0 :r1))
-	(vp-ret))
+	(v-jump 'num :vcreate '(:r0) :r4 :r1))
 
 (def-method 'num :add)
 	;inputs
 	;:r0 = num object (ptr)
 	;:r1 = list of num objects (ptr)
 	;outputs
-	;:r0 = num object (ptr)
-	;:r1 = result num object (ptr)
+	;:r0 = result num object (ptr)
 	;trashes
 	;:r1-:r14
 
@@ -146,8 +141,7 @@
 	;:r0 = num object (ptr)
 	;:r1 = list of num objects (ptr)
 	;outputs
-	;:r0 = num object (ptr)
-	;:r1 = result num object (ptr)
+	;:r0 = result num object (ptr)
 	;trashes
 	;:r1-:r14
 
@@ -160,8 +154,7 @@
 	;:r0 = num object (ptr)
 	;:r1 = list of num objects (ptr)
 	;outputs
-	;:r0 = num object (ptr)
-	;:r1 = result num object (ptr)
+	;:r0 = result num object (ptr)
 	;trashes
 	;:r1-:r14
 
@@ -183,7 +176,7 @@
 		(exec p)
 	(loop-until `(,iter_begin = ,iter_end))
 	(class/obj/ref args iter_begin)
-	(exit 'num _ `(,this ,args))
+	(exit 'num _ `(,args))
 	(vp-ret))
 
 (def-method 'num :min)
@@ -191,7 +184,6 @@
 	;:r0 = num object (ptr)
 	;:r1 = list of num objects (ptr)
 	;outputs
-	;:r0 = num object (ptr)
 	;:r1 = result num object (ptr)
 	;trashes
 	;:r1-:r14
@@ -210,7 +202,6 @@
 	;:r0 = num object (ptr)
 	;:r1 = list of num objects (ptr)
 	;outputs
-	;:r0 = num object (ptr)
 	;:r1 = result num object (ptr)
 	;trashes
 	;:r1-:r14
@@ -226,7 +217,6 @@
 
 (redefun divop (_ p)
 	(entry 'num _ '(:r0 :r1))
-	(vp-push :r0)
 	(class/array/get_both :r1 :r1 :r4)
 	(vp-cpy-ir :r1 0 :r0)
 	(vp-add-cr +ptr_size :r1)
@@ -239,13 +229,9 @@
 		(gotoif '(:r3 = 0) 'error))
 		(exec p)
 	(loop-until '(:r1 = :r4))
-	(v-call 'num :vcreate '(:r0) '(:r1) :r5 :r1)
-	(vp-pop :r0)
-	(exit 'num _ '(:r0 :r1))
-	(vp-ret)
+	(v-jump 'num :vcreate '(:r0) :r5 :r1)
 (vp-label 'error)
-	(vp-pop :r0)
-	(exit 'num _ '(:r0 :r3))
+	(exit 'num _ '(:r3))
 	(vp-ret))
 
 (def-method 'num :div)
@@ -253,8 +239,7 @@
 	;:r0 = num object (ptr)
 	;:r1 = list of num objects (ptr)
 	;outputs
-	;:r0 = num object (ptr)
-	;:r1 = 0 if error, else result num object (ptr)
+	;:r0 = 0 if error, else result num object (ptr)
 	;trashes
 	;:r1-:r14
 
@@ -270,8 +255,7 @@
 	;:r0 = num object (ptr)
 	;:r1 = list of num objects (ptr)
 	;outputs
-	;:r0 = num object (ptr)
-	;:r1 = 0 if error, else result num object (ptr)
+	;:r0 = 0 if error, else result num object (ptr)
 	;trashes
 	;:r1-:r14
 
