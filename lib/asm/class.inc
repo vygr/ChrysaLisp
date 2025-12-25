@@ -295,19 +295,20 @@
 	(vp-call-i _6 (elem-get m 4))
 	(if _4 (assign (elem-get m 3) _4)))
 
-(defun v-jump (_1 _2 &optional _3 _4)
+(defun v-jump (_1 _2 &optional _3 _4 _5)
 	;_1 = class name
 	;_2 = member name
 	;_3 = in parameters
-	;_4 = dispatch reg
+	;_4 = obj reg
+	;_5 = dispatch reg
 	(if (eql (second (defq m (method-lookup _1 _2))) :static)
 		(throw "Method is static ! Use f-jmp ?" (list _1 _2)))
-	(if (find (setd _4 :r14) (defq _ (third m)))
-		(throw "Dispatch register conflicts with arg !" (list _4 _)))
+	(if (find (setd _4 :r0 _5 :r14) (defq _ (third m)))
+		(throw "Dispatch register conflicts with arg !" (list _5 _)))
 	(assign _3 _)
-	(vp-cpy-ir :r0 obj_vtable _4)
+	(vp-cpy-ir _4 obj_vtable _5)
 	(scope-unwind)
-	(vp-jmp-i _4 (elem-get m 4)))
+	(vp-jmp-i _5 (elem-get m 4)))
 
 (defun v-bind (_1 _2 &optional _3 _4)
 	;_1 = class name
@@ -453,7 +454,8 @@
 ;module
 (export-symbols
 	'(gen-type gen-create gen-vtable def-class def-method
-	entry exit call jump s-call d-call s-jump v-call d-jump r-call v-bind
+	entry exit call jump s-call d-call s-jump
+	v-call v-jump d-jump r-call v-bind
 	f-entry f-exit l-entry l-exit f-path f-bind
 	method-input method-output method-lookup signature))
 (env-pop)
