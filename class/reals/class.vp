@@ -24,7 +24,7 @@
 	(entry 'reals :add `(,dst ,src1 ,src2))
 
 	(assign `((,src1 array_length)) `(,src_end))
-	(assign (map (# (list %0 array_begin)) `(,src1 ,src2 ,dst)) `(,src1 ,src2 ,dst1))
+	(vp-simd vp-cpy-ir `(,src1 ,src2 ,dst) `(,array_begin) `(,src1 ,src2 ,dst1))
 	(vp-shl-cr (log2 +ptr_size) src_end)
 	(vp-add-rr src1 src_end)
 	(vec-loop-until `(,src1 ,src2) `(,e0 ,e1) src_end dst1
@@ -52,7 +52,7 @@
 	(entry 'reals :sub `(,dst ,src1 ,src2))
 
 	(assign `((,src1 array_length)) `(,src_end))
-	(assign (map (# (list %0 array_begin)) `(,src1 ,src2 ,dst)) `(,src1 ,src2 ,dst1))
+	(vp-simd vp-cpy-ir `(,src1 ,src2 ,dst) `(,array_begin) `(,src1 ,src2 ,dst1))
 	(vp-shl-cr (log2 +ptr_size) src_end)
 	(vp-add-rr src1 src_end)
 	(vec-loop-until `(,src1 ,src2) `(,e0 ,e1) src_end dst1
@@ -80,7 +80,7 @@
 	(entry 'reals :min `(,dst ,src1 ,src2))
 
 	(assign `((,src1 array_length)) `(,src_end))
-	(assign (map (# (list %0 array_begin)) `(,src1 ,src2 ,dst)) `(,src1 ,src2 ,dst1))
+	(vp-simd vp-cpy-ir `(,src1 ,src2 ,dst) `(,array_begin) `(,src1 ,src2 ,dst1))
 	(vp-shl-cr (log2 +ptr_size) src_end)
 	(vp-add-rr src1 src_end)
 	(vec-loop-until `(,src1 ,src2) `(,e0 ,e1) src_end dst1
@@ -108,7 +108,7 @@
 	(entry 'reals :max `(,dst ,src1 ,src2))
 
 	(assign `((,src1 array_length)) `(,src_end))
-	(assign (map (# (list %0 array_begin)) `(,src1 ,src2 ,dst)) `(,src1 ,src2 ,dst1))
+	(vp-simd vp-cpy-ir `(,src1 ,src2 ,dst) `(,array_begin) `(,src1 ,src2 ,dst1))
 	(vp-shl-cr (log2 +ptr_size) src_end)
 	(vp-add-rr src1 src_end)
 	(vec-loop-until `(,src1 ,src2) `(,e0 ,e1) src_end dst1
@@ -136,7 +136,7 @@
 	(entry 'reals :mul `(,dst ,src1 ,src2))
 
 	(assign `((,src1 array_length)) `(,src_end))
-	(assign (map (# (list %0 array_begin)) `(,src1 ,src2 ,dst)) `(,src1 ,src2 ,dst1))
+	(vp-simd vp-cpy-ir `(,src1 ,src2 ,dst) `(,array_begin) `(,src1 ,src2 ,dst1))
 	(vp-shl-cr (log2 +ptr_size) src_end)
 	(vp-add-rr src1 src_end)
 	(vec-loop-until `(,src1 ,src2) `(,e0 ,e1) src_end dst1
@@ -166,7 +166,7 @@
 	(vp-cpy-cr 0 src_end)
 	(vp-cpy-rf src_end zero)
 	(assign `((,src1 array_length)) `(,src_end))
-	(assign (map (# (list %0 array_begin)) `(,src1 ,src2 ,dst)) `(,src1 ,src2 ,dst1))
+	(vp-simd vp-cpy-ir `(,src1 ,src2 ,dst) `(,array_begin) `(,src1 ,src2 ,dst1))
 	(vp-shl-cr (log2 +ptr_size) src_end)
 	(vp-add-rr src1 src_end)
 	(vec-loop-until `(,src1 ,src2) `(,e0 ,e1) src_end dst1
@@ -200,7 +200,7 @@
 	(vp-cpy-cr 0 src_end)
 	(vp-cpy-rf src_end zero)
 	(assign `((,src1 array_length)) `(,src_end))
-	(assign (map (# (list %0 array_begin)) `(,src1 ,src2 ,dst)) `(,src1 ,src2 ,dst1))
+	(vp-simd vp-cpy-ir `(,src1 ,src2 ,dst) `(,array_begin) `(,src1 ,src2 ,dst1))
 	(vp-shl-cr (log2 +ptr_size) src_end)
 	(vp-add-rr src1 src_end)
 	(vec-loop-until `(,src1 ,src2) `(,e0 ,e1) src_end dst1
@@ -240,7 +240,7 @@
 	(vp-cpy-cr 1 trunc)
 	(vp-cvt-rf trunc one)
 	(assign `((,src1 array_length)) `(,src_end))
-	(assign (map (# (list %0 array_begin)) `(,src1 ,dst)) `(,src1 ,dst1))
+	(vp-simd vp-cpy-ir `(,src1 ,dst) `(,array_begin) `(,src1 ,dst1))
 	(vp-shl-cr (log2 +ptr_size) src_end)
 	(vp-add-rr src1 src_end)
 	(vec-loop-until `(,src1) `(,e0) src_end dst1
@@ -274,7 +274,7 @@
 	(vp-cpy-cr 1 trunc)
 	(vp-cvt-rf trunc one)
 	(assign `((,src1 array_length)) `(,src_end))
-	(assign (map (# (list %0 array_begin)) `(,src1 ,dst)) `(,src1 ,dst1))
+	(vp-simd vp-cpy-ir `(,src1 ,dst) `(,array_begin) `(,src1 ,dst1))
 	(vp-shl-cr (log2 +ptr_size) src_end)
 	(vp-add-rr src1 src_end)
 	(vec-loop-until `(,src1) `(,e0) src_end dst1
@@ -307,7 +307,7 @@
 	(vp-cpy-cr 1 trunc)
 	(vp-cvt-rf trunc one)
 	(assign `((,src1 array_length)) `(,src_end))
-	(assign (map (# (list %0 array_begin)) `(,src1 ,dst)) `(,src1 ,dst1))
+	(vp-simd vp-cpy-ir `(,src1 ,dst) `(,array_begin) `(,src1 ,dst1))
 	(vp-shl-cr (log2 +ptr_size) src_end)
 	(vp-add-rr src1 src_end)
 	(vec-loop-until `(,src1) `(,e0) src_end dst1
@@ -338,7 +338,7 @@
 	(entry 'reals :abs `(,dst ,src1))
 
 	(assign `((,src1 array_length)) `(,src_end))
-	(assign (map (# (list %0 array_begin)) `(,src1 ,dst)) `(,src1 ,dst1))
+	(vp-simd vp-cpy-ir `(,src1 ,dst) `(,array_begin) `(,src1 ,dst1))
 	(vp-shl-cr (log2 +ptr_size) src_end)
 	(vp-add-rr src1 src_end)
 	(vec-loop-until `(,src1) `(,e0) src_end dst1
@@ -365,7 +365,7 @@
 	(entry 'reals :scale `(,dst ,src1 ,scale))
 
 	(assign `((,src1 array_length)) `(,src_end))
-	(assign (map (# (list %0 array_begin)) `(,src1 ,dst)) `(,src1 ,dst1))
+	(vp-simd vp-cpy-ir `(,src1 ,dst) `(,array_begin) `(,src1 ,dst1))
 	(vp-shl-cr (log2 +ptr_size) src_end)
 	(vp-add-rr src1 src_end)
 	(vec-loop-until `(,src1) `(,e0) src_end dst1
@@ -468,7 +468,7 @@
 		`(,half ,one))
 
 	(assign `((,src1 array_length)) `(,src_end))
-	(assign (map (# (list %0 array_begin)) `(,src1 ,dst)) `(,src1 ,dst1))
+	(vp-simd vp-cpy-ir `(,src1 ,dst) `(,array_begin) `(,src1 ,dst1))
 	(vp-shl-cr (log2 +ptr_size) src_end)
 	(vp-add-rr src1 src_end)
 
