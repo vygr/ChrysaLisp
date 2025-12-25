@@ -27,7 +27,7 @@
 	(vp-shl-cr (log2 +ptr_size) src_end)
 	(vp-add-rr src1 src_end)
 	(vec-loop-until `(,src1 ,src2) `(,e0 ,e1) src_end dst1
-		(lambda (e0 e1) (vp-mul-rr e1 e0) (vp-asr-cr +fp_shift e0) e0))
+		(# (vp-mul-rr %1 %0) (vp-asr-cr +fp_shift %0) %0))
 
 	(exit 'fixeds :mul `(,dst -1))
 	(vp-ret)
@@ -54,12 +54,11 @@
 	(vp-shl-cr (log2 +ptr_size) src_end)
 	(vp-add-rr src1 src_end)
 	(vec-loop-until `(,src1 ,src2) `(,e0 ,e1) src_end dst1
-		(lambda (e0 e1)
-			(errorif `(,e1 = 0) 'error)
-			(vp-shl-cr +fp_shift e0)
-			(vp-ext-rr e0 high)
-			(vp-div-rrr e1 high e0)
-			e0))
+		(#  (errorif `(,%%1 = 0) 'error)
+			(vp-shl-cr +fp_shift %0)
+			(vp-ext-rr %0 high)
+			(vp-div-rrr %1 high %0)
+			%0))
 
 	(exit 'fixeds :div `(,dst -1))
 	(vp-ret)
@@ -89,15 +88,14 @@
 	(vp-shl-cr (log2 +ptr_size) src_end)
 	(vp-add-rr src1 src_end)
 	(vec-loop-until `(,src1 ,src2) `(,e0 ,e1) src_end dst1
-		(lambda (e0 e1)
-			(errorif `(,e1 = 0) 'error)
-			(vp-cpy-rr e0 t0)
-			(vp-shl-cr +fp_shift e0)
-			(vp-ext-rr e0 high)
-			(vp-div-rrr e1 high e0)
-			(vp-asr-cr +fp_shift e0)
-			(vp-mul-rr e0 e1)
-			(vp-sub-rr e1 t0)
+		(#  (errorif `(,%%1 = 0) 'error)
+			(vp-cpy-rr %0 t0)
+			(vp-shl-cr +fp_shift %0)
+			(vp-ext-rr %0 high)
+			(vp-div-rrr %1 high %0)
+			(vp-asr-cr +fp_shift %0)
+			(vp-mul-rr %0 %1)
+			(vp-sub-rr %1 t0)
 			t0))
 
 	(exit 'fixeds :mod `(,dst -1))
@@ -151,7 +149,7 @@
 	(vp-shl-cr (log2 +ptr_size) src_end)
 	(vp-add-rr src1 src_end)
 	(vec-loop-until `(,src1) `(,e0) src_end dst1
-		(lambda (e0) (vp-and-cr +fp_int_mask e0) e0))
+		(# (vp-and-cr +fp_int_mask %0) %0))
 
 	(exit 'fixeds :floor `(,dst))
 	(vp-ret)
@@ -176,14 +174,13 @@
 	(vp-shl-cr (log2 +ptr_size) src_end)
 	(vp-add-rr src1 src_end)
 	(vec-loop-until `(,src1) `(,e0) src_end dst1
-		(lambda (e0)
-			(vp-cpy-rr e0 t0)
+		(#	(vp-cpy-rr %0 t0)
 			(vp-and-cr +fp_frac_mask t0)
-			(vp-and-cr +fp_int_mask e0)
+			(vp-and-cr +fp_int_mask %0)
 			(vpif `(,t0 /= 0))
-				(vp-add-cr (<< 1 +fp_shift) e0)
+				(vp-add-cr (<< 1 +fp_shift) %0)
 			(endif)
-			e0))
+			%0))
 
 	(exit 'fixeds :ceil `(,dst))
 	(vp-ret)
@@ -209,7 +206,7 @@
 	(vp-shl-cr (log2 +ptr_size) src_end)
 	(vp-add-rr src1 src_end)
 	(vec-loop-until `(,src1) `(,e0) src_end dst1
-		(lambda (e0) (vp-mul-rr scale e0) (vp-asr-cr +fp_shift e0) e0))
+		(# (vp-mul-rr scale %0) (vp-asr-cr +fp_shift %0) %0))
 
 	(exit 'fixeds :scale `(,dst))
 	(vp-ret)
@@ -236,7 +233,7 @@
 	(vp-shl-cr (log2 +ptr_size) src_end)
 	(vp-add-rr src1 src_end)
 	(vec-loop-until `(,src1 ,src2) `(,e0 ,e1) src_end :nil
-		(lambda (e0 e1) (vp-mul-rr e0 e1) (vp-asr-cr +fp_shift e1) (vp-add-rr e1 dot)))
+		(# (vp-mul-rr %0 %1) (vp-asr-cr +fp_shift %1) (vp-add-rr %1 dot)))
 
 	(exit 'fixeds :dot `(,src ,dot))
 	(vp-ret)

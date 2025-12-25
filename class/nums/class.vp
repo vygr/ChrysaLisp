@@ -27,7 +27,7 @@
 	(vp-shl-cr (log2 +ptr_size) src_end)
 	(vp-add-rr src1 src_end)
 	(vec-loop-until `(,src1 ,src2) `(,e0 ,e1) src_end dst1
-		(lambda (e0 e1) (vp-add-rr e1 e0) e0))
+		(# (vp-add-rr %1 %0) %0))
 
 	(exit 'nums :add `(,dst -1))
 	(vp-ret)
@@ -54,7 +54,7 @@
 	(vp-shl-cr (log2 +ptr_size) src_end)
 	(vp-add-rr src1 src_end)
 	(vec-loop-until `(,src1 ,src2) `(,e0 ,e1) src_end dst1
-		(lambda (e0 e1) (vp-sub-rr e1 e0) e0))
+		(# (vp-sub-rr %1 %0) %0))
 
 	(exit 'nums :sub `(,dst -1))
 	(vp-ret)
@@ -81,7 +81,7 @@
 	(vp-shl-cr (log2 +ptr_size) src_end)
 	(vp-add-rr src1 src_end)
 	(vec-loop-until `(,src1 ,src2) `(,e0 ,e1) src_end dst1
-		(lambda (e0 e1) (vp-min-rr e1 e0) e0))
+		(# (vp-min-rr %1 %0) %0))
 
 	(exit 'nums :min `(,dst -1))
 	(vp-ret)
@@ -108,7 +108,7 @@
 	(vp-shl-cr (log2 +ptr_size) src_end)
 	(vp-add-rr src1 src_end)
 	(vec-loop-until `(,src1 ,src2) `(,e0 ,e1) src_end dst1
-		(lambda (e0 e1) (vp-max-rr e1 e0) e0))
+		(# (vp-max-rr %1 %0) %0))
 
 	(exit 'nums :max `(,dst -1))
 	(vp-ret)
@@ -135,7 +135,7 @@
 	(vp-shl-cr (log2 +ptr_size) src_end)
 	(vp-add-rr src1 src_end)
 	(vec-loop-until `(,src1 ,src2) `(,e0 ,e1) src_end dst1
-		(lambda (e0 e1) (vp-mul-rr e1 e0) e0))
+		(# (vp-mul-rr %1 %0) %0))
 
 	(exit 'nums :mul `(,dst -1))
 	(vp-ret)
@@ -162,11 +162,10 @@
 	(vp-shl-cr (log2 +ptr_size) src_end)
 	(vp-add-rr src1 src_end)
 	(vec-loop-until `(,src1 ,src2) `(,e0 ,e1) src_end dst1
-		(lambda (e0 e1)
-			(errorif `(,e1 = 0) 'error)
-			(vp-ext-rr e0 high)
-			(vp-div-rrr e1 high e0)
-			e0))
+		(#  (errorif `(,%%1 = 0) 'error)
+			(vp-ext-rr %0 high)
+			(vp-div-rrr %1 high %0)
+			%0))
 
 	(exit 'nums :div `(,dst -1))
 	(vp-ret)
@@ -196,10 +195,9 @@
 	(vp-shl-cr (log2 +ptr_size) src_end)
 	(vp-add-rr src1 src_end)
 	(vec-loop-until `(,src1 ,src2) `(,e0 ,e1) src_end dst1
-		(lambda (e0 e1)
-			(errorif `(,e1 = 0) 'error)
-			(vp-ext-rr e0 high)
-			(vp-div-rrr e1 high e0)
+		(# (errorif `(,%%1 = 0) 'error)
+			(vp-ext-rr %0 high)
+			(vp-div-rrr %1 high %0)
 			high))
 
 	(exit 'nums :mod `(,dst -1))
@@ -228,7 +226,7 @@
 	(vp-shl-cr (log2 +ptr_size) src_end)
 	(vp-add-rr src1 src_end)
 	(vec-loop-until `(,src1) `(,e0) src_end dst1
-		(lambda (e0) (vp-abs-rr e0 e0) e0))
+		(# (vp-abs-rr %0 %0) %0))
 
 	(exit 'nums :abs `(,dst))
 	(vp-ret)
@@ -254,7 +252,7 @@
 	(vp-shl-cr (log2 +ptr_size) dst_end)
 	(vp-add-rr dst1 dst_end)
 	(vec-loop-until `(,dst1) `(,e0) dst_end :nil
-		(lambda (e0) (vp-add-rr e0 sum)))
+		(# (vp-add-rr %0 sum)))
 
 	(exit 'nums :sum `(,dst ,sum))
 	(vp-ret)
@@ -280,7 +278,7 @@
 	(vp-shl-cr (log2 +ptr_size) src_end)
 	(vp-add-rr src1 src_end)
 	(vec-loop-until `(,src1) `(,e0) src_end dst1
-		(lambda (e0) (vp-mul-rr scale e0) e0))
+		(# (vp-mul-rr scale %0) %0))
 
 	(exit 'nums :scale `(,dst))
 	(vp-ret)
@@ -307,7 +305,7 @@
 	(vp-shl-cr (log2 +ptr_size) src_end)
 	(vp-add-rr src1 src_end)
 	(vec-loop-until `(,src1 ,src2) `(,e0 ,e1) src_end :nil
-		(lambda (e0 e1) (vp-mul-rr e0 e1) (vp-add-rr e1 dot)))
+		(# (vp-mul-rr %0 %1) (vp-add-rr %1 dot)))
 
 	(exit 'nums :dot `(,src ,dot))
 	(vp-ret)
@@ -333,7 +331,7 @@
 	(vp-shl-cr (log2 +ptr_size) src_end)
 	(vp-add-rr src1 src_end)
 	(vec-loop-while `(,src1) `(,e0) src_end :nil
-		(lambda (e0) (vp-xor-rr e0 val)))
+		(# (vp-xor-rr %0 val)))
 	(vp-abs-rr val val)
 
 	(exit 'nums :hash `(,src ,val))
