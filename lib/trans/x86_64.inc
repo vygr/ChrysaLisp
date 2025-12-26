@@ -735,13 +735,25 @@
 	(emitm-byte 0xf2)
 	(x64-sse-ir 0x11 d c s))
 
+(defun x64-sse-dr (o s1 s2 d)
+	(if (or (= s2 4) (= s2 12)) (defq t s1 s1 s2 s2 t))
+	(defq s1l (logand 7 s1) s1h (>> s1 3)
+		  s2l (logand 7 s2) s2h (>> s2 3)
+		  dl (logand 7 d) dh (>> d 3))
+	(emitm-byte 0xf2)
+	(if (or (>= s1 8) (>= s2 8) (>= d 8))
+		(emitm-byte (+ 0x40 (<< dh 2) (<< s2h 1) s1h)))
+	(emitm-byte 0x0f o)
+	(cond
+		((and (/= s1 5) (/= s1 13))
+			(emitm-byte (+ 0x04 (<< dl 3)) (+ (<< s2l 3) s1l)))
+		(:t (emitm-byte (+ 0x44 (<< dl 3)) (+ (<< s2l 3) s1l) 0))))
+
 (defun emit-cpy-df (s1 s2 d)
-    (emitm-byte 0xf2 0x0f)
-    (x64-dr 0x10 s1 s2 d))
+	(x64-sse-dr 0x10 s1 s2 d))
 
 (defun emit-cpy-fd (s d1 d2)
-    (emitm-byte 0xf2 0x0f)
-    (x64-dr 0x11 d1 d2 s))
+	(x64-sse-dr 0x11 d1 d2 s))
 
 (case *abi*
 (AMD64
