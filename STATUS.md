@@ -17,6 +17,8 @@ Rework `num` `fixed` and `real` classes to reduce stack and register use.
 Rework `nums` `fixeds` and `reals` classes to use improved vector inline helpers
 to reduce stack and register use.
 
+New support for `(vp-cpy-df)` and `(vp-cpy-fd)` instructions in the VM.
+
 ------
 
 New `(nql obj1 obj2) -> :t | :nil` built in function.

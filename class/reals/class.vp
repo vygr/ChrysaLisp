@@ -16,15 +16,15 @@
 	;:r0 = reals object (ptr)
 	;:r1 = 0 if error, else ok
 	;trashes
-	;:r1-:r4, :f0-:f1
+	;:r1-:r5, :f0-:f1
 
-	(vp-rdef (dst src1 src2 dst1 src_end))
+	(vp-rdef (dst src1 src2 dst1 idx1 idx2))
 	(vp-fdef (e0 e1))
 
 	(entry 'reals :add `(,dst ,src1 ,src2))
 
-	(vec-map (list src1 src2) (list dst) (list e0 e1)
-		(list src1 src2) (list dst1) src_end
+	(vec-map-idx (list src1 src2) (list dst) (list e0 e1)
+		(list src1 src2) (list dst1) (list idx1 idx2)
 		(# (vp-add-ff %1 %0) %0))
 
 	(exit 'reals :add `(,dst -1))
@@ -41,15 +41,15 @@
 	;:r0 = reals object (ptr)
 	;:r1 = 0 if error, else ok
 	;trashes
-	;:r1-:r4, :f0-:f1
+	;:r1-:r5, :f0-:f1
 
-	(vp-rdef (dst src1 src2 dst1 src_end))
+	(vp-rdef (dst src1 src2 dst1 idx1 idx2))
 	(vp-fdef (e0 e1))
 
 	(entry 'reals :sub `(,dst ,src1 ,src2))
 
-	(vec-map (list src1 src2) (list dst) (list e0 e1)
-		(list src1 src2) (list dst1) src_end
+	(vec-map-idx (list src1 src2) (list dst) (list e0 e1)
+		(list src1 src2) (list dst1) (list idx1 idx2)
 		(# (vp-sub-ff %1 %0) %0))
 
 	(exit 'reals :sub `(,dst -1))
@@ -66,15 +66,15 @@
 	;:r0 = reals object (ptr)
 	;:r1 = 0 if error, else ok
 	;trashes
-	;:r1-:r4, :f0-:f1
+	;:r1-:r5, :f0-:f1
 
-	(vp-rdef (dst src1 src2 dst1 src_end))
+	(vp-rdef (dst src1 src2 dst1 idx1 idx2))
 	(vp-fdef (e0 e1))
 
 	(entry 'reals :min `(,dst ,src1 ,src2))
 
-	(vec-map (list src1 src2) (list dst) (list e0 e1)
-		(list src1 src2) (list dst1) src_end
+	(vec-map-idx (list src1 src2) (list dst) (list e0 e1)
+		(list src1 src2) (list dst1) (list idx1 idx2)
 		(# (vp-min-ff %1 %0) %0))
 
 	(exit 'reals :min `(,dst -1))
@@ -91,15 +91,15 @@
 	;:r0 = reals object (ptr)
 	;:r1 = 0 if error, else ok
 	;trashes
-	;:r1-:r4, :f0-:f1
+	;:r1-:r5, :f0-:f1
 
-	(vp-rdef (dst src1 src2 dst1 src_end))
+	(vp-rdef (dst src1 src2 dst1 idx1 idx2))
 	(vp-fdef (e0 e1))
 
 	(entry 'reals :max `(,dst ,src1 ,src2))
 
-	(vec-map (list src1 src2) (list dst) (list e0 e1)
-		(list src1 src2) (list dst1) src_end
+	(vec-map-idx (list src1 src2) (list dst) (list e0 e1)
+		(list src1 src2) (list dst1) (list idx1 idx2)
 		(# (vp-max-ff %1 %0) %0))
 
 	(exit 'reals :max `(,dst -1))
@@ -116,15 +116,15 @@
 	;:r0 = reals object (ptr)
 	;:r1 = 0 if error, else ok
 	;trashes
-	;:r1-:r4, :f0-:f1
+	;:r1-:r5, :f0-:f1
 
-	(vp-rdef (dst src1 src2 dst1 src_end))
+	(vp-rdef (dst src1 src2 dst1 idx1 idx2))
 	(vp-fdef (e0 e1))
 
 	(entry 'reals :mul `(,dst ,src1 ,src2))
 
-	(vec-map (list src1 src2) (list dst) (list e0 e1)
-		(list src1 src2) (list dst1) src_end
+	(vec-map-idx (list src1 src2) (list dst) (list e0 e1)
+		(list src1 src2) (list dst1) (list idx1 idx2)
 		(# (vp-mul-ff %1 %0) %0))
 
 	(exit 'reals :mul `(,dst -1))
@@ -141,15 +141,15 @@
 	;:r0 = reals object (ptr)
 	;:r1 = 0 if error, else ok
 	;trashes
-	;:r1-:r4, :f0-:f2
+	;:r1-:r5, :f0-:f2
 
-	(vp-rdef (dst src1 src2 dst1 src_end))
+	(vp-rdef (dst src1 src2 dst1 idx1 idx2))
 	(vp-fdef (e0 e1 zero))
 
 	(entry 'reals :div `(,dst ,src1 ,src2))
 
-	(vec-map (list src1 src2) (list dst) (list e0 e1)
-		(list src1 src2) (list dst1) src_end
+	(vec-map-idx (list src1 src2) (list dst) (list e0 e1)
+		(list src1 src2) (list dst1) (list idx1 idx2)
 		(#  (errorif `(,%%1 = ,zero) 'error)
 			(vp-div-ff %1 %0) %0)
 		(# 	(vp-sub-ff zero zero)))
@@ -171,15 +171,15 @@
 	;:r0 = reals object (ptr)
 	;:r1 = 0 if error, else ok
 	;trashes
-	;:r1-:r5, :f0-:f3
+	;:r1-:r6, :f0-:f3
 
-	(vp-rdef (dst src1 src2 dst1 src_end trunc))
+	(vp-rdef (dst src1 src2 dst1 idx1 idx2 trunc))
 	(vp-fdef (e0 e1 ftrunc zero))
 
 	(entry 'reals :mod `(,dst ,src1 ,src2))
 
-	(vec-map (list src1 src2) (list dst) (list e0 e1)
-		(list src1 src2) (list dst1) src_end
+	(vec-map-idx (list src1 src2) (list dst) (list e0 e1)
+		(list src1 src2) (list dst1) (list idx1 idx2)
 		(#  (errorif `(,%%1 = ,zero) 'error)
 			(vp-cpy-ff %0 ftrunc)
 			(vp-div-ff %1 ftrunc)
@@ -205,15 +205,15 @@
 	;outputs
 	;:r0 = reals object (ptr)
 	;trashes
-	;:r1-:r4, :f0-:f3
+	;:r1-:r5, :f0-:f3
 
-	(vp-rdef (dst src1 dst1 src_end trunc))
+	(vp-rdef (dst src1 dst1 idx1 idx2 trunc))
 	(vp-fdef (e0 ftrunc one zero))
 
 	(entry 'reals :frac `(,dst ,src1))
 
-	(vec-map (list src1) (list dst) (list e0)
-		(list src1) (list dst1) src_end
+	(vec-map-idx (list src1) (list dst) (list e0)
+		(list src1) (list dst1) (list idx1 idx2)
 		(#  (vp-cvt-fr %0 trunc)
 			(vp-cvt-rf trunc ftrunc)
 			(vp-sub-ff ftrunc %0)
@@ -237,15 +237,15 @@
 	;outputs
 	;:r0 = reals object (ptr)
 	;trashes
-	;:r1-:r4, :f0-:f2
+	;:r1-:r5, :f0-:f2
 
-	(vp-rdef (dst src1 dst1 src_end trunc))
+	(vp-rdef (dst src1 dst1 idx1 idx2 trunc))
 	(vp-fdef (e0 ftrunc one))
 
 	(entry 'reals :floor `(,dst ,src1))
 
-	(vec-map (list src1) (list dst) (list e0)
-		(list src1) (list dst1) src_end
+	(vec-map-idx (list src1) (list dst) (list e0)
+		(list src1) (list dst1) (list idx1 idx2)
 		(#  (vp-cvt-fr %0 trunc)
 			(vp-cvt-rf trunc ftrunc)
 			(vpif `(,ftrunc > ,%%0))
@@ -267,15 +267,15 @@
 	;outputs
 	;:r0 = reals object (ptr)
 	;trashes
-	;:r1-:r4, :f0-:f2
+	;:r1-:r5, :f0-:f2
 
-	(vp-rdef (dst src1 dst1 src_end trunc))
+	(vp-rdef (dst src1 dst1 idx1 idx2 trunc))
 	(vp-fdef (e0 ftrunc one))
 
 	(entry 'reals :ceil `(,dst ,src1))
 
-	(vec-map (list src1) (list dst) (list e0)
-		(list src1) (list dst1) src_end
+	(vec-map-idx (list src1) (list dst) (list e0)
+		(list src1) (list dst1) (list idx1 idx2)
 		(#  (vp-cvt-fr %0 trunc)
 			(vp-cvt-rf trunc ftrunc)
 			(vpif `(,ftrunc < ,%%0))
@@ -297,15 +297,15 @@
 	;outputs
 	;:r0 = reals object (ptr)
 	;trashes
-	;:r1-:r3, :f0
+	;:r1-:r4, :f0
 
-	(vp-rdef (dst src1 dst1 src_end))
+	(vp-rdef (dst src1 dst1 idx1 idx2))
 	(vp-fdef (e0))
 
 	(entry 'reals :abs `(,dst ,src1))
 
-	(vec-map (list src1) (list dst) (list e0)
-		(list src1) (list dst1) src_end
+	(vec-map-idx (list src1) (list dst) (list e0)
+		(list src1) (list dst1) (list idx1 idx2)
 		(# (vp-abs-ff %0 %0) %0))
 
 	(exit 'reals :abs `(,dst))
@@ -321,15 +321,15 @@
 	;outputs
 	;:r0 = reals object (ptr)
 	;trashes
-	;:r1-:r3, :f0-:f1
+	;:r1-:r4, :f0-:f1
 
-	(vp-rdef (dst src1 dst1 src_end))
+	(vp-rdef (dst src1 dst1 idx1 idx2))
 	(vp-fdef (e0 scale))
 
 	(entry 'reals :scale `(,dst ,src1 ,scale))
 
-	(vec-map (list src1) (list dst) (list e0)
-		(list src1) (list dst1) src_end
+	(vec-map-idx (list src1) (list dst) (list e0)
+		(list src1) (list dst1) (list idx1 idx2)
 		(# (vp-mul-ff scale %0) %0))
 
 	(exit 'reals :scale `(,dst))
@@ -368,14 +368,14 @@
 	;:r0 = reals object (ptr)
 	;:r1 = dot product (real)
 	;trashes
-	;:r1-:r14
+	;:r1-:r4, :f0-:f1
 
-	(vp-rdef (this src2 src1 src_end))
+	(vp-rdef (this src2 src1 idx1 idx2))
 	(vp-fdef (dot e0 e1))
 
 	(entry 'reals :dot `(,this ,src2))
 
-	(vec-reduce (list this src2) (list e0 e1) (list src1 src2) src_end
+	(vec-reduce-idx (list this src2) (list e0 e1) (list src1 src2) (list idx1 idx2)
 		(# (vp-mul-ff %0 %1) (vp-add-ff %1 dot))
 		(# (vp-sub-ff dot dot)))
 

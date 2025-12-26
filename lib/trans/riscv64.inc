@@ -525,6 +525,14 @@
 			(emit-add-rr d +riscv64_rtmp1)
 			(riscv64-s 0x27 +riscv64_rtmp1 s 0x3 0))))
 
+(defun emit-cpy-df (s1 s2 d)
+    (riscv64-r 0x33 +riscv64_rtmp1 s1 s2 0x0 0x0)
+    (riscv64-i 0x07 d +riscv64_rtmp1 0x3 0))
+
+(defun emit-cpy-fd (s d1 d2)
+    (riscv64-r 0x33 +riscv64_rtmp1 d1 d2 0x0 0x0)
+    (riscv64-s 0x27 +riscv64_rtmp1 s 0x3 0))
+
 (defun emit-alloc (c) (emit-sub-cr (align c stack_align) +riscv64_rsp))
 (defun emit-free (c) (emit-add-cr (align c stack_align) +riscv64_rsp))
 (defun emit-ret () (emit-jmp-r +riscv64_rlnk))

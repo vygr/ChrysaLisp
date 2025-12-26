@@ -219,6 +219,8 @@
 
 (defun vp-cpy-if (s c d) (emit (static-qqp (emit-cpy-if ,s ,(eval c (penv)) ,d))))
 (defun vp-cpy-fi (s d c) (emit (static-qqp (emit-cpy-fi ,s ,d ,(eval c (penv))))))
+(defun vp-cpy-df (b i d) (emit `(emit-cpy-df ,b ,i ,d)))
+(defun vp-cpy-fd (s b i) (emit `(emit-cpy-fd ,s ,b ,i)))
 
 ;puedo vp instructions
 (defun vp-simd (op &rest v)

@@ -16,14 +16,14 @@
 	;:r0 = fixeds object (ptr)
 	;:r1 = 0 if error, else ok
 	;trashes
-	;:r1-:r6
+	;:r1-:r7
 
-	(vp-rdef (dst src1 src2 dst1 src_end e0 e1))
+	(vp-rdef (dst src1 src2 dst1 idx1 idx2 e0 e1))
 
 	(entry 'fixeds :mul `(,dst ,src1 ,src2))
 
-	(vec-map (list src1 src2) (list dst) (list e0 e1)
-		(list src1 src2) (list dst1) src_end
+	(vec-map-idx (list src1 src2) (list dst) (list e0 e1)
+		(list src1 src2) (list dst1) (list idx1 idx2)
 		(# (vp-mul-rr %1 %0) (vp-asr-cr +fp_shift %0) %0))
 
 	(exit 'fixeds :mul `(,dst -1))
@@ -40,14 +40,14 @@
 	;:r0 = fixeds object (ptr)
 	;:r1 = 0 if error, else ok
 	;trashes
-	;:r1-:r7
+	;:r1-:r8
 
-	(vp-rdef (e0 e1 high src1 src2 dst1 src_end dst))
+	(vp-rdef (e0 e1 high src1 src2 dst1 idx1 idx2 dst))
 
 	(entry 'fixeds :div `(,dst ,e1 ,high))
 
-	(vec-map (list e1 high) (list dst) (list e0 e1)
-		(list src1 src2) (list dst1) src_end
+	(vec-map-idx (list e1 high) (list dst) (list e0 e1)
+		(list src1 src2) (list dst1) (list idx1 idx2)
 		(#  (errorif `(,%%1 = 0) 'error)
 			(vp-shl-cr +fp_shift %0)
 			(vp-ext-rr %0 high)
@@ -71,14 +71,14 @@
 	;:r0 = fixeds object (ptr)
 	;:r1 = 0 if error, else ok
 	;trashes
-	;:r1-:r8
+	;:r1-:r9
 
-	(vp-rdef (e0 e1 high src1 src2 dst1 src_end dst t0))
+	(vp-rdef (e0 e1 high src1 src2 dst1 idx1 idx2 dst t0))
 
 	(entry 'fixeds :mod `(,dst ,e1 ,high))
 
-	(vec-map (list e1 high) (list dst) (list e0 e1)
-		(list src1 src2) (list dst1) src_end
+	(vec-map-idx (list e1 high) (list dst) (list e0 e1)
+		(list src1 src2) (list dst1) (list idx1 idx2)
 		(#  (errorif `(,%%1 = 0) 'error)
 			(vp-cpy-rr %0 t0)
 			(vp-shl-cr +fp_shift %0)
@@ -104,14 +104,14 @@
 	;outputs
 	;:r0 = fixeds object (ptr)
 	;trashes
-	;:r1-:r5
+	;:r1-:r6
 
-	(vp-rdef (dst src1 dst1 src_end e0))
+	(vp-rdef (dst src1 dst1 idx1 idx2 e0))
 
 	(entry 'fixeds :frac `(,dst ,src1))
 
-	(vec-map (list src1) (list dst) (list e0)
-		(list src1) (list dst1) src_end
+	(vec-map-idx (list src1) (list dst) (list e0)
+		(list src1) (list dst1) (list idx1 idx2)
 		(# (vp-and-cr +fp_frac_mask %0) %0))
 
 	(exit 'fixeds :frac `(,dst))
@@ -126,14 +126,14 @@
 	;outputs
 	;:r0 = fixeds object (ptr)
 	;trashes
-	;:r1-:r4
+	;:r1-:r5
 
-	(vp-rdef (dst src1 dst1 src_end e0))
+	(vp-rdef (dst src1 dst1 idx1 idx2 e0))
 
 	(entry 'fixeds :floor `(,dst ,src1))
 
-	(vec-map (list src1) (list dst) (list e0)
-		(list src1) (list dst1) src_end
+	(vec-map-idx (list src1) (list dst) (list e0)
+		(list src1) (list dst1) (list idx1 idx2)
 		(# (vp-and-cr +fp_int_mask %0) %0))
 
 	(exit 'fixeds :floor `(,dst))
@@ -148,14 +148,14 @@
 	;outputs
 	;:r0 = fixeds object (ptr)
 	;trashes
-	;:r1-:r5
+	;:r1-:r6
 
-	(vp-rdef (dst src1 dst1 src_end e0 t0))
+	(vp-rdef (dst src1 dst1 idx1 idx2 e0 t0))
 
 	(entry 'fixeds :ceil `(,dst ,src1))
 
-	(vec-map (list src1) (list dst) (list e0)
-		(list src1) (list dst1) src_end
+	(vec-map-idx (list src1) (list dst) (list e0)
+		(list src1) (list dst1) (list idx1 idx2)
 		(#	(vp-cpy-rr %0 t0)
 			(vp-and-cr +fp_frac_mask t0)
 			(vp-and-cr +fp_int_mask %0)
@@ -177,14 +177,14 @@
 	;outputs
 	;:r0 = fixeds object (ptr)
 	;trashes
-	;:r1-:r5
+	;:r1-:r6
 
-	(vp-rdef (dst src1 scale dst1 src_end e0))
+	(vp-rdef (dst src1 scale dst1 idx1 idx2 e0))
 
 	(entry 'fixeds :scale `(,dst ,src1 ,scale))
 
-	(vec-map (list src1) (list dst) (list e0)
-		(list src1) (list dst1) src_end
+	(vec-map-idx (list src1) (list dst) (list e0)
+		(list src1) (list dst1) (list idx1 idx2)
 		(# (vp-mul-rr scale %0) (vp-asr-cr +fp_shift %0) %0))
 
 	(exit 'fixeds :scale `(,dst))
@@ -200,13 +200,13 @@
 	;:r0 = fixeds object (ptr)
 	;:r1 = dot product (fixed)
 	;trashes
-	;:r1-:r6
+	;:r1-:r7
 
-	(vp-rdef (src dot src1 src2 src_end e0 e1))
+	(vp-rdef (src dot src1 src2 idx1 idx2 e0 e1))
 
 	(entry 'fixeds :dot `(,src ,dot))
 
-	(vec-reduce (list src dot) (list e0 e1) (list src1 src2) src_end
+	(vec-reduce-idx (list src dot) (list e0 e1) (list src1 src2) (list idx1 idx2)
 		(# (vp-mul-rr %0 %1) (vp-asr-cr +fp_shift %1) (vp-add-rr %1 dot))
 		(# (vp-sub-rr dot dot)))
 

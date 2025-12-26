@@ -603,6 +603,12 @@
 			(emit-add-rr d +arm64_rtmp)
 			(emitm-int (+ 0xfc000000 (<< (logand +arm64_rtmp 31) 5) (logand s 31))))))
 
+(defun emit-cpy-df (s1 s2 d)
+    (arm64-dr 0xFC606800 s1 s2 d))
+
+(defun emit-cpy-fd (s d1 d2)
+    (arm64-dr 0xFC206800 d1 d2 s))
+
 (defun emit-alloc (c) (emit-sub-cr (align c stack_align) +arm64_vp_rsp))
 (defun emit-free (c) (emit-add-cr (align c stack_align) +arm64_vp_rsp))
 (defun emit-ret () (emitm-int 0xd65f03c0))

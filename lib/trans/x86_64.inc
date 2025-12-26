@@ -727,15 +727,21 @@
 			(emitm-int c))
 		(:t (throw "x64-sse-ir constant out of range !" c))))
 
-; MOVSD xmm, [r+disp] (0F 10)
 (defun emit-cpy-if (s c d)
 	(emitm-byte 0xf2)
 	(x64-sse-ir 0x10 s c d))
 
-; MOVSD [r+disp], xmm (0F 11)
 (defun emit-cpy-fi (s d c)
 	(emitm-byte 0xf2)
 	(x64-sse-ir 0x11 d c s))
+
+(defun emit-cpy-df (s1 s2 d)
+    (emitm-byte 0xf2 0x0f)
+    (x64-dr 0x10 s1 s2 d))
+
+(defun emit-cpy-fd (s d1 d2)
+    (emitm-byte 0xf2 0x0f)
+    (x64-dr 0x11 d1 d2 s))
 
 (case *abi*
 (AMD64

@@ -37,7 +37,7 @@ inputs
 outputs
 :r0 = nums object (ptr)
 trashes
-:r1-:r4
+:r1-:r5
 ```
 
 ### :add -> class/nums/add
@@ -51,7 +51,7 @@ outputs
 :r0 = nums object (ptr)
 :r1 = 0 if error, else ok
 trashes
-:r1-:r6
+:r1-:r7
 ```
 
 ### :create -> class/nums/create
@@ -67,7 +67,7 @@ outputs
 :r0 = nums object (ptr)
 :r1 = 0 if error, else ok
 trashes
-:r1-:r7
+:r1-:r8
 ```
 
 ### :dot -> class/nums/dot
@@ -80,7 +80,7 @@ outputs
 :r0 = nums object (ptr)
 :r1 = dot product (long)
 trashes
-:r1-:r6
+:r1-:r7
 ```
 
 ### :hash -> class/nums/hash
@@ -106,7 +106,7 @@ outputs
 :r0 = nums object (ptr)
 :r1 = 0 if error, else ok
 trashes
-:r1-:r6
+:r1-:r7
 ```
 
 ### :min -> class/nums/min
@@ -120,7 +120,7 @@ outputs
 :r0 = nums object (ptr)
 :r1 = 0 if error, else ok
 trashes
-:r1-:r6
+:r1-:r7
 ```
 
 ### :mod -> class/nums/mod
@@ -134,7 +134,7 @@ outputs
 :r0 = nums object (ptr)
 :r1 = 0 if error, else ok
 trashes
-:r1-:r7
+:r1-:r8
 ```
 
 ### :mul -> class/nums/mul
@@ -148,7 +148,7 @@ outputs
 :r0 = nums object (ptr)
 :r1 = 0 if error, else ok
 trashes
-:r1-:r6
+:r1-:r7
 ```
 
 ### :scale -> class/nums/scale
@@ -161,7 +161,7 @@ inputs
 outputs
 :r0 = nums object (ptr)
 trashes
-:r1-:r5
+:r1-:r6
 ```
 
 ### :sub -> class/nums/sub
@@ -175,7 +175,7 @@ outputs
 :r0 = nums object (ptr)
 :r1 = 0 if error, else ok
 trashes
-:r1-:r6
+:r1-:r7
 ```
 
 ### :sum -> class/nums/sum

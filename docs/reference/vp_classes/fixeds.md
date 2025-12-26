@@ -21,7 +21,7 @@ inputs
 outputs
 :r0 = fixeds object (ptr)
 trashes
-:r1-:r5
+:r1-:r6
 ```
 
 ### :create -> class/fixeds/create
@@ -37,7 +37,7 @@ outputs
 :r0 = fixeds object (ptr)
 :r1 = 0 if error, else ok
 trashes
-:r1-:r7
+:r1-:r8
 ```
 
 ### :dot -> class/fixeds/dot
@@ -50,7 +50,7 @@ outputs
 :r0 = fixeds object (ptr)
 :r1 = dot product (fixed)
 trashes
-:r1-:r6
+:r1-:r7
 ```
 
 ### :floor -> class/fixeds/floor
@@ -62,7 +62,7 @@ inputs
 outputs
 :r0 = fixeds object (ptr)
 trashes
-:r1-:r4
+:r1-:r5
 ```
 
 ### :frac -> class/fixeds/frac
@@ -74,7 +74,7 @@ inputs
 outputs
 :r0 = fixeds object (ptr)
 trashes
-:r1-:r5
+:r1-:r6
 ```
 
 ### :mod -> class/fixeds/mod
@@ -88,7 +88,7 @@ outputs
 :r0 = fixeds object (ptr)
 :r1 = 0 if error, else ok
 trashes
-:r1-:r8
+:r1-:r9
 ```
 
 ### :mul -> class/fixeds/mul
@@ -102,7 +102,7 @@ outputs
 :r0 = fixeds object (ptr)
 :r1 = 0 if error, else ok
 trashes
-:r1-:r6
+:r1-:r7
 ```
 
 ### :scale -> class/fixeds/scale
@@ -115,7 +115,7 @@ inputs
 outputs
 :r0 = fixeds object (ptr)
 trashes
-:r1-:r5
+:r1-:r6
 ```
 
 ### :vcreate -> class/fixeds/create

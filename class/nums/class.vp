@@ -16,14 +16,14 @@
 	;:r0 = nums object (ptr)
 	;:r1 = 0 if error, else ok
 	;trashes
-	;:r1-:r6
+	;:r1-:r7
 
-	(vp-rdef (dst src1 src2 dst1 src_end e0 e1))
+	(vp-rdef (dst src1 src2 dst1 idx1 idx2 e0 e1))
 
 	(entry 'nums :add `(,dst ,src1 ,src2))
 
-	(vec-map (list src1 src2) (list dst) (list e0 e1)
-		(list src1 src2) (list dst1) src_end
+	(vec-map-idx (list src1 src2) (list dst) (list e0 e1)
+		(list src1 src2) (list dst1) (list idx1 idx2)
 		(# (vp-add-rr %1 %0) %0))
 
 	(exit 'nums :add `(,dst -1))
@@ -40,14 +40,14 @@
 	;:r0 = nums object (ptr)
 	;:r1 = 0 if error, else ok
 	;trashes
-	;:r1-:r6
+	;:r1-:r7
 
-	(vp-rdef (dst src1 src2 dst1 src_end e0 e1))
+	(vp-rdef (dst src1 src2 dst1 idx1 idx2 e0 e1))
 
 	(entry 'nums :sub `(,dst ,src1 ,src2))
 
-	(vec-map (list src1 src2) (list dst) (list e0 e1)
-		(list src1 src2) (list dst1) src_end
+	(vec-map-idx (list src1 src2) (list dst) (list e0 e1)
+		(list src1 src2) (list dst1) (list idx1 idx2)
 		(# (vp-sub-rr %1 %0) %0))
 
 	(exit 'nums :sub `(,dst -1))
@@ -64,14 +64,14 @@
 	;:r0 = nums object (ptr)
 	;:r1 = 0 if error, else ok
 	;trashes
-	;:r1-:r6
+	;:r1-:r7
 
-	(vp-rdef (dst src1 src2 dst1 src_end e0 e1))
+	(vp-rdef (dst src1 src2 dst1 idx1 idx2 e0 e1))
 
 	(entry 'nums :min `(,dst ,src1 ,src2))
 
-	(vec-map (list src1 src2) (list dst) (list e0 e1)
-		(list src1 src2) (list dst1) src_end
+	(vec-map-idx (list src1 src2) (list dst) (list e0 e1)
+		(list src1 src2) (list dst1) (list idx1 idx2)
 		(# (vp-min-rr %1 %0) %0))
 
 	(exit 'nums :min `(,dst -1))
@@ -88,14 +88,14 @@
 	;:r0 = nums object (ptr)
 	;:r1 = 0 if error, else ok
 	;trashes
-	;:r1-:r6
+	;:r1-:r7
 
-	(vp-rdef (dst src1 src2 dst1 src_end e0 e1))
+	(vp-rdef (dst src1 src2 dst1 idx1 idx2 e0 e1))
 
 	(entry 'nums :max `(,dst ,src1 ,src2))
 
-	(vec-map (list src1 src2) (list dst) (list e0 e1)
-		(list src1 src2) (list dst1) src_end
+	(vec-map-idx (list src1 src2) (list dst) (list e0 e1)
+		(list src1 src2) (list dst1) (list idx1 idx2)
 		(# (vp-max-rr %1 %0) %0))
 
 	(exit 'nums :max `(,dst -1))
@@ -112,14 +112,14 @@
 	;:r0 = nums object (ptr)
 	;:r1 = 0 if error, else ok
 	;trashes
-	;:r1-:r6
+	;:r1-:r7
 
-	(vp-rdef (dst src1 src2 dst1 src_end e0 e1))
+	(vp-rdef (dst src1 src2 dst1 idx1 idx2 e0 e1))
 
 	(entry 'nums :mul `(,dst ,src1 ,src2))
 
-	(vec-map (list src1 src2) (list dst) (list e0 e1)
-		(list src1 src2) (list dst1) src_end
+	(vec-map-idx (list src1 src2) (list dst) (list e0 e1)
+		(list src1 src2) (list dst1) (list idx1 idx2)
 		(# (vp-mul-rr %1 %0) %0))
 
 	(exit 'nums :mul `(,dst -1))
@@ -136,14 +136,14 @@
 	;:r0 = nums object (ptr)
 	;:r1 = 0 if error, else ok
 	;trashes
-	;:r1-:r7
+	;:r1-:r8
 
-	(vp-rdef (e0 e1 high src1 src2 dst1 src_end dst))
+	(vp-rdef (e0 e1 high src1 src2 dst1 idx1 idx2 dst))
 
 	(entry 'nums :div `(,dst ,e1 ,high))
 
-	(vec-map (list e1 high) (list dst) (list e0 e1)
-		(list src1 src2) (list dst1) src_end
+	(vec-map-idx (list e1 high) (list dst) (list e0 e1)
+		(list src1 src2) (list dst1) (list idx1 idx2)
 		(#  (errorif `(,%%1 = 0) 'error)
 			(vp-ext-rr %0 high)
 			(vp-div-rrr %1 high %0)
@@ -166,14 +166,14 @@
 	;:r0 = nums object (ptr)
 	;:r1 = 0 if error, else ok
 	;trashes
-	;:r1-:r7
+	;:r1-:r8
 
-	(vp-rdef (e0 e1 high src1 src2 dst1 src_end dst))
+	(vp-rdef (e0 e1 high src1 src2 dst1 idx1 idx2 dst))
 
 	(entry 'nums :mod `(,dst ,e1 ,high))
 
-	(vec-map (list e1 high) (list dst) (list e0 e1)
-		(list src1 src2) (list dst1) src_end
+	(vec-map-idx (list e1 high) (list dst) (list e0 e1)
+		(list src1 src2) (list dst1) (list idx1 idx2)
 		(# (errorif `(,%%1 = 0) 'error)
 			(vp-ext-rr %0 high)
 			(vp-div-rrr %1 high %0)
@@ -194,14 +194,14 @@
 	;outputs
 	;:r0 = nums object (ptr)
 	;trashes
-	;:r1-:r4
+	;:r1-:r5
 
-	(vp-rdef (dst src1 dst1 src_end e0))
+	(vp-rdef (dst src1 dst1 idx1 idx2 e0))
 
 	(entry 'nums :abs `(,dst ,src1))
 
-	(vec-map (list src1) (list dst) (list e0)
-		(list src1) (list dst1) src_end
+	(vec-map-idx (list src1) (list dst) (list e0)
+		(list src1) (list dst1) (list idx1 idx2)
 		(# (vp-abs-rr %0 %0) %0))
 
 	(exit 'nums :abs `(,dst))
@@ -239,14 +239,14 @@
 	;outputs
 	;:r0 = nums object (ptr)
 	;trashes
-	;:r1-:r5
+	;:r1-:r6
 
-	(vp-rdef (dst src1 scale dst1 src_end e0))
+	(vp-rdef (dst src1 scale dst1 idx1 idx2 e0))
 
 	(entry 'nums :scale `(,dst ,src1 ,scale))
 
-	(vec-map (list src1) (list dst) (list e0)
-		(list src1) (list dst1) src_end
+	(vec-map-idx (list src1) (list dst) (list e0)
+		(list src1) (list dst1) (list idx1 idx2)
 		(# (vp-mul-rr scale %0) %0))
 
 	(exit 'nums :scale `(,dst))
@@ -262,13 +262,13 @@
 	;:r0 = nums object (ptr)
 	;:r1 = dot product (long)
 	;trashes
-	;:r1-:r6
+	;:r1-:r7
 
-	(vp-rdef (src dot src1 src2 src_end e0 e1))
+	(vp-rdef (src dot src1 src2 idx1 idx2 e0 e1))
 
 	(entry 'nums :dot `(,src ,dot))
 
-	(vec-reduce (list src dot) (list e0 e1) (list src1 src2) src_end
+	(vec-reduce-idx (list src dot) (list e0 e1) (list src1 src2) (list idx1 idx2)
 		(# (vp-mul-rr %0 %1) (vp-add-rr %1 dot))
 		(# (vp-sub-rr dot dot)))
 
