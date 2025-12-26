@@ -8,14 +8,13 @@
 (defcvar 'stack_align 8 'stack_state '(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14 :r30))
 
 (defun emit-native-reg? (r)
-	(if (defq i (find r
+	(or (find r
 			'(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7				;args (x0-x7)
 			:r15											;indirect (x8)
 			:r16 :r17 :r18 :r19 :r20 :r21 :r22				;temps (x9-x15)
 			:r23 :r24 :r25									;ip0, ip1, platform
 			:r8 :r9 :r10 :r11 :r12 :r13 :r14 :r26 :r27 :rsp	;callee saves (x19-x28)
-			:r29 :r30 :r31)))								;frm, lnk, stack
-		i
+			:r29 :r30 :r31))								;frm, lnk, stack
 		(find r
 			'(:f16 :f17 :f18 :f19 :f20 :f21 :f22 :f23		;d0-d7 (Volatile / Args / Ret)
 			:f0 :f1 :f2 :f3 :f4 :f5 :f6 :f7					;d8-d15 (Callee Saved)
