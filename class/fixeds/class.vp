@@ -22,11 +22,8 @@
 
 	(entry 'fixeds :mul `(,dst ,src1 ,src2))
 
-	(assign `((,src1 array_length)) `(,src_end))
-	(vp-simd vp-cpy-ir `(,src1 ,src2 ,dst) `(,array_begin) `(,src1 ,src2 ,dst1))
-	(vp-shl-cr (log2 +ptr_size) src_end)
-	(vp-add-rr src1 src_end)
-	(vec-loop-until `(,src1 ,src2) `(,e0 ,e1) src_end dst1
+	(vec-map (list src1 src2) (list dst) (list e0 e1)
+		(list src1 src2) (list dst1) src_end
 		(# (vp-mul-rr %1 %0) (vp-asr-cr +fp_shift %0) %0))
 
 	(exit 'fixeds :mul `(,dst -1))
@@ -49,11 +46,8 @@
 
 	(entry 'fixeds :div `(,dst ,e1 ,high))
 
-	(assign `((,e1 array_length)) `(,src_end))
-	(vp-simd vp-cpy-ir `(,e1 ,high ,dst) `(,array_begin) `(,src1 ,src2 ,dst1))
-	(vp-shl-cr (log2 +ptr_size) src_end)
-	(vp-add-rr src1 src_end)
-	(vec-loop-until `(,src1 ,src2) `(,e0 ,e1) src_end dst1
+	(vec-map (list e1 high) (list dst) (list e0 e1)
+		(list src1 src2) (list dst1) src_end
 		(#  (errorif `(,%%1 = 0) 'error)
 			(vp-shl-cr +fp_shift %0)
 			(vp-ext-rr %0 high)
@@ -83,11 +77,8 @@
 
 	(entry 'fixeds :mod `(,dst ,e1 ,high))
 
-	(assign `((,e1 array_length)) `(,src_end))
-	(vp-simd vp-cpy-ir `(,e1 ,high ,dst) `(,array_begin) `(,src1 ,src2 ,dst1))
-	(vp-shl-cr (log2 +ptr_size) src_end)
-	(vp-add-rr src1 src_end)
-	(vec-loop-until `(,src1 ,src2) `(,e0 ,e1) src_end dst1
+	(vec-map (list e1 high) (list dst) (list e0 e1)
+		(list src1 src2) (list dst1) src_end
 		(#  (errorif `(,%%1 = 0) 'error)
 			(vp-cpy-rr %0 t0)
 			(vp-shl-cr +fp_shift %0)
@@ -119,11 +110,8 @@
 
 	(entry 'fixeds :frac `(,dst ,src1))
 
-	(assign `((,src1 array_length)) `(,src_end))
-	(vp-simd vp-cpy-ir `(,src1 ,dst) `(,array_begin) `(,src1 ,dst1))
-	(vp-shl-cr (log2 +ptr_size) src_end)
-	(vp-add-rr src1 src_end)
-	(vec-loop-until `(,src1) `(,e0) src_end dst1
+	(vec-map (list src1) (list dst) (list e0)
+		(list src1) (list dst1) src_end
 		(# (vp-and-cr +fp_frac_mask %0) %0))
 
 	(exit 'fixeds :frac `(,dst))
@@ -144,11 +132,8 @@
 
 	(entry 'fixeds :floor `(,dst ,src1))
 
-	(assign `((,src1 array_length)) `(,src_end))
-	(vp-simd vp-cpy-ir `(,src1 ,dst) `(,array_begin) `(,src1 ,dst1))
-	(vp-shl-cr (log2 +ptr_size) src_end)
-	(vp-add-rr src1 src_end)
-	(vec-loop-until `(,src1) `(,e0) src_end dst1
+	(vec-map (list src1) (list dst) (list e0)
+		(list src1) (list dst1) src_end
 		(# (vp-and-cr +fp_int_mask %0) %0))
 
 	(exit 'fixeds :floor `(,dst))
@@ -169,11 +154,8 @@
 
 	(entry 'fixeds :ceil `(,dst ,src1))
 
-	(assign `((,src1 array_length)) `(,src_end))
-	(vp-simd vp-cpy-ir `(,src1 ,dst) `(,array_begin) `(,src1 ,dst1))
-	(vp-shl-cr (log2 +ptr_size) src_end)
-	(vp-add-rr src1 src_end)
-	(vec-loop-until `(,src1) `(,e0) src_end dst1
+	(vec-map (list src1) (list dst) (list e0)
+		(list src1) (list dst1) src_end
 		(#	(vp-cpy-rr %0 t0)
 			(vp-and-cr +fp_frac_mask t0)
 			(vp-and-cr +fp_int_mask %0)
@@ -201,11 +183,8 @@
 
 	(entry 'fixeds :scale `(,dst ,src1 ,scale))
 
-	(assign `((,src1 array_length)) `(,src_end))
-	(vp-simd vp-cpy-ir `(,src1 ,dst) `(,array_begin) `(,src1 ,dst1))
-	(vp-shl-cr (log2 +ptr_size) src_end)
-	(vp-add-rr src1 src_end)
-	(vec-loop-until `(,src1) `(,e0) src_end dst1
+	(vec-map (list src1) (list dst) (list e0)
+		(list src1) (list dst1) src_end
 		(# (vp-mul-rr scale %0) (vp-asr-cr +fp_shift %0) %0))
 
 	(exit 'fixeds :scale `(,dst))
@@ -225,15 +204,11 @@
 
 	(vp-rdef (src dot src1 src2 src_end e0 e1))
 
-	(entry 'fixeds :dot `(,src1 ,dot))
+	(entry 'fixeds :dot `(,src ,dot))
 
-	(assign `((,src1 array_length)) `(,src_end))
-	(assign (map (# (list %0 array_begin)) `(,dot ,src)) `(,src1 ,src2))
-	(vp-xor-rr dot dot)
-	(vp-shl-cr (log2 +ptr_size) src_end)
-	(vp-add-rr src1 src_end)
-	(vec-loop-until `(,src1 ,src2) `(,e0 ,e1) src_end :nil
-		(# (vp-mul-rr %0 %1) (vp-asr-cr +fp_shift %1) (vp-add-rr %1 dot)))
+	(vec-reduce (list src dot) (list e0 e1) (list src1 src2) src_end
+		(# (vp-mul-rr %0 %1) (vp-asr-cr +fp_shift %1) (vp-add-rr %1 dot))
+		(# (vp-sub-rr dot dot)))
 
 	(exit 'fixeds :dot `(,src ,dot))
 	(vp-ret)

@@ -12,6 +12,11 @@ Font app now copies the lowercase version of the char code.
 
 New `(fn-consts c ...)` for creating a list of constant offsets.
 
+Rework `num` `fixed` and `real` classes to reduce stack and register use.
+
+Rework `nums` `fixeds` and `reals` classes to use improved vector inline helpers
+to reduce stack and register use.
+
 ------
 
 New `(nql obj1 obj2) -> :t | :nil` built in function.

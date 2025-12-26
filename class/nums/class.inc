@@ -36,7 +36,7 @@
 ; inline vector loops
 ;;;;;;;;;;;;;;;;;;;;;
 
-(defun vec-loop-until (srcs elms src_end dst func)
+(defun vec-loop-until (srcs elms end dst func)
 	(loop-start)
 		(each (# (assign (list (list %0 0)) (list %1))) srcs elms)
 		(each (# (vp-add-cr +long_size %0)) srcs)
@@ -44,9 +44,27 @@
 		(when dst
 			(assign (list r) (list (list dst 0)))
 			(vp-add-cr +long_size dst))
-	(loop-until `(,(first srcs) = ,src_end)))
+	(loop-until `(,(first srcs) = ,end)))
 
-(defun vec-loop-while (srcs elms src_end dst func)
-	(vpif `(,(first srcs) /= ,src_end))
-		(vec-loop-until srcs elms src_end dst func)
+(defun vec-loop-while (srcs elms end dst func)
+	(vpif `(,(first srcs) /= ,end))
+		(vec-loop-until srcs elms end dst func)
 	(endif))
+
+(defun vec-map (sobs dobs elms sitrs ditrs eitr func &optional fpre fpost)
+	(assign `((,(first sobs) array_length)) `(,eitr))
+	(vp-simd vp-cpy-ir (cat sobs dobs) (list array_begin) (cat sitrs ditrs))
+	(vp-shl-cr (log2 +ptr_size) eitr)
+	(vp-add-rr (first sitrs) eitr)
+	(if fpre (fpre))
+	(vec-loop-until sitrs elms eitr (first ditrs) func)
+	(if fpost (fpost)))
+
+(defun vec-reduce (sobs elms sitrs eitr func &optional fpre fpost)
+	(assign `((,(first sobs) array_length)) `(,eitr))
+	(vp-simd vp-cpy-ir sobs (list array_begin) sitrs)
+	(vp-shl-cr (log2 +ptr_size) eitr)
+	(vp-add-rr (first sitrs) eitr)
+	(if fpre (fpre))
+	(vec-loop-until sitrs elms eitr :nil func)
+	(if fpost (fpost)))

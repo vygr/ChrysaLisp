@@ -22,11 +22,8 @@
 
 	(entry 'nums :add `(,dst ,src1 ,src2))
 
-	(assign `((,src1 array_length)) `(,src_end))
-	(vp-simd vp-cpy-ir `(,src1 ,src2 ,dst) `(,array_begin) `(,src1 ,src2 ,dst1))
-	(vp-shl-cr (log2 +ptr_size) src_end)
-	(vp-add-rr src1 src_end)
-	(vec-loop-until `(,src1 ,src2) `(,e0 ,e1) src_end dst1
+	(vec-map (list src1 src2) (list dst) (list e0 e1)
+		(list src1 src2) (list dst1) src_end
 		(# (vp-add-rr %1 %0) %0))
 
 	(exit 'nums :add `(,dst -1))
@@ -49,11 +46,8 @@
 
 	(entry 'nums :sub `(,dst ,src1 ,src2))
 
-	(assign `((,src1 array_length)) `(,src_end))
-	(vp-simd vp-cpy-ir `(,src1 ,src2 ,dst) `(,array_begin) `(,src1 ,src2 ,dst1))
-	(vp-shl-cr (log2 +ptr_size) src_end)
-	(vp-add-rr src1 src_end)
-	(vec-loop-until `(,src1 ,src2) `(,e0 ,e1) src_end dst1
+	(vec-map (list src1 src2) (list dst) (list e0 e1)
+		(list src1 src2) (list dst1) src_end
 		(# (vp-sub-rr %1 %0) %0))
 
 	(exit 'nums :sub `(,dst -1))
@@ -76,11 +70,8 @@
 
 	(entry 'nums :min `(,dst ,src1 ,src2))
 
-	(assign `((,src1 array_length)) `(,src_end))
-	(vp-simd vp-cpy-ir `(,src1 ,src2 ,dst) `(,array_begin) `(,src1 ,src2 ,dst1))
-	(vp-shl-cr (log2 +ptr_size) src_end)
-	(vp-add-rr src1 src_end)
-	(vec-loop-until `(,src1 ,src2) `(,e0 ,e1) src_end dst1
+	(vec-map (list src1 src2) (list dst) (list e0 e1)
+		(list src1 src2) (list dst1) src_end
 		(# (vp-min-rr %1 %0) %0))
 
 	(exit 'nums :min `(,dst -1))
@@ -103,11 +94,8 @@
 
 	(entry 'nums :max `(,dst ,src1 ,src2))
 
-	(assign `((,src1 array_length)) `(,src_end))
-	(vp-simd vp-cpy-ir `(,src1 ,src2 ,dst) `(,array_begin) `(,src1 ,src2 ,dst1))
-	(vp-shl-cr (log2 +ptr_size) src_end)
-	(vp-add-rr src1 src_end)
-	(vec-loop-until `(,src1 ,src2) `(,e0 ,e1) src_end dst1
+	(vec-map (list src1 src2) (list dst) (list e0 e1)
+		(list src1 src2) (list dst1) src_end
 		(# (vp-max-rr %1 %0) %0))
 
 	(exit 'nums :max `(,dst -1))
@@ -130,11 +118,8 @@
 
 	(entry 'nums :mul `(,dst ,src1 ,src2))
 
-	(assign `((,src1 array_length)) `(,src_end))
-	(vp-simd vp-cpy-ir `(,src1 ,src2 ,dst) `(,array_begin) `(,src1 ,src2 ,dst1))
-	(vp-shl-cr (log2 +ptr_size) src_end)
-	(vp-add-rr src1 src_end)
-	(vec-loop-until `(,src1 ,src2) `(,e0 ,e1) src_end dst1
+	(vec-map (list src1 src2) (list dst) (list e0 e1)
+		(list src1 src2) (list dst1) src_end
 		(# (vp-mul-rr %1 %0) %0))
 
 	(exit 'nums :mul `(,dst -1))
@@ -157,11 +142,8 @@
 
 	(entry 'nums :div `(,dst ,e1 ,high))
 
-	(assign `((,e1 array_length)) `(,src_end))
-	(vp-simd vp-cpy-ir `(,e1 ,high ,dst) `(,array_begin) `(,src1 ,src2 ,dst1))
-	(vp-shl-cr (log2 +ptr_size) src_end)
-	(vp-add-rr src1 src_end)
-	(vec-loop-until `(,src1 ,src2) `(,e0 ,e1) src_end dst1
+	(vec-map (list e1 high) (list dst) (list e0 e1)
+		(list src1 src2) (list dst1) src_end
 		(#  (errorif `(,%%1 = 0) 'error)
 			(vp-ext-rr %0 high)
 			(vp-div-rrr %1 high %0)
@@ -190,11 +172,8 @@
 
 	(entry 'nums :mod `(,dst ,e1 ,high))
 
-	(assign `((,e1 array_length)) `(,src_end))
-	(vp-simd vp-cpy-ir `(,e1 ,high ,dst) `(,array_begin) `(,src1 ,src2 ,dst1))
-	(vp-shl-cr (log2 +ptr_size) src_end)
-	(vp-add-rr src1 src_end)
-	(vec-loop-until `(,src1 ,src2) `(,e0 ,e1) src_end dst1
+	(vec-map (list e1 high) (list dst) (list e0 e1)
+		(list src1 src2) (list dst1) src_end
 		(# (errorif `(,%%1 = 0) 'error)
 			(vp-ext-rr %0 high)
 			(vp-div-rrr %1 high %0)
@@ -221,11 +200,8 @@
 
 	(entry 'nums :abs `(,dst ,src1))
 
-	(assign `((,src1 array_length)) `(,src_end))
-	(vp-simd vp-cpy-ir `(,src1 ,dst) `(,array_begin) `(,src1 ,dst1))
-	(vp-shl-cr (log2 +ptr_size) src_end)
-	(vp-add-rr src1 src_end)
-	(vec-loop-until `(,src1) `(,e0) src_end dst1
+	(vec-map (list src1) (list dst) (list e0)
+		(list src1) (list dst1) src_end
 		(# (vp-abs-rr %0 %0) %0))
 
 	(exit 'nums :abs `(,dst))
@@ -246,13 +222,9 @@
 
 	(entry 'nums :sum `(,dst))
 
-	(assign `((,dst array_length)) `(,dst_end))
-	(assign (map (# (list %0 array_begin)) `(,dst)) `(,dst1))
-	(vp-xor-rr sum sum)
-	(vp-shl-cr (log2 +ptr_size) dst_end)
-	(vp-add-rr dst1 dst_end)
-	(vec-loop-until `(,dst1) `(,e0) dst_end :nil
-		(# (vp-add-rr %0 sum)))
+	(vec-reduce (list dst) (list e0) (list dst1) dst_end
+		(# (vp-add-rr %0 sum))
+		(# (vp-sub-rr sum sum)))
 
 	(exit 'nums :sum `(,dst ,sum))
 	(vp-ret)
@@ -273,11 +245,8 @@
 
 	(entry 'nums :scale `(,dst ,src1 ,scale))
 
-	(assign `((,src1 array_length)) `(,src_end))
-	(vp-simd vp-cpy-ir `(,src1 ,dst) `(,array_begin) `(,src1 ,dst1))
-	(vp-shl-cr (log2 +ptr_size) src_end)
-	(vp-add-rr src1 src_end)
-	(vec-loop-until `(,src1) `(,e0) src_end dst1
+	(vec-map (list src1) (list dst) (list e0)
+		(list src1) (list dst1) src_end
 		(# (vp-mul-rr scale %0) %0))
 
 	(exit 'nums :scale `(,dst))
@@ -297,15 +266,11 @@
 
 	(vp-rdef (src dot src1 src2 src_end e0 e1))
 
-	(entry 'nums :dot `(,src1 ,dot))
+	(entry 'nums :dot `(,src ,dot))
 
-	(assign `((,src1 array_length)) `(,src_end))
-	(assign (map (# (list %0 array_begin)) `(,dot ,src)) `(,src1 ,src2))
-	(vp-xor-rr dot dot)
-	(vp-shl-cr (log2 +ptr_size) src_end)
-	(vp-add-rr src1 src_end)
-	(vec-loop-until `(,src1 ,src2) `(,e0 ,e1) src_end :nil
-		(# (vp-mul-rr %0 %1) (vp-add-rr %1 dot)))
+	(vec-reduce (list src dot) (list e0 e1) (list src1 src2) src_end
+		(# (vp-mul-rr %0 %1) (vp-add-rr %1 dot))
+		(# (vp-sub-rr dot dot)))
 
 	(exit 'nums :dot `(,src ,dot))
 	(vp-ret)
@@ -325,14 +290,10 @@
 
 	(entry 'nums :hash `(,src))
 
-	(assign `((,src array_length)) `(,src_end))
-	(assign (map (# (list %0 array_begin)) `(,src)) `(,src1))
-	(vp-xor-rr val val)
-	(vp-shl-cr (log2 +ptr_size) src_end)
-	(vp-add-rr src1 src_end)
-	(vec-loop-while `(,src1) `(,e0) src_end :nil
-		(# (vp-xor-rr %0 val)))
-	(vp-abs-rr val val)
+	(vec-reduce (list src) (list e0) (list src1) src_end
+		(# (vp-xor-rr %0 val))
+		(# (vp-sub-rr val val))
+		(# (vp-abs-rr val val)))
 
 	(exit 'nums :hash `(,src ,val))
 	(vp-ret)
