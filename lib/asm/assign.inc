@@ -64,7 +64,7 @@
 
 (defun assign-ignored-to-asm ()
 	(defq s (list) d (list))
-	(each (# (unless (or (eql %0 %1) (eql %1 '_)) (push s %0) (push d %1))) src dst)
+	(each (# (unless (find %1 (list %0 '_)) (push s %0) (push d %1))) src dst)
 	(setq src s dst d))
 
 (defun assign-ignored-to-script ()
