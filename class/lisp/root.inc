@@ -1311,3 +1311,14 @@
 (import "lib/text/searching.inc")
 (import "sys/lisp.inc")
 (import "class/lisp.inc")
+
+;useful frequency trackers
+;; (defq *freq_map* (Fmap 101))
+;; (defun freq-update (type)
+;; 	(. *freq_map* :update type (# (if %0 (inc %0) 1)))
+;; 	type)
+;; (defun freq-print ()
+;; 	(defq freq (list))
+;; 	(. *freq_map* :each (lambda (k v) (push freq (list v k))))
+;; 	(each (# (print %0 " -> " %0)))
+;; 		(reverse (sort freq (# (- (first %0) (first %1))))))
