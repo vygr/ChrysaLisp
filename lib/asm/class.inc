@@ -16,9 +16,8 @@
 (defun method-lookup (_1 _2)
 	;_1 = class name
 	;_2 = member name
-	(defq c (eval (class-sym _1)) _ (find _2 (first c)))
-	(unless _ (throw "No such method !" (list _1 _2)))
-	(elem-get (second c) _))
+	(or (get _2 (eval (class-sym _1)))
+		(throw "No such method !" (list _1 _2))))
 
 (defun method-input (_1 _2 &optional _3)
 	;_1 = class name
@@ -33,7 +32,7 @@
 	;_2 = member name
 	;_3 = output parameter index, :nil for entire list
 	(if _3
-		(elem-get (elem-get (method-lookup _1 _2) 3) _3)
+		(elem-get (last (method-lookup _1 _2)) _3)
 		(elem-get (method-lookup _1 _2) 3)))
 
 (defun f-path (_1 _2)
@@ -76,30 +75,33 @@
 ; class definition
 ;;;;;;;;;;;;;;;;;;
 
-(defcvar (class-sym :nil) '(()()0))
+(defcvar (class-sym :nil) (progn (def (defq e (env 1)) :vslot 0) e))
 
 (defun vtable-emit (class)
 	(if (eql (defq _ (eval (super-sym class))) :nil)
 		(vp-long 0) (fn-add-link (f-path _ :vtable)))
-	(each (# (if (find (second %0) '(:virtual :final)) (fn-add-link (first %0))))
-		(second (eval (class-sym class)))))
+	(each (lambda ((k v))
+			(and (nql :vslot k)
+				(find (second v) '(:virtual :final))
+				(fn-add-link (first v))))
+		(tolist (eval (class-sym class)))))
 
 (defun override ()
 	(elem-set (setq m (cat m)) 0 mfunc)
-	(elem-set (second vtable) s m)
 	(if regs_in (elem-set m 2 regs_in))
-	(if regs_out (elem-set m 3 regs_out)))
+	(if regs_out (elem-set m 3 regs_out))
+	(def vtable mname m))
 
 (defmacro def-class (class super &rest lines)
-	(defq _ (eval (class-sym super))
-		vtable (list (cat (first _)) (cat (second _)) (third _))
+	(defq vtable (reduce (lambda (e (k v)) (def e k v) e)
+			(tolist (eval (class-sym super))) (env 1))
 		class_sym (class-sym class) super_sym (super-sym class))
 	(each (lambda ((_ mname mfunc &optional mtype regs_in regs_out))
 		(setd mtype :static)
 		(and regs_in (lmatch? regs_in '(abi-args _)) (setq regs_in (eval regs_in)))
-		(if (defq m (if (defq s (find mname (first vtable))) (elem-get (second vtable) s)))
+		(if (defq m (get mname vtable))
+			;existing method
 			(case mtype
-				;existing method
 				(:static
 					(if (eql (second m) :static)
 						(override)
@@ -122,15 +124,13 @@
 				(:virtual
 					(throw "Method already exists !, use override ?" mname))
 				(:t (throw "Must use static, virtual, final or override ! " mtype)))
+			;new method
 			(case mtype
-				;new method
 				(:static
-					(push (first vtable) mname)
-					(push (second vtable) (list mfunc mtype regs_in regs_out)))
+					(def vtable mname (list mfunc mtype regs_in regs_out)))
 				((:virtual :final)
-					(elem-set vtable 2 (setq _ (+ (third vtable) +ptr_size)))
-					(push (first vtable) mname)
-					(push (second vtable) (list mfunc mtype regs_in regs_out _)))
+					(def vtable :vslot (defq _ (+ (get :vslot vtable) +ptr_size))
+						mname (list mfunc mtype regs_in regs_out _)))
 				(:override
 					(throw "Method does not exist !" mname))
 				(:t (throw "Must use static, virtual, final or override ! " mtype)))))
@@ -164,7 +164,7 @@
 						(throw "Dispatch register conflicts with arg !" (list :r14 _)))
 					(assign _3 _)
 					(vp-cpy-ir :r0 obj_vtable :r14)
-					(vp-call-i :r14 (elem-get m 4))))
+					(vp-call-i :r14 (last m))))
 			(if _4 (assign (elem-get m 3) _4)))
 		(:t ;l-call
 			(cond
@@ -191,7 +191,7 @@
 			(assign _3 _)
 			(vp-cpy-ir :r0 obj_vtable :r14)
 			(scope-unwind)
-			(vp-jmp-i :r14 (elem-get m 4)))))
+			(vp-jmp-i :r14 (last m)))))
 
 (defmacro entry (&rest _)
 	;either
@@ -292,7 +292,7 @@
 		(throw "Dispatch register conflicts with arg !" (list _6 _)))
 	(assign _3 _)
 	(vp-cpy-ir _5 obj_vtable _6)
-	(vp-call-i _6 (elem-get m 4))
+	(vp-call-i _6 (last m))
 	(if _4 (assign (elem-get m 3) _4)))
 
 (defun v-jump (_1 _2 &optional _3 _4 _5)
@@ -308,7 +308,7 @@
 	(assign _3 _)
 	(vp-cpy-ir _4 obj_vtable _5)
 	(scope-unwind)
-	(vp-jmp-i _5 (elem-get m 4)))
+	(vp-jmp-i _5 (last m)))
 
 (defun v-bind (_1 _2 &optional _3 _4)
 	;_1 = class name
@@ -319,7 +319,7 @@
 	(if (eql (second (defq m (method-lookup _1 _2))) :static)
 		(throw "Method is static ! Use f-bind ?" (list _1 _2)))
 	(vp-cpy-ir _3 obj_vtable _4)
-	(vp-cpy-ir _4 (elem-get m 4) _4))
+	(vp-cpy-ir _4 (last m) _4))
 
 (defun d-call (_1 _2 &optional _3 _4)
 	;_1 = class name
