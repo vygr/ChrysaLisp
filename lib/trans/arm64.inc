@@ -120,28 +120,20 @@
 (defun emit-cpy-rr (s d)
 	(cond
 		((eql s d))
-		((or (eql s +arm64_rsp) (eql d +arm64_rsp))
+		((find +arm64_rsp (list s d))
 			(emitm-int (+ 0x91000000 (<< s 5) d)))
-		(:t (emitm-int (+ 0xaa0003e0 (<< s 16) d)))))
+		((emitm-int (+ 0xaa0003e0 (<< s 16) d)))))
 
 (defun emit-xor-rr (s d)
-	(cond
-		((or (eql s +arm64_rsp) (eql d +arm64_rsp))
-			(throw "emit-xor-rr src/dst can't be :rsp !" (list s d)))
-		(:t (arm64-rrr 0xca000000 s d d))))
+	(arm64-rrr 0xca000000 s d d))
 
 (defun emit-and-rr (s d)
 	(cond
 		((eql s d))
-		((or (eql s +arm64_rsp) (eql d +arm64_rsp))
-			(throw "emit-and-rr src/dst can't be :rsp !" (list s d)))
-		(:t (arm64-rrr 0x8a000000 s d d))))
+		((arm64-rrr 0x8a000000 s d d))))
 
 (defun arm64-cmp-rr (s d)
-	(cond
-		((eql s +arm64_rsp)
-			(throw "arm64-cmp-rr src can't be :rsp !" (list s d)))
-		(:t (arm64-rrr 0xeb206000 s d +arm64_rsp))))
+	(arm64-rrr 0xeb206000 s d +arm64_rsp))
 
 (defun emit-cpy-cr (c r)
 	(if (/= -1 (defq i (arm64-limm c)))
@@ -158,11 +150,7 @@
 			(arm64-cmp-rr +arm64_rtmp r))))
 
 (defun emit-cpy-ir (s c d)
-	(if (eql d +arm64_rsp)
-		(progn
-			(arm64-ir 3 0xf8400000 s c +arm64_rtmp)
-			(emit-cpy-rr +arm64_rtmp +arm64_rsp))
-		(arm64-ir 3 0xf8400000 s c d)))
+	(arm64-ir 3 0xf8400000 s c d))
 
 (defmacro arm64-iru (w o s c d)
 	`(progn
@@ -233,9 +221,7 @@
 (defun emit-or-rr (s d)
 	(cond
 		((eql s d))
-		((or (eql s +arm64_rsp) (eql d +arm64_rsp))
-			(throw "emit-or-rr src/dst can't be :rsp !" (list s d)))
-		(:t (arm64-rrr 0xaa000000 s d d))))
+		((arm64-rrr 0xaa000000 s d d))))
 
 (defun emit-or-cr (c r)
 	(cond
@@ -250,9 +236,6 @@
 					(emit-or-rr +arm64_rtmp r))))))
 
 (defun emit-cpy-ri (s d c)
-	(when (eql s +arm64_rsp)
-		(emit-cpy-rr +arm64_rsp +arm64_rtmp)
-		(setq s +arm64_rtmp))
 	(arm64-ri 3 0xf8000000 s d c))
 
 (defun emit-push (&rest b)
@@ -445,13 +428,10 @@
 					(emit-xor-rr +arm64_rtmp r))))))
 
 (defun emit-add-rr (s d)
-	(if (eql s +arm64_rsp) (arm64-rrr 0x8b206000 d s d) (arm64-rrr 0x8b206000 s d d)))
+	(arm64-rrr 0x8b206000 s d d))
 
 (defun emit-sub-rr (s d)
-	(cond
-		((eql s +arm64_rsp)
-			(throw "emit-sub-rr src can't be :rsp !" (list s d)))
-		(:t (arm64-rrr 0xcb206000 s d d))))
+	(arm64-rrr 0xcb206000 s d d))
 
 (defun emit-lnot-rr (r d)
 	(arm64-cmp-cr 0 d)
@@ -465,19 +445,14 @@
 (defmacro arm64-shift-cr (e o c x y r)
 	`(cond
 		((= ,c 0))
-		((eql ,r ,+arm64_rsp)
-			(throw ,(cat "emit-" e "-cr dst can't be :rsp !") (list ,c ,r)))
-		(:t (arm64-bf ,o ,x ,y ,r ,r))))
+		((arm64-bf ,o ,x ,y ,r ,r))))
 
 (defun emit-shl-cr (c r) (arm64-shift-cr "shl" 0xd3400000 c (logand (- 64 c) 63) (- 63 c) r))
 (defun emit-shr-cr (c r) (arm64-shift-cr "shr" 0xd3400000 c c 63 r))
 (defun emit-asr-cr (c r) (arm64-shift-cr "asr" 0x93400000 c c 63 r))
 
 (defmacro arm64-shift-rr (e o s d)
-	`(cond
-		((or (eql ,s ,+arm64_rsp) (eql ,d ,+arm64_rsp))
-			(throw ,(cat "emit-" e "-rr src/dst can't be :rsp !") (list ,s ,d)))
-		(:t (arm64-rrr ,o ,s ,d ,d))))
+	`(arm64-rrr ,o ,s ,d ,d))
 
 (defun emit-shl-rr (s d) (arm64-shift-rr "shl" 0x9ac02000 s d))
 (defun emit-shr-rr (s d) (arm64-shift-rr "shr" 0x9ac02400 s d))
@@ -490,8 +465,6 @@
 		(emit-cpy-rr +arm64_rtmp d)))
 
 (defun emit-mul-rr (s d)
-	(if (or (eql s +arm64_rsp) (eql d +arm64_rsp))
-		(throw "emit-mul-rr src/dst can't be :rsp !" (list s d)))
 	(emitm-int (+ 0x9b000000 (<< d 16) (const (<< 31 10)) (<< s 5) d)))
 
 (defun emit-mul-cr (c r)
