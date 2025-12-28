@@ -24,6 +24,9 @@ method lookups.
 
 Added `make apps` option to build just the application level Jit native code.
 
+VP class vtable and super info now kept in compiler var environments `*vtables*`
+and `*supers*`.
+
 ------
 
 New `(nql obj1 obj2) -> :t | :nil` built in function.

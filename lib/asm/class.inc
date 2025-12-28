@@ -6,8 +6,7 @@
 (env-push)
 
 (defq +vp_regs_calls ''(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13 :r14))
-(defmacro class-sym (_) (static-qqp (sym (cat "_class_" ,_))))
-(defmacro super-sym (_) (static-qqp (sym (cat "_super_" ,_))))
+(defcvar '*vtables* (env 1) '*supers* (env 1))
 
 ;;;;;;;;;;;;;;;
 ; class calling
@@ -16,7 +15,7 @@
 (defun method-lookup (_1 _2)
 	;_1 = class name
 	;_2 = member name
-	(or (get _2 (eval (class-sym _1)))
+	(or (get _2 (get _1 *vtables*))
 		(throw "No such method !" (list _1 _2))))
 
 (defun method-input (_1 _2 &optional _3)
@@ -43,7 +42,7 @@
 (defun s-path (_1 _2)
 	;_1 = class name
 	;_2 = slot method name
-	(first (method-lookup (eval (super-sym _1)) _2)))
+	(first (method-lookup (get _1 *supers*) _2)))
 
 (defun f-entry (_1 _2 _3)
 	;_1 = class name
@@ -75,16 +74,16 @@
 ; class definition
 ;;;;;;;;;;;;;;;;;;
 
-(defcvar (class-sym :nil) (progn (def (defq e (env 1)) :vslot 0) e))
+(def *vtables* :nil (progn (def (defq e (env 1)) :vslot 0) e))
 
 (defun vtable-emit (class)
-	(if (eql (defq _ (eval (super-sym class))) :nil)
+	(if (eql (defq _ (get class *supers*)) :nil)
 		(vp-long 0) (fn-add-link (f-path _ :vtable)))
 	(each (lambda ((k v))
 			(and (nql :vslot k)
 				(find (second v) '(:virtual :final))
 				(fn-add-link (first v))))
-		(tolist (eval (class-sym class)))))
+		(tolist (get class *vtables*))))
 
 (defun override ()
 	(elem-set (setq m (cat m)) 0 mfunc)
@@ -94,8 +93,7 @@
 
 (defmacro def-class (class super &rest lines)
 	(defq vtable (reduce (lambda (e (k v)) (def e k v) e)
-			(tolist (eval (class-sym super))) (env 1))
-		class_sym (class-sym class) super_sym (super-sym class))
+			(tolist (get super *vtables*)) (env 1)))
 	(each (lambda ((_ mname mfunc &optional mtype regs_in regs_out))
 		(setd mtype :static)
 		(and regs_in (lmatch? regs_in '(abi-args _)) (setq regs_in (eval regs_in)))
@@ -138,7 +136,7 @@
 			(ifn (starts-with "class/" (first (repl-info))) lines
 				(push lines `(dec-method :type ,(sym (cat "class/" class "/type"))
 					,(if (eql class "obj") :virtual :override) (:r0) (:r0 :r1)))))
-	`(def *compile_env* ',super_sym ',super ',class_sym ',vtable))
+	`(progn (def *vtables* ',class ',vtable) (def *supers* ',class ',super)))
 
 (defmacro def-method (class member &optional alignment)
 	`(def-func (f-path ,class ,member) ,alignment))
@@ -249,9 +247,9 @@
 	;_2 = member name
 	;_3 = in parameters
 	;_4 = out parameters
-	(if (eql (second (defq m (method-lookup (eval (super-sym _1)) _2))) :static)
+	(if (eql (second (defq m (method-lookup (get _1 *supers*) _2))) :static)
 		(unless (eql _2 :init)
-			(throw "Method is static !" (list (eval (super-sym _1)) _2))))
+			(throw "Method is static !" (list (get _1 *supers*) _2))))
 	(assign _3 (third m))
 	(unless (eql (first m) 'class/obj/null)
 		(fn-call (first m))
@@ -261,9 +259,9 @@
 	;_1 = class name
 	;_2 = member name
 	;_3 = in parameters
-	(if (eql (second (defq m (method-lookup (eval (super-sym _1)) _2))) :static)
+	(if (eql (second (defq m (method-lookup (get _1 *supers*) _2))) :static)
 		(unless (eql _2 :init)
-			(throw "Method is static !" (list (eval (super-sym _1)) _2))))
+			(throw "Method is static !" (list (get _1 *supers*) _2))))
 	(assign _3 (third m))
 	(scope-unwind)
 	(if (eql (first m) 'class/obj/null)
@@ -274,9 +272,9 @@
 	;_1 = class name
 	;_2 = member name
 	;_3 = reg
-	(defq m (method-lookup (eval (super-sym _1)) _2))
+	(defq m (method-lookup (get _1 *supers*) _2))
 	(if (eql (second m) :static)
-		(throw "Method is static !" (list (eval (super-sym _1)) _2)))
+		(throw "Method is static !" (list (get _1 *supers*) _2)))
 	(fn-bind (first m) _3))
 
 (defun v-call (_1 _2 &optional _3 _4 _5 _6)
