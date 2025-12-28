@@ -101,6 +101,10 @@
 	;filter to only the .vp files, strip off the leading "./"
 	(filter (# (not (starts-with "apps/" %0))) (files-all "." '(".vp") 2)))
 
+(defun all-app-files ()
+	;filter to only the app .vp files, strip off the leading "./"
+	(filter (# (starts-with "apps/" %0)) (files-all "." '(".vp") 2)))
+
 (defun all-class-files ()
 	;filter to only the class.inc files, strip off the leading "./"
 	(files-all "." '("class.inc") 2))
@@ -213,6 +217,12 @@
 	(defq *debug_mode* 0)
 	(remake-all files 'VP64 'vp64))
 
+(defun make-app-platforms ()
+	(defq files (all-app-files))
+	(each (# (make-all files %0 %1)) +supported_abi +supported_cpu)
+	(defq *debug_mode* 0)
+	(make-all files 'VP64 'vp64))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;
 ; compile and make tests
 ;;;;;;;;;;;;;;;;;;;;;;;;
@@ -240,7 +250,7 @@
 	'(all-vp-files all-class-files
 	make make-all make-merge
 	make-platforms make-all-platforms
-	remake remake-all
+	remake remake-all make-app-platforms
 	remake-platforms remake-all-platforms
 	compile-test make-test))
 (env-pop)

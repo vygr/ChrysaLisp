@@ -22,6 +22,8 @@ New support for `(vp-cpy-df)` and `(vp-cpy-fd)` instructions in the VM.
 Reworked `lib/asm/class.inc` to use environments for the vtable storage. Faster
 method lookups.
 
+Added `make apps` option to build just the application level Jit native code.
+
 ------
 
 New `(nql obj1 obj2) -> :t | :nil` built in function.

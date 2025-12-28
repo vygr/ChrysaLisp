@@ -250,6 +250,7 @@ Usage: make [options] [all] [boot] [platforms] [doc] [it] [test]
 	platforms:  for all platforms not just the host.
 	docs:       scan source files and create documentation.
 	it:         all of the above !
+	apps:       only the apps !
 	test:       test make timings.
 ```
 ## mv

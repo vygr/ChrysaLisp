@@ -15,6 +15,7 @@
 	platforms:  for all platforms not just the host.
 	docs:       scan source files and create documentation.
 	it:         all of the above !
+	apps:       only the apps !
 	test:       test make timings.")
 ))
 
@@ -197,10 +198,11 @@
 			(defq stdio (create-stdio))
 			(defq args (options stdio usage)))
 		(each (# (def (penv) (sym %0) (find %0 args)))
-			'("all" "platforms" "boot" "docs" "it" "test" "ai"))
+			'("all" "platforms" "boot" "docs" "it" "apps" "test" "ai"))
 		(cond
 			(test (make-test))
 			(it (remake-all-platforms) (make-docs))
+			(apps (make-app-platforms))
 			((and boot all platforms) (remake-all-platforms))
 			((and boot all) (remake-all))
 			((and boot platforms) (remake-platforms))
