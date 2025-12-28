@@ -8,8 +8,7 @@
 (defmacro assign-type-sym (_) (static-qqp (sym (str ,_ "_t"))))
 
 (defun assign-type-t (_)
-	(if (setq _ (find (first _) "bBsSiI"))
-		(elem-get '(b ub s us i ui) _) ""))
+	(elem-get '(b ub s us i ui "") (ifn (find (first _) "bBsSiI") -2)))
 
 (defun assign-src-type (o)
 	(case (pop (type-of o))
