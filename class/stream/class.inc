@@ -1,6 +1,6 @@
 (include "././obj/class.inc")
 
-(def-class stream obj
+(def-class :stream :obj
 	(dec-method :vtable class/stream/vtable)
 	(dec-method :deinit class/stream/deinit :override)
 	(dec-method :read_next class/stream/read_next :virtual (:r0) (:r0 :r1))

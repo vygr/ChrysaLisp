@@ -6,10 +6,10 @@
 (include "././stream/class.inc")
 (include "././list/class.inc")
 
-(gen-vtable 'str)
-(gen-type 'str)
+(gen-vtable :str)
+(gen-type :str)
 
-(def-method 'str :create_from_buffer)
+(def-method :str :create_from_buffer)
 	;inputs
 	;:r0 = buffer (pubyte)
 	;:r1 = buffer length (uint)
@@ -19,27 +19,27 @@
 	;:r0-:r6
 
 	;save size of data
-	(entry 'str :create_from_buffer '(:r5 :r1))
+	(entry :str :create_from_buffer '(:r5 :r1))
 	(assign '(:r1) '(:r6))
 
 	;create new str object
-	(call 'sys_mem :alloc '((& :r1 (+ str_size +byte_size))) '(:r0 _))
+	(call :sys_mem :alloc '((& :r1 (+ str_size +byte_size))) '(:r0 _))
 	(vpif '(:r0 /= 0))
 		;init the object
-		(call 'str :init `(:r0 (@ ,(f-path 'str :vtable)) :r5 :r6) '(:r0 :r1))
+		(call :str :init `(:r0 (@ ,(f-path :str :vtable)) :r5 :r6) '(:r0 :r1))
 		(vpif '(:r1 = 0))
 			;error with init
-			(call 'sys_mem :free '(:r0))
+			(call :sys_mem :free '(:r0))
 			(vp-xor-rr :r0 :r0)
 		(endif)
 	(endif)
 
-	(exit 'str :create_from_buffer '(:r0))
+	(exit :str :create_from_buffer '(:r0))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'str :create_from_cstr)
+(def-method :str :create_from_cstr)
 	;inputs
 	;:r0 = c string (pubyte)
 	;outputs
@@ -47,15 +47,15 @@
 	;trashes
 	;:r0-:r6
 
-	(entry 'str :create_from_cstr '(:r0))
+	(entry :str :create_from_cstr '(:r0))
 
 	;get size of string
-	(call 'sys_str :length '(:r0) '(:r0 :r1))
-	(jump 'str :create_from_buffer '(:r0 :r1))
+	(call :sys_str :length '(:r0) '(:r0 :r1))
+	(jump :str :create_from_buffer '(:r0 :r1))
 
 (def-func-end)
 
-(def-method 'str :create_from_file)
+(def-method :str :create_from_file)
 	;inputs
 	;:r0 = file name c string (pubyte)
 	;outputs
@@ -64,18 +64,18 @@
 	;:r0-:r6
 
 	;save c string pointer
-	(entry 'str :create_from_file '(:r5))
+	(entry :str :create_from_file '(:r5))
 
 	;get size of string from file size
 	(fn-bind 'sys/statics/statics :r6)
 	(assign '((:r6 statics_sys_load_stat_buffer)) '(:r6))
-	(call 'host_os :pii_stat '(:r0 :r6) '(:r0))
+	(call :host_os :pii_stat '(:r0 :r6) '(:r0))
 	(vpif '(:r0 /= 0))
 	(vp-label 'funcexit)
 		;no such file
 		(vp-xor-rr :r0 :r0)
 
-		(exit 'str :create_from_file '(:r0))
+		(exit :str :create_from_file '(:r0))
 		(vp-ret)
 	(endif)
 
@@ -86,23 +86,23 @@
 
 	;create new str object
 	(assign '((:r6 stat_fsize)) '(:r1))
-	(call 'sys_mem :alloc '((& :r1 (+ str_size +byte_size))) '(:r0 _))
+	(call :sys_mem :alloc '((& :r1 (+ str_size +byte_size))) '(:r0 _))
 	(vpif '(:r0 /= 0))
 		;init the object
-		(call 'str :init2 `(:r0 (@ ,(f-path 'str :vtable)) :r5 (:r6 stat_fsize)) '(:r0 :r1))
+		(call :str :init2 `(:r0 (@ ,(f-path :str :vtable)) :r5 (:r6 stat_fsize)) '(:r0 :r1))
 		(vpif '(:r1 = 0))
 			;error with init
-			(call 'sys_mem :free '(:r0))
+			(call :sys_mem :free '(:r0))
 			(vp-xor-rr :r0 :r0)
 		(endif)
 	(endif)
 
-	(exit 'str :create_from_file '(:r0))
+	(exit :str :create_from_file '(:r0))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'str :create_from_long)
+(def-method :str :create_from_long)
 	;inputs
 	;:r0 = number (long)
 	;:r1 = base, - for unsigned, (long)
@@ -111,7 +111,7 @@
 	;trashes
 	;:r0-:r6
 
-	(entry 'str :create_from_long '(:r0 :r1))
+	(entry :str :create_from_long '(:r0 :r1))
 
 	(assign '((@ sys/statics/statics)) '(:r2))
 	(assign '((:r2 statics_sys_load_reloc_buffer)) '(:r5))
@@ -126,16 +126,16 @@
 	(else)
 		(vp-mul-cr -1 :r1)
 	(endif)
-	(call 'sys_str :from_long '(:r0 :r3 :r1) '(:r0))
+	(call :sys_str :from_long '(:r0 :r3 :r1) '(:r0))
 	(vp-sub-rr :r5 :r0)
-	(call 'str :create_from_buffer '(:r5 :r0) '(:r0))
+	(call :str :create_from_buffer '(:r5 :r0) '(:r0))
 
-	(exit 'str :create_from_long '(:r0))
+	(exit :str :create_from_long '(:r0))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'str :init)
+(def-method :str :init)
 	;inputs
 	;:r0 = str object (ptr)
 	;:r1 = vtable (pptr)
@@ -147,17 +147,17 @@
 	;trashes
 	;:r1-:r6
 
-	(entry 'str :init '(:r0 :r1 :r2 :r3))
+	(entry :str :init '(:r0 :r1 :r2 :r3))
 
 	;init parent
-	(s-call 'str :init '(:r0 :r1) '(:r0 :r1))
+	(s-call :str :init '(:r0 :r1) '(:r0 :r1))
 	(vpif '(:r1 /= 0))
 		;init myself
 		(vp-xor-rr :r1 :r1)
 		(assign '(:r0 :r1 :r1 :r3 (& :r0 str_data))
 			'(:r6 (:r0 str_hashslot) (:r0 str_hashcode) (:r0 str_length) :r1))
 		(vpif '(:r2 /= 0))
-			(call 'sys_mem :copy '(:r2 :r1 :r3) '(_ :r1))
+			(call :sys_mem :copy '(:r2 :r1 :r3) '(_ :r1))
 		(else)
 			(vp-add-rr :r3 :r1)
 		(endif)
@@ -165,12 +165,12 @@
 		(assign '(:r0 :r6) '((:r1 0 b) :r0))
 	(endif)
 
-	(exit 'str :init '(:r0 :r1))
+	(exit :str :init '(:r0 :r1))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'str :init1)
+(def-method :str :init1)
 	;inputs
 	;:r0 = str object (ptr)
 	;:r1 = vtable (pptr)
@@ -182,10 +182,10 @@
 	;trashes
 	;:r1-:r6
 
-	(entry 'str :init1 '(:r0 :r1 :r2 :r3))
+	(entry :str :init1 '(:r0 :r1 :r2 :r3))
 
 	;init parent
-	(s-call 'str :init '(:r0 :r1) '(:r0 :r1))
+	(s-call :str :init '(:r0 :r1) '(:r0 :r1))
 	(vpif '(:r1 /= 0))
 		;init myself
 		(vp-xor-rr :r1 :r1)
@@ -194,19 +194,19 @@
 		(assign '((:r4 str_length) (:r5 str_length)) '(:r1 :r2))
 		(vp-add-rr :r2 :r1)
 		(assign '(:r1) '((:r0 str_length)))
-		(call 'sys_mem :copy '((& :r4 str_data) (& :r0 str_data) (:r4 str_length)) '(_ :r1))
+		(call :sys_mem :copy '((& :r4 str_data) (& :r0 str_data) (:r4 str_length)) '(_ :r1))
 		(assign '((:r5 str_length)) '(:r2))
 		(vp-add-cr +byte_size :r2)
-		(call 'sys_mem :copy '((& :r5 str_data) :r1 :r2))
+		(call :sys_mem :copy '((& :r5 str_data) :r1 :r2))
 		(vp-cpy-rr :r6 :r0)
 	(endif)
 
-	(exit 'str :init1 '(:r0 :r1))
+	(exit :str :init1 '(:r0 :r1))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'str :init2)
+(def-method :str :init2)
 	;inputs
 	;:r0 = str object (ptr)
 	;:r1 = vtable (pptr)
@@ -218,10 +218,10 @@
 	;trashes
 	;:r1-:r6
 
-	(entry 'str :init2 '(:r0 :r1 :r2 :r3))
+	(entry :str :init2 '(:r0 :r1 :r2 :r3))
 
 	;init parent
-	(s-call 'str :init '(:r0 :r1) '(:r0 :r1))
+	(s-call :str :init '(:r0 :r1) '(:r0 :r1))
 	(vpif '(:r1 /= 0))
 		;init myself
 		(vp-xor-rr :r1 :r1)
@@ -229,27 +229,27 @@
 			'(:r6 (:r0 str_hashslot) (:r0 str_hashcode) (:r0 str_length)))
 
 		;open file
-		(call 'host_os :pii_open '(:r2 +file_open_read) '(:r4))
+		(call :host_os :pii_open '(:r2 +file_open_read) '(:r4))
 
 		;read into buffer
 		(vp-lea-i :r6 str_data :r0)
 		(vp-xor-rr :r2 :r2)
 		(vp-cpy-rd-b :r2 :r0 :r3)
-		(call 'host_os :pii_read '(:r4 :r0 :r3))
+		(call :host_os :pii_read '(:r4 :r0 :r3))
 
 		;close file
-		(call 'host_os :pii_close '(:r4))
+		(call :host_os :pii_close '(:r4))
 
 		(vp-cpy-rr :r6 :r0)
 		(vp-cpy-rr :r6 :r1)
 	(endif)
 
-	(exit 'str :init2 '(:r0 :r1))
+	(exit :str :init2 '(:r0 :r1))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'str :init3)
+(def-method :str :init3)
 	;inputs
 	;:r0 = str object (ptr)
 	;:r1 = vtable (pptr)
@@ -260,10 +260,10 @@
 	;trashes
 	;:r1-:r6
 
-	(entry 'str :init3 '(:r0 :r1 :r2))
+	(entry :str :init3 '(:r0 :r1 :r2))
 
 	;init parent
-	(s-call 'str :init '(:r0 :r1) '(:r0 :r1))
+	(s-call :str :init '(:r0 :r1) '(:r0 :r1))
 	(vpif '(:r1 /= 0))
 		;init myself
 		(vp-xor-rr :r1 :r1)
@@ -272,7 +272,7 @@
 		(class/array/get_both :r2 :r4 :r5)
 		(loop-while '(:r4 /= :r5))
 			(vp-cpy-ir :r4 0 :r0)
-			(call 'sys_mem :copy '((& :r0 str_data) :r1 (:r0 str_length)) '(_ :r1))
+			(call :sys_mem :copy '((& :r0 str_data) :r1 (:r0 str_length)) '(_ :r1))
 			(vp-add-cr +ptr_size :r4)
 		(loop-end)
 		(vp-xor-rr :r0 :r0)
@@ -282,12 +282,12 @@
 		(assign '(:r1 :r6 :r6) '((:r6 str_length) :r0 :r1))
 	(endif)
 
-	(exit 'str :init3 '(:r0 :r1))
+	(exit :str :init3 '(:r0 :r1))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'str :append)
+(def-method :str :append)
 	;inputs
 	;:r0 = str object (ptr)
 	;:r1 = str object (ptr)
@@ -297,7 +297,7 @@
 	;:r1-:r6
 
 	;save inputs
-	(entry 'str :append '(:r5 :r6))
+	(entry :str :append '(:r5 :r6))
 
 	;get size of strings
 	(assign '((:r0 str_length) (:r1 str_length)) '(:r0 :r2))
@@ -305,23 +305,23 @@
 	(vp-add-cr (+ str_size +byte_size) :r0)
 
 	;create new str object
-	(call 'sys_mem :alloc '(:r0) '(:r0 _))
+	(call :sys_mem :alloc '(:r0) '(:r0 _))
 	(vpif '(:r0 /= 0))
 		;init the object
-		(call 'str :init1 `(:r0 (@ ,(f-path 'str :vtable)) :r5 :r6) '(:r0 :r1))
+		(call :str :init1 `(:r0 (@ ,(f-path :str :vtable)) :r5 :r6) '(:r0 :r1))
 		(vpif '(:r1 = 0))
 			;error with init
-			(call 'sys_mem :free '(:r0))
+			(call :sys_mem :free '(:r0))
 			(vp-xor-rr :r0 :r0)
 		(endif)
 	(endif)
 
-	(exit 'str :append '(:r0))
+	(exit :str :append '(:r0))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'str :cat)
+(def-method :str :cat)
 	;inputs
 	;:r0 = str object (ptr)
 	;:r1 = list of str objects (ptr)
@@ -330,7 +330,7 @@
 	;trashes
 	;:r1-:r6
 
-	(entry 'str :cat '(_ :r1))
+	(entry :str :cat '(_ :r1))
 	(vp-cpy-rr :r1 :r5)
 
 	;get total size of strings
@@ -344,23 +344,23 @@
 	(loop-end)
 
 	;create new str object
-	(call 'sys_mem :alloc '(:r3) '(:r0 _))
+	(call :sys_mem :alloc '(:r3) '(:r0 _))
 	(vpif '(:r0 /= 0))
 		;init the object
-		(call 'str :init3 `(:r0 (@ ,(f-path 'str :vtable)) :r5) '(:r0 :r1))
+		(call :str :init3 `(:r0 (@ ,(f-path :str :vtable)) :r5) '(:r0 :r1))
 		(vpif '(:r1 = 0))
 			;error with init
-			(call 'sys_mem :free '(:r0))
+			(call :sys_mem :free '(:r0))
 			(vp-xor-rr :r0 :r0)
 		(endif)
 	(endif)
 
-	(exit 'str :cat '(:r0))
+	(exit :str :cat '(:r0))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'str :compare)
+(def-method :str :compare)
 	;inputs
 	;:r0 = str object (ptr)
 	;:r1 = str object (ptr)
@@ -370,7 +370,7 @@
 	;trashes
 	;:r1-:r7
 
-	(entry 'str :compare '(:r0 :r1))
+	(entry :str :compare '(:r0 :r1))
 
 	(switch 'exit)
 		(vpif '(:r0 /= :r1))
@@ -390,18 +390,18 @@
 			(vp-cpy-rr :r2 :r1)
 			(vp-sub-rr :r3 :r1)
 
-			(exit 'str :compare '(:r0 :r1))
+			(exit :str :compare '(:r0 :r1))
 			(vp-ret)
 		(endif)
 		(vp-xor-rr :r1 :r1)
 	(endswitch)
 
-	(exit 'str :compare '(:r0 :r1))
+	(exit :str :compare '(:r0 :r1))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'str :eql)
+(def-method :str :eql)
 	;inputs
 	;:r0 = str object (ptr)
 	;:r1 = obj object (ptr)
@@ -413,26 +413,26 @@
 
 	(vp-rdef (this that len1 len2))
 
-	(entry 'str :eql `(,this ,that))
+	(entry :str :eql `(,this ,that))
 
 	(gotoif `(,this = ,that) 'same)
 	(assign `((,this obj_vtable) (,that obj_vtable)) `(,len1 ,len2))
 	(gotoif `(,len1 /= ,len2) 'not_same)
 	(assign `((,this str_length) (,that str_length)) `(,len1 ,len2))
 	(gotoif `(,len1 /= ,len2) 'not_same)
-	(jump 'str :starts_with `(,this ,that))
+	(jump :str :starts_with `(,this ,that))
 
 (vp-label 'not_same)
-	(exit 'str :eql `(,this -1))
+	(exit :str :eql `(,this -1))
 	(vp-ret)
 
 (vp-label 'same)
-	(exit 'str :eql `(,this 0))
+	(exit :str :eql `(,this 0))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'str :starts_with)
+(def-method :str :starts_with)
 	;inputs
 	;:r0 = str prefix object (ptr)
 	;:r1 = str object (ptr)
@@ -442,7 +442,7 @@
 	;trashes
 	;:r1-:r6
 
-	(entry 'str :starts_with '(:r0 :r1))
+	(entry :str :starts_with '(:r0 :r1))
 
 	(switch 'exit)
 		(vpif '(:r0 /= :r1) 'same)
@@ -472,22 +472,22 @@
 					(vp-simd vp-add-cr `(,+byte_size) '(:r4 :r5))
 				(loop-until '(:r4 = :r2))
 
-				(exit 'str :starts_with '(:r0 :r1))
+				(exit :str :starts_with '(:r0 :r1))
 				(vp-ret)
 			(endif)
 
-			(exit 'str :starts_with '(:r0 -1))
+			(exit :str :starts_with '(:r0 -1))
 			(vp-ret)
 		(endif)
 		(vp-xor-rr :r1 :r1)
 	(endswitch)
 
-	(exit 'str :starts_with '(:r0 :r1))
+	(exit :str :starts_with '(:r0 :r1))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'str :get_length)
+(def-method :str :get_length)
 	;inputs
 	;:r0 = str object (ptr)
 	;outputs
@@ -496,16 +496,16 @@
 	;trashes
 	;:r1
 
-	(entry 'str :get_length '(:r0))
+	(entry :str :get_length '(:r0))
 
 	(assign '((:r0 str_length)) '(:r1))
 
-	(exit 'str :get_length '(:r0 :r1))
+	(exit :str :get_length '(:r0 :r1))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'str :hash)
+(def-method :str :hash)
 	;inputs
 	;:r0 = str object (ptr)
 	;outputs
@@ -514,23 +514,23 @@
 	;trashes
 	;:r1-:r4
 
-	(entry 'str :hash '(:r0))
+	(entry :str :hash '(:r0))
 
 	(assign '((:r0 str_hashcode)) '(:r1))
 	(vpif '(:r1 = 0))
 		(assign '((:r0 str_length)) '(:r4))
 		(vp-lea-i :r0 str_data :r3)
 		(vp-add-rr :r3 :r4)
-		(call 'str :hash_pstr '(:r3 :r4) '(:r1))
+		(call :str :hash_pstr '(:r3 :r4) '(:r1))
 		(assign '(:r1) '((:r0 str_hashcode)))
 	(endif)
 
-	(exit 'str :hash '(:r0 :r1))
+	(exit :str :hash '(:r0 :r1))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'str :ref_elem)
+(def-method :str :ref_elem)
 	;inputs
 	;:r0 = str object (ptr)
 	;:r1 = char index (uint)
@@ -540,18 +540,18 @@
 	;trashes
 	;:r1-:r7
 
-	(entry 'str :ref_elem '(:r0 :r1))
+	(entry :str :ref_elem '(:r0 :r1))
 
 	(vp-add-cr str_data :r1)
 	(vp-cpy-rr :r0 :r7)
-	(call 'str :create_from_buffer '((& :r0 :r1) +byte_size) '(:r0))
+	(call :str :create_from_buffer '((& :r0 :r1) +byte_size) '(:r0))
 
-	(exit 'str :ref_elem '(:r7 :r0))
+	(exit :str :ref_elem '(:r7 :r0))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'str :slice)
+(def-method :str :slice)
 	;inputs
 	;:r0 = str object (ptr)
 	;:r1 = element start index (uint)
@@ -562,23 +562,23 @@
 	;trashes
 	;:r1-:r7
 
-	(entry 'str :slice '(:r0 :r1 :r2))
+	(entry :str :slice '(:r0 :r1 :r2))
 
 	(assign '((:r0 str_length) :r0) '(:r3 :r7))
 	(vp-sub-rr :r1 :r2)
 	(vpif '(:r2 = :r3))
-		(call 'str :ref '(:r0) '(:r0))
+		(call :str :ref '(:r0) '(:r0))
 	(else)
 		(vp-add-cr str_data :r0)
-		(call 'str :create_from_buffer '((& :r0 :r1) :r2) '(:r0))
+		(call :str :create_from_buffer '((& :r0 :r1) :r2) '(:r0))
 	(endif)
 
-	(exit 'str :slice '(:r7 :r0))
+	(exit :str :slice '(:r7 :r0))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'str :rslice)
+(def-method :str :rslice)
 	;inputs
 	;:r0 = str object (ptr)
 	;:r1 = element start index (uint)
@@ -589,12 +589,12 @@
 	;trashes
 	;:r1-:r7
 
-	(entry 'str :rslice '(:r0 :r1 :r2))
+	(entry :str :rslice '(:r0 :r1 :r2))
 
 	(assign '((:r0 str_length) :r0) '(:r3 :r7))
 	(vp-sub-rr :r1 :r2)
 	(vp-add-cr str_data :r0)
-	(call 'str :create_from_buffer '((& :r0 :r1) :r2) '(:r0))
+	(call :str :create_from_buffer '((& :r0 :r1) :r2) '(:r0))
 	(assign '((:r0 str_length) (& :r0 str_data)) '(:r1 :r2))
 	(vpif '(:r1 > 1))
 		(vp-add-rr :r2 :r1)
@@ -605,12 +605,12 @@
 		(loop-until '(:r1 <= :r2))
 	(endif)
 
-	(exit 'str :rslice '(:r7 :r0))
+	(exit :str :rslice '(:r7 :r0))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'str :find)
+(def-method :str :find)
 	;inputs
 	;:r0 = str object (ptr)
 	;:r1 = search char (uint)
@@ -622,7 +622,7 @@
 	;trashes
 	;:r2-:r5
 
-	(entry 'str :find '(:r0 :r1 :r2))
+	(entry :str :find '(:r0 :r1 :r2))
 
 	(assign '((:r0 str_length)) '(:r5))
 	(vpif '(:r2 /= :r5))
@@ -636,12 +636,12 @@
 	(vp-cpy-cr -1 :r2)
 
 (vp-label 'found)
-	(exit 'str :find '(:r0 :r1 :r2))
+	(exit :str :find '(:r0 :r1 :r2))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'str :rfind)
+(def-method :str :rfind)
 	;inputs
 	;:r0 = str object (ptr)
 	;:r1 = search char (uint)
@@ -653,7 +653,7 @@
 	;trashes
 	;:r2-:r4
 
-	(entry 'str :rfind '(:r0 :r1 :r2))
+	(entry :str :rfind '(:r0 :r1 :r2))
 
 	(vpif '(:r2 /= 0))
 		(assign `((& :r0 ,(dec str_data))) '(:r3))
@@ -665,12 +665,12 @@
 	(endif)
 
 (vp-label 'found)
-	(exit 'str :rfind '(:r0 :r1 :r2))
+	(exit :str :rfind '(:r0 :r1 :r2))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'str :print)
+(def-method :str :print)
 	;inputs
 	;:r0 = str object (ptr)
 	;:r1 = stream object (ptr)
@@ -683,21 +683,21 @@
 		(ptr this stream))
 
 	(vp-alloc local_size)
-	(entry 'str :print '(:r0 :r1))
+	(entry :str :print '(:r0 :r1))
 	(assign '(:r0 :r1) '((:rsp local_this) (:rsp local_stream)))
 
-	(call 'stream :write_char '(:r1 +char_double_quote) '(:r0))
+	(call :stream :write_char '(:r1 +char_double_quote) '(:r0))
 	(assign '((:rsp local_this)) '(:r1))
-	(call 'stream :write '(:r0 (& :r1 str_data) (:r1 str_length)) '(:r0))
-	(call 'stream :write_char '(:r0 +char_double_quote))
+	(call :stream :write '(:r0 (& :r1 str_data) (:r1 str_length)) '(:r0))
+	(call :stream :write_char '(:r0 +char_double_quote))
 
-	(exit 'str :print '((:rsp local_this)))
+	(exit :str :print '((:rsp local_this)))
 	(vp-free local_size)
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'str :hash_pstr)
+(def-method :str :hash_pstr)
 	;inputs
 	;:r3 = start (pubyte)
 	;:r4 = end (pubyte)
@@ -708,7 +708,7 @@
 
 	(vp-rdef (iter_begin iter_end hcode tmp) '(:r3 :r4 :r1 :r2))
 
-	(entry 'str :hash_pstr `(,iter_begin ,iter_end))
+	(entry :str :hash_pstr `(,iter_begin ,iter_end))
 
 	(vp-xor-rr hcode hcode)
 	(vpif `(,iter_begin /= ,iter_end))
@@ -736,12 +736,12 @@
 		(vp-and-rr tmp hcode)
 	(endif)
 
-	(exit 'str :hash_pstr `(,hcode))
+	(exit :str :hash_pstr `(,hcode))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'str :same_pstr)
+(def-method :str :same_pstr)
 	;inputs
 	;:r1 = start1 (pubyte)
 	;:r2 = end1 (pubyte)
@@ -753,7 +753,7 @@
 
 	(vp-rdef (iter_begin1 iter_end1 iter_begin2 match tmp) '(:r1 :r2 :r3 :r4 :r5))
 
-	(entry 'str :same_pstr `(,iter_begin1 ,iter_end1 ,iter_begin2))
+	(entry :str :same_pstr `(,iter_begin1 ,iter_end1 ,iter_begin2))
 
 	(vp-xor-rr match match)
 	(vpif `(,iter_begin1 /= ,iter_end1))
@@ -765,12 +765,12 @@
 		(loop-until `(,iter_begin1 = ,iter_end1))
 	(endif)
 
-	(exit 'str :same_pstr `(,match))
+	(exit :str :same_pstr `(,match))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'str :split)
+(def-method :str :split)
 	;inputs
 	;:r0 = str object (ptr)
 	;:r1 = split char (uint)
@@ -783,9 +783,9 @@
 	(vp-rdef (this splitc out iter_begin iter_end iter_start)
 		'(:r7 :r8 :r9 :r10 :r11 :r12))
 
-	(entry 'str :split `(,this ,splitc))
+	(entry :str :split `(,this ,splitc))
 
-	(call 'list :create :nil `(,out))
+	(call :list :create :nil `(,out))
 	(assign `((& ,this str_data) (,this str_length)) `(,iter_begin ,iter_end))
 	(vp-add-rr iter_begin iter_end)
 	(loop-while `(,iter_begin /= ,iter_end) 'exit)
@@ -803,16 +803,16 @@
 		(loop-until `(,iter_begin = ,iter_end))
 		(assign `(,iter_begin) '(:r1))
 		(vp-sub-rr iter_start :r1)
-		(call 'str :create_from_buffer `(,iter_start :r1) '(:r0))
-		(call 'list :push_back `(,out :r0))
+		(call :str :create_from_buffer `(,iter_start :r1) '(:r0))
+		(call :list :push_back `(,out :r0))
 	(loop-end)
 
-	(exit 'str :split `(,this ,out))
+	(exit :str :split `(,this ,out))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'str :bfind)
+(def-method :str :bfind)
 	;inputs
 	;:r0 = str cls object (ptr)
 	;:r1 = search char (uint)
@@ -825,7 +825,7 @@
 
 	(vp-rdef (this c i data ci cj ck))
 
-	(entry 'str :bfind `(,this ,c))
+	(entry :str :bfind `(,this ,c))
 
 	(assign `((,this str_length)) `(,cj))
 	(vpif `(,cj /= 0))
@@ -847,12 +847,12 @@
 	(vp-cpy-cr -1 i)
 
 (vp-label 'found)
-	(exit 'str :bfind `(,this ,c ,i))
+	(exit :str :bfind `(,this ,c ,i))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'str :bskip)
+(def-method :str :bskip)
 	;inputs
 	;:r0 = str object (ptr)
 	;:r1 = str cls object (ptr)
@@ -866,24 +866,24 @@
 
 	(vp-rdef (this idx len data cls) '(:r7 :r8 :r9 :r10))
 
-	(entry 'str :bskip `(,this ,cls ,idx))
+	(entry :str :bskip `(,this ,cls ,idx))
 
 	(assign `((,this str_length)) `(,len))
 	(vpif `(,idx /= ,len))
 		(assign `((& ,this str_data)) `(,data))
 		(loop-start)
-			(call 'str :bfind `(,cls (,data ,idx ub)) `(,cls _ tmp))
+			(call :str :bfind `(,cls (,data ,idx ub)) `(,cls _ tmp))
 			(breakif `(,tmp = -1))
 			(vp-add-cr 1 idx)
 		(loop-until `(,idx = ,len))
 	(endif)
 
-	(exit 'str :bskip `(,this ,cls ,idx))
+	(exit :str :bskip `(,this ,cls ,idx))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'str :bskipn)
+(def-method :str :bskipn)
 	;inputs
 	;:r0 = str object (ptr)
 	;:r1 = str cls object (ptr)
@@ -897,24 +897,24 @@
 
 	(vp-rdef (this idx len data cls) '(:r7 :r8 :r9 :r10))
 
-	(entry 'str :bskipn `(,this ,cls ,idx))
+	(entry :str :bskipn `(,this ,cls ,idx))
 
 	(assign `((,this str_length)) `(,len))
 	(vpif `(,idx /= ,len))
 		(assign `((& ,this str_data)) `(,data))
 		(loop-start)
-			(call 'str :bfind `(,cls (,data ,idx ub)) `(,cls _ tmp))
+			(call :str :bfind `(,cls (,data ,idx ub)) `(,cls _ tmp))
 			(breakif `(,tmp /= -1))
 			(vp-add-cr 1 idx)
 		(loop-until `(,idx = ,len))
 	(endif)
 
-	(exit 'str :bskipn `(,this ,cls ,idx))
+	(exit :str :bskipn `(,this ,cls ,idx))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'str :encode)
+(def-method :str :encode)
 	;inputs
 	;:r0 = str object (ptr)
 	;outputs
@@ -924,7 +924,7 @@
 
 	(vp-rdef (src len dst data c1 c2) '(:r7 :r8))
 
-	(entry 'str :encode `(,src))
+	(entry :str :encode `(,src))
 
 	(assign `((,src str_length)) `(,len))
 	(vpif `(,len = 0))
@@ -932,7 +932,7 @@
 		(vp-cpy-rr src dst)
 	(else)
 		(vp-add-rr len len)
-		(call 'str :create_from_buffer `(0 ,len) `(,dst))
+		(call :str :create_from_buffer `(0 ,len) `(,dst))
 		(assign `((& ,dst str_data)) `(,data))
 		(assign `((& ,src str_data)) `(,src))
 		(vp-add-rr data len)
@@ -956,12 +956,12 @@
 		(loop-until `(,data = ,len))
 	(endif)
 
-	(exit 'str :encode `(,dst))
+	(exit :str :encode `(,dst))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'str :decode)
+(def-method :str :decode)
 	;inputs
 	;:r0 = str object (ptr)
 	;outputs
@@ -971,7 +971,7 @@
 
 	(vp-rdef (src len dst data c1 c2) '(:r7 :r8))
 
-	(entry 'str :decode `(,src))
+	(entry :str :decode `(,src))
 
 	(assign `((,src str_length)) `(,len))
 	(vpif `(,len = 0))
@@ -979,7 +979,7 @@
 		(vp-cpy-rr src dst)
 	(else)
 		(vp-shr-cr 1 len)
-		(call 'str :create_from_buffer `(0 ,len) `(,dst))
+		(call :str :create_from_buffer `(0 ,len) `(,dst))
 		(assign `((& ,dst str_data)) `(,data))
 		(assign `((& ,src str_data)) `(,src))
 		(vp-add-rr data len)
@@ -1003,7 +1003,7 @@
 		(loop-until `(,data = ,len))
 	(endif)
 
-	(exit 'str :decode `(,dst))
+	(exit :str :decode `(,dst))
 	(vp-ret)
 
 (def-func-end)

@@ -2,7 +2,7 @@
 (include "sys/math/class.inc")
 (include "./class.inc")
 
-(def-method 'path :gen_cubic)
+(def-method :path :gen_cubic)
 	;inputs
 	;:r0 = path object (ptr)
 	;:r1 = p1x (fixed)
@@ -29,13 +29,13 @@
 
 	(push-scope)
 	(scope-used p23)
-	(entry 'path :gen_cubic {this, p1x, p1y, p2x, p2y, p3x, p3y, p4x, p4y})
+	(entry :path :gen_cubic {this, p1x, p1y, p2x, p2y, p3x, p3y, p4x, p4y})
 
 	;output first point
 	(vec-set 0)
-	(call 'path :push_back2 {this, p1x, p1y})
+	(call :path :push_back2 {this, p1x, p1y})
 
-	(call 'array :create :nil {stack})
+	(call :array :create :nil {stack})
 	(loop-start)
 		;calculate the mid-path
 		(vec-load 6 {p1x, p1y, p2x, p2y, p3x, p3y})
@@ -82,32 +82,32 @@
 		(bind '(d e) (vec-pop 2))
 		(vpif `(,d <= ,e))
 			;output point
-			(call 'path :push_back2 {this, p1234x, p1234y})
+			(call :path :push_back2 {this, p1234x, p1234y})
 		(else)
 			;continue subdivision
-			(d-call 'array :get_length {stack} {_, length})
-			(call 'array :set_cap {stack, length + 8})
-			(call 'array :get_end {stack} {_, iter_end})
-			(call 'array :set_length {stack, length + 8})
+			(d-call :array :get_length {stack} {_, length})
+			(call :array :set_cap {stack, length + 8})
+			(call :array :get_end {stack} {_, iter_end})
+			(call :array :set_length {stack, length + 8})
 			(vec-load 9 {p1234, p234, p34, p4, p1, p12, p123, p1234, iter_end})
 			(vec-store-long 8 (first (vec-pop 1)))
 		(endif)
 
-		(d-call 'array :get_length {stack} {_, length})
+		(d-call :array :get_length {stack} {_, length})
 		(breakifnot {length})
-		(call 'array :set_length {stack, length - 4})
-		(call 'array :get_end {stack} {_, iter_end})
+		(call :array :set_length {stack, length - 4})
+		(call :array :get_end {stack} {_, iter_end})
 		(vec-load 1 {iter_end})
 		(vec-load-long 4 (first (vec-top 1)))
 		(vec-store 4 {p1, p2, p3, p4})
 		(vec-pop 1)
 	(loop-end)
-	(call 'array :deref {stack})
+	(call :array :deref {stack})
 
 	;output last point
-	(call 'path :push_back2 {this, p4x, p4y})
+	(call :path :push_back2 {this, p4x, p4y})
 
-	(exit 'path :gen_cubic {this})
+	(exit :path :gen_cubic {this})
 	(pop-scope)
 	(return)
 

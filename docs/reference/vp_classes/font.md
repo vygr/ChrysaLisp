@@ -1,6 +1,6 @@
-# font
+# :font
 
-## obj
+## :obj
 
 ## Lisp Bindings
 

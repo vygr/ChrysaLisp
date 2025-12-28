@@ -2,7 +2,7 @@
 (include "././num/class.inc")
 (include "././lisp/class.inc")
 
-(def-method 'list :lisp_list)
+(def-method :list :lisp_list)
 	;inputs
 	;:r0 = lisp object (ptr)
 	;:r1 = args list object (ptr)
@@ -12,16 +12,16 @@
 	;trashes
 	;:r1-:r14
 
-	(entry 'list :lisp_list '(:r0 :r1))
+	(entry :list :lisp_list '(:r0 :r1))
 
 	(class/obj/ref :r1 :r2)
 
-	(exit 'list :lisp_list '(:r0 :r1))
+	(exit :list :lisp_list '(:r0 :r1))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'list :lisp_merge)
+(def-method :list :lisp_merge)
 	;inputs
 	;:r0 = lisp object (ptr)
 	;:r1 = args list object (ptr)
@@ -33,36 +33,36 @@
 
 	(vp-rdef (iter_begin iter_end this args) '(:r10 :r11))
 
-	(entry 'list :lisp_merge `(,this ,args))
+	(entry :list :lisp_merge `(,this ,args))
 
 	(errorif-lisp-args-sig 'error :r1 2)
 
 	(array-bind-args args `(,this ,args))
 	(class/array/get_both args iter_begin iter_end)
 	(vpif `(,iter_begin /= ,iter_end))
-		(call 'list :set_cap `(,this (,args array_length)) `(,this))
+		(call :list :set_cap `(,this (,args array_length)) `(,this))
 		(loop-start)
-			(d-call 'list :find `(,this (,iter_begin 0) 0) `(,this ,args tmp))
+			(d-call :list :find `(,this (,iter_begin 0) 0) `(,this ,args tmp))
 			(vp-add-cr +ptr_size iter_begin)
 			(vpif `(,tmp = -1))
 				(class/obj/ref args tmp)
-				(call 'list :push_back `(,this ,args) `(,this _ _ _))
+				(call :list :push_back `(,this ,args) `(,this _ _ _))
 			(endif)
 		(loop-until `(,iter_begin = ,iter_end))
 	(endif)
-	(call 'obj :ref `(,this) `(,args))
+	(call :obj :ref `(,this) `(,args))
 
-	(exit 'list :lisp_merge `(,this ,args))
+	(exit :list :lisp_merge `(,this ,args))
 	(vp-ret)
 
 (errorcase
 (vp-label 'error)
-	(jump 'lisp :repl_error `(,this "(merge dlist slist)" +error_msg_wrong_types ,args))
-	(signature '(list list)))
+	(jump :lisp :repl_error `(,this "(merge dlist slist)" +error_msg_wrong_types ,args))
+	(signature '(:list :list)))
 
 (def-func-end)
 
-(def-method 'list :lisp_pivot)
+(def-method :list :lisp_pivot)
 	;inputs
 	;:r0 = lisp object (ptr)
 	;:r1 = args list object (ptr)
@@ -88,37 +88,37 @@
 		(int length)))
 
 	(push-scope)
-	(entry 'list :lisp_pivot {this, args})
+	(entry :list :lisp_pivot {this, args})
 
 	(errorif-lisp-args-sig 'error1 :r1 4)
 
-	(call 'list :get_begin {args} {_, iter_begin})
+	(call :list :get_begin {args} {_, iter_begin})
 	(assign {iter_begin[0]} {func})
 	(assign {iter_begin[+ptr_size]} {list})
-	(call 'num :get_value {iter_begin[+ptr_size * 2]} {_, start})
-	(call 'num :get_value {iter_begin[+ptr_size * 3]} {_, end})
+	(call :num :get_value {iter_begin[+ptr_size * 2]} {_, start})
+	(call :num :get_value {iter_begin[+ptr_size * 3]} {_, end})
 (errorcase
-	(d-call 'list :get_length {list} {_, length})
+	(d-call :list :get_length {list} {_, length})
 	(gotoif {start < 0 || start >= end || end > length} 'error2))
 
-	(call 'list :create :nil {params})
-	(call 'list :get_iter {list, start} {_, liter})
-	(call 'list :get_iter {list, end} {_, hiter})
-	(call 'list :pivot {list, liter, hiter, $callback, &this} {_, liter})
-	(call 'list :get_begin {list} {_, iter_begin})
-	(call 'num :create {(liter - iter_begin) >> 3} {value})
-	(call 'list :deref {params})
-	(call 'sys_task :sleep '(0))
+	(call :list :create :nil {params})
+	(call :list :get_iter {list, start} {_, liter})
+	(call :list :get_iter {list, end} {_, hiter})
+	(call :list :pivot {list, liter, hiter, $callback, &this} {_, liter})
+	(call :list :get_begin {list} {_, iter_begin})
+	(call :num :create {(liter - iter_begin) >> 3} {value})
+	(call :list :deref {params})
+	(call :sys_task :sleep '(0))
 
-	(exit 'list :lisp_pivot {this, value})
+	(exit :list :lisp_pivot {this, value})
 	(return)
 
 (errorcase
 (vp-label 'error1)
-	(jump 'lisp :repl_error {this, "(pivot lambda list start end)", +error_msg_wrong_types, args})
+	(jump :lisp :repl_error {this, "(pivot lambda list start end)", +error_msg_wrong_types, args})
 (vp-label 'error2)
-	(jump 'lisp :repl_error {this, "(pivot lambda list start end)", +error_msg_not_valid_index, args})
-	(signature '(obj list num num)))
+	(jump :lisp :repl_error {this, "(pivot lambda list start end)", +error_msg_not_valid_index, args})
+	(signature '(:obj :list :num :num)))
 
 	(pop-scope-syms)
 
@@ -133,27 +133,27 @@
 			(long result)))
 
 	(push-scope)
-	(entry 'array :sort_callback {pdata, liter, hiter})
+	(entry :array :sort_callback {pdata, liter, hiter})
 
-	(call 'obj :ref {*liter} {liter})
-	(call 'obj :ref {*hiter} {hiter})
-	(d-call 'list :clear {pdata->pdata_params})
-	(call 'list :push_back2 {pdata->pdata_params, liter, hiter})
-	(call 'lisp :repl_apply {pdata->pdata_this, pdata->pdata_params, pdata->pdata_func} {_, value})
+	(call :obj :ref {*liter} {liter})
+	(call :obj :ref {*hiter} {hiter})
+	(d-call :list :clear {pdata->pdata_params})
+	(call :list :push_back2 {pdata->pdata_params, liter, hiter})
+	(call :lisp :repl_apply {pdata->pdata_this, pdata->pdata_params, pdata->pdata_func} {_, value})
 	(assign {0} {result})
-	(call 'obj :inst_of (cat {value, @} (f-path 'num :vtable)) '(val tmp))
+	(call :obj :inst_of (cat {value, @} (f-path :num :vtable)) '(val tmp))
 	(vpif `(,tmp /= 0))
-		(call 'num :get_value `(,val) {_, result})
+		(call :num :get_value `(,val) {_, result})
 	(endif)
-	(call 'obj :deref `(,val))
+	(call :obj :deref `(,val))
 
-	(exit 'array :sort_callback {result})
+	(exit :array :sort_callback {result})
 	(pop-scope)
 	(return)
 
 (def-func-end)
 
-(def-method 'list :lisp_match)
+(def-method :list :lisp_match)
 	;inputs
 	;:r0 = lisp object (ptr)
 	;:r1 = args list object (ptr)
@@ -165,7 +165,7 @@
 
 	(vp-rdef (this args src iter_begin iter_end iter_start wild_card))
 
-	(entry 'list :lisp_match `(,this ,args))
+	(entry :list :lisp_match `(,this ,args))
 
 	(errorif-lisp-args-sig 'error1 :r1 2)
 
@@ -193,17 +193,17 @@
 	(endif)
 	(class/obj/ref args iter_start)
 
-	(exit 'list :lisp_match `(,this ,args))
+	(exit :list :lisp_match `(,this ,args))
 	(vp-ret)
 
 (errorcase
 (vp-label 'error1)
-	(jump 'lisp :repl_error `(,this "(lmatch? list list)" +error_msg_wrong_types ,args))
-	(signature '(list list)))
+	(jump :lisp :repl_error `(,this "(lmatch? list list)" +error_msg_wrong_types ,args))
+	(signature '(:list :list)))
 
 (def-func-end)
 
-(def-method 'list :lisp_copy)
+(def-method :list :lisp_copy)
 	;inputs
 	;:r0 = lisp object (ptr)
 	;:r1 = args list object (ptr)
@@ -213,26 +213,26 @@
 	;trashes
 	;:r1-:r14
 
-	(entry 'list :lisp_copy '(:r0 :r1))
+	(entry :list :lisp_copy '(:r0 :r1))
 
 	(errorif-lisp-args-len 'error :r1 /= 1)
 
 	(array-bind-args :r1 '(:r1))
-	(f-bind 'list :vtable :r2)
+	(f-bind :list :vtable :r2)
 	(assign '((:r1 obj_vtable)) '(:r3))
 	(vpif '(:r2 = :r3))
 		(vp-push :r0)
-		(call 'list :copy '(:r1) '(_ :r1))
+		(call :list :copy '(:r1) '(_ :r1))
 		(vp-pop :r0)
 	(else)
 		(class/obj/ref :r1 :r2)
 	(endif)
 
-	(exit 'list :lisp_copy '(:r0 :r1))
+	(exit :list :lisp_copy '(:r0 :r1))
 	(vp-ret)
 
 (errorcase
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(copy form)" +error_msg_wrong_num_of_args :r1)))
+	(jump :lisp :repl_error '(:r0 "(copy form)" +error_msg_wrong_num_of_args :r1)))
 
 (def-func-end)

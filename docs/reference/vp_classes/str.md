@@ -1,6 +1,6 @@
-# str
+# :str
 
-## seq
+## :seq
 
 ## Lisp Bindings
 

@@ -4,7 +4,7 @@
 (include "class/lisp/class.inc")
 (include "././statics/class.inc")
 
-(def-method 'host_os :lisp_readchar)
+(def-method :host_os :lisp_readchar)
 	;inputs
 	;:r0 = lisp object (ptr)
 	;:r1 = args list object (ptr)
@@ -14,27 +14,27 @@
 	;trashes
 	;:r1-:r14
 
-	(entry 'host_os :lisp_readchar '(:r0 :r1))
+	(entry :host_os :lisp_readchar '(:r0 :r1))
 
-	(errorif-lisp-args-type 'error :r1 num 1)
+	(errorif-lisp-args-type 'error :r1 :num 1)
 
 	(vp-push :r0)
-	(defq in (method-input 'host_os :pii_read_char))
+	(defq in (method-input :host_os :pii_read_char))
 	(list-bind-args :r1 in '(:num))
-	(call 'host_os :pii_read_char in '(:r0))
-	(call 'num :create '(:r0) '(:r1))
+	(call :host_os :pii_read_char in '(:r0))
+	(call :num :create '(:r0) '(:r1))
 	(vp-pop :r0)
 
-	(exit 'host_os :lisp_readchar '(:r0 :r1))
+	(exit :host_os :lisp_readchar '(:r0 :r1))
 	(vp-ret)
 
 (errorcase
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(pii-read-char fd)" +error_msg_wrong_types :r1)))
+	(jump :lisp :repl_error '(:r0 "(pii-read-char fd)" +error_msg_wrong_types :r1)))
 
 (def-func-end)
 
-(def-method 'host_os :lisp_writechar)
+(def-method :host_os :lisp_writechar)
 	;inputs
 	;:r0 = lisp object (ptr)
 	;:r1 = args list object (ptr)
@@ -44,30 +44,30 @@
 	;trashes
 	;:r1-:r14
 
-	(entry 'host_os :lisp_writechar '(:r0 :r1))
+	(entry :host_os :lisp_writechar '(:r0 :r1))
 
-	(errorif-lisp-args-type 'error :r1 num 2)
+	(errorif-lisp-args-type 'error :r1 :num 2)
 
 	(vp-push :r0)
-	(defq in (method-input 'host_os :pii_write_char))
+	(defq in (method-input :host_os :pii_write_char))
 	(array-bind-args :r1 in)
 	(vp-push (second in))
 	(list-cast-args in '(:num :num))
-	(call 'host_os :pii_write_char in)
+	(call :host_os :pii_write_char in)
 	(vp-pop :r1)
 	(class/obj/ref :r1 :r2)
 	(vp-pop :r0)
 
-	(exit 'host_os :lisp_writechar '(:r0 :r1))
+	(exit :host_os :lisp_writechar '(:r0 :r1))
 	(vp-ret)
 
 (errorcase
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(pii-write-char fd char)" +error_msg_wrong_types :r1)))
+	(jump :lisp :repl_error '(:r0 "(pii-write-char fd char)" +error_msg_wrong_types :r1)))
 
 (def-func-end)
 
-(def-method 'host_os :lisp_time)
+(def-method :host_os :lisp_time)
 	;inputs
 	;:r0 = lisp object (ptr)
 	;:r1 = args list object (ptr)
@@ -77,25 +77,25 @@
 	;trashes
 	;:r1-:r14
 
-	(entry 'host_os :lisp_time '(:r0 :r1))
+	(entry :host_os :lisp_time '(:r0 :r1))
 
 	(errorif-lisp-args-len 'error :r1 /= 0)
 
 	(vp-push :r0)
-	(call 'host_os :pii_time :nil '(:r0))
-	(call 'num :create '(:r0) '(:r1))
+	(call :host_os :pii_time :nil '(:r0))
+	(call :num :create '(:r0) '(:r1))
 	(vp-pop :r0)
 
-	(exit 'host_os :lisp_time '(:r0 :r1))
+	(exit :host_os :lisp_time '(:r0 :r1))
 	(vp-ret)
 
 (errorcase
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(pii-time)" +error_msg_wrong_num_of_args :r1)))
+	(jump :lisp :repl_error '(:r0 "(pii-time)" +error_msg_wrong_num_of_args :r1)))
 
 (def-func-end)
 
-(def-method 'host_os :lisp_dirlist)
+(def-method :host_os :lisp_dirlist)
 	;inputs
 	;:r0 = lisp object (ptr)
 	;:r1 = args list object (ptr)
@@ -105,7 +105,7 @@
 	;trashes
 	;:r1-:r14
 
-	(entry 'host_os :lisp_dirlist '(:r0 :r1))
+	(entry :host_os :lisp_dirlist '(:r0 :r1))
 
 	(errorif-lisp-args-sig 'error :r1 1)
 
@@ -113,26 +113,26 @@
 	(list-bind-args :r1 '(:r6) '(:str))
 	(assign '(0 0 (* 4 1024)) '(:r7 :r8 :r9))
 	(loop-start)
-		(call 'sys_mem :realloc '(:r7 :r8 :r9) '(:r7 :r8))
-		(call 'host_os :pii_dirlist '(:r6 :r7 :r8) '(:r0))
+		(call :sys_mem :realloc '(:r7 :r8 :r9) '(:r7 :r8))
+		(call :host_os :pii_dirlist '(:r6 :r7 :r8) '(:r0))
 		(breakif '(:r0 <= :r8))
 		(vp-lea-d :r8 :r8 :r9)
 	(loop-end)
-	(call 'str :create_from_buffer '(:r7 :r0) '(:r9))
-	(call 'sys_mem :free '(:r7))
+	(call :str :create_from_buffer '(:r7 :r0) '(:r9))
+	(call :sys_mem :free '(:r7))
 	(vp-pop :r0)
 
-	(exit 'host_os :lisp_dirlist '(:r0 :r9))
+	(exit :host_os :lisp_dirlist '(:r0 :r9))
 	(vp-ret)
 
 (errorcase
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(pii-dirlist path)" +error_msg_wrong_types :r1))
-	(signature '(str)))
+	(jump :lisp :repl_error '(:r0 "(pii-dirlist path)" +error_msg_wrong_types :r1))
+	(signature '(:str)))
 
 (def-func-end)
 
-(def-method 'host_os :lisp_fstat)
+(def-method :host_os :lisp_fstat)
 	;inputs
 	;:r0 = lisp object (ptr)
 	;:r1 = args list object (ptr)
@@ -142,19 +142,19 @@
 	;trashes
 	;:r1-:r14
 
-	(entry 'host_os :lisp_fstat '(:r0 :r1))
+	(entry :host_os :lisp_fstat '(:r0 :r1))
 
 	(errorif-lisp-args-sig 'error :r1 1)
 
 	(vp-push :r0)
 	(assign '((:r1 array_begin) (@ sys/statics/statics)) '(:r0 :r1))
 	(assign '((:r0 0) (:r1 statics_sys_load_stat_buffer)) '(:r0 :r1))
-	(call 'host_os :pii_stat '((& :r0 str_data) :r1) '(:r0))
+	(call :host_os :pii_stat '((& :r0 str_data) :r1) '(:r0))
 	(vpif '(:r0 = 0))
 		(vp-cpy-rr :r1 :r13)
-		(call 'array :create :nil '(:r0))
-		(call 'array :push_back2 '(:r0 (:r13 stat_mtime) (:r13 stat_fsize)) '(:r0 _ _ _ _))
-		(call 'array :push_back '(:r0 (:r13 stat_mode)) '(:r1 _ _ _))
+		(call :array :create :nil '(:r0))
+		(call :array :push_back2 '(:r0 (:r13 stat_mtime) (:r13 stat_fsize)) '(:r0 _ _ _ _))
+		(call :array :push_back '(:r0 (:r13 stat_mode)) '(:r1 _ _ _))
 	(else)
 		(assign '((:rsp 0)) '(:r1))
 		(assign '((:r1 lisp_sym_nil)) '(:r1))
@@ -162,17 +162,17 @@
 	(endif)
 	(vp-pop :r0)
 
-	(exit 'host_os :lisp_fstat '(:r0 :r1))
+	(exit :host_os :lisp_fstat '(:r0 :r1))
 	(vp-ret)
 
 (errorcase
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(pii-fstat path)" +error_msg_wrong_types :r1))
-	(signature '(str)))
+	(jump :lisp :repl_error '(:r0 "(pii-fstat path)" +error_msg_wrong_types :r1))
+	(signature '(:str)))
 
 (def-func-end)
 
-(def-method 'host_os :lisp_remove)
+(def-method :host_os :lisp_remove)
 	;inputs
 	;:r0 = lisp object (ptr)
 	;:r1 = args list object (ptr)
@@ -182,23 +182,23 @@
 	;trashes
 	;:r1-:r14
 
-	(entry 'host_os :lisp_remove '(:r0 :r1))
+	(entry :host_os :lisp_remove '(:r0 :r1))
 
 	(errorif-lisp-args-sig 'error :r1 1)
 
 	(vp-push :r0)
-	(defq in (method-input 'host_os :pii_remove))
+	(defq in (method-input :host_os :pii_remove))
 	(list-bind-args :r1 in '(:str))
-	(call 'host_os :pii_remove in '(:r0))
-	(call 'num :create '(:r0) '(:r1))
+	(call :host_os :pii_remove in '(:r0))
+	(call :num :create '(:r0) '(:r1))
 	(vp-pop :r0)
 
-	(exit 'host_os :lisp_remove '(:r0 :r1))
+	(exit :host_os :lisp_remove '(:r0 :r1))
 	(vp-ret)
 
 (errorcase
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(pii-remove path)" +error_msg_wrong_types :r1))
-	(signature '(str)))
+	(jump :lisp :repl_error '(:r0 "(pii-remove path)" +error_msg_wrong_types :r1))
+	(signature '(:str)))
 
 (def-func-end)

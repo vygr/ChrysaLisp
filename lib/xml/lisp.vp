@@ -28,33 +28,33 @@
 		(ptr stream resources this args))
 
 	(defun write-token ()
-		(call 'sstream :write_char {sstoken, c}))
+		(call :sstream :write_char {sstoken, c}))
 
 	(defun output-c ()
-		(call 'str :create_from_buffer {&c, 1} '(token))
-		(bind '(l t) (method-input 'list :push_back))
+		(call :str :create_from_buffer {&c, 1} '(token))
+		(bind '(l t) (method-input :list :push_back))
 		(assign `(,token) `(,t))
 		(assign {tokens} `(,l))
-		(call 'list :push_back `(,l ,t)))
+		(call :list :push_back `(,l ,t)))
 
 	(defun output-token ()
-		(call 'sstream :claim_string {sstoken} '(_ token))
-		(bind '(l t) (method-input 'list :push_back))
+		(call :sstream :claim_string {sstoken} '(_ token))
+		(bind '(l t) (method-input :list :push_back))
 		(assign `(,token) `(,t))
 		(assign {tokens} `(,l))
-		(call 'list :push_back `(,l ,t)))
+		(call :list :push_back `(,l ,t)))
 
 	(defun output-state (&optional s)
 		(if s
-			(call 'list :push_back (cat {states,} s) '(_ obj tmp _))
-			(call 'list :push_back {states, state} '(_ obj tmp _)))
+			(call :list :push_back (cat {states,} s) '(_ obj tmp _))
+			(call :list :push_back {states, state} '(_ obj tmp _)))
 		(class/obj/ref obj tmp))
 
 	(defun find_char_in (s)
-		(bind '(st ch _) (method-input 'str :find))
+		(bind '(st ch _) (method-input :str :find))
 		(assign `(,c) `(,ch))
 		(assign s `(,st))
-		(d-call 'str :find `(,st ,ch 0) '(_ _ idx)))
+		(d-call :str :find `(,st ,ch 0) '(_ _ idx)))
 
 	(entry '(:r0 :r1))
 
@@ -66,20 +66,20 @@
 	(list-bind-args :r1 '(:r0) '(:stream))
 	(assign '(:r0) {stream})
 
-	(call 'str :create_from_buffer {0, str_gap} '(:r0))
-	(call 'sstream :create '(:r0) {sstoken})
-	(call 'list :create :nil {states})
-	(call 'list :create :nil {tokens})
-	(call 'str :create_from_buffer (list (cat (char +char_double_quote) {=<>}) 4) {not_symbol_chars})
-	(call 'str :create_from_buffer {"</!-?", 5} {open_chars})
-	(call 'str :create_from_buffer {">/-?", 4} {close_chars})
+	(call :str :create_from_buffer {0, str_gap} '(:r0))
+	(call :sstream :create '(:r0) {sstoken})
+	(call :list :create :nil {states})
+	(call :list :create :nil {tokens})
+	(call :str :create_from_buffer (list (cat (char +char_double_quote) {=<>}) 4) {not_symbol_chars})
+	(call :str :create_from_buffer {"</!-?", 5} {open_chars})
+	(call :str :create_from_buffer {">/-?", 4} {close_chars})
 
 	;create state symbols
 	(vp-rdef (table iter_begin iter_end) '(:r12 :r13 :r14))
 	(assign {$states, &syms_start, &syms_end} `(,table ,iter_begin ,iter_end))
 	(loop-start)
-		(call 'sym :intern_cstr `(,table) `((,iter_begin 0)))
-		(call 'sys_str :length `(,table) '(_ len))
+		(call :sym :intern_cstr `(,table) `((,iter_begin 0)))
+		(call :sys_str :length `(,table) '(_ len))
 		(vp-add-cr +ptr_size iter_begin)
 		(vp-add-rr len table)
 		(vp-add-cr 1 table)
@@ -87,16 +87,16 @@
 
 	;create resource tracker list
 	(vp-rdef (res iter_begin iter_end) '(:r0 :r12 :r13))
-	(call 'list :create :nil {resources})
+	(call :list :create :nil {resources})
 	(assign {resources, &res_start, &res_end} `(,res ,iter_begin ,iter_end))
 	(loop-start)
-		(call 'list :push_back `(,res (,iter_begin 0)) '(res _ _ _))
+		(call :list :push_back `(,res (,iter_begin 0)) '(res _ _ _))
 		(vp-add-cr +ptr_size iter_begin)
 	(loop-until `(,iter_begin = ,iter_end))
 
 	(assign {sym_text} {state})
 	(loop-start 'next_char)
-		(call 'stream :read_char {stream} '(_ c))
+		(call :stream :read_char {stream} '(_ c))
 		(breakif `(,c = -1))
 		(assign `(,c) {c})
 	(vp-label 'proc_char)
@@ -160,8 +160,8 @@
 		(endswitch)
 	(loop-end)
 
-	(d-call 'list :slice {resources, 0, 2} {_, args})
-	(call 'list :deref {resources})
+	(d-call :list :slice {resources, 0, 2} {_, args})
+	(call :list :deref {resources})
 	(exit {this, args})
 	(pop-scope)
 	(return)
@@ -176,7 +176,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(xml-parse stream)" +error_msg_wrong_types :r1))
-	(signature '(stream)))
+	(jump :lisp :repl_error '(:r0 "(xml-parse stream)" +error_msg_wrong_types :r1))
+	(signature '(:stream)))
 
 (def-func-end)

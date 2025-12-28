@@ -27,6 +27,9 @@ Added `make apps` option to build just the application level Jit native code.
 VP class vtable and super info now kept in compiler var environments `*vtables*`
 and `*supers*`.
 
+Long awaited change for VP class names to be `:` prefixed. So `list` -> `:list`
+etc.
+
 ------
 
 New `(nql obj1 obj2) -> :t | :nil` built in function.

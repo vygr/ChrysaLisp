@@ -30,7 +30,7 @@
 	(errorif-lisp-args-sig 'error :r1 0)
 
 	;reg ops test
-	(call 'host_os :pii_time :nil {start})
+	(call :host_os :pii_time :nil {start})
 	(assign {0} {cnt})
 	(loop-start)
 
@@ -75,15 +75,15 @@
 				(vp-asr-rr r1 r6) (vp-asr-rr r1 r7) (vp-asr-rr r1 r8) (vp-asr-rr r1 r9))
 			(vp-add-cr 1 loop)
 		(loop-until `(,loop = 1000))
-		(call 'sys_task :sleep '(0))
+		(call :sys_task :sleep '(0))
 
-		(call 'host_os :pii_time :nil {end})
+		(call :host_os :pii_time :nil {end})
 		(assign {end - start, 1000 * 1000 + cnt} {end, cnt})
 	(loop-until {end >= 100000})
-	(call 'num :create {1000000 * cnt / end} {regs_vops})
+	(call :num :create {1000000 * cnt / end} {regs_vops})
 
 	;memory ops test
-	(call 'host_os :pii_time :nil {start})
+	(call :host_os :pii_time :nil {start})
 	(assign {0} {cnt})
 	(loop-start)
 
@@ -110,15 +110,15 @@
 				(vp-cpy-ri-b r4 r1 0))
 			(vp-add-cr 1 loop)
 		(loop-until `(,loop = 1000))
-		(call 'sys_task :sleep '(0))
+		(call :sys_task :sleep '(0))
 
-		(call 'host_os :pii_time :nil {end})
+		(call :host_os :pii_time :nil {end})
 		(assign {end - start, 1000 * 1000 + cnt} {end, cnt})
 	(loop-until {end >= 100000})
-	(call 'num :create {1000000 * cnt / end} {memory_vops})
+	(call :num :create {1000000 * cnt / end} {memory_vops})
 
 	;reals ops test
-	(call 'host_os :pii_time :nil {start})
+	(call :host_os :pii_time :nil {start})
 	(assign {0} {cnt})
 	(loop-start)
 
@@ -139,23 +139,23 @@
 				(vp-div-ff f1 f2) (vp-div-ff f3 f4) (vp-div-ff f5 f6) (vp-div-ff f7 f8))
 			(vp-add-cr 1 loop)
 		(loop-until `(,loop = 100))
-		(call 'sys_task :sleep '(0))
+		(call :sys_task :sleep '(0))
 
-		(call 'host_os :pii_time :nil {end})
+		(call :host_os :pii_time :nil {end})
 		(assign {end - start, 24 * 100 + cnt} {end, cnt})
 	(loop-until {end >= 100000})
-	(call 'num :create {1000000 * cnt / end} {reals_vops})
+	(call :num :create {1000000 * cnt / end} {reals_vops})
 
-	(call 'list :create :nil {args})
-	(call 'list :push_back2 {args, regs_vops, memory_vops})
-	(call 'list :push_back {args, reals_vops})
+	(call :list :create :nil {args})
+	(call :list :push_back2 {args, regs_vops, memory_vops})
+	(call :list :push_back {args, reals_vops})
 
 	(exit {this, args})
 	(return)
 
 (errorcase
 (vp-label 'error)
-	(jump 'lisp :repl_error {this, "(vops)", +error_msg_wrong_types, args})
+	(jump :lisp :repl_error {this, "(vops)", +error_msg_wrong_types, args})
 	(signature '()))
 
 	(pop-scope-syms)

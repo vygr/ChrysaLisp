@@ -283,19 +283,19 @@ reclaimed.
 ### Lifecycle
 
 ```vdu
-	(call 'xxx :create)
-		(call 'sys_mem :alloc)
-			(call 'xxx :init)
+	(call :xxx :create)
+		(call :sys_mem :alloc)
+			(call :xxx :init)
 				...
-				[(call 'xxx :ref)]
-				[(call 'xxx :ref_if)]
+				[(call :xxx :ref)]
+				[(call :xxx :ref_if)]
 				...
-				[(call 'xxx :deref)]
-				[(call 'xxx :deref_if)]
+				[(call :xxx :deref)]
+				[(call :xxx :deref_if)]
 				...
-			(call 'xxx :deinit)
-		(call 'sys_mem :free)
-	(call 'xxx :destroy)
+			(call :xxx :deinit)
+		(call :sys_mem :free)
+	(call :xxx :destroy)
 ```
 
 For any given class there are `:create` methods for that class that take any
@@ -330,7 +330,7 @@ This is an example of a 'pair class, first the `class.inc` file.
 ```vdu
 (include "class/obj/class.inc")
 
-(def-class pair obj
+(def-class :pair :obj
 	(dec-method :vtable class/pair/vtable)
 	(dec-method :create class/pair/create :static (:r0 :r1) (:r0))
 	(dec-method :init class/pair/init :static (:r0 :r1 :r2 :r3))
@@ -362,7 +362,7 @@ This is an example of a 'pair class, first the `class.inc` file.
 	;trashes
 	;:r1
 	(assign '(:r2 :r3) '((:r0 pair_first) (:r0 pair_second)))
-	(s-call 'pair :init '(:r0 :r1) '(:r0 :r1)))
+	(s-call :pair :init '(:r0 :r1) '(:r0 :r1)))
 
 (defun class/pair/get_first ()
 	;inputs
@@ -395,7 +395,7 @@ function' to emit the method call. They need to be declared in the `class.inc`
 file in order to be visible to all code that use those methods.
 
 The none inline methods are defined in the `class.vp` file. Note the use of the
-helper method generators `(gen-create 'pair)` and `(gen-vtable 'pair)`. These
+helper method generators `(gen-create :pair)` and `(gen-vtable :pair)`. These
 helpers use the corresponding method declarations to generate the method code
 for you. Take a look in `lib/asm/class.inc` for the implementation of these.
 
@@ -405,10 +405,10 @@ Second the `class.vp` file.
 (include "lib/asm/func.inc")
 (include "class/pair/class.inc")
 
-(gen-create 'pair)
-(gen-vtable 'pair)
+(gen-create :pair)
+(gen-vtable :pair)
 
-(def-method 'pair :deinit)
+(def-method :pair :deinit)
 	;inputs
 	;:r0 = pair object (ptr)
 	;outputs
@@ -416,18 +416,18 @@ Second the `class.vp` file.
 	;trashes
 	;:r1-:r14
 
-	(entry 'pair :deinit '(:r0))
+	(entry :pair :deinit '(:r0))
 
 	(vp-push :r0)
-	(call 'obj :deref '((:r0 pair_first)))
+	(call :obj :deref '((:r0 pair_first)))
 	(assign '((:rsp 0)) '(:r0))
-	(call 'obj :deref '((:r0 pair_second)))
+	(call :obj :deref '((:r0 pair_second)))
 	(vp-pop :r0)
-	(s-jump 'pair :deinit '(:r0))
+	(s-jump :pair :deinit '(:r0))
 
 (def-func-end)
 
-(def-method 'pair :ref_first)
+(def-method :pair :ref_first)
 	;inputs
 	;:r0 = pair object (ptr)
 	;outputs
@@ -436,17 +436,17 @@ Second the `class.vp` file.
 	;trashes
 	;:r2
 
-	(entry 'pair :ref_first '(:r0))
+	(entry :pair :ref_first '(:r0))
 
 	(assign '((:r0 pair_first)) '(:r1))
 	(class/obj/ref :r1 :r2)
 
-	(exit 'pair :ref_first '(:r0 :r1))
+	(exit :pair :ref_first '(:r0 :r1))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'pair :ref_second)
+(def-method :pair :ref_second)
 	;inputs
 	;:r0 = pair object (ptr)
 	;outputs
@@ -455,17 +455,17 @@ Second the `class.vp` file.
 	;trashes
 	;:r2
 
-	(entry 'pair :ref_second '(:r0))
+	(entry :pair :ref_second '(:r0))
 
 	(assign '((:r0 pair_second)) '(:r1))
 	(class/obj/ref :r1 :r2)
 
-	(exit 'pair :ref_second '(:r0 :r1))
+	(exit :pair :ref_second '(:r0 :r1))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'pair :set_first)
+(def-method :pair :set_first)
 	;inputs
 	;:r0 = pair object (ptr)
 	;:r1 = object (ptr)
@@ -474,19 +474,19 @@ Second the `class.vp` file.
 	;trashes
 	;:r1-:r14
 
-	(entry 'pair :set_first '(:r0 :r1))
+	(entry :pair :set_first '(:r0 :r1))
 
 	(vp-push :r0)
 	(assign '((:r0 pair_first) :r1) '(:r2 (:r0 pair_first)))
-	(call 'obj :deref '(:r2))
+	(call :obj :deref '(:r2))
 	(vp-pop :r0)
 
-	(exit 'pair :set_first '(:r0))
+	(exit :pair :set_first '(:r0))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'pair :set_second)
+(def-method :pair :set_second)
 	;inputs
 	;:r0 = pair object (ptr)
 	;:r1 = object (ptr)
@@ -495,14 +495,14 @@ Second the `class.vp` file.
 	;trashes
 	;:r1-:r14
 
-	(entry 'pair :set_second '(:r0 :r1))
+	(entry :pair :set_second '(:r0 :r1))
 
 	(vp-push :r0)
 	(assign '((:r0 pair_second) :r1) '(:r2 (:r0 pair_second)))
-	(call 'obj :deref '(:r2))
+	(call :obj :deref '(:r2))
 	(vp-pop :r0)
 
-	(exit 'pair :set_second '(:r0))
+	(exit :pair :set_second '(:r0))
 	(vp-ret)
 
 (def-func-end)

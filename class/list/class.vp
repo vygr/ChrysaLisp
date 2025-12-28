@@ -4,11 +4,11 @@
 (include "././sym/class.inc")
 (include "././stream/class.inc")
 
-(gen-create 'list)
-(gen-vtable 'list)
-(gen-type 'list)
+(gen-create :list)
+(gen-vtable :list)
+(gen-type :list)
 
-(def-method 'list :deinit)
+(def-method :list :deinit)
 	;inputs
 	;:r0 = list object (ptr)
 	;outputs
@@ -16,14 +16,14 @@
 	;trashes
 	;:r1-:r14
 
-	(entry 'list :deinit '(:r0))
+	(entry :list :deinit '(:r0))
 
-	(d-call 'list :clear '(:r0) '(:r0))
-	(s-jump 'list :deinit '(:r0))
+	(d-call :list :clear '(:r0) '(:r0))
+	(s-jump :list :deinit '(:r0))
 
 (def-func-end)
 
-(def-method 'list :clear)
+(def-method :list :clear)
 	;inputs
 	;:r0 = list object (ptr)
 	;outputs
@@ -37,7 +37,7 @@
 
 	(vp-rdef (this iter_begin iter_end))
 
-	(entry 'list :clear `(,this))
+	(entry :list :clear `(,this))
 
 	;deref all elements
 	(class/array/get_both this iter_begin iter_end)
@@ -47,22 +47,22 @@
 		(loop-start)
 			;must preserve what we care about as :deref can trash all !
 			(assign `(,iter_begin) '((:rsp local_iter_begin)))
-			(call 'obj :deref `((,iter_begin 0)))
+			(call :obj :deref `((,iter_begin 0)))
 			(assign '((:rsp local_iter_begin) (:rsp local_iter_end)) `(,iter_begin ,iter_end))
 			(vp-add-cr +ptr_size iter_begin)
 		(loop-until `(,iter_begin = ,iter_end))
 		(assign '((:rsp local_this)) `(,this))
 		(vp-free local_size)
 		;only need to do this is we actually had a none emtpy list !
-		(s-call 'list :clear `(,this) `(,this))
+		(s-call :list :clear `(,this) `(,this))
 	(endif)
 
-	(exit 'list :clear `(,this))
+	(exit :list :clear `(,this))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'list :ref_elem)
+(def-method :list :ref_elem)
 	;inputs
 	;:r0 = list object (ptr)
 	;:r1 = element index (uint)
@@ -72,17 +72,17 @@
 	;trashes
 	;:r1-:r2
 
-	(entry 'list :ref_elem '(:r0 :r1))
+	(entry :list :ref_elem '(:r0 :r1))
 
 	(class/array/get_elem :r0 :r1 :r1 :r2)
 	(class/obj/ref :r1 :r2)
 
-	(exit 'list :ref_elem '(:r0 :r1))
+	(exit :list :ref_elem '(:r0 :r1))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'list :ref_back)
+(def-method :list :ref_back)
 	;inputs
 	;:r0 = list object (ptr)
 	;outputs
@@ -91,16 +91,16 @@
 	;trashes
 	;:r1-:r2
 
-	(entry 'list :ref_back '(:r0))
+	(entry :list :ref_back '(:r0))
 
-	(call 'list :pop_back '(:r0) '(:r0 :r1))
+	(call :list :pop_back '(:r0) '(:r0 :r1))
 
-	(exit 'list :ref_back '(:r0 :r1))
+	(exit :list :ref_back '(:r0 :r1))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'list :set_elem)
+(def-method :list :set_elem)
 	;inputs
 	;:r0 = list object (ptr)
 	;:r1 = element object (ptr)
@@ -110,21 +110,21 @@
 	;trashes
 	;:r1-:r14
 
-	(entry 'list :set_elem '(:r0 :r1 :r2))
+	(entry :list :set_elem '(:r0 :r1 :r2))
 
 	(assign '((:r0 array_begin)) '(:r3))
 	(vp-shl-cr (log2 +ptr_size) :r2)
 	(vp-push :r0)
 	(assign '((:r2 :r3) :r1) '(:r0 (:r2 :r3)))
-	(call 'obj :deref '(:r0))
+	(call :obj :deref '(:r0))
 	(vp-pop :r0)
 
-	(exit 'list :set_elem '(:r0))
+	(exit :list :set_elem '(:r0))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'list :slice)
+(def-method :list :slice)
 	;inputs
 	;:r0 = list object (ptr)
 	;:r1 = element start index (uint)
@@ -136,14 +136,14 @@
 	;:r1-:r8
 
 	;save inputs
-	(entry 'list :slice '(:r6 :r7 :r8))
+	(entry :list :slice '(:r6 :r7 :r8))
 
 	;create new list
-	(call 'list :create :nil '(:r0))
+	(call :list :create :nil '(:r0))
 	(vp-cpy-rr :r8 :r1)
 	(vp-sub-rr :r7 :r1)
 	(assign '(:r1) '((:r0 array_length)))
-	(call 'list :set_cap '(:r0 :r1) '(:r1))
+	(call :list :set_cap '(:r0 :r1) '(:r1))
 	(vp-cpy-rr :r6 :r0)
 
 	;copy and ref elements
@@ -159,12 +159,12 @@
 		(loop-until '(:r7 = :r8))
 	(endif)
 
-	(exit 'list :slice '(:r0 :r1))
+	(exit :list :slice '(:r0 :r1))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'list :rslice)
+(def-method :list :rslice)
 	;inputs
 	;:r0 = list object (ptr)
 	;:r1 = element start index (uint)
@@ -176,14 +176,14 @@
 	;:r1-:r8
 
 	;save inputs
-	(entry 'list :rslice '(:r6 :r7 :r8))
+	(entry :list :rslice '(:r6 :r7 :r8))
 
 	;create new list
-	(call 'list :create :nil '(:r0))
+	(call :list :create :nil '(:r0))
 	(vp-cpy-rr :r8 :r1)
 	(vp-sub-rr :r7 :r1)
 	(assign '(:r1) '((:r0 array_length)))
-	(call 'list :set_cap '(:r0 :r1) '(:r1))
+	(call :list :set_cap '(:r0 :r1) '(:r1))
 	(vp-cpy-rr :r6 :r0)
 
 	;copy and ref elements
@@ -199,12 +199,12 @@
 		(loop-until '(:r7 = :r8))
 	(endif)
 
-	(exit 'list :rslice '(:r0 :r1))
+	(exit :list :rslice '(:r0 :r1))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'list :append)
+(def-method :list :append)
 	;inputs
 	;:r0 = list object (ptr)
 	;:r1 = source list object (ptr)
@@ -215,7 +215,7 @@
 	;trashes
 	;:r1-:r9
 
-	(entry 'list :append '(:r0 :r1 :r2 :r3))
+	(entry :list :append '(:r0 :r1 :r2 :r3))
 
 	(vpif '(:r2 /= :r3))
 		;save inputs
@@ -226,7 +226,7 @@
 		(vp-sub-rr :r2 :r3)
 		(assign '((& :r3 :r9)) '(:r1))
 		(assign '(:r1) '((:r0 array_length)))
-		(call 'list :set_cap '(:r0 :r1) '(:r0))
+		(call :list :set_cap '(:r0 :r1) '(:r0))
 
 		;append and ref elements
 		(class/array/get_iters :r6 :r7 :r8 :r1)
@@ -240,12 +240,12 @@
 		(loop-until '(:r7 = :r8))
 	(endif)
 
-	(exit 'list :append '(:r0))
+	(exit :list :append '(:r0))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'list :find)
+(def-method :list :find)
 	;inputs
 	;:r0 = list object (ptr)
 	;:r1 = element object (ptr)
@@ -260,14 +260,14 @@
 	(vp-rdef (this iter_begin iter_end elm)
 		'(:r7 :r8 :r9))
 
-	(entry 'list :find '(:r0 :r1 :r2))
+	(entry :list :find '(:r0 :r1 :r2))
 
 	;what type of element search ?
-	(f-bind 'sym :vtable iter_begin)
+	(f-bind :sym :vtable iter_begin)
 	(assign '((:r1 obj_vtable)) `(,iter_end))
 	(vpif `(,iter_begin = ,iter_end))
 		;symbol
-		(s-jump 'list :find '(:r0 :r1 :r2))
+		(s-jump :list :find '(:r0 :r1 :r2))
 	(endif)
 	(assign '(:r0 :r1) `(,this ,elm))
 	(class/array/get_both this iter_begin iter_end)
@@ -275,13 +275,13 @@
 	(vp-shl-cr (log2 +long_size) :r2)
 	(vp-add-rr :r2 iter_begin)
 	(loop-start)
-		(call 'obj :eql `(,elm (,iter_begin 0)) `(,elm tmp))
+		(call :obj :eql `(,elm (,iter_begin 0)) `(,elm tmp))
 		(gotoif `(,tmp = 0) 'found)
 		(vp-add-cr +ptr_size iter_begin)
 	(loop-until `(,iter_begin = ,iter_end))
 
 (vp-label 'notfound)
-	(exit 'list :find `(,this ,elm -1))
+	(exit :list :find `(,this ,elm -1))
 	(vp-ret)
 
 (vp-label 'found)
@@ -289,12 +289,12 @@
 	(vp-sub-rr iter_end iter_begin)
 	(vp-shr-cr (log2 +ptr_size) iter_begin)
 
-	(exit 'list :find `(,this ,elm ,iter_begin))
+	(exit :list :find `(,this ,elm ,iter_begin))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'list :rfind)
+(def-method :list :rfind)
 	;inputs
 	;:r0 = list object (ptr)
 	;:r1 = element object (ptr)
@@ -309,22 +309,22 @@
 	(vp-rdef (this iter_begin iter_end elm)
 		'(:r7 :r8 :r9))
 
-	(entry 'list :rfind '(:r0 :r1 :r2))
+	(entry :list :rfind '(:r0 :r1 :r2))
 
 	(gotoif '(:r2 = 0) 'exit)
 	;what type of element search ?
-	(f-bind 'sym :vtable iter_begin)
+	(f-bind :sym :vtable iter_begin)
 	(assign '((:r1 obj_vtable)) `(,iter_end))
 	(vpif `(,iter_begin = ,iter_end))
 		;symbol
-		(s-jump 'list :rfind '(:r0 :r1 :r2))
+		(s-jump :list :rfind '(:r0 :r1 :r2))
 	(endif)
 	(assign '(:r0 :r1) `(,this ,elm))
 	(assign `((,this array_begin)) `(,iter_end))
 	(vp-shl-cr (log2 +long_size) :r2)
 	(vp-lea-d iter_end :r2 iter_begin)
 	(loop-start)
-		(call 'obj :eql `(,elm (,iter_begin ,(neg +ptr_size))) `(,elm tmp))
+		(call :obj :eql `(,elm (,iter_begin ,(neg +ptr_size))) `(,elm tmp))
 		(breakif `(,tmp = 0))
 		(vp-sub-cr +ptr_size iter_begin)
 	(loop-until `(,iter_begin = ,iter_end))
@@ -332,13 +332,13 @@
 (vp-label 'notfound)
 	(vp-sub-rr iter_end iter_begin)
 	(vp-asr-cr (log2 +ptr_size) iter_begin)
-	(exit 'list :rfind `(,this ,elm ,iter_begin))
+	(exit :list :rfind `(,this ,elm ,iter_begin))
 (vp-label 'exit)
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'list :erase)
+(def-method :list :erase)
 	;inputs
 	;:r0 = list object (ptr)
 	;:r1 = element iterator (pptr)
@@ -348,16 +348,16 @@
 	;trashes
 	;:r2-:r14
 
-	(entry 'list :erase '(:r0 :r1))
+	(entry :list :erase '(:r0 :r1))
 
 	(vp-push :r0 :r1)
-	(call 'obj :deref '((:r1 0)))
+	(call :obj :deref '((:r1 0)))
 	(vp-pop :r0 :r1)
-	(s-jump 'list :erase '(:r0 :r1))
+	(s-jump :list :erase '(:r0 :r1))
 
 (def-func-end)
 
-(def-method 'list :erase2)
+(def-method :list :erase2)
 	;inputs
 	;:r0 = list object (ptr)
 	;:r1 = element iterator (pptr)
@@ -367,18 +367,18 @@
 	;trashes
 	;:r2-:r14
 
-	(entry 'list :erase2 '(:r0 :r1))
+	(entry :list :erase2 '(:r0 :r1))
 
 	(vp-push :r0 :r1)
-	(call 'obj :deref '((:r1 0)))
+	(call :obj :deref '((:r1 0)))
 	(assign '((:rsp 0)) '(:r1))
-	(call 'obj :deref '((:r1 +ptr_size)))
+	(call :obj :deref '((:r1 +ptr_size)))
 	(vp-pop :r0 :r1)
-	(s-jump 'list :erase2 '(:r0 :r1))
+	(s-jump :list :erase2 '(:r0 :r1))
 
 (def-func-end)
 
-(def-method 'list :copy)
+(def-method :list :copy)
 	;inputs
 	;:r0 = list object (ptr)
 	;outputs
@@ -387,19 +387,19 @@
 	;trashes
 	;:r1-:r14
 
-	(entry 'list :copy '(:r0))
+	(entry :list :copy '(:r0))
 
 	;ref and then copy it
 	(vp-push :r0 :r0)
 	(class/obj/ref :r0 :r1)
 
-	(call 'array :create :nil '(:r10))
-	(f-bind 'list :vtable :r12)
+	(call :array :create :nil '(:r10))
+	(f-bind :list :vtable :r12)
 	(assign '((& :rsp 0)) '(:r9))
 	(loop-start)
 		;replace form with copy, deref can't cause destroy !
 		(vp-cpy-ir :r9 0 :r0)
-		(d-call 'list :slice '(:r0 0 (:r0 array_length)) '(:r0 :r1))
+		(d-call :list :slice '(:r0 0 (:r0 array_length)) '(:r0 :r1))
 		(class/obj/ref :r0 :r2 -1)
 		(vp-cpy-ri :r1 :r9 0)
 
@@ -410,7 +410,7 @@
 			(vp-cpy-ir :r1 0 :r2)
 			(assign '((:r2 obj_vtable)) '(:r2))
 			(vpif '(:r2 = :r12))
-				(call 'array :push_back '(:r0 :r1) '(:r0 :r1 _ _))
+				(call :array :push_back '(:r0 :r1) '(:r0 :r1 _ _))
 			(endif)
 			(vp-add-cr +ptr_size :r1)
 		(loop-end)
@@ -422,15 +422,15 @@
 		(assign '(:r1) '((:r0 array_length)))
 		(class/array/get_elem :r0 :r1 :r9 :r2)
 	(loop-end)
-	(call 'array :deref '(:r10))
+	(call :array :deref '(:r10))
 	(vp-pop :r0 :r1)
 
-	(exit 'list :copy '(:r0 :r1))
+	(exit :list :copy '(:r0 :r1))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'list :print)
+(def-method :list :print)
 	;inputs
 	;:r0 = list object (ptr)
 	;:r1 = stream object (ptr)
@@ -444,32 +444,32 @@
 		(plong iter_begin iter_end))
 
 	(vp-alloc local_size)
-	(entry 'list :print '(:r0 :r1))
+	(entry :list :print '(:r0 :r1))
 	(assign '(:r0 :r1) '((:rsp local_this) (:rsp local_stream)))
 
-	(call 'stream :write_char '(:r1 +char_lrb))
-	(call 'list :get_both '((:rsp local_this)) '(_ :r1 :r2))
+	(call :stream :write_char '(:r1 +char_lrb))
+	(call :list :get_both '((:rsp local_this)) '(_ :r1 :r2))
 	(vpif '(:r1 /= :r2))
 		(assign '(:r1 :r2) '((:rsp local_iter_begin) (:rsp local_iter_end)))
 		(loop-start)
-			(call 'obj :print '((:r1 0) (:rsp local_stream)))
+			(call :obj :print '((:r1 0) (:rsp local_stream)))
 			(assign '((:rsp local_iter_begin) (:rsp local_iter_end)) '(:r1 :r2))
 			(vp-add-cr +long_size :r1)
 			(breakif '(:r1 = :r2))
 			(assign '(:r1) '((:rsp local_iter_begin)))
-			(call 'stream :write_char '((:rsp local_stream) +char_space))
+			(call :stream :write_char '((:rsp local_stream) +char_space))
 			(assign '((:rsp local_iter_begin)) '(:r1))
 		(loop-end)
 	(endif)
-	(call 'stream :write_char '((:rsp local_stream) +char_rrb))
+	(call :stream :write_char '((:rsp local_stream) +char_rrb))
 
-	(exit 'list :print '((:rsp local_this)))
+	(exit :list :print '((:rsp local_this)))
 	(vp-free local_size)
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'list :min_length)
+(def-method :list :min_length)
 	;inputs
 	;:r0 = list of seq objects (ptr)
 	;outputs
@@ -480,24 +480,24 @@
 
 	(vp-rdef (this min_len iter_begin iter_end) '(:r2 :r3 :r4 :r5))
 
-	(entry 'list :min_length `(,this))
+	(entry :list :min_length `(,this))
 
 	(vp-cpy-cr +max_int min_len)
 	(class/array/get_both this iter_begin iter_end)
 	(vpif `(,iter_begin /= ,iter_end))
 		(loop-start)
-			(call 'seq :get_length `((,iter_begin 0)) '(_ len))
+			(call :seq :get_length `((,iter_begin 0)) '(_ len))
 			(vp-min-rr len min_len)
 			(vp-add-cr +ptr_size iter_begin)
 		(loop-until `(,iter_begin = ,iter_end))
 	(endif)
 
-	(exit 'list :min_length `(,this ,min_len))
+	(exit :list :min_length `(,this ,min_len))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'list :collect)
+(def-method :list :collect)
 	;inputs
 	;:r0 = list object (ptr)
 	;:r1 = list of seq objects (ptr)
@@ -509,18 +509,18 @@
 
 	(vp-rdef (this iter_begin iter_end index) '(:r8 :r9 :r10 :r11))
 
-	(entry 'list :collect `(,this :r1 ,index))
+	(entry :list :collect `(,this :r1 ,index))
 
 	(class/array/get_both :r1 iter_begin iter_end)
 	(vpif `(,iter_begin /= ,iter_end))
 		(loop-start)
-			(call 'seq :ref_elem `((,iter_begin 0) ,index) '(_ elm))
-			(call 'list :push_back `(,this ,elm))
+			(call :seq :ref_elem `((,iter_begin 0) ,index) '(_ elm))
+			(call :list :push_back `(,this ,elm))
 			(vp-add-cr +ptr_size iter_begin)
 		(loop-until `(,iter_begin = ,iter_end))
 	(endif)
 
-	(exit 'list :collect `(,this))
+	(exit :list :collect `(,this))
 	(vp-ret)
 
 (def-func-end)

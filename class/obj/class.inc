@@ -1,6 +1,6 @@
 (include "lib/asm/class.inc")
 
-(def-class obj :nil
+(def-class :obj :nil
 	(dec-method :vtable class/obj/vtable)
 	(dec-method :deinit class/obj/null :virtual (:r0) (:r0))
 	(dec-method :type class/obj/type :virtual (:r0) (:r0 :r1))

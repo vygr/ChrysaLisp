@@ -3,7 +3,7 @@
 (include "class/str/class.inc")
 (include "sys/mem/class.inc")
 
-(def-class sys_link :nil
+(def-class :sys_link :nil
 	(dec-method :link sys/link/link)
 	(dec-method :in sys/link/in)
 	(dec-method :out sys/link/out))

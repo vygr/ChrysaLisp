@@ -4,21 +4,21 @@
 (include "././view/class.inc")
 (include "././region/class.inc")
 
-(def-method 'ctx :set_color)
+(def-method :ctx :set_color)
 	;inputs
 	;:r0 = view object (ptr)
 	;:r1 = color (argb)
 	;trashes
 	;:r0-:r14
 
-	(vp-rdef (r g b a) (method-input 'host_gui :set_color))
+	(vp-rdef (r g b a) (method-input :host_gui :set_color))
 
-	(entry 'ctx :set_color '(:r0 :r1))
+	(entry :ctx :set_color '(:r0 :r1))
 
 	(assign '(:r1 :r1 :r1 :r1) `(,a ,r ,g ,b))
 	(vp-simd vp-shr-cr '(24 16 8) `(,a ,r ,g))
 	(vp-simd vp-and-cr '(0xff) `(,a ,r ,g ,b))
-	(host-gui-call 'host_gui :set_color `(,r ,g ,b ,a))
+	(host-gui-call :host_gui :set_color `(,r ,g ,b ,a))
 	(vp-ret)
 
 (def-func-end)
@@ -41,7 +41,7 @@
 		(vp-simd vp-sub-rr '(:r7 :r8) '(:r9 :r10))
 		(assign '(:r7 :r8 :r9 :r10) '((:rsp (+ local_clip_rect host_gui_rect_x) i) (:rsp (+ local_clip_rect host_gui_rect_y) i)
 			(:rsp (+ local_clip_rect host_gui_rect_w) i) (:rsp (+ local_clip_rect host_gui_rect_h) i)))
-		(host-gui-call 'host_gui :set_clip '((& :rsp local_clip_rect)))
+		(host-gui-call :host_gui :set_clip '((& :rsp local_clip_rect)))
 
 		;eval body
 		(exec _)
@@ -49,7 +49,7 @@
 		(assign '((:rsp local_dirty_rect)) '(:r0))
 	(loop-end))
 
-(def-method 'ctx :blit 16)
+(def-method :ctx :blit 16)
 	;inputs
 	;:r0 = view object (ptr)
 	;:r1 = texture id (ulong)
@@ -86,19 +86,19 @@
 	(vp-simd vp-cpy-rr '(:r2) '(:r3 :r4))
 	(vp-simd vp-shr-cr '(16 8) '(:r3 :r2))
 	(vp-simd vp-and-cr '(0xff) '(:r3 :r2 :r4))
-	(host-gui-call 'host_gui :set_texture_color '((:rsp local_texture) :r3 :r2 :r4))
+	(host-gui-call :host_gui :set_texture_color '((:rsp local_texture) :r3 :r2 :r4))
 
 	(for-each-visible-rect
 		'(progn
 			;blit the texture
-			(host-gui-call 'host_gui :blit '((:rsp local_texture) (& :rsp local_srect) (& :rsp local_drect)))))
+			(host-gui-call :host_gui :blit '((:rsp local_texture) (& :rsp local_srect) (& :rsp local_drect)))))
 
 	(vp-cpy-ir :rsp local_old_stack :rsp)
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'ctx :box 16)
+(def-method :ctx :box 16)
 	;inputs
 	;:r0 = view object (ptr)
 	;:r7 = x (pixels)
@@ -128,14 +128,14 @@
 	(for-each-visible-rect
 		'(progn
 			;draw the rectangle
-			(host-gui-call 'host_gui :box '((& :rsp local_drect)))))
+			(host-gui-call :host_gui :box '((& :rsp local_drect)))))
 
 	(vp-cpy-ir :rsp local_old_stack :rsp)
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'ctx :filled_box 16)
+(def-method :ctx :filled_box 16)
 	;inputs
 	;:r0 = view object (ptr)
 	;:r7 = x (pixels)
@@ -165,7 +165,7 @@
 	(for-each-visible-rect
 		'(progn
 			;draw the rectangle
-			(host-gui-call 'host_gui :filled_box '((& :rsp local_drect)))))
+			(host-gui-call :host_gui :filled_box '((& :rsp local_drect)))))
 
 	(vp-cpy-ir :rsp local_old_stack :rsp)
 	(vp-ret)

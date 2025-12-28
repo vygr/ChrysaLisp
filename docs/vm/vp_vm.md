@@ -382,7 +382,7 @@ sys/str/class.vp ":compare" "def-method"
 
 So let's go through the important lines in this function.
 
-First of all the `(def-method 'sys_str :compare)` is doing the same job as a
+First of all the `(def-method :sys_str :compare)` is doing the same job as a
 `(def-func)` would do, it's a wrapper function to simplify writing the
 `(def-func)` that also does some extra checks to make sure you actually do have
 a `(dec-method)` for it in the include file. The `(def-func-end)` just wraps
@@ -394,7 +394,7 @@ Next there is a section of documentation, this format can be parsed out by the
 `make docs` command line tool. Parsed documentation ends up in the
 `docs/reference/vp_classes.md` file.
 
-The `(entry 'sys_str :compare '(:r0 :r1))` and `(exit 'sys_str :compare
+The `(entry :sys_str :compare '(:r0 :r1))` and `(exit :sys_str :compare
 '(:r2))` calls are helpers to make sure input and output parameters get copied
 to the correct registers. They enforce the `(def-method)` input and output
 register declarations by use of two `(assign)` calls. The register lists

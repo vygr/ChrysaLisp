@@ -1,7 +1,7 @@
 (include "lib/asm/func.inc")
 (include "./class.inc")
 
-(def-method 'sys_str :compare)
+(def-method :sys_str :compare)
 	;inputs
 	;:r0 = c string1 (pubyte)
 	;:r1 = c string2 (pubyte)
@@ -10,19 +10,19 @@
 	;trashes
 	;:r0-:r3
 
-	(entry 'sys_str :compare '(:r0 :r1))
+	(entry :sys_str :compare '(:r0 :r1))
 	(loop-start)
 		(vp-simd vp-cpy-ir-ub '(:r0 :r1) '(0) '(:r2 :r3))
 		(vp-sub-rr :r3 :r2)
 		(breakif '(:r2 /= 0) '(:r3 = 0))
 		(vp-simd vp-add-cr `(,+byte_size) '(:r0 :r1))
 	(loop-end)
-	(exit 'sys_str :compare '(:r2))
+	(exit :sys_str :compare '(:r2))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'sys_str :copy)
+(def-method :sys_str :copy)
 	;inputs
 	;:r0 = c string (pubyte)
 	;:r1 = c string copy (pubyte)
@@ -32,18 +32,18 @@
 	;trashes
 	;:r2
 
-	(entry 'sys_str :copy '(:r0 :r1))
+	(entry :sys_str :copy '(:r0 :r1))
 	(loop-start)
 		(vp-cpy-ir-ub :r0 0 :r2)
 		(vp-simd vp-add-cr `(,+byte_size) '(:r1 :r0))
 		(vp-cpy-ri-b :r2 :r1 (neg +byte_size))
 	(loop-until '(:r2 = 0))
-	(exit 'sys_str :copy '(:r0 :r1))
+	(exit :sys_str :copy '(:r0 :r1))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'sys_str :from_long)
+(def-method :sys_str :from_long)
 	;inputs
 	;:r0 = number (ulong)
 	;:r1 = c string buffer (pubyte)
@@ -53,7 +53,7 @@
 	;trashes
 	;:r0-:r4
 
-	(entry 'sys_str :from_long '(:r0 :r1 :r2))
+	(entry :sys_str :from_long '(:r0 :r1 :r2))
 
 	(vp-cpy-rr :r2 :r3) ;base
 	(vp-cpy-rr :r1 :r4) ;buffer start
@@ -77,12 +77,12 @@
 		(vp-add-cr +byte_size :r1)
 	(loop-until '(:r1 = :r4))
 
-	(exit 'sys_str :from_long '(:r0))
+	(exit :sys_str :from_long '(:r0))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'sys_str :length)
+(def-method :sys_str :length)
 	;inputs
 	;:r0 = c string (pubyte)
 	;outputs
@@ -91,7 +91,7 @@
 	;trashes
 	;:r1-:r2
 
-	(entry 'sys_str :length '(:r0))
+	(entry :sys_str :length '(:r0))
 	(vp-cpy-rr :r0 :r1)
 	(loop-start)
 		(vp-cpy-ir-ub :r1 0 :r2)
@@ -99,12 +99,12 @@
 		(vp-add-cr +byte_size :r1)
 	(loop-end)
 	(vp-sub-rr :r0 :r1)
-	(exit 'sys_str :length '(:r0 :r1))
+	(exit :sys_str :length '(:r0 :r1))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'sys_str :to_long)
+(def-method :sys_str :to_long)
 	;inputs
 	;:r0 = c string (pubyte)
 	;:r1 = base (ulong)
@@ -116,7 +116,7 @@
 
 	(vp-rdef (bufp base c num dot))
 
-	(entry 'sys_str :to_long `(,bufp ,base))
+	(entry :sys_str :to_long `(,bufp ,base))
 
 	(vp-simd vp-xor-rr `(,num ,dot) `(,num ,dot))
 	(loop-start)
@@ -141,12 +141,12 @@
 		(vp-div-rrr-u dot c num)
 	(endif)
 
-	(exit 'sys_str :to_long `(,num ,dot))
+	(exit :sys_str :to_long `(,num ,dot))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'sys_str :to_num)
+(def-method :sys_str :to_num)
 	;inputs
 	;:r0 = c string (pubyte)
 	;outputs
@@ -157,7 +157,7 @@
 
 	(vp-rdef (minus bufp base c num dot) '(:r5))
 
-	(entry 'sys_str :to_num `(,bufp))
+	(entry :sys_str :to_num `(,bufp))
 
 	;skip whitespace
 	(assign `((,bufp 0 ub)) `(,c))
@@ -189,15 +189,15 @@
 	(endif)
 
 	;number
-	(call 'sys_str :to_long `(,bufp ,base) `(,num ,dot))
+	(call :sys_str :to_long `(,bufp ,base) `(,num ,dot))
 	(vp-mul-rr minus num)
 
-	(exit 'sys_str :to_num `(,num ,dot))
+	(exit :sys_str :to_num `(,num ,dot))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'sys_str :read_utf8)
+(def-method :sys_str :read_utf8)
 	;inputs
 	;:r0 = utf8 data pointer (pubyte)
 	;outputs
@@ -218,7 +218,7 @@
 			(vp-add-rr m c))
 		(vp-add-cr (* cnt +byte_size) utf8))
 
-	(entry 'sys_str :read_utf8 `(,utf8))
+	(entry :sys_str :read_utf8 `(,utf8))
 
 	(vp-cpy-ir-ub utf8 0 c)
 	(vp-add-cr +byte_size utf8)
@@ -240,26 +240,26 @@
 					;not 4 byte
 					(vp-xor-rr c c)
 
-					(exit 'sys_str :read_utf8 `(,utf8 ,c))
+					(exit :sys_str :read_utf8 `(,utf8 ,c))
 					(vp-ret)
 				(endif)
 				;4 byte
 				(next-utf8 3)
 
-				(exit 'sys_str :read_utf8 `(,utf8 ,c))
+				(exit :sys_str :read_utf8 `(,utf8 ,c))
 				(vp-ret)
 			(endif)
 			;3 byte
 			(next-utf8 2)
 
-			(exit 'sys_str :read_utf8 `(,utf8 ,c))
+			(exit :sys_str :read_utf8 `(,utf8 ,c))
 			(vp-ret)
 		(endif)
 		;2 byte
 		(next-utf8 1)
 	(endif)
 
-	(exit 'sys_str :read_utf8 `(,utf8 ,c))
+	(exit :sys_str :read_utf8 `(,utf8 ,c))
 	(vp-ret)
 
 (def-func-end)

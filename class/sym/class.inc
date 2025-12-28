@@ -1,6 +1,6 @@
 (include "././str/class.inc")
 
-(def-class sym str
+(def-class :sym :str
 	(dec-method :vtable class/sym/vtable)
 	(dec-method :eql class/obj/eql :final)
 	(dec-method :print class/sym/print :final)

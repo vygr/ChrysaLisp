@@ -1,6 +1,6 @@
 (include "class/fixeds/class.inc")
 
-(def-class path fixeds
+(def-class :path :fixeds
 	(dec-method :vtable gui/path/vtable)
 	(dec-method :create gui/path/create)
 	(dec-method :vcreate gui/path/create :final)

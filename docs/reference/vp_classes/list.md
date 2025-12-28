@@ -1,6 +1,6 @@
-# list
+# :list
 
-## array
+## :array
 
 ## Lisp Bindings
 

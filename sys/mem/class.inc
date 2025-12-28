@@ -4,7 +4,7 @@
 ; mem static class
 ;;;;;;;;;;;;;;;;;;
 
-(def-class sys_mem :nil
+(def-class :sys_mem :nil
 	(dec-method :statics_init sys/mem/statics_init)
 	(dec-method :statics_deinit sys/mem/statics_deinit)
 	(dec-method :alloc sys/mem/alloc :static (:r0) (:r0 :r1))

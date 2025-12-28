@@ -102,7 +102,7 @@ address or resource binding instructions for.
 	(assign '(($ label)) '(:r0))
 	(assign '("Hello world") '(:r0))
 	(assign '((@ "sys/mem/alloc")) '(:r0))
-	(assign `((@ ,(f-path 'num :vtable))) '(:r0))
+	(assign `((@ ,(f-path :num :vtable))) '(:r0))
 ```
 
 Will emit:
@@ -184,7 +184,7 @@ These are in addition to the C/C++ style operators.
 	(assign {"Hello", "World"} {p_str1, p_str2})
 	(assign {"Hello", "World"} '(:r2 :r3))
 	(assign {@sys/mem/alloc} {p_alloc})
-	(assign (cat {@} (f-path 'num :vtable)) {p_vtable})
+	(assign (cat {@} (f-path :num :vtable)) {p_vtable})
 ```
 
 ## C-Script function example
@@ -195,14 +195,14 @@ Register inputs and outputs are declared in the `sys/mail/class.inc` file just
 as with a VP function.
 
 ```vdu
-(def-class sys_mail :nil
+(def-class :sys_mail :nil
 	(dec-method :declare sys/mail/declare :static (:r0 :r1)))
 ```
 
 Implementation of the function is defined in the `sys/mail/class.vp` file.
 
 ```vdu
-(def-method 'sys_mail :declare)
+(def-method :sys_mail :declare)
 	;inputs
 	;:r0 = mailbox name c string (pubyte)
 	;:r1 = mailbox id (ulong)
@@ -214,14 +214,14 @@ Implementation of the function is defined in the `sys/mail/class.vp` file.
 		(ulong id))
 
 	(push-scope)
-	(entry 'sys_mail :declare {name, id})
+	(entry :sys_mail :declare {name, id})
 
 	(assign {@sys/statics/statics} {statics})
-	(call 'sym :intern_cstr {name} {name})
-	(call 'num :create {id} {id})
-	(call 'hmap :insert {statics->statics_sys_mail_service_map, name, id})
-	(call 'sym :deref {name})
-	(call 'num :deref {id})
+	(call :sym :intern_cstr {name} {name})
+	(call :num :create {id} {id})
+	(call :hmap :insert {statics->statics_sys_mail_service_map, name, id})
+	(call :sym :deref {name})
+	(call :num :deref {id})
 
 	(pop-scope)
 	(return)
@@ -256,7 +256,7 @@ This is the output from wrapping the `'hmap :insert` line in the example above:
 
 ```vdu
 (let ((*debug_inst* :t))
-	(call 'hmap :insert {statics->statics_sys_mail_service_map, name, id})
+	(call :hmap :insert {statics->statics_sys_mail_service_map, name, id})
 )
 ```
 
@@ -355,8 +355,8 @@ front of the function signature table !
 	...
 (errorcase
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(piece-scans brd index vectors)" +error_msg_wrong_types :r1))
-	(signature '(str num list)))
+	(jump :lisp :repl_error '(:r0 "(piece-scans brd index vectors)" +error_msg_wrong_types :r1))
+	(signature '(:str :num :list)))
 	...
 ```
 
@@ -406,7 +406,7 @@ following.
 
 Often you may wish to know what the output register/s are from a method call,
 maybe you want to test a return value for an error condition or such. While
-it's possible to use the `(method-output 'class :method)` call to access them,
+it's possible to use the `(method-output :class :method)` call to access them,
 there is a shortcut available that uses the `(assign)` function to do the job.
 
 If you provide a none key symbol as an output, the corresponding output

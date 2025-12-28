@@ -1,6 +1,6 @@
-# seq
+# :seq
 
-## obj
+## :obj
 
 ## Lisp Bindings
 

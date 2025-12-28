@@ -8,7 +8,7 @@
 (include "././pixmap/class.inc")
 (include "././font/class.inc")
 
-(def-method 'vdu :lisp_create)
+(def-method :vdu :lisp_create)
 	;inputs
 	;:r0 = lisp object (ptr)
 	;:r1 = args list object (ptr)
@@ -18,24 +18,24 @@
 	;trashes
 	;:r1-:r14
 
-	(entry 'vdu :lisp_create '(:r0 :r1))
+	(entry :vdu :lisp_create '(:r0 :r1))
 
 	(errorif-lisp-args-len 'error :r1 /= 0)
 
 	(vp-push :r0)
-	(call 'vdu :create :nil '(:r1))
+	(call :vdu :create :nil '(:r1))
 	(vp-pop :r0)
 
-	(exit 'vdu :lisp_create '(:r0 :r1))
+	(exit :vdu :lisp_create '(:r0 :r1))
 	(vp-ret)
 
 (errorcase
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(create-vdu)" +error_msg_wrong_num_of_args :r1)))
+	(jump :lisp :repl_error '(:r0 "(create-vdu)" +error_msg_wrong_num_of_args :r1)))
 
 (def-func-end)
 
-(def-method 'vdu :lisp_load)
+(def-method :vdu :lisp_load)
 	;inputs
 	;:r0 = lisp object (ptr)
 	;:r1 = args list object (ptr)
@@ -52,7 +52,7 @@
 		(uint ox oy cx cy col)
 		(int len))
 
-	(entry 'vdu :lisp_load '(:r0 :r1))
+	(entry :vdu :lisp_load '(:r0 :r1))
 
 	(errorif-lisp-args-sig 'error :r1 6)
 
@@ -61,18 +61,18 @@
 	(assign '(:r0 :r1 :r2 :r3 :r4 :r5 :r6) {this, vdu, lines, ox, oy, cx, cy})
 
 	;load vdu with line text
-	(call 'sys_mem :fill {vdu->vdu_chars, vdu->vdu_width * vdu->vdu_height * +long_size, +char_space})
+	(call :sys_mem :fill {vdu->vdu_chars, vdu->vdu_width * vdu->vdu_height * +long_size, +char_space})
 	(assign {lines->array_length - oy} {len})
 	(vpif {len > 0})
 		(vpif {len > vdu->vdu_height})
 			(assign {vdu->vdu_height} {len})
 		(endif)
-		(call 'list :get_iters {lines, oy, oy + len} {_, iter_begin, iter_end})
+		(call :list :get_iters {lines, oy, oy + len} {_, iter_begin, iter_end})
 		(breakif {iter_begin = iter_end})
 		(assign {vdu->vdu_chars} {cursor})
 		(loop-start)
 			(assign {*iter_begin} {line})
-			(vpif (cat {line->obj_vtable = @} (f-path 'str :vtable)))
+			(vpif (cat {line->obj_vtable = @} (f-path :str :vtable)))
 				(vpif {(line->str_length - ox => len) > 0})
 					;copy bytes to longs
 					(assign {&line->str_data + ox, cursor, len, vdu->vdu_width} '(:r0 :r1 :r2 :r3))
@@ -89,8 +89,8 @@
 				(endif)
 			(else)
 			(errorcase
-				(vpif (cat {line->obj_vtable /= @} (f-path 'array :vtable)))
-					(gotoif (cat {line->obj_vtable /= @} (f-path 'nums :vtable)) 'exit)
+				(vpif (cat {line->obj_vtable /= @} (f-path :array :vtable)))
+					(gotoif (cat {line->obj_vtable /= @} (f-path :nums :vtable)) 'exit)
 				(endif))
 				(vpif {(line->array_length - ox => len) > 0})
 					;copy longs to longs
@@ -99,7 +99,7 @@
 						(vp-cpy-rr :r3 :r2)
 					(endif)
 					(vp-shl-cr (log2 +long_size) :r2)
-					(call 'sys_mem :copy '(:r0 :r1 :r2))
+					(call :sys_mem :copy '(:r0 :r1 :r2))
 				(endif)
 			(endif)
 			(assign {cursor + vdu->vdu_width * +long_size} {cursor})
@@ -110,8 +110,8 @@
 	(assign {cx - ox, cy - oy} {cx, cy})
 	(switch)
 	(breakif {cx < 0 | cy < 0 | cx >= vdu->vdu_width | cy >= vdu->vdu_height})
-	(call 'vdu :get_long_prop {vdu, static_sym_ink_color} {_, col})
-	(call 'pixmap :from_argb32 {col, 15} {col})
+	(call :vdu :get_long_prop {vdu, static_sym_ink_color} {_, col})
+	(call :pixmap :from_argb32 {col, 15} {col})
 	(assign {vdu->vdu_chars + (cy * vdu->vdu_width + cx) * +long_size, col << 48} '(:r0 :r1))
 	(vp-cpy-ir :r0 0 :r2)
 	(vp-and-cr 0xffffff :r2)
@@ -120,19 +120,19 @@
 	(endswitch)
 
 (vp-label 'exit)
-	(exit 'vdu :lisp_load {this, vdu})
+	(exit :vdu :lisp_load {this, vdu})
 	(class/obj/ref :r1 :r2)
 	(pop-scope)
 	(return)
 
 (errorcase
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(vdu-load vdu lines ox oy cx cy)" +error_msg_wrong_types :r1))
-	(signature '(vdu list num num num num)))
+	(jump :lisp :repl_error '(:r0 "(vdu-load vdu lines ox oy cx cy)" +error_msg_wrong_types :r1))
+	(signature '(:vdu :list :num :num :num :num)))
 
 (def-func-end)
 
-(def-method 'vdu :lisp_configure)
+(def-method :vdu :lisp_configure)
 	;inputs
 	;:r0 = lisp object (ptr)
 	;:r1 = args list object (ptr)
@@ -146,7 +146,7 @@
 		(ptr vdu font this)
 		(uint w h size))
 
-	(entry 'vdu :lisp_configure '(:r0 :r1))
+	(entry :vdu :lisp_configure '(:r0 :r1))
 
 	(errorif-lisp-args-sig 'error :r1 1)
 
@@ -155,34 +155,34 @@
 
 	(list-bind-args :r1 '(:r0) '(:vdu))
 	(assign '(:r0) {vdu})
-	(call 'vdu :get_long_prop {vdu, static_sym_vdu_width} {_, w})
-	(call 'vdu :get_long_prop {vdu, static_sym_vdu_height} {_, h})
-	(call 'vdu :ref_prop {vdu, static_sym_font} {_, font})
+	(call :vdu :get_long_prop {vdu, static_sym_vdu_width} {_, w})
+	(call :vdu :get_long_prop {vdu, static_sym_vdu_height} {_, h})
+	(call :vdu :ref_prop {vdu, static_sym_font} {_, font})
 	(vpif {font && font /= vdu->vdu_font})
 		(assign {font} {vdu->vdu_font})
 		;set char size
-		(call 'font :get_metrics {font} {_, _, _, vdu->vdu_char_height})
+		(call :font :get_metrics {font} {_, _, _, vdu->vdu_char_height})
 		(assign {vdu->vdu_char_height * 9 >> 4} {vdu->vdu_char_width})
 		;ref char textures
-		(call 'list :deref_if {vdu->vdu_textures})
-		(call 'font :ascii_textures {font} {_, vdu->vdu_textures})
+		(call :list :deref_if {vdu->vdu_textures})
+		(call :font :ascii_textures {font} {_, vdu->vdu_textures})
 	(endif)
 	(vpif {w /= vdu->vdu_width || h /= vdu->vdu_height})
 		(assign {w, h} {vdu->vdu_width, vdu->vdu_height})
-		(call 'sys_mem :free {vdu->vdu_chars})
-		(call 'sys_mem :alloc {vdu->vdu_width * h * +long_size} {vdu->vdu_chars, size})
-		(call 'sys_mem :fill {vdu->vdu_chars, size, +char_space})
+		(call :sys_mem :free {vdu->vdu_chars})
+		(call :sys_mem :alloc {vdu->vdu_width * h * +long_size} {vdu->vdu_chars, size})
+		(call :sys_mem :fill {vdu->vdu_chars, size, +char_space})
 	(endif)
-	(call 'font :deref_if {font})
-	(call 'obj :ref {vdu})
+	(call :font :deref_if {font})
+	(call :obj :ref {vdu})
 
-	(exit 'vdu :lisp_configure {this, vdu})
+	(exit :vdu :lisp_configure {this, vdu})
 	(pop-scope)
 	(return)
 
 (errorcase
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(vdu-configure vdu)" +error_msg_wrong_types :r1))
-	(signature '(vdu)))
+	(jump :lisp :repl_error '(:r0 "(vdu-configure vdu)" +error_msg_wrong_types :r1))
+	(signature '(:vdu)))
 
 (def-func-end)

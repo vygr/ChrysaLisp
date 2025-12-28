@@ -2,7 +2,7 @@
 (include "./class.inc")
 (include "sys/math/class.inc")
 
-(def-method 'path :gen_arc)
+(def-method :path :gen_arc)
 	;inputs
 	;:r0 = path object (ptr)
 	;:r1 = cx (fixed)
@@ -23,7 +23,7 @@
 			(int a1 a2 ah)))
 
 	(push-scope)
-	(entry 'path :gen_arc {this, cx, cy, a1, a2, radius})
+	(entry :path :gen_arc {this, cx, cy, a1, a2, radius})
 
 	(vec-set 0)
 	(vec-load 2 {a1, +fp_2pi})
@@ -37,22 +37,22 @@
 
 	(vpif {a2 <= +fp_hpi})
 		(assign {a1 + a2} {a2})
-		(call 'sys_math :f_sin {a1} {sa1})
-		(call 'sys_math :f_cos {a1} {ca1})
-		(call 'sys_math :f_sin {a2} {sa2})
-		(call 'sys_math :f_cos {a2} {ca2})
+		(call :sys_math :f_sin {a1} {sa1})
+		(call :sys_math :f_cos {a1} {ca1})
+		(call :sys_math :f_sin {a2} {sa2})
+		(call :sys_math :f_cos {a2} {ca2})
 		(vec-load 5 {sa1, ca1, sa2, ca2, radius})
 		(vec-fscale 4)
 		(vec-store 2 {v2x, v2y} {v1x, v1y})
-		(call 'path :gen_clerp {this, cx, cy, v1x, v1y, v2x, v2y, radius})
+		(call :path :gen_clerp {this, cx, cy, v1x, v1y, v2x, v2y, radius})
 	(else)
 		(assign {a2 >>> 1} {ah})
 		(assign {a2 - ah} {a2})
-		(call 'path :gen_arc {this, cx, cy, a1, ah, radius})
-		(call 'path :gen_arc {this, cx, cy, a1 + ah, a2, radius})
+		(call :path :gen_arc {this, cx, cy, a1, ah, radius})
+		(call :path :gen_arc {this, cx, cy, a1 + ah, a2, radius})
 	(endif)
 
-	(exit 'path :gen_arc {this})
+	(exit :path :gen_arc {this})
 	(pop-scope)
 	(return)
 

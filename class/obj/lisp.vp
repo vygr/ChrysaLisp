@@ -3,7 +3,7 @@
 (include "././num/class.inc")
 (include "././lisp/class.inc")
 
-(def-method 'obj :lisp_get)
+(def-method :obj :lisp_get)
 	;inputs
 	;:r0 = lisp object (ptr)
 	;:r1 = args list object (ptr)
@@ -15,7 +15,7 @@
 
 	(vp-rdef (this obj args offset type size) '(:r8))
 
-	(entry 'obj :lisp_get '(:r0 :r1))
+	(entry :obj :lisp_get '(:r0 :r1))
 
 	(errorif-lisp-args-sig 'error :r1 4)
 
@@ -30,12 +30,12 @@
 				(assign `((,this lisp_sym_nil)) `(,args))
 			(endif)
 			(class/obj/ref args obj)
-			(exit 'obj :lisp_get `(,this ,args))
+			(exit :obj :lisp_get `(,this ,args))
 			(vp-ret)
 		(default)
 			;sub struct
-			(call 'str :create_from_buffer `((& ,obj ,offset) ,size) `(,args))
-			(exit 'obj :lisp_get `(,this ,args))
+			(call :str :create_from_buffer `((& ,obj ,offset) ,size) `(,args))
+			(exit :obj :lisp_get `(,this ,args))
 			(vp-ret)
 		(endswitch)
 	(elseif `(,type > 0))
@@ -67,19 +67,19 @@
 			(assign `((,obj ,offset)) `(,obj))
 		(endswitch)
 	(endif)
-	(call 'num :create `(,obj) `(,args))
+	(call :num :create `(,obj) `(,args))
 
-	(exit 'obj :lisp_get `(,this ,args))
+	(exit :obj :lisp_get `(,this ,args))
 	(vp-ret)
 
 (errorcase
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(obj-get obj offset type|0 size|0)" +error_msg_wrong_types :r1))
-	(signature '(obj num num num)))
+	(jump :lisp :repl_error '(:r0 "(obj-get obj offset type|0 size|0)" +error_msg_wrong_types :r1))
+	(signature '(:obj :num :num :num)))
 
 (def-func-end)
 
-(def-method 'obj :lisp_set)
+(def-method :obj :lisp_set)
 	;inputs
 	;:r0 = lisp object (ptr)
 	;:r1 = args list object (ptr)
@@ -95,7 +95,7 @@
 
 	(vp-rdef (this args obj offset type size val num))
 
-	(entry 'obj :lisp_set `(,this ,args))
+	(entry :obj :lisp_set `(,this ,args))
 
 	(errorif-lisp-args-sig 'error :r1 5)
 
@@ -107,7 +107,7 @@
 		(vpcase `(,size = 0))
 			;object reference
 			(assign `(,val ,offset) {val, offset})
-			(call 'obj :deref_if `((,obj ,offset)))
+			(call :obj :deref_if `((,obj ,offset)))
 			(assign {this, obj, val, offset} `(,this ,obj ,val ,offset))
 			(assign `((,this lisp_sym_nil)) `(,this))
 			(vpif `(,val = ,this))
@@ -119,7 +119,7 @@
 			(break 'exit)
 		(default)
 			;sub struct
-			(call 'sys_mem :copy `((& ,val str_data) (& ,obj ,offset) ,size))
+			(call :sys_mem :copy `((& ,val str_data) (& ,obj ,offset) ,size))
 		(endswitch)
 	(else)
 		(assign `((,val num_value)) `(,num))
@@ -143,17 +143,17 @@
 	(class/obj/ref obj type)
 	(pop-scope)
 
-	(exit 'obj :lisp_set `(,this ,obj))
+	(exit :obj :lisp_set `(,this ,obj))
 	(vp-ret)
 
 (errorcase
 (vp-label 'error)
-	(jump 'lisp :repl_error `(,this "(obj-set obj offset type|0 size|0 val)" +error_msg_wrong_types ,args))
-	(signature '(obj num num num obj)))
+	(jump :lisp :repl_error `(,this "(obj-set obj offset type|0 size|0 val)" +error_msg_wrong_types ,args))
+	(signature '(:obj :num :num :num :obj)))
 
 (def-func-end)
 
-(def-method 'obj :lisp_hash)
+(def-method :obj :lisp_hash)
 	;inputs
 	;:r0 = lisp object (ptr)
 	;:r1 = args list object (ptr)
@@ -163,27 +163,27 @@
 	;trashes
 	;:r1-:r14
 
-	(entry 'obj :lisp_hash '(:r0 :r1))
+	(entry :obj :lisp_hash '(:r0 :r1))
 
 	(errorif-lisp-args-len 'error :r1 /= 1)
 
 	(vp-push :r0)
-	(defq in (method-input 'obj :hash))
+	(defq in (method-input :obj :hash))
 	(array-bind-args :r1 in)
-	(call 'obj :hash in '(_ :r0))
-	(call 'num :create '(:r0) '(:r1))
+	(call :obj :hash in '(_ :r0))
+	(call :num :create '(:r0) '(:r1))
 	(vp-pop :r0)
 
-	(exit 'obj :lisp_hash '(:r0 :r1))
+	(exit :obj :lisp_hash '(:r0 :r1))
 	(vp-ret)
 
 (errorcase
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(hash obj)" +error_msg_wrong_num_of_args :r1)))
+	(jump :lisp :repl_error '(:r0 "(hash obj)" +error_msg_wrong_num_of_args :r1)))
 
 (def-func-end)
 
-(def-method 'obj :lisp_type)
+(def-method :obj :lisp_type)
 	;inputs
 	;:r0 = lisp object (ptr)
 	;:r1 = args list object (ptr)
@@ -193,26 +193,26 @@
 	;trashes
 	;:r1-:r14
 
-	(entry 'obj :lisp_type '(:r0 :r1))
+	(entry :obj :lisp_type '(:r0 :r1))
 
 	(errorif-lisp-args-len 'error :r1 /= 1)
 
 	(vp-push :r0)
-	(defq in (method-input 'obj :type))
+	(defq in (method-input :obj :type))
 	(array-bind-args :r1 in)
-	(call 'obj :type in '(_ :r1))
+	(call :obj :type in '(_ :r1))
 	(vp-pop :r0)
 
-	(exit 'obj :lisp_type '(:r0 :r1))
+	(exit :obj :lisp_type '(:r0 :r1))
 	(vp-ret)
 
 (errorcase
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(type-of obj)" +error_msg_wrong_num_of_args :r1)))
+	(jump :lisp :repl_error '(:r0 "(type-of obj)" +error_msg_wrong_num_of_args :r1)))
 
 (def-func-end)
 
-(def-method 'obj :lisp_weak_ref)
+(def-method :obj :lisp_weak_ref)
 	;inputs
 	;:r0 = lisp object (ptr)
 	;:r1 = args list object (ptr)
@@ -222,7 +222,7 @@
 	;trashes
 	;:r1-:r14
 
-	(entry 'obj :lisp_weak_ref '(:r0 :r1))
+	(entry :obj :lisp_weak_ref '(:r0 :r1))
 
 	(errorif-lisp-args-len 'error :r1 /= 1)
 
@@ -232,21 +232,21 @@
 		(class/obj/ref :r1 :r2)
 	(else)
 		(vp-push :r0)
-		(call 'num :create '(:r2) '(:r1))
+		(call :num :create '(:r2) '(:r1))
 		(vp-pop :r0)
 	(endif)
 
-	(exit 'obj :lisp_weak_ref '(:r0 :r1))
+	(exit :obj :lisp_weak_ref '(:r0 :r1))
 	(vp-ret)
 
 (errorcase
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(weak-ref obj)" +error_msg_wrong_num_of_args :r1))
-	(signature '(obj)))
+	(jump :lisp :repl_error '(:r0 "(weak-ref obj)" +error_msg_wrong_num_of_args :r1))
+	(signature '(:obj)))
 
 (def-func-end)
 
-(def-method 'obj :lisp_obj_ref)
+(def-method :obj :lisp_obj_ref)
 	;inputs
 	;:r0 = lisp object (ptr)
 	;:r1 = args list object (ptr)
@@ -256,7 +256,7 @@
 	;trashes
 	;:r1-:r14
 
-	(entry 'obj :lisp_obj_ref '(:r0 :r1))
+	(entry :obj :lisp_obj_ref '(:r0 :r1))
 
 	(errorif-lisp-args-len 'error :r1 /= 1)
 
@@ -264,25 +264,25 @@
 	(assign '((:r0 lisp_sym_nil)) '(:r1))
 	(vpif '(:r1 /= :r2))
 	(errorcase
-		(assign `((@ ,(f-path 'num :vtable)) (:r2 obj_vtable)) '(:r3 :r1))
+		(assign `((@ ,(f-path :num :vtable)) (:r2 obj_vtable)) '(:r3 :r1))
 		(gotoif '(:r3 /= :r1) 'error1))
 		(assign '((:r2 num_value)) '(:r1))
 	(endif)
 	(class/obj/ref :r1 :r2)
 
-	(exit 'obj :lisp_obj_ref '(:r0 :r1))
+	(exit :obj :lisp_obj_ref '(:r0 :r1))
 	(vp-ret)
 
 (errorcase
 (vp-label 'error1)
 	(vp-cpy-rr :r2 :r1)
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(obj-ref num)" +error_msg_wrong_types :r1))
-	(signature '(obj)))
+	(jump :lisp :repl_error '(:r0 "(obj-ref num)" +error_msg_wrong_types :r1))
+	(signature '(:obj)))
 
 (def-func-end)
 
-(def-method 'obj :lisp_eql)
+(def-method :obj :lisp_eql)
 	;inputs
 	;:r0 = lisp object (ptr)
 	;:r1 = args list object (ptr)
@@ -294,14 +294,14 @@
 
 	(vp-rdef (this args obj1 obj2) '(:r9 :r10))
 
-	(entry 'obj :lisp_eql `(,this ,args))
+	(entry :obj :lisp_eql `(,this ,args))
 
 (errorcase
 	(assign `((,args array_length)) `(,obj1))
 	(gotoif `(,obj1 /= 2) 'error))
 
 	(array-bind-args args `(,obj1 ,obj2))
-	(call 'obj :eql `(,obj1 ,obj2) '(_ tmp))
+	(call :obj :eql `(,obj1 ,obj2) '(_ tmp))
 	(vpif `(,tmp /= 0))
 		(assign `((,this lisp_sym_nil)) `(,args))
 	(else)
@@ -309,16 +309,16 @@
 	(endif)
 	(class/obj/ref args obj1)
 
-	(exit 'obj :lisp_eql `(,this ,args))
+	(exit :obj :lisp_eql `(,this ,args))
 	(vp-ret)
 
 (errorcase
 (vp-label 'error)
-	(jump 'lisp :repl_error `(,this "(eql obj obj)" +error_msg_wrong_num_of_args ,args)))
+	(jump :lisp :repl_error `(,this "(eql obj obj)" +error_msg_wrong_num_of_args ,args)))
 
 (def-func-end)
 
-(def-method 'obj :lisp_nql)
+(def-method :obj :lisp_nql)
 	;inputs
 	;:r0 = lisp object (ptr)
 	;:r1 = args list object (ptr)
@@ -330,14 +330,14 @@
 
 	(vp-rdef (this args obj1 obj2) '(:r9 :r10))
 
-	(entry 'obj :lisp_nql `(,this ,args))
+	(entry :obj :lisp_nql `(,this ,args))
 
 (errorcase
 	(assign `((,args array_length)) `(,obj1))
 	(gotoif `(,obj1 /= 2) 'error))
 
 	(array-bind-args args `(,obj1 ,obj2))
-	(call 'obj :eql `(,obj1 ,obj2) '(_ tmp))
+	(call :obj :eql `(,obj1 ,obj2) '(_ tmp))
 	(vpif `(,tmp = 0))
 		(assign `((,this lisp_sym_nil)) `(,args))
 	(else)
@@ -345,11 +345,11 @@
 	(endif)
 	(class/obj/ref args obj1)
 
-	(exit 'obj :lisp_nql `(,this ,args))
+	(exit :obj :lisp_nql `(,this ,args))
 	(vp-ret)
 
 (errorcase
 (vp-label 'error)
-	(jump 'lisp :repl_error `(,this "(nql obj obj)" +error_msg_wrong_num_of_args ,args)))
+	(jump :lisp :repl_error `(,this "(nql obj obj)" +error_msg_wrong_num_of_args ,args)))
 
 (def-func-end)

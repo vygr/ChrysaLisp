@@ -1,6 +1,6 @@
 (include "././obj/class.inc")
 
-(def-class error obj
+(def-class :error :obj
 	(dec-method :vtable class/error/vtable)
 	(dec-method :create class/error/create :static (:r0 :r1 :r2 :r3 :r4 :r5) (:r0))
 	(dec-method :init class/error/init :static (:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7))

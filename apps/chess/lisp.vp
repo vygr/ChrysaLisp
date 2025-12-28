@@ -27,7 +27,7 @@
 	(vp-alloc local_size)
 	(assign '(:r0 :r1) '((:rsp local_this) (:rsp local_args)))
 
-	(call 'str :create_from_buffer `(0 ,(* 8 16)) '(:r0))
+	(call :str :create_from_buffer `(0 ,(* 8 16)) '(:r0))
 	(assign '(:r0 (& :r0 str_data) (:rsp local_args)) `((:rsp local_yield) ,yield_data :r0))
 	(list-bind-args :r0 `(,brd ,cx ,vectors) '(:str :num :list))
 
@@ -68,7 +68,7 @@
 
 (errorcase
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(piece-scans brd index vectors)" +error_msg_wrong_types :r1))
-	(signature '(str num list)))
+	(jump :lisp :repl_error '(:r0 "(piece-scans brd index vectors)" +error_msg_wrong_types :r1))
+	(signature '(:str :num :list)))
 
 (def-func-end)

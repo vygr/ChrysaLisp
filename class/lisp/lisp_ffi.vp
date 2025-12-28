@@ -5,7 +5,7 @@
 (include "././hmap/class.inc")
 (include "././func/class.inc")
 
-(def-method 'lisp :lisp_ffi)
+(def-method :lisp :lisp_ffi)
 	;inputs
 	;:r0 = lisp object (ptr)
 	;:r1 = args list object (ptr)
@@ -20,29 +20,29 @@
 		(pptr iter_begin fptr))
 
 	(push-scope)
-	(entry 'lisp :lisp_ffi {this, args})
+	(entry :lisp :lisp_ffi {this, args})
 
 	(errorif-lisp-args-sig 'error :r1 2 4)
 
-	(call 'list :get_begin {args} {_, iter_begin})
-	(call 'sys_load :bind {&iter_begin[+ptr_size * 1]->str_data} {fptr})
+	(call :list :get_begin {args} {_, iter_begin})
+	(call :sys_load :bind {&iter_begin[+ptr_size * 1]->str_data} {fptr})
 	(errorifnot {fptr} 'error)
 	(assign {0} {value})
 	(vpif {args->array_length = 4})
 		(assign {iter_begin[+ptr_size * 3]->num_value} {value})
 	(endif)
-	(call 'func :create {value | fptr} {fptr})
+	(call :func :create {value | fptr} {fptr})
 	(vpif {args->array_length >= 3})
-		(call 'hmap :insert {this->lisp_environment, iter_begin[+ptr_size * 2], fptr})
+		(call :hmap :insert {this->lisp_environment, iter_begin[+ptr_size * 2], fptr})
 	(endif)
 
-	(exit 'lisp :lisp_ffi {this, fptr})
+	(exit :lisp :lisp_ffi {this, fptr})
 	(return)
 
 (errorcase
 (vp-label 'error)
-	(jump 'lisp :repl_error {this, "(ffi path [sym flags])", +error_msg_wrong_types, args})
-	(signature '(obj str sym num)))
+	(jump :lisp :repl_error {this, "(ffi path [sym flags])", +error_msg_wrong_types, args})
+	(signature '(:obj :str :sym :num)))
 
 	(pop-scope-syms)
 

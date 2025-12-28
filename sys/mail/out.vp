@@ -3,7 +3,7 @@
 (include "././link/class.inc")
 (include "././kernel/class.inc")
 
-(def-method 'sys_mail :out)
+(def-method :sys_mail :out)
 	;info
 	;parcels going off chip or junk mail task
 
@@ -15,17 +15,17 @@
 
 	(push-scope)
 
-	(call 'sys_task :set_priority '(1))
-	(call 'sys_kernel :id :nil {node_id.node_id_node1, node_id.node_id_node2})
+	(call :sys_task :set_priority '(1))
+	(call :sys_kernel :id :nil {node_id.node_id_node1, node_id.node_id_node2})
 	(assign {@sys/statics/statics} {statics})
 
 	(loop-start 'mail_loop)
 		;read parcel or junk mail
-		(call 'sys_mail :mymail :nil {msg, data})
+		(call :sys_mail :mymail :nil {msg, data})
 		(vpifnot {(msg->msg_dest.net_id_node_id.node_id_node1 - node_id.node_id_node1)
 			| (msg->msg_dest.net_id_node_id.node_id_node2 - node_id.node_id_node2)})
 			;we got some junk mail, just free it for now
-			(call 'sys_mail :free {msg})
+			(call :sys_mail :free {msg})
 			(continue 'mail_loop)
 		(endif)
 
@@ -33,7 +33,7 @@
 		(assign {statics->statics_sys_mail_session + 1} {statics->statics_sys_mail_session})
 
 		;for each fragment
-		(call 'host_os :pii_time :nil `(,time))
+		(call :host_os :pii_time :nil `(,time))
 		(assign {msg, &statics->statics_sys_mail_msg_heap,
 				&statics->statics_sys_mail_offchip_list,
 				0, data} `(,msg ,heap ,offchip ,off ,data))
@@ -41,7 +41,7 @@
 		(vp-cpy-rr tot amount)
 		(loop-start)
 			;create fragment
-			(call 'sys_heap :alloc `(,heap) `(_ ,frag))
+			(call :sys_heap :alloc `(,heap) `(_ ,frag))
 			(class/obj/ref obj id0)
 
 			;fill in fragment
@@ -65,10 +65,10 @@
 		(loop-until `(,amount = 0))
 
 		;free parcel
-		(call 'sys_mail :free `(,msg))
+		(call :sys_mail :free `(,msg))
 
 		;let other links get at some packets
-		(call 'sys_task :sleep '(0))
+		(call :sys_task :sleep '(0))
 	(loop-end)
 
 	(pop-scope)

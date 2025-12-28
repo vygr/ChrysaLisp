@@ -134,8 +134,8 @@
 				(:t (throw "Must use static, virtual, final or override ! " mtype)))))
 			;auto dec :type method
 			(ifn (starts-with "class/" (first (repl-info))) lines
-				(push lines `(dec-method :type ,(sym (cat "class/" class "/type"))
-					,(if (eql class "obj") :virtual :override) (:r0) (:r0 :r1)))))
+				(push lines `(dec-method :type ,(sym (cat "class/" (rest class) "/type"))
+					,(if (eql class ":obj") :virtual :override) (:r0) (:r0 :r1)))))
 	`(progn (def *vtables* ',class ',vtable) (def *supers* ',class ',super)))
 
 (defmacro def-method (class member &optional alignment)
@@ -416,13 +416,13 @@
 		;trashes
 		;...
 		(assign _3 _4)
-		(call 'sys_mem :alloc `(,(sym (cat _1 "_size"))) '(:r0 _))
+		(call :sys_mem :alloc `(,(sym (cat (rest _1) "_size"))) '(:r0 _))
 		(vpif '(:r0 /= 0))
 			;init the object
 			(call _1 (if _2 (sym (cat :init_ _2)) :init) `(:r0 (@ ,(f-path _1 :vtable)) ~_4) '(:r0 :r1))
 			(vpif '(:r1 = 0))
 				;error with init
-				(call 'sys_mem :free '(:r0))
+				(call :sys_mem :free '(:r0))
 				(vp-xor-rr :r0 :r0)
 			(endif)
 		(endif)
@@ -442,8 +442,8 @@
 		(entry _1 :type '(:r0))
 		(s-call _1 :type '(:r0) '(:r0 :r1))
 		(vp-push :r0 :r1)
-		(call 'sym :ref_static_sym `(,(sym (cat "static_sym_" _1))) '(:r1))
-		(call 'list :push_back '((:rsp 0) :r1))
+		(call :sym :ref_static_sym `(,(sym (cat "static_sym_" (rest _1)))) '(:r1))
+		(call :list :push_back '((:rsp 0) :r1))
 		(vp-pop :r0 :r1)
 		(exit _1 :type '(:r0 :r1))
 		(vp-ret)

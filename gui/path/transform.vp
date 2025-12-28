@@ -1,7 +1,7 @@
 (include "lib/asm/func.inc")
 (include "./class.inc")
 
-(def-method 'path :transform)
+(def-method :path :transform)
 	;inputs
 	;:r0 = path object (ptr)
 	;:r1 = source path object, can be same (ptr)
@@ -14,7 +14,7 @@
 	(vp-rdef (this iter_begin m00 m01 m02 m10 m11 m12
 		iter_this iter_end x y x1 y1))
 
-	(entry 'path :transform `(,this ,iter_begin ,m00))
+	(entry :path :transform `(,this ,iter_begin ,m00))
 
 	(class/array/get_both iter_begin iter_begin iter_end)
 	(vpif `(,iter_begin /= ,iter_end))
@@ -32,7 +32,7 @@
 		(loop-until `(,iter_begin = ,iter_end))
 	(endif)
 
-	(exit 'path :transform `(,this))
+	(exit :path :transform `(,this))
 	(vp-ret)
 
 (def-func-end)

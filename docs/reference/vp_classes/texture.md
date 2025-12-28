@@ -1,6 +1,6 @@
-# texture
+# :texture
 
-## obj
+## :obj
 
 ## VP methods
 

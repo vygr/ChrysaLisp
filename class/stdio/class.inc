@@ -1,6 +1,6 @@
 (include "././obj/class.inc")
 
-(def-class stdio obj
+(def-class :stdio :obj
 	(dec-method :vtable class/stdio/vtable)
 	(dec-method :create class/stdio/create :static :nil (:r0))
 	(dec-method :init class/stdio/init :static (:r0 :r1))

@@ -1,6 +1,6 @@
-# func
+# :func
 
-## obj
+## :obj
 
 ## VP methods
 

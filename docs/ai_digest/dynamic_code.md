@@ -112,12 +112,12 @@ analyze `pixmap :to_argb32`.
 The VP source file defines the method like this:
 
 ```vdu
-(def-method 'pixmap :to_argb32)
+(def-method :pixmap :to_argb32)
 	; ... (register definitions)
 	(defun conv (...) ...) ; Helper Lisp function
 	(defun pipeline (...) ...) ; Helper Lisp function
 	
-	(entry 'pixmap :to_argb32 (list col pix))
+	(entry :pixmap :to_argb32 (list col pix))
 	(switch)
 	    (vpcase `(,pix = 16))
 		    (to-argb32
@@ -129,7 +129,7 @@ The VP source file defines the method like this:
 		    (break)
         ; ... other cases
     (endswitch)
-	(exit 'pixmap :to_argb32 (list col))
+	(exit :pixmap :to_argb32 (list col))
 	(vp-ret)
 (def-func-end)
 ```
@@ -185,7 +185,7 @@ called, which emits the final bytecode into the function being compiled.
 
 2.  It begins processing `gui/pixmap/class.vp`.
 
-3.  Inside `def-method 'pixmap :to_argb32`, it hits the `(to-argb32 ...)` Lisp
+3.  Inside `def-method :pixmap :to_argb32`, it hits the `(to-argb32 ...)` Lisp
     function call.
 
 4.  `to-argb32` and its helpers `conv` and `pipeline` run. They generate a list

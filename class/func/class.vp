@@ -5,11 +5,11 @@
 (include "././stream/class.inc")
 (include "././list/class.inc")
 
-(gen-create 'func)
-(gen-vtable 'func)
-(gen-type 'func)
+(gen-create :func)
+(gen-vtable :func)
+(gen-type :func)
 
-(def-method 'func :print)
+(def-method :func :print)
 	;inputs
 	;:r0 = func object (ptr)
 	;:r1 = stream object (ptr)
@@ -18,10 +18,10 @@
 	;trashes
 	;:r1-:r14
 
-	(entry 'func :print '(:r0 :r1))
+	(entry :func :print '(:r0 :r1))
 
 	(vp-push :r0)
-	(call 'stream :write_char '(:r1 +char_hash) '(:r0))
+	(call :stream :write_char '(:r1 +char_hash) '(:r0))
 	(assign '((:rsp 0)) '(:r1))
 	(assign '((:r1 num_value)) '(:r1))
 	(vp-and-cr -8 :r1)
@@ -32,10 +32,10 @@
 		(breakif '(:r2 = 0))
 		(vp-add-cr +byte_size :r1)
 	(loop-until '(:r2 = +char_underscore))
-	(call 'stream :write_cstr '(:r0 :r1))
+	(call :stream :write_cstr '(:r0 :r1))
 	(vp-pop :r0)
 
-	(exit 'func :print '(:r0))
+	(exit :func :print '(:r0))
 	(vp-ret)
 
 (def-func-end)

@@ -5,11 +5,11 @@
 (include "././texture/class.inc")
 (include "././pixmap/class.inc")
 
-(gen-vtable 'canvas)
-(gen-create 'canvas)
-(gen-create 'canvas 'pixmap)
+(gen-vtable :canvas)
+(gen-create :canvas)
+(gen-create :canvas 'pixmap)
 
-(def-method 'canvas :init)
+(def-method :canvas :init)
 	;inputs
 	;:r0 = canvas object (ptr)
 	;:r1 = vtable (pptr)
@@ -22,11 +22,11 @@
 	;trashes
 	;:r1-:r14
 
-	(entry 'canvas :init '(:r0 :r1 :r2 :r3 :r4))
+	(entry :canvas :init '(:r0 :r1 :r2 :r3 :r4))
 	(assign '(:r2 :r3 :r4) '((:r0 canvas_cx1) (:r0 canvas_cy1) (:r0 canvas_scale)))
 
 	;init parent
-	(s-call 'canvas :init '(:r0 :r1) '(:r0 :r1))
+	(s-call :canvas :init '(:r0 :r1) '(:r0 :r1))
 	(vpif '(:r1 /= 0))
 		(vp-push :r0)
 		(assign '(0 +argb_black) '(:r1 :r2))
@@ -39,22 +39,22 @@
 		(assign '(:r0 :r1) '((:r3 canvas_cx1) (:r3 canvas_cy1)))
 
 		;alloc pixmap
-		(call 'pixmap :create '(:r0 :r1 -32) '(:r0))
+		(call :pixmap :create '(:r0 :r1 -32) '(:r0))
 		(assign '((:rsp 0)) '(:r1))
 		(assign '(:r0) '((:r1 canvas_pixmap)))
 
 		;edge array
-		(call 'array :create :nil '(:r1))
+		(call :array :create :nil '(:r1))
 		(vp-pop :r0)
 		(assign '(:r1) '((:r0 canvas_edges)))
 	(endif)
 
-	(exit 'canvas :init '(:r0 :r1))
+	(exit :canvas :init '(:r0 :r1))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'canvas :init_pixmap)
+(def-method :canvas :init_pixmap)
 	;inputs
 	;:r0 = canvas object (ptr)
 	;:r1 = vtable (pptr)
@@ -65,11 +65,11 @@
 	;trashes
 	;:r1-:r14
 
-	(entry 'canvas :init_pixmap '(:r0 :r1 :r2))
+	(entry :canvas :init_pixmap '(:r0 :r1 :r2))
 	(assign '(:r2) '((:r0 canvas_pixmap)))
 
 	;init parent
-	(s-call 'canvas :init '(:r0 :r1) '(:r0 :r1))
+	(s-call :canvas :init '(:r0 :r1) '(:r0 :r1))
 	(vpif '(:r1 /= 0))
 		(vp-push :r0)
 		(assign '(0 1 +argb_black) '(:r1 :r2 :r3))
@@ -87,20 +87,20 @@
 
 		;ref pixmap
 		(assign '((:rsp 0)) '(:r0))
-		(call 'canvas :ref '((:r0 canvas_pixmap)))
+		(call :canvas :ref '((:r0 canvas_pixmap)))
 
 		;edge array
-		(call 'array :create :nil '(:r1))
+		(call :array :create :nil '(:r1))
 		(vp-pop :r0)
 		(assign '(:r1) '((:r0 canvas_edges)))
 	(endif)
 
-	(exit 'canvas :init_pixmap '(:r0 :r1))
+	(exit :canvas :init_pixmap '(:r0 :r1))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'canvas :deinit)
+(def-method :canvas :deinit)
 	;inputs
 	;:r0 = canvas object (ptr)
 	;outputs
@@ -112,28 +112,28 @@
 
 	;free edge arrays
 	(assign '((:rsp 0)) '(:r0))
-	(call 'array :deref '((:r0 canvas_edges)))
+	(call :array :deref '((:r0 canvas_edges)))
 	(assign '((:rsp 0)) '(:r0))
-	(call 'sys_mem :free '((:r0 canvas_edges_start)))
+	(call :sys_mem :free '((:r0 canvas_edges_start)))
 
 	;free alias buffers
 	(assign '((:rsp 0)) '(:r0))
-	(call 'sys_mem :free '((:r0 canvas_coverage)))
+	(call :sys_mem :free '((:r0 canvas_coverage)))
 
 	;free any canvas texture
 	(assign '((:rsp 0)) '(:r0))
-	(call 'texture :deref_if '((:r0 canvas_texture)))
+	(call :texture :deref_if '((:r0 canvas_texture)))
 
 	;free pixel buffer
 	(assign '((:rsp 0)) '(:r0))
-	(call 'pixmap :deref '((:r0 canvas_pixmap)))
+	(call :pixmap :deref '((:r0 canvas_pixmap)))
 
 	(vp-pop :r0)
-	(s-jump 'canvas :deinit '(:r0))
+	(s-jump :canvas :deinit '(:r0))
 
 (def-func-end)
 
-(def-method 'canvas :swap)
+(def-method :canvas :swap)
 	;inputs
 	;:r0 = canvas object (ptr)
 	;:r1 = canvas upload flags (uint)
@@ -147,35 +147,35 @@
 		(uint flags))
 
 	(push-scope)
-	(entry 'canvas :swap {this, flags})
+	(entry :canvas :swap {this, flags})
 
 	;must be in premul alpha format
 	(assign {this->canvas_pixmap} {pixmap})
-	(call 'pixmap :as_premul {pixmap})
+	(call :pixmap :as_premul {pixmap})
 
 	;scale the pixmap if needed
 	(vpif {this->canvas_scale = 1})
-		(call 'pixmap :ref {pixmap} {pixmap})
+		(call :pixmap :ref {pixmap} {pixmap})
 	(else)
-		(call 'pixmap :create {pixmap->pixmap_width / this->canvas_scale,
+		(call :pixmap :create {pixmap->pixmap_width / this->canvas_scale,
 			pixmap->pixmap_height / this->canvas_scale, -32} {pixmap})
-		(call 'pixmap :resize {pixmap, this->canvas_pixmap})
+		(call :pixmap :resize {pixmap, this->canvas_pixmap})
 	(endif)
 
 	;upload then ref_if the texture
-	(call 'pixmap :upload {pixmap, flags})
+	(call :pixmap :upload {pixmap, flags})
 	(assign {this->canvas_texture} {texture})
-	(call 'texture :ref_if {pixmap->pixmap_texture} {this->canvas_texture})
-	(call 'texture :deref_if {texture})
-	(call 'pixmap :deref {pixmap})
+	(call :texture :ref_if {pixmap->pixmap_texture} {this->canvas_texture})
+	(call :texture :deref_if {texture})
+	(call :pixmap :deref {pixmap})
 
-	(exit 'canvas :swap {this})
+	(exit :canvas :swap {this})
 	(pop-scope)
 	(return)
 
 (def-func-end)
 
-(def-method 'canvas :set_clip)
+(def-method :canvas :set_clip)
 	;inputs
 	;:r0 = canvas object (ptr)
 	;:r7 = x (pixels)
@@ -187,7 +187,7 @@
 	;trashes
 	;:r1-:r2
 
-	(entry 'canvas :set_clip '(:r0 :r7 :r8 :r9 :r10))
+	(entry :canvas :set_clip '(:r0 :r7 :r8 :r9 :r10))
 
 	;clip check
 	(assign '((:r0 canvas_pixmap)) '(:r2))
@@ -203,12 +203,12 @@
 		(assign '(:r7 :r8 :r9 :r10) '((:r0 canvas_cx) (:r0 canvas_cy) (:r0 canvas_cx1) (:r0 canvas_cy1)))
 	(endif)
 
-	(exit 'canvas :set_clip '(:r0))
+	(exit :canvas :set_clip '(:r0))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'canvas :span_noclip)
+(def-method :canvas :span_noclip)
 	;inputs
 	;:r0 = canvas object (ptr)
 	;:r1 = coverage (ulong)
@@ -222,7 +222,7 @@
 	;info
 	;coverage is 0x0 to 0x80
 
-	(entry 'canvas :span_noclip '(:r0 :r1 :r7 :r8 :r9))
+	(entry :canvas :span_noclip '(:r0 :r1 :r7 :r8 :r9))
 
 	(switch)
 	(breakif '(:r1 = 0))
@@ -234,7 +234,7 @@
 	(vp-shr-cr 7 :r1)
 	(vp-shl-cr 24 :r1)
 	(vp-add-rr :r3 :r1)
-	(call 'pixmap :to_premul '(:r1) '(:r1))
+	(call :pixmap :to_premul '(:r1) '(:r1))
 	(vp-cpy-rr :r1 :r2)
 	(vp-shr-cr 24 :r2)
 	(breakif '(:r2 = 0))
@@ -249,7 +249,7 @@
 			(vp-add-cr +int_size :r7)
 		(loop-until '(:r7 = :r9))
 
-		(exit 'canvas :span_noclip '(:r0))
+		(exit :canvas :span_noclip '(:r0))
 		(vp-ret)
 	(default)
 		(vp-simd vp-cpy-cr '(0xff 0x00ff00ff 0xff00ff00) '(:r6 :r4 :r5))
@@ -276,12 +276,12 @@
 		(loop-until '(:r7 = :r9))
 	(endswitch)
 
-	(exit 'canvas :span_noclip '(:r0))
+	(exit :canvas :span_noclip '(:r0))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'canvas :span)
+(def-method :canvas :span)
 	;inputs
 	;:r0 = canvas object (ptr)
 	;:r1 = coverage (ulong)
@@ -295,22 +295,22 @@
 	;info
 	;coverage is 0x0 to 0x80
 
-	(entry 'canvas :span '(:r0 :r1 :r7 :r8 :r9))
+	(entry :canvas :span '(:r0 :r1 :r7 :r8 :r9))
 
 	;clip check
 	(assign '((:r0 canvas_cx) (:r0 canvas_cy) (:r0 canvas_cx1) (:r0 canvas_cy1)) '(:r2 :r3 :r4 :r5))
 	(vpif '(:r9 > :r7) '(:r9 > :r2) '(:r8 >= :r3) '(:r7 < :r4) '(:r8 < :r5))
 		(vp-max-rr :r2 :r7)
 		(vp-min-rr :r4 :r9)
-		(jump 'canvas :span_noclip '(:r0 :r1 :r7 :r8 :r9))
+		(jump :canvas :span_noclip '(:r0 :r1 :r7 :r8 :r9))
 	(endif)
 
-	(exit 'canvas :span '(:r0))
+	(exit :canvas :span '(:r0))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'canvas :pick)
+(def-method :canvas :pick)
 	;inputs
 	;:r0 = canvas object (ptr)
 	;:r7 = x (pixels)
@@ -321,7 +321,7 @@
 	;trashes
 	;:r1-:r14
 
-	(entry 'canvas :pick '(:r0 :r7 :r8))
+	(entry :canvas :pick '(:r0 :r7 :r8))
 
 	;clip check
 	(assign '((:r0 canvas_cx) (:r0 canvas_cy) (:r0 canvas_cx1) (:r0 canvas_cy1)) '(:r3 :r4 :r5 :r6))
@@ -332,16 +332,16 @@
 		(vp-shl-cr (log2 +int_size) :r7)
 		(vp-add-rr :r8 :r2)
 		(vp-cpy-dr-i :r2 :r7 :r1)
-		(jump 'pixmap :to_argb '(:r1))
+		(jump :pixmap :to_argb '(:r1))
 	(endif)
 	(vp-xor-rr :r1 :r1)
 
-	(exit 'canvas :pick '(:r0 :r1))
+	(exit :canvas :pick '(:r0 :r1))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'canvas :plot)
+(def-method :canvas :plot)
 	;inputs
 	;:r0 = canvas object (ptr)
 	;:r7 = x (pixels)
@@ -351,14 +351,14 @@
 	;trashes
 	;:r1-:r14
 
-	(entry 'canvas :plot '(:r0 :r7 :r8))
+	(entry :canvas :plot '(:r0 :r7 :r8))
 
 	;clip check
 	(assign '((:r0 canvas_cx) (:r0 canvas_cy) (:r0 canvas_cx1) (:r0 canvas_cy1)) '(:r3 :r4 :r5 :r6))
 	(switch)
 	(breakif '(:r7 < :r3) '(:r8 < :r4) '(:r7 >= :r5) '(:r8 >= :r6))
 	(assign '((:r0 canvas_color)) '(:r1))
-	(call 'pixmap :to_premul '(:r1) '(:r1))
+	(call :pixmap :to_premul '(:r1) '(:r1))
 	(vp-cpy-rr :r1 :r2)
 	(vp-shr-cr 24 :r2)
 	(breakif '(:r2 = 0))
@@ -370,7 +370,7 @@
 		(vp-add-rr :r8 :r3)
 		(vp-cpy-rd-i :r1 :r3 :r7)
 
-		(exit 'canvas :plot '(:r0))
+		(exit :canvas :plot '(:r0))
 		(vp-ret)
 	(default)
 		(vp-simd vp-cpy-cr '(0xff 0x00ff00ff 0xff00ff00) '(:r6 :r4 :r5))
@@ -394,12 +394,12 @@
 		(vp-cpy-ri-i :r2 :r7 0)
 	(endswitch)
 
-	(exit 'canvas :plot '(:r0))
+	(exit :canvas :plot '(:r0))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'canvas :fbox)
+(def-method :canvas :fbox)
 	;inputs
 	;:r0 = canvas object (ptr)
 	;:r7 = x (pixels)
@@ -416,7 +416,7 @@
 		(int x y w h))
 
 	(push-scope)
-	(entry 'canvas :fbox {this, x, y, w, h})
+	(entry :canvas :fbox {this, x, y, w, h})
 
 	;clip check
 	(switch)
@@ -436,11 +436,11 @@
 			(assign {this->canvas_cy1} {h})
 		(endif)
 		(loop-start)
-			(call 'canvas :span_noclip {this, 0x80, x, y, w})
+			(call :canvas :span_noclip {this, 0x80, x, y, w})
 		(loop-until {(y + 1 => y) = h})
 	(endswitch)
 
-	(exit 'canvas :fbox {this})
+	(exit :canvas :fbox {this})
 	(pop-scope)
 	(return)
 

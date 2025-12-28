@@ -1,6 +1,6 @@
 (include "././obj/class.inc")
 
-(def-class num obj
+(def-class :num :obj
 	(dec-method :vtable class/num/vtable)
 	(dec-method :hash class/num/hash :override)
 	(dec-method :eql class/num/eql :final)
@@ -78,7 +78,7 @@
 	;trashes
 	;:r1
 	(assign '(:r2) '((:r0 num_value)))
-	(s-call 'num :init '(:r0 :r1) '(:r0 :r1)))
+	(s-call :num :init '(:r0 :r1) '(:r0 :r1)))
 
 (defun class/num/get_value ()
 	;inputs

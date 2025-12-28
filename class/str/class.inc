@@ -1,6 +1,6 @@
 (include "././seq/class.inc")
 
-(def-class str seq
+(def-class :str :seq
 	(dec-method :vtable class/str/vtable)
 	(dec-method :hash class/str/hash :override)
 	(dec-method :eql class/str/eql :override)

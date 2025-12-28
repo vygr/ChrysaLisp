@@ -188,17 +188,17 @@
 (defmacro errorif-lisp-args-sig (l args len1 &optional len2)
 	(setd len2 len1)
 	`(errorcase
-		(call 'lisp :env_args_sig '(,args ($ sig) ,len1 ,len2) '(tmp))
+		(call :lisp :env_args_sig '(,args ($ sig) ,len1 ,len2) '(tmp))
 		(gotoif `(,tmp = 0) ,l)))
 
 (defmacro errorif-lisp-args-match (l args class len)
 	`(errorcase
-		(call 'lisp :env_args_match '(,args (@ ,(f-path class :vtable)) ,len) '(tmp))
+		(call :lisp :env_args_match '(,args (@ ,(f-path class :vtable)) ,len) '(tmp))
 		(gotoif `(,tmp = 0) ,l)))
 
 (defmacro errorif-lisp-args-type (l args class len)
 	`(errorcase
-		(call 'lisp :env_args_type '(,args (@ ,(f-path class :vtable)) ,len) '(tmp))
+		(call :lisp :env_args_type '(,args (@ ,(f-path class :vtable)) ,len) '(tmp))
 		(gotoif `(,tmp = 0) ,l)))
 
 ;;;;;;;

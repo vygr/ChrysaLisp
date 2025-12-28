@@ -124,15 +124,15 @@ run uninterrupted until it hits an explicit yield point.
     ; Simplified logic from font :flush in gui/font/class.vp
     (loop-start)
         ; ...
-        (call 'hmap :create ... {new_map}) ; 1. Create new map (private)
-        (call 'hmap :each {font->font_sym_map, $flush_callback, new_map}) ; 2. Populate new map
+        (call :hmap :create ... {new_map}) ; 1. Create new map (private)
+        (call :hmap :each {font->font_sym_map, $flush_callback, new_map}) ; 2. Populate new map
         
         ; 3. THE ATOMIC SWAP (no yields can occur here)
         (assign {font->font_sym_map} {tmp})
         (assign {new_map} {font->font_sym_map})
 
         ; 4. CLEANUP (can safely yield now)
-        (call 'hmap :deref {tmp})
+        (call :hmap :deref {tmp})
         ;...
     (loop-end)
     ```

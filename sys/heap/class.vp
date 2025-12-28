@@ -2,7 +2,7 @@
 (include "././statics/class.inc")
 (include "././load/class.inc")
 
-(def-method 'sys_heap :init)
+(def-method :sys_heap :init)
 	;inputs
 	;:r0 = heap (ptr)
 	;:r1 = cell size (bytes)
@@ -12,7 +12,7 @@
 	;trashes
 	;:r1-:r2
 
-	(entry 'sys_heap :init '(:r0 :r1 :r2))
+	(entry :sys_heap :init '(:r0 :r1 :r2))
 
 	;align cell to +ptr_size
 	(vp-add-cr (dec +ptr_size) :r1)
@@ -34,12 +34,12 @@
 	(assign '(:r2) '((:r0 hp_heap_free_flist)))
 	(lh-init :r0 :r2)
 
-	(exit 'sys_heap :init '(:r0))
+	(exit :sys_heap :init '(:r0))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'sys_heap :deinit)
+(def-method :sys_heap :deinit)
 	;inputs
 	;:r0 = heap (ptr)
 	;outputs
@@ -47,7 +47,7 @@
 	;trashes
 	;:r1-:r6
 
-	(entry 'sys_heap :deinit '(:r5))
+	(entry :sys_heap :deinit '(:r5))
 
 	(fn-bind 'sys/statics/statics :r1)
 	(vp-cpy-ir :r1 statics_sys_mem_total :r3)
@@ -56,17 +56,17 @@
 		(ln-remove-node :r6 :r1)
 		(assign '((:r5 hp_heap_blocksize)) '(:r1))
 		(vp-sub-rr :r1 :r3)
-		(call 'host_os :pii_munmap '(:r0 :r1 +mmap_data))
+		(call :host_os :pii_munmap '(:r0 :r1 +mmap_data))
 	(loop-end)
 	(fn-bind 'sys/statics/statics :r1)
 	(vp-cpy-ri :r3 :r1 statics_sys_mem_total)
 
-	(exit 'sys_heap :deinit '(:r5))
+	(exit :sys_heap :deinit '(:r5))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'sys_heap :alloc)
+(def-method :sys_heap :alloc)
 	;inputs
 	;:r0 = heap (ptr)
 	;outputs
@@ -78,20 +78,20 @@
 	(vp-rdef (this cell next blocksize cellsize block blockend cnt statics)
 		'(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7 :r2))
 
-	(entry 'sys_heap :alloc `(,this))
+	(entry :sys_heap :alloc `(,this))
 
 	(assign `((,this hp_heap_free_flist)) `(,cell))
 	(vpif `(,cell /= 0))
 	(vp-label 'got_cell)
 		(assign `((,cell ln_fnode_next)) `(,next))
 		(assign `(,next) `((,this hp_heap_free_flist)))
-		(exit 'sys_heap :alloc `(,this ,cell))
+		(exit :sys_heap :alloc `(,this ,cell))
 		(vp-ret)
 	(endif)
 	(vp-push blocksize cellsize block blockend cnt this)
 	(assign `((,this hp_heap_cellsize)) `(,cellsize))
 	(assign `((,this hp_heap_blocksize)) `(,blocksize))
-	(call 'host_os :pii_mmap `(,blocksize -1 +mmap_data) `(,block))
+	(call :host_os :pii_mmap `(,blocksize -1 +mmap_data) `(,block))
 	(errorif `(,block = 0) 'error)
 	(fn-bind 'sys/statics/statics statics)
 	(assign `((:rsp 0)) `(,this))
@@ -126,7 +126,7 @@
 
 (def-func-end)
 
-(def-method 'sys_heap :collect)
+(def-method :sys_heap :collect)
 	;inputs
 	;:r0 = heap (ptr)
 	;outputs
@@ -136,7 +136,7 @@
 
 	(vp-rdef (_ _ _ this blk cel next tail total))
 
-	(entry 'sys_heap :collect `(,this))
+	(entry :sys_heap :collect `(,this))
 
 	;current total
 	(fn-bind 'sys/statics/statics :r0)
@@ -167,7 +167,7 @@
 		(assign `((,this hp_heap_blocksize) ,blk) '(:r1 :r0))
 		(ln-remove-node :r0 :r2)
 		(vp-sub-rr :r1 total)
-		(call 'host_os :pii_munmap `(,blk :r1 +mmap_data))
+		(call :host_os :pii_munmap `(,blk :r1 +mmap_data))
 	(loop-end)
 
 	;loop over all blocks
@@ -189,7 +189,7 @@
 	(fn-bind 'sys/statics/statics :r0)
 	(assign `(,total) '((:r0 statics_sys_mem_total)))
 
-	(exit 'sys_heap :collect `(,this))
+	(exit :sys_heap :collect `(,this))
 	(vp-ret)
 
 (def-func-end)

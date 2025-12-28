@@ -1,6 +1,6 @@
 (include "././seq/class.inc")
 
-(def-class array seq
+(def-class :array :seq
 	(dec-method :vtable class/array/vtable)
 	(dec-method :create class/array/create :static :nil (:r0))
 	(dec-method :init class/array/init)
@@ -102,7 +102,7 @@
 	(assign '(:r2) '((:r0 array_capacity)))
 	(vp-lea-i :r0 array_e0 :r2)
 	(assign '(:r2) '((:r0 array_begin)))
-	(s-call 'array :init '(:r0 :r1) '(:r0 :r1)))
+	(s-call :array :init '(:r0 :r1) '(:r0 :r1)))
 
 (defun class/array/get_cap ()
 	;inputs

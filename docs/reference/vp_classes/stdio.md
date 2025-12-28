@@ -1,6 +1,6 @@
-# stdio
+# :stdio
 
-## obj
+## :obj
 
 ## Lisp Bindings
 

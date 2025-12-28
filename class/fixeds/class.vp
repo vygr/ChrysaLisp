@@ -3,11 +3,11 @@
 (include "././sym/class.inc")
 (include "././list/class.inc")
 
-(gen-create 'fixeds)
-(gen-vtable 'fixeds)
-(gen-type 'fixeds)
+(gen-create :fixeds)
+(gen-vtable :fixeds)
+(gen-type :fixeds)
 
-(def-method 'fixeds :mul)
+(def-method :fixeds :mul)
 	;inputs
 	;:r0 = fixeds object (ptr)
 	;:r1 = source1 fixeds object, can be same (ptr)
@@ -20,18 +20,18 @@
 
 	(vp-rdef (dst src1 src2 dst1 idx1 idx2 e0 e1))
 
-	(entry 'fixeds :mul `(,dst ,src1 ,src2))
+	(entry :fixeds :mul `(,dst ,src1 ,src2))
 
 	(vec-map-idx (list src1 src2) (list dst) (list e0 e1)
 		(list src1 src2) (list dst1) (list idx1 idx2)
 		(# (vp-mul-rr %1 %0) (vp-asr-cr +fp_shift %0) %0))
 
-	(exit 'fixeds :mul `(,dst -1))
+	(exit :fixeds :mul `(,dst -1))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'fixeds :div)
+(def-method :fixeds :div)
 	;inputs
 	;:r0 = fixeds object (ptr)
 	;:r1 = source1 fixeds object, can be same (ptr)
@@ -44,7 +44,7 @@
 
 	(vp-rdef (e0 e1 high src1 src2 dst1 idx1 idx2 dst))
 
-	(entry 'fixeds :div `(,dst ,e1 ,high))
+	(entry :fixeds :div `(,dst ,e1 ,high))
 
 	(vec-map-idx (list e1 high) (list dst) (list e0 e1)
 		(list src1 src2) (list dst1) (list idx1 idx2)
@@ -54,15 +54,15 @@
 			(vp-div-rrr %1 high %0)
 			%0))
 
-	(exit 'fixeds :div `(,dst -1))
+	(exit :fixeds :div `(,dst -1))
 	(vp-ret)
 (vp-label 'error)
-	(exit 'fixeds :div `(,dst 0))
+	(exit :fixeds :div `(,dst 0))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'fixeds :mod)
+(def-method :fixeds :mod)
 	;inputs
 	;:r0 = fixeds object (ptr)
 	;:r1 = source1 fixeds object, can be same (ptr)
@@ -75,7 +75,7 @@
 
 	(vp-rdef (e0 e1 high src1 src2 dst1 idx1 idx2 dst t0))
 
-	(entry 'fixeds :mod `(,dst ,e1 ,high))
+	(entry :fixeds :mod `(,dst ,e1 ,high))
 
 	(vec-map-idx (list e1 high) (list dst) (list e0 e1)
 		(list src1 src2) (list dst1) (list idx1 idx2)
@@ -89,15 +89,15 @@
 			(vp-sub-rr %1 t0)
 			t0))
 
-	(exit 'fixeds :mod `(,dst -1))
+	(exit :fixeds :mod `(,dst -1))
 	(vp-ret)
 (vp-label 'error)
-	(exit 'fixeds :mod `(,dst 0))
+	(exit :fixeds :mod `(,dst 0))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'fixeds :frac)
+(def-method :fixeds :frac)
 	;inputs
 	;:r0 = fixeds object (ptr)
 	;:r1 = source fixeds object, can be same (ptr)
@@ -108,18 +108,18 @@
 
 	(vp-rdef (dst src1 dst1 idx1 idx2 e0))
 
-	(entry 'fixeds :frac `(,dst ,src1))
+	(entry :fixeds :frac `(,dst ,src1))
 
 	(vec-map-idx (list src1) (list dst) (list e0)
 		(list src1) (list dst1) (list idx1 idx2)
 		(# (vp-and-cr +fp_frac_mask %0) %0))
 
-	(exit 'fixeds :frac `(,dst))
+	(exit :fixeds :frac `(,dst))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'fixeds :floor)
+(def-method :fixeds :floor)
 	;inputs
 	;:r0 = fixeds object (ptr)
 	;:r1 = source fixeds object, can be same (ptr)
@@ -130,18 +130,18 @@
 
 	(vp-rdef (dst src1 dst1 idx1 idx2 e0))
 
-	(entry 'fixeds :floor `(,dst ,src1))
+	(entry :fixeds :floor `(,dst ,src1))
 
 	(vec-map-idx (list src1) (list dst) (list e0)
 		(list src1) (list dst1) (list idx1 idx2)
 		(# (vp-and-cr +fp_int_mask %0) %0))
 
-	(exit 'fixeds :floor `(,dst))
+	(exit :fixeds :floor `(,dst))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'fixeds :ceil)
+(def-method :fixeds :ceil)
 	;inputs
 	;:r0 = fixeds object (ptr)
 	;:r1 = source fixeds object, can be same (ptr)
@@ -152,7 +152,7 @@
 
 	(vp-rdef (dst src1 dst1 idx1 idx2 e0 t0))
 
-	(entry 'fixeds :ceil `(,dst ,src1))
+	(entry :fixeds :ceil `(,dst ,src1))
 
 	(vec-map-idx (list src1) (list dst) (list e0)
 		(list src1) (list dst1) (list idx1 idx2)
@@ -164,12 +164,12 @@
 			(endif)
 			%0))
 
-	(exit 'fixeds :ceil `(,dst))
+	(exit :fixeds :ceil `(,dst))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'fixeds :scale)
+(def-method :fixeds :scale)
 	;inputs
 	;:r0 = fixeds object (ptr)
 	;:r1 = source fixeds object, can be same (ptr)
@@ -181,18 +181,18 @@
 
 	(vp-rdef (dst src1 scale dst1 idx1 idx2 e0))
 
-	(entry 'fixeds :scale `(,dst ,src1 ,scale))
+	(entry :fixeds :scale `(,dst ,src1 ,scale))
 
 	(vec-map-idx (list src1) (list dst) (list e0)
 		(list src1) (list dst1) (list idx1 idx2)
 		(# (vp-mul-rr scale %0) (vp-asr-cr +fp_shift %0) %0))
 
-	(exit 'fixeds :scale `(,dst))
+	(exit :fixeds :scale `(,dst))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'fixeds :dot)
+(def-method :fixeds :dot)
 	;inputs
 	;:r0 = fixeds object (ptr)
 	;:r1 = fixeds object, can be same (ptr)
@@ -204,13 +204,13 @@
 
 	(vp-rdef (src dot src1 src2 idx1 idx2 e0 e1))
 
-	(entry 'fixeds :dot `(,src ,dot))
+	(entry :fixeds :dot `(,src ,dot))
 
 	(vec-reduce-idx (list src dot) (list e0 e1) (list src1 src2) (list idx1 idx2)
 		(# (vp-mul-rr %0 %1) (vp-asr-cr +fp_shift %1) (vp-add-rr %1 dot))
 		(# (vp-sub-rr dot dot)))
 
-	(exit 'fixeds :dot `(,src ,dot))
+	(exit :fixeds :dot `(,src ,dot))
 	(vp-ret)
 
 (def-func-end)

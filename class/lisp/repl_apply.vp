@@ -2,7 +2,7 @@
 (include "./class.inc")
 (include "././func/class.inc")
 
-(def-method 'lisp :repl_apply)
+(def-method :lisp :repl_apply)
 	;inputs
 	;:r0 = lisp object (ptr)
 	;:r1 = args list object (ptr)
@@ -13,9 +13,9 @@
 	;trashes
 	;:r1-:r14
 
-	(entry 'lisp :repl_apply '(:r0 :r1 :r2))
+	(entry :lisp :repl_apply '(:r0 :r1 :r2))
 
-	(assign `((:r2 obj_vtable) (@ ,(f-path 'func :vtable))) '(:r3 :r4))
+	(assign `((:r2 obj_vtable) (@ ,(f-path :func :vtable))) '(:r3 :r4))
 	(vpif '(:r3 = :r4))
 		;built in or compiled function
 		(assign '((:r2 num_value)) '(:r2))
@@ -24,7 +24,7 @@
 	(endif)
 
 (errorcase
-	(f-bind 'list :vtable :r4)
+	(f-bind :list :vtable :r4)
 	(gotoif '(:r3 /= :r4) 'error2)
 	(assign '((:r2 array_length)) '(:r3))
 	(gotoif '(:r3 < 2) 'error1))
@@ -45,22 +45,22 @@
 	(endswitch))
 
 	(vp-push :r1 :r3 :r4)
-	(call 'lisp :env_push '(:r0) '(:r0 _))
+	(call :lisp :env_push '(:r0) '(:r0 _))
 	(assign `((:rsp ,+ptr_size)) '(:r1))
-	(call 'lisp :env_bind `(:r0 (:r1 ,+ptr_size) (:rsp ,(* 2 +ptr_size))) '(:r0 :r1))
+	(call :lisp :env_bind `(:r0 (:r1 ,+ptr_size) (:rsp ,(* 2 +ptr_size))) '(:r0 :r1))
 	(vp-pop :r4 :r2 :r3)
-	(call 'lisp :repl_progn `(:r0 :r1 (& :r2 ,(* 2 +ptr_size)) :r3) '(:r0 :r1))
+	(call :lisp :repl_progn `(:r0 :r1 (& :r2 ,(* 2 +ptr_size)) :r3) '(:r0 :r1))
 	(vp-push :r1)
-	(call 'lisp :env_pop '(:r0) '(:r0 _))
+	(call :lisp :env_pop '(:r0) '(:r0 _))
 	(vp-pop :r1)
 
-	(exit 'lisp :repl_apply '(:r0 :r1))
+	(exit :lisp :repl_apply '(:r0 :r1))
 	(vp-ret)
 
 (errorcase
 (vp-label 'error1)
-	(jump 'lisp :repl_error '(:r0 "(lambda ([arg ...]) body)" +error_msg_wrong_num_of_args :r2))
+	(jump :lisp :repl_error '(:r0 "(lambda ([arg ...]) body)" +error_msg_wrong_num_of_args :r2))
 (vp-label 'error2)
-	(jump 'lisp :repl_error '(:r0 "(lambda ([arg ...]) body)" +error_msg_not_a_function :r2)))
+	(jump :lisp :repl_error '(:r0 "(lambda ([arg ...]) body)" +error_msg_not_a_function :r2)))
 
 (def-func-end)

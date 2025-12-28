@@ -3,11 +3,11 @@
 (include "././sym/class.inc")
 (include "././list/class.inc")
 
-(gen-create 'mstream)
-(gen-vtable 'mstream)
-(gen-type 'mstream)
+(gen-create :mstream)
+(gen-vtable :mstream)
+(gen-type :mstream)
 
-(def-method 'mstream :init)
+(def-method :mstream :init)
 	;inputs
 	;:r0 = mstream object (ptr)
 	;:r1 = vtable (pptr)
@@ -19,12 +19,12 @@
 
 	(vp-rdef (this vtable tmp))
 
-	(entry 'mstream :init `(,this ,vtable))
+	(entry :mstream :init `(,this ,vtable))
 
-	(s-call 'mstream :init `(,this ,vtable 0 0 0 0) `(,this ,vtable))
+	(s-call :mstream :init `(,this ,vtable 0 0 0 0) `(,this ,vtable))
 	(vpif `(,vtable /= 0))
 		(vp-push this)
-		(call 'list :create :nil `(,vtable))
+		(call :list :create :nil `(,vtable))
 		(vp-pop this)
 		(vp-xor-rr tmp tmp)
 		(save-fields this '(mstream_chunks mstream_pos mstream_total mstream_index)
@@ -32,12 +32,12 @@
 		(vp-cpy-cr 1 vtable)
 	(endif)
 
-	(exit 'mstream :init `(,this ,vtable))
+	(exit :mstream :init `(,this ,vtable))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'mstream :deinit)
+(def-method :mstream :deinit)
 	;inputs
 	;:r0 = mstream object (ptr)
 	;outputs
@@ -47,18 +47,18 @@
 
 	(vp-rdef (this tmp))
 
-	(entry 'mstream :deinit `(,this))
+	(entry :mstream :deinit `(,this))
 
 	(vp-push this)
-	(call 'obj :deref `((,this mstream_chunks)))
+	(call :obj :deref `((,this mstream_chunks)))
 	(vp-pop this)
 	(vp-xor-rr tmp tmp)
 	(assign `(,tmp) `((,this stream_object)))
-	(s-jump 'mstream :deinit `(,this))
+	(s-jump :mstream :deinit `(,this))
 
 (def-func-end)
 
-(def-method 'mstream :flush)
+(def-method :mstream :flush)
 	;inputs
 	;:r0 = mstream object (ptr)
 	;outputs
@@ -68,7 +68,7 @@
 
 	(vp-rdef (this bufp total chunk pos))
 
-	(entry 'mstream :flush `(,this))
+	(entry :mstream :flush `(,this))
 
 	(load-fields this '(stream_object stream_bufp) `(,chunk ,bufp))
 	(vpif `(,chunk /= 0))
@@ -82,15 +82,15 @@
 	(endif)
 
 	;current position and total size
-	(call 'mstream :ptoi `(,this ,bufp) `(,this ,bufp ,total ,pos))
+	(call :mstream :ptoi `(,this ,bufp) `(,this ,bufp ,total ,pos))
 	(save-fields this '(mstream_pos mstream_total) `(,pos ,total))
 
-	(exit 'mstream :flush `(,this))
+	(exit :mstream :flush `(,this))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'mstream :write_next)
+(def-method :mstream :write_next)
 	;inputs
 	;:r0 = sstream object (ptr)
 	;outputs
@@ -100,7 +100,7 @@
 
 	(vp-rdef (this index chunks len chunk bufp bufe) '(:r11 :r12 :r13))
 
-	(entry 'mstream :write_next `(,this))
+	(entry :mstream :write_next `(,this))
 
 	(load-fields this '(mstream_chunks mstream_index) `(,chunks ,index))
 	(assign `((,chunks array_length)) `(,len))
@@ -111,8 +111,8 @@
 		(class/array/get_elem chunks len chunk)
 	(else)
 		;creating a new volatile chunk
-		(call 'str :create_from_buffer `(0 ,mstream_buf_size) `(,chunk))
-		(call 'list :push_back `(,chunks ,chunk) `(_ ,chunk _  _))
+		(call :str :create_from_buffer `(0 ,mstream_buf_size) `(,chunk))
+		(call :list :push_back `(,chunks ,chunk) `(_ ,chunk _  _))
 		(assign `(,chunk) `((,this stream_object)))
 	(endif)
 	(assign `((,chunk str_length) (& ,chunk str_data)) `(,len ,bufp))
@@ -120,12 +120,12 @@
 	(save-fields this '(stream_bufp stream_bufe mstream_index)
 		`(,bufp ,bufe ,index))
 
-	(exit 'mstream :write_next `(,this))
+	(exit :mstream :write_next `(,this))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'mstream :read_next)
+(def-method :mstream :read_next)
 	;inputs
 	;:r0 = mstream object (ptr)
 	;outputs
@@ -136,7 +136,7 @@
 
 	(vp-rdef (this eof chunks bufp bufe index len))
 
-	(entry 'mstream :read_next `(,this))
+	(entry :mstream :read_next `(,this))
 
 	(load-fields this '(mstream_chunks mstream_index) `(,chunks ,index))
 	(vp-add-cr 1 index)
@@ -152,12 +152,12 @@
 		(vp-xor-rr eof eof)
 	(endif)
 
-	(exit 'mstream :read_next `(,this ,eof))
+	(exit :mstream :read_next `(,this ,eof))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'mstream :seek)
+(def-method :mstream :seek)
 	;inputs
 	;:r0 = mstream object (ptr)
 	;:r1 = offset (long)
@@ -171,10 +171,10 @@
 	(vp-rdef (offset whence this pos bufp bufe chunk index total)
 		'(:r10 :r11))
 
-	(entry 'mstream :seek `(,this ,offset ,whence))
+	(entry :mstream :seek `(,this ,offset ,whence))
 
 	;what is the new position
-	(call 'mstream :flush `(,this) `(,this))
+	(call :mstream :flush `(,this) `(,this))
 
 	(load-fields this '(mstream_total mstream_pos) `(,total ,pos))
 	(switch)
@@ -191,19 +191,19 @@
 	(vp-min-rr total pos)
 
 	;find the chunk needed
-	(call 'mstream :itop `(,this ,pos) `(,this ,pos ,bufp ,bufe ,chunk ,index))
+	(call :mstream :itop `(,this ,pos) `(,this ,pos ,bufp ,bufe ,chunk ,index))
 
 	;set the pointers
 	(save-fields this
 		'(stream_bufp stream_bufe mstream_pos mstream_index)
 		`(,bufp ,bufe ,pos ,index))
 
-	(exit 'mstream :seek `(,this ,pos))
+	(exit :mstream :seek `(,this ,pos))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'mstream :ptoi)
+(def-method :mstream :ptoi)
 	;inputs
 	;:r0 = mstream object (ptr)
 	;:r1 = bufp (pubyte)
@@ -218,7 +218,7 @@
 	(vp-rdef (this bufp total pos chunk iter_begin iter_end
 		chunk_len chunk_s chunk_e))
 
-	(entry 'mstream :ptoi `(,this ,bufp))
+	(entry :mstream :ptoi `(,this ,bufp))
 
 	(assign `((,this mstream_chunks)) `(,iter_begin))
 	(assign '(0 0) `(,total ,pos))
@@ -238,12 +238,12 @@
 		(loop-until `(,iter_begin = ,iter_end))
 	(endif)
 
-	(exit 'mstream :ptoi `(,this ,bufp ,total ,pos))
+	(exit :mstream :ptoi `(,this ,bufp ,total ,pos))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'mstream :itop)
+(def-method :mstream :itop)
 	;inputs
 	;:r0 = mstream object (ptr)
 	;:r1 = file position (uint)
@@ -260,7 +260,7 @@
 	(vp-rdef (this pos bufp bufe chunk index total
 		iter_begin iter_end chunk_len))
 
-	(entry 'mstream :itop `(,this ,bufp))
+	(entry :mstream :itop `(,this ,bufp))
 
 	(assign `((,this mstream_chunks)) `(,iter_begin))
 	(assign '(0 0 0 0 0) `(,bufp ,bufe ,chunk ,index ,total))
@@ -284,7 +284,7 @@
 		(assign '(0 0) `(,chunk ,index))
 	(endif)
 
-	(exit 'mstream :itop `(,this ,pos ,bufp ,bufe ,chunk ,index))
+	(exit :mstream :itop `(,this ,pos ,bufp ,bufe ,chunk ,index))
 	(vp-ret)
 
 (def-func-end)

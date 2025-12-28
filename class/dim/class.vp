@@ -3,11 +3,11 @@
 (include "././sym/class.inc")
 (include "././list/class.inc")
 
-(gen-create 'dim)
-(gen-vtable 'dim)
-(gen-type 'dim)
+(gen-create :dim)
+(gen-vtable :dim)
+(gen-type :dim)
 
-(def-method 'dim :init)
+(def-method :dim :init)
 	;inputs
 	;:r0 = dim object (ptr)
 	;:r1 = vtable (pptr)
@@ -20,7 +20,7 @@
 	;:r1-:r6
 
 	;init parent
-	(s-call 'dim :init '(:r0 :r1) '(:r0 :r1))
+	(s-call :dim :init '(:r0 :r1) '(:r0 :r1))
 	(vpif '(:r1 /= 0))
 		;init self
 		(class/obj/ref :r2 :r1)
@@ -31,7 +31,7 @@
 
 (def-func-end)
 
-(def-method 'dim :deinit)
+(def-method :dim :deinit)
 	;inputs
 	;:r0 = dim object (ptr)
 	;outputs
@@ -39,13 +39,13 @@
 	;trashes
 	;:r1-:r14
 
-	(entry 'dim :deinit '(:r0))
+	(entry :dim :deinit '(:r0))
 
 	(vp-push :r0)
-	(call 'obj :deref '((:r0 dim_dims)))
+	(call :obj :deref '((:r0 dim_dims)))
 	(assign '((:rsp 0)) '(:r0))
-	(call 'obj :deref '((:r0 dim_elems)))
+	(call :obj :deref '((:r0 dim_elems)))
 	(vp-pop :r0)
-	(s-jump 'dim :deinit '(:r0))
+	(s-jump :dim :deinit '(:r0))
 
 (def-func-end)

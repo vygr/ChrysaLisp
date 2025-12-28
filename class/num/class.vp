@@ -7,11 +7,11 @@
 (include "././list/class.inc")
 (include "././hset/class.inc")
 
-(gen-create 'num)
-(gen-vtable 'num)
-(gen-type 'num)
+(gen-create :num)
+(gen-vtable :num)
+(gen-type :num)
 
-(def-method 'num :intern)
+(def-method :num :intern)
 	;inputs
 	;:r0 = num object (ptr)
 	;outputs
@@ -19,22 +19,22 @@
 	;trashes
 	;:r0-:r14
 
-	(entry 'num :intern '(:r0))
+	(entry :num :intern '(:r0))
 
 	(vp-push :r0)
 	(fn-bind 'sys/statics/statics :r0)
 	(assign '((:r0 statics_num_intern)) '(:r0))
 	(vpif '(:r0 = 0))
-		(call 'hset :create `(($ cmp_num) num_num_buckets) '(:r0))
+		(call :hset :create `(($ cmp_num) num_num_buckets) '(:r0))
 		(fn-bind 'sys/statics/statics :r1)
 		(assign '(:r0) '((:r1 statics_num_intern)))
 	(endif)
-	(call 'hset :insert '(:r0 (:rsp 0)) '(_ :r1 _))
-	(call 'obj :ref '((:r1 0)) '(:r3))
+	(call :hset :insert '(:r0 (:rsp 0)) '(_ :r1 _))
+	(call :obj :ref '((:r1 0)) '(:r3))
 	(vp-pop :r0)
-	(call 'obj :deref '(:r0))
+	(call :obj :deref '(:r0))
 
-	(exit 'num :intern '(:r3))
+	(exit :num :intern '(:r3))
 	(vp-ret)
 
 (vp-label 'cmp_num)
@@ -49,7 +49,7 @@
 
 (def-func-end)
 
-(def-method 'num :hash)
+(def-method :num :hash)
 	;inputs
 	;:r0 = num (ptr)
 	;outputs
@@ -60,7 +60,7 @@
 
 	(vp-rdef (this hc c1 c2 tmp))
 
-	(entry 'num :hash `(,this))
+	(entry :num :hash `(,this))
 
 	(assign '((:r0 num_value)) `(,hc))
 	(vp-cpy-cr 0xbf58476d1ce4e5b9 c1)
@@ -77,12 +77,12 @@
 	(vp-asr-cr 31 tmp)
 	(vp-xor-rr tmp hc)
 
-	(exit 'num :hash `(,this ,hc))
+	(exit :num :hash `(,this ,hc))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'num :print)
+(def-method :num :print)
 	;inputs
 	;:r0 = num object (ptr)
 	;:r1 = stream object (ptr)
@@ -95,22 +95,22 @@
 		(ptr this stream tmp))
 
 	(vp-alloc local_size)
-	(entry 'num :print '(:r0 :r1))
+	(entry :num :print '(:r0 :r1))
 
 	(assign '(:r0 :r1) '((:rsp local_this) (:rsp local_stream)))
-	(call 'str :create_from_long '((:r0 num_value) 10) '(:r0))
+	(call :str :create_from_long '((:r0 num_value) 10) '(:r0))
 	(assign '(:r0) '((:rsp local_tmp)))
-	(call 'stream :write '((:rsp local_stream) (& :r0 str_data) (:r0 str_length)))
-	(call 'obj :deref '((:rsp local_tmp)))
+	(call :stream :write '((:rsp local_stream) (& :r0 str_data) (:r0 str_length)))
+	(call :obj :deref '((:rsp local_tmp)))
 
-	(exit 'num :print '((:rsp local_this)))
+	(exit :num :print '((:rsp local_this)))
 	(vp-free local_size)
 	(vp-ret)
 
 (def-func-end)
 
 (redefun addop (_)
-	(entry 'num _ '(:r0 :r1))
+	(entry :num _ '(:r0 :r1))
 	(class/array/get_both :r1 :r1 :r2)
 	(vp-cpy-ir :r1 0 :r0)
 	(vp-add-cr +ptr_size :r1)
@@ -121,9 +121,9 @@
 		(assign '((:r4 num_value)) '(:r3))
 		((eval (sym (cat "vp-" (rest _) "-rr"))) :r3 :r0)
 	(loop-until '(:r1 = :r2))
-	(v-jump 'num :vcreate '(:r0) :r4 :r1))
+	(v-jump :num :vcreate '(:r0) :r4 :r1))
 
-(def-method 'num :add)
+(def-method :num :add)
 	;inputs
 	;:r0 = num object (ptr)
 	;:r1 = list of num objects (ptr)
@@ -136,7 +136,7 @@
 
 (def-func-end)
 
-(def-method 'num :sub)
+(def-method :num :sub)
 	;inputs
 	;:r0 = num object (ptr)
 	;:r1 = list of num objects (ptr)
@@ -149,7 +149,7 @@
 
 (def-func-end)
 
-(def-method 'num :mul)
+(def-method :num :mul)
 	;inputs
 	;:r0 = num object (ptr)
 	;:r1 = list of num objects (ptr)
@@ -164,7 +164,7 @@
 
 (redefun minop (_ p)
 	(vp-rdef (this args obj iter_begin iter_end val new_val))
-	(entry 'num _ `(,this ,args))
+	(entry :num _ `(,this ,args))
 	(class/array/get_both args iter_begin iter_end)
 	(vp-cpy-ir iter_begin 0 args)
 	(vp-add-cr +ptr_size iter_begin)
@@ -176,10 +176,10 @@
 		(exec p)
 	(loop-until `(,iter_begin = ,iter_end))
 	(class/obj/ref args iter_begin)
-	(exit 'num _ `(,args))
+	(exit :num _ `(,args))
 	(vp-ret))
 
-(def-method 'num :min)
+(def-method :num :min)
 	;inputs
 	;:r0 = num object (ptr)
 	;:r1 = list of num objects (ptr)
@@ -197,7 +197,7 @@
 
 (def-func-end)
 
-(def-method 'num :max)
+(def-method :num :max)
 	;inputs
 	;:r0 = num object (ptr)
 	;:r1 = list of num objects (ptr)
@@ -216,7 +216,7 @@
 (def-func-end)
 
 (redefun divop (_ p)
-	(entry 'num _ '(:r0 :r1))
+	(entry :num _ '(:r0 :r1))
 	(class/array/get_both :r1 :r1 :r4)
 	(vp-cpy-ir :r1 0 :r0)
 	(vp-add-cr +ptr_size :r1)
@@ -229,12 +229,12 @@
 		(gotoif '(:r3 = 0) 'error))
 		(exec p)
 	(loop-until '(:r1 = :r4))
-	(v-jump 'num :vcreate '(:r0) :r5 :r1)
+	(v-jump :num :vcreate '(:r0) :r5 :r1)
 (vp-label 'error)
-	(exit 'num _ '(:r3))
+	(exit :num _ '(:r3))
 	(vp-ret))
 
-(def-method 'num :div)
+(def-method :num :div)
 	;inputs
 	;:r0 = num object (ptr)
 	;:r1 = list of num objects (ptr)
@@ -250,7 +250,7 @@
 
 (def-func-end)
 
-(def-method 'num :mod)
+(def-method :num :mod)
 	;inputs
 	;:r0 = num object (ptr)
 	;:r1 = list of num objects (ptr)
@@ -269,12 +269,12 @@
 
 ;generic int math op
 (redefun mathop (_ p)
-	(entry 'num _ '(:r12))
+	(entry :num _ '(:r12))
 	(assign '((:r12 num_value)) '(:r0))
 	(exec p)
-	(v-jump 'num :vcreate '(:r0) :r12 :r12))
+	(v-jump :num :vcreate '(:r0) :r12 :r12))
 
-(def-method 'num :sqrt)
+(def-method :num :sqrt)
 	;inputs
 	;:r0 = num object (ptr)
 	;outputs
@@ -290,7 +290,7 @@
 
 (def-func-end)
 
-(def-method 'num :random)
+(def-method :num :random)
 	;inputs
 	;:r0 = num object (ptr)
 	;outputs
@@ -299,11 +299,11 @@
 	;:r0-:r14
 
 	(mathop :random
-		'(call 'sys_math :i_rand '(:r0) '(:r0)))
+		'(call :sys_math :i_rand '(:r0) '(:r0)))
 
 (def-func-end)
 
-(def-method 'num :abs)
+(def-method :num :abs)
 	;inputs
 	;:r0 = num object (ptr)
 	;outputs
@@ -315,7 +315,7 @@
 
 (def-func-end)
 
-(def-method 'num :neg)
+(def-method :num :neg)
 	;inputs
 	;:r0 = num object (ptr)
 	;outputs
@@ -327,7 +327,7 @@
 
 (def-func-end)
 
-(def-method 'num :sign)
+(def-method :num :sign)
 	;inputs
 	;:r0 = num object (ptr)
 	;outputs
@@ -346,7 +346,7 @@
 (def-func-end)
 
 (redefun compareop (_ p)
-	(entry 'num _ '(:r0 :r1))
+	(entry :num _ '(:r0 :r1))
 	(class/array/get_both :r1 :r1 :r2)
 	(vp-cpy-ir :r1 0 :r4)
 	(vp-add-cr +ptr_size :r1)
@@ -357,13 +357,13 @@
 		(assign '((:r3 num_value)) '(:r3))
 		(exec p)
 	(loop-until '(:r1 = :r2))
-	(exit 'num _ '(-1))
+	(exit :num _ '(-1))
 	(vp-ret)
 (vp-label 'fail)
-	(exit 'num _ '(0))
+	(exit :num _ '(0))
 	(vp-ret))
 
-(def-method 'num :eq)
+(def-method :num :eq)
 	;inputs
 	;:r0 = num object (ptr)
 	;:r1 = list of num objects (ptr)
@@ -377,7 +377,7 @@
 
 (def-func-end)
 
-(def-method 'num :ge)
+(def-method :num :ge)
 	;inputs
 	;:r0 = num object (ptr)
 	;:r1 = list of num objects (ptr)
@@ -393,7 +393,7 @@
 
 (def-func-end)
 
-(def-method 'num :gt)
+(def-method :num :gt)
 	;inputs
 	;:r0 = num object (ptr)
 	;:r1 = list of num objects (ptr)
@@ -409,7 +409,7 @@
 
 (def-func-end)
 
-(def-method 'num :le)
+(def-method :num :le)
 	;inputs
 	;:r0 = num object (ptr)
 	;:r1 = list of num objects (ptr)
@@ -425,7 +425,7 @@
 
 (def-func-end)
 
-(def-method 'num :lt)
+(def-method :num :lt)
 	;inputs
 	;:r0 = num object (ptr)
 	;:r1 = list of num objects (ptr)
@@ -441,7 +441,7 @@
 
 (def-func-end)
 
-(def-method 'num :ne)
+(def-method :num :ne)
 	;inputs
 	;:r0 = num object (ptr)
 	;:r1 = list of num objects (ptr)
@@ -450,7 +450,7 @@
 	;trashes
 	;:r1-:r14
 
-	(entry 'num :ne '(:r0 :r1))
+	(entry :num :ne '(:r0 :r1))
 
 	(class/array/get_both :r1 :r1 :r2)
 	(vp-lea-i :r2 (neg +ptr_size) :r5)
@@ -466,15 +466,15 @@
 		(loop-until '(:r4 = :r2))
 	(loop-until '(:r1 = :r5))
 
-	(exit 'num :ne '(-1))
+	(exit :num :ne '(-1))
 	(vp-ret)
 (vp-label 'fail)
-	(exit 'num :ne '(0))
+	(exit :num :ne '(0))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'num :eql)
+(def-method :num :eql)
 	;inputs
 	;:r0 = num object (ptr)
 	;:r1 = obj object (ptr)
@@ -486,7 +486,7 @@
 
 	(vp-rdef (this that val1 val2))
 
-	(entry 'num :eql `(,this ,that))
+	(entry :num :eql `(,this ,that))
 
 	(gotoif `(,this = ,that) 'same)
 	(assign `((,this obj_vtable) (,that obj_vtable)) `(,val1 ,val2))
@@ -495,11 +495,11 @@
 	(gotoif `(,val1 = ,val2) 'same)
 
 (vp-label 'not_same)
-	(exit 'num :eql `(,this -1))
+	(exit :num :eql `(,this -1))
 	(vp-ret)
 
 (vp-label 'same)
-	(exit 'num :eql `(,this 0))
+	(exit :num :eql `(,this 0))
 	(vp-ret)
 
 (def-func-end)

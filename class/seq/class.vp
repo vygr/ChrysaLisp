@@ -2,5 +2,5 @@
 (include "././sym/class.inc")
 (include "././list/class.inc")
 
-(gen-vtable 'seq)
-(gen-type 'seq)
+(gen-vtable :seq)
+(gen-type :seq)

@@ -1,6 +1,6 @@
 (include "././fixeds/class.inc")
 
-(def-class reals fixeds
+(def-class :reals :fixeds
 	(dec-method :vtable class/reals/vtable)
 	(dec-method :create class/reals/create)
 	(dec-method :vcreate class/reals/create :final)

@@ -1,6 +1,6 @@
 (include "class/obj/class.inc")
 
-(def-class font obj
+(def-class :font :obj
 	(dec-method :vtable gui/font/vtable)
 	(dec-method :open gui/font/open :static (:r0 :r1) (:r0))
 	(dec-method :create gui/font/create :static (:r0 :r1 :r2) (:r0))

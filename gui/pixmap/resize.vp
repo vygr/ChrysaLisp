@@ -1,7 +1,7 @@
 (include "lib/asm/func.inc")
 (include "./class.inc")
 
-(def-method 'pixmap :resize)
+(def-method :pixmap :resize)
 	;inputs
 	;:r0 = pixmap object (ptr)
 	;:r1 = source pixmap object (ptr)
@@ -22,18 +22,18 @@
 		'(:r2 :r3 :r4 :r5))
 	(vp-simd vp-shl-cr '(1) '(:r2 :r3))
 	(vpif '(:r2 = :r4) '(:r3 = :r5))
-		(jump 'pixmap :resize_2 '(:r0 :r1))
+		(jump :pixmap :resize_2 '(:r0 :r1))
 	(endif)
 	(vp-simd vp-shr-cr '(1) '(:r2 :r3))
 	(vp-simd vp-mul-cr '(3) '(:r2 :r3))
 	(vpif '(:r2 = :r4) '(:r3 = :r5))
-		(jump 'pixmap :resize_3 '(:r0 :r1))
+		(jump :pixmap :resize_3 '(:r0 :r1))
 	(endif)
 
 	(push-scope)
-	(entry 'pixmap :resize {this, source})
+	(entry :pixmap :resize {this, source})
 
-	(call 'sys_mem :alloc {(this->pixmap_width + 1) * +int_size} {buf, _})
+	(call :sys_mem :alloc {(this->pixmap_width + 1) * +int_size} {buf, _})
 	(assign {(source->pixmap_width * 256) </ this->pixmap_width} {fw})
 	(assign {(source->pixmap_height * 256) </ this->pixmap_height} {fh})
 
@@ -132,13 +132,13 @@
 		(assign {y2 + 1} {y2})
 	(loop-end)
 
-	(exit 'pixmap :resize {this})
+	(exit :pixmap :resize {this})
 	(pop-scope)
 	(return)
 
 (def-func-end)
 
-(def-method 'pixmap :resize_2)
+(def-method :pixmap :resize_2)
 	;inputs
 	;:r0 = pixmap object (ptr)
 	;:r1 = source pixmap object (ptr)
@@ -149,7 +149,7 @@
 
 	(vp-rdef (this source sdata xdata ydata data rb ga srb sga sw mga mrb))
 
-	(entry 'pixmap :resize_2 (list this source))
+	(entry :pixmap :resize_2 (list this source))
 
 	(assign `((& ,this pixmap_size) (& ,source pixmap_size)) `(,data , sdata))
 	(assign `((,source pixmap_stride) (,source pixmap_height) 0xff00ff00 0xff00ff)
@@ -194,12 +194,12 @@
 		(vp-add-rr sw sdata)
 	(loop-end)
 
-	(exit 'pixmap :resize_2 (list this))
+	(exit :pixmap :resize_2 (list this))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'pixmap :resize_3)
+(def-method :pixmap :resize_3)
 	;inputs
 	;:r0 = pixmap object (ptr)
 	;:r1 = source pixmap object (ptr)
@@ -210,7 +210,7 @@
 
 	(vp-rdef (this source sdata xdata ydata data q rb ga srb sga sw mga mrb))
 
-	(entry 'pixmap :resize_3 (list this source))
+	(entry :pixmap :resize_3 (list this source))
 
 	(assign `((& ,this pixmap_size) (& ,source pixmap_size)) `(,data , sdata))
 	(assign `(,(/ (<< 1 32) 9) (,source pixmap_stride) (,source pixmap_height) 0xff00ff00 0xff00ff)
@@ -286,7 +286,7 @@
 		(vp-add-rr sw sdata) (vp-add-rr sw sdata)
 	(loop-end)
 
-	(exit 'pixmap :resize_3 (list this))
+	(exit :pixmap :resize_3 (list this))
 	(vp-ret)
 
 (def-func-end)

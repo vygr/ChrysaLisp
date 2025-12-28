@@ -4,7 +4,7 @@
 ; audio static class
 ;;;;;;;;;;;;;;;;;;;;
 
-(def-class host_audio :nil
+(def-class :host_audio :nil
 	(dec-method :init :nil :virtual (abi-args 0) (:r0))
 	(dec-method :deinit :nil :virtual (abi-args 0))
 	(dec-method :add :nil :virtual (abi-args 1) (:r0))

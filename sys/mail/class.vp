@@ -8,7 +8,7 @@
 (include "././link/class.inc")
 (include "././kernel/class.inc")
 
-(def-method 'sys_mail :statics_init)
+(def-method :sys_mail :statics_init)
 	;info
 	;init the mailbox system, heap, buckets and id
 
@@ -20,11 +20,11 @@
 		(lh-init :r0 :r2)
 		(vp-add-cr lh_list_size :r0)
 	(loop-until '(:r0 = :r1))
-	(jump 'sys_heap :init '((& :r12 statics_sys_mail_mbox_heap) mbox_size 32))
+	(jump :sys_heap :init '((& :r12 statics_sys_mail_mbox_heap) mbox_size 32))
 
 (def-func-end)
 
-(def-method 'sys_mail :statics_init1)
+(def-method :sys_mail :statics_init1)
 	;info
 	;init the mail system
 
@@ -32,16 +32,16 @@
 	(fn-bind 'sys/statics/statics :r12)
 	(vp-xor-rr :r0 :r0)
 	(assign '(:r0) '((:r12 statics_sys_mail_session)))
-	(call 'sys_task :start `((@ ,(f-path 'sys_mail :out))) '(_ :r1 _ _ _))
+	(call :sys_task :start `((@ ,(f-path :sys_mail :out))) '(_ :r1 _ _ _))
 	(fn-bind 'sys/statics/statics :r12)
 	(assign '(:r1) '((:r12 statics_sys_mail_out_mbox_addr)))
 
 	;services, links and routing
-	(call 'array :create :nil '((:r12 statics_sys_mail_links_array)))
-	(call 'hmap :create '(($ key_node) 1) '((:r12 statics_sys_mail_node_map)))
+	(call :array :create :nil '((:r12 statics_sys_mail_links_array)))
+	(call :hmap :create '(($ key_node) 1) '((:r12 statics_sys_mail_node_map)))
 
 	;init header heap
-	(jump 'sys_heap :init '((& :r12 statics_sys_mail_msg_heap) msg_size 64))
+	(jump :sys_heap :init '((& :r12 statics_sys_mail_msg_heap) msg_size 64))
 
 (vp-label 'key_node)
 	;inputs
@@ -63,7 +63,7 @@
 
 (def-func-end)
 
-(def-method 'sys_mail :alloc_mbox)
+(def-method :sys_mail :alloc_mbox)
 	;outputs
 	;:r0 = mailbox id (uint)
 	;:r1 = mailbox address (ptr)
@@ -90,7 +90,7 @@
 	(assign '(:r0) '((:r4 statics_sys_mail_next_mbox_id)))
 
 	;allocate mailbox with this id
-	(call 'sys_heap :alloc '((& :r4 statics_sys_mail_mbox_heap)) '(_ :r1))
+	(call :sys_heap :alloc '((& :r4 statics_sys_mail_mbox_heap)) '(_ :r1))
 	(vp-xor-rr :r2 :r2)
 	(assign '(:r3 :r2) '((:r1 mbox_id) (:r1 mbox_tcb)))
 	(vp-lea-i :r1 mbox_list :r0)
@@ -98,20 +98,20 @@
 	(vp-add-cr statics_sys_mail_mbox_buckets :r5)
 	(lh-add-at-tail :r5 :r1 :r2)
 
-	(exit 'sys_mail :alloc_mbox '(:r3 :r1))
+	(exit :sys_mail :alloc_mbox '(:r3 :r1))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'sys_mail :free_mbox)
+(def-method :sys_mail :free_mbox)
 	;inputs
 	;:r0 = mailbox id (uint)
 	;trashes
 	;:r0-:r4
 
-	(entry 'sys_mail :free_mbox '(:r0))
+	(entry :sys_mail :free_mbox '(:r0))
 
-	(call 'sys_mail :validate '(:r0) '(:r0))
+	(call :sys_mail :validate '(:r0) '(:r0))
 	(vpif '(:r0 /= 0))
 		;remove mailbox node
 		(vp-cpy-rr :r0 :r1)
@@ -123,19 +123,19 @@
 		(hp-freecell :r1 :r0 :r2)
 
 		;splice any dead mail to postman
-		(call 'sys_mail :junk_mail '((& :r0 mbox_list)))
+		(call :sys_mail :junk_mail '((& :r0 mbox_list)))
 	(endif)
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'sys_mail :junk_mail)
+(def-method :sys_mail :junk_mail)
 	;inputs
 	;:r3 = mail list pointer (ptr)
 	;trashes
 	;:r0-:r4
 
-	(entry 'sys_mail :junk_mail '(:r3))
+	(entry :sys_mail :junk_mail '(:r3))
 
 	;splice any junk mail to postman
 	(lh-is-empty :r3 0 :r1)
@@ -147,7 +147,7 @@
 		(vpif '(:r0 /= 0))
 			(vp-xor-rr :r1 :r1)
 			(assign '(:r1) '((:r4 mbox_tcb)))
-			(call 'sys_task :resume '(:r0))
+			(call :sys_task :resume '(:r0))
 		(endif)
 		;splice junk mail
 		(lh-get-head :r3 0 :r0)
@@ -163,7 +163,7 @@
 
 (def-func-end)
 
-(def-method 'sys_mail :validate)
+(def-method :sys_mail :validate)
 	;inputs
 	;:r0 = mailbox id (uint)
 	;outputs
@@ -173,7 +173,7 @@
 
 	(vp-rdef (node next mid id))
 
-	(entry 'sys_mail :validate `(,id))
+	(entry :sys_mail :validate `(,id))
 
 	(vp-cpy-rr id next)
 	(fn-bind 'sys/statics/statics node)
@@ -190,12 +190,12 @@
 		(vp-cpy-rr next node)
 	(endif)
 
-	(exit 'sys_mail :validate `(,node))
+	(exit :sys_mail :validate `(,node))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'sys_mail :mymail)
+(def-method :sys_mail :mymail)
 	;outputs
 	;:r0 = mail address (ptr)
 	;:r1 = string data (pubyte)
@@ -204,11 +204,11 @@
 
 	(fn-bind 'sys/statics/statics :r0)
 	(assign '((:r0 statics_sys_task_current_tcb)) '(:r0))
-	(jump 'sys_mail :read '((:r0 tk_node_mbox_addr)))
+	(jump :sys_mail :read '((:r0 tk_node_mbox_addr)))
 
 (def-func-end)
 
-(def-method 'sys_mail :alloc)
+(def-method :sys_mail :alloc)
 	;inputs
 	;:r0 = mail size (bytes)
 	;outputs
@@ -217,22 +217,22 @@
 	;trashes
 	;:r0-:r6
 
-	(entry 'sys_mail :alloc '(:r0))
+	(entry :sys_mail :alloc '(:r0))
 
-	(call 'str :create_from_buffer '(0 :r0) '(:r4))
+	(call :str :create_from_buffer '(0 :r0) '(:r4))
 	(fn-bind 'sys/statics/statics :r0)
-	(call 'sys_heap :alloc '((& :r0 statics_sys_mail_msg_heap)) '(_ :r0))
+	(call :sys_heap :alloc '((& :r0 statics_sys_mail_msg_heap)) '(_ :r0))
 	(vp-xor-rr :r2 :r2)
 	(vp-lea-i :r4 str_data :r1)
 	(assign '(:r4 :r1 :r3 :r2)
 		'((:r0 msg_obj) (:r0 msg_frag_data) (:r0 msg_frag_length) (:r0 msg_total_length)))
 
-	(exit 'sys_mail :alloc '(:r0 :r1))
+	(exit :sys_mail :alloc '(:r0 :r1))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'sys_mail :alloc_obj)
+(def-method :sys_mail :alloc_obj)
 	;inputs
 	;:r0 = object (ptr)
 	;:r1 = data (pubyte)
@@ -242,40 +242,40 @@
 	;trashes
 	;:r0-:r5
 
-	(entry 'sys_mail :alloc_obj '(:r0 :r4 :r5))
+	(entry :sys_mail :alloc_obj '(:r0 :r4 :r5))
 
-	(call 'obj :ref '(:r0) '(:r3))
+	(call :obj :ref '(:r0) '(:r3))
 	(fn-bind 'sys/statics/statics :r0)
-	(call 'sys_heap :alloc '((& :r0 statics_sys_mail_msg_heap)) '(_ :r0))
+	(call :sys_heap :alloc '((& :r0 statics_sys_mail_msg_heap)) '(_ :r0))
 	(vp-xor-rr :r1 :r1)
 	(assign '(:r3 :r4 :r5 :r1)
 		'((:r0 msg_obj) (:r0 msg_frag_data) (:r0 msg_frag_length) (:r0 msg_total_length)))
 
-	(exit 'sys_mail :alloc_obj '(:r0))
+	(exit :sys_mail :alloc_obj '(:r0))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'sys_mail :free)
+(def-method :sys_mail :free)
 	;inputs
 	;:r0 = mail message (ptr)
 	;trashes
 	;:r0-:r14
 
-	(entry 'sys_mail :free '(:r0))
+	(entry :sys_mail :free '(:r0))
 
 	(vpif '(:r0 /= 0))
 		(vp-push :r0)
-		(call 'str :deref '((:r0 msg_obj)))
+		(call :str :deref '((:r0 msg_obj)))
 		(fn-bind 'sys/statics/statics :r0)
 		(vp-pop :r1)
-		(call 'sys_heap :free '((& :r0 statics_sys_mail_msg_heap) :r1))
+		(call :sys_heap :free '((& :r0 statics_sys_mail_msg_heap) :r1))
 	(endif)
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'sys_mail :free_obj)
+(def-method :sys_mail :free_obj)
 	;inputs
 	;:r0 = mail message (ptr)
 	;outputs
@@ -285,23 +285,23 @@
 	;trashes
 	;:r0-:r5
 
-	(entry 'sys_mail :free_obj '(:r0))
+	(entry :sys_mail :free_obj '(:r0))
 
 	(vpif '(:r0 /= 0))
 		(assign '((:r0 msg_obj) (:r0 msg_frag_data) (:r0 msg_frag_length)) '(:r3 :r4 :r5))
 		(fn-bind 'sys/statics/statics :r2)
-		(call 'sys_heap :free '((& :r2 statics_sys_mail_msg_heap) :r0))
+		(call :sys_heap :free '((& :r2 statics_sys_mail_msg_heap) :r0))
 		(vp-cpy-rr :r3 :r0)
 		(vp-cpy-rr :r4 :r1)
 		(vp-cpy-rr :r5 :r2)
 	(endif)
 
-	(exit 'sys_mail :free_obj '(:r0 :r1 :r2))
+	(exit :sys_mail :free_obj '(:r0 :r1 :r2))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'sys_mail :read)
+(def-method :sys_mail :read)
 	;inputs
 	;:r0 = mailbox address (ptr)
 	;outputs
@@ -310,38 +310,38 @@
 	;trashes
 	;:r0-:r2
 
-	(entry 'sys_mail :read '(:r0))
+	(entry :sys_mail :read '(:r0))
 
 	(lh-is-empty :r0 mbox_list :r2)
 	(vpif '(:r2 = 0))
 		(fn-bind 'sys/statics/statics :r1)
 		(assign '((:r1 statics_sys_task_current_tcb)) '(:r1))
 		(assign '(:r1) '((:r0 mbox_tcb)))
-		(call 'sys_task :suspend)
+		(call :sys_task :suspend)
 	(endif)
 	(lh-get-head :r0 mbox_list :r0)
 	(vp-cpy-rr :r0 :r1)
 	(ln-remove-node :r1 :r2)
 
-	(exit 'sys_mail :read '(:r0 (:r0 msg_frag_data)))
+	(exit :sys_mail :read '(:r0 (:r0 msg_frag_data)))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'sys_mail :send)
+(def-method :sys_mail :send)
 	;inputs
 	;:r0 = mail message (ptr)
 	;trashes
 	;:r0-:r4
 
-	(entry 'sys_mail :send '(:r4))
+	(entry :sys_mail :send '(:r4))
 
 	;on or off chip ?
-	(call 'sys_kernel :id '() '(:r0 :r1))
+	(call :sys_kernel :id '() '(:r0 :r1))
 	(load-node-id :r4 (+ msg_dest net_id_node_id) :r2 :r3)
 	(vpif '(:r0 = :r2) '(:r1 = :r3))
 		;on this chip
-		(call 'sys_mail :validate `((:r4 ,(+ msg_dest net_id_mbox_id))) '(:r1))
+		(call :sys_mail :validate `((:r4 ,(+ msg_dest net_id_mbox_id))) '(:r1))
 		(vpif '(:r1 = 0))
 			;must use postman task for junk mail
 			(fn-bind 'sys/statics/statics :r1)
@@ -354,7 +354,7 @@
 		(vpif '(:r0 /= 0))
 			(vp-xor-rr :r4 :r4)
 			(assign '(:r4) `((:r1 ,(- mbox_tcb mbox_list))))
-			(call 'sys_task :resume '(:r0))
+			(call :sys_task :resume '(:r0))
 		(endif)
 	(else)
 		;going off chip
@@ -367,7 +367,7 @@
 			(goto 'post_it)
 		(default)
 			;timestamp it and queue it on the outgoing packet list
-			(call 'host_os :pii_time :nil '(:r0))
+			(call :host_os :pii_time :nil '(:r0))
 			(vp-cpy-ri :r0 :r4 msg_timestamp)
 			(vp-add-cr statics_sys_mail_offchip_list :r1)
 			(lh-add-at-tail :r1 :r4 :r0)
@@ -377,7 +377,7 @@
 
 (def-func-end)
 
-(def-method 'sys_mail :poll)
+(def-method :sys_mail :poll)
 	;inputs
 	;:r0 = mailbox list object (ptr)
 	;outputs
@@ -389,7 +389,7 @@
 
 	(vp-rdef (idx iter_begin iter_end iter) '(:r0 :r4 :r5 :r6))
 
-	(entry 'sys_mail :poll '(:r0))
+	(entry :sys_mail :poll '(:r0))
 
 	;check if any have mail
 	(class/array/get_both :r0 iter iter_end)
@@ -399,25 +399,25 @@
 		(assign `((,iter 0)) `(,idx))
 		(assign `((,idx ,(+ str_data net_id_mbox_id) ui)) `(,idx))
 		(breakif `(,idx = 0))
-		(call 'sys_mail :validate `(,idx) `(,idx))
+		(call :sys_mail :validate `(,idx) `(,idx))
 		(breakif `(,idx = 0))
 		(lh-is-empty idx mbox_list idx)
 		(breakif `(,idx = 0))
 			;return mailbox index
 			(vp-sub-rr iter_begin iter)
 			(vp-shr-cr (log2 +long_size) iter)
-			(exit 'sys_mail :poll `(,iter ,iter_begin ,iter_end))
+			(exit :sys_mail :poll `(,iter ,iter_begin ,iter_end))
 			(vp-ret)
 		(endswitch)
 		(vp-add-cr +long_size iter)
 	(loop-until `(,iter = ,iter_end))
 
-	(exit 'sys_mail :poll `(-1 ,iter_begin ,iter_end))
+	(exit :sys_mail :poll `(-1 ,iter_begin ,iter_end))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'sys_mail :select)
+(def-method :sys_mail :select)
 	;inputs
 	;:r0 = mailbox id array object (ptr)
 	;outputs
@@ -427,14 +427,14 @@
 
 	(vp-rdef (idx iter_begin iter_end iter ids tcb) '(:r0 :r4 :r5 :r6 :r7 :r8))
 
-	(entry 'sys_mail :select `(,ids))
+	(entry :sys_mail :select `(,ids))
 
 	(loop-start)
 		;check if any have mail
-		(call 'sys_mail :poll `(,ids) `(,idx ,iter_begin ,iter_end))
+		(call :sys_mail :poll `(,ids) `(,idx ,iter_begin ,iter_end))
 		(vpif (list idx '/= -1))
 			;return mailbox index
-			(exit 'sys_mail :select `(,idx))
+			(exit :sys_mail :select `(,idx))
 			(vp-ret)
 		(endif)
 
@@ -444,7 +444,7 @@
 		(vp-call 'set_tcbs)
 
 		;suspend till some mail arrives
-		(call 'sys_task :suspend)
+		(call :sys_task :suspend)
 
 		;clear all tcb's !
 		(vp-xor-rr tcb tcb)
@@ -458,7 +458,7 @@
 		(assign `((,iter 0)) `(,idx))
 		(assign `((,idx ,(+ str_data net_id_mbox_id) ui)) `(,idx))
 		(breakif `(,idx = 0))
-		(call 'sys_mail :validate `(,idx) `(,idx))
+		(call :sys_mail :validate `(,idx) `(,idx))
 		(breakif `(,idx = 0))
 			(assign `(,tcb) `((,idx mbox_tcb)))
 		(endswitch)
@@ -468,7 +468,7 @@
 
 (def-func-end)
 
-(def-method 'sys_mail :service)
+(def-method :sys_mail :service)
 	;inputs
 	;:r0 = service name str object (ptr)
 	;:r1 = mailbox id str object (ptr)
@@ -482,29 +482,29 @@
 		(ptr name id info cat tmp1 tmp2))
 
 	(push-scope)
-	(entry 'sys_mail :service {name, id, info})
+	(entry :sys_mail :service {name, id, info})
 
 	;create service entry
-	(call 'obj :ref {name})
-	(call 'obj :ref {info})
-	(call 'list :create :nil {cat})
-	(call 'list :push_back {cat, name})
-	(call 'str :create_from_buffer '("," 1) {tmp1})
-	(call 'list :push_back {cat, tmp1})
-	(call 'str :encode {id} {tmp2})
-	(call 'list :push_back {cat, tmp2})
-	(call 'str :ref {tmp1})
-	(call 'list :push_back2 {cat, tmp1, info})
-	(call 'str :cat {name, cat} {name})
-	(call 'list :destroy {cat})
+	(call :obj :ref {name})
+	(call :obj :ref {info})
+	(call :list :create :nil {cat})
+	(call :list :push_back {cat, name})
+	(call :str :create_from_buffer '("," 1) {tmp1})
+	(call :list :push_back {cat, tmp1})
+	(call :str :encode {id} {tmp2})
+	(call :list :push_back {cat, tmp2})
+	(call :str :ref {tmp1})
+	(call :list :push_back2 {cat, tmp1, info})
+	(call :str :cat {name, cat} {name})
+	(call :list :destroy {cat})
 
-	(exit 'sys_mail :service {name})
+	(exit :sys_mail :service {name})
 	(pop-scope)
 	(return)
 
 (def-func-end)
 
-(def-method 'sys_mail :declare)
+(def-method :sys_mail :declare)
 	;inputs
 	;:r0 = ID str object (net_id)
 	;:r1 = service name str object (ptr)
@@ -520,35 +520,35 @@
 		(ulong time))
 
 	(push-scope)
-	(entry 'sys_mail :declare {id, name, info})
+	(entry :sys_mail :declare {id, name, info})
 
 	;insert into service map
-	(call 'nodeid :create {&id->str_data.net_id_node_id} {key})
-	(call 'hmap :find {@sys/statics/statics.statics_sys_mail_node_map, key} {_, tuple, bucket})
+	(call :nodeid :create {&id->str_data.net_id_node_id} {key})
+	(call :hmap :find {@sys/statics/statics.statics_sys_mail_node_map, key} {_, tuple, bucket})
 	(vpifnot {tuple})
-		(call 'array :create :nil {tuple})
-		(call 'hset :create `((@ ,(f-path 'sym :eql_str)) 1) {set})
-		(call 'array :push_back2 {tuple, set, 0})
-		(call 'array :push_back2 {tuple, -1, -1})
-		(call 'list :push_back2 {bucket, key, tuple})
+		(call :array :create :nil {tuple})
+		(call :hset :create `((@ ,(f-path :sym :eql_str)) 1) {set})
+		(call :array :push_back2 {tuple, set, 0})
+		(call :array :push_back2 {tuple, -1, -1})
+		(call :list :push_back2 {bucket, key, tuple})
 	(else)
 		(assign {tuple[+ptr_size]} {tuple})
-		(call 'nodeid :destroy {key})
+		(call :nodeid :destroy {key})
 	(endif)
-	(call 'host_os :pii_time :nil {time})
-	(call 'array :set_elem {tuple, time, 1})
-	(call 'array :get_first {tuple} {_, set})
-	(call 'sys_mail :service {name, id, info} {name})
-	(call 'hset :insert {set, name})
-	(call 'sys_mail :ping)
+	(call :host_os :pii_time :nil {time})
+	(call :array :set_elem {tuple, time, 1})
+	(call :array :get_first {tuple} {_, set})
+	(call :sys_mail :service {name, id, info} {name})
+	(call :hset :insert {set, name})
+	(call :sys_mail :ping)
 
-	(exit 'sys_mail :declare {name})
+	(exit :sys_mail :declare {name})
 	(pop-scope)
 	(return)
 
 (def-func-end)
 
-(def-method 'sys_mail :enquire)
+(def-method :sys_mail :enquire)
 	;inputs
 	;:r0 = service prefix str object (ptr)
 	;outputs
@@ -560,13 +560,13 @@
 		(ptr prefix entries))
 
 	(vp-alloc local_size)
-	(entry 'sys_mail :enquire '((:rsp local_prefix)))
+	(entry :sys_mail :enquire '((:rsp local_prefix)))
 
-	(call 'list :create :nil '((:rsp local_entries)))
+	(call :list :create :nil '((:rsp local_entries)))
 	(fn-bind 'sys/statics/statics :r0)
-	(call 'hmap :each '((:r0 statics_sys_mail_node_map) ($ callback1) :rsp))
+	(call :hmap :each '((:r0 statics_sys_mail_node_map) ($ callback1) :rsp))
 
-	(exit 'sys_mail :enquire '((:rsp local_entries)))
+	(exit :sys_mail :enquire '((:rsp local_entries)))
 	(vp-free local_size)
 	(vp-ret)
 
@@ -576,11 +576,11 @@
 	;:r1 = element iterator (ptr)
 	;:r2 = bucket list pointer (ptr)
 
-	(entry 'hmap :each_callback '(:r0 :r1 :r2))
+	(entry :hmap :each_callback '(:r0 :r1 :r2))
 
 	(assign '((:r1 +ptr_size) 0) '(:r2 :r1))
 	(class/array/get_elem :r2 :r1 :r1 :r2)
-	(jump 'hset :each '(:r1 ($ callback2) :r0))
+	(jump :hset :each '(:r1 ($ callback2) :r0))
 
 (vp-label 'callback2)
 	;inputs
@@ -588,21 +588,21 @@
 	;:r1 = element iterator (ptr)
 	;:r2 = bucket list pointer (ptr)
 
-	(entry 'hset :each_callback '(:r0 :r1 :r2))
+	(entry :hset :each_callback '(:r0 :r1 :r2))
 
 	(assign '((:r1 0)) '(:r1))
 	(vp-push :r0 :r1)
-	(call 'str :starts_with '((:r0 local_prefix) :r1) '(_ :r2))
+	(call :str :starts_with '((:r0 local_prefix) :r1) '(_ :r2))
 	(vp-pop :r0 :r1)
 	(vpif '(:r2 = 0))
 		(class/obj/ref :r1 :r2)
-		(jump 'list :push_back '((:r0 local_entries) :r1))
+		(jump :list :push_back '((:r0 local_entries) :r1))
 	(endif)
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'sys_mail :forget)
+(def-method :sys_mail :forget)
 	;inputs
 	;:r0 = service key str object (ptr)
 	;trashes
@@ -610,8 +610,8 @@
 
 	;find in service map and erase
 	(fn-bind 'sys/statics/statics :r1)
-	(call 'hmap :each '((:r1 statics_sys_mail_node_map) ($ callback) :r0))
-	(jump 'sys_mail :ping)
+	(call :hmap :each '((:r1 statics_sys_mail_node_map) ($ callback) :r0))
+	(jump :sys_mail :ping)
 
 (vp-label 'callback)
 	;inputs
@@ -619,20 +619,20 @@
 	;:r1 = element iterator (ptr)
 	;:r2 = bucket list pointer (ptr)
 
-	(entry 'hmap :each_callback '(:r0 :r1 :r2))
+	(entry :hmap :each_callback '(:r0 :r1 :r2))
 
 	(vp-swp-rr :r0 :r1)
 	(assign '((:r0 +ptr_size) 0) '(:r2 :r0))
 	(class/array/get_elem :r2 :r0 :r0 :r2)
-	(call 'hset :find '(:r0 :r1) '(:r0 :r1 :r2))
+	(call :hset :find '(:r0 :r1) '(:r0 :r1 :r2))
 	(vpif '(:r1 /= 0))
-		(jump 'list :erase '(:r2 :r1))
+		(jump :list :erase '(:r2 :r1))
 	(endif)
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'sys_mail :ping)
+(def-method :sys_mail :ping)
 	;trashes
 	;:r0-:r14
 	;info
@@ -648,30 +648,30 @@
 
 	(push-scope)
 
-	(call 'nodeid :create {@sys/statics/statics.statics_sys_task_kernel_node_id} {key})
+	(call :nodeid :create {@sys/statics/statics.statics_sys_task_kernel_node_id} {key})
 	(assign {@sys/statics/statics} {statics})
-	(call 'hmap :find {statics->statics_sys_mail_node_map, key} {_, tuple, bucket})
+	(call :hmap :find {statics->statics_sys_mail_node_map, key} {_, tuple, bucket})
 	(vpif {tuple})
 		(assign {tuple[+ptr_size], +char_lf} {tuple, cat.cat_lf})
-		(call 'str :create_from_buffer {&cat.cat_lf, 1} {cat.cat_lf})
-		(call 'list :create :nil {cat.cat_entries})
-		(call 'array :get_elem {tuple, 0} {_, set})
-		(call 'hset :each {set, $callback, &cat})
-		(call 'str :cat {cat.cat_lf, cat.cat_entries} {services})
-		(call 'sys_mail :alloc {kn_msg_ping_services + services->str_length} {msg, data})
+		(call :str :create_from_buffer {&cat.cat_lf, 1} {cat.cat_lf})
+		(call :list :create :nil {cat.cat_entries})
+		(call :array :get_elem {tuple, 0} {_, set})
+		(call :hset :each {set, $callback, &cat})
+		(call :str :cat {cat.cat_lf, cat.cat_entries} {services})
+		(call :sys_mail :alloc {kn_msg_ping_services + services->str_length} {msg, data})
 		(assign {msg, data, key, statics} '(:r0 :r1 :r5 :r7))
 		(vp-call 'ping_header)
-		(call 'sys_mem :copy {&services->str_data, &data->kn_msg_ping_services, services->str_length})
-		(call 'list :destroy {cat.cat_entries})
-		(call 'str :destroy {services})
-		(call 'str :destroy {cat.cat_lf})
+		(call :sys_mem :copy {&services->str_data, &data->kn_msg_ping_services, services->str_length})
+		(call :list :destroy {cat.cat_entries})
+		(call :str :destroy {services})
+		(call :str :destroy {cat.cat_lf})
 	(else)
-		(call 'sys_mail :alloc {kn_msg_ping_services} {msg, data})
+		(call :sys_mail :alloc {kn_msg_ping_services} {msg, data})
 		(assign {msg, data, key, statics} '(:r0 :r1 :r5 :r7))
 		(vp-call 'ping_header)
 	(endif)
-	(call 'sys_mail :send {msg})
-	(jump 'nodeid :destroy {key})
+	(call :sys_mail :send {msg})
+	(jump :nodeid :destroy {key})
 
 (vp-label 'ping_header)
 	(assign '((:r7 statics_sys_mail_session) 0) '(:r8 :r2))
@@ -692,32 +692,32 @@
 	;:r1 = element iterator (ptr)
 	;:r2 = bucket list pointer (ptr)
 
-	(entry 'hset :each_callback '(:r0 :r1 :r2))
+	(entry :hset :each_callback '(:r0 :r1 :r2))
 
 	(assign '((:r1 0) (:r0 cat_lf)) '(:r1 :r2))
 	(vp-cpy-ir-ub :r1 str_data :r3)
 	(vpif `(:r3 = +char_multiply))
 		(class/obj/ref :r1 :r3)
 		(class/obj/ref :r2 :r3)
-		(jump 'list :push_back2 '((:r0 cat_entries) :r1 :r2))
+		(jump :list :push_back2 '((:r0 cat_entries) :r1 :r2))
 	(endif)
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'sys_mail :devices)
+(def-method :sys_mail :devices)
 	;outputs
 	;:r0 = known network nodes list object (ptr)
 	;trashes
 	;:r0-:r14
 
-	(call 'list :create :nil '(:r0))
+	(call :list :create :nil '(:r0))
 	(vp-push :r0)
 	(fn-bind 'sys/statics/statics :r0)
-	(call 'hmap :each '((:r0 statics_sys_mail_node_map) ($ callback) (:rsp 0)))
+	(call :hmap :each '((:r0 statics_sys_mail_node_map) ($ callback) (:rsp 0)))
 	(vp-pop :r0)
 
-	(exit 'sys_mail :devices '(:r0))
+	(exit :sys_mail :devices '(:r0))
 	(vp-ret)
 
 (vp-label 'callback)
@@ -726,15 +726,15 @@
 	;:r1 = element iterator (ptr)
 	;:r2 = bucket list pointer (ptr)
 
-	(entry 'hmap :each_callback '(:r0 :r1 :r2))
+	(entry :hmap :each_callback '(:r0 :r1 :r2))
 
 	(assign '((:r1 0)) '(:r1))
 	(class/obj/ref :r1 :r2)
-	(jump 'list :push_back '(:r0 :r1))
+	(jump :list :push_back '(:r0 :r1))
 
 (def-func-end)
 
-(def-method 'sys_mail :ready)
+(def-method :sys_mail :ready)
 	;inputs
 	;:r0-:r1 = peer node id (node_id)
 	;:r2 = key node object (ptr)
@@ -744,7 +744,7 @@
 	(vp-rdef (next node key peer1 peer2 tuple via1 via2 iter_begin iter_end)
 		'(:r13 :r12 :r11 :r10 :r9 :r1))
 
-	(entry 'sys_mail :ready `(,peer1 ,peer2 ,key))
+	(entry :sys_mail :ready `(,peer1 ,peer2 ,key))
 
 	(fn-bind 'sys/statics/statics next)
 	(loop-list-forward next statics_sys_mail_offchip_list node next 'exit)
@@ -754,9 +754,9 @@
 		(endif)
 		(save-node-id key str_data via1 via2)
 		(fn-bind 'sys/statics/statics tuple)
-		(call 'hmap :find `((,tuple statics_sys_mail_node_map) ,key) `(_ ,tuple _))
+		(call :hmap :find `((,tuple statics_sys_mail_node_map) ,key) `(_ ,tuple _))
 		(continueif `(,tuple = 0))
-		(call 'array :get_both `((,tuple +ptr_size)) `(_ ,iter_begin ,iter_end))
+		(call :array :get_both `((,tuple +ptr_size)) `(_ ,iter_begin ,iter_end))
 		(vp-add-cr (* 4 +long_size) iter_begin)
 		(continueif `(,iter_begin = ,iter_end))
 		(loop-start)
@@ -772,7 +772,7 @@
 		(ln-remove-node node key)
 	(endif)
 
-	(exit 'sys_mail :ready `(,next))
+	(exit :sys_mail :ready `(,next))
 	(vp-ret)
 
 (def-func-end)

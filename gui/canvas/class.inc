@@ -1,6 +1,6 @@
 (include "././view/class.inc")
 
-(def-class canvas view
+(def-class :canvas :view
 	(dec-method :vtable gui/canvas/vtable)
 	(dec-method :create gui/canvas/create :static (:r0 :r1 :r2) (:r0))
 	(dec-method :create_pixmap gui/canvas/create_pixmap :static (:r0) (:r0))

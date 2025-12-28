@@ -5,7 +5,7 @@
 ; mail static class
 ;;;;;;;;;;;;;;;;;;;
 
-(def-class sys_mail :nil
+(def-class :sys_mail :nil
 	(dec-method :statics_init sys/mail/statics_init :static)
 	(dec-method :statics_init1 sys/mail/statics_init1 :static)
 	(dec-method :alloc_mbox sys/mail/alloc_mbox :static :nil (:r0 :r1))

@@ -3,11 +3,11 @@
 (include "././sym/class.inc")
 (include "././list/class.inc")
 
-(gen-create 'nums)
-(gen-vtable 'nums)
-(gen-type 'nums)
+(gen-create :nums)
+(gen-vtable :nums)
+(gen-type :nums)
 
-(def-method 'nums :add)
+(def-method :nums :add)
 	;inputs
 	;:r0 = nums object (ptr)
 	;:r1 = source1 nums object, can be same (ptr)
@@ -20,18 +20,18 @@
 
 	(vp-rdef (dst src1 src2 dst1 idx1 idx2 e0 e1))
 
-	(entry 'nums :add `(,dst ,src1 ,src2))
+	(entry :nums :add `(,dst ,src1 ,src2))
 
 	(vec-map-idx (list src1 src2) (list dst) (list e0 e1)
 		(list src1 src2) (list dst1) (list idx1 idx2)
 		(# (vp-add-rr %1 %0) %0))
 
-	(exit 'nums :add `(,dst -1))
+	(exit :nums :add `(,dst -1))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'nums :sub)
+(def-method :nums :sub)
 	;inputs
 	;:r0 = nums object (ptr)
 	;:r1 = source1 nums object, can be same (ptr)
@@ -44,18 +44,18 @@
 
 	(vp-rdef (dst src1 src2 dst1 idx1 idx2 e0 e1))
 
-	(entry 'nums :sub `(,dst ,src1 ,src2))
+	(entry :nums :sub `(,dst ,src1 ,src2))
 
 	(vec-map-idx (list src1 src2) (list dst) (list e0 e1)
 		(list src1 src2) (list dst1) (list idx1 idx2)
 		(# (vp-sub-rr %1 %0) %0))
 
-	(exit 'nums :sub `(,dst -1))
+	(exit :nums :sub `(,dst -1))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'nums :min)
+(def-method :nums :min)
 	;inputs
 	;:r0 = nums object (ptr)
 	;:r1 = source1 nums object, can be same (ptr)
@@ -68,18 +68,18 @@
 
 	(vp-rdef (dst src1 src2 dst1 idx1 idx2 e0 e1))
 
-	(entry 'nums :min `(,dst ,src1 ,src2))
+	(entry :nums :min `(,dst ,src1 ,src2))
 
 	(vec-map-idx (list src1 src2) (list dst) (list e0 e1)
 		(list src1 src2) (list dst1) (list idx1 idx2)
 		(# (vp-min-rr %1 %0) %0))
 
-	(exit 'nums :min `(,dst -1))
+	(exit :nums :min `(,dst -1))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'nums :max)
+(def-method :nums :max)
 	;inputs
 	;:r0 = nums object (ptr)
 	;:r1 = source1 nums object, can be same (ptr)
@@ -92,18 +92,18 @@
 
 	(vp-rdef (dst src1 src2 dst1 idx1 idx2 e0 e1))
 
-	(entry 'nums :max `(,dst ,src1 ,src2))
+	(entry :nums :max `(,dst ,src1 ,src2))
 
 	(vec-map-idx (list src1 src2) (list dst) (list e0 e1)
 		(list src1 src2) (list dst1) (list idx1 idx2)
 		(# (vp-max-rr %1 %0) %0))
 
-	(exit 'nums :max `(,dst -1))
+	(exit :nums :max `(,dst -1))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'nums :mul)
+(def-method :nums :mul)
 	;inputs
 	;:r0 = nums object (ptr)
 	;:r1 = source1 nums object, can be same (ptr)
@@ -116,18 +116,18 @@
 
 	(vp-rdef (dst src1 src2 dst1 idx1 idx2 e0 e1))
 
-	(entry 'nums :mul `(,dst ,src1 ,src2))
+	(entry :nums :mul `(,dst ,src1 ,src2))
 
 	(vec-map-idx (list src1 src2) (list dst) (list e0 e1)
 		(list src1 src2) (list dst1) (list idx1 idx2)
 		(# (vp-mul-rr %1 %0) %0))
 
-	(exit 'nums :mul `(,dst -1))
+	(exit :nums :mul `(,dst -1))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'nums :div)
+(def-method :nums :div)
 	;inputs
 	;:r0 = nums object (ptr)
 	;:r1 = source1 nums object, can be same (ptr)
@@ -140,7 +140,7 @@
 
 	(vp-rdef (e0 e1 high src1 src2 dst1 idx1 idx2 dst))
 
-	(entry 'nums :div `(,dst ,e1 ,high))
+	(entry :nums :div `(,dst ,e1 ,high))
 
 	(vec-map-idx (list e1 high) (list dst) (list e0 e1)
 		(list src1 src2) (list dst1) (list idx1 idx2)
@@ -149,15 +149,15 @@
 			(vp-div-rrr %1 high %0)
 			%0))
 
-	(exit 'nums :div `(,dst -1))
+	(exit :nums :div `(,dst -1))
 	(vp-ret)
 (vp-label 'error)
-	(exit 'nums :div `(,dst 0))
+	(exit :nums :div `(,dst 0))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'nums :mod)
+(def-method :nums :mod)
 	;inputs
 	;:r0 = nums object (ptr)
 	;:r1 = source1 nums object, can be same (ptr)
@@ -170,7 +170,7 @@
 
 	(vp-rdef (e0 e1 high src1 src2 dst1 idx1 idx2 dst))
 
-	(entry 'nums :mod `(,dst ,e1 ,high))
+	(entry :nums :mod `(,dst ,e1 ,high))
 
 	(vec-map-idx (list e1 high) (list dst) (list e0 e1)
 		(list src1 src2) (list dst1) (list idx1 idx2)
@@ -179,15 +179,15 @@
 			(vp-div-rrr %1 high %0)
 			high))
 
-	(exit 'nums :mod `(,dst -1))
+	(exit :nums :mod `(,dst -1))
 	(vp-ret)
 (vp-label 'error)
-	(exit 'nums :mod `(,dst 0))
+	(exit :nums :mod `(,dst 0))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'nums :abs)
+(def-method :nums :abs)
 	;inputs
 	;:r0 = nums object (ptr)
 	;:r1 = source nums object, can be same (ptr)
@@ -198,18 +198,18 @@
 
 	(vp-rdef (dst src1 dst1 idx1 idx2 e0))
 
-	(entry 'nums :abs `(,dst ,src1))
+	(entry :nums :abs `(,dst ,src1))
 
 	(vec-map-idx (list src1) (list dst) (list e0)
 		(list src1) (list dst1) (list idx1 idx2)
 		(# (vp-abs-rr %0 %0) %0))
 
-	(exit 'nums :abs `(,dst))
+	(exit :nums :abs `(,dst))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'nums :sum)
+(def-method :nums :sum)
 	;inputs
 	;:r0 = nums object (ptr)
 	;outputs
@@ -220,18 +220,18 @@
 
 	(vp-rdef (dst sum dst1 dst_end e0))
 
-	(entry 'nums :sum `(,dst))
+	(entry :nums :sum `(,dst))
 
 	(vec-reduce (list dst) (list e0) (list dst1) dst_end
 		(# (vp-add-rr %0 sum))
 		(# (vp-sub-rr sum sum)))
 
-	(exit 'nums :sum `(,dst ,sum))
+	(exit :nums :sum `(,dst ,sum))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'nums :scale)
+(def-method :nums :scale)
 	;inputs
 	;:r0 = nums object (ptr)
 	;:r1 = source nums object, can be same (ptr)
@@ -243,18 +243,18 @@
 
 	(vp-rdef (dst src1 scale dst1 idx1 idx2 e0))
 
-	(entry 'nums :scale `(,dst ,src1 ,scale))
+	(entry :nums :scale `(,dst ,src1 ,scale))
 
 	(vec-map-idx (list src1) (list dst) (list e0)
 		(list src1) (list dst1) (list idx1 idx2)
 		(# (vp-mul-rr scale %0) %0))
 
-	(exit 'nums :scale `(,dst))
+	(exit :nums :scale `(,dst))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'nums :dot)
+(def-method :nums :dot)
 	;inputs
 	;:r0 = nums object (ptr)
 	;:r1 = nums object, can be same (ptr)
@@ -266,18 +266,18 @@
 
 	(vp-rdef (src dot src1 src2 idx1 idx2 e0 e1))
 
-	(entry 'nums :dot `(,src ,dot))
+	(entry :nums :dot `(,src ,dot))
 
 	(vec-reduce-idx (list src dot) (list e0 e1) (list src1 src2) (list idx1 idx2)
 		(# (vp-mul-rr %0 %1) (vp-add-rr %1 dot))
 		(# (vp-sub-rr dot dot)))
 
-	(exit 'nums :dot `(,src ,dot))
+	(exit :nums :dot `(,src ,dot))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'nums :hash)
+(def-method :nums :hash)
 	;inputs
 	;:r0 = nums object (ptr)
 	;outputs
@@ -288,14 +288,14 @@
 
 	(vp-rdef (src val src1 src_end e0))
 
-	(entry 'nums :hash `(,src))
+	(entry :nums :hash `(,src))
 
 	(vec-reduce (list src) (list e0) (list src1) src_end
 		(# (vp-xor-rr %0 val))
 		(# (vp-sub-rr val val))
 		(# (vp-abs-rr val val)))
 
-	(exit 'nums :hash `(,src ,val))
+	(exit :nums :hash `(,src ,val))
 	(vp-ret)
 
 (def-func-end)

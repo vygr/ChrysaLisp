@@ -1,6 +1,6 @@
 (include "././array/class.inc")
 
-(def-class list array
+(def-class :list :array
 	(dec-method :vtable class/list/vtable)
 	(dec-method :create class/list/create)
 	(dec-method :copy class/list/copy :static (:r0) (:r0 :r1))

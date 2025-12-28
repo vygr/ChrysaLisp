@@ -3,11 +3,11 @@
 (include "././sym/class.inc")
 (include "././list/class.inc")
 
-(gen-create 'hset)
-(gen-vtable 'hset)
-(gen-type 'hset)
+(gen-create :hset)
+(gen-vtable :hset)
+(gen-type :hset)
 
-(def-method 'hset :init)
+(def-method :hset :init)
 	;inputs
 	;:r0 = hset object (ptr)
 	;:r1 = vtable (pptr)
@@ -24,36 +24,36 @@
 
 	;save inputs
 	(vp-alloc local_size)
-	(entry 'hset :init '(:r0 :r1 :r2 :r3))
+	(entry :hset :init '(:r0 :r1 :r2 :r3))
 	(assign '(:r0 :r2 :r3) '((:rsp local_this) (:r0 hset_key_callback) (:r0 hset_num_buckets)))
 
 	;init parent
-	(s-call 'hset :init '(:r0 :r1) '(:r0 :r1))
+	(s-call :hset :init '(:r0 :r1) '(:r0 :r1))
 	(vpif '(:r1 /= 0))
 		;init myself
-		(call 'list :create :nil '(:r0))
+		(call :list :create :nil '(:r0))
 		(assign '((:rsp local_this)) '(:r1))
 		(assign '(:r0) '((:r1 hset_buckets)))
 		(assign '((:r1 hset_num_buckets)) '(:r1))
 		(vpif '(:r1 /= 1))
 			(assign '(:r1) '((:r0 array_length)))
-			(call 'list :set_cap '(:r0 :r1))
+			(call :list :set_cap '(:r0 :r1))
 			(class/array/get_both :r0 :r3 :r4)
 			(loop-start)
-				(call 'list :create :nil '((:r3 0)))
+				(call :list :create :nil '((:r3 0)))
 				(vp-add-cr +ptr_size :r3)
 			(loop-until '(:r3 = :r4))
 		(endif)
 		(assign '((:rsp local_this)) '(:r0))
 	(endif)
 
-	(exit 'hset :init '(:r0 :r1))
+	(exit :hset :init '(:r0 :r1))
 	(vp-free local_size)
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'hset :deinit)
+(def-method :hset :deinit)
 	;inputs
 	;:r0 = hset object (ptr)
 	;outputs
@@ -61,16 +61,16 @@
 	;trashes
 	;:r1-:r14
 
-	(entry 'hset :deinit '(:r0))
+	(entry :hset :deinit '(:r0))
 
 	(vp-push :r0)
-	(call 'list :deref '((:r0 hset_buckets)))
+	(call :list :deref '((:r0 hset_buckets)))
 	(vp-pop :r0)
-	(s-jump 'hset :deinit '(:r0))
+	(s-jump :hset :deinit '(:r0))
 
 (def-func-end)
 
-(def-method 'hset :clear)
+(def-method :hset :clear)
 	;inputs
 	;:r0 = hset object (ptr)
 	;outputs
@@ -78,30 +78,30 @@
 	;trashes
 	;:r1-:r14
 
-	(entry 'hset :clear '(:r0))
+	(entry :hset :clear '(:r0))
 
 	;clear all buckets
 	(vp-push :r0)
 	(assign '((:r0 hset_num_buckets) (:r0 hset_buckets)) '(:r1 :r0))
 	(vpif '(:r1 = 1))
-		(d-call 'list :clear '(:r0))
+		(d-call :list :clear '(:r0))
 	(else)
 		(class/array/get_both :r0 :r1 :r2)
 		(loop-start)
 			(vp-push :r1 :r2)
-			(d-call 'list :clear '((:r1 0)))
+			(d-call :list :clear '((:r1 0)))
 			(vp-pop :r1 :r2)
 			(vp-add-cr +ptr_size :r1)
 		(loop-until '(:r1 = :r2))
 	(endif)
 	(vp-pop :r0)
 
-	(exit 'hset :clear '(:r0))
+	(exit :hset :clear '(:r0))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'hset :find)
+(def-method :hset :find)
 	;inputs
 	;:r0 = hset object (ptr)
 	;:r1 = key object (ptr)
@@ -118,12 +118,12 @@
 
 	;save inputs
 	(vp-alloc local_size)
-	(entry 'hset :find '(:r0 (:rsp local_key)))
+	(entry :hset :find '(:r0 (:rsp local_key)))
 
 	(assign '((:r0 hset_key_callback)) '(:r2))
 	(vpif '(:r2 = 0))
 		;search hash bucket
-		(call 'hset :bucket '(:r0 :r1) '(:r0 :r2))
+		(call :hset :bucket '(:r0 :r1) '(:r0 :r2))
 		(class/array/get_both :r2 :r1 :r3)
 		(breakif '(:r1 = :r3))
 		(assign '((:rsp local_key)) '(:r4))
@@ -134,7 +134,7 @@
 		(loop-until '(:r1 = :r3))
 	(else)
 		;search hash bucket
-		(call 'hset :bucket '(:r0 :r1) '(:r0 :r1))
+		(call :hset :bucket '(:r0 :r1) '(:r0 :r1))
 		(assign '(:r0 :r1) '((:rsp local_this) (:rsp local_bucket)))
 		(class/array/get_both :r1 :r1 :r2)
 		(assign '(:r2) '((:rsp local_iter_end)))
@@ -154,19 +154,19 @@
 	(vp-xor-rr :r1 :r1)
 
 (vp-label 'exit2)
-	(exit 'hset :find '(:r0 :r1 :r2))
+	(exit :hset :find '(:r0 :r1 :r2))
 	(vp-free local_size)
 	(vp-ret)
 
 (vp-label 'exit1)
 	(vp-sub-cr +ptr_size :r1)
-	(exit 'hset :find '(:r0 :r1 :r2))
+	(exit :hset :find '(:r0 :r1 :r2))
 	(vp-free local_size)
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'hset :each)
+(def-method :hset :each)
 	;inputs
 	;:r0 = hset object (ptr)
 	;:r1 = predicate function (ptr)
@@ -189,7 +189,7 @@
 
 	;save inputs
 	(vp-alloc local_size)
-	(entry 'hset :each '(:r0 (:rsp local_predicate) (:rsp local_predicate_data)))
+	(entry :hset :each '(:r0 (:rsp local_predicate) (:rsp local_predicate_data)))
 	(assign '(:r0) '((:rsp local_this)))
 
 	;for all buckets
@@ -229,13 +229,13 @@
 		(loop-until '(:r1 = :r2))
 	(endif)
 
-	(exit 'hset :each '((:rsp local_this)))
+	(exit :hset :each '((:rsp local_this)))
 	(vp-free local_size)
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'hset :bucket)
+(def-method :hset :bucket)
 	;inputs
 	;:r0 = hset object (ptr)
 	;:r1 = key object (ptr)
@@ -249,7 +249,7 @@
 		(ptr this)
 		(uint length))
 
-	(entry 'hset :bucket '(:r0 :r1))
+	(entry :hset :bucket '(:r0 :r1))
 
 	;search hash bucket
 	(assign '((:r0 hset_num_buckets)) '(:r2))
@@ -257,24 +257,24 @@
 		;save inputs
 		(vp-alloc local_size)
 		(assign '(:r0 :r2) '((:rsp local_this) (:rsp local_length)))
-		(call 'obj :hash '(:r1) '(_ :r0))
+		(call :obj :hash '(:r1) '(_ :r0))
 		(assign '((:rsp local_length)) '(:r1))
 		(vp-xor-rr :r2 :r2)
 		(vp-div-rrr-u :r1 :r2 :r0)
 		(assign '((:rsp local_this)) '(:r0))
-		(call 'list :get_elem '((:r0 hset_buckets) :r2) '(_ :r1))
+		(call :list :get_elem '((:r0 hset_buckets) :r2) '(_ :r1))
 
-		(exit 'hset :bucket '((:rsp local_this) :r1))
+		(exit :hset :bucket '((:rsp local_this) :r1))
 		(vp-free local_size)
 		(vp-ret)
 	(endif)
 
-	(exit 'hset :bucket '(:r0 (:r0 hset_buckets)))
+	(exit :hset :bucket '(:r0 (:r0 hset_buckets)))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'hset :insert)
+(def-method :hset :insert)
 	;inputs
 	;:r0 = hset object (ptr)
 	;:r1 = key object (ptr)
@@ -290,26 +290,26 @@
 
 	;save inputs
 	(vp-alloc local_size)
-	(entry 'hset :insert '(:r0 :r1))
+	(entry :hset :insert '(:r0 :r1))
 	(assign '(:r1) '((:rsp local_key)))
 
 	;search hash bucket
-	(call 'hset :find '(:r0 :r1) '(:r0 :r1 :r2))
+	(call :hset :find '(:r0 :r1) '(:r0 :r1 :r2))
 	(vpif '(:r1 = 0))
 		;new key
 		(assign '((:rsp local_key) :r0 :r2) '(:r1 (:rsp local_this) :r0))
 		(class/obj/ref :r1 :r2)
-		(call 'list :push_back '(:r0 :r1) '(:r0 _ _ :r3))
+		(call :list :push_back '(:r0 :r1) '(:r0 _ _ :r3))
 		(assign '((& :r3 (neg +ptr_size)) :r0 (:rsp local_this)) '(:r1 :r2 :r0))
 	(endif)
 
-	(exit 'hset :insert '(:r0 :r1 :r2))
+	(exit :hset :insert '(:r0 :r1 :r2))
 	(vp-free local_size)
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'hset :flush)
+(def-method :hset :flush)
 	;inputs
 	;:r0 = hset object (ptr)
 	;outputs
@@ -317,7 +317,7 @@
 	;trashes
 	;:r1-:r14
 
-	(jump 'hset :each '(:r0 ($ flush_callback) 0))
+	(jump :hset :each '(:r0 ($ flush_callback) 0))
 
 (vp-label 'flush_callback)
 	;inputs
@@ -325,12 +325,12 @@
 	;:r1 = element iterator (pptr)
 	;:r2 = bucket list pointer (ptr)
 
-	(entry 'hset :each_callback '(:r0 :r1 :r2))
+	(entry :hset :each_callback '(:r0 :r1 :r2))
 
 	(assign '((:r1 0)) '(:r0))
 	(assign '((:r0 obj_count)) '(:r0))
 	(vpif '(:r0 = 1))
-		(jump 'list :erase '(:r2 :r1))
+		(jump :list :erase '(:r2 :r1))
 	(endif)
 	(vp-ret)
 

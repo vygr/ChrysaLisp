@@ -62,7 +62,7 @@ stack management, looking somewhat like C logic wrapped in S-expressions.
 * **Variable Management:** Uses **`def-vars`** to define stack variables. You do
   not manually push/pop the stack for these variables.
 
-* **Method Calls:** Uses `(call 'class :method ...)` syntax.
+* **Method Calls:** Uses `(call :class :method ...)` syntax.
 
 	* *Crucial Distinction:* You must use the **virtual method** call (e.g., `call
 	  'list :push_back`). Do not call internal assembler macros (e.g.,
@@ -86,7 +86,7 @@ stack management, looking somewhat like C logic wrapped in S-expressions.
 * **Example:**
 
 	```vdu
-	(def-method 'my_class :my_method)
+	(def-method :my_class :my_method)
 
 		(def-vars
 			(ptr this list)
@@ -95,10 +95,10 @@ stack management, looking somewhat like C logic wrapped in S-expressions.
 		; Alloc stack space
 		(push-scope)
 		; Binds inputs to vars
-		(entry 'my_class :my_method {this, list})
+		(entry :my_class :my_method {this, list})
 
 		; Virtual call
-		(call 'list :get_length {list} {_, count})
+		(call :list :get_length {list} {_, count})
 
 		(vpif {count > 0})
 			; 'assign' handles the math/move
@@ -106,7 +106,7 @@ stack management, looking somewhat like C logic wrapped in S-expressions.
 		(endif)
 		
 		; Cleanup and return
-		(exit 'my_class :my_method {this})
+		(exit :my_class :my_method {this})
 		; Dealloc stack space
 		(pop-scope)
 		(return)
@@ -206,7 +206,7 @@ from GUI applications or System Services.
 1. **Lisp Level:** Never attempt to import `lib/asm/` files. If you need system
    functionality, check `class/lisp/root.inc` for the FFI binding.
 
-2. **CScript Level:** Do not use `class/array/get_elem`. Use `(call 'array
+2. **CScript Level:** Do not use `class/array/get_elem`. Use `(call :array
    :get_elem ...)` to ensure vtable lookups occur correctly, unless you are
    implementing the array class itself.
 

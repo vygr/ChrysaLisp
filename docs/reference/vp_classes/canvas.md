@@ -1,6 +1,6 @@
-# canvas
+# :canvas
 
-## view
+## :view
 
 ## Lisp Bindings
 

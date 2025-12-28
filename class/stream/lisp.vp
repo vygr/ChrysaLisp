@@ -7,7 +7,7 @@
 (include "././lisp/class.inc")
 (include "././fstream/class.inc")
 
-(def-method 'stream :lisp_iostream)
+(def-method :stream :lisp_iostream)
 	;inputs
 	;:r0 = lisp object (ptr)
 	;:r1 = args list object (ptr)
@@ -17,7 +17,7 @@
 	;trashes
 	;:r1-:r14
 
-	(entry 'stream :lisp_iostream '(:r0 :r1))
+	(entry :stream :lisp_iostream '(:r0 :r1))
 
 	(errorif-lisp-args-sig 'error :r1 1)
 
@@ -25,13 +25,13 @@
 	(list-bind-args :r1 '(:r5) '(:str))
 	(switch 'exit)
 		(switch)
-		(call 'sys_str :compare '(:r5 "stdin") '(:r0))
+		(call :sys_str :compare '(:r5 "stdin") '(:r0))
 		(assign '((:r8 lisp_stdin)) '(:r1))
 		(breakif '(:r0 = 0))
-		(call 'sys_str :compare '(:r5 "stdout") '(:r0))
+		(call :sys_str :compare '(:r5 "stdout") '(:r0))
 		(assign '((:r8 lisp_stdout)) '(:r1))
 		(breakif '(:r0 = 0))
-		(call 'sys_str :compare '(:r5 "stderr") '(:r0))
+		(call :sys_str :compare '(:r5 "stderr") '(:r0))
 		(assign '((:r8 lisp_stderr)) '(:r1))
 		(breakif '(:r0 = 0))
 		(assign '((:r8 lisp_sym_nil)) '(:r1))
@@ -39,17 +39,17 @@
 		(class/obj/ref :r1 :r2)
 	(endswitch)
 
-	(exit 'stream :lisp_iostream '(:r8 :r1))
+	(exit :stream :lisp_iostream '(:r8 :r1))
 	(vp-ret)
 
 (errorcase
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(io-stream io)" +error_msg_wrong_types :r1))
-	(signature '(str)))
+	(jump :lisp :repl_error '(:r0 "(io-stream io)" +error_msg_wrong_types :r1))
+	(signature '(:str)))
 
 (def-func-end)
 
-(def-method 'stream :lisp_fstream)
+(def-method :stream :lisp_fstream)
 	;inputs
 	;:r0 = lisp object (ptr)
 	;:r1 = args list object (ptr)
@@ -59,37 +59,37 @@
 	;trashes
 	;:r1-:r14
 
-	(entry 'stream :lisp_fstream '(:r0 :r1))
+	(entry :stream :lisp_fstream '(:r0 :r1))
 
 	(errorif-lisp-args-sig 'error :r1 1 2)
 
 	(assign '((:r1 array_length)) '(:r2))
 	(vp-push :r0)
-	(defq in (method-input 'fstream :create))
+	(defq in (method-input :fstream :create))
 	(vpif '(:r2 = 1))
 		(list-bind-args :r1 (slice in 0 1) '(:str))
 		(assign '(+file_open_read) (slice in 1 2))
 	(else)
 		(list-bind-args :r1 in '(:str :num))
 	(endif)
-	(call 'fstream :create in '(:r1))
+	(call :fstream :create in '(:r1))
 	(vp-pop :r0)
 	(vpif '(:r1 = 0))
 		(assign '((:r0 lisp_sym_nil)) '(:r1))
 		(class/obj/ref :r1 :r2)
 	(endif)
 
-	(exit 'stream :lisp_fstream '(:r0 :r1))
+	(exit :stream :lisp_fstream '(:r0 :r1))
 	(vp-ret)
 
 (errorcase
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(file-stream path [mode])" +error_msg_wrong_types :r1))
-	(signature '(str num)))
+	(jump :lisp :repl_error '(:r0 "(file-stream path [mode])" +error_msg_wrong_types :r1))
+	(signature '(:str :num)))
 
 (def-func-end)
 
-(def-method 'stream :lisp_sstream)
+(def-method :stream :lisp_sstream)
 	;inputs
 	;:r0 = lisp object (ptr)
 	;:r1 = args list object (ptr)
@@ -99,28 +99,28 @@
 	;trashes
 	;:r1-:r14
 
-	(entry 'stream :lisp_sstream '(:r0 :r1))
+	(entry :stream :lisp_sstream '(:r0 :r1))
 
 	(errorif-lisp-args-sig 'error :r1 1)
 
 	(vp-push :r0)
-	(defq in (method-input 'sstream :create))
+	(defq in (method-input :sstream :create))
 	(list-bind-args :r1 in '(:obj))
 	(class/obj/ref (first in))
-	(call 'sstream :create in '(:r1))
+	(call :sstream :create in '(:r1))
 	(vp-pop :r0)
 
-	(exit 'stream :lisp_sstream '(:r0 :r1))
+	(exit :stream :lisp_sstream '(:r0 :r1))
 	(vp-ret)
 
 (errorcase
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(string-stream str)" +error_msg_wrong_types :r1))
-	(signature '(str)))
+	(jump :lisp :repl_error '(:r0 "(string-stream str)" +error_msg_wrong_types :r1))
+	(signature '(:str)))
 
 (def-func-end)
 
-(def-method 'stream :lisp_mstream)
+(def-method :stream :lisp_mstream)
 	;inputs
 	;:r0 = lisp object (ptr)
 	;:r1 = args list object (ptr)
@@ -130,24 +130,24 @@
 	;trashes
 	;:r1-:r14
 
-	(entry 'stream :lisp_mstream '(:r0 :r1))
+	(entry :stream :lisp_mstream '(:r0 :r1))
 
 	(errorif-lisp-args-len 'error :r1 /= 0)
 
 	(vp-push :r0)
-	(call 'mstream :create '() '(:r1))
+	(call :mstream :create '() '(:r1))
 	(vp-pop :r0)
 
-	(exit 'stream :lisp_mstream '(:r0 :r1))
+	(exit :stream :lisp_mstream '(:r0 :r1))
 	(vp-ret)
 
 (errorcase
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(memory-stream)" +error_msg_wrong_num_of_args :r1)))
+	(jump :lisp :repl_error '(:r0 "(memory-stream)" +error_msg_wrong_num_of_args :r1)))
 
 (def-func-end)
 
-(def-method 'stream :lisp_avail)
+(def-method :stream :lisp_avail)
 	;inputs
 	;:r0 = lisp object (ptr)
 	;:r1 = args list object (ptr)
@@ -157,28 +157,28 @@
 	;trashes
 	;:r1-:r14
 
-	(entry 'stream :lisp_avail '(:r0 :r1))
+	(entry :stream :lisp_avail '(:r0 :r1))
 
 	(errorif-lisp-args-sig 'error :r1 1)
 
 	(vp-push :r0)
-	(defq in (method-input 'stream :avail))
+	(defq in (method-input :stream :avail))
 	(list-bind-args :r1 in '(:stream))
-	(call 'stream :avail in '(_ :r1))
-	(call 'num :create '(:r1) '(:r1))
+	(call :stream :avail in '(_ :r1))
+	(call :num :create '(:r1) '(:r1))
 	(vp-pop :r0)
 
-	(exit 'stream :lisp_avail '(:r0 :r1))
+	(exit :stream :lisp_avail '(:r0 :r1))
 	(vp-ret)
 
 (errorcase
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(stream-avail stream)" +error_msg_wrong_types :r1))
-	(signature '(stream)))
+	(jump :lisp :repl_error '(:r0 "(stream-avail stream)" +error_msg_wrong_types :r1))
+	(signature '(:stream)))
 
 (def-func-end)
 
-(def-method 'stream :lisp_readavail)
+(def-method :stream :lisp_readavail)
 	;inputs
 	;:r0 = lisp object (ptr)
 	;:r1 = args list object (ptr)
@@ -188,7 +188,7 @@
 	;trashes
 	;:r1-:r14
 
-	(entry 'stream :lisp_readavail '(:r0 :r1))
+	(entry :stream :lisp_readavail '(:r0 :r1))
 
 	(errorif-lisp-args-sig 'error :r1 1)
 
@@ -197,20 +197,20 @@
 	(assign '((:r2 stream_bufp) (:r2 stream_bufe)) '(:r0 :r1))
 	(assign '(:r1) '((:r2 stream_bufp)))
 	(vp-sub-rr :r0 :r1)
-	(call 'str :create_from_buffer '(:r0 :r1) '(:r1))
+	(call :str :create_from_buffer '(:r0 :r1) '(:r1))
 	(vp-pop :r0)
 
-	(exit 'stream :lisp_readavail '(:r0 :r1))
+	(exit :stream :lisp_readavail '(:r0 :r1))
 	(vp-ret)
 
 (errorcase
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(read-avail stream)" +error_msg_wrong_types :r1))
-	(signature '(stream)))
+	(jump :lisp :repl_error '(:r0 "(read-avail stream)" +error_msg_wrong_types :r1))
+	(signature '(:stream)))
 
 (def-func-end)
 
-(def-method 'stream :lisp_flush)
+(def-method :stream :lisp_flush)
 	;inputs
 	;:r0 = lisp object (ptr)
 	;:r1 = args list object (ptr)
@@ -220,28 +220,28 @@
 	;trashes
 	;:r1-:r14
 
-	(entry 'stream :lisp_flush '(:r0 :r1))
+	(entry :stream :lisp_flush '(:r0 :r1))
 
 	(errorif-lisp-args-sig 'error :r1 1)
 
 	(vp-push :r0)
-	(defq in (method-input 'stream :flush))
+	(defq in (method-input :stream :flush))
 	(array-bind-args :r1 in)
-	(call 'stream :flush in '(:r1))
+	(call :stream :flush in '(:r1))
 	(class/obj/ref :r1 :r2)
 	(vp-pop :r0)
 
-	(exit 'stream :lisp_flush '(:r0 :r1))
+	(exit :stream :lisp_flush '(:r0 :r1))
 	(vp-ret)
 
 (errorcase
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(stream-flush stream)" +error_msg_wrong_types :r1))
-	(signature '(stream)))
+	(jump :lisp :repl_error '(:r0 "(stream-flush stream)" +error_msg_wrong_types :r1))
+	(signature '(:stream)))
 
 (def-func-end)
 
-(def-method 'stream :lisp_seek)
+(def-method :stream :lisp_seek)
 	;inputs
 	;:r0 = lisp object (ptr)
 	;:r1 = args list object (ptr)
@@ -251,28 +251,28 @@
 	;trashes
 	;:r1-:r14
 
-	(entry 'stream :lisp_seek '(:r0 :r1))
+	(entry :stream :lisp_seek '(:r0 :r1))
 
 	(errorif-lisp-args-sig 'error :r1 3)
 
 	(vp-push :r0)
-	(defq in (method-input 'stream :seek))
+	(defq in (method-input :stream :seek))
 	(list-bind-args :r1 in '(:stream :num :num))
-	(call 'stream :seek in '(_ :r0))
-	(call 'num :create '(:r0) '(:r1))
+	(call :stream :seek in '(_ :r0))
+	(call :num :create '(:r0) '(:r1))
 	(vp-pop :r0)
 
-	(exit 'stream :lisp_seek '(:r0 :r1))
+	(exit :stream :lisp_seek '(:r0 :r1))
 	(vp-ret)
 
 (errorcase
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(stream-seek stream offset whence)" +error_msg_wrong_types :r1))
-	(signature '(stream num num)))
+	(jump :lisp :repl_error '(:r0 "(stream-seek stream offset whence)" +error_msg_wrong_types :r1))
+	(signature '(:stream :num :num)))
 
 (def-func-end)
 
-(def-method 'stream :lisp_readchar)
+(def-method :stream :lisp_readchar)
 	;inputs
 	;:r0 = lisp object (ptr)
 	;:r1 = args list object (ptr)
@@ -290,14 +290,14 @@
 		(uint width))
 
 	(push-scope)
-	(entry 'stream :lisp_readchar {this, args})
+	(entry :stream :lisp_readchar {this, args})
 
-	(d-call 'list :get_length {args} {_, length})
+	(d-call :list :get_length {args} {_, length})
 	(errorifnot {length = 1 || length = 2} 'error1)
-	(call 'list :get_begin {args} {_, iter_begin})
+	(call :list :get_begin {args} {_, iter_begin})
 
 (errorcase
-	(call 'obj :inst_of (cat {iter_begin[0], @} (f-path 'stream :vtable)) '(_ tmp))
+	(call :obj :inst_of (cat {iter_begin[0], @} (f-path :stream :vtable)) '(_ tmp))
 	(gotoif `(,tmp = 0) 'error2))
 
 	(assign {length, 1, -1} '(:r0 :r1 :r2))
@@ -305,7 +305,7 @@
 	(vpif '(:r0 = 2))
 		(assign {iter_begin[+ptr_size]} '(:r0))
 	(errorcase
-		(assign `((@ ,(f-path 'num :vtable)) (:r0 obj_vtable)) '(:r1 :r2))
+		(assign `((@ ,(f-path :num :vtable)) (:r0 obj_vtable)) '(:r1 :r2))
 		(gotoif '(:r1 /= :r2) 'error3))
 		(assign '((:r0 num_value)) '(:r1))
 		(assign '(:r1) {type})
@@ -316,17 +316,17 @@
 	(endif)
 	(assign '(:r1) {width})
 
-	(call 'num :create '(0) {value})
+	(call :num :create '(0) {value})
 	(assign {value, width} '(:r0 :r2))
 	(vp-add-cr num_value :r0)
 	(vp-add-rr :r0 :r2)
 	(assign '(:r2) {chars_end})
 	(loop-start)
 		(assign '(:r0) {chars})
-		(call 'stream :read_char {iter_begin[0]} '(_ :r1))
+		(call :stream :read_char {iter_begin[0]} '(_ :r1))
 		(vpif '(:r1 = -1))
-			(call 'obj :deref {value})
-			(call 'obj :ref {this->lisp_sym_nil} {value})
+			(call :obj :deref {value})
+			(call :obj :ref {this->lisp_sym_nil} {value})
 			(goto 'exit)
 		(endif)
 		(assign {chars, chars_end} '(:r0 :r2))
@@ -348,11 +348,11 @@
 	(loop-until '(:r0 = :r2))
 
 (vp-label 'exit)
-	(exit 'stream :lisp_readchar {this, value})
+	(exit :stream :lisp_readchar {this, value})
 	(return)
 
 (errorcase
-	(defq in (method-input 'lisp :repl_error))
+	(defq in (method-input :lisp :repl_error))
 (vp-label 'error1)
 	(vp-cpy-cr +error_msg_wrong_num_of_args (third in))
 	(goto 'error)
@@ -363,13 +363,13 @@
 	(vp-cpy-cr +error_msg_not_a_number (third in))
 (vp-label 'error)
 	(assign {this, args} (erase in 1 3))
-	(jump 'lisp :repl_error `(,(first in) "(read-char stream [width])" ,(third in) ,(elem-get in 3))))
+	(jump :lisp :repl_error `(,(first in) "(read-char stream [width])" ,(third in) ,(elem-get in 3))))
 
 	(pop-scope-syms)
 
 (def-func-end)
 
-(def-method 'stream :lisp_writechar)
+(def-method :stream :lisp_writechar)
 	;inputs
 	;:r0 = lisp object (ptr)
 	;:r1 = args list object (ptr)
@@ -382,7 +382,7 @@
 	(vp-rdef (iter_end iter_begin stream value width this args)
 		'(:r8 :r9 :r10 :r11 :r12))
 
-	(entry 'stream :lisp_writechar `(,this ,args))
+	(entry :stream :lisp_writechar `(,this ,args))
 
 	(errorif-lisp-args-sig 'error :r1 2 3)
 
@@ -401,10 +401,10 @@
 	(endif)
 
 	(assign `((,iter_begin +ptr_size)) `(,value))
-	(assign `((,value obj_vtable) (@ ,(f-path 'list :vtable))) '(:r13 :r14))
+	(assign `((,value obj_vtable) (@ ,(f-path :list :vtable))) '(:r13 :r14))
 	(vpif '(:r13 = :r14))
 	(errorcase
-		(call 'lisp :env_args_type `(,value (@ ,(f-path 'num :vtable)) 1) '(tmp))
+		(call :lisp :env_args_type `(,value (@ ,(f-path :num :vtable)) 1) '(tmp))
 		(gotoif `(,tmp = 0) 'error2))
 		(def-vars
 			(ptr this stream)
@@ -419,45 +419,45 @@
 		(assign `(,iter_end) {total})
 		(loop-start)
 			(assign `(,iter_begin) {iter_begin})
-			(call 'stream :write {stream, &iter_begin[0]->num_value ,width})
+			(call :stream :write {stream, &iter_begin[0]->num_value ,width})
 			(assign {iter_begin, iter_end} `(,iter_begin ,iter_end))
 			(vp-add-cr +ptr_size iter_begin)
 		(loop-until `(,iter_begin = ,iter_end))
-		(call 'num :create {total} `(,stream))
+		(call :num :create {total} `(,stream))
 		(assign {this} `(,this))
 		(pop-scope)
 	(else)
 	(errorcase
-		(call 'obj :inst_of `(,value (@ ,(f-path 'num :vtable))) '(_ tmp))
+		(call :obj :inst_of `(,value (@ ,(f-path :num :vtable))) '(_ tmp))
 		(gotoif `(,tmp = 0) 'error2))
 		(def-vars
 			(ptr this)
 			(uint width))
 		(push-scope)
 		(assign `(,this ,width) {this, width})
-		(call 'stream :write `(,stream (& ,value num_value) ,width))
-		(call 'num :create {width} `(,stream))
+		(call :stream :write `(,stream (& ,value num_value) ,width))
+		(call :num :create {width} `(,stream))
 		(assign {this} `(,this))
 		(pop-scope)
 	(endif)
 
-	(exit 'stream :lisp_writechar `(,this ,stream))
+	(exit :stream :lisp_writechar `(,this ,stream))
 	(vp-ret)
 
 (errorcase
-	(defq err (method-input 'lisp :repl_error 2))
+	(defq err (method-input :lisp :repl_error 2))
 (vp-label 'error1)
 	(vp-cpy-cr +error_msg_wrong_num_of_args err)
 	(goto 'error)
 (vp-label 'error2)
 	(vp-cpy-cr +error_msg_wrong_types err)
 (vp-label 'error)
-	(jump 'lisp :repl_error `(,this "(write-char stream list|num [width])" ,err ,args))
-	(signature '(stream obj num)))
+	(jump :lisp :repl_error `(,this "(write-char stream list|num [width])" ,err ,args))
+	(signature '(:stream :obj :num)))
 
 (def-func-end)
 
-(def-method 'stream :lisp_readblk)
+(def-method :stream :lisp_readblk)
 	;inputs
 	;:r0 = lisp object (ptr)
 	;:r1 = args list object (ptr)
@@ -472,18 +472,18 @@
 
 	(vp-rdef (stream buf len this args) '(:r7 :r8 :r9))
 
-	(entry 'stream :lisp_readblk `(,this ,args))
+	(entry :stream :lisp_readblk `(,this ,args))
 
 	(errorif-lisp-args-sig 'error :r1 2)
 
 	(push-scope)
 	(assign `(,this) {this})
 	(list-bind-args args `(,stream ,len) '(:stream :num))
-	(call 'str :create_from_buffer `(0 ,len) '(tmp))
+	(call :str :create_from_buffer `(0 ,len) '(tmp))
 	(assign `(,tmp) {buf})
-	(call 'stream :read `(,stream (& ,tmp str_data) ,len) '(_ tmp))
+	(call :stream :read `(,stream (& ,tmp str_data) ,len) '(_ tmp))
 	(vpif `(,tmp = -1))
-		(call 'obj :deref {buf})
+		(call :obj :deref {buf})
 		(assign {this} `(,this))
 		(assign `((,this lisp_sym_nil)) `(,buf))
 		(class/obj/ref buf stream)
@@ -493,17 +493,17 @@
 	(endif)
 	(pop-scope)
 
-	(exit 'stream :lisp_readblk `(,this ,buf))
+	(exit :stream :lisp_readblk `(,this ,buf))
 	(vp-ret)
 
 (errorcase
 (vp-label 'error)
-	(jump 'lisp :repl_error `(,this "(read-blk stream bytes)" +error_msg_wrong_types ,args))
-	(signature '(stream num)))
+	(jump :lisp :repl_error `(,this "(read-blk stream bytes)" +error_msg_wrong_types ,args))
+	(signature '(:stream :num)))
 
 (def-func-end)
 
-(def-method 'stream :lisp_writeblk)
+(def-method :stream :lisp_writeblk)
 	;inputs
 	;:r0 = lisp object (ptr)
 	;:r1 = args list object (ptr)
@@ -516,31 +516,31 @@
 	(def-vars
 		(ptr this buf))
 
-	(entry 'stream :lisp_writeblk '(:r0 :r1))
+	(entry :stream :lisp_writeblk '(:r0 :r1))
 
 	(errorif-lisp-args-sig 'error :r1 2)
 
 	(push-scope)
 	(assign '(:r0) {this})
-	(defq in (method-input 'stream :write))
+	(defq in (method-input :stream :write))
 	(list-bind-args :r1 in '(:stream :obj))
 	(assign `(,(second in)) {buf})
-	(call 'stream :write `(,(first in) (& ,(second in) str_data) (,(second in) str_length)))
-	(call 'num :create {buf->str_length} '(:r1))
+	(call :stream :write `(,(first in) (& ,(second in) str_data) (,(second in) str_length)))
+	(call :num :create {buf->str_length} '(:r1))
 	(assign {this} '(:r0))
 	(pop-scope)
 
-	(exit 'stream :lisp_writeblk '(:r0 :r1))
+	(exit :stream :lisp_writeblk '(:r0 :r1))
 	(vp-ret)
 
 (errorcase
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(write-blk stream str)" +error_msg_wrong_types :r1))
-	(signature '(stream str)))
+	(jump :lisp :repl_error '(:r0 "(write-blk stream str)" +error_msg_wrong_types :r1))
+	(signature '(:stream :str)))
 
 (def-func-end)
 
-(def-method 'stream :lisp_readline)
+(def-method :stream :lisp_readline)
 	;inputs
 	;:r0 = lisp object (ptr)
 	;:r1 = args list object (ptr)
@@ -550,31 +550,31 @@
 	;trashes
 	;:r1-:r14
 
-	(entry 'stream :lisp_readline '(:r0 :r1))
+	(entry :stream :lisp_readline '(:r0 :r1))
 
 	(errorif-lisp-args-sig 'error :r1 1)
 
 	(vp-push :r0)
-	(defq in (method-input 'stream :read_line))
+	(defq in (method-input :stream :read_line))
 	(list-bind-args :r1 in '(:stream))
-	(call 'stream :read_line in '(_ :r1))
+	(call :stream :read_line in '(_ :r1))
 	(vp-pop :r0)
 	(vpif '(:r1 = 0))
 		(assign '((:r0 lisp_sym_nil)) '(:r1))
 		(class/obj/ref :r1 :r2)
 	(endif)
 
-	(exit 'stream :lisp_readline '(:r0 :r1))
+	(exit :stream :lisp_readline '(:r0 :r1))
 	(vp-ret)
 
 (errorcase
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(read-line stream)" +error_msg_wrong_types :r1))
-	(signature '(stream)))
+	(jump :lisp :repl_error '(:r0 "(read-line stream)" +error_msg_wrong_types :r1))
+	(signature '(:stream)))
 
 (def-func-end)
 
-(def-method 'stream :lisp_writeline)
+(def-method :stream :lisp_writeline)
 	;inputs
 	;:r0 = lisp object (ptr)
 	;:r1 = args list object (ptr)
@@ -587,34 +587,34 @@
 	(def-vars
 		(ptr this buf))
 
-	(entry 'stream :lisp_writeline '(:r0 :r1))
+	(entry :stream :lisp_writeline '(:r0 :r1))
 
 	(errorif-lisp-args-sig 'error :r1 2)
 
 	(push-scope)
 	(assign '(:r0) {this})
-	(defq in (method-input 'stream :write))
+	(defq in (method-input :stream :write))
 	(list-bind-args :r1 in '(:stream :obj))
 	(assign `(,(second in)) {buf})
-	(call 'stream :write `(,(first in) (& ,(second in) str_data) (,(second in) str_length)) '(tmp))
-	(call 'stream :write_char `(,tmp 10))
+	(call :stream :write `(,(first in) (& ,(second in) str_data) (,(second in) str_length)) '(tmp))
+	(call :stream :write_char `(,tmp 10))
 	(assign {buf->str_length} '(:r0))
 	(vp-add-cr 1 :r0)
-	(call 'num :create '(:r0) '(:r1))
+	(call :num :create '(:r0) '(:r1))
 	(assign {this} '(:r0))
 	(pop-scope)
 
-	(exit 'stream :lisp_writeline '(:r0 :r1))
+	(exit :stream :lisp_writeline '(:r0 :r1))
 	(vp-ret)
 
 (errorcase
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(write-line stream str)" +error_msg_wrong_types :r1))
-	(signature '(stream str)))
+	(jump :lisp :repl_error '(:r0 "(write-line stream str)" +error_msg_wrong_types :r1))
+	(signature '(:stream :str)))
 
 (def-func-end)
 
-(def-method 'stream :lisp_each)
+(def-method :stream :lisp_each)
 	;inputs
 	;:r0 = lisp object (ptr)
 	;:r1 = args list object (ptr)
@@ -632,7 +632,7 @@
 	(vp-rdef (this value func stream idx old_idx))
 
 	(push-scope)
-	(entry 'seq :lisp_each `(,this ,value))
+	(entry :seq :lisp_each `(,this ,value))
 
 	(errorif-lisp-args-sig 'error1 :r1 2)
 
@@ -646,44 +646,44 @@
 	(assign `(,old_idx) {old_idx})
 
 	(loop-start)
-		(call 'stream :read_line {stream} {_, value})
+		(call :stream :read_line {stream} {_, value})
 		(breakifnot {value})
-		(call 'list :create :nil {args})
-		(call 'list :push_back {args, value})
-		(call 'lisp :repl_apply {this, args, func} {_, value})
-		(call 'obj :deref {args})
+		(call :list :create :nil {args})
+		(call :list :push_back {args, value})
+		(call :lisp :repl_apply {this, args, func} {_, value})
+		(call :obj :deref {args})
 
 	(errorcase
 		(vp-rdef (vt1 vt2))
 		(assign {value->obj_vtable, this->lisp_error} `(,vt1 ,vt2))
 		(gotoif `(,vt1 = ,vt2) 'error))
 
-		(call 'obj :deref {value})
+		(call :obj :deref {value})
 		(assign {this} `(,this))
 		(assign `((,this lisp_seq_idx)) `(,idx))
 		(vp-add-cr 1 idx)
 		(assign `(,idx) `((,this lisp_seq_idx)))
 	(loop-end)
-	(call 'obj :ref {this->lisp_sym_nil} {value})
+	(call :obj :ref {this->lisp_sym_nil} {value})
 
 (vp-label 'error)
 	(assign {this, value} `(,this ,value))
 	(assign {old_idx} `(,old_idx))
 	(assign `(,old_idx) `((,this lisp_seq_idx)))
 
-	(exit 'stream :lisp_each `(,this ,value))
+	(exit :stream :lisp_each `(,this ,value))
 	(return)
 
 (errorcase
 (vp-label 'error1)
-	(jump 'lisp :repl_error `(,this "(lines! lambda stream)" +error_msg_wrong_types ,value))
-	(signature '(obj stream)))
+	(jump :lisp :repl_error `(,this "(lines! lambda stream)" +error_msg_wrong_types ,value))
+	(signature '(:obj :stream)))
 
 	(pop-scope-syms)
 
 (def-func-end)
 
-(def-method 'stream :lisp_read_bits)
+(def-method :stream :lisp_read_bits)
     ;inputs
     ;:r0 = lisp object (ptr)
     ;:r1 = args list object (ptr)
@@ -697,7 +697,7 @@
 		(ptr this args stream iter_begin))
 
     (push-scope)
-    (entry 'stream :lisp_read_bits '(:r0 :r1))
+    (entry :stream :lisp_read_bits '(:r0 :r1))
 
     (errorif-lisp-args-sig 'error :r1 3)
 
@@ -705,7 +705,7 @@
     (list-bind-args :r1 '(:r0 :r3 :r1) '(:stream :array :num))
 
 (errorcase
-	(assign `((:r3 obj_vtable) (@ ,(f-path 'array :vtable))) '(:r4 :r5))
+	(assign `((:r3 obj_vtable) (@ ,(f-path :array :vtable))) '(:r4 :r5))
 	(gotoif '(:r4 /= :r5) 'error1)
 	(assign '((:r3 array_length)) '(:r4))
 	(gotoif '(:r4 < 2) 'error1))
@@ -713,27 +713,27 @@
 	(assign '(:r0) {stream})
 	(assign '((:r3 array_begin)) '(:r3))
 	(assign '(:r3) {iter_begin})
-    (call 'stream :read_bits '(:r0 :r1 (:r3 0) (:r3 +long_size)) '(:r0 :r1 :r2 :r3))
+    (call :stream :read_bits '(:r0 :r1 (:r3 0) (:r3 +long_size)) '(:r0 :r1 :r2 :r3))
 	(assign {iter_begin} '(:r4))
 	(assign '(:r2 :r3) '((:r4 0) (:r4 +long_size)))
-	(call 'num :create '(:r1) '(:r1))
+	(call :num :create '(:r1) '(:r1))
 	(assign {this} '(:r0))
 
-    (exit 'stream :lisp_read_bits '(:r0 :r1))
+    (exit :stream :lisp_read_bits '(:r0 :r1))
     (return)
 
 (errorcase
 (vp-label 'error1)
 	(assign {this, args} '(:r0 :r1))
 (vp-label 'error)
-    (jump 'lisp :repl_error '(:r0 "(read-bits stream parray num_bits" +error_msg_wrong_types :r1))
-    (signature '(stream array num)))
+    (jump :lisp :repl_error '(:r0 "(read-bits stream parray num_bits" +error_msg_wrong_types :r1))
+    (signature '(:stream :array :num)))
 
 	(pop-scope-syms)
 
 (def-func-end)
 
-(def-method 'stream :lisp_write_bits)
+(def-method :stream :lisp_write_bits)
     ;inputs
     ;:r0 = lisp object (ptr)
     ;:r1 = args list object (ptr)
@@ -747,7 +747,7 @@
 		(ptr this args stream iter_begin))
 
     (push-scope)
-    (entry 'stream :lisp_write_bits '(:r0 :r1))
+    (entry :stream :lisp_write_bits '(:r0 :r1))
 
     (errorif-lisp-args-sig 'error :r1 4)
 
@@ -755,7 +755,7 @@
     (list-bind-args :r1 '(:r0 :r3 :r1 :r2) '(:stream :array :num :num))
 
 (errorcase
-	(assign `((:r3 obj_vtable) (@ ,(f-path 'array :vtable))) '(:r4 :r5))
+	(assign `((:r3 obj_vtable) (@ ,(f-path :array :vtable))) '(:r4 :r5))
 	(gotoif '(:r4 /= :r5) 'error1)
 	(assign '((:r3 array_length)) '(:r4))
 	(gotoif '(:r4 < 2) 'error1))
@@ -763,21 +763,21 @@
 	(assign '(:r0) {stream})
 	(assign '((:r3 array_begin)) '(:r3))
 	(assign '(:r3) {iter_begin})
-    (call 'stream :write_bits '(:r0 :r1 :r2 (:r3 0) (:r3 +long_size)) '(:r0 :r1 :r2))
+    (call :stream :write_bits '(:r0 :r1 :r2 (:r3 0) (:r3 +long_size)) '(:r0 :r1 :r2))
 	(assign {iter_begin} '(:r3))
 	(assign '(:r1 :r2) '((:r3 0) (:r3 +long_size)))
 	(assign {this, stream} '(:r0 :r1))
 	(class/obj/ref :r1 :r2)
 
-    (exit 'stream :lisp_write_bits '(:r0 :r1))
+    (exit :stream :lisp_write_bits '(:r0 :r1))
     (return)
 
 (errorcase
 (vp-label 'error1)
 	(assign {this, args} '(:r0 :r1))
 (vp-label 'error)
-    (jump 'lisp :repl_error '(:r0 "(write-bits stream parray data num_bits)" +error_msg_wrong_types :r1))
-    (signature '(stream array num num)))
+    (jump :lisp :repl_error '(:r0 "(write-bits stream parray data num_bits)" +error_msg_wrong_types :r1))
+    (signature '(:stream :array :num :num)))
 
 	(pop-scope-syms)
 

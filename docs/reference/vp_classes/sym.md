@@ -1,6 +1,6 @@
-# sym
+# :sym
 
-## str
+## :str
 
 ## Lisp Bindings
 

@@ -1,6 +1,6 @@
 (include "././nums/class.inc")
 
-(def-class fixeds nums
+(def-class :fixeds :nums
 	(dec-method :vtable class/fixeds/vtable)
 	(dec-method :create class/fixeds/create)
 	(dec-method :vcreate class/fixeds/create :override)

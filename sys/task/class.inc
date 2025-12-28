@@ -6,7 +6,7 @@
 ; task static class
 ;;;;;;;;;;;;;;;;;;;
 
-(def-class sys_task :nil
+(def-class :sys_task :nil
 	(dec-method :statics_init sys/task/statics_init)
 	(dec-method :mailbox sys/task/mailbox :static :nil (:r0 :r1 :r2))
 	(dec-method :callback sys/task/callback :static (:r0 :r1))

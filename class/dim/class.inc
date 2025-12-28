@@ -1,6 +1,6 @@
 (include "././obj/class.inc")
 
-(def-class dim obj
+(def-class :dim :obj
 	(dec-method :vtable class/dim/vtable)
 	(dec-method :create class/dim/create :static (:r0 :r1) (:r0))
 	(dec-method :init class/dim/init :static (:r0 :r1 :r2 :r3))

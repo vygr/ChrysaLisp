@@ -2,7 +2,7 @@
 (include "./class.inc")
 (include "././hmap/class.inc")
 
-(def-method 'lisp :repl_error)
+(def-method :lisp :repl_error)
 	;inputs
 	;:r0 = lisp object (ptr)
 	;:r1 = description c string (pubyte)
@@ -20,19 +20,19 @@
 		(uint msg))
 
 	(push-scope)
-	(entry 'lisp :repl_error {this, desc, msg, payload})
+	(entry :lisp :repl_error {this, desc, msg, payload})
 
-	(call 'hmap :search {this->lisp_environment, this->lisp_sym_stack_frame} {_, frame, _})
+	(call :hmap :search {this->lisp_environment, this->lisp_sym_stack_frame} {_, frame, _})
 	(vpif {frame})
 		(assign {frame[+ptr_size]} {frame})
-		(call 'obj :ref {frame})
+		(call :obj :ref {frame})
 	(else)
-		(call 'list :create :nil {frame})
+		(call :list :create :nil {frame})
 	(endif)
 
-	(call 'error :create {desc, msg, payload, this->lisp_stream_name, this->lisp_stream_line, frame} {frame})
+	(call :error :create {desc, msg, payload, this->lisp_stream_name, this->lisp_stream_line, frame} {frame})
 
-	(exit 'lisp :repl_error {this, frame})
+	(exit :lisp :repl_error {this, frame})
 	(pop-scope)
 	(return)
 

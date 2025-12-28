@@ -1,6 +1,6 @@
 (include "././mail/class.inc")
 
-(def-class sys_kernel :nil
+(def-class :sys_kernel :nil
 	(dec-method :id sys/kernel/id :static :nil (:r0 :r1))
 	(dec-method :kernel sys/kernel/kernel :static (:r0))
 	(dec-method :ping sys/kernel/ping)

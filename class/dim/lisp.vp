@@ -4,7 +4,7 @@
 (include "././num/class.inc")
 (include "././lisp/class.inc")
 
-(def-method 'dim :lisp_dim)
+(def-method :dim :lisp_dim)
 	;inputs
 	;:r0 = lisp object (ptr)
 	;:r1 = args list object (ptr)
@@ -14,34 +14,34 @@
 	;trashes
 	;:r1-:r14
 
-	(entry 'dim :lisp_dim '(:r0 :r1))
+	(entry :dim :lisp_dim '(:r0 :r1))
 
 	(errorif-lisp-args-sig 'error :r1 2)
 
 	(vp-push :r0 :r1)
-	(bind '(dims elems) (method-input 'dim :create))
+	(bind '(dims elems) (method-input :dim :create))
 	(list-bind-args :r1 `(,dims ,elems) '(:nums :array))
 
 (errorcase
 	(assign `((,dims array_length)) '(:r14))
 	(gotoif '(:r14 = 0) 'error1))
 
-	(call 'dim :create `(,dims ,elems) '(:r1))
+	(call :dim :create `(,dims ,elems) '(:r1))
 	(vp-pop :r0 :r2)
 
-	(exit 'dim :lisp_dim '(:r0 :r1))
+	(exit :dim :lisp_dim '(:r0 :r1))
 	(vp-ret)
 
 (errorcase
 (vp-label 'error1)
 	(vp-pop :r0 :r1)
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(dim nums array)" +error_msg_wrong_types :r1))
-	(signature '(nums array)))
+	(jump :lisp :repl_error '(:r0 "(dim nums array)" +error_msg_wrong_types :r1))
+	(signature '(:nums :array)))
 
 (def-func-end)
 
-(def-method 'dim :lisp_get)
+(def-method :dim :lisp_get)
 	;inputs
 	;:r0 = lisp object (ptr)
 	;:r1 = args list object (ptr)
@@ -51,13 +51,13 @@
 	;trashes
 	;:r1-:r14
 
-	(entry 'dim :lisp_get '(:r0 :r1))
+	(entry :dim :lisp_get '(:r0 :r1))
 
 	(errorif-lisp-args-sig 'error :r1 2)
 
 	(vp-rdef (elems index dims indices dims_len indices_len
 			dims_iter_begin dims_iter_end indices_iter_begin acc d i)
-		(method-input 'array :ref_elem))
+		(method-input :array :ref_elem))
 
 	(vp-push :r0 :r1)
 	(list-bind-args :r1 `(,dims ,indices) '(:dim :nums))
@@ -84,23 +84,23 @@
 	(gotoif `(,index < 0) 'error1)
 	(gotoif `(,index >= ,indices_len) 'error1))
 
-	(call 'array :ref_elem `(,elems ,index) '(_ :r1))
+	(call :array :ref_elem `(,elems ,index) '(_ :r1))
 	(vp-pop :r0 :r2)
 
-	(exit 'dim :lisp_get '(:r0 :r1))
+	(exit :dim :lisp_get '(:r0 :r1))
 	(vp-ret)
 
 (errorcase
 (vp-label 'error1)
 	(vp-pop :r0 :r1)
-	(jump 'lisp :repl_error '(:r0 "(dim-get dim nums)" +error_msg_not_valid_index :r1))
+	(jump :lisp :repl_error '(:r0 "(dim-get dim nums)" +error_msg_not_valid_index :r1))
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(dim-get dim nums)" +error_msg_wrong_types :r1))
-	(signature '(dim nums)))
+	(jump :lisp :repl_error '(:r0 "(dim-get dim nums)" +error_msg_wrong_types :r1))
+	(signature '(:dim :nums)))
 
 (def-func-end)
 
-(def-method 'dim :lisp_set)
+(def-method :dim :lisp_set)
 	;inputs
 	;:r0 = lisp object (ptr)
 	;:r1 = args list object (ptr)
@@ -110,13 +110,13 @@
 	;trashes
 	;:r1-:r14
 
-	(entry 'dim :lisp_set '(:r0 :r1))
+	(entry :dim :lisp_set '(:r0 :r1))
 
 	(errorif-lisp-args-sig 'error :r1 3)
 
 	(vp-rdef (elems obj index dims indices dims_len indices_len
 			dims_iter_begin dims_iter_end indices_iter_begin acc d i)
-		(method-input 'array :set_elem))
+		(method-input :array :set_elem))
 
 	(vp-push :r0 :r1)
 	(list-bind-args :r1 `(,dims ,indices ,obj) '(:dim :nums :obj))
@@ -143,31 +143,31 @@
 	(gotoif `(,index < 0) 'error1)
 	(gotoif `(,index >= ,indices_len) 'error1))
 
-	(assign `((,elems obj_vtable) (@ ,(f-path 'list :vtable))) '(:r12 :r13))
+	(assign `((,elems obj_vtable) (@ ,(f-path :list :vtable))) '(:r12 :r13))
 	(assign `(,obj) '((:rsp 0)))
 	(vpif '(:r12 = :r13))
 		(class/obj/ref obj :r14)
 	(else)
 		(vp-simd vp-cpy-rr `(,elems ,obj ,index) '(:r12 :r13 :r14))
-		(call 'obj :inst_of `(,obj (@ ,(f-path 'num :vtable))) '(_ tmp))
+		(call :obj :inst_of `(,obj (@ ,(f-path :num :vtable))) '(_ tmp))
 		(vpif `(,tmp /= 0))
 			(assign '((:r13 num_value)) '(:r13))
 		(endif)
 		(vp-simd vp-cpy-rr '(:r12 :r13 :r14) `(,elems ,obj ,index))
 	(endif)
-	(call 'array :set_elem `(,elems ,obj ,index) '(:r1))
+	(call :array :set_elem `(,elems ,obj ,index) '(:r1))
 	(class/obj/ref :r1 :r2)
 	(vp-pop :r0 :r2)
 
-	(exit 'dim :lisp_set '(:r0 :r1))
+	(exit :dim :lisp_set '(:r0 :r1))
 	(vp-ret)
 
 (errorcase
 (vp-label 'error1)
 	(vp-pop :r0 :r1)
-	(jump 'lisp :repl_error '(:r0 "(dim-set dim nums elem)" +error_msg_not_valid_index :r1))
+	(jump :lisp :repl_error '(:r0 "(dim-set dim nums elem)" +error_msg_not_valid_index :r1))
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(dim-set dim nums elem)" +error_msg_wrong_types :r1))
-	(signature '(dim nums obj)))
+	(jump :lisp :repl_error '(:r0 "(dim-set dim nums elem)" +error_msg_wrong_types :r1))
+	(signature '(:dim :nums :obj)))
 
 (def-func-end)

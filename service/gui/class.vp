@@ -4,7 +4,7 @@
 (include "gui/region/class.inc")
 (include "class/list/class.inc")
 
-(def-method 'host_gui :update 16)
+(def-method :host_gui :update 16)
 	;inputs
 	;:r0 = mouse x
 	;:r1 = mouse y
@@ -14,12 +14,12 @@
 		(ptr statics old_stack)
 		(struct rect host_gui_rect_size))
 
-	(entry 'host_gui :update '(:r0 :r1 :r2))
+	(entry :host_gui :update '(:r0 :r1 :r2))
 
 	;kernel callback for update
 	(fn-bind 'sys/statics/statics :r3)
 	(assign '(:r0 :r1 :r2) '((:r3 statics_gui_mouse_x) (:r3 statics_gui_mouse_y) (:r3 statics_gui_flags)))
-	(jump 'sys_task :callback '(0 ($ update_callback)))
+	(jump :sys_task :callback '(0 ($ update_callback)))
 
 (vp-label 'update_callback)
 	(vp-cpy-rr :rsp :r0)
@@ -33,7 +33,7 @@
 		;init
 		(assign {0, 0, statics->statics_gui_screen->view_w, statics->statics_gui_screen->view_h}
 			{rect.host_gui_rect_x, rect.host_gui_rect_y, rect.host_gui_rect_w, rect.host_gui_rect_h})
-		(host-gui-call 'host_gui :init {&rect, 1})
+		(host-gui-call :host_gui :init {&rect, 1})
 		(assign {1, rect.host_gui_rect_w, rect.host_gui_rect_h}
 			{statics->statics_gui_init, statics->statics_gui_screen->view_w, statics->statics_gui_screen->view_h})
 	(endif)
@@ -41,20 +41,20 @@
 	;resize back buffer etc ?
 	(vpif {statics->statics_gui_flags})
 		;resize back buffer and redraw in full
-		(host-gui-call 'host_gui :resize {statics->statics_gui_screen->view_w, statics->statics_gui_screen->view_h})
+		(host-gui-call :host_gui :resize {statics->statics_gui_screen->view_w, statics->statics_gui_screen->view_h})
 	(endif)
 
 	;update screen
 	(vpif {statics->statics_gui_dirty_flag})
 		;render to the backbuffer
-		(host-gui-call 'host_gui :begin_composite)
-		(call 'host_gui :composite {statics->statics_gui_screen}
+		(host-gui-call :host_gui :begin_composite)
+		(call :host_gui :composite {statics->statics_gui_screen}
 			{rect.host_gui_rect_x, rect.host_gui_rect_y, rect.host_gui_rect_w, rect.host_gui_rect_h})
-		(host-gui-call 'host_gui :end_composite)
+		(host-gui-call :host_gui :end_composite)
 
 		;flush backbuffer, clear temps and dirty flag
-		(host-gui-call 'host_gui :flush {&rect})
-		(call 'list :clear {statics->statics_gui_temps})
+		(host-gui-call :host_gui :flush {&rect})
+		(call :list :clear {statics->statics_gui_temps})
 		(assign {0} {statics->statics_gui_dirty_flag})
 	(endif)
 
@@ -64,7 +64,7 @@
 
 (def-func-end)
 
-(def-method 'host_gui :composite)
+(def-method :host_gui :composite)
 	;inputs
 	;:r0 = root view object (ptr)
 	;outputs
@@ -88,7 +88,7 @@
 
 	;save inputs
 	(vp-alloc local_size)
-	(entry 'host_gui :composite `(,root))
+	(entry :host_gui :composite `(,root))
 	(assign `(,root) '((:rsp local_root)))
 
 	;iterate through views back to front
@@ -96,10 +96,10 @@
 	;create visible region at root
 	(vp-xor-rr x x)
 	(vp-xor-rr y y)
-	(call 'view :backward_tree `(,root ,root ($ visible_down_callback) ($ visible_up_callback)))
+	(call :view :backward_tree `(,root ,root ($ visible_down_callback) ($ visible_up_callback)))
 
 	;save bounds for :flush
-	(call 'region :bounds `((& ,root view_dirty_region)) `(,x ,y ,x1 ,y1))
+	(call :region :bounds `((& ,root view_dirty_region)) `(,x ,y ,x1 ,y1))
 	(vp-simd vp-sub-rr `(,x ,y) `(,x1 ,y1))
 	(vp-simd vp-cpy-ri-i
 		`(,x ,y ,x1 ,y1)
@@ -110,18 +110,18 @@
 	;distribute visible region
 	(vp-xor-rr tmp tmp)
 	(assign `(,tmp) '((:rsp local_ctx_flist)))
-	(call 'view :forward_tree `(,root :rsp ($ distribute_down_callback) ($ distribute_up_callback)))
+	(call :view :forward_tree `(,root :rsp ($ distribute_down_callback) ($ distribute_up_callback)))
 
 	;draw all views on draw list, and free dirty regions
 	(loop-flist :rsp local_ctx_flist root root)
 		(assign `(,root) '((:rsp local_ctx_next)))
 		(vp-sub-cr view_ctx_node root)
-		(call 'view :draw `(,root))
+		(call :view :draw `(,root))
 		(assign '((:rsp local_ctx_next)) `(,region))
 		(vp-sub-cr (- view_ctx_node view_dirty_region) region)
 		(fn-bind 'sys/statics/statics heap)
 		(vp-add-cr statics_gui_rect_heap heap)
-		(call 'region :free `(,heap ,region))
+		(call :region :free `(,heap ,region))
 		(assign '((:rsp local_ctx_next)) `(,root))
 	(loop-end)
 
@@ -130,7 +130,7 @@
 		`(,local_x ,local_y ,local_w ,local_h)
 		`(,x ,y ,x1 ,y1))
 
-	(exit 'host_gui :composite `(,x ,y ,x1 ,y1))
+	(exit :host_gui :composite `(,x ,y ,x1 ,y1))
 	(vp-free local_size)
 	(vp-ret)
 
@@ -143,7 +143,7 @@
 
 	;save inputs
 	(vp-alloc vis_size)
-	(entry 'view :forward_tree_callback `(,view1 ,view2))
+	(entry :view :forward_tree_callback `(,view1 ,view2))
 	(assign `(,view1 ,view2) '((:rsp vis_this) (:rsp vis_root)))
 
 	;abs of this view !
@@ -180,7 +180,7 @@
 				(vp-simd vp-min-rr `(,vx1 ,vy1) `(,x1 ,y1))
 
 				;remove opaque region
-				(call 'region :remove_rect `(,heap (& ,view2 view_dirty_region)
+				(call :region :remove_rect `(,heap (& ,view2 view_dirty_region)
 					,x ,y ,x1 ,y1) `(,heap))
 
 				(assign '((:rsp vis_next) (:rsp vis_root)) `(,view1 ,view2))
@@ -192,7 +192,7 @@
 			(vp-simd vp-cpy-ir-i `(,view2) `(,view_w ,view_h) `(,x1 ,y1))
 			(vp-simd vp-mul-cr '(-1) `(,x ,y))
 			(vp-simd vp-add-rr `(,x ,y) `(,x1 ,y1))
-			(call 'region :copy_rect `(,heap (& ,view1 view_opaque_region)
+			(call :region :copy_rect `(,heap (& ,view1 view_opaque_region)
 				(& :rsp vis_region) ,x ,y ,x1 ,y1) `(,heap))
 
 			;remove from ancestors
@@ -207,23 +207,23 @@
 
 				;translate temp opaque region
 				(vp-simd vp-cpy-ir-i `(,view1) `(,view_x ,view_y) `(,x ,y))
-				(call 'region :translate `((& :rsp vis_region) ,x ,y))
+				(call :region :translate `((& :rsp vis_region) ,x ,y))
 
 				;clip temp opaque region
 				(assign '((:rsp vis_next)) `(,view2))
-				(call 'region :clip_rect `(,heap (& :rsp vis_region)
+				(call :region :clip_rect `(,heap (& :rsp vis_region)
 					0 0 (,view2 view_w) (,view2 view_h)) `(,heap))
 
 				;remove temp opaque region
 				(assign '((:rsp vis_next)) `(,view2))
-				(call 'region :remove_region `(,heap (& :rsp vis_region)
+				(call :region :remove_region `(,heap (& :rsp vis_region)
 					(& ,view2 view_dirty_region) 0 0) `(,heap))
 
 				(assign '((:rsp vis_next) (:rsp vis_root)) `(,view1 ,view2))
 			(loop-until `(,view1 = ,view2))
 
 			;free any temp region
-			(call 'region :free `(,heap (& :rsp vis_region)) `(,heap _))
+			(call :region :free `(,heap (& :rsp vis_region)) `(,heap _))
 		(endif)
 	(endif)
 
@@ -231,7 +231,7 @@
 	(assign `((:rsp vis_this)) `(,view2))
 	(vp-simd vp-cpy-ir-i `(,view2) `(,view_ctx_x ,view_ctx_y) `(,x ,y))
 
-	(exit 'view :forward_tree_callback `(,view2 ,heap))
+	(exit :view :forward_tree_callback `(,view2 ,heap))
 	(vp-free vis_size)
 	(vp-ret)
 
@@ -241,7 +241,7 @@
 
 	;save inputs
 	(vp-alloc vis_size)
-	(entry 'view :forward_tree_callback '((:rsp vis_this) (:rsp vis_root)))
+	(entry :view :forward_tree_callback '((:rsp vis_this) (:rsp vis_root)))
 
 	;region heap
 	(fn-bind 'sys/statics/statics heap)
@@ -260,7 +260,7 @@
 		;add dirty
 		(vp-simd vp-cpy-cr '(0) `(,x ,y))
 		(vp-simd vp-cpy-ir-i `(,view1) `(,view_w ,view_h) `(,x1 ,y1))
-		(call 'region :paste_rect `(,heap (& ,view1 view_dirty_region)
+		(call :region :paste_rect `(,heap (& ,view1 view_dirty_region)
 			,x ,y ,x1 ,y1) `(,heap))
 	(endif)
 
@@ -274,7 +274,7 @@
 	(vp-simd vp-cpy-ir-i `(,view2) `(,view_w ,view_h) `(,x1 ,y1))
 	(vp-simd vp-mul-cr '(-1) `(,x ,y))
 	(vp-simd vp-add-rr `(,x ,y) `(,x1 ,y1))
-	(call 'region :clip_rect `(,heap (& ,view1 view_dirty_region)
+	(call :region :clip_rect `(,heap (& ,view1 view_dirty_region)
 		,x ,y ,x1 ,y1) `(,heap))
 
 	;paste local dirty region onto parent if not root
@@ -282,12 +282,12 @@
 	(vpif `(,view1 /= ,view2))
 		(vp-simd vp-cpy-ir-i `(,view1) `(,view_x ,view_y) `(,x ,y))
 		(assign `((,view1 hmap_parent)) `(,view2))
-		(call 'region :paste_region `(,heap (& ,view1 view_dirty_region)
+		(call :region :paste_region `(,heap (& ,view1 view_dirty_region)
 			(& ,view2 view_dirty_region) ,x ,y) `(,heap))
 
 		;free local dirty region
 		(assign '((:rsp vis_this)) `(,view1))
-		(call 'region :free `(,heap (& ,view1 view_dirty_region)) `(,heap _))
+		(call :region :free `(,heap (& ,view1 view_dirty_region)) `(,heap _))
 	(endif)
 
 	;abs of parent view !
@@ -296,7 +296,7 @@
 	(vp-simd vp-cpy-ir-i `(,view2) `(,view_x ,view_y) `(,x1 ,y1))
 	(vp-simd vp-sub-rr `(,x1 ,y1) `(,x ,y))
 
-	(exit 'view :forward_tree_callback `(,view2 ,view1))
+	(exit :view :forward_tree_callback `(,view2 ,view1))
 	(vp-free vis_size)
 	(vp-ret)
 
@@ -309,7 +309,7 @@
 
 	;save inputs
 	(vp-alloc dist_size)
-	(entry 'view :forward_tree_callback `(,view2 ,view1))
+	(entry :view :forward_tree_callback `(,view2 ,view1))
 	(assign `(,view2 ,view1) '((:rsp dist_this) (:rsp dist_data)))
 
 	;if not root
@@ -325,7 +325,7 @@
 			`(,view_ctx_x ,view_ctx_y ,view_w ,view_h)
 			`(,x ,y ,x1 ,y1))
 		(vp-simd vp-add-rr `(,x ,y) `(,x1 ,y1))
-		(call 'region :copy_rect `(,heap (& ,view1 view_dirty_region)
+		(call :region :copy_rect `(,heap (& ,view1 view_dirty_region)
 			(& ,view2 view_dirty_region) ,x ,y ,x1 ,y1) `(,heap))
 
 		;did we find any dirty region ?
@@ -352,7 +352,7 @@
 					(vp-simd vp-min-rr `(,vx1 ,vy1) `(,x1 ,y1))
 
 					;remove from parent
-					(call 'region :remove_rect `(,heap (& ,view1 view_dirty_region)
+					(call :region :remove_rect `(,heap (& ,view1 view_dirty_region)
 						,x ,y ,x1 ,y1) `(,heap))
 
 					(assign '((:rsp dist_data) (:rsp dist_next)) `(,view1 ,view2))
@@ -365,13 +365,13 @@
 				(vp-simd vp-cpy-ir-i `(,view1) `(,view_w ,view_h) `(,x1 ,y1))
 				(vp-simd vp-mul-cr '(-1) `(,x ,y))
 				(vp-simd vp-add-rr `(,x ,y) `(,x1 ,y1))
-				(call 'region :copy_rect `(,heap (& ,view2 view_opaque_region)
+				(call :region :copy_rect `(,heap (& ,view2 view_opaque_region)
 					(& :rsp dist_region) ,x ,y ,x1 ,y1) `(,heap))
 
 				;translate temp opaque region
 				(assign '((:rsp dist_this)) `(,view2))
 				(vp-simd vp-cpy-ir-i `(,view2) `(,view_ctx_x ,view_ctx_y) `(,x ,y))
-				(call 'region :translate `((& :rsp dist_region) ,x ,y))
+				(call :region :translate `((& :rsp dist_region) ,x ,y))
 
 				;remove from ancestors
 				(assign '((:rsp dist_this)) `(,view1))
@@ -387,12 +387,12 @@
 					(vp-simd vp-cpy-ir-i `(,view2) `(,view_ctx_x ,view_ctx_y) `(,x ,y))
 					(vp-simd vp-cpy-ir-i `(,view2) `(,view_w ,view_h) `(,x1 ,y1))
 					(vp-simd vp-add-rr `(,x ,y) `(,x1 ,y1))
-					(call 'region :clip_rect `(,heap (& :rsp dist_region)
+					(call :region :clip_rect `(,heap (& :rsp dist_region)
 						,x ,y ,x1 ,y1) `(,heap))
 
 					;remove temp opaque region
 					(assign '((:rsp dist_next)) `(,view2))
-					(call 'region :remove_region `(,heap (& :rsp dist_region)
+					(call :region :remove_region `(,heap (& :rsp dist_region)
 						(& ,view2 view_dirty_region) 0 0) `(,heap))
 
 					(assign '((:rsp dist_data) (:rsp dist_next)) `(,view2 ,view1))
@@ -400,7 +400,7 @@
 				(loop-until `(,view1 = ,view2))
 
 				;free any temp region
-				(call 'region :free `(,heap (& :rsp dist_region)) `(,heap _))
+				(call :region :free `(,heap (& :rsp dist_region)) `(,heap _))
 			(endif)
 
 			;return flag for traversing into children
@@ -411,7 +411,7 @@
 
 	;return value will be 0 or not depending on having any dirty region
 	;we will not traverse into child views if no reason
-	(exit 'view :forward_tree_callback `((:rsp dist_this) ,view1))
+	(exit :view :forward_tree_callback `((:rsp dist_this) ,view1))
 	(vp-free dist_size)
 	(vp-ret)
 
@@ -419,7 +419,7 @@
 	;add myself to draw list if any dirty region
 	(vp-rdef (view user node tmp) '(:r0 :r1 :r2 :r3))
 
-	(entry 'view :forward_tree_callback `(,view ,user))
+	(entry :view :forward_tree_callback `(,view ,user))
 
 	(assign `((,view view_dirty_region)) `(,node))
 	(vpif `(,node /= 0))
@@ -428,7 +428,7 @@
 		(ln-add-fnode user 0 node tmp)
 	(endif)
 
-	(exit 'view :forward_tree_callback `(,view ,user))
+	(exit :view :forward_tree_callback `(,view ,user))
 	(vp-ret)
 
 (def-func-end)

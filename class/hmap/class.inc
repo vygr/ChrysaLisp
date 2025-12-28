@@ -1,6 +1,6 @@
 (include "././hset/class.inc")
 
-(def-class hmap hset
+(def-class :hmap :hset
 	(dec-method :vtable class/hmap/vtable)
 	(dec-method :deinit class/hmap/deinit :override)
 	(dec-method :create class/hmap/create)

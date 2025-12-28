@@ -44,7 +44,7 @@ entry point expects arguments in specific registers (Standard ABI: `:r0` =
     ; ... Logic ...
 
     ; 5. Return Construction
-    (call 'num :create `(,cnt) '(:r1))      ; Wrap result in Lisp Num object
+    (call :num :create `(,cnt) '(:r1))      ; Wrap result in Lisp Num object
     (vp-pop :r0)                            ; Restore 'this'
 
     (exit `(,this ,args))

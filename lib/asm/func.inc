@@ -105,8 +105,8 @@
 	(print "-> " (str "obj/" *cpu* "/" *abi* "/" (str *func_name*) " (" (length *out*) ")")))
 
 (defun abort (&optional s)
-	(call 'host_os :pii_write_str (list 2 (ifn s "Abort !")))
-	(jump 'host_os :pii_exit '(1)))
+	(call :host_os :pii_write_str (list 2 (ifn s "Abort !")))
+	(jump :host_os :pii_exit '(1)))
 
 (defun assert (b &optional d)
 	(when (> *debug_mode* 0)

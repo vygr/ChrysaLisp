@@ -4,7 +4,7 @@
 (include "./class.inc")
 (include "././lisp/class.inc")
 
-(def-method 'sym :lisp_sym)
+(def-method :sym :lisp_sym)
 	;inputs
 	;:r0 = lisp object (ptr)
 	;:r1 = args list object (ptr)
@@ -14,38 +14,38 @@
 	;trashes
 	;:r1-:r14
 
-	(entry 'sym :lisp_sym '(:r0 :r1))
+	(entry :sym :lisp_sym '(:r0 :r1))
 
 	(errorif-lisp-args-len 'error1 :r1 /= 1)
 
 	(vp-cpy-rr :r0 :r4)
-	(call 'list :get_first '(:r1) '(:r0 :r1))
-	(assign `((:r1 obj_vtable) (@ ,(f-path 'sym :vtable))) '(:r2 :r3))
+	(call :list :get_first '(:r1) '(:r0 :r1))
+	(assign `((:r1 obj_vtable) (@ ,(f-path :sym :vtable))) '(:r2 :r3))
 	(vpif '(:r2 = :r3))
 		(vp-push :r4)
-		(call 'obj :ref '(:r1) '(:r0))
+		(call :obj :ref '(:r1) '(:r0))
 	(else)
 	(errorcase
-		(assign `((@ ,(f-path 'str :vtable))) '(:r3))
+		(assign `((@ ,(f-path :str :vtable))) '(:r3))
 		(gotoif '(:r2 /= :r3) 'error2))
 		(vp-push :r4)
-		(call 'sym :intern_str '(:r1) '(:r0))
+		(call :sym :intern_str '(:r1) '(:r0))
 	(endif)
 	(vp-cpy-rr :r0 :r1)
 	(vp-pop :r0)
 
-	(exit 'sym :lisp_sym '(:r0 :r1))
+	(exit :sym :lisp_sym '(:r0 :r1))
 	(vp-ret)
 
 (errorcase
 (vp-label 'error1)
-	(jump 'lisp :repl_error '(:r0 "(sym str)" +error_msg_wrong_num_of_args :r1))
+	(jump :lisp :repl_error '(:r0 "(sym str)" +error_msg_wrong_num_of_args :r1))
 (vp-label 'error2)
-	(jump 'lisp :repl_error '(:r4 "(sym str)" +error_msg_not_a_string :r0)))
+	(jump :lisp :repl_error '(:r4 "(sym str)" +error_msg_not_a_string :r0)))
 
 (def-func-end)
 
-(def-method 'sym :lisp_gensym)
+(def-method :sym :lisp_gensym)
 	;inputs
 	;:r0 = lisp object (ptr)
 	;:r1 = args list object (ptr)
@@ -55,7 +55,7 @@
 	;trashes
 	;:r1-:r14
 
-	(entry 'sym :lisp_gensym '(:r0 :r1))
+	(entry :sym :lisp_gensym '(:r0 :r1))
 
 	(errorif-lisp-args-len 'error1 :r1 /= 0)
 
@@ -67,15 +67,15 @@
 	(assign '((:r5 statics_sys_load_reloc_buffer)) '(:r5))
 	(vp-cpy-cr (ascii-code "G") :r2)
 	(vp-cpy-ri-b :r2 :r5 0)
-	(call 'sys_str :from_long '(:r0 (& :r5 1) 10) '(bufe))
-	(call 'sym :intern_pstr `(:r5 ,bufe) '(:r1))
+	(call :sys_str :from_long '(:r0 (& :r5 1) 10) '(bufe))
+	(call :sym :intern_pstr `(:r5 ,bufe) '(:r1))
 	(vp-pop :r0)
 
-	(exit 'sym :lisp_gensym '(:r0 :r1))
+	(exit :sym :lisp_gensym '(:r0 :r1))
 	(vp-ret)
 
 (errorcase
 (vp-label 'error1)
-	(jump 'lisp :repl_error '(:r0 "(gensym)" +error_msg_wrong_num_of_args :r1)))
+	(jump :lisp :repl_error '(:r0 "(gensym)" +error_msg_wrong_num_of_args :r1)))
 
 (def-func-end)

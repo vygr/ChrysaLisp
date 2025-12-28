@@ -4,7 +4,7 @@
 ; gui static class
 ;;;;;;;;;;;;;;;;;;
 
-(def-class host_gui :nil
+(def-class :host_gui :nil
 	(dec-method :init :nil :virtual (abi-args 2) (:r0))
 	(dec-method :deinit :nil :virtual (abi-args 0) (:r0))
 	(dec-method :box :nil :virtual (abi-args 1) (:r0))

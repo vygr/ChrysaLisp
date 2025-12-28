@@ -1,7 +1,7 @@
 (include "lib/asm/class.inc")
 (include "./abi.inc")
 
-(def-class host_os :nil
+(def-class :host_os :nil
 	(dec-method :exit :nil :virtual (abi-args 1))
 	(dec-method :stat :nil :virtual (abi-args 2) (:r0))
 	(dec-method :open :nil :virtual (abi-args 2) (:r0))
@@ -91,11 +91,11 @@
 		(push-scope)
 		(assign '(:r0 :r1 :r2) {_a, _b, _c})
 		(fn-string (cat s ": ") :r1)
-		(call 'host_os :pii_write_str '(2 :r1))
+		(call :host_os :pii_write_str '(2 :r1))
 		(assign {_a, _b, _c} '(:r0 :r1 :r2))
 		(assign n '(:r1))
-		(call 'host_os :pii_write_num '(2 :r1 16))
-		(call 'host_os :pii_write_char '(2 10))
+		(call :host_os :pii_write_num '(2 :r1 16))
+		(call :host_os :pii_write_char '(2 10))
 		(assign {_a, _b, _c} '(:r0 :r1 :r2))
 		(pop-scope)))
 
@@ -106,8 +106,8 @@
 		(push-scope)
 		(assign '(:r0 :r1) {_a, _b})
 		(assign s '(:r1))
-		(call 'host_os :pii_write_str '(2 :r1))
-		(call 'host_os :pii_write_char '(2 10))
+		(call :host_os :pii_write_str '(2 :r1))
+		(call :host_os :pii_write_char '(2 10))
 		(assign {_a, _b} '(:r0 :r1))
 		(pop-scope)))
 

@@ -8,10 +8,10 @@
 (include "././pixmap/class.inc")
 (include "././ctx/class.inc")
 
-(gen-create 'vdu)
-(gen-vtable 'vdu)
+(gen-create :vdu)
+(gen-vtable :vdu)
 
-(def-method 'vdu :init)
+(def-method :vdu :init)
 	;inputs
 	;:r0 = vdu object (ptr)
 	;:r1 = vtable (pptr)
@@ -22,7 +22,7 @@
 	;:r1-:r14
 
 	;init parent
-	(s-call 'vdu :init '(:r0 :r1) '(:r0 :r1))
+	(s-call :vdu :init '(:r0 :r1) '(:r0 :r1))
 	(vpif '(:r1 /= 0))
 		;init myself
 		(vp-xor-rr :r2 :r2)
@@ -33,7 +33,7 @@
 
 (def-func-end)
 
-(def-method 'vdu :deinit)
+(def-method :vdu :deinit)
 	;inputs
 	;:r0 = vdu object (ptr)
 	;outputs
@@ -44,17 +44,17 @@
 	;save object
 	(vp-push :r0)
 
-	(call 'sys_mem :free '((:r0 vdu_chars)))
+	(call :sys_mem :free '((:r0 vdu_chars)))
 	(assign '((:rsp 0)) '(:r0))
-	(call 'list :deref_if '((:r0 vdu_textures)))
+	(call :list :deref_if '((:r0 vdu_textures)))
 
 	;deinit parent
 	(vp-pop :r0)
-	(s-jump 'vdu :deinit '(:r0))
+	(s-jump :vdu :deinit '(:r0))
 
 (def-func-end)
 
-(def-method 'vdu :draw)
+(def-method :vdu :draw)
 	;inputs
 	;:r0 = view object (ptr)
 	;outputs
@@ -70,17 +70,17 @@
 
 	;save inputs
 	(push-scope)
-	(entry 'vdu :draw {this})
+	(entry :vdu :draw {this})
 
 	;get properties, do checks for any changes
-	(call 'vdu :get_long_prop {this, static_sym_ink_color} {_, col})
-	(call 'vdu :get_long_prop {this, static_sym_vdu_width} {_, w})
-	(call 'vdu :get_long_prop {this, static_sym_vdu_height} {_, h})
-	(call 'vdu :get_prop {this, static_sym_font} {_, font})
+	(call :vdu :get_long_prop {this, static_sym_ink_color} {_, col})
+	(call :vdu :get_long_prop {this, static_sym_vdu_width} {_, w})
+	(call :vdu :get_long_prop {this, static_sym_vdu_height} {_, h})
+	(call :vdu :get_prop {this, static_sym_font} {_, font})
 
 	;draw vdu chars
 	(vpif {font && this->vdu_chars && this->vdu_textures})
-		(call 'region :bounds {&this->view_dirty_region} {bx, by, bx1, by1})
+		(call :region :bounds {&this->view_dirty_region} {bx, by, bx1, by1})
 		(assign {(bx - this->view_ctx_x) / this->vdu_char_width} {bx})
 		(assign {(bx1 - this->view_ctx_x - 1) / this->vdu_char_width} {bx1})
 		(assign {(by - this->view_ctx_y) / this->vdu_char_height} {by})
@@ -97,8 +97,8 @@
 				(assign {(this->vdu_chars)[(by * this->vdu_width + x) * +long_size]} {c})
 				(vpif {c >> 32 => ink})
 					;has attributes
-					(call 'pixmap :to_argb32 {ink >> 16, 15} {paper})
-					(call 'pixmap :to_argb32 {ink, 15} {ink})
+					(call :pixmap :to_argb32 {ink >> 16, 15} {paper})
+					(call :pixmap :to_argb32 {ink, 15} {ink})
 				(else)
 					;default attributes
 					(assign {col, 0} {ink, paper})
@@ -110,15 +110,15 @@
 				(endif)
 				(vpif {paper})
 					;do we have any paper to draw ?
-					(call 'ctx :set_color {this, paper})
-					(call 'ctx :filled_box {this, x * this->vdu_char_width, by * this->vdu_char_height, this->vdu_char_width, this->vdu_char_height})
+					(call :ctx :set_color {this, paper})
+					(call :ctx :filled_box {this, x * this->vdu_char_width, by * this->vdu_char_height, this->vdu_char_width, this->vdu_char_height})
 				(endif)
 				(vpif {(c & 0x7fffffff => c) > +char_space})
 					(breakif {c > 0x7f})
-					(call 'list :get_elem {this->vdu_textures, c - 33} {_, txt})
-					(call 'texture :get_metrics {txt} {_, handle, w ,h})
+					(call :list :get_elem {this->vdu_textures, c - 33} {_, txt})
+					(call :texture :get_metrics {txt} {_, handle, w ,h})
 					(vpif {handle})
-						(call 'ctx :blit {this, handle, ink, x * this->vdu_char_width + ((this->vdu_char_width - w) >>> 1), by * this->vdu_char_height, w, h})
+						(call :ctx :blit {this, handle, ink, x * this->vdu_char_width + ((this->vdu_char_width - w) >>> 1), by * this->vdu_char_height, w, h})
 					(endif)
 				(endif)
 				(assign {x + 1} {x})
@@ -127,7 +127,7 @@
 		(loop-end)
 	(endif)
 
-	(exit 'vdu :draw {this})
+	(exit :vdu :draw {this})
 	(pop-scope)
 	(return)
 

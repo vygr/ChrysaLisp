@@ -1,6 +1,6 @@
-# hmap
+# :hmap
 
-## hset
+## :hset
 
 ## Lisp Bindings
 

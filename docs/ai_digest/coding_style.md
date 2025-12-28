@@ -653,13 +653,13 @@ manual register management.
     (entry {list_obj})
 
     (assign {0} {sum})
-    (call 'array :get_both {list_obj} {_, iter, iter_end})
+    (call :array :get_both {list_obj} {_, iter, iter_end})
     (loop-while {iter /= iter_end})
-        (call 'num :get_value {*iter} {_, val})
+        (call :num :get_value {*iter} {_, val})
         (assign {val * val + sum} {sum})
         (assign {iter + +ptr_size} {iter})
     (loop-end)
-    (call 'num :create {sum} {list_obj})
+    (call :num :create {sum} {list_obj})
 
     (exit {list_obj})
     (pop-scope)
@@ -703,7 +703,7 @@ complex algorithm implemented at this level for maximum performance.
 
     (vp-rdef (this iter iter_end sum val) '(:r8 :r9 :r10 :r11 :r12))
 
-    (entry 'my-class :sum_of_squares `(,this))
+    (entry :my-class :sum_of_squares `(,this))
 
     (assign '(0) `(,sum))
     (class/array/get_both this iter iter_end)
@@ -714,9 +714,9 @@ complex algorithm implemented at this level for maximum performance.
         (vp-add-rr val sum)
         (vp-add-cr +ptr_size iter)
     (loop-end)
-    (call 'num :create `(,sum) `(,sum))
+    (call :num :create `(,sum) `(,sum))
 
-    (exit 'my-class :sum_of_squares `(,this ,sum))
+    (exit :my-class :sum_of_squares `(,this ,sum))
     (vp-ret)
 
 (def-func-end)

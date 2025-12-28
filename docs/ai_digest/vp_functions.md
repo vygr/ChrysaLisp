@@ -165,12 +165,12 @@ This architecture ensures that by the time any application code runs, all
 symbolic resolution is complete.
 
 *   **Static Call (`f-call`)**: A call to a known function like
-    `(f-call 'sys_mem :alloc ...)` is resolved by the `boot_image` and `loader`
+    `(f-call :sys_mem :alloc ...)` is resolved by the `boot_image` and `loader`
     into an absolute memory address. The final machine code performs a direct
     `call [absolute_address_of_sys_mem_alloc]`.
 
 *   **Virtual Call (`v-call`)**: A virtual method call like
-    `(v-call 'my_widget :draw ...)` is resolved at runtime with maximum
+    `(v-call :my_widget :draw ...)` is resolved at runtime with maximum
     efficiency:
 
     1. **Get VTable Address:** The address of the object's vtable-function is

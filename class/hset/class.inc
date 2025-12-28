@@ -1,6 +1,6 @@
 (include "././obj/class.inc")
 
-(def-class hset obj
+(def-class :hset :obj
 	(dec-method :vtable class/hset/vtable)
 	(dec-method :deinit class/hset/deinit :override)
 	(dec-method :create class/hset/create :static (:r0 :r1) (:r0))

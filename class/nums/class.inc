@@ -1,6 +1,6 @@
 (include "././array/class.inc")
 
-(def-class nums array
+(def-class :nums :array
 	(dec-method :vtable class/nums/vtable)
 	(dec-method :hash class/nums/hash :override)
 	(dec-method :vcreate class/nums/create :override)

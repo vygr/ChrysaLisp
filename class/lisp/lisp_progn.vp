@@ -1,7 +1,7 @@
 (include "lib/asm/func.inc")
 (include "./class.inc")
 
-(def-method 'lisp :lisp_if)
+(def-method :lisp :lisp_if)
 	;inputs
 	;:r0 = lisp object (ptr)
 	;:r1 = args list object (ptr)
@@ -16,7 +16,7 @@
 		(pptr begin)
 		(uint len))
 
-	(entry 'lisp :lisp_if '(:r0 :r1))
+	(entry :lisp :lisp_if '(:r0 :r1))
 
 	(assign '((:r1 array_length)) '(:r2))
 (errorcase
@@ -27,35 +27,35 @@
 	(push-scope)
 	(assign '(:r0 :r1 :r2) {this, begin, len})
 
-	(call 'lisp :repl_eval '(:r0 (:r1 +ptr_size)) '(:r0 :r1))
+	(call :lisp :repl_eval '(:r0 (:r1 +ptr_size)) '(:r0 :r1))
 	(assign '((:r0 lisp_sym_nil)) '(:r2))
 	(vpif '(:r1 /= :r2))
 	(errorcase
 		(assign '((:r1 obj_vtable) (:r0 lisp_error)) '(:r2 :r3))
 		(gotoif '(:r2 = :r3) 'error1))
-		(call 'obj :deref '(:r1))
-		(jump 'lisp :repl_eval {this, begin[+ptr_size * 2]})
+		(call :obj :deref '(:r1))
+		(jump :lisp :repl_eval {this, begin[+ptr_size * 2]})
 	(endif)
 	(assign {len} '(:r2))
 	(vpif '(:r2 = 4))
 		(class/obj/ref :r1 :r2 -1)
 		(assign {begin[+ptr_size * 3]} '(:r1))
-		(jump 'lisp :repl_eval '(:r0 :r1))
+		(jump :lisp :repl_eval '(:r0 :r1))
 	(endif)
 
 (vp-label 'error1)
-	(exit 'lisp :lisp_if '(:r0 :r1))
+	(exit :lisp :lisp_if '(:r0 :r1))
 	(return)
 
 (errorcase
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(if tst form [else_form])" +error_msg_wrong_num_of_args :r1)))
+	(jump :lisp :repl_error '(:r0 "(if tst form [else_form])" +error_msg_wrong_num_of_args :r1)))
 
 	(pop-scope-syms)
 
 (def-func-end)
 
-(def-method 'lisp :lisp_ifn)
+(def-method :lisp :lisp_ifn)
 	;inputs
 	;:r0 = lisp object (ptr)
 	;:r1 = args list object (ptr)
@@ -70,7 +70,7 @@
 		(pptr begin)
 		(uint len))
 
-	(entry 'lisp :lisp_ifn '(:r0 :r1))
+	(entry :lisp :lisp_ifn '(:r0 :r1))
 
 	(assign '((:r1 array_length)) '(:r2))
 (errorcase
@@ -81,35 +81,35 @@
 	(push-scope)
 	(assign '(:r0 :r1 :r2) {this, begin, len})
 
-	(call 'lisp :repl_eval '(:r0 (:r1 +ptr_size)) '(:r0 :r1))
+	(call :lisp :repl_eval '(:r0 (:r1 +ptr_size)) '(:r0 :r1))
 	(assign '((:r0 lisp_sym_nil)) '(:r2))
 	(vpif '(:r1 = :r2))
 		(class/obj/ref :r1 :r2 -1)
 		(assign {begin[+ptr_size * 2]} '(:r1))
-		(jump 'lisp :repl_eval '(:r0 :r1))
+		(jump :lisp :repl_eval '(:r0 :r1))
 	(endif)
 	(assign {len} '(:r2))
 	(vpif '(:r2 = 4))
 	(errorcase
 		(assign '((:r1 obj_vtable) (:r0 lisp_error)) '(:r2 :r3))
 		(gotoif '(:r2 = :r3) 'error1))
-		(call 'obj :deref '(:r1))
-		(jump 'lisp :repl_eval {this, begin[+ptr_size * 3]})
+		(call :obj :deref '(:r1))
+		(jump :lisp :repl_eval {this, begin[+ptr_size * 3]})
 	(endif)
 
 (vp-label 'error1)
-	(exit 'lisp :lisp_ifn '(:r0 :r1))
+	(exit :lisp :lisp_ifn '(:r0 :r1))
 	(return)
 
 (errorcase
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(ifn tst form [else_form])" +error_msg_wrong_num_of_args :r1)))
+	(jump :lisp :repl_error '(:r0 "(ifn tst form [else_form])" +error_msg_wrong_num_of_args :r1)))
 
 	(pop-scope-syms)
 
 (def-func-end)
 
-(def-method 'lisp :lisp_while)
+(def-method :lisp :lisp_while)
 	;inputs
 	;:r0 = lisp object (ptr)
 	;:r1 = args list object (ptr)
@@ -124,7 +124,7 @@
 
 	(vp-rdef (this args iter_begin iter_end tmp vtable))
 
-	(entry 'lisp :lisp_while `(,this ,args))
+	(entry :lisp :lisp_while `(,this ,args))
 
 (errorcase
 	(assign `((,args array_length)) '(:r2))
@@ -135,33 +135,33 @@
 
 	(loop-start)
 		(assign `((,args array_begin)) `(,args))
-		(call 'lisp :repl_eval `(,this (,args ,+ptr_size)) `(,this ,args))
+		(call :lisp :repl_eval `(,this (,args ,+ptr_size)) `(,this ,args))
 		(assign `((,this lisp_sym_nil)) `(,tmp))
 		(breakif `(,args = ,tmp))
 		(assign {args} `(,tmp))
 		(class/array/get_both tmp iter_begin iter_end)
-		(call 'lisp :repl_progn `(,this ,args (& ,iter_begin ,(* 2 +ptr_size)) ,iter_end)
+		(call :lisp :repl_progn `(,this ,args (& ,iter_begin ,(* 2 +ptr_size)) ,iter_end)
 			`(,this ,args))
 
 	(errorcase
 		(assign `((,args obj_vtable) (,this lisp_error)) `(,vtable ,tmp))
 		(breakif `(,vtable = ,tmp)))
 
-		(call 'obj :deref `(,args))
+		(call :obj :deref `(,args))
 		(assign {this, args} `(,this ,args))
 	(loop-end)
 
-	(exit 'lisp :lisp_while `(,this ,args))
+	(exit :lisp :lisp_while `(,this ,args))
 	(pop-scope)
 	(return)
 
 (errorcase
 (vp-label 'error)
-	(jump 'lisp :repl_error `(,this "(while tst [body])" +error_msg_wrong_num_of_args ,args)))
+	(jump :lisp :repl_error `(,this "(while tst [body])" +error_msg_wrong_num_of_args ,args)))
 
 (def-func-end)
 
-(def-method 'lisp :lisp_until)
+(def-method :lisp :lisp_until)
 	;inputs
 	;:r0 = lisp object (ptr)
 	;:r1 = args list object (ptr)
@@ -176,7 +176,7 @@
 
 	(vp-rdef (this args iter_begin iter_end tmp vtable))
 
-	(entry 'lisp :lisp_until `(,this ,args))
+	(entry :lisp :lisp_until `(,this ,args))
 
 (errorcase
 	(assign `((,args array_length)) '(:r2))
@@ -187,33 +187,33 @@
 
 	(loop-start)
 		(assign `((,args array_begin)) `(,args))
-		(call 'lisp :repl_eval `(,this (,args ,+ptr_size)) `(,this ,args))
+		(call :lisp :repl_eval `(,this (,args ,+ptr_size)) `(,this ,args))
 		(assign `((,this lisp_sym_nil)) `(,tmp))
 		(breakif `(,args /= ,tmp))
 		(assign {args} `(,tmp))
 		(class/array/get_both tmp iter_begin iter_end)
-		(call 'lisp :repl_progn `(,this ,args (& ,iter_begin ,(* 2 +ptr_size)) ,iter_end)
+		(call :lisp :repl_progn `(,this ,args (& ,iter_begin ,(* 2 +ptr_size)) ,iter_end)
 			`(,this ,args))
 
 	(errorcase
 		(assign `((,args obj_vtable) (,this lisp_error)) `(,vtable ,tmp))
 		(breakif `(,vtable = ,tmp)))
 
-		(call 'obj :deref `(,args))
+		(call :obj :deref `(,args))
 		(assign {this, args} `(,this ,args))
 	(loop-end)
 
-	(exit 'lisp :lisp_until `(,this ,args))
+	(exit :lisp :lisp_until `(,this ,args))
 	(pop-scope)
 	(return)
 
 (errorcase
 (vp-label 'error)
-	(jump 'lisp :repl_error `(,this "(until tst [body])" +error_msg_wrong_num_of_args ,args)))
+	(jump :lisp :repl_error `(,this "(until tst [body])" +error_msg_wrong_num_of_args ,args)))
 
 (def-func-end)
 
-(def-method 'lisp :lisp_cond)
+(def-method :lisp :lisp_cond)
 	;inputs
 	;:r0 = lisp object (ptr)
 	;:r1 = args list object (ptr)
@@ -230,7 +230,7 @@
 	(vp-rdef (this value iter_begin iter_end tmp vtable))
 
 	(push-scope)
-	(entry 'lisp :lisp_cond {this, args})
+	(entry :lisp :lisp_cond {this, args})
 
 	(assign {this, args} `(,this ,value))
 	(class/array/get_both value iter_begin iter_end)
@@ -242,18 +242,18 @@
 		(vp-cpy-ir iter_begin 0 value)
 
 	(errorcase
-		(assign `((,value obj_vtable) (@ ,(f-path 'list :vtable))) `(,vtable ,tmp))
+		(assign `((,value obj_vtable) (@ ,(f-path :list :vtable))) `(,vtable ,tmp))
 		(gotoif `(,vtable /= ,tmp) 'error2)
 		(assign `((,value array_length)) `(,tmp))
 		(errorif `(,tmp = 0) 'error1))
 
 		(assign `((,value array_begin)) `(,tmp))
-		(call 'lisp :repl_eval `(,this (,tmp 0)) `(,this ,value))
+		(call :lisp :repl_eval `(,this (,tmp 0)) `(,this ,value))
 		(assign `((,this lisp_sym_nil)) `(,tmp))
 		(vpif `(,value /= ,tmp))
 			(assign {*iter_begin} `(,tmp))
 			(class/array/get_both tmp iter_begin iter_end)
-			(jump 'lisp :repl_progn `(,this ,value (& ,iter_begin ,+ptr_size) ,iter_end))
+			(jump :lisp :repl_progn `(,this ,value (& ,iter_begin ,+ptr_size) ,iter_end))
 		(endif)
 		(class/obj/ref value tmp -1)
 		(assign {iter_begin, iter_end} `(,iter_begin ,iter_end))
@@ -262,20 +262,20 @@
 	(assign `((,this lisp_sym_nil)) `(,value))
 	(class/obj/ref value tmp)
 
-	(exit 'lisp :lisp_cond `(,this ,value))
+	(exit :lisp :lisp_cond `(,this ,value))
 	(return)
 
 (errorcase
 (vp-label 'error1)
-	(jump 'lisp :repl_error {this, "(cond [(tst [body])] ...)", +error_msg_wrong_num_of_args, args})
+	(jump :lisp :repl_error {this, "(cond [(tst [body])] ...)", +error_msg_wrong_num_of_args, args})
 (vp-label 'error2)
-	(jump 'lisp :repl_error {this, "(cond [(tst [body])] ...)", +error_msg_not_a_list, args}))
+	(jump :lisp :repl_error {this, "(cond [(tst [body])] ...)", +error_msg_not_a_list, args}))
 
 	(pop-scope-syms)
 
 (def-func-end)
 
-(def-method 'lisp :lisp_condn)
+(def-method :lisp :lisp_condn)
 	;inputs
 	;:r0 = lisp object (ptr)
 	;:r1 = args list object (ptr)
@@ -292,7 +292,7 @@
 	(vp-rdef (this value iter_begin iter_end tmp vtable))
 
 	(push-scope)
-	(entry 'lisp :lisp_condn {this, args})
+	(entry :lisp :lisp_condn {this, args})
 
 	(assign {this} `(,this))
 	(assign `((,this lisp_sym_t)) `(,value))
@@ -306,40 +306,40 @@
 		(breakif `(,iter_begin = ,iter_end))
 		(assign `(,iter_begin) {iter_begin})
 
-		(call 'obj :deref `(,value))
+		(call :obj :deref `(,value))
 		(assign {this, *iter_begin} `(,this ,value))
 
 	(errorcase
-		(assign `((,value obj_vtable) (@ ,(f-path 'list :vtable))) `(,vtable ,tmp))
+		(assign `((,value obj_vtable) (@ ,(f-path :list :vtable))) `(,vtable ,tmp))
 		(gotoif `(,vtable /= ,tmp) 'error2)
 		(assign `((,value array_length)) `(,tmp))
 		(errorif `(,tmp = 0) 'error1))
 
 		(assign `((,value array_begin)) `(,tmp))
-		(call 'lisp :repl_eval `(,this (,tmp 0)) `(,this ,value))
+		(call :lisp :repl_eval `(,this (,tmp 0)) `(,this ,value))
 		(assign `((,this lisp_sym_nil)) `(,tmp))
 		(vpif `(,value = ,tmp))
 			(assign {*iter_begin} `(,tmp))
 			(class/array/get_both tmp iter_begin iter_end)
-			(jump 'lisp :repl_progn `(,this ,value (& ,iter_begin ,+ptr_size) ,iter_end))
+			(jump :lisp :repl_progn `(,this ,value (& ,iter_begin ,+ptr_size) ,iter_end))
 		(endif)
 		(assign {iter_begin, iter_end} `(,iter_begin ,iter_end))
 	(loop-end)
 
-	(exit 'lisp :lisp_condn `(,this ,value))
+	(exit :lisp :lisp_condn `(,this ,value))
 	(return)
 
 (errorcase
 (vp-label 'error1)
-	(jump 'lisp :repl_error {this, "(condn [(tst [body])] ...)", +error_msg_wrong_num_of_args, args})
+	(jump :lisp :repl_error {this, "(condn [(tst [body])] ...)", +error_msg_wrong_num_of_args, args})
 (vp-label 'error2)
-	(jump 'lisp :repl_error {this, "(condn [(tst [body])] ...)", +error_msg_not_a_list, args}))
+	(jump :lisp :repl_error {this, "(condn [(tst [body])] ...)", +error_msg_not_a_list, args}))
 
 	(pop-scope-syms)
 
 (def-func-end)
 
-(def-method 'lisp :lisp_progn)
+(def-method :lisp :lisp_progn)
 	;inputs
 	;:r0 = lisp object (ptr)
 	;:r1 = args list object (ptr)
@@ -351,16 +351,16 @@
 
 	(vp-rdef (this args iter_begin iter_end tmp))
 
-	(entry 'lisp :lisp_progn `(,this ,args))
+	(entry :lisp :lisp_progn `(,this ,args))
 
 	(class/array/get_both args iter_begin iter_end)
 	(assign `((,this lisp_sym_nil)) `(,args))
 	(class/obj/ref args tmp)
-	(jump 'lisp :repl_progn `(,this ,args (& ,iter_begin ,+ptr_size) ,iter_end))
+	(jump :lisp :repl_progn `(,this ,args (& ,iter_begin ,+ptr_size) ,iter_end))
 
 (def-func-end)
 
-(def-method 'lisp :repl_progn)
+(def-method :lisp :repl_progn)
 	;inputs
 	;:r0 = lisp object (ptr)
 	;:r1 = initial value object (ptr)
@@ -379,7 +379,7 @@
 	(vp-rdef (this value iter_begin iter_end tmp vtable))
 
 	(push-scope)
-	(entry 'lisp :repl_progn `(,this ,value ,iter_begin ,iter_end))
+	(entry :lisp :repl_progn `(,this ,value ,iter_begin ,iter_end))
 	(gotoif `(,iter_begin = ,iter_end) 'prognexit)
 
 (errorcase
@@ -392,8 +392,8 @@
 
 	(loop-start)
 		(assign `(,iter_begin) {iter_begin})
-		(call 'obj :deref `(,value))
-		(call 'lisp :repl_eval {this, *iter_begin} `(,this ,value))
+		(call :obj :deref `(,value))
+		(call :lisp :repl_eval {this, *iter_begin} `(,this ,value))
 
 	(errorcase
 		(assign `((,value obj_vtable) (,this lisp_error)) `(,vtable ,tmp))
@@ -404,11 +404,11 @@
 	(loop-until `(,iter_begin = ,iter_end))
 
 (vp-label 'prognjump)
-	(call 'obj :deref `(,value))
-	(jump 'lisp :repl_eval {this, *iter_end})
+	(call :obj :deref `(,value))
+	(jump :lisp :repl_eval {this, *iter_end})
 
 (vp-label 'prognexit)
-	(exit 'lisp :repl_progn `(,this ,value))
+	(exit :lisp :repl_progn `(,this ,value))
 	(pop-scope)
 	(return)
 

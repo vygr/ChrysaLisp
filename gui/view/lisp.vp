@@ -5,7 +5,7 @@
 (include "./class.inc")
 (include "././region/class.inc")
 
-(def-method 'view :lisp_create)
+(def-method :view :lisp_create)
 	;inputs
 	;:r0 = lisp object (ptr)
 	;:r1 = args list object (ptr)
@@ -15,24 +15,24 @@
 	;trashes
 	;:r1-:r14
 
-	(entry 'view :lisp_create '(:r0 :r1))
+	(entry :view :lisp_create '(:r0 :r1))
 
 	(errorif-lisp-args-len 'error :r1 /= 0)
 
 	(vp-push :r0)
-	(call 'view :create :nil '(:r1))
+	(call :view :create :nil '(:r1))
 	(vp-pop :r0)
 
-	(exit 'view :lisp_create '(:r0 :r1))
+	(exit :view :lisp_create '(:r0 :r1))
 	(vp-ret)
 
 (errorcase
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(create-view)" +error_msg_wrong_num_of_args :r1)))
+	(jump :lisp :repl_error '(:r0 "(create-view)" +error_msg_wrong_num_of_args :r1)))
 
 (def-func-end)
 
-(def-method 'view :lisp_find_id)
+(def-method :view :lisp_find_id)
 	;inputs
 	;:r0 = lisp object (ptr)
 	;:r1 = args list object (ptr)
@@ -42,32 +42,32 @@
 	;trashes
 	;:r1-:r14
 
-	(entry 'view :lisp_find_id '(:r0 :r1))
+	(entry :view :lisp_find_id '(:r0 :r1))
 
 	(errorif-lisp-args-sig 'error :r1 2)
 
 	(vp-push :r0)
-	(defq in (method-input 'view :find_id))
+	(defq in (method-input :view :find_id))
 	(list-bind-args :r1 in '(:view :num))
-	(call 'view :find_id in '(_ :r0))
+	(call :view :find_id in '(_ :r0))
 	(vpif '(:r0 = 0))
 		(assign '((:rsp 0)) '(:r0))
 		(assign '((:r0 lisp_sym_nil)) '(:r0))
 	(endif)
-	(call 'obj :ref '(:r0) '(:r1))
+	(call :obj :ref '(:r0) '(:r1))
 	(vp-pop :r0)
 
-	(exit 'view :lisp_find_id '(:r0 :r1))
+	(exit :view :lisp_find_id '(:r0 :r1))
 	(vp-ret)
 
 (errorcase
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(view-find-id view id)" +error_msg_wrong_types :r1))
-	(signature '(view num)))
+	(jump :lisp :repl_error '(:r0 "(view-find-id view id)" +error_msg_wrong_types :r1))
+	(signature '(:view :num)))
 
 (def-func-end)
 
-(def-method 'view :lisp_sub)
+(def-method :view :lisp_sub)
 	;inputs
 	;:r0 = lisp object (ptr)
 	;:r1 = args list object (ptr)
@@ -77,26 +77,26 @@
 	;trashes
 	;:r1-:r14
 
-	(entry 'view :lisp_sub '(:r0 :r1))
+	(entry :view :lisp_sub '(:r0 :r1))
 
 	(errorif-lisp-args-sig 'error :r1 1)
 
 	(vp-push :r0)
 	(array-bind-args :r1 '(:r0))
-	(call 'view :sub '(:r0) '(:r1))
+	(call :view :sub '(:r0) '(:r1))
 	(vp-pop :r0)
 
-	(exit 'view :lisp_sub '(:r0 :r1))
+	(exit :view :lisp_sub '(:r0 :r1))
 	(vp-ret)
 
 (errorcase
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(view-sub view)" +error_msg_wrong_types :r1))
-	(signature '(view)))
+	(jump :lisp :repl_error '(:r0 "(view-sub view)" +error_msg_wrong_types :r1))
+	(signature '(:view)))
 
 (def-func-end)
 
-(def-method 'view :lisp_hide)
+(def-method :view :lisp_hide)
 	;inputs
 	;:r0 = lisp object (ptr)
 	;:r1 = args list object (ptr)
@@ -106,27 +106,27 @@
 	;trashes
 	;:r1-:r14
 
-	(entry 'view :lisp_hide '(:r0 :r1))
+	(entry :view :lisp_hide '(:r0 :r1))
 
 	(errorif-lisp-args-sig 'error :r1 1)
 
 	(vp-push :r0)
 	(array-bind-args :r1 '(:r0))
-	(call 'view :hide '(:r0) '(:r1))
+	(call :view :hide '(:r0) '(:r1))
 	(class/obj/ref :r1 :r2)
 	(vp-pop :r0)
 
-	(exit 'view :lisp_hide '(:r0 :r1))
+	(exit :view :lisp_hide '(:r0 :r1))
 	(vp-ret)
 
 (errorcase
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(view-hide view)" +error_msg_wrong_types :r1))
-	(signature '(view)))
+	(jump :lisp :repl_error '(:r0 "(view-hide view)" +error_msg_wrong_types :r1))
+	(signature '(:view)))
 
 (def-func-end)
 
-(def-method 'view :lisp_add)
+(def-method :view :lisp_add)
 	;inputs
 	;:r0 = lisp object (ptr)
 	;:r1 = args list object (ptr)
@@ -136,7 +136,7 @@
 	;trashes
 	;:r1-:r14
 
-	(entry 'view :lisp_add '(:r0 :r1))
+	(entry :view :lisp_add '(:r0 :r1))
 
 	(errorif-lisp-args-sig 'error :r1 2)
 
@@ -147,20 +147,20 @@
 	(vpif '(:r2 = 0))
 		(class/obj/ref :r1 :r2)
 	(endif)
-	(call 'view :add_front '(:r0 :r1) '(:r1))
+	(call :view :add_front '(:r0 :r1) '(:r1))
 	(vp-pop :r0)
 
-	(exit 'view :lisp_add '(:r0 :r1))
+	(exit :view :lisp_add '(:r0 :r1))
 	(vp-ret)
 
 (errorcase
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(view-add-front parent child)" +error_msg_wrong_types :r1))
-	(signature '(view view)))
+	(jump :lisp :repl_error '(:r0 "(view-add-front parent child)" +error_msg_wrong_types :r1))
+	(signature '(:view :view)))
 
 (def-func-end)
 
-(def-method 'view :lisp_add_back)
+(def-method :view :lisp_add_back)
 	;inputs
 	;:r0 = lisp object (ptr)
 	;:r1 = args list object (ptr)
@@ -170,7 +170,7 @@
 	;trashes
 	;:r1-:r14
 
-	(entry 'view :lisp_add_back '(:r0 :r1))
+	(entry :view :lisp_add_back '(:r0 :r1))
 
 	(errorif-lisp-args-sig 'error :r1 2)
 
@@ -181,20 +181,20 @@
 	(vpif '(:r2 = 0))
 		(class/obj/ref :r1 :r2)
 	(endif)
-	(call 'view :add_back '(:r0 :r1) '(:r1))
+	(call :view :add_back '(:r0 :r1) '(:r1))
 	(vp-pop :r0)
 
-	(exit 'view :lisp_add_back '(:r0 :r1))
+	(exit :view :lisp_add_back '(:r0 :r1))
 	(vp-ret)
 
 (errorcase
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(view-add-back parent child)" +error_msg_wrong_types :r1))
-	(signature '(view view)))
+	(jump :lisp :repl_error '(:r0 "(view-add-back parent child)" +error_msg_wrong_types :r1))
+	(signature '(:view :view)))
 
 (def-func-end)
 
-(def-method 'view :lisp_trans_dirty)
+(def-method :view :lisp_trans_dirty)
 	;inputs
 	;:r0 = lisp object (ptr)
 	;:r1 = args list object (ptr)
@@ -204,29 +204,29 @@
 	;trashes
 	;:r1-:r14
 
-	(entry 'view :lisp_trans_dirty '(:r0 :r1))
+	(entry :view :lisp_trans_dirty '(:r0 :r1))
 
 	(errorif-lisp-args-sig 'error :r1 3)
 
-	(defq in (method-input 'region :translate))
+	(defq in (method-input :region :translate))
 	(list-bind-args :r1 in '(:view :num :num))
 	(vp-push :r0 (first in))
 	(vp-lea-i (first in) view_dirty_region (first in))
-	(call 'region :translate in)
+	(call :region :translate in)
 	(vp-pop :r0 :r1)
 	(class/obj/ref :r1 :r2)
 
-	(exit 'view :lisp_trans_dirty '(:r0 :r1))
+	(exit :view :lisp_trans_dirty '(:r0 :r1))
 	(vp-ret)
 
 (errorcase
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(view-trans-dirty view rx ry)" +error_msg_wrong_types :r1))
-	(signature '(view num num)))
+	(jump :lisp :repl_error '(:r0 "(view-trans-dirty view rx ry)" +error_msg_wrong_types :r1))
+	(signature '(:view :num :num)))
 
 (def-func-end)
 
-(def-method 'view :lisp_clr_opaque)
+(def-method :view :lisp_clr_opaque)
 	;inputs
 	;:r0 = lisp object (ptr)
 	;:r1 = args list object (ptr)
@@ -236,34 +236,34 @@
 	;trashes
 	;:r1-:r14
 
-	(entry 'view :lisp_clr_opaque '(:r0 :r1))
+	(entry :view :lisp_clr_opaque '(:r0 :r1))
 
 	(errorif-lisp-args-sig 'error :r1 1)
 
 	;remove any opaque region
 	(vp-push :r0)
-	(defq in (method-input 'region :free))
+	(defq in (method-input :region :free))
 	(list-bind-args :r1 in '(_ :view))
 	(vp-push (second in))
 	(fn-bind 'sys/statics/statics (first in))
 	(vp-add-cr view_opaque_region (second in))
 	(vp-add-cr statics_gui_rect_heap (first in))
-	(call 'region :free in)
+	(call :region :free in)
 	(vp-pop :r1)
 	(class/obj/ref :r1 :r2)
 	(vp-pop :r0)
 
-	(exit 'view :lisp_clr_opaque '(:r0 :r1))
+	(exit :view :lisp_clr_opaque '(:r0 :r1))
 	(vp-ret)
 
 (errorcase
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(view-clr-opaque view)" +error_msg_wrong_types :r1))
-	(signature '(view)))
+	(jump :lisp :repl_error '(:r0 "(view-clr-opaque view)" +error_msg_wrong_types :r1))
+	(signature '(:view)))
 
 (def-func-end)
 
-(def-method 'view :lisp_add_opaque)
+(def-method :view :lisp_add_opaque)
 	;inputs
 	;:r0 = lisp object (ptr)
 	;:r1 = args list object (ptr)
@@ -273,13 +273,13 @@
 	;trashes
 	;:r1-:r14
 
-	(entry 'view :lisp_add_opaque '(:r0 :r1))
+	(entry :view :lisp_add_opaque '(:r0 :r1))
 
 	(errorif-lisp-args-sig 'error :r1 5)
 
 	;paste opaque region
 	(vp-push :r0)
-	(defq in (method-input 'region :paste_rect))
+	(defq in (method-input :region :paste_rect))
 	(list-bind-args :r1 in '(_ :view :num :num :num :num))
 	(vp-push (second in))
 	(fn-bind 'sys/statics/statics (first in))
@@ -287,22 +287,22 @@
 	(vp-add-rr (elem-get in 3) (elem-get in 5))
 	(vp-add-cr view_opaque_region (second in))
 	(vp-add-cr statics_gui_rect_heap (first in))
-	(call 'region :paste_rect in)
+	(call :region :paste_rect in)
 	(vp-pop :r1)
 	(class/obj/ref :r1 :r2)
 	(vp-pop :r0)
 
-	(exit 'view :lisp_add_opaque '(:r0 :r1))
+	(exit :view :lisp_add_opaque '(:r0 :r1))
 	(vp-ret)
 
 (errorcase
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(view-add-opaque view x y w h)" +error_msg_wrong_types :r1))
-	(signature '(view num num num num)))
+	(jump :lisp :repl_error '(:r0 "(view-add-opaque view x y w h)" +error_msg_wrong_types :r1))
+	(signature '(:view :num :num :num :num)))
 
 (def-func-end)
 
-(def-method 'view :lisp_sub_opaque)
+(def-method :view :lisp_sub_opaque)
 	;inputs
 	;:r0 = lisp object (ptr)
 	;:r1 = args list object (ptr)
@@ -312,13 +312,13 @@
 	;trashes
 	;:r1-:r14
 
-	(entry 'view :lisp_sub_opaque '(:r0 :r1))
+	(entry :view :lisp_sub_opaque '(:r0 :r1))
 
 	(errorif-lisp-args-sig 'error :r1 5)
 
 	;remove opaque region
 	(vp-push :r0)
-	(defq in (method-input 'region :remove_rect))
+	(defq in (method-input :region :remove_rect))
 	(list-bind-args :r1 in '(_ :view :num :num :num :num))
 	(vp-push (second in))
 	(fn-bind 'sys/statics/statics (first in))
@@ -326,22 +326,22 @@
 	(vp-add-rr (elem-get in 3) (elem-get in 5))
 	(vp-add-cr view_opaque_region (second in))
 	(vp-add-cr statics_gui_rect_heap (first in))
-	(call 'region :remove_rect in)
+	(call :region :remove_rect in)
 	(vp-pop :r1)
 	(class/obj/ref :r1 :r2)
 	(vp-pop :r0)
 
-	(exit 'view :lisp_sub_opaque '(:r0 :r1))
+	(exit :view :lisp_sub_opaque '(:r0 :r1))
 	(vp-ret)
 
 (errorcase
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(view-sub-opaque view x y w h)" +error_msg_wrong_types :r1))
-	(signature '(view num num num num)))
+	(jump :lisp :repl_error '(:r0 "(view-sub-opaque view x y w h)" +error_msg_wrong_types :r1))
+	(signature '(:view :num :num :num :num)))
 
 (def-func-end)
 
-(def-method 'view :lisp_set_flags)
+(def-method :view :lisp_set_flags)
 	;inputs
 	;:r0 = lisp object (ptr)
 	;:r1 = args list object (ptr)
@@ -351,28 +351,28 @@
 	;trashes
 	;:r1-:r14
 
-	(entry 'view :lisp_set_flags '(:r0 :r1))
+	(entry :view :lisp_set_flags '(:r0 :r1))
 
 	(errorif-lisp-args-sig 'error :r1 3)
 
 	(vp-push :r0)
-	(defq in (method-input 'view :set_flags))
+	(defq in (method-input :view :set_flags))
 	(list-bind-args :r1 in '(:view :num :num))
-	(call 'view :set_flags in '(:r0 _))
-	(call 'view :ref '(:r0) '(:r1))
+	(call :view :set_flags in '(:r0 _))
+	(call :view :ref '(:r0) '(:r1))
 	(vp-pop :r0)
 
-	(exit 'view :lisp_set_flags '(:r0 :r1))
+	(exit :view :lisp_set_flags '(:r0 :r1))
 	(vp-ret)
 
 (errorcase
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(view-set-flags view flags mask)" +error_msg_wrong_types :r1))
-	(signature '(view num num)))
+	(jump :lisp :repl_error '(:r0 "(view-set-flags view flags mask)" +error_msg_wrong_types :r1))
+	(signature '(:view :num :num)))
 
 (def-func-end)
 
-(def-method 'view :lisp_add_dirty)
+(def-method :view :lisp_add_dirty)
 	;inputs
 	;:r0 = lisp object (ptr)
 	;:r1 = args list object (ptr)
@@ -382,13 +382,13 @@
 	;trashes
 	;:r1-:r14
 
-	(entry 'view :lisp_add_dirty '(:r0 :r1))
+	(entry :view :lisp_add_dirty '(:r0 :r1))
 
 	(errorif-lisp-args-sig 'error :r1 5)
 
 	;paste dirty region
 	(vp-push :r0)
-	(defq in (method-input 'region :paste_rect))
+	(defq in (method-input :region :paste_rect))
 	(list-bind-args :r1 in '(_ :view :num :num :num :num))
 	(vp-push (second in))
 	(fn-bind 'sys/statics/statics (first in))
@@ -398,22 +398,22 @@
 	(vp-add-cr view_dirty_region (second in))
 	(assign '(:r14) `((,(first in) statics_gui_dirty_flag)))
 	(vp-add-cr statics_gui_rect_heap (first in))
-	(call 'region :paste_rect in)
+	(call :region :paste_rect in)
 	(vp-pop :r1)
 	(class/obj/ref :r1 :r2)
 	(vp-pop :r0)
 
-	(exit 'view :lisp_add_dirty '(:r0 :r1))
+	(exit :view :lisp_add_dirty '(:r0 :r1))
 	(vp-ret)
 
 (errorcase
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(view-add-dirty view x y w h)" +error_msg_wrong_types :r1))
-	(signature '(view num num num num)))
+	(jump :lisp :repl_error '(:r0 "(view-add-dirty view x y w h)" +error_msg_wrong_types :r1))
+	(signature '(:view :num :num :num :num)))
 
 (def-func-end)
 
-(def-method 'view :lisp_children)
+(def-method :view :lisp_children)
 	;inputs
 	;:r0 = lisp object (ptr)
 	;:r1 = args list object (ptr)
@@ -425,13 +425,13 @@
 
 	(vp-rdef (this node next) '(:r13 :r12 :r11))
 
-	(entry 'view :lisp_children '(:r0 :r1))
+	(entry :view :lisp_children '(:r0 :r1))
 
 	(errorif-lisp-args-sig 'error :r1 1)
 
 	(assign '(:r0) `(,this))
 	(list-bind-args :r1 `(,node) '(:view))
-	(call 'list :create :nil '(:r0))
+	(call :list :create :nil '(:r0))
 	(lh-get-head node view_list node)
 	(loop-start)
 		(ln-get-succ node 0 next)
@@ -439,22 +439,22 @@
 		;push ref
 		(vp-sub-cr view_node node)
 		(class/obj/ref node :r1)
-		(call 'list :push_back `(:r0 ,node) '(:r0 :r1 _ _))
+		(call :list :push_back `(:r0 ,node) '(:r0 :r1 _ _))
 		;across to sibling
 		(ln-get-succ :r1 view_node node)
 	(loop-end)
 
-	(exit 'view :lisp_children `(,this :r0))
+	(exit :view :lisp_children `(,this :r0))
 	(vp-ret)
 
 (errorcase
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(view-children view)" +error_msg_wrong_types :r1))
-	(signature '(view)))
+	(jump :lisp :repl_error '(:r0 "(view-children view)" +error_msg_wrong_types :r1))
+	(signature '(:view)))
 
 (def-func-end)
 
-(def-method 'view :lisp_flatten)
+(def-method :view :lisp_flatten)
 	;inputs
 	;:r0 = lisp object (ptr)
 	;:r1 = args list object (ptr)
@@ -466,43 +466,43 @@
 
 	(vp-rdef (this node nodes) '(:r13 :r12 :r11))
 
-	(entry 'view :lisp_flatten '(:r0 :r1))
+	(entry :view :lisp_flatten '(:r0 :r1))
 
 	(errorif-lisp-args-sig 'error :r1 1)
 
 	(assign '(:r0) `(,this))
 	(list-bind-args :r1 `(,node) '(:view))
-	(call 'list :create :nil `(,nodes))
-	(call 'view :forward_tree `(,node ,nodes ($ down_callback) ($ up_callback)))
+	(call :list :create :nil `(,nodes))
+	(call :view :forward_tree `(,node ,nodes ($ down_callback) ($ up_callback)))
 
-	(exit 'view :lisp_flatten `(,this ,nodes))
+	(exit :view :lisp_flatten `(,this ,nodes))
 	(vp-ret)
 
 (vp-label 'up_callback)
-	(entry 'view :forward_tree_callback `(,node _))
+	(entry :view :forward_tree_callback `(,node _))
 	(class/obj/ref node :r0)
-	(call 'list :push_back `(,nodes ,node))
-	(exit 'view :forward_tree_callback `(,node :r1))
+	(call :list :push_back `(,nodes ,node))
+	(exit :view :forward_tree_callback `(,node :r1))
 	(vp-ret)
 
 (vp-label 'down_callback)
-	(entry 'view :forward_tree_callback '(:r0 :r1))
+	(entry :view :forward_tree_callback '(:r0 :r1))
 	(vpif `(,node /= :r0))
 		(assign '((:r0 view_flags)) '(:r1))
 		(vp-and-cr (+ view_flag_subtree view_flag_hidden) :r1)
 		(vp-lnot-rr :r2 :r1)
 	(endif)
-	(exit 'view :forward_tree_callback '(:r0 :r1))
+	(exit :view :forward_tree_callback '(:r0 :r1))
 	(vp-ret)
 
 (errorcase
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(view-flatten view)" +error_msg_wrong_types :r1))
-	(signature '(view)))
+	(jump :lisp :repl_error '(:r0 "(view-flatten view)" +error_msg_wrong_types :r1))
+	(signature '(:view)))
 
 (def-func-end)
 
-(def-method 'view :lisp_to_front)
+(def-method :view :lisp_to_front)
 	;inputs
 	;:r0 = lisp object (ptr)
 	;:r1 = args list object (ptr)
@@ -512,28 +512,28 @@
 	;trashes
 	;:r1-:r14
 
-	(entry 'view :lisp_to_front '(:r0 :r1))
+	(entry :view :lisp_to_front '(:r0 :r1))
 
 	(errorif-lisp-args-sig 'error :r1 1)
 
 	(vp-push :r0)
-	(defq in (method-input 'view :to_front))
+	(defq in (method-input :view :to_front))
 	(list-bind-args :r1 in '(:view))
-	(call 'view :to_front in '(:r0))
-	(call 'obj :ref '(:r0) '(:r1))
+	(call :view :to_front in '(:r0))
+	(call :obj :ref '(:r0) '(:r1))
 	(vp-pop :r0)
 
-	(exit 'view :lisp_to_front '(:r0 :r1))
+	(exit :view :lisp_to_front '(:r0 :r1))
 	(vp-ret)
 
 (errorcase
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(view-to-front view)" +error_msg_wrong_types :r1))
-	(signature '(view)))
+	(jump :lisp :repl_error '(:r0 "(view-to-front view)" +error_msg_wrong_types :r1))
+	(signature '(:view)))
 
 (def-func-end)
 
-(def-method 'view :lisp_to_back)
+(def-method :view :lisp_to_back)
 	;inputs
 	;:r0 = lisp object (ptr)
 	;:r1 = args list object (ptr)
@@ -543,28 +543,28 @@
 	;trashes
 	;:r1-:r14
 
-	(entry 'view :lisp_to_back '(:r0 :r1))
+	(entry :view :lisp_to_back '(:r0 :r1))
 
 	(errorif-lisp-args-sig 'error :r1 1)
 
 	(vp-push :r0)
-	(defq in (method-input 'view :to_back))
+	(defq in (method-input :view :to_back))
 	(list-bind-args :r1 in '(:view))
-	(call 'view :to_back in '(:r0))
-	(call 'obj :ref '(:r0) '(:r1))
+	(call :view :to_back in '(:r0))
+	(call :obj :ref '(:r0) '(:r1))
 	(vp-pop :r0)
 
-	(exit 'view :lisp_to_back '(:r0 :r1))
+	(exit :view :lisp_to_back '(:r0 :r1))
 	(vp-ret)
 
 (errorcase
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(view-to-back view)" +error_msg_wrong_types :r1))
-	(signature '(view)))
+	(jump :lisp :repl_error '(:r0 "(view-to-back view)" +error_msg_wrong_types :r1))
+	(signature '(:view)))
 
 (def-func-end)
 
-(def-method 'view :lisp_hit_tree)
+(def-method :view :lisp_hit_tree)
 	;inputs
 	;:r0 = lisp object (ptr)
 	;:r1 = args list object (ptr)
@@ -574,32 +574,32 @@
 	;trashes
 	;:r1-:r14
 
-	(entry 'view :lisp_hit_tree '(:r0 :r1))
+	(entry :view :lisp_hit_tree '(:r0 :r1))
 
 	(errorif-lisp-args-sig 'error :r1 3)
 
 	(vp-push :r0)
-	(defq in (method-input 'view :hit_tree))
+	(defq in (method-input :view :hit_tree))
 	(list-bind-args :r1 in '(:view :num :num))
-	(call 'view :hit_tree in '(_ :r10 :r11 :r12))
+	(call :view :hit_tree in '(_ :r10 :r11 :r12))
 	(vpif '(:r10 = 0))
 		(assign '((:rsp 0)) '(:r10))
 		(assign '((:r10 lisp_sym_nil)) '(:r10))
 	(endif)
 	(class/obj/ref :r10 :r0)
-	(call 'num :create '(:r11) '(:r11))
-	(call 'num :create '(:r12) '(:r12))
-	(call 'list :create :nil '(:r0))
-	(call 'list :push_back '(:r0 :r10) '(:r0 _ _ _))
-	(call 'list :push_back2 '(:r0 :r11 :r12) '(:r1 _ _ _ _))
+	(call :num :create '(:r11) '(:r11))
+	(call :num :create '(:r12) '(:r12))
+	(call :list :create :nil '(:r0))
+	(call :list :push_back '(:r0 :r10) '(:r0 _ _ _))
+	(call :list :push_back2 '(:r0 :r11 :r12) '(:r1 _ _ _ _))
 	(vp-pop :r0)
 
-	(exit 'view :lisp_hit_tree '(:r0 :r1))
+	(exit :view :lisp_hit_tree '(:r0 :r1))
 	(vp-ret)
 
 (errorcase
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(view-hit-tree view x y)" +error_msg_wrong_types :r1))
-	(signature '(view num num)))
+	(jump :lisp :repl_error '(:r0 "(view-hit-tree view x y)" +error_msg_wrong_types :r1))
+	(signature '(:view :num :num)))
 
 (def-func-end)

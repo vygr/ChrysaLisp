@@ -5,7 +5,7 @@
 (include "././statics/class.inc")
 (include "././kernel/class.inc")
 
-(def-method 'sys_link :link)
+(def-method :sys_link :link)
 	;started by kernel for each link
 
 	(def-vars
@@ -19,23 +19,23 @@
 
 	;decrement task count
 	;don't count links in load balancing
-	(call 'sys_task :count '(-3))
+	(call :sys_task :count '(-3))
 
 	;init and add link node to link array
 	(assign {@sys/statics/statics} {statics})
-	(call 'sys_kernel :id :nil {node_id.node_id_node1, node_id.node_id_node2})
+	(call :sys_kernel :id :nil {node_id.node_id_node1, node_id.node_id_node2})
 	(assign {0 => lk_node.lk_node_task_count => lk_node.lk_node_peer_node_id.node_id_node1}
 		{lk_node.lk_node_peer_node_id.node_id_node2})
-	(call 'array :push_back {statics->statics_sys_mail_links_array, &lk_node})
+	(call :array :push_back {statics->statics_sys_mail_links_array, &lk_node})
 
 	;read params msg from kernel
-	(call 'sys_mail :mymail :nil {params, pdata})
+	(call :sys_mail :mymail :nil {params, pdata})
 
 	;open shared memory file
-	(call 'host_os :pii_open_shared {pdata, lk_shmem_size} {handle})
+	(call :host_os :pii_open_shared {pdata, lk_shmem_size} {handle})
 
 	;map shared object
-	(call 'host_os :pii_mmap {lk_shmem_size, handle, +mmap_shared} {mem})
+	(call :host_os :pii_mmap {lk_shmem_size, handle, +mmap_shared} {mem})
 
 	;put my towel down if seams available
 	(vpifnot {mem->lk_shmem_towel})
@@ -43,44 +43,44 @@
 	(endif)
 
 	;start out link and send params
-	(call 'sys_mail :alloc {16} {msg, data})
-	(call 'sys_task :start (cat {@} (f-path 'sys_link :out)) '(_ _ :r2 :r3 :r4))
+	(call :sys_mail :alloc {16} {msg, data})
+	(call :sys_task :start (cat {@} (f-path :sys_link :out)) '(_ _ :r2 :r3 :r4))
 	(assign {msg, data, &lk_node, mem} '(:r0 :r1 :r5 :r6))
 	(save-net-id :r0 msg_dest)
 	(assign '(:r5 :r6) '((:r1 0) (:r1 +ptr_size)))
-	(call 'sys_mail :send '(:r0))
+	(call :sys_mail :send '(:r0))
 
 	;start in link and send params
-	(call 'sys_mail :alloc {16} {msg, data})
-	(call 'sys_task :start (cat {@} (f-path 'sys_link :in)) '(_ _ :r2 :r3 :r4))
+	(call :sys_mail :alloc {16} {msg, data})
+	(call :sys_task :start (cat {@} (f-path :sys_link :in)) '(_ _ :r2 :r3 :r4))
 	(assign {msg, data, &lk_node, mem} '(:r0 :r1 :r5 :r6))
 	(save-net-id :r0 msg_dest)
 	(assign '(:r5 :r6) '((:r1 0) (:r1 +ptr_size)))
-	(call 'sys_mail :send '(:r0))
+	(call :sys_mail :send '(:r0))
 
 	;wait till link dies or told to quit...
 	(loop-start)
-		(call 'sys_task :sleep '(1000000))
+		(call :sys_task :sleep '(1000000))
 		;exit if signaled by kernel...
 	(loop-end)
 
 	;unmap object
-	(call 'host_os :pii_munmap {mem, lk_shmem_size, +mmap_shared})
+	(call :host_os :pii_munmap {mem, lk_shmem_size, +mmap_shared})
 
 	;close it
-	(call 'host_os :pii_close_shared {pdata, handle})
+	(call :host_os :pii_close_shared {pdata, handle})
 
 	;free params msg
-	(call 'sys_mail :free {params})
+	(call :sys_mail :free {params})
 
 	;restore task count
-	(call 'sys_task :count '(3))
+	(call :sys_task :count '(3))
 	(pop-scope)
 	(return)
 
 (def-func-end)
 
-(def-method 'sys_link :out)
+(def-method :sys_link :out)
 
 	(def-vars
 		(ptr statics lk_node msg data tx tx_msg key)
@@ -89,21 +89,21 @@
 	(push-scope)
 
 	(assign {@sys/statics/statics} {statics})
-	(call 'nodeid :create '(0) {key})
+	(call :nodeid :create '(0) {key})
 
 	;read params msg
-	(call 'sys_mail :mymail :nil {msg, data})
+	(call :sys_mail :mymail :nil {msg, data})
 	(assign {ptr(data + 0)} {lk_node})
 	(assign {ptr(data + +ptr_size)} {tx})
-	(call 'sys_mail :free {msg})
+	(call :sys_mail :free {msg})
 
 	;switch to link priority and sleep to
 	;let other links join us at this priority
-	(call 'sys_task :set_priority '(1))
-	(call 'sys_task :sleep '(500000))
+	(call :sys_task :set_priority '(1))
+	(call :sys_task :sleep '(500000))
 
 	;assign tx channel
-	(call 'sys_kernel :id :nil {node_id.node_id_node1, node_id.node_id_node2})
+	(call :sys_kernel :id :nil {node_id.node_id_node1, node_id.node_id_node2})
 	(vpif {tx->lk_shmem_towel = node_id.node_id_node1})
 		(assign {tx + lk_shmem_chan_1} {tx})
 	(else)
@@ -120,7 +120,7 @@
 				{tx_msg->lk_buf_peer_node_id.node_id_node1, tx_msg->lk_buf_peer_node_id.node_id_node2, tx_msg->lk_buf_task_count})
 
 			;see if any mail for this link
-			(call 'sys_mail :ready
+			(call :sys_mail :ready
 				{lk_node->lk_node_peer_node_id.node_id_node1,
 				lk_node->lk_node_peer_node_id.node_id_node2,
 				key} {msg})
@@ -134,14 +134,14 @@
 					`(,len ,off ,tot))
 				(assign-net-id msg msg_dest tx_msg lk_buf_dest)
 				(assign-net-id msg msg_src tx_msg lk_buf_src)
-				(call 'sys_mem :copy {msg->msg_frag_data, &tx_msg->lk_buf_data, (msg->msg_frag_length + +long_size - 1) & -+long_size})
+				(call :sys_mem :copy {msg->msg_frag_data, &tx_msg->lk_buf_data, (msg->msg_frag_length + +long_size - 1) & -+long_size})
 
 				;busy status
 				(vp-sync)
 				(assign {lk_chan_status_busy} {tx_msg->lk_buf_status})
 
 				;free message
-				(call 'sys_mail :free {msg})
+				(call :sys_mail :free {msg})
 
 				;move on to next msg chan
 				(assign {&tx_msg->lk_buf_size} {tx_msg})
@@ -166,23 +166,23 @@
 			(endif)
 
 			;let other links run
-			(call 'sys_task :sleep '(0))
+			(call :sys_task :sleep '(0))
 		(loop-end)
 
 		;small sleep if nothing to do
-		(call 'sys_task :sleep '(1000))
+		(call :sys_task :sleep '(1000))
 
 		;exit if signaled by kernel...
 	(loop-end)
 
-	(call 'nodeid :destroy {key})
+	(call :nodeid :destroy {key})
 
 	(pop-scope)
 	(return)
 
 (def-func-end)
 
-(def-method 'sys_link :in)
+(def-method :sys_link :in)
 
 	(def-vars
 		(ptr lk_node msg data rx rx_msg)
@@ -191,18 +191,18 @@
 	(push-scope)
 
 	;read params msg
-	(call 'sys_mail :mymail :nil {msg, data})
+	(call :sys_mail :mymail :nil {msg, data})
 	(assign {ptr(data + 0)} {lk_node})
 	(assign {ptr(data + +ptr_size)} {rx})
-	(call 'sys_mail :free {msg})
+	(call :sys_mail :free {msg})
 
 	;switch to link priority and sleep to
 	;let other links join us at this priority
-	(call 'sys_task :set_priority '(1))
-	(call 'sys_task :sleep '(1000000))
+	(call :sys_task :set_priority '(1))
+	(call :sys_task :sleep '(1000000))
 
 	;assign rx channel
-	(call 'sys_kernel :id :nil {node_id.node_id_node1, node_id.node_id_node2})
+	(call :sys_kernel :id :nil {node_id.node_id_node1, node_id.node_id_node2})
 	(vpif {rx->lk_shmem_towel = node_id.node_id_node1})
 		(assign {rx + lk_shmem_chan_2} {rx})
 	(else)
@@ -225,10 +225,10 @@
 					&& rx_msg->lk_buf_dest.net_id_node_id.node_id_node1 = node_id.node_id_node1
 					&& rx_msg->lk_buf_dest.net_id_node_id.node_id_node2 = node_id.node_id_node2})
 					;copy direct from link buffer to parcel !
-					(call 'sys_mail :in {rx_msg})
+					(call :sys_mail :in {rx_msg})
 				(else)
 					;allocate msg, copy over data
-					(call 'sys_mail :alloc {rx_msg->lk_buf_frag_length} {msg, data})
+					(call :sys_mail :alloc {rx_msg->lk_buf_frag_length} {msg, data})
 					(vp-rdef (msg rx_msg len off tot))
 					(assign {msg, rx_msg} `(,msg ,rx_msg))
 					(assign-fields
@@ -237,12 +237,12 @@
 						`(,len ,off ,tot))
 					(assign-net-id rx_msg lk_buf_dest msg msg_dest)
 					(assign-net-id rx_msg lk_buf_src msg msg_src)
-					(call 'sys_mem :copy {&rx_msg->lk_buf_data, data, (rx_msg->lk_buf_frag_length + +long_size - 1) & -+long_size})
+					(call :sys_mem :copy {&rx_msg->lk_buf_data, data, (rx_msg->lk_buf_frag_length + +long_size - 1) & -+long_size})
 					;clear status
 					(assign {lk_chan_status_ready} {rx_msg->lk_buf_status})
 
 					;send onwards
-					(call 'sys_mail :send {msg})
+					(call :sys_mail :send {msg})
 				(endif)
 			(else)
 				;clear status
@@ -256,11 +256,11 @@
 			(endif)
 
 			;let other links run
-			(call 'sys_task :sleep '(0))
+			(call :sys_task :sleep '(0))
 		(loop-end)
 
 		;small sleep as nothing to do
-		(call 'sys_task :sleep '(1000))
+		(call :sys_task :sleep '(1000))
 
 		;exit if signaled by kernel...
 	(loop-end)

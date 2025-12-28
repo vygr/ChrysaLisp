@@ -2,7 +2,7 @@
 (include "sys/math/class.inc")
 (include "./class.inc")
 
-(def-method 'path :filter_polygon)
+(def-method :path :filter_polygon)
 	;inputs
 	;:r0 = path object (ptr)
 	;:r1 = source path object, can be same (ptr)
@@ -18,10 +18,10 @@
 		(int eps))
 
 	(push-scope)
-	(entry 'path :filter_polygon {this, that, eps})
+	(entry :path :filter_polygon {this, that, eps})
 
-	(call 'path :filter_polyline {this, that, eps})
-	(call 'path :get_both {this} {_, iter_begin, iter_end})
+	(call :path :filter_polyline {this, that, eps})
+	(call :path :get_both {this} {_, iter_begin, iter_end})
 
 	(vec-set 0)
 	(vec-load 2 {iter_end, iter_begin})
@@ -35,11 +35,11 @@
 		(vec-load-long 2 e (* -2 +long_size))
 		(vec-fdistance-squared 2)
 		(vpif (list (first (vec-pop 1)) '< x))
-			(call 'path :pop_back2 {this})
+			(call :path :pop_back2 {this})
 		(endif)
 	(endif)
 
-	(exit 'path :filter_polygon {this})
+	(exit :path :filter_polygon {this})
 	(pop-scope)
 	(return)
 

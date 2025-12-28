@@ -1,6 +1,6 @@
-# dim
+# :dim
 
-## obj
+## :obj
 
 ## Lisp Bindings
 

@@ -1,6 +1,6 @@
-# pixmap
+# :pixmap
 
-## obj
+## :obj
 
 ## Lisp Bindings
 

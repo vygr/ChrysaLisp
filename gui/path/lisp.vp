@@ -6,7 +6,7 @@
 (include "class/fixed/class.inc")
 (include "./class.inc")
 
-(def-method 'path :lisp_transform)
+(def-method :path :lisp_transform)
 	;inputs
 	;:r0 = lisp object (ptr)
 	;:r1 = args list object (ptr)
@@ -16,33 +16,33 @@
 	;trashes
 	;:r1-:r14
 
-	(entry 'path :lisp_transform '(:r0 :r1))
+	(entry :path :lisp_transform '(:r0 :r1))
 
 	(errorif-lisp-args-sig 'error :r1 3)
 
 	(vp-push :r0 :r1)
-	(bind '(dst sp m3x2) (method-input 'path :transform))
+	(bind '(dst sp m3x2) (method-input :path :transform))
 	(list-bind-args :r1 `(,m3x2 ,sp ,dst) '(:fixeds :path :path))
 	(errorcase
 		(assign `((,m3x2 array_length)) '(:r14))
 		(gotoif '(:r14 < 6) 'error1))
-	(call 'path :transform `(,dst ,sp ,m3x2) '(:r0))
-	(call 'obj :ref '(:r0) '(:r1))
+	(call :path :transform `(,dst ,sp ,m3x2) '(:r0))
+	(call :obj :ref '(:r0) '(:r1))
 	(vp-pop :r0 :r2)
 
-	(exit 'path :lisp_transform '(:r0 :r1))
+	(exit :path :lisp_transform '(:r0 :r1))
 	(vp-ret)
 
 (errorcase
 (vp-label 'error1)
 	(vp-pop :r0 :r1)
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(path-transform m3x2 src dst)" +error_msg_wrong_types :r1))
-	(signature '(fixeds path path)))
+	(jump :lisp :repl_error '(:r0 "(path-transform m3x2 src dst)" +error_msg_wrong_types :r1))
+	(signature '(:fixeds :path :path)))
 
 (def-func-end)
 
-(def-method 'path :lisp_simplify)
+(def-method :path :lisp_simplify)
 	;inputs
 	;:r0 = lisp object (ptr)
 	;:r1 = args list object (ptr)
@@ -52,28 +52,28 @@
 	;trashes
 	;:r1-:r14
 
-	(entry 'path :lisp_simplify '(:r0 :r1))
+	(entry :path :lisp_simplify '(:r0 :r1))
 
 	(errorif-lisp-args-sig 'error :r1 3)
 
 	(vp-push :r0)
-	(bind '(dst src tol) (method-input 'path :simplify))
+	(bind '(dst src tol) (method-input :path :simplify))
 	(list-bind-args :r1 `(,tol ,src ,dst) '(:fixed :path :path))
-	(call 'path :simplify `(,dst ,src ,tol) '(:r0))
-	(call 'obj :ref '(:r0) '(:r1))
+	(call :path :simplify `(,dst ,src ,tol) '(:r0))
+	(call :obj :ref '(:r0) '(:r1))
 	(vp-pop :r0)
 
-	(exit 'path :lisp_simplify '(:r0 :r1))
+	(exit :path :lisp_simplify '(:r0 :r1))
 	(vp-ret)
 
 (errorcase
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(path-simplify tol src dst)" +error_msg_wrong_types :r1))
-	(signature '(fixed path path)))
+	(jump :lisp :repl_error '(:r0 "(path-simplify tol src dst)" +error_msg_wrong_types :r1))
+	(signature '(:fixed :path :path)))
 
 (def-func-end)
 
-(def-method 'path :lisp_filter)
+(def-method :path :lisp_filter)
 	;inputs
 	;:r0 = lisp object (ptr)
 	;:r1 = args list object (ptr)
@@ -83,28 +83,28 @@
 	;trashes
 	;:r1-:r14
 
-	(entry 'path :lisp_filter '(:r0 :r1))
+	(entry :path :lisp_filter '(:r0 :r1))
 
 	(errorif-lisp-args-sig 'error :r1 3)
 
 	(vp-push :r0)
-	(bind '(dst sp tol) (method-input 'path :filter_polyline))
+	(bind '(dst sp tol) (method-input :path :filter_polyline))
 	(list-bind-args :r1 `(,tol ,sp ,dst) '(:fixed :path :path))
-	(call 'path :filter_polyline `(,dst ,sp ,tol) '(:r0))
-	(call 'obj :ref '(:r0) '(:r1))
+	(call :path :filter_polyline `(,dst ,sp ,tol) '(:r0))
+	(call :obj :ref '(:r0) '(:r1))
 	(vp-pop :r0)
 
-	(exit 'path :lisp_filter '(:r0 :r1))
+	(exit :path :lisp_filter '(:r0 :r1))
 	(vp-ret)
 
 (errorcase
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(path-filter tol src dst)" +error_msg_wrong_types :r1))
-	(signature '(fixed path path)))
+	(jump :lisp :repl_error '(:r0 "(path-filter tol src dst)" +error_msg_wrong_types :r1))
+	(signature '(:fixed :path :path)))
 
 (def-func-end)
 
-(def-method 'path :lisp_gen_quadratic)
+(def-method :path :lisp_gen_quadratic)
 	;inputs
 	;:r0 = lisp object (ptr)
 	;:r1 = args list object (ptr)
@@ -114,29 +114,29 @@
 	;trashes
 	;:r1-:r14
 
-	(entry 'path :lisp_gen_quadratic '(:r0 :r1))
+	(entry :path :lisp_gen_quadratic '(:r0 :r1))
 
 	(errorif-lisp-args-sig 'error :r1 7)
 
 	(vp-push :r0)
-	(bind '(dst p1x p1y p2x p2y p3x p3y) (method-input 'path :gen_quadratic))
+	(bind '(dst p1x p1y p2x p2y p3x p3y) (method-input :path :gen_quadratic))
 	(list-bind-args :r1 `(,p1x ,p1y ,p2x ,p2y ,p3x ,p3y ,dst)
 		'(:fixed :fixed :fixed :fixed :fixed :fixed :path))
-	(call 'path :gen_quadratic `(,dst ,p1x ,p1y ,p2x ,p2y ,p3x ,p3y) '(:r0))
-	(call 'obj :ref '(:r0) '(:r1))
+	(call :path :gen_quadratic `(,dst ,p1x ,p1y ,p2x ,p2y ,p3x ,p3y) '(:r0))
+	(call :obj :ref '(:r0) '(:r1))
 	(vp-pop :r0)
 
-	(exit 'path :lisp_gen_quadratic '(:r0 :r1))
+	(exit :path :lisp_gen_quadratic '(:r0 :r1))
 	(vp-ret)
 
 (errorcase
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(path-gen-quadratic p1x p1y p2x p2y p3x p3y dst)" +error_msg_wrong_types :r1))
-	(signature '(fixed fixed fixed fixed fixed fixed path)))
+	(jump :lisp :repl_error '(:r0 "(path-gen-quadratic p1x p1y p2x p2y p3x p3y dst)" +error_msg_wrong_types :r1))
+	(signature '(:fixed :fixed :fixed :fixed :fixed :fixed :path)))
 
 (def-func-end)
 
-(def-method 'path :lisp_gen_cubic)
+(def-method :path :lisp_gen_cubic)
 	;inputs
 	;:r0 = lisp object (ptr)
 	;:r1 = args list object (ptr)
@@ -146,29 +146,29 @@
 	;trashes
 	;:r1-:r14
 
-	(entry 'path :lisp_gen_cubic '(:r0 :r1))
+	(entry :path :lisp_gen_cubic '(:r0 :r1))
 
 	(errorif-lisp-args-sig 'error :r1 9)
 
 	(vp-push :r0)
-	(bind '(dst p1x p1y p2x p2y p3x p3y p4x p4y) (method-input 'path :gen_cubic))
+	(bind '(dst p1x p1y p2x p2y p3x p3y p4x p4y) (method-input :path :gen_cubic))
 	(list-bind-args :r1 `(,p1x ,p1y ,p2x ,p2y ,p3x ,p3y ,p4x ,p4y ,dst)
 		'(:fixed :fixed :fixed :fixed :fixed :fixed :fixed :fixed :path))
-	(call 'path :gen_cubic `(,dst ,p1x ,p1y ,p2x ,p2y ,p3x ,p3y ,p4x ,p4y) '(:r0))
-	(call 'obj :ref '(:r0) '(:r1))
+	(call :path :gen_cubic `(,dst ,p1x ,p1y ,p2x ,p2y ,p3x ,p3y ,p4x ,p4y) '(:r0))
+	(call :obj :ref '(:r0) '(:r1))
 	(vp-pop :r0)
 
-	(exit 'path :lisp_gen_cubic '(:r0 :r1))
+	(exit :path :lisp_gen_cubic '(:r0 :r1))
 	(vp-ret)
 
 (errorcase
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(path-gen-cubic p1x p1y p2x p2y p3x p3y p4x p4y dst)" +error_msg_wrong_types :r1))
-	(signature '(fixed fixed fixed fixed fixed fixed fixed fixed path)))
+	(jump :lisp :repl_error '(:r0 "(path-gen-cubic p1x p1y p2x p2y p3x p3y p4x p4y dst)" +error_msg_wrong_types :r1))
+	(signature '(:fixed :fixed :fixed :fixed :fixed :fixed :fixed :fixed :path)))
 
 (def-func-end)
 
-(def-method 'path :lisp_gen_arc)
+(def-method :path :lisp_gen_arc)
 	;inputs
 	;:r0 = lisp object (ptr)
 	;:r1 = args list object (ptr)
@@ -178,29 +178,29 @@
 	;trashes
 	;:r1-:r14
 
-	(entry 'path :lisp_gen_arc '(:r0 :r1))
+	(entry :path :lisp_gen_arc '(:r0 :r1))
 
 	(errorif-lisp-args-sig 'error :r1 6)
 
 	(vp-push :r0)
-	(bind '(dst cx cy start end radius) (method-input 'path :gen_arc))
+	(bind '(dst cx cy start end radius) (method-input :path :gen_arc))
 	(list-bind-args :r1 `(,cx ,cy ,start ,end ,radius ,dst)
 		'(:fixed :fixed :fixed :fixed :fixed :path))
-	(call 'path :gen_arc `(,dst ,cx ,cy ,start ,end ,radius) '(:r0))
-	(call 'obj :ref '(:r0) '(:r1))
+	(call :path :gen_arc `(,dst ,cx ,cy ,start ,end ,radius) '(:r0))
+	(call :obj :ref '(:r0) '(:r1))
 	(vp-pop :r0)
 
-	(exit 'path :lisp_gen_arc '(:r0 :r1))
+	(exit :path :lisp_gen_arc '(:r0 :r1))
 	(vp-ret)
 
 (errorcase
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(path-gen-arc cx cy start end radius dst)" +error_msg_wrong_types :r1))
-	(signature '(fixed fixed fixed fixed fixed path)))
+	(jump :lisp :repl_error '(:r0 "(path-gen-arc cx cy start end radius dst)" +error_msg_wrong_types :r1))
+	(signature '(:fixed :fixed :fixed :fixed :fixed :path)))
 
 (def-func-end)
 
-(def-method 'path :lisp_stroke_polyline)
+(def-method :path :lisp_stroke_polyline)
 	;inputs
 	;:r0 = lisp object (ptr)
 	;:r1 = args list object (ptr)
@@ -210,27 +210,27 @@
 	;trashes
 	;:r1-:r14
 
-	(entry 'path :lisp_stroke_polyline '(:r0 :r1))
+	(entry :path :lisp_stroke_polyline '(:r0 :r1))
 
 	(errorif-lisp-args-sig 'error :r1 5)
 
 	(vp-push :r0)
-	(defq in (method-input 'path :stroke_polyline))
+	(defq in (method-input :path :stroke_polyline))
 	(list-bind-args :r1 in '(:path :fixed :num :num :num))
-	(call 'path :stroke_polyline in '(_ :r1))
+	(call :path :stroke_polyline in '(_ :r1))
 	(vp-pop :r0)
 
-	(exit 'path :lisp_stroke_polyline '(:r0 :r1))
+	(exit :path :lisp_stroke_polyline '(:r0 :r1))
 	(vp-ret)
 
 (errorcase
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(path-stroke-polyline path radius join cap1 cap2)" +error_msg_wrong_types :r1))
-	(signature '(path fixed num num num)))
+	(jump :lisp :repl_error '(:r0 "(path-stroke-polyline path radius join cap1 cap2)" +error_msg_wrong_types :r1))
+	(signature '(:path :fixed :num :num :num)))
 
 (def-func-end)
 
-(def-method 'path :lisp_stroke_polygon)
+(def-method :path :lisp_stroke_polygon)
 	;inputs
 	;:r0 = lisp object (ptr)
 	;:r1 = args list object (ptr)
@@ -240,29 +240,29 @@
 	;trashes
 	;:r1-:r14
 
-	(entry 'path :lisp_stroke_polygon '(:r0 :r1))
+	(entry :path :lisp_stroke_polygon '(:r0 :r1))
 
 	(errorif-lisp-args-sig 'error :r1 3)
 
 	(vp-push :r0)
-	(defq in (method-input 'path :stroke_polygon))
+	(defq in (method-input :path :stroke_polygon))
 	(list-bind-args :r1 in '(:path :fixed :num))
-	(call 'path :stroke_polygon in '(_ :r12 :r13))
-	(call 'list :create :nil '(:r0))
-	(call 'list :push_back2 '(:r0 :r12 :r13) '(:r1 _ _ _ _))
+	(call :path :stroke_polygon in '(_ :r12 :r13))
+	(call :list :create :nil '(:r0))
+	(call :list :push_back2 '(:r0 :r12 :r13) '(:r1 _ _ _ _))
 	(vp-pop :r0)
 
-	(exit 'path :lisp_stroke_polygon '(:r0 :r1))
+	(exit :path :lisp_stroke_polygon '(:r0 :r1))
 	(vp-ret)
 
 (errorcase
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(path-stroke-polygon path radius join)" +error_msg_wrong_types :r1))
-	(signature '(path fixed num)))
+	(jump :lisp :repl_error '(:r0 "(path-stroke-polygon path radius join)" +error_msg_wrong_types :r1))
+	(signature '(:path :fixed :num)))
 
 (def-func-end)
 
-(def-method 'path :lisp_svg)
+(def-method :path :lisp_svg)
 	;inputs
 	;:r0 = lisp object (ptr)
 	;:r1 = args list object (ptr)
@@ -279,7 +279,7 @@
 
 	(vp-rdef (d d_start state sstr c) '(:r11 :r12 :r13))
 
-	(entry 'path :lisp_svg '(:r0 :r1))
+	(entry :path :lisp_svg '(:r0 :r1))
 
 	(errorif-lisp-args-sig 'error :r1 1)
 
@@ -288,12 +288,12 @@
 
 	(list-bind-args :r1 `(,d) '(:str))
 
-	(call 'list :create :nil {commands})
-	(call 'str :create_from_buffer {"MLHVCSQTAZmlhvcsqtaz", 20} {command_chars})
-	(call 'str :create_from_buffer {"-0123456789", 11} {num_start_chars})
-	(call 'str :create_from_buffer {".0123456789", 11} {num_mid_chars})
+	(call :list :create :nil {commands})
+	(call :str :create_from_buffer {"MLHVCSQTAZmlhvcsqtaz", 20} {command_chars})
+	(call :str :create_from_buffer {"-0123456789", 11} {num_start_chars})
+	(call :str :create_from_buffer {".0123456789", 11} {num_mid_chars})
 
-	(bind '(st ch _) (method-input 'str :find))
+	(bind '(st ch _) (method-input :str :find))
 	(vp-xor-rr state state)
 	(loop-start)
 		(vp-cpy-ir-ub d 0 c)
@@ -305,7 +305,7 @@
 			(breakif `(,c = +char_comma))
 			(assign `(,c) `(,ch))
 			(assign {num_start_chars} `(,st))
-			(d-call 'str :find `(,st ,ch 0) '(_ _ idx))
+			(d-call :str :find `(,st ,ch 0) '(_ _ idx))
 			(vpif `(,idx /= -1))
 				;number
 				(vp-cpy-rr d d_start)
@@ -315,30 +315,30 @@
 		(errorcase
 			(assign `(,c) `(,ch))
 			(assign {command_chars} `(,st))
-			(d-call 'str :find `(,st ,ch 0) '(_ _ idx))
+			(d-call :str :find `(,st ,ch 0) '(_ _ idx))
 			(gotoif `(,idx = -1) 'error1))
 			;command
-			(call 'str :create_from_buffer {&c, 1} '(sstr))
-			(bind '(l s) (method-input 'list :push_back))
+			(call :str :create_from_buffer {&c, 1} '(sstr))
+			(bind '(l s) (method-input :list :push_back))
 			(assign `(,sstr) `(,s))
 			(assign {commands} `(,l))
-			(call 'list :push_back `(,l ,s))
+			(call :list :push_back `(,l ,s))
 		(else)
 			(assign `(,c) `(,ch))
 			(assign {num_mid_chars} `(,st))
-			(d-call 'str :find `(,st ,ch 0) '(_ _ idx))
+			(d-call :str :find `(,st ,ch 0) '(_ _ idx))
 			(breakif `(,idx /= -1))
 			(vp-xor-rr :r0 :r0)
 			(vp-cpy-ri-b :r0 d 0)
-			(call 'sys_str :to_num `(,d_start) '(num dot))
+			(call :sys_str :to_num `(,d_start) '(num dot))
 			(vpif `(,dot = 0))
 				(vp-shl-cr +fp_shift num)
 			(endif)
-			(call 'fixed :create `(,num) '(num))
-			(bind '(l n) (method-input 'list :push_back))
+			(call :fixed :create `(,num) '(num))
+			(bind '(l n) (method-input :list :push_back))
 			(assign `(,num) `(,n))
 			(assign {commands} `(,l))
-			(call 'list :push_back `(,l ,n))
+			(call :list :push_back `(,l ,n))
 			(assign {c} `(,c))
 			(vp-xor-rr state state)
 			(vp-cpy-ri-b c d 0)
@@ -346,17 +346,17 @@
 		(endif)
 		(vp-add-cr +byte_size d)
 	(loop-end)
-	(call 'str :create_from_buffer '("x" 1) '(sstr))
-	(bind '(l s) (method-input 'list :push_back))
+	(call :str :create_from_buffer '("x" 1) '(sstr))
+	(bind '(l s) (method-input :list :push_back))
 	(assign `(,sstr) `(,s))
 	(assign {commands} `(,l))
-	(call 'list :push_back `(,l ,s))
+	(call :list :push_back `(,l ,s))
 
-	(call 'str :destroy {command_chars})
-	(call 'str :destroy {num_start_chars})
-	(call 'str :destroy {num_mid_chars})
+	(call :str :destroy {command_chars})
+	(call :str :destroy {num_start_chars})
+	(call :str :destroy {num_mid_chars})
 
-	(exit 'path :lisp_svg {this, commands})
+	(exit :path :lisp_svg {this, commands})
 	(return)
 
 (noterrorcase
@@ -364,14 +364,14 @@
 
 (errorcase
 (vp-label 'error1)
-	(call 'str :destroy {commands})
-	(call 'str :destroy {command_chars})
-	(call 'str :destroy {num_start_chars})
-	(call 'str :destroy {num_mid_chars})
+	(call :str :destroy {commands})
+	(call :str :destroy {command_chars})
+	(call :str :destroy {num_start_chars})
+	(call :str :destroy {num_mid_chars})
 	(assign {this, args} '(:r0 :r1))
 	(pop-scope)
 (vp-label 'error)
-	(jump 'lisp :repl_error '(:r0 "(path-svg d)" +error_msg_wrong_types :r1))
-	(signature '(str)))
+	(jump :lisp :repl_error '(:r0 "(path-svg d)" +error_msg_wrong_types :r1))
+	(signature '(:str)))
 
 (def-func-end)

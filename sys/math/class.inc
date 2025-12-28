@@ -4,7 +4,7 @@
 ; math static class
 ;;;;;;;;;;;;;;;;;;;
 
-(def-class sys_math :nil
+(def-class :sys_math :nil
 	(dec-method :i_rand sys/math/i_rand :static (:r0) (:r0))
 	(dec-method :f_sqrt sys/math/f_sqrt :static (:r0) (:r0))
 	(dec-method :f_sin sys/math/f_sin :static (:r0) (:r0))
@@ -238,7 +238,7 @@
 	(vec-flength-squared n)
 	(defq r (slice +vp_rregs_0_14 0 (dec (if (>= *vsp* 4) 5 *vsp*))))
 	(if (/= (length r) 0) (apply vp-push r))
-	(call 'sys_math :f_sqrt (vec-top 1) (vec-top 1))
+	(call :sys_math :f_sqrt (vec-top 1) (vec-top 1))
 	(if (/= (length r) 0) (apply vp-pop r)))
 
 (defun vec-fdistance-squared (n)

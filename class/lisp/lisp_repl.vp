@@ -5,7 +5,7 @@
 (include "././str/class.inc")
 (include "././num/class.inc")
 
-(def-method 'lisp :lisp_repl)
+(def-method :lisp :lisp_repl)
 	;inputs
 	;:r0 = lisp object (ptr)
 	;:r1 = args list object (ptr)
@@ -21,19 +21,19 @@
 		(uint length old_line))
 
 	(push-scope)
-	(entry 'lisp :lisp_repl {this, args})
+	(entry :lisp :lisp_repl {this, args})
 
-	(d-call 'list :get_length {args} {_, length})
+	(d-call :list :get_length {args} {_, length})
 	(errorif {length /= 2} 'error1)
-	(call 'list :get_first {args} {_, stream})
+	(call :list :get_first {args} {_, stream})
 
 (errorcase
-	(call 'obj :inst_of (cat {stream, @} (f-path 'stream :vtable)) '(_ tmp))
+	(call :obj :inst_of (cat {stream, @} (f-path :stream :vtable)) '(_ tmp))
 	(gotoif `(,tmp = 0) 'error2))
 
-	(call 'list :get_second {args} {_, value})
+	(call :list :get_second {args} {_, value})
 (errorcase
-	(call 'obj :inst_of (cat {value, @} (f-path 'str :vtable)) '(_ tmp))
+	(call :obj :inst_of (cat {value, @} (f-path :str :vtable)) '(_ tmp))
 	(gotoif `(,tmp = 0) 'error3))
 
 	;push old repl info
@@ -41,20 +41,20 @@
 	(assign {this->lisp_stream_name, this->lisp_stream_line} {old_name, old_line})
 	(assign {value, 1} {this->lisp_stream_name, this->lisp_stream_line})
 
-	(call 'obj :ref {this->lisp_sym_nil} {value})
-	(call 'stream :read_char {stream} {_, char})
+	(call :obj :ref {this->lisp_sym_nil} {value})
+	(call :stream :read_char {stream} {_, char})
 	(loop-while {char /= -1})
-		(call 'stream :flush {this->lisp_stdout})
-		(call 'stream :flush {this->lisp_stderr})
-		(call 'lisp :read {this, stream, char} {_, ast, char})
-		(call 'lisp :repl_expand {this, &ast})
-		(call 'lisp :repl_bind {this, ast})
-		(call 'obj :deref {value})
-		(call 'lisp :repl_eval {this, ast} {_, value})
-		(call 'obj :deref {ast})
+		(call :stream :flush {this->lisp_stdout})
+		(call :stream :flush {this->lisp_stderr})
+		(call :lisp :read {this, stream, char} {_, ast, char})
+		(call :lisp :repl_expand {this, &ast})
+		(call :lisp :repl_bind {this, ast})
+		(call :obj :deref {value})
+		(call :lisp :repl_eval {this, ast} {_, value})
+		(call :obj :deref {ast})
 		(vpif {stream = this->lisp_stdin})
-			(call 'lisp :repl_print {this, this->lisp_stdout, value, 1})
-			(call 'stream :write_char {this->lisp_stdout, +char_lf})
+			(call :lisp :repl_print {this, this->lisp_stdout, value, 1})
+			(call :stream :write_char {this->lisp_stdout, +char_lf})
 		(endif)
 	(errorcase
 		(breakif {value->obj_vtable = this->lisp_error}))
@@ -63,22 +63,22 @@
 	;pop old repl info
 	(assign {old_name, old_line} {this->lisp_stream_name, this->lisp_stream_line})
 
-	(exit 'lisp :lisp_repl {this, value})
+	(exit :lisp :lisp_repl {this, value})
 	(return)
 
 (errorcase
 (vp-label 'error1)
-	(jump 'lisp :repl_error {this, "(repl stream path)", +error_msg_wrong_num_of_args, args})
+	(jump :lisp :repl_error {this, "(repl stream path)", +error_msg_wrong_num_of_args, args})
 (vp-label 'error2)
-	(jump 'lisp :repl_error {this, "(repl stream path)", +error_msg_not_a_stream, args})
+	(jump :lisp :repl_error {this, "(repl stream path)", +error_msg_not_a_stream, args})
 (vp-label 'error3)
-	(jump 'lisp :repl_error {this, "(repl stream path)", +error_msg_not_a_string, args}))
+	(jump :lisp :repl_error {this, "(repl stream path)", +error_msg_not_a_string, args}))
 
 	(pop-scope-syms)
 
 (def-func-end)
 
-(def-method 'lisp :lisp_repl_info)
+(def-method :lisp :lisp_repl_info)
 	;inputs
 	;:r0 = lisp object (ptr)
 	;:r1 = args list object (ptr)
@@ -88,15 +88,15 @@
 	;trashes
 	;:r1-:r14
 
-	(entry 'lisp :lisp_repl_info '(:r0 :r1))
+	(entry :lisp :lisp_repl_info '(:r0 :r1))
 
 	(vp-cpy-rr :r0 :r13)
-	(call 'obj :ref '((:r0 lisp_stream_name)) '(:r11))
-	(call 'num :create '((:r13 lisp_stream_line)) '(:r12))
-	(call 'list :create :nil '(:r0))
-	(call 'list :push_back2 '(:r0 :r11 :r12) '(:r1 _ _ _ _))
+	(call :obj :ref '((:r0 lisp_stream_name)) '(:r11))
+	(call :num :create '((:r13 lisp_stream_line)) '(:r12))
+	(call :list :create :nil '(:r0))
+	(call :list :push_back2 '(:r0 :r11 :r12) '(:r1 _ _ _ _))
 
-	(exit 'lisp :lisp_repl_info '(:r13 :r1))
+	(exit :lisp :lisp_repl_info '(:r13 :r1))
 	(vp-ret)
 
 (def-func-end)

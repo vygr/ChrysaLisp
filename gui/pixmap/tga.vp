@@ -16,7 +16,7 @@
 	(ubyte depth)
 	(ubyte origin))
 
-(def-method 'pixmap :load_tga)
+(def-method :pixmap :load_tga)
 	;inputs
 	;:r5 = stream object (ptr)
 	;outputs
@@ -34,23 +34,23 @@
 
 	;save inputs
 	(push-scope)
-	(entry 'pixmap :load_tga {stream})
+	(entry :pixmap :load_tga {stream})
 
 	;read header
-	(call 'stream :read {stream, &header, tga_size} {_, length})
+	(call :stream :read {stream, &header, tga_size} {_, length})
 	(gotoif {length /= tga_size || header.tga_type /= 2} 'error1)
 	(gotoif {header.tga_depth /= 32 && header.tga_depth /= 24} 'error1)
 
 	;create pixmap
-	(call 'pixmap :create {header.tga_width, header.tga_height, 32} {this})
+	(call :pixmap :create {header.tga_width, header.tga_height, 32} {this})
 	(vpif {this})
 		(assign {&this->pixmap_data} {data})
 		(assign {data + this->pixmap_height * this->pixmap_stride} {data_end})
 		(assign {0 => bit_pool} {bit_pool_size})
 
-		;decode acording to type
+		;decode according to type
 		(loop-start)
-			(call 'stream :read_bits {stream, header.tga_depth, bit_pool, bit_pool_size} {_, col, bit_pool, bit_pool_size})
+			(call :stream :read_bits {stream, header.tga_depth, bit_pool, bit_pool_size} {_, col, bit_pool, bit_pool_size})
 			(gotoif {col = -1} 'error)
 			(vpif {header.tga_depth = 24})
 				(assign {+argb_black + col} {col})
@@ -59,13 +59,13 @@
 		(loop-until {(data + +int_size => data) = data_end})
 	(endif)
 
-	(exit 'pixmap :load_tga {this})
+	(exit :pixmap :load_tga {this})
 	(return)
 
 (vp-label 'error)
-	(call 'pixmap :deref {this})
+	(call :pixmap :deref {this})
 (vp-label 'error1)
-	(exit 'pixmap :load_tga '(0))
+	(exit :pixmap :load_tga '(0))
 	(pop-scope)
 	(return)
 

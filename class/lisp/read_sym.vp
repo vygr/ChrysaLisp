@@ -4,7 +4,7 @@
 (include "././sym/class.inc")
 (include "././sstream/class.inc")
 
-(def-method 'lisp :read_sym)
+(def-method :lisp :read_sym)
 	;inputs
 	;:r0 = lisp object (ptr)
 	;:r1 = stream object (ptr)
@@ -21,7 +21,7 @@
 		(int char))
 
 	(push-scope)
-	(entry 'lisp :read_sym {this, stream, char})
+	(entry :lisp :read_sym {this, stream, char})
 
 	(switch)
 		(vp-rdef (buf bufp bufe stm c))
@@ -37,20 +37,20 @@
 		(assign `(,bufp) `((,stm stream_bufp)))
 		(vp-sub-cr +byte_size buf)
 		(vp-sub-cr +byte_size bufp)
-		(call 'sym :intern_pstr `(,buf ,bufp) {value})
+		(call :sym :intern_pstr `(,buf ,bufp) {value})
 	(else)
 	(vp-label 'slow_but_sure)
-		(call 'sym :create_from_buffer {0, str_gap} {value})
-		(call 'sstream :create {value} {str_stream})
+		(call :sym :create_from_buffer {0, str_gap} {value})
+		(call :sstream :create {value} {str_stream})
 		(loop-whilenot {char <= +char_space || char = +char_lrb || char = +char_rrb})
-			(call 'stream :write_char {str_stream, char})
-			(call 'stream :read_char {stream} {_, char})
+			(call :stream :write_char {str_stream, char})
+			(call :stream :read_char {stream} {_, char})
 		(loop-end)
-		(call 'sym :intern_pstr {&str_stream->stream_object->str_data, str_stream->stream_bufp} {value})
-		(call 'sstream :destroy {str_stream})
+		(call :sym :intern_pstr {&str_stream->stream_object->str_data, str_stream->stream_bufp} {value})
+		(call :sstream :destroy {str_stream})
 	(endswitch)
 
-	(exit 'lisp :read_sym {this, value, char})
+	(exit :lisp :read_sym {this, value, char})
 	(pop-scope)
 	(return)
 

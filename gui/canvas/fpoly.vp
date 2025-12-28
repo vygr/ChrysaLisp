@@ -3,7 +3,7 @@
 (include "./class.inc")
 (include "././pixmap/class.inc")
 
-(def-method 'canvas :set_edges)
+(def-method :canvas :set_edges)
 	;inputs
 	;:r0 = canvas object (ptr)
 	;:r1 = list of path objects (ptr)
@@ -29,7 +29,7 @@
 	(vp-rdef (xlow iter_edge2 xhigh x y x1 x2 y1 y2 cy cy1 xs ys xe ye))
 
 	(vp-alloc local_size)
-	(entry 'canvas :set_edges '(:r0 :r1 :r2 :r3 :r4))
+	(entry :canvas :set_edges '(:r0 :r1 :r2 :r3 :r4))
 	(assign '(:r0 :r2 :r3 :r4) '((:rsp local_this) (:rsp local_x) (:rsp local_y) (:rsp local_yscale)))
 
 	;fill edges, find min and max xy, clip edges not visible or redundant
@@ -53,7 +53,7 @@
 		(vp-mul-cr (>> edge_size 3) :r2)
 		(vp-add-rr :r2 :r1)
 
-		(call 'array :set_cap '((:r0 canvas_edges) :r1) '(:r0))
+		(call :array :set_cap '((:r0 canvas_edges) :r1) '(:r0))
 		(assign '((:r0 array_begin) (:rsp local_length)) '(:r1 :r2))
 		(assign '(:r1) '((:rsp local_iter_edge1)))
 		(vp-mul-cr +long_size :r2)
@@ -133,13 +133,13 @@
 	(assign '((:r0 canvas_edges)) '(:r2))
 	(assign '(:r1) '((:r2 array_length)))
 
-	(exit 'canvas :set_edges (list :r0 xs ys xe ye))
+	(exit :canvas :set_edges (list :r0 xs ys xe ye))
 	(vp-free local_size)
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'canvas :fpoly)
+(def-method :canvas :fpoly)
 	;inputs
 	;:r0 = canvas object (ptr)
 	;:r1 = x (fixed)
@@ -161,14 +161,14 @@
 		(uint mode yscale cy cy1))
 
 	(push-scope)
-	(entry 'canvas :fpoly {this, x, y, mode, polygons})
+	(entry :canvas :fpoly {this, x, y, mode, polygons})
 
 	;fill edges, find min and max xy, clip edges not visible or redundant
 	(assign {1} {yscale})
 	(vpif {this->canvas_flags})
 		(assign {8} {yscale})
 	(endif)
-	(call 'canvas :set_edges {this, polygons, x, y, yscale} {_, xs, ys, xe, ye})
+	(call :canvas :set_edges {this, polygons, x, y, yscale} {_, xs, ys, xe, ye})
 
 	;clip check
 	(assign {yscale * this->canvas_cy, yscale * this->canvas_cy1} {cy, cy1})
@@ -176,17 +176,17 @@
 		;setup active edge list, edge starts and coverage
 		(assign {0} {tracker_list})
 		(vpifnot {this->canvas_edges_start})
-			(call 'sys_mem :calloc {this->canvas_pixmap->pixmap_height * 8 * +ptr_size} {this->canvas_edges_start, _})
+			(call :sys_mem :calloc {this->canvas_pixmap->pixmap_height * 8 * +ptr_size} {this->canvas_edges_start, _})
 		(endif)
 		(vpif {this->canvas_flags})
 			(assign {+max_int, +min_int} {min_x, max_x})
 			(vpifnot {this->canvas_coverage})
-				(call 'sys_mem :calloc {this->canvas_pixmap->pixmap_width} {this->canvas_coverage, _})
+				(call :sys_mem :calloc {this->canvas_pixmap->pixmap_width} {this->canvas_coverage, _})
 			(endif)
 		(endif)
 
 		;edge pointers into edge starts
-		(call 'array :get_both {this->canvas_edges} {_, tracker_node, tracker_last})
+		(call :array :get_both {this->canvas_edges} {_, tracker_node, tracker_last})
 		(vp-rdef (edges_start edge_node edge_last edge_tmp edge_list_head))
 		(assign {this->canvas_edges_start, tracker_node, tracker_last}
 			(list edges_start edge_node edge_last))
@@ -297,7 +297,7 @@
 				(breakif {ys + 1 < cy1})
 			(vp-label 'flush_mask)
 				(vp-rdef (this c x y x1 mask m om max_x mask_to_coverage v)
-					(method-input 'canvas :span))
+					(method-input :canvas :span))
 				(assign {this, min_x, max_x, ys >> 3} (list this x max_x y))
 				(breakif `(,x > ,max_x))
 				(vp-add-cr 1 max_x)
@@ -319,13 +319,13 @@
 					(vp-cpy-rd-b c mask v)
 					(vp-cpy-dr-ub mask_to_coverage om c)
 					(assign (list m x1) {om, x})
-					(call 'canvas :span_noclip (list this c x y x1) (list this))
+					(call :canvas :span_noclip (list this c x y x1) (list this))
 					(assign {x, max_x, y, om} (list x max_x y om))
 				(loop-until `(,x >= ,max_x))
 				(assign {+max_int, +min_int} {min_x, max_x})
 			(else)
 				;draw spans for mode
-				(vp-rdef (this c x1 ys x2 w v tracker_node) (method-input 'canvas :span))
+				(vp-rdef (this c x1 ys x2 w v tracker_node) (method-input :canvas :span))
 				(assign {mode, this, &tracker_list} (list v this tracker_node))
 				(vpif `(,v = ,winding_odd_even))
 					;odd even
@@ -337,7 +337,7 @@
 						(vp-cpy-ir-i tracker_node edge_x x2)
 						(vp-simd vp-asr-cr `(,+fp_shift) `(,x1 ,x2))
 						(assign (list tracker_node) {tracker_node})
-						(call 'canvas :span (list this 0x80 x1 ys x2) (list this))
+						(call :canvas :span (list this 0x80 x1 ys x2) (list this))
 						(assign {tracker_node} (list tracker_node))
 					(loop-end)
 				(else)
@@ -354,7 +354,7 @@
 						(vp-cpy-ir-i tracker_node edge_x x2)
 						(vp-simd vp-asr-cr `(,+fp_shift) `(,x1 ,x2))
 						(assign (list tracker_node) {tracker_node})
-						(call 'canvas :span (list this 0x80 x1 ys x2) (list this))
+						(call :canvas :span (list this 0x80 x1 ys x2) (list this))
 						(assign {tracker_node} (list tracker_node))
 					(loop-end)
 				(endif)
@@ -381,7 +381,7 @@
 		(loop-end)
 	(endif)
 
-	(exit 'canvas :fpoly {this})
+	(exit :canvas :fpoly {this})
 	(pop-scope)
 	(return)
 

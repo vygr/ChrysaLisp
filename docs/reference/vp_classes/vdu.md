@@ -1,6 +1,6 @@
-# vdu
+# :vdu
 
-## view
+## :view
 
 ## Lisp Bindings
 

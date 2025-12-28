@@ -22,7 +22,7 @@
 (("-w" "--write") ,(opt-flag 'opt_w))
 ))
 
-(defq +split_class (char-class " :()'\t\r\q{@}<>")
+(defq +split_class (char-class " ()'\t\r\q{@}<>")
 	+implicit_file "lib/asm/func.inc")
 
 ;lookup the file the class was defined in
@@ -38,7 +38,7 @@
 			(("include")
 				(merge includes (list (second input))))
 			(("gen-type")
-				(merge classes (list "list" "sym")))
+				(merge classes (list ":list" ":sym")))
 			(("call" "entry" "exit" "def-method" "gen-vtable" "gen-create"
 				"to-array" "jump" "f-bind")
 				(merge classes (list (second input))))
@@ -53,14 +53,14 @@
 		(each (lambda (token)
 			(cond
 				((eql "f-path" token) (merge classes (list (elem-get input (inc (!))))))
-				((eql "vec-set" token) (merge classes '("sys_math")))
-				((starts-with "view_" token) (merge classes '("view")))
-				((starts-with "rect_" token) (merge classes '("region")))
-				((starts-with "pixmap_" token) (merge classes '("pixmap")))
-				((starts-with "lk_" token) (merge classes '("sys_link")))
-				((starts-with "ld_" token) (merge classes '("sys_load")))
-				((starts-with "stream_mail_state_" token) (merge classes '("out")))
-				((starts-with "static_sym_" token) (merge classes '("sym")))
+				((eql "vec-set" token) (merge classes '(":sys_math")))
+				((starts-with "view_" token) (merge classes '(":view")))
+				((starts-with "rect_" token) (merge classes '(":region")))
+				((starts-with "pixmap_" token) (merge classes '(":pixmap")))
+				((starts-with "lk_" token) (merge classes '(":sys_link")))
+				((starts-with "ld_" token) (merge classes '(":sys_load")))
+				((starts-with "stream_mail_state_" token) (merge classes '(":out")))
+				((starts-with "static_sym_" token) (merge classes '(":sym")))
 				((starts-with "+char_" token) (merge requires '("lib/consts/chars.inc")))
 				((starts-with "+argb_" token) (merge requires '("lib/consts/colors.inc")))
 				((starts-with "sys/statics/statics" token) (merge requires '("sys/statics/class.inc")))))
@@ -112,7 +112,7 @@
 		(cond
 			(opt_d
 				;we are given a defs map
-				(each (# (bind '(cls file) (split %0 ":"))
+				(each (# (bind '(cls file) (split %0 "|"))
 						(. defs_map :insert cls file))
 					(split opt_d "[]")))
 			(:t	;must build a defs map
@@ -123,7 +123,7 @@
 							(file-stream file)))
 					(files-all "." '("class.inc") 2))
 				(setq opt_d (list))
-				(. defs_map :each (# (push opt_d (cat "[" %0 ":" %1 "]"))))
+				(. defs_map :each (# (push opt_d (cat "[" %0 "|" %1 "]"))))
 				(setq opt_d (apply (const cat) opt_d))))
 		;from args ?
 		(if (empty? (defq jobs (rest args)))

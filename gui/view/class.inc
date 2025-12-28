@@ -1,6 +1,6 @@
 (include "class/hmap/class.inc")
 
-(def-class view hmap
+(def-class :view :hmap
 	(dec-method :vtable gui/view/vtable)
 	(dec-method :create gui/view/create :static () (:r0))
 	(dec-method :init gui/view/init :static (:r0 :r1))

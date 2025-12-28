@@ -5,9 +5,9 @@
 (include "./class.inc")
 (include "././texture/class.inc")
 
-(gen-vtable 'pixmap)
+(gen-vtable :pixmap)
 
-(def-method 'pixmap :create)
+(def-method :pixmap :create)
 	;inputs
 	;:r0 = width (pixels)
 	;:r1 = height (pixels)
@@ -18,30 +18,30 @@
 	;:r1-:r7
 
 	;save size of data
-	(entry 'pixmap :create '(:r0 :r1 :r2))
+	(entry :pixmap :create '(:r0 :r1 :r2))
 	(assign '(:r0 :r1 :r2) '(:r5 :r6 :r7))
 
 	;create new pixmap object
 	(vp-mul-rr :r1 :r0)
 	(vp-mul-cr +int_size :r0)
 	(vp-add-cr pixmap_data :r0)
-	(call 'sys_mem :alloc '(:r0) '(:r0 _))
+	(call :sys_mem :alloc '(:r0) '(:r0 _))
 	(vpif '(:r0 /= 0))
 		;init the object
-		(call 'pixmap :init `(:r0 (@ ,(f-path 'pixmap :vtable)) :r5 :r6 :r7) '(:r0 :r1))
+		(call :pixmap :init `(:r0 (@ ,(f-path :pixmap :vtable)) :r5 :r6 :r7) '(:r0 :r1))
 		(vpif '(:r1 = 0))
 			;error with init
-			(call 'sys_mem :free '(:r0))
+			(call :sys_mem :free '(:r0))
 			(vp-xor-rr :r0 :r0)
 		(endif)
 	(endif)
 
-	(exit 'pixmap :create '(:r0))
+	(exit :pixmap :create '(:r0))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'pixmap :init)
+(def-method :pixmap :init)
 	;inputs
 	;:r0 = pixmap object (ptr)
 	;:r1 = vtable (pptr)
@@ -54,13 +54,13 @@
 	;trashes
 	;:r1-:r14
 
-	(entry 'pixmap :init '(:r0 :r1 :r2 :r3 :r4))
+	(entry :pixmap :init '(:r0 :r1 :r2 :r3 :r4))
 	(assign '(:r2 :r3 :r4) '((:r0 pixmap_width) (:r0 pixmap_height) (:r0 pixmap_type)))
 	(vp-mul-cr +int_size :r2)
 	(assign '(:r2) '((:r0 pixmap_stride)))
 
 	;init parent
-	(s-call 'pixmap :init '(:r0 :r1) '(:r0 :r1))
+	(s-call :pixmap :init '(:r0 :r1) '(:r0 :r1))
 	(vpif '(:r1 /= 0))
 		(vp-push :r0)
 		(assign '(0) '(:r1))
@@ -71,16 +71,16 @@
 		;clear pixel buffer
 		(assign '((:r0 pixmap_height) (:r0 pixmap_stride)) '(:r1 :r2))
 		(vp-mul-rr :r2 :r1)
-		(call 'sys_mem :fill '((& :r0 pixmap_data) :r1 0))
+		(call :sys_mem :fill '((& :r0 pixmap_data) :r1 0))
 		(vp-pop :r0)
 	(endif)
 
-	(exit 'pixmap :init '(:r0 :r1))
+	(exit :pixmap :init '(:r0 :r1))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'pixmap :deinit)
+(def-method :pixmap :deinit)
 	;inputs
 	;:r0 = pixmap object (ptr)
 	;outputs
@@ -91,18 +91,18 @@
 	(vp-push :r0)
 
 	;free any flm stream
-	(call 'stream :deref_if '((:r0 pixmap_stream)))
+	(call :stream :deref_if '((:r0 pixmap_stream)))
 
 	;free any texture
 	(assign '((:rsp 0)) '(:r0))
-	(call 'texture :deref_if '((:r0 pixmap_texture)))
+	(call :texture :deref_if '((:r0 pixmap_texture)))
 
 	(vp-pop :r0)
-	(s-jump 'pixmap :deinit '(:r0))
+	(s-jump :pixmap :deinit '(:r0))
 
 (def-func-end)
 
-(def-method 'pixmap :upload 16)
+(def-method :pixmap :upload 16)
 	;inputs
 	;:r0 = pixmap object (ptr)
 	;:r1 = pixmap upload flags (uint)
@@ -119,11 +119,11 @@
 		(struct frame local_size))
 
 	(push-scope)
-	(entry 'pixmap :upload {frame.local_this, frame.local_flags})
+	(entry :pixmap :upload {frame.local_this, frame.local_flags})
 
-	(call 'sys_task :callback {&frame, $callback})
+	(call :sys_task :callback {&frame, $callback})
 
-	(exit 'pixmap :upload {frame.local_this})
+	(exit :pixmap :upload {frame.local_this})
 	(pop-scope)
 	(return)
 
@@ -142,16 +142,16 @@
 
 	;free any texture
 	(assign {user->local_this} {this})
-	(call 'texture :deref_if {this->pixmap_texture})
+	(call :texture :deref_if {this->pixmap_texture})
 
 	;create SDL surface from pixel buffer, convert to texture
-	(host-gui-call 'host_gui :create_texture {&this->pixmap_data,
+	(host-gui-call :host_gui :create_texture {&this->pixmap_data,
 			this->pixmap_width, this->pixmap_height,
 			this->pixmap_stride, user->local_flags}
 		{tex_id})
 
 	;new texture
-	(call 'texture :create {tex_id, this->pixmap_width, this->pixmap_height} {this->pixmap_texture})
+	(call :texture :create {tex_id, this->pixmap_width, this->pixmap_height} {this->pixmap_texture})
 
 	(assign {old_stack} '(:rsp))
 	(pop-scope-syms)
@@ -159,7 +159,7 @@
 
 (def-func-end)
 
-(def-method 'pixmap :to_premul)
+(def-method :pixmap :to_premul)
 	;inputs
 	;:r1 = color (argb)
 	;outputs
@@ -169,7 +169,7 @@
 
 	(vp-rdef (_ col g rb))
 
-	(entry 'pixmap :to_premul `(,col))
+	(entry :pixmap :to_premul `(,col))
 
 	(vp-simd vp-cpy-rr `(,col) `(,rb ,g))
 	(vp-shr-cr 24 col)
@@ -181,12 +181,12 @@
 	(vp-add-rr rb col)
 	(vp-add-rr g col)
 
-	(exit 'pixmap :to_premul `(,col))
+	(exit :pixmap :to_premul `(,col))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'pixmap :to_argb)
+(def-method :pixmap :to_argb)
 	;inputs
 	;:r1 = color premul (argb)
 	;outputs
@@ -196,7 +196,7 @@
 
 	(vp-rdef (c col g rb this))
 
-	(entry 'pixmap :to_argb `(,col))
+	(entry :pixmap :to_argb `(,col))
 
 	(vp-cpy-rr col rb)
 	(vp-shr-cr 24 rb)
@@ -217,12 +217,12 @@
 		(vp-cpy-rr this c)
 	(endif)
 
-	(exit 'pixmap :to_argb `(,col))
+	(exit :pixmap :to_argb `(,col))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'pixmap :fill)
+(def-method :pixmap :fill)
 	;inputs
 	;:r0 = pixmap object (ptr)
 	;:r1 = color (argb)
@@ -231,23 +231,23 @@
 	;trashes
 	;:r1-:r4
 
-	(entry 'pixmap :fill '(:r0 :r1))
+	(entry :pixmap :fill '(:r0 :r1))
 
-	(call 'pixmap :to_premul '(:r1) '(:r1))
+	(call :pixmap :to_premul '(:r1) '(:r1))
 	(vp-cpy-rr :r1 :r2)
 	(vp-shl-cr 32 :r1)
 	(vp-cpy-rr :r0 :r4)
 	(vp-add-rr :r1 :r2)
 	(assign '((:r0 pixmap_height) (:r0 pixmap_stride) (& :r0 pixmap_data)) '(:r1 :r3 :r0))
 	(vp-mul-rr :r3 :r1)
-	(call 'sys_mem :fill '(:r0 :r1 :r2))
+	(call :sys_mem :fill '(:r0 :r1 :r2))
 
-	(exit 'pixmap :fill '(:r4))
+	(exit :pixmap :fill '(:r4))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'pixmap :as_argb)
+(def-method :pixmap :as_argb)
 	;inputs
 	;:r0 = pixmap object (ptr)
 	;outputs
@@ -258,7 +258,7 @@
 	(vp-rdef (this col pix dst pmul argb end height)
 		'(:r0 :r1 :r2 :r5 :r6 :r7 :r8 :r1))
 
-	(entry 'pixmap :as_argb `(,this))
+	(entry :pixmap :as_argb `(,this))
 
 	(assign `((,this pixmap_type)) `(,pix))
 	(vpif `(,pix < 0))
@@ -275,18 +275,18 @@
 			(vp-add-cr +int_size dst)
 			(vpif `(,col /= ,pmul))
 				(vp-cpy-rr col pmul)
-				(call 'pixmap :to_argb `(,col) `(,argb))
+				(call :pixmap :to_argb `(,col) `(,argb))
 			(endif)
 			(vp-cpy-ri-i argb dst (neg +int_size))
 		(loop-until `(,dst = ,end))
 	(endif)
 
-	(exit 'pixmap :as_argb `(,this))
+	(exit :pixmap :as_argb `(,this))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'pixmap :as_premul)
+(def-method :pixmap :as_premul)
 	;inputs
 	;:r0 = pixmap object (ptr)
 	;outputs
@@ -297,7 +297,7 @@
 	(vp-rdef (this col pix dst pmul argb end height)
 		'(:r0 :r1 :r2 :r4 :r5 :r6 :r7 :r1))
 
-	(entry 'pixmap :as_premul `(,this))
+	(entry :pixmap :as_premul `(,this))
 
 	(assign `((,this pixmap_type)) `(,pix))
 	(vpif `(,pix < 0))
@@ -314,18 +314,18 @@
 			(vp-add-cr +int_size dst)
 			(vpif `(,col /= ,argb))
 				(vp-cpy-rr col argb)
-				(call 'pixmap :to_premul `(,col) `(,pmul))
+				(call :pixmap :to_premul `(,col) `(,pmul))
 			(endif)
 			(vp-cpy-ri-i argb dst (neg +int_size))
 		(loop-until `(,dst = ,end))
 	(endif)
 
-	(exit 'pixmap :as_premul `(,this))
+	(exit :pixmap :as_premul `(,this))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'pixmap :to_argb32)
+(def-method :pixmap :to_argb32)
 	;inputs
 	;:r1 = col (uint)
 	;:r2 = pixel type (uint)
@@ -379,7 +379,7 @@
 		(vp-simd vp-add-rr `(,a ,g) `(,r ,b))
 		(vp-lea-d r b col))
 
-	(entry 'pixmap :to_argb32 (list col pix))
+	(entry :pixmap :to_argb32 (list col pix))
 
 	(switch)
 	(breakif `(,pix = 32))
@@ -418,12 +418,12 @@
 		(endif)
 	(endswitch)
 
-	(exit 'pixmap :to_argb32 (list col))
+	(exit :pixmap :to_argb32 (list col))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'pixmap :from_argb32)
+(def-method :pixmap :from_argb32)
 	;inputs
 	;:r1 = col (uint)
 	;:r2 = pixel type (uint)
@@ -453,7 +453,7 @@
 				(vp-simd vp-add-rr `(,r ,g) `(,col ,b))
 				(vp-add-rr b col))))
 
-	(entry 'pixmap :from_argb32 (list col pix))
+	(entry :pixmap :from_argb32 (list col pix))
 
 	(switch)
 	(breakif `(,pix = 32))
@@ -490,7 +490,7 @@
 		(vp-shr-cr 7 col)
 	(endswitch)
 
-	(exit 'pixmap :from_argb32 (list col))
+	(exit :pixmap :from_argb32 (list col))
 	(vp-ret)
 
 (def-func-end)

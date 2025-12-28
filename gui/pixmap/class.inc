@@ -1,6 +1,6 @@
 (include "class/obj/class.inc")
 
-(def-class pixmap obj
+(def-class :pixmap :obj
 	(dec-method :vtable gui/pixmap/vtable)
 	(dec-method :create gui/pixmap/create :static (:r0 :r1 :r2) (:r0))
 	(dec-method :init gui/pixmap/init :static (:r0 :r1 :r2 :r3 :r4) (:r0 :r1))

@@ -1,6 +1,6 @@
 (include "lib/asm/class.inc")
 
-(def-class sys_list :nil
+(def-class :sys_list :nil
 	(dec-method :init sys/list/init :static (:r0)))
 
 ;;;;;;;;;;;;;;;;;

@@ -1,6 +1,6 @@
 (include "././stream/class.inc")
 
-(def-class in stream
+(def-class :in :stream
 	(dec-method :vtable class/in/vtable)
 	(dec-method :create class/in/create :static (:r0) (:r0))
 	(dec-method :init class/in/init :static (:r0 :r1 :r2))

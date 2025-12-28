@@ -1,6 +1,6 @@
 (include "class/obj/class.inc")
 
-(def-class texture obj
+(def-class :texture :obj
 	(dec-method :vtable gui/texture/vtable)
 	(dec-method :create gui/texture/create :static (:r0 :r1 :r2) (:r0))
 	(dec-method :init gui/texture/init :static (:r0 :r1 :r2 :r3 :r4))
@@ -27,9 +27,9 @@
 	;:r1 = 0 if error, else ok
 	;trashes
 	;:r1
-	(entry 'texture :init '(:r0 :r1 (:r0 texture_handle) (:r0 texture_width) (:r0 texture_height)))
-	(s-call 'texture :init '(:r0 :r1) '(:r0 :r1))
-	(exit 'texture :init '(:r0 :r1))
+	(entry :texture :init '(:r0 :r1 (:r0 texture_handle) (:r0 texture_width) (:r0 texture_height)))
+	(s-call :texture :init '(:r0 :r1) '(:r0 :r1))
+	(exit :texture :init '(:r0 :r1))
 	(vp-ret))
 
 (defun gui/texture/get_metrics ()

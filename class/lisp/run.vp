@@ -18,40 +18,40 @@
 	(push-scope)
 
 	;get param string
-	(call 'sys_mail :mymail :nil {script, _})
-	(call 'sys_mail :free_obj {script} {script, _, _})
+	(call :sys_mail :mymail :nil {script, _})
+	(call :sys_mail :free_obj {script} {script, _, _})
 
 	;string output stream
-	(call 'str :create_from_buffer {0, str_gap} {obj})
-	(call 'sstream :create {obj} {obj})
+	(call :str :create_from_buffer {0, str_gap} {obj})
+	(call :sstream :create {obj} {obj})
 
 	;create lisp class
-	(call 'lisp :create {script, obj, obj, obj} {lisp})
-	(call 'str :deref {script})
-	(call 'obj :deref {obj})
+	(call :lisp :create {script, obj, obj, obj} {lisp})
+	(call :str :deref {script})
+	(call :obj :deref {obj})
 	(vpif {lisp})
 		;do we have a main ?
-		(call 'view :get_prop {lisp->lisp_environment, static_sym_main} {_, obj})
+		(call :view :get_prop {lisp->lisp_environment, static_sym_main} {_, obj})
 		(vpif {obj})
 			;run main
-			(call 'list :create :nil {args})
-			(call 'lisp :repl_apply {lisp, args, obj} {_, obj})
+			(call :list :create :nil {args})
+			(call :lisp :repl_apply {lisp, args, obj} {_, obj})
 			(vpif {obj->obj_vtable = lisp->lisp_error})
 				;error in main
-				(call 'obj :print {obj, lisp->lisp_stderr})
-				(call 'stream :write_char {lisp->lisp_stderr, +char_lf})
-				(call 'stream :flush {lisp->lisp_stderr})
+				(call :obj :print {obj, lisp->lisp_stderr})
+				(call :stream :write_char {lisp->lisp_stderr, +char_lf})
+				(call :stream :flush {lisp->lisp_stderr})
 			(endif)
-			(call 'obj :deref {args})
-			(call 'obj :deref {obj})
+			(call :obj :deref {args})
+			(call :obj :deref {obj})
 		(endif)
-		(call 'lisp :deref {lisp})
+		(call :lisp :deref {lisp})
 	(endif)
 
 	;flush interned symbols, nums and mem blocks
-	(call 'hset :flush {@sys/statics/statics.statics_sym_intern})
-	(call 'hset :flush {@sys/statics/statics.statics_num_intern})
-	(call 'sys_mem :collect)
+	(call :hset :flush {@sys/statics/statics.statics_sym_intern})
+	(call :hset :flush {@sys/statics/statics.statics_num_intern})
+	(call :sys_mem :collect)
 
 	(pop-scope)
 	(return)

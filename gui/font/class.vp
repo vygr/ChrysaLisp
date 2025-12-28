@@ -9,10 +9,10 @@
 (include "././path/class.inc")
 (include "././canvas/class.inc")
 
-(gen-create 'font)
-(gen-vtable 'font)
+(gen-create :font)
+(gen-vtable :font)
 
-(def-method 'font :open)
+(def-method :font :open)
 	;:r0 = name c string (pubyte)
 	;:r1 = font size (pixels)
 	;outputs
@@ -26,40 +26,40 @@
 		(uint pixels))
 
 	(push-scope)
-	(entry 'font :open {name, pixels})
+	(entry :font :open {name, pixels})
 
 	(assign {@sys/statics/statics.statics_font_intern} {flat_set})
 	(vpifnot {flat_set})
-		(call 'list :create :nil {flat_set})
+		(call :list :create :nil {flat_set})
 		(assign {flat_set} {@sys/statics/statics.statics_font_intern})
 	(endif)
 
 	;intern font
-	(call 'list :get_both {flat_set} {_, iter_begin, iter_end})
+	(call :list :get_both {flat_set} {_, iter_begin, iter_end})
 	(assign {0} {data})
 	(loop-while {iter_begin /= iter_end})
 		(assign {*iter_begin} {this})
-		(call 'sys_str :compare {&this->font_name->str_data, name} '(tmp))
+		(call :sys_str :compare {&this->font_name->str_data, name} '(tmp))
 		(vpif `(,tmp = 0))
 			(assign {this->font_data} {data})
 			(gotoif {this->font_pixels = pixels} 'found)
 		(endif)
 		(assign {iter_begin + +ptr_size} {iter_begin})
 	(loop-end)
-	(call 'font :create {name, data, pixels} {this})
+	(call :font :create {name, data, pixels} {this})
 	(vpif {this})
-		(call 'list :push_back {flat_set, this})
+		(call :list :push_back {flat_set, this})
 	(vp-label 'found)
-		(call 'font :ref {this})
+		(call :font :ref {this})
 	(endif)
 
-	(exit 'font :open {this})
+	(exit :font :open {this})
 	(pop-scope)
 	(return)
 
 (def-func-end)
 
-(def-method 'font :init)
+(def-method :font :init)
 	;inputs
 	;:r0 = font object (ptr)
 	;:r1 = vtable (pptr)
@@ -80,34 +80,34 @@
 		(uint pixels))
 
 	(push-scope)
-	(entry 'font :init {this, vtable, name, data, pixels})
+	(entry :font :init {this, vtable, name, data, pixels})
 
 	;init parent
-	(s-call 'font :init {this, vtable} {_, ok})
+	(s-call :font :init {this, vtable} {_, ok})
 	(vpif {ok})
 		;init state
 		(assign {0, pixels} {this->font_chars, this->font_pixels})
-		(call 'sym :intern_cstr {name} {this->font_name})
-		(call 'hmap :create {0, 101} {this->font_sym_map})
+		(call :sym :intern_cstr {name} {this->font_name})
+		(call :hmap :create {0, 101} {this->font_sym_map})
 		(vpif {data})
-			(call 'str :ref {data} {this->font_data})
+			(call :str :ref {data} {this->font_data})
 		(else)
-			(call 'str :create_from_file {name} {this->font_data})
+			(call :str :create_from_file {name} {this->font_data})
 			(vpifnot {this->font_data})
-				(call 'str :deref {this->font_name})
-				(call 'hmap :deref {this->font_sym_map})
+				(call :str :deref {this->font_name})
+				(call :hmap :deref {this->font_sym_map})
 				(assign {0} {ok})
 			(endif)
 		(endif)
 	(endif)
 
-	(exit 'font :init {this, ok})
+	(exit :font :init {this, ok})
 	(pop-scope)
 	(return)
 
 (def-func-end)
 
-(def-method 'font :deinit)
+(def-method :font :deinit)
 	;inputs
 	;:r0 = font object (ptr)
 	;outputs
@@ -115,24 +115,24 @@
 	;trashes
 	;:r1-:r14
 
-	(entry 'font :deinit '(:r0))
+	(entry :font :deinit '(:r0))
 
 	(vp-push :r0)
-	(call 'list :deref_if '((:r0 font_chars)))
+	(call :list :deref_if '((:r0 font_chars)))
 	(assign '((:rsp 0)) '(:r0))
-	(call 'hmap :deref '((:r0 font_sym_map)))
+	(call :hmap :deref '((:r0 font_sym_map)))
 	(assign '((:rsp 0)) '(:r0))
-	(call 'str :deref '((:r0 font_name)))
+	(call :str :deref '((:r0 font_name)))
 	(assign '((:rsp 0)) '(:r0))
-	(call 'str :deref '((:r0 font_data)))
+	(call :str :deref '((:r0 font_data)))
 	(vp-pop :r0)
 
 	;deinit parent
-	(s-jump 'font :deinit '(:r0))
+	(s-jump :font :deinit '(:r0))
 
 (def-func-end)
 
-(def-method 'font :get_metrics)
+(def-method :font :get_metrics)
 	;inputs
 	;:r0 = font object (ptr)
 	;outputs
@@ -143,7 +143,7 @@
 	;trashes
 	;:r1-:r4
 
-	(entry 'font :get_metrics '(:r0))
+	(entry :font :get_metrics '(:r0))
 
 	(assign '((:r0 font_data) (:r0 font_pixels)) '(:r3 :r4))
 	(vp-add-cr str_data :r3)
@@ -155,12 +155,12 @@
 	(vp-shr-cr 24 :r2)
 	(vp-shr-cr 24 :r3)
 
-	(exit 'font :get_metrics '(:r0 :r1 :r2 :r3))
+	(exit :font :get_metrics '(:r0 :r1 :r2 :r3))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'font :glyph_data)
+(def-method :font :glyph_data)
 	;inputs
 	;:r0 = font object (ptr)
 	;:r1 = char code (uint)
@@ -172,7 +172,7 @@
 
 	(vp-rdef (this data c start end))
 
-	(entry 'font :glyph_data `(,this ,c))
+	(entry :font :glyph_data `(,this ,c))
 
 	(assign `((,this font_data)) `(,data))
 	(vp-add-cr (+ str_data font_data_size) data)
@@ -189,7 +189,7 @@
 			(vp-add-cr str_data data)
 			(vp-add-rr c data)
 
-			(exit 'font :glyph_data `(,this ,data))
+			(exit :font :glyph_data `(,this ,data))
 			(vp-ret)
 		(endif)
 		(vp-sub-rr start end)
@@ -199,12 +199,12 @@
 	(loop-end)
 	(vp-xor-rr data data)
 
-	(exit 'font :glyph_data `(,this ,data))
+	(exit :font :glyph_data `(,this ,data))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'font :glyph_ranges)
+(def-method :font :glyph_ranges)
 	;inputs
 	;:r0 = font object (ptr)
 	;outputs
@@ -215,16 +215,16 @@
 
 	(vp-rdef (this data info start end) '(:r6 :r7 :r0 :r1 :r2))
 
-	(entry 'font :glyph_ranges `(,this))
+	(entry :font :glyph_ranges `(,this))
 
-	(call 'array :create :nil `(,info))
+	(call :array :create :nil `(,info))
 	(assign `((,this font_data)) `(,data))
 	(vp-add-cr (+ str_data font_data_size) data)
 	(loop-start)
 		(assign `((,data font_page_end)) `(,end))
 		(breakif `(,end = 0))
 		(assign `((,data font_page_start)) `(,start))
-		(call 'array :push_back2 `(,info ,start ,end) `(,info ,start ,end _ _))
+		(call :array :push_back2 `(,info ,start ,end) `(,info ,start ,end _ _))
 		(vp-sub-rr start end)
 		(vp-add-cr font_page_size data)
 		(vp-add-cr 1 end)
@@ -232,12 +232,12 @@
 		(vp-add-rr end data)
 	(loop-end)
 
-	(exit 'font :glyph_ranges `(,this ,info))
+	(exit :font :glyph_ranges `(,this ,info))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'font :glyph_info)
+(def-method :font :glyph_info)
 	;inputs
 	;:r0 = font object (ptr)
 	;:r1 = utf8 encoded str object (ptr)
@@ -249,24 +249,24 @@
 
 	(vp-rdef (this utf8 info data c) '(:r6 :r7 :r8 :r7 :r1))
 
-	(entry 'font :glyph_info `(,this ,utf8))
+	(entry :font :glyph_info `(,this ,utf8))
 
-	(call 'array :create :nil `(,info))
-	(call 'array :set_cap `(,info (,utf8 str_length)) `(,info))
+	(call :array :create :nil `(,info))
+	(call :array :set_cap `(,info (,utf8 str_length)) `(,info))
 	(assign `((& ,utf8 str_data)) `(,data))
 	(loop-start)
-		(call 'sys_str :read_utf8 `(,data) `(,data ,c))
+		(call :sys_str :read_utf8 `(,data) `(,data ,c))
 		(breakif `(,c = 0))
-		(call 'font :glyph_data `(,this ,c) `(_ ,c))
-		(call 'array :push_back `(,info ,c))
+		(call :font :glyph_data `(,this ,c) `(_ ,c))
+		(call :array :push_back `(,info ,c))
 	(loop-end)
 
-	(exit 'font :glyph_info `(,this ,info))
+	(exit :font :glyph_info `(,this ,info))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'font :glyph_bounds)
+(def-method :font :glyph_bounds)
 	;inputs
 	;:r0 = font object (ptr)
 	;:r1 = glyph info array object (ptr)
@@ -279,7 +279,7 @@
 
 	(vp-rdef (this w h gap gw iter_begin iter_end info))
 
-	(entry 'font :glyph_bounds `(,this ,info))
+	(entry :font :glyph_bounds `(,this ,info))
 
 	(assign `((,this font_data)) `(,iter_begin))
 	(vp-add-cr str_data iter_begin)
@@ -310,12 +310,12 @@
 	(vp-shr-cr 24 h)
 	(vp-add-cr 1 w)
 
-	(exit 'font :glyph_bounds `(,this ,w ,h))
+	(exit :font :glyph_bounds `(,this ,w ,h))
 	(vp-ret)
 
 (def-func-end)
 
-(def-method 'font :glyph_paths)
+(def-method :font :glyph_paths)
 	;inputs
 	;:r0 = font object (ptr)
 	;:r1 = glyph info array object (ptr)
@@ -343,14 +343,14 @@
 		(uint width height gap ox oy))
 
 	(push-scope)
-	(entry 'font :glyph_paths {this, info})
+	(entry :font :glyph_paths {this, info})
 
 	(assign {&this->font_data->str_data} {iter_begin})
 	(assign {iter_begin->font_data_ascent + iter_begin->font_data_descent} {height})
 	(assign {height >> 4} {gap})
-	(call 'list :create :nil {paths})
+	(call :list :create :nil {paths})
 	(assign {gap, 0} {ox, oy})
-	(call 'array :get_both {info} {_, iter_begin, iter_end})
+	(call :array :get_both {info} {_, iter_begin, iter_end})
 	(loop-while {iter_begin /= iter_end})
 		(assign {*iter_begin} {data})
 		(vpif {data})
@@ -370,16 +370,16 @@
 				(switch)
 				(vpcase `(,c = 2))
 					;curveto
-					(call 'path :pop_back2 {path})
+					(call :path :pop_back2 {path})
 					(vp-rdef (pth pos_x pos_y x y x1 y1 x2 y2 eps data ox oy pixels)
-						(method-input 'path :gen_cubic))
+						(method-input :path :gen_cubic))
 					(assign {data, path, pos_x, pos_y, x, y, ox, oy, this->font_pixels}
 						`(,data ,pth ,pos_x ,pos_y ,x ,y ,ox ,oy ,pixels))
 					(assign `((,data font_curve_element_x1) (,data font_curve_element_y1)
 						(,data font_curve_element_x2) (,data font_curve_element_y2)) `(,x1 ,y1 ,x2 ,y2))
 					(trans_xy x1 y1)
 					(trans_xy x2 y2)
-					(call 'path :gen_cubic `(,pth ,pos_x ,pos_y ,x ,y ,x1 ,y1 ,x2 ,y2))
+					(call :path :gen_cubic `(,pth ,pos_x ,pos_y ,x ,y ,x1 ,y1 ,x2 ,y2))
 
 					(assign {data, ox, oy, this->font_pixels} `(,data ,ox ,oy ,pixels))
 					(assign `((,data font_curve_element_x2) (,data font_curve_element_y2)) `(,x2 ,y2))
@@ -390,13 +390,13 @@
 				(vpcase `(,c = 1))
 					;lineto
 				(vp-label 'lineto)
-					(call 'path :push_back2 {path, x, y})
+					(call :path :push_back2 {path, x, y})
 					(assign {x, y, data + font_line_element_size} {pos_x, pos_y, data})
 					(break)
 				(vpcase `(,c = 0))
 					;moveto
-					(call 'path :create :nil {path})
-					(call 'list :push_back {paths, path})
+					(call :path :create :nil {path})
+					(call :list :push_back {paths, path})
 					(goto 'lineto)
 				(endswitch)
 				(vp-rdef (data ox oy data_end))
@@ -410,13 +410,13 @@
 	(loop-end)
 	(assign {&this->font_data->str_data} {iter_begin})
 
-	(exit 'font :glyph_paths {this, paths, (ox * this->font_pixels >> 24) + 1, ((iter_begin->font_data_ascent + iter_begin->font_data_descent) * this->font_pixels) >> 24})
+	(exit :font :glyph_paths {this, paths, (ox * this->font_pixels >> 24) + 1, ((iter_begin->font_data_ascent + iter_begin->font_data_descent) * this->font_pixels) >> 24})
 	(pop-scope)
 	(return)
 
 (def-func-end)
 
-(def-method 'font :sym_texture)
+(def-method :font :sym_texture)
 	;inputs
 	;:r0 = font object (ptr)
 	;:r1 = utf8 encoded sym object (ptr)
@@ -434,51 +434,51 @@
 			(pptr iter bucket)))
 
 	(push-scope)
-	(entry 'font :sym_texture {this, sym})
+	(entry :font :sym_texture {this, sym})
 
 	;look up string in sym map
-	(call 'hmap :find {this->font_sym_map, sym} {_, iter, bucket})
+	(call :hmap :find {this->font_sym_map, sym} {_, iter, bucket})
 	(vpifnot {iter})
 		;create sym canvas
-		(call 'font :glyph_info {this, sym} {_, info})
-		(call 'font :glyph_paths {this, info} {_, paths, w, h})
-		(call 'canvas :create {w, h, 2} {sym_canvas})
+		(call :font :glyph_info {this, sym} {_, info})
+		(call :font :glyph_paths {this, info} {_, paths, w, h})
+		(call :canvas :create {w, h, 2} {sym_canvas})
 		(assign {+argb_white, 1} {sym_canvas->canvas_color, sym_canvas->canvas_flags})
-		(call 'font :get_metrics {this} {_, h, _, _})
-		(call 'canvas :fpoly {sym_canvas, 0, h << (+fp_shift + 1), winding_odd_even, paths})
+		(call :font :get_metrics {this} {_, h, _, _})
+		(call :canvas :fpoly {sym_canvas, 0, h << (+fp_shift + 1), winding_odd_even, paths})
 
 		;take texture from canvas
-		(call 'canvas :swap {sym_canvas, 1})
+		(call :canvas :swap {sym_canvas, 1})
 		(assign {sym_canvas->canvas_texture} {txt})
 		(assign {0} {sym_canvas->canvas_texture})
 
 		;free all the gubins
-		(call 'canvas :deref {sym_canvas})
-		(call 'array :deref {info})
-		(call 'list :deref {paths})
+		(call :canvas :deref {sym_canvas})
+		(call :array :deref {info})
+		(call :list :deref {paths})
 		(breakifnot {txt})
 
 		;create new entry
-		(call 'sym :ref {sym})
-		(call 'texture :ref {txt})
-		(call 'list :push_back2 {bucket, sym, txt})
+		(call :sym :ref {sym})
+		(call :texture :ref {txt})
+		(call :list :push_back2 {bucket, sym, txt})
 
 		;flush cache ?
 		(assign {@sys/statics/statics} {statics})
 		(vpif {(statics->statics_font_count + 1 => statics->statics_font_count) >= font_max_word_cache})
-			(call 'font :flush)
+			(call :font :flush)
 		(endif)
 	(else)
-		(call 'obj :ref {iter[+ptr_size]} {txt})
+		(call :obj :ref {iter[+ptr_size]} {txt})
 	(endif)
 
-	(exit 'font :sym_texture {this, txt})
+	(exit :font :sym_texture {this, txt})
 	(pop-scope)
 	(return)
 
 (def-func-end)
 
-(def-method 'font :ascii_textures)
+(def-method :font :ascii_textures)
 	;inputs
 	;:r0 = font object (ptr)
 	;outputs
@@ -493,38 +493,38 @@
 
 	;save inputs
 	(push-scope)
-	(entry 'font :ascii_textures {this})
+	(entry :font :ascii_textures {this})
 
 	;lazy create char textures
 	(vpifnot {this->font_chars})
 		;note, don't write to member var yet in case flush gets called !
-		(call 'list :create :nil {chars})
-		(call 'list :set_cap {chars, 128 - 33})
+		(call :list :create :nil {chars})
+		(call :list :set_cap {chars, 128 - 33})
 		(assign {33} {code})
 		(loop-start)
-			(call 'sym :intern_cstr {&code} {sym})
-			(call 'font :sym_texture {this, sym} {_, txt})
+			(call :sym :intern_cstr {&code} {sym})
+			(call :font :sym_texture {this, sym} {_, txt})
 			(vpif {txt})
-				(call 'list :push_back {chars, txt})
+				(call :list :push_back {chars, txt})
 			(endif)
-			(call 'sym :deref {sym})
+			(call :sym :deref {sym})
 		(loop-until {(code + 1 => code) = 128})
 		(vpif {this->font_chars})
 			;another thread got to it during a flush !
-			(call 'list :deref {chars})
+			(call :list :deref {chars})
 		(else)
 			(assign {chars} {this->font_chars})
 		(endif)
 	(endif)
-	(call 'list :ref {this->font_chars})
+	(call :list :ref {this->font_chars})
 
-	(exit 'font :ascii_textures {this, this->font_chars})
+	(exit :font :ascii_textures {this, this->font_chars})
 	(pop-scope)
 	(return)
 
 (def-func-end)
 
-(def-method 'font :flush)
+(def-method :font :flush)
 	;trashes
 	;:r0-:r14
 
@@ -537,24 +537,24 @@
 	;must not use iters as kernel callbacks will deshedule us !
 	(assign {0, @sys/statics/statics.statics_font_intern} {index, flat_set})
 	(loop-start)
-		(call 'list :get_length {flat_set} {_, length})
+		(call :list :get_length {flat_set} {_, length})
 		(breakif {index = length})
-		(call 'list :get_elem {flat_set, index} {_, font})
+		(call :list :get_elem {flat_set, index} {_, font})
 		(vpif {font->font_chars})
 			(vpif {font->font_chars->obj_count = 1})
 				;during deref font_chars could be written to !
 				(assign {font->font_chars} {tmp})
 				(assign {0} {font->font_chars})
-				(call 'list :deref {tmp})
+				(call :list :deref {tmp})
 			(endif)
 		(endif)
-		(call 'hmap :create {font->font_sym_map->hset_key_callback,
+		(call :hmap :create {font->font_sym_map->hset_key_callback,
 			font->font_sym_map->hset_num_buckets} {new_map})
-		(call 'hmap :each {font->font_sym_map, $flush_callback, new_map})
+		(call :hmap :each {font->font_sym_map, $flush_callback, new_map})
 		;during deref font_sym_map could be written to !
 		(assign {font->font_sym_map} {tmp})
 		(assign {new_map} {font->font_sym_map})
-		(call 'hmap :deref {tmp})
+		(call :hmap :deref {tmp})
 		(assign {index + 1} {index})
 	(loop-end)
 
@@ -577,9 +577,9 @@
 		(class/obj/ref :r1 :r3)
 		(class/obj/ref :r2 :r3)
 		(vp-push :r1 :r2)
-		(call 'hmap :bucket '(:r0 :r1) '(_ :r0))
+		(call :hmap :bucket '(:r0 :r1) '(_ :r0))
 		(vp-pop :r1 :r2)
-		(jump 'list :push_back2 '(:r0 :r1 :r2))
+		(jump :list :push_back2 '(:r0 :r1 :r2))
 	(default)
 		(fn-bind 'sys/statics/statics :r0)
 		(assign '((:r0 statics_font_count)) '(:r2))

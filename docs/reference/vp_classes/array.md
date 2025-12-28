@@ -1,6 +1,6 @@
-# array
+# :array
 
-## seq
+## :seq
 
 ## Lisp Bindings
 

@@ -158,7 +158,7 @@
 	;create VP classes docs
 	(sort classes (# (cmp (first %0) (first %1))))
 	(each (lambda ((cls super &rest mthds))
-		(defq stream (file-stream (cat "docs/reference/vp_classes/" cls ".md") +file_open_write))
+		(defq stream (file-stream (cat "docs/reference/vp_classes/" (rest cls) ".md") +file_open_write))
 		(write-line stream (cat "# " cls +LF))
 		(unless (eql ":nil" super)
 			(write-line stream (cat "## " super +LF)))
@@ -180,7 +180,7 @@
 					(write-line stream "```code")
 					(each (# (write-line stream %0)) info)
 					(write-line stream (const (str "```" +LF))))) mthds))
-		(print (cat "-> docs/reference/vp_classes/" cls ".md"))) classes))
+		(print (cat "-> docs/reference/vp_classes/" (rest cls) ".md"))) classes))
 
 (defun make-ai ()
 	(defq folders (Lmap) cmds (list))

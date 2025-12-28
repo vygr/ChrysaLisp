@@ -1,6 +1,6 @@
 (include "././view/class.inc")
 
-(def-class vdu view
+(def-class :vdu :view
 	(dec-method :vtable gui/vdu/vtable)
 	(dec-method :create gui/vdu/create :static () (:r0))
 	(dec-method :init gui/vdu/init)

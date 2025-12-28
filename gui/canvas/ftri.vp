@@ -1,7 +1,7 @@
 (include "lib/asm/func.inc")
 (include "./class.inc")
 
-(def-method 'canvas :ftri)
+(def-method :canvas :ftri)
 	;inputs
 	;:r0 = canvas object (ptr)
 	;:r1 = x0 (fixed)
@@ -24,9 +24,9 @@
 		(int bx by bx1 by1))
 
 	(push-scope)
-	(entry 'canvas :ftri {this, x0, y0, x1, y1, x2, y2})
+	(entry :canvas :ftri {this, x0, y0, x1, y1, x2, y2})
 
-	(vp-rdef (this bx by x1 y1 x2 y2 bx1 by1 cx cy cx1 cy1 bxf byf) (method-input 'canvas :ftri))
+	(vp-rdef (this bx by x1 y1 x2 y2 bx1 by1 cx cy cx1 cy1 bxf byf) (method-input :canvas :ftri))
 	(assign {x0, y0, x0, y0, x1, y1, x2, y2,
 			this->canvas_cx, this->canvas_cy, this->canvas_cx1, this->canvas_cy1}
 		(list bx by bx1 by1 x1 y1 x2 y2 cx cy cx1 cy1))
@@ -94,7 +94,7 @@
 			(assign '(:r0) {a2})
 		(endif)
 
-		(vp-rdef (this bx1 x0 by c0 bx by1 x1 x2 c1 c2 i0 i1 i2) (method-input 'canvas :span_noclip))
+		(vp-rdef (this bx1 x0 by c0 bx by1 x1 x2 c1 c2 i0 i1 i2) (method-input :canvas :span_noclip))
 		(assign {this, c0, c1, c2, bx, by, bx1, by1} (list this c0 c1 c2 bx by bx1 by1))
 		(vpif `(,by < ,by1))
 			(loop-start)
@@ -116,7 +116,7 @@
 				(vp-simd vp-add-rr `(,bx) `(,x0 ,c0))
 				(vp-simd vp-asr-cr `(,+fp_shift) `(,x0 ,c0))
 				(vpif `(,x0 < ,c0))
-					(call 'canvas :span_noclip (list this 0x80 x0 by c0) (list this))
+					(call :canvas :span_noclip (list this 0x80 x0 by c0) (list this))
 				(endif)
 				(assign {b0, b1, b2, c0, c1, c2, bx, by, bx1, by1} (list i0 i1 i2 c0 c1 c2 bx by bx1 by1))
 				(vp-simd vp-add-rr `(,i0 ,i1 ,i2) `(,c0 ,c1 ,c2))
@@ -126,7 +126,7 @@
 		(endif)
 	(endif)
 
-	(exit 'canvas :ftri {this})
+	(exit :canvas :ftri {this})
 	(pop-scope)
 	(return)
 

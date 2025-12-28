@@ -1,6 +1,6 @@
-# fixeds
+# :fixeds
 
-## nums
+## :nums
 
 ## Lisp Bindings
 
