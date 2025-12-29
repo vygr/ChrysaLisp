@@ -24,24 +24,24 @@ contains a few items that each task needs to maintain and an area that is used
 for the `stack`, your `:rsp` register is pointing at the end of this area when
 it's created.
 
-These `Task Control Blocks` are held on a list, one list for each task
-priority. When a task is inactive, due to scheduling or blocking on a message
-read etc, the VP register state for that task is stored pushed onto the stack.
-When a task becomes active the VP register state is popped from the stack and
-execution of this tasks activity continues.
+These `Task Control Blocks` are held on a list, one list for each task priority.
+When a task is inactive, due to scheduling or blocking on a message read etc,
+the VP register state for that task is stored pushed onto the stack. When a task
+becomes active the VP register state is popped from the stack and execution of
+this tasks activity continues.
 
 The structure of the TCB and the priority lists are detailed in
 `sys/task/class.inc`, the implementation of the task methods in
 `sys/task/class.vp`.
 
-Tasks are created/started with the `:sys_task :start` method and stopped via
-the `:sys_task :stop` method. If a task eventually returns from its entry point
+Tasks are created/started with the `:sys_task :start` method and stopped via the
+`:sys_task :stop` method. If a task eventually returns from its entry point
 without calling `:sys_task :stop` this will happen automatically. A 'call' to
 `:sys_task :stop` is pushed onto the task stack on creation of the TCB.
 
 When a task is created it's assigned a none repeating 64 bit `mailbox_id`, this
-ID is combined with a 128 bit `node_id` to create the network wide `net_id`
-that is used to address a message.
+ID is combined with a 128 bit `node_id` to create the network wide `net_id` that
+is used to address a message.
 
 During the lifetime of a task it can change state from active to inactive,
 suspended, sleeping etc. Based on the method names you can probably guess the
@@ -73,16 +73,16 @@ corresponding `mailbox_id`.
 ## Networks
 
 A VP network consists of a group of VP nodes, each connected to a neighbor by a
-point to point link. Each node is executing a group of VP tasks. These tasks
-are communicating with each other via sending and receiving messages, see the
+point to point link. Each node is executing a group of VP tasks. These tasks are
+communicating with each other via sending and receiving messages, see the
 `comms.md` document for that discussion.
 
 This is an abstract model ! On a particular native machine or collection of
 native machines, a VP node might be a Host OS process, OS Thread, or be running
 on the bare metal, it can even be running as a C/C++/Rust VP64 EMU !
 
-In either case, a VP node can execute a number of VP tasks, and it does this
-via a priority based co-op task scheduling policy.
+In either case, a VP node can execute a number of VP tasks, and it does this via
+a priority based co-op task scheduling policy.
 
 Networks can `morph` dynamically ! The `sea` of VP nodes, and services, within
 your horizon, can and does, change during your apps lifetime... more on this
@@ -95,9 +95,9 @@ initially given the command line arguments after a `boot_image` launch. These
 arguments are usually commands to start up link drivers and/or the TUI/GUI
 services.
 
-Once the Kernel launches all the command line tasks, it enters a loop
-monitoring messages to it to distribute new tasks, register new link driver
-tasks, service declarations from neighbors and beyond !
+Once the Kernel launches all the command line tasks, it enters a loop monitoring
+messages to it to distribute new tasks, register new link driver tasks, service
+declarations from neighbors and beyond !
 
 The Kernel task also launches a `ping` task. This task sits in the background
 and every so often sends out the local `Service Directory` entries to its
@@ -105,16 +105,18 @@ neighbors. In this way the network wide routing and service tasks info is
 distributed.
 
 The Kernel task is responsible for distribution of task creation requests via
-sending a message to it on `mailbox_id` 0. This method of starting a task
-passes the task creation request from Kernel to neighboring Kernel until the
-decision is made to call `:sys_task :start` by one of the Kernels, then the
-`net_id` of the new task is returned to the original requester.
+sending a message to it on `mailbox_id` 0. This method of starting a task passes
+the task creation request from Kernel to neighboring Kernel until the decision
+is made to call `:sys_task :start` by one of the Kernels, then the `net_id` of
+the new task is returned to the original requester.
 
 ## Link tasks
 
-A link task, or driver, is a task that registers itself with the Kernel as a task that can send message data to a neighbor node.
+A link task, or driver, is a task that registers itself with the Kernel as a
+task that can send message data to a neighbor node.
 
-It runs at the link driver priority, lower than the Kernel, but higher than the rest of the system.
+It runs at the link driver priority, lower than the Kernel, but higher than the
+rest of the system.
 
 When a link starts up, it exchanges a `hello` with the node it's connected to.
 And then starts to transmit message data.
@@ -142,7 +144,7 @@ talking to neighboring Kernels, via the link drivers, a network wide directory
 of these named mailboxes.
 
 You can create, destroy and search for the mailbox/s for a service/s task/s of
-interest, via the `:sys_mail :enquire`, `:sys_mail :declare` and `'sys_mail
+interest, via the `:sys_mail :enquire`, `:sys_mail :declare` and `:sys_mail
 :forget` method calls.
 
 ## Does the VP OS even exist ?
@@ -159,16 +161,16 @@ time playing the game and tweaking the rules till it did what I thought was a
 good game. And then I thought "This also applies to a distributed OS !" ...
 
 As soon as we launch a `boot_image` we have a VP node running. A VP node is a
-single thread (on the host OS maybe), that does it's own co-op scheduling, so
-it can run many VP tasks, on a single host OS thread.
+single thread (on the host OS maybe), that does it's own co-op scheduling, so it
+can run many VP tasks, on a single host OS thread.
 
-If we launch several `boot_image` we have several VP nodes (like the run
-scripts do). At this point although we have several VP nodes running, they all
-think they are a network of 1 node ! As the link driver tasks start up and they
-introduce themselves to the node next door, the VP nodes find that they are
-part of a bigger network, and they join together into a bigger group of VP
-nodes. That takes a few seconds depending on the link driver communication
-speed and the host OS process scheduling.
+If we launch several `boot_image` we have several VP nodes (like the run scripts
+do). At this point although we have several VP nodes running, they all think
+they are a network of 1 node ! As the link driver tasks start up and they
+introduce themselves to the node next door, the VP nodes find that they are part
+of a bigger network, and they join together into a bigger group of VP nodes.
+That takes a few seconds depending on the link driver communication speed and
+the host OS process scheduling.
 
 That's on a single Host machine ! But you could have nodes started on other
 machines, and a link driver comes up that 'groups' those VP nodes together...

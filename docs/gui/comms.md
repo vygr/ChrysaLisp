@@ -25,36 +25,36 @@ mailbox can't be found.
 
 Mailbox IDs are always a unique 64 bit non repeated identifier. During mail
 delivery any messages using an ID that can't be validated are treated as junk
-mail and sent to this nodes Postman task. This postman task just currently
-frees the message but later versions of the system may use this information for
+mail and sent to this nodes Postman task. This postman task just currently frees
+the message but later versions of the system may use this information for
 debugging purposes.
 
 ## Messages
 
 Messages consist of two parts, the message header and the message body. The
-message body consists of a referenceable object, most often a String object.
-The header is like a postage stamp on the objects data. Large objects will have
+message body consists of a referenceable object, most often a String object. The
+header is like a postage stamp on the objects data. Large objects will have
 multiple message headers created, by the system, to break up the sending of the
 data into smaller packets. These packets are routed from the source node to the
 destination node and reconstructed at the destination into the original message
 before delivery into the target mailbox.
 
 Individual message packets travel via parallel communication routes across the
-network from source to destination. No guarantee is given for the order in
-which message packets will arrive. Large messages that have been broken down
-into smaller fragments are reconstructed piece by piece at the destination and
-are only delivered into the recipient mailbox once all packets have been
-received and reconstruction has finished. A receiver will never see fragments
-of a large message, they receive it whole or not at all.
+network from source to destination. No guarantee is given for the order in which
+message packets will arrive. Large messages that have been broken down into
+smaller fragments are reconstructed piece by piece at the destination and are
+only delivered into the recipient mailbox once all packets have been received
+and reconstruction has finished. A receiver will never see fragments of a large
+message, they receive it whole or not at all.
 
 There are other mechanisms available, within the class library `class/in` and
 `class/out`, to create and send a stream of messages while preserving an exact
 sequence of delivery to the receiving task. They also hide the use of the
 underlying messaging system within a streams based API.
 
-There are two functions to allocate mail messages, one where the data is
-already available `:sys_mail :alloc_obj`, and one where an empty message needs
-to be created, which the creator will fill in with data, `:sys_mail :alloc`.
+There are two functions to allocate mail messages, one where the data is already
+available `:sys_mail :alloc_obj`, and one where an empty message needs to be
+created, which the creator will fill in with data, `:sys_mail :alloc`.
 
 There are counterparts for the receiver where a message can be freed in its
 entirety, `:sys_mail :free`, or the data object can be retained and only the
@@ -67,9 +67,9 @@ the message on its way with the `:sys_mail :send` function. This hands the
 message over to the link tasks and begins the routing of the message to the
 destination mailbox.
 
-A task receives messages by use of the `:sys_mail :read` function. This
-function retrieves the next available mail message from the mailbox or blocks,
-by suspending the task, until a message is received.
+A task receives messages by use of the `:sys_mail :read` function. This function
+retrieves the next available mail message from the mailbox or blocks, by
+suspending the task, until a message is received.
 
 It is possible to examine a mailbox to see if any mail is available, without
 suspending the calling task, by use of the `:sys_mail :poll` function.
@@ -79,9 +79,9 @@ by the `:sys_mail :poll` and `:sys_mail :select` function calls.
 
 ## Task Mailbox ID's
 
-A `net_id` task mailbox ID consists of a combination of the local mailbox ID
-and the VP node `node_id`. The VP node `node_id` occupies the later 128 bits,
-the local mailbox ID occupies the first 64 bits.
+A `net_id` task mailbox ID consists of a combination of the local mailbox ID and
+the VP node `node_id`. The VP node `node_id` occupies the later 128 bits, the
+local mailbox ID occupies the first 64 bits.
 
 Message routing first of all routes messages from the source VP node to the
 destination VP node and then the local mailbox ID is validated before delivery
@@ -100,10 +100,10 @@ happen when the task shuts down.
 
 ## Services
 
-Functions are also provided to allow mailboxes to be named, via `'sys_mail
-:declare`, throughout the network. Such mailboxes are then discoverable by
-other tasks via a call to `:sys_mail :enquire` with the given name. A service
-entry can be removed with the `:sys_mail :forget` function.
+Functions are also provided to allow mailboxes to be named, via `:sys_mail
+:declare`, throughout the network. Such mailboxes are then discoverable by other
+tasks via a call to `:sys_mail :enquire` with the given name. A service entry
+can be removed with the `:sys_mail :forget` function.
 
 The system maintains a directory of these service names and the corresponding
 task `net_id`. An example service is the current GUI `*Debug` application
@@ -114,12 +114,12 @@ nodes in the network, otherwise only discoverable by other local tasks.
 
 ### VP example
 
-This is a network monitoring application child task. The child task simply
-waits for a command message from the parent and either exits or returns a
-message containing task and memory usage information.
+This is a network monitoring application child task. The child task simply waits
+for a command message from the parent and either exits or returns a message
+containing task and memory usage information.
 
-`:sys_mail :mymail` is just a convenience function to read mail from the
-current tasks main mailbox.
+`:sys_mail :mymail` is just a convenience function to read mail from the current
+tasks main mailbox.
 
 ```vdu
 (include "lib/asm/func.inc")
@@ -169,8 +169,8 @@ current tasks main mailbox.
 
 ## Lisp Interface
 
-The included Lisp interpreter interfaces to the messaging system via sending
-and receiving objects. This uses the `:sys_mail :alloc_obj` and `'sys_mail
+The included Lisp interpreter interfaces to the messaging system via sending and
+receiving objects. This uses the `:sys_mail :alloc_obj` and `:sys_mail
 :free_obj` calls within the Lisp bindings, see `sys/lisp.inc` and
 `sys/mail/lisp.vp`.
 
@@ -183,8 +183,8 @@ Senders can martial data for sending via a `(str ...)` or `(str (string-stream
 
 The Lisp level `(mail-timeout net_id ns user)` function can be used to send a
 mail message to a mailbox after a time delay ! This message, on receipt, will
-contain the 64 bit value of the current time and the 64 bit user value. This
-can be used for animation callback purposes or in combination with `'sys_mail
+contain the 64 bit value of the current time and the 64 bit user value. This can
+be used for animation callback purposes or in combination with `:sys_mail
 :select` to provided timed mailbox read functionality. If the time delay given
 is 0 the call will remove the entry from the timer list.
 
@@ -195,15 +195,15 @@ to show which GUI widget is requesting tool tip info display.
 ### Lisp example
 
 In order to ease simple message construction sending and receiving, you can use
-the `(structure)` macros in conjunction with raw string allocation and the
-field access macros `(getf) (setf) (setf->)` !
+the `(structure)` macros in conjunction with raw string allocation and the field
+access macros `(getf) (setf) (setf->)` !
 
 Let's look at the Netmon application as an example. This application creates a
 child task on each network node by use of the `(Global)` class and polls each
 child to request node specific information.
 
-The application defines a polling message structure in the
-`apps/netmon/app.inc` file.
+The application defines a polling message structure in the `apps/netmon/app.inc`
+file.
 
 ```file
 apps/netmon/app.inc
@@ -225,8 +225,8 @@ mailbox id string returned from its earlier call to `(mail-mbox)`.
 ```
 
 The child task `apps/netmon/child.lisp`, within its event loop, receives and
-replies to the parent request by using `(str-alloc)` and `(setf->)` to build
-the reply message.
+replies to the parent request by using `(str-alloc)` and `(setf->)` to build the
+reply message.
 
 ```vdu
 ...
