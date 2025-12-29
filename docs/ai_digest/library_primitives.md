@@ -150,7 +150,7 @@ These functions handle loading, inspecting, and rendering text using `.ctf`
 
 ## Canvas and Pixel Manipulation
 
-These functions provide low-level control over raster graphics on a `canvas`
+These functions provide low-level control over raster graphics on a `:canvas`
 object.
 
 *   **`canvas-to-argb32`**: Converts a color from a specific pixel format to a
@@ -165,7 +165,7 @@ object.
 
 ## Path and Vector Graphics
 
-These functions are used to create and manipulate `path` objects, which are
+These functions are used to create and manipulate `:path` objects, which are
 sequences of 2D coordinates for vector drawing.
 
 *   **`path-gen-arc`**: Generates a circular or elliptical arc path.
@@ -208,10 +208,10 @@ sequences of 2D coordinates for vector drawing.
 
     * `(path-svg d) -> commands`
 
-## Vectorized Numeric Operations (`nums`, `fixeds`, `reals`)
+## Vectorized Numeric Operations (`:nums`, `:fixeds`, `:reals`)
 
-These functions perform operations on entire vectors of numbers (`nums`, `reals`
-or `fixeds` types) at once.
+These functions perform operations on entire vectors of numbers (`:nums`, `:reals`
+or `:fixeds` types) at once.
 
 *   **`nums-abs` / `fixeds-frac` / `fixeds-floor`**: Perform element-wise
     operations on a vector.
@@ -238,8 +238,8 @@ or `fixeds` types) at once.
 
 ## Scalar Math Primitives
 
-These are standard mathematical functions that operate on single `num`, `real`
-or `fixed` values.
+These are standard mathematical functions that operate on single `:num`, `:real`
+or `:fixed` values.
 
 *   **`sqrt`**: Calculates the square root.
 

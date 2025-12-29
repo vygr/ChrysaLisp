@@ -38,7 +38,7 @@ direct reflection of the system's core tenets.
     primitives are designed to be polymorphic and adaptable. The core iterators
     (`each!`, `map!`, `reduce!`) don't just work on lists; they work on a **list
     of heterogeneous sequences**. A single `map!` call can seamlessly process a
-    `str`, an `array` of integers, and a `list` of objects in parallel, adapting
+    `:str`, an `:array` of integers, and a `:list` of objects in parallel, adapting
     its behavior to the data it is given. It takes the "shape" of its inputs.
 
 *   **Philosophy 3: "Know Thyself" (Cooperative Internals)** These primitives
@@ -96,7 +96,7 @@ or !
 ;; -> (("A" 10 :red) ("B" 20 :green) ("C" 30 :blue))
 ```
 
-Notice how `map!` effortlessly handles a `str`, a `nums` array, and a `list`.
+Notice how `map!` effortlessly handles a `:str`, a `:nums` array, and a `:list`.
 The lambda receives three direct arguments per iteration, not a list of
 arguments. This design completely obviates the need for a `zip` function in most
 cases, leading to cleaner, faster, and more memory-efficient code.
@@ -241,7 +241,7 @@ The `!` is not a variable, nor a standard function. It is a **special form**
 that provides a zero-overhead bridge to the iteration engine. When the
 interpreter calls `!`, it directly reads the `lisp_seq_idx` from the current
 task's state—the index being managed by the currently active Rocinante
-primitive—and wraps it in a `num` object. This makes the loop index "ambiently"
+primitive—and wraps it in a `:num` object. This makes the loop index "ambiently"
 available inside a lambda without cluttering the signature or incurring function
 call overhead.
 

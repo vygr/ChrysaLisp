@@ -10,8 +10,8 @@ and the broader vision for numeric computation in the ChrysaLisp ecosystem.
 ## Numeric Object Types
 
 All numeric objects in ChrysaLisp are instances of VP (Virtual Processor)
-classes, inheriting from the base `obj` class and more specifically from the
-`num` class (for scalar numbers).
+classes, inheriting from the base `:obj` class and more specifically from the
+`:num` class (for scalar numbers).
 
 **`Num` (Integer)**
 
@@ -21,20 +21,20 @@ fundamental integer type and aligns with the VP register size.
 * **VP Class:** `class/num/class.inc` and `class/num/class.vp`.
 
 * **Internal Storage:** The integer value is stored in the `num_value` field of
-the `num` VP class instance. These are sometimes referred to as "boxed"
+the `:num` VP class instance. These are sometimes referred to as "boxed"
 integers.
 
 * **Lisp Representation:**
 
     * During `(read)`, any sequence of digits not containing a decimal point
-    (`.`) is parsed into a `num` object.
+    (`.`) is parsed into a `:num` object.
     
     * Radix can be specified with prefixes: `0b` for binary, `0x` for
     hexadecimal, and `0o` for octal (though octal support isn't explicitly
     mentioned in the provided docs, it's a common Lisp convention that might be
     present).
     
-    * `num` objects parsed during `(read)` are interned using a global hash
+    * `:num` objects parsed during `(read)` are interned using a global hash
     table, similar to symbols, for efficiency (as implied by the `:intern`
     method in `num.md`).
 
@@ -50,25 +50,25 @@ part, providing a balance between range and precision for integer-based
 arithmetic.
 
 * **VP Class:** `class/fixed/class.inc` and `class/fixed/class.vp`. It inherits
-from `num`.
+from `:num`.
 
 * **Internal Storage:** The fixed-point value is stored in the `num_value`
-field (inherited from the `num` class), scaled appropriately.
+field (inherited from the `:num` class), scaled appropriately.
 
 * **Lisp Representation:**
 
     * During `(read)`, any sequence of digits containing a decimal point (`.`)
-    is parsed into a `fixed` object. Radix prefixes (`0b`, `0x`) can also be
+    is parsed into a `:fixed` object. Radix prefixes (`0b`, `0x`) can also be
     used.
     
-    * `fixed` objects parsed during `(read)` are also interned.
+    * `:fixed` objects parsed during `(read)` are also interned.
 
 * **Usage:** Extensively used by the `Canvas` class drawing operations for
 coordinates, and its internal operations are conducted in this format
 (`numerics.md`).
 
 * **CScript Integration:** The CScript compiler supports direct operations on
-`fixed` values using the `*>` (fixed-point multiply) and `</` (fixed-point
+`:fixed` values using the `*>` (fixed-point multiply) and `</` (fixed-point
 divide) operators.
 
     * `*>`: Represents a multiplication followed by an arithmetic shift right
@@ -97,14 +97,14 @@ fixed-format vector math is available in `sys/math/class.inc`, heavily used by
 * **Description:** Implements a 64bit IEEE floating-point number format.
 
 * **VP Class:** `class/real/class.inc` and `class/real/class.vp`. It inherits
-from `fixed`.
+from `:fixed`.
 
-* **Internal Storage:** The `real` value is stored in the `num_value` field
-  (inherited from `num`). It uses an IEEE double format:
+* **Internal Storage:** The `:real` value is stored in the `num_value` field
+  (inherited from `:num`). It uses an IEEE double format:
 
-* **Constants:** Pre-calculated `real` constants are defined in
+* **Constants:** Pre-calculated `:real` constants are defined in
   `lib/math/vector.inc` (mentioned in `numerics.md`), such as `+real_0` to
-  `+real_10`, `+real_pi`, etc. These are instances of the `real` VP class.
+  `+real_10`, `+real_pi`, etc. These are instances of the `:real` VP class.
 
 ## Numeric Conversions
 
@@ -164,7 +164,7 @@ zeros), `(nlo)` (number of leading ones).
 
 ChrysaLisp provides typed arrays for `Num`, `Fixed`, and `Real` values,
 offering efficient storage and operations on collections of these primitives.
-These are `nums`, `fixeds`, and `reals` respectively.
+These are `:nums`, `:fixeds`, and `:reals` respectively.
 
 **Introduction to Vector Types**
 
@@ -182,7 +182,7 @@ large contiguous chunks), rather than as lists of boxed numeric objects.
     capabilities.
     
     * **Reduced Overhead:** Less memory overhead per element for dense
-    collections compared to lists of `obj` pointers.
+    collections compared to lists of `:obj` pointers.
 
 **Vector Creation**
 
@@ -193,8 +193,8 @@ large contiguous chunks), rather than as lists of boxed numeric objects.
 * `(reals [real-literal ...])`: Creates a vector of `Real` values.
 
 * **Type-Agnostic Packing:** These constructor functions are designed to be
-flexible. They typically take Lisp numbers (which might be `num`, `fixed`, or
-`real` objects) and pack their underlying `num_value` fields into the typed
+flexible. They typically take Lisp numbers (which might be `:num`, `:fixed`, or
+`:real` objects) and pack their underlying `num_value` fields into the typed
 array, performing necessary conversions if the input literal's type doesn't
 match the vector's native type (`numerics.md`). For instance, `(nums 1.5 2)`
 would likely store the integer parts.
@@ -205,7 +205,7 @@ This library provides a host of Lisp-level functions and macros for working
 with these numeric vectors (`numerics.md`):
 
 * **Constructor Macros:** Convenience macros like `(Vec3-f x y z)` (for a
-3-element `fixeds` vector), `(Vec4-r x y z w)`, etc., simplify vector creation.
+3-element `:fixeds` vector), `(Vec4-r x y z w)`, etc., simplify vector creation.
 
 * **Optional Output Vector:** Many vector operations (e.g., `vec-add`) can take
 an optional output vector as an argument. If provided, the result is stored in
@@ -224,19 +224,19 @@ methods, which are implemented in highly optimized VP assembly or CScript.
 These methods operate directly on the raw numeric data within the vectors.
 
 * **VP Classes:** `class/nums/class.inc`, `class/fixeds/class.inc`,
-`class/reals/class.inc`. These inherit from `array` and ultimately `seq`.
+`class/reals/class.inc`. These inherit from `:array` and ultimately `:seq`.
 
 * **Methods:** These classes override methods like `:add`, `:sub`, `:mul`,
 `:div`, `:dot` (dot product), `:scale` to perform element-wise or specialized
 vector arithmetic.
 
-    * For example, `:nums :add` (from `nums.md`) takes two source `nums` objects
-    and a destination `nums` object, performing element-wise addition.
+    * For example, `:nums :add` (from `nums.md`) takes two source `:nums` objects
+    and a destination `:nums` object, performing element-wise addition.
     
-    * `:fixeds :dot` calculates the dot product of two `fixeds` vectors.
+    * `:fixeds :dot` calculates the dot product of two `:fixeds` vectors.
     
-    * `:reals :scale` multiplies each element of a `reals` vector by a scalar
-      `real` value.
+    * `:reals :scale` multiplies each element of a `:reals` vector by a scalar
+      `:real` value.
 
 * **Efficiency:** These VP methods are designed for performance, directly
 manipulating the contiguous data blocks without the overhead of Lisp object
@@ -257,8 +257,8 @@ operations where available.
 emphasis on `Fixed` point arithmetic reflect a pragmatic approach to achieve
 good performance on systems primarily or solely equipped with integer ALUs.
 
-3. **Hardware Vector Primitives:** The use of contiguous typed arrays (`nums`,
-`fixeds`, `reals`) makes the system inherently amenable to hardware-accelerated
+3. **Hardware Vector Primitives:** The use of contiguous typed arrays (`:nums`,
+`:fixeds`, `:reals`) makes the system inherently amenable to hardware-accelerated
 vector operations. Future translators or VP extensions could map high-level
 vector operations or specific VP vector instructions to:
 
@@ -278,7 +278,7 @@ This would provide a bridge to leverage existing high-performance native code.
 ChrysaLisp's numeric system offers a tiered approach: standard 64-bit integers,
 a `48.16` fixed-point type well-suited for graphics and embedded control, and a
 64bit IEEE real format for floating-point calculations. The corresponding vector
-types (`nums`, `fixeds`, `reals`) are crucial for performance, providing
+types (`:nums`, `:fixeds`, `:reals`) are crucial for performance, providing
 efficient, contiguous storage and enabling optimized low-level VP operations.
 This architecture balances current needs for efficiency on diverse hardware with
 a clear path towards future enhancements, including more extensive hardware FPU

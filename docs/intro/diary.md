@@ -23,20 +23,20 @@ At least this would then allow a simple way for a user to create a set of
 buckets of flat maps, for example, if the key object could return a hash value
 num to the user.
 
-OK, so there is already a hash method on the base `obj` class. It is used
-internally, especially with `sym` and `str` objects for the internal
+OK, so there is already a hash method on the base `:obj` class. It is used
+internally, especially with `:sym` and `:str` objects for the internal
 environment handling. What we want to do here is expose it to the general Lisp
 level code.
 
 ## Low level VP method
 
-In the `obj` base class there exists this virtual method declaration:
+In the `:obj` base class there exists this virtual method declaration:
 
 ```file
 class/obj/class.inc ":hash" "dec-method"
 ```
 
-The implementation for the `obj` class is:
+The implementation for the `:obj` class is:
 
 ```file
 class/obj/class.vp ":hash" "def-method"
@@ -53,7 +53,7 @@ values, but it gives us the ability to call the `:hash` method of any object
 and get back a value we can use.
 
 Subclasses `:override` this method to provide better support for the type of
-object of the subclass. For example a very important one is for `str` and `sym`
+object of the subclass. For example a very important one is for `:str` and `:sym`
 objects, the core of the ChrysaLisp environment system.
 
 The method override, in this case, is declared in the `class/str/class.inc`
@@ -75,8 +75,8 @@ is scanning through the chars of the string and mixing them together into an
 `int` that it'll store as the hash code, and returns it as well.
 
 Note the use of the instance field `str_hashcode` ! This starts life as 0 when
-a new `str` object is created. A `str` object is immutable (let's not debase
-ourselves with talk of what a `sstream` is doing ;) ), so we could calculate
+a new `:str` object is created. A `:str` object is immutable (let's not debase
+ourselves with talk of what a `:sstream` is doing ;) ), so we could calculate
 the hash code at create time yes ? Well yes we could but why bother ? We are
 wasting time calculating a hash code that might never get used ! So only if the
 `:hash` method is called are we going to calculate the value and cache it in
@@ -85,7 +85,7 @@ the `str_hashcode` field in case somebody calls it again in the future.
 And yes, we may get a hash code of 0 generated, but that's very unlikely, so go
 report me in your "hash code I have written" blog :)
 
-Here we see the field defined in the `str` instance.
+Here we see the field defined in the `:str` instance.
 
 ```file
 class/str/class.inc "seq_size" ""

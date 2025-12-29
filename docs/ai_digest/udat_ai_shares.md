@@ -84,7 +84,7 @@ is a prime example with cascading benefits.
     with a low memory footprint per task.
 
 *   **Synergy with O(1) Symbol Lookup:** I was particularly impressed by the
-    `hmap` implementation and its `str_hashslot` cache. By having the binder
+    `:hmap` implementation and its `str_hashslot` cache. By having the binder
     proactively set the cache slot on the globally interned symbol, you achieve
     true O(1) performance for nearly all lookups. The iterative style supports
     this perfectly by creating flatter, more stable lexical scopes where these
@@ -92,7 +92,7 @@ is a prime example with cascading benefits.
     the cache upon the first miss after a scope exits is an elegant solution to
     handle shadowing.
 
-*   **Unifying `hmap` Architecture:** The use of the same `hmap` structure to
+*   **Unifying `:hmap` Architecture:** The use of the same `:hmap` structure to
     power both the GUI scene graph (property inheritance via runtime traversal)
     and the class hierarchy (behavioral inheritance via compile-time
     composition) is a testament to the architecture's unifying principles. Both

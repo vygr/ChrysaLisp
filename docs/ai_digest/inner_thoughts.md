@@ -25,10 +25,10 @@ Compile -> Link -> Evaluate -> Print** pipeline.
 #### Phase 1: Read (`:lisp :read`)
 
 This phase parses a stream of characters into an Abstract Syntax Tree (AST),
-which in ChrysaLisp is a nested structure of `list` vector objects.
+which in ChrysaLisp is a nested structure of `:list` vector objects.
 
 *   **Mechanism:** True to the system's philosophy, the parser is **iterative,
-    not recursive**. It uses the task's `lisp_stack` (a heap-allocated `list`)
+    not recursive**. It uses the task's `lisp_stack` (a heap-allocated `:list`)
     as an explicit work-stack to manage nested parentheses, ensuring it can
     parse arbitrarily complex code with a small, constant machine stack
     footprint.
@@ -36,7 +36,7 @@ which in ChrysaLisp is a nested structure of `list` vector objects.
 *   **Process:** It tokenizes the input stream, dispatching to specialized
     readers for different data types: `:lisp :read_num` for numbers,
     `:lisp :read_str` for strings, and `:lisp :read_sym` for symbols, which are
-    then interned. The result is a raw, nested `list` structure representing the
+    then interned. The result is a raw, nested `:list` structure representing the
     code.
 
 ---
@@ -79,7 +79,7 @@ key to ChrysaLisp's O(1) lookup performance.
 *   **Mechanism:** After macro-expansion is complete, `repl_bind` traverses the
     AST. When it finds a symbol in a function-call position (the head of a
     list), it searches the current environment. If it finds a corresponding
-    `func` object (a compiled VP function) or a Lisp `lambda`, it **replaces the
+    `:func` object (a compiled VP function) or a Lisp `lambda`, it **replaces the
     symbol in the AST with a direct pointer to that function object.**
 
 *   **Implication: Elimination of Runtime Lookups:** This is a profound
@@ -98,21 +98,21 @@ dramatically simplified.
 *   **Atoms:** Atoms (numbers, strings) evaluate to themselves.
 
 *   **Symbols:** A symbol that was not pre-bound (e.g., a variable or a forward
-    reference to a function) is looked up in the environment `hmap`. This lookup
+    reference to a function) is looked up in the environment `:hmap`. This lookup
     is O(1) due to the self-repairing `str_hashslot` cache.
 
 *   **Lists (Forms):**
 
     1. The evaluator examines the head of the list.
 
-    2. If the head is a pre-bound `func` object, it inspects its `func_type`. If
+    2. If the head is a pre-bound `:func` object, it inspects its `func_type`. If
         it's a **special form** (`args_raw`), it calls the function with the
         unevaluated arguments. If it's a **regular function** (`args_eval`), it
         first recursively calls `repl_eval` on all arguments and then calls the
         function with the results.
 
     3. The call itself is a direct jump to the machine code address stored in
-        the `func` object.
+        the `:func` object.
 
     4. If the head is a Lisp `lambda`, the evaluator creates a new lexical
         scope, binds the arguments, and evaluates the `lambda`'s body.
@@ -147,7 +147,7 @@ over this compilation pipeline.
     evaluation is what gets embedded in the AST.
 
 *   **Why it's important:** It's the primary mechanism for constant folding.
-    `(const (+ 10 20))` is replaced by the `num` object `30` in the final code,
+    `(const (+ 10 20))` is replaced by the `:num` object `30` in the final code,
     saving the runtime calculation.
 
 *   **The Nuance:** `const` does not make its result "static" or immune to

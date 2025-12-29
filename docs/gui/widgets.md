@@ -2,7 +2,7 @@
 
 A UI widget is an instance of a Lisp class that inherits from the Lisp View
 class. The View class is the base class for all UI widgets and this class
-itself inherits from the VP `hmap` class.
+itself inherits from the VP `:hmap` class.
 
 Widgets can be added as children of other widgets. This uses exactly the same
 parenting mechanism as when a Lisp function is allocated a new local

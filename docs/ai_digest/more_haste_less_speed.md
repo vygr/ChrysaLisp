@@ -188,7 +188,7 @@ that there is a better way than mere speed. Here is how to cultivate it.
 
 4.  **Invest Disproportionately in Your Primitives.** Spend your most
     deliberate, "slow" thinking on the foundational 20% of your system. A
-    well-crafted core, like ChrysaLisp's `hmap` or mail system, enables
+    well-crafted core, like ChrysaLisp's `:hmap` or mail system, enables
     incredible haste when building everything else on top of it.
 
 ## Conclusion

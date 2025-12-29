@@ -110,7 +110,7 @@ dramatically increasing clarity.
 
 If a lambda is an anonymous word, how do you give it a name and place it in the
 dictionary? You use `defun`, which is merely a macro for binding a lambda to a
-symbol in the current environment (`hmap`).
+symbol in the current environment (`:hmap`).
 
 *   Forth: `: SQUARE ... ;`
 

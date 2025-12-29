@@ -64,7 +64,7 @@ direct manipulation of the lexical environment.
 
 The pattern consists of three steps:
 
-1.  **`(env-push)`**: A new, temporary `hmap` is created, with its parent set to
+1.  **`(env-push)`**: A new, temporary `:hmap` is created, with its parent set to
     the current environment. This establishes a private, temporary scope for the
     module's internal definitions.
 
@@ -159,7 +159,7 @@ environment.
 
 ChrysaLisp's module system is an example of its design philosophies. By
 leveraging a cached, REPL-based file loader and direct manipulation of its
-performant `hmap` environments, it provides powerful features like compile-time
+performant `:hmap` environments, it provides powerful features like compile-time
 inclusion, runtime encapsulation, and system-wide service injection. It is a
 system that "knows itself," using its own Lisp primitives to build the very
 tools it needs for organization and extension, resulting in a lean, fast, and

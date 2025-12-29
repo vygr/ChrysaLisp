@@ -753,7 +753,7 @@ lists and arrays.
 
 ## Array and List Specific Functions
 
-These functions are specialized for mutable `array` and `list` data structures.
+These functions are specialized for mutable `:array` and `:list` data structures.
 
 *   **`cap`**: Sets the initial capacity of an array or list.
 
@@ -986,7 +986,7 @@ These functions manage variables and their values within lexical scopes
 *   **`env`**: Creates a new, empty environment or returns the current one.
 
     * `(env [num]) -> env`: If `num` (an integer) is provided, it creates a new,
-      empty environment (an `hmap`), typically with `num` hash buckets for
+      empty environment (an `:hmap`), typically with `num` hash buckets for
       performance tuning. If no argument is given, it returns the current
       lexical environment.
 
@@ -1017,7 +1017,7 @@ These functions manage variables and their values within lexical scopes
       specified `env` (or the current one) and traversing up the parent chain.
 
     * `(def? sym [env]) -> :nil | val`: Similar to `get`, but specifically
-      checks for a definition within the `hmap` itself, without traversing.
+      checks for a definition within the `:hmap` itself, without traversing.
 
 *   **`undef`**: Removes a symbol binding from a specified environment.
 

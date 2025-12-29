@@ -1,7 +1,7 @@
 # Errors, or lack of them
 
-Dr, it really hurts when I pass a `nums` array to a routine that expects a
-`fixeds` array... you all know the answer to that !
+Dr, it really hurts when I pass a `:nums` array to a routine that expects a
+`:fixeds` array... you all know the answer to that !
 
 I want to talk about ChrysaLisp error checking policy and philosophy.
 
@@ -10,7 +10,7 @@ I want to talk about ChrysaLisp error checking policy and philosophy.
 ## Philosophy
 
 DON'T coddle ! Don't waste time checking things that should never happen ! It's
-debatable if I should have any of those low level rect `region` class width and
+debatable if I should have any of those low level rect `:region` class width and
 height `<= 0` checks ! Because of the question, "Can it even legally happen ?"
 
 I think the best thing to say up front is that the responsibility for error
@@ -24,8 +24,8 @@ It might be totally legit to test that you got passed a 0 length vector to the
 `:path :transform` VP function. That's probably not an errorcase but a
 legitimate result you should care about coping with.
 
-But if a VP level function is supposed to be passed a `list` and you pass it an
-`array` then we aren't going to waste time type checking that at the VP level,
+But if a VP level function is supposed to be passed a `:list` and you pass it an
+`:array` then we aren't going to waste time type checking that at the VP level,
 nor do we define an error return type you should check for !
 
 At the lowest level, VP code core functions, there is no forgiveness. They

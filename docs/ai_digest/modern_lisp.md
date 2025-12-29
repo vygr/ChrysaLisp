@@ -42,7 +42,7 @@ early exits from deep within loops.
 
 4. **Unified Namespace & Lexical Scoping:** All symbols (functions, macros,
 variables) live in the same environment, which is a chain of hash maps
-(`hmap`). Lambdas and macros achieve lexical scoping through this environment
+(`:hmap`). Lambdas and macros achieve lexical scoping through this environment
 chain, getting a new local environment pushed upon invocation.
 
 ## The Sequence is King: Lisp for a Vectorized World
@@ -56,8 +56,8 @@ no cons, cdr or car stuff. Lists are just vector objects and you use `(push)`,
 `(cat)`, `(slice)` etc to manipulate elements." (`lisp.md`). This is a radical
 departure, but one with profound implications.
 
-* **Lists as Arrays:** In ChrysaLisp, a Lisp `list` is, under the hood, an
-instance of the `array` VP class (which itself inherits from `seq`). This means
+* **Lists as Arrays:** In ChrysaLisp, a Lisp `:list` is, under the hood, an
+instance of the `:array` VP class (which itself inherits from `:seq`). This means
 lists are dynamic, vector-like structures, offering O(1) indexed access.
 
 * **Why this shift? Performance and Modern Hardware:**
@@ -71,20 +71,20 @@ lists are dynamic, vector-like structures, offering O(1) indexed access.
     blocks of data in parallel. Sequence-based primitives are much more
     amenable to vectorization and parallel processing than operations on
     individual, disparate cons cells. ChrysaLisp's design anticipates a world
-    where such hardware capabilities are leveraged. The `nums`, `fixeds`, and
-    `reals` typed arrays, with their vectorized VP methods, are a testament to
+    where such hardware capabilities are leveraged. The `:nums`, `:fixeds`, and
+    `:reals` typed arrays, with their vectorized VP methods, are a testament to
     this.
 
     * **Reduced Pointer Overhead:** For dense collections, arrays can have less
     memory overhead per element compared to cons cells, each of which carries
     two pointers.
 
-* **The `seq` Abstraction (`class/seq/class.inc`):** ChrysaLisp introduces
-`seq` as an abstract base class. This is brilliant because it allows a wide
+* **The `:seq` Abstraction (`class/seq/class.inc`):** ChrysaLisp introduces
+`:seq` as an abstract base class. This is brilliant because it allows a wide
 variety of underlying data structures to present a unified sequence interface
-to the Lisp programmer. As `iteration.md` lists, `array`, `list`, `nums`,
-`fixeds`, `reals`, `str`, `sym`, and even `gui/path` all inherit from (or
-conform to the interface of) `seq`. This means Lisp functions like `(length)`,
+to the Lisp programmer. As `iteration.md` lists, `:array`, `:list`, `:nums`,
+`:fixeds`, `:reals`, `:str`, `:sym`, and even `gui/path` all inherit from (or
+conform to the interface of) `:seq`. This means Lisp functions like `(length)`,
 `(elem-get)`, `(slice)`, `(map)`, `(each)` can operate on all these types
 transparently.
 
@@ -125,7 +125,7 @@ While ChrysaLisp makes bold choices, it retains the powerful essence of Lisp:
 
     * Symbols are interned for efficiency (fast comparisons, unique instances).
 
-    * Environments are `hmap` objects, forming a chain for lexical scoping.
+    * Environments are `:hmap` objects, forming a chain for lexical scoping.
     `(env)`, `(penv)`, `(defq)`, `(setq)`, and `(bind)` provide the mechanisms
     for managing these.
 
@@ -135,7 +135,7 @@ While ChrysaLisp makes bold choices, it retains the powerful essence of Lisp:
 * **Functions and Lambdas (`:lisp :repl_apply`):**
 
     * First-class citizens. Lambdas are given their lexical environment through
-      the `hmap` chain.
+      the `:hmap` chain.
 
     * Application is handled by `:repl_apply`, which dispatches to native VP
       functions or sets up new environments for Lisp lambda execution.
@@ -163,16 +163,16 @@ While ChrysaLisp makes bold choices, it retains the powerful essence of Lisp:
 
 * **Lisp Classes (`classes.md`):**
 
-    * A simple, `hmap`-based object system is provided at the Lisp level.
+    * A simple, `:hmap`-based object system is provided at the Lisp level.
 
-    * Instances are `hmap`s holding properties, with a `:vtable` property
-    pointing to another `hmap` (the class's method table).
+    * Instances are `:hmap`s holding properties, with a `:vtable` property
+    pointing to another `:hmap` (the class's method table).
 
     * Supports single inheritance (`(defclass Name (Super) ...)`), method
     definition (`defmethod`), method calls (`. this :method`), superclass calls
     (`.super`), and reflection (`.?`).
 
-    * The dynamic nature of `hmap`s for vtables even opens the door for runtime
+    * The dynamic nature of `:hmap`s for vtables even opens the door for runtime
     mixins, a feature hard to achieve in statically compiled languages like
     C++.
 

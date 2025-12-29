@@ -16,8 +16,8 @@ both worlds without compromise.
 ## The VP-Level Class System: The Compiled "Engine"
 
 The foundation of ChrysaLisp is its kernel, built from a set of high-performance
-primitives for memory management (`sys_mem`), task scheduling (`sys_task`), and
-inter-process communication (`sys_mail`). These core components are implemented
+primitives for memory management (`:sys_mem`), task scheduling (`:sys_task`), and
+inter-process communication (`:sys_mail`). These core components are implemented
 using the VP-level class system, a framework designed for speed, predictability,
 and minimal overhead, analogous to C++.
 
@@ -69,13 +69,13 @@ different, radically more flexible implementation.
 **Implementation and Object Representation**
 
 In the Lisp world, an object is not a `struct` with a fixed layout; it **is an
-`hmap`** (hash map). All of its properties, from `:color` and `:text` in a GUI
-widget to instance variables, are key-value pairs within this `hmap`.
+`:hmap`** (hash map). All of its properties, from `:color` and `:text` in a GUI
+widget to instance variables, are key-value pairs within this `:hmap`.
 
-The vtable for a Lisp class is **also an `hmap`**. When a class is defined at
-runtime with `(defclass Button ...)` a global `hmap` named `*class_Button*` is
+The vtable for a Lisp class is **also an `:hmap`**. When a class is defined at
+runtime with `(defclass Button ...)` a global `:hmap` named `*class_Button*` is
 created to serve as its vtable. Methods defined with `(defmethod :draw ...)` are
-inserted into this `hmap` as a key-value pair, where the key is the symbol
+inserted into this `:hmap` as a key-value pair, where the key is the symbol
 `:draw` and the value is the compiled lambda function for the method body.
 
 **Inheritance: Compile-Time Composition**
@@ -84,7 +84,7 @@ Lisp-level class inheritance is a powerful act of **compile-time composition**,
 not runtime traversal. When `(defclass Button () (Label))` is executed, the
 `defclass` macro performs these steps:
 
-1.  It creates a new, empty `hmap` to be the vtable for `Button`
+1.  It creates a new, empty `:hmap` to be the vtable for `Button`
     (`*class_Button*`).
 
 2.  It **copies all key-value pairs** from the parent's vtable (`*class_Label*`)
@@ -93,7 +93,7 @@ not runtime traversal. When `(defclass Button () (Label))` is executed, the
 3.  It then inserts or overwrites methods defined specifically within the
     `Button` class body.
 
-The resulting `*class_Button*` vtable is a "flattened," self-contained `hmap`
+The resulting `*class_Button*` vtable is a "flattened," self-contained `:hmap`
 that includes all necessary methods, both its own and those inherited. This
 makes method dispatch extremely fast.
 
@@ -103,9 +103,9 @@ ChrysaLisp's dynamic dispatch is deceptively fast, achieving O(1) performance
 through the **proactive `str_hashslot` caching mechanism**.
 
 1.  **Proactive Cache Setting:** When any key (a symbol) is inserted into any
-    `hmap`—be it a class vtable via `defmethod` or an object property via
+    `:hmap`—be it a class vtable via `defmethod` or an object property via
     `def`—the `:hmap :insert` function **immediately writes the index of that
-    key's location within the `hmap`'s internal bucket into the global symbol's
+    key's location within the `:hmap`'s internal bucket into the global symbol's
     `str_hashslot` field.** This cache is set at definition time, not on first
     use.
 
@@ -114,12 +114,12 @@ through the **proactive `str_hashslot` caching mechanism**.
 
     * **Find the VTable:** The system needs the object's vtable. By a strict,
         low-level convention, the `:vtable` key is **always the first entry** in
-        any Lisp object's `hmap`. Its `str_hashslot` is therefore always `0`.
+        any Lisp object's `:hmap`. Its `str_hashslot` is therefore always `0`.
         The lookup for the vtable is a direct, O(1) indexed read to slot 0 of
-        the object's `hmap`, which returns a pointer to the `*class_Button*`
-        `hmap`.
+        the object's `:hmap`, which returns a pointer to the `*class_Button*`
+        `:hmap`.
 
-    * **Find the Method:** The system then searches the `*class_Button*` `hmap`
+    * **Find the Method:** The system then searches the `*class_Button*` `:hmap`
         for the key `:draw`. The `str_hashslot` on the `:draw` symbol was also
         proactively set when the class was defined. This second lookup is also a
         direct, O(1) indexed read to the correct slot, which returns the
@@ -130,20 +130,20 @@ O(1) method dispatch performance of a static, compiled language.
 
 ## The Magic Spin-Off: Runtime Flexibility Without a Performance Penalty
 
-Because the script-level vtable is a mutable `hmap` and dispatch is resolved at
+Because the script-level vtable is a mutable `:hmap` and dispatch is resolved at
 runtime, ChrysaLisp's application layer gains immense power.
 
 *   **Live Code Modification (Monkey Patching):** A developer can connect to a
     running system and redefine a method simply by calling
     `(def *class_Button* :draw <new_lambda>)`. This `def` (which is
-    `:hmap :insert`) will update the class `hmap` and, crucially, update the
+    `:hmap :insert`) will update the class `:hmap` and, crucially, update the
     `str_hashslot` on the `:draw` symbol to point to its new location. The next
     time any button is drawn, `mcall` will instantly and efficiently find and
     execute the new code.
 
 *   **Dynamic Mixins:** This power extends to modifying the inheritance chain
     itself. A developer can create a new composite vtable for a single object
-    instance at runtime by creating a new `hmap`, copying methods into it from
+    instance at runtime by creating a new `:hmap`, copying methods into it from
     multiple source classes, and assigning this new vtable to an object. The
     caching mechanism adapts seamlessly, and performance remains O(1).
 
@@ -156,7 +156,7 @@ provides the right tool for each layer of the system.
 *   The **VP-level "Engine"** uses a **static vtable array** for maximum
     performance and predictability in core OS functions.
 
-*   The **Lisp-level "Script"** uses a **dynamic `hmap` vtable** built via
+*   The **Lisp-level "Script"** uses a **dynamic `:hmap` vtable** built via
     **compile-time composition** for maximum flexibility in applications.
 
 Crucially, through a proactive caching system (`str_hashslot`), the dynamic

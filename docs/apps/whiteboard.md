@@ -29,7 +29,7 @@ Model-View-Controller pattern in ChrysaLisp.
 *   **Model (The Drawing State):**
 
     * The core data of the application is the drawing itself. This is stored in
-        `app.lisp` in a few key Lisp `list`s:
+        `app.lisp` in a few key Lisp `:list`s:
 
         * **`*committed_polygons*`**: A list where each element represents a
             completed, flattened shape on the main canvas. This is the
@@ -39,7 +39,7 @@ Model-View-Controller pattern in ChrysaLisp.
             being drawn by the user. It's cleared after each stroke is
             finalized.
 
-        * **`*undo_stack*` and `*redo_stack*`**: Lisp `list`s that store
+        * **`*undo_stack*` and `*redo_stack*`**: Lisp `:list`s that store
             previous states of `*committed_polygons*`, enabling the undo/redo
             functionality.
 

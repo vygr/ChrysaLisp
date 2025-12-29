@@ -64,28 +64,28 @@ deterministically via reference counting (`:ref`, `:deref`). This avoids
 unpredictable pauses from a traditional Garbage Collector, which is critical
 for a systems language and OS.
 
-**2. ChrysaLisp Environments: The `hmap` Engine**
+**2. ChrysaLisp Environments: The `:hmap` Engine**
 
 The environment, which holds bindings for symbols (variables, functions,
 macros), is the heart of Lisp's execution model. In ChrysaLisp, environments
-are instances of a highly optimized hash map class (`hmap`).
+are instances of a highly optimized hash map class (`:hmap`).
 
-* **Environment Chain:** Scopes are formed by `hmap` instances linked via
+* **Environment Chain:** Scopes are formed by `:hmap` instances linked via
 parent pointers, creating an environment chain. Symbol lookup proceeds from the
-current (innermost) `hmap` up to the global root environment.
+current (innermost) `:hmap` up to the global root environment.
 
-* **The `hmap` Structure:**
+* **The `:hmap` Structure:**
 
-    * It can consist of one or multiple "buckets." Each bucket is a `list`
+    * It can consist of one or multiple "buckets." Each bucket is a `:list`
     (which, remember, is a vector of object pointers) containing key-value
     pairs.
 
-    * The choice of bucket for a given key in a multi-bucket `hmap` is
+    * The choice of bucket for a given key in a multi-bucket `:hmap` is
     determined by the key's hash code.
 
 **3. Pillars of Lookup Speed: `str_hashcode` and `str_hashslot`**
 
-ChrysaLisp `str` (string) and `sym` (symbol) objects, which serve as keys in
+ChrysaLisp `:str` (string) and `:sym` (symbol) objects, which serve as keys in
 environments, contain two fields dedicated to accelerating lookups. These are
 independent but complementary optimizations:
 
@@ -94,21 +94,21 @@ independent but complementary optimizations:
     * **Purpose:** Stores the pre-calculated hash value of the string/symbol's
     content.
 
-    * **Mechanism:** The first time the `:hash` method is called on a `str` or
-    `sym` object, its hash value is computed from its characters and stored in
+    * **Mechanism:** The first time the `:hash` method is called on a `:str` or
+    `:sym` object, its hash value is computed from its characters and stored in
     the `str_hashcode` field. Subsequent calls immediately return this cached
     value.
 
     * **Benefit:** Dramatically reduces the cost of the bucket selection phase
-    in *multi-bucket* `hmap`s by avoiding redundant hash computations.
+    in *multi-bucket* `:hmap`s by avoiding redundant hash computations.
 
 * **`str_hashslot` (Cached Bucket Index Hint):**
 
     * **Purpose:** Stores a hint (typically the direct index) of where that
-    *specific* `str`/`sym` object was last found or inserted *within a
-    particular `hmap` bucket's list*.
+    *specific* `:str`/`:sym` object was last found or inserted *within a
+    particular `:hmap` bucket's list*.
 
-    * **Mechanism:** When an `hmap` searches for a key, it can first check this
+    * **Mechanism:** When an `:hmap` searches for a key, it can first check this
     `hashslot`. If valid and the object at that slot matches, the search is
     complete. If it's a miss or invalid, a full scan of the bucket list occurs.
     Upon finding the key, its `hashslot` is updated with the new location *for
@@ -118,14 +118,14 @@ independent but complementary optimizations:
     O(1)-like direct access attempt, drastically speeding up the final step of
     key retrieval. This is the primary engine for rapid symbol resolution.
 
-**4. The Common Case Perfected: Single-Bucket `hmap`s and `str_hashslot`
+**4. The Common Case Perfected: Single-Bucket `:hmap`s and `str_hashslot`
 Priming**
 
 ChrysaLisp aggressively optimizes the most frequent scenarios:
 
-* **Function Scopes are Lean:** When a Lisp function is invoked, the `hmap` for
+* **Function Scopes are Lean:** When a Lisp function is invoked, the `:hmap` for
 its local environment (arguments, `defq` bindings) is created as a
-**single-bucket `hmap`** by default.
+**single-bucket `:hmap`** by default.
 
     * This immediately saves the overhead of multi-bucket management and the
     need to compute a `str_hashcode` for bucket selection (as there's only one
@@ -133,7 +133,7 @@ its local environment (arguments, `defq` bindings) is created as a
 
 * **Direct `str_hashslot` Priming for Arguments:** As arguments are bound upon
 function entry, the `str_hashslot` of each argument symbol is *directly set* to
-its index within the new local `hmap`'s single bucket list.
+its index within the new local `:hmap`'s single bucket list.
 
     * **Result:** Lookups for function arguments and local variables defined
     with `defq` within that scope become extraordinarily fast – they are
@@ -143,7 +143,7 @@ its index within the new local `hmap`'s single bucket list.
 **5. The Root Environment: Efficient Globals**
 
 Surprisingly, even the global root environment, containing all built-in Lisp
-primitives, is a single-bucket `hmap`.
+primitives, is a single-bucket `:hmap`.
 
 * **How it Stays Fast:**
 
@@ -172,10 +172,10 @@ function names at every call site. ChrysaLisp employs a two-pronged strategy:
 
     * During this phase, for a form like `(my-func arg1 arg2)`, `repl_bind`
     resolves the symbol `my-func` in the current environment to its
-    corresponding `func` object.
+    corresponding `:func` object.
 
     * The Abstract Syntax Tree (AST) is then **modified**: the `my-func`
-    *symbol* is replaced with the actual `func` object itself. This `func`
+    *symbol* is replaced with the actual `:func` object itself. This `:func`
     object directly contains (or points to) the executable VP code address or
     Lisp lambda data.
 
@@ -192,13 +192,13 @@ function names at every call site. ChrysaLisp employs a two-pronged strategy:
     evaluated at runtime via `eval`—a runtime symbol lookup for the function
     name still occurs.
 
-    * This is where the hyper-optimized `hmap` lookup (leveraging
+    * This is where the hyper-optimized `:hmap` lookup (leveraging
     `str_hashslot` and `str_hashcode`) ensures that even these fully dynamic
     resolutions are extremely fast.
 
-    * Once the `func` object is retrieved, `repl_apply` handles the invocation,
-    either by jumping to the VP code address stored in the `func` object's
-    `num_value` field or by setting up a new single-bucket `hmap` for a Lisp
+    * Once the `:func` object is retrieved, `repl_apply` handles the invocation,
+    either by jumping to the VP code address stored in the `:func` object's
+    `num_value` field or by setting up a new single-bucket `:hmap` for a Lisp
     lambda and evaluating its body.
 
 **7. Preserving Dynamism, Minimizing Overhead:**
@@ -211,7 +211,7 @@ function names at every call site. ChrysaLisp employs a two-pronged strategy:
   to be mindful of this.
 
 * **The Escape Hatch (`env-resize`):** For known large collections of symbols
-  (e.g., an assembler's symbol table), an `hmap` can be explicitly resized. This
+  (e.g., an assembler's symbol table), an `:hmap` can be explicitly resized. This
   triggers the use of `str_hashcode` for multi-bucket distribution, and
   `str_hashslot` then works within those smaller buckets.
 
@@ -233,7 +233,7 @@ underneath." It achieves its tremendous speeds by:
 
 * Optimizing the most frequent operations (local variable access, global
   function calls) to near O(1) performance through `str_hashslot` caching in
-  single-bucket `hmap`s.
+  single-bucket `:hmap`s.
 
 * Pre-binding most function call sites in the AST to avoid runtime lookups.
 

@@ -73,7 +73,7 @@ Functions and Macros are for *Behavior* !
 
 In ChrysaLisp, a function is a pure blueprint for computation. It is stateless.
 
-*   A Lisp-level `lambda` is just **data**—a simple `list` that contains the
+*   A Lisp-level `lambda` is just **data**—a simple `:list` that contains the
     argument list and the code for the body.
 
 *   A compiled `def-method` is just a **code pointer**—a raw entry point into
@@ -84,9 +84,9 @@ are memory-cheap and carry no historical baggage.
 
 **The Interpreter holds the Environment**
 
-The state of the lexical scope is held by the *interpreter instance* (the `lisp`
+The state of the lexical scope is held by the *interpreter instance* (the `:lisp`
 object), not the function. The interpreter's `lisp_environment` field points to
-the current `hmap`, which in turn points to its parent, forming the lexical
+the current `:hmap`, which in turn points to its parent, forming the lexical
 chain.
 
 When a ChrysaLisp function is executed, it operates on the environment that is

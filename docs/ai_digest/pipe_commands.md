@@ -203,7 +203,7 @@ valid options. An entry in this list typically looks like:
 
     * This is the main parsing function.
 
-    * It takes the application's `stdio` object (to get command-line arguments
+    * It takes the application's `:stdio` object (to get command-line arguments
     via `stdio-get-args`) and its `optlist_definition`.
 
     * It uses `options-split` (which respects quoted arguments) to tokenize the
@@ -356,8 +356,8 @@ distribution:
     spawns its own worker tasks for internal parallelism (e.g., a hypothetical
     parallel sorting command).
 
-* **Network Transparency:** The underlying messaging system (`sys_mail`) and
-task management (`sys_task`, `open-task`) abstract away the network details,
+* **Network Transparency:** The underlying messaging system (`:sys_mail`) and
+task management (`:sys_task`, `open-task`) abstract away the network details,
 allowing tasks to communicate via `net_id`s regardless of their physical
 location on the VP network.
 

@@ -95,7 +95,7 @@ with lexical scopes. This directly impacts their performance and intended use.
     manipulation.
 
     * For each symbol, `defq` performs a **local-only** search within the
-      *current* environment (`hmap`).
+      *current* environment (`:hmap`).
 
     * If a binding for the symbol already exists in the current scope, its value
       is **mutated in-place**.
@@ -316,9 +316,9 @@ by its capture group slices.
 ## Manipulating Object Properties: `def` and `set`
 
 In ChrysaLisp, object properties (instance variables) are stored as key-value
-pairs in an `hmap`. The `def` and `set` operators are the primary tools for
+pairs in an `:hmap`. The `def` and `set` operators are the primary tools for
 manipulating this data. Their behavior is a direct parallel to `defq` and
-`setq`, but they operate on explicit object `hmap`s rather than the implicit
+`setq`, but they operate on explicit object `:hmap`s rather than the implicit
 lexical scope.
 
 A crucial concept to understand is that **GUI widget trees ARE Lisp
@@ -340,7 +340,7 @@ implemented as VP functions for performance reasons. ! eg.
 *   **`(def <object> <key-expression> <value>)`**: The **Local Property
     Operator**.
 
-    - It operates **only** on the `hmap` of the specified `<object>`.
+    - It operates **only** on the `:hmap` of the specified `<object>`.
 
     - It creates a new property or mutates an existing one directly on that
       object instance.
@@ -433,7 +433,7 @@ The preference for iteration stems from two core architectural principles:
     quickly lead to a stack overflow.
 
 *   **Stable Scopes for O(1) Lookups:** A recursive style creates a deep chain
-    of nested lexical environments (`hmap`s). This leads to frequent shadowing
+    of nested lexical environments (`:hmap`s). This leads to frequent shadowing
     and un-shadowing of variables as the call stack grows and shrinks, causing
     constant invalidation and repair of the `str_hashslot` cache. An iterative
     style typically operates within a single, flat lexical scope. This keeps the
@@ -444,7 +444,7 @@ The preference for iteration stems from two core architectural principles:
 
 Since recursion on the machine stack is not an option, the canonical ChrysaLisp
 pattern for handling nested data structures is **iteration using a
-heap-allocated `list` as an explicit work stack.**
+heap-allocated `:list` as an explicit work stack.**
 
 This pattern is used pervasively throughout the system, from the Lisp parser to
 the GUI compositor. It guarantees that a function's machine stack usage remains
@@ -494,7 +494,7 @@ This pass walks the macro-expanded code tree and attempts to resolve a
     a direct pointer** to its binding (e.g., a function address or a constant's
     value).
 
-*   This effectively means that at runtime, no `hmap` lookup is required. The
+*   This effectively means that at runtime, no `:hmap` lookup is required. The
     call or access is a direct memory operation, which is the fastest possible
     way to execute.
 

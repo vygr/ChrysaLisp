@@ -9,17 +9,17 @@ starting from a fundamental system memory allocator, building up to a
 sophisticated VP (Virtual Processor) class library, which then forms the basis
 for all Lisp language objects and the interpreter itself.
 
-## Level 1: The Foundation - System Memory Allocation (`sys_mem` and `sys_heap`)
+## Level 1: The Foundation - System Memory Allocation (`:sys_mem` and `:sys_heap`)
 
 At the lowest level, ChrysaLisp's memory management is handled by the static
-`sys_mem` class. This class is the primary interface for all memory allocation
+`:sys_mem` class. This class is the primary interface for all memory allocation
 and deallocation requests within the system.
 
-1. **`sys_mem` - The Central Allocator:**
+1. **`:sys_mem` - The Central Allocator:**
 
-    * **Tiered Heap Management:** `sys_mem` doesn't typically allocate directly
+    * **Tiered Heap Management:** `:sys_mem` doesn't typically allocate directly
     from the host OS for every small request. Instead, it manages an array of
-    `sys_heap` instances. As seen in `sys/mem/class.vp` (`:statics_init`), it
+    `:sys_heap` instances. As seen in `sys/mem/class.vp` (`:statics_init`), it
     initializes a series of heaps, each responsible for a different range of
     cell sizes (e.g., starting from `mem_cell_min_size` and doubling up to
     `mem_cell_max_size`). This is a common strategy for **pool allocation** or
@@ -28,25 +28,25 @@ and deallocation requests within the system.
 
     * **Allocation Strategy (`:sys_mem :alloc`):** When a request for memory is
     made via `:sys_mem :alloc`, it first adds `sys_mem_header_size` to the
-    requested amount. Then, it iterates through its managed `sys_heap`
+    requested amount. Then, it iterates through its managed `:sys_heap`
     instances to find the smallest heap whose `hp_heap_cellsize` can satisfy
     the adjusted request. The allocation is then delegated to that specific
-    `sys_heap`.
+    `:sys_heap`.
 
     * **Memory Header (`sys_mem_header`):** Each block of memory allocated by
-    `sys_mem` is prepended with a `sys_mem_header`. A crucial field in this
+    `:sys_mem` is prepended with a `sys_mem_header`. A crucial field in this
     header is `heap` (a pointer), which stores a reference back to the specific
-    `sys_heap` instance from which this block was allocated. This is vital for
+    `:sys_heap` instance from which this block was allocated. This is vital for
     `:sys_mem :free` to know which heap to return the memory to.
 
-    * **Other Operations:** `sys_mem` also provides `calloc` (alloc + zero
+    * **Other Operations:** `:sys_mem` also provides `calloc` (alloc + zero
     fill), `realloc`, `recalloc` (realloc + zero new space), `fill`, `copy`,
     `avail` (to query free memory), and `collect` (to trigger collection on all
     its heaps).
 
-2. **`sys_heap` - The Pool/Block Allocator:**
+2. **`:sys_heap` - The Pool/Block Allocator:**
 
-    * **Block-Based Allocation:** Each `sys_heap` instance is responsible for a
+    * **Block-Based Allocation:** Each `:sys_heap` instance is responsible for a
     specific cell size. When its own free list of cells is exhausted, it
     allocates a larger chunk of memory (an `hp_block`) from the host OS using
     `:host_os :pii_mmap` (as seen in `:sys_heap :alloc`).
@@ -55,7 +55,7 @@ and deallocation requests within the system.
     fixed-size `hp_cell`s. Each `hp_cell` contains a `block` pointer back to
     its parent `hp_block` and a `next` pointer for linking into a free list.
 
-    * **Free Lists:** `sys_heap` maintains a primary free list
+    * **Free Lists:** `:sys_heap` maintains a primary free list
     (`hp_heap_free_flist`) of available `hp_cell`s. When a cell is freed via
     `:sys_heap :free` (which is an inline call to `hp-freecell`), it's added to
     this list.
@@ -79,13 +79,13 @@ and deallocation requests within the system.
 
 ## Level 2: The VP Object System and Lifecycle
 
-Built upon `sys_mem`, the ChrysaLisp VP class library defines a common object
+Built upon `:sys_mem`, the ChrysaLisp VP class library defines a common object
 model. All objects in this system inherit, directly or indirectly, from the
-base `obj` class.
+base `:obj` class.
 
-1. **The `obj` Base Class (`class/obj/class.inc`, `class/obj/class.vp`):**
+1. **The `:obj` Base Class (`class/obj/class.inc`, `class/obj/class.vp`):**
 
-    * **Structure:** Every `obj` instance (and thus every object in the system)
+    * **Structure:** Every `:obj` instance (and thus every object in the system)
     begins with:
 
         * `vtable` (pptr): A pointer to the object's virtual method table. This
@@ -143,11 +143,11 @@ base `obj` class.
 
             * After `:deinit` completes for the entire chain, `:obj :destroy`
             calls `:sys_mem :free(object)` to return the object's memory
-            (including its `sys_mem_header`) to the `sys_mem` allocator.
+            (including its `sys_mem_header`) to the `:sys_mem` allocator.
 
 2. **Inheritance and Specialization:**
 
-    * Subclasses (e.g., `array`, `num`, `list`) inherit the `obj` structure and
+    * Subclasses (e.g., `:array`, `:num`, `:list`) inherit the `:obj` structure and
     extend it with their own fields.
 
     * They override virtual methods like `:deinit`, `:print`, `:hash`, `:type`
@@ -167,40 +167,40 @@ of Lisp "cells" or "tagging" on top of the VP objects for common types.
 
 1. **Direct Mapping:**
 
-    * **Numbers (`num`, `fixed`, `real`):** A Lisp number like `123` or `1.5`
-    is an instance of the `num` or `fixed` VP class, respectively. The actual
+    * **Numbers (`:num`, `:fixed`, `:real`):** A Lisp number like `123` or `1.5`
+    is an instance of the `:num` or `:fixed` VP class, respectively. The actual
     numeric value is stored in the `value` field (e.g., `num_value`) defined in
     their respective `def-struct`.
 
-    * **Strings (`str`):** A Lisp string `"hello"` is an instance of the `str`
+    * **Strings (`:str`):** A Lisp string `"hello"` is an instance of the `:str`
     VP class. The character data is pointed to by `str_data` (or stored in the
     flexible array member part of the object), and its length is stored in
     `str_length`. Strings are immutable.
 
-    * **Symbols (`sym`):** A Lisp symbol like `'my-var` is an instance of the
-    `sym` VP class, which inherits from `str`. Symbols are interned (guaranteed
+    * **Symbols (`:sym`):** A Lisp symbol like `'my-var` is an instance of the
+    `:sym` VP class, which inherits from `:str`. Symbols are interned (guaranteed
     unique instances for the same name) using a global hash table, typically
     managed within `sys/statics/statics_sym_intern`.
 
-    * **Arrays (`array` and its typed variants `nums`, `fixeds`, `reals`,
-    `path`):**
+    * **Arrays (`:array` and its typed variants `:nums`, `:fixeds`, `:reals`,
+    `:path`):**
 
         * A Lisp `(array 1 2 3)` or `(nums 10 20)` is an instance of the
-        `array` or `nums` VP class.
+        `:array` or `:nums` VP class.
 
         * These classes store a `begin` pointer to a dynamically allocated (or
         small internal `e0-e3`) buffer, along with `length` and `capacity`.
 
-        * For typed arrays like `nums`, the `begin` buffer holds raw numeric
+        * For typed arrays like `:nums`, the `begin` buffer holds raw numeric
         values.
 
-    * **Lists (`list`):** A Lisp `(list 'a 1 "b")` is an instance of the `list`
+    * **Lists (`:list`):** A Lisp `(list 'a 1 "b")` is an instance of the `:list`
     VP class.
 
-        * `list` inherits from `array`. Its `begin` buffer stores an array of
+        * `:list` inherits from `:array`. Its `begin` buffer stores an array of
         `obj*` (pointers to other VP objects).
 
-        * `list` methods are overridden to perform reference counting (`obj
+        * `:list` methods are overridden to perform reference counting (`obj
         :ref`, `:obj :deref`) on the objects they store when elements are added,
         removed, set, or when the list itself is copied or destroyed. For
         example, `:list :clear` iterates and dereferences all elements before
@@ -208,37 +208,37 @@ of Lisp "cells" or "tagging" on top of the VP objects for common types.
         at an index before storing a new one (assuming the new one is already
         ref'd by the caller).
 
-    * **Hash Maps (`hmap`):** A Lisp environment or a user-created hash map is
-    an instance of the `hmap` VP class. It manages buckets of key-value pairs,
-    where keys are typically `sym` objects and values are `obj*`. `hmap`
+    * **Hash Maps (`:hmap`):** A Lisp environment or a user-created hash map is
+    an instance of the `:hmap` VP class. It manages buckets of key-value pairs,
+    where keys are typically `:sym` objects and values are `obj*`. `:hmap`
     methods also handle reference counting for stored values.
 
     * **Functions and Macros (Lisp level):** When a Lisp `(lambda ...)` or
-      `(macro ...)` is defined, it results in a Lisp `list` structure
+      `(macro ...)` is defined, it results in a Lisp `:list` structure
       representing the function (lambda/macro keyword, parameter list and body).
-      This list itself is a `list` VP object. Compiled VP functions are distinct
+      This list itself is a `:list` VP object. Compiled VP functions are distinct
       binary objects (see Level 5).
 
-2. **The Lisp Interpreter Instance (`lisp` class):**
+2. **The Lisp Interpreter Instance (`:lisp` class):**
 
-    * The Lisp interpreter itself runs as an instance of the `lisp` VP class
+    * The Lisp interpreter itself runs as an instance of the `:lisp` VP class
     (`class/lisp/class.inc`).
 
-    * This `lisp` object holds the state for a particular Lisp execution
+    * This `:lisp` object holds the state for a particular Lisp execution
     context:
 
         * Pointers to its `stdin`, `stdout`, `stderr` stream objects.
 
-        * A pointer to its current `environment` (an `hmap` object).
+        * A pointer to its current `environment` (an `:hmap` object).
 
-        * Pre-interned `sym` objects for common Lisp keywords (`sym_lambda`,
+        * Pre-interned `:sym` objects for common Lisp keywords (`sym_lambda`,
         `sym_nil`, `sym_t`, etc.) to speed up parsing and evaluation.
 
         * Pointers to core FFI function objects (`func_ffi`, `func_lambda`).
 
         * Its own evaluation `stack`, `nextsym` counter for `gensym`, etc.
 
-    * The methods of the `lisp` class (e.g., `:read`, `:repl_eval`,
+    * The methods of the `:lisp` class (e.g., `:read`, `:repl_eval`,
     `:repl_apply`, `:lisp_add`) implement the Lisp language primitives and REPL
     functionality, operating on other VP objects.
 
@@ -255,9 +255,9 @@ manipulate objects handle reference counting correctly behind the scenes via
 their FFI implementations (which call the appropriate VP class methods like
 `:ref`, `:deref`, `:create`, `:destroy`).
 
-    * Example: `(list a b)` creates a new `list` object. The `:list :lisp_list`
+    * Example: `(list a b)` creates a new `:list` object. The `:list :lisp_list`
     FFI implementation ensures the returned list is properly initialized with a
-    ref count of 1. If `a` and `b` are objects, the `list` will also hold
+    ref count of 1. If `a` and `b` are objects, the `:list` will also hold
     references to them (their ref counts would have been incremented when added
     to the list, if the list constructor does this, or if they were already
     live).
@@ -290,7 +290,7 @@ their FFI implementations (which call the appropriate VP class methods like
 4. **Stack vs. Heap for Lisp Execution:**
 
     * **Lisp Function Calls:** When a Lisp function is called, a new
-    environment (an `hmap` VP object) is typically created for its local
+    environment (an `:hmap` VP object) is typically created for its local
     bindings. This environment is pushed onto an environment chain. These
     environments are heap-allocated VP objects.
 
@@ -302,8 +302,8 @@ their FFI implementations (which call the appropriate VP class methods like
     * **Lisp "Stack Frames":** The chain of Lisp environments acts like a
     logical call stack for symbol lookup.
 
-    * **Lisp Objects:** All Lisp data objects (`num`, `str`, `list`, etc.) are
-    heap-allocated VP objects managed by `sys_mem`.
+    * **Lisp Objects:** All Lisp data objects (`:num`, `:str`, `:list`, etc.) are
+    heap-allocated VP objects managed by `:sys_mem`.
 
 ## Level 5: Boot Image and Compiled Function Objects
 
@@ -315,7 +315,7 @@ their FFI implementations (which call the appropriate VP class methods like
     metadata (offsets to string pool, link table), the local string pool, and
     the external function path/link table.
 
-    * These function "objects" are not `obj` class instances in the typical
+    * These function "objects" are not `:obj` class instances in the typical
     sense (they don't have a `vtable` and `count` field at their very start for
     direct `:obj :ref` calls), but they are self-contained units of code and
     data.
@@ -345,15 +345,15 @@ their FFI implementations (which call the appropriate VP class methods like
 ChrysaLisp's memory architecture is a carefully layered system designed for
 control and performance:
 
-* **Low-Level:** `sys_mem` uses `sys_heap` pool allocators (which use `mmap`)
+* **Low-Level:** `:sys_mem` uses `:sys_heap` pool allocators (which use `mmap`)
 to manage raw memory.
 
-* **VP Object System:** The `obj` class provides a reference-counted object
+* **VP Object System:** The `:obj` class provides a reference-counted object
 model with a defined lifecycle (`:create`, `:init`, `:ref`, `:deref`,
 `:deinit`, `:destroy`).
 
 * **Lisp Integration:** Lisp data types are direct instances of these VP
-classes. The Lisp interpreter itself is a `lisp` VP class instance. Memory
+classes. The Lisp interpreter itself is a `:lisp` VP class instance. Memory
 management for Lisp objects relies on the underlying VP reference counting.
 
 * **Developer Responsibility:** The absence of a GC means developers must be

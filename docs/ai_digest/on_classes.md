@@ -1,7 +1,7 @@
 # The Dual Nature of a ChrysaLisp Object: A Deeper Look
 
 The class documents correctly identifie two powerful, tree-like structures built
-upon the `hmap` primitive: the GUI's **Containment Hierarchy** for appearance
+upon the `:hmap` primitive: the GUI's **Containment Hierarchy** for appearance
 and the **Inheritance Hierarchy** for behavior. A brilliant and crucial
 distinction. However, there is one nuance that isn't explicitly stated: how a
 single class instance participates in both simultaneously.
@@ -20,14 +20,14 @@ trees, using them for different aspects of its existence.
 
 2.  **The Inheritance Hierarchy (The Class VTables):** This is a *compile-time*
     tree of **class definitions**. It defines "what an object is" and governs
-    behavior. A class `vtable` (an `hmap`) is created by copying its parent's
+    behavior. A class `vtable` (an `:hmap`) is created by copying its parent's
     `vtable` and then adding or overriding methods. This creates a complete,
     flattened map of all behaviors for that class.
 
 ## The Nexus: The Object Instance and its Two "Magic Keys"
 
 A ChrysaLisp object instance—say, a `Button` created with `(Button)`—is
-fundamentally just an `hmap`. Its dual nature is enabled by two special,
+fundamentally just an `:hmap`. Its dual nature is enabled by two special,
 conventional keys that act as pointers:
 
 *   **`:parent`**: This key is the object's link to the **Containment
@@ -38,7 +38,7 @@ conventional keys that act as pointers:
 
 *   **`:vtable`**: This key is the object's link to the **Inheritance
     Hierarchy**. Its value is a direct reference to the *class's vtable* (e.g.,
-    `*class_Button*`), which is itself a globally shared `hmap`. This key points
+    `*class_Button*`), which is itself a globally shared `:hmap`. This key points
     to the object's "blueprint" or "DNA."
 
 ## The Unified Lookup Mechanism in Action
@@ -99,13 +99,13 @@ operations are O(1).
 
 ## Conclusion: The Unifying Result
 
-A ChrysaLisp object is a simple `hmap`. Its position in the visual scene is
+A ChrysaLisp object is a simple `:hmap`. Its position in the visual scene is
 defined by its `:parent` pointer, which enables a dynamic, runtime inheritance
 of properties. Its identity and capabilities are defined by its `:vtable`
 pointer, which enables a static, compile-time inheritance of behavior.
 
 The same highly optimized lookup mechanism serves both masters, demonstrating
-the power of the "Know Thyself" philosophy. The `hmap` knows about `:parent` and
+the power of the "Know Thyself" philosophy. The `:hmap` knows about `:parent` and
 treats it specially, while the Lisp `.` macro knows about `:vtable` and uses it
 for efficient method dispatch. This is how a single, simple structure elegantly
 and performantly participates in two distinct, powerful hierarchies

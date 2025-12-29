@@ -6,7 +6,7 @@ The ChrysaLisp GUI compositor is responsible for efficiently redrawing portions 
 
 1. **View Tree:** UI elements (`View` objects and their derivatives) are arranged in a hierarchical tree. A parent view contains child views. Coordinates are typically relative to the parent.
 
-2. **Dirty Regions (`view_dirty_region`):** Each view can have a `view_dirty_region`. This is a `region` object (see below) representing the area *within that view's local coordinates* that needs to be redrawn. Changes to a view (e.g., text update, resize) will mark its region as dirty.
+2. **Dirty Regions (`view_dirty_region`):** Each view can have a `view_dirty_region`. This is a `:region` object (see below) representing the area *within that view's local coordinates* that needs to be redrawn. Changes to a view (e.g., text update, resize) will mark its region as dirty.
 
 3. **Opaque Regions (`view_opaque_region`):** A view can also declare an `view_opaque_region`. This signifies areas within the view that are fully opaque, meaning nothing behind them will be visible. This is crucial for optimization.
 
@@ -29,13 +29,13 @@ The ChrysaLisp GUI compositor is responsible for efficiently redrawing portions 
    pointers: `host_gui_funcs`. This keeps the core compositing logic 
    platform-agnostic.
 
-## The `region` Class (from `gui/region/class.vp`)
+## The `:region` Class (from `gui/region/class.vp`)
 
-The `region` class is fundamental to the compositor. It represents an arbitrary 2D 
+The `:region` class is fundamental to the compositor. It represents an arbitrary 2D 
 area as a collection of **non-overlapping rectangles**. This is a key 
 characteristic.
 
-* **Representation:** A `region` is internally a linked list of `rect` structures. 
+* **Representation:** A `:region` is internally a linked list of `rect` structures. 
   Each `rect` has `x, y, x1, y1` coordinates.
 
 * **Key Operations:**
@@ -192,6 +192,6 @@ This is the heart of the compositor and involves multiple passes over the view t
 
 ## Conclusion
 
-This compositor design is quite sophisticated. By distinguishing between a view's self-declared dirty area, its opaque area, and the final clipped visible region it needs to draw, it effectively minimizes redundant drawing operations. The `region` class, with its ability to manage complex non-overlapping rectangular areas through CSG-like operations (union via paste, subtraction via remove, intersection via clip), is the cornerstone of this efficiency.
+This compositor design is quite sophisticated. By distinguishing between a view's self-declared dirty area, its opaque area, and the final clipped visible region it needs to draw, it effectively minimizes redundant drawing operations. The `:region` class, with its ability to manage complex non-overlapping rectangular areas through CSG-like operations (union via paste, subtraction via remove, intersection via clip), is the cornerstone of this efficiency.
 
 It correctly handles overlapping opaque and transparent views, ensuring that only the truly visible and changed pixels are processed by the host graphics backend.

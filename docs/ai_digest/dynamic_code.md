@@ -8,7 +8,7 @@ is not a distinct tool; it is a library of functions within the ChrysaLisp
 language itself. This means that the full, Turing-complete power of Lisp is
 available as the native metaprogramming and macro system for the assembler. This
 document will explore this architectural paradigm, contrasting it with
-traditional methods and using the `pixmap` pixel format converter as a detailed
+traditional methods and using the `:pixmap` pixel format converter as a detailed
 case study to demonstrate how this "assembler as Lisp" philosophy enables the
 automatic generation of hyper-optimized, branchless code at compile time.
 
@@ -214,7 +214,7 @@ simple translator to a powerful, programmable, logic-driven tool. It doesn't
 need a separate macro language because it has the entirety of Lisp at its
 disposal for compile-time computation and code generation.
 
-The `pixmap` pixel converter is the quintessential example of this power. It
+The `:pixmap` pixel converter is the quintessential example of this power. It
 solves a common graphics problem by achieving the "best of all worlds": the
 runtime speed of hand-tuned assembly, the maintainability of a high-level
 abstraction, and the code compactness of a generative approach. This is the

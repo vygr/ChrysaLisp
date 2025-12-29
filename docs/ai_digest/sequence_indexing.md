@@ -1,7 +1,7 @@
 # ChrysaLisp Sequence Indexing & Memory Model
 
-In ChrysaLisp, `seq` is the base class for all ordered collections, including
-`array`, `list`, `str`, `nums`, `fixeds`, and `reals`. Because they share this
+In ChrysaLisp, `:seq` is the base class for all ordered collections, including
+`:array`, `:list`, `:str`, `:nums`, `:fixeds`, and `:reals`. Because they share this
 lineage, they share a unified set of manipulation functions and a unique
 indexing logic designed for high-performance string and buffer manipulation.
 

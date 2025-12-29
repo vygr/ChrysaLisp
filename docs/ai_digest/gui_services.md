@@ -15,8 +15,8 @@ The ChrysaLisp GUI architecture is built upon a few fundamental principles:
    (defined with `(defclass ...)` from `lib/class/class.inc`) that inherit from
    a common base `View` class (`widgets.md`).
 
-2. **`View` Inherits `hmap`:** The `View` class, in turn, inherits from the
-   Virtual Processor (VP) level `hmap` class. An `hmap` is the fundamental
+2. **`View` Inherits `:hmap`:** The `View` class, in turn, inherits from the
+   Virtual Processor (VP) level `:hmap` class. An `:hmap` is the fundamental
    structure for Lisp environments in ChrysaLisp (`environment.md`). This
    inheritance is crucial: **every UI widget IS a Lisp environment**.
 
@@ -189,7 +189,7 @@ available via `gui/lisp.inc`.
 
 ### `View`
 
-* **Inherits:** `hmap` (VP Level)
+* **Inherits:** `:hmap` (VP Level)
 
 * **Lisp Class:** `(View)` (from `gui/view/lisp.inc`)
 
@@ -412,7 +412,7 @@ available via `gui/lisp.inc`.
 * **UI Macro:** `(ui-canvas name width height scale [props])`
 
 * **Description:** Provides a direct drawing surface. `Canvas` creates its own
-  pixel buffer, while `Canvas-pixmap` uses an existing `pixmap` object.
+  pixel buffer, while `Canvas-pixmap` uses an existing `:pixmap` object.
 
 * **Key Properties:**
 

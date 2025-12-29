@@ -55,13 +55,13 @@ and necessary choice.
 1.  **Enabling an Iterative Idiom:** The small stack makes deep, language-level
     recursion impossible. This guides the programmer to adopt the canonical
     ChrysaLisp pattern for handling nested data: **iteration using a
-    heap-allocated `list` as an explicit work-stack.**
+    heap-allocated `:list` as an explicit work-stack.**
 
 2.  **Evidence of the Iterative Style:** This pattern is the implementation
     standard for the system's most critical components.
 
     * **Case Study: The Lisp Reader (`class/lisp/read.vp`)** The parser for Lisp
-      S-expressions avoids recursion by using a `list` as a stack to manage
+      S-expressions avoids recursion by using a `:list` as a stack to manage
       nested parentheses.
 
     ```vdu
@@ -94,11 +94,11 @@ and necessary choice.
       ever risking a stack overflow.
 
 3.  **The Hidden Benefit: Maximizing Cache Performance:** This enforced
-    iterative style directly enhances the performance of the O(1) `hmap` lookup
+    iterative style directly enhances the performance of the O(1) `:hmap` lookup
     cache.
 
     * **Recursion Creates Deep Scopes:** A recursive function creates a new
-      lexical environment (`hmap`) for each call, forming a long parent chain.
+      lexical environment (`:hmap`) for each call, forming a long parent chain.
       This causes constant invalidation and repair of the `str_hashslot` cache
       as variables are shadowed and un-shadowed.
 

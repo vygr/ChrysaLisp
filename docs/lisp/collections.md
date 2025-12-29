@@ -3,7 +3,7 @@
 The collections classes are held in the `lib/collections/` folder. They consist of various maps and sets. Each subclass implements a common API. But the individual types are specialized for particular uses and performance characteristics.
 
 At the VP level maps and sets are provided as VP classes. The environment
-system is built on a single map class, the `hmap`. A Lisp level API interface
+system is built on a single map class, the `:hmap`. A Lisp level API interface
 to this class is provided by the `Emap` subclass.
 
 ## Sets
@@ -43,7 +43,7 @@ lib/collections/map.inc
 
 ### Emap
 
-The `Emap` is a map class built on the VP level `hmap` class. As such the keys
+The `Emap` is a map class built on the VP level `:hmap` class. As such the keys
 can only be symbol objects.
 
 It implements multiple buckets and has excellent performance characteristics

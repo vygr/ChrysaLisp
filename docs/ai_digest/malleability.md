@@ -57,7 +57,7 @@ its memory model, built upon the `cons` cell.
     not traditional `cons` cells."
 
     * **Cache-Friendly Primitives:** Every sequence in ChrysaLisp, from a list
-        of numbers to a block of executable code, is a **vector**. The `list`
+        of numbers to a block of executable code, is a **vector**. The `:list`
         class (`class/list/class.inc`) is a dynamic array, not a linked list.
         This ensures that related data is stored contiguously in memory, which
         is ideal for modern CPU caches and results in extremely fast iteration.
@@ -86,7 +86,7 @@ memory access.
     often involving hash calculations and collision checks at each step. This is
     slow.
 
-*   **The ChrysaLisp Redress: The Self-Repairing O(1) `hmap` Cache.** The `hmap`
+*   **The ChrysaLisp Redress: The Self-Repairing O(1) `:hmap` Cache.** The `:hmap`
     implementation (`class/hmap/class.vp`) is ChrysaLisp's masterpiece.
 
     1. **Proactive Caching:** When a symbol is first defined (e.g.,
@@ -102,7 +102,7 @@ memory access.
 
     3. **Self-Repairing:** If a variable is shadowed in a deeper scope, its
         `str_hashslot` is temporarily updated. When that scope exits, the cache
-        is now stale. On the very next access in the outer scope, the `hmap`
+        is now stale. On the very next access in the outer scope, the `:hmap`
         detects the mismatch, performs a **one-time** linear scan to find the
         correct, un-shadowed variable, and **immediately repairs the
         `str_hashslot`**. All future lookups in that scope are O(1) again.
@@ -111,24 +111,24 @@ This mechanism means that in modifying the environment—the very definition of
 malleability—has almost zero lasting performance cost. The system fluidly adapts
 to maintain O(1) lookup speed.
 
-### Pillar 3: The Unifying Architecture — Everything is an `hmap`
+### Pillar 3: The Unifying Architecture — Everything is an `:hmap`
 
 The true elegance of ChrysaLisp is how it recursively applies this
-hyper-optimized `hmap` to unify concepts that are distinct and rigid in other
+hyper-optimized `:hmap` to unify concepts that are distinct and rigid in other
 languages. This makes the *entire system* malleable.
 
-*   **Lexical Scopes are `hmap`s:** A function call creates a new `hmap` whose
-    `:parent` property points to the `hmap` of the outer scope. This is a
+*   **Lexical Scopes are `:hmap`s:** A function call creates a new `:hmap` whose
+    `:parent` property points to the `:hmap` of the outer scope. This is a
     direct, runtime representation of lexical scoping.
 
-*   **Class V-Tables are `hmap`s:** A class definition, like
+*   **Class V-Tables are `:hmap`s:** A class definition, like
     `(defclass Button () (Label) ...)` in `gui/button/lisp.inc`, creates an
-    `hmap` named `*class_Button*`. This `hmap` acts as the class's vtable,
+    `:hmap` named `*class_Button*`. This `:hmap` acts as the class's vtable,
     storing its methods. Inheritance is a **compile-time composition**: the
     `Button` vtable is created by copying the `Label` vtable and then adding or
     overriding methods.
 
-*   **Object Instances are `hmap`s:** A GUI widget, like a button, is an `hmap`
+*   **Object Instances are `:hmap`s:** A GUI widget, like a button, is an `:hmap`
     instance. Properties like `:text` or `:color` are simply key-value pairs.
     Property inheritance is a **runtime traversal**: if a property isn't found
     on the button instance, the system follows the `:parent` link up the GUI
@@ -140,18 +140,18 @@ This architecture creates a virtuous circle where Lisp's dynamic features become
 performance assets.
 
 *   **Macros as High-Speed Sculpting Tools:** Macros are code generators. In
-    ChrysaLisp, the code they generate manipulates these hyper-optimized `hmap`
+    ChrysaLisp, the code they generate manipulates these hyper-optimized `:hmap`
     structures. A macro isn't just generating code; it's generating code that
     performs O(1) operations on the runtime environment.
 
 *   **Live Code Modification ("Monkey Patching"):** Because a class's vtable is
-    just a mutable `hmap`, you can redefine a method for *all* instances of a
+    just a mutable `:hmap`, you can redefine a method for *all* instances of a
     class, live, with a simple `(def *class_Button* :draw (lambda ...))`. The
     change is instantly reflected, and because of the `str_hashslot` cache,
     dispatch to the new method remains O(1).
 
 *   **Dynamic Mixins:** You can create new classes at runtime by
-    programmatically composing new vtable `hmap`s from existing ones, creating
+    programmatically composing new vtable `:hmap`s from existing ones, creating
     dynamic mixins that inherit the same O(1) performance.
 
 #### A Concrete Example: The Journey of `(. my_button :draw)`
@@ -164,12 +164,12 @@ performance assets.
     `((. my_button :vtable :find :draw) my_button)`.
 
 3.  **`:vtable` Lookup (O(1)):** The system looks up the `:vtable` symbol on the
-    `my_button` object (`hmap`). By convention, `:vtable` is the first key
+    `my_button` object (`:hmap`). By convention, `:vtable` is the first key
     inserted, so its `str_hashslot` is `0`. This is a direct indexed read,
     instantly returning the `*class_Button*` vtable.
 
 4.  **`:draw` Lookup (O(1)):** The system looks up the `:draw` symbol in the
-    `*class_Button*` vtable (`hmap`). At class definition time, the `:draw`
+    `*class_Button*` vtable (`:hmap`). At class definition time, the `:draw`
     symbol's `str_hashslot` was set to its correct index. This is another direct
     indexed read, instantly returning the function object for the draw method.
 

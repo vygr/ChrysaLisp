@@ -45,7 +45,7 @@ to native or VP64 code). It resolves inter-function references. `load-path`
 provides the path to object files for the current CPU/ABI.
 
 * **Link Drivers (`sys/link/`):** Facilitate inter-node communication over
-shared memory (`lk_shmem` structure). Each link has an `in` and `out` task to
+shared memory (`lk_shmem` structure). Each link has an `:in` and `:out` task to
 manage message transfer.
 
 * **Platform Interface Invocation (PII) (`sys/pii/`):** An abstraction layer
@@ -129,7 +129,7 @@ declarative way to build UI trees.
 structures (`+ev_msg_*`). The GUI service dispatches these events to the
 appropriate views or their owner tasks. `+ev_type_*` defines event types.
 
-* **Drawing:** Views have `:draw` methods. The `ctx` (context) API provides
+* **Drawing:** Views have `:draw` methods. The `:ctx` (context) API provides
 drawing primitives (`:ctx_set_color`, `:ctx_box`, `:ctx_filled_box`,
 `:ctx_blit`). Canvases support path-based drawing with antialiasing.
 

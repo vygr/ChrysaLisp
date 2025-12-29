@@ -76,7 +76,7 @@ As you begin your journey, understand these foundational shifts:
     avoid unpredictable system pauses, crucial for an OS.
 
     * **You (and the system) manage lifetime:** Objects are reference-counted.
-    You'll see `:ref` and `:deref` calls. Collections like `list` (which are
+    You'll see `:ref` and `:deref` calls. Collections like `:list` (which are
     vectors of object pointers) automatically manage the reference counts of
     their elements.
 
@@ -153,7 +153,7 @@ As you begin your journey, understand these foundational shifts:
 * **Coming from other Lisp Dialects (Common Lisp, Scheme, Clojure):**
 
     * **The Core Data Structure Shift:** This is the biggest hurdle and the
-    biggest opportunity. Internalize that `list` means "vector of object
+    biggest opportunity. Internalize that `:list` means "vector of object
     pointers." `car`/`cdr`/`cons` are not the primary building blocks for
     sequences. This will change how you approach many list-processing
     algorithms.

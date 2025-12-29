@@ -9,7 +9,7 @@ ChrysaLisp.
 ## The Unifying Philosophy of ChrysaLisp
 
 A casual observer of ChrysaLisp might see its pervasive use of a single data
-structure, the `hmap`, for everything from lexical scope to class inheritance to
+structure, the `:hmap`, for everything from lexical scope to class inheritance to
 GUI properties and conclude it is an exercise in forcing a square peg into a
 round hole. This conclusion would be fundamentally incorrect. The deeper truth,
 and the core philosophy of the system, is the realization that **when you have
@@ -22,16 +22,16 @@ pushes it to its logical and performant extreme. The entire system is an
 emergent property of this single, hyper-optimized pattern, and it has yet to
 break. This is not a system of compromises; it is a system of profound unity.
 
-### The Universal Element: The O(1) `hmap`
+### The Universal Element: The O(1) `:hmap`
 
-At the heart of this philosophy is the `hmap`, a data structure that defies
+At the heart of this philosophy is the `:hmap`, a data structure that defies
 conventional trade-offs. In most systems, a hash map is a compromise involving
 hash functions, bucket distributions, and collision strategies. In ChrysaLisp,
 it becomes something more fundamental.
 
-As detailed in `class/hmap/class.vp`, the `hmap` achieves its strict O(1)
+As detailed in `class/hmap/class.vp`, the `:hmap` achieves its strict O(1)
 performance through a proactively managed cache, the `str_hashslot` on each
-symbol. When a symbol is first bound, its location within the `hmap`'s bucket
+symbol. When a symbol is first bound, its location within the `:hmap`'s bucket
 list is stored directly on the symbol object itself. All subsequent lookups in
 that scope become a direct array index, completely bypassing hashing and linear
 searches. This isn't just an optimization; it is the central mechanism that
@@ -40,26 +40,26 @@ its absolute minimum, it becomes practical to build an entire universe from it.
 
 ### Three Manifestations of One Truth
 
-The "roundness" of the `hmap` is proven by how effortlessly it becomes the
+The "roundness" of the `:hmap` is proven by how effortlessly it becomes the
 container for three foundational, yet distinct, software patterns: lexical
 scoping, class inheritance, and property inheritance.
 
-**1. The Environment as a Living Scope Tree (`hmap` for Lexical Scoping)**
+**1. The Environment as a Living Scope Tree (`:hmap` for Lexical Scoping)**
 
 The most traditional application of the pattern is the lexical environment. As
 implemented through functions like `:lisp :env_push` and `:lisp :env_pop`, the
-runtime environment is a tree of `hmap` objects. When `(get sym)` is called, the
+runtime environment is a tree of `:hmap` objects. When `(get sym)` is called, the
 system performs an `:hmap :search`, walking up the `:parent` chain from the
 current scope outwards. This perfectly models Lisp's lexical scope, but with a
 critical difference: thanks to the self-repairing `str_hashslot` cache, repeated
 lookups for a symbol in any given scope remain O(1).
 
-**2. The Class as a Composed VTable (`hmap` for Behavior)**
+**2. The Class as a Composed VTable (`:hmap` for Behavior)**
 
 Here, the philosophy diverges powerfully from convention. In
 `lib/asm/class.inc`, the `def-class` macro does **not** create a parent pointer
 for runtime traversal. Instead, it performs a **compile-time composition**. A
-new class's vtable (itself an `hmap`) is created by making a full, flattened
+new class's vtable (itself an `:hmap`) is created by making a full, flattened
 copy of its super-class's vtable, and then overriding or adding its own methods.
 
 *   A call like `(. my_button :draw)` does not walk an inheritance chain.
@@ -72,11 +72,11 @@ associative maps—but its implementation is transformed for maximum performance
 There is no runtime cost for deep inheritance. The class system is not
 simulating inheritance; it is a direct, static embodiment of it !
 
-**3. The Scene Graph as a Dynamic Cascade (`hmap` for Appearance)**
+**3. The Scene Graph as a Dynamic Cascade (`:hmap` for Appearance)**
 
 The GUI system, defined across the `gui/` directory, provides the third and most
 dynamic manifestation. Every widget, from a `Window` to a `Button`, is an
-instance of an `hmap`.
+instance of an `:hmap`.
 
 *   A widget's `:parent` property points to its container, forming a scene graph
     tree.
@@ -96,13 +96,13 @@ structure; they are a deeply interconnected, co-operating system of ideas:
 
 *   **Cooperative Scheduling** enables small, fixed-size stacks.
 
-*   **Small Stacks** mandate an **iterative style** using heap-allocated `list`s
+*   **Small Stacks** mandate an **iterative style** using heap-allocated `:list`s
     for managing nested structures.
 
 *   The **Iterative Style** creates flatter, more stable lexical scopes, which
     **maximizes the effectiveness of the `str_hashslot` cache**.
 
-*   The **O(1) Cache Performance** makes all three `hmap` patterns—environment
+*   The **O(1) Cache Performance** makes all three `:hmap` patterns—environment
     lookup, method dispatch, and property inheritance—hyper-efficient.
 
 The entire system is a virtuous circle. Each part "knows" about the others and
@@ -114,8 +114,8 @@ language.
 
 ChrysaLisp demonstrates that complexity is often a symptom of choosing the wrong
 primitives. It did not start with the goal of forcing everything to be an
-`hmap`. It started with the goal of creating a performant, associative system,
-and discovered that its hyper-optimized `hmap` was so effective, so fundamental,
+`:hmap`. It started with the goal of creating a performant, associative system,
+and discovered that its hyper-optimized `:hmap` was so effective, so fundamental,
 that it naturally became the "universal element" for building everything else.
 
 The philosophy is not "everything *must be made* to fit." It is the discovery

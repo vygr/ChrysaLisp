@@ -150,7 +150,7 @@ The Editor manages multiple open files and scratch buffers:
 
     * `:sx`, `:sy`: Last scroll position.
 
-* **`*open_files*` (`app_impl.lisp`):** A Lisp `list` containing the paths of files currently "open" (i.e., having a buffer loaded and potentially displayed in the "Open Files" tree).
+* **`*open_files*` (`app_impl.lisp`):** A Lisp `:list` containing the paths of files currently "open" (i.e., having a buffer loaded and potentially displayed in the "Open Files" tree).
 
 * **`*current_file*` (`app_impl.lisp`):** The path of the file currently active in the `*edit*` widget. Can be `:nil` for a scratch buffer.
 
@@ -209,7 +209,7 @@ The Editor manages multiple open files and scratch buffers:
 
 * **`Syntax` Class (`lib/text/syntax.inc`):**
 
-    * `(:colorise str)`: This method takes a line of text. It tokenizes the line based on character types (symbol, number, string, comment, etc.) and its current internal state (e.g., inside a multi-line comment or string). It then consults its internal keyword maps and color properties (e.g., `:ink_keyword1`, `:ink_strings`) to return an `array` of character attributes. Each element in this array is a `long` where the lower bytes are the character code and higher bytes encode the color.
+    * `(:colorise str)`: This method takes a line of text. It tokenizes the line based on character types (symbol, number, string, comment, etc.) and its current internal state (e.g., inside a multi-line comment or string). It then consults its internal keyword maps and color properties (e.g., `:ink_keyword1`, `:ink_strings`) to return an `:array` of character attributes. Each element in this array is a `long` where the lower bytes are the character code and higher bytes encode the color.
 
     * The `Vdu` widget can directly render such an array of attributed characters.
 
@@ -287,7 +287,7 @@ The Editor manages multiple open files and scratch buffers:
 
     * Saves recorded macros (slots 0-9) from `+macro_map` into `*meta_map*` after encoding them using `macro-encode`.
 
-    * Saves `*meta_map*` to the state file using `tree-save`. `tree-save` serializes Lisp collections (like `Emap`, `Lmap`, `list`) into a readable text format. The `:buffer` itself is filtered out by `key_filters` to avoid saving entire file contents in the state file.
+    * Saves `*meta_map*` to the state file using `tree-save`. `tree-save` serializes Lisp collections (like `Emap`, `Lmap`, `:list`) into a readable text format. The `:buffer` itself is filtered out by `key_filters` to avoid saving entire file contents in the state file.
 
 * **`state-load` function:**
 

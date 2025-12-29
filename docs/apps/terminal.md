@@ -169,7 +169,7 @@ line-oriented, command-and-response behavior.
 
     * **Command History (`*meta_map*`):** A simplified version of the Editor's
         state management is used. `apps/terminal/state.inc` defines logic to
-        save and load a `:history` list (a Lisp `list` of strings) into
+        save and load a `:history` list (a Lisp `:list` of strings) into
         `"terminal.tre"` in the user's home directory.
 
 *   **View (User Interface):**

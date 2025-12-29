@@ -21,8 +21,8 @@ and high-level logic reside. It is a vector-based, functional Lisp dialect.
 * **No Register Access:** You cannot access CPU registers (`:r0`–`:r14`), the
   stack pointer (`:rsp`), or raw memory addresses.
 
-* **Memory Management:** Automatic. You deal with Objects (`str`, `num`, `list`,
-  `hmap`), not pointers.
+* **Memory Management:** Automatic. You deal with Objects (`:str`, `:num`, `:list`,
+  `:hmap`), not pointers.
 
 * **Forbidden Includes:** You cannot import files from `lib/asm/` or
   `lib/trans/`. Macros like `vp-rdef`, `assign`, or `def-vars` do not exist here.
@@ -178,14 +178,14 @@ from GUI applications or System Services.
 
 * **Lifecycle:** Ephemeral. They start, process data, and terminate immediately.
 
-* **I/O:** They rely on the **Pipe** object and `stdio`.
+* **I/O:** They rely on the **Pipe** object and `:stdio`.
 
 	* Input: `(io-stream 'stdin)`
 
 	* Output: `(io-stream 'stdout)`
 
 * **Arguments:** Arguments are passed in via a specific `options` structure
-  processing the `stdio` args.
+  processing the `:stdio` args.
 
 * **Concurrency:** They usually run with `task-count -1` (via `pipe-run`),
   meaning they are prioritized for throughput rather than cooperative

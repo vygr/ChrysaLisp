@@ -3,7 +3,7 @@
 The `View` class is the abstract base and fundamental building block for every
 element in the ChrysaLisp Graphical User Interface (GUI). It is the superclass
 from which all other widgets—`Window`, `Button`, `Label`, `Flow`, `Canvas`,
-etc.—are derived. Inheriting directly from the `hmap` class, every `View`
+etc.—are derived. Inheriting directly from the `:hmap` class, every `View`
 instance is fundamentally a hash map, embodying the system's "Recursive
 Architecture" philosophy. This design allows the entire GUI to be represented as
 a tree of views, known as the scene graph, which governs rendering, layout, and
@@ -43,9 +43,9 @@ These methods are used to construct and navigate the scene graph.
 *   **`(:to_front)` / `(:to_back)`**: Modifies the view's Z-order relative to
     its siblings.
 
-*   **`(:children)`**: Returns a `list` of the view's immediate children.
+*   **`(:children)`**: Returns a `:list` of the view's immediate children.
 
-*   **`(:flatten)`**: Returns a `list` of the view's subtree, in DFS order.
+*   **`(:flatten)`**: Returns a `:list` of the view's subtree, in DFS order.
 
 ## Geometry and Layout
 
@@ -119,7 +119,7 @@ ChrysaLisp uses an efficient dirty-region system for rendering.
     the rectangle to a `dirty_region` list.
 
 *   **`:draw`**: The core drawing method. Subclasses override this to render
-    their content. Drawing is performed using the `ctx` (context) API, such as
+    their content. Drawing is performed using the `:ctx` (context) API, such as
     `:ctx_filled_box` or `:ctx_blit`. The GUI compositor ensures `:draw` is only
     called for views that are visible and intersect with the screen's total
     damaged area.
@@ -133,7 +133,7 @@ ChrysaLisp uses an efficient dirty-region system for rendering.
 The base `View` class provides the infrastructure for event dispatch, while
 subclasses implement the specific behaviors.
 
-*   **`:owner_id`**: A `netid` field that identifies the task owning the view.
+*   **`:owner_id`**: A `:netid` field that identifies the task owning the view.
     All events related to this view are sent as messages to this owner.
 
 *   **`:id`**: A unique integer identifying the specific view instance, used as
@@ -174,7 +174,7 @@ fields for participating in the GUI.
 The `View` class is a powerful and elegant abstraction that serves as the
 cornerstone of the ChrysaLisp GUI. It is more than just a widget superclass; it
 is a direct embodiment of the system's core design philosophies. By inheriting
-from `hmap` and using a disciplined, non-recursive, two-pass layout algorithm,
+from `:hmap` and using a disciplined, non-recursive, two-pass layout algorithm,
 it provides a flexible and extensible system for building complex user
 interfaces that remains extremely high-performance and perfectly aligned with
 the cooperative, small-stack architecture of the operating system as a whole.
