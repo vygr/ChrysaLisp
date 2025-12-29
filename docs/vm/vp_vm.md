@@ -34,8 +34,8 @@ use `:r0` and `:r2` as it really helps the x86_64 code generation quality.
 You can use the `(vp-rdef)` and `(vp-fdef)` macros to assign register equated
 symbols to help your source look nice. Or bind symbols to registers, via
 `(method-input)` and `(method-output)`, that match function entry/exit
-parameters if you desire. A great example of this is the `'canvas :fpoly`, or
-the `'pixmap :resize_2` functions.
+parameters if you desire. A great example of this is the `:canvas :fpoly`, or
+the `:pixmap :resize_2` functions.
 
 ### VP Assembler instructions
 
@@ -363,7 +363,7 @@ feature.
 
 ## VP function example
 
-This is the system level string compare function. `'sys_str :compare`
+This is the system level string compare function. `:sys_str :compare`
 
 Register inputs and outputs are declared in the `sys/str/class.inc` file.
 

@@ -65,7 +65,7 @@ stack management, looking somewhat like C logic wrapped in S-expressions.
 * **Method Calls:** Uses `(call :class :method ...)` syntax.
 
 	* *Crucial Distinction:* You must use the **virtual method** call (e.g., `call
-	  'list :push_back`). Do not call internal assembler macros (e.g.,
+	  :list :push_back`). Do not call internal assembler macros (e.g.,
 	  `class/list/push_back`) directly unless you are manually managing the
 	  specific registers those macros trash.
 

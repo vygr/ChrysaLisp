@@ -189,7 +189,7 @@ These are in addition to the C/C++ style operators.
 
 ## C-Script function example
 
-This is the system level mailbox declaration function. `'sys_mail :declare`
+This is the system level mailbox declaration function. `:sys_mail :declare`
 
 Register inputs and outputs are declared in the `sys/mail/class.inc` file just
 as with a VP function.
@@ -252,7 +252,7 @@ functions final instructions. Be sure to `(setq *debug_inst* :nil)` and `(setq
 *debug_emit* :nil)` after the section of code or function to turn emit printing
 off.
 
-This is the output from wrapping the `'hmap :insert` line in the example above:
+This is the output from wrapping the `:hmap :insert` line in the example above:
 
 ```vdu
 (let ((*debug_inst* :t))
@@ -288,7 +288,7 @@ to see the final VP code output.
 )
 ```
 
-For example the `'array :append` method.
+For example the `:array :append` method.
 
 ```vdu
 (emit-label '_0)

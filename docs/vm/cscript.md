@@ -8,7 +8,7 @@ assignments and running out of registers etc.
 
 You can freely mix and match lower level VP code and CScript expressions
 provided you follow the rules, those rules will become clear as we go through
-this document, but take a look at the `'canvas :fpoly` method to see what you
+this document, but take a look at the `:canvas :fpoly` method to see what you
 can do ! That's a mixture of CScript, VP register defs and `(method-input)`
 calls !
 

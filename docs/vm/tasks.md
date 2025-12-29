@@ -34,10 +34,10 @@ The structure of the TCB and the priority lists are detailed in
 `sys/task/class.inc`, the implementation of the task methods in
 `sys/task/class.vp`.
 
-Tasks are created/started with the `'sys_task :start` method and stopped via
-the `'sys_task :stop` method. If a task eventually returns from its entry point
-without calling `'sys_task :stop` this will happen automatically. A 'call' to
-`'sys_task :stop` is pushed onto the task stack on creation of the TCB.
+Tasks are created/started with the `:sys_task :start` method and stopped via
+the `:sys_task :stop` method. If a task eventually returns from its entry point
+without calling `:sys_task :stop` this will happen automatically. A 'call' to
+`:sys_task :stop` is pushed onto the task stack on creation of the TCB.
 
 When a task is created it's assigned a none repeating 64 bit `mailbox_id`, this
 ID is combined with a 128 bit `node_id` to create the network wide `net_id`
@@ -107,7 +107,7 @@ distributed.
 The Kernel task is responsible for distribution of task creation requests via
 sending a message to it on `mailbox_id` 0. This method of starting a task
 passes the task creation request from Kernel to neighboring Kernel until the
-decision is made to call `'sys_task :start` by one of the Kernels, then the
+decision is made to call `:sys_task :start` by one of the Kernels, then the
 `net_id` of the new task is returned to the original requester.
 
 ## Link tasks
@@ -130,7 +130,7 @@ It's just the same as any other VP level task, but this task is passed the path
 of the `.lisp` file it should start interpreting as its first message.
 
 The `run.vp` task creates an instance of the Lisp class and then calls the
-`'lisp :repl` method with the file name it received from the Kernel.
+`:lisp :repl` method with the file name it received from the Kernel.
 
 ## Service tasks
 
@@ -142,7 +142,7 @@ talking to neighboring Kernels, via the link drivers, a network wide directory
 of these named mailboxes.
 
 You can create, destroy and search for the mailbox/s for a service/s task/s of
-interest, via the `'sys_mail :enquire`, `'sys_mail :declare` and `'sys_mail
+interest, via the `:sys_mail :enquire`, `:sys_mail :declare` and `'sys_mail
 :forget` method calls.
 
 ## Does the VP OS even exist ?

@@ -21,7 +21,7 @@ performance and footprint.
 
 You have to distinguish between erroneous inputs and sometimes `null` values.
 It might be totally legit to test that you got passed a 0 length vector to the
-`'path :transform` VP function. That's probably not an errorcase but a
+`:path :transform` VP function. That's probably not an errorcase but a
 legitimate result you should care about coping with.
 
 But if a VP level function is supposed to be passed a `list` and you pass it an
