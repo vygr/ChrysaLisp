@@ -32,7 +32,7 @@ conventional keys that act as pointers:
 
 *   **`:parent`**: This key is the object's link to the **Containment
     Hierarchy**. Its value is a direct reference to *another object instance*
-    (e.g., the `Flow` widget that contains it). The `hmap :search` function is
+    (e.g., the `Flow` widget that contains it). The `:hmap :search` function is
     specifically aware of this key and will automatically traverse up the
     `:parent` chain if a property isn't found locally.
 
@@ -43,7 +43,7 @@ conventional keys that act as pointers:
 
 ## The Unified Lookup Mechanism in Action
 
-The true elegance is how the system uses the same hyper-optimized `hmap :search`
+The true elegance is how the system uses the same hyper-optimized `:hmap :search`
 for both purposes, but the *lookup protocol* differs based on what is being
 sought.
 
@@ -56,14 +56,14 @@ Hierarchy)**
 The `draw` method needs to know what color to use. It will effectively perform a
 `(get :color my_button)`.
 
-1.  The system calls `hmap :search` on `my_button` for the key `:color`.
+1.  The system calls `:hmap :search` on `my_button` for the key `:color`.
 
 2.  `my_button` doesn't have a local `:color` property set.
 
-3.  The `hmap :search` implementation finds the `:parent` key. It automatically
+3.  The `:hmap :search` implementation finds the `:parent` key. It automatically
     follows this pointer to the containing `Flow` widget.
 
-4.  It then recursively calls `hmap :search` on the `Flow` for `:color`.
+4.  It then recursively calls `:hmap :search` on the `Flow` for `:color`.
 
 5.  The `Flow` also doesn't have a local `:color`. It follows its own `:parent`
     to the main `Window`.
@@ -72,7 +72,7 @@ The `draw` method needs to know what color to use. It will effectively perform a
     returns this value.
 
 This is a **runtime traversal up the Containment tree**, facilitated by the
-special logic within `hmap :search`.
+special logic within `:hmap :search`.
 
 **Step 2: The Call to `:draw` (Method Dispatch via Inheritance Hierarchy)**
 
@@ -81,20 +81,20 @@ logic via `(. my_button :draw)`.
 
 1.  The Lisp `.` macro first needs to find the correct function. It starts by
     looking up the object's class definition: `(. my_button :vtable)`. This is a
-    direct `hmap :find` on `my_button`.
+    direct `:hmap :find` on `my_button`.
 
 2.  This lookup immediately returns the value of the `:vtable` key, which is the
     `*class_Button*` hmap.
 
 3.  The macro then performs a second lookup: `(. *class_Button* :draw)`. This is
-    a direct `hmap :find` on the `*class_Button*` vtable for the `:draw` method.
+    a direct `:hmap :find` on the `*class_Button*` vtable for the `:draw` method.
 
 4.  Because the `*class_Button*` vtable was created at compile-time by copying
     its parent's methods, it contains a complete, flattened set of all its
     behaviors. The correct `:draw` function is found instantly.
 
 This is **not a traversal**. It is a two-step, direct lookup into the
-Inheritance tree. Thanks to the `str_hashslot` cache, both `hmap :find`
+Inheritance tree. Thanks to the `str_hashslot` cache, both `:hmap :find`
 operations are O(1).
 
 ## Conclusion: The Unifying Result

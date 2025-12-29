@@ -230,12 +230,12 @@ These methods operate directly on the raw numeric data within the vectors.
 `:div`, `:dot` (dot product), `:scale` to perform element-wise or specialized
 vector arithmetic.
 
-    * For example, `nums :add` (from `nums.md`) takes two source `nums` objects
+    * For example, `:nums :add` (from `nums.md`) takes two source `nums` objects
     and a destination `nums` object, performing element-wise addition.
     
-    * `fixeds :dot` calculates the dot product of two `fixeds` vectors.
+    * `:fixeds :dot` calculates the dot product of two `fixeds` vectors.
     
-    * `reals :scale` multiplies each element of a `reals` vector by a scalar
+    * `:reals :scale` multiplies each element of a `reals` vector by a scalar
       `real` value.
 
 * **Efficiency:** These VP methods are designed for performance, directly

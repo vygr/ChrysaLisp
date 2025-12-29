@@ -47,9 +47,9 @@ scoping, class inheritance, and property inheritance.
 **1. The Environment as a Living Scope Tree (`hmap` for Lexical Scoping)**
 
 The most traditional application of the pattern is the lexical environment. As
-implemented through functions like `lisp :env_push` and `lisp :env_pop`, the
+implemented through functions like `:lisp :env_push` and `:lisp :env_pop`, the
 runtime environment is a tree of `hmap` objects. When `(get sym)` is called, the
-system performs an `hmap :search`, walking up the `:parent` chain from the
+system performs an `:hmap :search`, walking up the `:parent` chain from the
 current scope outwards. This perfectly models Lisp's lexical scope, but with a
 critical difference: thanks to the self-repairing `str_hashslot` cache, repeated
 lookups for a symbol in any given scope remain O(1).
@@ -64,7 +64,7 @@ copy of its super-class's vtable, and then overriding or adding its own methods.
 
 *   A call like `(. my_button :draw)` does not walk an inheritance chain.
 
-*   It performs a single O(1) `hmap :find` directly on the `*class_Button*`
+*   It performs a single O(1) `:hmap :find` directly on the `*class_Button*`
     vtable.
 
 This is a profound choice. The "shape" of inheritance is the same—a tree of
@@ -82,7 +82,7 @@ instance of an `hmap`.
     tree.
 
 *   Property inheritance is implemented via runtime traversal of this tree. A
-    search for a widget's `:font` property will call `hmap :search` on the
+    search for a widget's `:font` property will call `:hmap :search` on the
     widget itself, and if not found, will recurse up the `:parent` chain.
 
 This is where the synergy becomes clear. This runtime traversal would be

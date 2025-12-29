@@ -104,7 +104,7 @@ evolves through three distinct states from source code to a running system.
 
 *   **State:** The `.vp` file on disk contains symbolic dependencies. Each
     function has its own `paths` table containing the string names of its
-    dependencies. If ten different functions call `sys_mem :alloc`, the string
+    dependencies. If ten different functions call `:sys_mem :alloc`, the string
     `"sys/mem/alloc"` is duplicated in ten separate files.
 
 ### Stage 2: Pre-Linking - The `boot-image` Optimizer

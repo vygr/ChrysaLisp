@@ -17,7 +17,7 @@ property inheritance.
 
 *   **Property Inheritance:** When a property (like `:font` or `:color`) is
     accessed on a view, and that view doesn't have it defined locally, the
-    system automatically performs an `hmap :search` up the scene graph to its
+    system automatically performs an `:hmap :search` up the scene graph to its
     parent, its parent's parent, and so on, until the property is found. This
     provides a powerful, Lisp-like lexical scoping model for visual attributes.
 
@@ -53,7 +53,7 @@ The layout system is a highly disciplined, two-pass process triggered by either
 a query for a view's preferred size (`:pref_size`) or a command to change its
 geometry (`:change`).
 
-Both these systems rely on the `view :flatten` method. This method DFS
+Both these systems rely on the `:view :flatten` method. This method DFS
 enumerates a view tree without descending into `+view_flag_subtree` marked sub
 trees. For example a `Scroll` child view.
 

@@ -147,7 +147,7 @@ primitives, is a single-bucket `hmap`.
 
 * **How it Stays Fast:**
 
-    1. During system initialization (`lisp :init`), all built-in symbols are
+    1. During system initialization (`:lisp :init`), all built-in symbols are
     inserted, and their `str_hashslot`s are set, pointing to their locations in
     this single list.
 

@@ -87,7 +87,7 @@ and necessary choice.
     The machine stack depth remains constant, no matter how deeply nested
     the code being parsed is.
 
-    * **Case Study: GUI Composition (`host_gui :composite`)** The function that
+    * **Case Study: GUI Composition (`:host_gui :composite`)** The function that
       traverses the GUI widget tree for rendering, `:forward_tree`, is also
       iterative, using callbacks instead of recursive calls to process nodes.
       This means a UI of theoretically infinite depth can be rendered without
@@ -116,7 +116,7 @@ The cooperative scheduler's guarantee of non-preemption is the key that unlocks
 a suite of safe, high-performance, lock-free algorithms. A task knows it will
 run uninterrupted until it hits an explicit yield point.
 
-*   **Evidence (`font :flush`):** This cache-cleaning routine must modify a
+*   **Evidence (`:font :flush`):** This cache-cleaning routine must modify a
     shared resource. Instead of using a mutex, it leverages the cooperative
     model. It knows which operations are atomic and which might yield.
 
@@ -140,9 +140,9 @@ run uninterrupted until it hits an explicit yield point.
     It performs all heavy work on a private copy of the data, then makes the
     change live with a single, atomic pointer swap.
 
-*   **Evidence (`hmap :each`):** This iterator "knows" that its most common
+*   **Evidence (`:hmap :each`):** This iterator "knows" that its most common
     modification use case is deleting the current item. It is designed to
-    cooperate with `list :erase`'s O(1) swap-and-pop.
+    cooperate with `:list :erase`'s O(1) swap-and-pop.
 
     ```vdu
     ; Simplified logic from hmap :each

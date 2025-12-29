@@ -26,8 +26,8 @@ and deallocation requests within the system.
     **slab allocation**, designed to reduce fragmentation and improve the speed
     of allocating commonly sized objects.
 
-    * **Allocation Strategy (`sys_mem :alloc`):** When a request for memory is
-    made via `sys_mem :alloc`, it first adds `sys_mem_header_size` to the
+    * **Allocation Strategy (`:sys_mem :alloc`):** When a request for memory is
+    made via `:sys_mem :alloc`, it first adds `sys_mem_header_size` to the
     requested amount. Then, it iterates through its managed `sys_heap`
     instances to find the smallest heap whose `hp_heap_cellsize` can satisfy
     the adjusted request. The allocation is then delegated to that specific
@@ -37,7 +37,7 @@ and deallocation requests within the system.
     `sys_mem` is prepended with a `sys_mem_header`. A crucial field in this
     header is `heap` (a pointer), which stores a reference back to the specific
     `sys_heap` instance from which this block was allocated. This is vital for
-    `sys_mem :free` to know which heap to return the memory to.
+    `:sys_mem :free` to know which heap to return the memory to.
 
     * **Other Operations:** `sys_mem` also provides `calloc` (alloc + zero
     fill), `realloc`, `recalloc` (realloc + zero new space), `fill`, `copy`,
@@ -49,7 +49,7 @@ and deallocation requests within the system.
     * **Block-Based Allocation:** Each `sys_heap` instance is responsible for a
     specific cell size. When its own free list of cells is exhausted, it
     allocates a larger chunk of memory (an `hp_block`) from the host OS using
-    `host_os :pii_mmap` (as seen in `sys_heap :alloc`).
+    `:host_os :pii_mmap` (as seen in `:sys_heap :alloc`).
 
     * **Cell Carving:** This `hp_block` is then carved up into multiple
     fixed-size `hp_cell`s. Each `hp_cell` contains a `block` pointer back to
@@ -57,23 +57,23 @@ and deallocation requests within the system.
 
     * **Free Lists:** `sys_heap` maintains a primary free list
     (`hp_heap_free_flist`) of available `hp_cell`s. When a cell is freed via
-    `sys_heap :free` (which is an inline call to `hp-freecell`), it's added to
+    `:sys_heap :free` (which is an inline call to `hp-freecell`), it's added to
     this list.
 
-    * **Collection (`sys_heap :collect`):** This method performs two main
+    * **Collection (`:sys_heap :collect`):** This method performs two main
     passes:
 
         * It iterates through the global `hp_heap_free_flist`, moving each
         free cell to the local free list of its parent `hp_block` and
         incrementing the block's `freecnt`. If a block's `freecnt` equals its
         `cellcnt` (meaning all its cells are free), the entire `hp_block` is
-        unmapped using `host_os :pii_munmap`, returning memory to the OS.
+        unmapped using `:host_os :pii_munmap`, returning memory to the OS.
 
         * It then iterates through all remaining `hp_block`s and splices their
         local free lists (if any) onto the global `hp_heap_free_flist`,
         consolidating available cells.
 
-    * **Initialization (`sys_heap :init`):** Sets up the `cellsize` for this
+    * **Initialization (`:sys_heap :init`):** Sets up the `cellsize` for this
     heap (aligned to `+ptr_size`) and calculates an appropriate `blocksize`
     (rounded up to `ld_page_size`) to hold a number of these cells.
 
@@ -99,7 +99,7 @@ base `obj` class.
 
             * Typically initiated by a static `ClassName :create` method.
 
-            * This calls `sys_mem :alloc` to get raw memory (which includes
+            * This calls `:sys_mem :alloc` to get raw memory (which includes
             space for the `sys_mem_header` plus the object's actual size). The
             address returned to the object system is after the
             `sys_mem_header`.
@@ -119,16 +119,16 @@ base `obj` class.
 
         * **Reference Counting:**
 
-            * `obj :ref (object)`: Increments the `count` field of the object.
+            * `:obj :ref (object)`: Increments the `count` field of the object.
 
-            * `obj :deref (object)`: Decrements the `count`. If `count` becomes
-            0, it calls `obj :destroy(object)`.
+            * `:obj :deref (object)`: Decrements the `count`. If `count` becomes
+            0, it calls `:obj :destroy(object)`.
 
-            * `obj :ref_if` and `obj :deref_if` are null-safe versions.
+            * `:obj :ref_if` and `:obj :deref_if` are null-safe versions.
 
         * **Destruction:**
 
-            * `obj :destroy (object)`: This is the entry point for object
+            * `:obj :destroy (object)`: This is the entry point for object
             destruction when its reference count reaches zero.
 
             * It calls the object's virtual `:deinit` method. `ClassName
@@ -141,8 +141,8 @@ base `obj` class.
                 * Calling its superclass's `:deinit` method (`s-jump 'ClassName
                 :deinit ...` for tail call optimization or `s-call`).
 
-            * After `:deinit` completes for the entire chain, `obj :destroy`
-            calls `sys_mem :free(object)` to return the object's memory
+            * After `:deinit` completes for the entire chain, `:obj :destroy`
+            calls `:sys_mem :free(object)` to return the object's memory
             (including its `sys_mem_header`) to the `sys_mem` allocator.
 
 2. **Inheritance and Specialization:**
@@ -153,9 +153,9 @@ base `obj` class.
     * They override virtual methods like `:deinit`, `:print`, `:hash`, `:type`
     to provide specialized behavior.
 
-    * For example, `list :deinit` will iterate through its elements and call
-    `obj :deref` on each object pointer it holds before calling the `array
-    :deinit` (its superclass). `array :deinit` in turn frees its dynamic buffer
+    * For example, `:list :deinit` will iterate through its elements and call
+    `:obj :deref` on each object pointer it holds before calling the `array
+    :deinit` (its superclass). `:array :deinit` in turn frees its dynamic buffer
     if it wasn't using the small internal `e0-e3` buffer, before calling `obj
     :deinit`.
 
@@ -201,10 +201,10 @@ of Lisp "cells" or "tagging" on top of the VP objects for common types.
         `obj*` (pointers to other VP objects).
 
         * `list` methods are overridden to perform reference counting (`obj
-        :ref`, `obj :deref`) on the objects they store when elements are added,
+        :ref`, `:obj :deref`) on the objects they store when elements are added,
         removed, set, or when the list itself is copied or destroyed. For
-        example, `list :clear` iterates and dereferences all elements before
-        calling `array :clear`. `list :set_elem` dereferences the old element
+        example, `:list :clear` iterates and dereferences all elements before
+        calling `:array :clear`. `:list :set_elem` dereferences the old element
         at an index before storing a new one (assuming the new one is already
         ref'd by the caller).
 
@@ -255,7 +255,7 @@ manipulate objects handle reference counting correctly behind the scenes via
 their FFI implementations (which call the appropriate VP class methods like
 `:ref`, `:deref`, `:create`, `:destroy`).
 
-    * Example: `(list a b)` creates a new `list` object. The `list :lisp_list`
+    * Example: `(list a b)` creates a new `list` object. The `:list :lisp_list`
     FFI implementation ensures the returned list is properly initialized with a
     ref count of 1. If `a` and `b` are objects, the `list` will also hold
     references to them (their ref counts would have been incremented when added
@@ -317,7 +317,7 @@ their FFI implementations (which call the appropriate VP class methods like
 
     * These function "objects" are not `obj` class instances in the typical
     sense (they don't have a `vtable` and `count` field at their very start for
-    direct `obj :ref` calls), but they are self-contained units of code and
+    direct `:obj :ref` calls), but they are self-contained units of code and
     data.
 
 2. **Boot Image (`lib/boot/image.inc`):**

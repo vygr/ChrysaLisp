@@ -132,7 +132,7 @@ While ChrysaLisp makes bold choices, it retains the powerful essence of Lisp:
     * The ability to create isolated environments with `(env num_buckets)` is
     powerful for modules and properties.
 
-* **Functions and Lambdas (`lisp :repl_apply`):**
+* **Functions and Lambdas (`:lisp :repl_apply`):**
 
     * First-class citizens. Lambdas are given their lexical environment through
       the `hmap` chain.
@@ -140,7 +140,7 @@ While ChrysaLisp makes bold choices, it retains the powerful essence of Lisp:
     * Application is handled by `:repl_apply`, which dispatches to native VP
       functions or sets up new environments for Lisp lambda execution.
 
-* **Macros (`macros.md`, `lisp :repl_expand`):**
+* **Macros (`macros.md`, `:lisp :repl_expand`):**
 
     * The full power of Lisp macros is present. Code is data.
 
@@ -151,7 +151,7 @@ While ChrysaLisp makes bold choices, it retains the powerful essence of Lisp:
     for compile-time computation (`const`), and for DSL creation (e.g., UI
     macros like `ui-button`).
 
-* **Binding and Destructuring (`binding.md`, `lisp :env_bind`):**
+* **Binding and Destructuring (`binding.md`, `:lisp :env_bind`):**
 
     * The `(bind)` special form is exceptionally powerful, allowing
     destructuring of *any sequence type*, not just lists.
@@ -176,7 +176,7 @@ While ChrysaLisp makes bold choices, it retains the powerful essence of Lisp:
     mixins, a feature hard to achieve in statically compiled languages like
     C++.
 
-* **Conditionals (`conditionals.md`, `lisp :lisp_if`, `lisp :lisp_cond`, `lisp
+* **Conditionals (`conditionals.md`, `:lisp :lisp_if`, `:lisp :lisp_cond`, `lisp
 :lisp_while`):**
 
     * Standard conditional forms are available, implemented as efficient VP
@@ -187,25 +187,25 @@ While ChrysaLisp makes bold choices, it retains the powerful essence of Lisp:
 The Lisp interpreter follows a sophisticated pipeline (`class/lisp/class.vp`
 methods):
 
-1. **Read (`lisp :read`):** Parses input text into S-expressions (forms).
+1. **Read (`:lisp :read`):** Parses input text into S-expressions (forms).
 
-2. **Expand Macros (`lisp :repl_expand`):** Traverses the forms, executing
+2. **Expand Macros (`:lisp :repl_expand`):** Traverses the forms, executing
 macros and replacing macro calls with their expansions. This is done
 recursively until no more macros are found.
 
-3. **Pre-bind Symbols (`lisp :repl_bind`):** Traverses the expanded forms
+3. **Pre-bind Symbols (`:lisp :repl_bind`):** Traverses the expanded forms
 again. It replaces symbolic function/macro names with direct pointers to their
 function objects and known constant symbols (like `+char_lf`) with their
 values. This significantly speeds up evaluation by avoiding runtime lookups.
 
-4. **Evaluate (`lisp :repl_eval`):** Executes the fully expanded and pre-bound
+4. **Evaluate (`:lisp :repl_eval`):** Executes the fully expanded and pre-bound
 code.
 
     * Atoms evaluate to themselves (or their looked-up value for variables).
 
     * Lists are treated as function/macro/special form calls. The operator is
     resolved, arguments are (conditionally) evaluated, and the operation is
-    applied via `lisp :repl_apply`.
+    applied via `:lisp :repl_apply`.
 
 ### Seamless Integration with Lower Layers
 
@@ -213,7 +213,7 @@ ChrysaLisp's Lisp is not an isolated island. It's deeply integrated with the
 system:
 
 * **FFI (Foreign Function Interface):** The `(ffi ...)` mechanism (implemented
-by `lisp :lisp_ffi`) allows Lisp to call VP functions directly. A vast number
+by `:lisp :lisp_ffi`) allows Lisp to call VP functions directly. A vast number
 of built-in Lisp functions are actually FFI wrappers around performant VP code
 (see `class/lisp/root.inc` and various `lisp.vp` files).
 

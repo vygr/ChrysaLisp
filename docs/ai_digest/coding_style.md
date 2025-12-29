@@ -352,7 +352,7 @@ implemented as VP functions for performance reasons. ! eg.
 *   **`(set <object> <key-expression> <value>)`**: The **Inherited Property
     Mutator**.
 
-    - It performs an `hmap :search`, starting with the `<object>` and **searching
+    - It performs an `:hmap :search`, starting with the `<object>` and **searching
       up the parent chain** until it finds the property `<key>`.
 
     - It then **mutates the value of that property on whichever ancestor it was
@@ -486,7 +486,7 @@ ChrysaLisp's evaluation model includes a powerful **pre-binding** stage that occ
 
 ### The `repl_bind` Pass: An Ahead-of-Time Optimization
 
-Before a Lisp form is executed, it passes through the `lisp :repl_bind` stage.
+Before a Lisp form is executed, it passes through the `:lisp :repl_bind` stage.
 This pass walks the macro-expanded code tree and attempts to resolve a
 `function` or `constant` symbol to its definition in the current environment.
 
@@ -692,7 +692,7 @@ optimization stage is to write a pure VP assembly method.
 and benchmarked C-Script version, and you have determined that even greater
 performance is required. This level of optimization requires careful thought but
 yields the best results. The core kernel and class libraries are the ultimate
-expression of this stage. The `canvas :fpoly` method is a prime example of a
+expression of this stage. The `:canvas :fpoly` method is a prime example of a
 complex algorithm implemented at this level for maximum performance.
 
 **Example: `sum-of-squares` as an Optimized VP Method**

@@ -22,7 +22,7 @@ Compile -> Link -> Evaluate -> Print** pipeline.
 
 ### The REPL Pipeline: A Step-by-Step Breakdown
 
-#### Phase 1: Read (`lisp :read`)
+#### Phase 1: Read (`:lisp :read`)
 
 This phase parses a stream of characters into an Abstract Syntax Tree (AST),
 which in ChrysaLisp is a nested structure of `list` vector objects.
@@ -34,8 +34,8 @@ which in ChrysaLisp is a nested structure of `list` vector objects.
     footprint.
 
 *   **Process:** It tokenizes the input stream, dispatching to specialized
-    readers for different data types: `lisp :read_num` for numbers,
-    `lisp :read_str` for strings, and `lisp :read_sym` for symbols, which are
+    readers for different data types: `:lisp :read_num` for numbers,
+    `:lisp :read_str` for strings, and `:lisp :read_sym` for symbols, which are
     then interned. The result is a raw, nested `list` structure representing the
     code.
 
@@ -46,7 +46,7 @@ which in ChrysaLisp is a nested structure of `list` vector objects.
 Before the AST is executed, it passes through two powerful transformation and
 optimization stages.
 
-#### Phase 2: Macro Expansion (`lisp :repl_expand`)
+#### Phase 2: Macro Expansion (`:lisp :repl_expand`)
 
 This is the first compilation pass. It performs source-to-source transformation.
 
@@ -68,7 +68,7 @@ This is the first compilation pass. It performs source-to-source transformation.
         `(defq name (lambda (args) ...))`. This provides a convenient syntax
         with absolutely no runtime performance penalty.
 
-#### Phase 3: Pre-Binding (`lisp :repl_bind`)
+#### Phase 3: Pre-Binding (`:lisp :repl_bind`)
 
 This is the second compilation pass, acting as an in-memory linker. It is the
 key to ChrysaLisp's O(1) lookup performance.
@@ -90,7 +90,7 @@ key to ChrysaLisp's O(1) lookup performance.
 
 ---
 
-### Phase 4: Evaluation (`lisp :repl_eval`)
+### Phase 4: Evaluation (`:lisp :repl_eval`)
 
 This is the "runtime" phase. Thanks to the preceding passes, its job is
 dramatically simplified.
