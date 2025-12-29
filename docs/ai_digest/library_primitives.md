@@ -1280,13 +1280,13 @@ These functions are part of the VP assembler and the build system.
 
     * `(compile files &optional *abi* *cpu*)`
 
-*   **`make-merge`**: Merges a string into a string list if it's not already present.
-
-    * `(make-merge list-of-strings string-to-add)`
-
 *   **`all-vp-files`**: Returns a list of all `.vp` files.
 
     * `(all-vp-files) -> (file ...)`
+
+*   **`all-app-files`**: Returns a list of all application `.vp` files.
+
+    * `(all-app-files) -> (file ...)`
 
 *   **`all-class-files`**: Returns a list of all `class.inc` files.
 

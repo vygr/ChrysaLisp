@@ -92,11 +92,6 @@
 ; make system
 ;;;;;;;;;;;;;
 
-(defun make-merge (l sl)
-	;merge string into string list
-	(each (lambda (s)
-		(unless (find s l) (push l s))) sl))
-
 (defun all-vp-files ()
 	;filter to only the .vp files, strip off the leading "./"
 	(filter (# (not (starts-with "apps/" %0))) (files-all "." '(".vp") 2)))
@@ -148,7 +143,7 @@
 			(each include (all-class-files))
 			(each-mergeable (#
 				(bind '(d p) (make-info %0))
-				(make-merge files d)
+				(merge files d)
 				(def info (sym %0) (list d (map (const func-obj-path) p)))) files)))
 		;filter to only the .vp files
 		(setq files (filter (# (ends-with ".vp" %0)) files))
@@ -156,7 +151,7 @@
 		(setq files (filter (#
 			(bind '(d p) (get (sym %0) info))
 			(setq p (reduce min (map (const file-age) p) +max_long))
-			(each-mergeable (# (make-merge d (first (get (sym %0) info)))) d)
+			(each-mergeable (# (merge d (first (get (sym %0) info)))) d)
 			(some (# (>= %0 p)) (map (const file-age) d))) files))
 		;return the list to compile
 		files)) *abi* *cpu*))
@@ -169,7 +164,7 @@
 			(each include (all-class-files))
 			(defq *prods* (list))
 			;lists of all file imports and products
-			(each-mergeable (# (make-merge *prods* (bind '(d %0) (make-info %0))) (make-merge l d))
+			(each-mergeable (# (merge *prods* (bind '(d %0) (make-info %0))) (merge l d))
 				(defq l (all-vp-files))) *prods*)) *abi* *cpu*))
 
 (defun make-all (&optional files *abi* *cpu*)
@@ -248,8 +243,7 @@
 ;module
 (export-symbols
 	'(all-vp-files all-class-files
-	make make-all make-merge
-	make-platforms make-all-platforms
+	make make-all make-platforms make-all-platforms
 	remake remake-all make-app-platforms
 	remake-platforms remake-all-platforms
 	compile-test make-test))

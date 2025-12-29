@@ -136,7 +136,7 @@
 						type (sym (first line_split)) name (second line_split))
 					(case type
 						(include
-							(make-merge *imports* (list (path-to-absolute name file))))
+							(merge *imports* (list (path-to-absolute name file))))
 						(def-class
 							(push classes (list name (third line_split))))
 						(dec-method
