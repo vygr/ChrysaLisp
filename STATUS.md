@@ -27,7 +27,7 @@ Added `make apps` option to build just the application level Jit native code.
 VP class vtable and super info now kept in compiler var environments `*vtables*`
 and `*supers*`.
 
-Long awaited change for VP class names to be `:` prefixed. So `list` -> `:list`
+Long awaited change for VP class names to be key symbols. So `list` -> `:list`
 etc.
 
 Make command `release` and `debug` options to set build mode for `it` and `apps`
