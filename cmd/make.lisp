@@ -5,7 +5,8 @@
 
 (defq usage `(
 (("-h" "--help")
-"Usage: make [options] [all] [boot] [platforms] [doc] [it] [test]
+"Usage: make [options] [all] [boot] [platforms] [doc] [it] [apps]
+	[release] [debug] [test]
 
 	options:
 		-h --help: this help info.
@@ -16,6 +17,8 @@
 	docs:       scan source files and create documentation.
 	it:         all of the above !
 	apps:       only the apps !
+	release:    it/apps release mode.
+	debug:      it/apps debug mode.
 	test:       test make timings.")
 ))
 
@@ -198,11 +201,15 @@
 			(defq stdio (create-stdio))
 			(defq args (options stdio usage)))
 		(each (# (def (penv) (sym %0) (find %0 args)))
-			'("all" "platforms" "boot" "docs" "it" "apps" "test" "ai"))
+			'("all" "platforms" "boot" "docs" "it" "apps"
+				"release" "debug" "test" "ai"))
+		(defq mode :nil)
+		(if release (setq mode 0))
+		(if debug (setq mode 1))
 		(cond
 			(test (make-test))
-			(it (remake-all-platforms) (make-docs))
-			(apps (make-app-platforms))
+			(it (remake-all-platforms mode) (make-docs))
+			(apps (make-app-platforms mode))
 			((and boot all platforms) (remake-all-platforms))
 			((and boot all) (remake-all))
 			((and boot platforms) (remake-platforms))

@@ -240,7 +240,8 @@ Usage: lisp [options] [path] ...
 ```
 ## make
 ```code
-Usage: make [options] [all] [boot] [platforms] [doc] [it] [test]
+Usage: make [options] [all] [boot] [platforms] [doc] [it] [apps]
+	[release] [debug] [test]
 
 	options:
 		-h --help: this help info.
@@ -251,6 +252,8 @@ Usage: make [options] [all] [boot] [platforms] [doc] [it] [test]
 	docs:       scan source files and create documentation.
 	it:         all of the above !
 	apps:       only the apps !
+	release:    it/apps release mode.
+	debug:      it/apps debug mode.
 	test:       test make timings.
 ```
 ## mv

@@ -188,35 +188,18 @@
 (defq +supported_abi ''(AMD64 WIN64 ARM64 RISCV64)
 	+supported_cpu ''(x86_64 x86_64 arm64 riscv64))
 
-(defun make-platforms ()
-	(defq files (all-vp-files))
-	(each (# (make files %0 %1)) +supported_abi +supported_cpu)
-	(defq *debug_mode* 0)
-	(make files 'VP64 'vp64))
+(defun make-them (action &optional mode files)
+	(setd files (all-vp-files))
+	(if mode (defq *debug_mode* mode))
+	(each (# (action files %0 %1)) +supported_abi +supported_cpu)
+	(ifn mode (defq *debug_mode* 0))
+	(action files 'VP64 'vp64))
 
-(defun make-all-platforms ()
-	(defq files (all-vp-files))
-	(each (# (make-all files %0 %1)) +supported_abi +supported_cpu)
-	(defq *debug_mode* 0)
-	(make-all files 'VP64 'vp64))
-
-(defun remake-platforms ()
-	(defq files (all-vp-files))
-	(each (# (remake files %0 %1)) +supported_abi +supported_cpu)
-	(defq *debug_mode* 0)
-	(remake files 'VP64 'vp64))
-
-(defun remake-all-platforms ()
-	(defq files (all-vp-files))
-	(each (# (remake-all files %0 %1)) +supported_abi +supported_cpu)
-	(defq *debug_mode* 0)
-	(remake-all files 'VP64 'vp64))
-
-(defun make-app-platforms ()
-	(defq files (all-app-files))
-	(each (# (make-all files %0 %1)) +supported_abi +supported_cpu)
-	(defq *debug_mode* 0)
-	(make-all files 'VP64 'vp64))
+(defun make-platforms (&optional mode) (make-them (const make) mode))
+(defun make-all-platforms (&optional mode) (make-them (const make-all) mode))
+(defun remake-platforms (&optional mode) (make-them (const remake) mode))
+(defun remake-all-platforms (&optional mode) (make-them (const remake-all) mode))
+(defun make-app-platforms (&optional mode) (make-them (const make-all) mode (all-app-files)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;
 ; compile and make tests

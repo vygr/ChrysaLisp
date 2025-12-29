@@ -30,6 +30,10 @@ and `*supers*`.
 Long awaited change for VP class names to be `:` prefixed. So `list` -> `:list`
 etc.
 
+Make command `release` and `debug` options to set build mode for `it` and `apps`
+platform build actions. Default is to build native platforms in debug mode and
+VP64 in release mode. These settings will override everything to the given mode.
+
 ------
 
 New `(nql obj1 obj2) -> :t | :nil` built in function.
