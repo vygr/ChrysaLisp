@@ -64,9 +64,9 @@ direct manipulation of the lexical environment.
 
 The pattern consists of three steps:
 
-1.  **`(env-push)`**: A new, temporary `:hmap` is created, with its parent set to
-    the current environment. This establishes a private, temporary scope for the
-    module's internal definitions.
+1.  **`(env-push)`**: A new, temporary `:hmap` is created, with its parent set
+    to the current environment. This establishes a private, temporary scope for
+    the module's internal definitions.
 
 2.  **`(export-symbols)` / `(export-classes)`**: The module explicitly defines
     which of its symbols should be visible to the outside world. The `export`
@@ -82,24 +82,24 @@ without adding any complexity to the core `eval` mechanism.
 
 ## The System-Wide Environment Architecture
 
-These mechanisms operate within a clear, hierarchical environment structure that is fundamental to the OS.
+These mechanisms operate within a clear, hierarchical environment structure that
+is fundamental to the OS.
 
 *   **The Environment Tree:** Every task in ChrysaLisp operates within its own
     branch of a global environment tree.
 
     * **`*root_env*`**: At the top is a single, shared `*root_env*`. All tasks
-        inherit from this root. It contains the most fundamental primitives
-        defined in `class/lisp/root.inc`.
+      inherit from this root. It contains the most fundamental primitives
+      defined in `class/lisp/root.inc`.
 
     * **Task Branches**: When a new task is created, it gets its own
-        `lisp_environment`, a child of the `*root_env*`. This ensures that
-        bindings created by one task do not interfere with another, while still
-        providing access to the shared global functions.
+      `lisp_environment`, a child of the `*root_env*`. This ensures that
+      bindings created by one task do not interfere with another, while still
+      providing access to the shared global functions.
 
     * **Automatic Imports**: Every task automatically imports
-        `class/lisp/task.inc` into its local environment, guaranteeing that
-        essential concurrency primitives like `(task-sleep)` are always
-        available.
+      `class/lisp/task.inc` into its local environment, guaranteeing that
+      essential concurrency primitives like `(task-sleep)` are always available.
 
 *   **System Bootstrapping via Root Injection:** The GUI service is a prime
     example of this architecture in action. Upon initialization, it **imports
@@ -137,7 +137,7 @@ support a `:prefix` option.
   :prefix "vec:")
 ```
 
-This would result in `vec:vec-add` and `vec:vec-sub` being defined in the
+This would result in `vec :vec-add` and `vec :vec-sub` being defined in the
 current environment by constructing new symbols during the transfer phase.
 
 #### Adding Renaming (Aliasing)

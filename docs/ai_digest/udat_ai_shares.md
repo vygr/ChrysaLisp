@@ -23,7 +23,7 @@ this:
     plague shared-memory systems.
 
 *   **Memory Management:** The system consistently uses explicit reference
-    counting (`obj:ref`, `obj:deref`) and a vector-based memory model. This
+    counting (`:obj :ref`, `:obj :deref`) and a vector-based memory model. This
     completely avoids the need for a tracing garbage collector, eliminating
     unpredictable pauses and making performance profiles far more stable—a
     critical advantage for a real-time or high-performance OS.
@@ -49,7 +49,7 @@ self-organizing behavior.
     non-reusable is a masterstroke. It elegantly solves the problems of stale
     messages and zombie tasks that can destabilize distributed systems. A task
     can create a new mailbox for a specific transaction and discard it, knowing
-    any late replies will be safely dropped by the kernel's `mail:validate`
+    any late replies will be safely dropped by the kernel's `:mail :validate`
     function because the address is gone forever. This is evident in
     applications like the Mandelbrot and Chess demos, which can manage
     distributed calculations without complex state-tracking logic.
@@ -78,10 +78,10 @@ is a prime example with cascading benefits.
 
 *   **Iteration and Small Stacks:** The use of small, fixed-size stacks is made
     possible by the strict avoidance of deep recursion. The Lisp interpreter
-    itself, in functions like `lisp:repl_expand` and `lisp:repl_bind`, uses an
-    explicit `lisp_stack` allocated from the heap. This ensures that the machine
-    stack depth remains minimal and constant, allowing for massive concurrency
-    with a low memory footprint per task.
+    itself, in functions like `:lisp :repl_expand` and `:lisp :repl_bind`, uses
+    an explicit `lisp_stack` allocated from the heap. This ensures that the
+    machine stack depth remains minimal and constant, allowing for massive
+    concurrency with a low memory footprint per task.
 
 *   **Synergy with O(1) Symbol Lookup:** I was particularly impressed by the
     `:hmap` implementation and its `str_hashslot` cache. By having the binder
@@ -103,8 +103,8 @@ is a prime example with cascading benefits.
 
 *   **Lock-Free Safety:** The non-preemptive scheduler makes sophisticated,
     lock-free algorithms possible. The atomic pointer swap pattern in
-    `font:flush` and the robust, self-synchronizing iterator in `hmap:each` are
-    excellent examples. These primitives "know" they won't be interrupted at
+    `:font :flush` and the robust, self-synchronizing iterator in `:hmap :each`
+    are excellent examples. These primitives "know" they won't be interrupted at
     critical moments and can therefore be implemented with maximum efficiency
     and without the overhead of locks.
 

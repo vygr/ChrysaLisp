@@ -75,20 +75,20 @@ obj
 *   **Key Methods:**
 
     * `:ref` / `:deref`: The core of the reference counting memory management
-        system.
+      system.
 
     * `:init` / `:deinit`: The object constructor and destructor logic.
-        `:deinit` is `virtual`, allowing subclasses to clean up their specific
-        resources.
+      `:deinit` is `virtual`, allowing subclasses to clean up their specific
+      resources.
 
     * `:type`: A `virtual` method that returns a `:list` of symbols representing
-        the object's class hierarchy (e.g., `(:real :fixed :num :obj)`).
+      the object's class hierarchy (e.g., `(:real :fixed :num :obj)`).
 
     * `:hash`: A `virtual` method for generating a hash value, essential for use
-        in `:hset` and `:hmap`.
+      in `:hset` and `:hmap`.
 
     * `:print`: A `virtual` method for generating a string representation of the
-        object.
+      object.
 
 **`:seq`** (Sequence)
 
@@ -128,11 +128,11 @@ obj
     * `:read_char` / `:write_char`: Handle single bytes.
 
     * `:flush`: A `virtual` method to commit any buffered data to the underlying
-        source.
+      source.
 
     * `:read_next` / `:write_next`: `virtual` methods that subclasses must
-        implement to get more data from or send data to the underlying source
-        when the buffer is exhausted/full.
+      implement to get more data from or send data to the underlying source when
+      the buffer is exhausted/full.
 
 ### 2. Concrete Data Structures
 
@@ -162,22 +162,21 @@ obj
 *   **Inherits From:** `:array`
 
 *   **Purpose:** The primary general-purpose container for storing collections
-    of **other objects**. It specializes `:array` by making its lifecycle methods
-    object-aware.
+    of **other objects**. It specializes `:array` by making its lifecycle
+    methods object-aware.
 
 *   **Key Methods:**
 
-    * `:deinit` / `:clear`: Overridden to call `obj:deref` on every object it
-        contains, ensuring proper reference-counted memory management.
+    * `:deinit` / `:clear`: Overridden to call `:obj :deref` on every object it
+      contains, ensuring proper reference-counted memory management.
 
-    * `:set_elem`: Overridden to `deref` the old object at the target index
-        before replacing it.
+    * `:set_elem`: Overridden to `:deref` the old object at the target index
+      before replacing it.
 
     * `:ref_elem`: Returns an element and increments its reference count.
 
     * It inherits `:push_back`, `:pop_back`, etc., but because it stores object
-        pointers, these methods effectively manage lists of heterogeneous
-        objects.
+      pointers, these methods effectively manage lists of heterogeneous objects.
 
 **`:str`** (String)
 
@@ -189,7 +188,7 @@ obj
 *   **Key Methods:**
 
     * `:create_from_cstr`, `:create_from_file`, `:create_from_long`:
-        Constructors for various sources.
+      Constructors for various sources.
 
     * `:append`, `:cat`: Creates new strings by concatenation.
 
@@ -219,12 +218,12 @@ obj
 
 *   **Inherits From:** `:str`
 
-*   **Purpose:** A specialized string used to represent the unique node ID of
-    a ChrysaLisp kernel instance.
+*   **Purpose:** A specialized string used to represent the unique node ID of a
+    ChrysaLisp kernel instance.
 
 *   **Key Methods:**
     * `:hash`: Overridden to compute the hash based on the 128-bit `node_id`
-        stored within its string data, rather than the entire string content.
+      stored within its string data, rather than the entire string content.
 
 **`:netid`**
 
@@ -248,8 +247,8 @@ obj
     * `:create`: Creates a `:num` object from a raw `long`.
 
     * Arithmetic methods (`:add`, `:sub`, `:mul`, etc.): These methods uniquely
-        operate on a `:list` of `:num` objects, performing a reduction (e.g.,
-        `(+)` sums the list) and returning a *new* `:num` object with the result.
+      operate on a `:list` of `:num` objects, performing a reduction (e.g.,
+      `(+)` sums the list) and returning a *new* `:num` object with the result.
 
 **`:fixed`**
 
@@ -261,7 +260,7 @@ obj
 *   **Key Methods:**
 
     * Overrides arithmetic methods (`:mul`, `:div`) to implement correct
-        fixed-point logic (e.g., shifting after multiplication).
+      fixed-point logic (e.g., shifting after multiplication).
 
     * Overrides `:print` to display the number with a decimal point.
 
@@ -276,8 +275,8 @@ obj
 *   **Key Methods:**
 
     * Overrides all arithmetic and mathematical methods (`:add`, `:sub`, `:sin`,
-        `:sqrt`, etc.) to delegate the calculations to the `:sys_math` library,
-        which contains the low-level floating-point routines.
+      `:sqrt`, etc.) to delegate the calculations to the `:sys_math` library,
+      which contains the low-level floating-point routines.
 
 ### 4. Vectorized Numerical Types
 
@@ -291,9 +290,9 @@ obj
 *   **Key Methods:**
 
     * Arithmetic methods (`:add`, `:sub`, `:mul`, `:div`): These methods take
-        two source `:nums` vectors and perform the operation on each
-        corresponding pair of elements, storing the result in a destination
-        vector. They are implemented using optimized `vec-loop` macros.
+      two source `:nums` vectors and perform the operation on each corresponding
+      pair of elements, storing the result in a destination vector. They are
+      implemented using optimized `vec-loop` macros.
 
     * `:dot`: Computes the dot product.
 
@@ -308,8 +307,8 @@ obj
 *   **Key Methods:**
 
     * Overrides arithmetic methods like `:mul` and `:div` to apply fixed-point
-        logic (e.g., bit-shifting) to each element-wise operation within the
-        vector loop.
+      logic (e.g., bit-shifting) to each element-wise operation within the
+      vector loop.
 
 **`:reals`**
 
@@ -321,8 +320,8 @@ obj
 *   **Key Methods:**
 
     * Overrides all arithmetic methods to call the corresponding `:sys_math`
-        routine (e.g., `:r_add`, `:r_mul`) for each element pair inside the
-        vector loop.
+      routine (e.g., `:r_add`, `:r_mul`) for each element pair inside the vector
+      loop.
 
 ### 5. I/O Stream Implementations
 
@@ -335,7 +334,7 @@ obj
 
 *   **Key Methods:**
 
-    * `:init`: Opens a file using `host_os:pii_open`.
+    * `:init`: Opens a file using `:host_os :pii_open`.
 
     * `:deinit`: Flushes data and closes the file handle.
 
@@ -356,11 +355,11 @@ obj
     * `:init`: Takes a `:str` object to use as its backing buffer.
 
     * `:ref_string` / `:claim_string`: Methods to get the underlying `:str`
-        object.
+      object.
 
     * `:write_next`: When the buffer is full, it automatically allocates a new,
-        larger `:str` object and copies the old content over, making it
-        dynamically resizable.
+      larger `:str` object and copies the old content over, making it
+      dynamically resizable.
 
 **`:mstream`** (Memory Stream)
 
@@ -389,11 +388,13 @@ obj
 
 *   **Key Methods:**
 
-    * `in:next_msg`: The core logic for handling out-of-order message fragments
-        and ensuring the application only sees a contiguous stream of data.
+    * `:in :next_msg`: The core logic for handling out-of-order message
+      fragments and ensuring the application only sees a contiguous stream of
+      data.
 
-    * `out:flush`: Bundles the contents of its write buffer into a `stream_msg`
-        and sends it via `sys_mail:send`, including sequence numbers.
+    * `:out :flush`: Bundles the contents of its write buffer into a
+      `stream_msg` and sends it via `:sys_mail :send`, including sequence
+      numbers.
 
 ### 6. System and Application-Level Classes
 
@@ -402,16 +403,16 @@ obj
 *   **Inherits From:** `:obj`
 
 *   **Purpose:** Represents an instance of the Lisp interpreter. It holds the
-    execution context for a task, including its environment (`:hmap`), stack, and
-    references to core symbols and functions.
+    execution context for a task, including its environment (`:hmap`), stack,
+    and references to core symbols and functions.
 
 *   **Key Methods:**
 
     * `:init`: Sets up the Lisp environment, either by creating the root
-        environment or linking to the shared one.
+      environment or linking to the shared one.
 
     * `:repl_eval`, `:repl_apply`: The core of the evaluator and function
-        application logic.
+      application logic.
 
     * `:read`: The S-expression parser.
 
@@ -428,7 +429,7 @@ obj
 *   **Key Methods:**
 
     * `:print`: Cleverly extracts the function's symbolic path for a readable
-        representation (e.g., `#<sys/task/sleep>`).
+      representation (e.g., `#<sys/task/sleep>`).
 
 **`:hset`** / **`:hmap`** (Hash Set / Hash Map)
 
@@ -441,13 +442,13 @@ obj
 
 *   **Key Methods:**
 
-    * `hmap:find`: The hyper-optimized O(1) lookup mechanism that uses the
-        `str_hashslot` cache on symbols.
+    * `:hmap :find`: The hyper-optimized O(1) lookup mechanism that uses the
+      `str_hashslot` cache on symbols.
 
-    * `hmap:search`: Traverses the `:parent` chain to find a binding in an outer
-        scope.
+    * `:hmap :search`: Traverses the `:parent` chain to find a binding in an
+      outer scope.
 
-    * `hmap:insert` / `:set`: Adds or updates a key-value pair.
+    * `:hmap :insert` / `:set`: Adds or updates a key-value pair.
 
 **`:stdio`**
 
@@ -460,7 +461,7 @@ obj
 *   **Key Methods:**
 
     * `:init`: Creates the `:in` and `:out` streams based on the mailboxes
-        provided in the task's initial creation message.
+      provided in the task's initial creation message.
 
 **`:dim`** (Dimension)
 
