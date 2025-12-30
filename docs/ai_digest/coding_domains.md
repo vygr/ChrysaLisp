@@ -73,7 +73,7 @@ stack management, looking somewhat like C logic wrapped in S-expressions.
   pattern-matching assembler that generates moves, loads, and stores based on
   operand types.
 
-	* Syntax: `(assign {dest1, dest2} {src1, src2})`
+	* Syntax: `(assign {src1, src2} {dest1, dest2})`
 
 * **Control Flow:** Structured assembly macros: `vpif`, `else`, `loop-while`,
   `loop-start`, `break`.
@@ -129,7 +129,7 @@ stack.
   specific physical registers.
 
 * **Direct Instructions:** You use opcodes like `vp-add-rr` (Register-Register),
-  `vp-cpy-ir` (Immediate-Register), `vp-lea-i` (Load Effective Address).
+  `vp-cpy-ir` (Indirect-Register), `vp-lea-i` (Load Effective Address).
 
 * **Stack Management:** You must manually `vp-push` and `vp-pop` to preserve
   registers.
@@ -186,10 +186,6 @@ from GUI applications or System Services.
 
 * **Arguments:** Arguments are passed in via a specific `options` structure
   processing the `:stdio` args.
-
-* **Concurrency:** They usually run with `task-count -1` (via `pipe-run`),
-  meaning they are prioritized for throughput rather than cooperative
-  multitasking responsiveness.
 
 **Example:**
 
