@@ -203,9 +203,7 @@
 		(each (# (def (penv) (sym %0) (find %0 args)))
 			'("all" "platforms" "boot" "docs" "it" "apps"
 				"release" "debug" "test" "ai"))
-		(defq mode :nil)
-		(if release (setq mode 0))
-		(if debug (setq mode 1))
+		(defq mode (or (if debug 1) (if release 0)))
 		(cond
 			(test (make-test))
 			(it (remake-all-platforms mode) (make-docs))
