@@ -133,7 +133,7 @@
 
 	(def-vars
 		(ptr user this old_stack)
-		(ulong tex_id))
+		(long tex_id))
 
 	(vp-cpy-rr :rsp :r1)
 	(push-scope)

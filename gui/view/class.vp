@@ -457,7 +457,7 @@
 
 	(def-struct local 0
 		(ptr this view)
-		(ulong id))
+		(long id))
 
 	;save inputs
 	(vp-alloc local_size)
@@ -575,11 +575,11 @@
 (def-method :view :set_flags)
 	;inputs
 	;:r0 = view object (ptr)
-	;:r1 = flag values (ulong)
-	;:r2 = flag mask (ulong)
+	;:r1 = flag values (long)
+	;:r2 = flag mask (long)
 	;outputs
 	;:r0 = view object (ptr)
-	;:r1 = new flag values (ulong)
+	;:r1 = new flag values (long)
 	;trashes
 	;:r1-:r4
 

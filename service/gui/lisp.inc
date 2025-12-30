@@ -16,7 +16,7 @@
 	(enum mouse key_down key_up action gui wheel enter exit))
 
 (structure +ev_msg 0
-	(ulong target_id type))
+	(long target_id type))
 
 (structure +ev_msg_mouse +ev_msg_size
 	(uint buttons count)
@@ -30,7 +30,7 @@
 	(uint scode key mod))
 
 (structure +ev_msg_action +ev_msg_size
-	(ulong source_id))
+	(long source_id))
 
 (structure +ev_msg_gui +ev_msg_size)
 

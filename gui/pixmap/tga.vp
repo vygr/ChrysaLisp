@@ -27,10 +27,10 @@
 	(def-vars
 		(ptr this stream)
 		(puint data data_end)
-		(ulong bit_pool)
+		(long bit_pool)
 		(struct header tga_size)
 		(int length bit_pool_size)
-		(ulong col))
+		(long col))
 
 	;save inputs
 	(push-scope)

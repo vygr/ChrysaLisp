@@ -34,6 +34,10 @@ Make command `release` and `debug` options to set build mode for `it` and `apps`
 platform build actions. Default is to build native platforms in debug mode and
 VP64 in release mode. These settings will override everything to the given mode.
 
+Structure type `real` now supported. This replaces the `ulong` type which was
+actually redundant. Mandelbrot and Raymarch demos updated to use this for
+passing `real` fields in messages.
+
 ------
 
 New `(nql obj1 obj2) -> :t | :nil` built in function.

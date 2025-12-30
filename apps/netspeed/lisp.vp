@@ -22,7 +22,7 @@
 
 	(def-vars
 		(ptr this args mem1 mem2)
-		(ulong regs_vops memory_vops reals_vops start end cnt))
+		(long regs_vops memory_vops reals_vops start end cnt))
 
 	(push-scope)
 	(entry {this, args})

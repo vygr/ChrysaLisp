@@ -38,7 +38,7 @@
 
 (def-struct lk_shmem 0
 	(struct chan_1 lk_chan_size)
-	(ulong towel)
+	(long towel)
 	(align lk_page_size)
 	(struct chan_2 lk_chan_size)
 	(align lk_page_size))

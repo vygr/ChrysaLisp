@@ -37,7 +37,7 @@
 
 	(def-vars
 		(ptr this vtable script stdin stdout stderr func)
-		(ulong ok))
+		(long ok))
 
 	(push-scope)
 	(entry :lisp :init {this, vtable, script, stdin, stdout, stderr})

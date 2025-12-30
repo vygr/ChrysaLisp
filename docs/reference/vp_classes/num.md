@@ -167,7 +167,7 @@ inputs
 :r0 = num (ptr)
 outputs
 :r0 = num (ptr)
-:r1 = hash code (ulong)
+:r1 = hash code (long)
 trashes
 :r1-:r4
 ```

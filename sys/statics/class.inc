@@ -10,7 +10,7 @@
 	;sys_task statics
 	(struct sys_task_kernel_node_id node_id_size)
 	(ptr sys_task_current_tcb sys_task_kernel_tcb)
-	(ulong sys_task_then)
+	(long sys_task_then)
 	(uint sys_task_task_count)
 	(align)
 	;keep these together
@@ -63,13 +63,13 @@
 
 	;font statics
 	(ptr font_intern)
-	(ulong font_count)
+	(long font_count)
 	(align)
 
 	;gui statics
 	(struct gui_rect_heap hp_heap_size)
 	(ptr gui_init gui_screen gui_temps)
-	(ulong gui_next_id)
+	(long gui_next_id)
 	(uint gui_dirty_flag gui_old_region_index gui_flags)
 	(int gui_mouse_x gui_mouse_y)
 	(align)

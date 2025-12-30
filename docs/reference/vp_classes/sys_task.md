@@ -95,7 +95,7 @@ trashes
 
 ```code
 inputs
-:r0 = time delay in usec (ulong)
+:r0 = time delay in usec (long)
 trashes
 none
 info
@@ -153,7 +153,7 @@ suspend current task, switch to next task
 
 ```code
 outputs
-:r0 = current time (ulong)
+:r0 = current time (long)
 trashes
 :r0-:r14
 info

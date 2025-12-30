@@ -148,7 +148,7 @@ variable declaration functions.
 		(int x y ...)
 		(uint x y ...)
 		(long x y ...)
-		(ulong x y ...)
+		(real x y ...)
 		(ptr this that ...)
 		(pptr p_this p_that ...)
 		(pbyte p_x p_y ...)
@@ -158,7 +158,7 @@ variable declaration functions.
 		(pint p_x p_y ...)
 		(puint p_x p_y ...)
 		(plong p_x p_y ...)
-		(pulong p_x p_y ...)
+		(preal p_x p_y ...)
 		(union (...) (...) ...)
 		...)
 ```
@@ -205,13 +205,13 @@ Implementation of the function is defined in the `sys/mail/class.vp` file.
 (def-method :sys_mail :declare)
 	;inputs
 	;:r0 = mailbox name c string (pubyte)
-	;:r1 = mailbox id (ulong)
+	;:r1 = mailbox id (long)
 	;trashes
 	;:r0-:r14
 
 	(def-vars
 		(ptr statics name)
-		(ulong id))
+		(long id))
 
 	(push-scope)
 	(entry :sys_mail :declare {name, id})

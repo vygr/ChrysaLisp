@@ -40,7 +40,7 @@ are aligned to a `+ptr_size`.
 	(offset pathname))
 ```
 
-* `ulong/ptr ln_fnode`: In a bound function the address of the next function in
+* `long/ptr ln_fnode`: In a bound function the address of the next function in
 the function list. When unbound -1.
 
 * `ushort +fn_header_length`: Total length of the function in bytes, including

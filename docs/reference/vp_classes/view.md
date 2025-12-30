@@ -247,11 +247,11 @@ trashes
 ```code
 inputs
 :r0 = view object (ptr)
-:r1 = flag values (ulong)
-:r2 = flag mask (ulong)
+:r1 = flag values (long)
+:r2 = flag mask (long)
 outputs
 :r0 = view object (ptr)
-:r1 = new flag values (ulong)
+:r1 = new flag values (long)
 trashes
 :r1-:r4
 ```

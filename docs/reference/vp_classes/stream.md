@@ -111,12 +111,12 @@ trashes
 inputs
 :r0 = stream object (ptr)
 :r1 = num bits (uint)
-:r2 = bit pool (ulong)
+:r2 = bit pool (long)
 :r3 = bit pool size (uint)
 outputs
 :r0 = stream object (ptr)
 :r1 = -1 if eof, else data (long)
-:r2 = bit pool (ulong)
+:r2 = bit pool (long)
 :r3 = bit pool size (uint)
 trashes
 :r1-:r14
@@ -194,11 +194,11 @@ inputs
 :r0 = stream object (ptr)
 :r1 = data (uint)
 :r2 = num bits (uint)
-:r3 = bit pool (ulong)
+:r3 = bit pool (long)
 :r4 = bit pool size (uint)
 outputs
 :r0 = stream object (ptr)
-:r1 = bit pool (ulong)
+:r1 = bit pool (long)
 :r2 = bit pool size (uint)
 trashes
 :r1-:r14

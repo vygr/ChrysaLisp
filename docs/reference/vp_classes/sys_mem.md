@@ -64,7 +64,7 @@ trashes
 inputs
 :r0 = address (ptr)
 :r1 = length (bytes)
-:r2 = fill pattern (ulong)
+:r2 = fill pattern (long)
 outputs
 :r0 = address end (ptr)
 trashes

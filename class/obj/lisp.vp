@@ -1,6 +1,6 @@
 (include "lib/asm/func.inc")
 (include "././str/class.inc")
-(include "././num/class.inc")
+(include "././real/class.inc")
 (include "././lisp/class.inc")
 
 (def-method :obj :lisp_get)
@@ -64,7 +64,9 @@
 			(assign `((,obj ,offset ui)) `(,obj))
 			(break)
 		(default)
-			(assign `((,obj ,offset)) `(,obj))
+			(call :real :create `((,obj ,offset)) `(,args))
+			(exit :obj :lisp_get `(,this ,args))
+			(vp-ret)
 		(endswitch)
 	(endif)
 	(call :num :create `(,obj) `(,args))

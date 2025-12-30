@@ -49,10 +49,10 @@
 ;;;;;;;;;;;;;;;;;
 
 (def-struct node_id 0
-	(ulong node1 node2))
+	(long node1 node2))
 
 (def-struct net_id 0
-	(ulong mbox_id)
+	(long mbox_id)
 	(struct node_id node_id_size))
 
 (def-struct mbox ln_node_size
@@ -61,7 +61,7 @@
 	(uint id))
 
 (def-struct msg ln_node_size
-	(ulong timestamp)
+	(long timestamp)
 	(struct dest net_id_size)
 	(struct src net_id_size)
 	(uint frag_length frag_offset total_length)

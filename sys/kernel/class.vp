@@ -28,7 +28,7 @@
 		(ptr statics mbox_addr msg data tuple key best_nodes)
 		(pptr iter_begin iter_end)
 		(struct node_id node_id_size)
-		(ulong time)
+		(long time)
 		(uint link_cnt best_cnt best_rand))
 
 	(push-scope)
@@ -492,7 +492,7 @@
 
 	(def-struct local 0
 		(struct node_id node_id_size)
-		(ulong now))
+		(long now))
 
 	(vp-alloc local_size)
 
@@ -566,11 +566,11 @@
 (vp-label 'purge_mail)
 	;inputs
 	;:r0 = mail list (ptr)
-	;:r1 = now (ulong)
+	;:r1 = now (long)
 
 	(def-struct local 0
 		(ptr next)
-		(ulong now))
+		(long now))
 
 	(vp-rdef (time now node next))
 

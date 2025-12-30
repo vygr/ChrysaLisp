@@ -444,7 +444,7 @@
 ; (mail-timeout mbox ns id) -> mbox
 
 (defq *root_env* (env)
-	+byte_size 1 +short_size 2 +int_size 4 +long_size 8 +ptr_size 8
+	+byte_size 1 +short_size 2 +int_size 4 +long_size 8 +real_size 8 +ptr_size 8
 	+str_data 24 +mailbox_id_size 8 +node_id_size 16 +net_id_size 24
 	defmacro `(,macro (n a &rest _)
 		(,if (,get n (,penv)) (,throw "Macro override !, use redefmacro ? !" n))
@@ -1081,7 +1081,8 @@
 		((i ui) +int_size)
 		((s us) +short_size)
 		((b ub) +byte_size)
-		(:t +long_size)))
+		;ptr, long, real
+		(+long_size)))
 
 (defun time-in-seconds (_)
 	; (time-in-seconds time) -> str

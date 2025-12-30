@@ -17,7 +17,7 @@
 ```code
 inputs
 :r0 = view object (ptr)
-:r1 = texture id (ulong)
+:r1 = texture id (long)
 :r2 = color mod (argb)
 :r7 = x (pixels)
 :r8 = y (pixels)

@@ -204,7 +204,7 @@
 
 (def-method :sys_task :sleep)
 	;inputs
-	;:r0 = time delay in usec (ulong)
+	;:r0 = time delay in usec (long)
 	;trashes
 	;none
 	;info
@@ -284,7 +284,7 @@
 
 	(def-vars
 		(ptr func statics tcb)
-		(ulong tcb_size))
+		(long tcb_size))
 
 	(push-scope)
 	(entry :sys_task :start {func})
@@ -372,7 +372,7 @@
 
 (def-method :sys_task :timer)
 	;outputs
-	;:r0 = current time (ulong)
+	;:r0 = current time (long)
 	;trashes
 	;:r0-:r14
 	;info

@@ -5,7 +5,7 @@
 (import "class/obj/lisp.inc")
 
 (structure +texture +obj_size
-	(ulong handle)
+	(long handle)
 	(uint width height))
 
 (defun texture-metrics (this)

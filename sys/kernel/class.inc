@@ -20,7 +20,7 @@
 ;;;;;;;;;;;;;;;;;;
 
 (def-struct kn_msg 0
-	(ulong func key)
+	(long func key)
 	(struct reply_id net_id_size))
 
 (def-struct kn_msg_callback kn_msg_size
@@ -30,7 +30,7 @@
 	(offset pathname))
 
 (def-struct kn_msg_ping 0
-	(ulong func)
+	(long func)
 	(struct via node_id_size)
 	(struct origin node_id_size)
 	(uint session hops)

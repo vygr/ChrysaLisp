@@ -31,9 +31,9 @@ trashes
 
 ```code
 inputs
-:r0 = number (ulong)
+:r0 = number (long)
 :r1 = c string buffer (pubyte)
-:r2 = base (ulong)
+:r2 = base (long)
 outputs
 :r0 = c string buffer end (pubyte)
 trashes
@@ -69,9 +69,9 @@ trashes
 ```code
 inputs
 :r0 = c string (pubyte)
-:r1 = base (ulong)
+:r1 = base (long)
 outputs
-:r3 = num | fixed (ulong)
+:r3 = num | fixed (long)
 :r4 = fixed point position (uint)
 trashes
 :r0-:r4
@@ -83,7 +83,7 @@ trashes
 inputs
 :r0 = c string (pubyte)
 outputs
-:r3 = num | fixed (ulong)
+:r3 = num | fixed (long)
 :r4 = fixed point position (uint)
 trashes
 :r0-:r5

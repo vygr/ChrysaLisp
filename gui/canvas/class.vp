@@ -211,7 +211,7 @@
 (def-method :canvas :span_noclip)
 	;inputs
 	;:r0 = canvas object (ptr)
-	;:r1 = coverage (ulong)
+	;:r1 = coverage (long)
 	;:r7 = x (pixels)
 	;:r8 = y (pixels)
 	;:r9 = x1 (pixels)
@@ -284,7 +284,7 @@
 (def-method :canvas :span)
 	;inputs
 	;:r0 = canvas object (ptr)
-	;:r1 = coverage (ulong)
+	;:r1 = coverage (long)
 	;:r7 = x (pixels)
 	;:r8 = y (pixels)
 	;:r9 = x1 (pixels)

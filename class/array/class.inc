@@ -54,9 +54,9 @@
 	(dec-method :lisp_cap class/array/lisp_cap :static (:r0 :r1) (:r0 :r1)))
 
 (def-struct array seq_size
-	(pulong begin)
+	(plong begin)
 	(uint length capacity)
-	(ulong e0 e1 e2 e3))
+	(long e0 e1 e2 e3))
 
 ;;;;;;;;;;;;;;;;;;;
 ; parameter helpers
@@ -71,7 +71,7 @@
 	(cond
 		((eql type :nil)
 			(assign (map (lambda (_) (list i (* +long_size (!)))) dst) dst))
-		(:t (defq s (type-to-size type))
+		((defq s (type-to-size type))
 			(assign (map (lambda (_) (list i (* s (!)) type)) dst) dst))))
 
 (defun array-bind-args (a dst &optional i)

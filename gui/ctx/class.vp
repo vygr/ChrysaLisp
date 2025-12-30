@@ -52,7 +52,7 @@
 (def-method :ctx :blit 16)
 	;inputs
 	;:r0 = view object (ptr)
-	;:r1 = texture id (ulong)
+	;:r1 = texture id (long)
 	;:r2 = color mod (argb)
 	;:r7 = x (pixels)
 	;:r8 = y (pixels)
@@ -65,7 +65,7 @@
 		(struct drect host_gui_rect_size)
 		(struct srect host_gui_rect_size)
 		(struct clip_rect host_gui_rect_size)
-		(ulong texture)
+		(long texture)
 		(ptr this dirty_rect old_stack))
 
 	(vp-cpy-rr :rsp :r3)

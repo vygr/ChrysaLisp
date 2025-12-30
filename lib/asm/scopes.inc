@@ -118,8 +118,8 @@
 				(push prog `(setq *scopes_sp* ,m)))
 			(:t
 				(if (defq alignment (find (first line)
-						'(short int long ushort uint ulong ptr pptr
-							pubyte pushort puint pulong pbyte pshort pint plong)))
+						'(short int long ushort uint long ptr pptr
+							pubyte pushort puint preal pbyte pshort pint plong)))
 					(push prog
 						`(setq *scopes_sp* (align *scopes_sp* ,(elem-get
 							'(+short_size +int_size +long_size +short_size
@@ -136,13 +136,13 @@
 						(ubyte (scope-new-var "B" +byte_size))
 						(ushort (scope-new-var "S" +short_size))
 						(uint (scope-new-var "I" +int_size))
-						(ulong (scope-new-var "L" +long_size))
+						(real (scope-new-var "R" +real_size))
 						(ptr (scope-new-var "p" +ptr_size))
 						(pptr (scope-new-var "pp" +ptr_size))
 						(pubyte (scope-new-var "pB" +ptr_size))
 						(pushort (scope-new-var "pS" +ptr_size))
 						(puint (scope-new-var "pI" +ptr_size))
-						(pulong (scope-new-var "pL" +ptr_size))
+						(preal (scope-new-var "pR" +ptr_size))
 						(pbyte (scope-new-var "pb" +ptr_size))
 						(pshort (scope-new-var "ps" +ptr_size))
 						(pint (scope-new-var "pi" +ptr_size))

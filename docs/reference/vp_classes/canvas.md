@@ -188,7 +188,7 @@ trashes
 ```code
 inputs
 :r0 = canvas object (ptr)
-:r1 = coverage (ulong)
+:r1 = coverage (long)
 :r7 = x (pixels)
 :r8 = y (pixels)
 :r9 = x1 (pixels)
@@ -205,7 +205,7 @@ coverage is 0x0 to 0x80
 ```code
 inputs
 :r0 = canvas object (ptr)
-:r1 = coverage (ulong)
+:r1 = coverage (long)
 :r7 = x (pixels)
 :r8 = y (pixels)
 :r9 = x1 (pixels)

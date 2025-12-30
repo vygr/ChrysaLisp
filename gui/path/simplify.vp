@@ -15,7 +15,7 @@
 	(def-vars
 		(ptr this that stack)
 		(union
-			(ulong span :span)
+			(long span :span)
 			(uint first last index rlast))
 		(int p1x p1y p2x p2y p3x p3y)
 		(uint length)

@@ -43,9 +43,9 @@
 ```code
 inputs
 :r0 = address (pubyte)
-:r1 = length (ulong)
+:r1 = length (long)
 outputs
-:r0 = error code (ulong)
+:r0 = error code (long)
 trashes
 :r0
 ```
@@ -54,9 +54,9 @@ trashes
 
 ```code
 inputs
-:r0 = fd (ulong)
+:r0 = fd (long)
 outputs
-:r0 = error code (ulong)
+:r0 = error code (long)
 trashes
 :r0
 ```
@@ -68,7 +68,7 @@ inputs
 :r0 = c string filename (pubyte)
 :r1 = handle (long)
 outputs
-:r0 = error code (ulong)
+:r0 = error code (long)
 trashes
 :r0
 ```
@@ -79,9 +79,9 @@ trashes
 inputs
 :r0 = c string pathname (pubyte)
 :r1 = buffer pointer (ptr)
-:r2 = buffer length (ulong)
+:r2 = buffer length (long)
 outputs
-:r0 = buffer length (ulong)
+:r0 = buffer length (long)
 trashes
 :r0
 ```
@@ -99,9 +99,9 @@ inputs
 
 ```code
 inputs
-:r0 = len (ulong)
-:r1 = fd (ulong)
-:r2 = mode (ulong)
+:r0 = len (long)
+:r1 = fd (long)
+:r2 = mode (long)
 outputs
 :r0 = buffer (ptr)
 trashes
@@ -113,10 +113,10 @@ trashes
 ```code
 inputs
 :r0 = buffer (ptr)
-:r1 = len (ulong)
-:r2 = prot (ulong)
+:r1 = len (long)
+:r2 = prot (long)
 outputs
-:r0 = error code (ulong)
+:r0 = error code (long)
 trashes
 :r0
 ```
@@ -126,10 +126,10 @@ trashes
 ```code
 inputs
 :r0 = buffer (ptr)
-:r1 = len (ulong)
-:r2 = mode (ulong)
+:r1 = len (long)
+:r2 = mode (long)
 outputs
-:r0 = error code (ulong)
+:r0 = error code (long)
 trashes
 :r0
 ```
@@ -139,9 +139,9 @@ trashes
 ```code
 inputs
 :r0 = c string filename (pubyte)
-:r1 = mode (ulong)
+:r1 = mode (long)
 outputs
-:r0 = fd (ulong)
+:r0 = fd (long)
 trashes
 :r0
 ```
@@ -151,7 +151,7 @@ trashes
 ```code
 inputs
 :r0 = c string filename (pubyte)
-:r1 = length (ulong)
+:r1 = length (long)
 outputs
 :r0 = handle (long)
 trashes
@@ -172,11 +172,11 @@ trashes
 
 ```code
 inputs
-:r0 = fd (ulong)
+:r0 = fd (long)
 :r1 = buffer (ptr)
-:r2 = len (ulong)
+:r2 = len (long)
 outputs
-:r0 = error code (ulong)
+:r0 = error code (long)
 trashes
 :r0
 ```
@@ -185,9 +185,9 @@ trashes
 
 ```code
 inputs
-:r0 = fd (ulong)
+:r0 = fd (long)
 outputs
-:r0 = char (ulong)
+:r0 = char (long)
 trashes
 :r0
 ```
@@ -198,7 +198,7 @@ trashes
 inputs
 :r0 = c string filename (pubyte)
 outputs
-:r0 = error code (ulong)
+:r0 = error code (long)
 trashes
 :r0
 ```
@@ -207,11 +207,11 @@ trashes
 
 ```code
 inputs
-:r0 = fd (ulong)
+:r0 = fd (long)
 :r1 = offset (long)
-:r2 = pos (ulong)
+:r2 = pos (long)
 outputs
-:r0 = -1 if error, else file position (ulong)
+:r0 = -1 if error, else file position (long)
 trashes
 :r0
 ```
@@ -223,7 +223,7 @@ inputs
 :r0 = c string filename (pubyte)
 :r1 = stat buf (ptr)
 outputs
-:r0 = error code (ulong)
+:r0 = error code (long)
 trashes
 :r0
 ```
@@ -232,7 +232,7 @@ trashes
 
 ```code
 outputs
-:r0 = time in usec (ulong)
+:r0 = time in usec (long)
 trashes
 :r0
 ```
@@ -243,7 +243,7 @@ trashes
 inputs
 :r0 = c string filename (pubyte)
 outputs
-:r0 = error code (ulong)
+:r0 = error code (long)
 trashes
 :r0
 ```
@@ -252,11 +252,11 @@ trashes
 
 ```code
 inputs
-:r0 = fd (ulong)
+:r0 = fd (long)
 :r1 = buffer (pubyte)
-:r2 = len (ulong)
+:r2 = len (long)
 outputs
-:r0 = error code (ulong)
+:r0 = error code (long)
 trashes
 :r0
 ```
@@ -265,10 +265,10 @@ trashes
 
 ```code
 inputs
-:r0 = fd (ulong)
-:r1 = char (ulong)
+:r0 = fd (long)
+:r1 = char (long)
 outputs
-:r0 = error code (ulong)
+:r0 = error code (long)
 trashes
 :r0
 ```
@@ -277,11 +277,11 @@ trashes
 
 ```code
 inputs
-:r0 = fd (ulong)
-:r1 = number (ulong)
-:r2 = base (ulong)
+:r0 = fd (long)
+:r1 = number (long)
+:r2 = base (long)
 outputs
-:r0 = error code (ulong)
+:r0 = error code (long)
 trashes
 :r0
 ```
@@ -290,10 +290,10 @@ trashes
 
 ```code
 inputs
-:r0 = fd (ulong)
+:r0 = fd (long)
 :r1 = c string (pubyte)
 outputs
-:r0 = error code (ulong)
+:r0 = error code (long)
 trashes
 :r0
 ```

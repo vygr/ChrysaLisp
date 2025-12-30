@@ -109,7 +109,6 @@
 	(write-int (defq reply (string-stream
 		(str-alloc (+ (* (+ (* (- x1 x) (- y1 y)) 4) +int_size) +long_size))))
 		(list x y x1 y1))
-	(bind '(w h) (map (const n2r) (list w h)))
 	(defq w2 (/ w +real_2) h2 (/ h +real_2) y (dec y))
 	(while (< (++ y) y1)
 		(defq xp (dec x))
@@ -137,7 +136,5 @@
 			((= idx +select_main)
 				;main mailbox, reset timeout and reply with result
 				(mail-timeout (elem-get select +select_timeout) 0 0)
-				(defq key (getf msg +job_key)
-					mbox (getf msg +job_reply)
-					msg (slice msg +job_x -1))
-				(apply rect (cat (list key mbox) (map (lambda (_) (get-long msg (* _ +long_size))) (range 0 6))))))))
+				(apply rect (getf-> msg +job_key +job_reply
+					+job_x +job_y +job_x1 +job_y1 +job_w +job_h))))))

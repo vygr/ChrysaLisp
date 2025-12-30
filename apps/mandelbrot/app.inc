@@ -5,7 +5,8 @@
 (structure +job 0
 	(long key)
 	(netid reply)
-	(long x y x1 y1 w h cx cy z))
+	(long x y x1 y1 w h)
+	(real cx cy z))
 
 ;math
 

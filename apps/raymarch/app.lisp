@@ -21,8 +21,8 @@
 				(+job_y (- y1 (* +line_batch +scale)))
 				(+job_x1 (* +width +scale))
 				(+job_y1 y1)
-				(+job_w (* +width +scale))
-				(+job_h (* +height +scale))))
+				(+job_w (n2r (* +width +scale)))
+				(+job_h (n2r (* +height +scale)))))
 		(range (* +height +scale) 0 (* +line_batch +scale))))
 
 (ui-window *window* ()

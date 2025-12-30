@@ -64,7 +64,7 @@
 
 	(def-vars
 		(ptr this txt font)
-		(ulong handle c)
+		(long handle c)
 		(int x bx by bx1 by1)
 		(uint w h col paper ink))
 

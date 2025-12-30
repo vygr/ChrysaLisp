@@ -517,7 +517,7 @@
 	(def-vars
 		(ptr name id info key bucket set)
 		(pptr tuple)
-		(ulong time))
+		(long time))
 
 	(push-scope)
 	(entry :sys_mail :declare {id, name, info})

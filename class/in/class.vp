@@ -154,7 +154,7 @@
 	;inputs
 	;:r0 = list head (ptr)
 	;:r1 = 0, else new stream msg (ptr)
-	;:r2 = seqnum (ulong)
+	;:r2 = seqnum (long)
 	;outputs
 	;:r0 = 0, else next stream msg (ptr)
 	;:r1 = 0, else string data (pubyte)

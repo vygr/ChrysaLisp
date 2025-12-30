@@ -163,7 +163,7 @@
 
 	(def-vars
 		(ptr this args value)
-		(ulong arg0 arg1 arg2))
+		(long arg0 arg1 arg2))
 
 	(push-scope)
 	(entry :sys_mail :lisp_send {this, args})

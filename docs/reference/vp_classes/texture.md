@@ -24,7 +24,7 @@ inputs
 :r0 = texture object (ptr)
 outputs
 :r0 = texture object (ptr)
-:r1 = texture handle (ulong)
+:r1 = texture handle (long)
 :r2 = width (pixels)
 :r3 = height (pixels)
 trashes
@@ -37,7 +37,7 @@ trashes
 inputs
 :r0 = texture object (ptr)
 :r1 = vtable (pptr)
-:r2 = texture handle (ulong)
+:r2 = texture handle (long)
 :r3 = texture width (pixels)
 :r4 = texture height (pixels)
 outputs

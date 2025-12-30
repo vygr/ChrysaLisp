@@ -403,7 +403,7 @@
 		(pptr pivot iter_begin)
 		(union
 			(uint low high)
-			(ulong interval))
+			(long interval))
 		(union
 			(pptr lower upper)
 			(uint start length)))

@@ -76,7 +76,7 @@
 		(ptr this name data)
 		(union
 			(ptr vtable)
-			(ulong ok))
+			(long ok))
 		(uint pixels))
 
 	(push-scope)

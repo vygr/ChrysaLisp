@@ -74,9 +74,9 @@ trashes
 
 ```code
 inputs
-:r0 = random range (ulong)
+:r0 = random range (long)
 outputs
-:r0 = random number in range (ulong)
+:r0 = random number in range (long)
 trashes
 :r0-:r3
 ```

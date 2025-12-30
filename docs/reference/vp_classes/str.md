@@ -236,7 +236,7 @@ inputs
 :r0 = str object (ptr)
 outputs
 :r0 = str object (ptr)
-:r1 = hash code (ulong)
+:r1 = hash code (long)
 trashes
 :r1-:r4
 ```
@@ -248,7 +248,7 @@ inputs
 :r3 = start (pubyte)
 :r4 = end (pubyte)
 outputs
-:r1 = hash code (ulong)
+:r1 = hash code (long)
 trashes
 :r1-:r4
 ```

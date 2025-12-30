@@ -38,7 +38,7 @@
 
 (def-struct tk_node ln_node_size
 	(ptr stack stack_top mbox_addr lisp)
-	(ulong time)
+	(long time)
 	(uint priority mbox_id))
 
 ;number of distinct priorities

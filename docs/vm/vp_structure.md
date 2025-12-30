@@ -89,7 +89,7 @@ the entire structure is not aligned.
 (def-struct mary bob_size
 	(ushort a)
 	(uint b)
-	(pulong c)
+	(plong c)
 	(pptr d))
 ```
 
@@ -132,7 +132,7 @@ mary_a_t -> "S"
 mary_b -> 36
 mary_b_t -> "I"
 mary_c -> 40
-mary_c_t -> "pL"
+mary_c_t -> "pl"
 mary_d -> 48
 mary_d_t -> "pp"
 mary_size -> 56

@@ -21,7 +21,7 @@
 
 	(def-struct local 0
 		(ptr this stream tmp)
-		(ulong value))
+		(long value))
 
 	(vp-alloc local_size)
 	(entry :fixed :print '(:r0 :r1))

@@ -22,7 +22,7 @@ inputs
 :r0 = nodeid object (ptr)
 outputs
 :r0 = nodeid object (ptr)
-:r1 = hash code (ulong)
+:r1 = hash code (long)
 trashes
 :r1-:r2
 ```

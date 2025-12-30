@@ -48,8 +48,8 @@
 		(tolist *root_env*))
 	(each (# (def keywords %0 (get :ink_keyword4 this)))
 		'(:t :nil &rest &optional &most &ignore
-		byte ubyte short ushort int uint long ulong ptr union struct
-		pbyte pubyte pshort pushort pint puint plong pulong pptr
+		byte ubyte short ushort int uint long real ptr union struct
+		pbyte pubyte pshort pushort pint puint plong preal pptr
 		nodeid netid offset enum bit))
 
 	(defgetmethod state)

@@ -23,7 +23,6 @@
 	;convert to reals
 	(bind '(w h) (map (const n2r) (list w h)))
 	;cx, cy, and z (which were read as longs from the message)
-	(bind '(cx cy z) (reals cx cy z))
 	(defq y (dec y))
 	(while (< (++ y) y1)
 		(defq xp (dec x))
@@ -45,7 +44,6 @@
 			((= idx +select_main)
 				;main mailbox, reset timeout and reply with result
 				(mail-timeout (elem-get select +select_timeout) 0 0)
-				(defq key (getf msg +job_key)
-					mbox (getf msg +job_reply)
-					msg (slice msg +job_x -1))
-				(apply mandel (cat (list key mbox) (map (lambda (_) (get-long msg (* _ +long_size))) (range 0 9))))))))
+				(apply mandel (getf-> msg +job_key +job_reply
+					+job_x +job_y +job_x1 +job_y1 +job_w +job_h
+					+job_cx +job_cy +job_z))))))
