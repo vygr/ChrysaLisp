@@ -22,17 +22,15 @@
 	;_1 = class name
 	;_2 = member name
 	;_3 = input parameter index, :nil for entire list
-	(if _3
-		(elem-get (third (method-lookup _1 _2)) _3)
-		(third (method-lookup _1 _2))))
+	(defq _1 (third (method-lookup _1 _2)))
+	(if _3 (elem-get _1 _3) _1))
 
 (defun method-output (_1 _2 &optional _3)
 	;_1 = class name
 	;_2 = member name
 	;_3 = output parameter index, :nil for entire list
-	(if _3
-		(elem-get (last (method-lookup _1 _2)) _3)
-		(elem-get (method-lookup _1 _2) 3)))
+	(defq _1 (elem-get (method-lookup _1 _2) 3))
+	(if _3 (elem-get _1 _3) _1))
 
 (defun f-path (_1 _2)
 	;_1 = class name
