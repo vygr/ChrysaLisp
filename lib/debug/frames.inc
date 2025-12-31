@@ -17,7 +17,7 @@
 	(static-qq (defq ,n (,'lambda ,a ~(stack-instrument n _)))))
 
 (redefmacro defmethod (n a &rest _)
-	(static-qq (def (def? :vtable this) ,n (,'lambda (this ~a)
+	(static-qq (def *vtable* ,n (,'lambda (this ~a)
 		~(stack-instrument (cat *class* " " n) _)))))
 
 ;module

@@ -90,8 +90,7 @@
 	(def vtable mname m))
 
 (defmacro def-class (class super &rest lines)
-	(defq vtable (reduce (lambda (e (k v)) (def e k v) e)
-			(tolist (get super *vtables*)) (env 1)))
+	(defq vtable (env-copy (get super *vtables*) 1))
 	(each (lambda ((_ mname mfunc &optional mtype regs_in regs_out))
 		(setd mtype :static)
 		(and regs_in (lmatch? regs_in '(abi-args _)) (setq regs_in (eval regs_in)))

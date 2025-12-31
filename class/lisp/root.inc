@@ -290,6 +290,8 @@
 ; (penv [env]) -> :nil | env
 (ffi "class/hmap/lisp_resize" env-resize)
 ; (env-resize num [env]) -> env
+(ffi "class/hmap/lisp_copy" env-copy)
+; (env-copy env num) -> env
 (ffi "class/hmap/lisp_tolist" tolist)
 ; (tolist env) -> ((sym val) ...)
 (ffi "class/lisp/lisp_env_push" env-push)

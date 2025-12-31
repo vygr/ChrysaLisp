@@ -1050,6 +1050,10 @@ lexical scopes.
 
     * `(env-resize num [env]) -> env`
 
+*   **`env-copy`**: Copy an environment.
+
+    * `(env-copy env num) -> env`
+
 ## Data Structure Constructors
 
 *   **`array`**: Creates an array.

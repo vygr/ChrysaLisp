@@ -43,6 +43,9 @@ codes to be a simple enum.
 
 Lowered `starts-with` and `ends-with` to VP functions.
 
+Expose `(env-copy env num_buckets) -> env` to application code and
+simplification of Lisp class construction using `env-copy`.
+
 ------
 
 New `(nql obj1 obj2) -> :t | :nil` built in function.

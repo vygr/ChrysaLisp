@@ -504,3 +504,36 @@
 	(signature '(:num :hmap)))
 
 (def-func-end)
+
+(def-method :hmap :lisp_copy)
+	;inputs
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
+	;outputs
+	;:r0 = lisp object (ptr)
+	;:r1 = environment hmap object (ptr)
+	;trashes
+	;:r1-:r14
+
+	(entry :hmap :lisp_copy '(this args))
+
+	(errorif-lisp-args-sig 'error :r1 2)
+
+	(vp-push this args)
+	(bind '(hmap size) (method-input :hmap :copy))
+	(list-bind-args args `(,hmap ,size) '(:env :num))
+	(errorif `(,size < 1) 'error1)
+	(call :hmap :copy `(,hmap ,size) `(_ ,args))
+	(vp-pop this :r14)
+
+	(exit :hmap :lisp_copy `(,this ,args))
+	(vp-ret)
+
+(errorcase
+(vp-label 'error1)
+	(vp-pop this args)
+(vp-label 'error)
+	(jump :lisp :repl_error `(,this "(env-copy env num)" +error_msg_wrong_types ,args))
+	(signature '(:hmap :num)))
+
+(def-func-end)

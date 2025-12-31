@@ -4,6 +4,8 @@
 
 ## Lisp Bindings
 
+### (env-copy env num) -> env
+
 ### (def env sym val [sym val] ...) -> val
 
 ### (defq sym val [sym val] ...) -> val
