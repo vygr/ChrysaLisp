@@ -22,6 +22,8 @@
 
 ### (hex-encode str) -> str
 
+### (ends-with str str) -> :nil | :t
+
 ### (expand str tab_width) -> str
 
 ### (load path) -> str
@@ -33,6 +35,8 @@
 ### (save str path) -> str
 
 ### (split str [cls]) -> strs
+
+### (starts-with str str) -> :nil | :t
 
 ### (str form) -> str
 
@@ -187,6 +191,19 @@ outputs
 :r0 = encoded str object (ptr)
 trashes
 :r1-:r8
+```
+
+### :ends_with -> class/str/ends_with
+
+```code
+inputs
+:r0 = str postfix object (ptr)
+:r1 = str object (ptr)
+outputs
+:r0 = str prefix object (ptr)
+:r1 = 0 if match, else not
+trashes
+:r1-:r5
 ```
 
 ### :eql -> class/str/eql

@@ -258,6 +258,10 @@
 ; (hex-encode str) -> str
 (ffi "class/str/lisp_decode" hex-decode)
 ; (hex-decode str) -> str
+(ffi "class/str/lisp_startw" starts-with)
+; (starts-with str str) -> :nil | :t
+(ffi "class/str/lisp_endw" ends-with)
+; (ends-with str str) -> :nil | :t
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Symbol and Environment Operations
@@ -816,14 +820,6 @@
 	(defq out (cap n (list)))
 	(while (>= (-- n) 0) (push out (list)))
 	out)
-
-(defun starts-with (p _)
-	; (starts-with str str) -> :t | :nil
-	(and (>= (length _) (length p)) (eql p (slice _ 0 (length p)))))
-
-(defun ends-with (p _)
-	; (ends-with str str) -> :t | :nil
-	(and (>= (length _) (length p)) (eql p (slice _ (dec (neg (length p))) -1))))
 
 (defun erase (s b e)
 	; (erase seq start end) -> seq

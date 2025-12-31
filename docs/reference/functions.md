@@ -171,12 +171,6 @@ cached circle generation, quantised to 1/4 pixel
 (empty? form) -> :t | :nil
 ```
 
-### ends-with
-
-```code
-(ends-with str str) -> :t | :nil
-```
-
 ### env?
 
 ```code
@@ -1011,12 +1005,6 @@ start a child
 
 ```code
 start a child
-```
-
-### starts-with
-
-```code
-(starts-with str str) -> :t | :nil
 ```
 
 ### stdio-get-args

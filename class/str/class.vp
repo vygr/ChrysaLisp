@@ -471,18 +471,55 @@
 					(breakif '(:r1 /= 0))
 					(vp-simd vp-add-cr `(,+byte_size) '(:r4 :r5))
 				(loop-until '(:r4 = :r2))
-
 				(exit :str :starts_with '(:r0 :r1))
 				(vp-ret)
 			(endif)
-
 			(exit :str :starts_with '(:r0 -1))
 			(vp-ret)
 		(endif)
 		(vp-xor-rr :r1 :r1)
 	(endswitch)
-
 	(exit :str :starts_with '(:r0 :r1))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method :str :ends_with)
+	;inputs
+	;:r0 = str postfix object (ptr)
+	;:r1 = str object (ptr)
+	;outputs
+	;:r0 = str prefix object (ptr)
+	;:r1 = 0 if match, else not
+	;trashes
+	;:r1-:r5
+
+	(entry :str :ends_with '(:r0 :r1))
+
+	(switch 'exit)
+		(vpif '(:r0 /= :r1) 'same)
+			(assign '((:r0 str_length) (:r1 str_length)) '(:r2 :r3))
+			(breakif '(:r2 = 0) 'same)
+			(vpif '(:r3 >= :r2))
+				(vp-simd vp-lea-i '(:r0 :r1) `(,str_data) '(:r4 :r5))
+				(vp-sub-rr :r2 :r5)
+				(vp-simd vp-add-rr '(:r3 :r4) '(:r5 :r2))
+				(loop-start)
+					(vp-simd vp-cpy-ir-b '(:r4 :r5) '(0) '(:r3 :r1))
+					(vp-sub-rr :r3 :r1)
+					(breakif '(:r1 /= 0))
+					(vp-simd vp-add-cr `(,+byte_size) '(:r4 :r5))
+				(loop-until '(:r4 = :r2))
+				(exit :str :ends_with '(:r0 :r1))
+				(vp-ret)
+			(endif)
+			(exit :str :ends_with '(:r0 -1))
+			(vp-ret)
+		(endif)
+		(vp-xor-rr :r1 :r1)
+	(endswitch)
+
+	(exit :str :ends_with '(:r0 :r1))
 	(vp-ret)
 
 (def-func-end)

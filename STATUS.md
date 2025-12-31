@@ -41,6 +41,8 @@ passing `real` fields in messages.
 Structure type `fixed` now supported. This comes with a rework of the field type
 codes to be a simple enum.
 
+Lowered `starts-with` and `ends-with` to VP functions.
+
 ------
 
 New `(nql obj1 obj2) -> :t | :nil` built in function.

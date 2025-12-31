@@ -26,6 +26,7 @@
 	(dec-method :same_pstr class/str/same_pstr :static (:r1 :r2 :r3) (:r4))
 	(dec-method :compare class/str/compare :static (:r0 :r1) (:r0 :r1))
 	(dec-method :starts_with class/str/starts_with :static (:r0 :r1) (:r0 :r1))
+	(dec-method :ends_with class/str/ends_with :static (:r0 :r1) (:r0 :r1))
 	(dec-method :encode class/str/encode :static (:r0) (:r0))
 	(dec-method :decode class/str/decode :static (:r0) (:r0))
 	(dec-method :bfind class/str/bfind :static (:r0 :r1) (:r0 :r1 :r2))
@@ -47,7 +48,9 @@
 	(dec-method :lisp_expand class/str/lisp_expand :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_create class/str/lisp_create :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_encode class/str/lisp_encode :static (:r0 :r1) (:r0 :r1))
-	(dec-method :lisp_decode class/str/lisp_decode :static (:r0 :r1) (:r0 :r1)))
+	(dec-method :lisp_decode class/str/lisp_decode :static (:r0 :r1) (:r0 :r1))
+	(dec-method :lisp_startw class/str/lisp_startw :static (:r0 :r1) (:r0 :r1))
+	(dec-method :lisp_endw class/str/lisp_endw :static (:r0 :r1) (:r0 :r1)))
 
 (def-struct str seq_size
 	(int hashslot)
