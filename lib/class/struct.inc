@@ -37,13 +37,15 @@
 					(int (new-field "i" +int_size))
 					(uint (new-field "I" +int_size))
 					(long (new-field "l" +long_size))
-					(real (new-field "R" +real_size))
+					(real (new-field "R" +long_size))
+					(fixed (new-field "F" +long_size))
 					(ptr (new-field "p" +ptr_size))
 					(pptr (new-field "pp" +ptr_size))
 					(pubyte (new-field "pB" +ptr_size))
 					(pushort (new-field "pS" +ptr_size))
 					(puint (new-field "pI" +ptr_size))
 					(preal (new-field "pR" +ptr_size))
+					(pfixed (new-field "pF" +ptr_size))
 					(pbyte (new-field "pb" +ptr_size))
 					(pshort (new-field "ps" +ptr_size))
 					(pint (new-field "pi" +ptr_size))
@@ -66,22 +68,21 @@
 (defun obj-args (field &optional offset)
 	; (obj-args field &optional offset) -> args
 	; convert to obj-get/obj-set common args
-	(defq size 0 type (eval (sym (cat field "_t"))) type
-		(case type
-			("p" 0)
-			("b" +byte_size) ("s" +short_size) ("i" +int_size) ("l" +long_size)
-			("B" (const (neg +byte_size))) ("S" (const (neg +short_size)))
-			("I" (const (neg +int_size))) ("R" (const (neg +real_size)))
-			(("pb" "ps" "pi" "pl" "pB" "pS" "pI" "pR" "pp") +ptr_size)
-			("no" (defq size +node_id_size) 0)
-			("ne" (defq size +net_id_size) 0)
-			(:t (defq size (str-to-num type)) 0)))
-	(list (+ (eval field) (ifn offset +str_data)) type size))
+	(defq type (case (eval (sym (cat field "_t")))
+		("p" +type_ptr) ("l" +type_long)
+		("b" +type_byte) ("B" +type_ubyte)
+		("s" +type_short) ("S" +type_ushort)
+		("i" +type_int) ("I" +type_uint)
+		("F" +type_fixed) ("R" +type_real)
+		(("pb" "ps" "pi" "pl" "pB" "pS" "pI" "pF" "pR" "pp") +type_pptr)
+		("no" +node_id_size) ("ne" +net_id_size)
+		((str-to-num type))))
+	(list (+ (eval field) (ifn offset +str_data)) type))
 
 (defmacro getf (obj field &optional offset)
 	; (getf obj field [offset]) -> value
-	(bind '(field type size) (obj-args field offset))
-	(static-qq (obj-get ,obj ,field ,type ,size)))
+	(bind '(field type) (obj-args field offset))
+	(static-qq (obj-get ,obj ,field ,type)))
 
 (defun obj-set-args ((field value &optional offset))
 	; (obj-set-args (field value &optional offset)) -> args
@@ -90,23 +91,23 @@
 
 (defmacro setf (obj &rest args)
 	; (setf obj field value [offset]) -> obj
-	(bind '(field type size value) (obj-set-args args))
-	(static-qq (obj-set ,obj ,field ,type ,size ,value)))
+	(bind '(field type value) (obj-set-args args))
+	(static-qq (obj-set ,obj ,field ,type ,value)))
 
 (defmacro setf-> (obj &rest fields)
 	; (setf-> obj (field val [offset]) ...) -> obj
-	(bind '(offsets types sizes values)
+	(bind '(offsets types values)
 		(map! (const list) (map (const obj-set-args) fields)))
 	(static-qq (reduce! (const obj-set)
-		(list ',offsets ',types ',sizes (list ~values)) ,obj)))
+		(list ',offsets ',types (list ~values)) ,obj)))
 
 (defmacro getf-> (obj &rest fields)
 	; (getf-> obj field|(field offset) ...) -> (val ...)
-	(bind '(offsets types sizes)
+	(bind '(offsets types)
 		(map! (const list) (map (# (if (list? %0)
 			(apply (const obj-args) %0) (obj-args %0))) fields)))
-	(static-qq (reduce! (# (push %0 (obj-get ,obj %1 %2 %3)))
-		'(,offsets ,types ,sizes) (list))))
+	(static-qq (reduce! (# (push %0 (obj-get ,obj %1 %2)))
+		'(,offsets ,types) (list))))
 
 ;;;;;;;
 ; enums

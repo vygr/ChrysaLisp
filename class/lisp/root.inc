@@ -369,9 +369,9 @@
 (ffi "class/obj/lisp_type" type-of)
 ; (type-of obj) -> (... :obj)
 (ffi "class/obj/lisp_fget" obj-get)
-; (obj-get obj offset type|0 size|0) -> val
+; (obj-get obj offset type) -> val
 (ffi "class/obj/lisp_fset" obj-set)
-; (obj-set obj offset type|0 size|0 val) -> obj
+; (obj-set obj offset type val) -> obj
 (ffi "class/obj/lisp_wref" weak-ref)
 ; (weak-ref obj) -> num
 (ffi "class/obj/lisp_oref" obj-ref)
@@ -444,8 +444,11 @@
 ; (mail-timeout mbox ns id) -> mbox
 
 (defq *root_env* (env)
-	+byte_size 1 +short_size 2 +int_size 4 +long_size 8 +real_size 8 +ptr_size 8
+	+byte_size 1 +short_size 2 +int_size 4 +long_size 8 +ptr_size 8
 	+str_data 24 +mailbox_id_size 8 +node_id_size 16 +net_id_size 24
+	+type_ptr 0 +type_pptr -1 +type_byte -2 +type_ubyte -3
+	+type_short -4 +type_ushort -5 +type_int -6 +type_uint -7
+	+type_long -8 +type_fixed -9 +type_real -10
 	defmacro `(,macro (n a &rest _)
 		(,if (,get n (,penv)) (,throw "Macro override !, use redefmacro ? !" n))
 		`(defq ,n (macro ,a ~_))))
@@ -1107,35 +1110,35 @@
 
 (defmacro get-ubyte (obj idx)
 	; (get-ubyte str idx) -> num
-	(static-qq (obj-get ,obj (+ +str_data ,idx) (const (neg +byte_size)) 0)))
+	(static-qq (obj-get ,obj (+ +str_data ,idx) +type_ubyte)))
 
 (defmacro get-ushort (obj idx)
 	; (get-ushort str idx) -> num
-	(static-qq (obj-get ,obj (+ +str_data ,idx) (const (neg +short_size)) 0)))
+	(static-qq (obj-get ,obj (+ +str_data ,idx) +type_ushort)))
 
 (defmacro get-uint (obj idx)
 	; (get-uint str idx) -> num
-	(static-qq (obj-get ,obj (+ +str_data ,idx) (const (neg +int_size)) 0)))
+	(static-qq (obj-get ,obj (+ +str_data ,idx) +type_uint)))
 
 (defmacro get-long (obj idx)
 	; (get-long str idx) -> num
-	(static-qq (obj-get ,obj (+ +str_data ,idx) +long_size 0)))
+	(static-qq (obj-get ,obj (+ +str_data ,idx) +type_long)))
 
 (defmacro get-byte (obj idx)
 	; (get-byte str idx) -> num
-	(static-qq (obj-get ,obj (+ +str_data ,idx) +byte_size 0)))
+	(static-qq (obj-get ,obj (+ +str_data ,idx) +type_byte)))
 
 (defmacro get-short (obj idx)
 	; (get-short str idx) -> num
-	(static-qq (obj-get ,obj (+ +str_data ,idx) +short_size 0)))
+	(static-qq (obj-get ,obj (+ +str_data ,idx) +type_short)))
 
 (defmacro get-int (obj idx)
 	; (get-int str idx) -> num
-	(static-qq (obj-get ,obj (+ +str_data ,idx) +int_size 0)))
+	(static-qq (obj-get ,obj (+ +str_data ,idx) +type_int)))
 
 (defmacro get-str (obj idx bytes)
 	; (get-str str idx bytes) -> str
-	(static-qq (obj-get ,obj (+ +str_data ,idx) 0 ,bytes)))
+	(static-qq (obj-get ,obj (+ +str_data ,idx) ,bytes)))
 
 (defun get-cstr (obj idx)
 	; (get-cstr str idx) -> str
@@ -1143,23 +1146,23 @@
 
 (defmacro set-byte (obj idx val)
 	; (set-byte str idx num) -> str
-	(static-qq (obj-set ,obj (+ +str_data ,idx) +byte_size 0 ,val)))
+	(static-qq (obj-set ,obj (+ +str_data ,idx) +type_byte ,val)))
 
 (defmacro set-short (obj idx val)
 	; (set-short str idx num) -> str
-	(static-qq (obj-set ,obj (+ +str_data ,idx) +short_size 0 ,val)))
+	(static-qq (obj-set ,obj (+ +str_data ,idx) +type_short ,val)))
 
 (defmacro set-int (obj idx val)
 	; (set-int str idx num) -> str
-	(static-qq (obj-set ,obj (+ +str_data ,idx) +int_size 0 ,val)))
+	(static-qq (obj-set ,obj (+ +str_data ,idx) +type_int ,val)))
 
 (defmacro set-long (obj idx val)
 	; (set-long str idx num) -> str
-	(static-qq (obj-set ,obj (+ +str_data ,idx) +long_size 0 ,val)))
+	(static-qq (obj-set ,obj (+ +str_data ,idx) +type_long ,val)))
 
 (defmacro set-str (obj idx val)
 	; (set-str str idx val) -> str
-	(static-qq (obj-set ,obj (+ +str_data ,idx) 0 (length ,val) ,val)))
+	(static-qq (obj-set ,obj (+ +str_data ,idx) (length ,val) ,val)))
 
 ;;;;;;;;;
 ; Streams

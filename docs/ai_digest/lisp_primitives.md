@@ -1333,11 +1333,11 @@ representation of objects.
 
 *   **`obj-get`**: Reads a value from an object at a specific memory offset.
 
-    * `(obj-get obj field type|0 size|0) -> val`
+    * `(obj-get obj field type) -> val`
 
 *   **`obj-set`**: Writes a value to an object at a specific memory offset.
 
-    * `(obj-set obj field type|0 size|0 val) -> val`
+    * `(obj-set obj field type val) -> val`
 
 *   **`weak-ref`**: Returns the memory address of a Lisp object as a number.
 

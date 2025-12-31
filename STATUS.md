@@ -38,6 +38,9 @@ Structure type `real` now supported. This replaces the `ulong` type which was
 actually redundant. Mandelbrot and Raymarch demos updated to use this for
 passing `real` fields in messages.
 
+Structure type `fixed` now supported. This comes with a rework of the field type
+codes to be a simple enum.
+
 ------
 
 New `(nql obj1 obj2) -> :t | :nil` built in function.

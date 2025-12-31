@@ -4,7 +4,7 @@
 
 ### (eql obj obj) -> :nil | :t
 
-### (obj-get obj offset type|0 size|0) -> val
+### (obj-get obj offset type) -> val
 
 ### (hash obj) -> num
 
@@ -12,7 +12,7 @@
 
 ### (obj-ref num) -> obj
 
-### (obj-set obj offset type|0 size|0 val) -> obj
+### (obj-set obj offset type val) -> obj
 
 ### (type-of obj) -> (... :obj)
 
