@@ -65,8 +65,7 @@
 
 	(defmethod :set_owner (id)
 		; (. view :set_owner netid) -> view
-		(setf this +view_owner_id id 0)
-		this)
+		(setf this +view_owner_id id 0))
 
 	;;;;;;;
 	; flags
@@ -85,12 +84,11 @@
 
 	(defmethod :set_pos (x y)
 		; (. view :set_pos x y) -> view
-		(setf (setf this +view_x x 0) +view_y y 0)
-		this)
+		(setf-> this (+view_x x 0) (+view_y y 0)))
 
 	(defmethod :get_pos ()
 		; (. view :get_pos) -> (x y)
-		(list (getf this +view_x 0) (getf this +view_y 0)))
+		(getf-> this (+view_x 0) (+view_y 0)))
 
 	(defmethod :get_relative (child)
 		; (. view :get_relative child) -> (x y w h)
@@ -102,21 +100,21 @@
 
 	(defmethod :set_size (width height)
 		; (. view :set_size width height) -> view
-		(setf (setf this +view_w width 0) +view_h height 0))
+		(setf-> this (+view_w width 0) (+view_h height 0)))
 
 	(defmethod :get_size ()
 		; (. view :get_size) -> (width height)
-		(list (getf this +view_w 0) (getf this +view_h 0)))
+		(getf-> this (+view_w 0) (+view_h 0)))
 
 	(defmethod :set_bounds (x y width height)
 		; (. view :set_size x y width height) -> view
-		(setf (setf (setf (setf this
-			+view_x x 0) +view_y y 0) +view_w width 0) +view_h height 0))
+		(setf-> this (+view_x x 0) (+view_y y 0)
+			(+view_w width 0) (+view_h height 0)))
 
 	(defmethod :get_bounds ()
 		; (. view :get_bounds) -> (x y width height)
-		(list (getf this +view_x 0) (getf this +view_y 0)
-			(getf this +view_w 0) (getf this +view_h 0)))
+		(getf-> this (+view_x 0) (+view_y 0)
+			(+view_w 0) (+view_h 0)))
 
 	(deffimethod :hit_tree "gui/view/lisp_hit_tree")
 		; (. view :hit_tree x y) -> (hit_view | :nil rx ry)
@@ -250,12 +248,11 @@
 
 	(defmethod :get_constraint ()
 		; (. view :get_constraint) -> (width height)
-		(list (getf this +view_cw 0) (getf this +view_ch 0)))
+		(getf-> this (+view_cw 0) (+view_ch 0)))
 
 	(defmethod :set_constraint (width height)
 		; (. view :set_constraint width height) -> view
-		(setf (setf this +view_cw width 0) +view_ch height 0)
-		this)
+		(setf-> this (+view_cw width 0) (+view_ch height 0)))
 
 	(defmethod :pref_size ()
 		; (. view :pref_size) -> (width height)

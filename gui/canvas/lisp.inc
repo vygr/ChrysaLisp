@@ -109,8 +109,8 @@
 
 	(defmethod :get_clip ()
 		; (. canvas :get_clip) -> (cx cy cx1 cy1)
-		(list (getf this +canvas_cx 0) (getf this +canvas_cy 0)
-			 (getf this +canvas_cx1 0) (getf this +canvas_cy1 0)))
+		(getf-> this (+canvas_cx 0) (+canvas_cy 0)
+			 (+canvas_cx1 0) (+canvas_cy1 0)))
 	)
 
 (defclass Canvas (width height scale) (Canvas-base)

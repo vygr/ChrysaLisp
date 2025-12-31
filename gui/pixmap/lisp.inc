@@ -40,9 +40,7 @@
 	(if (= (length (defq header (read-blk stream +cpm_size))) +cpm_size)
 		(case (char (getf header +cpm_ident) +int_size)
 			(("MPC." "MLF.")
-				(list (getf header +cpm_width)
-					(getf header +cpm_height)
-					(getf header +cpm_type)))
+				(getf-> header +cpm_width +cpm_height +cpm_type))
 			(:t (list -1 -1 -1)))
 		(list -1 -1 -1)))
 
@@ -50,9 +48,7 @@
 	; (pixmap-tga-info stream) -> (width height type) | (-1 -1 -1)
 	(if (= (length (defq header (read-blk stream +tga_size))) +tga_size)
 		(case (getf header +tga_type)
-			(2 (list (getf header +tga_width)
-					(getf header +tga_height)
-					(getf header +tga_depth)))
+			(2 (getf-> header +tga_width +tga_height +tga_depth))
 			(:t (list -1 -1 -1)))
 		(list -1 -1 -1)))
 
