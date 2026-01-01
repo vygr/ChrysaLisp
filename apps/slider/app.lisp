@@ -26,8 +26,8 @@
 	(ui-grid *grid* (:grid_width *grid_w* :grid_height *grid_h*
 					 :color *env_window_col* :font *font*)
 		(each (lambda (i)
-			(. (ui-button _ (:min_width 80 :min_height 80)) 
-			   :connect (+ +event_click i))) 
+			(. (ui-button _ (:min_width 80 :min_height 80))
+			   :connect (+ +event_click i)))
 			(range 0 *tile_count*)))
 	(ui-label *status* (:text " " :flow_flags +flow_flag_align_hcenter)))
 
@@ -86,7 +86,7 @@
 	(defq moves 0)
 	(while (< moves 400)
 		(defq blank-idx (find *blank_value* *board*)
-			  bx (% blank-idx *grid_w*) 
+			  bx (% blank-idx *grid_w*)
 			  by (/ blank-idx *grid_w*)
 			  candidates (list))
 		(if (> bx 0) (push candidates (dec blank-idx)))

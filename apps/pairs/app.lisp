@@ -51,34 +51,29 @@
         :score 0))
 
 (defun scramble ()
-    ; Convert string to list of char codes, then shuffle
-    (defq all_chars (map code *char_pool*))
-    (setq all_chars (shuffle all_chars))
-    (defq pool (slice all_chars 0 (/ *tile_count* 2)))
-    (setq *values* (shuffle (cat pool pool)))
-    (setq *states* (map (lambda (_) 0) (range 0 *tile_count*)))
-    (setq *score* 0)
-    (setq *first_pick* :nil)
-    (setq *locked* :nil)
+    ; Convert string to list of char codes, shuffle, select subset, duplicate, shuffle again
+    (defq all_chars (shuffle (map code *char_pool*))
+          pool (slice all_chars 0 (/ *tile_count* 2)))
+    (setq *values* (shuffle (cat pool pool))
+          *states* (map (lambda (_) 0) (range 0 *tile_count*))
+          *score* 0
+          *first_pick* :nil
+          *locked* :nil)
     (update-view))
 
 (defun config-load ()
-    (defq data :nil)
-    (if (defq stream (file-stream *config_file*))
-        (setq data (tree-load stream)))
-    
-    (if (and data (= (length (. data :find :values)) *tile_count*))
+    (if (and (defq data (if (defq stream (file-stream *config_file*)) (tree-load stream)))
+             (= (length (. data :find :values)) *tile_count*))
         (progn
-            (setq *values* (. data :find :values))
-            (setq *states* (. data :find :states))
-            (setq *score* (. data :find :score))
+            (setq *values* (. data :find :values)
+                  *states* (. data :find :states)
+                  *score* (. data :find :score)
+                  *first_pick* :nil 
+                  *locked* :nil)
             
             ; Handle legacy string data if present
             (if (and (nempty? *values*) (str? (first *values*)))
                  (setq *values* (map code *values*)))
-            
-            ; Restore game state
-            (setq *first_pick* :nil *locked* :nil)
             
             ; Find currently selected tiles (state 1)
             (defq picks (list))
@@ -101,14 +96,14 @@
             :score *score*))))
 
 (defun update-view ()
-    (defq children (. *grid* :children))
-    (defq i 0)
-    (defq all_matched :t)
+    (defq children (. *grid* :children)
+          i 0
+          all_matched :t)
     
     (while (< i *tile_count*)
-        (defq btn (elem-get children i))
-        (defq val (elem-get *values* i))
-        (defq state (elem-get *states* i))
+        (defq btn (elem-get children i)
+              val (elem-get *values* i)
+              state (elem-get *states* i))
         
         (cond
             ((= state 0) ; Hidden
@@ -137,21 +132,21 @@
                 (elem-set *states* index 1)
                 (update-view)
                 
-                (defq val1 (elem-get *values* *first_pick*))
-                (defq val2 (elem-get *values* index))
+                (defq val1 (elem-get *values* *first_pick*)
+                      val2 (elem-get *values* index))
                 
                 (if (eql val1 val2)
                     (progn 
                         ; Match found
                         (elem-set *states* *first_pick* 2)
                         (elem-set *states* index 2)
-                        (setq *score* (+ *score* *match_score*))
-                        (setq *first_pick* :nil)
+                        (setq *score* (+ *score* *match_score*)
+                              *first_pick* :nil)
                         (update-view))
                     (progn
                         ; Mismatch
-                        (setq *score* (- *score* *mismatch_penalty*))
-                        (setq *locked* :t) ; Lock UI
+                        (setq *score* (- *score* *mismatch_penalty*)
+                              *locked* :t)
                         ; Set timer to hide cards after delay
                         (mail-timeout (elem-get select +select_timer) 1000000 0)
                         (update-view))))
@@ -194,9 +189,9 @@
             ((= idx +select_timer)
                 ; Mismatch timer fired - hide temporary cards
                 (when *locked*
-                    (setq *states* (map (lambda (s) (if (= s 1) 0 s)) *states*))
-                    (setq *first_pick* :nil)
-                    (setq *locked* :nil)
+                    (setq *states* (map (lambda (s) (if (= s 1) 0 s)) *states*)
+                          *first_pick* :nil
+                          *locked* :nil)
                     (update-view)))
             ((= (getf msg +ev_msg_type) +ev_type_action)
                 (dispatch-action (getf msg +ev_msg_target_id)))
