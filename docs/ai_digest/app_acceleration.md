@@ -12,7 +12,7 @@ to the Virtual Processor (VP) assembly. These files are typically named
 `lisp.vp`. They define native functions that can be called directly from Lisp
 code via the Foreign Function Interface (FFI).
 
-This guide analyzes `apps/mandelbrot/lisp.vp` and `apps/raymarch/lisp.vp` to
+This guide analyzes `apps/science/mandelbrot/lisp.vp` and `apps/demos/raymarch/lisp.vp` to
 demonstrate register management, floating-point math, constant loading, and SIMD
 operations.
 
@@ -25,7 +25,7 @@ entry point expects arguments in specific registers (Standard ABI: `:r0` =
 #### Basic Structure
 
 ```vdu
-(def-func 'apps/mandelbrot/depth)
+(def-func 'apps/science/mandelbrot/depth)
     ; 1. Register Definition
     (vp-rdef (this args cnt ox0 oy0))       ; Integer/Pointer registers
     (vp-fdef (x0 y0 xc yc x2 y2 four two))  ; Floating-point registers
@@ -144,12 +144,12 @@ usually `_ff`.
 
 ### 5. Advanced: SIMD in Raymarch
 
-The Raymarch app (`apps/raymarch/lisp.vp`) demonstrates `vp-simd`, a powerful
+The Raymarch app (`apps/demos/raymarch/lisp.vp`) demonstrates `vp-simd`, a powerful
 macro that unrolls operations to process vectors (X, Y, Z) in parallel. While
 VP64 is scalar, this macro generates the sequence of scalar instructions
 automatically, making code cleaner.
 
-**Example from `apps/raymarch/lisp.vp`:**
+**Example from `apps/demos/raymarch/lisp.vp`:**
 
 ```vdu
 ; Multiply p0, p1, p2 by p0, p1, p2 (Square them)
@@ -169,18 +169,18 @@ automatically, making code cleaner.
 
 To make these functions available to the high-level Lisp interpreter:
 
-1. **JIT Compile:** In the app script (e.g., `apps/mandelbrot/child.lisp`),
+1. **JIT Compile:** In the app script (e.g., `apps/science/mandelbrot/child.lisp`),
    compile the VP file.
 
     ```vdu
-    (jit "apps/mandelbrot/" "lisp.vp" '("depth"))
+    (jit "apps/science/mandelbrot/" "lisp.vp" '("depth"))
     ```
 
 2. **Define FFI:** Bind the native function name to a Lisp symbol.
 
     ```vdu
     ; Format: (ffi "path/to/func_name" lisp-symbol-name)
-    (ffi "apps/mandelbrot/depth" depth)
+    (ffi "apps/science/mandelbrot/depth" depth)
     ```
 
 3. **Call:** Use it like a standard Lisp function.
@@ -193,7 +193,7 @@ To make these functions available to the high-level Lisp interpreter:
 ### 7. Full Workflow Example: Mandelbrot Depth
 
 Here is the breakdown of the inner loop of the Mandelbrot set calculator
-(`apps/mandelbrot/lisp.vp`).
+(`apps/science/mandelbrot/lisp.vp`).
 
 1. **Signature**: Expects `x0` and `y0` (Reals). Returns `cnt` (Integer).
 

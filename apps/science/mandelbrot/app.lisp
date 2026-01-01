@@ -53,7 +53,7 @@
 	(* (- x1 x) (- y1 y)))
 
 ;native versions
-(ffi "apps/mandelbrot/tile" tile)
+(ffi "apps/science/mandelbrot/tile" tile)
 ; (tile canvas data lut) -> area
 
 (defun dispatch-job (key val)

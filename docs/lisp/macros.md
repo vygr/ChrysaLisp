@@ -161,7 +161,7 @@ Most of the GUI widget trees, for application UIs, are constructed with nested
 ui macros, for example the Pcb app UI:
 
 ```file
-apps/pcb/app.lisp "*window*" ""
+apps/science/pcb/app.lisp "*window*" ""
 ```
 
 This expands into a program to build the UI tree !

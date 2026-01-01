@@ -78,11 +78,11 @@
 			(list buckets) (+ miny minx) (+ miny maxx 1))))
 
 ;native versions
-(ffi "apps/pcb/hit_line" hit-line)
+(ffi "apps/science/pcb/hit_line" hit-line)
 ; (hit-line buckets minx miny maxx maxy width id func line) -> flag
-(ffi "apps/pcb/add_line" add-line)
+(ffi "apps/science/pcb/add_line" add-line)
 ; (add-line buckets minx miny maxx maxy width record) -> record
-(ffi "apps/pcb/sub_line" sub-line)
+(ffi "apps/science/pcb/sub_line" sub-line)
 ; (sub-line buckets minx miny maxx maxy width line) -> buckets
 
 (defclass Layer (width height scale) :nil

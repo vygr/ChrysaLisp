@@ -148,7 +148,7 @@ to decide, "it's not coming". That might be in the link layer or the library
 layer or whatever. Here we will show how to make the application immune to the
 problem no matter what layer caused the issue.
 
-If we look at the Raymarch demo `apps/raymarch/app.lisp` this consists of a
+If we look at the Raymarch demo `apps/demos/raymarch/app.lisp` this consists of a
 parent GUI app and a child task that's spawned multiple times to fill the
 available nodes. Those child tasks are then `farmed` with jobs from a job que.
 Each time a job result comes back the que is drained and a new job is sent out
@@ -189,7 +189,7 @@ concentrate on what happens when we get the callbacks from the library and how
 to send off a job.
 
 ```file
-apps/raymarch/app.lisp "dispatch-job" "main"
+apps/demos/raymarch/app.lisp "dispatch-job" "main"
 ```
 
 When the library wishes to create a new child task, it'll call our `(create)`
@@ -325,13 +325,13 @@ scene display. But the Mandelbrot demo also uses a farm and the user CAN
 restart the calculations for a new position, in order to zoom in and out, at
 any point !
 
-The Mandelbrot demo `apps/mandelbrot/app.lisp` has a `(reset)` function defined
+The Mandelbrot demo `apps/science/mandelbrot/app.lisp` has a `(reset)` function defined
 that recreates the farm, job que and the `+select_reply` mailbox of the
 selection in order to safely ignore any `in flight` messages to the old
 mailbox.
 
 ```file
-apps/mandelbrot/app.lisp "reset" ""
+apps/science/mandelbrot/app.lisp "reset" ""
 ```
 
 ## Delayed actions with `(mail-timeout)`

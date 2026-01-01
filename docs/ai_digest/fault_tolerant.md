@@ -186,7 +186,7 @@ adapt, is central to ChrysaLisp's robustness.
     of worker tasks.
 
     * The `create` callback in the main application starts app-specific worker
-    tasks (`apps/raymarch/child.lisp`, `apps/mandelbrot/child.lisp`) on
+    tasks (`apps/demos/raymarch/child.lisp`, `apps/science/mandelbrot/child.lisp`) on
     available nodes. These workers are responsible for rendering a single tile.
 
     * The main app maintains a queue of jobs (tiles to render). `dispatch-job`
@@ -214,7 +214,7 @@ adapt, is central to ChrysaLisp's robustness.
     * **Ignoring Stale Messages (especially relevant for Mandelbrot):**
 
         * The Mandelbrot demo allows user interaction (zooming, panning), which
-          triggers a recalculation. The `reset` function in `apps/mandelbrot/app.lisp`
+          triggers a recalculation. The `reset` function in `apps/science/mandelbrot/app.lisp`
           is critical:
 
             * It calls `(. farm :close)` to shut down existing workers.
