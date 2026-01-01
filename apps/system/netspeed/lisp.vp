@@ -1,0 +1,164 @@
+(defq *app_root* (slice (first (repl-info)) 0 (rfind "/" (first (repl-info)))))
+(include "lib/asm/func.inc")
+(include "class/num/class.inc")
+(include "class/lisp/class.inc")
+
+(def-func (cat *app_root* 'vops))
+	;inputs
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
+	;outputs
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
+	;trashes
+	;:r1-:r14
+
+	(defmacro test-block (n &rest _)
+		(while (< (length _) n) (setq _ (cat _ _)))
+		`(progn ~(copy (slice _ 0 n))))
+
+	(defmacro test-block-s (n &rest _)
+		(while (< (length _) n) (setq _ (cat _ _)))
+		`(progn ~(shuffle (copy (slice _ 0 n)))))
+
+	(def-vars
+		(ptr this args mem1 mem2)
+		(long regs_vops memory_vops reals_vops start end cnt))
+
+	(push-scope)
+	(entry {this, args})
+
+	(errorif-lisp-args-sig 'error :r1 0)
+
+	;reg ops test
+	(call :host_os :pii_time :nil {start})
+	(assign {0} {cnt})
+	(loop-start)
+
+		;this mix allows up to oct issue opportunities !
+		;we shuffle the mix to give some spice to life.
+		(vp-rdef (loop r1 r2 r3 r4 r5 r6 r7 r8 r9))
+		(vp-cpy-cr 0 loop)
+		(loop-start)
+			(vp-simd vp-cpy-cr '(1 2 3 4 5 6 7 8 9) `(,r1 ,r2 ,r3 ,r4 ,r5 ,r6 ,r7 ,r8 ,r9))
+			(test-block-s 990
+				(vp-add-cr 3 r2) (vp-add-cr 3 r3) (vp-add-cr 3 r4) (vp-add-cr 3 r5)
+				(vp-add-cr 3 r6) (vp-add-cr 3 r7) (vp-add-cr 3 r8) (vp-add-cr 3 r9)
+				(vp-sub-cr 4 r2) (vp-sub-cr 4 r3) (vp-sub-cr 4 r4) (vp-sub-cr 4 r5)
+				(vp-sub-cr 4 r6) (vp-sub-cr 4 r7) (vp-sub-cr 4 r8) (vp-sub-cr 4 r9)
+				(vp-and-cr 5 r2) (vp-and-cr 5 r3) (vp-and-cr 5 r4) (vp-and-cr 5 r5)
+				(vp-and-cr 5 r6) (vp-and-cr 5 r7) (vp-and-cr 5 r8) (vp-and-cr 5 r9)
+				(vp-or-cr 6 r2) (vp-or-cr 6 r3) (vp-or-cr 6 r4) (vp-or-cr 6 r5)
+				(vp-or-cr 6 r6) (vp-or-cr 6 r7) (vp-or-cr 6 r8) (vp-or-cr 6 r9)
+				(vp-xor-cr 7 r2) (vp-xor-cr 7 r3) (vp-xor-cr 7 r4) (vp-xor-cr 7 r5)
+				(vp-xor-cr 7 r6) (vp-xor-cr 7 r7) (vp-xor-cr 7 r8) (vp-xor-cr 7 r9)
+				(vp-add-rr r1 r2) (vp-add-rr r1 r3) (vp-add-rr r1 r4) (vp-add-rr r1 r5)
+				(vp-add-rr r1 r6) (vp-add-rr r1 r7) (vp-add-rr r1 r8) (vp-add-rr r1 r9)
+				(vp-sub-rr r1 r2) (vp-sub-rr r1 r3) (vp-sub-rr r1 r4) (vp-sub-rr r1 r5)
+				(vp-sub-rr r1 r6) (vp-sub-rr r1 r7) (vp-sub-rr r1 r8) (vp-sub-rr r1 r9)
+				(vp-and-rr r1 r2) (vp-and-rr r1 r3) (vp-and-rr r1 r4) (vp-and-rr r1 r5)
+				(vp-and-rr r1 r6) (vp-and-rr r1 r7) (vp-and-rr r1 r8) (vp-and-rr r1 r9)
+				(vp-or-rr r1 r2) (vp-or-rr r1 r3) (vp-or-rr r1 r4) (vp-or-rr r1 r5)
+				(vp-or-rr r1 r6) (vp-or-rr r1 r7) (vp-or-rr r1 r8) (vp-or-rr r1 r9)
+				(vp-xor-rr r1 r2) (vp-xor-rr r1 r3) (vp-xor-rr r1 r4) (vp-xor-rr r1 r5)
+				(vp-xor-rr r1 r6) (vp-xor-rr r1 r7) (vp-xor-rr r1 r8) (vp-xor-rr r1 r9)
+				(vp-shl-cr 3 r2) (vp-shl-cr 3 r3) (vp-shl-cr 3 r4) (vp-shl-cr 3 r5)
+				(vp-shl-cr 3 r6) (vp-shl-cr 3 r7) (vp-shl-cr 3 r8) (vp-shl-cr 3 r9)
+				(vp-shr-cr 2 r2) (vp-shr-cr 2 r3) (vp-shr-cr 2 r4) (vp-shr-cr 2 r5)
+				(vp-shr-cr 2 r6) (vp-shr-cr 2 r7) (vp-shr-cr 2 r8) (vp-shr-cr 2 r9)
+				(vp-asr-cr 1 r2) (vp-asr-cr 1 r3) (vp-asr-cr 1 r4) (vp-asr-cr 1 r5)
+				(vp-asr-cr 1 r6) (vp-asr-cr 1 r7) (vp-asr-cr 1 r8) (vp-asr-cr 1 r9)
+				(vp-shl-rr r1 r2) (vp-shl-rr r1 r3) (vp-shl-rr r1 r4) (vp-shl-rr r1 r5)
+				(vp-shl-rr r1 r6) (vp-shl-rr r1 r7) (vp-shl-rr r1 r8) (vp-shl-rr r1 r9)
+				(vp-shr-rr r1 r2) (vp-shr-rr r1 r3) (vp-shr-rr r1 r4) (vp-shr-rr r1 r5)
+				(vp-shr-rr r1 r6) (vp-shr-rr r1 r7) (vp-shr-rr r1 r8) (vp-shr-rr r1 r9)
+				(vp-asr-rr r1 r2) (vp-asr-rr r1 r3) (vp-asr-rr r1 r4) (vp-asr-rr r1 r5)
+				(vp-asr-rr r1 r6) (vp-asr-rr r1 r7) (vp-asr-rr r1 r8) (vp-asr-rr r1 r9))
+			(vp-add-cr 1 loop)
+		(loop-until `(,loop = 1000))
+		(call :sys_task :sleep '(0))
+
+		(call :host_os :pii_time :nil {end})
+		(assign {end - start, 1000 * 1000 + cnt} {end, cnt})
+	(loop-until {end >= 100000})
+	(call :num :create {1000000 * cnt / end} {regs_vops})
+
+	;memory ops test
+	(call :host_os :pii_time :nil {start})
+	(assign {0} {cnt})
+	(loop-start)
+
+		(vp-rdef (loop r1 r2 r3 r4))
+		(assign {&mem1, &mem2} `(,r1 ,r2))
+		(vp-cpy-cr 0 loop)
+		(loop-start)
+			(test-block 1000
+				(vp-cpy-ir r1 0 r3)
+				(vp-cpy-ir r2 0 r4)
+				(vp-cpy-ri r3 r2 0)
+				(vp-cpy-ri r4 r1 0)
+				(vp-cpy-ir-i r1 0 r3)
+				(vp-cpy-ir-i r2 0 r4)
+				(vp-cpy-ri-i r3 r2 0)
+				(vp-cpy-ri-i r4 r1 0)
+				(vp-cpy-ir-s r1 0 r3)
+				(vp-cpy-ir-s r2 0 r4)
+				(vp-cpy-ri-s r3 r2 0)
+				(vp-cpy-ri-s r4 r1 0)
+				(vp-cpy-ir-b r1 0 r3)
+				(vp-cpy-ir-b r2 0 r4)
+				(vp-cpy-ri-b r3 r2 0)
+				(vp-cpy-ri-b r4 r1 0))
+			(vp-add-cr 1 loop)
+		(loop-until `(,loop = 1000))
+		(call :sys_task :sleep '(0))
+
+		(call :host_os :pii_time :nil {end})
+		(assign {end - start, 1000 * 1000 + cnt} {end, cnt})
+	(loop-until {end >= 100000})
+	(call :num :create {1000000 * cnt / end} {memory_vops})
+
+	;reals ops test
+	(call :host_os :pii_time :nil {start})
+	(assign {0} {cnt})
+	(loop-start)
+
+		(vp-rdef (loop r1 r2 r3 r4))
+		(vp-fdef (f1 f2 f3 f4 f5 f6 f7 f8))
+		(vp-cpy-cr 0 loop)
+		(vp-cpy-cr 1000 r1)
+		(vp-cpy-cr -1000 r2)
+		(vp-cpy-cr 10000 r3)
+		(vp-cpy-cr -10000 r4)
+		(loop-start)
+			(test-block 24
+				(vp-cvt-rf r1 f1) (vp-cvt-rf r2 f3) (vp-cvt-rf r3 f5) (vp-cvt-rf r4 f7)
+				(vp-cpy-ff f1 f2) (vp-cpy-ff f3 f4) (vp-cpy-ff f5 f6) (vp-cpy-ff f7 f8)
+				(vp-add-ff f1 f2) (vp-add-ff f3 f4) (vp-add-ff f5 f6) (vp-add-ff f7 f8)
+				(vp-sub-ff f2 f1) (vp-sub-ff f4 f3) (vp-sub-ff f6 f5) (vp-sub-ff f8 f7)
+				(vp-mul-ff f1 f2) (vp-mul-ff f3 f4) (vp-mul-ff f5 f6) (vp-mul-ff f7 f8)
+				(vp-div-ff f1 f2) (vp-div-ff f3 f4) (vp-div-ff f5 f6) (vp-div-ff f7 f8))
+			(vp-add-cr 1 loop)
+		(loop-until `(,loop = 100))
+		(call :sys_task :sleep '(0))
+
+		(call :host_os :pii_time :nil {end})
+		(assign {end - start, 24 * 100 + cnt} {end, cnt})
+	(loop-until {end >= 100000})
+	(call :num :create {1000000 * cnt / end} {reals_vops})
+
+	(call :list :create :nil {args})
+	(call :list :push_back2 {args, regs_vops, memory_vops})
+	(call :list :push_back {args, reals_vops})
+
+	(exit {this, args})
+	(return)
+
+(errorcase
+(vp-label 'error)
+	(jump :lisp :repl_error {this, "(vops)", +error_msg_wrong_types, args})
+	(signature '()))
+
+	(pop-scope-syms)
+
+(def-func-end)

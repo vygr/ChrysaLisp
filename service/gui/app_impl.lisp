@@ -10,7 +10,7 @@
 
 (import "sys/pii/lisp.inc")
 (defq *env_user* "Guest")
-(import "apps/login/Guest/env.inc")
+(import "apps/system/login/Guest/env.inc")
 (import *env_keyboard_map*)
 (import "./actions.inc")
 
@@ -62,7 +62,7 @@
 	;run login app or quit ?
 	(if quit
 		(setq *quitting* :t)
-		(open-child "apps/login/app.lisp" +kn_call_open)))
+		(open-child "apps/system/login/app.lisp" +kn_call_open)))
 
 (defun main ()
 	;declare service and vars
@@ -76,7 +76,7 @@
 	(. (gui-init (. *screen* :change *env_window_x* *env_window_y* *env_window_width* *env_window_height*)) :dirty_all)
 	(gui-update 0 0 0)
 	;init mouse widget
-	(defq *mouse* (canvas-load "apps/images/data/mice.cpm" 0))
+	(defq *mouse* (canvas-load "apps/media/images/data/mice.cpm" 0))
 	(setf *mouse* +view_owner_id (elem-get select +select_mouse) 0)
 	(. *mouse* :set_flags +view_flag_at_front (const (+ +view_flag_solid +view_flag_at_front)))
 	(. *screen* :add_front *mouse*)
@@ -85,7 +85,7 @@
 	(open-child "service/clipboard/app.lisp" +kn_call_open)
 	(open-child "service/lock/app.lisp" +kn_call_open)
 	(open-child "service/audio/app.lisp" +kn_call_open)
-	(open-child "apps/login/app.lisp" +kn_call_open)
+	(open-child "apps/system/login/app.lisp" +kn_call_open)
 	(mail-timeout (elem-get select +select_timer) +rate 0)
 	(while *running*
 		(let* ((idx (mail-select select)) (msg (mail-read (elem-get select idx))))

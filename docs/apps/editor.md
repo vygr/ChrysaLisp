@@ -17,20 +17,28 @@ environment between sessions in your user folder under the name
 ## UI
 
 ```widget
-apps/edit/widgets.inc *window* 512 512
+apps/accessories/edit/widgets.inc *window* 512 512
 ```
 
 ## Implementation Study
 
-The ChrysaLisp Editor, found in `apps/edit/`, is a sophisticated, multi-buffer programmer's text editor tailored for the ChrysaLisp environment. It showcases many of the GUI system's strengths, including its event handling, widget composition, and the Lisp-centric property system. This document delves into its architecture, key features, and implementation details based on the provided source code.
+The ChrysaLisp Editor, found in `apps/accessories/edit/`, is a sophisticated,
+multi-buffer programmer's text editor tailored for the ChrysaLisp environment.
+It showcases many of the GUI system's strengths, including its event handling,
+widget composition, and the Lisp-centric property system. This document delves
+into its architecture, key features, and implementation details based on the
+provided source code.
 
 ### 1. Core Architecture and Components
 
-The Editor follows a structure that loosely resembles Model-View-Controller, with clear separation of concerns:
+The Editor follows a structure that loosely resembles Model-View-Controller,
+with clear separation of concerns:
 
 * **Model (Text Management):**
 
-    * **`Buffer` Class (`lib/text/buffer.inc`):** This is the heart of text data management. Each open file or scratchpad is represented by a `Buffer` instance. It handles:
+    * **`Buffer` Class (`lib/text/buffer.inc`):** This is the heart of text data
+      management. Each open file or scratchpad is represented by a `Buffer`
+      instance. It handles:
 
         * Storing lines of text (`:buffer_line`).
 
@@ -60,8 +68,8 @@ The Editor follows a structure that loosely resembles Model-View-Controller, wit
 
 * **View (User Interface):**
 
-    * **`*window*` (`apps/edit/widgets.inc`):** The main application `Window`,
-      serving as the root of the UI tree.
+    * **`*window*` (`apps/accessories/edit/widgets.inc`):** The main application
+      `Window`, serving as the root of the UI tree.
 
     * **`Editor-edit` Class (`gui/edit/lisp.inc`):** A specialized class
       inheriting from `Edit`. The primary instance is `*edit*`. This widget is
@@ -69,36 +77,48 @@ The Editor follows a structure that loosely resembles Model-View-Controller, wit
       handling user interactions.
 
     * **`Edit` Widget (`gui/edit/lisp.inc`):** The underlying graphical text
-      editing component. It uses child `Vdu` widgets (`:vdu_text`,
-      `:vdu_paper`, `:vdu_ink`) for rendering different visual layers (text,
-      selections, bracket highlights).
+      editing component. It uses child `Vdu` widgets (`:vdu_text`, `:vdu_paper`,
+      `:vdu_ink`) for rendering different visual layers (text, selections,
+      bracket highlights).
 
     * **`Vdu` Widget (`gui/vdu/lisp.inc`):** Renders text on a character grid.
 
-    * **Toolbars, Sliders, Trees (`apps/edit/widgets.inc`):** Standard widgets
-      for find/replace, file navigation, scrollbars, etc. (e.g.,
-      `*main_toolbar*`, `*find_toolbar*`, `*open_tree*`, `*file_selector*`,
-      `*xslider*`, `*yslider*`).
+    * **Toolbars, Sliders, Trees (`apps/accessories/edit/widgets.inc`):**
+      Standard widgets for find/replace, file navigation, scrollbars, etc.
+      (e.g., `*main_toolbar*`, `*find_toolbar*`, `*open_tree*`,
+      `*file_selector*`, `*xslider*`, `*yslider*`).
 
 * **Controller (Application Logic and Event Handling):**
 
-    * **`apps/edit/app_impl.lisp`:** Contains the main application loop (`main` function) and orchestrates the interaction between the model and view.
+    * **`apps/accessories/edit/app_impl.lisp`:** Contains the main application
+      loop (`main` function) and orchestrates the interaction between the model
+      and view.
 
-    * **`apps/edit/actions.inc` (and its includes like `cursor.inc`, `file.inc`, etc.):** Defines `Fmap`s (`*event_map*`, `*key_map*`, `*key_map_shift*`, `*key_map_control*`) that map event IDs and key codes to handler functions. These handler functions implement the editor's commands and features.
+    * **`apps/accessories/edit/actions.inc` (and its includes like `cursor.inc`,
+      `file.inc`, etc.):** Defines `Fmap`s (`*event_map*`, `*key_map*`,
+      `*key_map_shift*`, `*key_map_control*`) that map event IDs and key codes
+      to handler functions. These handler functions implement the editor's
+      commands and features.
 
-    * **`dispatch-action` helper (`app_impl.lisp`):** A central function to `(eval)` actions retrieved from the event/key maps, also handling macro recording.
+    * **`dispatch-action` helper (`app_impl.lisp`):** A central function to
+      `(eval)` actions retrieved from the event/key maps, also handling macro
+      recording.
 
-### 2. UI Structure (`apps/edit/widgets.inc`)
+### 2. UI Structure (`apps/accessories/edit/widgets.inc`)
 
 The Editor's UI is built using ChrysaLisp's UI builder macros:
 
 * The root is `*window*` (a `ui-window`).
 
-* It contains a main `Flow` layout (`*edit_flow*`) that holds the primary editing area and status bar.
+* It contains a main `Flow` layout (`*edit_flow*`) that holds the primary
+  editing area and status bar.
 
-* **Toolbars:** Several `ui-tool-bar` widgets (`*main_toolbar*`, `*macro_toolbar*`, `*buffer_toolbar*`, `*find_toolbar*`, `*replace_toolbar*`) house `ui-buttons` for various actions.
+* **Toolbars:** Several `ui-tool-bar` widgets (`*main_toolbar*`,
+  `*macro_toolbar*`, `*buffer_toolbar*`, `*find_toolbar*`, `*replace_toolbar*`)
+  house `ui-buttons` for various actions.
 
-* **File Navigation:** A `ui-flow` contains a `ui-stack` named `*tab_flow*`. This stack has two main tabs:
+* **File Navigation:** A `ui-flow` contains a `ui-stack` named `*tab_flow*`.
+  This stack has two main tabs:
 
     * "Open Files": A `ui-files` to display currently open files.
 
@@ -108,37 +128,53 @@ The Editor's UI is built using ChrysaLisp's UI builder macros:
 
     * `*vdu_lines*`: A `Vdu` widget to display line numbers.
 
-    * `*edit*`: An instance of `Editor-edit` (which is an `Edit` widget), the main text editing canvas. This itself is wrapped in a `Flow` to accommodate scrollbars.
+    * `*edit*`: An instance of `Editor-edit` (which is an `Edit` widget), the
+      main text editing canvas. This itself is wrapped in a `Flow` to
+      accommodate scrollbars.
 
-    * `*yslider*` and `*xslider*`: `ui-slider` widgets for vertical and horizontal scrolling of the `*edit*` widget.
+    * `*yslider*` and `*xslider*`: `ui-slider` widgets for vertical and
+      horizontal scrolling of the `*edit*` widget.
 
-* **Status Bar:** A `ui-flow` at the bottom displays information like cursor position (`*cx*`, `*cy*`), selection size (`*sw*`, `*sh*`), and find count (`*fc*`) using `ui-text` widgets.
+* **Status Bar:** A `ui-flow` at the bottom displays information like cursor
+  position (`*cx*`, `*cy*`), selection size (`*sw*`, `*sh*`), and find count
+  (`*fc*`) using `ui-text` widgets.
 
-* **Find/Replace:** `ui-textfield` widgets (`*find_text*`, `*replace_text*`) for inputting search and replacement strings.
+* **Find/Replace:** `ui-textfield` widgets (`*find_text*`, `*replace_text*`) for
+  inputting search and replacement strings.
 
-The UI definition extensively uses the `(:connect event_id)` property on buttons to link them to specific events handled in `actions.inc`.
+The UI definition extensively uses the `(:connect event_id)` property on buttons
+to link them to specific events handled in `actions.inc`.
 
 ### 3. Event Handling and Dispatch
 
-The event loop in `apps/edit/app_impl.lisp` (`main` function) uses `(mail-select)` on a list of mailboxes (`*select*`).
+The event loop in `apps/accessories/edit/app_impl.lisp` (`main` function) uses
+`(mail-select)` on a list of mailboxes (`*select*`).
 
 * **Main GUI Events (`+select_main`):**
 
     * If an event's `+ev_msg_target_id` maps to an action in `*event_map*`, `(dispatch-action)` is called.
 
-    * Keyboard events (`+ev_type_key_down`) not targeting a `Textfield` are processed against `*key_map*`, `*key_map_shift*`, or `*key_map_control*` based on modifier keys. The corresponding action is then dispatched.
+    * Keyboard events (`+ev_type_key_down`) not targeting a `Textfield` are
+      processed against `*key_map*`, `*key_map_shift*`, or `*key_map_control*`
+      based on modifier keys. The corresponding action is then dispatched.
 
     * Unhandled events are passed to `(. *window* :event msg)`.
 
 * **Tooltip Events (`+select_tip`):** Handled by calling `(. view :show_tip)` on the target view.
 
-* **`dispatch-action`:** This helper function in `app_impl.lisp` first checks if the action should be recorded (if `*macro_record*` is true and the function is in `*recorded_actions*`). Then, it `(eval)`s the action list (e.g., `(action-save-all)` or `(action-insert "text")`). It includes a `(catch ...)` to prevent errors in actions from crashing the editor.
+* **`dispatch-action`:** This helper function in `app_impl.lisp` first checks if
+  the action should be recorded (if `*macro_record*` is true and the function is
+  in `*recorded_actions*`). Then, it `(eval)`s the action list (e.g.,
+  `(action-save-all)` or `(action-insert "text")`). It includes a `(catch ...)`
+  to prevent errors in actions from crashing the editor.
 
 ### 4. Multi-Buffer Management
 
 The Editor manages multiple open files and scratch buffers:
 
-* **`*meta_map*` (`app_impl.lisp`):** An `Emap` storing metadata for all known files (open or not). The top-level keys are `:files` (another `Fmap` mapping file paths to their specific metadata) and other global editor settings.
+* **`*meta_map*` (`app_impl.lisp`):** An `Emap` storing metadata for all known
+  files (open or not). The top-level keys are `:files` (another `Fmap` mapping
+  file paths to their specific metadata) and other global editor settings.
 
 * **Per-File Metadata:** For each file path in `*meta_map*` -> `:files`, another `Emap` stores:
 
@@ -150,15 +186,21 @@ The Editor manages multiple open files and scratch buffers:
 
     * `:sx`, `:sy`: Last scroll position.
 
-* **`*open_files*` (`app_impl.lisp`):** A Lisp `:list` containing the paths of files currently "open" (i.e., having a buffer loaded and potentially displayed in the "Open Files" tree).
+* **`*open_files*` (`app_impl.lisp`):** A Lisp `:list` containing the paths of
+  files currently "open" (i.e., having a buffer loaded and potentially displayed
+  in the "Open Files" tree).
 
 * **`*current_file*` (`app_impl.lisp`):** The path of the file currently active in the `*edit*` widget. Can be `:nil` for a scratch buffer.
 
 * **`populate-buffer` function (`app_impl.lisp`):**
 
-    * Takes a `file` path. If a metadata entry for this file doesn't exist in `*meta_map*`, it creates one.
+    * Takes a `file` path. If a metadata entry for this file doesn't exist in
+      `*meta_map*`, it creates one.
 
-    * If the metadata entry doesn't yet have a `:buffer` associated, it creates a new `Buffer` instance (passing `*syntax*` engine), loads the file content using `(. buffer :file_load file)`, and populates the `dictionary`.
+    * If the metadata entry doesn't yet have a `:buffer` associated, it creates
+      a new `Buffer` instance (passing `*syntax*` engine), loads the file
+      content using `(. buffer :file_load file)`, and populates the
+      `dictionary`.
 
 * **`populate-vdu` function (`app_impl.lisp`):**
 
@@ -177,15 +219,22 @@ The Editor manages multiple open files and scratch buffers:
 
 ### 5. Text Editing Core
 
-* **`Editor-edit` (`gui/edit/lisp.inc`):** This class inherits from the generic `Edit` widget. It primarily sets default font and color properties.
+* **`Editor-edit` (`gui/edit/lisp.inc`):** This class inherits from the generic
+  `Edit` widget. It primarily sets default font and color properties.
 
 * **`Edit` Widget (`gui/edit/lisp.inc`):**
 
-    * It doesn't directly store text but holds a reference to a `Buffer` object via its `:buffer` property (set by `(:set_buffer ...)`).
+    * It doesn't directly store text but holds a reference to a `Buffer` object
+      via its `:buffer` property (set by `(:set_buffer ...)`).
 
-    * Most text manipulation methods on `Edit` (like `:insert`, `:backspace`, `:cut`, `:copy`, `:paste`, `:break`, `:tab`, etc.) are wrappers that call the corresponding methods on its current `Buffer`.
+    * Most text manipulation methods on `Edit` (like `:insert`, `:backspace`,
+      `:cut`, `:copy`, `:paste`, `:break`, `:tab`, etc.) are wrappers that call
+      the corresponding methods on its current `Buffer`.
 
-    * `(:underlay_paper)` and `(:underlay_ink)` methods are responsible for preparing the visual overlays for selections and bracket matching, respectively, by loading appropriate character attributes into its child `Vdu` widgets (`:vdu_paper`, `:vdu_ink`).
+    * `(:underlay_paper)` and `(:underlay_ink)` methods are responsible for
+      preparing the visual overlays for selections and bracket matching,
+      respectively, by loading appropriate character attributes into its child
+      `Vdu` widgets (`:vdu_paper`, `:vdu_ink`).
 
 * **`Buffer` Class (`lib/text/buffer.inc`):**
 
@@ -197,7 +246,12 @@ The Editor manages multiple open files and scratch buffers:
 
         * `(:push_undo record ...)`: Pushes records onto `:undo_stack`. Records are typically lists like `(:cursor x y)`, `(:insert x y "text")`, `(:delete x y "text")`, or `(:mark mark_id)`.
 
-        * `(:undo)` and `(:redo)` methods pop records from `:undo_stack` or `:redo_stack` and reverse/reapply the operations. The `(undoable ...)` macro (`apps/edit/utils.inc`) is used to wrap editing actions, automatically pushing cursor state and a unique mark before and after the action, allowing a set of operations to be undone/redone as a single logical step.
+        * `(:undo)` and `(:redo)` methods pop records from `:undo_stack` or
+          `:redo_stack` and reverse/reapply the operations. The `(undoable ...)`
+          macro (`apps/accessories/edit/utils.inc`) is used to wrap editing
+          actions, automatically pushing cursor state and a unique mark before
+          and after the action, allowing a set of operations to be undone/redone
+          as a single logical step.
 
     * Cursor and selection logic is handled by methods like `(:constrain x y)`, `(:left)`, `(:right)`, etc.
 
@@ -209,7 +263,13 @@ The Editor manages multiple open files and scratch buffers:
 
 * **`Syntax` Class (`lib/text/syntax.inc`):**
 
-    * `(:colorise str)`: This method takes a line of text. It tokenizes the line based on character types (symbol, number, string, comment, etc.) and its current internal state (e.g., inside a multi-line comment or string). It then consults its internal keyword maps and color properties (e.g., `:ink_keyword1`, `:ink_strings`) to return an `:array` of character attributes. Each element in this array is a `long` where the lower bytes are the character code and higher bytes encode the color.
+    * `(:colorise str)`: This method takes a line of text. It tokenizes the line
+      based on character types (symbol, number, string, comment, etc.) and its
+      current internal state (e.g., inside a multi-line comment or string). It
+      then consults its internal keyword maps and color properties (e.g.,
+      `:ink_keyword1`, `:ink_strings`) to return an `:array` of character
+      attributes. Each element in this array is a `long` where the lower bytes
+      are the character code and higher bytes encode the color.
 
     * The `Vdu` widget can directly render such an array of attributed characters.
 
@@ -221,7 +281,7 @@ The Editor manages multiple open files and scratch buffers:
 
     * `build-syntax` in `gui/text/buffer.inc` manages caching and re-colorizing lines only when necessary (based on `:dirty_flags`).
 
-### 7. Macro Recording System (`apps/edit/macros.inc`)
+### 7. Macro Recording System (`apps/accessories/edit/macros.inc`)
 
 * **`*macro_record*` flag (`app_impl.lisp`):** Toggled by `action-macro-record`.
 
@@ -263,7 +323,7 @@ The Editor manages multiple open files and scratch buffers:
 
     * When a file is loaded into a buffer (`populate-buffer`), its words (longer than `+min_word_size`) are added to the `dictionary` via `populate-dictionary`.
 
-* **`action-tab` (`apps/edit/edit.inc`):**
+* **`action-tab` (`apps/accessories/edit/edit.inc`):**
 
     * When Tab is pressed and not in a selection, it attempts auto-completion.
 
@@ -271,13 +331,13 @@ The Editor manages multiple open files and scratch buffers:
 
     * If matches are found, it tries to complete the current word or, if ambiguous, potentially shows a list of matches (though `show-matches` functionality seems to be more for find highlighting than direct autocompletion popup in the provided snippets). The primary effect is completing to the longest common prefix or a single match.
 
-* **`show-matches` (`apps/edit/search.inc`, but further detailed in `app_impl.lisp`'s context):**
+* **`show-matches` (`apps/accessories/edit/search.inc`, but further detailed in `app_impl.lisp`'s context):**
 
     * This function seems geared towards displaying multiple suggestions in a popup `Window` (`match_window`). While triggered by `action-insert` after typing, it uses the `Dictionary` for suggestions if the current word fragment is long enough.
 
     * The `select-match` function allows navigating these suggestions.
 
-### 9. Project State Management (`apps/edit/state.inc`)
+### 9. Project State Management (`apps/accessories/edit/state.inc`)
 
 * **`+state_filename`:** `"editor.tre"` stored in `*env_home*`.
 
@@ -313,7 +373,7 @@ The Editor manages multiple open files and scratch buffers:
 
 * **Syntax Highlighting:** The `Syntax` class could be subclassed or its keyword maps extended to support new languages or refine existing ones.
 
-* **UI:** The UI can be modified by changing `apps/edit/widgets.inc`. New toolbars, buttons, or views can be integrated.
+* **UI:** The UI can be modified by changing `apps/accessories/edit/widgets.inc`. New toolbars, buttons, or views can be integrated.
 
 * **Programmatic Control:** The `Buffer` and `Editor-edit` classes expose a comprehensive set of methods, allowing other Lisp code (e.g., plugins, if a system for them were developed) to interact with and control the editor.
 

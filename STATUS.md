@@ -52,6 +52,9 @@ New `apps/pairs/app.lisp` simple matching pairs puzzle app.
 
 New `apps/solitaire/app.lisp` simple peg solitaire puzzle app.
 
+GUI apps arranged into subfolders. Launcher and various path code updated to use
+relative paths.
+
 ------
 
 New `(nql obj1 obj2) -> :t | :nil` built in function.

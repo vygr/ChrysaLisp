@@ -1,6 +1,9 @@
 # Collections, Maps, Sets and Trees
 
-The collections classes are held in the `lib/collections/` folder. They consist of various maps and sets. Each subclass implements a common API. But the individual types are specialized for particular uses and performance characteristics.
+The collections classes are held in the `lib/collections/` folder. They consist
+of various maps and sets. Each subclass implements a common API. But the
+individual types are specialized for particular uses and performance
+characteristics.
 
 At the VP level maps and sets are provided as VP classes. The environment
 system is built on a single map class, the `:hmap`. A Lisp level API interface
@@ -96,7 +99,7 @@ function.
 For example, here is the `Editor` load state routine.
 
 ```file
-apps/edit/state.inc "state-load" ""
+apps/accessories/edit/state.inc "state-load" ""
 ```
 
 ### Saveing
@@ -107,7 +110,7 @@ function.
 Here again is the `Editor` save state routine.
 
 ```file
-apps/edit/state.inc "state-save" ""
+apps/accessories/edit/state.inc "state-save" ""
 ```
 
 ## Scatter and gather functions

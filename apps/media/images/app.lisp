@@ -1,20 +1,26 @@
-;debug options
-(case 2
-(0 (import "lib/debug/frames.inc"))
-(1 (import "lib/debug/profile.inc"))
-(2 (import "lib/debug/debug.inc")))
-
 (import "apps/system/login/env.inc")
 (import "gui/lisp.inc")
-(import "service/clipboard/app.inc")
+(import "lib/files/files.inc")
+(defq *app_root* (slice (first (repl-info)) 0 (rfind "/" (first (repl-info)))))
 
 ;our UI widgets
 (import "./widgets.inc")
 
 (enums +select 0
-	(enum main tip timer))
+	(enum main tip))
 
-(defq +rate (/ 1000000 1))
+(defq +file_types ''(".cpm" ".tga" ".svg"))
+
+(defun win-refresh (file)
+	(bind '(w h) (. (defq canvas (canvas-load file 0)) :pref_size))
+	(def *image_scroll* :min_width w :min_height h)
+	(def *window_title* :text (cat "Images -> " (slice file (rfind "/" file) -1)))
+	(. *image_scroll* :add_child canvas)
+	(. *window_title* :layout)
+	(bind '(x y w h) (apply view-fit (cat (. *window* :get_pos) (. *window* :pref_size))))
+	(def *image_scroll* :min_width 128 :min_height 128)
+	(. *file_selector* :select_node file)
+	(. *window* :change_dirty x y w h))
 
 ;import actions and bindings
 (import "./actions.inc")
@@ -24,10 +30,10 @@
 
 (defun main ()
 	(defq select (task-mboxes +select_size) *running* :t)
-	(def *window* :tip_mbox (elem-get select +select_tip))
-	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
+	(. *file_selector* :populate "." +file_types 2)
+	(bind '(x y w h) (apply view-locate
+		(. (win-refresh (cat *app_root* "data/tiger.svg")) :get_size)))
 	(gui-add-front-rpc (. *window* :change x y w h))
-	(mail-timeout (elem-get select +select_timer) +rate 0)
 	(while *running*
 		(defq *msg* (mail-read (elem-get select (defq idx (mail-select select)))))
 		(cond
@@ -35,9 +41,6 @@
 				;tip event
 				(if (defq view (. *window* :find_id (getf *msg* +mail_timeout_id)))
 					(. view :show_tip)))
-			((= idx +select_timer)
-				;timer event
-				(mail-timeout (elem-get select +select_timer) +rate 0))
 			((defq id (getf *msg* +ev_msg_target_id) action (. *event_map* :find id))
 				;call bound event action
 				(dispatch-action action))
@@ -67,5 +70,4 @@
 						(char key))))
 			(:t ;gui event
 				(. *window* :event *msg*))))
-	(gui-sub-rpc *window*)
-	(profile-report "Template"))
+	(gui-sub-rpc *window*))

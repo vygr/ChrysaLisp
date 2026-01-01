@@ -212,7 +212,7 @@ Another example of wrapping code in a decorator macro is the Editor application
 text to ensure its effects can be undone.
 
 ```file
-apps/edit/utils.inc "macro undoable" ""
+apps/accessories/edit/utils.inc "macro undoable" ""
 ```
 
 And an example of the macro in use:

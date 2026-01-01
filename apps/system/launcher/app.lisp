@@ -1,0 +1,144 @@
+(import "apps/system/login/env.inc")
+(import "gui/lisp.inc")
+(import "lib/files/files.inc")
+
+; Events
+(enums +event 0
+	(enum close launch toggle))
+
+; Mailbox selection enums
+(enums +select 0
+	(enum main tip))
+
+; Configuration state
+(defq *config* :nil *config_version* 3
+	*config_file* (cat *env_home* "launcher.tre"))
+
+; Default configuration if `launcher.tre`
+; is missing, or version mismatch
+(defun config-default ()
+	(scatter (Emap)
+		:version *config_version*
+		:columns 2
+		:exclude '("system/launcher" "system/login" "system/wallpaper" "tui")
+		:categories (scatter (Emap)
+			'System (scatter (Emap) :collapsed :nil
+				:apps '("terminal" "services" "debug" "profile" "netmon"
+					"netspeed" "files" "logout"))
+			'Accessories (scatter (Emap) :collapsed :nil
+				:apps '("edit" "docs" "viewer" "hexview" "todo" "calculator"
+					"fonts" "clock" "eyes"))
+			'Media (scatter (Emap) :collapsed :nil
+				:apps '("images" "films"))
+			'Communication (scatter (Emap) :collapsed :nil
+				:apps '("chat" "whiteboard"))
+			'Games (scatter (Emap) :collapsed :nil
+				:apps '("chess" "minefield" "slider" "pairs" "solitaire"))
+			'Demos (scatter (Emap) :collapsed :nil
+				:apps '("boing" "freeball" "bubbles" "canvas" "raymarch"))
+			'Science (scatter (Emap) :collapsed :nil
+				:apps '("molecule" "pcb" "mandelbrot" "mesh")))))
+
+(defun config-load ()
+	(if (defq stream (file-stream *config_file*))
+		(setq *config* (tree-load stream)))
+	(if (or (not *config*) (/= (. *config* :find :version) *config_version*))
+		(setq *config* (config-default))))
+
+(defun config-save ()
+	(when (defq stream (file-stream *config_file* +file_open_write))
+		(tree-save stream *config*)))
+
+(defun scan-apps ()
+	(defq exclude_list (. *config* :find :exclude) categories (. *config* :find :categories)
+		disk_apps (filter (# (not (find %0 exclude_list)))
+			(files-all "apps" '("app.lisp") 5 -10)))
+	(each (lambda (app_path)
+		(defq app_name (slice app_path (ifn (rfind "/" app_path) 0) -1) found :nil)
+		(. name_to_path_map :insert app_name app_path)
+		(. categories :each (lambda (name cat_data)
+			(if (find app_name (. cat_data :find :apps)) (setq found :t))))
+		(unless found
+			(. categories :update 'Generic (lambda (generic_cat)
+				(if generic_cat
+					(progn (. generic_cat :update :apps (# (sort (push %0 app_name)))) generic_cat)
+					(scatter (Emap) :collapsed :nil :apps (list app_name)))))))
+		disk_apps))
+
+(defun app-path (app_path)
+	(cat "apps/" app_path "/app.lisp"))
+
+(defun make-category (cat_data app_name columns)
+	(defq apps (. cat_data :find :apps)
+		collapsed (. cat_data :find :collapsed))
+	(when (nempty? apps)
+		(ui-root cat_flow (Flow) (:flow_flags +flow_down_fill :cat_name app_name)
+			(ui-flow header (:flow_flags +flow_right_fill)
+				(. (ui-button toggle (:text (if collapsed ">" "^")
+						:color *env_title_col* :font *env_medium_terminal_font*))
+					:connect +event_toggle)
+				(ui-title title (:text app_name :color *env_title_col*)))
+			(ui-grid app_grid (:grid_width columns)
+				(each (lambda (app)
+					(. (ui-button _ (:text app)) :connect +event_launch))
+					apps)))
+		(. app_grid :set_flags (if collapsed +view_flag_hidden 0) +view_flag_hidden)
+		(. *main_flow* :add_child cat_flow)))
+
+(defun build-ui ()
+	(defq categories (. *config* :find :categories)
+		columns (. *config* :find :columns))
+	(. categories :each (lambda (cat_name cat_data)
+		(make-category cat_data cat_name columns))))
+
+; Main Window Layout
+(ui-window *window* ()
+	(ui-title-bar _ "Launcher" (0xea19) +event_close)
+	(ui-flow *main_flow* (:flow_flags +flow_down_fill)))
+
+(defun main ()
+	; Initialization
+	(defq select (task-mboxes +select_size) running :t name_to_path_map (Fmap 11))
+	(config-load)
+	(scan-apps)
+	(build-ui)
+
+	; Position and show window
+	(bind '(x y w h) (apply view-locate (push (. *window* :pref_size) *env_launcher_position*)))
+	(gui-add-front-rpc (. *window* :change x y w h))
+
+	; Main Event Loop
+	(while running
+		(defq idx (mail-select select) msg (mail-read (elem-get select idx)))
+		(cond
+			((= idx +select_tip)
+				(if (defq view (. *window* :find_id (getf msg +mail_timeout_id)))
+					(. view :show_tip)))
+			;must be +select_main !
+			((= (defq id (getf msg +ev_msg_target_id)) +event_close)
+				(setq running :nil))
+			((= id +event_launch)
+				(defq button (. *window* :find_id (getf msg +ev_msg_action_source_id)))
+				(open-child (app-path (. name_to_path_map :find (get :text button))) +kn_call_open)
+				(setq running :nil))
+			((= id +event_toggle)
+				(defq toggle (. *window* :find_id (getf msg +ev_msg_action_source_id))
+					cat_flow (penv (penv toggle))
+					grid (second (. cat_flow :children))
+					cat_name (get :cat_name cat_flow)
+					categories (. *config* :find :categories)
+					cat_data (. categories :find cat_name)
+					collapsed (not (. cat_data :find :collapsed)))
+				(. cat_data :insert :collapsed collapsed)
+				(def toggle :text (if collapsed ">" "^"))
+				(. grid :set_flags (if collapsed +view_flag_hidden 0) +view_flag_hidden)
+
+				; Recalculate size and update scrollbars after visibility change
+				(bind '(x y) (. *window* :get_pos))
+				(bind '(w h) (. *window* :pref_size))
+				(bind '(x y w h) (view-fit x y w h))
+				(. *window* :change_dirty x y w h))
+			((. *window* :event msg))))
+
+	(config-save)
+	(gui-sub-rpc *window*))
