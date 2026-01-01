@@ -46,6 +46,8 @@ Lowered `starts-with` and `ends-with` to VP functions.
 Expose `(env-copy env num_buckets) -> env` to application code and
 simplification of VP and Lisp class construction using `env-copy`.
 
+New `apps/slider/app.lisp` simple sliding puzzle app.
+
 ------
 
 New `(nql obj1 obj2) -> :t | :nil` built in function.
