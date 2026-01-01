@@ -31,7 +31,7 @@
 			'Communication (scatter (Emap) :collapsed :nil
 				:apps '(chat whiteboard))
 			'Games (scatter (Emap) :collapsed :nil
-				:apps '(boing freeball bubbles chess minefield))
+				:apps '(boing freeball bubbles chess minefield slider))
 			'Science (scatter (Emap) :collapsed :nil
 				:apps '(molecule pcb mandelbrot mesh)))))
 
