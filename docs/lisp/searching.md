@@ -81,7 +81,7 @@ settings into the query function and uses the returned engine and resulting
 meta data to perform the search.
 
 ```file
-apps/docs/search.inc "action-find-down" ""
+apps/accessories/docs/search.inc "action-find-down" ""
 ```
 
 ## Greedy operators in regular expressions

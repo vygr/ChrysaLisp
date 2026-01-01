@@ -18,12 +18,12 @@ is no user persistent state stored.
 ## UI
 
 ```widget
-apps/viewer/widgets.inc *window* 512 512
+apps/accessories/viewer/widgets.inc *window* 512 512
 ```
 
 ## Implementation Study
 
-The ChrysaLisp Viewer, located in `apps/viewer/`, is a powerful read-only text
+The ChrysaLisp Viewer, located in `apps/accessories/viewer/`, is a powerful read-only text
 and code viewer. It serves as a complementary tool to the Editor, sharing many
 of its core components while specializing in navigation, search, and file system
 browsing. This study examines its architecture and implementation, highlighting
@@ -52,10 +52,10 @@ to enforce read-only behavior and offer specialized features.
 
 *   **View (User Interface):**
 
-    * **`*window*` (`apps/viewer/widgets.inc`):** The main `Window` widget that
+    * **`*window*` (`apps/accessories/viewer/widgets.inc`):** The main `Window` widget that
         serves as the root of the UI tree.
 
-    * **`Viewer-edit` Class (`apps/viewer/ui.inc`):** This is a custom class
+    * **`Viewer-edit` Class (`apps/accessories/viewer/ui.inc`):** This is a custom class
         that **inherits from `Edit`**. This is a key design choice. The Viewer
         doesn't need a new rendering widget; it uses the powerful `Edit` widget
         but overrides its mouse event handlers to implement read-only selection
@@ -72,11 +72,11 @@ to enforce read-only behavior and offer specialized features.
 
 *   **Controller (Application Logic and Event Handling):**
 
-    * **`apps/viewer/app.lisp`:** This is the main application file, containing
+    * **`apps/accessories/viewer/app.lisp`:** This is the main application file, containing
         the `main` event loop and the functions that orchestrate the Viewer's
         behavior.
 
-    * **`apps/viewer/actions.inc` (and includes):** Defines the `Fmap`s
+    * **`apps/accessories/viewer/actions.inc` (and includes):** Defines the `Fmap`s
         (`*event_map*`, `*key_map*`, etc.) that map GUI events and keyboard
         shortcuts to viewer-specific handler functions. The set of actions is
         smaller and focused on navigation and search, omitting all editing
@@ -85,7 +85,7 @@ to enforce read-only behavior and offer specialized features.
     * **`dispatch-action` helper (`app_impl.lisp`):** Just like the Editor, this
         function evaluates actions retrieved from the event maps.
 
-### 2. UI Structure (`apps/viewer/widgets.inc`)
+### 2. UI Structure (`apps/accessories/viewer/widgets.inc`)
 
 The Viewer's UI is simpler and more focused on browsing than the Editor's.
 
@@ -121,14 +121,14 @@ The Viewer's UI is simpler and more focused on browsing than the Editor's.
 
 ### 3. Event Handling and Dispatch
 
-The event handling pattern in `apps/viewer/app.lisp` mirrors the Editor's. The
+The event handling pattern in `apps/accessories/viewer/app.lisp` mirrors the Editor's. The
 `main` function's event loop waits on `(mail-select)` and dispatches actions
 based on the source of the message (GUI, timer, etc.).
 
 *   GUI events are mapped via `*event_map*` and the various `*key_map*`s to
     their handler functions (e.g., `action-find-down`, `action-select-word`).
 
-*   The Viewer defines its own set of actions in `apps/viewer/actions.inc` and
+*   The Viewer defines its own set of actions in `apps/accessories/viewer/actions.inc` and
     its includes. These actions are tailored for viewing:
 
     * **Navigation:** `action-left`, `action-right`, `action-home`, `action-end`
@@ -169,7 +169,7 @@ This is the most significant point of specialization for the Viewer. It achieves
 its read-only nature not by using a different rendering widget, but by
 subclassing `Edit` and overriding its behavior.
 
-*   **`Viewer-edit` (`apps/viewer/ui.inc`):** Inherits from the `Edit` class.
+*   **`Viewer-edit` (`apps/accessories/viewer/ui.inc`):** Inherits from the `Edit` class.
 
 *   **Overridden Mouse Handlers:**
 

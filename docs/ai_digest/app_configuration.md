@@ -91,13 +91,13 @@ lifecycle:
 The `todo` application is an excellent example of this standard in practice, as
 it persists not only UI state but also user-generated content.
 
-### `apps/todo/config.inc`
+### `apps/accessories/todo/config.inc`
 
 This file defines the structure of the data to be saved.
 
 ```vdu
 ;;;;;;;;;;;;;;;;;;;;;;
-; apps/todo/config.inc
+; apps/accessories/todo/config.inc
 ;;;;;;;;;;;;;;;;;;;;;;
 
 (defq *config* :nil *config_version* 1
@@ -143,7 +143,7 @@ This file defines the structure of the data to be saved.
     * The result is three lists of strings, which are then saved to the
         `*config*` `Emap`.
 
-### Integration into `apps/todo/app_impl.lisp`
+### Integration into `apps/accessories/todo/app_impl.lisp`
 
 The main application logic uses these functions to manage its state.
 

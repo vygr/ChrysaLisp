@@ -19,7 +19,7 @@ which can be found in the `keys.md` documentation.
 ## UI
 
 ```widget
-apps/terminal/widgets.inc *window* 512 512
+apps/system/terminal/widgets.inc *window* 512 512
 ```
 
 ## Overview
@@ -138,7 +138,7 @@ cmd/dump.lisp
 
 ## Implementation Study
 
-The ChrysaLisp Terminal, found in `apps/terminal/`, is an interactive
+The ChrysaLisp Terminal, found in `apps/system/terminal/`, is an interactive
 command-line interface. It demonstrates a powerful architectural pattern within
 the ChrysaLisp ecosystem: the reuse of general-purpose GUI components,
 controlled by a specialized logic layer to create a unique user experience. It
@@ -168,17 +168,17 @@ line-oriented, command-and-response behavior.
         if no command is running.
 
     * **Command History (`*meta_map*`):** A simplified version of the Editor's
-        state management is used. `apps/terminal/state.inc` defines logic to
+        state management is used. `apps/system/terminal/state.inc` defines logic to
         save and load a `:history` list (a Lisp `:list` of strings) into
         `"terminal.tre"` in the user's home directory.
 
 *   **View (User Interface):**
 
-    * **`*window*` (`apps/terminal/widgets.inc`):** The main application
+    * **`*window*` (`apps/system/terminal/widgets.inc`):** The main application
         `Window`. The UI is simpler than the Editor's, consisting of a title
         bar, a main content area, and scrollbars.
 
-    * **`Terminal-edit` Class (`apps/terminal/ui.inc`):** This is a custom class
+    * **`Terminal-edit` Class (`apps/system/terminal/ui.inc`):** This is a custom class
         that inherits from `Viewer-edit` (which in turn inherits from `Edit`).
         The instance, `*edit*`, is the main text area. By inheriting, it gets
         all the advanced text rendering, selection, and scrolling capabilities
@@ -189,12 +189,12 @@ line-oriented, command-and-response behavior.
 
 *   **Controller (Application Logic and Event Handling):**
 
-    * **`apps/terminal/app.lisp`:** Contains the `main` function and the core
+    * **`apps/system/terminal/app.lisp`:** Contains the `main` function and the core
         event loop. Its primary responsibility is to arbitrate between two
         sources of input: user interaction from the GUI and text output from a
         running `Pipe`.
 
-    * **`apps/terminal/actions.inc` (and includes):** Defines the `Fmap`s that
+    * **`apps/system/terminal/actions.inc` (and includes):** Defines the `Fmap`s that
         map events and keyboard shortcuts to terminal-specific handler
         functions.
 
@@ -262,7 +262,7 @@ mechanism is implemented in the Controller logic, not the View.
     "line-editing" mode. It is a full-text editing component by default.
 
 *   **Action Handler Logic:** The illusion is enforced within the action
-    handlers in `apps/terminal/cursor.inc` and `edit.inc`.
+    handlers in `apps/system/terminal/cursor.inc` and `edit.inc`.
 
 *   **`input-cursor` Macro (`utils.inc`):** This helper macro is the key. It
     wraps most cursor-moving and editing actions. It ensures that before any
