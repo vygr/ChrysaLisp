@@ -1,7 +1,7 @@
 # Taos
 
 ```image
-apps/images/data/logo.cpm
+apps/media/images/data/logo.cpm
 ```
 
 Because it existed and not many people know of it. What we deserve is a modern

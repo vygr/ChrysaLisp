@@ -1,7 +1,7 @@
 # Lisp
 
 ```image
-apps/images/data/chrysalisp.svg
+apps/media/images/data/chrysalisp.svg
 ```
 
 It's probably worth a few words specifically about the included Lisp and how it

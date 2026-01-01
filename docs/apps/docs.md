@@ -83,7 +83,7 @@ For example:
 
 ```
 ;   ```image
-;   apps/images/data/logo.cpm
+;   apps/media/images/data/logo.cpm
 ;   ```
 ```
 
