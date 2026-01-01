@@ -61,7 +61,7 @@
 				(def (defq this ,s) :vtable ,class)
 				~inits this))
 		`(progn
-			(defq *vtable* (defq ,class (env 1)))
+			(def (defq *vtable* (defq ,class (env 1))) :vtable :nil)
 			(defmethod :type_of () (push (type-of this) ,kwn))
 			~methods
 			(defun ,predn (this)
