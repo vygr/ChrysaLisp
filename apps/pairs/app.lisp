@@ -50,6 +50,30 @@
 		:states (list)
 		:score 0))
 
+(defun update-view ()
+	(defq children (. *grid* :children)
+		  i 0
+		  all_matched :t)
+	(while (< i *tile_count*)
+		(defq btn (elem-get children i)
+			  val (elem-get *values* i)
+			  state (elem-get *states* i))
+		(cond
+			((= state 0) ; Hidden
+				(def btn :text "" :color +argb_grey4 :ink_color +argb_white)
+				(setq all_matched :nil))
+			((= state 1) ; Selected (Temporary)
+				(def btn :text (char val) :color +argb_white :ink_color +argb_black)
+				(setq all_matched :nil))
+			((= state 2) ; Matched
+				(def btn :text (char val) :color +argb_green :ink_color +argb_white)))
+		(.-> btn (:constrain :t) :dirty)
+		(++ i))
+	(if all_matched
+		(def *status* :text (cat "WINNER! Score: " (str *score*)) :color +argb_green)
+		(def *status* :text (cat "Score: " (str *score*)) :color *env_window_col*))
+	(.-> *status* :layout :dirty))
+
 (defun scramble ()
 	; Convert string to list of char codes, shuffle, select subset, duplicate, shuffle again
 	(defq all_chars (shuffle (map code *char_pool*))
@@ -94,34 +118,6 @@
 			:values *values*
 			:states *states*
 			:score *score*))))
-
-(defun update-view ()
-	(defq children (. *grid* :children)
-		  i 0
-		  all_matched :t)
-
-	(while (< i *tile_count*)
-		(defq btn (elem-get children i)
-			  val (elem-get *values* i)
-			  state (elem-get *states* i))
-
-		(cond
-			((= state 0) ; Hidden
-				(def btn :text "" :color +argb_grey4 :ink_color +argb_white)
-				(setq all_matched :nil))
-			((= state 1) ; Selected (Temporary)
-				(def btn :text (char val) :color +argb_white :ink_color +argb_black)
-				(setq all_matched :nil))
-			((= state 2) ; Matched
-				(def btn :text (char val) :color +argb_green :ink_color +argb_white)))
-
-		(.-> btn (:constrain :t) :dirty)
-		(++ i))
-
-	(if all_matched
-		(def *status* :text (cat "WINNER! Score: " (str *score*)) :color +argb_green)
-		(def *status* :text (cat "Score: " (str *score*)) :color *env_window_col*))
-	(.-> *status* :layout :dirty))
 
 (defun try-click (index)
 	(when (and (not *locked*)

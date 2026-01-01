@@ -73,6 +73,35 @@
 		:selected :nil
 		:undo (list)))
 
+(defun update-view ()
+	(defq children (. *grid* :children)
+		  i 0)
+	(while (< i +tile_count)
+		(defq val (elem-get *board* i))
+		; Only update widgets corresponding to valid game positions (Buttons)
+		(when (/= val +state_invalid)
+			(defq btn (elem-get children i))
+			(cond
+				((= val +state_empty)
+					(def btn :text "" :color +argb_grey2 :ink_color +argb_black))
+				((= val +state_peg)
+					(def btn :text "O" :ink_color +argb_white)
+					(if (eql i *selected*)
+						(def btn :color +argb_yellow :ink_color +argb_black)
+						(def btn :color +argb_grey6))))
+			(.-> btn (:constrain :t) :dirty))
+		(++ i))
+	(if *game_over*
+		(def *status* :text (if (and (= *pegs_left* 1) (= (elem-get *board* 24) +state_peg)) 
+								"Perfect! (Center)" "Finished!") 
+					 :color +argb_green)
+		(def *status* :text (cat "Pegs: " (str *pegs_left*)) :color *env_window_col*))
+	(.-> *status* :layout :dirty))
+
+(defun update-gamestate ()
+	(setq *pegs_left* (length (filter (# (= %0 +state_peg)) *board*))
+		  *game_over* (if (= *pegs_left* 1) :t :nil)))
+
 (defun init-game ()
 	(defq defaults (config-default))
 	(setq *board* (. defaults :find :board)
@@ -98,38 +127,6 @@
 			:board *board*
 			:selected *selected*
 			:undo *undo_stack*))))
-
-(defun update-gamestate ()
-	(setq *pegs_left* (length (filter (# (= %0 +state_peg)) *board*))
-		  *game_over* (if (= *pegs_left* 1) :t :nil)))
-
-(defun update-view ()
-	(defq children (. *grid* :children)
-		  i 0)
-	
-	(while (< i +tile_count)
-		(defq val (elem-get *board* i))
-		
-		; Only update widgets corresponding to valid game positions (Buttons)
-		(when (/= val +state_invalid)
-			(defq btn (elem-get children i))
-			(cond
-				((= val +state_empty)
-					(def btn :text "" :color +argb_grey2 :ink_color +argb_black))
-				((= val +state_peg)
-					(def btn :text "O" :ink_color +argb_white)
-					(if (eql i *selected*)
-						(def btn :color +argb_yellow :ink_color +argb_black)
-						(def btn :color +argb_grey6))))
-			(.-> btn (:constrain :t) :dirty))
-		(++ i))
-	
-	(if *game_over*
-		(def *status* :text (if (and (= *pegs_left* 1) (= (elem-get *board* 24) +state_peg)) 
-								"Perfect! (Center)" "Finished!") 
-					 :color +argb_green)
-		(def *status* :text (cat "Pegs: " (str *pegs_left*)) :color *env_window_col*))
-	(.-> *status* :layout :dirty))
 
 (defun try-move (to_idx)
 	(defq from_idx *selected*)
