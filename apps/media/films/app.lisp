@@ -1,7 +1,7 @@
+(defq *app_root* (path-to-file))
 (import "apps/system/login/env.inc")
 (import "gui/lisp.inc")
 (import "lib/files/files.inc")
-(defq *app_root* (path-to-file))
 
 (enums +select 0
 	(enum main timer tip))
