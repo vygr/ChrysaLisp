@@ -107,7 +107,7 @@ can be removed with the `:sys_mail :forget` function.
 
 The system maintains a directory of these service names and the corresponding
 task `net_id`. An example service is the current GUI `*Debug` application
-`apps/debug/app.lisp`.
+`apps/system/debug/app.lisp`.
 
 Services who's names begin with a `'*'` character will be discoverable by all
 nodes in the network, otherwise only discoverable by other local tasks.

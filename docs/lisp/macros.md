@@ -229,20 +229,20 @@ You can write source code that allows easy switching of types by using macros
 to abstract them. The Bubbles application uses this idea to allow selection
 between fixed point and real number types.
 
-Here is a section of the `apps/bubbles/app.inc` file:
+Here is a section of the `apps/demos/bubbles/app.inc` file:
 
 These macros define an interface for creating and converting to/from a 'number'
 and the actual numeric type selected.
 
 ```file
-apps/bubbles/app.inc "cond" ""
+apps/demos/bubbles/app.inc "cond" ""
 ```
 
 These macros are then used instead of the raw types, for example in the
 lighting function:
 
 ```file
-apps/bubbles/app.lisp "lighting" ""
+apps/demos/bubbles/app.lisp "lighting" ""
 ```
 
 ## Macros can define macros

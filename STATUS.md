@@ -2547,7 +2547,7 @@ performance.
 
 Implementation of system services allowed me to implement a multi-thread
 debugger and single stepping logger. The Boing demo and Global tasks test now
-exercise the features. New Debug app is in apps/debug/app.lisp, note there is
+exercise the features. New Debug app is in apps/system/debug/app.lisp, note there is
 only Lisp code involved in this app. :)
 
 ------

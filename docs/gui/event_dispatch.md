@@ -48,10 +48,10 @@ these user action events.
 
 ## Defining your UI event IDs
 
-Lets look at the `apps/bubbles/app.lisp`, Bubbles demo:
+Lets look at the `apps/demos/bubbles/app.lisp`, Bubbles demo:
 
 ```file
-apps/bubbles/app.lisp "+event" ""
+apps/demos/bubbles/app.lisp "+event" ""
 ```
 
 We are going to use these target ids when we construct the UI tree for the
@@ -75,7 +75,7 @@ another document in detail, but just note for now that we use the start of
 these three event blocks for each of the 3 button bars in this UI tree.
 
 ```file
-apps/bubbles/app.lisp "*window*" ""
+apps/demos/bubbles/app.lisp "*window*" ""
 ```
 
 The UI macros build our widget tree for us and automate calling the View class
@@ -160,7 +160,7 @@ Likewise we do the same for keyboard event actions !
 The module only exports these mapping objects to the application and it
 searches these maps to find the `binding` for the event or key.
 
-Here is the Editor application action bindings, `apps/editor/actions.inc`:
+Here is the Editor application action bindings, `apps/accessories/editor/actions.inc`:
 
 ```vdu
 ;module
@@ -351,12 +351,12 @@ state.
 Here is the `:image` handler module:
 
 ```file
-apps/accessories/docs/image.inc
+apps/accessories/docs/handlers/image.inc
 ```
 
 This is the `:vdu` handler module, the very same module that's displaying the
 syntax highlighted source code that you are now looking at !
 
 ```file
-apps/accessories/docs/vdu.inc
+apps/accessories/docs/handlers/vdu.inc
 ```

@@ -39,7 +39,7 @@ constants for the list element index of each mailbox. This just lets us use a
 readable symbol, rather than an opaque number, in our source code, which makes
 it easier to change later if we want to add more.
 
-Let's look at an example from the `apps/boing/app.lisp` demo to get us started:
+Let's look at an example from the `apps/demos/boing/app.lisp` demo to get us started:
 
 ```vdu
 (enums +select 0
@@ -343,10 +343,10 @@ The GUI tooltips use this function to pop up a `tip` bubble for toolbar
 buttons. Properties are set on the application window object that will be used
 by the tooltip code.
 
-This example is from the `apps/bubbles/app.lisp`, Bubbles application:
+This example is from the `apps/demos/bubbles/app.lisp`, Bubbles application:
 
 ```file
-apps/bubbles/app.lisp "tooltips" ""
+apps/demos/bubbles/app.lisp "tooltips" ""
 ```
 
 We declare an extra selection mailbox to be used by the tip events, create a
@@ -372,5 +372,5 @@ remember we added this to our root window, it creates the timed mail event.
 And here is the event loop case in the Bubbles `(main)` function:
 
 ```file
-apps/bubbles/app.lisp "idx +select_tip)" "((="
+apps/demos/bubbles/app.lisp "idx +select_tip)" "((="
 ```
