@@ -304,10 +304,10 @@ thousands of lines of actual code, not a loop, and we really don't want to type
 this all in, and we want to be able to add instructions to the block with no
 effort later on etc etc.
 
-If you look in `apps/netspeed/lisp.vp` you will see this macro:
+If you look in `apps/system/netspeed/lisp.vp` you will see this macro:
 
 ```file
-apps/netspeed/lisp.vp "test-block" ""
+apps/system/netspeed/lisp.vp "test-block" ""
 ```
 
 What this macro does is to take a count of lines wanted, and a set of lines to
@@ -316,7 +316,7 @@ replicate, to fill that number of lines.
 Here is the use case for the register ops test block:
 
 ```file
-apps/netspeed/lisp.vp "(test-block " "loop"
+apps/system/netspeed/lisp.vp "(test-block " "loop"
 ```
 
 This will generate for us 1000 lines of code, replicating this block as many

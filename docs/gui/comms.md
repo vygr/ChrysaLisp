@@ -129,7 +129,7 @@ tasks main mailbox.
 	(struct node_id node_id_size)
 	(uint task_count mem_used))
 
-(def-func 'apps/netmon/child)
+(def-func 'apps/system/netmon/child)
 	;monitor task
 
 	(def-vars
@@ -202,14 +202,14 @@ Let's look at the Netmon application as an example. This application creates a
 child task on each network node by use of the `(Global)` class and polls each
 child to request node specific information.
 
-The application defines a polling message structure in the `apps/netmon/app.inc`
+The application defines a polling message structure in the `apps/system/netmon/app.inc`
 file.
 
 ```file
-apps/netmon/app.inc
+apps/system/netmon/app.inc
 ```
 
-Looking at the parent task `apps/netmon/app.lisp` it then sends out, at regular
+Looking at the parent task `apps/system/netmon/app.lisp` it then sends out, at regular
 intervals, a polling message to each child task, that consists of the parents
 reply mailbox. Note that the `(elem-get select +select_reply)` will just be the
 mailbox id string returned from its earlier call to `(mail-mbox)`.
@@ -224,7 +224,7 @@ mailbox id string returned from its earlier call to `(mail-mbox)`.
 ...
 ```
 
-The child task `apps/netmon/child.lisp`, within its event loop, receives and
+The child task `apps/system/netmon/child.lisp`, within its event loop, receives and
 replies to the parent request by using `(str-alloc)` and `(setf->)` to build the
 reply message.
 
@@ -254,5 +254,5 @@ mailboxes and uses `(mail-select) (mail-timeout)` calls to wait for a parent
 polling request or time out and exit if orphaned.
 
 ```file
-apps/netmon/child.lisp
+apps/system/netmon/child.lisp
 ```

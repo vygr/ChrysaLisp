@@ -247,7 +247,7 @@ adapt, is central to ChrysaLisp's robustness.
     * The main NetSpeed application would instantiate a `Global` farm.
 
     * The `create` callback for `Global` would be triggered whenever a new VP node
-      joins the network. This callback would start `apps/netspeed/child.lisp` on
+      joins the network. This callback would start `apps/system/netspeed/child.lisp` on
       the new node. The child task would run a series of VP instruction blocks and
       time their execution.
 
@@ -265,11 +265,11 @@ adapt, is central to ChrysaLisp's robustness.
       `destroy`. If it (or a new node) comes online, `create` will spawn a new
       worker.
 
-    * **Worker Robustness:** `apps/netspeed/child.lisp` would perform the actual
+    * **Worker Robustness:** `apps/system/netspeed/child.lisp` would perform the actual
       benchmark. Errors within its execution would ideally be caught and reported,
       or if it crashes, the `Global` farm would handle its disappearance.
 
-      The focus here is less on requeueing a "job" (as the job is just "run on
+      The focus here is less on requeuing a "job" (as the job is just "run on
       this node") and more on maintaining an up-to-date set of benchmarkers across
       the live network.
 
@@ -281,9 +281,9 @@ adapt, is central to ChrysaLisp's robustness.
 
     * Uses `Global` as described in `event_loops.md`.
 
-    * The `create` callback (called by `Global`) starts `apps/netmon/child.lisp` on
-      newly detected nodes. The `key` passed to `create` is effectively the
-      `node_id`.
+    * The `create` callback (called by `Global`) starts
+      `apps/system/netmon/child.lisp` on newly detected nodes. The `key` passed
+      to `create` is effectively the `node_id`.
 
     * The main app periodically iterates through the children managed by `Global`
       and sends them a poll request (a simple message to their main mailbox).
@@ -296,16 +296,17 @@ adapt, is central to ChrysaLisp's robustness.
     * **Dynamic Network Adaptation:** Like NetSpeed, `Global` ensures `NetMon`
       adapts to network changes.
 
-    * **Child Task Self-Termination:** The `apps/netmon/child.lisp` (as shown in
-      `comms.md`) has an inactivity timeout. If the parent stops polling it (e.g.,
-      because the parent itself crashed or the network link was severed), the child
-      will eventually timeout and exit. This prevents orphaned monitoring agents.
+    * **Child Task Self-Termination:** The `apps/system/netmon/child.lisp` (as
+      shown in `comms.md`) has an inactivity timeout. If the parent stops
+      polling it (e.g., because the parent itself crashed or the network link
+      was severed), the child will eventually timeout and exit. This prevents
+      orphaned monitoring agents.
 
-    * **Parent-Side Timeout/Refresh:** The `Global` farm's `:refresh` method, when
-      called by the parent `NetMon` app, checks for unresponsive children (nodes
-      that disappeared). If a child's node is gone, `destroy` is called for its
-      record. This ensures the parent isn't waiting indefinitely for replies from
-      dead nodes.
+    * **Parent-Side Timeout/Refresh:** The `Global` farm's `:refresh` method,
+      when called by the parent `NetMon` app, checks for unresponsive children
+      (nodes that disappeared). If a child's node is gone, `destroy` is called
+      for its record. This ensures the parent isn't waiting indefinitely for
+      replies from dead nodes.
 
 ### 4. General Command-Line Processing via `pipe-farm` (e.g., `grep -f`, `make` sub-commands)
 
@@ -346,7 +347,7 @@ adapt, is central to ChrysaLisp's robustness.
 
 The examples above highlight several common strategies:
 
-1. **Idempotent Workers & Job Requeueing:** For compute-bound tasks (`Raymarch`,
+1. **Idempotent Workers & Job Requeuing:** For compute-bound tasks (`Raymarch`,
     `Mandelbrot`, `pipe-farm`), workers are designed to perform a discrete unit of
     work. If a worker fails, the `Farm`/`Local` manager requeues the *same job* for
     another worker. This assumes jobs are largely idempotent or that re-computation
@@ -384,7 +385,7 @@ ChrysaLisp provides a powerful and flexible toolkit for building fault-tolerant
 distributed applications. By embracing the philosophy of tasks as restartable tree
 nodes and leveraging classes like `Farm`, `Global`, and `Pipefarm`, developers can
 create systems that are resilient to common distributed computing failures. The
-design patterns seen in applications like Raymarch (requeueing jobs, worker
+design patterns seen in applications like Raymarch (requeuing jobs, worker
 self-termination) and Mandelbrot (recreating mailboxes to ignore stale messages)
 demonstrate practical approaches to achieving robustness. The system's emphasis on
 asynchronous messaging, dynamic service discovery, and explicit task lifecycle
