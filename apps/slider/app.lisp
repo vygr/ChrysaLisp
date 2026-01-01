@@ -60,7 +60,7 @@
 		(if (= val *blank_value*)
 			(def btn :color +argb_grey2)
 			(def btn :color *env_toolbar_col*))
-		(.-> btn (:constrain 0) :dirty)
+		(.-> btn (:constrain :t) :dirty)
 		(++ i))
 	(if (every eql *board* *solved_board*)
 		(def *status* :text "SOLVED!" :color +argb_green)
