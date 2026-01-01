@@ -1,5 +1,5 @@
 ;jit compile apps native functions
-(defq *app_root* (slice (first (repl-info)) 0 (rfind "/" (first (repl-info)))))
+(defq *app_root* (path-to-file))
 (jit *app_root* "lisp.vp" '("vops"))
 
 (import "./app.inc")

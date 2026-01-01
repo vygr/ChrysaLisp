@@ -1,4 +1,4 @@
-(defq *app_root* (slice (first (repl-info)) 0 (rfind "/" (first (repl-info)))))
+(defq *app_root* (path-to-file))
 
 (defun main ()
 	;create child and send args, wait reply

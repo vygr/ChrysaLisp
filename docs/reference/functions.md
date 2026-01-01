@@ -803,6 +803,14 @@ scan the stdio args and process according to the optlist
 transform a relative filename to an absolute one
 ```
 
+### path-to-file
+
+```code
+(path-to-file) -> path
+
+the path to this file
+```
+
 ### path-to-relative
 
 ```code

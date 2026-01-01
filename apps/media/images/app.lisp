@@ -1,7 +1,7 @@
+(defq *app_root* (path-to-file))
 (import "apps/system/login/env.inc")
 (import "gui/lisp.inc")
 (import "lib/files/files.inc")
-(defq *app_root* (slice (first (repl-info)) 0 (rfind "/" (first (repl-info)))))
 
 ;our UI widgets
 (import "./widgets.inc")

@@ -1,5 +1,5 @@
 (defq *env_user* "Guest"
-	*app_root* (slice (first (repl-info)) 0 (rfind "/" (first (repl-info)))))
+	*app_root* (path-to-file))
 (import "./Guest/env.inc")
 (import "gui/lisp.inc")
 

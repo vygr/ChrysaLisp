@@ -1174,6 +1174,11 @@
 	; (load-stream path) -> :nil | stream
 	(if (defq _ (load _)) (string-stream _)))
 
+(defun path-to-file ()
+	; (path-to-file) -> path
+	;the path to this file
+	(slice (first (repl-info)) 0 (rfind "/" (first (repl-info)))))
+
 (defun path-to-relative (target &optional current)
 	; (path-to-relative target [current]) -> path
 	;transform an absolute filename to a relative one

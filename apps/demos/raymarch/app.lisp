@@ -1,4 +1,4 @@
-(defq *app_root* (slice (first (repl-info)) 0 (rfind "/" (first (repl-info)))))
+(defq *app_root* (path-to-file))
 (import "apps/system/login/env.inc")
 ;jit compile apps native functions
 (jit *app_root* "lisp.vp" '("tile"))
