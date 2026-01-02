@@ -921,7 +921,7 @@ The `microsoft_us` module is just a copy of the UK file for now until some kind
 sole in the USA edits it and pushes a PR.
 
 To switch keyboard modules, change the value of `*env_keyboard_map*` in the
-`apps/login/Guest/pupa.inc` file.
+`usr/Guest/pupa.inc` file.
 
 Test user account added to check test cycle of Login/Logout.
 

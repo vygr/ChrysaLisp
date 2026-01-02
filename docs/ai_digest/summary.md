@@ -311,10 +311,10 @@ files.
 ## 7. Environment Configuration (`apps/login/`)
 
 * User-specific settings are managed through `env.inc` files located in user
-directories (e.g., `apps/login/Guest/env.inc`).
+directories (e.g., `usr/Guest/env.inc`).
 
-* The main `apps/login/env.inc` loads the environment for the `*env_user*`
-(defaulting to "Guest" if `apps/login/current` doesn't specify another user).
+* The main `usr/env.inc` loads the environment for the `*env_user*` (defaulting
+  to "Guest" if `usr/current` doesn't specify another user).
 
 * Environment variables (`*env_*`) control aspects like:
 
