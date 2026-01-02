@@ -34,7 +34,7 @@
 	;function called when entry is created
 	(def (defq node (env 1)) :timestamp now)
 	(each (# (def node %0 (. %2 :add_bar) %1 (list))) +bars +results charts)
-	(open-task (cat *app_root* "child.lisp") key +kn_call_open 0 (elem-get select +select_task))
+	(open-task (const (cat *app_root* "child.lisp")) key +kn_call_open 0 (elem-get select +select_task))
 	node)
 
 (defun destroy (key node)

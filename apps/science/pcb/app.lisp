@@ -90,7 +90,7 @@
 
 (defun route ()
 	(stop-route)
-	(mail-send (setq child (open-child (cat *app_root* "child.lisp") +kn_call_child))
+	(mail-send (setq child (open-child (const (cat *app_root* "child.lisp")) +kn_call_child))
 		(setf-> (cat (str-alloc +job_size) pcb_data)
 			(+job_grid_res (get :value res_spinner))
 			(+job_vias_cost (get :value vias_spinner))

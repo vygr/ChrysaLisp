@@ -24,7 +24,7 @@
 
 (defun handler-func (state)
 	(unless (defq handler (. handlers :find state))
-		(defq module (cat *app_root* "handlers/" (rest state) ".inc"))
+		(defq module (cat (const (cat *app_root* "handlers/")) (rest state) ".inc"))
 		(repl (file-stream module) module)
 		(. handlers :insert state handler))
 	handler)
