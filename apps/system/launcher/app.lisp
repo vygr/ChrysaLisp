@@ -1,4 +1,4 @@
-(import "apps/system/login/env.inc")
+(import "usr/env.inc")
 (import "gui/lisp.inc")
 (import "lib/files/files.inc")
 
@@ -11,7 +11,7 @@
 	(enum main tip))
 
 ; Configuration state
-(defq *config* :nil *config_version* 3
+(defq *config* :nil *config_version* 10
 	*config_file* (cat *env_home* "launcher.tre"))
 
 ; Default configuration if `launcher.tre`
@@ -20,18 +20,17 @@
 	(scatter (Emap)
 		:version *config_version*
 		:columns 2
-		:exclude '("system/launcher" "system/login" "system/wallpaper" "tui")
+		:exclude '("launcher" "login" "wallpaper" "tui")
 		:categories (scatter (Emap)
 			'System (scatter (Emap) :collapsed :nil
 				:apps '("terminal" "services" "debug" "profile" "netmon"
 					"netspeed" "files" "logout"))
-			'Accessories (scatter (Emap) :collapsed :nil
-				:apps '("edit" "docs" "viewer" "hexview" "todo" "calculator"
-					"fonts" "clock" "eyes"))
+			'Desktop (scatter (Emap) :collapsed :nil
+				:apps '("docs" "todo" "calculator" "chat" "clock" "eyes"))
+			'Tools (scatter (Emap) :collapsed :nil
+				:apps '("edit" "viewer" "hexview" "fonts"))
 			'Media (scatter (Emap) :collapsed :nil
-				:apps '("images" "films"))
-			'Communication (scatter (Emap) :collapsed :nil
-				:apps '("chat" "whiteboard"))
+				:apps '("images" "films" "whiteboard"))
 			'Games (scatter (Emap) :collapsed :nil
 				:apps '("chess" "minefield" "slider" "pairs" "solitaire"))
 			'Demos (scatter (Emap) :collapsed :nil
@@ -51,7 +50,7 @@
 
 (defun scan-apps ()
 	(defq exclude_list (. *config* :find :exclude) categories (. *config* :find :categories)
-		disk_apps (filter (# (not (find %0 exclude_list)))
+		disk_apps (filter (lambda (name) (notany (# (ends-with %0 name)) exclude_list))
 			(files-all "apps" '("app.lisp") 5 -10)))
 	(each (lambda (app_path)
 		(defq app_name (slice app_path (ifn (rfind "/" app_path) 0) -1) found :nil)

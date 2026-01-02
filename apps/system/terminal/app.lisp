@@ -1,4 +1,4 @@
-(import "apps/system/login/env.inc")
+(import "usr/env.inc")
 (import "gui/lisp.inc")
 (import "lib/text/buffer.inc")
 (import "lib/task/pipe.inc")

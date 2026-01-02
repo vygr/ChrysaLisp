@@ -1,8 +1,8 @@
 ;user home
-(defq *env_home* (cat "apps/system/login/" *env_user* "/"))
+(defq *env_home* (cat "usr/" *env_user* "/"))
 
 ;auto launch apps
-(defq *env_launcher_auto_apps* '("system/terminal" "accessories/eyes"))
+(defq *env_launcher_auto_apps* '("system/terminal" "desktop/eyes"))
 
 ;default gui window size/pos
 (defq *env_window_x* 0 *env_window_y* 0

@@ -223,7 +223,7 @@
 					(setq len 0))))) (list vectors)) yield)
 
 ;native versions
-(ffi "apps/games/chess/piece_scans" piece-scans)
+(ffi (cat *app_root* "piece_scans") piece-scans)
 ; (piece-scans brd index vectors) -> pieces
 
 ;test if king of given color is in check

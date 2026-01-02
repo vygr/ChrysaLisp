@@ -17,12 +17,12 @@ environment between sessions in your user folder under the name
 ## UI
 
 ```widget
-apps/accessories/edit/widgets.inc *window* 512 512
+apps/tools/edit/widgets.inc *window* 512 512
 ```
 
 ## Implementation Study
 
-The ChrysaLisp Editor, found in `apps/accessories/edit/`, is a sophisticated,
+The ChrysaLisp Editor, found in `apps/tools/edit/`, is a sophisticated,
 multi-buffer programmer's text editor tailored for the ChrysaLisp environment.
 It showcases many of the GUI system's strengths, including its event handling,
 widget composition, and the Lisp-centric property system. This document delves
@@ -68,7 +68,7 @@ with clear separation of concerns:
 
 * **View (User Interface):**
 
-    * **`*window*` (`apps/accessories/edit/widgets.inc`):** The main application
+    * **`*window*` (`apps/tools/edit/widgets.inc`):** The main application
       `Window`, serving as the root of the UI tree.
 
     * **`Editor-edit` Class (`gui/edit/lisp.inc`):** A specialized class
@@ -83,18 +83,18 @@ with clear separation of concerns:
 
     * **`Vdu` Widget (`gui/vdu/lisp.inc`):** Renders text on a character grid.
 
-    * **Toolbars, Sliders, Trees (`apps/accessories/edit/widgets.inc`):**
+    * **Toolbars, Sliders, Trees (`apps/tools/edit/widgets.inc`):**
       Standard widgets for find/replace, file navigation, scrollbars, etc.
       (e.g., `*main_toolbar*`, `*find_toolbar*`, `*open_tree*`,
       `*file_selector*`, `*xslider*`, `*yslider*`).
 
 * **Controller (Application Logic and Event Handling):**
 
-    * **`apps/accessories/edit/app_impl.lisp`:** Contains the main application
+    * **`apps/tools/edit/app_impl.lisp`:** Contains the main application
       loop (`main` function) and orchestrates the interaction between the model
       and view.
 
-    * **`apps/accessories/edit/actions.inc` (and its includes like `cursor.inc`,
+    * **`apps/tools/edit/actions.inc` (and its includes like `cursor.inc`,
       `file.inc`, etc.):** Defines `Fmap`s (`*event_map*`, `*key_map*`,
       `*key_map_shift*`, `*key_map_control*`) that map event IDs and key codes
       to handler functions. These handler functions implement the editor's
@@ -104,7 +104,7 @@ with clear separation of concerns:
       `(eval)` actions retrieved from the event/key maps, also handling macro
       recording.
 
-### 2. UI Structure (`apps/accessories/edit/widgets.inc`)
+### 2. UI Structure (`apps/tools/edit/widgets.inc`)
 
 The Editor's UI is built using ChrysaLisp's UI builder macros:
 
@@ -147,7 +147,7 @@ to link them to specific events handled in `actions.inc`.
 
 ### 3. Event Handling and Dispatch
 
-The event loop in `apps/accessories/edit/app_impl.lisp` (`main` function) uses
+The event loop in `apps/tools/edit/app_impl.lisp` (`main` function) uses
 `(mail-select)` on a list of mailboxes (`*select*`).
 
 * **Main GUI Events (`+select_main`):**
@@ -248,7 +248,7 @@ The Editor manages multiple open files and scratch buffers:
 
         * `(:undo)` and `(:redo)` methods pop records from `:undo_stack` or
           `:redo_stack` and reverse/reapply the operations. The `(undoable ...)`
-          macro (`apps/accessories/edit/utils.inc`) is used to wrap editing
+          macro (`apps/tools/edit/utils.inc`) is used to wrap editing
           actions, automatically pushing cursor state and a unique mark before
           and after the action, allowing a set of operations to be undone/redone
           as a single logical step.
@@ -281,7 +281,7 @@ The Editor manages multiple open files and scratch buffers:
 
     * `build-syntax` in `gui/text/buffer.inc` manages caching and re-colorizing lines only when necessary (based on `:dirty_flags`).
 
-### 7. Macro Recording System (`apps/accessories/edit/macros.inc`)
+### 7. Macro Recording System (`apps/tools/edit/macros.inc`)
 
 * **`*macro_record*` flag (`app_impl.lisp`):** Toggled by `action-macro-record`.
 
@@ -323,7 +323,7 @@ The Editor manages multiple open files and scratch buffers:
 
     * When a file is loaded into a buffer (`populate-buffer`), its words (longer than `+min_word_size`) are added to the `dictionary` via `populate-dictionary`.
 
-* **`action-tab` (`apps/accessories/edit/edit.inc`):**
+* **`action-tab` (`apps/tools/edit/edit.inc`):**
 
     * When Tab is pressed and not in a selection, it attempts auto-completion.
 
@@ -331,13 +331,13 @@ The Editor manages multiple open files and scratch buffers:
 
     * If matches are found, it tries to complete the current word or, if ambiguous, potentially shows a list of matches (though `show-matches` functionality seems to be more for find highlighting than direct autocompletion popup in the provided snippets). The primary effect is completing to the longest common prefix or a single match.
 
-* **`show-matches` (`apps/accessories/edit/search.inc`, but further detailed in `app_impl.lisp`'s context):**
+* **`show-matches` (`apps/tools/edit/search.inc`, but further detailed in `app_impl.lisp`'s context):**
 
     * This function seems geared towards displaying multiple suggestions in a popup `Window` (`match_window`). While triggered by `action-insert` after typing, it uses the `Dictionary` for suggestions if the current word fragment is long enough.
 
     * The `select-match` function allows navigating these suggestions.
 
-### 9. Project State Management (`apps/accessories/edit/state.inc`)
+### 9. Project State Management (`apps/tools/edit/state.inc`)
 
 * **`+state_filename`:** `"editor.tre"` stored in `*env_home*`.
 
@@ -373,7 +373,7 @@ The Editor manages multiple open files and scratch buffers:
 
 * **Syntax Highlighting:** The `Syntax` class could be subclassed or its keyword maps extended to support new languages or refine existing ones.
 
-* **UI:** The UI can be modified by changing `apps/accessories/edit/widgets.inc`. New toolbars, buttons, or views can be integrated.
+* **UI:** The UI can be modified by changing `apps/tools/edit/widgets.inc`. New toolbars, buttons, or views can be integrated.
 
 * **Programmatic Control:** The `Buffer` and `Editor-edit` classes expose a comprehensive set of methods, allowing other Lisp code (e.g., plugins, if a system for them were developed) to interact with and control the editor.
 

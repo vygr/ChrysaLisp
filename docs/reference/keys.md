@@ -1,6 +1,6 @@
 # Key Bindings
 
-## apps/accessories/docs/actions.inc
+## apps/desktop/docs/actions.inc
 
 ### *key_map_control*
 
@@ -13,7 +13,7 @@
 (ascii-code "-") action-minimise
 ```
 
-## apps/accessories/edit/actions.inc
+## apps/tools/edit/actions.inc
 
 ### *key_map*
 
@@ -116,7 +116,7 @@
 +char_tab action-left-tab
 ```
 
-## apps/accessories/todo/actions.inc
+## apps/desktop/todo/actions.inc
 
 ### *key_map_control*
 
@@ -125,7 +125,7 @@
 (ascii-code "-") action-minimise
 ```
 
-## apps/accessories/viewer/actions.inc
+## apps/tools/viewer/actions.inc
 
 ### *key_map*
 
@@ -178,7 +178,7 @@
 0x4000004D action-end-select
 ```
 
-## apps/comms/whiteboard/actions.inc
+## apps/media/whiteboard/actions.inc
 
 ### *key_map_control*
 

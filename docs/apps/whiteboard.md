@@ -9,12 +9,12 @@ which can be found in the `keys.md` documentation.
 ## UI
 
 ```widget
-apps/comms/whiteboard/widgets.inc *window* 512 512
+apps/media/whiteboard/widgets.inc *window* 512 512
 ```
 
 ## Implementation Study
 
-The ChrysaLisp Whiteboard, found in `apps/comms/whiteboard/`, is a simple vector
+The ChrysaLisp Whiteboard, found in `apps/media/whiteboard/`, is a simple vector
 drawing application. It serves as an excellent case study for developers moving
 beyond text-based applications, demonstrating how to handle graphical input,
 manage complex object state, and implement features like undo/redo and file
@@ -49,7 +49,7 @@ Model-View-Controller pattern in ChrysaLisp.
 
 *   **View (User Interface):**
 
-    * **`apps/comms/whiteboard/widgets.inc`:** This file defines the UI. The central
+    * **`apps/media/whiteboard/widgets.inc`:** This file defines the UI. The central
         element is a `ui-stack` widget named `*strokes_stack*`. This stack
         cleverly overlays three different widgets to create the drawing
         experience:
@@ -76,13 +76,13 @@ Model-View-Controller pattern in ChrysaLisp.
 
 *   **Controller (Event Handling and Logic):**
 
-    * **`apps/comms/whiteboard/app.lisp`:** The `main` function runs the core event
+    * **`apps/media/whiteboard/app.lisp`:** The `main` function runs the core event
         loop, receiving messages from the UI and timers.
 
-    * **`apps/comms/whiteboard/actions.inc`:** Defines the `*event_map*` which maps
+    * **`apps/media/whiteboard/actions.inc`:** Defines the `*event_map*` which maps
         user interactions (like clicking a tool button) to handler functions.
 
-    * **`apps/comms/whiteboard/ui.inc`:** Implements the handler functions. These
+    * **`apps/media/whiteboard/ui.inc`:** Implements the handler functions. These
         functions are responsible for modifying the Model (e.g., changing
         `*stroke_mode*` or adding a polygon to `*committed_polygons*`) and
         triggering redraws of the View.
@@ -163,7 +163,7 @@ handled by a simple state-change pattern.
     *next* time `action-stroke` is called. The same pattern applies to color and
     drawing mode.
 
-### 4. Undo and Redo System (`apps/comms/whiteboard/undo.inc`)
+### 4. Undo and Redo System (`apps/media/whiteboard/undo.inc`)
 
 The undo system is a classic example of a state-snapshot implementation.
 

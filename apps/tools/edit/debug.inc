@@ -12,12 +12,11 @@
 (defun file-app (file)
 	(defq app :nil)
 	(when (starts-with "apps/" file)
-		(unless (find (defq folder (slice file
-					(defq i (inc (find "/" file)))
-					(find "/" file (inc i))))
+		(defq file (slice file 5 (dec (ifn (rfind "/" file) 0))))
+		(unless (some (# (ends-with %0 file))
 				'("login" "logout" "wallpaper" "tui"
 				"edit" "debug" "profile"))
-			(setq app (cat "apps/" folder "/app.lisp"))))
+			(setq app (cat "apps/" file "/app.lisp"))))
 	app)
 
 (defun action-debug-launch ()

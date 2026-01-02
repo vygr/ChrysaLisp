@@ -1,5 +1,5 @@
 (defq *app_root* (path-to-file))
-(import "apps/system/login/env.inc")
+(import "usr/env.inc")
 (import "gui/lisp.inc")
 (import "./app.inc")
 (import "./reader.inc")

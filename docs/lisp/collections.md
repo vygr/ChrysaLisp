@@ -99,7 +99,7 @@ function.
 For example, here is the `Editor` load state routine.
 
 ```file
-apps/accessories/edit/state.inc "state-load" ""
+apps/tools/edit/state.inc "state-load" ""
 ```
 
 ### Saveing
@@ -110,7 +110,7 @@ function.
 Here again is the `Editor` save state routine.
 
 ```file
-apps/accessories/edit/state.inc "state-save" ""
+apps/tools/edit/state.inc "state-save" ""
 ```
 
 ## Scatter and gather functions

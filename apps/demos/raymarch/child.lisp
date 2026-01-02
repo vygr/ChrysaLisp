@@ -41,9 +41,9 @@
 	(if (> d min_distance) max_l l))
 
 ;native versions
-(ffi "apps/demos/raymarch/scene" scene)
+(ffi (cat *app_root* "scene") scene)
 ; (scene reals) -> radius
-(ffi "apps/demos/raymarch/ray_march" ray-march)
+(ffi (cat *app_root* "ray_march") ray-march)
 ; (ray-march reals reals real real real real) -> distance
 
 (defun get-normal (p)

@@ -1,5 +1,5 @@
 (defq *app_root* (path-to-file))
-(import "apps/system/login/env.inc")
+(import "usr/env.inc")
 (import "gui/lisp.inc")
 
 (defq id :t index 0 xv 4 yv 0 i 512

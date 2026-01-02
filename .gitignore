@@ -16,7 +16,7 @@ chrysalisp.exe
 *.d
 *.dll
 ai/
-apps/system/login/*/*.tre
+usr/*/*.tre
 *.img
 *.dmg
 /tests

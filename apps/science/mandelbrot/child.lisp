@@ -14,7 +14,7 @@
 			x2 (* xc xc) y2 (* yc yc))) i)
 
 ;native versions
-(ffi "apps/science/mandelbrot/depth" depth)
+(ffi (cat *app_root* "depth") depth)
 ; (depth x0 y0) -> cnt
 
 (defun mandel (key mbox x y x1 y1 w h cx cy z)

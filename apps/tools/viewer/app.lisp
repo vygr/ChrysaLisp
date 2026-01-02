@@ -1,18 +1,19 @@
-(import "apps/system/login/env.inc")
+(import "usr/env.inc")
 (import "gui/lisp.inc")
 (import "lib/consts/chars.inc")
 (import "lib/text/buffer.inc")
 (import "service/clipboard/app.inc")
 
 ;our UI widgets and events
-(import "././viewer/widgets.inc")
+(import "./widgets.inc")
 
 (enums +select 0
 	(enum main tip))
 
 (bind '(+edit_font +edit_size) (font-info *env_editor_font*))
 
-(defq +margin 2)
+(defq +margin 2  +text_types ''(".md" ".txt")
+	+file_types ''(".lisp" ".inc" ".vp" ".md" ".txt" ".tre" ".cwb"))
 
 (defun toolbar-states (toolbar states)
 	(defq radio_col (canvas-brighter (get :color toolbar)))
@@ -71,7 +72,7 @@
 (defun populate-buffer (file cx cy ax ay sx sy)
 	;create new file buffer
 	(defq files_map (. *meta_map* :find :files) key (str file)
-		file_meta :nil buffer :nil mode :nil)
+		file_meta :nil buffer :nil mode (notany (# (ends-with %0 file)) +text_types))
 	;clear all file buffers
 	(. files_map :each (lambda (k v) (. v :erase :buffer)))
 	;create new file meta data
@@ -79,7 +80,7 @@
 		:cx cx :cy cy :ax ax :ay ay :sx sx :sy sy)))))
 	;create new buffer
 	(. file_meta :insert :buffer (setq buffer (Buffer mode *syntax*)))
-	(when file (. buffer :file_load_hex file 16)))
+	(when file (. buffer :file_load file)))
 
 (defun populate-vdu (file)
 	;load up the vdu widget from this file
@@ -99,7 +100,7 @@
 		(:set_scroll sx sy))
 	(scatter meta :cx cx :cy cy :ax ax :ay ay :sx sx :sy sy)
 	(toolbar-states *find_toolbar* (list :nil *whole_words* *regexp* :nil :nil))
-	(def *title* :text (cat "Hexview" (if file (cat " -> " file) "")))
+	(def *title* :text (cat "Viewer" (if file (cat " -> " file) "")))
 	(.-> *title* :layout :dirty)
 	(refresh))
 
@@ -142,7 +143,7 @@
 		:cx cx :cy cy :ax ax :ay ay :sx sx :sy sy :buffer buffer))
 
 ;import actions, bindings and app ui classes
-(import "././viewer/actions.inc")
+(import "./actions.inc")
 
 (defun dispatch-action (&rest action)
 	(defq func (first action))
@@ -165,7 +166,7 @@
 		:vdu_width +vdu_min_width :vdu_height +vdu_min_height)
 	(def *window* :tip_mbox (elem-get select +select_tip))
 	(. *edit_flow* :add_back *edit*)
-	(. *file_selector* :populate "." :nil 2)
+	(. *file_selector* :populate "." +file_types 2)
 	(populate-vdu *current_file*)
 	(action-minimise)
 	(bind '(x y w h) (apply view-locate (.-> *window* (:connect +event_layout) :get_size)))

@@ -160,7 +160,7 @@ Likewise we do the same for keyboard event actions !
 The module only exports these mapping objects to the application and it
 searches these maps to find the `binding` for the event or key.
 
-Here is the Editor application action bindings, `apps/accessories/editor/actions.inc`:
+Here is the Editor application action bindings, `apps/desktop/editor/actions.inc`:
 
 ```vdu
 ;module
@@ -305,7 +305,7 @@ clause, only if not do we try to dispatch the key action.
 
 Another advantage of this method of dispatching is that we can reuse the
 actions within other applications. If you look at the Viewer application,
-`apps/accessories/viewer/app.lisp`, you can see that its `actions` module imports several
+`apps/tools/viewer/app.lisp`, you can see that its `actions` module imports several
 of the Editor action files as the functionality required is identical.
 
 ## Dynamic dispatch
@@ -313,7 +313,7 @@ of the Editor action files as the functionality required is identical.
 This example is not about the dispatching of GUI events but illustrates an
 important technique that applications may find useful.
 
-The Docs application, `apps/accessories/docs/app.lisp`, uses the idea of a
+The Docs application, `apps/desktop/docs/app.lisp`, uses the idea of a
 current state and searches an `Emap` of state to handler function in order to
 render each line of the document being scanned. If the state is not found in the
 `Emap` then it uses the state to create a module name and dynamically loads that
@@ -327,7 +327,7 @@ application itself.
 Here is the entire Docs application, it's quite short:
 
 ```file
-apps/accessories/docs/app.lisp
+apps/desktop/docs/app.lisp
 ```
 
 In the `(populate-page)` function, the document file is processed by scanning
@@ -338,8 +338,8 @@ of text and the page instance and to do whatever that handler does.
 The relevant parts of this function that do the dynamic module loading are:
 
 ```file
-apps/accessories/docs/app.lisp "handler-func" ""
-apps/accessories/docs/app.lisp "state :text" "bind"
+apps/desktop/docs/app.lisp "handler-func" ""
+apps/desktop/docs/app.lisp "state :text" "bind"
 ```
 
 Each module takes the current line of the file and decides what other UI
@@ -351,12 +351,12 @@ state.
 Here is the `:image` handler module:
 
 ```file
-apps/accessories/docs/handlers/image.inc
+apps/desktop/docs/handlers/image.inc
 ```
 
 This is the `:vdu` handler module, the very same module that's displaying the
 syntax highlighted source code that you are now looking at !
 
 ```file
-apps/accessories/docs/handlers/vdu.inc
+apps/desktop/docs/handlers/vdu.inc
 ```

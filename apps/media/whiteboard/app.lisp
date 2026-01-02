@@ -4,7 +4,7 @@
 (1 (import "lib/debug/profile.inc"))
 (2 (import "lib/debug/debug.inc")))
 
-(import "apps/system/login/env.inc")
+(import "usr/env.inc")
 (import "gui/lisp.inc")
 (import "lib/math/vector.inc")
 (import "./widgets.inc")

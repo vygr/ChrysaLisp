@@ -9,7 +9,7 @@
 (import "./utils.inc")
 (import "./cursor.inc")
 (import "./edit.inc")
-(import "./././accessories/edit/select.inc")
+(import "./././tools/edit/select.inc")
 (import "./clipboard.inc")
 (import "./state.inc")
 (import "./ui.inc")

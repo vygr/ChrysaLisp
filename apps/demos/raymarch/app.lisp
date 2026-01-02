@@ -1,5 +1,5 @@
 (defq *app_root* (path-to-file))
-(import "apps/system/login/env.inc")
+(import "usr/env.inc")
 ;jit compile apps native functions
 (jit *app_root* "lisp.vp" '("tile"))
 
@@ -42,7 +42,7 @@
 	(* (- x1 x) (- y1 y)))
 
 ;native versions
-(ffi "apps/demos/raymarch/tile" tile)
+(ffi (cat *app_root* "tile") tile)
 ; (tile canvas data) -> area
 
 (defun dispatch-job (key val)

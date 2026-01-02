@@ -5,7 +5,7 @@
 (import "./app.inc")
 
 ;native versions
-(ffi "apps/system/netspeed/vops" vops)
+(ffi (cat *app_root* "vops") vops)
 ; (vops) -> (vops_regs vops_memory vops_reals)
 
 (enums +select 0

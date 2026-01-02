@@ -1,6 +1,5 @@
-(defq *env_user* "Guest"
-	*app_root* (path-to-file))
-(import "./Guest/env.inc")
+(defq *env_user* "Guest")
+(import "usr/Guest/env.inc")
 (import "gui/lisp.inc")
 
 (enums +event 0
@@ -14,7 +13,7 @@
 			(ui-label _ (:text "Password:")))
 		(ui-grid _ (:grid_width 1 :color +argb_white)
 			(. (ui-textfield username (:hint_text "username"
-				:clear_text (if (defq old (load (cat *app_root* "current"))) old "Guest")))
+				:clear_text (if (defq old (load "usr/current")) old "Guest")))
 				:connect +event_login)
 			(. (ui-textfield password (:hint_text "password" :mode :t :min_width 192))
 				:connect +event_login)))
@@ -44,21 +43,21 @@
 		((= id +event_login)
 			;login button
 			(cond
-				((/= (age (cat *app_root* (defq user (get-username)) "/env.inc")) 0)
+				((/= (age (cat "usr/" (defq user (get-username)) "/env.inc")) 0)
 					;login user
-					(save user (cat *app_root* "current"))
+					(save user "usr/current")
 					(open-child "apps/system/wallpaper/app.lisp" +kn_call_open)
 					:nil)
 				(:t :t)))
 		((= id +event_create)
 			;create button
 			(cond
-				((and (/= (age (cat *app_root* "Guest/env.inc")) 0)
-					(= (age (cat (defq home (cat *app_root* (defq user (get-username)) "/")) "env.inc")) 0))
+				((and (/= (age "usr/Guest/env.inc") 0)
+					(= (age (cat (defq home (cat "usr/" (defq user (get-username)) "/")) "env.inc")) 0))
 					;copy initial user files from Guest
-					(save (load (cat *app_root* "Guest/env.inc")) (cat home "env.inc"))
+					(save (load "usr/Guest/env.inc") (cat home "env.inc"))
 					;login new user
-					(save user (cat *app_root* "current"))
+					(save user "usr/current")
 					(open-child "apps/system/wallpaper/app.lisp" +kn_call_open)
 					:nil)
 				(:t :t)))

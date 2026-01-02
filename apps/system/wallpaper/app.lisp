@@ -4,7 +4,7 @@
 ;which they appear. No warranty is given, and no liability for use or
 ;distribution is expressed or implied by the works' original copyright holder.
 
-(import "apps/system/login/env.inc")
+(import "usr/env.inc")
 (import "gui/lisp.inc")
 
 (enums +event 0

@@ -1,4 +1,4 @@
-(import "apps/system/login/env.inc")
+(import "usr/env.inc")
 (import "gui/lisp.inc")
 (import "lib/files/files.inc")
 (import "service/clipboard/app.inc")

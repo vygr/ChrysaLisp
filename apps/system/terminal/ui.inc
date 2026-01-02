@@ -2,7 +2,7 @@
 ; user interface actions
 ;;;;;;;;;;;;;;;;;;;;;;;;
 
-(import "./././accessories/viewer/ui.inc")
+(import "./././tools/viewer/ui.inc")
 
 (redefun action-scale-up ()
 	;scale font up

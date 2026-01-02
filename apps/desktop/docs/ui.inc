@@ -2,7 +2,7 @@
 ; user interface actions
 ;;;;;;;;;;;;;;;;;;;;;;;;
 
-(import "././edit/ui.inc")
+(import "./././tools/edit/ui.inc")
 
 ;overload Edit app ui.inc
 (redefun action-file-leaf-action ()

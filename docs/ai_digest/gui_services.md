@@ -121,9 +121,9 @@ enables applications to respond to user interactions and system notifications.
 
     * **`Fmap` Dispatch:** For more complex applications, an `Fmap` (a hash
       map) can map event IDs or event types to handler functions. This is the
-      approach used in the **Editor application** (`apps/accessories/edit/actions.inc`
+      approach used in the **Editor application** (`apps/tools/edit/actions.inc`
       defines `*event_map*`, `*key_map*`, etc., which are `Fmap`s). The main
-      loop in the Editor (`apps/accessories/edit/app_impl.lisp`) then looks up the event/key
+      loop in the Editor (`apps/tools/edit/app_impl.lisp`) then looks up the event/key
       in these maps and calls the associated handler function via
       `(dispatch-action ...)`.
 

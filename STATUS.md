@@ -58,6 +58,8 @@ relative paths.
 New `(path-to-file) -> path` function that returns the path your file is within.
 This information comes from `(first (repl-info))` call.
 
+Move all user environbment files to new `usr/` folder.
+
 ------
 
 New `(nql obj1 obj2) -> :t | :nil` built in function.
