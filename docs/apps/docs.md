@@ -4,14 +4,14 @@ The `Docs` application is the Chrysalisp documentation viewer. It is used to
 display tutorials as well as reference material auto generated from the source
 code files.
 
-Section handlers are loaded dynamically as required and given responsibility
-for the embedding of content. Content ranges from wrapped text to images and
-live Lisp code snippets, including embedding the entire UI of applications. The
+Section handlers are loaded dynamically as required and given responsibility for
+the embedding of content. Content ranges from wrapped text to images and live
+Lisp code snippets, including embedding the entire UI of applications. The
 mechanization for the section handlers is explained in the `event_dispatch.md`
 document.
 
-The Terminal command app `make docs` is used to scan the source files and
-create the reference documentation files.
+The Terminal command app `make docs` is used to scan the source files and create
+the reference documentation files.
 
 If you hover the mouse over the embedded UI below you can see the kind of
 features available. There are more features available through the key bindings
@@ -59,8 +59,8 @@ content.
 
 * **UI Definition:** `apps/desktop/docs/widgets.inc`
 
-* **Section Handler Modules:** Located in `apps/desktop/docs/`, e.g., `text.inc`,
-  `image.inc`, `code.inc`, `vdu.inc`, `widget.inc`.
+* **Section Handler Modules:** Located in `apps/desktop/docs/handlers/`, e.g.,
+  `text.inc`, `image.inc`, `code.inc`, `vdu.inc`, `widget.inc`.
 
 ### 4. Dynamic Section Handling
 
@@ -100,35 +100,36 @@ The default state if no tag is active is considered `:text`.
 #### 4.2. Handler Discovery and Dynamic Loading
 
 The core mechanism for dynamic section handling resides in the `populate-page`
-function within `apps/desktop/docs/app.lisp`. This function processes the selected
-document line by line, maintaining a `state` variable (a symbol like `:text`,
-`:image`, `:code`, etc.) that indicates the current section type being
+function within `apps/desktop/docs/app.lisp`. This function processes the
+selected document line by line, maintaining a `state` variable (a symbol like
+`:text`, `:image`, `:code`, etc.) that indicates the current section type being
 processed.
 
 * **`handlers` Emap:** An `Emap` instance, named `handlers`, is used as a cache
-  for loaded section handler functions. It maps the state symbol (e.g., `:image`)
-  to the actual Lisp handler function.
+  for loaded section handler functions. It maps the state symbol (e.g.,
+  `:image`) to the actual Lisp handler function.
 
 * **`handler-func` Helper:** A local helper function, `handler-func`, is
   responsible for retrieving or loading the appropriate handler:
 
-    1. It first checks if a handler for the current `state` already exists in
-       the `handlers` `Emap`.
+	1. It first checks if a handler for the current `state` already exists in
+	   the `handlers` `Emap`.
 
-    2. If not found, it dynamically constructs a module path: `(cat "apps/desktop/docs/"
-       (rest state) ".inc")`. For example, if `state` is `:image`, the path
-       becomes `"apps/desktop/docs/image.inc"`.
+	2. If not found, it dynamically constructs a module path: `(cat
+	   "apps/desktop/docs/handlers/" (rest state) ".inc")`. For example, if
+	   `state` is `:image`, the path becomes
+	   `"apps/desktop/docs/handlers/image.inc"`.
 
-    3. It then uses `(repl (file-stream module) module)` to load and evaluate
-       this module. The `repl` function, in this context, effectively imports
-       the module's definitions into a dedicated environment, `*handler_env*`,
-       which is a child of the Docs application's main environment.
+	3. It then uses `(repl (file-stream module) module)` to load and evaluate
+	   this module. The `repl` function, in this context, effectively imports
+	   the module's definitions into a dedicated environment, `*handler_env*`,
+	   which is a child of the Docs application's main environment.
 
-    4. The loaded module is expected to define and export a function named
-       `handler`.
+	4. The loaded module is expected to define and export a function named
+	   `handler`.
 
-    5. This exported `handler` function is then retrieved from `*handler_env*`
-       and stored in the `handlers` `Emap`, keyed by the `state` symbol.
+	5. This exported `handler` function is then retrieved from `*handler_env*`
+	   and stored in the `handlers` `Emap`, keyed by the `state` symbol.
 
 * **Invocation:** Once the handler function is obtained (either from the cache
   or by dynamic loading), it is called with the current `state`, the `page`
@@ -139,125 +140,125 @@ processed.
 ; Snippet from apps/desktop/docs/app.lisp (illustrative)
 (defq handlers (Emap)) ; Emap to cache handlers
 (defun handler-func (state)
-    (unless (defq handler (. handlers :find state))
-        (defq module (cat "apps/desktop/docs/" (rest state) ".inc"))
-        (repl (file-stream module) module) ; Dynamically loads the module
-        ; Assuming the module exports 'handler' into *handler_env*
-        (. handlers :insert state (setq handler (get 'handler *handler_env*))))
-    handler)
+	(unless (defq handler (. handlers :find state))
+		(defq module (cat *app_root* "handlers/" (rest state) ".inc"))
+		(repl (file-stream module) module)
+		(. handlers :insert state handler))
+	handler)
 
 (defun populate-page (file)
-    ; ...
-    (defq state :text)
-    (lines! (lambda (line)
-            ; ... logic to update 'state' based on "```<type>" tags ...
-            (catch (setq state ((handler-func state) state page line))
-                (progn (prin _) (print) (setq state :text) :t)))
-        (file-stream file))
-    ; ...
+	; ...
+	(defq state :text)
+	(lines! (lambda (line)
+			; ... logic to update 'state' based on "```<type>" tags ...
+			(catch (setq state ((handler-func state) state page line))
+				(progn (prin _) (print) (setq state :text) :t)))
+		(file-stream file))
+	; ...
 )
 ```
 
 #### 4.3. Handler Interface and Contract
 
-Each section handler module (e.g., `apps/desktop/docs/text.inc`, `apps/desktop/docs/image.inc`)
-must define and export a function named `handler`.
+Each section handler module (e.g., `apps/desktop/docs/handlers/text.inc`,
+`apps/desktop/docs/handlers/image.inc`) must define and export a function named
+`handler`.
 
 * **Signature:** `(handler current-state page-widget current-line) -> new-state`
 
 * **Responsibilities:**
 
-    * `page-widget`: The parent UI widget (typically a `Flow` layout named
-      `page` in `populate-page`) to which the handler should add its rendered
-      content.
+	* `page-widget`: The parent UI widget (typically a `Flow` layout named
+	  `page` in `populate-page`) to which the handler should add its rendered
+	  content.
 
-    * `current-line`: The current line of text from the document being
-      processed.
+	* `current-line`: The current line of text from the document being
+	  processed.
 
-    * The handler parses `current-line`.
+	* The handler parses `current-line`.
 
-    * If `current-line` is the closing tag for its section (e.g., "```"), it
-      should finalize any UI elements it has been constructing, add them to
-      `page-widget`, and return the new state, which is typically `:text`.
+	* If `current-line` is the closing tag for its section (e.g., "```"), it
+	  should finalize any UI elements it has been constructing, add them to
+	  `page-widget`, and return the new state, which is typically `:text`.
 
-    * If `current-line` is content for its section type, it processes it (e.g.,
-      accumulates text, loads an image) and updates its UI elements. It then
-      returns the `current-state` to indicate it's still handling this section
-      type.
+	* If `current-line` is content for its section type, it processes it (e.g.,
+	  accumulates text, loads an image) and updates its UI elements. It then
+	  returns the `current-state` to indicate it's still handling this section
+	  type.
 
-    * Handlers are responsible for creating and managing their own UI widgets
-      (e.g., `Text`, `Vdu`, `Canvas`, or even custom application widgets).
+	* Handlers are responsible for creating and managing their own UI widgets
+	  (e.g., `Text`, `Vdu`, `Canvas`, or even custom application widgets).
 
 #### 4.4. Example Handlers
 
-* **`apps/desktop/docs/text.inc` (Handler for `:text` state):**
+* **`apps/desktop/docs/handlers/text.inc` (Handler for `:text` state):**
 
-    * Parses the `line` for inline styling like `*italic*`, `**bold**`, or
-      ``code` ``.
+	* Parses the `line` for inline styling like `*italic*`, `**bold**`, or
+	  ``code` ``.
 
-    * Creates `Text` widgets for each segment, applying appropriate fonts (e.g.,
-      `font_italic`, `font_bold`, `font_term` obtained from the `page` widget's
-      properties).
+	* Creates `Text` widgets for each segment, applying appropriate fonts (e.g.,
+	  `font_italic`, `font_bold`, `font_term` obtained from the `page` widget's
+	  properties).
 
-    * Adds these `Text` widgets to a new `Flow` widget representing the current
-      line, which is then added to the main `page` widget.
+	* Adds these `Text` widgets to a new `Flow` widget representing the current
+	  line, which is then added to the main `page` widget.
 
-    * Collects created `Text` widgets into `*search_widgets*` for find
-      functionality.
+	* Collects created `Text` widgets into `*search_widgets*` for find
+	  functionality.
 
-* **`apps/desktop/docs/image.inc` (Handler for `:image` state):**
+* **`apps/desktop/docs/handlers/image.inc` (Handler for `:image` state):**
 
-    * If `line` is not "```", it interprets `line` as an image file path.
+	* If `line` is not "```", it interprets `line` as an image file path.
 
-    * Loads the image using `(canvas-load line +load_flag_shared)`.
+	* Loads the image using `(canvas-load line +load_flag_shared)`.
 
-    * Adds the resulting `canvas` widget to the `page` widget.
+	* Adds the resulting `canvas` widget to the `page` widget.
 
-    * Returns `:text` when "```" is encountered.
+	* Returns `:text` when "```" is encountered.
 
-* **`apps/desktop/docs/vdu.inc` (Handler for `:vdu` state, also used by `:code`):**
+* **`apps/desktop/docs/handlers/vdu.inc` (Handler for `:vdu` state, also used by `:code`):**
 
-    * If `line` is not "```", it accumulates the line (after processing tabs)
-      into a local `lines` list.
+	* If `line` is not "```", it accumulates the line (after processing tabs)
+	  into a local `lines` list.
 
-    * When "```" is encountered:
+	* When "```" is encountered:
 
-        * Creates a `Vdu` widget.
+		* Creates a `Vdu` widget.
 
-        * Sets its font (e.g., `font_term_small` from `page` properties).
+		* Sets its font (e.g., `font_term_small` from `page` properties).
 
-        * Calculates `vdu_width` and `vdu_height` based on the accumulated
-          lines.
+		* Calculates `vdu_width` and `vdu_height` based on the accumulated
+		  lines.
 
-        * Loads the lines into the `Vdu` widget using `(. vdu :load lines ...)`.
+		* Loads the lines into the `Vdu` widget using `(. vdu :load lines ...)`.
 
-        * Adds the `Vdu` widget to a `Backdrop` (for background color) and then
-          to the `page`.
+		* Adds the `Vdu` widget to a `Backdrop` (for background color) and then
+		  to the `page`.
 
-    * Returns `:text`.
+	* Returns `:text`.
 
-* **`apps/desktop/docs/widget.inc` (Handler for `:widget` state):**
+* **`apps/desktop/docs/handlers/widget.inc` (Handler for `:widget` state):**
 
-    * This is a particularly powerful handler demonstrating ChrysaLisp's dynamic
-      capabilities.
+	* This is a particularly powerful handler demonstrating ChrysaLisp's dynamic
+	  capabilities.
 
-    * It parses `line` to extract a Lisp file path, a widget symbol name, and
-      optional dimensions.
+	* It parses `line` to extract a Lisp file path, a widget symbol name, and
+	  optional dimensions.
 
-    * It uses `(import-from file (list widget-symbol))` to load only the
-      specified widget's definition from the Lisp file into the current
-      environment.
+	* It uses `(import-from file (list widget-symbol))` to load only the
+	  specified widget's definition from the Lisp file into the current
+	  environment.
 
-    * It then `(eval widget-symbol)` to create an instance of the widget.
+	* It then `(eval widget-symbol)` to create an instance of the widget.
 
-    * It sets `:tip_mbox` and `:owner` properties on the embedded widget to
-      integrate it with the Docs app's event system (allowing tooltips and
-      routing events to the special `+select_embedded` mailbox if the widget
-      needs to communicate).
+	* It sets `:tip_mbox` and `:owner` properties on the embedded widget to
+	  integrate it with the Docs app's event system (allowing tooltips and
+	  routing events to the special `+select_embedded` mailbox if the widget
+	  needs to communicate).
 
-    * The live widget instance is added to the `page`.
+	* The live widget instance is added to the `page`.
 
-    * Returns `:text` when "```" is encountered.
+	* Returns `:text` when "```" is encountered.
 
 ### 5. Event Loop and UI Updates
 
@@ -278,15 +279,16 @@ must define and export a function named `handler`.
   content.
 
 * The `*search_widgets*` list, populated by the `:text` handler, is used by
-  search actions (`action-find-down`, `action-find-up` in `apps/desktop/docs/search.inc`)
-  to iterate over displayable text elements and highlight matches.
+  search actions (`action-find-down`, `action-find-up` in
+  `apps/desktop/docs/search.inc`) to iterate over displayable text elements and
+  highlight matches.
 
 ### 6. Strengths and Observations
 
 * **High Extensibility:** New content types can be supported by simply creating
-  a new section handler module (e.g., `apps/desktop/docs/newtype.inc`) and using the
-  "```newtype" tag in documentation. The core Docs application logic does not
-  need to be changed.
+  a new section handler module (e.g., `apps/desktop/docs/newtype.inc`) and using
+  the "```newtype" tag in documentation. The core Docs application logic does
+  not need to be changed.
 
 * **Decoupling:** The Docs app is decoupled from the specifics of how each
   content type is rendered.
@@ -307,13 +309,14 @@ must define and export a function named `handler`.
   state across multiple lines of its section (e.g., the `:vdu` handler
   accumulating lines), it must do so using local variables within its lexical
   scope that persist across calls *if the handler itself is a closure that
-  captures this state*. In the current `apps/desktop/docs/*.inc` implementations,
-  handlers like `:vdu` use `(push lines ...)` where `lines` is a local variable
-  within the `handler` function defined in the module; this `lines` variable is
-  reinitialized on each call to `handler-func` when it fetches/re-imports the
-  handler, so state across lines for a single section block is managed by the
-  `populate-page` loop passing the current `state` to the handler, and the
-  handler deciding if it's done or needs more lines for that same `state`.
+  captures this state*. In the current `apps/desktop/docs/handlers/*.inc`
+  implementations, handlers like `:vdu` use `(push lines ...)` where `lines` is
+  a local variable within the `handler` function defined in the module; this
+  `lines` variable is reinitialized on each call to `handler-func` when it
+  fetches/re-imports the handler, so state across lines for a single section
+  block is managed by the `populate-page` loop passing the current `state` to
+  the handler, and the handler deciding if it's done or needs more lines for
+  that same `state`.
 
 ## Conclusion
 
