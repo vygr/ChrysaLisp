@@ -224,16 +224,16 @@ This improved `config-load` function preserves user settings across updates.
 
 **Advantages of the Migration Method:**
 
-*   **Preserves User Data:** A user's window position or todo list items are not
-    lost just because a new setting was added.
+* **Preserves User Data:** A user's window position or todo list items are not
+  lost just because a new setting was added.
 
-*   **Handles New Defaults:** If a new version adds a setting (e.g.,
-    `apps/eyes/app.lisp` adds `:iris_color`), it will be present from
-    `config-default` while old settings like `:x` and `:y` are preserved.
+* **Handles New Defaults:** If a new version adds a setting (e.g.,
+  `apps/desktop/eyes/app.lisp` adds `:iris_color`), it will be present from
+  `config-default` while old settings like `:x` and `:y` are preserved.
 
-*   **Handles Deprecated Settings:** Old settings that are no longer in the
-    default `Emap` are simply not used, effectively being discarded without
-    causing errors.
+* **Handles Deprecated Settings:** Old settings that are no longer in the
+  default `Emap` are simply not used, effectively being discarded without
+  causing errors.
 
 ## 6. Conclusion
 
