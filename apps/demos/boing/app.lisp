@@ -9,8 +9,8 @@
 (enums +event 0
 	(enum close max min))
 
-(defq +frames `',(exec '(map (# (canvas-load (cat *app_root* "data/taoball_" (str %0) ".cpm") +load_flag_shared)) (range 1 13)))
-	+sframes `',(exec '(map (# (canvas-load (cat *app_root* "data/taoball_s_" (str %0) ".cpm") +load_flag_shared)) (range 1 13)))
+(defq +frames `',(exec '(map (# (canvas-load (str *app_root* "data/taoball_" %0 ".cpm") +load_flag_shared)) (range 1 13)))
+	+sframes `',(exec '(map (# (canvas-load (str *app_root* "data/taoball_s_" %0 ".cpm") +load_flag_shared)) (range 1 13)))
 	+rate (/ 1000000 30))
 
 (ui-window *window* ()
