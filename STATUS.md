@@ -56,9 +56,9 @@ GUI apps arranged into subfolders. Launcher and various path code updated to use
 relative paths.
 
 New `(path-to-file) -> path` function that returns the path your file is within.
-This information comes from `(first (repl-info))` call.
+This information comes from a `(first (repl-info))` call.
 
-Move all user environbment files to new `usr/` folder.
+Move all user environment and app state files to new `usr/` folder.
 
 ------
 
