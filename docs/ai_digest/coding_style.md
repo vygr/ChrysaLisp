@@ -699,11 +699,11 @@ complex algorithm implemented at this level for maximum performance.
 
 ```vdu
 ;; Stage 3: Direct register manipulation for maximum speed.
-(def-method 'my-class :sum_of_squares)
+(def-method :my_class :sum_of_squares)
 
     (vp-rdef (this iter iter_end sum val) '(:r8 :r9 :r10 :r11 :r12))
 
-    (entry :my-class :sum_of_squares `(,this))
+    (entry :my_class :sum_of_squares `(,this))
 
     (assign '(0) `(,sum))
     (class/array/get_both this iter iter_end)
@@ -716,7 +716,7 @@ complex algorithm implemented at this level for maximum performance.
     (loop-end)
     (call :num :create `(,sum) `(,sum))
 
-    (exit :my-class :sum_of_squares `(,this ,sum))
+    (exit :my_class :sum_of_squares `(,this ,sum))
     (vp-ret)
 
 (def-func-end)
