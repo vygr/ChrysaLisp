@@ -185,7 +185,7 @@ properties that are not used by the window directly but are defaults for the
 other widgets in the tree.
 
 The `*env_xxx_xxx*` values come from the user login `env.inc` files. A user can
-set these in their own private `env.inc` file. See the `apps/login/` folder.
+set these in their own private `env.inc` file. See the `usr/` folder.
 
 #### Properties
 
