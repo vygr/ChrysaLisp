@@ -308,7 +308,7 @@ present.
 * `lib/asm/scopes.inc` helps manage scopes during the compilation of `.vp`
 files.
 
-## 7. Environment Configuration (`apps/login/`)
+## 7. Environment Configuration (`apps/system/login/`)
 
 * User-specific settings are managed through `env.inc` files located in user
 directories (e.g., `usr/Guest/env.inc`).
