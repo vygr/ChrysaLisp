@@ -1,4 +1,3 @@
-(defq *app_root* (path-to-file))
 (include "lib/asm/func.inc")
 (include "gui/canvas/class.inc")
 (include "class/str/class.inc")
@@ -6,7 +5,7 @@
 (include "class/lisp/class.inc")
 (include "./app.inc")
 
-(def-func (cat *app_root* 'depth))
+(def-func (path-to-absolute "./depth"))
 	;inputs
 	;:r0 = lisp object (ptr)
 	;:r1 = args list object (ptr)
@@ -67,7 +66,7 @@
 
 (def-func-end)
 
-(def-func (cat *app_root* 'tile))
+(def-func (path-to-absolute "./tile"))
 	;inputs
 	;:r0 = lisp object (ptr)
 	;:r1 = args list object (ptr)

@@ -1,11 +1,10 @@
-(defq *app_root* (path-to-file))
 (include "lib/asm/func.inc")
 (include "lib/consts/chars.inc")
 (include "class/str/class.inc")
 (include "class/num/class.inc")
 (include "class/lisp/class.inc")
 
-(def-func (cat *app_root* 'piece_scans))
+(def-func (path-to-absolute "./piece_scans"))
 	;inputs
 	;:r0 = lisp object (ptr)
 	;:r1 = args list object (ptr)
