@@ -4,6 +4,10 @@
 
 ------
 
+`lib/asm/scopes.inc` now uses an environment to hold each scopes symbol map.
+
+------
+
 Fix Editor `load-depends` bug when on the scratchpad buffer !.
 
 Swapped over the `copy`/`paste` icons.
@@ -58,7 +62,7 @@ relative paths.
 New `(path-to-file) -> path` function that returns the path your file is within.
 This information comes from a `(first (repl-info))` call.
 
-Move all user environment and app state files to new `usr/` folder.
+Moved all user environment and app state files to new `usr/` folder.
 
 ------
 

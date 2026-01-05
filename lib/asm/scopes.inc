@@ -12,19 +12,17 @@
 (defcvar '*scopes_sp* 0 '*scopes* (list))
 
 (def-enum +scope 0
-	(enum offset names attribs))
+	(enum offset vars))
 
 ;last attrib entry is for used flag !
 (defq +attrib_used -2)
 
 (defmacro scope-new ()
-	(static-q (push *scopes* (list 0 (list) (list)))))
+	(static-q (push *scopes* (list 0 (env 1)))))
 
 (defun scope-get (level)
-	(defq offset 0)
-	(each! (# (setq offset (+ offset (elem-get %0 +scope_offset))))
-		(list *scopes*) (inc level) -2)
-	offset)
+	(reduce! (# (+ %0 (elem-get %1 +scope_offset)))
+		(list *scopes*) 0 (inc level) -2))
 
 (defun push-scope ()
 	(setq *scopes_sp* (align *scopes_sp* stack_align))
@@ -36,12 +34,10 @@
 
 (defun pop-scope-syms ()
 	(pop *scopes*)
-	(defq unused (list))
-	(each! (lambda (attrib)
-		(unless (elem-get attrib +attrib_used)
-			(push unused (elem-get (elem-get scope +scope_names) (!)))))
-		(list (elem-get (defq scope (pop *scopes*)) +scope_attribs)))
-	(if (/= 0 (length unused))
+	(if (nempty? (defq unused
+			(reduce (lambda (unused (k v))
+					(if (elem-get v +attrib_used) unused (push unused k)))
+				(tolist (elem-get (defq scope (pop *scopes*)) +scope_vars)) (list))))
 		(throw "Unused symbols !" unused))
 	(scope-new)
 	(setq *scopes_sp* 0)
@@ -68,18 +64,17 @@
 	(vp-ret))
 
 (defun scope-def-sym (name type &rest attribs)
-	(if (find (setq name (sym name))
-			(elem-get (defq scope (pop *scopes*)) +scope_names))
+	(if (def? (setq name (sym name))
+			(defq vars (elem-get (defq scope (pop *scopes*)) +scope_vars)))
 		(throw "Symbol redefined !" name))
-	(push (elem-get scope +scope_names) name)
-	(push (elem-get scope +scope_attribs) (cat (list (length *scopes*) type) attribs '(:nil)))
+	(def vars name (cat (list (length *scopes*) type) attribs '(:nil)))
 	(push *scopes* scope))
 
 (defun scope-get-sym (name)
-	(defq name (sym name) attrib (some! (lambda (scope)
-		(if (defq _ (find name (elem-get scope +scope_names)))
-			(elem-get (elem-get scope +scope_attribs) _))) (list *scopes*) :nil -2 0))
-	(when attrib (elem-set attrib +attrib_used :t)) attrib)
+	(if (defq name (sym name) attrib
+			(some! (# (def? name (elem-get %0 +scope_vars)))
+				(list *scopes*) :nil -2 0))
+		(elem-set attrib +attrib_used :t)))
 
 (defmacro scope-used (&rest names)
 	(each scope-get-sym names) :nil)
