@@ -20,7 +20,7 @@
 (defmacro scope-new ()
 	(static-q (push *scopes* (list 0 (env 1)))))
 
-(defun scope-get (level)
+(defun scope-offset (level)
 	(reduce! (# (+ %0 (elem-get %1 +scope_offset)))
 		(list *scopes*) 0 (inc level) -2))
 
@@ -54,7 +54,7 @@
 		(throw "Unbalanced scopes !" offset)))
 
 (defun scope-unwind ()
-	(when (/= (defq offset (scope-get -1)) 0)
+	(when (/= (defq offset (scope-offset -1)) 0)
 		(if *debug_inst* (print "(vp-free " offset ")"))
 		(vp-free offset)))
 
@@ -63,28 +63,28 @@
 	(if *debug_inst* (print "(vp-ret)"))
 	(vp-ret))
 
-(defun scope-def-sym (name type &rest attribs)
+(defun scope-def (name type &rest attribs)
 	(if (def? (setq name (sym name))
 			(defq vars (elem-get (defq scope (pop *scopes*)) +scope_vars)))
 		(throw "Symbol redefined !" name))
 	(def vars name (cat (list (length *scopes*) type) attribs '(:nil)))
 	(push *scopes* scope))
 
-(defun scope-get-sym (name)
+(defun scope-get (name)
 	(if (defq name (sym name) attrib
 			(some! (# (def? name (elem-get %0 +scope_vars)))
 				(list *scopes*) :nil -2 0))
 		(elem-set attrib +attrib_used :t)))
 
 (defmacro scope-used (&rest names)
-	(each scope-get-sym names) :nil)
+	(each scope-get names) :nil)
 
 (defun scope-operator (name pres &optional asso impl)
-	(scope-def-sym name 'op (* pres 2) (ifn asso 0) (ifn impl compile-null)))
+	(scope-def name 'op (* pres 2) (ifn asso 0) (ifn impl compile-null)))
 
 (defun scope-new-var (type size)
 	(push prog
-		`(scope-def-sym ',var 'var *scopes_sp* ,type)
+		`(scope-def ',var 'var *scopes_sp* ,type)
 		`(setq *scopes_sp* (+ *scopes_sp* ,size))))
 
 (defmacro def-vars (&rest lines)
@@ -98,10 +98,10 @@
 					(push prog '(setq *scopes_sp* (align *scopes_sp* +long_size)))))
 			(offset
 				(push prog
-					`(scope-def-sym ',(second line) 'var *scopes_sp* 0 "")))
+					`(scope-def ',(second line) 'var *scopes_sp* 0 "")))
 			(struct
 				(push prog
-					`(scope-def-sym ',(second line) 'var *scopes_sp* 0 "")
+					`(scope-def ',(second line) 'var *scopes_sp* 0 "")
 					`(setq *scopes_sp* (+ *scopes_sp* ,(eval (third line))))))
 			(union
 				(defq o (gensym) m (gensym))
@@ -145,7 +145,7 @@
 
 ;module
 (export-symbols
-	'(scope-operator scope-new scope-get pop-scope-checked
-	scope-get-sym scope-def-sym scope-unwind
+	'(scope-operator scope-new scope-offset pop-scope-checked
+	scope-get scope-def scope-unwind
 	def-vars push-scope pop-scope pop-scope-syms scope-used return))
 (env-pop)

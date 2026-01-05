@@ -101,11 +101,11 @@
 				(push out_types :operator))
 			(:operator
 				;precedence
-				(unless (defq s (scope-get-sym token))
+				(unless (defq s (scope-get token))
 					(throw "Operator not defined !" token))
 				(defq v (- (third s) (elem-get s 3)) x :t)
 				(while (and x (/= 0 (length token_stack)))
-					(setq s (scope-get-sym (last token_stack)))
+					(setq s (scope-get (last token_stack)))
 					(cond
 						((>= v (third s))
 							(push out_tokens (pop token_stack))
@@ -203,7 +203,7 @@
 
 (defun compile-ref (_)
 	(cond
-		((not (defq s (scope-get-sym _)))
+		((not (defq s (scope-get _)))
 			;not in symbol table so figure out what it is
 			(defq type_sym (sym (str _ "_t")) type_str (get type_sym))
 			(cond
@@ -220,7 +220,7 @@
 		((eql 'var (second s))
 			;variable
 			(add-inst (list 'vp-lea-i :rsp
-				(+ (scope-get (first s)) (third s))
+				(+ (scope-offset (first s)) (third s))
 				(push-reg (elem-get s 3)))))
 		(:t (throw "Symbol not a variable !" _))))
 
@@ -339,7 +339,7 @@
 
 (defun compile-operator (_)
 	(cond
-		((not (defq s (scope-get-sym _)))
+		((not (defq s (scope-get _)))
 			(throw "Compile op not defined !" _))
 		((nql 'op (second s))
 			(throw "Not an operator !" _))

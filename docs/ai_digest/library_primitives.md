@@ -882,19 +882,19 @@ These functions are used for managing stack scopes.
 
 *   **`scope-get`**: Gets the offset of a scope.
 
-    * `(scope-get level) -> offset`
+    * `(scope-offset level) -> offset`
 
 *   **`pop-scope-checked`**: Pops a scope and checks for balance.
 
     * `(pop-scope-checked)`
 
-*   **`scope-get-sym`**: Gets a symbol from a scope.
+*   **`scope-get`**: Gets a symbol from a scope.
 
-    * `(scope-get-sym name) -> symbol-info`
+    * `(scope-get name) -> symbol-info`
 
-*   **`scope-def-sym`**: Defines a symbol in a scope.
+*   **`scope-def`**: Defines a symbol in a scope.
 
-    * `(scope-def-sym name type &rest attributes)`
+    * `(scope-def name type &rest attributes)`
 
 *   **`scope-unwind`**: Unwinds the current scope.
 
