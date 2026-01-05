@@ -11,22 +11,15 @@
 
 (defcvar '*scopes_sp* 0 '*scopes* (list))
 
-(def-enum +scope 0
-	(enum offset vars))
-
-;last attrib entry is for used flag !
-(defq +attrib_used -2)
-
 (defmacro scope-new ()
 	(static-q (push *scopes* (list 0 (env 1)))))
 
 (defun scope-offset (level)
-	(reduce! (# (+ %0 (elem-get %1 +scope_offset)))
-		(list *scopes*) 0 (inc level) -2))
+	(reduce! (# (+ %0 (first %1))) (list *scopes*) 0 (inc level) -2))
 
 (defun push-scope ()
 	(setq *scopes_sp* (align *scopes_sp* stack_align))
-	(elem-set (elem-get (scope-new) -3) +scope_offset *scopes_sp*)
+	(elem-set (elem-get (scope-new) -3) 0 *scopes_sp*)
 	(when (/= *scopes_sp* 0)
 		(if *debug_inst* (print "(vp-alloc " *scopes_sp* ")"))
 		(vp-alloc *scopes_sp*)
@@ -35,13 +28,12 @@
 (defun pop-scope-syms ()
 	(pop *scopes*)
 	(if (nempty? (defq unused
-			(reduce (lambda (unused (k v))
-					(if (elem-get v +attrib_used) unused (push unused k)))
-				(tolist (elem-get (defq scope (pop *scopes*)) +scope_vars)) (list))))
+			(reduce (lambda (%0 (k v)) (if (last v) %0 (push %0 k)))
+				(tolist (last (defq scope (pop *scopes*)))) (list))))
 		(throw "Unused symbols !" unused))
 	(scope-new)
 	(setq *scopes_sp* 0)
-	(elem-get scope +scope_offset))
+	(first scope))
 
 (defun pop-scope ()
 	(when (/= (defq offset (pop-scope-syms)) 0)
@@ -64,17 +56,15 @@
 	(vp-ret))
 
 (defun scope-def (name type &rest attribs)
-	(if (def? (setq name (sym name))
-			(defq vars (elem-get (defq scope (pop *scopes*)) +scope_vars)))
+	(if (def? (setq name (sym name)) (defq vars (last (defq scope (pop *scopes*)))))
 		(throw "Symbol redefined !" name))
 	(def vars name (cat (list (length *scopes*) type) attribs '(:nil)))
 	(push *scopes* scope))
 
 (defun scope-get (name)
 	(if (defq name (sym name) attrib
-			(some! (# (def? name (elem-get %0 +scope_vars)))
-				(list *scopes*) :nil -2 0))
-		(elem-set attrib +attrib_used :t)))
+			(some! (# (def? name (last %0))) (list *scopes*) :nil -2 0))
+		(elem-set attrib -2 :t)))
 
 (defmacro scope-used (&rest names)
 	(each scope-get names) :nil)
