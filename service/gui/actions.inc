@@ -184,7 +184,7 @@
 
 (defun action-quit ()
 	;launch logout app
-	(open-child "apps/logout/app.lisp" +kn_call_open))
+	(open-child "apps/system/logout/app.lisp" +kn_call_open))
 
 (defq *event_map* (scatter (Fmap)
 	+SDL_MOUSEWHEEL action-mouse-wheel
