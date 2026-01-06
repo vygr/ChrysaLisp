@@ -9,6 +9,8 @@
 New `Mask` widget for drawing the opaque region of a view. Edit class now uses
 these to render the selection layers.
 
+Buffer class now supports `:index_to_cursor` and `:cursor_to_index` methods.
+
 ------
 
 Fix Editor `load-depends` bug when on the scratchpad buffer !.

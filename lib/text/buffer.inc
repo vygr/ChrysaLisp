@@ -10,17 +10,19 @@
 (env-push)
 
 (bits +dirty_flag 0
-	(bit syntax bracket))
+	(bit syntax bracket index))
 
 (defun push-line (line)
 	(each (# (push %0 %1))
-		(list buffer_line buffer_syntax buffer_states buffer_found buffer_brackets)
-		`(,line ,line :nil :nil :nil)))
+		(list buffer_line buffer_syntax buffer_states
+			buffer_found buffer_brackets buffer_index)
+		`(,line ,line :nil :nil :nil :nil)))
 
 (defun set-line (y line)
 	(each (# (elem-set %0 y %1))
-		(list buffer_line buffer_syntax buffer_states buffer_found buffer_brackets)
-		`(,line ,line :nil :nil :nil)))
+		(list buffer_line buffer_syntax buffer_states
+			buffer_found buffer_brackets buffer_index)
+		`(,line ,line :nil :nil :nil :nil)))
 
 (defun last-line ()
 	(when (or (= (length buffer_line) 0) (nql (last buffer_line) ""))
@@ -29,12 +31,14 @@
 (defun erase-line (y)
 	(defq y1 (inc y))
 	(each (# (set (penv) %0 (erase (eval %0) y y1)))
-		'(buffer_line buffer_syntax buffer_states buffer_found buffer_brackets)))
+		'(buffer_line buffer_syntax buffer_states
+			buffer_found buffer_brackets buffer_index)))
 
 (defun insert-line (y line)
 	(each (# (set (penv) %0 (insert (eval %0) y (list %1))))
-		'(buffer_line buffer_syntax buffer_states buffer_found buffer_brackets)
-		`(,line ,line :nil :nil :nil)))
+		'(buffer_line buffer_syntax buffer_states
+			buffer_found buffer_brackets buffer_index)
+		`(,line ,line :nil :nil :nil :nil)))
 
 (defun redo ()
 	(defq idx (length undo_stack))
@@ -57,11 +61,13 @@
 		(bind '(x y) (. this :get_cursor))
 		(bind '(x y) (. this :constrain x y))
 		(bind '(w h) (. this :get_size))
-		(raise :buffer_line :buffer_syntax :buffer_states :buffer_found :buffer_brackets)
+		(raise :buffer_line :buffer_syntax :buffer_states
+			:buffer_found :buffer_brackets :buffer_index)
 		~_
 		(clear (get :redo_stack this))
 		(last-line)
-		(lower :buffer_line :buffer_syntax :buffer_states :buffer_found :buffer_brackets
+		(lower :buffer_line :buffer_syntax :buffer_states
+			:buffer_found :buffer_brackets :buffer_index
 			(:dirty_flags -1 :modified :t :sticky_x :nil))
 		(. this :set_cursor x y))))
 
@@ -82,7 +88,7 @@
 
 (defun build-syntax (this &optional estate)
 	(raise :dirty_flags)
-	(when (/= (logand +dirty_flag_syntax dirty_flags) 0)
+	(when (bits? dirty_flags +dirty_flag_syntax)
 		(raise :buffer_line :buffer_syntax :buffer_states
 			:mode :syntax_engine (state :text max_width 0))
 		(each (lambda (line syntax states)
@@ -105,7 +111,7 @@
 
 (defun build-brackets (this)
 	(raise :dirty_flags)
-	(when (/= (logand +dirty_flag_bracket dirty_flags) 0)
+	(when (bits? dirty_flags +dirty_flag_bracket)
 		(when (get :mode this)
 			(build-syntax this)
 			(raise :buffer_syntax :buffer_brackets)
@@ -124,6 +130,15 @@
 			(const (lognot +dirty_flag_bracket))))))
 	this)
 
+(defun build-index (this)
+	(raise :dirty_flags)
+	(when (bits? dirty_flags +dirty_flag_index)
+		(raise :buffer_line)
+		(lower (:buffer_index (reduce (# (push %0 (+ (last %0) (length %1) 1)))
+				buffer_line (list 0)) :dirty_flags (logand dirty_flags
+					(const (lognot +dirty_flag_index))))))
+	this)
+
 (defun insert-line-wrapped (this line wrap_width)
 	(bind '(cx _) (. this :get_cursor))
 	(when (> (+ cx (length line)) wrap_width)
@@ -138,10 +153,29 @@
 	; (Buffer [mode syntax]) -> buffer
 	(def this :buffer_line (list "") :buffer_syntax (list "")
 		:buffer_states (list :nil) :buffer_brackets (list :nil)
-		:buffer_found (list :nil) :dirty_flags -1
+		:buffer_found (list :nil) :buffer_index (list 0) :dirty_flags -1
 		:syntax_engine (ifn syntax (Syntax)) :undo_stack (list) :redo_stack (list)
 		:cursor_x 0 :cursor_y 0 :max_width 0 :tab_width 4 :wrap_width 80
 		:mode mode :next_mark -1 :modified :nil :last_key :nil :sticky_x :nil)
+
+	(defmethod :index_to_cursor (idx)
+		; (. buffer :index_to_cursor idx) -> (x y)
+		(build-index this)
+		(raise :buffer_index (i :nil j 0 k (dec (length buffer_index))))
+		(while (< j k)
+			(setq i (>> (+ j k) 1))
+			(if (<= (elem-get buffer_index i) idx (elem-get buffer_index (inc i)))
+				(setq k -1)
+				(if (> idx (elem-get buffer_index i)) (setq j (inc i)) (setq k i))))
+		(if (= k -1)
+			(list (- idx (elem-get buffer_index i)) i)
+			(list :nil :nil)))
+
+	(defmethod :cursor_to_index (x y)
+		; (. buffer :cursor_to_index x y) -> idx
+		(build-index this)
+		(raise :buffer_index)
+		(+ x (elem-get buffer_index (min (dec (length buffer_index)) y))))
 
 	(defmethod :next_mark ()
 		; (. buffer :next_mark) -> mark
@@ -216,8 +250,8 @@
 		; (. buffer :file_load filepath) -> buffer
 		(set this :buffer_line :nil)
 		(raise :syntax_engine :tab_width (buffer_line (list) buffer_syntax (list)
-			 buffer_states (list) buffer_found (list) buffer_brackets (list)
-			 max_width 0))
+			buffer_states (list) buffer_found (list) buffer_brackets (list)
+			buffer_index (list) max_width 0))
 		(lines! (lambda (line)
 				(task-slice)
 				(setq line (expand (trim-end line (const (char +char_cr))) tab_width)
@@ -226,7 +260,8 @@
 			(file-stream filepath))
 		(last-line)
 		(clear (get :undo_stack this) (get :redo_stack this))
-		(lower :buffer_line :buffer_syntax :buffer_states :buffer_found :buffer_brackets
+		(lower :buffer_line :buffer_syntax :buffer_states
+			:buffer_found :buffer_brackets :buffer_index
 			:max_width (:cursor_x 0 :cursor_y 0 :dirty_flags -1 :modified :nil))
 		this)
 
@@ -234,8 +269,9 @@
 		; (. buffer :file_load_hex filepath [width]) -> buffer
 		(set this :buffer_line :nil)
 		(raise :syntax_engine :tab_width (buffer_line (list) buffer_syntax (list)
-			 buffer_states (list) buffer_found (list) buffer_brackets (list)
-			 max_width 0 width (ifn width 8) adr 0 stream (file-stream filepath)))
+			buffer_states (list) buffer_found (list) buffer_brackets (list)
+			buffer_index (list) max_width 0 width (ifn width 8)
+			adr 0 stream (file-stream filepath)))
 		(while (defq blk (read-blk stream width))
 			(task-slice)
 			(defq line (cat (int-to-hex-str adr) " "
@@ -248,7 +284,8 @@
 			(push-line line))
 		(last-line)
 		(clear (get :undo_stack this) (get :redo_stack this))
-		(lower :buffer_line :buffer_syntax :buffer_states :buffer_found :buffer_brackets
+		(lower :buffer_line :buffer_syntax :buffer_states
+			:buffer_found :buffer_brackets :buffer_index
 			:max_width (:cursor_x 0 :cursor_y 0 :dirty_flags -1 :modified :nil))
 		this)
 
