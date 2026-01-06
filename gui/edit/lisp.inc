@@ -546,7 +546,7 @@
 				(. mask_selected :add_opaque
 					(* (neg scroll_x) cw)
 					(* (- sy1 scroll_y) ch)
-					(* (- sx1 -1) cw)
+					(* sx1 cw)
 					ch)))
 		this)
 
