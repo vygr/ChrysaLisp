@@ -32,15 +32,14 @@
 	+riscv64_rsp (emit-native-reg? :rsp))
 
 (defmacro riscv64-within (c n)
-	`(<= ,(neg (<< 1 (- n 1))) ,c ,(>> -1 (- 65 n))))
+    (defq limit (<< 1 (dec n)))
+    `(<= ,(neg limit) ,c ,(dec limit)))
 
-(defmacro riscv64-mask (r s)
-	(>> (<< (>> -1 s) (- 64 r)) (- 64 s r)))
+(defmacro riscv64-mask (width lsb)
+    (<< (dec (<< 1 width)) lsb))
 
-(defmacro riscv64-bf (n r s p)
-	(if (> s p)
-		`(>> (logand ,n (riscv64-mask ,r ,s)) ,(- s p))
-		`(<< (logand ,n (riscv64-mask ,r ,s)) ,(- p s))))
+(defmacro riscv64-bf (n width lsb pos)
+    `(<< (logand (>> ,n ,lsb) ,(dec (<< 1 width))) ,pos))
 
 (defmacro riscv64-r (o rd rs1 rs2 f3 f7)
 	`(emitm-int (+ ,o (<< ,rd 7) (<< ,rs1 15) (<< ,rs2 20) (<< ,f3 12) (<< ,f7 25))))
