@@ -18,8 +18,8 @@
 	(reduce! (# (+ %0 (first %1))) (list *scopes*) 0 (inc level) -2))
 
 (defun push-scope ()
-	(setq *scopes_sp* (align *scopes_sp* stack_align))
-	(elem-set (elem-get (scope-new) -3) 0 *scopes_sp*)
+	(elem-set (elem-get (scope-new) -3) 0
+		(setq *scopes_sp* (align *scopes_sp* stack_align)))
 	(when (/= *scopes_sp* 0)
 		(if *debug_inst* (print "(vp-alloc " *scopes_sp* ")"))
 		(vp-alloc *scopes_sp*)
