@@ -8,7 +8,7 @@
 	(struct node +ln_node_size)
 	(struct list +lh_list_size)
 	(netid owner_id)
-	(ptr dirty_region opaque_region ctx_node)
+	(pptr dirty_region opaque_region ctx_node)
 	(long id)
 	(uint flags)
 	(int ctx_x ctx_y x y w h cw ch))
@@ -199,6 +199,9 @@
 
 	(deffimethod :ctx_filled_box "gui/ctx/lisp_filled_box")
 		; (. view :ctx_filled_box x y width height) -> view
+
+	(deffimethod :ctx_filled_region "gui/ctx/lisp_filled_region")
+		; (. view :ctx_filled_region region) -> view
 
 	(deffimethod :ctx_blit "gui/ctx/lisp_blit")
 		; (. view :ctx_blit tid col x y width height) -> view

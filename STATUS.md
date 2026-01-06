@@ -6,6 +6,9 @@
 
 `lib/asm/scopes.inc` now uses an environment to hold each scopes symbol map.
 
+New `Mask` widget for drawing the opaque region of a view. Edit class now uses
+these to render the selection layers.
+
 ------
 
 Fix Editor `load-depends` bug when on the scratchpad buffer !.

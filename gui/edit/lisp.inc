@@ -3,6 +3,7 @@
 ;;;;;;;;;;;;;
 
 (import "././vdu/lisp.inc")
+(import "././mask/lisp.inc")
 (import "././canvas/lisp.inc")
 (import "lib/text/buffer.inc")
 
@@ -17,10 +18,6 @@
 	(while (> len (length color))
 		(setq color (cat color color)))
 	(slice color 0 len))
-
-(defun overlay (color x x1)
-	(if (and (<= 0 x (length color)) (<= 0 x1 (length color)))
-		(slice color x x1) color))
 
 (defun blank-line? (line)
 	(every (# (eql " " %0)) line))
@@ -57,8 +54,7 @@
 			(list (. buffer :get_text_lines)) :nil cy 0)
 		y1 (some! (# (if (blank-line? %0) (!)))
 			(list (. buffer :get_text_lines)) :nil cy (bind '(w h) (. buffer :get_size))))
-	(unless y (setq y 0))
-	(unless y1 (setq y1 h))
+	(setd y 0 y1 h)
 	(list y y1))
 
 (defmacro undoable (&rest _)
@@ -73,18 +69,18 @@
 
 (defclass Edit () (View)
 	; (Edit) -> edit
-	(def this :vdu_text (defq vdu_text (Vdu))
-		:vdu_paper (defq vdu_paper (Vdu)) :vdu_ink (defq vdu_ink (Vdu))
+	(def this 
+		:vdu_text (defq vdu_text (Vdu))
+		:vdu_ink (defq vdu_ink (Vdu))
+		:mask_selected (defq mask_selected (Mask))
+		:mask_found (defq mask_found (Mask))
+		:mask_region (defq mask_region (Mask))
 		:anchor_x 0 :anchor_y 0 :scroll_x 0 :scroll_y 0
 		:find_x 0 :find_y 0 :find_x1 0 :find_y1 0
 		:buffer (Buffer) :underlay '()
-		:color_select +not_selected :color_found +not_selected
-		:color_region +not_selected
 		:vdu_width 80 :vdu_height 40 :min_width 0 :min_height 0)
-	(. vdu_text :set_flags 0 +view_flag_solid)
-	(. vdu_paper :set_flags 0 +view_flag_solid)
-	(. vdu_ink :set_flags 0 +view_flag_solid)
-	(.-> this (:add_child vdu_text) (:add_child vdu_ink) (:add_child vdu_paper))
+	(each (# (. this :add_child (. %0 :set_flags 0 +view_flag_solid)))
+		(list vdu_text vdu_ink mask_selected mask_found mask_region))
 
 	(defmethod :max_size ()
 		; (. edit :max_size) -> (width height)
@@ -491,74 +487,73 @@
 
 	(defmethod :set_select_color (col)
 		; (. edit :set_select_color argb) -> edit
-		(lower (:color_select (apply nums (map (lambda (_)
-			(<< (canvas-from-argb32 col 15) 48)) +not_selected))))
+		(def (get :mask_selected this) :color col)
 		this)
 
 	(defmethod :set_found_color (col)
 		; (. edit :set_found_color argb) -> edit
-		(lower (:color_found (apply nums (map (lambda (_)
-			(<< (canvas-from-argb32 col 15) 48)) +not_selected))))
+		(def (get :mask_found this) :color col)
 		this)
 
 	(defmethod :set_region_color (col)
 		; (. edit :set_region_color argb) -> edit
-		(lower (:color_region (apply nums (map (lambda (_)
-			(<< (canvas-from-argb32 col 15) 48)) +not_selected))))
+		(def (get :mask_region this) :color col)
 		this)
 
 	(defmethod :underlay_paper ()
 		; (. edit :underlay_paper) -> edit
-		;create the underlay for selections
-		(raise :buffer :underlay :color_select :color_found :color_region
-			:vdu_paper :scroll_x :scroll_y)
-		(defq found (. buffer :get_found) scroll_y1 (second (. vdu_paper :vdu_size)))
+		;create the masks for selections
+		(raise :buffer :mask_selected :mask_found :mask_region :scroll_x :scroll_y)
+		(defq found (. buffer :get_found))
+		(bind '(w h) (. this :get_size))
+		(bind '(cw ch) (. (get :vdu_text this) :char_size))
 		(bind '(fx fy fx1 fy1) (. this :get_find))
 		(bind '(sx sy sx1 sy1) (sort-selection this))
-		(clear underlay)
-		(setq scroll_y1 (min (length found) (+ scroll_y1 scroll_y)) fy1 (dec fy1))
-		(while (< scroll_y scroll_y1)
-			(defq background (if (<= fy scroll_y fy1) color_region +not_selected)
-				background (cond
-					((and (defq match (elem-get found scroll_y)) (nempty? match))
-						(defq cx 0 line (clear '()))
-						(each (lambda (((x x1) &rest _))
-							(push line
-								(chunk background (- x cx))
-								(chunk color_found (- x1 x)))
-							(setq cx x1)) match)
-						(push line (chunk background (max 0 (- +max_line_len cx))))
-						(apply (const cat) line))
-					(:t background)))
-			(when (<= sy scroll_y sy1)
-				(defq tl (inc (length (. buffer :get_text_line scroll_y))))
-				(cond
-					((= sy scroll_y sy1)
-						(setq background (cat
-							(overlay background 0 sx)
-							(chunk color_select (- sx1 sx))
-							(overlay background sx1 +max_line_len))))
-					((= sy scroll_y)
-						(setq background (cat
-							(overlay background 0 sx)
-							(chunk color_select (- tl sx))
-							(overlay background tl +max_line_len))))
-					((= sy1 scroll_y)
-						(setq background (cat
-							(chunk color_select sx1)
-							(overlay background sx1 +max_line_len))))
-					(:t (setq background (cat
-							(chunk color_select tl)
-							(overlay background tl +max_line_len))))))
-			(push underlay background)
-			(setq scroll_y (inc scroll_y)))
-		(. vdu_paper :load underlay scroll_x 0 -1 -1)
+		;set the region mask
+		(.-> mask_region
+			:clr_opaque
+			(:add_opaque 0 (* (- fy scroll_y) ch) w (* (- fy1 fy) ch)))
+		;set found mask
+		(. mask_found :clr_opaque)
+		(each (# (when %0
+				(defq y (* (- (!) scroll_y) ch))
+				(each (lambda (((x x1) &ignore))
+					(defq x1 (* (- x1 x) cw) x (* (- x scroll_x) cw))
+					(. mask_found :add_opaque x y x1 ch)) %0))) found)
+		;set selected mask
+		(. mask_selected :clr_opaque)
+		(cond
+			((= sy sy1)
+				;selection on same line
+				(when (/= sx sx1)
+					(. mask_selected :add_opaque
+						(* (- sx scroll_x) cw)
+						(* (- sy scroll_y) ch)
+						(* (- sx1 sx) cw)
+						ch)))
+			(:t	;multi line selection
+				(. mask_selected :add_opaque
+					(* (- sx scroll_x) cw)
+					(* (- sy scroll_y) ch)
+					(* (- (length (. buffer :get_text_line sy)) sx -1) cw)
+					ch)
+				(while (< (++ sy) sy1)
+					(. mask_selected :add_opaque
+						(* (neg scroll_x) cw)
+						(* (- sy scroll_y) ch)
+						(* (- (length (. buffer :get_text_line sy)) -1) cw)
+						ch))
+				(. mask_selected :add_opaque
+					(* (neg scroll_x) cw)
+					(* (- sy1 scroll_y) ch)
+					(* (- sx1 -1) cw)
+					ch)))
 		this)
 
 	(defmethod :underlay_ink ()
 		; (. edit :underlay_ink) -> edit
 		;create the underlay for just bracket indicators
-		(raise :buffer :underlay :color_select :vdu_ink :scroll_x :scroll_y)
+		(raise :buffer :underlay :vdu_ink :scroll_x :scroll_y)
 		(clear underlay)
 		(when (bind '(x y) (. buffer :left_bracket))
 			(when (bind '(x1 y1) (. buffer :right_bracket))

@@ -355,7 +355,7 @@ create the underlay for just bracket indicators
 ```code
 (. edit :underlay_paper) -> edit
 
-create the underlay for selections
+create the masks for selections
 ```
 
 ### :unique

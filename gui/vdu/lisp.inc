@@ -19,7 +19,7 @@
 	(defmethod :char_size ()
 		; (. vdu :char_size) -> (width height)
 		((const (ffi "gui/vdu/lisp_configure")) this)
-		(list (getf this +vdu_char_width 0) (getf this +vdu_char_height 0)))
+		(getf-> this (+vdu_char_width 0) (+vdu_char_height 0)))
 
 	(defmethod :max_size ()
 		; (. vdu :max_size) -> (width height)

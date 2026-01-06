@@ -31,6 +31,7 @@
 (import "./spinner/lisp.inc")
 (import "./files/lisp.inc")
 (import "./hchart/lisp.inc")
+(import "./mask/lisp.inc")
 
 ;ui tree helper macros
 (defun ui-merge-props (p)

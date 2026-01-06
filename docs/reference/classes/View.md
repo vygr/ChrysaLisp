@@ -102,6 +102,12 @@ override the default 'this' env with a View component
 (. view :ctx_filled_box x y width height) -> view
 ```
 
+### :ctx_filled_region
+
+```code
+(. view :ctx_filled_region region) -> view
+```
+
 ### :ctx_panel
 
 ```code

@@ -8,6 +8,8 @@
 
 ### (ctx-filled-box view x y w h)
 
+### (ctx-filled-region view region)
+
 ### (ctx-set-color view col)
 
 ## VP methods

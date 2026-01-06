@@ -1,6 +1,7 @@
 (include "lib/asm/func.inc")
 (include "./class.inc")
 (include "././view/class.inc")
+(include "././region/class.inc")
 (include "class/lisp/class.inc")
 (include "class/num/class.inc")
 
@@ -100,6 +101,54 @@
 (vp-label 'error1)
 	(jump :lisp :repl_error '(:r0 "(ctx-filled-box view x y w h)" +error_msg_wrong_types :r1))
 	(signature '(:view :num :num :num :num)))
+
+(def-func-end)
+
+(def-method :ctx :lisp_filled_region)
+	;inputs
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
+	;outputs
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
+	;trashes
+	;:r1-:r14
+
+	(def-vars
+		(ptr this view rect))
+
+	(vp-rdef (view x y w h args this rect) (method-input :ctx :filled_box))
+
+	(entry :ctx :lisp_filled_region `(,this ,args))
+
+	(errorif-lisp-args-sig 'error :r1 2)
+
+	(push-scope)
+	(assign `(,this) {this})
+	(list-bind-args :r1 `(,view ,rect) '(:view :num))
+	(assign `(,view) {view})
+	(assign `((& ,view ,rect)) `(,rect))
+	(loop-flist rect 0 rect rect)
+		(assign `(,rect) {rect})
+		(load-fields rect
+			'(rect_x rect_y rect_x1 rect_y1)
+			`(,x ,y ,w ,h))
+		(vp-sub-rr x w)
+		(vp-sub-rr y h)
+		(call :ctx :filled_box `(,view ,x ,y ,w ,h))
+		(assign {view, rect} `(,view ,rect))
+	(loop-end)
+	(assign {this, view} `(,this ,args))
+	(class/obj/ref args view)
+
+	(exit :ctx :lisp_filled_region `(,this ,args))
+	(pop-scope)
+	(return)
+
+(errorcase
+(vp-label 'error)
+	(jump :lisp :repl_error `(,this "(ctx-filled-region view region)" +error_msg_wrong_types ,args))
+	(signature '(:view :num)))
 
 (def-func-end)
 

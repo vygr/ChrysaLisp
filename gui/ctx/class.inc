@@ -8,4 +8,5 @@
 	(dec-method :lisp_set_color gui/ctx/lisp_set_color :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_box gui/ctx/lisp_box :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_filled_box gui/ctx/lisp_filled_box :static (:r0 :r1) (:r0 :r1))
-	(dec-method :lisp_blit gui/ctx/lisp_blit :static (:r0 :r1) (:r0 :r1)))
+	(dec-method :lisp_blit gui/ctx/lisp_blit :static (:r0 :r1) (:r0 :r1))
+	(dec-method :lisp_filled_region gui/ctx/lisp_filled_region :static (:r0 :r1) (:r0 :r1)))

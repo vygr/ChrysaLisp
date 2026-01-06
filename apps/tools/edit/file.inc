@@ -14,7 +14,7 @@
 			;trim end
 			(defq y (some! (# (if (blank-line? %0) :nil (inc (!))))
 				(list (. buffer :get_text_lines)) :nil (bind '(w h) (. buffer :get_size)) 0))
-			(unless y (setq y 0))
+			(setd y 0)
 			(.-> buffer (:set_cursor 0 y) (:cut 0 h))
 			;trim lines
 			(each! (lambda (line)
