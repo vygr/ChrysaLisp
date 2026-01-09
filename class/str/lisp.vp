@@ -505,7 +505,6 @@
 
 (errorcase
 (vp-label 'error)
-	(vp-pop this)
 	(jump :lisp :repl_error `(,this "(bskipn cls str idx)" +error_msg_wrong_types ,args))
 	(signature '(:str :str :num)))
 
