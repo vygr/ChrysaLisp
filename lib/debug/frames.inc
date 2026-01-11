@@ -9,7 +9,7 @@
 
 (defun stack-instrument (name form)
 	(bind '(name line) (repl-info))
-	`((push *stack_frame* ,(str name " -> " name "(" line ")"))
+	`((push *stack_frame* ,(str name "(" line ")"))
 	(defq __r__ (progn ~form))
 	(pop *stack_frame*) __r__))
 
