@@ -305,7 +305,7 @@
 
 	(defmethod :idelete (si ei)
 		; (. buffer :idelete si ei) -> buffer
-		(build-index this)
+		(build-index this) (task-slice)
 		(raise :buffer_index :buffer_lines :cursors)
 		(defq mi (last buffer_index) si (max (min si mi) 0) ei (max (min ei mi) 0))
 		(when (/= si ei)
@@ -318,7 +318,7 @@
 					((= cy ay)
 						(set-line cy (erase (elem-get buffer_lines cy) cx ax)))
 					(:t (defq d (slice (elem-get buffer_lines cy) 0 cx))
-						(while (<= cy (-- ay)) (erase-line cy))
+						(while (<= cy (-- ay)) (task-slice) (erase-line cy))
 						(set-line cy (cat d (slice (elem-get buffer_lines cy) ax -1)))))
 				(defq d (- ei si)))
 			(lower (:cursors (. this :merge_cursors
@@ -330,7 +330,7 @@
 
 	(defmethod :iinsert (si text)
 		; (. buffer :iinsert si text) -> buffer
-		(build-index this)
+		(build-index this) (task-slice)
 		(raise :buffer_index :buffer_lines :cursors)
 		(defq mi (last buffer_index) si (max (min si mi) 0))
 		(when (nql text "")
@@ -338,13 +338,13 @@
 				(. this :push_undo (list :delete si (+ si (length text))))
 				(bind '(cx cy) (. this :index_to_cursor si))
 				(defq line (elem-get buffer_lines cy) i 0 d (length text) breaks (list))
-				(while (/= i d)
+				(while (/= i d) (task-slice)
 					(setq i (bskipn +char_class_lf text i))
 					(if (/= i d) (push breaks (setq i (inc i)))))
 				(set-line cy (defq line (cat (slice line 0 cx) text (slice line cx -1))))
 				(when (nempty? breaks)
 					(defq cy (inc cy) ei -1)
-					(reach (# (insert-line cy (slice line (+ cx %0) ei))
+					(reach (# (task-slice) (insert-line cy (slice line (+ cx %0) ei))
 						(setq ei (+ cx %0))) breaks)
 					(set-line (dec cy) (slice line 0 ei))))
 			(lower (:cursors (. this :merge_cursors
@@ -369,7 +369,7 @@
 
 	(defmethod :icopy (si ei)
 		; (. buffer :icopy si ei) -> str
-		(build-index this)
+		(build-index this) (task-slice)
 		(raise :buffer_index :buffer_lines)
 		(defq mi (last buffer_index) text (list)
 			si (max (min si mi) 0) ei (max (min ei mi) 0))
@@ -381,7 +381,8 @@
 				((= cy ay)
 					(push text (slice (elem-get buffer_lines cy) cx ax)))
 				(:t (push text (slice (elem-get buffer_lines cy) cx -1))
-					(while (< (++ cy) ay) (push text (elem-get buffer_lines cy)))
+					(while (< (++ cy) ay) (task-slice)
+						(push text (elem-get buffer_lines cy)))
 					(push text (slice (elem-get buffer_lines cy) 0 ax)))))
 		(if (empty? text) "" (apply (const cat) text)))
 
