@@ -176,17 +176,17 @@
 		:syntax_engine (ifn syntax (Syntax)) :undo_stack (list) :redo_stack (list)
 		:max_width 0 :tab_width 4 :wrap_width 80
 		:mode mode :next_mark -1 :modified :nil :last_key :nil
-		:cursors (list '(0 0 :nil)) :tcursor '())
+		:cursors (list '(0 0 :nil)) :tcursors '())
 
 ;;;;;;;;;;;;;;;
 ; basic get/set
 ;;;;;;;;;;;;;;;
 
 	(defsetmethod :cursors)
-	(defsetmethod :tcursor)
+	(defsetmethod :tcursors)
 
 	(defgetmethod :cursors)
-	(defgetmethod :tcursor)
+	(defgetmethod :tcursors)
 	(defgetmethod :modified)
 	(defgetmethod :buffer_found)
 	(defgetmethod :buffer_lines)
@@ -292,11 +292,17 @@
 ;;;;;;;;;;;;;;;;;;;
 
 	(defmethod :get_selected ()
-		; (. buffer :get_selected) -> ((cx cy ax ay) ...)
-		(raise :cursors :tcursor)
-		(map (# (map (# (. this :index_to_cursor %0)) %0))
-			(sort (map (const most) (cat cursors tcursor))
+		; (. buffer :get_selected) -> (((cx cy) (ax ay)) ...)
+		(map (# (list (. this :index_to_cursor (first %0))
+					(. this :index_to_cursor (second %0))))
+			(sort (cat (get :cursors this) (get :tcursors this))
 				(# (- (first %0) (first %1))))))
+
+	(defmethod :get_selected_unsorted ()
+		; (. buffer :get_selected_unsorted) -> ((cx cy ax ay) ...)
+		(map (# (list (. this :index_to_cursor (first %0))
+					(. this :index_to_cursor (second %0))))
+			(cat (get :cursors this) (get :tcursors this))))
 
 ;;;;;;;;;;;;;;;;;;;;;
 ; basic text mutation

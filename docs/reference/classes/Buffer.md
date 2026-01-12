@@ -137,7 +137,13 @@ clips to min/max of buffer
 ### :get_selected
 
 ```code
-(. buffer :get_selected) -> ((cx cy ax ay) ...)
+(. buffer :get_selected) -> (((cx cy) (ax ay)) ...)
+```
+
+### :get_selected_unsorted
+
+```code
+(. buffer :get_selected_unsorted) -> ((cx cy ax ay) ...)
 ```
 
 ### :get_size
@@ -150,7 +156,7 @@ clips to min/max of buffer
 
 ### :get_tab_width
 
-### :get_tcursor
+### :get_tcursors
 
 ### :get_text_line
 
@@ -284,7 +290,7 @@ clips to min/max of buffer
 (. buffer :set_icursor ci [ai]) -> buffer
 ```
 
-### :set_tcursor
+### :set_tcursors
 
 ### :top
 

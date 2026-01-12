@@ -448,21 +448,24 @@
 		(raise :buffer :mask_ink :mask_selected :mask_found
 			:mask_region :scroll_x :scroll_y)
 		(bind '(w h) (. this :get_size))
+		(bind '(bw bh) (. buffer :get_size))
 		(bind '(cw ch) (. (get :vdu_text this) :char_size))
 		(bind '(fx fy fx1 fy1) (. this :get_find))
 		(defq cc (max (>> cw 2) 1) cb (max (>> cw 3) 1)
-			scroll_y1 (+ scroll_y (/ h ch)))
+			scroll_y (min (max scroll_y 0) bh)
+			scroll_y1 (min (max (+ scroll_y (/ h ch)) 0) bh))
 		;set the region mask
 		(. mask_region :clr_opaque)
 		(unless (or (< fy1 scroll_y) (>= fy scroll_y1))
 			(. mask_region :add_opaque 0 (* (- fy scroll_y) ch) w (* (- fy1 fy) ch)))
 		;set found mask
 		(. mask_found :clr_opaque)
-		(each (# (when (and %0 (<= scroll_y (!) scroll_y1))
+		(each! (# (when %0
 				(defq y (* (- (!) scroll_y) ch))
 				(each (lambda (((x x1) &ignore))
 					(defq x1 (* (- x1 x) cw) x (* (- x scroll_x) cw))
-					(. mask_found :add_opaque x y x1 ch)) %0))) (. buffer :get_buffer_found))
+					(. mask_found :add_opaque x y x1 ch)) %0)))
+			(list (. buffer :get_buffer_found)) scroll_y scroll_y1)
 		;set ink mask
 		(. mask_ink :clr_opaque)
 		(when (bind '(x y) (. buffer :left_bracket))
@@ -519,7 +522,7 @@
 								(* (- sy1 scroll_y) ch)
 								(* sx1 cw)
 								ch))))))
-			(. buffer :get_selected))
+			(. buffer :get_selected_unsorted))
 		this)
 
 	(defmethod :mouse_down (event)
@@ -528,16 +531,16 @@
 		(if (= 1 (defq ai (. buffer :cursor_to_index (. this :char_pos event))
 				mouse_state (getf event +ev_msg_mouse_buttons)))
 			(. buffer :set_icursor ai ai))
-		(. buffer :set_tcursor (list (list ai ai 0)))
+		(. buffer :set_tcursors `((,ai ,ai 0)))
 		(lower :mouse_state)
 		this)
 
 	(defmethod :mouse_move (event)
 		; (. edit :mouse_move event) -> edit
 		(raise :buffer :mouse_state)
-		(bind '((ci ai sx)) (. buffer :get_tcursor))
+		(bind '((ci ai sx)) (. buffer :get_tcursors))
 		(defq ci (. buffer :cursor_to_index (. this :char_pos event)))
-		(. buffer :set_tcursor (list (list ci ai 0)))
+		(. buffer :set_tcursors `((,ci ,ai 0)))
 		(if (= 1 mouse_state)
 			(. buffer :set_icursor ci ai))
 		this)
@@ -545,11 +548,11 @@
 	(defmethod :mouse_up (event)
 		; (. vdu :mouse_up event) -> vdu
 		(raise :buffer :mouse_state)
-		(bind '((ci ai sx)) (. buffer :get_tcursor))
+		(bind '((ci ai sx)) (. buffer :get_tcursors))
 		(if (= 1 mouse_state)
 			(. buffer :set_icursor ci ai)
 			(. buffer :add_icursor ci ai))
-		(. buffer :set_tcursor '())
+		(. buffer :set_tcursors '())
 		this)
 
 	(defmethod :mouse_wheel (event)
