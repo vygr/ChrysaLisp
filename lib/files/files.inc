@@ -40,7 +40,7 @@
 	(if (defq files (list) stream (file-stream file))
 		(lines! (lambda (line)
 			(and (eql "(" (first line))
-				(or (starts-with "(include" line) (starts-with "(import" line))
+				(or (starts-with {(include "} line) (starts-with {(import "} line))
 				(push files (path-to-absolute
 					(slice line (defq i (inc (find {"} line))) (find {"} line i)) file))))
 			stream)) files)
