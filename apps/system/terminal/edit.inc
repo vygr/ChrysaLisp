@@ -3,56 +3,44 @@
 ;;;;;;;;;;;;;;;;;
 
 (defun action-insert (string &optional wrap_len)
-	(input-cursor
-		(. buffer :cut ax ay)
-		(. buffer :paste string wrap_len))
+	(input-cursor (. buffer :insert string))
 	(bind '(w h) (. buffer :get_size))
 	(when (> h *env_terminal_lines*)
-		(.-> buffer (:set_cursor 0 0) (:cut 0 (- h *env_terminal_lines*)))
+		(.-> buffer (:set_cursor 0 0 0 (- h *env_terminal_lines*)) :delete)
 		(setq *cursor_y* (- *cursor_y* (- h *env_terminal_lines*)))
 		(. buffer :set_cursor *cursor_x* *cursor_y*))
 	(. buffer :clear_undo)
-	(. *edit* :clear_selection)
 	(refresh))
 
 (defun action-backspace ()
-	(input-cursor
-		(cond
-			((nql (. buffer :cut ax ay) ""))
-			((if (> x *margin_x*) (. buffer :backspace)))))
-	(. *edit* :clear_selection)
+	(input-cursor (if (or (> x *margin_x*) (/= x ax)) (. buffer :backspace)))
 	(refresh))
 
 (defun action-delete ()
-	(input-cursor
-		(cond
-			((nql (. buffer :cut ax ay) ""))
-			((. buffer :delete))))
-	(. *edit* :clear_selection)
+	(input-cursor (. buffer :delete))
 	(refresh))
 
 (defun action-tab ()
 	(unless *pipe*
 		(input-cursor
-			(defq cmd (slice (. buffer :get_text_line y) *margin_x* -1))
+			(defq cmd (slice (. buffer :get_text_line y) *margin_x* -2))
 			(. buffer :insert (url-ext cmd (- x *margin_x*))))
-		(. *edit* :clear_selection)
 		(refresh)))
 
 (defun action-break ()
 	(input-cursor
-		(bind '(x y) (. buffer :constrain +max_int y))
+		(bind '(x y) (. *edit* :clip_cursor +max_int y))
 		(. buffer :set_cursor x y)
 		(cond
 			(*pipe*
 				;active pipe so feed it
-				(. *pipe* :write (cat (slice (. buffer :get_text_line y) *margin_x* -1) (ascii-char +char_lf)))
-				(. buffer :paste (ascii-char +char_lf)))
+				(. *pipe* :write (cat (slice (. buffer :get_text_line y) *margin_x* -2) +char_class_lf))
+				(. buffer :insert +char_class_lf))
 			(:t ;no active pipe
-				(defq cmd (slice (. buffer :get_text_line y) *margin_x* -1))
-				(. buffer :paste (const (cat (ascii-char +char_lf) (ascii-char +char_lf))))
+				(defq cmd (slice (. buffer :get_text_line y) *margin_x* -2))
+				(. buffer :insert (const (cat +char_class_lf +char_class_lf)))
 				(cond
-					((> (length cmd) 0)
+					((nql cmd "")
 						;start pipe
 						(catch (setq *pipe* (Pipe cmd *select*)) (progn (setq *pipe* :nil) :t))
 						(if *pipe*
@@ -65,11 +53,10 @@
 								(scatter *meta_map* :history history)
 								(setq *history_idx* (length history)))
 							;error with pipe
-							(. buffer :paste (cat "Pipe Error !"
-								(ascii-char +char_lf) (ascii-char +char_lf)
+							(. buffer :insert (cat "Pipe Error !"
+								+char_class_lf +char_class_lf
 								*env_terminal_prompt*))))
-					(:t (. buffer :paste *env_terminal_prompt*))))))
-	(. *edit* :clear_selection)
+					(:t (. buffer :insert *env_terminal_prompt*))))))
 	(refresh))
 
 (defun action-escape ()
@@ -78,7 +65,6 @@
 			;EOF
 			(. *pipe* :close)
 			(setq *pipe* :nil)
-			(. buffer :paste (cat (ascii-char +char_lf) *env_terminal_prompt*)))
+			(. buffer :insert (cat +char_class_lf *env_terminal_prompt*)))
 		(setq *margin_x* *cursor_x*)
-		(. *edit* :clear_selection)
 		(refresh)))

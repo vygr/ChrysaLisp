@@ -166,7 +166,7 @@ should provide the concreate handler
 ### defgetmethod
 
 ```code
-(defgetmethod field)
+(defgetmethod :field)
 ```
 
 ### defmethod
@@ -177,10 +177,16 @@ should provide the concreate handler
 (. this :method [arg ...])
 ```
 
+### defproxymethod
+
+```code
+(defproxymethod name field [arg ...])
+```
+
 ### defsetmethod
 
 ```code
-(defsetmethod field)
+(defsetmethod :field)
 ```
 
 ### defun

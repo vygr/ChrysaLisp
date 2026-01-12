@@ -52,8 +52,8 @@
 		pbyte pubyte pshort pushort pint puint plong preal pptr
 		nodeid netid offset enum bit))
 
-	(defgetmethod state)
-	(defsetmethod state)
+	(defgetmethod :state)
+	(defsetmethod :state)
 
 	(defmethod :set_colors (colors)
 		; (. syntax :set_colors fmap) -> syntax

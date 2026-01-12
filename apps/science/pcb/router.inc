@@ -46,25 +46,25 @@
 (defclass Pad (radius gap pos shape) :nil
 	; (Pad radius gap pos shape) -> pad
 	(def this :radius radius :gap gap :pos pos :shape shape)
-	(defgetmethod radius)
-	(defsetmethod radius)
-	(defgetmethod gap)
-	(defsetmethod gap)
-	(defgetmethod pos)
-	(defsetmethod pos)
-	(defgetmethod shape)
-	(defsetmethod shape))
+	(defgetmethod :radius)
+	(defsetmethod :radius)
+	(defgetmethod :gap)
+	(defsetmethod :gap)
+	(defgetmethod :pos)
+	(defsetmethod :pos)
+	(defgetmethod :shape)
+	(defsetmethod :shape))
 
 (defclass Track (id track_radius via_radius gap pads wires) :nil
 	; (Track id track_radius via_radius gap pads wires) -> track
 	(def this :id id :track_radius track_radius :via_radius via_radius :gap gap
 		:pads pads :wires wires)
-	(defgetmethod id)
-	(defgetmethod track_radius)
-	(defgetmethod via_radius)
-	(defgetmethod gap)
-	(defgetmethod pads)
-	(defgetmethod wires))
+	(defgetmethod :id)
+	(defgetmethod :track_radius)
+	(defgetmethod :via_radius)
+	(defgetmethod :gap)
+	(defgetmethod :pads)
+	(defgetmethod :wires))
 
 (defclass Net (track pcb) :nil
 	; (Net track pcb) -> net
@@ -180,13 +180,13 @@
 	(bind '(area bbox) (aabb-pads pads (. pcb :get_quant)))
 	(def this :area area :bbox bbox)
 
-	(defgetmethod radius)
-	(defgetmethod pads)
-	(defgetmethod area)
-	(defgetmethod id)
-	(defsetmethod area)
-	(defsetmethod bbox)
-	(defsetmethod pcb)
+	(defgetmethod :radius)
+	(defgetmethod :pads)
+	(defgetmethod :area)
+	(defgetmethod :id)
+	(defsetmethod :area)
+	(defsetmethod :bbox)
+	(defsetmethod :pcb)
 
 	(defmethod :shuffle_topology ()
 		; (. net :shuffle_topology) -> net
@@ -434,13 +434,13 @@
 		:nodes nodes)
 	(times (* width height depth grid_res grid_res) (push nodes 0))
 
-	(defgetmethod depth)
-	(defgetmethod grid_res)
-	(defgetmethod quant)
-	(defgetmethod layers)
-	(defgetmethod via_layers)
-	(defgetmethod verbosity)
-	(defgetmethod path_vectors)
+	(defgetmethod :depth)
+	(defgetmethod :grid_res)
+	(defgetmethod :quant)
+	(defgetmethod :layers)
+	(defgetmethod :via_layers)
+	(defgetmethod :verbosity)
+	(defgetmethod :path_vectors)
 
 	(defmethod :get_node (node)
 		; (. pcb :get_node node) -> val

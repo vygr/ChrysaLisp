@@ -173,8 +173,10 @@
 	(ascii-code "E") action-load-all-depends
 	(ascii-code "j") action-find-function
 	(ascii-code "J") action-pop
-	0x4000004a action-top
-	0x4000004d action-bottom)
+	(ascii-code "g") action-set-cursors
+	(ascii-code "G") action-add-cursors
+	0x40000052 action-top
+	0x40000051 action-bottom)
 
 *recorded_actions* (list
 	action-backspace action-break action-comment action-copy action-cut
@@ -192,7 +194,8 @@
 	action-select-block action-select-line action-select-paragraph
 	action-select-word action-sort action-tab action-to-lower action-to-upper
 	action-trim action-undo action-unique action-up action-up-select action-split
-	action-top action-bottom action-push action-pop)
+	action-top action-bottom action-push action-pop action-bottom-select
+	action-top-select action-add-cursors)
 
 *replace_actions* (list
 	action-replace action-replace-all action-replace-global)

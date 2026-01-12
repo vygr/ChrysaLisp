@@ -2,6 +2,8 @@
 (import "gui/lisp.inc")
 (import "./././tools/edit/rpc.inc")
 
+(import "lib/debug/frames.inc")
+
 ;our UI widgets and events
 (import "./config.inc")
 (import "./widgets.inc")
@@ -21,10 +23,10 @@
 
 (defun vdu-print (vdu buf s)
 	(defq ch (const (dec +height)))
-	(. buf :paste s)
+	(. buf :insert s)
 	(bind '(w h) (. buf :get_size))
 	(when (> h ch)
-		(.-> buf (:set_cursor 0 0) (:cut 0 (- h ch)))
+		(.-> buf (:set_cursor 0 0 0 (- h ch)) :delete)
 		(. buf :set_cursor 0 ch))
 	(. buf :clear_undo)
 	(if vdu (. buf :vdu_load vdu 0 0 :text)))

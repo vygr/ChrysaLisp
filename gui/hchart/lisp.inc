@@ -19,7 +19,7 @@
 	(def this :units 1 :scale_grid scale_grid :bar_grid bar_grid
 		:flow_flags +flow_down_fill :maximum 1 :value 0 :border 0)
 
-	(defgetmethod bar_grid)
+	(defgetmethod :bar_grid)
 
 	(defmethod :add_bar ()
 		; (. hchart :add_bar) -> progress

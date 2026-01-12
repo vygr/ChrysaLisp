@@ -8,21 +8,9 @@
 
 ### :backspace
 
-```code
-(. edit :backspace) -> edit
-```
-
 ### :bottom
 
-```code
-(. edit :bottom) -> edit
-```
-
-### :break
-
-```code
-(. edit :break) -> edit
-```
+### :bottom_select
 
 ### :char_pos
 
@@ -30,10 +18,10 @@
 (. edit :char_pos event) -> (x y)
 ```
 
-### :clear_selection
+### :clip_cursor
 
 ```code
-(. edit :clear_selection) -> edit
+(. edit :clip_cursor x y) -> (x y)
 ```
 
 ### :comment
@@ -50,50 +38,20 @@
 
 ### :delete
 
-```code
-(. edit :delete) -> edit
-```
-
 ### :down
-
-```code
-(. edit :down) -> edit
-```
 
 ### :down_select
 
-```code
-(. edit :down_select) -> edit
-```
-
 ### :end
-
-```code
-(. edit :end) -> edit
-```
 
 ### :end_select
 
-```code
-(. edit :end_select) -> edit
-```
-
-### :get_anchor
-
-```code
-(. edit :get_anchor) -> (x y)
-```
-
 ### :get_buffer
-
-```code
-(. edit :get_buffer) -> text_buffer
-```
 
 ### :get_cursor
 
 ```code
-(. edit :get_cursor) -> (x y)
+(. edit :get_cursor) -> (cx cy ax ay)
 ```
 
 ### :get_find
@@ -108,29 +66,25 @@
 (. edit :get_scroll) -> (x y)
 ```
 
-### :get_vdu_text
+### :get_select
 
 ```code
-(. edit :get_vdu_text) -> vdu_text
+(. edit :get_select) -> text
 ```
+
+### :get_selected_extent
+
+```code
+(. edit :get_selected_extent) -> csr
+```
+
+### :get_vdu_text
 
 ### :home
 
-```code
-(. edit :home) -> edit
-```
-
 ### :home_select
 
-```code
-(. edit :home_select) -> edit
-```
-
 ### :insert
-
-```code
-(. edit :insert string) -> edit
-```
 
 ### :invert
 
@@ -146,10 +100,6 @@
 
 ### :left
 
-```code
-(. edit :left) -> edit
-```
-
 ### :left_bracket
 
 ```code
@@ -157,10 +107,6 @@
 ```
 
 ### :left_select
-
-```code
-(. edit :left_select) -> edit
-```
 
 ### :left_tab
 
@@ -186,6 +132,12 @@
 (. edit :mouse_move event) -> edit
 ```
 
+### :mouse_up
+
+```code
+(. vdu :mouse_up event) -> vdu
+```
+
 ### :mouse_wheel
 
 ```code
@@ -196,13 +148,11 @@
 
 ```code
 (. edit :reflow) -> edit
+
+FIXME to separate regions
 ```
 
 ### :right
-
-```code
-(. edit :right) -> edit
-```
 
 ### :right_bracket
 
@@ -211,10 +161,6 @@
 ```
 
 ### :right_select
-
-```code
-(. edit :right_select) -> edit
-```
 
 ### :right_tab
 
@@ -232,42 +178,40 @@
 
 ```code
 (. edit :select_block) -> edit
+
+FIXME to separate regions
 ```
 
 ### :select_line
 
 ```code
 (. edit :select_line) -> edit
+
+FIXME to separate regions
 ```
 
 ### :select_paragraph
 
 ```code
 (. edit :select_paragraph) -> edit
+
+FIXME to separate regions
 ```
 
 ### :select_word
 
 ```code
 (. edit :select_word) -> edit
-```
 
-### :set_anchor
-
-```code
-(. edit :set_anchor x y) -> edit
+FIXME to separate regions
 ```
 
 ### :set_buffer
 
-```code
-(. edit :set_buffer text_buffer) -> this
-```
-
 ### :set_cursor
 
 ```code
-(. edit :set_cursor x y) -> edit
+(. edit :set_cursor) -> edit
 ```
 
 ### :set_find
@@ -280,6 +224,12 @@
 
 ```code
 (. edit :set_found_color argb) -> edit
+```
+
+### :set_ink_color
+
+```code
+(. edit :set_ink_color argb) -> edit
 ```
 
 ### :set_region_color
@@ -300,12 +250,6 @@
 (. edit :set_select_color argb) -> edit
 ```
 
-### :set_sticky
-
-```code
-(. edit :set_sticky x) -> edit
-```
-
 ### :sort
 
 ```code
@@ -316,6 +260,8 @@
 
 ```code
 (. edit :split) -> edit
+
+FIXME to separate regions
 ```
 
 ### :tab
@@ -338,41 +284,25 @@
 
 ### :top
 
-```code
-(. edit :top) -> edit
-```
+### :top_select
 
-### :underlay_ink
+### :underlay
 
 ```code
-(. edit :underlay_ink) -> edit
+(. edit :underlay) -> edit
 
-create the underlay for just bracket indicators
-```
-
-### :underlay_paper
-
-```code
-(. edit :underlay_paper) -> edit
-
-create the masks for selections
+create the masks for selections, brackets and cursors
 ```
 
 ### :unique
 
 ```code
 (. edit :unique) -> edit
+
+FIXME
 ```
 
 ### :up
 
-```code
-(. edit :up) -> edit
-```
-
 ### :up_select
-
-```code
-(. edit :up_select) -> edit
-```
 

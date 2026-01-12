@@ -40,7 +40,7 @@ with clear separation of concerns:
       management. Each open file or scratchpad is represented by a `Buffer`
       instance. It handles:
 
-        * Storing lines of text (`:buffer_line`).
+        * Storing lines of text (`:buffer_lines`).
 
         * Undo/redo stack (`:undo_stack`, `:redo_stack`).
 
@@ -231,14 +231,12 @@ The Editor manages multiple open files and scratch buffers:
       `:cut`, `:copy`, `:paste`, `:break`, `:tab`, etc.) are wrappers that call
       the corresponding methods on its current `Buffer`.
 
-    * `(:underlay_paper)` and `(:underlay_ink)` methods are responsible for
-      preparing the visual overlays for selections and bracket matching,
-      respectively, by loading appropriate character attributes into its child
-      `Vdu` widgets (`:vdu_paper`, `:vdu_ink`).
+    * `(:underlay_paper)` is responsible for preparing the visual overlays for
+      selections and bracket matching, respectively.
 
 * **`Buffer` Class (`lib/text/buffer.inc`):**
 
-    * Manages text as a list of strings (`:buffer_line`).
+    * Manages text as a list of strings (`:buffer_lines`).
 
     * Tracks modified status (`:modified`).
 

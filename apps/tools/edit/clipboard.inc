@@ -3,25 +3,16 @@
 ;;;;;;;;;;;;;;;;;;;
 
 (defun action-cut ()
-	(bind '(ax ay) (. *edit* :get_anchor))
-	(clip-put-rpc (.-> *edit* :get_buffer (:cut ax ay)))
-	(. *edit* :clear_selection)
+	(clip-put-rpc (.-> *edit* :get_buffer :cut))
 	(refresh))
 
 (defun action-copy ()
-	(bind '(ax ay) (. *edit* :get_anchor))
-	(clip-put-rpc (.-> *edit* :get_buffer (:copy ax ay)))
+	(clip-put-rpc (.-> *edit* :get_buffer :copy))
 	(refresh))
 
 (defun action-paste ()
-	(unless (eql (defq data (clip-get-rpc)) "")
-		(defq buffer (. *edit* :get_buffer))
-		(undoable
-			(bind '(ax ay) (. *edit* :get_anchor))
-			(. buffer :cut ax ay)
-			(. buffer :paste data))
-		(. *edit* :clear_selection)
-		(refresh)))
+	(.-> *edit* :get_buffer (:paste (clip-get-rpc)))
+	(refresh))
 
 (defun action-cut-word ()
 	(action-select-word)

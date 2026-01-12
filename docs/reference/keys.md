@@ -281,8 +281,10 @@
 (ascii-code "E") action-load-all-depends
 (ascii-code "j") action-find-function
 (ascii-code "J") action-pop
-0x4000004a action-top
-0x4000004d action-bottom
+(ascii-code "g") action-set-cursors
+(ascii-code "G") action-add-cursors
+0x40000052 action-top
+0x40000051 action-bottom
 ```
 
 ### *key_map_shift*

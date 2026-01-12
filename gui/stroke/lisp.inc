@@ -8,8 +8,8 @@
 	(def (. this :set_flags +view_flag_solid +view_flag_solid)
 		:strokes (list) :states (list) :color 0)
 
-	(defgetmethod strokes)
-	(defgetmethod states)
+	(defgetmethod :strokes)
+	(defgetmethod :states)
 
 	(defmethod :clear ()
 		; (. stroke :clear) -> stroke

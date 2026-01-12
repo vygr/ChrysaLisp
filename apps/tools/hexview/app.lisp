@@ -23,8 +23,7 @@
 (defun refresh-display ()
 	;load the vdu widgets with the text, selection and line numbers
 	(defq buffer (. *edit* :get_buffer))
-	(bind '(cx cy) (. *edit* :get_cursor))
-	(bind '(ax ay) (. *edit* :get_anchor))
+	(bind '(cx cy ax ay) (. *edit* :get_cursor))
 	(bind '(sx sy) (. *edit* :get_scroll))
 	(defq lines (clear '()) start_line sy
 		end_line (inc (min
@@ -32,10 +31,10 @@
 			(+ start_line (get :vdu_height *edit*)))))
 	(while (< (setq start_line (inc start_line)) end_line)
 		(push lines (pad (str start_line) (const (dec +vdu_line_width)) "    ")))
+	(. buffer :find (. *find_text* :get_text) *whole_words* *regexp*)
+	(. *edit* :underlay)
 	(. *vdu_lines* :load lines 0 0 -1 -1)
-	(.-> buffer (:vdu_load (. *edit* :get_vdu_text) sx sy)
-		(:find (. *find_text* :get_text) *whole_words* *regexp*))
-	(.-> *edit* :underlay_paper :underlay_ink)
+	(. buffer :vdu_load (. *edit* :get_vdu_text) sx sy)
 	;update status bar
 	(each (# (def (. %0 :dirty) :text (str %1)))
 		(list *cx* *cy* *sw* *sh* *fc*)
@@ -59,7 +58,7 @@
 		;refresh display and ensure cursor is visible
 		(defq meta (.-> *meta_map* (:find :files) (:find (str *current_file*))))
 		(bind '(sx sy buffer) (gather meta :sx :sy :buffer))
-		(bind '(cx cy) (. buffer :get_cursor))
+		(bind '(cx cy &ignore) (. buffer :get_cursor))
 		(bind '(w h) (.-> *edit* :get_vdu_text :vdu_size))
 		(if (< (- cx +margin) sx) (setq sx (- cx +margin)))
 		(if (< (- cy +margin) sy) (setq sy (- cy +margin)))
@@ -88,13 +87,12 @@
 	(bind '(cx cy ax ay sx sy buffer)
 		(gather meta :cx :cy :ax :ay :sx :sy :buffer))
 	(setq *current_file* file)
-	(bind '(cx cy) (. buffer :constrain cx cy))
-	(bind '(ax ay) (. buffer :constrain ax ay))
-	(bind '(sx sy) (. buffer :constrain sx sy))
+	(bind '(cx cy) (. *edit* :clip_cursor cx cy))
+	(bind '(ax ay) (. *edit* :clip_cursor ax ay))
+	(bind '(sx sy) (. *edit* :clip_cursor sx sy))
 	(bind '(fx fy fx1 fy1) '(0 0 0 0))
 	(.-> *edit* (:set_buffer buffer)
-		(:set_cursor cx cy)
-		(:set_anchor ax ay)
+		(:set_cursor cx cy ax ay)
 		(:set_find fx fy fx1 fy1)
 		(:set_scroll sx sy))
 	(scatter meta :cx cx :cy cy :ax ax :ay ay :sx sx :sy sy)
@@ -132,8 +130,7 @@
 
 (defun update-meta-data ()
 	(defq buffer (. *edit* :get_buffer))
-	(bind '(cx cy) (. *edit* :get_cursor))
-	(bind '(ax ay) (. *edit* :get_anchor))
+	(bind '(cx cy ax ay) (. *edit* :get_cursor))
 	(bind '(sx sy) (. *edit* :get_scroll))
 	(scatter *meta_map*
 		:file (str *current_file*)
@@ -158,6 +155,7 @@
 		*meta_map* (scatter (Fmap) :files (Fmap)) *current_file* :nil
 		*cursor_stack* (list))
 	(.-> *edit* (:set_buffer (Buffer))
+		(:set_ink_color +argb_white)
 		(:set_select_color +argb_grey6)
 		(:set_found_color +argb_grey4)
 		(:set_region_color +argb_grey3))

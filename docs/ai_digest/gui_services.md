@@ -483,8 +483,6 @@ available via `gui/lisp.inc`.
 
     * `(:get_cursor)`, `(:set_cursor x y)`
 
-    * `(:get_anchor)`, `(:set_anchor x y)`
-
     * `(:insert string)`, `(:backspace)`, `(:delete)`, `(:break)`
 
     * `(:home)`, `(:end)`, `(:left)`, `(:right)`, `(:up)`, `(:down)` (and
@@ -495,8 +493,7 @@ available via `gui/lisp.inc`.
     * `(:mouse_down event)`, `(:mouse_move event)`, `(:mouse_wheel event)`:
       Handle mouse input.
 
-    * `(:underlay_paper)`, `(:underlay_ink)`: Prepare VDU overlays for
-      selections/brackets.
+    * `(:underlay_paper)`: Prepare overlays for selections/brackets.
 
     * `(:reflow)`: Reflows the current paragraph.
 

@@ -29,14 +29,19 @@
 	(static-qq (def *vtable* ,n (ffi ,_))))
 
 (defmacro defgetmethod (field)
-	; (defgetmethod field)
-	(static-qq (defmethod ,(sym (cat ":get_" field)) ()
-		(def? ,(sym (cat ":" field)) this))))
+	; (defgetmethod :field)
+	(static-qq (defmethod ,(sym (cat :get_ (rest field))) ()
+		(def? ,field this))))
 
 (defmacro defsetmethod (field)
-	; (defsetmethod field)
-	(static-qq (defmethod ,(sym (cat ":set_" field)) (val)
-		(def this ,(sym (cat ":" field)) val) this)))
+	; (defsetmethod :field)
+	(static-qq (defmethod ,(sym (cat :set_ (rest field))) (val)
+		(def this ,field val) this)))
+
+(defmacro defproxymethod (n a field)
+	; (defproxymethod name field [arg ...])
+	(static-qq (defmethod ,n (~a)
+		(. (get ,field this) ,n ~a) this)))
 
 (defmacro defclass (n a s &rest _)
 	; (defclass Name ([arg ...]) (super ...)|:nil body)

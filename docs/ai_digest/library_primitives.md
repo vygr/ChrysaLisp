@@ -810,11 +810,11 @@ These macros are used for defining classes and methods.
 
 *   **`defgetmethod`**: Defines a getter method for a field.
 
-    * `(defgetmethod field)`
+    * `(defgetmethod :field)`
 
 *   **`defsetmethod`**: Defines a setter method for a field.
 
-    * `(defsetmethod field)`
+    * `(defsetmethod :field)`
 
 *   **`defclass`**: Defines a new class.
 

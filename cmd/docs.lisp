@@ -46,12 +46,12 @@
 					(defclass
 						(push class_list (list name (parent? line_split)
 							(setq methods (list)) (setq state :class info (list)))))
-					((defmethod deffimethod defabstractmethod)
+					((defmethod deffimethod defabstractmethod defproxymethod)
 						(if methods (push methods (list name (setq state :method info (list))))))
 					(defgetmethod
-						(push methods (list (sym (cat ":get_" name)) (setq state :method info (list)))))
+						(push methods (list (sym (cat ":get_" (rest name))) (setq state :method info (list)))))
 					(defsetmethod
-						(push methods (list (sym (cat ":set_" name)) (setq state :method info (list)))))
+						(push methods (list (sym (cat ":set_" (rest name))) (setq state :method info (list)))))
 					(defun
 						(push function_list (list name (setq state :function info (list)))))
 					(defmacro

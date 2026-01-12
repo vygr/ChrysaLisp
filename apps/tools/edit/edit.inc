@@ -2,8 +2,8 @@
 ; editing actions
 ;;;;;;;;;;;;;;;;;
 
-(defun action-insert (string)
-	(. *edit* :insert string)
+(defun action-insert (text)
+	(. *edit* :insert text)
 	(refresh))
 
 (defun action-backspace ()
@@ -15,13 +15,10 @@
 	(refresh))
 
 (defun action-break ()
-	(. *edit* :break)
+	(. *edit* :insert +char_class_lf)
 	(refresh))
 
 (defun action-tab ()
-	(bind '(cx cy) (. *edit* :get_cursor))
-	(bind '(ax ay) (. *edit* :get_anchor))
-	(if (= ay cy)
-		(. *edit* :tab)
-		(. *edit* :right_tab))
+	;FIXME to do block mode
+	(. *edit* :tab)
 	(refresh))

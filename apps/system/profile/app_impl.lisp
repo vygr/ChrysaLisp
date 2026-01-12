@@ -17,10 +17,10 @@
 (defun vdu-print (vdu buf s)
 	(defq ch (const (dec +height)) cl 0
 		cl (some (# (if (eql %0 (ascii-char 10)) (if (= (++ cl) ch) (!)))) s))
-	(. buf :paste (slice s 0 (if cl (inc cl) -1)))
+	(. buf :insert (slice s 0 (if cl (inc cl) -1)))
 	(bind '(w h) (. buf :get_size))
 	(when (> h ch)
-		(.-> buf (:set_cursor 0 0) (:cut 0 (- h ch)))
+		(.-> buf (:set_cursor 0 0 0 (- h ch)) :delete)
 		(. buf :set_cursor 0 ch))
 	(. buf :clear_undo)
 	(if vdu (. buf :vdu_load vdu 0 0)))

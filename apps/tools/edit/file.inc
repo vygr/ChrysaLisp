@@ -5,31 +5,31 @@
 (defun trim-buffer (buffer)
 	(when (> (bind '(w h) (. buffer :get_size)) 0)
 		(undoable
-			(bind '(cx cy) (. buffer :get_cursor))
 			;trim front
 			(defq y (some! (# (if (blank-line? %0) :nil (!)))
-				(list (. buffer :get_text_lines)) :nil 0 h))
-			(unless y (setq y h))
-			(.-> buffer (:set_cursor 0 y) (:cut 0 0))
+				(list (. buffer :get_buffer_lines)) :nil 0 h))
+			(setd y h)
+			(defq ei (. buffer :cursor_to_index (list 0 y)))
+			(. buffer :idelete 0 ei)
 			;trim end
 			(defq y (some! (# (if (blank-line? %0) :nil (inc (!))))
-				(list (. buffer :get_text_lines)) :nil (bind '(w h) (. buffer :get_size)) 0))
+				(list (. buffer :get_buffer_lines)) :nil (bind '(w h) (. buffer :get_size)) 0))
 			(setd y 0)
-			(.-> buffer (:set_cursor 0 y) (:cut 0 h))
+			(defq si (. buffer :cursor_to_index (list 0 y))
+				ei (. buffer :cursor_to_index (list 0 h)))
+			(. buffer :idelete si ei)
 			;trim lines
 			(each! (lambda (line)
-					(unless (eql (defq trimmed_line (trim-end line)) line)
-						(.-> buffer
-							(:set_cursor (length trimmed_line) (!))
-							(:delete (- (length line) (length trimmed_line))))))
-				(list (. buffer :get_text_lines)) 0 (bind '(w h) (. buffer :get_size)))
-			(bind '(cx cy) (. buffer :constrain cx cy))
-			(. buffer :set_cursor cx cy)))
+					(defq l (dec (length line)))
+					(when (< (defq si (rbskip +char_class_white_space line -1)) l)
+						(defq ei (. buffer :cursor_to_index (list 0 (!)))
+							si (+ si ei) ei (+ ei l))
+						(. buffer :idelete si ei)))
+				(list (. buffer :get_buffer_lines)) 0 (bind '(w h) (. buffer :get_size)))))
 	buffer)
 
 (defun action-trim ()
 	(trim-buffer (. *edit* :get_buffer))
-	(. *edit* :clear_selection)
 	(refresh))
 
 (defun save-file (file)
@@ -90,13 +90,13 @@
 	(switch-file :nil))
 
 (defun action-load-selected ()
-	(when (selection?)
-		(bind '(y y1) (select-lines))
-		(open-files (filter (# (/= (age %0) 0))
-			(usort
-				(split (.-> (. *edit* :get_buffer)
-					(:set_cursor 0 y1)
-					(:copy 0 y)) (ascii-char +char_lf)))))))
+	(defq lines (list) buffer (. *edit* :get_buffer))
+	(each (lambda (((sx sy) (sx1 sy1)))
+			(until (= sy sy1)
+				(push lines (most (. buffer :get_text_line sy)))
+				(++ sy)))
+		(map (const csr-floor) (. buffer :get_selected)))
+	(open-files (filter (# (/= (age %0) 0)) (usort lines))))
 
 (defun action-load-depends ()
 	(when *current_file*

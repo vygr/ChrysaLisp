@@ -55,9 +55,9 @@
 	; (Mesh) -> mesh
 	(def this :verts (list) :norms (list) :tris (list))
 
-	(defgetmethod verts)
-	(defgetmethod norms)
-	(defgetmethod tris)
+	(defgetmethod :verts)
+	(defgetmethod :norms)
+	(defgetmethod :tris)
 
 	(defmethod :normals ()
 		; (. mesh :normals) -> mesh

@@ -3,36 +3,23 @@
 ;;;;;;;
 
 (defun blank-line? (line)
-	(every (# (eql " " %0)) line))
+	(eql (rbskip +char_class_white_space line -1) 0))
 
 (defmacro undoable (&rest _)
 	`(progn
-		(bind '(cx cy) (. *edit* :get_cursor))
 		(. buffer :push_undo
-			(list :mark (defq mark (. buffer :next_mark)))
-			(list :cursor cx cy))
+			(list :mark (defq mark (. buffer :next_mark))))
 		~_
 		(. buffer :push_undo (list :mark mark))))
 
-(defun selection? ()
-	(bind '(cx cy) (. *edit* :get_cursor))
-	(bind '(ax ay) (. *edit* :get_anchor))
-	(or (/= ax cx) (/= ay cy)))
-
 (defun sort-selection ()
-	(bind '(sx sy) (. *edit* :get_cursor))
-	(bind '(sx1 sy1) (. *edit* :get_anchor))
+	(bind '(sx sy sx1 sy1) (. *edit* :get_cursor))
 	(if (> sy sy1) (defq st sx sx sx1 sx1 st st sy sy sy1 sy1 st))
 	(and (= sy sy1) (> sx sx1) (defq st sx sx sx1 sx1 st))
 	(list sx sy sx1 sy1))
 
-(defun select-lines ()
-	(bind '(sx sy sx1 sy1) (sort-selection))
-	(if (or (> sx1 0) (= sy sy1)) (setq sy1 (inc sy1)))
-	(list sy sy1))
-
 (defun select-word ()
-	(bind '(cx cy) (. *edit* :get_cursor))
+	(bind '(cx cy &ignore) (. *edit* :get_cursor))
 	(defq line (.-> *edit* :get_buffer (:get_text_line cy))
 		x (rbskipn +char_class_not_whole_word line cx)
 		x1 (bskipn +char_class_not_whole_word line cx))
@@ -81,7 +68,7 @@
 
 (defun find-count ()
 	(defq buffer (. *edit* :get_buffer)
-		found (. buffer :get_found) fc 0)
+		found (. buffer :get_buffer_found) fc 0)
 	(bind '(fx fy fx1 fy1) (. *edit* :get_find))
 	(if (>= fy fy1) (setq fy 0 fy1 (length found)))
 	(each! (# (setq fc (+ fc (if %0 (length %0) 0)))) (list found) fy fy1)

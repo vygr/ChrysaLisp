@@ -9,7 +9,7 @@
 
 	(defmethod :draw ()
 		; (. mask :draw) -> mask
-		(.-> this 
+		(.-> this
 			(:ctx_set_color (get :color this))
 			(:ctx_filled_region +view_opaque_region)))
 

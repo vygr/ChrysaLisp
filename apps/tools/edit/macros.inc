@@ -39,25 +39,25 @@
 		(defq buffer (. *edit* :get_buffer) running :t)
 		(push *refresh_mode* 1)
 		(undoable
-			(bind '(cx cy) (. buffer :get_cursor))
+			(bind '(cx cy &ignore) (. buffer :get_cursor))
 			(bind '(eof_gap_x eof_gap_y) (eof-gaps))
 			(defq old_eof_gap_x +max_int  old_eof_gap_y +max_int)
 			(while (and running (> eof_gap_y 0)
 						(or (< eof_gap_y old_eof_gap_y)
 							(and (= eof_gap_y old_eof_gap_y) (< eof_gap_x old_eof_gap_x)))
 						(not (some! (const blank-line?)
-							(list (. buffer :get_text_lines)) :t cy)))
+							(list (. buffer :get_buffer_lines)) :t cy)))
 				(macro-playback actions)
 				(when running
 					(setq old_eof_gap_x eof_gap_x old_eof_gap_y eof_gap_y)
-					(bind '(cx cy) (. buffer :get_cursor))
+					(bind '(cx cy &ignore) (. buffer :get_cursor))
 					(bind '(eof_gap_x eof_gap_y) (eof-gaps)))))
 		(pop *refresh_mode*)
 		(refresh)))
 
 (defun action-macro-global (&optional slot)
 	(for-all-buffers
-		(.-> *edit* (:set_cursor 0 0) (:set_anchor 0 0) (:set_find 0 0 0 0))
+		(.-> *edit* (:set_cursor 0 0) (:set_find 0 0 0 0))
 		(action-macro-to-eof slot)))
 
 (each (# (def (penv)

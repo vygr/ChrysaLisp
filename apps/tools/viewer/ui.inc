@@ -22,7 +22,7 @@
 	(refresh-display))
 
 (redefun action-region ()
-	(bind '(sy sy1) (select-lines))
+	(bind '((_ sy) (_ sy1)) (. *edit* :get_selected_extent))
 	(bind '(fx fy fx1 fy1) (. *edit* :get_find))
 	(if (> fy1 fy) (setq fy 0 fy1 0) (setq fy sy fy1 sy1))
 	(. *edit* :set_find fx fy fx1 fy1)
@@ -35,7 +35,7 @@
 		(when (/= 0 (age file))
 			;file exists
 			(switch-file file)
-			(.-> *edit* (:set_cursor cx cy) :clear_selection)
+			(. *edit* (:set_cursor cx cy))
 			(refresh))))
 
 ;;;;;;;;;;;;;;;;;;;;
@@ -54,6 +54,7 @@
 
 	(defmethod :mouse_up (event)
 		; (. vdu :mouse_up event) -> vdu
+		(.super this :mouse_up event)
 		(case (getf event +ev_msg_mouse_count)
 			(2 (action-select-word))
 			(3 (action-select-line))

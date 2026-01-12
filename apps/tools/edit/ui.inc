@@ -79,6 +79,7 @@
 
 	(defmethod :mouse_up (event)
 		; (. vdu :mouse_up event) -> vdu
+		(.super this :mouse_up event)
 		(case (getf event +ev_msg_mouse_count)
 			(2 (action-select-word))
 			(3 (action-select-line))

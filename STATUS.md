@@ -13,6 +13,24 @@ Buffer class now supports `:index_to_cursor` and `:cursor_to_index` methods.
 
 Fixed bug in right button mouse handler.
 
+Changed `defgetmethod` and `defsetmethod` to use `:` key symbols.
+
+Added new `(defproxymethod :<name> ([arg ...]) :<field>)` to pass through to
+another object stored in field `:<field>`
+
+Complete rewrite of the text `Buffer` class. It now supports multi cursor
+editing. The GUI `Edit` class has likewise been updated to use this feature
+along with the `Editor` and `Viewer` apps.
+
+`Edit` widget now supports adding cursors with right button or setting cursor
+with left button.
+
+New Editor `action-set-cursors`, bound to `cntrl-g`, to set cursors for all of
+the search matches.
+
+New Editor `action-add-cursors`, bound to `cntrl-G`, to add cursors for all of
+the search matches. You can keep changing the search and add more.
+
 ------
 
 Fix Editor `load-depends` bug when on the scratchpad buffer !.

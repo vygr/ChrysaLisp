@@ -18,9 +18,9 @@
 	(.super this :add_child stack_flow)
 	(. radio_bar :connect (. this :get_id))
 
-	(defgetmethod stack_flow)
-	(defgetmethod stack_children)
-	(defgetmethod radio_bar)
+	(defgetmethod :stack_flow)
+	(defgetmethod :stack_children)
+	(defgetmethod :radio_bar)
 
 	(defmethod :add_child (child)
 		; (. stack :add_child child) -> stack

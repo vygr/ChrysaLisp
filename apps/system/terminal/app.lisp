@@ -3,6 +3,8 @@
 (import "lib/text/buffer.inc")
 (import "lib/task/pipe.inc")
 
+(import "lib/debug/frames.inc")
+
 ;our UI widgets
 (import "./widgets.inc")
 
@@ -38,8 +40,8 @@
 (defun refresh-display ()
 	;load the vdu widgets with the text and selection
 	(bind '(sx sy) (. *edit* :get_scroll))
-	(.-> *edit* :get_buffer (:vdu_load (. *edit* :get_vdu_text) sx sy))
-	(. *edit* :underlay_paper))
+	(. *edit* :underlay)
+	(.-> *edit* :get_buffer (:vdu_load (. *edit* :get_vdu_text) sx sy)))
 
 (defun refresh-sliders ()
 	;set slider values
@@ -56,7 +58,7 @@
 	(when (or *key* (not (input-poll)))
 		;refresh display and ensure cursor is visible
 		(setq *key* :nil)
-		(bind '(cx cy) (. *edit* :get_cursor))
+		(bind '(cx cy &ignore) (. *edit* :get_cursor))
 		(bind '(sx sy) (. *edit* :get_scroll))
 		(bind '(w h) (.-> *edit* :get_vdu_text :vdu_size))
 		(if (< cx sx) (setq sx cx))
