@@ -121,10 +121,9 @@ domains:
 
 * **`:get_cursors ()`** Returns the list of active cursors.
 
-* **`:set_cursors (list)`** Sets the active cursors, automatically merging
-  overlaps.
+* **`:set_cursors (list)`** Sets the active cursors.
 
-* **`:add_cursor (cx cy [ax ay])`** Adds a new cursor at the specific $(x, y)$
+* **`:add_cursor (cx cy [ax ay])`** Adds a new cursor at the specific *(x, y)*
   coordinates. Optional anchor coordinates define a selection.
 
 * **`:get_cursor ()`** Returns the primary (last active) cursor as `(cx cy ax
