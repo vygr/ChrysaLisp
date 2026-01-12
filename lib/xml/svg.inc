@@ -3,6 +3,8 @@
 ;;;;;;;;;;;;
 
 (import "./parse.inc")
+(import "lib/consts/colors.inc")
+(import "gui/path/lisp.inc")
 (import "gui/canvas/lisp.inc")
 
 ;module
@@ -267,27 +269,28 @@
 					(pop stack))
 				))
 		(lambda (text)
-			;render text
-			(bind '(x y family weight size anchor baseline)
-				(gather (defq entry (last stack))
-					"x" "y" "font-family" "font-weight" "font-size"
-					"text-anchor" "dominant-baseline"))
-			(defq font (create-font (cat "fonts/" family "-" weight ".ctf") (n2i size)))
-			(setd font (create-font (cat "fonts/" family "-Regular.ctf") (n2i size)))
-			(setd font (create-font "fonts/OpenSans-Regular.ctf" (n2i size)))
-			(bind '(w h) (font-glyph-bounds font text))
-			(defq ox (case anchor
-					("middle" (* (n2f w) -1.0))
-					("end" (* (n2f w) -2.0))
-					(:t 0.0))
-				oy (case baseline
-					("middle" (* (n2f h) 0.5))
-					("hanging" (n2f h))
-					(:t 0.0))
-				d (map (# (list :t (path-transform
-						(Mat3x2-f 1.0 0.0 (+ x ox) 0.0 1.0 (+ y oy)) %0 %0)))
-					(font-glyph-paths font text)))
-			(path-fill-and-stroke canvas entry d)))
+			;render text (skip in TUI mode where fonts unavailable)
+			(when (def? 'create-font)
+				(bind '(x y family weight size anchor baseline)
+					(gather (defq entry (last stack))
+						"x" "y" "font-family" "font-weight" "font-size"
+						"text-anchor" "dominant-baseline"))
+				(defq font (create-font (cat "fonts/" family "-" weight ".ctf") (n2i size)))
+				(setd font (create-font (cat "fonts/" family "-Regular.ctf") (n2i size)))
+				(setd font (create-font "fonts/OpenSans-Regular.ctf" (n2i size)))
+				(bind '(w h) (font-glyph-bounds font text))
+				(defq ox (case anchor
+						("middle" (* (n2f w) -1.0))
+						("end" (* (n2f w) -2.0))
+						(:t 0.0))
+					oy (case baseline
+						("middle" (* (n2f h) 0.5))
+						("hanging" (n2f h))
+						(:t 0.0))
+					d (map (# (list :t (path-transform
+							(Mat3x2-f 1.0 0.0 (+ x ox) 0.0 1.0 (+ y oy)) %0 %0)))
+						(font-glyph-paths font text)))
+				(path-fill-and-stroke canvas entry d))))
 	;resize to final output
 	(bind '(w h) (. canvas :pref_size))
 	(. (Canvas w h 1) :resize canvas))
