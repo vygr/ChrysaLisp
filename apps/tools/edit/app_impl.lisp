@@ -6,8 +6,6 @@
 (import "lib/task/cmd.inc")
 (import "service/clipboard/app.inc")
 
-(import "lib/debug/frames.inc")
-
 ;our UI widgets and events
 (import "./widgets.inc")
 (import "./rpc.inc")

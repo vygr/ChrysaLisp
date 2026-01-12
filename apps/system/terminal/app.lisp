@@ -3,8 +3,6 @@
 (import "lib/text/buffer.inc")
 (import "lib/task/pipe.inc")
 
-(import "lib/debug/frames.inc")
-
 ;our UI widgets
 (import "./widgets.inc")
 

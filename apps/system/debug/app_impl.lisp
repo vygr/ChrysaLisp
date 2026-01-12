@@ -2,8 +2,6 @@
 (import "gui/lisp.inc")
 (import "./././tools/edit/rpc.inc")
 
-(import "lib/debug/frames.inc")
-
 ;our UI widgets and events
 (import "./config.inc")
 (import "./widgets.inc")
