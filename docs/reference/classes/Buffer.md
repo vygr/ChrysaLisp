@@ -7,13 +7,7 @@
 ### :add_cursor
 
 ```code
-(. buffer :set_cursor cx cy [ax ay]) -> buffer
-```
-
-### :add_icursor
-
-```code
-(. buffer :add_icursor ci [ai]) -> buffer
+(. buffer :add_cursor cx cy [ax ay]) -> buffer
 ```
 
 ### :backspace
@@ -40,18 +34,18 @@
 (. buffer :clear_undo) -> buffer
 ```
 
+### :clip_cursor
+
+```code
+(. buffer :clip_cursor cx cy ax ay [sx]) -> (cx cy ax ay sx)
+
+clips coordinates to valid buffer positions
+```
+
 ### :copy
 
 ```code
 (. buffer :copy) -> text
-```
-
-### :cursor_to_index
-
-```code
-(. buffer :cursor_to_index csr) -> idx
-
-clips to min/max of buffer
 ```
 
 ### :cut
@@ -122,28 +116,28 @@ clips to min/max of buffer
 
 ```code
 (. buffer :get_cursor) -> (cx cy ax ay)
+
+return last cursor position without sticky x
 ```
 
 ### :get_cursors
-
-### :get_icursor
-
-```code
-(. buffer :get_icursor) -> (ci ai)
-```
 
 ### :get_modified
 
 ### :get_selected
 
 ```code
-(. buffer :get_selected) -> (((cx cy) (ax ay)) ...)
+(. buffer :get_selected) -> ((cx cy ax ay) ...)
+
+return cursors sorted by position, without sx
 ```
 
 ### :get_selected_unsorted
 
 ```code
 (. buffer :get_selected_unsorted) -> ((cx cy ax ay) ...)
+
+return cursors in original order, without sx
 ```
 
 ### :get_size
@@ -181,27 +175,25 @@ clips to min/max of buffer
 ### :icopy
 
 ```code
-(. buffer :icopy si ei) -> str
+(. buffer :icopy cx cy ax ay) -> str
+
+copy text from (cx cy) to (ax ay)
 ```
 
 ### :idelete
 
 ```code
-(. buffer :idelete si ei) -> buffer
+(. buffer :idelete cx cy ax ay) -> buffer
+
+delete text from (cx cy) to (ax ay)
 ```
 
 ### :iinsert
 
 ```code
-(. buffer :iinsert si text) -> buffer
-```
+(. buffer :iinsert cx cy text) -> buffer
 
-### :index_to_cursor
-
-```code
-(. buffer :index_to_cursor idx) -> (x y)
-
-clips to min/max of buffer
+insert text at position (cx cy)
 ```
 
 ### :insert
@@ -232,6 +224,8 @@ clips to min/max of buffer
 
 ```code
 (. buffer :merge_cursors cursors) -> cursors
+
+cursors format: ((cx cy ax ay sx) ...)
 ```
 
 ### :next_mark
@@ -283,12 +277,6 @@ clips to min/max of buffer
 ```
 
 ### :set_cursors
-
-### :set_icursor
-
-```code
-(. buffer :set_icursor ci [ai]) -> buffer
-```
 
 ### :set_tcursors
 

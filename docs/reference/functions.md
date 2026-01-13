@@ -159,6 +159,18 @@ cached circle generation, quantised to 1/4 pixel
 (cpu) -> sym
 ```
 
+### csr-floor
+
+```code
+floor cursor to line boundaries, avoiding object churn if already floored
+```
+
+### csr-sort-csr
+
+```code
+sort cursor so (cx cy) <= (ax ay)
+```
+
 ### each-mergeable
 
 ```code
