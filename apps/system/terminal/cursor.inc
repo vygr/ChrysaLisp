@@ -41,26 +41,24 @@
 	(unless *pipe*
 		(input-cursor
 			(bind '(history) (gather *meta_map* :history))
-			(.-> buffer
-				(:set_cursor 0 y (dec (length (. buffer :get_text_line y))))
-				:delete)
 			(defq cmd "")
 			(setq *history_idx* (max 0 (dec *history_idx*)))
 			(when (< *history_idx* (length history))
 				(setq cmd (elem-get history *history_idx*)))
-			(. buffer :insert (cat *env_terminal_prompt* cmd)))
+			(.-> buffer
+				(:set_cursor 0 y (dec (length (. buffer :get_text_line y))))
+				(:insert (cat *env_terminal_prompt* cmd))))
 		(refresh)))
 
 (defun action-down ()
 	(unless *pipe*
 		(input-cursor
 			(bind '(history) (gather *meta_map* :history))
-			(.-> buffer
-				(:set_cursor 0 y (dec (length (. buffer :get_text_line y))))
-				:delete)
 			(defq cmd "")
 			(setq *history_idx* (min (inc *history_idx*) (length history)))
 			(when (< *history_idx* (length history))
 				(setq cmd (elem-get history *history_idx*)))
-			(. buffer :insert (cat *env_terminal_prompt* cmd)))
+			(.-> buffer
+				(:set_cursor 0 y (dec (length (. buffer :get_text_line y))))
+				(:insert (cat *env_terminal_prompt* cmd))))
 		(refresh)))

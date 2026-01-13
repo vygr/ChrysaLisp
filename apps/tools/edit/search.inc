@@ -209,9 +209,7 @@
 	(each (# (when %0
 		(defq y (!))
 		(each (lambda (((x x1) &ignore))
-			(defq ci (. buffer :cursor_to_index x1 y)
-				ai (. buffer :cursor_to_index x y))
-			(push cursors (list ci ai :nil))) %0))) (. buffer :get_buffer_found))
+			(push cursors (list x1 y x y 0))) %0))) (. buffer :get_buffer_found))
 	(if (nempty? cursors) (. buffer :set_cursors cursors))
 	(refresh))
 
@@ -220,9 +218,7 @@
 	(each (# (when %0
 		(defq y (!))
 		(each (lambda (((x x1) &ignore))
-			(defq ci (. buffer :cursor_to_index x1 y)
-				ai (. buffer :cursor_to_index x y))
-			(push cursors (list ci ai :nil))) %0))) (. buffer :get_buffer_found))
+			(push cursors (list x1 y x y 0))) %0))) (. buffer :get_buffer_found))
 	(if (nempty? cursors)
 		(. buffer :set_cursors
 			(. buffer :merge_cursors (cat (. buffer :get_cursors) cursors))))
