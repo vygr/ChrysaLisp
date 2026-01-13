@@ -87,22 +87,21 @@
 	(if (<= ci ai) idx (list ai ci sx)))
 
 (defun csr-sort-csr (csr)
-	(bind '((sx sy) (sx1 sy1)) csr)
+	(bind '(sx sy sx1 sy1) csr)
 	(cond
 		((> sy sy1)
 			(if (and (= sy sy1) (> sx1 sx))
-				`((,sx ,sy1) (,sx1 ,sy))
-				`((,sx1 ,sy1) (,sx ,sy))))
+				(list sx sy1 sx1 sy)
+				(list sx1 sy1 sx sy)))
 		((and (= sy sy1) (> sx sx1))
-			`((,sx1 ,sy) (,sx ,sy1)))
+			(list sx1 sy sx sy1))
 		(csr)))
 
 (defun csr-floor (csr)
-	(setq csr (csr-sort-csr csr))
-	(bind '((sx sy) (sx1 sy1)) csr)
+	(bind '(sx sy sx1 sy1) (setq csr (csr-sort-csr csr)))
 	(cond
-		((= sy sy1) (static-qq ((,sx ,sy) (,sx1 ,(inc sy1)))))
-		((/= 0 sx1) (static-qq ((,sx ,sy) (,sx1 ,(inc sy1)))))
+		((= sy sy1) (list sx sy sx1 (inc sy1)))
+		((/= 0 sx1) (list sx sy sx1 (inc sy1)))
 		(csr)))
 
 ;;;;;;;;;;;
@@ -212,8 +211,8 @@
 				(if (> idx l) (setq j (inc i)) (setq k i))))
 		(list (- idx l) i))
 
-	(defmethod :cursor_to_index ((x y))
-		; (. buffer :cursor_to_index csr) -> idx
+	(defmethod :cursor_to_index (x y)
+		; (. buffer :cursor_to_index x y) -> idx
 		; clips to min/max of buffer
 		(build-index this)
 		(raise :buffer_index :buffer_lines)
@@ -238,10 +237,11 @@
 		(build-index this)
 		(raise :buffer_index)
 		(defq mi (last buffer_index)
-			cursors (sort (map (# (bind '(ci ai sx) %0)
+			cursors (sort (map (# (task-slice) (bind '(ci ai sx) %0)
 						(list (max (min ci mi) 0) (max (min ai mi) 0) sx)) cursors)
-					(# (- (apply (const min) (most %0)) (apply (const min) (most %1))))))
-		(reduce! (# (bind '(ci ai &ignore) (last %0))
+					(# (task-slice) (- (apply (const min) (most %0)) (apply (const min) (most %1))))))
+		(reduce! (# (task-slice)
+				(bind '(ci ai &ignore) (last %0))
 				(bind '(ci1 ai1 &ignore) %1)
 				(defq mci (min ci ai) mai (max ci ai)
 					mci1 (min ci1 ai1) mai1 (max ci1 ai1))
@@ -277,30 +277,32 @@
 		; (. buffer :set_cursor cx cy [ax ay]) -> buffer
 		(setd ax cx ay cy)
 		(. this :set_icursor
-			(. this :cursor_to_index `(,cx ,cy))
-			(. this :cursor_to_index `(,ax ,ay))))
+			(. this :cursor_to_index cx cy)
+			(. this :cursor_to_index ax ay)))
 
 	(defmethod :add_cursor (cx cy &optional ax ay)
 		; (. buffer :set_cursor cx cy [ax ay]) -> buffer
 		(setd ax cx ay cy)
 		(. this :add_icursor
-			(. this :cursor_to_index `(,cx ,cy))
-			(. this :cursor_to_index `(,ax ,ay))))
+			(. this :cursor_to_index cx cy)
+			(. this :cursor_to_index ax ay)))
 
 ;;;;;;;;;;;;;;;;;;;
 ; cursor range info
 ;;;;;;;;;;;;;;;;;;;
 
 	(defmethod :get_selected ()
-		; (. buffer :get_selected) -> (((cx cy) (ax ay)) ...)
-		(map (# (list (. this :index_to_cursor (first %0))
+		; (. buffer :get_selected) -> ((cx cy ax ay) ...)
+		(map (# (task-slice)
+				(cat (. this :index_to_cursor (first %0))
 					(. this :index_to_cursor (second %0))))
 			(sort (cat (get :cursors this) (get :tcursors this))
 				(# (- (first %0) (first %1))))))
 
 	(defmethod :get_selected_unsorted ()
 		; (. buffer :get_selected_unsorted) -> ((cx cy ax ay) ...)
-		(map (# (list (. this :index_to_cursor (first %0))
+		(map (# (task-slice)
+				(cat (. this :index_to_cursor (first %0))
 					(. this :index_to_cursor (second %0))))
 			(cat (get :cursors this) (get :tcursors this))))
 
@@ -399,7 +401,7 @@
 	(defmethod :left ()
 		; (. buffer :left) -> buffer
 		(lower (:cursors (. this :merge_cursors
-			(map (lambda ((ci ai &ignore))
+			(map (lambda ((ci ai &ignore)) (task-slice)
 					(list (setq ci (if (= ci ai) (dec ci) (min ci ai)))
 						ci (first (. this :index_to_cursor ci))))
 				(get :cursors this)))))
@@ -408,7 +410,7 @@
 	(defmethod :right ()
 		; (. buffer :right) -> buffer
 		(lower (:cursors (. this :merge_cursors
-			(map (lambda ((ci ai &ignore))
+			(map (lambda ((ci ai &ignore)) (task-slice)
 					(list (setq ci (if (= ci ai) (inc ci) (max ci ai)))
 						ci (first (. this :index_to_cursor ci))))
 				(get :cursors this)))))
@@ -417,29 +419,29 @@
 	(defmethod :up ()
 		; (. buffer :up) -> buffer
 		(lower (:cursors (. this :merge_cursors
-			(map (lambda ((ci ai sx))
+			(map (lambda ((ci ai sx)) (task-slice)
 					(bind '(x y) (. this :index_to_cursor (min ci ai)))
 					(if (or (not sx) (/= ci ai)) (setq sx x))
-					(list (setq ci (. this :cursor_to_index (list sx (dec y)))) ci sx))
+					(list (setq ci (. this :cursor_to_index sx (dec y))) ci sx))
 				(get :cursors this)))))
 		this)
 
 	(defmethod :down ()
 		; (. buffer :down) -> buffer
 		(lower (:cursors (. this :merge_cursors
-			(map (lambda ((ci ai sx))
+			(map (lambda ((ci ai sx)) (task-slice)
 					(bind '(x y) (. this :index_to_cursor (max ci ai)))
 					(if (or (not sx) (/= ci ai)) (setq sx x))
-					(list (setq ci (. this :cursor_to_index (list sx (inc y)))) ci sx))
+					(list (setq ci (. this :cursor_to_index sx (inc y))) ci sx))
 				(get :cursors this)))))
 		this)
 
 	(defmethod :home ()
 		; (. buffer :home) -> buffer
 		(lower (:cursors (. this :merge_cursors
-			(map (lambda ((ci &ignore))
+			(map (lambda ((ci &ignore)) (task-slice)
 					(list (setq ci (. this :cursor_to_index
-						(list 0 (last (. this :index_to_cursor ci))))) ci 0))
+						0 (last (. this :index_to_cursor ci)))) ci 0))
 				(get :cursors this)))))
 		this)
 
@@ -447,10 +449,10 @@
 		; (. buffer :end) -> buffer
 		(raise :buffer_lines)
 		(lower (:cursors (. this :merge_cursors
-			(map (lambda ((ci &ignore))
+			(map (lambda ((ci &ignore)) (task-slice)
 					(bind '(ci ci) (. this :index_to_cursor ci))
 					(defq sx (dec (length (elem-get buffer_lines ci)))
-						ci (. this :cursor_to_index (list sx ci)))
+						ci (. this :cursor_to_index sx ci))
 					(list ci ci sx))
 				(get :cursors this)))))
 		this)
@@ -474,7 +476,7 @@
 	(defmethod :left_select ()
 		; (. buffer :left_select) -> buffer
 		(lower (:cursors (. this :merge_cursors
-			(map (lambda ((ci ai &ignore))
+			(map (lambda ((ci ai &ignore)) (task-slice)
 					(list (-- ci) ai (first (. this :index_to_cursor ci))))
 				(get :cursors this)))))
 		this)
@@ -482,7 +484,7 @@
 	(defmethod :right_select ()
 		; (. buffer :right_select) -> buffer
 		(lower (:cursors (. this :merge_cursors
-			(map (lambda ((ci ai &ignore))
+			(map (lambda ((ci ai &ignore)) (task-slice)
 					(list (++ ci) ai (first (. this :index_to_cursor ci))))
 				(get :cursors this)))))
 		this)
@@ -490,18 +492,18 @@
 	(defmethod :up_select ()
 		; (. buffer :up_select) -> buffer
 		(lower (:cursors (. this :merge_cursors
-			(map (lambda ((ci ai sx))
+			(map (lambda ((ci ai sx)) (task-slice)
 					(bind '(x ci) (. this :index_to_cursor ci))
-					(list (. this :cursor_to_index (list (ifn sx x) (dec ci))) ai (ifn sx x)))
+					(list (. this :cursor_to_index (ifn sx x) (dec ci)) ai (ifn sx x)))
 				(get :cursors this)))))
 		this)
 
 	(defmethod :down_select ()
 		; (. buffer :down_select) -> buffer
 		(lower (:cursors (. this :merge_cursors
-			(map (lambda ((ci ai sx))
+			(map (lambda ((ci ai sx)) (task-slice)
 					(bind '(x ci) (. this :index_to_cursor ci))
-					(list (. this :cursor_to_index (list (ifn sx x) (inc ci))) ai (ifn sx x)))
+					(list (. this :cursor_to_index (ifn sx x) (inc ci)) ai (ifn sx x)))
 				(get :cursors this)))))
 		this)
 
@@ -509,9 +511,9 @@
 		; (. buffer :home_select) -> buffer
 		(raise :buffer_lines)
 		(lower (:cursors (. this :merge_cursors
-			(map (lambda ((ci ai &ignore))
+			(map (lambda ((ci ai &ignore)) (task-slice)
 					(list (. this :cursor_to_index
-						(list 0 (last (. this :index_to_cursor ci)))) ai 0))
+						0 (last (. this :index_to_cursor ci))) ai 0))
 				(get :cursors this)))))
 		this)
 
@@ -519,24 +521,26 @@
 		; (. buffer :end_select) -> buffer
 		(raise :buffer_lines)
 		(lower (:cursors (. this :merge_cursors
-			(map (lambda ((ci ai &ignore))
+			(map (lambda ((ci ai &ignore)) (task-slice)
 					(bind '(ci ci) (. this :index_to_cursor ci))
 					(defq sx (dec (length (elem-get buffer_lines ci))))
-					(list (. this :cursor_to_index (list sx ci)) ai sx))
+					(list (. this :cursor_to_index sx ci) ai sx))
 				(get :cursors this)))))
 		this)
 
 	(defmethod :top_select ()
 		; (. buffer :top_select) -> buffer
 		(lower (:cursors (. this :merge_cursors
-			(map (lambda ((ai ai &ignore)) (list 0 ai 0))
+			(map (lambda ((ai ai &ignore)) (task-slice)
+					(list 0 ai 0))
 				(get :cursors this)))))
 		this)
 
 	(defmethod :bottom_select ()
 		; (. buffer :bottom_select) -> buffer
 		(lower (:cursors (. this :merge_cursors
-			(map (lambda ((ai ai &ignore)) (list +max_long ai 0))
+			(map (lambda ((ai ai &ignore)) (task-slice)
+					(list +max_long ai 0))
 				(get :cursors this)))))
 		this)
 
@@ -548,7 +552,7 @@
 	(defmethod :delete ()
 		; (. buffer :delete) -> buffer
 		(undoable
-			(reach (lambda ((ci ai &ignore))
+			(reach (lambda ((ci ai &ignore)) (task-slice)
 					(if (= ci ai)
 						(. this :idelete ci (inc ci))
 						(. this :idelete ci ai)))
@@ -557,7 +561,7 @@
 	(defmethod :backspace ()
 		; (. buffer :backspace) -> buffer
 		(undoable
-			(reach (lambda ((ci ai &ignore))
+			(reach (lambda ((ci ai &ignore)) (task-slice)
 					(if (= ci ai)
 						(. this :idelete (dec ci) ci)
 						(. this :idelete ci ai)))
@@ -566,14 +570,17 @@
 	(defmethod :insert (text)
 		; (. buffer :insert text) -> buffer
 		(undoable
-			(reach (lambda ((ci ai &ignore)) (. this :iinsert (min ci ai) text))
+			(reach (lambda ((ci ai &ignore)) (task-slice)
+					(. this :iinsert (min ci ai) text))
 				(. this :merge_cursors (get :cursors this)))
-			(reach (lambda ((ci ai &ignore)) (. this :idelete ci ai)) (get :cursors this))))
+			(reach (lambda ((ci ai &ignore)) (task-slice)
+				(. this :idelete ci ai)) (get :cursors this))))
 
 	(defmethod :copy ()
 		; (. buffer :copy) -> text
 		(defq text (list))
-		(each (lambda ((ci ai &ignore)) (push text (. this :icopy ci ai)))
+		(each (lambda ((ci ai &ignore)) (task-slice)
+				(push text (. this :icopy ci ai)))
 			(. this :merge_cursors (get :cursors this)))
 		(join text (const (unescape "\f"))))
 
@@ -581,8 +588,10 @@
 		; (. buffer :cut) -> text
 		(undoable
 			(defq text (list) cursors (. this :merge_cursors (get :cursors this)))
-			(each (lambda ((ci ai &ignore)) (push text (. this :icopy ci ai))) cursors)
-			(reach (lambda ((ci ai &ignore)) (. this :idelete ci ai)) cursors))
+			(each (lambda ((ci ai &ignore)) (task-slice)
+				(push text (. this :icopy ci ai))) cursors)
+			(reach (lambda ((ci ai &ignore)) (task-slice)
+				(. this :idelete ci ai)) cursors))
 		(join text (const (unescape "\f"))))
 
 	(defmethod :paste (text)
@@ -593,12 +602,16 @@
 			(cond
 				((= (length parts) (length cursors))
 					;matching number of parts !
-					(reach (lambda ((ci ai &ignore) text) (. this :iinsert (min ci ai) text)) cursors parts)
-					(reach (lambda ((ci ai &ignore)) (. this :idelete ci ai)) (get :cursors this)))
+					(reach (lambda ((ci ai &ignore) text) (task-slice)
+						(. this :iinsert (min ci ai) text)) cursors parts)
+					(reach (lambda ((ci ai &ignore)) (task-slice)
+						(. this :idelete ci ai)) (get :cursors this)))
 				(:t ;none matching parts !
 					(defq parts (apply (const cat) (push parts "")))
-					(reach (lambda ((ci ai &ignore)) (. this :iinsert (min ci ai) parts)) cursors)
-					(reach (lambda ((ci ai &ignore)) (. this :idelete ci ai)) (get :cursors this))))))
+					(reach (lambda ((ci ai &ignore)) (task-slice)
+						(. this :iinsert (min ci ai) parts)) cursors)
+					(reach (lambda ((ci ai &ignore)) (task-slice)
+						(. this :idelete ci ai)) (get :cursors this))))))
 
 ;;;;;;;;;;;;;
 ; buffer info
