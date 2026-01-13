@@ -20,7 +20,7 @@
 ; Configuration and State
 (defq *config_file* (cat *env_home* "solitaire.tre")
 	  *board* (list)
-	  *selected* :nil	  ; Index of selected peg
+	  *selected* :nil     ; Index of selected peg
 	  *undo_stack* (list)
 	  *pegs_left* 0
 	  *game_over* :nil
@@ -38,21 +38,21 @@
 	(ui-title-bar *title* "Peg Solitaire" (0xea19) +event_close)
 	(ui-tool-bar *toolbar* ()
 		(ui-buttons (0xe972 0xe9fe) +event_reset))
-	
+
 	; Stack layout: Backdrop is behind, Grid is in front
 	(ui-flow *board_view* (:flow_flags +flow_stack_fill)
-		(ui-grid *grid* (:grid_width +grid_w :grid_height +grid_h 
+		(ui-grid *grid* (:grid_width +grid_w :grid_height +grid_h
 						 :color 0 :font *font*)
 			(each (lambda (i)
 				(if (is-valid-pos i)
 					; Valid position: Interactive button
-					(. (ui-button _ (:min_width 40 :min_height 40)) 
+					(. (ui-button _ (:min_width 40 :min_height 40))
 					   :connect (+ +event_click i))
 					; Invalid position: Solid backdrop (visual only)
 					(ui-backdrop _ (:color +argb_grey3 :min_width 40 :min_height 40))))
 				(range 0 +tile_count)))
 		(ui-backdrop _ (:color +argb_grey3)))
-				
+
 	(ui-label *status* (:text "Pegs: 32" :flow_flags +flow_flag_align_hcenter)))
 
 (defun tooltips ()
@@ -92,8 +92,8 @@
 			(.-> btn (:constrain :t) :dirty))
 		(++ i))
 	(if *game_over*
-		(def *status* :text (if (and (= *pegs_left* 1) (= (elem-get *board* 24) +state_peg)) 
-								"Perfect! (Center)" "Finished!") 
+		(def *status* :text (if (and (= *pegs_left* 1) (= (elem-get *board* 24) +state_peg))
+								"Perfect! (Center)" "Finished!")
 					 :color +argb_green)
 		(def *status* :text (cat "Pegs: " (str *pegs_left*)) :color *env_window_col*))
 	(.-> *status* :layout :dirty))
@@ -138,14 +138,14 @@
 			(defq x1 (% from_idx +grid_w) y1 (/ from_idx +grid_w)
 				  x2 (% to_idx +grid_w) y2 (/ to_idx +grid_w)
 				  dx (- x2 x1) dy (- y2 y1))
-			
+
 			; Valid jump? Distance must be 2 in one axis, 0 in other
 			(if (or (and (= (abs dx) 2) (= dy 0))
 					(and (= (abs dy) 2) (= dx 0)))
 				(progn
 					; Calculate middle index
 					(defq mid_idx (+ x1 (/ dx 2) (* (+ y1 (/ dy 2)) +grid_w)))
-					
+
 					; Check: To is empty, Mid has peg
 					(if (and (= (elem-get *board* to_idx) +state_empty)
 							 (= (elem-get *board* mid_idx) +state_peg))
@@ -155,7 +155,7 @@
 							; Execute Move
 							(elem-set *board* from_idx +state_empty) ; Remove from origin
 							(elem-set *board* mid_idx +state_empty)  ; Remove jumped
-							(elem-set *board* to_idx +state_peg)	 ; Place at dest
+							(elem-set *board* to_idx +state_peg)     ; Place at dest
 							; Update
 							(setq *selected* :nil)
 							(update-gamestate)
@@ -205,7 +205,7 @@
 	(tooltips)
 	(bind '(x y w h) (apply view-locate (. *window* :pref_size)))
 	(gui-add-front-rpc (. *window* :change x y w h))
-	
+
 	(while *running*
 		(defq msg (mail-read (elem-get select (defq idx (mail-select select)))))
 		(cond
@@ -215,6 +215,6 @@
 			((= (getf msg +ev_msg_type) +ev_type_action)
 				(dispatch-action (getf msg +ev_msg_target_id)))
 			(:t (. *window* :event msg))))
-	
+
 	(config-save)
 	(gui-sub-rpc *window*))
