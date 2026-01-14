@@ -224,7 +224,7 @@
 		(undoable
 			(defq tab_width (. buffer :get_tab_width))
 			(reach (lambda ((cx cy ax ay &ignore))
-					(bind '(cx cy &ignore) (csr-sort-csr (list cx cy ax ay)))
+					(bind '(cx cy &ignore) (csr-sort (list cx cy ax ay)))
 					(. buffer :iinsert cx cy
 						(pad "" (- tab_width (% cx tab_width)) "        ")))
 				(. buffer :merge_cursors (. buffer :get_cursors)))
@@ -264,7 +264,7 @@
 		(undoable
 			(defq cursors (. buffer :get_cursors))
 			(reach (lambda ((cx cy ax ay &ignore))
-					(bind '(sx sy &ignore) (csr-sort-csr (list cx cy ax ay)))
+					(bind '(sx sy &ignore) (csr-sort (list cx cy ax ay)))
 					(. buffer :iinsert sx sy
 						(to-lower (. buffer :icopy cx cy ax ay))))
 				(. buffer :merge_cursors cursors))
@@ -278,7 +278,7 @@
 		(undoable
 			(defq cursors (. buffer :get_cursors))
 			(reach (lambda ((cx cy ax ay &ignore))
-					(bind '(sx sy &ignore) (csr-sort-csr (list cx cy ax ay)))
+					(bind '(sx sy &ignore) (csr-sort (list cx cy ax ay)))
 					(. buffer :iinsert sx sy
 						(to-upper (. buffer :icopy cx cy ax ay))))
 				(. buffer :merge_cursors cursors))
@@ -469,7 +469,7 @@
 					(* (- cx scroll_x) cw)
 					(* (- cy scroll_y) ch)
 					cc ch))
-			(bind '(cx cy ax ay) (csr-sort-csr csr))
+			(bind '(cx cy ax ay) (csr-sort csr))
 			(unless (or (< ay scroll_y) (> cy scroll_y1))
 				(cond
 					((= cy ay)

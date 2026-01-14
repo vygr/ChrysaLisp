@@ -82,7 +82,7 @@
 ; cursor morphing
 ;;;;;;;;;;;;;;;;;
 
-(defun csr-sort-csr (csr)
+(defun csr-sort (csr)
 	; sort cursor so (cx cy) <= (ax ay)
 	(bind '(cx cy ax ay &ignore) csr)
 	(if (or (< cy ay) (and (= cy ay) (<= cx ax)))
@@ -91,7 +91,7 @@
 
 (defun csr-floor (csr)
 	; floor cursor to line boundaries, avoiding object churn if already floored
-	(bind '(cx cy ax ay) (defq csr (csr-sort-csr csr)))
+	(bind '(cx cy ax ay) (defq csr (csr-sort csr)))
 	(cond
 		; same line - extend to full line
 		((= cy ay)
@@ -207,6 +207,59 @@
 			ay
 			sx))
 
+;;;;;;;;;;;;;;;;;
+; cursor creation
+;;;;;;;;;;;;;;;;;
+
+	(defmethod :set_cursor (cx cy &optional ax ay)
+		; (. buffer :set_cursor cx cy [ax ay]) -> buffer
+		(setd ax cx ay cy)
+		(lower (:cursors (list (. this :clip_cursor cx cy ax ay))))
+		this)
+
+	(defmethod :add_cursor (cx cy &optional ax ay)
+		; (. buffer :add_cursor cx cy [ax ay]) -> buffer
+		(setd ax cx ay cy)
+		(lower (:cursors (. this :merge_cursors
+			(push (get :cursors this) (. this :clip_cursor cx cy ax ay)))))
+		this)
+
+;;;;;;;;;;;;;
+; buffer info
+;;;;;;;;;;;;;
+
+	(defmethod :get_cursor ()
+		; (. buffer :get_cursor) -> (cx cy ax ay)
+		; return last cursor position without sticky x
+		(most (last (get :cursors this))))
+
+	(defmethod :get_size ()
+		; (. buffer :get_size) -> (width height)
+		(list (get :max_width this) (dec (length (get :buffer_lines this)))))
+
+	(defmethod :get_text_line (y)
+		; (. buffer :get_text_line y) -> line
+		(elem-get (get :buffer_lines this) y))
+
+;;;;;;;;;;;;;;;;;;;
+; cursor range info
+;;;;;;;;;;;;;;;;;;;
+
+	(defmethod :get_selected ()
+		; (. buffer :get_selected) -> ((cx cy ax ay) ...)
+		; return cursors sorted by position, without sx
+		(map (# (task-slice) (most %0))
+			(sort (cat (get :cursors this) (get :tcursors this))
+				(# (bind '(cx1 cy1 &ignore) (csr-sort %0))
+					(bind '(cx2 cy2 &ignore) (csr-sort %1))
+					(if (/= cy1 cy2) (- cy1 cy2) (- cx1 cx2))))))
+
+	(defmethod :get_selected_unsorted ()
+		; (. buffer :get_selected_unsorted) -> ((cx cy ax ay) ...)
+		; return cursors in original order, without sx
+		(map (# (task-slice) (most %0))
+			(cat (get :cursors this) (get :tcursors this))))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; cursor merging
 ; sorts the lines but does NOT change
@@ -218,19 +271,18 @@
 		; (. buffer :merge_cursors cursors) -> cursors
 		; cursors format: ((cx cy ax ay sx) ...)
 		(raise :buffer_lines)
-		(defq h (dec (length buffer_lines))
-			cursors (sort (map (# (task-slice)
-						(bind '(cx cy ax ay sx) %0)
-						; clip to valid positions
-						(. this :clip_cursor cx cy ax ay sx)) cursors)
+		(defq cursors (sort (map (# (task-slice)
+				(bind '(cx cy ax ay sx) %0)
+				; clip to valid positions
+				(. this :clip_cursor cx cy ax ay sx)) cursors)
 					; sort by min(cy, ay) then min(cx, ax)
 					(# (task-slice)
-						(bind '(cx1 cy1 ax1 ay1) (csr-sort-csr %0))
-						(bind '(cx2 cy2 ax2 ay2) (csr-sort-csr %1))
+						(bind '(cx1 cy1 ax1 ay1) (csr-sort %0))
+						(bind '(cx2 cy2 ax2 ay2) (csr-sort %1))
 						(if (/= cy1 cy2) (- cy1 cy2) (- cx1 cx2)))))
 		(reduce! (# (task-slice)
-				(bind '(cx cy ax ay) (csr-sort-csr (last %0)))
-				(bind '(cx1 cy1 ax1 ay1) (csr-sort-csr %1))
+				(bind '(cx cy ax ay) (csr-sort (last %0)))
+				(bind '(cx1 cy1 ax1 ay1) (csr-sort %1))
 				; check overlap: last cursor end >= next cursor start
 				(cond
 					((or (> ay cy1) (and (= ay cy1) (>= ax cx1)))
@@ -253,44 +305,6 @@
 				%0)
 			(list cursors) (slice cursors 0 1) 1))
 
-;;;;;;;;;;;;;;;;;
-; cursor creation
-;;;;;;;;;;;;;;;;;
-
-	(defmethod :set_cursor (cx cy &optional ax ay)
-		; (. buffer :set_cursor cx cy [ax ay]) -> buffer
-		(setd ax cx ay cy)
-		(lower (:cursors (list (. this :clip_cursor cx cy ax ay))))
-		this)
-
-	(defmethod :add_cursor (cx cy &optional ax ay)
-		; (. buffer :add_cursor cx cy [ax ay]) -> buffer
-		(setd ax cx ay cy)
-		;; (lower (:cursors (. this :merge_cursors
-		;; 	(push (get :cursors this) (. this :clip_cursor cx cy ax ay)))))
-		(lower (:cursors (. this :merge_cursors
-			(push (get :cursors this) (. this :clip_cursor cx cy ax ay)))))
-		this)
-
-;;;;;;;;;;;;;;;;;;;
-; cursor range info
-;;;;;;;;;;;;;;;;;;;
-
-	(defmethod :get_selected ()
-		; (. buffer :get_selected) -> ((cx cy ax ay) ...)
-		; return cursors sorted by position, without sx
-		(map (# (task-slice) (most %0))
-			(sort (cat (get :cursors this) (get :tcursors this))
-				(# (bind '(cx1 cy1 &ignore) (csr-sort-csr %0))
-					(bind '(cx2 cy2 &ignore) (csr-sort-csr %1))
-					(if (/= cy1 cy2) (- cy1 cy2) (- cx1 cx2))))))
-
-	(defmethod :get_selected_unsorted ()
-		; (. buffer :get_selected_unsorted) -> ((cx cy ax ay) ...)
-		; return cursors in original order, without sx
-		(map (# (task-slice) (most %0))
-			(cat (get :cursors this) (get :tcursors this))))
-
 ;;;;;;;;;;;;;;;;;;;;;
 ; basic text mutation
 ; undoable !
@@ -304,7 +318,7 @@
 		(bind '(cx cy ax ay &ignore) (. this :clip_cursor cx cy ax ay))
 		(when (or (/= cx ax) (/= cy ay))
 			; sort so (cx cy) <= (ax ay)
-			(bind '(cx cy ax ay) (csr-sort-csr (list cx cy ax ay)))
+			(bind '(cx cy ax ay) (csr-sort (list cx cy ax ay)))
 			(defq dcy (- ay cy) dcx (- ax cx))
 			(mutate-buffer
 				(. this :push_undo (list :insert cx cy (. this :icopy cx cy ax ay)))
@@ -406,7 +420,7 @@
 		(defq text (list))
 		(when (or (/= cx ax) (/= cy ay))
 			; sort so (cx cy) <= (ax ay)
-			(bind '(cx cy ax ay) (csr-sort-csr (list cx cy ax ay)))
+			(bind '(cx cy ax ay) (csr-sort (list cx cy ax ay)))
 			(cond
 				((= cy ay)
 					(push text (slice (elem-get buffer_lines cy) cx ax)))
@@ -436,7 +450,7 @@
 										cy cx cy cx)
 									(list 0 0 0 0 0))))
 						(:t ; collapse selection to start
-							(bind '(cx cy &ignore) (csr-sort-csr (list cx cy ax ay)))
+							(bind '(cx cy &ignore) (csr-sort (list cx cy ax ay)))
 							(list cx cy cx cy cx))))
 				(get :cursors this)))))
 		this)
@@ -457,7 +471,7 @@
 									(list 0 (inc cy) 0 (inc cy) 0)
 									(list ax cy ax cy ax))))
 						(:t ; collapse selection to end
-							(bind '(ax ax ax ay) (csr-sort-csr (list cx cy ax ay)))
+							(bind '(ax ax ax ay) (csr-sort (list cx cy ax ay)))
 							(list ax ay ax ay ax))))
 				(get :cursors this)))))
 		this)
@@ -468,7 +482,7 @@
 		(lower (:cursors (. this :merge_cursors
 			(map (lambda ((cx cy ax ay sx)) (task-slice)
 					; move up to previous line, using sticky x
-					(bind '(cx cy ax ay) (csr-sort-csr (list cx cy ax ay)))
+					(bind '(cx cy ax ay) (csr-sort (list cx cy ax ay)))
 					(if (or (not sx) (or (/= cx ax) (/= cy ay))) (setq sx cx))
 					(if (> cy 0)
 						(list (setq cx (min sx (dec (length (elem-get buffer_lines (setq cy (dec cy)))))))
@@ -484,7 +498,7 @@
 		(lower (:cursors (. this :merge_cursors
 			(map (lambda ((cx cy ax ay sx)) (task-slice)
 					; move down to next line, using sticky x
-					(bind '(cx cy ax ay) (csr-sort-csr (list cx cy ax ay)))
+					(bind '(cx cy ax ay) (csr-sort (list cx cy ax ay)))
 					(if (or (not sx) (or (/= cx ax) (/= cy ay))) (setq sx ax))
 					(if (< ay h)
 						(list (setq ax (min sx (dec (length (elem-get buffer_lines (setq ay (inc ay)))))))
@@ -498,7 +512,7 @@
 		(lower (:cursors (. this :merge_cursors
 			(map (lambda ((cx cy ax ay &ignore)) (task-slice)
 					; move to start of current line
-					(bind '(cx cy &ignore) (csr-sort-csr (list cx cy ax ay)))
+					(bind '(cx cy &ignore) (csr-sort (list cx cy ax ay)))
 					(list 0 cy 0 cy 0))
 				(get :cursors this)))))
 		this)
@@ -509,7 +523,7 @@
 		(lower (:cursors (. this :merge_cursors
 			(map (lambda ((cx cy ax ay &ignore)) (task-slice)
 					; move to end of current line
-					(bind '(cx cy ax ay) (csr-sort-csr (list cx cy ax ay)))
+					(bind '(cx cy ax ay) (csr-sort (list cx cy ax ay)))
 					(setq ax (dec (length (elem-get buffer_lines ay))))
 					(list ax ay ax ay ax))
 				(get :cursors this)))))
@@ -673,7 +687,7 @@
 		(undoable
 			(reach (lambda (csr) (task-slice)
 					; insert at min position (sorted start)
-					(bind '(cx cy &ignore) (csr-sort-csr csr))
+					(bind '(cx cy &ignore) (csr-sort csr))
 					(. this :iinsert cx cy text))
 				(. this :merge_cursors (get :cursors this)))
 			; delete any selections
@@ -707,34 +721,17 @@
 				((= (length parts) (length cursors))
 					;matching number of parts !
 					(reach (lambda (csr text) (task-slice)
-						(bind '(cx cy &ignore) (csr-sort-csr csr))
+						(bind '(cx cy &ignore) (csr-sort csr))
 						(. this :iinsert cx cy text)) cursors parts)
 					(reach (lambda ((cx cy ax ay &ignore)) (task-slice)
 						(. this :idelete cx cy ax ay)) (get :cursors this)))
 				(:t ;none matching parts !
 					(defq parts (apply (const cat) (push parts "")))
 					(reach (lambda (csr) (task-slice)
-						(bind '(cx cy &ignore) (csr-sort-csr csr))
+						(bind '(cx cy &ignore) (csr-sort csr))
 						(. this :iinsert cx cy parts)) cursors)
 					(reach (lambda ((cx cy ax ay &ignore)) (task-slice)
 						(. this :idelete cx cy ax ay)) (get :cursors this))))))
-
-;;;;;;;;;;;;;
-; buffer info
-;;;;;;;;;;;;;
-
-	(defmethod :get_cursor ()
-		; (. buffer :get_cursor) -> (cx cy ax ay)
-		; return last cursor position without sticky x
-		(most (last (get :cursors this))))
-
-	(defmethod :get_size ()
-		; (. buffer :get_size) -> (width height)
-		(list (get :max_width this) (dec (length (get :buffer_lines this)))))
-
-	(defmethod :get_text_line (y)
-		; (. buffer :get_text_line y) -> line
-		(elem-get (get :buffer_lines this) y))
 
 ;;;;;;;;;;;;;;;;;;;;
 ; file load and save
@@ -969,5 +966,5 @@
 
 ;module
 (export-classes '(Buffer))
-(export-symbols '(csr-sort-csr csr-floor))
+(export-symbols '(csr-sort csr-floor))
 (env-pop)

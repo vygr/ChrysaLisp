@@ -165,7 +165,7 @@ cached circle generation, quantised to 1/4 pixel
 floor cursor to line boundaries, avoiding object churn if already floored
 ```
 
-### csr-sort-csr
+### csr-sort
 
 ```code
 sort cursor so (cx cy) <= (ax ay)
