@@ -510,7 +510,7 @@
 		(bind '(x y) (. this :char_pos event))
 		(if (= 1 (defq mouse_state (getf event +ev_msg_mouse_buttons)))
 			(. buffer :set_cursor x y x y))
-		(. buffer :set_tcursors `((,x ,y ,x ,y 0)))
+		(. buffer :set_tcursors (list (. buffer :clip_cursor x y x y 0)))
 		(lower :mouse_state)
 		this)
 
@@ -519,7 +519,7 @@
 		(raise :buffer :mouse_state)
 		(bind '(x y) (. this :char_pos event))
 		(bind '((cx cy ax ay sx)) (. buffer :get_tcursors))
-		(. buffer :set_tcursors `((,x ,y ,ax ,ay 0)))
+		(. buffer :set_tcursors (list (. buffer :clip_cursor x y ax ay)))
 		(if (= 1 mouse_state)
 			(. buffer :set_cursor x y ax ay))
 		this)
