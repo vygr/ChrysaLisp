@@ -103,6 +103,41 @@
 		; already floored
 		(csr)))
 
+(defun csr-map-delete (px py cx cy ax ay)
+	; (csr-map-delete px py cx cy ax ay) -> (nx ny)
+	; map a point (px py) against a deletion from (cx cy) to (ax ay)
+	(defq dcx (- ax cx) dcy (- ay cy))
+	(list
+		; adjust x
+		(cond
+			((< py cy) px)
+			((> py ay) px)
+			((and (= py cy) (< px cx)) px)
+			((= py cy ay) (if (>= px ax) (- px dcx) cx))
+			((= py ay) (if (>= px ax) (+ cx (- px ax)) cx))
+			(cx))
+		; adjust y
+		(cond
+			((<= py cy) py)
+			((> py ay) (- py dcy))
+			(cy))))
+
+(defun csr-map-insert (px py icx icy ecx ecy nlines ax ay)
+	; (csr-map-insert px py icx icy ecx ecy nlines ax ay) -> (nx ny)
+	; map a point (px py) against an insertion at (icx icy) ending at (ecx ecy)
+	(cond
+		((< py icy) (list px py))
+		((> py icy) (list px (+ py nlines)))
+		((< px icx) (list px py))
+		((= px icx)
+			(if (or (> py ay) (and (= py ay) (> px ax)))
+				; end of selection stays put
+				(list px py)
+				; point cursor or start of selection moves
+				(list ecx ecy)))
+		((= nlines 0) (list (+ px (- ecx icx)) py))
+		((list (+ ecx (- px icx)) (+ py nlines)))))
+
 ;;;;;;;;;;;
 ; meta data
 ;;;;;;;;;;;
@@ -325,7 +360,6 @@
 		(when (or (/= cx ax) (/= cy ay))
 			; sort so (cx cy) <= (ax ay)
 			(bind '(cx cy ax ay) (csr-sort (list cx cy ax ay)))
-			(defq dcy (- ay cy) dcx (- ax cx))
 			(mutate-buffer
 				(. this :push_undo (list :insert cx cy (. this :icopy cx cy ax ay)))
 				(cond
@@ -338,29 +372,9 @@
 			; update cursor positions after delete
 			(lower (:cursors (. this :merge_cursors
 				(map (lambda ((pcx pcy pax pay psx)) (task-slice)
-						; adjust cursor position for deleted text
-						(list
-							; adjust pcx
-							(cond
-								((< pcy cy) pcx)
-								((> pcy ay) pcx)
-								((and (= pcy cy) (< pcx cx)) pcx)
-								((= pcy cy ay) (cond ((<= pcx cx) pcx) ((>= pcx ax) (- pcx dcx)) (cx)))
-								((= pcy ay) (cond ((>= pcx ax) (+ cx (- pcx ax))) (cx)))
-								(cx))
-							; adjust pcy
-							(cond ((<= pcy cy) pcy) ((> pcy ay) (- pcy dcy)) (cy))
-							; adjust pax
-							(cond
-								((< pay cy) pax)
-								((> pay ay) pax)
-								((and (= pay cy) (< pax cx)) pax)
-								((= pay cy ay) (cond ((<= pax cx) pax) ((>= pax ax) (- pax dcx)) (cx)))
-								((= pay ay) (cond ((>= pax ax) (+ cx (- pax ax))) (cx)))
-								(cx))
-							; adjust pay
-							(cond ((<= pay cy) pay) ((> pay ay) (- pay dcy)) (cy))
-							psx))
+						(cat (csr-map-delete pcx pcy cx cy ax ay)
+							 (csr-map-delete pax pay cx cy ax ay)
+							 (list psx)))
 					cursors)))))
 		this)
 
@@ -371,17 +385,19 @@
 		(raise :buffer_lines :cursors)
 		(bind '(cx cy &ignore) (. this :clip_cursor cx cy cx cy))
 		(when (nql text "")
+			(defq icx cx icy cy
+				  d (length text) i 0 breaks (list))
+			; calculate line breaks
+			(while (/= i d) (task-slice)
+				(setq i (bskipn +char_class_lf text i))
+				(if (/= i d) (push breaks (setq i (inc i)))))
+			; calculate dimensions
+			(defq nlines (length breaks)
+				  ecx (if (= nlines 0) (+ icx d) (- d (last breaks)))
+				  ecy (+ icy nlines))
 			(mutate-buffer
-				(defq line (elem-get buffer_lines cy) i 0 d (length text)
-					breaks (list) icy cy icx cx)
-				(while (/= i d) (task-slice)
-					(setq i (bskipn +char_class_lf text i))
-					(if (/= i d) (push breaks (setq i (inc i)))))
-				(defq nlines (length breaks))
-				; calculate end position after insert
-				(defq ecx (if (= nlines 0) (+ icx d) (- d (last breaks)))
-					ecy (+ icy nlines))
 				(. this :push_undo (list :delete cx cy ecx ecy))
+				(defq line (elem-get buffer_lines cy))
 				(set-line cy (defq line (cat (slice line 0 cx) text (slice line cx -1))))
 				(when (nempty? breaks)
 					(defq cy (inc cy) ei -1)
@@ -390,56 +406,10 @@
 					(set-line (dec cy) (slice line 0 ei))))
 			; update cursor positions after insert
 			(lower (:cursors (. this :merge_cursors
-				(map (lambda ((pcx pcy pax pay psx)) (task-slice)
-						; adjust cursor position for inserted text
-						(list
-							; adjust pcx
-							(cond
-								((< pcy icy) pcx)
-								((> pcy icy) pcx)
-								((< pcx icx) pcx)
-								; At insertion point/line: check if this is the end of a selection
-								((and (= pcx icx)
-										(or (> pcy pay)
-											(and (= pcy pay) (> pcx pax))))
-									pcx)
-								((= nlines 0) (+ pcx d))
-								((+ ecx (- pcx icx))))
-							; adjust pcy
-							(cond
-								((< pcy icy) pcy)
-								((> pcy icy) (+ pcy nlines))
-								((< pcx icx) pcy)
-								; At insertion point/line: check if this is the end of a selection
-								((and (= pcx icx)
-										(or (> pcy pay)
-											(and (= pcy pay) (> pcx pax))))
-									pcy)
-								((+ pcy nlines)))
-							; adjust pax
-							(cond
-								((< pay icy) pax)
-								((> pay icy) pax)
-								((< pax icx) pax)
-								; At insertion point/line: check if this is the end of a selection
-								((and (= pax icx)
-										(or (> pay pcy)
-											(and (= pay pcy) (> pax pcx))))
-									pax)
-								((= nlines 0) (+ pax d))
-								((+ ecx (- pax icx))))
-							; adjust pay
-							(cond
-								((< pay icy) pay)
-								((> pay icy) (+ pay nlines))
-								((< pax icx) pay)
-								; At insertion point/line: check if this is the end of a selection
-								((and (= pax icx)
-										(or (> pay pcy)
-											(and (= pay pcy) (> pax pcx))))
-									pay)
-								((+ pay nlines)))
-							psx))
+				(map (lambda ((cx cy ax ay sx)) (task-slice)
+						(cat (csr-map-insert cx cy icx icy ecx ecy nlines ax ay)
+							 (csr-map-insert ax ay icx icy ecx ecy nlines cx cy)
+							 (list sx)))
 					cursors)))))
 		this)
 
