@@ -72,6 +72,8 @@
 	(ascii-code "0") action-right-bracket
 	(ascii-code "d") action-push
 	(ascii-code "D") action-pop
+	(ascii-code "g") action-set-cursors
+	(ascii-code "G") action-add-cursors
 	0x40000052 action-top
 	0x40000051 action-bottom)
 
