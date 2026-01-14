@@ -113,8 +113,7 @@
 			((< py cy) px)
 			((> py ay) px)
 			((and (= py cy) (< px cx)) px)
-			((= py cy ay) (if (>= px ax) (- px dcx) cx))
-			((= py ay) (if (>= px ax) (+ cx (- px ax)) cx))
+			((= py ay) (if (>= px ax) (- px dcx) cx))
 			(cx))
 		; adjust y
 		(cond
@@ -370,12 +369,20 @@
 						(while (<= cy (-- i)) (task-slice) (erase-line cy))
 						(set-line cy (cat d (slice (elem-get buffer_lines cy) ax -1))))))
 			; update cursor positions after delete
-			(lower (:cursors (. this :merge_cursors
-				(map (lambda ((pcx pcy pax pay psx)) (task-slice)
-						(cat (csr-map-delete pcx pcy cx cy ax ay)
-							 (csr-map-delete pax pay cx cy ax ay)
-							 (list psx)))
-					cursors)))))
+			(defq new_cursors (list))
+			(rsome (lambda (csr) (task-slice)
+					(bind '(pcx pcy pax pay psx) csr)
+					(defq nc (cat
+						(csr-map-delete pcx pcy cx cy ax ay)
+						(csr-map-delete pax pay cx cy ax ay)
+						(list psx)))
+					(cond
+						((eql csr nc))
+						((push new_cursors nc) :nil)))
+				cursors)
+			(if (nempty? new_cursors)
+				(lower (:cursors (. this :merge_cursors
+					(cat (slice cursors 0 (- -1 (length new_cursors))) new_cursors))))))
 		this)
 
 	(defmethod :iinsert (cx cy text)
@@ -405,12 +412,20 @@
 						(setq ei (+ cx %0))) breaks)
 					(set-line (dec cy) (slice line 0 ei))))
 			; update cursor positions after insert
-			(lower (:cursors (. this :merge_cursors
-				(map (lambda ((cx cy ax ay sx)) (task-slice)
-						(cat (csr-map-insert cx cy icx icy ecx ecy nlines ax ay)
-							 (csr-map-insert ax ay icx icy ecx ecy nlines cx cy)
-							 (list sx)))
-					cursors)))))
+			(defq new_cursors (list))
+			(rsome (lambda (csr) (task-slice)
+					(bind '(pcx pcy pax pay psx) csr)
+					(defq nc (cat
+						(csr-map-insert pcx pcy icx icy ecx ecy nlines pax pay)
+						(csr-map-insert pax pay icx icy ecx ecy nlines pcx pcy)
+						(list psx)))
+					(cond
+						((eql csr nc))
+						((push new_cursors nc) :nil)))
+				cursors)
+			(if (nempty? new_cursors)
+				(lower (:cursors (. this :merge_cursors
+					(cat (slice cursors 0 (- -1 (length new_cursors))) new_cursors))))))
 		this)
 
 ;;;;;;;;;;;;;;;;;
