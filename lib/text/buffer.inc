@@ -364,8 +364,7 @@
 				(cond
 					((= cy ay)
 						(set-line cy (erase (elem-get buffer_lines cy) cx ax)))
-					(:t (defq d (slice (elem-get buffer_lines cy) 0 cx))
-						(defq i ay)
+					(:t (defq d (slice (elem-get buffer_lines cy) 0 cx) i ay)
 						(while (<= cy (-- i)) (task-slice) (erase-line cy))
 						(set-line cy (cat d (slice (elem-get buffer_lines cy) ax -1))))))
 			; update cursor positions after delete
