@@ -970,11 +970,11 @@
 		(unless (eql pattern "")
 			(bind '(engine pattern meta) (query pattern wmode rmode))
 			(each (lambda (line index)
-				(if (> (length line) 0)
+				(if (> (length line) 1)
 					(unless index
 						(task-slice)
 						(elem-set buffer_found (!)
-							(. engine :search line pattern meta)))
+							(. engine :search (slice line 0 -2) pattern meta)))
 					(elem-set buffer_found (!) '())))
 				(get :buffer_lines this) buffer_found))
 		buffer_found)
