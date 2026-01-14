@@ -284,8 +284,14 @@
 				(bind '(cx cy ax ay) (csr-sort (last %0)))
 				(bind '(cx1 cy1 ax1 ay1) (csr-sort %1))
 				; check overlap: last cursor end >= next cursor start
+				; touching cursors are only merged if one of them is empty (point cursor)
 				(cond
-					((or (> ay cy1) (and (= ay cy1) (>= ax cx1)))
+					((or (> ay cy1)
+						(and (= ay cy1)
+							(or (> ax cx1)
+								(and (= ax cx1)
+									(or (and (= cx ax) (= cy ay))
+										(and (= cx1 ax1) (= cy1 ay1)))))))
 						; MERGE: extend last cursor to cover both
 						(bind '(ocx ocy oax oay &ignore) (last %0))
 						(bind '(ncx ncy nax nay &ignore) %1)
@@ -390,7 +396,13 @@
 								((< pcy icy) pcx)
 								((> pcy icy) (if (= nlines 0) pcx pcx))
 								((< pcx icx) pcx)
-								((= nlines 0) (+ pcx d))
+								((= nlines 0)
+									; Don't shift if this is the end of a selection
+									(if (and (= pcx icx)
+											(or (> pcy pay)
+												(and (= pcy pay) (> pcx pax))))
+										pcx
+										(+ pcx d)))
 								((+ ecx (- pcx icx))))
 							; adjust pcy
 							(cond ((< pcy icy) pcy) ((+ pcy nlines)))
@@ -399,7 +411,13 @@
 								((< pay icy) pax)
 								((> pay icy) (if (= nlines 0) pax pax))
 								((< pax icx) pax)
-								((= nlines 0) (+ pax d))
+								((= nlines 0)
+									; Don't shift if this is the end of a selection
+									(if (and (= pax icx)
+											(or (> pay pcy)
+												(and (= pay pcy) (> pax pcx))))
+										pax
+										(+ pax d)))
 								((+ ecx (- pax icx))))
 							; adjust pay
 							(cond ((< pay icy) pay) ((+ pay nlines)))
@@ -656,15 +674,13 @@
 		(raise :buffer_lines)
 		(undoable
 			(reach (lambda ((cx cy ax ay &ignore)) (task-slice)
-					(if (and (= cx ax) (= cy ay))
-						; no selection - delete next char
-						(progn
-							(defq line_len (dec (length (elem-get buffer_lines cy))))
-							(if (< cx line_len)
-								(. this :idelete cx cy (inc cx) cy)
-								(if (< cy (dec (length buffer_lines)))
-									(. this :idelete cx cy 0 (inc cy)))))
-						(. this :idelete cx cy ax ay)))
+					(when (and (= cx ax) (= cy ay))
+						; no selection - move end point forward
+						(defq line_len (dec (length (elem-get buffer_lines cy))))
+						(cond
+							((< cx line_len) (setq ax (inc cx)))
+							((< cy (dec (length buffer_lines))) (setq ax 0 ay (inc cy)))))
+					(. this :idelete cx cy ax ay))
 				(. this :merge_cursors (get :cursors this)))))
 
 	(defmethod :backspace ()
@@ -672,14 +688,12 @@
 		(raise :buffer_lines)
 		(undoable
 			(reach (lambda ((cx cy ax ay &ignore)) (task-slice)
-					(if (and (= cx ax) (= cy ay))
-						; no selection - delete prev char
-						(if (> cx 0)
-							(. this :idelete (dec cx) cy cx cy)
-							(if (> cy 0)
-								(defq ny (dec cy) nx (dec (length (elem-get buffer_lines ny))))
-								(. this :idelete nx ny 0 cy)))
-						(. this :idelete cx cy ax ay)))
+					(when (and (= cx ax) (= cy ay))
+						; no selection - move start point back
+						(cond
+							((> cx 0) (setq cx (dec cx)))
+							((> cy 0) (setq cy (dec cy) cx (dec (length (elem-get buffer_lines cy)))))))
+					(. this :idelete cx cy ax ay))
 				(. this :merge_cursors (get :cursors this)))))
 
 	(defmethod :insert (text)
