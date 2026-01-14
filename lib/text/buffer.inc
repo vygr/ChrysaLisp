@@ -344,6 +344,7 @@
 							(cond
 								((< pcy cy) pcx)
 								((> pcy ay) pcx)
+								((and (= pcy cy) (< pcx cx)) pcx)
 								((= pcy cy ay) (cond ((<= pcx cx) pcx) ((>= pcx ax) (- pcx dcx)) (cx)))
 								((= pcy ay) (cond ((>= pcx ax) (+ cx (- pcx ax))) (cx)))
 								(cx))
@@ -353,6 +354,7 @@
 							(cond
 								((< pay cy) pax)
 								((> pay ay) pax)
+								((and (= pay cy) (< pax cx)) pax)
 								((= pay cy ay) (cond ((<= pax cx) pax) ((>= pax ax) (- pax dcx)) (cx)))
 								((= pay ay) (cond ((>= pax ax) (+ cx (- pax ax))) (cx)))
 								(cx))
@@ -394,33 +396,49 @@
 							; adjust pcx
 							(cond
 								((< pcy icy) pcx)
-								((> pcy icy) (if (= nlines 0) pcx pcx))
+								((> pcy icy) pcx)
 								((< pcx icx) pcx)
-								((= nlines 0)
-									; Don't shift if this is the end of a selection
-									(if (and (= pcx icx)
-											(or (> pcy pay)
-												(and (= pcy pay) (> pcx pax))))
-										pcx
-										(+ pcx d)))
+								; At insertion point/line: check if this is the end of a selection
+								((and (= pcx icx)
+										(or (> pcy pay)
+											(and (= pcy pay) (> pcx pax))))
+									pcx)
+								((= nlines 0) (+ pcx d))
 								((+ ecx (- pcx icx))))
 							; adjust pcy
-							(cond ((< pcy icy) pcy) ((+ pcy nlines)))
+							(cond
+								((< pcy icy) pcy)
+								((> pcy icy) (+ pcy nlines))
+								((< pcx icx) pcy)
+								; At insertion point/line: check if this is the end of a selection
+								((and (= pcx icx)
+										(or (> pcy pay)
+											(and (= pcy pay) (> pcx pax))))
+									pcy)
+								((+ pcy nlines)))
 							; adjust pax
 							(cond
 								((< pay icy) pax)
-								((> pay icy) (if (= nlines 0) pax pax))
+								((> pay icy) pax)
 								((< pax icx) pax)
-								((= nlines 0)
-									; Don't shift if this is the end of a selection
-									(if (and (= pax icx)
-											(or (> pay pcy)
-												(and (= pay pcy) (> pax pcx))))
-										pax
-										(+ pax d)))
+								; At insertion point/line: check if this is the end of a selection
+								((and (= pax icx)
+										(or (> pay pcy)
+											(and (= pay pcy) (> pax pcx))))
+									pax)
+								((= nlines 0) (+ pax d))
 								((+ ecx (- pax icx))))
 							; adjust pay
-							(cond ((< pay icy) pay) ((+ pay nlines)))
+							(cond
+								((< pay icy) pay)
+								((> pay icy) (+ pay nlines))
+								((< pax icx) pay)
+								; At insertion point/line: check if this is the end of a selection
+								((and (= pax icx)
+										(or (> pay pcy)
+											(and (= pay pcy) (> pax pcx))))
+									pay)
+								((+ pay nlines)))
 							psx))
 					cursors)))))
 		this)
