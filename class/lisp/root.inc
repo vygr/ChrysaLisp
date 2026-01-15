@@ -975,13 +975,18 @@
 ; Utilities
 ;;;;;;;;;;;
 
+(defq *time_it* "")
 (defmacro time-it (heading &rest body)
 	; (time-it heading body)
 	; print the time for the body
-	(defq then (gensym) retval (gensym))
+	(defq then (gensym) retval (gensym) tabs "  ")
 	`(progn
+		(prin *time_it* ,heading)
+		(print)
+		(setq *time_it* (cat *time_it* ,tabs))
 		(defq ,then (pii-time) ,retval (progn ~body))
-		(prin ,heading " " (time-in-seconds (- (pii-time) ,then)))
+		(prin (setq *time_it* (slice *time_it* 0 (- -1 ,(length tabs))))
+			,heading " " (time-in-seconds (- (pii-time) ,then)))
 		(print)
 		,retval))
 
