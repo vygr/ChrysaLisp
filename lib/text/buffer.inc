@@ -100,11 +100,18 @@
 		(list ax ay cx cy)))
 
 (defun csr-sort-top (csr)
-	; sort cursor so (cx cy) <= (ax ay)
+	; sort cursor so (cx cy) <= (ax ay) return (cx cy)
 	(bind '(cx cy ax ay &ignore) csr)
 	(if (or (< cy ay) (and (= cy ay) (<= cx ax)))
 		(list cx cy)
 		(list ax ay)))
+
+(defun csr-sort-bot (csr)
+	; sort cursor so (cx cy) <= (ax ay) return (ax ay)
+	(bind '(cx cy ax ay &ignore) csr)
+	(if (or (< cy ay) (and (= cy ay) (<= cx ax)))
+		(list ax ay)
+		(list cx cy)))
 
 (defun csr-floor (csr)
 	; floor cursor to line boundaries, avoiding object churn if already floored
@@ -282,7 +289,7 @@
 		(list
 			(cond
 				((< cy 0) (setq cy 0))
-				((> cy h) (setq cy h) (dec (length (elem-get buffer_lines h))))
+				((> cy h) (setq cy h) (dec (length (elem-get buffer_lines cy))))
 				((min (max cx 0) (dec (length (elem-get buffer_lines cy))))))
 			cy
 			(cond
@@ -549,7 +556,7 @@
 									(list 0 (inc cy) 0 (inc cy) 0)
 									(list ax cy ax cy ax))))
 						(:t ; collapse selection to end
-							(bind '(ax ax ax ay) (csr-sort (list cx cy ax ay)))
+							(bind '(ax ay) (csr-sort-bot (list cx cy ax ay)))
 							(list ax ay ax ay ax))))
 				(get :cursors this)))))
 		this))
@@ -603,7 +610,7 @@
 		(lower (:cursors (. this :merge_cursors
 			(map (lambda ((cx cy ax ay &ignore)) (task-slice)
 					; move to end of current line
-					(bind '(cx cy ax ay) (csr-sort (list cx cy ax ay)))
+					(bind '(ax ay) (csr-sort-bot (list cx cy ax ay)))
 					(setq ax (dec (length (elem-get buffer_lines ay))))
 					(list ax ay ax ay ax))
 				(get :cursors this)))))
