@@ -441,8 +441,8 @@
 						((push new_cursors nc) :nil)))
 				cursors)
 			(if (nempty? new_cursors)
-				(lower (:cursors (. this :merge_cursors
-					(cat (slice cursors 0 (- -1 (length new_cursors))) new_cursors))))))
+				(lower (:cursors (cat (slice cursors 0 (- -1 (length new_cursors)))
+					(. this :merge_cursors new_cursors))))))
 		this))
 
 	(defmethod :iinsert (cx cy text)
@@ -485,8 +485,8 @@
 						((push new_cursors nc) :nil)))
 				cursors)
 			(if (nempty? new_cursors)
-				(lower (:cursors (. this :merge_cursors
-					(cat (slice cursors 0 (- -1 (length new_cursors))) new_cursors))))))
+				(lower (:cursors (cat (slice cursors 0 (- -1 (length new_cursors)))
+					(. this :merge_cursors new_cursors))))))
 		this))
 
 ;;;;;;;;;;;;;;;;;
