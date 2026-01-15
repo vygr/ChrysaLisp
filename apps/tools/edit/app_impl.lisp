@@ -84,14 +84,15 @@
 
 (defun populate-buffer (file cx cy ax ay sx sy)
 	;create new file buffer ?
-	(defq mode (notany (# (ends-with %0 file)) +text_types)
+	(defq flags (+ +buffer_flag_undo (if (notany (# (ends-with %0 file)) +text_types)
+			+buffer_flag_syntax 0))
 		files (. *meta_map* :find :files) key (str file)
 		meta (. files :find key))
 	(unless meta
 		(. files :insert key (setq meta
 			(scatter (Emap) :cx cx :cy cy :ax ax :ay ay :sx sx :sy sy :buffer :nil))))
 	(unless (defq buffer (. meta :find :buffer))
-		(. meta :insert :buffer (setq buffer (Buffer mode *syntax*)))
+		(. meta :insert :buffer (setq buffer (Buffer flags *syntax*)))
 		(when file
 			(. buffer :file_load file)
 			(each populate-dictionary (. buffer :get_buffer_lines)))))

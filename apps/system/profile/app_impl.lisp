@@ -22,7 +22,6 @@
 	(when (> h ch)
 		(.-> buf (:set_cursor 0 0 0 (- h ch)) :delete)
 		(. buf :set_cursor 0 ch))
-	(. buf :clear_undo)
 	(if vdu (. buf :vdu_load vdu 0 0)))
 
 (defun set-slider-values ()
@@ -92,7 +91,7 @@
 					index (find key buf_keys))
 				(unless index
 					(push buf_keys key)
-					(push buf_list (list (Buffer :t syntax)))
+					(push buf_list (list (Buffer  +buffer_flag_syntax syntax)))
 					(reset (setq index (dec (length buf_list)))))
 				(defq buf_rec (elem-get buf_list index)
 					buf (elem-get buf_rec +profile_rec_buf))

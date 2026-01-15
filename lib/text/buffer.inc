@@ -7,6 +7,13 @@
 ;module
 (env-push)
 
+;;;;;;;;;;;;;;;
+; control flags
+;;;;;;;;;;;;;;;
+
+(bits +buffer_flag 0
+	(bit syntax undo))
+
 ;;;;;;;;;;;;;;
 ; line editing
 ;;;;;;;;;;;;;;
@@ -148,12 +155,12 @@
 	(raise :dirty_flags)
 	(when (bits? dirty_flags +dirty_flag_syntax)
 		(raise :buffer_lines :buffer_syntax :buffer_states
-			:mode :syntax_engine (state :text max_width 0))
+			:flags :syntax_engine (state :text max_width 0))
 		(each (lambda (line syntax states)
 			(setq max_width (max max_width (length line)))
 			(bind '(start_state end_state) (ifn states '(:nil :nil)))
 			(cond
-				((not mode))
+				((not (bits? flags +buffer_flag_syntax)))
 				((and (array? syntax) (eql state start_state))
 					(setq state end_state))
 				(:t (task-slice)
@@ -170,7 +177,7 @@
 (defun build-brackets (this)
 	(raise :dirty_flags)
 	(when (bits? dirty_flags +dirty_flag_bracket)
-		(when (get :mode this)
+		(when (bits? (get :flags this) +buffer_flag_syntax)
 			(build-syntax this)
 			(raise :buffer_syntax :buffer_brackets)
 			(defq ink_text (get :ink_text (get :syntax_engine this)))
@@ -192,14 +199,15 @@
 ; class
 ;;;;;;;
 
-(defclass Buffer (&optional mode syntax) :nil
-	; (Buffer [mode syntax]) -> buffer
+(defclass Buffer (&optional flags syntax) :nil
+	; (Buffer [flags syntax]) -> buffer
+	(setd flags 0 syntax (Syntax))
 	(def this :buffer_lines (list +char_class_lf) :buffer_syntax (list +char_class_lf)
 		:buffer_states (list :nil) :buffer_brackets (list :nil)
 		:buffer_found (list :nil) :dirty_flags -1
-		:syntax_engine (ifn syntax (Syntax)) :undo_stack (list) :redo_stack (list)
+		:syntax_engine syntax :undo_stack (list) :redo_stack (list)
 		:max_width 0 :tab_width 4 :wrap_width 80
-		:mode mode :next_mark -1 :modified :nil :last_key :nil
+		:flags flags :next_mark -1 :modified :nil :last_key :nil
 		:cursors (list '(0 0 0 0 :nil)) :tcursors '())
 
 ;;;;;;;;;;;;;;;
@@ -238,8 +246,7 @@
 				((< ay 0) (setq ay 0))
 				((> ay h) (setq ay h) (dec (length (elem-get buffer_lines h))))
 				((min (max ax 0) (dec (length (elem-get buffer_lines ay))))))
-			ay
-			sx))
+			ay sx))
 
 ;;;;;;;;;;;;;;;;;
 ; cursor creation
@@ -835,7 +842,8 @@
 	(defmethod :push_undo (&rest records)
 		; (. buffer :push_undo record ...) -> buffer
 		(raise :undo_stack)
-		(each (# (push undo_stack %0)) records)
+		(if (bits? (get :flags this) +buffer_flag_undo)
+			(each (# (push undo_stack %0)) records))
 		this)
 
 	(defmethod :clear_undo ()
@@ -884,7 +892,7 @@
 	(defmethod :left_bracket ()
 		; (. buffer :left_bracket) -> (x y) | (:nil :nil)
 		(cond
-			((get :mode this)
+			((bits? (get :flags this) +buffer_flag_syntax)
 				(bind '(x y &ignore) (. (build-brackets this) :get_cursor))
 				(raise :buffer_syntax :buffer_brackets :buffer_lines
 					(c 0 ink_text (get :ink_text (get :syntax_engine this))))
@@ -922,7 +930,7 @@
 	(defmethod :right_bracket ()
 		; (. buffer :right_bracket) -> (x y) | (:nil :nil)
 		(cond
-			((get :mode this)
+			((bits? (get :flags this) +buffer_flag_syntax)
 				(bind '(x y &ignore) (. (build-brackets this) :get_cursor))
 				(raise :buffer_syntax :buffer_brackets :buffer_lines
 					(c 0 h (length buffer_lines)
@@ -982,5 +990,5 @@
 
 ;module
 (export-classes '(Buffer))
-(export-symbols '(csr-sort csr-floor))
+(export-symbols '(csr-sort csr-floor +buffer_flag_syntax +buffer_flag_undo))
 (env-pop)

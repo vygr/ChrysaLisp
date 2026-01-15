@@ -31,6 +31,10 @@ the search matches.
 New Editor `action-add-cursors`, bound to `cntrl-G`, to add cursors for all of
 the search matches. You can keep changing the search and add more.
 
+Text `Buffer` class now take `flags` rather than `mode`, current flags are
+`+buffer_flag_syntax` and `+buffer_flag_undo` to turn on those features. Apps
+updated to use these flags.
+
 ------
 
 Fix Editor `load-depends` bug when on the scratchpad buffer !.

@@ -9,7 +9,6 @@
 		(.-> buffer (:set_cursor 0 0 0 (- h *env_terminal_lines*)) :delete)
 		(setq *cursor_y* (- *cursor_y* (- h *env_terminal_lines*)))
 		(. buffer :set_cursor *cursor_x* *cursor_y*))
-	(. buffer :clear_undo)
 	(refresh))
 
 (defun action-backspace ()

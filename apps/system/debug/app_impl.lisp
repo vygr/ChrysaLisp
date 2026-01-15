@@ -26,7 +26,6 @@
 	(when (> h ch)
 		(.-> buf (:set_cursor 0 0 0 (- h ch)) :delete)
 		(. buf :set_cursor 0 ch))
-	(. buf :clear_undo)
 	(if vdu (. buf :vdu_load vdu 0 0 :text)))
 
 (defun set-slider-values ()
@@ -112,7 +111,7 @@
 				(defq data (slice *msg* +debug_data -1) index (find key buf_keys))
 				(unless index
 					(push buf_keys key)
-					(push buf_list (list (Buffer :t syntax) :forward :nil))
+					(push buf_list (list (Buffer +buffer_flag_syntax syntax) :forward :nil))
 					(reset (setq index (dec (length buf_list)))))
 				(defq buf_rec (elem-get buf_list index)
 					buf (elem-get buf_rec +debug_rec_buf)

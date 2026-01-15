@@ -70,15 +70,15 @@
 
 (defun populate-buffer (file cx cy ax ay sx sy)
 	;create new file buffer
-	(defq files_map (. *meta_map* :find :files) key (str file)
-		file_meta :nil buffer :nil mode (notany (# (ends-with %0 file)) +text_types))
+	(defq files_map (. *meta_map* :find :files) key (str file) file_meta :nil buffer :nil
+		flags (if (notany (# (ends-with %0 file)) +text_types) +buffer_flag_syntax 0))
 	;clear all file buffers
 	(. files_map :each (lambda (k v) (. v :erase :buffer)))
 	;create new file meta data
 	(. files_map :update key (# (setq file_meta (ifn %0 (scatter (Fmap)
 		:cx cx :cy cy :ax ax :ay ay :sx sx :sy sy)))))
 	;create new buffer
-	(. file_meta :insert :buffer (setq buffer (Buffer mode *syntax*)))
+	(. file_meta :insert :buffer (setq buffer (Buffer flags *syntax*)))
 	(when file (. buffer :file_load file)))
 
 (defun populate-vdu (file)
