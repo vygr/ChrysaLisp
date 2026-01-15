@@ -16,7 +16,7 @@
 
 (def-struct sym str_size)
 
-(defcvar 'num_sym_buckets 307)
+(defcvar 'num_sym_buckets 499)
 
 ;;;;;;;;;;;;;;;;
 ; static symbols
