@@ -342,10 +342,8 @@
 		; return cursors sorted by position, without sx
 		(time-it ":get_selected"
 		(map (# (task-slice) (most %0))
-			(sort (cat (get :cursors this) (get :tcursors this))
-				(# (bind '(cx1 cy1) (csr-sort-top %0))
-					(bind '(cx2 cy2) (csr-sort-top %1))
-					(if (/= cy1 cy2) (- cy1 cy2) (- cx1 cx2)))))))
+			(sort-bucket this (cat (get :cursors this) (get :tcursors this))
+				(const csr-cmp-xy) (const csr-cmp-x)))))
 
 	(defmethod :get_selected_unsorted ()
 		; (. buffer :get_selected_unsorted) -> ((cx cy ax ay) ...)
