@@ -56,7 +56,9 @@
 (def-struct array seq_size
 	(plong begin)
 	(uint length capacity)
-	(long e0 e1 e2 e3))
+	;use all remaining cells for short array storage
+	(struct elems (some! (lambda (%0)
+		(if (< base %0) (- %0 base))) (list mem_heap_cell_sizes))))
 
 ;;;;;;;;;;;;;;;;;;;
 ; parameter helpers
@@ -98,9 +100,9 @@
 	;trashes
 	;:r1-:r2
 	(vp-xor-rr :r2 :r2)
-	(assign `(:r2 ,(>> (- array_size array_e0) (log2 +long_size))) '((:r0 array_length) :r2))
+	(assign `(:r2 ,(>> (- array_size array_elems) (log2 +long_size))) '((:r0 array_length) :r2))
 	(assign '(:r2) '((:r0 array_capacity)))
-	(vp-lea-i :r0 array_e0 :r2)
+	(vp-lea-i :r0 array_elems :r2)
 	(assign '(:r2) '((:r0 array_begin)))
 	(s-call :array :init '(:r0 :r1) '(:r0 :r1)))
 

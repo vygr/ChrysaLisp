@@ -35,6 +35,9 @@ Text `Buffer` class now take `flags` rather than `mode`, current flags are
 `+buffer_flag_syntax` and `+buffer_flag_undo` to turn on those features. Apps
 updated to use these flags.
 
+Auto generate the necessary code to transfer the local array elements to
+external storage in `:set_cap` method.
+
 ------
 
 Fix Editor `load-depends` bug when on the scratchpad buffer !.
