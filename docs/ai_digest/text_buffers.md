@@ -1,230 +1,210 @@
-# The Buffer Class (`lib/text/buffer.inc`)
+# The Text Buffer and Edit Architecture
 
-The `Buffer` class is the fundamental text document model within the ChrysaLisp
-GUI subsystem. It is responsible for storing text data, managing line states,
-handling syntax highlighting, managing the undo/redo history, and—most
-critically—executing complex **multi-cursor** editing logic.
+In ChrysaLisp, the relationship between text manipulation and the user interface
+is architected around a strict separation of concerns. The `Buffer` class
+(`lib/text/buffer.inc`) serves as the intelligent, headless engine for text
+operations, while the `Edit` class (`gui/edit/lisp.inc`) acts as the visual
+controller.
 
-While the `Edit` class (`gui/edit/lisp.inc`) provides the visual component (the
-View and Controller), the `Buffer` class acts as the Model. The `Edit` class
-relies heavily on the `Buffer` class to perform the actual "grunt work" of text
-manipulation, often delegating user inputs directly to the buffer via proxy
-methods.
+Crucially, **multi-cursor support is not a UI feature; it is a fundamental
+property of the Buffer class itself.** This means any application, whether a
+graphical text editor, a command-line refactoring tool, or a batch processing
+script, inherently supports simultaneous multi-location editing, selection, and
+navigation.
 
-## Architecture and Relationship with `Edit`
+## 1. The Buffer Class (`lib/text/buffer.inc`)
 
-In ChrysaLisp's text editing architecture, there is a strict separation of
-concerns:
+The `Buffer` is a headless object responsible for storing text, managing history
+(undo/redo), and, most importantly, manipulating cursors. It treats the cursor
+not as a singleton coordinate pair, but as a list of state tuples.
 
-1. **`Edit` (The Frontend):** Handles user input events (keyboard, mouse),
-   rendering (VDU), scrolling, and screen coordinate mapping.
+### 1.1 The Multi-Cursor Primitive
 
-2. **`Buffer` (The Backend):** Handles string manipulation, file I/O, cursor
-   logic, history, and syntax state.
-
-The `Edit` class contains a `:buffer` property holding an instance of this
-class. Many operations in `Edit` are simply pass-throughs. For example, in
-`gui/edit/lisp.inc`:
+In `Buffer`, the state of user interaction is stored in a list field named
+`:cursors`. A single cursor is defined by a list of 5 values:
 
 ```vdu
+(cx cy ax ay sx)
+```
+
+* **cx, cy**: The current position of the caret (Cursor X, Cursor Y).
+
+* **ax, ay**: The anchor position (Anchor X, Anchor Y). If `cx/cy` differs from
+  `ax/ay`, text is selected between them.
+
+* **sx**: Sticky X. Used when moving up or down lines to remember the original
+  horizontal column preference, even if passing through shorter lines.
+
+### 1.2 The Mutation Pipeline
+
+The `Buffer` class implements a sophisticated pipeline to ensure data
+consistency when multiple cursors operate simultaneously.
+
+1. **Operation Request:** A method like `:insert` or `:delete` is called on the
+   Buffer.
+
+2. **Cursor Sorting:** The buffer sorts cursors (usually bottom-to-top or
+   top-to-bottom depending on the operation) to prevent operations from
+   invalidating pending cursor positions.
+
+3. **Map and Merge:**
+
+    * The buffer iterates over the cursors.
+
+    * For every mutation (e.g., inserting text at cursor A), the buffer
+      calculates the offset and automatically adjusts the coordinates of all
+      other cursors (B, C, etc.) via helper functions like `csr-map-insert` and
+      `csr-map-delete`.
+
+    * Finally, `Buffer` calls `:merge_cursors`. If two cursors collide or
+      overlap due to movement or typing, they are mathematically merged into a
+      single cursor/selection.
+
+This logic is entirely encapsulated within `lib/text/buffer.inc`. The UI does
+not calculate where cursors go; the Buffer tells the UI where they are.
+
+### 1.3 Key Methods (The "Workhorse" API)
+
+The `Buffer` class provides a rich API that can be driven programmatically:
+
+* **Navigation:** `:left`, `:right`, `:up`, `:down`, `:home`, `:end`. These
+  update *all* active cursors simultaneously.
+
+* **Selection:** `:select_word`, `:select_line`, `:select_all`.
+
+* **Editing:** `:insert`, `:delete`, `:backspace`, `:tab`, `:indent`.
+
+* **Search:** `:find` (returns a list of match coordinates which can be
+  immediately converted into cursors).
+
+* **IO:** `:file_load`, `:file_save`, `:cut`, `:copy`, `:paste`.
+
+* **Undo/Redo:** `:undo`, `:redo`.
+
+## 2. The Edit Class (`gui/edit/lisp.inc`)
+
+The `Edit` class is a visual widget (inheriting from `View`) that wraps a
+`Buffer`. It does not contain text processing logic. Instead, it acts as a
+projection of the Buffer's state onto the screen and a relay for input events.
+
+### 2.1 Composition, Not Inheritance
+
+The `Edit` class contains a `Buffer` instance in its `:buffer` field. It
+delegates almost all logic to this instance.
+
+### 2.2 The Proxy Pattern
+
+ChrysaLisp uses the `defproxymethod` macro to wire UI actions directly to the
+Buffer. For example, in `gui/edit/lisp.inc`:
+
+```vdu
+(defproxymethod :left () :buffer)
 (defproxymethod :insert (text) :buffer)
-(defproxymethod :delete () :buffer)
-(defproxymethod :backspace () :buffer)
 ```
 
-When a user types a character in the `Edit` widget, it calls `.buffer :insert`.
-The `Buffer` determines *where* that text goes (based on potentially multiple
-cursors) and updates the internal state.
+When the user presses the Left Arrow key, the `Edit` widget receives the event,
+but simply calls `(. buffer :left)`. The Buffer calculates the new positions of
+all 50 active cursors, handles line wrapping and merging, and updates its state.
 
-## Internal State
+### 2.3 Visualization
 
-The `Buffer` maintains the state of the document using the following key
-properties:
+The `Edit` widget is responsible for:
 
-* **:buffer_lines:** A list of strings representing the rows of text.
+1. **Rendering Text:** Using the `:vdu_text` (Visual Display Unit) component.
 
-* **:cursors:** A list of cursor definitions. Each cursor is a list
-  `(current_index anchor_index preferred_x)`.
+2. **Rendering Overlays:** It asks the Buffer for cursor positions (`. buffer
+   :get_cursors`) and selection ranges (`. buffer :get_selected`). It then draws
+   these as `Mask` layers (`:mask_ink`, `:mask_selected`, `:mask_found`) over
+   the text.
 
-* **:undo_stack / :redo_stack:** Lists containing snapshots of the buffer state
-  for history navigation.
+3. **Input Translation:** Converting mouse clicks (pixel coordinates) into text
+   coordinates (`:char_pos`) to tell the Buffer where to place cursors.
 
-* **:syntax_engine:** An instance of the `Syntax` class used to colorize text.
+## 3. Headless Usage: The Buffer as an Intelligent Workhorse
 
-* **:buffer_syntax:** Cached color data for the lines.
+Because `Buffer` depends only on `sys/str`, `sys/list`, and `sys/files` (not
+`gui/*`), it can be instantiated in command-line tools or background services to
+perform complex text processing tasks using the same logic as the interactive
+editor.
 
-* **:buffer_index:** A cached index allowing fast conversion between *(x, y)*
-  coordinates and linear integer indices.
+### Scenario: Batch Refactoring via Command Line
 
-## Multi-Cursor Editing Engine
+Imagine a command-line tool that needs to find every occurrence of "foo" in a
+file, replace it with "bar", and wrap the line in parenthesis.
 
-The most complex feature of the `Buffer` class is its native support for
-multi-cursor editing. Operations are rarely performed on a single point;
-instead, they are broadcast to all active cursors.
-
-### Cursor Definition
-
-A cursor is defined as a tuple of indices relative to the linear start of the
-file, not *(x, y)* coordinates.
-
-* **ci (Current Index):** The location of the caret.
-
-* **ai (Anchor Index):** The location where selection began. If `ci == ai`,
-  there is no selection.
-
-* **sx (Sticky X):** The preferred visual X coordinate (used when moving up/down
-  through lines of varying lengths).
-
-### Cursor Merging
-
-The `Buffer` class ensures that cursors never overlap or cross in invalid ways.
-The method `:merge_cursors` is called after navigation or selection changes. It
-sorts cursors by position and merges overlapping selection ranges into single,
-continuous selections. This prevents logic errors where two cursors might try to
-delete the same character twice.
-
-### Batch Execution
-
-Mutation methods (like `:insert` or `:delete`) typically use `reach`
-(reverse-each) iteration over the cursor list. By processing cursors from the
-bottom of the document to the top, changes made by one cursor do not invalidate
-the indices of cursors appearing earlier in the document.
-
-## Coordinate Systems
-
-The `Buffer` abstracts text as a linear stream of characters, but the UI renders
-them as a 2D grid. The class provides methods to translate between these
-domains:
-
-* **:index_to_cursor (idx):** Converts a linear character index into an `(x, y)`
-  tuple. It uses binary search on the `:buffer_index` cache for performance.
-
-* **:cursor_to_index (x, y):** Converts 2D coordinates into a linear index.
-
-## Method Reference
-
-### Lifecycle and I/O
-
-* **`:init (mode syntax)`** Initializes the buffer. `mode` determines if syntax
-  highlighting is active. `syntax` is an optional specific syntax engine
-  instance.
-
-* **`:file_load (filepath)`** Loads a file from disk, normalizes line endings,
-  expands tabs based on `:tab_width`, and initializes the undo stack.
-
-* **`:file_save (filepath)`** Writes the current `:buffer_lines` to disk.
-
-* **`:file_load_hex (filepath width)`** Loads a binary file and formats it into
-  a hex dump layout for editing.
-
-### Cursor Management
-
-* **`:get_cursors ()`** Returns the list of active cursors.
-
-* **`:set_cursors (list)`** Sets the active cursors.
-
-* **`:add_cursor (cx cy [ax ay])`** Adds a new cursor at the specific *(x, y)*
-  coordinates. Optional anchor coordinates define a selection.
-
-* **`:get_cursor ()`** Returns the primary (last active) cursor as `(cx cy ax
-  ay)`.
-
-### Navigation
-
-These methods update the positions of *all* active cursors simultaneously.
-
-* **`:left ()` / `:right ()`** Moves cursors horizontally. If a selection
-  exists, it collapses the cursor to the start/end of the selection.
-
-* **`:up ()` / `:down ()`** Moves cursors vertically, respecting the "Sticky X"
-  (`sx`) position to maintain column alignment across lines of different
-  lengths.
-
-* **`:home ()` / `:end ()`** Moves cursors to the start or end of the current
-  line.
-
-* **`:top ()` / `:bottom ()`** Moves all cursors to the absolute start or end of
-  the document.
-
-### Selection
-
-These methods behave like navigation but update the Current Index (`ci`) while
-leaving the Anchor Index (`ai`) in place, creating or modifying text selections.
-
-* **`:left_select ()` / `:right_select ()`**
-
-* **`:up_select ()` / `:down_select ()`**
-
-* **`:home_select ()` / `:end_select ()`**
-
-* **`:select_all ()`** Selects the entire document.
-
-### Content Mutation
-
-These methods are wrapped in the `undoable` macro (provided in `edit.inc`
-context usually) to ensure history is saved before modification.
-
-* **`:insert (text)`** Inserts `text` at every cursor position. If cursors have
-  active selections, the selected text is replaced.
-
-* **`:delete ()`** Deletes the character after the cursor (Delete key behavior),
-  or deletes the current selection.
-
-* **`:backspace ()`** Deletes the character before the cursor, or the current
-  selection.
-
-* **`:cut ()`** Removes selected text from all cursors and returns it (typically
-  joined by newlines for the clipboard).
-
-* **`:paste (text)`** Intelligent paste. If the number of lines in the clipboard
-  matches the number of cursors, it performs a "vertical paste" (one line per
-  cursor). Otherwise, it inserts the full text at every cursor.
-
-* **`:tab ()`** Inserts spaces to align to the next tab stop.
-
-* **`:comment ()`** Toggles comment prefixes on lines covered by cursors.
-
-### Undo/Redo
-
-* **`:push_undo (record)`** Pushes a state snapshot onto the stack.
-
-* **`:undo ()`** Reverts the buffer to the previous state.
-
-* **`:redo ()`** Re-applies a reverted state.
-
-### Metadata & Highlighting
-
-* **`:build_syntax (this [end_state])`** Runs the syntax engine over dirty lines
-  to update `:buffer_syntax` (colors) and `:buffer_states` (tokenizer state).
-
-* **`:build_brackets (this)`** Scans for matching parentheses/brackets relative
-  to cursor positions to highlight matching pairs.
-
-* **`:build_index (this)`** Rebuilds the linear index cache map used for
-  coordinate conversion. This is flagged dirty whenever text changes.
-
-## Usage Example (Conceptual)
-
-While `Buffer` is rarely instantiated manually outside of an `Edit` widget, here
-is how the relationship works conceptually:
+In a traditional language, this requires regex string splicing loops. In
+ChrysaLisp, we simply drive the `Buffer` class:
 
 ```vdu
-; Within the Edit class initialization
-(def this :buffer (Buffer))
+(import "lib/text/buffer.inc")
 
-; User presses "Right Arrow"
-; Edit class catches event:
-(defmethod :key_down (event)
-    (if (eql key 0x4000004f) ; Right arrow scancode
-        (. buffer :right))) ; Proxy to buffer
+(defun batch-process (filename)
+    ; 1. Instantiate a headless buffer
+    (defq buf (Buffer))
 
-; Buffer implementation of :right
-(defmethod :right ()
-    ; Logic to update every cursor in :cursors list
-    ; adjusting for line length wrapping
-    (lower :cursors (. this :merge_cursors
-        (map (lambda ((ci ai ignore))
-             (list (inc ci) (inc ci) :nil))
-             (get :cursors this))))
-    this)
+    ; 2. Load content
+    (. buf :file_load filename)
+
+    ; 3. Find all occurrences of "foo". 
+    ; :find returns a list of coordinate tuples, which :set_cursors accepts directly.
+    (defq matches (. buf :find "foo" :nil :nil))
+    
+    (if (nempty? matches)
+        (progn
+            ; 4. Set a cursor at every "foo" simultaneously
+            (. buf :set_cursors matches)
+
+            ; 5. Delete "foo" (delete selection at all cursors)
+            (. buf :delete)
+
+            ; 6. Type "bar" at all locations
+            (. buf :insert "bar")
+
+            ; 7. Select the lines we are currently on
+            (. buf :select_line)
+
+            ; 8. Move to start of lines and type "("
+            (. buf :left) 
+            (. buf :insert "(")
+
+            ; 9. Move to end of lines and type ")"
+            (. buf :end)
+            (. buf :insert ")")
+
+            ; 10. Save the result
+            (. buf :file_save filename)
+            (print "Processed " (length matches) " instances.")))
+    )
 ```
+
+### Advantages of this Approach
+
+1. **Consistency:** The batch script behaves exactly like the text editor. There
+   are no discrepancies between how regex works in the GUI vs the CLI because
+   they use the exact same engine.
+
+2. **Safety:** The `Buffer` handles overlapping edits automatically. If two
+   "foo"s are on the same line or adjacent, the multi-cursor merge logic ensures
+   the operations don't corrupt the buffer structure.
+
+3. **Undo/Redo:** Even in a script, you can perform operations and then call `(.
+   buf :undo)` if a heuristic check fails before saving.
+
+4. **Power:** Operations that are hard to express as regex (like "move down 3
+   lines and indent") are trivial when driving the cursor API.
+
+## Summary
+
+The relationship between `Edit` and `Buffer` is a classic Model-View separation,
+but optimized for the unique capabilities of the ChrysaLisp virtual machine.
+
+* **`lib/text/buffer.inc` (The Brains):** A powerful text engine with native,
+  deep support for multiple cursors, selection management, and history. It is
+  UI-agnostic.
+
+* **`gui/edit/lisp.inc` (The Face):** A thin view layer that proxies input to
+  the buffer and renders the resulting state.
+
+This architecture ensures that "Multi-Cursor" is not just a feature of the text
+editor application, but a pervasive capability of the operating system's text
+processing libraries, available to any script or tool.
