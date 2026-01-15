@@ -18,7 +18,7 @@
 		debug_enable_all debug_disable_all debug_remove_all))
 
 (defq +vdu_min_width 40 +vdu_min_height 20 +vdu_max_width 120 +vdu_max_height 80
-	+vdu_line_width 5 +status_min_size 32)
+	+vdu_line_width 5 +status_min_size 48)
 
 (ui-window *window* (:color +argb_grey1)
 	(ui-title-bar *title* "Edit" (0xea19 0xea1b 0xea1a) +event_close)
