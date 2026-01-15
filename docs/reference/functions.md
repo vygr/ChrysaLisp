@@ -165,6 +165,22 @@ cached circle generation, quantised to 1/4 pixel
 floor cursor to line boundaries, avoiding object churn if already floored
 ```
 
+### csr-map-delete
+
+```code
+(csr-map-delete px py cx cy ax ay) -> (nx ny)
+
+map a point (px py) against a deletion from (cx cy) to (ax ay)
+```
+
+### csr-map-insert
+
+```code
+(csr-map-insert px py icx icy ecx ecy nlines ax ay) -> (nx ny)
+
+map a point (px py) against an insertion at (icx icy) ending at (ecx ecy)
+```
+
 ### csr-sort
 
 ```code

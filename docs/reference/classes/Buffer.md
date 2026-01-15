@@ -1,7 +1,7 @@
 # Buffer
 
 ```code
-(Buffer [mode syntax]) -> buffer
+(Buffer [flags syntax]) -> buffer
 ```
 
 ### :add_cursor
