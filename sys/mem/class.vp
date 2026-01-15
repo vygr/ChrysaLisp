@@ -32,13 +32,12 @@
 
 	;free memory heaps
 	(fn-bind 'sys/statics/statics :r0)
-	(vp-cpy-cr mem_cell_min_size :r7)
 	(vp-add-cr statics_sys_mem_heaps :r0)
+	(vp-lea-i :r0 (* (length mem_heap_cell_sizes) hp_heap_size) :r7)
 	(loop-start)
 		(call :sys_heap :deinit '(:r0) '(:r0))
 		(vp-add-cr hp_heap_size :r0)
-		(vp-add-rr :r7 :r7)
-	(loop-until (list :r7 '> mem_cell_max_size))
+	(loop-until '(:r0 = :r7))
 	(vp-ret)
 
 (def-func-end)
@@ -52,11 +51,11 @@
 	(fn-bind 'sys/statics/statics :r0)
 	(vp-cpy-cr mem_cell_min_size :r9)
 	(vp-add-cr statics_sys_mem_heaps :r0)
+	(vp-lea-i :r0 (* (length mem_heap_cell_sizes) hp_heap_size) :r9)
 	(loop-start)
 		(call :sys_heap :collect '(:r0) '(:r0))
 		(vp-add-cr hp_heap_size :r0)
-		(vp-add-rr :r9 :r9)
-	(loop-until (list :r9 '> mem_cell_max_size))
+	(loop-until '(:r0 = :r9))
 	(vp-ret)
 
 (def-func-end)

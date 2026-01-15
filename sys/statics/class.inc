@@ -34,11 +34,7 @@
 	;sys_mem statics
 	(struct sys_mem_obj_list lh_list_size)
 	(long sys_mem_total)
-	(struct sys_mem_heaps
-		(progn
-			(defq s mem_cell_min_size h 0)
-			(while (<= s mem_cell_max_size)
-				(setq h (+ h hp_heap_size) s (+ s s))) h))
+	(struct sys_mem_heaps (* (length mem_heap_cell_sizes) hp_heap_size))
 	(align)
 
 	;sys_load statics
