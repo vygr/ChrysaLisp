@@ -9,8 +9,6 @@
 New `Mask` widget for drawing the opaque region of a view. Edit class now uses
 these to render the selection layers.
 
-Buffer class now supports `:index_to_cursor` and `:cursor_to_index` methods.
-
 Fixed bug in right button mouse handler.
 
 Changed `defgetmethod` and `defsetmethod` to use `:` key symbols.
