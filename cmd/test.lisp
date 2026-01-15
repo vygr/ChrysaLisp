@@ -44,7 +44,7 @@
 (defun f3 () (macrobind (cat '(bits?3 1 2 3 4 5))))
 (defun f4 () (macrobind (cat '(bits?4 1 2 3 4 5))))
 
-(defmacro time-it (name cnt &rest _)
+(redefmacro time-it (name cnt &rest _)
 	`(progn
 		(print ,name)
 		(stream-flush (io-stream 'stdout))

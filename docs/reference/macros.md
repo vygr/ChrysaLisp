@@ -555,6 +555,14 @@ static quasi-quoted, prebind only !
 (structure name base [(byte field ...)] ...)
 ```
 
+### time-it
+
+```code
+(time-it heading body)
+
+print the time for the body
+```
+
 ### times
 
 ```code

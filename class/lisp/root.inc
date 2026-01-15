@@ -975,6 +975,16 @@
 ; Utilities
 ;;;;;;;;;;;
 
+(defmacro time-it (heading &rest body)
+	; (time-it heading body)
+	; print the time for the body
+	(defq then (gensym) retval (gensym))
+	`(progn
+		(defq ,then (pii-time) ,retval (progn ~body))
+		(prin ,heading " " (time-in-seconds (- (pii-time) ,then)))
+		(print)
+		,retval))
+
 (defun usort (_a &optional _f _l _h)
 	; (usort list [fcmp start end]) -> list
 	(unique (sort _a _f _l _h)))
