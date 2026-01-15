@@ -58,7 +58,9 @@
 	(align)
 	(offset data))
 
-(defcvar 'str_gap (- 64 (+ str_data +byte_size)))
+(defcvar 'str_gap (some! (lambda (%0)
+		(if (< str_data %0) (- str_data -1 (elem-get mem_heap_cell_sizes (inc (!))))))
+	(list mem_heap_cell_sizes)))
 
 ;;;;;;;;;;;;;;;;
 ; inline methods

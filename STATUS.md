@@ -38,6 +38,8 @@ updated to use these flags.
 Auto generate the necessary code to transfer the local array elements to
 external storage in `:set_cap` method.
 
+Auto generate the `str_gap` size from the `:sys_mem` cell information.
+
 ------
 
 Fix Editor `load-depends` bug when on the scratchpad buffer !.
