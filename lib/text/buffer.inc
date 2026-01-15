@@ -212,13 +212,16 @@
 ;; 		l) l1)
 
 (defun sort-bucket (this lst fnc)
-	(defq buffer_buckets (get :buffer_buckets this))
-	;fill the buckets
-	(each (# (push (elem-get buffer_buckets (min (second %0) (elem-get %0 3))) %0)) lst)
-	(clear lst)
-	;scan buckets and sort each one, pushing onto result
-	(each (# (reduce (const push) (sort %0 fnc) lst) (clear %0))
-		buffer_buckets) lst)
+	(cond ;trivial case just sort it and be dambed
+		((< (length lst) 32) (sort lst fnc))
+		;ok roll out the buckets
+		((defq buffer_buckets (get :buffer_buckets this))
+		;fill the buckets
+		(each (# (push (elem-get buffer_buckets (min (second %0) (elem-get %0 3))) %0)) lst)
+		(clear lst)
+		;scan buckets and sort each one, pushing onto result
+		(each (# (reduce (const push) (sort %0 fnc) lst) (clear %0))
+			buffer_buckets) lst)))
 
 ;;;;;;;
 ; class
