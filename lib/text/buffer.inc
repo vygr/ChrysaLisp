@@ -88,9 +88,9 @@
 	(until (= idx (length undo_stack))
 		(push redo_stack (pop undo_stack))))
 
-;;;;;;;;;;;;;;;;;
-; cursor morphing
-;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;
+; cursor utils
+;;;;;;;;;;;;;;
 
 (defun csr-sort (csr)
 	; sort cursor so (cx cy) <= (ax ay)
@@ -98,6 +98,13 @@
 	(if (or (< cy ay) (and (= cy ay) (<= cx ax)))
 		(list cx cy ax ay)
 		(list ax ay cx cy)))
+
+(defun csr-sort-top (csr)
+	; sort cursor so (cx cy) <= (ax ay)
+	(bind '(cx cy ax ay &ignore) csr)
+	(if (or (< cy ay) (and (= cy ay) (<= cx ax)))
+		(list cx cy)
+		(list ax ay)))
 
 (defun csr-floor (csr)
 	; floor cursor to line boundaries, avoiding object churn if already floored
@@ -112,6 +119,14 @@
 		((/= 0 ax) (list cx cy 0 (inc ay)))
 		; already floored
 		(csr)))
+
+(defun csr-cmp-xy (%0 %1)
+	(bind '(cx1 cy1) (csr-sort-top %0))
+	(bind '(cx2 cy2) (csr-sort-top %1))
+	(if (/= cy1 cy2) (- cy1 cy2) (- cx1 cx2)))
+
+(defun csr-cmp-x (%0 %1)
+	(- (first (csr-sort-top %0)) (first (csr-sort-top %1))))
 
 (defun csr-map-delete (px py cx cy ax ay)
 	; (csr-map-delete px py cx cy ax ay) -> (nx ny)
@@ -198,29 +213,29 @@
 			(const (lognot +dirty_flag_bracket))))))
 	this)
 
-;;;;;;;;;;;;;;;;
-; insertion sort
-;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;
+; cursor list sorts
+;;;;;;;;;;;;;;;;;;;
 
-;; (defun sort-insert (l fnc)
-;; 	(defq l1 (cap (length l) (list)))
+;; (defun sort-insert (this lst fxy fx)
+;; 	(defq l1 (cap (length lst) (list)))
 ;; 	(each (lambda (e)
-;; 			(if (= (defq i (inc (ifn (rsome (# (if (<= (fnc %0 e) 0) (!))) l1) -1)))
+;; 			(if (= (defq i (inc (ifn (rsome (# (if (<= (fxy %0 e) 0) (!))) l1) -1)))
 ;; 					(length l1))
 ;; 				(push l1 e)
 ;; 				(setq l1 (insert l1 i (list e)))))
-;; 		l) l1)
+;; 		lst) l1)
 
-(defun sort-bucket (this lst fnc)
+(defun sort-bucket (this lst fxy fx)
 	(cond ;trivial case just sort it and be dambed
-		((< (length lst) 32) (sort lst fnc))
+		((< (length lst) 32) (sort lst fxy))
 		;ok roll out the buckets
 		((defq buffer_buckets (get :buffer_buckets this))
 		;fill the buckets
 		(each (# (push (elem-get buffer_buckets (min (second %0) (elem-get %0 3))) %0)) lst)
 		(clear lst)
 		;scan buckets and sort each one, pushing onto result
-		(each (# (reduce (const push) (sort %0 fnc) lst) (clear %0))
+		(each (# (reduce (const push) (sort %0 fx) lst) (clear %0))
 			buffer_buckets) lst)))
 
 ;;;;;;;
@@ -321,8 +336,8 @@
 		(time-it ":get_selected"
 		(map (# (task-slice) (most %0))
 			(sort (cat (get :cursors this) (get :tcursors this))
-				(# (bind '(cx1 cy1 &ignore) (csr-sort %0))
-					(bind '(cx2 cy2 &ignore) (csr-sort %1))
+				(# (bind '(cx1 cy1) (csr-sort-top %0))
+					(bind '(cx2 cy2) (csr-sort-top %1))
 					(if (/= cy1 cy2) (- cy1 cy2) (- cx1 cx2)))))))
 
 	(defmethod :get_selected_unsorted ()
@@ -350,10 +365,7 @@
 				; clip to valid positions
 				(. this :clip_cursor cx cy ax ay sx)) cursors)
 					; sort by min(cy, ay) then min(cx, ax)
-					(# (task-slice)
-						(bind '(cx1 cy1 ax1 ay1) (csr-sort %0))
-						(bind '(cx2 cy2 ax2 ay2) (csr-sort %1))
-						(if (/= cy1 cy2) (- cy1 cy2) (- cx1 cx2))))))
+					(const csr-cmp-xy) (const csr-cmp-x))))
 		(time-it ":merge_cursors reduce"
 		(reduce! (# (task-slice)
 				(bind '(cx cy ax ay) (csr-sort (last %0)))
@@ -402,7 +414,7 @@
 			; sort so (cx cy) <= (ax ay)
 			(bind '(cx cy ax ay) (csr-sort (list cx cy ax ay)))
 			(mutate-buffer
-				(. this :push_undo (list :insert cx cy (. this :icopy cx cy ax ay)))
+				(. this :push_undo (list :insert cx cy (sym (. this :icopy cx cy ax ay))))
 				(cond
 					((= cy ay)
 						(set-line cy (erase (elem-get buffer_lines cy) cx ax)))
@@ -515,7 +527,7 @@
 										cy cx cy cx)
 									(list 0 0 0 0 0))))
 						(:t ; collapse selection to start
-							(bind '(cx cy &ignore) (csr-sort (list cx cy ax ay)))
+							(bind '(cx cy) (csr-sort-top (list cx cy ax ay)))
 							(list cx cy cx cy cx))))
 				(get :cursors this)))))
 		this))
@@ -580,7 +592,7 @@
 		(lower (:cursors (. this :merge_cursors
 			(map (lambda ((cx cy ax ay &ignore)) (task-slice)
 					; move to start of current line
-					(bind '(cx cy &ignore) (csr-sort (list cx cy ax ay)))
+					(bind '(cx cy) (csr-sort-top (list cx cy ax ay)))
 					(list 0 cy 0 cy 0))
 				(get :cursors this)))))
 		this)
@@ -754,7 +766,7 @@
 		(undoable
 			(reach (lambda (csr) (task-slice)
 					; insert at min position (sorted start)
-					(bind '(cx cy &ignore) (csr-sort csr))
+					(bind '(cx cy) (csr-sort-top csr))
 					(. this :iinsert cx cy text))
 				(. this :merge_cursors (get :cursors this)))
 			; delete any selections
@@ -788,14 +800,14 @@
 				((= (length parts) (length cursors))
 					;matching number of parts !
 					(reach (lambda (csr text) (task-slice)
-						(bind '(cx cy &ignore) (csr-sort csr))
+						(bind '(cx cy) (csr-sort-top csr))
 						(. this :iinsert cx cy text)) cursors parts)
 					(reach (lambda ((cx cy ax ay &ignore)) (task-slice)
 						(. this :idelete cx cy ax ay)) (get :cursors this)))
 				(:t ;none matching parts !
 					(defq parts (apply (const cat) (push parts "")))
 					(reach (lambda (csr) (task-slice)
-						(bind '(cx cy &ignore) (csr-sort csr))
+						(bind '(cx cy) (csr-sort-top csr))
 						(. this :iinsert cx cy parts)) cursors)
 					(reach (lambda ((cx cy ax ay &ignore)) (task-slice)
 						(. this :idelete cx cy ax ay)) (get :cursors this))))))
