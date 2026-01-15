@@ -7,6 +7,9 @@
 ;module
 (env-push)
 
+;easy on/off timings
+(redefmacro time-it (heading &rest body) `(progn ~body))
+
 ;;;;;;;;;;;;;;;
 ; control flags
 ;;;;;;;;;;;;;;;
@@ -21,14 +24,14 @@
 (defun push-line (line)
 	(each (# (push %0 %1))
 		(list buffer_lines buffer_syntax buffer_states
-			buffer_found buffer_brackets)
-		`(,line ,line :nil :nil :nil)))
+			buffer_found buffer_brackets buffer_buckets)
+		`(,line ,line :nil :nil :nil ,(list))))
 
 (defun set-line (y line)
 	(each (# (elem-set %0 y %1))
 		(list buffer_lines buffer_syntax buffer_states
-			buffer_found buffer_brackets)
-		`(,line ,line :nil :nil :nil)))
+			buffer_found buffer_brackets buffer_buckets)
+		`(,line ,line :nil :nil :nil ,(list))))
 
 (defun last-line ()
 	(when (or (= (length buffer_lines) 0) (nql (last buffer_lines) +char_class_lf))
@@ -38,23 +41,23 @@
 	(defq y1 (inc y))
 	(each (# (set (penv) %0 (erase (eval %0) y y1)))
 		'(buffer_lines buffer_syntax buffer_states
-			buffer_found buffer_brackets)))
+			buffer_found buffer_brackets buffer_buckets)))
 
 (defun insert-line (y line)
 	(each (# (set (penv) %0 (insert (eval %0) y (list %1))))
 		'(buffer_lines buffer_syntax buffer_states
-			buffer_found buffer_brackets)
-		`(,line ,line :nil :nil :nil)))
+			buffer_found buffer_brackets buffer_buckets)
+		`(,line ,line :nil :nil :nil ,(list))))
 
 (defmacro mutate-buffer (&rest _)
 	(static-qq (progn
 		(raise :buffer_lines :buffer_syntax :buffer_states
-			:buffer_found :buffer_brackets)
+			:buffer_found :buffer_brackets :buffer_buckets)
 		~_
 		(clear (get :redo_stack this))
 		(last-line)
 		(lower :buffer_lines :buffer_syntax :buffer_states
-			:buffer_found :buffer_brackets
+			:buffer_found :buffer_brackets :buffer_buckets
 			(:dirty_flags -1 :modified :t)))))
 
 ;;;;;;
@@ -195,6 +198,28 @@
 			(const (lognot +dirty_flag_bracket))))))
 	this)
 
+;;;;;;;;;;;;;;;;
+; insertion sort
+;;;;;;;;;;;;;;;;
+
+;; (defun sort-insert (l fnc)
+;; 	(defq l1 (cap (length l) (list)))
+;; 	(each (lambda (e)
+;; 			(if (= (defq i (inc (ifn (rsome (# (if (<= (fnc %0 e) 0) (!))) l1) -1)))
+;; 					(length l1))
+;; 				(push l1 e)
+;; 				(setq l1 (insert l1 i (list e)))))
+;; 		l) l1)
+
+(defun sort-bucket (this lst fnc)
+	(defq buffer_buckets (get :buffer_buckets this))
+	;fill the buckets
+	(each (# (push (elem-get buffer_buckets (min (second %0) (elem-get %0 3))) %0)) lst)
+	(clear lst)
+	;scan buckets and sort each one, pushing onto result
+	(each (# (reduce (const push) (sort %0 fnc) lst) (clear %0))
+		buffer_buckets) lst)
+
 ;;;;;;;
 ; class
 ;;;;;;;
@@ -204,7 +229,7 @@
 	(setd flags 0 syntax (Syntax))
 	(def this :buffer_lines (list +char_class_lf) :buffer_syntax (list +char_class_lf)
 		:buffer_states (list :nil) :buffer_brackets (list :nil)
-		:buffer_found (list :nil) :dirty_flags -1
+		:buffer_found (list :nil) :buffer_buckets (list (list)) :dirty_flags -1
 		:syntax_engine syntax :undo_stack (list) :redo_stack (list)
 		:max_width 0 :tab_width 4 :wrap_width 80
 		:flags flags :next_mark -1 :modified :nil :last_key :nil
@@ -260,10 +285,11 @@
 
 	(defmethod :add_cursor (cx cy &optional ax ay)
 		; (. buffer :add_cursor cx cy [ax ay]) -> buffer
+		(time-it ":add_cursor"
 		(setd ax cx ay cy)
 		(lower (:cursors (. this :merge_cursors
 			(push (get :cursors this) (. this :clip_cursor cx cy ax ay)))))
-		this)
+		this))
 
 ;;;;;;;;;;;;;
 ; buffer info
@@ -289,17 +315,19 @@
 	(defmethod :get_selected ()
 		; (. buffer :get_selected) -> ((cx cy ax ay) ...)
 		; return cursors sorted by position, without sx
+		(time-it ":get_selected"
 		(map (# (task-slice) (most %0))
 			(sort (cat (get :cursors this) (get :tcursors this))
 				(# (bind '(cx1 cy1 &ignore) (csr-sort %0))
 					(bind '(cx2 cy2 &ignore) (csr-sort %1))
-					(if (/= cy1 cy2) (- cy1 cy2) (- cx1 cx2))))))
+					(if (/= cy1 cy2) (- cy1 cy2) (- cx1 cx2)))))))
 
 	(defmethod :get_selected_unsorted ()
 		; (. buffer :get_selected_unsorted) -> ((cx cy ax ay) ...)
 		; return cursors in original order, without sx
+		(time-it ":get_selected_unsorted"
 		(map (# (task-slice) (most %0))
-			(cat (get :cursors this) (get :tcursors this))))
+			(cat (get :cursors this) (get :tcursors this)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; cursor merging
@@ -311,8 +339,10 @@
 	(defmethod :merge_cursors (cursors)
 		; (. buffer :merge_cursors cursors) -> cursors
 		; cursors format: ((cx cy ax ay sx) ...)
+		(time-it ":merge_cursors"
 		(raise :buffer_lines)
-		(defq cursors (sort (map (# (task-slice)
+		(time-it ":merge_cursors sort"
+		(defq cursors (sort-bucket this (map (# (task-slice)
 				(bind '(cx cy ax ay sx) %0)
 				; clip to valid positions
 				(. this :clip_cursor cx cy ax ay sx)) cursors)
@@ -320,7 +350,8 @@
 					(# (task-slice)
 						(bind '(cx1 cy1 ax1 ay1) (csr-sort %0))
 						(bind '(cx2 cy2 ax2 ay2) (csr-sort %1))
-						(if (/= cy1 cy2) (- cy1 cy2) (- cx1 cx2)))))
+						(if (/= cy1 cy2) (- cy1 cy2) (- cx1 cx2))))))
+		(time-it ":merge_cursors reduce"
 		(reduce! (# (task-slice)
 				(bind '(cx cy ax ay) (csr-sort (last %0)))
 				(bind '(cx1 cy1 ax1 ay1) (csr-sort %1))
@@ -350,7 +381,7 @@
 					(; NO OVERLAP: push new cursor
 						(push %0 %1)))
 				%0)
-			(list cursors) (slice cursors 0 1) 1))
+			(list cursors) (slice cursors 0 1) 1))))
 
 ;;;;;;;;;;;;;;;;;;;;;
 ; basic text mutation
@@ -360,6 +391,7 @@
 	(defmethod :idelete (cx cy ax ay)
 		; (. buffer :idelete cx cy ax ay) -> buffer
 		; delete text from (cx cy) to (ax ay)
+		(time-it ":idelete"
 		(task-slice)
 		(raise :buffer_lines :cursors)
 		(bind '(cx cy ax ay &ignore) (. this :clip_cursor cx cy ax ay))
@@ -389,11 +421,12 @@
 			(if (nempty? new_cursors)
 				(lower (:cursors (. this :merge_cursors
 					(cat (slice cursors 0 (- -1 (length new_cursors))) new_cursors))))))
-		this)
+		this))
 
 	(defmethod :iinsert (cx cy text)
 		; (. buffer :iinsert cx cy text) -> buffer
 		; insert text at position (cx cy)
+		(time-it ":iinsert"
 		(task-slice)
 		(raise :buffer_lines :cursors)
 		(bind '(cx cy &ignore) (. this :clip_cursor cx cy cx cy))
@@ -432,7 +465,7 @@
 			(if (nempty? new_cursors)
 				(lower (:cursors (. this :merge_cursors
 					(cat (slice cursors 0 (- -1 (length new_cursors))) new_cursors))))))
-		this)
+		this))
 
 ;;;;;;;;;;;;;;;;;
 ; basic text copy
@@ -441,6 +474,7 @@
 	(defmethod :icopy (cx cy ax ay)
 		; (. buffer :icopy cx cy ax ay) -> str
 		; copy text from (cx cy) to (ax ay)
+		(time-it ":icopy"
 		(task-slice)
 		(raise :buffer_lines)
 		(bind '(cx cy ax ay &ignore) (. this :clip_cursor cx cy ax ay))
@@ -455,7 +489,7 @@
 					(while (< (++ cy) ay) (task-slice)
 						(push text (elem-get buffer_lines cy)))
 					(push text (slice (elem-get buffer_lines cy) 0 ax)))))
-		(if (empty? text) "" (apply (const cat) text)))
+		(if (empty? text) "" (apply (const cat) text))))
 
 ;;;;;;;;;;;;;;;;;;;
 ; cursor navigation
@@ -463,6 +497,7 @@
 
 	(defmethod :left ()
 		; (. buffer :left) -> buffer
+		(time-it ":left"
 		(raise :buffer_lines)
 		(lower (:cursors (. this :merge_cursors
 			(map (lambda ((cx cy ax ay &ignore)) (task-slice)
@@ -480,10 +515,11 @@
 							(bind '(cx cy &ignore) (csr-sort (list cx cy ax ay)))
 							(list cx cy cx cy cx))))
 				(get :cursors this)))))
-		this)
+		this))
 
 	(defmethod :right ()
 		; (. buffer :right) -> buffer
+		(time-it ":right"
 		(raise :buffer_lines)
 		(lower (:cursors (. this :merge_cursors
 			(map (lambda ((cx cy ax ay &ignore)) (task-slice)
@@ -501,10 +537,11 @@
 							(bind '(ax ax ax ay) (csr-sort (list cx cy ax ay)))
 							(list ax ay ax ay ax))))
 				(get :cursors this)))))
-		this)
+		this))
 
 	(defmethod :up ()
 		; (. buffer :up) -> buffer
+		(time-it ":up"
 		(raise :buffer_lines)
 		(lower (:cursors (. this :merge_cursors
 			(map (lambda ((cx cy ax ay sx)) (task-slice)
@@ -516,10 +553,11 @@
 							cy cx cy sx)
 						(list 0 0 0 0 sx)))
 				(get :cursors this)))))
-		this)
+		this))
 
 	(defmethod :down ()
 		; (. buffer :down) -> buffer
+		(time-it ":down"
 		(raise :buffer_lines)
 		(defq h (dec (length buffer_lines)))
 		(lower (:cursors (. this :merge_cursors
@@ -532,7 +570,7 @@
 							ay ax ay sx)
 						(list (setq ax (dec (length (elem-get buffer_lines h)))) h ax h sx)))
 				(get :cursors this)))))
-		this)
+		this))
 
 	(defmethod :home ()
 		; (. buffer :home) -> buffer
@@ -680,6 +718,7 @@
 
 	(defmethod :delete ()
 		; (. buffer :delete) -> buffer
+		(time-it ":delete"
 		(raise :buffer_lines)
 		(undoable
 			(reach (lambda ((cx cy ax ay &ignore)) (task-slice)
@@ -690,10 +729,11 @@
 							((< cx line_len) (setq ax (inc cx)))
 							((< cy (dec (length buffer_lines))) (setq ax 0 ay (inc cy)))))
 					(. this :idelete cx cy ax ay))
-				(. this :merge_cursors (get :cursors this)))))
+				(. this :merge_cursors (get :cursors this))))))
 
 	(defmethod :backspace ()
 		; (. buffer :backspace) -> buffer
+		(time-it ":backspace"
 		(raise :buffer_lines)
 		(undoable
 			(reach (lambda ((cx cy ax ay &ignore)) (task-slice)
@@ -703,10 +743,11 @@
 							((> cx 0) (setq cx (dec cx)))
 							((> cy 0) (setq cy (dec cy) cx (dec (length (elem-get buffer_lines cy)))))))
 					(. this :idelete cx cy ax ay))
-				(. this :merge_cursors (get :cursors this)))))
+				(. this :merge_cursors (get :cursors this))))))
 
 	(defmethod :insert (text)
 		; (. buffer :insert text) -> buffer
+		(time-it ":insert"
 		(undoable
 			(reach (lambda (csr) (task-slice)
 					; insert at min position (sorted start)
@@ -715,7 +756,7 @@
 				(. this :merge_cursors (get :cursors this)))
 			; delete any selections
 			(reach (lambda ((cx cy ax ay &ignore)) (task-slice)
-				(. this :idelete cx cy ax ay)) (get :cursors this))))
+				(. this :idelete cx cy ax ay)) (get :cursors this)))))
 
 	(defmethod :copy ()
 		; (. buffer :copy) -> text
@@ -764,10 +805,10 @@
 		; (. buffer :file_load filepath) -> buffer
 		(raise :syntax_engine :tab_width (buffer_lines (list) buffer_syntax (list)
 			buffer_states (list) buffer_found (list) buffer_brackets (list)
-			max_width 0))
+			buffer_buckets (list) max_width 0))
 		;clear them all now !
 		(lower :buffer_lines :buffer_syntax :buffer_states
-			:buffer_found :buffer_brackets)
+			:buffer_found :buffer_brackets :buffer_buckets)
 		(lines! (lambda (line)
 				(task-slice)
 				(setq line (cat
@@ -779,7 +820,7 @@
 		(last-line)
 		(clear (get :undo_stack this) (get :redo_stack this))
 		(lower :buffer_lines :buffer_syntax :buffer_states
-			:buffer_found :buffer_brackets
+			:buffer_found :buffer_brackets :buffer_buckets
 			:max_width (:dirty_flags -1 :modified :nil))
 		this)
 
@@ -787,11 +828,11 @@
 		; (. buffer :file_load_hex filepath [width]) -> buffer
 		(raise :syntax_engine :tab_width (buffer_lines (list) buffer_syntax (list)
 			buffer_states (list) buffer_found (list) buffer_brackets (list)
-			max_width 0 width (ifn width 8)
+			buffer_buckets (list) max_width 0 width (ifn width 8)
 			adr 0 stream (file-stream filepath)))
 		;clear them all now !
 		(lower :buffer_lines :buffer_syntax :buffer_states
-			:buffer_found :buffer_brackets)
+			:buffer_found :buffer_brackets :buffer_buckets)
 		(while (defq blk (read-blk stream width))
 			(task-slice)
 			(defq line (cat
@@ -807,7 +848,7 @@
 		(last-line)
 		(clear (get :undo_stack this) (get :redo_stack this))
 		(lower :buffer_lines :buffer_syntax :buffer_states
-			:buffer_found :buffer_brackets
+			:buffer_found :buffer_brackets :buffer_buckets
 			:max_width (:dirty_flags -1 :modified :nil))
 		this)
 
@@ -853,6 +894,7 @@
 
 	(defmethod :undo ()
 		; (. buffer :undo) -> buffer
+		(time-it ":undo"
 		(when (defq data (pop (defq undo_stack (get :undo_stack this))))
 			(defq redo_stack (cat (get :redo_stack this)))
 			(bind '(state &optional _0 _1 _2 _3) data)
@@ -866,10 +908,11 @@
 						(undo)))
 				(:t (undo)))
 			(set this :redo_stack redo_stack))
-		this)
+		this))
 
 	(defmethod :redo ()
 		; (. buffer :redo) -> buffer
+		(time-it ":redo"
 		(when (defq data (pop (defq redo_stack (get :redo_stack this))))
 			(defq undo_stack (get :undo_stack this) redo_stack (cat redo_stack))
 			(bind '(state &optional _0 _1 _2 _3) data)
@@ -883,7 +926,7 @@
 						(redo)))
 				(:t (redo)))
 			(set this :redo_stack redo_stack))
-		this)
+		this))
 
 ;;;;;;;;;;;;;;;;;;
 ; bracket matching
@@ -971,6 +1014,7 @@
 
 	(defmethod :find (pattern wmode rmode)
 		; (. buffer :find pattern wmode rmode) -> buffer_found
+		(time-it ":find"
 		(raise :last_key :buffer_found)
 		(unless (eql (defq key (str (list wmode rmode pattern))) last_key)
 			(lower (:last_key key))
@@ -985,7 +1029,7 @@
 							(. engine :search (slice line 0 -2) pattern meta)))
 					(elem-set buffer_found (!) '())))
 				(get :buffer_lines this) buffer_found))
-		buffer_found)
+		buffer_found))
 	)
 
 ;module
