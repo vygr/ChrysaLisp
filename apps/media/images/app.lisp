@@ -9,7 +9,7 @@
 (enums +select 0
 	(enum main tip))
 
-(defq +file_types ''(".cpm" ".tga" ".svg"))
+(defq +file_types ''(".cpm" ".flm" ".tga" ".svg"))
 
 (defun win-refresh (file)
 	(bind '(w h) (. (defq canvas (canvas-load file 0)) :pref_size))
@@ -32,7 +32,7 @@
 	(defq select (task-mboxes +select_size) *running* :t)
 	(. *file_selector* :populate "." +file_types 2)
 	(bind '(x y w h) (apply view-locate
-		(. (win-refresh (cat *app_root* "data/tiger.svg")) :get_size)))
+		(. (win-refresh (cat *app_root* "data/background.cpm")) :get_size)))
 	(gui-add-front-rpc (. *window* :change x y w h))
 	(while *running*
 		(defq *msg* (mail-read (elem-get select (defq idx (mail-select select)))))
