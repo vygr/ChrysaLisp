@@ -975,21 +975,6 @@
 ; Utilities
 ;;;;;;;;;;;
 
-(defq *time_it* "")
-(defmacro time-it (heading &rest body)
-	; (time-it heading body)
-	; print the time for the body
-	(defq then (gensym) retval (gensym) tabs "  ")
-	`(progn
-		(prin *time_it* ,heading)
-		(print)
-		(setq *time_it* (cat *time_it* ,tabs))
-		(defq ,then (pii-time) ,retval (progn ~body))
-		(prin (setq *time_it* (slice *time_it* 0 (- -1 ,(length tabs))))
-			,heading " " (time-in-seconds (- (pii-time) ,then)))
-		(print)
-		,retval))
-
 (defun usort (_a &optional _f _l _h)
 	; (usort list [fcmp start end]) -> list
 	(unique (sort _a _f _l _h)))
@@ -1100,10 +1085,6 @@
 		;ptr, long, real
 		(+long_size)))
 
-(defun time-in-seconds (_)
-	; (time-in-seconds time) -> str
-	(str (/ _ 1000000) "." (pad (% _ 1000000) 6 "00000")))
-
 (defun lisp-nodes ()
 	; (lisp-nodes) -> nodes
 	(filter (const lisp-node?) (mail-nodes)))
@@ -1116,6 +1097,25 @@
 	; (min-length list) -> min
 	(if (= (length _) 0) 0
 		(reduce (# (min %0 (length %1))) _ +max_long)))
+
+(defun time-in-seconds (_)
+	; (time-in-seconds time) -> str
+	(str (/ _ 1000000) "." (pad (% _ 1000000) 6 "00000")))
+
+(defq *time_it* "")
+(defmacro time-it (heading &rest body)
+	; (time-it heading body)
+	; print the time for the body
+	(defq then (gensym) retval (gensym) tabs "  ")
+	`(progn
+		(prin *time_it* ,heading)
+		(print)
+		(setq *time_it* (cat *time_it* ,tabs))
+		(defq ,then (pii-time) ,retval (progn ~body))
+		(prin (setq *time_it* (slice *time_it* 0 (- -1 ,(length tabs))))
+			,heading " " (time-in-seconds (- (pii-time) ,then)))
+		(print)
+		,retval))
 
 ;;;;;;;;;;;;;;;;;;;;;;
 ; string object fields
