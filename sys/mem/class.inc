@@ -17,7 +17,7 @@
 	(dec-method :avail sys/mem/avail :static :nil (:r0))
 	(dec-method :collect sys/mem/collect))
 
-(defq mem_cell_min_size 0x20 mem_cell_max_size 0x4000000
+(defq mem_cell_min_size 24 mem_cell_max_size 0x4000000
 	max_cell_count (/ (* 32 1024) mem_cell_min_size)
 	mem_heap_cell_sizes (list))
 

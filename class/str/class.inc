@@ -59,7 +59,7 @@
 	(offset data))
 
 (defcvar 'str_gap (some! (lambda (%0)
-		(if (< str_data %0) (- (elem-get mem_heap_cell_sizes (inc (!))) str_data 1)))
+		(if (< str_data %0) (- %0 str_data 1)))
 	(list mem_heap_cell_sizes)))
 
 ;;;;;;;;;;;;;;;;

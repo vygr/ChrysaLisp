@@ -93,23 +93,15 @@
 
 	(def-vars
 		(ptr this new_str)
-		(uint length))
+		(uint len))
 
 	(push-scope)
 	(entry :sstream :write_next {this})
 
-	(assign {this->stream_bufp - &this->stream_object->str_data} {length})
-	(call :str :create_from_buffer {0, length * 2 + 32} {new_str})
-	(call :sys_mem :copy {&this->stream_object->str_data, &new_str->str_data, length} {_, this->stream_bufp})
-	;round bufe up to very end of block !
-	(assign {length * 2 + 32 + str_data - 1} {length})
-	(assign {length | length >> 1} {length})
-	(assign {length | length >> 2} {length})
-	(assign {length | length >> 4} {length})
-	(assign {length | length >> 8} {length})
-	(assign {length | length >> 16} {length})
-	(assign {length | length >> 32} {length})
-	(assign {new_str + length} {this->stream_bufe})
+	(assign {this->stream_bufp - &this->stream_object->str_data} {len})
+	(call :str :create_from_buffer {0, len * 2 + 1} {new_str})
+	(call :sys_mem :copy {&this->stream_object->str_data, &new_str->str_data, len} {_, this->stream_bufp})
+	(assign {&new_str->str_data + new_str->str_length} {this->stream_bufe})
 	(call :str :deref {this->stream_object})
 	(assign {new_str} {this->stream_object})
 
