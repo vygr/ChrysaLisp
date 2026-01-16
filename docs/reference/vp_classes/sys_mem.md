@@ -20,7 +20,7 @@ trashes
 outputs
 :r0 = available on free lists (uint)
 trashes
-:r0-:r3
+:r0-:r4
 ```
 
 ### :calloc -> sys/mem/calloc
