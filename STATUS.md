@@ -41,6 +41,8 @@ Auto generate the `str_gap` size from the `:sys_mem` cell information.
 Addition of `(time-it heading body)` macro to `root.inc`. Used for simple timing
 of code without needing to set up for profiling.
 
+`:set_found_cursors` and `:add_found_cursors` methods moved to Buffer class.
+
 ------
 
 Fix Editor `load-depends` bug when on the scratchpad buffer !.

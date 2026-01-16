@@ -10,6 +10,12 @@
 (. buffer :add_cursor cx cy [ax ay]) -> buffer
 ```
 
+### :add_found_cursors
+
+```code
+(. buffer :add_found_cursors buffer_found) -> buffer
+```
+
 ### :backspace
 
 ```code
@@ -277,6 +283,12 @@ cursors format: ((cx cy ax ay sx) ...)
 ```
 
 ### :set_cursors
+
+### :set_found_cursors
+
+```code
+(. buffer :set_found_cursors buffer_found) -> buffer
+```
 
 ### :set_tcursors
 

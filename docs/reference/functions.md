@@ -187,6 +187,18 @@ map a point (px py) against an insertion at (icx icy) ending at (ecx ecy)
 sort cursor so (cx cy) <= (ax ay)
 ```
 
+### csr-sort-bot
+
+```code
+sort cursor so (cx cy) <= (ax ay) return (ax ay)
+```
+
+### csr-sort-top
+
+```code
+sort cursor so (cx cy) <= (ax ay) return (cx cy)
+```
+
 ### each-mergeable
 
 ```code

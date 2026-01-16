@@ -205,21 +205,11 @@
 			(action-pop))))
 
 (defun action-set-cursors ()
-	(defq buffer (. *edit* :get_buffer) cursors (list))
-	(each (# (when %0
-		(defq y (!))
-		(each (lambda (((x x1) &ignore))
-			(push cursors (list x1 y x y 0))) %0))) (. buffer :get_buffer_found))
-	(if (nempty? cursors) (. buffer :set_cursors cursors))
+	(defq buffer (. *edit* :get_buffer))
+	(. buffer :set_found_cursors (. buffer :get_buffer_found))
 	(refresh))
 
 (defun action-add-cursors ()
-	(defq buffer (. *edit* :get_buffer) cursors (list))
-	(each (# (when %0
-		(defq y (!))
-		(each (lambda (((x x1) &ignore))
-			(push cursors (list x1 y x y 0))) %0))) (. buffer :get_buffer_found))
-	(if (nempty? cursors)
-		(. buffer :set_cursors
-			(. buffer :merge_cursors (cat (. buffer :get_cursors) cursors))))
+	(defq buffer (. *edit* :get_buffer))
+	(. buffer :add_found_cursors (. buffer :get_buffer_found))
 	(refresh))

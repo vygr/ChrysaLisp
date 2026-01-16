@@ -1033,6 +1033,29 @@
 ; pattern search
 ;;;;;;;;;;;;;;;;
 
+	(defmethod :set_found_cursors (buffer_found)
+		; (. buffer :set_found_cursors buffer_found) -> buffer
+		(defq stage (list))
+		(each (# (when %0
+			(defq y (!))
+			(each (lambda (((x x1) &ignore))
+				(push stage (list x1 y x y 0))) %0))) buffer_found)
+		(if (nempty? stage)
+			(set this :cursors stage)
+			this))
+
+	(defmethod :add_found_cursors (buffer_found)
+		; (. buffer :add_found_cursors buffer_found) -> buffer
+		(raise :stage)
+		(each (# (when %0
+			(defq y (!))
+			(each (lambda (((x x1) &ignore))
+				(push stage (list x1 y x y 0))) %0))) buffer_found)
+		(when (nempty? stage)
+			(set this :cursors (. this :merge_cursors (cat (get :cursors this) stage)))
+			(clear stage))
+		this)
+
 	(defmethod :find (pattern wmode rmode)
 		; (. buffer :find pattern wmode rmode) -> buffer_found
 		(time-it ":find"
