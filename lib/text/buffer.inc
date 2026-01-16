@@ -236,7 +236,7 @@
 (defun sort-bucket (this lst fxy fx)
 	(cond
 		;nothing to do
-		((= (length lst) 0))
+		((<= (length lst) 1) lst)
 		;trivial case just sort it and be dambed
 		((< (length lst) 32) (sort lst fxy))
 		;ok roll out the buckets
