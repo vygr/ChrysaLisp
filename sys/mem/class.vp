@@ -14,6 +14,7 @@
 	(vp-add-cr statics_sys_mem_heaps :r0)
 	(vp-cpy-cr mem_cell_min_size :r4)    ;start object size
 	(vp-cpy-cr max_cell_count :r3)       ;start cell count
+	(vp-lea-i :r0 (* (length mem_heap_cell_sizes) hp_heap_size) :r5)
 	(loop-start)
 		(vp-add-cr sys_mem_header_size :r4)
 		(call :sys_heap :init '(:r0 :r4 :r3) '(:r0))
@@ -21,7 +22,7 @@
 		(vp-add-cr hp_heap_size :r0)
 		(vp-add-rr :r4 :r4)
 		(vp-shr-cr 1 :r3)
-	(loop-until (list :r4 '> mem_cell_max_size))
+	(loop-until '(:r0 = :r5))
 	(vp-ret)
 
 (def-func-end)
@@ -64,19 +65,20 @@
 	;outputs
 	;:r0 = available on free lists (uint)
 	;trashes
-	;:r0-:r3
+	;:r0-:r4
 
 	(fn-bind 'sys/statics/statics :r2)
 	(vp-xor-rr :r0 :r0)
 	(vp-cpy-cr mem_cell_min_size :r1)
 	(vp-add-cr statics_sys_mem_heaps :r2)
+	(vp-lea-i :r2 (* (length mem_heap_cell_sizes) hp_heap_size) :r4)
 	(loop-start)
 		(loop-flist :r2 hp_heap_free_flist :r3 :r3)
 			(vp-add-rr :r1 :r0)
 		(loop-end)
 		(vp-add-cr hp_heap_size :r2)
 		(vp-add-rr :r1 :r1)
-	(loop-until (list :r1 '> mem_cell_max_size))
+	(loop-until '(:r2 = :r4))
 	(vp-ret)
 
 (def-func-end)
