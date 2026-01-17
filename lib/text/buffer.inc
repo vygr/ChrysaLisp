@@ -253,7 +253,7 @@
 		:buffer_states (list :nil) :buffer_brackets (list :nil)
 		:buffer_found (list :nil) :buffer_buckets (list (list)) :dirty_flags -1
 		:syntax_engine syntax :undo_stack (list) :redo_stack (list)
-		:max_width 0 :tab_width 4 :wrap_width 80 :stage (list)
+		:max_width 0 :tab_width 4 :wrap_width 80
 		:flags flags :next_mark -1 :modified :nil :last_key :nil
 		:cursors (list (array 0 0 0 0 -1)) :tcursors '())
 
@@ -432,6 +432,7 @@
 								(array psx)))
 							(if (nql csr nc) (!)))
 						cursors))
+					; scan for last change
 					(defq ei (rsome (lambda (csr) (task-slice)
 							(bind '(pcx pcy pax pay psx) csr)
 							(defq nc (cat
@@ -440,6 +441,7 @@
 								(array psx)))
 							(if (nql csr nc) (!)))
 						cursors))
+					; map the changes
 					(defq si (max (dec si) 0) ei (inc ei)
 						mid (map! (lambda (csr)
 							(bind '(pcx pcy pax pay psx) csr)
@@ -448,7 +450,7 @@
 								(csr-map-delete pax pay cx cy ax ay)
 								(array psx)))
 							(list cursors) (list) si ei))
-					;sort mid region and splice
+					;sort changes and splice
 					(lower (:cursors (cat
 						(slice cursors 0 si)
 						(. this :merge_cursors mid)
@@ -492,6 +494,7 @@
 								(array psx)))
 							(if (nql csr nc) (!)))
 						cursors))
+					; scan for last change
 					(defq ei (rsome (lambda (csr) (task-slice)
 							(bind '(pcx pcy pax pay psx) csr)
 							(defq nc (cat
@@ -500,6 +503,7 @@
 								(array psx)))
 							(if (nql csr nc) (!)))
 						cursors))
+					; map the changes
 					(defq si (max (dec si) 0) ei (inc ei)
 						mid (map! (lambda (csr)
 							(bind '(pcx pcy pax pay psx) csr)
@@ -508,7 +512,7 @@
 								(csr-map-insert pax pay icx icy ecx ecy nlines pcx pcy)
 								(array psx)))
 							(list cursors) (list) si ei))
-					;sort mid region and splice
+					;sort changes and splice
 					(lower (:cursors (cat
 						(slice cursors 0 si)
 						(. this :merge_cursors mid)
@@ -1073,14 +1077,13 @@
 
 	(defmethod :add_found_cursors (buffer_found)
 		; (. buffer :add_found_cursors buffer_found) -> buffer
-		(raise :stage)
+		(defq stage (list))
 		(each (# (when %0
 			(defq y (!))
 			(each (lambda (((x x1) &ignore))
 				(push stage (array x1 y x y 0))) %0))) buffer_found)
 		(when (nempty? stage)
-			(set this :cursors (. this :merge_cursors (cat (get :cursors this) stage)))
-			(clear stage))
+			(set this :cursors (. this :merge_cursors (cat (get :cursors this) stage))))
 		this)
 
 	(defmethod :find (pattern wmode rmode)
