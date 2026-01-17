@@ -96,22 +96,22 @@
 	; sort cursor so (cx cy) <= (ax ay)
 	(bind '(cx cy ax ay &ignore) csr)
 	(if (or (< cy ay) (and (= cy ay) (<= cx ax)))
-		(list cx cy ax ay)
-		(list ax ay cx cy)))
+		(array cx cy ax ay)
+		(array ax ay cx cy)))
 
 (defun csr-sort-top (csr)
 	; sort cursor so (cx cy) <= (ax ay) return (cx cy)
 	(bind '(cx cy ax ay &ignore) csr)
 	(if (or (< cy ay) (and (= cy ay) (<= cx ax)))
-		(list cx cy)
-		(list ax ay)))
+		(array cx cy)
+		(array ax ay)))
 
 (defun csr-sort-bot (csr)
 	; sort cursor so (cx cy) <= (ax ay) return (ax ay)
 	(bind '(cx cy ax ay &ignore) csr)
 	(if (or (< cy ay) (and (= cy ay) (<= cx ax)))
-		(list ax ay)
-		(list cx cy)))
+		(array ax ay)
+		(array cx cy)))
 
 (defun csr-floor (csr)
 	; floor cursor to line boundaries, avoiding object churn if already floored
@@ -121,9 +121,9 @@
 		((= cy ay)
 			(if (and (= cx 0) (= ay (inc cy)))
 				csr
-				(list 0 cy 0 (inc ay))))
+				(array 0 cy 0 (inc ay))))
 		; multi-line with ax not at start - extend
-		((/= 0 ax) (list cx cy 0 (inc ay)))
+		((/= 0 ax) (array cx cy 0 (inc ay)))
 		; already floored
 		(csr)))
 
@@ -139,7 +139,7 @@
 	; (csr-map-delete px py cx cy ax ay) -> (nx ny)
 	; map a point (px py) against a deletion from (cx cy) to (ax ay)
 	(defq dcx (- ax cx) dcy (- ay cy))
-	(list
+	(array
 		; adjust x
 		(cond
 			((< py cy) px)
@@ -157,17 +157,20 @@
 	; (csr-map-insert px py icx icy ecx ecy nlines ax ay) -> (nx ny)
 	; map a point (px py) against an insertion at (icx icy) ending at (ecx ecy)
 	(cond
-		((< py icy) (list px py))
-		((> py icy) (list px (+ py nlines)))
-		((< px icx) (list px py))
+		((< py icy) (array px py))
+		((> py icy) (array px (+ py nlines)))
+		((< px icx) (array px py))
 		((= px icx)
 			(if (or (> py ay) (and (= py ay) (> px ax)))
 				; end of selection stays put
-				(list px py)
+				(array px py)
 				; point cursor or start of selection moves
-				(list ecx ecy)))
-		((= nlines 0) (list (+ px (- ecx icx)) py))
-		((list (+ ecx (- px icx)) (+ py nlines)))))
+				(array ecx ecy)))
+		((= nlines 0) (array (+ px (- ecx icx)) py))
+		((array (+ ecx (- px icx)) (+ py nlines)))))
+
+(defmacro csr-line-end (cy)
+	`(rbskip +char_class_lf (elem-get buffer_lines ,cy) -1))
 
 ;;;;;;;;;;;
 ; meta data
@@ -224,15 +227,6 @@
 ; cursor list sorts
 ;;;;;;;;;;;;;;;;;;;
 
-;; (defun sort-insert (this lst fxy fx)
-;; 	(defq l1 (cap (length lst) (list)))
-;; 	(each (lambda (e)
-;; 			(if (= (defq i (inc (ifn (rsome (# (if (<= (fxy %0 e) 0) (!))) l1) -1)))
-;; 					(length l1))
-;; 				(push l1 e)
-;; 				(setq l1 (insert l1 i (list e)))))
-;; 		lst) l1)
-
 (defun sort-bucket (this lst fxy fx)
 	(cond
 		;nothing to do
@@ -261,7 +255,7 @@
 		:syntax_engine syntax :undo_stack (list) :redo_stack (list)
 		:max_width 0 :tab_width 4 :wrap_width 80 :stage (list)
 		:flags flags :next_mark -1 :modified :nil :last_key :nil
-		:cursors (list '(0 0 0 0 :nil)) :tcursors '())
+		:cursors (list (array 0 0 0 0 -1)) :tcursors '())
 
 ;;;;;;;;;;;;;;;
 ; basic get/set
@@ -289,17 +283,17 @@
 		(raise :buffer_lines)
 		(defq h (dec (length buffer_lines)))
 		; clip cy
-		(list
+		(array
 			(cond
 				((< cy 0) (setq cy 0))
-				((> cy h) (setq cy h) (rbskip +char_class_lf (elem-get buffer_lines cy) -1))
-				((min (max cx 0) (rbskip +char_class_lf (elem-get buffer_lines cy) -1))))
+				((> cy h) (setq cy h) (csr-line-end cy))
+				((min (max cx 0) (csr-line-end cy))))
 			cy
 			(cond
 				((< ay 0) (setq ay 0))
 				((> ay h) (setq ay h) (rbskip +char_class_lf (elem-get buffer_lines ay) -1))
 				((min (max ax 0) (rbskip +char_class_lf (elem-get buffer_lines ay) -1))))
-			ay sx))
+			ay (ifn sx -1)))
 
 ;;;;;;;;;;;;;;;;;
 ; cursor creation
@@ -399,8 +393,8 @@
 							ex (if use_new ax1 ax) ey (if use_new ay1 ay))
 						; update cursor preserving start/end anchor relationship
 						(elem-set %0 -2 (if fwd
-							(list ex ey cx cy :nil)
-							(list cx cy ex ey :nil))))
+							(array ex ey cx cy -1)
+							(array cx cy ex ey -1))))
 					(; NO OVERLAP: push new cursor
 						(push %0 %1)))
 				%0)
@@ -420,7 +414,7 @@
 		(bind '(cx cy ax ay &ignore) (. this :clip_cursor cx cy ax ay))
 		(when (or (/= cx ax) (/= cy ay))
 			; sort so (cx cy) <= (ax ay)
-			(bind '(cx cy ax ay) (csr-sort (list cx cy ax ay)))
+			(bind '(cx cy ax ay) (csr-sort (array cx cy ax ay)))
 			(mutate-buffer
 				(. this :push_undo (list :insert cx cy (sym (. this :icopy cx cy ax ay))))
 				(cond
@@ -429,20 +423,36 @@
 					((defq d (slice (elem-get buffer_lines cy) 0 cx) i ay)
 						(while (<= cy (-- i)) (task-slice) (erase-line cy))
 						(set-line cy (cat d (slice (elem-get buffer_lines cy) ax -1))))))
-			; update cursor positions after delete
-			(raise :stage)
-			(rsome (lambda (csr) (task-slice)
-					(bind '(pcx pcy pax pay psx) csr)
-					(push stage (defq nc (cat
-						(csr-map-delete pcx pcy cx cy ax ay)
-						(csr-map-delete pax pay cx cy ax ay)
-						(list psx))))
-					(eql csr nc))
-				cursors)
-			(when (nempty? stage)
-				(lower (:cursors (cat (slice cursors 0 (- -1 (length stage)))
-					(. this :merge_cursors stage))))
-				(clear stage)))
+			; scan for first change, if any
+			(when (defq si (some (lambda (csr) (task-slice)
+							(bind '(pcx pcy pax pay psx) csr)
+							(defq nc (cat
+								(csr-map-delete pcx pcy cx cy ax ay)
+								(csr-map-delete pax pay cx cy ax ay)
+								(array psx)))
+							(if (nql csr nc) (!)))
+						cursors))
+					(defq ei (rsome (lambda (csr) (task-slice)
+							(bind '(pcx pcy pax pay psx) csr)
+							(defq nc (cat
+								(csr-map-delete pcx pcy cx cy ax ay)
+								(csr-map-delete pax pay cx cy ax ay)
+								(array psx)))
+							(if (nql csr nc) (!)))
+						cursors))
+					(defq si (max (dec si) 0) ei (inc ei)
+						mid (map! (lambda (csr)
+							(bind '(pcx pcy pax pay psx) csr)
+							(cat
+								(csr-map-delete pcx pcy cx cy ax ay)
+								(csr-map-delete pax pay cx cy ax ay)
+								(array psx)))
+							(list cursors) (list) si ei))
+					;sort mid region and splice
+					(lower (:cursors (cat
+						(slice cursors 0 si)
+						(. this :merge_cursors mid)
+						(slice cursors ei -1))))))
 		this))
 
 	(defmethod :iinsert (cx cy text)
@@ -472,20 +482,37 @@
 					(reach (# (task-slice) (insert-line cy (slice line (+ cx %0) ei))
 						(setq ei (+ cx %0))) breaks)
 					(set-line (dec cy) (slice line 0 ei))))
-			; update cursor positions after insert
-			(raise :stage)
-			(rsome (lambda (csr) (task-slice)
-					(bind '(pcx pcy pax pay psx) csr)
-					(push stage (defq nc (cat
-						(csr-map-insert pcx pcy icx icy ecx ecy nlines pax pay)
-						(csr-map-insert pax pay icx icy ecx ecy nlines pcx pcy)
-						(list psx))))
-					(eql csr nc))
-				cursors)
-			(when (nempty? stage)
-				(lower (:cursors (cat (slice cursors 0 (- -1 (length stage)))
-					(. this :merge_cursors stage))))
-				(clear stage)))
+
+			; scan for first change, if any
+			(when (defq si (some (lambda (csr) (task-slice)
+							(bind '(pcx pcy pax pay psx) csr)
+							(defq nc (cat
+								(csr-map-insert pcx pcy icx icy ecx ecy nlines pax pay)
+								(csr-map-insert pax pay icx icy ecx ecy nlines pcx pcy)
+								(array psx)))
+							(if (nql csr nc) (!)))
+						cursors))
+					(defq ei (rsome (lambda (csr) (task-slice)
+							(bind '(pcx pcy pax pay psx) csr)
+							(defq nc (cat
+								(csr-map-insert pcx pcy icx icy ecx ecy nlines pax pay)
+								(csr-map-insert pax pay icx icy ecx ecy nlines pcx pcy)
+								(array psx)))
+							(if (nql csr nc) (!)))
+						cursors))
+					(defq si (max (dec si) 0) ei (inc ei)
+						mid (map! (lambda (csr)
+							(bind '(pcx pcy pax pay psx) csr)
+							(cat
+								(csr-map-insert pcx pcy icx icy ecx ecy nlines pax pay)
+								(csr-map-insert pax pay icx icy ecx ecy nlines pcx pcy)
+								(array psx)))
+							(list cursors) (list) si ei))
+					;sort mid region and splice
+					(lower (:cursors (cat
+						(slice cursors 0 si)
+						(. this :merge_cursors mid)
+						(slice cursors ei -1))))))
 		this))
 
 ;;;;;;;;;;;;;;;;;
@@ -502,7 +529,7 @@
 		(defq text (list))
 		(when (or (/= cx ax) (/= cy ay))
 			; sort so (cx cy) <= (ax ay)
-			(bind '(cx cy ax ay) (csr-sort (list cx cy ax ay)))
+			(bind '(cx cy ax ay) (csr-sort (array cx cy ax ay)))
 			(cond
 				((= cy ay)
 					(push text (slice (elem-get buffer_lines cy) cx ax)))
@@ -527,14 +554,14 @@
 						; move left one char
 						((and (= cx ax) (= cy ay))
 							(if (> cx 0)
-								(list (dec cx) cy (dec cx) cy (dec cx))
+								(array (dec cx) cy (dec cx) cy (dec cx))
 								(if (> cy 0)
-									(list (setq cx (dec (length (elem-get buffer_lines (setq cy (dec cy))))))
+									(array (setq cx (csr-line-end (setq cy (dec cy))))
 										cy cx cy cx)
-									(list 0 0 0 0 0))))
+									(array 0 0 0 0 0))))
 						; collapse selection to start
-						((bind '(cx cy) (csr-sort-top (list cx cy ax ay)))
-							(list cx cy cx cy cx))))
+						((bind '(cx cy) (csr-sort-top (array cx cy ax ay)))
+							(array cx cy cx cy cx))))
 				(get :cursors this)))))
 		this))
 
@@ -550,13 +577,13 @@
 						((and (= cx ax) (= cy ay))
 							(setq ax (dec (length (elem-get buffer_lines cy))))
 							(if (< cx ax)
-								(list (inc cx) cy (inc cx) cy (inc cx))
+								(array (inc cx) cy (inc cx) cy (inc cx))
 								(if (< cy (dec (length buffer_lines)))
-									(list 0 (inc cy) 0 (inc cy) 0)
-									(list ax cy ax cy ax))))
+									(array 0 (inc cy) 0 (inc cy) 0)
+									(array ax cy ax cy ax))))
 						; collapse selection to end
-						((bind '(ax ay) (csr-sort-bot (list cx cy ax ay)))
-							(list ax ay ax ay ax))))
+						((bind '(ax ay) (csr-sort-bot (array cx cy ax ay)))
+							(array ax ay ax ay ax))))
 				(get :cursors this)))))
 		this))
 
@@ -567,12 +594,12 @@
 		(lower (:cursors (. this :merge_cursors
 			(map (lambda ((cx cy ax ay sx)) (task-slice)
 					; move up to previous line, using sticky x
-					(bind '(cx cy ax ay) (csr-sort (list cx cy ax ay)))
-					(if (or (not sx) (or (/= cx ax) (/= cy ay))) (setq sx cx))
+					(bind '(cx cy ax ay) (csr-sort (array cx cy ax ay)))
+					(if (or (= sx -1) (or (/= cx ax) (/= cy ay))) (setq sx cx))
 					(if (> cy 0)
-						(list (setq cx (min sx (dec (length (elem-get buffer_lines (setq cy (dec cy)))))))
+						(array (setq cx (min sx (csr-line-end (setq cy (dec cy)))))
 							cy cx cy sx)
-						(list 0 0 0 0 sx)))
+						(array 0 0 0 0 sx)))
 				(get :cursors this)))))
 		this))
 
@@ -584,12 +611,12 @@
 		(lower (:cursors (. this :merge_cursors
 			(map (lambda ((cx cy ax ay sx)) (task-slice)
 					; move down to next line, using sticky x
-					(bind '(cx cy ax ay) (csr-sort (list cx cy ax ay)))
-					(if (or (not sx) (or (/= cx ax) (/= cy ay))) (setq sx ax))
+					(bind '(cx cy ax ay) (csr-sort (array cx cy ax ay)))
+					(if (or (= sx -1) (or (/= cx ax) (/= cy ay))) (setq sx ax))
 					(if (< ay h)
-						(list (setq ax (min sx (dec (length (elem-get buffer_lines (setq ay (inc ay)))))))
+						(array (setq ax (min sx (dec (length (elem-get buffer_lines (setq ay (inc ay)))))))
 							ay ax ay sx)
-						(list (setq ax (dec (length (elem-get buffer_lines h)))) h ax h sx)))
+						(array (setq ax (dec (length (elem-get buffer_lines h)))) h ax h sx)))
 				(get :cursors this)))))
 		this))
 
@@ -598,8 +625,8 @@
 		(lower (:cursors (. this :merge_cursors
 			(map (lambda ((cx cy ax ay &ignore)) (task-slice)
 					; move to start of current line
-					(bind '(cx cy) (csr-sort-top (list cx cy ax ay)))
-					(list 0 cy 0 cy 0))
+					(bind '(cx cy) (csr-sort-top (array cx cy ax ay)))
+					(array 0 cy 0 cy 0))
 				(get :cursors this)))))
 		this)
 
@@ -609,15 +636,15 @@
 		(lower (:cursors (. this :merge_cursors
 			(map (lambda ((cx cy ax ay &ignore)) (task-slice)
 					; move to end of current line
-					(bind '(ax ay) (csr-sort-bot (list cx cy ax ay)))
+					(bind '(ax ay) (csr-sort-bot (array cx cy ax ay)))
 					(setq ax (dec (length (elem-get buffer_lines ay))))
-					(list ax ay ax ay ax))
+					(array ax ay ax ay ax))
 				(get :cursors this)))))
 		this)
 
 	(defmethod :top ()
 		; (. buffer :top) -> buffer
-		(lower (:cursors `((0 0 0 0 0))))
+		(lower (:cursors (list (array 0 0 0 0 0))))
 		this)
 
 	(defmethod :bottom ()
@@ -625,7 +652,7 @@
 		(raise :buffer_lines)
 		(defq h (dec (length buffer_lines))
 			ex (dec (length (elem-get buffer_lines h))))
-		(lower (:cursors `((,ex ,h ,ex ,h 0))))
+		(lower (:cursors (list (array ex h ex h 0))))
 		this)
 
 ;;;;;;;;;;;;;;;;;;
@@ -639,11 +666,11 @@
 			(map (lambda ((cx cy ax ay &ignore)) (task-slice)
 					; extend selection left
 					(cond
-						((> cx 0) (list (dec cx) cy ax ay (dec cx)))
+						((> cx 0) (array (dec cx) cy ax ay (dec cx)))
 						((> cy 0)
-							(list (setq cx (dec (length (elem-get buffer_lines (setq cy (dec cy))))))
+							(array (setq cx (csr-line-end (setq cy (dec cy))))
 								cy ax ay cx))
-						((list 0 0 ax ay 0))))
+						((array 0 0 ax ay 0))))
 				(get :cursors this)))))
 		this)
 
@@ -655,10 +682,10 @@
 					; extend selection right
 					(setq sx (dec (length (elem-get buffer_lines cy))))
 					(cond
-						((< cx sx) (list (inc cx) cy ax ay (inc cx)))
+						((< cx sx) (array (inc cx) cy ax ay (inc cx)))
 						((< cy (dec (length buffer_lines)))
-							(list 0 (inc cy) ax ay 0))
-						((list sx cy ax ay sx))))
+							(array 0 (inc cy) ax ay 0))
+						((array sx cy ax ay sx))))
 				(get :cursors this)))))
 		this)
 
@@ -668,11 +695,11 @@
 		(lower (:cursors (. this :merge_cursors
 			(map (lambda ((cx cy ax ay sx)) (task-slice)
 					; extend selection up a line
-					(if (not sx) (setq sx cx))
+					(if (= sx -1) (setq sx cx))
 					(if (> cy 0)
-						(list (setq cx (min sx (dec (length (elem-get buffer_lines (setq cy (dec cy)))))))
+						(array (setq cx (min sx (csr-line-end (setq cy (dec cy)))))
 							cy ax ay sx)
-						(list 0 0 ax ay sx)))
+						(array 0 0 ax ay sx)))
 				(get :cursors this)))))
 		this)
 
@@ -683,11 +710,11 @@
 		(lower (:cursors (. this :merge_cursors
 			(map (lambda ((cx cy ax ay sx)) (task-slice)
 					; extend selection down a line
-					(if (not sx) (setq sx cx))
+					(if (= sx -1) (setq sx cx))
 					(if (< cy h)
-						(list (setq cx (min sx (dec (length (elem-get buffer_lines (setq cy (inc cy)))))))
+						(array (setq cx (min sx (dec (length (elem-get buffer_lines (setq cy (inc cy)))))))
 							cy ax ay sx)
-						(list (setq cx (dec (length (elem-get buffer_lines h)))) h ax ay sx)))
+						(array (setq cx (dec (length (elem-get buffer_lines h)))) h ax ay sx)))
 				(get :cursors this)))))
 		this)
 
@@ -696,7 +723,7 @@
 		(lower (:cursors (. this :merge_cursors
 			(map (lambda ((cx cy ax ay &ignore)) (task-slice)
 					; extend selection to start of line
-					(list 0 cy ax ay 0))
+					(array 0 cy ax ay 0))
 				(get :cursors this)))))
 		this)
 
@@ -707,7 +734,7 @@
 			(map (lambda ((cx cy ax ay &ignore)) (task-slice)
 					; extend selection to end of line
 					(setq cx (dec (length (elem-get buffer_lines cy))))
-					(list cx cy ax ay cx))
+					(array cx cy ax ay cx))
 				(get :cursors this)))))
 		this)
 
@@ -716,7 +743,7 @@
 		(lower (:cursors (. this :merge_cursors
 			(map (lambda ((cx cy ax ay &ignore)) (task-slice)
 					; extend selection to start of buffer
-					(list 0 0 ax ay 0))
+					(array 0 0 ax ay 0))
 				(get :cursors this)))))
 		this)
 
@@ -728,7 +755,7 @@
 		(lower (:cursors (. this :merge_cursors
 			(map (lambda ((cx cy ax ay &ignore)) (task-slice)
 					; extend selection to end of buffer
-					(list ex h ax ay 0))
+					(array ex h ax ay 0))
 				(get :cursors this)))))
 		this)
 
@@ -1039,7 +1066,7 @@
 		(each (# (when %0
 			(defq y (!))
 			(each (lambda (((x x1) &ignore))
-				(push stage (list x1 y x y 0))) %0))) buffer_found)
+				(push stage (array x1 y x y 0))) %0))) buffer_found)
 		(if (nempty? stage)
 			(set this :cursors stage)
 			this))
@@ -1050,7 +1077,7 @@
 		(each (# (when %0
 			(defq y (!))
 			(each (lambda (((x x1) &ignore))
-				(push stage (list x1 y x y 0))) %0))) buffer_found)
+				(push stage (array x1 y x y 0))) %0))) buffer_found)
 		(when (nempty? stage)
 			(set this :cursors (. this :merge_cursors (cat (get :cursors this) stage)))
 			(clear stage))
