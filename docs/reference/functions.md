@@ -88,6 +88,16 @@ launch logout app
 (bounding-sphere verts vec3-extract-fnc) -> (center_v3 radius)
 ```
 
+### bracket-cursors
+
+```code
+(bracket-cursors cursors start_y end_y) -> (si ei)
+
+find range of cursors intersecting [start_y, end_y].
+we bracket the range by including one extra cursor before and after
+to ensure merges are handled correctly.
+```
+
 ### build_tree_and_codebook
 
 ```code

@@ -47,6 +47,9 @@ Minimum allocated cell size has changed to 24 bytes, the size of a `:num`
 object, as a result `:array` now get 8 local slots available for element storage
 before going to an external block.
 
+Fix `make-info` function to cope with relative function paths in file products
+creation.
+
 ------
 
 Fix Editor `load-depends` bug when on the scratchpad buffer !.

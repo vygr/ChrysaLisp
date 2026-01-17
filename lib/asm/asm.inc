@@ -123,7 +123,9 @@
 					(push p (f-path (sym (second s))
 						(if (> (length s) 2) (sym (cat :create_ (third s))) :create))))
 				("def-func"
-					(push p (sym (second s)))))))
+					(if (eql (second s) "path-to-absolute")
+						(push p (sym (path-to-absolute (third s) file)))
+						(push p (sym (second s))))))))
 		(if (= (age _) 0)
 			(throw "No such file !" _)
 			(file-stream (defq file _))))

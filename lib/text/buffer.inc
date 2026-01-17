@@ -99,6 +99,9 @@
 		(nums cx cy ax ay)
 		(nums ax ay cx cy)))
 
+;native version
+(ffi "lib/text/csr_sort" csr-sort)
+
 (defun csr-sort-top (csr)
 	; sort cursor so (cx cy) <= (ax ay) return (cx cy)
 	(bind '(cx cy ax ay &ignore) csr)
