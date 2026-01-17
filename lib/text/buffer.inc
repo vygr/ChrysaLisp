@@ -178,19 +178,15 @@
 	; we bracket the range by including one extra cursor before and after
 	; to ensure merges are handled correctly.
 	(ifn (defq len (length cursors)
-			si (some! (lambda (c)
-					(bind '(cy cy ay ay) (csr-sort c))
-					(if (>= ay start_y) (!)))
-				(list cursors)))
+			si (some! (# (if (>= (last (csr-sort %0)) start_y) (!)))
+					(list cursors)))
 		; if no cursor intersects or is below, all are above.
 		(list len len)
 		(progn
 			; find end index (ei): First cursor starting strictly after end_y.
 			; optimization: scanning from si.
-			(defq ei (some! (lambda (c)
-					(bind '(cy cy ay ay) (csr-sort c))
-					(if (> cy end_y) (!)))
-				(list cursors) :nil si))
+			(defq ei (some! (# (if (> (second (csr-sort %0)) end_y) (!)))
+						(list cursors) :nil si))
 			; bracket the range: include one neighbor on each side
 			(list (max 0 (dec si)) (min len (inc (ifn ei len)))))))
 
