@@ -172,6 +172,29 @@
 (defmacro csr-line-end (cy)
 	`(rbskip +char_class_lf (elem-get buffer_lines ,cy) -1))
 
+(defun bracket-cursors (cursors start_y end_y)
+	; (bracket-cursors cursors start_y end_y) -> (si ei)
+	; Find range of cursors intersecting [start_y, end_y].
+	; We bracket the range by including one extra cursor before and after
+	; to ensure merges are handled correctly.
+	(defq len (length cursors)
+		si (some! (lambda (c)
+				(bind '(cy cy ay ay) (csr-sort c))
+				(if (>= ay start_y) (!)))
+			(list cursors)))
+	(if (not si)
+		; If no cursor intersects or is below, all are above.
+		(list len len)
+		(progn
+			; Find end index (ei): First cursor starting strictly after end_y.
+			; Optimization: Start scanning from si.
+			(defq ei (some! (lambda (c)
+					(bind '(cy cy ay ay) (csr-sort c))
+					(if (> cy end_y) (!)))
+				(list cursors) :nil si))
+			; Bracket the range: include one neighbor on each side
+			(list (max 0 (dec si)) (min len (inc (ifn ei len)))))))
+
 ;;;;;;;;;;;
 ; meta data
 ;;;;;;;;;;;
@@ -423,38 +446,30 @@
 					((defq d (slice (elem-get buffer_lines cy) 0 cx) i ay)
 						(while (<= cy (-- i)) (task-slice) (erase-line cy))
 						(set-line cy (cat d (slice (elem-get buffer_lines cy) ax -1))))))
-			; scan for first change, if any
-			(when (defq si (some (lambda (csr) (task-slice)
-							(bind '(pcx pcy pax pay psx) csr)
-							(defq nc (cat
-								(csr-map-delete pcx pcy cx cy ax ay)
-								(csr-map-delete pax pay cx cy ax ay)
-								(nums psx)))
-							(if (nql csr nc) (!)))
-						cursors))
-					; scan for last change
-					(defq ei (rsome (lambda (csr) (task-slice)
-							(bind '(pcx pcy pax pay psx) csr)
-							(defq nc (cat
-								(csr-map-delete pcx pcy cx cy ax ay)
-								(csr-map-delete pax pay cx cy ax ay)
-								(nums psx)))
-							(if (nql csr nc) (!)))
-						cursors))
-					; map the changes
-					(defq si (max (dec si) 0) ei (inc ei)
-						mid (map! (lambda (csr)
+			; scan for affected range
+			(when (nempty? cursors)
+				(bind '(si ei) (bracket-cursors cursors cy ay))
+				(cond
+					; none affected or below
+					((and (= si (length cursors)) (= ei (length cursors))))
+					(:t (defq tail (if (< ei (length cursors))
+							(progn
+								(defq delta (nums 0 (- cy ay) 0 (- cy ay) 0))
+								(map! (# (nums-add %0 delta))
+									(list cursors) (list) ei -1)) (list)))
+						; map changes for mid cursors
+						(defq mid (map! (lambda (csr)
 							(bind '(pcx pcy pax pay psx) csr)
 							(cat
 								(csr-map-delete pcx pcy cx cy ax ay)
 								(csr-map-delete pax pay cx cy ax ay)
 								(nums psx)))
 							(list cursors) (list) si ei))
-					;sort changes and splice
-					(lower (:cursors (cat
-						(slice cursors 0 si)
-						(. this :merge_cursors mid)
-						(slice cursors ei -1))))))
+						; sort and merge mid (plus potentially bracketing cursors)
+						(lower (:cursors (cat
+							(slice cursors 0 si)
+							(. this :merge_cursors mid)
+							tail)))))))
 		this))
 
 	(defmethod :iinsert (cx cy text)
@@ -484,39 +499,30 @@
 					(reach (# (task-slice) (insert-line cy (slice line (+ cx %0) ei))
 						(setq ei (+ cx %0))) breaks)
 					(set-line (dec cy) (slice line 0 ei))))
-
-			; scan for first change, if any
-			(when (defq si (some (lambda (csr) (task-slice)
-							(bind '(pcx pcy pax pay psx) csr)
-							(defq nc (cat
-								(csr-map-insert pcx pcy icx icy ecx ecy nlines pax pay)
-								(csr-map-insert pax pay icx icy ecx ecy nlines pcx pcy)
-								(nums psx)))
-							(if (nql csr nc) (!)))
-						cursors))
-					; scan for last change
-					(defq ei (rsome (lambda (csr) (task-slice)
-							(bind '(pcx pcy pax pay psx) csr)
-							(defq nc (cat
-								(csr-map-insert pcx pcy icx icy ecx ecy nlines pax pay)
-								(csr-map-insert pax pay icx icy ecx ecy nlines pcx pcy)
-								(nums psx)))
-							(if (nql csr nc) (!)))
-						cursors))
-					; map the changes
-					(defq si (max (dec si) 0) ei (inc ei)
-						mid (map! (lambda (csr)
+			; scan for affected range
+			(when (nempty? cursors)
+				(bind '(si ei) (bracket-cursors cursors icy icy))
+				(cond
+					; none affected or below
+					((and (= si (length cursors)) (= ei (length cursors))))
+					(:t (defq tail (if (< ei (length cursors))
+							(progn
+								(defq delta (nums 0 nlines 0 nlines 0))
+								(map! (# (nums-add %0 delta))
+									(list cursors) (list) ei (length cursors))) (list)))
+						; map changes for mid cursors
+						(defq mid (map! (lambda (csr)
 							(bind '(pcx pcy pax pay psx) csr)
 							(cat
 								(csr-map-insert pcx pcy icx icy ecx ecy nlines pax pay)
 								(csr-map-insert pax pay icx icy ecx ecy nlines pcx pcy)
 								(nums psx)))
 							(list cursors) (list) si ei))
-					;sort changes and splice
-					(lower (:cursors (cat
-						(slice cursors 0 si)
-						(. this :merge_cursors mid)
-						(slice cursors ei -1))))))
+						; sort and merge mid
+						(lower (:cursors (cat
+							(slice cursors 0 si)
+							(. this :merge_cursors mid)
+							tail)))))))
 		this))
 
 ;;;;;;;;;;;;;;;;;
