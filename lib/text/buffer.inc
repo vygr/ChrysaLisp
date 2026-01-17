@@ -189,7 +189,7 @@
 			(bind '(start_state end_state) (ifn states '(:nil :nil)))
 			(cond
 				((not (bits? flags +buffer_flag_syntax)))
-				((and (nums? syntax) (eql state start_state))
+				((and (array? syntax) (eql state start_state))
 					(setq state end_state))
 				(:t (task-slice)
 					(elem-set buffer_syntax (!)
