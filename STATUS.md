@@ -43,6 +43,10 @@ of code without needing to set up for profiling.
 
 `:set_found_cursors` and `:add_found_cursors` methods moved to Buffer class.
 
+Minimum allocated cell size has changed to 24 bytes, the size of a `:num`
+object, as a result `:array` now get 8 local slots available for element storage
+before going to an external block.
+
 ------
 
 Fix Editor `load-depends` bug when on the scratchpad buffer !.
