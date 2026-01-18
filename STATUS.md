@@ -53,6 +53,8 @@ creation.
 Moved `:select_word`, `:select_line` and `:select_paragraph` methods into the
 Buffer class.
 
+VP version of `csr-sort`, `csr_cmp`, `csr-map-delete` and `csr-map-insert`.
+
 ------
 
 Fix Editor `load-depends` bug when on the scratchpad buffer !.
