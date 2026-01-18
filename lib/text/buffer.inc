@@ -99,32 +99,6 @@
 		(nums cx cy ax ay)
 		(nums ax ay cx cy)))
 
-;native version
-(ffi (path-to-absolute "./csr_sort") csr-sort)
-
-(defmacro csr-sort-top (csr)
-	; sort cursor so (cx cy) <= (ax ay) return (cx cy)
-	`(slice (csr-sort ,csr) 0 2))
-
-(defmacro csr-sort-bot (csr)
-	; sort cursor so (cx cy) <= (ax ay) return (ax ay)
-	`(slice (csr-sort ,csr) 2 -1))
-
-(defun csr-floor (csr)
-	; floor cursor to line boundaries
-	(bind '(cy cy ax ay) (defq csr (csr-sort csr)))
-	(if (or (= cy ay) (/= 0 ax))
-		(nums 0 cy 0 (inc ay))
-		(nums 0 cy 0 ay)))
-
-(defun csr-cmp-xy (%0 %1)
-	(bind '(cx1 cy1) (csr-sort-top %0))
-	(bind '(cx2 cy2) (csr-sort-top %1))
-	(if (/= cy1 cy2) (- cy1 cy2) (- cx1 cx2)))
-
-(defun csr-cmp-x (%0 %1)
-	(- (first (csr-sort-top %0)) (first (csr-sort-top %1))))
-
 (defun csr-map-delete (px py cx cy ax ay)
 	; (csr-map-delete px py cx cy ax ay) -> (nx ny)
 	; map a point (px py) against a deletion from (cx cy) to (ax ay)
@@ -158,6 +132,34 @@
 				(nums ecx ecy)))
 		((= dy 0) (nums (+ px (- ecx icx)) py))
 		((nums (+ ecx (- px icx)) (+ py dy)))))
+
+;native versions
+(ffi (path-to-absolute "./csr_sort") csr-sort)
+(ffi (path-to-absolute "./csr_map_delete") csr-map-delete)
+(ffi (path-to-absolute "./csr_map_insert") csr-map-insert)
+
+(defmacro csr-sort-top (csr)
+	; sort cursor so (cx cy) <= (ax ay) return (cx cy)
+	`(slice (csr-sort ,csr) 0 2))
+
+(defmacro csr-sort-bot (csr)
+	; sort cursor so (cx cy) <= (ax ay) return (ax ay)
+	`(slice (csr-sort ,csr) 2 -1))
+
+(defun csr-floor (csr)
+	; floor cursor to line boundaries
+	(bind '(cy cy ax ay) (defq csr (csr-sort csr)))
+	(if (or (= cy ay) (/= 0 ax))
+		(nums 0 cy 0 (inc ay))
+		(nums 0 cy 0 ay)))
+
+(defun csr-cmp-xy (%0 %1)
+	(bind '(cx1 cy1) (csr-sort-top %0))
+	(bind '(cx2 cy2) (csr-sort-top %1))
+	(if (/= cy1 cy2) (- cy1 cy2) (- cx1 cx2)))
+
+(defun csr-cmp-x (%0 %1)
+	(- (first (csr-sort-top %0)) (first (csr-sort-top %1))))
 
 (defmacro csr-line-end (y)
 	`(dec (length (elem-get buffer_lines ,y))))
