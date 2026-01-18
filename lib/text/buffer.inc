@@ -754,10 +754,12 @@
 		; (. buffer :select_word) -> buffer
 		(raise :buffer_lines)
 		(lower (:cursors (. this :merge_cursors
-			(map (lambda ((cx cy &ignore)) (task-slice)
-					(defq line (elem-get buffer_lines cy))
-					(nums (bskipn +char_class_not_whole_word line cx) cy
-						(rbskipn +char_class_not_whole_word line cx) cy -1))
+			(map (lambda (csr) (task-slice)
+					(bind '(cx cy &ignore) csr)
+					(defq line (elem-get buffer_lines cy)
+						x (bskipn +char_class_not_whole_word line cx)
+						x1 (rbskipn +char_class_not_whole_word line cx))
+					(if (= x x1) csr (nums x cy x1 cy -1)))
 				(get :cursors this)))))
 		this)
 
@@ -854,7 +856,7 @@
 		(undoable
 			(defq parts (split text (const (unescape "\f"))))
 			(cond
-				((= (length parts) (length cursors))
+				((= (length parts) (length (get :cursors this)))
 					;matching number of parts !
 					(reach (lambda (csr text) (task-slice)
 						(bind '(cx cy) (csr-sort-top csr))
