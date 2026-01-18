@@ -143,8 +143,6 @@
 			((> py ay) (- py dcy))
 			(cy))))
 
-(defun csr-map-insert (px py icx icy ecx ecy nlines ax ay)
-	; (csr-map-insert px py icx icy ecx ecy nlines ax ay) -> (nx ny)
 	; map a point (px py) against an insertion at (icx icy) ending at (ecx ecy)
 	(cond
 		((< py icy) (nums px py))
