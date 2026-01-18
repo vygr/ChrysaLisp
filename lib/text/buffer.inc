@@ -143,10 +143,12 @@
 			((> py ay) (- py dcy))
 			(cy))))
 
+(defun csr-map-insert (px py icx icy ecx ecy dy ax ay)
+	; (csr-map-insert px py icx icy ecx ecy dy ax ay) -> (nx ny)
 	; map a point (px py) against an insertion at (icx icy) ending at (ecx ecy)
 	(cond
 		((< py icy) (nums px py))
-		((> py icy) (nums px (+ py nlines)))
+		((> py icy) (nums px (+ py dy)))
 		((< px icx) (nums px py))
 		((= px icx)
 			(if (or (> py ay) (and (= py ay) (> px ax)))
@@ -154,8 +156,8 @@
 				(nums px py)
 				; point cursor or start of selection moves
 				(nums ecx ecy)))
-		((= nlines 0) (nums (+ px (- ecx icx)) py))
-		((nums (+ ecx (- px icx)) (+ py nlines)))))
+		((= dy 0) (nums (+ px (- ecx icx)) py))
+		((nums (+ ecx (- px icx)) (+ py dy)))))
 
 (defmacro csr-line-end (y)
 	`(dec (length (elem-get buffer_lines ,y))))
@@ -436,15 +438,12 @@
 				(bind '(si ei) (bracket-cursors cursors cy ay))
 				(unless (and (= si (length cursors)) (= ei (length cursors)))
 					; map tail values if required
-					(defq tail
-						(if (< ei (length cursors))
-							(if (= (defq dy (- cy ay)) 0)
-								(slice cursors ei -1)
-								(progn
-									(defq delta (nums 0 dy 0 dy 0))
-									(map! (# (nums-add %0 delta))
-										(list cursors) (list) ei -1)))
-							(list)))
+					(defq tail (if (= (defq dy (- cy ay)) 0)
+						(slice cursors ei -1)
+						(progn
+							(defq delta (nums 0 dy 0 dy 0))
+							(map! (# (nums-add %0 delta))
+								(list cursors) (list) ei -1))))
 					; map changes for mid cursors
 					(defq mid (map! (lambda (csr)
 						(bind '(pcx pcy pax pay psx) csr)
@@ -474,9 +473,9 @@
 				(setq i (bskipn +char_class_lf text i))
 				(if (/= i d) (push breaks (setq i (inc i)))))
 			; calculate dimensions
-			(defq nlines (length breaks)
-				  ecx (if (= nlines 0) (+ icx d) (- d (last breaks)))
-				  ecy (+ icy nlines))
+			(defq dy (length breaks)
+				  ecx (if (= dy 0) (+ icx d) (- d (last breaks)))
+				  ecy (+ icy dy))
 			(mutate-buffer
 				(. this :push_undo (list :delete cx cy ecx ecy))
 				(defq line (elem-get buffer_lines cy))
@@ -491,21 +490,18 @@
 				(bind '(si ei) (bracket-cursors cursors icy icy))
 				(unless (and (= si (length cursors)) (= ei (length cursors)))
 					; map tail values if required
-					(defq tail
-						(if (< ei (length cursors))
-							(if (= nlines 0)
-								(slice cursors ei -1)
-								(progn
-									(defq delta (nums 0 nlines 0 nlines 0))
-									(map! (# (nums-add %0 delta))
-										(list cursors) (list) ei -1)))
-							(list)))
+					(defq tail (if (= dy 0)
+						(slice cursors ei -1)
+						(progn
+							(defq delta (nums 0 dy 0 dy 0))
+							(map! (# (nums-add %0 delta))
+								(list cursors) (list) ei -1))))
 					; map changes for mid cursors
 					(defq mid (map! (lambda (csr)
 						(bind '(pcx pcy pax pay psx) csr)
 						(cat
-							(csr-map-insert pcx pcy icx icy ecx ecy nlines pax pay)
-							(csr-map-insert pax pay icx icy ecx ecy nlines pcx pcy)
+							(csr-map-insert pcx pcy icx icy ecx ecy dy pax pay)
+							(csr-map-insert pax pay icx icy ecx ecy dy pcx pcy)
 							(nums psx)))
 						(list cursors) (list) si ei))
 					; sort and merge mid
