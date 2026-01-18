@@ -881,7 +881,7 @@
 					(reach (lambda ((cx cy ax ay &ignore)) (task-slice)
 						(. this :idelete cx cy ax ay)) (get :cursors this)))
 				(:t ;none matching parts !
-					(defq parts (apply (const cat) (push parts "")))
+					(defq parts (join parts (unescape "\n") 2))
 					(reach (lambda (csr) (task-slice)
 						(bind '(cx cy) (csr-sort-top csr))
 						(. this :iinsert cx cy parts)) cursors)
