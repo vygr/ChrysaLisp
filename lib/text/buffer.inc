@@ -448,11 +448,16 @@
 			(when (nempty? cursors)
 				(bind '(si ei) (bracket-cursors cursors cy ay))
 				(unless (and (= si (length cursors)) (= ei (length cursors)))
-					(defq tail (if (< ei (length cursors))
-						(progn
-							(defq delta (nums 0 (- cy ay) 0 (- cy ay) 0))
-							(map! (# (nums-add %0 delta))
-								(list cursors) (list) ei -1)) (list)))
+					; map tail values if required
+					(defq tail
+						(if (< ei (length cursors))
+							(if (= (defq dy (- cy ay)) 0)
+								(slice cursors ei -1)
+								(progn
+									(defq delta (nums 0 dy 0 dy 0))
+									(map! (# (nums-add %0 delta))
+										(list cursors) (list) ei -1)))
+							(list)))
 					; map changes for mid cursors
 					(defq mid (map! (lambda (csr)
 						(bind '(pcx pcy pax pay psx) csr)
@@ -476,8 +481,7 @@
 		(raise :buffer_lines :cursors)
 		(bind '(cx cy &ignore) (. this :clip_cursor cx cy cx cy))
 		(when (nql text "")
-			(defq icx cx icy cy
-				  d (length text) i 0 breaks (list))
+			(defq icx cx icy cy d (length text) i 0 breaks (list))
 			; calculate line breaks
 			(while (/= i d) (task-slice)
 				(setq i (bskipn +char_class_lf text i))
@@ -499,11 +503,16 @@
 			(when (nempty? cursors)
 				(bind '(si ei) (bracket-cursors cursors icy icy))
 				(unless (and (= si (length cursors)) (= ei (length cursors)))
-					(defq tail (if (< ei (length cursors))
-						(progn
-							(defq delta (nums 0 nlines 0 nlines 0))
-							(map! (# (nums-add %0 delta))
-								(list cursors) (list) ei (length cursors))) (list)))
+					; map tail values if required
+					(defq tail
+						(if (< ei (length cursors))
+							(if (= nlines 0)
+								(slice cursors ei -1)
+								(progn
+									(defq delta (nums 0 nlines 0 nlines 0))
+									(map! (# (nums-add %0 delta))
+										(list cursors) (list) ei -1)))
+							(list)))
 					; map changes for mid cursors
 					(defq mid (map! (lambda (csr)
 						(bind '(pcx pcy pax pay psx) csr)
