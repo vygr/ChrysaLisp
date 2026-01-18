@@ -372,12 +372,9 @@
 		(time-it ":merge_cursors"
 		(raise :buffer_lines)
 		(time-it ":merge_cursors sort"
-		(defq cursors (sort-bucket this (map (# (task-slice)
-				(bind '(cx cy ax ay sx) %0)
-				; clip to valid positions
-				(. this :clip_cursor cx cy ax ay sx)) cursors)
-					; sort by min(cy, ay) then min(cx, ax)
-					(const csr-cmp-xy) (const csr-cmp-x))))
+		(defq cursors (sort-bucket this cursors
+				; sort by min(cy, ay) then min(cx, ax)
+				(const csr-cmp-xy) (const csr-cmp-x))))
 		(time-it ":merge_cursors reduce"
 		(reduce! (# (task-slice)
 				(bind '(cx cy ax ay) (csr-sort (last %0)))
@@ -646,8 +643,7 @@
 	(defmethod :bottom ()
 		; (. buffer :bottom) -> buffer
 		(raise :buffer_lines)
-		(defq h (dec (length buffer_lines))
-			ex (csr-line-end h))
+		(defq h (dec (length buffer_lines)) ex (csr-line-end h))
 		(lower (:cursors (list (nums ex h ex h 0))))
 		this)
 
@@ -746,8 +742,7 @@
 	(defmethod :bottom_select ()
 		; (. buffer :bottom_select) -> buffer
 		(raise :buffer_lines)
-		(defq h (dec (length buffer_lines))
-			ex (csr-line-end h))
+		(defq h (dec (length buffer_lines)) ex (csr-line-end h))
 		(lower (:cursors (. this :merge_cursors
 			(map (lambda ((cx cy ax ay &ignore)) (task-slice)
 					; extend selection to end of buffer
@@ -807,7 +802,7 @@
 							((< cx line_len) (setq ax (inc cx)))
 							((< cy (dec (length buffer_lines))) (setq ax 0 ay (inc cy)))))
 					(. this :idelete cx cy ax ay))
-				(. this :merge_cursors (get :cursors this))))))
+				(get :cursors this)))))
 
 	(defmethod :backspace ()
 		; (. buffer :backspace) -> buffer
@@ -821,7 +816,7 @@
 							((> cx 0) (setq cx (dec cx)))
 							((> cy 0) (setq cy (dec cy) cx (csr-line-end cy)))))
 					(. this :idelete cx cy ax ay))
-				(. this :merge_cursors (get :cursors this))))))
+				(get :cursors this)))))
 
 	(defmethod :insert (text)
 		; (. buffer :insert text) -> buffer
@@ -831,7 +826,7 @@
 					; insert at min position (sorted start)
 					(bind '(cx cy) (csr-sort-top csr))
 					(. this :iinsert cx cy text))
-				(. this :merge_cursors (get :cursors this)))
+				(get :cursors this))
 			; delete any selections
 			(reach (lambda ((cx cy ax ay &ignore)) (task-slice)
 				(. this :idelete cx cy ax ay)) (get :cursors this)))))
@@ -841,37 +836,36 @@
 		(defq text (list))
 		(each (lambda ((cx cy ax ay &ignore)) (task-slice)
 				(push text (. this :icopy cx cy ax ay)))
-			(. this :merge_cursors (get :cursors this)))
+			(get :cursors this))
 		(join text (const (unescape "\f"))))
 
 	(defmethod :cut ()
 		; (. buffer :cut) -> text
 		(undoable
-			(defq text (list) cursors (. this :merge_cursors (get :cursors this)))
+			(defq text (list))
 			(each (lambda ((cx cy ax ay &ignore)) (task-slice)
-				(push text (. this :icopy cx cy ax ay))) cursors)
+				(push text (. this :icopy cx cy ax ay))) (get :cursors this))
 			(reach (lambda ((cx cy ax ay &ignore)) (task-slice)
-				(. this :idelete cx cy ax ay)) cursors))
+				(. this :idelete cx cy ax ay)) (get :cursors this)))
 		(join text (const (unescape "\f"))))
 
 	(defmethod :paste (text)
 		; (. buffer :paste text) -> buffer
 		(undoable
-			(defq parts (split text (const (unescape "\f")))
-				cursors (. this :merge_cursors (get :cursors this)))
+			(defq parts (split text (const (unescape "\f"))))
 			(cond
 				((= (length parts) (length cursors))
 					;matching number of parts !
 					(reach (lambda (csr text) (task-slice)
 						(bind '(cx cy) (csr-sort-top csr))
-						(. this :iinsert cx cy text)) cursors parts)
+						(. this :iinsert cx cy text)) (get :cursors this) parts)
 					(reach (lambda ((cx cy ax ay &ignore)) (task-slice)
 						(. this :idelete cx cy ax ay)) (get :cursors this)))
 				(:t ;none matching parts !
 					(defq parts (join parts (unescape "\n") 2))
 					(reach (lambda (csr) (task-slice)
 						(bind '(cx cy) (csr-sort-top csr))
-						(. this :iinsert cx cy parts)) cursors)
+						(. this :iinsert cx cy parts)) (get :cursors this))
 					(reach (lambda ((cx cy ax ay &ignore)) (task-slice)
 						(. this :idelete cx cy ax ay)) (get :cursors this))))))
 

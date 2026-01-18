@@ -18,7 +18,7 @@
 (defun lines-selected (selected)
 	(defq cursors (list))
 	(each (lambda ((sx sy sx1 sy1))
-			(push cursors (nums 0 sy1 0 sy 0)))
+			(push cursors (. buffer :clip_cursor 0 sy1 0 sy)))
 		selected)
 	(. buffer :set_cursors cursors))
 
