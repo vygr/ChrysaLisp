@@ -102,19 +102,13 @@
 ;native version
 (ffi "lib/text/csr_sort" csr-sort)
 
-(defun csr-sort-top (csr)
+(defmacro csr-sort-top (csr)
 	; sort cursor so (cx cy) <= (ax ay) return (cx cy)
-	(bind '(cx cy ax ay &ignore) csr)
-	(if (or (< cy ay) (and (= cy ay) (<= cx ax)))
-		(nums cx cy)
-		(nums ax ay)))
+	`(slice (csr-sort ,csr) 0 2))
 
-(defun csr-sort-bot (csr)
+(defmacro csr-sort-bot (csr)
 	; sort cursor so (cx cy) <= (ax ay) return (ax ay)
-	(bind '(cx cy ax ay &ignore) csr)
-	(if (or (< cy ay) (and (= cy ay) (<= cx ax)))
-		(nums ax ay)
-		(nums cx cy)))
+	`(slice (csr-sort ,csr) 2 -1))
 
 (defun csr-floor (csr)
 	; floor cursor to line boundaries, avoiding object churn if already floored
@@ -782,7 +776,7 @@
 		(time-it ":delete"
 		(raise :buffer_lines)
 		(undoable
-			(reach (lambda ((cx cy ax ay &ignore)) (task-slice)
+			(each (lambda ((cx cy ax ay &ignore)) (task-slice)
 					(when (and (= cx ax) (= cy ay))
 						; no selection - move end point forward
 						(defq line_len (csr-line-end cy))
@@ -797,7 +791,7 @@
 		(time-it ":backspace"
 		(raise :buffer_lines)
 		(undoable
-			(reach (lambda ((cx cy ax ay &ignore)) (task-slice)
+			(each (lambda ((cx cy ax ay &ignore)) (task-slice)
 					(when (and (= cx ax) (= cy ay))
 						; no selection - move start point back
 						(cond
@@ -810,13 +804,13 @@
 		; (. buffer :insert text) -> buffer
 		(time-it ":insert"
 		(undoable
-			(reach (lambda (csr) (task-slice)
+			(each (lambda (csr) (task-slice)
 					; insert at min position (sorted start)
 					(bind '(cx cy) (csr-sort-top csr))
 					(. this :iinsert cx cy text))
 				(. this :merge_cursors (get :cursors this)))
 			; delete any selections
-			(reach (lambda ((cx cy ax ay &ignore)) (task-slice)
+			(each (lambda ((cx cy ax ay &ignore)) (task-slice)
 				(. this :idelete cx cy ax ay)) (get :cursors this)))))
 
 	(defmethod :copy ()
@@ -833,7 +827,7 @@
 			(defq text (list) cursors (. this :merge_cursors (get :cursors this)))
 			(each (lambda ((cx cy ax ay &ignore)) (task-slice)
 				(push text (. this :icopy cx cy ax ay))) cursors)
-			(reach (lambda ((cx cy ax ay &ignore)) (task-slice)
+			(each (lambda ((cx cy ax ay &ignore)) (task-slice)
 				(. this :idelete cx cy ax ay)) cursors))
 		(join text (const (unescape "\f"))))
 
@@ -845,17 +839,17 @@
 			(cond
 				((= (length parts) (length cursors))
 					;matching number of parts !
-					(reach (lambda (csr text) (task-slice)
+					(each (lambda (csr text) (task-slice)
 						(bind '(cx cy) (csr-sort-top csr))
 						(. this :iinsert cx cy text)) cursors parts)
-					(reach (lambda ((cx cy ax ay &ignore)) (task-slice)
+					(each (lambda ((cx cy ax ay &ignore)) (task-slice)
 						(. this :idelete cx cy ax ay)) (get :cursors this)))
 				(:t ;none matching parts !
 					(defq parts (apply (const cat) (push parts "")))
-					(reach (lambda (csr) (task-slice)
+					(each (lambda (csr) (task-slice)
 						(bind '(cx cy) (csr-sort-top csr))
 						(. this :iinsert cx cy parts)) cursors)
-					(reach (lambda ((cx cy ax ay &ignore)) (task-slice)
+					(each (lambda ((cx cy ax ay &ignore)) (task-slice)
 						(. this :idelete cx cy ax ay)) (get :cursors this))))))
 
 ;;;;;;;;;;;;;;;;;;;;
