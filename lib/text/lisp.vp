@@ -70,17 +70,14 @@
 
 	(assign `((,nums1 array_begin)) `(,nums1))
 	(assign `((,nums2 array_begin)) `(,nums2))
-	(vp-simd vp-cpy-ir `(,nums1)
-		`(0 ,+long_size ,(* 2 +long_size) ,(* 3 +long_size))
-		`(,cx1 ,cy1 ,ax1 ,ay1))
-	(vp-simd vp-cpy-ir `(,nums2)
-		`(0 ,+long_size ,(* 2 +long_size) ,(* 3 +long_size))
-		`(,cx2 ,cy2 ,ax2 ,ay2))
-
+	(vp-simd vp-cpy-ir `(,nums1) `(,+long_size ,(* 3 +long_size)) `(,cy1 ,ay1))
+	(vp-simd vp-cpy-ir `(,nums2) `(,+long_size ,(* 3 +long_size)) `(,cy2 ,ay2))
 	(vp-min-rr ay1 cy1)
 	(vp-min-rr ay2 cy2)
 	(vp-sub-rr cy2 cy1)
 	(vpif `(,cy1 = 0))
+		(vp-simd vp-cpy-ir `(,nums1) `(0 ,(* 2 +long_size)) `(,cx1 ,ax1))
+		(vp-simd vp-cpy-ir `(,nums2) `(0 ,(* 2 +long_size)) `(,cx2 ,ax2))
 		(vp-min-rr ax1 cx1)
 		(vp-min-rr ax2 cx2)
 		(vp-sub-rr cx2 cx1)
@@ -125,7 +122,6 @@
 			(vp-cpy-rr cy ny)
 		(endif)
 	(endif)
-
 	(vp-cpy-rr px nx)
 	(gotoif `(,py < ,cy) 'done)
 	(gotoif `(,py > ,ay) 'done)
@@ -180,7 +176,6 @@
 		(vp-add-rr dy py)
 		(goto 'done)
 	(endif)
-
 	(gotoif `(,px < ,icx) 'done)
 	(vpif `(,px = ,icx))
 		(gotoif `(,py > ,ay) 'done)
@@ -190,7 +185,6 @@
 		(vp-simd vp-cpy-rr `(,ecx ,ecy) `(,px ,py))
 		(goto 'done)
 	(endif)
-
 	(vp-sub-rr icx px)
 	(vp-add-rr ecx px)
 	(vpif `(,dy /= 0))
