@@ -861,6 +861,7 @@
 		;clear them all now !
 		(lower :buffer_lines :buffer_syntax :buffer_states
 			:buffer_found :buffer_brackets :buffer_buckets)
+		(clear (get :undo_stack this) (get :redo_stack this))
 		(lines! (lambda (line)
 				(task-slice)
 				(setq line (cat
@@ -870,7 +871,6 @@
 				(push-line line))
 			(file-stream filepath))
 		(last-line)
-		(clear (get :undo_stack this) (get :redo_stack this))
 		(lower :buffer_lines :buffer_syntax :buffer_states
 			:buffer_found :buffer_brackets :buffer_buckets
 			:max_width (:dirty_flags -1 :modified :nil))
@@ -885,6 +885,7 @@
 		;clear them all now !
 		(lower :buffer_lines :buffer_syntax :buffer_states
 			:buffer_found :buffer_brackets :buffer_buckets)
+		(clear (get :undo_stack this) (get :redo_stack this))
 		(while (defq blk (read-blk stream width))
 			(task-slice)
 			(defq line (cat
@@ -898,7 +899,6 @@
 				adr (+ adr width))
 			(push-line line))
 		(last-line)
-		(clear (get :undo_stack this) (get :redo_stack this))
 		(lower :buffer_lines :buffer_syntax :buffer_states
 			:buffer_found :buffer_brackets :buffer_buckets
 			:max_width (:dirty_flags -1 :modified :nil))
