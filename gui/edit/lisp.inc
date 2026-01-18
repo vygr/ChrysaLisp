@@ -18,7 +18,7 @@
 (defun lines-selected (selected)
 	(defq cursors (list))
 	(each (lambda ((sx sy sx1 sy1))
-			(push cursors (list 0 sy1 0 sy 0)))
+			(push cursors (nums 0 sy1 0 sy 0)))
 		selected)
 	(. buffer :set_cursors cursors))
 
@@ -224,7 +224,7 @@
 		(undoable
 			(defq tab_width (. buffer :get_tab_width))
 			(reach (lambda ((cx cy ax ay &ignore))
-					(bind '(cx cy &ignore) (csr-sort (list cx cy ax ay)))
+					(bind '(cx cy &ignore) (csr-sort (nums cx cy ax ay)))
 					(. buffer :iinsert cx cy
 						(pad "" (- tab_width (% cx tab_width)) "        ")))
 				(. buffer :merge_cursors (. buffer :get_cursors)))
@@ -264,7 +264,7 @@
 		(undoable
 			(defq cursors (. buffer :get_cursors))
 			(reach (lambda ((cx cy ax ay &ignore))
-					(bind '(sx sy &ignore) (csr-sort (list cx cy ax ay)))
+					(bind '(sx sy &ignore) (csr-sort (nums cx cy ax ay)))
 					(. buffer :iinsert sx sy
 						(to-lower (. buffer :icopy cx cy ax ay))))
 				(. buffer :merge_cursors cursors))
@@ -278,7 +278,7 @@
 		(undoable
 			(defq cursors (. buffer :get_cursors))
 			(reach (lambda ((cx cy ax ay &ignore))
-					(bind '(sx sy &ignore) (csr-sort (list cx cy ax ay)))
+					(bind '(sx sy &ignore) (csr-sort (nums cx cy ax ay)))
 					(. buffer :iinsert sx sy
 						(to-upper (. buffer :icopy cx cy ax ay))))
 				(. buffer :merge_cursors cursors))
