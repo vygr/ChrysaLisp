@@ -184,27 +184,9 @@ FIXME to separate regions
 
 ### :select_line
 
-```code
-(. edit :select_line) -> edit
-
-FIXME to separate regions
-```
-
 ### :select_paragraph
 
-```code
-(. edit :select_paragraph) -> edit
-
-FIXME to separate regions
-```
-
 ### :select_word
-
-```code
-(. edit :select_word) -> edit
-
-FIXME to separate regions
-```
 
 ### :set_buffer
 

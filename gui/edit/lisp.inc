@@ -68,6 +68,9 @@
 	(defproxymethod :bottom_select () :buffer)
 	(defproxymethod :backspace () :buffer)
 	(defproxymethod :delete () :buffer)
+	(defproxymethod :select_word () :buffer)
+	(defproxymethod :select_line () :buffer)
+	(defproxymethod :select_paragraph () :buffer)
 	(defproxymethod :insert (text) :buffer)
 
 	(defmethod :get_cursor ()
@@ -176,39 +179,6 @@
 					max_y (max max_y sy1) min_y (min min_y sy)))
 			(map (const csr-floor) (. (get :buffer this) :get_selected)))
 		(list min_x min_y max_x max_y))
-
-	(defmethod :select_word ()
-		; (. edit :select_word) -> edit
-		;FIXME to separate regions
-		(raise :buffer)
-		(bind '(cx cy &ignore) (. buffer :get_cursor))
-		(defq line (. buffer :get_text_line cy)
-			x (rbskipn +char_class_not_whole_word line cx)
-			x1 (bskipn +char_class_not_whole_word line cx))
-		(. buffer :set_cursor x1 cy x cy)
-		this)
-
-	(defmethod :select_line ()
-		; (. edit :select_line) -> edit
-		;FIXME to separate regions
-		(raise :buffer)
-		(bind '(cx cy &ignore) (. buffer :get_cursor))
-		(. buffer :set_cursor 0 (inc cy) 0 cy)
-		this)
-
-	(defmethod :select_paragraph ()
-		; (. edit :select_paragraph) -> edit
-		;FIXME to separate regions
-		(raise :buffer)
-		(defq buffer_lines (. buffer :get_buffer_lines))
-		(bind '(cx cy &ignore) (. buffer :get_cursor))
-		(defq y (some! (# (if (blank-line? %0) (inc (!))))
-				(list buffer_lines) :nil cy 0)
-			y1 (some! (# (if (blank-line? %0) (!)))
-				(list buffer_lines) :nil cy (bind '(w h) (. buffer :get_size))))
-		(setd y 0 y1 h)
-		(. buffer :set_cursor 0 y1 0 y)
-		this)
 
 	(defmethod :select_block ()
 		; (. edit :select_block) -> edit

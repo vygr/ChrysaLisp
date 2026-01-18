@@ -169,6 +169,9 @@
 (defmacro csr-line-end (y)
 	`(dec (length (elem-get buffer_lines ,y))))
 
+(defun blank-line? (line)
+	(eql (rbskip +char_class_white_space line -1) 0))
+
 (defun bracket-cursors (cursors start_y end_y)
 	; (bracket-cursors cursors start_y end_y) -> (si ei)
 	; find range of cursors intersecting [start_y, end_y].
@@ -766,6 +769,39 @@
 				(get :cursors this)))))
 		this)
 
+	(defmethod :select_word ()
+		; (. buffer :select_word) -> buffer
+		(raise :buffer_lines)
+		(lower (:cursors (. this :merge_cursors
+			(map (lambda ((cx cy &ignore)) (task-slice)
+					(defq line (elem-get buffer_lines cy))
+					(nums (bskipn +char_class_not_whole_word line cx) cy
+						(rbskipn +char_class_not_whole_word line cx) cy -1))
+				(get :cursors this)))))
+		this)
+
+	(defmethod :select_line ()
+		; (. buffer :select_line) -> buffer
+		(lower (:cursors (. this :merge_cursors
+			(map (lambda ((cx cy &ignore)) (task-slice)
+					(nums 0 (inc cy) 0 cy -1))
+				(get :cursors this)))))
+		this)
+
+	(defmethod :select_paragraph ()
+		; (. buffer :select_paragraph) -> buffer
+		(raise :buffer_lines)
+		(lower (:cursors (. this :merge_cursors
+			(map (lambda ((cx cy &ignore)) (task-slice)
+					(defq y (some! (# (if (blank-line? %0) (inc (!))))
+							(list buffer_lines) :nil cy 0)
+						y1 (some! (# (if (blank-line? %0) (!)))
+							(list buffer_lines) :nil cy (bind '(w h) (. this :get_size))))
+					(setd y 0 y1 h)
+					(nums 0 y1 0 y -1))
+				(get :cursors this)))))
+		this)
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; multi cursor text mutation
 ; undoable !
@@ -776,7 +812,7 @@
 		(time-it ":delete"
 		(raise :buffer_lines)
 		(undoable
-			(each (lambda ((cx cy ax ay &ignore)) (task-slice)
+			(reach (lambda ((cx cy ax ay &ignore)) (task-slice)
 					(when (and (= cx ax) (= cy ay))
 						; no selection - move end point forward
 						(defq line_len (csr-line-end cy))
@@ -791,7 +827,7 @@
 		(time-it ":backspace"
 		(raise :buffer_lines)
 		(undoable
-			(each (lambda ((cx cy ax ay &ignore)) (task-slice)
+			(reach (lambda ((cx cy ax ay &ignore)) (task-slice)
 					(when (and (= cx ax) (= cy ay))
 						; no selection - move start point back
 						(cond
@@ -804,13 +840,13 @@
 		; (. buffer :insert text) -> buffer
 		(time-it ":insert"
 		(undoable
-			(each (lambda (csr) (task-slice)
+			(reach (lambda (csr) (task-slice)
 					; insert at min position (sorted start)
 					(bind '(cx cy) (csr-sort-top csr))
 					(. this :iinsert cx cy text))
 				(. this :merge_cursors (get :cursors this)))
 			; delete any selections
-			(each (lambda ((cx cy ax ay &ignore)) (task-slice)
+			(reach (lambda ((cx cy ax ay &ignore)) (task-slice)
 				(. this :idelete cx cy ax ay)) (get :cursors this)))))
 
 	(defmethod :copy ()
@@ -827,7 +863,7 @@
 			(defq text (list) cursors (. this :merge_cursors (get :cursors this)))
 			(each (lambda ((cx cy ax ay &ignore)) (task-slice)
 				(push text (. this :icopy cx cy ax ay))) cursors)
-			(each (lambda ((cx cy ax ay &ignore)) (task-slice)
+			(reach (lambda ((cx cy ax ay &ignore)) (task-slice)
 				(. this :idelete cx cy ax ay)) cursors))
 		(join text (const (unescape "\f"))))
 
@@ -839,17 +875,17 @@
 			(cond
 				((= (length parts) (length cursors))
 					;matching number of parts !
-					(each (lambda (csr text) (task-slice)
+					(reach (lambda (csr text) (task-slice)
 						(bind '(cx cy) (csr-sort-top csr))
 						(. this :iinsert cx cy text)) cursors parts)
-					(each (lambda ((cx cy ax ay &ignore)) (task-slice)
+					(reach (lambda ((cx cy ax ay &ignore)) (task-slice)
 						(. this :idelete cx cy ax ay)) (get :cursors this)))
 				(:t ;none matching parts !
 					(defq parts (apply (const cat) (push parts "")))
-					(each (lambda (csr) (task-slice)
+					(reach (lambda (csr) (task-slice)
 						(bind '(cx cy) (csr-sort-top csr))
 						(. this :iinsert cx cy parts)) cursors)
-					(each (lambda ((cx cy ax ay &ignore)) (task-slice)
+					(reach (lambda ((cx cy ax ay &ignore)) (task-slice)
 						(. this :idelete cx cy ax ay)) (get :cursors this))))))
 
 ;;;;;;;;;;;;;;;;;;;;

@@ -276,6 +276,24 @@ cursors format: ((cx cy ax ay sx) ...)
 (. buffer :right_select) -> buffer
 ```
 
+### :select_line
+
+```code
+(. buffer :select_line) -> buffer
+```
+
+### :select_paragraph
+
+```code
+(. buffer :select_paragraph) -> buffer
+```
+
+### :select_word
+
+```code
+(. buffer :select_word) -> buffer
+```
+
 ### :set_cursor
 
 ```code

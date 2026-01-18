@@ -128,6 +128,18 @@ the original template args are renamed for safety !
 (const form)
 ```
 
+### csr-sort-bot
+
+```code
+sort cursor so (cx cy) <= (ax ay) return (ax ay)
+```
+
+### csr-sort-top
+
+```code
+sort cursor so (cx cy) <= (ax ay) return (cx cy)
+```
+
 ### debug-brk
 
 ```code

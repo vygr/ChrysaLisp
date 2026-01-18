@@ -50,6 +50,9 @@ before going to an external block.
 Fix `make-info` function to cope with relative function paths in file products
 creation.
 
+Moved `:select_word`, `:select_line` and `:select_paragraph` methods into the
+Buffer class.
+
 ------
 
 Fix Editor `load-depends` bug when on the scratchpad buffer !.
