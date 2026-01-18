@@ -46,10 +46,6 @@
 
 ### :get_cursor
 
-```code
-(. edit :get_cursor) -> (cx cy ax ay)
-```
-
 ### :get_find
 
 ```code
@@ -187,10 +183,6 @@ FIXME to separate regions
 ### :set_buffer
 
 ### :set_cursor
-
-```code
-(. edit :set_cursor) -> edit
-```
 
 ### :set_find
 

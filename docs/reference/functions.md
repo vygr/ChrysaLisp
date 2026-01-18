@@ -186,7 +186,7 @@ map a point (px py) against a deletion from (cx cy) to (ax ay)
 ### csr-map-insert
 
 ```code
-(csr-map-insert px py icx icy ecx ecy nlines ax ay) -> (nx ny)
+(csr-map-insert px py icx icy ecx ecy dy ax ay) -> (nx ny)
 
 map a point (px py) against an insertion at (icx icy) ending at (ecx ecy)
 ```

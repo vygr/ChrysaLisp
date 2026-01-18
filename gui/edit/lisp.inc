@@ -72,16 +72,9 @@
 	(defproxymethod :select_line () :buffer)
 	(defproxymethod :select_paragraph () :buffer)
 	(defproxymethod :insert (text) :buffer)
+	(defproxymethod :get_cursor () :buffer :t)
+	(defproxymethod :set_cursor (cx cy &optional ax ay) :buffer)
 	(defproxymethod :clip_cursor (cx cy &optional ax ay sx) :buffer :t)
-
-	(defmethod :get_cursor ()
-		; (. edit :get_cursor) -> (cx cy ax ay)
-		(. (get :buffer this) :get_cursor))
-
-	(defmethod :set_cursor (cx cy &optional ax ay)
-		; (. edit :set_cursor) -> edit
-		(. (get :buffer this) :set_cursor cx cy ax ay)
-		this)
 
 	(defmethod :max_size ()
 		; (. edit :max_size) -> (width height)
