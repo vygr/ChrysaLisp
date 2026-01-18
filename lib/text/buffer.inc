@@ -172,8 +172,8 @@
 		((= nlines 0) (nums (+ px (- ecx icx)) py))
 		((nums (+ ecx (- px icx)) (+ py nlines)))))
 
-(defmacro csr-line-end (cy)
-	`(rbskip +char_class_lf (elem-get buffer_lines ,cy) -1))
+(defmacro csr-line-end (y)
+	`(dec (length (elem-get buffer_lines ,y))))
 
 (defun bracket-cursors (cursors start_y end_y)
 	; (bracket-cursors cursors start_y end_y) -> (si ei)
@@ -312,8 +312,8 @@
 			cy
 			(cond
 				((< ay 0) (setq ay 0))
-				((> ay h) (setq ay h) (rbskip +char_class_lf (elem-get buffer_lines ay) -1))
-				((min (max ax 0) (rbskip +char_class_lf (elem-get buffer_lines ay) -1))))
+				((> ay h) (setq ay h) (csr-line-end ay))
+				((min (max ax 0) (csr-line-end ay))))
 			ay (ifn sx -1)))
 
 ;;;;;;;;;;;;;;;;;
@@ -579,7 +579,7 @@
 					(cond
 						; move right one char
 						((and (= cx ax) (= cy ay))
-							(setq ax (dec (length (elem-get buffer_lines cy))))
+							(setq ax (csr-line-end cy))
 							(if (< cx ax)
 								(nums (inc cx) cy (inc cx) cy (inc cx))
 								(if (< cy (dec (length buffer_lines)))
@@ -684,7 +684,7 @@
 		(lower (:cursors (. this :merge_cursors
 			(map (lambda ((cx cy ax ay sx)) (task-slice)
 					; extend selection right
-					(setq sx (dec (length (elem-get buffer_lines cy))))
+					(setq sx (csr-line-end cy))
 					(cond
 						((< cx sx) (nums (inc cx) cy ax ay (inc cx)))
 						((< cy (dec (length buffer_lines)))
@@ -737,7 +737,7 @@
 		(lower (:cursors (. this :merge_cursors
 			(map (lambda ((cx cy ax ay &ignore)) (task-slice)
 					; extend selection to end of line
-					(setq cx (dec (length (elem-get buffer_lines cy))))
+					(setq cx (csr-line-end cy))
 					(nums cx cy ax ay cx))
 				(get :cursors this)))))
 		this)
@@ -776,7 +776,7 @@
 			(reach (lambda ((cx cy ax ay &ignore)) (task-slice)
 					(when (and (= cx ax) (= cy ay))
 						; no selection - move end point forward
-						(defq line_len (dec (length (elem-get buffer_lines cy))))
+						(defq line_len (csr-line-end cy))
 						(cond
 							((< cx line_len) (setq ax (inc cx)))
 							((< cy (dec (length buffer_lines))) (setq ax 0 ay (inc cy)))))
@@ -793,7 +793,7 @@
 						; no selection - move start point back
 						(cond
 							((> cx 0) (setq cx (dec cx)))
-							((> cy 0) (setq cy (dec cy) cx (dec (length (elem-get buffer_lines cy)))))))
+							((> cy 0) (setq cy (dec cy) cx (csr-line-end cy)))))
 					(. this :idelete cx cy ax ay))
 				(. this :merge_cursors (get :cursors this))))))
 
