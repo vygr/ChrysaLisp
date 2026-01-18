@@ -111,18 +111,11 @@
 	`(slice (csr-sort ,csr) 2 -1))
 
 (defun csr-floor (csr)
-	; floor cursor to line boundaries, avoiding object churn if already floored
-	(bind '(cx cy ax ay) (defq csr (csr-sort csr)))
-	(cond
-		; same line - extend to full line
-		((= cy ay)
-			(if (and (= cx 0) (= ay (inc cy)))
-				csr
-				(nums 0 cy 0 (inc ay))))
-		; multi-line with ax not at start - extend
-		((/= 0 ax) (nums cx cy 0 (inc ay)))
-		; already floored
-		(csr)))
+	; floor cursor to line boundaries
+	(bind '(cy cy ax ay) (defq csr (csr-sort csr)))
+	(if (or (= cy ay) (/= 0 ax))
+		(nums 0 cy 0 (inc ay))
+		(nums 0 cy 0 ay)))
 
 (defun csr-cmp-xy (%0 %1)
 	(bind '(cx1 cy1) (csr-sort-top %0))
@@ -783,8 +776,9 @@
 	(defmethod :select_line ()
 		; (. buffer :select_line) -> buffer
 		(lower (:cursors (. this :merge_cursors
-			(map (lambda ((cx cy &ignore)) (task-slice)
-					(nums 0 (inc cy) 0 cy -1))
+			(map (lambda (csr) (task-slice)
+					(bind '(cx cy &ignore) (csr-floor csr))
+					(nums cx (inc cy) cx cy -1))
 				(get :cursors this)))))
 		this)
 
