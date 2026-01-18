@@ -620,7 +620,7 @@
 					(if (< ay h)
 						(nums (setq ax (min sx (dec (length (elem-get buffer_lines (setq ay (inc ay)))))))
 							ay ax ay sx)
-						(nums (setq ax (dec (length (elem-get buffer_lines h)))) h ax h sx)))
+						(nums (setq ax (csr-line-end h)) h ax h sx)))
 				(get :cursors this)))))
 		this))
 
@@ -655,7 +655,7 @@
 		; (. buffer :bottom) -> buffer
 		(raise :buffer_lines)
 		(defq h (dec (length buffer_lines))
-			ex (dec (length (elem-get buffer_lines h))))
+			ex (csr-line-end h))
 		(lower (:cursors (list (nums ex h ex h 0))))
 		this)
 
@@ -718,7 +718,7 @@
 					(if (< cy h)
 						(nums (setq cx (min sx (dec (length (elem-get buffer_lines (setq cy (inc cy)))))))
 							cy ax ay sx)
-						(nums (setq cx (dec (length (elem-get buffer_lines h)))) h ax ay sx)))
+						(nums (setq cx (csr-line-end h)) h ax ay sx)))
 				(get :cursors this)))))
 		this)
 
@@ -755,7 +755,7 @@
 		; (. buffer :bottom_select) -> buffer
 		(raise :buffer_lines)
 		(defq h (dec (length buffer_lines))
-			ex (dec (length (elem-get buffer_lines h))))
+			ex (csr-line-end h))
 		(lower (:cursors (. this :merge_cursors
 			(map (lambda ((cx cy ax ay &ignore)) (task-slice)
 					; extend selection to end of buffer
