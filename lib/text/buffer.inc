@@ -100,7 +100,7 @@
 		(nums ax ay cx cy)))
 
 ;native version
-(ffi "lib/text/csr_sort" csr-sort)
+(ffi (path-to-absolute "./csr_sort") csr-sort)
 
 (defmacro csr-sort-top (csr)
 	; sort cursor so (cx cy) <= (ax ay) return (cx cy)
