@@ -288,10 +288,11 @@
 ; cursor clipping
 ;;;;;;;;;;;;;;;;;;
 
-	(defmethod :clip_cursor (cx cy ax ay &optional sx)
-		; (. buffer :clip_cursor cx cy ax ay [sx]) -> (cx cy ax ay sx)
+	(defmethod :clip_cursor (cx cy &optional ax ay sx)
+		; (. buffer :clip_cursor cx cy [ax ay sx]) -> (cx cy ax ay sx)
 		; clips coordinates to valid buffer positions
 		(raise :buffer_lines)
+		(setd ax cx ay cy)
 		(defq h (dec (length buffer_lines)))
 		; clip cy
 		(nums
@@ -312,14 +313,12 @@
 
 	(defmethod :set_cursor (cx cy &optional ax ay)
 		; (. buffer :set_cursor cx cy [ax ay]) -> buffer
-		(setd ax cx ay cy)
 		(lower (:cursors (list (. this :clip_cursor cx cy ax ay))))
 		this)
 
 	(defmethod :add_cursor (cx cy &optional ax ay)
 		; (. buffer :add_cursor cx cy [ax ay]) -> buffer
 		(time-it ":add_cursor"
-		(setd ax cx ay cy)
 		(lower (:cursors (. this :merge_cursors
 			(push (get :cursors this) (. this :clip_cursor cx cy ax ay)))))
 		this))
@@ -469,7 +468,7 @@
 		(time-it ":iinsert"
 		(task-slice)
 		(raise :buffer_lines :cursors)
-		(bind '(cx cy &ignore) (. this :clip_cursor cx cy cx cy))
+		(bind '(cx cy &ignore) (. this :clip_cursor cx cy))
 		(when (nql text "")
 			(defq icx cx icy cy d (length text) i 0 breaks (list))
 			; calculate line breaks

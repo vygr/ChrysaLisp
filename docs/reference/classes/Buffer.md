@@ -43,7 +43,7 @@
 ### :clip_cursor
 
 ```code
-(. buffer :clip_cursor cx cy ax ay [sx]) -> (cx cy ax ay sx)
+(. buffer :clip_cursor cx cy [ax ay sx]) -> (cx cy ax ay sx)
 
 clips coordinates to valid buffer positions
 ```

@@ -192,7 +192,7 @@ should provide the concreate handler
 ### defproxymethod
 
 ```code
-(defproxymethod name field [arg ...])
+(defproxymethod name args field [ret_flag])
 ```
 
 ### defsetmethod

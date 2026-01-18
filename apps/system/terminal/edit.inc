@@ -28,7 +28,7 @@
 
 (defun action-break ()
 	(input-cursor
-		(bind '(x y) (. *edit* :clip_cursor +max_int y))
+		(bind '(x y &ignore) (. *edit* :clip_cursor +max_int y))
 		(. buffer :set_cursor x y)
 		(cond
 			(*pipe*

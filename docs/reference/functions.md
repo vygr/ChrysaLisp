@@ -172,7 +172,7 @@ cached circle generation, quantised to 1/4 pixel
 ### csr-floor
 
 ```code
-floor cursor to line boundaries, avoiding object churn if already floored
+floor cursor to line boundaries
 ```
 
 ### csr-map-delete

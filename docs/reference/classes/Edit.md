@@ -20,10 +20,6 @@
 
 ### :clip_cursor
 
-```code
-(. edit :clip_cursor x y) -> (x y)
-```
-
 ### :comment
 
 ```code
