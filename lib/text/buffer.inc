@@ -99,6 +99,9 @@
 		(nums cx cy ax ay)
 		(nums ax ay cx cy)))
 
+;native version
+(ffi (path-to-absolute "./csr_sort") csr-sort)
+
 (defun csr-map-delete (px py cx cy ax ay)
 	; (csr-map-delete px py cx cy ax ay) -> (nx ny)
 	; map a point (px py) against a deletion from (cx cy) to (ax ay)
@@ -117,6 +120,9 @@
 			((> py ay) (- py dcy))
 			(cy))))
 
+;native version
+(ffi (path-to-absolute "./csr_map_delete") csr-map-delete)
+
 (defun csr-map-insert (px py icx icy ecx ecy dy ax ay)
 	; (csr-map-insert px py icx icy ecx ecy dy ax ay) -> (nx ny)
 	; map a point (px py) against an insertion at (icx icy) ending at (ecx ecy)
@@ -133,9 +139,7 @@
 		((= dy 0) (nums (+ px (- ecx icx)) py))
 		((nums (+ ecx (- px icx)) (+ py dy)))))
 
-;native versions
-(ffi (path-to-absolute "./csr_sort") csr-sort)
-(ffi (path-to-absolute "./csr_map_delete") csr-map-delete)
+;native version
 (ffi (path-to-absolute "./csr_map_insert") csr-map-insert)
 
 (defmacro csr-sort-top (csr)
@@ -153,13 +157,13 @@
 		(nums 0 cy 0 (inc ay))
 		(nums 0 cy 0 ay)))
 
-(defun csr-cmp-xy (%0 %1)
+(defun csr-cmp (%0 %1)
 	(bind '(cx1 cy1) (csr-sort-top %0))
 	(bind '(cx2 cy2) (csr-sort-top %1))
 	(if (/= cy1 cy2) (- cy1 cy2) (- cx1 cx2)))
 
-(defun csr-cmp-x (%0 %1)
-	(- (first (csr-sort-top %0)) (first (csr-sort-top %1))))
+;native version
+(ffi (path-to-absolute "./csr_cmp") csr-cmp)
 
 (defmacro csr-line-end (y)
 	`(dec (length (elem-get buffer_lines ,y))))
@@ -240,19 +244,19 @@
 ; cursor list sorts
 ;;;;;;;;;;;;;;;;;;;
 
-(defun sort-bucket (this lst fxy fx)
+(defun sort-bucket (this lst fcmp)
 	(cond
 		;nothing to do
 		((<= (length lst) 1) lst)
 		;trivial case just sort it and be dambed
-		((< (length lst) 32) (sort lst fxy))
+		((< (length lst) 32) (sort lst fcmp))
 		;ok roll out the buckets
 		((defq buffer_buckets (get :buffer_buckets this))
 		;fill the buckets
 		(each (# (push (elem-get buffer_buckets (min (second %0) (elem-get %0 3))) %0)) lst)
 		(clear lst)
 		;scan buckets and sort each one, pushing onto result
-		(each (# (reduce (const push) (sort %0 fx) lst) (clear %0))
+		(each (# (reduce (const push) (sort %0 fcmp) lst) (clear %0))
 			buffer_buckets) lst)))
 
 ;;;;;;;
@@ -352,7 +356,7 @@
 		(time-it ":get_selected"
 		(map (# (task-slice) (most %0))
 			(sort-bucket this (cat (get :cursors this) (get :tcursors this))
-				(const csr-cmp-xy) (const csr-cmp-x)))))
+				(const csr-cmp)))))
 
 	(defmethod :get_selected_unsorted ()
 		; (. buffer :get_selected_unsorted) -> ((cx cy ax ay) ...)
@@ -374,9 +378,8 @@
 		(time-it ":merge_cursors"
 		(raise :buffer_lines)
 		(time-it ":merge_cursors sort"
-		(defq cursors (sort-bucket this cursors
-				; sort by min(cy, ay) then min(cx, ax)
-				(const csr-cmp-xy) (const csr-cmp-x))))
+		; sort by min(cy, ay) then min(cx, ax)
+		(defq cursors (sort-bucket this cursors (const csr-cmp))))
 		(time-it ":merge_cursors reduce"
 		(reduce! (# (task-slice)
 				(bind '(cx cy ax ay) (csr-sort (last %0)))

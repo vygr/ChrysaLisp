@@ -28,25 +28,73 @@
 	(vp-simd vp-cpy-ir `(,iter)
 		`(0 ,+long_size ,(* 2 +long_size) ,(* 3 +long_size))
 		`(,cx ,cy ,ax ,ay))
-	(gotoif `(,cy > ,ay) 'swap)
-	(vpif `(,cy = ,ay))
-		(gotoif `(,cx > ,ax) 'swap)
+	(vpif `(,cy >= ,ay) 'done)
+		(vpif `(,cy = ,ay))
+			(breakif `(,cx <= ,ax) 'done)
+		(endif)
+		(vp-simd vp-cpy-ri `(,ax ,ay ,cx ,cy) `(,iter)
+			`(0 ,+long_size ,(* 2 +long_size) ,(* 3 +long_size)))
 	(endif)
-
-	(exit `(,this ,nums))
-	(vp-ret)
-
-(vp-label 'swap)
-	(vp-simd vp-cpy-ri `(,ax ,ay ,cx ,cy) `(,iter)
-		`(0 ,+long_size ,(* 2 +long_size) ,(* 3 +long_size)))
 
 	(exit `(,this ,nums))
 	(vp-ret)
 
 (errorcase
 (vp-label 'error)
-	(jump :lisp :repl_error `(,this "(csr-sort nums)" +error_msg_wrong_types ,args))
+	(jump :lisp :repl_error `(,this "(csr-sort csr)" +error_msg_wrong_types ,args))
 	(signature '(:nums)))
+
+(def-func-end)
+
+(def-func (path-to-absolute "./csr_cmp"))
+	;inputs
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
+	;outputs
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
+	;trashes
+	;:r1-:r14
+
+	(vp-rdef (len args nums1 nums2 cx1 cy1 ax1 ay1 cx2 cy2 ax2 ay2 this))
+
+	(entry `(,this ,args))
+
+	(errorif-lisp-args-sig 'error :r1 2)
+	(list-bind-args args `(,nums1 ,nums2) '(:nums :nums))
+(errorcase
+	(assign `((,nums1 array_length)) `(,len))
+	(gotoif `(,len < 4) 'error)
+	(assign `((,nums2 array_length)) `(,len))
+	(gotoif `(,len < 4) 'error))
+
+	(assign `((,nums1 array_begin)) `(,nums1))
+	(assign `((,nums2 array_begin)) `(,nums2))
+	(vp-simd vp-cpy-ir `(,nums1)
+		`(0 ,+long_size ,(* 2 +long_size) ,(* 3 +long_size))
+		`(,cx1 ,cy1 ,ax1 ,ay1))
+	(vp-simd vp-cpy-ir `(,nums2)
+		`(0 ,+long_size ,(* 2 +long_size) ,(* 3 +long_size))
+		`(,cx2 ,cy2 ,ax2 ,ay2))
+
+	(vp-min-rr ay1 cy1)
+	(vp-min-rr ay2 cy2)
+	(vp-sub-rr cy2 cy1)
+	(vpif `(,cy1 = 0))
+		(vp-min-rr ax1 cx1)
+		(vp-min-rr ax2 cx2)
+		(vp-sub-rr cx2 cx1)
+		(vp-cpy-rr cx1 cy1)
+	(endif)
+
+	(call :num :create `(,cy1) `(,args))
+	(exit `(,this ,args))
+	(vp-ret)
+
+(errorcase
+(vp-label 'error)
+	(jump :lisp :repl_error `(,this "(csr-cmp csr csr)" +error_msg_wrong_types ,args))
+	(signature '(:nums :nums)))
 
 (def-func-end)
 
