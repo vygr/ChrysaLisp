@@ -38,10 +38,12 @@
 	(static-qq (defmethod ,(sym (cat :set_ (rest field))) (val)
 		(def this ,field val) this)))
 
-(defmacro defproxymethod (n a field)
-	; (defproxymethod name field [arg ...])
-	(static-qq (defmethod ,n (~a)
-		(. (get ,field this) ,n ~a) this)))
+(defmacro defproxymethod (n a field &optional ret_flag)
+	; (defproxymethod name args field [ret_flag])
+	(defq b (filter (# (nql '&optional %0)) a))
+	(if ret_flag
+		(static-qq (defmethod ,n (~a) (. (get ,field this) ,n ~b)))
+		(static-qq (defmethod ,n (~a) (. (get ,field this) ,n ~b) this))))
 
 (defmacro defclass (n a s &rest _)
 	; (defclass Name ([arg ...]) (super ...)|:nil body)

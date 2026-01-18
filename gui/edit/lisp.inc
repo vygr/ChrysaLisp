@@ -72,6 +72,7 @@
 	(defproxymethod :select_line () :buffer)
 	(defproxymethod :select_paragraph () :buffer)
 	(defproxymethod :insert (text) :buffer)
+	(defproxymethod :clip_cursor (cx cy &optional ax ay sx) :buffer :t)
 
 	(defmethod :get_cursor ()
 		; (. edit :get_cursor) -> (cx cy ax ay)
@@ -134,12 +135,6 @@
 	(defmethod :set_find (find_x find_y find_x1 find_y1)
 		; (. edit :set_find x y x1 y1) -> edit
 		(lower :find_x :find_y :find_x1 :find_y1) this)
-
-	(defmethod :clip_cursor (x y)
-		; (. edit :clip_cursor x y) -> (x y)
-		(raise :buffer)
-		(bind '(cx cy &ignore) (. buffer :clip_cursor x y 0 0 :nil))
-		(list cx cy))
 
 	(defmethod :set_scroll (scroll_x scroll_y)
 		; (. edit :set_scroll x y) -> edit
@@ -480,7 +475,7 @@
 		(bind '(x y) (. this :char_pos event))
 		(if (= 1 (defq mouse_state (getf event +ev_msg_mouse_buttons)))
 			(. buffer :set_cursor x y x y))
-		(. buffer :set_tcursors (list (. buffer :clip_cursor x y x y 0)))
+		(. buffer :set_tcursors (list (. buffer :clip_cursor x y)))
 		(lower :mouse_state)
 		this)
 
