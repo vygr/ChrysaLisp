@@ -804,6 +804,10 @@
 				(get :cursors this)))))
 		this)
 
+	(defmethod :select_all ()
+		; (. buffer :select_all) -> buffer
+		(. this :set_cursor 0 (dec (length (get :buffer_lines this))) 0 0))
+
 	(defmethod :floor_selection ()
 		; (. buffer :floor_selection) -> buffer
 		(lower (:cursors (. this :merge_cursors

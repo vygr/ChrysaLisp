@@ -68,11 +68,12 @@
 	(defproxymethod :bottom_select () :buffer)
 	(defproxymethod :backspace () :buffer)
 	(defproxymethod :delete () :buffer)
+	(defproxymethod :insert (text) :buffer)
 	(defproxymethod :select_word () :buffer)
 	(defproxymethod :select_line () :buffer)
 	(defproxymethod :select_paragraph () :buffer)
+	(defproxymethod :select_all () :buffer)
 	(defproxymethod :floor_selection () :buffer)
-	(defproxymethod :insert (text) :buffer)
 	(defproxymethod :get_cursor () :buffer :t)
 	(defproxymethod :set_cursor (cx cy &optional ax ay) :buffer)
 	(defproxymethod :clip_cursor (cx cy &optional ax ay sx) :buffer :t)
@@ -114,8 +115,7 @@
 		; (. edit :get_select) -> text
 		(raise :buffer)
 		(bind '(cx cy ax ay) (.-> buffer :get_cursor))
-		(defq text (. buffer :icopy cx cy ax ay))
-		(first (split text +char_class_lf)))
+		(first (split (. buffer :icopy cx cy ax ay) +char_class_lf)))
 
 	(defmethod :get_scroll ()
 		; (. edit :get_scroll) -> (x y)
@@ -151,14 +151,6 @@
 		; (. edit :right_bracket) -> edit
 		(if (bind '(cx cy) (. (get :buffer this) :right_bracket))
 			(. this :set_cursor cx cy)))
-
-	(defmethod :select_all ()
-		; (. edit :select_all) -> edit
-		(raise :buffer)
-		(bind '(w h) (. buffer :get_size))
-		(defq max_x (dec (length (. buffer :get_text_line h))))
-		(. buffer :set_cursor max_x h 0 0)
-		this)
 
 	(defmethod :get_selected_extent ()
 		; (. edit :get_selected_extent) -> csr
