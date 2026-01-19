@@ -114,6 +114,12 @@ clips coordinates to valid buffer positions
 (. buffer :find pattern wmode rmode) -> buffer_found
 ```
 
+### :floor_selection
+
+```code
+(. buffer :floor_selection) -> buffer
+```
+
 ### :get_buffer_found
 
 ### :get_buffer_lines

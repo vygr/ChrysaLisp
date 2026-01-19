@@ -71,6 +71,7 @@
 	(defproxymethod :select_word () :buffer)
 	(defproxymethod :select_line () :buffer)
 	(defproxymethod :select_paragraph () :buffer)
+	(defproxymethod :floor_selection () :buffer)
 	(defproxymethod :insert (text) :buffer)
 	(defproxymethod :get_cursor () :buffer :t)
 	(defproxymethod :set_cursor (cx cy &optional ax ay) :buffer)
@@ -249,8 +250,7 @@
 		; (. edit :reflow) -> edit
 		(undoable
 			(. this :select_paragraph)
-			(reach (lambda (csr)
-				(bind '(sx sy sx1 sy1 &ignore) (csr-floor csr))
+			(reach (lambda ((sx1 sy1 sx sy &ignore))
 				(when (/= sy sy1)
 					(defq lines (.-> buffer :get_syntax_engine
 							(:text_flow (split (. buffer :icopy 0 sy 0 sy1) +char_class_white_space)
@@ -262,83 +262,77 @@
 		this)
 
 	(defmethod :split ()
-			; (. edit :split) -> edit
-			(undoable
-				(. this :select_paragraph)
-				(reach (lambda (csr)
-					(bind '(sx sy sx1 sy1 &ignore) (csr-floor csr))
-					(when (/= sy sy1)
-						(defq lines (split (. buffer :icopy 0 sy 0 sy1) +char_class_white_space))
-						(.-> buffer
-							(:idelete 0 sy 0 sy1)
-							(:iinsert 0 sy (join lines +char_class_lf 2)))))
-					(. buffer :get_selected)))
-			this)
+		; (. edit :split) -> edit
+		(undoable
+			(. this :select_paragraph)
+			(reach (lambda ((sx1 sy1 sx sy &ignore))
+				(when (/= sy sy1)
+					(defq lines (split (. buffer :icopy 0 sy 0 sy1) +char_class_white_space))
+					(.-> buffer
+						(:idelete 0 sy 0 sy1)
+						(:iinsert 0 sy (join lines +char_class_lf 2)))))
+				(. buffer :get_selected)))
+		this)
 
 	(defmethod :sort ()
 		; (. edit :sort) -> edit
 		(undoable
-			(defq selected (map (const csr-floor) (. buffer :get_selected))
-				lines (list))
-			(each (lambda ((sx sy sx1 sy1 &ignore))
-					(until (= sy sy1)
-						(push lines (. buffer :get_text_line sy))
-						(++ sy)))
-				selected)
-			(setq lines (reverse (sort lines)))
-			(each (lambda ((sx sy sx1 sy1 &ignore))
-					(until (= sy sy1)
-						(.-> buffer
-							;avoid causing line breaks !
-							(:idelete 0 sy (dec (length (. buffer :get_text_line sy))) sy)
-							(:iinsert 0 sy (most (pop lines))))
-						(++ sy)))
-				selected)
-			(lines-selected selected))
-		this)
-
-	(defmethod :unique ()
-		; (. edit :unique) -> edit
-		;FIXME
-		(undoable
-			(defq selected (map (const csr-floor) (. buffer :get_selected))
-				lines (list))
+			(. this :floor_selection)
 			(reach (lambda ((sx sy sx1 sy1 &ignore))
-					(until (= sy sy1)
-						(push lines (. buffer :get_text_line sy))
-						(++ sy)))
-				selected)
-			(setq lines (reverse (unique lines)))
-			(each (lambda ((sx sy sx1 sy1 &ignore))
-					(until (= sy sy1)
+					(defq lines (list) y sy)
+					(while (< y sy1)
+						(push lines (. buffer :get_text_line y))
+						(++ y))
+					(setq lines (reverse (sort lines)) y sy)
+					(while (< y sy1)
 						(.-> buffer
-							;avoid causing line breaks !
-							(:idelete 0 sy (dec (length (. buffer :get_text_line sy))) sy)
-							(:iinsert 0 sy (most (ifn (pop lines) +char_class_lf))))
-						(++ sy)))
-				selected)
-			(lines-selected selected))
+							(:idelete 0 y (dec (length (. buffer :get_text_line y))) y)
+							(:iinsert 0 y (most (pop lines))))
+						(++ y)))
+				(. buffer :get_selected))
+			(lines-selected (. buffer :get_selected)))
 		this)
 
 	(defmethod :invert ()
 		; (. edit :invert) -> edit
 		(undoable
-			(defq selected (map (const csr-floor) (. buffer :get_selected))
-				lines (list))
-			(each (lambda ((sx sy sx1 sy1 &ignore))
-					(until (= sy sy1)
-						(push lines (. buffer :get_text_line sy))
-						(++ sy)))
-				selected)
-			(each (lambda ((sx sy sx1 sy1 &ignore))
-					(until (= sy sy1)
+			(. this :floor_selection)
+			(reach (lambda ((sx sy sx1 sy1 &ignore))
+					(defq lines (list) y sy)
+					(while (< y sy1)
+						(push lines (. buffer :get_text_line y))
+						(++ y))
+					(setq y sy)
+					(while (< y sy1)
 						(.-> buffer
-							;avoid causing line breaks !
-							(:idelete 0 sy (dec (length (. buffer :get_text_line sy))) sy)
-							(:iinsert 0 sy (most (pop lines))))
-						(++ sy)))
-				selected)
-			(lines-selected selected))
+							(:idelete 0 y (dec (length (. buffer :get_text_line y))) y)
+							(:iinsert 0 y (most (pop lines))))
+						(++ y)))
+				(. buffer :get_selected))
+			(lines-selected (. buffer :get_selected)))
+		this)
+
+	(defmethod :unique ()
+		; (. edit :unique) -> edit
+		(undoable
+			(. this :floor_selection)
+			(reach (lambda ((sx sy sx1 sy1 &ignore))
+					(defq lines (list) y sy)
+					(while (< y sy1)
+						(push lines (. buffer :get_text_line y))
+						(++ y))
+					(setq lines (reverse (unique lines)) y sy)
+					(while (< y sy1)
+						(if (defq line (pop lines))
+							(.-> buffer
+								(:idelete 0 y (dec (length (. buffer :get_text_line y))) y)
+								(:iinsert 0 y (most line)))
+							(progn
+								(. buffer :idelete 0 y 0 sy1)
+								(setq y sy1)))
+						(++ y)))
+				(. buffer :get_selected))
+			(lines-selected (. buffer :get_selected)))
 		this)
 
 	(defmethod :comment ()

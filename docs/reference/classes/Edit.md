@@ -42,6 +42,8 @@
 
 ### :end_select
 
+### :floor_selection
+
 ### :get_buffer
 
 ### :get_cursor
@@ -140,8 +142,6 @@
 
 ```code
 (. edit :reflow) -> edit
-
-FIXME to separate regions
 ```
 
 ### :right
@@ -230,8 +230,6 @@ FIXME to separate regions
 
 ```code
 (. edit :split) -> edit
-
-FIXME to separate regions
 ```
 
 ### :tab
@@ -268,8 +266,6 @@ create the masks for selections, brackets and cursors
 
 ```code
 (. edit :unique) -> edit
-
-FIXME
 ```
 
 ### :up
