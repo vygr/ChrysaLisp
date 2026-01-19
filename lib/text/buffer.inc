@@ -93,6 +93,7 @@
 ;;;;;;;;;;;;;;
 
 (defun csr-sort (csr)
+	; (csr-sort csr) -> csr
 	; sort cursor so (cx cy) <= (ax ay)
 	(bind '(cx cy ax ay &ignore) csr)
 	(if (or (< cy ay) (and (= cy ay) (<= cx ax)))
@@ -143,14 +144,17 @@
 (ffi (path-to-absolute "./csr_map_insert") csr-map-insert)
 
 (defmacro csr-sort-top (csr)
+	; (csr-sort-top csr) -> (cx cy)
 	; sort cursor so (cx cy) <= (ax ay) return (cx cy)
 	`(slice (csr-sort ,csr) 0 2))
 
 (defmacro csr-sort-bot (csr)
+	; (csr-sort-bot csr) -> (ax ay)
 	; sort cursor so (cx cy) <= (ax ay) return (ax ay)
 	`(slice (csr-sort ,csr) 2 -1))
 
 (defun csr-floor (csr)
+	; (csr-floor csr) -> csr
 	; floor cursor to line boundaries
 	(bind '(cy cy ax ay) (defq csr (csr-sort csr)))
 	(if (or (= cy ay) (/= 0 ax))
@@ -158,12 +162,21 @@
 		(nums 0 cy 0 ay)))
 
 (defun csr-cmp (%0 %1)
+	; (csr-cmp csr1 csr2) -> + 0 -
 	(bind '(cx1 cy1) (csr-sort-top %0))
 	(bind '(cx2 cy2) (csr-sort-top %1))
 	(if (/= cy1 cy2) (- cy1 cy2) (- cx1 cx2)))
 
 ;native version
 (ffi (path-to-absolute "./csr_cmp") csr-cmp)
+
+(defun csr-within (csr1 csr2)
+	; (csr-within csr1 csr2) -> :t | :nil
+	; returns :t if csr2 is enclosed within (or equal to) csr1
+	(bind '(x1 y1 x2 y2) (csr-sort csr1))
+	(bind '(x3 y3 x4 y4) (csr-sort csr2))
+	(and (or (> y3 y1) (and (= y3 y1) (>= x3 x1)))
+		(or (< y4 y2) (and (= y4 y2) (<= x4 x2)))))
 
 (defmacro csr-line-end (y)
 	`(dec (length (elem-get buffer_lines ,y))))
@@ -1135,5 +1148,6 @@
 
 ;module
 (export-classes '(Buffer))
-(export-symbols '(csr-sort csr-floor +buffer_flag_syntax +buffer_flag_undo))
+(export-symbols '(csr-sort csr-floor csr-within
+	+buffer_flag_syntax +buffer_flag_undo))
 (env-pop)

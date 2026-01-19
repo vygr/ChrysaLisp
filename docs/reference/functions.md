@@ -169,9 +169,17 @@ cached circle generation, quantised to 1/4 pixel
 (cpu) -> sym
 ```
 
+### csr-cmp
+
+```code
+(csr-cmp csr1 csr2) -> + 0 -
+```
+
 ### csr-floor
 
 ```code
+(csr-floor csr) -> csr
+
 floor cursor to line boundaries
 ```
 
@@ -194,7 +202,17 @@ map a point (px py) against an insertion at (icx icy) ending at (ecx ecy)
 ### csr-sort
 
 ```code
+(csr-sort csr) -> csr
+
 sort cursor so (cx cy) <= (ax ay)
+```
+
+### csr-within
+
+```code
+(csr-within csr1 csr2) -> :t | :nil
+
+returns :t if csr2 is enclosed within (or equal to) csr1
 ```
 
 ### each-mergeable

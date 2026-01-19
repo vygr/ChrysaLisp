@@ -131,12 +131,16 @@ the original template args are renamed for safety !
 ### csr-sort-bot
 
 ```code
+(csr-sort-bot csr) -> (ax ay)
+
 sort cursor so (cx cy) <= (ax ay) return (ax ay)
 ```
 
 ### csr-sort-top
 
 ```code
+(csr-sort-top csr) -> (cx cy)
+
 sort cursor so (cx cy) <= (ax ay) return (cx cy)
 ```
 
