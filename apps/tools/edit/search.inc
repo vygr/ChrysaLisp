@@ -24,70 +24,63 @@
 	; (find-next-cursor cx cy) -> :nil | csr
 	(defq buffer (. *edit* :get_buffer)
 		buffer_found (. buffer :get_buffer_found))
+	;set the line range to search
 	(bind '(fx fy fx1 fy1) (. *edit* :get_focus))
-	(defq has_focus (> fy1 fy))
+	(if (> fy1 fy)
+		(setq fy (max 0 fy) fy1 (min fy1 (length buffer_found)))
+		(setq fy 0 fy1 (length buffer_found)))
 	(cond
-		((and has_focus (>= cy fy1)) :nil)
-		(:t (defq start_y (max 0 cy) end_y (if has_focus fy1 (length buffer_found)))
-			(if (and has_focus (< start_y fy)) (setq start_y fy cx 0))
+		((>= cy fy1) :nil)
+		(:t (if (< cy fy) (setq cy fy cx 0))
 			(some! (lambda (match)
 				(defq y (!))
 				(when match
 					(some (lambda (((x x1) &ignore))
 						(if (or (> y cy) (>= x cx)) (nums x1 y x y -1))) 
 					match)))
-				(list buffer_found) :nil start_y end_y))))
+				(list buffer_found) :nil (max fy cy) fy1))))
 
 (defun find-prev-cursor (cx cy)
 	; (find-prev-cursor cx cy) -> :nil | csr
 	(defq buffer (. *edit* :get_buffer)
 		buffer_found (. buffer :get_buffer_found))
+	;set the line range to search
 	(bind '(fx fy fx1 fy1) (. *edit* :get_focus))
-	(defq has_focus (> fy1 fy))
+	(if (> fy1 fy)
+		(setq fy (max 0 fy) fy1 (min fy1 (length buffer_found)))
+		(setq fy 0 fy1 (length buffer_found)))
 	(cond
-		((and has_focus (< cy fy)) :nil)
-		(:t (defq start_y (min cy (if has_focus fy1 (length buffer_found)))
-				end_y (if has_focus fy 0))
-			(if (and has_focus (>= start_y fy1)) (setq start_y fy1 cx +max_int))
+		((< cy fy) :nil)
+		(:t (if (>= cy fy1) (setq cy fy1 cx +max_int))
 			(some! (lambda (match)
 				(defq y (!))
 				(when match
 					(rsome (lambda (((x x1) &ignore))
-						(if (or (< y cy) (< x cx)) (nums x y x1 y -1)))
+						(if (or (< y cy) (< x cx)) (nums x y x1 y -1))) 
 					match)))
-				(list buffer_found) :nil start_y end_y))))
+				(list buffer_found) :nil (min fy1 (inc cy)) fy))))
 
 (defun action-find-down (whole_words regexp pattern)
 	;return :nil if nothing found !
-	(cond
-		((unless (eql pattern "")
-			(defq buffer (. *edit* :get_buffer))
-			(when (> (length (defq found (. buffer :find pattern whole_words regexp))) 0)
-				(bind '(cx cy &ignore) (. *edit* :get_cursor))
-				(defq next (find-next-cursor cx cy))
-				(unless next
-					(setq next (find-next-cursor -1 -1)))
-				(when next
-					(bind '(cx cy ax ay &ignore) next)
-					(. *edit* :set_cursor cx cy ax ay)
-					(refresh) :t))))
-		(:t (refresh) :nil)))
+	(when (nql pattern "")
+		(defq buffer (. *edit* :get_buffer))
+		(when (> (length (defq found (. buffer :find pattern whole_words regexp))) 0)
+			(bind '(cx cy &ignore) (. *edit* :get_cursor))
+			(when (defq next (find-next-cursor cx cy))
+				(bind '(cx cy ax ay &ignore) next)
+				(. *edit* :set_cursor cx cy ax ay)
+				(refresh) :t))))
 
 (defun action-find-up (whole_words regexp pattern)
 	;return :nil if nothing found !
-	(cond
-		((unless (eql pattern "")
-			(defq buffer (. *edit* :get_buffer))
-			(when (> (length (defq found (. buffer :find pattern whole_words regexp))) 0)
-				(bind '(cx cy &ignore) (. *edit* :get_cursor))
-				(defq next (find-prev-cursor cx cy))
-				(unless next
-					(setq next (find-prev-cursor +max_int +max_int)))
-				(when next
-					(bind '(cx cy ax ay &ignore) next)
-					(. *edit* :set_cursor cx cy ax ay)
-					(refresh) :t))))
-		(:t (refresh) :nil)))
+	(when (nql pattern "")
+		(defq buffer (. *edit* :get_buffer))
+		(when (> (length (defq found (. buffer :find pattern whole_words regexp))) 0)
+			(bind '(cx cy &ignore) (. *edit* :get_cursor))
+			(when (defq next (find-prev-cursor cx cy))
+				(bind '(cx cy ax ay &ignore) next)
+				(. *edit* :set_cursor cx cy ax ay)
+				(refresh) :t))))
 
 (defun action-add-next ()
 	(bind '(cx cy &ignore) (. *edit* :get_cursor))
