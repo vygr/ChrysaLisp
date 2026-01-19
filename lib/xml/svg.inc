@@ -270,7 +270,7 @@
 				))
 		(lambda (text)
 			;render text (skip in TUI mode where fonts unavailable)
-			(when (def? 'create-font)
+			(when (get 'create-font)
 				(bind '(x y family weight size anchor baseline)
 					(gather (defq entry (last stack))
 						"x" "y" "font-family" "font-weight" "font-size"
