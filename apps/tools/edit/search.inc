@@ -123,7 +123,7 @@
 		(defq buffer (. *edit* :get_buffer)
 			lines (. buffer :get_buffer_lines)
 			found (. buffer :find pattern whole_words regexp))
-		(bind '(sx sy sx1 sy1) (sort-selection))
+		(bind '(sx sy sx1 sy1) (csr-sort (. *edit* :get_cursor)))
 		(when (and (= sy sy1) (defq
 				rep_matches (matches rep_text "\$(\d+)")
 				rep_text (build-replace lines found rep_text rep_matches sx sy sx1)))

@@ -12,12 +12,6 @@
 		~_
 		(. buffer :push_undo (list :mark mark))))
 
-(defun sort-selection ()
-	(bind '(sx sy sx1 sy1) (. *edit* :get_cursor))
-	(if (> sy sy1) (defq st sx sx sx1 sx1 st st sy sy sy1 sy1 st))
-	(and (= sy sy1) (> sx sx1) (defq st sx sx sx1 sx1 st))
-	(list sx sy sx1 sy1))
-
 (defun select-word ()
 	(bind '(cx cy &ignore) (. *edit* :get_cursor))
 	(defq line (.-> *edit* :get_buffer (:get_text_line cy))
