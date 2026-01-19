@@ -196,7 +196,7 @@
 	action-select-word action-sort action-tab action-to-lower action-to-upper
 	action-trim action-undo action-unique action-up action-up-select action-split
 	action-top action-bottom action-push action-pop action-bottom-select
-	action-top-select action-add-cursors)
+	action-top-select action-add-cursors action-add-next)
 
 *replace_actions* (list
 	action-replace action-replace-all action-replace-global)
