@@ -180,8 +180,9 @@
 	0x40000051 action-bottom)
 
 *recorded_actions* (list
-	action-backspace action-break action-comment action-copy action-cut
-	action-copy-block action-copy-line action-copy-paragraph action-copy-word
+	action-add-cursors action-add-next action-backspace action-bottom
+	action-bottom-select action-break action-comment action-copy action-copy-block
+	action-copy-line action-copy-paragraph action-copy-word action-cut
 	action-cut-block action-cut-line action-cut-paragraph action-cut-word
 	action-delete action-down action-down-select action-end action-end-select
 	action-find-down action-find-up action-home action-home-select action-insert
@@ -189,14 +190,14 @@
 	action-left-tab action-macro-playback-1 action-macro-playback-2
 	action-macro-playback-3 action-macro-playback-4 action-macro-playback-5
 	action-macro-playback-6 action-macro-playback-7 action-macro-playback-8
-	action-macro-playback-9 action-paste action-redo action-reflow action-region
-	action-replace action-replace-all action-rewind action-right
-	action-right-bracket action-right-select action-right-tab action-select-all
-	action-select-block action-select-line action-select-paragraph
-	action-select-word action-sort action-tab action-to-lower action-to-upper
-	action-trim action-undo action-unique action-up action-up-select action-split
-	action-top action-bottom action-push action-pop action-bottom-select
-	action-top-select action-add-cursors action-add-next)
+	action-macro-playback-9 action-paste action-pop action-push action-redo
+	action-reflow action-region action-replace action-replace-all action-rewind
+	action-right action-right-bracket action-right-select action-right-tab
+	action-select-all action-select-block action-select-line
+	action-select-paragraph action-select-word action-set-cursors
+	action-set-find-text action-sort action-split action-tab action-to-lower
+	action-to-upper action-top action-top-select action-trim action-undo
+	action-unique action-up action-up-select)
 
 *replace_actions* (list
 	action-replace action-replace-all action-replace-global)
