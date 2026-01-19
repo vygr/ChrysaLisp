@@ -806,7 +806,6 @@
 
 	(defmethod :floor_selection ()
 		; (. buffer :floor_selection) -> buffer
-		(raise :buffer_lines)
 		(lower (:cursors (. this :merge_cursors
 			(map (# (push (csr-floor %0) -1)) (get :cursors this)))))
 		this)
