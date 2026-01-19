@@ -19,6 +19,11 @@
 	(refresh))
 
 (defun action-tab ()
-	;FIXME to do block mode
-	(. *edit* :tab)
-	(refresh))
+	(defq buffer (. *edit* :get_buffer))
+	; check if all cursors are point cursors
+	(if (every (lambda ((cx cy ax ay &ignore)) (and (= cx ax) (= cy ay)))
+			(. buffer :get_cursors))
+		(progn
+			(. *edit* :tab)
+			(refresh))
+		(action-right-tab)))
