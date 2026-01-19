@@ -104,6 +104,7 @@
 	(defq text (. *edit* :get_select))
 	(if *regexp* (setq text (escape text)))
 	(.-> *find_text* (:set_text text) :layout :dirty)
+	(.-> *edit* :get_buffer (:find text *whole_words* *regexp*))
 	(refresh))
 
 (defun build-replace (lines found rep_text rep_matches sx sy sx1)
