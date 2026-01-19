@@ -58,6 +58,12 @@ VP version of `csr-sort`, `csr_cmp`, `csr-map-delete` and `csr-map-insert`.
 Renamed Edit class `:get_find` and `:set_find` methods to `:get_focus` and
 `:set_focus` in order to better reflect what they do.
 
+Editor actions `action-set-cursors` and `action-set-cursors` now respect the
+focus region.
+
+New Editor action, `action-add-next`, bound to cntrl-F, which will add the next
+found selection to the cursor list.
+
 ------
 
 Fix Editor `load-depends` bug when on the scratchpad buffer !.

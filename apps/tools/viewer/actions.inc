@@ -51,6 +51,7 @@
 
 *key_map_control* (scatter (Fmap)
 	(ascii-code "f") action-set-find-text
+	(ascii-code "F") action-add-next
 	(ascii-code "a") action-select-all
 	(ascii-code "A") action-region
 	(ascii-code "b") action-select-block

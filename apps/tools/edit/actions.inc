@@ -140,6 +140,7 @@
 	(ascii-code "p") action-select-paragraph
 	(ascii-code "P") action-cut-paragraph
 	(ascii-code "f") action-set-find-text
+	(ascii-code "F") action-add-next
 	(ascii-code "r") action-replace
 	(ascii-code "R") action-replace-all
 	(ascii-code "y") action-collect
