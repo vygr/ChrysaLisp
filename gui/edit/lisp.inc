@@ -247,29 +247,33 @@
 
 	(defmethod :reflow ()
 		; (. edit :reflow) -> edit
-		;FIXME to separate regions
 		(undoable
-			(bind '(sx sy sx1 sy1) (. this :get_selected_extent))
-			(defq lines (.-> buffer :get_syntax_engine
-					(:text_flow (split (. buffer :icopy 0 sy 0 sy1) +char_class_white_space)
-						(. buffer :get_wrap_width))))
-			(.-> buffer
-				(:idelete 0 sy 0 sy1)
-				(:iinsert 0 sy (join lines +char_class_lf 2))
-				(:set_cursor 0 (+ sy (length lines)) 0 sy)))
+			(. this :select_paragraph)
+			(reach (lambda (csr)
+				(bind '(sx sy sx1 sy1 &ignore) (csr-floor csr))
+				(when (/= sy sy1)
+					(defq lines (.-> buffer :get_syntax_engine
+							(:text_flow (split (. buffer :icopy 0 sy 0 sy1) +char_class_white_space)
+								(. buffer :get_wrap_width))))
+					(.-> buffer
+						(:idelete 0 sy 0 sy1)
+						(:iinsert 0 sy (join lines +char_class_lf 2)))))
+				(. buffer :get_selected)))
 		this)
 
 	(defmethod :split ()
-		; (. edit :split) -> edit
-		;FIXME to separate regions
-		(undoable
-			(bind '(sx sy sx1 sy1) (. this :get_selected_extent))
-			(defq lines (split (. buffer :icopy 0 sy 0 sy1) +char_class_white_space))
-			(.-> buffer
-				(:idelete 0 sy 0 sy1)
-				(:iinsert 0 sy (join lines +char_class_lf 2))
-				(:set_cursor 0 (+ sy (length lines)) 0 sy)))
-		this)
+			; (. edit :split) -> edit
+			(undoable
+				(. this :select_paragraph)
+				(reach (lambda (csr)
+					(bind '(sx sy sx1 sy1 &ignore) (csr-floor csr))
+					(when (/= sy sy1)
+						(defq lines (split (. buffer :icopy 0 sy 0 sy1) +char_class_white_space))
+						(.-> buffer
+							(:idelete 0 sy 0 sy1)
+							(:iinsert 0 sy (join lines +char_class_lf 2)))))
+					(. buffer :get_selected)))
+			this)
 
 	(defmethod :sort ()
 		; (. edit :sort) -> edit
