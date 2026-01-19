@@ -57,7 +57,7 @@
 
 (defun action-macro-global (&optional slot)
 	(for-all-buffers
-		(.-> *edit* (:set_cursor 0 0) (:set_find 0 0 0 0))
+		(.-> *edit* (:set_cursor 0 0) (:set_focus 0 0 0 0))
 		(action-macro-to-eof slot)))
 
 (each (# (def (penv)

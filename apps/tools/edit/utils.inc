@@ -62,14 +62,14 @@
 			(refresh))))
 
 (defun update-find-toolbar ()
-	(bind '(fx fy fx1 fy1) (. *edit* :get_find))
+	(bind '(fx fy fx1 fy1) (. *edit* :get_focus))
 	(toolbar-states *find_toolbar*
 		(list :nil (> fy1 fy) *whole_words* *regexp* :nil :nil)))
 
 (defun find-count ()
 	(defq buffer (. *edit* :get_buffer)
 		found (. buffer :get_buffer_found) fc 0)
-	(bind '(fx fy fx1 fy1) (. *edit* :get_find))
+	(bind '(fx fy fx1 fy1) (. *edit* :get_focus))
 	(if (>= fy fy1) (setq fy 0 fy1 (length found)))
 	(each! (# (setq fc (+ fc (if %0 (length %0) 0)))) (list found) fy fy1)
 	fc)

@@ -14,9 +14,9 @@
 
 (defun action-region ()
 	(bind '(sy sy sy1 sy1) (. *edit* :get_selected_extent))
-	(bind '(fx fy fx1 fy1) (. *edit* :get_find))
+	(bind '(fx fy fx1 fy1) (. *edit* :get_focus))
 	(if (> fy1 fy) (setq fy 0 fy1 0) (setq fy sy fy1 sy1))
-	(. *edit* :set_find fx fy fx1 fy1)
+	(. *edit* :set_focus fx fy fx1 fy1)
 	(update-find-toolbar)
 	(refresh-display))
 
@@ -28,7 +28,7 @@
 			(when (> (length (defq found (. buffer :find pattern whole_words regexp))) 0)
 				(bind '(cx cy &ignore) (. *edit* :get_cursor))
 				(defq sy 0 sy1 (length found))
-				(bind '(fy fy fy1 fy1) (. *edit* :get_find))
+				(bind '(fy fy fy1 fy1) (. *edit* :get_focus))
 				(if (> fy1 fy) (setq sy (max sy fy) sy1 (min sy1 fy1)))
 				(if (< cy sy) (setq cy sy cx 0))
 				(when (and (< cy sy1) (defq next (some!
@@ -51,7 +51,7 @@
 			(when (> (length (defq found (. buffer :find pattern whole_words regexp))) 0)
 				(bind '(cx cy &ignore) (. *edit* :get_cursor))
 				(defq sy 0 sy1 (length found))
-				(bind '(fy fy fy1 fy1) (. *edit* :get_find))
+				(bind '(fy fy fy1 fy1) (. *edit* :get_focus))
 				(if (> fy1 fy) (setq sy (max sy fy) sy1 (min sy1 fy1)))
 				(if (>= cy sy1) (setq cy (dec sy1) cx +max_int))
 				(when (and (>= cy sy) (defq next (some!
@@ -115,7 +115,7 @@
 		(undoable
 			(defq sy 0 sy1 (length found))
 			(unless noclip
-				(bind '(fy fy fy1 fy1) (. *edit* :get_find))
+				(bind '(fy fy fy1 fy1) (. *edit* :get_focus))
 				(if (> fy1 fy) (setq sy (max sy fy) sy1 (min sy1 fy1))))
 			(each! (lambda (match)
 				(defq y (!))
@@ -155,7 +155,7 @@
 		lines (. buffer :get_buffer_lines)
 		sy 0 sy1 (length found))
 	(unless noclip
-		(bind '(fy fy fy1 fy1) (. *edit* :get_find))
+		(bind '(fy fy fy1 fy1) (. *edit* :get_focus))
 		(if (> fy1 fy) (setq sy (max sy fy) sy1 (min sy1 fy1))))
 	(each! (lambda (line found)
 			(if found (each (lambda (((x x1) &ignore))

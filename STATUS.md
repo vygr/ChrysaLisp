@@ -55,6 +55,9 @@ Buffer class.
 
 VP version of `csr-sort`, `csr_cmp`, `csr-map-delete` and `csr-map-insert`.
 
+Renamed Edit class `:get_find` and `:set_find` methods to `:get_focus` and
+`:set_focus` in order to better reflect what they do.
+
 ------
 
 Fix Editor `load-depends` bug when on the scratchpad buffer !.

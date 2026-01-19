@@ -46,10 +46,10 @@
 
 ### :get_cursor
 
-### :get_find
+### :get_focus
 
 ```code
-(. edit :get_find) -> (x y x1 y1)
+(. edit :get_focus) -> (x y x1 y1)
 ```
 
 ### :get_scroll
@@ -184,10 +184,10 @@ FIXME to separate regions
 
 ### :set_cursor
 
-### :set_find
+### :set_focus
 
 ```code
-(. edit :set_find x y x1 y1) -> edit
+(. edit :set_focus x y x1 y1) -> edit
 ```
 
 ### :set_found_color

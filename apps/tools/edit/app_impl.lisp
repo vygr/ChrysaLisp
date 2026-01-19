@@ -108,7 +108,7 @@
 	(bind '(sx sy &ignore) (. *edit* :clip_cursor sx sy))
 	(bind '(fx fy fx1 fy1) '(0 0 0 0))
 	(.-> *edit* (:set_cursor cx cy ax ay)
-		(:set_find fx fy fx1 fy1)
+		(:set_focus fx fy fx1 fy1)
 		(:set_scroll sx sy))
 	(scatter meta :cx cx :cy cy :ax ax :ay ay :sx sx :sy sy)
 	(toolbar-states *find_toolbar* (list :nil :nil *whole_words* *regexp* :nil :nil))

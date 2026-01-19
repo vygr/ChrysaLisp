@@ -120,13 +120,13 @@
 		; (. edit :get_scroll) -> (x y)
 		(list (get :scroll_x this) (get :scroll_y this)))
 
-	(defmethod :get_find ()
-		; (. edit :get_find) -> (x y x1 y1)
+	(defmethod :get_focus ()
+		; (. edit :get_focus) -> (x y x1 y1)
 		(list (get :find_x this) (get :find_y this)
 			(get :find_x1 this) (get :find_y1 this)))
 
-	(defmethod :set_find (find_x find_y find_x1 find_y1)
-		; (. edit :set_find x y x1 y1) -> edit
+	(defmethod :set_focus (find_x find_y find_x1 find_y1)
+		; (. edit :set_focus x y x1 y1) -> edit
 		(lower :find_x :find_y :find_x1 :find_y1) this)
 
 	(defmethod :set_scroll (scroll_x scroll_y)
@@ -382,7 +382,7 @@
 		(bind '(w h) (. this :get_size))
 		(bind '(bw bh) (. buffer :get_size))
 		(bind '(cw ch) (. (get :vdu_text this) :char_size))
-		(bind '(fx fy fx1 fy1) (. this :get_find))
+		(bind '(fx fy fx1 fy1) (. this :get_focus))
 		(defq cc (max (>> cw 2) 1) cb (max (>> cw 3) 1)
 			scroll_y (min (max scroll_y 0) bh)
 			scroll_y1 (min (max (+ scroll_y (/ h ch)) scroll_y) bh))
