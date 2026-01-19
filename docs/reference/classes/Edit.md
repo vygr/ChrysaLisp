@@ -162,10 +162,6 @@
 
 ### :select_all
 
-```code
-(. edit :select_all) -> edit
-```
-
 ### :select_block
 
 ```code

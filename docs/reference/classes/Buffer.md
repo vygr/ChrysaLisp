@@ -282,6 +282,12 @@ cursors format: ((cx cy ax ay sx) ...)
 (. buffer :right_select) -> buffer
 ```
 
+### :select_all
+
+```code
+(. buffer :select_all) -> buffer
+```
+
 ### :select_line
 
 ```code
