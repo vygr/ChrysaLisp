@@ -78,7 +78,7 @@
 	(. files_map :update key (# (setq file_meta (ifn %0 (scatter (Fmap)
 		:cx cx :cy cy :ax ax :ay ay :sx sx :sy sy)))))
 	;create new buffer
-	(. file_meta :insert :buffer (setq buffer (Buffer flags *syntax*)))
+	(. file_meta :insert :buffer (setq buffer (Document flags *syntax*)))
 	(when file (. buffer :file_load file)))
 
 (defun populate-vdu (file)
@@ -154,7 +154,7 @@
 		*syntax* (Syntax) *whole_words* :nil *refresh_mode* (list 0)
 		*meta_map* (scatter (Fmap) :files (Fmap)) *current_file* :nil
 		*cursor_stack* (list))
-	(.-> *edit* (:set_buffer (Buffer))
+	(.-> *edit* (:set_buffer (Document))
 		(:set_ink_color +argb_white)
 		(:set_select_color +argb_grey6)
 		(:set_found_color +argb_grey4)

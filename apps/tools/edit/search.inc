@@ -127,7 +127,7 @@
 		(when (and (= sy sy1) (defq
 				rep_matches (matches rep_text "\$(\d+)")
 				rep_text (build-replace lines found rep_text rep_matches sx sy sx1)))
-			(undoable
+			(undoable buffer
 				(.-> buffer
 					(:set_cursor sx sy sx1)
 					(:insert rep_text)))
@@ -140,7 +140,7 @@
 			lines (. buffer :get_buffer_lines)
 			found (cat (. buffer :find pattern whole_words regexp))
 			rep_matches (matches rep_text "\$(\d+)"))
-		(undoable
+		(undoable buffer
 			(defq sy 0 sy1 (length found))
 			(unless noclip
 				(bind '(fy fy fy1 fy1) (. *edit* :get_focus))

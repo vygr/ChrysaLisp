@@ -92,7 +92,7 @@
 		(. files :insert key (setq meta
 			(scatter (Emap) :cx cx :cy cy :ax ax :ay ay :sx sx :sy sy :buffer :nil))))
 	(unless (defq buffer (. meta :find :buffer))
-		(. meta :insert :buffer (setq buffer (Buffer flags *syntax*)))
+		(. meta :insert :buffer (setq buffer (Document flags *syntax*)))
 		(when file
 			(. buffer :file_load file)
 			(each populate-dictionary (. buffer :get_buffer_lines)))))
@@ -226,7 +226,7 @@
 		dictionary (Dictionary 1031) match_window :nil match_flow :nil match_index -1
 		*meta_map* :nil *open_files* :nil
 		*x* 0 *y* 0 *width* 1024 *height* 512 *current_file* (state-load))
-	(.-> *edit* (:set_buffer (Buffer))
+	(.-> *edit* (:set_buffer (Document))
 		(:set_ink_color +argb_white)
 		(:set_select_color +argb_grey6)
 		(:set_found_color +argb_grey4)

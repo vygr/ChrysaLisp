@@ -2,36 +2,14 @@
 ; file actions
 ;;;;;;;;;;;;;;
 
-(defun trim-buffer (buffer)
-	(when (> (bind '(w h) (. buffer :get_size)) 0)
-		(undoable
-			;trim front
-			(defq y (some! (# (if (blank-line? %0) :nil (!)))
-				(list (. buffer :get_buffer_lines)) :nil 0 h))
-			(setd y h)
-			(. buffer :idelete 0 0 0 y)
-			;trim end
-			(defq y (some! (# (if (blank-line? %0) :nil (inc (!))))
-				(list (. buffer :get_buffer_lines)) :nil (bind '(w h) (. buffer :get_size)) 0))
-			(setd y 0)
-			(. buffer :idelete 0 y 0 h)
-			;trim lines
-			(each! (lambda (line)
-					(defq l (dec (length line)))
-					(when (< (defq si (rbskip +char_class_white_space line -1)) l)
-						(defq ei (- l si))
-						(. buffer :idelete si (!) (+ si ei) (!))))
-				(list (. buffer :get_buffer_lines)) 0 (bind '(w h) (. buffer :get_size)))))
-	buffer)
-
 (defun action-trim ()
-	(trim-buffer (. *edit* :get_buffer))
+	(. *edit* :trim)
 	(refresh))
 
 (defun save-file (file)
 	(when (and file (defq meta (.-> *meta_map* (:find :files) (:find file))))
 		(bind '(buffer) (gather meta :buffer))
-		(when (. (trim-buffer buffer) :get_modified)
+		(when (.-> buffer :trim :get_modified)
 			(. buffer :file_save file))))
 
 (defun action-save ()

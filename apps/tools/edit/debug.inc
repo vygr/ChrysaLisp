@@ -39,7 +39,7 @@
 	(cond
 		((match? (defq line (. buffer :get_text_line cy)) +user_pattern)
 			;have either an enabled or disabled breakpoint
-			(undoable
+			(undoable buffer
 				(if (starts-with +disabled_prefix line)
 					(.-> *edit*
 						(:set_cursor 0 cy (const (length +disabled_prefix)) cy)
@@ -49,7 +49,7 @@
 						(:insert +disabled_prefix)
 						(:set_cursor 0 cy)))))
 		(:t ;not got any breakpoint on line
-			(undoable
+			(undoable buffer
 				(.-> *edit*
 					(:set_cursor 0 cy)
 					(:insert (cat {(debug-brk "} (num-to-hex-str (random +max_int)) {")}
@@ -62,7 +62,7 @@
 	(bind '(cx cy &ignore) (. *edit* :get_cursor))
 	(when (match? (. buffer :get_text_line cy) +auto_pattern)
 		;got auto breakpoint on line
-		(undoable
+		(undoable buffer
 			(.-> *edit*
 				(:set_cursor 0 cy 0 (inc cy))
 				:delete))
@@ -74,7 +74,7 @@
 	(when (nempty? (defq autos (reduce (# (if (match? %1 +auto_pattern)
 					(push %0 (!)) %0)) (. buffer :get_buffer_lines) (list))))
 		(bind '(cx cy &ignore) (. *edit* :get_cursor))
-		(undoable
+		(undoable buffer
 			(reach (# (.-> *edit*
 				(:set_cursor 0 %0 0 (inc %0))
 				:delete)
@@ -89,7 +89,7 @@
 	(when (nempty? (defq autos (reduce (# (if (match? %1 +user_pattern)
 					(push %0 (!)) %0)) (. buffer :get_buffer_lines) (list))))
 		(bind '(cx cy &ignore) (. *edit* :get_cursor))
-		(undoable
+		(undoable buffer
 			(reach (#
 				;have either an enabled or disabled breakpoint
 				(when (starts-with +disabled_prefix (. buffer :get_text_line %0))
@@ -106,7 +106,7 @@
 	(when (nempty? (defq autos (reduce (# (if (match? %1 +user_pattern)
 					(push %0 (!)) %0)) (. buffer :get_buffer_lines) (list))))
 		(bind '(cx cy &ignore) (. *edit* :get_cursor))
-		(undoable
+		(undoable buffer
 			(reach (#
 				;have either an enabled or disabled breakpoint
 				(unless (starts-with +disabled_prefix (. buffer :get_text_line %0))

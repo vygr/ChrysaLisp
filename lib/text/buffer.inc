@@ -64,13 +64,13 @@
 ; undo
 ;;;;;;
 
-(defmacro undoable (&rest _)
+(defmacro undoable (buffer &rest _)
 	`(progn
-		(. this :push_undo
-			(list :mark (defq mark (. this :next_mark)))
-			(list :cursors (. this :get_cursors)))
+		(. ,buffer :push_undo
+			(list :mark (defq mark (. ,buffer :next_mark)))
+			(list :cursors (. ,buffer :get_cursors)))
 		~_
-		(. this :push_undo (list :mark mark))))
+		(. ,buffer :push_undo (list :mark mark))))
 
 (defun redo ()
 	(defq idx (length undo_stack))
@@ -768,51 +768,20 @@
 				(get :cursors this)))))
 		this)
 
-	(defmethod :select_word ()
-		; (. buffer :select_word) -> buffer
-		(raise :buffer_lines)
-		(lower (:cursors (. this :merge_cursors
-			(map (lambda (csr) (task-slice)
-					(bind '(cx cy &ignore) csr)
-					(defq line (elem-get buffer_lines cy)
-						x (bskipn +char_class_not_whole_word line cx)
-						x1 (rbskipn +char_class_not_whole_word line cx))
-					(if (= x x1) csr (nums x cy x1 cy -1)))
-				(get :cursors this)))))
-		this)
-
-	(defmethod :select_line ()
-		; (. buffer :select_line) -> buffer
-		(lower (:cursors (. this :merge_cursors
-			(map (lambda (csr) (task-slice)
-					(bind '(cx cy &ignore) (csr-floor csr))
-					(nums cx (inc cy) cx cy -1))
-				(get :cursors this)))))
-		this)
-
-	(defmethod :select_paragraph ()
-		; (. buffer :select_paragraph) -> buffer
-		(raise :buffer_lines)
-		(lower (:cursors (. this :merge_cursors
-			(map (lambda ((cx cy &ignore)) (task-slice)
-					(defq y (some! (# (if (blank-line? %0) (inc (!))))
-							(list buffer_lines) :nil cy 0)
-						y1 (some! (# (if (blank-line? %0) (!)))
-							(list buffer_lines) :nil cy (bind '(w h) (. this :get_size))))
-					(setd y 0 y1 h)
-					(nums 0 y1 0 y -1))
-				(get :cursors this)))))
-		this)
-
-	(defmethod :select_all ()
-		; (. buffer :select_all) -> buffer
-		(. this :set_cursor 0 (dec (length (get :buffer_lines this))) 0 0))
-
 	(defmethod :floor_selection ()
 		; (. buffer :floor_selection) -> buffer
 		(lower (:cursors (. this :merge_cursors
 			(map (# (push (csr-floor %0) -1)) (get :cursors this)))))
 		this)
+
+	(defmethod :get_selected_extent ()
+		; (. buffer :get_selected_extent) -> csr
+		(defq max_x 0 min_x +max_int max_y 0 min_y +max_int)
+		(each (lambda ((sx sy sx1 sy1))
+				(setq max_x (max max_x sx1) min_x (min min_x sx)
+					max_y (max max_y sy1) min_y (min min_y sy)))
+			(map (const csr-floor) (. this :get_selected)))
+		(list min_x min_y max_x max_y))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; multi cursor text mutation
@@ -823,7 +792,7 @@
 		; (. buffer :delete) -> buffer
 		(time-it ":delete"
 		(raise :buffer_lines)
-		(undoable
+		(undoable this
 			(reach (lambda ((cx cy ax ay &ignore)) (task-slice)
 					(when (and (= cx ax) (= cy ay))
 						; no selection - move end point forward
@@ -838,7 +807,7 @@
 		; (. buffer :backspace) -> buffer
 		(time-it ":backspace"
 		(raise :buffer_lines)
-		(undoable
+		(undoable this
 			(reach (lambda ((cx cy ax ay &ignore)) (task-slice)
 					(when (and (= cx ax) (= cy ay))
 						; no selection - move start point back
@@ -851,7 +820,7 @@
 	(defmethod :insert (text)
 		; (. buffer :insert text) -> buffer
 		(time-it ":insert"
-		(undoable
+		(undoable this
 			(reach (lambda (csr) (task-slice)
 					; insert at min position (sorted start)
 					(bind '(cx cy) (csr-sort-top csr))
@@ -871,7 +840,7 @@
 
 	(defmethod :cut ()
 		; (. buffer :cut) -> text
-		(undoable
+		(undoable this
 			(defq text (list))
 			(each (lambda ((cx cy ax ay &ignore)) (task-slice)
 				(push text (. this :icopy cx cy ax ay))) (get :cursors this))
@@ -881,7 +850,7 @@
 
 	(defmethod :paste (text)
 		; (. buffer :paste text) -> buffer
-		(undoable
+		(undoable this
 			(defq parts (split text (const (unescape "\f"))))
 			(cond
 				((= (length parts) (length (get :cursors this)))
@@ -1158,6 +1127,6 @@
 
 ;module
 (export-classes '(Buffer))
-(export-symbols '(csr-sort csr-floor csr-within
+(export-symbols '(csr-sort csr-floor csr-within undoable blank-line?
 	+buffer_flag_syntax +buffer_flag_undo))
 (env-pop)

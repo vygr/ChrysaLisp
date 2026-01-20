@@ -2,16 +2,6 @@
 ; utils
 ;;;;;;;
 
-(defun blank-line? (line)
-	(eql (rbskip +char_class_white_space line -1) 0))
-
-(defmacro undoable (&rest _)
-	`(progn
-		(. buffer :push_undo
-			(list :mark (defq mark (. buffer :next_mark))))
-		~_
-		(. buffer :push_undo (list :mark mark))))
-
 (defun select-word ()
 	(bind '(cx cy &ignore) (. *edit* :get_cursor))
 	(defq line (.-> *edit* :get_buffer (:get_text_line cy))

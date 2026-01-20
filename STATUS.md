@@ -64,6 +64,10 @@ focus region.
 New Editor action, `action-add-next`, bound to cntrl-F, which will add the next
 found selection to the cursor list.
 
+New Document class, inherits from Buffer but supplies the higher level word,
+line, paragraph and such mutation and selection methods. Buffer is for characters
+and cursors, Document for structure etc
+
 ------
 
 Fix Editor `load-depends` bug when on the scratchpad buffer !.

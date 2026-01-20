@@ -28,7 +28,8 @@
 			(> (length actions) 0))
 		(defq buffer (. *edit* :get_buffer) running :t)
 		(push *refresh_mode* 1)
-		(undoable (macro-playback actions))
+		(undoable buffer
+			(macro-playback actions))
 		(pop *refresh_mode*)
 		(refresh)))
 
@@ -38,7 +39,7 @@
 			(> (length actions) 0))
 		(defq buffer (. *edit* :get_buffer) running :t)
 		(push *refresh_mode* 1)
-		(undoable
+		(undoable buffer
 			(bind '(cx cy &ignore) (. buffer :get_cursor))
 			(bind '(eof_gap_x eof_gap_y) (eof-gaps))
 			(defq old_eof_gap_x +max_int  old_eof_gap_y +max_int)
