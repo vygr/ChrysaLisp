@@ -2,8 +2,29 @@
 ; editing actions
 ;;;;;;;;;;;;;;;;;
 
-(defun action-insert (string &optional wrap_len)
-	(input-cursor (. buffer :insert string))
+(defun insert-line-wrapped (buffer line wrap_width)
+	(bind '(cx &ignore) (. buffer :get_cursor))
+	(when (> (+ cx (length line)) wrap_width)
+		(.-> buffer
+			(:insert (slice line 0 (setq cx (- wrap_width cx))))
+			(:insert +char_class_lf))
+		(setq line (slice line cx -1)))
+	(when (> (length line) wrap_width)
+		(defq lines (partition line wrap_width) line (pop lines))
+		(each (# (.-> buffer (:insert %0) (:insert +char_class_lf))) lines))
+	(. buffer :insert line))
+
+(defun wrap-text (text &optional wrap_width)
+	(setd wrap_width +max_int)
+	(while (defq idx (find +char_class_lf text))
+		(when (> idx 0) (task-slice)
+			(insert-line-wrapped buffer (slice text 0 idx) wrap_width))
+		(. buffer :insert +char_class_lf)
+		(setq text (slice text (inc idx) -1)))
+	(when (> (length text) 0) (insert-line-wrapped buffer text wrap_width)))
+
+(defun action-insert (text &optional wrap_width)
+	(input-cursor (wrap-text text wrap_width))
 	(bind '(w h) (. buffer :get_size))
 	(when (> h *env_terminal_lines*)
 		(.-> buffer (:set_cursor 0 0 0 (- h *env_terminal_lines*)) :delete)
