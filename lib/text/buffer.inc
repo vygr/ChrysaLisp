@@ -665,6 +665,28 @@
 		(lower (:cursors (list (nums ex h ex h 0))))
 		this)
 
+	(defmethod :left_bracket ()
+		; (. buffer :left_bracket) -> buffer
+		(raise :buffer_lines)
+		(lower (:cursors (. this :merge_cursors
+			(map (lambda (csr) (task-slice)
+					(bind '(cx cy) (csr-sort-top csr))
+					(if (bind '(cx cy) (. this :find_left_bracket cx cy))
+						(nums cx cy cx cy cx) csr))
+				(get :cursors this)))))
+		this)
+
+	(defmethod :right_bracket ()
+		; (. buffer :right_bracket) -> buffer
+		(raise :buffer_lines)
+		(lower (:cursors (. this :merge_cursors
+			(map (lambda (csr) (task-slice)
+					(bind '(cx cy) (csr-sort-bot csr))
+					(if (bind '(cx cy) (. this :find_right_bracket cx cy))
+						(nums cx cy cx cy cx) csr))
+				(get :cursors this)))))
+		this)
+
 ;;;;;;;;;;;;;;;;;;
 ; cursor selection
 ;;;;;;;;;;;;;;;;;;
@@ -1003,11 +1025,11 @@
 ; bracket matching
 ;;;;;;;;;;;;;;;;;;
 
-	(defmethod :left_bracket ()
-		; (. buffer :left_bracket) -> (x y) | (:nil :nil)
+	(defmethod :find_left_bracket (cx cy)
+		; (. buffer :find_left_bracket cx cy) -> (cx cy) | (:nil :nil)
 		(cond
 			((bits? (get :flags this) +buffer_flag_syntax)
-				(bind '(x y &ignore) (. (build-brackets this) :get_cursor))
+				(bind '(x y &ignore) (. (build-brackets this) :clip_cursor cx cy))
 				(raise :buffer_syntax :buffer_brackets :buffer_lines
 					(c 0 ink_text (get :ink_text (get :syntax_engine this))))
 				(unless (eql "" (defq line (elem-get buffer_lines y)))
@@ -1041,11 +1063,11 @@
 				(if (and x y) (list x y) '(:nil :nil)))
 			('(:nil :nil))))
 
-	(defmethod :right_bracket ()
-		; (. buffer :right_bracket) -> (x y) | (:nil :nil)
+	(defmethod :find_right_bracket (cx cy)
+		; (. buffer :find_right_bracket cx cy) -> (cx cy) | (:nil :nil)
 		(cond
 			((bits? (get :flags this) +buffer_flag_syntax)
-				(bind '(x y &ignore) (. (build-brackets this) :get_cursor))
+				(bind '(x y &ignore) (. (build-brackets this) :clip_cursor cx cy))
 				(raise :buffer_syntax :buffer_brackets :buffer_lines
 					(c 0 h (length buffer_lines)
 					ink_text (get :ink_text (get :syntax_engine this))))

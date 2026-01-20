@@ -84,10 +84,6 @@
 
 ### :left_bracket
 
-```code
-(. edit :left_bracket) -> edit
-```
-
 ### :left_select
 
 ### :left_tab
@@ -127,10 +123,6 @@
 ### :right
 
 ### :right_bracket
-
-```code
-(. edit :right_bracket) -> edit
-```
 
 ### :right_select
 

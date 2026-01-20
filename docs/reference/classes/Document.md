@@ -46,8 +46,6 @@
 
 ```code
 (. document :select_block) -> document
-
-FIXME to separate regions
 ```
 
 ### :select_line

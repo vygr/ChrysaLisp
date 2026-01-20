@@ -57,10 +57,15 @@
 
 	(defmethod :select_block ()
 		; (. document :select_block) -> document
-		;FIXME to separate regions
-		(if (bind '(x y) (. this :left_bracket))
-			(when (bind '(x1 y1) (. this :right_bracket))
-				(. this :set_cursor x1 y1 x y)))
+		(lower (:cursors (. this :merge_cursors
+			(map (lambda (csr) (task-slice)
+					(bind '(cx cy &ignore) csr)
+					(if (bind '(x y) (. this :find_left_bracket cx cy))
+						(if (bind '(x1 y1) (. this :find_right_bracket cx cy))
+							(nums (inc x1) y1 x y -1)
+							csr)
+						csr))
+				(get :cursors this)))))
 		this)
 
 	(defmethod :select_all ()

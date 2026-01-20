@@ -114,6 +114,18 @@ clips coordinates to valid buffer positions
 (. buffer :find pattern wmode rmode) -> buffer_found
 ```
 
+### :find_left_bracket
+
+```code
+(. buffer :find_left_bracket cx cy) -> (cx cy) | (:nil :nil)
+```
+
+### :find_right_bracket
+
+```code
+(. buffer :find_right_bracket cx cy) -> (cx cy) | (:nil :nil)
+```
+
 ### :floor_selection
 
 ```code
@@ -229,7 +241,7 @@ insert text at position (cx cy)
 ### :left_bracket
 
 ```code
-(. buffer :left_bracket) -> (x y) | (:nil :nil)
+(. buffer :left_bracket) -> buffer
 ```
 
 ### :left_select
@@ -279,7 +291,7 @@ cursors format: ((cx cy ax ay sx) ...)
 ### :right_bracket
 
 ```code
-(. buffer :right_bracket) -> (x y) | (:nil :nil)
+(. buffer :right_bracket) -> buffer
 ```
 
 ### :right_select

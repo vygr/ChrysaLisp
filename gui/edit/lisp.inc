@@ -37,6 +37,8 @@
 	(defproxymethod :end () :buffer)
 	(defproxymethod :top () :buffer)
 	(defproxymethod :bottom () :buffer)
+	(defproxymethod :left_bracket () :buffer)
+	(defproxymethod :right_bracket () :buffer)
 	(defproxymethod :left_select () :buffer)
 	(defproxymethod :right_select () :buffer)
 	(defproxymethod :up_select () :buffer)
@@ -136,16 +138,6 @@
 		(setq x (if (>= x 0) x (- x w)) y (if (>= y 0) y (- y h)))
 		(list (+ scroll_x (/ x w)) (+ scroll_y (/ y h))))
 
-	(defmethod :left_bracket ()
-		; (. edit :left_bracket) -> edit
-		(if (bind '(cx cy) (. (get :buffer this) :left_bracket))
-			(. this :set_cursor cx cy)))
-
-	(defmethod :right_bracket ()
-		; (. edit :right_bracket) -> edit
-		(if (bind '(cx cy) (. (get :buffer this) :right_bracket))
-			(. this :set_cursor cx cy)))
-
 	(defmethod :set_ink_color (col)
 		; (. edit :set_ink_color argb) -> edit
 		(def (get :mask_ink this) :color col)
@@ -195,8 +187,9 @@
 		;set ink mask
 		(-- scroll_y1)
 		(. mask_ink :clr_opaque)
-		(when (bind '(x y) (. buffer :left_bracket))
-			(when (bind '(x1 y1) (. buffer :right_bracket))
+		(bind '(cx cy &ignore) (. buffer :get_cursor))
+		(when (bind '(x y) (. buffer :find_left_bracket cx cy))
+			(when (bind '(x1 y1) (. buffer :find_right_bracket cx cy))
 				(when (<= scroll_y y scroll_y1)
 					(setq x (* (- x scroll_x) cw) y (* (- y scroll_y) ch))
 					(. mask_ink :add_opaque x y cb ch)
