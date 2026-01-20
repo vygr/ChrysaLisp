@@ -144,6 +144,12 @@ return last cursor position without sticky x
 return cursors sorted by position, without sx
 ```
 
+### :get_selected_extent
+
+```code
+(. buffer :get_selected_extent) -> csr
+```
+
 ### :get_selected_unsorted
 
 ```code
@@ -280,30 +286,6 @@ cursors format: ((cx cy ax ay sx) ...)
 
 ```code
 (. buffer :right_select) -> buffer
-```
-
-### :select_all
-
-```code
-(. buffer :select_all) -> buffer
-```
-
-### :select_line
-
-```code
-(. buffer :select_line) -> buffer
-```
-
-### :select_paragraph
-
-```code
-(. buffer :select_paragraph) -> buffer
-```
-
-### :select_word
-
-```code
-(. buffer :select_word) -> buffer
 ```
 
 ### :set_cursor

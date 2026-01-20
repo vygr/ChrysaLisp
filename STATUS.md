@@ -68,6 +68,9 @@ New Document class, inherits from Buffer but supplies the higher level word,
 line, paragraph and such mutation and selection methods. Buffer is for characters
 and cursors, Document for structure etc
 
+`:region :paste_rect` method now checks for area merges. Cut down on `:draw` ctx
+calls etc.
+
 ------
 
 Fix Editor `load-depends` bug when on the scratchpad buffer !.

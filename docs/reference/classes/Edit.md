@@ -22,10 +22,6 @@
 
 ### :comment
 
-```code
-(. edit :comment) -> edit
-```
-
 ### :constraint
 
 ```code
@@ -68,10 +64,6 @@
 
 ### :get_selected_extent
 
-```code
-(. edit :get_selected_extent) -> csr
-```
-
 ### :get_vdu_text
 
 ### :home
@@ -81,10 +73,6 @@
 ### :insert
 
 ### :invert
-
-```code
-(. edit :invert) -> edit
-```
 
 ### :layout
 
@@ -103,10 +91,6 @@
 ### :left_select
 
 ### :left_tab
-
-```code
-(. edit :left_tab) -> edit
-```
 
 ### :max_size
 
@@ -140,10 +124,6 @@
 
 ### :reflow
 
-```code
-(. edit :reflow) -> edit
-```
-
 ### :right
 
 ### :right_bracket
@@ -156,19 +136,9 @@
 
 ### :right_tab
 
-```code
-(. edit :right_tab) -> edit
-```
-
 ### :select_all
 
 ### :select_block
-
-```code
-(. edit :select_block) -> edit
-
-FIXME to separate regions
-```
 
 ### :select_line
 
@@ -218,37 +188,19 @@ FIXME to separate regions
 
 ### :sort
 
-```code
-(. edit :sort) -> edit
-```
-
 ### :split
-
-```code
-(. edit :split) -> edit
-```
 
 ### :tab
 
-```code
-(. edit :tab) -> edit
-```
-
 ### :to_lower
 
-```code
-(. edit :to_lower) -> edit
-```
-
 ### :to_upper
-
-```code
-(. edit :to_upper) -> edit
-```
 
 ### :top
 
 ### :top_select
+
+### :trim
 
 ### :underlay
 
@@ -259,10 +211,6 @@ create the masks for selections, brackets and cursors
 ```
 
 ### :unique
-
-```code
-(. edit :unique) -> edit
-```
 
 ### :up
 
