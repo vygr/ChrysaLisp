@@ -472,9 +472,28 @@
 	;check for any obvious errors in inputs
 	(vpif `(,ix1 > ,ix) `(,iy1 > ,iy))
 		;run through source region list
-		(loop-flist dregion 0 drec prec)
-			;not in contact ?
+		(loop-flist dregion 0 drec prec 'paste)
 			(vp-simd vp-cpy-ir-i `(,drec) `(,rect_x ,rect_y ,rect_x1 ,rect_y1) `(,x ,y ,x1 ,y1))
+			;not in contact ?
+			(continueif `(,x > ,ix1) `(,y > ,iy1) `(,ix > ,x1) `(,iy > ,y1))
+			;test for merges
+			(vpif `(,ix <= ,x1) `(,iy = ,y) `(,iy1 = ,y1))
+				(vp-min-rr x ix)
+				(vp-max-rr x1 ix1)
+				(vp-cpy-rr drec rec)
+				(ln-remove-fnode drec prec)
+				(hp-freecell heap rec tmp)
+				(continue 'paste)
+			(endif)
+			(vpif `(,iy <= ,y1) `(,ix = ,x) `(,ix1 = ,x1))
+				(vp-min-rr y iy)
+				(vp-max-rr y1 iy1)
+				(vp-cpy-rr drec rec)
+				(ln-remove-fnode drec prec)
+				(hp-freecell heap rec tmp)
+				(continue 'paste)
+			(endif)
+			;not in contact ?
 			(continueif `(,x >= ,ix1) `(,y >= ,iy1) `(,ix >= ,x1) `(,iy >= ,y1))
 
 		(rect-overlap
