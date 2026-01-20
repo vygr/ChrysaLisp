@@ -634,9 +634,9 @@
 	(defmethod :home ()
 		; (. buffer :home) -> buffer
 		(lower (:cursors (. this :merge_cursors
-			(map (lambda ((cx cy ax ay &ignore)) (task-slice)
+			(map (lambda (csr) (task-slice)
 					; move to start of current line
-					(bind '(cx cy) (csr-sort-top (nums cx cy ax ay)))
+					(bind '(cx cy) (csr-sort-top csr))
 					(nums 0 cy 0 cy 0))
 				(get :cursors this)))))
 		this)
@@ -645,9 +645,9 @@
 		; (. buffer :end) -> buffer
 		(raise :buffer_lines)
 		(lower (:cursors (. this :merge_cursors
-			(map (lambda ((cx cy ax ay &ignore)) (task-slice)
+			(map (lambda (csr) (task-slice)
 					; move to end of current line
-					(bind '(ax ay) (csr-sort-bot (nums cx cy ax ay)))
+					(bind '(ax ay) (csr-sort-bot csr))
 					(setq ax (dec (length (elem-get buffer_lines ay))))
 					(nums ax ay ax ay ax))
 				(get :cursors this)))))
