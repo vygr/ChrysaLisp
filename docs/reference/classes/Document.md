@@ -99,7 +99,7 @@
 ### :trim
 
 ```code
-(. document :comment) -> document
+(. document :trim) -> document
 ```
 
 ### :unique

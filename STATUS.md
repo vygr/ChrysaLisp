@@ -71,6 +71,8 @@ and cursors, Document for structure etc
 `:region :paste_rect` method now checks for area merges. Cut down on `:draw` ctx
 calls etc.
 
+Document `:select_block` now handles multiple cursors.
+
 ------
 
 Fix Editor `load-depends` bug when on the scratchpad buffer !.

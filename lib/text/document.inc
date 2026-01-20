@@ -247,7 +247,7 @@
 		this)
 
 	(defmethod :trim ()
-		; (. document :comment) -> document
+		; (. document :trim) -> document
 		(when (> (bind '(w h) (. this :get_size)) 0)
 			(undoable this
 				;trim front
