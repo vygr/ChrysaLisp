@@ -13,7 +13,7 @@
 	(defq my_id (. this :get_id))
 	(ui-root root (Flow) (:flow_flags +flow_down_fill :color +argb_grey14)
 		(ui-title-bar _ title (0xe940 0xe941) my_id)
-		(ui-scroll file_tree_scroll +scroll_flag_vertical :nil
+		(ui-scroll file_tree_scroll +scroll_flag_both :nil
 			(. (ui-tree file_tree event
 				(:min_width 0 :color +argb_white
 				:font *env_medium_terminal_font*)) :connect my_id)))
@@ -27,7 +27,7 @@
 		(raise :file_tree :file_tree_scroll)
 		(bind '(w h) (. file_tree :pref_size))
 		(def file_tree :min_width w)
-		(def file_tree_scroll :min_width w)
+		(def file_tree_scroll :min_width (/ (* w 75) 100))
 		(. file_tree :change 0 0 w h :t)
 		(.-> file_tree_scroll :layout :dirty_all)
 		this)
@@ -66,7 +66,7 @@
 		(raise :file_tree :file_tree_scroll)
 		(when (defq node (. file_tree :find_node file))
 			(. file_tree :select file)
-			(. file_tree_scroll :visible node))
+			(. file_tree_scroll :visible node +scroll_flag_vertical))
 		this)
 
 	(defmethod :action (event)
@@ -76,7 +76,7 @@
 			((= src_id (. file_tree :get_id))
 				;any tree mutate action
 				(.-> file_tree_scroll :layout :dirty_all))
-			(:t	;expand/collapse
+			(:t ;expand/collapse
 				(defq button (. this :find_id src_id))
 				(if (eql button (first (. (penv button) :children)))
 					(. file_tree :collapse)

@@ -36,7 +36,7 @@
 				(defq y (!))
 				(when match
 					(some (lambda (((x x1) &ignore))
-						(if (or (> y cy) (>= x cx)) (nums x1 y x y -1))) 
+						(if (or (> y cy) (>= x cx)) (nums x1 y x y -1)))
 					match)))
 				(list buffer_found) :nil (max fy cy) fy1))))
 
@@ -56,7 +56,7 @@
 				(defq y (!))
 				(when match
 					(rsome (lambda (((x x1) &ignore))
-						(if (or (< y cy) (< x cx)) (nums x y x1 y -1))) 
+						(if (or (< y cy) (< x cx)) (nums x y x1 y -1)))
 					match)))
 				(list buffer_found) :nil (min fy1 (inc cy)) fy))))
 

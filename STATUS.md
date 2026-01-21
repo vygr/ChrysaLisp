@@ -78,6 +78,12 @@ now a single `&` symbol. This truly ignores the bind site and skips to the next
 binding. This also now means that the return value from `bind` is the last value
 you bound ! not the last value you ignored !
 
+Added horizontal scroll bar to Files widgets, set to 75% `:min_width`.
+
+New Scroll widget `:visible` method now takes optional flags to control
+`+scroll_flag_vertical` and `+scroll_flag_horizontal`, defaults to
+`+scroll_flag_both`.
+
 ------
 
 Fix Editor `load-depends` bug when on the scratchpad buffer !.

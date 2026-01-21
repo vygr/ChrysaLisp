@@ -71,15 +71,16 @@
 			(. child :set_bounds (neg hval) (neg vval) cw ch))
 		this)
 
-	(defmethod :visible (descendant)
-		; (. scroll :visible descendant) -> scroll
+	(defmethod :visible (descendant &optional flags)
+		; (. scroll :visible descendant [flags]) -> scroll
 		(raise :hslider :vslider :child (flag :nil))
+		(setd flags +scroll_flag_both)
 		(when child
 			(bind '(x y w h) (. child :get_relative descendant))
 			(bind '(sw sh) (. this :get_size))
 			(if vslider (setq sw (- sw (first (. vslider :get_size)))))
 			(if hslider (setq sh (- sh (second (. hslider :get_size)))))
-			(when hslider
+			(when (and hslider (bits? flags +scroll_flag_horizontal))
 				(defq val (get :value hslider))
 				(when (< x val)
 					(def hslider :value x)
@@ -87,7 +88,7 @@
 				(when (> (+ x w) (+ val sw))
 					(def hslider :value (- (+ x w) sw))
 					 (setq flag :t)))
-			(when vslider
+			(when (and vslider (bits? flags +scroll_flag_vertical))
 				(defq val (get :value vslider))
 				(when (< y val)
 					(def vslider :value y)
