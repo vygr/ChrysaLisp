@@ -293,7 +293,7 @@
 	(call :str :create_from_buffer {"-0123456789", 11} {num_start_chars})
 	(call :str :create_from_buffer {".0123456789", 11} {num_mid_chars})
 
-	(bind '(st ch _) (method-input :str :find))
+	(bind '(st ch &) (method-input :str :find))
 	(vp-xor-rr state state)
 	(loop-start)
 		(vp-cpy-ir-ub d 0 c)

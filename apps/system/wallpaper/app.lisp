@@ -10,8 +10,8 @@
 (enums +event 0
 	(enum close))
 
-(defun app-path (_)
-	(cat "apps/" _ "/app.lisp"))
+(defun app-path (%0)
+	(cat "apps/" %0 "/app.lisp"))
 
 (defun refresh-wallpaper ()
 	;pick nearest wallpaper to screen size
@@ -32,8 +32,8 @@
 (defun main ()
 	(defq images_info (map (const pixmap-info) *env_wallpaper_images*) wallpaper (View)
 			screen (penv (gui-add-back-rpc wallpaper)) mouse_state :u)
-	(each (lambda (_)
-		(open-child (app-path _) +kn_call_open)) *env_launcher_auto_apps*)
+	(each (lambda (%0)
+		(open-child (app-path %0) +kn_call_open)) *env_launcher_auto_apps*)
 	(refresh-wallpaper)
 	(defq id :t)
 	(while id

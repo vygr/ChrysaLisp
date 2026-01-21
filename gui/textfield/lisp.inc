@@ -38,8 +38,8 @@
 			(defq offset (get :offset label_text))
 			(bind '(tw th) (font-glyph-bounds font (slice text 0 cursor)))
 			(when (/= cursor anchor)
-				(bind '(sw _) (font-glyph-bounds font (slice text 0 (min anchor cursor))))
-				(bind '(sw1 _) (font-glyph-bounds font (slice text 0 (max anchor cursor))))
+				(bind '(sw &) (font-glyph-bounds font (slice text 0 (min anchor cursor))))
+				(bind '(sw1 &) (font-glyph-bounds font (slice text 0 (max anchor cursor))))
 				(.-> this
 					(:ctx_set_color (get :hint_color this))
 					(:ctx_filled_box (+ sw offset) (>>> (- h th) 1) (- sw1 sw) th)))

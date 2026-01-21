@@ -8,9 +8,9 @@
 (defmacro beg-sym () (static-q (sym (str "b_" *switch*))))
 (defmacro end-sym () (static-q (sym (str "e_" *switch*))))
 (defmacro cnt-sym () (static-q (sym (str "_c_" *switch*))))
-(defmacro loc-sym (n) (static-qqp (sym (str "o_" *switch* "_" ,n))))
-(defmacro llb-sym (_) (static-qqp (sym (cat "_b_" ,_))))
-(defmacro lle-sym (_) (static-qqp (sym (cat "_e_" ,_))))
+(defmacro loc-sym (%0) (static-qqp (sym (str "o_" *switch* "_" ,%0))))
+(defmacro llb-sym (%0) (static-qqp (sym (cat "_b_" ,%0))))
+(defmacro lle-sym (%0) (static-qqp (sym (cat "_e_" ,%0))))
 
 (defun goto (l)
 	(vp-jmp l))
@@ -43,10 +43,10 @@
 			(throw "No such comparator" o)))
 		(:t (throw "No such compare mode" (assign-src-type s)))))
 
-(defun switch (&optional _)
+(defun switch (&optional %0)
 	(push *switch_stk* *switch*)
 	(setq *switch* *switch_nxt* *switch_nxt* (inc *switch_nxt*))
-	(when _ (deffvar (llb-sym _) (beg-sym) (lle-sym _) (end-sym)))
+	(when %0 (deffvar (llb-sym %0) (beg-sym) (lle-sym %0) (end-sym)))
 	(deffvar (cnt-sym) 0))
 
 (defun default ()

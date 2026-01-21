@@ -472,32 +472,32 @@
 	; (redefmacro name ([arg ...]) body)
 	`(defq ,n (macro ,a ~_)))
 
-(defmacro macrobind (_)
+(defmacro macrobind (%0)
 	; (macrobind form) -> (prebind (macroexpand form))
-	`(prebind (macroexpand ,_)))
+	`(prebind (macroexpand ,%0)))
 
-(defun exec (_)
+(defun exec (%0)
 	; (exec form)
-	(eval (macrobind _)))
+	(eval (macrobind %0)))
 
-(defmacro const (_)
+(defmacro const (%0)
 	; (const form)
-	(exec _))
+	(exec %0))
 
-(defmacro static-q (_)
+(defmacro static-q (%0)
 	; (static-q form) -> 'form
 	;static quoted
-	(list (const quote) (macrobind _)))
+	(list (const quote) (macrobind %0)))
 
-(defmacro static-qq (_)
+(defmacro static-qq (%0)
 	; (static-qq form) -> `form
 	;static quasi-quoted
-	(list (const quasi-quote) (macrobind _)))
+	(list (const quasi-quote) (macrobind %0)))
 
-(defmacro static-qqp (_)
+(defmacro static-qqp (%0)
 	; (static-qqp form) -> `form
 	;static quasi-quoted, prebind only !
-	(list (const quasi-quote) (prebind _)))
+	(list (const quasi-quote) (prebind %0)))
 
 (defmacro callback (f e &rest args)
 	; (callback lambda env arg ...) -> (#eval `(#apply ,lambda '(,arg ...)) env)
@@ -518,163 +518,163 @@
 ; Default opts
 ;;;;;;;;;;;;;;
 
-(defmacro setd (&rest _)
+(defmacro setd (&rest %0)
 	; (setd sym val [sym val] ...)
 	(reduce! (lambda (l (s v)) (push l s (list (const ifn) s v)))
-		(list (partition _ 2)) (list (const setq))))
+		(list (partition %0 2)) (list (const setq))))
 
 ;;;;;;;;;;;;
 ; Predicates
 ;;;;;;;;;;;;
 
-(defun lambda? (_)
+(defun lambda? (%0)
 	; (lambda? form) -> :t | :nil
-	(cond ((eql _ (const lambda))) ((eql _ 'lambda))))
+	(cond ((eql %0 (const lambda))) ((eql %0 'lambda))))
 
-(defun macro? (_)
+(defun macro? (%0)
 	; (macro? form) -> :t | :nil
-	(cond ((eql _ (const macro))) ((eql _ 'macro))))
+	(cond ((eql %0 (const macro))) ((eql %0 'macro))))
 
-(defun quote? (_)
+(defun quote? (%0)
 	; (quote? form) -> :t | :nil
-	(cond ((eql _ (const quote))) ((eql _ 'quote))))
+	(cond ((eql %0 (const quote))) ((eql %0 'quote))))
 
-(defun quasi-quote? (_)
+(defun quasi-quote? (%0)
 	; (quasi-quote? form) -> :t | :nil
-	(cond ((eql _ (const quasi-quote))) ((eql _ 'quasi-quote))))
+	(cond ((eql %0 (const quasi-quote))) ((eql %0 'quasi-quote))))
 
-(defun array? (_)
+(defun array? (%0)
 	; (array? form) -> :t | :nil
-	(find :array (type-of _)))
+	(find :array (type-of %0)))
 
-(defun list? (_)
+(defun list? (%0)
 	; (list? form) -> :t | :nil
-	(rfind :list (type-of _)))
+	(rfind :list (type-of %0)))
 
-(defun num? (_)
+(defun num? (%0)
 	; (num? form) -> :t | :nil
-	(find :num (type-of _)))
+	(find :num (type-of %0)))
 
-(defun fixed? (_)
+(defun fixed? (%0)
 	; (fixed? form) -> :t | :nil
-	(find :fixed (type-of _)))
+	(find :fixed (type-of %0)))
 
-(defun real? (_)
+(defun real? (%0)
 	; (real? form) -> :t | :nil
-	(find :real (type-of _)))
+	(find :real (type-of %0)))
 
-(defun nums? (_)
+(defun nums? (%0)
 	; (nums? form) -> :t | :nil
-	(find :nums (type-of _)))
+	(find :nums (type-of %0)))
 
-(defun fixeds? (_)
+(defun fixeds? (%0)
 	; (fixeds? form) -> :t | :nil
-	(find :fixeds (type-of _)))
+	(find :fixeds (type-of %0)))
 
-(defun reals? (_)
+(defun reals? (%0)
 	; (reals? form) -> :t | :nil
-	(find :reals (type-of _)))
+	(find :reals (type-of %0)))
 
-(defun func? (_)
+(defun func? (%0)
 	; (func? form) -> :t | :nil
-	(find :func (type-of _)))
+	(find :func (type-of %0)))
 
-(defun str? (_)
+(defun str? (%0)
 	; (str? form) -> :t | :nil
-	(find :str (type-of _)))
+	(find :str (type-of %0)))
 
-(defun sym? (_)
+(defun sym? (%0)
 	; (sym? form) -> :t | :nil
-	(rfind :sym (type-of _)))
+	(rfind :sym (type-of %0)))
 
-(defun env? (_)
+(defun env? (%0)
 	; (env? form) -> :t | :nil
-	(find :hmap (type-of _)))
+	(find :hmap (type-of %0)))
 
-(defun seq? (_)
+(defun seq? (%0)
 	; (seq? form) -> :t | :nil
-	(find :seq (type-of _)))
+	(find :seq (type-of %0)))
 
-(defun lambda-func? (_)
+(defun lambda-func? (%0)
 	; (lambda-func? form) -> :t | :nil
-	(if (list? _) (lambda? (first _))))
+	(if (list? %0) (lambda? (first %0))))
 
-(defun macro-func? (_)
+(defun macro-func? (%0)
 	; (macro-func? form) -> :t | :nil
-	(if (list? _) (macro? (first _))))
+	(if (list? %0) (macro? (first %0))))
 
-(defun nil? (_)
+(defun nil? (%0)
 	; (nil? o) -> :t | :nil
-	(eql _ :nil))
+	(eql %0 :nil))
 
-(defun atom? (_)
+(defun atom? (%0)
 	; (atom? o) -> :t | :nil
-	(cond ((sym? _) (eql (first _) ":")) ((list? _) :nil) (:t)))
+	(cond ((sym? %0) (eql (first %0) ":")) ((list? %0) :nil) (:t)))
 
-(defun empty? (_)
+(defun empty? (%0)
 	; (empty? form) -> :t | :nil
-	(if (seq? _) (= (length _) 0) :t))
+	(if (seq? %0) (= (length %0) 0) :t))
 
-(defun nempty? (_)
+(defun nempty? (%0)
 	; (nempty? form) -> :t | :nil
-	(if (seq? _) (> (length _) 0)))
+	(if (seq? %0) (> (length %0) 0)))
 
-(defun lisp-node? (_)
+(defun lisp-node? (%0)
 	; (lisp_node? node) -> :t | :nil
-	(= (logand (code (first _)) 1) 1))
+	(= (logand (code (first %0)) 1) 1))
 
-(defun cpp-node? (_)
+(defun cpp-node? (%0)
 	; (cpp_node? node) -> :t | :nil
-	(= (logand (code (first _)) 1) 0))
+	(= (logand (code (first %0)) 1) 0))
 
 ;;;;;;;;;;;;;;
 ; Control flow
 ;;;;;;;;;;;;;;
 
-(defmacro inc (_)
+(defmacro inc (%0)
 	; (inc num) -> num
-	(static-qq (+ ,_ 1)))
+	(static-qq (+ ,%0 1)))
 
-(defmacro dec (_)
+(defmacro dec (%0)
 	; (dec num) -> num
-	(static-qq (- ,_ 1)))
+	(static-qq (- ,%0 1)))
 
-(defmacro ++ (_ &optional i)
+(defmacro ++ (%0 &optional i)
 	; (++ num [num]) -> num
-	(static-qq (setq ,_ (+ ,_ ,(ifn i 1)))))
+	(static-qq (setq ,%0 (+ ,%0 ,(ifn i 1)))))
 
-(defmacro -- (_ &optional i)
+(defmacro -- (%0 &optional i)
 	; (-- num [num]) -> num
-	(static-qq (setq ,_ (- ,_ ,(ifn i 1)))))
+	(static-qq (setq ,%0 (- ,%0 ,(ifn i 1)))))
 
-(defmacro not (_)
+(defmacro not (%0)
 	; (not form) -> :t | :nil
-	(static-qq (if ,_ :nil :t)))
+	(static-qq (if ,%0 :nil :t)))
 
-(defmacro when (x &rest _)
+(defmacro when (x &rest %1)
 	; (when tst body)
-	(if (= (length _) 1)
-		(static-qq (if ,x ~_))
-		(static-qq (cond (,x ~_)))))
+	(if (= (length %1) 1)
+		(static-qq (if ,x ~%1))
+		(static-qq (cond (,x ~%1)))))
 
-(defmacro unless (x &rest _)
+(defmacro unless (x &rest %1)
 	; (unless tst body)
-	(if (= (length _) 1)
-		(static-qq (ifn ,x ~_))
-		(static-qq (condn (,x ~_)))))
+	(if (= (length %1) 1)
+		(static-qq (ifn ,x ~%1))
+		(static-qq (condn (,x ~%1)))))
 
-(defmacro or (&rest _)
+(defmacro or (&rest %0)
 	; (or [tst] ...) -> :nil | tst
-	(map! (const list) (list _) (list (const cond))))
+	(map! (const list) (list %0) (list (const cond))))
 
-(defmacro and (&rest _)
+(defmacro and (&rest %0)
 	; (and [tst] ...) -> :t | :nil | tst
-	(map! (const list) (list _) (list (const condn))))
+	(map! (const list) (list %0) (list (const condn))))
 
-(defmacro times (c &rest _)
+(defmacro times (c &rest %1)
 	; (times num body)
 	(static-qq (progn (defq ,(defq _c (gensym)) ,c)
-		(while (<= 0 (setq ,_c (dec ,_c))) ~_))))
+		(while (<= 0 (setq ,_c (dec ,_c))) ~%1))))
 
 ;;;;;;;;;;;;;;;;;;;;
 ; sort and randomise
@@ -689,11 +689,11 @@
 			(defq _p (pivot _f _a _l _h))
 			(push (push _q _l _p) (inc _p) _h))) _a)
 
-(defun swap (_ _1 _2)
+(defun swap (%0 %1 %2)
 	; (swap list idx idx)
-	(when (/= _1 _2)
-		(defq _t (elem-get _ _1))
-		(elem-set (elem-set _ _1 (elem-get _ _2)) _2 _t)))
+	(when (/= %1 %2)
+		(defq _t (elem-get %0 %1))
+		(elem-set (elem-set %0 %1 (elem-get %0 %2)) %2 _t)))
 
 (defun shuffle (_a &optional _l _h)
 	; (shuffle list [start end]) -> list
@@ -739,21 +739,21 @@
 	(while (< (++ i) (length s))
 		(callback f (penv) (elem-get s i))) s)
 
-(defmacro each (f &rest _)
+(defmacro each (f &rest %1)
 	; (each lambda seq ...)
-	(static-qq (each! ,f (list ~_))))
+	(static-qq (each! ,f (list ~%1))))
 
-(defmacro reach (f &rest _)
+(defmacro reach (f &rest %1)
 	; (reach lambda seq ...)
-	(static-qq (each! ,f (list ~_) -1 0)))
+	(static-qq (each! ,f (list ~%1) -1 0)))
 
-(defmacro map (f &rest _)
+(defmacro map (f &rest %1)
 	; (map lambda seq ...) -> list
-	(static-qq (map! ,f (list ~_))))
+	(static-qq (map! ,f (list ~%1))))
 
-(defmacro rmap (f &rest _)
+(defmacro rmap (f &rest %1)
 	; (rmap lambda seq ...) -> list
-	(static-qq (map! ,f (list ~_) (list) -1 0)))
+	(static-qq (map! ,f (list ~%1) (list) -1 0)))
 
 (defmacro reduce (f s &optional i)
 	; (reduce lambda seq [init]) -> form
@@ -781,37 +781,37 @@
 ; Scopes
 ;;;;;;;;
 
-(defmacro let (l &rest _)
+(defmacro let (l &rest %1)
 	; (let ([(sym val) ...]) body)
-	(static-qq ((lambda ,(map (const first) l) ~_) ~(map (const second) l))))
+	(static-qq ((lambda ,(map (const first) l) ~%1) ~(map (const second) l))))
 
-(defmacro let* (l &rest _)
+(defmacro let* (l &rest %1)
 	; (let* ([(sym val) ...]) body)
-	(static-qq ((lambda () ,(reduce (lambda (l (var val)) (push l var val)) l (list defq)) ~_))))
+	(static-qq ((lambda () ,(reduce (lambda (l (var val)) (push l var val)) l (list defq)) ~%1))))
 
 ;;;;;;;;;;;;;;;;;;;;;
 ; Sequence predicates
 ;;;;;;;;;;;;;;;;;;;;;
 
-(defmacro some (f &rest _)
+(defmacro some (f &rest %1)
 	; (some lambda seq ...) -> :nil | form
-	(static-qq (some! ,f (list ~_))))
+	(static-qq (some! ,f (list ~%1))))
 
-(defmacro rsome (f &rest _)
+(defmacro rsome (f &rest %1)
 	; (rsome lambda seq ...) -> :nil | form
-	(static-qq (some! ,f (list ~_) :nil -1 0)))
+	(static-qq (some! ,f (list ~%1) :nil -1 0)))
 
-(defmacro every (f &rest _)
+(defmacro every (f &rest %1)
 	; (every lambda seq ...) -> :nil | form
-	(static-qq (some! ,f (list ~_) :t)))
+	(static-qq (some! ,f (list ~%1) :t)))
 
-(defmacro notany (f &rest _)
+(defmacro notany (f &rest %1)
 	; (notany lambda seq ...) -> :t | :nil
-	(static-qq (not (some! ,f (list ~_)))))
+	(static-qq (not (some! ,f (list ~%1)))))
 
-(defmacro notevery (f &rest _)
+(defmacro notevery (f &rest %1)
 	; (notevery lambda seq ...) -> :t | :nil
-	(static-qq (not (some! ,f (list ~_) :t))))
+	(static-qq (not (some! ,f (list ~%1) :t))))
 
 ;;;;;;;;;;;
 ; Sequences
@@ -907,31 +907,31 @@
 
 (defq +min_long (<< -1 63) +max_long (>> -1 1) +min_int (<< -1 31) +max_int (>> -1 33))
 
-(defun neg? (_)
+(defun neg? (%0)
 	; (neg? num) -> :t | :nil
-	(< _ 0))
+	(< %0 0))
 
-(defun pos? (_)
+(defun pos? (%0)
 	; (pos? num) -> :t | :nil
-	(> _ 0))
+	(> %0 0))
 
-(defun odd? (_)
+(defun odd? (%0)
 	; (odd? num) -> :t | :nil
-	(= 1 (logand 1 _)))
+	(= 1 (logand 1 %0)))
 
-(defun even? (_)
+(defun even? (%0)
 	; (even? num) -> :t | :nil
-	(= 0 (logand 1 _)))
+	(= 0 (logand 1 %0)))
 
-(defun lognot (_)
+(defun lognot (%0)
 	; (lognot num) -> num
-	(logxor _ -1))
+	(logxor %0 -1))
 
-(defun log2 (_)
+(defun log2 (%0)
 	; (log2 num) -> num
-	(when (and (not (= 0 _)) (= _ (logand _ (neg _))))
+	(when (and (not (= 0 %0)) (= %0 (logand %0 (neg %0))))
 		(defq i 0)
-		(while (/= 0 (setq _ (>> _ 1)))
+		(while (/= 0 (setq %0 (>> %0 1)))
 			(++ i)) i))
 
 (defun pow (base exponent)
@@ -940,29 +940,29 @@
 	(times exponent (setq res (* res base)))
 	res)
 
-(defun ntz (_)
+(defun ntz (%0)
 	; (ntz num) -> num
 	(defq n 64)
-	(while (/= _ 0)
-		(setq n (dec n) _ (<< _ 1))) n)
+	(while (/= %0 0)
+		(setq n (dec n) %0 (<< %0 1))) n)
 
-(defun nto (_)
+(defun nto (%0)
 	; (nto num) -> num
-	(defq n 64 _ (lognot _))
-	(while (/= _ 0)
-		(setq n (dec n) _ (<< _ 1))) n)
+	(defq n 64 %0 (lognot %0))
+	(while (/= %0 0)
+		(setq n (dec n) %0 (<< %0 1))) n)
 
-(defun nlz (_)
+(defun nlz (%0)
 	; (nlz num) -> num
 	(defq n 0)
-	(while (> _ 0)
-		(setq n (inc n) _ (<< _ 1))) n)
+	(while (> %0 0)
+		(setq n (inc n) %0 (<< %0 1))) n)
 
-(defun nlo (_)
+(defun nlo (%0)
 	; (nlo num) -> num
-	(defq n 0 _ (lognot _))
-	(while (> _ 0)
-		(setq n (inc n) _ (<< _ 1))) n)
+	(defq n 0 %0 (lognot %0))
+	(while (> %0 0)
+		(setq n (inc n) %0 (<< %0 1))) n)
 
 ;;;;;;;;;;;;;;;;;;
 ; Fixed point math
@@ -992,71 +992,71 @@
 	(export (penv (penv)) (reduce
 		(# (push %0 %1 (sym (cat "*class_" %1 "*")) (sym (cat %1 "?")))) classes (list))))
 
-(defmacro ascii-code (_)
+(defmacro ascii-code (%0)
 	; (ascii-code char) -> num
-	(code _))
+	(code %0))
 
-(defmacro ascii-char (_)
+(defmacro ascii-char (%0)
 	; (ascii-char num) -> char
-	(char (eval _)))
+	(char (eval %0)))
 
-(defun ascii-upper (_)
+(defun ascii-upper (%0)
 	; (ascii-upper num) -> num
-	(if (<= (ascii-code "a") _ (ascii-code "z"))
-		(- _ (const (- (ascii-code "a") (ascii-code "A")))) _))
+	(if (<= (ascii-code "a") %0 (ascii-code "z"))
+		(- %0 (const (- (ascii-code "a") (ascii-code "A")))) %0))
 
-(defun ascii-lower (_)
+(defun ascii-lower (%0)
 	; (ascii-lower num) -> num
-	(if (<= (ascii-code "A") _ (ascii-code "Z"))
-		(+ _ (const (- (ascii-code "a") (ascii-code "A")))) _))
+	(if (<= (ascii-code "A") %0 (ascii-code "Z"))
+		(+ %0 (const (- (ascii-code "a") (ascii-code "A")))) %0))
 
-(defun to-upper (_)
+(defun to-upper (%0)
 	; (to-upper str) -> str
-	(if (eql _ "") ""
-		(apply (const cat) (map (# (char (ascii-upper (code %0)))) _))))
+	(if (eql %0 "") ""
+		(apply (const cat) (map (# (char (ascii-upper (code %0)))) %0))))
 
-(defun to-lower (_)
+(defun to-lower (%0)
 	; (to-lower str) -> str
-	(if (eql _ "") ""
-		(apply (const cat) (map (# (char (ascii-lower (code %0)))) _))))
+	(if (eql %0 "") ""
+		(apply (const cat) (map (# (char (ascii-lower (code %0)))) %0))))
 
 (defun align (num div)
 	; (align num div) -> num
 	(if (= (% num div) 0) num
 		(+ (* (/ num div) div) div)))
 
-(defun str-as-num (_)
+(defun str-as-num (%0)
 	; (str-as-num str) -> num
-	(pop (nums (str-to-num _))))
+	(pop (nums (str-to-num %0))))
 
-(defun num-to-utf8 (_)
+(defun num-to-utf8 (%0)
 	; (num-to-utf8 num) -> str
 	(cond
-		((>= _ 0x10000)
-			(char (+ 0x808080f0 (>> _ 18) (logand (>> _ 4) 0x3f00)
-				(logand (<< _ 10) 0x3f0000) (logand (<< _ 24) 0x3f000000)) 4))
-		((>= _ 0x800)
-			(char (+ 0x8080e0 (>> _ 12) (logand (<< _ 2) 0x3f00)
-				(logand (<< _ 16) 0x3f0000)) 3))
-		((>= _ 0x80)
-			(char (+ 0x80c0 (>> _ 6) (logand (<< _ 8) 0x3f00)) 2))
-		(:t (char _))))
+		((>= %0 0x10000)
+			(char (+ 0x808080f0 (>> %0 18) (logand (>> %0 4) 0x3f00)
+				(logand (<< %0 10) 0x3f0000) (logand (<< %0 24) 0x3f000000)) 4))
+		((>= %0 0x800)
+			(char (+ 0x8080e0 (>> %0 12) (logand (<< %0 2) 0x3f00)
+				(logand (<< %0 16) 0x3f0000)) 3))
+		((>= %0 0x80)
+			(char (+ 0x80c0 (>> %0 6) (logand (<< %0 8) 0x3f00)) 2))
+		(:t (char %0))))
 
-(defun byte-to-hex-str (_)
+(defun byte-to-hex-str (%0)
 	; (byte-to-hex-str num) -> str
-	(hex-encode (char _)))
+	(hex-encode (char %0)))
 
-(defun short-to-hex-str (_)
+(defun short-to-hex-str (%0)
 	; (short-to-hex-str num) -> str
-	(hex-encode (apply (const cat) (reverse (partition (char _ +short_size))))))
+	(hex-encode (apply (const cat) (reverse (partition (char %0 +short_size))))))
 
-(defun int-to-hex-str (_)
+(defun int-to-hex-str (%0)
 	; (int-to-hex-str num) -> str
-	(hex-encode (apply (const cat) (reverse (partition (char _ +int_size))))))
+	(hex-encode (apply (const cat) (reverse (partition (char %0 +int_size))))))
 
-(defun long-to-hex-str (_)
+(defun long-to-hex-str (%0)
 	; (long-to-hex-str num) -> str
-	(hex-encode (apply (const cat) (reverse (partition (char _ +long_size))))))
+	(hex-encode (apply (const cat) (reverse (partition (char %0 +long_size))))))
 
 (defun trim-start (s &optional cls)
 	; (trim-start str [cls]) -> str
@@ -1076,9 +1076,9 @@
 	(while (> c (length f)) (setq f (cat f f)))
 	(cat (slice f 0 c) v))
 
-(defun type-to-size (_)
+(defun type-to-size (%0)
 	; (type-to-size sym) -> num
-	(case _
+	(case %0
 		((i ui) +int_size)
 		((s us) +short_size)
 		((b ub) +byte_size)
@@ -1089,18 +1089,18 @@
 	; (lisp-nodes) -> nodes
 	(filter (const lisp-node?) (mail-nodes)))
 
-(defun max-length (_)
+(defun max-length (%0)
 	; (max-length list) -> max
-	(reduce (# (max %0 (length %1))) _ 0))
+	(reduce (# (max %0 (length %1))) %0 0))
 
-(defun min-length (_)
+(defun min-length (%0)
 	; (min-length list) -> min
-	(if (= (length _) 0) 0
-		(reduce (# (min %0 (length %1))) _ +max_long)))
+	(if (= (length %0) 0) 0
+		(reduce (# (min %0 (length %1))) %0 +max_long)))
 
-(defun time-in-seconds (_)
+(defun time-in-seconds (%0)
 	; (time-in-seconds time) -> str
-	(str (/ _ 1000000) "." (pad (% _ 1000000) 6 "00000")))
+	(str (/ %0 1000000) "." (pad (% %0 1000000) 6 "00000")))
 
 (defq *time_it* "")
 (defmacro time-it (heading &rest body)
@@ -1181,13 +1181,13 @@
 ; Streams
 ;;;;;;;;;
 
-(defun age (_)
+(defun age (%0)
 	; (age path) -> 0 | time ns
-	(if (setq _ (pii-fstat _)) (first _) 0))
+	(if (setq %0 (pii-fstat %0)) (first %0) 0))
 
-(defun load-stream (_)
+(defun load-stream (%0)
 	; (load-stream path) -> :nil | stream
-	(if (defq _ (load _)) (string-stream _)))
+	(if (defq %0 (load %0)) (string-stream %0)))
 
 (defun path-to-file ()
 	; (path-to-file) -> path
@@ -1300,19 +1300,19 @@
 	; (os) -> sym
 	(defq o 'Linux)
 	(when (defq f (file-stream 'os))
-		(bind '(o _) (read f))) o)
+		(bind '(o &) (read f))) o)
 
 (defun cpu ()
 	; (cpu) -> sym
 	(defq o 'x86_64)
 	(when (defq f (file-stream 'cpu))
-		(bind '(o _) (read f))) o)
+		(bind '(o &) (read f))) o)
 
 (defun abi ()
 	; (abi) -> sym
 	(defq o 'AMD64)
 	(when (defq f (file-stream 'abi))
-		(bind '(o _) (read f))) o)
+		(bind '(o &) (read f))) o)
 
 (defun within-compile-env (_f)
 	; (within-compile-env lambda)

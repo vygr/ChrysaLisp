@@ -76,9 +76,9 @@
 ;;;;;;;;;;;;
 
 (defcvar '*error_msgs* (list))
-(defun deferror (_)
-	(defcvar (sym (cat "+error_msg_" _)) (inc (length *error_msgs*)))
-	(push *error_msgs* (cat _ " !")))
+(defun deferror (%0)
+	(defcvar (sym (cat "+error_msg_" %0)) (inc (length *error_msgs*)))
+	(push *error_msgs* (cat %0 " !")))
 
 (deferror "not_a_canvas")
 (deferror "not_a_class")

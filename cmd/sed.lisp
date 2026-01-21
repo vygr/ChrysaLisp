@@ -32,7 +32,7 @@
 (defun create-reps (line match)
 	(cat (reduce (lambda (out (ms me))
 			(push out (slice line ms me))) match (list))
-		(const (list quote (map (lambda (_) "") (str-alloc 10))))))
+		(const (list quote (map (lambda (&) "") (str-alloc 10))))))
 
 (defun process (stream engine pattern meta rep global rep_info)
  	(lines! (lambda (line) (task-slice)

@@ -62,8 +62,8 @@
 
 (def-func-end)
 
-(redefun addop (_)
-	(entry :fixed _ '(:r0 :r1))
+(redefun addop (%0)
+	(entry :fixed %0 '(:r0 :r1))
 	(class/array/get_both :r1 :r1 :r2)
 	(vp-cpy-ir :r1 0 :r0)
 	(vp-add-cr +ptr_size :r1)
@@ -72,7 +72,7 @@
 		(vp-cpy-ir :r1 0 :r4)
 		(vp-add-cr +ptr_size :r1)
 		(assign '((:r4 num_value)) '(:r3))
-		((eval (sym (cat "vp-" (rest _) "-rr"))) :r3 :r0)
+		((eval (sym (cat "vp-" (rest %0) "-rr"))) :r3 :r0)
 		(vp-asr-cr +fp_shift :r0)
 	(loop-until '(:r1 = :r2))
 	(v-jump :num :vcreate '(:r0) :r4 :r1))
@@ -156,8 +156,8 @@
 (def-func-end)
 
 ;generic fixed math op
-(redefun mathop (_ p)
-	(entry :fixed _ '(:r0))
+(redefun mathop (%0 p)
+	(entry :fixed %0 '(:r0))
 	(assign '((:r0 num_value)) '(:r0))
 	(exec p)
 	(jump :fixed :create '(:r0)))

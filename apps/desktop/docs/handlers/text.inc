@@ -83,7 +83,7 @@
 	(each (lambda (word)
 		(when (= (word-state word) -1)
 			(defq text (create-word word state))
-			(bind '(w _) (. text :pref_size))
+			(bind '(w &) (. text :pref_size))
 			(when (> (++ cnt w) page_width)
 				(setq flow (line-flow font_size))
 				(when indent_width
@@ -111,7 +111,7 @@
 							indent (slice line 0 (bskip +char_class_space line 0))
 							match (matches line "^\s*((\p\.)+\s+|[*-]\s+)"))
 						(when (nempty? match)
-							(bind '(((_ cx2) (sx1 sx2) &ignore)) match)
+							(bind '(((& cx2) (sx1 sx2) &ignore)) match)
 							(setq style (slice line sx1 sx2) line (slice line cx2 -1)))
 						(setq line (join (elem-set lines 0 line) " "))
 						(when (nempty? (defq words (parse-line line)))

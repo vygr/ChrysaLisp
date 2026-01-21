@@ -2,8 +2,8 @@
 ; debug actions
 ;;;;;;;;;;;;;;;
 
-(defun num-to-hex-str (_)
-	(cat "0x" (int-to-hex-str _)))
+(defun num-to-hex-str (%0)
+	(cat "0x" (int-to-hex-str %0)))
 
 (defq +disabled_prefix ";;; "
 	+auto_pattern (cat "^(" +disabled_prefix ")?\(debug-brk \q0x\x+\q\)\n$")

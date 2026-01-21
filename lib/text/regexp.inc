@@ -9,10 +9,10 @@
 
 (defq +bracket_chars "()" +assert_chars "^$!" +op_cat "'" +op_tac "`"
 	+op_chars "+*?|" +op_presidence "+*?'|`()")
-(defmacro is-bracket-char? (_) (static-qq (find ,_ +bracket_chars)))
-(defmacro is-assert-char? (_) (static-qq (find ,_ +assert_chars)))
-(defmacro is-esc-char? (_) (static-qq (eql ,_ (ascii-char 92))))
-(defmacro is-op-char? (_) (static-qq (find ,_ +op_chars)))
+(defmacro is-bracket-char? (%0) (static-qq (find ,%0 +bracket_chars)))
+(defmacro is-assert-char? (%0) (static-qq (find ,%0 +assert_chars)))
+(defmacro is-esc-char? (%0) (static-qq (eql ,%0 (ascii-char 92))))
+(defmacro is-op-char? (%0) (static-qq (find ,%0 +op_chars)))
 
 (defun output (op token) (push out_types op) (push out_tokens token))
 (defun concat? (&optional o) (if concat (output :op (ifn o concat))))

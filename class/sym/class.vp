@@ -46,7 +46,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (vp-label 'props)
-	(each (lambda (_) (vp-cstr _)) *static_syms*)
+	(each (lambda (%0) (vp-cstr %0)) *static_syms*)
 (vp-label 'props_end)
 
 (def-func-end)

@@ -7,8 +7,8 @@
 
 (defq +min_paths 4 +max_paths 16)
 
-(defun goal-distance (_)
-	(nums-dot (nums-sub goal (defq _ (slice _ -3 -1)) _) _))
+(defun goal-distance (%0)
+	(nums-dot (nums-sub goal (defq %0 (slice %0 -3 -1)) %0) %0))
 
 (defun iron (p)
 	(defq out (cap (length p) (list)) a -1 b -1 x 0 y 0 s :diag)
@@ -79,7 +79,7 @@
 		(defq match (matches p "^([-+]) (\d+) (.*)"))
 		(cond
 			((empty? match) (setq run :nil))
-			(:t (bind '((_ (x x1) (x2 x3) (x4 x5))) match)
+			(:t (bind '((& (x x1) (x2 x3) (x4 x5))) match)
 				(defq op (slice p x x1) l (slice p x4 x5)
 					nl (str-to-num (slice p x2 x3)))
 				(while (< ln nl) (write-line c (read-line a)) (++ ln))

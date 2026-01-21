@@ -23,7 +23,7 @@
 
 (def-func-end)
 
-(defun for-each-visible-rect (_)
+(defun for-each-visible-rect (%0)
 	;for each rect on the dirty region
 	(assign '((:rsp local_this)) '(:r0))
 	(assign '((& :r0 view_dirty_region)) '(:r0))
@@ -44,7 +44,7 @@
 		(host-gui-call :host_gui :set_clip '((& :rsp local_clip_rect)))
 
 		;eval body
-		(exec _)
+		(exec %0)
 
 		(assign '((:rsp local_dirty_rect)) '(:r0))
 	(loop-end))

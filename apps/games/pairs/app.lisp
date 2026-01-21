@@ -79,7 +79,7 @@
 	(defq all_chars (shuffle (map code *char_pool*))
 		  pool (slice all_chars 0 (/ *tile_count* 2)))
 	(setq *values* (shuffle (cat pool pool))
-		  *states* (map (lambda (_) 0) (range 0 *tile_count*))
+		  *states* (map (lambda (&) 0) (range 0 *tile_count*))
 		  *score* 0
 		  *first_pick* :nil
 		  *locked* :nil)
@@ -154,7 +154,7 @@
 
 (defun solve ()
 	; Cheat function: reveal all
-	(setq *states* (map (lambda (_) 2) *states*))
+	(setq *states* (map (lambda (&) 2) *states*))
 	(update-view))
 
 (defun dispatch-action (id)

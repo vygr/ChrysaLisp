@@ -104,12 +104,12 @@
 	;filter to only the class.inc files, strip off the leading "./"
 	(files-all "." '("class.inc") 2))
 
-(defun make-info (_)
+(defun make-info (%0)
 	;create lists of immediate dependencies and products
-	(defq d (list "lib/asm/asm.inc" "class/lisp/root.inc" "class/lisp/task.inc" _) p (list))
-	(lines! (lambda (_)
-		(when (and (> (length _) 10) (eql "(" (first _))
-				(<= 2 (length (defq s (split _ (const (char-class " '()\q\r"))))) 4))
+	(defq d (list "lib/asm/asm.inc" "class/lisp/root.inc" "class/lisp/task.inc" %0) p (list))
+	(lines! (lambda (%0)
+		(when (and (> (length %0) 10) (eql "(" (first %0))
+				(<= 2 (length (defq s (split %0 (const (char-class " '()\q\r"))))) 4))
 			(case (first s)
 				(("include" "import")
 					(push d (path-to-absolute (second s) file)))
@@ -126,14 +126,14 @@
 					(if (eql (second s) "path-to-absolute")
 						(push p (sym (path-to-absolute (third s) file)))
 						(push p (sym (second s))))))))
-		(if (= (age _) 0)
-			(throw "No such file !" _)
-			(file-stream (defq file _))))
+		(if (= (age %0) 0)
+			(throw "No such file !" %0)
+			(file-stream (defq file %0))))
 	(list d p))
 
-(defun file-age (_)
+(defun file-age (%0)
 	;modification time of a file, cached
-	(or (get (setq _ (sym _)) ages) (def ages _ (age _))))
+	(or (get (setq %0 (sym %0)) ages) (def ages %0 (age %0))))
 
 (defun make (&optional files *abi* *cpu*)
 	(setd files (all-vp-files) *abi* (abi) *cpu* (cpu))

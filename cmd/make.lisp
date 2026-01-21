@@ -41,9 +41,9 @@
 			'("lib/asm/" "lib/trans/" "lib/keys/"))
 			(push out %0)))) out)
 
-(defun chop (_)
-	(when (defq i (find (char 0x22) _))
-		(slice _ (inc i) (find (char 0x22) _ (inc i)))))
+(defun chop (%0)
+	(when (defq i (find (char 0x22) %0))
+		(slice %0 (inc i) (find (char 0x22) %0 (inc i)))))
 
 (defun make-docs ()
 	(print "Scanning source files...")

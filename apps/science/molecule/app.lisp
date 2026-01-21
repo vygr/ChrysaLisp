@@ -26,10 +26,10 @@
 	+canvas_mode (if anti_alias +canvas_flag_antialias 0)
 	*mol_index* 0 *auto_mode* :nil *dirty* :t
 	balls (list) mol_files (sort (files-all (cat *app_root* "data/") '(".sdf")))
-	+palette (push `(,quote) (map (lambda (_) (Vec3-f
-			(n2f (/ (logand (>> _ 16) 0xff) 0xff))
-			(n2f (/ (logand (>> _ 8) 0xff) 0xff))
-			(n2f (/ (logand _ 0xff) 0xff))))
+	+palette (push `(,quote) (map (lambda (%0) (Vec3-f
+			(n2f (/ (logand (>> %0 16) 0xff) 0xff))
+			(n2f (/ (logand (>> %0 8) 0xff) 0xff))
+			(n2f (/ (logand %0 0xff) 0xff))))
 		(list +argb_black +argb_white +argb_red +argb_green
 			+argb_cyan +argb_blue +argb_yellow +argb_magenta))))
 
@@ -76,9 +76,9 @@
 	(defq r (* (floor (* (n2f r) 4.0)) 0.25))
 	(memoize r (list (path-gen-arc 0.0 0.0 0.0 +fp_2pi r (path))) 13))
 
-(defun fpoly (canvas col x y _)
+(defun fpoly (canvas col x y p)
 	;draw a polygon on a canvas
-	(.-> canvas (:set_color col) (:fpoly (n2f x) (n2f y) +winding_odd_even _)))
+	(.-> canvas (:set_color col) (:fpoly (n2f x) (n2f y) +winding_odd_even p)))
 
 (defun lighting (col at)
 	;very basic attenuation and diffuse
@@ -99,11 +99,11 @@
 		(task-slice)) balls))
 
 (defun sort-balls (balls)
-	(sort balls (lambda ((v1 _ _) (v2 _ _))
+	(sort balls (lambda ((v1 & &) (v2 & &))
 		(if (<= (elem-get v1 +vec4_w) (elem-get v2 +vec4_w)) 1 -1))))
 
 (defun clip-balls (balls)
-	(filter (lambda (((_ _ _ w) _ _)) (<= +near w +far)) balls))
+	(filter (lambda (((& & & w) &ignore)) (<= +near w +far)) balls))
 
 (defun render ()
 	(defq mrx (Mat4x4-rotx *rotx*) mry (Mat4x4-roty *roty*) mrz (Mat4x4-rotz *rotz*)
@@ -143,7 +143,7 @@
 		(bind '(center radius) (bounding-sphere balls (# (elem-get %0 +ball_vertex))))
 		(defq scale_p (/ (const (n2r 2.0)) radius) scale_r (/ (const (n2r 0.0625)) radius))
 		(each (lambda (ball)
-			(bind '(v r _) ball)
+			(bind '(v r &ignore) ball)
 			(push (vector-scale (vector-sub v center v) scale_p v) +real_1)
 			(elem-set ball +ball_radius (* scale_r r))) balls)))
 

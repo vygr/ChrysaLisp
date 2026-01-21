@@ -91,7 +91,7 @@
 
 (defmacro def-class (class super &rest lines)
 	(defq vtable (env-copy (get super *vtables*) 1))
-	(each (lambda ((_ mname mfunc &optional mtype regs_in regs_out))
+	(each (lambda ((& mname mfunc &optional mtype regs_in regs_out))
 		(setd mtype :static)
 		(and regs_in (lmatch? regs_in '(abi-args _)) (setq regs_in (eval regs_in)))
 		(if (defq m (get mname vtable))
@@ -188,23 +188,23 @@
 			(scope-unwind)
 			(vp-jmp-i :r14 (last m)))))
 
-(defmacro entry (&rest _)
+(defmacro entry (&rest %0)
 	;either
 	;_1 = class name
 	;_2 = slot method name
 	;_3 = in parameters
 	;or
 	;_1 = in parameters
-	(cat (if (= (length _) 1) '(l-entry) '(f-entry)) _))
+	(cat (if (= (length %0) 1) '(l-entry) '(f-entry)) %0))
 
-(defmacro exit (&rest _)
+(defmacro exit (&rest %0)
 	;either
 	;_1 = class name
 	;_2 = slot method name
 	;_3 = out parameters
 	;or
 	;_1 = out parameters
-	(cat (if (= (length _) 1) '(l-exit) '(f-exit)) _))
+	(cat (if (= (length %0) 1) '(l-exit) '(f-exit)) %0))
 
 ;;;;;;;;;;;;;;;;
 ; method calling
@@ -388,11 +388,11 @@
 ; generic class construction
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defun signature (_)
+(defun signature (%0)
 	(vp-align +short_size)
 (vp-label 'sig)
-	(each (lambda (_)
-		(vp-short `(- ,(label-sym (link-sym (fn-find-link (f-path _ :vtable)))) *pc*))) _))
+	(each (lambda (%0)
+		(vp-short `(- ,(label-sym (link-sym (fn-find-link (f-path %0 :vtable)))) *pc*))) %0))
 
 (defun gen-vtable (_1)
 	;_1 = class name

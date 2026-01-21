@@ -15,13 +15,13 @@
 	+bracket_chars (char-class "()[]")
 	+stringy_chars (char-class (cat (ascii-char 34) "$@")))
 
-(defmacro is-symbol-char? (_) (static-qqp (bfind ,_ +symbol_chars)))
-(defmacro is-path-char? (_) (static-qqp (bfind ,_ +char_class_path)))
-(defmacro is-label-char? (_) (static-qqp (bfind ,_ +char_class_word)))
-(defmacro is-digit-char? (_) (static-qqp (bfind ,_ +char_class_digit)))
-(defmacro is-op-char? (_) (static-qqp (bfind ,_ +op_chars)))
-(defmacro is-bracket-char? (_) (static-qqp (bfind ,_ +bracket_chars)))
-(defmacro is-stringy-char? (_) (static-qqp (bfind ,_ +stringy_chars)))
+(defmacro is-symbol-char? (%0) (static-qqp (bfind ,%0 +symbol_chars)))
+(defmacro is-path-char? (%0) (static-qqp (bfind ,%0 +char_class_path)))
+(defmacro is-label-char? (%0) (static-qqp (bfind ,%0 +char_class_word)))
+(defmacro is-digit-char? (%0) (static-qqp (bfind ,%0 +char_class_digit)))
+(defmacro is-op-char? (%0) (static-qqp (bfind ,%0 +op_chars)))
+(defmacro is-bracket-char? (%0) (static-qqp (bfind ,%0 +bracket_chars)))
+(defmacro is-stringy-char? (%0) (static-qqp (bfind ,%0 +stringy_chars)))
 
 (defun cscript-tokenize (line)
 	(defq i 0 j 0 c 0 l (length line) state :space unary :t
@@ -126,14 +126,14 @@
 
 (defq +vreg ''(_v0 _v1 _v2 _v3 _v4 _v5 _v6 _v7 _v8 _v9 _v10 _v11 _v12 _v13 _v14))
 
-(defmacro vreg-sym (_)
-	`(elem-get ,+vreg ,_))
+(defmacro vreg-sym (%0)
+	`(elem-get ,+vreg ,%0))
 
 (defmacro add-inst (&rest b)
 	`(push *inst* ~b))
 
-(defmacro set-type (_)
-	(list 'elem-set '*vregt* -2 _))
+(defmacro set-type (%0)
+	(list 'elem-set '*vregt* -2 %0))
 
 (defmacro get-type ()
 	'(last *vregt*))
@@ -144,16 +144,16 @@
 (defmacro tmp-reg ()
 	'(vreg-sym (length *vregt*)))
 
-(defun push-reg (_)
-	(vreg-sym (dec (length (push *vregt* _)))))
+(defun push-reg (%0)
+	(vreg-sym (dec (length (push *vregt* %0)))))
 
 (defun pop-reg ()
 	(list (vreg-sym (dec (length *vregt*))) (pop *vregt*)))
 
-(defmacro reset-reg-stack (_)
+(defmacro reset-reg-stack (%0)
 	`(defq *inst* (push (clear '()) progn)
 		*vregt* (slice '(:nil :nil :nil :nil :nil :nil :nil
-			:nil :nil :nil :nil :nil :nil :nil :nil) 0 ,_)))
+			:nil :nil :nil :nil :nil :nil :nil :nil) 0 ,%0)))
 
 (defun def-reg-map (pre spill)
 	(setd spill '(:r0 :r1 :r2 :r3 :r4 :r5 :r6 :r7
@@ -189,170 +189,170 @@
 (defun compile-null ()
 	(throw "Null operator !" :nil))
 
-(defun compile-const (_)
-	(add-inst (list 'vp-cpy-cr _ (push-reg :nil))))
+(defun compile-const (%0)
+	(add-inst (list 'vp-cpy-cr %0 (push-reg :nil))))
 
-(defun compile-arrow (&optional _)
+(defun compile-arrow (&optional %0)
 	(bind '((y w) x) (list (pop-reg) (pop-value)))
-	(if _ (push-reg :nil))
+	(if %0 (push-reg :nil))
 	(setq w (elem-get
 		'(vp-cpy-ri-b vp-cpy-ri-b vp-cpy-ri-s vp-cpy-ri-s
 		vp-cpy-ri-i vp-cpy-ri-i vp-cpy-ri vp-cpy-ri)
 		 (find w "bBsSiIlp")))
 	(add-inst (list w x y 0)))
 
-(defun compile-ref (_)
+(defun compile-ref (%0)
 	(cond
-		((not (defq s (scope-get _)))
+		((not (defq s (scope-get %0)))
 			;not in symbol table so figure out what it is
-			(defq type_sym (sym (str _ "_t")) type_str (get type_sym))
+			(defq type_sym (sym (str %0 "_t")) type_str (get type_sym))
 			(cond
 				((find (first type_str) "0123456789")
 					;struct/member
-					(compile-const _))
+					(compile-const %0))
 				(type_str
 					;field/member
-					(add-inst (list 'vp-cpy-cr _ (push-reg type_str))))
-				((get _)
+					(add-inst (list 'vp-cpy-cr %0 (push-reg type_str))))
+				((get %0)
 					;equate
-					(compile-const _))
-				(:t (throw "Symbol not defined !" _))))
+					(compile-const %0))
+				(:t (throw "Symbol not defined !" %0))))
 		((eql 'var (second s))
 			;variable
 			(add-inst (list 'vp-lea-i :rsp
 				(+ (scope-offset (first s)) (third s))
 				(push-reg (elem-get s 3)))))
-		(:t (throw "Symbol not a variable !" _))))
+		(:t (throw "Symbol not a variable !" %0))))
 
-(defun compile-cast (_)
-	(if (defq c (find (sym _) '(ptr byte ubyte short ushort int uint long pptr)))
+(defun compile-cast (%0)
+	(if (defq c (find (sym %0) '(ptr byte ubyte short ushort int uint long pptr)))
 		(set-type (elem-get '("p" "b" "B" "s" "S" "i" "I" "l" "pp") c))
-		(throw "Unknown type cast" _)))
+		(throw "Unknown type cast" %0)))
 
-(defun compile-member (_)
-	(bind '(_ w) (pop-reg))
+(defun compile-member (%0)
+	(bind '(%0 w) (pop-reg))
 	(compile-deref)
 	(set-type w)
-	(add-inst (list 'vp-add-rr _ (top-reg))))
+	(add-inst (list 'vp-add-rr %0 (top-reg))))
 
-(defun compile-uaddrof (_)
+(defun compile-uaddrof (&)
 	(set-type :nil))
 
-(defun compile-field (_)
-	(bind '(_ w) (pop-reg))
+(defun compile-field (%0)
+	(bind '(%0 w) (pop-reg))
 	(set-type w)
-	(add-inst (list 'vp-add-rr _ (top-reg))))
+	(add-inst (list 'vp-add-rr %0 (top-reg))))
 
-(defun compile-index (_)
-	(defq _ (pop-value))
+(defun compile-index (%0)
+	(defq %0 (pop-value))
 	(compile-deref)
-	(add-inst (list 'vp-add-rr _ (top-reg))))
+	(add-inst (list 'vp-add-rr %0 (top-reg))))
 
-(defun compile-uminus (_)
+(defun compile-uminus (&)
 	(add-inst (list 'vp-mul-cr -1 (top-value))))
 
-(defun compile-uderef (_)
+(defun compile-uderef (&)
 	(compile-deref))
 
-(defun compile-unot (_)
+(defun compile-unot (&)
 	(add-inst (list 'vp-xor-cr -1 (top-value))))
 
-(defun compile-mul (_)
+(defun compile-mul (&)
 	(add-inst (list 'vp-mul-rr (pop-value) (top-value))))
 
-(defun compile-fmul (_)
+(defun compile-fmul (&)
 	(add-inst
-		(list 'vp-mul-rr (pop-value) (defq _ (top-value)))
-		(list 'vp-asr-cr 16 _)))
+		(list 'vp-mul-rr (pop-value) (defq r (top-value)))
+		(list 'vp-asr-cr 16 r)))
 
-(defun compile-divu (_)
-	(defq _ (tmp-reg) z (pop-value) x (top-value))
+(defun compile-divu (&)
+	(defq r (tmp-reg) z (pop-value) x (top-value))
 	(add-inst
-		(list 'vp-ext-rr x _)
-		(list 'vp-div-rrr-u z _ x)))
+		(list 'vp-ext-rr x r)
+		(list 'vp-div-rrr-u z r x)))
 
-(defun compile-remu (_)
-	(defq _ (tmp-reg) z (pop-value) x (top-value))
+(defun compile-remu (&)
+	(defq r (tmp-reg) z (pop-value) x (top-value))
 	(add-inst
-		(list 'vp-ext-rr x _)
-		(list 'vp-div-rrr-u z _ x)
-		(list 'vp-cpy-rr _ x)))
+		(list 'vp-ext-rr x r)
+		(list 'vp-div-rrr-u z r x)
+		(list 'vp-cpy-rr r x)))
 
-(defun compile-div (_)
-	(defq _ (tmp-reg) z (pop-value) x (top-value))
+(defun compile-div (&)
+	(defq r (tmp-reg) z (pop-value) x (top-value))
 	(add-inst
-		(list 'vp-ext-rr x _)
-		(list 'vp-div-rrr z _ x)))
+		(list 'vp-ext-rr x r)
+		(list 'vp-div-rrr z r x)))
 
-(defun compile-fdiv (_)
-	(defq _ (tmp-reg) z (pop-value) x (top-value))
+(defun compile-fdiv (&)
+	(defq r (tmp-reg) z (pop-value) x (top-value))
 	(add-inst
 		(list 'vp-shl-cr 16 x)
-		(list 'vp-ext-rr x _)
-		(list 'vp-div-rrr z _ x)))
+		(list 'vp-ext-rr x r)
+		(list 'vp-div-rrr z r x)))
 
-(defun compile-rem (_)
-	(defq _ (tmp-reg) z (pop-value) x (top-value))
+(defun compile-rem (&)
+	(defq r (tmp-reg) z (pop-value) x (top-value))
 	(add-inst
-		(list 'vp-ext-rr x _)
-		(list 'vp-div-rrr z _ x)
-		(list 'vp-cpy-rr _ x)))
+		(list 'vp-ext-rr x r)
+		(list 'vp-div-rrr z r x)
+		(list 'vp-cpy-rr r x)))
 
-(defun compile-plus (_)
+(defun compile-plus (&)
 	(add-inst (list 'vp-add-rr (pop-value) (top-value))))
 
-(defun compile-minus (_)
+(defun compile-minus (&)
 	(add-inst (list 'vp-sub-rr (pop-value) (top-value))))
 
-(defun compile-lshift (_)
+(defun compile-lshift (&)
 	(add-inst (list 'vp-shl-rr (pop-value) (top-value))))
 
-(defun compile-rshift (_)
+(defun compile-rshift (&)
 	(add-inst (list 'vp-shr-rr (pop-value) (top-value))))
 
-(defun compile-arshift (_)
+(defun compile-arshift (&)
 	(add-inst (list 'vp-asr-rr (pop-value) (top-value))))
 
-(defun compile-cmp (_)
+(defun compile-cmp (%0)
 	(add-inst (list (elem-get
 		'(vp-seq-rr vp-sne-rr vp-sle-rr vp-sge-rr vp-sgt-rr vp-slt-rr)
-			(find _ '(= /= <= >= > <)))
+			(find %0 '(= /= <= >= > <)))
 		(pop-value) (top-value))))
 
-(defun compile-and (_)
+(defun compile-and (&)
 	(add-inst (list 'vp-and-rr (pop-value) (top-value))))
 
-(defun compile-xor (_)
+(defun compile-xor (&)
 	(add-inst (list 'vp-xor-rr (pop-value) (top-value))))
 
-(defun compile-or (_)
+(defun compile-or (&)
 	(add-inst (list 'vp-or-rr (pop-value) (top-value))))
 
-(defun compile-ulnot (_)
+(defun compile-ulnot (&)
 	(add-inst (list 'vp-lnot-rr (tmp-reg) (top-value))))
 
-(defun compile-land (_)
+(defun compile-land (&)
 	(add-inst (list 'vp-land-rr (pop-value) (top-value))))
 
-(defun compile-lor (_)
+(defun compile-lor (&)
 	(add-inst (list 'vp-or-rr (pop-value) (top-value))))
 
-(defun compile-operator (_)
+(defun compile-operator (%0)
 	(cond
-		((not (defq s (scope-get _)))
-			(throw "Compile op not defined !" _))
+		((not (defq s (scope-get %0)))
+			(throw "Compile op not defined !" %0))
 		((nql 'op (second s))
-			(throw "Not an operator !" _))
-		(:t ((elem-get s 4) _))))
+			(throw "Not an operator !" %0))
+		(:t ((elem-get s 4) %0))))
 
-(defun compile-string (_)
-	(add-inst (list 'fn-string _ (push-reg :nil))))
+(defun compile-string (%0)
+	(add-inst (list 'fn-string %0 (push-reg :nil))))
 
-(defun compile-bind (_)
-	(add-inst (list 'fn-bind (list quote _) (push-reg :nil))))
+(defun compile-bind (%0)
+	(add-inst (list 'fn-bind (list quote %0) (push-reg :nil))))
 
-(defun compile-label (_)
-	(add-inst (list 'vp-lea-p (list quote _) (push-reg :nil))))
+(defun compile-label (%0)
+	(add-inst (list 'vp-lea-p (list quote %0) (push-reg :nil))))
 
 (defun cscript-compile (rpn_output)
 	(each! (lambda (token type)
@@ -364,8 +364,8 @@
 			(:label (compile-label (sym token)))
 			(:string (compile-string token)))) rpn_output))
 
-(defun cscript (_)
-	(cscript-compile (cscript-reverse-polish (cscript-tokenize _))))
+(defun cscript (%0)
+	(cscript-compile (cscript-reverse-polish (cscript-tokenize %0))))
 
 ;define C-Script operators...
 (scope-new)

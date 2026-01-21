@@ -80,35 +80,35 @@
 				(if (/= y 0) (emitm-int (+ 0xf2a00000 (>> y 11) r)))
 				(if (/= z 0) (emitm-int (+ 0xf2800000 (<< z 5) r)))))))
 
-(defmacro arm64-is-mask (_)
-	`(and (/= 0 ,_) (= 0 (logand ,_ (inc ,_)))))
+(defmacro arm64-is-mask (%0)
+	`(and (/= 0 ,%0) (= 0 (logand ,%0 (inc ,%0)))))
 
-(defmacro arm64-is-shifted-mask (_)
-	`(and (/= 0 ,_) (arm64-is-mask (logior ,_ (dec ,_)))))
+(defmacro arm64-is-shifted-mask (%0)
+	`(and (/= 0 ,%0) (arm64-is-mask (logior ,%0 (dec ,%0)))))
 
-(defun arm64-limm (_)
-	(if (or (= 0 _) (= -1 _)) -1
+(defun arm64-limm (%0)
+	(if (or (= 0 %0) (= -1 %0)) -1
 		(progn
 			(defq s 64 e :t)
 			(while e
 				(defq s (>> s 1) m (dec (<< 1 s)))
-				(if (/= (logand _ m) (logand (>> _ s) m))
+				(if (/= (logand %0 m) (logand (>> %0 s) m))
 					(setq s (* s 2) e :nil)
 					(if (<= s 2)
 						(setq e :nil))))
-			(defq m (>> -1 (- 64 s)) _ (logand _ m))
-			(if (arm64-is-shifted-mask _)
+			(defq m (>> -1 (- 64 s)) %0 (logand %0 m))
+			(if (arm64-is-shifted-mask %0)
 				(progn
-					(defq i (ntz _))
+					(defq i (ntz %0))
 					(if (>= i 64)
 						(setq e :t)
-						(defq cto (nto (>> _ i)))))
+						(defq cto (nto (>> %0 i)))))
 				(progn
-					(setq _ (logior _ (lognot m)))
-					(if (not (arm64-is-shifted-mask (lognot _)))
+					(setq %0 (logior %0 (lognot m)))
+					(if (not (arm64-is-shifted-mask (lognot %0)))
 						(setq e :t)
-						(defq clo (nlo _) i (- 64 clo)
-							cto (- (+ clo (nto _)) (- 64 s))))))
+						(defq clo (nlo %0) i (- 64 clo)
+							cto (- (+ clo (nto %0)) (- 64 s))))))
 			(if (or e (<= s i)) -1
 				(progn
 					(defq _r (logand (- s i) (dec s))

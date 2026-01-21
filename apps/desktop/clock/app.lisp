@@ -25,7 +25,7 @@
 		(defq *display* :nil)))
 
 (defun make-digital-time ()
-	(bind '(sc mn hr _ _ _ wk) (date))
+	(bind '(sc mn hr & & & wk) (date))
 	(setq sec sc minute mn hour hr dotw wk))
 
 (defun make-analog-time ()
@@ -38,11 +38,11 @@
 		(if *env_clock_pad_hour* (pad hour 2 "0") (str hour)) (str ":" (pad minute 2 "0"))
 		(if (eql *env_clock_seconds* :t) (str ":" (pad sec 2 "0")) "")))
 
-(defun transform (_ a s &optional x y)
+(defun transform (%0 a s &optional x y)
 	(defq sa (sin a) ca (cos a) x (ifn x 0.0) y (ifn y 0.0))
 	(path-transform (fixeds
 		(* s ca) (* s (* sa -1.0)) (* s (+ x 0.5))
-		(* s sa) (* s ca) (* s (+ y 0.5))) _ _))
+		(* s sa) (* s ca) (* s (+ y 0.5))) %0 %0))
 
 (defun create-clockface (scale)
 	;create static clock face

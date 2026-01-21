@@ -11,10 +11,10 @@
 
 (defq +width 600 +height 600 +min_width 300 +min_height 300
 	+rate (/ 1000000 60) +base 0.3
-	+palette (push `(,quote) (map (lambda (_) (vector-i2n
-			(/ (logand (>> _ 16) 0xff) 0xff)
-			(/ (logand (>> _ 8) 0xff) 0xff)
-			(/ (logand _ 0xff) 0xff)))
+	+palette (push `(,quote) (map (lambda (%0) (vector-i2n
+			(/ (logand (>> %0 16) 0xff) 0xff)
+			(/ (logand (>> %0 8) 0xff) 0xff)
+			(/ (logand %0 0xff) 0xff)))
 		(list +argb_cyan +argb_yellow +argb_magenta +argb_red +argb_green +argb_blue))))
 
 (ui-window *window* ()
@@ -52,7 +52,7 @@
 
 (defun vertex-update (verts)
 	(each (lambda (vert)
-		(bind '(p v _ _) vert)
+		(bind '(p v & &) vert)
 		(vector-add p v p)
 		(bind '(x y z) p)
 		(bind '(vx vy vz) v)
@@ -64,9 +64,9 @@
 			(setq vz (neg vz)))
 		(elem-set vert +vertex_v (vector vx vy vz))) verts))
 
-(defun fpoly (canvas col x y _)
+(defun fpoly (canvas col x y p)
 	;draw a polygon on a canvas
-	(.-> canvas (:set_color col) (:fpoly x y +winding_odd_even _)))
+	(.-> canvas (:set_color col) (:fpoly x y +winding_odd_even p)))
 
 (defun circle (r)
 	;cached circle generation, quantised to 1/4 pixel
@@ -83,7 +83,7 @@
 
 (defun clip-verts (hsw hsh verts)
 	;clip and project verts
-	(reduce (lambda (out ((x y z) _ r c))
+	(reduce (lambda (out ((x y z) & r c))
 		(setq z (+ z (const (i2n (+ (* box_size 2) max_vel)))))
 		(when (> z (const (i2n focal_len)))
 			(defq v (vector x y z) w (/ hsw z) h (/ hsh z))

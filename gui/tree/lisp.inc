@@ -23,7 +23,7 @@
 		; routes are:
 		; "a/b/c/file"
 		; "a/b/c/."
-		(bind '(toggle_width _) (font-glyph-bounds (get :font this) ">"))
+		(bind '(toggle_width &) (font-glyph-bounds (get :font this) ">"))
 		(defq route (split route "/") root this)
 		(each! (lambda (branch)
 			(cond

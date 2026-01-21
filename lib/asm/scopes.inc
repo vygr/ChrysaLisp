@@ -96,9 +96,9 @@
 			(union
 				(defq o (gensym) m (gensym))
 				(push prog `(defq ,o *scopes_sp* ,m *scopes_sp*))
-				(each! (lambda (_)
+				(each! (lambda (%0)
 					(push prog
-						`(def-vars ,_)
+						`(def-vars ,%0)
 						`(setq ,m (max ,m *scopes_sp*) *scopes_sp* ,o))) (list line) 1)
 				(push prog `(setq *scopes_sp* ,m)))
 			(:t

@@ -83,7 +83,7 @@
 	(. *canvas* :fill 0)
 
 	; Get absolute canvas position and calculate relative mouse coordinates
-	(bind '(canvas_x canvas_y _ _) (map (const n2f) (. (penv *window*) :get_relative *canvas*)))
+	(bind '(canvas_x canvas_y & &) (map (const n2f) (. (penv *window*) :get_relative *canvas*)))
 	(defq rel_mx (- (n2f mx) canvas_x)
 		  rel_my (- (n2f my) canvas_y))
 
@@ -166,7 +166,7 @@
 		(cond
 			((= idx +select_timer)
 				(mail-timeout (elem-get select +select_timer) poll_rate 0)
-				(bind '(mx my _ _) (gui-info))
+				(bind '(mx my & &) (gui-info))
 				(when (or (/= mx last_mx) (/= my last_my))
 					(setq last_mx mx last_my my)
 					(redraw mx my)))

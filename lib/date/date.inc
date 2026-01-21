@@ -150,7 +150,7 @@
 	(setq index 0)
 	(each (lambda (m_) (if (eql m_ mo) (setq mo (!))) (++ index)) month_abbr)
 	(defq smh (reverse (split hms ":")))
-	(each (lambda (_) (push rdt (s2i _))) (reverse (split hms ":")))
+	(each (lambda (%0) (push rdt (s2i %0))) (reverse (split hms ":")))
 	(push rdt (s2i dy) mo (s2i yr) wd))
 
 (when (not (get :local_timezone))

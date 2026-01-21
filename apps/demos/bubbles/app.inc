@@ -10,22 +10,22 @@
 
 (cond   ;pick number format :t/:nil
 	(:t ;reals
-		(defmacro vector (&rest _) `(reals ~_))
-		(defmacro i2n (_) `(n2r ,_))
-		(defmacro f2n (_) `(n2r ,_)))
+		(defmacro vector (&rest %0) `(reals ~%0))
+		(defmacro i2n (%0) `(n2r ,%0))
+		(defmacro f2n (%0) `(n2r ,%0)))
 	(:t ;fixed point
-		(defmacro vector (&rest _) `(fixeds ~_))
-		(defmacro i2n (_) `(n2f ,_))
-		(defmacro f2n (_) _)))
+		(defmacro vector (&rest %0) `(fixeds ~%0))
+		(defmacro i2n (%0) `(n2f ,%0))
+		(defmacro f2n (%0) %0)))
 
-(defmacro vector-n2f (&rest _)
-	(static-qq (fixeds ~(map (lambda (_) (list 'n2f _)) _))))
+(defmacro vector-n2f (&rest %0)
+	(static-qq (fixeds ~(map (lambda (%0) (list 'n2f %0)) %0))))
 
-(defmacro vector-i2n (&rest _)
-	(static-qq (vector ~(map (lambda (_) (list 'i2n _)) _))))
+(defmacro vector-i2n (&rest %0)
+	(static-qq (vector ~(map (lambda (%0) (list 'i2n %0)) %0))))
 
-(defmacro vector-f2n (&rest _)
-	(static-qq (vector ~(map (lambda (_) (list 'f2n _)) _))))
+(defmacro vector-f2n (&rest %0)
+	(static-qq (vector ~(map (lambda (%0) (list 'f2n %0)) %0))))
 
 (enums +dlist 0
 	(enum mask light_pos layer1_canvas layer1_verts))

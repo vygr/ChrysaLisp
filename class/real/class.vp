@@ -36,8 +36,8 @@
 
 (def-func-end)
 
-(redefun addop (_)
-	(entry :real _ '(:r0 :r1))
+(redefun addop (%0)
+	(entry :real %0 '(:r0 :r1))
 	(class/array/get_both :r1 :r1 :r2)
 	(vp-cpy-ir :r1 0 :r0)
 	(vp-add-cr +ptr_size :r1)
@@ -46,7 +46,7 @@
 		(vp-cpy-ir :r1 0 :r4)
 		(vp-add-cr +ptr_size :r1)
 		(assign '((:r4 num_value)) '(:f1))
-		((eval (sym (cat "vp-" (rest _) "-ff"))) :f1 :f0)
+		((eval (sym (cat "vp-" (rest %0) "-ff"))) :f1 :f0)
 	(loop-until '(:r1 = :r2))
 	(v-jump :num :vcreate '(:f0) :r4 :r1))
 
@@ -90,10 +90,10 @@
 
 (def-func-end)
 
-(redefun minop (_ p)
+(redefun minop (%0 p)
 	(vp-rdef (this args obj iter_begin iter_end))
 	(vp-fdef (val new_val))
-	(entry :real _ `(,this ,args))
+	(entry :real %0 `(,this ,args))
 	(class/array/get_both args iter_begin iter_end)
 	(vp-cpy-ir iter_begin 0 args)
 	(vp-add-cr +ptr_size iter_begin)
@@ -105,7 +105,7 @@
 		(exec p)
 	(loop-until `(,iter_begin = ,iter_end))
 	(class/obj/ref args iter_begin)
-	(exit :real _ `(,args))
+	(exit :real %0 `(,args))
 	(vp-ret))
 
 (def-method :real :min)
@@ -144,8 +144,8 @@
 
 (def-func-end)
 
-(redefun divop (_ p)
-	(entry :real _ '(:r0 :r1))
+(redefun divop (%0 p)
+	(entry :real %0 '(:r0 :r1))
 	(class/array/get_both :r1 :r1 :r4)
 	(vp-cpy-ir :r1 0 :r0)
 	(vp-add-cr +ptr_size :r1)
@@ -161,7 +161,7 @@
 	(loop-until '(:r1 = :r4))
 	(v-jump :num :vcreate '(:f0) :r5 :r1)
 (vp-label 'error)
-	(exit :real _ '(0))
+	(exit :real %0 '(0))
 	(vp-ret))
 
 (def-method :real :div)
@@ -198,8 +198,8 @@
 
 (def-func-end)
 
-(redefun compareop (_ p)
-	(entry :real _ '(:r0 :r1))
+(redefun compareop (%0 p)
+	(entry :real %0 '(:r0 :r1))
 	(class/array/get_both :r1 :r1 :r2)
 	(vp-cpy-ir :r1 0 :r3)
 	(vp-add-cr +ptr_size :r1)
@@ -210,10 +210,10 @@
 		(assign '((:r3 num_value)) '(:f1))
 		(exec p)
 	(loop-until '(:r1 = :r2))
-	(exit :real _ '(-1))
+	(exit :real %0 '(-1))
 	(vp-ret)
 (vp-label 'fail)
-	(exit :real _ '(0))
+	(exit :real %0 '(0))
 	(vp-ret))
 
 (def-method :real :ge)
@@ -281,8 +281,8 @@
 (def-func-end)
 
 ;generic real math ops
-(redefun mathop (_ p)
-	(entry :real _ '(:r0))
+(redefun mathop (%0 p)
+	(entry :real %0 '(:r0))
 	(assign '((:r0 num_value)) '(:f1))
 	(exec p)
 	(jump :real :create '(:f0)))

@@ -5,9 +5,9 @@
 	(enum style radius ink)
 	(enum pen line arrow1 arrow2 box circle fbox fcircle))
 
-(defun trans (_)
+(defun trans (%0)
 	;transparent colour
-	(+ (logand 0xffffff _) 0x60000000))
+	(+ (logand 0xffffff %0) 0x60000000))
 
 (defq +canvas_width 1024 +canvas_height 768 +min_width 320 +min_height 240
 	*palette* (list +argb_black +argb_white +argb_red +argb_green +argb_blue +argb_cyan +argb_yellow +argb_magenta)

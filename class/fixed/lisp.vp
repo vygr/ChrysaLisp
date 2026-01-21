@@ -3,13 +3,13 @@
 (include "././lisp/class.inc")
 
 ;generic fixed math op
-(redefun mathop (_)
-	(entry :fixed (sym (cat :lisp_ (rest _))) '(:r0 :r1))
+(redefun mathop (%0)
+	(entry :fixed (sym (cat :lisp_ (rest %0))) '(:r0 :r1))
 	(errorif-lisp-args-sig 'error :r1 1)
 	(vp-cpy-rr :r0 :r13)
 	(assign '((:r1 array_begin)) '(:r2))
-	(call :fixed _ '((:r2 0)) '(:r1))
-	(exit :fixed (sym (cat :lisp_ (rest _))) '(:r13 :r1))
+	(call :fixed %0 '((:r2 0)) '(:r1))
+	(exit :fixed (sym (cat :lisp_ (rest %0))) '(:r13 :r1))
 	(vp-ret))
 
 (def-method :fixed :lisp_sin)

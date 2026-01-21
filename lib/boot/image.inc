@@ -10,8 +10,8 @@
 (enums +blob 0
 	(enum body links refs))
 
-(defun func-obj-path (_)
-	(sym (cat "obj/" *cpu* "/" *abi* "/" _)))
+(defun func-obj-path (%0)
+	(sym (cat "obj/" *cpu* "/" *abi* "/" %0)))
 
 (defun func-refs (fobj)
 	; (func-refs fobj) -> ([sym] ...)

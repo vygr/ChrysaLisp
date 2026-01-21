@@ -5,8 +5,8 @@
 (import "./app.inc")
 
 ;piece map accses
-(defmacro piece-map (_ i)
-	`(elem-get (second ,_) (find ,i ,(first (eval _)))))
+(defmacro piece-map (%0 i)
+	`(elem-get (second ,%0) (find ,i ,(first (eval %0)))))
 
 ;description of a pieces check influence
 (enums +vector 0
@@ -367,7 +367,7 @@
 		(reply "s" (str (LF) "Ply" ply " "))
 		(defq value +min_int alpha +min_int beta +max_int timeout
 			(some! (lambda (ply0_brd)
-					(bind '(_ bias brd) ply0_brd)
+					(bind '(& bias brd) ply0_brd)
 					(elem-set ply0_brd 0 (defq score
 						(neg (negamax brd (neg color) (neg beta) (neg alpha) (dec ply)))))
 					(cond

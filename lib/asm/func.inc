@@ -15,9 +15,9 @@
 ; functions
 ;;;;;;;;;;;
 
-(defun link-sym (_) (str "rl_" _))
-(defun path-sym (_) (str "rp_" _))
-(defun string-sym (_) (str "rs_" _))
+(defun link-sym (%0) (str "rl_" %0))
+(defun path-sym (%0) (str "rp_" %0))
+(defun string-sym (%0) (str "rs_" %0))
 
 (defun fn-add-string (s)
 	(find s (merge *strings* (list s))))

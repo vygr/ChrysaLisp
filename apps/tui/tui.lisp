@@ -4,7 +4,7 @@
 (mail-declare tmbox "Terminal" "Terminal Services 0.1")
 
 ;override print for TUI output
-(redefun print (_)
+(redefun print (%0)
 	(each (lambda (c)
 		(setq c (code c))
 		(if (= c 13) (setq c 10))
@@ -16,7 +16,7 @@
 				(pii-write-char 1 (ascii-code " "))
 				(pii-write-char 1 (ascii-code " ")))
 			(:t ;print char
-				(pii-write-char 1 c)))) _))
+				(pii-write-char 1 c)))) %0))
 
 (defun prompt () ">")
 

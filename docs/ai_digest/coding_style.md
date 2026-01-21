@@ -294,7 +294,7 @@ by its capture group slices.
 ;; match -> (((0 28) (0 4) (7 8) (9 19) (20 28)))
 
 ;; We only want the version, &ignore is perfect for this.
-(bind '((_ _ (vx vy) &ignore)) match)
+(bind '((& & (vx vy) &ignore)) match)
 (defq version (slice line vx vy))
 
 ;; ONLY 'version' is bound. The bind operation stopped immediately

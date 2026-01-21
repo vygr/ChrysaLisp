@@ -19,7 +19,7 @@
 
 	(defq in (method-input :lisp :repl_error))
 	(vp-xor-rr (third in) (third in))
-	(list-bind-args :r1 in '(_ :str _ :obj))
+	(list-bind-args :r1 in '(& :str & :obj))
 	(jump :lisp :repl_error in)
 
 (errorcase

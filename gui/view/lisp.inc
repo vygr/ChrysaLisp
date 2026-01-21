@@ -18,7 +18,7 @@
 
 (defun view-fit (x y w h)
 	; (view-fit x y w h) -> (x y w h)
-	(bind '(_ _ sw sh) (gui-info))
+	(bind '(& & sw sh) (gui-info))
 	(setq x (max 0 (min x (- sw w))) y (max 0 (min y (- sh h))))
 	(list x y (min w sw) (min h sh)))
 

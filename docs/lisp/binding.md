@@ -77,10 +77,10 @@ arguments as a list.
 
 Destructuring can be done as follows. Just use nested list syntax for the
 parameters to descend into the structure of the given arguments. If you wish to
-ignore an argument the standard is to bind it to the _ symbol.
+ignore an argument the standard is to use the `&` symbol.
 
 ```vdu
-(bind '((x y (z0 z1 z2) _)) (list (list 1 2 (list 3 4 5) 6)))
+(bind '((x y (z0 z1 z2) &)) (list (list 1 2 (list 3 4 5) 6)))
 x
 1
 y

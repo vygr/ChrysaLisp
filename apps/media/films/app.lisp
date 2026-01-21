@@ -19,8 +19,8 @@
 		(ui-buttons (0xe91d 0xe91e) +event_prev))
 	(ui-scroll *image_scroll* +scroll_flag_both))
 
-(defun win-refresh (_)
-	(defq file (elem-get films (setq index _)))
+(defun win-refresh (%0)
+	(defq file (elem-get films (setq index %0)))
 	(bind '(w h) (. (setq canvas (canvas-load file +load_flag_film)) :pref_size))
 	(def *image_scroll* :min_width w :min_height h)
 	(def *window_title* :text (cat "Films -> " (slice file (rfind "/" file) -1)))

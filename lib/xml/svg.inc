@@ -304,7 +304,7 @@
 				(bind '(w h vb) (gather (defq entry (push-attributes stack keys vals))
 					"width" "height" "viewBox"))
 				(setd w 256.0 h 256.0)
-				(if vb (bind '(_ _ w h) vb))
+				(if vb (bind '(& & w h) vb))
 				(setq width w height h)))
 		(lambda (command))
 		(lambda (text)))

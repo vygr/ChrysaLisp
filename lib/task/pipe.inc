@@ -9,7 +9,7 @@
 	; (pipe-split cmdline) -> (e0 [e1] ...)
 	(defq i 0 out (list) quotes (partition (substr cmdline (ascii-char 34)) 2))
 	(each (lambda (((x x1)))
-		(unless (some (lambda ((((qx _)) ((_ qx1)))) (<= qx x x1 qx1)) quotes)
+		(unless (some (lambda ((((qx &)) ((& qx1)))) (<= qx x x1 qx1)) quotes)
 			(defq j i) (setq i x1) (push out (trim (slice cmdline j x)))))
 		(push (substr cmdline " | ") '((-1 0))))
 	out)
@@ -28,7 +28,7 @@
 			(each (# (if (/= 0 (get-long %0 0)) (mail-send %0 ""))) mboxs)
 			(setq this :nil))
 		(:t ;wire up pipe and send args
-			(bind '(streams select) (reduce (lambda (%0 _)
+			(bind '(streams select) (reduce (lambda (%0 &)
 				(push (first %0) (defq in (in-stream)))
 				(push (second %0) (in-mbox in)) %0) mboxs (lists 2)))
 			(defq stdout (in-stream) stdout_mbox (in-mbox stdout) ack_mbox (mail-mbox))

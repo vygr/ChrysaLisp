@@ -21,32 +21,32 @@
 	(ui-title-bar _ "Canvas" (0xea19) +event_close)
 	(ui-canvas *canvas* +width +height +scale))
 
-(defun transform-copy (angle _)
+(defun transform-copy (angle %1)
 	(defq sa (sin angle) ca (cos angle))
-	(map (lambda (_)
+	(map (lambda (%0)
 		(path-transform (fixeds
 			(* +f_scale ca) (* +f_scale (* sa -1.0)) (* +f_width +f_scale 0.5)
 			(* +f_scale sa) (* +f_scale ca) (* +f_height +f_scale 0.5))
-			_ (cat _))) _))
+			%0 (cat %0))) %1))
 
-(defun transform (angle _)
+(defun transform (angle %1)
 	(defq sa (sin angle) ca (cos angle))
-	(map (lambda (_)
+	(map (lambda (%0)
 		(path-transform (fixeds
 			(* +f_scale ca) (* +f_scale (* sa -1.0)) (* +f_width +f_scale 0.5)
 			(* +f_scale sa) (* +f_scale ca) (* +f_height +f_scale 0.5))
-			_ _)) _))
+			%0 %0)) %1))
 
-(defun transform-norm (angle _)
+(defun transform-norm (angle %1)
 	(defq sa (sin angle) ca (cos angle))
-	(map (lambda (_)
+	(map (lambda (%0)
 		(path-transform (fixeds
 			(* +f_width +f_scale ca) (* +f_height +f_scale (* sa -1.0)) (* +f_width +f_scale 0.5)
 			(* +f_width +f_scale sa) (* +f_height +f_scale ca) (* +f_height +f_scale 0.5))
-			_ _)) _))
+			%0 %0)) %1))
 
-(defun fpoly (col mode _)
-	(.-> *canvas* (:set_color col) (:fpoly 0.0 0.0 mode _)))
+(defun fpoly (col mode %2)
+	(.-> *canvas* (:set_color col) (:fpoly 0.0 0.0 mode %2)))
 
 (defun redraw ()
 	(. *canvas* :fill 0)

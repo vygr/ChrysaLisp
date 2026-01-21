@@ -11,8 +11,8 @@
 (enums +select 0
 	(enum main tip))
 
-(defun num-to-hex-str (_)
-	(cat "0x" (short-to-hex-str _)))
+(defun num-to-hex-str (%0)
+	(cat "0x" (short-to-hex-str %0)))
 
 (defun win-refresh (i)
 	(defq ctf (elem-get fonts (setq index i)) font (create-font ctf 42) grid_width 8 grid_height 0

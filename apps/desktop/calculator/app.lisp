@@ -188,7 +188,7 @@
 				(push operands result)))))
 
 (defun update-display (state)
-	(bind '(operands _ current_number base _ error_state new_entry) state)
+	(bind '(operands & current_number base & error_state new_entry) state)
 	(if error_state
 		(set *display* :text "Error")
 		(if new_entry

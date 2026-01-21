@@ -12,16 +12,16 @@
 (defq +char_class_not_symbol (char-class " \r\f\v\n\t()")
 	+char_class_not_text (char-class "\q:;{"))
 
-(defmacro is-digit-char? (_) (static-qq (bfind ,_ +char_class_digit)))
-(defmacro is-digit-base-char? (_) (static-qq (bfind ,_ +char_class_digit_base)))
-(defmacro is-symbol-char? (_) (static-qq (not (bfind ,_ +char_class_not_symbol))))
+(defmacro is-digit-char? (%0) (static-qq (bfind ,%0 +char_class_digit)))
+(defmacro is-digit-base-char? (%0) (static-qq (bfind ,%0 +char_class_digit_base)))
+(defmacro is-symbol-char? (%0) (static-qq (not (bfind ,%0 +char_class_not_symbol))))
 
-(defun is-text-char? (_)
+(defun is-text-char? (%0)
 	(cond
-		((defq i (bfind _ +char_class_not_text))
+		((defq i (bfind %0 +char_class_not_text))
 			(elem-get '(:string1 :keysym :comment :string2) i))
-		((is-digit-char? _) :number)
-		((is-symbol-char? _) :symbol)
+		((is-digit-char? %0) :number)
+		((is-symbol-char? %0) :symbol)
 		(:text)))
 
 (defclass Syntax () :nil

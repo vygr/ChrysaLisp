@@ -204,6 +204,7 @@
 	(vp-align +short_size)
 (vp-label 'built_ins)
 	(built-in "_" lisp_sym_underscore)
+	(built-in "&" lisp_sym_ampersand)
 	(built-in "&optional" lisp_sym_optional)
 	(built-in "&rest" lisp_sym_rest)
 	(built-in "&ignore" lisp_sym_ignore)

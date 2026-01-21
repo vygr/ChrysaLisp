@@ -28,7 +28,7 @@
 	(defq count 0 m (list))
 	(while (< count n)
 		(defq r (% (random l) (/ (pii-time) 1000000)))
-		(unless (or (eql r s) (sfind r m) (some (lambda (_) (= _ r)) (adjacent-elem (elem-coord s w h) w h)))
+		(unless (or (eql r s) (sfind r m) (some (lambda (%0) (= %0 r)) (adjacent-elem (elem-coord s w h) w h)))
 			(++ count) (push m r))) m)
 
 (defun cell-set-value (c a b)
@@ -44,7 +44,7 @@
 
 (defun create-game (w h n s)
 	(defq a (list) b (list) p (list) x_index 0 y_index 0 m (mine-list (* w h) n s w h))
-	(each (lambda (_)
+	(each (lambda (&)
 			(defq neighbors (adjacent-elem (list x_index y_index) w h))
 			(push a neighbors) (push b 0) (push p "b")
 			(if (= x_index (dec w)) (setq x_index 0 y_index (inc y_index)) (setq x_index (inc x_index))))

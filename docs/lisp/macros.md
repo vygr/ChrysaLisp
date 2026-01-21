@@ -39,9 +39,9 @@ result of that macro function call before the code is actuality 'executed'.
 Let's look at a very simple macro.
 
 ```vdu
-(defmacro ascii-code (_)
+(defmacro ascii-code (%0)
 	; (ascii-code char) -> num
-	(code _))
+	(code %0))
 ```
 
 This macro will substitute any occurrence of `(ascii-code "X")` with the code
@@ -82,9 +82,9 @@ The `*key_map_control*` Fmap is a map of `numbers->lambda` not a map of
 A macro can return a new list, not just an atom as in the previous example.
 
 ```vdu
-(defmacro inc (_)
+(defmacro inc (%0)
 	; (inc num) -> num
-	(list '+ _ 1))
+	(list '+ %0 1))
 ```
 
 This macro would turn `(inc x)` into `(+ x 1)`.
@@ -98,9 +98,9 @@ use of this as a templating system to make the macro easier to write.
 Take the above example and recast it in a `quasi-quote` form.
 
 ```vdu
-(defmacro inc (_)
+(defmacro inc (%0)
 	; (inc num) -> num
-	`(+ ,_ 1))
+	`(+ ,%0 1))
 ```
 
 This example is so simple that the benefit of adopting `quasi-quote` style is

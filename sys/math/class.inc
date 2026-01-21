@@ -18,7 +18,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defcvar '*vsp* 0)
-(defun vec-set (_) (setq *vsp* _))
+(defun vec-set (%0) (setq *vsp* %0))
 
 (defun vec-goto (l)
 	(vec-set 0)
@@ -39,14 +39,14 @@
 (defun vec-tmp (n)
 	(slice +vp_rregs_0_14 *vsp* (+ *vsp* n)))
 
-(defun vec-load (n &rest _)
-	(each (# (vec-assign %0 (vec-push n))) _))
+(defun vec-load (n &rest %1)
+	(each (# (vec-assign %0 (vec-push n))) %1))
 
-(defun vec-store (n &rest _)
-	(each (# (vec-assign (vec-pop n) %0)) _))
+(defun vec-store (n &rest %1)
+	(each (# (vec-assign (vec-pop n) %0)) %1))
 
-(defun vec-tee (n &rest _)
-	(each (# (vec-assign (vec-top n) %0)) _))
+(defun vec-tee (n &rest %1)
+	(each (# (vec-assign (vec-top n) %0)) %1))
 
 (defun vec-load-int (n r &optional i)
 	(setd i 0)

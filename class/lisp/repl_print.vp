@@ -60,7 +60,7 @@
 			(assign '((:rsp local_value)) '(:r0))
 			(assign '((:r0 array_length)) '(:r1))
 			(breakif '(:r1 < 2) 'exit)
-			(array-bind-args :r0 '(_ :r2))
+			(array-bind-args :r0 '(& :r2))
 			(call :lisp :repl_print '((:rsp local_this) (:rsp local_stream) :r2 (:rsp local_flag)))
 			(break 'exit)
 		(endif)

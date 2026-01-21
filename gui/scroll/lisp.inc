@@ -50,10 +50,10 @@
 		;position any sliders
 		(bind '(w h) (. this :get_size))
 		(when vslider
-			(bind '(sw _) (. vslider :get_constraint))
+			(bind '(sw &) (. vslider :get_constraint))
 			(. vslider :set_bounds (- w sw) 0 sw h))
 		(when hslider
-			(bind '(sh _) (. hslider :get_constraint))
+			(bind '(sh &) (. hslider :get_constraint))
 			(. hslider :set_bounds 0 (- h sh) (- w sw) sh))
 
 		;position any child

@@ -32,13 +32,13 @@
 
 (def-func-end)
 
-(redefun addop (_)
-	(entry :num (sym (cat :lisp_ (rest _))) '(:r0 :r1))
+(redefun addop (%0)
+	(entry :num (sym (cat :lisp_ (rest %0))) '(:r0 :r1))
 	(errorif-lisp-args-match 'error :r1 :num 2)
 	(vp-cpy-rr :r0 :r13)
 	(assign '((:r1 array_begin)) '(:r2))
-	(call :num _ '((:r2 0) :r1) '(:r1))
-	(exit :num (sym (cat :lisp_ (rest _))) '(:r13 :r1))
+	(call :num %0 '((:r2 0) :r1) '(:r1))
+	(exit :num (sym (cat :lisp_ (rest %0))) '(:r13 :r1))
 	(vp-ret))
 
 (def-method :num :lisp_add)
@@ -131,16 +131,16 @@
 
 (def-func-end)
 
-(redefun divop (_)
-	(entry :num (sym (cat :lisp_ (rest _))) '(:r0 :r1))
+(redefun divop (%0)
+	(entry :num (sym (cat :lisp_ (rest %0))) '(:r0 :r1))
 	(errorif-lisp-args-match 'error1 :r1 :num 2)
 	(vp-cpy-rr :r0 :r12)
 	(vp-cpy-rr :r1 :r13)
 	(assign '((:r1 array_begin)) '(:r2))
-	(call :num _ '((:r2 0) :r1) '(:r1))
+	(call :num %0 '((:r2 0) :r1) '(:r1))
 (errorcase
 	(gotoif '(:r1 = 0) 'error))
-	(exit :num (sym (cat :lisp_ (rest _))) '(:r12 :r1))
+	(exit :num (sym (cat :lisp_ (rest %0))) '(:r12 :r1))
 	(vp-ret))
 
 (def-method :num :lisp_div)
@@ -185,8 +185,8 @@
 
 (def-func-end)
 
-(redefun andop (_ i)
-	(entry :num (sym (cat :lisp_ (rest _))) '(:r0 :r1))
+(redefun andop (%0 i)
+	(entry :num (sym (cat :lisp_ (rest %0))) '(:r0 :r1))
 	(errorif-lisp-args-type 'error :r1 :num 0)
 	(vp-cpy-rr :r0 :r13)
 	(class/array/get_both :r1 :r1 :r2)
@@ -196,11 +196,11 @@
 			(vp-cpy-ir :r1 0 :r3)
 			(vp-add-cr +ptr_size :r1)
 			(assign '((:r3 num_value)) '(:r3))
-			((eval (sym (cat "vp-" (rest _) "-rr"))) :r3 :r0)
+			((eval (sym (cat "vp-" (rest %0) "-rr"))) :r3 :r0)
 		(loop-until '(:r1 = :r2))
 	(endif)
 	(call :num :create '(:r0) '(:r1))
-	(exit :num (sym (cat :lisp_ (rest _))) '(:r13 :r1))
+	(exit :num (sym (cat :lisp_ (rest %0))) '(:r13 :r1))
 	(vp-ret))
 
 (def-method :num :lisp_and)
@@ -257,14 +257,14 @@
 
 (def-func-end)
 
-(redefun shiftop (_)
-	(entry :num (sym (cat :lisp_ (rest _))) '(:r0 :r1))
+(redefun shiftop (%0)
+	(entry :num (sym (cat :lisp_ (rest %0))) '(:r0 :r1))
 	(errorif-lisp-args-sig 'error :r1 2)
 	(vp-cpy-rr :r0 :r13)
 	(list-bind-args :r1 '(:r0 :r1) '(:num :num))
-	((eval (sym (cat "vp-" (rest _) "-rr"))) :r1 :r0)
+	((eval (sym (cat "vp-" (rest %0) "-rr"))) :r1 :r0)
 	(call :num :create '(:r0) '(:r1))
-	(exit :num (sym (cat :lisp_ (rest _))) '(:r13 :r1))
+	(exit :num (sym (cat :lisp_ (rest %0))) '(:r13 :r1))
 	(vp-ret))
 
 (def-method :num :lisp_asr)
@@ -324,19 +324,19 @@
 
 (def-func-end)
 
-(redefun compareop (_)
-	(entry :num (sym (cat :lisp_ (rest _))) '(:r0 :r1))
+(redefun compareop (%0)
+	(entry :num (sym (cat :lisp_ (rest %0))) '(:r0 :r1))
 	(errorif-lisp-args-type 'error :r1 :num 2)
 	(assign '((:r1 array_begin)) '(:r2))
 	(assign '((:r2 0)) '(:r2))
-	(v-call :num _ '(:r0 :r1) '(:r1) :r2 :r2)
+	(v-call :num %0 '(:r0 :r1) '(:r1) :r2 :r2)
 	(vpif '(:r1 = 0))
 		(assign '((:r0 lisp_sym_nil)) '(:r1))
 	(else)
 		(assign '((:r0 lisp_sym_t)) '(:r1))
 	(endif)
 	(class/obj/ref :r1 :r2)
-	(exit :num (sym (cat :lisp_ (rest _))) '(:r0 :r1))
+	(exit :num (sym (cat :lisp_ (rest %0))) '(:r0 :r1))
 	(vp-ret))
 
 (def-method :num :lisp_eq)
@@ -448,13 +448,13 @@
 (def-func-end)
 
 ;generic math op
-(redefun mathop (_)
-	(entry :num (sym (cat :lisp_ (rest _))) '(:r0 :r1))
+(redefun mathop (%0)
+	(entry :num (sym (cat :lisp_ (rest %0))) '(:r0 :r1))
 	(errorif-lisp-args-sig 'error :r1 1)
 	(vp-cpy-rr :r0 :r13)
 	(assign '((:r1 array_begin)) '(:r2))
-	(call :num _ '((:r2 0)) '(:r1))
-	(exit :num (sym (cat :lisp_ (rest _))) '(:r13 :r1))
+	(call :num %0 '((:r2 0)) '(:r1))
+	(exit :num (sym (cat :lisp_ (rest %0))) '(:r13 :r1))
 	(vp-ret))
 
 (def-method :num :lisp_random)

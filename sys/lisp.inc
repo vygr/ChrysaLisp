@@ -49,7 +49,7 @@
 
 ;jit helper
 (defun jit (prefix file products)
-	(bind '(_ *cpu* *abi*) (map (const sym) (split (load-path) "/")))
+	(bind '(& *cpu* *abi*) (map (const sym) (split (load-path) "/")))
 	(defq obj_prefix (cat "obj/" *cpu* "/" *abi* "/" prefix)
 		file (cat prefix file) file_age (age file))
 	(when (some (# (> file_age (age (cat obj_prefix %0)))) products)

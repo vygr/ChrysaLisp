@@ -92,7 +92,7 @@
 		freq_map (scatter (Fmap 101) NYT_TOKEN 1 EOS_TOKEN 1))
 
 	(while (/= -1 (defq token (read-bits in_stream read_pool_state token_bits)))
-		(bind '(_ codebook) (build_tree_and_codebook freq_map))
+		(bind '(& codebook) (build_tree_and_codebook freq_map))
 
 		(if (defq code_info (. codebook :find token))
 			; Token is known, write its code.
@@ -109,7 +109,7 @@
 		(. freq_map :update token (# (if %0 (inc %0) 1))))
 
 	; Send the End Of Stream token based on the final model state.
-	(bind '(_ codebook) (build_tree_and_codebook freq_map))
+	(bind '(& codebook) (build_tree_and_codebook freq_map))
 	(when (defq code_info (. codebook :find EOS_TOKEN))
 		(bind '(code len) code_info)
 		(write-bits out_stream write_pool_state code len))
@@ -126,7 +126,7 @@
 		running :t)
 
 	(while running
-		(bind '(root _) (build_tree_and_codebook freq_map))
+		(bind '(root &) (build_tree_and_codebook freq_map))
 		(defq current_node root token_to_process :nil)
 
 		; Traverse the tree one bit at a time to find the next symbol.
@@ -209,7 +209,7 @@
 
 (defun huffman-compress-static (in_stream out_stream model)
 	; Compresses a stream using a pre-built static model.
-	(bind '(_ codebook token_bits) model)
+	(bind '(& codebook token_bits) model)
 	(defq read_pool_state (array 0 0)
 		write_pool_state (array 0 0)
 		EOS_TOKEN (inc (<< 1 token_bits)))
@@ -228,7 +228,7 @@
 
 (defun huffman-decompress-static (in_stream out_stream model)
 	; Decompresses a stream using a pre-built static model.
-	(bind '(root _ token_bits) model)
+	(bind '(root & token_bits) model)
 	(defq read_pool_state (array 0 0)
 		write_pool_state (array 0 0)
 		EOS_TOKEN (inc (<< 1 token_bits))

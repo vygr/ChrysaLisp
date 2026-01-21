@@ -127,7 +127,7 @@ over this compilation pipeline.
 #### `exec` - The Runtime REPL
 
 ```vdu
-(defun exec (_) (eval (macrobind _)))
+(defun exec (%0) (eval (macrobind %0)))
 ```
 
 *   **What it does:** `exec` evaluates code that invokes the *entire* REPL
@@ -138,11 +138,11 @@ over this compilation pipeline.
 #### `const` - The Compile-Time Evaluator
 
 ```vdu
-(defmacro const (_) (exec _))
+(defmacro const (%0) (exec %0))
 ```
 
-*   **What it does:** The `(exec _)` call is in the body of the `const` macro,
-    not its expansion template. This forces the full REPL pipeline to run on `_`
+*   **What it does:** The `(exec %0)` call is in the body of the `const` macro,
+    not its expansion template. This forces the full REPL pipeline to run on `%0`
     **during the macro-expansion phase**. The *result* of this compile-time
     evaluation is what gets embedded in the AST.
 

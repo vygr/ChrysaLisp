@@ -5,7 +5,7 @@
 ;module
 (env-push)
 
-(defun trans (_) (+ (logand 0xffffff _) 0xa0000000))
+(defun trans (%0) (+ (logand 0xffffff %0) 0xa0000000))
 
 (defq +colors `'(~(map! trans (list (list
 	+argb_red +argb_green +argb_blue +argb_yellow +argb_cyan +argb_magenta)))))
@@ -25,12 +25,12 @@
 			(push b (slice p s e))
 			(setq s e))) b)
 
-(defun to-path (_)
+(defun to-path (%0)
 	(reduce (lambda (p (x y &optional z))
-		(push p (* zoom x) (* zoom y))) _ (path)))
+		(push p (* zoom x) (* zoom y))) %0 (path)))
 
-(defun batch-to-path (_)
-	(map (const to-path) _))
+(defun batch-to-path (%0)
+	(map (const to-path) %0))
 
 (defun pcb-draw-normal ()
 	(each! (lambda ((id track_radius via_radius track_gap pads wires &optional paths))

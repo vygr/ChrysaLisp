@@ -48,7 +48,7 @@
 			(+select_timer
 				;timer event
 				(mail-timeout (elem-get select +select_timer) +rate 0)
-				(bind '(_ _ backdrop_width backdrop_height) (. *backdrop* :get_bounds))
+				(bind '(& & backdrop_width backdrop_height) (. *backdrop* :get_bounds))
 				(defq index (% (inc index) (length +frames))
 					old_frame frame frame (elem-get +frames index)
 					old_sframe sframe sframe (elem-get +sframes index))

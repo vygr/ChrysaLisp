@@ -73,6 +73,9 @@ calls etc.
 
 Document `:select_block` now handles multiple cursors.
 
+The official way to ignore a single argument in a bind or function signature is
+now a single `&` symbol.
+
 ------
 
 Fix Editor `load-depends` bug when on the scratchpad buffer !.

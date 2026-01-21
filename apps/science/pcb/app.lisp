@@ -53,8 +53,8 @@
 	(ui-progress progress (:value 100 :maximum 100))
 	(ui-scroll pcb_scroll +scroll_flag_both (:min_width 512 :min_height 256)))
 
-(defun win-load (_)
-	(setq pcb_data (load (defq file (elem-get *pcbs* (setq *index* _)))) pcb (pcb-read pcb_data))
+(defun win-load (%0)
+	(setq pcb_data (load (defq file (elem-get *pcbs* (setq *index* %0)))) pcb (pcb-read pcb_data))
 	(bind '(w h) (. (defq canvas (pcb-canvas pcb *mode* *show* *zoom* canvas_scale)) :pref_size))
 	(def pcb_scroll :min_width w :min_height h)
 	(def *window_title* :text (cat "Pcb -> " (slice file (rfind "/" file) -1)))

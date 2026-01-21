@@ -140,12 +140,12 @@ lookaheads.
 
 (defq +char_class_not_text (char-class "\q:;{"))
 
-(defun is-text-char? (_)
+(defun is-text-char? (%0)
 	(cond
-		((defq i (bfind _ +char_class_not_text))
+		((defq i (bfind %0 +char_class_not_text))
 			(elem-get '(:string1 :keysym :comment :string2) i))
-		((is-digit-char? _) :number)
-		((is-symbol-char? _) :symbol)
+		((is-digit-char? %0) :number)
+		((is-symbol-char? %0) :symbol)
 		(:text)))
 ```
 

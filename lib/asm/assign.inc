@@ -5,10 +5,10 @@
 ;module
 (env-push)
 
-(defmacro assign-type-sym (_) (static-qqp (sym (str ,_ "_t"))))
+(defmacro assign-type-sym (%0) (static-qqp (sym (str ,%0 "_t"))))
 
-(defun assign-type-t (_)
-	(elem-get '(b ub s us i ui "") (ifn (find (first _) "bBsSiI") -2)))
+(defun assign-type-t (%0)
+	(elem-get '(b ub s us i ui "") (ifn (find (first %0) "bBsSiI") -2)))
 
 (defun assign-src-type (o)
 	(case (pop (type-of o))
@@ -146,10 +146,10 @@
 				(:ib (vp-cpy-ir-b (first x) (second x) y))
 				(:t (throw "Invalid src parameter !" (list x y))))) src dst)))
 
-(defun print-inst (_)
-	(and (list? _) (not (lambda? (first _))) (print (ascii-char 9) _)))
+(defun print-inst (%0)
+	(and (list? %0) (not (lambda? (first %0))) (print (ascii-char 9) %0)))
 
-(defun assign-asm-to-script (src dst _)
+(defun assign-asm-to-script (src dst %2)
 	(unless (= (length src) (length (setq dst (map (const trim) (split dst ",")))))
 		(throw "Mismatching number of src/dst parameters !" (list src dst)))
 	(assign-ignored-to-script)
@@ -163,10 +163,10 @@
 		(when *debug_inst*
 			(print "post opt:")
 			(each (const print-inst) *inst*))
-		(def-reg-map (reverse src) _)
+		(def-reg-map (reverse src) %2)
 		(eval *inst* *func_env*)))
 
-(defun assign-script-to-asm (src dst _)
+(defun assign-script-to-asm (src dst %2)
 	(unless (= (length (setq src (split src ","))) (length dst))
 		(throw "Mismatching number of src/dst parameters !" (list src dst)))
 	(when (/= 0 (length dst))
@@ -179,10 +179,10 @@
 		(when *debug_inst*
 			(print "post opt:")
 			(each (const print-inst) *inst*))
-		(def-reg-map (cat dst) _)
+		(def-reg-map (cat dst) %2)
 		(eval *inst* *func_env*)))
 
-(defun assign-script-to-script (src dst _)
+(defun assign-script-to-script (src dst %2)
 	(setq src (split src ",") dst (map (const trim) (split dst ",")))
 	(unless (= (length src) (length dst))
 		(throw "Mismatching number of src/dst parameters !" (list src dst)))
@@ -198,17 +198,17 @@
 		(when *debug_inst*
 			(print "post opt:")
 			(each (const print-inst) *inst*))
-		(def-reg-map :nil _)
+		(def-reg-map :nil %2)
 		(eval *inst* *func_env*)))
 
-(defun assign (&optional src dst _)
+(defun assign (&optional src dst %2)
 	;optional src, dst, compiler regs
 	(if (str? (setq src (ifn src '())))
 		(if (str? (setq dst (ifn dst '())))
-			(assign-script-to-script src dst _)
-			(assign-script-to-asm src dst _))
+			(assign-script-to-script src dst %2)
+			(assign-script-to-asm src dst %2))
 		(if (str? (setq dst (ifn dst '())))
-			(assign-asm-to-script src dst _)
+			(assign-asm-to-script src dst %2)
 			(assign-asm-to-asm src dst))))
 
 ;module

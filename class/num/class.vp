@@ -109,8 +109,8 @@
 
 (def-func-end)
 
-(redefun addop (_)
-	(entry :num _ '(:r0 :r1))
+(redefun addop (%0)
+	(entry :num %0 '(:r0 :r1))
 	(class/array/get_both :r1 :r1 :r2)
 	(vp-cpy-ir :r1 0 :r0)
 	(vp-add-cr +ptr_size :r1)
@@ -119,7 +119,7 @@
 		(vp-cpy-ir :r1 0 :r4)
 		(vp-add-cr +ptr_size :r1)
 		(assign '((:r4 num_value)) '(:r3))
-		((eval (sym (cat "vp-" (rest _) "-rr"))) :r3 :r0)
+		((eval (sym (cat "vp-" (rest %0) "-rr"))) :r3 :r0)
 	(loop-until '(:r1 = :r2))
 	(v-jump :num :vcreate '(:r0) :r4 :r1))
 
@@ -162,9 +162,9 @@
 
 (def-func-end)
 
-(redefun minop (_ p)
+(redefun minop (%0 p)
 	(vp-rdef (this args obj iter_begin iter_end val new_val))
-	(entry :num _ `(,this ,args))
+	(entry :num %0 `(,this ,args))
 	(class/array/get_both args iter_begin iter_end)
 	(vp-cpy-ir iter_begin 0 args)
 	(vp-add-cr +ptr_size iter_begin)
@@ -176,7 +176,7 @@
 		(exec p)
 	(loop-until `(,iter_begin = ,iter_end))
 	(class/obj/ref args iter_begin)
-	(exit :num _ `(,args))
+	(exit :num %0 `(,args))
 	(vp-ret))
 
 (def-method :num :min)
@@ -215,8 +215,8 @@
 
 (def-func-end)
 
-(redefun divop (_ p)
-	(entry :num _ '(:r0 :r1))
+(redefun divop (%0 p)
+	(entry :num %0 '(:r0 :r1))
 	(class/array/get_both :r1 :r1 :r4)
 	(vp-cpy-ir :r1 0 :r0)
 	(vp-add-cr +ptr_size :r1)
@@ -231,7 +231,7 @@
 	(loop-until '(:r1 = :r4))
 	(v-jump :num :vcreate '(:r0) :r5 :r1)
 (vp-label 'error)
-	(exit :num _ '(:r3))
+	(exit :num %0 '(:r3))
 	(vp-ret))
 
 (def-method :num :div)
@@ -268,8 +268,8 @@
 (def-func-end)
 
 ;generic int math op
-(redefun mathop (_ p)
-	(entry :num _ '(:r12))
+(redefun mathop (%0 p)
+	(entry :num %0 '(:r12))
 	(assign '((:r12 num_value)) '(:r0))
 	(exec p)
 	(v-jump :num :vcreate '(:r0) :r12 :r12))
@@ -345,8 +345,8 @@
 
 (def-func-end)
 
-(redefun compareop (_ p)
-	(entry :num _ '(:r0 :r1))
+(redefun compareop (%0 p)
+	(entry :num %0 '(:r0 :r1))
 	(class/array/get_both :r1 :r1 :r2)
 	(vp-cpy-ir :r1 0 :r4)
 	(vp-add-cr +ptr_size :r1)
@@ -357,10 +357,10 @@
 		(assign '((:r3 num_value)) '(:r3))
 		(exec p)
 	(loop-until '(:r1 = :r2))
-	(exit :num _ '(-1))
+	(exit :num %0 '(-1))
 	(vp-ret)
 (vp-label 'fail)
-	(exit :num _ '(0))
+	(exit :num %0 '(0))
 	(vp-ret))
 
 (def-method :num :eq)
