@@ -74,7 +74,9 @@ calls etc.
 Document `:select_block` now handles multiple cursors.
 
 The official way to ignore a single argument in a bind or function signature is
-now a single `&` symbol.
+now a single `&` symbol. This truly ignores the bind site and skips to the next
+binding. This also now means that the return value from `bind` is the last value
+you bound ! not the last value you ignored !
 
 ------
 
