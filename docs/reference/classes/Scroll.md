@@ -39,6 +39,6 @@
 ### :visible
 
 ```code
-(. scroll :visible descendant) -> scroll
+(. scroll :visible descendant [flags]) -> scroll
 ```
 
