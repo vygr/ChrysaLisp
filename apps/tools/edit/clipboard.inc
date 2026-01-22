@@ -30,6 +30,10 @@
 	(action-select-block)
 	(action-cut))
 
+(defun action-cut-form ()
+	(action-select-form)
+	(action-cut))
+
 (defun action-copy-word ()
 	(action-select-word)
 	(action-copy))
@@ -44,4 +48,8 @@
 
 (defun action-copy-block ()
 	(action-select-block)
+	(action-copy))
+
+(defun action-copy-form ()
+	(action-select-form)
 	(action-copy))

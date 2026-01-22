@@ -6,6 +6,9 @@
 
 Tidy up to Document class, ensuring multi cursor merging on floored operations.
 
+`:select_form` method added to Document class. `(action-select-form)`,
+`action-copy-form` and `action-cut-form` added to Editor and Viewer apps.
+
 ------
 
 `lib/asm/scopes.inc` now uses an environment to hold each scopes symbol map.

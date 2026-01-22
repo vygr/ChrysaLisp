@@ -48,6 +48,12 @@
 (. document :select_block) -> document
 ```
 
+### :select_form
+
+```code
+(. document :select_form) -> document
+```
+
 ### :select_line
 
 ```code

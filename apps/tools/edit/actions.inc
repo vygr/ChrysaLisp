@@ -131,6 +131,8 @@
 	(ascii-code "/") action-comment
 	(ascii-code "a") action-select-all
 	(ascii-code "A") action-region
+	(ascii-code "/") action-select-form
+	(ascii-code "?") action-cut-form
 	(ascii-code "b") action-select-block
 	(ascii-code "B") action-cut-block
 	(ascii-code "w") action-select-word
@@ -197,7 +199,8 @@
 	action-select-paragraph action-select-word action-set-cursors
 	action-set-find-text action-sort action-split action-tab action-to-lower
 	action-to-upper action-top action-top-select action-trim action-undo
-	action-unique action-up action-up-select)
+	action-unique action-up action-up-select action-select-form action-copy-form
+	action-cut-form)
 
 *replace_actions* (list
 	action-replace action-replace-all action-replace-global)

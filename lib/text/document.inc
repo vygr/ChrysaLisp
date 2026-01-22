@@ -61,6 +61,26 @@
 				(get :cursors this)))))
 		this)
 
+	(defmethod :select_form ()
+		; (. document :select_form) -> document
+		(raise :buffer_lines)
+		(lower (:cursors (. this :merge_cursors
+			(map (lambda (csr) (task-slice)
+					(bind '(cx cy &ignore) csr)
+					(defq line (elem-get buffer_lines cy))
+					(cond
+						((find (elem-get line cx) "()")
+							(if (bind '(x y) (. this :find_left_bracket cx cy))
+								(if (bind '(cx cy) (. this :find_right_bracket cx cy))
+									(nums (inc cx) cy x y -1)
+									csr)
+								csr))
+						((defq x (bskipn +char_class_not_whole_word line cx)
+								cx (rbskipn +char_class_not_whole_word line cx))
+							(if (= cx x) csr (nums x cy cx cy -1)))))
+				(get :cursors this)))))
+		this)
+
 	(defmethod :select_all ()
 		; (. document :select_all) -> document
 		(. this :set_cursor 0 (dec (length (get :buffer_lines this))) 0 0))

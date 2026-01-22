@@ -21,3 +21,7 @@
 (defun action-select-block ()
 	(. *edit* :select_block)
 	(refresh))
+
+(defun action-select-form ()
+	(. *edit* :select_form)
+	(refresh))

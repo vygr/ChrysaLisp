@@ -239,6 +239,8 @@
 (ascii-code "/") action-comment
 (ascii-code "a") action-select-all
 (ascii-code "A") action-region
+(ascii-code "/") action-select-form
+(ascii-code "?") action-cut-form
 (ascii-code "b") action-select-block
 (ascii-code "B") action-cut-block
 (ascii-code "w") action-select-word
@@ -320,6 +322,8 @@
 (ascii-code "F") action-add-next
 (ascii-code "a") action-select-all
 (ascii-code "A") action-region
+(ascii-code "/") action-select-form
+(ascii-code "?") action-copy-form
 (ascii-code "b") action-select-block
 (ascii-code "B") action-copy-block
 (ascii-code "w") action-select-word

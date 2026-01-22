@@ -60,6 +60,7 @@
 	(defproxymethod :select_line () :buffer)
 	(defproxymethod :select_paragraph () :buffer)
 	(defproxymethod :select_block () :buffer)
+	(defproxymethod :select_form () :buffer)
 	(defproxymethod :select_all () :buffer)
 	(defproxymethod :tab () :buffer)
 	(defproxymethod :left_tab () :buffer)
