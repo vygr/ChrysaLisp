@@ -193,8 +193,8 @@
 
 (vp-label 'done)
 	(vp-cpy-rr this ay)
-	(call :nums :create :nil '(:r0))
-	(call :nums :push_back2 `(:r0 ,px ,py) `(,args _ _ _ _))
+	(call :nums :create :nil `(,this))
+	(call :nums :push_back2 `(,this ,px ,py) `(,args _ _ _ _))
 
 	(exit `(,ay ,args))
 	(vp-ret)
