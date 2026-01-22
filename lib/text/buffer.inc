@@ -820,7 +820,7 @@
 	(defmethod :get_selected_extent ()
 		; (. buffer :get_selected_extent) -> csr
 		(defq max_x 0 min_x +max_int max_y 0 min_y +max_int)
-		(each (lambda ((sx sy sx1 sy1))
+		(each (lambda ((sx1 sy1 sx sy))
 				(setq max_x (max max_x sx1) min_x (min min_x sx)
 					max_y (max max_y sy1) min_y (min min_y sy)))
 			(map (const csr-floor) (. this :get_selected)))
