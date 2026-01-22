@@ -29,8 +29,8 @@
 		; (. document :select_line) -> document
 		(lower (:cursors (. this :merge_cursors
 			(map (lambda (csr) (task-slice)
-					(bind '(cx cy &ignore) (csr-floor csr))
-					(nums cx (inc cy) cx cy -1))
+					(bind '(& & cx cy &ignore) (csr-floor csr))
+					(nums 0 (inc cy) 0 cy -1))
 				(get :cursors this)))))
 		this)
 
