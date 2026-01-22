@@ -65,11 +65,12 @@
 
 (defun action-load-selected ()
 	(defq lines (list) buffer (. *edit* :get_buffer))
-	(each (lambda ((sx sy sx1 sy1))
+	(each (lambda (csr)
+			(bind '(& sy1 & sy &ignore) (csr-floor csr))
 			(until (= sy sy1)
-				(push lines (most (. buffer :get_text_line sy)))
+				(merge lines (list (most (. buffer :get_text_line sy))))
 				(++ sy)))
-		(map (const csr-floor) (. buffer :get_selected)))
+		(. buffer :get_cursors))
 	(open-files (filter (# (/= (age %0) 0)) (usort lines))))
 
 (defun action-load-depends ()
