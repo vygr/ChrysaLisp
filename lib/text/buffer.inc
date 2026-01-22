@@ -153,9 +153,10 @@
 (defun csr-floor (csr)
 	; (csr-floor csr) -> csr
 	; floor cursor to line boundaries
-	(bind '(cy cy ax ay) (defq csr (csr-sort csr)))
-	(if (or (= cy ay) (/= 0 ax))
-		(nums 0 cy 0 (inc ay))
+	; sorted cursor with point towards the bottom
+	(bind '(& ay cx cy) (csr-sort csr))
+	(if (or (= cy ay) (/= cx 0))
+		(nums 0 (inc cy) 0 ay)
 		(nums 0 cy 0 ay)))
 
 (defun csr-cmp (%0 %1)
@@ -1127,6 +1128,6 @@
 
 ;module
 (export-classes '(Buffer))
-(export-symbols '(csr-sort csr-floor csr-within undoable blank-line?
-	+buffer_flag_syntax +buffer_flag_undo))
+(export-symbols '(csr-sort csr-floor csr-sort-top csr-sort-bot csr-within
+	undoable blank-line? +buffer_flag_syntax +buffer_flag_undo))
 (env-pop)

@@ -181,6 +181,7 @@ cached circle generation, quantised to 1/4 pixel
 (csr-floor csr) -> csr
 
 floor cursor to line boundaries
+sorted cursor with point towards the bottom
 ```
 
 ### csr-map-delete

@@ -4,6 +4,10 @@
 
 ------
 
+Tidy up to Document class, ensuring multi cursor merging on floored operations.
+
+------
+
 `lib/asm/scopes.inc` now uses an environment to hold each scopes symbol map.
 
 New `Mask` widget for drawing the opaque region of a view. Edit class now uses
@@ -53,7 +57,7 @@ creation.
 Moved `:select_word`, `:select_line` and `:select_paragraph` methods into the
 Buffer class.
 
-VP version of `csr-sort`, `csr_cmp`, `csr-map-delete` and `csr-map-insert`.
+VP version of `csr-sort`, `csr-cmp`, `csr-map-delete` and `csr-map-insert`.
 
 Renamed Edit class `:get_find` and `:set_find` methods to `:get_focus` and
 `:set_focus` in order to better reflect what they do.
