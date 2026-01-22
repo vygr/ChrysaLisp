@@ -7,7 +7,7 @@
 ;module
 (env-push)
 
-(defq +block_comment ";; " +bracket_char (nums 0x7f))
+(defq +block_comment ";; ")
 
 (defclass Document (&optional flags syntax) (Buffer flags syntax)
 	; (Document [flags syntax]) -> document
