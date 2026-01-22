@@ -227,9 +227,7 @@
 							(.-> this
 								(:idelete 0 cy (dec (length (. this :get_text_line cy))) cy)
 								(:iinsert 0 cy (most line)))
-							(progn
-								(. this :idelete 0 cy 0 ay)
-								(setq cy ay)))
+							(. this :idelete 0 cy 0 (setq cy ay)))
 						(++ cy)))
 				(. this :get_cursors))
 			(. this :floor_selection))
