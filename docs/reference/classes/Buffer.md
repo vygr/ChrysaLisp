@@ -250,6 +250,12 @@ insert text at position (cx cy)
 (. buffer :left_select) -> buffer
 ```
 
+### :left_white_space
+
+```code
+(. buffer :left_white_space) -> buffer
+```
+
 ### :merge_cursors
 
 ```code
@@ -298,6 +304,12 @@ cursors format: ((cx cy ax ay sx) ...)
 
 ```code
 (. buffer :right_select) -> buffer
+```
+
+### :right_white_space
+
+```code
+(. buffer :right_white_space) -> buffer
 ```
 
 ### :set_cursor

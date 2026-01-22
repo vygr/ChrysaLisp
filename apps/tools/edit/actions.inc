@@ -170,6 +170,8 @@
 	(ascii-code "}") action-scale-up
 	(ascii-code "[") action-left-bracket
 	(ascii-code "]") action-right-bracket
+	(ascii-code ",") action-left-white-space
+	(ascii-code ".") action-right-white-space
 	(ascii-code "d") action-push
 	(ascii-code "D") action-pop
 	(ascii-code "e") action-load-depends
@@ -200,7 +202,7 @@
 	action-set-find-text action-sort action-split action-tab action-to-lower
 	action-to-upper action-top action-top-select action-trim action-undo
 	action-unique action-up action-up-select action-select-form action-copy-form
-	action-cut-form)
+	action-cut-form action-left-white-space action-right-white-space)
 
 *replace_actions* (list
 	action-replace action-replace-all action-replace-global)

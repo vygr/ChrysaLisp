@@ -672,6 +672,42 @@
 				(get :cursors this)))))
 		this)
 
+	(defmethod :right_white_space ()
+		; (. buffer :right_white_space) -> buffer
+		(raise :buffer_lines)
+		(bind '(& h) (. this :get_size))
+		(lower (:cursors (. this :merge_cursors
+			(map (lambda (csr) (task-slice)
+					; if selection, start from right edge
+					(bind '(& & cx cy &ignore) (csr-sort csr))
+					; skip white space
+					(defq cy (some! (lambda (line)
+							(if (/= (setq cx (bskip +char_class_white_space line cx)) (length line))
+								(!) (progn (setq cx 0) :nil)))
+						(list buffer_lines) :nil cy h))
+					(ifn cy (setq cx 0 cy h))
+					(nums cx cy cx cy -1))
+				(get :cursors this)))))
+		this)
+
+	(defmethod :left_white_space ()
+		; (. buffer :left_white_space) -> buffer
+		(raise :buffer_lines)
+		(lower (:cursors (. this :merge_cursors
+			(map (lambda (csr) (task-slice)
+					; if selection, start from left edge
+					(bind '(cx cy &ignore) (csr-sort csr))
+					; skip white space
+					(defq cy (some! (lambda (line)
+							(if (/= (setq cx (rbskip +char_class_white_space line
+										(min cx (length line)))) 0)
+								(!) (progn (setq cx +max_int) :nil)))
+						(list buffer_lines) :nil (inc cy) 0))
+					(ifn cy (setq cx 0 cy 0))
+					(nums cx cy cx cy -1))
+				(get :cursors this)))))
+		this)
+
 ;;;;;;;;;;;;;;;;;;
 ; cursor selection
 ;;;;;;;;;;;;;;;;;;

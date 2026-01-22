@@ -39,6 +39,8 @@
 	(defproxymethod :bottom () :buffer)
 	(defproxymethod :left_bracket () :buffer)
 	(defproxymethod :right_bracket () :buffer)
+	(defproxymethod :right_white_space () :buffer)
+	(defproxymethod :left_white_space () :buffer)
 	(defproxymethod :left_select () :buffer)
 	(defproxymethod :right_select () :buffer)
 	(defproxymethod :up_select () :buffer)

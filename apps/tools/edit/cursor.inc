@@ -74,6 +74,14 @@
 	(. *edit* :right_bracket)
 	(refresh))
 
+(defun action-left-white-space ()
+	(. *edit* :left_white_space)
+	(refresh))
+
+(defun action-right-white-space ()
+	(. *edit* :right_white_space)
+	(refresh))
+
 (defun action-push ()
 	(bind '(cx cy &ignore) (. *edit* :get_cursor))
 	(defq pos (list *current_file* cx cy))

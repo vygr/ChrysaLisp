@@ -278,6 +278,8 @@
 (ascii-code "}") action-scale-up
 (ascii-code "[") action-left-bracket
 (ascii-code "]") action-right-bracket
+(ascii-code ",") action-left-white-space
+(ascii-code ".") action-right-white-space
 (ascii-code "d") action-push
 (ascii-code "D") action-pop
 (ascii-code "e") action-load-depends
@@ -339,6 +341,8 @@
 (ascii-code "}") action-scale-up
 (ascii-code "[") action-left-bracket
 (ascii-code "]") action-right-bracket
+(ascii-code ",") action-left-white-space
+(ascii-code ".") action-right-white-space
 (ascii-code "9") action-left-bracket
 (ascii-code "0") action-right-bracket
 (ascii-code "d") action-push

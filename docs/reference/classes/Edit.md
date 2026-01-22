@@ -88,6 +88,8 @@
 
 ### :left_tab
 
+### :left_white_space
+
 ### :max_size
 
 ```code
@@ -127,6 +129,8 @@
 ### :right_select
 
 ### :right_tab
+
+### :right_white_space
 
 ### :select_all
 
