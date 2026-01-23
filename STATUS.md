@@ -18,6 +18,11 @@ New `(splice seq1 seq2 idxs) -> seq` primitive. The `idxs` are provided in a
 give the same source sequence for both. The sources must be the same type and
 the returned sequence will be that type.
 
+New `(msafe? %0) -> :t | :nil)` predicate to ask if a parameter is macro safe.
+ie. will not lead to double evaluation.
+
+`erase`, `insert`, `replace` and `rotate` are all now macros over `splice`.
+
 ------
 
 `lib/asm/scopes.inc` now uses an environment to hold each scopes symbol map.
