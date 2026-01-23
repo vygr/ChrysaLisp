@@ -28,6 +28,11 @@ ie. will not lead to double evaluation.
 `:list` methods for `:slice` and `:rslice` now call to super class for the main
 work, and then reference the returned elements.
 
+New text replace compiler functions that create a splice command for you that
+does entire text replacement in a single call to splice. `replace-compile`,
+`replace-matches`, `replace-edits`, `replace-regex-edits`, `replace-str-edits`,
+`replace-regex` and `replace-str`.
+
 ------
 
 `lib/asm/scopes.inc` now uses an environment to hold each scopes symbol map.
