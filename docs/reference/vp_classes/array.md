@@ -438,8 +438,7 @@ inputs
 :r1 = element start index (uint)
 :r2 = element end index (uint)
 outputs
-:r0 = array object (ptr)
-:r1 = slice array object (ptr)
+:r0 = slice array object (ptr)
 trashes
 :r1-:r8
 ```
@@ -490,8 +489,7 @@ inputs
 :r1 = element start index (uint)
 :r2 = element end index (uint)
 outputs
-:r0 = array object (ptr)
-:r1 = slice array object (ptr)
+:r0 = slice array object (ptr)
 trashes
 :r1-:r8
 ```

@@ -69,8 +69,8 @@
 				(vp-label 'macro_expand)
 					;replace form with macro expansion
 					(assign '((:rsp local_form) :r1) '(:r0 (:rsp local_macro)))
-					(d-call :list :slice '(:r0 1 (:r0 array_length)) '(:r0 (:rsp local_args)))
-					(call :obj :deref '(:r0))
+					(d-call :list :slice '(:r0 1 (:r0 array_length)) '((:rsp local_args)))
+					(call :obj :deref '((:rsp local_form)))
 					(call :lisp :repl_apply '((:rsp local_this) (:rsp local_args) (:rsp local_macro)) '(_ :r1))
 					(assign '((:rsp local_iter)) '(:r0))
 					(vp-cpy-ri :r1 :r0 0)

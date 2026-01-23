@@ -160,7 +160,7 @@
 		(endswitch)
 	(loop-end)
 
-	(d-call :list :slice {resources, 0, 2} {_, args})
+	(d-call :list :slice {resources, 0, 2} {args})
 	(call :list :deref {resources})
 	(exit {this, args})
 	(pop-scope)

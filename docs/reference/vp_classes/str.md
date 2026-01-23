@@ -377,10 +377,9 @@ inputs
 :r1 = element start index (uint)
 :r2 = element end index (uint)
 outputs
-:r0 = str object (ptr)
-:r1 = string slice object (ptr)
+:r0 = string slice object (ptr)
 trashes
-:r1-:r7
+:r1-:r6
 ```
 
 ### :same_pstr -> class/str/same_pstr
@@ -404,10 +403,9 @@ inputs
 :r1 = element start index (uint)
 :r2 = element end index (uint)
 outputs
-:r0 = str object (ptr)
-:r1 = string slice object (ptr)
+:r0 = string slice object (ptr)
 trashes
-:r1-:r7
+:r1-:r6
 ```
 
 ### :splice -> class/str/splice

@@ -130,19 +130,18 @@
 	;:r1 = element start index (uint)
 	;:r2 = element end index (uint)
 	;outputs
-	;:r0 = list object (ptr)
-	;:r1 = slice list object (ptr)
+	;:r0 = slice list object (ptr)
 	;trashes
 	;:r1-:r8
 
-	(vp-rdef (this slc iter_begin iter_end elm tmp))
+	(vp-rdef (this iter_begin iter_end elm tmp))
 
-	(entry :list :slice `(,this ,slc ,iter_begin))
+	(entry :list :slice `(,this ,iter_begin ,iter_end))
 
 	;array does the hard work
-	(s-call :list :slice `(,this ,slc ,iter_begin) `(,this ,slc))
+	(s-call :list :slice `(,this ,iter_begin ,iter_end) `(,this))
 	;now just ref the elements
-	(class/array/get_both slc iter_begin iter_end)
+	(class/array/get_both this iter_begin iter_end)
 	(vpif `(,iter_begin /= ,iter_end))
 		(loop-start)
 			(vp-cpy-ir iter_begin 0 elm)
@@ -151,7 +150,7 @@
 		(loop-until `(,iter_begin = ,iter_end))
 	(endif)
 
-	(exit :list :slice `(,this ,slc))
+	(exit :list :slice `(,this))
 	(vp-ret)
 
 (def-func-end)
@@ -162,19 +161,18 @@
 	;:r1 = element start index (uint)
 	;:r2 = element end index (uint)
 	;outputs
-	;:r0 = list object (ptr)
-	;:r1 = slice list object (ptr)
+	;:r0 = slice list object (ptr)
 	;trashes
 	;:r1-:r8
 
-	(vp-rdef (this slc iter_begin iter_end elm tmp))
+	(vp-rdef (this iter_begin iter_end elm tmp))
 
-	(entry :list :rslice `(,this ,slc ,iter_begin))
+	(entry :list :rslice `(,this ,iter_begin ,iter_end))
 
 	;array does the hard work
-	(s-call :list :rslice `(,this ,slc ,iter_begin) `(,this ,slc))
+	(s-call :list :rslice `(,this ,iter_begin ,iter_end) `(,this))
 	;now just ref the elements
-	(class/array/get_both slc iter_begin iter_end)
+	(class/array/get_both this iter_begin iter_end)
 	(vpif `(,iter_begin /= ,iter_end))
 		(loop-start)
 			(vp-cpy-ir iter_begin 0 elm)
@@ -183,7 +181,7 @@
 		(loop-until `(,iter_begin = ,iter_end))
 	(endif)
 
-	(exit :list :rslice `(,this ,slc))
+	(exit :list :rslice `(,this))
 	(vp-ret)
 
 (def-func-end)
@@ -383,7 +381,8 @@
 	(loop-start)
 		;replace form with copy, deref can't cause destroy !
 		(vp-cpy-ir :r9 0 :r0)
-		(d-call :list :slice '(:r0 0 (:r0 array_length)) '(:r0 :r1))
+		(d-call :list :slice '(:r0 0 (:r0 array_length)) '(:r1))
+		(vp-cpy-ir :r9 0 :r0)
 		(class/obj/ref :r0 :r2 -1)
 		(vp-cpy-ri :r1 :r9 0)
 

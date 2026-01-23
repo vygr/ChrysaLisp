@@ -23,6 +23,11 @@ ie. will not lead to double evaluation.
 
 `erase`, `insert`, `replace` and `rotate` are all now macros over `splice`.
 
+`:slice` and `:rslice` methods now only return the new slice object.
+
+`:list` methods for `:slice` and `:rslice` now call to super class for the main
+work, and then reference the returned elements.
+
 ------
 
 `lib/asm/scopes.inc` now uses an environment to hold each scopes symbol map.

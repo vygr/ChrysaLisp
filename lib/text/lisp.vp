@@ -23,7 +23,7 @@
 	(assign `((,nums array_length)) `(,len))
 	(gotoif `(,len < 4) 'error))
 
-	(call :nums :slice `(,nums 0 4) `(_ ,nums))
+	(call :nums :slice `(,nums 0 4) `(,nums))
 	(assign `((,nums array_begin)) `(,iter))
 	(vp-simd vp-cpy-ir `(,iter)
 		`(0 ,+long_size ,(* 2 +long_size) ,(* 3 +long_size))

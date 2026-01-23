@@ -56,7 +56,7 @@
 			(call :lisp :repl_apply '(:r0 (:rsp local_form) :r1) '(_ (:rsp local_value)))
 		(else)
 			(assign '((:rsp local_form)) '(:r0))
-			(d-call :list :slice '(:r0 1 (:r0 array_length)) '(_ (:rsp local_args)))
+			(d-call :list :slice '(:r0 1 (:r0 array_length)) '((:rsp local_args)))
 			(call :lisp :repl_eval_list '((:rsp local_this) (:rsp local_args)) '(:r0 :r1))
 		(errorcase
 			(assign '((:r1 obj_vtable) (:r0 lisp_error)) '(:r2 :r3))

@@ -974,6 +974,55 @@ run pipe farm and collect output
 (reals? form) -> :t | :nil
 ```
 
+### replace-compile
+
+```code
+(replace-compile rep_str) -> (p_nums z_nums c_map rep_str)
+
+memoize the compilation. atomic due to cooperative scheduling.
+```
+
+### replace-edits
+
+```code
+(replace-edits text matches compiled|rep_str) -> ((start end rep_str) ...)
+
+returns a list of edit operations compatible with Editor buffers
+```
+
+### replace-matches
+
+```code
+(replace-matches text matches compiled|rep_str) -> text
+```
+
+### replace-regex
+
+```code
+(replace-regex text pattern compiled|rep_str) -> text
+```
+
+### replace-regex-edits
+
+```code
+(replace-regex-edits text pattern compiled|rep_str) -> ((start end rep_str) ...)
+```
+
+### replace-str
+
+```code
+(replace-str text pattern compiled|rep_str) -> text
+
+substr returns a list of matches, each match is a list containing just ((start end))
+this works perfectly with $0 in replace-matches
+```
+
+### replace-str-edits
+
+```code
+(replace-str-edits text pattern compiled|rep_str) -> ((start end rep_str) ...)
+```
+
 ### restart
 
 ```code

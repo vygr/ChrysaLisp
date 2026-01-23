@@ -96,12 +96,12 @@
 	(errorcase
 		(gotoif '(:r10 < 0) 'error2)
 		(gotoif '(:r11 > :r1) 'error2))
-		(call :seq :slice '(:r0 :r10 :r11) '(_ :r1))
+		(call :seq :slice '(:r0 :r10 :r11) '(:r1))
 	(else)
 	(errorcase
 		(gotoif '(:r11 < 0) 'error2)
 		(gotoif '(:r10 > :r1) 'error2))
-		(call :seq :rslice '(:r0 :r11 :r10) '(_ :r1))
+		(call :seq :rslice '(:r0 :r11 :r10) '(:r1))
 	(endif)
 
 	(exit :seq :lisp_slice '(:r12 :r1))
@@ -523,7 +523,7 @@
 	(vpif '(:r2 = 0))
 		(vp-cpy-rr :r2 :r1)
 	(endif)
-	(call :seq :slice '(:r0 :r1 :r2) '(_ :r1))
+	(call :seq :slice '(:r0 :r1 :r2) '(:r1))
 
 	(exit :seq :lisp_rest '(:r13 :r1))
 	(vp-ret)
@@ -557,7 +557,7 @@
 	(vpif '(:r2 < 0))
 		(vp-cpy-rr :r1 :r2)
 	(endif)
-	(call :seq :slice '(:r0 :r1 :r2) '(_ :r1))
+	(call :seq :slice '(:r0 :r1 :r2) '(:r1))
 
 	(exit :seq :lisp_most '(:r13 :r1))
 	(vp-ret)
@@ -609,7 +609,7 @@
 	(loop-while `(,idx < ,len))
 		(vp-lea-d idx cnt idx1)
 		(vp-min-rr len idx1)
-		(call :seq :slice `(,seq ,idx ,idx1) '(_ slc))
+		(call :seq :slice `(,seq ,idx ,idx1) '(slc))
 		(call :list :push_back `(,lst ,slc))
 		(vp-add-rr cnt idx)
 	(loop-end)
