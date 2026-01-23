@@ -234,12 +234,6 @@ returns :t if csr2 is enclosed within (or equal to) csr1
 (env? form) -> :t | :nil
 ```
 
-### erase
-
-```code
-(erase seq start end) -> seq
-```
-
 ### escape
 
 ```code
@@ -471,12 +465,6 @@ Writes a self-describing codebook (via the frequency map) to a stream.
 (in-set-state in num) -> in
 ```
 
-### insert
-
-```code
-(insert seq pos seq) -> seq
-```
-
 ### int-to-hex-str
 
 ```code
@@ -638,6 +626,12 @@ very basic attenuation, diffuse and specular
 
 ```code
 (min-length list) -> min
+```
+
+### msafe?
+
+```code
+(msafe? o) -> :t | :nil
 ```
 
 ### neg?
@@ -980,12 +974,6 @@ run pipe farm and collect output
 (reals? form) -> :t | :nil
 ```
 
-### replace
-
-```code
-(replace seq start end seq) -> seq
-```
-
 ### restart
 
 ```code
@@ -1008,12 +996,6 @@ restart a child
 
 ```code
 (rle-decompress in_stream out_stream [token_bits run_bits])
-```
-
-### rotate
-
-```code
-(rotate seq start mid end) -> seq
 ```
 
 ### scatter

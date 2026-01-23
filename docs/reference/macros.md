@@ -223,6 +223,12 @@ should provide the concreate handler
 (enums name base [(enum field ...)] ...)
 ```
 
+### erase
+
+```code
+(erase seq start end) -> seq
+```
+
 ### every
 
 ```code
@@ -329,6 +335,12 @@ should provide the concreate handler
 
 ```code
 (inc num) -> num
+```
+
+### insert
+
+```code
+(insert seq pos seq) -> seq
 ```
 
 ### let
@@ -463,6 +475,12 @@ should provide the concreate handler
 (reduce lambda seq [init]) -> form
 ```
 
+### replace
+
+```code
+(replace seq start end seq) -> seq
+```
+
 ### reverse
 
 ```code
@@ -473,6 +491,12 @@ should provide the concreate handler
 
 ```code
 (rmap lambda seq ...) -> list
+```
+
+### rotate
+
+```code
+(rotate seq start mid end) -> seq
 ```
 
 ### rreduce
