@@ -826,27 +826,27 @@
 (defmacro erase (s b e)
 	; (erase seq start end) -> seq
 	(if (msafe? s)
-		`(splice ,s ,s (nums 0 ,b ,e -1))
-		`(splice (defq ,(defq _s (gensym)) ,s) ,_s (nums 0 ,b ,e -1))))
+		(static-qq (splice ,s ,s (nums 0 ,b ,e -1)))
+		(static-qq (splice (defq ,(defq _s (gensym)) ,s) ,_s (nums 0 ,b ,e -1)))))
 
 (defmacro insert (s p i)
 	; (insert seq pos seq) -> seq
 	(if (msafe? p)
-		`(splice ,s ,i (nums 0 ,p 0 -1 ,p -1))
-		`(splice ,s ,i (nums 0 (defq ,(defq _p (gensym)) ,p) 0 -1 ,_p -1))))
+		(static-qq (splice ,s ,i (nums 0 ,p 0 -1 ,p -1)))
+		(static-qq (splice ,s ,i (nums 0 (defq ,(defq _p (gensym)) ,p) 0 -1 ,_p -1)))))
 
 (defmacro replace (s b e i)
 	; (replace seq start end seq) -> seq
-	`(splice ,s ,i (nums 0 ,b 0 -1 ,e -1)))
+	(static-qq (splice ,s ,i (nums 0 ,b 0 -1 ,e -1))))
 
 (defmacro rotate (s i j k)
 	; (rotate seq start mid end) -> seq
 	(if (and (msafe? s) (msafe? i) (msafe? j) (msafe? k))
-		`(splice ,s ,s (nums 0 ,i ,j ,k ,i ,j ,k -1))
+		(static-qq (splice ,s ,s (nums 0 ,i ,j ,k ,i ,j ,k -1)))
 		(progn
 			(defq _s (gensym) _i  (gensym) _j (gensym) _k (gensym))
-			`(splice (defq ,_s ,s) ,_s
-				(nums 0 (defq ,_i ,i) (defq ,_j ,j) (defq ,_k ,k) ,_i ,_j ,_k -1)))))
+			(static-qq (splice (defq ,_s ,s) ,_s
+				(nums 0 (defq ,_i ,i) (defq ,_j ,j) (defq ,_k ,k) ,_i ,_j ,_k -1))))))
 
 (defun lists (n)
 	; (lists n) -> ((list0) ... (listn-1))
