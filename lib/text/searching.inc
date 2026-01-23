@@ -67,7 +67,7 @@
 	(defq parts (cap (inc (* 2 (length match_lst))) (list)) last_pos 0)
 	(each (lambda (match)
 		; match group 0 is always the full match bounds
-		(bind '((ms me)) match)
+		(bind '((ms me) &ignore) match)
 		; preserve text between matches
 		(if (> ms last_pos) (push parts (nums last_pos ms 0 0)))
 		; clone the zero template
@@ -102,6 +102,14 @@
 		(list (first (first match)) (second (first match))
 			(splice text rep_str (nums-add p_nums t_nums)))) match_lst))
 
+(defun replace-regex-edits (text pattern compiled)
+	; (replace-regex-edits text pattern compiled|rep_str) -> ((start end rep_str) ...)
+	(replace-edits text (matches text pattern) compiled))
+
+(defun replace-str-edits (text pattern compiled)
+	; (replace-str-edits text pattern compiled|rep_str) -> ((start end rep_str) ...)
+	(replace-edits text (substr text pattern) compiled))
+
 (defun replace-regex (text pattern compiled)
 	; (replace-regex text pattern compiled|rep_str) -> text
 	(replace-matches text (matches text pattern) compiled))
@@ -114,5 +122,6 @@
 
 ;module
 (export-symbols '(found? match? substr matches query replace-compile
-	replace-matches replace-edits replace-regex replace-str))
+	replace-matches replace-edits replace-regex-edits replace-str-edits
+	replace-regex replace-str))
 (env-pop)
