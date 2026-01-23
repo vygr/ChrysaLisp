@@ -135,31 +135,23 @@
 	;trashes
 	;:r1-:r8
 
-	;save inputs
-	(entry :list :slice '(:r6 :r7 :r8))
+	(vp-rdef (this slc iter_begin iter_end elm tmp))
 
-	;create new list
-	(call :list :create :nil '(:r0))
-	(vp-cpy-rr :r8 :r1)
-	(vp-sub-rr :r7 :r1)
-	(assign '(:r1) '((:r0 array_length)))
-	(call :list :set_cap '(:r0 :r1) '(:r1))
-	(vp-cpy-rr :r6 :r0)
+	(entry :list :slice `(,this ,slc ,iter_begin))
 
-	;copy and ref elements
-	(vpif '(:r7 /= :r8))
-		(class/array/get_iters :r0 :r7 :r8 :r2)
-		(assign '((:r1 array_begin)) '(:r3))
+	;array does the hard work
+	(s-call :list :slice `(,this ,slc ,iter_begin) `(,this ,slc))
+	;now just ref the elements
+	(class/array/get_both slc iter_begin iter_end)
+	(vpif `(,iter_begin /= ,iter_end))
 		(loop-start)
-			(assign '((:r7 0)) '(:r2))
-			(vp-add-cr +ptr_size :r3)
-			(vp-add-cr +ptr_size :r7)
-			(assign '(:r2) `((:r3 ,(neg +ptr_size))))
-			(class/obj/ref :r2 :r4)
-		(loop-until '(:r7 = :r8))
+			(vp-cpy-ir iter_begin 0 elm)
+			(vp-add-cr +ptr_size iter_begin)
+			(class/obj/ref elm tmp)
+		(loop-until `(,iter_begin = ,iter_end))
 	(endif)
 
-	(exit :list :slice '(:r0 :r1))
+	(exit :list :slice `(,this ,slc))
 	(vp-ret)
 
 (def-func-end)
@@ -175,31 +167,23 @@
 	;trashes
 	;:r1-:r8
 
-	;save inputs
-	(entry :list :rslice '(:r6 :r7 :r8))
+	(vp-rdef (this slc iter_begin iter_end elm tmp))
 
-	;create new list
-	(call :list :create :nil '(:r0))
-	(vp-cpy-rr :r8 :r1)
-	(vp-sub-rr :r7 :r1)
-	(assign '(:r1) '((:r0 array_length)))
-	(call :list :set_cap '(:r0 :r1) '(:r1))
-	(vp-cpy-rr :r6 :r0)
+	(entry :list :rslice `(,this ,slc ,iter_begin))
 
-	;copy and ref elements
-	(vpif '(:r7 /= :r8))
-		(class/array/get_iters :r0 :r7 :r8 :r2)
-		(assign '((:r1 array_begin)) '(:r3))
+	;array does the hard work
+	(s-call :list :rslice `(,this ,slc ,iter_begin) `(,this ,slc))
+	;now just ref the elements
+	(class/array/get_both slc iter_begin iter_end)
+	(vpif `(,iter_begin /= ,iter_end))
 		(loop-start)
-			(assign `((:r8 ,(neg +ptr_size))) '(:r2))
-			(vp-add-cr +ptr_size :r3)
-			(vp-sub-cr +ptr_size :r8)
-			(assign '(:r2) `((:r3 ,(neg +ptr_size))))
-			(class/obj/ref :r2 :r4)
-		(loop-until '(:r7 = :r8))
+			(vp-cpy-ir iter_begin 0 elm)
+			(vp-add-cr +ptr_size iter_begin)
+			(class/obj/ref elm tmp)
+		(loop-until `(,iter_begin = ,iter_end))
 	(endif)
 
-	(exit :list :rslice '(:r0 :r1))
+	(exit :list :rslice `(,this ,slc))
 	(vp-ret)
 
 (def-func-end)
