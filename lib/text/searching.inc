@@ -51,8 +51,7 @@
 					(push c_map (list (length p_nums) group))
 					(setq last_idx me)
 					(push p_nums 0 0 0 0))
-				(matches rep_str "\$(\d+)")
-				(nums)))
+				(matches rep_str "\$(\d+)") (nums)))
 		; final literal tail
 		(push p_nums 0 0 last_idx -1)
 		; build the zero template vector for fast runtime cloning
@@ -63,13 +62,14 @@
 	; (replace-matches text matches compiled|rep_str) -> text
 	(if (str? compiled) (setq compiled (replace-compile compiled)))
 	(bind '(p_nums z_nums c_map rep_str) compiled)
-	(defq idxs (nums) last_pos 0)
+	; pre-allocate parts list to avoid resizing
+	; max items: 2 per match (intervening text + replacement) + 1 tail
+	(defq parts (cap (inc (* 2 (length match_lst))) (list)) last_pos 0)
 	(each (lambda (match)
 		; match group 0 is always the full match bounds
 		(bind '((ms me)) match)
 		; preserve text between matches
-		(if (> ms last_pos)
-			(push idxs last_pos ms 0 0))
+		(if (> ms last_pos) (push parts (nums last_pos ms 0 0)))
 		; clone the zero template
 		(defq t_nums (cat z_nums))
 		; patch capture group indices
@@ -79,14 +79,13 @@
 				(bind '(gs ge) (elem-get match group_idx))
 				(elem-set t_nums offset gs)
 				(elem-set t_nums (inc offset) ge))) c_map)
-		; merge pattern mask and text data
-		(push idxs (nums-add p_nums t_nums))
+		; merge pattern mask and text data and push to list
+		(push parts (nums-add p_nums t_nums))
 		(setq last_pos me)) match_lst)
 	; preserve tail text
-	(if (< last_pos (length text))
-		(push idxs last_pos (length text) 0 0))
-	; perform the atomic splice
-	(splice text rep_str idxs))
+	(if (< last_pos (length text)) (push parts (nums last_pos -1 0 0)))
+	; perform the atomic splice using the concatenated index vectors
+	(splice text rep_str (apply (const cat) parts)))
 
 (defun replace-edits (text match_lst compiled)
 	; (replace-edits text matches compiled|rep_str) -> ((start end rep_str) ...)
