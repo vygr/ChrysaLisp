@@ -524,3 +524,34 @@
 	(vp-ret)
 
 (def-func-end)
+
+(def-method :list :splice)
+	;inputs
+	;:r0 = src1 list object (ptr)
+	;:r1 = src2 list object (ptr)
+	;:r2 = nums object (ptr)
+	;outputs
+	;:r0 = new list object (ptr)
+	;trashes
+	;:r0-:r11
+
+	(vp-rdef (src1 src2 idxs iter_begin iter_end))
+
+	(entry :list :splice `(,src1 ,src2 ,idxs))
+
+	;array does the hard work
+	(s-call :list :splice `(,src1 ,src2 ,idxs) `(,src1))
+	;now just ref the elements
+	(class/array/get_both src1 iter_begin iter_end)
+	(vpif `(,iter_begin /= ,iter_end))
+		(loop-start)
+			(vp-cpy-ir iter_begin 0 src2)
+			(vp-add-cr +long_size iter_begin)
+			(class/obj/ref src2 idxs)
+		(loop-until `(,iter_begin = ,iter_end))
+	(endif)
+
+	(exit :list :splice `(,src1))
+	(vp-ret)
+
+(def-func-end)

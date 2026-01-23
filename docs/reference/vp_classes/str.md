@@ -410,6 +410,19 @@ trashes
 :r1-:r7
 ```
 
+### :splice -> class/str/splice
+
+```code
+inputs
+:r0 = src1 str object (ptr)
+:r1 = src2 str object (ptr)
+:r2 = nums object (ptr)
+outputs
+:r0 = new str object (ptr)
+trashes
+:r0-:r11
+```
+
 ### :split -> class/str/split
 
 ```code

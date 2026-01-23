@@ -1044,3 +1044,81 @@
 	(vp-ret)
 
 (def-func-end)
+
+(def-method :str :splice)
+	;inputs
+	;:r0 = src1 str object (ptr)
+	;:r1 = src2 str object (ptr)
+	;:r2 = nums object (ptr)
+	;outputs
+	;:r0 = new str object (ptr)
+	;trashes
+	;:r0-:r11
+
+	(vp-rdef (this idx_begin dst_iter si ei swp_xor len total
+		src1 src2 idxs idx_end))
+
+	(entry :str :splice `(,src1 ,src2 ,idxs))
+
+	(class/array/get_both idxs idx_begin idx_end)
+	(vpif `(,idx_begin /= ,idx_end))
+		;first get the length
+		(assign `((,src1 str_length) (,src2 str_length)) `(,len ,ei))
+		(vp-cpy-rr len swp_xor)
+		(vp-xor-rr ei swp_xor)
+		(vp-xor-rr total total)
+		(loop-start)
+			;indices
+			(vp-simd vp-cpy-ir `(,idx_begin) `(0 ,+long_size) `(,si ,ei))
+			(vp-add-cr (* +long_size 2) idx_begin)
+			;the length this time
+			(lisp-elem-index si len)
+			(lisp-elem-index ei len)
+			(vp-xor-rr swp_xor len)
+			;sum the absolute val of index diff
+			(vp-sub-rr si ei)
+			(vp-abs-rr ei ei)
+			(vp-add-rr ei total)
+		(loop-until `(,idx_begin = ,idx_end))
+		(call :str :create_from_buffer `(0 ,total) `(,this))
+		;now transfer the slices
+		(assign `((& ,this str_data) (,idxs array_begin)) `(,dst_iter ,idx_begin))
+		(vp-cpy-rr src1 swp_xor)
+		(vp-xor-rr src2 swp_xor)
+		(loop-start)
+			;indices
+			(vp-simd vp-cpy-ir `(,idx_begin) `(0 ,+long_size) `(,si ,ei))
+			(vp-add-cr (* +long_size 2) idx_begin)
+			;the source this time
+			(assign `((& ,src1 str_data) (,src1 str_length)) `(,src2 ,len))
+			(lisp-elem-index si len)
+			(lisp-elem-index ei len)
+			(vp-xor-rr swp_xor src1)
+			(vpif `(,si /= ,ei))
+				(vp-simd vp-add-rr `(,src2) `(,si ,ei))
+				;copy the slice, reverse if required
+				(vpif `(,si < ,ei))
+					(loop-start)
+						(vp-cpy-ir-ub si 0 len)
+						(vp-cpy-ri-b len dst_iter 0)
+						(vp-simd vp-add-cr `(,+byte_size) `(,si ,dst_iter))
+					(loop-until `(,si = ,ei))
+				(else)
+					(loop-start)
+						(vp-cpy-ir-ub si (neg +byte_size) len)
+						(vp-cpy-ri-b len dst_iter 0)
+						(vp-sub-cr +byte_size si)
+						(vp-add-cr +byte_size dst_iter)
+					(loop-until `(,si = ,ei))
+				(endif)
+			(endif)
+		(loop-until `(,idx_begin = ,idx_end))
+	(else)
+		;empty string
+		(call :str :create_from_buffer '(0 0) `(,this))
+	(endif)
+
+	(exit :str :splice `(,this))
+	(vp-ret)
+
+(def-func-end)

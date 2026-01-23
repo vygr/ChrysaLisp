@@ -186,6 +186,8 @@
 ; (rfind elem seq [idx]) -> :nil | idx
 (ffi "class/seq/lisp_slice" slice)
 ; (slice seq start end) -> seq
+(ffi "class/seq/lisp_splice" splice)
+; (splice seq1 seq2 idxs) -> seq
 (ffi "class/seq/lisp_partition" partition)
 ; (partition seq [cnt]) -> (seq ...)
 (ffi "class/seq/lisp_cat" cat)
@@ -817,27 +819,27 @@
 ; Sequences
 ;;;;;;;;;;;
 
+(defun erase (s b e)
+	; (erase seq start end) -> seq
+	(splice s s (nums 0 b e -1)))
+
+(defun insert (s p i)
+	; (insert seq pos seq) -> seq
+	(splice s i (nums 0 p 0 -1 p -1)))
+
+(defun replace (s b e i)
+	; (replace seq start end seq) -> seq
+	(splice s i (nums 0 b 0 -1 e -1)))
+
+(defun rotate (s i j k)
+	; (rotate seq start mid end) -> seq
+	(splice s s (nums 0 i j k i j k -1)))
+
 (defun lists (n)
 	; (lists n) -> ((list0) ... (listn-1))
 	(defq out (cap n (list)))
 	(while (>= (-- n) 0) (push out (list)))
 	out)
-
-(defun erase (s b e)
-	; (erase seq start end) -> seq
-	(cat (slice s 0 b) (slice s e -1)))
-
-(defun insert (s p i)
-	; (insert seq pos seq) -> seq
-	(cat (slice s 0 p) i (slice s p -1)))
-
-(defun replace (s b e i)
-	; (replace seq start end seq) -> seq
-	(cat (slice s 0 b) i (slice s e -1)))
-
-(defun rotate (s i j k)
-	; (rotate seq start mid end) -> seq
-	(cat (slice s 0 i) (slice s j k) (slice s i j) (slice s k -1)))
 
 (defun join (seqs seq &optional mode)
 	; (join seqs seq [mode]) -> seq

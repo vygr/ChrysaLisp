@@ -40,6 +40,8 @@
 
 ### (some! lambda seqs [mode start end]) -> :nil | val
 
+### (splice seq1 seq2 idxs) -> seq
+
 ### (third seq) -> :nil | elem
 
 ## VP methods
@@ -57,6 +59,8 @@
 ### :rslice -> class/obj/null
 
 ### :slice -> class/obj/null
+
+### :splice -> class/obj/null
 
 ### :vtable -> class/seq/vtable
 

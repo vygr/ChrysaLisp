@@ -20,6 +20,7 @@
 	(dec-method :rfind class/list/rfind :final)
 	(dec-method :erase class/list/erase :final)
 	(dec-method :erase2 class/list/erase2 :final)
+	(dec-method :splice class/list/splice :final)
 	(dec-method :lisp_list class/list/lisp_list :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_merge class/list/lisp_merge :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_pivot class/list/lisp_pivot :static (:r0 :r1) (:r0 :r1))

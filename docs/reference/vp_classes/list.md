@@ -225,6 +225,19 @@ trashes
 :r1-:r8
 ```
 
+### :splice -> class/list/splice
+
+```code
+inputs
+:r0 = src1 list object (ptr)
+:r1 = src2 list object (ptr)
+:r2 = nums object (ptr)
+outputs
+:r0 = new list object (ptr)
+trashes
+:r0-:r11
+```
+
 ### :vcreate -> class/list/create
 
 ### :vtable -> class/list/vtable

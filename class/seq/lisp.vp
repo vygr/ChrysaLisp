@@ -1,5 +1,6 @@
 (include "lib/asm/func.inc")
 (include "././str/class.inc")
+(include "././nums/class.inc")
 (include "././num/class.inc")
 (include "././lisp/class.inc")
 
@@ -112,6 +113,70 @@
 (vp-label 'error2)
 	(jump :lisp :repl_error '(:r12 "(slice seq start end)" +error_msg_not_valid_index :r13))
 	(signature '(:seq :num :num)))
+
+(def-func-end)
+
+
+(def-method :seq :lisp_splice)
+	;inputs
+	;:r0 = lisp object (ptr)
+	;:r1 = args list object (ptr)
+	;outputs
+	;:r0 = lisp object (ptr)
+	;:r1 = return value object (ptr)
+	;trashes
+	;:r1-:r14
+
+(errorcase
+	(vp-rdef (this args src1 src2 idxs swp_xor si ei len idx_begin idx_end)
+		'(:r9 :r10 :r11 :r12 :r13)))
+(noterrorcase
+	(vp-rdef (this args src1 src2 idxs swp_xor si ei len idx_begin idx_end)
+		'(:r12 :r13)))
+
+	(entry :seq :lisp_splice `(,this ,args))
+
+	(errorif-lisp-args-sig 'error1 :r1 3)
+
+	(list-bind-args args `(,src1 ,src2 ,idxs) '(:seq :seq :nums))
+(errorcase
+	(assign `((,src1 obj_vtable) (,src2 obj_vtable)) `(,si ,ei))
+	(gotoif `(,si /= ,ei) 'error1)
+	(assign `((,idxs array_length)) `(,si))
+	(vp-and-cr 1 si)
+	(gotoif `(,si /= 0) 'error1)
+	(class/array/get_both idxs idx_begin idx_end)
+	(vpif `(,idx_begin /= ,idx_end))
+		(call :seq :get_length `(,src1) `(_ ,len))
+		(call :seq :get_length `(,src2) `(_ ,ei))
+		(vp-cpy-rr len swp_xor)
+		(vp-xor-rr ei swp_xor)
+		(loop-start)
+			;indices
+			(vp-simd vp-cpy-ir `(,idx_begin) `(0 ,+long_size) `(,si ,ei))
+			(vp-add-cr (* +long_size 2) idx_begin)
+			;the length this time
+			(lisp-elem-index si len)
+			(lisp-elem-index ei len)
+			;validate
+			(gotoif `(,si < 0) 'error2)
+			(gotoif `(,ei < 0) 'error2)
+			(gotoif `(,si > ,len) 'error2)
+			(gotoif `(,ei > ,len) 'error2)
+			(vp-xor-rr swp_xor len)
+		(loop-until `(,idx_begin = ,idx_end))
+	(endif))
+	(call :seq :splice `(,src1 ,src2 ,idxs) '(:r1))
+
+	(exit :seq :lisp_splice `(,this :r1))
+	(vp-ret)
+
+(errorcase
+(vp-label 'error1)
+	(jump :lisp :repl_error `(,this "(splice seq1 seq2 idxs)" +error_msg_wrong_types ,args))
+(vp-label 'error2)
+	(jump :lisp :repl_error `(,this "(splice seq1 seq2 idxs)" +error_msg_not_valid_index ,args))
+	(signature '(:seq :seq :nums)))
 
 (def-func-end)
 

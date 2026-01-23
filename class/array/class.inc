@@ -13,6 +13,7 @@
 	(dec-method :cat class/array/cat :override)
 	(dec-method :find class/array/find :override)
 	(dec-method :rfind class/array/rfind :override)
+	(dec-method :splice class/array/splice :override)
 	(dec-method :get_length class/array/get_length :final)
 	(dec-method :vcreate class/array/create :virtual (:r0) (:r0))
 	(dec-method :velement class/num/create :virtual (:r0) (:r0))

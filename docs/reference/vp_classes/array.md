@@ -523,6 +523,19 @@ trashes
 
 ### :sort_callback -> class/obj/null
 
+### :splice -> class/array/splice
+
+```code
+inputs
+:r0 = src1 array object (ptr)
+:r1 = src2 array object (ptr)
+:r2 = nums object (ptr)
+outputs
+:r0 = new array object (ptr)
+trashes
+:r0-:r11
+```
+
 ### :vcreate -> class/array/create
 
 ### :velement -> class/num/create

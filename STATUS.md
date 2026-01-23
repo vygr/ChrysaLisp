@@ -13,6 +13,11 @@ Tidy up to Document class, ensuring multi cursor merging on floored operations.
 `action-left-white-space` and `action-right-white-space` added to Editor and
 Viewer apps.
 
+New `(splice seq1 seq2 idxs) -> seq` primitive. The `idxs` are provided in a
+`:nums` vector, each slice is taken from the source sequences in turn, you can
+give the same source sequence for both. The sources must be the same type and
+the returned sequence will be that type.
+
 ------
 
 `lib/asm/scopes.inc` now uses an environment to hold each scopes symbol map.
