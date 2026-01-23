@@ -53,7 +53,7 @@
 		(loop-until `(,iter_begin = ,iter_end))
 		(assign '((:rsp local_this)) `(,this))
 		(vp-free local_size)
-		;only need to do this is we actually had a none emtpy list !
+		;only need to do this is we actually had a none empty list !
 		(s-call :list :clear `(,this) `(,this))
 	(endif)
 
