@@ -83,7 +83,7 @@
 		(push parts (nums-add p_nums t_nums))
 		(setq last_pos me)) match_lst)
 	; preserve tail text
-	(if (< last_pos (length text)) (push parts (nums last_pos -1 0 0)))
+	(if (< last_pos (length text)) (push parts (nums last_pos -1)))
 	; perform the atomic splice using the concatenated index vectors
 	(splice text rep_str (apply (const cat) parts)))
 
