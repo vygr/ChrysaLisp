@@ -453,43 +453,6 @@
 
 (def-func-end)
 
-(def-method :array :slice)
-	;inputs
-	;:r0 = array object (ptr)
-	;:r1 = element start index (uint)
-	;:r2 = element end index (uint)
-	;outputs
-	;:r0 = slice array object (ptr)
-	;trashes
-	;:r1-:r8
-
-	;save inputs
-	(entry :array :slice '(:r6 :r7 :r8))
-
-	;create new array
-	(call :array :vcreate '(:r0) '(:r0))
-	(vp-cpy-rr :r8 :r1)
-	(vp-sub-rr :r7 :r1)
-	(assign '(:r1) '((:r0 array_length)))
-	(call :array :set_cap '(:r0 :r1) '(:r0))
-
-	;copy elements
-	(vpif '(:r7 /= :r8))
-		(class/array/get_iters :r6 :r7 :r8 :r1)
-		(assign '((:r0 array_begin)) '(:r3))
-		(loop-start)
-			(assign '((:r7 0)) '(:r2))
-			(vp-add-cr +ptr_size :r3)
-			(vp-add-cr +ptr_size :r7)
-			(assign '(:r2) `((:r3 ,(neg +ptr_size))))
-		(loop-until '(:r7 = :r8))
-	(endif)
-
-	(exit :array :slice '(:r0))
-	(vp-ret)
-
-(def-func-end)
-
 (def-method :array :rslice)
 	;inputs
 	;:r0 = array object (ptr)
@@ -564,42 +527,6 @@
 	(endif)
 
 	(exit :array :append '(:r0))
-	(vp-ret)
-
-(def-func-end)
-
-(def-method :array :cat)
-	;inputs
-	;:r0 = array object (ptr)
-	;:r1 = list of array objects (ptr)
-	;outputs
-	;:r0 = 0 if error, else new array object (ptr)
-	;trashes
-	;:r0-:r11
-
-	(entry :array :cat '(_ :r1))
-
-	(class/array/get_both :r1 :r10 :r11)
-	(call :array :vcreate '(:r0) '(:r0))
-	(vpif '(:r0 /= 0))
-		(vp-cpy-rr :r10 :r9)
-		(vp-xor-rr :r1 :r1)
-		(loop-start)
-			(assign '((:r10 0)) '(:r2))
-			(vp-add-cr +ptr_size :r10)
-			(assign '((:r2 array_length)) '(:r2))
-			(vp-add-rr :r2 :r1)
-		(loop-until '(:r10 = :r11))
-		(vp-cpy-rr :r9 :r10)
-		(call :array :set_cap '(:r0 :r1) '(:r0))
-		(loop-start)
-			(assign '((:r10 0)) '(:r1))
-			(vp-add-cr +ptr_size :r10)
-			(call :array :append '(:r0 :r1 0 (:r1 array_length)) '(:r0))
-		(loop-until '(:r10 = :r11))
-	(endif)
-
-	(exit :array :cat '(:r0))
 	(vp-ret)
 
 (def-func-end)
@@ -738,6 +665,101 @@
 
 (vp-label 'not_same)
 	(exit :array :eql `(,this -1))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method :array :cat)
+	;inputs
+	;:r0 = array object (ptr)
+	;:r1 = list of array objects (ptr)
+	;outputs
+	;:r0 = new array object (ptr)
+	;trashes
+	;:r0-:r9
+
+	(vp-rdef (this seqs_begin di src si ei
+		len total seqs seqs_end))
+
+	(entry :array :cat `(,this ,seqs))
+
+	(call :array :vcreate `(,this) `(,this))
+	(class/array/get_both seqs seqs_begin seqs_end)
+	(vpif `(,seqs_begin /= ,seqs_end))
+		;first set the capacity/length
+		(vp-xor-rr total total)
+		(loop-start)
+			(assign `((,seqs_begin 0)) `(,src))
+			(vp-add-cr +ptr_size seqs_begin)
+			(assign `((,src array_length)) `(,len))
+			(vp-add-rr len total)
+		(loop-until `(,seqs_begin = ,seqs_end))
+		(assign `(,total) `((,this array_length)))
+		(call :array :set_cap `(,this ,total) `(,this))
+		;now transfer the sequences
+		(assign `((,this array_begin) (,seqs array_begin)) `(,di ,seqs_begin))
+		(loop-start)
+			(assign `((,seqs_begin 0)) `(,src))
+			(vp-add-cr +ptr_size seqs_begin)
+			(class/array/get_both src si ei)
+			(vpif `(,si /= ,ei))
+				;copy the sequence
+				(loop-start)
+					(vp-cpy-ir si 0 len)
+					(vp-simd vp-add-cr `(,+long_size) `(,si ,di))
+					(vp-cpy-ri len di (neg +long_size))
+				(loop-until `(,si = ,ei))
+			(endif)
+		(loop-until `(,seqs_begin = ,seqs_end))
+	(endif)
+
+	(exit :array :cat `(,this))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method :array :slice)
+	;inputs
+	;:r0 = array object (ptr)
+	;:r1 = element start index (uint)
+	;:r2 = element end index (uint)
+	;outputs
+	;:r0 = slice array object (ptr)
+	;trashes
+	;:r0-:r8
+
+	(vp-rdef (src si ei this di total) '(:r6 :r7 :r8))
+
+	(entry :array :slice `(,src ,si ,ei))
+
+	(call :array :vcreate `(,src) `(,this))
+	(vpif `(,si /= ,ei))
+		;first set the capacity/length
+		(vp-cpy-rr si total)
+		(vp-sub-rr ei total)
+		(vp-abs-rr total total)
+		(assign `(,total) `((,this array_length)))
+		(call :array :set_cap `(,this ,total) `(,this))
+		;now transfer the slice, reversed if needed
+		(class/array/get_iters src si ei)
+		(assign `((,this array_begin)) `(,di))
+		(vpif `(,si < ,ei))
+			(loop-start)
+				(vp-cpy-ir si 0 total)
+				(vp-simd vp-add-cr `(,+long_size) `(,si ,di))
+				(vp-cpy-ri total di (neg +long_size))
+			(loop-until `(,si = ,ei))
+		(else)
+			(loop-start)
+				(vp-cpy-ir si (neg +long_size) total)
+				(vp-sub-cr +long_size si)
+				(vp-add-cr +long_size di)
+				(vp-cpy-ri total di (neg +long_size))
+			(loop-until `(,si = ,ei))
+		(endif)
+	(endif)
+
+	(exit :array :slice `(,this))
 	(vp-ret)
 
 (def-func-end)

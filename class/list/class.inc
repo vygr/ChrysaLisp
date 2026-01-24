@@ -98,7 +98,7 @@
 	;outputs
 	;:r0 = slice list object (ptr)
 	;trashes
-	;:r1-:r8
+	;:r0-:r8
 	(s-call :list :slice '(:r0 :r1 :r2) '(:r0))
 	(call :list :ref_all '(:r0) '(:r0)))
 

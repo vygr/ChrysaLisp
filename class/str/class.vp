@@ -549,32 +549,6 @@
 
 (def-func-end)
 
-(def-method :str :slice)
-	;inputs
-	;:r0 = str object (ptr)
-	;:r1 = element start index (uint)
-	;:r2 = element end index (uint)
-	;outputs
-	;:r0 = string slice object (ptr)
-	;trashes
-	;:r1-:r6
-
-	(entry :str :slice '(:r0 :r1 :r2))
-
-	(assign '((:r0 str_length)) '(:r3))
-	(vp-sub-rr :r1 :r2)
-	(vpif '(:r2 = :r3))
-		(call :str :ref '(:r0) '(:r0))
-	(else)
-		(vp-add-cr str_data :r0)
-		(call :str :create_from_buffer '((& :r0 :r1) :r2) '(:r0))
-	(endif)
-
-	(exit :str :slice '(:r0))
-	(vp-ret)
-
-(def-func-end)
-
 (def-method :str :rslice)
 	;inputs
 	;:r0 = str object (ptr)
@@ -1038,6 +1012,63 @@
 	(endif)
 
 	(exit :str :cat '(:r0))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method :str :slice)
+	;inputs
+	;:r0 = array object (ptr)
+	;:r1 = element start index (uint)
+	;:r2 = element end index (uint)
+	;outputs
+	;:r0 = slice array object (ptr)
+	;trashes
+	;:r0-:r6
+
+	(vp-rdef (this si ei len total di))
+
+	(entry :str :slice `(,this ,si ,ei))
+
+	(vpif `(,si = ,ei))
+		(call :str :create_from_buffer '(0 0) `(,this))
+
+		(exit :str :slice `(,this))
+		(vp-ret)
+	(endif)
+	(vp-cpy-rr ei total)
+	(vp-sub-rr si total)
+	(vpif `(,total > 0))
+		(assign `((,this str_length)) `(,len))
+		(vpif `(,total = ,len))
+			(class/obj/ref this len)
+
+			(exit :str :slice `(,this))
+			(vp-ret)
+		(endif)
+		;copy the slice, forward
+		(assign `((& ,this str_data)) `(,this))
+		(vp-add-rr si this)
+		(call :str :create_from_buffer `(,this ,total) `(,this))
+
+		(exit :str :slice `(,this))
+		(vp-ret)
+	(endif)
+	(assign `((& ,this str_data)) `(,len))
+	(vp-abs-rr total total)
+	(vp-push si ei len)
+	(call :str :create_from_buffer `(0 ,total) `(,this))
+	(vp-pop si ei len)
+	;copy the slice, reversed
+	(assign `((,this array_begin)) `(,di))
+	(vp-simd vp-add-rr `(,len) `(,si ,ei))
+	(loop-start)
+		(vp-cpy-ir-ub si (neg +byte_size) len)
+		(vp-simd vp-add-cr `(,(neg +byte_size) ,+byte_size) `(,si ,di))
+		(vp-cpy-ri-b len di (neg +byte_size))
+	(loop-until `(,si = ,ei))
+
+	(exit :str :slice `(,this))
 	(vp-ret)
 
 (def-func-end)
