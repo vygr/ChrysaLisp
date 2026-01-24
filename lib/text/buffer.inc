@@ -35,13 +35,14 @@
 		(push-line +char_class_lf)))
 
 (defun erase-line (y)
-	(defq y1 (inc y))
-	(each (# (set (penv) %0 (erase (eval %0) y y1)))
+	(defq idxs (nums 0 y (inc y) -1))
+	(each (# (set (penv) %0 (splice (setq %0 (eval %0)) %0 idxs)))
 		'(buffer_lines buffer_syntax buffer_states
 			buffer_found buffer_brackets buffer_buckets)))
 
 (defun insert-line (y line)
-	(each (# (set (penv) %0 (insert (eval %0) y (list %1))))
+	(defq idxs (nums 0 y 0 -1 y -1))
+	(each (# (set (penv) %0 (splice (eval %0) (list %1) idxs)))
 		'(buffer_lines buffer_syntax buffer_states
 			buffer_found buffer_brackets buffer_buckets)
 		`(,line ,line :nil :nil :nil ,(list))))
