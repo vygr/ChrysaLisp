@@ -490,3 +490,41 @@
 	(vp-ret)
 
 (def-func-end)
+
+(def-method :list :slice)
+	;inputs
+	;:r0 = list object (ptr)
+	;:r1 = element start index (uint)
+	;:r2 = element end index (uint)
+	;outputs
+	;:r0 = slice list object (ptr)
+	;trashes
+	;:r0-:r8
+
+	(entry :list :slice '(:r0 :r1 :r2))
+
+	(class/list/slice)
+
+	(exit :list :slice '(:r0))
+	(vp-ret)
+
+(def-func-end)
+
+(def-method :list :splice)
+	;inputs
+	;:r0 = src1 list object (ptr)
+	;:r1 = src2 list object (ptr)
+	;:r2 = nums object (ptr)
+	;outputs
+	;:r0 = splice list object (ptr)
+	;trashes
+	;:r0-:r11
+
+	(entry :list :splice '(:r0 :r1 :r2))
+
+	(class/list/splice)
+
+	(exit :list :splice '(:r0))
+	(vp-ret)
+
+(def-func-end)
