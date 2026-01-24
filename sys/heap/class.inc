@@ -31,17 +31,17 @@
 ; heap macros
 ;;;;;;;;;;;;;
 
-(defun hp-freecell (_1 _2 _3)
+(defun hp-freecell (%0 %1 %2)
 	;inputs
-	;_1 = heap (ptr)
-	;_2 = cell (ptr)
-	;_3 = temp (ptr)
+	;%0 = heap (ptr)
+	;%1 = cell (ptr)
+	;%2 = temp (ptr)
 	;outputs
-	;_1 = heap (ptr)
-	;_2 = cell (ptr)
-	;_3 = old first cell (ptr)
+	;%0 = heap (ptr)
+	;%1 = cell (ptr)
+	;%2 = old first cell (ptr)
 
-	(ln-add-fnode _1 hp_heap_free_flist _2 _3))
+	(ln-add-fnode %0 hp_heap_free_flist %1 %2))
 
 ;;;;;;;;;;;;;;;;
 ; inline methods

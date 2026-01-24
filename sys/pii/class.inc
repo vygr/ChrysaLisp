@@ -52,36 +52,36 @@
 	(dec-method :lisp_fstat sys/pii/lisp_fstat :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_remove sys/pii/lisp_remove :static (:r0 :r1) (:r0 :r1)))
 
-(defun abi-call-table (_1 _2 _5 &optional _3 _4 _6)
-	;_1 = class name
-	;_2 = member name
-	;_5 = host function table
-	;_3 = in parameters
-	;_4 = out parameters
-	;_6 = temp reg
-	(setd _6 :r13)
-	(defq m (method-lookup _1 _2) x (list) s (third m))
+(defun abi-call-table (%0 %1 %2 &optional %3 %4 %5)
+	;%0 = class name
+	;%1 = member name
+	;%2 = host function table
+	;%3 = in parameters
+	;%4 = out parameters
+	;%5 = temp reg
+	(setd %5 :r13)
+	(defq m (method-lookup %0 %1) x (list) s (third m))
 	(if (eql (second m) :static)
-		(throw "Abi methods must be virtual !" (list _1 _2)))
-	(if (or (find _5 s) (find _6 s))
-		(throw "Dispatch/Temp register conflicts with arg !" (list _5 _6 s)))
-	(assign _3 s)
+		(throw "Abi methods must be virtual !" (list %0 %1)))
+	(if (or (find %2 s) (find %5 s))
+		(throw "Dispatch/Temp register conflicts with arg !" (list %2 %5 s)))
+	(assign %3 s)
 	(when (> (defq ls (length s)) (defq la (length (abi-args))))
 		(setq x (slice s ls la)))
-	(vp-call-abi _6 _5 (- (elem-get m 4) +ptr_size) (length s) x)
-	(if _4 (assign (elem-get m 3) _4)))
+	(vp-call-abi %5 %2 (- (elem-get m 4) +ptr_size) (length s) x)
+	(if %4 (assign (elem-get m 3) %4)))
 
-(defun host-os-call (_1 _2 &optional _3 _4 _5 _6)
-	;_1 = class name
-	;_2 = member name
-	;_3 = in parameters
-	;_4 = out parameters
-	;_5 = dispatch reg
-	;_6 = temp reg
-	(setd _5 :r14 _6 :r13)
-	(fn-bind 'sys/statics/statics _5)
-	(vp-cpy-ir _5 statics_sys_load_host_os_funcs _5)
-	(abi-call-table _1 _2 _5 _3 _4 _6))
+(defun host-os-call (%0 %1 &optional %2 %3 %4 %5)
+	;%0 = class name
+	;%1 = member name
+	;%2 = in parameters
+	;%3 = out parameters
+	;%4 = dispatch reg
+	;%5 = temp reg
+	(setd %4 :r14 %5 :r13)
+	(fn-bind 'sys/statics/statics %4)
+	(vp-cpy-ir %4 statics_sys_load_host_os_funcs %4)
+	(abi-call-table %0 %1 %4 %2 %3 %5))
 
 ;debug helpers
 (defun debug-num (s n)

@@ -24,8 +24,8 @@
 	(vec-set 0)
 	(goto l))
 
-(defmacro vec-assign (_1 _2)
-	(list 'assign _1 _2 '(slice +vp_rregs_0_14 *vsp* -1)))
+(defmacro vec-assign (%0 %1)
+	(list 'assign %0 %1 '(slice +vp_rregs_0_14 *vsp* -1)))
 
 (defun vec-push (n)
 	(slice +vp_rregs_0_14 *vsp* (setq *vsp* (+ *vsp* n))))

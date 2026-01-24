@@ -31,17 +31,17 @@
 	(dec-method :lisp_event service/gui/lisp_event :static (:r0 :r1) (:r0 :r1))
 	(dec-method :lisp_info service/gui/lisp_info :static (:r0 :r1) (:r0 :r1)))
 
-(defun host-gui-call (_1 _2 &optional _3 _4 _5 _6)
-	;_1 = class name
-	;_2 = member name
-	;_3 = in parameters
-	;_4 = out parameters
-	;_5 = dispatch reg
-	;_6 = temp reg
-	(setd _5 :r14 _6 :r13)
-	(fn-bind 'sys/statics/statics _5)
-	(vp-cpy-ir _5 statics_sys_load_host_gui_funcs _5)
-	(abi-call-table _1 _2 _5 _3 _4 _6))
+(defun host-gui-call (%0 %1 &optional %2 %3 %4 %5)
+	;%0 = class name
+	;%1 = member name
+	;%2 = in parameters
+	;%3 = out parameters
+	;%4 = dispatch reg
+	;%5 = temp reg
+	(setd %4 :r14 %5 :r13)
+	(fn-bind 'sys/statics/statics %4)
+	(vp-cpy-ir %4 statics_sys_load_host_gui_funcs %4)
+	(abi-call-table %0 %1 %4 %2 %3 %5))
 
 ;;;;;;;;;;;;;;;;
 ; gui structures

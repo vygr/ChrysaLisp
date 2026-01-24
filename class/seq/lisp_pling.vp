@@ -87,12 +87,12 @@
 
 		(loop-start)
 			;discard old value, get new value of function call
-			(bind '(_0 _1 _2) (method-input :lisp :repl_apply))
+			(bind '(%0 %1 %2) (method-input :lisp :repl_apply))
 			(call :obj :deref {value})
 			(call :list :create :nil {args})
-			(call :list :collect {args, seqs, this->lisp_seq_idx} `(,_1))
-			(assign {this, func} `(,_0 ,_2))
-			(call :lisp :repl_apply `(,_0 ,_1 ,_2) {_, value})
+			(call :list :collect {args, seqs, this->lisp_seq_idx} `(,%1))
+			(assign {this, func} `(,%0 ,%2))
+			(call :lisp :repl_apply `(,%0 ,%1 ,%2) {_, value})
 			(call :obj :deref {args})
 			(assign {this, dir, end} `(,this ,dir ,end))
 
@@ -193,12 +193,12 @@
 
 		(loop-start 'exit)
 			;discard old value, get new value of function call
-			(bind '(_0 _1 _2) (method-input :lisp :repl_apply))
+			(bind '(%0 %1 %2) (method-input :lisp :repl_apply))
 			(call :obj :deref {value})
 			(call :list :create :nil {args})
-			(call :list :collect {args, seqs, this->lisp_seq_idx} `(,_1))
-			(assign {this, func} `(,_0 ,_2))
-			(call :lisp :repl_apply `(,_0 ,_1 ,_2) {_, value})
+			(call :list :collect {args, seqs, this->lisp_seq_idx} `(,%1))
+			(assign {this, func} `(,%0 ,%2))
+			(call :lisp :repl_apply `(,%0 ,%1 ,%2) {_, value})
 			(call :obj :deref {args})
 			(assign {this, value, mode, dir, end} `(,this ,value ,mode ,dir ,end))
 
@@ -317,11 +317,11 @@
 
 		(loop-start)
 			;get new value of function call
-			(bind '(_0 _1 _2) (method-input :lisp :repl_apply))
+			(bind '(%0 %1 %2) (method-input :lisp :repl_apply))
 			(call :list :create :nil {args})
-			(call :list :collect {args, seqs, this->lisp_seq_idx} `(,_1))
-			(assign {this, func} `(,_0 ,_2))
-			(call :lisp :repl_apply `(,_0 ,_1 ,_2) {_, value})
+			(call :list :collect {args, seqs, this->lisp_seq_idx} `(,%1))
+			(assign {this, func} `(,%0 ,%2))
+			(call :lisp :repl_apply `(,%0 ,%1 ,%2) {_, value})
 			(call :obj :deref {args})
 
 		(errorcase
@@ -426,14 +426,14 @@
 
 		(loop-start)
 			;recycle value as arg 0, get new value of function call
-			(bind '(_0 _1 _2) (method-input :lisp :repl_apply))
-			(bind '(_3 _4 _5) (method-input :list :collect))
+			(bind '(%0 %1 %2) (method-input :lisp :repl_apply))
+			(bind '(%3 %4 %5) (method-input :list :collect))
 			(call :list :create :nil {args})
-			(call :list :push_back {args, value} `(,_3 _ _ _))
-			(assign {seqs, this->lisp_seq_idx} `(,_4 ,_5))
-			(call :list :collect `(,_3 ,_4 ,_5) `(,_1))
-			(assign {this, func} `(,_0 ,_2))
-			(call :lisp :repl_apply `(,_0 ,_1 ,_2) {_, value})
+			(call :list :push_back {args, value} `(,%3 _ _ _))
+			(assign {seqs, this->lisp_seq_idx} `(,%4 ,%5))
+			(call :list :collect `(,%3 ,%4 ,%5) `(,%1))
+			(assign {this, func} `(,%0 ,%2))
+			(call :lisp :repl_apply `(,%0 ,%1 ,%2) {_, value})
 			(call :obj :deref {args})
 			(assign {this, dir, end} `(,this ,dir ,end))
 
@@ -541,14 +541,14 @@
 
 		(loop-start)
 			;get new value of function call
-			(bind '(_0 _1 _2) (method-input :lisp :repl_apply))
-			(bind '(_3 _4) (method-input :list :push_back))
+			(bind '(%0 %1 %2) (method-input :lisp :repl_apply))
+			(bind '(%3 %4) (method-input :list :push_back))
 			(call :list :create :nil {args})
-			(call :seq :ref_elem {seq, this->lisp_seq_idx} `(_ ,_4))
-			(assign {args} `(,_3))
-			(call :list :push_back `(,_3 ,_4) `(,_1 _ _ _))
-			(assign {this, func} `(,_0 ,_2))
-			(call :lisp :repl_apply `(,_0 ,_1 ,_2) {_, value})
+			(call :seq :ref_elem {seq, this->lisp_seq_idx} `(_ ,%4))
+			(assign {args} `(,%3))
+			(call :list :push_back `(,%3 ,%4) `(,%1 _ _ _))
+			(assign {this, func} `(,%0 ,%2))
+			(call :lisp :repl_apply `(,%0 ,%1 ,%2) {_, value})
 			(assign {this, value} `(,this ,value))
 
 		(errorcase
@@ -558,9 +558,9 @@
 			;collect or ignore item
 			(assign `((,this lisp_sym_nil)) `(,vt1))
 			(vpif `(,value /= ,vt1))
-				(call :list :pop_back {args} `(_ ,_4))
-				(assign {out} `(,_3))
-				(call :list :push_back `(,_3 ,_4))
+				(call :list :pop_back {args} `(_ ,%4))
+				(assign {out} `(,%3))
+				(call :list :push_back `(,%3 ,%4))
 			(endif)
 			(call :obj :deref `(,value))
 			(call :obj :deref {args})

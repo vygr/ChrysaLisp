@@ -12,61 +12,61 @@
 ; class calling
 ;;;;;;;;;;;;;;;
 
-(defun method-lookup (_1 _2)
-	;_1 = class name
-	;_2 = member name
-	(or (get _2 (get _1 *vtables*))
-		(throw "No such method !" (list _1 _2))))
+(defun method-lookup (%0 %1)
+	;%0 = class name
+	;%1 = member name
+	(or (get %1 (get %0 *vtables*))
+		(throw "No such method !" (list %0 %1))))
 
-(defun method-input (_1 _2 &optional _3)
-	;_1 = class name
-	;_2 = member name
-	;_3 = input parameter index, :nil for entire list
-	(defq _1 (third (method-lookup _1 _2)))
-	(if _3 (elem-get _1 _3) _1))
+(defun method-input (%0 %1 &optional %2)
+	;%0 = class name
+	;%1 = member name
+	;%2 = input parameter index, :nil for entire list
+	(defq %0 (third (method-lookup %0 %1)))
+	(if %2 (elem-get %0 %2) %0))
 
-(defun method-output (_1 _2 &optional _3)
-	;_1 = class name
-	;_2 = member name
-	;_3 = output parameter index, :nil for entire list
-	(defq _1 (elem-get (method-lookup _1 _2) 3))
-	(if _3 (elem-get _1 _3) _1))
+(defun method-output (%0 %1 &optional %2)
+	;%0 = class name
+	;%1 = member name
+	;%2 = output parameter index, :nil for entire list
+	(defq %0 (elem-get (method-lookup %0 %1) 3))
+	(if %2 (elem-get %0 %2) %0))
 
-(defun f-path (_1 _2)
-	;_1 = class name
-	;_2 = slot method name
-	(first (method-lookup _1 _2)))
+(defun f-path (%0 %1)
+	;%0 = class name
+	;%1 = slot method name
+	(first (method-lookup %0 %1)))
 
-(defun s-path (_1 _2)
-	;_1 = class name
-	;_2 = slot method name
-	(first (method-lookup (get _1 *supers*) _2)))
+(defun s-path (%0 %1)
+	;%0 = class name
+	;%1 = slot method name
+	(first (method-lookup (get %0 *supers*) %1)))
 
-(defun f-entry (_1 _2 _3)
-	;_1 = class name
-	;_2 = slot method name
-	;_3 = in parameters
-	(assign (third (method-lookup _1 _2)) _3))
+(defun f-entry (%0 %1 %2)
+	;%0 = class name
+	;%1 = slot method name
+	;%2 = in parameters
+	(assign (third (method-lookup %0 %1)) %2))
 
-(defun f-exit (_1 _2 _3)
-	;_1 = class name
-	;_2 = slot method name
-	;_3 = out parameters
-	(assign _3 (elem-get (method-lookup _1 _2) 3)))
+(defun f-exit (%0 %1 %2)
+	;%0 = class name
+	;%1 = slot method name
+	;%2 = out parameters
+	(assign %2 (elem-get (method-lookup %0 %1) 3)))
 
-(defun l-entry (_1)
-	;_1 = in parameters
+(defun l-entry (%0)
+	;%0 = in parameters
 	(cond
-		((not _1))
-		((str? _1) (assign (slice +vp_regs_calls 0 (length (split _1 ","))) _1))
-		((assign (slice +vp_regs_calls 0 (length _1)) _1))))
+		((not %0))
+		((str? %0) (assign (slice +vp_regs_calls 0 (length (split %0 ","))) %0))
+		((assign (slice +vp_regs_calls 0 (length %0)) %0))))
 
-(defun l-exit (_1)
-	;_1 = out parameters
+(defun l-exit (%0)
+	;%0 = out parameters
 	(cond
-		((not _1))
-		((str? _1) (assign _1 (slice +vp_regs_calls 0 (length (split _1 ",")))))
-		((assign _1 (slice +vp_regs_calls 0 (length _1))))))
+		((not %0))
+		((str? %0) (assign %0 (slice +vp_regs_calls 0 (length (split %0 ",")))))
+		((assign %0 (slice +vp_regs_calls 0 (length %0))))))
 
 ;;;;;;;;;;;;;;;;;;
 ; class definition
@@ -142,247 +142,247 @@
 ; function helpers
 ;;;;;;;;;;;;;;;;;;
 
-(defun call (_1 _2 &optional _3 _4)
-	;_1 = class name
-	;_2 = member name
-	;_3 = in parameters
-	;_4 = out parameters
+(defun call (%0 %1 &optional %2 %3)
+	;%0 = class name
+	;%1 = member name
+	;%2 = in parameters
+	;%3 = out parameters
 	(cond
-		((sym? _2)
+		((sym? %1)
 			(cond
 				;f-call
-				((eql (second (defq m (method-lookup _1 _2))) :static)
-					(assign _3 (third m))
+				((eql (second (defq m (method-lookup %0 %1))) :static)
+					(assign %2 (third m))
 					(fn-call (first m)))
 				;v-call
 				(:t (if (find :r14 (defq _ (third m)))
 						(throw "Dispatch register conflicts with arg !" (list :r14 _)))
-					(assign _3 _)
+					(assign %2 _)
 					(vp-cpy-ir :r0 obj_vtable :r14)
 					(vp-call-i :r14 (last m))))
-			(if _4 (assign (elem-get m 3) _4)))
+			(if %3 (assign (elem-get m 3) %3)))
 		(:t ;l-call
 			(cond
-				((not _2))
-				((str? _2) (assign _2 (slice +vp_regs_calls 0 (length (split _2 ",")))))
-				((assign _2 (slice +vp_regs_calls 0 (length _2)))))
-			(vp-call _1)
+				((not %1))
+				((str? %1) (assign %1 (slice +vp_regs_calls 0 (length (split %1 ",")))))
+				((assign %1 (slice +vp_regs_calls 0 (length %1)))))
+			(vp-call %0)
 			(cond
-				((not _3))
-				((str? _3) (assign (slice +vp_regs_calls 0 (length (split _3 ","))) _3))
-				((assign (slice +vp_regs_calls 0 (length _3)) _3))))))
+				((not %2))
+				((str? %2) (assign (slice +vp_regs_calls 0 (length (split %2 ","))) %2))
+				((assign (slice +vp_regs_calls 0 (length %2)) %2))))))
 
-(defun jump (_1 _2 &optional _3)
-	;_1 = class name
-	;_2 = member name
-	;_3 = in parameters
+(defun jump (%0 %1 &optional %2)
+	;%0 = class name
+	;%1 = member name
+	;%2 = in parameters
 	(cond
-		((eql (second (defq m (method-lookup _1 _2))) :static)
-			(assign _3 (third m))
+		((eql (second (defq m (method-lookup %0 %1))) :static)
+			(assign %2 (third m))
 			(scope-unwind)
 			(fn-jump (first m)))
 		(:t (if (find :r14 (defq _ (third m)))
 				(throw "Dispatch register conflicts with arg !" (list :r14 _)))
-			(assign _3 _)
+			(assign %2 _)
 			(vp-cpy-ir :r0 obj_vtable :r14)
 			(scope-unwind)
 			(vp-jmp-i :r14 (last m)))))
 
 (defmacro entry (&rest %0)
 	;either
-	;_1 = class name
-	;_2 = slot method name
-	;_3 = in parameters
+	;%0 = class name
+	;%1 = slot method name
+	;%2 = in parameters
 	;or
-	;_1 = in parameters
+	;%0 = in parameters
 	(cat (if (= (length %0) 1) '(l-entry) '(f-entry)) %0))
 
 (defmacro exit (&rest %0)
 	;either
-	;_1 = class name
-	;_2 = slot method name
-	;_3 = out parameters
+	;%0 = class name
+	;%1 = slot method name
+	;%2 = out parameters
 	;or
-	;_1 = out parameters
+	;%0 = out parameters
 	(cat (if (= (length %0) 1) '(l-exit) '(f-exit)) %0))
 
 ;;;;;;;;;;;;;;;;
 ; method calling
 ;;;;;;;;;;;;;;;;
 
-(defun f-call (_1 _2 &optional _3 _4)
-	;_1 = class name
-	;_2 = member name
-	;_3 = in parameters
-	;_4 = out parameters
-	(unless (eql (second (defq m (method-lookup _1 _2))) :static)
-		(throw "Method is not static ! Use v-call ?" (list _1 _2)))
-	(assign _3 (third m))
+(defun f-call (%0 %1 &optional %2 %3)
+	;%0 = class name
+	;%1 = member name
+	;%2 = in parameters
+	;%3 = out parameters
+	(unless (eql (second (defq m (method-lookup %0 %1))) :static)
+		(throw "Method is not static ! Use v-call ?" (list %0 %1)))
+	(assign %2 (third m))
 	(fn-call (first m))
-	(if _4 (assign (elem-get m 3) _4)))
+	(if %3 (assign (elem-get m 3) %3)))
 
-(defun f-jmp (_1 _2 &optional _3)
-	;_1 = class name
-	;_2 = member name
-	;_3 = in parameters
-	(unless (eql (second (defq m (method-lookup _1 _2))) :static)
-		(throw "Method is not static ! Use v-jump ?" (list _1 _2)))
-	(assign _3 (third m))
+(defun f-jmp (%0 %1 &optional %2)
+	;%0 = class name
+	;%1 = member name
+	;%2 = in parameters
+	(unless (eql (second (defq m (method-lookup %0 %1))) :static)
+		(throw "Method is not static ! Use v-jump ?" (list %0 %1)))
+	(assign %2 (third m))
 	(scope-unwind)
 	(fn-jump (first m)))
 
-(defun f-bind (_1 _2 _3)
-	;_1 = class name
-	;_2 = member name
-	;_3 = reg
-	(unless (eql (second (defq m (method-lookup _1 _2))) :static)
-		(throw "Method is not static ! Use v-bind ?" (list _1 _2)))
-	(fn-bind (first m) _3))
+(defun f-bind (%0 %1 %2)
+	;%0 = class name
+	;%1 = member name
+	;%2 = reg
+	(unless (eql (second (defq m (method-lookup %0 %1))) :static)
+		(throw "Method is not static ! Use v-bind ?" (list %0 %1)))
+	(fn-bind (first m) %2))
 
-(defun s-call (_1 _2 &optional _3 _4)
-	;_1 = class name
-	;_2 = member name
-	;_3 = in parameters
-	;_4 = out parameters
-	(if (eql (second (defq m (method-lookup (get _1 *supers*) _2))) :static)
-		(unless (eql _2 :init)
-			(throw "Method is static !" (list (get _1 *supers*) _2))))
-	(assign _3 (third m))
+(defun s-call (%0 %1 &optional %2 %3)
+	;%0 = class name
+	;%1 = member name
+	;%2 = in parameters
+	;%3 = out parameters
+	(if (eql (second (defq m (method-lookup (get %0 *supers*) %1))) :static)
+		(unless (eql %1 :init)
+			(throw "Method is static !" (list (get %0 *supers*) %1))))
+	(assign %2 (third m))
 	(unless (eql (first m) 'class/obj/null)
 		(fn-call (first m))
-		(if _4 (assign (elem-get m 3) _4))))
+		(if %3 (assign (elem-get m 3) %3))))
 
-(defun s-jump (_1 _2 &optional _3)
-	;_1 = class name
-	;_2 = member name
-	;_3 = in parameters
-	(if (eql (second (defq m (method-lookup (get _1 *supers*) _2))) :static)
-		(unless (eql _2 :init)
-			(throw "Method is static !" (list (get _1 *supers*) _2))))
-	(assign _3 (third m))
+(defun s-jump (%0 %1 &optional %2)
+	;%0 = class name
+	;%1 = member name
+	;%2 = in parameters
+	(if (eql (second (defq m (method-lookup (get %0 *supers*) %1))) :static)
+		(unless (eql %1 :init)
+			(throw "Method is static !" (list (get %0 *supers*) %1))))
+	(assign %2 (third m))
 	(scope-unwind)
 	(if (eql (first m) 'class/obj/null)
 		(vp-ret)
 		(fn-jump (first m))))
 
-(defun s-bind (_1 _2 _3)
-	;_1 = class name
-	;_2 = member name
-	;_3 = reg
-	(defq m (method-lookup (get _1 *supers*) _2))
+(defun s-bind (%0 %1 %2)
+	;%0 = class name
+	;%1 = member name
+	;%2 = reg
+	(defq m (method-lookup (get %0 *supers*) %1))
 	(if (eql (second m) :static)
-		(throw "Method is static !" (list (get _1 *supers*) _2)))
-	(fn-bind (first m) _3))
+		(throw "Method is static !" (list (get %0 *supers*) %1)))
+	(fn-bind (first m) %2))
 
-(defun v-call (_1 _2 &optional _3 _4 _5 _6)
-	;_1 = class name
-	;_2 = member name
-	;_3 = in parameters
-	;_4 = out parameters
-	;_5 = obj reg
-	;_6 = dispatch reg
-	(if (eql (second (defq m (method-lookup _1 _2))) :static)
-		(throw "Method is static ! Use f-call ?" (list _1 _2)))
-	(if (find (setd _5 :r0 _6 :r14) (defq _ (third m)))
-		(throw "Dispatch register conflicts with arg !" (list _6 _)))
-	(assign _3 _)
-	(vp-cpy-ir _5 obj_vtable _6)
-	(vp-call-i _6 (last m))
-	(if _4 (assign (elem-get m 3) _4)))
+(defun v-call (%0 %1 &optional %2 %3 %4 %5)
+	;%0 = class name
+	;%1 = member name
+	;%2 = in parameters
+	;%3 = out parameters
+	;%4 = obj reg
+	;%5 = dispatch reg
+	(if (eql (second (defq m (method-lookup %0 %1))) :static)
+		(throw "Method is static ! Use f-call ?" (list %0 %1)))
+	(if (find (setd %4 :r0 %5 :r14) (defq _ (third m)))
+		(throw "Dispatch register conflicts with arg !" (list %5 _)))
+	(assign %2 _)
+	(vp-cpy-ir %4 obj_vtable %5)
+	(vp-call-i %5 (last m))
+	(if %3 (assign (elem-get m 3) %3)))
 
-(defun v-jump (_1 _2 &optional _3 _4 _5)
-	;_1 = class name
-	;_2 = member name
-	;_3 = in parameters
-	;_4 = obj reg
-	;_5 = dispatch reg
-	(if (eql (second (defq m (method-lookup _1 _2))) :static)
-		(throw "Method is static ! Use f-jmp ?" (list _1 _2)))
-	(if (find (setd _4 :r0 _5 :r14) (defq _ (third m)))
-		(throw "Dispatch register conflicts with arg !" (list _5 _)))
-	(assign _3 _)
-	(vp-cpy-ir _4 obj_vtable _5)
+(defun v-jump (%0 %1 &optional %2 %3 %4)
+	;%0 = class name
+	;%1 = member name
+	;%2 = in parameters
+	;%3 = obj reg
+	;%4 = dispatch reg
+	(if (eql (second (defq m (method-lookup %0 %1))) :static)
+		(throw "Method is static ! Use f-jmp ?" (list %0 %1)))
+	(if (find (setd %3 :r0 %4 :r14) (defq _ (third m)))
+		(throw "Dispatch register conflicts with arg !" (list %4 _)))
+	(assign %2 _)
+	(vp-cpy-ir %3 obj_vtable %4)
 	(scope-unwind)
-	(vp-jmp-i _5 (last m)))
+	(vp-jmp-i %4 (last m)))
 
-(defun v-bind (_1 _2 &optional _3 _4)
-	;_1 = class name
-	;_2 = member name
-	;_3 = obj reg
-	;_4 = dispatch reg
-	(setd _3 :r0 _4 :r14)
-	(if (eql (second (defq m (method-lookup _1 _2))) :static)
-		(throw "Method is static ! Use f-bind ?" (list _1 _2)))
-	(vp-cpy-ir _3 obj_vtable _4)
-	(vp-cpy-ir _4 (last m) _4))
+(defun v-bind (%0 %1 &optional %2 %3)
+	;%0 = class name
+	;%1 = member name
+	;%2 = obj reg
+	;%3 = dispatch reg
+	(setd %2 :r0 %3 :r14)
+	(if (eql (second (defq m (method-lookup %0 %1))) :static)
+		(throw "Method is static ! Use f-bind ?" (list %0 %1)))
+	(vp-cpy-ir %2 obj_vtable %3)
+	(vp-cpy-ir %3 (last m) %3))
 
-(defun d-call (_1 _2 &optional _3 _4)
-	;_1 = class name
-	;_2 = member name
-	;_3 = in parameters
-	;_4 = out parameters
-	(if (eql (second (defq m (method-lookup _1 _2))) :static)
-		(throw "Method is static ! Use f-call ?" (list _1 _2)))
-	(assign _3 (third m))
+(defun d-call (%0 %1 &optional %2 %3)
+	;%0 = class name
+	;%1 = member name
+	;%2 = in parameters
+	;%3 = out parameters
+	(if (eql (second (defq m (method-lookup %0 %1))) :static)
+		(throw "Method is static ! Use f-call ?" (list %0 %1)))
+	(assign %2 (third m))
 	(fn-call (first m))
-	(if _4 (assign (elem-get m 3) _4)))
+	(if %3 (assign (elem-get m 3) %3)))
 
-(defun d-jump (_1 _2 &optional _3)
-	;_1 = class name
-	;_2 = member name
-	;_3 = in parameters
-	(if (eql (second (defq m (method-lookup _1 _2))) :static)
-		(throw "Method is static ! Use f-jmp ?" (list _1 _2)))
-	(assign _3 (third m))
+(defun d-jump (%0 %1 &optional %2)
+	;%0 = class name
+	;%1 = member name
+	;%2 = in parameters
+	(if (eql (second (defq m (method-lookup %0 %1))) :static)
+		(throw "Method is static ! Use f-jmp ?" (list %0 %1)))
+	(assign %2 (third m))
 	(scope-unwind)
 	(fn-jump (first m)))
 
-(defun d-bind (_1 _2 _3)
-	;_1 = class name
-	;_2 = member name
-	;_3 = reg
-	(if (eql (second (defq m (method-lookup _1 _2))) :static)
-		(throw "Method is static ! Use f-bind ?" (list _1 _2)))
-	(fn-bind (first m) _3))
+(defun d-bind (%0 %1 %2)
+	;%0 = class name
+	;%1 = member name
+	;%2 = reg
+	(if (eql (second (defq m (method-lookup %0 %1))) :static)
+		(throw "Method is static ! Use f-bind ?" (list %0 %1)))
+	(fn-bind (first m) %2))
 
-(defun r-call (_1 _2 &optional _3 _4 _5)
-	;_1 = class name
-	;_2 = member name
-	;_3 = in parameters
-	;_4 = out parameters
-	;_5 = dispatch reg
-	(defq m (method-lookup _1 _2) _ (third m))
-	(if (find (setd _5 :r14) _)
-		(throw "Dispatch register conflicts with arg !" (list _5 _)))
-	(assign _3 (cat _ (list _5)))
-	(vp-call-r _5)
-	(if _4 (assign (elem-get m 3) _4)))
+(defun r-call (%0 %1 &optional %2 %3 %4)
+	;%0 = class name
+	;%1 = member name
+	;%2 = in parameters
+	;%3 = out parameters
+	;%4 = dispatch reg
+	(defq m (method-lookup %0 %1) _ (third m))
+	(if (find (setd %4 :r14) _)
+		(throw "Dispatch register conflicts with arg !" (list %4 _)))
+	(assign %2 (cat _ (list %4)))
+	(vp-call-r %4)
+	(if %3 (assign (elem-get m 3) %3)))
 
-(defun r-jump (_1 _2 &optional _3 _4)
-	;_1 = class name
-	;_2 = member name
-	;_3 = in parameters
-	;_4 = dispatch reg
-	(defq m (method-lookup _1 _2) _ (third m))
-	(if (find (setd _4 :r14) _)
-		(throw "Dispatch register conflicts with arg !" (list _4 _)))
-	(assign _3 (cat _ (list _4)))
+(defun r-jump (%0 %1 &optional %2 %3)
+	;%0 = class name
+	;%1 = member name
+	;%2 = in parameters
+	;%3 = dispatch reg
+	(defq m (method-lookup %0 %1) _ (third m))
+	(if (find (setd %3 :r14) _)
+		(throw "Dispatch register conflicts with arg !" (list %3 _)))
+	(assign %2 (cat _ (list %3)))
 	(scope-unwind)
-	(vp-jmp-r _4))
+	(vp-jmp-r %3))
 
-(defun l-call (_1 &optional _2 _3)
-	;_1 = label
-	;_2 = in parameters
-	;_3 = out parameters
+(defun l-call (%0 &optional %1 %2)
+	;%0 = label
+	;%1 = in parameters
+	;%2 = out parameters
 	(cond
-		((not _2))
-		((str? _2) (assign _2 (slice +vp_regs_calls 0 (length (split _2 ",")))))
-		((assign _2 (slice +vp_regs_calls 0 (length _2)))))
-	(vp-call _1)
+		((not %1))
+		((str? %1) (assign %1 (slice +vp_regs_calls 0 (length (split %1 ",")))))
+		((assign %1 (slice +vp_regs_calls 0 (length %1)))))
+	(vp-call %0)
 	(cond
-		((not _3))
-		((str? _3) (assign (slice +vp_regs_calls 0 (length (split _3 ","))) _3))
-		((assign (slice +vp_regs_calls 0 (length _3)) _3))))
+		((not %2))
+		((str? %2) (assign (slice +vp_regs_calls 0 (length (split %2 ","))) %2))
+		((assign (slice +vp_regs_calls 0 (length %2)) %2))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; generic class construction
@@ -394,29 +394,29 @@
 	(each (lambda (%0)
 		(vp-short `(- ,(label-sym (link-sym (fn-find-link (f-path %0 :vtable)))) *pc*))) %0))
 
-(defun gen-vtable (_1)
-	;_1 = class name
-	(def-func (f-path _1 :vtable))
-		(vtable-emit _1)
+(defun gen-vtable (%0)
+	;%0 = class name
+	(def-func (f-path %0 :vtable))
+		(vtable-emit %0)
 	(def-func-end))
 
-(defun gen-create (_1 &optional _2)
-	;_1 = class name
-	;_2 = create/init name
-	(defq m (method-lookup _1 (if _2 (sym (cat :create_ _2)) :create)) _3 (ifn (third m) '())
-		_4 (slice '(:r14 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13) 0 (length _3)))
-	(def-func (f-path _1 (if _2 (sym (cat :create_ _2)) :create)))
+(defun gen-create (%0 &optional %1)
+	;%0 = class name
+	;%1 = create/init name
+	(defq m (method-lookup %0 (if %1 (sym (cat :create_ %1)) :create)) %2 (ifn (third m) '())
+		%3 (slice '(:r14 :r3 :r4 :r5 :r6 :r7 :r8 :r9 :r10 :r11 :r12 :r13) 0 (length %2)))
+	(def-func (f-path %0 (if %1 (sym (cat :create_ %1)) :create)))
 		;inputs
 		;...
 		;outputs
 		;:r0 = 0 if error, else object (ptr)
 		;trashes
 		;...
-		(assign _3 _4)
-		(call :sys_mem :alloc `(,(sym (cat (rest _1) "_size"))) '(:r0 _))
+		(assign %2 %3)
+		(call :sys_mem :alloc `(,(sym (cat (rest %0) "_size"))) '(:r0 _))
 		(vpif '(:r0 /= 0))
 			;init the object
-			(call _1 (if _2 (sym (cat :init_ _2)) :init) `(:r0 (@ ,(f-path _1 :vtable)) ~_4) '(:r0 :r1))
+			(call %0 (if %1 (sym (cat :init_ %1)) :init) `(:r0 (@ ,(f-path %0 :vtable)) ~%3) '(:r0 :r1))
 			(vpif '(:r1 = 0))
 				;error with init
 				(call :sys_mem :free '(:r0))
@@ -426,9 +426,9 @@
 		(vp-ret)
 	(def-func-end))
 
-(defun gen-type (_1)
-	(def-func (f-path _1 :type))
-		;_1 = class name
+(defun gen-type (%0)
+	(def-func (f-path %0 :type))
+		;%0 = class name
 		;inputs
 		;:r0 = ... object (ptr)
 		;outputs
@@ -436,13 +436,13 @@
 		;:r1 = type list object (ptr)
 		;trashes
 		;:r1-:r5
-		(entry _1 :type '(:r0))
-		(s-call _1 :type '(:r0) '(:r0 :r1))
+		(entry %0 :type '(:r0))
+		(s-call %0 :type '(:r0) '(:r0 :r1))
 		(vp-push :r0 :r1)
-		(call :sym :ref_static_sym `(,(sym (cat "static_sym_" (rest _1)))) '(:r1))
+		(call :sym :ref_static_sym `(,(sym (cat "static_sym_" (rest %0)))) '(:r1))
 		(call :list :push_back '((:rsp 0) :r1))
 		(vp-pop :r0 :r1)
-		(exit _1 :type '(:r0 :r1))
+		(exit %0 :type '(:r0 :r1))
 		(vp-ret)
 	(def-func-end))
 
