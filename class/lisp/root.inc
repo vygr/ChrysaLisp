@@ -615,7 +615,7 @@
 
 (defun msafe? (%0)
 	; (msafe? o) -> :t | :nil
-	(or (sym? %0) (atom? %0)))
+	(cond ((sym? %0)) ((atom? %0))))
 
 (defun empty? (%0)
 	; (empty? form) -> :t | :nil
