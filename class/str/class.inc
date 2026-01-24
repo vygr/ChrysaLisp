@@ -20,7 +20,6 @@
 	(dec-method :init class/str/init :static (:r0 :r1 :r2 :r3))
 	(dec-method :init1 class/str/init1 :static (:r0 :r1 :r2 :r3) (:r0 :r1))
 	(dec-method :init2 class/str/init2 :static (:r0 :r1 :r2 :r3) (:r0 :r1))
-	(dec-method :init3 class/str/init3 :static (:r0 :r1 :r2) (:r0 :r1))
 	(dec-method :split class/str/split :static (:r0 :r1) (:r0 :r1))
 	(dec-method :hash_pstr class/str/hash_pstr :static (:r3 :r4) (:r1))
 	(dec-method :same_pstr class/str/same_pstr :static (:r1 :r2 :r3) (:r4))

@@ -249,44 +249,6 @@
 
 (def-func-end)
 
-(def-method :str :init3)
-	;inputs
-	;:r0 = str object (ptr)
-	;:r1 = vtable (pptr)
-	;:r2 = list of str objects (ptr)
-	;outputs
-	;:r0 = str object (ptr)
-	;:r1 = 0 if error, else ok
-	;trashes
-	;:r1-:r6
-
-	(entry :str :init3 '(:r0 :r1 :r2))
-
-	;init parent
-	(s-call :str :init '(:r0 :r1) '(:r0 :r1))
-	(vpif '(:r1 /= 0))
-		;init myself
-		(vp-xor-rr :r1 :r1)
-		(assign '(:r0 :r1 :r1 (& :r0 str_data))
-			'(:r6 (:r0 str_hashslot) (:r0 str_hashcode) :r1))
-		(class/array/get_both :r2 :r4 :r5)
-		(loop-while '(:r4 /= :r5))
-			(vp-cpy-ir :r4 0 :r0)
-			(call :sys_mem :copy '((& :r0 str_data) :r1 (:r0 str_length)) '(_ :r1))
-			(vp-add-cr +ptr_size :r4)
-		(loop-end)
-		(vp-xor-rr :r0 :r0)
-		(vp-cpy-ri-b :r0 :r1 0)
-		(vp-lea-i :r6 str_data :r2)
-		(vp-sub-rr :r2 :r1)
-		(assign '(:r1 :r6 :r6) '((:r6 str_length) :r0 :r1))
-	(endif)
-
-	(exit :str :init3 '(:r0 :r1))
-	(vp-ret)
-
-(def-func-end)
-
 (def-method :str :append)
 	;inputs
 	;:r0 = str object (ptr)
@@ -952,36 +914,40 @@
 	;:r0 = str object (ptr)
 	;:r1 = list of str objects (ptr)
 	;outputs
-	;:r0 = 0 if error, else new str object (ptr)
+	;:r0 = new str object (ptr)
 	;trashes
-	;:r1-:r6
+	;:r0-:r8
 
-	(entry :str :cat '(_ :r1))
-	(vp-cpy-rr :r1 :r5)
+	(vp-rdef (seqs seqs_end this di len total src seqs_begin) '(:r7 :r8))
 
-	;get total size of strings
-	(class/array/get_both :r1 :r1 :r2)
-	(vp-cpy-cr (+ str_size +byte_size) :r3)
-	(loop-while '(:r1 /= :r2))
-		(vp-cpy-ir :r1 0 :r0)
-		(assign '((:r0 str_length)) '(:r0))
-		(vp-add-cr +ptr_size :r1)
-		(vp-add-rr :r0 :r3)
-	(loop-end)
+	(entry :str :cat `(,this ,seqs))
 
-	;create new str object
-	(call :sys_mem :alloc '(:r3) '(:r0 _))
-	(vpif '(:r0 /= 0))
-		;init the object
-		(call :str :init3 `(:r0 (@ ,(f-path :str :vtable)) :r5) '(:r0 :r1))
-		(vpif '(:r1 = 0))
-			;error with init
-			(call :sys_mem :free '(:r0))
-			(vp-xor-rr :r0 :r0)
-		(endif)
+	(class/array/get_both seqs seqs_begin seqs_end)
+	(vpif `(,seqs_begin /= ,seqs_end))
+		;first get the length
+		(vp-xor-rr total total)
+		(loop-start)
+			(assign `((,seqs_begin 0)) `(,src))
+			(vp-add-cr +ptr_size seqs_begin)
+			(assign `((,src str_length)) `(,len))
+			(vp-add-rr len total)
+		(loop-until `(,seqs_begin = ,seqs_end))
+		(call :str :create_from_buffer `(0 ,total) `(,this))
+		;now transfer the data
+		(assign `((& ,this str_data) (,seqs array_begin)) `(,di ,seqs_begin))
+		(vp-cpy-rr this seqs)
+		(loop-start)
+			(assign `((,seqs_begin 0)) `(,src))
+			(vp-add-cr +ptr_size seqs_begin)
+			(call :sys_mem :copy `((& ,src str_data) ,di (,src str_length)) `(_ ,di))
+		(loop-until `(,seqs_begin = ,seqs_end))
+		(vp-cpy-rr seqs this)
+	(else)
+		;empty string
+		(call :str :create_from_buffer '(0 0) `(,this))
 	(endif)
 
-	(exit :str :cat '(:r0))
+	(exit :str :cat `(,this))
 	(vp-ret)
 
 (def-func-end)

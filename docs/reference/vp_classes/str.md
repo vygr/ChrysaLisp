@@ -107,9 +107,9 @@ inputs
 :r0 = str object (ptr)
 :r1 = list of str objects (ptr)
 outputs
-:r0 = 0 if error, else new str object (ptr)
+:r0 = new str object (ptr)
 trashes
-:r1-:r6
+:r0-:r8
 ```
 
 ### :compare -> class/str/compare
@@ -308,20 +308,6 @@ inputs
 :r1 = vtable (pptr)
 :r2 = file name c string (pubyte)
 :r3 = file length (uint)
-outputs
-:r0 = str object (ptr)
-:r1 = 0 if error, else ok
-trashes
-:r1-:r6
-```
-
-### :init3 -> class/str/init3
-
-```code
-inputs
-:r0 = str object (ptr)
-:r1 = vtable (pptr)
-:r2 = list of str objects (ptr)
 outputs
 :r0 = str object (ptr)
 :r1 = 0 if error, else ok
