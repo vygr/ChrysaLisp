@@ -23,15 +23,13 @@ ie. will not lead to double evaluation.
 
 `erase`, `insert`, `replace` and `rotate` are all now macros over `splice`.
 
-`:slice` and `:rslice` methods now only return the new slice object.
-
-`:list` methods for `:slice` and `:rslice` now call to super class for the main
-work, and then reference the returned elements.
-
 New text replace compiler functions that create a splice command for you that
 does entire text replacement in a single call to splice. `replace-compile`,
 `replace-matches`, `replace-edits`, `replace-regex-edits`, `replace-str-edits`,
 `replace-regex` and `replace-str`.
+
+Removed `:rslice` method. `:slice` method understand the slice reversal if
+required. `:slice` methods now only return the new slice object.
 
 New `:list :ref_all` method, and several list methods moved to be inline
 `s-call's` with a jump to this method at the end.

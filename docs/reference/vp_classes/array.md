@@ -47,9 +47,9 @@ inputs
 :r0 = array object (ptr)
 :r1 = list of array objects (ptr)
 outputs
-:r0 = 0 if error, else new array object (ptr)
+:r0 = new array object (ptr)
 trashes
-:r0-:r11
+:r0-:r9
 ```
 
 ### :clear -> class/array/clear
@@ -430,19 +430,6 @@ trashes
 :r2-:r4
 ```
 
-### :rslice -> class/array/rslice
-
-```code
-inputs
-:r0 = array object (ptr)
-:r1 = element start index (uint)
-:r2 = element end index (uint)
-outputs
-:r0 = slice array object (ptr)
-trashes
-:r1-:r8
-```
-
 ### :set_cap -> class/array/set_cap
 
 ```code
@@ -491,7 +478,7 @@ inputs
 outputs
 :r0 = slice array object (ptr)
 trashes
-:r1-:r8
+:r0-:r8
 ```
 
 ### :sort -> class/array/sort

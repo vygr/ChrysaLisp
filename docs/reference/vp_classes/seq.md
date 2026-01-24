@@ -56,8 +56,6 @@
 
 ### :rfind -> class/obj/null
 
-### :rslice -> class/obj/null
-
 ### :slice -> class/obj/null
 
 ### :splice -> class/obj/null

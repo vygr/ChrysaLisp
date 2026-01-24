@@ -30,6 +30,18 @@ trashes
 :r1-:r9
 ```
 
+### :cat -> class/list/cat
+
+```code
+inputs
+:r0 = list object (ptr)
+:r1 = list of list objects (ptr)
+outputs
+:r0 = new list object (ptr)
+trashes
+:r0-:r9
+```
+
 ### :clear -> class/list/clear
 
 ```code
@@ -195,19 +207,6 @@ trashes
 :r2-:r9
 ```
 
-### :rslice -> class/list/rslice
-
-```code
-inputs
-:r0 = list object (ptr)
-:r1 = element start index (uint)
-:r2 = element end index (uint)
-outputs
-:r0 = slice list object (ptr)
-trashes
-:r1-:r8
-```
-
 ### :set_elem -> class/list/set_elem
 
 ```code
@@ -231,7 +230,7 @@ inputs
 outputs
 :r0 = slice list object (ptr)
 trashes
-:r1-:r8
+:r0-:r8
 ```
 
 ### :splice -> class/list/splice

@@ -369,19 +369,6 @@ trashes
 :r2-:r4
 ```
 
-### :rslice -> class/str/rslice
-
-```code
-inputs
-:r0 = str object (ptr)
-:r1 = element start index (uint)
-:r2 = element end index (uint)
-outputs
-:r0 = string slice object (ptr)
-trashes
-:r1-:r6
-```
-
 ### :same_pstr -> class/str/same_pstr
 
 ```code
@@ -399,13 +386,13 @@ trashes
 
 ```code
 inputs
-:r0 = str object (ptr)
+:r0 = array object (ptr)
 :r1 = element start index (uint)
 :r2 = element end index (uint)
 outputs
-:r0 = string slice object (ptr)
+:r0 = slice array object (ptr)
 trashes
-:r1-:r6
+:r0-:r6
 ```
 
 ### :splice -> class/str/splice
