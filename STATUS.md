@@ -33,7 +33,7 @@ does entire text replacement in a single call to splice. `replace-compile`,
 `replace-matches`, `replace-edits`, `replace-regex-edits`, `replace-str-edits`,
 `replace-regex` and `replace-str`.
 
-New `:list :ref_all` method, and several list methods moves to be inline
+New `:list :ref_all` method, and several list methods moved to be inline
 `s-call's` with a jump to this method at the end.
 
 ------
