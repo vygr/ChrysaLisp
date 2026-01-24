@@ -144,6 +144,17 @@ trashes
 :r1-:r14
 ```
 
+### :ref_all -> class/list/ref_all
+
+```code
+inputs
+:r0 = list object (ptr)
+outputs
+:r0 = list object (ptr)
+trashes
+:r0-:r4
+```
+
 ### :ref_back -> class/list/ref_back
 
 ```code
@@ -231,7 +242,7 @@ inputs
 :r1 = src2 list object (ptr)
 :r2 = nums object (ptr)
 outputs
-:r0 = new list object (ptr)
+:r0 = splice list object (ptr)
 trashes
 :r0-:r11
 ```

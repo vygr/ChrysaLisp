@@ -124,68 +124,6 @@
 
 (def-func-end)
 
-(def-method :list :slice)
-	;inputs
-	;:r0 = list object (ptr)
-	;:r1 = element start index (uint)
-	;:r2 = element end index (uint)
-	;outputs
-	;:r0 = slice list object (ptr)
-	;trashes
-	;:r1-:r8
-
-	(vp-rdef (this iter_begin iter_end elm tmp))
-
-	(entry :list :slice `(,this ,iter_begin ,iter_end))
-
-	;array does the hard work
-	(s-call :list :slice `(,this ,iter_begin ,iter_end) `(,this))
-	;now just ref the elements
-	(class/array/get_both this iter_begin iter_end)
-	(vpif `(,iter_begin /= ,iter_end))
-		(loop-start)
-			(vp-cpy-ir iter_begin 0 elm)
-			(vp-add-cr +ptr_size iter_begin)
-			(class/obj/ref elm tmp)
-		(loop-until `(,iter_begin = ,iter_end))
-	(endif)
-
-	(exit :list :slice `(,this))
-	(vp-ret)
-
-(def-func-end)
-
-(def-method :list :rslice)
-	;inputs
-	;:r0 = list object (ptr)
-	;:r1 = element start index (uint)
-	;:r2 = element end index (uint)
-	;outputs
-	;:r0 = slice list object (ptr)
-	;trashes
-	;:r1-:r8
-
-	(vp-rdef (this iter_begin iter_end elm tmp))
-
-	(entry :list :rslice `(,this ,iter_begin ,iter_end))
-
-	;array does the hard work
-	(s-call :list :rslice `(,this ,iter_begin ,iter_end) `(,this))
-	;now just ref the elements
-	(class/array/get_both this iter_begin iter_end)
-	(vpif `(,iter_begin /= ,iter_end))
-		(loop-start)
-			(vp-cpy-ir iter_begin 0 elm)
-			(vp-add-cr +ptr_size iter_begin)
-			(class/obj/ref elm tmp)
-		(loop-until `(,iter_begin = ,iter_end))
-	(endif)
-
-	(exit :list :rslice `(,this))
-	(vp-ret)
-
-(def-func-end)
-
 (def-method :list :append)
 	;inputs
 	;:r0 = list object (ptr)
@@ -508,33 +446,29 @@
 
 (def-func-end)
 
-(def-method :list :splice)
+(def-method :list :ref_all)
 	;inputs
-	;:r0 = src1 list object (ptr)
-	;:r1 = src2 list object (ptr)
-	;:r2 = nums object (ptr)
+	;:r0 = list object (ptr)
 	;outputs
-	;:r0 = new list object (ptr)
+	;:r0 = list object (ptr)
 	;trashes
-	;:r0-:r11
+	;:r0-:r4
 
-	(vp-rdef (src1 src2 idxs iter_begin iter_end))
+	(vp-rdef (this iter_begin iter_end elm tmp))
 
-	(entry :list :splice `(,src1 ,src2 ,idxs))
+	(entry :list :ref_all `(,this))
 
-	;array does the hard work
-	(s-call :list :splice `(,src1 ,src2 ,idxs) `(,src1))
-	;now just ref the elements
-	(class/array/get_both src1 iter_begin iter_end)
+	;ref the elements
+	(class/array/get_both this iter_begin iter_end)
 	(vpif `(,iter_begin /= ,iter_end))
 		(loop-start)
-			(vp-cpy-ir iter_begin 0 src2)
+			(vp-cpy-ir iter_begin 0 elm)
 			(vp-add-cr +long_size iter_begin)
-			(class/obj/ref src2 idxs)
+			(class/obj/ref elm tmp)
 		(loop-until `(,iter_begin = ,iter_end))
 	(endif)
 
-	(exit :list :splice `(,src1))
+	(exit :list :ref_all `(,this))
 	(vp-ret)
 
 (def-func-end)

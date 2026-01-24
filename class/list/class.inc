@@ -5,6 +5,7 @@
 	(dec-method :create class/list/create)
 	(dec-method :copy class/list/copy :static (:r0) (:r0 :r1))
 	(dec-method :min_length class/list/min_length :static (:r0) (:r0 :r1))
+	(dec-method :ref_all class/list/ref_all :static (:r0) (:r0))
 	(dec-method :collect class/list/collect :static (:r0 :r1 :r2) (:r0))
 	(dec-method :vcreate class/list/create :final)
 	(dec-method :deinit class/list/deinit :final)
@@ -60,3 +61,43 @@
 			%0) (list src types (ifn dst src)) (lists 3)))
 	(array-bind-args l src)
 	(list-cast-args src types dst))
+
+;;;;;;;;;;;;;;;;
+; inline methods
+;;;;;;;;;;;;;;;;
+
+(defun class/list/splice ()
+	;inputs
+	;:r0 = src1 list object (ptr)
+	;:r1 = src2 list object (ptr)
+	;:r2 = nums object (ptr)
+	;outputs
+	;:r0 = splice list object (ptr)
+	;trashes
+	;:r0-:r11
+	(s-call :list :splice '(:r0 :r1 :r2) '(:r0))
+	(call :list :ref_all '(:r0) '(:r0)))
+
+(defun class/list/slice ()
+	;inputs
+	;:r0 = list object (ptr)
+	;:r1 = element start index (uint)
+	;:r2 = element end index (uint)
+	;outputs
+	;:r0 = slice list object (ptr)
+	;trashes
+	;:r1-:r8
+	(s-call :list :slice '(:r0 :r1 :r2) '(:r0))
+	(call :list :ref_all '(:r0) '(:r0)))
+
+(defun class/list/rslice ()
+	;inputs
+	;:r0 = list object (ptr)
+	;:r1 = element start index (uint)
+	;:r2 = element end index (uint)
+	;outputs
+	;:r0 = slice list object (ptr)
+	;trashes
+	;:r1-:r8
+	(s-call :list :rslice '(:r0 :r1 :r2) '(:r0))
+	(call :list :ref_all '(:r0) '(:r0)))
