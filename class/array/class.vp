@@ -752,7 +752,7 @@
 	;trashes
 	;:r0-:r11
 
-	(vp-rdef (this idx_begin dst_iter si ei swp_xor len total
+	(vp-rdef (this idx_begin di si ei swp_xor len total
 		src1 src2 idxs idx_end))
 
 	(entry :array :splice `(,src1 ,src2 ,idxs))
@@ -778,10 +778,10 @@
 			(vp-abs-rr ei ei)
 			(vp-add-rr ei total)
 		(loop-until `(,idx_begin = ,idx_end))
-		(call :array :set_cap `(,this ,total) `(,this))
 		(assign `(,total) `((,this array_length)))
+		(call :array :set_cap `(,this ,total) `(,this))
 		;now transfer the slices
-		(assign `((,this array_begin) (,idxs array_begin)) `(,dst_iter ,idx_begin))
+		(assign `((,this array_begin) (,idxs array_begin)) `(,di ,idx_begin))
 		(vp-cpy-rr src1 swp_xor)
 		(vp-xor-rr src2 swp_xor)
 		(loop-start)
@@ -800,15 +800,15 @@
 				(vpif `(,si < ,ei))
 					(loop-start)
 						(vp-cpy-ir si 0 len)
-						(vp-cpy-ri len dst_iter 0)
-						(vp-simd vp-add-cr `(,+long_size) `(,si ,dst_iter))
+						(vp-cpy-ri len di 0)
+						(vp-simd vp-add-cr `(,+long_size) `(,si ,di))
 					(loop-until `(,si = ,ei))
 				(else)
 					(loop-start)
 						(vp-cpy-ir si (neg +long_size) len)
-						(vp-cpy-ri len dst_iter 0)
 						(vp-sub-cr +long_size si)
-						(vp-add-cr +long_size dst_iter)
+						(vp-add-cr +long_size di)
+						(vp-cpy-ri len di (neg +long_size))
 					(loop-until `(,si = ,ei))
 				(endif)
 			(endif)

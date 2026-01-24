@@ -10,6 +10,7 @@
 	(dec-method :vcreate class/list/create :final)
 	(dec-method :deinit class/list/deinit :final)
 	(dec-method :ref_elem class/list/ref_elem :final)
+	(dec-method :cat class/list/cat :final)
 	(dec-method :slice class/list/slice :final)
 	(dec-method :rslice class/list/rslice :final)
 	(dec-method :clear class/list/clear :final)
@@ -65,6 +66,17 @@
 ;;;;;;;;;;;;;;;;
 ; inline methods
 ;;;;;;;;;;;;;;;;
+
+(defun class/list/cat ()
+	;inputs
+	;:r0 = list object (ptr)
+	;:r1 = list of list objects (ptr)
+	;outputs
+	;:r0 = new list object (ptr)
+	;trashes
+	;:r0-:r9
+	(s-call :list :cat '(:r0 :r1) '(:r0))
+	(call :list :ref_all '(:r0) '(:r0)))
 
 (defun class/list/splice ()
 	;inputs

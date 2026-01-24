@@ -472,3 +472,21 @@
 	(vp-ret)
 
 (def-func-end)
+
+(def-method :list :cat)
+	;inputs
+	;:r0 = list object (ptr)
+	;:r1 = list of list objects (ptr)
+	;outputs
+	;:r0 = new list object (ptr)
+	;trashes
+	;:r0-:r9
+
+	(entry :list :cat '(:r0 :r1))
+
+	(class/list/cat)
+
+	(exit :list :cat '(:r0))
+	(vp-ret)
+
+(def-func-end)
