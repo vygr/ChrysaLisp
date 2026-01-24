@@ -164,7 +164,7 @@ inputs
 outputs
 :r0 = list object (ptr)
 trashes
-:r0-:r4
+:r1-:r4
 ```
 
 ### :ref_back -> class/list/ref_back

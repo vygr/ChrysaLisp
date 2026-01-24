@@ -452,7 +452,7 @@
 	;outputs
 	;:r0 = list object (ptr)
 	;trashes
-	;:r0-:r4
+	;:r1-:r4
 
 	(vp-rdef (this iter_begin iter_end elm tmp))
 
