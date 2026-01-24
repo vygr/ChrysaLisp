@@ -12,7 +12,6 @@
 	(dec-method :ref_elem class/list/ref_elem :final)
 	(dec-method :cat class/list/cat :final)
 	(dec-method :slice class/list/slice :final)
-	(dec-method :rslice class/list/rslice :final)
 	(dec-method :clear class/list/clear :final)
 	(dec-method :ref_back class/list/ref_back :final)
 	(dec-method :set_elem class/list/set_elem :final)
@@ -100,16 +99,4 @@
 	;trashes
 	;:r0-:r8
 	(s-call :list :slice '(:r0 :r1 :r2) '(:r0))
-	(call :list :ref_all '(:r0) '(:r0)))
-
-(defun class/list/rslice ()
-	;inputs
-	;:r0 = list object (ptr)
-	;:r1 = element start index (uint)
-	;:r2 = element end index (uint)
-	;outputs
-	;:r0 = slice list object (ptr)
-	;trashes
-	;:r1-:r8
-	(s-call :list :rslice '(:r0 :r1 :r2) '(:r0))
 	(call :list :ref_all '(:r0) '(:r0)))

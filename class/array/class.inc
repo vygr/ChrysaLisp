@@ -9,7 +9,6 @@
 	(dec-method :eql class/array/eql :final)
 	(dec-method :ref_elem class/array/ref_elem :override)
 	(dec-method :slice class/array/slice :override)
-	(dec-method :rslice class/array/rslice :override)
 	(dec-method :cat class/array/cat :override)
 	(dec-method :find class/array/find :override)
 	(dec-method :rfind class/array/rfind :override)
