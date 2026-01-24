@@ -237,15 +237,13 @@ interpreter.
 
 * The `Makefile`'s `install` target is: `clean hostenv tui gui inst`.
 
-* The `inst` target rule is: `./run_tui.sh -n 8 -i -e -f`.
+* The `inst` target rule is: `./run_tui.sh -i -e -f`.
 
-* Let's break down the `run_tui.sh -n 8 -i -e -f` command:
+* Let's break down the `run_tui.sh -i -e -f` command:
 
     * `run_tui.sh`: This script (and its PowerShell equivalent `run_tui.ps1`) is
       designed to launch multiple ChrysaLisp nodes connected in a default
       fully-connected mesh topology.
-
-    * `-n 8`: Specifies 8 nodes.
 
     * `-i`: This tells `run_tui.sh` to set the initial script for the primary
       node (CPU 0) to `apps/tui/install.lisp` instead of the default

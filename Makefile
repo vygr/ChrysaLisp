@@ -79,7 +79,7 @@ snapshot:
 		`find obj -name "main_tui.exe"`
 
 inst:
-	@./run_tui.sh -n 8 -i -e -f
+	@./run_tui.sh -i -e -f
 
 obj/$(CPU)/$(ABI)/$(OS)/main_gui:	$(OBJ_FILES_GUI)
 	c++ -o $@ $^ $(shell sdl2-config --libs) -lSDL2_mixer
