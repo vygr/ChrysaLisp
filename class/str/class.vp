@@ -170,42 +170,6 @@
 
 (def-func-end)
 
-(def-method :str :init1)
-	;inputs
-	;:r0 = str object (ptr)
-	;:r1 = vtable (pptr)
-	;:r2 = str object (ptr)
-	;:r3 = str object (ptr)
-	;outputs
-	;:r0 = str object (ptr)
-	;:r1 = 0 if error, else ok
-	;trashes
-	;:r1-:r6
-
-	(entry :str :init1 '(:r0 :r1 :r2 :r3))
-
-	;init parent
-	(s-call :str :init '(:r0 :r1) '(:r0 :r1))
-	(vpif '(:r1 /= 0))
-		;init myself
-		(vp-xor-rr :r1 :r1)
-		(assign '(:r0 :r1 :r1 :r2 :r3)
-			'(:r6 (:r0 str_hashslot) (:r0 str_hashcode) :r4 :r5))
-		(assign '((:r4 str_length) (:r5 str_length)) '(:r1 :r2))
-		(vp-add-rr :r2 :r1)
-		(assign '(:r1) '((:r0 str_length)))
-		(call :sys_mem :copy '((& :r4 str_data) (& :r0 str_data) (:r4 str_length)) '(_ :r1))
-		(assign '((:r5 str_length)) '(:r2))
-		(vp-add-cr +byte_size :r2)
-		(call :sys_mem :copy '((& :r5 str_data) :r1 :r2))
-		(vp-cpy-rr :r6 :r0)
-	(endif)
-
-	(exit :str :init1 '(:r0 :r1))
-	(vp-ret)
-
-(def-func-end)
-
 (def-method :str :init2)
 	;inputs
 	;:r0 = str object (ptr)
@@ -245,40 +209,6 @@
 	(endif)
 
 	(exit :str :init2 '(:r0 :r1))
-	(vp-ret)
-
-(def-func-end)
-
-(def-method :str :append)
-	;inputs
-	;:r0 = str object (ptr)
-	;:r1 = str object (ptr)
-	;outputs
-	;:r0 = 0 if error, else new str object (ptr)
-	;trashes
-	;:r1-:r6
-
-	;save inputs
-	(entry :str :append '(:r5 :r6))
-
-	;get size of strings
-	(assign '((:r0 str_length) (:r1 str_length)) '(:r0 :r2))
-	(vp-add-rr :r2 :r0)
-	(vp-add-cr (+ str_size +byte_size) :r0)
-
-	;create new str object
-	(call :sys_mem :alloc '(:r0) '(:r0 _))
-	(vpif '(:r0 /= 0))
-		;init the object
-		(call :str :init1 `(:r0 (@ ,(f-path :str :vtable)) :r5 :r6) '(:r0 :r1))
-		(vpif '(:r1 = 0))
-			;error with init
-			(call :sys_mem :free '(:r0))
-			(vp-xor-rr :r0 :r0)
-		(endif)
-	(endif)
-
-	(exit :str :append '(:r0))
 	(vp-ret)
 
 (def-func-end)

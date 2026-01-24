@@ -44,18 +44,6 @@
 
 ## VP methods
 
-### :append -> class/str/append
-
-```code
-inputs
-:r0 = str object (ptr)
-:r1 = str object (ptr)
-outputs
-:r0 = 0 if error, else new str object (ptr)
-trashes
-:r1-:r6
-```
-
 ### :bfind -> class/str/bfind
 
 ```code
@@ -278,21 +266,6 @@ inputs
 :r1 = vtable (pptr)
 :r2 = 0 else, buffer (pubyte)
 :r3 = buffer length (uint)
-outputs
-:r0 = str object (ptr)
-:r1 = 0 if error, else ok
-trashes
-:r1-:r6
-```
-
-### :init1 -> class/str/init1
-
-```code
-inputs
-:r0 = str object (ptr)
-:r1 = vtable (pptr)
-:r2 = str object (ptr)
-:r3 = str object (ptr)
 outputs
 :r0 = str object (ptr)
 :r1 = 0 if error, else ok

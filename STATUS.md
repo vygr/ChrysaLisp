@@ -34,6 +34,11 @@ required. `:slice` methods now only return the new slice object.
 New `:list :ref_all` method, and several list methods moved to be inline
 `s-call's` with a jump to this method at the end.
 
+Removed `:str :append`, `:str :init1` and `:str :init3` methods while rewriting
+`:str :cat`.
+
+Install now uses 10 VP nodes. Things have moved on since this limit for the Pi3.
+
 ------
 
 `lib/asm/scopes.inc` now uses an environment to hold each scopes symbol map.
