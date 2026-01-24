@@ -433,7 +433,7 @@
 			; sort so (cx cy) <= (ax ay)
 			(bind '(cx cy ax ay) (csr-sort (nums cx cy ax ay)))
 			(mutate-buffer
-				(. this :push_undo (list :insert cx cy (sym (. this :icopy cx cy ax ay))))
+				(. this :push_undo (list :insert cx cy (. this :icopy cx cy ax ay)))
 				(cond
 					((= cy ay)
 						(set-line cy (erase (elem-get buffer_lines cy) cx ax)))
