@@ -16,7 +16,6 @@
 	(each (lambda (a)
 		(each (lambda (c)
 			(setq c (code c))
-
 			(cond
 				((= c 9)
 					;print tab
