@@ -42,7 +42,7 @@ Install now uses 10 VP nodes. Things have moved on since this limit for the Pi3.
 Signatures for Search classes, `:search` and `:match?` now take the pattern or
 the compiled meta data as a single non optional argument.
 
-`sed` command now uses the new `replace` compiler.
+Editor app, `sed` and `grep` commands now uses the new `replace` compiler.
 
 TUI updated to share command history with the GUI Terminal app, and handle line
 editing.
