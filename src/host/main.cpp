@@ -9,6 +9,7 @@
 #include <io.h>
 #else
 #include <unistd.h>
+#include <termios.h>
 #endif
 
 #define VP64_STACK_SIZE 8192
@@ -32,6 +33,21 @@ extern void (*host_gui_funcs[]);
 extern void(*host_audio_funcs[]);
 #endif
 
+#ifndef _WIN64
+struct termios orig_termios;
+
+void disableRawMode() {
+	tcsetattr(STDIN_FILENO, TCSAFLUSH, &orig_termios);
+}
+
+void enableRawMode() {
+	tcgetattr(STDIN_FILENO, &orig_termios);
+	atexit(disableRawMode);
+	struct termios raw = orig_termios;
+	raw.c_lflag &= ~(ECHO | ICANON);
+	tcsetattr(STDIN_FILENO, TCSAFLUSH, &raw);
+}
+#endif
 
 int main(int argc, char *argv[])
 {
@@ -62,6 +78,8 @@ int main(int argc, char *argv[])
 				{
 					pii_close((int)fd);
 				#ifndef _WIN64
+					// Enable raw mode (no echo, no line buffering)
+					enableRawMode();
 					fcntl(0, F_SETFL, fcntl(0, F_GETFL, 0) | O_NONBLOCK);
 				#endif
 					if (run_emu)
@@ -89,6 +107,7 @@ int main(int argc, char *argv[])
 					#endif
 					}
 					pii_munmap(data, data_size, mmap_exec);
+					disableRawMode();
 				}
 				else
 				{
