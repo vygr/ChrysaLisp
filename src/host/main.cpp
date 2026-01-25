@@ -7,6 +7,7 @@
 
 #ifdef _WIN64
 #include <io.h>
+#include <windows.h>
 #else
 #include <unistd.h>
 #include <termios.h>
@@ -33,7 +34,23 @@ extern void (*host_gui_funcs[]);
 extern void(*host_audio_funcs[]);
 #endif
 
-#ifndef _WIN64
+#ifdef _WIN64
+DWORD old_mode;
+
+void disableRawMode() {
+    HANDLE hStdin = GetStdHandle(STD_INPUT_HANDLE);
+    SetConsoleMode(hStdin, old_mode);
+}
+
+void enableRawMode() {
+    HANDLE hStdin = GetStdHandle(STD_INPUT_HANDLE);
+    GetConsoleMode(hStdin, &old_mode);
+    atexit(disableRawMode);
+    DWORD new_mode = old_mode;
+    new_mode &= ~(ENABLE_LINE_INPUT | ENABLE_ECHO_INPUT);
+    SetConsoleMode(hStdin, new_mode);
+}
+#else
 struct termios orig_termios;
 
 void disableRawMode() {
@@ -77,9 +94,9 @@ int main(int argc, char *argv[])
 				if (read((int)fd, data, data_size) == data_size)
 				{
 					pii_close((int)fd);
-				#ifndef _WIN64
 					// Enable raw mode (no echo, no line buffering)
 					enableRawMode();
+				#ifndef _WIN64
 					fcntl(0, F_SETFL, fcntl(0, F_GETFL, 0) | O_NONBLOCK);
 				#endif
 					if (run_emu)
