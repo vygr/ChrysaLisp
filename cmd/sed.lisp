@@ -21,10 +21,10 @@
 (("-w" "--words") ,(opt-flag 'opt_w))
 ))
 
-(defun process (stream engine meta rep_meta global)
+(defun process (stream engine find_meta rep_meta global)
  	(lines! (lambda (line) (task-slice)
 		(print (cond
-			((empty? (defq match (. engine :search line meta))) line)
+			((empty? (defq match (. engine :search line find_meta))) line)
 			(:t (unless global (setq match (slice match 0 1)))
 				(replace-matches line match rep_meta)))))
 		stream))
@@ -36,8 +36,8 @@
 			(defq opt_w :nil opt_e :nil opt_r "" opt_g :nil opt_x :nil
 				args (options stdio usage))
 			opt_e)
-		(bind '(engine pattern meta) (query opt_e opt_w opt_x))
+		(bind '(engine & find_meta) (query opt_e opt_w opt_x))
 		(defq rep_meta (replace-compile opt_r))
 		(if (empty? (defq files (rest args)))
-			(process (io-stream 'stdin) engine meta rep_meta opt_g)
-			(each (# (process (file-stream %0) engine meta rep_meta opt_g)) files))))
+			(process (io-stream 'stdin) engine find_meta rep_meta opt_g)
+			(each (# (process (file-stream %0) engine find_meta rep_meta opt_g)) files))))
