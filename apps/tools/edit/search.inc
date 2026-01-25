@@ -100,38 +100,24 @@
 	(.-> *edit* :get_buffer (:find text *whole_words* *regexp*))
 	(refresh))
 
-(defun build-replace (lines found rep_text rep_matches sx sy sx1)
-	(when (< sy (length found))
-		(defq match (elem-get found sy) line (elem-get lines sy))
-		(when (defq mi (some (lambda (((x x1) &ignore))
-					(and (= x sx) (= x1 sx1) (!))) match))
-			(when regexp
-				(setq match (elem-get match mi))
-				(reach (lambda (((x x1) (x2 x3)))
-						(setq rep_text (replace rep_text x x1
-							(cond
-								((< (defq s (str-to-num (slice rep_text x2 x3)))
-										(length match))
-									(bind '(x x1) (elem-get match s))
-									(slice line x x1))
-								("")))))
-					rep_matches))
-			rep_text)))
-
 (defun action-replace (whole_words regexp pattern rep_text)
 	(unless (eql pattern "")
 		(defq buffer (. *edit* :get_buffer)
 			lines (. buffer :get_buffer_lines)
-			found (. buffer :find pattern whole_words regexp))
+			found (. buffer :find pattern whole_words regexp)
+			rep_meta (replace-compile rep_text))
 		(bind '(sx sy sx1 sy1) (csr-sort (. *edit* :get_cursor)))
-		(when (and (= sy sy1) (defq
-				rep_matches (matches rep_text "\$(\d+)")
-				rep_text (build-replace lines found rep_text rep_matches sx sy sx1)))
-			(undoable buffer
-				(.-> buffer
-					(:set_cursor sx sy sx1)
-					(:insert rep_text)))
-			(refresh))
+		(when (and (= sy sy1) (< sy (length found)))
+			(defq match (elem-get found sy))
+			(when (defq match (some (lambda (m)
+						(bind '(x x1) (first m))
+						(if (and (= x sx) (= x1 sx1)) m)) match))
+				(defq edit (first (replace-edits (elem-get lines sy) (list match) rep_meta)))
+				(undoable buffer
+					(.-> buffer
+						(:set_cursor (first edit) sy (second edit))
+						(:insert (third edit))))
+				(refresh)))
 		(action-find-down whole_words regexp pattern)))
 
 (defun action-replace-all (whole_words regexp pattern rep_text &optional noclip)
@@ -139,7 +125,7 @@
 		(defq buffer (. *edit* :get_buffer)
 			lines (. buffer :get_buffer_lines)
 			found (cat (. buffer :find pattern whole_words regexp))
-			rep_matches (matches rep_text "\$(\d+)"))
+			rep_meta (replace-compile rep_text))
 		(undoable buffer
 			(defq sy 0 sy1 (length found))
 			(unless noclip
@@ -147,11 +133,15 @@
 				(if (> fy1 fy) (setq sy (max sy fy) sy1 (min sy1 fy1))))
 			(each! (lambda (match)
 				(defq y (!))
-				(reach (lambda (((x x1) &ignore))
-					(when (defq rep (build-replace lines found rep_text rep_matches x y x1))
+				(when match
+					(defq line (elem-get lines y)
+						edits (replace-edits line match rep_meta))
+					; apply edits in reverse order to preserve indices
+					(each (lambda ((x x1 s))
 						(.-> buffer
 							(:set_cursor x y x1)
-							(:insert rep)))) match)) (list found) sy sy1))
+							(:insert s))) (reverse edits))))
+				(list found) sy sy1))
 		(refresh)))
 
 (defun action-replace-global (whole_words regexp pattern rep_text)
