@@ -433,7 +433,8 @@
 			; sort so (cx cy) <= (ax ay)
 			(bind '(cx cy ax ay) (csr-sort (nums cx cy ax ay)))
 			(mutate-buffer
-				(. this :push_undo (list :insert cx cy (. this :icopy cx cy ax ay)))
+				(if (bits? (get :flags this) +buffer_flag_undo)
+					(. this :push_undo (list :insert cx cy (. this :icopy cx cy ax ay))))
 				(cond
 					((= cy ay)
 						(set-line cy (erase (elem-get buffer_lines cy) cx ax)))
@@ -483,7 +484,8 @@
 				  ecx (if (= dy 0) (+ icx d) (- d (last breaks)))
 				  ecy (+ icy dy))
 			(mutate-buffer
-				(. this :push_undo (list :delete cx cy ecx ecy))
+				(if (bits? (get :flags this) +buffer_flag_undo)
+					(. this :push_undo (list :delete cx cy ecx ecy)))
 				(defq line (elem-get buffer_lines cy))
 				(set-line cy (defq line (cat (slice line 0 cx) text (slice line cx -1))))
 				(when (nempty? breaks)
