@@ -150,16 +150,16 @@
 						(cat a (cache `((:nil 1 ,oa)))))
 					))))) postfix_output) (pop stack))
 
-(defun insertelem (cpat next seen trace elem)
+(defun insertelem (meta next seen trace elem)
 	(defq stack (rest elem) index (last trace))
 	(while (defq offset (pop stack))
 		;offsets can be expressions !
 		(if (setq offset (eval offset))
-			(if (= (defq new_index (+ index offset)) (length cpat))
+			(if (= (defq new_index (+ index offset)) (length meta))
 				;stopped, so matched something !
 				(if (> si end) (setq end si end_trace trace))
 				;not stopped
-				(if (first (defq elem (elem-get cpat new_index)))
+				(if (first (defq elem (elem-get meta new_index)))
 					;not a split
 					(unless (find new_index seen)
 						(push seen new_index)
@@ -168,46 +168,46 @@
 					(each! (# (if (setq %0 (eval %0)) (push stack (+ offset %0))))
 						(list elem) 1))))) next)
 
-(defun insertelem-no-trace (cpat next index elem)
+(defun insertelem-no-trace (meta next index elem)
 	(defq stack (rest elem))
 	(while (defq offset (pop stack))
 		;offsets can be expressions !
 		(if (setq offset (eval offset))
-			(if (= (defq new_index (+ index offset)) (length cpat))
+			(if (= (defq new_index (+ index offset)) (length meta))
 				;stopped, so matched something !
 				(if (> si end) (setq end si))
 				;not stopped
-				(if (first (defq elem (elem-get cpat new_index)))
+				(if (first (defq elem (elem-get meta new_index)))
 					;not a split
 					(unless (find new_index next) (push next new_index))
 					;a split
 					(each! (# (if (setq %0 (eval %0)) (push stack (+ offset %0))))
 						(list elem) 1))))) next)
 
-(defun firstelem (cpat current)
-	(if (first (defq elem (first cpat)))
+(defun firstelem (meta current)
+	(if (first (defq elem (first meta)))
 		;not a split
 		(push current (array 0))
 		;a split
-		(insertelem cpat current (list) (array 0) elem)))
+		(insertelem meta current (list) (array 0) elem)))
 
-(defun firstelem-no-trace (cpat current)
-	(if (first (defq elem (first cpat)))
+(defun firstelem-no-trace (meta current)
+	(if (first (defq elem (first meta)))
 		;not a split
 		(push current 0)
 		;a split
-		(insertelem-no-trace cpat current 0 elem)))
+		(insertelem-no-trace meta current 0 elem)))
 
-(defun search (text cpat start)
-	; (search text cpat start) -> (list submatches {-1 | end})
+(defun search (text meta start)
+	; (search text meta start) -> (list submatches {-1 | end})
 	(defq end -1 end_trace (array 0) tl (length text)
 		si start s (if (<= si 0) " " (elem-get text (dec si)))
-		current (firstelem cpat (list)) seen (list) next (list))
+		current (firstelem meta (list)) seen (list) next (list))
 	(some! (lambda (s) (defq si (inc (!)))
 			;for each current trace
-			(each (# (if (eval (first (defq elem (elem-get cpat (last %0)))))
+			(each (# (if (eval (first (defq elem (elem-get meta (last %0)))))
 				;matched text char, so insert next traces
-				(insertelem cpat next seen %0 elem))) current)
+				(insertelem meta next seen %0 elem))) current)
 			;swap to new traces
 			(defq tmp current)
 			(setq current next next tmp)
@@ -218,16 +218,16 @@
 	(pop end_trace)
 	(list (partition end_trace 2) end))
 
-(defun match (text cpat start)
-	; (match text cpat start) -> -1 | end
+(defun match (text meta start)
+	; (match text meta start) -> -1 | end
 	(defq end -1 tl (length text) trace (array 0)
 		si start s (if (<= si 0) " " (elem-get text (dec si)))
-		current (firstelem-no-trace cpat (list)) next (list))
+		current (firstelem-no-trace meta (list)) next (list))
 	(some! (lambda (s) (defq si (inc (!)))
 			;for each current index
-			(each (# (if (eval (first (defq elem (elem-get cpat %0))))
+			(each (# (if (eval (first (defq elem (elem-get meta %0))))
 				;matched text char, so insert next index
-				(insertelem-no-trace cpat next %0 elem))) current)
+				(insertelem-no-trace meta next %0 elem))) current)
 			;swap to new indices
 			(defq tmp current)
 			(setq current next next (clear tmp))
@@ -243,62 +243,66 @@
 		; (. regexp :compile pattern) -> :nil | meta
 		(raise :meta_cache)
 		(setq pattern (cat "(" pattern ")"))
-		(unless (defq cpat (. meta_cache :find pattern))
-			(setq cpat (catch (compile (postfix (tokenize pattern))) :t))
-			(. meta_cache :insert pattern cpat))
-		(if (eql cpat :t) :nil cpat))
+		(unless (defq meta (. meta_cache :find pattern))
+			(setq meta (catch (compile (postfix (tokenize pattern))) :t))
+			(. meta_cache :insert pattern meta))
+		(if (eql meta :t) :nil meta))
 
-	(defmethod :match? (text pattern &optional cpat)
-		; (. regexp :match? text pattern [meta]) -> :t | :nil
-		(when (defq out :nil cpat (ifn cpat (. this :compile pattern)))
+	(defmethod :match? (text meta)
+		; (. regexp :match? text meta) -> :t | :nil
+		(if (str? meta) (setq meta (. this :compile meta)))
+		(defq out :nil)
+		(when meta
 			(cond
-				((eql (first (defq i (first (second cpat)))) (const bfind))
+				((eql (first (defq i (first (second meta)))) (const bfind))
 					;class first !
 					(defq cls (third i) j 0)
 					(while (< (defq i (bskipn cls text j)) (length text))
-						(if (> (bind '(l j) (search text cpat i)) i)
+						(if (> (bind '(l j) (search text meta i)) i)
 							(setq j (length text) out :t)
 							(setq j (inc i)))))
 				((eql (first i) (const if))
 					;not class first !
 					(defq cls (third (second i)) j 0)
 					(while (< (defq i (bskip cls text j)) (length text))
-						(if (> (bind '(l j) (search text cpat i)) i)
+						(if (> (bind '(l j) (search text meta i)) i)
 							(setq j (length text) out :t)
 							(setq j (inc i)))))
 				(:t ;do it the hard way :(
 					(defq i 0)
 					(while (< i (length text))
 						(cond
-							((> (bind '(l j) (search text cpat i)) i)
+							((> (bind '(l j) (search text meta i)) i)
 								(setq i +max_int out :t)
 								(setq i j))
 							((++ i)))))))
 		out)
 
-	(defmethod :search (text pattern &optional cpat)
-		; (. regexp :search text pattern [meta]) -> matches
-		(when (defq out (list) cpat (ifn cpat (. this :compile pattern)))
+	(defmethod :search (text meta)
+		; (. regexp :search text meta) -> matches
+		(if (str? meta) (setq meta (. this :compile meta)))
+		(defq out (list))
+		(when meta
 			(cond
-				((eql (first (defq i (first (second cpat)))) (const bind))
+				((eql (first (defq i (first (second meta)))) (const bind))
 					;class first !
 					(defq cls (third i) j 0)
 					(while (< (defq i (bskipn cls text j)) (length text))
-						(if (> (bind '(l j) (search text cpat i)) i)
+						(if (> (bind '(l j) (search text meta i)) i)
 							(push out l)
 							(setq j (inc i)))))
 				((eql (first i) (const if))
 					;not class first !
 					(defq cls (third (second i)) j 0)
 					(while (< (defq i (bskip cls text j)) (length text))
-						(if (> (bind '(l j) (search text cpat i)) i)
+						(if (> (bind '(l j) (search text meta i)) i)
 							(push out l)
 							(setq j (inc i)))))
 				(:t ;do it the hard way :(
 					(defq i 0)
 					(while (< i (length text))
 						(cond
-							((> (bind '(l j) (search text cpat i)) i)
+							((> (bind '(l j) (search text meta i)) i)
 								(push out l)
 								(setq i j))
 							((++ i)))))))

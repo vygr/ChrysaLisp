@@ -6,8 +6,8 @@
 	; (Search) -> search
 	(defabstractmethod :compile (pattern))
 		; (. search :compile pattern) -> :nil | meta
-	(defabstractmethod :search (text pattern &optional meta))
-		; (. search :search text pattern [meta]) -> matches
-	(defabstractmethod :match? (text pattern &optional meta))
-		; (. search :match? text pattern [meta]) -> :t | :nil
+	(defabstractmethod :search (text meta))
+		; (. search :search text meta) -> matches
+	(defabstractmethod :match? (text meta))
+		; (. search :match? text meta) -> :t | :nil
 	)

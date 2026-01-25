@@ -601,7 +601,7 @@ very basic attenuation, diffuse and specular
 ### match
 
 ```code
-(match text cpat start) -> -1 | end
+(match text meta start) -> -1 | end
 ```
 
 ### match?
@@ -1058,7 +1058,7 @@ scatter a list of values
 ### search
 
 ```code
-(search text cpat start) -> (list submatches {-1 | end})
+(search text meta start) -> (list submatches {-1 | end})
 ```
 
 ### seq?

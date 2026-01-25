@@ -65,8 +65,8 @@
 						(setq state :nil))
 					(if (starts-with "```" %0)
 						(setq state :t)
-						(if (. search :match? %0 pattern meta) (print %0))))
-				(if (. search :match? %0 pattern meta) (print %0))))
+						(if (. search :match? %0 meta) (print %0))))
+				(if (. search :match? %0 meta) (print %0))))
 			stream)))
 
 ;grep a file to stdout
@@ -80,9 +80,9 @@
 						(setq state :nil))
 					(if (starts-with "```" line)
 						(setq state :t)
-						(if (setq result (. search :match? line pattern meta))
+						(if (setq result (. search :match? line meta))
 							(print file))))
-				(if (setq result (. search :match? line pattern meta))
+				(if (setq result (. search :match? line meta))
 					(print file))))))
 
 (defun main ()

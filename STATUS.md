@@ -39,6 +39,9 @@ Removed `:str :append`, `:str :init1` and `:str :init3` methods while rewriting
 
 Install now uses 10 VP nodes. Things have moved on since this limit for the Pi3.
 
+Signatures for Search classes, `:search` and `:match?` now take the pattern or
+the compiled meta data as a single non optional argument.
+
 ------
 
 `lib/asm/scopes.inc` now uses an environment to hold each scopes symbol map.
