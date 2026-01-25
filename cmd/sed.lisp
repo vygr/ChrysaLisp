@@ -34,10 +34,10 @@
 			(push out (slice line ms me))) match (list))
 		(const (list quote (map (lambda (&) "") (str-alloc 10))))))
 
-(defun process (stream engine pattern meta rep global rep_info)
+(defun process (stream engine meta rep global rep_info)
  	(lines! (lambda (line) (task-slice)
 		(print (cond
-			((empty? (defq match (. engine :search line pattern meta))) line)
+			((empty? (defq match (. engine :search line meta))) line)
 			((defq idx 0)
 			(unless global (setq match (slice match 0 1)))
 			(apply (const cat) (push (reduce (lambda (out match)
@@ -64,5 +64,5 @@
 		(bind '(engine pattern meta) (query opt_e opt_w opt_x))
 		(defq rep_info (if opt_x (create-rep-info opt_r)))
 		(if (empty? (defq files (rest args)))
-			(process (io-stream 'stdin) engine pattern meta opt_r opt_g rep_info)
-			(each (# (process (file-stream %0) engine pattern meta opt_r opt_g rep_info)) files))))
+			(process (io-stream 'stdin) engine meta opt_r opt_g rep_info)
+			(each (# (process (file-stream %0) engine meta opt_r opt_g rep_info)) files))))
