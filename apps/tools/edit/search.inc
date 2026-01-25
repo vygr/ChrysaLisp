@@ -60,27 +60,24 @@
 					match)))
 				(list buffer_found) :nil (min fy1 (inc cy)) fy))))
 
-(defun action-find-down (whole_words regexp pattern)
+(defun find-next (func whole_words regexp pattern)
 	;return :nil if nothing found !
 	(when (nql pattern "")
 		(defq buffer (. *edit* :get_buffer))
 		(when (> (length (defq found (. buffer :find pattern whole_words regexp))) 0)
 			(bind '(cx cy &ignore) (. *edit* :get_cursor))
-			(when (defq next (find-next-cursor cx cy))
+			(when (defq next (func cx cy))
 				(bind '(cx cy ax ay &ignore) next)
 				(. *edit* :set_cursor cx cy ax ay)
 				(refresh) :t))))
 
+(defun action-find-down (whole_words regexp pattern)
+	;return :nil if nothing found !
+	(find-next (const find-next-cursor) whole_words regexp pattern))
+
 (defun action-find-up (whole_words regexp pattern)
 	;return :nil if nothing found !
-	(when (nql pattern "")
-		(defq buffer (. *edit* :get_buffer))
-		(when (> (length (defq found (. buffer :find pattern whole_words regexp))) 0)
-			(bind '(cx cy &ignore) (. *edit* :get_cursor))
-			(when (defq next (find-prev-cursor cx cy))
-				(bind '(cx cy ax ay &ignore) next)
-				(. *edit* :set_cursor cx cy ax ay)
-				(refresh) :t))))
+	(find-next (const find-prev-cursor) whole_words regexp pattern))
 
 (defun action-add-next ()
 	(bind '(cx cy &ignore) (. *edit* :get_cursor))
