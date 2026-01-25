@@ -1153,7 +1153,7 @@
 			(lower (:last_key key))
 			(each (lambda (__) (elem-set buffer_found (!) :nil)) buffer_found))
 		(unless (eql pattern "")
-			(bind '(engine pattern meta) (query pattern wmode rmode))
+			(bind '(engine meta &ignore) (query pattern wmode rmode))
 			(each (lambda (line index)
 				(if (> (length line) 1)
 					(unless index

@@ -947,7 +947,7 @@ run pipe farm and collect output
 ### query
 
 ```code
-(query pattern whole_words regexp) -> (engine pattern meta)
+(query pattern whole_words regexp) -> (engine meta pattern)
 ```
 
 ### quote?

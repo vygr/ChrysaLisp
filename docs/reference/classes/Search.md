@@ -13,12 +13,12 @@
 ### :match?
 
 ```code
-(. search :match? text pattern [meta]) -> :t | :nil
+(. search :match? text meta) -> :t | :nil
 ```
 
 ### :search
 
 ```code
-(. search :search text pattern [meta]) -> matches
+(. search :search text meta) -> matches
 ```
 

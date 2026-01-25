@@ -72,9 +72,9 @@ Often, you won't know whether the pattern is a regular expression or not. For
 example, in the `Editor`, toggles are provided for search features, whole
 words, regular expression, etc.
 
-You can use the `(query pattern word_flag regexp_flag) -> (search pattern
-meta)` function and let it build you the correct query to use, including the
-correct search instance and meta data.
+You can use the `(query pattern word_flag regexp_flag) -> (search meta pattern)`
+function and let it build you the correct query to use, including the correct
+search instance and meta data.
 
 Here, in the `Docs` app find down action, you can see that it passes the search
 settings into the query function and uses the returned engine and resulting

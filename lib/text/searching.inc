@@ -28,12 +28,12 @@
 	(. +regexp :search _t _p))
 
 (defun query (_p _w _r)
-	; (query pattern whole_words regexp) -> (engine pattern meta)
+	; (query pattern whole_words regexp) -> (engine meta pattern)
 	(if (and (nql _p "") _w (not _r))
 		(setq _p (escape _p)))
 	(defq _e (if (or _w _r) +regexp +substr)
 		_p (if _w (cat "!" _p "!") _p))
-	(list _e _p (. _e :compile _p)))
+	(list _e (. _e :compile _p) _p))
 
 (defun replace-compile (rep_str)
 	; (replace-compile rep_str) -> (p_nums z_nums c_map rep_str)
