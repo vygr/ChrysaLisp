@@ -2,10 +2,6 @@
 ; file actions
 ;;;;;;;;;;;;;;
 
-(defun action-trim ()
-	(. *edit* :trim)
-	(refresh))
-
 (defun save-file (file)
 	(when (and file (defq meta (.-> *meta_map* (:find :files) (:find file))))
 		(bind '(buffer) (gather meta :buffer))

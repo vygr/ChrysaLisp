@@ -41,3 +41,7 @@
 (defun action-comment ()
 	(. *edit* :comment)
 	(refresh))
+
+(defun action-trim ()
+	(. *edit* :trim)
+	(refresh))
