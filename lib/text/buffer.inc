@@ -1157,7 +1157,7 @@
 					(unless index
 						(task-slice)
 						(elem-set buffer_found (!)
-							(. engine :search (slice line 0 -2) pattern meta)))
+							(. engine :search (slice line 0 -2) meta)))
 					(elem-set buffer_found (!) '())))
 				(get :buffer_lines this) buffer_found))
 		buffer_found)
