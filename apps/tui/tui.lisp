@@ -52,15 +52,16 @@
 							(. cmd :write (cat buffer +LF)))
 						(:t ; New command
 							(when (> (length buffer) 0)
-								; Add to history if unique at end
-								(when (or (empty? *history*) (nql (last *history*) buffer))
-									(push *history* buffer))
-								(state-save)
-								(setq *history_idx* (length *history*))
 								; Start pipe
 								(catch (setq cmd (Pipe buffer (list (task-mbox))))
 									(progn (setq cmd :nil) :t))
-								(unless cmd (print "Pipe Error !" +LF)))))
+								(unless cmd (print "Pipe Error !" +LF))
+								(when cmd
+									; Add to history if unique at end
+									(when (or (empty? *history*) (nql (last *history*) buffer))
+										(push *history* buffer))
+									(state-save)
+									(setq *history_idx* (length *history*))))))
 					(if (not cmd) (print (prompt)))
 					(setq buffer "" cursor 0))
 				((= c 127) ; Backspace (often 127 on TUI)
