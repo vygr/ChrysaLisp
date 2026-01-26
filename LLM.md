@@ -134,6 +134,18 @@ Deep dives into specialized areas:
 42. **[Application Acceleration](docs/ai_digest/app_acceleration.md)** - Adding
     native functions to applications..
 
+43. **[The Dual VTable](docs/ai_digest/chrysalisp_classes.md)** - A Study of ChrysaLisp's Static and Dynamic Object Models.
+
+44. **[Network & IPC](docs/ai_digest/messages_and_routing.md)** - ChrysaLisp Network & IPC Architecture.
+
+45. **[Vector Graphics](docs/ai_digest/rasterization.md)** - ChrysaLisp Vector Graphics Architecture.
+
+46. **[Slicing and Dicing](docs/ai_digest/slicing_and_dicing.md)** - Deep Analysis: Vectorized Slicing and Dicing in ChrysaLisp.
+
+47. **[Text Buffers](docs/ai_digest/text_buffers.md)** - The Text Buffer and Edit Architecture.
+
+48. **[The Text Stack](docs/ai_digest/text_stack.md)** - A Comprehensive Analysis.
+
 ---
 
 ## Reading Paths
@@ -142,7 +154,7 @@ Depending on your goals, you might follow different reading paths:
 
 ### For Understanding the System
 
-Follow the order above from 0-41 for a complete understanding.
+Follow the order above from 0-48 for a complete understanding.
 
 ### For Application Development
 
