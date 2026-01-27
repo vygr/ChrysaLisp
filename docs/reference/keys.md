@@ -148,6 +148,7 @@
 ### *key_map_control*
 
 ```code
+(ascii-code "d") action-escape
 (ascii-code "w") action-select-word
 (ascii-code "W") action-copy-word
 (ascii-code "l") action-select-line

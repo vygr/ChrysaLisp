@@ -992,6 +992,20 @@
 ; Utilities
 ;;;;;;;;;;;
 
+(defun reflow (words line_width)
+	; (reflow words line_width) -> lines
+	(defq cnt 0 line (list) lines (list))
+	(each (lambda (word)
+		(cond
+			((> (setq cnt (+ cnt (length word) 1)) line_width)
+				(task-slice)
+				(push lines (join line " "))
+				(push (clear line) word)
+				(setq cnt (+ (length word) 1)))
+			(:t (push line word)))) words)
+	(if (> (length line) 0)
+		(push lines (join line " ")) lines))
+
 (defun usort (_a &optional _f _l _h)
 	; (usort list [fcmp start end]) -> list
 	(unique (sort _a _f _l _h)))

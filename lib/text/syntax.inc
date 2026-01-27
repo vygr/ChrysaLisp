@@ -147,21 +147,6 @@
 					token_list state)
 				(apply (const array) state_list))
 			((array))))
-
-	(defmethod :text_flow (words line_width)
-		; (. syntax :text_flow words line_width) -> lines
-		;word reflow
-		(defq cnt 0 line (clear '()) lines (list))
-		(each (lambda (word)
-			(cond
-				((> (setq cnt (+ cnt (length word) 1)) line_width)
-					(task-slice)
-					(push lines (join line " "))
-					(push (clear line) word)
-					(setq cnt (+ (length word) 1)))
-				(:t (push line word)))) words)
-		(if (> (length line) 0)
-			(push lines (join line " ")) lines))
 	)
 
 ;module

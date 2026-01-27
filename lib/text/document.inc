@@ -157,9 +157,8 @@
 			(. this :select_paragraph)
 			(reach (lambda ((& cy & ay &ignore))
 				(when (/= ay cy)
-					(defq lines (.-> this :get_syntax_engine
-						(:text_flow (split (. this :icopy 0 ay 0 cy) +char_class_white_space)
-							(. this :get_wrap_width))))
+					(defq lines (reflow (split (. this :icopy 0 ay 0 cy) +char_class_white_space)
+						(. this :get_wrap_width)))
 					(.-> this
 						(:idelete 0 ay 0 cy)
 						(:iinsert 0 ay (join lines +char_class_lf 2)))))

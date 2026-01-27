@@ -16,7 +16,7 @@
 (defun paragraph (words)
 	(each (lambda (line)
 			((handler-func :vdu) :vdu page line))
-		(. syntax :text_flow words 80))
+		(reflow words 80))
 	((handler-func :vdu) :vdu page "```"))
 
 (defun handler (state page line)

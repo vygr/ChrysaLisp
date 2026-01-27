@@ -52,6 +52,9 @@ editing.
 New `(compress str tab_width) -> str` function to match `(expand str tab_width)
 -> str`.
 
+Moved `:reflow` method out of Syntax class and into `root.inc` utils. Now
+`(reflow words line_width) -> lines)`.
+
 ------
 
 `lib/asm/scopes.inc` now uses an environment to hold each scopes symbol map.

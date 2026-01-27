@@ -974,6 +974,12 @@ run pipe farm and collect output
 (reals? form) -> :t | :nil
 ```
 
+### reflow
+
+```code
+(reflow words line_width) -> lines
+```
+
 ### replace-compile
 
 ```code

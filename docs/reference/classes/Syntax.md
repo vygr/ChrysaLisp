@@ -22,11 +22,3 @@ default colours and state
 
 ### :set_state
 
-### :text_flow
-
-```code
-(. syntax :text_flow words line_width) -> lines
-
-word reflow
-```
-
