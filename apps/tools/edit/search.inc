@@ -72,9 +72,11 @@
 				(refresh) :t))))
 
 (defun action-find-down (whole_words regexp pattern)
+	(.-> *edit* :get_buffer (:find pattern whole_words regexp))
 	(find-next (const find-next-cursor) whole_words regexp pattern))
 
 (defun action-find-up (whole_words regexp pattern)
+	(.-> *edit* :get_buffer (:find pattern whole_words regexp))
 	(find-next (const find-prev-cursor) whole_words regexp pattern))
 
 (defun action-add-next ()
