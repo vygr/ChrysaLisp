@@ -16,6 +16,8 @@
 
 ### (code str [width idx]) -> num
 
+### (compress str tab_width) -> str
+
 ### (str-alloc size) -> str
 
 ### (hex-decode str) -> str

@@ -232,6 +232,8 @@
 ; (str-to-num str) -> num
 (ffi "class/str/lisp_expand" expand)
 ; (expand str tab_width) -> str
+(ffi "class/str/lisp_compress" compress)
+; (compress str tab_width) -> str
 (ffi "class/str/lisp_char" char)
 ; (char num [width]) -> str
 (ffi "class/str/lisp_code" code)

@@ -148,27 +148,6 @@
 				(apply (const array) state_list))
 			((array))))
 
-	(defmethod :compress_tabs (string tab_width)
-		; (. syntax :compress_tabs string tab_width) -> string
-		;tab compression of string
-		(cond
-			((> (length string) 0)
-				(defq whitespace "")
-				(apply (const cat) (reduce (#
-					(cond
-						((eql whitespace "X")
-							(push %0 %1))
-						((eql %1 " ")
-							(setq whitespace (cat whitespace " "))
-							(when (= (length whitespace) tab_width)
-								(setq whitespace "")
-								(push %0 (ascii-char +char_tab)))
-							%0)
-						(:t (push %0 whitespace %1)
-							(setq whitespace "X")
-							%0))) string (list))))
-			(string)))
-
 	(defmethod :text_flow (words line_width)
 		; (. syntax :text_flow words line_width) -> lines
 		;word reflow

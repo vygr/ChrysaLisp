@@ -12,14 +12,6 @@ default colours and state
 (. syntax :colorise str) -> array
 ```
 
-### :compress_tabs
-
-```code
-(. syntax :compress_tabs string tab_width) -> string
-
-tab compression of string
-```
-
 ### :get_state
 
 ### :set_colors

@@ -49,6 +49,9 @@ editing.
 
 `lisp-elem-index` fubnction renamed to `seq-elem-index`.
 
+New `(compress str tab_width) -> str` function to match `(expand str tab_width)
+-> str`.
+
 ------
 
 `lib/asm/scopes.inc` now uses an environment to hold each scopes symbol map.

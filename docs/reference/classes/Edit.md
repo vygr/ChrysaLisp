@@ -38,6 +38,8 @@
 
 ### :end_select
 
+### :find
+
 ### :floor_selection
 
 ### :get_buffer
