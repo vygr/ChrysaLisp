@@ -57,6 +57,7 @@
 	(defproxymethod :set_cursor (cx cy &optional ax ay) :buffer)
 	(defproxymethod :clip_cursor (cx cy &optional ax ay sx) :buffer :t)
 	(defproxymethod :get_selected_extent () :buffer :t)
+	(defproxymethod :find (pattern wmode rmode) :buffer :t)
 
 	(defproxymethod :select_word () :buffer)
 	(defproxymethod :select_line () :buffer)
