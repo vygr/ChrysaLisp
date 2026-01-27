@@ -81,7 +81,7 @@
 								(print +CR +LF (prompt)))
 							(progn ; Exit shell
 								(print +CR +LF "Exiting..." +CR +LF)
-								(gui-quit-rpc)))
+								((ffi "service/gui/lisp_deinit"))))
 						(progn ; Delete char at cursor
 							(when (< cursor (length buffer))
 								(setq buffer (erase buffer cursor (inc cursor)))
