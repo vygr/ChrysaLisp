@@ -32,7 +32,7 @@
 
 (def-struct seq obj_size)
 
-(defun lisp-elem-index (idx len)
+(defun seq-elem-index (idx len)
 	(vpif `(,idx < 0))
 		(vp-add-rr len idx)
 		(vp-add-cr 1 idx)

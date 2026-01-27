@@ -294,7 +294,7 @@
 	(bind '(a v i) (method-input :array :set_elem))
 	(list-bind-args :r1 `(,a ,i ,v) '(:array :num :obj))
 	(assign `((,a array_length) ,v) '(:r14 (:rsp 0)))
-	(lisp-elem-index i :r14)
+	(seq-elem-index i :r14)
 
 (errorcase
 	(gotoif `(,i < 0) 'error2)

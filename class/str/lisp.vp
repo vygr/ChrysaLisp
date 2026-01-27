@@ -459,7 +459,7 @@
 	(errorif-lisp-args-sig 'error :r1 3)
 	(list-bind-args args `(,cls ,src ,idx) '(:obj :obj :num))
 	(assign `((,src str_length)) `(,len))
-	(lisp-elem-index idx len)
+	(seq-elem-index idx len)
 	(errorcase
 		(gotoif `(,idx < 0) 'error)
 		(gotoif `(,idx > ,len) 'error))
@@ -493,7 +493,7 @@
 	(errorif-lisp-args-sig 'error :r1 3)
 	(list-bind-args args `(,cls ,src ,idx) '(:obj :obj :num))
 	(assign `((,src str_length)) `(,len))
-	(lisp-elem-index idx len)
+	(seq-elem-index idx len)
 	(errorcase
 		(gotoif `(,idx < 0) 'error)
 		(gotoif `(,idx > ,len) 'error))
@@ -528,7 +528,7 @@
 	(errorif-lisp-args-sig 'error :r1 3)
 	(list-bind-args args `(,this ,src ,idx) '(:obj :obj :num))
 	(assign `((,src str_length)) `(,len))
-	(lisp-elem-index idx len)
+	(seq-elem-index idx len)
 	(errorcase
 		(gotoif `(,idx < 0) 'error)
 		(gotoif `(,idx > ,len) 'error))
@@ -572,7 +572,7 @@
 	(errorif-lisp-args-sig 'error :r1 3)
 	(list-bind-args args `(,this ,src ,idx) '(:obj :obj :num))
 	(assign `((,src str_length)) `(,len))
-	(lisp-elem-index idx len)
+	(seq-elem-index idx len)
 	(errorcase
 		(gotoif `(,idx < 0) 'error)
 		(gotoif `(,idx > ,len) 'error))

@@ -966,8 +966,8 @@
 			(vp-simd vp-cpy-ir `(,idx_begin) `(0 ,+long_size) `(,si ,ei))
 			(vp-add-cr (* +long_size 2) idx_begin)
 			;the length this time
-			(lisp-elem-index si len)
-			(lisp-elem-index ei len)
+			(seq-elem-index si len)
+			(seq-elem-index ei len)
 			(vp-xor-rr swp_xor len)
 			;sum the absolute val of index diff
 			(vp-sub-rr si ei)
@@ -985,8 +985,8 @@
 			(vp-add-cr (* +long_size 2) idx_begin)
 			;the source this time
 			(assign `((& ,src1 str_data) (,src1 str_length)) `(,src2 ,len))
-			(lisp-elem-index si len)
-			(lisp-elem-index ei len)
+			(seq-elem-index si len)
+			(seq-elem-index ei len)
 			(vp-xor-rr swp_xor src1)
 			(vpif `(,si /= ,ei))
 				(vp-simd vp-add-rr `(,src2) `(,si ,ei))

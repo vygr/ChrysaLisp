@@ -62,8 +62,8 @@
 
 	(call :list :min_length `(,seqs) '(_ len))
 	(vpif `(,len /= +max_int))
-		(lisp-elem-index idx len)
-		(lisp-elem-index end len)
+		(seq-elem-index idx len)
+		(seq-elem-index end len)
 
 	(errorcase
 		(gotoif `(,idx < 0) 'error2)
@@ -168,8 +168,8 @@
 
 	(call :list :min_length `(,seqs) '(_ len))
 	(vpif `(,len /= +max_int))
-		(lisp-elem-index idx len)
-		(lisp-elem-index end len)
+		(seq-elem-index idx len)
+		(seq-elem-index end len)
 
 	(errorcase
 		(gotoif `(,idx < 0) 'error2)
@@ -284,8 +284,8 @@
 
 	(call :list :min_length `(,seqs) '(_ len))
 	(vpif `(,len /= +max_int))
-		(lisp-elem-index idx len)
-		(lisp-elem-index end len)
+		(seq-elem-index idx len)
+		(seq-elem-index end len)
 
 	(errorcase
 		(gotoif `(,idx < 0) 'error2)
@@ -401,8 +401,8 @@
 
 	(call :list :min_length `(,seqs) `(,seqs len))
 	(vpif `(,len /= +max_int))
-		(lisp-elem-index idx len)
-		(lisp-elem-index end len)
+		(seq-elem-index idx len)
+		(seq-elem-index end len)
 
 	(errorcase
 		(gotoif `(,idx < 0) 'error2)
@@ -508,8 +508,8 @@
 
 	(call :seq :get_length `(,seq) '(_ len))
 	(vpif `(,len /= +max_int))
-		(lisp-elem-index idx len)
-		(lisp-elem-index end len)
+		(seq-elem-index idx len)
+		(seq-elem-index end len)
 
 	(errorcase
 		(gotoif `(,idx < 0) 'error2)

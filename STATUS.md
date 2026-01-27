@@ -6,7 +6,7 @@
 
 Tidy up to Document class, ensuring multi cursor merging on floored operations.
 
-`:select_form` method added to Document class. `(action-select-form)`,
+`:select_form` method added to Document class. `action-select-form`,
 `action-copy-form` and `action-cut-form` added to Editor and Viewer apps.
 
 `:left_white_space` and `:right_white_space` methods added to Buffer class.
@@ -46,6 +46,8 @@ Editor app, `sed` and `grep` commands now uses the new `replace` compiler.
 
 TUI updated to share command history with the GUI Terminal app, and handle line
 editing.
+
+`lisp-elem-index` fubnction renamed to `seq-elem-index`.
 
 ------
 

@@ -53,7 +53,7 @@
 	(assign '(:r0) '(:r12))
 	(list-bind-args :r1 '(:r0 :r11) '(:seq :num))
 	(call :seq :get_length '(:r0) '(:r0 :r1))
-	(lisp-elem-index :r11 :r1)
+	(seq-elem-index :r11 :r1)
 (errorcase
 	(gotoif '(:r11 < 0) 'error2)
 	(gotoif '(:r11 >= :r1) 'error2))
@@ -89,8 +89,8 @@
 
 	(list-bind-args args `(,slc ,si ,ei) '(:seq :num :num))
 	(call :seq :get_length `(,slc) `(,slc ,len))
-	(lisp-elem-index si len)
-	(lisp-elem-index ei len)
+	(seq-elem-index si len)
+	(seq-elem-index ei len)
 (errorcase
 	(gotoif `(,si < 0) 'error2)
 	(gotoif `(,ei < 0) 'error2)
@@ -149,8 +149,8 @@
 			(vp-simd vp-cpy-ir `(,idx_begin) `(0 ,+long_size) `(,si ,ei))
 			(vp-add-cr (* +long_size 2) idx_begin)
 			;the length this time
-			(lisp-elem-index si len)
-			(lisp-elem-index ei len)
+			(seq-elem-index si len)
+			(seq-elem-index ei len)
 			;validate
 			(gotoif `(,si < 0) 'error2)
 			(gotoif `(,ei < 0) 'error2)
@@ -250,7 +250,7 @@
 	(vp-label 'dofind)
 		(call :seq :get_length `(,sequence) '(:r0 :r1))
 		(gotoif '(:r1 = 0) 'empty)
-		(lisp-elem-index idx :r1)
+		(seq-elem-index idx :r1)
 	(errorcase
 		(gotoif `(,idx < 0) 'error2)
 		(gotoif `(,idx > :r1) 'error2))
@@ -327,7 +327,7 @@
 	(vp-label 'dofind)
 		(call :seq :get_length `(,sequence) '(:r0 :r1))
 		(gotoif '(:r1 = 0) 'empty)
-		(lisp-elem-index idx :r1)
+		(seq-elem-index idx :r1)
 	(errorcase
 		(gotoif `(,idx < 0) 'error2)
 		(gotoif `(,idx > :r1) 'error2))
