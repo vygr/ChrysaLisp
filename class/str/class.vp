@@ -388,7 +388,7 @@
 
 	(entry :str :get_length '(:r0))
 
-	(assign '((:r0 str_length)) '(:r1))
+	(class/str/get_length)
 
 	(exit :str :get_length '(:r0 :r1))
 	(vp-ret)
@@ -453,21 +453,22 @@
 	;trashes
 	;:r2-:r5
 
-	(entry :str :find '(:r0 :r1 :r2))
+	(vp-rdef (this elm idx begin tmp end))
 
-	(assign '((:r0 str_length)) '(:r5))
-	(vpif '(:r2 /= :r5))
-		(assign '((& :r0 str_data)) '(:r3))
+	(switch 'exit)
+	(assign `((,this str_length)) `(,end))
+	(vpcase `(,idx /= ,end))
+		(assign `((& ,this str_data)) `(,begin))
 		(loop-start)
-			(vp-cpy-dr-ub :r3 :r2 :r4)
-			(gotoif '(:r1 = :r4) 'found)
-			(vp-add-cr +byte_size :r2)
-		(loop-until '(:r2 = :r5))
-	(endif)
-	(vp-cpy-cr -1 :r2)
+			(vp-cpy-dr-ub begin idx tmp)
+			(breakif `(,elm = ,tmp) 'exit)
+			(vp-add-cr +byte_size idx)
+		(loop-until `(,idx = ,end))
+	(default)
+		(vp-cpy-cr -1 idx)
+	(endswitch)
 
-(vp-label 'found)
-	(exit :str :find '(:r0 :r1 :r2))
+	(exit :str :find `(,this ,elm ,idx))
 	(vp-ret)
 
 (def-func-end)
@@ -484,19 +485,18 @@
 	;trashes
 	;:r2-:r4
 
-	(entry :str :rfind '(:r0 :r1 :r2))
+	(vp-rdef (this elm idx begin tmp))
 
-	(vpif '(:r2 /= 0))
-		(assign `((& :r0 ,(dec str_data))) '(:r3))
+	(vpif `(,idx /= 0) 'exit)
+		(assign `((& ,this ,(dec str_data))) `(,begin))
 		(loop-start)
-			(vp-cpy-dr-ub :r3 :r2 :r4)
-			(gotoif '(:r1 = :r4) 'found)
-			(vp-sub-cr +byte_size :r2)
-		(loop-until '(:r2 = 0))
+			(vp-cpy-dr-ub begin idx tmp)
+			(breakif `(,elm = ,tmp) 'exit)
+			(vp-sub-cr +byte_size idx)
+		(loop-until `(,idx = 0))
 	(endif)
 
-(vp-label 'found)
-	(exit :str :rfind '(:r0 :r1 :r2))
+	(exit :str :find `(,this ,elm ,idx))
 	(vp-ret)
 
 (def-func-end)
