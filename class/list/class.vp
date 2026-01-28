@@ -31,7 +31,7 @@
 	;trashes
 	;:r1-:r14
 
-	(def-struct local 0
+	(def-vars
 		(ptr this)
 		(pptr iter_begin iter_end))
 
@@ -42,17 +42,17 @@
 	;deref all elements
 	(class/array/get_both this iter_begin iter_end)
 	(vpif `(,iter_begin /= ,iter_end))
-		(vp-alloc local_size)
-		(assign `(,this ,iter_end) '((:rsp local_this) (:rsp local_iter_end)))
+		(push-scope)
+		(assign `(,this ,iter_end) {this, iter_end})
 		(loop-start)
 			;must preserve what we care about as :deref can trash all !
-			(assign `(,iter_begin) '((:rsp local_iter_begin)))
+			(assign `(,iter_begin) {iter_begin})
 			(call :obj :deref `((,iter_begin 0)))
-			(assign '((:rsp local_iter_begin) (:rsp local_iter_end)) `(,iter_begin ,iter_end))
+			(assign {iter_begin, iter_end} `(,iter_begin ,iter_end))
 			(vp-add-cr +ptr_size iter_begin)
 		(loop-until `(,iter_begin = ,iter_end))
-		(assign '((:rsp local_this)) `(,this))
-		(vp-free local_size)
+		(assign {this} `(,this))
+		(pop-scope)
 		;only need to do this is we actually had a none empty list !
 		(s-call :list :clear `(,this) `(,this))
 	(endif)
