@@ -124,7 +124,7 @@
 				(:static
 					(def vtable mname (list mfunc mtype regs_in regs_out)))
 				((:virtual :final)
-					(def vtable :vslot (defq _ (+ (get :vslot vtable) +ptr_size))
+					(def vtable :vslot (defq _ (num-intern (+ (get :vslot vtable) +ptr_size)))
 						mname (list mfunc mtype regs_in regs_out _)))
 				(:override
 					(throw "Method does not exist !" mname))
