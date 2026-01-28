@@ -10,7 +10,10 @@
 	Some simple object statistics.")
 ))
 
-(defun count-up (%0) (if %0 (inc %0) 1))
+(defun count-up (%0)
+	(ifn %0
+		(nums 1 (getf obj +obj_count 0))
+		(nums (inc (first %0)) (+ (second %0) (getf obj +obj_count 0)))))
 
 (defun main ()
 	;initialize pipe details and command args, abort on error
@@ -29,39 +32,41 @@
 					(each (# (if %0 (push stack %0))) node))))
 		(setq node_set :nil)
 		;gather stats
-		(each (# (cond
-				((list? %0) (. list_map :update (length %0) (const count-up)))
-				((str? %0) (. str_map :update (length %0) (const count-up)))
-				((num? %0) (. num_map :update %0 (const count-up)))))
+		(each (lambda (obj) (cond
+				((list? obj) (. list_map :update (length obj) (const count-up)))
+				((str? obj) (. str_map :update (length obj) (const count-up)))
+				((num? obj) (. num_map :update obj (const count-up)))))
 			node_ref)
 		(setq node_ref :nil)
 		;display :list results
-		(. list_map :each (# (push stack (list %0 %1))))
+		(. list_map :each (# (push stack (list %0 (first %1) (second %1)))))
 		(print "Root environment :list stats")
 		(print)
-		(each (# (print
-				"len: " (pad (first %0) 4)
-				" cnt: " (pad (second %0) 5)))
+		(each (lambda ((%0 %1 %2)) (print
+				"len: " (pad %0 4)
+				" cnt: " (pad %1 5)
+				" ref: " (pad %2 5)))
 			(sort stack (# (- (first %0) (first %1)))))
 		(print)
 		;display :str results
 		(clear stack)
-		(. str_map :each (# (push stack (list %0 %1))))
+		(. str_map :each (# (push stack (list %0 (first %1) (second %1)))))
 		(print "Root environment :str stats")
 		(print)
-		(each (# (print
-				"len: " (pad (first %0) 4)
-				" cnt: " (pad (second %0) 5)))
+		(each (lambda ((%0 %1 %2)) (print
+				"len: " (pad %0 4)
+				" cnt: " (pad %1 5)
+				" ref: " (pad %2 5)))
 			(sort stack (# (- (first %0) (first %1)))))
 		(print)
 		;display :num results
 		(clear stack)
-		(. num_map :each (# (push stack (list %0 %1))))
+		(. num_map :each (# (push stack (list %0 (first %1) (second %1)))))
 		(print "Root environment :num stats")
 		(print)
-		(each (# (print
-				"val: " (pad (first %0) 20)
-				" cnt: " (pad (second %0) 5)
-				" ref: " (pad (getf (first %0) +obj_count 0) 5)))
+		(each (lambda ((%0 %1 %2)) (print
+				"val: " (pad %0 20)
+				" cnt: " (pad %1 5)
+				" ref: " (pad %2 5)))
 			(sort stack (# (- (first %0) (first %1)))))
 		))
