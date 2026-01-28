@@ -32,11 +32,11 @@
 
 (defun canvas-darker (col)
 	; (canvas-darker col) -> col
-	(+ (logand col 0xff000000) (>> (logand col 0xfefefe) 1)))
+	(num-intern (+ (logand col 0xff000000) (>> (logand col 0xfefefe) 1))))
 
 (defun canvas-brighter (col)
 	; (canvas-brighter col) -> col
-	(+ (logand col 0xff000000) (>> (logand col 0xfefefe) 1) 0x808080))
+	(num-intern (+ (logand col 0xff000000) (>> (logand col 0xfefefe) 1) 0x808080)))
 
 (defclass Canvas-base () (View)
 	(def this :color 0)

@@ -39,7 +39,9 @@
 		(. list_map :each (# (push stack (list %0 %1))))
 		(print "Root environment :list stats")
 		(print)
-		(each (# (print "len: " (pad (first %0) 4) " cnt: " (pad (second %0) 5)))
+		(each (# (print
+				"len: " (pad (first %0) 4)
+				" cnt: " (pad (second %0) 5)))
 			(sort stack (# (- (first %0) (first %1)))))
 		(print)
 		;display :str results
@@ -47,7 +49,9 @@
 		(. str_map :each (# (push stack (list %0 %1))))
 		(print "Root environment :str stats")
 		(print)
-		(each (# (print "len: " (pad (first %0) 4) " cnt: " (pad (second %0) 5)))
+		(each (# (print
+				"len: " (pad (first %0) 4)
+				" cnt: " (pad (second %0) 5)))
 			(sort stack (# (- (first %0) (first %1)))))
 		(print)
 		;display :num results
@@ -55,6 +59,9 @@
 		(. num_map :each (# (push stack (list %0 %1))))
 		(print "Root environment :num stats")
 		(print)
-		(each (# (print "val: " (pad (first %0) 20) " cnt: " (pad (second %0) 5)))
+		(each (# (print
+				"val: " (pad (first %0) 20)
+				" cnt: " (pad (second %0) 5)
+				" ref: " (pad (getf (first %0) +obj_count 0) 5)))
 			(sort stack (# (- (first %0) (first %1)))))
 		))
