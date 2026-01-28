@@ -76,7 +76,7 @@
 		("F" +type_fixed) ("R" +type_real)
 		(("pb" "ps" "pi" "pl" "pB" "pS" "pI" "pF" "pR" "pp") +type_pptr)
 		("no" +node_id_size) ("ne" +net_id_size)
-		((str-to-num type))))
+		((num-intern (str-to-num type)))))
 	(list (num-intern (+ (eval field) (ifn offset +str_data))) type))
 
 (defmacro getf (obj field &optional offset)
