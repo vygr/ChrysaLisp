@@ -1025,7 +1025,7 @@
 
 (defmacro ascii-code (%0)
 	; (ascii-code char) -> num
-	(code %0))
+	(num-intern (code %0)))
 
 (defmacro ascii-char (%0)
 	; (ascii-char num) -> char
@@ -1034,12 +1034,12 @@
 (defun ascii-upper (%0)
 	; (ascii-upper num) -> num
 	(if (<= (ascii-code "a") %0 (ascii-code "z"))
-		(- %0 (const (- (ascii-code "a") (ascii-code "A")))) %0))
+		(- %0 (const (num-intern (- (ascii-code "a") (ascii-code "A"))))) %0))
 
 (defun ascii-lower (%0)
 	; (ascii-lower num) -> num
 	(if (<= (ascii-code "A") %0 (ascii-code "Z"))
-		(+ %0 (const (- (ascii-code "a") (ascii-code "A")))) %0))
+		(+ %0 (const (num-intern (- (ascii-code "a") (ascii-code "A"))))) %0))
 
 (defun to-upper (%0)
 	; (to-upper str) -> str
@@ -1280,11 +1280,11 @@
 
 (defmacro read-ushort (s)
 	; (read-ushort stream) -> num
-	(static-qq (read-char ,s ,(neg +short_size))))
+	(static-qq (read-char ,s ,(num-intern (neg +short_size)))))
 
 (defmacro read-uint (s)
 	; (read-uint stream) -> num
-	(static-qq (read-char ,s (neg +int_size))))
+	(static-qq (read-char ,s ,(num-intern (neg +int_size)))))
 
 (defmacro read-byte (s)
 	; (read-byte stream) -> num
