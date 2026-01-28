@@ -28,17 +28,17 @@
 	; (Syntax) -> syntax
 	;default colours and state
 	(def this :keywords (defq keywords (env 101)) :state :text
-		:ink_keyword1 (<< (canvas-from-argb32 +argb_magenta 15) 32)
-		:ink_keyword2 (<< (canvas-from-argb32 +argb_red 15) 32)
-		:ink_keyword3 (<< (canvas-from-argb32 +argb_green 15) 32)
-		:ink_keyword4 (<< (canvas-from-argb32 +argb_cyan 15) 32)
-		:ink_strings (<< (canvas-from-argb32 +argb_orange 15) 32)
-		:ink_numbers (<< (canvas-from-argb32 +argb_yellow 15) 32)
-		:ink_keysyms (<< (canvas-from-argb32 +argb_cyan 15) 32)
-		:ink_constants (<< (canvas-from-argb32 +argb_yellow 15) 32)
-		:ink_globals (<< (canvas-from-argb32 +argb_steel 15) 32)
-		:ink_comments (<< (canvas-from-argb32 +argb_grey12 15) 32)
-		:ink_text (<< (canvas-from-argb32 +argb_white 15) 32))
+		:ink_keyword1 (num-intern (<< (canvas-from-argb32 +argb_magenta 15) 32))
+		:ink_keyword2 (num-intern (<< (canvas-from-argb32 +argb_red 15) 32))
+		:ink_keyword3 (num-intern (<< (canvas-from-argb32 +argb_green 15) 32))
+		:ink_keyword4 (num-intern (<< (canvas-from-argb32 +argb_cyan 15) 32))
+		:ink_strings (num-intern (<< (canvas-from-argb32 +argb_orange 15) 32))
+		:ink_numbers (num-intern (<< (canvas-from-argb32 +argb_yellow 15) 32))
+		:ink_keysyms (num-intern (<< (canvas-from-argb32 +argb_cyan 15) 32))
+		:ink_constants (num-intern (<< (canvas-from-argb32 +argb_yellow 15) 32))
+		:ink_globals (num-intern (<< (canvas-from-argb32 +argb_steel 15) 32))
+		:ink_comments (num-intern (<< (canvas-from-argb32 +argb_grey12 15) 32))
+		:ink_text (num-intern (<< (canvas-from-argb32 +argb_white 15) 32)))
 	;defaults from boot environment
 	(each (lambda ((k v))
 		(cond
@@ -57,7 +57,7 @@
 
 	(defmethod :set_colors (colors)
 		; (. syntax :set_colors fmap) -> syntax
-		(. colors :each (# (set this %0 (<< (canvas-from-argb32 %1 15) 32))))
+		(. colors :each (# (set this %0 (num-intern (<< (canvas-from-argb32 %1 15) 32)))))
 		this)
 
 	(defmethod :colorise (line)
