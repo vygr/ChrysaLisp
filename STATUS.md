@@ -4,6 +4,13 @@
 
 ------
 
+Extra information provided by `stats` command. `:list`, `:str` and `:nums`
+objects traced. This is used by the author to run single node TUI and GUI in
+order to see what objects get allocated statically into the root environment,
+and what calls to `num-intern` could be added etc.
+
+------
+
 Tidy up to Document class, ensuring multi cursor merging on floored operations.
 
 `:select_form` method added to Document class. `action-select-form`,
