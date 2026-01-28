@@ -134,10 +134,10 @@
 					(defq line (elem-get lines y)
 						edits (replace-edits line match rep_meta))
 					; apply edits in reverse order to preserve indices
-					(each (lambda ((x x1 s))
+					(reach (lambda ((x x1 s))
 						(.-> buffer
 							(:set_cursor x y x1)
-							(:insert s))) (reverse edits))))
+							(:insert s))) edits)))
 				(list found) sy sy1))
 		(refresh)))
 
